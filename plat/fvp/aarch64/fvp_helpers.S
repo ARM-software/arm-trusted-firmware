@@ -53,5 +53,5 @@ plat_report_exception:
 	orr	x0, x0, x1
 	mov	x1, #VE_SYSREGS_BASE
 	add	x1, x1, #V2M_SYS_LED
-	str	x0, [x1]
+	str	w0, [x1]
 	ret
