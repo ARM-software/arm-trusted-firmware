@@ -141,11 +141,13 @@
 
 #ifndef __ASSEMBLY__
 
+#include <gic_v2.h>
+#include <gic_v3.h>
+
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-extern inline unsigned int gicd_read_typer(unsigned int);
-extern inline unsigned int gicd_read_ctlr(unsigned int);
+
 extern unsigned int gicd_read_igroupr(unsigned int, unsigned int);
 extern unsigned int gicd_read_isenabler(unsigned int, unsigned int);
 extern unsigned int gicd_read_icenabler(unsigned int, unsigned int);
@@ -156,10 +158,8 @@ extern unsigned int gicd_read_icactiver(unsigned int, unsigned int);
 extern unsigned int gicd_read_ipriorityr(unsigned int, unsigned int);
 extern unsigned int gicd_read_itargetsr(unsigned int, unsigned int);
 extern unsigned int gicd_read_icfgr(unsigned int, unsigned int);
-extern unsigned int gicd_read_sgir(unsigned int);
 extern unsigned int gicd_read_cpendsgir(unsigned int, unsigned int);
 extern unsigned int gicd_read_spendsgir(unsigned int, unsigned int);
-extern inline void gicd_write_ctlr(unsigned int, unsigned int);
 extern void gicd_write_igroupr(unsigned int, unsigned int, unsigned int);
 extern void gicd_write_isenabler(unsigned int, unsigned int, unsigned int);
 extern void gicd_write_icenabler(unsigned int, unsigned int, unsigned int);
@@ -170,7 +170,6 @@ extern void gicd_write_icactiver(unsigned int, unsigned int, unsigned int);
 extern void gicd_write_ipriorityr(unsigned int, unsigned int, unsigned int);
 extern void gicd_write_itargetsr(unsigned int, unsigned int, unsigned int);
 extern void gicd_write_icfgr(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_sgir(unsigned int, unsigned int);
 extern void gicd_write_cpendsgir(unsigned int, unsigned int, unsigned int);
 extern void gicd_write_spendsgir(unsigned int, unsigned int, unsigned int);
 extern unsigned int gicd_get_igroupr(unsigned int, unsigned int);
@@ -184,25 +183,9 @@ extern void gicd_set_isactiver(unsigned int, unsigned int);
 extern void gicd_set_icactiver(unsigned int, unsigned int);
 extern void gicd_set_ipriorityr(unsigned int, unsigned int, unsigned int);
 extern void gicd_set_itargetsr(unsigned int, unsigned int, unsigned int);
-extern inline unsigned int gicc_read_ctlr(unsigned int);
-extern inline unsigned int gicc_read_pmr(unsigned int);
-extern inline unsigned int gicc_read_BPR(unsigned int);
-extern inline unsigned int gicc_read_IAR(unsigned int);
-extern inline unsigned int gicc_read_EOIR(unsigned int);
-extern inline unsigned int gicc_read_hppir(unsigned int);
-extern inline unsigned int gicc_read_iidr(unsigned int);
-extern inline unsigned int gicc_read_dir(unsigned int);
-extern inline void gicc_write_ctlr(unsigned int, unsigned int);
-extern inline void gicc_write_pmr(unsigned int, unsigned int);
-extern inline void gicc_write_BPR(unsigned int, unsigned int);
-extern inline void gicc_write_IAR(unsigned int, unsigned int);
-extern inline void gicc_write_EOIR(unsigned int, unsigned int);
-extern inline void gicc_write_hppir(unsigned int, unsigned int);
-extern inline void gicc_write_dir(unsigned int, unsigned int);
 
 /* GICv3 functions */
-extern inline unsigned int gicr_read_waker(unsigned int);
-extern inline void gicr_write_waker(unsigned int, unsigned int);
+
 extern unsigned int read_icc_sre_el1(void);
 extern unsigned int read_icc_sre_el2(void);
 extern unsigned int read_icc_sre_el3(void);

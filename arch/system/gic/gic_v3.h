@@ -28,19 +28,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gic.h>
+#ifndef __GIC_V3_H__
+#define __GIC_V3_H__
+
 #include <mmio.h>
 
 /*******************************************************************************
- * GIC Redistributor interface accessesors
+ * GIC Redistributor interface accessors
  ******************************************************************************/
-inline unsigned int gicr_read_waker(unsigned int base)
+static inline unsigned int gicr_read_waker(unsigned int base)
 {
 	return mmio_read_32(base + GICR_WAKER);
 }
 
-inline void gicr_write_waker(unsigned int base, unsigned int val)
+static inline void gicr_write_waker(unsigned int base, unsigned int val)
 {
 	mmio_write_32(base + GICR_WAKER, val);
-	return;
 }
+
+#endif /* __GIC_V3_H__ */
