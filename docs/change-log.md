@@ -49,6 +49,9 @@ Detailed changes since last release
     physically powered up to prevent a spurious wake up from a subsequent cpu
     off state.
 
+*   Definitions of some constants related to the PSCI api calls AFFINITY_INFO
+    and CPU_SUSPEND have been corrected.
+
 ARM Trusted Firmware - version 0.2
 ==================================
 

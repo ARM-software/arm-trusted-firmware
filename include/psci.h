@@ -60,9 +60,9 @@
 /*******************************************************************************
  * PSCI CPU_SUSPEND 'power_state' parameter specific defines
  ******************************************************************************/
-#define PSTATE_ID_SHIFT		15
+#define PSTATE_ID_SHIFT		0
 #define PSTATE_TYPE_SHIFT	16
-#define PSTATE_AFF_LVL_SHIFT	25
+#define PSTATE_AFF_LVL_SHIFT	24
 
 #define PSTATE_ID_MASK		0xffff
 #define PSTATE_TYPE_MASK	0x1
@@ -107,10 +107,10 @@
 
 #define PSCI_AFF_ABSENT		0x0
 #define PSCI_AFF_PRESENT	0x1
-#define PSCI_STATE_OFF		0x0
-#define PSCI_STATE_ON_PENDING	0x1
-#define PSCI_STATE_SUSPEND	0x2
-#define PSCI_STATE_ON		0x3
+#define PSCI_STATE_ON		0x0
+#define PSCI_STATE_OFF		0x1
+#define PSCI_STATE_ON_PENDING	0x2
+#define PSCI_STATE_SUSPEND	0x3
 
 /* Number of affinity instances whose state this psci imp. can track */
 #define PSCI_NUM_AFFS		32ull
