@@ -68,12 +68,12 @@ extern unsigned long __BL31_RW_BASE__;
  ******************************************************************************/
 el_change_info ns_entry_info[PLATFORM_CORE_COUNT]
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem"))) = {0};
+		section("tzfw_coherent_mem")));
 
 /* Data structure which holds the extents of the trusted SRAM for BL31 */
 static meminfo bl31_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem"))) = {0};
+		section("tzfw_coherent_mem")));
 
 meminfo bl31_get_sec_mem_layout(void)
 {

@@ -60,10 +60,10 @@ extern unsigned char **bl2_el_change_mem_ptr;
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem"))) = {0};
+		section("tzfw_coherent_mem")));
 
 /* Data structure which holds the extents of the non-trusted DRAM for BL2*/
-static meminfo dram_layout = {0};
+static meminfo dram_layout;
 
 meminfo bl2_get_sec_mem_layout(void)
 {

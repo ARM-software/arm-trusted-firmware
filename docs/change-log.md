@@ -15,6 +15,8 @@ Detailed changes since last release
 *   The supplied FDTs expose the Interrupt Translation Service (ITS) available
     in GICv3.
 
+*   Fixed various GCC compiler warnings.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================

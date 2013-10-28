@@ -83,7 +83,7 @@ extern unsigned long __FIRMWARE_RAM_COHERENT_SIZE__;
 
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
-static meminfo bl1_tzram_layout = {0};
+static meminfo bl1_tzram_layout;
 
 meminfo bl1_get_sec_mem_layout(void)
 {
