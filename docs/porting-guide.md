@@ -81,68 +81,68 @@ Each platform must export a header file of this name with the following
 constants defined. In the ARM FVP port, this file is found in
 [../plat/fvp/platform.h].
 
-*   ** #define : PLATFORM_LINKER_FORMAT **
+*   **#define : PLATFORM_LINKER_FORMAT**
 
     Defines the linker format used by the platform, for example
     `elf64-littleaarch64` used by the FVP.
 
-*   ** #define : PLATFORM_LINKER_ARCH **
+*   **#define : PLATFORM_LINKER_ARCH**
 
     Defines the processor architecture for the linker by the platform, for
     example `aarch64` used by the FVP.
 
-*   ** #define : PLATFORM_STACK_SIZE **
+*   **#define : PLATFORM_STACK_SIZE**
 
     Defines the normal stack memory available to each CPU. This constant is used
     by `platform_set_stack()`.
 
-*   ** #define : FIRMWARE_WELCOME_STR **
+*   **#define : FIRMWARE_WELCOME_STR**
 
     Defines the character string printed by BL1 upon entry into the `bl1_main()`
     function.
 
-*   ** #define : BL2_IMAGE_NAME **
+*   **#define : BL2_IMAGE_NAME**
 
     Name of the BL2 binary image on the host file-system. This name is used by
     BL1 to load BL2 into secure memory using semi-hosting.
 
-*   ** #define : PLATFORM_CACHE_LINE_SIZE **
+*   **#define : PLATFORM_CACHE_LINE_SIZE**
 
     Defines the size (in bytes) of the largest cache line across all the cache
     levels in the platform.
 
-*   ** #define : PLATFORM_CLUSTER_COUNT **
+*   **#define : PLATFORM_CLUSTER_COUNT**
 
     Defines the total number of clusters implemented by the platform in the
     system.
 
-*   ** #define : PLATFORM_CORE_COUNT **
+*   **#define : PLATFORM_CORE_COUNT**
 
     Defines the total number of CPUs implemented by the platform across all
     clusters in the system.
 
-*   ** #define : PLATFORM_MAX_CPUS_PER_CLUSTER **
+*   **#define : PLATFORM_MAX_CPUS_PER_CLUSTER**
 
     Defines the maximum number of CPUs that can be implemented within a cluster
     on the platform.
 
-*   ** #define : PRIMARY_CPU **
+*   **#define : PRIMARY_CPU**
 
     Defines the `MPIDR` of the primary CPU on the platform. This value is used
     after a cold boot to distinguish between primary and secondary CPUs.
 
-*   ** #define : TZROM_BASE **
+*   **#define : TZROM_BASE**
 
     Defines the base address of secure ROM on the platform, where the BL1 binary
     is loaded. This constant is used by the linker scripts to ensure that the
     BL1 image fits into the available memory.
 
-*   ** #define : TZROM_SIZE **
+*   **#define : TZROM_SIZE**
 
     Defines the size of secure ROM on the platform. This constant is used by the
     linker scripts to ensure that the BL1 image fits into the available memory.
 
-*   ** #define : TZRAM_BASE **
+*   **#define : TZRAM_BASE**
 
     Defines the base address of the secure RAM on platform, where the data
     section of the BL1 binary is loaded. The BL2 and BL3-1 images are also
@@ -150,22 +150,22 @@ constants defined. In the ARM FVP port, this file is found in
     scripts to ensure that the BL1 data section and BL2/BL3-1 binary images fit
     into the available memory.
 
-*   ** #define : TZRAM_SIZE **
+*   **#define : TZRAM_SIZE**
 
     Defines the size of the secure RAM on the platform. This constant is used by
     the linker scripts to ensure that the BL1 data section and BL2/BL3-1 binary
     images fit into the available memory.
 
-*   ** #define : SYS_CNTCTL_BASE **
+*   **#define : SYS_CNTCTL_BASE**
 
     Defines the base address of the `CNTCTLBase` frame of the memory mapped
     counter and timer in the system level implementation of the generic timer.
 
-*   ** #define : BL2_BASE **
+*   **#define : BL2_BASE**
 
     Defines the base address in secure RAM where BL1 loads the BL2 binary image.
 
-*   ** #define : BL31_BASE **
+*   **#define : BL31_BASE**
 
     Defines the base address in secure RAM where BL2 loads the BL3-1 binary
     image.
@@ -173,11 +173,11 @@ constants defined. In the ARM FVP port, this file is found in
 
 ### Other mandatory modifications
 
-The following following mandatory modifications may be implemented in any file
+The following mandatory modifications may be implemented in any file
 the implementer chooses. In the ARM FVP port, they are implemented in
 [../plat/fvp/aarch64/fvp_common.c].
 
-*   ** Variable : unsigned char platform_normal_stacks[X][Y] **
+*   **Variable : unsigned char platform_normal_stacks[X][Y]**
 
         where  X = PLATFORM_STACK_SIZE
           and  Y = PLATFORM_CORE_COUNT
@@ -795,7 +795,7 @@ called by the primary CPU.
 
 This function is called by the PSCI implementation both during cold and warm
 boot, to determine the maximum affinity level that the power management
-operations should apply to. ARMv8 has support for 4 affinity levels. It is
+operations should apply to. ARMv8-A has support for 4 affinity levels. It is
 likely that hardware will implement fewer affinity levels. This function allows
 the PSCI implementation to consider only those affinity levels in the system
 that the platform implements. For example, the Base AEM FVP implements two
@@ -855,8 +855,8 @@ affinity level 0 (CPU), the platform port should power down affinity level 1
 
 This function is called with coherent stacks. This allows the PSCI
 implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8 cache hits do not occur
-after the cache has been turned off.
+stale stack state after turning off the caches. On ARMv8-A cache hits do not
+occur after the cache has been turned off.
 
 #### plat_pm_ops.affinst_suspend()
 
@@ -882,8 +882,8 @@ resume execution by restoring this state when its powered on (see
 
 This function is called with coherent stacks. This allows the PSCI
 implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8 cache hits do not occur
-after the cache has been turned off.
+stale stack state after turning off the caches. On ARMv8-A cache hits do not
+occur after the cache has been turned off.
 
 #### plat_pm_ops.affinst_on_finish()
 
@@ -898,8 +898,8 @@ The `MPIDR` (first argument), `affinity level` (second argument) and `state`
 
 This function is called with coherent stacks. This allows the PSCI
 implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8 cache hits do not occur
-after the cache has been turned off.
+stale stack state after turning off the caches. On ARMv8-A cache hits do not
+occur after the cache has been turned off.
 
 #### plat_pm_ops.affinst_on_suspend()
 
@@ -915,8 +915,8 @@ The `MPIDR` (first argument), `affinity level` (second argument) and `state`
 
 This function is called with coherent stacks. This allows the PSCI
 implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8 cache hits do not occur
-after the cache has been turned off.
+stale stack state after turning off the caches. On ARMv8-A cache hits do not
+occur after the cache has been turned off.
 
 BL3-1 platform initialization code must also detect the system topology and
 the state of each affinity instance in the topology. This information is

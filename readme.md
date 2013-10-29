@@ -2,13 +2,13 @@ ARM Trusted Firmware - version 0.2
 ==================================
 
 ARM Trusted Firmware provides a reference implementation of secure world
-software for [ARMv8], including Exception Level 3 (EL3) software. This first
+software for [ARMv8-A], including Exception Level 3 (EL3) software. This first
 release focuses on support for ARM's [Fixed Virtual Platforms (FVPs)] [FVP].
 
 The intent is to provide a reference implementation of various ARM interface
 standards, such as the Power State Coordination Interface ([PSCI]), Trusted
 Board Boot Requirements (TBBR) and [Secure Monitor] [TEE-SMC] code. As far as
-possible the code is designed for reuse or porting to other ARMv8 model and
+possible the code is designed for reuse or porting to other ARMv8-A model and
 hardware platforms.
 
 This release is the first one as source code: an initial prototype
@@ -18,7 +18,7 @@ models from ARM.
 
 ARM will continue development in collaboration with interested parties to
 provide a full reference implementation of PSCI, TBBR and Secure Monitor code
-to the benefit of all developers working with ARMv8 TrustZone software.
+to the benefit of all developers working with ARMv8-A TrustZone software.
 
 
 License
@@ -66,11 +66,13 @@ since the last release.
 This release of the Trusted Firmware has been tested on the following ARM
 [FVP]s (64-bit versions only):
 
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.1 build 8).
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.1 build 8).
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.1 build 8).
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.1, Build 0.8.5108).
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.1, Build 0.8.5108).
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.1, Build 0.8.5108).
 
-These models can be licensed from ARM: see [www.arm.com/fvp] [FVP]
+These models can be licensed from ARM: see [www.arm.com/fvp] [FVP].
+
+For an updated list of supported platforms, please see the [Change Log].
 
 ### Still to Come
 
@@ -96,7 +98,7 @@ See the [User Guide] for instructions on how to install, build and use
 the Trusted Firmware with the ARM [FVP]s.
 
 See the [Porting Guide] as well for information about how to use this
-software on another ARMv8 platform.
+software on another ARMv8-A platform.
 
 ### Feedback and support
 
@@ -117,7 +119,7 @@ _Copyright (c) 2013 ARM Ltd. All rights reserved._
 [User Guide]:    ./docs/user-guide.md
 [Porting Guide]: ./docs/porting-guide.md
 
-[ARMv8]:         http://www.arm.com/products/processors/armv8-architecture.php "ARMv8 Architecture"
+[ARMv8-A]:       http://www.arm.com/products/processors/armv8-architecture.php "ARMv8-A Architecture"
 [FVP]:           http://www.arm.com/fvp "ARM's Fixed Virtual Platforms"
 [PSCI]:          http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:         http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"

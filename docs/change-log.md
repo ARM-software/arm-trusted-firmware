@@ -1,13 +1,19 @@
-ARM Trusted Firmware - version <next>
-=====================================
+ARM Trusted Firmware
+====================
 
 Detailed changes since last release
 -----------------------------------
 
-*   Support for Foundation FVP v5.2 added.
+*   Support for Foundation FVP Version 2.0 added.
     The documented UEFI configuration disables some devices that are unavailable
     in the Foundation FVP, including MMC and CLCD. The resultant UEFI binary can
     be used on the AEMv8 and Cortex-A57-A53 FVPs, as well as the Foundation FVP.
+    NOTE: The software will not work on Version 1.0 of the Foundation FVP.
+
+*   Regression-checked against latest Base FVPs (Version 5.2).
+
+*   The supplied FDTs expose the Interrupt Translation Service (ITS) available
+    in GICv3.
 
 
 ARM Trusted Firmware - version 0.2
@@ -53,7 +59,7 @@ releases of the ARM Trusted Firmware.
 *   Although support for PSCI `CPU_SUSPEND` is present, it is not yet stable
     and ready for use.
 
-*   PSCI api calls `AFFINITY_INFO` & `PSCI_VERSION` are implemented but have not
+*   PSCI API calls `AFFINITY_INFO` & `PSCI_VERSION` are implemented but have not
     been tested.
 
 *   The ARM Trusted Firmware make files result in all build artifacts being

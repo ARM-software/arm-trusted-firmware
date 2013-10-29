@@ -32,23 +32,27 @@ Convention PDD][SMCCC] [3].
 
 ### Host machine requirements
 
-The minimum recommended machine specification is an Intel Core2Duo clocking at
-2.6GHz or above, and 12GB RAM. For best performance, use a machine with Intel
-Core i7 (SandyBridge) and 16GB of RAM.
+The minimum recommended machine specification for building the software and
+running the FVP (Fixed Virtual Platform) model is a dual-core processor running
+at 2GHz with 12GB of RAM.  For best performance, use a machine with a quad-core
+processor running at 2.6GHz with 16GB of RAM.
+
+The software has been tested on Ubuntu 12.04.02 (64-bit).  Packages used
+for building the software were installed from that distribution unless
+otherwise specified.
 
 
 ### Tools
 
 The following tools are required to use the ARM Trusted Firmware:
 
-*   Ubuntu desktop OS. The software has been tested on Ubuntu 12.04.02 (64-bit).
-    The following packages are also needed:
+*   `git` package to obtain source code
 
-*   `ia32-libs` package.
+*   `ia32-libs` package
 
-*   `make` and `uuid-dev` packages for building UEFI.
+*   `build-essential` and `uuid-dev` packages for building UEFI
 
-*   `bc` and `ncurses-dev` packages for building Linux.
+*   `bc` and `ncurses-dev` packages for building Linux
 
 *   Baremetal GNU GCC tools. Verified packages can be downloaded from [Linaro]
     [Linaro Toolchain]. The rest of this document assumes that the
@@ -59,7 +63,7 @@ The following tools are required to use the ARM Trusted Firmware:
 
 *   The Device Tree Compiler (DTC) included with Linux kernel 3.12-rc4 is used
     to build the Flattened Device Tree (FDT) source files (`.dts` files)
-    provided with this release.
+    provided with this software.
 
 *   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.16.
 
@@ -78,7 +82,7 @@ To build the software for the FVPs, follow these steps:
 
 3.  Set the compiler path and build:
 
-        CROSS_COMPILE=<path/to/>aarch64-none-elf- make
+        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make
 
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below.
@@ -102,7 +106,7 @@ To build the software for the FVPs, follow these steps:
 
 To compile a debug version and make the build more verbose use
 
-    CROSS_COMPILE=<path/to/>aarch64-none-elf- make DEBUG=1 V=1
+    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make DEBUG=1 V=1
 
 AArch64 GCC uses DWARF version 4 debugging symbols by default. Some tools (for
 example DS-5) might not support this and may need an older version of DWARF
@@ -118,7 +122,9 @@ might need to be recalculated (see the later memory layout section).
 
 Extra debug options can be passed to the build system by setting `CFLAGS`:
 
-    CFLAGS='-O0 -gdwarf-2' CROSS_COMPILE=<path/to/>aarch64-none-elf- make DEBUG=1 V=1
+    CFLAGS='-O0 -gdwarf-2'                                    \
+    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
+    make DEBUG=1 V=1
 
 
 NOTE: The Foundation FVP does not provide a debugger interface.
@@ -156,9 +162,9 @@ these steps:
 
 4.  Build the software
 
-        CROSS_COMPILE=<path/to/>bin/aarch64-none-elf- \
-        build -v -d3 -a AARCH64 -t ARMGCC                              \
-        -p ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc   \
+        CROSS_COMPILE=<absolute-path-to-aarch64-gcc>/bin/aarch64-none-elf- \
+        build -v -d3 -a AARCH64 -t ARMGCC                                  \
+        -p ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc       \
         -D ARM_FOUNDATION_FVP=1
 
     The EDK2 binary for use with the ARM Trusted Firmware can then be found
@@ -168,16 +174,18 @@ these steps:
 
 This will build EDK2 for the default settings as used by the FVPs.
 
-To boot Linux using a VirtioBlock file-system, the command line passed from EDK2
-to the Linux kernel must be modified as described in the "Obtaining a
-File-system" section below.
+To boot Linux using a VirtioBlock file-system, the command line passed from
+EDK2 to the Linux kernel must be modified as described in the "Obtaining a
+root file-system" section below.
 
 If legacy GICv2 locations are used, the EDK2 platform description must be
-updated. This is required as EDK2 does not support probing for the GIC location.
-To do this, build the software as described above with the
-`ARM_FVP_LEGACY_GICV2_LOCATION` flag.
+updated. This is required as EDK2 does not support probing for the GIC
+location.  To do this, build the software as described above with the
+`ARM_FVP_LEGACY_GICV2_LOCATION` flag:
 
     -D ARM_FVP_LEGACY_GICV2_LOCATION=1
+
+Then `make clean` before rebuilding EDK2.
 
 The EDK2 binary `FVP_AARCH64_EFI.fd` should be loaded into FVP FLASH0 via model
 parameters as described in the "Running the Software" section below.
@@ -194,8 +202,9 @@ be done as follows (GICv2 support only):
 
         git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 
-    The CPU hotplug features are not yet included in the mainline kernel. To use
-    these, add the patches from Mark Rutland's kernel, based on Linux 3.12-rc4:
+    The CPU hotplug features are not yet included in the mainline kernel. To
+    use these, add the patches from Mark Rutland's kernel, based on
+    Linux 3.12-rc4:
 
         cd linux
         git remote add -f --tags markr git://linux-arm.org/linux-mr.git
@@ -211,18 +220,19 @@ be done as follows (GICv2 support only):
         make ARCH=arm64 menuconfig
         #   Kernel Features ---> [*] Support for hot-pluggable CPUs
 
-        CROSS_COMPILE=</path/to/>aarch64-none-elf- make -j6 ARCH=arm64
+        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
+        make -j6 ARCH=arm64
 
 3.  Copy the Linux image `arch/arm64/boot/Image` to the working directory from
-    where the FVP is launched. A symbolic link may also be created instead.
+    where the FVP is launched. Alternatively a symbolic link may be used.
 
 #### Obtaining the Flattened Device Trees
 
 Depending on the FVP configuration and Linux configuration used, different
 FDT files are required. FDTs for the Foundation and Base FVPs can be found in
-the Trusted Firmware source directory under `fdts`. The Foundation FVP has a
+the Trusted Firmware source directory under `fdts/`. The Foundation FVP has a
 subset of the Base FVP components. For example, the Foundation FVP lacks CLCD
-and MMC support, and has only one CPU cluster).
+and MMC support, and has only one CPU cluster.
 
 *   `fvp-base-gicv2-psci.dtb`
 
@@ -254,9 +264,9 @@ and MMC support, and has only one CPU cluster).
 
 
 Copy the chosen FDT blob as `fdt.dtb` to the directory from which the FVP
-is launched. A symbolic link may also be created instead.
+is launched. Alternatively a symbolic link may be used.
 
-#### Obtaining a File-system
+#### Obtaining a root file-system
 
 To prepare a Linaro LAMP based Open Embedded file-system, the following
 instructions can be used as a guide. The file-system can be provided to Linux
@@ -281,8 +291,8 @@ To prepare a VirtioBlock file-system, do the following:
         File systems    ---> <*> The Extended 4 (ext4) filesystem
 
     If some of these configurations are missing, enable them, save the kernel
-    configuration, then rebuild the kernel image using the instructions provided
-    in the section "Obtaining a Linux kernel".
+    configuration, then rebuild the kernel image using the instructions
+    provided in the section "Obtaining a Linux kernel".
 
 3.  Change the Kernel command line to include `root=/dev/vda2`. This can either
     be done in the EDK2 boot menu or in the platform file. Editing the platform
@@ -311,10 +321,10 @@ To prepare a VirtioBlock file-system, do the following:
     to the real file must be provided.
 
     On the Base FVPs:
-        -C bp.virtioblockdevice.image_path="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+        -C bp.virtioblockdevice.image_path="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
     On the Foundation FVP:
-        --block-device="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+        --block-device="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
 
 5.  Ensure that the FVP doesn't output any error messages. If the following
@@ -332,7 +342,7 @@ NOTE: The RAM-disk option does not currently work with the Linux kernel version
 described above; use the VirtioBlock method instead. For further information
 please see the "Known issues" section in the [Change Log].
 
-To Prepare a RAM-disk file-system, do the following:
+To prepare a RAM-disk root file-system, do the following:
 
 1.  Download the file-system image:
 
@@ -351,17 +361,20 @@ To Prepare a RAM-disk file-system, do the following:
         cd ..
 
 3.  Copy the resultant `filesystem.cpio.gz` to the directory where the FVP is
-    launched from. A symbolic link may also be created instead.
+    launched from. Alternatively a symbolic link may be used.
 
 
 ### Running the software
 
-This release of the ARM Trusted Firmware has been tested on the following ARM
+This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
-*   `Foundation_v8` (Version 0.8.5206)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 0.8.5202)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 0.8.5202)
+*   `Foundation_v8` (Version 2.0, Build 0.8.5206)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.2, Build 0.8.5202)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.2, Build 0.8.5202)
+
+NOTE: The software will not work on Version 1.0 of the Foundation FVP.
+The commands below would report an `unhandled argument` error in this case.
 
 Please refer to the FVP documentation for a detailed description of the model
 parameter options. A brief description of the important ones that affect the
@@ -378,17 +391,17 @@ The following `Foundation_v8` parameters should be used to boot Linux with
 NOTE: Using the `--block-device` parameter is not necessary if a Linux RAM-disk
 file-system is used (see the "Obtaining a File-system" section above).
 
-    Foundation_v8                             \
+    <path-to>/Foundation_v8                   \
     --cores=4                                 \
     --no-secure-memory                        \
     --visualization                           \
     --gicv3                                   \
     --data="<path to bl1.bin>"@0x0            \
     --data="<path to UEFI binary>"@0x8000000  \
-    --block-device="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+    --block-device="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
-The default use-case for the Foundation FVP is to enable the GICv3 device in the
-model but use the GICv2 FDT, in order for Linux to drive the GIC in GICv2
+The default use-case for the Foundation FVP is to enable the GICv3 device in
+the model but use the GICv2 FDT, in order for Linux to drive the GIC in GICv2
 emulation mode.
 
 The memory mapped addresses `0x0` and `0x8000000` correspond to the start of
@@ -404,10 +417,10 @@ still work (and run much faster) without this option but this will hide any
 cache maintenance defects in the software.
 
 NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
-if a Linux RAM-disk file-system is used (see the "Obtaining a File-system"
+if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
 section above).
 
-    FVP_Base_AEMv8A-AEMv8A                              \
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                    \
     -C pctl.startup=0.0.0.0                             \
     -C bp.secure_memory=0                               \
     -C cluster0.NUM_CORES=4                             \
@@ -416,7 +429,7 @@ section above).
     -C bp.pl011_uart0.untimed_fifos=1                   \
     -C bp.secureflashloader.fname=<path to bl1.bin>     \
     -C bp.flashloader0.fname=<path to UEFI binary>      \
-    -C bp.virtioblockdevice.image_path="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+    -C bp.virtioblockdevice.image_path="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
 #### Running on the Cortex-A57-A53 Base FVP
 
@@ -428,17 +441,17 @@ still work (and run much faster) without this option but this will hide any
 cache maintenance defects in the software.
 
 NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
-if a Linux RAM-disk file-system is used (see the "Obtaining a File-system"
+if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
 section above).
 
-    FVP_Base_Cortex-A57x4-A53x4                         \
+    <path-to>/FVP_Base_Cortex-A57x4-A53x4               \
     -C pctl.startup=0.0.0.0                             \
     -C bp.secure_memory=0                               \
     -C cache_state_modelled=1                           \
     -C bp.pl011_uart0.untimed_fifos=1                   \
     -C bp.secureflashloader.fname=<path to bl1.bin>     \
     -C bp.flashloader0.fname=<path to UEFI binary>      \
-    -C bp.virtioblockdevice.image_path="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+    -C bp.virtioblockdevice.image_path="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
 ### Configuring the GICv2 memory map
 
@@ -451,55 +464,61 @@ configured for GICv3 in GICv2 emulation mode.
     GICv2 Virtual CPU Interface     0x2c010000
     GICv2 Hypervisor Interface      0x2c02f000
 
-The Base FVP models can be configured to support GICv2 at addresses corresponding
-to the legacy (Versatile Express) memory map as follows. These are the default
-addresses when using the Foundation FVP in GICv2 mode.
+The Base FVP models can be configured to support GICv2 at addresses
+corresponding to the legacy (Versatile Express) memory map as follows. These are
+the default addresses when using the Foundation FVP in GICv2 mode.
 
     GICv2 Distributor Interface     0x2c001000
     GICv2 CPU Interface             0x2c002000
     GICv2 Virtual CPU Interface     0x2c004000
     GICv2 Hypervisor Interface      0x2c006000
 
-The choice of memory map is reflected in the build field (bits[15:12]) in the
-`SYS_ID` register (Offset `0x0`) in the Versatile Express System registers
-memory map (`0x1c010000`).
+The choice of memory map is reflected in the build variant field (bits[15:12])
+in the `SYS_ID` register (Offset `0x0`) in the Versatile Express System
+registers memory map (`0x1c010000`).
 
 *   `SYS_ID.Build[15:12]`
 
     `0x1` corresponds to the presence of the Base GIC memory map. This is the
-    default value.
+    default value on the Base FVPs.
 
 *   `SYS_ID.Build[15:12]`
 
-    `0x0` corresponds to the presence of the Legacy VE GIC memory map. This
-    value can be configured as described in the next section.
+    `0x0` corresponds to the presence of the Legacy VE GIC memory map. This is
+    the default value on the Foundation FVP.
+
+This register can be configured as described in the following sections.
 
 NOTE: If the legacy VE GIC memory map is used, then the corresponding FDT and
 UEFI images should be used.
 
 #### Configuring AEMv8 Foundation FVP GIC for legacy VE memory map
 
-The following parameters configure the Foundation FVP to use GICv2. On the
-Foundation FVP only the legacy VE layout is supported in this mode:
+The following parameters configure the Foundation FVP to use GICv2 with the
+legacy VE memory map:
 
-    Foundation_v8                            \
+    <path-to>/Foundation_v8                  \
     --cores=4                                \
     --no-secure-memory                       \
     --visualization                          \
     --no-gicv3                               \
     --data="<path to bl1.bin>"@0x0           \
     --data="<path to UEFI binary>"@0x8000000 \
-    --block-device="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+    --block-device="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
+
+Explicit configuration of the `SYS_ID` register is not required.
+
 
 #### Configuring AEMv8 Base FVP GIC for legacy VE memory map
 
-The following parameters configure the GICv2 memory map in legacy VE mode:
+The following parameters configure the AEMv8 Base FVP to use GICv2 with the
+legacy VE memory map:
 
 NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
-if a Linux RAM-disk file-system is used (see the "Obtaining a File-system"
+if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
 section above).
 
-    FVP_Base_AEMv8A-AEMv8A                              \
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                    \
     -C cluster0.gic.GICD-offset=0x1000                  \
     -C cluster0.gic.GICC-offset=0x2000                  \
     -C cluster0.gic.GICH-offset=0x4000                  \
@@ -514,25 +533,27 @@ section above).
     -C cluster1.gic.PERIPH-size=0x8000                  \
     -C gic_distributor.GICD-alias=0x2c001000            \
     -C bp.variant=0x0                                   \
-    -C bp.virtioblockdevice.image_path="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+    -C bp.virtioblockdevice.image_path="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
-The last parameter sets the build variant field of the `SYS_ID` register to
-`0x0`. This allows the ARM Trusted Firmware to detect the legacy VE memory map
-while configuring the GIC.
+The `bp.variant` parameter corresponds to the build variant field of the
+`SYS_ID` register.  Setting this to `0x0` allows the ARM Trusted Firmware to
+detect the legacy VE memory map while configuring the GIC.
 
 #### Configuring Cortex-A57-A53 Base FVP GIC for legacy VE memory map
 
-Configuration of the GICv2 as per the legacy VE memory map is controlled by
-the following parameter. In this case, separate configuration of the `SYS_ID`
-register is not required.
+The following parameters configure the Cortex-A57-A53 Base FVP to use GICv2 with
+the legacy VE memory map:
 
 NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
-if a Linux RAM-disk file-system is used (see the "Obtaining a File-system"
+if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
 section above).
 
-    FVP_Base_Cortex-A57x4-A53x4                         \
+    <path-to>/FVP_Base_Cortex-A57x4-A53x4               \
     -C legacy_gicv2_map=1                               \
-    -C bp.virtioblockdevice.image_path="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+    -C bp.virtioblockdevice.image_path="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
+
+Explicit configuration of the `SYS_ID` register is not required.
+
 
 3.  Firmware Design
 -------------------
@@ -698,7 +719,7 @@ BL1 execution continues as follows:
 ### BL2
 
 BL1 loads and passes control to BL2 at Secure EL1. BL2 is linked against and
-loaded at a platform-specific base address (more information can found later
+loaded at a platform-specific base address (more information can be found later
 in this document). The functionality implemented by BL2 is as follows.
 
 #### Architectural initialization
@@ -764,7 +785,7 @@ BL2 execution continues as follows:
 
 The image for this stage is loaded by BL2 and BL1 passes control to BL3-1 at
 EL3. BL3-1 executes solely in trusted SRAM. BL3-1 is linked against and
-loaded at a platform-specific base address (more information can found later
+loaded at a platform-specific base address (more information can be found later
 in this document). The functionality implemented by BL3-1 is as follows.
 
 #### Architectural initialization
@@ -835,7 +856,7 @@ memory address populated by BL2.
     The `CPU_ON` and `CPU_OFF` functions implement the warm boot path in ARM
     Trusted Firmware. These are the only functions which have been tested.
     `AFFINITY_INFO` & `PSCI_VERSION` are present but completely untested in
-    this release.
+    this version of the software.
 
     Unsupported PSCI functions that can return, return the `NOT_SUPPORTED`
     (`-1`) error code. Other unsupported PSCI functions that don't return,
@@ -853,7 +874,7 @@ world software image at the highest available Exception Level (EL2 if
 available, otherwise EL1).
 
 
-### Memory layout on Base FVP ###
+### Memory layout on Base FVP
 
 The current implementation of the image loader has some limitations. It is
 designed to load images dynamically, at a load address chosen to minimize memory
@@ -970,7 +991,7 @@ following view:
     ------------ 0x04000000
 
 
-### Code Structure ###
+### Code Structure
 
 Trusted Firmware code is logically divided between the three boot loader
 stages mentioned in the previous sections. The code is also divided into the
@@ -998,11 +1019,11 @@ categories. Based upon the above, the code layout looks like this:
     common       Yes             Yes             Yes
     lib          Yes             Yes             Yes
 
-All assembler files have the `.S` extension. The linker files for each boot
-stage has the `.ld.S` extension. These are processed by GCC to create the
-resultant `.ld` files used for linking.
+All assembler files have the `.S` extension. The linker source files for each
+boot stage have the extension `.ld.S`. These are processed by GCC to create the
+linker scripts which have the extension `.ld`.
 
-FDTs provide a description of the hardware platform and is used by the Linux
+FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
