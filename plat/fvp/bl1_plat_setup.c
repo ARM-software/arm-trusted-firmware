@@ -34,6 +34,7 @@
 #include <platform.h>
 #include <bl1.h>
 #include <console.h>
+#include <cci400.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -126,6 +127,9 @@ void bl1_early_platform_setup(void)
 		bl1_tzram_layout.free_size =
 			tzram_limit - bl1_coherent_ram_limit;
 	}
+
+	/* Initialize the platform config for future decision making */
+	platform_config_setup();
 }
 
 /*******************************************************************************
@@ -153,11 +157,23 @@ void bl1_platform_setup(void)
 
 /*******************************************************************************
  * Perform the very early platform specific architecture setup here. At the
- * moment this is only intializes the mmu in a quick and dirty way. Later arch-
- * itectural setup (bl1_arch_setup()) does not do anything platform specific.
+ * moment this only does basic initialization. Later architectural setup
+ * (bl1_arch_setup()) does not do anything platform specific.
  ******************************************************************************/
 void bl1_plat_arch_setup(void)
 {
+	unsigned long cci_setup;
+
+	/*
+	 * Enable CCI-400 for this cluster. No need
+	 * for locks as no other cpu is active at the
+	 * moment
+	 */
+	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+	if (cci_setup) {
+		cci_enable_coherency(read_mpidr());
+	}
+
 	configure_mmu(&bl1_tzram_layout,
 		TZROM_BASE,			/* Read_only region start */
 		TZROM_BASE + TZROM_SIZE,	/* Read_only region size */

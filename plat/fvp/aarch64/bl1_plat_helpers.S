@@ -226,15 +226,6 @@ platform_cold_boot_init:; .type platform_cold_boot_init, %function
 	str	x19, [x1, x2]
 
 	/* ---------------------------------------------
-	 * Enable CCI-400 for this cluster. No need
-	 * for locks as no other cpu is active at the
-	 * moment
-	 * ---------------------------------------------
-	 */
-	mov	x0, x19
-	bl	cci_enable_coherency
-
-	/* ---------------------------------------------
 	 * Architectural init. can be generic e.g.
 	 * enabling stack alignment and platform spec-
 	 * ific e.g. MMU & page table setup as per the

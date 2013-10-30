@@ -111,7 +111,7 @@ int fvp_affinst_off(unsigned long mpidr,
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int gicc_base, ectlr;
-	unsigned long cpu_setup;
+	unsigned long cpu_setup, cci_setup;
 
 	switch (afflvl) {
 	case MPIDR_AFFLVL1:
@@ -120,7 +120,10 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Disable coherency if this cluster is to be
 			 * turned off
 			 */
-			cci_disable_coherency(mpidr);
+			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+			if (cci_setup) {
+				cci_disable_coherency(mpidr);
+			}
 
 			/*
 			 * Program the power controller to turn the
@@ -187,7 +190,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int gicc_base, ectlr;
-	unsigned long cpu_setup, linear_id;
+	unsigned long cpu_setup, cci_setup, linear_id;
 	mailbox *fvp_mboxes;
 
 	/* Cannot allow NS world to execute trusted firmware code */
@@ -203,7 +206,10 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Disable coherency if this cluster is to be
 			 * turned off
 			 */
-			cci_disable_coherency(mpidr);
+			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+			if (cci_setup) {
+				cci_disable_coherency(mpidr);
+			}
 
 			/*
 			 * Program the power controller to turn the
@@ -270,7 +276,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			  unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned long linear_id, cpu_setup;
+	unsigned long linear_id, cpu_setup, cci_setup;
 	mailbox *fvp_mboxes;
 	unsigned int gicd_base, gicc_base, reg_val, ectlr;
 
@@ -278,8 +284,12 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 
 	case MPIDR_AFFLVL1:
 		/* Enable coherency if this cluster was off */
-		if (state == PSCI_STATE_OFF)
-			cci_enable_coherency(mpidr);
+		if (state == PSCI_STATE_OFF) {
+			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+			if (cci_setup) {
+				cci_enable_coherency(mpidr);
+			}
+		}
 		break;
 
 	case MPIDR_AFFLVL0:

@@ -72,7 +72,9 @@
 /* Indicate whether the CPUECTLR SMP bit should be enabled. */
 #define CONFIG_CPU_SETUP		6
 #define CONFIG_BASE_MMAP		7
-#define CONFIG_LIMIT			8
+/* Indicates whether CCI should be enabled on the platform. */
+#define CONFIG_HAS_CCI			8
+#define CONFIG_LIMIT			9
 
 /*******************************************************************************
  * Platform memory map related constants
