@@ -71,6 +71,16 @@
 #define CPUECTLR_EL1	S3_1_C15_C2_1
 
 /*******************************************************************************
+ * Generic timer memory mapped registers & offsets
+ ******************************************************************************/
+#define CNTCR_OFF			0x000
+#define CNTFID_OFF			0x020
+
+#define CNTCR_EN			(1 << 0)
+#define CNTCR_HDBG			(1 << 1)
+#define CNTCR_FCREQ(x)			(1 << (8 + (x)))
+
+/*******************************************************************************
  * System register bit definitions
  ******************************************************************************/
 /* CLIDR definitions */

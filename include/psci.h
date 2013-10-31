@@ -143,9 +143,6 @@ typedef struct {
  * Function & Data prototypes
  ******************************************************************************/
 extern unsigned int psci_version(void);
-extern int psci_cpu_on(unsigned long,
-		       unsigned long,
-		       unsigned long);
 extern int __psci_cpu_suspend(unsigned int, unsigned long, unsigned long);
 extern int __psci_cpu_off(void);
 extern int psci_affinity_info(unsigned long, unsigned int);

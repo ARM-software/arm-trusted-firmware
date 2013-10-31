@@ -33,16 +33,6 @@
 
 #include <arch.h>
 
-/*******************************************************************************
- * Generic timer memory mapped registers & offsets
- ******************************************************************************/
-#define CNTCR_OFF			0x000
-#define CNTFID_OFF			0x020
-
-#define CNTCR_EN			(1 << 0)
-#define CNTCR_HDBG			(1 << 1)
-#define CNTCR_FCREQ(x)			(1 << (8 + (x)))
-
 #ifndef __ASSEMBLY__
 
 /*******************************************************************************
