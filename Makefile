@@ -31,30 +31,40 @@
 # Decrease the verbosity of the make script
 # can be made verbose by passing V=1 at the make command line
 ifdef V
-  KBUILD_VERBOSE = $(V)
+  KBUILD_VERBOSE = ${V}
 else
   KBUILD_VERBOSE = 0
 endif
 
-ifeq "$(KBUILD_VERBOSE)" "0"
+ifeq "${KBUILD_VERBOSE}" "0"
 	Q=@
 else
 	Q=
 endif
 
 DEBUG	?= 0
-BL_COMMON_OBJS		=	misc_helpers.o cache_helpers.o tlb_helpers.o		\
+
+ifneq (${DEBUG}, 0)
+	BUILD_TYPE	:=	debug
+else
+	BUILD_TYPE	:=	release
+endif
+
+BL_COMMON_OBJS		:=	misc_helpers.o cache_helpers.o tlb_helpers.o		\
 				semihosting_call.o mmio.o pl011.o semihosting.o		\
 				std.o bl_common.o platform_helpers.o sysreg_helpers.o
 
 ARCH 			:=	aarch64
+PLAT			:=	fvp
 
-all: $(patsubst %,%.bin,bl1 bl2 bl31) ;
+BUILD_BASE:=./build
+BUILD:=${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
+BUILD_BL1:=${BUILD}/bl1
+BUILD_BL2:=${BUILD}/bl2
+BUILD_BL31:=${BUILD}/bl31
+BUILD_DIRS:=${BUILD_BL1} ${BUILD_BL2} ${BUILD_BL31}
 
-
-#$(info $(filter bl2.%, $(MAKECMDGOALS)))
-#$(info $(filter bl1.%, $(MAKECMDGOALS)))
-#$(info $(MAKECMDGOALS))
+all: bl1 bl2 bl31
 
 $(info Including bl1.mk)
 include bl1/bl1.mk
@@ -65,7 +75,19 @@ include bl2/bl2.mk
 $(info Including bl31.mk)
 include bl31/bl31.mk
 
-OBJS			+= 	$(BL_COMMON_OBJS)
+.PHONY:			dump clean realclean distclean bl1 bl2 bl31
+.SUFFIXES:
+
+
+BL1_OBJS		:= 	$(addprefix ${BUILD_BL1}/,${BL1_OBJS} ${BL_COMMON_OBJS})
+BL2_OBJS		:= 	$(addprefix ${BUILD_BL2}/,${BL2_OBJS} ${BL_COMMON_OBJS})
+BL31_OBJS		:= 	$(addprefix ${BUILD_BL31}/,${BL31_OBJS} ${BL_COMMON_OBJS})
+BL1_MAPFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_MAPFILE})
+BL2_MAPFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_MAPFILE})
+BL31_MAPFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_MAPFILE})
+BL1_LINKERFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_LINKERFILE})
+BL2_LINKERFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_LINKERFILE})
+BL31_LINKERFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_LINKERFILE})
 
 INCLUDES		+=	-Ilib/include/ -Iinclude/aarch64/ -Iinclude/	\
 				-Idrivers/arm/interconnect/cci-400/		\
@@ -77,9 +99,9 @@ ASFLAGS			+= 	 -D__ASSEMBLY__ $(INCLUDES)
 CFLAGS			:= 	-Wall -std=c99 -c -Os -DDEBUG=$(DEBUG) $(INCLUDES) ${CFLAGS}
 
 LDFLAGS			+=	-O1
-BL1_LDFLAGS		:=	-Map=$(BL1_MAPFILE) --script $(BL1_LINKERFILE) --entry=$(BL1_ENTRY_POINT)
-BL2_LDFLAGS		:=	-Map=$(BL2_MAPFILE) --script $(BL2_LINKERFILE) --entry=$(BL2_ENTRY_POINT)
-BL31_LDFLAGS		:=	-Map=$(BL31_MAPFILE) --script $(BL31_LINKERFILE) --entry=$(BL31_ENTRY_POINT)
+BL1_LDFLAGS		:=	-Map=${BL1_MAPFILE} --script ${BL1_LINKERFILE} --entry=${BL1_ENTRY_POINT}
+BL2_LDFLAGS		:=	-Map=${BL2_MAPFILE} --script ${BL2_LINKERFILE} --entry=${BL2_ENTRY_POINT}
+BL31_LDFLAGS		:=	-Map=${BL31_MAPFILE} --script ${BL31_LINKERFILE} --entry=${BL31_ENTRY_POINT}
 
 
 vpath %.ld.S bl1:bl2:bl31
@@ -88,7 +110,7 @@ vpath %.c bl1/${ARCH}:bl2/${ARCH}:bl31/${ARCH}
 vpath %.S bl1/${ARCH}:bl2/${ARCH}:bl31/${ARCH}
 
 
-ifneq ($(DEBUG), 0)
+ifneq (${DEBUG}, 0)
 #CFLAGS			+= 	-g -O0
 CFLAGS			+= 	-g
 # -save-temps -fverbose-asm
@@ -96,74 +118,102 @@ ASFLAGS			+= 	-g -Wa,--gdwarf-2
 endif
 
 
-CC			=	$(CROSS_COMPILE)gcc
-CPP			=	$(CROSS_COMPILE)cpp
-AS			=	$(CROSS_COMPILE)gcc
-AR			=	$(CROSS_COMPILE)ar
-LD			=	$(CROSS_COMPILE)ld
-OC			=	$(CROSS_COMPILE)objcopy
-OD			=	$(CROSS_COMPILE)objdump
-NM			=	$(CROSS_COMPILE)nm
-PP			=	$(CROSS_COMPILE)gcc -E $(CFLAGS)
+CC			:=	${CROSS_COMPILE}gcc
+CPP			:=	${CROSS_COMPILE}cpp
+AS			:=	${CROSS_COMPILE}gcc
+AR			:=	${CROSS_COMPILE}ar
+LD			:=	${CROSS_COMPILE}ld
+OC			:=	${CROSS_COMPILE}objcopy
+OD			:=	${CROSS_COMPILE}objdump
+NM			:=	${CROSS_COMPILE}nm
+PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
 
 
-distclean: clean
-			@echo "  DISTCLEAN"
-			$(Q)rm -rf *.zi
-			$(Q)rm -rf *.dump
-			$(Q)rm -rf *.bin
-			$(Q)rm -f *.axf
-			$(Q)rm -f *.i *.s
-			$(Q)rm -f *.ar
-			$(Q)rm -f *.map
-			$(Q)rm -f *.scf
-			$(Q)rm -f *.txt
-			$(Q)rm -f *.elf
-			$(Q)rm -rf *.bin
-			$(Q)rm -f $(LISTFILE)
+bl1:			${BUILD_BL1} ${BUILD}/bl1.bin
+bl2:			${BUILD_BL2} ${BUILD}/bl2.bin
+bl31:			${BUILD_BL31} ${BUILD}/bl31.bin
 
 clean:
 			@echo "  CLEAN"
-			$(Q)rm -f *.o *.ld
+			${Q}rm -rf ${BUILD}
 
-.PHONY:			dump
+realclean distclean:
+			@echo "  REALCLEAN"
+			${Q}rm -rf ${BUILD_BASE}
 
 dump:
 			@echo "  OBJDUMP"
-			$(OD) -d bl1.elf > bl1.dump
-			$(OD) -d bl2.elf > bl2.dump
-			$(OD) -d bl31.elf > bl31.dump
+			${Q}${OD} -d ${BUILD_BL1}/bl1.elf > ${BUILD_BL1}/bl1.dump
+			${Q}${OD} -d ${BUILD_BL2}/bl2.elf > ${BUILD_BL2}/bl2.dump
+			${Q}${OD} -d ${BUILD_BL31}/bl31.elf > ${BUILD_BL31}/bl31.dump
 
-%.o:			%.S
+${BUILD_DIRS}:
+			${Q}mkdir -p "$@"
+
+
+${BUILD_BL1}/%.o:	%.S
 			@echo "  AS      $<"
-			$(Q)$(AS) $(ASFLAGS) -c $< -o $@
+			${Q}${AS} ${ASFLAGS} -c $< -o $@
 
-%.o:			%.c
+${BUILD_BL2}/%.o:	%.S
+			@echo "  AS      $<"
+			${Q}${AS} ${ASFLAGS} -c $< -o $@
+
+${BUILD_BL31}/%.o:	%.S
+			@echo "  AS      $<"
+			${Q}${AS} ${ASFLAGS} -c $< -o $@
+
+${BUILD_BL1}/%.o:	%.c
 			@echo "  CC      $<"
-			$(Q)$(CC) $(CFLAGS) -c $< -o $@
+			${Q}${CC} ${CFLAGS} -c $< -o $@
 
-%.ld:			%.ld.S
+${BUILD_BL2}/%.o:	%.c
+			@echo "  CC      $<"
+			${Q}${CC} ${CFLAGS} -c $< -o $@
+
+${BUILD_BL31}/%.o:	%.c
+			@echo "  CC      $<"
+			${Q}${CC} ${CFLAGS} -c $< -o $@
+
+${BUILD_BL1}/%.ld:	%.ld.S
 			@echo "  LDS      $<"
-			$(Q)$(AS) $(ASFLAGS) -P -E $< -o $@
+			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
+
+${BUILD_BL2}/%.ld:	%.ld.S
+			@echo "  LDS      $<"
+			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
+
+${BUILD_BL31}/%.ld:	%.ld.S
+			@echo "  LDS      $<"
+			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
 
 
-bl1.elf:		$(OBJS) $(BL1_OBJS) bl1.ld
+${BUILD_BL1}/bl1.elf:	${BL1_OBJS} ${BL1_LINKERFILE}
 			@echo "  LD      $@"
-			$(Q)$(LD) -o $@ $(LDFLAGS) $(BL1_LDFLAGS) $(OBJS) $(BL1_OBJS)
+			${Q}${LD} -o $@ ${LDFLAGS} ${BL1_LDFLAGS} ${BL1_OBJS}
+
+${BUILD_BL2}/bl2.elf:	${BL2_OBJS} ${BL2_LINKERFILE}
+			@echo "  LD      $@"
+			${Q}${LD} -o $@ ${LDFLAGS} ${BL2_LDFLAGS} ${BL2_OBJS}
+
+${BUILD_BL31}/bl31.elf:	${BL31_OBJS} ${BL31_LINKERFILE}
+			@echo "  LD      $@"
+			${Q}${LD} -o $@ ${LDFLAGS} ${BL31_LDFLAGS} ${BL31_OBJS}
+
+${BUILD}/bl1.bin:	${BUILD_BL1}/bl1.elf
+			${Q}${OC} -O binary $< $@
+			@echo
 			@echo "Built $@ successfully"
 			@echo
 
-bl2.elf:		$(OBJS) $(BL2_OBJS) bl2.ld
-			@echo "  LD      $@"
-			$(Q)$(LD) -o $@ $(LDFLAGS) $(BL2_LDFLAGS) $(OBJS) $(BL2_OBJS)
+${BUILD}/bl2.bin:	${BUILD_BL2}/bl2.elf
+			${Q}${OC} -O binary $< $@
+			@echo
 			@echo "Built $@ successfully"
 			@echo
 
-bl31.elf:		$(OBJS) $(BL31_OBJS) bl31.ld
-			@echo "  LD      $@"
-			$(Q)$(LD) -o $@ $(LDFLAGS) $(BL31_LDFLAGS) $(OBJS) $(BL31_OBJS)
+${BUILD}/bl31.bin:	${BUILD_BL31}/bl31.elf
+			${Q}${OC} -O binary $< $@
+			@echo
 			@echo "Built $@ successfully"
 			@echo
-
-%.bin:			%.elf
-			$(OC) -O binary $< $@

@@ -24,6 +24,8 @@ Detailed changes since last release
     Base FVPs have been increased from 2GB to 4GB. This resolves the issue of
     failing to start user-space when using a RAM-disk file-system.
 
+*   Build products are now created in a separate build directory tree.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================

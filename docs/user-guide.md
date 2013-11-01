@@ -87,19 +87,30 @@ To build the software for the FVPs, follow these steps:
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below.
 
-    The build creates ELF and raw binary files in the current directory. It
-    generates the following boot loader binary files from the ELF files:
+    The build process creates products in a `build` directory tree, building
+    the objects and binaries for each boot loader stage in separate
+    sub-directories.  The following boot loader binary files are created from
+    the corresponding ELF files:
 
-    *   `bl1.bin`
-    *   `bl2.bin`
-    *   `bl31.bin`
+    *   `build/<platform>/<build-type>/bl1.bin`
+    *   `build/<platform>/<build-type>/bl2.bin`
+    *   `build/<platform>/<build-type>/bl31.bin`
 
-4.  Copy the above 3 boot loader binary files to the directory where the FVPs
-    are launched from. Symbolic links of the same names may be created instead.
+    ... where `<platform>` currently defaults to `fvp` and `<build-type>` is
+    either `debug` or `release`.
 
-5.  (Optional) To clean the build directory use
+4.  Copy the three boot loader binary files to the directory from which the FVP
+    will be launched. Symbolic links of the same names may be created instead.
 
-        make distclean
+5.  (Optional) Build products for a specific build variant can be removed using:
+
+        make DEBUG=<D> clean
+
+    ... where `<D>` is `0` or `1`, as specified when building.
+
+    The build tree can be removed completely using:
+
+        make realclean
 
 
 #### Debugging options
