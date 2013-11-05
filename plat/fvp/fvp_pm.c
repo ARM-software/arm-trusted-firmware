@@ -58,11 +58,6 @@ int fvp_affinst_on(unsigned long mpidr,
 	mailbox *fvp_mboxes;
 	unsigned int psysr;
 
-	if (ns_entrypoint < DRAM_BASE) {
-		rc = PSCI_E_INVALID_PARAMS;
-		goto exit;
-	}
-
 	/*
 	 * It's possible to turn on only affinity level 0 i.e. a cpu
 	 * on the FVP. Ignore any other affinity level.
@@ -193,12 +188,6 @@ int fvp_affinst_suspend(unsigned long mpidr,
 	unsigned long cpu_setup, cci_setup, linear_id;
 	mailbox *fvp_mboxes;
 
-	/* Cannot allow NS world to execute trusted firmware code */
-	if (ns_entrypoint < DRAM_BASE) {
-		rc = PSCI_E_INVALID_PARAMS;
-		goto exit;
-	}
-
 	switch (afflvl) {
 	case MPIDR_AFFLVL1:
 		if (state == PSCI_STATE_OFF) {
@@ -260,7 +249,6 @@ int fvp_affinst_suspend(unsigned long mpidr,
 		assert(0);
 	}
 
-exit:
 	return rc;
 }
 

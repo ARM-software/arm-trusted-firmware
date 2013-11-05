@@ -56,6 +56,9 @@ Detailed changes since last release
     is powered on, if a non zero context id parameter was passed in the PSCI
     CPU_ON and CPU_SUSPEND api calls has been corrected.
 
+*   A restriction in the FVP code which did not allow the non-secure entrypoint
+    to lie outside the DRAM has been removed.
+
 ARM Trusted Firmware - version 0.2
 ==================================
 
