@@ -66,7 +66,7 @@ The following tools are required to use the ARM Trusted Firmware:
 
 ### Building the Trusted Firmware
 
-To build the software for the Base FVPs, follow these steps:
+To build the software for the FVPs, follow these steps:
 
 1.  Clone the ARM Trusted Firmware repository from Github:
 
@@ -78,7 +78,7 @@ To build the software for the Base FVPs, follow these steps:
 
 3.  Set the compiler path and build:
 
-        CROSS_COMPILE=<path/to>/aarch64-none-elf- make
+        CROSS_COMPILE=<path/to/>aarch64-none-elf- make
 
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below.
@@ -102,7 +102,7 @@ To build the software for the Base FVPs, follow these steps:
 
 To compile a debug version and make the build more verbose use
 
-    CROSS_COMPILE=<path/to>/aarch64-none-elf- make DEBUG=1 V=1
+    CROSS_COMPILE=<path/to/>aarch64-none-elf- make DEBUG=1 V=1
 
 AArch64 GCC uses DWARF version 4 debugging symbols by default. Some tools (for
 example DS-5) might not support this and may need an older version of DWARF
@@ -118,25 +118,31 @@ might need to be recalculated (see the later memory layout section).
 
 Extra debug options can be passed to the build system by setting `CFLAGS`:
 
-    CFLAGS='-O0 -gdwarf-2' CROSS_COMPILE=<path/to>/aarch64-none-elf- make DEBUG=1 V=1
+    CFLAGS='-O0 -gdwarf-2' CROSS_COMPILE=<path/to/>aarch64-none-elf- make DEBUG=1 V=1
+
+
+NOTE: The Foundation FVP does not provide a debugger interface.
 
 
 ### Obtaining the normal world software
 
 #### Obtaining UEFI
 
-Download an archive of the [EDK2 (EFI Development Kit 2) source code][EDK2]
-supporting the Base FVPs. EDK2 is an open source implementation of the UEFI
-specification:
+Clone the [EDK2 (EFI Development Kit 2) source code][EDK2] from Github. This
+version supports the Base and Foundation FVPs. EDK2 is an open source
+implementation of the UEFI specification:
 
-    wget http://sourceforge.net/projects/edk2/files/ARM/aarch64-uefi-rev14582.tgz/download -O aarch64-uefi-rev14582.tgz
-    tar -xf aarch64-uefi-rev14582.tgz
+    git clone -n https://github.com/tianocore/edk2.git
+    cd edk2
+    git checkout 75f630347cace34e2d3abed2a5556ba71cfc50a9
 
-To build the software for the Base FVPs, follow these steps:
 
-1.  Change into the unpacked EDK2 source directory
+To build the software to be compatible with Foundation and Base FVPs, follow
+these steps:
 
-        cd uefi
+1.  Change into the EDK2 source directory
+
+        cd edk2
 
 2.  Copy build config templates to local workspace
 
@@ -150,9 +156,10 @@ To build the software for the Base FVPs, follow these steps:
 
 4.  Build the software
 
-        AARCH64GCC_TOOLS_PATH=<full-path-to-aarch64-gcc>/bin/      \
-        build -v -d3 -a AARCH64 -t ARMGCC                          \
-        -p ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc
+        CROSS_COMPILE=<path/to/>bin/aarch64-none-elf- \
+        build -v -d3 -a AARCH64 -t ARMGCC                              \
+        -p ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc   \
+        -D ARM_FOUNDATION_FVP=1
 
     The EDK2 binary for use with the ARM Trusted Firmware can then be found
     here:
@@ -167,12 +174,10 @@ File-system" section below.
 
 If legacy GICv2 locations are used, the EDK2 platform description must be
 updated. This is required as EDK2 does not support probing for the GIC location.
-To do this, open the `ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc`
-file for editing and make the modifications as below. Rebuild EDK2 after doing a
-`clean`.
+To do this, build the software as described above with the
+`ARM_FVP_LEGACY_GICV2_LOCATION` flag.
 
-    gArmTokenSpaceGuid.PcdGicDistributorBase|0x2C001000
-    gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x2C002000
+    -D ARM_FVP_LEGACY_GICV2_LOCATION=1
 
 The EDK2 binary `FVP_AARCH64_EFI.fd` should be loaded into FVP FLASH0 via model
 parameters as described in the "Running the Software" section below.
@@ -206,7 +211,7 @@ be done as follows (GICv2 support only):
         make ARCH=arm64 menuconfig
         #   Kernel Features ---> [*] Support for hot-pluggable CPUs
 
-        CROSS_COMPILE=/path/to/aarch64-none-elf- make -j6 ARCH=arm64
+        CROSS_COMPILE=</path/to/>aarch64-none-elf- make -j6 ARCH=arm64
 
 3.  Copy the Linux image `arch/arm64/boot/Image` to the working directory from
     where the FVP is launched. A symbolic link may also be created instead.
@@ -214,23 +219,39 @@ be done as follows (GICv2 support only):
 #### Obtaining the Flattened Device Trees
 
 Depending on the FVP configuration and Linux configuration used, different
-FDT files are required. FDTs for the Base FVP can be found in the Trusted
-Firmware source directory under `fdts`.
+FDT files are required. FDTs for the Foundation and Base FVPs can be found in
+the Trusted Firmware source directory under `fdts`. The Foundation FVP has a
+subset of the Base FVP components. For example, the Foundation FVP lacks CLCD
+and MMC support, and has only one CPU cluster).
 
 *   `fvp-base-gicv2-psci.dtb`
 
     (Default) For use with both AEMv8 and Cortex-A57-A53 Base FVPs with
-    default memory map configuration.
+    Base memory map configuration.
 
 *   `fvp-base-gicv2legacy-psci.dtb`
 
-    For use with both AEMv8 and Cortex-A57-A53 Base FVPs with legacy GICv2
+    For use with both AEMv8 and Cortex-A57-A53 Base FVPs with legacy VE GIC
     memory map configuration.
 
 *   `fvp-base-gicv3-psci.dtb`
 
-    For use with AEMv8 Base FVP with default memory map configuration and
+    For use with AEMv8 Base FVP with Base memory map configuration and
     Linux GICv3 support.
+
+*   `fvp-foundation-gicv2-psci.dtb`
+
+    (Default) For use with Foundation FVP with Base memory map configuration.
+
+*   `fvp-foundation-gicv2legacy-psci.dtb`
+
+    For use with Foundation FVP with legacy VE GIC memory map configuration.
+
+*   `fvp-foundation-gicv3-psci.dtb`
+
+    For use with Foundation FVP with Base memory map configuration and Linux
+    GICv3 support.
+
 
 Copy the chosen FDT blob as `fdt.dtb` to the directory from which the FVP
 is launched. A symbolic link may also be created instead.
@@ -282,14 +303,19 @@ To prepare a VirtioBlock file-system, do the following:
     4.  Rebuild EDK2 (see "Obtaining UEFI" section above).
 
 4.  The file-system image file should be provided to the model environment by
-    passing it the correct command line option. In the Base FVP the following
+    passing it the correct command line option. In the FVPs the following
     option should be provided in addition to the ones described in the
     "Running the software" section below.
 
     NOTE: A symbolic link to this file cannot be used with the FVP; the path
     to the real file must be provided.
 
+    On the Base FVPs:
         -C bp.virtioblockdevice.image_path="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+
+    On the Foundation FVP:
+        --block-device="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+
 
 5.  Ensure that the FVP doesn't output any error messages. If the following
     error message is displayed:
@@ -333,12 +359,40 @@ To Prepare a RAM-disk file-system, do the following:
 This release of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.1 build 8)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.1 build 8)
+*   `Foundation_v8` (Version 0.8.5206)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 0.8.5202)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 0.8.5202)
 
 Please refer to the FVP documentation for a detailed description of the model
 parameter options. A brief description of the important ones that affect the
 ARM Trusted Firmware and normal world software behavior is provided below.
+
+The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
+downloaded for free from [ARM's website][ARM FVP website].
+
+#### Running on the Foundation FVP
+
+The following `Foundation_v8` parameters should be used to boot Linux with
+4 CPUs using the ARM Trusted Firmware.
+
+NOTE: Using the `--block-device` parameter is not necessary if a Linux RAM-disk
+file-system is used (see the "Obtaining a File-system" section above).
+
+    Foundation_v8                             \
+    --cores=4                                 \
+    --no-secure-memory                        \
+    --visualization                           \
+    --gicv3                                   \
+    --data="<path to bl1.bin>"@0x0            \
+    --data="<path to UEFI binary>"@0x8000000  \
+    --block-device="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+
+The default use-case for the Foundation FVP is to enable the GICv3 device in the
+model but use the GICv2 FDT, in order for Linux to drive the GIC in GICv2
+emulation mode.
+
+The memory mapped addresses `0x0` and `0x8000000` correspond to the start of
+trusted ROM and NOR FLASH0 respectively.
 
 #### Running on the AEMv8 Base FVP
 
@@ -389,15 +443,17 @@ section above).
 ### Configuring the GICv2 memory map
 
 The Base FVP models support GICv2 with the default model parameters at the
-following addresses.
+following addresses. The Foundation FVP also supports these addresses when
+configured for GICv3 in GICv2 emulation mode.
 
     GICv2 Distributor Interface     0x2f000000
     GICv2 CPU Interface             0x2c000000
     GICv2 Virtual CPU Interface     0x2c010000
     GICv2 Hypervisor Interface      0x2c02f000
 
-The models can be configured to support GICv2 at addresses corresponding to the
-legacy (Versatile Express) memory map as follows.
+The Base FVP models can be configured to support GICv2 at addresses corresponding
+to the legacy (Versatile Express) memory map as follows. These are the default
+addresses when using the Foundation FVP in GICv2 mode.
 
     GICv2 Distributor Interface     0x2c001000
     GICv2 CPU Interface             0x2c002000
@@ -410,18 +466,32 @@ memory map (`0x1c010000`).
 
 *   `SYS_ID.Build[15:12]`
 
-    `0x1` corresponds to the presence of the default GICv2 memory map. This is
-    the default value.
+    `0x1` corresponds to the presence of the Base GIC memory map. This is the
+    default value.
 
 *   `SYS_ID.Build[15:12]`
 
-    `0x0` corresponds to the presence of the Legacy VE GICv2 memory map. This
+    `0x0` corresponds to the presence of the Legacy VE GIC memory map. This
     value can be configured as described in the next section.
 
-NOTE: If the legacy VE GICv2 memory map is used, then the corresponding FDT and
+NOTE: If the legacy VE GIC memory map is used, then the corresponding FDT and
 UEFI images should be used.
 
-#### Configuring AEMv8 Base FVP for legacy VE memory map
+#### Configuring AEMv8 Foundation FVP GIC for legacy VE memory map
+
+The following parameters configure the Foundation FVP to use GICv2. On the
+Foundation FVP only the legacy VE layout is supported in this mode:
+
+    Foundation_v8                            \
+    --cores=4                                \
+    --no-secure-memory                       \
+    --visualization                          \
+    --no-gicv3                               \
+    --data="<path to bl1.bin>"@0x0           \
+    --data="<path to UEFI binary>"@0x8000000 \
+    --block-device="<path/to/>vexpress64-openembedded_lamp-armv8_20130927-7.img"
+
+#### Configuring AEMv8 Base FVP GIC for legacy VE memory map
 
 The following parameters configure the GICv2 memory map in legacy VE mode:
 
@@ -450,7 +520,7 @@ The last parameter sets the build variant field of the `SYS_ID` register to
 `0x0`. This allows the ARM Trusted Firmware to detect the legacy VE memory map
 while configuring the GIC.
 
-#### Configuring Cortex-A57-A53 Base FVP for legacy VE memory map
+#### Configuring Cortex-A57-A53 Base FVP GIC for legacy VE memory map
 
 Configuration of the GICv2 as per the legacy VE memory map is controlled by
 the following parameter. In this case, separate configuration of the `SYS_ID`
@@ -954,8 +1024,9 @@ _Copyright (c) 2013 ARM Ltd. All rights reserved._
 
 [Change Log]: change-log.md
 
+[ARM FVP website]:  http://www.arm.com/fvp
 [Linaro Toolchain]: http://releases.linaro.org/13.09/components/toolchain/binaries/
-[EDK2]:             http://sourceforge.net/projects/edk2/files/ARM/aarch64-uefi-rev14582.tgz/download
+[EDK2]:             http://github.com/tianocore/edk2
 [DS-5]:             http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"

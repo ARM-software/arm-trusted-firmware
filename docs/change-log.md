@@ -1,3 +1,15 @@
+ARM Trusted Firmware - version <next>
+=====================================
+
+Detailed changes since last release
+-----------------------------------
+
+*   Support for Foundation FVP v5.2 added.
+    The documented UEFI configuration disables some devices that are unavailable
+    in the Foundation FVP, including MMC and CLCD. The resultant UEFI binary can
+    be used on the AEMv8 and Cortex-A57-A53 FVPs, as well as the Foundation FVP.
+
+
 ARM Trusted Firmware - version 0.2
 ==================================
 
