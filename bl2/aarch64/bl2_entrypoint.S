@@ -29,6 +29,7 @@
  */
 
 #include <bl_common.h>
+#include <arch.h>
 
 
 	.globl	bl2_entrypoint
@@ -58,6 +59,23 @@ bl2_entrypoint:; .type bl2_entrypoint, %function
 	mov	x19, x0
 	bl	platform_is_primary_cpu
 	cbz	x0, _panic
+
+	/* ---------------------------------------------
+	 * Set the exception vector to something sane.
+	 * ---------------------------------------------
+	 */
+	adr	x0, early_exceptions
+	msr	vbar_el1, x0
+
+	/* ---------------------------------------------
+	 * Enable the instruction cache.
+	 * ---------------------------------------------
+	 */
+	mrs	x0, sctlr_el1
+	orr	x0, x0, #SCTLR_I_BIT
+	msr	sctlr_el1, x0
+
+	isb
 
 	/* --------------------------------------------
 	 * Give ourselves a small coherent stack to

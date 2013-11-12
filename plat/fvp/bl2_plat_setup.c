@@ -124,24 +124,9 @@ void bl2_platform_setup()
  ******************************************************************************/
 void bl2_plat_arch_setup()
 {
-	unsigned long sctlr;
-
-	/* Enable instruction cache. */
-	sctlr = read_sctlr();
-	sctlr |= SCTLR_I_BIT;
-	write_sctlr(sctlr);
-
-	/*
-	 * Very simple exception vectors which assert if any exception other
-	 * than a single SMC call from BL2 to pass control to BL31 in EL3 is
-	 * received.
-	 */
-	write_vbar((unsigned long) early_exceptions);
-
 	configure_mmu(&bl2_tzram_layout,
 		      (unsigned long) &BL2_RO_BASE,
 		      (unsigned long) &BL2_STACKS_BASE,
 		      (unsigned long) &BL2_COHERENT_RAM_BASE,
 		      (unsigned long) &BL2_RW_BASE);
-	return;
 }

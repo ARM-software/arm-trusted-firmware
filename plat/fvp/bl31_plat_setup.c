@@ -166,14 +166,6 @@ void bl31_platform_setup()
  ******************************************************************************/
 void bl31_plat_arch_setup()
 {
-	unsigned long sctlr;
-
-	/* Enable instruction cache. */
-	sctlr = read_sctlr();
-	sctlr |= SCTLR_I_BIT;
-	write_sctlr(sctlr);
-
-	write_vbar((unsigned long) runtime_exceptions);
 	configure_mmu(&bl31_tzram_layout,
 		      (unsigned long) &BL31_RO_BASE,
 		      (unsigned long) &BL31_STACKS_BASE,

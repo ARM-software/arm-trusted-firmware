@@ -39,14 +39,9 @@ cpu_reset_handler:; .type cpu_reset_handler, %function
 	mov	x19, x30 // lr
 
 	/* ---------------------------------------------
-	 * As a bare minimal enable the SMP bit and the
-	 * I$ for all aarch64 processors. Also set the
-	 * exception vector to something sane.
+	 * As a bare minimal enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	adr	x0, early_exceptions
-	bl	write_vbar
-
 	bl	read_midr
 	lsr	x0, x0, #MIDR_PN_SHIFT
 	and	x0, x0, #MIDR_PN_MASK
@@ -59,8 +54,4 @@ smp_setup_begin:
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	bl	write_cpuectlr
 smp_setup_end:
-	bl	read_sctlr
-	orr	x0, x0, #SCTLR_I_BIT
-	bl	write_sctlr
-
 	ret	x19

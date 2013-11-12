@@ -31,6 +31,7 @@
 #include <bl1.h>
 #include <bl_common.h>
 #include <platform.h>
+#include <arch.h>
 
 
 	.globl	bl31_entrypoint
@@ -50,8 +51,29 @@ bl31_entrypoint:; .type bl31_entrypoint, %function
 	 * indicating BL31 should be run, memory layout
 	 * of the trusted SRAM available to BL31 and
 	 * information about running the non-trusted
-	 * software already loaded by BL2. Check the
-	 * opcode out of paranoia.
+	 * software already loaded by BL2.
+	 * ---------------------------------------------
+	 */
+
+	/* ---------------------------------------------
+	 * Set the exception vector to something sane.
+	 * ---------------------------------------------
+	 */
+	adr	x1, runtime_exceptions
+	msr	vbar_el3, x1
+
+	/* ---------------------------------------------
+	 * Enable the instruction cache.
+	 * ---------------------------------------------
+	 */
+	mrs	x1, sctlr_el3
+	orr	x1, x1, #SCTLR_I_BIT
+	msr	sctlr_el3, x1
+
+	isb
+
+	/* ---------------------------------------------
+	 * Check the opcodes out of paranoia.
 	 * ---------------------------------------------
 	 */
 	mov	x19, #RUN_IMAGE
