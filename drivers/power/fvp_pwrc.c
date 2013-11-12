@@ -77,11 +77,19 @@ void fvp_pwrc_write_ppoffr(unsigned long mpidr)
 	bakery_lock_release(mpidr, &pwrc_lock);
 }
 
-void fvp_pwrc_write_pwkupr(unsigned long mpidr)
+void fvp_pwrc_set_wen(unsigned long mpidr)
 {
 	bakery_lock_get(mpidr, &pwrc_lock);
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
 		      (unsigned int) (PWKUPR_WEN | mpidr));
+	bakery_lock_release(mpidr, &pwrc_lock);
+}
+
+void fvp_pwrc_clr_wen(unsigned long mpidr)
+{
+	bakery_lock_get(mpidr, &pwrc_lock);
+	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
+		      (unsigned int) mpidr);
 	bakery_lock_release(mpidr, &pwrc_lock);
 }
 

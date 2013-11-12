@@ -45,6 +45,9 @@ Detailed changes since last release
     instructions for how to contribute and update copyright text in all files to
     acknowledge contributors.
 
+*   The wake up enable bit in the FVP power controller is cleared when a cpu is
+    physically powered up to prevent a spurious wake up from a subsequent cpu
+    off state.
 
 ARM Trusted Firmware - version 0.2
 ==================================

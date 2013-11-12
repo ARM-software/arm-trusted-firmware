@@ -251,7 +251,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Program the power controller to power this
 			 * cpu off and enable wakeup interrupts.
 			 */
-			fvp_pwrc_write_pwkupr(mpidr);
+			fvp_pwrc_set_wen(mpidr);
 			fvp_pwrc_write_ppoffr(mpidr);
 		}
 		break;
@@ -308,6 +308,12 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			ectlr |= CPUECTLR_SMP_BIT;
 			write_cpuectlr(ectlr);
 		}
+
+		/*
+		 * Clear PWKUPR.WEN bit to ensure interrupts do not interfere
+		 * with a cpu power down unless the bit is set again
+		 */
+		fvp_pwrc_clr_wen(mpidr);
 
 		/* Zero the jump address in the mailbox for this cpu */
 		fvp_mboxes = (mailbox *) (TZDRAM_BASE + MBOX_OFF);
