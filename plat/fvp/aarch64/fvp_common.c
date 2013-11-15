@@ -461,7 +461,7 @@ void enable_mmu()
 		  TCR_RGN_INNER_WBA | TCR_T0SZ_4GB;
 	if (GET_EL(current_el) == MODE_EL3) {
 		tcr |= TCR_EL3_RES1;
-		/* Invalidate all TLBs */
+		/* Invalidate EL3 TLBs */
 		tlbialle3();
 	} else {
 		/* Invalidate EL1 TLBs */
@@ -490,9 +490,6 @@ void disable_mmu(void)
 	write_tcr(0);
 	write_ttbr0(0);
 	write_sctlr(0);
-
-	/* Invalidate TLBs of the CurrentEL */
-	tlbiall();
 
 	/* Flush the caches */
 	dcsw_op_all(DCCISW);

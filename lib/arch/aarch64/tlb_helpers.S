@@ -30,8 +30,6 @@
 
 #include <arch_helpers.h>
 
-	.globl	tlbiall
-	.globl	tlbiallis
 	.globl	tlbialle1
 	.globl	tlbialle1is
 	.globl	tlbialle2
@@ -42,26 +40,6 @@
 
 
 	.section	.text, "ax"
-
-tlbiall:; .type tlbiall, %function
-	mrs	x0, CurrentEl
-	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
-	b.eq	tlbialle1
-	cmp	x0, #(MODE_EL2 << MODE_EL_SHIFT)
-	b.eq	tlbialle2
-	cmp	x0, #(MODE_EL3 << MODE_EL_SHIFT)
-	b.eq	tlbialle3
-
-
-tlbiallis:; .type tlbiallis, %function
-	mrs	x0, CurrentEl
-	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
-	b.eq	tlbialle1is
-	cmp	x0, #(MODE_EL2 << MODE_EL_SHIFT)
-	b.eq	tlbialle2is
-	cmp	x0, #(MODE_EL3 << MODE_EL_SHIFT)
-	b.eq	tlbialle3is
-
 
 tlbialle1:; .type tlbialle1, %function
 	tlbi	alle1

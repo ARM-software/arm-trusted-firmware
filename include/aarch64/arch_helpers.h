@@ -48,8 +48,6 @@
 /*******************************************************************************
  * TLB maintenance accessor prototypes
  ******************************************************************************/
-extern void tlbiall(void);
-extern void tlbiallis(void);
 extern void tlbialle1(void);
 extern void tlbialle1is(void);
 extern void tlbialle2(void);
