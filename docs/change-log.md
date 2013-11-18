@@ -20,6 +20,10 @@ Detailed changes since last release
 *   Unmask SError and Debug exceptions in the trusted firmware.
     Also route external abort and SError interrupts to EL3.
 
+*   The amount of physical RAM available to Linux as specified in the FDTs for
+    Base FVPs have been increased from 2GB to 4GB. This resolves the issue of
+    failing to start user-space when using a RAM-disk file-system.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================

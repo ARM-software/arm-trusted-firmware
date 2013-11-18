@@ -338,10 +338,6 @@ To prepare a VirtioBlock file-system, do the following:
 
 ##### Prepare RAM-disk
 
-NOTE: The RAM-disk option does not currently work with the Linux kernel version
-described above; use the VirtioBlock method instead. For further information
-please see the "Known issues" section in the [Change Log].
-
 To prepare a RAM-disk root file-system, do the following:
 
 1.  Download the file-system image:
