@@ -82,6 +82,8 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	psci_secure_context[index].tcr = read_tcr();
 	psci_secure_context[index].ttbr = read_ttbr0();
 	psci_secure_context[index].vbar = read_vbar();
+	psci_secure_context[index].pstate =
+		read_daif() & (DAIF_ABT_BIT | DAIF_DBG_BIT);
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
@@ -370,6 +372,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * context in the right order.
 	 */
 	write_vbar(psci_secure_context[index].vbar);
+	write_daif(read_daif() | psci_secure_context[index].pstate);
 	write_mair(psci_secure_context[index].mair);
 	write_tcr(psci_secure_context[index].tcr);
 	write_ttbr0(psci_secure_context[index].ttbr);

@@ -64,6 +64,7 @@ typedef struct {
 	unsigned long tcr;
 	unsigned long ttbr;
 	unsigned long vbar;
+	unsigned long pstate;
 } secure_context;
 
 /*******************************************************************************

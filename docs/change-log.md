@@ -17,6 +17,9 @@ Detailed changes since last release
 
 *   Fixed various GCC compiler warnings.
 
+*   Unmask SError and Debug exceptions in the trusted firmware.
+    Also route external abort and SError interrupts to EL3.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================

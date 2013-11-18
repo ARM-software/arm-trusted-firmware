@@ -39,6 +39,9 @@
 	.globl	enable_serror
 	.globl	disable_serror
 
+	.globl	enable_debug_exceptions
+	.globl	disable_debug_exceptions
+
 	.globl	read_daif
 	.globl	write_daif
 
@@ -110,6 +113,11 @@ enable_serror:; .type enable_serror, %function
 	ret
 
 
+enable_debug_exceptions:
+	msr	daifclr, #DAIF_DBG_BIT
+	ret
+
+
 disable_irq:; .type disable_irq, %function
 	msr	daifset, #DAIF_IRQ_BIT
 	ret
@@ -122,6 +130,11 @@ disable_fiq:; .type disable_fiq, %function
 
 disable_serror:; .type disable_serror, %function
 	msr	daifset, #DAIF_ABT_BIT
+	ret
+
+
+disable_debug_exceptions:
+	msr	daifset, #DAIF_DBG_BIT
 	ret
 
 

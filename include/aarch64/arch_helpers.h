@@ -80,10 +80,12 @@ extern void dcsw_op_all(unsigned int);
 extern void enable_irq(void);
 extern void enable_fiq(void);
 extern void enable_serror(void);
+extern void enable_debug_exceptions(void);
 
 extern void disable_irq(void);
 extern void disable_fiq(void);
 extern void disable_serror(void);
+extern void disable_debug_exceptions(void);
 
 extern unsigned long read_id_pfr1_el1(void);
 extern unsigned long read_id_aa64pfr0_el1(void);
