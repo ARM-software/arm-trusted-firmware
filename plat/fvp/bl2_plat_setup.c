@@ -62,17 +62,9 @@ static meminfo bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
-/* Data structure which holds the extents of the non-trusted DRAM for BL2*/
-static meminfo dram_layout;
-
 meminfo bl2_get_sec_mem_layout(void)
 {
 	return bl2_tzram_layout;
-}
-
-meminfo bl2_get_ns_mem_layout(void)
-{
-	return dram_layout;
 }
 
 /*******************************************************************************
@@ -98,24 +90,13 @@ void bl2_early_platform_setup(meminfo *mem_layout,
 }
 
 /*******************************************************************************
- * Not much to do here aprt from finding out the extents of non-trusted DRAM
- * which will be used for loading the non-trusted software images. We are
- * relying on pre-iniitialized zi memory so there is nothing to zero out like
- * in BL1. This is 'cause BL2 is raw PIC binary. Its load address is determined
- * at runtime. The ZI section might be lost if its not already there.
+ * Perform platform specific setup. For now just initialize the memory location
+ * to use for passing arguments to BL31.
  ******************************************************************************/
 void bl2_platform_setup()
 {
-	dram_layout.total_base = DRAM_BASE;
-	dram_layout.total_size = DRAM_SIZE;
-	dram_layout.free_base = DRAM_BASE;
-	dram_layout.free_size = DRAM_SIZE;
-	dram_layout.attr = 0;
-
 	/* Use the Trusted DRAM for passing args to BL31 */
 	bl2_el_change_mem_ptr = (unsigned char **) TZDRAM_BASE;
-
-	return;
 }
 
 /*******************************************************************************
