@@ -95,10 +95,10 @@ INCLUDES		+=	-Ilib/include/ -Iinclude/aarch64/ -Iinclude/	\
 				-Iplat/fvp -Idrivers/power			\
 				-Iarch/system/gic -Icommon/psci
 
-ASFLAGS			+= 	 -D__ASSEMBLY__ $(INCLUDES)
-CFLAGS			:= 	-Wall -std=c99 -c -Os -DDEBUG=$(DEBUG) $(INCLUDES) ${CFLAGS}
+ASFLAGS			+= 	-Wa,--fatal-warnings -D__ASSEMBLY__ ${INCLUDES}
+CFLAGS			:= 	-Wall -Werror -std=c99 -c -Os -DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
 
-LDFLAGS			+=	-O1
+LDFLAGS			+=	--fatal-warnings -O1
 BL1_LDFLAGS		:=	-Map=${BL1_MAPFILE} --script ${BL1_LINKERFILE} --entry=${BL1_ENTRY_POINT}
 BL2_LDFLAGS		:=	-Map=${BL2_MAPFILE} --script ${BL2_LINKERFILE} --entry=${BL2_ENTRY_POINT}
 BL31_LDFLAGS		:=	-Map=${BL31_MAPFILE} --script ${BL31_LINKERFILE} --entry=${BL31_ENTRY_POINT}
