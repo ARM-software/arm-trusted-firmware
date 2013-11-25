@@ -63,6 +63,13 @@
  ******************************************************************************/
 #define EL_CHANGE_MEM_SIZE	(sizeof(meminfo) + sizeof(el_change_info))
 
+/*******************************************************************************
+ * Macro to flag a compile time assertion. It uses the preprocessor to generate
+ * an invalid C construct if 'cond' evaluates to false.
+ * The following  compilation error is triggered if the assertion fails:
+ * "error: size of array 'msg' is negative"
+ ******************************************************************************/
+#define CASSERT(cond, msg)	typedef char msg[(cond) ? 0 : -1]
 
 #ifndef __ASSEMBLY__
 /*******************************************************************************

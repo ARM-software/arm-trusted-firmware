@@ -55,14 +55,14 @@
 
 
 	.macro	exception_entry  func
-	stp	x29, x30, [sp, #-0x10]!
+	stp	x29, x30, [sp, #-(SIZEOF_GPREGS - GPREGS_FP_OFF)]!
 	bl	\func
 	.endm
 
 
 	.macro	exception_exit  func
 	bl	\func
-	ldp	x29, x30, [sp], #0x10
+	ldp	x29, x30, [sp], #(SIZEOF_GPREGS - GPREGS_FP_OFF)
 	.endm
 
 
