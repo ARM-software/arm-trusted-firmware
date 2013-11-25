@@ -38,6 +38,7 @@
 #include <semihosting.h>
 #include <bl_common.h>
 #include <psci.h>
+#include <runtime_svc.h>
 
 /*******************************************************************************
  * Perform initialization of runtime services possibly across exception levels

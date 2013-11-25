@@ -52,6 +52,10 @@ Detailed changes since last release
 *   Definitions of some constants related to the PSCI api calls AFFINITY_INFO
     and CPU_SUSPEND have been corrected.
 
+*   A bug which triggered an error condition in the code executed after a cpu
+    is powered on, if a non zero context id parameter was passed in the PSCI
+    CPU_ON and CPU_SUSPEND api calls has been corrected.
+
 ARM Trusted Firmware - version 0.2
 ==================================
 

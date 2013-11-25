@@ -32,6 +32,7 @@
 #include <platform.h>
 #include <psci.h>
 #include <psci_private.h>
+#include <runtime_svc.h>
 #include <asm_macros.S>
 
 	.globl	psci_aff_on_finish_entry
@@ -77,7 +78,6 @@ psci_aff_common_finish_entry:
 	mov	x0, x19
 	mov	x1, #MPIDR_AFFLVL0
 	blr	x22
-	mov	x21, x0
 
 	/* --------------------------------------------
 	 * Give ourselves a stack allocated in Normal
@@ -88,10 +88,13 @@ psci_aff_common_finish_entry:
 	bl	platform_set_stack
 
 	/* --------------------------------------------
-	 * Restore the context id. value
+	 * Use the size of the general purpose register
+	 * context to restore the register state
+	 * stashed by earlier code
 	 * --------------------------------------------
 	 */
-	mov	x0, x21
+	sub	sp, sp, #SIZEOF_GPREGS
+	exception_exit	restore_regs
 
 	/* --------------------------------------------
 	 * Jump back to the non-secure world assuming

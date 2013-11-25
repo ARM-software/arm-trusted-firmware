@@ -35,6 +35,7 @@
 	.globl	pcpu_dv_mem_stack
 	.weak	platform_get_core_pos
 	.weak	platform_set_stack
+	.weak	platform_get_stack
 	.weak	platform_is_primary_cpu
 	.weak	platform_set_coherent_stack
 	.weak	platform_check_mpidr
@@ -95,19 +96,28 @@ platform_is_primary_cpu:; .type platform_is_primary_cpu, %function
 	cset	x0, eq
 	ret
 
-
 	/* -----------------------------------------------------
-	 * void platform_set_stack (int mpidr)
+	 * void platform_get_stack (unsigned long mpidr)
 	 * -----------------------------------------------------
 	 */
-platform_set_stack:; .type platform_set_stack, %function
-	mov	x9, x30 // lr
+platform_get_stack:; .type platform_get_stack, %function
+	mov	x10, x30 // lr
 	bl	platform_get_core_pos
 	add	x0, x0, #1
 	mov	x1, #PLATFORM_STACK_SIZE
 	mul	x0, x0, x1
 	ldr	x1, =platform_normal_stacks
-	add	sp, x1, x0
+	add	x0, x1, x0
+	ret	x10
+
+	/* -----------------------------------------------------
+	 * void platform_set_stack (unsigned long mpidr)
+	 * -----------------------------------------------------
+	 */
+platform_set_stack:; .type platform_set_stack, %function
+	mov	x9, x30 // lr
+	bl	platform_get_stack
+	mov	sp, x0
 	ret	x9
 
 	/* -----------------------------------------------------

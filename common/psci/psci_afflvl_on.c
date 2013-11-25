@@ -337,7 +337,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	 * for restoring the re-entry info
 	 */
 	index = cpu_node->data;
-	rc = psci_get_ns_entry_info(index);
+	psci_get_ns_entry_info(index);
 
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);

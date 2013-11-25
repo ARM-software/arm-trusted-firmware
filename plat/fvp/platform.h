@@ -331,6 +331,7 @@ extern unsigned long platform_get_cfgvar(unsigned int);
 extern int platform_config_setup(void);
 extern void plat_report_exception(unsigned long);
 extern unsigned long plat_get_ns_image_entrypoint(void);
+extern unsigned long platform_get_stack(unsigned long mpidr);
 
 /* Declarations for fvp_topology.c */
 extern int plat_setup_topology(void);

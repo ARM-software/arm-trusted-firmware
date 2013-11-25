@@ -188,8 +188,9 @@ the implementer chooses. In the ARM FVP port, they are implemented in
     bytes) of the largest cache line amongst all caches implemented in the
     system. A pointer to this memory should be exported with the name
     `platform_normal_stacks`. This pointer is used by the common platform helper
-    function `platform_set_stack()` to allocate a stack to each CPU in the
-    platform (see [../plat/common/aarch64/platform_helpers.S]).
+    functions `platform_set_stack()` (to allocate a stack for each CPU in the
+    platform)  & `platform_get_stack()` (to return the base address of that
+    stack) (see [../plat/common/aarch64/platform_helpers.S]).
 
 
 2.2 Common optional modifications
@@ -257,6 +258,20 @@ This function uses the `platform_normal_stacks` pointer variable to allocate
 stacks to each CPU. Further details are given in the description of the
 `platform_normal_stacks` variable below. A CPU is identified by its `MPIDR`,
 which is passed as the argument.
+
+The size of the stack allocated to each CPU is specified by the platform defined
+constant `PLATFORM_STACK_SIZE`.
+
+
+### Function : platform_get_stack()
+
+    Argument : unsigned long
+    Return   : unsigned long
+
+This function uses the `platform_normal_stacks` pointer variable to return the
+base address of the stack memory reserved for a CPU. Further details are given
+in the description of the `platform_normal_stacks` variable below. A CPU is
+identified by its `MPIDR`, which is passed as the argument.
 
 The size of the stack allocated to each CPU is specified by the platform defined
 constant `PLATFORM_STACK_SIZE`.

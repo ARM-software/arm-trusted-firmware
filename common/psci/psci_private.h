@@ -108,7 +108,7 @@ extern int get_max_afflvl(void);
 extern unsigned int psci_get_phys_state(unsigned int);
 extern unsigned int psci_get_aff_phys_state(aff_map_node *);
 extern unsigned int psci_calculate_affinity_state(aff_map_node *);
-extern unsigned int psci_get_ns_entry_info(unsigned int index);
+extern void psci_get_ns_entry_info(unsigned int index);
 extern unsigned long mpidr_set_aff_inst(unsigned long,unsigned char, int);
 extern int psci_change_state(unsigned long, int, int, unsigned int);
 extern int psci_validate_mpidr(unsigned long, int);

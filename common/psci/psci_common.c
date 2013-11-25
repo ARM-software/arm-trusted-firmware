@@ -36,6 +36,7 @@
 #include <platform.h>
 #include <psci.h>
 #include <psci_private.h>
+#include <runtime_svc.h>
 
 /*******************************************************************************
  * Arrays that contains information needs to resume a cpu's execution when woken
@@ -280,9 +281,10 @@ unsigned int psci_calculate_affinity_state(aff_map_node *aff_node)
  * resume a cpu's execution in the non-secure state after it has been physically
  * powered on i.e. turned ON or resumed from SUSPEND
  ******************************************************************************/
-unsigned int psci_get_ns_entry_info(unsigned int index)
+void psci_get_ns_entry_info(unsigned int index)
 {
 	unsigned long sctlr = 0, scr, el_status, id_aa64pfr0;
+	gp_regs *ns_gp_regs;
 
 	scr = read_scr();
 
@@ -318,10 +320,22 @@ unsigned int psci_get_ns_entry_info(unsigned int index)
 
 	/* Fulfill the cpu_on entry reqs. as per the psci spec */
 	write_scr(scr);
-	write_spsr(psci_ns_entry_info[index].eret_info.spsr);
 	write_elr(psci_ns_entry_info[index].eret_info.entrypoint);
 
-	return psci_ns_entry_info[index].context_id;
+	/*
+	 * Set the general purpose registers to ~0 upon entry into the
+	 * non-secure world except for x0 which should contain the
+	 * context id & spsr. This is done directly on the "would be"
+	 * stack pointer. Prior to entry into the non-secure world, an
+	 * offset equivalent to the size of the 'gp_regs' structure is
+	 * added to the sp. This general purpose register context is
+	 * retrieved then.
+	 */
+	ns_gp_regs = (gp_regs *) platform_get_stack(read_mpidr());
+	ns_gp_regs--;
+	memset(ns_gp_regs, ~0, sizeof(*ns_gp_regs));
+	ns_gp_regs->x0 = psci_ns_entry_info[index].context_id;
+	ns_gp_regs->spsr = psci_ns_entry_info[index].eret_info.spsr;
 }
 
 /*******************************************************************************

@@ -389,7 +389,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * information that we had stashed away during the suspend
 	 * call to set this cpu on it's way.
 	 */
-	rc = psci_get_ns_entry_info(index);
+	psci_get_ns_entry_info(index);
 
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
