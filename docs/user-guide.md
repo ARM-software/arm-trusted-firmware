@@ -860,16 +860,32 @@ memory address populated by BL2.
     -   `PSCI_VERSION`
     -   `CPU_OFF`
     -   `CPU_ON`
+    -   `CPU_SUSPEND`
     -   `AFFINITY_INFO`
 
-    The `CPU_ON` and `CPU_OFF` functions implement the warm boot path in ARM
-    Trusted Firmware. These are the only functions which have been tested.
-    `AFFINITY_INFO` & `PSCI_VERSION` are present but completely untested in
-    this version of the software.
+    The `CPU_ON`, `CPU_OFF` and `CPU_SUSPEND` functions implement the warm boot
+    path in ARM Trusted Firmware. `CPU_ON` and `CPU_OFF` have undergone testing
+    on all the supported FVPs. `CPU_SUSPEND` & `AFFINITY_INFO` have undergone
+    testing only on the AEM v8 Base FVP. Support for `AFFINITY_INFO` is still
+    experimental. Support for `CPU_SUSPEND` is stable for entry into power down
+    states. Standby states are currently not supported. `PSCI_VERSION` is
+    present but completely untested in this version of the software.
 
-    Unsupported PSCI functions that can return, return the `NOT_SUPPORTED`
-    (`-1`) error code. Other unsupported PSCI functions that don't return,
-    signal an assertion failure.
+    Unsupported PSCI functions can be divided into ones that can return
+    execution to the caller and ones that cannot. The following functions
+    return with a error code as documented in the [Power State Coordination
+    Interface PDD] [PSCI].
+
+    -   `MIGRATE` : -1 (NOT_SUPPORTED)
+    -   `MIGRATE_INFO_TYPE` : 2 (Trusted OS is either not present or does not
+         require migration)
+    -   `MIGRATE_INFO_UP_CPU` : 0 (Return value is UNDEFINED)
+
+    The following unsupported functions do not return and signal an assertion
+    failure if invoked.
+
+    -   `SYSTEM_OFF`
+    -   `SYSTEM_RESET`
 
     BL3-1 returns the error code `-1` if an SMC is raised for any other runtime
     service. This behavior is mandated by the [SMC calling convention PDD]

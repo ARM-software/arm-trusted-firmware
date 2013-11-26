@@ -59,6 +59,20 @@ Detailed changes since last release
 *   A restriction in the FVP code which did not allow the non-secure entrypoint
     to lie outside the DRAM has been removed.
 
+*   The PSCI CPU_SUSPEND api has been stabilised to an extent where it can be
+    used for entry into power down states with the following restrictions:
+    -   Entry into standby states is not supported.
+    -   The api is only supported on the AEMv8 Base FVP.
+
+
+*   The PSCI AFFINITY_INFO api has undergone limited testing on the AEMv8 Base
+    FVP to allow experimental use.
+
+*   Locks corresponding to each affinity level are acquired and released in
+    the correct sequence in the PSCI implementation. Invocation of the PSCI
+    CPU_SUSPEND and CPU_OFF apis simultaneously across cpus & clusters should
+    not result in unexpected behaviour.
+
 ARM Trusted Firmware - version 0.2
 ==================================
 
