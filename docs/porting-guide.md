@@ -164,11 +164,12 @@ constants defined. In the ARM FVP port, this file is found in
 *   **#define : BL2_BASE**
 
     Defines the base address in secure RAM where BL1 loads the BL2 binary image.
+    Must be aligned on a page-size boundary.
 
 *   **#define : BL31_BASE**
 
     Defines the base address in secure RAM where BL2 loads the BL3-1 binary
-    image.
+    image. Must be aligned on a page-size boundary.
 
 
 ### Other mandatory modifications

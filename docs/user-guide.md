@@ -883,15 +883,133 @@ world software image at the highest available Exception Level (EL2 if
 available, otherwise EL1).
 
 
-### Memory layout on Base FVP
+### Memory layout on FVP platforms
+
+On FVP platforms, we use the Trusted ROM and Trusted SRAM to store the trusted
+firmware binaries. BL1 is originally sitting in the Trusted ROM. Its read-write
+data are relocated at the base of the Trusted SRAM at runtime. BL1 loads BL2
+image near the top of the the trusted SRAM. BL2 loads BL3-1 image between BL1
+and BL2. This memory layout is illustrated by the following diagram.
+
+    Trusted SRAM
+    +----------+ 0x04040000
+    |          |
+    |----------|
+    |   BL2    |
+    |----------|
+    |          |
+    |----------|
+    |   BL31   |
+    |----------|
+    |          |
+    |----------|
+    | BL1 (rw) |
+    +----------+ 0x04000000
+
+    Trusted ROM
+    +----------+ 0x04000000
+    | BL1 (ro) |
+    +----------+ 0x00000000
+
+Each bootloader stage image layout is described by its own linker script. The
+linker scripts export some symbols into the program symbol table. Their values
+correspond to particular addresses. The trusted firwmare code can refer to these
+symbols to figure out the image memory layout.
+
+Linker symbols follow the following naming convention in the trusted firmware.
+
+*   `__<SECTION>_START__`
+
+    Start address of a given section named `<SECTION>`.
+
+*   `__<SECTION>_END__`
+
+    End address of a given section named `<SECTION>`. If there is an alignment
+    constraint on the section's end address then `__<SECTION>_END__` corresponds
+    to the end address of the section's actual contents, rounded up to the right
+    boundary. Refer to the value of `__<SECTION>_UNALIGNED_END__`  to know the
+    actual end address of the section's contents.
+
+*   `__<SECTION>_UNALIGNED_END__`
+
+    End address of a given section named `<SECTION>` without any padding or
+    rounding up due to some alignment constraint.
+
+*   `__<SECTION>_SIZE__`
+
+    Size (in bytes) of a given section named `<SECTION>`. If there is an
+    alignment constraint on the section's end address then `__<SECTION>_SIZE__`
+    corresponds to the size of the section's actual contents, rounded up to the
+    right boundary. In other words, `__<SECTION>_SIZE__ = __<SECTION>_END__ -
+    _<SECTION>_START__`. Refer to the value of `__<SECTION>_UNALIGNED_SIZE__`
+    to know the actual size of the section's contents.
+
+*   `__<SECTION>_UNALIGNED_SIZE__`
+
+    Size (in bytes) of a given section named `<SECTION>` without any padding or
+    rounding up due to some alignment constraint. In other words,
+    `__<SECTION>_UNALIGNED_SIZE__ = __<SECTION>_UNALIGNED_END__ -
+    __<SECTION>_START__`.
+
+Some of the linker symbols are mandatory as the trusted firmware code relies on
+them to be defined. They are listed in the following subsections. Some of them
+must be provided for each bootloader stage and some are specific to a given
+bootloader stage.
+
+The linker scripts define some extra, optional symbols. They are not actually
+used by any code but they help in undertanding the bootloader images' memory
+layout as they are easy to spot in the link map files.
+
+#### Common linker symbols
+
+Early setup code needs to know the extents of the BSS section to zero-initialise
+it before executing any C code. The following linker symbols are defined for
+this purpose:
+
+* `__BSS_START__` This address must be aligned on a 16-byte boundary.
+* `__BSS_SIZE__`
+
+Similarly, the coherent memory section must be zero-initialised. Also, the MMU
+setup code needs to know the extents of this section to set the right memory
+attributes for it. The following linker symbols are defined for this purpose:
+
+* `__COHERENT_RAM_START__` This address must be aligned on a page-size boundary.
+* `__COHERENT_RAM_END__` This address must be aligned on a page-size boundary.
+* `__COHERENT_RAM_UNALIGNED_SIZE__`
+
+#### BL1's linker symbols
+
+BL1's early setup code needs to know the extents of the .data section to
+relocate it from ROM to RAM before executing any C code. The following linker
+symbols are defined for this purpose:
+
+* `__DATA_ROM_START__` This address must be aligned on a 16-byte boundary.
+* `__DATA_RAM_START__` This address must be aligned on a 16-byte boundary.
+* `__DATA_SIZE__`
+
+BL1's platform setup code needs to know the extents of its read-write data
+region to figure out its memory layout. The following linker symbols are defined
+for this purpose:
+
+* `__BL1_RAM_START__` This is the start address of BL1 RW data.
+* `__BL1_RAM_END__` This is the end address of BL1 RW data.
+
+#### BL2's and BL3-1's linker symbols
+
+Both BL2 and BL3-1 need to know the extents of their read-only section to set
+the right memory attributes for this memory region in their MMU setup code. The
+following linker symbols are defined for this purpose:
+
+* `__RO_START__`
+* `__RO_END__`
+
+#### How to choose the right base address for each bootloader stage image
 
 The current implementation of the image loader has some limitations. It is
 designed to load images dynamically, at a load address chosen to minimize memory
 fragmentation. The chosen image location can be either at the top or the bottom
 of free memory. However, until this feature is fully functional, the code also
-contains support for loading images at a link-time fixed address. The code that
-dynamically calculates the load address is bypassed and the load address is
-specified statically by the platform.
+contains support for loading images at a link-time fixed address.
 
 BL1 is always loaded at address `0x0`. BL2 and BL3-1 are loaded at specified
 locations in Trusted SRAM. The lack of dynamic image loader support means these
@@ -899,42 +1017,79 @@ load addresses must currently be adjusted as the code grows. The individual
 images must be linked against their ultimate runtime locations.
 
 BL2 is loaded near the top of the Trusted SRAM. BL3-1 is loaded between BL1
-and BL2. As a general rule, the following constraints must always be enforced:
+and BL2. All three images are resident concurrently in Trusted RAM during boot
+so overlaps are not permitted.
 
-1.  `BL2_MAX_ADDR <= (<Top of Trusted SRAM>)`
-2.  `BL31_BASE >= BL1_MAX_ADDR`
-3.  `BL2_BASE >= BL31_MAX_ADDR`
+The image end addresses can be determined from the link map files of the
+different images. These are the `build/<platform>/<build-type>/bl<x>/bl<x>.map`
+files, with `<x>` the stage bootloader.
 
-Constraint 1 is enforced by BL2's linker script. If it is violated then the
+* `bl1.map` link map file provides `__BL1_RAM_END__` address.
+* `bl2.map` link map file provides `__BL2_END__` address.
+* `bl31.map` link map file provides `__BL31_END__` address.
+
+To prevent images from overlapping each other, the following constraints must be
+enforced:
+
+1.  `__BL1_RAM_END__ <= BL31_BASE`
+2.  `__BL31_END__ <= BL2_BASE`
+3.  `__BL2_END__ <= (<Top of Trusted SRAM>)`
+
+This is illustrated by the following memory layout diagram:
+
+    +----------+ 0x04040000
+    |          |
+    |----------| __BL2_END__
+    |   BL2    |
+    |----------| BL2_BASE
+    |          |
+    |----------| __BL31_END__
+    |   BL31   |
+    |----------| BL31_BASE
+    |          |
+    |----------| __BL1_RAM_END__
+    | BL1 (rw) |
+    +----------+ 0x04000000
+
+Overlaps are detected during image linking as follows.
+
+Constraint 1 is enforced by BL1's linker script. If it is violated then the
+linker will report an error while building BL1 to indicate that it doesn't
+fit:
+
+    aarch64-none-elf-ld: BL31 image overlaps BL1 image.
+
+This error means that the BL3-1 base address needs to be incremented. Ensure
+that the new memory layout still obeys all constraints.
+
+Constraint 2 is enforced by BL3-1's linker script. If it is violated then the
+linker will report an error while building BL3-1 to indicate that it doesn't
+fit:
+
+    aarch64-none-elf-ld: BL31 image overlaps BL2 image.
+
+This error can either mean that the BL3-1 base address needs to be decremented
+or that BL2 base address needs to be incremented. Ensure that the new memory
+layout still obeys all constraints.
+
+Constraint 3 is enforced by BL2's linker script. If it is violated then the
 linker will report an error while building BL2 to indicate that it doesn't
 fit. For example:
 
     aarch64-none-elf-ld: address 0x40400c8 of bl2.elf section `.bss' is not
     within region `RAM'
 
-This error means that the BL2 base address needs to be moved down. Be sure that
-the new BL2 load address still obeys constraint 3.
+This error means that the BL2 base address needs to be decremented. Ensure that
+the new memory layout still obeys all constraints.
 
-Constraints 2 & 3 must currently be checked by hand. To ensure they are
-enforced, first determine the maximum addresses used by BL1 and BL3-1. This can
-be deduced from the link map files of the different images.
+Since constraint checks are scattered across linker scripts, it is required to
+`make clean` prior to building to ensure that all possible overlapping scenarios
+are checked.
 
-The BL1 link map file (`bl1.map`) gives these 2 values:
-
-*   `FIRMWARE_RAM_COHERENT_START`
-*   `FIRMWARE_RAM_COHERENT_SIZE`
-
-The maximum address used by BL1 can then be easily determined:
-
-    BL1_MAX_ADDR = FIRMWARE_RAM_COHERENT_START + FIRMWARE_RAM_COHERENT_SIZE
-
-The BL3-1 link map file (`bl31.map`) gives the following value:
-
-*   `BL31_DATA_STOP`. This is the the maximum address used by BL3-1.
-
-The current implementation can result in wasted space because a simplified
-`meminfo` structure represents the extents of free memory. For example, to load
-BL2 at address `0x04020000`, the resulting memory layout should be as follows:
+The current implementation of the image loader can result in wasted space
+because of the simplified data structure used to represent the extents of free
+memory. For example, to load BL2 at address `0x0402D000`, the resulting memory
+layout should be as follows:
 
     ------------ 0x04040000
     |          |  <- Free space (1)

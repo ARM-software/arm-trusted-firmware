@@ -26,6 +26,20 @@ Detailed changes since last release
 
 *   Build products are now created in a separate build directory tree.
 
+*   Analyze at link-time whether bootloader images will fit in memory and won't
+    overlap each other at run time. If it is not the case then image linking
+    will now fail.
+
+*   Reduce the size of the bootloader images by cutting some sections out of
+    their disk images and allocating them at load time, whenever possible.
+
+*   Properly initialise the C runtime environment. C code can now safely assume
+    that global variables are initialised to 0 and that initialised data holds
+    the correct value.
+
+*   General changes on the memory layout: some sections have been moved, some of
+    them have been merged together, and some alignment constraints on sections
+    have changed.
 
 ARM Trusted Firmware - version 0.2
 ==================================
