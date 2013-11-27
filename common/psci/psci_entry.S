@@ -39,7 +39,7 @@
 	.globl	__psci_cpu_off
 	.globl	__psci_cpu_suspend
 
-	.section	platform_code, "ax"; .align 3
+	.section	.text, "ax"; .align 3
 
 	/* -----------------------------------------------------
 	 * This cpu has been physically powered up. Depending

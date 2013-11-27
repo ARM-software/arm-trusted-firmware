@@ -248,6 +248,8 @@
 #define OSH			(0x2 << 6)
 #define ISH			(0x3 << 6)
 
+#define IS_PAGE_ALIGNED(addr)	(((addr) & 0xFFF) == 0)
+
 /*
  * AP[1] bit is ignored by hardware and is
  * treated as if it is One in EL2/EL3

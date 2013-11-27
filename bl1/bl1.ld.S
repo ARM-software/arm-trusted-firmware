@@ -34,57 +34,77 @@ OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
 
 MEMORY {
-    /* ROM is read-only and executable */
     ROM (rx): ORIGIN = TZROM_BASE, LENGTH = TZROM_SIZE
-    /* RAM is read/write and Initialised */
     RAM (rwx): ORIGIN = TZRAM_BASE, LENGTH = TZRAM_SIZE
 }
 
 SECTIONS
 {
-    FIRMWARE_ROM : {
-        *(reset_code)
+    ro : {
+        __RO_START__ = .;
+        *bl1_entrypoint.o(.text)
         *(.text)
-        *(.rodata)
+        *(.rodata*)
+        __RO_END__ = .;
     } >ROM
 
-    .bss : {
-        __BSS_RAM_START__ = .;
-        *(.bss)
-        *(COMMON)
-        __BSS_RAM_STOP__ = .;
-    } >RAM AT>ROM
-
-    .data : {
+    /*
+     * The .data section gets copied from ROM to RAM at runtime.
+     * Its LMA and VMA must be 16-byte aligned.
+     */
+    . = NEXT(16);        /* Align LMA */
+    .data : ALIGN(16) {  /* Align VMA */
         __DATA_RAM_START__ = .;
         *(.data)
-        __DATA_RAM_STOP__ = .;
-     } >RAM AT>ROM
-
-    FIRMWARE_RAM_STACKS ALIGN (PLATFORM_CACHE_LINE_SIZE) : {
-        . += 0x1000;
-        *(tzfw_normal_stacks)
-        . = ALIGN(4096);
+        __DATA_RAM_END__ = .;
     } >RAM AT>ROM
 
-    FIRMWARE_RAM_COHERENT ALIGN (4096): {
-        *(tzfw_coherent_mem)
-/*      . += 0x1000;*/
-/* Do we need to make sure this is at least 4k? */
-         . = ALIGN(4096);
+    stacks (NOLOAD) : {
+        __STACKS_START__ = .;
+        *(tzfw_normal_stacks)
+        __STACKS_END__ = .;
     } >RAM
 
-    __FIRMWARE_ROM_START__ = LOADADDR(FIRMWARE_ROM);
-    __FIRMWARE_ROM_SIZE__  = SIZEOF(FIRMWARE_ROM);
+    /*
+     * The .bss section gets initialised to 0 at runtime.
+     * Its base address must be 16-byte aligned.
+     */
+    .bss : ALIGN(16) {
+        __BSS_START__ = .;
+        *(.bss)
+        *(COMMON)
+        __BSS_END__ = .;
+    } >RAM
 
-    __FIRMWARE_DATA_START__ = LOADADDR(.data);
-    __FIRMWARE_DATA_SIZE__  = SIZEOF(.data);
+    /*
+     * The base address of the coherent memory section must be page-aligned (4K)
+     * to guarantee that the coherent data are stored on their own pages and
+     * are not mixed with normal data.  This is required to set up the correct
+     * memory attributes for the coherent data page tables.
+     */
+    coherent_ram (NOLOAD) : ALIGN(4096) {
+        __COHERENT_RAM_START__ = .;
+        *(tzfw_coherent_mem)
+        __COHERENT_RAM_END_UNALIGNED__ = .;
+        /*
+         * Memory page(s) mapped to this section will be marked
+         * as device memory.  No other unexpected data must creep in.
+         * Ensure the rest of the current memory page is unused.
+         */
+        . = NEXT(4096);
+        __COHERENT_RAM_END__ = .;
+    } >RAM
 
-    __FIRMWARE_BSS_START__ = LOADADDR(.bss);
-    __FIRMWARE_BSS_SIZE__  = SIZEOF(.bss);
+    __BL1_RAM_START__ = ADDR(.data);
+    __BL1_RAM_END__ = .;
 
-    __FIRMWARE_RAM_STACKS_START__ = LOADADDR(FIRMWARE_RAM_STACKS);
-    __FIRMWARE_RAM_STACKS_SIZE__  = SIZEOF(FIRMWARE_RAM_STACKS);
-    __FIRMWARE_RAM_COHERENT_START__ = LOADADDR(FIRMWARE_RAM_COHERENT);
-    __FIRMWARE_RAM_COHERENT_SIZE__  = SIZEOF(FIRMWARE_RAM_COHERENT);
+    __DATA_ROM_START__ = LOADADDR(.data);
+    __DATA_SIZE__ = SIZEOF(.data);
+
+    __BSS_SIZE__ = SIZEOF(.bss);
+
+    __COHERENT_RAM_UNALIGNED_SIZE__ =
+        __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
+
+    ASSERT(. <= BL31_BASE, "BL31 image overlaps BL1 image.")
 }

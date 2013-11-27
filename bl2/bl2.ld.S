@@ -34,7 +34,6 @@ OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
 
 MEMORY {
-    /* RAM is read/write and Initialised */
     RAM (rwx): ORIGIN = TZRAM_BASE, LENGTH = TZRAM_SIZE
 }
 
@@ -42,44 +41,69 @@ MEMORY {
 SECTIONS
 {
     . = BL2_BASE;
+    ASSERT(. == ALIGN(4096),
+           "BL2_BASE address is not aligned on a page boundary.")
 
-    BL2_RO NEXT (4096): {
-        *(entry_code)
-        *(.text .rodata)
+    ro . : {
+        __RO_START__ = .;
+        *bl2_entrypoint.o(.text)
+        *(.text)
+        *(.rodata*)
+        __RO_END_UNALIGNED__ = .;
+        /*
+         * Memory page(s) mapped to this section will be marked as
+         * read-only, executable.  No RW data from the next section must
+         * creep in.  Ensure the rest of the current memory page is unused.
+         */
+        . = NEXT(4096);
+        __RO_END__ = .;
     } >RAM
 
-    BL2_STACKS NEXT (4096): {
+    .data . : {
+        __DATA_START__ = .;
+        *(.data)
+        __DATA_END__ = .;
+    } >RAM
+
+    stacks (NOLOAD) : {
+        __STACKS_START__ = .;
         *(tzfw_normal_stacks)
+        __STACKS_END__ = .;
     } >RAM
 
-    BL2_COHERENT_RAM NEXT (4096): {
-        *(tzfw_coherent_mem)
-        /*       . += 0x1000;*/
-        /* Do we need to ensure at least 4k here? */
-         . = NEXT(4096);
-    } >RAM
-
-    __BL2_DATA_START__ = .;
-    .bss NEXT (4096): {
+    /*
+     * The .bss section gets initialised to 0 at runtime.
+     * Its base address must be 16-byte aligned.
+     */
+    .bss : ALIGN(16) {
+        __BSS_START__ = .;
         *(SORT_BY_ALIGNMENT(.bss))
         *(COMMON)
+        __BSS_END__ = .;
     } >RAM
 
-    .data : {
-        *(.data)
+    /*
+     * The base address of the coherent memory section must be page-aligned (4K)
+     * to guarantee that the coherent data are stored on their own pages and
+     * are not mixed with normal data.  This is required to set up the correct
+     * memory attributes for the coherent data page tables.
+     */
+    coherent_ram (NOLOAD) : ALIGN(4096) {
+        __COHERENT_RAM_START__ = .;
+        *(tzfw_coherent_mem)
+        __COHERENT_RAM_END_UNALIGNED__ = .;
+        /*
+         * Memory page(s) mapped to this section will be marked
+         * as device memory.  No other unexpected data must creep in.
+         * Ensure the rest of the current memory page is unused.
+         */
+        . = NEXT(4096);
+        __COHERENT_RAM_END__ = .;
     } >RAM
-    __BL2_DATA_STOP__ = .;
 
+    __BL2_END__ = .;
 
-    __BL2_RO_BASE__ = LOADADDR(BL2_RO);
-    __BL2_RO_SIZE__ = SIZEOF(BL2_RO);
-
-    __BL2_STACKS_BASE__ = LOADADDR(BL2_STACKS);
-    __BL2_STACKS_SIZE__ = SIZEOF(BL2_STACKS);
-
-    __BL2_COHERENT_RAM_BASE__ = LOADADDR(BL2_COHERENT_RAM);
-    __BL2_COHERENT_RAM_SIZE__ = SIZEOF(BL2_COHERENT_RAM);
-
-    __BL2_RW_BASE__ = __BL2_DATA_START__;
-    __BL2_RW_SIZE__ = __BL2_DATA_STOP__ - __BL2_DATA_START__;
+    __BSS_SIZE__ = SIZEOF(.bss);
+    __COHERENT_RAM_UNALIGNED_SIZE__ =
+        __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 }

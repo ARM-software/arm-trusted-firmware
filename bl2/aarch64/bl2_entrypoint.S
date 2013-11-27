@@ -35,7 +35,7 @@
 	.globl	bl2_entrypoint
 
 
-	.section	entry_code, "ax"; .align 3
+	.section	.text, "ax"; .align 3
 
 
 bl2_entrypoint:; .type bl2_entrypoint, %function

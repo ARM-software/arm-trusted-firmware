@@ -35,54 +35,78 @@ OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
 
 
 MEMORY {
-    /* RAM is read/write and Initialised */
     RAM (rwx): ORIGIN = TZRAM_BASE, LENGTH = TZRAM_SIZE
 }
 
 
 SECTIONS
 {
-   . = BL31_BASE;
+    . = BL31_BASE;
+    ASSERT(. == ALIGN(4096),
+           "BL31_BASE address is not aligned on a page boundary.")
 
-    BL31_RO ALIGN (4096): {
-        *(entry_code)
+    ro . : {
+        __RO_START__ = .;
+        *bl31_entrypoint.o(.text)
         *(.text)
-        *(.rodata)
+        *(.rodata*)
+        __RO_END_UNALIGNED__ = .;
+        /*
+         * Memory page(s) mapped to this section will be marked as read-only,
+         * executable.  No RW data from the next section must creep in.
+         * Ensure the rest of the current memory page is unused.
+         */
+        . = NEXT(4096);
+        __RO_END__ = .;
     } >RAM
 
-    BL31_STACKS ALIGN (4096): {
-        . += 0x1000;
+    .data . : {
+        __DATA_START__ = .;
+        *(.data)
+        __DATA_END__ = .;
+    } >RAM
+
+    stacks (NOLOAD) : {
+        __STACKS_START__ = .;
         *(tzfw_normal_stacks)
+        __STACKS_END__ = .;
     } >RAM
 
-    BL31_COHERENT_RAM ALIGN (4096): {
-        *(tzfw_coherent_mem)
-        /*       . += 0x1000;*/
-        /* Do we need to ensure at least 4k here? */
-         . = ALIGN(4096);
-    } >RAM
-
-    __BL31_DATA_START__ = .;
-    .bss  ALIGN (4096): {
+    /*
+     * The .bss section gets initialised to 0 at runtime.
+     * Its base address must be 16-byte aligned.
+     */
+    .bss : ALIGN(16) {
+        __BSS_START__ = .;
         *(.bss)
         *(COMMON)
+        __BSS_END__ = .;
     } >RAM
 
-    .data : {
-        *(.data)
+    /*
+     * The base address of the coherent memory section must be page-aligned (4K)
+     * to guarantee that the coherent data are stored on their own pages and
+     * are not mixed with normal data.  This is required to set up the correct
+     * memory attributes for the coherent data page tables.
+     */
+    coherent_ram (NOLOAD) : ALIGN(4096) {
+        __COHERENT_RAM_START__ = .;
+        *(tzfw_coherent_mem)
+        __COHERENT_RAM_END_UNALIGNED__ = .;
+        /*
+         * Memory page(s) mapped to this section will be marked
+         * as device memory.  No other unexpected data must creep in.
+         * Ensure the rest of the current memory page is unused.
+         */
+        . = NEXT(4096);
+        __COHERENT_RAM_END__ = .;
     } >RAM
-    __BL31_DATA_STOP__ = .;
 
+    __BL31_END__ = .;
 
-    __BL31_RO_BASE__ = LOADADDR(BL31_RO);
-    __BL31_RO_SIZE__ = SIZEOF(BL31_RO);
+    __BSS_SIZE__ = SIZEOF(.bss);
+    __COHERENT_RAM_UNALIGNED_SIZE__ =
+        __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 
-    __BL31_STACKS_BASE__ = LOADADDR(BL31_STACKS);
-    __BL31_STACKS_SIZE__ = SIZEOF(BL31_STACKS);
-
-    __BL31_COHERENT_RAM_BASE__ = LOADADDR(BL31_COHERENT_RAM);
-    __BL31_COHERENT_RAM_SIZE__ = SIZEOF(BL31_COHERENT_RAM);
-
-    __BL31_RW_BASE__ = __BL31_DATA_START__;
-    __BL31_RW_SIZE__ = __BL31_DATA_STOP__ - __BL31_DATA_START__;
+    ASSERT(. <= BL2_BASE, "BL31 image overlaps BL2 image.")
 }

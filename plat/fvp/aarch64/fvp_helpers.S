@@ -33,7 +33,7 @@
 
 	.globl	plat_report_exception
 
-	.section platform_code, "ax"
+	.section	.text, "ax"
 
 	/* ---------------------------------------------
 	 * void plat_report_exception(unsigned int type)

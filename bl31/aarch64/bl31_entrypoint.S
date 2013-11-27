@@ -37,7 +37,7 @@
 	.globl	bl31_entrypoint
 
 
-	.section	entry_code, "ax"; .align 3
+	.section	.text, "ax"; .align 3
 
 	/* -----------------------------------------------------
 	 * bl31_entrypoint() is the cold boot entrypoint,

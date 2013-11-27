@@ -37,7 +37,7 @@
 #include <asm_macros.S>
 
 
-	.section	aarch64_code, "ax"; .align 11
+	.section	.text, "ax"; .align 11
 	
 	.align	7
 runtime_exceptions:

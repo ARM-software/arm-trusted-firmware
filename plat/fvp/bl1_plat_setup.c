@@ -40,46 +40,27 @@
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
  ******************************************************************************/
-#if defined (__GNUC__)
-extern unsigned long __FIRMWARE_ROM_START__;
-extern unsigned long __FIRMWARE_ROM_SIZE__;
-extern unsigned long __FIRMWARE_DATA_START__;
-extern unsigned long __FIRMWARE_DATA_SIZE__;
-extern unsigned long __FIRMWARE_BSS_START__;
-extern unsigned long __FIRMWARE_BSS_SIZE__;
-extern unsigned long __DATA_RAM_START__;
-extern unsigned long __DATA_RAM_SIZE__;
-extern unsigned long __BSS_RAM_START__;
-extern unsigned long __BSS_RAM_SIZE__;
-extern unsigned long __FIRMWARE_RAM_STACKS_START__;
-extern unsigned long __FIRMWARE_RAM_STACKS_SIZE__;
-extern unsigned long __FIRMWARE_RAM_PAGETABLES_START__;
-extern unsigned long __FIRMWARE_RAM_PAGETABLES_SIZE__;
-extern unsigned long __FIRMWARE_RAM_COHERENT_START__;
-extern unsigned long __FIRMWARE_RAM_COHERENT_SIZE__;
+extern unsigned long __COHERENT_RAM_START__;
+extern unsigned long __COHERENT_RAM_END__;
+extern unsigned long __COHERENT_RAM_UNALIGNED_SIZE__;
 
-#define BL1_COHERENT_MEM_BASE	(&__FIRMWARE_RAM_COHERENT_START__)
-#define BL1_COHERENT_MEM_LIMIT \
-	((unsigned long long)&__FIRMWARE_RAM_COHERENT_START__ + \
-	 (unsigned long long)&__FIRMWARE_RAM_COHERENT_SIZE__)
+extern unsigned long __BL1_RAM_START__;
+extern unsigned long __BL1_RAM_END__;
 
-#define BL1_FIRMWARE_RAM_GLOBALS_ZI_BASE \
-	(unsigned long)(&__BSS_RAM_START__)
-#define BL1_FIRMWARE_RAM_GLOBALS_ZI_LENGTH \
-	(unsigned long)(&__FIRMWARE_BSS_SIZE__)
+/*
+ * The next 2 constants identify the extents of the coherent memory region.
+ * These addresses are used by the MMU setup code and therefore they must be
+ * page-aligned.  It is the responsibility of the linker script to ensure that
+ * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
+ * page-aligned addresses.
+ */
+#define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
+#define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#define BL1_COHERENT_RAM_LENGTH \
+	(unsigned long)(&__COHERENT_RAM_UNALIGNED_SIZE__)
 
-#define BL1_FIRMWARE_RAM_COHERENT_ZI_BASE \
-	(unsigned long)(&__FIRMWARE_RAM_COHERENT_START__)
-#define BL1_FIRMWARE_RAM_COHERENT_ZI_LENGTH\
-	(unsigned long)(&__FIRMWARE_RAM_COHERENT_SIZE__)
-
-#define BL1_NORMAL_RAM_BASE (unsigned long)(&__BSS_RAM_START__)
-#define BL1_NORMAL_RAM_LIMIT \
-	((unsigned long)&__FIRMWARE_RAM_COHERENT_START__ +	\
-	 (unsigned long)&__FIRMWARE_RAM_COHERENT_SIZE__)
-#else
- #error "Unknown compiler."
-#endif
+#define BL1_RAM_BASE (unsigned long)(&__BL1_RAM_START__)
+#define BL1_RAM_LIMIT (unsigned long)(&__BL1_RAM_END__)
 
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
@@ -95,16 +76,9 @@ meminfo bl1_get_sec_mem_layout(void)
  ******************************************************************************/
 void bl1_early_platform_setup(void)
 {
-	unsigned long bl1_normal_ram_base;
-	unsigned long bl1_coherent_ram_limit;
-	unsigned long tzram_limit = TZRAM_BASE + TZRAM_SIZE;
-
-	/*
-	 * Initialize extents of the bl1 sections as per the platform
-	 * defined values.
-	 */
-	bl1_normal_ram_base  = BL1_NORMAL_RAM_BASE;
-	bl1_coherent_ram_limit = BL1_NORMAL_RAM_LIMIT;
+	const unsigned long bl1_ram_base = BL1_RAM_BASE;
+	const unsigned long bl1_ram_limit = BL1_RAM_LIMIT;
+	const unsigned long tzram_limit = TZRAM_BASE + TZRAM_SIZE;
 
 	/*
 	 * Calculate how much ram is BL1 using & how much remains free.
@@ -113,19 +87,19 @@ void bl1_early_platform_setup(void)
 	 * TODO: add support for discontigous chunks of free ram if
 	 *       needed. Might need dynamic memory allocation support
 	 *       et al.
-	 *       Also assuming that the section for coherent memory is
-	 *       the last and for globals the first in the scatter file.
 	 */
 	bl1_tzram_layout.total_base = TZRAM_BASE;
 	bl1_tzram_layout.total_size = TZRAM_SIZE;
 
-	if (bl1_coherent_ram_limit == tzram_limit) {
+	if (bl1_ram_limit == tzram_limit) {
+		/* BL1 has been loaded at the top of memory. */
 		bl1_tzram_layout.free_base = TZRAM_BASE;
-		bl1_tzram_layout.free_size = bl1_normal_ram_base - TZRAM_BASE;
+		bl1_tzram_layout.free_size = bl1_ram_base - TZRAM_BASE;
 	} else {
-		bl1_tzram_layout.free_base = bl1_coherent_ram_limit;
+		/* BL1 has been loaded at the bottom of memory. */
+		bl1_tzram_layout.free_base = bl1_ram_limit;
 		bl1_tzram_layout.free_size =
-			tzram_limit - bl1_coherent_ram_limit;
+			tzram_limit - bl1_ram_limit;
 	}
 
 	/* Initialize the platform config for future decision making */
@@ -143,8 +117,8 @@ void bl1_platform_setup(void)
 	 * This should zero out our coherent stacks as well but we don't care
 	 * as they are not being used right now.
 	 */
-	memset((void *) BL1_FIRMWARE_RAM_COHERENT_ZI_BASE, 0,
-	       (size_t) BL1_FIRMWARE_RAM_COHERENT_ZI_LENGTH);
+	memset((void *) BL1_COHERENT_RAM_BASE, 0,
+	       (size_t) BL1_COHERENT_RAM_LENGTH);
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_EN);
@@ -175,11 +149,8 @@ void bl1_plat_arch_setup(void)
 	}
 
 	configure_mmu(&bl1_tzram_layout,
-		TZROM_BASE,			/* Read_only region start */
-		TZROM_BASE + TZROM_SIZE,	/* Read_only region size */
-		/* Coherent region start */
-		BL1_FIRMWARE_RAM_COHERENT_ZI_BASE,
-		/* Coherent region size */
-		BL1_FIRMWARE_RAM_COHERENT_ZI_BASE +
-			BL1_FIRMWARE_RAM_COHERENT_ZI_LENGTH);
+	              TZROM_BASE,
+	              TZROM_BASE + TZROM_SIZE,
+	              BL1_COHERENT_RAM_BASE,
+	              BL1_COHERENT_RAM_LIMIT);
 }

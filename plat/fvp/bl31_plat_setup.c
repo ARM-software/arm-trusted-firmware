@@ -44,20 +44,30 @@
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
  ******************************************************************************/
-#if defined (__GNUC__)
-extern unsigned long __BL31_RO_BASE__;
-extern unsigned long __BL31_STACKS_BASE__;
-extern unsigned long __BL31_COHERENT_RAM_BASE__;
-extern unsigned long __BL31_RW_BASE__;
+extern unsigned long __RO_START__;
+extern unsigned long __RO_END__;
 
-#define BL31_RO_BASE		__BL31_RO_BASE__
-#define BL31_STACKS_BASE	__BL31_STACKS_BASE__
-#define BL31_COHERENT_RAM_BASE	__BL31_COHERENT_RAM_BASE__
-#define BL31_RW_BASE		__BL31_RW_BASE__
+extern unsigned long __COHERENT_RAM_START__;
+extern unsigned long __COHERENT_RAM_END__;
 
-#else
- #error "Unknown compiler."
-#endif
+/*
+ * The next 2 constants identify the extents of the code & RO data region.
+ * These addresses are used by the MMU setup code and therefore they must be
+ * page-aligned.  It is the responsibility of the linker script to ensure that
+ * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
+ */
+#define BL31_RO_BASE (unsigned long)(&__RO_START__)
+#define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
+
+/*
+ * The next 2 constants identify the extents of the coherent memory region.
+ * These addresses are used by the MMU setup code and therefore they must be
+ * page-aligned.  It is the responsibility of the linker script to ensure that
+ * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
+ * refer to page-aligned addresses.
+ */
+#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
+#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 /*******************************************************************************
  * This data structures holds information copied by BL31 from BL2 to pass
@@ -167,10 +177,10 @@ void bl31_platform_setup()
 void bl31_plat_arch_setup()
 {
 	configure_mmu(&bl31_tzram_layout,
-		      (unsigned long) &BL31_RO_BASE,
-		      (unsigned long) &BL31_STACKS_BASE,
-		      (unsigned long) &BL31_COHERENT_RAM_BASE,
-		      (unsigned long) &BL31_RW_BASE);
+		      BL31_RO_BASE,
+		      BL31_RO_LIMIT,
+		      BL31_COHERENT_RAM_BASE,
+		      BL31_COHERENT_RAM_LIMIT);
 }
 
 /*******************************************************************************

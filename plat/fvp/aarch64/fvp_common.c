@@ -367,8 +367,6 @@ static unsigned long fill_xlation_tables(meminfo *tzram_layout,
 
 	/*****************************************************************
 	 * LEVEL3 PAGETABLE SETUP
-	 * The following setup assumes knowledge of the scatter file. This
-	 * should be reasonable as this is platform specific code.
 	 *****************************************************************/
 
 	/* Fill up the level3 pagetable for the trusted SRAM. */
@@ -378,21 +376,13 @@ static unsigned long fill_xlation_tables(meminfo *tzram_layout,
 	if (tzram_end_index == tzram_start_index)
 		tzram_end_index++;
 
-	/*
-	 * Reusing trom* to mark RO memory. BLX_STACKS follows BLX_RO in the
-	 * scatter file. Using BLX_RO$$Limit does not work as it might not
-	 * cross the page boundary thus leading to truncation of valid RO
-	 * memory
-	 */
+	/* Reusing trom* to mark RO memory. */
 	trom_start_index = FOUR_KB_INDEX(ro_start);
 	trom_end_index = FOUR_KB_INDEX(ro_limit);
 	if (trom_end_index == trom_start_index)
 		trom_end_index++;
 
-	/*
-	 * Reusing dev* to mark coherent device memory. $$Limit works here
-	 * 'cause the coherent memory section is known to be 4k in size
-	 */
+	/* Reusing dev* to mark coherent device memory. */
 	dev0_start_index = FOUR_KB_INDEX(coh_start);
 	dev0_end_index = FOUR_KB_INDEX(coh_limit);
 	if (dev0_end_index == dev0_start_index)
@@ -506,6 +496,11 @@ void configure_mmu(meminfo *mem_layout,
 		   unsigned long coh_start,
 		   unsigned long coh_limit)
 {
+	assert(IS_PAGE_ALIGNED(ro_start));
+	assert(IS_PAGE_ALIGNED(ro_limit));
+	assert(IS_PAGE_ALIGNED(coh_start));
+	assert(IS_PAGE_ALIGNED(coh_limit));
+
 	fill_xlation_tables(mem_layout,
 			    ro_start,
 			    ro_limit,

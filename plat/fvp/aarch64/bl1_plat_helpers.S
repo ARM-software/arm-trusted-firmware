@@ -38,7 +38,7 @@
 	.globl	plat_secondary_cold_boot_setup
 
 
-	.section	platform_code, "ax"; .align 3
+	.section	.text, "ax"; .align 3
 
 
 	.macro	platform_choose_gicmmap  param1, param2, x_tmp, w_tmp, res

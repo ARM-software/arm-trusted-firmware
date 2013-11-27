@@ -39,20 +39,30 @@
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
  ******************************************************************************/
-#if defined (__GNUC__)
-extern unsigned long __BL2_RO_BASE__;
-extern unsigned long __BL2_STACKS_BASE__;
-extern unsigned long __BL2_COHERENT_RAM_BASE__;
-extern unsigned long __BL2_RW_BASE__;
+extern unsigned long __RO_START__;
+extern unsigned long __RO_END__;
 
-#define BL2_RO_BASE		__BL2_RO_BASE__
-#define BL2_STACKS_BASE		__BL2_STACKS_BASE__
-#define BL2_COHERENT_RAM_BASE	__BL2_COHERENT_RAM_BASE__
-#define BL2_RW_BASE		__BL2_RW_BASE__
+extern unsigned long __COHERENT_RAM_START__;
+extern unsigned long __COHERENT_RAM_END__;
 
-#else
- #error "Unknown compiler."
-#endif
+/*
+ * The next 2 constants identify the extents of the code & RO data region.
+ * These addresses are used by the MMU setup code and therefore they must be
+ * page-aligned.  It is the responsibility of the linker script to ensure that
+ * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
+ */
+#define BL2_RO_BASE (unsigned long)(&__RO_START__)
+#define BL2_RO_LIMIT (unsigned long)(&__RO_END__)
+
+/*
+ * The next 2 constants identify the extents of the coherent memory region.
+ * These addresses are used by the MMU setup code and therefore they must be
+ * page-aligned.  It is the responsibility of the linker script to ensure that
+ * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
+ * page-aligned addresses.
+ */
+#define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
+#define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 /* Pointer to memory visible to both BL2 and BL31 for passing data */
 extern unsigned char **bl2_el_change_mem_ptr;
@@ -106,8 +116,8 @@ void bl2_platform_setup()
 void bl2_plat_arch_setup()
 {
 	configure_mmu(&bl2_tzram_layout,
-		      (unsigned long) &BL2_RO_BASE,
-		      (unsigned long) &BL2_STACKS_BASE,
-		      (unsigned long) &BL2_COHERENT_RAM_BASE,
-		      (unsigned long) &BL2_RW_BASE);
+		      BL2_RO_BASE,
+		      BL2_RO_LIMIT,
+		      BL2_COHERENT_RAM_BASE,
+		      BL2_COHERENT_RAM_LIMIT);
 }

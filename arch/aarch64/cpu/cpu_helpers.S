@@ -33,7 +33,7 @@
 	.weak	cpu_reset_handler
 
 
-	.section	aarch64_code, "ax"; .align 3
+	.section	.text, "ax"; .align 3
 
 cpu_reset_handler:; .type cpu_reset_handler, %function
 	mov	x19, x30 // lr

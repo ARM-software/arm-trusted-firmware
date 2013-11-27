@@ -48,7 +48,7 @@
 #define ICC_CTLR_EL3    S3_6_C12_C12_4
 #define ICC_PMR_EL1     S3_0_C4_C6_0
 
-	.section	platform_code, "ax"; .align 3
+	.section	.text, "ax"; .align 3
 
 read_icc_sre_el1:; .type read_icc_sre_el1, %function
 	mrs	x0, ICC_SRE_EL1

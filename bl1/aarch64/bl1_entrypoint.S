@@ -33,7 +33,7 @@
 	.globl	reset_handler
 
 
-	.section	reset_code, "ax"; .align 3
+	.section	.text, "ax"; .align 3
 
 	/* -----------------------------------------------------
 	 * reset_handler() is the entry point into the trusted
