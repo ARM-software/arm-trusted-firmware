@@ -46,7 +46,8 @@
  ******************************************************************************/
 void bl2_main(void)
 {
-	meminfo bl2_tzram_layout, *bl31_tzram_layout;
+	meminfo *bl2_tzram_layout;
+	meminfo *bl31_tzram_layout;
 	el_change_info *ns_image_info;
 	unsigned long bl31_base, el_status;
 	unsigned int bl2_load, bl31_load, mode;
@@ -62,7 +63,7 @@ void bl2_main(void)
 #endif
 
 	/* Find out how much free trusted ram remains after BL2 load */
-	bl2_tzram_layout = bl2_get_sec_mem_layout();
+	bl2_tzram_layout = bl2_plat_sec_mem_layout();
 
 	/*
 	 * Load BL31. BL1 tells BL2 whether it has been TOP or BOTTOM loaded.
@@ -70,10 +71,10 @@ void bl2_main(void)
 	 * loaded opposite to BL2. This allows BL31 to reclaim BL2 memory
 	 * while maintaining its free space in one contiguous chunk.
 	 */
-	bl2_load = bl2_tzram_layout.attr & LOAD_MASK;
+	bl2_load = bl2_tzram_layout->attr & LOAD_MASK;
 	assert((bl2_load == TOP_LOAD) || (bl2_load == BOT_LOAD));
 	bl31_load = (bl2_load == TOP_LOAD) ? BOT_LOAD : TOP_LOAD;
-	bl31_base = load_image(&bl2_tzram_layout, BL31_IMAGE_NAME,
+	bl31_base = load_image(bl2_tzram_layout, BL31_IMAGE_NAME,
 	                       bl31_load, BL31_BASE);
 
 	/* Assert if it has not been possible to load BL31 */
@@ -84,7 +85,7 @@ void bl2_main(void)
 	 * will gobble up all the BL2 memory.
 	 */
 	bl31_tzram_layout = (meminfo *) get_el_change_mem_ptr();
-	init_bl31_mem_layout(&bl2_tzram_layout, bl31_tzram_layout, bl31_load);
+	init_bl31_mem_layout(bl2_tzram_layout, bl31_tzram_layout, bl31_load);
 
 	/*
 	 * BL2 also needs to tell BL31 where the non-trusted software image

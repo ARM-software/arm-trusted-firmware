@@ -63,9 +63,9 @@ extern unsigned long __BL1_RAM_END__;
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo bl1_tzram_layout;
 
-meminfo bl1_get_sec_mem_layout(void)
+meminfo *bl1_plat_sec_mem_layout(void)
 {
-	return bl1_tzram_layout;
+	return &bl1_tzram_layout;
 }
 
 /*******************************************************************************

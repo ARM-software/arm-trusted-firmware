@@ -85,9 +85,9 @@ static meminfo bl31_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
-meminfo bl31_get_sec_mem_layout(void)
+meminfo *bl31_plat_sec_mem_layout(void)
 {
-	return bl31_tzram_layout;
+	return &bl31_tzram_layout;
 }
 
 /*******************************************************************************

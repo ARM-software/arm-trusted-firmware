@@ -72,9 +72,9 @@ static meminfo bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
-meminfo bl2_get_sec_mem_layout(void)
+meminfo *bl2_plat_sec_mem_layout(void)
 {
-	return bl2_tzram_layout;
+	return &bl2_tzram_layout;
 }
 
 /*******************************************************************************

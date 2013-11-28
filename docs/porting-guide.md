@@ -436,14 +436,15 @@ implementation of the generic timer counter and initializes the console.
 This function helps fulfill requirement 5 above.
 
 
-### Function : bl1_get_sec_mem_layout() [mandatory]
+### Function : bl1_plat_sec_mem_layout() [mandatory]
 
     Argument : void
-    Return   : meminfo
+    Return   : meminfo *
 
-This function executes with the MMU and data caches enabled. The `meminfo`
-structure returned by this function must contain the extents and availability of
-secure RAM for the BL1 stage.
+This function should only be called on the cold boot path. It executes with the
+MMU and data caches enabled. The pointer returned by this function must point to
+a `meminfo` structure containing the extents and availability of secure RAM for
+the BL1 stage.
 
     meminfo.total_base = Base address of secure RAM visible to BL1
     meminfo.total_size = Size of secure RAM visible to BL1
@@ -533,7 +534,7 @@ by the primary CPU. The arguments to this function are:
 The platform must copy the contents of the `meminfo` structure into a private
 variable as the original memory may be subsequently overwritten by BL2. The
 copied structure is made available to all BL2 code through the
-`bl2_get_sec_mem_layout()` function.
+`bl2_plat_sec_mem_layout()` function.
 
 
 ### Function : bl2_plat_arch_setup() [mandatory]
@@ -576,17 +577,17 @@ initialized by the platform to point to memory where an `el_change_info`
 structure can be populated.
 
 
-### Function : bl2_get_sec_mem_layout() [mandatory]
+### Function : bl2_plat_sec_mem_layout() [mandatory]
 
     Argument : void
-    Return   : meminfo
+    Return   : meminfo *
 
-This function may execute with the MMU and data caches enabled if the platform
-port does the necessary initialization in `bl2_plat_arch_setup()`. It is only
-called by the primary CPU.
+This function should only be called on the cold boot path. It may execute with
+the MMU and data caches enabled if the platform port does the necessary
+initialization in `bl2_plat_arch_setup()`. It is only called by the primary CPU.
 
-The purpose of this function is to return a `meminfo` structure populated with
-the extents of secure RAM available for BL2 to use. See
+The purpose of this function is to return a pointer to a `meminfo` structure
+populated with the extents of secure RAM available for BL2 to use. See
 `bl2_early_platform_setup()` above.
 
 
@@ -663,7 +664,7 @@ by the primary CPU. The arguments to this function are:
 The platform must copy the contents of the `meminfo` structure into a private
 variable as the original memory may be subsequently overwritten by BL3-1. The
 copied structure is made available to all BL3-1 code through the
-`bl31_get_sec_mem_layout()` function.
+`bl31_plat_sec_mem_layout()` function.
 
 
 ### Function : bl31_plat_arch_setup() [mandatory]
@@ -713,17 +714,18 @@ function must return a pointer to the `el_change_info` structure (that was
 copied during `bl31_early_platform_setup()`).
 
 
-### Function : bl31_get_sec_mem_layout() [mandatory]
+### Function : bl31_plat_sec_mem_layout() [mandatory]
 
     Argument : void
-    Return   : meminfo
+    Return   : meminfo *
 
-This function may execute with the MMU and data caches enabled if the platform
-port does the necessary initializations in `bl31_plat_arch_setup()`. It is only
-called by the primary CPU.
+This function should only be called on the cold boot path. This function may
+execute with the MMU and data caches enabled if the platform port does the
+necessary initializations in `bl31_plat_arch_setup()`. It is only called by the
+primary CPU.
 
-The purpose of this function is to return a `meminfo` structure populated with
-the extents of secure RAM available for BL3-1 to use. See
+The purpose of this function is to return a pointer to a `meminfo` structure
+populated with the extents of secure RAM available for BL3-1 to use. See
 `bl31_early_platform_setup()` above.
 
 

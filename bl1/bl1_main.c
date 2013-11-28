@@ -50,7 +50,8 @@ void bl1_main(void)
 	unsigned long sctlr_el3 = read_sctlr();
 	unsigned long bl2_base;
 	unsigned int load_type = TOP_LOAD, spsr;
-	meminfo bl1_tzram_layout, *bl2_tzram_layout = 0x0;
+	meminfo *bl1_tzram_layout;
+	meminfo *bl2_tzram_layout = 0x0;
 
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
@@ -73,8 +74,8 @@ void bl1_main(void)
 	 * Find out how much free trusted ram remains after BL1 load
 	 * & load the BL2 image at its top
 	 */
-	bl1_tzram_layout = bl1_get_sec_mem_layout();
-	bl2_base = load_image(&bl1_tzram_layout,
+	bl1_tzram_layout = bl1_plat_sec_mem_layout();
+	bl2_base = load_image(bl1_tzram_layout,
 			      (const char *) BL2_IMAGE_NAME,
 			      load_type, BL2_BASE);
 
@@ -85,8 +86,8 @@ void bl1_main(void)
 	 * to BL2. BL2 will read the memory layout before using its
 	 * memory for other purposes.
 	 */
-	bl2_tzram_layout = (meminfo *) bl1_tzram_layout.free_base;
-	init_bl2_mem_layout(&bl1_tzram_layout,
+	bl2_tzram_layout = (meminfo *) bl1_tzram_layout->free_base;
+	init_bl2_mem_layout(bl1_tzram_layout,
 			    bl2_tzram_layout,
 			    load_type,
 			    bl2_base);

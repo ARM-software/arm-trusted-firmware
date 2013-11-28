@@ -42,7 +42,7 @@ extern unsigned long bl31_entrypoint;
  * Function prototypes
  ******************************************************************************/
 extern void bl31_platform_setup(void);
-extern meminfo bl31_get_sec_mem_layout(void);
+extern meminfo *bl31_plat_sec_mem_layout(void);
 extern el_change_info* bl31_get_next_image_info(unsigned long);
 extern void gic_cpuif_deactivate(unsigned int);
 extern void gic_cpuif_setup(unsigned int);

@@ -73,6 +73,11 @@ Detailed changes since last release
     CPU_SUSPEND and CPU_OFF apis simultaneously across cpus & clusters should
     not result in unexpected behaviour.
 
+*   The API to return the memory layout structures for each bootloader stage has
+    undergone change. A pointer to these structures is returned instead of their
+    copy.
+
+
 ARM Trusted Firmware - version 0.2
 ==================================
 

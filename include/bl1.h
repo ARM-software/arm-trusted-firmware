@@ -45,7 +45,7 @@
  * Function prototypes
  *****************************************/
 extern void bl1_platform_setup(void);
-extern meminfo bl1_get_sec_mem_layout(void);
+extern meminfo *bl1_plat_sec_mem_layout(void);
 
 #endif /*__ASSEMBLY__*/
 
