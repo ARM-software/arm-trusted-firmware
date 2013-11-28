@@ -42,7 +42,6 @@
  ******************************************************************************/
 extern unsigned long __COHERENT_RAM_START__;
 extern unsigned long __COHERENT_RAM_END__;
-extern unsigned long __COHERENT_RAM_UNALIGNED_SIZE__;
 
 extern unsigned long __BL1_RAM_START__;
 extern unsigned long __BL1_RAM_END__;
@@ -56,8 +55,6 @@ extern unsigned long __BL1_RAM_END__;
  */
 #define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-#define BL1_COHERENT_RAM_LENGTH \
-	(unsigned long)(&__COHERENT_RAM_UNALIGNED_SIZE__)
 
 #define BL1_RAM_BASE (unsigned long)(&__BL1_RAM_START__)
 #define BL1_RAM_LIMIT (unsigned long)(&__BL1_RAM_END__)
@@ -113,13 +110,6 @@ void bl1_early_platform_setup(void)
  ******************************************************************************/
 void bl1_platform_setup(void)
 {
-	/*
-	 * This should zero out our coherent stacks as well but we don't care
-	 * as they are not being used right now.
-	 */
-	memset((void *) BL1_COHERENT_RAM_BASE, 0,
-	       (size_t) BL1_COHERENT_RAM_LENGTH);
-
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_EN);
 

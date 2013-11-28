@@ -77,6 +77,20 @@ bl2_entrypoint:; .type bl2_entrypoint, %function
 
 	isb
 
+	/* ---------------------------------------------
+	 * Zero out NOBITS sections. There are 2 of them:
+	 *   - the .bss section;
+	 *   - the coherent memory section.
+	 * ---------------------------------------------
+	 */
+	ldr	x0, =__BSS_START__
+	ldr	x1, =__BSS_SIZE__
+	bl	zeromem16
+
+	ldr	x0, =__COHERENT_RAM_START__
+	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
+	bl	zeromem16
+
 	/* --------------------------------------------
 	 * Give ourselves a small coherent stack to
 	 * ease the pain of initializing the MMU

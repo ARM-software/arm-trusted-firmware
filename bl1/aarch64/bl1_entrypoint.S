@@ -93,6 +93,30 @@ _wait_for_entrypoint:
 
 _do_cold_boot:
 	/* ---------------------------------------------
+	 * Init C runtime environment.
+	 *   - Zero-initialise the NOBITS sections.
+	 *     There are 2 of them:
+	 *       - the .bss section;
+	 *       - the coherent memory section.
+	 *   - Copy the data section from BL1 image
+	 *     (stored in ROM) to the correct location
+	 *     in RAM.
+	 * ---------------------------------------------
+	 */
+	ldr	x0, =__BSS_START__
+	ldr	x1, =__BSS_SIZE__
+	bl	zeromem16
+
+	ldr	x0, =__COHERENT_RAM_START__
+	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
+	bl	zeromem16
+
+	ldr	x0, =__DATA_RAM_START__
+	ldr	x1, =__DATA_ROM_START__
+	ldr	x2, =__DATA_SIZE__
+	bl	memcpy16
+
+	/* ---------------------------------------------
 	 * Initialize platform and jump to our c-entry
 	 * point for this type of reset
 	 * ---------------------------------------------

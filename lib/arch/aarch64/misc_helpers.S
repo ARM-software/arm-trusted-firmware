@@ -75,6 +75,8 @@
 	.globl	eret
 	.globl	smc
 
+	.globl	zeromem16
+	.globl	memcpy16
 
 	.section	.text, "ax"
 
@@ -285,3 +287,54 @@ eret:; .type eret, %function
 
 smc:; .type smc, %function
 	smc	#0
+
+/* -----------------------------------------------------------------------
+ * void zeromem16(void *mem, unsigned int length);
+ *
+ * Initialise a memory region to 0.
+ * The memory address must be 16-byte aligned.
+ * -----------------------------------------------------------------------
+ */
+zeromem16:
+	add	x2, x0, x1
+/* zero 16 bytes at a time */
+z_loop16:
+	sub	x3, x2, x0
+	cmp	x3, #16
+	b.lt	z_loop1
+	stp	xzr, xzr, [x0], #16
+	b	z_loop16
+/* zero byte per byte */
+z_loop1:
+	cmp	x0, x2
+	b.eq	z_end
+	strb	wzr, [x0], #1
+	b	z_loop1
+z_end:	ret
+
+
+/* --------------------------------------------------------------------------
+ * void memcpy16(void *dest, const void *src, unsigned int length)
+ *
+ * Copy length bytes from memory area src to memory area dest.
+ * The memory areas should not overlap.
+ * Destination and source addresses must be 16-byte aligned.
+ * --------------------------------------------------------------------------
+ */
+memcpy16:
+/* copy 16 bytes at a time */
+m_loop16:
+	cmp	x2, #16
+	b.lt	m_loop1
+	ldp	x3, x4, [x1], #16
+	stp	x3, x4, [x0], #16
+	sub	x2, x2, #16
+	b	m_loop16
+/* copy byte per byte */
+m_loop1:
+	cbz	x2, m_end
+	ldrb	w3, [x1], #1
+	strb	w3, [x0], #1
+	subs	x2, x2, #1
+	b.ne	m_loop1
+m_end:	ret
