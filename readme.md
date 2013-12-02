@@ -100,6 +100,10 @@ the Trusted Firmware with the ARM [FVP]s.
 See the [Porting Guide] as well for information about how to use this
 software on another ARMv8-A platform.
 
+See the [Contributing Guidelines] for information on how to contribute to this
+project and the [Acknowledgements] file for a list of contributors to the
+project.
+
 ### Feedback and support
 
 ARM welcomes any feedback on the Trusted Firmware. Please send feedback using
@@ -111,13 +115,15 @@ ARM licensees may contact ARM directly via their partner managers.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013 ARM Ltd. All rights reserved._
+_Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
 
 
-[License]:       license.md "BSD license for ARM Trusted Firmware"
-[Change Log]:    ./docs/change-log.md
-[User Guide]:    ./docs/user-guide.md
-[Porting Guide]: ./docs/porting-guide.md
+[License]:                  ./license.md "BSD license for ARM Trusted Firmware"
+[Contributing Guidelines]:  ./contributing.md "Guidelines for contributors"
+[Acknowledgements]:         ./acknowledgements.md "Contributor acknowledgements"
+[Change Log]:               ./docs/change-log.md
+[User Guide]:               ./docs/user-guide.md
+[Porting Guide]:            ./docs/porting-guide.md
 
 [ARMv8-A]:       http://www.arm.com/products/processors/armv8-architecture.php "ARMv8-A Architecture"
 [FVP]:           http://www.arm.com/fvp "ARM's Fixed Virtual Platforms"

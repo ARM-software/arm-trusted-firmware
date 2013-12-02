@@ -928,7 +928,7 @@ provided in the description of the `plat_get_aff_count()` and
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013 ARM Ltd. All rights reserved._
+_Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
 
 
 [User Guide]: user-guide.md

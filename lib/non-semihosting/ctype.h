@@ -35,9 +35,7 @@
  */
 
 /*
- * Portions copyright (c) 2009-2013, ARM Ltd. All rights reserved.
- * ---------------------------------------------------------------
- * File: include/lib/ctype.h
+ * Portions copyright (c) 2009-2013, ARM Limited and Contributors. All rights reserved.
  */
 
 #ifndef _SYS_CTYPE_H_

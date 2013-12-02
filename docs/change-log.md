@@ -41,6 +41,11 @@ Detailed changes since last release
     them have been merged together, and some alignment constraints on sections
     have changed.
 
+*   Enable third party contributions. Add a new contributing.md containing
+    instructions for how to contribute and update copyright text in all files to
+    acknowledge contributors.
+
+
 ARM Trusted Firmware - version 0.2
 ==================================
 
@@ -112,8 +117,8 @@ releases of the ARM Trusted Firmware.
 Detailed changes since last release
 -----------------------------------
 
-First source release – not applicable.
+First source release - not applicable.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013 ARM Ltd. All rights reserved._
+_Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._

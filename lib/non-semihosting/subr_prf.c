@@ -35,9 +35,7 @@
  */
 
 /*
- * Portions copyright (c) 2009-2013, ARM Ltd. All rights reserved.
- * ---------------------------------------------------------------
- * File: lib/subr_prf.c
+ * Portions copyright (c) 2009-2013, ARM Limited and Contributors. All rights reserved.
  */
 
 /*
