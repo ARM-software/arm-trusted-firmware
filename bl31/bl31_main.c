@@ -67,7 +67,7 @@ void bl31_main(void)
 	/* Clean caches before re-entering normal world */
 	dcsw_op_all(DCCSW);
 
-	image_info = bl31_get_next_image_info(mpidr);
+	image_info = bl31_get_next_image_info();
 	bl31_arch_next_el_setup();
 	change_el(image_info);
 

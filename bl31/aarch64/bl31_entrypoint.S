@@ -120,7 +120,6 @@ bl31_entrypoint:; .type bl31_entrypoint, %function
 	 */
 	mov	x0, x20
 	mov	x1, x21
-	mov	x2, x19
 	bl	bl31_early_platform_setup
 	bl	bl31_plat_arch_setup
 

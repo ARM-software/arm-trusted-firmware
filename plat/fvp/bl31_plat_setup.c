@@ -70,13 +70,11 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 /*******************************************************************************
- * This data structures holds information copied by BL31 from BL2 to pass
- * control to the non-trusted software images. A per-cpu entry was created to
- * use the same structure in the warm boot path but that's not the case right
- * now. Persisting with this approach for the time being. TODO: Can this be
- * moved out of device memory.
+ * This data structure holds information copied by BL31 from BL2 to pass
+ * control to the normal world software images.
+ * TODO: Can this be moved out of device memory.
  ******************************************************************************/
-el_change_info ns_entry_info[PLATFORM_CORE_COUNT]
+static el_change_info ns_entry_info
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
@@ -96,9 +94,9 @@ meminfo *bl31_plat_sec_mem_layout(void)
  * always run in the non-secure state. In the final architecture there
  * will be a series of images. This function will need enhancement then
  ******************************************************************************/
-el_change_info *bl31_get_next_image_info(unsigned long mpidr)
+el_change_info *bl31_get_next_image_info(void)
 {
-	return &ns_entry_info[platform_get_core_pos(mpidr)];
+	return &ns_entry_info;
 }
 
 /*******************************************************************************
@@ -108,11 +106,9 @@ el_change_info *bl31_get_next_image_info(unsigned long mpidr)
  * layout can be used while creating page tables.
  ******************************************************************************/
 void bl31_early_platform_setup(meminfo *mem_layout,
-			       void *data,
-			       unsigned long mpidr)
+			       void *data)
 {
 	el_change_info *image_info = (el_change_info *) data;
-	unsigned int lin_index = platform_get_core_pos(mpidr);
 
 	/* Setup the BL31 memory layout */
 	bl31_tzram_layout.total_base = mem_layout->total_base;
@@ -122,12 +118,12 @@ void bl31_early_platform_setup(meminfo *mem_layout,
 	bl31_tzram_layout.attr = mem_layout->attr;
 	bl31_tzram_layout.next = 0;
 
-	/* Save information about jumping into the NS world */
-	ns_entry_info[lin_index].entrypoint = image_info->entrypoint;
-	ns_entry_info[lin_index].spsr = image_info->spsr;
-	ns_entry_info[lin_index].args = image_info->args;
-	ns_entry_info[lin_index].security_state = image_info->security_state;
-	ns_entry_info[lin_index].next = image_info->next;
+	/* Save information about jumping into the normal world */
+	ns_entry_info.entrypoint = image_info->entrypoint;
+	ns_entry_info.spsr = image_info->spsr;
+	ns_entry_info.args = image_info->args;
+	ns_entry_info.security_state = image_info->security_state;
+	ns_entry_info.next = image_info->next;
 
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
