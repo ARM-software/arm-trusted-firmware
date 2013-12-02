@@ -162,97 +162,135 @@ static const afflvl_off_handler psci_afflvl_off_handlers[] = {
 };
 
 /*******************************************************************************
- * This function implements the core of the processing required to turn a cpu
- * off. It's assumed that along with turning the cpu off, higher affinity levels
- * will be turned off as far as possible. We first need to determine the new
- * state off all the affinity instances in the mpidr corresponding to the target
- * cpu. Action will be taken on the basis of this new state. To do the state
- * change we first need to acquire the locks for all the implemented affinity
- * level to be able to snapshot the system state. Then we need to start turning
- * affinity levels off from the lowest to the highest (e.g. a cpu needs to be
- * off before a cluster can be turned off). To achieve this flow, we start
- * acquiring the locks from the highest to the lowest affinity level. Once we
- * reach affinity level 0, we do the state change followed by the actions
- * corresponding to the new state for affinity level 0. Actions as per the
- * updated state for higher affinity levels are performed as we unwind back to
- * highest affinity level.
+ * This function takes an array of pointers to affinity instance nodes in the
+ * topology tree and calls the off handler for the corresponding affinity
+ * levels
+ ******************************************************************************/
+static int psci_call_off_handlers(mpidr_aff_map_nodes mpidr_nodes,
+				  int start_afflvl,
+				  int end_afflvl,
+				  unsigned long mpidr)
+{
+	int rc = PSCI_E_INVALID_PARAMS, level;
+	aff_map_node *node;
+
+	for (level = start_afflvl; level <= end_afflvl; level++) {
+		node = mpidr_nodes[level];
+		if (node == NULL)
+			continue;
+
+		/*
+		 * TODO: In case of an error should there be a way
+		 * of restoring what we might have torn down at
+		 * lower affinity levels.
+		 */
+		rc = psci_afflvl_off_handlers[level](mpidr, node);
+		if (rc != PSCI_E_SUCCESS)
+			break;
+	}
+
+	return rc;
+}
+
+/*******************************************************************************
+ * Top level handler which is called when a cpu wants to power itself down.
+ * It's assumed that along with turning the cpu off, higher affinity levels will
+ * be turned off as far as possible. It traverses through all the affinity
+ * levels performing generic, architectural, platform setup and state management
+ * e.g. for a cluster that's to be powered off, it will call the platform
+ * specific code which will disable coherency at the interconnect level if the
+ * cpu is the last in the cluster. For a cpu it could mean programming the power
+ * the power controller etc.
+ *
+ * The state of all the relevant affinity levels is changed prior to calling the
+ * affinity level specific handlers as their actions would depend upon the state
+ * the affinity level is about to enter.
+ *
+ * The affinity level specific handlers are called in ascending order i.e. from
+ * the lowest to the highest affinity level implemented by the platform because
+ * to turn off affinity level X it is neccesary to turn off affinity level X - 1
+ * first.
+ *
+ * CAUTION: This function is called with coherent stacks so that coherency can
+ * be turned off and caches can be flushed safely.
  ******************************************************************************/
 int psci_afflvl_off(unsigned long mpidr,
-		    int cur_afflvl,
-		    int tgt_afflvl)
+		    int start_afflvl,
+		    int end_afflvl)
 {
-	int rc = PSCI_E_SUCCESS, level;
-	unsigned int next_state, prev_state;
-	aff_map_node *aff_node;
+	int rc = PSCI_E_SUCCESS;
+	unsigned int prev_state;
+	mpidr_aff_map_nodes mpidr_nodes;
 
 	mpidr &= MPIDR_AFFINITY_MASK;;
 
 	/*
-	 * Some affinity instances at levels between the current and
-	 * target levels could be absent in the mpidr. Skip them and
-	 * start from the first present instance.
+	 * Collect the pointers to the nodes in the topology tree for
+	 * each affinity instance in the mpidr. If this function does
+	 * not return successfully then either the mpidr or the affinity
+	 * levels are incorrect. In either case, we cannot return back
+	 * to the caller as it would not know what to do.
 	 */
-	level = psci_get_first_present_afflvl(mpidr,
-					      cur_afflvl,
-					      tgt_afflvl,
-					      &aff_node);
-	/*
-	 * Return if there are no more affinity instances beyond this
-	 * level to process. Else ensure that the returned affinity
-	 * node makes sense.
-	 */
-	if (aff_node == NULL)
-		return rc;
-
-	assert(level == aff_node->level);
+	rc = psci_get_aff_map_nodes(mpidr,
+				    start_afflvl,
+				    end_afflvl,
+				    mpidr_nodes);
+	assert (rc == PSCI_E_SUCCESS);
 
 	/*
-	 * This function acquires the lock corresponding to each
-	 * affinity level so that state management can be done safely.
+	 * This function acquires the lock corresponding to each affinity
+	 * level so that by the time all locks are taken, the system topology
+	 * is snapshot and state management can be done safely.
 	 */
-	bakery_lock_get(mpidr, &aff_node->lock);
-
-	/* Keep the old state and the next one handy */
-	prev_state = psci_get_state(aff_node->state);
-	next_state = PSCI_STATE_OFF;
+	psci_acquire_afflvl_locks(mpidr,
+				  start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes);
 
 	/*
-	 * We start from the highest affinity level and work our way
-	 * downwards to the lowest i.e. MPIDR_AFFLVL0.
+	 * Keep the old cpu state handy. It will be used to restore the
+	 * system to its original state in case something goes wrong
 	 */
-	if (aff_node->level == tgt_afflvl) {
-		psci_change_state(mpidr,
-				  tgt_afflvl,
-				  get_max_afflvl(),
-				  next_state);
-	} else {
-		rc = psci_afflvl_off(mpidr, level - 1, tgt_afflvl);
-		if (rc != PSCI_E_SUCCESS) {
-			psci_set_state(aff_node->state, prev_state);
-			goto exit;
-		}
-	}
+	prev_state = psci_get_state(mpidr_nodes[MPIDR_AFFLVL0]->state);
 
 	/*
-	 * Perform generic, architecture and platform specific
-	 * handling
+	 * State management: Update the state of each affinity instance
+	 * between the start and end affinity levels
 	 */
-	rc = psci_afflvl_off_handlers[level](mpidr, aff_node);
-	if (rc != PSCI_E_SUCCESS) {
-		psci_set_state(aff_node->state, prev_state);
-		goto exit;
-	}
+	psci_change_state(mpidr_nodes,
+			  start_afflvl,
+			  end_afflvl,
+			  PSCI_STATE_OFF);
+
+	/* Perform generic, architecture and platform specific handling */
+	rc = psci_call_off_handlers(mpidr_nodes,
+				    start_afflvl,
+				    end_afflvl,
+				    mpidr);
 
 	/*
-	 * If all has gone as per plan then this cpu should be
-	 * marked as OFF
+	 * If an error is returned by a handler then restore the cpu state
+	 * to its original value. If the cpu state is restored then that
+	 * should result in the state of the higher affinity levels to
+	 * get restored as well.
+	 * TODO: We are not undoing any architectural or platform specific
+	 * operations that might have completed before encountering the
+	 * error. The system might not be in a stable state.
 	 */
-	if (level == MPIDR_AFFLVL0) {
-		next_state = psci_get_state(aff_node->state);
-		assert(next_state == PSCI_STATE_OFF);
-	}
+	if (rc != PSCI_E_SUCCESS)
+		psci_change_state(mpidr_nodes,
+				  start_afflvl,
+				  end_afflvl,
+				  prev_state);
 
-exit:
-	bakery_lock_release(mpidr, &aff_node->lock);
+	/*
+	 * Release the locks corresponding to each affinity level in the
+	 * reverse order to which they were acquired.
+	 */
+	psci_release_afflvl_locks(mpidr,
+				  start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes);
+
 	return rc;
 }

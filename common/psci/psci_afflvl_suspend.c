@@ -226,112 +226,149 @@ static const afflvl_suspend_handler psci_afflvl_suspend_handlers[] = {
 };
 
 /*******************************************************************************
- * This function implements the core of the processing required to suspend a cpu
- * It'S assumed that along with suspending the cpu, higher affinity levels will
- * be suspended as far as possible. Suspending a cpu is equivalent to physically
- * powering it down, but the cpu is still available to the OS for scheduling.
- * We first need to determine the new state off all the affinity instances in
- * the mpidr corresponding to the target cpu. Action will be taken on the basis
- * of this new state. To do the state change we first need to acquire the locks
- * for all the implemented affinity level to be able to snapshot the system
- * state. Then we need to start suspending affinity levels from the lowest to
- * the highest (e.g. a cpu needs to be suspended before a cluster can be). To
- * achieve this flow, we start acquiring the locks from the highest to the
- * lowest affinity level. Once we reach affinity level 0, we do the state change
- * followed by the actions corresponding to the new state for affinity level 0.
- * Actions as per the updated state for higher affinity levels are performed as
- * we unwind back to highest affinity level.
+ * This function takes an array of pointers to affinity instance nodes in the
+ * topology tree and calls the suspend handler for the corresponding affinity
+ * levels
+ ******************************************************************************/
+static int psci_call_suspend_handlers(mpidr_aff_map_nodes mpidr_nodes,
+				      int start_afflvl,
+				      int end_afflvl,
+				      unsigned long mpidr,
+				      unsigned long entrypoint,
+				      unsigned long context_id,
+				      unsigned int power_state)
+{
+	int rc = PSCI_E_INVALID_PARAMS, level;
+	aff_map_node *node;
+
+	for (level = start_afflvl; level <= end_afflvl; level++) {
+		node = mpidr_nodes[level];
+		if (node == NULL)
+			continue;
+
+		/*
+		 * TODO: In case of an error should there be a way
+		 * of restoring what we might have torn down at
+		 * lower affinity levels.
+		 */
+		rc = psci_afflvl_suspend_handlers[level](mpidr,
+							 node,
+							 entrypoint,
+							 context_id,
+							 power_state);
+		if (rc != PSCI_E_SUCCESS)
+			break;
+	}
+
+	return rc;
+}
+
+/*******************************************************************************
+ * Top level handler which is called when a cpu wants to suspend its execution.
+ * It is assumed that along with turning the cpu off, higher affinity levels
+ * until the target affinity level will be turned off as well. It traverses
+ * through all the affinity levels performing generic, architectural, platform
+ * setup and state management e.g. for a cluster that's to be suspended, it will
+ * call the platform specific code which will disable coherency at the
+ * interconnect level if the cpu is the last in the cluster. For a cpu it could
+ * mean programming the power controller etc.
+ *
+ * The state of all the relevant affinity levels is changed prior to calling the
+ * affinity level specific handlers as their actions would depend upon the state
+ * the affinity level is about to enter.
+ *
+ * The affinity level specific handlers are called in ascending order i.e. from
+ * the lowest to the highest affinity level implemented by the platform because
+ * to turn off affinity level X it is neccesary to turn off affinity level X - 1
+ * first.
+ *
+ * CAUTION: This function is called with coherent stacks so that coherency can
+ * be turned off and caches can be flushed safely.
  ******************************************************************************/
 int psci_afflvl_suspend(unsigned long mpidr,
 			unsigned long entrypoint,
 			unsigned long context_id,
 			unsigned int power_state,
-			int cur_afflvl,
-			int tgt_afflvl)
+			int start_afflvl,
+			int end_afflvl)
 {
-	int rc = PSCI_E_SUCCESS, level;
-	unsigned int prev_state, next_state;
-	aff_map_node *aff_node;
+	int rc = PSCI_E_SUCCESS;
+	unsigned int prev_state;
+	mpidr_aff_map_nodes mpidr_nodes;
 
 	mpidr &= MPIDR_AFFINITY_MASK;
 
 	/*
-	 * Some affinity instances at levels between the current and
-	 * target levels could be absent in the mpidr. Skip them and
-	 * start from the first present instance.
+	 * Collect the pointers to the nodes in the topology tree for
+	 * each affinity instance in the mpidr. If this function does
+	 * not return successfully then either the mpidr or the affinity
+	 * levels are incorrect.
 	 */
-	level = psci_get_first_present_afflvl(mpidr,
-					      cur_afflvl,
-					      tgt_afflvl,
-					      &aff_node);
-
-	/*
-	 * Return if there are no more affinity instances beyond this
-	 * level to process. Else ensure that the returned affinity
-	 * node makes sense.
-	 */
-	if (aff_node == NULL)
+	rc = psci_get_aff_map_nodes(mpidr,
+				    start_afflvl,
+				    end_afflvl,
+				    mpidr_nodes);
+	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
-	assert(level == aff_node->level);
+	/*
+	 * This function acquires the lock corresponding to each affinity
+	 * level so that by the time all locks are taken, the system topology
+	 * is snapshot and state management can be done safely.
+	 */
+	psci_acquire_afflvl_locks(mpidr,
+				  start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes);
 
 	/*
-	 * This function acquires the lock corresponding to each
-	 * affinity level so that state management can be done safely.
+	 * Keep the old cpu state handy. It will be used to restore the
+	 * system to its original state in case something goes wrong
 	 */
-	bakery_lock_get(mpidr, &aff_node->lock);
-
-	/* Keep the old state and the next one handy */
-	prev_state = psci_get_state(aff_node->state);
-	next_state = PSCI_STATE_SUSPEND;
+	prev_state = psci_get_state(mpidr_nodes[MPIDR_AFFLVL0]->state);
 
 	/*
-	 * We start from the highest affinity level and work our way
-	 * downwards to the lowest i.e. MPIDR_AFFLVL0.
+	 * State management: Update the state of each affinity instance
+	 * between the start and end affinity levels
 	 */
-	if (aff_node->level == tgt_afflvl) {
-		psci_change_state(mpidr,
-				  tgt_afflvl,
-				  get_max_afflvl(),
-				  next_state);
-	} else {
-		rc = psci_afflvl_suspend(mpidr,
-					 entrypoint,
-					 context_id,
-					 power_state,
-					 level - 1,
-					 tgt_afflvl);
-		if (rc != PSCI_E_SUCCESS) {
-			psci_set_state(aff_node->state, prev_state);
-			goto exit;
-		}
-	}
+	psci_change_state(mpidr_nodes,
+			  start_afflvl,
+			  end_afflvl,
+			  PSCI_STATE_SUSPEND);
+
+	/* Perform generic, architecture and platform specific handling */
+	rc = psci_call_suspend_handlers(mpidr_nodes,
+					start_afflvl,
+					end_afflvl,
+					mpidr,
+					entrypoint,
+					context_id,
+					power_state);
 
 	/*
-	 * Perform generic, architecture and platform specific
-	 * handling
+	 * If an error is returned by a handler then restore the cpu state
+	 * to its original value. If the cpu state is restored then that
+	 * should result in the state of the higher affinity levels to
+	 * get restored as well.
+	 * TODO: We are not undoing any architectural or platform specific
+	 * operations that might have completed before encountering the
+	 * error. The system might not be in a stable state.
 	 */
-	rc = psci_afflvl_suspend_handlers[level](mpidr,
-						 aff_node,
-						 entrypoint,
-						 context_id,
-						 power_state);
-	if (rc != PSCI_E_SUCCESS) {
-		psci_set_state(aff_node->state, prev_state);
-		goto exit;
-	}
+	if (rc != PSCI_E_SUCCESS)
+		psci_change_state(mpidr_nodes,
+				  start_afflvl,
+				  end_afflvl,
+				  prev_state);
 
 	/*
-	 * If all has gone as per plan then this cpu should be
-	 * marked as OFF
+	 * Release the locks corresponding to each affinity level in the
+	 * reverse order to which they were acquired.
 	 */
-	if (level == MPIDR_AFFLVL0) {
-		next_state = psci_get_state(aff_node->state);
-		assert(next_state == PSCI_STATE_SUSPEND);
-	}
+	psci_release_afflvl_locks(mpidr,
+				  start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes);
 
-exit:
-	bakery_lock_release(mpidr, &aff_node->lock);
 	return rc;
 }
 
@@ -340,12 +377,15 @@ exit:
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
 static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
-						aff_map_node *cpu_node,
-						unsigned int prev_state)
+						aff_map_node *cpu_node)
 {
-	unsigned int index, plat_state, rc = 0;
+	unsigned int index, plat_state, state, rc = PSCI_E_SUCCESS;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
+
+	/* Ensure we have been woken up from a suspended state */
+	state = psci_get_state(cpu_node->state);
+	assert(state == PSCI_STATE_SUSPEND);
 
 	/*
 	 * Plat. management: Perform the platform specific actions
@@ -355,7 +395,9 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * situation.
 	 */
 	if (psci_plat_pm_ops->affinst_suspend_finish) {
-		plat_state = psci_get_phys_state(prev_state);
+
+		/* Get the physical state of this cpu */
+		plat_state = psci_get_phys_state(state);
 		rc = psci_plat_pm_ops->affinst_suspend_finish(mpidr,
 							      cpu_node->level,
 							      plat_state);
@@ -396,11 +438,9 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 }
 
 static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
-						aff_map_node *cluster_node,
-						unsigned int prev_state)
+						aff_map_node *cluster_node)
 {
-	unsigned int rc = 0;
-	unsigned int plat_state;
+	unsigned int plat_state, rc = PSCI_E_SUCCESS;
 
 	assert(cluster_node->level == MPIDR_AFFLVL1);
 
@@ -413,7 +453,9 @@ static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
 	 * situation.
 	 */
 	if (psci_plat_pm_ops->affinst_suspend_finish) {
-		plat_state = psci_get_phys_state(prev_state);
+
+		/* Get the physical state of this cpu */
+		plat_state = psci_get_aff_phys_state(cluster_node);
 		rc = psci_plat_pm_ops->affinst_suspend_finish(mpidr,
 							      cluster_node->level,
 							      plat_state);
@@ -425,11 +467,9 @@ static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
 
 
 static unsigned int psci_afflvl2_suspend_finish(unsigned long mpidr,
-						aff_map_node *system_node,
-						unsigned int target_afflvl)
+						aff_map_node *system_node)
 {
-	int rc = PSCI_E_SUCCESS;
-	unsigned int plat_state;
+	unsigned int plat_state, rc = PSCI_E_SUCCESS;;
 
 	/* Cannot go beyond this affinity level */
 	assert(system_node->level == MPIDR_AFFLVL2);
@@ -448,7 +488,9 @@ static unsigned int psci_afflvl2_suspend_finish(unsigned long mpidr,
 	 * situation.
 	 */
 	if (psci_plat_pm_ops->affinst_suspend_finish) {
-		plat_state = psci_get_phys_state(system_node->state);
+
+		/* Get the physical state of the system */
+		plat_state = psci_get_aff_phys_state(system_node);
 		rc = psci_plat_pm_ops->affinst_suspend_finish(mpidr,
 							      system_node->level,
 							      plat_state);

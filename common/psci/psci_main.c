@@ -45,7 +45,7 @@ int psci_cpu_on(unsigned long target_cpu,
 
 {
 	int rc;
-	unsigned int start_afflvl, target_afflvl;
+	unsigned int start_afflvl, end_afflvl;
 
 	/* Determine if the cpu exists of not */
 	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
@@ -53,13 +53,17 @@ int psci_cpu_on(unsigned long target_cpu,
 		goto exit;
 	}
 
-	start_afflvl = get_max_afflvl();
-	target_afflvl = MPIDR_AFFLVL0;
+	/*
+	 * To turn this cpu on, specify which affinity
+	 * levels need to be turned on
+	 */
+	start_afflvl = MPIDR_AFFLVL0;
+	end_afflvl = get_max_afflvl();
 	rc = psci_afflvl_on(target_cpu,
 			    entrypoint,
 			    context_id,
 			    start_afflvl,
-			    target_afflvl);
+			    end_afflvl);
 
 exit:
 	return rc;
@@ -76,7 +80,7 @@ int psci_cpu_suspend(unsigned int power_state,
 {
 	int rc;
 	unsigned long mpidr;
-	unsigned int tgt_afflvl, pstate_type;
+	unsigned int target_afflvl, pstate_type;
 
 	/* TODO: Standby states are not supported at the moment */
 	pstate_type = psci_get_pstate_type(power_state);
@@ -86,8 +90,8 @@ int psci_cpu_suspend(unsigned int power_state,
 	}
 
 	/* Sanity check the requested state */
-	tgt_afflvl = psci_get_pstate_afflvl(power_state);
-	if (tgt_afflvl > MPIDR_MAX_AFFLVL) {
+	target_afflvl = psci_get_pstate_afflvl(power_state);
+	if (target_afflvl > MPIDR_MAX_AFFLVL) {
 		rc = PSCI_E_INVALID_PARAMS;
 		goto exit;
 	}
@@ -97,8 +101,8 @@ int psci_cpu_suspend(unsigned int power_state,
 				 entrypoint,
 				 context_id,
 				 power_state,
-				 tgt_afflvl,
-				 MPIDR_AFFLVL0);
+				 MPIDR_AFFLVL0,
+				 target_afflvl);
 
 exit:
 	if (rc != PSCI_E_SUCCESS)
@@ -120,7 +124,7 @@ int psci_cpu_off(void)
 	 * management is done immediately followed by cpu, cluster ...
 	 * ..target_afflvl specific actions as this function unwinds back.
 	 */
-	rc = psci_afflvl_off(mpidr, target_afflvl, MPIDR_AFFLVL0);
+	rc = psci_afflvl_off(mpidr, MPIDR_AFFLVL0, target_afflvl);
 
 	/*
 	 * The only error cpu_off can return is E_DENIED. So check if that's

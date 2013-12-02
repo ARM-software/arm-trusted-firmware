@@ -87,6 +87,56 @@ aff_map_node *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
 }
 
 /*******************************************************************************
+ * This function populates an array with nodes corresponding to a given range of
+ * affinity levels in an mpidr. It returns successfully only when the affinity
+ * levels are correct, the mpidr is valid i.e. no affinity level is absent from
+ * the topology tree & the affinity instance at level 0 is not absent.
+ ******************************************************************************/
+int psci_get_aff_map_nodes(unsigned long mpidr,
+			   int start_afflvl,
+			   int end_afflvl,
+			   mpidr_aff_map_nodes mpidr_nodes)
+{
+	int rc = PSCI_E_INVALID_PARAMS, level;
+	aff_map_node *node;
+
+	rc = psci_check_afflvl_range(start_afflvl, end_afflvl);
+	if (rc != PSCI_E_SUCCESS)
+		return rc;
+
+	for (level = start_afflvl; level <= end_afflvl; level++) {
+
+		/*
+		 * Grab the node for each affinity level. No affinity level
+		 * can be missing as that would mean that the topology tree
+		 * is corrupted.
+		 */
+		node = psci_get_aff_map_node(mpidr, level);
+		if (node == NULL) {
+			rc = PSCI_E_INVALID_PARAMS;
+			break;
+		}
+
+		/*
+		 * Skip absent affinity levels unless it's afffinity level 0.
+		 * An absent cpu means that the mpidr is invalid. Save the
+		 * pointer to the node for the present affinity level
+		 */
+		if (!(node->state & PSCI_AFF_PRESENT)) {
+			if (level == MPIDR_AFFLVL0) {
+				rc = PSCI_E_INVALID_PARAMS;
+				break;
+			}
+
+			mpidr_nodes[level] = NULL;
+		} else
+			mpidr_nodes[level] = node;
+	}
+
+	return rc;
+}
+
+/*******************************************************************************
  * Function which initializes the 'aff_map_node' corresponding to an affinity
  * level instance. Each node has a unique mpidr, level and bakery lock. The data
  * field is opaque and holds affinity level specific data e.g. for affinity
