@@ -171,6 +171,4 @@ CASSERT(GPREGS_FP_OFF == __builtin_offsetof(gp_regs, fp), \
 extern void runtime_svc_init(unsigned long mpidr);
 
 #endif /*__ASSEMBLY__*/
-
-
 #endif /* __RUNTIME_SVC_H__ */

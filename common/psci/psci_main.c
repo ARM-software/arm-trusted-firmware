@@ -122,9 +122,11 @@ int psci_cpu_off(void)
 	 */
 	rc = psci_afflvl_off(mpidr, target_afflvl, MPIDR_AFFLVL0);
 
-	if (rc != PSCI_E_SUCCESS) {
-		assert(rc == PSCI_E_DENIED);
-	}
+	/*
+	 * The only error cpu_off can return is E_DENIED. So check if that's
+	 * indeed the case.
+	 */
+	assert (rc == PSCI_E_SUCCESS || rc == PSCI_E_DENIED);
 
 	return rc;
 }

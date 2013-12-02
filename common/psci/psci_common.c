@@ -196,7 +196,7 @@ int psci_change_state(unsigned long mpidr,
 /*******************************************************************************
  * This routine does the heavy lifting for psci_change_state(). It examines the
  * state of each affinity instance at the next lower affinity level and decides
- * it's final state accordingly. If a lower affinity instance is ON then the
+ * its final state accordingly. If a lower affinity instance is ON then the
  * higher affinity instance is ON. If all the lower affinity instances are OFF
  * then the higher affinity instance is OFF. If atleast one lower affinity
  * instance is SUSPENDED then the higher affinity instance is SUSPENDED. If only
@@ -210,7 +210,7 @@ unsigned int psci_calculate_affinity_state(aff_map_node *aff_node)
 	unsigned long tempidr;
 	aff_map_node *lo_aff_node;
 
-	/* Cannot calculate lowest affinity state. It's simply assigned */
+	/* Cannot calculate lowest affinity state. It is simply assigned */
 	assert(aff_node->level > MPIDR_AFFLVL0);
 
 	/*
@@ -248,7 +248,7 @@ unsigned int psci_calculate_affinity_state(aff_map_node *aff_node)
 
 		/*
 		 * At least one X-1 needs to be suspended for X to be suspended
-		 * but it's effectively on for the affinity_info call.
+		 * but it is effectively on for the affinity_info call.
 		 * SUSPEND > ON_PENDING > OFF.
 		 */
 		case PSCI_STATE_SUSPEND:
@@ -424,8 +424,8 @@ int psci_set_ns_entry_info(unsigned int index,
 
 /*******************************************************************************
  * An affinity level could be on, on_pending, suspended or off. These are the
- * logical states it can be in. Physically either it's off or on. When it's in
- * the state on_pending then it's about to be turned on. It's not possible to
+ * logical states it can be in. Physically either it is off or on. When it is in
+ * the state on_pending then it is about to be turned on. It is not possible to
  * tell whether that's actually happenned or not. So we err on the side of
  * caution & treat the affinity level as being turned off.
  ******************************************************************************/

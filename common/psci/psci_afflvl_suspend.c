@@ -153,7 +153,7 @@ static int psci_afflvl1_suspend(unsigned long mpidr,
 		dcsw_op_all(DCCISW);
 
 	/*
-	 * Plat. Management. Allow the platform to do it's cluster
+	 * Plat. Management. Allow the platform to do its cluster
 	 * specific bookeeping e.g. turn off interconnect coherency,
 	 * program the power controller etc.
 	 */
@@ -166,7 +166,6 @@ static int psci_afflvl1_suspend(unsigned long mpidr,
 		 * platform handler prototype the same.
 		 */
 		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-
 		rc = psci_plat_pm_ops->affinst_suspend(mpidr,
 						       psci_entrypoint,
 						       ns_entrypoint,
@@ -198,7 +197,7 @@ static int psci_afflvl2_suspend(unsigned long mpidr,
 	plat_state = psci_get_aff_phys_state(system_node);
 
 	/*
-	 * Plat. Management : Allow the platform to do it's bookeeping
+	 * Plat. Management : Allow the platform to do its bookeeping
 	 * at this affinity level
 	 */
 	if (psci_plat_pm_ops->affinst_suspend) {
@@ -210,7 +209,6 @@ static int psci_afflvl2_suspend(unsigned long mpidr,
 		 * platform handler prototype the same.
 		 */
 		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-
 		rc = psci_plat_pm_ops->affinst_suspend(mpidr,
 						       psci_entrypoint,
 						       ns_entrypoint,
@@ -387,7 +385,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	/*
 	 * Generic management: Now we just need to retrieve the
 	 * information that we had stashed away during the suspend
-	 * call to set this cpu on it's way.
+	 * call to set this cpu on its way.
 	 */
 	psci_get_ns_entry_info(index);
 

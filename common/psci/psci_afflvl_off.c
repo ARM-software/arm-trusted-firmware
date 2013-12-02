@@ -91,13 +91,6 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 						   plat_state);
 	}
 
-	/*
-	 * The only error cpu_off can return is E_DENIED. So check if that's
-	 * indeed the case. The caller will simply 'eret' in case of an error.
-	 */
-	if (rc != PSCI_E_SUCCESS)
-		assert(rc == PSCI_E_DENIED);
-
 	return rc;
 }
 
@@ -123,7 +116,7 @@ static int psci_afflvl1_off(unsigned long mpidr, aff_map_node *cluster_node)
 		dcsw_op_all(DCCISW);
 
 	/*
-	 * Plat. Management. Allow the platform to do it's cluster
+	 * Plat. Management. Allow the platform to do its cluster
 	 * specific bookeeping e.g. turn off interconnect coherency,
 	 * program the power controller etc.
 	 */
@@ -152,7 +145,7 @@ static int psci_afflvl2_off(unsigned long mpidr, aff_map_node *system_node)
 	/* No arch. and generic bookeeping to do here currently */
 
 	/*
-	 * Plat. Management : Allow the platform to do it's bookeeping
+	 * Plat. Management : Allow the platform to do its bookeeping
 	 * at this affinity level
 	 */
 	if (psci_plat_pm_ops->affinst_off)

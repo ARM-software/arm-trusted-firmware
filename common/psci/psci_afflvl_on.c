@@ -333,7 +333,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	/*
 	 * Generic management: Now we just need to retrieve the
 	 * information that we had stashed away during the cpu_on
-	 * call to set this cpu on it's way. First get the index
+	 * call to set this cpu on its way. First get the index
 	 * for restoring the re-entry info
 	 */
 	index = cpu_node->data;
