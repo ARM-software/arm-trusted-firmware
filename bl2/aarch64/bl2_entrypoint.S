@@ -78,6 +78,14 @@ bl2_entrypoint:; .type bl2_entrypoint, %function
 	isb
 
 	/* ---------------------------------------------
+	 * Check the opcodes out of paranoia.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #RUN_IMAGE
+	cmp	x0, x20
+	b.ne	_panic
+
+	/* ---------------------------------------------
 	 * Zero out NOBITS sections. There are 2 of them:
 	 *   - the .bss section;
 	 *   - the coherent memory section.
