@@ -33,12 +33,6 @@
 
 #include <bl_common.h>
 
-/******************************************************************************
- * Function ID of the only SMC that the BL1 exception handlers service.
- * The chosen value is the first function ID of the ARM SMC64 range.
- *****************************************************************************/
-#define RUN_IMAGE	0xC0000000
-
 #ifndef __ASSEMBLY__
 
 /******************************************

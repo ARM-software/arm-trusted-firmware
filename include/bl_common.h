@@ -71,6 +71,15 @@
  ******************************************************************************/
 #define CASSERT(cond, msg)	typedef char msg[(cond) ? 0 : -1]
 
+/******************************************************************************
+ * Opcode passed in x0 to tell next EL that we want to run an image.
+ * Corresponds to the function ID of the only SMC that the BL1 exception
+ * handlers service. That's why the chosen value is the first function ID of
+ * the ARM SMC64 range.
+ *****************************************************************************/
+#define RUN_IMAGE	0xC0000000
+
+
 #ifndef __ASSEMBLY__
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of

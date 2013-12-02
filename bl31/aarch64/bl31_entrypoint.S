@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bl1.h>
 #include <bl_common.h>
 #include <platform.h>
 #include <arch.h>

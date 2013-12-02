@@ -37,7 +37,6 @@
 #include <platform.h>
 #include <semihosting.h>
 #include <bl_common.h>
-#include <bl1.h>
 
 /***********************************************************
  * Memory for sharing data while changing exception levels.
