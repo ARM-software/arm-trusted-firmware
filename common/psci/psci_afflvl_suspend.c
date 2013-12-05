@@ -73,16 +73,16 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 * Arch. management: Save the secure context, flush the
 	 * L1 caches and exit intra-cluster coherency et al
 	 */
-	psci_secure_context[index].sctlr = read_sctlr();
-	psci_secure_context[index].scr = read_scr();
-	psci_secure_context[index].cptr = read_cptr();
-	psci_secure_context[index].cpacr = read_cpacr();
-	psci_secure_context[index].cntfrq = read_cntfrq_el0();
-	psci_secure_context[index].mair = read_mair();
-	psci_secure_context[index].tcr = read_tcr();
-	psci_secure_context[index].ttbr = read_ttbr0();
-	psci_secure_context[index].vbar = read_vbar();
-	psci_secure_context[index].pstate =
+	psci_suspend_context[index].sec_sysregs.sctlr = read_sctlr();
+	psci_suspend_context[index].sec_sysregs.scr = read_scr();
+	psci_suspend_context[index].sec_sysregs.cptr = read_cptr();
+	psci_suspend_context[index].sec_sysregs.cpacr = read_cpacr();
+	psci_suspend_context[index].sec_sysregs.cntfrq = read_cntfrq_el0();
+	psci_suspend_context[index].sec_sysregs.mair = read_mair();
+	psci_suspend_context[index].sec_sysregs.tcr = read_tcr();
+	psci_suspend_context[index].sec_sysregs.ttbr = read_ttbr0();
+	psci_suspend_context[index].sec_sysregs.vbar = read_vbar();
+	psci_suspend_context[index].sec_sysregs.pstate =
 		read_daif() & (DAIF_ABT_BIT | DAIF_DBG_BIT);
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
@@ -411,18 +411,18 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * Arch. management: Restore the stashed secure architectural
 	 * context in the right order.
 	 */
-	write_vbar(psci_secure_context[index].vbar);
-	write_daif(read_daif() | psci_secure_context[index].pstate);
-	write_mair(psci_secure_context[index].mair);
-	write_tcr(psci_secure_context[index].tcr);
-	write_ttbr0(psci_secure_context[index].ttbr);
-	write_sctlr(psci_secure_context[index].sctlr);
+	write_vbar(psci_suspend_context[index].sec_sysregs.vbar);
+	write_daif(read_daif() | psci_suspend_context[index].sec_sysregs.pstate);
+	write_mair(psci_suspend_context[index].sec_sysregs.mair);
+	write_tcr(psci_suspend_context[index].sec_sysregs.tcr);
+	write_ttbr0(psci_suspend_context[index].sec_sysregs.ttbr);
+	write_sctlr(psci_suspend_context[index].sec_sysregs.sctlr);
 
 	/* MMU and coherency should be enabled by now */
-	write_scr(psci_secure_context[index].scr);
-	write_cptr(psci_secure_context[index].cptr);
-	write_cpacr(psci_secure_context[index].cpacr);
-	write_cntfrq_el0(psci_secure_context[index].cntfrq);
+	write_scr(psci_suspend_context[index].sec_sysregs.scr);
+	write_cptr(psci_suspend_context[index].sec_sysregs.cptr);
+	write_cpacr(psci_suspend_context[index].sec_sysregs.cpacr);
+	write_cntfrq_el0(psci_suspend_context[index].sec_sysregs.cntfrq);
 
 	/*
 	 * Generic management: Now we just need to retrieve the

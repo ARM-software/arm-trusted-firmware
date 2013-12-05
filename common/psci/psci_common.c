@@ -41,10 +41,10 @@
 /*******************************************************************************
  * Arrays that contains information needs to resume a cpu's execution when woken
  * out of suspend or off states. 'psci_ns_einfo_idx' keeps track of the next
- * free index in the 'psci_ns_entry_info' & 'psci_secure_context' arrays. Each
+ * free index in the 'psci_ns_entry_info' & 'psci_suspend_context' arrays. Each
  * cpu is allocated a single entry in each array during startup.
  ******************************************************************************/
-secure_context psci_secure_context[PSCI_NUM_AFFS];
+suspend_context psci_suspend_context[PSCI_NUM_AFFS];
 ns_entry_info psci_ns_entry_info[PSCI_NUM_AFFS];
 unsigned int psci_ns_einfo_idx;
 

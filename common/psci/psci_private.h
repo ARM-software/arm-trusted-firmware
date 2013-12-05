@@ -31,6 +31,7 @@
 #ifndef __PSCI_PRIVATE_H__
 #define __PSCI_PRIVATE_H__
 
+#include <arch.h>
 #include <bakery_lock.h>
 
 #ifndef __ASSEMBLY__
@@ -51,23 +52,6 @@ typedef struct {
 } ns_entry_info;
 
 /*******************************************************************************
- *
- *
- ******************************************************************************/
-typedef struct {
-	unsigned long sctlr;
-	unsigned long scr;
-	unsigned long cptr;
-	unsigned long cpacr;
-	unsigned long cntfrq;
-	unsigned long mair;
-	unsigned long tcr;
-	unsigned long ttbr;
-	unsigned long vbar;
-	unsigned long pstate;
-} secure_context;
-
-/*******************************************************************************
  * The following two data structures hold the topology tree which in turn tracks
  * the state of the all the affinity instances supported by the platform.
  ******************************************************************************/
@@ -84,6 +68,17 @@ typedef struct {
 	int max;
 } aff_limits_node;
 
+/*******************************************************************************
+ * This data structure holds secure world context that needs to be preserved
+ * across cpu_suspend calls which enter the power down state.
+ ******************************************************************************/
+typedef struct {
+	/* Align the suspend level to allow per-cpu lockless access */
+	int suspend_level
+	__attribute__((__aligned__(CACHE_WRITEBACK_GRANULE)));
+	sysregs_context sec_sysregs;
+} suspend_context;
+
 typedef aff_map_node *mpidr_aff_map_nodes[MPIDR_MAX_AFFLVL];
 typedef unsigned int (*afflvl_power_on_finisher)(unsigned long,
 						 aff_map_node *);
@@ -91,7 +86,7 @@ typedef unsigned int (*afflvl_power_on_finisher)(unsigned long,
 /*******************************************************************************
  * Data prototypes
  ******************************************************************************/
-extern secure_context psci_secure_context[PSCI_NUM_AFFS];
+extern suspend_context psci_suspend_context[PSCI_NUM_AFFS];
 extern ns_entry_info psci_ns_entry_info[PSCI_NUM_AFFS];
 extern unsigned int psci_ns_einfo_idx;
 extern aff_limits_node psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
