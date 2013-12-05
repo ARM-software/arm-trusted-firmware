@@ -157,11 +157,16 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 	 */
 	state = plat_get_aff_state(level, mpidr);
 	psci_aff_map[idx].state = state;
-	if (state & PSCI_AFF_PRESENT) {
-		psci_set_state(psci_aff_map[idx].state, PSCI_STATE_OFF);
-	}
 
 	if (level == MPIDR_AFFLVL0) {
+
+		/*
+		 * Mark the cpu as OFF. Higher affinity level reference counts
+		 * have already been memset to 0
+		 */
+		if (state & PSCI_AFF_PRESENT)
+			psci_set_state(&psci_aff_map[idx], PSCI_STATE_OFF);
+
 		/* Ensure that we have not overflowed the psci_ns_einfo array */
 		assert(psci_ns_einfo_idx < PSCI_NUM_AFFS);
 
@@ -299,15 +304,14 @@ void psci_setup(unsigned long mpidr)
 	 * this is the primary cpu.
 	 */
 	mpidr &= MPIDR_AFFINITY_MASK;
-	for (afflvl = max_afflvl; afflvl >= MPIDR_AFFLVL0; afflvl--) {
+	for (afflvl = MPIDR_AFFLVL0; afflvl <= max_afflvl; afflvl++) {
 
 		node = psci_get_aff_map_node(mpidr, afflvl);
 		assert(node);
 
 		/* Mark each present node as ON. */
-		if (node->state & PSCI_AFF_PRESENT) {
-			psci_set_state(node->state, PSCI_STATE_ON);
-		}
+		if (node->state & PSCI_AFF_PRESENT)
+			psci_set_state(node, PSCI_STATE_ON);
 	}
 
 	rc = platform_setup_pm(&psci_plat_pm_ops);

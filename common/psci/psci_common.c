@@ -93,7 +93,7 @@ int get_power_on_target_afflvl(unsigned long mpidr)
 	 * Call the handler in the suspend code if this cpu had been suspended.
 	 * Any other state is invalid.
 	 */
-	state = psci_get_state(node->state);
+	state = psci_get_state(node);
 	if (state == PSCI_STATE_ON_PENDING)
 		return get_max_afflvl();
 
@@ -211,164 +211,6 @@ int psci_validate_mpidr(unsigned long mpidr, int level)
 		return PSCI_E_SUCCESS;
 	else
 		return PSCI_E_INVALID_PARAMS;
-}
-
-/*******************************************************************************
- * Simple routine to determine the first affinity level instance that is present
- * between the start and end affinity levels. This helps to skip handling of
- * absent affinity levels while performing psci operations.
- * The start level can be > or <= to the end level depending upon whether this
- * routine is expected to search top down or bottom up.
- ******************************************************************************/
-int psci_get_first_present_afflvl(unsigned long mpidr,
-				  int start_afflvl,
-				  int end_afflvl,
-				  aff_map_node **node)
-{
-	int level;
-
-	/* Check whether we have to search up or down */
-	if (start_afflvl <= end_afflvl) {
-		for (level = start_afflvl; level <= end_afflvl; level++) {
-			*node = psci_get_aff_map_node(mpidr, level);
-			if (*node && ((*node)->state & PSCI_AFF_PRESENT))
-				break;
-		}
-	} else {
-		for (level = start_afflvl; level >= end_afflvl; level--) {
-			*node = psci_get_aff_map_node(mpidr, level);
-			if (*node && ((*node)->state & PSCI_AFF_PRESENT))
-				break;
-		}
-	}
-
-	return level;
-}
-
-/*******************************************************************************
- * Iteratively change the affinity state between the current and target affinity
- * levels. The target state matters only if we are starting from affinity level
- * 0 i.e. a cpu otherwise the state depends upon the state of the lower affinity
- * levels.
- ******************************************************************************/
-int psci_change_state(mpidr_aff_map_nodes mpidr_nodes,
-		      int start_afflvl,
-		      int end_afflvl,
-		      unsigned int tgt_state)
-{
-	int rc = PSCI_E_SUCCESS, level;
-	unsigned int state;
-	aff_map_node *node;
-
-	/*
-	 * Get a temp pointer to the node. It is not possible that affinity
-	 * level 0 is missing. Simply ignore higher missing levels.
-	 */
-	for (level = start_afflvl; level <= end_afflvl; level++) {
-
-		node = mpidr_nodes[level];
-		if (level == MPIDR_AFFLVL0) {
-			assert(node);
-			psci_set_state(node->state, tgt_state);
-		} else {
-			if (node == NULL)
-				continue;
-			state = psci_calculate_affinity_state(node);
-			psci_set_state(node->state, state);
-		}
-	}
-
-	/* If all went well then the cpu should be in the target state */
-	if (start_afflvl == MPIDR_AFFLVL0) {
-		node = mpidr_nodes[MPIDR_AFFLVL0];
-		state = psci_get_state(node->state);
-		assert(tgt_state == state);
-	}
-
-	return rc;
-}
-
-/*******************************************************************************
- * This routine does the heavy lifting for psci_change_state(). It examines the
- * state of each affinity instance at the next lower affinity level and decides
- * its final state accordingly. If a lower affinity instance is ON then the
- * higher affinity instance is ON. If all the lower affinity instances are OFF
- * then the higher affinity instance is OFF. If atleast one lower affinity
- * instance is SUSPENDED then the higher affinity instance is SUSPENDED. If only
- * a single lower affinity instance is ON_PENDING then the higher affinity
- * instance in ON_PENDING as well.
- ******************************************************************************/
-unsigned int psci_calculate_affinity_state(aff_map_node *aff_node)
-{
-	int ctr;
-	unsigned int aff_count, hi_aff_state;
-	unsigned long tempidr;
-	aff_map_node *lo_aff_node;
-
-	/* Cannot calculate lowest affinity state. It is simply assigned */
-	assert(aff_node->level > MPIDR_AFFLVL0);
-
-	/*
-	 * Find the number of affinity instances at level X-1 e.g. number of
-	 * cpus in a cluster. The level X state depends upon the state of each
-	 * instance at level X-1
-	 */
-	hi_aff_state = PSCI_STATE_OFF;
-	aff_count = plat_get_aff_count(aff_node->level - 1, aff_node->mpidr);
-	for (ctr = 0; ctr < aff_count; ctr++) {
-
-		/*
-		 * Create a mpidr for each lower affinity level (X-1). Use their
-		 * states to influence the higher affinity state (X).
-		 */
-		tempidr = mpidr_set_aff_inst(aff_node->mpidr,
-					     ctr,
-					     aff_node->level - 1);
-		lo_aff_node = psci_get_aff_map_node(tempidr,
-						    aff_node->level - 1);
-		assert(lo_aff_node);
-
-		/* Continue only if the cpu exists within the cluster */
-		if (!(lo_aff_node->state & PSCI_AFF_PRESENT))
-			continue;
-
-		switch (psci_get_state(lo_aff_node->state)) {
-
-		/*
-		 * If any lower affinity is on within the cluster, then
-		 * the higher affinity is on.
-		 */
-		case PSCI_STATE_ON:
-			return PSCI_STATE_ON;
-
-		/*
-		 * At least one X-1 needs to be suspended for X to be suspended
-		 * but it is effectively on for the affinity_info call.
-		 * SUSPEND > ON_PENDING > OFF.
-		 */
-		case PSCI_STATE_SUSPEND:
-			hi_aff_state = PSCI_STATE_SUSPEND;
-			continue;
-
-		/*
-		 * Atleast one X-1 needs to be on_pending & the rest off for X
-		 * to be on_pending. ON_PENDING > OFF.
-		 */
-		case PSCI_STATE_ON_PENDING:
-			if (hi_aff_state != PSCI_STATE_SUSPEND)
-				hi_aff_state = PSCI_STATE_ON_PENDING;
-			continue;
-
-		/* Higher affinity is off if all lower affinities are off. */
-		case PSCI_STATE_OFF:
-			continue;
-
-		default:
-			assert(0);
-		}
-	}
-
-	return hi_aff_state;
 }
 
 /*******************************************************************************
@@ -518,23 +360,83 @@ int psci_set_ns_entry_info(unsigned int index,
 }
 
 /*******************************************************************************
+ * This function takes a pointer to an affinity node in the topology tree and
+ * returns its state. State of a non-leaf node needs to be calculated.
+ ******************************************************************************/
+unsigned short psci_get_state(aff_map_node *node)
+{
+	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
+
+	/* A cpu node just contains the state which can be directly returned */
+	if (node->level == MPIDR_AFFLVL0)
+		return (node->state >> PSCI_STATE_SHIFT) & PSCI_STATE_MASK;
+
+	/*
+	 * For an affinity level higher than a cpu, the state has to be
+	 * calculated. It depends upon the value of the reference count
+	 * which is managed by each node at the next lower affinity level
+	 * e.g. for a cluster, each cpu increments/decrements the reference
+	 * count. If the reference count is 0 then the affinity level is
+	 * OFF else ON.
+	 */
+	if (node->ref_count)
+		return PSCI_STATE_ON;
+	else
+		return PSCI_STATE_OFF;
+}
+
+/*******************************************************************************
+ * This function takes a pointer to an affinity node in the topology tree and
+ * a target state. State of a non-leaf node needs to be converted to a reference
+ * count. State of a leaf node can be set directly.
+ ******************************************************************************/
+void psci_set_state(aff_map_node *node, unsigned short state)
+{
+	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
+
+	/*
+	 * For an affinity level higher than a cpu, the state is used
+	 * to decide whether the reference count is incremented or
+	 * decremented. Entry into the ON_PENDING state does not have
+	 * effect.
+	 */
+	if (node->level > MPIDR_AFFLVL0) {
+		switch (state) {
+		case PSCI_STATE_ON:
+			node->ref_count++;
+			break;
+		case PSCI_STATE_OFF:
+		case PSCI_STATE_SUSPEND:
+			node->ref_count--;
+			break;
+		case PSCI_STATE_ON_PENDING:
+			/*
+			 * An affinity level higher than a cpu will not undergo
+			 * a state change when it is about to be turned on
+			 */
+			return;
+		default:
+			assert(0);
+		}
+	} else {
+		node->state &= ~(PSCI_STATE_MASK << PSCI_STATE_SHIFT);
+		node->state |= (state & PSCI_STATE_MASK) << PSCI_STATE_SHIFT;
+	}
+}
+
+/*******************************************************************************
  * An affinity level could be on, on_pending, suspended or off. These are the
  * logical states it can be in. Physically either it is off or on. When it is in
  * the state on_pending then it is about to be turned on. It is not possible to
  * tell whether that's actually happenned or not. So we err on the side of
  * caution & treat the affinity level as being turned off.
  ******************************************************************************/
-inline unsigned int psci_get_phys_state(unsigned int aff_state)
+unsigned short psci_get_phys_state(aff_map_node *node)
 {
-	return (aff_state != PSCI_STATE_ON ? PSCI_STATE_OFF : PSCI_STATE_ON);
-}
+	unsigned int state;
 
-unsigned int psci_get_aff_phys_state(aff_map_node *aff_node)
-{
-	unsigned int aff_state;
-
-	aff_state = psci_get_state(aff_node->state);
-	return psci_get_phys_state(aff_state);
+	state = psci_get_state(node);
+	return get_phys_state(state);
 }
 
 /*******************************************************************************
@@ -628,15 +530,6 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 					 pon_handlers,
 					 mpidr);
 	assert (rc == PSCI_E_SUCCESS);
-
-	/*
-	 * State management: Update the state of each affinity instance
-	 * between the start and end affinity levels
-	 */
-	psci_change_state(mpidr_nodes,
-			  start_afflvl,
-			  end_afflvl,
-			  PSCI_STATE_ON);
 
 	/*
 	 * This loop releases the lock corresponding to each affinity level

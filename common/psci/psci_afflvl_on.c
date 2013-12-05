@@ -46,12 +46,12 @@ typedef int (*afflvl_on_handler)(unsigned long,
  * This function checks whether a cpu which has been requested to be turned on
  * is OFF to begin with.
  ******************************************************************************/
-static int cpu_on_validate_state(unsigned int state)
+static int cpu_on_validate_state(aff_map_node *node)
 {
 	unsigned int psci_state;
 
 	/* Get the raw psci state */
-	psci_state = psci_get_state(state);
+	psci_state = psci_get_state(node);
 
 	if (psci_state == PSCI_STATE_ON || psci_state == PSCI_STATE_SUSPEND)
 		return PSCI_E_ALREADY_ON;
@@ -84,7 +84,7 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	 * Generic management: Ensure that the cpu is off to be
 	 * turned on
 	 */
-	rc = cpu_on_validate_state(cpu_node->state);
+	rc = cpu_on_validate_state(cpu_node);
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
@@ -101,6 +101,9 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 
+	/* State management: Set this cpu's state as ON PENDING */
+	psci_set_state(cpu_node, PSCI_STATE_ON_PENDING);
+
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
@@ -109,7 +112,7 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	if (psci_plat_pm_ops->affinst_on) {
 
 		/* Get the current physical state of this cpu */
-		plat_state = psci_get_aff_phys_state(cpu_node);
+		plat_state = psci_get_phys_state(cpu_node);
 		rc = psci_plat_pm_ops->affinst_on(target_cpu,
 						  psci_entrypoint,
 						  ns_entrypoint,
@@ -141,13 +144,15 @@ static int psci_afflvl1_on(unsigned long target_cpu,
 	 * management required
 	 */
 
+	/* State management: Is not required while turning a cluster on */
+
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
 	if (psci_plat_pm_ops->affinst_on) {
-		plat_state = psci_get_aff_phys_state(cluster_node);
+		plat_state = psci_get_phys_state(cluster_node);
 		psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 		rc = psci_plat_pm_ops->affinst_on(target_cpu,
 						  psci_entrypoint,
@@ -181,13 +186,15 @@ static int psci_afflvl2_on(unsigned long target_cpu,
 	 * required
 	 */
 
+	/* State management: Is not required while turning a system on */
+
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
 	if (psci_plat_pm_ops->affinst_on) {
-		plat_state = psci_get_aff_phys_state(system_node);
+		plat_state = psci_get_phys_state(system_node);
 		psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 		rc = psci_plat_pm_ops->affinst_on(target_cpu,
 						  psci_entrypoint,
@@ -299,19 +306,7 @@ int psci_afflvl_on(unsigned long target_cpu,
 				   target_cpu,
 				   entrypoint,
 				   context_id);
-	if (rc != PSCI_E_SUCCESS)
-		goto exit;
 
-	/*
-	 * State management: Update the state of each affinity instance
-	 * between the start and end affinity levels
-	 */
-	psci_change_state(target_cpu_nodes,
-			  start_afflvl,
-			  end_afflvl,
-			  PSCI_STATE_ON_PENDING);
-
-exit:
 	/*
 	 * This loop releases the lock corresponding to each affinity level
 	 * in the reverse order to which they were acquired.
@@ -336,7 +331,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
 	/* Ensure we have been explicitly woken up by another cpu */
-	state = psci_get_state(cpu_node->state);
+	state = psci_get_state(cpu_node);
 	assert(state == PSCI_STATE_ON_PENDING);
 
 	/*
@@ -348,7 +343,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	if (psci_plat_pm_ops->affinst_on_finish) {
 
 		/* Get the physical state of this cpu */
-		plat_state = psci_get_phys_state(state);
+		plat_state = get_phys_state(state);
 		rc = psci_plat_pm_ops->affinst_on_finish(mpidr,
 							 cpu_node->level,
 							 plat_state);
@@ -377,6 +372,9 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	index = cpu_node->data;
 	psci_get_ns_entry_info(index);
 
+	/* State management: mark this cpu as on */
+	psci_set_state(cpu_node, PSCI_STATE_ON);
+
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 
@@ -401,12 +399,15 @@ static unsigned int psci_afflvl1_on_finish(unsigned long mpidr,
 	if (psci_plat_pm_ops->affinst_on_finish) {
 
 		/* Get the physical state of this cluster */
-		plat_state = psci_get_aff_phys_state(cluster_node);
+		plat_state = psci_get_phys_state(cluster_node);
 		rc = psci_plat_pm_ops->affinst_on_finish(mpidr,
 							 cluster_node->level,
 							 plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
+
+	/* State management: Increment the cluster reference count */
+	psci_set_state(cluster_node, PSCI_STATE_ON);
 
 	return rc;
 }
@@ -436,12 +437,15 @@ static unsigned int psci_afflvl2_on_finish(unsigned long mpidr,
 	if (psci_plat_pm_ops->affinst_on_finish) {
 
 		/* Get the physical state of the system */
-		plat_state = psci_get_aff_phys_state(system_node);
+		plat_state = psci_get_phys_state(system_node);
 		rc = psci_plat_pm_ops->affinst_on_finish(mpidr,
 							 system_node->level,
 							 plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
+
+	/* State management: Increment the system reference count */
+	psci_set_state(system_node, PSCI_STATE_ON);
 
 	return rc;
 }

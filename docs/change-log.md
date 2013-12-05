@@ -104,6 +104,11 @@ Detailed changes since last release
     automatically detected by the make file when they are added to the plat
     directory.
 
+*   An issue in the PSCI implementation has been fixed which could result in the
+    power down of an affinity instance at level X even though at least one
+    affinity instance at level X - 1 does not allow this.
+
+
 ARM Trusted Firmware - version 0.2
 ==================================
 

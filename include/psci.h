@@ -100,10 +100,7 @@
  * could in one of the 4 further defined states.
  ******************************************************************************/
 #define PSCI_STATE_SHIFT	1
-#define PSCI_STATE_MASK		0x7
-#define psci_get_state(x)	(x >> PSCI_STATE_SHIFT) & PSCI_STATE_MASK
-#define psci_set_state(x,y)	x &= ~(PSCI_STATE_MASK << PSCI_STATE_SHIFT); \
-				x |= (y & PSCI_STATE_MASK) << PSCI_STATE_SHIFT;
+#define PSCI_STATE_MASK		0xff
 
 #define PSCI_AFF_ABSENT		0x0
 #define PSCI_AFF_PRESENT	0x1
@@ -111,6 +108,9 @@
 #define PSCI_STATE_OFF		0x1
 #define PSCI_STATE_ON_PENDING	0x2
 #define PSCI_STATE_SUSPEND	0x3
+
+#define get_phys_state(x)	(x != PSCI_STATE_ON ? \
+				 PSCI_STATE_OFF : PSCI_STATE_ON)
 
 /* Number of affinity instances whose state this psci imp. can track */
 #define PSCI_NUM_AFFS		32ull

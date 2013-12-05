@@ -57,8 +57,9 @@ typedef struct {
  ******************************************************************************/
 typedef struct {
 	unsigned long mpidr;
+	unsigned short ref_count;
 	unsigned char state;
-	char level;
+	unsigned char level;
 	unsigned int data;
 	bakery_lock lock;
 } aff_map_node;
@@ -100,12 +101,11 @@ extern afflvl_power_on_finisher psci_afflvl_sus_finish_handlers[];
  ******************************************************************************/
 /* Private exported functions from psci_common.c */
 extern int get_max_afflvl(void);
-extern unsigned int psci_get_phys_state(unsigned int);
-extern unsigned int psci_get_aff_phys_state(aff_map_node *);
-extern unsigned int psci_calculate_affinity_state(aff_map_node *);
+extern unsigned short psci_get_state(aff_map_node *node);
+extern unsigned short psci_get_phys_state(aff_map_node *node);
+extern void psci_set_state(aff_map_node *node, unsigned short state);
 extern void psci_get_ns_entry_info(unsigned int index);
 extern unsigned long mpidr_set_aff_inst(unsigned long,unsigned char, int);
-extern int psci_change_state(mpidr_aff_map_nodes, int, int, unsigned int);
 extern int psci_validate_mpidr(unsigned long, int);
 extern int get_power_on_target_afflvl(unsigned long mpidr);
 extern void psci_afflvl_power_on_finish(unsigned long,
@@ -115,9 +115,6 @@ extern void psci_afflvl_power_on_finish(unsigned long,
 extern int psci_set_ns_entry_info(unsigned int index,
 				  unsigned long entrypoint,
 				  unsigned long context_id);
-extern int psci_get_first_present_afflvl(unsigned long,
-					 int, int,
-					 aff_map_node **);
 extern int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
 extern void psci_acquire_afflvl_locks(unsigned long mpidr,
 				      int start_afflvl,

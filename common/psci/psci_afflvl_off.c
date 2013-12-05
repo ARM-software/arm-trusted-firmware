@@ -51,6 +51,9 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
+	/* State management: mark this cpu as turned off */
+	psci_set_state(cpu_node, PSCI_STATE_OFF);
+
 	/*
 	 * Generic management: Get the index for clearing any
 	 * lingering re-entry information
@@ -85,7 +88,7 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 	if (psci_plat_pm_ops->affinst_off) {
 
 		/* Get the current physical state of this cpu */
-		plat_state = psci_get_aff_phys_state(cpu_node);
+		plat_state = psci_get_phys_state(cpu_node);
 		rc = psci_plat_pm_ops->affinst_off(mpidr,
 						   cpu_node->level,
 						   plat_state);
@@ -102,11 +105,14 @@ static int psci_afflvl1_off(unsigned long mpidr, aff_map_node *cluster_node)
 	/* Sanity check the cluster level */
 	assert(cluster_node->level == MPIDR_AFFLVL1);
 
+	/* State management: Decrement the cluster reference count */
+	psci_set_state(cluster_node, PSCI_STATE_OFF);
+
 	/*
 	 * Keep the physical state of this cluster handy to decide
 	 * what action needs to be taken
 	 */
-	plat_state = psci_get_aff_phys_state(cluster_node);
+	plat_state = psci_get_phys_state(cluster_node);
 
 	/*
 	 * Arch. Management. Flush all levels of caches to PoC if
@@ -136,11 +142,14 @@ static int psci_afflvl2_off(unsigned long mpidr, aff_map_node *system_node)
 	/* Cannot go beyond this level */
 	assert(system_node->level == MPIDR_AFFLVL2);
 
+	/* State management: Decrement the system reference count */
+	psci_set_state(system_node, PSCI_STATE_OFF);
+
 	/*
 	 * Keep the physical state of the system handy to decide what
 	 * action needs to be taken
 	 */
-	plat_state = psci_get_aff_phys_state(system_node);
+	plat_state = psci_get_phys_state(system_node);
 
 	/* No arch. and generic bookeeping to do here currently */
 
@@ -219,7 +228,6 @@ int psci_afflvl_off(unsigned long mpidr,
 		    int end_afflvl)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned int prev_state;
 	mpidr_aff_map_nodes mpidr_nodes;
 
 	mpidr &= MPIDR_AFFINITY_MASK;;
@@ -247,41 +255,11 @@ int psci_afflvl_off(unsigned long mpidr,
 				  end_afflvl,
 				  mpidr_nodes);
 
-	/*
-	 * Keep the old cpu state handy. It will be used to restore the
-	 * system to its original state in case something goes wrong
-	 */
-	prev_state = psci_get_state(mpidr_nodes[MPIDR_AFFLVL0]->state);
-
-	/*
-	 * State management: Update the state of each affinity instance
-	 * between the start and end affinity levels
-	 */
-	psci_change_state(mpidr_nodes,
-			  start_afflvl,
-			  end_afflvl,
-			  PSCI_STATE_OFF);
-
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_off_handlers(mpidr_nodes,
 				    start_afflvl,
 				    end_afflvl,
 				    mpidr);
-
-	/*
-	 * If an error is returned by a handler then restore the cpu state
-	 * to its original value. If the cpu state is restored then that
-	 * should result in the state of the higher affinity levels to
-	 * get restored as well.
-	 * TODO: We are not undoing any architectural or platform specific
-	 * operations that might have completed before encountering the
-	 * error. The system might not be in a stable state.
-	 */
-	if (rc != PSCI_E_SUCCESS)
-		psci_change_state(mpidr_nodes,
-				  start_afflvl,
-				  end_afflvl,
-				  prev_state);
 
 	/*
 	 * Release the locks corresponding to each affinity level in the

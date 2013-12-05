@@ -142,13 +142,18 @@ int psci_affinity_info(unsigned long target_affinity,
 	unsigned int aff_state;
 	aff_map_node *node;
 
-	if (lowest_affinity_level > get_max_afflvl()) {
-		goto exit;
-	}
+	if (lowest_affinity_level > get_max_afflvl())
+		return rc;
 
 	node = psci_get_aff_map_node(target_affinity, lowest_affinity_level);
 	if (node && (node->state & PSCI_AFF_PRESENT)) {
-		aff_state = psci_get_state(node->state);
+
+		/*
+		 * TODO: For affinity levels higher than 0 i.e. cpu, the
+		 * state will always be either ON or OFF. Need to investigate
+		 * how critical is it to support ON_PENDING here.
+		 */
+		aff_state = psci_get_state(node);
 
 		/* A suspended cpu is available & on for the OS */
 		if (aff_state == PSCI_STATE_SUSPEND) {
@@ -157,7 +162,7 @@ int psci_affinity_info(unsigned long target_affinity,
 
 		rc = aff_state;
 	}
-exit:
+
 	return rc;
 }
 
