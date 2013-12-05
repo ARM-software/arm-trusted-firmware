@@ -107,6 +107,7 @@ extern void psci_get_ns_entry_info(unsigned int index);
 extern unsigned long mpidr_set_aff_inst(unsigned long,unsigned char, int);
 extern int psci_change_state(mpidr_aff_map_nodes, int, int, unsigned int);
 extern int psci_validate_mpidr(unsigned long, int);
+extern int get_power_on_target_afflvl(unsigned long mpidr);
 extern void psci_afflvl_power_on_finish(unsigned long,
 						int,
 						int,
@@ -145,6 +146,8 @@ extern int psci_afflvl_on(unsigned long,
 extern int psci_afflvl_off(unsigned long, int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
+extern void psci_set_suspend_afflvl(aff_map_node *node, int afflvl);
+extern int psci_get_suspend_afflvl(aff_map_node *node);
 extern int psci_afflvl_suspend(unsigned long,
 			       unsigned long,
 			       unsigned long,

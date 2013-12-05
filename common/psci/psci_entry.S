@@ -72,7 +72,10 @@ psci_aff_common_finish_entry:
 	 * level 0.
 	 * ---------------------------------------------
 	 */
-	bl	get_max_afflvl
+	mov	x0, x19
+	bl	get_power_on_target_afflvl
+	cmp	x0, xzr
+	b.lt	_panic
 	mov	x3, x23
 	mov	x2, x0
 	mov	x0, x19

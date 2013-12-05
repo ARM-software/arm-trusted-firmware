@@ -72,6 +72,38 @@ aff_limits_node psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 plat_pm_ops *psci_plat_pm_ops;
 
 /*******************************************************************************
+ * Routine to return the maximum affinity level to traverse to after a cpu has
+ * been physically powered up. It is expected to be called immediately after
+ * reset from assembler code. It has to find its 'aff_map_node' instead of
+ * getting it as an argument.
+ * TODO: Calling psci_get_aff_map_node() with the MMU disabled is slow. Add
+ * support to allow faster access to the target affinity level.
+ ******************************************************************************/
+int get_power_on_target_afflvl(unsigned long mpidr)
+{
+	aff_map_node *node;
+	unsigned int state;
+
+	/* Retrieve our node from the topology tree */
+	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK, MPIDR_AFFLVL0);
+	assert(node);
+
+	/*
+	 * Return the maximum supported affinity level if this cpu was off.
+	 * Call the handler in the suspend code if this cpu had been suspended.
+	 * Any other state is invalid.
+	 */
+	state = psci_get_state(node->state);
+	if (state == PSCI_STATE_ON_PENDING)
+		return get_max_afflvl();
+
+	if (state == PSCI_STATE_SUSPEND)
+		return psci_get_suspend_afflvl(node);
+
+	return PSCI_E_INVALID_PARAMS;
+}
+
+/*******************************************************************************
  * Simple routine to retrieve the maximum affinity level supported by the
  * platform and check that it makes sense.
  ******************************************************************************/

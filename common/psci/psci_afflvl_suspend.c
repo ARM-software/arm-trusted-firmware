@@ -44,6 +44,37 @@ typedef int (*afflvl_suspend_handler)(unsigned long,
 				      unsigned int);
 
 /*******************************************************************************
+ * This function sets the affinity level till which the current cpu is being
+ * powered down to during a cpu_suspend call
+ ******************************************************************************/
+void psci_set_suspend_afflvl(aff_map_node *node, int afflvl)
+{
+	/*
+	 * Check that nobody else is calling this function on our behalf &
+	 * this information is being set only in the cpu node
+	 */
+	assert(node->mpidr == (read_mpidr() & MPIDR_AFFINITY_MASK));
+	assert(node->level == MPIDR_AFFLVL0);
+
+	/*
+	 * Store the affinity level we are powering down to in our context.
+	 * The cache flush in the suspend code will ensure that this info
+	 * is available immediately upon resuming.
+	 */
+	psci_suspend_context[node->data].suspend_level = afflvl;
+}
+
+/*******************************************************************************
+ * This function gets the affinity level till which the current cpu was powered
+ * down during a cpu_suspend call.
+ ******************************************************************************/
+int psci_get_suspend_afflvl(aff_map_node *node)
+{
+	/* Return the target affinity level */
+	return psci_suspend_context[node->data].suspend_level;
+}
+
+/*******************************************************************************
  * The next three functions implement a handler for each supported affinity
  * level which is called when that affinity level is about to be suspended.
  ******************************************************************************/
@@ -335,6 +366,9 @@ int psci_afflvl_suspend(unsigned long mpidr,
 			  start_afflvl,
 			  end_afflvl,
 			  PSCI_STATE_SUSPEND);
+
+	/* Save the affinity level till which this cpu can be powered down */
+	psci_set_suspend_afflvl(mpidr_nodes[MPIDR_AFFLVL0], end_afflvl);
 
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_suspend_handlers(mpidr_nodes,
