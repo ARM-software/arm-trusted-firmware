@@ -64,7 +64,6 @@ Detailed changes since last release
     -   Entry into standby states is not supported.
     -   The api is only supported on the AEMv8 Base FVP.
 
-
 *   The PSCI AFFINITY_INFO api has undergone limited testing on the AEMv8 Base
     FVP to allow experimental use.
 
@@ -76,6 +75,12 @@ Detailed changes since last release
 *   The API to return the memory layout structures for each bootloader stage has
     undergone change. A pointer to these structures is returned instead of their
     copy.
+
+*   Required C library and runtime header files are now included locally in ARM
+    Trusted Firmware instead of depending on the toolchain standard include
+    paths. The local implementation has been cleaned up and reduced in scope.
+    Implementations for `putchar()` and `strchr()` were added to the local C
+    library.
 
 
 ARM Trusted Firmware - version 0.2

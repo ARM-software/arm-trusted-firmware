@@ -13,6 +13,7 @@ Contents
     *   Boot Loader stage 2 (BL2)
     *   Boot Loader stage 3-1 (BL3-1)
     *   PSCI implementation (in BL3-1)
+4. C Library
 
 - - - - - - - - - - - - - - - - - -
 
@@ -943,12 +944,50 @@ provided in the description of the `plat_get_aff_count()` and
 `plat_get_aff_state()` functions above.
 
 
+4.  C Library
+-------------
+
+To avoid subtle toolchain behavioral dependencies, the header files provided
+by the compiler are not used. The software is built with the `-nostdinc` flag
+to ensure no headers are included from the toolchain inadvertently. Instead the
+required headers are included in the ARM Trusted Firmware source tree. The
+library only contains those C library definitions required by the local
+implementation. If more functionality is required, the needed library functions
+will need to be added to the local implementation.
+
+Versions of [FreeBSD] headers can be found in `include/stdlib`. Some of these
+headers have been cut down in order to simplify the implementation. In order to
+minimize changes to the header files, the [FreeBSD] layout has been maintained.
+The generic C library definitions can be found in `include/stdlib` with more
+system and machine specific declarations in `include/stdlib/sys` and
+`include/stdlib/machine`.
+
+The local C library implementations can be found in `lib/stdlib`. In order to
+extend the C library these files may need to be modified. It is recommended to
+use a release version of [FreeBSD] as a starting point.
+
+The C library header files in the [FreeBSD] source tree are located in the
+`include` and `sys/sys` directories. [FreeBSD] machine specific definitions
+can be found in the `sys/<machine-type>` directories. These files define things
+like 'the size of a pointer' and 'the range of an integer'. Since an AArch64
+port for [FreeBSD] does not yet exist, the machine specific definitions are
+based on existing machine types with similar properties (for example SPARC64).
+
+Where possible, C library function implementations were taken from [FreeBSD]
+as found in the `lib/libc` directory.
+
+A copy of the [FreeBSD] sources can be downloaded with `git`.
+
+    git clone git://github.com/freebsd/freebsd.git -b origin/release/9.2.0
+
+
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 _Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
 
 
 [User Guide]: user-guide.md
+[FreeBSD]:    http://www.freebsd.org
 
 [../plat/common/aarch64/platform_helpers.S]: ../plat/common/aarch64/platform_helpers.S
 [../plat/fvp/platform.h]:                    ../plat/fvp/platform.h
