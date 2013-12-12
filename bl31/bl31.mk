@@ -40,11 +40,11 @@ vpath			%.S	lib/arch/aarch64 common/psci					\
 
 BL31_ASM_OBJS		:=	bl31_entrypoint.o runtime_exceptions.o psci_entry.o		\
 				spinlock.o gic_v3_sysregs.o fvp_helpers.o
-BL31_C_OBJS		:=	bl31_main.o bl31_plat_setup.o bl31_arch_setup.o	\
-				exception_handlers.o bakery_lock.o cci400.o 	\
-				fvp_common.o fvp_pm.o fvp_pwrc.o fvp_topology.o	\
-				runtime_svc.o fvp_gic.o gic_v2.o psci_setup.o	\
-				psci_common.o psci_afflvl_on.o psci_main.o	\
+BL31_C_OBJS		:=	bl31_main.o bl31_plat_setup.o bl31_arch_setup.o		\
+				exception_handlers.o bakery_lock.o cci400.o 		\
+				fvp_common.o fvp_pm.o fvp_pwrc.o fvp_topology.o		\
+				runtime_svc.o fvp_gic.o gic_v2.o gic_v3.o psci_setup.o	\
+				psci_common.o psci_afflvl_on.o psci_main.o		\
 				psci_afflvl_off.o psci_afflvl_suspend.o
 
 BL31_ENTRY_POINT	:=	bl31_entrypoint

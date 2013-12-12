@@ -28,9 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdint.h>
 #include <arch_helpers.h>
 #include <platform.h>
 #include <gic.h>
+#include <debug.h>
 
 
 /*******************************************************************************
@@ -46,7 +48,8 @@
  ******************************************************************************/
 void gicv3_cpuif_setup(void)
 {
-	unsigned int scr_val, val, base;
+	unsigned int scr_val, val;
+	uintptr_t base;
 
 	/*
 	 * When CPUs come out of reset they have their GICR_WAKER.ProcessorSleep
@@ -55,13 +58,15 @@ void gicv3_cpuif_setup(void)
 	 * to clear (GICv3 Architecture specification 5.4.23).
 	 * GICR_WAKER is NOT banked per CPU, compute the correct base address
 	 * per CPU.
-	 *
-	 * TODO:
-	 * For GICv4 we also need to adjust the Base address based on
-	 * GICR_TYPER.VLPIS
 	 */
-	base = BASE_GICR_BASE +
-		(platform_get_core_pos(read_mpidr()) << GICR_PCPUBASE_SHIFT);
+	base = gicv3_get_rdist(BASE_GICR_BASE, read_mpidr());
+	if (base == (uintptr_t)NULL) {
+		/* No re-distributor base address. This interface cannot be
+		 * configured.
+		 */
+		panic();
+	}
+
 	val = gicr_read_waker(base);
 
 	val &= ~WAKER_PS;
@@ -108,7 +113,8 @@ void gicv3_cpuif_setup(void)
  ******************************************************************************/
 void gicv3_cpuif_deactivate(void)
 {
-	unsigned int val, base;
+	unsigned int val;
+	uintptr_t base;
 
 	/*
 	 * When taking CPUs down we need to set GICR_WAKER.ProcessorSleep and
@@ -116,13 +122,15 @@ void gicv3_cpuif_deactivate(void)
 	 * (GICv3 Architecture specification 5.4.23).
 	 * GICR_WAKER is NOT banked per CPU, compute the correct base address
 	 * per CPU.
-	 *
-	 * TODO:
-	 * For GICv4 we also need to adjust the Base address based on
-	 * GICR_TYPER.VLPIS
 	 */
-	base = BASE_GICR_BASE +
-		(platform_get_core_pos(read_mpidr()) << GICR_PCPUBASE_SHIFT);
+	base = gicv3_get_rdist(BASE_GICR_BASE, read_mpidr());
+	if (base == (uintptr_t)NULL) {
+		/* No re-distributor base address. This interface cannot be
+		 * configured.
+		 */
+		panic();
+	}
+
 	val = gicr_read_waker(base);
 	val |= WAKER_PS;
 	gicr_write_waker(base, val);

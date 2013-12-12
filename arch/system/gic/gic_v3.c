@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,19 +28,52 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __MMIO_H__
-#define __MMIO_H__
-
-#ifndef __ASSEMBLY__
-
 #include <stdint.h>
+#include <arch.h>
+#include <platform.h>
+#include <gic.h>
+#include <gic_v3.h>
+#include <debug.h>
 
-extern void mmio_write_32(uintptr_t addr, uint32_t value);
-extern uint32_t mmio_read_32(uintptr_t addr);
+uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr)
+{
+	uint32_t  cpu_aff, gicr_aff;
+	uint64_t  gicr_typer;
+	uintptr_t addr;
 
-extern void mmio_write_64(uintptr_t addr, uint64_t value);
-extern uint64_t mmio_read_64(uintptr_t addr);
+	/* Construct the affinity as used by GICv3. MPIDR and GIC affinity level
+	 * mask is the same.
+	 */
+	cpu_aff  = ((mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK) <<
+			GICV3_AFF0_SHIFT;
+	cpu_aff |= ((mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK) <<
+			GICV3_AFF1_SHIFT;
+	cpu_aff |= ((mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK) <<
+			GICV3_AFF2_SHIFT;
+	cpu_aff |= ((mpidr >> MPIDR_AFF3_SHIFT) & MPIDR_AFFLVL_MASK) <<
+			GICV3_AFF3_SHIFT;
 
-#endif /*__ASSEMBLY__*/
+	addr = gicr_base;
+	do {
+		gicr_typer = gicr_read_typer(addr);
 
-#endif /* __MMIO_H__ */
+		gicr_aff = (gicr_typer >> GICR_TYPER_AFF_SHIFT) &
+				GICR_TYPER_AFF_MASK;
+		if (cpu_aff == gicr_aff) {
+			INFO("GICv3 - Found RDIST for MPIDR(0x%lx) at 0x%lx\n",
+				mpidr, addr);
+			return addr;
+		}
+
+		/* TODO:
+		 * For GICv4 we need to adjust the Base address based on
+		 * GICR_TYPER.VLPIS
+		 */
+		addr += (1 << GICR_PCPUBASE_SHIFT);
+
+	} while (!(gicr_typer & GICR_TYPER_LAST));
+
+	/* If we get here we did not find a match. */
+	ERROR("GICv3 - Did not find RDIST for CPU with MPIDR 0x%lx\n", mpidr);
+	return (uintptr_t)NULL;
+}

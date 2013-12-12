@@ -55,5 +55,15 @@
 
 #define ERROR(...)	printf("ERROR: " __VA_ARGS__)
 
+
+/* For the moment this Panic function is very basic, Report an error and
+ * spin. This can be expanded in the future to provide more information.
+ */
+static inline void panic(void)
+{
+	ERROR("PANIC\n");
+	while (1);
+}
+
 #endif /* __ASSEMBLY__ */
 #endif /* __DEBUG_H__ */

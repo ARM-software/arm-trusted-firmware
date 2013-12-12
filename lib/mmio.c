@@ -35,7 +35,17 @@ void mmio_write_32(uintptr_t addr, uint32_t value)
 	*(volatile uint32_t*)addr = value;
 }
 
-unsigned mmio_read_32(uintptr_t addr)
+uint32_t mmio_read_32(uintptr_t addr)
 {
 	return *(volatile uint32_t*)addr;
+}
+
+void mmio_write_64(uintptr_t addr, uint64_t value)
+{
+	*(volatile uint64_t*)addr = value;
+}
+
+uint64_t mmio_read_64(uintptr_t addr)
+{
+	return *(volatile uint64_t*)addr;
 }

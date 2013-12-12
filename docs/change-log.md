@@ -94,6 +94,10 @@ Detailed changes since last release
     floating point registers. Also added `-mgeneral-regs-only` flag to GCC
     settings to prevent generation of code using floating point registers.
 
+*   The GICv3 distributor can have more ports than CPUs are available in the
+    system. The GICv3 re-distributors are probed to work out which
+    re-distributor should be used with which CPU.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================

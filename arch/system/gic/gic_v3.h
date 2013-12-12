@@ -31,19 +31,35 @@
 #ifndef __GIC_V3_H__
 #define __GIC_V3_H__
 
+#include <stdint.h>
 #include <mmio.h>
+
+#define GICV3_AFFLVL_MASK	0xff
+#define GICV3_AFF0_SHIFT	0
+#define GICV3_AFF1_SHIFT	8
+#define GICV3_AFF2_SHIFT	16
+#define GICV3_AFF3_SHIFT	24
+#define GICV3_AFFINITY_MASK	0xffffffff
+
+uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr);
 
 /*******************************************************************************
  * GIC Redistributor interface accessors
  ******************************************************************************/
-static inline unsigned int gicr_read_waker(unsigned int base)
+static inline uint32_t gicr_read_waker(uintptr_t base)
 {
 	return mmio_read_32(base + GICR_WAKER);
 }
 
-static inline void gicr_write_waker(unsigned int base, unsigned int val)
+static inline void gicr_write_waker(uintptr_t base, uint32_t val)
 {
 	mmio_write_32(base + GICR_WAKER, val);
 }
+
+static inline uint64_t gicr_read_typer(uintptr_t base)
+{
+	return mmio_read_64(base + GICR_TYPER);
+}
+
 
 #endif /* __GIC_V3_H__ */

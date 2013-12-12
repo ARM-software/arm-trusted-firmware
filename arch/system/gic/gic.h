@@ -129,11 +129,17 @@
 
 /* GICv3 Re-distributor interface registers & shifts */
 #define GICR_PCPUBASE_SHIFT	0x11
+#define GICR_TYPER		0x08
 #define GICR_WAKER		0x14
 
 /* GICR_WAKER bit definitions */
 #define WAKER_CA		(1UL << 2)
 #define WAKER_PS		(1UL << 1)
+
+/* GICR_TYPER bit definitions */
+#define GICR_TYPER_AFF_SHIFT	32
+#define GICR_TYPER_AFF_MASK	0xffffffff
+#define GICR_TYPER_LAST		(1UL << 4)
 
 /* GICv3 ICC_SRE register bit definitions*/
 #define ICC_SRE_EN		(1UL << 3)
