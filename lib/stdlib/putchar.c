@@ -29,32 +29,20 @@
  */
 
 #include <stdio.h>
-#include <stdarg.h>
+#include <console.h>
 
-/* Choose max of 128 chars for now. */
-#define PRINT_BUFFER_SIZE 128
-int printf(const char *fmt, ...)
+/* Putchar() should either return the character printed or EOF in case of error.
+ * Our current console_putc() function assumes success and returns the
+ * character. Write all other printing functions in terms of putchar(), if
+ * possible, so they all benefit when this is improved.
+ */
+int putchar(int c)
 {
-	va_list args;
-	char buf[PRINT_BUFFER_SIZE];
-	int count;
+	int res;
+	if (console_putc((unsigned char)c) >= 0)
+		res = c;
+	else
+		res = EOF;
 
-	va_start(args, fmt);
-	vsnprintf(buf, sizeof(buf) - 1, fmt, args);
-	va_end(args);
-
-	/* Use putchar directly as 'puts()' adds a newline. */
-	buf[PRINT_BUFFER_SIZE - 1] = '\0';
-	count = 0;
-	while (buf[count])
-	{
-		if (putchar(buf[count]) != EOF) {
-			count++;
-		} else {
-			count = EOF;
-			break;
-		}
-	}
-
-	return count;
+	return res;
 }

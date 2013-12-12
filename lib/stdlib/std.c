@@ -34,6 +34,8 @@
 #include "assert.c"
 #include "mem.c"
 #include "printf.c"
+#include "putchar.c"
 #include "puts.c"
+#include "strchr.c"
 #include "strlen.c"
 #include "subr_prf.c"

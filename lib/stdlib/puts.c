@@ -29,19 +29,27 @@
  */
 
 #include <stdio.h>
-#include <console.h>
 
 int puts(const char *s)
 {
 	int count = 0;
 	while(*s)
 	{
-		if (console_putc(*s++)) {
+		if (putchar(*s++) != EOF) {
 			count++;
 		} else {
-			count = EOF; // -1 in stdio.h
+			count = EOF;
 			break;
 		}
 	}
+
+	/* According to the puts(3) manpage, the function should write a
+	 * trailing newline.
+	 */
+	if ((count != EOF) && (putchar('\n') != EOF))
+		count++;
+	else
+		count = EOF;
+
 	return count;
 }

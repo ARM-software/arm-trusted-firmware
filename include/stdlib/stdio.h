@@ -59,6 +59,7 @@ typedef	__ssize_t	ssize_t;
 #define	EOF	(-1)
 
 int	 printf(const char * __restrict, ...);
+int	 putchar(int);
 int	 puts(const char *);
 int	 sprintf(char * __restrict, const char * __restrict, ...);
 int	 vsprintf(char * __restrict, const char * __restrict,

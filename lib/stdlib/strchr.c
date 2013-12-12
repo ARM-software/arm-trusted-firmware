@@ -10,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -25,9 +25,6 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)string.h	8.1 (Berkeley) 6/2/93
- * $FreeBSD$
  */
 
 /*
@@ -35,29 +32,21 @@
  * All rights reserved.
  */
 
-#ifndef _STRING_H_
-#define	_STRING_H_
-
 #include <sys/cdefs.h>
-#include <sys/_null.h>
-#include <sys/_types.h>
+#include <stddef.h>
+#include <string.h>
 
-#ifndef _SIZE_T_DECLARED
-typedef	__size_t	size_t;
-#define	_SIZE_T_DECLARED
-#endif
+char *
+strchr(const char *p, int ch)
+{
+	char c;
 
-__BEGIN_DECLS
-
-void	*memchr(const void *, int, size_t) __pure;
-int	 memcmp(const void *, const void *, size_t) __pure;
-void	*memcpy(void * __restrict, const void * __restrict, size_t);
-void	*memmove(void *, const void *, size_t);
-void	*memset(void *, int, size_t);
-
-char	*strchr(const char *, int) __pure;
-size_t	 strlen(const char *) __pure;
-
-__END_DECLS
-
-#endif /* _STRING_H_ */
+	c = ch;
+	for (;; ++p) {
+		if (*p == c)
+			return ((char *)p);
+		if (*p == '\0')
+			return (NULL);
+	}
+	/* NOTREACHED */
+}
