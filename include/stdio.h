@@ -27,97 +27,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef STDIO_H
+#define STDIO_H
 
-#include <stdio.h>
-#include <console.h>
+#include <stdarg.h>
+#include <stddef.h>
 
-#if defined (__GNUC__)
-
-#include <stdio.h>
-#include <stddef.h> /* size_t */
-#include <stdarg.h> /* va_list */
-
-// Code from VTB.
-#include "mem.c"
-
-// Make mem functions that will operate on DEV mem. "memset_io"?
-
-
-//Code from VTB
-#include "strlen.c"
-
-static int put_str(const char *s)
-{
-	int count = 0;
-	while(*s)
-	{
-		if (console_putc(*s++)) {
-			count++;
-		} else {
-			count = EOF; // -1 in stdio.h
-			break;
-		}
-	}
-	return count;
-}
-
-int puts(const char *s)
-{
-	int count = put_str(s);
-
-	if (count != EOF) {
-		console_putc('\n');
-		count++;
-	}
-	return count;
-}
-
-// From VTB
-#include "ctype.h"
-#include "subr_prf.c"
-
- // Choose max of 128 chars for now.
-#define PRINT_BUFFER_SIZE 128
 int printf(const char *fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	char buf[PRINT_BUFFER_SIZE];
-	vsnprintf(buf, sizeof(buf) - 1, fmt, args);
-	buf[PRINT_BUFFER_SIZE - 1] = '\0';
-	return put_str(buf);
-}
+	__attribute__ ((format (printf, 1, 2)));
 
-int putchar(int c)
-{
-	console_putc(c);
-	return 1;
-}
+int snprintf(char *str, size_t size, const char *format, ...)
+	__attribute__ ((__format__ (__printf__, 3, 4)));
 
+int vsnprintf(char *str, size_t size, const char *format, va_list ap)
+	__attribute__ ((__format__ (__printf__, 3, 0)));
 
-// I just made this up. Probably make it beter.
-void __assert_func (const char *file, int l, const char *func, const char *error)
-{
-	printf("ASSERT: %s <%d> : %s\n\r", func, l, error);
-	while(1);
-}
+int putchar(int c);
 
-extern void __assert_fail (const char *assertion, const char *file,
-			   unsigned int line, const char *function)
-{
-	printf("ASSERT: %s <%d> : %s\n\r", function, line, assertion);
-	while(1);
-}
+int puts(const char *s);
 
+#define EOF	-1
 
-// I just made this up. Probably make it beter.
-void abort (void)
-{
-	printf("ABORT\n\r");
-	while(1);
-}
-
-
-#else
-#error "No standard library binding defined."
-#endif
+#endif /*STDIO_H*/
