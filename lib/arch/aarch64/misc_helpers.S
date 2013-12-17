@@ -103,12 +103,12 @@ save_regs:; .type save_regs, %function
 	mrs     x0, sp_el0
 	stp	x28, x0, [sp, #GPREGS_X28_OFF]
 	mrs     x0, spsr_el3
-	str	x0, [sp, #GPREGS_SPSR_OFF]
+	str	w0, [sp, #GPREGS_SPSR_OFF]
 	ret
 
 
 restore_regs:; .type restore_regs, %function
-	ldr	x9, [sp, #GPREGS_SPSR_OFF]
+	ldr	w9, [sp, #GPREGS_SPSR_OFF]
 	msr	spsr_el3, x9
 	ldp	x28, x9, [sp, #GPREGS_X28_OFF]
 	msr	sp_el0, x9

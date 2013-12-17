@@ -115,43 +115,43 @@
 #ifndef __ASSEMBLY__
 
 typedef struct {
-	unsigned long x0;
-	unsigned long x1;
-	unsigned long x2;
-	unsigned long x3;
-	unsigned long x4;
-	unsigned long x5;
-	unsigned long x6;
-	unsigned long x7;
-	unsigned long x8;
-	unsigned long x9;
-	unsigned long x10;
-	unsigned long x11;
-	unsigned long x12;
-	unsigned long x13;
-	unsigned long x14;
-	unsigned long x15;
-	unsigned long x16;
-	unsigned long x17;
-	unsigned long x18;
-	unsigned long x19;
-	unsigned long x20;
-	unsigned long x21;
-	unsigned long x22;
-	unsigned long x23;
-	unsigned long x24;
-	unsigned long x25;
-	unsigned long x26;
-	unsigned long x27;
-	unsigned long x28;
-	unsigned long sp_el0;
-	unsigned long spsr;
+	uint64_t x0;
+	uint64_t x1;
+	uint64_t x2;
+	uint64_t x3;
+	uint64_t x4;
+	uint64_t x5;
+	uint64_t x6;
+	uint64_t x7;
+	uint64_t x8;
+	uint64_t x9;
+	uint64_t x10;
+	uint64_t x11;
+	uint64_t x12;
+	uint64_t x13;
+	uint64_t x14;
+	uint64_t x15;
+	uint64_t x16;
+	uint64_t x17;
+	uint64_t x18;
+	uint64_t x19;
+	uint64_t x20;
+	uint64_t x21;
+	uint64_t x22;
+	uint64_t x23;
+	uint64_t x24;
+	uint64_t x25;
+	uint64_t x26;
+	uint64_t x27;
+	uint64_t x28;
+	uint64_t sp_el0;
+	uint32_t spsr;
 	/*
 	 * Alignment constraint which allows save & restore of fp & lr on the
 	 * stack during exception handling
 	 */
-	unsigned long fp  __attribute__((__aligned__(16)));
-	unsigned long lr;
+	uint64_t fp  __attribute__((__aligned__(16)));
+	uint64_t lr;
 } __attribute__((__aligned__(16))) gp_regs;
 
 /*******************************************************************************
