@@ -93,10 +93,12 @@ INCLUDES		+=	-Ilib/include/ -Iinclude/aarch64/ -Iinclude/	\
 				-Idrivers/arm/interconnect/cci-400/		\
 				-Idrivers/arm/peripherals/pl011/ 		\
 				-Iplat/fvp -Idrivers/power			\
-				-Iarch/system/gic -Icommon/psci
+				-Iarch/system/gic -Icommon/psci			\
+				-Iinclude/stdlib -Iinclude/stdlib/sys
 
-ASFLAGS			+= 	-Wa,--fatal-warnings -D__ASSEMBLY__ ${INCLUDES}
-CFLAGS			:= 	-Wall -Werror -std=c99 -c -Os -DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
+ASFLAGS			+= 	-nostdinc -Wa,--fatal-warnings -D__ASSEMBLY__ ${INCLUDES}
+CFLAGS			:= 	-nostdinc -Wall -Werror -std=c99 -c -Os \
+				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
 
 LDFLAGS			+=	--fatal-warnings -O1
 BL1_LDFLAGS		:=	-Map=${BL1_MAPFILE} --script ${BL1_LINKERFILE} --entry=${BL1_ENTRY_POINT}

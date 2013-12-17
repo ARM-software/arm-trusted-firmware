@@ -29,8 +29,8 @@
 #
 
 vpath			%.c	drivers/arm/interconnect/cci-400/ plat/fvp			\
-				plat/fvp/${ARCH} drivers/arm/peripherals/pl011 common/ lib/ \
-				lib/semihosting	arch/aarch64/ lib/non-semihosting
+				plat/fvp/${ARCH} drivers/arm/peripherals/pl011 common/ lib/	\
+				lib/semihosting arch/aarch64/ lib/stdlib
 
 vpath			%.S	arch/${ARCH}/cpu plat/common/aarch64				\
 				plat/fvp/${ARCH} lib/semihosting/aarch64			\

@@ -1,9 +1,11 @@
 /*-
- * Copyright (c) 1990, 1993
+ * Copyright (c) 1982, 1988, 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
- *
- * This code is derived from software contributed to Berkeley by
- * Chris Torek.
+ * (c) UNIX System Laboratories, Inc.
+ * All or some portions of this file are derived from material licensed
+ * to the University of California by American Telephone and Telegraph
+ * Co. or Unix System Laboratories, Inc. and are reproduced herein with
+ * the permission of UNIX System Laboratories, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,20 +30,30 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * $FreeBSD$
  */
 
 /*
- * Portions copyright (c) 2009-2013, ARM Limited and Contributors. All rights reserved.
+ * Portions copyright (c) 2009-2013, ARM Limited and Contributors.
+ * All rights reserved.
  */
 
-/*
- * Compare strings.
- */
-int
-strcmp(const char *s1, const char *s2)
-{
-	while (*s1 == *s2++)
-		if (*s1++ == '\0')
-			return (0);
-	return (*(const unsigned char *)s1 - *(const unsigned char *)(s2 - 1));
-}
+#ifndef _SYS_CTYPE_H_
+#define	_SYS_CTYPE_H_
+
+#define isspace(c)	((c) == ' ' || ((c) >= '\t' && (c) <= '\r'))
+#define isascii(c)	(((c) & ~0x7f) == 0)
+#define isupper(c)	((c) >= 'A' && (c) <= 'Z')
+#define islower(c)	((c) >= 'a' && (c) <= 'z')
+#define isalpha(c)	(isupper(c) || islower(c))
+#define isdigit(c)	((c) >= '0' && (c) <= '9')
+#define isxdigit(c)	(isdigit(c) \
+			  || ((c) >= 'A' && (c) <= 'F') \
+			  || ((c) >= 'a' && (c) <= 'f'))
+#define isprint(c)	((c) >= ' ' && (c) <= '~')
+
+#define toupper(c)	((c) - 0x20 * (((c) >= 'a') && ((c) <= 'z')))
+#define tolower(c)	((c) + 0x20 * (((c) >= 'A') && ((c) <= 'Z')))
+
+#endif /* !_SYS_CTYPE_H_ */

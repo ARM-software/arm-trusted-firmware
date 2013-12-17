@@ -31,7 +31,7 @@
 vpath			%.c	common/ drivers/arm/interconnect/cci-400/		\
 				drivers/arm/peripherals/pl011 common/ lib/ 		\
 				plat/fvp plat/fvp/${ARCH} lib/semihosting arch/aarch64/	\
-				lib/non-semihosting
+				lib/stdlib
 
 vpath			%.S	lib/arch/aarch64					\
 				lib/semihosting/aarch64					\

@@ -30,9 +30,8 @@
 
 vpath			%.c	drivers/arm/interconnect/cci-400/ common/ lib/			\
 				drivers/arm/peripherals/pl011 plat/fvp common/psci		\
-				lib/semihosting arch/aarch64/ lib/non-semihosting		\
-				lib/sync/locks/bakery/ drivers/power/ arch/system/gic/		\
-				plat/fvp/aarch64/
+				lib/semihosting arch/aarch64/ lib/stdlib lib/sync/locks/bakery/	\
+				drivers/power/ arch/system/gic/ plat/fvp/aarch64/
 
 vpath			%.S	lib/arch/aarch64 common/psci					\
 				lib/semihosting/aarch64 include/ plat/fvp/${ARCH}		\

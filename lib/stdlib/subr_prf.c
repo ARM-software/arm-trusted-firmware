@@ -35,24 +35,17 @@
  */
 
 /*
- * Portions copyright (c) 2009-2013, ARM Limited and Contributors. All rights reserved.
+ * Portions copyright (c) 2009-2013, ARM Limited and Contributors.
+ * All rights reserved.
  */
 
-/*
-#include "types.h"
-#include "varargs.h"
-#include "ctype.h"
-#include "string.h"
-*/
-#include <stddef.h>
-#include <sys/types.h>  /* For ssize_t */
+#include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
+#include <stddef.h>
 #include <string.h>
+#include <ctype.h>
 
-#include "ctype.h"
-
-typedef uint64_t uintmax_t;
-typedef int64_t intmax_t;
 typedef unsigned char u_char;
 typedef unsigned int u_int;
 typedef int64_t quad_t;
