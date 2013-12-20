@@ -82,6 +82,9 @@ Detailed changes since last release
     Implementations for `putchar()` and `strchr()` were added to the local C
     library.
 
+*   GCC compiler built-in function support has been disabled in order to improve
+    compiler independence.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================

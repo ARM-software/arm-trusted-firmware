@@ -96,8 +96,9 @@ INCLUDES		+=	-Ilib/include/ -Iinclude/aarch64/ -Iinclude/	\
 				-Iarch/system/gic -Icommon/psci			\
 				-Iinclude/stdlib -Iinclude/stdlib/sys
 
-ASFLAGS			+= 	-nostdinc -Wa,--fatal-warnings -D__ASSEMBLY__ ${INCLUDES}
-CFLAGS			:= 	-nostdinc -Wall -Werror -std=c99 -c -Os \
+ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
+				-D__ASSEMBLY__ ${INCLUDES}
+CFLAGS			:= 	-nostdinc -ffreestanding -Wall -Werror -std=c99 -c -Os \
 				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
 
 LDFLAGS			+=	--fatal-warnings -O1
