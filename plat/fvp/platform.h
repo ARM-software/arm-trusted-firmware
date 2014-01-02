@@ -57,8 +57,8 @@
 #define PLATFORM_CLUSTER_COUNT		2ull
 #define PLATFORM_CLUSTER0_CORE_COUNT	4
 #define PLATFORM_CLUSTER1_CORE_COUNT	4
-#define PLATFORM_CORE_COUNT             (PLATFORM_CLUSTER1_CORE_COUNT + \
-			       		 PLATFORM_CLUSTER0_CORE_COUNT)
+#define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER1_CORE_COUNT + \
+						PLATFORM_CLUSTER0_CORE_COUNT)
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	4
 #define PRIMARY_CPU			0x0
 
@@ -332,6 +332,12 @@ extern int platform_config_setup(void);
 extern void plat_report_exception(unsigned long);
 extern unsigned long plat_get_ns_image_entrypoint(void);
 extern unsigned long platform_get_stack(unsigned long mpidr);
+
+/* Declarations for fvp_gic.c */
+extern void gic_cpuif_deactivate(unsigned int);
+extern void gic_cpuif_setup(unsigned int);
+extern void gic_pcpu_distif_setup(unsigned int);
+extern void gic_setup(void);
 
 /* Declarations for fvp_topology.c */
 extern int plat_setup_topology(void);

@@ -139,8 +139,8 @@ void bl1_plat_arch_setup(void)
 	}
 
 	configure_mmu(&bl1_tzram_layout,
-	              TZROM_BASE,
-	              TZROM_BASE + TZROM_SIZE,
-	              BL1_COHERENT_RAM_BASE,
-	              BL1_COHERENT_RAM_LIMIT);
+			TZROM_BASE,
+			TZROM_BASE + TZROM_SIZE,
+			BL1_COHERENT_RAM_BASE,
+			BL1_COHERENT_RAM_LIMIT);
 }

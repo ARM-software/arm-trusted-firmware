@@ -44,8 +44,4 @@ extern unsigned long bl31_entrypoint;
 extern void bl31_platform_setup(void);
 extern meminfo *bl31_plat_sec_mem_layout(void);
 extern el_change_info* bl31_get_next_image_info(void);
-extern void gic_cpuif_deactivate(unsigned int);
-extern void gic_cpuif_setup(unsigned int);
-extern void gic_pcpu_distif_setup(unsigned int);
-extern void gic_setup(void);
 #endif /* __BL31_H__ */

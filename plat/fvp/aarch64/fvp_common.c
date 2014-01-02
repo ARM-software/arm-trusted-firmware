@@ -589,6 +589,7 @@ int platform_config_setup(void)
 	return 0;
 }
 
-unsigned long plat_get_ns_image_entrypoint(void) {
+unsigned long plat_get_ns_image_entrypoint(void)
+{
 	return NS_IMAGE_OFFSET;
 }
