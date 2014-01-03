@@ -98,8 +98,8 @@ INCLUDES		+=	-Ilib/include/ -Iinclude/aarch64/ -Iinclude/	\
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-D__ASSEMBLY__ ${INCLUDES}
-CFLAGS			:= 	-nostdinc -ffreestanding -Wall -Werror -std=c99 -c -Os \
-				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
+CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall -Werror	\
+				-std=c99 -c -Os -DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
 
 LDFLAGS			+=	--fatal-warnings -O1
 BL1_LDFLAGS		:=	-Map=${BL1_MAPFILE} --script ${BL1_LINKERFILE} --entry=${BL1_ENTRY_POINT}

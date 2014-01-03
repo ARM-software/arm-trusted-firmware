@@ -69,7 +69,7 @@
  * The following  compilation error is triggered if the assertion fails:
  * "error: size of array 'msg' is negative"
  ******************************************************************************/
-#define CASSERT(cond, msg)	typedef char msg[(cond) ? 0 : -1]
+#define CASSERT(cond, msg)	typedef char msg[(cond) ? 1 : -1]
 
 /******************************************************************************
  * Opcode passed in x0 to tell next EL that we want to run an image.
