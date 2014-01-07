@@ -446,8 +446,9 @@ This function executes with the MMU and data caches enabled. It is responsible
 for performing any remaining platform-specific setup that can occur after the
 MMU and data cache have been enabled.
 
-In the ARM FVP port, it zeros out the ZI section and enables the system level
-implementation of the generic timer counter.
+In the ARM FVP port, this function enables system-level implementation of the
+generic timer counter. It also initializes counter frequency for CPU's generic
+timers.
 
 This function is also responsible for initializing the storage abstraction layer
 which is used to load further bootloader images.
@@ -771,6 +772,7 @@ BL3-1 runtime services and normal world software can function correctly.
 The ARM FVP port does the following:
 *   Initializes the generic interrupt controller.
 *   Configures the CLCD controller.
+*   Initializes counter frequency for CPU's generic timer
 *   Grants access to the system counter timer module
 *   Initializes the FVP power controller device
 *   Detects the system topology.

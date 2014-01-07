@@ -112,11 +112,25 @@ void bl1_early_platform_setup(void)
  ******************************************************************************/
 void bl1_platform_setup(void)
 {
+	unsigned int counter_base_frequency;
+
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
 
-	/* Enable and initialize the System level generic timer */
-	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_EN);
+	/*
+	 * Enable and initialize the System level generic timer. Choose base
+	 * frequency for the timer
+	 */
+	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_FCREQ(0) | CNTCR_EN);
+
+	/* Read the frequency from Frequency modes table */
+	counter_base_frequency = mmio_read_32(SYS_CNTCTL_BASE + CNTFID_OFF);
+
+	/* The first entry of the frequency modes table must not be 0 */
+	assert(counter_base_frequency != 0);
+
+	/* Program the counter frequency */
+	write_cntfrq_el0(counter_base_frequency);
 }
 
 
