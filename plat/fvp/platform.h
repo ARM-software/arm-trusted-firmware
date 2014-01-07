@@ -127,7 +127,6 @@
 #define TZDRAM_BASE		0x06000000
 #define TZDRAM_SIZE		0x02000000
 #define MBOX_OFF		0x1000
-#define AFFMAP_OFF		0x1200
 
 #define DRAM_BASE              0x80000000ull
 #define DRAM_SIZE              0x80000000ull

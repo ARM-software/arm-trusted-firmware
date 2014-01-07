@@ -67,22 +67,6 @@ plat_secondary_cold_boot_setup: ; .type plat_secondary_cold_boot_setup, %functio
 	mov	x20, x0
 
 	/* ---------------------------------------------
-	 * Mark this cpu as being present. This is a
-	 * SO write. This array will be read using
-	 * normal memory so invalidate any prefetched
-	 * stale copies first.
-	 * ---------------------------------------------
-	 */
-	ldr	x1, =TZDRAM_BASE
-	mov	x0, #AFFMAP_OFF
-	add	x1, x0, x1
-	mov	x2, #PLATFORM_CACHE_LINE_SIZE
-	mul	x2, x2, x20
-	add	x0, x1, x2
-	bl	dcivac
-	str	x19, [x1, x2]
-
-	/* ---------------------------------------------
 	 * Power down this cpu.
 	 * TODO: Do we need to worry about powering the
 	 * cluster down as well here. That will need
@@ -205,25 +189,6 @@ platform_cold_boot_init: ; .type platform_cold_boot_init, %function
 	 * ---------------------------------------------
 	 */
 	bl	platform_set_coherent_stack
-
-	/* ---------------------------------------------
-	 * Mark this cpu as being present. This is a
-	 * SO write. Invalidate any stale copies out of
-	 * paranoia as there is no one else around.
-	 * ---------------------------------------------
-	 */
-	mov	x0, x19
-	bl	platform_get_core_pos
-	mov	x21, x0
-
-	ldr	x1, =TZDRAM_BASE
-	mov	x0, #AFFMAP_OFF
-	add	x1, x0, x1
-	mov	x2, #PLATFORM_CACHE_LINE_SIZE
-	mul	x2, x2, x21
-	add	x0, x1, x2
-	bl	dcivac
-	str	x19, [x1, x2]
 
 	/* ---------------------------------------------
 	 * Architectural init. can be generic e.g.
