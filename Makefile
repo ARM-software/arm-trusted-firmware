@@ -87,7 +87,7 @@ endif
 ifeq (${PLAT},all)
 all: ${PLATFORMS}
 else
-all: msg_start bl1 bl2 bl31
+all: msg_start bl1 bl2 bl31 fip
 endif
 
 msg_start:
@@ -107,7 +107,7 @@ ifneq (${PLAT},all)
   include bl31/bl31.mk
 endif
 
-.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope locate-checkpatch checkcodebase checkpatch
+.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope locate-checkpatch checkcodebase checkpatch fiptool fip locate-bl33
 .SUFFIXES:
 
 
@@ -179,6 +179,12 @@ bl31:			${BUILD_BL31} ${BUILD_PLAT}/bl31.bin
 
 BASE_COMMIT		?=	origin/master
 
+# Variables for use with Firmware Image Package
+FIPTOOLPATH		?=	tools/fip_create
+FIPTOOL		?=	${FIPTOOLPATH}/fip_create
+fiptool:		${FIPTOOL}
+fip:			${BUILD_PLAT}/fip.bin
+
 ifeq (${PLAT},all)
   ifeq (${MAKECMDGOALS},clean)
     $(error "Please select a platform with PLAT=<platform>. You can use 'make distclean' to clean up all platform builds")
@@ -194,14 +200,26 @@ ifeq (,$(wildcard ${CHECKPATCH}))
 endif
 endif
 
+locate-bl33:
+ifndef BL33
+	$(error "Please set BL33 to point to the Normal World binary, eg: BL33=../uefi/FVP_AARCH64_EFI.fd")
+else
+ifeq (,$(wildcard ${BL33}))
+	$(error "The file BL33 points to cannot be found (${BL33})")
+endif
+endif
+
+
 clean:
 			@echo "  CLEAN"
 			${Q}rm -rf ${BUILD_PLAT}
+			${Q}make -C ${FIPTOOLPATH} clean
 
 realclean distclean:
 			@echo "  REALCLEAN"
 			${Q}rm -rf ${BUILD_BASE}
 			${Q}rm -f ${CURDIR}/cscope.*
+			${Q}make -C ${FIPTOOLPATH} clean
 
 dump:
 			@echo "  OBJDUMP"
@@ -220,6 +238,12 @@ checkcodebase:		locate-checkpatch
 checkpatch:		locate-checkpatch
 			@echo "  CHECKING STYLE"
 			@git format-patch --stdout ${BASE_COMMIT} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
+
+${FIPTOOL}:
+			@echo "  BUILDING FIRMWARE IMAGE PACKAGE TOOL $@"
+			@echo
+			${Q}make -C ${FIPTOOLPATH}
+			@echo
 
 ${BUILD_DIRS}:
 			${Q}mkdir -p "$@"
@@ -295,6 +319,17 @@ ${BUILD_PLAT}/bl31.bin:	${BUILD_BL31}/bl31.elf
 			@echo "Built $@ successfully"
 			@echo
 
+${BUILD_PLAT}/fip.bin:	bl2 bl31 locate-bl33 ${FIPTOOL}
+			@echo " CREATE FIRMWARE IMAGE PACKAGE $@"
+			@echo
+			${Q}${FIPTOOL} --dump \
+				--bl2 ${BUILD_PLAT}/bl2.bin \
+				--bl31 ${BUILD_PLAT}/bl31.bin \
+				--bl33 ${BL33} \
+				$@
+			@echo
+
+
 cscope:
 	@echo "  CSCOPE"
 	${Q}find ${CURDIR} -name "*.[chsS]" > cscope.files
@@ -314,9 +349,10 @@ help:
 	@echo "  checkpatch     Check the coding style on changes in the current"
 	@echo "                 branch against BASE_COMMIT (default origin/master)"
 	@echo "  clean          Clean the build for the selected platform"
-	@echo "  cscope     Generate cscope index"
+	@echo "  cscope         Generate cscope index"
 	@echo "  distclean      Remove all build artifacts for all platforms"
 	@echo "  dump           Generate object file dumps"
+	@echo "  fiptool        Build the Firmware Image Package(FIP) creation tool"
 	@echo ""
 	@echo "note: most build targets require PLAT to be set to a specific platform."
 	@echo ""
