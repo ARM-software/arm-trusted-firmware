@@ -46,3 +46,31 @@
 plat_report_exception:
 	/* Juno todo: Come up with a way of reporting errors */
 	ret
+
+	/*
+	 * Return 0 to 3 for the A53s and 4 or 5 for the A57s
+	 */
+	.globl	platform_get_core_pos
+platform_get_core_pos:; .type platform_get_core_pos, %function
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	eor	x0, x0, #(1 << MPIDR_AFFINITY_BITS)  // swap A53/A57 order
+	add	x0, x1, x0, LSR #6
+	ret
+
+
+	/* -----------------------------------------------------
+	 * void platform_is_primary_cpu (unsigned int mpid);
+	 *
+	 * Given the mpidr say whether this cpu is the primary
+	 * cpu (applicable ony after a cold boot)
+	 * -----------------------------------------------------
+	 */
+	.globl	platform_is_primary_cpu
+platform_is_primary_cpu:; .type platform_is_primary_cpu, %function
+	/* Warning: this function is called without a valid stack */
+	/* Juno todo: allow configuration of primary CPU using SCC */
+	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
+	cmp	x0, #PRIMARY_CPU
+	cset	x0, eq
+	ret

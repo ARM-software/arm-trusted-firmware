@@ -78,6 +78,7 @@ BL1_SOURCES		+=	bl1_plat_setup.c			\
 				cci400.c
 
 BL2_SOURCES		+=	bl2_plat_setup.c			\
+				plat_helpers.S				\
 				plat_common.c
 
 BL31_SOURCES		+=	bl31_plat_setup.c			\
