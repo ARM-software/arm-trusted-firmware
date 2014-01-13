@@ -98,6 +98,11 @@ Detailed changes since last release
     system. The GICv3 re-distributors are probed to work out which
     re-distributor should be used with which CPU.
 
+*   Add multi-platform support to the build system. The user may now specify
+    which platform to build using PLAT=<platform> as part of the make command
+    line.  Default behaviour is to make all platforms.  New platforms are
+    automatically detected by the make file when they are added to the plat
+    directory.
 
 ARM Trusted Firmware - version 0.2
 ==================================

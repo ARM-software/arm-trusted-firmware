@@ -82,7 +82,7 @@ To build the software for the FVPs, follow these steps:
 
 3.  Set the compiler path and build:
 
-        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make
+        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=fvp
 
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below.
@@ -104,7 +104,7 @@ To build the software for the FVPs, follow these steps:
 
 5.  (Optional) Build products for a specific build variant can be removed using:
 
-        make DEBUG=<D> clean
+        make DEBUG=<D> PLAT=fvp clean
 
     ... where `<D>` is `0` or `1`, as specified when building.
 
@@ -117,7 +117,7 @@ To build the software for the FVPs, follow these steps:
 
 To compile a debug version and make the build more verbose use
 
-    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make DEBUG=1 V=1
+    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=fvp DEBUG=1 V=1
 
 AArch64 GCC uses DWARF version 4 debugging symbols by default. Some tools (for
 example DS-5) might not support this and may need an older version of DWARF
@@ -135,7 +135,7 @@ Extra debug options can be passed to the build system by setting `CFLAGS`:
 
     CFLAGS='-O0 -gdwarf-2'                                    \
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
-    make DEBUG=1 V=1
+    make PLAT=fvp DEBUG=1 V=1
 
 
 NOTE: The Foundation FVP does not provide a debugger interface.

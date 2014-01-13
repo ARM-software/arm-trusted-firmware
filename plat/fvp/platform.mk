@@ -28,21 +28,54 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	plat/${PLAT} plat/${PLAT}/${ARCH}	\
-				common/ lib/ arch/${ARCH}		\
-				${PLAT_BL1_C_VPATH}
+PLAT_INCLUDES :=	-Idrivers/arm/interconnect/cci-400/	\
+			-Idrivers/arm/peripherals/pl011/ 	\
+			-Idrivers/power
 
-vpath			%.S	arch/${ARCH}/cpu plat/common/${ARCH}	\
-				plat/${PLAT}/${ARCH} 			\
-				include/ lib/arch/${ARCH}		\
-				${PLAT_BL1_S_VPATH}
+PLAT_BL1_C_VPATH :=	drivers/arm/interconnect/cci-400/	\
+			drivers/arm/peripherals/pl011		\
+			lib/semihosting				\
+			lib/stdlib
 
-BL1_OBJS		+=	bl1_arch_setup.o \
-				bl1_entrypoint.o \
-				early_exceptions.o \
-				bl1_main.o \
-				cpu_helpers.o
+PLAT_BL1_S_VPATH :=	lib/semihosting/${ARCH}
 
-BL1_ENTRY_POINT		:=	reset_handler
-BL1_MAPFILE		:=	bl1.map
-BL1_LINKERFILE		:=	bl1.ld
+PLAT_BL2_C_VPATH :=	drivers/arm/interconnect/cci-400	\
+			drivers/arm/peripherals/pl011		\
+			lib/stdlib				\
+			lib/semihosting
+
+PLAT_BL2_S_VPATH :=	lib/semihosting/${ARCH}
+
+PLAT_BL31_C_VPATH :=	drivers/arm/interconnect/cci-400	\
+			drivers/arm/peripherals/pl011		\
+			lib/semihosting				\
+			lib/stdlib				\
+			drivers/power
+
+PLAT_BL31_S_VPATH :=	lib/semihosting/${ARCH}
+
+PLAT_BL_COMMON_OBJS :=	semihosting_call.o	\
+			mmio.o			\
+			pl011.o			\
+			semihosting.o		\
+			sysreg_helpers.o
+
+BL1_OBJS +=		bl1_plat_setup.o \
+			bl1_plat_helpers.o \
+			fvp_helpers.o \
+			fvp_common.o \
+			cci400.o
+
+BL2_OBJS +=		bl2_plat_setup.o \
+			fvp_common.o
+
+BL31_OBJS +=		bl31_plat_setup.o \
+			fvp_helpers.o \
+			fvp_common.o \
+			fvp_pm.o \
+			fvp_pwrc.o \
+			fvp_topology.o \
+			fvp_gic.o \
+			cci400.o \
+			gic_v2.o \
+			gic_v3.o

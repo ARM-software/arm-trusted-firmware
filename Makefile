@@ -51,37 +51,57 @@ else
 endif
 
 BL_COMMON_OBJS		:=	misc_helpers.o cache_helpers.o tlb_helpers.o		\
-				semihosting_call.o mmio.o pl011.o semihosting.o		\
-				std.o bl_common.o platform_helpers.o sysreg_helpers.o
+				std.o bl_common.o platform_helpers.o
+ARCH 			?=	aarch64
 
-ARCH 			:=	aarch64
-PLAT			:=	fvp
+# By default, build all platforms available
+PLAT			?=	all
 
-BUILD_BASE:=./build
-BUILD:=${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
-BUILD_BL1:=${BUILD}/bl1
-BUILD_BL2:=${BUILD}/bl2
-BUILD_BL31:=${BUILD}/bl31
-BUILD_DIRS:=${BUILD_BL1} ${BUILD_BL2} ${BUILD_BL31}
+BUILD_BASE		:=	./build
+BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
+BUILD_BL1		:=	${BUILD_PLAT}/bl1
+BUILD_BL2		:=	${BUILD_PLAT}/bl2
+BUILD_BL31		:=	${BUILD_PLAT}/bl31
+BUILD_DIRS		:=	${BUILD_BL1} ${BUILD_BL2} ${BUILD_BL31}
 
-all: bl1 bl2 bl31
+PLATFORMS		:=	$(shell ls -I common plat/)
+ifeq (${PLAT},)
+  $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform.")
+endif
+ifeq ($(findstring ${PLAT},${PLATFORMS} all),)
+  $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
+endif
 
-$(info Including bl1.mk)
-include bl1/bl1.mk
+ifeq (${PLAT},all)
+all: ${PLATFORMS}
+else
+all: msg_start bl1 bl2 bl31
+endif
 
-$(info Including bl2.mk)
-include bl2/bl2.mk
+msg_start:
+	@echo "Building ${PLAT}"
 
-$(info Including bl31.mk)
-include bl31/bl31.mk
+${PLATFORMS}:
+	${MAKE} PLAT=$@ all
 
-.PHONY:			dump clean realclean distclean bl1 bl2 bl31
+ifneq (${PLAT},all)
+  $(info Including ${PLAT}/platform.mk)
+  include plat/${PLAT}/platform.mk
+  $(info Including bl1.mk)
+  include bl1/bl1.mk
+  $(info Including bl2.mk)
+  include bl2/bl2.mk
+  $(info Including bl31.mk)
+  include bl31/bl31.mk
+endif
+
+.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31
 .SUFFIXES:
 
 
-BL1_OBJS		:= 	$(addprefix ${BUILD_BL1}/,${BL1_OBJS} ${BL_COMMON_OBJS})
-BL2_OBJS		:= 	$(addprefix ${BUILD_BL2}/,${BL2_OBJS} ${BL_COMMON_OBJS})
-BL31_OBJS		:= 	$(addprefix ${BUILD_BL31}/,${BL31_OBJS} ${BL_COMMON_OBJS})
+BL1_OBJS		:= 	$(addprefix ${BUILD_BL1}/,${BL1_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
+BL2_OBJS		:= 	$(addprefix ${BUILD_BL2}/,${BL2_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
+BL31_OBJS		:= 	$(addprefix ${BUILD_BL31}/,${BL31_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
 BL1_MAPFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_MAPFILE})
 BL2_MAPFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_MAPFILE})
 BL31_MAPFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_MAPFILE})
@@ -89,12 +109,10 @@ BL1_LINKERFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_LINKERFILE})
 BL2_LINKERFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_LINKERFILE})
 BL31_LINKERFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_LINKERFILE})
 
-INCLUDES		+=	-Ilib/include/ -Iinclude/aarch64/ -Iinclude/	\
-				-Idrivers/arm/interconnect/cci-400/		\
-				-Idrivers/arm/peripherals/pl011/ 		\
-				-Iplat/fvp -Idrivers/power			\
+INCLUDES		+=	-Ilib/include/ -Iinclude/${ARCH}/ -Iinclude/	\
 				-Iarch/system/gic -Icommon/psci			\
-				-Iinclude/stdlib -Iinclude/stdlib/sys
+				-Iinclude/stdlib -Iinclude/stdlib/sys		\
+				-Iplat/${PLAT} ${PLAT_INCLUDES}
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}
@@ -133,13 +151,18 @@ NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
 
 
-bl1:			${BUILD_BL1} ${BUILD}/bl1.bin
-bl2:			${BUILD_BL2} ${BUILD}/bl2.bin
-bl31:			${BUILD_BL31} ${BUILD}/bl31.bin
+bl1:			${BUILD_BL1} ${BUILD_PLAT}/bl1.bin
+bl2:			${BUILD_BL2} ${BUILD_PLAT}/bl2.bin
+bl31:			${BUILD_BL31} ${BUILD_PLAT}/bl31.bin
 
+ifeq (${PLAT},all)
+  ifeq (${MAKECMDGOALS},clean)
+    $(error "Please select a platform with PLAT=<platform>. You can use 'make distclean' to clean up all platform builds")
+  endif
+endif
 clean:
 			@echo "  CLEAN"
-			${Q}rm -rf ${BUILD}
+			${Q}rm -rf ${BUILD_PLAT}
 
 realclean distclean:
 			@echo "  REALCLEAN"
@@ -180,15 +203,15 @@ ${BUILD_BL31}/%.o:	%.c
 			${Q}${CC} ${CFLAGS} -c $< -o $@
 
 ${BUILD_BL1}/%.ld:	%.ld.S
-			@echo "  LDS      $<"
+			@echo "  PP      $<"
 			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
 
 ${BUILD_BL2}/%.ld:	%.ld.S
-			@echo "  LDS      $<"
+			@echo "  PP      $<"
 			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
 
 ${BUILD_BL31}/%.ld:	%.ld.S
-			@echo "  LDS      $<"
+			@echo "  PP      $<"
 			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
 
 
@@ -204,19 +227,22 @@ ${BUILD_BL31}/bl31.elf:	${BL31_OBJS} ${BL31_LINKERFILE}
 			@echo "  LD      $@"
 			${Q}${LD} -o $@ ${LDFLAGS} ${BL31_LDFLAGS} ${BL31_OBJS}
 
-${BUILD}/bl1.bin:	${BUILD_BL1}/bl1.elf
+${BUILD_PLAT}/bl1.bin:	${BUILD_BL1}/bl1.elf
+			@echo "  BIN     $@"
 			${Q}${OC} -O binary $< $@
 			@echo
 			@echo "Built $@ successfully"
 			@echo
 
-${BUILD}/bl2.bin:	${BUILD_BL2}/bl2.elf
+${BUILD_PLAT}/bl2.bin:	${BUILD_BL2}/bl2.elf
+			@echo "  BIN     $@"
 			${Q}${OC} -O binary $< $@
 			@echo
 			@echo "Built $@ successfully"
 			@echo
 
-${BUILD}/bl31.bin:	${BUILD_BL31}/bl31.elf
+${BUILD_PLAT}/bl31.bin:	${BUILD_BL31}/bl31.elf
+			@echo "  BIN     $@"
 			${Q}${OC} -O binary $< $@
 			@echo
 			@echo "Built $@ successfully"
