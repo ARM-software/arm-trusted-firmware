@@ -28,22 +28,26 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	common/ lib/ 		\
-				plat/${PLAT} plat/${PLAT}/${ARCH} arch/${ARCH}	\
+vpath			%.c	common				\
+				lib				\
+				plat/${PLAT}			\
+				plat/${PLAT}/${ARCH}		\
+				arch/${ARCH}			\
 				${PLAT_BL2_C_VPATH}
 
-vpath			%.S	lib/arch/${ARCH}			\
-				include lib/sync/locks/exclusive	\
+vpath			%.S	lib/arch/${ARCH}		\
+				include				\
+				lib/sync/locks/exclusive	\
 				${PLAT_BL2_S_VPATH}
 
-BL2_OBJS		+=	bl2_entrypoint.o \
-				bl2_arch_setup.o \
-				bl2_main.o \
-				spinlock.o \
+BL2_OBJS		+=	bl2_entrypoint.o		\
+				bl2_arch_setup.o		\
+				bl2_main.o			\
+				spinlock.o			\
 				early_exceptions.o
 
 BL2_ENTRY_POINT		:=	bl2_entrypoint
 BL2_MAPFILE		:=	bl2.map
 BL2_LINKERFILE		:=	bl2.ld
 
-CFLAGS		        += 	$(DEFINES)
+CFLAGS			+=	$(DEFINES)

@@ -28,32 +28,40 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	common/ lib/ arch/system/gic			\
-				plat/${PLAT} arch/${ARCH} common/psci		\
-				lib/sync/locks/bakery/				\
-				plat/${PLAT}/${ARCH} ${PLAT_BL31_C_VPATH}
+vpath			%.c	common					\
+				lib					\
+				arch/system/gic				\
+				plat/${PLAT}				\
+				arch/${ARCH}				\
+				common/psci				\
+				lib/sync/locks/bakery			\
+				plat/${PLAT}/${ARCH}			\
+				${PLAT_BL31_C_VPATH}
 
-vpath			%.S	lib/arch/${ARCH} common/psci			\
-				include/ plat/${PLAT}/${ARCH}			\
-				lib/sync/locks/exclusive plat/common/${ARCH}	\
-				arch/system/gic/${ARCH}				\
+vpath			%.S	lib/arch/${ARCH}			\
+				common/psci				\
+				include					\
+				plat/${PLAT}/${ARCH}			\
+				lib/sync/locks/exclusive		\
+				plat/common/${ARCH}			\
+				arch/system/gic/${ARCH}			\
 				${PLAT_BL31_S_VPATH}
 
-BL31_OBJS		+=	bl31_arch_setup.o \
-				bl31_entrypoint.o \
-				exception_handlers.o \
-				runtime_exceptions.o \
-				bl31_main.o \
-				psci_entry.o \
-				psci_setup.o \
-				psci_common.o \
-				psci_afflvl_on.o \
-				psci_main.o \
-				psci_afflvl_off.o \
-				psci_afflvl_suspend.o \
-				spinlock.o \
-				gic_v3_sysregs.o \
-				bakery_lock.o \
+BL31_OBJS		+=	bl31_arch_setup.o			\
+				bl31_entrypoint.o			\
+				exception_handlers.o			\
+				runtime_exceptions.o			\
+				bl31_main.o				\
+				psci_entry.o				\
+				psci_setup.o				\
+				psci_common.o				\
+				psci_afflvl_on.o			\
+				psci_main.o				\
+				psci_afflvl_off.o			\
+				psci_afflvl_suspend.o			\
+				spinlock.o				\
+				gic_v3_sysregs.o			\
+				bakery_lock.o				\
 				runtime_svc.o
 
 BL31_ENTRY_POINT	:=	bl31_entrypoint

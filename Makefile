@@ -50,8 +50,13 @@ else
 	BUILD_TYPE	:=	release
 endif
 
-BL_COMMON_OBJS		:=	misc_helpers.o cache_helpers.o tlb_helpers.o		\
-				std.o bl_common.o platform_helpers.o
+BL_COMMON_OBJS		:=	misc_helpers.o		\
+				cache_helpers.o		\
+				tlb_helpers.o		\
+				std.o			\
+				bl_common.o		\
+				platform_helpers.o
+
 ARCH 			?=	aarch64
 
 # By default, build all platforms available
@@ -109,10 +114,15 @@ BL1_LINKERFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_LINKERFILE})
 BL2_LINKERFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_LINKERFILE})
 BL31_LINKERFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_LINKERFILE})
 
-INCLUDES		+=	-Ilib/include/ -Iinclude/${ARCH}/ -Iinclude/	\
-				-Iarch/system/gic -Icommon/psci			\
-				-Iinclude/stdlib -Iinclude/stdlib/sys		\
-				-Iplat/${PLAT} ${PLAT_INCLUDES}
+INCLUDES		+=	-Ilib/include/			\
+				-Iinclude/${ARCH}/		\
+				-Iinclude/			\
+				-Iarch/system/gic		\
+				-Icommon/psci			\
+				-Iinclude/stdlib		\
+				-Iinclude/stdlib/sys		\
+				-Iplat/${PLAT}			\
+				${PLAT_INCLUDES}
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}
