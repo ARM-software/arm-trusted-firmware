@@ -28,19 +28,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	plat/${PLAT} plat/${PLAT}/${ARCH}	\
-				common/ lib/ arch/${ARCH}		\
+vpath			%.c	plat/${PLAT}		\
+				plat/${PLAT}/${ARCH}	\
+				common			\
+				lib			\
+				arch/${ARCH}		\
 				${PLAT_BL1_C_VPATH}
 
-vpath			%.S	arch/${ARCH}/cpu plat/common/${ARCH}	\
-				plat/${PLAT}/${ARCH} 			\
-				include/ lib/arch/${ARCH}		\
+vpath			%.S	arch/${ARCH}/cpu	\
+				plat/common/${ARCH}	\
+				plat/${PLAT}/${ARCH}	\
+				include			\
+				lib/arch/${ARCH}	\
 				${PLAT_BL1_S_VPATH}
 
-BL1_OBJS		+=	bl1_arch_setup.o \
-				bl1_entrypoint.o \
-				early_exceptions.o \
-				bl1_main.o \
+BL1_OBJS		+=	bl1_arch_setup.o	\
+				bl1_entrypoint.o	\
+				early_exceptions.o	\
+				bl1_main.o		\
 				cpu_helpers.o
 
 BL1_ENTRY_POINT		:=	reset_handler
