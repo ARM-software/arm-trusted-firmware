@@ -28,27 +28,34 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	drivers/arm/interconnect/cci-400/ common/ lib/			\
-				drivers/arm/peripherals/pl011 plat/fvp common/psci		\
-				lib/semihosting arch/aarch64/ lib/stdlib lib/sync/locks/bakery/	\
-				drivers/power/ arch/system/gic/ plat/fvp/aarch64/
+vpath			%.c	common/ lib/ arch/system/gic			\
+				plat/${PLAT} arch/${ARCH} common/psci		\
+				lib/sync/locks/bakery/				\
+				plat/${PLAT}/${ARCH} ${PLAT_BL31_C_VPATH}
 
-vpath			%.S	lib/arch/aarch64 common/psci					\
-				lib/semihosting/aarch64 include/ plat/fvp/${ARCH}		\
-				lib/sync/locks/exclusive plat/common/aarch64/			\
-				arch/system/gic/${ARCH}
+vpath			%.S	lib/arch/${ARCH} common/psci			\
+				include/ plat/${PLAT}/${ARCH}			\
+				lib/sync/locks/exclusive plat/common/${ARCH}	\
+				arch/system/gic/${ARCH}				\
+				${PLAT_BL31_S_VPATH}
 
-BL31_ASM_OBJS		:=	bl31_entrypoint.o runtime_exceptions.o psci_entry.o		\
-				spinlock.o gic_v3_sysregs.o fvp_helpers.o
-BL31_C_OBJS		:=	bl31_main.o bl31_plat_setup.o bl31_arch_setup.o	\
-				exception_handlers.o bakery_lock.o cci400.o 	\
-				fvp_common.o fvp_pm.o fvp_pwrc.o fvp_topology.o	\
-				runtime_svc.o gic_v2.o psci_setup.o		\
-				psci_common.o psci_afflvl_on.o psci_main.o	\
-				psci_afflvl_off.o psci_afflvl_suspend.o
+BL31_OBJS		+=	bl31_arch_setup.o \
+				bl31_entrypoint.o \
+				exception_handlers.o \
+				runtime_exceptions.o \
+				bl31_main.o \
+				psci_entry.o \
+				psci_setup.o \
+				psci_common.o \
+				psci_afflvl_on.o \
+				psci_main.o \
+				psci_afflvl_off.o \
+				psci_afflvl_suspend.o \
+				spinlock.o \
+				gic_v3_sysregs.o \
+				bakery_lock.o \
+				runtime_svc.o
 
 BL31_ENTRY_POINT	:=	bl31_entrypoint
 BL31_MAPFILE		:=	bl31.map
 BL31_LINKERFILE		:=	bl31.ld
-
-BL31_OBJS		:= 	$(BL31_C_OBJS) $(BL31_ASM_OBJS)
