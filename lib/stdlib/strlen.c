@@ -28,7 +28,7 @@
  */
 
 /*
- * Portions copyright (c) 2009-2013, ARM Limited and Contributors. All rights reserved.
+ * Portions copyright (c) 2009-2014, ARM Limited and Contributors. All rights reserved.
  */
 
 #include <stddef.h>

@@ -93,7 +93,7 @@ Submitting Changes
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 
 [Change Log]:                           ./docs/change-log.md

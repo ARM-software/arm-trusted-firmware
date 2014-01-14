@@ -115,7 +115,7 @@ ARM licensees may contact ARM directly via their partner managers.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 
 [License]:                  ./license.md "BSD license for ARM Trusted Firmware"

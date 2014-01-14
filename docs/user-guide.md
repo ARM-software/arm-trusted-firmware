@@ -1220,7 +1220,7 @@ kernel at boot time. These can be found in the `fdts` directory.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 
 [Change Log]: change-log.md

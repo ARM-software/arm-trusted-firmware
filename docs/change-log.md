@@ -165,4 +165,4 @@ First source release - not applicable.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._

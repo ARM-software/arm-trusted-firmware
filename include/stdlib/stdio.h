@@ -34,7 +34,7 @@
  */
 
 /*
- * Portions copyright (c) 2013, ARM Limited and Contributors.
+ * Portions copyright (c) 2013-2014, ARM Limited and Contributors.
  * All rights reserved.
  */
 
