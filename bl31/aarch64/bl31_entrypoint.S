@@ -61,6 +61,29 @@ bl31_entrypoint:; .type bl31_entrypoint, %function
 	adr	x1, runtime_exceptions
 	msr	vbar_el3, x1
 
+	/* ---------------------------------------------------------------------
+	 * The initial state of the Architectural feature trap register
+	 * (CPTR_EL3) is unknown and it must be set to a known state. All
+	 * feature traps are disabled. Some bits in this register are marked as
+	 * Reserved and should not be modified.
+	 *
+	 * CPTR_EL3.TCPAC: This causes a direct access to the CPACR_EL1 from EL1
+	 *  or the CPTR_EL2 from EL2 to trap to EL3 unless it is trapped at EL2.
+	 * CPTR_EL3.TTA: This causes access to the Trace functionality to trap
+	 *  to EL3 when executed from EL0, EL1, EL2, or EL3. If system register
+	 *  access to trace functionality is not supported, this bit is RES0.
+	 * CPTR_EL3.TFP: This causes instructions that access the registers
+	 *  associated with Floating Point and Advanced SIMD execution to trap
+	 *  to EL3 when executed from any exception level, unless trapped to EL1
+	 *  or EL2.
+	 * ---------------------------------------------------------------------
+	 */
+	mrs	x1, cptr_el3
+	bic	w1, w1, #TCPAC_BIT
+	bic	w1, w1, #TTA_BIT
+	bic	w1, w1, #TFP_BIT
+	msr	cptr_el3, x1
+
 	/* ---------------------------------------------
 	 * Enable the instruction cache.
 	 * ---------------------------------------------

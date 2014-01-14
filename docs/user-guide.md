@@ -672,11 +672,13 @@ BL1 performs minimal architectural initialization as follows.
         Aborts and SError Interrupts are configured to be taken in EL3 by
         setting the `SCR.EA` bit.
 
-    -   `CPTR_EL3`. Accesses to the `CPACR` from EL1 or EL2, or the `CPTR_EL2`
-        from EL2 are configured to not trap to EL3 by clearing the
-        `CPTR_EL3.TCPAC` bit. Instructions that access the registers associated
-        with Floating Point and Advanced SIMD execution are configured to not
-        trap to EL3 by clearing the `CPTR_EL3.TFP` bit.
+    -   `CPTR_EL3`. Accesses to the `CPACR_EL1` register from EL1 or EL2, or the
+        `CPTR_EL2` register from EL2 are configured to not trap to EL3 by
+        clearing the `CPTR_EL3.TCPAC` bit. Access to the trace functionality is
+        configured not to trap to EL3 by clearing the `CPTR_EL3.TTA` bit.
+        Instructions that access the registers associated with Floating Point
+        and Advanced SIMD execution are configured to not trap to EL3 by
+        clearing the `CPTR_EL3.TFP` bit.
 
     -   `CNTFRQ_EL0`. The `CNTFRQ_EL0` register is programmed with the base
         frequency of the system counter, which is retrieved from the first entry

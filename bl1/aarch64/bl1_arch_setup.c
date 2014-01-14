@@ -61,9 +61,6 @@ void bl1_arch_setup(void)
 	enable_serror();
 	enable_debug_exceptions();
 
-	/* Do not trap coprocessor accesses from lower ELs to EL3 */
-	write_cptr_el3(0);
-
 	/* Read the frequency from Frequency modes table */
 	counter_base_frequency = mmio_read_32(SYS_CNTCTL_BASE + CNTFID_OFF);
 	/* The first entry of the frequency modes table must not be 0 */

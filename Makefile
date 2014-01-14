@@ -97,9 +97,10 @@ INCLUDES		+=	-Ilib/include/ -Iinclude/aarch64/ -Iinclude/	\
 				-Iinclude/stdlib -Iinclude/stdlib/sys
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
-				-D__ASSEMBLY__ ${INCLUDES}
-CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall -Werror	\
-				-std=c99 -c -Os -DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
+				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}
+CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall	\
+				-Werror -mgeneral-regs-only -std=c99 -c -Os	\
+				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
 
 LDFLAGS			+=	--fatal-warnings -O1
 BL1_LDFLAGS		:=	-Map=${BL1_MAPFILE} --script ${BL1_LINKERFILE} --entry=${BL1_ENTRY_POINT}

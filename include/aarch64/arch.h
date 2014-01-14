@@ -167,7 +167,8 @@
 #define EL0VCTEN_BIT		(1 << 1)
 
 /* CPTR_EL3 definitions */
-#define TCPAC_BIT		(1ull << 31)
+#define TCPAC_BIT		(1 << 31)
+#define TTA_BIT			(1 << 20)
 #define TFP_BIT			(1 << 10)
 
 /* CPSR/SPSR definitions */

@@ -89,6 +89,11 @@ Detailed changes since last release
     separate issue tracking repository
     https://github.com/ARM-software/tf-issues.
 
+*   Cleared bits in the architectural trap feature register (CPTR_EL3) during
+    early boot to prevent traps when accessing certain registers, including
+    floating point registers. Also added `-mgeneral-regs-only` flag to GCC
+    settings to prevent generation of code using floating point registers.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================
