@@ -29,11 +29,10 @@ Getting Started
     everyone visibility of whether others are working on something similar. ARM
     licensees may contact ARM directly via their partner managers instead if
     they prefer.
-    *   For bugs, use the "bug" label in the [issue] and clearly describe the
-        problem, including steps to reproduce.
-    *   For enhancements, use the "enhancement" label and clearly describe
-        how you intend to implement the change.
-        If you intend to include Third Party IP in your contribution, please
+    *   Note that the [issue] tracker for this project is in a separate
+        [issue tracking repository]. Please follow the guidelines in that
+        repository.
+    *   If you intend to include Third Party IP in your contribution, please
         raise a separate [issue] for this and ensure that the changes that
         include Third Party IP are made on a separate topic branch.
 *   [Fork][] [arm-trusted-firmware][] on GitHub.
@@ -55,9 +54,10 @@ Making Changes
 *   Avoid long commit series. If you do have a long series, consider whether
     some commits should be squashed together or addressed in a separate topic.
 *   Make sure your commit messages are in the proper format. If a commit fixes
-    a GitHub [issue], include a reference (e.g. "fixes #45"); this ensures
-    the [issue] is [automatically closed] when merged into the
-    [arm-trusted-firmware] `master` branch.
+    a GitHub [issue], include a reference (e.g.
+    "fixes arm-software/tf-issues#45"); this ensures the [issue] is
+    [automatically closed] when merged into the [arm-trusted-firmware] `master`
+    branch.
 *   Where appropriate, please update the documentation.
     *   Consider whether the [User Guide] or [Porting Guide] need updating.
     *   Changes that have a material impact on behavior or programming
@@ -103,12 +103,13 @@ _Copyright (c) 2013, ARM Limited and Contributors. All rights reserved._
 [Porting Guide]:                        ./docs/porting-guide.md
 [Acknowledgements]:                     ./acknowledgements.md "Contributor acknowledgements"
 
-[cla-submissions@arm.com]: mailto:cla-submissions@arm.com
-[GitHub account]:          http://github.com/signup/free
-[Fork]:                    http://help.github.com/articles/fork-a-repo
-[issue]:                   http://github.com/ARM-software/arm-trusted-firmware/issues
-[pull request]:            http://help.github.com/articles/using-pull-requests
-[automatically closed]:    https://help.github.com/articles/closing-issues-via-commit-messages
-[Git guidelines]:          http://git-scm.com/book/ch5-2.html
-[Linux coding style]:      https://www.kernel.org/doc/Documentation/CodingStyle
-[arm-trusted-firmware]:    https://github.com/ARM-software/arm-trusted-firmware
+[cla-submissions@arm.com]:      mailto:cla-submissions@arm.com
+[GitHub account]:               https://github.com/signup/free
+[Fork]:                         https://help.github.com/articles/fork-a-repo
+[issue tracking repository]:    https://github.com/ARM-software/tf-issues
+[issue]:                        https://github.com/ARM-software/tf-issues/issues
+[pull request]:                 https://help.github.com/articles/using-pull-requests
+[automatically closed]:         https://help.github.com/articles/closing-issues-via-commit-messages
+[Git guidelines]:               http://git-scm.com/book/ch5-2.html
+[Linux coding style]:           https://www.kernel.org/doc/Documentation/CodingStyle
+[arm-trusted-firmware]:         https://github.com/ARM-software/arm-trusted-firmware

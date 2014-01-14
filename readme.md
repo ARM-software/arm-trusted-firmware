@@ -108,7 +108,7 @@ project.
 
 ARM welcomes any feedback on the Trusted Firmware. Please send feedback using
 the [GitHub issue tracker](
-https://github.com/ARM-software/arm-trusted-firmware/issues).
+https://github.com/ARM-software/tf-issues/issues).
 
 ARM licensees may contact ARM directly via their partner managers.
 

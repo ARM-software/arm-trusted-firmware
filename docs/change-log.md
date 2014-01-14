@@ -85,6 +85,10 @@ Detailed changes since last release
 *   GCC compiler built-in function support has been disabled in order to improve
     compiler independence.
 
+*   The references to GitHub issues in the documentation now to point to a
+    separate issue tracking repository
+    https://github.com/ARM-software/tf-issues.
+
 
 ARM Trusted Firmware - version 0.2
 ==================================
