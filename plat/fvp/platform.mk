@@ -62,18 +62,18 @@ PLAT_BL_COMMON_OBJS	:=	semihosting_call.o			\
 
 BL1_OBJS		+=	bl1_plat_setup.o			\
 				bl1_plat_helpers.o			\
-				fvp_helpers.o				\
-				fvp_common.o				\
+				plat_helpers.o				\
+				plat_common.o				\
 				cci400.o
 
 BL2_OBJS		+=	bl2_plat_setup.o			\
-				fvp_common.o
+				plat_common.o
 
 BL31_OBJS		+=	bl31_plat_setup.o			\
-				fvp_helpers.o				\
-				fvp_common.o				\
-				fvp_pm.o				\
+				plat_helpers.o				\
+				plat_common.o				\
+				plat_pm.o				\
 				fvp_pwrc.o				\
-				fvp_topology.o				\
+				plat_topology.o				\
 				cci400.o				\
 				gic_v2.o
