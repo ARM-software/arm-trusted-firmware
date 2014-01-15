@@ -70,12 +70,33 @@ BUILD_BL31		:=	${BUILD_PLAT}/bl31
 BUILD_DIRS		:=	${BUILD_BL1} ${BUILD_BL2} ${BUILD_BL31}
 
 PLATFORMS		:=	$(shell ls -I common plat/)
+HELP_PLATFORMS		:=	$(shell echo $(PLATFORMS) | sed 's/ /|/g')
+
 ifeq (${PLAT},)
   $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform.")
 endif
 ifeq ($(findstring ${PLAT},${PLATFORMS} all),)
   $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
 endif
+
+help:
+	@echo "usage: $(MAKE) PLAT=<all|$(HELP_PLATFORMS)> <all|bl1|bl2|bl31|distclean|clean|dump>"
+	@echo ""
+	@echo "PLAT is used to specify which platform you wish to build."
+	@echo ""
+	@echo "Supported Targets:"
+	@echo "  all        build the BL1, BL2 and BL31 binaries"
+	@echo "  bl1        build the BL1 binary"
+	@echo "  bl2        build the BL2 binary"
+	@echo "  bl31       build the BL31 binary"
+	@echo "  clean      Clean the build for the selected platform"
+	@echo "  distclean  Remove all build artifacts for all platforms"
+	@echo "  dump       Generate object file dumps"
+	@echo ""
+	@echo "note: most build targets require PLAT to be set to a specific platform."
+	@echo ""
+	@echo "example: build all targets for the FVP platform:"
+	@echo "  CROSS_COMPILE=aarch64-none-elf- make PLAT=fvp all"
 
 ifeq (${PLAT},all)
 all: ${PLATFORMS}
