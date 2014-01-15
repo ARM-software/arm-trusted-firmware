@@ -177,7 +177,7 @@ constants defined. In the ARM FVP port, this file is found in
 
 The following mandatory modifications may be implemented in any file
 the implementer chooses. In the ARM FVP port, they are implemented in
-[../plat/fvp/aarch64/fvp_common.c].
+[../plat/fvp/aarch64/plat_common.c].
 
 *   **Variable : unsigned char platform_normal_stacks[X][Y]**
 
@@ -836,7 +836,7 @@ handler routines for platform-specific power management actions by populating
 the passed pointer with a pointer to BL3-1's private `plat_pm_ops` structure.
 
 A description of each member of this structure is given below. Please refer to
-the ARM FVP specific implementation of these handlers in [../plat/fvp/fvp_pm.c]
+the ARM FVP specific implementation of these handlers in [../plat/fvp/plat_pm.c]
 as an example. A platform port may choose not implement some of the power
 management operations. For example, the ARM FVP port does not implement the
 `affinst_standby()` function.
@@ -991,6 +991,6 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 [../plat/common/aarch64/platform_helpers.S]: ../plat/common/aarch64/platform_helpers.S
 [../plat/fvp/platform.h]:                    ../plat/fvp/platform.h
-[../plat/fvp/aarch64/fvp_common.c]:          ../plat/fvp/aarch64/fvp_common.c
-[../plat/fvp/fvp_pm.c]:                      ../plat/fvp/fvp_pm.c
+[../plat/fvp/aarch64/plat_common.c]:          ../plat/fvp/aarch64/plat_common.c
+[../plat/fvp/plat_pm.c]:                      ../plat/fvp/plat_pm.c
 [../include/runtime_svc.h]:                  ../include/runtime_svc.h
