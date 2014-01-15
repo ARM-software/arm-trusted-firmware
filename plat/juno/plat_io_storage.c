@@ -54,8 +54,8 @@ static void *const memmap_init_params;
 static io_dev_handle memmap_dev_handle;
 
 static io_block_spec fip_block_spec = {
-	.offset = FLASH0_BASE,
-	.length = FLASH0_SIZE
+	.offset = FLASH_BASE,
+	.length = FLASH_SIZE
 };
 
 static io_file_spec bl2_file_spec = {

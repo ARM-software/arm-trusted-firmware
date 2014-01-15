@@ -83,46 +83,45 @@
  * Platform memory map related constants
  ******************************************************************************/
 #define TZROM_BASE		0x00000000
-#define TZROM_SIZE		0x04000000
+#define TZROM_SIZE		0x00010000
 
 #define TZRAM_BASE		0x04000000
-#define TZRAM_SIZE		0x40000
+#define TZRAM_SIZE		0x00040000
 
-#define FLASH0_BASE		0x08000000
-#define FLASH0_SIZE		TZROM_SIZE
+#define FLASH_BASE		0x08000000
+#define FLASH_SIZE		0x04000000
 
-#define FLASH1_BASE		0x0c000000
-#define FLASH1_SIZE		0x04000000
+#define EMMC_BASE		0x0c000000
+#define EMMC_SIZE		0x04000000
 
 #define PSRAM_BASE		0x14000000
-#define PSRAM_SIZE		0x04000000
+#define PSRAM_SIZE		0x02000000
 
-#define VRAM_BASE		0x18000000
-#define VRAM_SIZE		0x02000000
+#define IOFPGA_BASE		0x1c000000
+#define IOFPGA_SIZE		0x03000000
 
-/* Aggregate of all devices in the first GB */
-#define DEVICE0_BASE		0x1a000000
-#define DEVICE0_SIZE		0x12200000
+#define NSROM_BASE		0x1f000000
+#define NSROM_SIZE		0x00001000
 
-#define DEVICE1_BASE		0x2f000000
-#define DEVICE1_SIZE		0x200000
+/* Following covers Columbus Peripherals excluding NSROM and NSRAM */
+#define DEVICE0_BASE		0x20000000
+#define DEVICE0_SIZE		0x0e000000
 
 #define NSRAM_BASE		0x2e000000
-#define NSRAM_SIZE		0x10000
+#define NSRAM_SIZE		0x00008000
 
-/* Location of trusted dram on the base fvp */
-#define TZDRAM_BASE		0x06000000
-#define TZDRAM_SIZE		0x02000000
+/* Following covers Juno Peripherals and PCIe expansion area */
+#define DEVICE1_BASE		0x40000000
+#define DEVICE1_SIZE		0x40000000
+
+/* Use PSRAM for 'TZDRAM' */
+#define TZDRAM_BASE		PSRAM_BASE
+#define TZDRAM_SIZE		PSRAM_SIZE
 #define MBOX_OFF		0x1000
 #define AFFMAP_OFF		0x1200
 
-#define DRAM_BASE              0x80000000ull
-#define DRAM_SIZE              0x80000000ull
-
-#define PCIE_EXP_BASE		0x40000000
-#define TZRNG_BASE		0x7fe60000
-#define TZNVCTR_BASE		0x7fe70000
-#define TZROOTKEY_BASE		0x7fe80000
+#define DRAM_BASE		0x80000000
+#define DRAM_SIZE		0x80000000
 
 /* Memory mapped Generic timer interfaces  */
 #define SYS_CNTCTL_BASE		0x2a430000
@@ -142,7 +141,7 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			0x0402D000
+#define BL2_BASE			0x0402a000
 
 /*******************************************************************************
  * BL3-1 specific defines.
@@ -152,20 +151,10 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define EL3_ADDR_SPACE_SIZE		(1ull << 32)
-#define EL3_NUM_PAGETABLES		2
-#define EL3_TROM_PAGETABLE		0
-#define EL3_TRAM_PAGETABLE		1
-
 #define ADDR_SPACE_SIZE			(1ull << 32)
+#define MAX_XLAT_TABLES			5
+#define MAX_MMAP_REGIONS		16
 
-#define NUM_L2_PAGETABLES		2
-#define GB1_L2_PAGETABLE		0
-#define GB2_L2_PAGETABLE		1
-
-#define NUM_L3_PAGETABLES		2
-#define TZRAM_PAGETABLE			0
-#define NSRAM_PAGETABLE			1
 
 /*******************************************************************************
  * CCI-400 related constants

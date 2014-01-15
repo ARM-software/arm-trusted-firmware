@@ -28,37 +28,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
-#include <assert.h>
 #include <arch_helpers.h>
 #include <platform.h>
-#include <bl_common.h>
-/* Included only for error codes */
-#include <psci.h>
+#include <xlat_tables.h>
+
 
 unsigned char platform_normal_stacks[PLATFORM_STACK_SIZE][PLATFORM_CORE_COUNT]
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_normal_stacks")));
 
-/*******************************************************************************
- * This array holds the characteristics of the differences between the three
- * FVP platforms (Base, A53_A57 & Foundation). It will be populated during cold
- * boot at each boot stage by the primary before enabling the MMU (to allow cci
- * configuration) & used thereafter. Each BL will have its own copy to allow
- * independent operation.
- ******************************************************************************/
-static unsigned long platform_config[CONFIG_LIMIT];
 
-/*******************************************************************************
- * An internal global pointer of the level 1 translation tables which should not
- * change once setup by the primary cpu during a cold boot.
- *******************************************************************************/
-unsigned long l1_xlation_table __aligned(PLATFORM_CACHE_LINE_SIZE)
-__attribute__ ((section("tzfw_coherent_mem")));
-
-/*******************************************************************************
- * Enable the MMU assuming that the pagetables have already been created
- *******************************************************************************/
 void enable_mmu()
 {
 	unsigned long mair, tcr, ttbr, sctlr;
@@ -112,34 +91,41 @@ void disable_mmu(void)
 	return;
 }
 
-/*******************************************************************************
- * Setup the pagetables as per the platform memory map & initialize the mmu
- *******************************************************************************/
+static const mmap_region mmap[] = {
+	{ TZROM_BASE,		TZROM_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
+//	{ TZRAM_BASE,		TZRAM_SIZE,		MT_MEMORY | MT_RW | MT_SECURE },  /* configure_mmu() meminfo arg sets subset of this */
+	{ TZDRAM_BASE,		TZDRAM_SIZE,		MT_MEMORY | MT_RW | MT_SECURE },
+	{ FLASH_BASE,		FLASH_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
+	{ EMMC_BASE,		EMMC_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
+	{ PSRAM_BASE,		PSRAM_SIZE,		MT_MEMORY | MT_RW | MT_SECURE }, /* Used for 'TZDRAM' */
+	{ IOFPGA_BASE,		IOFPGA_SIZE,		MT_DEVICE | MT_RW | MT_SECURE },
+//	{ NSROM_BASE,		NSROM_SIZE,		MT_MEMORY | MT_RW | MT_NS },	 /* Eats a page table so leave it out for now */
+	{ DEVICE0_BASE,		DEVICE0_SIZE,		MT_DEVICE | MT_RW | MT_SECURE },
+	{ NSRAM_BASE,		NSRAM_SIZE,		MT_MEMORY | MT_RW | MT_NS },
+	{ DEVICE1_BASE,		DEVICE1_SIZE,		MT_DEVICE | MT_RW | MT_SECURE },
+	{ DRAM_BASE,		DRAM_SIZE,		MT_MEMORY | MT_RW | MT_NS },
+	{0}
+};
+
 void configure_mmu(meminfo *mem_layout,
 		   unsigned long ro_start,
 		   unsigned long ro_limit,
 		   unsigned long coh_start,
 		   unsigned long coh_limit)
 {
-	assert(IS_PAGE_ALIGNED(ro_start));
-	assert(IS_PAGE_ALIGNED(ro_limit));
-	assert(IS_PAGE_ALIGNED(coh_start));
-	assert(IS_PAGE_ALIGNED(coh_limit));
+	mmap_add_region(mem_layout->total_base, mem_layout->total_size,
+				MT_MEMORY | MT_RW | MT_SECURE);
+	mmap_add_region(ro_start, ro_limit - ro_start,
+				MT_MEMORY | MT_RO | MT_SECURE);
+	mmap_add_region(coh_start, coh_limit - coh_start,
+				MT_DEVICE | MT_RW | MT_SECURE);
 
-	l1_xlation_table = fill_xlation_tables(mem_layout,
-					       ro_start,
-					       ro_limit,
-					       coh_start,
-					       coh_limit);
+	mmap_add(mmap);
+
+	init_xlat_tables();
+
 	enable_mmu();
 	return;
-}
-
-/* Simple routine which returns a configuration variable value */
-unsigned long platform_get_cfgvar(unsigned int var_id)
-{
-	assert(var_id < CONFIG_LIMIT);
-	return platform_config[var_id];
 }
 
 unsigned long plat_get_ns_image_entrypoint(void)
