@@ -59,7 +59,7 @@
 	 * SCTLR.C bit e.g. while powering down a cpu
 	 * -----------------------------------------------------
 	 */
-platform_set_coherent_stack:; .type platform_set_coherent_stack, %function
+platform_set_coherent_stack: ; .type platform_set_coherent_stack, %function
 	mov	x5, x30 // lr
 	bl	platform_get_core_pos
 	add	x0, x0, #1
@@ -76,7 +76,7 @@ platform_set_coherent_stack:; .type platform_set_coherent_stack, %function
 	 *  				  CoreId
 	 * -----------------------------------------------------
 	 */
-platform_get_core_pos:; .type platform_get_core_pos, %function
+platform_get_core_pos: ; .type platform_get_core_pos, %function
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
 	add	x0, x1, x0, LSR #6
@@ -90,7 +90,7 @@ platform_get_core_pos:; .type platform_get_core_pos, %function
 	 * cpu (applicable ony after a cold boot)
 	 * -----------------------------------------------------
 	 */
-platform_is_primary_cpu:; .type platform_is_primary_cpu, %function
+platform_is_primary_cpu: ; .type platform_is_primary_cpu, %function
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #PRIMARY_CPU
 	cset	x0, eq
@@ -100,7 +100,7 @@ platform_is_primary_cpu:; .type platform_is_primary_cpu, %function
 	 * void platform_get_stack (unsigned long mpidr)
 	 * -----------------------------------------------------
 	 */
-platform_get_stack:; .type platform_get_stack, %function
+platform_get_stack: ; .type platform_get_stack, %function
 	mov	x10, x30 // lr
 	bl	platform_get_core_pos
 	add	x0, x0, #1
@@ -114,7 +114,7 @@ platform_get_stack:; .type platform_get_stack, %function
 	 * void platform_set_stack (unsigned long mpidr)
 	 * -----------------------------------------------------
 	 */
-platform_set_stack:; .type platform_set_stack, %function
+platform_set_stack: ; .type platform_set_stack, %function
 	mov	x9, x30 // lr
 	bl	platform_get_stack
 	mov	sp, x0
@@ -125,7 +125,7 @@ platform_set_stack:; .type platform_set_stack, %function
 	 * each platform.
 	 * -----------------------------------------------------
 	 */
-platform_check_mpidr:; .type platform_check_mpidr, %function
+platform_check_mpidr: ; .type platform_check_mpidr, %function
 	mov	x0, xzr
 	ret
 

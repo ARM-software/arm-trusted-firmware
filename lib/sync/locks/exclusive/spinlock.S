@@ -34,7 +34,7 @@
 
 	.section	.text, "ax";
 
-spin_lock:; .type spin_lock, %function
+spin_lock: ; .type spin_lock, %function
 	mov	w2, #1
 	sevl
 l1:	wfe
@@ -45,6 +45,6 @@ l2:	ldaxr	w1, [x0]
 	ret
 
 
-spin_unlock:; .type spin_unlock, %function
+spin_unlock: ; .type spin_unlock, %function
 	stlr	wzr, [x0]
 	ret

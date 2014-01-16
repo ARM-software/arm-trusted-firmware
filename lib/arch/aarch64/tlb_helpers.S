@@ -41,48 +41,48 @@
 
 	.section	.text, "ax"
 
-tlbialle1:; .type tlbialle1, %function
+tlbialle1: ; .type tlbialle1, %function
 	tlbi	alle1
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle1is:; .type tlbialle1is, %function
+tlbialle1is: ; .type tlbialle1is, %function
 	tlbi	alle1is
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle2:; .type tlbialle2, %function
+tlbialle2: ; .type tlbialle2, %function
 	tlbi	alle2
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle2is:; .type tlbialle2is, %function
+tlbialle2is: ; .type tlbialle2is, %function
 	tlbi	alle2is
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle3:; .type tlbialle3, %function
+tlbialle3: ; .type tlbialle3, %function
 	tlbi	alle3
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle3is:; .type tlbialle3is, %function
+tlbialle3is: ; .type tlbialle3is, %function
 	tlbi	alle3is
 	dsb	sy
 	isb
 	ret
 
-tlbivmalle1:; .type tlbivmalle1, %function
+tlbivmalle1: ; .type tlbivmalle1, %function
 	tlbi	vmalle1
 	dsb	sy
 	isb

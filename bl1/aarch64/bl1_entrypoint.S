@@ -42,7 +42,7 @@
 	 * -----------------------------------------------------
 	 */
 
-reset_handler:; .type reset_handler, %function
+reset_handler: ; .type reset_handler, %function
 	/* ---------------------------------------------
 	 * Perform any processor specific actions upon
 	 * reset e.g. cache, tlb invalidations etc.

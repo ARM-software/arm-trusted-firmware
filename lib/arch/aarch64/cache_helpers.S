@@ -46,56 +46,56 @@
 
 	.section	.text, "ax"; .align 3
 
-dcisw:; .type dcisw, %function
+dcisw: ; .type dcisw, %function
 	dc	isw, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccisw:; .type dccisw, %function
+dccisw: ; .type dccisw, %function
 	dc	cisw, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccsw:; .type dccsw, %function
+dccsw: ; .type dccsw, %function
 	dc	csw, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccvac:; .type dccvac, %function
+dccvac: ; .type dccvac, %function
 	dc	cvac, x0
 	dsb	sy
 	isb
 	ret
 
 
-dcivac:; .type dcivac, %function
+dcivac: ; .type dcivac, %function
 	dc	ivac, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccivac:; .type dccivac, %function
+dccivac: ; .type dccivac, %function
 	dc	civac, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccvau:; .type dccvau, %function
+dccvau: ; .type dccvau, %function
 	dc	cvau, x0
 	dsb	sy
 	isb
 	ret
 
 
-dczva:; .type dczva, %function
+dczva: ; .type dczva, %function
 	dc	zva, x0
 	dsb	sy
 	isb
@@ -107,7 +107,7 @@ dczva:; .type dczva, %function
 	 * size. 'x0' = addr, 'x1' = size
 	 * ------------------------------------------
 	 */
-flush_dcache_range:; .type flush_dcache_range, %function
+flush_dcache_range: ; .type flush_dcache_range, %function
 	dcache_line_size x2, x3
 	add	x1, x0, x1
 	sub	x3, x2, #1
@@ -126,7 +126,7 @@ flush_loop:
 	 * size. 'x0' = addr, 'x1' = size
 	 * ------------------------------------------
 	 */
-inv_dcache_range:; .type inv_dcache_range, %function
+inv_dcache_range: ; .type inv_dcache_range, %function
 	dcache_line_size x2, x3
 	add	x1, x0, x1
 	sub	x3, x2, #1
@@ -151,7 +151,7 @@ inv_loop:
 	 * x14
 	 * ----------------------------------
 	 */
-dcsw_op:; .type dcsw_op, %function
+dcsw_op: ; .type dcsw_op, %function
 all_start_at_level:
 	add	x2, x10, x10, lsr #1            // work out 3x current cache level
 	lsr	x1, x0, x2                      // extract cache type bits from clidr
@@ -197,7 +197,7 @@ finished:
 	ret
 
 
-do_dcsw_op:; .type do_dcsw_op, %function
+do_dcsw_op: ; .type do_dcsw_op, %function
 	cbz	x3, exit
 	cmp	x0, #DCISW
 	b.eq	dc_isw
@@ -221,13 +221,13 @@ exit:
 	ret
 
 
-dcsw_op_louis:; .type dcsw_op_louis, %function
+dcsw_op_louis: ; .type dcsw_op_louis, %function
 	dsb	sy
 	setup_dcsw_op_args x10, x3, x9, #LOUIS_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
 	b	do_dcsw_op
 
 
-dcsw_op_all:; .type dcsw_op_all, %function
+dcsw_op_all: ; .type dcsw_op_all, %function
 	dsb	sy
 	setup_dcsw_op_args x10, x3, x9, #LOC_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
 	b	do_dcsw_op

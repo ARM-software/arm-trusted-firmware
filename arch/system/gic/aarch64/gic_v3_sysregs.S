@@ -50,40 +50,40 @@
 
 	.section	.text, "ax"; .align 3
 
-read_icc_sre_el1:; .type read_icc_sre_el1, %function
+read_icc_sre_el1: ; .type read_icc_sre_el1, %function
 	mrs	x0, ICC_SRE_EL1
 	ret
 
 
-read_icc_sre_el2:; .type read_icc_sre_el2, %function
+read_icc_sre_el2: ; .type read_icc_sre_el2, %function
 	mrs	x0, ICC_SRE_EL2
 	ret
 
 
-read_icc_sre_el3:; .type read_icc_sre_el3, %function
+read_icc_sre_el3: ; .type read_icc_sre_el3, %function
 	mrs	x0, ICC_SRE_EL3
 	ret
 
 
-write_icc_sre_el1:; .type write_icc_sre_el1, %function
+write_icc_sre_el1: ; .type write_icc_sre_el1, %function
 	msr	ICC_SRE_EL1, x0
 	isb
 	ret
 
 
-write_icc_sre_el2:; .type write_icc_sre_el2, %function
+write_icc_sre_el2: ; .type write_icc_sre_el2, %function
 	msr	ICC_SRE_EL2, x0
 	isb
 	ret
 
 
-write_icc_sre_el3:; .type write_icc_sre_el3, %function
+write_icc_sre_el3: ; .type write_icc_sre_el3, %function
 	msr	ICC_SRE_EL3, x0
 	isb
 	ret
 
 
-write_icc_pmr_el1:; .type write_icc_pmr_el1, %function
+write_icc_pmr_el1: ; .type write_icc_pmr_el1, %function
 	msr	ICC_PMR_EL1, x0
 	isb
 	ret

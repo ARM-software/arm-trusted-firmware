@@ -44,7 +44,7 @@
 	 * -----------------------------------------------------
 	 */
 
-bl31_entrypoint:; .type bl31_entrypoint, %function
+bl31_entrypoint: ; .type bl31_entrypoint, %function
 	/* ---------------------------------------------
 	 * BL2 has populated x0,x3,x4 with the opcode
 	 * indicating BL31 should be run, memory layout

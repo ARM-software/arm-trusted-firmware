@@ -32,6 +32,6 @@
 
 	.section	.text, "ax"
 
-semihosting_call:; .type semihosting_call, %function
+semihosting_call: ; .type semihosting_call, %function
 	hlt	#0xf000
 	ret

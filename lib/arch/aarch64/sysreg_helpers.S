@@ -194,17 +194,17 @@
 
 	.section	.text, "ax"
 
-read_current_el:; .type read_current_el, %function
+read_current_el: ; .type read_current_el, %function
 	mrs	x0, CurrentEl
 	ret
 
 
-read_id_pfr1_el1:; .type read_id_pfr1_el1, %function
+read_id_pfr1_el1: ; .type read_id_pfr1_el1, %function
 	mrs	x0, id_pfr1_el1
 	ret
 
 
-read_id_aa64pfr0_el1:; .type read_id_aa64pfr0_el1, %function
+read_id_aa64pfr0_el1: ; .type read_id_aa64pfr0_el1, %function
 	mrs	x0, id_aa64pfr0_el1
 	ret
 
@@ -213,7 +213,7 @@ read_id_aa64pfr0_el1:; .type read_id_aa64pfr0_el1, %function
 	 * VBAR accessors
 	 * -----------------------------------------------------
 	 */
-read_vbar:; .type read_vbar, %function
+read_vbar: ; .type read_vbar, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_vbar_el1
@@ -223,22 +223,22 @@ read_vbar:; .type read_vbar, %function
 	b.eq	read_vbar_el3
 
 
-read_vbar_el1:; .type read_vbar_el1, %function
+read_vbar_el1: ; .type read_vbar_el1, %function
 	mrs	x0, vbar_el1
 	ret
 
 
-read_vbar_el2:; .type read_vbar_el2, %function
+read_vbar_el2: ; .type read_vbar_el2, %function
 	mrs	x0, vbar_el2
 	ret
 
 
-read_vbar_el3:; .type read_vbar_el3, %function
+read_vbar_el3: ; .type read_vbar_el3, %function
 	mrs	x0, vbar_el3
 	ret
 
 
-write_vbar:; .type write_vbar, %function
+write_vbar: ; .type write_vbar, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_vbar_el1
@@ -248,19 +248,19 @@ write_vbar:; .type write_vbar, %function
 	b.eq	write_vbar_el3
 
 
-write_vbar_el1:; .type write_vbar_el1, %function
+write_vbar_el1: ; .type write_vbar_el1, %function
 	msr	vbar_el1, x0
 	isb
 	ret
 
 
-write_vbar_el2:; .type write_vbar_el2, %function
+write_vbar_el2: ; .type write_vbar_el2, %function
 	msr	vbar_el2, x0
 	isb
 	ret
 
 
-write_vbar_el3:; .type write_vbar_el3, %function
+write_vbar_el3: ; .type write_vbar_el3, %function
 	msr	vbar_el3, x0
 	isb
 	ret
@@ -270,7 +270,7 @@ write_vbar_el3:; .type write_vbar_el3, %function
 	 * AFSR0 accessors
 	 * -----------------------------------------------------
 	 */
-read_afsr0:; .type read_afsr0, %function
+read_afsr0: ; .type read_afsr0, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_afsr0_el1
@@ -280,22 +280,22 @@ read_afsr0:; .type read_afsr0, %function
 	b.eq	read_afsr0_el3
 
 
-read_afsr0_el1:; .type read_afsr0_el1, %function
+read_afsr0_el1: ; .type read_afsr0_el1, %function
 	mrs	x0, afsr0_el1
 	ret
 
 
-read_afsr0_el2:; .type read_afsr0_el2, %function
+read_afsr0_el2: ; .type read_afsr0_el2, %function
 	mrs	x0, afsr0_el2
 	ret
 
 
-read_afsr0_el3:; .type read_afsr0_el3, %function
+read_afsr0_el3: ; .type read_afsr0_el3, %function
 	mrs	x0, afsr0_el3
 	ret
 
 
-write_afsr0:; .type write_afsr0, %function
+write_afsr0: ; .type write_afsr0, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_afsr0_el1
@@ -305,19 +305,19 @@ write_afsr0:; .type write_afsr0, %function
 	b.eq	write_afsr0_el3
 
 
-write_afsr0_el1:; .type write_afsr0_el1, %function
+write_afsr0_el1: ; .type write_afsr0_el1, %function
 	msr	afsr0_el1, x0
 	isb
 	ret
 
 
-write_afsr0_el2:; .type write_afsr0_el2, %function
+write_afsr0_el2: ; .type write_afsr0_el2, %function
 	msr	afsr0_el2, x0
 	isb
 	ret
 
 
-write_afsr0_el3:; .type write_afsr0_el3, %function
+write_afsr0_el3: ; .type write_afsr0_el3, %function
 	msr	afsr0_el3, x0
 	isb
 	ret
@@ -327,7 +327,7 @@ write_afsr0_el3:; .type write_afsr0_el3, %function
 	 * FAR accessors
 	 * -----------------------------------------------------
 	 */
-read_far:; .type read_far, %function
+read_far: ; .type read_far, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_far_el1
@@ -337,22 +337,22 @@ read_far:; .type read_far, %function
 	b.eq	read_far_el3
 
 
-read_far_el1:; .type read_far_el1, %function
+read_far_el1: ; .type read_far_el1, %function
 	mrs	x0, far_el1
 	ret
 
 
-read_far_el2:; .type read_far_el2, %function
+read_far_el2: ; .type read_far_el2, %function
 	mrs	x0, far_el2
 	ret
 
 
-read_far_el3:; .type read_far_el3, %function
+read_far_el3: ; .type read_far_el3, %function
 	mrs	x0, far_el3
 	ret
 
 
-write_far:; .type write_far, %function
+write_far: ; .type write_far, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_far_el1
@@ -362,19 +362,19 @@ write_far:; .type write_far, %function
 	b.eq	write_far_el3
 
 
-write_far_el1:; .type write_far_el1, %function
+write_far_el1: ; .type write_far_el1, %function
 	msr	far_el1, x0
 	isb
 	ret
 
 
-write_far_el2:; .type write_far_el2, %function
+write_far_el2: ; .type write_far_el2, %function
 	msr	far_el2, x0
 	isb
 	ret
 
 
-write_far_el3:; .type write_far_el3, %function
+write_far_el3: ; .type write_far_el3, %function
 	msr	far_el3, x0
 	isb
 	ret
@@ -384,7 +384,7 @@ write_far_el3:; .type write_far_el3, %function
 	 * MAIR accessors
 	 * -----------------------------------------------------
 	 */
-read_mair:; .type read_mair, %function
+read_mair: ; .type read_mair, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_mair_el1
@@ -394,22 +394,22 @@ read_mair:; .type read_mair, %function
 	b.eq	read_mair_el3
 
 
-read_mair_el1:; .type read_mair_el1, %function
+read_mair_el1: ; .type read_mair_el1, %function
 	mrs	x0, mair_el1
 	ret
 
 
-read_mair_el2:; .type read_mair_el2, %function
+read_mair_el2: ; .type read_mair_el2, %function
 	mrs	x0, mair_el2
 	ret
 
 
-read_mair_el3:; .type read_mair_el3, %function
+read_mair_el3: ; .type read_mair_el3, %function
 	mrs	x0, mair_el3
 	ret
 
 
-write_mair:; .type write_mair, %function
+write_mair: ; .type write_mair, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_mair_el1
@@ -419,19 +419,19 @@ write_mair:; .type write_mair, %function
 	b.eq	write_mair_el3
 
 
-write_mair_el1:; .type write_mair_el1, %function
+write_mair_el1: ; .type write_mair_el1, %function
 	msr	mair_el1, x0
 	isb
 	ret
 
 
-write_mair_el2:; .type write_mair_el2, %function
+write_mair_el2: ; .type write_mair_el2, %function
 	msr	mair_el2, x0
 	isb
 	ret
 
 
-write_mair_el3:; .type write_mair_el3, %function
+write_mair_el3: ; .type write_mair_el3, %function
 	msr	mair_el3, x0
 	isb
 	ret
@@ -441,7 +441,7 @@ write_mair_el3:; .type write_mair_el3, %function
 	 * AMAIR accessors
 	 * -----------------------------------------------------
 	 */
-read_amair:; .type read_amair, %function
+read_amair: ; .type read_amair, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_amair_el1
@@ -451,22 +451,22 @@ read_amair:; .type read_amair, %function
 	b.eq	read_amair_el3
 
 
-read_amair_el1:; .type read_amair_el1, %function
+read_amair_el1: ; .type read_amair_el1, %function
 	mrs	x0, amair_el1
 	ret
 
 
-read_amair_el2:; .type read_amair_el2, %function
+read_amair_el2: ; .type read_amair_el2, %function
 	mrs	x0, amair_el2
 	ret
 
 
-read_amair_el3:; .type read_amair_el3, %function
+read_amair_el3: ; .type read_amair_el3, %function
 	mrs	x0, amair_el3
 	ret
 
 
-write_amair:; .type write_amair, %function
+write_amair: ; .type write_amair, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_amair_el1
@@ -476,19 +476,19 @@ write_amair:; .type write_amair, %function
 	b.eq	write_amair_el3
 
 
-write_amair_el1:; .type write_amair_el1, %function
+write_amair_el1: ; .type write_amair_el1, %function
 	msr	amair_el1, x0
 	isb
 	ret
 
 
-write_amair_el2:; .type write_amair_el2, %function
+write_amair_el2: ; .type write_amair_el2, %function
 	msr	amair_el2, x0
 	isb
 	ret
 
 
-write_amair_el3:; .type write_amair_el3, %function
+write_amair_el3: ; .type write_amair_el3, %function
 	msr	amair_el3, x0
 	isb
 	ret
@@ -498,7 +498,7 @@ write_amair_el3:; .type write_amair_el3, %function
 	 * RVBAR accessors
 	 * -----------------------------------------------------
 	 */
-read_rvbar:; .type read_rvbar, %function
+read_rvbar: ; .type read_rvbar, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_rvbar_el1
@@ -508,17 +508,17 @@ read_rvbar:; .type read_rvbar, %function
 	b.eq	read_rvbar_el3
 
 
-read_rvbar_el1:; .type read_rvbar_el1, %function
+read_rvbar_el1: ; .type read_rvbar_el1, %function
 	mrs	x0, rvbar_el1
 	ret
 
 
-read_rvbar_el2:; .type read_rvbar_el2, %function
+read_rvbar_el2: ; .type read_rvbar_el2, %function
 	mrs	x0, rvbar_el2
 	ret
 
 
-read_rvbar_el3:; .type read_rvbar_el3, %function
+read_rvbar_el3: ; .type read_rvbar_el3, %function
 	mrs	x0, rvbar_el3
 	ret
 
@@ -527,7 +527,7 @@ read_rvbar_el3:; .type read_rvbar_el3, %function
 	 * RMR accessors
 	 * -----------------------------------------------------
 	 */
-read_rmr:; .type read_rmr, %function
+read_rmr: ; .type read_rmr, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_rmr_el1
@@ -537,22 +537,22 @@ read_rmr:; .type read_rmr, %function
 	b.eq	read_rmr_el3
 
 
-read_rmr_el1:; .type read_rmr_el1, %function
+read_rmr_el1: ; .type read_rmr_el1, %function
 	mrs	x0, rmr_el1
 	ret
 
 
-read_rmr_el2:; .type read_rmr_el2, %function
+read_rmr_el2: ; .type read_rmr_el2, %function
 	mrs	x0, rmr_el2
 	ret
 
 
-read_rmr_el3:; .type read_rmr_el3, %function
+read_rmr_el3: ; .type read_rmr_el3, %function
 	mrs	x0, rmr_el3
 	ret
 
 
-write_rmr:; .type write_rmr, %function
+write_rmr: ; .type write_rmr, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_rmr_el1
@@ -562,25 +562,25 @@ write_rmr:; .type write_rmr, %function
 	b.eq	write_rmr_el3
 
 
-write_rmr_el1:; .type write_rmr_el1, %function
+write_rmr_el1: ; .type write_rmr_el1, %function
 	msr	rmr_el1, x0
 	isb
 	ret
 
 
-write_rmr_el2:; .type write_rmr_el2, %function
+write_rmr_el2: ; .type write_rmr_el2, %function
 	msr	rmr_el2, x0
 	isb
 	ret
 
 
-write_rmr_el3:; .type write_rmr_el3, %function
+write_rmr_el3: ; .type write_rmr_el3, %function
 	msr	rmr_el3, x0
 	isb
 	ret
 
 
-read_afsr1:; .type read_afsr1, %function
+read_afsr1: ; .type read_afsr1, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_afsr1_el1
@@ -594,22 +594,22 @@ read_afsr1:; .type read_afsr1, %function
 	 * AFSR1 accessors
 	 * -----------------------------------------------------
 	 */
-read_afsr1_el1:; .type read_afsr1_el1, %function
+read_afsr1_el1: ; .type read_afsr1_el1, %function
 	mrs	x0, afsr1_el1
 	ret
 
 
-read_afsr1_el2:; .type read_afsr1_el2, %function
+read_afsr1_el2: ; .type read_afsr1_el2, %function
 	mrs	x0, afsr1_el2
 	ret
 
 
-read_afsr1_el3:; .type read_afsr1_el3, %function
+read_afsr1_el3: ; .type read_afsr1_el3, %function
 	mrs	x0, afsr1_el3
 	ret
 
 
-write_afsr1:; .type write_afsr1, %function
+write_afsr1: ; .type write_afsr1, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_afsr1_el1
@@ -619,19 +619,19 @@ write_afsr1:; .type write_afsr1, %function
 	b.eq	write_afsr1_el3
 
 
-write_afsr1_el1:; .type write_afsr1_el1, %function
+write_afsr1_el1: ; .type write_afsr1_el1, %function
 	msr	afsr1_el1, x0
 	isb
 	ret
 
 
-write_afsr1_el2:; .type write_afsr1_el2, %function
+write_afsr1_el2: ; .type write_afsr1_el2, %function
 	msr	afsr1_el2, x0
 	isb
 	ret
 
 
-write_afsr1_el3:; .type write_afsr1_el3, %function
+write_afsr1_el3: ; .type write_afsr1_el3, %function
 	msr	afsr1_el3, x0
 	isb
 	ret
@@ -641,7 +641,7 @@ write_afsr1_el3:; .type write_afsr1_el3, %function
 	 * SCTLR accessors
 	 * -----------------------------------------------------
 	 */
-read_sctlr:; .type read_sctlr, %function
+read_sctlr: ; .type read_sctlr, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_sctlr_el1
@@ -651,22 +651,22 @@ read_sctlr:; .type read_sctlr, %function
 	b.eq	read_sctlr_el3
 
 
-read_sctlr_el1:; .type read_sctlr_el1, %function
+read_sctlr_el1: ; .type read_sctlr_el1, %function
 	mrs	x0, sctlr_el1
 	ret
 
 
-read_sctlr_el2:; .type read_sctlr_el2, %function
+read_sctlr_el2: ; .type read_sctlr_el2, %function
 	mrs	x0, sctlr_el2
 	ret
 
 
-read_sctlr_el3:; .type read_sctlr_el3, %function
+read_sctlr_el3: ; .type read_sctlr_el3, %function
 	mrs	x0, sctlr_el3
 	ret
 
 
-write_sctlr:; .type write_sctlr, %function
+write_sctlr: ; .type write_sctlr, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_sctlr_el1
@@ -676,21 +676,21 @@ write_sctlr:; .type write_sctlr, %function
 	b.eq	write_sctlr_el3
 
 
-write_sctlr_el1:; .type write_sctlr_el1, %function
+write_sctlr_el1: ; .type write_sctlr_el1, %function
 	msr	sctlr_el1, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_sctlr_el2:; .type write_sctlr_el2, %function
+write_sctlr_el2: ; .type write_sctlr_el2, %function
 	msr	sctlr_el2, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_sctlr_el3:; .type write_sctlr_el3, %function
+write_sctlr_el3: ; .type write_sctlr_el3, %function
 	msr	sctlr_el3, x0
 	dsb	sy
 	isb
@@ -701,7 +701,7 @@ write_sctlr_el3:; .type write_sctlr_el3, %function
 	 * ACTLR accessors
 	 * -----------------------------------------------------
 	 */
-read_actlr:; .type read_actlr, %function
+read_actlr: ; .type read_actlr, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_actlr_el1
@@ -711,22 +711,22 @@ read_actlr:; .type read_actlr, %function
 	b.eq	read_actlr_el3
 
 
-read_actlr_el1:; .type read_actlr_el1, %function
+read_actlr_el1: ; .type read_actlr_el1, %function
 	mrs	x0, actlr_el1
 	ret
 
 
-read_actlr_el2:; .type read_actlr_el2, %function
+read_actlr_el2: ; .type read_actlr_el2, %function
 	mrs	x0, actlr_el2
 	ret
 
 
-read_actlr_el3:; .type read_actlr_el3, %function
+read_actlr_el3: ; .type read_actlr_el3, %function
 	mrs	x0, actlr_el3
 	ret
 
 
-write_actlr:; .type write_actlr, %function
+write_actlr: ; .type write_actlr, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_actlr_el1
@@ -736,21 +736,21 @@ write_actlr:; .type write_actlr, %function
 	b.eq	write_actlr_el3
 
 
-write_actlr_el1:; .type write_actlr_el1, %function
+write_actlr_el1: ; .type write_actlr_el1, %function
 	msr	actlr_el1, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_actlr_el2:; .type write_actlr_el2, %function
+write_actlr_el2: ; .type write_actlr_el2, %function
 	msr	actlr_el2, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_actlr_el3:; .type write_actlr_el3, %function
+write_actlr_el3: ; .type write_actlr_el3, %function
 	msr	actlr_el3, x0
 	dsb	sy
 	isb
@@ -761,7 +761,7 @@ write_actlr_el3:; .type write_actlr_el3, %function
 	 * ESR accessors
 	 * -----------------------------------------------------
 	 */
-read_esr:; .type read_esr, %function
+read_esr: ; .type read_esr, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_esr_el1
@@ -771,22 +771,22 @@ read_esr:; .type read_esr, %function
 	b.eq	read_esr_el3
 
 
-read_esr_el1:; .type read_esr_el1, %function
+read_esr_el1: ; .type read_esr_el1, %function
 	mrs	x0, esr_el1
 	ret
 
 
-read_esr_el2:; .type read_esr_el2, %function
+read_esr_el2: ; .type read_esr_el2, %function
 	mrs	x0, esr_el2
 	ret
 
 
-read_esr_el3:; .type read_esr_el3, %function
+read_esr_el3: ; .type read_esr_el3, %function
 	mrs	x0, esr_el3
 	ret
 
 
-write_esr:; .type write_esr, %function
+write_esr: ; .type write_esr, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_esr_el1
@@ -796,21 +796,21 @@ write_esr:; .type write_esr, %function
 	b.eq	write_esr_el3
 
 
-write_esr_el1:; .type write_esr_el1, %function
+write_esr_el1: ; .type write_esr_el1, %function
 	msr	esr_el1, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_esr_el2:; .type write_esr_el2, %function
+write_esr_el2: ; .type write_esr_el2, %function
 	msr	esr_el2, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_esr_el3:; .type write_esr_el3, %function
+write_esr_el3: ; .type write_esr_el3, %function
 	msr	esr_el3, x0
 	dsb	sy
 	isb
@@ -821,7 +821,7 @@ write_esr_el3:; .type write_esr_el3, %function
 	 * TCR accessors
 	 * -----------------------------------------------------
 	 */
-read_tcr:; .type read_tcr, %function
+read_tcr: ; .type read_tcr, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_tcr_el1
@@ -831,22 +831,22 @@ read_tcr:; .type read_tcr, %function
 	b.eq	read_tcr_el3
 
 
-read_tcr_el1:; .type read_tcr_el1, %function
+read_tcr_el1: ; .type read_tcr_el1, %function
 	mrs	x0, tcr_el1
 	ret
 
 
-read_tcr_el2:; .type read_tcr_el2, %function
+read_tcr_el2: ; .type read_tcr_el2, %function
 	mrs	x0, tcr_el2
 	ret
 
 
-read_tcr_el3:; .type read_tcr_el3, %function
+read_tcr_el3: ; .type read_tcr_el3, %function
 	mrs	x0, tcr_el3
 	ret
 
 
-write_tcr:; .type write_tcr, %function
+write_tcr: ; .type write_tcr, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_tcr_el1
@@ -856,21 +856,21 @@ write_tcr:; .type write_tcr, %function
 	b.eq	write_tcr_el3
 
 
-write_tcr_el1:; .type write_tcr_el1, %function
+write_tcr_el1: ; .type write_tcr_el1, %function
 	msr	tcr_el1, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_tcr_el2:; .type write_tcr_el2, %function
+write_tcr_el2: ; .type write_tcr_el2, %function
 	msr	tcr_el2, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_tcr_el3:; .type write_tcr_el3, %function
+write_tcr_el3: ; .type write_tcr_el3, %function
 	msr	tcr_el3, x0
 	dsb	sy
 	isb
@@ -881,7 +881,7 @@ write_tcr_el3:; .type write_tcr_el3, %function
 	 * CPTR accessors
 	 * -----------------------------------------------------
 	 */
-read_cptr:; .type read_cptr, %function
+read_cptr: ; .type read_cptr, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_cptr_el1
@@ -891,22 +891,22 @@ read_cptr:; .type read_cptr, %function
 	b.eq	read_cptr_el3
 
 
-read_cptr_el1:; .type read_cptr_el1, %function
+read_cptr_el1: ; .type read_cptr_el1, %function
 	b	read_cptr_el1
 	ret
 
 
-read_cptr_el2:; .type read_cptr_el2, %function
+read_cptr_el2: ; .type read_cptr_el2, %function
 	mrs	x0, cptr_el2
 	ret
 
 
-read_cptr_el3:; .type read_cptr_el3, %function
+read_cptr_el3: ; .type read_cptr_el3, %function
 	mrs	x0, cptr_el3
 	ret
 
 
-write_cptr:; .type write_cptr, %function
+write_cptr: ; .type write_cptr, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_cptr_el1
@@ -916,18 +916,18 @@ write_cptr:; .type write_cptr, %function
 	b.eq	write_cptr_el3
 
 
-write_cptr_el1:; .type write_cptr_el1, %function
+write_cptr_el1: ; .type write_cptr_el1, %function
 	b	write_cptr_el1
 
 
-write_cptr_el2:; .type write_cptr_el2, %function
+write_cptr_el2: ; .type write_cptr_el2, %function
 	msr	cptr_el2, x0
 	dsb	sy
 	isb
 	ret
 
 
-write_cptr_el3:; .type write_cptr_el3, %function
+write_cptr_el3: ; .type write_cptr_el3, %function
 	msr	cptr_el3, x0
 	dsb	sy
 	isb
@@ -938,7 +938,7 @@ write_cptr_el3:; .type write_cptr_el3, %function
 	 * TTBR0 accessors
 	 * -----------------------------------------------------
 	 */
-read_ttbr0:; .type read_ttbr0, %function
+read_ttbr0: ; .type read_ttbr0, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_ttbr0_el1
@@ -948,22 +948,22 @@ read_ttbr0:; .type read_ttbr0, %function
 	b.eq	read_ttbr0_el3
 
 
-read_ttbr0_el1:; .type read_ttbr0_el1, %function
+read_ttbr0_el1: ; .type read_ttbr0_el1, %function
 	mrs	x0, ttbr0_el1
 	ret
 
 
-read_ttbr0_el2:; .type read_ttbr0_el2, %function
+read_ttbr0_el2: ; .type read_ttbr0_el2, %function
 	mrs	x0, ttbr0_el2
 	ret
 
 
-read_ttbr0_el3:; .type read_ttbr0_el3, %function
+read_ttbr0_el3: ; .type read_ttbr0_el3, %function
 	mrs	x0, ttbr0_el3
 	ret
 
 
-write_ttbr0:; .type write_ttbr0, %function
+write_ttbr0: ; .type write_ttbr0, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_ttbr0_el1
@@ -973,19 +973,19 @@ write_ttbr0:; .type write_ttbr0, %function
 	b.eq	write_ttbr0_el3
 
 
-write_ttbr0_el1:; .type write_ttbr0_el1, %function
+write_ttbr0_el1: ; .type write_ttbr0_el1, %function
 	msr	ttbr0_el1, x0
 	isb
 	ret
 
 
-write_ttbr0_el2:; .type write_ttbr0_el2, %function
+write_ttbr0_el2: ; .type write_ttbr0_el2, %function
 	msr	ttbr0_el2, x0
 	isb
 	ret
 
 
-write_ttbr0_el3:; .type write_ttbr0_el3, %function
+write_ttbr0_el3: ; .type write_ttbr0_el3, %function
 	msr	ttbr0_el3, x0
 	isb
 	ret
@@ -995,7 +995,7 @@ write_ttbr0_el3:; .type write_ttbr0_el3, %function
 	 * TTBR1 accessors
 	 * -----------------------------------------------------
 	 */
-read_ttbr1:; .type read_ttbr1, %function
+read_ttbr1: ; .type read_ttbr1, %function
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_ttbr1_el1
@@ -1005,20 +1005,20 @@ read_ttbr1:; .type read_ttbr1, %function
 	b.eq	read_ttbr1_el3
 
 
-read_ttbr1_el1:; .type read_ttbr1_el1, %function
+read_ttbr1_el1: ; .type read_ttbr1_el1, %function
 	mrs	x0, ttbr1_el1
 	ret
 
 
-read_ttbr1_el2:; .type read_ttbr1_el2, %function
+read_ttbr1_el2: ; .type read_ttbr1_el2, %function
 	b	read_ttbr1_el2
 
 
-read_ttbr1_el3:; .type read_ttbr1_el3, %function
+read_ttbr1_el3: ; .type read_ttbr1_el3, %function
 	b	read_ttbr1_el3
 
 
-write_ttbr1:; .type write_ttbr1, %function
+write_ttbr1: ; .type write_ttbr1, %function
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_ttbr1_el1
@@ -1028,108 +1028,108 @@ write_ttbr1:; .type write_ttbr1, %function
 	b.eq	write_ttbr1_el3
 
 
-write_ttbr1_el1:; .type write_ttbr1_el1, %function
+write_ttbr1_el1: ; .type write_ttbr1_el1, %function
 	msr	ttbr1_el1, x0
 	isb
 	ret
 
 
-write_ttbr1_el2:; .type write_ttbr1_el2, %function
+write_ttbr1_el2: ; .type write_ttbr1_el2, %function
 	b	write_ttbr1_el2
 
 
-write_ttbr1_el3:; .type write_ttbr1_el3, %function
+write_ttbr1_el3: ; .type write_ttbr1_el3, %function
 	b	write_ttbr1_el3
 
 
-read_hcr:; .type read_hcr, %function
+read_hcr: ; .type read_hcr, %function
 	mrs	x0, hcr_el2
 	ret
 
 
-write_hcr:; .type write_hcr, %function
+write_hcr: ; .type write_hcr, %function
 	msr	hcr_el2, x0
 	dsb	sy
 	isb
 	ret
 
 
-read_cpacr:; .type read_cpacr, %function
+read_cpacr: ; .type read_cpacr, %function
 	mrs	x0, cpacr_el1
 	ret
 
 
-write_cpacr:; .type write_cpacr, %function
+write_cpacr: ; .type write_cpacr, %function
 	msr	cpacr_el1, x0
 	ret
 
 
-read_cntfrq_el0:; .type read_cntfrq_el0, %function
+read_cntfrq_el0: ; .type read_cntfrq_el0, %function
 	mrs	x0, cntfrq_el0
 	ret
 
 
-write_cntfrq_el0:; .type write_cntfrq_el0, %function
+write_cntfrq_el0: ; .type write_cntfrq_el0, %function
 	msr	cntfrq_el0, x0
 	ret
 
 
-read_cpuectlr:; .type read_cpuectlr, %function
+read_cpuectlr: ; .type read_cpuectlr, %function
 	mrs	x0, CPUECTLR_EL1
 	ret
 
 
-write_cpuectlr:; .type write_cpuectlr, %function
+write_cpuectlr: ; .type write_cpuectlr, %function
 	msr	CPUECTLR_EL1, x0
 	dsb	sy
 	isb
 	ret
 
 
-read_cnthctl_el2:; .type read_cnthctl_el2, %function
+read_cnthctl_el2: ; .type read_cnthctl_el2, %function
 	mrs	x0, cnthctl_el2
 	ret
 
 
-write_cnthctl_el2:; .type write_cnthctl_el2, %function
+write_cnthctl_el2: ; .type write_cnthctl_el2, %function
 	msr	cnthctl_el2, x0
 	ret
 
 
-read_cntfrq:; .type read_cntfrq, %function
+read_cntfrq: ; .type read_cntfrq, %function
 	mrs	x0, cntfrq_el0
 	ret
 
 
-write_cntfrq:; .type write_cntfrq, %function
+write_cntfrq: ; .type write_cntfrq, %function
 	msr	cntfrq_el0, x0
 	ret
 
 
-write_scr:; .type write_scr, %function
+write_scr: ; .type write_scr, %function
 	msr	scr_el3, x0
 	dsb	sy
 	isb
 	ret
 
 
-read_scr:; .type read_scr, %function
+read_scr: ; .type read_scr, %function
 	mrs	x0, scr_el3
 	ret
 
 
-read_midr:; .type read_midr, %function
+read_midr: ; .type read_midr, %function
 	mrs	x0, midr_el1
 	ret
 
 
-read_mpidr:; .type read_mpidr, %function
+read_mpidr: ; .type read_mpidr, %function
 	mrs	x0, mpidr_el1
 	ret
 
 
 #if SUPPORT_VFP
-enable_vfp:; .type enable_vfp, %function
+enable_vfp: ; .type enable_vfp, %function
 	mrs	x0, cpacr_el1
 	orr	x0, x0, #CPACR_VFP_BITS
 	msr	cpacr_el1, x0
@@ -1141,13 +1141,13 @@ enable_vfp:; .type enable_vfp, %function
 
 
 	// int read_fpexc(void)
-read_fpexc:; .type read_fpexc, %function
+read_fpexc: ; .type read_fpexc, %function
 	b	read_fpexc
 	ret
 
 
 	// void write_fpexc(int fpexc)
-write_fpexc:; .type write_fpexc, %function
+write_fpexc: ; .type write_fpexc, %function
 	b	write_fpexc
 	ret
 

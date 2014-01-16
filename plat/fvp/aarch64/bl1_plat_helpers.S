@@ -60,7 +60,7 @@
 	 * that the request has gone through.
 	 * -----------------------------------------------------
 	 */
-plat_secondary_cold_boot_setup:; .type plat_secondary_cold_boot_setup, %function
+plat_secondary_cold_boot_setup: ; .type plat_secondary_cold_boot_setup, %function
 	bl	read_mpidr
 	mov	x19, x0
 	bl	platform_get_core_pos
@@ -136,7 +136,7 @@ cb_panic:
 	 * 	reset all cpus will read the same WK field
 	 * -----------------------------------------------------
 	 */
-platform_get_entrypoint:; .type platform_get_entrypoint, %function
+platform_get_entrypoint: ; .type platform_get_entrypoint, %function
 	mov	x9, x30 // lr
 	mov	x2, x0
 	ldr	x1, =PWRC_BASE
@@ -176,7 +176,7 @@ _panic:	b	_panic
 	 * BL1 will always read the mailboxes with the MMU off
 	 * -----------------------------------------------------
 	 */
-platform_mem_init:; .type platform_mem_init, %function
+platform_mem_init: ; .type platform_mem_init, %function
 	ldr	x0, =TZDRAM_BASE + MBOX_OFF
 	stp	xzr, xzr, [x0, #0]
 	stp	xzr, xzr, [x0, #0x10]
@@ -192,7 +192,7 @@ platform_mem_init:; .type platform_mem_init, %function
 	 * boot to perform early platform initialization
 	 * -----------------------------------------------------
 	 */
-platform_cold_boot_init:; .type platform_cold_boot_init, %function
+platform_cold_boot_init: ; .type platform_cold_boot_init, %function
 	mov	x20, x0
 	bl	platform_mem_init
 	bl	read_mpidr

@@ -38,7 +38,7 @@
 	.section	.text, "ax"; .align 3
 
 
-bl2_entrypoint:; .type bl2_entrypoint, %function
+bl2_entrypoint: ; .type bl2_entrypoint, %function
 	/*---------------------------------------------
 	 * Store the extents of the tzram available to
 	 * BL2 for future use. Use the opcode param to

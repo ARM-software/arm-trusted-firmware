@@ -35,7 +35,7 @@
 
 	.section	.text, "ax"; .align 3
 
-cpu_reset_handler:; .type cpu_reset_handler, %function
+cpu_reset_handler: ; .type cpu_reset_handler, %function
 	mov	x19, x30 // lr
 
 	/* ---------------------------------------------
