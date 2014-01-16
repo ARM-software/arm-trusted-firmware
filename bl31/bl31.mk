@@ -63,7 +63,8 @@ BL31_OBJS		+=	bl31_arch_setup.o			\
 				gic_v3_sysregs.o			\
 				bakery_lock.o				\
 				runtime_svc.o				\
-				early_exceptions.o
+				early_exceptions.o			\
+				context.o
 
 BL31_ENTRY_POINT	:=	bl31_entrypoint
 BL31_MAPFILE		:=	bl31.map
