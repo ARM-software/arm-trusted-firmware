@@ -273,6 +273,20 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 	case MPIDR_AFFLVL1:
 		/* Enable coherency if this cluster was off */
 		if (state == PSCI_STATE_OFF) {
+
+			/*
+			 * This CPU might have woken up whilst the
+			 * cluster was attempting to power down. In
+			 * this case the FVP power controller will
+			 * have a pending cluster power off request
+			 * which needs to be cleared by writing to the
+			 * PPONR register. This prevents the power
+			 * controller from interpreting a subsequent
+			 * entry of this cpu into a simple wfi as a
+			 * power down request.
+			 */
+			fvp_pwrc_write_pponr(mpidr);
+
 			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
 			if (cci_setup) {
 				cci_enable_coherency(mpidr);
