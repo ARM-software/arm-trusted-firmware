@@ -35,7 +35,7 @@
 #include <runtime_svc.h>
 
 	.globl	early_exceptions
-
+	.weak	display_boot_progress
 
 	.section	.text, "ax"; .align 11
 
@@ -214,3 +214,15 @@ SErrorA32:
 	mov	x0, #SERROR_AARCH32
 	bl	plat_report_exception
 	b	SErrorA32
+
+	.align	7
+	/* -----------------------------------------------------
+	 * BL1 redefines this function to print the fact that
+	 * BL2 has done its job and BL31 is about to be loaded.
+	 * This weak definition allows other bootloader stages
+	 * to use the 'early_exceptions' without running into
+	 * compilation errors.
+	 * -----------------------------------------------------
+	 */
+display_boot_progress:
+	ret

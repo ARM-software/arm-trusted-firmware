@@ -128,17 +128,3 @@ void bl2_main(void)
 	/* There is no valid reason for run_image() to return */
 	assert(0);
 }
-
-/*******************************************************************************
- * BL1 has this function to print the fact that BL2 has done its job and BL31 is
- * about to be loaded. Since BL2 re-uses BL1's exception table, it needs to
- * define this function as well.
- * TODO: Remove this function from BL2.
- ******************************************************************************/
-void display_boot_progress(unsigned long entrypoint,
-			   unsigned long spsr,
-			   unsigned long mem_layout,
-			   unsigned long ns_image_info)
-{
-	return;
-}
