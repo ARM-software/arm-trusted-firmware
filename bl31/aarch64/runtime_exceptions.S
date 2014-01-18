@@ -37,8 +37,8 @@
 #include <asm_macros.S>
 
 
-	.section	.text, "ax"; .align 11
-	
+	.section	.vectors, "ax"; .align 11
+
 	.align	7
 runtime_exceptions:
 	/* -----------------------------------------------------

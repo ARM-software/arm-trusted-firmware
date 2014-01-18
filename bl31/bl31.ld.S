@@ -50,6 +50,7 @@ SECTIONS
         *bl31_entrypoint.o(.text)
         *(.text)
         *(.rodata*)
+        *(.vectors)
         __RO_END_UNALIGNED__ = .;
         /*
          * Memory page(s) mapped to this section will be marked as read-only,

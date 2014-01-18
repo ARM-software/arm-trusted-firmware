@@ -353,7 +353,6 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	/*
 	 * Arch. management: Turn on mmu & restore architectural state
 	 */
-	write_vbar((unsigned long) runtime_exceptions);
 	enable_mmu();
 
 	/*

@@ -326,7 +326,6 @@ typedef struct {
 	unsigned long mair;
 	unsigned long tcr;
 	unsigned long ttbr;
-	unsigned long vbar;
 	unsigned long pstate;
 } sysregs_context;
 

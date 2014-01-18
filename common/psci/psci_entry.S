@@ -63,6 +63,17 @@ psci_aff_suspend_finish_entry:
 
 psci_aff_common_finish_entry:
 	adr	x22, psci_afflvl_power_on_finish
+
+	/* ---------------------------------------------
+	 * Exceptions should not occur at this point.
+	 * Set VBAR in order to handle and report any
+	 * that do occur
+	 * ---------------------------------------------
+	 */
+	adr	x0, early_exceptions
+	msr	vbar_el3, x0
+	isb
+
 	bl	read_mpidr
 	mov	x19, x0
 	bl	platform_set_coherent_stack
@@ -89,6 +100,16 @@ psci_aff_common_finish_entry:
 	 */
 	mov	x0, x19
 	bl	platform_set_stack
+
+	/* ---------------------------------------------
+	 * Now that the execution stack has been set
+	 * up, enable full runtime exception handling.
+	 * Since we're just about to leave this EL with
+	 * ERET, we don't need an ISB here
+	 * ---------------------------------------------
+	 */
+	adr	x0, runtime_exceptions
+	msr	vbar_el3, x0
 
 	/* --------------------------------------------
 	 * Use the size of the general purpose register

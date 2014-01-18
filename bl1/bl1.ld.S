@@ -45,6 +45,7 @@ SECTIONS
         *bl1_entrypoint.o(.text)
         *(.text)
         *(.rodata*)
+        *(.vectors)
         __RO_END__ = .;
     } >ROM
 

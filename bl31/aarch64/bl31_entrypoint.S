@@ -58,7 +58,7 @@ bl31_entrypoint: ; .type bl31_entrypoint, %function
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
 	 */
-	adr	x1, runtime_exceptions
+	adr	x1, early_exceptions
 	msr	vbar_el3, x1
 
 	/* ---------------------------------------------------------------------
@@ -153,6 +153,14 @@ bl31_entrypoint: ; .type bl31_entrypoint, %function
 	 */
 	mov	x0, x19
 	bl	platform_set_stack
+
+	/* ---------------------------------------------
+	 * Use the more complex exception vectors now
+	 * the stacks are setup.
+	 * ---------------------------------------------
+	 */
+	adr	x1, runtime_exceptions
+	msr	vbar_el3, x1
 
 	/* ---------------------------------------------
 	 * Use SP_EL0 to initialize BL31. It allows us

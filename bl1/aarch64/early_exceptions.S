@@ -37,12 +37,12 @@
 	.globl	early_exceptions
 	.weak	display_boot_progress
 
-	.section	.text, "ax"; .align 11
+	.section	.vectors, "ax"; .align 11
 
 	/* -----------------------------------------------------
-	 * Very simple exception handlers used by BL1 and BL2.
-	 * Apart from one SMC exception all other traps loop
-	 * endlessly.
+	 * Very simple stackless exception handlers used by all
+	 * bootloader stages. BL31 uses them before stacks are
+	 * setup. BL1/BL2 use them throughout.
 	 * -----------------------------------------------------
 	 */
 	.align	7
@@ -164,6 +164,7 @@ SErrorA32:
 
 	.align	7
 
+	.section	.text, "ax"
 process_exception:
 	sub	sp, sp, #0x40
 	stp	x0, x1, [sp, #0x0]

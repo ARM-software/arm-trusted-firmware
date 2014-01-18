@@ -115,7 +115,6 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	psci_suspend_context[index].sec_sysregs.mair = read_mair();
 	psci_suspend_context[index].sec_sysregs.tcr = read_tcr();
 	psci_suspend_context[index].sec_sysregs.ttbr = read_ttbr0();
-	psci_suspend_context[index].sec_sysregs.vbar = read_vbar();
 	psci_suspend_context[index].sec_sysregs.pstate =
 		read_daif() & (DAIF_ABT_BIT | DAIF_DBG_BIT);
 
@@ -424,7 +423,6 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * Arch. management: Restore the stashed secure architectural
 	 * context in the right order.
 	 */
-	write_vbar(psci_suspend_context[index].sec_sysregs.vbar);
 	write_daif(read_daif() | psci_suspend_context[index].sec_sysregs.pstate);
 	write_mair(psci_suspend_context[index].sec_sysregs.mair);
 	write_tcr(psci_suspend_context[index].sec_sysregs.tcr);
