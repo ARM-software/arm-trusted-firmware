@@ -123,17 +123,12 @@ void bl1_platform_setup(void)
  ******************************************************************************/
 void bl1_plat_arch_setup(void)
 {
-	unsigned long cci_setup;
-
 	/*
 	 * Enable CCI-400 for this cluster. No need
 	 * for locks as no other cpu is active at the
 	 * moment
 	 */
-	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
-	if (cci_setup) {
-		cci_enable_coherency(read_mpidr());
-	}
+	cci_enable_coherency(read_mpidr());
 
 	configure_mmu(&bl1_tzram_layout,
 			TZROM_BASE,

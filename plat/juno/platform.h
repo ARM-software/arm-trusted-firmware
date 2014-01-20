@@ -160,8 +160,8 @@
  * CCI-400 related constants
  ******************************************************************************/
 #define CCI400_BASE			0x2c090000
-#define CCI400_SL_IFACE_CLUSTER0	3
-#define CCI400_SL_IFACE_CLUSTER1	4
+#define CCI400_SL_IFACE_CLUSTER0	4
+#define CCI400_SL_IFACE_CLUSTER1	3
 #define CCI400_SL_IFACE_INDEX(mpidr)	(mpidr & MPIDR_CLUSTER_MASK ? \
 					 CCI400_SL_IFACE_CLUSTER1 :   \
 					 CCI400_SL_IFACE_CLUSTER0)
