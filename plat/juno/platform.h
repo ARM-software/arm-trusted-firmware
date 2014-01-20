@@ -85,8 +85,16 @@
 #define TZROM_BASE		0x00000000
 #define TZROM_SIZE		0x00010000
 
-#define TZRAM_BASE		0x04000000
-#define TZRAM_SIZE		0x00040000
+#define MHU_SECURE_BASE		0x04000000
+#define MHU_SECURE_SIZE		0x00001000
+
+#define MHU_PAYLOAD_CACHED	0
+
+#define TRUSTED_MAILBOXES_BASE	MHU_SECURE_BASE
+#define TRUSTED_MAILBOX_SHIFT	4
+
+#define TZRAM_BASE		0x04001000
+#define TZRAM_SIZE		0x0003F000
 
 #define FLASH_BASE		0x08000000
 #define FLASH_SIZE		0x04000000
@@ -113,12 +121,6 @@
 /* Following covers Juno Peripherals and PCIe expansion area */
 #define DEVICE1_BASE		0x40000000
 #define DEVICE1_SIZE		0x40000000
-
-/* Use PSRAM for 'TZDRAM' */
-#define TZDRAM_BASE		PSRAM_BASE
-#define TZDRAM_SIZE		PSRAM_SIZE
-#define MBOX_OFF		0x1000
-#define AFFMAP_OFF		0x1200
 
 #define DRAM_BASE		0x80000000
 #define DRAM_SIZE		0x80000000
@@ -216,11 +218,6 @@
 #define CACHE_WRITEBACK_GRANULE (1 << CACHE_WRITEBACK_SHIFT)
 
 #ifndef __ASSEMBLY__
-
-typedef volatile struct {
-	unsigned long value
-	__attribute__((__aligned__(CACHE_WRITEBACK_GRANULE)));
-} mailbox;
 
 /*******************************************************************************
  * Function and variable prototypes

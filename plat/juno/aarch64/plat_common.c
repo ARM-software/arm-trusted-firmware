@@ -93,8 +93,9 @@ void disable_mmu(void)
 
 static const mmap_region mmap[] = {
 	{ TZROM_BASE,		TZROM_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
+	{ MHU_SECURE_BASE,	MHU_SECURE_SIZE,	(MHU_PAYLOAD_CACHED ? MT_MEMORY : MT_DEVICE)
+								  | MT_RW | MT_SECURE },
 //	{ TZRAM_BASE,		TZRAM_SIZE,		MT_MEMORY | MT_RW | MT_SECURE },  /* configure_mmu() meminfo arg sets subset of this */
-	{ TZDRAM_BASE,		TZDRAM_SIZE,		MT_MEMORY | MT_RW | MT_SECURE },
 	{ FLASH_BASE,		FLASH_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
 	{ EMMC_BASE,		EMMC_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
 	{ PSRAM_BASE,		PSRAM_SIZE,		MT_MEMORY | MT_RW | MT_SECURE }, /* Used for 'TZDRAM' */
