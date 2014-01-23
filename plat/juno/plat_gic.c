@@ -59,7 +59,7 @@ void gicv3_cpuif_setup(void)
 	 * GICR_WAKER is NOT banked per CPU, compute the correct base address
 	 * per CPU.
 	 */
-	base = gicv3_get_rdist(BASE_GICR_BASE, read_mpidr());
+	base = gicv3_get_rdist(GICR_BASE, read_mpidr());
 	if (base == (uintptr_t)NULL) {
 		/* No re-distributor base address. This interface cannot be
 		 * configured.
@@ -123,7 +123,7 @@ void gicv3_cpuif_deactivate(void)
 	 * GICR_WAKER is NOT banked per CPU, compute the correct base address
 	 * per CPU.
 	 */
-	base = gicv3_get_rdist(BASE_GICR_BASE, read_mpidr());
+	base = gicv3_get_rdist(GICR_BASE, read_mpidr());
 	if (base == (uintptr_t)NULL) {
 		/* No re-distributor base address. This interface cannot be
 		 * configured.
@@ -272,11 +272,6 @@ void gic_distif_setup(unsigned int gicd_base)
 
 void gic_setup(void)
 {
-	unsigned int gicd_base, gicc_base;
-
-	gicd_base = platform_get_cfgvar(CONFIG_GICD_ADDR);
-	gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
-
-	gic_cpuif_setup(gicc_base);
-	gic_distif_setup(gicd_base);
+	gic_cpuif_setup(GICC_BASE);
+	gic_distif_setup(GICD_BASE);
 }

@@ -171,20 +171,12 @@
 /*******************************************************************************
  * GIC-400 & interrupt handling related constants
  ******************************************************************************/
-/* VE compatible GIC memory map */
-#define VE_GICD_BASE			0x2c001000
-#define VE_GICC_BASE			0x2c002000
-#define VE_GICH_BASE			0x2c004000
-#define VE_GICV_BASE			0x2c006000
+#define GICD_BASE			0x2c010000
+#define GICC_BASE			0x2c02f000
+#define GICH_BASE			0x2c04f000
+#define GICV_BASE			0x2c06f000
 
-/* Base FVP compatible GIC memory map */
-#define BASE_GICD_BASE			0x2f000000
-#define BASE_GICR_BASE			0x2f100000
-#define BASE_GICC_BASE			0x2c000000
-#define BASE_GICH_BASE			0x2c010000
-#define BASE_GICV_BASE			0x2c02f000
-
-#define IRQ_TZ_WDOG			56
+#define IRQ_TZ_WDOG			86
 #define IRQ_SEC_PHY_TIMER		29
 #define IRQ_SEC_SGI_0			8
 #define IRQ_SEC_SGI_1			9
