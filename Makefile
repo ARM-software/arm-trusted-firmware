@@ -102,7 +102,7 @@ ifneq (${PLAT},all)
   include bl31/bl31.mk
 endif
 
-.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31
+.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope
 .SUFFIXES:
 
 
@@ -179,6 +179,7 @@ clean:
 realclean distclean:
 			@echo "  REALCLEAN"
 			${Q}rm -rf ${BUILD_BASE}
+			${Q}rm -f ${CURDIR}/cscope.*
 
 dump:
 			@echo "  OBJDUMP"
@@ -260,6 +261,11 @@ ${BUILD_PLAT}/bl31.bin:	${BUILD_BL31}/bl31.elf
 			@echo "Built $@ successfully"
 			@echo
 
+cscope:
+	@echo "  CSCOPE"
+	${Q}find ${CURDIR} -name "*.[chsS]" > cscope.files
+	${Q}cscope -b -q -k
+
 help:
 	@echo "usage: ${MAKE} PLAT=<all|${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|dump>"
 	@echo ""
@@ -271,6 +277,7 @@ help:
 	@echo "  bl2        build the BL2 binary"
 	@echo "  bl31       build the BL31 binary"
 	@echo "  clean      Clean the build for the selected platform"
+	@echo "  cscope     Generate cscope index"
 	@echo "  distclean  Remove all build artifacts for all platforms"
 	@echo "  dump       Generate object file dumps"
 	@echo ""
