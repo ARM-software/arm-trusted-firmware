@@ -259,7 +259,26 @@
 #define OSH			(0x2 << 6)
 #define ISH			(0x3 << 6)
 
-#define IS_PAGE_ALIGNED(addr)	(((addr) & 0xFFF) == 0)
+#define PAGE_SIZE_SHIFT		FOUR_KB_SHIFT
+#define PAGE_SIZE		(1 << PAGE_SIZE_SHIFT)
+#define PAGE_SIZE_MASK		(PAGE_SIZE - 1)
+#define IS_PAGE_ALIGNED(addr)	(((addr) & PAGE_SIZE_MASK) == 0)
+
+#define XLAT_ENTRY_SIZE_SHIFT	3 /* Each MMU table entry is 8 bytes (1 << 3) */
+#define XLAT_ENTRY_SIZE		(1 << XLAT_ENTRY_SIZE_SHIFT)
+
+#define XLAT_TABLE_SIZE_SHIFT	PAGE_SIZE_SHIFT
+#define XLAT_TABLE_SIZE		(1 << XLAT_TABLE_SIZE_SHIFT)
+
+/* Values for number of entries in each MMU translation table */
+#define XLAT_TABLE_ENTRIES_SHIFT (XLAT_TABLE_SIZE_SHIFT - XLAT_ENTRY_SIZE_SHIFT)
+#define XLAT_TABLE_ENTRIES	(1 << XLAT_TABLE_ENTRIES_SHIFT)
+#define XLAT_TABLE_ENTRIES_MASK	(XLAT_TABLE_ENTRIES - 1)
+
+/* Values to convert a memory address to an index into a translation table */
+#define L3_XLAT_ADDRESS_SHIFT	PAGE_SIZE_SHIFT
+#define L2_XLAT_ADDRESS_SHIFT	(L3_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
+#define L1_XLAT_ADDRESS_SHIFT	(L2_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
 
 /*
  * AP[1] bit is ignored by hardware and is
