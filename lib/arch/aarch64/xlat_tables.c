@@ -29,10 +29,16 @@
  */
 
 #include <assert.h>
+#include <console.h>
 #include <platform.h>
+#include <stdio.h>
 #include <string.h>
 #include <xlat_tables.h>
 
+
+#ifndef DEBUG_XLAT_TABLE
+#define DEBUG_XLAT_TABLE 0
+#endif
 
 #define UNSET_DESC	~0ul
 
@@ -48,6 +54,57 @@ static unsigned next_xlat = 0;
 
 static mmap_region mmap[MAX_MMAP_REGIONS+1];
 
+
+static void print_chr(char c)
+{
+#if DEBUG_XLAT_TABLE
+	static int initialised = 0;
+	if (!initialised) {
+		initialised = 1;
+		console_init();
+	}
+	console_putc(c);
+#endif
+}
+
+static void print_num(unsigned long n)
+{
+#if DEBUG_XLAT_TABLE
+	for (int s = sizeof(n)*8-4; s >= 0; s -= 4) {
+		char c = (n >> s) & 15;
+		c += c < 10 ? '0' : 'a'-10;
+		print_chr(c);
+	}
+#endif
+}
+
+static void print_str(const char* s)
+{
+#if DEBUG_XLAT_TABLE
+	char c;
+	while ((c = *s++))
+		print_chr(c);
+#endif
+}
+
+static void print_mmap()
+{
+#if DEBUG_XLAT_TABLE
+	print_str("mmap:\n");
+	mmap_region *mm = mmap;
+	while (mm->size) {
+		print_chr(' ');
+		print_num(mm->base);
+		print_chr(' ');
+		print_num(mm->size);
+		print_chr(' ');
+		print_num(mm->attr);
+		print_chr('\n');
+		++mm;
+	};
+	print_chr('\n');
+#endif
+}
 
 void add_mmap_region(unsigned long base, unsigned long size, unsigned attr)
 {
@@ -104,6 +161,10 @@ static unsigned long mmap_desc(unsigned attr, unsigned long addr,
 		desc |= UPPER_ATTRS(XN);
 	}
 
+	print_str(attr & mt_memory ? "MEM" : "DEV");
+	print_str(attr & mt_rw ? "-RW" : "-RO");
+	print_str(attr & mt_ns ? "-NS" : "-S");
+
 	return desc;
 }
 
@@ -144,6 +205,8 @@ static mmap_region *init_xlation_table(mmap_region *mm, unsigned long base,
 
 	assert(level <= 3);
 
+	print_str("New xlat table:\n");
+	
 	do  {
 		unsigned long desc = UNSET_DESC;
 
@@ -152,6 +215,12 @@ static mmap_region *init_xlation_table(mmap_region *mm, unsigned long base,
 			++mm;
 			continue;
 		}
+
+		print_str("     "+7-2*level);
+		print_num(base);
+		print_chr(' ');
+		print_num(level_size);
+		print_chr(' ');
 
 		if (mm->base >= base + level_size) {
 			/* Next region is after area so nothing to map yet */
@@ -175,6 +244,8 @@ static mmap_region *init_xlation_table(mmap_region *mm, unsigned long base,
 			mm = init_xlation_table(mm, base, new_table, level+1);
 		}
 
+		print_chr('\n');
+
 		*table++ = desc;
 		base += level_size;
 	} while (mm->size && (base & level_index_mask));
@@ -184,5 +255,6 @@ static mmap_region *init_xlation_table(mmap_region *mm, unsigned long base,
 
 void init_xlat_tables(void)
 {
+	print_mmap();
 	init_xlation_table(mmap, 0, l1_xlation_table, 1);
 }
