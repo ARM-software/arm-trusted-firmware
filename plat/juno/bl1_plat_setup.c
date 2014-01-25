@@ -136,6 +136,45 @@ static void init_nic400(void)
 }
 
 
+#define TZC400_GATE_KEEPER_REG            0x008
+#define TZC400_REGION_ATTRIBUTES_0_REG    0x110
+#define TZC400_REGION_ID_ACCESS_0_REG     0x114
+
+#define TZC400_NSAID_WR_EN	(1 << 16)
+#define TZC400_NSAID_RD_EN	(1 << 0)
+#define TZC400_NSAID_RD_RW	(TZC400_NSAID_WR_EN | TZC400_NSAID_RD_EN)
+
+static void init_tzc400(void)
+{
+	/* Enable all filter units available */
+	mmio_write_32(TZC400_BASE + TZC400_GATE_KEEPER_REG, 0x0000000f);
+
+	/*
+	 * Secure read and write are enabled for region 0, and the background
+	 * region (region 0) is enabled for all four filter units
+	 */
+	mmio_write_32(TZC400_BASE + TZC400_REGION_ATTRIBUTES_0_REG, 0xc0000000);
+
+	/*
+	 * Enable Non-secure read/write accesses for the Soc Devices from the
+	 * Non-Secure World
+	 */
+	mmio_write_32(TZC400_BASE + TZC400_REGION_ID_ACCESS_0_REG,
+		(TZC400_NSAID_RD_RW << 0) |	/* CCI400 */
+		(TZC400_NSAID_RD_RW << 1) |	/* PCIE */
+		(TZC400_NSAID_RD_RW << 2) |	/* HDLCD0 */
+		(TZC400_NSAID_RD_RW << 3) |	/* HDLCD1 */
+		(TZC400_NSAID_RD_RW << 4) |	/* USB */
+		(TZC400_NSAID_RD_RW << 5) |	/* DMA330 */
+		(TZC400_NSAID_RD_RW << 6) |	/* THINLINKS */
+		(TZC400_NSAID_RD_RW << 9) |	/* AP */
+		(TZC400_NSAID_RD_RW << 10) |	/* GPU */
+		(TZC400_NSAID_RD_RW << 11) |	/* SCP */
+		(TZC400_NSAID_RD_RW << 12)	/* CORESIGHT */
+		);
+}
+
+
 /*******************************************************************************
  * Function which will perform any remaining platform-specific setup that can
  * occur after the MMU and data cache have been enabled.
@@ -143,6 +182,7 @@ static void init_nic400(void)
 void bl1_platform_setup(void)
 {
 	init_nic400();
+	init_tzc400();
 
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
