@@ -106,9 +106,10 @@
 #define NSROM_BASE		0x1f000000
 #define NSROM_SIZE		0x00001000
 
-/* Following covers Columbus Peripherals excluding NSROM and NSRAM */
+/* Following covers Columbus Peripherals excluding NSROM and NSRAM  */
 #define DEVICE0_BASE		0x20000000
 #define DEVICE0_SIZE		0x0e000000
+#define CSS_NIC400_BASE		0x2a000000
 
 #define NSRAM_BASE		0x2e000000
 #define NSRAM_SIZE		0x00008000
@@ -116,6 +117,7 @@
 /* Following covers Juno Peripherals and PCIe expansion area */
 #define DEVICE1_BASE		0x40000000
 #define DEVICE1_SIZE		0x40000000
+#define SOC_NIC400_BASE		0x7fd00000
 
 #define DRAM_BASE		0x80000000
 #define DRAM_SIZE		0x80000000
