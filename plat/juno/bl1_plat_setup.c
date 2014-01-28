@@ -102,12 +102,48 @@ void bl1_early_platform_setup(void)
 	console_init(PL011_UART0_BASE);
 }
 
+
+#define NIC400_ADDR_CTRL_SECURITY_REG(n)	(0x8 + (n) * 4)
+
+#define SOC_NIC400_S5_BIT_UART1			(1u << 12)
+
+static void init_nic400(void)
+{
+	/*
+	 * NIC-400 Access Control Initialization
+	 *
+	 * Define access privileges by setting each corresponding bit to:
+	 *   0 = Secure access only
+	 *   1 = Non-secure access allowed
+	 */
+
+	/*
+	 * Allow non-secure access to some SOC regions, excluding UART1, which
+	 * remains secure. Note: This is a NIC-400 device on the SOC
+	 */
+	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(0), ~0); // USB_EHCI
+	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(1), ~0); // TLX_MASTER
+	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(2), ~0); // USB_OHCI
+	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(3), ~0);
+	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(4), ~0); // PCIe
+	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(5), ~SOC_NIC400_S5_BIT_UART1);
+
+	/*
+	 * Allow non-secure access to some CSS regions.
+	 * Note: This is a NIC-400 device on the CSS
+	 */
+	mmio_write_32(CSS_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(8), ~0);
+}
+
+
 /*******************************************************************************
  * Function which will perform any remaining platform-specific setup that can
  * occur after the MMU and data cache have been enabled.
  ******************************************************************************/
 void bl1_platform_setup(void)
 {
+	init_nic400();
+
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
 
