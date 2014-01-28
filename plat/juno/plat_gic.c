@@ -28,120 +28,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
 #include <arch_helpers.h>
 #include <platform.h>
 #include <gic.h>
-#include <debug.h>
 
 
-/*******************************************************************************
- * TODO: Revisit if priorities are being set such that no non-secure interrupt
- * can have a higher priority than a secure one as recommended in the GICv2 spec
- ******************************************************************************/
-
-/*******************************************************************************
- * This function does some minimal GICv3 configuration. The Firmware itself does
- * not fully support GICv3 at this time and relies on GICv2 emulation as
- * provided by GICv3. This function allows software (like Linux) in later stages
- * to use full GICv3 features.
- ******************************************************************************/
-void gicv3_cpuif_setup(void)
-{
-	unsigned int scr_val, val;
-	uintptr_t base;
-
-	/*
-	 * When CPUs come out of reset they have their GICR_WAKER.ProcessorSleep
-	 * bit set. In order to allow interrupts to get routed to the CPU we
-	 * need to clear this bit if set and wait for GICR_WAKER.ChildrenAsleep
-	 * to clear (GICv3 Architecture specification 5.4.23).
-	 * GICR_WAKER is NOT banked per CPU, compute the correct base address
-	 * per CPU.
-	 */
-	base = gicv3_get_rdist(GICR_BASE, read_mpidr());
-	if (base == (uintptr_t)NULL) {
-		/* No re-distributor base address. This interface cannot be
-		 * configured.
-		 */
-		panic();
-	}
-
-	val = gicr_read_waker(base);
-
-	val &= ~WAKER_PS;
-	gicr_write_waker(base, val);
-	dsb();
-
-	/* We need to wait for ChildrenAsleep to clear. */
-	val = gicr_read_waker(base);
-	while (val & WAKER_CA) {
-		val = gicr_read_waker(base);
-	}
-
-	/*
-	 * We need to set SCR_EL3.NS in order to see GICv3 non-secure state.
-	 * Restore SCR_EL3.NS again before exit.
-	 */
-	scr_val = read_scr();
-	write_scr(scr_val | SCR_NS_BIT);
-
-	/*
-	 * By default EL2 and NS-EL1 software should be able to enable GICv3
-	 * System register access without any configuration at EL3. But it turns
-	 * out that GICC PMR as set in GICv2 mode does not affect GICv3 mode. So
-	 * we need to set it here again. In order to do that we need to enable
-	 * register access. We leave it enabled as it should be fine and might
-	 * prevent problems with later software trying to access GIC System
-	 * Registers.
-	 */
-	val = read_icc_sre_el3();
-	write_icc_sre_el3(val | ICC_SRE_EN | ICC_SRE_SRE);
-
-	val = read_icc_sre_el2();
-	write_icc_sre_el2(val | ICC_SRE_EN | ICC_SRE_SRE);
-
-	write_icc_pmr_el1(GIC_PRI_MASK);
-
-	/* Restore SCR_EL3 */
-	write_scr(scr_val);
-}
-
-/*******************************************************************************
- * This function does some minimal GICv3 configuration when cores go
- * down.
- ******************************************************************************/
-void gicv3_cpuif_deactivate(void)
-{
-	unsigned int val;
-	uintptr_t base;
-
-	/*
-	 * When taking CPUs down we need to set GICR_WAKER.ProcessorSleep and
-	 * wait for GICR_WAKER.ChildrenAsleep to get set.
-	 * (GICv3 Architecture specification 5.4.23).
-	 * GICR_WAKER is NOT banked per CPU, compute the correct base address
-	 * per CPU.
-	 */
-	base = gicv3_get_rdist(GICR_BASE, read_mpidr());
-	if (base == (uintptr_t)NULL) {
-		/* No re-distributor base address. This interface cannot be
-		 * configured.
-		 */
-		panic();
-	}
-
-	val = gicr_read_waker(base);
-	val |= WAKER_PS;
-	gicr_write_waker(base, val);
-	dsb();
-
-	/* We need to wait for ChildrenAsleep to set. */
-	val = gicr_read_waker(base);
-	while ((val & WAKER_CA) == 0) {
-		val = gicr_read_waker(base);
-	}
-}
+/* Value used to initialise Non-Secure irq priorities four at a time */
+#define DEFAULT_NS_PRIORITY_X4 \
+	(GIC_HIGHEST_NS_PRIORITY | \
+	(GIC_HIGHEST_NS_PRIORITY << 8) | \
+	(GIC_HIGHEST_NS_PRIORITY << 16) | \
+	(GIC_HIGHEST_NS_PRIORITY << 24))
 
 
 /*******************************************************************************
@@ -152,21 +49,11 @@ void gic_cpuif_setup(unsigned int gicc_base)
 {
 	unsigned int val;
 
-	val = gicc_read_iidr(gicc_base);
-
-	/*
-	 * If GICv3 we need to do a bit of additional setup. We want to
-	 * allow default GICv2 behaviour but allow the next stage to
-	 * enable full gicv3 features.
-	 */
-	if (((val >> GICC_IIDR_ARCH_SHIFT) & GICC_IIDR_ARCH_MASK) >= 3) {
-		gicv3_cpuif_setup();
-	}
-
-	val = ENABLE_GRP0 | FIQ_EN | FIQ_BYP_DIS_GRP0;
-	val |= IRQ_BYP_DIS_GRP0 | FIQ_BYP_DIS_GRP1 | IRQ_BYP_DIS_GRP1;
-
 	gicc_write_pmr(gicc_base, GIC_PRI_MASK);
+
+	val = ENABLE_GRP0 | FIQ_EN;
+	val |= FIQ_BYP_DIS_GRP0 | IRQ_BYP_DIS_GRP0;
+	val |= FIQ_BYP_DIS_GRP1 | IRQ_BYP_DIS_GRP1;
 	gicc_write_ctlr(gicc_base, val);
 }
 
@@ -184,16 +71,15 @@ void gic_cpuif_deactivate(unsigned int gicc_base)
 	val |= FIQ_BYP_DIS_GRP1 | FIQ_BYP_DIS_GRP0;
 	val |= IRQ_BYP_DIS_GRP0 | IRQ_BYP_DIS_GRP1;
 	gicc_write_ctlr(gicc_base, val);
+}
 
-	val = gicc_read_iidr(gicc_base);
+static void gic_set_secure(unsigned int gicd_base, unsigned id)
+{
+	/* Set interrupt as Group 0 */
+	gicd_clr_igroupr(gicd_base, id);
 
-	/*
-	 * If GICv3 we need to do a bit of additional setup. Make sure the
-	 * RDIST is put to sleep.
-	 */
-	if (((val >> GICC_IIDR_ARCH_SHIFT) & GICC_IIDR_ARCH_MASK) >= 3) {
-		gicv3_cpuif_deactivate();
-	}
+	/* Set priority to max */
+	gicd_set_ipriorityr(gicd_base, id, GIC_HIGHEST_SEC_PRIORITY);
 }
 
 /*******************************************************************************
@@ -202,37 +88,31 @@ void gic_cpuif_deactivate(unsigned int gicc_base)
  ******************************************************************************/
 void gic_pcpu_distif_setup(unsigned int gicd_base)
 {
-	gicd_write_igroupr(gicd_base, 0, ~0);
+	unsigned i;
 
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_PHY_TIMER);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_0);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_1);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_2);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_3);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_4);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_5);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_6);
-	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_7);
+	/* Mark all 32 PPI interrupts as Group 1 (non-secure) */
+	mmio_write_32(gicd_base + GICD_IGROUPR, 0xffffffffu);
 
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY);
+	/* Setup PPI priorities doing four at a time */
+	for (i = 0; i < 32; i += 4)
+		mmio_write_32(gicd_base + GICD_IPRIORITYR + i, DEFAULT_NS_PRIORITY_X4);
 
-	gicd_set_isenabler(gicd_base, IRQ_SEC_PHY_TIMER);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_0);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_1);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_2);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_3);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_4);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_5);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_6);
-	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_7);
+	/* Configure those PPIs we want as secure, and enable them. */
+	static const char sec_irq[] = {
+		IRQ_SEC_PHY_TIMER,
+		IRQ_SEC_SGI_0,
+		IRQ_SEC_SGI_1,
+		IRQ_SEC_SGI_2,
+		IRQ_SEC_SGI_3,
+		IRQ_SEC_SGI_4,
+		IRQ_SEC_SGI_5,
+		IRQ_SEC_SGI_6,
+		IRQ_SEC_SGI_7
+	};
+	for (i = 0; i < sizeof(sec_irq) / sizeof(sec_irq[0]); i++) {
+		gic_set_secure(gicd_base, sec_irq[i]);
+		gicd_set_isenabler(gicd_base, sec_irq[i]);
+	}
 }
 
 /*******************************************************************************
@@ -240,33 +120,46 @@ void gic_pcpu_distif_setup(unsigned int gicd_base)
  * cold boot. It marks out the secure SPIs, PPIs & SGIs and enables them. It
  * then enables the secure GIC distributor interface.
  ******************************************************************************/
-void gic_distif_setup(unsigned int gicd_base)
+static void gic_distif_setup(unsigned int gicd_base)
 {
-	unsigned int ctr, num_ints, ctlr;
+	unsigned int i, ctlr;
+	const unsigned int ITLinesNumber =
+				gicd_read_typer(gicd_base) & IT_LINES_NO_MASK;
 
 	/* Disable the distributor before going further */
 	ctlr = gicd_read_ctlr(gicd_base);
 	ctlr &= ~(ENABLE_GRP0 | ENABLE_GRP1);
 	gicd_write_ctlr(gicd_base, ctlr);
 
-	/*
-	 * Mark out non-secure interrupts. Calculate number of
-	 * IGROUPR registers to consider. Will be equal to the
-	 * number of IT_LINES
-	 */
-	num_ints = gicd_read_typer(gicd_base) & IT_LINES_NO_MASK;
-	num_ints++;
-	for (ctr = 0; ctr < num_ints; ctr++)
-		gicd_write_igroupr(gicd_base, ctr << IGROUPR_SHIFT, ~0);
+	/* Mark all lines of SPIs as Group 1 (non-secure) */
+	for (i = 0; i < ITLinesNumber; i++)
+		mmio_write_32(gicd_base + GICD_IGROUPR + 4 + i * 4, 0xffffffffu);
 
-	/* Configure secure interrupts now */
-	gicd_clr_igroupr(gicd_base, IRQ_TZ_WDOG);
-	gicd_set_ipriorityr(gicd_base, IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY);
+	/* Setup SPI priorities doing four at a time */
+	for (i = 0; i < ITLinesNumber * 32; i += 4)
+		mmio_write_32(gicd_base + GICD_IPRIORITYR + 32 + i, DEFAULT_NS_PRIORITY_X4);
+
+	/* Configure the SPIs we want as secure */
+	static const char sec_irq[] = {
+		IRQ_MHU,
+		IRQ_GPU_SMMU_0,
+		IRQ_GPU_SMMU_1,
+		IRQ_ETR_SMMU,
+		IRQ_TZC400,
+		IRQ_TZ_WDOG
+	};
+	for (i = 0; i < sizeof(sec_irq) / sizeof(sec_irq[0]); i++)
+		gic_set_secure(gicd_base, sec_irq[i]);
+
+	/* Route watchdog interrupt to this CPU and enable it. */
 	gicd_set_itargetsr(gicd_base, IRQ_TZ_WDOG,
 			   platform_get_core_pos(read_mpidr()));
 	gicd_set_isenabler(gicd_base, IRQ_TZ_WDOG);
+
+	/* Now setup the PPIs */
 	gic_pcpu_distif_setup(gicd_base);
 
+	/* Enable Group 0 (secure) interrupts */
 	gicd_write_ctlr(gicd_base, ctlr | ENABLE_GRP0);
 }
 

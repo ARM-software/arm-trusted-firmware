@@ -171,7 +171,15 @@
 #define GICH_BASE			0x2c04f000
 #define GICV_BASE			0x2c06f000
 
-#define IRQ_TZ_WDOG			86
+
+#define IRQ_MHU			69
+#define IRQ_GPU_SMMU_0		71
+#define IRQ_GPU_SMMU_1		73
+#define IRQ_ETR_SMMU		75
+#define IRQ_TZC400		80
+#define IRQ_TZ_WDOG		86
+
+
 #define IRQ_SEC_PHY_TIMER		29
 #define IRQ_SEC_SGI_0			8
 #define IRQ_SEC_SGI_1			9
