@@ -46,8 +46,11 @@ Making Changes
 
 *   Make commits of logical units. See these general [Git guidelines] for
     contributing to a project.
-*   Follow the [Linux coding style]; this style is re-used for the ARM Trusted
-    Firmware project.
+*   Follow the [Linux coding style]; this style is enforced for the ARM Trusted
+    Firmware project (style errors only, not warnings).
+    *   Use the checkpatch.pl script provided with the Linux source tree. A
+        Makefile target is provided for convenience (see section 2 in the
+        [User Guide]).
 *   Keep the commits on topic. If you need to fix another bug or make another
     enhancement, please create a separate [issue] and address it on a separate
     topic branch.

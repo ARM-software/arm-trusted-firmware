@@ -36,8 +36,12 @@ else
   KBUILD_VERBOSE = 0
 endif
 
+CHECKPATCH_ARGS		=	--no-tree --no-signoff
+CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff
+
 ifeq "${KBUILD_VERBOSE}" "0"
 	Q=@
+	CHECKCODE_ARGS	+=	--no-summary --terse
 else
 	Q=
 endif
@@ -102,7 +106,7 @@ ifneq (${PLAT},all)
   include bl31/bl31.mk
 endif
 
-.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope
+.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope locate-checkpatch checkcodebase checkpatch
 .SUFFIXES:
 
 
@@ -167,11 +171,23 @@ bl1:			${BUILD_BL1} ${BUILD_PLAT}/bl1.bin
 bl2:			${BUILD_BL2} ${BUILD_PLAT}/bl2.bin
 bl31:			${BUILD_BL31} ${BUILD_PLAT}/bl31.bin
 
+BASE_COMMIT		?=	origin/master
+
 ifeq (${PLAT},all)
   ifeq (${MAKECMDGOALS},clean)
     $(error "Please select a platform with PLAT=<platform>. You can use 'make distclean' to clean up all platform builds")
   endif
 endif
+
+locate-checkpatch:
+ifndef CHECKPATCH
+	$(error "Please set CHECKPATCH to point to the Linux checkpatch.pl file, eg: CHECKPATCH=../linux/script/checkpatch.pl")
+else
+ifeq (,$(wildcard ${CHECKPATCH}))
+	$(error "The file CHECKPATCH points to cannot be found, use eg: CHECKPATCH=../linux/script/checkpatch.pl")
+endif
+endif
+
 clean:
 			@echo "  CLEAN"
 			${Q}rm -rf ${BUILD_PLAT}
@@ -186,6 +202,18 @@ dump:
 			${Q}${OD} -d ${BUILD_BL1}/bl1.elf > ${BUILD_BL1}/bl1.dump
 			${Q}${OD} -d ${BUILD_BL2}/bl2.elf > ${BUILD_BL2}/bl2.dump
 			${Q}${OD} -d ${BUILD_BL31}/bl31.elf > ${BUILD_BL31}/bl31.dump
+
+checkcodebase:		locate-checkpatch
+			@echo "  CHECKING STYLE"
+			@if test -d .git ; then	\
+				git ls-files | while read GIT_FILE ; do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ; done ;	\
+			 else			\
+				 find . -type f -not -iwholename "*.git*" -not -iwholename "*build*" -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
+			 fi
+
+checkpatch:		locate-checkpatch
+			@echo "  CHECKING STYLE"
+			@git format-patch --stdout ${BASE_COMMIT} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
 
 ${BUILD_DIRS}:
 			${Q}mkdir -p "$@"
@@ -267,19 +295,22 @@ cscope:
 	${Q}cscope -b -q -k
 
 help:
-	@echo "usage: ${MAKE} PLAT=<all|${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|dump>"
+	@echo "usage: ${MAKE} PLAT=<all|${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|checkcodebase|checkpatch|dump>"
 	@echo ""
 	@echo "PLAT is used to specify which platform you wish to build."
 	@echo ""
 	@echo "Supported Targets:"
-	@echo "  all        build the BL1, BL2 and BL31 binaries"
-	@echo "  bl1        build the BL1 binary"
-	@echo "  bl2        build the BL2 binary"
-	@echo "  bl31       build the BL31 binary"
-	@echo "  clean      Clean the build for the selected platform"
+	@echo "  all            Build the BL1, BL2 and BL31 binaries"
+	@echo "  bl1            Build the BL1 binary"
+	@echo "  bl2            Build the BL2 binary"
+	@echo "  bl31           Build the BL31 binary"
+	@echo "  checkcodebase  Check the coding style of the entire source tree"
+	@echo "  checkpatch     Check the coding style on changes in the current"
+	@echo "                 branch against BASE_COMMIT (default origin/master)"
+	@echo "  clean          Clean the build for the selected platform"
 	@echo "  cscope     Generate cscope index"
-	@echo "  distclean  Remove all build artifacts for all platforms"
-	@echo "  dump       Generate object file dumps"
+	@echo "  distclean      Remove all build artifacts for all platforms"
+	@echo "  dump           Generate object file dumps"
 	@echo ""
 	@echo "note: most build targets require PLAT to be set to a specific platform."
 	@echo ""

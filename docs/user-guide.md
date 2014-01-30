@@ -141,6 +141,29 @@ Extra debug options can be passed to the build system by setting `CFLAGS`:
 NOTE: The Foundation FVP does not provide a debugger interface.
 
 
+#### Checking source code style
+
+When making changes to the source for submission to the project, the source
+must be in compliance with the Linux style guide, and to assist with this check
+the project Makefile contains two targets, which both utilise the checkpatch.pl
+script that ships with the Linux source tree.
+
+To check the entire source tree, you must first download a copy of checkpatch.pl
+(or the full Linux source), set the CHECKPATCH environment variable to point to
+the script and build the target checkcodebase:
+
+    make CHECKPATCH=../linux/scripts/checkpatch.pl checkcodebase
+
+To just check the style on the files that differ between your local branch and
+the remote master, use:
+
+    make CHECKPATCH=../linux/scripts/checkpatch.pl checkpatch
+
+If you wish to check your patch against something other than the remote master,
+set the BASE_COMMIT variable to your desired branch.  By default, BASE_COMMIT
+is set to 'origin/master'.
+
+
 ### Obtaining the normal world software
 
 #### Obtaining UEFI
