@@ -50,7 +50,8 @@ The following tools are required to use the ARM Trusted Firmware:
 
 *   `ia32-libs` package
 
-*   `build-essential` and `uuid-dev` packages for building UEFI
+*   `build-essential` and `uuid-dev` packages for building UEFI and the Firmware
+    Image Package(FIP) tool
 
 *   `bc` and `ncurses-dev` packages for building Linux
 
@@ -80,12 +81,14 @@ To build the software for the FVPs, follow these steps:
 
         cd arm-trusted-firmware
 
-3.  Set the compiler path and build:
+3.  Set the compiler path, specify a Normal World (BL3-3) image and build:
 
-        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=fvp
+        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- BL33=<path-to-bl33> make PLAT=fvp
 
     By default this produces a release version of the build. To produce a debug
-    version instead, refer to the "Debugging options" section below.
+    version instead, refer to the "Debugging options" section below. UEFI can be
+    used as the BL3-3 image, refer to the "Obtaining the normal world software"
+    section below.
 
     The build process creates products in a `build` directory tree, building
     the objects and binaries for each boot loader stage in separate
@@ -97,10 +100,17 @@ To build the software for the FVPs, follow these steps:
     *   `build/<platform>/<build-type>/bl31.bin`
 
     ... where `<platform>` currently defaults to `fvp` and `<build-type>` is
-    either `debug` or `release`.
+    either `debug` or `release`. A Firmare Image Package(FIP) will be created as
+    part of the build. It contains all boot loader images except for `bl1.bin`.
 
-4.  Copy the three boot loader binary files to the directory from which the FVP
-    will be launched. Symbolic links of the same names may be created instead.
+     *   `build/<platform>/<build-type>/fip.bin`
+
+    For more information on the `fip.bin` image see the "Firmware Image Package"
+    section below
+
+4.  Copy the `bl1.bin` and `fip.bin` binary files to the directory from which
+    the FVP will be launched. Symbolic links of the same names may be created
+    instead.
 
 5.  (Optional) Build products for a specific build variant can be removed using:
 
@@ -168,6 +178,8 @@ is set to 'origin/master'.
 
 #### Obtaining UEFI
 
+TODO: Update UEFI GitHub hash.
+
 Clone the [EDK2 (EFI Development Kit 2) source code][EDK2] from Github. This
 version supports the Base and Foundation FVPs. EDK2 is an open source
 implementation of the UEFI specification:
@@ -186,20 +198,19 @@ these steps:
 
 2.  Copy build config templates to local workspace
 
-        export EDK_TOOLS_PATH=$(pwd)/BaseTools
-        . edksetup.sh $(pwd)/BaseTools/
+        . edksetup.sh
 
 3.  Rebuild EDK2 host tools
 
-        make -C "$EDK_TOOLS_PATH" clean
-        make -C "$EDK_TOOLS_PATH"
+        make -C BaseTools clean
+        make -C BaseTools
 
 4.  Build the software
 
         CROSS_COMPILE=<absolute-path-to-aarch64-gcc>/bin/aarch64-none-elf- \
-        build -v -d3 -a AARCH64 -t ARMGCC                                  \
-        -p ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc       \
-        -D ARM_FOUNDATION_FVP=1
+        make -f ArmPlatformPkg/Scripts/Makefile EDK2_ARCH=AARCH64          \
+        EDK2_DSC=ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc \
+        EDK2_TOOLCHAIN=ARMGCC EDK2_MACROS="-n 6 -D ARM_FOUNDATION_FVP=1"
 
     The EDK2 binary for use with the ARM Trusted Firmware can then be found
     here:
@@ -219,10 +230,14 @@ location.  To do this, build the software as described above with the
 
     -D ARM_FVP_LEGACY_GICV2_LOCATION=1
 
-Then `make clean` before rebuilding EDK2.
+Then clean the source tree before rebuilding EDK2:
 
-The EDK2 binary `FVP_AARCH64_EFI.fd` should be loaded into FVP FLASH0 via model
-parameters as described in the "Running the Software" section below.
+    make -f ArmPlatformPkg/Scripts/Makefile EDK2_ARCH=AARCH64          \
+    EDK2_DSC=ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc \
+    EDK2_TOOLCHAIN=ARMGCC clean
+
+The EDK2 binary `FVP_AARCH64_EFI.fd` should be specified as `BL33` to the
+Trusted Firmware Makefile. See the "Building the Trusted Firmware" section.
 
 #### Obtaining a Linux kernel
 
@@ -421,13 +436,17 @@ The following `Foundation_v8` parameters should be used to boot Linux with
 NOTE: Using the `--block-device` parameter is not necessary if a Linux RAM-disk
 file-system is used (see the "Obtaining a File-system" section above).
 
+NOTE: The `--data="<path to FIP binary>"@0x8000000` parameter is used to load a
+Firmware Image Package at the start of NOR FLASH0 (see the "Building the
+Trusted Firmware" section above).
+
     <path-to>/Foundation_v8                   \
     --cores=4                                 \
     --no-secure-memory                        \
     --visualization                           \
     --gicv3                                   \
     --data="<path to bl1.bin>"@0x0            \
-    --data="<path to UEFI binary>"@0x8000000  \
+    --data="<path to FIP binary>"@0x8000000   \
     --block-device="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
 The default use-case for the Foundation FVP is to enable the GICv3 device in
@@ -450,6 +469,10 @@ NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
 if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
 section above).
 
+NOTE: The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
+Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
+section above).
+
     <path-to>/FVP_Base_AEMv8A-AEMv8A                    \
     -C pctl.startup=0.0.0.0                             \
     -C bp.secure_memory=0                               \
@@ -458,7 +481,7 @@ section above).
     -C cache_state_modelled=1                           \
     -C bp.pl011_uart0.untimed_fifos=1                   \
     -C bp.secureflashloader.fname=<path to bl1.bin>     \
-    -C bp.flashloader0.fname=<path to UEFI binary>      \
+    -C bp.flashloader0.fname=<path to FIP binary>       \
     -C bp.virtioblockdevice.image_path="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
 #### Running on the Cortex-A57-A53 Base FVP
@@ -474,13 +497,17 @@ NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
 if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
 section above).
 
+NOTE: The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
+Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
+section above).
+
     <path-to>/FVP_Base_Cortex-A57x4-A53x4               \
     -C pctl.startup=0.0.0.0                             \
     -C bp.secure_memory=0                               \
     -C cache_state_modelled=1                           \
     -C bp.pl011_uart0.untimed_fifos=1                   \
     -C bp.secureflashloader.fname=<path to bl1.bin>     \
-    -C bp.flashloader0.fname=<path to UEFI binary>      \
+    -C bp.flashloader0.fname=<path to FIP binary>       \
     -C bp.virtioblockdevice.image_path="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
 ### Configuring the GICv2 memory map
@@ -533,7 +560,7 @@ legacy VE memory map:
     --visualization                          \
     --no-gicv3                               \
     --data="<path to bl1.bin>"@0x0           \
-    --data="<path to UEFI binary>"@0x8000000 \
+    --data="<path to FIP binary>"@0x8000000  \
     --block-device="<path-to>/vexpress64-openembedded_lamp-armv8_20130927-7.img"
 
 Explicit configuration of the `SYS_ID` register is not required.
@@ -723,11 +750,10 @@ BL1 execution continues as follows:
 
 1.  BL1 determines the amount of free trusted SRAM memory available by
     calculating the extent of its own data section, which also resides in
-    trusted SRAM. BL1 loads a BL2 raw binary image through semi-hosting, at a
-    platform-specific base address. The filename of the BL2 raw binary image on
-    the host file system must be `bl2.bin`. If the BL2 image file is not present
-    or if there is not enough free trusted SRAM the following error message
-    is printed:
+    trusted SRAM. BL1 loads a BL2 raw binary image from platform storage, at a
+    platform-specific base address. The filename of the BL2 raw binary image
+    must be `bl2.bin`. If the BL2 image file is not present or if there is not
+    enough free trusted SRAM the following error message is printed:
 
         "Failed to load boot loader stage 2 (BL2) firmware."
 
@@ -777,31 +803,32 @@ the BL3-1 image.
 
 #### Normal world image load
 
-BL2 loads a rich boot firmware image (UEFI). The image executes in the normal
-world. BL2 relies on BL3-1 to pass control to the normal world software image it
-loads. Hence, BL2 populates a platform-specific area of memory with the
-entrypoint and Current Program Status Register (`CPSR`) of the normal world
-software image. The entrypoint is the load address of the normal world software
-image. The `CPSR` is determined as specified in Section 5.13 of the [PSCI PDD]
-[PSCI]. This information is passed to BL3-1.
+BL2 loads the normal world firmware image (e.g. UEFI). BL2 relies on BL3-1 to
+pass control to the normal world software image it loads. Hence, BL2 populates
+a platform-specific area of memory with the entrypoint and Current Program
+Status Register (`CPSR`) of the normal world software image. The entrypoint is
+the load address of the normal world software image. The `CPSR` is determined as
+specified in Section 5.13 of the [PSCI PDD] [PSCI]. This information is passed
+to BL3-1.
 
 ##### UEFI firmware load
 
-By default, BL2 assumes the UEFI image is present at the base of NOR flash0
-(`0x08000000`), and arranges for BL3-1 to pass control to that location. As
-mentioned earlier, BL2 populates platform-specific memory with the entrypoint
-and `CPSR` of the UEFI image.
+BL2 loads the BL3-3 (UEFI) image into non-secure memory as defined by the
+platform (`0x88000000` for FVPs), and arranges for BL3-1 to pass control to that
+location. As mentioned earlier, BL2 populates platform-specific memory with the
+entrypoint and `CPSR` of the BL3-3 image.
 
 #### BL3-1 image load and execution
 
 BL2 execution continues as follows:
 
-1.  BL2 loads the BL3-1 image into a platform-specific address in trusted SRAM.
-    This is done using semi-hosting. The image is identified by the file
-    `bl31.bin` on the host file-system. If there is not enough memory to load
-    the image or the image is missing it leads to an assertion failure. If the
-    BL3-1 image loads successfully, BL1 updates the amount of trusted SRAM used
-    and available for use by BL3-1. This information is populated at a
+1.  BL2 loads the BL3-1 image into a platform-specific address in trusted SRAM
+    and the BL3-3 image into a platform specific address in non-secure DRAM.
+    The images are identified by the files `bl31.bin` and `bl33.bin` in
+    platform storage. If there is not enough memory to load the images or the
+    images are missing it leads to an assertion failure. If the BL3-1 image
+    loads successfully, BL1 updates the amount of trusted SRAM used and
+    available for use by BL3-1. This information is populated at a
     platform-specific memory address.
 
 2.  BL2 passes control back to BL1 by raising an SMC, providing BL1 with the
@@ -920,7 +947,7 @@ memory address populated by BL2.
 ### Normal world software execution
 
 BL3-1 uses the entrypoint information provided by BL2 to jump to the normal
-world software image at the highest available Exception Level (EL2 if
+world software image (BL3-3) at the highest available Exception Level (EL2 if
 available, otherwise EL1).
 
 
@@ -954,7 +981,7 @@ and BL2. This memory layout is illustrated by the following diagram.
 
 Each bootloader stage image layout is described by its own linker script. The
 linker scripts export some symbols into the program symbol table. Their values
-correspond to particular addresses. The trusted firwmare code can refer to these
+correspond to particular addresses. The trusted firmware code can refer to these
 symbols to figure out the image memory layout.
 
 Linker symbols follow the following naming convention in the trusted firmware.
@@ -998,7 +1025,7 @@ must be provided for each bootloader stage and some are specific to a given
 bootloader stage.
 
 The linker scripts define some extra, optional symbols. They are not actually
-used by any code but they help in undertanding the bootloader images' memory
+used by any code but they help in understanding the bootloader images' memory
 layout as they are easy to spot in the link map files.
 
 #### Common linker symbols
@@ -1196,6 +1223,135 @@ following view:
     ------------ 0x04000000
 
 
+### Firmware Image Package (FIP)
+
+Using a Firmware Image Package (FIP) allows for packing bootloader images (and
+potentially other payloads) into a single archive that can be loaded by the ARM
+Trusted Firmware from non-volatile platform storage. A driver to load images
+from a FIP has been added to the storage layer and allows a package to be read
+from supported platform storage. A tool to create Firmware Image Packages is
+also provided and described below.
+
+#### Firmware Image Package layout
+
+The FIP layout consists of a table of contents (ToC) followed by payload data.
+The ToC itself has a header followed by one or more table entries. The ToC is
+terminated by an end marker entry. All ToC entries describe some payload data
+that has been appended to the end of the binary package. With the information
+provided in the ToC entry the corresponding payload data can be retrieved.
+
+    ------------------
+    | ToC Header     |
+    |----------------|
+    | ToC Entry 0    |
+    |----------------|
+    | ToC Entry 1    |
+    |----------------|
+    | ToC End Marker |
+    |----------------|
+    |                |
+    |     Data 0     |
+    |                |
+    |----------------|
+    |                |
+    |     Data 1     |
+    |                |
+    ------------------
+
+The ToC header and entry formats are described in the header file
+`include/firmware_image_package.h`. This file is used by both the tool and the
+ARM Trusted firmware.
+
+The ToC header has the following fields:
+    `name`: The name of the ToC. This is currently used to validate the header.
+    `serial_number`: A non-zero number provided by the creation tool
+    `flags`: Flags associated with this data. None are yet defined.
+
+A ToC entry has the following fields:
+    `uuid`: All files are referred to by a pre-defined Universally Unique
+        IDentifier [UUID] . The UUIDs are defined in
+        `include/firmware_image_package`. The platform translates the requested
+        image name into the corresponding UUID when accessing the package.
+    `offset_address`: The offset address at which the corresponding payload data
+        can be found. The offset is calculated from the ToC base address.
+    `size`: The size of the corresponding payload data in bytes.
+    `flags`: Flags associated with this entry. Non are yet defined.
+
+#### Creating a Firmware Image Package
+
+The FIP creation tool can be used to pack specified images into a binary package
+that can be loaded by the ARM Trusted Firmware from platform storage. The tool
+currently only supports packing bootloader images. Additional image definitions
+can be added to the tool as required.
+
+The tool can be found in `tools/fip_create`. Instructions on how to build and
+use the tool follow.
+
+Build the tool:
+
+    make -C tools/fip_create
+
+It is recommended to remove the build artifacts before rebuilding:
+
+    make -C tools/fip_create clean
+
+Create a Firmware package that contains existing FVP BL2 and BL3-1 images:
+
+    # fip_create --help to print usage information
+    # fip_create <fip_name> <images to add> [--dump to show result]
+    ./tools/fip_create/fip_create fip.bin --dump \
+       --bl2 build/fvp/debug/bl2.bin --bl31 build/fvp/debug/bl31.bin
+
+     Firmware Image Package ToC:
+    ---------------------------
+    - Trusted Boot Firmware BL2: offset=0x88, size=0x81E8
+      file: 'build/fvp/debug/bl2.bin'
+    - EL3 Runtime Firmware BL3-1: offset=0x8270, size=0xC218
+      file: 'build/fvp/debug/bl31.bin'
+    ---------------------------
+    Creating "fip.bin"
+
+View the contents of an existing Firmware package:
+
+    ./tools/fip_create/fip_create fip.bin --dump
+
+     Firmware Image Package ToC:
+    ---------------------------
+    - Trusted Boot Firmware BL2: offset=0x88, size=0x81E8
+    - EL3 Runtime Firmware BL3-1: offset=0x8270, size=0xC218
+   ---------------------------
+
+Existing package entries can be individially updated:
+
+    # Change the BL2 from Debug to Release version
+    ./tools/fip_create/fip_create fip.bin --dump \
+      --bl2 build/fvp/release/bl2.bin
+
+    Firmware Image Package ToC:
+    ---------------------------
+    - Trusted Boot Firmware BL2: offset=0x88, size=0x7240
+      file: 'build/fvp/release/bl2.bin'
+    - EL3 Runtime Firmware BL3-1: offset=0x72C8, size=0xC218
+   ---------------------------
+    Updating "fip.bin"
+
+
+#### Loading from a Firmware Image Package (FIP)
+
+The Firmware Image Package (FIP) driver can load images from a binary package on
+non-volatile platform storage. For the FVPs this currently NOR FLASH. For
+information on how to load a FIP into FVP NOR FLASH see the "Running the
+software" section.
+
+Bootloader images are loaded according to the platform policy as specified in
+`plat/<platform>/plat_io_storage.c`. For the FVPs this means the platform will
+attempt to load images from a Firmware Image Package located at the start of NOR
+FLASH0.
+
+Currently the FVPs policy only allows for loading of known images. The platform
+policy can be modified to add additional images.
+
+
 ### Code Structure
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -1256,3 +1412,4 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [DS-5]:             http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
+[UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"

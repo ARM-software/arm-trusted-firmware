@@ -13,7 +13,8 @@ Contents
     *   Boot Loader stage 2 (BL2)
     *   Boot Loader stage 3-1 (BL3-1)
     *   PSCI implementation (in BL3-1)
-4. C Library
+4.  C Library
+5.  Storage abstraction layer
 
 - - - - - - - - - - - - - - - - - -
 
@@ -105,7 +106,17 @@ constants defined. In the ARM FVP port, this file is found in
 *   **#define : BL2_IMAGE_NAME**
 
     Name of the BL2 binary image on the host file-system. This name is used by
-    BL1 to load BL2 into secure memory using semi-hosting.
+    BL1 to load BL2 into secure memory from non-volatile storage.
+
+*   **#define : BL31_IMAGE_NAME**
+
+    Name of the BL3-1 binary image on the host file-system. This name is used by
+    BL2 to load BL3-1 into secure memory from platform storage.
+
+*   **#define : BL33_IMAGE_NAME**
+
+    Name of the BL3-3 binary image on the host file-system. This name is used by
+    BL2 to load BL3-3 into non-secure memory from platform storage.
 
 *   **#define : PLATFORM_CACHE_LINE_SIZE**
 
@@ -170,6 +181,10 @@ constants defined. In the ARM FVP port, this file is found in
 *   **#define : BL31_BASE**
 
     Defines the base address in secure RAM where BL2 loads the BL3-1 binary
+    image. Must be aligned on a page-size boundary.
+
+*   **#define : NS_IMAGE_OFFSET**
+    Defines the base address in non-secure DRAM where BL2 loads the BL3-3 binary
     image. Must be aligned on a page-size boundary.
 
 
@@ -325,7 +340,7 @@ warm boot. For each CPU, BL1 is responsible for the following tasks:
     specific address in the BL3-1 image in the same processor mode as it was
     when released from reset.
 
-5.  Loading the BL2 image in secure memory using semi-hosting at the
+5.  Loading the BL2 image from non-volatile storage into secure memory at the
     address specified by the platform defined constant `BL2_BASE`.
 
 6.  Populating a `meminfo` structure with the following information in memory,
@@ -434,6 +449,9 @@ MMU and data cache have been enabled.
 In the ARM FVP port, it zeros out the ZI section, enables the system level
 implementation of the generic timer counter and initializes the console.
 
+This function is also responsible for initializing the storage abstraction layer
+which is used to load further bootloader images.
+
 This function helps fulfill requirement 5 above.
 
 
@@ -485,16 +503,17 @@ The BL2 stage is executed only by the primary CPU, which is determined in BL1
 using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
 `BL2_BASE`. BL2 executes in Secure EL1 and is responsible for:
 
-1.  Loading the BL3-1 binary image in secure RAM using semi-hosting. To load the
-    BL3-1 image, BL2 makes use of the `meminfo` structure passed to it by BL1.
-    This structure allows BL2 to calculate how much secure RAM is available for
-    its use. The platform also defines the address in secure RAM where BL3-1 is
-    loaded through the constant `BL31_BASE`. BL2 uses this information to
-    determine if there is enough memory to load the BL3-1 image.
+1.  Loading the BL3-1 binary image into secure RAM from non-volatile storage. To
+    load the BL3-1 image, BL2 makes use of the `meminfo` structure passed to it
+    by BL1. This structure allows BL2 to calculate how much secure RAM is
+    available for its use. The platform also defines the address in secure RAM
+    where BL3-1 is loaded through the constant `BL31_BASE`. BL2 uses this
+    information to determine if there is enough memory to load the BL3-1 image.
 
-2.  Arranging to pass control to a normal world BL image that has been
-    pre-loaded at a platform-specific address. This address is determined using
-    the `plat_get_ns_image_entrypoint()` function described below.
+2.  Loading the normal world BL3-3 binary image into non-secure DRAM from
+    platform storage and arranging for BL3-1 to pass control to this image. This
+    address is determined using the `plat_get_ns_image_entrypoint()` function
+    described below.
 
     BL2 populates an `el_change_info` structure in memory provided by the
     platform with information about how BL3-1 should pass control to the normal
@@ -535,7 +554,9 @@ by the primary CPU. The arguments to this function are:
 The platform must copy the contents of the `meminfo` structure into a private
 variable as the original memory may be subsequently overwritten by BL2. The
 copied structure is made available to all BL2 code through the
-`bl2_plat_sec_mem_layout()` function.
+`bl2_plat_sec_mem_layout()` function. The non-secure memory extents used for
+loading BL3-3 is also initialized in this function. Access to this information
+is provided by the `bl2_get_ns_mem_layout()` function.
 
 
 ### Function : bl2_plat_arch_setup() [mandatory]
@@ -570,6 +591,9 @@ accesses it in `bl2_main()`.
 The ARM FVP port initializes this pointer to the base address of Secure DRAM
 (`0x06000000`).
 
+This function is also responsible for initializing the storage abstraction layer
+which is used to load further bootloader images.
+
 
 ### Variable : unsigned char bl2_el_change_mem_ptr[EL_CHANGE_MEM_SIZE] [mandatory]
 
@@ -589,6 +613,20 @@ initialization in `bl2_plat_arch_setup()`. It is only called by the primary CPU.
 
 The purpose of this function is to return a pointer to a `meminfo` structure
 populated with the extents of secure RAM available for BL2 to use. See
+`bl2_early_platform_setup()` above.
+
+
+### Function : bl2_get_ns_mem_layout() [mandatory]
+
+    Argument : void
+    Return   : meminfo *
+
+This function should only be called on the cold boot path. It may execute with
+the MMU and data caches enabled if the platform port does the necessary
+initialization in `bl2_plat_arch_setup()`. It is only called by the primary CPU.
+
+The purpose of this function is to return a pointer to a `meminfo` structure
+populated with the extents of non-secure DRAM available for BL2 to use. See
 `bl2_early_platform_setup()` above.
 
 
@@ -620,8 +658,7 @@ As previously described, BL2 is responsible for arranging for control to be
 passed to a normal world BL image through BL3-1. This function returns the
 entrypoint of that image, which BL3-1 uses to jump to it.
 
-The ARM FVP port assumes that flash memory has been pre-loaded with the UEFI
-image, and so returns the base address of flash memory.
+BL2 is responsible for loading the normal world BL3-3 image (e.g. UEFI).
 
 
 3.2 Boot Loader Stage 3-1 (BL3-1)
@@ -979,6 +1016,55 @@ as found in the `lib/libc` directory.
 A copy of the [FreeBSD] sources can be downloaded with `git`.
 
     git clone git://github.com/freebsd/freebsd.git -b origin/release/9.2.0
+
+
+5.  Storage abstraction layer
+-----------------------------
+
+In order to improve platform independence and portability an storage abstraction
+layer is used to load data from non-volatile platform storage.
+
+Each platform should register devices and their drivers via the Storage layer.
+These drivers then need to be initialized by bootloader phases as
+required in their respective `blx_platform_setup()` functions.  Currently
+storage access is only required by BL1 and BL2 phases. The `load_image()`
+function uses the storage layer to access non-volatile platform storage.
+
+It is mandatory to implement at least one storage driver. For the FVP the
+Firmware Image Package(FIP) driver is provided as the default means to load data
+from storage (see the "Firmware Image Package" section in the [User Guide]).
+The storage layer is described in the header file `include/io_storage.h`.  The
+implementation of the common library is in `lib/io_storage.c` and the driver
+files are located in `drivers/io/`.
+
+Each IO driver must provide `io_dev_*` structures, as described in
+`drivers/io/io_driver.h`.  These are returned via a mandatory registration
+function that is called on platform initialization.  The semi-hosting driver
+implementation in `io_semihosting.c` can be used as an example.
+
+The Storage layer provides mechanisms to initialize storage devices before
+IO operations are called.  The basic operations supported by the layer
+include `open()`, `close()`, `read()`, `write()`, `size()` and `seek()`.
+Drivers do not have to implement all operations, but each platform must
+provide at least one driver for a device capable of supporting generic
+operations such as loading a bootloader image.
+
+The current implementation only allows for known images to be loaded by the
+firmware.  These images are specified by using their names, as defined in the
+`platform.h` file.  The platform layer (`plat_get_image_source()`) then returns
+a reference to a device and a driver-specific `spec` which will be understood
+by the driver to allow access to the image data.
+
+The layer is designed in such a way that is it possible to chain drivers with
+other drivers.  For example, file-system drivers may be implemented on top of
+physical block devices, both represented by IO devices with corresponding
+drivers.  In such a case, the file-system "binding" with the block device may
+be deferred until the file-system device is initialised.
+
+The abstraction currently depends on structures being statically allocated
+by the drivers and callers, as the system does not yet provide a means of
+dynamically allocating memory.  This may also have the affect of limiting the
+amount of open resources per driver.
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
