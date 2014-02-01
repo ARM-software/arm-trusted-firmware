@@ -36,8 +36,11 @@ else
   KBUILD_VERBOSE = 0
 endif
 
-CHECKPATCH_ARGS		=	--no-tree --no-signoff
-CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff
+# Checkpatch ignores
+CHECK_IGNORE		=	--ignore COMPLEX_MACRO
+
+CHECKPATCH_ARGS		=	--no-tree --no-signoff ${CHECK_IGNORE}
+CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 
 ifeq "${KBUILD_VERBOSE}" "0"
 	Q=@

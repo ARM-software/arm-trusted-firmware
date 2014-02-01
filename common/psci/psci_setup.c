@@ -36,6 +36,7 @@
 #include <platform.h>
 #include <psci_private.h>
 #include <context_mgmt.h>
+#include <runtime_svc.h>
 
 /*******************************************************************************
  * Per cpu non-secure contexts used to program the architectural state prior
@@ -275,8 +276,9 @@ static unsigned int psci_init_aff_map(unsigned long mpidr,
  * level within the 'psci_aff_map' array. This allows restricting search of a
  * node at an affinity level between the indices in the limits array.
  ******************************************************************************/
-void psci_setup(unsigned long mpidr)
+int32_t psci_setup(void)
 {
+	unsigned long mpidr = read_mpidr();
 	int afflvl, affmap_idx, max_afflvl;
 	aff_map_node *node;
 
@@ -335,5 +337,16 @@ void psci_setup(unsigned long mpidr)
 	platform_setup_pm(&psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
-	return;
+	return 0;
 }
+
+/* Register PSCI as a run time service */
+DECLARE_RT_SVC(
+		psci,
+
+		OEN_STD_START,
+		OEN_STD_END,
+		SMC_TYPE_FAST,
+		psci_setup,
+		NULL
+);

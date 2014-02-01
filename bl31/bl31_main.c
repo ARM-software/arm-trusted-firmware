@@ -57,7 +57,6 @@ void bl31_arch_next_el_setup(void);
 void bl31_main(void)
 {
 	el_change_info *image_info;
-	unsigned long mpidr = read_mpidr();
 
 	/* Perform remaining generic architectural setup from EL3 */
 	bl31_arch_setup();
@@ -72,7 +71,7 @@ void bl31_main(void)
 	bl31_lib_init();
 
 	/* Initialize the runtime services e.g. psci */
-	runtime_svc_init(mpidr);
+	runtime_svc_init();
 
 	/* Clean caches before re-entering normal world */
 	dcsw_op_all(DCCSW);

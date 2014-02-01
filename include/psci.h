@@ -156,7 +156,6 @@ extern int psci_cpu_on(unsigned long,
 		       unsigned long);
 extern void psci_aff_on_finish_entry(void);
 extern void psci_aff_suspend_finish_entry(void);
-extern void psci_setup(unsigned long);
 #endif /*__ASSEMBLY__*/
 
 

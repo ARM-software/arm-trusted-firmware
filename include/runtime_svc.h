@@ -38,13 +38,18 @@
  ******************************************************************************/
 #define FUNCID_TYPE_SHIFT		31
 #define FUNCID_CC_SHIFT			30
-#define FUNCID_OWNER_SHIFT		24
+#define FUNCID_OEN_SHIFT		24
 #define FUNCID_NUM_SHIFT		0
 
 #define FUNCID_TYPE_MASK		0x1
 #define FUNCID_CC_MASK			0x1
-#define FUNCID_OWNER_MASK		0x3f
+#define FUNCID_OEN_MASK			0x3f
 #define FUNCID_NUM_MASK			0xffff
+
+#define FUNCID_TYPE_WIDTH		1
+#define FUNCID_CC_WIDTH			1
+#define FUNCID_OEN_WIDTH		6
+#define FUNCID_NUM_WIDTH		16
 
 #define GET_SMC_CC(id)			((id >> FUNCID_CC_SHIFT) & \
 					 FUNCID_CC_MASK)
@@ -52,6 +57,28 @@
 #define SMC_64				1
 #define SMC_32				0
 #define SMC_UNK				0xffffffff
+#define SMC_TYPE_FAST			1
+#define SMC_TYPE_STD			0
+
+/*******************************************************************************
+ * Owning entity number definitions inside the function id as per the SMC
+ * calling convention
+ ******************************************************************************/
+#define OEN_ARM_START			0
+#define OEN_ARM_END			0
+#define OEN_CPU_START			1
+#define OEN_CPU_END			1
+#define OEN_SIP_START			2
+#define OEN_SIP_END			2
+#define OEN_OEM_START			3
+#define OEN_OEM_END			3
+#define OEN_STD_START			4	/* Standard Calls */
+#define OEN_STD_END			4
+#define OEN_TAP_START			48	/* Trusted Applications */
+#define OEN_TAP_END			49
+#define OEN_TOS_START			50	/* Trusted OS */
+#define OEN_TOS_END			63
+#define OEN_LIMIT			64
 
 /*******************************************************************************
  * Constants to indicate type of exception to the common exception handler.
@@ -112,8 +139,77 @@
 #define GPREGS_FP_OFF		0x100
 #define GPREGS_LR_OFF		0x108
 
+/*
+ * Constants to allow the assembler access a runtime service
+ * descriptor
+ */
+#define SIZEOF_RT_SVC_DESC	32
+#define RT_SVC_DESC_INIT	16
+#define RT_SVC_DESC_HANDLE	24
+
+/*
+ * The function identifier has 6 bits for the owning entity number and
+ * single bit for the type of smc call. When taken together these
+ * values limit the maximum number of runtime services to 128.
+ */
+#define MAX_RT_SVCS		128
+
 #ifndef __ASSEMBLY__
 
+/* Prototype for runtime service initializing function */
+typedef int32_t (*rt_svc_init)(void);
+
+/* Convenience macros to return from SMC handler */
+#define SMC_RET1(_h, _x0)	{ \
+	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X0, (_x0)); \
+	return _x0; \
+}
+#define SMC_RET2(_h, _x0, _x1)	{ \
+	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X1, (_x1)); \
+	SMC_RET1(_h, (_x0)); \
+}
+#define SMC_RET3(_h, _x0, _x1, _x2)	{ \
+	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X2, (_x2)); \
+	SMC_RET2(_h, (_x0), (_x1)); \
+}
+#define SMC_RET4(_h, _x0, _x1, _x2, _x3)	{ \
+	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X3, (_x3)); \
+	SMC_RET3(_h, (_x0), (_x1), (_x2)); \
+}
+
+
+/*
+ * Convenience macros to access general purpose registers using handle provided
+ * to SMC handler. These takes the offset values defined in context.h
+ */
+#define SMC_GET_GP(_h, _g) \
+	read_ctx_reg(get_gpregs_ctx(_h), (_g));
+#define SMC_SET_GP(_h, _g, _v) \
+	write_ctx_reg(get_gpregs_ctx(_h), (_g), (_v));
+
+/*
+ * Convenience macros to access EL3 context registers using handle provided to
+ * SMC handler. These takes the offset values defined in context.h
+ */
+#define SMC_GET_EL3(_h, _e) \
+	read_ctx_reg(get_el3state_ctx(_h), (_e));
+#define SMC_SET_EL3(_h, _e, _v) \
+	write_ctx_reg(get_el3state_ctx(_h), (_e), (_v));
+
+/*
+ * Prototype for runtime service SMC handler function. x0 (SMC Function ID) to
+ * x4 are as passed by the caller. Rest of the arguments to SMC and the context
+ * can be accessed using the handle pointer. The cookie parameter is reserved
+ * for future use
+ */
+typedef uint64_t (*rt_svc_handle)(uint32_t smc_fid,
+				  uint64_t x1,
+				  uint64_t x2,
+				  uint64_t x3,
+				  uint64_t x4,
+				  void *cookie,
+				  void *handle,
+				  uint64_t flags);
 typedef struct {
 	uint64_t x0;
 	uint64_t x1;
@@ -150,9 +246,31 @@ typedef struct {
 	 * Alignment constraint which allows save & restore of fp & lr on the
 	 * stack during exception handling
 	 */
-	uint64_t fp  __attribute__((__aligned__(16)));
+	uint64_t fp __aligned(16);
 	uint64_t lr;
-} __attribute__((__aligned__(16))) gp_regs;
+} __aligned(16) gp_regs;
+
+typedef struct {
+	uint8_t start_oen;
+	uint8_t end_oen;
+	uint8_t call_type;
+	const char *name;
+	rt_svc_init init;
+	rt_svc_handle handle;
+} rt_svc_desc;
+
+/*
+ * Convenience macro to declare a service descriptor
+ */
+#define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch) \
+	static const rt_svc_desc __svc_desc_ ## _name \
+		__attribute__ ((section("rt_svc_descs"), used)) = { \
+			_start, \
+			_end, \
+			_type, \
+			#_name, \
+			_setup, \
+			_smch }
 
 /*******************************************************************************
  * Compile time assertions to ensure that:
@@ -164,11 +282,39 @@ typedef struct {
 CASSERT((sizeof(gp_regs) == SIZEOF_GPREGS), assert_sizeof_gpregs_mismatch);
 CASSERT(GPREGS_FP_OFF == __builtin_offsetof(gp_regs, fp), \
 	assert_gpregs_fp_offset_mismatch);
+/*
+ * Compile time assertions related to the 'rt_svc_desc' structure to:
+ * 1. ensure that the assembler and the compiler view of the size
+ *    of the structure are the same.
+ * 2. ensure that the assembler and the compiler see the initialisation
+ *    routine at the same offset.
+ * 2. ensure that the assembler and the compiler see the handler
+ *    routine at the same offset.
+ */
+CASSERT((sizeof(rt_svc_desc) == SIZEOF_RT_SVC_DESC), \
+	assert_sizeof_rt_svc_desc_mismatch);
+CASSERT(RT_SVC_DESC_INIT == __builtin_offsetof(rt_svc_desc, init), \
+	assert_rt_svc_desc_init_offset_mismatch);
+CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc, handle), \
+	assert_rt_svc_desc_handle_offset_mismatch);
+
+
+/*
+ * This macro combines the call type and the owning entity number corresponding
+ * to a runtime service to generate a unique owning entity number. This unique
+ * oen is used to access an entry in the 'rt_svc_descs_indices' array. The entry
+ * contains the index of the service descriptor in the 'rt_svc_descs' array.
+ */
+#define get_unique_oen(oen, call_type)	((oen & FUNCID_OEN_MASK) |	\
+					((call_type & FUNCID_TYPE_MASK) \
+					 << FUNCID_OEN_WIDTH))
 
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-extern void runtime_svc_init(unsigned long mpidr);
+extern void runtime_svc_init();
+extern uint64_t __RT_SVC_DESCS_START__;
+extern uint64_t __RT_SVC_DESCS_END__;
 
 #endif /*__ASSEMBLY__*/
 #endif /* __RUNTIME_SVC_H__ */

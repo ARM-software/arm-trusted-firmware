@@ -50,6 +50,13 @@ SECTIONS
         *bl31_entrypoint.o(.text)
         *(.text)
         *(.rodata*)
+
+        /* Ensure 8-byte alignment for descriptors */
+        . = ALIGN(8);
+        __RT_SVC_DESCS_START__ = .;
+        *(rt_svc_descs)
+        __RT_SVC_DESCS_END__ = .;
+
         *(.vectors)
         __RO_END_UNALIGNED__ = .;
         /*
