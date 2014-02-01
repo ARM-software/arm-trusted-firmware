@@ -214,7 +214,6 @@
 
 #define GET_RW(mode)		((mode >> MODE_RW_SHIFT) & 0x1)
 #define GET_EL(mode)		((mode >> MODE_EL_SHIFT) & 0x3)
-#define GET_SP(mode)		((mode >> MODE_SP_SHIFT) & 0x1)
 #define PSR_MODE(rw, el, sp)	(rw << MODE_RW_SHIFT | el << MODE_EL_SHIFT \
 				 | sp << MODE_SP_SHIFT)
 

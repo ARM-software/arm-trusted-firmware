@@ -64,6 +64,7 @@ BL31_OBJS		+=	bl31_arch_setup.o			\
 				bakery_lock.o				\
 				runtime_svc.o				\
 				early_exceptions.o			\
+				context_mgmt.o				\
 				context.o
 
 BL31_ENTRY_POINT	:=	bl31_entrypoint
