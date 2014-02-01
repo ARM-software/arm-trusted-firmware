@@ -35,6 +35,16 @@
 #include <console.h>
 #include <platform.h>
 #include <psci_private.h>
+#include <context_mgmt.h>
+
+/*******************************************************************************
+ * Per cpu non-secure contexts used to program the architectural state prior
+ * return to the normal world.
+ * TODO: Use the memory allocator to set aside memory for the contexts instead
+ * of relying on platform defined constants. Using PSCI_NUM_AFFS will be an
+ * overkill.
+ ******************************************************************************/
+static cpu_context psci_ns_context[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Routines for retrieving the node corresponding to an affinity level instance
@@ -148,6 +158,7 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 				   unsigned int idx)
 {
 	unsigned char state;
+	uint32_t linear_id;
 	psci_aff_map[idx].mpidr = mpidr;
 	psci_aff_map[idx].level = level;
 	bakery_lock_init(&psci_aff_map[idx].lock);
@@ -172,6 +183,17 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 
 		psci_aff_map[idx].data = psci_ns_einfo_idx;
 		psci_ns_einfo_idx++;
+
+		/*
+		 * Associate a non-secure context with this affinity
+		 * instance through the context management library.
+		 */
+		linear_id = platform_get_core_pos(mpidr);
+		assert(linear_id < PLATFORM_CORE_COUNT);
+
+		cm_set_context(mpidr,
+				(void *) &psci_ns_context[linear_id],
+				NON_SECURE);
 	}
 
 	return;
@@ -258,10 +280,6 @@ void psci_setup(unsigned long mpidr)
 	int afflvl, affmap_idx, max_afflvl;
 	aff_map_node *node;
 
-	/* Initialize psci's internal state */
-	memset(psci_aff_map, 0, sizeof(psci_aff_map));
-	memset(psci_aff_limits, 0, sizeof(psci_aff_limits));
-	memset(psci_ns_entry_info, 0, sizeof(psci_ns_entry_info));
 	psci_ns_einfo_idx = 0;
 	psci_plat_pm_ops = NULL;
 

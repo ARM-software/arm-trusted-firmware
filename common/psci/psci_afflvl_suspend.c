@@ -36,6 +36,7 @@
 #include <platform.h>
 #include <psci.h>
 #include <psci_private.h>
+#include <context_mgmt.h>
 
 typedef int (*afflvl_suspend_handler)(unsigned long,
 				      aff_map_node *,
@@ -104,19 +105,12 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 		return rc;
 
 	/*
-	 * Arch. management: Save the secure context, flush the
+	 * Arch. management: Save the EL3 state in the 'cpu_context'
+	 * structure that has been allocated for this cpu, flush the
 	 * L1 caches and exit intra-cluster coherency et al
 	 */
-	psci_suspend_context[index].sec_sysregs.sctlr = read_sctlr();
-	psci_suspend_context[index].sec_sysregs.scr = read_scr();
-	psci_suspend_context[index].sec_sysregs.cptr = read_cptr();
-	psci_suspend_context[index].sec_sysregs.cpacr = read_cpacr();
-	psci_suspend_context[index].sec_sysregs.cntfrq = read_cntfrq_el0();
-	psci_suspend_context[index].sec_sysregs.mair = read_mair();
-	psci_suspend_context[index].sec_sysregs.tcr = read_tcr();
-	psci_suspend_context[index].sec_sysregs.ttbr = read_ttbr0();
-	psci_suspend_context[index].sec_sysregs.pstate =
-		read_daif() & (DAIF_ABT_BIT | DAIF_DBG_BIT);
+	cm_el3_sysregs_context_save(NON_SECURE);
+	rc = PSCI_E_SUCCESS;
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
@@ -420,20 +414,11 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	index = cpu_node->data;
 
 	/*
-	 * Arch. management: Restore the stashed secure architectural
-	 * context in the right order.
+	 * Arch. management: Restore the stashed EL3 architectural
+	 * context from the 'cpu_context' structure for this cpu.
 	 */
-	write_daif(read_daif() | psci_suspend_context[index].sec_sysregs.pstate);
-	write_mair(psci_suspend_context[index].sec_sysregs.mair);
-	write_tcr(psci_suspend_context[index].sec_sysregs.tcr);
-	write_ttbr0(psci_suspend_context[index].sec_sysregs.ttbr);
-	write_sctlr(psci_suspend_context[index].sec_sysregs.sctlr);
-
-	/* MMU and coherency should be enabled by now */
-	write_scr(psci_suspend_context[index].sec_sysregs.scr);
-	write_cptr(psci_suspend_context[index].sec_sysregs.cptr);
-	write_cpacr(psci_suspend_context[index].sec_sysregs.cpacr);
-	write_cntfrq_el0(psci_suspend_context[index].sec_sysregs.cntfrq);
+	cm_el3_sysregs_context_restore(NON_SECURE);
+	rc = PSCI_E_SUCCESS;
 
 	/*
 	 * Generic management: Now we just need to retrieve the

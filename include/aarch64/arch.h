@@ -311,23 +311,6 @@
 #define EC_BITS(x)			(x >> ESR_EC_SHIFT) & ESR_EC_MASK
 
 #ifndef __ASSEMBLY__
-
-/*******************************************************************************
- * The following data structure holds the system register context across cpu
- * save/restore operations
- ******************************************************************************/
-typedef struct {
-	unsigned long sctlr;
-	unsigned long scr;
-	unsigned long cptr;
-	unsigned long cpacr;
-	unsigned long cntfrq;
-	unsigned long mair;
-	unsigned long tcr;
-	unsigned long ttbr;
-	unsigned long pstate;
-} sysregs_context;
-
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/

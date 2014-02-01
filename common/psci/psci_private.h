@@ -77,10 +77,9 @@ typedef struct {
 	/* Align the suspend level to allow per-cpu lockless access */
 	int suspend_level
 	__attribute__((__aligned__(CACHE_WRITEBACK_GRANULE)));
-	sysregs_context sec_sysregs;
 } suspend_context;
 
-typedef aff_map_node *mpidr_aff_map_nodes[MPIDR_MAX_AFFLVL];
+typedef aff_map_node (*mpidr_aff_map_nodes[MPIDR_MAX_AFFLVL]);
 typedef unsigned int (*afflvl_power_on_finisher)(unsigned long,
 						 aff_map_node *);
 
@@ -105,7 +104,7 @@ extern unsigned short psci_get_state(aff_map_node *node);
 extern unsigned short psci_get_phys_state(aff_map_node *node);
 extern void psci_set_state(aff_map_node *node, unsigned short state);
 extern void psci_get_ns_entry_info(unsigned int index);
-extern unsigned long mpidr_set_aff_inst(unsigned long,unsigned char, int);
+extern unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
 extern int psci_validate_mpidr(unsigned long, int);
 extern int get_power_on_target_afflvl(unsigned long mpidr);
 extern void psci_afflvl_power_on_finish(unsigned long,
