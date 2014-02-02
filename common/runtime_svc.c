@@ -39,6 +39,7 @@
 #include <bl_common.h>
 #include <psci.h>
 #include <runtime_svc.h>
+#include <context.h>
 #include <debug.h>
 
 /*******************************************************************************
@@ -140,5 +141,13 @@ void runtime_svc_init()
 
 	return;
 error:
+	panic();
+}
+
+void fault_handler(void *handle)
+{
+	gp_regs_next *gpregs_ctx = get_gpregs_ctx(handle);
+	ERROR("Unhandled synchronous fault. Register dump @ 0x%x \n",
+	      gpregs_ctx);
 	panic();
 }

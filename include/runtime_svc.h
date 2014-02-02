@@ -143,7 +143,8 @@
  * Constants to allow the assembler access a runtime service
  * descriptor
  */
-#define SIZEOF_RT_SVC_DESC	32
+#define RT_SVC_SIZE_LOG2	5
+#define SIZEOF_RT_SVC_DESC	(1 << RT_SVC_SIZE_LOG2)
 #define RT_SVC_DESC_INIT	16
 #define RT_SVC_DESC_HANDLE	24
 
@@ -155,6 +156,13 @@
 #define MAX_RT_SVCS		128
 
 #ifndef __ASSEMBLY__
+
+/* Various flags passed to SMC handlers */
+#define SMC_FROM_SECURE		(0 << 0)
+#define SMC_FROM_NON_SECURE	(1 << 0)
+
+#define is_caller_non_secure(_f)	(!!(_f & SMC_FROM_NON_SECURE))
+#define is_caller_secure(_f)		(!(is_caller_non_secure(_f)))
 
 /* Prototype for runtime service initializing function */
 typedef int32_t (*rt_svc_init)(void);
@@ -288,7 +296,7 @@ CASSERT(GPREGS_FP_OFF == __builtin_offsetof(gp_regs, fp), \
  *    of the structure are the same.
  * 2. ensure that the assembler and the compiler see the initialisation
  *    routine at the same offset.
- * 2. ensure that the assembler and the compiler see the handler
+ * 3. ensure that the assembler and the compiler see the handler
  *    routine at the same offset.
  */
 CASSERT((sizeof(rt_svc_desc) == SIZEOF_RT_SVC_DESC), \

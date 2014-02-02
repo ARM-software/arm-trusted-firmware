@@ -39,18 +39,18 @@
 
 
 	.macro	dcache_line_size  reg, tmp
-	mrs     \tmp, ctr_el0
+	mrs	\tmp, ctr_el0
 	ubfx	\tmp, \tmp, #16, #4
-	mov     \reg, #4
-	lsl     \reg, \reg, \tmp
+	mov	\reg, #4
+	lsl	\reg, \reg, \tmp
 	.endm
 
 
 	.macro	icache_line_size  reg, tmp
-	mrs     \tmp, ctr_el0
-	and     \tmp, \tmp, #0xf
-	mov     \reg, #4
-	lsl     \reg, \reg, \tmp
+	mrs	\tmp, ctr_el0
+	and	\tmp, \tmp, #0xf
+	mov	\reg, #4
+	lsl	\reg, \reg, \tmp
 	.endm
 
 

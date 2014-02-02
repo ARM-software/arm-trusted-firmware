@@ -35,13 +35,42 @@
 #include <arch.h>
 
 /*******************************************************************************
+ * Constants that allow assembler code to access members of and the 'gp_regs'
+ * structure at their correct offsets.
+ ******************************************************************************/
+#define CTX_GPREGS_OFFSET	0x0
+#define CTX_GPREG_X0		0x0
+#define CTX_GPREG_X1		0x8
+#define CTX_GPREG_X2		0x10
+#define CTX_GPREG_X3		0x18
+#define CTX_GPREG_X4		0x20
+#define CTX_GPREG_X5		0x28
+#define CTX_GPREG_X6		0x30
+#define CTX_GPREG_X7		0x38
+#define CTX_GPREG_X8		0x40
+#define CTX_GPREG_X9		0x48
+#define CTX_GPREG_X10		0x50
+#define CTX_GPREG_X11		0x58
+#define CTX_GPREG_X12		0x60
+#define CTX_GPREG_X13		0x68
+#define CTX_GPREG_X14		0x70
+#define CTX_GPREG_X15		0x78
+#define CTX_GPREG_X16		0x80
+#define CTX_GPREG_X17		0x88
+#define CTX_GPREG_X18		0x90
+#define CTX_GPREG_SP_EL0	0x98
+#define CTX_GPREG_LR		0xa0
+/* Unused space to allow registers to be stored as pairs */
+#define CTX_GPREGS_END		0xb0
+
+/*******************************************************************************
  * Constants that allow assembler code to access members of and the 'el3_state'
  * structure at their correct offsets. Note that some of the registers are only
  * 32-bits wide but are stored as 64-bit values for convenience
  ******************************************************************************/
-#define CTX_EL3STATE_OFFSET	0x0
-#define CTX_SAVED_SP_EL3	0x0
-#define CTX_SAVED_SP_EL0	0x8
+#define CTX_EL3STATE_OFFSET	(CTX_GPREGS_OFFSET + CTX_GPREGS_END)
+#define CTX_EXCEPTION_SP	0x0
+#define CTX_RUNTIME_SP		0x8
 #define CTX_SPSR_EL3		0x10
 #define CTX_ELR_EL3		0x18
 #define CTX_SCR_EL3		0x20
@@ -153,9 +182,18 @@
 	}  __aligned(16) name
 
 /* Constants to determine the size of individual context structures */
+#define CTX_GPREG_ALL		(CTX_GPREGS_END >> DWORD_SHIFT)
 #define CTX_SYSREG_ALL		(CTX_SYSREGS_END >> DWORD_SHIFT)
 #define CTX_FPREG_ALL		(CTX_FPREGS_END >> DWORD_SHIFT)
 #define CTX_EL3STATE_ALL	(CTX_EL3STATE_END >> DWORD_SHIFT)
+
+/*
+ * AArch64 general purpose register context structure. Only x0-x18, lr
+ * are saved as the compiler is expected to preserve the remaining
+ * callee saved registers if used by the C runtime and the assembler
+ * does not touch the remaining.
+ */
+DEFINE_REG_STRUCT(gp_regs_next, CTX_GPREG_ALL);
 
 /*
  * AArch64 EL1 system register context structure for preserving the
@@ -195,6 +233,7 @@ DEFINE_REG_STRUCT(el3_state, CTX_EL3STATE_ALL);
  * correspond to either the secure or the non-secure state.
  */
 typedef struct {
+	gp_regs_next gpregs_ctx;
 	el3_state el3state_ctx;
 	el1_sys_regs sysregs_ctx;
 	fp_regs fpregs_ctx;
@@ -204,12 +243,15 @@ typedef struct {
 #define get_el3state_ctx(h)	(&((cpu_context *) h)->el3state_ctx)
 #define get_fpregs_ctx(h)	(&((cpu_context *) h)->fpregs_ctx)
 #define get_sysregs_ctx(h)	(&((cpu_context *) h)->sysregs_ctx)
+#define get_gpregs_ctx(h)	(&((cpu_context *) h)->gpregs_ctx)
 
 /*
  * Compile time assertions related to the 'cpu_context' structure to
  * ensure that the assembler and the compiler view of the offsets of
  * the structure members is the same.
  */
+CASSERT(CTX_GPREGS_OFFSET == __builtin_offsetof(cpu_context, gpregs_ctx), \
+	assert_core_context_gp_offset_mismatch);
 CASSERT(CTX_SYSREGS_OFFSET == __builtin_offsetof(cpu_context, sysregs_ctx), \
 	assert_core_context_sys_offset_mismatch);
 CASSERT(CTX_FPREGS_OFFSET == __builtin_offsetof(cpu_context, fpregs_ctx), \
@@ -229,6 +271,7 @@ void fpregs_context_restore(fp_regs *regs);
 
 #undef CTX_SYSREG_ALL
 #undef CTX_FP_ALL
+#undef CTX_GPREG_ALL
 #undef CTX_EL3STATE_ALL
 
 #endif /* __ASSEMBLY__ */
