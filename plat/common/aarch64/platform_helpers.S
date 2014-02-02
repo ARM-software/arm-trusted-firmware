@@ -42,11 +42,14 @@
 	.weak	plat_report_exception
 
 	/* -----------------------------------------------------
-	 * 512 bytes of coherent stack for each cpu
+	 * Coherent stack sizes for debug and release builds
 	 * -----------------------------------------------------
 	 */
-#define PCPU_DV_MEM_STACK_SIZE	0x200
-
+#if DEBUG
+#define PCPU_DV_MEM_STACK_SIZE	0x400
+#else
+#define PCPU_DV_MEM_STACK_SIZE	0x300
+#endif
 
 	.section	.text, "ax"; .align 3
 
