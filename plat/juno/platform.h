@@ -77,8 +77,6 @@
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/
-#define TZROM_BASE		0x00000000
-#define TZROM_SIZE		0x00010000
 
 #define MHU_SECURE_BASE		0x04000000
 #define MHU_SECURE_SIZE		0x00001000
@@ -93,6 +91,13 @@
 
 #define FLASH_BASE		0x08000000
 #define FLASH_SIZE		0x04000000
+
+#define BL1_ROM_BYPASS_OFFSET	0x03EC0000	// agreed BYPASS offset from start of NOR flash
+
+#ifndef TZROM_BASE
+#define TZROM_BASE		FLASH_BASE + BL1_ROM_BYPASS_OFFSET	// Use the agreed BYPASS address
+#endif
+#define TZROM_SIZE		0x00010000
 
 #define EMMC_BASE		0x0c000000
 #define EMMC_SIZE		0x04000000
