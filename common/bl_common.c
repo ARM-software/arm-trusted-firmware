@@ -251,6 +251,50 @@ static void dump_load_info(unsigned long image_load_addr,
 #endif
 }
 
+/* Generic function to return the size of an image */
+unsigned long image_size(const char *image_name)
+{
+	io_dev_handle dev_handle;
+	io_handle image_handle;
+	void *image_spec;
+	size_t image_size = 0;
+	int io_result = IO_FAIL;
+
+	assert(image_name != NULL);
+
+	/* Obtain a reference to the image by querying the platform layer */
+	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
+	if (io_result != IO_SUCCESS) {
+		WARN("Failed to obtain reference to image '%s' (%i)\n",
+			image_name, io_result);
+		return 0;
+	}
+
+	/* Attempt to access the image */
+	io_result = io_open(dev_handle, image_spec, &image_handle);
+	if (io_result != IO_SUCCESS) {
+		WARN("Failed to access image '%s' (%i)\n",
+			image_name, io_result);
+		return 0;
+	}
+
+	/* Find the size of the image */
+	io_result = io_size(image_handle, &image_size);
+	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
+		WARN("Failed to determine the size of the image '%s' file (%i)\n",
+			image_name, io_result);
+	}
+	io_result = io_close(image_handle);
+	/* Ignore improbable/unrecoverable error in 'close' */
+
+	/* TODO: Consider maintaining open device connection from this
+	 * bootloader stage
+	 */
+	io_result = io_dev_close(dev_handle);
+	/* Ignore improbable/unrecoverable error in 'dev_close' */
+
+	return image_size;
+}
 /*******************************************************************************
  * Generic function to load an image into the trusted RAM,
  * given a name, extents of free memory & whether the image should be loaded at
