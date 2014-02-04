@@ -174,6 +174,18 @@ static void init_tzc400(void)
 		);
 }
 
+#define PCIE_SECURE_REG		0x3000
+#define PCIE_SEC_ACCESS_MASK	((1 << 0) | (1 << 1)) /* REG and MEM access bits */
+
+static void init_pcie(void)
+{
+	/*
+	 * PCIE Root Complex Security settings to enable non-secure
+	 * access to config registers.
+	 */
+	mmio_write_32(PCIE_CONTROL_BASE + PCIE_SECURE_REG, PCIE_SEC_ACCESS_MASK);
+}
+
 
 /*******************************************************************************
  * Function which will perform any remaining platform-specific setup that can
@@ -183,6 +195,7 @@ void bl1_platform_setup(void)
 {
 	init_nic400();
 	init_tzc400();
+	init_pcie();
 
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
