@@ -133,6 +133,7 @@ extern void init_bl2_mem_layout(meminfo *,
 extern void init_bl31_mem_layout(const meminfo *,
 				 meminfo *,
 				 unsigned int) __attribute__((weak));
+extern unsigned long image_size(const char *);
 extern unsigned long load_image(meminfo *, const char *, unsigned int, unsigned long);
 extern void __dead2 run_image(unsigned long entrypoint,
 			      unsigned long spsr,
