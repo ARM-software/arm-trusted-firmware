@@ -48,15 +48,18 @@ void bl31_lib_init()
 	cm_init();
 }
 
-void bl31_arch_next_el_setup(void);
-
 /*******************************************************************************
  * BL31 is responsible for setting up the runtime services for the primary cpu
- * before passing control to the bootloader (UEFI) or Linux.
+ * before passing control to the bootloader (UEFI) or Linux. This function calls
+ * runtime_svc_init() which initializes all registered runtime services. The run
+ * time services would setup enough context for the core to swtich to the next
+ * exception level. When this function returns, the core will switch to the
+ * programmed exception level via. an ERET.
  ******************************************************************************/
 void bl31_main(void)
 {
-	el_change_info *image_info;
+	el_change_info *next_image_info;
+	uint32_t scr;
 
 	/* Perform remaining generic architectural setup from EL3 */
 	bl31_arch_setup();
@@ -76,10 +79,27 @@ void bl31_main(void)
 	/* Clean caches before re-entering normal world */
 	dcsw_op_all(DCCSW);
 
-	image_info = bl31_get_next_image_info();
+	/*
+	 * Setup minimal architectural state of the next highest EL to
+	 * allow execution in it immediately upon entering it.
+	 */
 	bl31_arch_next_el_setup();
-	change_el(image_info);
 
-	/* There is no valid reason for change_el() to return */
-	assert(0);
+	/* Program EL3 registers to enable entry into the next EL */
+	next_image_info = bl31_get_next_image_info();
+	scr = read_scr();
+	if (next_image_info->security_state == NON_SECURE)
+		scr |= SCR_NS_BIT;
+
+	/*
+	 * Tell the context mgmt. library to ensure that SP_EL3 points to
+	 * the right context to exit from EL3 correctly.
+	 */
+	cm_set_el3_eret_context(next_image_info->security_state,
+			next_image_info->entrypoint,
+			next_image_info->spsr,
+			scr);
+
+	/* Finally set the next context */
+	cm_set_next_eret_context(next_image_info->security_state);
 }

@@ -195,6 +195,9 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 		cm_set_context(mpidr,
 				(void *) &psci_ns_context[linear_id],
 				NON_SECURE);
+
+		/* Initialize exception stack in the context */
+		cm_init_exception_stack(mpidr, NON_SECURE);
 	}
 
 	return;
@@ -348,5 +351,5 @@ DECLARE_RT_SVC(
 		OEN_STD_END,
 		SMC_TYPE_FAST,
 		psci_setup,
-		NULL
+		psci_smc_handler
 );

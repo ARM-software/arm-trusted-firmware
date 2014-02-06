@@ -34,6 +34,7 @@
 #include <psci_private.h>
 #include <runtime_svc.h>
 #include <asm_macros.S>
+#include <cm_macros.S>
 
 	.globl	psci_aff_on_finish_entry
 	.globl	psci_aff_suspend_finish_entry
@@ -74,6 +75,13 @@ psci_aff_common_finish_entry:
 	msr	vbar_el3, x0
 	isb
 
+	/* ---------------------------------------------
+	 * Use SP_EL0 for the C runtime stack.
+	 * ---------------------------------------------
+	 */
+	msr	spsel, #0
+	isb
+
 	bl	read_mpidr
 	mov	x19, x0
 	bl	platform_set_coherent_stack
@@ -102,31 +110,19 @@ psci_aff_common_finish_entry:
 	bl	platform_set_stack
 
 	/* ---------------------------------------------
-	 * Now that the execution stack has been set
+	 * Now that the context management has been set
 	 * up, enable full runtime exception handling.
-	 * Since we're just about to leave this EL with
-	 * ERET, we don't need an ISB here
+	 * SP_EL3 is pointing to a 'cpu_context'
+	 * structure which has an exception stack
+	 * allocated. Since we're just about to leave
+	 * this EL with ERET, we don't need an ISB here
 	 * ---------------------------------------------
 	 */
 	adr	x0, runtime_exceptions
 	msr	vbar_el3, x0
 
-	/* --------------------------------------------
-	 * Use the size of the general purpose register
-	 * context to restore the register state
-	 * stashed by earlier code
-	 * --------------------------------------------
-	 */
-	sub	sp, sp, #SIZEOF_GPREGS
-	exception_exit	restore_regs
-
-	/* --------------------------------------------
-	 * Jump back to the non-secure world assuming
-	 * that the elr and spsr setup has been done
-	 * by the finishers
-	 * --------------------------------------------
-	 */
-	eret
+	zero_callee_saved_regs
+	b	el3_exit
 _panic:
 	b	_panic
 

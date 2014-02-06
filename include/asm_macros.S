@@ -54,18 +54,6 @@
 	.endm
 
 
-	.macro	exception_entry  func
-	stp	x29, x30, [sp, #-(SIZEOF_GPREGS - GPREGS_FP_OFF)]!
-	bl	\func
-	.endm
-
-
-	.macro	exception_exit  func
-	bl	\func
-	ldp	x29, x30, [sp], #(SIZEOF_GPREGS - GPREGS_FP_OFF)
-	.endm
-
-
 	.macro	smc_check  label
 	bl	read_esr
 	ubfx	x0, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH

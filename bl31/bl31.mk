@@ -49,7 +49,6 @@ vpath			%.S	lib/arch/${ARCH}			\
 
 BL31_OBJS		+=	bl31_arch_setup.o			\
 				bl31_entrypoint.o			\
-				exception_handlers.o			\
 				runtime_exceptions.o			\
 				bl31_main.o				\
 				psci_entry.o				\

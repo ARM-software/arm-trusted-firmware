@@ -36,6 +36,7 @@
 #include <platform.h>
 #include <psci.h>
 #include <psci_private.h>
+#include <context_mgmt.h>
 #include <runtime_svc.h>
 #include "debug.h"
 
@@ -86,7 +87,8 @@ int get_power_on_target_afflvl(unsigned long mpidr)
 	unsigned int state;
 
 	/* Retrieve our node from the topology tree */
-	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK, MPIDR_AFFLVL0);
+	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
+			MPIDR_AFFLVL0);
 	assert(node);
 
 	/*
@@ -222,12 +224,11 @@ int psci_validate_mpidr(unsigned long mpidr, int level)
 void psci_get_ns_entry_info(unsigned int index)
 {
 	unsigned long sctlr = 0, scr, el_status, id_aa64pfr0;
-	gp_regs *ns_gp_regs;
+	uint64_t mpidr = read_mpidr();
+	cpu_context *ns_entry_context;
+	gp_regs *ns_entry_gpregs;
 
 	scr = read_scr();
-
-	/* Switch to the non-secure view of the registers */
-	write_scr(scr | SCR_NS_BIT);
 
 	/* Find out which EL we are going to */
 	id_aa64pfr0 = read_id_aa64pfr0_el1();
@@ -257,23 +258,29 @@ void psci_get_ns_entry_info(unsigned int index)
 		write_sctlr_el1(sctlr);
 
 	/* Fulfill the cpu_on entry reqs. as per the psci spec */
-	write_scr(scr);
-	write_elr(psci_ns_entry_info[index].eret_info.entrypoint);
+	ns_entry_context = (cpu_context *) cm_get_context(mpidr, NON_SECURE);
+	assert(ns_entry_context);
 
 	/*
-	 * Set the general purpose registers to ~0 upon entry into the
-	 * non-secure world except for x0 which should contain the
-	 * context id & spsr. This is done directly on the "would be"
-	 * stack pointer. Prior to entry into the non-secure world, an
-	 * offset equivalent to the size of the 'gp_regs' structure is
-	 * added to the sp. This general purpose register context is
-	 * retrieved then.
+	 * Setup general purpose registers to return the context id and
+	 * prevent leakage of secure information into the normal world.
 	 */
-	ns_gp_regs = (gp_regs *) platform_get_stack(read_mpidr());
-	ns_gp_regs--;
-	memset(ns_gp_regs, ~0, sizeof(*ns_gp_regs));
-	ns_gp_regs->x0 = psci_ns_entry_info[index].context_id;
-	ns_gp_regs->spsr = psci_ns_entry_info[index].eret_info.spsr;
+	ns_entry_gpregs = get_gpregs_ctx(ns_entry_context);
+	write_ctx_reg(ns_entry_gpregs,
+		      CTX_GPREG_X0,
+		      psci_ns_entry_info[index].context_id);
+
+	/*
+	 * Tell the context management library to setup EL3 system registers to
+	 * be able to ERET into the ns state, and SP_EL3 points to the right
+	 * context to exit from EL3 correctly.
+	 */
+	cm_set_el3_eret_context(NON_SECURE,
+			psci_ns_entry_info[index].eret_info.entrypoint,
+			psci_ns_entry_info[index].eret_info.spsr,
+			scr);
+
+	cm_set_next_eret_context(NON_SECURE);
 }
 
 /*******************************************************************************
@@ -344,7 +351,7 @@ int psci_set_ns_entry_info(unsigned int index,
 		 */
 		spsr |= DAIF_ABT_BIT | DAIF_IRQ_BIT | DAIF_FIQ_BIT;
 		spsr <<= PSR_DAIF_SHIFT;
-		if(ee)
+		if (ee)
 			spsr |= SPSR32_EE_BIT;
 		spsr |= mode;
 
@@ -500,7 +507,7 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 	mpidr_aff_map_nodes mpidr_nodes;
 	int rc;
 
-	mpidr &= MPIDR_AFFINITY_MASK;;
+	mpidr &= MPIDR_AFFINITY_MASK;
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for

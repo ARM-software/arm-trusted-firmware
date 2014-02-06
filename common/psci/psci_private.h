@@ -151,6 +151,16 @@ extern int psci_afflvl_suspend(unsigned long,
 			       int,
 			       int);
 extern unsigned int psci_afflvl_suspend_finish(unsigned long, int, int);
+
+/* Private exported functions from psci_main.c */
+extern uint64_t psci_smc_handler(uint32_t smc_fid,
+				 uint64_t x1,
+				 uint64_t x2,
+				 uint64_t x3,
+				 uint64_t x4,
+				 void *cookie,
+				 void *handle,
+				 uint64_t flags);
 #endif /*__ASSEMBLY__*/
 
 #endif /* __PSCI_PRIVATE_H__ */

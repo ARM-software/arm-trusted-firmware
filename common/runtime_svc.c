@@ -41,6 +41,7 @@
 #include <runtime_svc.h>
 #include <context.h>
 #include <debug.h>
+#include <context_mgmt.h>
 
 /*******************************************************************************
  * The 'rt_svc_descs' array holds the runtime service descriptors exported by
@@ -146,7 +147,7 @@ error:
 
 void fault_handler(void *handle)
 {
-	gp_regs_next *gpregs_ctx = get_gpregs_ctx(handle);
+	gp_regs *gpregs_ctx = get_gpregs_ctx(handle);
 	ERROR("Unhandled synchronous fault. Register dump @ 0x%x \n",
 	      gpregs_ctx);
 	panic();

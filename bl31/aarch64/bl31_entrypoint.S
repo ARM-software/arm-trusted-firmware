@@ -31,6 +31,7 @@
 #include <bl_common.h>
 #include <platform.h>
 #include <arch.h>
+#include "cm_macros.S"
 
 
 	.globl	bl31_entrypoint
@@ -129,6 +130,12 @@ bl31_entrypoint: ; .type bl31_entrypoint, %function
 	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
 	bl	zeromem16
 
+	/* ---------------------------------------------
+	 * Use SP_EL0 for the C runtime stack.
+	 * ---------------------------------------------
+	 */
+	msr	spsel, #0
+
 	/* --------------------------------------------
 	 * Give ourselves a small coherent stack to
 	 * ease the pain of initializing the MMU
@@ -155,32 +162,26 @@ bl31_entrypoint: ; .type bl31_entrypoint, %function
 	bl	platform_set_stack
 
 	/* ---------------------------------------------
-	 * Use the more complex exception vectors now
-	 * the stacks are setup.
-	 * ---------------------------------------------
-	 */
-	adr	x1, runtime_exceptions
-	msr	vbar_el3, x1
-
-	/* ---------------------------------------------
-	 * Use SP_EL0 to initialize BL31. It allows us
-	 * to jump to the next image without having to
-	 * come back here to ensure all of the stack's
-	 * been popped out. run_image() is not nice
-	 * enough to reset the stack pointer before
-	 * handing control to the next stage.
-	 * ---------------------------------------------
-	 */
-	mov	x0, sp
-	msr	sp_el0, x0
-	msr	spsel, #0
-	isb
-
-	/* ---------------------------------------------
 	 * Jump to main function.
 	 * ---------------------------------------------
 	 */
 	bl	bl31_main
 
+	/* ---------------------------------------------
+	 * Use the more complex exception vectors now
+	 * that context management is setup. SP_EL3 is
+	 * pointing to a 'cpu_context' structure which
+	 * has an exception stack allocated. Since
+	 * we're just about to leave this EL with ERET,
+	 * we don't need an ISB here
+	 * ---------------------------------------------
+	 */
+	adr	x1, runtime_exceptions
+	msr	vbar_el3, x1
+
+	zero_callee_saved_regs
+	b	el3_exit
+
 _panic:
+	wfi
 	b	_panic

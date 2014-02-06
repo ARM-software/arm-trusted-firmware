@@ -35,6 +35,9 @@
 #include <console.h>
 #include <platform.h>
 #include <psci_private.h>
+#include <runtime_svc.h>
+#include <debug.h>
+#include <context_mgmt.h>
 
 /*******************************************************************************
  * PSCI frontend api for servicing SMCs. Described in the PSCI spec.
@@ -199,3 +202,70 @@ void psci_system_reset(void)
 	assert(0);
 }
 
+/*******************************************************************************
+ * PSCI top level handler for servicing SMCs.
+ ******************************************************************************/
+uint64_t psci_smc_handler(uint32_t smc_fid,
+			  uint64_t x1,
+			  uint64_t x2,
+			  uint64_t x3,
+			  uint64_t x4,
+			  void *cookie,
+			  void *handle,
+			  uint64_t flags)
+{
+	uint64_t rc;
+
+	switch (smc_fid) {
+	case PSCI_VERSION:
+		rc = psci_version();
+		break;
+
+	case PSCI_CPU_OFF:
+		rc = __psci_cpu_off();
+		break;
+
+	case PSCI_CPU_SUSPEND_AARCH64:
+	case PSCI_CPU_SUSPEND_AARCH32:
+		rc = __psci_cpu_suspend(x1, x2, x3);
+		break;
+
+	case PSCI_CPU_ON_AARCH64:
+	case PSCI_CPU_ON_AARCH32:
+		rc = psci_cpu_on(x1, x2, x3);
+		break;
+
+	case PSCI_AFFINITY_INFO_AARCH32:
+	case PSCI_AFFINITY_INFO_AARCH64:
+		rc = psci_affinity_info(x1, x2);
+		break;
+
+	case PSCI_MIG_AARCH32:
+	case PSCI_MIG_AARCH64:
+		rc = psci_migrate(x1);
+		break;
+
+	case PSCI_MIG_INFO_TYPE:
+		rc = psci_migrate_info_type();
+		break;
+
+	case PSCI_MIG_INFO_UP_CPU_AARCH32:
+	case PSCI_MIG_INFO_UP_CPU_AARCH64:
+		rc = psci_migrate_info_up_cpu();
+		break;
+
+	case PSCI_SYSTEM_OFF:
+		psci_system_off();
+		assert(0);
+
+	case PSCI_SYSTEM_RESET:
+		psci_system_reset();
+		assert(0);
+
+	default:
+		rc = SMC_UNK;
+		WARN("Unimplemented psci call -> 0x%x \n", smc_fid);
+	}
+
+	SMC_RET1(handle, rc);
+}

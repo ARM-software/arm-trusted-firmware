@@ -143,11 +143,31 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 }
 
 /*******************************************************************************
- * This function is used to program SP_EL3 to point to the 'cpu_context'
- * structure which will be used for programming the EL3 architectural state to
- * enable an ERET into a lower EL e.g. general purpose registers and system
- * registers like SCR_EL3, SPSR_EL3, SCR_EL3 etc. The same structure will be
- * used to save the same registers after an exception entry from the lower EL.
+ * This function function populates 'cpu_context' pertaining to the given
+ * security state with the entrypoint, SPSR and SCR values so that an ERET from
+ * this securit state correctly restores corresponding values to drop the CPU to
+ * the next exception level
+ ******************************************************************************/
+void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
+		uint32_t spsr, uint32_t scr)
+{
+	cpu_context *ctx;
+	el3_state *state;
+
+	ctx = cm_get_context(read_mpidr(), security_state);
+	assert(ctx);
+
+	/* Populate EL3 state so that we've the right context before doing ERET */
+	state = get_el3state_ctx(ctx);
+	write_ctx_reg(state, CTX_SPSR_EL3, spsr);
+	write_ctx_reg(state, CTX_ELR_EL3, entrypoint);
+	write_ctx_reg(state, CTX_SCR_EL3, scr);
+}
+
+/*******************************************************************************
+ * This function is used to program the context that's used for exception
+ * return. This initializes the SP_EL3 to a pointer to a 'cpu_context' set for
+ * the required security state
  ******************************************************************************/
 void cm_set_next_eret_context(uint32_t security_state)
 {
@@ -155,6 +175,7 @@ void cm_set_next_eret_context(uint32_t security_state)
 #if DEBUG
 	uint64_t sp_mode;
 #endif
+
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
 
@@ -173,4 +194,23 @@ void cm_set_next_eret_context(uint32_t security_state)
 			 "mov	sp, %0\n"
 			 "msr	spsel, #0\n"
 			 : : "r" (ctx));
+}
+
+/*******************************************************************************
+ * This function is used to program exception stack in the 'cpu_context'
+ * structure. This is the initial stack used for taking and handling exceptions
+ * at EL3. This stack is expected to be initialized once by each security state
+ ******************************************************************************/
+void cm_init_exception_stack(uint64_t mpidr, uint32_t security_state)
+{
+	cpu_context *ctx;
+	el3_state *state;
+
+	ctx = cm_get_context(mpidr, security_state);
+	assert(ctx);
+
+	/* Set exception stack in the context */
+	state = get_el3state_ctx(ctx);
+
+	write_ctx_reg(state, CTX_EXCEPTION_SP, get_exception_stack(mpidr));
 }

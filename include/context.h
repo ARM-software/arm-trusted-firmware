@@ -193,7 +193,7 @@
  * callee saved registers if used by the C runtime and the assembler
  * does not touch the remaining.
  */
-DEFINE_REG_STRUCT(gp_regs_next, CTX_GPREG_ALL);
+DEFINE_REG_STRUCT(gp_regs, CTX_GPREG_ALL);
 
 /*
  * AArch64 EL1 system register context structure for preserving the
@@ -233,7 +233,7 @@ DEFINE_REG_STRUCT(el3_state, CTX_EL3STATE_ALL);
  * correspond to either the secure or the non-secure state.
  */
 typedef struct {
-	gp_regs_next gpregs_ctx;
+	gp_regs gpregs_ctx;
 	el3_state el3state_ctx;
 	el1_sys_regs sysregs_ctx;
 	fp_regs fpregs_ctx;

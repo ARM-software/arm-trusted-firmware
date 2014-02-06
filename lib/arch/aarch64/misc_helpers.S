@@ -31,9 +31,6 @@
 #include <arch_helpers.h>
 #include <runtime_svc.h>
 
-	.globl	save_regs
-	.globl	restore_regs
-
 	.globl	enable_irq
 	.globl	disable_irq
 
@@ -83,51 +80,6 @@
 	.globl	memcpy16
 
 	.section	.text, "ax"
-
-save_regs: ; .type save_regs, %function
-	sub	sp, sp, #GPREGS_FP_OFF
-	stp	x0, x1, [sp, #GPREGS_X0_OFF]
-	stp	x2, x3, [sp, #GPREGS_X2_OFF]
-	stp	x4, x5, [sp, #GPREGS_X4_OFF]
-	stp	x6, x7, [sp, #GPREGS_X6_OFF]
-	stp	x8, x9, [sp, #GPREGS_X8_OFF]
-	stp	x10, x11, [sp, #GPREGS_X10_OFF]
-	stp	x12, x13, [sp, #GPREGS_X12_OFF]
-	stp	x14, x15, [sp, #GPREGS_X14_OFF]
-	stp	x16, x17, [sp, #GPREGS_X16_OFF]
-	stp	x18, x19, [sp, #GPREGS_X18_OFF]
-	stp	x20, x21, [sp, #GPREGS_X20_OFF]
-	stp	x22, x23, [sp, #GPREGS_X22_OFF]
-	stp	x24, x25, [sp, #GPREGS_X24_OFF]
-	stp	x26, x27, [sp, #GPREGS_X26_OFF]
-	mrs     x0, sp_el0
-	stp	x28, x0, [sp, #GPREGS_X28_OFF]
-	mrs     x0, spsr_el3
-	str	w0, [sp, #GPREGS_SPSR_OFF]
-	ret
-
-
-restore_regs: ; .type restore_regs, %function
-	ldr	w9, [sp, #GPREGS_SPSR_OFF]
-	msr	spsr_el3, x9
-	ldp	x28, x9, [sp, #GPREGS_X28_OFF]
-	msr	sp_el0, x9
-	ldp	x26, x27, [sp, #GPREGS_X26_OFF]
-	ldp	x24, x25, [sp, #GPREGS_X24_OFF]
-	ldp	x22, x23, [sp, #GPREGS_X22_OFF]
-	ldp	x20, x21, [sp, #GPREGS_X20_OFF]
-	ldp	x18, x19, [sp, #GPREGS_X18_OFF]
-	ldp	x16, x17, [sp, #GPREGS_X16_OFF]
-	ldp	x14, x15, [sp, #GPREGS_X14_OFF]
-	ldp	x12, x13, [sp, #GPREGS_X12_OFF]
-	ldp	x10, x11, [sp, #GPREGS_X10_OFF]
-	ldp	x8, x9, [sp, #GPREGS_X8_OFF]
-	ldp	x6, x7, [sp, #GPREGS_X6_OFF]
-	ldp	x4, x5, [sp, #GPREGS_X4_OFF]
-	ldp	x2, x3, [sp, #GPREGS_X2_OFF]
-	ldp	x0, x1, [sp, #GPREGS_X0_OFF]
-	add	sp, sp, #GPREGS_FP_OFF
-	ret
 
 get_afflvl_shift: ; .type get_afflvl_shift, %function
 	cmp	x0, #3
