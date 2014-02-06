@@ -28,14 +28,77 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
+#include <arch_helpers.h>
+#include <cci400.h>
+#include <platform.h>
 #include <psci.h>
+#include <scpi.h>
+
+int pm_on(unsigned long mpidr,
+		   unsigned long sec_entrypoint,
+		   unsigned long ns_entrypoint,
+		   unsigned int afflvl,
+		   unsigned int state)
+{
+	/*
+	 * SCP takes care of powering up higher affinity levels so we
+	 * only need to care about level 0
+	 */
+	if (afflvl != MPIDR_AFFLVL0)
+		return PSCI_E_SUCCESS;
+
+	/*
+	 * Setup mailbox with address for CPU entrypoint when it next powers up
+	 */
+	unsigned long *mbox = (unsigned long *)(unsigned long)(
+			TRUSTED_MAILBOXES_BASE +
+			(platform_get_core_pos(mpidr) << TRUSTED_MAILBOX_SHIFT)
+			);
+	*mbox = sec_entrypoint;
+	flush_dcache_range((unsigned long)mbox, sizeof(*mbox));
+
+	scpi_set_css_power_state(mpidr, scpi_power_on, scpi_power_on,
+				 scpi_power_on);
+
+	return PSCI_E_SUCCESS;
+}
+
+int pm_on_finish(unsigned long mpidr, unsigned int afflvl, unsigned int state)
+{
+	switch (afflvl) {
+
+	case MPIDR_AFFLVL1:
+		/* Enable coherency if this cluster was off */
+		if (state == PSCI_STATE_OFF)
+			cci_enable_coherency(mpidr);
+		break;
+
+	case MPIDR_AFFLVL0:
+		/*
+		 * Ignore the state passed for a cpu. It could only have
+		 * been off if we are here.
+		 */
+
+		/* Turn on intra-cluster coherency. */
+		write_cpuectlr(read_cpuectlr() | CPUECTLR_SMP_BIT);
+
+		/* Enable the gic cpu interface */
+		gic_cpuif_setup(GICC_BASE);
+		/* Juno todo: Is this setup only needed after a cold boot? */
+		gic_pcpu_distif_setup(GICD_BASE);
+
+		break;
+	}
+
+	return PSCI_E_SUCCESS;
+}
 
 /*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static plat_pm_ops pm_ops = {
-	0
+	.affinst_on		= pm_on,
+	.affinst_on_finish	= pm_on_finish
 };
 
 /*******************************************************************************

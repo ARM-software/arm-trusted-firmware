@@ -77,16 +77,22 @@ BL1_SOURCES		+=	bl1_plat_setup.c			\
 				plat_common.c				\
 				cci400.c
 
-BL2_SOURCES		+=	bl2_plat_setup.c			\
+BL2_SOURCES		+=	bakery_lock.c				\
+				bl2_plat_setup.c			\
+				mhu.c					\
 				plat_helpers.S				\
-				plat_common.c
+				plat_common.c				\
+				scp_bootloader.c			\
+				scpi.c
 
 BL31_SOURCES		+=	bl31_plat_setup.c			\
+				mhu.c					\
 				plat_helpers.S				\
 				plat_common.c				\
 				plat_pm.c				\
 				plat_topology.c				\
 				plat_gic.c				\
+				scpi.c					\
 				cci400.c				\
 				gic_v2.c				\
 				gic_v3.c

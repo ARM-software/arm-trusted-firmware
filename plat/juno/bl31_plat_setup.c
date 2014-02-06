@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <mhu.h>
 #include <platform.h>
 #include <assert.h>
 #include <arch_helpers.h>
@@ -115,6 +116,9 @@ void bl31_early_platform_setup(bl31_args *from_bl2,
 void bl31_platform_setup(void)
 {
 	unsigned int counter_base_frequency;
+
+	mhu_secure_init();
+
 	/* Initialize the gic cpu and distributor interfaces */
 	gic_setup();
 
