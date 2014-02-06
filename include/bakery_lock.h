@@ -45,8 +45,6 @@ typedef struct {
 #define NO_OWNER (-1)
 
 void bakery_lock_init(bakery_lock* bakery);
-/* Check whether a lock is held. Mainly used for debug purpose. */
-int bakery_lock_held(unsigned long mpidr, const bakery_lock * bakery);
 void bakery_lock_get(unsigned long mpidr, bakery_lock* bakery);
 void bakery_lock_release(unsigned long mpidr, bakery_lock* bakery);
 int bakery_lock_try(unsigned long mpidr, bakery_lock* bakery);
