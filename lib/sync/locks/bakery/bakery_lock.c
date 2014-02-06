@@ -88,17 +88,8 @@ void bakery_lock_release(unsigned long mpidr, bakery_lock * bakery)
 	unsigned int entry = platform_get_core_pos(mpidr);
 
 	assert_bakery_entry_valid(entry, bakery);
-	assert(bakery_lock_held(entry, bakery));
+	assert(bakery->owner == entry);
 
 	bakery->owner = NO_OWNER;
 	bakery->number[entry] = 0;
-}
-
-int bakery_lock_held(unsigned long mpidr, const bakery_lock * bakery)
-{
-	unsigned int entry = platform_get_core_pos(mpidr);
-
-	assert_bakery_entry_valid(entry, bakery);
-
-	return bakery->owner == entry;
 }
