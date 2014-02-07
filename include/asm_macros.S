@@ -68,3 +68,15 @@
 	ubfx	\end_level, \clidr, \shift, \fw
 	lsl	\end_level, \end_level, \ls
 	.endm
+
+	/*
+	 * This macro verifies that the a given vector doesn't exceed the
+	 * architectural limit of 32 instructions. This is meant to be placed
+	 * immedately after the last instruction in the vector. It takes the
+	 * vector entry as the parameter
+	 */
+	.macro check_vector_size since
+	  .if (. - \since) > (32 * 4)
+	    .error "Vector exceeds 32 instructions"
+	  .endif
+	.endm

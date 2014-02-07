@@ -32,6 +32,7 @@
 #include <runtime_svc.h>
 #include <platform.h>
 #include <context.h>
+#include "asm_macros.S"
 #include "cm_macros.S"
 
 	.globl	runtime_exceptions
@@ -53,6 +54,7 @@ sync_exception_sp_el0:
 	 */
 	wfi
 	b	sync_exception_sp_el0
+	check_vector_size sync_exception_sp_el0
 
 	.align	7
 	/* -----------------------------------------------------
@@ -63,16 +65,19 @@ sync_exception_sp_el0:
 irq_sp_el0:
 	handle_async_exception IRQ_SP_EL0
 	b	irq_sp_el0
+	check_vector_size irq_sp_el0
 
 	.align	7
 fiq_sp_el0:
 	handle_async_exception FIQ_SP_EL0
 	b	fiq_sp_el0
+	check_vector_size fiq_sp_el0
 
 	.align	7
 serror_sp_el0:
 	handle_async_exception SERROR_SP_EL0
 	b	serror_sp_el0
+	check_vector_size serror_sp_el0
 
 	/* -----------------------------------------------------
 	 * Current EL with SPx: 0x200 - 0x380
@@ -93,6 +98,7 @@ sync_exception_sp_elx:
 	 */
 	wfi
 	b	sync_exception_sp_elx
+	check_vector_size sync_exception_sp_elx
 
 	/* -----------------------------------------------------
 	 * As mentioned in the previous comment, all bets are
@@ -103,12 +109,17 @@ sync_exception_sp_elx:
 	.align	7
 irq_sp_elx:
 	b	irq_sp_elx
+	check_vector_size irq_sp_elx
+
 	.align	7
 fiq_sp_elx:
 	b	fiq_sp_elx
+	check_vector_size fiq_sp_elx
+
 	.align	7
 serror_sp_elx:
 	b	serror_sp_elx
+	check_vector_size serror_sp_elx
 
 	/* -----------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x580
@@ -125,6 +136,7 @@ sync_exception_aarch64:
 	 * -----------------------------------------------------
 	 */
 	handle_sync_exception
+	check_vector_size sync_exception_aarch64
 
 	.align	7
 	/* -----------------------------------------------------
@@ -135,16 +147,19 @@ sync_exception_aarch64:
 irq_aarch64:
 	handle_async_exception IRQ_AARCH64
 	b	irq_aarch64
+	check_vector_size irq_aarch64
 
 	.align	7
 fiq_aarch64:
 	handle_async_exception FIQ_AARCH64
 	b	fiq_aarch64
+	check_vector_size fiq_aarch64
 
 	.align	7
 serror_aarch64:
 	handle_async_exception SERROR_AARCH64
 	b	serror_aarch64
+	check_vector_size serror_aarch64
 
 	/* -----------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x780
@@ -161,6 +176,7 @@ sync_exception_aarch32:
 	 * -----------------------------------------------------
 	 */
 	handle_sync_exception
+	check_vector_size sync_exception_aarch32
 
 	.align	7
 	/* -----------------------------------------------------
@@ -171,16 +187,20 @@ sync_exception_aarch32:
 irq_aarch32:
 	handle_async_exception IRQ_AARCH32
 	b	irq_aarch32
+	check_vector_size irq_aarch32
 
 	.align	7
 fiq_aarch32:
 	handle_async_exception FIQ_AARCH32
 	b	fiq_aarch32
+	check_vector_size fiq_aarch32
 
 	.align	7
 serror_aarch32:
 	handle_async_exception SERROR_AARCH32
 	b	serror_aarch32
+	check_vector_size serror_aarch32
+
 	.align	7
 
 	.section	.text, "ax"
