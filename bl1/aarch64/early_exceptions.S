@@ -114,61 +114,8 @@ SynchronousExceptionA64:
 	 * here.
 	 * ---------------------------------------------
 	 */
-	sub	sp, sp, #0x40
-	stp	x0, x1, [sp, #0x0]
-	stp	x2, x3, [sp, #0x10]
-	stp	x4, x5, [sp, #0x20]
-	stp	x6, x7, [sp, #0x30]
-	mov	x19, x0
-	mov	x20, x1
-	mov	x21, x2
+	b	process_exception
 
-	mov	x0, #SYNC_EXCEPTION_AARCH64
-	bl	plat_report_exception
-
-	bl	read_esr
-	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x1, #EC_AARCH64_SMC
-	b.ne	panic
-	mov	x1, #RUN_IMAGE
-	cmp	x19, x1
-	b.ne	panic
-	mov	x0, x20
-	mov	x1, x21
-	mov	x2, x3
-	mov	x3, x4
-	bl	display_boot_progress
-	mov	x0, x20
-	bl	write_elr
-	mov	x0, x21
-	bl	write_spsr
-	ubfx	x0, x21, #MODE_EL_SHIFT, #2
-	cmp	x0, #MODE_EL3
-	b.ne	skip_mmu_teardown
-	/* ---------------------------------------------
-	 * If BL31 is to be executed in EL3 as well
-	 * then turn off the MMU so that it can perform
-	 * its own setup. TODO: Assuming flat mapped
-	 * translations here. Also all should go into a
-	 * separate MMU teardown function
-	 * ---------------------------------------------
-	 */
-	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
-	bl	read_sctlr
-	bic	x0, x0, x1
-	bl	write_sctlr
-	mov	x0, #DCCISW
-	bl	dcsw_op_all
-	bl	tlbialle3
-skip_mmu_teardown:
-	ldp     x6, x7, [sp, #0x30]
-	ldp     x4, x5, [sp, #0x20]
-	ldp     x2, x3, [sp, #0x10]
-	ldp     x0, x1, [sp, #0x0]
-	add     sp, sp, #0x40
-	eret
-panic:
-	b	panic
 	.align	7
 IrqA64:
 	mov	x0, #IRQ_AARCH64
@@ -216,6 +163,67 @@ SErrorA32:
 	b	SErrorA32
 
 	.align	7
+
+process_exception:
+	sub	sp, sp, #0x40
+	stp	x0, x1, [sp, #0x0]
+	stp	x2, x3, [sp, #0x10]
+	stp	x4, x5, [sp, #0x20]
+	stp	x6, x7, [sp, #0x30]
+
+	mov	x19, x0
+	mov	x20, x1
+	mov	x21, x2
+	mov	x0, #SYNC_EXCEPTION_AARCH64
+	bl	plat_report_exception
+
+	bl	read_esr
+	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+	cmp	x1, #EC_AARCH64_SMC
+	b.ne	panic
+	mov	x1, #RUN_IMAGE
+	cmp	x19, x1
+	b.ne	panic
+	mov	x0, x20
+	mov	x1, x21
+	mov	x2, x3
+	mov	x3, x4
+	bl	display_boot_progress
+	mov	x0, x20
+	bl	write_elr
+	mov	x0, x21
+	bl	write_spsr
+	ubfx	x0, x21, #MODE_EL_SHIFT, #2
+	cmp	x0, #MODE_EL3
+	b.ne	skip_mmu_teardown
+
+	/* ---------------------------------------------
+	 * If BL31 is to be executed in EL3 as well
+	 * then turn off the MMU so that it can perform
+	 * its own setup. TODO: Assuming flat mapped
+	 * translations here. Also all should go into a
+	 * separate MMU teardown function
+	 * ---------------------------------------------
+	 */
+	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
+	bl	read_sctlr
+	bic	x0, x0, x1
+	bl	write_sctlr
+	mov	x0, #DCCISW
+	bl	dcsw_op_all
+	bl	tlbialle3
+skip_mmu_teardown:
+	ldp     x6, x7, [sp, #0x30]
+	ldp     x4, x5, [sp, #0x20]
+	ldp     x2, x3, [sp, #0x10]
+	ldp     x0, x1, [sp, #0x0]
+	add     sp, sp, #0x40
+	eret
+
+panic:
+	wfi
+	b	panic
+
 	/* -----------------------------------------------------
 	 * BL1 redefines this function to print the fact that
 	 * BL2 has done its job and BL31 is about to be loaded.
