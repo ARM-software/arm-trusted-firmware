@@ -131,7 +131,7 @@ INCLUDES		+=	-Ilib/include/			\
 				-Iinclude/${ARCH}/		\
 				-Iinclude/			\
 				-Iarch/system/gic		\
-				-Icommon/psci			\
+				-Iservices/psci			\
 				-Iinclude/stdlib		\
 				-Iinclude/stdlib/sys		\
 				-Iplat/${PLAT}			\

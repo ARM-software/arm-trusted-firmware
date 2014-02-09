@@ -33,13 +33,13 @@ vpath			%.c	common					\
 				arch/system/gic				\
 				plat/${PLAT}				\
 				arch/${ARCH}				\
-				common/psci				\
+				services/psci				\
 				lib/sync/locks/bakery			\
 				plat/${PLAT}/${ARCH}			\
 				${PLAT_BL31_C_VPATH}
 
 vpath			%.S	lib/arch/${ARCH}			\
-				common/psci				\
+				services/psci				\
 				include					\
 				plat/${PLAT}/${ARCH}			\
 				lib/sync/locks/exclusive		\

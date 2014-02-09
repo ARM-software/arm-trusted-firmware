@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <debug.h>
 #include <arch_helpers.h>
 #include <console.h>
 #include <platform.h>
@@ -87,6 +88,7 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 {
 	unsigned int index, plat_state;
 	unsigned long psci_entrypoint, sctlr = read_sctlr();
+	el3_state *saved_el3_state;
 	int rc = PSCI_E_SUCCESS;
 
 	/* Sanity check to safeguard against data corruption */
@@ -111,6 +113,13 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 */
 	cm_el3_sysregs_context_save(NON_SECURE);
 	rc = PSCI_E_SUCCESS;
+
+	/*
+	 * The EL3 state to PoC since it will be accessed after a
+	 * reset with the caches turned off
+	 */
+	saved_el3_state = get_el3state_ctx(cm_get_context(mpidr, NON_SECURE));
+	flush_dcache_range((uint64_t) saved_el3_state, sizeof(*saved_el3_state));
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;

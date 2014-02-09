@@ -31,11 +31,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <debug.h>
 #include <arch_helpers.h>
 #include <console.h>
 #include <platform.h>
 #include <psci.h>
 #include <psci_private.h>
+#include <context_mgmt.h>
 
 typedef int (*afflvl_on_handler)(unsigned long,
 				 aff_map_node *,
