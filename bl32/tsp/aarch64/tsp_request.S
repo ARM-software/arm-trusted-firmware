@@ -55,7 +55,6 @@ tsp_get_magic:
 
 	/* Store returned arguments to the array */
 	stp	x0, x1, [x4, #0]
-	stp	x2, x3, [x4, #16]
 
 	ret
 

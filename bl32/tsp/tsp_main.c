@@ -288,17 +288,24 @@ tsp_args *tsp_fast_smc_handler(uint64_t func,
 			       uint64_t arg6,
 			       uint64_t arg7)
 {
-	uint64_t results[4];
-	uint64_t service_args[4];
+	uint64_t results[2];
+	uint64_t service_args[2];
+	uint64_t mpidr = read_mpidr();
+	uint32_t linear_id = platform_get_core_pos(mpidr);
 
-	INFO("Received fast smc 0x%x on cpu 0x%x\n", func, read_mpidr());
+	/* Update this cpu's statistics */
+	tsp_stats[linear_id].smc_count++;
+	tsp_stats[linear_id].eret_count++;
 
-	/* Render sercure services and obtain results here */
+	printf("SP: cpu 0x%x received fast smc 0x%x\n", read_mpidr(), func);
+	INFO("cpu 0x%x: %d smcs, %d erets\n", mpidr,
+	     tsp_stats[linear_id].smc_count,
+	     tsp_stats[linear_id].eret_count);
+
+	/* Render secure services and obtain results here */
 
 	results[0] = arg1;
 	results[1] = arg2;
-	results[2] = arg3;
-	results[3] = arg4;
 
 	/*
 	 * Request a service back from dispatcher/secure monitor. This call
@@ -311,36 +318,26 @@ tsp_args *tsp_fast_smc_handler(uint64_t func,
 	case TSP_FID_ADD:
 		results[0] += service_args[0];
 		results[1] += service_args[1];
-		results[2] += service_args[2];
-		results[3] += service_args[3];
 		break;
 	case TSP_FID_SUB:
 		results[0] -= service_args[0];
 		results[1] -= service_args[1];
-		results[2] -= service_args[2];
-		results[3] -= service_args[3];
 		break;
 	case TSP_FID_MUL:
 		results[0] *= service_args[0];
 		results[1] *= service_args[1];
-		results[2] *= service_args[2];
-		results[3] *= service_args[3];
 		break;
 	case TSP_FID_DIV:
 		results[0] /= service_args[0] ? service_args[0] : 1;
 		results[1] /= service_args[1] ? service_args[1] : 1;
-		results[2] /= service_args[2] ? service_args[2] : 1;
-		results[3] /= service_args[3] ? service_args[3] : 1;
 		break;
 	default:
 		break;
 	}
 
-	return set_smc_args(TSP_WORK_DONE,
+	return set_smc_args(func,
 			    results[0],
 			    results[1],
-			    results[2],
-			    results[3],
-			    0, 0, 0);
+			    0, 0, 0, 0, 0);
 }
 

@@ -158,8 +158,11 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 uint64_t flags)
 {
+	cpu_context *ns_cpu_context;
+	gp_regs *ns_gp_regs;
 	unsigned long mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr), ns;
+	tsp_context *tsp_ctx = &tspd_sp_context[linear_id];
 
 	/* Determine which security state this SMC originated from */
 	ns = is_caller_non_secure(flags);
@@ -187,7 +190,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * into the SP. Jump back to the original C runtime
 		 * context.
 		 */
-		tspd_synchronous_sp_exit(&tspd_sp_context[linear_id], x1);
+		tspd_synchronous_sp_exit(tsp_ctx, x1);
 
 		/* Should never reach here */
 		assert(0);
@@ -222,10 +225,95 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * Jump back to the original C runtime context, and pass x1 as
 		 * return value to the caller
 		 */
-		tspd_synchronous_sp_exit(&tspd_sp_context[linear_id], x1);
+		tspd_synchronous_sp_exit(tsp_ctx, x1);
 
 		/* Should never reach here */
 		assert(0);
+
+		/*
+		 * Request from non-secure client to perform an
+		 * arithmetic operation or response from secure
+		 * payload to an earlier request.
+		 */
+	case TSP_FID_ADD:
+	case TSP_FID_SUB:
+	case TSP_FID_MUL:
+	case TSP_FID_DIV:
+		if (ns) {
+			/*
+			 * This is a fresh request from the non-secure client.
+			 * The parameters are in x1 and x2. Figure out which
+			 * registers need to be preserved, save the non-secure
+			 * state and send the request to the secure payload.
+			 */
+			assert(handle == cm_get_context(mpidr, NON_SECURE));
+			cm_el1_sysregs_context_save(NON_SECURE);
+
+			/* Save x1 and x2 for use by TSP_GET_ARGS call below */
+			SMC_SET_GP(handle, CTX_GPREG_X1, x1);
+			SMC_SET_GP(handle, CTX_GPREG_X2, x2);
+
+			/*
+			 * We are done stashing the non-secure context. Ask the
+			 * secure payload to do the work now.
+			 */
+
+			/*
+			 * Verify if there is a valid context to use, copy the
+			 * operation type and parameters to the secure context
+			 * and jump to the fast smc entry point in the secure
+			 * payload. Entry into S-EL1 will take place upon exit
+			 * from this function.
+			 */
+			assert(&tsp_ctx->cpu_ctx == cm_get_context(mpidr, SECURE));
+			set_aapcs_args7(&tsp_ctx->cpu_ctx, smc_fid, x1, x2, 0, 0,
+					0, 0, 0);
+			cm_set_el3_elr(SECURE, (uint64_t) tsp_entry_info->fast_smc_entry);
+			cm_el1_sysregs_context_restore(SECURE);
+			cm_set_next_eret_context(SECURE);
+
+			return smc_fid;
+		} else {
+			/*
+			 * This is the result from the secure client of an
+			 * earlier request. The results are in x1-x2. Copy it
+			 * into the non-secure context, save the secure state
+			 * and return to the non-secure state.
+			 */
+			assert(handle == cm_get_context(mpidr, SECURE));
+			cm_el1_sysregs_context_save(SECURE);
+
+			/* Get a reference to the non-secure context */
+			ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+			assert(ns_cpu_context);
+			ns_gp_regs = get_gpregs_ctx(ns_cpu_context);
+
+			/* Restore non-secure state */
+			cm_el1_sysregs_context_restore(NON_SECURE);
+			cm_set_next_eret_context(NON_SECURE);
+
+			SMC_RET2(ns_gp_regs, x1, x2);
+		}
+
+		break;
+
+		/*
+		 * This is a request from the secure payload for more arguments
+		 * for an ongoing arithmetic operation requested by the
+		 * non-secure world. Simply return the arguments from the non-
+		 * secure client in the original call.
+		 */
+	case TSP_GET_ARGS:
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		/* Get a reference to the non-secure context */
+		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+		assert(ns_cpu_context);
+		ns_gp_regs = get_gpregs_ctx(ns_cpu_context);
+
+		SMC_RET2(handle, read_ctx_reg(ns_gp_regs, CTX_GPREG_X1),
+				read_ctx_reg(ns_gp_regs, CTX_GPREG_X2));
 
 	default:
 		break;
