@@ -28,37 +28,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
 #include <console.h>
 #include <platform.h>
 #include <pl011.h>
+
+static unsigned long uart_base = PL011_BASE;
 
 /*
  * TODO: Console init functions shoule be in a console.c. This file should
  * only contain the pl011 accessors.
  */
-void console_init(void)
+void console_init(unsigned long base_addr)
 {
 	unsigned int divisor;
+
+	/* Initialise internal base address variable */
+	uart_base = base_addr;
 
 	/* Baud Rate */
 
 #if defined(PL011_INTEGER) && defined(PL011_FRACTIONAL)
-	mmio_write_32(PL011_BASE + UARTIBRD, PL011_INTEGER);
-	mmio_write_32(PL011_BASE + UARTFBRD, PL011_FRACTIONAL);
+	mmio_write_32(uart_base + UARTIBRD, PL011_INTEGER);
+	mmio_write_32(uart_base + UARTFBRD, PL011_FRACTIONAL);
 #else
 	divisor = (PL011_CLK_IN_HZ * 4) / PL011_BAUDRATE;
-	mmio_write_32(PL011_BASE + UARTIBRD, divisor >> 6);
-	mmio_write_32(PL011_BASE + UARTFBRD, divisor & 0x3F);
+	mmio_write_32(uart_base + UARTIBRD, divisor >> 6);
+	mmio_write_32(uart_base + UARTFBRD, divisor & 0x3F);
 #endif
 
 
-	mmio_write_32(PL011_BASE + UARTLCR_H, PL011_LINE_CONTROL);
+	mmio_write_32(uart_base + UARTLCR_H, PL011_LINE_CONTROL);
 
 	/* Clear any pending errors */
-	mmio_write_32(PL011_BASE + UARTECR, 0);
+	mmio_write_32(uart_base + UARTECR, 0);
 
 	/* Enable tx, rx, and uart overall */
-	mmio_write_32(PL011_BASE + UARTCR,
+	mmio_write_32(uart_base + UARTCR,
 		      PL011_UARTCR_RXE | PL011_UARTCR_TXE |
 		      PL011_UARTCR_UARTEN);
 }
@@ -68,15 +74,16 @@ int console_putc(int c)
 	if (c == '\n') {
 		console_putc('\r');
 	}
-	while ((mmio_read_32(PL011_BASE + UARTFR) & PL011_UARTFR_TXFE)
-	       == 0) ;
-	mmio_write_32(PL011_BASE + UARTDR, c);
+
+	while ((mmio_read_32(uart_base + UARTFR) & PL011_UARTFR_TXFE) == 0)
+		;
+	mmio_write_32(uart_base + UARTDR, c);
 	return c;
 }
 
 int console_getc(void)
 {
-	while ((mmio_read_32(PL011_BASE + UARTFR) & PL011_UARTFR_RXFE)
-	       != 0) ;
-	return mmio_read_32(PL011_BASE + UARTDR);
+	while ((mmio_read_32(uart_base + UARTFR) & PL011_UARTFR_RXFE) != 0)
+		;
+	return mmio_read_32(uart_base + UARTDR);
 }

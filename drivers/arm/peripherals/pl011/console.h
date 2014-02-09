@@ -31,7 +31,7 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-void console_init(void);
+void console_init(unsigned long base_addr);
 int console_putc(int c);
 int console_getc(void);
 

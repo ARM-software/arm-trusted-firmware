@@ -116,7 +116,7 @@ void bl1_platform_setup(void)
 	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_EN);
 
 	/* Initialize the console */
-	console_init();
+	console_init(PL011_UART0_BASE);
 
 	return;
 }
