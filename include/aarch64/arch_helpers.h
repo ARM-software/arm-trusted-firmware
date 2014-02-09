@@ -37,6 +37,23 @@
 #include <stdio.h>
 
 /*******************************************************************************
+ * Aarch64 translation tables manipulation helper prototypes
+ ******************************************************************************/
+extern unsigned long create_table_desc(unsigned long *next_table_ptr);
+extern unsigned long create_block_desc(unsigned long desc,
+				       unsigned long addr,
+				       unsigned int level);
+extern unsigned long create_device_block(unsigned long output_addr,
+					 unsigned int level,
+					 unsigned int ns);
+extern unsigned long create_romem_block(unsigned long output_addr,
+					unsigned int level,
+					unsigned int ns);
+extern unsigned long create_rwmem_block(unsigned long output_addr,
+					unsigned int level,
+					unsigned int ns);
+
+/*******************************************************************************
  * TLB maintenance accessor prototypes
  ******************************************************************************/
 extern void tlbialle1(void);

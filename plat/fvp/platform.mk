@@ -71,13 +71,16 @@ BL1_OBJS		+=	bl1_plat_setup.o			\
 				bl1_plat_helpers.o			\
 				plat_helpers.o				\
 				plat_common.o				\
+				plat_setup_xlat.o			\
 				cci400.o
 
 BL2_OBJS		+=	bl2_plat_setup.o			\
+				plat_setup_xlat.o			\
 				plat_common.o
 
 BL31_OBJS		+=	bl31_plat_setup.o			\
 				plat_helpers.o				\
+				plat_setup_xlat.o			\
 				plat_common.o				\
 				plat_pm.o				\
 				plat_topology.o				\

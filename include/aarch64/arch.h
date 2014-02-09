@@ -226,6 +226,7 @@
 /* Miscellaneous MMU related constants */
 #define NUM_2MB_IN_GB		(1 << 9)
 #define NUM_4K_IN_2MB		(1 << 9)
+#define NUM_GB_IN_4GB		(1 << 2)
 
 #define TWO_MB_SHIFT		21
 #define ONE_GB_SHIFT		30

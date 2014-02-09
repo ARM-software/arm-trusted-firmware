@@ -60,6 +60,7 @@ endif
 BL_COMMON_OBJS		:=	misc_helpers.o		\
 				cache_helpers.o		\
 				tlb_helpers.o		\
+				xlat_helpers.o		\
 				std.o			\
 				bl_common.o		\
 				platform_helpers.o	\

@@ -33,6 +33,7 @@ vpath			%.c	plat/${PLAT}		\
 				common			\
 				lib			\
 				arch/${ARCH}		\
+				lib/arch/${ARCH}	\
 				${PLAT_BL1_C_VPATH}
 
 vpath			%.S	arch/${ARCH}/cpu	\

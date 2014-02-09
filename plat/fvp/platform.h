@@ -341,6 +341,11 @@ extern void bl2_plat_arch_setup(void);
 extern void bl31_plat_arch_setup(void);
 extern int platform_setup_pm(plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
+extern unsigned long fill_xlation_tables(meminfo *memory_layout,
+					 unsigned long ro_start,
+					 unsigned long ro_limit,
+					 unsigned long coh_start,
+					 unsigned long coh_limit);
 extern void disable_mmu(void);
 extern void enable_mmu(void);
 extern void configure_mmu(meminfo *,
