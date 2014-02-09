@@ -178,7 +178,7 @@ int psci_migrate(unsigned int target_cpu)
 /* Unimplemented */
 unsigned int psci_migrate_info_type(void)
 {
-	return PSCI_TOS_NOT_PRESENT;
+	return PSCI_TOS_NOT_PRESENT_MP;
 }
 
 unsigned long psci_migrate_info_up_cpu(void)

@@ -55,7 +55,7 @@
  ******************************************************************************/
 #define PSCI_TOS_UP_MIG_CAP	0
 #define PSCI_TOS_NOT_UP_MIG_CAP	1
-#define PSCI_TOS_NOT_PRESENT	2
+#define PSCI_TOS_NOT_PRESENT_MP	2
 
 /*******************************************************************************
  * PSCI CPU_SUSPEND 'power_state' parameter specific defines
@@ -138,6 +138,22 @@ typedef struct {
 				      unsigned int,
 				      unsigned int);
 } plat_pm_ops;
+
+/*******************************************************************************
+ * Optional structure populated by the Secure Payload Dispatcher to be given a
+ * chance to perform any bookkeeping before PSCI executes a power mgmt.
+ * operation. It also allows PSCI to determine certain properties of the SP e.g.
+ * migrate capability etc.
+ ******************************************************************************/
+typedef struct {
+	void (*svc_on)(uint64_t target_cpu);
+	int32_t (*svc_off)(uint64_t __unused);
+	void (*svc_suspend)(uint64_t power_state);
+	void (*svc_on_finish)(uint64_t __unused);
+	void (*svc_suspend_finish)(uint64_t suspend_level);
+	void (*svc_migrate)(uint64_t __unused1, uint64_t __unused2);
+	int32_t (*svc_migrate_info)(uint64_t *__unused);
+} spd_pm_ops;
 
 /*******************************************************************************
  * Function & Data prototypes

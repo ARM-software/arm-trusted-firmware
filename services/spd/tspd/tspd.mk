@@ -34,6 +34,7 @@ SPD_INCLUDES		:=	-Iinclude/spd/tspd	\
 
 SPD_OBJS		:=	tspd_common.o		\
 				tspd_main.o		\
+				tspd_pm.o		\
 				tspd_helpers.o
 
 vpath %.c ${TSPD_DIR}

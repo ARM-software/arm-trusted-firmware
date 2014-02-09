@@ -94,6 +94,19 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	/* Sanity check to safeguard against data corruption */
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
+	/*
+	 * Generic management: Store the re-entry information for the non-secure
+	 * world and allow the secure world to suspend itself
+	 */
+
+	/*
+	 * Call the cpu suspend handler registered by the Secure Payload
+	 * Dispatcher to let it do any bookeeping. If the handler encounters an
+	 * error, it's expected to assert within
+	 */
+	if (spd_pm.svc_suspend)
+		spd_pm.svc_suspend(power_state);
+
 	/* State management: mark this cpu as suspended */
 	psci_set_state(cpu_node, PSCI_STATE_SUSPEND);
 
@@ -395,6 +408,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 						aff_map_node *cpu_node)
 {
 	unsigned int index, plat_state, state, rc = PSCI_E_SUCCESS;
+	int32_t suspend_level;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
@@ -428,6 +442,27 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 */
 	cm_el3_sysregs_context_restore(NON_SECURE);
 	rc = PSCI_E_SUCCESS;
+
+	/*
+	 * Use the more complex exception vectors to enable SPD
+	 * initialisation. SP_EL3 should point to a 'cpu_context'
+	 * structure which has an exception stack allocated. The
+	 * non-secure context should have been set on this cpu
+	 * prior to suspension.
+	 */
+	assert(cm_get_context(mpidr, NON_SECURE));
+	cm_set_next_eret_context(NON_SECURE);
+	write_vbar_el3((uint64_t) runtime_exceptions);
+
+	/*
+	 * Call the cpu suspend finish handler registered by the Secure Payload
+	 * Dispatcher to let it do any bookeeping. If the handler encounters an
+	 * error, it's expected to assert within
+	 */
+	if (spd_pm.svc_suspend) {
+		suspend_level = psci_get_suspend_afflvl(cpu_node);
+		spd_pm.svc_suspend_finish(suspend_level);
+	}
 
 	/*
 	 * Generic management: Now we just need to retrieve the

@@ -91,6 +91,14 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 		return rc;
 
 	/*
+	 * Call the cpu on handler registered by the Secure Payload Dispatcher
+	 * to let it do any bookeeping. If the handler encounters an error, it's
+	 * expected to assert within
+	 */
+	if (spd_pm.svc_on)
+		spd_pm.svc_on(target_cpu);
+
+	/*
 	 * Arch. management: Derive the re-entry information for
 	 * the non-secure world from the non-secure state from
 	 * where this call originated.
@@ -363,6 +371,24 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	 * to run in the non-secure address space.
 	 */
 	bl31_arch_setup();
+
+	/*
+	 * Use the more complex exception vectors to enable SPD
+	 * initialisation. SP_EL3 should point to a 'cpu_context'
+	 * structure which has an exception stack allocated. The
+	 * calling cpu should have set the context already
+	 */
+	assert(cm_get_context(mpidr, NON_SECURE));
+	cm_set_next_eret_context(NON_SECURE);
+	write_vbar_el3((uint64_t) runtime_exceptions);
+
+	/*
+	 * Call the cpu on finish handler registered by the Secure Payload
+	 * Dispatcher to let it do any bookeeping. If the handler encounters an
+	 * error, it's expected to assert within
+	 */
+	if (spd_pm.svc_on_finish)
+		spd_pm.svc_on_finish(0);
 
 	/*
 	 * Generic management: Now we just need to retrieve the

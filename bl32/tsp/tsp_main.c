@@ -199,10 +199,7 @@ tsp_args *tsp_cpu_off_main(uint64_t arg0,
 	spin_unlock(&console_lock);
 
 
-	/*
-	 * Indicate to the SPD that we have completed
-	 * this initialisation request.
-	 */
+	/* Indicate to the SPD that we have completed this request */
 	return set_smc_args(TSP_OFF_DONE, 0, 0, 0, 0, 0, 0, 0);
 }
 
@@ -237,10 +234,7 @@ tsp_args *tsp_cpu_suspend_main(uint64_t power_state,
 	     tsp_stats[linear_id].cpu_suspend_count);
 	spin_unlock(&console_lock);
 
-	/*
-	 * Indicate to the SPD that we have completed
-	 * this initialisation request.
-	 */
+	/* Indicate to the SPD that we have completed this request */
 	return set_smc_args(TSP_SUSPEND_DONE, 0, 0, 0, 0, 0, 0, 0);
 }
 
@@ -275,10 +269,7 @@ tsp_args *tsp_cpu_resume_main(uint64_t suspend_level,
 	     tsp_stats[linear_id].cpu_suspend_count);
 	spin_unlock(&console_lock);
 
-	/*
-	 * Indicate to the SPD that we have completed
-	 * this initialisation request.
-	 */
+	/* Indicate to the SPD that we have completed this request */
 	return set_smc_args(TSP_RESUME_DONE, 0, 0, 0, 0, 0, 0, 0);
 }
 

@@ -165,6 +165,23 @@ void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
 }
 
 /*******************************************************************************
+ * This function function populates ELR_EL3 member of 'cpu_context' pertaining
+ * to the given security state with the given entrypoint
+ ******************************************************************************/
+void cm_set_el3_elr(uint32_t security_state, uint64_t entrypoint)
+{
+	cpu_context *ctx;
+	el3_state *state;
+
+	ctx = cm_get_context(read_mpidr(), security_state);
+	assert(ctx);
+
+	/* Populate EL3 state so that ERET jumps to the correct entry */
+	state = get_el3state_ctx(ctx);
+	write_ctx_reg(state, CTX_ELR_EL3, entrypoint);
+}
+
+/*******************************************************************************
  * This function is used to program the context that's used for exception
  * return. This initializes the SP_EL3 to a pointer to a 'cpu_context' set for
  * the required security state

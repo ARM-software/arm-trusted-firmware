@@ -40,6 +40,12 @@
 #include <runtime_svc.h>
 #include "debug.h"
 
+/*
+ * Provide a null weak instantiation for SPD power management operations. An SPD
+ * can define its own instance overriding this one
+ */
+const spd_pm_ops __attribute__((weak)) spd_pm = {0};
+
 /*******************************************************************************
  * Arrays that contains information needs to resume a cpu's execution when woken
  * out of suspend or off states. 'psci_ns_einfo_idx' keeps track of the next

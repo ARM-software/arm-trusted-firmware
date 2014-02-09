@@ -129,7 +129,10 @@ int32_t bl32_init(meminfo *bl32_meminfo)
 		      CTX_GPREG_X0,
 		      (uint64_t) bl32_meminfo);
 
-	/* Arrange for an entry into the secure payload */
+	/*
+	 * Arrange for an entry into the test secure payload. We expect an array
+	 * of vectors in return
+	 */
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 	assert(rc != 0);
 	if (rc)
@@ -189,11 +192,46 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		/* Should never reach here */
 		assert(0);
 
+	/*
+	 * These function IDs is used only by the SP to indicate it has
+	 * finished:
+	 * 1. turning itself on in response to an earlier psci
+	 *    cpu_on request
+	 * 2. resuming itself after an earlier psci cpu_suspend
+	 *    request.
+	 */
+	case TSP_ON_DONE:
+	case TSP_RESUME_DONE:
+
+	/*
+	 * These function IDs is used only by the SP to indicate it has
+	 * finished:
+	 * 1. suspending itself after an earlier psci cpu_suspend
+	 *    request.
+	 * 2. turning itself off in response to an earlier psci
+	 *    cpu_off request.
+	 */
+	case TSP_OFF_DONE:
+	case TSP_SUSPEND_DONE:
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		/*
+		 * SP reports completion. The SPD must have initiated the
+		 * original request through a synchronous entry into the SP.
+		 * Jump back to the original C runtime context, and pass x1 as
+		 * return value to the caller
+		 */
+		tspd_synchronous_sp_exit(&tspd_sp_context[linear_id], x1);
+
+		/* Should never reach here */
+		assert(0);
+
 	default:
-		panic();
+		break;
 	}
 
-	SMC_RET1(handle, 0);
+	SMC_RET1(handle, SMC_UNK);
 }
 
 /* Define a SPD runtime service descriptor */

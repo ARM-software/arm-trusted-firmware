@@ -96,6 +96,12 @@ extern afflvl_power_on_finisher psci_afflvl_off_finish_handlers[];
 extern afflvl_power_on_finisher psci_afflvl_sus_finish_handlers[];
 
 /*******************************************************************************
+ * Weak declarations to allow PSCI to cope on a system where the Secure Payload
+ * Dispatcher is missing. An SPD will define this structure when present.
+ ******************************************************************************/
+extern const spd_pm_ops spd_pm;
+
+/*******************************************************************************
  * Function prototypes
  ******************************************************************************/
 /* Private exported functions from psci_common.c */

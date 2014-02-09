@@ -56,9 +56,21 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 	psci_set_state(cpu_node, PSCI_STATE_OFF);
 
 	/*
-	 * Generic management: Get the index for clearing any
-	 * lingering re-entry information
+	 * Generic management: Get the index for clearing any lingering re-entry
+	 * information and allow the secure world to switch itself off
 	 */
+
+	/*
+	 * Call the cpu off handler registered by the Secure Payload Dispatcher
+	 * to let it do any bookeeping. Assume that the SPD always reports an
+	 * E_DENIED error if SP refuse to power down
+	 */
+	if (spd_pm.svc_off) {
+		rc = spd_pm.svc_off(0);
+		if (rc)
+			return rc;
+	}
+
 	index = cpu_node->data;
 	memset(&psci_ns_entry_info[index], 0, sizeof(psci_ns_entry_info[index]));
 

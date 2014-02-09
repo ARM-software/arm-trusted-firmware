@@ -109,18 +109,6 @@ psci_aff_common_finish_entry:
 	mov	x0, x19
 	bl	platform_set_stack
 
-	/* ---------------------------------------------
-	 * Now that the context management has been set
-	 * up, enable full runtime exception handling.
-	 * SP_EL3 is pointing to a 'cpu_context'
-	 * structure which has an exception stack
-	 * allocated. Since we're just about to leave
-	 * this EL with ERET, we don't need an ISB here
-	 * ---------------------------------------------
-	 */
-	adr	x0, runtime_exceptions
-	msr	vbar_el3, x0
-
 	zero_callee_saved_regs
 	b	el3_exit
 _panic:
