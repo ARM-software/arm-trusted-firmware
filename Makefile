@@ -59,7 +59,8 @@ BL_COMMON_OBJS		:=	misc_helpers.o		\
 				tlb_helpers.o		\
 				std.o			\
 				bl_common.o		\
-				platform_helpers.o
+				platform_helpers.o	\
+				io_storage.o
 
 ARCH 			?=	aarch64
 
@@ -120,7 +121,9 @@ BL1_LINKERFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_LINKERFILE})
 BL2_LINKERFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_LINKERFILE})
 BL31_LINKERFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_LINKERFILE})
 
+
 INCLUDES		+=	-Ilib/include/			\
+				-Idrivers/io			\
 				-Iinclude/${ARCH}/		\
 				-Iinclude/			\
 				-Iarch/system/gic		\

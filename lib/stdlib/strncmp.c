@@ -1,5 +1,5 @@
-/*-
- * Copyright (c) 1990, 1993
+/*
+ * Copyright (c) 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -25,41 +25,28 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)string.h	8.1 (Berkeley) 6/2/93
- * $FreeBSD$
  */
 
 /*
- * Portions copyright (c) 2013-2014, ARM Limited and Contributors.
+ * Portions copyright (c) 2014, ARM Limited and Contributors.
  * All rights reserved.
  */
 
-#ifndef _STRING_H_
-#define	_STRING_H_
-
 #include <sys/cdefs.h>
-#include <sys/_null.h>
-#include <sys/_types.h>
+#include <string.h>
 
-#ifndef _SIZE_T_DECLARED
-typedef	__size_t	size_t;
-#define	_SIZE_T_DECLARED
-#endif
+int
+strncmp(const char *s1, const char *s2, size_t n)
+{
 
-__BEGIN_DECLS
-
-void	*memchr(const void *, int, size_t) __pure;
-int	 memcmp(const void *, const void *, size_t) __pure;
-void	*memcpy(void * __restrict, const void * __restrict, size_t);
-void	*memmove(void *, const void *, size_t);
-void	*memset(void *, int, size_t);
-
-char	*strchr(const char *, int) __pure;
-int	 strcmp(const char *, const char *) __pure;
-size_t	 strlen(const char *) __pure;
-int	 strncmp(const char *, const char *, size_t) __pure;
-
-__END_DECLS
-
-#endif /* _STRING_H_ */
+	if (n == 0)
+		return 0;
+	do {
+		if (*s1 != *s2++)
+			return (*(const unsigned char *)s1 -
+				*(const unsigned char *)(s2 - 1));
+		if (*s1++ == '\0')
+			break;
+	} while (--n != 0);
+	return 0;
+}

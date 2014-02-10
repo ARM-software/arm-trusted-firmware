@@ -61,6 +61,8 @@
 						PLATFORM_CLUSTER0_CORE_COUNT)
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	4
 #define PRIMARY_CPU			0x0
+#define MAX_IO_DEVICES			1
+#define MAX_IO_HANDLES			4
 
 /* Constants for accessing platform configuration */
 #define CONFIG_GICD_ADDR		0
@@ -212,7 +214,7 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			0x0402D000
+#define BL2_BASE			0x0402C000
 
 /*******************************************************************************
  * BL31 specific defines.

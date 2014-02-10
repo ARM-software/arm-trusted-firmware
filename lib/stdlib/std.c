@@ -29,7 +29,7 @@
  */
 
 
-// Include the various implemented functions
+/* Include the various implemented functions */
 #include "abort.c"
 #include "assert.c"
 #include "mem.c"
@@ -37,5 +37,7 @@
 #include "putchar.c"
 #include "puts.c"
 #include "strchr.c"
+#include "strcmp.c"
 #include "strlen.c"
+#include "strncmp.c"
 #include "subr_prf.c"
