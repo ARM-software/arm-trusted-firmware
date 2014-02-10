@@ -37,6 +37,7 @@
 #include <psci.h>
 #include <psci_private.h>
 #include <runtime_svc.h>
+#include "debug.h"
 
 /*******************************************************************************
  * Arrays that contains information needs to resume a cpu's execution when woken
@@ -511,7 +512,8 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 				    start_afflvl,
 				    end_afflvl,
 				    mpidr_nodes);
-	assert (rc == PSCI_E_SUCCESS);
+	if (rc != PSCI_E_SUCCESS)
+		panic();
 
 	/*
 	 * This function acquires the lock corresponding to each affinity
@@ -529,7 +531,8 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 					 end_afflvl,
 					 pon_handlers,
 					 mpidr);
-	assert (rc == PSCI_E_SUCCESS);
+	if (rc != PSCI_E_SUCCESS)
+		panic();
 
 	/*
 	 * This loop releases the lock corresponding to each affinity level

@@ -35,6 +35,7 @@
 #include <bl_common.h>
 /* Included only for error codes */
 #include <psci.h>
+#include "debug.h"
 
 unsigned char platform_normal_stacks[PLATFORM_STACK_SIZE][PLATFORM_CORE_COUNT]
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
@@ -534,8 +535,8 @@ int platform_config_setup(void)
 	bld = (sys_id >> SYS_ID_BLD_SHIFT) & SYS_ID_BLD_MASK;
 	arch = (sys_id >> SYS_ID_ARCH_SHIFT) & SYS_ID_ARCH_MASK;
 
-	assert(rev == REV_FVP);
-	assert(arch == ARCH_MODEL);
+	if ((rev != REV_FVP) || (arch != ARCH_MODEL))
+		panic();
 
 	/*
 	 * The build field in the SYS_ID tells which variant of the GIC

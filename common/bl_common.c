@@ -272,8 +272,9 @@ unsigned long load_image(meminfo *mem_layout,
 			 unsigned int load_type,
 			 unsigned long fixed_addr)
 {
-	unsigned long temp_image_base, image_base;
-	long offset;
+	unsigned long temp_image_base = 0;
+	unsigned long image_base = 0;
+	long offset = 0;
 	int image_flen;
 
 	/* Find the size of the image */

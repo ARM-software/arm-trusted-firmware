@@ -154,6 +154,8 @@ ifneq (${DEBUG}, 0)
 CFLAGS			+= 	-g
 # -save-temps -fverbose-asm
 ASFLAGS			+= 	-g -Wa,--gdwarf-2
+else
+CFLAGS			+=	-DNDEBUG=1
 endif
 
 

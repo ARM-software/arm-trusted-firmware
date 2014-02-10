@@ -255,7 +255,7 @@ static unsigned int psci_init_aff_map(unsigned long mpidr,
  ******************************************************************************/
 void psci_setup(unsigned long mpidr)
 {
-	int afflvl, affmap_idx, rc, max_afflvl;
+	int afflvl, affmap_idx, max_afflvl;
 	aff_map_node *node;
 
 	/* Initialize psci's internal state */
@@ -314,8 +314,7 @@ void psci_setup(unsigned long mpidr)
 			psci_set_state(node, PSCI_STATE_ON);
 	}
 
-	rc = platform_setup_pm(&psci_plat_pm_ops);
-	assert(rc == 0);
+	platform_setup_pm(&psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
 	return;
