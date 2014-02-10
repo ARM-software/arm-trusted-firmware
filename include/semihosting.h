@@ -57,16 +57,20 @@
 #define FOPEN_MODE_APLUS		0xa
 #define FOPEN_MODE_APLUSB		0xb
 
-int semihosting_connection_supported(void);
-int semihosting_file_open(const char *file_name, unsigned int mode);
-int semihosting_file_seek(int file_handle, unsigned int offset);
-int semihosting_file_read(int file_handle, int *length, void *buffer);
-int semihosting_file_write(int file_handle, int *length, const void *buffer);
-int semihosting_file_close(int file_handle);
-int semihosting_file_length(int file_handle);
-int semihosting_system(char *command_line);
-int semihosting_get_flen(const char* file_name);
-int semihosting_download_file(const char* file_name, int buf_size, void *buf);
+long semihosting_connection_supported(void);
+long semihosting_file_open(const char *file_name, size_t mode);
+long semihosting_file_seek(long file_handle, ssize_t offset);
+long semihosting_file_read(long file_handle, size_t *length, void *buffer);
+long semihosting_file_write(long file_handle,
+			    size_t *length,
+			    const void *buffer);
+long semihosting_file_close(long file_handle);
+long semihosting_file_length(long file_handle);
+long semihosting_system(char *command_line);
+long semihosting_get_flen(const char *file_name);
+long semihosting_download_file(const char *file_name,
+			       size_t buf_size,
+			       void *buf);
 void semihosting_write_char(char character);
 void semihosting_write_string(char *string);
 char semihosting_read_char(void);

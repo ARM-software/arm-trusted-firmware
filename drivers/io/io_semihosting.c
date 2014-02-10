@@ -94,7 +94,7 @@ static int sh_file_open(struct io_dev_info *dev_info __attribute__((unused)),
 		const void *spec, struct io_entity *entity)
 {
 	int result = IO_FAIL;
-	int sh_result = -1;
+	long sh_result = -1;
 	const io_file_spec *file_spec = (io_file_spec *)spec;
 
 	assert(file_spec != NULL);
@@ -103,7 +103,7 @@ static int sh_file_open(struct io_dev_info *dev_info __attribute__((unused)),
 	sh_result = semihosting_file_open(file_spec->path, file_spec->mode);
 
 	if (sh_result > 0) {
-		entity->info = sh_result;
+		entity->info = (uintptr_t)sh_result;
 		result = IO_SUCCESS;
 	} else {
 		result = IO_FAIL;
@@ -116,11 +116,11 @@ static int sh_file_open(struct io_dev_info *dev_info __attribute__((unused)),
 static int sh_file_seek(struct io_entity *entity, int mode, ssize_t offset)
 {
 	int result = IO_FAIL;
-	int file_handle, sh_result;
+	long file_handle, sh_result;
 
 	assert(entity != NULL);
 
-	file_handle = (int)entity->info;
+	file_handle = (long)entity->info;
 
 	sh_result = semihosting_file_seek(file_handle, offset);
 
@@ -138,8 +138,8 @@ static int sh_file_len(struct io_entity *entity, size_t *length)
 	assert(entity != NULL);
 	assert(length != NULL);
 
-	int sh_handle = entity->info;
-	int sh_result = semihosting_file_length(sh_handle);
+	long sh_handle = (long)entity->info;
+	long sh_result = semihosting_file_length(sh_handle);
 
 	if (sh_result >= 0) {
 		result = IO_SUCCESS;
@@ -155,15 +155,15 @@ static int sh_file_read(struct io_entity *entity, void *buffer, size_t length,
 		size_t *length_read)
 {
 	int result = IO_FAIL;
-	int sh_result = -1;
-	int bytes = length;
-	int file_handle;
+	long sh_result = -1;
+	size_t bytes = length;
+	long file_handle;
 
 	assert(entity != NULL);
 	assert(buffer != NULL);
 	assert(length_read != NULL);
 
-	file_handle = (int)entity->info;
+	file_handle = (long)entity->info;
 
 	sh_result = semihosting_file_read(file_handle, &bytes, buffer);
 
@@ -182,15 +182,15 @@ static int sh_file_write(struct io_entity *entity, const void *buffer,
 		size_t length, size_t *length_written)
 {
 	int result = IO_FAIL;
-	int sh_result = -1;
-	int file_handle;
-	int bytes = length;
+	long sh_result = -1;
+	long file_handle;
+	size_t bytes = length;
 
 	assert(entity != NULL);
 	assert(buffer != NULL);
 	assert(length_written != NULL);
 
-	file_handle = (int)entity->info;
+	file_handle = (long)entity->info;
 
 	sh_result = semihosting_file_write(file_handle, &bytes, buffer);
 
@@ -208,12 +208,12 @@ static int sh_file_write(struct io_entity *entity, const void *buffer,
 static int sh_file_close(struct io_entity *entity)
 {
 	int result = IO_FAIL;
-	int sh_result = -1;
-	int file_handle;
+	long sh_result = -1;
+	long file_handle;
 
 	assert(entity != NULL);
 
-	file_handle = (int)entity->info;
+	file_handle = (long)entity->info;
 
 	sh_result = semihosting_file_close(file_handle);
 
