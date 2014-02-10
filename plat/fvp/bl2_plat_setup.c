@@ -105,6 +105,9 @@ void bl2_early_platform_setup(meminfo *mem_layout,
  ******************************************************************************/
 void bl2_platform_setup()
 {
+	/* Initialise the IO layer and register platform IO devices */
+	io_setup();
+
 	/* Use the Trusted DRAM for passing args to BL31 */
 	bl2_el_change_mem_ptr = (unsigned char **) TZDRAM_BASE;
 }

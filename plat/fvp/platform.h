@@ -35,6 +35,7 @@
 #include <mmio.h>
 #include <psci.h>
 #include <bl_common.h>
+#include "io_storage.h"
 
 
 /*******************************************************************************
@@ -346,6 +347,11 @@ extern int plat_setup_topology(void);
 extern int plat_get_max_afflvl(void);
 extern unsigned int plat_get_aff_count(unsigned int, unsigned long);
 extern unsigned int plat_get_aff_state(unsigned int, unsigned long);
+
+/* Declarations for plat_io_storage.c */
+extern void io_setup(void);
+extern int plat_get_image_source(const char *image_name,
+		io_dev_handle *dev_handle, void **image_spec);
 
 #endif /*__ASSEMBLY__*/
 

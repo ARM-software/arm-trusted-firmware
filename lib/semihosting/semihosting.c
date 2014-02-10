@@ -120,7 +120,7 @@ int semihosting_file_read(int file_handle, int *length, void *buffer)
 		return result;
 }
 
-int semihosting_file_write(int file_handle, int *length, void *buffer)
+int semihosting_file_write(int file_handle, int *length, const void *buffer)
 {
 	smh_file_read_write_block write_block;
 
@@ -128,7 +128,7 @@ int semihosting_file_write(int file_handle, int *length, void *buffer)
 		return -EINVAL;
 
 	write_block.handle = file_handle;
-	write_block.buffer = buffer;
+	write_block.buffer = (void *)buffer;
 	write_block.length = *length;
 
 	*length = semihosting_call(SEMIHOSTING_SYS_WRITE,

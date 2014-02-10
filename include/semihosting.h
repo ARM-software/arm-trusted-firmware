@@ -61,7 +61,7 @@ int semihosting_connection_supported(void);
 int semihosting_file_open(const char *file_name, unsigned int mode);
 int semihosting_file_seek(int file_handle, unsigned int offset);
 int semihosting_file_read(int file_handle, int *length, void *buffer);
-int semihosting_file_write(int file_handle, int *length, void *buffer);
+int semihosting_file_write(int file_handle, int *length, const void *buffer);
 int semihosting_file_close(int file_handle);
 int semihosting_file_length(int file_handle);
 int semihosting_system(char *command_line);

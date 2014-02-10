@@ -35,14 +35,16 @@ PLAT_INCLUDES		:=	-Idrivers/arm/interconnect/cci-400	\
 PLAT_BL1_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 				drivers/arm/peripherals/pl011		\
 				lib/semihosting				\
-				lib/stdlib
+				lib/stdlib				\
+				drivers/io
 
 PLAT_BL1_S_VPATH	:=	lib/semihosting/${ARCH}
 
 PLAT_BL2_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 				drivers/arm/peripherals/pl011		\
 				lib/stdlib				\
-				lib/semihosting
+				lib/semihosting				\
+				drivers/io
 
 PLAT_BL2_S_VPATH	:=	lib/semihosting/${ARCH}
 
@@ -50,7 +52,8 @@ PLAT_BL31_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 				drivers/arm/peripherals/pl011		\
 				lib/semihosting				\
 				lib/stdlib				\
-				drivers/power
+				drivers/power				\
+				drivers/io
 
 PLAT_BL31_S_VPATH	:=	lib/semihosting/${ARCH}
 
@@ -58,7 +61,9 @@ PLAT_BL_COMMON_OBJS	:=	semihosting_call.o			\
 				mmio.o					\
 				pl011.o					\
 				semihosting.o				\
-				sysreg_helpers.o
+				sysreg_helpers.o			\
+				plat_io_storage.o			\
+				io_semihosting.o
 
 BL1_OBJS		+=	bl1_plat_setup.o			\
 				bl1_plat_helpers.o			\

@@ -37,6 +37,8 @@
 #include <platform.h>
 #include <semihosting.h>
 #include <bl_common.h>
+#include "io_storage.h"
+#include "debug.h"
 
 /***********************************************************
  * Memory for sharing data while changing exception levels.
@@ -262,7 +264,7 @@ static void dump_load_info(unsigned long image_load_addr,
 }
 
 /*******************************************************************************
- * Generic function to load an image into the trusted RAM using semihosting
+ * Generic function to load an image into the trusted RAM,
  * given a name, extents of free memory & whether the image should be loaded at
  * the bottom or top of the free memory. It updates the memory layout if the
  * load is successful.
@@ -272,25 +274,49 @@ unsigned long load_image(meminfo *mem_layout,
 			 unsigned int load_type,
 			 unsigned long fixed_addr)
 {
+	io_dev_handle dev_handle;
+	io_handle image_handle;
+	void *image_spec;
 	unsigned long temp_image_base = 0;
 	unsigned long image_base = 0;
 	long offset = 0;
-	int image_flen;
+	size_t image_size = 0;
+	size_t bytes_read = 0;
+	int io_result = IO_FAIL;
 
-	/* Find the size of the image */
-	image_flen = semihosting_get_flen(image_name);
-	if (image_flen < 0) {
-		printf("ERROR: Cannot access '%s' file (%i).\r\n",
-			image_name, image_flen);
+	assert(mem_layout != NULL);
+	assert(image_name != NULL);
+
+	/* Obtain a reference to the image by querying the platform layer */
+	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
+	if (io_result != IO_SUCCESS) {
+		ERROR("Failed to obtain reference to image '%s' (%i)\n",
+			image_name, io_result);
 		return 0;
 	}
 
-	/* See if we have enough space */
-	if (image_flen > mem_layout->free_size) {
-		printf("ERROR: Cannot load '%s' file: Not enough space.\r\n",
-			image_name);
-		dump_load_info(0, image_flen, mem_layout);
+	/* Attempt to access the image */
+	io_result = io_open(dev_handle, image_spec, &image_handle);
+	if (io_result != IO_SUCCESS) {
+		ERROR("Failed to access image '%s' (%i)\n",
+			image_name, io_result);
 		return 0;
+	}
+
+	/* Find the size of the image */
+	io_result = io_size(image_handle, &image_size);
+	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
+		ERROR("Failed to determine the size of the image '%s' file (%i)\n",
+			image_name, io_result);
+		goto fail;
+	}
+
+	/* See if we have enough space */
+	if (image_size > mem_layout->free_size) {
+		ERROR("ERROR: Cannot load '%s' file: Not enough space.\n",
+			image_name);
+		dump_load_info(0, image_size, mem_layout);
+		goto fail;
 	}
 
 	switch (load_type) {
@@ -299,17 +325,17 @@ unsigned long load_image(meminfo *mem_layout,
 
 	  /* Load the image in the top of free memory */
 	  temp_image_base = mem_layout->free_base + mem_layout->free_size;
-	  temp_image_base -= image_flen;
+	  temp_image_base -= image_size;
 
 	  /* Page align base address and check whether the image still fits */
 	  image_base = page_align(temp_image_base, DOWN);
 	  assert(image_base <= temp_image_base);
 
 	  if (image_base < mem_layout->free_base) {
-		  printf("ERROR: Cannot load '%s' file: Not enough space.\r\n",
-			  image_name);
-		  dump_load_info(image_base, image_flen, mem_layout);
-		  return 0;
+		ERROR("Cannot load '%s' file: Not enough space.\n",
+			image_name);
+		dump_load_info(image_base, image_size, mem_layout);
+		goto fail;
 	  }
 
 	  /* Calculate the amount of extra memory used due to alignment */
@@ -325,12 +351,12 @@ unsigned long load_image(meminfo *mem_layout,
 	  assert(image_base >= temp_image_base);
 
 	  /* Page align base address and check whether the image still fits */
-	  if (image_base + image_flen >
+	  if (image_base + image_size >
 	      mem_layout->free_base + mem_layout->free_size) {
-		  printf("ERROR: Cannot load '%s' file: Not enough space.\r\n",
+		  ERROR("Cannot load '%s' file: Not enough space.\n",
 			  image_name);
-		  dump_load_info(image_base, image_flen, mem_layout);
-		  return 0;
+		  dump_load_info(image_base, image_size, mem_layout);
+		  goto fail;
 	  }
 
 	  /* Calculate the amount of extra memory used due to alignment */
@@ -390,19 +416,19 @@ unsigned long load_image(meminfo *mem_layout,
 
 		/* Check whether the image fits. */
 		if ((image_base < mem_layout->free_base) ||
-		    (image_base + image_flen >
+		    (image_base + image_size >
 		       mem_layout->free_base + mem_layout->free_size)) {
-			printf("ERROR: Cannot load '%s' file: Not enough space.\r\n",
+			ERROR("Cannot load '%s' file: Not enough space.\n",
 				image_name);
-			dump_load_info(image_base, image_flen, mem_layout);
-			return 0;
+			dump_load_info(image_base, image_size, mem_layout);
+			goto fail;
 		}
 
 		/* Check whether the fixed load address is page-aligned. */
 		if (!is_page_aligned(image_base)) {
-			printf("ERROR: Cannot load '%s' file at unaligned address 0x%lx.\r\n",
+			ERROR("Cannot load '%s' file at unaligned address 0x%lx\n",
 				image_name, fixed_addr);
-			return 0;
+			goto fail;
 		}
 
 		/*
@@ -432,7 +458,7 @@ unsigned long load_image(meminfo *mem_layout,
 			 * Calculate the amount of wasted memory within the
 			 * amount of memory used by the image.
 			 */
-			offset = space_used - image_flen;
+			offset = space_used - image_size;
 		} else /* BOT_LOAD */
 			/*
 			 * ------------
@@ -448,13 +474,11 @@ unsigned long load_image(meminfo *mem_layout,
 	}
 
 	/* We have enough space so load the image now */
-	image_flen = semihosting_download_file(image_name,
-					       image_flen,
-					       (void *) image_base);
-	if (image_flen <= 0) {
-		printf("ERROR: Failed to load '%s' file from semihosting (%i).\r\n",
-			image_name, image_flen);
-		return 0;
+	/* TODO: Consider whether to try to recover/retry a partially successful read */
+	io_result = io_read(image_handle, (void *)image_base, image_size, &bytes_read);
+	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
+		ERROR("Failed to load '%s' file (%i)\n", image_name, io_result);
+		goto fail;
 	}
 
 	/*
@@ -463,15 +487,26 @@ unsigned long load_image(meminfo *mem_layout,
 	 * the next EL can see it.
 	 */
 	/* Update the memory contents */
-	flush_dcache_range(image_base, image_flen);
+	flush_dcache_range(image_base, image_size);
 
-	mem_layout->free_size -= image_flen + offset;
+	mem_layout->free_size -= image_size + offset;
 
 	/* Update the base of free memory since its moved up */
 	if (load_type == BOT_LOAD)
-		mem_layout->free_base += offset + image_flen;
+		mem_layout->free_base += offset + image_size;
+
+exit:
+	io_result = io_close(image_handle);
+	/* Ignore improbable/unrecoverable error in 'close' */
+
+	/* TODO: Consider maintaining open device connection from this bootloader stage */
+	io_result = io_dev_close(dev_handle);
+	/* Ignore improbable/unrecoverable error in 'dev_close' */
 
 	return image_base;
+
+fail:	image_base = 0;
+	goto exit;
 }
 
 /*******************************************************************************

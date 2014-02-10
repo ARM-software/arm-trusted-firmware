@@ -31,6 +31,8 @@
 #ifndef __IO_H__
 #define __IO_H__
 
+#ifndef __ASSEMBLY__
+
 #include <stdint.h>
 #include <stdio.h>	/* For ssize_t */
 
@@ -125,4 +127,5 @@ int io_write(io_handle handle, const void *buffer, size_t length,
 int io_close(io_handle handle);
 
 
+#endif /* __ASSEMBLY__ */
 #endif /* __IO_H__ */
