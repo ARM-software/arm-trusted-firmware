@@ -155,8 +155,8 @@ static int sh_file_read(struct io_entity *entity, void *buffer, size_t length,
 		size_t *length_read)
 {
 	int result = IO_FAIL;
-	int sh_result = -1;
-	int bytes = length;
+	size_t sh_result = -1;
+	size_t bytes = length;
 	int file_handle;
 
 	assert(entity != NULL);
@@ -182,9 +182,9 @@ static int sh_file_write(struct io_entity *entity, const void *buffer,
 		size_t length, size_t *length_written)
 {
 	int result = IO_FAIL;
-	int sh_result = -1;
+	size_t sh_result = -1;
 	int file_handle;
-	int bytes = length;
+	size_t bytes = length;
 
 	assert(entity != NULL);
 	assert(buffer != NULL);

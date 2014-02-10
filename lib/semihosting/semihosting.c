@@ -37,37 +37,37 @@
 #define SEMIHOSTING_SUPPORTED  1
 #endif
 
-extern int semihosting_call(unsigned int operation,
+extern size_t semihosting_call(size_t operation,
 			    void *system_block_address);
 
 typedef struct {
 	const char *file_name;
-	unsigned int mode;
-	unsigned int name_length;
+	size_t mode;
+	size_t name_length;
 } smh_file_open_block;
 
 typedef struct {
-	int handle;
+	size_t handle;
 	void *buffer;
-	unsigned int length;
+	size_t length;
 } smh_file_read_write_block;
 
 typedef struct {
-	int handle;
-	unsigned int location;
+	size_t handle;
+	size_t location;
 } smh_file_seek_block;
 
 typedef struct {
 	char *command_line;
-	unsigned int command_length;
+	size_t command_length;
 } smh_system_block;
 
-int semihosting_connection_supported(void)
+size_t semihosting_connection_supported(void)
 {
 	return SEMIHOSTING_SUPPORTED;
 }
 
-int semihosting_file_open(const char *file_name, unsigned int mode)
+size_t semihosting_file_open(const char *file_name, size_t mode)
 {
 	smh_file_open_block open_block;
 
@@ -79,10 +79,10 @@ int semihosting_file_open(const char *file_name, unsigned int mode)
 				(void *) &open_block);
 }
 
-int semihosting_file_seek(int file_handle, unsigned int offset)
+size_t semihosting_file_seek(size_t file_handle, size_t offset)
 {
 	smh_file_seek_block seek_block;
-	int result;
+	size_t result;
 
 	seek_block.handle = file_handle;
 	seek_block.location = offset;
@@ -96,10 +96,10 @@ int semihosting_file_seek(int file_handle, unsigned int offset)
 	return result;
 }
 
-int semihosting_file_read(int file_handle, int *length, void *buffer)
+size_t semihosting_file_read(size_t file_handle, size_t *length, void *buffer)
 {
 	smh_file_read_write_block read_block;
-	int result = -EINVAL;
+	size_t result = -EINVAL;
 
 	if ((length == NULL) || (buffer == NULL))
 		return result;
@@ -120,7 +120,7 @@ int semihosting_file_read(int file_handle, int *length, void *buffer)
 		return result;
 }
 
-int semihosting_file_write(int file_handle, int *length, const void *buffer)
+size_t semihosting_file_write(size_t file_handle, size_t *length, const void *buffer)
 {
 	smh_file_read_write_block write_block;
 
@@ -137,13 +137,13 @@ int semihosting_file_write(int file_handle, int *length, const void *buffer)
 	return *length;
 }
 
-int semihosting_file_close(int file_handle)
+size_t semihosting_file_close(size_t file_handle)
 {
 	return semihosting_call(SEMIHOSTING_SYS_CLOSE,
 				(void *) &file_handle);
 }
 
-int semihosting_file_length(int file_handle)
+size_t semihosting_file_length(size_t file_handle)
 {
 	return semihosting_call(SEMIHOSTING_SYS_FLEN,
 				(void *) &file_handle);
@@ -164,7 +164,7 @@ void semihosting_write_string(char *string)
 	semihosting_call(SEMIHOSTING_SYS_WRITE0, (void *) string);
 }
 
-int semihosting_system(char *command_line)
+size_t semihosting_system(char *command_line)
 {
 	smh_system_block system_block;
 
@@ -175,9 +175,10 @@ int semihosting_system(char *command_line)
 				(void *) &system_block);
 }
 
-int semihosting_get_flen(const char *file_name)
+size_t semihosting_get_flen(const char *file_name)
 {
-	int file_handle, length;
+	size_t file_handle;
+	size_t length;
 
 	assert(semihosting_connection_supported());
 
@@ -191,11 +192,13 @@ int semihosting_get_flen(const char *file_name)
 	return semihosting_file_close(file_handle) ? -1 : length;
 }
 
-int semihosting_download_file(const char *file_name,
-			      int buf_size,
+size_t semihosting_download_file(const char *file_name,
+			      size_t buf_size,
 			      void *buf)
 {
-	int ret = -EINVAL, file_handle, length;
+	size_t ret = -EINVAL;
+	size_t length;
+	size_t file_handle;
 
 	/* Null pointer check */
 	if (!buf)
