@@ -49,21 +49,6 @@
 #define LOAD_MASK	(1 << 0)
 
 /*******************************************************************************
- * Size of memory for sharing data while changing exception levels.
- *
- * There are 2 cases where this memory buffer is used:
- *
- *   - when BL1 (running in EL3) passes control to BL2 (running in S-EL1).
- *     BL1 needs to pass the memory layout to BL2, to allow BL2 to find out
- *     how much free trusted ram remains;
- *
- *   - when BL2 (running in S-EL1) passes control back to BL1 (running in EL3)
- *     to make it run BL31.  BL2 needs to pass the memory layout, as well as
- *     information on how to pass control to the non-trusted software image.
- ******************************************************************************/
-#define EL_CHANGE_MEM_SIZE	(sizeof(meminfo) + sizeof(el_change_info))
-
-/*******************************************************************************
  * Macro to flag a compile time assertion. It uses the preprocessor to generate
  * an invalid C construct if 'cond' evaluates to false.
  * The following  compilation error is triggered if the assertion fails:
@@ -143,7 +128,6 @@ extern int run_image(unsigned long,
 		     unsigned long,
 		     meminfo *,
 		     void *);
-extern unsigned long *get_el_change_mem_ptr(void);
 
 #endif /*__ASSEMBLY__*/
 

@@ -40,17 +40,6 @@
 #include "io_storage.h"
 #include "debug.h"
 
-/***********************************************************
- * Memory for sharing data while changing exception levels.
- * Only used by the primary core.
- **********************************************************/
-unsigned char bl2_el_change_mem_ptr[EL_CHANGE_MEM_SIZE];
-
-unsigned long *get_el_change_mem_ptr(void)
-{
-	return (unsigned long *) bl2_el_change_mem_ptr;
-}
-
 unsigned long page_align(unsigned long value, unsigned dir)
 {
 	unsigned long page_size = 1 << FOUR_KB_SHIFT;

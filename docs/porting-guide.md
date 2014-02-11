@@ -582,24 +582,10 @@ port does the necessary initialization in `bl2_plat_arch_setup()`. It is only
 called by the primary CPU.
 
 The purpose of this function is to perform any platform initialization specific
-to BL2. This function must initialize a pointer to memory
-(`bl2_el_change_mem_ptr`), which can then be used to populate an
-`el_change_info` structure. The underlying requirement is that the platform must
-initialize this pointer before the `get_el_change_mem_ptr()` function
-accesses it in `bl2_main()`.
-
-The ARM FVP port initializes this pointer to the base address of Secure DRAM
-(`0x06000000`).
+to BL2.
 
 This function is also responsible for initializing the storage abstraction layer
 which is used to load further bootloader images.
-
-
-### Variable : unsigned char bl2_el_change_mem_ptr[EL_CHANGE_MEM_SIZE] [mandatory]
-
-As mentioned in the description of `bl2_platform_setup()`, this pointer is
-initialized by the platform to point to memory where an `el_change_info`
-structure can be populated.
 
 
 ### Function : bl2_plat_sec_mem_layout() [mandatory]
