@@ -101,7 +101,7 @@ void gicv3_cpuif_setup(void)
 	val = read_icc_sre_el2();
 	write_icc_sre_el2(val | ICC_SRE_EN | ICC_SRE_SRE);
 
-	write_icc_pmr_el1(MAX_PRI_VAL);
+	write_icc_pmr_el1(GIC_PRI_MASK);
 
 	/* Restore SCR_EL3 */
 	write_scr(scr_val);
@@ -166,7 +166,7 @@ void gic_cpuif_setup(unsigned int gicc_base)
 	val = ENABLE_GRP0 | FIQ_EN | FIQ_BYP_DIS_GRP0;
 	val |= IRQ_BYP_DIS_GRP0 | FIQ_BYP_DIS_GRP1 | IRQ_BYP_DIS_GRP1;
 
-	gicc_write_pmr(gicc_base, MAX_PRI_VAL);
+	gicc_write_pmr(gicc_base, GIC_PRI_MASK);
 	gicc_write_ctlr(gicc_base, val);
 }
 
@@ -214,15 +214,15 @@ void gic_pcpu_distif_setup(unsigned int gicd_base)
 	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_6);
 	gicd_clr_igroupr(gicd_base, IRQ_SEC_SGI_7);
 
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_PHY_TIMER, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_0, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_1, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_2, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_3, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_4, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_5, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_6, MAX_PRI_VAL);
-	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_7, MAX_PRI_VAL);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY);
+	gicd_set_ipriorityr(gicd_base, IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY);
 
 	gicd_set_isenabler(gicd_base, IRQ_SEC_PHY_TIMER);
 	gicd_set_isenabler(gicd_base, IRQ_SEC_SGI_0);
@@ -261,7 +261,7 @@ void gic_distif_setup(unsigned int gicd_base)
 
 	/* Configure secure interrupts now */
 	gicd_clr_igroupr(gicd_base, IRQ_TZ_WDOG);
-	gicd_set_ipriorityr(gicd_base, IRQ_TZ_WDOG, MAX_PRI_VAL);
+	gicd_set_ipriorityr(gicd_base, IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY);
 	gicd_set_itargetsr(gicd_base, IRQ_TZ_WDOG,
 			   platform_get_core_pos(read_mpidr()));
 	gicd_set_isenabler(gicd_base, IRQ_TZ_WDOG);
