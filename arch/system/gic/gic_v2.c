@@ -264,8 +264,9 @@ void gicd_set_icactiver(unsigned int base, unsigned int id)
  */
 void gicd_set_ipriorityr(unsigned int base, unsigned int id, unsigned int pri)
 {
-	unsigned byte_off = id & ((1 << ICACTIVER_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_icactiver(base, id);
+	unsigned int reg = base + GICD_IPRIORITYR + (id & ~3);
+	unsigned int shift = (id & 3) * 8;
+	unsigned int reg_val = mmio_read_32(reg);
 
 	/*
 	 * Enforce ARM recommendation to manage priority values such
@@ -277,7 +278,9 @@ void gicd_set_ipriorityr(unsigned int base, unsigned int id, unsigned int pri)
 	else
 		pri &= ~(1 << 7);
 
-	gicd_write_icactiver(base, id, reg_val & ~(pri << (byte_off << 3)));
+	reg_val &= ~(0xff << shift);
+	reg_val |= (pri << shift);
+	mmio_write_32(reg, reg_val);
 }
 
 void gicd_set_itargetsr(unsigned int base, unsigned int id, unsigned int iface)
