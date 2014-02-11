@@ -37,7 +37,11 @@
 
 #define GRP0			0
 #define GRP1			1
-#define MAX_PRI_VAL		0xff
+#define GIC_PRI_MASK		0xff
+#define GIC_HIGHEST_SEC_PRIORITY 0
+#define GIC_LOWEST_SEC_PRIORITY	127
+#define GIC_HIGHEST_NS_PRIORITY	128
+#define GIC_LOWEST_NS_PRIORITY	254 /* 255 would disable an interrupt */
 
 #define ENABLE_GRP0		(1 << 0)
 #define ENABLE_GRP1		(1 << 1)

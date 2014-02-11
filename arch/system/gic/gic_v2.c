@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
 #include <gic.h>
 #include <mmio.h>
 
@@ -264,20 +265,26 @@ void gicd_set_icactiver(unsigned int base, unsigned int id)
  */
 void gicd_set_ipriorityr(unsigned int base, unsigned int id, unsigned int pri)
 {
-	unsigned byte_off = id & ((1 << ICACTIVER_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_icactiver(base, id);
+	unsigned int reg = base + GICD_IPRIORITYR + (id & ~3);
+	unsigned int shift = (id & 3) << 3;
+	unsigned int reg_val = mmio_read_32(reg);
 
 	/*
 	 * Enforce ARM recommendation to manage priority values such
 	 * that group1 interrupts always have a lower priority than
-	 * group0 interrupts
+	 * group0 interrupts.
+	 * Note, lower numerical values are higher priorities so the comparison
+	 * checks below are reversed from what might be expected.
 	 */
-	if (gicd_get_igroupr(base, id) == GRP1)
-		pri |= 1 << 7;
-	else
-		pri &= ~(1 << 7);
+	assert(gicd_get_igroupr(base, id) == GRP1 ?
+		pri >= GIC_HIGHEST_NS_PRIORITY &&
+			pri <= GIC_LOWEST_NS_PRIORITY :
+		pri >= GIC_HIGHEST_SEC_PRIORITY &&
+			pri <= GIC_LOWEST_SEC_PRIORITY);
 
-	gicd_write_icactiver(base, id, reg_val & ~(pri << (byte_off << 3)));
+	reg_val &= ~(GIC_PRI_MASK << shift);
+	reg_val |= (pri & GIC_PRI_MASK) << shift;
+	mmio_write_32(reg, reg_val);
 }
 
 void gicd_set_itargetsr(unsigned int base, unsigned int id, unsigned int iface)
