@@ -131,7 +131,8 @@ INCLUDES		+=	-Ilib/include/			\
 				${PLAT_INCLUDES}
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
-				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}
+				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}	\
+				-DDEBUG=${DEBUG}
 CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall	\
 				-Werror -mgeneral-regs-only -std=c99 -c -Os	\
 				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
