@@ -94,11 +94,61 @@ int pm_on_finish(unsigned long mpidr, unsigned int afflvl, unsigned int state)
 }
 
 /*******************************************************************************
+ * Handler called when an affinity instance is about to be turned off. The
+ * level and mpidr determine the affinity instance. The 'state' arg. allows the
+ * platform to decide whether the cluster is being turned off and take apt
+ * actions.
+ *
+ * CAUTION: This function is called with coherent stacks so that caches can be
+ * turned off, flushed and coherency disabled. There is no guarantee that caches
+ * will remain turned on across calls to this function as each affinity level is
+ * dealt with. So do not write & read global variables across calls. It will be
+ * wise to do flush a write to the global to prevent unpredictable results.
+ ******************************************************************************/
+int pm_off(unsigned long mpidr, unsigned int afflvl, unsigned int state)
+{
+	 /* We're only interested in power off states */
+	if (state != PSCI_STATE_OFF)
+		return PSCI_E_SUCCESS;
+
+	switch (afflvl) {
+	case MPIDR_AFFLVL1:
+		/* Cluster is to be turned off, so disable coherency */
+		cci_disable_coherency(mpidr);
+
+		break;
+
+	case MPIDR_AFFLVL0:
+		/* Turn off intra-cluster coherency */
+		write_cpuectlr(read_cpuectlr() & ~CPUECTLR_SMP_BIT);
+
+		/* Prevent interrupts from spuriously waking up this cpu */
+		gic_cpuif_deactivate(GICC_BASE);
+
+		/*
+		 * Ask SCP to power down CPU.
+		 *
+		 * Note, we also ask for cluster power down as well because we
+		 * know the SCP will only actually do that if this is the last
+		 * CPU going down, and also, that final power down won't happen
+		 * until this CPU executes the WFI instruction after the PSCI
+		 * framework has done it's thing.
+		 */
+		scpi_set_css_power_state(mpidr, scpi_power_off, scpi_power_off,
+						scpi_power_retention);
+		break;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+/*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static plat_pm_ops pm_ops = {
 	.affinst_on		= pm_on,
-	.affinst_on_finish	= pm_on_finish
+	.affinst_on_finish	= pm_on_finish,
+	.affinst_off		= pm_off
 };
 
 /*******************************************************************************
