@@ -112,3 +112,14 @@ int scpi_wait_ready(void)
 
 	return response == SCP_OK ? 0 : -1;
 	}
+	
+void scpi_set_css_power_state(unsigned mpidr, scpi_power_state cpu_state,
+		scpi_power_state cluster_state, scpi_power_state css_state)
+{
+	uint32_t state = mpidr & 0x0f;	/* CPU ID */
+	state |= (mpidr & 0xf00) >> 4;	/* Cluster ID */
+	state |= cpu_state << 8;
+	state |= cluster_state << 12;
+	state |= css_state << 16;
+	scpi_secure_send32(SCPI_CMD_SET_CSS_POWER_STATE, state);
+}
