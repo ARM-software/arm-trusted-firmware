@@ -47,25 +47,24 @@ vpath			%.S	lib/arch/${ARCH}			\
 				arch/system/gic/${ARCH}			\
 				${PLAT_BL31_S_VPATH}
 
-BL31_OBJS		+=	bl31_arch_setup.o			\
-				bl31_entrypoint.o			\
-				runtime_exceptions.o			\
-				bl31_main.o				\
-				psci_entry.o				\
-				psci_setup.o				\
-				psci_common.o				\
-				psci_afflvl_on.o			\
-				psci_main.o				\
-				psci_afflvl_off.o			\
-				psci_afflvl_suspend.o			\
-				spinlock.o				\
-				gic_v3_sysregs.o			\
-				bakery_lock.o				\
-				runtime_svc.o				\
-				early_exceptions.o			\
-				context_mgmt.o				\
-				context.o
+BL31_SOURCES		+=	bl31_arch_setup.c			\
+				bl31_entrypoint.S			\
+				runtime_exceptions.S			\
+				bl31_main.c				\
+				psci_entry.S				\
+				psci_setup.c				\
+				psci_common.c				\
+				psci_afflvl_on.c			\
+				psci_main.c				\
+				psci_afflvl_off.c			\
+				psci_afflvl_suspend.c			\
+				spinlock.S				\
+				gic_v3_sysregs.S			\
+				bakery_lock.c				\
+				runtime_svc.c				\
+				early_exceptions.S			\
+				context_mgmt.c				\
+				context.S
 
 BL31_ENTRY_POINT	:=	bl31_entrypoint
-BL31_MAPFILE		:=	bl31.map
-BL31_LINKERFILE		:=	bl31.ld
+BL31_LINKERFILE		:=	bl31.ld.S
