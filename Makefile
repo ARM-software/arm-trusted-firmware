@@ -57,13 +57,13 @@ else
 	BUILD_TYPE	:=	release
 endif
 
-BL_COMMON_OBJS		:=	misc_helpers.o		\
-				cache_helpers.o		\
-				tlb_helpers.o		\
-				std.o			\
-				bl_common.o		\
-				platform_helpers.o	\
-				io_storage.o
+BL_COMMON_SOURCES	:=	misc_helpers.S		\
+				cache_helpers.S		\
+				tlb_helpers.S		\
+				std.c			\
+				bl_common.c		\
+				platform_helpers.S	\
+				io_storage.c
 
 ARCH 			?=	aarch64
 
@@ -72,10 +72,6 @@ PLAT			?=	all
 
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
-BUILD_BL1		:=	${BUILD_PLAT}/bl1
-BUILD_BL2		:=	${BUILD_PLAT}/bl2
-BUILD_BL31		:=	${BUILD_PLAT}/bl31
-BUILD_DIRS		:=	${BUILD_BL1} ${BUILD_BL2} ${BUILD_BL31}
 
 PLATFORMS		:=	$(shell ls -I common plat/)
 HELP_PLATFORMS		:=	$(shell echo ${PLATFORMS} | sed 's/ /|/g')
@@ -114,17 +110,6 @@ endif
 .SUFFIXES:
 
 
-BL1_OBJS		:= 	$(addprefix ${BUILD_BL1}/,${BL1_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
-BL2_OBJS		:= 	$(addprefix ${BUILD_BL2}/,${BL2_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
-BL31_OBJS		:= 	$(addprefix ${BUILD_BL31}/,${BL31_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
-BL1_MAPFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_MAPFILE})
-BL2_MAPFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_MAPFILE})
-BL31_MAPFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_MAPFILE})
-BL1_LINKERFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_LINKERFILE})
-BL2_LINKERFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_LINKERFILE})
-BL31_LINKERFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_LINKERFILE})
-
-
 INCLUDES		+=	-Ilib/include/			\
 				-Idrivers/io			\
 				-Iinclude/${ARCH}/		\
@@ -144,9 +129,6 @@ CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall	\
 				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
 
 LDFLAGS			+=	--fatal-warnings -O1
-BL1_LDFLAGS		:=	-Map=${BL1_MAPFILE} --script ${BL1_LINKERFILE} --entry=${BL1_ENTRY_POINT}
-BL2_LDFLAGS		:=	-Map=${BL2_MAPFILE} --script ${BL2_LINKERFILE} --entry=${BL2_ENTRY_POINT}
-BL31_LDFLAGS		:=	-Map=${BL31_MAPFILE} --script ${BL31_LINKERFILE} --entry=${BL31_ENTRY_POINT}
 
 
 vpath %.ld.S bl1:bl2:bl31
@@ -174,11 +156,6 @@ OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
-
-
-bl1:			${BUILD_BL1} ${BUILD_PLAT}/bl1.bin
-bl2:			${BUILD_BL2} ${BUILD_PLAT}/bl2.bin
-bl31:			${BUILD_BL31} ${BUILD_PLAT}/bl31.bin
 
 BASE_COMMIT		?=	origin/master
 
@@ -248,79 +225,125 @@ ${FIPTOOL}:
 			${Q}make -C ${FIPTOOLPATH}
 			@echo
 
-${BUILD_DIRS}:
-			${Q}mkdir -p "$@"
+define match_goals
+$(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))
+endef
 
 
-${BUILD_BL1}/%.o:	%.S
-			@echo "  AS      $<"
-			${Q}${AS} ${ASFLAGS} -c $< -o $@
-
-${BUILD_BL2}/%.o:	%.S
-			@echo "  AS      $<"
-			${Q}${AS} ${ASFLAGS} -c $< -o $@
-
-${BUILD_BL31}/%.o:	%.S
-			@echo "  AS      $<"
-			${Q}${AS} ${ASFLAGS} -c $< -o $@
-
-${BUILD_BL1}/%.o:	%.c
-			@echo "  CC      $<"
-			${Q}${CC} ${CFLAGS} -c $< -o $@
-
-${BUILD_BL2}/%.o:	%.c
-			@echo "  CC      $<"
-			${Q}${CC} ${CFLAGS} -c $< -o $@
-
-${BUILD_BL31}/%.o:	%.c
-			@echo "  CC      $<"
-			${Q}${CC} ${CFLAGS} -c $< -o $@
-
-${BUILD_BL1}/%.ld:	%.ld.S
-			@echo "  PP      $<"
-			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
-
-${BUILD_BL2}/%.ld:	%.ld.S
-			@echo "  PP      $<"
-			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
-
-${BUILD_BL31}/%.ld:	%.ld.S
-			@echo "  PP      $<"
-			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
+CLEANING := $(call match_goals,clean realclean distclean)
 
 
-${BUILD_BL1}/bl1.elf:	${BL1_OBJS} ${BL1_LINKERFILE}
-			@echo "  LD      $@"
-			${Q}${LD} -o $@ ${LDFLAGS} ${BL1_LDFLAGS} ${BL1_OBJS}
+define MAKE_C
 
-${BUILD_BL2}/bl2.elf:	${BL2_OBJS} ${BL2_LINKERFILE}
-			@echo "  LD      $@"
-			${Q}${LD} -o $@ ${LDFLAGS} ${BL2_LDFLAGS} ${BL2_OBJS}
+$(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
+$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
 
-${BUILD_BL31}/bl31.elf:	${BL31_OBJS} ${BL31_LINKERFILE}
-			@echo "  LD      $@"
-			${Q}${LD} -o $@ ${LDFLAGS} ${BL31_LDFLAGS} ${BL31_OBJS}
+$(OBJ) : $(2)
+	@echo "  CC      $$<"
+	$$(Q)$$(CC) $$(CFLAGS) -c $$< -o $$@
 
-${BUILD_PLAT}/bl1.bin:	${BUILD_BL1}/bl1.elf
-			@echo "  BIN     $@"
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
 
-${BUILD_PLAT}/bl2.bin:	${BUILD_BL2}/bl2.elf
-			@echo "  BIN     $@"
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
+$(PREREQUISITES) : $(2)
+	@echo "  DEPS    $$@"
+	@mkdir -p $(1)
+	$$(Q)$$(CC) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
 
-${BUILD_PLAT}/bl31.bin:	${BUILD_BL31}/bl31.elf
-			@echo "  BIN     $@"
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
+ifeq "$(CLEANING)" ""
+-include $(PREREQUISITES)
+endif
+
+endef
+
+
+define MAKE_S
+
+$(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
+$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
+
+$(OBJ) : $(2)
+	@echo "  AS      $$<"
+	$$(Q)$$(AS) $$(ASFLAGS) -c $$< -o $$@
+
+$(PREREQUISITES) : $(2)
+	@echo "  DEPS    $$@"
+	@mkdir -p $(1)
+	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(OBJ) -MF $$@ $$<
+
+ifeq "$(CLEANING)" ""
+-include $(PREREQUISITES)
+endif
+
+endef
+
+
+define MAKE_OBJS
+	$(eval C_OBJS := $(filter %.c,$(2)))
+	$(eval REMAIN := $(filter-out %.c,$(2)))
+	$(eval $(foreach obj,$(C_OBJS),$(call MAKE_C,$(1),$(obj))))
+
+	$(eval S_OBJS := $(filter %.S,$(REMAIN)))
+	$(eval REMAIN := $(filter-out %.S,$(REMAIN)))
+	$(eval $(foreach obj,$(S_OBJS),$(call MAKE_S,$(1),$(obj))))
+
+	$(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
+endef
+
+
+# NOTE: The line continuation '\' is required in the next define otherwise we
+# end up with a line-feed characer at the end of the last c filename.
+# Also bare this issue in mind if extending the list of supported filetypes.
+define SOURCES_TO_OBJS
+	$(notdir $(patsubst %.c,%.o,$(filter %.c,$(1)))) \
+	$(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
+endef
+
+define MAKE_BL
+	$(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
+	$(eval SOURCES    := $(BL$(1)_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
+	$(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
+	$(eval LINKERFILE := $(BUILD_DIR)/bl$(1).ld)
+	$(eval MAPFILE    := $(BUILD_DIR)/bl$(1).map)
+	$(eval ELF        := $(BUILD_DIR)/bl$(1).elf)
+	$(eval BIN        := $(BUILD_PLAT)/bl$(1).bin)
+
+	$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES)))
+
+$(BUILD_DIR) :
+	$$(Q)mkdir -p "$$@"
+
+$(LINKERFILE) : bl$(1)/bl$(1).ld.S
+	@echo "  PP      $$<"
+	$$(Q)$$(AS) $$(ASFLAGS) -P -E $$< -o $$@
+
+$(ELF) : $(OBJS) $(LINKERFILE)
+	@echo "  LD      $$@"
+	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
+					--entry=$(BL$(1)_ENTRY_POINT) $(OBJS)
+
+$(BIN) : $(ELF)
+	@echo "  BIN     $$@"
+	$$(Q)$$(OC) -O binary $$< $$@
+	@echo
+	@echo "Built $$@ successfully"
+	@echo
+
+bl$(1) : $(BUILD_DIR) $(BIN)
+
+endef
+
+
+ifneq "$(call match_goals,bl1 all)" ""
+$(eval $(call MAKE_BL,1))
+endif
+
+ifneq "$(call match_goals,bl2 all)" ""
+$(eval $(call MAKE_BL,2))
+endif
+
+ifneq "$(call match_goals,bl31 all)" ""
+$(eval $(call MAKE_BL,31))
+endif
+
 
 ${BUILD_PLAT}/fip.bin:	bl2 bl31 locate-bl33 ${FIPTOOL}
 			@echo " CREATE FIRMWARE IMAGE PACKAGE $@"
