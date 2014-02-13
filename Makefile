@@ -68,7 +68,7 @@ BL_COMMON_SOURCES	:=	misc_helpers.S		\
 ARCH 			?=	aarch64
 
 # By default, build all platforms available
-PLAT			?=	all
+PLAT			?=	fvp
 
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
@@ -83,11 +83,24 @@ ifeq ($(findstring ${PLAT},${PLATFORMS} all),)
   $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
 endif
 
-ifeq (${PLAT},all)
-all: ${PLATFORMS}
-else
-all: msg_start bl1 bl2 bl31 fip
+include plat/${PLAT}/platform.mk
+
+ifdef BL1_SOURCES
+BL1_PRESENT := bl1
+include bl1/bl1.mk
 endif
+
+ifdef BL2_SOURCES
+BL2_PRESENT := bl2
+include bl2/bl2.mk
+endif
+
+ifdef BL31_SOURCES
+BL31_PRESENT := bl31
+include bl31/bl31.mk
+endif
+
+all: msg_start $(BL1_PRESENT) $(BL2_PRESENT) $(BL31_PRESENT)
 
 msg_start:
 	@echo "Building ${PLAT}"
@@ -95,18 +108,7 @@ msg_start:
 ${PLATFORMS}:
 	${MAKE} PLAT=$@ all
 
-ifneq (${PLAT},all)
-  $(info Including ${PLAT}/platform.mk)
-  include plat/${PLAT}/platform.mk
-  $(info Including bl1.mk)
-  include bl1/bl1.mk
-  $(info Including bl2.mk)
-  include bl2/bl2.mk
-  $(info Including bl31.mk)
-  include bl31/bl31.mk
-endif
-
-.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope locate-checkpatch checkcodebase checkpatch fiptool fip locate-bl33
+.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip locate-bl33
 .SUFFIXES:
 
 
@@ -327,20 +329,21 @@ $(BIN) : $(ELF)
 	@echo "Built $$@ successfully"
 	@echo
 
+.PHONY: bl$(1)
 bl$(1) : $(BUILD_DIR) $(BIN)
 
 endef
 
 
-ifneq "$(call match_goals,bl1 all)" ""
+ifneq "$(call match_goals,all $(BL1_PRESENT))" ""
 $(eval $(call MAKE_BL,1))
 endif
 
-ifneq "$(call match_goals,bl2 all)" ""
+ifneq "$(call match_goals,all $(BL2_PRESENT))" ""
 $(eval $(call MAKE_BL,2))
 endif
 
-ifneq "$(call match_goals,bl31 all)" ""
+ifneq "$(call match_goals,all $(BL31_PRESENT))" ""
 $(eval $(call MAKE_BL,31))
 endif
 
