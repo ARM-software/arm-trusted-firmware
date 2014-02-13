@@ -83,7 +83,7 @@ To build the software for the FVPs, follow these steps:
 
 3.  Set the compiler path, specify a Normal World (BL3-3) image and build:
 
-        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- BL33=<path-to-bl33> make PLAT=fvp
+        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- BL33=<path-to-bl33> make PLAT=fvp all fip
 
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below. UEFI can be
