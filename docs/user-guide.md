@@ -81,7 +81,7 @@ To build the software for the FVPs, follow these steps:
 
         CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
         BL33=<path-to>/<bl33_image>                               \
-        make PLAT=fvp
+        make PLAT=fvp all fip
 
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below. UEFI can be
@@ -101,7 +101,7 @@ To build the software for the FVPs, follow these steps:
     either `debug` or `release`. A Firmare Image Package(FIP) will be created as
     part of the build. It contains all boot loader images except for `bl1.bin`.
 
-     *   `build/<platform>/<build-type>/fip.bin`
+    *   `build/<platform>/<build-type>/fip.bin`
 
     For more information on FIPs, see the "Firmware Image Package" section in
     the [Firmware Design].
@@ -182,7 +182,7 @@ To compile a debug version and make the build more verbose use
 
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
     BL33=<path-to>/<bl33_image>                               \
-    make PLAT=fvp DEBUG=1 V=1
+    make PLAT=fvp DEBUG=1 V=1 all fip
 
 AArch64 GCC uses DWARF version 4 debugging symbols by default. Some tools (for
 example DS-5) might not support this and may need an older version of DWARF
@@ -201,7 +201,7 @@ Extra debug options can be passed to the build system by setting `CFLAGS`:
     CFLAGS='-O0 -gdwarf-2'                                    \
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
     BL33=<path-to>/<bl33_image>                               \
-    make PLAT=fvp DEBUG=1 V=1
+    make PLAT=fvp DEBUG=1 V=1 all fip
 
 
 NOTE: The Foundation FVP does not provide a debugger interface.
