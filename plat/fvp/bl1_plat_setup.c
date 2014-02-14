@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include <assert.h>
 #include <arch_helpers.h>
 #include <platform.h>

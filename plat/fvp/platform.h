@@ -50,9 +50,19 @@
 #define PLATFORM_STACK_SIZE		0x800
 
 #define FIRMWARE_WELCOME_STR		"Booting trusted firmware boot loader stage 1\n\r"
+
+/* Trusted Boot Firmware BL2 */
 #define BL2_IMAGE_NAME			"bl2.bin"
-#define BL31_IMAGE_NAME			"bl31.bin"
-#define NS_IMAGE_OFFSET			FLASH0_BASE
+/* EL3 Runtime Firmware BL31 */
+#define BL31_IMAGE_NAME		"bl31.bin"
+/* Secure Payload BL32 (Trusted OS) */
+#define BL32_IMAGE_NAME		"bl32.bin"
+/* Non-Trusted Firmware BL33 and its load address */
+#define BL33_IMAGE_NAME		"bl33.bin" /* e.g. UEFI */
+#define NS_IMAGE_OFFSET		(DRAM_BASE + 0x8000000) /* DRAM + 128MB */
+/* Firmware Image Package */
+#define FIP_IMAGE_NAME			"fip.bin"
+
 
 #define PLATFORM_CACHE_LINE_SIZE	64
 #define PLATFORM_CLUSTER_COUNT		2ull
@@ -62,7 +72,7 @@
 						PLATFORM_CLUSTER0_CORE_COUNT)
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	4
 #define PRIMARY_CPU			0x0
-#define MAX_IO_DEVICES			1
+#define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4
 
 /* Constants for accessing platform configuration */
@@ -215,7 +225,7 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			0x0402C000
+#define BL2_BASE			0x0402B000
 
 /*******************************************************************************
  * BL31 specific defines.

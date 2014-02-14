@@ -37,6 +37,7 @@
 #include <semihosting.h>
 #include <bl_common.h>
 #include <bl2.h>
+#include "debug.h"
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
@@ -48,8 +49,9 @@ void bl2_main(void)
 {
 	meminfo *bl2_tzram_layout;
 	meminfo *bl31_tzram_layout;
+	meminfo *bl33_ns_layout;
 	el_change_info *ns_image_info;
-	unsigned long bl31_base, el_status;
+	unsigned long bl31_base, bl33_base, el_status;
 	unsigned int bl2_load, bl31_load, mode;
 
 	/* Perform remaining generic architectural setup in S-El1 */
@@ -87,18 +89,23 @@ void bl2_main(void)
 	bl31_tzram_layout = (meminfo *) get_el_change_mem_ptr();
 	init_bl31_mem_layout(bl2_tzram_layout, bl31_tzram_layout, bl31_load);
 
+	/* Find out where the BL3-3 normal world firmware should go. */
+	bl33_ns_layout = bl2_get_ns_mem_layout();
+	bl33_base = load_image(bl33_ns_layout, BL33_IMAGE_NAME,
+			       BOT_LOAD, plat_get_ns_image_entrypoint());
+	/* Halt if failed to load normal world firmware. */
+	if (bl33_base == 0) {
+		ERROR("Failed to load BL3-3.\n");
+		panic();
+	}
+
 	/*
 	 * BL2 also needs to tell BL31 where the non-trusted software image
 	 * has been loaded. Place this info right after the BL31 memory layout
 	 */
 	ns_image_info = (el_change_info *) ((unsigned char *) bl31_tzram_layout
 					      + sizeof(meminfo));
-
-	/*
-	 * Assume that the non-secure bootloader has already been
-	 * loaded to its platform-specific location.
-	 */
-	ns_image_info->entrypoint = plat_get_ns_image_entrypoint();
+	ns_image_info->entrypoint = bl33_base;
 
 	/* Figure out what mode we enter the non-secure world in */
 	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,21 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL2_H__
-#define __BL2_H__
+#ifndef __IO_MEMMAP_H__
+#define __IO_MEMMAP_H__
 
-#include <bl_common.h>
+int register_io_dev_memmap(struct io_dev_connector **dev_con);
 
-/******************************************
- * Data declarations
- *****************************************/
-extern unsigned long long bl2_entrypoint;
-
-/******************************************
- * Function prototypes
- *****************************************/
-extern void bl2_platform_setup(void);
-extern meminfo *bl2_plat_sec_mem_layout(void);
-extern meminfo *bl2_get_ns_mem_layout(void);
-
-#endif /* __BL2_H__ */
+#endif /* __IO_MEMMAP_H__ */

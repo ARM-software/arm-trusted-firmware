@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include <assert.h>
 #include <arch_helpers.h>
 #include <platform.h>
@@ -71,10 +70,19 @@ extern unsigned char **bl2_el_change_mem_ptr;
 static meminfo bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
+/* Data structure which holds the extents of the Non-Secure DRAM for BL33 */
+static meminfo bl33_dram_layout
+__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
+		section("tzfw_coherent_mem")));
 
 meminfo *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
+}
+
+meminfo *bl2_get_ns_mem_layout(void)
+{
+	return &bl33_dram_layout;
 }
 
 /*******************************************************************************
@@ -92,6 +100,16 @@ void bl2_early_platform_setup(meminfo *mem_layout,
 	bl2_tzram_layout.free_size = mem_layout->free_size;
 	bl2_tzram_layout.attr = mem_layout->attr;
 	bl2_tzram_layout.next = 0;
+
+	/* Setup the BL3-3 memory layout.
+	 * Normal World Firmware loaded into main DRAM.
+	 */
+	bl33_dram_layout.total_base = DRAM_BASE;
+	bl33_dram_layout.total_size = DRAM_SIZE;
+	bl33_dram_layout.free_base = DRAM_BASE;
+	bl33_dram_layout.free_size = DRAM_SIZE;
+	bl33_dram_layout.attr = 0;
+	bl33_dram_layout.next = 0;
 
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();

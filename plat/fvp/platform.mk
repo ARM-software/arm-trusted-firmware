@@ -63,7 +63,9 @@ PLAT_BL_COMMON_OBJS	:=	semihosting_call.o			\
 				semihosting.o				\
 				sysreg_helpers.o			\
 				plat_io_storage.o			\
-				io_semihosting.o
+				io_semihosting.o			\
+				io_fip.o				\
+				io_memmap.o
 
 BL1_OBJS		+=	bl1_plat_setup.o			\
 				bl1_plat_helpers.o			\
