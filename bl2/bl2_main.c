@@ -58,9 +58,7 @@ void bl2_main(void)
 	/* Perform platform setup in BL1 */
 	bl2_platform_setup();
 
-#if defined(__GNUC__)
-	printf("BL2 Built : %s, %s\n\r", __TIME__, __DATE__);
-#endif
+	printf("BL2 %s\n\r", build_message);
 
 	/* Find out how much free trusted ram remains after BL2 load */
 	bl2_tzram_layout = bl2_plat_sec_mem_layout();

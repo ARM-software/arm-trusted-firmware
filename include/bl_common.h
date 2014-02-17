@@ -140,6 +140,7 @@ extern void __dead2 run_image(unsigned long entrypoint,
 			      void *first_arg,
 			      void *second_arg);
 extern unsigned long *get_el_change_mem_ptr(void);
+extern const char build_message[];
 
 #endif /*__ASSEMBLY__*/
 
