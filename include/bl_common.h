@@ -128,6 +128,7 @@ extern int run_image(unsigned long,
 		     unsigned long,
 		     meminfo *,
 		     void *);
+extern const char build_message[];
 
 #endif /*__ASSEMBLY__*/
 

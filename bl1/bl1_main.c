@@ -70,7 +70,7 @@ void bl1_main(void)
 
 	/* Announce our arrival */
 	printf(FIRMWARE_WELCOME_STR);
-	printf("Built : %s, %s\n\r", __TIME__, __DATE__);
+	printf("%s\n\r", build_message);
 
 	/*
 	 * Find out how much free trusted ram remains after BL1 load

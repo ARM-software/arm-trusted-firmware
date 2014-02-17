@@ -67,9 +67,8 @@ void bl31_main(void)
 	/* Perform platform setup in BL1 */
 	bl31_platform_setup();
 
-#if defined (__GNUC__)
-	printf("BL31 Built : %s, %s\n\r", __TIME__, __DATE__);
-#endif
+	printf("BL31 %s\n\r", build_message);
+
 	/* Initialise helper libraries */
 	bl31_lib_init();
 
