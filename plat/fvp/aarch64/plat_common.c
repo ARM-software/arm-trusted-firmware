@@ -67,14 +67,14 @@ __attribute__ ((aligned((ADDR_SPACE_SIZE >> 30) << 3)));
  * space needed to address secure peripherals e.g. trusted ROM and RAM.
  ******************************************************************************/
 static unsigned long l2_xlation_table[NUM_L2_PAGETABLES][NUM_2MB_IN_GB]
-__attribute__ ((aligned(NUM_2MB_IN_GB << 3)));
+__attribute__ ((aligned(NUM_2MB_IN_GB << 3), section("xlat_table")));
 
 /*******************************************************************************
  * Level 3 translation tables (2 sets) describe the trusted & non-trusted RAM
  * regions at a granularity of 4K.
  ******************************************************************************/
 static unsigned long l3_xlation_table[NUM_L3_PAGETABLES][NUM_4K_IN_2MB]
-__attribute__ ((aligned(NUM_4K_IN_2MB << 3)));
+__attribute__ ((aligned(NUM_4K_IN_2MB << 3), section("xlat_table")));
 
 /*******************************************************************************
  * Helper to create a level 1/2 table descriptor which points to a level 2/3
