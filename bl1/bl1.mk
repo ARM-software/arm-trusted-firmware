@@ -42,12 +42,10 @@ vpath			%.S	arch/${ARCH}/cpu	\
 				lib/arch/${ARCH}	\
 				${PLAT_BL1_S_VPATH}
 
-BL1_OBJS		+=	bl1_arch_setup.o	\
-				bl1_entrypoint.o	\
-				early_exceptions.o	\
-				bl1_main.o		\
-				cpu_helpers.o
+BL1_SOURCES		+=	bl1_arch_setup.c	\
+				bl1_entrypoint.S	\
+				early_exceptions.S	\
+				bl1_main.c		\
+				cpu_helpers.S
 
 BL1_ENTRY_POINT		:=	reset_handler
-BL1_MAPFILE		:=	bl1.map
-BL1_LINKERFILE		:=	bl1.ld

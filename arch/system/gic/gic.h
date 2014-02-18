@@ -37,7 +37,8 @@
 
 #define GRP0			0
 #define GRP1			1
-#define MAX_PRI_VAL		0xff
+#define GIC_PRI_MASK		0xff
+#define MAX_GIC_PRI		0 /* Lowest value is highest priority */
 
 #define ENABLE_GRP0		(1 << 0)
 #define ENABLE_GRP1		(1 << 1)

@@ -39,6 +39,12 @@
 #include <bl2.h>
 #include "debug.h"
 
+/***********************************************************
+ * Memory for sharing data while changing exception levels.
+ **********************************************************/
+static meminfo bl31_tzram_layout;
+static el_change_info ns_image_info;
+
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
  * BL31. The memory occupied by BL2 will be reclaimed by BL3_x stages. BL2 runs
@@ -48,9 +54,7 @@
 void bl2_main(void)
 {
 	meminfo *bl2_tzram_layout;
-	meminfo *bl31_tzram_layout;
 	meminfo *bl33_ns_layout;
-	el_change_info *ns_image_info;
 	unsigned long bl31_base, bl33_base, el_status;
 	unsigned int bl2_load, bl31_load, mode;
 
@@ -60,9 +64,7 @@ void bl2_main(void)
 	/* Perform platform setup in BL1 */
 	bl2_platform_setup();
 
-#if defined (__GNUC__)
-	printf("BL2 Built : %s, %s\n\r", __TIME__, __DATE__);
-#endif
+	printf("BL2 %s\n\r", build_message);
 
 	/* Find out how much free trusted ram remains after BL2 load */
 	bl2_tzram_layout = bl2_plat_sec_mem_layout();
@@ -86,8 +88,7 @@ void bl2_main(void)
 	 * Create a new layout of memory for BL31 as seen by BL2. This
 	 * will gobble up all the BL2 memory.
 	 */
-	bl31_tzram_layout = (meminfo *) get_el_change_mem_ptr();
-	init_bl31_mem_layout(bl2_tzram_layout, bl31_tzram_layout, bl31_load);
+	init_bl31_mem_layout(bl2_tzram_layout, &bl31_tzram_layout, bl31_load);
 
 	/* Find out where the BL3-3 normal world firmware should go. */
 	bl33_ns_layout = bl2_get_ns_mem_layout();
@@ -99,13 +100,7 @@ void bl2_main(void)
 		panic();
 	}
 
-	/*
-	 * BL2 also needs to tell BL31 where the non-trusted software image
-	 * has been loaded. Place this info right after the BL31 memory layout
-	 */
-	ns_image_info = (el_change_info *) ((unsigned char *) bl31_tzram_layout
-					      + sizeof(meminfo));
-	ns_image_info->entrypoint = bl33_base;
+	ns_image_info.entrypoint = bl33_base;
 
 	/* Figure out what mode we enter the non-secure world in */
 	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
@@ -116,10 +111,10 @@ void bl2_main(void)
 	else
 		mode = MODE_EL1;
 
-	ns_image_info->spsr = make_spsr(mode, MODE_SP_ELX, MODE_RW_64);
-	ns_image_info->security_state = NON_SECURE;
-	flush_dcache_range((unsigned long) ns_image_info,
-			   sizeof(el_change_info));
+	ns_image_info.spsr = make_spsr(mode, MODE_SP_ELX, MODE_RW_64);
+	ns_image_info.security_state = NON_SECURE;
+	flush_dcache_range((unsigned long) &ns_image_info,
+			   sizeof(ns_image_info));
 
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
@@ -129,8 +124,8 @@ void bl2_main(void)
 		run_image(bl31_base,
 			  make_spsr(MODE_EL3, MODE_SP_ELX, MODE_RW_64),
 			  SECURE,
-			  bl31_tzram_layout,
-			  (void *) ns_image_info);
+			  &bl31_tzram_layout,
+			  &ns_image_info);
 
 	/* There is no valid reason for run_image() to return */
 	assert(0);

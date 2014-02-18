@@ -235,20 +235,10 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define EL3_ADDR_SPACE_SIZE		(1ull << 32)
-#define EL3_NUM_PAGETABLES		2
-#define EL3_TROM_PAGETABLE		0
-#define EL3_TRAM_PAGETABLE		1
-
 #define ADDR_SPACE_SIZE			(1ull << 32)
+#define MAX_XLAT_TABLES			3
+#define MAX_MMAP_REGIONS		16
 
-#define NUM_L2_PAGETABLES		2
-#define GB1_L2_PAGETABLE		0
-#define GB2_L2_PAGETABLE		1
-
-#define NUM_L3_PAGETABLES		2
-#define TZRAM_PAGETABLE			0
-#define NSRAM_PAGETABLE			1
 
 /*******************************************************************************
  * CCI-400 related constants
