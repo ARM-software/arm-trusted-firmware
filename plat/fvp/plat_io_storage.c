@@ -62,6 +62,7 @@ static io_dev_handle memmap_dev_handle;
 
 static int fvp_bl2_policy(io_dev_handle *dev_handle, void **image_spec);
 static int fvp_bl31_policy(io_dev_handle *dev_handle, void **image_spec);
+static int fvp_bl32_policy(io_dev_handle *dev_handle, void **image_spec);
 static int fvp_bl33_policy(io_dev_handle *dev_handle, void **image_spec);
 static int fvp_fip_policy(io_dev_handle *dev_handle, void **image_spec);
 
@@ -81,6 +82,11 @@ static io_file_spec bl31_file_spec = {
 	.mode = FOPEN_MODE_R
 };
 
+static io_file_spec bl32_file_spec = {
+	.path = BL32_IMAGE_NAME,
+	.mode = FOPEN_MODE_R
+};
+
 static io_file_spec bl33_file_spec = {
 	.path = BL33_IMAGE_NAME,
 	.mode = FOPEN_MODE_R
@@ -89,6 +95,7 @@ static io_file_spec bl33_file_spec = {
 static plat_io_policy fvp_policy[] = {
 	{BL2_IMAGE_NAME,  fvp_bl2_policy},
 	{BL31_IMAGE_NAME, fvp_bl31_policy},
+	{BL32_IMAGE_NAME, fvp_bl32_policy},
 	{BL33_IMAGE_NAME, fvp_bl33_policy},
 	{FIP_IMAGE_NAME,  fvp_fip_policy},
 	{NULL, NULL}
@@ -178,6 +185,31 @@ static int fvp_bl31_policy(io_dev_handle *dev_handle, void **image_spec)
 	void *local_image_spec = &bl31_file_spec;
 
 	INFO("Loading BL31\n");
+	/* FIP first then fall back to semi-hosting */
+	result = open_fip(local_image_spec);
+	if (result == IO_SUCCESS) {
+		*dev_handle = fip_dev_handle;
+		*(io_file_spec **)image_spec = local_image_spec;
+	} else {
+		result = open_semihosting(local_image_spec);
+		if (result == IO_SUCCESS) {
+			*dev_handle = sh_dev_handle;
+			*(io_file_spec **)image_spec = local_image_spec;
+		}
+	}
+	return result;
+}
+
+
+/* Try to load BL32 from Firmware Image Package in FLASH first. If there is no
+ * FIP in FLASH or it is broken, try to load the file from semi-hosting.
+ */
+static int fvp_bl32_policy(io_dev_handle *dev_handle, void **image_spec)
+{
+	int result = IO_FAIL;
+	void *local_image_spec = &bl32_file_spec;
+
+	INFO("Loading BL32\n");
 	/* FIP first then fall back to semi-hosting */
 	result = open_fip(local_image_spec);
 	if (result == IO_SUCCESS) {

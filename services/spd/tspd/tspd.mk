@@ -28,12 +28,30 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+TSPD_DIR		:=	services/spd/tspd
+SPD_INCLUDES		:=	-Iinclude/spd/tspd	\
+				-I${TSPD_DIR}
 
-vpath			%.c	${PLAT_BL2_C_VPATH}
-vpath			%.S	${PLAT_BL2_S_VPATH}
+SPD_OBJS		:=	tspd_common.o		\
+				tspd_main.o		\
+				tspd_helpers.o
 
-# TSP source files specific to FVP platform
-BL32_OBJS		+=	bl32_plat_setup.o			\
-				bl32_setup_xlat.o			\
-				plat_common.o				\
-				${PLAT_BL_COMMON_OBJS}
+vpath %.c ${TSPD_DIR}
+vpath %.S ${TSPD_DIR}
+
+# This dispatcher is paired with a Test Secure Payload source and we intend to
+# build the Test Secure Payload along with this dispatcher.
+#
+# In cases where an associated Secure Payload lies outside this build
+# system/source tree, the the dispatcher Makefile can either invoke an external
+# build command or assume it pre-built
+
+BL32_ROOT		:=	bl32/tsp
+
+# Include SP's Makefile. The assumption is that the TSP's build system is
+# compatible with that of Trusted Firmware, and it'll add and populate necessary
+# build targets and variables
+include ${BL32_ROOT}/tsp.mk
+
+# Let the top-level Makefile know that we intend to build the SP from source
+NEED_BL32		:=	yes

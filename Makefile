@@ -70,6 +70,8 @@ ARCH 			?=	aarch64
 
 # By default, build all platforms available
 PLAT			?=	all
+# By default, build no SPD component
+SPD			?=	none
 
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
@@ -79,6 +81,7 @@ BUILD_BL31		:=	${BUILD_PLAT}/bl31
 BUILD_DIRS		:=	${BUILD_BL1} ${BUILD_BL2} ${BUILD_BL31}
 
 PLATFORMS		:=	$(shell ls -I common plat/)
+SPDS			:=	$(shell ls -I none services/spd)
 HELP_PLATFORMS		:=	$(shell echo ${PLATFORMS} | sed 's/ /|/g')
 
 ifeq (${PLAT},)
@@ -111,20 +114,35 @@ ifneq (${PLAT},all)
   include bl31/bl31.mk
 endif
 
+# Include SPD Makefile if one has been specified
+ifneq (${SPD},none)
+  # We expect to locate an spd.mk under the specified SPD directory
+  SPD_MAKE		:=	$(shell m="services/spd/${SPD}/${SPD}.mk"; [ -f "$$m" ] && echo "$$m")
+
+  ifeq (${SPD_MAKE},)
+    $(error Error: No services/spd/${SPD}/${SPD}.mk located)
+  endif
+  $(info Including ${SPD_MAKE})
+  include ${SPD_MAKE}
+
+  # If there's BL32 companion for the chosen SPD, and the SPD wants to build the
+  # BL2 from source, we expect that the SPD's Makefile would set NEED_BL32
+  # variable to "yes"
+endif
+
 .PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope locate-checkpatch checkcodebase checkpatch fiptool fip locate-bl33
 .SUFFIXES:
 
 
 BL1_OBJS		:= 	$(addprefix ${BUILD_BL1}/,${BL1_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
 BL2_OBJS		:= 	$(addprefix ${BUILD_BL2}/,${BL2_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
-BL31_OBJS		:= 	$(addprefix ${BUILD_BL31}/,${BL31_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
+BL31_OBJS		:= 	$(addprefix ${BUILD_BL31}/,${BL31_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS} ${SPD_OBJS})
 BL1_MAPFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_MAPFILE})
 BL2_MAPFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_MAPFILE})
 BL31_MAPFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_MAPFILE})
 BL1_LINKERFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_LINKERFILE})
 BL2_LINKERFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_LINKERFILE})
 BL31_LINKERFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_LINKERFILE})
-
 
 INCLUDES		+=	-Ilib/include/			\
 				-Idrivers/io			\
@@ -135,7 +153,8 @@ INCLUDES		+=	-Ilib/include/			\
 				-Iinclude/stdlib		\
 				-Iinclude/stdlib/sys		\
 				-Iplat/${PLAT}			\
-				${PLAT_INCLUDES}
+				${PLAT_INCLUDES}		\
+				${SPD_INCLUDES}
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}	\
@@ -185,7 +204,7 @@ BASE_COMMIT		?=	origin/master
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fip_create
-FIPTOOL		?=	${FIPTOOLPATH}/fip_create
+FIPTOOL			?=	${FIPTOOLPATH}/fip_create
 fiptool:		${FIPTOOL}
 fip:			${BUILD_PLAT}/fip.bin
 
@@ -211,6 +230,53 @@ else
 ifeq (,$(wildcard ${BL33}))
 	$(error "The file BL33 points to cannot be found (${BL33})")
 endif
+endif
+
+
+# If BL32 needs to be built, provide necessary build rules and targets
+ifeq (${NEED_BL32},yes)
+BUILD_BL32		:=	${BUILD_PLAT}/bl32
+BUILD_DIRS		+=	${BUILD_BL32}
+
+BL32_OBJS		:=	$(addprefix ${BUILD_BL32}/,${BL32_OBJS})
+BL32_MAPFILE		:=	$(addprefix ${BUILD_BL32}/,${BL32_MAPFILE})
+BL32_LINKERFILE	:=	$(addprefix ${BUILD_BL32}/,${BL32_LINKERFILE})
+BL32_LDFLAGS		:=	-Map=${BL32_MAPFILE} --script ${BL32_LINKERFILE} --entry=${BL32_ENTRY_POINT}
+
+bl32:			${BUILD_BL32} ${BUILD_PLAT}/bl32.bin
+all:			bl32
+dump:			bl32_dump
+.PHONY:			bl32
+
+# Add BL32 image to FIP's input image list
+FIP_DEPS		:= bl32
+FIP_ARGS		:= --bl32 ${BUILD_PLAT}/bl32.bin
+
+${BUILD_BL32}/%.o:	%.S
+			@echo "  AS      $<"
+			${Q}${AS} ${ASFLAGS} -c $< -o $@
+
+${BUILD_BL32}/%.o:	%.c
+			@echo "  CC      $<"
+			${Q}${CC} ${CFLAGS} -c $< -o $@
+
+${BUILD_BL32}/%.ld:	%.ld.S
+			@echo "  PP      $<"
+			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
+
+${BUILD_BL32}/bl32.elf:	${BL32_OBJS} ${BL32_LINKERFILE}
+			@echo "  LD      $@"
+			${Q}${LD} -o $@ ${LDFLAGS} ${BL32_LDFLAGS} ${BL32_OBJS}
+
+${BUILD_PLAT}/bl32.bin:	${BUILD_BL32}/bl32.elf
+			@echo "  BIN     $@"
+			${Q}${OC} -O binary $< $@
+			@echo
+			@echo "Built $@ successfully"
+			@echo
+
+bl32_dump:
+	${Q}${OD} -d ${BUILD_BL32}/bl32.elf > ${BUILD_BL32}/bl32.dump
 endif
 
 
@@ -323,13 +389,14 @@ ${BUILD_PLAT}/bl31.bin:	${BUILD_BL31}/bl31.elf
 			@echo "Built $@ successfully"
 			@echo
 
-${BUILD_PLAT}/fip.bin:	bl2 bl31 locate-bl33 ${FIPTOOL}
+${BUILD_PLAT}/fip.bin:	bl2 bl31 ${FIP_DEPS} locate-bl33 ${FIPTOOL}
 			@echo " CREATE FIRMWARE IMAGE PACKAGE $@"
 			@echo
 			${Q}${FIPTOOL} --dump \
 				--bl2 ${BUILD_PLAT}/bl2.bin \
 				--bl31 ${BUILD_PLAT}/bl31.bin \
 				--bl33 ${BL33} \
+				${FIP_ARGS} \
 				$@
 			@echo
 
@@ -345,9 +412,8 @@ help:
 	@echo "PLAT is used to specify which platform you wish to build."
 	@echo ""
 	@echo "Supported Targets:"
-	@echo "  all            Build the BL1, BL2 and BL31 binaries"
+	@echo "  all            Build the BL1, BL31 binaries"
 	@echo "  bl1            Build the BL1 binary"
-	@echo "  bl2            Build the BL2 binary"
 	@echo "  bl31           Build the BL31 binary"
 	@echo "  checkcodebase  Check the coding style of the entire source tree"
 	@echo "  checkpatch     Check the coding style on changes in the current"

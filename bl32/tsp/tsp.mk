@@ -42,7 +42,8 @@ BL32_OBJS		+=	tsp_entrypoint.o		\
 				tsp_main.o			\
 				tsp_request.o			\
 				spinlock.o			\
-				early_exceptions.o
+				early_exceptions.o		\
+				${BL_COMMON_OBJS}
 
 BL32_ENTRY_POINT	:=	tsp_entrypoint
 BL32_MAPFILE		:=	tsp.map
