@@ -33,7 +33,6 @@
 #include "platform.h"
 #include "io_storage.h"
 #include "io_driver.h"
-#include "io_semihosting.h"
 #include "semihosting.h"	/* For FOPEN_MODE_... */
 #include "io_fip.h"
 #include "io_memmap.h"
@@ -41,10 +40,6 @@
 
 /* IO devices */
 static struct io_plat_data io_data;
-static struct io_dev_connector *sh_dev_con;
-static void *const sh_dev_spec;
-static void *const sh_init_params;
-static io_dev_handle sh_dev_handle;
 static struct io_dev_connector *fip_dev_con;
 static void *const fip_dev_spec;
 static io_dev_handle fip_dev_handle;
@@ -122,23 +117,6 @@ static int open_memmap(void *spec)
 	return result;
 }
 
-static int open_semihosting(void *spec)
-{
-	int result = IO_FAIL;
-	io_handle local_image_handle;
-
-	/* See if the file exists on semi-hosting.*/
-	result = io_dev_init(sh_dev_handle, sh_init_params);
-	if (result == IO_SUCCESS) {
-		result = io_open(sh_dev_handle, spec, &local_image_handle);
-		if (result == IO_SUCCESS) {
-			INFO("Using Semi-hosting IO\n");
-			io_close(local_image_handle);
-		}
-	}
-	return result;
-}
-
 void io_setup (void)
 {
 	int io_result = IO_FAIL;
@@ -147,9 +125,6 @@ void io_setup (void)
 	io_init(&io_data);
 
 	/* Register the IO devices on this platform */
-	io_result = register_io_dev_sh(&sh_dev_con);
-	assert(io_result == IO_SUCCESS);
-
 	io_result = register_io_dev_fip(&fip_dev_con);
 	assert(io_result == IO_SUCCESS);
 
@@ -157,9 +132,6 @@ void io_setup (void)
 	assert(io_result == IO_SUCCESS);
 
 	/* Open connections to devices and cache the handles */
-	io_result = io_dev_open(sh_dev_con, sh_dev_spec, &sh_dev_handle);
-	assert(io_result == IO_SUCCESS);
-
 	io_result = io_dev_open(fip_dev_con, fip_dev_spec, &fip_dev_handle);
 	assert(io_result == IO_SUCCESS);
 
@@ -190,12 +162,6 @@ int plat_get_image_source(const char *image_name, io_dev_handle *dev_handle,
 					*(io_file_spec **)image_spec = policy->image_spec;
 					*dev_handle = *(policy->dev_handle);
 					break;
-				} else {
-					result = open_semihosting(policy->image_spec);
-					if (result == IO_SUCCESS) {
-						*dev_handle = sh_dev_handle;
-						*(io_file_spec **)image_spec = policy->image_spec;
-					}
 				}
 			}
 			policy++;
