@@ -39,13 +39,6 @@
 #include "io_memmap.h"
 #include "debug.h"
 
-
-typedef struct {
-	char *image_name;
-	int (*image_policy)(io_dev_handle *dev_handle, void **image_spec);
-} plat_io_policy;
-
-
 /* IO devices */
 static struct io_plat_data io_data;
 static struct io_dev_connector *sh_dev_con;
@@ -59,13 +52,6 @@ static struct io_dev_connector *memmap_dev_con;
 static void *const memmap_dev_spec;
 static void *const memmap_init_params;
 static io_dev_handle memmap_dev_handle;
-
-static int fvp_bl2_policy(io_dev_handle *dev_handle, void **image_spec);
-static int fvp_bl31_policy(io_dev_handle *dev_handle, void **image_spec);
-static int fvp_bl32_policy(io_dev_handle *dev_handle, void **image_spec);
-static int fvp_bl33_policy(io_dev_handle *dev_handle, void **image_spec);
-static int fvp_fip_policy(io_dev_handle *dev_handle, void **image_spec);
-
 
 static io_block_spec fip_block_spec = {
 	.offset = FLASH0_BASE,
@@ -92,13 +78,23 @@ static io_file_spec bl33_file_spec = {
 	.mode = FOPEN_MODE_R
 };
 
-static plat_io_policy fvp_policy[] = {
-	{BL2_IMAGE_NAME,  fvp_bl2_policy},
-	{BL31_IMAGE_NAME, fvp_bl31_policy},
-	{BL32_IMAGE_NAME, fvp_bl32_policy},
-	{BL33_IMAGE_NAME, fvp_bl33_policy},
-	{FIP_IMAGE_NAME,  fvp_fip_policy},
-	{NULL, NULL}
+static int open_fip(void *spec);
+static int open_memmap(void *spec);
+
+struct plat_io_policy {
+	char *image_name;
+	io_dev_handle *dev_handle;
+	void *image_spec;
+	int (*check)(void *spec);
+};
+
+static struct plat_io_policy policies[] = {
+	{ FIP_IMAGE_NAME,  &memmap_dev_handle, &fip_block_spec, open_memmap },
+	{ BL2_IMAGE_NAME,  &fip_dev_handle,    &bl2_file_spec,  open_fip    },
+	{ BL31_IMAGE_NAME, &fip_dev_handle,    &bl31_file_spec, open_fip    },
+	{ BL32_IMAGE_NAME, &fip_dev_handle,    &bl32_file_spec, open_fip    },
+	{ BL33_IMAGE_NAME, &fip_dev_handle,    &bl33_file_spec, open_fip    },
+	{0, 0, 0 }
 };
 
 
@@ -150,122 +146,6 @@ static int open_semihosting(void *spec)
 	return result;
 }
 
-
-/* Try to load BL2 from Firmware Image Package in FLASH first. If there is no
- * FIP in FLASH or it is broken, try to load the file from semi-hosting.
- */
-static int fvp_bl2_policy(io_dev_handle *dev_handle, void **image_spec)
-{
-	int result = IO_FAIL;
-	void *local_image_spec = &bl2_file_spec;
-
-	INFO("Loading BL2\n");
-	/* FIP first then fall back to semi-hosting */
-	result = open_fip(local_image_spec);
-	if (result == IO_SUCCESS) {
-		*dev_handle = fip_dev_handle;
-		*(io_file_spec **)image_spec = local_image_spec;
-	} else {
-		result = open_semihosting(local_image_spec);
-		if (result == IO_SUCCESS) {
-			*dev_handle = sh_dev_handle;
-			*(io_file_spec **)image_spec = local_image_spec;
-		}
-	}
-	return result;
-}
-
-
-/* Try to load BL31 from Firmware Image Package in FLASH first. If there is no
- * FIP in FLASH or it is broken, try to load the file from semi-hosting.
- */
-static int fvp_bl31_policy(io_dev_handle *dev_handle, void **image_spec)
-{
-	int result = IO_FAIL;
-	void *local_image_spec = &bl31_file_spec;
-
-	INFO("Loading BL31\n");
-	/* FIP first then fall back to semi-hosting */
-	result = open_fip(local_image_spec);
-	if (result == IO_SUCCESS) {
-		*dev_handle = fip_dev_handle;
-		*(io_file_spec **)image_spec = local_image_spec;
-	} else {
-		result = open_semihosting(local_image_spec);
-		if (result == IO_SUCCESS) {
-			*dev_handle = sh_dev_handle;
-			*(io_file_spec **)image_spec = local_image_spec;
-		}
-	}
-	return result;
-}
-
-
-/* Try to load BL32 from Firmware Image Package in FLASH first. If there is no
- * FIP in FLASH or it is broken, try to load the file from semi-hosting.
- */
-static int fvp_bl32_policy(io_dev_handle *dev_handle, void **image_spec)
-{
-	int result = IO_FAIL;
-	void *local_image_spec = &bl32_file_spec;
-
-	INFO("Loading BL32\n");
-	/* FIP first then fall back to semi-hosting */
-	result = open_fip(local_image_spec);
-	if (result == IO_SUCCESS) {
-		*dev_handle = fip_dev_handle;
-		*(io_file_spec **)image_spec = local_image_spec;
-	} else {
-		result = open_semihosting(local_image_spec);
-		if (result == IO_SUCCESS) {
-			*dev_handle = sh_dev_handle;
-			*(io_file_spec **)image_spec = local_image_spec;
-		}
-	}
-	return result;
-}
-
-
-/* Try to load BL33 from Firmware Image Package in FLASH first. If there is no
- * FIP in FLASH or it is broken, try to load the file from semi-hosting.
- */
-static int fvp_bl33_policy(io_dev_handle *dev_handle, void **image_spec)
-{
-	int result = IO_FAIL;
-	void *local_image_spec = &bl33_file_spec;
-
-	INFO("Loading BL33 (Normal world firmware)\n");
-	/* FIP first then fall back to semi-hosting */
-	result = open_fip(local_image_spec);
-	if (result == IO_SUCCESS) {
-		*dev_handle = fip_dev_handle;
-		*(io_file_spec **)image_spec = local_image_spec;
-	} else {
-		result = open_semihosting(local_image_spec);
-		if (result == IO_SUCCESS) {
-			*dev_handle = sh_dev_handle;
-			*(io_file_spec **)image_spec = local_image_spec;
-		}
-	}
-	return result;
-}
-
-
-/* Try to find FIP on NOR FLASH */
-static int fvp_fip_policy(io_dev_handle *dev_handle, void **image_spec)
-{
-	int result = IO_FAIL;
-	void *local_image_spec = &fip_block_spec;
-
-	result = open_memmap(local_image_spec);
-	if (result == IO_SUCCESS) {
-		*dev_handle = memmap_dev_handle;
-		*(io_file_spec **)image_spec = local_image_spec;
-	}
-	return result;
-}
-
-
 void io_setup (void)
 {
 	int io_result = IO_FAIL;
@@ -305,21 +185,33 @@ int plat_get_image_source(const char *image_name, io_dev_handle *dev_handle,
 			  void **image_spec)
 {
 	int result = IO_FAIL;
-	plat_io_policy *policy;
+	struct plat_io_policy *policy;
 
-	assert(image_name != NULL);
-	assert(dev_handle != NULL);
-	assert(image_spec != NULL);
-
-	policy = fvp_policy;
-	while ((policy->image_name != NULL) &&
-	       (policy->image_policy != NULL)) {
-		result = strcmp(policy->image_name, image_name);
-		if (result == 0) {
-			result = policy->image_policy(dev_handle, image_spec);
-			break;
+	if ((image_name != NULL) && (dev_handle != NULL) &&
+	    (image_spec != NULL)) {
+		policy = policies;
+		while (policy->image_name != NULL) {
+			if (strcmp(policy->image_name, image_name) == 0) {
+				result = policy->check(policy->image_spec);
+				if (result == IO_SUCCESS) {
+					*(io_file_spec **)image_spec =
+						policy->image_spec;
+					*dev_handle = *(policy->dev_handle);
+					break;
+				} else {
+					result = open_semihosting(
+							policy->image_spec);
+					if (result == IO_SUCCESS) {
+						*dev_handle = sh_dev_handle;
+						*(io_file_spec **)image_spec =
+							policy->image_spec;
+					}
+				}
+			}
+			policy++;
 		}
-		policy++;
+	} else {
+		result = IO_FAIL;
 	}
 	return result;
 }
