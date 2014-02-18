@@ -1,1 +1,13 @@
+# Ignore miscellaneous files
 cscope.*
+*.swp
+*.patch
+.project
+.cproject
+
+# Ignore build directory
+build/
+
+# Ignore build products from tools
+tools/**/*.o
+tools/fip_create/fip_create
