@@ -195,13 +195,13 @@ endif
 clean:
 			@echo "  CLEAN"
 			${Q}rm -rf ${BUILD_PLAT}
-			${Q}make -C ${FIPTOOLPATH} clean
+			${Q}${MAKE} -C ${FIPTOOLPATH} clean
 
 realclean distclean:
 			@echo "  REALCLEAN"
 			${Q}rm -rf ${BUILD_BASE}
 			${Q}rm -f ${CURDIR}/cscope.*
-			${Q}make -C ${FIPTOOLPATH} clean
+			${Q}${MAKE} -C ${FIPTOOLPATH} clean
 
 dump:
 			@echo "  OBJDUMP"
@@ -224,7 +224,7 @@ checkpatch:		locate-checkpatch
 ${FIPTOOL}:
 			@echo "  BUILDING FIRMWARE IMAGE PACKAGE TOOL $@"
 			@echo
-			${Q}make -C ${FIPTOOLPATH}
+			${Q}${MAKE} -C ${FIPTOOLPATH}
 			@echo
 
 define match_goals
