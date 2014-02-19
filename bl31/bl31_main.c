@@ -183,6 +183,14 @@ void bl31_prepare_next_image_entry()
 		scr |= SCR_RW_BIT;
 
 	/*
+	 * Setup general purpose registers context for next image.
+	 */
+	cpu_context *context = cm_get_context(read_mpidr(),
+					next_image_info->security_state);
+	memcpy(&context->gpregs_ctx, &next_image_info->args,
+					sizeof(next_image_info->args));
+
+	/*
 	 * Tell the context mgmt. library to ensure that SP_EL3 points to
 	 * the right context to exit from EL3 correctly.
 	 */
