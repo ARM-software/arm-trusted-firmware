@@ -955,6 +955,13 @@ memory address populated by BL2.
     [SMCCC].
 
 
+### BL3-2 (Secure Payload) image initialization
+
+BL2 is responsible for loading a BL3-2 image in memory specified by the platform.
+BL3-1 provides an api that uses the entrypoint and memory layout information for
+the BL3-2 image provided by BL2 to initialise BL3-2 in S-EL1.
+
+
 ### Normal world software execution
 
 BL3-1 uses the entrypoint information provided by BL2 to jump to the normal

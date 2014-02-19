@@ -709,6 +709,12 @@ CPUs. BL3-1 executes at EL3 and is responsible for:
     service. See Section 3.3 below for details of porting the PSCI
     implementation.
 
+4.  Optionally passing control to the BL3-2 image, pre-loaded at a platform-
+    specific address by BL2. BL3-1 exports a set of apis that allow runtime
+    services to specify the security state in which the next image should be
+    executed and run the corresponding image. BL3-1 uses the `el_change_info`
+    and `meminfo` structure populated by BL2 to do this.
+
 The following functions must be implemented by the platform port to enable BL3-1
 to perform the above tasks.
 
@@ -771,16 +777,18 @@ The ARM FVP port does the following:
 
 ### Function : bl31_get_next_image_info() [mandatory]
 
-    Argument : unsigned long
+    Argument : unsigned int
     Return   : el_change_info *
 
 This function may execute with the MMU and data caches enabled if the platform
 port does the necessary initializations in `bl31_plat_arch_setup()`.
 
 This function is called by `bl31_main()` to retrieve information provided by
-BL2, so that BL3-1 can pass control to the normal world software image. This
-function must return a pointer to the `el_change_info` structure (that was
-copied during `bl31_early_platform_setup()`).
+BL2 for the next image in the security state specified by the argument. BL3-1
+uses this information to pass control to that image in the specified security
+state. This function must return a pointer to the `el_change_info` structure
+(that was copied during `bl31_early_platform_setup()`) if the image exists. It
+should return NULL otherwise.
 
 
 ### Function : bl31_plat_sec_mem_layout() [mandatory]
@@ -795,6 +803,21 @@ primary CPU.
 
 The purpose of this function is to return a pointer to a `meminfo` structure
 populated with the extents of secure RAM available for BL3-1 to use. See
+`bl31_early_platform_setup()` above.
+
+
+### Function : bl31_plat_get_bl32_mem_layout() [mandatory]
+
+    Argument : void
+    Return   : meminfo *
+
+This function should only be called on the cold boot path. This function may
+execute with the MMU and data caches enabled if the platform port does the
+necessary initializations in `bl31_plat_arch_setup()`. It is only called by the
+primary CPU.
+
+The purpose of this function is to return a pointer to a `meminfo` structure
+populated with the extents of memory available for BL3-2 to use. See
 `bl31_early_platform_setup()` above.
 
 

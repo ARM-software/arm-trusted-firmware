@@ -73,10 +73,12 @@ void bl31_arch_setup(void)
 }
 
 /*******************************************************************************
- * Detect what is the next Non-Secure EL and setup the required architectural
- * state
+ * Detect what the security state of the next EL is and setup the minimum
+ * required architectural state: program SCTRL to reflect the RES1 bits, and to
+ * have MMU and caches disabled
  ******************************************************************************/
-void bl31_arch_next_el_setup(void) {
+void bl31_next_el_arch_setup(uint32_t security_state)
+{
 	unsigned long id_aa64pfr0 = read_id_aa64pfr0_el1();
 	unsigned long current_sctlr, next_sctlr;
 	unsigned long el_status;
@@ -89,16 +91,20 @@ void bl31_arch_next_el_setup(void) {
 	/* Find out which EL we are going to */
 	el_status = (id_aa64pfr0 >> ID_AA64PFR0_EL2_SHIFT) & ID_AA64PFR0_ELX_MASK;
 
-	/* Check what if EL2 is supported */
-	if (el_status && (scr & SCR_HCE_BIT)) {
-		/* Set SCTLR EL2 */
-		next_sctlr |= SCTLR_EL2_RES1;
-
-		write_sctlr_el2(next_sctlr);
-	} else {
-		/* Set SCTLR Non-Secure EL1 */
-		next_sctlr |= SCTLR_EL1_RES1;
-
-		write_sctlr_el1(next_sctlr);
+	if (security_state == NON_SECURE) {
+		/* Check if EL2 is supported */
+		if (el_status && (scr & SCR_HCE_BIT)) {
+			/* Set SCTLR EL2 */
+			next_sctlr |= SCTLR_EL2_RES1;
+			write_sctlr_el2(next_sctlr);
+			return;
+		}
 	}
+
+	/*
+	 * SCTLR_EL1 needs the same programming irrespective of the
+	 * security state of EL1.
+	 */
+	next_sctlr |= SCTLR_EL1_RES1;
+	write_sctlr_el1(next_sctlr);
 }

@@ -166,18 +166,6 @@ bl31_entrypoint: ; .type bl31_entrypoint, %function
 	 */
 	bl	bl31_main
 
-	/* ---------------------------------------------
-	 * Use the more complex exception vectors now
-	 * that context management is setup. SP_EL3 is
-	 * pointing to a 'cpu_context' structure which
-	 * has an exception stack allocated. Since
-	 * we're just about to leave this EL with ERET,
-	 * we don't need an ISB here
-	 * ---------------------------------------------
-	 */
-	adr	x1, runtime_exceptions
-	msr	vbar_el3, x1
-
 	zero_callee_saved_regs
 	b	el3_exit
 

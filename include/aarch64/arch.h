@@ -320,7 +320,6 @@ extern void runtime_exceptions(void);
 extern void bl1_arch_setup(void);
 extern void bl2_arch_setup(void);
 extern void bl31_arch_setup(void);
-extern void bl31_arch_next_el_setup(void);
 #endif /*__ASSEMBLY__*/
 
 #endif /* __ARCH_H__ */

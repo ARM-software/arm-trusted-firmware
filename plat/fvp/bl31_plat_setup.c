@@ -72,15 +72,30 @@ meminfo *bl31_plat_sec_mem_layout(void)
 	return &bl2_to_bl31_args->bl31_meminfo;
 }
 
-/*******************************************************************************
- * Return information about passing control to the non-trusted software images
- * to common code.TODO: In the initial architecture, the image after BL31 will
- * always run in the non-secure state. In the final architecture there
- * will be a series of images. This function will need enhancement then
- ******************************************************************************/
-el_change_info *bl31_get_next_image_info(void)
+meminfo *bl31_plat_get_bl32_mem_layout(void)
 {
-	return &bl2_to_bl31_args->bl33_image_info;
+	return &bl2_to_bl31_args->bl32_meminfo;
+}
+
+/*******************************************************************************
+ * Return a pointer to the 'el_change_info' structure of the next image for the
+ * security state specified. BL33 corresponds to the non-secure image type
+ * while BL32 corresponds to the secure image type. A NULL pointer is returned
+ * if the image does not exist.
+ ******************************************************************************/
+el_change_info *bl31_get_next_image_info(uint32_t type)
+{
+	el_change_info *next_image_info;
+
+	next_image_info = (type == NON_SECURE) ?
+		&bl2_to_bl31_args->bl33_image_info :
+		&bl2_to_bl31_args->bl32_image_info;
+
+	/* None of the images on this platform can have 0x0 as the entrypoint */
+	if (next_image_info->entrypoint)
+		return next_image_info;
+	else
+		return NULL;
 }
 
 /*******************************************************************************
