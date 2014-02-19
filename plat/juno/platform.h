@@ -62,7 +62,7 @@
 
 /* Non-Trusted Firmware BL3-3 and its load address */
 #define BL33_IMAGE_NAME			"bl33.bin" /* e.g. UEFI */
-#define NS_IMAGE_OFFSET			(DRAM_BASE + 0x8000000) /* DRAM + 128MB */
+#define NS_IMAGE_OFFSET			0xE0000000
 
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
