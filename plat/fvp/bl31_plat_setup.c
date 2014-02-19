@@ -30,6 +30,7 @@
 
 #include <platform.h>
 #include <fvp_pwrc.h>
+#include <bl_common.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -61,22 +62,14 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 /*******************************************************************************
- * This data structure holds information copied by BL31 from BL2 to pass
- * control to the normal world software images.
- * TODO: Can this be moved out of device memory.
+ * Reference to structure which holds the arguments that have been passed to
+ * BL31 from BL2.
  ******************************************************************************/
-static el_change_info ns_entry_info
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem")));
-
-/* Data structure which holds the extents of the trusted SRAM for BL31 */
-static meminfo bl31_tzram_layout
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem")));
+static bl31_args *bl2_to_bl31_args;
 
 meminfo *bl31_plat_sec_mem_layout(void)
 {
-	return &bl31_tzram_layout;
+	return &bl2_to_bl31_args->bl31_meminfo;
 }
 
 /*******************************************************************************
@@ -87,34 +80,24 @@ meminfo *bl31_plat_sec_mem_layout(void)
  ******************************************************************************/
 el_change_info *bl31_get_next_image_info(void)
 {
-	return &ns_entry_info;
+	return &bl2_to_bl31_args->bl33_image_info;
 }
 
 /*******************************************************************************
- * Perform any BL31 specific platform actions. Here we copy parameters passed
- * by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they are lost
- * (potentially). This is done before the MMU is initialized so that the memory
- * layout can be used while creating page tables.
+ * Perform any BL31 specific platform actions. Here is an opportunity to copy
+ * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
+ * are lost (potentially). This needs to be done before the MMU is initialized
+ * so that the memory layout can be used while creating page tables. On the FVP
+ * we know that BL2 has populated the parameters in secure DRAM. So we just use
+ * the reference passed in 'from_bl2' instead of copying. The 'data' parameter
+ * is not used since all the information is contained in 'from_bl2'. Also, BL2
+ * has flushed this information to memory, so we are guaranteed to pick up good
+ * data
  ******************************************************************************/
-void bl31_early_platform_setup(meminfo *mem_layout,
+void bl31_early_platform_setup(bl31_args *from_bl2,
 			       void *data)
 {
-	el_change_info *image_info = (el_change_info *) data;
-
-	/* Setup the BL31 memory layout */
-	bl31_tzram_layout.total_base = mem_layout->total_base;
-	bl31_tzram_layout.total_size = mem_layout->total_size;
-	bl31_tzram_layout.free_base = mem_layout->free_base;
-	bl31_tzram_layout.free_size = mem_layout->free_size;
-	bl31_tzram_layout.attr = mem_layout->attr;
-	bl31_tzram_layout.next = 0;
-
-	/* Save information about jumping into the normal world */
-	ns_entry_info.entrypoint = image_info->entrypoint;
-	ns_entry_info.spsr = image_info->spsr;
-	ns_entry_info.args = image_info->args;
-	ns_entry_info.security_state = image_info->security_state;
-	ns_entry_info.next = image_info->next;
+	bl2_to_bl31_args = from_bl2;
 
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
@@ -163,7 +146,7 @@ void bl31_platform_setup()
  ******************************************************************************/
 void bl31_plat_arch_setup()
 {
-	configure_mmu(&bl31_tzram_layout,
+	configure_mmu(&bl2_to_bl31_args->bl31_meminfo,
 		      BL31_RO_BASE,
 		      BL31_RO_LIMIT,
 		      BL31_COHERENT_RAM_BASE,

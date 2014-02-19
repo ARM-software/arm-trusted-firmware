@@ -43,6 +43,6 @@ extern unsigned long long bl2_entrypoint;
  *****************************************/
 extern void bl2_platform_setup(void);
 extern meminfo *bl2_plat_sec_mem_layout(void);
-extern meminfo *bl2_get_ns_mem_layout(void);
+extern bl31_args *bl2_get_bl31_args_ptr(void);
 
 #endif /* __BL2_H__ */

@@ -116,5 +116,5 @@ SECTIONS
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 
-    ASSERT(. <= BL31_BASE, "BL31 image overlaps BL1 image.")
+    ASSERT(. <= BL31_BASE, "BL1 image overlaps BL31 image.")
 }

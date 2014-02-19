@@ -48,9 +48,7 @@
 void bl2_main(void)
 {
 	meminfo *bl2_tzram_layout;
-	meminfo *bl31_tzram_layout;
-	meminfo *bl33_ns_layout;
-	el_change_info *ns_image_info;
+	bl31_args *bl2_to_bl31_args;
 	unsigned long bl31_base, bl33_base, el_status;
 	unsigned int bl2_load, bl31_load, mode;
 
@@ -60,7 +58,7 @@ void bl2_main(void)
 	/* Perform platform setup in BL1 */
 	bl2_platform_setup();
 
-#if defined (__GNUC__)
+#if defined(__GNUC__)
 	printf("BL2 Built : %s, %s\n\r", __TIME__, __DATE__);
 #endif
 
@@ -80,19 +78,30 @@ void bl2_main(void)
 	                       bl31_load, BL31_BASE);
 
 	/* Assert if it has not been possible to load BL31 */
-	assert(bl31_base != 0);
+	if (bl31_base == 0) {
+		ERROR("Failed to load BL3-1.\n");
+		panic();
+	}
+
+	/*
+	 * Get a pointer to the memory the platform has set aside to pass
+	 * information to BL31.
+	 */
+	bl2_to_bl31_args = bl2_get_bl31_args_ptr();
 
 	/*
 	 * Create a new layout of memory for BL31 as seen by BL2. This
 	 * will gobble up all the BL2 memory.
 	 */
-	bl31_tzram_layout = (meminfo *) get_el_change_mem_ptr();
-	init_bl31_mem_layout(bl2_tzram_layout, bl31_tzram_layout, bl31_load);
+	init_bl31_mem_layout(bl2_tzram_layout,
+			     &bl2_to_bl31_args->bl31_meminfo,
+			     bl31_load);
 
-	/* Find out where the BL3-3 normal world firmware should go. */
-	bl33_ns_layout = bl2_get_ns_mem_layout();
-	bl33_base = load_image(bl33_ns_layout, BL33_IMAGE_NAME,
-			       BOT_LOAD, plat_get_ns_image_entrypoint());
+	/* Load the BL33 image in non-secure memory provided by the platform */
+	bl33_base = load_image(&bl2_to_bl31_args->bl33_meminfo,
+			       BL33_IMAGE_NAME,
+			       BOT_LOAD,
+			       plat_get_ns_image_entrypoint());
 	/* Halt if failed to load normal world firmware. */
 	if (bl33_base == 0) {
 		ERROR("Failed to load BL3-3.\n");
@@ -101,11 +110,9 @@ void bl2_main(void)
 
 	/*
 	 * BL2 also needs to tell BL31 where the non-trusted software image
-	 * has been loaded. Place this info right after the BL31 memory layout
+	 * is located.
 	 */
-	ns_image_info = (el_change_info *) ((unsigned char *) bl31_tzram_layout
-					      + sizeof(meminfo));
-	ns_image_info->entrypoint = bl33_base;
+	bl2_to_bl31_args->bl33_image_info.entrypoint = bl33_base;
 
 	/* Figure out what mode we enter the non-secure world in */
 	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
@@ -116,22 +123,27 @@ void bl2_main(void)
 	else
 		mode = MODE_EL1;
 
-	ns_image_info->spsr = make_spsr(mode, MODE_SP_ELX, MODE_RW_64);
-	ns_image_info->security_state = NON_SECURE;
-	flush_dcache_range((unsigned long) ns_image_info,
-			   sizeof(el_change_info));
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	bl2_to_bl31_args->bl33_image_info.spsr =
+		make_spsr(mode, MODE_SP_ELX, MODE_RW_64);
+	bl2_to_bl31_args->bl33_image_info.security_state = NON_SECURE;
+
+	/* Flush the entire BL31 args buffer */
+	flush_dcache_range((unsigned long) bl2_to_bl31_args,
+			   sizeof(*bl2_to_bl31_args));
 
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
-	 * the non-trusted software image will be passed to BL31 in x2.
+	 * the BL32 (if present) and BL33 software images will be passed to
+	 * BL31 as an argument.
 	 */
-	if (bl31_base)
-		run_image(bl31_base,
-			  make_spsr(MODE_EL3, MODE_SP_ELX, MODE_RW_64),
-			  SECURE,
-			  bl31_tzram_layout,
-			  (void *) ns_image_info);
-
-	/* There is no valid reason for run_image() to return */
-	assert(0);
+	run_image(bl31_base,
+		  make_spsr(MODE_EL3, MODE_SP_ELX, MODE_RW_64),
+		  SECURE,
+		  (void *) bl2_to_bl31_args,
+		  NULL);
 }

@@ -70,19 +70,25 @@ extern unsigned char **bl2_el_change_mem_ptr;
 static meminfo bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
-/* Data structure which holds the extents of the Non-Secure DRAM for BL33 */
-static meminfo bl33_dram_layout
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem")));
+
+/*******************************************************************************
+ * Reference to structure which holds the arguments which need to be passed
+ * to BL31
+ ******************************************************************************/
+static bl31_args *bl2_to_bl31_args;
 
 meminfo *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
 }
 
-meminfo *bl2_get_ns_mem_layout(void)
+/*******************************************************************************
+ * This function returns a pointer to the memory that the platform has kept
+ * aside to pass all the information that BL31 could need.
+ ******************************************************************************/
+bl31_args *bl2_get_bl31_args_ptr(void)
 {
-	return &bl33_dram_layout;
+	return bl2_to_bl31_args;
 }
 
 /*******************************************************************************
@@ -101,16 +107,6 @@ void bl2_early_platform_setup(meminfo *mem_layout,
 	bl2_tzram_layout.attr = mem_layout->attr;
 	bl2_tzram_layout.next = 0;
 
-	/* Setup the BL3-3 memory layout.
-	 * Normal World Firmware loaded into main DRAM.
-	 */
-	bl33_dram_layout.total_base = DRAM_BASE;
-	bl33_dram_layout.total_size = DRAM_SIZE;
-	bl33_dram_layout.free_base = DRAM_BASE;
-	bl33_dram_layout.free_size = DRAM_SIZE;
-	bl33_dram_layout.attr = 0;
-	bl33_dram_layout.next = 0;
-
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
 
@@ -127,7 +123,15 @@ void bl2_platform_setup()
 	io_setup();
 
 	/* Use the Trusted DRAM for passing args to BL31 */
-	bl2_el_change_mem_ptr = (unsigned char **) TZDRAM_BASE;
+	bl2_to_bl31_args = (bl31_args *) TZDRAM_BASE;
+
+	/* Populate the extents of memory available for loading BL33 */
+	bl2_to_bl31_args->bl33_meminfo.total_base = DRAM_BASE;
+	bl2_to_bl31_args->bl33_meminfo.total_size = DRAM_SIZE;
+	bl2_to_bl31_args->bl33_meminfo.free_base = DRAM_BASE;
+	bl2_to_bl31_args->bl33_meminfo.free_size = DRAM_SIZE;
+	bl2_to_bl31_args->bl33_meminfo.attr = 0;
+	bl2_to_bl31_args->bl33_meminfo.next = 0;
 }
 
 /*******************************************************************************

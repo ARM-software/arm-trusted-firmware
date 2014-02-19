@@ -40,17 +40,6 @@
 #include "io_storage.h"
 #include "debug.h"
 
-/***********************************************************
- * Memory for sharing data while changing exception levels.
- * Only used by the primary core.
- **********************************************************/
-unsigned char bl2_el_change_mem_ptr[EL_CHANGE_MEM_SIZE];
-
-unsigned long *get_el_change_mem_ptr(void)
-{
-	return (unsigned long *) bl2_el_change_mem_ptr;
-}
-
 unsigned long page_align(unsigned long value, unsigned dir)
 {
 	unsigned long page_size = 1 << FOUR_KB_SHIFT;
@@ -85,9 +74,9 @@ void change_security_state(unsigned int target_security_state)
 	write_scr(scr);
 }
 
-int drop_el(aapcs64_params *args,
-	    unsigned long spsr,
-	    unsigned long entrypoint)
+void __dead2 drop_el(aapcs64_params *args,
+		     unsigned long spsr,
+		     unsigned long entrypoint)
 {
 	write_spsr(spsr);
 	write_elr(entrypoint);
@@ -99,19 +88,18 @@ int drop_el(aapcs64_params *args,
 	     args->arg5,
 	     args->arg6,
 	     args->arg7);
-	return -EINVAL;
 }
 
-long raise_el(aapcs64_params *args)
+void __dead2 raise_el(aapcs64_params *args)
 {
-	return smc(args->arg0,
-		   args->arg1,
-		   args->arg2,
-		   args->arg3,
-		   args->arg4,
-		   args->arg5,
-		   args->arg6,
-		   args->arg7);
+	smc(args->arg0,
+	    args->arg1,
+	    args->arg2,
+	    args->arg3,
+	    args->arg4,
+	    args->arg5,
+	    args->arg6,
+	    args->arg7);
 }
 
 /*
@@ -119,7 +107,7 @@ long raise_el(aapcs64_params *args)
  * Add support for dropping into EL0 etc. Consider adding support
  * for switching from S-EL1 to S-EL0/1 etc.
  */
-long change_el(el_change_info *info)
+void __dead2 change_el(el_change_info *info)
 {
 	unsigned long current_el = read_current_el();
 
@@ -134,9 +122,9 @@ long change_el(el_change_info *info)
 		if (info->security_state == NON_SECURE)
 			change_security_state(info->security_state);
 
-		return drop_el(&info->args, info->spsr, info->entrypoint);
+		drop_el(&info->args, info->spsr, info->entrypoint);
 	} else
-		return raise_el(&info->args);
+		raise_el(&info->args);
 }
 
 /* TODO: add a parameter for DAIF. not needed right now */
@@ -515,11 +503,11 @@ fail:	image_base = 0;
  * The only way of doing the latter is through an SMC. In either case, setup the
  * parameters for the EL change request correctly.
  ******************************************************************************/
-int run_image(unsigned long entrypoint,
-	      unsigned long spsr,
-	      unsigned long target_security_state,
-	      meminfo *mem_layout,
-	      void *data)
+void __dead2 run_image(unsigned long entrypoint,
+		       unsigned long spsr,
+		       unsigned long target_security_state,
+		       void *first_arg,
+		       void *second_arg)
 {
 	el_change_info run_image_info;
 	unsigned long current_el = read_current_el();
@@ -529,7 +517,6 @@ int run_image(unsigned long entrypoint,
 	run_image_info.entrypoint = entrypoint;
 	run_image_info.spsr = spsr;
 	run_image_info.security_state = target_security_state;
-	run_image_info.next = 0;
 
 	/*
 	 * If we are EL3 then only an eret can take us to the desired
@@ -538,14 +525,14 @@ int run_image(unsigned long entrypoint,
 	 * will go into the general purpose register xY e.g. arg0->x0
 	 */
 	if (GET_EL(current_el) == MODE_EL3) {
-		run_image_info.args.arg1 = (unsigned long) mem_layout;
-		run_image_info.args.arg2 = (unsigned long) data;
+		run_image_info.args.arg1 = (unsigned long) first_arg;
+		run_image_info.args.arg2 = (unsigned long) second_arg;
 	} else {
 		run_image_info.args.arg1 = entrypoint;
 		run_image_info.args.arg2 = spsr;
-		run_image_info.args.arg3 = (unsigned long) mem_layout;
-		run_image_info.args.arg4 = (unsigned long) data;
+		run_image_info.args.arg3 = (unsigned long) first_arg;
+		run_image_info.args.arg4 = (unsigned long) second_arg;
 	}
 
-	return change_el(&run_image_info);
+	change_el(&run_image_info);
 }

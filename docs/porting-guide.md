@@ -529,8 +529,8 @@ using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
         meminfo.free_size  = Size of secure RAM available for allocation to
                              BL3-1
 
-    BL2 places this `meminfo` structure in memory provided by the
-    platform (`bl2_el_change_mem_ptr`). BL2 implements the
+    BL2 populates this information in the `bl31_meminfo` field of the pointer
+    returned by the `bl2_get_bl31_args_ptr() function. BL2 implements the
     `init_bl31_mem_layout()` function to populate the BL3-1 meminfo structure
     described above. The platform may override this implementation, for example
     if the platform wants to restrict the amount of memory visible to BL3-1.
@@ -554,9 +554,7 @@ by the primary CPU. The arguments to this function are:
 The platform must copy the contents of the `meminfo` structure into a private
 variable as the original memory may be subsequently overwritten by BL2. The
 copied structure is made available to all BL2 code through the
-`bl2_plat_sec_mem_layout()` function. The non-secure memory extents used for
-loading BL3-3 is also initialized in this function. Access to this information
-is provided by the `bl2_get_ns_mem_layout()` function.
+`bl2_plat_sec_mem_layout()` function.
 
 
 ### Function : bl2_plat_arch_setup() [mandatory]
@@ -581,25 +579,18 @@ This function may execute with the MMU and data caches enabled if the platform
 port does the necessary initialization in `bl2_plat_arch_setup()`. It is only
 called by the primary CPU.
 
-The purpose of this function is to perform any platform initialization specific
-to BL2. This function must initialize a pointer to memory
-(`bl2_el_change_mem_ptr`), which can then be used to populate an
-`el_change_info` structure. The underlying requirement is that the platform must
-initialize this pointer before the `get_el_change_mem_ptr()` function
-accesses it in `bl2_main()`.
+The purpose of this function is to perform any platform initialization
+specific to BL2. For example on the ARM FVP port this function initialises a
+internal pointer (`bl2_to_bl31_args`) to a `bl31_args` which will be used by
+BL2 to pass information to BL3_1. The pointer is initialized to the base
+address of Secure DRAM (`0x06000000`).
 
-The ARM FVP port initializes this pointer to the base address of Secure DRAM
-(`0x06000000`).
+The non-secure memory extents used for loading BL3-3 are also initialized in
+this function. This information is accessible in the `bl33_meminfo` field in
+the `bl31_args` structure pointed to by `bl2_to_bl31_args`.
 
 This function is also responsible for initializing the storage abstraction layer
 which is used to load further bootloader images.
-
-
-### Variable : unsigned char bl2_el_change_mem_ptr[EL_CHANGE_MEM_SIZE] [mandatory]
-
-As mentioned in the description of `bl2_platform_setup()`, this pointer is
-initialized by the platform to point to memory where an `el_change_info`
-structure can be populated.
 
 
 ### Function : bl2_plat_sec_mem_layout() [mandatory]
@@ -616,18 +607,20 @@ populated with the extents of secure RAM available for BL2 to use. See
 `bl2_early_platform_setup()` above.
 
 
-### Function : bl2_get_ns_mem_layout() [mandatory]
+### Function : bl2_get_bl31_args_ptr() [mandatory]
 
     Argument : void
-    Return   : meminfo *
+    Return   : bl31_args *
 
-This function should only be called on the cold boot path. It may execute with
-the MMU and data caches enabled if the platform port does the necessary
-initialization in `bl2_plat_arch_setup()`. It is only called by the primary CPU.
-
-The purpose of this function is to return a pointer to a `meminfo` structure
-populated with the extents of non-secure DRAM available for BL2 to use. See
-`bl2_early_platform_setup()` above.
+BL2 platform code needs to return a pointer to a `bl31_args` structure it will
+use for passing information to BL3-1. The `bl31_args` structure carries the
+following information. This information is used by the `bl2_main()` function to
+load the BL3-2 (if present) and BL3-3 images.
+    - Extents of memory available to the BL3-1 image in the `bl31_meminfo` field
+    - Extents of memory available to the BL3-2 image in the `bl32_meminfo` field
+    - Extents of memory available to the BL3-3 image in the `bl33_meminfo` field
+    - Information about executing the BL3-3 image in the `bl33_image_info` field
+    - Information about executing the BL3-2 image in the `bl32_image_info` field
 
 
 ### Function : init_bl31_mem_layout() [optional]
@@ -699,11 +692,16 @@ by the primary CPU. The arguments to this function are:
 *   An opaque pointer that the platform may use as needed.
 *   The `MPIDR` of the primary CPU.
 
-The platform must copy the contents of the `meminfo` structure into a private
-variable as the original memory may be subsequently overwritten by BL3-1. The
-copied structure is made available to all BL3-1 code through the
+The platform can copy the contents of the `meminfo` structure into a private
+variable if the original memory may be subsequently overwritten by BL3-1. The
+reference to this structure is made available to all BL3-1 code through the
 `bl31_plat_sec_mem_layout()` function.
 
+On the ARM FVP port, BL2 passes a pointer to a `bl31_args` structure populated
+in the secure DRAM at address `0x6000000` in the opaque pointer mentioned
+earlier. BL3-1 does not copy this information to internal data structures as it
+guarantees that the secure DRAM memory will not be overwritten. It maintains an
+internal reference to this information in the `bl2_to_bl31_args` variable.
 
 ### Function : bl31_plat_arch_setup() [mandatory]
 

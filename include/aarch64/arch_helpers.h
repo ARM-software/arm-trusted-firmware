@@ -34,6 +34,7 @@
 #include <arch.h>
 
 #ifndef __ASSEMBLY__
+#include <stdio.h>
 
 /*******************************************************************************
  * TLB maintenance accessor prototypes
@@ -108,14 +109,14 @@ extern void isb(void);
 extern unsigned int get_afflvl_shift(unsigned int);
 extern unsigned int mpidr_mask_lower_afflvls(unsigned long, unsigned int);
 
-extern void eret(unsigned long, unsigned long,
-		 unsigned long, unsigned long,
-		 unsigned long, unsigned long,
-		 unsigned long, unsigned long);
+extern void __dead2 eret(unsigned long, unsigned long,
+			 unsigned long, unsigned long,
+			 unsigned long, unsigned long,
+			 unsigned long, unsigned long);
 
-extern unsigned long  smc(unsigned long, unsigned long,
-			  unsigned long, unsigned long,
-			  unsigned long, unsigned long,
+extern void __dead2 smc(unsigned long, unsigned long,
+			 unsigned long, unsigned long,
+			 unsigned long, unsigned long,
 			  unsigned long, unsigned long);
 
 /*******************************************************************************

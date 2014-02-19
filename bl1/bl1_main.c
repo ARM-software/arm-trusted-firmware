@@ -104,7 +104,11 @@ void bl1_main(void)
 		printf("BL2 memory layout address = 0x%llx \n\r",
 		       (unsigned long long) bl2_tzram_layout);
 #endif
-		run_image(bl2_base, spsr, SECURE, bl2_tzram_layout, 0);
+		run_image(bl2_base,
+			  spsr,
+			  SECURE,
+			  (void *) bl2_tzram_layout,
+			  NULL);
 	}
 
 	/*

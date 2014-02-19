@@ -796,7 +796,7 @@ bits.
 BL2 does not perform any platform initialization that affects subsequent
 stages of the ARM Trusted Firmware or normal world software. It copies the
 information regarding the trusted SRAM populated by BL1 using a
-platform-specific mechanism. It also calculates the limits of DRAM (main memory)
+platform-specific mechanism. It calculates the limits of DRAM (main memory)
 to determine whether there is enough space to load the normal world software
 images. A platform defined base address is used to specify the load address for
 the BL3-1 image.

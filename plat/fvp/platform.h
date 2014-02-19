@@ -53,16 +53,19 @@
 
 /* Trusted Boot Firmware BL2 */
 #define BL2_IMAGE_NAME			"bl2.bin"
+
 /* EL3 Runtime Firmware BL31 */
-#define BL31_IMAGE_NAME		"bl31.bin"
+#define BL31_IMAGE_NAME			"bl31.bin"
+
 /* Secure Payload BL32 (Trusted OS) */
-#define BL32_IMAGE_NAME		"bl32.bin"
+#define BL32_IMAGE_NAME			"bl32.bin"
+
 /* Non-Trusted Firmware BL33 and its load address */
-#define BL33_IMAGE_NAME		"bl33.bin" /* e.g. UEFI */
-#define NS_IMAGE_OFFSET		(DRAM_BASE + 0x8000000) /* DRAM + 128MB */
+#define BL33_IMAGE_NAME			"bl33.bin" /* e.g. UEFI */
+#define NS_IMAGE_OFFSET			(DRAM_BASE + 0x8000000) /* DRAM + 128MB */
+
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
-
 
 #define PLATFORM_CACHE_LINE_SIZE	64
 #define PLATFORM_CLUSTER_COUNT		2ull

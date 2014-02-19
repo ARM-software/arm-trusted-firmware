@@ -47,11 +47,10 @@
 
 bl31_entrypoint: ; .type bl31_entrypoint, %function
 	/* ---------------------------------------------
-	 * BL2 has populated x0,x3,x4 with the opcode
-	 * indicating BL31 should be run, memory layout
-	 * of the trusted SRAM available to BL31 and
-	 * information about running the non-trusted
-	 * software already loaded by BL2.
+	 * BL2 has populated x0 with the opcode
+	 * indicating BL31 should be run, x3 with
+	 * a pointer to a 'bl31_args' structure & x4
+ 	 * with any other optional information
 	 * ---------------------------------------------
 	 */
 

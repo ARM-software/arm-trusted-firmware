@@ -49,21 +49,6 @@
 #define LOAD_MASK	(1 << 0)
 
 /*******************************************************************************
- * Size of memory for sharing data while changing exception levels.
- *
- * There are 2 cases where this memory buffer is used:
- *
- *   - when BL1 (running in EL3) passes control to BL2 (running in S-EL1).
- *     BL1 needs to pass the memory layout to BL2, to allow BL2 to find out
- *     how much free trusted ram remains;
- *
- *   - when BL2 (running in S-EL1) passes control back to BL1 (running in EL3)
- *     to make it run BL31.  BL2 needs to pass the memory layout, as well as
- *     information on how to pass control to the non-trusted software image.
- ******************************************************************************/
-#define EL_CHANGE_MEM_SIZE	(sizeof(meminfo) + sizeof(el_change_info))
-
-/*******************************************************************************
  * Macro to flag a compile time assertion. It uses the preprocessor to generate
  * an invalid C construct if 'cond' evaluates to false.
  * The following  compilation error is triggered if the assertion fails:
@@ -81,6 +66,8 @@
 
 
 #ifndef __ASSEMBLY__
+#include <stdio.h>
+
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
  * memory is available for its use and how much is already used.
@@ -108,27 +95,36 @@ typedef struct {
 /*******************************************************************************
  * This structure represents the superset of information needed while switching
  * exception levels. The only two mechanisms to do so are ERET & SMC. In case of
- * SMC all members apart from 'aapcs64_params' will be ignored. The 'next'
- * member is a placeholder for a complicated case in the distant future when BL2
- * will load multiple BL3x images as well as a non-secure image. So multiple
- * such structures will have to be passed to BL31 in S-EL3.
+ * SMC all members apart from 'aapcs64_params' will be ignored.
  ******************************************************************************/
 typedef struct {
 	unsigned long entrypoint;
 	unsigned long spsr;
 	unsigned long security_state;
 	aapcs64_params args;
-	unsigned long next;
 } el_change_info;
+
+/*******************************************************************************
+ * This structure represents the superset of information that can be passed to
+ * BL31 e.g. while passing control to it from BL2. The BL32 parameters will be
+ * populated only if BL2 detects its presence.
+ ******************************************************************************/
+typedef struct {
+	meminfo bl31_meminfo;
+	el_change_info bl32_image_info;
+	meminfo bl32_meminfo;
+	el_change_info bl33_image_info;
+	meminfo bl33_meminfo;
+} bl31_args;
 
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
 extern unsigned long page_align(unsigned long, unsigned);
 extern void change_security_state(unsigned int);
-extern int drop_el(aapcs64_params *, unsigned long, unsigned long);
-extern long raise_el(aapcs64_params *);
-extern long change_el(el_change_info *);
+extern void __dead2 drop_el(aapcs64_params *, unsigned long, unsigned long);
+extern void __dead2 raise_el(aapcs64_params *);
+extern void __dead2 change_el(el_change_info *);
 extern unsigned long make_spsr(unsigned long, unsigned long, unsigned long);
 extern void init_bl2_mem_layout(meminfo *,
 			        meminfo *,
@@ -138,11 +134,11 @@ extern void init_bl31_mem_layout(const meminfo *,
 				 meminfo *,
 				 unsigned int) __attribute__((weak));
 extern unsigned long load_image(meminfo *, const char *, unsigned int, unsigned long);
-extern int run_image(unsigned long,
-		     unsigned long,
-		     unsigned long,
-		     meminfo *,
-		     void *);
+extern void __dead2 run_image(unsigned long entrypoint,
+			      unsigned long spsr,
+			      unsigned long security_state,
+			      void *first_arg,
+			      void *second_arg);
 extern unsigned long *get_el_change_mem_ptr(void);
 
 #endif /*__ASSEMBLY__*/
