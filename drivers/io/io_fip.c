@@ -66,6 +66,9 @@ typedef struct {
 
 static const plat_fip_name_uuid_t name_uuid[] = {
 	{BL2_IMAGE_NAME, UUID_TRUSTED_BOOT_FIRMWARE_BL2},
+#ifdef BL30_IMAGE_NAME
+	{BL30_IMAGE_NAME, UUID_SCP_FIRMWARE_BL30},
+#endif
 	{BL31_IMAGE_NAME, UUID_EL3_RUNTIME_FIRMWARE_BL31},
 #ifdef BL32_IMAGE_NAME
 	/* BL3-2 is optional in the platform */
