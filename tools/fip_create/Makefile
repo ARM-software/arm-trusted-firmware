@@ -32,7 +32,7 @@ PROJECT = fip_create
 OBJECTS = fip_create.o
 
 CFLAGS = -Wall -Werror -pedantic -std=c99
-ifeq ($(BUILD),DEBUG)
+ifeq (${DEBUG},1)
   CFLAGS += -g -O0 -DDEBUG
 else
   CFLAGS += -O2
@@ -47,16 +47,16 @@ RM := rm -rf
 
 .PHONY: all clean
 
-all: $(PROJECT)
+all: ${PROJECT}
 
-$(PROJECT): $(OBJECTS) Makefile
-	@echo "[LD] $@"
-	$(CC) $(OBJECTS) -o $@
+${PROJECT}: ${OBJECTS} Makefile
+	@echo "  LD      $@"
+	${Q}${CC} ${OBJECTS} -o $@
 
 %.o: %.c %.h Makefile
-	@echo "[CC] $@"
-	$(CC) -c $(CFLAGS) $(INCLUDE_PATHS) $< -o $@
+	@echo "  CC      $<"
+	${Q}${CC} -c ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
-	$(RM) $(PROJECT)
-	$(RM) $(OBJECTS)
+	${Q}${RM} ${PROJECT}
+	${Q}${RM} ${OBJECTS}

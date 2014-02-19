@@ -49,6 +49,8 @@ else
 	Q=
 endif
 
+export Q
+
 DEBUG	?= 0
 
 ifneq (${DEBUG}, 0)
@@ -197,8 +199,13 @@ PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
 
 
 bl1:			${BUILD_BL1} ${BUILD_PLAT}/bl1.bin
+FIP_DEPS		+= ${BUILD_PLAT}/bl1.bin
+
 bl2:			${BUILD_BL2} ${BUILD_PLAT}/bl2.bin
+FIP_DEPS		+= ${BUILD_PLAT}/bl2.bin
+
 bl31:			${BUILD_BL31} ${BUILD_PLAT}/bl31.bin
+FIP_DEPS		+= ${BUILD_PLAT}/bl31.bin
 
 BASE_COMMIT		?=	origin/master
 
@@ -230,6 +237,7 @@ else
 ifeq (,$(wildcard ${BL33}))
 	$(error "The file BL33 points to cannot be found (${BL33})")
 endif
+FIP_DEPS		+= ${BL33}
 endif
 
 
@@ -283,13 +291,13 @@ endif
 clean:
 			@echo "  CLEAN"
 			${Q}rm -rf ${BUILD_PLAT}
-			${Q}make -C ${FIPTOOLPATH} clean
+			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 
 realclean distclean:
 			@echo "  REALCLEAN"
 			${Q}rm -rf ${BUILD_BASE}
 			${Q}rm -f ${CURDIR}/cscope.*
-			${Q}make -C ${FIPTOOLPATH} clean
+			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 
 dump:
 			@echo "  OBJDUMP"
@@ -310,9 +318,9 @@ checkpatch:		locate-checkpatch
 			@git format-patch --stdout ${BASE_COMMIT} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
 
 ${FIPTOOL}:
-			@echo "  BUILDING FIRMWARE IMAGE PACKAGE TOOL $@"
+			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH}
 			@echo
-			${Q}make -C ${FIPTOOLPATH}
+			@echo "Built $@ successfully"
 			@echo
 
 ${BUILD_DIRS}:
@@ -389,15 +397,15 @@ ${BUILD_PLAT}/bl31.bin:	${BUILD_BL31}/bl31.elf
 			@echo "Built $@ successfully"
 			@echo
 
-${BUILD_PLAT}/fip.bin:	bl2 bl31 ${FIP_DEPS} locate-bl33 ${FIPTOOL}
-			@echo " CREATE FIRMWARE IMAGE PACKAGE $@"
-			@echo
+${BUILD_PLAT}/fip.bin:	locate-bl33 ${FIP_DEPS} ${FIPTOOL}
 			${Q}${FIPTOOL} --dump \
 				--bl2 ${BUILD_PLAT}/bl2.bin \
 				--bl31 ${BUILD_PLAT}/bl31.bin \
 				--bl33 ${BL33} \
 				${FIP_ARGS} \
 				$@
+			@echo
+			@echo "Built $@ successfully"
 			@echo
 
 
