@@ -122,6 +122,12 @@ void bl2_platform_setup()
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
 
+	/*
+	 * Ensure that the secure DRAM memory used for passing BL31 arguments
+	 * does not overlap with the BL32_BASE.
+	 */
+	assert (BL32_BASE > TZDRAM_BASE + sizeof(bl31_args));
+
 	/* Use the Trusted DRAM for passing args to BL31 */
 	bl2_to_bl31_args = (bl31_args *) TZDRAM_BASE;
 
@@ -132,6 +138,22 @@ void bl2_platform_setup()
 	bl2_to_bl31_args->bl33_meminfo.free_size = DRAM_SIZE;
 	bl2_to_bl31_args->bl33_meminfo.attr = 0;
 	bl2_to_bl31_args->bl33_meminfo.next = 0;
+
+	/*
+	 * Populate the extents of memory available for loading BL32.
+	 * TODO: We are temporarily executing BL2 from TZDRAM; will eventually
+	 * move to Trusted SRAM
+	 */
+	bl2_to_bl31_args->bl32_meminfo.total_base = BL32_BASE;
+	bl2_to_bl31_args->bl32_meminfo.free_base = BL32_BASE;
+
+	bl2_to_bl31_args->bl32_meminfo.total_size =
+		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+	bl2_to_bl31_args->bl32_meminfo.free_size =
+		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+
+	bl2_to_bl31_args->bl32_meminfo.attr = BOT_LOAD;
+	bl2_to_bl31_args->bl32_meminfo.next = 0;
 }
 
 /*******************************************************************************

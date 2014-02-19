@@ -536,6 +536,34 @@ using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
     if the platform wants to restrict the amount of memory visible to BL3-1.
     Details of this function are given below.
 
+4.  Loading the BL3-2 binary image (if present) in platform provided memory
+    using semi-hosting. To load the BL3-2 image, BL2 makes use of the
+    `bl32_meminfo` field in the `bl31_args` structure to which a pointer is
+    returned by the `bl2_get_bl31_args_ptr()` function. The platform also
+    defines the address in memory where BL3-2 is loaded through the constant
+    `BL32_BASE`. BL2 uses this information to determine if there is enough
+    memory to load the BL3-2 image.
+
+5.  Arranging to pass control to the BL3-2 image (if present) that has been
+    pre-loaded at `BL32_BASE`. BL2 populates an `el_change_info` structure
+    in memory provided by the platform with information about how BL3-1 should
+    pass control to the BL3-2 image. This structure follows the
+    `el_change_info` structure populated for the normal world BL image in 2.
+    above.
+
+6.  Populating a `meminfo` structure with the following information in
+    memory that is accessible by BL3-1 immediately upon entry.
+
+        meminfo.total_base = Base address of memory visible to BL3-2
+        meminfo.total_size = Size of memory visible to BL3-2
+        meminfo.free_base  = Base address of memory available for allocation
+                             to BL3-2
+        meminfo.free_size  = Size of memory available for allocation to
+                             BL3-2
+
+    BL2 populates this information in the `bl32_meminfo` field of the pointer
+    returned by the `bl2_get_bl31_args_ptr() function.
+
 The following functions must be implemented by the platform port to enable BL2
 to perform the above tasks.
 
@@ -584,6 +612,11 @@ specific to BL2. For example on the ARM FVP port this function initialises a
 internal pointer (`bl2_to_bl31_args`) to a `bl31_args` which will be used by
 BL2 to pass information to BL3_1. The pointer is initialized to the base
 address of Secure DRAM (`0x06000000`).
+
+The ARM FVP port also populates the `bl32_meminfo` field in the `bl31_args`
+structure pointed to by `bl2_to_bl31_args` with the extents of memory available
+for use by the BL3-2 image. The memory is allocated in the Secure DRAM from the
+address defined by the constant `BL32_BASE`.
 
 The non-secure memory extents used for loading BL3-3 are also initialized in
 this function. This information is accessible in the `bl33_meminfo` field in

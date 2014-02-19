@@ -49,7 +49,7 @@ void bl2_main(void)
 {
 	meminfo *bl2_tzram_layout;
 	bl31_args *bl2_to_bl31_args;
-	unsigned long bl31_base, bl33_base, el_status;
+	unsigned long bl31_base, bl32_base = 0, bl33_base, el_status;
 	unsigned int bl2_load, bl31_load, mode;
 
 	/* Perform remaining generic architectural setup in S-El1 */
@@ -88,6 +88,20 @@ void bl2_main(void)
 	 * information to BL31.
 	 */
 	bl2_to_bl31_args = bl2_get_bl31_args_ptr();
+
+	/*
+	 * Load the BL32 image if there's one. It is upto to platform
+	 * to specify where BL32 should be loaded if it exists. It
+	 * could create space in the secure sram or point to a
+	 * completely different memory. A zero size indicates that the
+	 * platform does not want to load a BL32 image.
+	 */
+	if (bl2_to_bl31_args->bl32_meminfo.total_size)
+		bl32_base = load_image(&bl2_to_bl31_args->bl32_meminfo,
+				       BL32_IMAGE_NAME,
+				       bl2_to_bl31_args->bl32_meminfo.attr &
+				       LOAD_MASK,
+				       BL32_BASE);
 
 	/*
 	 * Create a new layout of memory for BL31 as seen by BL2. This
@@ -131,6 +145,18 @@ void bl2_main(void)
 	bl2_to_bl31_args->bl33_image_info.spsr =
 		make_spsr(mode, MODE_SP_ELX, MODE_RW_64);
 	bl2_to_bl31_args->bl33_image_info.security_state = NON_SECURE;
+
+	if (bl32_base) {
+		/* Fill BL32 image info */
+		bl2_to_bl31_args->bl32_image_info.entrypoint = bl32_base;
+		bl2_to_bl31_args->bl32_image_info.security_state = SECURE;
+
+		/*
+		 * The Secure Payload Dispatcher service is responsible for
+		 * setting the SPSR prior to entry into the BL32 image.
+		 */
+		bl2_to_bl31_args->bl32_image_info.spsr = 0;
+	}
 
 	/* Flush the entire BL31 args buffer */
 	flush_dcache_range((unsigned long) bl2_to_bl31_args,

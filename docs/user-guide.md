@@ -799,7 +799,8 @@ information regarding the trusted SRAM populated by BL1 using a
 platform-specific mechanism. It calculates the limits of DRAM (main memory)
 to determine whether there is enough space to load the normal world software
 images. A platform defined base address is used to specify the load address for
-the BL3-1 image.
+the BL3-1 image. It also defines the extents of memory available for use by the
+BL3-2 image.
 
 #### Normal world image load
 
@@ -810,6 +811,16 @@ Status Register (`CPSR`) of the normal world software image. The entrypoint is
 the load address of the normal world software image. The `CPSR` is determined as
 specified in Section 5.13 of the [PSCI PDD] [PSCI]. This information is passed
 to BL3-1.
+
+#### BL3-2 (Secure Payload) image load
+
+BL2 loads the optional BL3-2 image. The image executes in the secure world. BL2
+relies on BL3-1 to pass control to the BL3-2 image, if present. Hence, BL2
+populates a platform- specific area of memory with the entrypoint and Current
+Program Status Register (`CPSR`) of the BL3-2 image. The entrypoint is the load
+address of the BL3-2 image. The `CPSR` is initialized with Secure EL1 and Stack
+pointer set to SP_EL1 (EL1h) as the mode, exception bits disabled (DAIF bits)
+and AArch64 execution state. This information is passed to BL3-1.
 
 ##### UEFI firmware load
 
