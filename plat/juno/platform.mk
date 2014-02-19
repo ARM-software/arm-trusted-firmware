@@ -93,6 +93,7 @@ BL31_SOURCES		+=	bl31_plat_setup.c			\
 				plat_topology.c				\
 				plat_gic.c				\
 				scpi.c					\
+				smc_arm.c				\
 				cci400.c				\
 				gic_v2.c				\
 				gic_v3.c
