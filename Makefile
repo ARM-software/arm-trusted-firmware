@@ -378,6 +378,11 @@ ifeq (${NEED_BL2},yes)
 $(eval $(call MAKE_BL,2,in_fip))
 endif
 
+ifneq (${BL30},)
+FIP_DEPS += ${BL30}
+FIP_ARGS += --bl30 ${BL30}
+endif
+
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
 $(eval $(call MAKE_BL,31,in_fip))
