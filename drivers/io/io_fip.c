@@ -298,6 +298,7 @@ static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
 		entity->info = (uintptr_t)&current_file;
 	} else {
 		/* Did not find the file in the FIP. */
+		current_file.entry.offset_address = 0;
 		result = IO_FAIL;
 	}
 
