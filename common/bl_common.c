@@ -278,7 +278,7 @@ unsigned long load_image(meminfo *mem_layout,
 	/* Obtain a reference to the image by querying the platform layer */
 	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
 	if (io_result != IO_SUCCESS) {
-		ERROR("Failed to obtain reference to image '%s' (%i)\n",
+		WARN("Failed to obtain reference to image '%s' (%i)\n",
 			image_name, io_result);
 		return 0;
 	}
@@ -286,7 +286,7 @@ unsigned long load_image(meminfo *mem_layout,
 	/* Attempt to access the image */
 	io_result = io_open(dev_handle, image_spec, &image_handle);
 	if (io_result != IO_SUCCESS) {
-		ERROR("Failed to access image '%s' (%i)\n",
+		WARN("Failed to access image '%s' (%i)\n",
 			image_name, io_result);
 		return 0;
 	}
@@ -294,14 +294,14 @@ unsigned long load_image(meminfo *mem_layout,
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
-		ERROR("Failed to determine the size of the image '%s' file (%i)\n",
+		WARN("Failed to determine the size of the image '%s' file (%i)\n",
 			image_name, io_result);
 		goto fail;
 	}
 
 	/* See if we have enough space */
 	if (image_size > mem_layout->free_size) {
-		ERROR("ERROR: Cannot load '%s' file: Not enough space.\n",
+		WARN("Cannot load '%s' file: Not enough space.\n",
 			image_name);
 		dump_load_info(0, image_size, mem_layout);
 		goto fail;
@@ -320,7 +320,7 @@ unsigned long load_image(meminfo *mem_layout,
 	  assert(image_base <= temp_image_base);
 
 	  if (image_base < mem_layout->free_base) {
-		ERROR("Cannot load '%s' file: Not enough space.\n",
+		WARN("Cannot load '%s' file: Not enough space.\n",
 			image_name);
 		dump_load_info(image_base, image_size, mem_layout);
 		goto fail;
@@ -341,7 +341,7 @@ unsigned long load_image(meminfo *mem_layout,
 	  /* Page align base address and check whether the image still fits */
 	  if (image_base + image_size >
 	      mem_layout->free_base + mem_layout->free_size) {
-		  ERROR("Cannot load '%s' file: Not enough space.\n",
+		  WARN("Cannot load '%s' file: Not enough space.\n",
 			  image_name);
 		  dump_load_info(image_base, image_size, mem_layout);
 		  goto fail;
@@ -406,7 +406,7 @@ unsigned long load_image(meminfo *mem_layout,
 		if ((image_base < mem_layout->free_base) ||
 		    (image_base + image_size >
 		       mem_layout->free_base + mem_layout->free_size)) {
-			ERROR("Cannot load '%s' file: Not enough space.\n",
+			WARN("Cannot load '%s' file: Not enough space.\n",
 				image_name);
 			dump_load_info(image_base, image_size, mem_layout);
 			goto fail;
@@ -414,7 +414,7 @@ unsigned long load_image(meminfo *mem_layout,
 
 		/* Check whether the fixed load address is page-aligned. */
 		if (!is_page_aligned(image_base)) {
-			ERROR("Cannot load '%s' file at unaligned address 0x%lx\n",
+			WARN("Cannot load '%s' file at unaligned address 0x%lx\n",
 				image_name, fixed_addr);
 			goto fail;
 		}
@@ -465,7 +465,7 @@ unsigned long load_image(meminfo *mem_layout,
 	/* TODO: Consider whether to try to recover/retry a partially successful read */
 	io_result = io_read(image_handle, (void *)image_base, image_size, &bytes_read);
 	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
-		ERROR("Failed to load '%s' file (%i)\n", image_name, io_result);
+		WARN("Failed to load '%s' file (%i)\n", image_name, io_result);
 		goto fail;
 	}
 

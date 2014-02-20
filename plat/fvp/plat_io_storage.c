@@ -234,7 +234,7 @@ static int fvp_bl33_policy(io_dev_handle *dev_handle, void **image_spec)
 	int result = IO_FAIL;
 	void *local_image_spec = &bl33_file_spec;
 
-	INFO("Loading BL33 (UEFI)\n");
+	INFO("Loading BL33 (Normal world firmware)\n");
 	/* FIP first then fall back to semi-hosting */
 	result = open_fip(local_image_spec);
 	if (result == IO_SUCCESS) {

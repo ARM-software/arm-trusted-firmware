@@ -184,7 +184,7 @@ static int fip_dev_init(struct io_dev_info *dev_info, const void *init_params)
 	result = plat_get_image_source(image_name, &backend_dev_handle,
 				       &backend_image_spec);
 	if (result != IO_SUCCESS) {
-		ERROR("Failed to obtain reference to image '%s' (%i)\n",
+		WARN("Failed to obtain reference to image '%s' (%i)\n",
 			image_name, result);
 		result = IO_FAIL;
 		goto fip_dev_init_exit;
@@ -194,7 +194,7 @@ static int fip_dev_init(struct io_dev_info *dev_info, const void *init_params)
 	result = io_open(backend_dev_handle, backend_image_spec,
 			 &backend_handle);
 	if (result != IO_SUCCESS) {
-		ERROR("Failed to access image '%s' (%i)\n", image_name, result);
+		WARN("Failed to access image '%s' (%i)\n", image_name, result);
 		result = IO_FAIL;
 		goto fip_dev_init_exit;
 	}
@@ -202,7 +202,7 @@ static int fip_dev_init(struct io_dev_info *dev_info, const void *init_params)
 	result = io_read(backend_handle, &header, sizeof(header), &bytes_read);
 	if (result == IO_SUCCESS) {
 		if (!is_valid_header(&header)) {
-			ERROR("Firmware Image Package header check failed.\n");
+			WARN("Firmware Image Package header check failed.\n");
 			result = IO_FAIL;
 		} else {
 			INFO("FIP header looks OK.\n");
@@ -249,7 +249,7 @@ static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
 	 * than one open file at a time if needed.
 	 */
 	if (current_file.entry.offset_address != 0) {
-		ERROR("fip_file_open : Only one open file at a time.\n");
+		WARN("fip_file_open : Only one open file at a time.\n");
 		return IO_RESOURCES_EXHAUSTED;
 	}
 
@@ -257,7 +257,7 @@ static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
 	result = io_open(backend_dev_handle, backend_image_spec,
 			 &backend_handle);
 	if (result != IO_SUCCESS) {
-		ERROR("Failed to open Firmware Image Package (%i)\n", result);
+		WARN("Failed to open Firmware Image Package (%i)\n", result);
 		result = IO_FAIL;
 		goto fip_file_open_exit;
 	}
@@ -265,7 +265,7 @@ static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
 	/* Seek past the FIP header into the Table of Contents */
 	result = io_seek(backend_handle, IO_SEEK_SET, sizeof(fip_toc_header));
 	if (result != IO_SUCCESS) {
-		ERROR("fip_file_open: failed to seek\n");
+		WARN("fip_file_open: failed to seek\n");
 		result = IO_FAIL;
 		goto fip_file_open_close;
 	}
@@ -284,7 +284,7 @@ static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
 				break;
 			}
 		} else {
-			ERROR("Failed to read FIP (%i)\n", result);
+			WARN("Failed to read FIP (%i)\n", result);
 			goto fip_file_open_close;
 		}
 	} while (compare_uuids(&current_file.entry.uuid, &uuid_null) != 0);
@@ -341,7 +341,7 @@ static int fip_file_read(struct io_entity *entity, void *buffer, size_t length,
 	result = io_open(backend_dev_handle, backend_image_spec,
 			 &backend_handle);
 	if (result != IO_SUCCESS) {
-		ERROR("Failed to open FIP (%i)\n", result);
+		WARN("Failed to open FIP (%i)\n", result);
 		result = IO_FAIL;
 		goto fip_file_read_exit;
 	}
@@ -352,7 +352,7 @@ static int fip_file_read(struct io_entity *entity, void *buffer, size_t length,
 	file_offset = fp->entry.offset_address + fp->file_pos;
 	result = io_seek(backend_handle, IO_SEEK_SET, file_offset);
 	if (result != IO_SUCCESS) {
-		ERROR("fip_file_read: failed to seek\n");
+		WARN("fip_file_read: failed to seek\n");
 		result = IO_FAIL;
 		goto fip_file_read_close;
 	}
@@ -360,7 +360,7 @@ static int fip_file_read(struct io_entity *entity, void *buffer, size_t length,
 	result = io_read(backend_handle, buffer, length, &bytes_read);
 	if (result != IO_SUCCESS) {
 		/* We cannot read our data. Fail. */
-		ERROR("Failed to read payload (%i)\n", result);
+		WARN("Failed to read payload (%i)\n", result);
 		result = IO_FAIL;
 		goto fip_file_read_close;
 	} else {

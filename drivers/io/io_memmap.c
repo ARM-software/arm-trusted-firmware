@@ -137,7 +137,7 @@ static int memmap_block_open(struct io_dev_info *dev_info, const void *spec,
 		entity->info = (uintptr_t)&current_file;
 		result = IO_SUCCESS;
 	} else {
-		ERROR("A Memmap device is already active. Close first.\n");
+		WARN("A Memmap device is already active. Close first.\n");
 		result = IO_RESOURCES_EXHAUSTED;
 	}
 
