@@ -104,8 +104,8 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an
 	 * error, it's expected to assert within
 	 */
-	if (spd_pm.svc_suspend)
-		spd_pm.svc_suspend(power_state);
+	if (psci_spd_pm && psci_spd_pm->svc_suspend)
+		psci_spd_pm->svc_suspend(power_state);
 
 	/* State management: mark this cpu as suspended */
 	psci_set_state(cpu_node, PSCI_STATE_SUSPEND);
@@ -459,9 +459,9 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an
 	 * error, it's expected to assert within
 	 */
-	if (spd_pm.svc_suspend) {
+	if (psci_spd_pm && psci_spd_pm->svc_suspend) {
 		suspend_level = psci_get_suspend_afflvl(cpu_node);
-		spd_pm.svc_suspend_finish(suspend_level);
+		psci_spd_pm->svc_suspend_finish(suspend_level);
 	}
 
 	/*

@@ -49,11 +49,5 @@ extern el_change_info *bl31_get_next_image_info(uint32_t type);
 extern void bl31_platform_setup(void);
 extern meminfo *bl31_plat_get_bl32_mem_layout(void);
 extern meminfo *bl31_plat_sec_mem_layout(void);
-
-/*
- * This function is used to initialise the BL32 image. It is a weak
- * declaration to cope with a system where the Secure Payload
- * Dispatcher is absent.
- */
-extern int32_t bl32_init(meminfo *) __attribute__ ((weak));
+extern void bl31_register_bl32_init(int32_t (*)(meminfo *));
 #endif /* __BL31_H__ */

@@ -65,8 +65,8 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 	 * to let it do any bookeeping. Assume that the SPD always reports an
 	 * E_DENIED error if SP refuse to power down
 	 */
-	if (spd_pm.svc_off) {
-		rc = spd_pm.svc_off(0);
+	if (psci_spd_pm && psci_spd_pm->svc_off) {
+		rc = psci_spd_pm->svc_off(0);
 		if (rc)
 			return rc;
 	}

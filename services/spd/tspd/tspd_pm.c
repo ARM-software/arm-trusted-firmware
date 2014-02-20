@@ -34,7 +34,6 @@
 #include <arch_helpers.h>
 #include <console.h>
 #include <platform.h>
-#include <psci_private.h>
 #include <context_mgmt.h>
 #include <runtime_svc.h>
 #include <bl31.h>
@@ -199,7 +198,7 @@ static int32_t tspd_cpu_migrate_info(uint64_t *resident_cpu)
  * Structure populated by the TSP Dispatcher to be given a chance to perform any
  * TSP bookkeeping before PSCI executes a power mgmt.  operation.
  ******************************************************************************/
-const spd_pm_ops spd_pm = {
+const spd_pm_ops tspd_pm = {
 	tspd_cpu_on_handler,
 	tspd_cpu_off_handler,
 	tspd_cpu_suspend_handler,

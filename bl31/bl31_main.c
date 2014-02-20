@@ -40,6 +40,15 @@
 #include <runtime_svc.h>
 #include <context_mgmt.h>
 
+
+/*******************************************************************************
+ * This function pointer is used to initialise the BL32 image. It's initialized
+ * by SPD calling bl31_register_bl32_init after setting up all things necessary
+ * for SP execution. In cases where both SPD and SP are absent, or when SPD
+ * finds it impossible to execute SP, this pointer is left as NULL
+ ******************************************************************************/
+static int32_t (*bl32_init)(meminfo *);
+
 /*******************************************************************************
  * Variable to indicate whether next image to execute after BL31 is BL33
  * (non-secure & default) or BL32 (secure).
@@ -97,19 +106,21 @@ void bl31_main(void)
 	write_vbar_el3((uint64_t) runtime_exceptions);
 
 	/*
-	 * All the cold boot actions on the primary cpu are done. We
-	 * now need to decide which is the next image (BL32 or BL33)
-	 * and how to execute it. If the SPD runtime service is
-	 * present, it would want to pass control to BL32 first in
-	 * S-EL1. It will export the bl32_init() routine where it takes
-	 * responsibility of entering S-EL1 and returning control back
-	 * to bl31_main. Once this is done we can prepare entry into
-	 * BL33 as normal.
+	 * All the cold boot actions on the primary cpu are done. We now need to
+	 * decide which is the next image (BL32 or BL33) and how to execute it.
+	 * If the SPD runtime service is present, it would want to pass control
+	 * to BL32 first in S-EL1. In that case, SPD would have registered a
+	 * function to intialize bl32 where it takes responsibility of entering
+	 * S-EL1 and returning control back to bl31_main. Once this is done we
+	 * can prepare entry into BL33 as normal.
 	 */
 
-	/* Tell BL32 about it memory extents as well */
+	/*
+	 * If SPD had registerd an init hook, invoke it. Pass it the information
+	 * about memory extents
+	 */
 	if (bl32_init)
-		bl32_init(bl31_plat_get_bl32_mem_layout());
+		(*bl32_init)(bl31_plat_get_bl32_mem_layout());
 
 	/*
 	 * We are ready to enter the next EL. Prepare entry into the image
@@ -174,4 +185,13 @@ void bl31_prepare_next_image_entry()
 
 	/* Finally set the next context */
 	cm_set_next_eret_context(next_image_info->security_state);
+}
+
+/*******************************************************************************
+ * This function initializes the pointer to BL32 init function. This is expected
+ * to be called by the SPD after it finishes all its initialization
+ ******************************************************************************/
+void bl31_register_bl32_init(int32_t (*func)(meminfo *))
+{
+	bl32_init = func;
 }

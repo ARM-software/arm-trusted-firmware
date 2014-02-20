@@ -44,7 +44,6 @@
 #include <arch_helpers.h>
 #include <console.h>
 #include <platform.h>
-#include <psci_private.h>
 #include <context_mgmt.h>
 #include <runtime_svc.h>
 #include <bl31.h>
@@ -63,6 +62,10 @@ entry_info *tsp_entry_info;
  * Array to keep track of per-cpu Secure Payload state
  ******************************************************************************/
 tsp_context tspd_sp_context[TSPD_CORE_COUNT];
+
+
+int32_t tspd_init(meminfo *bl32_meminfo);
+
 
 /*******************************************************************************
  * Secure Payload Dispatcher setup. The SPD finds out the SP entrypoint and type
@@ -87,6 +90,14 @@ int32_t tspd_setup(void)
 	assert(image_info);
 
 	/*
+	 * If there's no valid entry point for SP, we return a non-zero value
+	 * signalling failure initializing the service. We bail out without
+	 * registering any handlers
+	 */
+	if (!image_info->entrypoint)
+		return 1;
+
+	/*
 	 * We could inspect the SP image and determine it's execution
 	 * state i.e whether AArch32 or AArch64. Assuming it's AArch64
 	 * for the time being.
@@ -96,6 +107,12 @@ int32_t tspd_setup(void)
 				     mpidr,
 				     &tspd_sp_context[linear_id]);
 	assert(rc == 0);
+
+	/*
+	 * All TSPD initialization done. Now register our init function with
+	 * BL31 for deferred invocation
+	 */
+	bl31_register_bl32_init(&tspd_init);
 
 	return rc;
 }
@@ -110,7 +127,7 @@ int32_t tspd_setup(void)
  * back to this routine through a SMC. It also passes the extents of memory made
  * available to BL32 by BL31.
  ******************************************************************************/
-int32_t bl32_init(meminfo *bl32_meminfo)
+int32_t tspd_init(meminfo *bl32_meminfo)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
@@ -135,11 +152,19 @@ int32_t bl32_init(meminfo *bl32_meminfo)
 	 */
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 	assert(rc != 0);
-	if (rc)
+	if (rc) {
 		tsp_ctx->state = TSP_STATE_ON;
+
+		/*
+		 * TSP has been successfully initialized. Register power
+		 * managemnt hooks with PSCI
+		 */
+		psci_register_spd_pm_hook(&tspd_pm);
+	}
 
 	return rc;
 }
+
 
 /*******************************************************************************
  * This function is responsible for handling all SMCs in the Trusted OS/App

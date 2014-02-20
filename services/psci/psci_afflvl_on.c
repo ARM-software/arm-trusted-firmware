@@ -95,8 +95,8 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	 * to let it do any bookeeping. If the handler encounters an error, it's
 	 * expected to assert within
 	 */
-	if (spd_pm.svc_on)
-		spd_pm.svc_on(target_cpu);
+	if (psci_spd_pm && psci_spd_pm->svc_on)
+		psci_spd_pm->svc_on(target_cpu);
 
 	/*
 	 * Arch. management: Derive the re-entry information for
@@ -387,8 +387,8 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an
 	 * error, it's expected to assert within
 	 */
-	if (spd_pm.svc_on_finish)
-		spd_pm.svc_on_finish(0);
+	if (psci_spd_pm && psci_spd_pm->svc_on_finish)
+		psci_spd_pm->svc_on_finish(0);
 
 	/*
 	 * Generic management: Now we just need to retrieve the

@@ -116,6 +116,9 @@ typedef struct {
 	cpu_context cpu_ctx;
 } tsp_context;
 
+/* TSPD power management handlers */
+extern const spd_pm_ops tspd_pm;
+
 /*******************************************************************************
  * Function & Data prototypes
  ******************************************************************************/

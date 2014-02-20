@@ -41,10 +41,10 @@
 #include "debug.h"
 
 /*
- * Provide a null weak instantiation for SPD power management operations. An SPD
- * can define its own instance overriding this one
+ * SPD power management operations, expected to be supplied by the registered
+ * SPD on successful SP initialization
  */
-const spd_pm_ops __attribute__((weak)) spd_pm = {0};
+const spd_pm_ops *psci_spd_pm;
 
 /*******************************************************************************
  * Arrays that contains information needs to resume a cpu's execution when woken
@@ -555,4 +555,14 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 				  start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
+}
+
+/*******************************************************************************
+ * This function initializes the set of hooks that PSCI invokes as part of power
+ * management operation. The power management hooks are expected to be provided
+ * by the SPD, after it finishes all its initialization
+ ******************************************************************************/
+void psci_register_spd_pm_hook(const spd_pm_ops *pm)
+{
+	psci_spd_pm = pm;
 }
