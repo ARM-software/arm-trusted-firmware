@@ -100,6 +100,9 @@ void bl1_early_platform_setup(void)
 
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
+
+	/* Initialize the console */
+	console_init(PL011_UART0_BASE);
 }
 
 /*******************************************************************************
@@ -114,11 +117,6 @@ void bl1_platform_setup(void)
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_EN);
-
-	/* Initialize the console */
-	console_init(PL011_UART0_BASE);
-
-	return;
 }
 
 

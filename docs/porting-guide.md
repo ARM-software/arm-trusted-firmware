@@ -446,8 +446,8 @@ This function executes with the MMU and data caches enabled. It is responsible
 for performing any remaining platform-specific setup that can occur after the
 MMU and data cache have been enabled.
 
-In the ARM FVP port, it zeros out the ZI section, enables the system level
-implementation of the generic timer counter and initializes the console.
+In the ARM FVP port, it zeros out the ZI section and enables the system level
+implementation of the generic timer counter.
 
 This function is also responsible for initializing the storage abstraction layer
 which is used to load further bootloader images.
