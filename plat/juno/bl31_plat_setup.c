@@ -61,20 +61,16 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
-/*******************************************************************************
- * Reference to structure which holds the arguments that have been passed to
- * BL31 from BL2.
- ******************************************************************************/
-static bl31_args *bl2_to_bl31_args;
+static bl31_args bl2_to_bl31_args;
 
 meminfo *bl31_plat_sec_mem_layout(void)
 {
-	return &bl2_to_bl31_args->bl31_meminfo;
+	return &bl2_to_bl31_args.bl31_meminfo;
 }
 
 meminfo *bl31_plat_get_bl32_mem_layout(void)
 {
-	return &bl2_to_bl31_args->bl32_meminfo;
+	return &bl2_to_bl31_args.bl32_meminfo;
 }
 
 /*******************************************************************************
@@ -88,8 +84,8 @@ el_change_info *bl31_get_next_image_info(uint32_t type)
 	el_change_info *next_image_info;
 
 	next_image_info = (type == NON_SECURE) ?
-		&bl2_to_bl31_args->bl33_image_info :
-		&bl2_to_bl31_args->bl32_image_info;
+		&bl2_to_bl31_args.bl33_image_info :
+		&bl2_to_bl31_args.bl32_image_info;
 
 	/* None of the images on this platform can have 0x0 as the entrypoint */
 	if (next_image_info->entrypoint)
@@ -112,8 +108,7 @@ el_change_info *bl31_get_next_image_info(uint32_t type)
 void bl31_early_platform_setup(bl31_args *from_bl2,
 			       void *data)
 {
-	bl2_to_bl31_args = from_bl2;
-
+	bl2_to_bl31_args = *from_bl2;
 }
 
 /*******************************************************************************
@@ -145,7 +140,7 @@ void bl31_platform_setup()
  ******************************************************************************/
 void bl31_plat_arch_setup()
 {
-	configure_mmu(&bl2_to_bl31_args->bl31_meminfo,
+	configure_mmu(&bl2_to_bl31_args.bl31_meminfo,
 		      BL31_RO_BASE,
 		      BL31_RO_LIMIT,
 		      BL31_COHERENT_RAM_BASE,
