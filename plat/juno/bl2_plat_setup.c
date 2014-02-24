@@ -71,24 +71,18 @@ static meminfo bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
-/*******************************************************************************
- * Reference to structure which holds the arguments which need to be passed
- * to BL31
- ******************************************************************************/
-static bl31_args *bl2_to_bl31_args;
+static bl31_args bl2_to_bl31_args
+__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
+		section("tzfw_coherent_mem")));
 
 meminfo *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
 }
 
-/*******************************************************************************
- * This function returns a pointer to the memory that the platform has kept
- * aside to pass all the information that BL31 could need.
- ******************************************************************************/
 bl31_args *bl2_get_bl31_args_ptr(void)
 {
-	return bl2_to_bl31_args;
+	return &bl2_to_bl31_args;
 }
 
 /*******************************************************************************
@@ -118,16 +112,14 @@ void bl2_platform_setup()
 {
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
-	/* Use the Trusted DRAM for passing args to BL31 */
-	bl2_to_bl31_args = (bl31_args *) TZDRAM_BASE;
 
 	/* Populate the extents of memory available for loading BL33 */
-	bl2_to_bl31_args->bl33_meminfo.total_base = DRAM_BASE;
-	bl2_to_bl31_args->bl33_meminfo.total_size = DRAM_SIZE;
-	bl2_to_bl31_args->bl33_meminfo.free_base = DRAM_BASE;
-	bl2_to_bl31_args->bl33_meminfo.free_size = DRAM_SIZE;
-	bl2_to_bl31_args->bl33_meminfo.attr = 0;
-	bl2_to_bl31_args->bl33_meminfo.next = 0;
+	bl2_to_bl31_args.bl33_meminfo.total_base = DRAM_BASE;
+	bl2_to_bl31_args.bl33_meminfo.total_size = DRAM_SIZE;
+	bl2_to_bl31_args.bl33_meminfo.free_base = DRAM_BASE;
+	bl2_to_bl31_args.bl33_meminfo.free_size = DRAM_SIZE;
+	bl2_to_bl31_args.bl33_meminfo.attr = 0;
+	bl2_to_bl31_args.bl33_meminfo.next = 0;
 
 }
 
