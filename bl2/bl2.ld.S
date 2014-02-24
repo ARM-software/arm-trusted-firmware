@@ -60,15 +60,6 @@ SECTIONS
         __RO_END__ = .;
     } >RAM
 
-    /*
-     * The xlat_table section is for full, aligned page tables (4K).
-     * Removing them from .bss avoids forcing 4K alignment on
-     * the .bss section and eliminates the unecessary zero init
-     */
-    xlat_table (NOLOAD) : {
-        *(xlat_table)
-    } >RAM
-
     .data . : {
         __DATA_START__ = .;
         *(.data)
@@ -93,7 +84,7 @@ SECTIONS
     } >RAM
 
     /*
-     * The .xlat_table section is for full, aligned page tables (4K).
+     * The xlat_table section is for full, aligned page tables (4K).
      * Removing them from .bss avoids forcing 4K alignment on
      * the .bss section and eliminates the unecessary zero init
      */
