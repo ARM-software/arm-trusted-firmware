@@ -60,8 +60,12 @@ uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr)
 		gicr_aff = (gicr_typer >> GICR_TYPER_AFF_SHIFT) &
 				GICR_TYPER_AFF_MASK;
 		if (cpu_aff == gicr_aff) {
-			INFO("GICv3 - Found RDIST for MPIDR(0x%lx) at 0x%lx\n",
-				mpidr, addr);
+			/* Disable this print for now as it appears every time
+			 * when using PSCI CPU_SUSPEND.
+			 * TODO: Print this only the first time for each CPU.
+			 * INFO("GICv3 - Found RDIST for MPIDR(0x%lx) at 0x%lx\n",
+			 *	mpidr, addr);
+			 */
 			return addr;
 		}
 
