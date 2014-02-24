@@ -7,9 +7,8 @@ Contributor License Agreement (CLA).
 Individuals who want to contribute their own work must sign and return an
 Individual CLA. Companies that want to contribute must sign and return a
 Corporate CLA if their employees' intellectual property has been assigned to
-the employer. Copies of the CLAs are available on request from
-[cla-submissions@arm.com]. They will be available from http://www.arm.com in
-due course.
+the employer. Copies of the CLAs are available from the [contributing page] of
+the ARM website.
 
 For this project, ARM also requires the GitHub account name(s) associated with
 each individual contributor or the designated employees of corporate
@@ -106,7 +105,7 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [Porting Guide]:                        ./docs/porting-guide.md
 [Acknowledgements]:                     ./acknowledgements.md "Contributor acknowledgements"
 
-[cla-submissions@arm.com]:      mailto:cla-submissions@arm.com
+[contributing page]:            http://www.arm.com/community/open-source-contributing.php
 [GitHub account]:               https://github.com/signup/free
 [Fork]:                         https://help.github.com/articles/fork-a-repo
 [issue tracking repository]:    https://github.com/ARM-software/tf-issues
