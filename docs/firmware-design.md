@@ -4,11 +4,14 @@ ARM Trusted Firmware Design
 Contents :
 
 1.  Introduction
-2.  Cold Boot
-3.  Memory layout on FVP platforms
-4.  Firmware Image Package (FIP)
-5.  Code Structure
-6.  References
+2.  Cold boot
+3.  EL3 runtime services framework
+4.  Power State Coordination Interface
+5.  Secure-EL1 Payloads and Dispatchers
+6.  Memory layout on FVP platforms
+7.  Firmware Image Package (FIP)
+8.  Code Structure
+9.  References
 
 
 1.  Introduction
@@ -29,7 +32,7 @@ instruction. The SMC instruction must be used as mandated by the [SMC Calling
 Convention PDD][SMCCC] [3].
 
 
-2.  Cold Boot
+2.  Cold boot
 -------------
 
 The cold boot path starts when the platform is physically turned on. One of
@@ -334,59 +337,330 @@ memory address populated by BL2.
 
 *   Runtime services initialization:
 
-    The only runtime service implemented by BL3-1 is PSCI. The complete PSCI API
-    is not yet implemented. The following functions are currently implemented:
+    The runtime service framework and its initialization is described in the
+    "EL3 runtime services framework" section below.
 
-    -   `PSCI_VERSION`
-    -   `CPU_OFF`
-    -   `CPU_ON`
-    -   `CPU_SUSPEND`
-    -   `AFFINITY_INFO`
+    Details about the PSCI service are provided in the "Power State Coordination
+    Interface" section below.
 
-    The `CPU_ON`, `CPU_OFF` and `CPU_SUSPEND` functions implement the warm boot
-    path in ARM Trusted Firmware. `CPU_ON` and `CPU_OFF` have undergone testing
-    on all the supported FVPs. `CPU_SUSPEND` & `AFFINITY_INFO` have undergone
-    testing only on the AEM v8 Base FVP. Support for `AFFINITY_INFO` is still
-    experimental. Support for `CPU_SUSPEND` is stable for entry into power down
-    states. Standby states are currently not supported. `PSCI_VERSION` is
-    present but completely untested in this version of the software.
+*   BL3-2 (Secure-EL1 Payload) image initialization
 
-    Unsupported PSCI functions can be divided into ones that can return
-    execution to the caller and ones that cannot. The following functions
-    return with a error code as documented in the [Power State Coordination
-    Interface PDD] [PSCI].
+    If a BL3-2 image is present then there must be a matching Secure-EL1 Payload
+    Dispatcher (SPD) service (see later for details). During initialization
+    that service  must register a function to carry out initialization of BL3-2
+    once the runtime services are fully initialized. BL3-1 invokes such a
+    registered function to initialize BL3-2 before running BL3-3.
 
-    -   `MIGRATE` : -1 (NOT_SUPPORTED)
-    -   `MIGRATE_INFO_TYPE` : 2 (Trusted OS is either not present or does not
-         require migration)
-    -   `MIGRATE_INFO_UP_CPU` : 0 (Return value is UNDEFINED)
+    Details on BL3-2 initialization and the SPD's role are described in the
+    "Secure-EL1 Payloads and Dispatchers" section below.
 
-    The following unsupported functions do not return and signal an assertion
-    failure if invoked.
+*   BL3-3 (Non-trusted Firmware) execution
 
-    -   `SYSTEM_OFF`
-    -   `SYSTEM_RESET`
-
-    BL3-1 returns the error code `-1` if an SMC is raised for any other runtime
-    service. This behavior is mandated by the [SMC calling convention PDD]
-    [SMCCC].
+    BL3-1 initializes the EL2 or EL1 processor context for normal-world cold
+    boot, ensuring that no secure state information finds its way into the
+    non-secure execution state. BL3-1 uses the entrypoint information provided
+    by BL2 to jump to the Non-trusted firmware image (BL3-3) at the highest
+    available Exception Level (EL2 if available, otherwise EL1).
 
 
-### BL3-2 (Secure Payload) image initialization
+3.  EL3 runtime services framework
+----------------------------------
 
-BL2 is responsible for loading a BL3-2 image in memory specified by the platform.
-BL3-1 provides an api that uses the entrypoint and memory layout information for
-the BL3-2 image provided by BL2 to initialise BL3-2 in S-EL1.
+Software executing in the non-secure state and in the secure state at exception
+levels lower than EL3 will request runtime services using the Secure Monitor
+Call (SMC) instruction. These requests will follow the convention described in
+the SMC Calling Convention PDD ([SMCCC]). The [SMCCC] assigns function
+identifiers to each SMC request and describes how arguments are passed and
+returned.
+
+The EL3 runtime services framework enables the development of services by
+different providers that can be easily integrated into final product firmware.
+The following sections describe the framework which facilitates the
+registration, initialization and use of runtime services in EL3 Runtime
+Firmware (BL3-1).
+
+The design of the runtime services depends heavily on the concepts and
+definitions described in the [SMCCC], in particular SMC Function IDs, Owning
+Entity Numbers (OEN), Fast and Standard calls, and the SMC32 and SMC64 calling
+conventions. Please refer to that document for more detailed explanation of
+these terms.
+
+The following runtime services are expected to be implemented first. They have
+not all been instantiated in the current implementation.
+
+1.  Standard service calls
+
+    This service is for management of the entire system. The Power State
+    Coordination Interface ([PSCI]) is the first set of standard service calls
+    defined by ARM (see PSCI section later).
+
+    NOTE: Currently this service is called PSCI since there are no other
+    defined standard service calls.
+
+2.  Secure-EL1 Payload Dispatcher service
+
+    If a system runs a Trusted OS or other Secure-EL1 Payload (SP) then
+    it also requires a _Secure Monitor_ at EL3 to switch the EL1 processor
+    context between the normal world (EL1/EL2) and trusted world (Secure-EL1).
+    The Secure Monitor will make these world switches in response to SMCs. The
+    [SMCCC] provides for such SMCs with the Trusted OS Call and Trusted
+    Application Call OEN ranges.
+
+    The interface between the EL3 Runtime Firmware and the Secure-EL1 Payload is
+    not defined by the [SMCCC] or any other standard. As a result, each
+    Secure-EL1 Payload requires a specific Secure Monitor that runs as a runtime
+    service - within ARM Trusted Firmware this service is referred to as the
+    Secure-EL1 Payload Dispatcher (SPD).
+
+    ARM Trusted Firmware provides a Test Secure-EL1 Payload (TSP) and its
+    associated Dispatcher (TSPD). Details of SPD design and TSP/TSPD operation
+    are described in the "Secure-EL1 Payloads and Dispatchers" section below.
+
+3.  CPU implementation service
+
+    This service will provide an interface to CPU implementation specific
+    services for a given platform e.g. access to processor errata workarounds.
+    This service is currently unimplemented.
+
+Additional services for ARM Architecture, SiP and OEM calls can be implemented.
+Each implemented service handles a range of SMC function identifiers as
+described in the [SMCCC].
 
 
-### Normal world software execution
+### Registration
 
-BL3-1 uses the entrypoint information provided by BL2 to jump to the normal
-world software image (BL3-3) at the highest available Exception Level (EL2 if
-available, otherwise EL1).
+A runtime service is registered using the `DECLARE_RT_SVC()` macro, specifying
+the name of the service, the range of OENs covered, the type of service and
+initialization and call handler functions. This macro instantiates a `const
+struct rt_svc_desc` for the service with these details (see `runtime_svc.h`).
+This structure is allocated in a special ELF section `rt_svc_descs`, enabling
+the framework to find all service descriptors included into BL3-1.
+
+The specific service for a SMC Function is selected based on the OEN and call
+type of the Function ID, and the framework uses that information in the service
+descriptor to identify the handler for the SMC Call.
+
+The service descriptors do not include information to identify the precise set
+of SMC function identifiers supported by this service implementation, the
+security state from which such calls are valid nor the capability to support
+64-bit and/or 32-bit callers (using SMC32 or SMC64). Responding appropriately
+to these aspects of a SMC call is the responsibility of the service
+implementation, the framework is focused on integration of services from
+different providers and minimizing the time taken by the framework before the
+service handler is invoked.
+
+Details of the parameters, requirements and behavior of the initialization and
+call handling functions are provided in the following sections.
 
 
-3.  Memory layout on FVP platforms
+### Initialization
+
+`runtime_svc_init()` in `runtime_svc.c` initializes the runtime services
+framework running on the primary CPU during cold boot as part of the BL3-1
+initialization. This happens prior to initializing a Trusted OS and running
+Normal world boot firmware that might in turn use these services.
+Initialization involves validating each of the declared runtime service
+descriptors, calling the service initialization function and populating the
+index used for runtime lookup of the service.
+
+The BL3-1 linker script collects all of the declared service descriptors into a
+single array and defines symbols that allow the framework to locate and traverse
+the array, and determine its size.
+
+The framework does basic validation of each descriptor to halt firmware
+initialization if service declaration errors are detected. The framework does
+not check descriptors for the following error conditions, and may behave in an
+unpredictable manner under such scenarios:
+
+1.  Overlapping OEN ranges
+2.  Multiple descriptors for the same range of OENs and `call_type`
+3.  Incorrect range of owning entity numbers for a given `call_type`
+
+Once validated, the service `init()` callback is invoked. This function carries
+out any essential EL3 initialization before servicing requests. The `init()`
+function is only invoked on the primary CPU during cold boot. If the service
+uses per-CPU data this must either be initialized for all CPUs during this call,
+or be done lazily when a CPU first issues an SMC call to that service. If
+`init()` returns anything other than `0`, this is treated as an initialization
+error and the service is ignored: this does not cause the firmware to halt.
+
+The OEN and call type fields present in the SMC Function ID cover a total of
+128 distinct services, but in practice a single descriptor can cover a range of
+OENs, e.g. SMCs to call a Trusted OS function. To optimize the lookup of a
+service handler, the framework uses an array of 128 indices that map every
+distinct OEN/call-type combination either to one of the declared services or to
+indicate the service is not handled. This `rt_svc_descs_indices[]` array is
+populated for all of the OENs covered by a service after the service `init()`
+function has reported success. So a service that fails to initialize will never
+have it's `handle()` function invoked.
+
+The following figure shows how the `rt_svc_descs_indices[]` index maps the SMC
+Function ID call type and OEN onto a specific service handler in the
+`rt_svc_descs[]` array.
+
+![Image 1](diagrams/rt-svc-descs-layout.png?raw=true)
+
+
+### Handling an SMC
+
+When the EL3 runtime services framework receives a Secure Monitor Call, the SMC
+Function ID is passed in W0 from the lower exception level (as per the
+[SMCCC]). If the calling register width is AArch32, it is invalid to invoke an
+SMC Function which indicates the SMC64 calling convention: such calls are
+ignored and return the Unknown SMC Function Identifier result code `0xFFFFFFFF`
+in R0/X0.
+
+Bit[31] (fast/standard call) and bits[29:24] (owning entity number) of the SMC
+Function ID are combined to index into the `rt_svc_descs_indices[]` array. The
+resulting value might indicate a service that has no handler, in this case the
+framework will also report an Unknown SMC Function ID. Otherwise, the value is
+used as a further index into the `rt_svc_descs[]` array to locate the required
+service and handler.
+
+The service's `handle()` callback is provided with five of the SMC parameters
+directly, the others are saved into memory for retrieval (if needed) by the
+handler. The handler is also provided with an opaque `handle` for use with the
+supporting library for parameter retrieval, setting return values and context
+manipulation; and with `flags` indicating the security state of the caller. The
+framework finally sets up the execution stack for the handler, and invokes the
+services `handle()` function.
+
+On return from the handler the result registers are populated in X0-X3 before
+restoring the stack and CPU state and returning from the original SMC.
+
+
+4.  Power State Coordination Interface
+--------------------------------------
+
+TODO: Provide design walkthrough of PSCI implementation.
+
+The complete PSCI API is not yet implemented. The following functions are
+currently implemented:
+
+-   `PSCI_VERSION`
+-   `CPU_OFF`
+-   `CPU_ON`
+-   `CPU_SUSPEND`
+-   `AFFINITY_INFO`
+
+The `CPU_ON`, `CPU_OFF` and `CPU_SUSPEND` functions implement the warm boot
+path in ARM Trusted Firmware. `CPU_ON` and `CPU_OFF` have undergone testing
+on all the supported FVPs. `CPU_SUSPEND` & `AFFINITY_INFO` have undergone
+testing only on the AEM v8 Base FVP. Support for `AFFINITY_INFO` is still
+experimental. Support for `CPU_SUSPEND` is stable for entry into power down
+states. Standby states are currently not supported. `PSCI_VERSION` is
+present but completely untested in this version of the software.
+
+Unsupported PSCI functions can be divided into ones that can return
+execution to the caller and ones that cannot. The following functions
+return with a error code as documented in the [Power State Coordination
+Interface PDD] [PSCI].
+
+-   `MIGRATE` : -1 (NOT_SUPPORTED)
+-   `MIGRATE_INFO_TYPE` : 2 (Trusted OS is either not present or does not
+     require migration)
+-   `MIGRATE_INFO_UP_CPU` : 0 (Return value is UNDEFINED)
+
+The following unsupported functions do not return and signal an assertion
+failure if invoked.
+
+-   `SYSTEM_OFF`
+-   `SYSTEM_RESET`
+
+
+5.  Secure-EL1 Payloads and Dispatchers
+---------------------------------------
+
+On a production system that includes a Trusted OS running in Secure-EL1/EL0,
+the Trusted OS is coupled with a companion runtime service in the BL3-1
+firmware. This service is responsible for the initialisation of the Trusted
+OS and all communications with it. The Trusted OS is the BL3-2 stage of the
+boot flow in ARM Trusted Firmware. The firmware will attempt to locate, load
+and execute a BL3-2 image.
+
+ARM Trusted Firmware uses a more general term for the BL3-2 software that runs
+at Secure-EL1 - the _Secure-EL1 Payload_ - as it is not always a Trusted OS.
+
+The ARM Trusted Firmware provides a Test Secure-EL1 Payload (TSP) and a Test
+Secure-EL1 Payload Dispatcher (TSPD) service as an example of how a Trusted OS
+is supported on a production system using the Runtime Services Framework. On
+such a system, the Test BL3-2 image and service are replaced by the Trusted OS
+and its dispatcher service.
+
+The TSP runs in Secure-EL1. It is designed to demonstrate synchronous
+communication with the normal-world software running in EL1/EL2. Communication
+is initiated by the normal-world software
+
+*   either directly through a Fast SMC (as defined in the [SMCCC])
+
+*   or indirectly through a [PSCI] SMC. The [PSCI] implementation in turn
+    informs the TSPD about the requested power management operation. This allows
+    the TSP to prepare for or respond to the power state change
+
+The TSPD service is responsible for.
+
+*   Initializing the TSP
+
+*   Routing requests and responses between the secure and the non-secure
+    states during the two types of communications just described
+
+### Initializing a BL3-2 Image
+
+The Secure-EL1 Payload Dispatcher (SPD) service is responsible for initializing
+the BL3-2 image. It needs access to the information passed by BL2 to BL3-1 to do
+so. Hence BL3-1 implements:
+
+1.  `bl31_plat_get_bl32_mem_layout()` to return the extents of memory
+    available for BL3-2's use as communicated by BL2.
+
+2.  `bl31_get_next_image_info(uint32_t security_state)` to return a reference
+    to the `el_change_info` structure corresponding to the next image which will
+    be run in the specified security state. The SPD uses this api with the
+    secure security state as the parameter to get entry related information about
+    BL3-2.
+
+In the absence of a BL3-2 image, BL3-1 passes control to the normal world
+bootloader image (BL3-3). When the BL3-2 image is present, it is typical
+that the SPD wants control to be passed to BL3-2 first and then later to BL3-3.
+
+To do this the SPD has to register a BL3-2 initialization function during
+initialization of the SPD service. The BL3-2 initialization function has this
+prototype:
+
+    int32_t init(meminfo *bl32_meminfo);
+
+and is registered using the `bl31_register_bl32_init()` function.
+
+Trusted Firmware supports two approaches for the SPD to pass control to BL3-2
+before returning through EL3 and running the non-trusted firmware (BL3-3):
+
+1.  In the BL3-2 initialization function, set up a secure context (see below
+    for more details of CPU context support) for this CPU and use
+    `bl31_set_next_image_type()` to request that the exit from `bl31_main()` is
+    to the BL3-2 entrypoint in Secure-EL1.
+
+    When the BL3-2 has completed initialization at Secure-EL1, it returns to
+    BL3-1 by issuing an SMC, using a Function ID allocated to the SPD. On
+    receipt of this SMC, the SPD service handler should switch the CPU context
+    from trusted to normal world and use the `bl31_set_next_image_type()` and
+    `bl31_prepare_next_image_entry()` functions to set up the initial return to
+    the normal world firmware BL3-3. On return from the handler the framework
+    will exit to EL2 and run BL3-3.
+
+2.  In the BL3-2 initialization function, use an SPD-defined mechanism to
+    invoke a 'world-switch synchronous call' to Secure-EL1 to run the BL3-2
+    entrypoint.
+    NOTE: The Test SPD service included with the Trusted Firmware provides one
+    implementation of such a mechanism.
+
+    On completion BL3-2 returns control to BL3-1 via a SMC, and on receipt the
+    SPD service handler invokes the synchronous call return mechanism to return
+    to the BL3-2 initialization function. On return from this function,
+    `bl31_main()` will set up the return to the normal world firmware BL3-3 and
+    continue the boot process in the normal world.
+
+
+6.  Memory layout on FVP platforms
 ----------------------------------
 
 On FVP platforms, we use the Trusted ROM and Trusted SRAM to store the trusted
@@ -659,7 +933,7 @@ following view:
     ------------ 0x04000000
 
 
-4.  Firmware Image Package (FIP)
+7.  Firmware Image Package (FIP)
 --------------------------------
 
 Using a Firmware Image Package (FIP) allows for packing bootloader images (and
@@ -739,7 +1013,7 @@ Currently the FVPs policy only allows for loading of known images. The platform
 policy can be modified to add additional images.
 
 
-5.  Code Structure
+8.  Code Structure
 ------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -754,11 +1028,13 @@ following categories (present as directories in the source code):
     other code.
 *   **Stage specific.** Code specific to a boot stage.
 *   **Drivers.**
+*   **Services.** EL3 runtime services, e.g. PSCI or SPD. Specific SPD services
+    reside in the `services/spd` directory (e.g. `services/spd/tspd`).
 
 Each boot loader stage uses code from one or more of the above mentioned
 categories. Based upon the above, the code layout looks like this:
 
-    Directory    Used by BL1?    Used by BL2?    Used by BL3?
+    Directory    Used by BL1?    Used by BL2?    Used by BL3-1?
     bl1          Yes             No              No
     bl2          No              Yes             No
     bl31         No              No              Yes
@@ -767,6 +1043,7 @@ categories. Based upon the above, the code layout looks like this:
     drivers      Yes             No              Yes
     common       Yes             Yes             Yes
     lib          Yes             Yes             Yes
+    services     No              No              Yes
 
 All assembler files have the `.S` extension. The linker source files for each
 boot stage have the extension `.ld.S`. These are processed by GCC to create the
@@ -776,7 +1053,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-6.  References
+9.  References
 --------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
