@@ -28,14 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include <assert.h>
 #include <arch_helpers.h>
-#include <platform.h>
-#include <bl_common.h>
-/* Included only for error codes */
-#include <psci.h>
 #include "debug.h"
+#include <platform.h>
+#include <xlat_tables.h>
 
 unsigned char platform_normal_stacks[PLATFORM_STACK_SIZE][PLATFORM_CORE_COUNT]
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
@@ -51,23 +48,12 @@ __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 static unsigned long platform_config[CONFIG_LIMIT];
 
 /*******************************************************************************
- * An internal global pointer of the level 1 translation tables which should not
- * change once setup by the primary cpu during a cold boot.
- *******************************************************************************/
-unsigned long l1_xlation_table __aligned(PLATFORM_CACHE_LINE_SIZE)
-__attribute__ ((section("tzfw_coherent_mem")));
-
-/*******************************************************************************
  * Enable the MMU assuming that the pagetables have already been created
  *******************************************************************************/
 void enable_mmu()
 {
 	unsigned long mair, tcr, ttbr, sctlr;
 	unsigned long current_el = read_current_el();
-#if DEBUG
-	unsigned int l1_table_desc_bits;
-	unsigned int l1_table_align;
-#endif
 
 	/* Set the attributes in the right indices of the MAIR */
 	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
@@ -91,16 +77,7 @@ void enable_mmu()
 
 	write_tcr(tcr);
 
-	/* Set TTBR bits. Ensure the alignment for level 1 page table */
-#if DEBUG
-#define BITS_PER_4K_L3DESC 12
-#define BITS_PER_4K_L2DESC (9 + BITS_PER_4K_L3DESC)
-#define BITS_PER_4K_L1DESC (9 + BITS_PER_4K_L2DESC)
-	l1_table_desc_bits = (64 - TCR_T0SZ_4GB - BITS_PER_4K_L1DESC);
-	l1_table_align = l1_table_desc_bits + 3;
-	assert(((unsigned long) l1_xlation_table &
-				((1 << l1_table_align) - 1)) == 0);
-#endif
+	/* Set TTBR bits as well */
 	ttbr = (unsigned long) l1_xlation_table;
 	write_ttbr0(ttbr);
 
@@ -126,6 +103,26 @@ void disable_mmu(void)
 	return;
 }
 
+/*
+ * Table of regions to map using the MMU.
+ * This doesn't include TZRAM as the 'mem_layout' argument passed to to
+ * configure_mmu() will give the available subset of that,
+ */
+const mmap_region mmap[] = {
+	{ TZROM_BASE,	TZROM_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
+	{ TZDRAM_BASE,	TZDRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
+	{ FLASH0_BASE,	FLASH0_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
+	{ FLASH1_BASE,	FLASH1_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
+	{ VRAM_BASE,	VRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
+	{ DEVICE0_BASE,	DEVICE0_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
+	{ NSRAM_BASE,	NSRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
+	{ DEVICE1_BASE,	DEVICE1_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
+	/* 2nd GB as device for now...*/
+	{ 0x40000000,	0x40000000,	MT_DEVICE | MT_RW | MT_SECURE },
+	{ DRAM_BASE,	DRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
+	{0}
+};
+
 /*******************************************************************************
  * Setup the pagetables as per the platform memory map & initialize the mmu
  *******************************************************************************/
@@ -135,16 +132,17 @@ void configure_mmu(meminfo *mem_layout,
 		   unsigned long coh_start,
 		   unsigned long coh_limit)
 {
-	assert(IS_PAGE_ALIGNED(ro_start));
-	assert(IS_PAGE_ALIGNED(ro_limit));
-	assert(IS_PAGE_ALIGNED(coh_start));
-	assert(IS_PAGE_ALIGNED(coh_limit));
+	mmap_add_region(mem_layout->total_base, mem_layout->total_size,
+				MT_MEMORY | MT_RW | MT_SECURE);
+	mmap_add_region(ro_start, ro_limit - ro_start,
+				MT_MEMORY | MT_RO | MT_SECURE);
+	mmap_add_region(coh_start, coh_limit - coh_start,
+				MT_DEVICE | MT_RW | MT_SECURE);
 
-	l1_xlation_table = fill_xlation_tables(mem_layout,
-					       ro_start,
-					       ro_limit,
-					       coh_start,
-					       coh_limit);
+	mmap_add(mmap);
+
+	init_xlat_tables();
+
 	enable_mmu();
 	return;
 }
