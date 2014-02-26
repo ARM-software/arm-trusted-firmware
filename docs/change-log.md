@@ -1,112 +1,158 @@
-ARM Trusted Firmware
-====================
+ARM Trusted Firmware - version 0.3
+==================================
 
-Detailed changes since last release
------------------------------------
+New features
+------------
 
 *   Support for Foundation FVP Version 2.0 added.
     The documented UEFI configuration disables some devices that are unavailable
     in the Foundation FVP, including MMC and CLCD. The resultant UEFI binary can
-    be used on the AEMv8 and Cortex-A57-A53 FVPs, as well as the Foundation FVP.
+    be used on the AEMv8 and Cortex-A57-A53 Base FVPs, as well as the Foundation
+    FVP.
+
     NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 
-*   Regression-checked against latest Base FVPs (Version 5.2).
+*   Enabled third party contributions. Added a new contributing.md containing
+    instructions for how to contribute and updated copyright text in all files
+    to acknowledge contributors.
 
-*   The supplied FDTs expose the Interrupt Translation Service (ITS) available
-    in GICv3.
-
-*   Fixed various GCC compiler warnings.
-
-*   Unmask SError and Debug exceptions in the trusted firmware.
-    Also route external abort and SError interrupts to EL3.
-
-*   The amount of physical RAM available to Linux as specified in the FDTs for
-    Base FVPs have been increased from 2GB to 4GB. This resolves the issue of
-    failing to start user-space when using a RAM-disk file-system.
-
-*   Build products are now created in a separate build directory tree.
-
-*   Analyze at link-time whether bootloader images will fit in memory and won't
-    overlap each other at run time. If it is not the case then image linking
-    will now fail.
-
-*   Reduce the size of the bootloader images by cutting some sections out of
-    their disk images and allocating them at load time, whenever possible.
-
-*   Properly initialise the C runtime environment. C code can now safely assume
-    that global variables are initialised to 0 and that initialised data holds
-    the correct value.
-
-*   General changes on the memory layout: some sections have been moved, some of
-    them have been merged together, and some alignment constraints on sections
-    have changed.
-
-*   Enable third party contributions. Add a new contributing.md containing
-    instructions for how to contribute and update copyright text in all files to
-    acknowledge contributors.
-
-*   The wake up enable bit in the FVP power controller is cleared when a cpu is
-    physically powered up to prevent a spurious wake up from a subsequent cpu
-    off state.
-
-*   Definitions of some constants related to the PSCI api calls AFFINITY_INFO
-    and CPU_SUSPEND have been corrected.
-
-*   A bug which triggered an error condition in the code executed after a cpu
-    is powered on, if a non zero context id parameter was passed in the PSCI
-    CPU_ON and CPU_SUSPEND api calls has been corrected.
-
-*   A restriction in the FVP code which did not allow the non-secure entrypoint
-    to lie outside the DRAM has been removed.
-
-*   The PSCI CPU_SUSPEND api has been stabilised to an extent where it can be
+*   The PSCI CPU_SUSPEND API has been stabilised to the extent where it can be
     used for entry into power down states with the following restrictions:
     -   Entry into standby states is not supported.
-    -   The api is only supported on the AEMv8 Base FVP.
+    -   The API is only supported on the AEMv8 and Cortex-A57-A53 Base FVPs.
 
-*   The PSCI AFFINITY_INFO api has undergone limited testing on the AEMv8 Base
-    FVP to allow experimental use.
-
-*   Locks corresponding to each affinity level are acquired and released in
-    the correct sequence in the PSCI implementation. Invocation of the PSCI
-    CPU_SUSPEND and CPU_OFF apis simultaneously across cpus & clusters should
-    not result in unexpected behaviour.
-
-*   The API to return the memory layout structures for each bootloader stage has
-    undergone change. A pointer to these structures is returned instead of their
-    copy.
+*   The PSCI AFFINITY_INFO api has undergone limited testing on the Base FVPs to
+    allow experimental use.
 
 *   Required C library and runtime header files are now included locally in ARM
     Trusted Firmware instead of depending on the toolchain standard include
     paths. The local implementation has been cleaned up and reduced in scope.
-    Implementations for `putchar()` and `strchr()` were added to the local C
-    library.
 
-*   GCC compiler built-in function support has been disabled in order to improve
-    compiler independence.
+*   Added I/O abstraction framework, primarily to allow generic code to load
+    images in a platform-independent way. The existing image loading code has
+    been reworked to use the new framework. Semi-hosting and NOR flash I/O
+    drivers are provided.
 
-*   The references to GitHub issues in the documentation now to point to a
-    separate issue tracking repository
-    https://github.com/ARM-software/tf-issues.
+*   Introduced Firmware Image Package (FIP) handling code and tools. A FIP
+    combines multiple firmware images with a Table of Contents (ToC) into a
+    single binary image. The new FIP driver is another type of I/O driver. The
+    Makefile builds a FIP by default and the FVP platform code expect to load a
+    FIP from NOR flash, although some support for image loading using semi-
+    hosting is retained.
 
-*   Cleared bits in the architectural trap feature register (CPTR_EL3) during
-    early boot to prevent traps when accessing certain registers, including
-    floating point registers. Also added `-mgeneral-regs-only` flag to GCC
-    settings to prevent generation of code using floating point registers.
+    NOTE: Building a FIP by default is a non-backwards-compatible change.
 
-*   The GICv3 distributor can have more ports than CPUs are available in the
-    system. The GICv3 re-distributors are probed to work out which
-    re-distributor should be used with which CPU.
+    NOTE: Generic BL2 code now loads a BL3-3 (non-trusted firmware) image into
+    DRAM instead of expecting this to be pre-loaded at known location. This is
+    also a non-backwards-compatible change.
 
-*   Add multi-platform support to the build system. The user may now specify
-    which platform to build using PLAT=<platform> as part of the make command
-    line.  Default behaviour is to make all platforms.  New platforms are
-    automatically detected by the make file when they are added to the plat
-    directory.
+    NOTE: Some non-trusted firmware (e.g. UEFI) will need to be rebuilt so that
+    it knows the new location to execute from and no longer needs to copy
+    particular code modules to DRAM itself.
 
-*   An issue in the PSCI implementation has been fixed which could result in the
-    power down of an affinity instance at level X even though at least one
-    affinity instance at level X - 1 does not allow this.
+*   Reworked BL2 to BL3-1 handover interface. A new composite structure
+    (bl31_args) holds the superset of information that needs to be passed from
+    BL2 to BL3-1, including information on how handover execution control to
+    BL3-2 (if present) and BL3-3 (non-trusted firmware).
+
+*   Added library support for CPU context management, allowing the saving and
+    restoring of
+    -   Shared system registers between Secure-EL1 and EL1.
+    -   VFP registers.
+    -   Essential EL3 system registers.
+
+*   Added a framework for implementing EL3 runtime services. Reworked the PSCI
+    implementation to be one such runtime service.
+
+*   Reworked the exception handling logic, making use of both SP_EL0 and SP_EL3
+    stack pointers for determining the type of exception, managing general
+    purpose and system register context on exception entry/exit, and handling
+    SMCs. SMCs are directed to the correct EL3 runtime service.
+
+*   Added support for a Test Secure-EL1 Payload (TSP) and a corresponding
+    Dispatcher (TSPD), which is loaded as an EL3 runtime service. The TSPD
+    implements Secure Monitor functionality such as world switching and
+    EL1 context management, and is responsible for communication with the TSP.
+    NOTE: The TSPD does not yet contain support for secure world interrupts.
+    NOTE: The TSP/TSPD is not built by default.
+
+
+Issues resolved since last release
+----------------------------------
+
+*   Support has been added for switching context between secure and normal
+    worlds in EL3.
+
+*   PSCI API calls `AFFINITY_INFO` & `PSCI_VERSION` have now been tested (to
+    a limited extent).
+
+*   The ARM Trusted Firmware build artifacts are now placed in the `./build`
+    directory and sub-directories instead of being placed in the root of the
+    project.
+
+*   The ARM Trusted Firmware is now free from build warnings. Build warnings
+    are now treated as errors.
+
+*   The ARM Trusted Firmware now provides C library support locally within the
+    project to maintain compatibility between toolchains/systems.
+
+*   The PSCI locking code has been reworked so it no longer takes locks in an
+    incorrect sequence.
+
+*   The RAM-disk method of loading a Linux file-system has been confirmed to
+    work with the ARM Trusted Firmware and Linux kernel version (based on
+    version 3.13) used in this release, for both Foundation and Base FVPs.
+
+
+Known issues
+------------
+
+The following is a list of issues which are expected to be fixed in the future
+releases of the ARM Trusted Firmware.
+
+*   The TrustZone Address Space Controller (TZC-400) is not being programmed
+    yet. Use of model parameter `-C bp.secure_memory=1` is not supported.
+
+*   No support yet for secure world interrupt handling.
+
+*   GICv3 support is experimental. The Linux kernel patches to support this are
+    not widely available. There are known issues with GICv3 initialization in
+    the ARM Trusted Firmware.
+
+*   Dynamic image loading is not available yet. The current image loader
+    implementation (used to load BL2 and all subsequent images) has some
+    limitations. Changing BL2 or BL3-1 load addresses in certain ways can lead
+    to loading errors, even if the images should theoretically fit in memory.
+
+*   The ARM Trusted Firmware uses too much on-chip Trusted SRAM. Currently the
+    Test Secure-EL1 Payload (BL3-2) executes in Trusted DRAM since there is not
+    enough SRAM. A number of RAM usage enhancements have been identified to
+    rectify this situation.
+
+*   CPU idle does not work on the advertised version of the Foundation FVP.
+    Some FVP fixes are required that are not available externally at the time
+    of writing.
+
+*   Various bugs in ARM Trusted Firmware, UEFI and the Linux kernel have been
+    observed when using Linaro toolchain versions later than 13.11. Although
+    most of these have been fixed, some remain at the time of writing. These
+    mainly seem to relate to a subtle change in the way the compiler converts
+    between 64-bit and 32-bit values (e.g. during casting operations), which
+    reveals previously hidden bugs in client code.
+
+*   The tested filesystem used for this release (Linaro AArch64 OpenEmbedded
+    14.01) does not report progress correctly in the console. It only seems to
+    produce error output, not standard output. It otherwise appears to function
+    correctly. Other filesystem versions on the same software stack do not
+    exhibit the problem.
+
+*   The Makefile structure doesn't make it easy to separate out parts of the
+    Trusted Firmware for re-use in platform ports, for example if only BL3-1 is
+    required in a platform port. Also, dependency checking in the Makefile is
+    flawed.
+
+*   The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
+    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 
 
 ARM Trusted Firmware - version 0.2
@@ -176,11 +222,6 @@ releases of the ARM Trusted Firmware.
     alternative, the VirtioBlock mechanism can be used to provide a file-system
     to the kernel.
 
-
-Detailed changes since last release
------------------------------------
-
-First source release - not applicable.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
