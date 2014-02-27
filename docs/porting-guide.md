@@ -616,7 +616,8 @@ address of Secure DRAM (`0x06000000`).
 The ARM FVP port also populates the `bl32_meminfo` field in the `bl31_args`
 structure pointed to by `bl2_to_bl31_args` with the extents of memory available
 for use by the BL3-2 image. The memory is allocated in the Secure DRAM from the
-address defined by the constant `BL32_BASE`.
+address defined by the constant `BL32_BASE`. The ARM FVP port currently loads
+the BL3-2 image at the Secure DRAM address `0x6002000`.
 
 The non-secure memory extents used for loading BL3-3 are also initialized in
 this function. This information is accessible in the `bl33_meminfo` field in

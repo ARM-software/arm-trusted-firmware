@@ -44,12 +44,13 @@ secondary CPUs are kept in a safe platform-specific state until the primary
 CPU has performed enough initialization to boot them.
 
 The cold boot path in this implementation of the ARM Trusted Firmware is divided
-into three stages (in order of execution):
+into five steps (in order of execution):
 
-*   Boot Loader stage 1 (BL1)
-*   Boot Loader stage 2 (BL2)
-*   Boot Loader stage 3 (BL3-1). The '1' distinguishes this from other 3rd level
-    boot loader stages.
+*   Boot Loader stage 1 (BL1) _AP Trusted ROM_
+*   Boot Loader stage 2 (BL2) _Trusted Boot Firmware_
+*   Boot Loader stage 3-1 (BL3-1) _EL3 Runtime Firmware_
+*   Boot Loader stage 3-2 (BL3-2) _Secure-EL1 Payload_ (optional)
+*   Boot Loader stage 3-3 (BL3-3) _Non-trusted Firmware_
 
 The ARM Fixed Virtual Platforms (FVPs) provide trusted ROM, trusted SRAM and
 trusted DRAM regions. Each boot loader stage uses one or more of these
@@ -171,9 +172,9 @@ BL1 execution continues as follows:
 1.  BL1 determines the amount of free trusted SRAM memory available by
     calculating the extent of its own data section, which also resides in
     trusted SRAM. BL1 loads a BL2 raw binary image from platform storage, at a
-    platform-specific base address. The filename of the BL2 raw binary image
-    must be `bl2.bin`. If the BL2 image file is not present or if there is not
-    enough free trusted SRAM the following error message is printed:
+    platform-specific base address. If the BL2 image file is not present or if
+    there is not enough free trusted SRAM the following error message is
+    printed:
 
         "Failed to load boot loader stage 2 (BL2) firmware."
 
@@ -198,7 +199,7 @@ BL1 execution continues as follows:
 
 ### BL2
 
-BL1 loads and passes control to BL2 at Secure EL1. BL2 is linked against and
+BL1 loads and passes control to BL2 at Secure-EL1. BL2 is linked against and
 loaded at a platform-specific base address (more information can be found later
 in this document). The functionality implemented by BL2 is as follows.
 
@@ -217,60 +218,55 @@ BL2 does not perform any platform initialization that affects subsequent
 stages of the ARM Trusted Firmware or normal world software. It copies the
 information regarding the trusted SRAM populated by BL1 using a
 platform-specific mechanism. It calculates the limits of DRAM (main memory)
-to determine whether there is enough space to load the normal world software
-images. A platform defined base address is used to specify the load address for
-the BL3-1 image. It also defines the extents of memory available for use by the
-BL3-2 image.
+to determine whether there is enough space to load the BL3-3 image. A platform
+defined base address is used to specify the load address for the BL3-1 image.
+It also defines the extents of memory available for use by the BL3-2 image.
 
-#### Normal world image load
+#### BL3-1 (EL3 Runtime Firmware) image load
 
-BL2 loads the normal world firmware image (e.g. UEFI). BL2 relies on BL3-1 to
-pass control to the normal world software image it loads. Hence, BL2 populates
-a platform-specific area of memory with the entrypoint and Current Program
-Status Register (`CPSR`) of the normal world software image. The entrypoint is
-the load address of the normal world software image. The `CPSR` is determined as
-specified in Section 5.13 of the [PSCI PDD] [PSCI]. This information is passed
-to BL3-1.
+BL2 loads the BL3-1 image from platform storage into a platform-specific address
+in trusted SRAM. If there is not enough memory to load the image or image is
+missing it leads to an assertion failure. If the BL3-1 image loads successfully,
+BL2 updates the amount of trusted SRAM used and available for use by BL3-1.
+This information is populated at a platform-specific memory address.
 
-#### BL3-2 (Secure Payload) image load
+#### BL3-2 (Secure-EL1 Payload) image load
 
-BL2 loads the optional BL3-2 image. The image executes in the secure world. BL2
+BL2 loads the optional BL3-2 image from platform storage into a platform-
+specific region of secure memory. The image executes in the secure world. BL2
 relies on BL3-1 to pass control to the BL3-2 image, if present. Hence, BL2
-populates a platform- specific area of memory with the entrypoint and Current
-Program Status Register (`CPSR`) of the BL3-2 image. The entrypoint is the load
-address of the BL3-2 image. The `CPSR` is initialized with Secure EL1 and Stack
-pointer set to SP_EL1 (EL1h) as the mode, exception bits disabled (DAIF bits)
-and AArch64 execution state. This information is passed to BL3-1.
+populates a platform-specific area of memory with the entrypoint/load-address
+of the BL3-2 image. The value of the Saved Processor Status Register (`SPSR`)
+for entry into BL3-2 is not determined by BL2, it is initialized by the
+Secure-EL1 Payload Dispatcher (see later) within BL3-1, which is responsible for
+managing interaction with BL3-2. This information is passed to BL3-1.
 
-##### UEFI firmware load
+#### BL3-3 (Non-trusted Firmware) image load
 
-BL2 loads the BL3-3 (UEFI) image into non-secure memory as defined by the
-platform (`0x88000000` for FVPs), and arranges for BL3-1 to pass control to that
-location. As mentioned earlier, BL2 populates platform-specific memory with the
-entrypoint and `CPSR` of the BL3-3 image.
+BL2 loads the BL3-3 image (e.g. UEFI or other test or boot software) from
+platform storage into non-secure memory as defined by the platform
+(`0x88000000` for FVPs).
 
-#### BL3-1 image load and execution
+BL2 relies on BL3-1 to pass control to BL3-3 once secure state initialization is
+complete. Hence, BL2 populates a platform-specific area of memory with the
+entrypoint and Saved Program Status Register (`SPSR`) of the normal world
+software image. The entrypoint is the load address of the BL3-3 image. The
+`SPSR` is determined as specified in Section 5.13 of the [PSCI PDD] [PSCI]. This
+information is passed to BL3-1.
+
+#### BL3-1 (EL3 Runtime Firmware) execution
 
 BL2 execution continues as follows:
 
-1.  BL2 loads the BL3-1 image into a platform-specific address in trusted SRAM
-    and the BL3-3 image into a platform specific address in non-secure DRAM.
-    The images are identified by the files `bl31.bin` and `bl33.bin` in
-    platform storage. If there is not enough memory to load the images or the
-    images are missing it leads to an assertion failure. If the BL3-1 image
-    loads successfully, BL1 updates the amount of trusted SRAM used and
-    available for use by BL3-1. This information is populated at a
-    platform-specific memory address.
-
-2.  BL2 passes control back to BL1 by raising an SMC, providing BL1 with the
+1.  BL2 passes control back to BL1 by raising an SMC, providing BL1 with the
     BL3-1 entrypoint. The exception is handled by the SMC exception handler
     installed by BL1.
 
-3.  BL1 turns off the MMU and flushes the caches. It clears the
+2.  BL1 turns off the MMU and flushes the caches. It clears the
     `SCTLR_EL3.M/I/C` bits, flushes the data cache to the point of coherency
     and invalidates the TLBs.
 
-4.  BL1 passes control to BL3-1 at the specified entrypoint at EL3.
+3.  BL1 passes control to BL3-1 at the specified entrypoint at EL3.
 
 
 ### BL3-1
@@ -299,8 +295,8 @@ SMC handler routine.
 
 BL3-1 performs detailed platform initialization, which enables normal world
 software to function correctly. It also retrieves entrypoint information for
-the normal world software image loaded by BL2 from the platform defined
-memory address populated by BL2.
+the BL3-3 image loaded by BL2 from the platform defined memory address populated
+by BL2.
 
 * GICv2 initialization:
 
@@ -1000,17 +996,15 @@ The tool can be found in `tools/fip_create`.
 ### Loading from a Firmware Image Package (FIP)
 
 The Firmware Image Package (FIP) driver can load images from a binary package on
-non-volatile platform storage. For the FVPs this currently NOR FLASH. For
-information on how to load a FIP into FVP NOR FLASH see the "Running the
-software" section.
+non-volatile platform storage. For the FVPs this is currently NOR FLASH.
 
 Bootloader images are loaded according to the platform policy as specified in
 `plat/<platform>/plat_io_storage.c`. For the FVPs this means the platform will
 attempt to load images from a Firmware Image Package located at the start of NOR
 FLASH0.
 
-Currently the FVPs policy only allows for loading of known images. The platform
-policy can be modified to add additional images.
+Currently the FVP's policy only allows loading of a known set of images. The
+platform policy can be modified to allow additional images.
 
 
 8.  Code Structure
