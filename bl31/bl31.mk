@@ -33,13 +33,15 @@ vpath			%.c	common					\
 				arch/system/gic				\
 				plat/${PLAT}				\
 				arch/${ARCH}				\
-				services/psci				\
+				services/std_svc			\
+				services/std_svc/psci			\
 				lib/sync/locks/bakery			\
 				plat/${PLAT}/${ARCH}			\
 				${PLAT_BL31_C_VPATH}
 
 vpath			%.S	lib/arch/${ARCH}			\
-				services/psci				\
+				services/std_svc			\
+				services/std_svc/psci			\
 				include					\
 				plat/${PLAT}/${ARCH}			\
 				lib/sync/locks/exclusive		\
@@ -51,6 +53,7 @@ BL31_SOURCES		+=	bl31_arch_setup.c			\
 				bl31_entrypoint.S			\
 				runtime_exceptions.S			\
 				bl31_main.c				\
+				std_svc_setup.c				\
 				psci_entry.S				\
 				psci_setup.c				\
 				psci_common.c				\

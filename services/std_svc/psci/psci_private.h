@@ -166,6 +166,10 @@ extern uint64_t psci_smc_handler(uint32_t smc_fid,
 				 void *cookie,
 				 void *handle,
 				 uint64_t flags);
+
+/* PSCI setup function */
+extern int32_t psci_setup(void);
+
 #endif /*__ASSEMBLY__*/
 
 #endif /* __PSCI_PRIVATE_H__ */

@@ -47,8 +47,14 @@
 #define PSCI_MIG_INFO_TYPE		0x84000006
 #define PSCI_MIG_INFO_UP_CPU_AARCH32	0x84000007
 #define PSCI_MIG_INFO_UP_CPU_AARCH64	0xc4000007
-#define PSCI_SYSTEM_OFF		0x84000008
+#define PSCI_SYSTEM_OFF			0x84000008
 #define PSCI_SYSTEM_RESET		0x84000009
+
+/*
+ * Number of PSCI calls (above) implemented. System off and reset aren't
+ * implemented as yet
+ */
+#define PSCI_NUM_CALLS			13
 
 /*******************************************************************************
  * PSCI Migrate and friends

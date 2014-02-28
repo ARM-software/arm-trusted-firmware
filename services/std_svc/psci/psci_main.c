@@ -190,18 +190,6 @@ unsigned long psci_migrate_info_up_cpu(void)
 	return PSCI_E_SUCCESS;
 }
 
-/* Unimplemented */
-void psci_system_off(void)
-{
-	assert(0);
-}
-
-/* Unimplemented */
-void psci_system_reset(void)
-{
-	assert(0);
-}
-
 /*******************************************************************************
  * PSCI top level handler for servicing SMCs.
  ******************************************************************************/
@@ -254,17 +242,9 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 		rc = psci_migrate_info_up_cpu();
 		break;
 
-	case PSCI_SYSTEM_OFF:
-		psci_system_off();
-		assert(0);
-
-	case PSCI_SYSTEM_RESET:
-		psci_system_reset();
-		assert(0);
-
 	default:
 		rc = SMC_UNK;
-		WARN("Unimplemented psci call -> 0x%x \n", smc_fid);
+		WARN("Unimplemented PSCI Call: 0x%x \n", smc_fid);
 	}
 
 	SMC_RET1(handle, rc);

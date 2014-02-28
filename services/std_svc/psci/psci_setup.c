@@ -342,14 +342,3 @@ int32_t psci_setup(void)
 
 	return 0;
 }
-
-/* Register PSCI as a run time service */
-DECLARE_RT_SVC(
-		psci,
-
-		OEN_STD_START,
-		OEN_STD_END,
-		SMC_TYPE_FAST,
-		psci_setup,
-		psci_smc_handler
-);

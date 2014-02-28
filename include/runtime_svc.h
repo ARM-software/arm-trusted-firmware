@@ -232,6 +232,28 @@ CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc, handle), \
 					((call_type & FUNCID_TYPE_MASK) \
 					 << FUNCID_OEN_WIDTH))
 
+
+/*
+ * Macro to define UUID for services. Apart from defining and initializing a
+ * uuid_t structure, this macro verifies that the first word of the defined UUID
+ * does not equal SMC_UNK. This is to ensure that the caller won't mistake the
+ * returned UUID in x0 for an invalid SMC error return
+ */
+#define DEFINE_SVC_UUID(_name, _tl, _tm, _th, _cl, _ch, \
+		_n0, _n1, _n2, _n3, _n4, _n5) \
+	CASSERT(_tl != SMC_UNK, invalid_svc_uuid);\
+	static const uuid_t _name = { \
+		_tl, _tm, _th, _cl, _ch, \
+		{ _n0, _n1, _n2, _n3, _n4, _n5 } \
+	}
+
+/* Return a UUID in the SMC return registers */
+#define SMC_UUID_RET(_h, _uuid) \
+	SMC_RET4(handle, ((const uint32_t *) &(_uuid))[0], \
+			 ((const uint32_t *) &(_uuid))[1], \
+			 ((const uint32_t *) &(_uuid))[2], \
+			 ((const uint32_t *) &(_uuid))[3])
+
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/

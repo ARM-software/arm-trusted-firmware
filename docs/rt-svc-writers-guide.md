@@ -93,9 +93,10 @@ handler will be responsible for all SMC Functions within a given service type.
 3.  Getting started
 -------------------
 
-ARM Trusted Firmware has a [`services`] directory in the source tree under
-which each owning entity can place the implementation of its runtime service.
-The [PSCI] implementation is located here in the [`services/psci`] directory.
+ARM Trusted Firmware has a [`services`] directory in the source tree under which
+each owning entity can place the implementation of its runtime service.  The
+[PSCI] implementation is located here in the [`services/std_svc/psci`]
+directory.
 
 Runtime service sources will need to include the [`runtime_svc.h`] header file.
 
@@ -141,16 +142,16 @@ to ensure that the following conditions are met:
 3.  The `_type` is one of `SMC_TYPE_FAST` or `SMC_TYPE_STD`
 4.  `_setup` and `_smch` routines have been specified
 
-[`psci_steup.c`] provides an example of registering a runtime service:
+[`std_svc_setup.c`] provides an example of registering a runtime service:
 
-    /* Register PSCI as a run time service */
+    /* Register Standard Service Calls as runtime service */
     DECLARE_RT_SVC(
-            psci,
+            std_svc,
             OEN_STD_START,
             OEN_STD_END,
             SMC_TYPE_FAST,
-            psci_setup,
-            psci_smc_handler
+            std_svc_setup,
+            std_svc_smc_handler
     );
 
 
@@ -300,9 +301,9 @@ _Copyright (c) 2014, ARM Limited and Contributors. All rights reserved._
 
 [Firmware Design]:  ./firmware-design.md
 
-[`services`]:       ../services
-[`services/psci`]:  ../services/psci
-[`psci_steup.c`]:   ../services/psci/psci_setup.c
-[`runtime_svc.h`]:  ../include/runtime_svc.h
-[PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
-[SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
+[`services`]:               ../services
+[`services/std_svc/psci`]:  ../services/std_svc/psci
+[`std_svc_setup.c`]:        ../services/std_svc/std_svc_setup.c
+[`runtime_svc.h`]:          ../include/runtime_svc.h
+[PSCI]:                     http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
+[SMCCC]:                    http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
