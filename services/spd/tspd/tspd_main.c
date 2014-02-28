@@ -51,6 +51,7 @@
 #include <psci.h>
 #include <tspd_private.h>
 #include <debug.h>
+#include <uuid.h>
 
 /*******************************************************************************
  * Single structure to hold information about the various entry points into the
@@ -63,6 +64,11 @@ entry_info *tsp_entry_info;
  ******************************************************************************/
 tsp_context tspd_sp_context[TSPD_CORE_COUNT];
 
+
+/* TSP UID */
+DEFINE_SVC_UUID(tsp_uuid,
+		0x5b3056a0, 0x3291, 0x427b, 0x98, 0x11,
+		0x71, 0x68, 0xca, 0x50, 0xf3, 0xfa);
 
 int32_t tspd_init(meminfo *bl32_meminfo);
 
@@ -339,6 +345,21 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 
 		SMC_RET2(handle, read_ctx_reg(ns_gp_regs, CTX_GPREG_X1),
 				read_ctx_reg(ns_gp_regs, CTX_GPREG_X2));
+
+	case TOS_CALL_COUNT:
+		/*
+		 * Return the number of service function IDs implemented to
+		 * provide service to non-secure
+		 */
+		SMC_RET1(handle, TSP_NUM_FID);
+
+	case TOS_UID:
+		/* Return TSP UID to the caller */
+		SMC_UUID_RET(handle, tsp_uuid);
+
+	case TOS_CALL_VERSION:
+		/* Return the version of current implementation */
+		SMC_RET2(handle, TSP_VERSION_MAJOR, TSP_VERSION_MINOR);
 
 	default:
 		break;

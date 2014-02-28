@@ -54,6 +54,25 @@
 #define TSP_FID_MUL		0xf2002002
 #define TSP_FID_DIV		0xf2002003
 
+/*
+ * Total number of function IDs implemented for services offered to NS clients.
+ * The function IDs are defined above
+ */
+#define TSP_NUM_FID		0x4
+
+/* TSP implementation version numbers */
+#define TSP_VERSION_MAJOR	0x0 /* Major version */
+#define TSP_VERSION_MINOR	0x1 /* Minor version */
+
+/*
+ * Standard Trusted OS Function IDs that fall under Trusted OS call range
+ * according to SMC calling convention
+ */
+#define TOS_CALL_COUNT		0xbf00ff00 /* Number of calls implemented */
+#define TOS_UID			0xbf00ff01 /* Implementation UID */
+/*				0xbf00ff02 is reserved */
+#define TOS_CALL_VERSION	0xbf00ff03 /* Trusted OS Call Version */
+
 /* Definitions to help the assembler access the SMC/ERET args structure */
 #define TSP_ARGS_SIZE		0x40
 #define TSP_ARG0		0x0
