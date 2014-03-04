@@ -61,11 +61,8 @@ Making Changes
     [automatically closed] when merged into the [arm-trusted-firmware] `master`
     branch.
 *   Where appropriate, please update the documentation.
-    *   Consider whether the [User Guide] or [Porting Guide] need updating.
-    *   Changes that have a material impact on behavior or programming
-        interfaces should have an entry at the end of the "[Detailed changes
-        since last release]" section of the [Change Log]. Minor changes (e.g.
-        basic refactoring or typo fixes) do not need an entry.
+    *   Consider whether the [User Guide], [Porting Guide], [Firmware Design] or
+        other in-source documentation needs updating.
     *   If this is your first contribution, you may add your name or your
         company name to the [Acknowledgements] file.
     *   For topics with multiple commits, you should make all documentation
@@ -98,11 +95,10 @@ Submitting Changes
 _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 
-[Change Log]:                           ./docs/change-log.md
-[Detailed changes since last release]:  ./docs/change-log.md#detailed-changes-since-last-release
 [User Guide]:                           ./docs/user-guide.md
-[Running the software]:                 ./docs/user-guide.md#running-the-software
+[Running the software]:                 ./docs/user-guide.md#6--running-the-software
 [Porting Guide]:                        ./docs/porting-guide.md
+[Firmware Design]:                      ./docs/firmware-design.md
 [Acknowledgements]:                     ./acknowledgements.md "Contributor acknowledgements"
 
 [contributing page]:            http://www.arm.com/community/open-source-contributing.php
