@@ -32,10 +32,10 @@ TSPD_DIR		:=	services/spd/tspd
 SPD_INCLUDES		:=	-Iinclude/spd/tspd	\
 				-I${TSPD_DIR}
 
-SPD_OBJS		:=	tspd_common.o		\
-				tspd_main.o		\
-				tspd_pm.o		\
-				tspd_helpers.o
+SPD_SOURCES		:=	tspd_common.c		\
+				tspd_main.c		\
+				tspd_pm.c		\
+				tspd_helpers.S
 
 vpath %.c ${TSPD_DIR}
 vpath %.S ${TSPD_DIR}
