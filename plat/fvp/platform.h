@@ -243,20 +243,10 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define EL3_ADDR_SPACE_SIZE		(1ull << 32)
-#define EL3_NUM_PAGETABLES		2
-#define EL3_TROM_PAGETABLE		0
-#define EL3_TRAM_PAGETABLE		1
-
 #define ADDR_SPACE_SIZE			(1ull << 32)
+#define MAX_XLAT_TABLES			3
+#define MAX_MMAP_REGIONS		16
 
-#define NUM_L2_PAGETABLES		2
-#define GB1_L2_PAGETABLE		0
-#define GB2_L2_PAGETABLE		1
-
-#define NUM_L3_PAGETABLES		2
-#define TZRAM_PAGETABLE			0
-#define NSRAM_PAGETABLE			1
 
 /*******************************************************************************
  * CCI-400 related constants
@@ -345,11 +335,6 @@ extern void bl2_plat_arch_setup(void);
 extern void bl31_plat_arch_setup(void);
 extern int platform_setup_pm(plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
-extern unsigned long fill_xlation_tables(meminfo *memory_layout,
-					 unsigned long ro_start,
-					 unsigned long ro_limit,
-					 unsigned long coh_start,
-					 unsigned long coh_limit);
 extern void disable_mmu(void);
 extern void enable_mmu(void);
 extern void configure_mmu(meminfo *,
