@@ -33,7 +33,6 @@ vpath			%.c	${PLAT_BL2_C_VPATH}
 vpath			%.S	${PLAT_BL2_S_VPATH}
 
 # TSP source files specific to FVP platform
-BL32_OBJS		+=	bl32_plat_setup.o			\
-				bl32_setup_xlat.o			\
-				plat_common.o				\
-				${PLAT_BL_COMMON_OBJS}
+BL32_SOURCES		+=	bl32_plat_setup.c			\
+				bl32_setup_xlat.c			\
+				plat_common.c

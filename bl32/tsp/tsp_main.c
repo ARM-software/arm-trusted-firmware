@@ -121,9 +121,7 @@ uint64_t tsp_main(void)
 	tsp_stats[linear_id].cpu_on_count++;
 
 	spin_lock(&console_lock);
-#if defined (__GNUC__)
-	printf("TSP Built : %s, %s\n\r", __TIME__, __DATE__);
-#endif
+	printf("TSP %s\n\r", build_message);
 	INFO("Total memory base : 0x%x\n", mem_layout->total_base);
 	INFO("Total memory size : 0x%x bytes\n", mem_layout->total_size);
 	INFO("Free memory base  : 0x%x\n", mem_layout->free_base);
