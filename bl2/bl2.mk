@@ -40,14 +40,13 @@ vpath			%.S	lib/arch/${ARCH}		\
 				lib/sync/locks/exclusive	\
 				${PLAT_BL2_S_VPATH}
 
-BL2_OBJS		+=	bl2_entrypoint.o		\
-				bl2_arch_setup.o		\
-				bl2_main.o			\
-				spinlock.o			\
-				early_exceptions.o
+BL2_SOURCES		+=	bl2_entrypoint.S		\
+				bl2_arch_setup.c		\
+				bl2_main.c			\
+				spinlock.S			\
+				early_exceptions.S
 
 BL2_ENTRY_POINT		:=	bl2_entrypoint
-BL2_MAPFILE		:=	bl2.map
-BL2_LINKERFILE		:=	bl2.ld
+BL2_LINKERFILE		:=	bl2.ld.S
 
 CFLAGS			+=	$(DEFINES)

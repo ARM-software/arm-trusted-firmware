@@ -57,35 +57,35 @@ PLAT_BL31_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 
 PLAT_BL31_S_VPATH	:=	lib/semihosting/${ARCH}
 
-PLAT_BL_COMMON_OBJS	:=	semihosting_call.o			\
-				mmio.o					\
-				pl011.o					\
-				semihosting.o				\
-				sysreg_helpers.o			\
-				plat_io_storage.o			\
-				io_semihosting.o			\
-				io_fip.o				\
-				io_memmap.o
+PLAT_BL_COMMON_SOURCES	:=	semihosting_call.S			\
+				mmio.c					\
+				pl011.c					\
+				semihosting.c				\
+				sysreg_helpers.S			\
+				plat_io_storage.c			\
+				io_semihosting.c			\
+				io_fip.c				\
+				io_memmap.c
 
-BL1_OBJS		+=	bl1_plat_setup.o			\
-				bl1_plat_helpers.o			\
-				plat_helpers.o				\
-				plat_common.o				\
-				plat_setup_xlat.o			\
-				cci400.o
+BL1_SOURCES		+=	bl1_plat_setup.c			\
+				bl1_plat_helpers.S			\
+				plat_helpers.S				\
+				plat_common.c				\
+				plat_setup_xlat.c			\
+				cci400.c
 
-BL2_OBJS		+=	bl2_plat_setup.o			\
-				plat_setup_xlat.o			\
-				plat_common.o
+BL2_SOURCES		+=	bl2_plat_setup.c			\
+				plat_setup_xlat.c			\
+				plat_common.c
 
-BL31_OBJS		+=	bl31_plat_setup.o			\
-				plat_helpers.o				\
-				plat_setup_xlat.o			\
-				plat_common.o				\
-				plat_pm.o				\
-				plat_topology.o				\
-				plat_gic.o				\
-				fvp_pwrc.o				\
-				cci400.o				\
-				gic_v2.o				\
-				gic_v3.o
+BL31_SOURCES		+=	bl31_plat_setup.c			\
+				plat_helpers.S				\
+				plat_setup_xlat.c			\
+				plat_common.c				\
+				plat_pm.c				\
+				plat_topology.c				\
+				plat_gic.c				\
+				fvp_pwrc.c				\
+				cci400.c				\
+				gic_v2.c				\
+				gic_v3.c

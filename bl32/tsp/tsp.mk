@@ -38,16 +38,14 @@ vpath			%.S	lib/arch/${ARCH}		\
 				include				\
 				lib/sync/locks/exclusive
 
-BL32_OBJS		+=	tsp_entrypoint.o		\
-				tsp_main.o			\
-				tsp_request.o			\
-				spinlock.o			\
-				early_exceptions.o		\
-				${BL_COMMON_OBJS}
+BL32_SOURCES		+=	tsp_entrypoint.S		\
+				tsp_main.c			\
+				tsp_request.S			\
+				spinlock.S			\
+				early_exceptions.S
 
 BL32_ENTRY_POINT	:=	tsp_entrypoint
-BL32_MAPFILE		:=	tsp.map
-BL32_LINKERFILE		:=	tsp.ld
+BL32_LINKERFILE		:=	tsp.ld.S
 
 vpath %.ld.S ${BL32_ROOT}
 vpath %.c ${BL32_ROOT}

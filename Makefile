@@ -59,28 +59,24 @@ else
 	BUILD_TYPE	:=	release
 endif
 
-BL_COMMON_OBJS		:=	misc_helpers.o		\
-				cache_helpers.o		\
-				tlb_helpers.o		\
-				xlat_helpers.o		\
-				std.o			\
-				bl_common.o		\
-				platform_helpers.o	\
-				io_storage.o
+BL_COMMON_SOURCES	:=	misc_helpers.S		\
+				cache_helpers.S		\
+				tlb_helpers.S		\
+				xlat_helpers.c		\
+				std.c			\
+				bl_common.c		\
+				platform_helpers.S	\
+				io_storage.c
 
 ARCH 			?=	aarch64
 
 # By default, build all platforms available
-PLAT			?=	all
+PLAT			?=	fvp
 # By default, build no SPD component
 SPD			?=	none
 
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
-BUILD_BL1		:=	${BUILD_PLAT}/bl1
-BUILD_BL2		:=	${BUILD_PLAT}/bl2
-BUILD_BL31		:=	${BUILD_PLAT}/bl31
-BUILD_DIRS		:=	${BUILD_BL1} ${BUILD_BL2} ${BUILD_BL31}
 
 PLATFORMS		:=	$(shell ls -I common plat/)
 SPDS			:=	$(shell ls -I none services/spd)
@@ -89,31 +85,30 @@ HELP_PLATFORMS		:=	$(shell echo ${PLATFORMS} | sed 's/ /|/g')
 ifeq (${PLAT},)
   $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform.")
 endif
-ifeq ($(findstring ${PLAT},${PLATFORMS} all),)
+ifeq ($(findstring ${PLAT},${PLATFORMS}),)
   $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
 endif
 
-ifeq (${PLAT},all)
-all: ${PLATFORMS}
-else
-all: msg_start bl1 bl2 bl31 fip
-endif
+all: msg_start
 
 msg_start:
 	@echo "Building ${PLAT}"
 
-${PLATFORMS}:
-	${MAKE} PLAT=$@ all
+include plat/${PLAT}/platform.mk
 
-ifneq (${PLAT},all)
-  $(info Including ${PLAT}/platform.mk)
-  include plat/${PLAT}/platform.mk
-  $(info Including bl1.mk)
-  include bl1/bl1.mk
-  $(info Including bl2.mk)
-  include bl2/bl2.mk
-  $(info Including bl31.mk)
-  include bl31/bl31.mk
+ifdef BL1_SOURCES
+NEED_BL1 := yes
+include bl1/bl1.mk
+endif
+
+ifdef BL2_SOURCES
+NEED_BL2 := yes
+include bl2/bl2.mk
+endif
+
+ifdef BL31_SOURCES
+NEED_BL31 := yes
+include bl31/bl31.mk
 endif
 
 # Include SPD Makefile if one has been specified
@@ -132,19 +127,9 @@ ifneq (${SPD},none)
   # variable to "yes"
 endif
 
-.PHONY:			all msg_start ${PLATFORMS} dump clean realclean distclean bl1 bl2 bl31 cscope locate-checkpatch checkcodebase checkpatch fiptool fip locate-bl33
+.PHONY:			all msg_start ${PLATFORMS} clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
 .SUFFIXES:
 
-
-BL1_OBJS		:= 	$(addprefix ${BUILD_BL1}/,${BL1_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
-BL2_OBJS		:= 	$(addprefix ${BUILD_BL2}/,${BL2_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS})
-BL31_OBJS		:= 	$(addprefix ${BUILD_BL31}/,${BL31_OBJS} ${BL_COMMON_OBJS} ${PLAT_BL_COMMON_OBJS} ${SPD_OBJS})
-BL1_MAPFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_MAPFILE})
-BL2_MAPFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_MAPFILE})
-BL31_MAPFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_MAPFILE})
-BL1_LINKERFILE		:= 	$(addprefix ${BUILD_BL1}/,${BL1_LINKERFILE})
-BL2_LINKERFILE		:= 	$(addprefix ${BUILD_BL2}/,${BL2_LINKERFILE})
-BL31_LINKERFILE		:= 	$(addprefix ${BUILD_BL31}/,${BL31_LINKERFILE})
 
 INCLUDES		+=	-Ilib/include/			\
 				-Idrivers/io			\
@@ -166,15 +151,13 @@ CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall	\
 				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
 
 LDFLAGS			+=	--fatal-warnings -O1
-BL1_LDFLAGS		:=	-Map=${BL1_MAPFILE} --script ${BL1_LINKERFILE} --entry=${BL1_ENTRY_POINT}
-BL2_LDFLAGS		:=	-Map=${BL2_MAPFILE} --script ${BL2_LINKERFILE} --entry=${BL2_ENTRY_POINT}
-BL31_LDFLAGS		:=	-Map=${BL31_MAPFILE} --script ${BL31_LINKERFILE} --entry=${BL31_ENTRY_POINT}
 
 
 vpath %.ld.S bl1:bl2:bl31
 vpath %.c bl1:bl2:bl31
 vpath %.c bl1/${ARCH}:bl2/${ARCH}:bl31/${ARCH}
 vpath %.S bl1/${ARCH}:bl2/${ARCH}:bl31/${ARCH}
+vpath %.c lib/arch/${ARCH} # One of the missing paths needed for BL_COMMON_SOURCES
 
 
 ifneq (${DEBUG}, 0)
@@ -196,16 +179,6 @@ OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
-
-
-bl1:			${BUILD_BL1} ${BUILD_PLAT}/bl1.bin
-FIP_DEPS		+= ${BUILD_PLAT}/bl1.bin
-
-bl2:			${BUILD_BL2} ${BUILD_PLAT}/bl2.bin
-FIP_DEPS		+= ${BUILD_PLAT}/bl2.bin
-
-bl31:			${BUILD_BL31} ${BUILD_PLAT}/bl31.bin
-FIP_DEPS		+= ${BUILD_PLAT}/bl31.bin
 
 BASE_COMMIT		?=	origin/master
 
@@ -230,64 +203,6 @@ ifeq (,$(wildcard ${CHECKPATCH}))
 endif
 endif
 
-locate-bl33:
-ifndef BL33
-	$(error "Please set BL33 to point to the Normal World binary, eg: BL33=../uefi/FVP_AARCH64_EFI.fd")
-else
-ifeq (,$(wildcard ${BL33}))
-	$(error "The file BL33 points to cannot be found (${BL33})")
-endif
-FIP_DEPS		+= ${BL33}
-endif
-
-
-# If BL32 needs to be built, provide necessary build rules and targets
-ifeq (${NEED_BL32},yes)
-BUILD_BL32		:=	${BUILD_PLAT}/bl32
-BUILD_DIRS		+=	${BUILD_BL32}
-
-BL32_OBJS		:=	$(addprefix ${BUILD_BL32}/,${BL32_OBJS})
-BL32_MAPFILE		:=	$(addprefix ${BUILD_BL32}/,${BL32_MAPFILE})
-BL32_LINKERFILE	:=	$(addprefix ${BUILD_BL32}/,${BL32_LINKERFILE})
-BL32_LDFLAGS		:=	-Map=${BL32_MAPFILE} --script ${BL32_LINKERFILE} --entry=${BL32_ENTRY_POINT}
-
-bl32:			${BUILD_BL32} ${BUILD_PLAT}/bl32.bin
-all:			bl32
-dump:			bl32_dump
-.PHONY:			bl32
-
-# Add BL32 image to FIP's input image list
-FIP_DEPS		:= bl32
-FIP_ARGS		:= --bl32 ${BUILD_PLAT}/bl32.bin
-
-${BUILD_BL32}/%.o:	%.S
-			@echo "  AS      $<"
-			${Q}${AS} ${ASFLAGS} -c $< -o $@
-
-${BUILD_BL32}/%.o:	%.c
-			@echo "  CC      $<"
-			${Q}${CC} ${CFLAGS} -c $< -o $@
-
-${BUILD_BL32}/%.ld:	%.ld.S
-			@echo "  PP      $<"
-			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
-
-${BUILD_BL32}/bl32.elf:	${BL32_OBJS} ${BL32_LINKERFILE}
-			@echo "  LD      $@"
-			${Q}${LD} -o $@ ${LDFLAGS} ${BL32_LDFLAGS} ${BL32_OBJS}
-
-${BUILD_PLAT}/bl32.bin:	${BUILD_BL32}/bl32.elf
-			@echo "  BIN     $@"
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
-
-bl32_dump:
-	${Q}${OD} -d ${BUILD_BL32}/bl32.elf > ${BUILD_BL32}/bl32.dump
-endif
-
-
 clean:
 			@echo "  CLEAN"
 			${Q}rm -rf ${BUILD_PLAT}
@@ -298,12 +213,6 @@ realclean distclean:
 			${Q}rm -rf ${BUILD_BASE}
 			${Q}rm -f ${CURDIR}/cscope.*
 			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
-
-dump:
-			@echo "  OBJDUMP"
-			${Q}${OD} -d ${BUILD_BL1}/bl1.elf > ${BUILD_BL1}/bl1.dump
-			${Q}${OD} -d ${BUILD_BL2}/bl2.elf > ${BUILD_BL2}/bl2.dump
-			${Q}${OD} -d ${BUILD_BL31}/bl31.elf > ${BUILD_BL31}/bl31.dump
 
 checkcodebase:		locate-checkpatch
 			@echo "  CHECKING STYLE"
@@ -323,85 +232,165 @@ ${FIPTOOL}:
 			@echo "Built $@ successfully"
 			@echo
 
-${BUILD_DIRS}:
-			${Q}mkdir -p "$@"
+define match_goals
+$(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))
+endef
 
 
-${BUILD_BL1}/%.o:	%.S
-			@echo "  AS      $<"
-			${Q}${AS} ${ASFLAGS} -c $< -o $@
-
-${BUILD_BL2}/%.o:	%.S
-			@echo "  AS      $<"
-			${Q}${AS} ${ASFLAGS} -c $< -o $@
-
-${BUILD_BL31}/%.o:	%.S
-			@echo "  AS      $<"
-			${Q}${AS} ${ASFLAGS} -c $< -o $@
-
-${BUILD_BL1}/%.o:	%.c
-			@echo "  CC      $<"
-			${Q}${CC} ${CFLAGS} -c $< -o $@
-
-${BUILD_BL2}/%.o:	%.c
-			@echo "  CC      $<"
-			${Q}${CC} ${CFLAGS} -c $< -o $@
-
-${BUILD_BL31}/%.o:	%.c
-			@echo "  CC      $<"
-			${Q}${CC} ${CFLAGS} -c $< -o $@
-
-${BUILD_BL1}/%.ld:	%.ld.S
-			@echo "  PP      $<"
-			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
-
-${BUILD_BL2}/%.ld:	%.ld.S
-			@echo "  PP      $<"
-			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
-
-${BUILD_BL31}/%.ld:	%.ld.S
-			@echo "  PP      $<"
-			${Q}${AS} ${ASFLAGS} -P -E $< -o $@
+CLEANING := $(call match_goals,clean realclean distclean)
 
 
-${BUILD_BL1}/bl1.elf:	${BL1_OBJS} ${BL1_LINKERFILE}
-			@echo "  LD      $@"
-			${Q}${LD} -o $@ ${LDFLAGS} ${BL1_LDFLAGS} ${BL1_OBJS}
+define MAKE_C
 
-${BUILD_BL2}/bl2.elf:	${BL2_OBJS} ${BL2_LINKERFILE}
-			@echo "  LD      $@"
-			${Q}${LD} -o $@ ${LDFLAGS} ${BL2_LDFLAGS} ${BL2_OBJS}
+$(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
+$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
 
-${BUILD_BL31}/bl31.elf:	${BL31_OBJS} ${BL31_LINKERFILE}
-			@echo "  LD      $@"
-			${Q}${LD} -o $@ ${LDFLAGS} ${BL31_LDFLAGS} ${BL31_OBJS}
+$(OBJ) : $(2)
+	@echo "  CC      $$<"
+	$$(Q)$$(CC) $$(CFLAGS) -c $$< -o $$@
 
-${BUILD_PLAT}/bl1.bin:	${BUILD_BL1}/bl1.elf
-			@echo "  BIN     $@"
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
 
-${BUILD_PLAT}/bl2.bin:	${BUILD_BL2}/bl2.elf
-			@echo "  BIN     $@"
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
+$(PREREQUISITES) : $(2)
+	@echo "  DEPS    $$@"
+	@mkdir -p $(1)
+	$$(Q)$$(CC) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
 
-${BUILD_PLAT}/bl31.bin:	${BUILD_BL31}/bl31.elf
-			@echo "  BIN     $@"
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
+ifeq "$(CLEANING)" ""
+-include $(PREREQUISITES)
+endif
 
-${BUILD_PLAT}/fip.bin:	locate-bl33 ${FIP_DEPS} ${FIPTOOL}
+endef
+
+
+define MAKE_S
+
+$(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
+$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
+
+$(OBJ) : $(2)
+	@echo "  AS      $$<"
+	$$(Q)$$(AS) $$(ASFLAGS) -c $$< -o $$@
+
+$(PREREQUISITES) : $(2)
+	@echo "  DEPS    $$@"
+	@mkdir -p $(1)
+	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(OBJ) -MF $$@ $$<
+
+ifeq "$(CLEANING)" ""
+-include $(PREREQUISITES)
+endif
+
+endef
+
+
+define MAKE_LD
+
+$(eval PREREQUISITES := $(1).d)
+
+$(1) : $(2)
+	@echo "  PP      $$<"
+	$$(Q)$$(AS) $$(ASFLAGS) -P -E -o $$@ $$<
+
+$(PREREQUISITES) : $(2)
+	@echo "  DEPS    $$@"
+	@mkdir -p $$(dir $$@)
+	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(1) -MF $$@ $$<
+
+ifeq "$(CLEANING)" ""
+-include $(PREREQUISITES)
+endif
+
+endef
+
+
+define MAKE_OBJS
+	$(eval C_OBJS := $(filter %.c,$(2)))
+	$(eval REMAIN := $(filter-out %.c,$(2)))
+	$(eval $(foreach obj,$(C_OBJS),$(call MAKE_C,$(1),$(obj))))
+
+	$(eval S_OBJS := $(filter %.S,$(REMAIN)))
+	$(eval REMAIN := $(filter-out %.S,$(REMAIN)))
+	$(eval $(foreach obj,$(S_OBJS),$(call MAKE_S,$(1),$(obj))))
+
+	$(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
+endef
+
+
+# NOTE: The line continuation '\' is required in the next define otherwise we
+# end up with a line-feed characer at the end of the last c filename.
+# Also bare this issue in mind if extending the list of supported filetypes.
+define SOURCES_TO_OBJS
+	$(notdir $(patsubst %.c,%.o,$(filter %.c,$(1)))) \
+	$(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
+endef
+
+define MAKE_BL
+	$(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
+	$(eval SOURCES    := $(BL$(1)_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
+	$(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
+	$(eval LINKERFILE := $(BUILD_DIR)/bl$(1).ld)
+	$(eval MAPFILE    := $(BUILD_DIR)/bl$(1).map)
+	$(eval ELF        := $(BUILD_DIR)/bl$(1).elf)
+	$(eval DUMP       := $(BUILD_DIR)/bl$(1).dump)
+	$(eval BIN        := $(BUILD_PLAT)/bl$(1).bin)
+
+	$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES)))
+	$(eval $(call MAKE_LD,$(LINKERFILE),$(BL$(1)_LINKERFILE)))
+
+$(BUILD_DIR) :
+	$$(Q)mkdir -p "$$@"
+
+$(ELF) : $(OBJS) $(LINKERFILE)
+	@echo "  LD      $$@"
+	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
+					--entry=$(BL$(1)_ENTRY_POINT) $(OBJS)
+
+$(DUMP) : $(ELF)
+	@echo "  OD      $$@"
+	$${Q}$${OD} -dx $$< > $$@
+
+$(BIN) : $(ELF)
+	@echo "  BIN     $$@"
+	$$(Q)$$(OC) -O binary $$< $$@
+	@echo
+	@echo "Built $$@ successfully"
+	@echo
+
+.PHONY : bl$(1)
+bl$(1) : $(BUILD_DIR) $(BIN) $(DUMP)
+
+all : bl$(1)
+
+$(eval FIP_DEPS += $(if $2,$(BIN),))
+$(eval FIP_ARGS += $(if $2,--bl$(1) $(BIN),))
+
+endef
+
+
+ifeq (${NEED_BL1},yes)
+$(eval $(call MAKE_BL,1))
+endif
+
+ifeq (${NEED_BL2},yes)
+$(eval $(call MAKE_BL,2,in_fip))
+endif
+
+ifeq (${NEED_BL31},yes)
+BL31_SOURCES += ${SPD_SOURCES}
+$(eval $(call MAKE_BL,31,in_fip))
+endif
+
+ifeq (${NEED_BL32},yes)
+$(eval $(call MAKE_BL,32,in_fip))
+endif
+
+ifneq (${BL33},)
+FIP_DEPS += ${BL33}
+FIP_ARGS += --bl33 ${BL33}
+endif
+
+${BUILD_PLAT}/fip.bin:	${FIP_DEPS} ${FIPTOOL}
 			${Q}${FIPTOOL} --dump \
-				--bl2 ${BUILD_PLAT}/bl2.bin \
-				--bl31 ${BUILD_PLAT}/bl31.bin \
-				--bl33 ${BL33} \
 				${FIP_ARGS} \
 				$@
 			@echo
@@ -415,7 +404,7 @@ cscope:
 	${Q}cscope -b -q -k
 
 help:
-	@echo "usage: ${MAKE} PLAT=<all|${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|checkcodebase|checkpatch|dump>"
+	@echo "usage: ${MAKE} PLAT=<all|${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|checkcodebase|checkpatch>"
 	@echo ""
 	@echo "PLAT is used to specify which platform you wish to build."
 	@echo ""
@@ -430,7 +419,6 @@ help:
 	@echo "  clean          Clean the build for the selected platform"
 	@echo "  cscope         Generate cscope index"
 	@echo "  distclean      Remove all build artifacts for all platforms"
-	@echo "  dump           Generate object file dumps"
 	@echo "  fiptool        Build the Firmware Image Package(FIP) creation tool"
 	@echo ""
 	@echo "note: most build targets require PLAT to be set to a specific platform."
