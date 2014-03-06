@@ -148,6 +148,25 @@
 #define CNTACR_RWVT_SHIFT	0x4
 #define CNTACR_RWPT_SHIFT	0x5
 
+/* V2M motherboard system registers & offsets */
+#define VE_SYSREGS_BASE		0x1c010000
+#define V2M_SYS_LED		0x8
+
+/*
+ * V2M sysled bit definitions. The values written to this
+ * register are defined in arch.h & runtime_svc.h. Only
+ * used by the primary cpu to diagnose any cold boot issues.
+ *
+ * SYS_LED[0]   - Security state (S=0/NS=1)
+ * SYS_LED[2:1] - Exception Level (EL3-EL0)
+ * SYS_LED[7:3] - Exception Class (Sync/Async & origin)
+ *
+ */
+#define SYS_LED_SS_SHIFT		0x0
+#define SYS_LED_EL_SHIFT		0x1
+#define SYS_LED_EC_SHIFT		0x3
+
+
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
