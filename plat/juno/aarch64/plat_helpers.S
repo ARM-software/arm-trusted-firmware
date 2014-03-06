@@ -39,12 +39,21 @@
 	 * void plat_report_exception(unsigned int type)
 	 * Function to report an unhandled exception
 	 * with platform-specific means.
-	 * On FVP platform, it updates the LEDs
+	 * On Juno platform, it updates the LEDs
 	 * to indicate where we are
 	 * ---------------------------------------------
 	 */
 plat_report_exception:
-	/* Juno todo: Come up with a way of reporting errors */
+	mrs	x1, CurrentEl
+	lsr	x1, x1, #MODE_EL_SHIFT
+	lsl	x1, x1, #SYS_LED_EL_SHIFT
+	lsl	x0, x0, #SYS_LED_EC_SHIFT
+	mov	x2, #(SECURE << SYS_LED_SS_SHIFT)
+	orr	x0, x0, x2
+	orr	x0, x0, x1
+	mov	x1, #VE_SYSREGS_BASE
+	add	x1, x1, #V2M_SYS_LED
+	str	w0, [x1]
 	ret
 
 	/*
