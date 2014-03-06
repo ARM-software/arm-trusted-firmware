@@ -73,14 +73,14 @@ static io_file_spec bl33_file_spec = {
 	.mode = FOPEN_MODE_R
 };
 
-static int open_fip(void* spec);
-static int open_memmap(void* spec);
+static int open_fip(void *spec);
+static int open_memmap(void *spec);
 
 typedef struct {
-	char * image_name;
-	io_dev_handle* dev_handle;
-	void* image_spec;
-	int (*check)(void* spec);
+	char *image_name;
+	io_dev_handle *dev_handle;
+	void *image_spec;
+	int (*check)(void *spec);
 } plat_io_policy;
 
 static plat_io_policy policies[] = {
@@ -88,7 +88,7 @@ static plat_io_policy policies[] = {
 	{ BL2_IMAGE_NAME,  &fip_dev_handle,    &bl2_file_spec,  open_fip    },
 	{ BL31_IMAGE_NAME, &fip_dev_handle,    &bl31_file_spec, open_fip    },
 	{ BL33_IMAGE_NAME, &fip_dev_handle,    &bl33_file_spec, open_fip    },
-	{0,0,0}
+	{0, 0, 0}
 };
 
 
@@ -187,8 +187,8 @@ int plat_get_image_source(const char *image_name, io_dev_handle *dev_handle,
 			if (strcmp(policy->image_name, image_name) == 0) {
 				result = policy->check(policy->image_spec);
 				if (result == IO_SUCCESS) {
-					*(io_file_spec**)image_spec = policy->image_spec;
-					*dev_handle=*(policy->dev_handle);
+					*(io_file_spec **)image_spec = policy->image_spec;
+					*dev_handle = *(policy->dev_handle);
 					break;
 				} else {
 					result = open_semihosting(policy->image_spec);

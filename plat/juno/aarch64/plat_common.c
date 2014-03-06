@@ -142,6 +142,7 @@ unsigned long platform_get_cfgvar(unsigned int var_id)
 	return platform_config[var_id];
 }
 
-unsigned long plat_get_ns_image_entrypoint(void) {
+unsigned long plat_get_ns_image_entrypoint(void)
+{
 	return NS_IMAGE_OFFSET;
 }
