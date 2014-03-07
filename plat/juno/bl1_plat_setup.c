@@ -103,9 +103,13 @@ void bl1_early_platform_setup(void)
 }
 
 
+/*
+ * Address of slave 'n' security setting in the NIC-400 address region
+ * control
+ * TODO: Ideally this macro should be moved in a "nic-400.h" header file but
+ * it would be the only thing in there so it's not worth it at the moment.
+ */
 #define NIC400_ADDR_CTRL_SECURITY_REG(n)	(0x8 + (n) * 4)
-
-#define SOC_NIC400_S5_BIT_UART1			(1u << 12)
 
 static void init_nic400(void)
 {
@@ -119,20 +123,30 @@ static void init_nic400(void)
 
 	/*
 	 * Allow non-secure access to some SOC regions, excluding UART1, which
-	 * remains secure. Note: This is a NIC-400 device on the SOC
+	 * remains secure.
+	 * Note: This is the NIC-400 device on the SOC
 	 */
-	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(0), ~0); // USB_EHCI
-	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(1), ~0); // TLX_MASTER
-	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(2), ~0); // USB_OHCI
-	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(3), ~0);
-	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(4), ~0); // PCIe
-	mmio_write_32(SOC_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(5), ~SOC_NIC400_S5_BIT_UART1);
+	mmio_write_32(SOC_NIC400_BASE +
+		      NIC400_ADDR_CTRL_SECURITY_REG(SOC_NIC400_USB_EHCI), ~0);
+	mmio_write_32(SOC_NIC400_BASE +
+		      NIC400_ADDR_CTRL_SECURITY_REG(SOC_NIC400_TLX_MASTER), ~0);
+	mmio_write_32(SOC_NIC400_BASE +
+		      NIC400_ADDR_CTRL_SECURITY_REG(SOC_NIC400_USB_OHCI), ~0);
+	mmio_write_32(SOC_NIC400_BASE +
+		      NIC400_ADDR_CTRL_SECURITY_REG(SOC_NIC400_PL354_SMC), ~0);
+	mmio_write_32(SOC_NIC400_BASE +
+		      NIC400_ADDR_CTRL_SECURITY_REG(SOC_NIC400_APB4_BRIDGE), ~0);
+	mmio_write_32(SOC_NIC400_BASE +
+		      NIC400_ADDR_CTRL_SECURITY_REG(SOC_NIC400_BOOTSEC_BRIDGE),
+		      ~SOC_NIC400_BOOTSEC_BRIDGE_UART1);
 
 	/*
 	 * Allow non-secure access to some CSS regions.
-	 * Note: This is a NIC-400 device on the CSS
+	 * Note: This is the NIC-400 device on the CSS
 	 */
-	mmio_write_32(CSS_NIC400_BASE + NIC400_ADDR_CTRL_SECURITY_REG(8), ~0);
+	mmio_write_32(CSS_NIC400_BASE +
+		      NIC400_ADDR_CTRL_SECURITY_REG(CSS_NIC400_SLAVE_BOOTSECURE),
+		      ~0);
 }
 
 
