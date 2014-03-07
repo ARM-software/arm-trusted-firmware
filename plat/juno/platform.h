@@ -117,7 +117,6 @@
 /* Following covers Columbus Peripherals excluding NSROM and NSRAM  */
 #define DEVICE0_BASE		0x20000000
 #define DEVICE0_SIZE		0x0e000000
-#define TZC400_BASE		0x2a4a0000
 #define MHU_BASE		0x2b1f0000
 
 #define NSRAM_BASE		0x2e000000
@@ -265,6 +264,24 @@
  */
 #define SOC_NIC400_BOOTSEC_BRIDGE		5
 #define SOC_NIC400_BOOTSEC_BRIDGE_UART1         (1 << 12)
+
+
+/*******************************************************************************
+ * TZC-400 related constants
+ ******************************************************************************/
+#define TZC400_BASE		0x2a4a0000
+
+#define TZC400_NSAID_CCI400	0  /* Note: Same as default NSAID!! HW fix in next revision */
+#define TZC400_NSAID_PCIE	1
+#define TZC400_NSAID_HDLCD0	2
+#define TZC400_NSAID_HDLCD1	3
+#define TZC400_NSAID_USB	4
+#define TZC400_NSAID_DMA330	5
+#define TZC400_NSAID_THINLINKS	6
+#define TZC400_NSAID_AP		9
+#define TZC400_NSAID_GPU	10
+#define TZC400_NSAID_SCP	11
+#define TZC400_NSAID_CORESIGHT	12
 
 
 /*******************************************************************************
