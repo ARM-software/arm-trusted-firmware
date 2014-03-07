@@ -117,7 +117,6 @@
 /* Following covers Columbus Peripherals excluding NSROM and NSRAM  */
 #define DEVICE0_BASE		0x20000000
 #define DEVICE0_SIZE		0x0e000000
-#define CSS_NIC400_BASE		0x2a000000
 #define TZC400_BASE		0x2a4a0000
 #define MHU_BASE		0x2b1f0000
 
@@ -127,7 +126,6 @@
 /* Following covers Juno Peripherals and PCIe expansion area */
 #define DEVICE1_BASE		0x40000000
 #define DEVICE1_SIZE		0x40000000
-#define SOC_NIC400_BASE		0x7fd00000
 #define PCIE_CONTROL_BASE	0x7ff20000
 
 #define DRAM_BASE		0x80000000
@@ -238,6 +236,36 @@
 #define PL011_UART2_BASE		0x1c0b0000
 #define PL011_UART3_BASE		0x1c0c0000
 #define PL011_BASE			PL011_UART0_BASE
+
+/*******************************************************************************
+ * NIC-400 related constants
+ ******************************************************************************/
+
+/* CSS NIC-400 Global Programmers View (GPV) */
+#define CSS_NIC400_BASE		0x2a000000
+
+/* The slave_bootsecure controls access to GPU, DMC and CS. */
+#define CSS_NIC400_SLAVE_BOOTSECURE		8
+
+/* SoC NIC-400 Global Programmers View (GPV) */
+#define SOC_NIC400_BASE		0x7fd00000
+
+#define SOC_NIC400_USB_EHCI	0
+#define SOC_NIC400_TLX_MASTER	1
+#define SOC_NIC400_USB_OHCI	2
+#define SOC_NIC400_PL354_SMC	3
+/*
+ * The apb4_bridge controls access to:
+ *   - the PCIe configuration registers
+ *   - the MMU units for USB, HDLCD and DMA
+ */
+#define SOC_NIC400_APB4_BRIDGE	4
+/*
+ * The bootsec_bridge controls access to a bunch of peripherals, e.g. the UARTs.
+ */
+#define SOC_NIC400_BOOTSEC_BRIDGE		5
+#define SOC_NIC400_BOOTSEC_BRIDGE_UART1         (1 << 12)
+
 
 /*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is
