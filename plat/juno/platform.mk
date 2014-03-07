@@ -29,6 +29,7 @@
 #
 
 PLAT_INCLUDES		:=	-Idrivers/arm/interconnect/cci-400	\
+				-Idrivers/arm/trustzone/tzc-400		\
 				-Idrivers/arm/peripherals/pl011		\
 				-Idrivers/power
 
