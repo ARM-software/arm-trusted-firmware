@@ -29,6 +29,8 @@
  */
 
 #include <platform.h>
+#include <assert.h>
+#include <arch_helpers.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -120,8 +122,18 @@ void bl31_early_platform_setup(bl31_args *from_bl2,
  ******************************************************************************/
 void bl31_platform_setup()
 {
+	unsigned int counter_base_frequency;
 	/* Initialize the gic cpu and distributor interfaces */
 	gic_setup();
+
+	/* Read the frequency from Frequency modes table */
+	counter_base_frequency = mmio_read_32(SYS_CNTCTL_BASE + CNTFID_OFF);
+
+	/* The first entry of the frequency modes table must not be 0 */
+	assert(counter_base_frequency != 0);
+
+	/* Program the counter frequency */
+	write_cntfrq_el0(counter_base_frequency);
 
 	/* Topologies are best known to the platform. */
 	plat_setup_topology();
