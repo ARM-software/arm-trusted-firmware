@@ -30,44 +30,30 @@
 
 PLAT_INCLUDES		:=	-Idrivers/arm/interconnect/cci-400	\
 				-Idrivers/arm/trustzone/tzc-400		\
-				-Idrivers/arm/peripherals/pl011		\
-				-Idrivers/power
+				-Idrivers/arm/peripherals/pl011
 
 PLAT_BL1_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 				drivers/arm/peripherals/pl011		\
 				lib/arch/${ARCH}			\
-				lib/semihosting				\
 				lib/stdlib				\
 				drivers/io
-
-PLAT_BL1_S_VPATH	:=	lib/semihosting/${ARCH}
 
 PLAT_BL2_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 				drivers/arm/peripherals/pl011		\
 				lib/arch/${ARCH}			\
 				lib/stdlib				\
-				lib/semihosting				\
 				drivers/io
-
-PLAT_BL2_S_VPATH	:=	lib/semihosting/${ARCH}
 
 PLAT_BL31_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 				drivers/arm/peripherals/pl011		\
 				lib/arch/${ARCH}			\
-				lib/semihosting				\
 				lib/stdlib				\
-				drivers/power				\
 				drivers/io
 
-PLAT_BL31_S_VPATH	:=	lib/semihosting/${ARCH}
-
-PLAT_BL_COMMON_SOURCES	:=	semihosting_call.S			\
-				mmio.c					\
+PLAT_BL_COMMON_SOURCES	:=	mmio.c					\
 				pl011.c					\
-				semihosting.c				\
 				sysreg_helpers.S			\
 				plat_io_storage.c			\
-				io_semihosting.c			\
 				io_fip.c				\
 				io_memmap.c				\
 				xlat_tables.c
@@ -96,5 +82,4 @@ BL31_SOURCES		+=	bl31_plat_setup.c			\
 				scpi.c					\
 				smc_arm.c				\
 				cci400.c				\
-				gic_v2.c				\
-				gic_v3.c
+				gic_v2.c
