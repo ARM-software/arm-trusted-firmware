@@ -44,7 +44,6 @@ BL32_SOURCES		+=	tsp_entrypoint.S		\
 				spinlock.S			\
 				early_exceptions.S
 
-BL32_ENTRY_POINT	:=	tsp_entrypoint
 BL32_LINKERFILE		:=	tsp.ld.S
 
 vpath %.ld.S ${BL32_ROOT}

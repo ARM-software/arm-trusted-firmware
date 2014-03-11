@@ -345,8 +345,7 @@ $(ELF) : $(OBJS) $(LINKERFILE)
 	@echo 'const char build_message[] = "Built : "__TIME__", "__DATE__;' | \
 		$$(CC) $$(CFLAGS) -xc - -o $(BUILD_DIR)/build_message.o
 	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
-					--entry=$(BL$(1)_ENTRY_POINT) $(OBJS) \
-					$(BUILD_DIR)/build_message.o
+					$(BUILD_DIR)/build_message.o $(OBJS)
 
 $(DUMP) : $(ELF)
 	@echo "  OD      $$@"

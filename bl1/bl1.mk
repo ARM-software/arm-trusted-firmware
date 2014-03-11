@@ -49,5 +49,4 @@ BL1_SOURCES		+=	bl1_arch_setup.c	\
 				bl1_main.c		\
 				cpu_helpers.S
 
-BL1_ENTRY_POINT		:=	reset_handler
 BL1_LINKERFILE		:=	bl1.ld.S

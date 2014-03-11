@@ -30,19 +30,19 @@
 
 #include <arch.h>
 
-	.globl	reset_handler
+	.globl	bl1_entrypoint
 
 
 	.section	.text, "ax"; .align 3
 
 	/* -----------------------------------------------------
-	 * reset_handler() is the entry point into the trusted
+	 * bl1_entrypoint() is the entry point into the trusted
 	 * firmware code when a cpu is released from warm or
 	 * cold reset.
 	 * -----------------------------------------------------
 	 */
 
-reset_handler: ; .type reset_handler, %function
+bl1_entrypoint: ; .type bl1_entrypoint, %function
 	/* ---------------------------------------------
 	 * Perform any processor specific actions upon
 	 * reset e.g. cache, tlb invalidations etc.

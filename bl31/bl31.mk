@@ -69,5 +69,4 @@ BL31_SOURCES		+=	bl31_arch_setup.c			\
 				context_mgmt.c				\
 				context.S
 
-BL31_ENTRY_POINT	:=	bl31_entrypoint
 BL31_LINKERFILE		:=	bl31.ld.S

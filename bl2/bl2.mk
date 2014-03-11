@@ -46,7 +46,6 @@ BL2_SOURCES		+=	bl2_entrypoint.S		\
 				spinlock.S			\
 				early_exceptions.S
 
-BL2_ENTRY_POINT		:=	bl2_entrypoint
 BL2_LINKERFILE		:=	bl2.ld.S
 
 CFLAGS			+=	$(DEFINES)
