@@ -1,6 +1,8 @@
 ARM Trusted Firmware - version 0.3
 ==================================
 
+TEST CHANGE 2
+
 ARM Trusted Firmware provides a reference implementation of secure world
 software for [ARMv8-A], including Exception Level 3 (EL3) software. This
 release focuses on support for ARM's [Fixed Virtual Platforms (FVPs)] [FVP].
