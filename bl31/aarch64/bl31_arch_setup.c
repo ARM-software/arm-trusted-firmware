@@ -42,10 +42,10 @@ void bl31_arch_setup(void)
 	unsigned long tmp_reg = 0;
 
 	/* Enable alignment checks and set the exception endianness to LE */
-	tmp_reg = read_sctlr();
+	tmp_reg = read_sctlr_el3();
 	tmp_reg |= (SCTLR_A_BIT | SCTLR_SA_BIT);
 	tmp_reg &= ~SCTLR_EE_BIT;
-	write_sctlr(tmp_reg);
+	write_sctlr_el3(tmp_reg);
 
 	/*
 	 * Enable HVCs, route FIQs to EL3, set the next EL to be AArch64, route
@@ -72,13 +72,12 @@ void bl31_arch_setup(void)
 void bl31_next_el_arch_setup(uint32_t security_state)
 {
 	unsigned long id_aa64pfr0 = read_id_aa64pfr0_el1();
-	unsigned long current_sctlr, next_sctlr;
+	unsigned long next_sctlr;
 	unsigned long el_status;
 	unsigned long scr = read_scr();
 
 	/* Use the same endianness than the current BL */
-	current_sctlr = read_sctlr();
-	next_sctlr = (current_sctlr & SCTLR_EE_BIT);
+	next_sctlr = (read_sctlr_el3() & SCTLR_EE_BIT);
 
 	/* Find out which EL we are going to */
 	el_status = (id_aa64pfr0 >> ID_AA64PFR0_EL2_SHIFT) & ID_AA64PFR0_ELX_MASK;

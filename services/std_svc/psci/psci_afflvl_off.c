@@ -48,7 +48,7 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 {
 	unsigned int index, plat_state;
 	int rc = PSCI_E_SUCCESS;
-	unsigned long sctlr = read_sctlr();
+	unsigned long sctlr;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
@@ -83,8 +83,9 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 	 * Do the bare minimal for the time being. Fix this before porting to
 	 * Cortex models.
 	 */
+	sctlr = read_sctlr_el3();
 	sctlr &= ~SCTLR_C_BIT;
-	write_sctlr(sctlr);
+	write_sctlr_el3(sctlr);
 
 	/*
 	 * CAUTION: This flush to the level of unification makes an assumption

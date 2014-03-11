@@ -59,32 +59,43 @@ void enable_mmu()
 	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
 	mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,
 				  ATTR_IWBWA_OWBWA_NTR_INDEX);
-	write_mair(mair);
 
 	/*
 	 * Set TCR bits as well. Inner & outer WBWA & shareable + T0SZ = 32
 	 */
 	tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |
 		  TCR_RGN_INNER_WBA | TCR_T0SZ_4GB;
-	if (GET_EL(current_el) == MODE_EL3) {
-		tcr |= TCR_EL3_RES1;
-		/* Invalidate EL3 TLBs */
-		tlbialle3();
-	} else {
-		/* Invalidate EL1 TLBs */
-		tlbivmalle1();
-	}
-
-	write_tcr(tcr);
 
 	/* Set TTBR bits as well */
 	ttbr = (unsigned long) l1_xlation_table;
-	write_ttbr0(ttbr);
 
-	sctlr = read_sctlr();
-	sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;
-	sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;
-	write_sctlr(sctlr);
+	if (GET_EL(current_el) == MODE_EL3) {
+		write_mair_el3(mair);
+		tcr |= TCR_EL3_RES1;
+		/* Invalidate EL3 TLBs */
+		tlbialle3();
+
+		write_tcr_el3(tcr);
+		write_ttbr0_el3(ttbr);
+
+		sctlr = read_sctlr_el3();
+		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;
+		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;
+		write_sctlr_el3(sctlr);
+	} else {
+
+		write_mair_el1(mair);
+		/* Invalidate EL1 TLBs */
+		tlbivmalle1();
+
+		write_tcr_el1(tcr);
+		write_ttbr0_el1(ttbr);
+
+		sctlr = read_sctlr_el1();
+		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;
+		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;
+		write_sctlr_el1(sctlr);
+	}
 
 	return;
 }
@@ -92,10 +103,17 @@ void enable_mmu()
 void disable_mmu(void)
 {
 	unsigned long sctlr;
+	unsigned long current_el = read_current_el();
 
-	sctlr = read_sctlr();
-	sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
-	write_sctlr(sctlr);
+	if (GET_EL(current_el) == MODE_EL3) {
+		sctlr = read_sctlr_el3();
+		sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
+		write_sctlr_el3(sctlr);
+	} else {
+		sctlr = read_sctlr_el1();
+		sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
+		write_sctlr_el1(sctlr);
+	}
 
 	/* Flush the caches */
 	dcsw_op_all(DCCISW);

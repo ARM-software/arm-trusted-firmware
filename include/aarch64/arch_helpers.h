@@ -97,21 +97,17 @@ extern unsigned long read_id_pfr1_el1(void);
 extern unsigned long read_id_aa64pfr0_el1(void);
 extern unsigned long read_current_el(void);
 extern unsigned long read_daif(void);
-extern unsigned long read_spsr(void);
 extern unsigned long read_spsr_el1(void);
 extern unsigned long read_spsr_el2(void);
 extern unsigned long read_spsr_el3(void);
-extern unsigned long read_elr(void);
 extern unsigned long read_elr_el1(void);
 extern unsigned long read_elr_el2(void);
 extern unsigned long read_elr_el3(void);
 
 extern void write_daif(unsigned long);
-extern void write_spsr(unsigned long);
 extern void write_spsr_el1(unsigned long);
 extern void write_spsr_el2(unsigned long);
 extern void write_spsr_el3(unsigned long);
-extern void write_elr(unsigned long);
 extern void write_elr_el1(unsigned long);
 extern void write_elr_el2(unsigned long);
 extern void write_elr_el3(unsigned long);
@@ -145,67 +141,54 @@ extern unsigned long read_mpidr(void);
 extern unsigned long read_scr(void);
 extern unsigned long read_hcr(void);
 
-extern unsigned long read_vbar(void);
 extern unsigned long read_vbar_el1(void);
 extern unsigned long read_vbar_el2(void);
 extern unsigned long read_vbar_el3(void);
 
-extern unsigned long read_sctlr(void);
 extern unsigned long read_sctlr_el1(void);
 extern unsigned long read_sctlr_el2(void);
 extern unsigned long read_sctlr_el3(void);
 
-extern unsigned long read_actlr(void);
 extern unsigned long read_actlr_el1(void);
 extern unsigned long read_actlr_el2(void);
 extern unsigned long read_actlr_el3(void);
 
-extern unsigned long read_esr(void);
 extern unsigned long read_esr_el1(void);
 extern unsigned long read_esr_el2(void);
 extern unsigned long read_esr_el3(void);
 
-extern unsigned long read_afsr0(void);
 extern unsigned long read_afsr0_el1(void);
 extern unsigned long read_afsr0_el2(void);
 extern unsigned long read_afsr0_el3(void);
 
-extern unsigned long read_afsr1(void);
 extern unsigned long read_afsr1_el1(void);
 extern unsigned long read_afsr1_el2(void);
 extern unsigned long read_afsr1_el3(void);
 
-extern unsigned long read_far(void);
 extern unsigned long read_far_el1(void);
 extern unsigned long read_far_el2(void);
 extern unsigned long read_far_el3(void);
 
-extern unsigned long read_mair(void);
 extern unsigned long read_mair_el1(void);
 extern unsigned long read_mair_el2(void);
 extern unsigned long read_mair_el3(void);
 
-extern unsigned long read_amair(void);
 extern unsigned long read_amair_el1(void);
 extern unsigned long read_amair_el2(void);
 extern unsigned long read_amair_el3(void);
 
-extern unsigned long read_rvbar(void);
 extern unsigned long read_rvbar_el1(void);
 extern unsigned long read_rvbar_el2(void);
 extern unsigned long read_rvbar_el3(void);
 
-extern unsigned long read_rmr(void);
 extern unsigned long read_rmr_el1(void);
 extern unsigned long read_rmr_el2(void);
 extern unsigned long read_rmr_el3(void);
 
-extern unsigned long read_tcr(void);
 extern unsigned long read_tcr_el1(void);
 extern unsigned long read_tcr_el2(void);
 extern unsigned long read_tcr_el3(void);
 
-extern unsigned long read_ttbr0(void);
 extern unsigned long read_ttbr0_el1(void);
 extern unsigned long read_ttbr0_el2(void);
 extern unsigned long read_ttbr0_el3(void);
@@ -214,7 +197,6 @@ extern unsigned long read_ttbr1(void);
 extern unsigned long read_ttbr1_el1(void);
 extern unsigned long read_ttbr1_el2(void);
 
-extern unsigned long read_cptr(void);
 extern unsigned long read_cptr_el2(void);
 extern unsigned long read_cptr_el3(void);
 
@@ -229,22 +211,18 @@ extern void write_cpacr(unsigned long);
 extern void write_cntfrq_el0(unsigned int);
 extern void write_cnthctl_el2(unsigned long);
 
-extern void write_vbar(unsigned long);
 extern void write_vbar_el1(unsigned long);
 extern void write_vbar_el2(unsigned long);
 extern void write_vbar_el3(unsigned long);
 
-extern void write_sctlr(unsigned long);
 extern void write_sctlr_el1(unsigned long);
 extern void write_sctlr_el2(unsigned long);
 extern void write_sctlr_el3(unsigned long);
 
-extern void write_actlr(unsigned long);
 extern void write_actlr_el1(unsigned long);
 extern void write_actlr_el2(unsigned long);
 extern void write_actlr_el3(unsigned long);
 
-extern void write_esr(unsigned long);
 extern void write_esr_el1(unsigned long);
 extern void write_esr_el2(unsigned long);
 extern void write_esr_el3(unsigned long);
@@ -259,41 +237,33 @@ extern void write_afsr1_el1(unsigned long);
 extern void write_afsr1_el2(unsigned long);
 extern void write_afsr1_el3(unsigned long);
 
-extern void write_far(unsigned long);
 extern void write_far_el1(unsigned long);
 extern void write_far_el2(unsigned long);
 extern void write_far_el3(unsigned long);
 
-extern void write_mair(unsigned long);
 extern void write_mair_el1(unsigned long);
 extern void write_mair_el2(unsigned long);
 extern void write_mair_el3(unsigned long);
 
-extern void write_amair(unsigned long);
 extern void write_amair_el1(unsigned long);
 extern void write_amair_el2(unsigned long);
 extern void write_amair_el3(unsigned long);
 
-extern void write_rmr(unsigned long);
 extern void write_rmr_el1(unsigned long);
 extern void write_rmr_el2(unsigned long);
 extern void write_rmr_el3(unsigned long);
 
-extern void write_tcr(unsigned long);
 extern void write_tcr_el1(unsigned long);
 extern void write_tcr_el2(unsigned long);
 extern void write_tcr_el3(unsigned long);
 
-extern void write_ttbr0(unsigned long);
 extern void write_ttbr0_el1(unsigned long);
 extern void write_ttbr0_el2(unsigned long);
 extern void write_ttbr0_el3(unsigned long);
 
-extern void write_ttbr1(unsigned long);
 extern void write_ttbr1_el1(unsigned long);
 extern void write_ttbr1_el2(unsigned long);
 
-extern void write_cptr(unsigned long);
 extern void write_cpuectlr(unsigned long);
 extern void write_cptr_el2(unsigned long);
 extern void write_cptr_el3(unsigned long);

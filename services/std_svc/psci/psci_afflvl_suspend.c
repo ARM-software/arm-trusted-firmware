@@ -87,7 +87,7 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 				unsigned int power_state)
 {
 	unsigned int index, plat_state;
-	unsigned long psci_entrypoint, sctlr = read_sctlr();
+	unsigned long psci_entrypoint, sctlr;
 	el3_state *saved_el3_state;
 	int rc = PSCI_E_SUCCESS;
 
@@ -146,8 +146,9 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 * Do the bare minimal for the time being. Fix this before porting to
 	 * Cortex models.
 	 */
+	sctlr = read_sctlr_el3();
 	sctlr &= ~SCTLR_C_BIT;
-	write_sctlr(sctlr);
+	write_sctlr_el3(sctlr);
 
 	/*
 	 * CAUTION: This flush to the level of unification makes an assumption

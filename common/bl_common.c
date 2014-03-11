@@ -78,8 +78,8 @@ void __dead2 drop_el(aapcs64_params *args,
 		     unsigned long spsr,
 		     unsigned long entrypoint)
 {
-	write_spsr(spsr);
-	write_elr(entrypoint);
+	write_spsr_el3(spsr);
+	write_elr_el3(entrypoint);
 	eret(args->arg0,
 	     args->arg1,
 	     args->arg2,

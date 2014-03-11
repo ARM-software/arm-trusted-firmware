@@ -41,10 +41,10 @@ void bl1_arch_setup(void)
 	unsigned long tmp_reg = 0;
 
 	/* Enable alignment checks and set the exception endianess to LE */
-	tmp_reg = read_sctlr();
+	tmp_reg = read_sctlr_el3();
 	tmp_reg |= (SCTLR_A_BIT | SCTLR_SA_BIT);
 	tmp_reg &= ~SCTLR_EE_BIT;
-	write_sctlr(tmp_reg);
+	write_sctlr_el3(tmp_reg);
 
 	/*
 	 * Enable HVCs, route FIQs to EL3, set the next EL to be AArch64, route
@@ -67,11 +67,10 @@ void bl1_arch_setup(void)
  * Set the Secure EL1 required architectural state
  ******************************************************************************/
 void bl1_arch_next_el_setup(void) {
-	unsigned long current_sctlr, next_sctlr;
+	unsigned long next_sctlr;
 
 	/* Use the same endianness than the current BL */
-	current_sctlr = read_sctlr();
-	next_sctlr = (current_sctlr & SCTLR_EE_BIT);
+	next_sctlr = (read_sctlr_el3() & SCTLR_EE_BIT);
 
 	/* Set SCTLR Secure EL1 */
 	next_sctlr |= SCTLR_EL1_RES1;

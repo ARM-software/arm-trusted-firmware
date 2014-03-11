@@ -48,7 +48,7 @@ void bl1_arch_next_el_setup(void);
 void bl1_main(void)
 {
 #if DEBUG
-	unsigned long sctlr_el3 = read_sctlr();
+	unsigned long sctlr_el3 = read_sctlr_el3();
 #endif
 	unsigned long bl2_base;
 	unsigned int load_type = TOP_LOAD, spsr;

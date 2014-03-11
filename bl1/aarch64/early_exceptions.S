@@ -195,7 +195,7 @@ process_exception:
 	mov	x0, #SYNC_EXCEPTION_AARCH64
 	bl	plat_report_exception
 
-	bl	read_esr
+	bl	read_esr_el3
 	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 	cmp	x1, #EC_AARCH64_SMC
 	b.ne	panic
@@ -224,9 +224,9 @@ process_exception:
 	 * ---------------------------------------------
 	 */
 	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
-	bl	read_sctlr
+	bl	read_sctlr_el3
 	bic	x0, x0, x1
-	bl	write_sctlr
+	bl	write_sctlr_el3
 	mov	x0, #DCCISW
 	bl	dcsw_op_all
 	bl	tlbialle3
