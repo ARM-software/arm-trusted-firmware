@@ -36,7 +36,7 @@
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
- * of trusted SRAM
+ * of trusted RAM
  ******************************************************************************/
 extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
@@ -66,7 +66,7 @@ extern unsigned long __COHERENT_RAM_END__;
 /* Pointer to memory visible to both BL2 and BL3-1 for passing data */
 extern unsigned char **bl2_el_change_mem_ptr;
 
-/* Data structure which holds the extents of the trusted SRAM for BL2 */
+/* Data structure which holds the extents of the trusted RAM for BL2 */
 static meminfo bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
@@ -86,8 +86,8 @@ bl31_args *bl2_get_bl31_args_ptr(void)
 }
 
 /*******************************************************************************
- * BL1 has passed the extents of the trusted SRAM that should be visible to BL2
- * in x0. This memory layout is sitting at the base of the free trusted SRAM.
+ * BL1 has passed the extents of the trusted RAM that should be visible to BL2
+ * in x0. This memory layout is sitting at the base of the free trusted RAM.
  * Copy it to a safe loaction before its reclaimed by later BL2 functionality.
  ******************************************************************************/
 void bl2_early_platform_setup(meminfo *mem_layout,
@@ -100,13 +100,12 @@ void bl2_early_platform_setup(meminfo *mem_layout,
 	bl2_tzram_layout.free_size = mem_layout->free_size;
 	bl2_tzram_layout.attr = mem_layout->attr;
 	bl2_tzram_layout.next = 0;
-
-	return;
 }
 
 /*******************************************************************************
- * Perform platform specific setup. For now just initialize the memory location
- * to use for passing arguments to BL3-1.
+ * Perform platform specific setup, i.e. initialize the IO layer, load BL3-0
+ * image and initialise the memory location to use for passing arguments to
+ * BL3-1.
  ******************************************************************************/
 void bl2_platform_setup()
 {

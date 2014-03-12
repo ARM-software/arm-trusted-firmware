@@ -34,7 +34,7 @@
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
- * of trusted SRAM
+ * of trusted RAM
  ******************************************************************************/
 extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
@@ -98,12 +98,10 @@ el_change_info *bl31_get_next_image_info(uint32_t type)
  * Perform any BL3-1 specific platform actions. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
  * are lost (potentially). This needs to be done before the MMU is initialized
- * so that the memory layout can be used while creating page tables. On the FVP
- * we know that BL2 has populated the parameters in secure DRAM. So we just use
- * the reference passed in 'from_bl2' instead of copying. The 'data' parameter
- * is not used since all the information is contained in 'from_bl2'. Also, BL2
- * has flushed this information to memory, so we are guaranteed to pick up good
- * data
+ * so that the memory layout can be used while creating page tables. The 'data'
+ * parameter is not used since all the information is contained in 'from_bl2'.
+ * Also, BL2 has flushed this information to memory, so we are guaranteed to
+ * pick up good data
  ******************************************************************************/
 void bl31_early_platform_setup(bl31_args *from_bl2,
 			       void *data)
@@ -112,10 +110,9 @@ void bl31_early_platform_setup(bl31_args *from_bl2,
 }
 
 /*******************************************************************************
- * Initialize the gic, configure the CLCD and zero out variables needed by the
- * secondaries to boot up correctly.
+ * Initialize the MHU and the GIC.
  ******************************************************************************/
-void bl31_platform_setup()
+void bl31_platform_setup(void)
 {
 	unsigned int counter_base_frequency;
 	/* Initialize the gic cpu and distributor interfaces */
