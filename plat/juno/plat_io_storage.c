@@ -58,6 +58,11 @@ static io_file_spec bl2_file_spec = {
 	.mode = FOPEN_MODE_R
 };
 
+static io_file_spec bl30_file_spec = {
+	.path = BL30_IMAGE_NAME,
+	.mode = FOPEN_MODE_R
+};
+
 static io_file_spec bl31_file_spec = {
 	.path = BL31_IMAGE_NAME,
 	.mode = FOPEN_MODE_R
@@ -81,6 +86,7 @@ typedef struct {
 static plat_io_policy policies[] = {
 	{ FIP_IMAGE_NAME,  &memmap_dev_handle, &fip_block_spec, open_memmap },
 	{ BL2_IMAGE_NAME,  &fip_dev_handle,    &bl2_file_spec,  open_fip    },
+	{ BL30_IMAGE_NAME, &fip_dev_handle,    &bl30_file_spec, open_fip    },
 	{ BL31_IMAGE_NAME, &fip_dev_handle,    &bl31_file_spec, open_fip    },
 	{ BL33_IMAGE_NAME, &fip_dev_handle,    &bl33_file_spec, open_fip    },
 	{0, 0, 0}

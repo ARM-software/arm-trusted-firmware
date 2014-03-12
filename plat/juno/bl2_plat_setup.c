@@ -28,11 +28,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include <arch_helpers.h>
 #include <platform.h>
 #include <bl2.h>
 #include <bl_common.h>
+#include <scp_bootloader.h>
+#include <debug.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -103,6 +107,54 @@ void bl2_early_platform_setup(meminfo *mem_layout,
 }
 
 /*******************************************************************************
+ * Load BL3-0 into Trusted RAM, then transfer it using the SCP Download
+ * protocol. The image is loaded into RAM in the same place that BL3-1 will be
+ * loaded later so here, we copy the RAM layout structure and use it to load
+ * the image into. When this function exits, the RAM layout remains untouched
+ * so the BL2 can load BL3-1 as normal.
+ ******************************************************************************/
+static int load_bl30(void)
+{
+	meminfo *bl2_tzram_layout;
+	meminfo tzram_layout;
+	meminfo *tmp_tzram_layout = &tzram_layout;
+	unsigned long bl30_base;
+	unsigned int image_len;
+	unsigned int bl2_load, bl30_load;
+	int ret = -1;
+
+	/* Find out how much free trusted ram remains after BL2 load */
+	bl2_tzram_layout = bl2_plat_sec_mem_layout();
+
+	/* copy the TZRAM layout and use it */
+	memcpy(tmp_tzram_layout, bl2_tzram_layout, sizeof(meminfo));
+
+	/* Work out where to load BL3-0 before transferring to SCP */
+	bl2_load = tmp_tzram_layout->attr & LOAD_MASK;
+	assert((bl2_load == TOP_LOAD) || (bl2_load == BOT_LOAD));
+	bl30_load = (bl2_load == TOP_LOAD) ? BOT_LOAD : TOP_LOAD;
+
+	/* Load the BL3-0 image */
+	bl30_base = load_image(tmp_tzram_layout, BL30_IMAGE_NAME,
+				bl30_load, BL30_BASE);
+
+	if (bl30_base != 0) {
+		image_len = image_size(BL30_IMAGE_NAME);
+		INFO("BL2: BL3-0 loaded at 0x%lx, len=%d (0x%x)\n\r", bl30_base,
+		     image_len, image_len);
+		flush_dcache_range(bl30_base, image_len);
+		ret = scp_bootloader_transfer((void *)bl30_base, image_len);
+	}
+
+	if (ret == 0)
+		INFO("BL2: BL3-0 loaded and transferred to SCP\n\r");
+	else
+		ERROR("BL2: BL3-0 load and transfer failure\n\r");
+
+	return ret;
+}
+
+/*******************************************************************************
  * Perform platform specific setup, i.e. initialize the IO layer, load BL3-0
  * image and initialise the memory location to use for passing arguments to
  * BL3-1.
@@ -111,6 +163,10 @@ void bl2_platform_setup()
 {
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
+
+	/* Load BL3-0  */
+	if (load_bl30() != 0)
+		panic();
 
 	/* Populate the extents of memory available for loading BL3-3 */
 	bl2_to_bl31_args.bl33_meminfo.total_base = DRAM_BASE;
