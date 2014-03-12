@@ -52,5 +52,12 @@ vpath %.c ${BL32_ROOT}
 vpath %.c ${BL32_ROOT}/${ARCH}
 vpath %.S ${BL32_ROOT}/${ARCH}
 
-# Include an optional platform-specific TSP Makefile
--include bl32/tsp/tsp-${PLAT}.mk
+# Include the platform-specific TSP Makefile
+# If no platform-specific TSP Makefile exists, it means TSP is not supported
+# on this platform.
+TSP_PLAT_MAKEFILE := bl32/tsp/tsp-${PLAT}.mk
+ifeq (,$(wildcard ${TSP_PLAT_MAKEFILE}))
+  $(error TSP is not supported on platform ${PLAT})
+else
+  include ${TSP_PLAT_MAKEFILE}
+endif
