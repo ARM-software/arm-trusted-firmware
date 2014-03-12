@@ -54,6 +54,9 @@
 /* Trusted Boot Firmware BL2 */
 #define BL2_IMAGE_NAME			"bl2.bin"
 
+/* SCP Firmware BL3-0 */
+#define BL30_IMAGE_NAME			"bl30.bin"
+
 /* EL3 Runtime Firmware BL3-1 */
 #define BL31_IMAGE_NAME			"bl31.bin"
 
@@ -154,6 +157,13 @@
  * BL3-1 specific defines.
  ******************************************************************************/
 #define BL31_BASE			0x0400C000
+
+/*******************************************************************************
+ * BL3-0 specific defines.
+ * BL3-0 is loaded to the same place as BL3-1.  Once BL3-0 is transferred to the
+ * SCP, it is discarded and BL3-1 is loaded over the top.
+ ******************************************************************************/
+#define BL30_BASE			BL31_BASE
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
