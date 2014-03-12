@@ -63,7 +63,7 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
-/* Pointer to memory visible to both BL2 and BL31 for passing data */
+/* Pointer to memory visible to both BL2 and BL3-1 for passing data */
 extern unsigned char **bl2_el_change_mem_ptr;
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
@@ -106,21 +106,20 @@ void bl2_early_platform_setup(meminfo *mem_layout,
 
 /*******************************************************************************
  * Perform platform specific setup. For now just initialize the memory location
- * to use for passing arguments to BL31.
+ * to use for passing arguments to BL3-1.
  ******************************************************************************/
 void bl2_platform_setup()
 {
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
 
-	/* Populate the extents of memory available for loading BL33 */
+	/* Populate the extents of memory available for loading BL3-3 */
 	bl2_to_bl31_args.bl33_meminfo.total_base = DRAM_BASE;
 	bl2_to_bl31_args.bl33_meminfo.total_size = DRAM_SIZE;
 	bl2_to_bl31_args.bl33_meminfo.free_base = DRAM_BASE;
 	bl2_to_bl31_args.bl33_meminfo.free_size = DRAM_SIZE;
 	bl2_to_bl31_args.bl33_meminfo.attr = 0;
 	bl2_to_bl31_args.bl33_meminfo.next = 0;
-
 }
 
 /*******************************************************************************

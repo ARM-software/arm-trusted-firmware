@@ -75,8 +75,8 @@ meminfo *bl31_plat_get_bl32_mem_layout(void)
 
 /*******************************************************************************
  * Return a pointer to the 'el_change_info' structure of the next image for the
- * security state specified. BL33 corresponds to the non-secure image type
- * while BL32 corresponds to the secure image type. A NULL pointer is returned
+ * security state specified. BL3-3 corresponds to the non-secure image type
+ * while BL3-2 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  ******************************************************************************/
 el_change_info *bl31_get_next_image_info(uint32_t type)
@@ -95,7 +95,7 @@ el_change_info *bl31_get_next_image_info(uint32_t type)
 }
 
 /*******************************************************************************
- * Perform any BL31 specific platform actions. Here is an opportunity to copy
+ * Perform any BL3-1 specific platform actions. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
  * are lost (potentially). This needs to be done before the MMU is initialized
  * so that the memory layout can be used while creating page tables. On the FVP
