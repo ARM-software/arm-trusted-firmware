@@ -37,7 +37,7 @@
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
- * of trusted SRAM
+ * of trusted RAM
  ******************************************************************************/
 extern unsigned long __COHERENT_RAM_START__;
 extern unsigned long __COHERENT_RAM_END__;
@@ -59,7 +59,7 @@ extern unsigned long __BL1_RAM_END__;
 #define BL1_RAM_LIMIT (unsigned long)(&__BL1_RAM_END__)
 
 
-/* Data structure which holds the extents of the trusted SRAM for BL1*/
+/* Data structure which holds the extents of the trusted RAM for BL1 */
 static meminfo bl1_tzram_layout;
 
 meminfo *bl1_plat_sec_mem_layout(void)
@@ -103,9 +103,8 @@ void bl1_early_platform_setup(void)
 }
 
 /*******************************************************************************
- * Function which will evaluate how much of the trusted ram has been gobbled
- * up by BL1 and return the base and size of whats available for loading BL2.
- * Its called after coherency and the MMU have been turned on.
+ * Function which will perform any remaining platform-specific setup that can
+ * occur after the MMU and data cache have been enabled.
  ******************************************************************************/
 void bl1_platform_setup(void)
 {
