@@ -104,4 +104,58 @@
 #define PL011_UARTLCR_H_PEN       (1 << 1)	/* Parity Enable */
 #define PL011_UARTLCR_H_BRK       (1 << 0)	/* Send break */
 
+/*******************************************************************************
+ * Pl011 CPU interface accessors for writing registers
+ ******************************************************************************/
+
+static inline void pl011_write_ibrd(unsigned int base, unsigned int val)
+{
+	mmio_write_32(base + UARTIBRD, val);
+}
+
+static inline void pl011_write_fbrd(unsigned int base, unsigned int val)
+{
+	mmio_write_32(base + UARTFBRD, val);
+}
+
+static inline void pl011_write_lcr_h(unsigned int base, unsigned int val)
+{
+	mmio_write_32(base + UARTLCR_H, val);
+}
+
+static inline void pl011_write_ecr(unsigned int base, unsigned int val)
+{
+	mmio_write_32(base + UARTECR, val);
+}
+
+static inline void pl011_write_cr(unsigned int base, unsigned int val)
+{
+	mmio_write_32(base + UARTCR, val);
+}
+
+static inline void pl011_write_dr(unsigned int base, unsigned int val)
+{
+	mmio_write_32(base + UARTDR, val);
+}
+
+/*******************************************************************************
+ * Pl011 CPU interface accessors for reading registers
+ ******************************************************************************/
+
+static inline unsigned int pl011_read_fr(unsigned int base)
+{
+	return mmio_read_32(base + UARTFR);
+}
+
+static inline unsigned int pl011_read_dr(unsigned int base)
+{
+	return mmio_read_32(base + UARTDR);
+}
+
+/*******************************************************************************
+ * Function prototypes
+ ******************************************************************************/
+
+void pl011_setbaudrate(unsigned long base_addr, unsigned int baudrate);
+
 #endif	/* __PL011_H__ */

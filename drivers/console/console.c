@@ -28,15 +28,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <console.h>
 #include <platform.h>
 #include <pl011.h>
-#include <assert.h>
 
-void pl011_setbaudrate(unsigned long base_addr, unsigned int baudrate)
+static unsigned long uart_base = PL011_BASE;
+
+void console_init(unsigned long base_addr)
 {
-	unsigned int divisor;
-	assert(baudrate);
-	divisor = (PL011_CLK_IN_HZ * 4) / baudrate;
-	pl011_write_ibrd(base_addr, divisor >> 6);
-	pl011_write_fbrd(base_addr, divisor & 0x3F);
+	/* Initialise internal base address variable */
+	uart_base = base_addr;
+
+	/* Baud Rate */
+#if defined(PL011_INTEGER) && defined(PL011_FRACTIONAL)
+	pl011_write_ibrd(uart_base, PL011_INTEGER);
+	pl011_write_fbrd(uart_base, PL011_FRACTIONAL);
+#else
+	pl011_setbaudrate(uart_base, PL011_BAUDRATE);
+#endif
+
+	pl011_write_lcr_h(uart_base, PL011_LINE_CONTROL);
+
+	/* Clear any pending errors */
+	pl011_write_ecr(uart_base, 0);
+
+	/* Enable tx, rx, and uart overall */
+	pl011_write_cr(uart_base, PL011_UARTCR_RXE | PL011_UARTCR_TXE |
+			PL011_UARTCR_UARTEN);
+
+}
+
+int console_putc(int c)
+{
+	if (c == '\n')
+		console_putc('\r');
+
+	while ((pl011_read_fr(uart_base) & PL011_UARTFR_TXFF) == 1)
+		;
+	pl011_write_dr(uart_base, c);
+	return c;
+}
+
+int console_getc(void)
+{
+	while ((pl011_read_fr(uart_base) & PL011_UARTFR_RXFE) != 0)
+		;
+	return pl011_read_dr(uart_base);
 }
