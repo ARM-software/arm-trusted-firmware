@@ -37,7 +37,7 @@
 
 #ifndef __ASSEMBLY__
 typedef struct {
-	volatile int owner;
+	int owner;
 	volatile char entering[BAKERY_LOCK_MAX_CPUS];
 	volatile unsigned number[BAKERY_LOCK_MAX_CPUS];
 } bakery_lock;
