@@ -43,8 +43,8 @@ SECTIONS
 {
     ro : {
         __RO_START__ = .;
-        *bl1_entrypoint.o(.text)
-        *(.text)
+        *bl1_entrypoint.o(.text*)
+        *(.text*)
         *(.rodata*)
         *(.vectors)
         __RO_END__ = .;
@@ -57,7 +57,7 @@ SECTIONS
     . = NEXT(16);        /* Align LMA */
     .data : ALIGN(16) {  /* Align VMA */
         __DATA_RAM_START__ = .;
-        *(.data)
+        *(.data*)
         __DATA_RAM_END__ = .;
     } >RAM AT>ROM
 
@@ -73,7 +73,7 @@ SECTIONS
      */
     .bss : ALIGN(16) {
         __BSS_START__ = .;
-        *(.bss)
+        *(.bss*)
         *(COMMON)
         __BSS_END__ = .;
     } >RAM

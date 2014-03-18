@@ -48,14 +48,14 @@ SECTIONS
 
     ro . : {
         __RO_START__ = .;
-        *bl31_entrypoint.o(.text)
-        *(.text)
+        *bl31_entrypoint.o(.text*)
+        *(.text*)
         *(.rodata*)
 
-        /* Ensure 8-byte alignment for descriptors */
+        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
         __RT_SVC_DESCS_START__ = .;
-        *(rt_svc_descs)
+        KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
 
         *(.vectors)
@@ -71,7 +71,7 @@ SECTIONS
 
     .data . : {
         __DATA_START__ = .;
-        *(.data)
+        *(.data*)
         __DATA_END__ = .;
     } >RAM
 
@@ -87,7 +87,7 @@ SECTIONS
      */
     .bss : ALIGN(16) {
         __BSS_START__ = .;
-        *(.bss)
+        *(.bss*)
         *(COMMON)
         __BSS_END__ = .;
     } >RAM
