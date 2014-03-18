@@ -203,7 +203,6 @@ serror_aarch32:
 
 	.align	7
 
-	.section	.text, "ax"
 	/* -----------------------------------------------------
 	 * The following code handles secure monitor calls.
 	 * Depending upon the execution state from where the SMC
@@ -217,6 +216,7 @@ serror_aarch32:
 	 * used here
 	 * -----------------------------------------------------
 	 */
+func smc_handler
 smc_handler32:
 	/* Check whether aarch32 issued an SMC64 */
 	tbnz	x0, #FUNCID_CC_SHIFT, smc_prohibited
@@ -330,6 +330,9 @@ smc_handler64:
 	 * This routine assumes that the SP_EL3 is pointing to
 	 * a valid context structure from where the gp regs and
 	 * other special registers can be retrieved.
+	 *
+	 * Keep it in the same section as smc_handler as this
+	 * function uses a fall-through to el3_exit
 	 * -----------------------------------------------------
 	 */
 el3_exit: ; .type el3_exit, %function
@@ -383,7 +386,7 @@ rt_svc_fw_critical_error:
 	 * within the 32 instructions per exception vector.
 	 * -----------------------------------------------------
 	 */
-save_scratch_registers: ; .type save_scratch_registers, %function
+func save_scratch_registers
 	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
@@ -397,7 +400,7 @@ save_scratch_registers: ; .type save_scratch_registers, %function
 	stp	x18, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
 	ret
 
-restore_scratch_registers: ; .type restore_scratch_registers, %function
+func restore_scratch_registers
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 
@@ -430,7 +433,7 @@ restore_scratch_registers_callee:
 	 * reporting unhandled exceptions
 	 * -----------------------------------------------------
 	 */
-get_exception_stack: ; .type get_exception_stack, %function
+func get_exception_stack
 	mov	x10, x30 // lr
 	bl	platform_get_core_pos
 	add	x0, x0, #1

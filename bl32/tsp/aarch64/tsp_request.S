@@ -29,10 +29,9 @@
  */
 
 #include <tsp.h>
+#include <asm_macros.S>
 
 	.globl tsp_get_magic
-
-	.section	.text, "ax"; .align 3
 
 
 /*
@@ -40,7 +39,7 @@
  * monitor/dispatcher, saves the returned arguments the array received in x0,
  * and then returns to the caller
  */
-tsp_get_magic:
+func tsp_get_magic
 	/* Save address to stack */
 	stp	x0, xzr, [sp, #-16]!
 

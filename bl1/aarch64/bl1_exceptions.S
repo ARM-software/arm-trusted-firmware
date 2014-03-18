@@ -178,8 +178,7 @@ SErrorA32:
 
 	.align	7
 
-	.section	.text, "ax"
-process_exception:
+func process_exception
 	sub	sp, sp, #0x40
 	stp	x0, x1, [sp, #0x0]
 	stp	x2, x3, [sp, #0x10]

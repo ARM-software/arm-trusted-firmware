@@ -32,13 +32,11 @@
 #include <platform.h>
 #include <fvp_pwrc.h>
 #include <gic.h>
+#include <asm_macros.S>
 
 	.globl	platform_get_entrypoint
 	.globl	platform_cold_boot_init
 	.globl	plat_secondary_cold_boot_setup
-
-
-	.section	.text, "ax"; .align 3
 
 
 	.macro	platform_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
@@ -60,7 +58,7 @@
 	 * that the request has gone through.
 	 * -----------------------------------------------------
 	 */
-plat_secondary_cold_boot_setup: ; .type plat_secondary_cold_boot_setup, %function
+func plat_secondary_cold_boot_setup
 	bl	read_mpidr
 	mov	x19, x0
 	bl	platform_get_core_pos
@@ -120,7 +118,7 @@ cb_panic:
 	 * 	reset all cpus will read the same WK field
 	 * -----------------------------------------------------
 	 */
-platform_get_entrypoint: ; .type platform_get_entrypoint, %function
+func platform_get_entrypoint
 	mov	x9, x30 // lr
 	mov	x2, x0
 	ldr	x1, =PWRC_BASE
@@ -160,7 +158,7 @@ _panic:	b	_panic
 	 * BL1 will always read the mailboxes with the MMU off
 	 * -----------------------------------------------------
 	 */
-platform_mem_init: ; .type platform_mem_init, %function
+func platform_mem_init
 	ldr	x0, =TZDRAM_BASE + MBOX_OFF
 	stp	xzr, xzr, [x0, #0]
 	stp	xzr, xzr, [x0, #0x10]
@@ -176,7 +174,7 @@ platform_mem_init: ; .type platform_mem_init, %function
 	 * boot to perform early platform initialization
 	 * -----------------------------------------------------
 	 */
-platform_cold_boot_init: ; .type platform_cold_boot_init, %function
+func platform_cold_boot_init
 	mov	x20, x0
 	bl	platform_mem_init
 	bl	read_mpidr

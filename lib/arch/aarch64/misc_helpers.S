@@ -30,6 +30,7 @@
 
 #include <arch_helpers.h>
 #include <runtime_svc.h>
+#include <asm_macros.S>
 
 	.globl	enable_irq
 	.globl	disable_irq
@@ -79,16 +80,15 @@
 	.globl	zeromem16
 	.globl	memcpy16
 
-	.section	.text, "ax"
 
-get_afflvl_shift: ; .type get_afflvl_shift, %function
+func get_afflvl_shift
 	cmp	x0, #3
 	cinc	x0, x0, eq
 	mov	x1, #MPIDR_AFFLVL_SHIFT
 	lsl	x0, x0, x1
 	ret
 
-mpidr_mask_lower_afflvls: ; .type mpidr_mask_lower_afflvls, %function
+func mpidr_mask_lower_afflvls
 	cmp	x1, #3
 	cinc	x1, x1, eq
 	mov	x2, #MPIDR_AFFLVL_SHIFT
@@ -101,57 +101,57 @@ mpidr_mask_lower_afflvls: ; .type mpidr_mask_lower_afflvls, %function
 	 * Asynchronous exception manipulation accessors
 	 * -----------------------------------------------------
 	 */
-enable_irq: ; .type enable_irq, %function
+func enable_irq
 	msr	daifclr, #DAIF_IRQ_BIT
 	ret
 
 
-enable_fiq: ; .type enable_fiq, %function
+func enable_fiq
 	msr	daifclr, #DAIF_FIQ_BIT
 	ret
 
 
-enable_serror: ; .type enable_serror, %function
+func enable_serror
 	msr	daifclr, #DAIF_ABT_BIT
 	ret
 
 
-enable_debug_exceptions:
+func enable_debug_exceptions
 	msr	daifclr, #DAIF_DBG_BIT
 	ret
 
 
-disable_irq: ; .type disable_irq, %function
+func disable_irq
 	msr	daifset, #DAIF_IRQ_BIT
 	ret
 
 
-disable_fiq: ; .type disable_fiq, %function
+func disable_fiq
 	msr	daifset, #DAIF_FIQ_BIT
 	ret
 
 
-disable_serror: ; .type disable_serror, %function
+func disable_serror
 	msr	daifset, #DAIF_ABT_BIT
 	ret
 
 
-disable_debug_exceptions:
+func disable_debug_exceptions
 	msr	daifset, #DAIF_DBG_BIT
 	ret
 
 
-read_daif: ; .type read_daif, %function
+func read_daif
 	mrs	x0, daif
 	ret
 
 
-write_daif: ; .type write_daif, %function
+func write_daif
 	msr	daif, x0
 	ret
 
 
-read_spsr: ; .type read_spsr, %function
+func read_spsr
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_spsr_el1
@@ -161,22 +161,22 @@ read_spsr: ; .type read_spsr, %function
 	b.eq	read_spsr_el3
 
 
-read_spsr_el1: ; .type read_spsr_el1, %function
+func read_spsr_el1
 	mrs	x0, spsr_el1
 	ret
 
 
-read_spsr_el2: ; .type read_spsr_el2, %function
+func read_spsr_el2
 	mrs	x0, spsr_el2
 	ret
 
 
-read_spsr_el3: ; .type read_spsr_el3, %function
+func read_spsr_el3
 	mrs	x0, spsr_el3
 	ret
 
 
-write_spsr: ; .type write_spsr, %function
+func write_spsr
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_spsr_el1
@@ -186,25 +186,25 @@ write_spsr: ; .type write_spsr, %function
 	b.eq	write_spsr_el3
 
 
-write_spsr_el1: ; .type write_spsr_el1, %function
+func write_spsr_el1
 	msr	spsr_el1, x0
 	isb
 	ret
 
 
-write_spsr_el2: ; .type write_spsr_el2, %function
+func write_spsr_el2
 	msr	spsr_el2, x0
 	isb
 	ret
 
 
-write_spsr_el3: ; .type write_spsr_el3, %function
+func write_spsr_el3
 	msr	spsr_el3, x0
 	isb
 	ret
 
 
-read_elr: ; .type read_elr, %function
+func read_elr
 	mrs	x0, CurrentEl
 	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	read_elr_el1
@@ -214,22 +214,22 @@ read_elr: ; .type read_elr, %function
 	b.eq	read_elr_el3
 
 
-read_elr_el1: ; .type read_elr_el1, %function
+func read_elr_el1
 	mrs	x0, elr_el1
 	ret
 
 
-read_elr_el2: ; .type read_elr_el2, %function
+func read_elr_el2
 	mrs	x0, elr_el2
 	ret
 
 
-read_elr_el3: ; .type read_elr_el3, %function
+func read_elr_el3
 	mrs	x0, elr_el3
 	ret
 
 
-write_elr: ; .type write_elr, %function
+func write_elr
 	mrs	x1, CurrentEl
 	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
 	b.eq	write_elr_el1
@@ -239,54 +239,54 @@ write_elr: ; .type write_elr, %function
 	b.eq	write_elr_el3
 
 
-write_elr_el1: ; .type write_elr_el1, %function
+func write_elr_el1
 	msr	elr_el1, x0
 	isb
 	ret
 
 
-write_elr_el2: ; .type write_elr_el2, %function
+func write_elr_el2
 	msr	elr_el2, x0
 	isb
 	ret
 
 
-write_elr_el3: ; .type write_elr_el3, %function
+func write_elr_el3
 	msr	elr_el3, x0
 	isb
 	ret
 
 
-dsb: ; .type dsb, %function
+func dsb
 	dsb	sy
 	ret
 
 
-isb: ; .type isb, %function
+func isb
 	isb
 	ret
 
 
-sev: ; .type sev, %function
+func sev
 	sev
 	ret
 
 
-wfe: ; .type wfe, %function
+func wfe
 	wfe
 	ret
 
 
-wfi: ; .type wfi, %function
+func wfi
 	wfi
 	ret
 
 
-eret: ; .type eret, %function
+func eret
 	eret
 
 
-smc: ; .type smc, %function
+func smc
 	smc	#0
 
 /* -----------------------------------------------------------------------
@@ -296,7 +296,7 @@ smc: ; .type smc, %function
  * The memory address must be 16-byte aligned.
  * -----------------------------------------------------------------------
  */
-zeromem16:
+func zeromem16
 	add	x2, x0, x1
 /* zero 16 bytes at a time */
 z_loop16:
@@ -322,7 +322,7 @@ z_end:	ret
  * Destination and source addresses must be 16-byte aligned.
  * --------------------------------------------------------------------------
  */
-memcpy16:
+func memcpy16
 /* copy 16 bytes at a time */
 m_loop16:
 	cmp	x2, #16

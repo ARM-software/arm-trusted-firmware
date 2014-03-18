@@ -44,58 +44,56 @@
 	.globl	dcsw_op_louis
 	.globl	dcsw_op_all
 
-	.section	.text, "ax"; .align 3
-
-dcisw: ; .type dcisw, %function
+func dcisw
 	dc	isw, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccisw: ; .type dccisw, %function
+func dccisw
 	dc	cisw, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccsw: ; .type dccsw, %function
+func dccsw
 	dc	csw, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccvac: ; .type dccvac, %function
+func dccvac
 	dc	cvac, x0
 	dsb	sy
 	isb
 	ret
 
 
-dcivac: ; .type dcivac, %function
+func dcivac
 	dc	ivac, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccivac: ; .type dccivac, %function
+func dccivac
 	dc	civac, x0
 	dsb	sy
 	isb
 	ret
 
 
-dccvau: ; .type dccvau, %function
+func dccvau
 	dc	cvau, x0
 	dsb	sy
 	isb
 	ret
 
 
-dczva: ; .type dczva, %function
+func dczva
 	dc	zva, x0
 	dsb	sy
 	isb
@@ -107,7 +105,7 @@ dczva: ; .type dczva, %function
 	 * size. 'x0' = addr, 'x1' = size
 	 * ------------------------------------------
 	 */
-flush_dcache_range: ; .type flush_dcache_range, %function
+func flush_dcache_range
 	dcache_line_size x2, x3
 	add	x1, x0, x1
 	sub	x3, x2, #1
@@ -126,7 +124,7 @@ flush_loop:
 	 * size. 'x0' = addr, 'x1' = size
 	 * ------------------------------------------
 	 */
-inv_dcache_range: ; .type inv_dcache_range, %function
+func inv_dcache_range
 	dcache_line_size x2, x3
 	add	x1, x0, x1
 	sub	x3, x2, #1
@@ -151,7 +149,7 @@ inv_loop:
 	 * x14
 	 * ----------------------------------
 	 */
-dcsw_op: ; .type dcsw_op, %function
+func dcsw_op
 all_start_at_level:
 	add	x2, x10, x10, lsr #1            // work out 3x current cache level
 	lsr	x1, x0, x2                      // extract cache type bits from clidr
@@ -197,7 +195,7 @@ finished:
 	ret
 
 
-do_dcsw_op: ; .type do_dcsw_op, %function
+func do_dcsw_op
 	cbz	x3, exit
 	cmp	x0, #DCISW
 	b.eq	dc_isw
@@ -221,13 +219,13 @@ exit:
 	ret
 
 
-dcsw_op_louis: ; .type dcsw_op_louis, %function
+func dcsw_op_louis
 	dsb	sy
 	setup_dcsw_op_args x10, x3, x9, #LOUIS_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
 	b	do_dcsw_op
 
 
-dcsw_op_all: ; .type dcsw_op_all, %function
+func dcsw_op_all
 	dsb	sy
 	setup_dcsw_op_args x10, x3, x9, #LOC_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
 	b	do_dcsw_op

@@ -32,12 +32,11 @@
 #include <platform.h>
 #include <arch.h>
 #include "cm_macros.S"
+#include <asm_macros.S>
 
 
 	.globl	bl31_entrypoint
 
-
-	.section	.text, "ax"; .align 3
 
 	/* -----------------------------------------------------
 	 * bl31_entrypoint() is the cold boot entrypoint,
@@ -45,7 +44,7 @@
 	 * -----------------------------------------------------
 	 */
 
-bl31_entrypoint: ; .type bl31_entrypoint, %function
+func bl31_entrypoint
 	/* ---------------------------------------------
 	 * BL2 has populated x0 with the opcode
 	 * indicating BL31 should be run, x3 with

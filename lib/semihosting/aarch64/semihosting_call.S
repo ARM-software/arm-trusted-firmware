@@ -28,10 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <asm_macros.S>
+
 	.globl	semihosting_call
 
-	.section	.text, "ax"
-
-semihosting_call: ; .type semihosting_call, %function
+func semihosting_call
 	hlt	#0xf000
 	ret

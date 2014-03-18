@@ -29,6 +29,7 @@
  */
 
 #include <arch_helpers.h>
+#include <asm_macros.S>
 
 	.globl	tlbialle1
 	.globl	tlbialle1is
@@ -39,50 +40,48 @@
 	.globl	tlbivmalle1
 
 
-	.section	.text, "ax"
-
-tlbialle1: ; .type tlbialle1, %function
+func tlbialle1
 	tlbi	alle1
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle1is: ; .type tlbialle1is, %function
+func tlbialle1is
 	tlbi	alle1is
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle2: ; .type tlbialle2, %function
+func tlbialle2
 	tlbi	alle2
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle2is: ; .type tlbialle2is, %function
+func tlbialle2is
 	tlbi	alle2is
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle3: ; .type tlbialle3, %function
+func tlbialle3
 	tlbi	alle3
 	dsb	sy
 	isb
 	ret
 
 
-tlbialle3is: ; .type tlbialle3is, %function
+func tlbialle3is
 	tlbi	alle3is
 	dsb	sy
 	isb
 	ret
 
-tlbivmalle1: ; .type tlbivmalle1, %function
+func tlbivmalle1
 	tlbi	vmalle1
 	dsb	sy
 	isb

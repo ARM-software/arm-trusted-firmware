@@ -29,6 +29,7 @@
  */
 
 #include <context.h>
+#include <asm_macros.S>
 
 /* -----------------------------------------------------
  * The following function strictly follows the AArch64
@@ -39,7 +40,7 @@
  * -----------------------------------------------------
  */
 	.global el3_sysregs_context_save
-el3_sysregs_context_save:
+func el3_sysregs_context_save
 
 	mrs	x9, scr_el3
 	mrs	x10, sctlr_el3
@@ -75,7 +76,7 @@ el3_sysregs_context_save:
  * -----------------------------------------------------
  */
 	.global el3_sysregs_context_restore
-el3_sysregs_context_restore:
+func el3_sysregs_context_restore
 
 	ldp	x11, xzr, [x0, #CTX_CPTR_EL3]
 	msr	cptr_el3, x11
@@ -112,7 +113,7 @@ el3_sysregs_context_restore:
  * -----------------------------------------------------
  */
 	.global el1_sysregs_context_save
-el1_sysregs_context_save:
+func el1_sysregs_context_save
 
 	mrs	x9, spsr_el1
 	mrs	x10, elr_el1
@@ -193,7 +194,7 @@ el1_sysregs_context_save:
  * -----------------------------------------------------
  */
 	.global el1_sysregs_context_restore
-el1_sysregs_context_restore:
+func el1_sysregs_context_restore
 
 	ldp	x9, x10, [x0, #CTX_SPSR_EL1]
 	msr	spsr_el1, x9
@@ -284,7 +285,7 @@ el1_sysregs_context_restore:
  * -----------------------------------------------------
  */
 	.global fpregs_context_save
-fpregs_context_save:
+func fpregs_context_save
 	stp	q0, q1, [x0, #CTX_FP_Q0]
 	stp	q2, q3, [x0, #CTX_FP_Q2]
 	stp	q4, q5, [x0, #CTX_FP_Q4]
@@ -327,7 +328,7 @@ fpregs_context_save:
  * -----------------------------------------------------
  */
 	.global fpregs_context_restore
-fpregs_context_restore:
+func fpregs_context_restore
 	ldp	q0, q1, [x0, #CTX_FP_Q0]
 	ldp	q2, q3, [x0, #CTX_FP_Q2]
 	ldp	q4, q5, [x0, #CTX_FP_Q4]

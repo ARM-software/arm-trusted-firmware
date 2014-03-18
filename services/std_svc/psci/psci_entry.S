@@ -41,8 +41,6 @@
 	.globl	__psci_cpu_off
 	.globl	__psci_cpu_suspend
 
-	.section	.text, "ax"; .align 3
-
 	/* -----------------------------------------------------
 	 * This cpu has been physically powered up. Depending
 	 * upon whether it was resumed from suspend or simply
@@ -55,7 +53,7 @@
 	 * all this is done.
 	 * -----------------------------------------------------
 	 */
-psci_aff_on_finish_entry:
+func psci_aff_on_finish_entry
 	adr	x23, psci_afflvl_on_finishers
 	b	psci_aff_common_finish_entry
 
@@ -120,7 +118,7 @@ _panic:
 	 * suffering from stack coherency issues
 	 * -----------------------------------------------------
 	 */
-__psci_cpu_off:
+func __psci_cpu_off
 	func_prologue
 	sub	sp, sp, #0x10
 	stp	x19, x20, [sp, #0]
@@ -137,7 +135,7 @@ __psci_cpu_off:
 	func_epilogue
 	ret
 
-__psci_cpu_suspend:
+func __psci_cpu_suspend
 	func_prologue
 	sub	sp, sp, #0x20
 	stp	x19, x20, [sp, #0]
@@ -162,7 +160,7 @@ __psci_cpu_suspend:
 	func_epilogue
 	ret
 
-final_wfi:
+func final_wfi
 	dsb	sy
 	wfi
 wfi_spill:
