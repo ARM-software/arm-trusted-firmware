@@ -41,6 +41,7 @@
 /* Values returned by getopt() as part of the command line parsing */
 #define OPT_TOC_ENTRY 0
 #define OPT_DUMP 1
+#define OPT_HELP 2
 
 file_info files[MAX_FILES];
 unsigned file_info_count = 0;
@@ -85,18 +86,18 @@ static void print_usage(void)
 {
 	entry_lookup_list *entry = toc_entry_lookup_list;
 
-	printf("fip_create FIP_FILENAME\n\n");
+	printf("Usage: fip_create [options] FIP_FILENAME\n\n");
 	printf("\tThis tool is used to create a Firmware Image Package.\n\n");
-	printf("\t--help: this help\n");
-	printf("\t--dump: print contents of FIP\n\n");
+	printf("Options:\n");
+	printf("\t--help: Print this help message and exit\n");
+	printf("\t--dump: Print contents of FIP\n\n");
 	printf("\tComponents that can be added/updated:\n");
 	for (; entry->command_line_name != NULL; entry++) {
-		printf("\t  %s:\n\t    --%s ",
-		       entry->name, entry->command_line_name);
-		if (entry->flags & FLAG_FILENAME) {
-			printf("FILENAME");
-		}
-	printf("\n");
+		printf("\t--%s%s\t\t%s",
+		       entry->command_line_name,
+		       (entry->flags & FLAG_FILENAME) ? " FILENAME" : "",
+		       entry->name);
+		printf("\n");
 	}
 }
 
@@ -558,6 +559,10 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 			do_dump = 1;
 			continue;
 
+		case OPT_HELP:
+			print_usage();
+			exit(0);
+
 		default:
 			/* Unrecognised options are caught in get_filename() */
 			break;
@@ -586,10 +591,10 @@ int main(int argc, char **argv)
 
 	/* Initialise for getopt_long().
 	 * Use image table as defined at top of file to get options.
-	 * Add 'dump' option and end marker.
+	 * Add 'dump' option, 'help' option and end marker.
 	 */
 	static struct option long_options[(sizeof(toc_entry_lookup_list)/
-					   sizeof(entry_lookup_list)) + 1];
+					   sizeof(entry_lookup_list)) + 2];
 
 	for (i = 0;
 	     /* -1 because we dont want to process end marker in toc table */
@@ -607,6 +612,12 @@ int main(int argc, char **argv)
 	long_options[i].has_arg = 0;
 	long_options[i].flag = 0;
 	long_options[i].val = OPT_DUMP;
+
+	/* Add '--help' option */
+	long_options[++i].name = "help";
+	long_options[i].has_arg = 0;
+	long_options[i].flag = 0;
+	long_options[i].val = OPT_HELP;
 
 	/* Zero the last entry (required) */
 	long_options[++i].name = 0;
