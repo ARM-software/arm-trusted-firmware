@@ -509,11 +509,8 @@ static char *get_filename(int argc, char **argv, struct option *options)
 	/* Only one argument left then it is the filename.
 	 * We dont expect any other options
 	 */
-	if (optind + 1 == argc) {
+	if (optind + 1 == argc)
 		filename = argv[optind];
-	} else {
-		printf("ERROR: Too many arguments.\n");
-	}
 
 	return filename;
 }
@@ -638,15 +635,13 @@ int main(int argc, char **argv)
 	 * it causes a failure if bad options were provided.
 	 */
 	fip_filename = get_filename(argc, argv, long_options);
-	if (fip_filename == NULL) {
-		print_usage();
-		return 0;
-	}
 
 	/* Try to open the file and load it into memory */
-	status = parse_fip(fip_filename);
-	if (status != 0) {
-		return status;
+	if (fip_filename != NULL) {
+		status = parse_fip(fip_filename);
+		if (status != 0) {
+			return status;
+		}
 	}
 
 	/* Work through provided program arguments and perform actions */
@@ -654,6 +649,12 @@ int main(int argc, char **argv)
 	if (status != 0) {
 		return status;
 	};
+
+	if (fip_filename == NULL) {
+		printf("ERROR: Missing FIP filename\n");
+		print_usage();
+		return 0;
+	}
 
 	/* Processed all command line options. Create/update the package if
 	 * required.
