@@ -67,7 +67,6 @@ static plat_fip_name_uuid name_uuid[] = {
 	{BL31_IMAGE_NAME, UUID_EL3_RUNTIME_FIRMWARE_BL31},
 	{BL32_IMAGE_NAME, UUID_SECURE_PAYLOAD_BL32},
 	{BL33_IMAGE_NAME, UUID_NON_TRUSTED_FIRMWARE_BL33},
-	{NULL, {0} }
 };
 
 static const uuid_t uuid_null = {0};
@@ -118,7 +117,7 @@ static int file_to_uuid(const char *filename, uuid_t *uuid)
 	int i;
 	int status = -EINVAL;
 
-	for (i = 0; i < (sizeof(name_uuid)/sizeof(plat_fip_name_uuid)); i++) {
+	for (i = 0; i < (sizeof(name_uuid) / sizeof(name_uuid[0])); i++) {
 		if (strcmp(filename, name_uuid[i].name) == 0) {
 			copy_uuid(uuid, &name_uuid[i].uuid);
 			status = 0;
