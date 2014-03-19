@@ -38,6 +38,10 @@
 #include "fip_create.h"
 #include "firmware_image_package.h"
 
+/* Values returned by getopt() as part of the command line parsing */
+#define OPT_TOC_ENTRY 0
+#define OPT_DUMP 1
+
 file_info files[MAX_FILES];
 unsigned file_info_count = 0;
 uuid_t uuid_null = {0};
@@ -532,13 +536,7 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 			break;
 
 		switch (c) {
-		case 0:
-			/* if this is --dump, set action and continue */
-			if (strcmp(options[option_index].name, "dump") == 0) {
-				do_dump = 1;
-				continue;
-			}
-
+		case OPT_TOC_ENTRY:
 			if (optarg) {
 				/* Does the option expect a filename. */
 				lookup_entry = &toc_entry_lookup_list[option_index];
@@ -555,6 +553,11 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 				}
 			}
 			break;
+
+		case OPT_DUMP:
+			do_dump = 1;
+			continue;
+
 		default:
 			/* Unrecognised options are caught in get_filename() */
 			break;
@@ -596,14 +599,14 @@ int main(int argc, char **argv)
 		/* The only flag defined at the moment is for a FILENAME */
 		long_options[i].has_arg = toc_entry_lookup_list[i].flags ? 1 : 0;
 		long_options[i].flag = 0;
-		long_options[i].val = 0;
+		long_options[i].val = OPT_TOC_ENTRY;
 	}
 
 	/* Add '--dump' option */
 	long_options[i].name = "dump";
 	long_options[i].has_arg = 0;
 	long_options[i].flag = 0;
-	long_options[i].val = 0;
+	long_options[i].val = OPT_DUMP;
 
 	/* Zero the last entry (required) */
 	long_options[++i].name = 0;
