@@ -96,7 +96,12 @@ constants defined. In the ARM FVP port, this file is found in
 *   **#define : PLATFORM_STACK_SIZE**
 
     Defines the normal stack memory available to each CPU. This constant is used
-    by `platform_set_stack()`.
+    by `platform_mp_stack.S` and `platform_up_stack.S`.
+
+*   **#define : PCPU_DV_MEM_STACK_SIZE**
+
+    Defines the coherent stack memory available to each CPU. This constant is used
+    by `platform_mp_stack.S` and `platform_up_stack.S`.
 
 *   **#define : FIRMWARE_WELCOME_STR**
 
@@ -188,27 +193,6 @@ constants defined. In the ARM FVP port, this file is found in
     image. Must be aligned on a page-size boundary.
 
 
-### Other mandatory modifications
-
-The following mandatory modifications may be implemented in any file
-the implementer chooses. In the ARM FVP port, they are implemented in
-[../plat/fvp/aarch64/plat_common.c].
-
-*   **Variable : unsigned char platform_normal_stacks[X][Y]**
-
-        where  X = PLATFORM_STACK_SIZE
-          and  Y = PLATFORM_CORE_COUNT
-
-    Each platform must allocate a block of memory with Normal Cacheable, Write
-    back, Write allocate and Inner Shareable attributes aligned to the size (in
-    bytes) of the largest cache line amongst all caches implemented in the
-    system. A pointer to this memory should be exported with the name
-    `platform_normal_stacks`. This pointer is used by the common platform helper
-    functions `platform_set_stack()` (to allocate a stack for each CPU in the
-    platform)  & `platform_get_stack()` (to return the base address of that
-    stack) (see [../plat/common/aarch64/platform_helpers.S]).
-
-
 2.2 Common optional modifications
 ---------------------------------
 
@@ -246,12 +230,17 @@ certain operations like:
 *   Flushing caches prior to powering down a CPU or cluster.
 
 Each BL stage allocates this coherent stack memory for each CPU in the
-`tzfw_coherent_mem` section. A pointer to this memory (`pcpu_dv_mem_stack`) is
-used by this function to allocate a coherent stack for each CPU. A CPU is
-identified by its `MPIDR`, which is passed as an argument to this function.
+`tzfw_coherent_mem` section.
 
-The size of the stack allocated to each CPU is specified by the constant
+This function sets the current stack pointer to the coherent stack that
+has been allocated for the CPU specified by MPIDR. For BL images that only
+require a stack for the primary CPU the parameter is ignored. The size of
+the stack allocated to each CPU is specified by the platform defined constant
 `PCPU_DV_MEM_STACK_SIZE`.
+
+Common implementations of this function for the UP and MP BL images are
+provided in `plat/common/aarch64/platform_up_stack.S` and
+`plat/common/aarch64/platform_mp_stack.S'
 
 
 ### Function : platform_is_primary_cpu()
@@ -270,13 +259,15 @@ return value indicates that the CPU is the primary CPU.
     Argument : unsigned long
     Return   : void
 
-This function uses the `platform_normal_stacks` pointer variable to allocate
-stacks to each CPU. Further details are given in the description of the
-`platform_normal_stacks` variable below. A CPU is identified by its `MPIDR`,
-which is passed as the argument.
+This function sets the current stack pointer to the normal memory stack that
+has been allocated for the CPU specificed by MPIDR. For BL images that only
+require a stack for the primary CPU the parameter is ignored. The size of
+the stack allocated to each CPU is specified by the platform defined constant
+`PLATFORM_STACK_SIZE`.
 
-The size of the stack allocated to each CPU is specified by the platform defined
-constant `PLATFORM_STACK_SIZE`.
+Common implementations of this function for the UP and MP BL images are
+provided in `plat/common/aarch64/platform_up_stack.S` and
+`plat/common/aarch64/platform_mp_stack.S'
 
 
 ### Function : platform_get_stack()
@@ -284,13 +275,15 @@ constant `PLATFORM_STACK_SIZE`.
     Argument : unsigned long
     Return   : unsigned long
 
-This function uses the `platform_normal_stacks` pointer variable to return the
-base address of the stack memory reserved for a CPU. Further details are given
-in the description of the `platform_normal_stacks` variable below. A CPU is
-identified by its `MPIDR`, which is passed as the argument.
+This function returns the base address of the normal memory stack that
+has been allocated for the CPU specificed by MPIDR. For BL images that only
+require a stack for the primary CPU the parameter is ignored. The size of
+the stack allocated to each CPU is specified by the platform defined constant
+`PLATFORM_STACK_SIZE`.
 
-The size of the stack allocated to each CPU is specified by the platform defined
-constant `PLATFORM_STACK_SIZE`.
+Common implementations of this function for the UP and MP BL images are
+provided in `plat/common/aarch64/platform_up_stack.S` and
+`plat/common/aarch64/platform_mp_stack.S'
 
 
 ### Function : plat_report_exception()

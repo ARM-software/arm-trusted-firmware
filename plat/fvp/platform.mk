@@ -79,14 +79,17 @@ PLAT_BL_COMMON_SOURCES	:=	semihosting_call.S			\
 BL1_SOURCES		+=	bl1_plat_setup.c			\
 				bl1_plat_helpers.S			\
 				plat_helpers.S				\
+				platform_up_stack.S			\
 				plat_common.c				\
 				cci400.c
 
 BL2_SOURCES		+=	bl2_plat_setup.c			\
+				platform_up_stack.S			\
 				plat_common.c
 
 BL31_SOURCES		+=	bl31_plat_setup.c			\
 				plat_helpers.S				\
+				platform_mp_stack.S			\
 				plat_common.c				\
 				plat_pm.c				\
 				plat_topology.c				\
