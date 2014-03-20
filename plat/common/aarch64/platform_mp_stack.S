@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,49 +33,70 @@
 #include <asm_macros.S>
 
 
-	.weak	platform_get_core_pos
-	.weak	platform_is_primary_cpu
-	.weak	platform_check_mpidr
-	.weak	plat_report_exception
+	.local	pcpu_dv_mem_stack
+	.local	platform_normal_stacks
+	.weak	platform_set_stack
+	.weak	platform_get_stack
+	.weak	platform_set_coherent_stack
+
 
 	/* -----------------------------------------------------
-	 *  int platform_get_core_pos(int mpidr);
-	 *  With this function: CorePos = (ClusterId * 4) +
-	 *  				  CoreId
-	 * -----------------------------------------------------
-	 */
-func platform_get_core_pos
-	and	x1, x0, #MPIDR_CPU_MASK
-	and	x0, x0, #MPIDR_CLUSTER_MASK
-	add	x0, x1, x0, LSR #6
-	ret
-
-	/* -----------------------------------------------------
-	 * void platform_is_primary_cpu (unsigned int mpid);
+	 * void platform_set_coherent_stack (unsigned long mpidr)
 	 *
-	 * Given the mpidr say whether this cpu is the primary
-	 * cpu (applicable ony after a cold boot)
+	 * For a given CPU, this function sets the stack pointer
+	 * to a stack allocated in device memory. This stack can
+	 * be used by C code which enables/disables the SCTLR.M
+	 * SCTLR.C bit e.g. while powering down a cpu
 	 * -----------------------------------------------------
 	 */
-func platform_is_primary_cpu
-	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
-	cmp	x0, #PRIMARY_CPU
-	cset	x0, eq
-	ret
+func platform_set_coherent_stack
+	mov x5, x30 // lr
+	get_mp_stack pcpu_dv_mem_stack, PCPU_DV_MEM_STACK_SIZE
+	mov sp, x0
+	ret x5
 
 	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
+	 * unsigned long platform_get_stack (unsigned long mpidr)
+	 *
+	 * For a given CPU, this function returns the stack
+	 * pointer for a stack allocated in device memory.
 	 * -----------------------------------------------------
 	 */
-func platform_check_mpidr
-	mov	x0, xzr
-	ret
+func platform_get_stack
+	mov x10, x30 // lr
+	get_mp_stack platform_normal_stacks, PLATFORM_STACK_SIZE
+	ret x10
 
 	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
+	 * void platform_set_stack (unsigned long mpidr)
+	 *
+	 * For a given CPU, this function sets the stack pointer
+	 * to a stack allocated in normal memory.
 	 * -----------------------------------------------------
 	 */
-func plat_report_exception
-	ret
+func platform_set_stack
+	mov x9, x30 // lr
+	bl  platform_get_stack
+	mov sp, x0
+	ret x9
+
+	/* -----------------------------------------------------
+	 * Per-cpu stacks in normal memory.
+	 * Used for C code during runtime execution (when coherent
+	 * stacks are not required).
+	 * Each cpu gets a stack of PLATFORM_STACK_SIZE bytes.
+	 * -----------------------------------------------------
+	 */
+declare_stack platform_normal_stacks, tzfw_normal_stacks, \
+		PLATFORM_STACK_SIZE, PLATFORM_CORE_COUNT
+
+	/* -----------------------------------------------------
+	 * Per-cpu stacks in device memory.
+	 * Used for C code just before power down or right after
+	 * power up when the MMU or caches need to be turned on
+	 * or off.
+	 * Each cpu gets a stack of PCPU_DV_MEM_STACK_SIZE bytes.
+	 * -----------------------------------------------------
+	 */
+declare_stack pcpu_dv_mem_stack, tzfw_coherent_mem, \
+		PCPU_DV_MEM_STACK_SIZE, PLATFORM_CORE_COUNT

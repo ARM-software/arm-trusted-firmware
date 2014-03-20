@@ -91,3 +91,43 @@
 	.type \_name, %function
 	\_name:
 	.endm
+
+	/*
+	 * This macro declares an array of 1 or more stacks, properly
+	 * aligned and in the requested section
+	 */
+#define STACK_ALIGN	6
+
+	.macro declare_stack _name, _section, _size, _count
+	.if ((\_size & ((1 << STACK_ALIGN) - 1)) <> 0)
+	  .error "Stack size not correctly aligned"
+	.endif
+	.section    \_section, "aw", %nobits
+	.align STACK_ALIGN
+	\_name:
+	.space ((\_count) * (\_size)), 0
+	.endm
+
+	/*
+	 * This macro calculates the base address of an MP stack using the
+	 * platform_get_core_pos() index, the name of the stack storage and
+	 * the size of each stack
+	 * In: X0 = MPIDR of CPU whose stack is wanted
+	 * Out: X0 = physical address of stack base
+	 * Clobber: X30, X1, X2
+	 */
+	.macro get_mp_stack _name, _size
+	bl  platform_get_core_pos
+	ldr x2, =(\_name + \_size)
+	mov x1, #\_size
+	madd x0, x0, x1, x2
+	.endm
+
+	/*
+	 * This macro calculates the base address of a UP stack using the
+	 * name of the stack storage and the size of the stack
+	 * Out: X0 = physical address of stack base
+	 */
+	.macro get_up_stack _name, _size
+	ldr x0, =(\_name + \_size)
+	.endm
