@@ -444,7 +444,7 @@ get_exception_stack: ; .type get_exception_stack, %function
 	 * Per-cpu exception stacks in normal memory.
 	 * -----------------------------------------------------
 	 */
-	.section	data, "aw", %nobits; .align 6
+	.section	tzfw_normal_stacks, "aw", %nobits; .align 6
 
 pcpu_exception_stack:
 	/* Zero fill */
