@@ -91,11 +91,11 @@ void enable_mmu()
 
 void disable_mmu(void)
 {
-	/* Zero out the MMU related registers */
-	write_mair(0);
-	write_tcr(0);
-	write_ttbr0(0);
-	write_sctlr(0);
+	unsigned long sctlr;
+
+	sctlr = read_sctlr();
+	sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
+	write_sctlr(sctlr);
 
 	/* Flush the caches */
 	dcsw_op_all(DCCISW);
