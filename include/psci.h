@@ -74,6 +74,9 @@
 #define PSTATE_TYPE_MASK	0x1
 #define PSTATE_AFF_LVL_MASK	0x3
 
+#define PSTATE_TYPE_STANDBY	0x0
+#define PSTATE_TYPE_POWERDOWN	0x1
+
 #define psci_get_pstate_id(pstate)	(pstate >> PSTATE_ID_SHIFT) & \
 					PSTATE_ID_MASK
 #define psci_get_pstate_type(pstate)	(pstate >> PSTATE_TYPE_SHIFT) & \

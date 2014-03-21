@@ -44,6 +44,29 @@
 #include <psci.h>
 
 /*******************************************************************************
+ * FVP handler called when an affinity instance is about to enter standby.
+ ******************************************************************************/
+int fvp_affinst_standby(unsigned int power_state)
+{
+	unsigned int target_afflvl;
+
+	/* Sanity check the requested state */
+	target_afflvl = psci_get_pstate_afflvl(power_state);
+
+	/*
+	 * It's possible to enter standby only on affinity level 0 i.e. a cpu
+	 * on the FVP. Ignore any other affinity level.
+	 */
+	if (target_afflvl != MPIDR_AFFLVL0)
+		return PSCI_E_INVALID_PARAMS;
+
+	/* Enter standby state */
+	wfi();
+
+	return PSCI_E_SUCCESS;
+}
+
+/*******************************************************************************
  * FVP handler called when an affinity instance is about to be turned on. The
  * level and mpidr determine the affinity instance.
  ******************************************************************************/
@@ -372,7 +395,7 @@ int fvp_affinst_suspend_finish(unsigned long mpidr,
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static plat_pm_ops fvp_plat_pm_ops = {
-	0,
+	fvp_affinst_standby,
 	fvp_affinst_on,
 	fvp_affinst_off,
 	fvp_affinst_suspend,

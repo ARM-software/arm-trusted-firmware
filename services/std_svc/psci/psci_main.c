@@ -85,31 +85,28 @@ int psci_cpu_suspend(unsigned int power_state,
 	unsigned long mpidr;
 	unsigned int target_afflvl, pstate_type;
 
-	/* TODO: Standby states are not supported at the moment */
-	pstate_type = psci_get_pstate_type(power_state);
-	if (pstate_type == 0) {
-		rc = PSCI_E_INVALID_PARAMS;
-		goto exit;
-	}
-
 	/* Sanity check the requested state */
 	target_afflvl = psci_get_pstate_afflvl(power_state);
-	if (target_afflvl > MPIDR_MAX_AFFLVL) {
-		rc = PSCI_E_INVALID_PARAMS;
-		goto exit;
+	if (target_afflvl > MPIDR_MAX_AFFLVL)
+		return PSCI_E_INVALID_PARAMS;
+
+	pstate_type = psci_get_pstate_type(power_state);
+	if (pstate_type == PSTATE_TYPE_STANDBY) {
+		if  (psci_plat_pm_ops->affinst_standby)
+			rc = psci_plat_pm_ops->affinst_standby(power_state);
+		else
+			return PSCI_E_INVALID_PARAMS;
+	} else {
+		mpidr = read_mpidr();
+		rc = psci_afflvl_suspend(mpidr,
+					 entrypoint,
+					 context_id,
+					 power_state,
+					 MPIDR_AFFLVL0,
+					 target_afflvl);
 	}
 
-	mpidr = read_mpidr();
-	rc = psci_afflvl_suspend(mpidr,
-				 entrypoint,
-				 context_id,
-				 power_state,
-				 MPIDR_AFFLVL0,
-				 target_afflvl);
-
-exit:
-	if (rc != PSCI_E_SUCCESS)
-		assert(rc == PSCI_E_INVALID_PARAMS);
+	assert(rc == PSCI_E_INVALID_PARAMS || rc == PSCI_E_SUCCESS);
 	return rc;
 }
 
