@@ -231,9 +231,13 @@ define match_goals
 $(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))
 endef
 
+# List of rules that involve building things
+BUILD_TARGETS := all bl1 bl2 bl31 bl32 fip
 
-CLEANING := $(call match_goals,clean realclean distclean)
-
+# Does the list of goals specified on the command line include a build target?
+ifneq ($(call match_goals,${BUILD_TARGETS}),)
+IS_ANYTHING_TO_BUILD := 1
+endif
 
 define MAKE_C
 
@@ -250,7 +254,7 @@ $(PREREQUISITES) : $(2)
 	@mkdir -p $(1)
 	$$(Q)$$(CC) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
 
-ifeq "$(CLEANING)" ""
+ifdef IS_ANYTHING_TO_BUILD
 -include $(PREREQUISITES)
 endif
 
@@ -271,7 +275,7 @@ $(PREREQUISITES) : $(2)
 	@mkdir -p $(1)
 	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(OBJ) -MF $$@ $$<
 
-ifeq "$(CLEANING)" ""
+ifdef IS_ANYTHING_TO_BUILD
 -include $(PREREQUISITES)
 endif
 
@@ -291,7 +295,7 @@ $(PREREQUISITES) : $(2)
 	@mkdir -p $$(dir $$@)
 	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(1) -MF $$@ $$<
 
-ifeq "$(CLEANING)" ""
+ifdef IS_ANYTHING_TO_BUILD
 -include $(PREREQUISITES)
 endif
 
