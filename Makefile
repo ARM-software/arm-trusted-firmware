@@ -70,8 +70,9 @@ BL_COMMON_SOURCES	:=	misc_helpers.S		\
 
 ARCH 			?=	aarch64
 
-# By default, build all platforms available
-PLAT			?=	fvp
+# By default, build fvp platform
+DEFAULT_PLAT		:=	fvp
+PLAT			?=	${DEFAULT_PLAT}
 # By default, build no SPD component
 SPD			?=	none
 
@@ -127,7 +128,7 @@ ifneq (${SPD},none)
   # variable to "yes"
 endif
 
-.PHONY:			all msg_start ${PLATFORMS} clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
+.PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
 .SUFFIXES:
 
 
@@ -187,12 +188,6 @@ FIPTOOLPATH		?=	tools/fip_create
 FIPTOOL			?=	${FIPTOOLPATH}/fip_create
 fiptool:		${FIPTOOL}
 fip:			${BUILD_PLAT}/fip.bin
-
-ifeq (${PLAT},all)
-  ifeq (${MAKECMDGOALS},clean)
-    $(error "Please select a platform with PLAT=<platform>. You can use 'make distclean' to clean up all platform builds")
-  endif
-endif
 
 locate-checkpatch:
 ifndef CHECKPATCH
@@ -403,9 +398,10 @@ cscope:
 	${Q}cscope -b -q -k
 
 help:
-	@echo "usage: ${MAKE} PLAT=<all|${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|checkcodebase|checkpatch>"
+	@echo "usage: ${MAKE} PLAT=<${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|checkcodebase|checkpatch>"
 	@echo ""
 	@echo "PLAT is used to specify which platform you wish to build."
+	@echo "If no platform is specified, PLAT defaults to: ${DEFAULT_PLAT}"
 	@echo ""
 	@echo "Supported Targets:"
 	@echo "  all            Build the BL1, BL2 and BL31 binaries"
