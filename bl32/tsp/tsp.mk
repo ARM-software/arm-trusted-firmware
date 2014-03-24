@@ -36,7 +36,8 @@ vpath			%.c	common				\
 
 vpath			%.S	lib/arch/${ARCH}		\
 				include				\
-				lib/sync/locks/exclusive
+				lib/sync/locks/exclusive	\
+				common/${ARCH}
 
 BL32_SOURCES		+=	tsp_entrypoint.S		\
 				tsp_main.c			\

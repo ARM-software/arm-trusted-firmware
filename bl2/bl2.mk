@@ -38,6 +38,7 @@ vpath			%.c	common				\
 vpath			%.S	lib/arch/${ARCH}		\
 				include				\
 				lib/sync/locks/exclusive	\
+				common/${ARCH}			\
 				${PLAT_BL2_S_VPATH}
 
 BL2_SOURCES		+=	bl2_entrypoint.S		\

@@ -54,7 +54,7 @@ bl1_entrypoint: ; .type bl1_entrypoint, %function
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
 	 */
-	adr	x0, early_exceptions
+	adr	x0, bl1_exceptions
 	msr	vbar_el3, x0
 
 	/* ---------------------------------------------------------------------

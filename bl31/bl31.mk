@@ -47,6 +47,7 @@ vpath			%.S	lib/arch/${ARCH}			\
 				lib/sync/locks/exclusive		\
 				plat/common/${ARCH}			\
 				arch/system/gic/${ARCH}			\
+				common/${ARCH}				\
 				${PLAT_BL31_S_VPATH}
 
 BL31_SOURCES		+=	bl31_arch_setup.c			\

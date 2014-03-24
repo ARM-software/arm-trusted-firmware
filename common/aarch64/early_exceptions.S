@@ -30,20 +30,18 @@
 
 #include <arch.h>
 #include <bl_common.h>
-#include <bl1.h>
 #include <platform.h>
 #include <runtime_svc.h>
 #include <asm_macros.S>
 
 	.globl	early_exceptions
-	.weak	display_boot_progress
 
 	.section	.vectors, "ax"; .align 11
 
 	/* -----------------------------------------------------
-	 * Very simple stackless exception handlers used by all
-	 * bootloader stages. BL31 uses them before stacks are
-	 * setup. BL1/BL2 use them throughout.
+	 * Very simple stackless exception handlers used by BL2
+	 * and BL3-1 bootloader stages. BL3-1 uses them before
+	 * stacks are setup. BL2 uses them throughout.
 	 * -----------------------------------------------------
 	 */
 	.align	7
@@ -117,13 +115,9 @@ SErrorSPx:
 	 */
 	.align	7
 SynchronousExceptionA64:
-	/* ---------------------------------------------
-	 * Only a single SMC exception from BL2 to ask
-	 * BL1 to pass EL3 control to BL31 is expected
-	 * here.
-	 * ---------------------------------------------
-	 */
-	b	process_exception
+	mov	x0, #SYNC_EXCEPTION_AARCH64
+	bl	plat_report_exception
+	b	SynchronousExceptionA64
 	check_vector_size SynchronousExceptionA64
 
 	.align	7
@@ -178,77 +172,3 @@ SErrorA32:
 	bl	plat_report_exception
 	b	SErrorA32
 	check_vector_size SErrorA32
-
-	.align	7
-
-	.section	.text, "ax"
-process_exception:
-	sub	sp, sp, #0x40
-	stp	x0, x1, [sp, #0x0]
-	stp	x2, x3, [sp, #0x10]
-	stp	x4, x5, [sp, #0x20]
-	stp	x6, x7, [sp, #0x30]
-
-	mov	x19, x0
-	mov	x20, x1
-	mov	x21, x2
-	mov	x0, #SYNC_EXCEPTION_AARCH64
-	bl	plat_report_exception
-
-	bl	read_esr_el3
-	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x1, #EC_AARCH64_SMC
-	b.ne	panic
-	mov	x1, #RUN_IMAGE
-	cmp	x19, x1
-	b.ne	panic
-	mov	x0, x20
-	mov	x1, x21
-	mov	x2, x3
-	mov	x3, x4
-	bl	display_boot_progress
-	mov	x0, x20
-	bl	write_elr
-	mov	x0, x21
-	bl	write_spsr
-	ubfx	x0, x21, #MODE_EL_SHIFT, #2
-	cmp	x0, #MODE_EL3
-	b.ne	skip_mmu_teardown
-
-	/* ---------------------------------------------
-	 * If BL31 is to be executed in EL3 as well
-	 * then turn off the MMU so that it can perform
-	 * its own setup. TODO: Assuming flat mapped
-	 * translations here. Also all should go into a
-	 * separate MMU teardown function
-	 * ---------------------------------------------
-	 */
-	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
-	bl	read_sctlr_el3
-	bic	x0, x0, x1
-	bl	write_sctlr_el3
-	mov	x0, #DCCISW
-	bl	dcsw_op_all
-	bl	tlbialle3
-skip_mmu_teardown:
-	ldp     x6, x7, [sp, #0x30]
-	ldp     x4, x5, [sp, #0x20]
-	ldp     x2, x3, [sp, #0x10]
-	ldp     x0, x1, [sp, #0x0]
-	add     sp, sp, #0x40
-	eret
-
-panic:
-	wfi
-	b	panic
-
-	/* -----------------------------------------------------
-	 * BL1 redefines this function to print the fact that
-	 * BL2 has done its job and BL31 is about to be loaded.
-	 * This weak definition allows other bootloader stages
-	 * to use the 'early_exceptions' without running into
-	 * compilation errors.
-	 * -----------------------------------------------------
-	 */
-display_boot_progress:
-	ret

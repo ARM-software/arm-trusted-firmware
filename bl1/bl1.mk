@@ -45,7 +45,7 @@ vpath			%.S	arch/${ARCH}/cpu	\
 
 BL1_SOURCES		+=	bl1_arch_setup.c	\
 				bl1_entrypoint.S	\
-				early_exceptions.S	\
+				bl1_exceptions.S	\
 				bl1_main.c		\
 				cpu_helpers.S
 
