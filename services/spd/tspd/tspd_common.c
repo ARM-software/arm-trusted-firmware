@@ -49,7 +49,7 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 				uint64_t mpidr,
 				tsp_context *tsp_ctx)
 {
-	uint32_t scr = read_scr(), sctlr = read_sctlr();
+	uint32_t scr, sctlr;
 	el1_sys_regs *el1_state;
 	uint32_t spsr;
 
@@ -69,6 +69,7 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	memset(tsp_ctx, 0, sizeof(*tsp_ctx));
 
 	/* Set the right security state and register width for the SP */
+	scr = read_scr();
 	scr &= ~SCR_NS_BIT;
 	scr &= ~SCR_RW_BIT;
 	if (rw == TSP_AARCH64)
@@ -78,9 +79,10 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	el1_state = get_sysregs_ctx(&tsp_ctx->cpu_ctx);
 
 	/*
-	 * Program the sctlr to allow execution in S-EL1 with caches
-	 * and mmu off
+	 * Program the SCTLR_EL1 such that upon entry in S-EL1, caches and MMU are
+	 * disabled and exception endianess is set to be the same as EL3
 	 */
+	sctlr = read_sctlr_el3()
 	sctlr &= SCTLR_EE_BIT;
 	sctlr |= SCTLR_EL1_RES1;
 	write_ctx_reg(el1_state, CTX_SCTLR_EL1, sctlr);
