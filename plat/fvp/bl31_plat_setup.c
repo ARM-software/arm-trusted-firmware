@@ -32,6 +32,7 @@
 #include <fvp_pwrc.h>
 #include <assert.h>
 #include <arch_helpers.h>
+#include <console.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -117,6 +118,8 @@ void bl31_early_platform_setup(bl31_args *from_bl2,
 
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
+
+	console_init(PL011_UART0_BASE);
 }
 
 /*******************************************************************************

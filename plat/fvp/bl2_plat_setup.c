@@ -33,6 +33,7 @@
 #include <platform.h>
 #include <bl2.h>
 #include <bl_common.h>
+#include <console.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -109,6 +110,8 @@ void bl2_early_platform_setup(meminfo *mem_layout,
 
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
+
+	console_init(PL011_UART0_BASE);
 
 	return;
 }

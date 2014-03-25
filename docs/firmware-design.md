@@ -156,7 +156,7 @@ BL1 performs minimal architectural initialization as follows.
 BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests
 from the CCI-400 slave interface corresponding to the cluster that includes
 the primary CPU. BL1 also initializes UART0 (PL011 console), which enables
-access to the `printf` family of functions. The `CNTFRQ_EL0` register is
+access to the `printf` family of functions in BL1. The `CNTFRQ_EL0` register is
 programmed with the base frequency of the system counter, which is retrieved
 from the first entry in the frequency modes table. The system level
 implementation of the generic timer is enabled through the memory mapped
@@ -218,6 +218,8 @@ platform-specific mechanism. It calculates the limits of DRAM (main memory)
 to determine whether there is enough space to load the BL3-3 image. A platform
 defined base address is used to specify the load address for the BL3-1 image.
 It also defines the extents of memory available for use by the BL3-2 image.
+BL2 also initializes UART0 (PL011 console), which enables  access to the
+`printf` family of functions in BL2
 
 #### BL3-1 (EL3 Runtime Firmware) image load
 
@@ -293,7 +295,8 @@ SMC handler routine.
 BL3-1 performs detailed platform initialization, which enables normal world
 software to function correctly. It also retrieves entrypoint information for
 the BL3-3 image loaded by BL2 from the platform defined memory address populated
-by BL2.
+by BL2. BL3-1 also initializes UART0 (PL011 console), which enables
+access to the `printf` family of functions in BL3-1
 
 * GICv2 initialization:
 

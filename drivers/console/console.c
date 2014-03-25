@@ -31,11 +31,19 @@
 #include <console.h>
 #include <platform.h>
 #include <pl011.h>
+#include <assert.h>
 
-static unsigned long uart_base = PL011_BASE;
+static unsigned long uart_base;
 
 void console_init(unsigned long base_addr)
 {
+	/* TODO: assert() internally calls printf() and will result in
+	 * an infinite loop. This needs to be fixed with some kind of
+	 * exception  mechanism or early panic support. This also applies
+	 * to the other assert() calls below.
+	 */
+	assert(base_addr);
+
 	/* Initialise internal base address variable */
 	uart_base = base_addr;
 
@@ -60,6 +68,8 @@ void console_init(unsigned long base_addr)
 
 int console_putc(int c)
 {
+	assert(uart_base);
+
 	if (c == '\n')
 		console_putc('\r');
 
@@ -71,6 +81,8 @@ int console_putc(int c)
 
 int console_getc(void)
 {
+	assert(uart_base);
+
 	while ((pl011_read_fr(uart_base) & PL011_UARTFR_RXFE) != 0)
 		;
 	return pl011_read_dr(uart_base);
