@@ -82,7 +82,7 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	 * Program the SCTLR_EL1 such that upon entry in S-EL1, caches and MMU are
 	 * disabled and exception endianess is set to be the same as EL3
 	 */
-	sctlr = read_sctlr_el3()
+	sctlr = read_sctlr_el3();
 	sctlr &= SCTLR_EE_BIT;
 	sctlr |= SCTLR_EL1_RES1;
 	write_ctx_reg(el1_state, CTX_SCTLR_EL1, sctlr);
