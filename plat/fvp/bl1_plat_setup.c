@@ -78,6 +78,9 @@ void bl1_early_platform_setup(void)
 	const unsigned long bl1_ram_limit = BL1_RAM_LIMIT;
 	const unsigned long tzram_limit = TZRAM_BASE + TZRAM_SIZE;
 
+	/* Initialize the console to provide early debug support */
+	console_init(PL011_UART0_BASE);
+
 	/*
 	 * Calculate how much ram is BL1 using & how much remains free.
 	 * This also includes a rudimentary mechanism to detect whether
@@ -102,9 +105,6 @@ void bl1_early_platform_setup(void)
 
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
-
-	/* Initialize the console */
-	console_init(PL011_UART0_BASE);
 }
 
 /*******************************************************************************

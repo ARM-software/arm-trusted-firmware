@@ -119,10 +119,11 @@ void bl31_early_platform_setup(bl31_args_t *from_bl2,
 {
 	bl2_to_bl31_args = from_bl2;
 
+	/* Initialize the console to provide early debug support */
+	console_init(PL011_UART0_BASE);
+
 	/* Initialize the platform config for future decision making */
 	platform_config_setup();
-
-	console_init(PL011_UART0_BASE);
 }
 
 /*******************************************************************************

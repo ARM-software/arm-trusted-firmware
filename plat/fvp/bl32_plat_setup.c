@@ -75,11 +75,18 @@ meminfo_t *bl32_plat_sec_mem_layout(void)
 
 /*******************************************************************************
  * BL1 has passed the extents of the trusted SRAM that's at BL32's disposal.
- * Initialize the BL32 data structure with the memory extends
+ * Initialize the BL32 data structure with the memory extends and initialize
+ * the UART
  ******************************************************************************/
 void bl32_early_platform_setup(meminfo_t *mem_layout,
 			      void *data)
 {
+	/*
+	 * Initialize a different console than already in use to display
+	 * messages from TSP
+	 */
+	console_init(PL011_UART1_BASE);
+
 	/* Setup the BL32 memory layout */
 	bl32_tzdram_layout.total_base = mem_layout->total_base;
 	bl32_tzdram_layout.total_size = mem_layout->total_size;
@@ -88,19 +95,14 @@ void bl32_early_platform_setup(meminfo_t *mem_layout,
 	bl32_tzdram_layout.attr = mem_layout->attr;
 	bl32_tzdram_layout.next = 0;
 
-	return;
 }
 
 /*******************************************************************************
- * Perform platform specific setup
+ * Perform platform specific setup placeholder
  ******************************************************************************/
 void bl32_platform_setup()
 {
-	/*
-	 * Initialize a different console than already in use to display
-	 * messages from TSP
-	 */
-	console_init(PL011_UART1_BASE);
+
 }
 
 /*******************************************************************************
