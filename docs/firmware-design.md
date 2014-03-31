@@ -151,16 +151,19 @@ BL1 performs minimal architectural initialization as follows.
         and Advanced SIMD execution are configured to not trap to EL3 by
         clearing the `CPTR_EL3.TFP` bit.
 
+    -   `CNTFRQ_EL0`. The `CNTFRQ_EL0` register is programmed with the base
+        frequency of the system counter, which is retrieved from the first entry
+        in the frequency modes table.
+
+    -   Generic Timer. The system level implementation of the generic timer is
+        enabled through the memory mapped interface.
+
 #### Platform initialization
 
-BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests
-from the CCI-400 slave interface corresponding to the cluster that includes
-the primary CPU. BL1 also initializes UART0 (PL011 console), which enables
-access to the `printf` family of functions. The `CNTFRQ_EL0` register is
-programmed with the base frequency of the system counter, which is retrieved
-from the first entry in the frequency modes table. The system level
-implementation of the generic timer is enabled through the memory mapped
-interface.
+BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests from
+the CCI-400 slave interface corresponding to the cluster that includes the
+primary CPU. BL1 also initializes UART0 (PL011 console), which enables access to
+the `printf` family of functions.
 
 #### BL2 image load and execution
 
