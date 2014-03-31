@@ -208,6 +208,13 @@ the implementer chooses. In the ARM FVP port, they are implemented in
     platform)  & `platform_get_stack()` (to return the base address of that
     stack) (see [../plat/common/aarch64/platform_helpers.S]).
 
+*   **Function : uint64_t plat_get_syscnt_freq(void)**
+
+    This function is used by the architecture setup code to retrieve the
+    counter frequency for the CPU's generic timer.  This value will be
+    programmed into the `CNTFRQ_EL0` register.
+    In the ARM FVP port, it returns the base frequency of the system counter,
+    which is retrieved from the first entry in the frequency modes table.
 
 2.2 Common optional modifications
 ---------------------------------
@@ -445,9 +452,6 @@ This function helps fulfill requirement 2 above.
 This function executes with the MMU and data caches enabled. It is responsible
 for performing any remaining platform-specific setup that can occur after the
 MMU and data cache have been enabled.
-
-In the ARM FVP port, it zeros out the ZI section and enables the system level
-implementation of the generic timer counter.
 
 This function is also responsible for initializing the storage abstraction layer
 which is used to load further bootloader images.
@@ -771,6 +775,7 @@ BL3-1 runtime services and normal world software can function correctly.
 The ARM FVP port does the following:
 *   Initializes the generic interrupt controller.
 *   Configures the CLCD controller.
+*   Enables system-level implementation of the generic timer counter.
 *   Grants access to the system counter timer module
 *   Initializes the FVP power controller device
 *   Detects the system topology.

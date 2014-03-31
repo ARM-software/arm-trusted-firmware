@@ -114,9 +114,6 @@ void bl1_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
-
-	/* Enable and initialize the System level generic timer */
-	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_EN);
 }
 
 

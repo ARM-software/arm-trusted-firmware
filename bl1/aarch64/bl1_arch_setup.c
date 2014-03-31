@@ -39,7 +39,6 @@
 void bl1_arch_setup(void)
 {
 	unsigned long tmp_reg = 0;
-	unsigned int counter_base_frequency;
 
 	/* Enable alignment checks and set the exception endianess to LE */
 	tmp_reg = read_sctlr_el3();
@@ -60,15 +59,6 @@ void bl1_arch_setup(void)
 	 */
 	enable_serror();
 	enable_debug_exceptions();
-
-	/* Read the frequency from Frequency modes table */
-	counter_base_frequency = mmio_read_32(SYS_CNTCTL_BASE + CNTFID_OFF);
-	/* The first entry of the frequency modes table must not be 0 */
-	assert(counter_base_frequency != 0);
-
-	/* Program the counter frequency */
-	write_cntfrq_el0(counter_base_frequency);
-	return;
 }
 
 /*******************************************************************************

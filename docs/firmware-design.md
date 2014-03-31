@@ -151,13 +151,6 @@ BL1 performs minimal architectural initialization as follows.
         and Advanced SIMD execution are configured to not trap to EL3 by
         clearing the `CPTR_EL3.TFP` bit.
 
-    -   `CNTFRQ_EL0`. The `CNTFRQ_EL0` register is programmed with the base
-        frequency of the system counter, which is retrieved from the first entry
-        in the frequency modes table.
-
-    -   Generic Timer. The system level implementation of the generic timer is
-        enabled through the memory mapped interface.
-
 #### Platform initialization
 
 BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests from
@@ -291,7 +284,8 @@ exception is raised. They implement more elaborate support for handling SMCs
 since this is the only mechanism to access the runtime services implemented by
 BL3-1 (PSCI for example). BL3-1 checks each SMC for validity as specified by
 the [SMC calling convention PDD][SMCCC] before passing control to the required
-SMC handler routine.
+SMC handler routine. BL3-1 programs the `CNTFRQ_EL0` register with the clock
+frequency of the system counter, which is provided by the platform.
 
 #### Platform initialization
 
@@ -299,7 +293,8 @@ BL3-1 performs detailed platform initialization, which enables normal world
 software to function correctly. It also retrieves entrypoint information for
 the BL3-3 image loaded by BL2 from the platform defined memory address populated
 by BL2. BL3-1 also initializes UART0 (PL011 console), which enables
-access to the `printf` family of functions in BL3-1
+access to the `printf` family of functions in BL3-1.  It enables the system
+level implementation of the generic timer through the memory mapped interface.
 
 * GICv2 initialization:
 
