@@ -59,8 +59,10 @@ void mhu_secure_message_start(void)
 
 void mhu_secure_message_send(uint32_t command)
 {
-	/* Send command to SCP */
+	/* Send command to SCP and wait for it to pick it up */
 	mmio_write_32(MHU_BASE + CPU_INTR_S_SET, command);
+	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) != 0)
+		;
 }
 
 uint32_t mhu_secure_message_wait(void)

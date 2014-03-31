@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
 #include <arch_helpers.h>
 #include <cci400.h>
 #include <platform.h>
@@ -36,6 +37,13 @@
 #include "juno_def.h"
 #include "juno_private.h"
 #include "scpi.h"
+
+typedef struct {
+	/* Align the suspend level to allow per-cpu lockless access */
+	uint32_t state[MPIDR_MAX_AFFLVL]  __aligned(CACHE_WRITEBACK_GRANULE);
+} scp_pstate;
+
+static scp_pstate target_pstate[PLATFORM_CORE_COUNT];
 
 int pm_on(unsigned long mpidr,
 		   unsigned long sec_entrypoint,
@@ -90,7 +98,82 @@ int pm_on_finish(unsigned long mpidr, unsigned int afflvl, unsigned int state)
 		/* Juno todo: Is this setup only needed after a cold boot? */
 		gic_pcpu_distif_setup(GICD_BASE);
 
+		/*
+		 * Clear the mailbox for each cpu
+		 */
+		unsigned long *mbox = (unsigned long *)(unsigned long)(
+			TRUSTED_MAILBOXES_BASE +
+			(platform_get_core_pos(mpidr) << TRUSTED_MAILBOX_SHIFT)
+			);
+		*mbox = 0;
+		flush_dcache_range((unsigned long)mbox, sizeof(*mbox));
+
 		break;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+/*******************************************************************************
+ * Common function called while turning a cpu off or suspending it. It is called
+ * for each affinity level until the target affinity level. It keeps track of
+ * the power state that needs to be programmed through the SCP firmware for each
+ * affinity level. Once the target affinity level is reached it uses the MHU
+ * channel to ask the SCP to perform the power operations for each affinity
+ * level accumulated so far.
+ *
+ * CAUTION: This function is called with coherent stacks so that caches can be
+ * turned off, flushed and coherency disabled. There is no guarantee that caches
+ * will remain turned on across calls to this function as each affinity level is
+ * dealt with. So do not write & read global variables across calls. It will be
+ * wise to do flush a write to the global to prevent unpredictable results.
+ ******************************************************************************/
+static int juno_power_down_common(unsigned long mpidr,
+				  unsigned int linear_id,
+				  unsigned int cur_afflvl,
+				  unsigned int tgt_afflvl,
+				  unsigned int state)
+{
+	/* Record which power state this affinity level is supposed to enter */
+	if (state == PSCI_STATE_OFF) {
+		target_pstate[linear_id].state[cur_afflvl] = scpi_power_off;
+	} else {
+		assert(cur_afflvl != MPIDR_AFFLVL0);
+		target_pstate[linear_id].state[cur_afflvl] = scpi_power_on;
+		goto exit;
+	}
+
+	switch (cur_afflvl) {
+	case MPIDR_AFFLVL1:
+		/* Cluster is to be turned off, so disable coherency */
+		cci_disable_coherency(mpidr);
+
+		break;
+
+	case MPIDR_AFFLVL0:
+		/* Turn off intra-cluster coherency */
+		write_cpuectlr(read_cpuectlr() & ~CPUECTLR_SMP_BIT);
+
+		/* Prevent interrupts from spuriously waking up this cpu */
+		gic_cpuif_deactivate(GICC_BASE);
+
+		break;
+	}
+
+exit:
+	/*
+	 * If this is the target affinity level then we need to ask the SCP
+	 * to power down the appropriate components depending upon their state
+	 */
+	if (cur_afflvl == tgt_afflvl) {
+		scpi_set_css_power_state(mpidr,
+ 					 target_pstate[linear_id].state[MPIDR_AFFLVL0],
+					 target_pstate[linear_id].state[MPIDR_AFFLVL1],
+					 scpi_power_on);
+
+		/* Reset the states */
+		target_pstate[linear_id].state[MPIDR_AFFLVL0] = scpi_power_on;
+		target_pstate[linear_id].state[MPIDR_AFFLVL1] = scpi_power_on;
 	}
 
 	return PSCI_E_SUCCESS;
@@ -110,39 +193,61 @@ int pm_on_finish(unsigned long mpidr, unsigned int afflvl, unsigned int state)
  ******************************************************************************/
 int pm_off(unsigned long mpidr, unsigned int afflvl, unsigned int state)
 {
-	 /* We're only interested in power off states */
-	if (state != PSCI_STATE_OFF)
-		return PSCI_E_SUCCESS;
+	return juno_power_down_common(mpidr,
+				      platform_get_core_pos(mpidr),
+				      afflvl,
+				      plat_get_max_afflvl(),
+				      state);
+}
 
-	switch (afflvl) {
-	case MPIDR_AFFLVL1:
-		/* Cluster is to be turned off, so disable coherency */
-		cci_disable_coherency(mpidr);
+/*******************************************************************************
+ * Handler called when an affinity instance is about to be suspended. The
+ * level and mpidr determine the affinity instance. The 'state' arg. allows the
+ * platform to decide whether the cluster is being turned off and take apt
+ * actions. The 'sec_entrypoint' determines the address in BL3-1 from where
+ * execution should resume.
+ *
+ * CAUTION: This function is called with coherent stacks so that caches can be
+ * turned off, flushed and coherency disabled. There is no guarantee that caches
+ * will remain turned on across calls to this function as each affinity level is
+ * dealt with. So do not write & read global variables across calls. It will be
+ * wise to do flush a write to the global to prevent unpredictable results.
+ ******************************************************************************/
+int pm_suspend(unsigned long mpidr,
+	       unsigned long sec_entrypoint,
+	       unsigned long ns_entrypoint,
+	       unsigned int afflvl,
+	       unsigned int state)
+{
+	uint32_t tgt_afflvl;
 
-		break;
+	tgt_afflvl = psci_get_suspend_afflvl(mpidr);
+	assert(tgt_afflvl != PSCI_INVALID_DATA);
 
-	case MPIDR_AFFLVL0:
-		/* Turn off intra-cluster coherency */
-		write_cpuectlr(read_cpuectlr() & ~CPUECTLR_SMP_BIT);
-
-		/* Prevent interrupts from spuriously waking up this cpu */
-		gic_cpuif_deactivate(GICC_BASE);
-
-		/*
-		 * Ask SCP to power down CPU.
-		 *
-		 * Note, we also ask for cluster power down as well because we
-		 * know the SCP will only actually do that if this is the last
-		 * CPU going down, and also, that final power down won't happen
-		 * until this CPU executes the WFI instruction after the PSCI
-		 * framework has done it's thing.
-		 */
-		scpi_set_css_power_state(mpidr, scpi_power_off, scpi_power_off,
-						scpi_power_retention);
-		break;
+	/*
+	 * Setup mailbox with address for CPU entrypoint when it next powers up
+	 */
+	if (afflvl == MPIDR_AFFLVL0) {
+		unsigned long *mbox = (unsigned long *)(unsigned long)(
+			TRUSTED_MAILBOXES_BASE +
+			(platform_get_core_pos(mpidr) << TRUSTED_MAILBOX_SHIFT)
+			);
+		*mbox = sec_entrypoint;
+		flush_dcache_range((unsigned long)mbox, sizeof(*mbox));
 	}
 
-	return PSCI_E_SUCCESS;
+	return juno_power_down_common(mpidr,
+				      platform_get_core_pos(mpidr),
+				      afflvl,
+				      tgt_afflvl,
+				      state);
+}
+
+int pm_suspend_finish(unsigned long mpidr,
+		      unsigned int afflvl,
+		      unsigned int state)
+{
+	return pm_on_finish(mpidr, afflvl, state);
 }
 
 /*******************************************************************************
@@ -151,7 +256,9 @@ int pm_off(unsigned long mpidr, unsigned int afflvl, unsigned int state)
 static const plat_pm_ops_t pm_ops = {
 	.affinst_on		= pm_on,
 	.affinst_on_finish	= pm_on_finish,
-	.affinst_off		= pm_off
+	.affinst_off		= pm_off,
+	.affinst_suspend	= pm_suspend,
+	.affinst_suspend_finish	= pm_suspend_finish
 };
 
 /*******************************************************************************
