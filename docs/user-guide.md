@@ -532,9 +532,15 @@ NOTE: The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
 Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
 section above).
 
+NOTE: Setting the `-C bp.secure_memory` parameter to `1` is only supported on
+FVP versions 5.4 and newer. Setting this parameter to `0` is also supported.
+The `-C bp.tzc_400.diagnostics=1` parameter is optional. It instructs the FVP to
+provide some helpful information if a secure memory violation occurs.
+
     <path-to>/FVP_Base_AEMv8A-AEMv8A                       \
     -C pctl.startup=0.0.0.0                                \
-    -C bp.secure_memory=0                                  \
+    -C bp.secure_memory=1                                  \
+    -C bp.tzc_400.diagnostics=1                            \
     -C cluster0.NUM_CORES=4                                \
     -C cluster1.NUM_CORES=4                                \
     -C cache_state_modelled=1                              \
@@ -560,9 +566,15 @@ NOTE: The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
 Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
 section above).
 
+NOTE: Setting the `-C bp.secure_memory` parameter to `1` is only supported on
+FVP versions 5.4 and newer. Setting this parameter to `0` is also supported.
+The `-C bp.tzc_400.diagnostics=1` parameter is optional. It instructs the FVP to
+provide some helpful information if a secure memory violation occurs.
+
     <path-to>/FVP_Base_Cortex-A57x4-A53x4                  \
     -C pctl.startup=0.0.0.0                                \
-    -C bp.secure_memory=0                                  \
+    -C bp.secure_memory=1                                  \
+    -C bp.tzc_400.diagnostics=1                            \
     -C cache_state_modelled=1                              \
     -C bp.pl011_uart0.untimed_fifos=1                      \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>" \

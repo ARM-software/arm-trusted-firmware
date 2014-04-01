@@ -207,15 +207,17 @@ bits.
 
 #### Platform initialization
 
-BL2 does not perform any platform initialization that affects subsequent
-stages of the ARM Trusted Firmware or normal world software. It copies the
-information regarding the trusted SRAM populated by BL1 using a
+BL2 copies the information regarding the trusted SRAM populated by BL1 using a
 platform-specific mechanism. It calculates the limits of DRAM (main memory)
 to determine whether there is enough space to load the BL3-3 image. A platform
 defined base address is used to specify the load address for the BL3-1 image.
 It also defines the extents of memory available for use by the BL3-2 image.
 BL2 also initializes UART0 (PL011 console), which enables  access to the
-`printf` family of functions in BL2
+`printf` family of functions in BL2. Platform security is initialized to allow
+access to access controlled components. On the Base FVP a TrustZone controller
+(TZC-400) is configured to give full access to the platform DRAM. The storage
+abstraction layer is initialized which is used to load further bootloader
+images.
 
 #### BL3-1 (EL3 Runtime Firmware) image load
 
