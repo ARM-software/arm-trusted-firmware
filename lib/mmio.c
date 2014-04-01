@@ -30,6 +30,16 @@
 
 #include <stdint.h>
 
+void mmio_write_8(uintptr_t addr, uint8_t value)
+{
+	*(volatile uint8_t*)addr = value;
+}
+
+uint8_t mmio_read_8(uintptr_t addr)
+{
+	return *(volatile uint8_t*)addr;
+}
+
 void mmio_write_32(uintptr_t addr, uint32_t value)
 {
 	*(volatile uint32_t*)addr = value;
