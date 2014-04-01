@@ -220,6 +220,7 @@ int platform_config_setup(void)
 		platform_config[CONFIG_CPU_SETUP] = 0;
 		platform_config[CONFIG_BASE_MMAP] = 0;
 		platform_config[CONFIG_HAS_CCI] = 0;
+		platform_config[CONFIG_HAS_TZC] = 0;
 		break;
 	case HBI_FVP_BASE:
 		midr_pn = (read_midr() >> MIDR_PN_SHIFT) & MIDR_PN_MASK;
@@ -232,6 +233,7 @@ int platform_config_setup(void)
 		platform_config[CONFIG_MAX_AFF1] = 2;
 		platform_config[CONFIG_BASE_MMAP] = 1;
 		platform_config[CONFIG_HAS_CCI] = 1;
+		platform_config[CONFIG_HAS_TZC] = 1;
 		break;
 	default:
 		assert(0);
