@@ -73,6 +73,7 @@
 #define PSTATE_ID_MASK		0xffff
 #define PSTATE_TYPE_MASK	0x1
 #define PSTATE_AFF_LVL_MASK	0x3
+#define PSTATE_VALID_MASK     0xFCFE0000
 
 #define PSTATE_TYPE_STANDBY	0x0
 #define PSTATE_TYPE_POWERDOWN	0x1
@@ -118,8 +119,13 @@
 #define PSCI_STATE_ON_PENDING	0x2
 #define PSCI_STATE_SUSPEND	0x3
 
+#define PSCI_INVALID_DATA -1
+
 #define get_phys_state(x)	(x != PSCI_STATE_ON ? \
 				 PSCI_STATE_OFF : PSCI_STATE_ON)
+
+#define psci_validate_power_state(pstate) (pstate & PSTATE_VALID_MASK)
+
 
 /* Number of affinity instances whose state this psci imp. can track */
 #define PSCI_NUM_AFFS		32ull
@@ -182,6 +188,9 @@ extern int psci_cpu_on(unsigned long,
 extern void psci_aff_on_finish_entry(void);
 extern void psci_aff_suspend_finish_entry(void);
 extern void psci_register_spd_pm_hook(const spd_pm_ops *);
+extern int psci_get_suspend_stateid(unsigned long mpidr);
+extern int psci_get_suspend_afflvl(unsigned long mpidr);
+
 #endif /*__ASSEMBLY__*/
 
 
