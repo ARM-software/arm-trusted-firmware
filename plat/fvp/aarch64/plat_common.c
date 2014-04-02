@@ -230,3 +230,16 @@ unsigned long plat_get_ns_image_entrypoint(void)
 {
 	return NS_IMAGE_OFFSET;
 }
+
+uint64_t plat_get_syscnt_freq(void)
+{
+	uint64_t counter_base_frequency;
+
+	/* Read the frequency from Frequency modes table */
+	counter_base_frequency = mmio_read_32(SYS_CNTCTL_BASE + CNTFID_OFF);
+
+	/* The first entry of the frequency modes table must not be 0 */
+	assert(counter_base_frequency != 0);
+
+	return counter_base_frequency;
+}

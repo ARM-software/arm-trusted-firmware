@@ -29,6 +29,7 @@
  */
 
 #include <platform.h>
+#include <arch.h>
 #include <fvp_pwrc.h>
 #include <bl_common.h>
 
@@ -137,6 +138,9 @@ void bl31_platform_setup()
 	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGDATA, 0);
 	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGCTRL,
 		      (1ull << 31) | (1 << 30) | (7 << 20) | (0 << 16));
+
+	/* Enable and initialize the System level generic timer */
+	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_FCREQ(0) | CNTCR_EN);
 
 	/* Allow access to the System counter timer module */
 	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
