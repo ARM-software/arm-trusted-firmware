@@ -208,7 +208,7 @@ void bl1_platform_setup(void)
 	io_setup();
 
 	/* Enable and initialize the System level generic timer */
-	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_EN);
+	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_FCREQ(0) | CNTCR_EN);
 }
 
 
