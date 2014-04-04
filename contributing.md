@@ -78,16 +78,24 @@ Submitting Changes
 
 *   Ensure we have your signed CLA.
 *   Push your local changes to your fork of the repository.
-*   Submit a [pull request] to arm-trusted-firmware.
-    *   The changes in the pull request will then undergo further review and
+*   Submit a [pull request] to the [arm-trusted-firmware] `integration` branch.
+    *   The changes in the [pull request] will then undergo further review and
         testing. Any review comments will be made as comments on the [pull
         request]. This may require you to do some rework.
 *   When the changes are accepted, ARM will integrate them.
-    *   To ensure a linear commit history, ARM will typically rebase the commits
-        locally before merging to the [arm-trusted-firmware] `master` branch. In
-        this case, the [pull request] will be closed rather than directly merged
-        on GitHub. If the rebase is not trivial, you may be asked to rebase the
-        commits yourself.
+    *   Typically, ARM will merge the [pull request] into the `integration`
+        branch within the GitHub UI, creating a merge commit.
+    *   Please avoid creating merge commits in the [pull request] itself.
+    *   If the [pull request] is not based on a recent commit, ARM may rebase
+        it onto the `master` branch first, or ask you to do this.
+    *   If the [pull request] cannot be automatically merged, ARM will ask you
+        to rebase it onto the `master` branch.
+    *   After final integration testing, ARM will push your merge commit to the
+        `master` branch. If a problem is found at this stage, the merge commit
+        will be removed from the `integration` branch and ARM will ask you to
+        create a new pull request to resolve the problem.
+    *   Please do not delete your topic branch until it is safely merged into
+        the `master` branch.
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
