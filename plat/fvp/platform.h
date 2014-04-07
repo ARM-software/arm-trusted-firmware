@@ -47,7 +47,16 @@
 /*******************************************************************************
  * Generic platform constants
  ******************************************************************************/
-#define PLATFORM_STACK_SIZE		0x800
+
+/* Size of cacheable stacks */
+#define PLATFORM_STACK_SIZE	0x800
+
+/* Size of coherent stacks for debug and release builds */
+#if DEBUG
+#define PCPU_DV_MEM_STACK_SIZE	0x400
+#else
+#define PCPU_DV_MEM_STACK_SIZE	0x300
+#endif
 
 #define FIRMWARE_WELCOME_STR		"Booting trusted firmware boot loader stage 1\n\r"
 

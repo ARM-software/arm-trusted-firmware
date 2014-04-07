@@ -34,10 +34,6 @@
 #include <platform.h>
 #include <xlat_tables.h>
 
-unsigned char platform_normal_stacks[PLATFORM_STACK_SIZE][PLATFORM_CORE_COUNT]
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_normal_stacks")));
-
 /*******************************************************************************
  * This array holds the characteristics of the differences between the three
  * FVP platforms (Base, A53_A57 & Foundation). It will be populated during cold
