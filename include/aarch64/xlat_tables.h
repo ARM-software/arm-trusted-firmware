@@ -28,6 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef __XLAT_TABLES_H__
+#define __XLAT_TABLES_H__
+
 #include <stdint.h>
 
 /*
@@ -64,3 +67,5 @@ extern void mmap_add(const mmap_region *mm);
 extern void init_xlat_tables(void);
 
 extern uint64_t l1_xlation_table[];
+
+#endif /* __XLAT_TABLES_H__ */
