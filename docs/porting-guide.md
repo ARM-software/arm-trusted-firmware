@@ -194,6 +194,18 @@ constants defined. In the ARM FVP port, this file is found in
     Defines the base address in non-secure DRAM where BL2 loads the BL3-3 binary
     image. Must be aligned on a page-size boundary.
 
+### File : platform_macros.S [mandatory]
+
+Each platform must export a file of this name with the following
+macro defined. In the ARM FVP port, this file is found in
+[plat/fvp/include/platform_macros.S].
+
+*   **Macro : plat_print_gic_regs**
+
+    This macro allows the crash reporting routine to print GIC registers
+    in case of an unhandled IRQ or FIQ in BL3-1. This aids in debugging and
+    this macro can be defined to be empty in case GIC register reporting is
+    not desired.
 
 ### Other mandatory modifications
 
@@ -1147,6 +1159,7 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S
 [plat/fvp/platform.h]:                     ../plat/fvp/platform.h
+[plat/fvp/include/platform_macros.S]:      ../plat/fvp/include/platform_macros.S
 [plat/fvp/aarch64/plat_common.c]:          ../plat/fvp/aarch64/plat_common.c
 [plat/fvp/plat_pm.c]:                      ../plat/fvp/plat_pm.c
 [include/runtime_svc.h]:                   ../include/runtime_svc.h

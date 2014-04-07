@@ -198,8 +198,6 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 				(void *) &psci_ns_context[linear_id],
 				NON_SECURE);
 
-		/* Initialize exception stack in the context */
-		cm_init_exception_stack(mpidr, NON_SECURE);
 	}
 
 	return;

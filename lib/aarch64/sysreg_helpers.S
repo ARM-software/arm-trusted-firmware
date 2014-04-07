@@ -155,6 +155,9 @@
 	.globl	read_id_pfr1_el1
 	.globl	read_id_aa64pfr0_el1
 
+	.globl	write_tpidr_el3
+	.globl	read_tpidr_el3
+
 #if SUPPORT_VFP
 	.globl	enable_vfp
 #endif
@@ -719,6 +722,13 @@ func read_mpidr
 	mrs	x0, mpidr_el1
 	ret
 
+func write_tpidr_el3
+	msr	tpidr_el3, x0
+	ret
+
+func read_tpidr_el3
+	mrs	x0, tpidr_el3
+	ret
 
 #if SUPPORT_VFP
 func enable_vfp

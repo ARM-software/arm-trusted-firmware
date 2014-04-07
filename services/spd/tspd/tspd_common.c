@@ -94,8 +94,6 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	spsr = make_spsr(MODE_EL1, MODE_SP_ELX, rw);
 	cm_set_el3_eret_context(SECURE, entrypoint, spsr, scr);
 
-	cm_init_exception_stack(mpidr, SECURE);
-
 	return 0;
 }
 
