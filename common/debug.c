@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,45 +27,69 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef __DEBUG_H__
-#define __DEBUG_H__
-
+#include <console.h>
+#include <debug.h>
 #include <stdio.h>
 
-/* If building the project with DEBUG disabled the INFO and WARN macros
- * won't produce any output. The ERROR macro is always enabled.
- * The format expected is the same as for printf().
- * INFO("Info %s.\n", "message")    -> INFO: Info message.
- * WARN("Warning %s.\n", "message") -> WARN: Warning message.
- * ERROR("Error %s.\n", "message")  -> ERROR: Error message.
- *
- * TODO : add debug levels.
- */
+/******************************************************************
+* This function is invoked from assembler error handling routines and
+* prints out the string and the value in 64 bit hex format. These
+* are passed to the function as input parameters.
+********************************************************************/
+void print_string_value(char *s, unsigned long *mem)
+{
+	unsigned char i, temp;
+	unsigned long val;
+
+	while (*s) {
+		i = 16;
+		while (*s)
+			console_putc(*s++);
+
+		s++;
+
+		console_putc('\t');
+		console_putc(':');
+		console_putc('0');
+		console_putc('x');
+
+		val = *mem++;
+
+		while (i--) {
+			temp = (val >> (i << 2)) & 0xf;
+			if (temp <  0xa)
+				console_putc('0' + temp);
+			else
+				console_putc('A' + (temp - 0xa));
+		}
+		console_putc('\n');
+	}
+}
+
+/***********************************************************
+ * The common implementation of do_panic for all BL stages
+ ***********************************************************/
+
 #if DEBUG
- #define INFO(...)	printf("INFO: " __VA_ARGS__)
- #define WARN(...)	printf("WARN: " __VA_ARGS__)
+void __dead2 do_panic(const char *file, int line)
+{
+		printf("PANIC in file: %s line: %d\n", file, line);
+		while (1)
+			;
+}
 #else
- #define INFO(...)
- #define WARN(...)
+void __dead2 do_panic(void)
+{
+	unsigned long pc_reg;
+	__asm__ volatile("mov %0, x30\n"
+					: "=r" (pc_reg) : );
+
+	/* x30 reports the next eligible instruction whereas we want the
+	 * place where panic() is invoked. Hence decrement by 4.
+	 */
+	printf("PANIC in PC location 0x%016X\n", pc_reg - 0x4);
+	while (1)
+		;
+
+}
 #endif
-
-#define ERROR(...)	printf("ERROR: " __VA_ARGS__)
-
-
-/* For the moment this Panic function is very basic, Report an error and
- * spin. This can be expanded in the future to provide more information.
- */
-#if DEBUG
-extern void __dead2 do_panic(const char *file, int line);
-#define panic()	do_panic(__FILE__, __LINE__)
-
-#else
-extern void __dead2 do_panic(void);
-#define panic()	do_panic()
-
-#endif
-
-extern void print_string_value(char *s, unsigned long *mem);
-
-#endif /* __DEBUG_H__ */
