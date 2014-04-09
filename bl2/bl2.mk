@@ -32,12 +32,10 @@ vpath			%.c	common				\
 				lib				\
 				plat/${PLAT}			\
 				plat/${PLAT}/${ARCH}		\
-				arch/${ARCH}			\
 				${PLAT_BL2_C_VPATH}
 
-vpath			%.S	lib/arch/${ARCH}		\
-				include				\
-				lib/sync/locks/exclusive	\
+vpath			%.S	lib/${ARCH}			\
+				lib/locks/exclusive		\
 				common/${ARCH}			\
 				${PLAT_BL2_S_VPATH}
 

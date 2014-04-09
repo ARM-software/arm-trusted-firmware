@@ -132,14 +132,20 @@ endif
 .SUFFIXES:
 
 
-INCLUDES		+=	-Ilib/include/			\
-				-Idrivers/io			\
-				-Iinclude/${ARCH}/		\
-				-Iinclude/			\
-				-Iarch/system/gic		\
-				-Iservices/std_svc/psci		\
+INCLUDES		+=	-Iinclude/bl1			\
+				-Iinclude/bl2			\
+				-Iinclude/bl31			\
+				-Iinclude/bl31/services		\
+				-Iinclude/bl32			\
+				-Iinclude/bl32/payloads		\
+				-Iinclude/common		\
+				-Iinclude/drivers		\
+				-Iinclude/drivers/arm		\
+				-Iinclude/lib			\
+				-Iinclude/lib/aarch64		\
 				-Iinclude/stdlib		\
 				-Iinclude/stdlib/sys		\
+				-Iservices/std_svc/psci		\
 				-Iplat/${PLAT}			\
 				${PLAT_INCLUDES}		\
 				${SPD_INCLUDES}

@@ -32,15 +32,12 @@ vpath			%.c	plat/${PLAT}		\
 				plat/${PLAT}/${ARCH}	\
 				common			\
 				lib			\
-				arch/${ARCH}		\
-				lib/arch/${ARCH}	\
+				lib/${ARCH}		\
 				${PLAT_BL1_C_VPATH}
 
-vpath			%.S	arch/${ARCH}/cpu	\
-				plat/common/${ARCH}	\
+vpath			%.S	plat/common/${ARCH}	\
 				plat/${PLAT}/${ARCH}	\
-				include			\
-				lib/arch/${ARCH}	\
+				lib/${ARCH}		\
 				${PLAT_BL1_S_VPATH}
 
 BL1_SOURCES		+=	bl1_arch_setup.c	\

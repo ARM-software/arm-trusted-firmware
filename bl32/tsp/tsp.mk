@@ -32,11 +32,9 @@ vpath			%.c	common				\
 				lib				\
 				plat/${PLAT}			\
 				plat/${PLAT}/${ARCH}		\
-				arch/${ARCH}
 
-vpath			%.S	lib/arch/${ARCH}		\
-				include				\
-				lib/sync/locks/exclusive	\
+vpath			%.S	lib/${ARCH}			\
+				lib/locks/exclusive		\
 				common/${ARCH}
 
 BL32_SOURCES		+=	tsp_entrypoint.S		\
