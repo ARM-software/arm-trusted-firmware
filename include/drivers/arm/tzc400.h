@@ -147,8 +147,6 @@
 /* Filters are bit mapped 0 to 3. */
 #define TZC400_COMPONENT_ID	0xb105f00d
 
-#ifndef __ASSEMBLY__
-
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
@@ -205,6 +203,5 @@ void tzc_enable_filters(const tzc_instance_t *controller);
 void tzc_disable_filters(const tzc_instance_t *controller);
 void tzc_set_action(const tzc_instance_t *controller, tzc_action_t action);
 
-#endif /*__ASSEMBLY__*/
 
 #endif /* __TZC400__ */

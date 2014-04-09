@@ -29,8 +29,8 @@
  */
 
 #include <assert.h>
-#include <io_storage.h>
 #include <io_driver.h>
+#include <io_storage.h>
 #include <semihosting.h>
 
 

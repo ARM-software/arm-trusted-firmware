@@ -28,11 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <bl_common.h>
-#include <platform.h>
-#include <runtime_svc.h>
 #include <asm_macros.S>
+#include <runtime_svc.h>
 
 	.globl	early_exceptions
 

@@ -28,17 +28,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include <uuid.h>
-#include <errno.h>
-#include <string.h>
 #include <assert.h>
-#include <platform.h>
+#include <debug.h>
+#include <errno.h>
 #include <firmware_image_package.h>
-#include <io_storage.h>
 #include <io_driver.h>
 #include <io_fip.h>
-#include <debug.h>
+#include <io_storage.h>
+#include <platform.h>
+#include <stdint.h>
+#include <string.h>
+#include <uuid.h>
 
 /* Useful for printing UUIDs when debugging.*/
 #define PRINT_UUID2(x)								\

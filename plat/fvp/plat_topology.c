@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include <assert.h>
 #include <platform.h>
 /* TODO: Reusing psci error codes & state information. Get our own! */

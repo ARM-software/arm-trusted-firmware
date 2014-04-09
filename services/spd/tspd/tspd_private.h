@@ -28,14 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __SPD_PRIVATE_H__
-#define __SPD_PRIVATE_H__
+#ifndef __TSPD_PRIVATE_H__
+#define __TSPD_PRIVATE_H__
 
-#include <context.h>
 #include <arch.h>
+#include <context.h>
+#include <platform.h>
 #include <psci.h>
-#include <tsp.h>
-#include <cassert.h>
 
 /*******************************************************************************
  * Secure Payload PM state information e.g. SP is suspended, uninitialised etc
@@ -91,6 +90,9 @@
 
 #ifndef __ASSEMBLY__
 
+#include <cassert.h>
+#include <stdint.h>
+
 /* AArch64 callee saved general purpose register context structure. */
 DEFINE_REG_STRUCT(c_rt_regs, TSPD_C_RT_CTX_ENTRIES);
 
@@ -121,6 +123,11 @@ typedef struct tsp_context {
 extern const spd_pm_ops_t tspd_pm;
 
 /*******************************************************************************
+ * Forward declarations
+ ******************************************************************************/
+struct entry_info;
+
+/*******************************************************************************
  * Function & Data prototypes
  ******************************************************************************/
 extern uint64_t tspd_enter_sp(uint64_t *c_rt_ctx);
@@ -132,7 +139,7 @@ extern int32_t tspd_init_secure_context(uint64_t entrypoint,
 					uint64_t mpidr,
 					tsp_context_t *tsp_ctx);
 extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
-extern entry_info_t *tsp_entry_info;
+extern struct entry_info *tsp_entry_info;
 #endif /*__ASSEMBLY__*/
 
-#endif /* __SPD_PRIVATE_H__ */
+#endif /* __TSPD_PRIVATE_H__ */

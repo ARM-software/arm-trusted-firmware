@@ -33,8 +33,8 @@
 
 #include <arch.h>
 #include <bakery_lock.h>
+#include <psci.h>
 
-#ifndef __ASSEMBLY__
 /*******************************************************************************
  * The following two data structures hold the generic information to bringup
  * a suspended/hotplugged out cpu
@@ -156,6 +156,5 @@ extern int psci_afflvl_suspend(unsigned long,
 			       int);
 extern unsigned int psci_afflvl_suspend_finish(unsigned long, int, int);
 
-#endif /*__ASSEMBLY__*/
 
 #endif /* __PSCI_PRIVATE_H__ */

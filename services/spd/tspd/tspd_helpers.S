@@ -28,9 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <context.h>
 #include <asm_macros.S>
-#include <cm_macros.S>
 #include "tspd_private.h"
 
 	.global	tspd_enter_sp

@@ -28,13 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
-#include <assert.h>
 #include <arch_helpers.h>
-#include <platform.h>
-#include <bl32.h>
 #include <bl_common.h>
+#include <bl32.h>
 #include <console.h>
+#include <platform.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

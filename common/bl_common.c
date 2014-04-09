@@ -28,17 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <semihosting.h>
+#include <assert.h>
 #include <bl_common.h>
-#include <io_storage.h>
 #include <debug.h>
+#include <io_storage.h>
+#include <platform.h>
+#include <stdio.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
 {

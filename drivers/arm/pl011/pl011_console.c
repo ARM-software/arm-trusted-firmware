@@ -28,10 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
 #include <console.h>
 #include <platform.h>
 #include <pl011.h>
-#include <assert.h>
 
 static unsigned long uart_base;
 

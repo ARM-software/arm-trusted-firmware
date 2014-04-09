@@ -35,7 +35,6 @@
 
 #define BAKERY_LOCK_MAX_CPUS		PLATFORM_CORE_COUNT
 
-#ifndef __ASSEMBLY__
 typedef struct bakery_lock {
 	int owner;
 	volatile char entering[BAKERY_LOCK_MAX_CPUS];
@@ -48,6 +47,5 @@ void bakery_lock_init(bakery_lock_t *bakery);
 void bakery_lock_get(unsigned long mpidr, bakery_lock_t *bakery);
 void bakery_lock_release(unsigned long mpidr, bakery_lock_t *bakery);
 int bakery_lock_try(unsigned long mpidr, bakery_lock_t *bakery);
-#endif /*__ASSEMBLY__*/
 
 #endif /* __BAKERY_LOCK_H__ */

@@ -28,6 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
+
+
 	.macro	func_prologue
 	stp	x29, x30, [sp, #-0x10]!
 	mov	x29,sp

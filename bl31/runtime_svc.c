@@ -28,20 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
-#include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <semihosting.h>
-#include <bl_common.h>
-#include <psci.h>
-#include <runtime_svc.h>
-#include <context.h>
 #include <debug.h>
-#include <context_mgmt.h>
+#include <errno.h>
+#include <runtime_svc.h>
+#include <string.h>
 
 /*******************************************************************************
  * The 'rt_svc_descs' array holds the runtime service descriptors exported by

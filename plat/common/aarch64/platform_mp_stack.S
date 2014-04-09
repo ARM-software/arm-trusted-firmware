@@ -29,8 +29,8 @@
  */
 
 #include <arch.h>
-#include <platform.h>
 #include <asm_macros.S>
+#include <platform.h>
 
 
 	.local	pcpu_dv_mem_stack

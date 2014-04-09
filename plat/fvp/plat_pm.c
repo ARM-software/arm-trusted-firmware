@@ -28,18 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <bl_common.h>
-#include <bl31.h>
+#include <assert.h>
 #include <bakery_lock.h>
 #include <cci400.h>
-#include <gic_v2.h>
-/* Only included for error codes */
+#include <mmio.h>
+#include <platform.h>
 #include <psci.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 

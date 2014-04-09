@@ -28,9 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
 #include <platform.h>
 #include <pl011.h>
-#include <assert.h>
 
 void pl011_setbaudrate(unsigned long base_addr, unsigned int baudrate)
 {

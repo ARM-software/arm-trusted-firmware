@@ -28,18 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <context_mgmt.h>
-#include <runtime_svc.h>
-#include <bl31.h>
-#include <bl32.h>
-#include <psci.h>
 #include <debug.h>
+#include <tsp.h>
 #include "tspd_private.h"
 
 /*******************************************************************************

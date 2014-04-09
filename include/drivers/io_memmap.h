@@ -31,6 +31,8 @@
 #ifndef __IO_MEMMAP_H__
 #define __IO_MEMMAP_H__
 
+struct io_dev_connector;
+
 int register_io_dev_memmap(struct io_dev_connector **dev_con);
 
 #endif /* __IO_MEMMAP_H__ */

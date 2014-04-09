@@ -28,11 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
 #include <arch.h>
-#include <platform.h>
-#include <gic_v3.h>
 #include <debug.h>
+#include <gic_v3.h>
 
 uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr)
 {

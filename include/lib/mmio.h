@@ -31,8 +31,6 @@
 #ifndef __MMIO_H__
 #define __MMIO_H__
 
-#ifndef __ASSEMBLY__
-
 #include <stdint.h>
 
 extern void mmio_write_8(uintptr_t addr, uint8_t value);
@@ -43,7 +41,5 @@ extern uint32_t mmio_read_32(uintptr_t addr);
 
 extern void mmio_write_64(uintptr_t addr, uint64_t value);
 extern uint64_t mmio_read_64(uintptr_t addr);
-
-#endif /*__ASSEMBLY__*/
 
 #endif /* __MMIO_H__ */

@@ -27,6 +27,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include <arch.h>
+#include <context.h>
+
+
 	/* ---------------------------------------------
 	 * Zero out the callee saved register to prevent
 	 * leakage of secure state into the normal world

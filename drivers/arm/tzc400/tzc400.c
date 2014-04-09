@@ -29,10 +29,10 @@
  */
 
 #include <assert.h>
-#include <arch_helpers.h>
-#include <tzc400.h>
-#include <mmio.h>
 #include <debug.h>
+#include <mmio.h>
+#include <stddef.h>
+#include <tzc400.h>
 
 static uint32_t tzc_read_build_config(uint64_t base)
 {

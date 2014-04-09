@@ -28,11 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <string.h>
-
-#include <bakery_lock.h>
 #include <arch_helpers.h>
+#include <assert.h>
+#include <bakery_lock.h>
+#include <string.h>
 
 /*
  * Functions in this file implement Bakery Algorithm for mutual exclusion.

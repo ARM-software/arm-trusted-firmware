@@ -31,18 +31,22 @@
 #ifndef __BL2_H__
 #define __BL2_H__
 
-#include <bl_common.h>
-
 /******************************************
  * Data declarations
  *****************************************/
 extern unsigned long long bl2_entrypoint;
 
 /******************************************
+ * Forward declarations
+ *****************************************/
+struct meminfo;
+struct bl31_args;
+
+/******************************************
  * Function prototypes
  *****************************************/
 extern void bl2_platform_setup(void);
-extern meminfo_t *bl2_plat_sec_mem_layout(void);
-extern bl31_args_t *bl2_get_bl31_args_ptr(void);
+extern struct meminfo *bl2_plat_sec_mem_layout(void);
+extern struct bl31_args *bl2_get_bl31_args_ptr(void);
 
 #endif /* __BL2_H__ */

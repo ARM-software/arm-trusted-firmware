@@ -28,11 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-#include <stddef.h>
 #include <assert.h>
-#include <io_storage.h>
 #include <io_driver.h>
+#include <io_storage.h>
+#include <stddef.h>
 
 
 #define MAX_DEVICES(plat_data)						\

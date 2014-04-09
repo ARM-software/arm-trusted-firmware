@@ -31,7 +31,6 @@
 #ifndef __ARCH_H__
 #define __ARCH_H__
 
-#include <bl_common.h>
 
 /*******************************************************************************
  * MIDR bit definitions

@@ -58,7 +58,8 @@
 
 
 #ifndef __ASSEMBLY__
-#include <stdio.h>
+
+#include <cdefs.h> /* For __dead2 */
 
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of

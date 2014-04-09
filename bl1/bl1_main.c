@@ -28,13 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <platform.h>
-#include <semihosting.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <bl1.h>
+#include <platform.h>
+#include <stdio.h>
 #include "bl1_private.h"
 
 /*******************************************************************************

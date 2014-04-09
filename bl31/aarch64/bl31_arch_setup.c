@@ -28,9 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <arch_helpers.h>
-#include <platform.h>
 #include <assert.h>
+#include <bl_common.h>
+#include <bl31.h>
+#include <platform.h>
 
 /*******************************************************************************
  * This duplicates what the primary cpu did after a cold boot in BL1. The same

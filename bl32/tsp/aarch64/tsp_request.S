@@ -28,8 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <tsp.h>
 #include <asm_macros.S>
+#include <tsp.h>
 
 	.globl tsp_get_magic
 

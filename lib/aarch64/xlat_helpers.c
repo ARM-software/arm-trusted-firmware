@@ -28,9 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
-#include <assert.h>
 #include <arch.h>
+#include <assert.h>
 
 /*******************************************************************************
  * Helper to create a level 1/2 table descriptor which points to a level 2/3

@@ -30,8 +30,6 @@
 
 #ifndef __RUNTIME_SVC_H__
 #define __RUNTIME_SVC_H__
-#include <psci.h>
-#include <cassert.h>
 
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention
@@ -121,6 +119,10 @@
 #define MAX_RT_SVCS		128
 
 #ifndef __ASSEMBLY__
+
+#include <cassert.h>
+#include <context.h>
+#include <stdint.h>
 
 /* Various flags passed to SMC handlers */
 #define SMC_FROM_SECURE		(0 << 0)

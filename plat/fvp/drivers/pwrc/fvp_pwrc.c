@@ -28,13 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <assert.h>
-#include <arch_helpers.h>
-#include <platform.h>
 #include <bakery_lock.h>
+#include <mmio.h>
 #include "fvp_pwrc.h"
 
 /*

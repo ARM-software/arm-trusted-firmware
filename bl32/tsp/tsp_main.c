@@ -28,13 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bl32.h>
-#include <tsp.h>
 #include <arch_helpers.h>
-#include <stdio.h>
-#include <platform.h>
+#include <bl_common.h>
+#include <bl32.h>
 #include <debug.h>
+#include <platform.h>
 #include <spinlock.h>
+#include <stdio.h>
+#include <tsp.h>
 
 /*******************************************************************************
  * Lock to control access to the console

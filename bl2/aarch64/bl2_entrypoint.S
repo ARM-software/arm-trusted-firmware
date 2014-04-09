@@ -28,9 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bl_common.h>
 #include <arch.h>
 #include <asm_macros.S>
+#include <bl_common.h>
 
 
 	.globl	bl2_entrypoint

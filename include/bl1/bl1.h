@@ -31,16 +31,16 @@
 #ifndef __BL1_H__
 #define __BL1_H__
 
-#include <bl_common.h>
 
-#ifndef __ASSEMBLY__
+/******************************************
+ * Forward declarations
+ *****************************************/
+struct meminfo;
 
 /******************************************
  * Function prototypes
  *****************************************/
 extern void bl1_platform_setup(void);
-extern meminfo_t *bl1_plat_sec_mem_layout(void);
-
-#endif /*__ASSEMBLY__*/
+extern struct meminfo *bl1_plat_sec_mem_layout(void);
 
 #endif /* __BL1_H__ */

@@ -28,9 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <platform.h>
 #include <arch.h>
+#include <bl_common.h>
+#include <bl31.h>
 #include <console.h>
+#include <mmio.h>
+#include <platform.h>
+#include <stddef.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 
 /*******************************************************************************

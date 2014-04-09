@@ -28,8 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <arch_helpers.h>
-#include <platform.h>
 
 /*******************************************************************************
  * Place holder function to perform any S-EL1 specific architectural setup. At
