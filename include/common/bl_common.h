@@ -127,19 +127,22 @@ extern void __dead2 raise_el(aapcs64_params *);
 extern void __dead2 change_el(el_change_info *);
 extern unsigned long make_spsr(unsigned long, unsigned long, unsigned long);
 extern void init_bl2_mem_layout(meminfo *,
-			        meminfo *,
-			        unsigned int,
-			        unsigned long) __attribute__((weak));
+				meminfo *,
+				unsigned int,
+				unsigned long) __attribute__((weak));
 extern void init_bl31_mem_layout(const meminfo *,
-				 meminfo *,
-				 unsigned int) __attribute__((weak));
+				meminfo *,
+				unsigned int) __attribute__((weak));
 extern unsigned long image_size(const char *);
-extern unsigned long load_image(meminfo *, const char *, unsigned int, unsigned long);
+extern unsigned long load_image(meminfo *,
+				const char *,
+				unsigned int,
+				unsigned long);
 extern void __dead2 run_image(unsigned long entrypoint,
-			      unsigned long spsr,
-			      unsigned long security_state,
-			      void *first_arg,
-			      void *second_arg);
+				unsigned long spsr,
+				unsigned long security_state,
+				void *first_arg,
+				void *second_arg);
 extern unsigned long *get_el_change_mem_ptr(void);
 extern const char build_message[];
 

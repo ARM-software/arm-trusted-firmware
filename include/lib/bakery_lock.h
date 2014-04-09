@@ -28,32 +28,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
+#ifndef __BAKERY_LOCK_H__
+#define __BAKERY_LOCK_H__
+
 #include <platform.h>
-#include <cci400.h>
 
-static inline unsigned long get_slave_iface_base(unsigned long mpidr)
-{
-	return CCI400_BASE + SLAVE_IFACE_OFFSET(CCI400_SL_IFACE_INDEX(mpidr));
-}
+#define BAKERY_LOCK_MAX_CPUS		PLATFORM_CORE_COUNT
 
-void cci_enable_coherency(unsigned long mpidr)
-{
-	/* Enable Snoops and DVM messages */
-	mmio_write_32(get_slave_iface_base(mpidr) + SNOOP_CTRL_REG,
-		      DVM_EN_BIT | SNOOP_EN_BIT);
+#ifndef __ASSEMBLY__
+typedef struct {
+	int owner;
+	volatile char entering[BAKERY_LOCK_MAX_CPUS];
+	volatile unsigned number[BAKERY_LOCK_MAX_CPUS];
+} bakery_lock;
 
-	/* Wait for the dust to settle down */
-	while (mmio_read_32(CCI400_BASE + STATUS_REG) & CHANGE_PENDING_BIT);
-}
+#define NO_OWNER (-1)
 
-void cci_disable_coherency(unsigned long mpidr)
-{
-	/* Disable Snoops and DVM messages */
-	mmio_write_32(get_slave_iface_base(mpidr) + SNOOP_CTRL_REG,
-		      ~(DVM_EN_BIT | SNOOP_EN_BIT));
+void bakery_lock_init(bakery_lock *bakery);
+void bakery_lock_get(unsigned long mpidr, bakery_lock *bakery);
+void bakery_lock_release(unsigned long mpidr, bakery_lock *bakery);
+int bakery_lock_try(unsigned long mpidr, bakery_lock *bakery);
+#endif /*__ASSEMBLY__*/
 
-	/* Wait for the dust to settle down */
-	while (mmio_read_32(CCI400_BASE + STATUS_REG) & CHANGE_PENDING_BIT);
-}
-
+#endif /* __BAKERY_LOCK_H__ */

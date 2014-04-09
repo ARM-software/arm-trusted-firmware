@@ -30,23 +30,21 @@
 
 vpath			%.c	common					\
 				lib					\
-				arch/system/gic				\
+				drivers/arm/gic				\
 				plat/${PLAT}				\
-				arch/${ARCH}				\
 				services/std_svc			\
 				services/std_svc/psci			\
-				lib/sync/locks/bakery			\
+				lib/locks/bakery			\
 				plat/${PLAT}/${ARCH}			\
 				${PLAT_BL31_C_VPATH}
 
-vpath			%.S	lib/arch/${ARCH}			\
+vpath			%.S	lib/${ARCH}				\
 				services/std_svc			\
 				services/std_svc/psci			\
-				include					\
 				plat/${PLAT}/${ARCH}			\
-				lib/sync/locks/exclusive		\
+				lib/locks/exclusive			\
 				plat/common/${ARCH}			\
-				arch/system/gic/${ARCH}			\
+				drivers/arm/gic/${ARCH}			\
 				common/${ARCH}				\
 				${PLAT_BL31_S_VPATH}
 

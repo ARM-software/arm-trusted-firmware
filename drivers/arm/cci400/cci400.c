@@ -28,39 +28,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __PM_H__
-#define __PM_H__
+#include <assert.h>
+#include <platform.h>
+#include <cci400.h>
 
-#ifndef __ASSEMBLY__
+static inline unsigned long get_slave_iface_base(unsigned long mpidr)
+{
+	return CCI400_BASE + SLAVE_IFACE_OFFSET(CCI400_SL_IFACE_INDEX(mpidr));
+}
 
-/*******************************************************************************
- * Structure populated by platform specific code to export routines which
- * perform common low level pm functions
- ******************************************************************************/
-typedef struct {
-	int (*cpu_on)(unsigned long);
-	int (*cpu_off)(unsigned long);
-	int (*cpu_suspend)(unsigned long);
-	int (*affinity_info)(unsigned long, unsigned int);
-} pm_frontend_ops;
+void cci_enable_coherency(unsigned long mpidr)
+{
+	/* Enable Snoops and DVM messages */
+	mmio_write_32(get_slave_iface_base(mpidr) + SNOOP_CTRL_REG,
+		      DVM_EN_BIT | SNOOP_EN_BIT);
 
-/*******************************************************************************
- * Structure populated by a generic power management api implementation e.g.
- * psci to perform api specific bits after a cpu has been turned on.
- ******************************************************************************/
-typedef struct {
-	unsigned long (*cpu_off_finisher)(unsigned long);
-	unsigned long (*cpu_suspend_finisher)(unsigned long);
-} pm_backend_ops;
+	/* Wait for the dust to settle down */
+	while (mmio_read_32(CCI400_BASE + STATUS_REG) & CHANGE_PENDING_BIT)
+		;
+}
 
-/*******************************************************************************
- * Function & variable prototypes
- ******************************************************************************/
-extern pm_frontend_ops *get_pm_frontend_ops(void);
-extern pm_backend_ops *get_pm_backend_ops(void);
-extern void set_pm_frontend_ops(pm_frontend_ops *);
-extern void set_pm_backend_ops(pm_backend_ops *);
+void cci_disable_coherency(unsigned long mpidr)
+{
+	/* Disable Snoops and DVM messages */
+	mmio_write_32(get_slave_iface_base(mpidr) + SNOOP_CTRL_REG,
+		      ~(DVM_EN_BIT | SNOOP_EN_BIT));
 
-#endif /*__ASSEMBLY__*/
+	/* Wait for the dust to settle down */
+	while (mmio_read_32(CCI400_BASE + STATUS_REG) & CHANGE_PENDING_BIT)
+		;
+}
 
-#endif /* __PM_H__ */

@@ -59,14 +59,14 @@
 #define assert_bakery_entry_valid(entry, bakery) do {	\
 	assert(bakery);					\
 	assert(entry < BAKERY_LOCK_MAX_CPUS);		\
-} while(0)
+} while (0)
 
 /* Convert a ticket to priority */
 #define PRIORITY(t, pos)	(((t) << 8) | (pos))
 
 
 /* Initialize Bakery Lock to reset ownership and all ticket values */
-void bakery_lock_init(bakery_lock * bakery)
+void bakery_lock_init(bakery_lock *bakery)
 {
 	assert(bakery);
 
@@ -176,7 +176,7 @@ void bakery_lock_get(unsigned long mpidr, bakery_lock *bakery)
 
 
 /* Release the lock and signal contenders */
-void bakery_lock_release(unsigned long mpidr, bakery_lock * bakery)
+void bakery_lock_release(unsigned long mpidr, bakery_lock *bakery)
 {
 	unsigned int me = platform_get_core_pos(mpidr);
 

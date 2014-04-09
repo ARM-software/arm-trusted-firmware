@@ -28,34 +28,33 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_INCLUDES		:=	-Idrivers/arm/interconnect/cci-400	\
-				-Idrivers/arm/interconnect/tzc-400	\
-				-Idrivers/console			\
-				-Idrivers/arm/peripherals/pl011		\
-				-Idrivers/power
+#
+# No additional platform system include directories required
+#
+# PLAT_INCLUDES		:=
 
-PLAT_BL1_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
-				drivers/arm/peripherals/pl011		\
-				lib/arch/${ARCH}			\
+PLAT_BL1_C_VPATH	:=	drivers/arm/cci400			\
+				drivers/arm/pl011			\
+				lib/${ARCH}				\
 				lib/semihosting				\
 				lib/stdlib				\
 				drivers/io
 
 PLAT_BL1_S_VPATH	:=	lib/semihosting/${ARCH}
 
-PLAT_BL2_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
-				drivers/arm/interconnect/tzc-400	\
-				drivers/arm/peripherals/pl011		\
-				lib/arch/${ARCH}			\
+PLAT_BL2_C_VPATH	:=	drivers/arm/cci400			\
+				drivers/arm/pl011			\
+				drivers/arm/tzc400			\
+				lib/${ARCH}				\
 				lib/stdlib				\
 				lib/semihosting				\
 				drivers/io
 
 PLAT_BL2_S_VPATH	:=	lib/semihosting/${ARCH}
 
-PLAT_BL31_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
-				drivers/arm/peripherals/pl011		\
-				lib/arch/${ARCH}			\
+PLAT_BL31_C_VPATH	:=	drivers/arm/cci-400			\
+				drivers/arm/pl011			\
+				lib/${ARCH}				\
 				lib/semihosting				\
 				lib/stdlib				\
 				drivers/power				\
