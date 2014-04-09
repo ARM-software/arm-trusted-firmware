@@ -145,7 +145,6 @@ INCLUDES		+=	-Iinclude/bl1			\
 				-Iinclude/lib/aarch64		\
 				-Iinclude/stdlib		\
 				-Iinclude/stdlib/sys		\
-				-Iservices/std_svc/psci		\
 				-Iplat/${PLAT}			\
 				${PLAT_INCLUDES}		\
 				${SPD_INCLUDES}

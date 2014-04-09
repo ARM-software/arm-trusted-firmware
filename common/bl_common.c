@@ -37,8 +37,8 @@
 #include <platform.h>
 #include <semihosting.h>
 #include <bl_common.h>
-#include "io_storage.h"
-#include "debug.h"
+#include <io_storage.h>
+#include <debug.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
 {

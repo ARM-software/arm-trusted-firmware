@@ -37,7 +37,7 @@
 #include <bl_common.h>
 #include <runtime_svc.h>
 #include <context_mgmt.h>
-#include <tspd_private.h>
+#include "tspd_private.h"
 
 /*******************************************************************************
  * Given a secure payload entrypoint, register width, cpu id & pointer to a

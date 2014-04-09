@@ -35,10 +35,10 @@
 #include <console.h>
 #include <platform.h>
 #include <psci.h>
-#include <psci_private.h>
 #include <context_mgmt.h>
 #include <runtime_svc.h>
-#include "debug.h"
+#include <debug.h>
+#include "psci_private.h"
 
 /*
  * SPD power management operations, expected to be supplied by the registered

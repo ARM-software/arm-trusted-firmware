@@ -36,7 +36,7 @@
 #include <console.h>
 #include <platform.h>
 #include <psci.h>
-#include <psci_private.h>
+#include "psci_private.h"
 
 typedef int (*afflvl_off_handler)(unsigned long, aff_map_node *);
 

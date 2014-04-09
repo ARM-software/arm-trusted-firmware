@@ -29,9 +29,9 @@
  */
 
 #include <assert.h>
-#include "platform.h"
-#include "tzc400.h"
-#include "debug.h"
+#include <platform.h>
+#include <tzc400.h>
+#include <debug.h>
 
 /* Used to improve readability for configuring regions. */
 #define FILTER_SHIFT(filter)	(1 << filter)

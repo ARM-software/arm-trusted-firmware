@@ -36,8 +36,8 @@
 #include <console.h>
 #include <platform.h>
 #include <psci.h>
-#include <psci_private.h>
 #include <context_mgmt.h>
+#include "psci_private.h"
 
 typedef int (*afflvl_suspend_handler)(unsigned long,
 				      aff_map_node *,

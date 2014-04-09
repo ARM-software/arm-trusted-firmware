@@ -30,7 +30,7 @@
 
 #include <assert.h>
 #include <arch_helpers.h>
-#include "debug.h"
+#include <debug.h>
 #include <platform.h>
 #include <xlat_tables.h>
 
