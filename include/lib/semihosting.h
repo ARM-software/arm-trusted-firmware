@@ -31,6 +31,9 @@
 #ifndef __SEMIHOSTING_H__
 #define __SEMIHOSTING_H__
 
+#include <stdio.h> /* For ssize_t */
+
+
 #define SEMIHOSTING_SYS_OPEN            0x01
 #define SEMIHOSTING_SYS_CLOSE           0x02
 #define SEMIHOSTING_SYS_WRITE0          0x04

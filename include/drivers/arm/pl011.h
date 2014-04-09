@@ -31,6 +31,9 @@
 #ifndef __PL011_H__
 #define __PL011_H__
 
+#include <mmio.h>
+
+
 /* PL011 Registers */
 #define UARTDR                    0x000
 #define UARTRSR                   0x004

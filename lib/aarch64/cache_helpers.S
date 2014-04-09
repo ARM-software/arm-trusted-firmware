@@ -28,7 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
+#include <arch.h>
 #include <asm_macros.S>
 
 	.globl	dcisw

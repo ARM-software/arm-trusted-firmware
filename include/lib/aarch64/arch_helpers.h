@@ -31,10 +31,8 @@
 #ifndef __ARCH_HELPERS_H__
 #define __ARCH_HELPERS_H__
 
-#include <arch.h>
+#include <cdefs.h> /* For __dead2 */
 
-#ifndef __ASSEMBLY__
-#include <stdio.h>
 
 /*******************************************************************************
  * Aarch64 translation tables manipulation helper prototypes
@@ -268,6 +266,5 @@ extern void write_cpuectlr(unsigned long);
 extern void write_cptr_el2(unsigned long);
 extern void write_cptr_el3(unsigned long);
 
-#endif /*__ASSEMBLY__*/
 
 #endif /* __ARCH_HELPERS_H__ */

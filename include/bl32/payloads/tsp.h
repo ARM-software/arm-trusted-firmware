@@ -31,9 +31,6 @@
 #ifndef __TSP_H__
 #define __TSP_H__
 
-#include <platform.h>
-#include <cassert.h>
-
 /*
  * SMC function IDs that TSP uses to signal various forms of completions
  * to the secure payload dispatcher.
@@ -86,6 +83,9 @@
 #define TSP_ARGS_END		0x40
 
 #ifndef __ASSEMBLY__
+
+#include <cassert.h>
+#include <platform.h>	/* For CACHE_WRITEBACK_GRANULE */
 #include <stdint.h>
 
 typedef void (*tsp_generic_fptr_t)(uint64_t arg0,

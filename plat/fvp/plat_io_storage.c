@@ -29,15 +29,15 @@
  */
 
 #include <assert.h>
-#include <string.h>
-#include <platform.h>
-#include <io_storage.h>
+#include <debug.h>
 #include <io_driver.h>
-#include <io_semihosting.h>
-#include <semihosting.h>	/* For FOPEN_MODE_... */
 #include <io_fip.h>
 #include <io_memmap.h>
-#include <debug.h>
+#include <io_storage.h>
+#include <io_semihosting.h>
+#include <platform.h>
+#include <semihosting.h>	/* For FOPEN_MODE_... */
+#include <string.h>
 
 /* IO devices */
 static io_plat_data_t io_data;

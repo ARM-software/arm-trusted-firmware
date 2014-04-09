@@ -28,10 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bl_common.h>
 #include <arch.h>
-#include <tsp.h>
 #include <asm_macros.S>
+#include <tsp.h>
 
 
 	.globl	tsp_entrypoint

@@ -28,18 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <assert.h>
-#include <bl31.h>
-#include <debug.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <psci.h>
+#include <assert.h>
+#include <bl_common.h>
+#include <bl31.h>
 #include <context_mgmt.h>
 #include <runtime_svc.h>
+#include <stddef.h>
 #include "psci_private.h"
 
 typedef int (*afflvl_on_handler_t)(unsigned long,

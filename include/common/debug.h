@@ -31,9 +31,6 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-/* Do not try to call this from ASM code. */
-#ifndef __ASSEMBLY__
-
 #include <stdio.h>
 
 /* If building the project with DEBUG disabled the INFO and WARN macros
@@ -66,5 +63,4 @@ static inline void __attribute__((noreturn)) panic(void)
 		;
 }
 
-#endif /* __ASSEMBLY__ */
 #endif /* __DEBUG_H__ */

@@ -31,15 +31,18 @@
 #ifndef __BL32_H__
 #define __BL32_H__
 
-#ifndef __ASSEMBLY__
 #include <stdint.h>
 
-#include <bl_common.h>
+/******************************************
+ * Forward declarations
+ *****************************************/
+struct meminfo;
 
+/******************************************
+ * Function prototypes
+ *****************************************/
 extern void bl32_platform_setup(void);
-extern meminfo_t *bl32_plat_sec_mem_layout(void);
+extern struct meminfo *bl32_plat_sec_mem_layout(void);
 extern uint64_t bl32_main(void);
-
-#endif /* __ASSEMBLY__ */
 
 #endif /* __BL32_H__ */

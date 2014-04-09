@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
 #include <asm_macros.S>
 
 	.globl	tlbialle1

@@ -28,12 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
 #include <arch_helpers.h>
-#include <platform.h>
+#include <debug.h>
 #include <gic_v2.h>
 #include <gic_v3.h>
-#include <debug.h>
+#include <platform.h>
+#include <stdint.h>
 
 
 /*******************************************************************************

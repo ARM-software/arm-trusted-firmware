@@ -31,9 +31,8 @@
 #ifndef __CM_H__
 #define __CM_H__
 
-#include <context.h>
+#include <stdint.h>
 
-#ifndef __ASSEMBLY__
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
@@ -51,5 +50,5 @@ extern void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint
 extern void cm_set_el3_elr(uint32_t security_state, uint64_t entrypoint);
 extern void cm_set_next_eret_context(uint32_t security_state);
 extern void cm_init_exception_stack(uint64_t mpidr, uint32_t security_state);
-#endif /*__ASSEMBLY__*/
+
 #endif /* __CM_H__ */

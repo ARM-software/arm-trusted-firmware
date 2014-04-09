@@ -31,6 +31,7 @@
 #ifndef __PSCI_H__
 #define __PSCI_H__
 
+
 /*******************************************************************************
  * Defines for runtime services func ids
  ******************************************************************************/
@@ -131,6 +132,10 @@
 #define PSCI_NUM_AFFS		32ull
 
 #ifndef __ASSEMBLY__
+
+#include <stdint.h>
+
+
 /*******************************************************************************
  * Structure populated by platform specific code to export routines which
  * perform common low level pm functions

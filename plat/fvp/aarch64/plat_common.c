@@ -28,9 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <debug.h>
+#include <mmio.h>
 #include <platform.h>
 #include <xlat_tables.h>
 

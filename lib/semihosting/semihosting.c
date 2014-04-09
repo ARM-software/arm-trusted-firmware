@@ -29,10 +29,9 @@
  */
 
 #include <assert.h>
-#include <string.h>
 #include <errno.h>
-#include <stdio.h>
 #include <semihosting.h>
+#include <string.h>
 
 #ifndef SEMIHOSTING_SUPPORTED
 #define SEMIHOSTING_SUPPORTED  1

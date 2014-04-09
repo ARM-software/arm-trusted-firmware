@@ -28,9 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <platform.h>
 #include <cci400.h>
+#include <mmio.h>
+#include <platform.h>
 
 static inline unsigned long get_slave_iface_base(unsigned long mpidr)
 {

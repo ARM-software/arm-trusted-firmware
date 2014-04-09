@@ -28,14 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-#include <debug.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <psci.h>
+#include <assert.h>
+#include <string.h>
 #include "psci_private.h"
 
 typedef int (*afflvl_off_handler_t)(unsigned long, aff_map_node_t *);

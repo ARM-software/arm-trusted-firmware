@@ -28,8 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
-#include <runtime_svc.h>
+#include <arch.h>
 #include <asm_macros.S>
 
 	.globl	enable_irq

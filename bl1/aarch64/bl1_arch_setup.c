@@ -28,9 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <arch_helpers.h>
-#include <platform.h>
-#include <assert.h>
 
 /*******************************************************************************
  * Function that does the first bit of architectural setup that affects

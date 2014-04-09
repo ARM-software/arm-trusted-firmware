@@ -31,7 +31,9 @@
 #ifndef __IO_DRIVER_H__
 #define __IO_DRIVER_H__
 
+#include <io_storage.h>
 #include <platform.h>   /* For MAX_IO_DEVICES */
+#include <stdint.h>
 
 
 /* Generic IO entity structure,representing an accessible IO construct on the

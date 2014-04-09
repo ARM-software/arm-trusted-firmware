@@ -28,15 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <psci.h>
+#include <assert.h>
+#include <bl_common.h>
+#include <context.h>
 #include <context_mgmt.h>
-#include <runtime_svc.h>
 #include <debug.h>
 #include "psci_private.h"
 

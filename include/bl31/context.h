@@ -31,9 +31,6 @@
 #ifndef __CONTEXT_H__
 #define __CONTEXT_H__
 
-#include <arch.h>
-#include <cassert.h>
-
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'gp_regs'
  * structure at their correct offsets.
@@ -170,6 +167,9 @@
 #define CTX_FPREGS_END		0x210
 
 #ifndef __ASSEMBLY__
+
+#include <cassert.h>
+#include <stdint.h>
 
 /*
  * Common constants to help define the 'cpu_context' structure and its

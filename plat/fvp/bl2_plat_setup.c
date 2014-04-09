@@ -28,12 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
 #include <arch_helpers.h>
-#include <platform.h>
-#include <bl2.h>
+#include <assert.h>
 #include <bl_common.h>
+#include <bl2.h>
 #include <console.h>
+#include <platform.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
