@@ -34,9 +34,9 @@
 #include <arch_helpers.h>
 #include <console.h>
 #include <platform.h>
-#include <psci_private.h>
 #include <context_mgmt.h>
 #include <runtime_svc.h>
+#include "psci_private.h"
 
 /*******************************************************************************
  * Per cpu non-secure contexts used to program the architectural state prior

@@ -32,8 +32,8 @@
 #include <runtime_svc.h>
 #include <platform.h>
 #include <context.h>
-#include "asm_macros.S"
-#include "cm_macros.S"
+#include <asm_macros.S>
+#include <cm_macros.S>
 
 	.globl	runtime_exceptions
 	.globl	el3_exit

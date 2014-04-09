@@ -34,10 +34,10 @@
 #include <arch_helpers.h>
 #include <console.h>
 #include <platform.h>
-#include <psci_private.h>
 #include <runtime_svc.h>
 #include <debug.h>
 #include <context_mgmt.h>
+#include "psci_private.h"
 
 /*******************************************************************************
  * PSCI frontend api for servicing SMCs. Described in the PSCI spec.

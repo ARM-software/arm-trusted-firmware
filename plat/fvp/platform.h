@@ -35,7 +35,7 @@
 #include <mmio.h>
 #include <psci.h>
 #include <bl_common.h>
-#include "io_storage.h"
+#include <io_storage.h>
 
 
 /*******************************************************************************

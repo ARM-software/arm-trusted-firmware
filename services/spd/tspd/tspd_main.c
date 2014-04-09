@@ -49,9 +49,9 @@
 #include <bl31.h>
 #include <tsp.h>
 #include <psci.h>
-#include <tspd_private.h>
 #include <debug.h>
 #include <uuid.h>
+#include "tspd_private.h"
 
 /*******************************************************************************
  * Single structure to hold information about the various entry points into the

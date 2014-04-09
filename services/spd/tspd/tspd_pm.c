@@ -39,8 +39,8 @@
 #include <bl31.h>
 #include <bl32.h>
 #include <psci.h>
-#include <tspd_private.h>
 #include <debug.h>
+#include "tspd_private.h"
 
 /*******************************************************************************
  * The target cpu is being turned on. Allow the TSPD/TSP to perform any actions

@@ -33,12 +33,12 @@
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
-#include "platform.h"
-#include "firmware_image_package.h"
-#include "io_storage.h"
-#include "io_driver.h"
-#include "io_fip.h"
-#include "debug.h"
+#include <platform.h>
+#include <firmware_image_package.h>
+#include <io_storage.h>
+#include <io_driver.h>
+#include <io_fip.h>
+#include <debug.h>
 
 /* Useful for printing UUIDs when debugging.*/
 #define PRINT_UUID2(x)								\
