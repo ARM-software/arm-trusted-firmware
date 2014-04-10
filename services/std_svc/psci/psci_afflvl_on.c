@@ -42,8 +42,8 @@
 #include <runtime_svc.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_on_handler)(unsigned long,
-				 aff_map_node *,
+typedef int (*afflvl_on_handler_t)(unsigned long,
+				 aff_map_node_t *,
 				 unsigned long,
 				 unsigned long);
 
@@ -51,7 +51,7 @@ typedef int (*afflvl_on_handler)(unsigned long,
  * This function checks whether a cpu which has been requested to be turned on
  * is OFF to begin with.
  ******************************************************************************/
-static int cpu_on_validate_state(aff_map_node *node)
+static int cpu_on_validate_state(aff_map_node_t *node)
 {
 	unsigned int psci_state;
 
@@ -74,7 +74,7 @@ static int cpu_on_validate_state(aff_map_node *node)
  * TODO: Split this code across separate handlers for each type of setup?
  ******************************************************************************/
 static int psci_afflvl0_on(unsigned long target_cpu,
-			   aff_map_node *cpu_node,
+			   aff_map_node_t *cpu_node,
 			   unsigned long ns_entrypoint,
 			   unsigned long context_id)
 {
@@ -142,7 +142,7 @@ static int psci_afflvl0_on(unsigned long target_cpu,
  * TODO: Split this code across separate handlers for each type of setup?
  ******************************************************************************/
 static int psci_afflvl1_on(unsigned long target_cpu,
-			   aff_map_node *cluster_node,
+			   aff_map_node_t *cluster_node,
 			   unsigned long ns_entrypoint,
 			   unsigned long context_id)
 {
@@ -183,7 +183,7 @@ static int psci_afflvl1_on(unsigned long target_cpu,
  * TODO: Split this code across separate handlers for each type of setup?
  ******************************************************************************/
 static int psci_afflvl2_on(unsigned long target_cpu,
-			   aff_map_node *system_node,
+			   aff_map_node_t *system_node,
 			   unsigned long ns_entrypoint,
 			   unsigned long context_id)
 {
@@ -220,7 +220,7 @@ static int psci_afflvl2_on(unsigned long target_cpu,
 }
 
 /* Private data structure to make this handlers accessible through indexing */
-static const afflvl_on_handler psci_afflvl_on_handlers[] = {
+static const afflvl_on_handler_t psci_afflvl_on_handlers[] = {
 	psci_afflvl0_on,
 	psci_afflvl1_on,
 	psci_afflvl2_on,
@@ -231,7 +231,7 @@ static const afflvl_on_handler psci_afflvl_on_handlers[] = {
  * topology tree and calls the on handler for the corresponding affinity
  * levels
  ******************************************************************************/
-static int psci_call_on_handlers(mpidr_aff_map_nodes target_cpu_nodes,
+static int psci_call_on_handlers(mpidr_aff_map_nodes_t target_cpu_nodes,
 				 int start_afflvl,
 				 int end_afflvl,
 				 unsigned long target_cpu,
@@ -239,7 +239,7 @@ static int psci_call_on_handlers(mpidr_aff_map_nodes target_cpu_nodes,
 				 unsigned long context_id)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	for (level = end_afflvl; level >= start_afflvl; level--) {
 		node = target_cpu_nodes[level];
@@ -285,7 +285,7 @@ int psci_afflvl_on(unsigned long target_cpu,
 		   int end_afflvl)
 {
 	int rc = PSCI_E_SUCCESS;
-	mpidr_aff_map_nodes target_cpu_nodes;
+	mpidr_aff_map_nodes_t target_cpu_nodes;
 	unsigned long mpidr = read_mpidr() & MPIDR_AFFINITY_MASK;
 
 	/*
@@ -337,7 +337,7 @@ int psci_afflvl_on(unsigned long target_cpu,
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
 static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
-					   aff_map_node *cpu_node)
+					   aff_map_node_t *cpu_node)
 {
 	unsigned int index, plat_state, state, rc = PSCI_E_SUCCESS;
 
@@ -412,7 +412,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 }
 
 static unsigned int psci_afflvl1_on_finish(unsigned long mpidr,
-					   aff_map_node *cluster_node)
+					   aff_map_node_t *cluster_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;
 
@@ -444,7 +444,7 @@ static unsigned int psci_afflvl1_on_finish(unsigned long mpidr,
 
 
 static unsigned int psci_afflvl2_on_finish(unsigned long mpidr,
-					   aff_map_node *system_node)
+					   aff_map_node_t *system_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;
 
@@ -480,7 +480,7 @@ static unsigned int psci_afflvl2_on_finish(unsigned long mpidr,
 	return rc;
 }
 
-const afflvl_power_on_finisher psci_afflvl_on_finishers[] = {
+const afflvl_power_on_finisher_t psci_afflvl_on_finishers[] = {
 	psci_afflvl0_on_finish,
 	psci_afflvl1_on_finish,
 	psci_afflvl2_on_finish,

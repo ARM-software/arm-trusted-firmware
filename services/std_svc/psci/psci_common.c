@@ -44,7 +44,7 @@
  * SPD power management operations, expected to be supplied by the registered
  * SPD on successful SP initialization
  */
-const spd_pm_ops *psci_spd_pm;
+const spd_pm_ops_t *psci_spd_pm;
 
 /*******************************************************************************
  * Arrays that contains information needs to resume a cpu's execution when woken
@@ -52,8 +52,8 @@ const spd_pm_ops *psci_spd_pm;
  * free index in the 'psci_ns_entry_info' & 'psci_suspend_context' arrays. Each
  * cpu is allocated a single entry in each array during startup.
  ******************************************************************************/
-suspend_context psci_suspend_context[PSCI_NUM_AFFS];
-ns_entry_info psci_ns_entry_info[PSCI_NUM_AFFS];
+suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
+ns_entry_info_t psci_ns_entry_info[PSCI_NUM_AFFS];
 unsigned int psci_ns_einfo_idx;
 
 /*******************************************************************************
@@ -61,7 +61,7 @@ unsigned int psci_ns_einfo_idx;
  * management of affinity instances. Each node (aff_map_node) in the array
  * corresponds to an affinity instance e.g. cluster, cpu within an mpidr
  ******************************************************************************/
-aff_map_node psci_aff_map[PSCI_NUM_AFFS]
+aff_map_node_t psci_aff_map[PSCI_NUM_AFFS]
 __attribute__ ((section("tzfw_coherent_mem")));
 
 /*******************************************************************************
@@ -72,12 +72,12 @@ __attribute__ ((section("tzfw_coherent_mem")));
  * level i.e. start index and end index needs to be present. 'psci_aff_limits'
  * stores this information.
  ******************************************************************************/
-aff_limits_node psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
+aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops
  ******************************************************************************/
-plat_pm_ops *psci_plat_pm_ops;
+plat_pm_ops_t *psci_plat_pm_ops;
 
 /*******************************************************************************
  * Routine to return the maximum affinity level to traverse to after a cpu has
@@ -89,7 +89,7 @@ plat_pm_ops *psci_plat_pm_ops;
  ******************************************************************************/
 int get_power_on_target_afflvl(unsigned long mpidr)
 {
-	aff_map_node *node;
+	aff_map_node_t *node;
 	unsigned int state;
 	int afflvl;
 
@@ -180,7 +180,7 @@ int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
 void psci_acquire_afflvl_locks(unsigned long mpidr,
 			       int start_afflvl,
 			       int end_afflvl,
-			       mpidr_aff_map_nodes mpidr_nodes)
+			       mpidr_aff_map_nodes_t mpidr_nodes)
 {
 	int level;
 
@@ -199,7 +199,7 @@ void psci_acquire_afflvl_locks(unsigned long mpidr,
 void psci_release_afflvl_locks(unsigned long mpidr,
 			       int start_afflvl,
 			       int end_afflvl,
-			       mpidr_aff_map_nodes mpidr_nodes)
+			       mpidr_aff_map_nodes_t mpidr_nodes)
 {
 	int level;
 
@@ -216,7 +216,7 @@ void psci_release_afflvl_locks(unsigned long mpidr,
  ******************************************************************************/
 int psci_validate_mpidr(unsigned long mpidr, int level)
 {
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	node = psci_get_aff_map_node(mpidr, level);
 	if (node && (node->state & PSCI_AFF_PRESENT))
@@ -234,8 +234,8 @@ void psci_get_ns_entry_info(unsigned int index)
 {
 	unsigned long sctlr = 0, scr, el_status, id_aa64pfr0;
 	uint64_t mpidr = read_mpidr();
-	cpu_context *ns_entry_context;
-	gp_regs *ns_entry_gpregs;
+	cpu_context_t *ns_entry_context;
+	gp_regs_t *ns_entry_gpregs;
 
 	scr = read_scr();
 
@@ -267,7 +267,7 @@ void psci_get_ns_entry_info(unsigned int index)
 		write_sctlr_el1(sctlr);
 
 	/* Fulfill the cpu_on entry reqs. as per the psci spec */
-	ns_entry_context = (cpu_context *) cm_get_context(mpidr, NON_SECURE);
+	ns_entry_context = (cpu_context_t *) cm_get_context(mpidr, NON_SECURE);
 	assert(ns_entry_context);
 
 	/*
@@ -380,7 +380,7 @@ int psci_set_ns_entry_info(unsigned int index,
  * This function takes a pointer to an affinity node in the topology tree and
  * returns its state. State of a non-leaf node needs to be calculated.
  ******************************************************************************/
-unsigned short psci_get_state(aff_map_node *node)
+unsigned short psci_get_state(aff_map_node_t *node)
 {
 	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
 
@@ -407,7 +407,7 @@ unsigned short psci_get_state(aff_map_node *node)
  * a target state. State of a non-leaf node needs to be converted to a reference
  * count. State of a leaf node can be set directly.
  ******************************************************************************/
-void psci_set_state(aff_map_node *node, unsigned short state)
+void psci_set_state(aff_map_node_t *node, unsigned short state)
 {
 	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
 
@@ -448,7 +448,7 @@ void psci_set_state(aff_map_node *node, unsigned short state)
  * tell whether that's actually happenned or not. So we err on the side of
  * caution & treat the affinity level as being turned off.
  ******************************************************************************/
-unsigned short psci_get_phys_state(aff_map_node *node)
+unsigned short psci_get_phys_state(aff_map_node_t *node)
 {
 	unsigned int state;
 
@@ -461,14 +461,14 @@ unsigned short psci_get_phys_state(aff_map_node *node)
  * topology tree and calls the physical power on handler for the corresponding
  * affinity levels
  ******************************************************************************/
-static int psci_call_power_on_handlers(mpidr_aff_map_nodes mpidr_nodes,
+static int psci_call_power_on_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 				       int start_afflvl,
 				       int end_afflvl,
-				       afflvl_power_on_finisher *pon_handlers,
+				       afflvl_power_on_finisher_t *pon_handlers,
 				       unsigned long mpidr)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	for (level = end_afflvl; level >= start_afflvl; level--) {
 		node = mpidr_nodes[level];
@@ -511,9 +511,9 @@ static int psci_call_power_on_handlers(mpidr_aff_map_nodes mpidr_nodes,
 void psci_afflvl_power_on_finish(unsigned long mpidr,
 				 int start_afflvl,
 				 int end_afflvl,
-				 afflvl_power_on_finisher *pon_handlers)
+				 afflvl_power_on_finisher_t *pon_handlers)
 {
-	mpidr_aff_map_nodes mpidr_nodes;
+	mpidr_aff_map_nodes_t mpidr_nodes;
 	int rc;
 
 	mpidr &= MPIDR_AFFINITY_MASK;
@@ -565,7 +565,7 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
  * management operation. The power management hooks are expected to be provided
  * by the SPD, after it finishes all its initialization
  ******************************************************************************/
-void psci_register_spd_pm_hook(const spd_pm_ops *pm)
+void psci_register_spd_pm_hook(const spd_pm_ops_t *pm)
 {
 	psci_spd_pm = pm;
 }

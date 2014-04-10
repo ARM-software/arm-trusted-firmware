@@ -57,12 +57,12 @@
  * Single structure to hold information about the various entry points into the
  * Secure Payload. It is initialised once on the primary core after a cold boot.
  ******************************************************************************/
-entry_info *tsp_entry_info;
+entry_info_t *tsp_entry_info;
 
 /*******************************************************************************
  * Array to keep track of per-cpu Secure Payload state
  ******************************************************************************/
-tsp_context tspd_sp_context[TSPD_CORE_COUNT];
+tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
 
 
 /* TSP UID */
@@ -70,7 +70,7 @@ DEFINE_SVC_UUID(tsp_uuid,
 		0x5b3056a0, 0x3291, 0x427b, 0x98, 0x11,
 		0x71, 0x68, 0xca, 0x50, 0xf3, 0xfa);
 
-int32_t tspd_init(meminfo *bl32_meminfo);
+int32_t tspd_init(meminfo_t *bl32_meminfo);
 
 
 /*******************************************************************************
@@ -80,7 +80,7 @@ int32_t tspd_init(meminfo *bl32_meminfo);
  ******************************************************************************/
 int32_t tspd_setup(void)
 {
-	el_change_info *image_info;
+	el_change_info_t *image_info;
 	int32_t rc;
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id;
@@ -133,12 +133,12 @@ int32_t tspd_setup(void)
  * back to this routine through a SMC. It also passes the extents of memory made
  * available to BL32 by BL31.
  ******************************************************************************/
-int32_t tspd_init(meminfo *bl32_meminfo)
+int32_t tspd_init(meminfo_t *bl32_meminfo)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 	uint64_t rc;
-	tsp_context *tsp_ctx = &tspd_sp_context[linear_id];
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	/*
 	 * Arrange for passing a pointer to the meminfo structure
@@ -189,11 +189,11 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 uint64_t flags)
 {
-	cpu_context *ns_cpu_context;
-	gp_regs *ns_gp_regs;
+	cpu_context_t *ns_cpu_context;
+	gp_regs_t *ns_gp_regs;
 	unsigned long mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr), ns;
-	tsp_context *tsp_ctx = &tspd_sp_context[linear_id];
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	/* Determine which security state this SMC originated from */
 	ns = is_caller_non_secure(flags);
@@ -213,7 +213,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * only once on the primary cpu
 		 */
 		assert(tsp_entry_info == NULL);
-		tsp_entry_info = (entry_info *) x1;
+		tsp_entry_info = (entry_info_t *) x1;
 
 		/*
 		 * SP reports completion. The SPD must have initiated

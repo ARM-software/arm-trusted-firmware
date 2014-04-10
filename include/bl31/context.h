@@ -177,9 +177,9 @@
  */
 #define DWORD_SHIFT		3
 #define DEFINE_REG_STRUCT(name, num_regs)	\
-	typedef struct {			\
+	typedef struct name {			\
 		uint64_t _regs[num_regs];	\
-	}  __aligned(16) name
+	}  __aligned(16) name##_t
 
 /* Constants to determine the size of individual context structures */
 #define CTX_GPREG_ALL		(CTX_GPREGS_END >> DWORD_SHIFT)
@@ -232,31 +232,31 @@ DEFINE_REG_STRUCT(el3_state, CTX_EL3STATE_ALL);
  * structure at exception entry and exit. Each instance will
  * correspond to either the secure or the non-secure state.
  */
-typedef struct {
-	gp_regs gpregs_ctx;
-	el3_state el3state_ctx;
-	el1_sys_regs sysregs_ctx;
-	fp_regs fpregs_ctx;
-} cpu_context;
+typedef struct cpu_context {
+	gp_regs_t gpregs_ctx;
+	el3_state_t el3state_ctx;
+	el1_sys_regs_t sysregs_ctx;
+	fp_regs_t fpregs_ctx;
+} cpu_context_t;
 
-/* Macros to access members of the 'cpu_context' structure */
-#define get_el3state_ctx(h)	(&((cpu_context *) h)->el3state_ctx)
-#define get_fpregs_ctx(h)	(&((cpu_context *) h)->fpregs_ctx)
-#define get_sysregs_ctx(h)	(&((cpu_context *) h)->sysregs_ctx)
-#define get_gpregs_ctx(h)	(&((cpu_context *) h)->gpregs_ctx)
+/* Macros to access members of the 'cpu_context_t' structure */
+#define get_el3state_ctx(h)	(&((cpu_context_t *) h)->el3state_ctx)
+#define get_fpregs_ctx(h)	(&((cpu_context_t *) h)->fpregs_ctx)
+#define get_sysregs_ctx(h)	(&((cpu_context_t *) h)->sysregs_ctx)
+#define get_gpregs_ctx(h)	(&((cpu_context_t *) h)->gpregs_ctx)
 
 /*
  * Compile time assertions related to the 'cpu_context' structure to
  * ensure that the assembler and the compiler view of the offsets of
  * the structure members is the same.
  */
-CASSERT(CTX_GPREGS_OFFSET == __builtin_offsetof(cpu_context, gpregs_ctx), \
+CASSERT(CTX_GPREGS_OFFSET == __builtin_offsetof(cpu_context_t, gpregs_ctx), \
 	assert_core_context_gp_offset_mismatch);
-CASSERT(CTX_SYSREGS_OFFSET == __builtin_offsetof(cpu_context, sysregs_ctx), \
+CASSERT(CTX_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, sysregs_ctx), \
 	assert_core_context_sys_offset_mismatch);
-CASSERT(CTX_FPREGS_OFFSET == __builtin_offsetof(cpu_context, fpregs_ctx), \
+CASSERT(CTX_FPREGS_OFFSET == __builtin_offsetof(cpu_context_t, fpregs_ctx), \
 	assert_core_context_fp_offset_mismatch);
-CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context, el3state_ctx), \
+CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx), \
 	assert_core_context_el3state_offset_mismatch);
 
 /*
@@ -298,12 +298,12 @@ CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context, el3state_ctx), \
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-void el3_sysregs_context_save(el3_state *regs);
-void el3_sysregs_context_restore(el3_state *regs);
-void el1_sysregs_context_save(el1_sys_regs *regs);
-void el1_sysregs_context_restore(el1_sys_regs *regs);
-void fpregs_context_save(fp_regs *regs);
-void fpregs_context_restore(fp_regs *regs);
+void el3_sysregs_context_save(el3_state_t *regs);
+void el3_sysregs_context_restore(el3_state_t *regs);
+void el1_sysregs_context_save(el1_sys_regs_t *regs);
+void el1_sysregs_context_restore(el1_sys_regs_t *regs);
+void fpregs_context_save(fp_regs_t *regs);
+void fpregs_context_restore(fp_regs_t *regs);
 
 #undef CTX_SYSREG_ALL
 #undef CTX_FP_ALL

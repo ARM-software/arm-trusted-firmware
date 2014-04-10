@@ -49,7 +49,7 @@ static void tzc_write_gate_keeper(uint64_t base, uint32_t val)
 	mmio_write_32(base + GATE_KEEPER_OFF, val);
 }
 
-static void tzc_write_action(uint64_t base, enum tzc_action action)
+static void tzc_write_action(uint64_t base, tzc_action_t action)
 {
 	mmio_write_32(base + ACTION_OFF, action);
 }
@@ -130,7 +130,7 @@ static void tzc_set_gate_keeper(uint64_t base, uint8_t filter, uint32_t val)
 }
 
 
-void tzc_init(struct tzc_instance *controller)
+void tzc_init(tzc_instance_t *controller)
 {
 	uint32_t tzc_id, tzc_build;
 
@@ -166,12 +166,12 @@ void tzc_init(struct tzc_instance *controller)
  * this cannot be changed. It is, however, possible to change some region 0
  * permissions.
  */
-void tzc_configure_region(const struct tzc_instance *controller,
+void tzc_configure_region(const tzc_instance_t *controller,
 			  uint32_t filters,
 			  uint8_t  region,
 			  uint64_t region_base,
 			  uint64_t region_top,
-			  enum tzc_region_attributes sec_attr,
+			  tzc_region_attributes_t sec_attr,
 			  uint32_t ns_device_access)
 {
 	uint64_t max_addr;
@@ -218,7 +218,7 @@ void tzc_configure_region(const struct tzc_instance *controller,
 }
 
 
-void tzc_set_action(const struct tzc_instance *controller, enum tzc_action action)
+void tzc_set_action(const tzc_instance_t *controller, tzc_action_t action)
 {
 	assert(controller != NULL);
 
@@ -231,7 +231,7 @@ void tzc_set_action(const struct tzc_instance *controller, enum tzc_action actio
 }
 
 
-void tzc_enable_filters(const struct tzc_instance *controller)
+void tzc_enable_filters(const tzc_instance_t *controller)
 {
 	uint32_t state;
 	uint32_t filter;
@@ -250,7 +250,7 @@ void tzc_enable_filters(const struct tzc_instance *controller)
 }
 
 
-void tzc_disable_filters(const struct tzc_instance *controller)
+void tzc_disable_filters(const tzc_instance_t *controller)
 {
 	uint32_t filter;
 

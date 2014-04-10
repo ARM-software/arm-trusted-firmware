@@ -38,13 +38,13 @@
 #include <psci.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_off_handler)(unsigned long, aff_map_node *);
+typedef int (*afflvl_off_handler_t)(unsigned long, aff_map_node_t *);
 
 /*******************************************************************************
  * The next three functions implement a handler for each supported affinity
  * level which is called when that affinity level is turned off.
  ******************************************************************************/
-static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
+static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
 {
 	unsigned int index, plat_state;
 	int rc = PSCI_E_SUCCESS;
@@ -111,7 +111,7 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node *cpu_node)
 	return rc;
 }
 
-static int psci_afflvl1_off(unsigned long mpidr, aff_map_node *cluster_node)
+static int psci_afflvl1_off(unsigned long mpidr, aff_map_node_t *cluster_node)
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
@@ -148,7 +148,7 @@ static int psci_afflvl1_off(unsigned long mpidr, aff_map_node *cluster_node)
 	return rc;
 }
 
-static int psci_afflvl2_off(unsigned long mpidr, aff_map_node *system_node)
+static int psci_afflvl2_off(unsigned long mpidr, aff_map_node_t *system_node)
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
@@ -178,7 +178,7 @@ static int psci_afflvl2_off(unsigned long mpidr, aff_map_node *system_node)
 	return rc;
 }
 
-static const afflvl_off_handler psci_afflvl_off_handlers[] = {
+static const afflvl_off_handler_t psci_afflvl_off_handlers[] = {
 	psci_afflvl0_off,
 	psci_afflvl1_off,
 	psci_afflvl2_off,
@@ -189,13 +189,13 @@ static const afflvl_off_handler psci_afflvl_off_handlers[] = {
  * topology tree and calls the off handler for the corresponding affinity
  * levels
  ******************************************************************************/
-static int psci_call_off_handlers(mpidr_aff_map_nodes mpidr_nodes,
+static int psci_call_off_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 				  int start_afflvl,
 				  int end_afflvl,
 				  unsigned long mpidr)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	for (level = start_afflvl; level <= end_afflvl; level++) {
 		node = mpidr_nodes[level];
@@ -242,7 +242,7 @@ int psci_afflvl_off(unsigned long mpidr,
 		    int end_afflvl)
 {
 	int rc = PSCI_E_SUCCESS;
-	mpidr_aff_map_nodes mpidr_nodes;
+	mpidr_aff_map_nodes_t mpidr_nodes;
 
 	mpidr &= MPIDR_AFFINITY_MASK;;
 

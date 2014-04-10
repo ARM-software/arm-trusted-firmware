@@ -88,7 +88,7 @@
 #ifndef __ASSEMBLY__
 #include <stdint.h>
 
-typedef void (*tsp_generic_fptr)(uint64_t arg0,
+typedef void (*tsp_generic_fptr_t)(uint64_t arg0,
 				 uint64_t arg1,
 				 uint64_t arg2,
 				 uint64_t arg3,
@@ -97,26 +97,26 @@ typedef void (*tsp_generic_fptr)(uint64_t arg0,
 				 uint64_t arg6,
 				 uint64_t arg7);
 
-typedef struct {
-	tsp_generic_fptr fast_smc_entry;
-	tsp_generic_fptr cpu_on_entry;
-	tsp_generic_fptr cpu_off_entry;
-	tsp_generic_fptr cpu_resume_entry;
-	tsp_generic_fptr cpu_suspend_entry;
-} entry_info;
+typedef struct entry_info {
+	tsp_generic_fptr_t fast_smc_entry;
+	tsp_generic_fptr_t cpu_on_entry;
+	tsp_generic_fptr_t cpu_off_entry;
+	tsp_generic_fptr_t cpu_resume_entry;
+	tsp_generic_fptr_t cpu_suspend_entry;
+} entry_info_t;
 
-typedef struct {
+typedef struct work_statistics {
 	uint32_t smc_count;		/* Number of returns on this cpu */
 	uint32_t eret_count;		/* Number of entries on this cpu */
 	uint32_t cpu_on_count;		/* Number of cpu on requests */
 	uint32_t cpu_off_count;		/* Number of cpu off requests */
 	uint32_t cpu_suspend_count;	/* Number of cpu suspend requests */
 	uint32_t cpu_resume_count;	/* Number of cpu resume requests */
-} __aligned(CACHE_WRITEBACK_GRANULE) work_statistics;
+} __aligned(CACHE_WRITEBACK_GRANULE) work_statistics_t;
 
-typedef struct {
+typedef struct tsp_args {
 	uint64_t _regs[TSP_ARGS_END >> 3];
-} __aligned(CACHE_WRITEBACK_GRANULE) tsp_args;
+} __aligned(CACHE_WRITEBACK_GRANULE) tsp_args_t;
 
 /* Macros to access members of the above structure using their offsets */
 #define read_sp_arg(args, offset)	((args)->_regs[offset >> 3])
@@ -127,7 +127,7 @@ typedef struct {
  * Ensure that the assembler's view of the size of the tsp_args is the
  * same as the compilers
  */
-CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args), assert_sp_args_size_mismatch);
+CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args_t), assert_sp_args_size_mismatch);
 
 extern void tsp_get_magic(uint64_t args[4]);
 
@@ -147,7 +147,7 @@ extern void tsp_cpu_resume_entry(uint64_t arg0,
 				 uint64_t arg5,
 				 uint64_t arg6,
 				 uint64_t arg7);
-extern tsp_args *tsp_cpu_resume_main(uint64_t arg0,
+extern tsp_args_t *tsp_cpu_resume_main(uint64_t arg0,
 				     uint64_t arg1,
 				     uint64_t arg2,
 				     uint64_t arg3,
@@ -163,7 +163,7 @@ extern void tsp_cpu_suspend_entry(uint64_t arg0,
 				  uint64_t arg5,
 				  uint64_t arg6,
 				  uint64_t arg7);
-extern tsp_args *tsp_cpu_suspend_main(uint64_t arg0,
+extern tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
 				      uint64_t arg1,
 				      uint64_t arg2,
 				      uint64_t arg3,
@@ -179,7 +179,7 @@ extern void tsp_cpu_on_entry(uint64_t arg0,
 			     uint64_t arg5,
 			     uint64_t arg6,
 			     uint64_t arg7);
-extern tsp_args *tsp_cpu_on_main(void);
+extern tsp_args_t *tsp_cpu_on_main(void);
 extern void tsp_cpu_off_entry(uint64_t arg0,
 			      uint64_t arg1,
 			      uint64_t arg2,
@@ -188,7 +188,7 @@ extern void tsp_cpu_off_entry(uint64_t arg0,
 			      uint64_t arg5,
 			      uint64_t arg6,
 			      uint64_t arg7);
-extern tsp_args *tsp_cpu_off_main(uint64_t arg0,
+extern tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 				  uint64_t arg1,
 				  uint64_t arg2,
 				  uint64_t arg3,

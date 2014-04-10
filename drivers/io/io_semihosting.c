@@ -36,7 +36,7 @@
 
 
 /* Identify the device type as semihosting */
-static io_type device_type_sh(void)
+static io_type_t device_type_sh(void)
 {
 	return IO_TYPE_SEMIHOSTING;
 }
@@ -44,16 +44,16 @@ static io_type device_type_sh(void)
 
 /* Semi-hosting functions, device info and handle */
 
-static int sh_dev_open(void *spec, struct io_dev_info **dev_info);
-static int sh_file_open(struct io_dev_info *dev_info, const void *spec,
-		struct io_entity *entity);
-static int sh_file_seek(struct io_entity *entity, int mode, ssize_t offset);
-static int sh_file_len(struct io_entity *entity, size_t *length);
-static int sh_file_read(struct io_entity *entity, void *buffer, size_t length,
+static int sh_dev_open(void *spec, io_dev_info_t **dev_info);
+static int sh_file_open(io_dev_info_t *dev_info, const void *spec,
+		io_entity_t *entity);
+static int sh_file_seek(io_entity_t *entity, int mode, ssize_t offset);
+static int sh_file_len(io_entity_t *entity, size_t *length);
+static int sh_file_read(io_entity_t *entity, void *buffer, size_t length,
 		size_t *length_read);
-static int sh_file_write(struct io_entity *entity, const void *buffer,
+static int sh_file_write(io_entity_t *entity, const void *buffer,
 		size_t length, size_t *length_written);
-static int sh_file_close(struct io_entity *entity);
+static int sh_file_close(io_entity_t *entity);
 
 static struct io_dev_connector sh_dev_connector = {
 	.dev_open = sh_dev_open
@@ -80,7 +80,7 @@ static struct io_dev_info sh_dev_info = {
 
 
 /* Open a connection to the semi-hosting device */
-static int sh_dev_open(void *spec __unused, struct io_dev_info **dev_info)
+static int sh_dev_open(void *spec __unused, io_dev_info_t **dev_info)
 {
 	int result = IO_SUCCESS;
 	assert(dev_info != NULL);
@@ -90,12 +90,12 @@ static int sh_dev_open(void *spec __unused, struct io_dev_info **dev_info)
 
 
 /* Open a file on the semi-hosting device */
-static int sh_file_open(struct io_dev_info *dev_info __attribute__((unused)),
-		const void *spec, struct io_entity *entity)
+static int sh_file_open(io_dev_info_t *dev_info __attribute__((unused)),
+		const void *spec, io_entity_t *entity)
 {
 	int result = IO_FAIL;
 	long sh_result = -1;
-	const io_file_spec *file_spec = (io_file_spec *)spec;
+	const io_file_spec_t *file_spec = (io_file_spec_t *)spec;
 
 	assert(file_spec != NULL);
 	assert(entity != NULL);
@@ -113,7 +113,7 @@ static int sh_file_open(struct io_dev_info *dev_info __attribute__((unused)),
 
 
 /* Seek to a particular file offset on the semi-hosting device */
-static int sh_file_seek(struct io_entity *entity, int mode, ssize_t offset)
+static int sh_file_seek(io_entity_t *entity, int mode, ssize_t offset)
 {
 	int result = IO_FAIL;
 	long file_handle, sh_result;
@@ -131,7 +131,7 @@ static int sh_file_seek(struct io_entity *entity, int mode, ssize_t offset)
 
 
 /* Return the size of a file on the semi-hosting device */
-static int sh_file_len(struct io_entity *entity, size_t *length)
+static int sh_file_len(io_entity_t *entity, size_t *length)
 {
 	int result = IO_FAIL;
 
@@ -151,7 +151,7 @@ static int sh_file_len(struct io_entity *entity, size_t *length)
 
 
 /* Read data from a file on the semi-hosting device */
-static int sh_file_read(struct io_entity *entity, void *buffer, size_t length,
+static int sh_file_read(io_entity_t *entity, void *buffer, size_t length,
 		size_t *length_read)
 {
 	int result = IO_FAIL;
@@ -178,7 +178,7 @@ static int sh_file_read(struct io_entity *entity, void *buffer, size_t length,
 
 
 /* Write data to a file on the semi-hosting device */
-static int sh_file_write(struct io_entity *entity, const void *buffer,
+static int sh_file_write(io_entity_t *entity, const void *buffer,
 		size_t length, size_t *length_written)
 {
 	int result = IO_FAIL;
@@ -205,7 +205,7 @@ static int sh_file_write(struct io_entity *entity, const void *buffer,
 
 
 /* Close a file on the semi-hosting device */
-static int sh_file_close(struct io_entity *entity)
+static int sh_file_close(io_entity_t *entity)
 {
 	int result = IO_FAIL;
 	long sh_result = -1;
@@ -226,7 +226,7 @@ static int sh_file_close(struct io_entity *entity)
 /* Exported functions */
 
 /* Register the semi-hosting driver with the IO abstraction */
-int register_io_dev_sh(struct io_dev_connector **dev_con)
+int register_io_dev_sh(io_dev_connector_t **dev_con)
 {
 	int result = IO_FAIL;
 	assert(dev_con != NULL);

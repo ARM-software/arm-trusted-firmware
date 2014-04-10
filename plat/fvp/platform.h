@@ -340,10 +340,10 @@
 
 #ifndef __ASSEMBLY__
 
-typedef volatile struct {
+typedef volatile struct mailbox {
 	unsigned long value
 	__attribute__((__aligned__(CACHE_WRITEBACK_GRANULE)));
-} mailbox;
+} mailbox_t;
 
 /*******************************************************************************
  * Function and variable prototypes
@@ -364,11 +364,11 @@ extern unsigned long warm_boot_entrypoint;
 extern void bl1_plat_arch_setup(void);
 extern void bl2_plat_arch_setup(void);
 extern void bl31_plat_arch_setup(void);
-extern int platform_setup_pm(plat_pm_ops **);
+extern int platform_setup_pm(plat_pm_ops_t **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
 extern void disable_mmu(void);
 extern void enable_mmu(void);
-extern void configure_mmu(meminfo *,
+extern void configure_mmu(meminfo_t *,
 			  unsigned long,
 			  unsigned long,
 			  unsigned long,

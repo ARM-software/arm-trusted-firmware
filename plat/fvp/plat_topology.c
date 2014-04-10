@@ -46,20 +46,20 @@
  * marks the absent affinity level instances as PSCI_AFF_ABSENT e.g. there is no
  * cluster 1 on the Foundation FVP. The 'data' field is currently unused.
  ******************************************************************************/
-typedef struct {
+typedef struct affinity_info {
 	unsigned char sibling;
 	unsigned char child;
 	unsigned char state;
 	unsigned int data;
-} affinity_info;
+} affinity_info_t;
 
 /*******************************************************************************
  * The following two data structures store the topology tree for the fvp. There
  * is a separate array for each affinity level i.e. cpus and clusters. The child
  * and sibling references allow traversal inside and in between the two arrays.
  ******************************************************************************/
-static affinity_info fvp_aff1_topology_map[PLATFORM_CLUSTER_COUNT];
-static affinity_info fvp_aff0_topology_map[PLATFORM_CORE_COUNT];
+static affinity_info_t fvp_aff1_topology_map[PLATFORM_CLUSTER_COUNT];
+static affinity_info_t fvp_aff0_topology_map[PLATFORM_CORE_COUNT];
 
 /* Simple global variable to safeguard us from stupidity */
 static unsigned int topology_setup_done;

@@ -99,7 +99,7 @@ DEFINE_REG_STRUCT(c_rt_regs, TSPD_C_RT_CTX_ENTRIES);
  * have the same double word aligned view of the size of the C runtime
  * register context.
  */
-CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs),	\
+CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
 	assert_spd_c_rt_regs_size_mismatch);
 
 /*******************************************************************************
@@ -110,29 +110,29 @@ CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs),	\
  *              from a synchronous entry into the SP.
  * 'cpu_ctx'  - space to maintain SP architectural state
  ******************************************************************************/
-typedef struct {
+typedef struct tsp_context {
 	uint32_t state;
 	uint64_t mpidr;
 	uint64_t c_rt_ctx;
-	cpu_context cpu_ctx;
-} tsp_context;
+	cpu_context_t cpu_ctx;
+} tsp_context_t;
 
 /* TSPD power management handlers */
-extern const spd_pm_ops tspd_pm;
+extern const spd_pm_ops_t tspd_pm;
 
 /*******************************************************************************
  * Function & Data prototypes
  ******************************************************************************/
 extern uint64_t tspd_enter_sp(uint64_t *c_rt_ctx);
 extern void __dead2 tspd_exit_sp(uint64_t c_rt_ctx, uint64_t ret);
-extern uint64_t tspd_synchronous_sp_entry(tsp_context *tsp_ctx);
-extern void __dead2 tspd_synchronous_sp_exit(tsp_context *tsp_ctx, uint64_t ret);
+extern uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx);
+extern void __dead2 tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret);
 extern int32_t tspd_init_secure_context(uint64_t entrypoint,
 					uint32_t rw,
 					uint64_t mpidr,
-					tsp_context *tsp_ctx);
-extern tsp_context tspd_sp_context[TSPD_CORE_COUNT];
-extern entry_info *tsp_entry_info;
+					tsp_context_t *tsp_ctx);
+extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
+extern entry_info_t *tsp_entry_info;
 #endif /*__ASSEMBLY__*/
 
 #endif /* __SPD_PRIVATE_H__ */

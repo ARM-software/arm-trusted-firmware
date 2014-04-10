@@ -49,20 +49,20 @@ typedef enum  {
 
 	MT_SECURE	= 0 << 2,
 	MT_NS		= 1 << 2
-} mmap_attr;
+} mmap_attr_t;
 
 /*
  * Structure for specifying a single region of memory.
  */
-typedef struct {
+typedef struct mmap_region {
 	unsigned long	base;
 	unsigned long	size;
-	mmap_attr	attr;
-} mmap_region;
+	mmap_attr_t	attr;
+} mmap_region_t;
 
 extern void mmap_add_region(unsigned long base, unsigned long size,
 				unsigned attr);
-extern void mmap_add(const mmap_region *mm);
+extern void mmap_add(const mmap_region_t *mm);
 
 extern void init_xlat_tables(void);
 

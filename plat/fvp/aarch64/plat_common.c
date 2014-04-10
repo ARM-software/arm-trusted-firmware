@@ -122,7 +122,7 @@ void disable_mmu(void)
  * This doesn't include TZRAM as the 'mem_layout' argument passed to to
  * configure_mmu() will give the available subset of that,
  */
-const mmap_region fvp_mmap[] = {
+const mmap_region_t fvp_mmap[] = {
 	{ TZROM_BASE,	TZROM_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
 	{ TZDRAM_BASE,	TZDRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
 	{ FLASH0_BASE,	FLASH0_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
@@ -140,7 +140,7 @@ const mmap_region fvp_mmap[] = {
 /*******************************************************************************
  * Setup the pagetables as per the platform memory map & initialize the mmu
  *******************************************************************************/
-void configure_mmu(meminfo *mem_layout,
+void configure_mmu(meminfo_t *mem_layout,
 		   unsigned long ro_start,
 		   unsigned long ro_limit,
 		   unsigned long coh_start,

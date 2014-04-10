@@ -37,7 +37,7 @@
 #include <bl_common.h>
 
 extern void bl32_platform_setup(void);
-extern meminfo *bl32_plat_sec_mem_layout(void);
+extern meminfo_t *bl32_plat_sec_mem_layout(void);
 extern uint64_t bl32_main(void);
 
 #endif /* __ASSEMBLY__ */

@@ -66,11 +66,11 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL32_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 /* Data structure which holds the extents of the trusted SRAM for BL32 */
-static meminfo bl32_tzdram_layout
+static meminfo_t bl32_tzdram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
-meminfo *bl32_plat_sec_mem_layout(void)
+meminfo_t *bl32_plat_sec_mem_layout(void)
 {
 	return &bl32_tzdram_layout;
 }
@@ -79,7 +79,7 @@ meminfo *bl32_plat_sec_mem_layout(void)
  * BL1 has passed the extents of the trusted SRAM that's at BL32's disposal.
  * Initialize the BL32 data structure with the memory extends
  ******************************************************************************/
-void bl32_early_platform_setup(meminfo *mem_layout,
+void bl32_early_platform_setup(meminfo_t *mem_layout,
 			      void *data)
 {
 	/* Setup the BL32 memory layout */

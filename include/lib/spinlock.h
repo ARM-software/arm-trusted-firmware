@@ -31,7 +31,7 @@
 #ifndef __SPINLOCK_H__
 #define __SPINLOCK_H__
 
-typedef struct {
+typedef struct spinlock {
 	volatile unsigned int lock;
 } spinlock_t;
 

@@ -45,7 +45,7 @@ typedef enum {
 	IO_TYPE_MEMMAP,
 	IO_TYPE_FIRMWARE_IMAGE_PACKAGE,
 	IO_TYPE_MAX
-} io_type;
+} io_type_t;
 
 
 /* Modes used when seeking data on a supported device */
@@ -55,7 +55,7 @@ typedef enum {
 	IO_SEEK_END,
 	IO_SEEK_CUR,
 	IO_SEEK_MAX
-} io_seek_mode;
+} io_seek_mode_t;
 
 
 /* Connector type, providing a means of identifying a device to open */
@@ -71,18 +71,18 @@ typedef struct io_entity *io_handle;
 
 /* File specification - used to refer to data on a device supporting file-like
  * entities */
-typedef struct {
+typedef struct io_file_spec {
 	const char *path;
 	unsigned int mode;
-} io_file_spec;
+} io_file_spec_t;
 
 
 /* Block specification - used to refer to data on a device supporting
  * block-like entities */
-typedef struct {
+typedef struct io_block_spec {
 	unsigned long offset;
 	size_t length;
-} io_block_spec;
+} io_block_spec_t;
 
 
 /* Access modes used when accessing data on a device */
@@ -116,7 +116,7 @@ int io_dev_close(io_dev_handle dev_handle);
 /* Synchronous operations */
 int io_open(io_dev_handle dev_handle, const void *spec, io_handle *handle);
 
-int io_seek(io_handle handle, io_seek_mode mode, ssize_t offset);
+int io_seek(io_handle handle, io_seek_mode_t mode, ssize_t offset);
 
 int io_size(io_handle handle, size_t *length);
 

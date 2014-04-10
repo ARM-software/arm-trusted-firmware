@@ -66,7 +66,7 @@
 
 
 /* Initialize Bakery Lock to reset ownership and all ticket values */
-void bakery_lock_init(bakery_lock *bakery)
+void bakery_lock_init(bakery_lock_t *bakery)
 {
 	assert(bakery);
 
@@ -77,7 +77,7 @@ void bakery_lock_init(bakery_lock *bakery)
 
 
 /* Obtain a ticket for a given CPU */
-static unsigned int bakery_get_ticket(bakery_lock *bakery, unsigned int me)
+static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 {
 	unsigned int my_ticket, their_ticket;
 	unsigned int they;
@@ -124,7 +124,7 @@ static unsigned int bakery_get_ticket(bakery_lock *bakery, unsigned int me)
  * of others'. The CPU with the highest priority (lowest numerical value)
  * acquires the lock
  */
-void bakery_lock_get(unsigned long mpidr, bakery_lock *bakery)
+void bakery_lock_get(unsigned long mpidr, bakery_lock_t *bakery)
 {
 	unsigned int they, me;
 	unsigned int my_ticket, my_prio, their_ticket;
@@ -176,7 +176,7 @@ void bakery_lock_get(unsigned long mpidr, bakery_lock *bakery)
 
 
 /* Release the lock and signal contenders */
-void bakery_lock_release(unsigned long mpidr, bakery_lock *bakery)
+void bakery_lock_release(unsigned long mpidr, bakery_lock_t *bakery)
 {
 	unsigned int me = platform_get_core_pos(mpidr);
 

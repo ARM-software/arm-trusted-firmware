@@ -130,7 +130,7 @@
 #define is_caller_secure(_f)		(!(is_caller_non_secure(_f)))
 
 /* Prototype for runtime service initializing function */
-typedef int32_t (*rt_svc_init)(void);
+typedef int32_t (*rt_svc_init_t)(void);
 
 /* Convenience macros to return from SMC handler */
 #define SMC_RET1(_h, _x0)	{ \
@@ -175,7 +175,7 @@ typedef int32_t (*rt_svc_init)(void);
  * can be accessed using the handle pointer. The cookie parameter is reserved
  * for future use
  */
-typedef uint64_t (*rt_svc_handle)(uint32_t smc_fid,
+typedef uint64_t (*rt_svc_handle_t)(uint32_t smc_fid,
 				  uint64_t x1,
 				  uint64_t x2,
 				  uint64_t x3,
@@ -183,20 +183,20 @@ typedef uint64_t (*rt_svc_handle)(uint32_t smc_fid,
 				  void *cookie,
 				  void *handle,
 				  uint64_t flags);
-typedef struct {
+typedef struct rt_svc_desc {
 	uint8_t start_oen;
 	uint8_t end_oen;
 	uint8_t call_type;
 	const char *name;
-	rt_svc_init init;
-	rt_svc_handle handle;
-} rt_svc_desc;
+	rt_svc_init_t init;
+	rt_svc_handle_t handle;
+} rt_svc_desc_t;
 
 /*
  * Convenience macro to declare a service descriptor
  */
 #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch) \
-	static const rt_svc_desc __svc_desc_ ## _name \
+	static const rt_svc_desc_t __svc_desc_ ## _name \
 		__attribute__ ((section("rt_svc_descs"), used)) = { \
 			_start, \
 			_end, \
@@ -214,11 +214,11 @@ typedef struct {
  * 3. ensure that the assembler and the compiler see the handler
  *    routine at the same offset.
  */
-CASSERT((sizeof(rt_svc_desc) == SIZEOF_RT_SVC_DESC), \
+CASSERT((sizeof(rt_svc_desc_t) == SIZEOF_RT_SVC_DESC), \
 	assert_sizeof_rt_svc_desc_mismatch);
-CASSERT(RT_SVC_DESC_INIT == __builtin_offsetof(rt_svc_desc, init), \
+CASSERT(RT_SVC_DESC_INIT == __builtin_offsetof(rt_svc_desc_t, init), \
 	assert_rt_svc_desc_init_offset_mismatch);
-CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc, handle), \
+CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
 	assert_rt_svc_desc_handle_offset_mismatch);
 
 

@@ -144,7 +144,7 @@ int psci_affinity_info(unsigned long target_affinity,
 {
 	int rc = PSCI_E_INVALID_PARAMS;
 	unsigned int aff_state;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	if (lowest_affinity_level > get_max_afflvl())
 		return rc;

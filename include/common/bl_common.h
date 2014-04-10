@@ -64,16 +64,16 @@
  * Structure used for telling the next BL how much of a particular type of
  * memory is available for its use and how much is already used.
  ******************************************************************************/
-typedef struct {
+typedef struct meminfo {
 	unsigned long total_base;
 	long total_size;
 	unsigned long free_base;
 	long free_size;
 	unsigned long attr;
 	unsigned long next;
-} meminfo;
+} meminfo_t;
 
-typedef struct {
+typedef struct aapcs64_params {
 	unsigned long arg0;
 	unsigned long arg1;
 	unsigned long arg2;
@@ -82,51 +82,51 @@ typedef struct {
 	unsigned long arg5;
 	unsigned long arg6;
 	unsigned long arg7;
-} aapcs64_params;
+} aapcs64_params_t;
 
 /*******************************************************************************
  * This structure represents the superset of information needed while switching
  * exception levels. The only two mechanisms to do so are ERET & SMC. In case of
  * SMC all members apart from 'aapcs64_params' will be ignored.
  ******************************************************************************/
-typedef struct {
+typedef struct el_change_info {
 	unsigned long entrypoint;
 	unsigned long spsr;
 	unsigned long security_state;
-	aapcs64_params args;
-} el_change_info;
+	aapcs64_params_t args;
+} el_change_info_t;
 
 /*******************************************************************************
  * This structure represents the superset of information that can be passed to
  * BL31 e.g. while passing control to it from BL2. The BL32 parameters will be
  * populated only if BL2 detects its presence.
  ******************************************************************************/
-typedef struct {
-	meminfo bl31_meminfo;
-	el_change_info bl32_image_info;
-	meminfo bl32_meminfo;
-	el_change_info bl33_image_info;
-	meminfo bl33_meminfo;
-} bl31_args;
+typedef struct bl31_args {
+	meminfo_t bl31_meminfo;
+	el_change_info_t bl32_image_info;
+	meminfo_t bl32_meminfo;
+	el_change_info_t bl33_image_info;
+	meminfo_t bl33_meminfo;
+} bl31_args_t;
 
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
 extern unsigned long page_align(unsigned long, unsigned);
 extern void change_security_state(unsigned int);
-extern void __dead2 drop_el(aapcs64_params *, unsigned long, unsigned long);
-extern void __dead2 raise_el(aapcs64_params *);
-extern void __dead2 change_el(el_change_info *);
+extern void __dead2 drop_el(aapcs64_params_t *, unsigned long, unsigned long);
+extern void __dead2 raise_el(aapcs64_params_t *);
+extern void __dead2 change_el(el_change_info_t *);
 extern unsigned long make_spsr(unsigned long, unsigned long, unsigned long);
-extern void init_bl2_mem_layout(meminfo *,
-				meminfo *,
+extern void init_bl2_mem_layout(meminfo_t *,
+				meminfo_t *,
 				unsigned int,
 				unsigned long) __attribute__((weak));
-extern void init_bl31_mem_layout(const meminfo *,
-				meminfo *,
+extern void init_bl31_mem_layout(const meminfo_t *,
+				meminfo_t *,
 				unsigned int) __attribute__((weak));
 extern unsigned long image_size(const char *);
-extern unsigned long load_image(meminfo *,
+extern unsigned long load_image(meminfo_t *,
 				const char *,
 				unsigned int,
 				unsigned long);

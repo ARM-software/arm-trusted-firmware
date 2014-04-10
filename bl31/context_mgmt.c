@@ -45,9 +45,9 @@
  ******************************************************************************/
 typedef struct {
 	void *ptr[2];
-} __aligned (CACHE_WRITEBACK_GRANULE) context_info;
+} __aligned (CACHE_WRITEBACK_GRANULE) context_info_t;
 
-static context_info cm_context_info[PLATFORM_CORE_COUNT];
+static context_info_t cm_context_info[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Context management library initialisation routine. This library is used by
@@ -104,7 +104,7 @@ void cm_set_context(uint64_t mpidr, void *context, uint32_t security_state)
  ******************************************************************************/
 void cm_el3_sysregs_context_save(uint32_t security_state)
 {
-	cpu_context *ctx;
+	cpu_context_t *ctx;
 
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
@@ -114,7 +114,7 @@ void cm_el3_sysregs_context_save(uint32_t security_state)
 
 void cm_el3_sysregs_context_restore(uint32_t security_state)
 {
-	cpu_context *ctx;
+	cpu_context_t *ctx;
 
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
@@ -124,7 +124,7 @@ void cm_el3_sysregs_context_restore(uint32_t security_state)
 
 void cm_el1_sysregs_context_save(uint32_t security_state)
 {
-	cpu_context *ctx;
+	cpu_context_t *ctx;
 
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
@@ -134,7 +134,7 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 
 void cm_el1_sysregs_context_restore(uint32_t security_state)
 {
-	cpu_context *ctx;
+	cpu_context_t *ctx;
 
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
@@ -151,8 +151,8 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
 		uint32_t spsr, uint32_t scr)
 {
-	cpu_context *ctx;
-	el3_state *state;
+	cpu_context_t *ctx;
+	el3_state_t *state;
 
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
@@ -170,8 +170,8 @@ void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
  ******************************************************************************/
 void cm_set_el3_elr(uint32_t security_state, uint64_t entrypoint)
 {
-	cpu_context *ctx;
-	el3_state *state;
+	cpu_context_t *ctx;
+	el3_state_t *state;
 
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
@@ -188,7 +188,7 @@ void cm_set_el3_elr(uint32_t security_state, uint64_t entrypoint)
  ******************************************************************************/
 void cm_set_next_eret_context(uint32_t security_state)
 {
-	cpu_context *ctx;
+	cpu_context_t *ctx;
 #if DEBUG
 	uint64_t sp_mode;
 #endif
@@ -220,8 +220,8 @@ void cm_set_next_eret_context(uint32_t security_state)
  ******************************************************************************/
 void cm_init_exception_stack(uint64_t mpidr, uint32_t security_state)
 {
-	cpu_context *ctx;
-	el3_state *state;
+	cpu_context_t *ctx;
+	el3_state_t *state;
 
 	ctx = cm_get_context(mpidr, security_state);
 	assert(ctx);
