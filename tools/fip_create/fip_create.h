@@ -41,20 +41,20 @@
 
 #define FLAG_FILENAME			(1 << 0)
 
-typedef struct {
+typedef struct entry_lookup_list {
 	const char		*name;
 	uuid_t			 name_uuid;
 	const char		*command_line_name;
 	struct file_info	*info;
 	unsigned int		 flags;
-} entry_lookup_list;
+} entry_lookup_list_t;
 
-typedef struct {
+typedef struct file_info {
 	uuid_t			 name_uuid;
 	const char		*filename;
 	unsigned int		 size;
 	void			*image_buffer;
-	entry_lookup_list	*entry;
-} file_info;
+	entry_lookup_list_t	*entry;
+} file_info_t;
 
 #endif /* __FIP_CREATE_H__ */

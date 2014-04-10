@@ -61,14 +61,14 @@ static unsigned next_xlat;
  * Array of all memory regions stored in order of ascending base address.
  * The list is terminated by the first entry with size == 0.
  */
-static mmap_region mmap[MAX_MMAP_REGIONS + 1];
+static mmap_region_t mmap[MAX_MMAP_REGIONS + 1];
 
 
 static void print_mmap(void)
 {
 #if DEBUG_XLAT_TABLE
 	debug_print("mmap:\n");
-	mmap_region *mm = mmap;
+	mmap_region_t *mm = mmap;
 	while (mm->size) {
 		debug_print(" %010lx %10lx %x\n", mm->base, mm->size, mm->attr);
 		++mm;
@@ -79,8 +79,8 @@ static void print_mmap(void)
 
 void mmap_add_region(unsigned long base, unsigned long size, unsigned attr)
 {
-	mmap_region *mm = mmap;
-	mmap_region *mm_last = mm + sizeof(mmap) / sizeof(mmap[0]) - 1;
+	mmap_region_t *mm = mmap;
+	mmap_region_t *mm_last = mm + sizeof(mmap) / sizeof(mmap[0]) - 1;
 
 	assert(IS_PAGE_ALIGNED(base));
 	assert(IS_PAGE_ALIGNED(size));
@@ -103,7 +103,7 @@ void mmap_add_region(unsigned long base, unsigned long size, unsigned attr)
 	mm->attr = attr;
 }
 
-void mmap_add(const mmap_region *mm)
+void mmap_add(const mmap_region_t *mm)
 {
 	while (mm->size) {
 		mmap_add_region(mm->base, mm->size, mm->attr);
@@ -140,7 +140,7 @@ static unsigned long mmap_desc(unsigned attr, unsigned long addr,
 	return desc;
 }
 
-static int mmap_region_attr(mmap_region *mm, unsigned long base,
+static int mmap_region_attr(mmap_region_t *mm, unsigned long base,
 					unsigned long size)
 {
 	int attr = mm->attr;
@@ -167,7 +167,7 @@ static int mmap_region_attr(mmap_region *mm, unsigned long base,
 	}
 }
 
-static mmap_region *init_xlation_table(mmap_region *mm, unsigned long base,
+static mmap_region_t *init_xlation_table(mmap_region_t *mm, unsigned long base,
 					unsigned long *table, unsigned level)
 {
 	unsigned level_size_shift = L1_XLAT_ADDRESS_SHIFT - (level - 1) *

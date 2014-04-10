@@ -43,7 +43,7 @@
 #define OPT_DUMP 1
 #define OPT_HELP 2
 
-file_info files[MAX_FILES];
+file_info_t files[MAX_FILES];
 unsigned file_info_count = 0;
 uuid_t uuid_null = {0};
 
@@ -54,7 +54,7 @@ uuid_t uuid_null = {0};
  */
 
 /* Currently only BL2 and BL31 images are supported. */
-static entry_lookup_list toc_entry_lookup_list[] = {
+static entry_lookup_list_t toc_entry_lookup_list[] = {
 	{ "Trusted Boot Firmware BL2", UUID_TRUSTED_BOOT_FIRMWARE_BL2,
 	  "bl2", NULL, FLAG_FILENAME },
 	{ "SCP Firmware BL3-0", UUID_SCP_FIRMWARE_BL30,
@@ -84,7 +84,7 @@ static inline void copy_uuid(uuid_t *to_uuid, const uuid_t *from_uuid)
 
 static void print_usage(void)
 {
-	entry_lookup_list *entry = toc_entry_lookup_list;
+	entry_lookup_list_t *entry = toc_entry_lookup_list;
 
 	printf("Usage: fip_create [options] FIP_FILENAME\n\n");
 	printf("\tThis tool is used to create a Firmware Image Package.\n\n");
@@ -102,7 +102,7 @@ static void print_usage(void)
 }
 
 
-static entry_lookup_list *get_entry_lookup_from_uuid(const uuid_t *uuid)
+static entry_lookup_list_t *get_entry_lookup_from_uuid(const uuid_t *uuid)
 {
 	unsigned int lookup_index = 0;
 
@@ -117,7 +117,7 @@ static entry_lookup_list *get_entry_lookup_from_uuid(const uuid_t *uuid)
 }
 
 
-static file_info *find_file_info_from_uuid(const uuid_t *uuid)
+static file_info_t *find_file_info_from_uuid(const uuid_t *uuid)
 {
 	int index;
 
@@ -130,9 +130,9 @@ static file_info *find_file_info_from_uuid(const uuid_t *uuid)
 }
 
 
-static int add_file_info_entry(entry_lookup_list *lookup_entry, char *filename)
+static int add_file_info_entry(entry_lookup_list_t *lookup_entry, char *filename)
 {
-	file_info *file_info_entry;
+	file_info_t *file_info_entry;
 	int error;
 	struct stat file_status;
 	bool is_new_entry = false;
@@ -213,7 +213,7 @@ static int write_memory_to_file(const uint8_t *start, const char *filename,
 }
 
 
-static int read_file_to_memory(void *memory, const file_info *info)
+static int read_file_to_memory(void *memory, const file_info_t *info)
 {
 	FILE *stream;
 	unsigned int bytes_read;
@@ -258,8 +258,8 @@ static int pack_images(const char *fip_filename)
 	int status;
 	uint8_t *fip_base_address;
 	void *entry_address;
-	fip_toc_header *toc_header;
-	fip_toc_entry *toc_entry;
+	fip_toc_header_t *toc_header;
+	fip_toc_entry_t *toc_entry;
 	unsigned int entry_index;
 	unsigned int toc_size;
 	unsigned int fip_size;
@@ -277,8 +277,8 @@ static int pack_images(const char *fip_filename)
 	}
 
 	/* Allocate memory for entire package, including the final null entry */
-	toc_size = (sizeof(fip_toc_header) +
-		    (sizeof(fip_toc_entry) * (file_info_count + 1)));
+	toc_size = (sizeof(fip_toc_header_t) +
+		    (sizeof(fip_toc_entry_t) * (file_info_count + 1)));
 	fip_size = toc_size + payload_size;
 	fip_base_address = malloc(fip_size);
 	if (fip_base_address == NULL) {
@@ -289,13 +289,13 @@ static int pack_images(const char *fip_filename)
 	memset(fip_base_address, 0, fip_size);
 
 	/* Create ToC Header */
-	toc_header = (fip_toc_header *)fip_base_address;
+	toc_header = (fip_toc_header_t *)fip_base_address;
 	toc_header->name = TOC_HEADER_NAME;
 	toc_header->serial_number = TOC_HEADER_SERIAL_NUMBER;
 	toc_header->flags = 0;
 
-	toc_entry = (fip_toc_entry *)(fip_base_address +
-				      sizeof(fip_toc_header));
+	toc_entry = (fip_toc_entry_t *)(fip_base_address +
+				      sizeof(fip_toc_header_t));
 
 	/* Calculate the starting address of the first image, right after the
 	 * toc header.
@@ -345,8 +345,8 @@ static void dump_toc(void)
 	unsigned int image_offset;
 	unsigned int image_size = 0;
 
-	image_offset = sizeof(fip_toc_header) +
-		(sizeof(fip_toc_entry) * (file_info_count + 1));
+	image_offset = sizeof(fip_toc_header_t) +
+		(sizeof(fip_toc_entry_t) * (file_info_count + 1));
 
 	printf("Firmware Image Package ToC:\n");
 	printf("---------------------------\n");
@@ -376,10 +376,10 @@ static int parse_fip(const char *fip_filename)
 	char *fip_buffer;
 	char *fip_buffer_end;
 	int fip_size, read_fip_size;
-	fip_toc_header *toc_header;
-	fip_toc_entry *toc_entry;
+	fip_toc_header_t *toc_header;
+	fip_toc_entry_t *toc_entry;
 	bool found_last_toc_entry = false;
-	file_info *file_info_entry;
+	file_info_t *file_info_entry;
 	int status = -1;
 	struct stat st;
 
@@ -419,19 +419,19 @@ static int parse_fip(const char *fip_filename)
 	fip = NULL;
 
 	/* The package must at least contain the ToC Header */
-	if (fip_size < sizeof(fip_toc_header)) {
+	if (fip_size < sizeof(fip_toc_header_t)) {
 		printf("ERROR: Given FIP is smaller than the ToC header.\n");
 		status = EINVAL;
 		goto parse_fip_free;
 	}
 	/* Set the ToC Header at the base of the buffer */
-	toc_header = (fip_toc_header *)fip_buffer;
+	toc_header = (fip_toc_header_t *)fip_buffer;
 	/* The first toc entry should be just after the ToC header */
-	toc_entry = (fip_toc_entry *)(toc_header + 1);
+	toc_entry = (fip_toc_entry_t *)(toc_header + 1);
 
 	/* While the ToC entry is contained into the buffer */
 	int cnt = 0;
-	while (((char *)toc_entry + sizeof(fip_toc_entry)) < fip_buffer_end) {
+	while (((char *)toc_entry + sizeof(fip_toc_entry_t)) < fip_buffer_end) {
 		cnt++;
 		/* Check if the ToC Entry is the last one */
 		if (compare_uuids(&toc_entry->uuid, &uuid_null) == 0) {
@@ -444,7 +444,7 @@ static int parse_fip(const char *fip_filename)
 
 		/* Get the new entry in the array and clear it */
 		file_info_entry = &files[file_info_count++];
-		memset(file_info_entry, 0, sizeof(file_info));
+		memset(file_info_entry, 0, sizeof(file_info_t));
 
 		/* Copy the info from the ToC entry */
 		copy_uuid(&file_info_entry->name_uuid, &toc_entry->uuid);
@@ -523,7 +523,7 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 	int c;
 	int status = 0;
 	int option_index = 0;
-	entry_lookup_list *lookup_entry;
+	entry_lookup_list_t *lookup_entry;
 	int do_dump = 0;
 
 	/* restart parse to process all options. starts at 1. */
@@ -591,11 +591,11 @@ int main(int argc, char **argv)
 	 * Add 'dump' option, 'help' option and end marker.
 	 */
 	static struct option long_options[(sizeof(toc_entry_lookup_list)/
-					   sizeof(entry_lookup_list)) + 2];
+					   sizeof(entry_lookup_list_t)) + 2];
 
 	for (i = 0;
 	     /* -1 because we dont want to process end marker in toc table */
-	     i < sizeof(toc_entry_lookup_list)/sizeof(entry_lookup_list) - 1;
+	     i < sizeof(toc_entry_lookup_list)/sizeof(entry_lookup_list_t) - 1;
 	     i++) {
 		long_options[i].name = toc_entry_lookup_list[i].command_line_name;
 		/* The only flag defined at the moment is for a FILENAME */

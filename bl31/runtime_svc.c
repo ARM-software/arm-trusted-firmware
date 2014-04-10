@@ -55,12 +55,12 @@
 #define RT_SVC_DESCS_START	((uint64_t) (&__RT_SVC_DESCS_START__))
 #define RT_SVC_DESCS_END	((uint64_t) (&__RT_SVC_DESCS_END__))
 uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
-static rt_svc_desc *rt_svc_descs;
+static rt_svc_desc_t *rt_svc_descs;
 
 /*******************************************************************************
  * Simple routine to sanity check a runtime service descriptor before using it
  ******************************************************************************/
-static int32_t validate_rt_svc_desc(rt_svc_desc *desc)
+static int32_t validate_rt_svc_desc(rt_svc_desc_t *desc)
 {
 	if (desc == NULL)
 		return -EINVAL;
@@ -96,14 +96,14 @@ void runtime_svc_init()
 
 	/* If no runtime services are implemented then simply bail out */
 	rt_svc_descs_num = RT_SVC_DESCS_END - RT_SVC_DESCS_START;
-	rt_svc_descs_num /= sizeof(rt_svc_desc);
+	rt_svc_descs_num /= sizeof(rt_svc_desc_t);
 	if (rt_svc_descs_num == 0)
 		return;
 
 	/* Initialise internal variables to invalid state */
 	memset(rt_svc_descs_indices, -1, sizeof(rt_svc_descs_indices));
 
-	rt_svc_descs = (rt_svc_desc *) RT_SVC_DESCS_START;
+	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
 	for (index = 0; index < rt_svc_descs_num; index++) {
 
 		/*
@@ -148,7 +148,7 @@ error:
 
 void fault_handler(void *handle)
 {
-	gp_regs *gpregs_ctx = get_gpregs_ctx(handle);
+	gp_regs_t *gpregs_ctx = get_gpregs_ctx(handle);
 	ERROR("Unhandled synchronous fault. Register dump @ 0x%x \n",
 	      gpregs_ctx);
 	panic();

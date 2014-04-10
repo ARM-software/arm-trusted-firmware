@@ -135,7 +135,7 @@
  * Structure populated by platform specific code to export routines which
  * perform common low level pm functions
  ******************************************************************************/
-typedef struct {
+typedef struct plat_pm_ops {
 	int (*affinst_standby)(unsigned int);
 	int (*affinst_on)(unsigned long,
 			  unsigned long,
@@ -152,7 +152,7 @@ typedef struct {
 	int (*affinst_suspend_finish)(unsigned long,
 				      unsigned int,
 				      unsigned int);
-} plat_pm_ops;
+} plat_pm_ops_t;
 
 /*******************************************************************************
  * Optional structure populated by the Secure Payload Dispatcher to be given a
@@ -160,7 +160,7 @@ typedef struct {
  * operation. It also allows PSCI to determine certain properties of the SP e.g.
  * migrate capability etc.
  ******************************************************************************/
-typedef struct {
+typedef struct spd_pm_ops {
 	void (*svc_on)(uint64_t target_cpu);
 	int32_t (*svc_off)(uint64_t __unused);
 	void (*svc_suspend)(uint64_t power_state);
@@ -168,7 +168,7 @@ typedef struct {
 	void (*svc_suspend_finish)(uint64_t suspend_level);
 	void (*svc_migrate)(uint64_t __unused1, uint64_t __unused2);
 	int32_t (*svc_migrate_info)(uint64_t *__unused);
-} spd_pm_ops;
+} spd_pm_ops_t;
 
 /*******************************************************************************
  * Function & Data prototypes
@@ -187,7 +187,7 @@ extern int psci_cpu_on(unsigned long,
 		       unsigned long);
 extern void psci_aff_on_finish_entry(void);
 extern void psci_aff_suspend_finish_entry(void);
-extern void psci_register_spd_pm_hook(const spd_pm_ops *);
+extern void psci_register_spd_pm_hook(const spd_pm_ops_t *);
 extern int psci_get_suspend_stateid(unsigned long mpidr);
 extern int psci_get_suspend_afflvl(unsigned long mpidr);
 

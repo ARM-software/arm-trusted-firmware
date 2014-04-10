@@ -51,8 +51,8 @@ void bl1_main(void)
 #endif
 	unsigned long bl2_base;
 	unsigned int load_type = TOP_LOAD, spsr;
-	meminfo *bl1_tzram_layout;
-	meminfo *bl2_tzram_layout = 0x0;
+	meminfo_t *bl1_tzram_layout;
+	meminfo_t *bl2_tzram_layout = 0x0;
 
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
@@ -87,7 +87,7 @@ void bl1_main(void)
 	 * to BL2. BL2 will read the memory layout before using its
 	 * memory for other purposes.
 	 */
-	bl2_tzram_layout = (meminfo *) bl1_tzram_layout->free_base;
+	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;
 	init_bl2_mem_layout(bl1_tzram_layout,
 			    bl2_tzram_layout,
 			    load_type,

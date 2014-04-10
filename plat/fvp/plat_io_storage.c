@@ -40,40 +40,40 @@
 #include <debug.h>
 
 /* IO devices */
-static struct io_plat_data io_data;
-static struct io_dev_connector *sh_dev_con;
+static io_plat_data_t io_data;
+static io_dev_connector_t *sh_dev_con;
 static void *const sh_dev_spec;
 static void *const sh_init_params;
 static io_dev_handle sh_dev_handle;
-static struct io_dev_connector *fip_dev_con;
+static io_dev_connector_t *fip_dev_con;
 static void *const fip_dev_spec;
 static io_dev_handle fip_dev_handle;
-static struct io_dev_connector *memmap_dev_con;
+static io_dev_connector_t *memmap_dev_con;
 static void *const memmap_dev_spec;
 static void *const memmap_init_params;
 static io_dev_handle memmap_dev_handle;
 
-static io_block_spec fip_block_spec = {
+static io_block_spec_t fip_block_spec = {
 	.offset = FLASH0_BASE,
 	.length = FLASH0_SIZE
 };
 
-static io_file_spec bl2_file_spec = {
+static io_file_spec_t bl2_file_spec = {
 	.path = BL2_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec bl31_file_spec = {
+static io_file_spec_t bl31_file_spec = {
 	.path = BL31_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec bl32_file_spec = {
+static io_file_spec_t bl32_file_spec = {
 	.path = BL32_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec bl33_file_spec = {
+static io_file_spec_t bl33_file_spec = {
 	.path = BL33_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
@@ -194,7 +194,7 @@ int plat_get_image_source(const char *image_name, io_dev_handle *dev_handle,
 			if (strcmp(policy->image_name, image_name) == 0) {
 				result = policy->check(policy->image_spec);
 				if (result == IO_SUCCESS) {
-					*(io_file_spec **)image_spec =
+					*(io_file_spec_t **)image_spec =
 						policy->image_spec;
 					*dev_handle = *(policy->dev_handle);
 					break;
@@ -203,7 +203,7 @@ int plat_get_image_source(const char *image_name, io_dev_handle *dev_handle,
 							policy->image_spec);
 					if (result == IO_SUCCESS) {
 						*dev_handle = sh_dev_handle;
-						*(io_file_spec **)image_spec =
+						*(io_file_spec_t **)image_spec =
 							policy->image_spec;
 					}
 				}

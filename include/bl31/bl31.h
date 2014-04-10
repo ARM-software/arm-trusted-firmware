@@ -46,9 +46,9 @@ extern void bl31_next_el_arch_setup(uint32_t security_state);
 extern void bl31_set_next_image_type(uint32_t type);
 extern uint32_t bl31_get_next_image_type(void);
 extern void bl31_prepare_next_image_entry();
-extern el_change_info *bl31_get_next_image_info(uint32_t type);
+extern el_change_info_t *bl31_get_next_image_info(uint32_t type);
 extern void bl31_platform_setup(void);
-extern meminfo *bl31_plat_get_bl32_mem_layout(void);
-extern meminfo *bl31_plat_sec_mem_layout(void);
-extern void bl31_register_bl32_init(int32_t (*)(meminfo *));
+extern meminfo_t *bl31_plat_get_bl32_mem_layout(void);
+extern meminfo_t *bl31_plat_sec_mem_layout(void);
+extern void bl31_register_bl32_init(int32_t (*)(meminfo_t *));
 #endif /* __BL31_H__ */

@@ -165,23 +165,23 @@
  *  TZC_ACTION_ERR_INT - Raise interrupt, raise exception -> sync
  *                       external data abort
  */
-enum tzc_action {
+typedef enum {
 	TZC_ACTION_NONE = 0,
 	TZC_ACTION_ERR = 1,
 	TZC_ACTION_INT = 2,
 	TZC_ACTION_ERR_INT = (TZC_ACTION_ERR | TZC_ACTION_INT)
-};
+} tzc_action_t;
 
 /*
  * Controls secure access to a region. If not enabled secure access is not
  * allowed to region.
  */
-enum tzc_region_attributes {
+typedef enum {
 	TZC_REGION_S_NONE = 0,
 	TZC_REGION_S_RD = 1,
 	TZC_REGION_S_WR = 2,
 	TZC_REGION_S_RDWR = (TZC_REGION_S_RD | TZC_REGION_S_WR)
-};
+} tzc_region_attributes_t;
 
 /*
  * Implementation defined values used to validate inputs later.
@@ -189,22 +189,21 @@ enum tzc_region_attributes {
  * Regions : max of 9 ; 0 to 8
  * Address width : Values between 32 to 64
  */
-struct tzc_instance {
+typedef struct tzc_instance {
 	uint64_t base;
 	uint32_t aid_width;
 	uint8_t addr_width;
 	uint8_t num_filters;
 	uint8_t num_regions;
-};
+} tzc_instance_t ;
 
-void tzc_init(struct tzc_instance *controller);
-void tzc_configure_region(const struct tzc_instance *controller, uint32_t filters,
+void tzc_init(tzc_instance_t *controller);
+void tzc_configure_region(const tzc_instance_t *controller, uint32_t filters,
 	uint8_t region, uint64_t region_base, uint64_t region_top,
-	enum tzc_region_attributes sec_attr, uint32_t ns_device_access);
-void tzc_enable_filters(const struct tzc_instance *controller);
-void tzc_disable_filters(const struct tzc_instance *controller);
-void tzc_set_action(const struct tzc_instance *controller,
-	enum tzc_action action);
+	tzc_region_attributes_t sec_attr, uint32_t ns_device_access);
+void tzc_enable_filters(const tzc_instance_t *controller);
+void tzc_disable_filters(const tzc_instance_t *controller);
+void tzc_set_action(const tzc_instance_t *controller, tzc_action_t action);
 
 #endif /*__ASSEMBLY__*/
 

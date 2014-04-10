@@ -40,8 +40,8 @@
 #include <runtime_svc.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_suspend_handler)(unsigned long,
-				      aff_map_node *,
+typedef int (*afflvl_suspend_handler_t)(unsigned long,
+				      aff_map_node_t *,
 				      unsigned long,
 				      unsigned long,
 				      unsigned int);
@@ -50,7 +50,7 @@ typedef int (*afflvl_suspend_handler)(unsigned long,
  * This function sets the power state of the current cpu while
  * powering down during a cpu_suspend call
  ******************************************************************************/
-void psci_set_suspend_power_state(aff_map_node *node, unsigned int power_state)
+void psci_set_suspend_power_state(aff_map_node_t *node, unsigned int power_state)
 {
 	/*
 	 * Check that nobody else is calling this function on our behalf &
@@ -68,7 +68,7 @@ void psci_set_suspend_power_state(aff_map_node *node, unsigned int power_state)
 	 */
 	flush_dcache_range(
 		(unsigned long)&psci_suspend_context[node->data],
-		sizeof(suspend_context));
+		sizeof(suspend_context_t));
 }
 
 /*******************************************************************************
@@ -78,7 +78,7 @@ void psci_set_suspend_power_state(aff_map_node *node, unsigned int power_state)
  ******************************************************************************/
 int psci_get_suspend_afflvl(unsigned long mpidr)
 {
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
 			MPIDR_AFFLVL0);
@@ -93,7 +93,7 @@ int psci_get_suspend_afflvl(unsigned long mpidr)
  * down during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
  * power state saved for the node is invalid
  ******************************************************************************/
-int psci_get_aff_map_node_suspend_afflvl(aff_map_node *node)
+int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node)
 {
 	unsigned int power_state;
 
@@ -111,7 +111,7 @@ int psci_get_aff_map_node_suspend_afflvl(aff_map_node *node)
  ******************************************************************************/
 int psci_get_suspend_stateid(unsigned long mpidr)
 {
-	aff_map_node *node;
+	aff_map_node_t *node;
 	unsigned int power_state;
 
 	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
@@ -129,14 +129,14 @@ int psci_get_suspend_stateid(unsigned long mpidr)
  * level which is called when that affinity level is about to be suspended.
  ******************************************************************************/
 static int psci_afflvl0_suspend(unsigned long mpidr,
-				aff_map_node *cpu_node,
+				aff_map_node_t *cpu_node,
 				unsigned long ns_entrypoint,
 				unsigned long context_id,
 				unsigned int power_state)
 {
 	unsigned int index, plat_state;
 	unsigned long psci_entrypoint, sctlr;
-	el3_state *saved_el3_state;
+	el3_state_t *saved_el3_state;
 	int rc = PSCI_E_SUCCESS;
 
 	/* Sanity check to safeguard against data corruption */
@@ -228,7 +228,7 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 }
 
 static int psci_afflvl1_suspend(unsigned long mpidr,
-				aff_map_node *cluster_node,
+				aff_map_node_t *cluster_node,
 				unsigned long ns_entrypoint,
 				unsigned long context_id,
 				unsigned int power_state)
@@ -282,7 +282,7 @@ static int psci_afflvl1_suspend(unsigned long mpidr,
 
 
 static int psci_afflvl2_suspend(unsigned long mpidr,
-				aff_map_node *system_node,
+				aff_map_node_t *system_node,
 				unsigned long ns_entrypoint,
 				unsigned long context_id,
 				unsigned int power_state)
@@ -326,7 +326,7 @@ static int psci_afflvl2_suspend(unsigned long mpidr,
 	return rc;
 }
 
-static const afflvl_suspend_handler psci_afflvl_suspend_handlers[] = {
+static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
 	psci_afflvl0_suspend,
 	psci_afflvl1_suspend,
 	psci_afflvl2_suspend,
@@ -337,7 +337,7 @@ static const afflvl_suspend_handler psci_afflvl_suspend_handlers[] = {
  * topology tree and calls the suspend handler for the corresponding affinity
  * levels
  ******************************************************************************/
-static int psci_call_suspend_handlers(mpidr_aff_map_nodes mpidr_nodes,
+static int psci_call_suspend_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 				      int start_afflvl,
 				      int end_afflvl,
 				      unsigned long mpidr,
@@ -346,7 +346,7 @@ static int psci_call_suspend_handlers(mpidr_aff_map_nodes mpidr_nodes,
 				      unsigned int power_state)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	for (level = start_afflvl; level <= end_afflvl; level++) {
 		node = mpidr_nodes[level];
@@ -400,7 +400,7 @@ int psci_afflvl_suspend(unsigned long mpidr,
 			int end_afflvl)
 {
 	int rc = PSCI_E_SUCCESS;
-	mpidr_aff_map_nodes mpidr_nodes;
+	mpidr_aff_map_nodes_t mpidr_nodes;
 
 	mpidr &= MPIDR_AFFINITY_MASK;
 
@@ -453,7 +453,7 @@ int psci_afflvl_suspend(unsigned long mpidr,
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
 static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
-						aff_map_node *cpu_node)
+						aff_map_node_t *cpu_node)
 {
 	unsigned int index, plat_state, state, rc = PSCI_E_SUCCESS;
 	int32_t suspend_level;
@@ -533,7 +533,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 }
 
 static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
-						aff_map_node *cluster_node)
+						aff_map_node_t *cluster_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;
 
@@ -565,7 +565,7 @@ static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
 
 
 static unsigned int psci_afflvl2_suspend_finish(unsigned long mpidr,
-						aff_map_node *system_node)
+						aff_map_node_t *system_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;;
 
@@ -601,7 +601,7 @@ static unsigned int psci_afflvl2_suspend_finish(unsigned long mpidr,
 	return rc;
 }
 
-const afflvl_power_on_finisher psci_afflvl_suspend_finishers[] = {
+const afflvl_power_on_finisher_t psci_afflvl_suspend_finishers[] = {
 	psci_afflvl0_suspend_finish,
 	psci_afflvl1_suspend_finish,
 	psci_afflvl2_suspend_finish,

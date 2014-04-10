@@ -50,17 +50,17 @@
 #define UUID_NON_TRUSTED_FIRMWARE_BL33 \
 	{0xa7eed0d6, 0xeafc, 0x4bd5, 0x97, 0x82, {0x99, 0x34, 0xf2, 0x34, 0xb6, 0xe4} }
 
-typedef struct {
+typedef struct fip_toc_header {
 	uint32_t	name;
 	uint32_t	serial_number;
 	uint64_t	flags;
-} fip_toc_header;
+} fip_toc_header_t;
 
-typedef struct {
+typedef struct fip_toc_entry {
 	uuid_t		uuid;
 	uint64_t	offset_address;
 	uint64_t	size;
 	uint64_t	flags;
-} fip_toc_entry;
+} fip_toc_entry_t;
 
 #endif /* __FIRMWARE_IMAGE_PACKAGE_H__ */

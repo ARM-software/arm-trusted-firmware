@@ -45,7 +45,7 @@
  * of relying on platform defined constants. Using PSCI_NUM_AFFS will be an
  * overkill.
  ******************************************************************************/
-static cpu_context psci_ns_context[PLATFORM_CORE_COUNT];
+static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Routines for retrieving the node corresponding to an affinity level instance
@@ -81,7 +81,7 @@ static int psci_aff_map_get_idx(unsigned long key,
 		return mid;
 }
 
-aff_map_node *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
+aff_map_node_t *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
 {
 	int rc;
 
@@ -106,10 +106,10 @@ aff_map_node *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
 int psci_get_aff_map_nodes(unsigned long mpidr,
 			   int start_afflvl,
 			   int end_afflvl,
-			   mpidr_aff_map_nodes mpidr_nodes)
+			   mpidr_aff_map_nodes_t mpidr_nodes)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	rc = psci_check_afflvl_range(start_afflvl, end_afflvl);
 	if (rc != PSCI_E_SUCCESS)
@@ -285,7 +285,7 @@ int32_t psci_setup(void)
 {
 	unsigned long mpidr = read_mpidr();
 	int afflvl, affmap_idx, max_afflvl;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	psci_ns_einfo_idx = 0;
 	psci_plat_pm_ops = NULL;

@@ -44,7 +44,7 @@
  */
 void plat_security_setup(void)
 {
-	struct tzc_instance controller;
+	tzc_instance_t controller;
 
 	/*
 	 * The Base FVP has a TrustZone address space controller, the Foundation

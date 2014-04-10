@@ -45,23 +45,23 @@ typedef struct {
 	const char *file_name;
 	unsigned long mode;
 	size_t name_length;
-} smh_file_open_block;
+} smh_file_open_block_t;
 
 typedef struct {
 	long handle;
 	void *buffer;
 	size_t length;
-} smh_file_read_write_block;
+} smh_file_read_write_block_t;
 
 typedef struct {
 	long handle;
 	ssize_t location;
-} smh_file_seek_block;
+} smh_file_seek_block_t;
 
 typedef struct {
 	char *command_line;
 	size_t command_length;
-} smh_system_block;
+} smh_system_block_t;
 
 long semihosting_connection_supported(void)
 {
@@ -70,7 +70,7 @@ long semihosting_connection_supported(void)
 
 long semihosting_file_open(const char *file_name, size_t mode)
 {
-	smh_file_open_block open_block;
+	smh_file_open_block_t open_block;
 
 	open_block.file_name = file_name;
 	open_block.mode = mode;
@@ -82,7 +82,7 @@ long semihosting_file_open(const char *file_name, size_t mode)
 
 long semihosting_file_seek(long file_handle, ssize_t offset)
 {
-	smh_file_seek_block seek_block;
+	smh_file_seek_block_t seek_block;
 	long result;
 
 	seek_block.handle = file_handle;
@@ -99,7 +99,7 @@ long semihosting_file_seek(long file_handle, ssize_t offset)
 
 long semihosting_file_read(long file_handle, size_t *length, void *buffer)
 {
-	smh_file_read_write_block read_block;
+	smh_file_read_write_block_t read_block;
 	long result = -EINVAL;
 
 	if ((length == NULL) || (buffer == NULL))
@@ -125,7 +125,7 @@ long semihosting_file_write(long file_handle,
 			    size_t *length,
 			    const void *buffer)
 {
-	smh_file_read_write_block write_block;
+	smh_file_read_write_block_t write_block;
 
 	if ((length == NULL) || (buffer == NULL))
 		return -EINVAL;
@@ -169,7 +169,7 @@ void semihosting_write_string(char *string)
 
 long semihosting_system(char *command_line)
 {
-	smh_system_block system_block;
+	smh_system_block_t system_block;
 
 	system_block.command_line = command_line;
 	system_block.command_length = strlen(command_line);

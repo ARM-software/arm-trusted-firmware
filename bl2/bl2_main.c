@@ -48,8 +48,8 @@
  ******************************************************************************/
 void bl2_main(void)
 {
-	meminfo *bl2_tzram_layout;
-	bl31_args *bl2_to_bl31_args;
+	meminfo_t *bl2_tzram_layout;
+	bl31_args_t *bl2_to_bl31_args;
 	unsigned long bl31_base, bl32_base = 0, bl33_base, el_status;
 	unsigned int bl2_load, bl31_load, mode;
 
