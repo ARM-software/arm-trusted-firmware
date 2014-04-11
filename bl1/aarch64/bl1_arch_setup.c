@@ -59,8 +59,6 @@ void bl1_arch_setup(void)
 	 */
 	enable_serror();
 	enable_debug_exceptions();
-
-	return;
 }
 
 /*******************************************************************************

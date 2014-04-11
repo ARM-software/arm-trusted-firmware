@@ -40,6 +40,7 @@
 void bl31_arch_setup(void)
 {
 	unsigned long tmp_reg = 0;
+	uint64_t counter_freq;
 
 	/* Enable alignment checks and set the exception endianness to LE */
 	tmp_reg = read_sctlr_el3();
@@ -61,7 +62,9 @@ void bl31_arch_setup(void)
 	enable_serror();
 	enable_debug_exceptions();
 
-	return;
+	/* Program the counter frequency */
+	counter_freq = plat_get_syscnt_freq();
+	write_cntfrq_el0(counter_freq);
 }
 
 /*******************************************************************************

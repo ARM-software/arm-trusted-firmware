@@ -346,6 +346,7 @@ extern int platform_config_setup(void);
 extern void plat_report_exception(unsigned long);
 extern unsigned long plat_get_ns_image_entrypoint(void);
 extern unsigned long platform_get_stack(unsigned long mpidr);
+extern uint64_t plat_get_syscnt_freq(void);
 
 /* Declarations for fvp_gic.c */
 extern void gic_cpuif_deactivate(unsigned int);

@@ -78,7 +78,7 @@
 
 #define CNTCR_EN			(1 << 0)
 #define CNTCR_HDBG			(1 << 1)
-#define CNTCR_FCREQ(x)			(1 << (8 + (x)))
+#define CNTCR_FCREQ(x)			((x) << 8)
 
 /*******************************************************************************
  * System register bit definitions
