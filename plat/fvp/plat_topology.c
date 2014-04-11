@@ -31,9 +31,9 @@
 #include <string.h>
 #include <assert.h>
 #include <platform.h>
-#include <fvp_pwrc.h>
 /* TODO: Reusing psci error codes & state information. Get our own! */
 #include <psci.h>
+#include "drivers/pwrc/fvp_pwrc.h"
 
 /* We treat '255' as an invalid affinity instance */
 #define AFFINST_INVAL	0xff

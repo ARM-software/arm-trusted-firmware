@@ -39,9 +39,9 @@
 #include <bakery_lock.h>
 #include <cci400.h>
 #include <gic.h>
-#include <fvp_pwrc.h>
 /* Only included for error codes */
 #include <psci.h>
+#include "drivers/pwrc/fvp_pwrc.h"
 
 /*******************************************************************************
  * FVP handler called when an affinity instance is about to enter standby.
