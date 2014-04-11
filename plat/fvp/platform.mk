@@ -57,8 +57,8 @@ PLAT_BL31_C_VPATH	:=	drivers/arm/cci-400			\
 				lib/${ARCH}				\
 				lib/semihosting				\
 				lib/stdlib				\
-				drivers/power				\
-				drivers/io
+				drivers/io				\
+				plat/fvp/drivers/pwrc
 
 PLAT_BL31_S_VPATH	:=	lib/semihosting/${ARCH}
 

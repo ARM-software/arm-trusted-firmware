@@ -30,8 +30,8 @@
 
 #include <platform.h>
 #include <arch.h>
-#include <fvp_pwrc.h>
 #include <console.h>
+#include "drivers/pwrc/fvp_pwrc.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

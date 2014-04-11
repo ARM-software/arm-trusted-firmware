@@ -34,8 +34,8 @@
 #include <assert.h>
 #include <arch_helpers.h>
 #include <platform.h>
-#include <fvp_pwrc.h>
 #include <bakery_lock.h>
+#include "fvp_pwrc.h"
 
 /*
  * TODO: Someday there will be a generic power controller api. At the moment
