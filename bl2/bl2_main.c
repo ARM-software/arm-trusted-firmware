@@ -134,32 +134,35 @@ void bl2_main(void)
 	bl2_plat_bl33_post_load_actions(bl2_to_bl31_params->bl33_image,
 				bl2_to_bl31_params->bl33_ep);
 
+
+#ifdef BL32_BASE
 	/*
 	 * Load the BL32 image if there's one. It is upto to platform
 	 * to specify where BL32 should be loaded if it exists. It
 	 * could create space in the secure sram or point to a
-	 * completely different memory. A zero size indicates that the
-	 * platform does not want to load a BL32 image.
+	 * completely different memory.
+	 *
+	 * If a platform does not want to attempt to load BL3-2 image
+	 * it must leave BL32_BASE undefined
 	 */
 	bl2_plat_get_bl32_meminfo(&bl32_mem_info);
-	if (bl32_mem_info.total_size) {
-		e = load_image(&bl32_mem_info,
-			       BL32_IMAGE_NAME,
-			       bl32_mem_info.attr &
-			       LOAD_MASK,
-			       BL32_BASE,
-			       bl2_to_bl31_params->bl32_image,
-			       bl2_to_bl31_params->bl32_ep);
+	e = load_image(&bl32_mem_info,
+		       BL32_IMAGE_NAME,
+		       bl32_mem_info.attr &
+		       LOAD_MASK,
+		       BL32_BASE,
+		       bl2_to_bl31_params->bl32_image,
+		       bl2_to_bl31_params->bl32_ep);
 
-		/* Halt if failed to load normal world firmware. */
-		if (e) {
-			WARN("Failed to load BL3-2.\n");
-		} else {
-			bl2_plat_bl32_post_load_actions(
-						bl2_to_bl31_params->bl32_image,
-						bl2_to_bl31_params->bl32_ep);
-		}
+	/* Issue a diagnostic if no Secure Payload could be loaded */
+	if (e) {
+		WARN("Failed to load BL3-2.\n");
+	} else {
+		bl2_plat_bl32_post_load_actions(
+					bl2_to_bl31_params->bl32_image,
+					bl2_to_bl31_params->bl32_ep);
 	}
+#endif /* BL32_BASE */
 
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
