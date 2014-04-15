@@ -117,7 +117,7 @@ SynchronousExceptionA64:
 	 * BL1 to pass EL3 control to BL31 is expected
 	 * here.
 	 * It expects X0 with RUN_IMAGE SMC function id
-	 * X1 with address of a el_change_info_t structure
+	 * X1 with address of a entry_point_info_t structure
 	 * describing the BL3-1 entrypoint
 	 * ------------------------------------------------
 	 */
@@ -136,7 +136,7 @@ SynchronousExceptionA64:
 	mov	x0, x20
 	bl	display_boot_progress
 
-	ldp	x0, x1, [x20, #EL_CHANGE_INFO_PC_OFFSET]
+	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
 	msr	elr_el3, x0
 	msr	spsr_el3, x1
 	ubfx	x0, x1, #MODE_EL_SHIFT, #2
@@ -146,10 +146,10 @@ SynchronousExceptionA64:
 	bl	disable_mmu_icache_el3
 	tlbi	alle3
 
-	ldp	x6, x7, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x30)]
-	ldp	x4, x5, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x20)]
-	ldp	x2, x3, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x10)]
-	ldp	x0, x1, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x0)]
+	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]
+	ldp	x4, x5, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x20)]
+	ldp	x2, x3, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x10)]
+	ldp	x0, x1, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x0)]
 	eret
 panic:
 	mov	x0, #SYNC_EXCEPTION_AARCH64

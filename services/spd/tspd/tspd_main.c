@@ -76,7 +76,7 @@ int32_t tspd_init(meminfo_t *bl32_meminfo);
  ******************************************************************************/
 int32_t tspd_setup(void)
 {
-	el_change_info_t *image_info;
+	entry_point_info_t *image_info;
 	int32_t rc;
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id;
@@ -96,7 +96,7 @@ int32_t tspd_setup(void)
 	 * signalling failure initializing the service. We bail out without
 	 * registering any handlers
 	 */
-	if (!image_info->entrypoint)
+	if (!image_info->pc)
 		return 1;
 
 	/*
@@ -104,7 +104,7 @@ int32_t tspd_setup(void)
 	 * state i.e whether AArch32 or AArch64. Assuming it's AArch64
 	 * for the time being.
 	 */
-	rc = tspd_init_secure_context(image_info->entrypoint,
+	rc = tspd_init_secure_context(image_info->pc,
 				     TSP_AARCH64,
 				     mpidr,
 				     &tspd_sp_context[linear_id]);
