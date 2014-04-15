@@ -45,8 +45,8 @@
 
 func bl31_entrypoint
 	/* ---------------------------------------------
-	 * BL2 has populated x0 with a pointer to a 'bl31_args' structure & x2
- 	 * with any other optional information
+	 * BL2 has populated x0 with a pointer to a 'bl31_tf_params'
+	 * structure & x1 with a pointer to platform specific structure
 	 * ---------------------------------------------
 	 */
 	mov	x20, x0

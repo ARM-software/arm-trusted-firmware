@@ -176,13 +176,13 @@ void bl31_prepare_next_image_entry()
 	 * Tell the context mgmt. library to ensure that SP_EL3 points to
 	 * the right context to exit from EL3 correctly.
 	 */
-	cm_set_el3_eret_context(next_image_info->security_state,
-			next_image_info->entrypoint,
+	cm_set_el3_eret_context(GET_SECURITY_STATE(next_image_info->h.attr),
+			next_image_info->pc,
 			next_image_info->spsr,
 			scr);
 
 	/* Finally set the next context */
-	cm_set_next_eret_context(next_image_info->security_state);
+	cm_set_next_eret_context(GET_SECURITY_STATE(next_image_info->h.attr));
 }
 
 /*******************************************************************************

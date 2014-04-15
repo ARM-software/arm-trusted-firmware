@@ -31,8 +31,9 @@
 #ifndef __BL_COMMON_H__
 #define __BL_COMMON_H__
 
-#define SECURE		0
-#define NON_SECURE	1
+#define SECURE		0x0
+#define NON_SECURE	0x1
+#define PARAM_EP_SECURITY_MASK    0x1
 
 #define UP	1
 #define DOWN	0
@@ -58,15 +59,32 @@
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the
- *  'el_change_info' structure at their correct offsets.
+ * 'el_change_info' structure at their correct offsets.
  ******************************************************************************/
-#define EL_CHANGE_INFO_PC_OFFSET 0x0
-#define EL_CHANGE_INFO_ARGS_OFFSET 0x18
+#define EL_CHANGE_INFO_PC_OFFSET	0x08
+#define EL_CHANGE_INFO_ARGS_OFFSET	0x18
+
+#define GET_SECURITY_STATE(x) (x & PARAM_EP_SECURITY_MASK)
+#define SET_SECURITY_STATE(x, security) \
+			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
+
+#define PARAM_EP     0x01
+#define PARAM_IMAGE_BINARY  0x02
+#define PARAM_BL31       0x03
+
+#define VERSION_1		0x01
+
+#define SET_PARAM_HEAD(_p, _type, _ver, _attr) do { \
+	(_p)->h.type = (uint8_t)(_type); \
+	(_p)->h.version = (uint8_t)(_ver); \
+	(_p)->h.size = (uint16_t)sizeof(*_p); \
+	(_p)->h.attr = (uint32_t)(_attr) ; \
+	} while (0)
 
 #ifndef __ASSEMBLY__
-
 #include <cdefs.h> /* For __dead2 */
 #include <cassert.h>
+#include <stdint.h>
 
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
@@ -92,33 +110,77 @@ typedef struct aapcs64_params {
 	unsigned long arg7;
 } aapcs64_params_t;
 
-/*******************************************************************************
- * This structure represents the superset of information needed while switching
- * exception levels. The only two mechanisms to do so are ERET & SMC. In case of
- * SMC all members apart from 'aapcs64_params' will be ignored.
- * NOTE: BL1 expects entrypoint followed by spsr while processing SMC to jump
- * to BL31 from the start of el_change_info
- ******************************************************************************/
+/***************************************************************************
+ * This structure provides version information and the size of the
+ * structure, attributes for the structure it represents
+ ***************************************************************************/
+typedef struct param_header {
+	uint8_t type;		/* type of the structure */
+	uint8_t version;    /* version of this structure */
+	uint16_t size;      /* size of this structure in bytes */
+	uint32_t attr;      /* attributes: unused bits SBZ */
+} param_header_t;
+
+/*****************************************************************************
+ * This structure represents the superset of information needed while
+ * switching exception levels. The only two mechanisms to do so are
+ * ERET & SMC. In case of SMC all members apart from indicated
+ *  using bit 0 of the header attributes
+ *****************************************************************************/
 typedef struct el_change_info {
-	unsigned long entrypoint;
-	unsigned long spsr;
-	unsigned long security_state;
+	param_header_t h;
+	uintptr_t pc;
+	uint32_t spsr;
 	aapcs64_params_t args;
 } el_change_info_t;
+
+/*****************************************************************************
+ * Image info binary provides information from the image loader that
+ * can be used by the firmware to manage available trusted RAM.
+ * More advanced firmware image formats can provide additional
+ * information that enables optimization or greater flexibility in the
+ * common firmware code
+ *****************************************************************************/
+typedef struct image_info {
+	param_header_t h;
+	uintptr_t image_base;   /* physical address of base of image */
+	uint32_t image_size;    /* bytes read from image file */
+} image_info_t;
 
 /*******************************************************************************
  * This structure represents the superset of information that can be passed to
  * BL31 e.g. while passing control to it from BL2. The BL32 parameters will be
- * populated only if BL2 detects its presence.
+ * populated only if BL2 detects its presence. A pointer to a structure of this
+ * type should be passed in X3 to BL31's cold boot entrypoint
+ *
+ * Use of this structure and the X3 parameter is not mandatory: the BL3-1
+ * platform code can use other mechanisms to provide the necessary information
+ * about BL3-2 and BL3-3 to the common and SPD code.
+ *
+ * BL3-1 image information is mandatory if this structure is used. If either of
+ * the optional BL3-2 and BL3-3 image information is not provided, this is
+ * indicated by the respective image_info pointers being zero.
  ******************************************************************************/
-typedef struct bl31_args {
-	el_change_info_t bl31_image_info;
+typedef struct bl31_tf_params {
+	param_header_t h;
+	image_info_t *bl31_image;
+	el_change_info_t *bl32_ep;
+	image_info_t *bl32_image;
+	el_change_info_t *bl33_ep;
+	image_info_t *bl33_image;
+} bl31_tf_params_t;
+
+
+/***************************************************************************
+ * This structure provides platform specific data that needs to be known to
+ * BL31. Currently, The loader updates the memory information available for each
+ * binary
+ ***************************************************************************/
+typedef struct bl31_plat_params {
 	meminfo_t bl31_meminfo;
-	el_change_info_t bl32_image_info;
 	meminfo_t bl32_meminfo;
-	el_change_info_t bl33_image_info;
 	meminfo_t bl33_meminfo;
-} bl31_args_t;
+} bl31_plat_params_t;
 
 
 /*
@@ -126,14 +188,13 @@ typedef struct bl31_args {
  * ensure that the assembler and the compiler view of the offsets of
  * the structure members is the same.
  */
-CASSERT(EL_CHANGE_INFO_PC_OFFSET == \
-	__builtin_offsetof(el_change_info_t, entrypoint), \
-	assert_BL31_pc_offset_mismatch);
+CASSERT(EL_CHANGE_INFO_PC_OFFSET ==
+		__builtin_offsetof(el_change_info_t, pc), \
+		assert_BL31_pc_offset_mismatch);
 
 CASSERT(EL_CHANGE_INFO_ARGS_OFFSET == \
 		__builtin_offsetof(el_change_info_t, args), \
 		assert_BL31_args_offset_mismatch);
-
 
 /*******************************************************************************
  * Function & variable prototypes
@@ -149,10 +210,12 @@ extern void init_bl31_mem_layout(const meminfo_t *,
 				meminfo_t *,
 				unsigned int) __attribute__((weak));
 extern unsigned long image_size(const char *);
-extern unsigned long load_image(meminfo_t *,
+extern int load_image(meminfo_t *,
 				const char *,
 				unsigned int,
-				unsigned long);
+				unsigned long,
+				image_info_t *,
+				el_change_info_t *);
 extern unsigned long *get_el_change_mem_ptr(void);
 extern const char build_message[];
 

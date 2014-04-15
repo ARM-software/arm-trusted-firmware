@@ -35,6 +35,7 @@
 #include <debug.h>
 #include <io_storage.h>
 #include <platform.h>
+#include <errno.h>
 #include <stdio.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
@@ -244,12 +245,15 @@ unsigned long image_size(const char *image_name)
  * Generic function to load an image into the trusted RAM,
  * given a name, extents of free memory & whether the image should be loaded at
  * the bottom or top of the free memory. It updates the memory layout if the
- * load is successful.
+ * load is successful. It also update image information and the entry point
+ * information in the params passed
  ******************************************************************************/
-unsigned long load_image(meminfo_t *mem_layout,
+int load_image(meminfo_t *mem_layout,
 			 const char *image_name,
 			 unsigned int load_type,
-			 unsigned long fixed_addr)
+			 unsigned long fixed_addr,
+			 image_info_t *image_data,
+			 el_change_info_t *entry_point_info)
 {
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
@@ -263,6 +267,7 @@ unsigned long load_image(meminfo_t *mem_layout,
 
 	assert(mem_layout != NULL);
 	assert(image_name != NULL);
+	assert(image_data->h.version >= VERSION_1);
 
 	/* Obtain a reference to the image by querying the platform layer */
 	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
@@ -285,7 +290,7 @@ unsigned long load_image(meminfo_t *mem_layout,
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
 		WARN("Failed to determine the size of the image '%s' file (%i)\n",
 			image_name, io_result);
-		goto fail;
+		goto exit;
 	}
 
 	/* See if we have enough space */
@@ -293,7 +298,7 @@ unsigned long load_image(meminfo_t *mem_layout,
 		WARN("Cannot load '%s' file: Not enough space.\n",
 			image_name);
 		dump_load_info(0, image_size, mem_layout);
-		goto fail;
+		goto exit;
 	}
 
 	switch (load_type) {
@@ -312,7 +317,8 @@ unsigned long load_image(meminfo_t *mem_layout,
 		WARN("Cannot load '%s' file: Not enough space.\n",
 			image_name);
 		dump_load_info(image_base, image_size, mem_layout);
-		goto fail;
+		io_result = -ENOMEM;
+		goto exit;
 	  }
 
 	  /* Calculate the amount of extra memory used due to alignment */
@@ -330,10 +336,11 @@ unsigned long load_image(meminfo_t *mem_layout,
 	  /* Page align base address and check whether the image still fits */
 	  if (image_base + image_size >
 	      mem_layout->free_base + mem_layout->free_size) {
-		  WARN("Cannot load '%s' file: Not enough space.\n",
-			  image_name);
-		  dump_load_info(image_base, image_size, mem_layout);
-		  goto fail;
+		WARN("Cannot load '%s' file: Not enough space.\n",
+		  image_name);
+		dump_load_info(image_base, image_size, mem_layout);
+		io_result = -ENOMEM;
+		goto exit;
 	  }
 
 	  /* Calculate the amount of extra memory used due to alignment */
@@ -398,14 +405,16 @@ unsigned long load_image(meminfo_t *mem_layout,
 			WARN("Cannot load '%s' file: Not enough space.\n",
 				image_name);
 			dump_load_info(image_base, image_size, mem_layout);
-			goto fail;
+			io_result = -ENOMEM;
+			goto exit;
 		}
 
 		/* Check whether the fixed load address is page-aligned. */
 		if (!is_page_aligned(image_base)) {
 			WARN("Cannot load '%s' file at unaligned address 0x%lx\n",
 				image_name, fixed_addr);
-			goto fail;
+			io_result = -ENOMEM;
+			goto exit;
 		}
 
 		/*
@@ -455,8 +464,13 @@ unsigned long load_image(meminfo_t *mem_layout,
 	io_result = io_read(image_handle, image_base, image_size, &bytes_read);
 	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
 		WARN("Failed to load '%s' file (%i)\n", image_name, io_result);
-		goto fail;
+		goto exit;
 	}
+
+	image_data->image_base = image_base;
+	image_data->image_size = image_size;
+
+	entry_point_info->pc = image_base;
 
 	/*
 	 * File has been successfully loaded. Update the free memory
@@ -473,15 +487,12 @@ unsigned long load_image(meminfo_t *mem_layout,
 		mem_layout->free_base += offset + image_size;
 
 exit:
-	io_result = io_close(image_handle);
+	io_close(image_handle);
 	/* Ignore improbable/unrecoverable error in 'close' */
 
 	/* TODO: Consider maintaining open device connection from this bootloader stage */
-	io_result = io_dev_close(dev_handle);
+	io_dev_close(dev_handle);
 	/* Ignore improbable/unrecoverable error in 'dev_close' */
 
-	return image_base;
-
-fail:	image_base = 0;
-	goto exit;
+	return io_result;
 }

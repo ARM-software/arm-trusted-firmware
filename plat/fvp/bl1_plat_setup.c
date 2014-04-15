@@ -144,3 +144,13 @@ void bl1_plat_arch_setup(void)
 			  BL1_COHERENT_RAM_BASE,
 			  BL1_COHERENT_RAM_LIMIT);
 }
+
+
+/*******************************************************************************
+ * Update SPSR and secure state for BL2 image
+ ******************************************************************************/
+void bl1_plat_bl2_loaded(image_info_t *bl2_image, el_change_info_t *bl2_ep)
+{
+	SET_SECURITY_STATE(bl2_ep->h.attr, SECURE);
+	bl2_ep->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
+}
