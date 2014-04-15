@@ -44,11 +44,11 @@
 	 */
 
 func bl31_entrypoint
-	/* ---------------------------------------------
-	 * Preceding bootloader has populated x0 with a
-	 * pointer to a 'bl31_args' structure & x1
- 	 * with any other optional information
-	 * ---------------------------------------------
+	/* ---------------------------------------------------------------
+	 * Preceding bootloader has populated x0 with a pointer to a
+	 * 'bl31_params' structure & x1 with a pointer to platform
+	 * specific structure
+	 * ---------------------------------------------------------------
 	 */
 	mov	x20, x0
 	mov	x21, x1

@@ -134,6 +134,10 @@
 #define TZDRAM_SIZE		0x02000000
 #define MBOX_OFF		0x1000
 
+/* Base address where parameters to BL31 are stored */
+#define PARAMS_BASE		TZDRAM_BASE
+
+
 #define DRAM_BASE              0x80000000ull
 #define DRAM_SIZE              0x80000000ull
 
@@ -339,7 +343,7 @@
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
-
+#include <bl_common.h>
 
 typedef volatile struct mailbox {
 	unsigned long value
@@ -351,6 +355,28 @@ typedef volatile struct mailbox {
  ******************************************************************************/
 struct plat_pm_ops;
 struct meminfo;
+struct bl31_params;
+struct bl31_plat_params;
+struct image_info;
+struct entry_point_info;
+
+
+/*******************************************************************************
+ * This structure represents the superset of information that is passed to
+ * BL31 e.g. while passing control to it from BL2 which is bl31_params
+ * and bl31_plat_params and its elements
+ ******************************************************************************/
+typedef struct bl2_to_bl31_params_mem {
+	struct bl31_params bl31_params;
+	struct bl31_plat_params bl31_plat_params;
+	struct image_info bl31_image_info;
+	struct image_info bl32_image_info;
+	struct image_info bl33_image_info;
+	struct entry_point_info bl33_ep_info;
+	struct entry_point_info bl32_ep_info;
+	struct entry_point_info bl31_ep_info;
+} bl2_to_bl31_params_mem_t;
+
 
 /*******************************************************************************
  * Function and variable prototypes
@@ -411,6 +437,42 @@ extern int plat_get_image_source(const char *image_name,
 
 /* Declarations for plat_security.c */
 extern void plat_security_setup(void);
+
+/*
+ * Before calling this function BL2 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL2 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl1_plat_set_bl2_ep_info(struct image_info *image,
+					struct entry_point_info *ep);
+
+/*
+ * Before calling this function BL31 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL31 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl2_plat_set_bl31_ep_info(struct image_info *image,
+					struct entry_point_info *ep);
+
+/*
+ * Before calling this function BL32 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL32 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl2_plat_set_bl32_ep_info(struct image_info *image,
+					struct entry_point_info *ep);
+
+/*
+ * Before calling this function BL33 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL33 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl2_plat_set_bl33_ep_info(struct image_info *image,
+					struct entry_point_info *ep);
 
 
 #endif /*__ASSEMBLY__*/

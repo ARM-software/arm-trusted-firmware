@@ -29,6 +29,7 @@
  */
 
 #include <arch.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <bl31.h>
 #include <console.h>
@@ -70,34 +71,35 @@ extern unsigned long __COHERENT_RAM_END__;
  * Reference to structure which holds the arguments that have been passed to
  * BL31 from BL2.
  ******************************************************************************/
-static bl31_args_t *bl2_to_bl31_args;
+static bl31_params_t *bl2_to_bl31_params;
+static bl31_plat_params_t *bl2_to_bl31_plat_params;
 
 meminfo_t *bl31_plat_sec_mem_layout(void)
 {
-	return &bl2_to_bl31_args->bl31_meminfo;
+	return &bl2_to_bl31_plat_params->bl31_meminfo;
 }
 
 meminfo_t *bl31_plat_get_bl32_mem_layout(void)
 {
-	return &bl2_to_bl31_args->bl32_meminfo;
+	return &bl2_to_bl31_plat_params->bl32_meminfo;
 }
 
 /*******************************************************************************
- * Return a pointer to the 'el_change_info' structure of the next image for the
+ * Return a pointer to the 'entry_point_info' structure of the next image for the
  * security state specified. BL33 corresponds to the non-secure image type
  * while BL32 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  ******************************************************************************/
-el_change_info_t *bl31_get_next_image_info(uint32_t type)
+entry_point_info_t *bl31_get_next_image_info(uint32_t type)
 {
-	el_change_info_t *next_image_info;
+	entry_point_info_t *next_image_info;
 
 	next_image_info = (type == NON_SECURE) ?
-		&bl2_to_bl31_args->bl33_image_info :
-		&bl2_to_bl31_args->bl32_image_info;
+		bl2_to_bl31_params->bl33_ep_info :
+		bl2_to_bl31_params->bl32_ep_info;
 
 	/* None of the images on this platform can have 0x0 as the entrypoint */
-	if (next_image_info->entrypoint)
+	if (next_image_info->pc)
 		return next_image_info;
 	else
 		return NULL;
@@ -114,10 +116,15 @@ el_change_info_t *bl31_get_next_image_info(uint32_t type)
  * has flushed this information to memory, so we are guaranteed to pick up good
  * data
  ******************************************************************************/
-void bl31_early_platform_setup(bl31_args_t *from_bl2,
-			       void *data)
+void bl31_early_platform_setup(bl31_params_t *from_bl2,
+			       bl31_plat_params_t *plat_info_from_bl2)
 {
-	bl2_to_bl31_args = from_bl2;
+	assert(from_bl2->h.type == PARAM_BL31);
+	assert(from_bl2->h.version >= VERSION_1);
+
+	bl2_to_bl31_params = from_bl2;
+	bl2_to_bl31_plat_params = plat_info_from_bl2;
+
 
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
@@ -172,7 +179,7 @@ void bl31_platform_setup()
  ******************************************************************************/
 void bl31_plat_arch_setup()
 {
-	configure_mmu_el3(&bl2_to_bl31_args->bl31_meminfo,
+	configure_mmu_el3(&bl2_to_bl31_plat_params->bl31_meminfo,
 			  BL31_RO_BASE,
 			  BL31_RO_LIMIT,
 			  BL31_COHERENT_RAM_BASE,

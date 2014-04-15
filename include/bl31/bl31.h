@@ -42,7 +42,7 @@ extern unsigned long bl31_entrypoint;
  * Forward declarations
  *****************************************/
 struct meminfo;
-struct el_change_info;
+struct entry_point_info;
 
 /*******************************************************************************
  * Function prototypes
@@ -52,7 +52,7 @@ extern void bl31_next_el_arch_setup(uint32_t security_state);
 extern void bl31_set_next_image_type(uint32_t type);
 extern uint32_t bl31_get_next_image_type(void);
 extern void bl31_prepare_next_image_entry();
-extern struct el_change_info *bl31_get_next_image_info(uint32_t type);
+extern struct entry_point_info *bl31_get_next_image_info(uint32_t type);
 extern void bl31_platform_setup(void);
 extern struct meminfo *bl31_plat_get_bl32_mem_layout(void);
 extern struct meminfo *bl31_plat_sec_mem_layout(void);
