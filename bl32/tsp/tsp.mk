@@ -28,27 +28,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	common				\
-				lib				\
-				plat/${PLAT}			\
-				plat/${PLAT}/${ARCH}		\
+BL32_SOURCES		+=	bl32/tsp/tsp_main.c			\
+				bl32/tsp/aarch64/tsp_entrypoint.S	\
+				bl32/tsp/aarch64/tsp_request.S		\
+				common/aarch64/early_exceptions.S	\
+				lib/locks/exclusive/spinlock.S
 
-vpath			%.S	lib/${ARCH}			\
-				lib/locks/exclusive		\
-				common/${ARCH}
-
-BL32_SOURCES		+=	tsp_entrypoint.S		\
-				tsp_main.c			\
-				tsp_request.S			\
-				spinlock.S			\
-				early_exceptions.S
-
-BL32_LINKERFILE		:=	tsp.ld.S
-
-vpath %.ld.S ${BL32_ROOT}
-vpath %.c ${BL32_ROOT}
-vpath %.c ${BL32_ROOT}/${ARCH}
-vpath %.S ${BL32_ROOT}/${ARCH}
+BL32_LINKERFILE		:=	bl32/tsp/tsp.ld.S
 
 # Include the platform-specific TSP Makefile
 # If no platform-specific TSP Makefile exists, it means TSP is not supported

@@ -59,14 +59,14 @@ else
 	BUILD_TYPE	:=	release
 endif
 
-BL_COMMON_SOURCES	:=	misc_helpers.S		\
-				cache_helpers.S		\
-				tlb_helpers.S		\
-				xlat_helpers.c		\
-				std.c			\
-				bl_common.c		\
-				platform_helpers.S	\
-				io_storage.c
+BL_COMMON_SOURCES	:=	common/bl_common.c			\
+				lib/aarch64/cache_helpers.S		\
+				lib/aarch64/misc_helpers.S		\
+				lib/aarch64/tlb_helpers.S		\
+				lib/aarch64/xlat_helpers.c		\
+				lib/stdlib/std.c			\
+				lib/io_storage.c			\
+				plat/common/aarch64/platform_helpers.S
 
 ARCH 			?=	aarch64
 
@@ -159,13 +159,6 @@ CFLAGS			+=	-ffunction-sections -fdata-sections
 
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
-
-
-vpath %.ld.S bl1:bl2:bl31
-vpath %.c bl1:bl2:bl31
-vpath %.c bl1/${ARCH}:bl2/${ARCH}:bl31/${ARCH}
-vpath %.S bl1/${ARCH}:bl2/${ARCH}:bl31/${ARCH}
-vpath %.c lib/arch/${ARCH} # One of the missing paths needed for BL_COMMON_SOURCES
 
 
 ifneq (${DEBUG}, 0)

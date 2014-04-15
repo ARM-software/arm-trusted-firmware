@@ -28,11 +28,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-
-vpath			%.c	${PLAT_BL2_C_VPATH}
-vpath			%.S	${PLAT_BL2_S_VPATH}
-
 # TSP source files specific to FVP platform
-BL32_SOURCES		+=	bl32_plat_setup.c			\
-				platform_mp_stack.S			\
-				plat_common.c
+BL32_SOURCES		+=	plat/common/aarch64/platform_mp_stack.S		\
+				plat/fvp/bl32_plat_setup.c			\
+				plat/fvp/aarch64/plat_common.c

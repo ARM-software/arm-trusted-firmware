@@ -28,44 +28,23 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	common					\
-				lib					\
-				drivers/arm/gic				\
-				plat/${PLAT}				\
-				services/std_svc			\
-				services/std_svc/psci			\
-				lib/locks/bakery			\
-				plat/${PLAT}/${ARCH}			\
-				${PLAT_BL31_C_VPATH}
+BL31_SOURCES		+=	bl31/bl31_main.c				\
+				bl31/context_mgmt.c				\
+				bl31/runtime_svc.c				\
+				bl31/aarch64/bl31_arch_setup.c			\
+				bl31/aarch64/bl31_entrypoint.S			\
+				bl31/aarch64/context.S				\
+				bl31/aarch64/runtime_exceptions.S		\
+				common/aarch64/early_exceptions.S		\
+				lib/locks/bakery/bakery_lock.c			\
+				lib/locks/exclusive/spinlock.S			\
+				services/std_svc/std_svc_setup.c		\
+				services/std_svc/psci/psci_afflvl_off.c		\
+				services/std_svc/psci/psci_afflvl_on.c		\
+				services/std_svc/psci/psci_afflvl_suspend.c	\
+				services/std_svc/psci/psci_common.c		\
+				services/std_svc/psci/psci_entry.S		\
+				services/std_svc/psci/psci_main.c		\
+				services/std_svc/psci/psci_setup.c
 
-vpath			%.S	lib/${ARCH}				\
-				services/std_svc			\
-				services/std_svc/psci			\
-				plat/${PLAT}/${ARCH}			\
-				lib/locks/exclusive			\
-				plat/common/${ARCH}			\
-				drivers/arm/gic/${ARCH}			\
-				common/${ARCH}				\
-				${PLAT_BL31_S_VPATH}
-
-BL31_SOURCES		+=	bl31_arch_setup.c			\
-				bl31_entrypoint.S			\
-				runtime_exceptions.S			\
-				bl31_main.c				\
-				std_svc_setup.c				\
-				psci_entry.S				\
-				psci_setup.c				\
-				psci_common.c				\
-				psci_afflvl_on.c			\
-				psci_main.c				\
-				psci_afflvl_off.c			\
-				psci_afflvl_suspend.c			\
-				spinlock.S				\
-				gic_v3_sysregs.S			\
-				bakery_lock.c				\
-				runtime_svc.c				\
-				early_exceptions.S			\
-				context_mgmt.c				\
-				context.S
-
-BL31_LINKERFILE		:=	bl31.ld.S
+BL31_LINKERFILE		:=	bl31/bl31.ld.S

@@ -33,68 +33,40 @@
 #
 # PLAT_INCLUDES		:=
 
-PLAT_BL1_C_VPATH	:=	drivers/arm/cci400			\
-				drivers/arm/pl011			\
-				lib/${ARCH}				\
-				lib/semihosting				\
-				lib/stdlib				\
-				drivers/io
+PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011.c			\
+				drivers/arm/pl011/pl011_console.c		\
+				drivers/io/io_fip.c				\
+				drivers/io/io_memmap.c				\
+				drivers/io/io_semihosting.c			\
+				lib/mmio.c					\
+				lib/aarch64/sysreg_helpers.S		\
+				lib/aarch64/xlat_tables.c			\
+				lib/semihosting/semihosting.c			\
+				lib/semihosting/aarch64/semihosting_call.S	\
+				plat/fvp/plat_io_storage.c
 
-PLAT_BL1_S_VPATH	:=	lib/semihosting/${ARCH}
+BL1_SOURCES		+=	drivers/arm/cci400/cci400.c			\
+				plat/common/aarch64/platform_up_stack.S		\
+				plat/fvp/bl1_plat_setup.c			\
+				plat/fvp/aarch64/bl1_plat_helpers.S		\
+				plat/fvp/aarch64/plat_common.c			\
+				plat/fvp/aarch64/plat_helpers.S
 
-PLAT_BL2_C_VPATH	:=	drivers/arm/cci400			\
-				drivers/arm/pl011			\
-				drivers/arm/tzc400			\
-				lib/${ARCH}				\
-				lib/stdlib				\
-				lib/semihosting				\
-				drivers/io
+BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
+				plat/common/aarch64/platform_up_stack.S		\
+				plat/fvp/bl2_plat_setup.c			\
+				plat/fvp/plat_security.c			\
+				plat/fvp/aarch64/plat_common.c
 
-PLAT_BL2_S_VPATH	:=	lib/semihosting/${ARCH}
-
-PLAT_BL31_C_VPATH	:=	drivers/arm/cci-400			\
-				drivers/arm/pl011			\
-				lib/${ARCH}				\
-				lib/semihosting				\
-				lib/stdlib				\
-				drivers/io				\
-				plat/fvp/drivers/pwrc
-
-PLAT_BL31_S_VPATH	:=	lib/semihosting/${ARCH}
-
-PLAT_BL_COMMON_SOURCES	:=	semihosting_call.S			\
-				mmio.c					\
-				pl011_console.c				\
-				pl011.c					\
-				semihosting.c				\
-				sysreg_helpers.S			\
-				plat_io_storage.c			\
-				io_semihosting.c			\
-				io_fip.c				\
-				io_memmap.c				\
-				xlat_tables.c
-
-BL1_SOURCES		+=	bl1_plat_setup.c			\
-				bl1_plat_helpers.S			\
-				plat_helpers.S				\
-				platform_up_stack.S			\
-				plat_common.c				\
-				cci400.c
-
-BL2_SOURCES		+=	bl2_plat_setup.c			\
-				platform_up_stack.S			\
-				plat_common.c				\
-				plat_security.c				\
-				tzc400.c
-
-BL31_SOURCES		+=	bl31_plat_setup.c			\
-				plat_helpers.S				\
-				platform_mp_stack.S			\
-				plat_common.c				\
-				plat_pm.c				\
-				plat_topology.c				\
-				plat_gic.c				\
-				fvp_pwrc.c				\
-				cci400.c				\
-				gic_v2.c				\
-				gic_v3.c
+BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
+				drivers/arm/gic/gic_v3.c			\
+				drivers/arm/gic/aarch64/gic_v3_sysregs.S	\
+				drivers/arm/cci400/cci400.c			\
+				plat/common/aarch64/platform_mp_stack.S		\
+				plat/fvp/bl31_plat_setup.c			\
+				plat/fvp/plat_gic.c				\
+				plat/fvp/plat_pm.c				\
+				plat/fvp/plat_topology.c			\
+				plat/fvp/aarch64/plat_helpers.S			\
+				plat/fvp/aarch64/plat_common.c			\
+				plat/fvp/drivers/pwrc/fvp_pwrc.c
