@@ -80,3 +80,14 @@
 	    .error "Vector exceeds 32 instructions"
 	  .endif
 	.endm
+
+	/*
+	 * This macro is used to create a function label and place the
+	 * code into a separate text section based on the function name
+	 * to enable elimination of unused code during linking
+	 */
+	.macro func _name
+	.section .text.\_name, "ax"
+	.type \_name, %function
+	\_name:
+	.endm

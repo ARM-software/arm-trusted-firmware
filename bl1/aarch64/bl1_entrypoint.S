@@ -29,11 +29,10 @@
  */
 
 #include <arch.h>
+#include <asm_macros.S>
 
 	.globl	bl1_entrypoint
 
-
-	.section	.text, "ax"; .align 3
 
 	/* -----------------------------------------------------
 	 * bl1_entrypoint() is the entry point into the trusted
@@ -42,7 +41,7 @@
 	 * -----------------------------------------------------
 	 */
 
-bl1_entrypoint: ; .type bl1_entrypoint, %function
+func bl1_entrypoint
 	/* ---------------------------------------------
 	 * Perform any processor specific actions upon
 	 * reset e.g. cache, tlb invalidations etc.

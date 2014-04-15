@@ -29,13 +29,12 @@
  */
 
 #include <arch.h>
+#include <asm_macros.S>
 
 	.weak	cpu_reset_handler
 
 
-	.section	.text, "ax"; .align 3
-
-cpu_reset_handler: ; .type cpu_reset_handler, %function
+func cpu_reset_handler
 	mov	x19, x30 // lr
 
 	/* ---------------------------------------------

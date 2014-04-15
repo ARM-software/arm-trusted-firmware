@@ -44,7 +44,7 @@
 	 * saved.
 	 * ---------------------------------------------
 	 */
-tspd_enter_sp:
+func tspd_enter_sp
 	/* Make space for the registers that we're going to save */
 	mov	x3, sp
 	str	x3, [x0, #0]
@@ -79,7 +79,7 @@ tspd_enter_sp:
 	 * ---------------------------------------------
 	 */
 	.global tspd_exit_sp
-tspd_exit_sp:
+func tspd_exit_sp
 	/* Restore the previous stack */
 	mov	sp, x0
 

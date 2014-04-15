@@ -47,8 +47,8 @@ SECTIONS
 
     ro . : {
         __RO_START__ = .;
-        *bl2_entrypoint.o(.text)
-        *(.text)
+        *bl2_entrypoint.o(.text*)
+        *(.text*)
         *(.rodata*)
         *(.vectors)
         __RO_END_UNALIGNED__ = .;
@@ -63,7 +63,7 @@ SECTIONS
 
     .data . : {
         __DATA_START__ = .;
-        *(.data)
+        *(.data*)
         __DATA_END__ = .;
     } >RAM
 
@@ -79,7 +79,7 @@ SECTIONS
      */
     .bss : ALIGN(16) {
         __BSS_START__ = .;
-        *(SORT_BY_ALIGNMENT(.bss))
+        *(SORT_BY_ALIGNMENT(.bss*))
         *(COMMON)
         __BSS_END__ = .;
     } >RAM

@@ -30,10 +30,9 @@
 
 #include <arch.h>
 #include <platform.h>
+#include <asm_macros.S>
 
 	.globl	plat_report_exception
-
-	.section	.text, "ax"
 
 	/* ---------------------------------------------
 	 * void plat_report_exception(unsigned int type)
@@ -43,7 +42,7 @@
 	 * to indicate where we are
 	 * ---------------------------------------------
 	 */
-plat_report_exception:
+func plat_report_exception
 	mrs	x1, CurrentEl
 	lsr	x1, x1, #MODE_EL_SHIFT
 	lsl	x1, x1, #SYS_LED_EL_SHIFT

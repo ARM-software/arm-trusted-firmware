@@ -28,6 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <asm_macros.S>
+
 	.globl	read_icc_sre_el1
 	.globl	read_icc_sre_el2
 	.globl	read_icc_sre_el3
@@ -48,42 +50,40 @@
 #define ICC_CTLR_EL3    S3_6_C12_C12_4
 #define ICC_PMR_EL1     S3_0_C4_C6_0
 
-	.section	.text, "ax"; .align 3
-
-read_icc_sre_el1: ; .type read_icc_sre_el1, %function
+func read_icc_sre_el1
 	mrs	x0, ICC_SRE_EL1
 	ret
 
 
-read_icc_sre_el2: ; .type read_icc_sre_el2, %function
+func read_icc_sre_el2
 	mrs	x0, ICC_SRE_EL2
 	ret
 
 
-read_icc_sre_el3: ; .type read_icc_sre_el3, %function
+func read_icc_sre_el3
 	mrs	x0, ICC_SRE_EL3
 	ret
 
 
-write_icc_sre_el1: ; .type write_icc_sre_el1, %function
+func write_icc_sre_el1
 	msr	ICC_SRE_EL1, x0
 	isb
 	ret
 
 
-write_icc_sre_el2: ; .type write_icc_sre_el2, %function
+func write_icc_sre_el2
 	msr	ICC_SRE_EL2, x0
 	isb
 	ret
 
 
-write_icc_sre_el3: ; .type write_icc_sre_el3, %function
+func write_icc_sre_el3
 	msr	ICC_SRE_EL3, x0
 	isb
 	ret
 
 
-write_icc_pmr_el1: ; .type write_icc_pmr_el1, %function
+func write_icc_pmr_el1
 	msr	ICC_PMR_EL1, x0
 	isb
 	ret

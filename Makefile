@@ -150,8 +150,10 @@ ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall	\
 				-Werror -mgeneral-regs-only -std=c99 -c -Os	\
 				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
+CFLAGS			+=	-ffunction-sections -fdata-sections
 
 LDFLAGS			+=	--fatal-warnings -O1
+LDFLAGS			+=	--gc-sections
 
 
 vpath %.ld.S bl1:bl2:bl31

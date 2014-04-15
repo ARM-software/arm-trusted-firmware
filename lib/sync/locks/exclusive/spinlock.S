@@ -28,13 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <asm_macros.S>
+
 	.globl	spin_lock
 	.globl	spin_unlock
 
 
-	.section	.text, "ax";
-
-spin_lock: ; .type spin_lock, %function
+func spin_lock
 	mov	w2, #1
 	sevl
 l1:	wfe
@@ -45,6 +45,6 @@ l2:	ldaxr	w1, [x0]
 	ret
 
 
-spin_unlock: ; .type spin_unlock, %function
+func spin_unlock
 	stlr	wzr, [x0]
 	ret

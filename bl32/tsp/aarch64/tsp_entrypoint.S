@@ -31,6 +31,7 @@
 #include <bl_common.h>
 #include <arch.h>
 #include <tsp.h>
+#include <asm_macros.S>
 
 
 	.globl	tsp_entrypoint
@@ -53,10 +54,8 @@
 	smc	#0
 	.endm
 
-	.section	.text, "ax"; .align 3
 
-
-tsp_entrypoint: ; .type tsp_entrypoint, %function
+func tsp_entrypoint
 	/*---------------------------------------------
 	 * Store the extents of the tzram available to
 	 * BL32 for future use.
@@ -161,7 +160,7 @@ tsp_entrypoint_panic:
 	 * here except for acknowledging the request.
 	 * ---------------------------------------------
 	 */
-tsp_cpu_off_entry: ; .type tsp_cpu_off_entry, %function
+func tsp_cpu_off_entry
 	bl	tsp_cpu_off_main
 	restore_args_call_smc
 
@@ -176,7 +175,7 @@ tsp_cpu_off_entry: ; .type tsp_cpu_off_entry, %function
 	 * will be aarch64 and exceptions masked.
 	 * ---------------------------------------------
 	 */
-tsp_cpu_on_entry: ; .type tsp_cpu_on_entry, %function
+func tsp_cpu_on_entry
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
@@ -236,7 +235,7 @@ tsp_cpu_on_entry_panic:
 	 * the EL1 state.
 	 * ---------------------------------------------
 	 */
-tsp_cpu_suspend_entry: ; .type tsp_cpu_suspend_entry, %function
+func tsp_cpu_suspend_entry
 	bl	tsp_cpu_suspend_main
 	restore_args_call_smc
 
@@ -250,7 +249,7 @@ tsp_cpu_suspend_entry: ; .type tsp_cpu_suspend_entry, %function
 	 * acknowledging the request.
 	 * ---------------------------------------------
 	 */
-tsp_cpu_resume_entry: ; .type tsp_cpu_resume_entry, %function
+func tsp_cpu_resume_entry
 	bl	tsp_cpu_resume_main
 	restore_args_call_smc
 tsp_cpu_resume_panic:
@@ -261,7 +260,7 @@ tsp_cpu_resume_panic:
 	 * the TSP to service a fast smc request.
 	 * ---------------------------------------------
 	 */
-tsp_fast_smc_entry: ; .type tsp_fast_smc_entry, %function
+func tsp_fast_smc_entry
 	bl	tsp_fast_smc_handler
 	restore_args_call_smc
 tsp_fast_smc_entry_panic:
