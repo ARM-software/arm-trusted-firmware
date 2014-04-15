@@ -34,6 +34,7 @@
 #include <bl2.h>
 #include <console.h>
 #include <platform.h>
+#include <string.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -73,10 +74,12 @@ __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
 /*******************************************************************************
- * Reference to structure which holds the arguments which need to be passed
+ * Reference to structures which holds the arguments which need to be passed
  * to BL31
  ******************************************************************************/
-static bl31_args_t *bl2_to_bl31_args;
+static bl31_params_t *bl2_to_bl31_params;
+static bl31_plat_params_t *bl2_to_bl31_plat_params;
+static el_change_info_t *bl31_ep_info;
 
 meminfo_t *bl2_plat_sec_mem_layout(void)
 {
@@ -84,13 +87,100 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 }
 
 /*******************************************************************************
- * This function returns a pointer to the memory that the platform has kept
- * aside to pass all the information that BL31 could need.
+ * This function assigns a pointer to the memory that the platform has kept
+ * aside to pass platform specific and trusted firmware related information
+ * to BL31. This memory is allocated by allocating memory to
+ * bl2_to_bl31_params_mem_t structure which is a superset of all the
+ * structure whose information is passed to BL31
+ * NOTE: This function should be called only once and should be done
+ * before generating params to BL31
  ******************************************************************************/
-bl31_args_t *bl2_get_bl31_args_ptr(void)
+bl31_params_t *bl2_plat_get_bl31_params(void)
 {
-	return bl2_to_bl31_args;
+	bl2_to_bl31_params_mem_t *bl31_params_mem;
+
+	/*
+	 * Ensure that the secure DRAM memory used for passing BL31 arguments
+	 * does not overlap with the BL32_BASE.
+	 */
+	assert(BL32_BASE > PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t));
+
+	/*
+	 * Allocate the memory for all the arguments that needs to
+	 * be passed to BL31
+	 */
+	bl31_params_mem = (bl2_to_bl31_params_mem_t *)PARAMS_BASE;
+	memset((void *)PARAMS_BASE, 0, sizeof(bl2_to_bl31_params_mem_t));
+
+	/* Assign memory for TF related information */
+	bl2_to_bl31_params = &bl31_params_mem->bl31_params;
+	SET_PARAM_HEAD(bl2_to_bl31_params, PARAM_BL31, VERSION_1, 0);
+
+	/* Assign memory for platform specific information */
+	bl2_to_bl31_plat_params = &bl31_params_mem->bl31_plat_params;
+
+	/* Fill BL31 related information */
+	bl31_ep_info = &bl31_params_mem->bl31_ep;
+	bl2_to_bl31_params->bl31_image = &bl31_params_mem->bl31_image;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl31_image, PARAM_IMAGE_BINARY,
+						VERSION_1, 0);
+
+	/* Fill BL32 related information if it exists */
+	if (BL32_BASE) {
+		bl2_to_bl31_params->bl32_ep = &bl31_params_mem->bl32_ep;
+		SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep,
+					PARAM_EP, VERSION_1, 0);
+		bl2_to_bl31_params->bl32_image = &bl31_params_mem->bl32_image;
+		SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image,
+					PARAM_IMAGE_BINARY,
+					VERSION_1, 0);
+		/*
+		 * Populate the extents of memory available for loading BL32.
+		 * TODO: We are temporarily executing BL2 from TZDRAM;
+		 * will eventually move to Trusted SRAM
+		 */
+		bl2_to_bl31_plat_params->bl32_meminfo.total_base = BL32_BASE;
+		bl2_to_bl31_plat_params->bl32_meminfo.free_base = BL32_BASE;
+		bl2_to_bl31_plat_params->bl32_meminfo.total_size =
+			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+		bl2_to_bl31_plat_params->bl32_meminfo.free_size =
+			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+		bl2_to_bl31_plat_params->bl32_meminfo.attr = BOT_LOAD;
+	}
+
+	/* Fill BL33 related information */
+	bl2_to_bl31_params->bl33_ep = &bl31_params_mem->bl33_ep;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_ep, PARAM_EP, VERSION_1, 0);
+	bl2_to_bl31_params->bl33_image = &bl31_params_mem->bl33_image;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image, PARAM_IMAGE_BINARY,
+						VERSION_1, 0);
+	/* Populate the extents of memory available for loading BL33 */
+	bl2_to_bl31_plat_params->bl33_meminfo.total_base = DRAM_BASE;
+	bl2_to_bl31_plat_params->bl33_meminfo.total_size = DRAM_SIZE;
+	bl2_to_bl31_plat_params->bl33_meminfo.free_base = DRAM_BASE;
+	bl2_to_bl31_plat_params->bl33_meminfo.free_size = DRAM_SIZE;
+
+	return bl2_to_bl31_params;
 }
+
+/*******************************************************************************
+ * This function returns a pointer to the memory that the platform has kept
+ * aside to pass platform related information that BL31 could need
+ ******************************************************************************/
+bl31_plat_params_t *bl2_plat_get_bl31_plat_params(void)
+{
+	return bl2_to_bl31_plat_params;
+}
+
+/*******************************************************************************
+ * This function returns a pointer to the shared memory that the platform
+ * has kept to point to entry point information of BL31 to BL2
+ ******************************************************************************/
+struct el_change_info *bl2_plat_get_bl31_ep(void)
+{
+	return bl31_ep_info;
+}
+
 
 /*******************************************************************************
  * BL1 has passed the extents of the trusted SRAM that should be visible to BL2
@@ -118,7 +208,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
  * Perform platform specific setup. For now just initialize the memory location
  * to use for passing arguments to BL31.
  ******************************************************************************/
-void bl2_platform_setup()
+void bl2_platform_setup(void)
 {
 	/*
 	 * Do initial security configuration to allow DRAM/device access. On
@@ -130,40 +220,15 @@ void bl2_platform_setup()
 
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
-
-	/*
-	 * Ensure that the secure DRAM memory used for passing BL31 arguments
-	 * does not overlap with the BL32_BASE.
-	 */
-	assert (BL32_BASE > TZDRAM_BASE + sizeof(bl31_args_t));
-
-	/* Use the Trusted DRAM for passing args to BL31 */
-	bl2_to_bl31_args = (bl31_args_t *) TZDRAM_BASE;
-
-	/* Populate the extents of memory available for loading BL33 */
-	bl2_to_bl31_args->bl33_meminfo.total_base = DRAM_BASE;
-	bl2_to_bl31_args->bl33_meminfo.total_size = DRAM_SIZE;
-	bl2_to_bl31_args->bl33_meminfo.free_base = DRAM_BASE;
-	bl2_to_bl31_args->bl33_meminfo.free_size = DRAM_SIZE;
-	bl2_to_bl31_args->bl33_meminfo.attr = 0;
-	bl2_to_bl31_args->bl33_meminfo.next = 0;
-
-	/*
-	 * Populate the extents of memory available for loading BL32.
-	 * TODO: We are temporarily executing BL2 from TZDRAM; will eventually
-	 * move to Trusted SRAM
-	 */
-	bl2_to_bl31_args->bl32_meminfo.total_base = BL32_BASE;
-	bl2_to_bl31_args->bl32_meminfo.free_base = BL32_BASE;
-
-	bl2_to_bl31_args->bl32_meminfo.total_size =
-		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
-	bl2_to_bl31_args->bl32_meminfo.free_size =
-		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
-
-	bl2_to_bl31_args->bl32_meminfo.attr = BOT_LOAD;
-	bl2_to_bl31_args->bl32_meminfo.next = 0;
 }
+
+/* Flush the TF params and the TF plat params */
+extern void bl2_plat_flush_bl31_params(void)
+{
+	flush_dcache_range((unsigned long)PARAMS_BASE, \
+				sizeof(bl2_to_bl31_params_mem_t));
+}
+
 
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here. At the
@@ -176,4 +241,65 @@ void bl2_plat_arch_setup()
 			  BL2_RO_LIMIT,
 			  BL2_COHERENT_RAM_BASE,
 			  BL2_COHERENT_RAM_LIMIT);
+}
+
+/*******************************************************************************
+ * Before calling this function BL31 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL31 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl2_plat_bl31_post_load_actions(image_info_t *bl31_image,
+					el_change_info_t *bl31_ep)
+{
+	SET_SECURITY_STATE(bl31_ep->h.attr, SECURE);
+	bl31_ep->spsr = SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+}
+
+
+/*******************************************************************************
+ * Before calling this function BL32 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL32 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl2_plat_bl32_post_load_actions(image_info_t *bl32_image,
+					el_change_info_t *bl32_ep)
+{
+	SET_SECURITY_STATE(bl32_ep->h.attr, SECURE);
+	/*
+	 * The Secure Payload Dispatcher service is responsible for
+	 * setting the SPSR prior to entry into the BL32 image.
+	*/
+	bl32_ep->spsr = 0;
+}
+
+/*******************************************************************************
+ * Before calling this function BL33 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL33 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl2_plat_bl33_post_load_actions(image_info_t *image,
+					el_change_info_t *bl33_ep)
+{
+	unsigned long el_status;
+	unsigned int mode;
+
+	/* Figure out what mode we enter the non-secure world in */
+	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
+	el_status &= ID_AA64PFR0_ELX_MASK;
+
+	if (el_status)
+		mode = MODE_EL2;
+	else
+		mode = MODE_EL1;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	bl33_ep->spsr =	SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	SET_SECURITY_STATE(bl33_ep->h.attr, NON_SECURE);
 }

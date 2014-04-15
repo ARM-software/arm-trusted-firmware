@@ -144,3 +144,16 @@ void bl1_plat_arch_setup(void)
 			  BL1_COHERENT_RAM_BASE,
 			  BL1_COHERENT_RAM_LIMIT);
 }
+
+
+/*******************************************************************************
+ * Before calling this function BL2 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL2 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl1_plat_bl2_loaded(image_info_t *bl2_image, el_change_info_t *bl2_ep)
+{
+	SET_SECURITY_STATE(bl2_ep->h.attr, SECURE);
+	bl2_ep->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+}
