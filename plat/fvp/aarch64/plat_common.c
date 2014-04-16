@@ -122,7 +122,7 @@ void disable_mmu(void)
  * This doesn't include TZRAM as the 'mem_layout' argument passed to to
  * configure_mmu() will give the available subset of that,
  */
-const mmap_region mmap[] = {
+const mmap_region fvp_mmap[] = {
 	{ TZROM_BASE,	TZROM_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
 	{ TZDRAM_BASE,	TZDRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
 	{ FLASH0_BASE,	FLASH0_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
@@ -153,7 +153,7 @@ void configure_mmu(meminfo *mem_layout,
 	mmap_add_region(coh_start, coh_limit - coh_start,
 				MT_DEVICE | MT_RW | MT_SECURE);
 
-	mmap_add(mmap);
+	mmap_add(fvp_mmap);
 
 	init_xlat_tables();
 
