@@ -61,11 +61,6 @@
 	 * -----------------------------------------------------
 	 */
 plat_secondary_cold_boot_setup: ; .type plat_secondary_cold_boot_setup, %function
-	bl	read_mpidr
-	mov	x19, x0
-	bl	platform_get_core_pos
-	mov	x20, x0
-
 	/* ---------------------------------------------
 	 * Power down this cpu.
 	 * TODO: Do we need to worry about powering the
@@ -74,8 +69,9 @@ plat_secondary_cold_boot_setup: ; .type plat_secondary_cold_boot_setup, %functio
 	 * loader zeroes out the zi section.
 	 * ---------------------------------------------
 	 */
+	bl	read_mpidr
 	ldr	x1, =PWRC_BASE
-	str	w19, [x1, #PPOFFR_OFF]
+	str	w0, [x1, #PPOFFR_OFF]
 
 	/* ---------------------------------------------
 	 * Deactivate the gic cpu interface as well
