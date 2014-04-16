@@ -435,21 +435,12 @@ restore_scratch_registers_callee:
 	 */
 func get_exception_stack
 	mov	x10, x30 // lr
-	bl	platform_get_core_pos
-	add	x0, x0, #1
-	mov	x1, #PCPU_EXCEPTION_STACK_SIZE
-	mul	x0, x0, x1
-	ldr	x1, =pcpu_exception_stack
-	add	x0, x1, x0
+	get_mp_stack pcpu_exception_stack, PCPU_EXCEPTION_STACK_SIZE
 	ret	x10
 
 	/* -----------------------------------------------------
 	 * Per-cpu exception stacks in normal memory.
 	 * -----------------------------------------------------
 	 */
-	.section	tzfw_normal_stacks, "aw", %nobits; .align 6
-
-pcpu_exception_stack:
-	/* Zero fill */
-	.space (PLATFORM_CORE_COUNT * PCPU_EXCEPTION_STACK_SIZE), 0
-
+declare_stack pcpu_exception_stack, tzfw_normal_stacks, \
+		PCPU_EXCEPTION_STACK_SIZE, PLATFORM_CORE_COUNT
