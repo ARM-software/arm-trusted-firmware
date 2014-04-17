@@ -31,8 +31,8 @@
 #ifndef __CONTEXT_H__
 #define __CONTEXT_H__
 
-#include <bl_common.h>
 #include <arch.h>
+#include <cassert.h>
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'gp_regs'

@@ -48,14 +48,6 @@
 #define BOT_LOAD	!TOP_LOAD
 #define LOAD_MASK	(1 << 0)
 
-/*******************************************************************************
- * Macro to flag a compile time assertion. It uses the preprocessor to generate
- * an invalid C construct if 'cond' evaluates to false.
- * The following  compilation error is triggered if the assertion fails:
- * "error: size of array 'msg' is negative"
- ******************************************************************************/
-#define CASSERT(cond, msg)	typedef char msg[(cond) ? 1 : -1]
-
 /******************************************************************************
  * Opcode passed in x0 to tell next EL that we want to run an image.
  * Corresponds to the function ID of the only SMC that the BL1 exception

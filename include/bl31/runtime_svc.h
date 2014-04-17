@@ -31,7 +31,7 @@
 #ifndef __RUNTIME_SVC_H__
 #define __RUNTIME_SVC_H__
 #include <psci.h>
-#include <bl_common.h>
+#include <cassert.h>
 
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention

@@ -31,8 +31,8 @@
 #ifndef __TSP_H__
 #define __TSP_H__
 
-#include <bl_common.h>
 #include <platform.h>
+#include <cassert.h>
 
 /*
  * SMC function IDs that TSP uses to signal various forms of completions
