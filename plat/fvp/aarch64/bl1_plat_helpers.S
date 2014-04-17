@@ -30,7 +30,7 @@
 
 #include <arch.h>
 #include <platform.h>
-#include <gic.h>
+#include <gic_v2.h>
 #include <asm_macros.S>
 #include "../drivers/pwrc/fvp_pwrc.h"
 

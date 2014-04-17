@@ -31,7 +31,8 @@
 #include <stdint.h>
 #include <arch_helpers.h>
 #include <platform.h>
-#include <gic.h>
+#include <gic_v2.h>
+#include <gic_v3.h>
 #include <debug.h>
 
 

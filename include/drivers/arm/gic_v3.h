@@ -31,9 +31,31 @@
 #ifndef __GIC_V3_H__
 #define __GIC_V3_H__
 
-#include <stdint.h>
 #include <mmio.h>
+#include <stdint.h>
 
+
+/* GICv3 Re-distributor interface registers & shifts */
+#define GICR_PCPUBASE_SHIFT	0x11
+#define GICR_TYPER		0x08
+#define GICR_WAKER		0x14
+
+/* GICR_WAKER bit definitions */
+#define WAKER_CA		(1UL << 2)
+#define WAKER_PS		(1UL << 1)
+
+/* GICR_TYPER bit definitions */
+#define GICR_TYPER_AFF_SHIFT	32
+#define GICR_TYPER_AFF_MASK	0xffffffff
+#define GICR_TYPER_LAST		(1UL << 4)
+
+/* GICv3 ICC_SRE register bit definitions*/
+#define ICC_SRE_EN		(1UL << 3)
+#define ICC_SRE_SRE		(1UL << 0)
+
+/*******************************************************************************
+ * GICv3 defintions
+ ******************************************************************************/
 #define GICV3_AFFLVL_MASK	0xff
 #define GICV3_AFF0_SHIFT	0
 #define GICV3_AFF1_SHIFT	8
@@ -41,7 +63,18 @@
 #define GICV3_AFF3_SHIFT	24
 #define GICV3_AFFINITY_MASK	0xffffffff
 
+/*******************************************************************************
+ * Function prototypes
+ ******************************************************************************/
 uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr);
+
+extern unsigned int read_icc_sre_el1(void);
+extern unsigned int read_icc_sre_el2(void);
+extern unsigned int read_icc_sre_el3(void);
+extern void write_icc_sre_el1(unsigned int);
+extern void write_icc_sre_el2(unsigned int);
+extern void write_icc_sre_el3(unsigned int);
+extern void write_icc_pmr_el1(unsigned int);
 
 /*******************************************************************************
  * GIC Redistributor interface accessors
