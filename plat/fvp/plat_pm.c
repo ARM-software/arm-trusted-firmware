@@ -38,7 +38,7 @@
 #include <bl31.h>
 #include <bakery_lock.h>
 #include <cci400.h>
-#include <gic.h>
+#include <gic_v2.h>
 /* Only included for error codes */
 #include <psci.h>
 #include "drivers/pwrc/fvp_pwrc.h"
