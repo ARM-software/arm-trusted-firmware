@@ -35,6 +35,7 @@
 #include <arch.h>
 #include <psci.h>
 #include <tsp.h>
+#include <cassert.h>
 
 /*******************************************************************************
  * Secure Payload PM state information e.g. SP is suspended, uninitialised etc
