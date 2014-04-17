@@ -261,6 +261,7 @@ extern void runtime_svc_init();
 extern uint64_t __RT_SVC_DESCS_START__;
 extern uint64_t __RT_SVC_DESCS_END__;
 extern uint64_t get_exception_stack(uint64_t mpidr);
+extern void runtime_exceptions(void);
 extern void fault_handler(void *handle);
 #endif /*__ASSEMBLY__*/
 #endif /* __RUNTIME_SVC_H__ */

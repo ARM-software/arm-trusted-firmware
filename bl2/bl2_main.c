@@ -38,6 +38,7 @@
 #include <bl_common.h>
 #include <bl2.h>
 #include <debug.h>
+#include "bl2_private.h"
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to

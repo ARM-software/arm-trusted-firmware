@@ -29,14 +29,17 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <bl31.h>
 #include <debug.h>
 #include <arch_helpers.h>
 #include <console.h>
 #include <platform.h>
 #include <psci.h>
 #include <context_mgmt.h>
+#include <runtime_svc.h>
 #include "psci_private.h"
 
 typedef int (*afflvl_on_handler)(unsigned long,

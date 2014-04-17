@@ -330,16 +330,4 @@
 
 #define EC_BITS(x)			(x >> ESR_EC_SHIFT) & ESR_EC_MASK
 
-#ifndef __ASSEMBLY__
-/*******************************************************************************
- * Function prototypes
- ******************************************************************************/
-
-extern void early_exceptions(void);
-extern void runtime_exceptions(void);
-extern void bl1_arch_setup(void);
-extern void bl2_arch_setup(void);
-extern void bl31_arch_setup(void);
-#endif /*__ASSEMBLY__*/
-
 #endif /* __ARCH_H__ */

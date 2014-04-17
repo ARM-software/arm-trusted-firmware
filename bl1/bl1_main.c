@@ -35,8 +35,7 @@
 #include <platform.h>
 #include <semihosting.h>
 #include <bl1.h>
-
-void bl1_arch_next_el_setup(void);
+#include "bl1_private.h"
 
 /*******************************************************************************
  * Function to perform late architectural and platform specific initialization.

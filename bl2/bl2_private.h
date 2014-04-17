@@ -28,27 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL31_H__
-#define __BL31_H__
+#ifndef __BL2_PRIVATE_H__
+#define __BL2_PRIVATE_H__
 
-#include <bl_common.h>
-
-/*******************************************************************************
- * Data declarations
- ******************************************************************************/
-extern unsigned long bl31_entrypoint;
-
-/*******************************************************************************
+/******************************************
  * Function prototypes
- ******************************************************************************/
-extern void bl31_arch_setup(void);
-extern void bl31_next_el_arch_setup(uint32_t security_state);
-extern void bl31_set_next_image_type(uint32_t type);
-extern uint32_t bl31_get_next_image_type(void);
-extern void bl31_prepare_next_image_entry();
-extern el_change_info *bl31_get_next_image_info(uint32_t type);
-extern void bl31_platform_setup(void);
-extern meminfo *bl31_plat_get_bl32_mem_layout(void);
-extern meminfo *bl31_plat_sec_mem_layout(void);
-extern void bl31_register_bl32_init(int32_t (*)(meminfo *));
-#endif /* __BL31_H__ */
+ *****************************************/
+extern void bl2_arch_setup(void);
+
+#endif /* __BL2_PRIVATE_H__ */
