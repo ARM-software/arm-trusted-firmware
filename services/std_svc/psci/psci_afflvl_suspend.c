@@ -37,6 +37,7 @@
 #include <platform.h>
 #include <psci.h>
 #include <context_mgmt.h>
+#include <runtime_svc.h>
 #include "psci_private.h"
 
 typedef int (*afflvl_suspend_handler)(unsigned long,
