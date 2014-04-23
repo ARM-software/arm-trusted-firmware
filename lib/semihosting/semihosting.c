@@ -48,7 +48,7 @@ typedef struct {
 
 typedef struct {
 	long handle;
-	void *buffer;
+	uintptr_t buffer;
 	size_t length;
 } smh_file_read_write_block_t;
 
@@ -96,12 +96,12 @@ long semihosting_file_seek(long file_handle, ssize_t offset)
 	return result;
 }
 
-long semihosting_file_read(long file_handle, size_t *length, void *buffer)
+long semihosting_file_read(long file_handle, size_t *length, uintptr_t buffer)
 {
 	smh_file_read_write_block_t read_block;
 	long result = -EINVAL;
 
-	if ((length == NULL) || (buffer == NULL))
+	if ((length == NULL) || (buffer == (uintptr_t)NULL))
 		return result;
 
 	read_block.handle = file_handle;
@@ -122,15 +122,15 @@ long semihosting_file_read(long file_handle, size_t *length, void *buffer)
 
 long semihosting_file_write(long file_handle,
 			    size_t *length,
-			    const void *buffer)
+			    const uintptr_t buffer)
 {
 	smh_file_read_write_block_t write_block;
 
-	if ((length == NULL) || (buffer == NULL))
+	if ((length == NULL) || (buffer == (uintptr_t)NULL))
 		return -EINVAL;
 
 	write_block.handle = file_handle;
-	write_block.buffer = (void *)buffer;
+	write_block.buffer = (uintptr_t)buffer; /* cast away const */
 	write_block.length = *length;
 
 	*length = semihosting_call(SEMIHOSTING_SYS_WRITE,
@@ -196,7 +196,7 @@ long semihosting_get_flen(const char *file_name)
 
 long semihosting_download_file(const char *file_name,
 			      size_t buf_size,
-			      void *buf)
+			      uintptr_t buf)
 {
 	long ret = -EINVAL;
 	size_t length;
