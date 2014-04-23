@@ -74,7 +74,7 @@ aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops
  ******************************************************************************/
-plat_pm_ops_t *psci_plat_pm_ops;
+const plat_pm_ops_t *psci_plat_pm_ops;
 
 /*******************************************************************************
  * Routine to return the maximum affinity level to traverse to after a cpu has

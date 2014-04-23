@@ -251,9 +251,9 @@ static void dump_load_info(unsigned long image_load_addr,
 /* Generic function to return the size of an image */
 unsigned long image_size(const char *image_name)
 {
-	io_dev_handle dev_handle;
-	io_handle image_handle;
-	void *image_spec;
+	uintptr_t dev_handle;
+	uintptr_t image_handle;
+	uintptr_t image_spec;
 	size_t image_size = 0;
 	int io_result = IO_FAIL;
 
@@ -303,9 +303,9 @@ unsigned long load_image(meminfo_t *mem_layout,
 			 unsigned int load_type,
 			 unsigned long fixed_addr)
 {
-	io_dev_handle dev_handle;
-	io_handle image_handle;
-	void *image_spec;
+	uintptr_t dev_handle;
+	uintptr_t image_handle;
+	uintptr_t image_spec;
 	unsigned long temp_image_base = 0;
 	unsigned long image_base = 0;
 	long offset = 0;
@@ -504,7 +504,7 @@ unsigned long load_image(meminfo_t *mem_layout,
 
 	/* We have enough space so load the image now */
 	/* TODO: Consider whether to try to recover/retry a partially successful read */
-	io_result = io_read(image_handle, (void *)image_base, image_size, &bytes_read);
+	io_result = io_read(image_handle, image_base, image_size, &bytes_read);
 	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
 		WARN("Failed to load '%s' file (%i)\n", image_name, io_result);
 		goto fail;

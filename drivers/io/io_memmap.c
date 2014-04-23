@@ -42,9 +42,9 @@ typedef struct {
 	/* Use the 'in_use' flag as any value for base and file_pos could be
 	 * valid.
 	 */
-	int	in_use;
-	size_t	base;
-	size_t  file_pos;
+	int		in_use;
+	uintptr_t	base;
+	size_t		file_pos;
 } file_state_t;
 
 static file_state_t current_file = {0};
@@ -56,25 +56,25 @@ io_type_t device_type_memmap(void)
 }
 
 /* Memmap device functions */
-static int memmap_dev_open(void *spec, io_dev_info_t **dev_info);
-static int memmap_block_open(io_dev_info_t *dev_info, const void *spec,
+static int memmap_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info);
+static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			     io_entity_t *entity);
 static int memmap_block_seek(io_entity_t *entity, int mode,
 			     ssize_t offset);
-static int memmap_block_read(io_entity_t *entity, void *buffer,
+static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
 			     size_t length, size_t *length_read);
-static int memmap_block_write(io_entity_t *entity, const void *buffer,
+static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
 			      size_t length, size_t *length_written);
 static int memmap_block_close(io_entity_t *entity);
 static int memmap_dev_close(io_dev_info_t *dev_info);
 
 
-static struct io_dev_connector memmap_dev_connector = {
+static const io_dev_connector_t memmap_dev_connector = {
 	.dev_open = memmap_dev_open
 };
 
 
-static struct io_dev_funcs memmap_dev_funcs = {
+static const io_dev_funcs_t memmap_dev_funcs = {
 	.type = device_type_memmap,
 	.open = memmap_block_open,
 	.seek = memmap_block_seek,
@@ -87,18 +87,19 @@ static struct io_dev_funcs memmap_dev_funcs = {
 };
 
 
-static struct io_dev_info memmap_dev_info = {
+/* No state associated with this device so structure can be const */
+static const io_dev_info_t memmap_dev_info = {
 	.funcs = &memmap_dev_funcs,
 	.info = (uintptr_t)NULL
 };
 
 
 /* Open a connection to the memmap device */
-static int memmap_dev_open(void *spec __attribute__((unused)),
+static int memmap_dev_open(const uintptr_t dev_spec __attribute__((unused)),
 			   io_dev_info_t **dev_info)
 {
 	assert(dev_info != NULL);
-	*dev_info = &memmap_dev_info;
+	*dev_info = (io_dev_info_t *)&memmap_dev_info; /* cast away const */
 
 	return IO_SUCCESS;
 }
@@ -116,7 +117,7 @@ static int memmap_dev_close(io_dev_info_t *dev_info)
 
 /* Open a file on the memmap device */
 /* TODO: Can we do any sensible limit checks on requested memory */
-static int memmap_block_open(io_dev_info_t *dev_info, const void *spec,
+static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			     io_entity_t *entity)
 {
 	int result = IO_FAIL;
@@ -166,18 +167,18 @@ static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 
 
 /* Read data from a file on the memmap device */
-static int memmap_block_read(io_entity_t *entity, void *buffer,
+static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
 			     size_t length, size_t *length_read)
 {
 	file_state_t *fp;
 
 	assert(entity != NULL);
-	assert(buffer != NULL);
+	assert(buffer != (uintptr_t)NULL);
 	assert(length_read != NULL);
 
 	fp = (file_state_t *)entity->info;
 
-	memcpy(buffer, (void *)(fp->base + fp->file_pos), length);
+	memcpy((void *)buffer, (void *)(fp->base + fp->file_pos), length);
 
 	*length_read = length;
 	/* advance the file 'cursor' for incremental reads */
@@ -188,18 +189,18 @@ static int memmap_block_read(io_entity_t *entity, void *buffer,
 
 
 /* Write data to a file on the memmap device */
-static int memmap_block_write(io_entity_t *entity, const void *buffer,
+static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
 			      size_t length, size_t *length_written)
 {
 	file_state_t *fp;
 
 	assert(entity != NULL);
-	assert(buffer != NULL);
+	assert(buffer != (uintptr_t)NULL);
 	assert(length_written != NULL);
 
 	fp = (file_state_t *)entity->info;
 
-	memcpy((void *)(fp->base + fp->file_pos), buffer, length);
+	memcpy((void *)(fp->base + fp->file_pos), (void *)buffer, length);
 
 	*length_written = length;
 
@@ -227,7 +228,7 @@ static int memmap_block_close(io_entity_t *entity)
 /* Exported functions */
 
 /* Register the memmap driver with the IO abstraction */
-int register_io_dev_memmap(io_dev_connector_t **dev_con)
+int register_io_dev_memmap(const io_dev_connector_t **dev_con)
 {
 	int result = IO_FAIL;
 	assert(dev_con != NULL);

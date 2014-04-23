@@ -33,6 +33,6 @@
 
 struct io_dev_connector;
 
-int register_io_dev_fip(struct io_dev_connector **dev_con);
+int register_io_dev_fip(const struct io_dev_connector **dev_con);
 
 #endif /* __IO_FIP_H__ */
