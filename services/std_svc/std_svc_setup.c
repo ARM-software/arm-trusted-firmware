@@ -35,7 +35,6 @@
 #include <std_svc.h>
 #include <psci.h>
 #include <debug.h>
-#include "psci/psci_private.h"
 
 /* Standard Service UUID */
 DEFINE_SVC_UUID(arm_svc_uid,
