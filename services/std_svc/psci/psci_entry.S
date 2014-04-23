@@ -30,7 +30,6 @@
 
 #include <arch.h>
 #include <platform.h>
-#include <psci.h>
 #include <runtime_svc.h>
 #include <asm_macros.S>
 #include <cm_macros.S>

@@ -191,6 +191,19 @@ extern void psci_register_spd_pm_hook(const spd_pm_ops *);
 extern int psci_get_suspend_stateid(unsigned long mpidr);
 extern int psci_get_suspend_afflvl(unsigned long mpidr);
 
+extern uint64_t psci_smc_handler(uint32_t smc_fid,
+				 uint64_t x1,
+				 uint64_t x2,
+				 uint64_t x3,
+				 uint64_t x4,
+				 void *cookie,
+				 void *handle,
+				 uint64_t flags);
+
+/* PSCI setup function */
+extern int32_t psci_setup(void);
+
+
 #endif /*__ASSEMBLY__*/
 
 
