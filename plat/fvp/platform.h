@@ -32,6 +32,7 @@
 #define __PLATFORM_H__
 
 #include <arch.h>
+#include <bl_common.h>
 
 
 /*******************************************************************************
@@ -417,6 +418,12 @@ extern void plat_report_exception(unsigned long);
 extern unsigned long plat_get_ns_image_entrypoint(void);
 extern unsigned long platform_get_stack(unsigned long mpidr);
 extern uint64_t plat_get_syscnt_freq(void);
+#if RESET_TO_BL31
+extern void plat_get_entry_point_info(unsigned long target_security,
+				struct entry_point_info *target_entry_info);
+#endif
+
+extern void fvp_cci_setup(void);
 
 /* Declarations for fvp_gic.c */
 extern void gic_cpuif_deactivate(unsigned int);
@@ -479,6 +486,12 @@ extern void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
 
 /* Gets the memory layout for BL33 */
 extern void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
+
+/* Sets the entrypoint for BL32 */
+extern void fvp_set_bl32_ep_info(struct entry_point_info *bl32_ep_info);
+
+/* Sets the entrypoint for BL33 */
+extern void fvp_set_bl33_ep_info(struct entry_point_info *bl33_ep_info);
 
 
 #endif /*__ASSEMBLY__*/
