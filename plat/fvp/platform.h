@@ -99,7 +99,8 @@
 #define CONFIG_BASE_MMAP		7
 /* Indicates whether CCI should be enabled on the platform. */
 #define CONFIG_HAS_CCI			8
-#define CONFIG_LIMIT			9
+#define CONFIG_HAS_TZC			9
+#define CONFIG_LIMIT			10
 
 /*******************************************************************************
  * Platform memory map related constants
@@ -303,6 +304,28 @@
 #define PL011_UART3_BASE		0x1c0c0000
 #define PL011_BASE			PL011_UART0_BASE
 
+
+/*******************************************************************************
+ * TrustZone address space controller related constants
+ ******************************************************************************/
+#define TZC400_BASE			0x2a4a0000
+
+/*
+ * The NSAIDs for this platform as used to program the TZC400.
+ * TODO:
+ * This list and the numbers in it is still changing on the Base FVP.
+ * For now only specify the NSAIDs we actually use.
+ */
+
+/* The FVP has 4 bits of NSAIDs. Used with TZC FAIL_ID (ACE Lite ID width) */
+#define FVP_AID_WIDTH			4
+#define FVP_NSAID_DEFAULT		0
+#define FVP_NSAID_AP			9  /* Application Processors */
+
+/* FIXME: Currently incorrectly used by Virtio */
+#define FVP_NSAID_RES5			15
+
+
 /*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is
  * aligned on the biggest cache line size in the platform. This is known only
@@ -373,6 +396,10 @@ extern unsigned int plat_get_aff_state(unsigned int, unsigned long);
 extern void io_setup(void);
 extern int plat_get_image_source(const char *image_name,
 		io_dev_handle *dev_handle, void **image_spec);
+
+/* Declarations for plat_security.c */
+extern void plat_security_setup(void);
+
 
 #endif /*__ASSEMBLY__*/
 

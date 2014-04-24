@@ -36,7 +36,7 @@
 };
 
 / {
-	model = "FVP Base";
+	model = "FVP Foundation";
 	compatible = "arm,fvp-base", "arm,vexpress";
 	interrupt-parent = <&gic>;
 	#address-cells = <2>;
@@ -123,10 +123,10 @@
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges;
-			frame@2a820000 {
-				frame-number = <0>;
-				interrupts = <0 25 4>;
-				reg = <0x0 0x2a820000 0x0 0x10000>;
+			frame@2a830000 {
+				frame-number = <1>;
+				interrupts = <0 26 4>;
+				reg = <0x0 0x2a830000 0x0 0x10000>;
 			};
 	};
 

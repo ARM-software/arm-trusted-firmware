@@ -122,6 +122,14 @@ void bl2_early_platform_setup(meminfo *mem_layout,
  ******************************************************************************/
 void bl2_platform_setup()
 {
+	/*
+	 * Do initial security configuration to allow DRAM/device access. On
+	 * Base FVP only DRAM security is programmable (via TrustZone), but
+	 * other platforms might have more programmable security devices
+	 * present.
+	 */
+	plat_security_setup();
+
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
 

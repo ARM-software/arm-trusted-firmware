@@ -35,6 +35,9 @@
 
 #include <stdint.h>
 
+extern void mmio_write_8(uintptr_t addr, uint8_t value);
+extern uint8_t mmio_read_8(uintptr_t addr);
+
 extern void mmio_write_32(uintptr_t addr, uint32_t value);
 extern uint32_t mmio_read_32(uintptr_t addr);
 

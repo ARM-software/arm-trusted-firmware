@@ -29,6 +29,7 @@
 #
 
 PLAT_INCLUDES		:=	-Idrivers/arm/interconnect/cci-400	\
+				-Idrivers/arm/interconnect/tzc-400	\
 				-Idrivers/console			\
 				-Idrivers/arm/peripherals/pl011		\
 				-Idrivers/power
@@ -43,6 +44,7 @@ PLAT_BL1_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 PLAT_BL1_S_VPATH	:=	lib/semihosting/${ARCH}
 
 PLAT_BL2_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
+				drivers/arm/interconnect/tzc-400	\
 				drivers/arm/peripherals/pl011		\
 				lib/arch/${ARCH}			\
 				lib/stdlib				\
@@ -82,7 +84,9 @@ BL1_SOURCES		+=	bl1_plat_setup.c			\
 
 BL2_SOURCES		+=	bl2_plat_setup.c			\
 				platform_up_stack.S			\
-				plat_common.c
+				plat_common.c				\
+				plat_security.c				\
+				tzc400.c
 
 BL31_SOURCES		+=	bl31_plat_setup.c			\
 				plat_helpers.S				\
