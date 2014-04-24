@@ -39,10 +39,9 @@ void bl1_arch_setup(void)
 {
 	unsigned long tmp_reg = 0;
 
-	/* Enable alignment checks and set the exception endianess to LE */
+	/* Enable alignment checks */
 	tmp_reg = read_sctlr_el3();
 	tmp_reg |= (SCTLR_A_BIT | SCTLR_SA_BIT);
-	tmp_reg &= ~SCTLR_EE_BIT;
 	write_sctlr_el3(tmp_reg);
 
 	/*
