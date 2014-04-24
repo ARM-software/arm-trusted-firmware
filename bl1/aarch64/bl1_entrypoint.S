@@ -98,31 +98,10 @@ func bl1_entrypoint
 	msr	sctlr_el3, x0
 	isb
 
-_wait_for_entrypoint:
-	/* ---------------------------------------------
-	 * Find the type of reset and jump to handler
-	 * if present. If the handler is null then it is
-	 * a cold boot. The primary cpu will set up the
-	 * platform while the secondaries wait for
-	 * their turn to be woken up
-	 * ---------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_get_entrypoint
-	cbnz	x0, _do_warm_boot
-	mrs	x0, mpidr_el1
-	bl	platform_is_primary_cpu
-	cbnz	x0, _do_cold_boot
+	wait_for_entrypoint
 
-	/* ---------------------------------------------
-	 * Perform any platform specific secondary cpu
-	 * actions
-	 * ---------------------------------------------
-	 */
-	bl	plat_secondary_cold_boot_setup
-	b	_wait_for_entrypoint
+	bl	platform_mem_init
 
-_do_cold_boot:
 	/* ---------------------------------------------
 	 * Init C runtime environment.
 	 *   - Zero-initialise the NOBITS sections.
@@ -148,19 +127,37 @@ _do_cold_boot:
 	bl	memcpy16
 
 	/* ---------------------------------------------
-	 * Initialize platform and jump to our c-entry
-	 * point for this type of reset
+	 * Give ourselves a small coherent stack to
+	 * ease the pain of initializing the MMU and
+	 * CCI in assembler
 	 * ---------------------------------------------
 	 */
-	adr	x0, bl1_main
-	bl	platform_cold_boot_init
-	b	_panic
+	mrs	x0, mpidr_el1
+	bl	platform_set_coherent_stack
 
-_do_warm_boot:
 	/* ---------------------------------------------
-	 * Jump to BL31 for all warm boot init.
+	 * Architectural init. can be generic e.g.
+	 * enabling stack alignment and platform spec-
+	 * ific e.g. MMU & page table setup as per the
+	 * platform memory map. Perform the latter here
+	 * and the former in bl1_main.
 	 * ---------------------------------------------
 	 */
-	blr	x0
-_panic:
-	b	_panic
+	bl	bl1_early_platform_setup
+	bl	bl1_plat_arch_setup
+
+	/* ---------------------------------------------
+	 * Give ourselves a stack allocated in Normal
+	 * -IS-WBWA memory
+	 * ---------------------------------------------
+	 */
+	mrs	x0, mpidr_el1
+	bl	platform_set_stack
+	/* -----------------------------------------------
+	 * Initialize platform and jump to our c-entry point for this type
+	 * of reset. Panic if it returns
+	 * -----------------------------------------------
+	 */
+	bl	bl1_main
+panic:
+	b	panic

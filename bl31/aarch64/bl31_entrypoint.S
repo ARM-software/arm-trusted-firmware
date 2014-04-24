@@ -49,8 +49,17 @@ func bl31_entrypoint
 	 * structure & x1 with a pointer to platform specific structure
 	 * ---------------------------------------------
 	 */
+#if !RESET_TO_BL31
 	mov	x20, x0
 	mov	x21, x1
+#endif
+	/* -----------------------------------------------------
+	 * Perform any processor specific actions upon reset
+	 * e.g. cache, tlb invalidations etc. Override the
+	 * Boot ROM(BL0) programming sequence
+	 * -----------------------------------------------------
+	 */
+	bl	cpu_reset_handler
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
@@ -90,7 +99,10 @@ func bl31_entrypoint
 	orr	x1, x1, #SCTLR_I_BIT
 	msr	sctlr_el3, x1
 	isb
-
+#if RESET_TO_BL31
+	wait_for_entrypoint
+	bl	platform_mem_init
+#else
 	/* ---------------------------------------------
 	 * This is BL31 which is expected to be executed
 	 * only by the primary cpu (at least for now).
@@ -100,6 +112,7 @@ func bl31_entrypoint
 	mrs	x0, mpidr_el1
 	bl	platform_is_primary_cpu
 	cbz	x0, _panic
+#endif
 
 	/* ---------------------------------------------
 	 * Zero out NOBITS sections. There are 2 of them:
@@ -133,8 +146,10 @@ func bl31_entrypoint
 	 * Perform platform specific early arch. setup
 	 * ---------------------------------------------
 	 */
+#if !RESET_TO_BL31
 	mov	x0, x20
 	mov	x1, x21
+#endif
 	bl	bl31_early_platform_setup
 	bl	bl31_plat_arch_setup
 
