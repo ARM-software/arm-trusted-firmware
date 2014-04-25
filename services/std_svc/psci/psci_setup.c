@@ -183,6 +183,8 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 		assert(psci_ns_einfo_idx < PSCI_NUM_AFFS);
 
 		psci_aff_map[idx].data = psci_ns_einfo_idx;
+		/* Invalidate the suspend context for the node */
+		psci_suspend_context[psci_ns_einfo_idx].power_state = PSCI_INVALID_DATA;
 		psci_ns_einfo_idx++;
 
 		/*

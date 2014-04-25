@@ -91,6 +91,7 @@ int get_power_on_target_afflvl(unsigned long mpidr)
 {
 	aff_map_node *node;
 	unsigned int state;
+	int afflvl;
 
 	/* Retrieve our node from the topology tree */
 	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
@@ -106,9 +107,11 @@ int get_power_on_target_afflvl(unsigned long mpidr)
 	if (state == PSCI_STATE_ON_PENDING)
 		return get_max_afflvl();
 
-	if (state == PSCI_STATE_SUSPEND)
-		return psci_get_suspend_afflvl(node);
-
+	if (state == PSCI_STATE_SUSPEND) {
+		afflvl = psci_get_aff_map_node_suspend_afflvl(node);
+		assert(afflvl != PSCI_INVALID_DATA);
+		return afflvl;
+	}
 	return PSCI_E_INVALID_PARAMS;
 }
 
