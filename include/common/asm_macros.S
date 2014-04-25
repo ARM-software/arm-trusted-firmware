@@ -65,13 +65,6 @@
 	.endm
 
 
-	.macro	setup_dcsw_op_args  start_level, end_level, clidr, shift, fw, ls
-	mrs	\clidr, clidr_el1
-	mov	\start_level, xzr
-	ubfx	\end_level, \clidr, \shift, \fw
-	lsl	\end_level, \end_level, \ls
-	.endm
-
 	/*
 	 * This macro verifies that the a given vector doesn't exceed the
 	 * architectural limit of 32 instructions. This is meant to be placed
