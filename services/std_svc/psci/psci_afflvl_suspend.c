@@ -46,10 +46,10 @@ typedef int (*afflvl_suspend_handler)(unsigned long,
 				      unsigned int);
 
 /*******************************************************************************
- * This function sets the affinity level till which the current cpu is being
- * powered down to during a cpu_suspend call
+ * This function sets the power state of the current cpu while
+ * powering down during a cpu_suspend call
  ******************************************************************************/
-void psci_set_suspend_afflvl(aff_map_node *node, int afflvl)
+void psci_set_suspend_power_state(aff_map_node *node, unsigned int power_state)
 {
 	/*
 	 * Check that nobody else is calling this function on our behalf &
@@ -58,22 +58,69 @@ void psci_set_suspend_afflvl(aff_map_node *node, int afflvl)
 	assert(node->mpidr == (read_mpidr() & MPIDR_AFFINITY_MASK));
 	assert(node->level == MPIDR_AFFLVL0);
 
+	/* Save PSCI power state parameter for the core in suspend context */
+	psci_suspend_context[node->data].power_state = power_state;
+
 	/*
-	 * Store the affinity level we are powering down to in our context.
-	 * The cache flush in the suspend code will ensure that this info
-	 * is available immediately upon resuming.
+	 * Flush the suspend data to PoC since it will be accessed while
+	 * returning back from suspend with the caches turned off
 	 */
-	psci_suspend_context[node->data].suspend_level = afflvl;
+	flush_dcache_range(
+		(unsigned long)&psci_suspend_context[node->data],
+		sizeof(suspend_context));
 }
 
 /*******************************************************************************
- * This function gets the affinity level till which the current cpu was powered
- * down during a cpu_suspend call.
+ * This function gets the affinity level till which a cpu is powered down
+ * during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
+ * power state saved for the node is invalid
  ******************************************************************************/
-int psci_get_suspend_afflvl(aff_map_node *node)
+int psci_get_suspend_afflvl(unsigned long mpidr)
 {
-	/* Return the target affinity level */
-	return psci_suspend_context[node->data].suspend_level;
+	aff_map_node *node;
+
+	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
+			MPIDR_AFFLVL0);
+	assert(node);
+
+	return psci_get_aff_map_node_suspend_afflvl(node);
+}
+
+
+/*******************************************************************************
+ * This function gets the affinity level till which the current cpu was powered
+ * down during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
+ * power state saved for the node is invalid
+ ******************************************************************************/
+int psci_get_aff_map_node_suspend_afflvl(aff_map_node *node)
+{
+	unsigned int power_state;
+
+	assert(node->level == MPIDR_AFFLVL0);
+
+	power_state = psci_suspend_context[node->data].power_state;
+	return ((power_state == PSCI_INVALID_DATA) ?
+				power_state : psci_get_pstate_afflvl(power_state));
+}
+
+/*******************************************************************************
+ * This function gets the state id of a cpu stored in suspend context
+ * while powering down during a cpu_suspend call. Returns 0xFFFFFFFF
+ * if the power state saved for the node is invalid
+ ******************************************************************************/
+int psci_get_suspend_stateid(unsigned long mpidr)
+{
+	aff_map_node *node;
+	unsigned int power_state;
+
+	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
+			MPIDR_AFFLVL0);
+	assert(node);
+	assert(node->level == MPIDR_AFFLVL0);
+
+	power_state = psci_suspend_context[node->data].power_state;
+	return ((power_state == PSCI_INVALID_DATA) ?
+					power_state : psci_get_pstate_id(power_state));
 }
 
 /*******************************************************************************
@@ -93,6 +140,9 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 
 	/* Sanity check to safeguard against data corruption */
 	assert(cpu_node->level == MPIDR_AFFLVL0);
+
+	/* Save PSCI power state parameter for the core in suspend context */
+	psci_set_suspend_power_state(cpu_node, power_state);
 
 	/*
 	 * Generic management: Store the re-entry information for the non-secure
@@ -376,10 +426,6 @@ int psci_afflvl_suspend(unsigned long mpidr,
 				  end_afflvl,
 				  mpidr_nodes);
 
-
-	/* Save the affinity level till which this cpu can be powered down */
-	psci_set_suspend_afflvl(mpidr_nodes[MPIDR_AFFLVL0], end_afflvl);
-
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_suspend_handlers(mpidr_nodes,
 					start_afflvl,
@@ -461,9 +507,13 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * error, it's expected to assert within
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend) {
-		suspend_level = psci_get_suspend_afflvl(cpu_node);
+		suspend_level = psci_get_aff_map_node_suspend_afflvl(cpu_node);
+		assert (suspend_level != PSCI_INVALID_DATA);
 		psci_spd_pm->svc_suspend_finish(suspend_level);
 	}
+
+	/* Invalidate the suspend context for the node */
+	psci_set_suspend_power_state(cpu_node, PSCI_INVALID_DATA);
 
 	/*
 	 * Generic management: Now we just need to retrieve the

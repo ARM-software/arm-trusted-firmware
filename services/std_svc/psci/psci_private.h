@@ -74,10 +74,8 @@ typedef struct {
  * across cpu_suspend calls which enter the power down state.
  ******************************************************************************/
 typedef struct {
-	/* Align the suspend level to allow per-cpu lockless access */
-	int suspend_level
-	__attribute__((__aligned__(CACHE_WRITEBACK_GRANULE)));
-} suspend_context;
+	unsigned int power_state;
+} __aligned(CACHE_WRITEBACK_GRANULE) suspend_context;
 
 typedef aff_map_node (*mpidr_aff_map_nodes[MPIDR_MAX_AFFLVL]);
 typedef unsigned int (*afflvl_power_on_finisher)(unsigned long,
@@ -147,8 +145,9 @@ extern int psci_afflvl_on(unsigned long,
 extern int psci_afflvl_off(unsigned long, int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
-extern void psci_set_suspend_afflvl(aff_map_node *node, int afflvl);
-extern int psci_get_suspend_afflvl(aff_map_node *node);
+extern void psci_set_suspend_power_state(aff_map_node *node,
+					unsigned int power_state);
+extern int psci_get_aff_map_node_suspend_afflvl(aff_map_node *node);
 extern int psci_afflvl_suspend(unsigned long,
 			       unsigned long,
 			       unsigned long,
