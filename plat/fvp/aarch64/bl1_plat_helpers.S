@@ -67,7 +67,7 @@ func plat_secondary_cold_boot_setup
 	 * loader zeroes out the zi section.
 	 * ---------------------------------------------
 	 */
-	bl	read_mpidr
+	mrs	x0, mpidr_el1
 	ldr	x1, =PWRC_BASE
 	str	w0, [x1, #PPOFFR_OFF]
 
@@ -173,8 +173,6 @@ func platform_mem_init
 func platform_cold_boot_init
 	mov	x20, x0
 	bl	platform_mem_init
-	bl	read_mpidr
-	mov	x19, x0
 
 	/* ---------------------------------------------
 	 * Give ourselves a small coherent stack to
@@ -182,6 +180,7 @@ func platform_cold_boot_init
 	 * CCI in assembler
 	 * ---------------------------------------------
 	 */
+	mrs	x0, mpidr_el1
 	bl	platform_set_coherent_stack
 
 	/* ---------------------------------------------
@@ -200,7 +199,7 @@ func platform_cold_boot_init
 	 * -IS-WBWA memory
 	 * ---------------------------------------------
 	 */
-	mov	x0, x19
+	mrs	x0, mpidr_el1
 	bl	platform_set_stack
 
 	/* ---------------------------------------------

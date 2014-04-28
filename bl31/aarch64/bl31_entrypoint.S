@@ -108,8 +108,7 @@ func bl31_entrypoint
 	 * So, make sure no secondary has lost its way.
 	 * ---------------------------------------------
 	 */
-	bl	read_mpidr
-	mov	x19, x0
+	mrs	x0, mpidr_el1
 	bl	platform_is_primary_cpu
 	cbz	x0, _panic
 
@@ -138,7 +137,7 @@ func bl31_entrypoint
 	 * ease the pain of initializing the MMU
 	 * --------------------------------------------
 	 */
-	mov	x0, x19
+	mrs	x0, mpidr_el1
 	bl	platform_set_coherent_stack
 
 	/* ---------------------------------------------
@@ -155,7 +154,7 @@ func bl31_entrypoint
 	 * -IS-WBWA memory
 	 * ---------------------------------------------
 	 */
-	mov	x0, x19
+	mrs	x0, mpidr_el1
 	bl	platform_set_stack
 
 	/* ---------------------------------------------
