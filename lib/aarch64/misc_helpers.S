@@ -187,19 +187,16 @@ func write_spsr
 
 func write_spsr_el1
 	msr	spsr_el1, x0
-	isb
 	ret
 
 
 func write_spsr_el2
 	msr	spsr_el2, x0
-	isb
 	ret
 
 
 func write_spsr_el3
 	msr	spsr_el3, x0
-	isb
 	ret
 
 
@@ -240,19 +237,16 @@ func write_elr
 
 func write_elr_el1
 	msr	elr_el1, x0
-	isb
 	ret
 
 
 func write_elr_el2
 	msr	elr_el2, x0
-	isb
 	ret
 
 
 func write_elr_el3
 	msr	elr_el3, x0
-	isb
 	ret
 
 

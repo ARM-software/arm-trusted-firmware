@@ -44,6 +44,7 @@ void bl1_arch_setup(void)
 	tmp_reg |= (SCTLR_A_BIT | SCTLR_SA_BIT);
 	tmp_reg &= ~SCTLR_EE_BIT;
 	write_sctlr_el3(tmp_reg);
+	isb();
 
 	/*
 	 * Enable HVCs, route FIQs to EL3, set the next EL to be AArch64, route
