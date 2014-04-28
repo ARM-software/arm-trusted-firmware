@@ -223,6 +223,7 @@ func process_exception
 	bl	read_sctlr_el3
 	bic	x0, x0, x1
 	bl	write_sctlr_el3
+	isb
 	mov	x0, #DCCISW
 	bl	dcsw_op_all
 	bl	tlbialle3

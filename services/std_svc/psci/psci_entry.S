@@ -78,7 +78,6 @@ psci_aff_common_finish_entry:
 	 * ---------------------------------------------
 	 */
 	msr	spsel, #0
-	isb
 
 	bl	read_mpidr
 	mov	x19, x0
@@ -161,7 +160,7 @@ func __psci_cpu_suspend
 	ret
 
 func final_wfi
-	dsb	sy
+	dsb	sy		// ensure write buffer empty
 	wfi
 wfi_spill:
 	b	wfi_spill

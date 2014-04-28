@@ -73,7 +73,6 @@ func bl2_entrypoint
 	mrs	x0, sctlr_el1
 	orr	x0, x0, #SCTLR_I_BIT
 	msr	sctlr_el1, x0
-
 	isb
 
 	/* ---------------------------------------------

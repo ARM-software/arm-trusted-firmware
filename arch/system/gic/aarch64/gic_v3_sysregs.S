@@ -67,23 +67,19 @@ func read_icc_sre_el3
 
 func write_icc_sre_el1
 	msr	ICC_SRE_EL1, x0
-	isb
 	ret
 
 
 func write_icc_sre_el2
 	msr	ICC_SRE_EL2, x0
-	isb
 	ret
 
 
 func write_icc_sre_el3
 	msr	ICC_SRE_EL3, x0
-	isb
 	ret
 
 
 func write_icc_pmr_el1
 	msr	ICC_PMR_EL1, x0
-	isb
 	ret
