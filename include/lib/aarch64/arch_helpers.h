@@ -78,6 +78,9 @@ extern void inv_dcache_range(unsigned long, unsigned long);
 extern void dcsw_op_louis(unsigned int);
 extern void dcsw_op_all(unsigned int);
 
+extern void disable_mmu_el3(void);
+extern void disable_mmu_icache_el3(void);
+
 /*******************************************************************************
  * Misc. accessor prototypes
  ******************************************************************************/
