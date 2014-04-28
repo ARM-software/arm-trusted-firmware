@@ -79,6 +79,9 @@
 	.globl	zeromem16
 	.globl	memcpy16
 
+	.globl	disable_mmu_el3
+	.globl	disable_mmu_icache_el3
+
 
 func get_afflvl_shift
 	cmp	x0, #3
@@ -332,3 +335,27 @@ m_loop1:
 	subs	x2, x2, #1
 	b.ne	m_loop1
 m_end:	ret
+
+/* ---------------------------------------------------------------------------
+ * Disable the MMU at EL3
+ * This is implemented in assembler to ensure that the data cache is cleaned
+ * and invalidated after the MMU is disabled without any intervening cacheable
+ * data accesses
+ * ---------------------------------------------------------------------------
+ */
+
+func disable_mmu_el3
+	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT)
+do_disable_mmu:
+	mrs	x0, sctlr_el3
+	bic	x0, x0, x1
+	msr	sctlr_el3, x0
+	isb				// ensure MMU is off
+	mov	x0, #DCCISW		// DCache clean and invalidate
+	b	dcsw_op_all
+
+
+func disable_mmu_icache_el3
+	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
+	b	do_disable_mmu
+
