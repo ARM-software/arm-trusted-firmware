@@ -214,49 +214,43 @@ void gicd_clr_igroupr(unsigned int base, unsigned int id)
 void gicd_set_isenabler(unsigned int base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ISENABLER_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_isenabler(base, id);
 
-	gicd_write_isenabler(base, id, reg_val | (1 << bit_num));
+	gicd_write_isenabler(base, id, (1 << bit_num));
 }
 
 void gicd_set_icenabler(unsigned int base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ICENABLER_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_icenabler(base, id);
 
-	gicd_write_icenabler(base, id, reg_val & ~(1 << bit_num));
+	gicd_write_icenabler(base, id, (1 << bit_num));
 }
 
 void gicd_set_ispendr(unsigned int base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ISPENDR_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_ispendr(base, id);
 
-	gicd_write_ispendr(base, id, reg_val | (1 << bit_num));
+	gicd_write_ispendr(base, id, (1 << bit_num));
 }
 
 void gicd_set_icpendr(unsigned int base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ICPENDR_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_icpendr(base, id);
 
-	gicd_write_icpendr(base, id, reg_val & ~(1 << bit_num));
+	gicd_write_icpendr(base, id, (1 << bit_num));
 }
 
 void gicd_set_isactiver(unsigned int base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ISACTIVER_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_isactiver(base, id);
 
-	gicd_write_isactiver(base, id, reg_val | (1 << bit_num));
+	gicd_write_isactiver(base, id, (1 << bit_num));
 }
 
 void gicd_set_icactiver(unsigned int base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ICACTIVER_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_icactiver(base, id);
 
-	gicd_write_icactiver(base, id, reg_val & ~(1 << bit_num));
+	gicd_write_icactiver(base, id, (1 << bit_num));
 }
 
 /*
