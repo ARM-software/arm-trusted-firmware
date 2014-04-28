@@ -125,10 +125,7 @@
 	.globl	write_ttbr0_el3
 
 	.globl	read_ttbr1_el1
-	.globl	read_ttbr1_el2
-	.globl	write_ttbr1
 	.globl	write_ttbr1_el1
-	.globl	write_ttbr1_el2
 
 	.globl	read_cpacr
 	.globl	write_cpacr
@@ -160,8 +157,6 @@
 
 #if SUPPORT_VFP
 	.globl	enable_vfp
-	.globl	read_fpexc
-	.globl	write_fpexc
 #endif
 
 
@@ -577,11 +572,6 @@ func write_tcr_el3
 	 * CPTR accessors
 	 * -----------------------------------------------------
 	 */
-func read_cptr_el1
-	b	read_cptr_el1
-	ret
-
-
 func read_cptr_el2
 	mrs	x0, cptr_el2
 	ret
@@ -590,10 +580,6 @@ func read_cptr_el2
 func read_cptr_el3
 	mrs	x0, cptr_el3
 	ret
-
-
-func write_cptr_el1
-	b	write_cptr_el1
 
 
 func write_cptr_el2
@@ -649,25 +635,9 @@ func read_ttbr1_el1
 	ret
 
 
-func read_ttbr1_el2
-	b	read_ttbr1_el2
-
-
-func read_ttbr1_el3
-	b	read_ttbr1_el3
-
-
 func write_ttbr1_el1
 	msr	ttbr1_el1, x0
 	ret
-
-
-func write_ttbr1_el2
-	b	write_ttbr1_el2
-
-
-func write_ttbr1_el3
-	b	write_ttbr1_el3
 
 
 func read_hcr
@@ -760,16 +730,6 @@ func enable_vfp
 	bic	x0, x0, x1
 	msr	cptr_el3, x0
 	isb
-	ret
-
-
-func read_fpexc
-	b	read_fpexc
-	ret
-
-
-func write_fpexc
-	b	write_fpexc
 	ret
 
 #endif
