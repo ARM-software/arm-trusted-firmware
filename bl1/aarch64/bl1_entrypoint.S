@@ -96,7 +96,6 @@ func bl1_entrypoint
 	mrs	x0, sctlr_el3
 	orr	x0, x0, #SCTLR_I_BIT
 	msr	sctlr_el3, x0
-
 	isb
 
 _wait_for_entrypoint:

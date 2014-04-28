@@ -82,6 +82,7 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
 	sctlr = read_sctlr_el3();
 	sctlr &= ~SCTLR_C_BIT;
 	write_sctlr_el3(sctlr);
+	isb();	/* ensure MMU disable takes immediate effect */
 
 	/*
 	 * CAUTION: This flush to the level of unification makes an assumption

@@ -52,5 +52,6 @@ smp_setup_begin:
 	bl	read_cpuectlr
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	bl	write_cpuectlr
+	isb
 smp_setup_end:
 	ret	x19
