@@ -104,7 +104,6 @@ psci_aff_common_finish_entry:
 	mov	x0, x19
 	bl	platform_set_stack
 
-	zero_callee_saved_regs
 	b	el3_exit
 _panic:
 	b	_panic
