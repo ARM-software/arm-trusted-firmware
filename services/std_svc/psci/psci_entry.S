@@ -102,7 +102,6 @@ psci_aff_common_finish_entry:
 	mrs	x0, mpidr_el1
 	bl	platform_set_stack
 
-	zero_callee_saved_regs
 	b	el3_exit
 _panic:
 	b	_panic

@@ -162,7 +162,6 @@ func bl31_entrypoint
 	 */
 	bl	bl31_main
 
-	zero_callee_saved_regs
 	b	el3_exit
 
 _panic:
