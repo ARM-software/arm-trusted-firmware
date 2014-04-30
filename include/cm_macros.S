@@ -27,25 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-	/* ---------------------------------------------
-	 * Zero out the callee saved register to prevent
-	 * leakage of secure state into the normal world
-	 * during the first ERET after a cold/warm boot.
-	 * ---------------------------------------------
-	 */
-	.macro	zero_callee_saved_regs
-	mov	x19, xzr
-	mov	x20, xzr
-	mov	x21, xzr
-	mov	x22, xzr
-	mov	x23, xzr
-	mov	x24, xzr
-	mov	x25, xzr
-	mov	x26, xzr
-	mov	x27, xzr
-	mov	x28, xzr
-	mov	x29, xzr
-	.endm
 
 	.macro	switch_to_exception_stack reg1 reg2
 	mov     \reg1 , sp
@@ -59,7 +40,7 @@
 	 * -----------------------------------------------------
 	 */
 	.macro	handle_sync_exception
-	stp	x30, xzr, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mrs	x30, esr_el3
 	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 
@@ -78,7 +59,7 @@
 	 * not expect any such exceptions.
 	 * -----------------------------------------------------
 	 */
-	bl	save_scratch_registers
+	bl	save_gp_registers
 	switch_to_exception_stack x0 x1
 
 	/* Save the core_context pointer for handled faults */
@@ -87,8 +68,8 @@
 	ldp	x0, xzr, [sp], #0x10
 
 	mov	sp, x0
-	bl	restore_scratch_registers
-	ldp	x30, xzr, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	bl	restore_gp_registers
+	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	eret
 	.endm
 
@@ -98,8 +79,8 @@
 	 * -----------------------------------------------------
 	 */
 	.macro	handle_async_exception type
-	stp	x30, xzr, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	bl	save_scratch_registers
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	bl	save_gp_registers
 	switch_to_exception_stack x0 x1
 
 	/* Save the core_context pointer */
@@ -109,7 +90,7 @@
 	ldp	x0, xzr, [sp], #0x10
 
 	mov	sp, x0
-	bl	restore_scratch_registers
-	ldp	x30, xzr, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	bl	restore_gp_registers
+	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	.endm
 

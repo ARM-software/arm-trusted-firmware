@@ -34,7 +34,6 @@
 #include <psci_private.h>
 #include <runtime_svc.h>
 #include <asm_macros.S>
-#include <cm_macros.S>
 
 	.globl	psci_aff_on_finish_entry
 	.globl	psci_aff_suspend_finish_entry
@@ -107,7 +106,6 @@ psci_aff_common_finish_entry:
 	mov	x0, x19
 	bl	platform_set_stack
 
-	zero_callee_saved_regs
 	b	el3_exit
 _panic:
 	b	_panic

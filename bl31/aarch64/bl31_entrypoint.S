@@ -31,7 +31,6 @@
 #include <bl_common.h>
 #include <platform.h>
 #include <arch.h>
-#include "cm_macros.S"
 #include <asm_macros.S>
 
 
@@ -165,7 +164,6 @@ func bl31_entrypoint
 	 */
 	bl	bl31_main
 
-	zero_callee_saved_regs
 	b	el3_exit
 
 _panic:
