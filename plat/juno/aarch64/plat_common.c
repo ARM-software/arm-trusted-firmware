@@ -89,11 +89,18 @@ void enable_mmu()
 
 void disable_mmu(void)
 {
-	/* Zero out the MMU related registers */
-	write_mair(0);
-	write_tcr(0);
-	write_ttbr0(0);
-	write_sctlr(0);
+	unsigned long sctlr;
+	unsigned long current_el = read_current_el();
+
+	if (GET_EL(current_el) == MODE_EL3) {
+		sctlr = read_sctlr_el3();
+		sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
+		write_sctlr_el3(sctlr);
+	} else {
+		sctlr = read_sctlr_el1();
+		sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
+		write_sctlr_el1(sctlr);
+	}
 
 	/* Flush the caches */
 	dcsw_op_all(DCCISW);
