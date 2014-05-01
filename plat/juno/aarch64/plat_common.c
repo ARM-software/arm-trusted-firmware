@@ -33,10 +33,6 @@
 #include <xlat_tables.h>
 #include <assert.h>
 
-unsigned char platform_normal_stacks[PLATFORM_STACK_SIZE][PLATFORM_CORE_COUNT]
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_normal_stacks")));
-
 
 void enable_mmu()
 {

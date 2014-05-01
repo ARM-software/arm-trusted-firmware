@@ -63,11 +63,13 @@ PLAT_BL_COMMON_SOURCES	:=	mmio.c					\
 BL1_SOURCES		+=	bl1_plat_setup.c			\
 				bl1_plat_helpers.S			\
 				plat_helpers.S				\
+				platform_up_stack.S			\
 				plat_common.c				\
 				cci400.c
 
 BL2_SOURCES		+=	bakery_lock.c				\
 				bl2_plat_setup.c			\
+				platform_up_stack.S			\
 				mhu.c					\
 				plat_helpers.S				\
 				plat_common.c				\
@@ -77,6 +79,7 @@ BL2_SOURCES		+=	bakery_lock.c				\
 BL31_SOURCES		+=	bl31_plat_setup.c			\
 				mhu.c					\
 				plat_helpers.S				\
+				platform_mp_stack.S			\
 				plat_common.c				\
 				plat_pm.c				\
 				plat_topology.c				\
