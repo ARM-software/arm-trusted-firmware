@@ -32,6 +32,7 @@
 #include <platform.h>
 #include <assert.h>
 #include <arch_helpers.h>
+#include <console.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -107,6 +108,9 @@ el_change_info *bl31_get_next_image_info(uint32_t type)
 void bl31_early_platform_setup(bl31_args *from_bl2,
 			       void *data)
 {
+	/* Initialize the console to provide early debug support */
+	console_init(PL011_UART0_BASE);
+
 	bl2_to_bl31_args = *from_bl2;
 
 	/* UEFI expects x0 to be primary CPU MPID */

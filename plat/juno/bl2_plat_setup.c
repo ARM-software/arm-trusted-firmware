@@ -37,6 +37,7 @@
 #include <bl_common.h>
 #include <scp_bootloader.h>
 #include <debug.h>
+#include <console.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -97,6 +98,10 @@ bl31_args *bl2_get_bl31_args_ptr(void)
 void bl2_early_platform_setup(meminfo *mem_layout,
 			      void *data)
 {
+
+	/* Initialize the console to provide early debug support */
+	console_init(PL011_UART0_BASE);
+
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout.total_base = mem_layout->total_base;
 	bl2_tzram_layout.total_size = mem_layout->total_size;
