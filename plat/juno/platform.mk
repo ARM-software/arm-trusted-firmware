@@ -29,6 +29,7 @@
 #
 
 PLAT_INCLUDES		:=	-Idrivers/arm/interconnect/cci-400	\
+				-Idrivers/console			\
 				-Idrivers/arm/trustzone/tzc-400		\
 				-Idrivers/arm/peripherals/pl011
 
@@ -51,6 +52,7 @@ PLAT_BL31_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
 				drivers/io
 
 PLAT_BL_COMMON_SOURCES	:=	mmio.c					\
+				pl011_console.c				\
 				pl011.c					\
 				sysreg_helpers.S			\
 				plat_io_storage.c			\
