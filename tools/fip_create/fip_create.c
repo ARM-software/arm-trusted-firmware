@@ -53,7 +53,7 @@ uuid_t uuid_null = {0};
  * const char* format_type_str[] = { "RAW", "ELF", "PIC" };
  */
 
-/* Currently only BL2 and BL31 images are supported. */
+/* The images used depends on the platform. */
 static entry_lookup_list_t toc_entry_lookup_list[] = {
 	{ "Trusted Boot Firmware BL2", UUID_TRUSTED_BOOT_FIRMWARE_BL2,
 	  "bl2", NULL, FLAG_FILENAME },
