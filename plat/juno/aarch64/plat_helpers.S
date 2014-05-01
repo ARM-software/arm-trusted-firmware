@@ -30,10 +30,9 @@
 
 #include <arch.h>
 #include <platform.h>
+#include <asm_macros.S>
 
 	.globl	plat_report_exception
-
-	.section	.text, "ax"
 
 	/* ---------------------------------------------
 	 * void plat_report_exception(unsigned int type)
@@ -43,7 +42,7 @@
 	 * to indicate where we are
 	 * ---------------------------------------------
 	 */
-plat_report_exception:
+func plat_report_exception
 	mrs	x1, CurrentEl
 	lsr	x1, x1, #MODE_EL_SHIFT
 	lsl	x1, x1, #SYS_LED_EL_SHIFT
@@ -60,7 +59,7 @@ plat_report_exception:
 	 * Return 0 to 3 for the A53s and 4 or 5 for the A57s
 	 */
 	.globl	platform_get_core_pos
-platform_get_core_pos:; .type platform_get_core_pos, %function
+func platform_get_core_pos
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
 	eor	x0, x0, #(1 << MPIDR_AFFINITY_BITS)  // swap A53/A57 order
@@ -76,7 +75,7 @@ platform_get_core_pos:; .type platform_get_core_pos, %function
 	 * -----------------------------------------------------
 	 */
 	.globl	platform_is_primary_cpu
-platform_is_primary_cpu:; .type platform_is_primary_cpu, %function
+func platform_is_primary_cpu
 	/* Warning: this function is called without a valid stack */
 	/* Juno todo: allow configuration of primary CPU using SCC */
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)

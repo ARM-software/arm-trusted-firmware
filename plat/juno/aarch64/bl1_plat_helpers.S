@@ -30,13 +30,11 @@
 
 #include <arch.h>
 #include <platform.h>
+#include <asm_macros.S>
 
 	.globl	platform_get_entrypoint
 	.globl	platform_cold_boot_init
 	.globl	plat_secondary_cold_boot_setup
-
-
-	.section	.text, "ax"; .align 3
 
 
 	/* -----------------------------------------------------
@@ -48,7 +46,7 @@
 	 * holding pen etc.
 	 * -----------------------------------------------------
 	 */
-plat_secondary_cold_boot_setup: ; .type plat_secondary_cold_boot_setup, %function
+func plat_secondary_cold_boot_setup
 	/* Juno todo: Implement secondary CPU cold boot setup on Juno */
 cb_panic:
 	b	cb_panic
@@ -69,7 +67,7 @@ cb_panic:
 	 * TODO: Not a good idea to save lr in a temp reg
 	 * -----------------------------------------------------
 	 */
-platform_get_entrypoint: ; .type platform_get_entrypoint, %function
+func platform_get_entrypoint
 	mov	x9, x30 // lr
 	bl	platform_get_core_pos
 	ldr	x1, =TRUSTED_MAILBOXES_BASE
@@ -85,7 +83,7 @@ platform_get_entrypoint: ; .type platform_get_entrypoint, %function
 	 * boot to perform early platform initialization
 	 * -----------------------------------------------------
 	 */
-platform_cold_boot_init: ; .type platform_cold_boot_init, %function
+func platform_cold_boot_init
 	mov	x20, x0
 	bl	read_mpidr
 	mov	x19, x0
