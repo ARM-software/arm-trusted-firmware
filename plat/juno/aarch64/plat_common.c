@@ -104,7 +104,7 @@ void disable_mmu(void)
 	return;
 }
 
-static const mmap_region mmap[] = {
+static const mmap_region juno_mmap[] = {
 	{ TZROM_BASE,		TZROM_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
 	{ MHU_SECURE_BASE,	MHU_SECURE_SIZE,	(MHU_PAYLOAD_CACHED ? MT_MEMORY : MT_DEVICE)
 								  | MT_RW | MT_SECURE },
@@ -134,7 +134,7 @@ void configure_mmu(meminfo *mem_layout,
 	mmap_add_region(coh_start, coh_limit - coh_start,
 				MT_DEVICE | MT_RW | MT_SECURE);
 
-	mmap_add(mmap);
+	mmap_add(juno_mmap);
 
 	init_xlat_tables();
 
