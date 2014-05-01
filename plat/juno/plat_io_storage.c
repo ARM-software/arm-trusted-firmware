@@ -55,22 +55,22 @@ static io_block_spec fip_block_spec = {
 
 static io_file_spec bl2_file_spec = {
 	.path = BL2_IMAGE_NAME,
-	.mode = FOPEN_MODE_R
+	.mode = FOPEN_MODE_RB
 };
 
 static io_file_spec bl30_file_spec = {
 	.path = BL30_IMAGE_NAME,
-	.mode = FOPEN_MODE_R
+	.mode = FOPEN_MODE_RB
 };
 
 static io_file_spec bl31_file_spec = {
 	.path = BL31_IMAGE_NAME,
-	.mode = FOPEN_MODE_R
+	.mode = FOPEN_MODE_RB
 };
 
 static io_file_spec bl33_file_spec = {
 	.path = BL33_IMAGE_NAME,
-	.mode = FOPEN_MODE_R
+	.mode = FOPEN_MODE_RB
 };
 
 static int open_fip(void *spec);
