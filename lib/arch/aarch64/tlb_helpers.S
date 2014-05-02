@@ -42,47 +42,33 @@
 
 func tlbialle1
 	tlbi	alle1
-	dsb	sy
-	isb
 	ret
 
 
 func tlbialle1is
 	tlbi	alle1is
-	dsb	sy
-	isb
 	ret
 
 
 func tlbialle2
 	tlbi	alle2
-	dsb	sy
-	isb
 	ret
 
 
 func tlbialle2is
 	tlbi	alle2is
-	dsb	sy
-	isb
 	ret
 
 
 func tlbialle3
 	tlbi	alle3
-	dsb	sy
-	isb
 	ret
 
 
 func tlbialle3is
 	tlbi	alle3is
-	dsb	sy
-	isb
 	ret
 
 func tlbivmalle1
 	tlbi	vmalle1
-	dsb	sy
-	isb
 	ret

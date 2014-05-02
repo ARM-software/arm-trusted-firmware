@@ -85,6 +85,7 @@ void gicv3_cpuif_setup(void)
 	 */
 	scr_val = read_scr();
 	write_scr(scr_val | SCR_NS_BIT);
+	isb();	/* ensure NS=1 takes effect before accessing ICC_SRE_EL2 */
 
 	/*
 	 * By default EL2 and NS-EL1 software should be able to enable GICv3
@@ -102,9 +103,11 @@ void gicv3_cpuif_setup(void)
 	write_icc_sre_el2(val | ICC_SRE_EN | ICC_SRE_SRE);
 
 	write_icc_pmr_el1(GIC_PRI_MASK);
+	isb();	/* commite ICC_* changes before setting NS=0 */
 
 	/* Restore SCR_EL3 */
 	write_scr(scr_val);
+	isb();	/* ensure NS=0 takes effect immediately */
 }
 
 /*******************************************************************************

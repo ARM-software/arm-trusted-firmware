@@ -90,7 +90,6 @@ func bl31_entrypoint
 	mrs	x1, sctlr_el3
 	orr	x1, x1, #SCTLR_I_BIT
 	msr	sctlr_el3, x1
-
 	isb
 
 	/* ---------------------------------------------

@@ -46,57 +46,41 @@
 
 func dcisw
 	dc	isw, x0
-	dsb	sy
-	isb
 	ret
 
 
 func dccisw
 	dc	cisw, x0
-	dsb	sy
-	isb
 	ret
 
 
 func dccsw
 	dc	csw, x0
-	dsb	sy
-	isb
 	ret
 
 
 func dccvac
 	dc	cvac, x0
-	dsb	sy
-	isb
 	ret
 
 
 func dcivac
 	dc	ivac, x0
-	dsb	sy
-	isb
 	ret
 
 
 func dccivac
 	dc	civac, x0
-	dsb	sy
-	isb
 	ret
 
 
 func dccvau
 	dc	cvau, x0
-	dsb	sy
-	isb
 	ret
 
 
 func dczva
 	dc	zva, x0
-	dsb	sy
-	isb
 	ret
 
 
