@@ -39,6 +39,17 @@
 	.globl	el3_exit
 	.globl	get_exception_stack
 
+	.macro save_x18_to_x29_sp_el0
+	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+	stp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
+	stp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
+	stp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
+	stp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
+	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
+	mrs	x18, sp_el0
+	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
+	.endm
+
 	.section	.vectors, "ax"; .align 11
 
 	.align	7
@@ -250,6 +261,9 @@ smc_handler64:
 	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
 	stp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
 
+	/* Save rest of the gpregs and sp_el0*/
+	save_x18_to_x29_sp_el0
+
 	mov	x5, xzr
 	mov	x6, sp
 
@@ -263,10 +277,6 @@ smc_handler64:
 	/* Load descriptor index from array of indices */
 	adr	x14, rt_svc_descs_indices
 	ldrb	w15, [x14, x16]
-
-	/* Save x18 and SP_EL0 */
-	mrs	x17, sp_el0
-	stp	x18, x17, [x6, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
 
 	/* -----------------------------------------------------
 	 * Restore the saved C runtime stack value which will
@@ -357,8 +367,8 @@ el3_exit: ; .type el3_exit, %function
 	msr	elr_el3, x17
 
 	/* Restore saved general purpose registers and return */
-	bl	restore_scratch_registers
-	ldp	x30, xzr, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	bl	restore_gp_registers
+	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	eret
 
 smc_unknown:
@@ -369,10 +379,10 @@ smc_unknown:
 	 * content). Either way, we aren't leaking any secure information
 	 * through them
 	 */
-	bl	restore_scratch_registers_callee
+	bl	restore_gp_registers_callee
 
 smc_prohibited:
-	ldp	x30, xzr, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mov	w0, #SMC_UNK
 	eret
 
@@ -381,12 +391,16 @@ rt_svc_fw_critical_error:
 
 	/* -----------------------------------------------------
 	 * The following functions are used to saved and restore
-	 * all the caller saved registers as per the aapcs_64.
-	 * These are not macros to ensure their invocation fits
+	 * all the general pupose registers. We would only save
+	 * and restore the callee saved registers when a world
+	 * switch occurs but that type of implementation is more
+	 * complex. So currently we will always save and restore
+	 * these registers on entry and exit of EL3.These are
+	 * not macros to ensure their invocation fits
 	 * within the 32 instructions per exception vector.
 	 * -----------------------------------------------------
 	 */
-func save_scratch_registers
+func save_gp_registers
 	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
@@ -396,16 +410,15 @@ func save_scratch_registers
 	stp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
 	stp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
 	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
-	mrs	x17, sp_el0
-	stp	x18, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+	save_x18_to_x29_sp_el0
 	ret
 
-func restore_scratch_registers
+func restore_gp_registers
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 
-restore_scratch_registers_callee:
-	ldp	x18, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+restore_gp_registers_callee:
+	ldr	x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
 
 	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
 	ldp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
@@ -413,9 +426,14 @@ restore_scratch_registers_callee:
 	ldp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
 	ldp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
 	ldp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
-
 	msr	sp_el0, x17
 	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
+	ldp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+	ldp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
+	ldp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
+	ldp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
+	ldp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
+	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
 	ret
 
 	/* -----------------------------------------------------
