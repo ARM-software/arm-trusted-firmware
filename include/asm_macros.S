@@ -55,7 +55,7 @@
 
 
 	.macro	smc_check  label
-	bl	read_esr
+	mrs	x0, esr_el3
 	ubfx	x0, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 	cmp	x0, #EC_AARCH64_SMC
 	b.ne	$label

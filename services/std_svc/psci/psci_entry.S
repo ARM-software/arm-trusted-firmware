@@ -78,10 +78,8 @@ psci_aff_common_finish_entry:
 	 * ---------------------------------------------
 	 */
 	msr	spsel, #0
-	isb
 
-	bl	read_mpidr
-	mov	x19, x0
+	mrs	x0, mpidr_el1
 	bl	platform_set_coherent_stack
 
 	/* ---------------------------------------------
@@ -89,14 +87,14 @@ psci_aff_common_finish_entry:
 	 * level 0.
 	 * ---------------------------------------------
 	 */
-	mov	x0, x19
+	mrs	x0, mpidr_el1
 	bl	get_power_on_target_afflvl
 	cmp	x0, xzr
 	b.lt	_panic
 	mov	x3, x23
 	mov	x2, x0
-	mov	x0, x19
 	mov	x1, #MPIDR_AFFLVL0
+	mrs	x0, mpidr_el1
 	blr	x22
 
 	/* --------------------------------------------
@@ -104,7 +102,7 @@ psci_aff_common_finish_entry:
 	 * -IS-WBWA memory
 	 * --------------------------------------------
 	 */
-	mov	x0, x19
+	mrs	x0, mpidr_el1
 	bl	platform_set_stack
 
 	zero_callee_saved_regs
@@ -123,7 +121,7 @@ func __psci_cpu_off
 	sub	sp, sp, #0x10
 	stp	x19, x20, [sp, #0]
 	mov	x19, sp
-	bl	read_mpidr
+	mrs	x0, mpidr_el1
 	bl	platform_set_coherent_stack
 	bl	psci_cpu_off
 	mov	x1, #PSCI_E_SUCCESS
@@ -144,7 +142,7 @@ func __psci_cpu_suspend
 	mov	x20, x0
 	mov	x21, x1
 	mov	x22, x2
-	bl	read_mpidr
+	mrs	x0, mpidr_el1
 	bl	platform_set_coherent_stack
 	mov	x0, x20
 	mov	x1, x21
@@ -161,7 +159,7 @@ func __psci_cpu_suspend
 	ret
 
 func final_wfi
-	dsb	sy
+	dsb	sy		// ensure write buffer empty
 	wfi
 wfi_spill:
 	b	wfi_spill

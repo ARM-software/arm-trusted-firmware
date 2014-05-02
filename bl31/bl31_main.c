@@ -103,6 +103,7 @@ void bl31_main(void)
 	assert(cm_get_context(mpidr, NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
 	write_vbar_el3((uint64_t) runtime_exceptions);
+	isb();
 
 	/*
 	 * All the cold boot actions on the primary cpu are done. We now need to

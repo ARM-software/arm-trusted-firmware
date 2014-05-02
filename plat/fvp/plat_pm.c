@@ -60,7 +60,11 @@ int fvp_affinst_standby(unsigned int power_state)
 	if (target_afflvl != MPIDR_AFFLVL0)
 		return PSCI_E_INVALID_PARAMS;
 
-	/* Enter standby state */
+	/*
+	 * Enter standby state
+	 * dsb is good practice before using wfi to enter low power states
+	 */
+	dsb();
 	wfi();
 
 	return PSCI_E_SUCCESS;

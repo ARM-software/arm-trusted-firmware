@@ -35,13 +35,11 @@
 
 
 func cpu_reset_handler
-	mov	x19, x30 // lr
-
 	/* ---------------------------------------------
 	 * As a bare minimal enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	bl	read_midr
+	mrs	x0, midr_el1
 	lsr	x0, x0, #MIDR_PN_SHIFT
 	and	x0, x0, #MIDR_PN_MASK
 	cmp	x0, #MIDR_PN_A57
@@ -49,8 +47,9 @@ func cpu_reset_handler
 	cmp	x0, #MIDR_PN_A53
 	b.ne	smp_setup_end
 smp_setup_begin:
-	bl	read_cpuectlr
+	mrs	x0, CPUECTLR_EL1
 	orr	x0, x0, #CPUECTLR_SMP_BIT
-	bl	write_cpuectlr
+	msr	CPUECTLR_EL1, x0
+	isb
 smp_setup_end:
-	ret	x19
+	ret

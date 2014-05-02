@@ -47,22 +47,18 @@
 	.globl	read_daif
 	.globl	write_daif
 
-	.globl	read_spsr
 	.globl	read_spsr_el1
 	.globl	read_spsr_el2
 	.globl	read_spsr_el3
 
-	.globl	write_spsr
 	.globl	write_spsr_el1
 	.globl	write_spsr_el2
 	.globl	write_spsr_el3
 
-	.globl	read_elr
 	.globl	read_elr_el1
 	.globl	read_elr_el2
 	.globl	read_elr_el3
 
-	.globl	write_elr
 	.globl	write_elr_el1
 	.globl	write_elr_el2
 	.globl	write_elr_el3
@@ -151,16 +147,6 @@ func write_daif
 	ret
 
 
-func read_spsr
-	mrs	x0, CurrentEl
-	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
-	b.eq	read_spsr_el1
-	cmp	x0, #(MODE_EL2 << MODE_EL_SHIFT)
-	b.eq	read_spsr_el2
-	cmp	x0, #(MODE_EL3 << MODE_EL_SHIFT)
-	b.eq	read_spsr_el3
-
-
 func read_spsr_el1
 	mrs	x0, spsr_el1
 	ret
@@ -176,42 +162,19 @@ func read_spsr_el3
 	ret
 
 
-func write_spsr
-	mrs	x1, CurrentEl
-	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
-	b.eq	write_spsr_el1
-	cmp	x1, #(MODE_EL2 << MODE_EL_SHIFT)
-	b.eq	write_spsr_el2
-	cmp	x1, #(MODE_EL3 << MODE_EL_SHIFT)
-	b.eq	write_spsr_el3
-
-
 func write_spsr_el1
 	msr	spsr_el1, x0
-	isb
 	ret
 
 
 func write_spsr_el2
 	msr	spsr_el2, x0
-	isb
 	ret
 
 
 func write_spsr_el3
 	msr	spsr_el3, x0
-	isb
 	ret
-
-
-func read_elr
-	mrs	x0, CurrentEl
-	cmp	x0, #(MODE_EL1 << MODE_EL_SHIFT)
-	b.eq	read_elr_el1
-	cmp	x0, #(MODE_EL2 << MODE_EL_SHIFT)
-	b.eq	read_elr_el2
-	cmp	x0, #(MODE_EL3 << MODE_EL_SHIFT)
-	b.eq	read_elr_el3
 
 
 func read_elr_el1
@@ -229,31 +192,18 @@ func read_elr_el3
 	ret
 
 
-func write_elr
-	mrs	x1, CurrentEl
-	cmp	x1, #(MODE_EL1 << MODE_EL_SHIFT)
-	b.eq	write_elr_el1
-	cmp	x1, #(MODE_EL2 << MODE_EL_SHIFT)
-	b.eq	write_elr_el2
-	cmp	x1, #(MODE_EL3 << MODE_EL_SHIFT)
-	b.eq	write_elr_el3
-
-
 func write_elr_el1
 	msr	elr_el1, x0
-	isb
 	ret
 
 
 func write_elr_el2
 	msr	elr_el2, x0
-	isb
 	ret
 
 
 func write_elr_el3
 	msr	elr_el3, x0
-	isb
 	ret
 
 

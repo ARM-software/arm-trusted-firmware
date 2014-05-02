@@ -125,10 +125,7 @@
 	.globl	write_ttbr0_el3
 
 	.globl	read_ttbr1_el1
-	.globl	read_ttbr1_el2
-	.globl	write_ttbr1
 	.globl	write_ttbr1_el1
-	.globl	write_ttbr1_el2
 
 	.globl	read_cpacr
 	.globl	write_cpacr
@@ -160,8 +157,6 @@
 
 #if SUPPORT_VFP
 	.globl	enable_vfp
-	.globl	read_fpexc
-	.globl	write_fpexc
 #endif
 
 
@@ -201,19 +196,16 @@ func read_vbar_el3
 
 func write_vbar_el1
 	msr	vbar_el1, x0
-	isb
 	ret
 
 
 func write_vbar_el2
 	msr	vbar_el2, x0
-	isb
 	ret
 
 
 func write_vbar_el3
 	msr	vbar_el3, x0
-	isb
 	ret
 
 
@@ -238,19 +230,16 @@ func read_afsr0_el3
 
 func write_afsr0_el1
 	msr	afsr0_el1, x0
-	isb
 	ret
 
 
 func write_afsr0_el2
 	msr	afsr0_el2, x0
-	isb
 	ret
 
 
 func write_afsr0_el3
 	msr	afsr0_el3, x0
-	isb
 	ret
 
 
@@ -275,19 +264,16 @@ func read_far_el3
 
 func write_far_el1
 	msr	far_el1, x0
-	isb
 	ret
 
 
 func write_far_el2
 	msr	far_el2, x0
-	isb
 	ret
 
 
 func write_far_el3
 	msr	far_el3, x0
-	isb
 	ret
 
 
@@ -312,19 +298,16 @@ func read_mair_el3
 
 func write_mair_el1
 	msr	mair_el1, x0
-	isb
 	ret
 
 
 func write_mair_el2
 	msr	mair_el2, x0
-	isb
 	ret
 
 
 func write_mair_el3
 	msr	mair_el3, x0
-	isb
 	ret
 
 
@@ -349,19 +332,16 @@ func read_amair_el3
 
 func write_amair_el1
 	msr	amair_el1, x0
-	isb
 	ret
 
 
 func write_amair_el2
 	msr	amair_el2, x0
-	isb
 	ret
 
 
 func write_amair_el3
 	msr	amair_el3, x0
-	isb
 	ret
 
 
@@ -405,19 +385,16 @@ func read_rmr_el3
 
 func write_rmr_el1
 	msr	rmr_el1, x0
-	isb
 	ret
 
 
 func write_rmr_el2
 	msr	rmr_el2, x0
-	isb
 	ret
 
 
 func write_rmr_el3
 	msr	rmr_el3, x0
-	isb
 	ret
 
 
@@ -442,19 +419,16 @@ func read_afsr1_el3
 
 func write_afsr1_el1
 	msr	afsr1_el1, x0
-	isb
 	ret
 
 
 func write_afsr1_el2
 	msr	afsr1_el2, x0
-	isb
 	ret
 
 
 func write_afsr1_el3
 	msr	afsr1_el3, x0
-	isb
 	ret
 
 
@@ -479,22 +453,16 @@ func read_sctlr_el3
 
 func write_sctlr_el1
 	msr	sctlr_el1, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_sctlr_el2
 	msr	sctlr_el2, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_sctlr_el3
 	msr	sctlr_el3, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -519,22 +487,16 @@ func read_actlr_el3
 
 func write_actlr_el1
 	msr	actlr_el1, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_actlr_el2
 	msr	actlr_el2, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_actlr_el3
 	msr	actlr_el3, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -559,22 +521,16 @@ func read_esr_el3
 
 func write_esr_el1
 	msr	esr_el1, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_esr_el2
 	msr	esr_el2, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_esr_el3
 	msr	esr_el3, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -599,22 +555,16 @@ func read_tcr_el3
 
 func write_tcr_el1
 	msr	tcr_el1, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_tcr_el2
 	msr	tcr_el2, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_tcr_el3
 	msr	tcr_el3, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -622,11 +572,6 @@ func write_tcr_el3
 	 * CPTR accessors
 	 * -----------------------------------------------------
 	 */
-func read_cptr_el1
-	b	read_cptr_el1
-	ret
-
-
 func read_cptr_el2
 	mrs	x0, cptr_el2
 	ret
@@ -637,21 +582,13 @@ func read_cptr_el3
 	ret
 
 
-func write_cptr_el1
-	b	write_cptr_el1
-
-
 func write_cptr_el2
 	msr	cptr_el2, x0
-	dsb	sy
-	isb
 	ret
 
 
 func write_cptr_el3
 	msr	cptr_el3, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -676,19 +613,16 @@ func read_ttbr0_el3
 
 func write_ttbr0_el1
 	msr	ttbr0_el1, x0
-	isb
 	ret
 
 
 func write_ttbr0_el2
 	msr	ttbr0_el2, x0
-	isb
 	ret
 
 
 func write_ttbr0_el3
 	msr	ttbr0_el3, x0
-	isb
 	ret
 
 
@@ -701,26 +635,9 @@ func read_ttbr1_el1
 	ret
 
 
-func read_ttbr1_el2
-	b	read_ttbr1_el2
-
-
-func read_ttbr1_el3
-	b	read_ttbr1_el3
-
-
 func write_ttbr1_el1
 	msr	ttbr1_el1, x0
-	isb
 	ret
-
-
-func write_ttbr1_el2
-	b	write_ttbr1_el2
-
-
-func write_ttbr1_el3
-	b	write_ttbr1_el3
 
 
 func read_hcr
@@ -730,8 +647,6 @@ func read_hcr
 
 func write_hcr
 	msr	hcr_el2, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -762,8 +677,6 @@ func read_cpuectlr
 
 func write_cpuectlr
 	msr	CPUECTLR_EL1, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -789,8 +702,6 @@ func write_cntfrq
 
 func write_scr
 	msr	scr_el3, x0
-	dsb	sy
-	isb
 	ret
 
 
@@ -818,16 +729,7 @@ func enable_vfp
 	mov	x1, #AARCH64_CPTR_TFP
 	bic	x0, x0, x1
 	msr	cptr_el3, x0
-	ret
-
-
-func read_fpexc
-	b	read_fpexc
-	ret
-
-
-func write_fpexc
-	b	write_fpexc
+	isb
 	ret
 
 #endif
