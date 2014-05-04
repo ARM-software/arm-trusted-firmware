@@ -59,7 +59,7 @@ static int32_t tspd_cpu_off_handler(uint64_t cookie)
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
 	/* Program the entry point and enter the TSP */
-	cm_set_el3_elr(SECURE, (uint64_t) tsp_entry_info->cpu_off_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->cpu_off_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	/*
@@ -96,7 +96,7 @@ static void tspd_cpu_suspend_handler(uint64_t power_state)
 	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
 		      CTX_GPREG_X0,
 		      power_state);
-	cm_set_el3_elr(SECURE, (uint64_t) tsp_entry_info->cpu_suspend_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->cpu_suspend_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	/*
@@ -165,7 +165,7 @@ static void tspd_cpu_suspend_finish_handler(uint64_t suspend_level)
 	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
 		      CTX_GPREG_X0,
 		      suspend_level);
-	cm_set_el3_elr(SECURE, (uint64_t) tsp_entry_info->cpu_resume_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->cpu_resume_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	/*
