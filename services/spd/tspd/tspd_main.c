@@ -295,7 +295,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			assert(&tsp_ctx->cpu_ctx == cm_get_context(mpidr, SECURE));
 			set_aapcs_args7(&tsp_ctx->cpu_ctx, smc_fid, x1, x2, 0, 0,
 					0, 0, 0);
-			cm_set_el3_elr(SECURE, (uint64_t) tsp_entry_info->fast_smc_entry);
+			cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->fast_smc_entry);
 			cm_el1_sysregs_context_restore(SECURE);
 			cm_set_next_eret_context(SECURE);
 
