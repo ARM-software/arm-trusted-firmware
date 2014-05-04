@@ -38,12 +38,6 @@
 #include <platform.h>
 #include <stdint.h>
 
-
-/*******************************************************************************
- * TODO: Revisit if priorities are being set such that no non-secure interrupt
- * can have a higher priority than a secure one as recommended in the GICv2 spec
- ******************************************************************************/
-
 /*******************************************************************************
  * This function does some minimal GICv3 configuration. The Firmware itself does
  * not fully support GICv3 at this time and relies on GICv2 emulation as
@@ -322,3 +316,91 @@ uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state)
 #endif
 }
 
+#if FVP_GIC_ARCH == 2
+/*******************************************************************************
+ * This function returns the type of the highest priority pending interrupt at
+ * the GIC cpu interface. INTR_TYPE_INVAL is returned when there is no
+ * interrupt pending.
+ ******************************************************************************/
+uint32_t ic_get_pending_interrupt_type()
+{
+	uint32_t id, gicc_base;
+
+	gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+	id = gicc_read_hppir(gicc_base);
+
+	/* Assume that all secure interrupts are S-EL1 interrupts */
+	if (id < 1022)
+		return INTR_TYPE_S_EL1;
+
+	if (id == GIC_SPURIOUS_INTERRUPT)
+		return INTR_TYPE_INVAL;
+
+	return INTR_TYPE_NS;
+}
+
+/*******************************************************************************
+ * This function returns the id of the highest priority pending interrupt at
+ * the GIC cpu interface. INTR_ID_UNAVAILABLE is returned when there is no
+ * interrupt pending.
+ ******************************************************************************/
+uint32_t ic_get_pending_interrupt_id()
+{
+	uint32_t id, gicc_base;
+
+	gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+	id = gicc_read_hppir(gicc_base);
+
+	if (id < 1022)
+		return id;
+
+	if (id == 1023)
+		return INTR_ID_UNAVAILABLE;
+
+	/*
+	 * Find out which non-secure interrupt it is under the assumption that
+	 * the GICC_CTLR.AckCtl bit is 0.
+	 */
+	return gicc_read_ahppir(gicc_base);
+}
+
+/*******************************************************************************
+ * This functions reads the GIC cpu interface Interrupt Acknowledge register
+ * to start handling the pending interrupt. It returns the contents of the IAR.
+ ******************************************************************************/
+uint32_t ic_acknowledge_interrupt()
+{
+	return gicc_read_IAR(platform_get_cfgvar(CONFIG_GICC_ADDR));
+}
+
+/*******************************************************************************
+ * This functions writes the GIC cpu interface End Of Interrupt register with
+ * the passed value to finish handling the active interrupt
+ ******************************************************************************/
+void ic_end_of_interrupt(uint32_t id)
+{
+	gicc_write_EOIR(platform_get_cfgvar(CONFIG_GICC_ADDR), id);
+	return;
+}
+
+/*******************************************************************************
+ * This function returns the type of the interrupt id depending upon the group
+ * this interrupt has been configured under by the interrupt controller i.e.
+ * group0 or group1.
+ ******************************************************************************/
+uint32_t ic_get_interrupt_type(uint32_t id)
+{
+	uint32_t group;
+
+	group = gicd_get_igroupr(platform_get_cfgvar(CONFIG_GICD_ADDR), id);
+
+	/* Assume that all secure interrupts are S-EL1 interrupts */
+	if (group == GRP0)
+		return INTR_TYPE_S_EL1;
+	else
+		return INTR_TYPE_NS;
+}
+
+#else
+#error "Invalid GIC architecture version specified for FVP port"
+#endif
