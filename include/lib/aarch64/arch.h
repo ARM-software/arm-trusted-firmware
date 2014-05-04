@@ -148,6 +148,7 @@
 #define SCR_FIQ_BIT		(1 << 2)
 #define SCR_IRQ_BIT		(1 << 1)
 #define SCR_NS_BIT		(1 << 0)
+#define SCR_VALID_BIT_MASK	0x2f8f
 
 /* HCR definitions */
 #define HCR_RW_BIT		(1ull << 31)

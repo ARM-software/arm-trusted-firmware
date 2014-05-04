@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
@@ -145,10 +146,10 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 }
 
 /*******************************************************************************
- * This function function populates 'cpu_context' pertaining to the given
- * security state with the entrypoint, SPSR and SCR values so that an ERET from
- * this securit state correctly restores corresponding values to drop the CPU to
- * the next exception level
+ * This function populates 'cpu_context' pertaining to the given security state
+ * with the entrypoint, SPSR and SCR values so that an ERET from this security
+ * state correctly restores corresponding values to drop the CPU to the next
+ * exception level
  ******************************************************************************/
 void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
 		uint32_t spsr, uint32_t scr)
@@ -167,10 +168,10 @@ void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
 }
 
 /*******************************************************************************
- * This function function populates ELR_EL3 member of 'cpu_context' pertaining
- * to the given security state with the given entrypoint
+ * This function populates ELR_EL3 member of 'cpu_context' pertaining to the
+ * given security state with the given entrypoint
  ******************************************************************************/
-void cm_set_el3_elr(uint32_t security_state, uint64_t entrypoint)
+void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint)
 {
 	cpu_context_t *ctx;
 	el3_state_t *state;
@@ -181,6 +182,53 @@ void cm_set_el3_elr(uint32_t security_state, uint64_t entrypoint)
 	/* Populate EL3 state so that ERET jumps to the correct entry */
 	state = get_el3state_ctx(ctx);
 	write_ctx_reg(state, CTX_ELR_EL3, entrypoint);
+}
+
+/*******************************************************************************
+ * This function updates a single bit in the SCR_EL3 member of the 'cpu_context'
+ * pertaining to the given security state using the value and bit position
+ * specified in the parameters. It preserves all other bits.
+ ******************************************************************************/
+void cm_write_scr_el3_bit(uint32_t security_state,
+			  uint32_t bit_pos,
+			  uint32_t value)
+{
+	cpu_context_t *ctx;
+	el3_state_t *state;
+	uint32_t scr_el3;
+
+	ctx = cm_get_context(read_mpidr(), security_state);
+	assert(ctx);
+
+	/* Ensure that the bit position is a valid one */
+	assert((1 << bit_pos) & SCR_VALID_BIT_MASK);
+
+	/*
+	 * Get the SCR_EL3 value from the cpu context, clear the desired bit
+	 * and set it to its new value.
+	 */
+	state = get_el3state_ctx(ctx);
+	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
+	scr_el3 &= ~(1 << bit_pos);
+	scr_el3 |= value << bit_pos;
+	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
+}
+
+/*******************************************************************************
+ * This function retrieves SCR_EL3 member of 'cpu_context' pertaining to the
+ * given security state.
+ ******************************************************************************/
+uint32_t cm_get_scr_el3(uint32_t security_state)
+{
+	cpu_context_t *ctx;
+	el3_state_t *state;
+
+	ctx = cm_get_context(read_mpidr(), security_state);
+	assert(ctx);
+
+	/* Populate EL3 state so that ERET jumps to the correct entry */
+	state = get_el3state_ctx(ctx);
+	return read_ctx_reg(state, CTX_SCR_EL3);
 }
 
 /*******************************************************************************
