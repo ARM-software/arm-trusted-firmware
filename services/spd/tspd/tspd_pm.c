@@ -56,7 +56,7 @@ static int32_t tspd_cpu_off_handler(uint64_t cookie)
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
-	assert(tsp_ctx->state == TSP_STATE_ON);
+	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
 	/* Program the entry point and enter the TSP */
 	cm_set_el3_elr(SECURE, (uint64_t) tsp_entry_info->cpu_off_entry);
@@ -73,7 +73,7 @@ static int32_t tspd_cpu_off_handler(uint64_t cookie)
 	 * Reset TSP's context for a fresh start when this cpu is turned on
 	 * subsequently.
 	 */
-	 tsp_ctx->state = TSP_STATE_OFF;
+	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_OFF);
 
 	 return 0;
 }
@@ -90,7 +90,7 @@ static void tspd_cpu_suspend_handler(uint64_t power_state)
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
-	assert(tsp_ctx->state == TSP_STATE_ON);
+	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
 	/* Program the entry point, power_state parameter and enter the TSP */
 	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
@@ -107,7 +107,7 @@ static void tspd_cpu_suspend_handler(uint64_t power_state)
 		panic();
 
 	/* Update its context to reflect the state the TSP is in */
-	tsp_ctx->state = TSP_STATE_SUSPEND;
+	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_SUSPEND);
 }
 
 /*******************************************************************************
@@ -124,7 +124,7 @@ static void tspd_cpu_on_finish_handler(uint64_t cookie)
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
-	assert(tsp_ctx->state == TSP_STATE_OFF);
+	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_OFF);
 
 	/* Initialise this cpu's secure context */
 	tspd_init_secure_context((uint64_t) tsp_entry_info->cpu_on_entry,
@@ -143,7 +143,7 @@ static void tspd_cpu_on_finish_handler(uint64_t cookie)
 		panic();
 
 	/* Update its context to reflect the state the SP is in */
-	tsp_ctx->state = TSP_STATE_ON;
+	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_ON);
 }
 
 /*******************************************************************************
@@ -159,7 +159,7 @@ static void tspd_cpu_suspend_finish_handler(uint64_t suspend_level)
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
-	assert(tsp_ctx->state == TSP_STATE_SUSPEND);
+	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_SUSPEND);
 
 	/* Program the entry point, suspend_level and enter the SP */
 	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
@@ -176,7 +176,7 @@ static void tspd_cpu_suspend_finish_handler(uint64_t suspend_level)
 		panic();
 
 	/* Update its context to reflect the state the SP is in */
-	tsp_ctx->state = TSP_STATE_ON;
+	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_ON);
 }
 
 /*******************************************************************************
