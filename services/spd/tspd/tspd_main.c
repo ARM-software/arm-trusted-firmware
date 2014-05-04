@@ -142,7 +142,7 @@ int32_t tspd_init(void)
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 	assert(rc != 0);
 	if (rc) {
-		tsp_ctx->state = TSP_STATE_ON;
+		set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_ON);
 
 		/*
 		 * TSP has been successfully initialized. Register power
