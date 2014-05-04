@@ -85,7 +85,14 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	write_ctx_reg(el1_state, CTX_SCTLR_EL1, sctlr);
 
 	/* Set this context as ready to be initialised i.e OFF */
-	tsp_ctx->state = TSP_STATE_OFF;
+	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_OFF);
+
+	/*
+	 * This context has not been used yet. It will become valid
+	 * when the TSP is interrupted and wants the TSPD to preserve
+	 * the context.
+	 */
+	clr_std_smc_active_flag(tsp_ctx->state);
 
 	/* Associate this context with the cpu specified */
 	tsp_ctx->mpidr = mpidr;
