@@ -78,10 +78,6 @@
 #define PL011_UARTCR_LBE          (1 << 7)	/* Loopback enable */
 #define PL011_UARTCR_UARTEN       (1 << 0)	/* UART Enable */
 
-#if !defined(PL011_BASE)
-#error "The PL011_BASE macro must be defined."
-#endif
-
 #if !defined(PL011_BAUDRATE)
 #define PL011_BAUDRATE  115200
 #endif
