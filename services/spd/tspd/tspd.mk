@@ -29,16 +29,12 @@
 #
 
 TSPD_DIR		:=	services/spd/tspd
-SPD_INCLUDES		:=	-Iinclude/spd/tspd	\
-				-I${TSPD_DIR}
+SPD_INCLUDES		:=	-Iinclude/bl32/payloads
 
-SPD_SOURCES		:=	tspd_common.c		\
-				tspd_main.c		\
-				tspd_pm.c		\
-				tspd_helpers.S
-
-vpath %.c ${TSPD_DIR}
-vpath %.S ${TSPD_DIR}
+SPD_SOURCES		:=	services/spd/tspd/tspd_common.c		\
+				services/spd/tspd/tspd_helpers.S	\
+				services/spd/tspd/tspd_main.c		\
+				services/spd/tspd/tspd_pm.c
 
 # This dispatcher is paired with a Test Secure Payload source and we intend to
 # build the Test Secure Payload along with this dispatcher.

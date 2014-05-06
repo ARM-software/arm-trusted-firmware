@@ -28,16 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <assert.h>
 #include <arch_helpers.h>
-#include <platform.h>
+#include <assert.h>
 #include <bl_common.h>
-#include <runtime_svc.h>
 #include <context_mgmt.h>
-#include <tspd_private.h>
+#include <platform.h>
+#include <string.h>
+#include "tspd_private.h"
 
 /*******************************************************************************
  * Given a secure payload entrypoint, register width, cpu id & pointer to a
@@ -47,10 +44,10 @@
 int32_t tspd_init_secure_context(uint64_t entrypoint,
 				uint32_t rw,
 				uint64_t mpidr,
-				tsp_context *tsp_ctx)
+				tsp_context_t *tsp_ctx)
 {
 	uint32_t scr, sctlr;
-	el1_sys_regs *el1_state;
+	el1_sys_regs_t *el1_state;
 	uint32_t spsr;
 
 	/* Passing a NULL context is a critical programming error */
@@ -110,7 +107,7 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
  * 3. Calls el3_exit() so that the EL3 system and general purpose registers
  *    from the tsp_ctx->cpu_ctx are used to enter the secure payload image.
  ******************************************************************************/
-uint64_t tspd_synchronous_sp_entry(tsp_context *tsp_ctx)
+uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx)
 {
 	uint64_t rc;
 
@@ -138,7 +135,7 @@ uint64_t tspd_synchronous_sp_entry(tsp_context *tsp_ctx)
  * 3. It does not need to save any general purpose or EL3 system register state
  *    as the generic smc entry routine should have saved those.
  ******************************************************************************/
-void tspd_synchronous_sp_exit(tsp_context *tsp_ctx, uint64_t ret)
+void tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret)
 {
 	/* Save the Secure EL1 system register context */
 	assert(cm_get_context(read_mpidr(), SECURE) == &tsp_ctx->cpu_ctx);

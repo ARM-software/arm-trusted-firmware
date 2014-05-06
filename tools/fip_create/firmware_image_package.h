@@ -1,1 +1,1 @@
-../../include/firmware_image_package.h
+../../include/common/firmware_image_package.h

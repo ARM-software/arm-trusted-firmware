@@ -29,11 +29,11 @@
  */
 
 #include <arch.h>
-#include <runtime_svc.h>
-#include <platform.h>
+#include <asm_macros.S>
+#include <cm_macros.S>
 #include <context.h>
-#include "asm_macros.S"
-#include "cm_macros.S"
+#include <platform.h>
+#include <runtime_svc.h>
 
 	.globl	runtime_exceptions
 	.globl	el3_exit

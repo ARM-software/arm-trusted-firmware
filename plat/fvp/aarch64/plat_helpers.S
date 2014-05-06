@@ -29,8 +29,9 @@
  */
 
 #include <arch.h>
-#include <platform.h>
 #include <asm_macros.S>
+#include <bl_common.h>
+#include <platform.h>
 
 	.globl	plat_report_exception
 

@@ -28,12 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
 #include <arch_helpers.h>
-#include <platform.h>
-#include <bl2.h>
+#include <assert.h>
 #include <bl_common.h>
+#include <bl2.h>
 #include <console.h>
+#include <platform.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -68,7 +68,7 @@ extern unsigned long __COHERENT_RAM_END__;
 extern unsigned char **bl2_el_change_mem_ptr;
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
-static meminfo bl2_tzram_layout
+static meminfo_t bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
@@ -76,9 +76,9 @@ __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
  * Reference to structure which holds the arguments which need to be passed
  * to BL31
  ******************************************************************************/
-static bl31_args *bl2_to_bl31_args;
+static bl31_args_t *bl2_to_bl31_args;
 
-meminfo *bl2_plat_sec_mem_layout(void)
+meminfo_t *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
 }
@@ -87,7 +87,7 @@ meminfo *bl2_plat_sec_mem_layout(void)
  * This function returns a pointer to the memory that the platform has kept
  * aside to pass all the information that BL31 could need.
  ******************************************************************************/
-bl31_args *bl2_get_bl31_args_ptr(void)
+bl31_args_t *bl2_get_bl31_args_ptr(void)
 {
 	return bl2_to_bl31_args;
 }
@@ -97,7 +97,7 @@ bl31_args *bl2_get_bl31_args_ptr(void)
  * in x0. This memory layout is sitting at the base of the free trusted SRAM.
  * Copy it to a safe loaction before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void bl2_early_platform_setup(meminfo *mem_layout,
+void bl2_early_platform_setup(meminfo_t *mem_layout,
 			      void *data)
 {
 	/* Setup the BL2 memory layout */
@@ -137,10 +137,10 @@ void bl2_platform_setup()
 	 * Ensure that the secure DRAM memory used for passing BL31 arguments
 	 * does not overlap with the BL32_BASE.
 	 */
-	assert (BL32_BASE > TZDRAM_BASE + sizeof(bl31_args));
+	assert (BL32_BASE > TZDRAM_BASE + sizeof(bl31_args_t));
 
 	/* Use the Trusted DRAM for passing args to BL31 */
-	bl2_to_bl31_args = (bl31_args *) TZDRAM_BASE;
+	bl2_to_bl31_args = (bl31_args_t *) TZDRAM_BASE;
 
 	/* Populate the extents of memory available for loading BL33 */
 	bl2_to_bl31_args->bl33_meminfo.total_base = DRAM_BASE;

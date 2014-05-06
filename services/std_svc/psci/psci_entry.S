@@ -29,12 +29,9 @@
  */
 
 #include <arch.h>
-#include <platform.h>
-#include <psci.h>
-#include <psci_private.h>
-#include <runtime_svc.h>
 #include <asm_macros.S>
 #include <cm_macros.S>
+#include <psci.h>
 
 	.globl	psci_aff_on_finish_entry
 	.globl	psci_aff_suspend_finish_entry

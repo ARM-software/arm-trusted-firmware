@@ -28,14 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include <uuid.h>
-#include <context_mgmt.h>
+#include <debug.h>
+#include <psci.h>
 #include <runtime_svc.h>
 #include <std_svc.h>
-#include <psci.h>
-#include <psci_private.h>
-#include <debug.h>
+#include <stdint.h>
+#include <uuid.h>
 
 /* Standard Service UUID */
 DEFINE_SVC_UUID(arm_svc_uid,

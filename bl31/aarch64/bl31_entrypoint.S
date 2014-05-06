@@ -28,11 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bl_common.h>
-#include <platform.h>
 #include <arch.h>
-#include "cm_macros.S"
 #include <asm_macros.S>
+#include <bl_common.h>
+#include <cm_macros.S>
 
 
 	.globl	bl31_entrypoint

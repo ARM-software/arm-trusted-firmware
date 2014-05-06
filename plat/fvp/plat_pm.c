@@ -28,20 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <bl_common.h>
-#include <bl31.h>
+#include <assert.h>
 #include <bakery_lock.h>
 #include <cci400.h>
-#include <gic.h>
-#include <fvp_pwrc.h>
-/* Only included for error codes */
+#include <mmio.h>
+#include <platform.h>
 #include <psci.h>
+#include "drivers/pwrc/fvp_pwrc.h"
 
 /*******************************************************************************
  * FVP handler called when an affinity instance is about to enter standby.
@@ -78,7 +72,7 @@ int fvp_affinst_on(unsigned long mpidr,
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned long linear_id;
-	mailbox *fvp_mboxes;
+	mailbox_t *fvp_mboxes;
 	unsigned int psysr;
 
 	/*
@@ -100,7 +94,7 @@ int fvp_affinst_on(unsigned long mpidr,
 	} while (psysr & PSYSR_AFF_L0);
 
 	linear_id = platform_get_core_pos(mpidr);
-	fvp_mboxes = (mailbox *) (TZDRAM_BASE + MBOX_OFF);
+	fvp_mboxes = (mailbox_t *) (TZDRAM_BASE + MBOX_OFF);
 	fvp_mboxes[linear_id].value = sec_entrypoint;
 	flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
 			   sizeof(unsigned long));
@@ -209,7 +203,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 	int rc = PSCI_E_SUCCESS;
 	unsigned int gicc_base, ectlr;
 	unsigned long cpu_setup, cci_setup, linear_id;
-	mailbox *fvp_mboxes;
+	mailbox_t *fvp_mboxes;
 
 	switch (afflvl) {
 	case MPIDR_AFFLVL1:
@@ -247,7 +241,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 
 			/* Program the jump address for the target cpu */
 			linear_id = platform_get_core_pos(mpidr);
-			fvp_mboxes = (mailbox *) (TZDRAM_BASE + MBOX_OFF);
+			fvp_mboxes = (mailbox_t *) (TZDRAM_BASE + MBOX_OFF);
 			fvp_mboxes[linear_id].value = sec_entrypoint;
 			flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
 					   sizeof(unsigned long));
@@ -288,7 +282,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned long linear_id, cpu_setup, cci_setup;
-	mailbox *fvp_mboxes;
+	mailbox_t *fvp_mboxes;
 	unsigned int gicd_base, gicc_base, reg_val, ectlr;
 
 	switch (afflvl) {
@@ -341,7 +335,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 		fvp_pwrc_clr_wen(mpidr);
 
 		/* Zero the jump address in the mailbox for this cpu */
-		fvp_mboxes = (mailbox *) (TZDRAM_BASE + MBOX_OFF);
+		fvp_mboxes = (mailbox_t *) (TZDRAM_BASE + MBOX_OFF);
 		linear_id = platform_get_core_pos(mpidr);
 		fvp_mboxes[linear_id].value = 0;
 		flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
@@ -394,7 +388,7 @@ int fvp_affinst_suspend_finish(unsigned long mpidr,
 /*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
-static plat_pm_ops fvp_plat_pm_ops = {
+static plat_pm_ops_t fvp_plat_pm_ops = {
 	fvp_affinst_standby,
 	fvp_affinst_on,
 	fvp_affinst_off,
@@ -406,7 +400,7 @@ static plat_pm_ops fvp_plat_pm_ops = {
 /*******************************************************************************
  * Export the platform specific power ops & initialize the fvp power controller
  ******************************************************************************/
-int platform_setup_pm(plat_pm_ops **plat_ops)
+int platform_setup_pm(plat_pm_ops_t **plat_ops)
 {
 	*plat_ops = &fvp_plat_pm_ops;
 	return 0;

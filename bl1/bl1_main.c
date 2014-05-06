@@ -28,15 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <platform.h>
-#include <semihosting.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <bl1.h>
-
-void bl1_arch_next_el_setup(void);
+#include <platform.h>
+#include <stdio.h>
+#include "bl1_private.h"
 
 /*******************************************************************************
  * Function to perform late architectural and platform specific initialization.
@@ -52,8 +51,8 @@ void bl1_main(void)
 #endif
 	unsigned long bl2_base;
 	unsigned int load_type = TOP_LOAD, spsr;
-	meminfo *bl1_tzram_layout;
-	meminfo *bl2_tzram_layout = 0x0;
+	meminfo_t *bl1_tzram_layout;
+	meminfo_t *bl2_tzram_layout = 0x0;
 
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
@@ -88,7 +87,7 @@ void bl1_main(void)
 	 * to BL2. BL2 will read the memory layout before using its
 	 * memory for other purposes.
 	 */
-	bl2_tzram_layout = (meminfo *) bl1_tzram_layout->free_base;
+	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;
 	init_bl2_mem_layout(bl1_tzram_layout,
 			    bl2_tzram_layout,
 			    load_type,

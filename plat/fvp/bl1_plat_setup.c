@@ -28,12 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
 #include <arch_helpers.h>
-#include <platform.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <bl1.h>
 #include <console.h>
 #include <cci400.h>
+#include <mmio.h>
+#include <platform.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -60,9 +62,9 @@ extern unsigned long __BL1_RAM_END__;
 
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
-static meminfo bl1_tzram_layout;
+static meminfo_t bl1_tzram_layout;
 
-meminfo *bl1_plat_sec_mem_layout(void)
+meminfo_t *bl1_plat_sec_mem_layout(void)
 {
 	return &bl1_tzram_layout;
 }

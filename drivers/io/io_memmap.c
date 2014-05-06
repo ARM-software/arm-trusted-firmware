@@ -29,10 +29,10 @@
  */
 
 #include <assert.h>
+#include <debug.h>
+#include <io_driver.h>
+#include <io_storage.h>
 #include <string.h>
-#include "io_storage.h"
-#include "io_driver.h"
-#include "debug.h"
 
 /* As we need to be able to keep state for seek, only one file can be open
  * at a time. Make this a structure and point to the entity->info. When we
@@ -45,28 +45,28 @@ typedef struct {
 	int	in_use;
 	size_t	base;
 	size_t  file_pos;
-} file_state;
+} file_state_t;
 
-static file_state current_file = {0};
+static file_state_t current_file = {0};
 
 /* Identify the device type as memmap */
-io_type device_type_memmap(void)
+io_type_t device_type_memmap(void)
 {
 	return IO_TYPE_MEMMAP;
 }
 
 /* Memmap device functions */
-static int memmap_dev_open(void *spec, struct io_dev_info **dev_info);
-static int memmap_block_open(struct io_dev_info *dev_info, const void *spec,
-			     struct io_entity *entity);
-static int memmap_block_seek(struct io_entity *entity, int mode,
+static int memmap_dev_open(void *spec, io_dev_info_t **dev_info);
+static int memmap_block_open(io_dev_info_t *dev_info, const void *spec,
+			     io_entity_t *entity);
+static int memmap_block_seek(io_entity_t *entity, int mode,
 			     ssize_t offset);
-static int memmap_block_read(struct io_entity *entity, void *buffer,
+static int memmap_block_read(io_entity_t *entity, void *buffer,
 			     size_t length, size_t *length_read);
-static int memmap_block_write(struct io_entity *entity, const void *buffer,
+static int memmap_block_write(io_entity_t *entity, const void *buffer,
 			      size_t length, size_t *length_written);
-static int memmap_block_close(struct io_entity *entity);
-static int memmap_dev_close(struct io_dev_info *dev_info);
+static int memmap_block_close(io_entity_t *entity);
+static int memmap_dev_close(io_dev_info_t *dev_info);
 
 
 static struct io_dev_connector memmap_dev_connector = {
@@ -95,7 +95,7 @@ static struct io_dev_info memmap_dev_info = {
 
 /* Open a connection to the memmap device */
 static int memmap_dev_open(void *spec __attribute__((unused)),
-			   struct io_dev_info **dev_info)
+			   io_dev_info_t **dev_info)
 {
 	assert(dev_info != NULL);
 	*dev_info = &memmap_dev_info;
@@ -106,7 +106,7 @@ static int memmap_dev_open(void *spec __attribute__((unused)),
 
 
 /* Close a connection to the memmap device */
-static int memmap_dev_close(struct io_dev_info *dev_info)
+static int memmap_dev_close(io_dev_info_t *dev_info)
 {
 	/* NOP */
 	/* TODO: Consider tracking open files and cleaning them up here */
@@ -116,11 +116,11 @@ static int memmap_dev_close(struct io_dev_info *dev_info)
 
 /* Open a file on the memmap device */
 /* TODO: Can we do any sensible limit checks on requested memory */
-static int memmap_block_open(struct io_dev_info *dev_info, const void *spec,
-			     struct io_entity *entity)
+static int memmap_block_open(io_dev_info_t *dev_info, const void *spec,
+			     io_entity_t *entity)
 {
 	int result = IO_FAIL;
-	const io_block_spec *block_spec = (io_block_spec *)spec;
+	const io_block_spec_t *block_spec = (io_block_spec_t *)spec;
 
 	/* Since we need to track open state for seek() we only allow one open
 	 * spec at a time. When we have dynamic memory we can malloc and set
@@ -146,7 +146,7 @@ static int memmap_block_open(struct io_dev_info *dev_info, const void *spec,
 
 
 /* Seek to a particular file offset on the memmap device */
-static int memmap_block_seek(struct io_entity *entity, int mode, ssize_t offset)
+static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 {
 	int result = IO_FAIL;
 
@@ -155,7 +155,7 @@ static int memmap_block_seek(struct io_entity *entity, int mode, ssize_t offset)
 		assert(entity != NULL);
 
 		/* TODO: can we do some basic limit checks on seek? */
-		((file_state *)entity->info)->file_pos = offset;
+		((file_state_t *)entity->info)->file_pos = offset;
 		result = IO_SUCCESS;
 	} else {
 		result = IO_FAIL;
@@ -166,16 +166,16 @@ static int memmap_block_seek(struct io_entity *entity, int mode, ssize_t offset)
 
 
 /* Read data from a file on the memmap device */
-static int memmap_block_read(struct io_entity *entity, void *buffer,
+static int memmap_block_read(io_entity_t *entity, void *buffer,
 			     size_t length, size_t *length_read)
 {
-	file_state *fp;
+	file_state_t *fp;
 
 	assert(entity != NULL);
 	assert(buffer != NULL);
 	assert(length_read != NULL);
 
-	fp = (file_state *)entity->info;
+	fp = (file_state_t *)entity->info;
 
 	memcpy(buffer, (void *)(fp->base + fp->file_pos), length);
 
@@ -188,16 +188,16 @@ static int memmap_block_read(struct io_entity *entity, void *buffer,
 
 
 /* Write data to a file on the memmap device */
-static int memmap_block_write(struct io_entity *entity, const void *buffer,
+static int memmap_block_write(io_entity_t *entity, const void *buffer,
 			      size_t length, size_t *length_written)
 {
-	file_state *fp;
+	file_state_t *fp;
 
 	assert(entity != NULL);
 	assert(buffer != NULL);
 	assert(length_written != NULL);
 
-	fp = (file_state *)entity->info;
+	fp = (file_state_t *)entity->info;
 
 	memcpy((void *)(fp->base + fp->file_pos), buffer, length);
 
@@ -211,7 +211,7 @@ static int memmap_block_write(struct io_entity *entity, const void *buffer,
 
 
 /* Close a file on the memmap device */
-static int memmap_block_close(struct io_entity *entity)
+static int memmap_block_close(io_entity_t *entity)
 {
 	assert(entity != NULL);
 
@@ -227,7 +227,7 @@ static int memmap_block_close(struct io_entity *entity)
 /* Exported functions */
 
 /* Register the memmap driver with the IO abstraction */
-int register_io_dev_memmap(struct io_dev_connector **dev_con)
+int register_io_dev_memmap(io_dev_connector_t **dev_con)
 {
 	int result = IO_FAIL;
 	assert(dev_con != NULL);

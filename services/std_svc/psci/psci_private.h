@@ -33,79 +33,79 @@
 
 #include <arch.h>
 #include <bakery_lock.h>
+#include <psci.h>
 
-#ifndef __ASSEMBLY__
 /*******************************************************************************
  * The following two data structures hold the generic information to bringup
  * a suspended/hotplugged out cpu
  ******************************************************************************/
-typedef struct {
+typedef struct eret_params {
 	unsigned long entrypoint;
 	unsigned long spsr;
-} eret_params;
+} eret_params_t;
 
-typedef struct {
-	eret_params eret_info;
+typedef struct ns_entry_info {
+	eret_params_t eret_info;
 	unsigned long context_id;
 	unsigned int scr;
 	unsigned int sctlr;
-} ns_entry_info;
+} ns_entry_info_t;
 
 /*******************************************************************************
  * The following two data structures hold the topology tree which in turn tracks
  * the state of the all the affinity instances supported by the platform.
  ******************************************************************************/
-typedef struct {
+typedef struct aff_map_node {
 	unsigned long mpidr;
 	unsigned short ref_count;
 	unsigned char state;
 	unsigned char level;
 	unsigned int data;
-	bakery_lock lock;
-} aff_map_node;
+	bakery_lock_t lock;
+} aff_map_node_t;
 
-typedef struct {
+typedef struct aff_limits_node {
 	int min;
 	int max;
-} aff_limits_node;
+} aff_limits_node_t;
 
 /*******************************************************************************
  * This data structure holds secure world context that needs to be preserved
  * across cpu_suspend calls which enter the power down state.
  ******************************************************************************/
-typedef struct {
+typedef struct suspend_context {
 	unsigned int power_state;
-} __aligned(CACHE_WRITEBACK_GRANULE) suspend_context;
+} __aligned(CACHE_WRITEBACK_GRANULE) suspend_context_t;
 
-typedef aff_map_node (*mpidr_aff_map_nodes[MPIDR_MAX_AFFLVL]);
-typedef unsigned int (*afflvl_power_on_finisher)(unsigned long,
-						 aff_map_node *);
+typedef aff_map_node_t (*mpidr_aff_map_nodes_t[MPIDR_MAX_AFFLVL]);
+typedef unsigned int (*afflvl_power_on_finisher_t)(unsigned long,
+						 aff_map_node_t *);
 
 /*******************************************************************************
  * Data prototypes
  ******************************************************************************/
-extern suspend_context psci_suspend_context[PSCI_NUM_AFFS];
-extern ns_entry_info psci_ns_entry_info[PSCI_NUM_AFFS];
+extern suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
+extern ns_entry_info_t psci_ns_entry_info[PSCI_NUM_AFFS];
 extern unsigned int psci_ns_einfo_idx;
-extern aff_limits_node psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
-extern plat_pm_ops *psci_plat_pm_ops;
-extern aff_map_node psci_aff_map[PSCI_NUM_AFFS];
-extern afflvl_power_on_finisher psci_afflvl_off_finish_handlers[];
-extern afflvl_power_on_finisher psci_afflvl_sus_finish_handlers[];
+extern aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
+extern plat_pm_ops_t *psci_plat_pm_ops;
+extern aff_map_node_t psci_aff_map[PSCI_NUM_AFFS];
+extern afflvl_power_on_finisher_t psci_afflvl_off_finish_handlers[];
+extern afflvl_power_on_finisher_t psci_afflvl_sus_finish_handlers[];
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
  ******************************************************************************/
-extern const spd_pm_ops *psci_spd_pm;
+extern const spd_pm_ops_t *psci_spd_pm;
 
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
 /* Private exported functions from psci_common.c */
 extern int get_max_afflvl(void);
-extern unsigned short psci_get_state(aff_map_node *node);
-extern unsigned short psci_get_phys_state(aff_map_node *node);
-extern void psci_set_state(aff_map_node *node, unsigned short state);
+extern unsigned short psci_get_state(aff_map_node_t *node);
+extern unsigned short psci_get_phys_state(aff_map_node_t *node);
+extern void psci_set_state(aff_map_node_t *node, unsigned short state);
 extern void psci_get_ns_entry_info(unsigned int index);
 extern unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
 extern int psci_validate_mpidr(unsigned long, int);
@@ -113,7 +113,7 @@ extern int get_power_on_target_afflvl(unsigned long mpidr);
 extern void psci_afflvl_power_on_finish(unsigned long,
 						int,
 						int,
-						afflvl_power_on_finisher *);
+						afflvl_power_on_finisher_t *);
 extern int psci_set_ns_entry_info(unsigned int index,
 				  unsigned long entrypoint,
 				  unsigned long context_id);
@@ -121,18 +121,18 @@ extern int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
 extern void psci_acquire_afflvl_locks(unsigned long mpidr,
 				      int start_afflvl,
 				      int end_afflvl,
-				      mpidr_aff_map_nodes mpidr_nodes);
+				      mpidr_aff_map_nodes_t mpidr_nodes);
 extern void psci_release_afflvl_locks(unsigned long mpidr,
 				      int start_afflvl,
 				      int end_afflvl,
-				      mpidr_aff_map_nodes mpidr_nodes);
+				      mpidr_aff_map_nodes_t mpidr_nodes);
 
 /* Private exported functions from psci_setup.c */
 extern int psci_get_aff_map_nodes(unsigned long mpidr,
 				  int start_afflvl,
 				  int end_afflvl,
-				  mpidr_aff_map_nodes mpidr_nodes);
-extern aff_map_node *psci_get_aff_map_node(unsigned long, int);
+				  mpidr_aff_map_nodes_t mpidr_nodes);
+extern aff_map_node_t *psci_get_aff_map_node(unsigned long, int);
 
 /* Private exported functions from psci_affinity_on.c */
 extern int psci_afflvl_on(unsigned long,
@@ -145,9 +145,9 @@ extern int psci_afflvl_on(unsigned long,
 extern int psci_afflvl_off(unsigned long, int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
-extern void psci_set_suspend_power_state(aff_map_node *node,
+extern void psci_set_suspend_power_state(aff_map_node_t *node,
 					unsigned int power_state);
-extern int psci_get_aff_map_node_suspend_afflvl(aff_map_node *node);
+extern int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node);
 extern int psci_afflvl_suspend(unsigned long,
 			       unsigned long,
 			       unsigned long,
@@ -156,19 +156,5 @@ extern int psci_afflvl_suspend(unsigned long,
 			       int);
 extern unsigned int psci_afflvl_suspend_finish(unsigned long, int, int);
 
-/* Private exported functions from psci_main.c */
-extern uint64_t psci_smc_handler(uint32_t smc_fid,
-				 uint64_t x1,
-				 uint64_t x2,
-				 uint64_t x3,
-				 uint64_t x4,
-				 void *cookie,
-				 void *handle,
-				 uint64_t flags);
-
-/* PSCI setup function */
-extern int32_t psci_setup(void);
-
-#endif /*__ASSEMBLY__*/
 
 #endif /* __PSCI_PRIVATE_H__ */

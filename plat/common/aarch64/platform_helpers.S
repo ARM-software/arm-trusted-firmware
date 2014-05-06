@@ -29,8 +29,8 @@
  */
 
 #include <arch.h>
-#include <platform.h>
 #include <asm_macros.S>
+#include <platform.h>
 
 
 	.weak	platform_get_core_pos

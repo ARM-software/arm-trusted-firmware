@@ -28,25 +28,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-vpath			%.c	plat/${PLAT}		\
-				plat/${PLAT}/${ARCH}	\
-				common			\
-				lib			\
-				arch/${ARCH}		\
-				lib/arch/${ARCH}	\
-				${PLAT_BL1_C_VPATH}
+BL1_SOURCES		+=	bl1/bl1_main.c				\
+				bl1/aarch64/bl1_arch_setup.c		\
+				bl1/aarch64/bl1_entrypoint.S		\
+				bl1/aarch64/bl1_exceptions.S		\
+				lib/aarch64/cpu_helpers.S
 
-vpath			%.S	arch/${ARCH}/cpu	\
-				plat/common/${ARCH}	\
-				plat/${PLAT}/${ARCH}	\
-				include			\
-				lib/arch/${ARCH}	\
-				${PLAT_BL1_S_VPATH}
-
-BL1_SOURCES		+=	bl1_arch_setup.c	\
-				bl1_entrypoint.S	\
-				bl1_exceptions.S	\
-				bl1_main.c		\
-				cpu_helpers.S
-
-BL1_LINKERFILE		:=	bl1.ld.S
+BL1_LINKERFILE		:=	bl1/bl1.ld.S

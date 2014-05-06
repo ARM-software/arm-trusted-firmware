@@ -29,10 +29,10 @@
  */
 
 #include <arch.h>
-#include <platform.h>
-#include <fvp_pwrc.h>
-#include <gic.h>
 #include <asm_macros.S>
+#include <gic_v2.h>
+#include <platform.h>
+#include "../drivers/pwrc/fvp_pwrc.h"
 
 	.globl	platform_get_entrypoint
 	.globl	platform_cold_boot_init

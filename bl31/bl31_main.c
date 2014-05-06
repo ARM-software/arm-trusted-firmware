@@ -28,17 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <semihosting.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <bl31.h>
-#include <runtime_svc.h>
 #include <context_mgmt.h>
+#include <runtime_svc.h>
+#include <stdio.h>
 
 
 /*******************************************************************************
@@ -47,7 +44,7 @@
  * for SP execution. In cases where both SPD and SP are absent, or when SPD
  * finds it impossible to execute SP, this pointer is left as NULL
  ******************************************************************************/
-static int32_t (*bl32_init)(meminfo *);
+static int32_t (*bl32_init)(meminfo_t *);
 
 /*******************************************************************************
  * Variable to indicate whether next image to execute after BL31 is BL33
@@ -153,7 +150,7 @@ uint32_t bl31_get_next_image_type(void)
  ******************************************************************************/
 void bl31_prepare_next_image_entry()
 {
-	el_change_info *next_image_info;
+	el_change_info_t *next_image_info;
 	uint32_t scr, image_type;
 
 	/* Determine which image to execute next */
@@ -190,7 +187,7 @@ void bl31_prepare_next_image_entry()
  * This function initializes the pointer to BL32 init function. This is expected
  * to be called by the SPD after it finishes all its initialization
  ******************************************************************************/
-void bl31_register_bl32_init(int32_t (*func)(meminfo *))
+void bl31_register_bl32_init(int32_t (*func)(meminfo_t *))
 {
 	bl32_init = func;
 }

@@ -29,11 +29,9 @@
  */
 
 #include <arch.h>
-#include <bl_common.h>
-#include <bl1.h>
-#include <platform.h>
-#include <runtime_svc.h>
 #include <asm_macros.S>
+#include <bl_common.h>
+#include <runtime_svc.h>
 
 	.globl	bl1_exceptions
 

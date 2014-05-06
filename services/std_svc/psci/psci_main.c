@@ -28,16 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <psci_private.h>
+#include <assert.h>
 #include <runtime_svc.h>
 #include <debug.h>
-#include <context_mgmt.h>
+#include "psci_private.h"
 
 /*******************************************************************************
  * PSCI frontend api for servicing SMCs. Described in the PSCI spec.
@@ -144,7 +140,7 @@ int psci_affinity_info(unsigned long target_affinity,
 {
 	int rc = PSCI_E_INVALID_PARAMS;
 	unsigned int aff_state;
-	aff_map_node *node;
+	aff_map_node_t *node;
 
 	if (lowest_affinity_level > get_max_afflvl())
 		return rc;

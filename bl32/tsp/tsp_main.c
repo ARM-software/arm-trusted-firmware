@@ -28,13 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bl32.h>
-#include <tsp.h>
 #include <arch_helpers.h>
-#include <stdio.h>
-#include <platform.h>
+#include <bl_common.h>
+#include <bl32.h>
 #include <debug.h>
+#include <platform.h>
 #include <spinlock.h>
+#include <stdio.h>
+#include <tsp.h>
 
 /*******************************************************************************
  * Lock to control access to the console
@@ -45,19 +46,19 @@ spinlock_t console_lock;
  * Per cpu data structure to populate parameters for an SMC in C code and use
  * a pointer to this structure in assembler code to populate x0-x7
  ******************************************************************************/
-static tsp_args tsp_smc_args[PLATFORM_CORE_COUNT];
+static tsp_args_t tsp_smc_args[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Per cpu data structure to keep track of TSP activity
  ******************************************************************************/
-static work_statistics tsp_stats[PLATFORM_CORE_COUNT];
+static work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Single reference to the various entry points exported by the test secure
  * payload.  A single copy should suffice for all cpus as they are not expected
  * to change.
  ******************************************************************************/
-static const entry_info tsp_entry_info = {
+static const entry_info_t tsp_entry_info = {
 	tsp_fast_smc_entry,
 	tsp_cpu_on_entry,
 	tsp_cpu_off_entry,
@@ -65,7 +66,7 @@ static const entry_info tsp_entry_info = {
 	tsp_cpu_suspend_entry,
 };
 
-static tsp_args *set_smc_args(uint64_t arg0,
+static tsp_args_t *set_smc_args(uint64_t arg0,
 			     uint64_t arg1,
 			     uint64_t arg2,
 			     uint64_t arg3,
@@ -76,7 +77,7 @@ static tsp_args *set_smc_args(uint64_t arg0,
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id;
-	tsp_args *pcpu_smc_args;
+	tsp_args_t *pcpu_smc_args;
 
 	/*
 	 * Return to Secure Monitor by raising an SMC. The results of the
@@ -107,7 +108,7 @@ uint64_t tsp_main(void)
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
 #if DEBUG
-	meminfo *mem_layout = bl32_plat_sec_mem_layout();
+	meminfo_t *mem_layout = bl32_plat_sec_mem_layout();
 #endif
 
 	/* Initialize the platform */
@@ -145,7 +146,7 @@ uint64_t tsp_main(void)
  * after this cpu's architectural state has been setup in response to an earlier
  * psci cpu_on request.
  ******************************************************************************/
-tsp_args *tsp_cpu_on_main(void)
+tsp_args_t *tsp_cpu_on_main(void)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
@@ -171,7 +172,7 @@ tsp_args *tsp_cpu_on_main(void)
  * This function performs any remaining book keeping in the test secure payload
  * before this cpu is turned off in response to a psci cpu_off request.
  ******************************************************************************/
-tsp_args *tsp_cpu_off_main(uint64_t arg0,
+tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 			   uint64_t arg1,
 			   uint64_t arg2,
 			   uint64_t arg3,
@@ -206,7 +207,7 @@ tsp_args *tsp_cpu_off_main(uint64_t arg0,
  * this cpu's architectural state is saved in response to an earlier psci
  * cpu_suspend request.
  ******************************************************************************/
-tsp_args *tsp_cpu_suspend_main(uint64_t power_state,
+tsp_args_t *tsp_cpu_suspend_main(uint64_t power_state,
 			       uint64_t arg1,
 			       uint64_t arg2,
 			       uint64_t arg3,
@@ -241,7 +242,7 @@ tsp_args *tsp_cpu_suspend_main(uint64_t power_state,
  * cpu's architectural state has been restored after wakeup from an earlier psci
  * cpu_suspend request.
  ******************************************************************************/
-tsp_args *tsp_cpu_resume_main(uint64_t suspend_level,
+tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 			      uint64_t arg1,
 			      uint64_t arg2,
 			      uint64_t arg3,
@@ -277,7 +278,7 @@ tsp_args *tsp_cpu_resume_main(uint64_t suspend_level,
  * in the function arguments in order. Once the service is rendered, this
  * function returns to Secure Monitor by raising SMC
  ******************************************************************************/
-tsp_args *tsp_fast_smc_handler(uint64_t func,
+tsp_args_t *tsp_fast_smc_handler(uint64_t func,
 			       uint64_t arg1,
 			       uint64_t arg2,
 			       uint64_t arg3,

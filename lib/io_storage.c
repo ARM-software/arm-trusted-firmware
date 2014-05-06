@@ -28,11 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-#include <stddef.h>
 #include <assert.h>
-#include "io_storage.h"
-#include "io_driver.h"
+#include <io_driver.h>
+#include <io_storage.h>
+#include <stddef.h>
 
 
 #define MAX_DEVICES(plat_data)						\
@@ -40,24 +39,24 @@
 
 
 /* Storage for a fixed maximum number of IO entities, definable by platform */
-static struct io_entity entity_pool[MAX_IO_HANDLES];
+static io_entity_t entity_pool[MAX_IO_HANDLES];
 
 /* Simple way of tracking used storage - each entry is NULL or a pointer to an
  * entity */
-static struct io_entity *entity_map[MAX_IO_HANDLES];
+static io_entity_t *entity_map[MAX_IO_HANDLES];
 
 /* Track number of allocated entities */
 static unsigned int entity_count;
 
 
 /* Used to keep a reference to platform-specific data */
-static struct io_plat_data *platform_data;
+static io_plat_data_t *platform_data;
 
 
 #if DEBUG	/* Extra validation functions only used in debug builds */
 
 /* Return a boolean value indicating whether a device connector is valid */
-static int is_valid_dev_connector(const struct io_dev_connector *dev_con)
+static int is_valid_dev_connector(const io_dev_connector_t *dev_con)
 {
 	int result = (dev_con != NULL) && (dev_con->dev_open != NULL);
 	return result;
@@ -67,7 +66,7 @@ static int is_valid_dev_connector(const struct io_dev_connector *dev_con)
 /* Return a boolean value indicating whether a device handle is valid */
 static int is_valid_dev(io_dev_handle handle)
 {
-	const struct io_dev_info *dev = handle;
+	const io_dev_info_t *dev = handle;
 	int result = (dev != NULL) && (dev->funcs != NULL) &&
 			(dev->funcs->type != NULL) &&
 			(dev->funcs->type() < IO_TYPE_MAX);
@@ -78,14 +77,14 @@ static int is_valid_dev(io_dev_handle handle)
 /* Return a boolean value indicating whether an IO entity is valid */
 static int is_valid_entity(io_handle handle)
 {
-	const struct io_entity *entity = handle;
+	const io_entity_t *entity = handle;
 	int result = (entity != NULL) && (is_valid_dev(entity->dev_handle));
 	return result;
 }
 
 
 /* Return a boolean value indicating whether a seek mode is valid */
-static int is_valid_seek_mode(io_seek_mode mode)
+static int is_valid_seek_mode(io_seek_mode_t mode)
 {
 	return ((mode != IO_SEEK_INVALID) && (mode < IO_SEEK_MAX));
 }
@@ -94,8 +93,8 @@ static int is_valid_seek_mode(io_seek_mode mode)
 
 
 /* Open a connection to a specific device */
-static int dev_open(const struct io_dev_connector *dev_con, void *dev_spec,
-		struct io_dev_info **dev_info)
+static int dev_open(const io_dev_connector_t *dev_con, void *dev_spec,
+		io_dev_info_t **dev_info)
 {
 	int result = IO_FAIL;
 	assert(dev_info != NULL);
@@ -107,7 +106,7 @@ static int dev_open(const struct io_dev_connector *dev_con, void *dev_spec,
 
 
 /* Set a handle to track an entity */
-static void set_handle(io_handle *handle, struct io_entity *entity)
+static void set_handle(io_handle *handle, io_entity_t *entity)
 {
 	assert(handle != NULL);
 	*handle = entity;
@@ -217,7 +216,7 @@ int io_dev_init(struct io_dev_info *dev_handle, const void *init_params)
 	assert(dev_handle != NULL);
 	assert(is_valid_dev(dev_handle));
 
-	struct io_dev_info *dev = dev_handle;
+	io_dev_info_t *dev = dev_handle;
 
 	if (dev->funcs->dev_init != NULL) {
 		result = dev->funcs->dev_init(dev, init_params);
@@ -238,7 +237,7 @@ int io_dev_close(io_dev_handle dev_handle)
 	assert(dev_handle != NULL);
 	assert(is_valid_dev(dev_handle));
 
-	struct io_dev_info *dev = dev_handle;
+	io_dev_info_t *dev = dev_handle;
 
 	if (dev->funcs->dev_close != NULL) {
 		result = dev->funcs->dev_close(dev);
@@ -261,8 +260,8 @@ int io_open(io_dev_handle dev_handle, const void *spec, io_handle *handle)
 	assert((spec != NULL) && (handle != NULL));
 	assert(is_valid_dev(dev_handle));
 
-	struct io_dev_info *dev = dev_handle;
-	struct io_entity *entity;
+	io_dev_info_t *dev = dev_handle;
+	io_entity_t *entity;
 
 	result = allocate_entity(&entity);
 
@@ -281,14 +280,14 @@ int io_open(io_dev_handle dev_handle, const void *spec, io_handle *handle)
 
 
 /* Seek to a specific position in an IO entity */
-int io_seek(io_handle handle, io_seek_mode mode, ssize_t offset)
+int io_seek(io_handle handle, io_seek_mode_t mode, ssize_t offset)
 {
 	int result = IO_FAIL;
 	assert(is_valid_entity(handle) && is_valid_seek_mode(mode));
 
-	struct io_entity *entity = handle;
+	io_entity_t *entity = handle;
 
-	struct io_dev_info *dev = entity->dev_handle;
+	io_dev_info_t *dev = entity->dev_handle;
 
 	if (dev->funcs->seek != NULL)
 		result = dev->funcs->seek(entity, mode, offset);
@@ -305,9 +304,9 @@ int io_size(io_handle handle, size_t *length)
 	int result = IO_FAIL;
 	assert(is_valid_entity(handle) && (length != NULL));
 
-	struct io_entity *entity = handle;
+	io_entity_t *entity = handle;
 
-	struct io_dev_info *dev = entity->dev_handle;
+	io_dev_info_t *dev = entity->dev_handle;
 
 	if (dev->funcs->size != NULL)
 		result = dev->funcs->size(entity, length);
@@ -324,9 +323,9 @@ int io_read(io_handle handle, void *buffer, size_t length, size_t *length_read)
 	int result = IO_FAIL;
 	assert(is_valid_entity(handle) && (buffer != NULL));
 
-	struct io_entity *entity = handle;
+	io_entity_t *entity = handle;
 
-	struct io_dev_info *dev = entity->dev_handle;
+	io_dev_info_t *dev = entity->dev_handle;
 
 	if (dev->funcs->read != NULL)
 		result = dev->funcs->read(entity, buffer, length, length_read);
@@ -344,9 +343,9 @@ int io_write(io_handle handle, const void *buffer, size_t length,
 	int result = IO_FAIL;
 	assert(is_valid_entity(handle) && (buffer != NULL));
 
-	struct io_entity *entity = handle;
+	io_entity_t *entity = handle;
 
-	struct io_dev_info *dev = entity->dev_handle;
+	io_dev_info_t *dev = entity->dev_handle;
 
 	if (dev->funcs->write != NULL) {
 		result = dev->funcs->write(entity, buffer, length,
@@ -364,9 +363,9 @@ int io_close(io_handle handle)
 	int result = IO_FAIL;
 	assert(is_valid_entity(handle));
 
-	struct io_entity *entity = handle;
+	io_entity_t *entity = handle;
 
-	struct io_dev_info *dev = entity->dev_handle;
+	io_dev_info_t *dev = entity->dev_handle;
 
 	if (dev->funcs->close != NULL)
 		result = dev->funcs->close(entity);

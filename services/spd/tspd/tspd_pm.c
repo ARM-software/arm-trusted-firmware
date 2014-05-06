@@ -28,19 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <context_mgmt.h>
-#include <runtime_svc.h>
-#include <bl31.h>
-#include <bl32.h>
-#include <psci.h>
-#include <tspd_private.h>
 #include <debug.h>
+#include <tsp.h>
+#include "tspd_private.h"
 
 /*******************************************************************************
  * The target cpu is being turned on. Allow the TSPD/TSP to perform any actions
@@ -59,7 +53,7 @@ static int32_t tspd_cpu_off_handler(uint64_t cookie)
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
-	tsp_context *tsp_ctx = &tspd_sp_context[linear_id];
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
 	assert(tsp_ctx->state == TSP_STATE_ON);
@@ -93,7 +87,7 @@ static void tspd_cpu_suspend_handler(uint64_t power_state)
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
-	tsp_context *tsp_ctx = &tspd_sp_context[linear_id];
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
 	assert(tsp_ctx->state == TSP_STATE_ON);
@@ -127,7 +121,7 @@ static void tspd_cpu_on_finish_handler(uint64_t cookie)
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
-	tsp_context *tsp_ctx = &tspd_sp_context[linear_id];
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
 	assert(tsp_ctx->state == TSP_STATE_OFF);
@@ -162,7 +156,7 @@ static void tspd_cpu_suspend_finish_handler(uint64_t suspend_level)
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
-	tsp_context *tsp_ctx = &tspd_sp_context[linear_id];
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
 	assert(tsp_entry_info);
 	assert(tsp_ctx->state == TSP_STATE_SUSPEND);
@@ -198,7 +192,7 @@ static int32_t tspd_cpu_migrate_info(uint64_t *resident_cpu)
  * Structure populated by the TSP Dispatcher to be given a chance to perform any
  * TSP bookkeeping before PSCI executes a power mgmt.  operation.
  ******************************************************************************/
-const spd_pm_ops tspd_pm = {
+const spd_pm_ops_t tspd_pm = {
 	tspd_cpu_on_handler,
 	tspd_cpu_off_handler,
 	tspd_cpu_suspend_handler,

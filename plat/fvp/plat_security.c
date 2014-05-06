@@ -29,9 +29,9 @@
  */
 
 #include <assert.h>
-#include "platform.h"
-#include "tzc400.h"
-#include "debug.h"
+#include <platform.h>
+#include <tzc400.h>
+#include <debug.h>
 
 /* Used to improve readability for configuring regions. */
 #define FILTER_SHIFT(filter)	(1 << filter)
@@ -44,7 +44,7 @@
  */
 void plat_security_setup(void)
 {
-	struct tzc_instance controller;
+	tzc_instance_t controller;
 
 	/*
 	 * The Base FVP has a TrustZone address space controller, the Foundation

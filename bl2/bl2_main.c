@@ -28,16 +28,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <semihosting.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <bl2.h>
-#include "debug.h"
+#include <debug.h>
+#include <platform.h>
+#include <stdio.h>
+#include "bl2_private.h"
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
@@ -47,8 +46,8 @@
  ******************************************************************************/
 void bl2_main(void)
 {
-	meminfo *bl2_tzram_layout;
-	bl31_args *bl2_to_bl31_args;
+	meminfo_t *bl2_tzram_layout;
+	bl31_args_t *bl2_to_bl31_args;
 	unsigned long bl31_base, bl32_base = 0, bl33_base, el_status;
 	unsigned int bl2_load, bl31_load, mode;
 

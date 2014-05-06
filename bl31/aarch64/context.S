@@ -28,8 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <context.h>
+#include <arch.h>
 #include <asm_macros.S>
+#include <context.h>
 
 /* -----------------------------------------------------
  * The following function strictly follows the AArch64

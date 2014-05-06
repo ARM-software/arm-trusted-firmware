@@ -28,17 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
+#include <arch.h>
 #include <arch_helpers.h>
-#include <console.h>
-#include <platform.h>
-#include <semihosting.h>
+#include <assert.h>
 #include <bl_common.h>
-#include "io_storage.h"
-#include "debug.h"
+#include <debug.h>
+#include <io_storage.h>
+#include <platform.h>
+#include <stdio.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
 {
@@ -74,7 +71,7 @@ void change_security_state(unsigned int target_security_state)
 	write_scr(scr);
 }
 
-void __dead2 drop_el(aapcs64_params *args,
+void __dead2 drop_el(aapcs64_params_t *args,
 		     unsigned long spsr,
 		     unsigned long entrypoint)
 {
@@ -90,7 +87,7 @@ void __dead2 drop_el(aapcs64_params *args,
 	     args->arg7);
 }
 
-void __dead2 raise_el(aapcs64_params *args)
+void __dead2 raise_el(aapcs64_params_t *args)
 {
 	smc(args->arg0,
 	    args->arg1,
@@ -107,7 +104,7 @@ void __dead2 raise_el(aapcs64_params *args)
  * Add support for dropping into EL0 etc. Consider adding support
  * for switching from S-EL1 to S-EL0/1 etc.
  */
-void __dead2 change_el(el_change_info *info)
+void __dead2 change_el(el_change_info_t *info)
 {
 	unsigned long current_el = read_current_el();
 
@@ -156,8 +153,8 @@ unsigned long make_spsr(unsigned long target_el,
  * TODO: Revisit if this and init_bl2_mem_layout can be replaced by a single
  * routine.
  ******************************************************************************/
-void init_bl31_mem_layout(const meminfo *bl2_mem_layout,
-			  meminfo *bl31_mem_layout,
+void init_bl31_mem_layout(const meminfo_t *bl2_mem_layout,
+			  meminfo_t *bl31_mem_layout,
 			  unsigned int load_type)
 {
 	if (load_type == BOT_LOAD) {
@@ -200,7 +197,7 @@ void init_bl31_mem_layout(const meminfo *bl2_mem_layout,
 	bl31_mem_layout->total_size = bl2_mem_layout->total_size;
 	bl31_mem_layout->attr = load_type;
 
-	flush_dcache_range((unsigned long) bl31_mem_layout, sizeof(meminfo));
+	flush_dcache_range((unsigned long) bl31_mem_layout, sizeof(meminfo_t));
 	return;
 }
 
@@ -210,8 +207,8 @@ void init_bl31_mem_layout(const meminfo *bl2_mem_layout,
  * this information, it populates bl2_mem_layout to tell BL2 how much memory
  * it has access to and how much is available for use.
  ******************************************************************************/
-void init_bl2_mem_layout(meminfo *bl1_mem_layout,
-			 meminfo *bl2_mem_layout,
+void init_bl2_mem_layout(meminfo_t *bl1_mem_layout,
+			 meminfo_t *bl2_mem_layout,
 			 unsigned int load_type,
 			 unsigned long bl2_base)
 {
@@ -232,13 +229,13 @@ void init_bl2_mem_layout(meminfo *bl1_mem_layout,
 	bl2_mem_layout->free_size = bl1_mem_layout->free_size;
 	bl2_mem_layout->attr = load_type;
 
-	flush_dcache_range((unsigned long) bl2_mem_layout, sizeof(meminfo));
+	flush_dcache_range((unsigned long) bl2_mem_layout, sizeof(meminfo_t));
 	return;
 }
 
 static void dump_load_info(unsigned long image_load_addr,
 			   unsigned long image_size,
-			   const meminfo *mem_layout)
+			   const meminfo_t *mem_layout)
 {
 #if DEBUG
 	printf("Trying to load image at address 0x%lx, size = 0x%lx\r\n",
@@ -301,7 +298,7 @@ unsigned long image_size(const char *image_name)
  * the bottom or top of the free memory. It updates the memory layout if the
  * load is successful.
  ******************************************************************************/
-unsigned long load_image(meminfo *mem_layout,
+unsigned long load_image(meminfo_t *mem_layout,
 			 const char *image_name,
 			 unsigned int load_type,
 			 unsigned long fixed_addr)
@@ -553,7 +550,7 @@ void __dead2 run_image(unsigned long entrypoint,
 		       void *first_arg,
 		       void *second_arg)
 {
-	el_change_info run_image_info;
+	el_change_info_t run_image_info;
 	unsigned long current_el = read_current_el();
 
 	/* Tell next EL what we want done */

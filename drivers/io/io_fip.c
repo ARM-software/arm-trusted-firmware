@@ -28,17 +28,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include <uuid.h>
-#include <errno.h>
-#include <string.h>
 #include <assert.h>
-#include "platform.h"
-#include "firmware_image_package.h"
-#include "io_storage.h"
-#include "io_driver.h"
-#include "io_fip.h"
-#include "debug.h"
+#include <debug.h>
+#include <errno.h>
+#include <firmware_image_package.h>
+#include <io_driver.h>
+#include <io_fip.h>
+#include <io_storage.h>
+#include <platform.h>
+#include <stdint.h>
+#include <string.h>
+#include <uuid.h>
 
 /* Useful for printing UUIDs when debugging.*/
 #define PRINT_UUID2(x)								\
@@ -51,7 +51,7 @@
 typedef struct {
 	const char	*name;
 	const uuid_t	 uuid;
-} plat_fip_name_uuid;
+} plat_fip_name_uuid_t;
 
 typedef struct {
 	/* Put file_pos above the struct to allow {0} on static init.
@@ -59,10 +59,10 @@ typedef struct {
 	 * http://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
 	 */
 	unsigned int file_pos;
-	fip_toc_entry entry;
-} file_state;
+	fip_toc_entry_t entry;
+} file_state_t;
 
-static plat_fip_name_uuid name_uuid[] = {
+static plat_fip_name_uuid_t name_uuid[] = {
 	{BL2_IMAGE_NAME, UUID_TRUSTED_BOOT_FIRMWARE_BL2},
 	{BL31_IMAGE_NAME, UUID_EL3_RUNTIME_FIRMWARE_BL31},
 	{BL32_IMAGE_NAME, UUID_SECURE_PAYLOAD_BL32},
@@ -70,21 +70,21 @@ static plat_fip_name_uuid name_uuid[] = {
 };
 
 static const uuid_t uuid_null = {0};
-static file_state current_file = {0};
+static file_state_t current_file = {0};
 static io_dev_handle backend_dev_handle;
 static void *backend_image_spec;
 
 
 /* Firmware Image Package driver functions */
-static int fip_dev_open(void *spec, struct io_dev_info **dev_info);
-static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
-			  struct io_entity *entity);
-static int fip_file_len(struct io_entity *entity, size_t *length);
-static int fip_file_read(struct io_entity *entity, void *buffer, size_t length,
+static int fip_dev_open(void *spec, io_dev_info_t **dev_info);
+static int fip_file_open(io_dev_info_t *dev_info, const void *spec,
+			  io_entity_t *entity);
+static int fip_file_len(io_entity_t *entity, size_t *length);
+static int fip_file_read(io_entity_t *entity, void *buffer, size_t length,
 			  size_t *length_read);
-static int fip_file_close(struct io_entity *entity);
-static int fip_dev_init(struct io_dev_info *dev_info, const void *init_params);
-static int fip_dev_close(struct io_dev_info *dev_info);
+static int fip_file_close(io_entity_t *entity);
+static int fip_dev_init(io_dev_info_t *dev_info, const void *init_params);
+static int fip_dev_close(io_dev_info_t *dev_info);
 
 
 static inline int copy_uuid(uuid_t *dst, const uuid_t *src)
@@ -102,7 +102,7 @@ static inline int compare_uuids(const uuid_t *uuid1, const uuid_t *uuid2)
 
 
 /* TODO: We could check version numbers or do a package checksum? */
-static inline int is_valid_header(fip_toc_header *header)
+static inline int is_valid_header(fip_toc_header_t *header)
 {
 	if ((header->name == TOC_HEADER_NAME) && (header->serial_number != 0)) {
 		return 1;
@@ -129,7 +129,7 @@ static int file_to_uuid(const char *filename, uuid_t *uuid)
 
 
 /* Identify the device type as a virtual driver */
-io_type device_type_fip(void)
+io_type_t device_type_fip(void)
 {
 	return IO_TYPE_FIRMWARE_IMAGE_PACKAGE;
 }
@@ -161,7 +161,7 @@ static struct io_dev_info fip_dev_info = {
 
 /* Open a connection to the FIP device */
 static int fip_dev_open(void *spec __attribute__((unused)),
-			 struct io_dev_info **dev_info)
+			 io_dev_info_t **dev_info)
 {
 	assert(dev_info != NULL);
 	*dev_info = &fip_dev_info;
@@ -171,12 +171,12 @@ static int fip_dev_open(void *spec __attribute__((unused)),
 
 
 /* Do some basic package checks. */
-static int fip_dev_init(struct io_dev_info *dev_info, const void *init_params)
+static int fip_dev_init(io_dev_info_t *dev_info, const void *init_params)
 {
 	int result = IO_FAIL;
 	char *image_name = (char *)init_params;
 	io_handle backend_handle;
-	fip_toc_header header;
+	fip_toc_header_t header;
 	size_t bytes_read;
 
 	/* Obtain a reference to the image by querying the platform layer */
@@ -215,7 +215,7 @@ static int fip_dev_init(struct io_dev_info *dev_info, const void *init_params)
 }
 
 /* Close a connection to the FIP device */
-static int fip_dev_close(struct io_dev_info *dev_info)
+static int fip_dev_close(io_dev_info_t *dev_info)
 {
 	/* TODO: Consider tracking open files and cleaning them up here */
 
@@ -228,13 +228,13 @@ static int fip_dev_close(struct io_dev_info *dev_info)
 
 
 /* Open a file for access from package. */
-static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
-			 struct io_entity *entity)
+static int fip_file_open(io_dev_info_t *dev_info, const void *spec,
+			 io_entity_t *entity)
 {
 	int result = IO_FAIL;
 	io_handle backend_handle;
 	uuid_t file_uuid;
-	const io_file_spec *file_spec = (io_file_spec *)spec;
+	const io_file_spec_t *file_spec = (io_file_spec_t *)spec;
 	size_t bytes_read;
 	int found_file = 0;
 
@@ -262,7 +262,7 @@ static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
 	}
 
 	/* Seek past the FIP header into the Table of Contents */
-	result = io_seek(backend_handle, IO_SEEK_SET, sizeof(fip_toc_header));
+	result = io_seek(backend_handle, IO_SEEK_SET, sizeof(fip_toc_header_t));
 	if (result != IO_SUCCESS) {
 		WARN("fip_file_open: failed to seek\n");
 		result = IO_FAIL;
@@ -310,23 +310,23 @@ static int fip_file_open(struct io_dev_info *dev_info, const void *spec,
 
 
 /* Return the size of a file in package */
-static int fip_file_len(struct io_entity *entity, size_t *length)
+static int fip_file_len(io_entity_t *entity, size_t *length)
 {
 	assert(entity != NULL);
 	assert(length != NULL);
 
-	*length =  ((file_state *)entity->info)->entry.size;
+	*length =  ((file_state_t *)entity->info)->entry.size;
 
 	return IO_SUCCESS;
 }
 
 
 /* Read data from a file in package */
-static int fip_file_read(struct io_entity *entity, void *buffer, size_t length,
+static int fip_file_read(io_entity_t *entity, void *buffer, size_t length,
 			  size_t *length_read)
 {
 	int result = IO_FAIL;
-	file_state *fp;
+	file_state_t *fp;
 	size_t file_offset;
 	size_t bytes_read;
 	io_handle backend_handle;
@@ -345,7 +345,7 @@ static int fip_file_read(struct io_entity *entity, void *buffer, size_t length,
 		goto fip_file_read_exit;
 	}
 
-	fp = (file_state *)entity->info;
+	fp = (file_state_t *)entity->info;
 
 	/* Seek to the position in the FIP where the payload lives */
 	file_offset = fp->entry.offset_address + fp->file_pos;
@@ -378,7 +378,7 @@ static int fip_file_read(struct io_entity *entity, void *buffer, size_t length,
 
 
 /* Close a file in package */
-static int fip_file_close(struct io_entity *entity)
+static int fip_file_close(io_entity_t *entity)
 {
 	/* Clear our current file pointer.
 	 * If we had malloc() we would free() here.
@@ -396,7 +396,7 @@ static int fip_file_close(struct io_entity *entity)
 /* Exported functions */
 
 /* Register the Firmware Image Package driver with the IO abstraction */
-int register_io_dev_fip(struct io_dev_connector **dev_con)
+int register_io_dev_fip(io_dev_connector_t **dev_con)
 {
 	int result = IO_FAIL;
 	assert(dev_con != NULL);
