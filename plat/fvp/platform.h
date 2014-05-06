@@ -349,7 +349,6 @@ typedef volatile struct mailbox {
  ******************************************************************************/
 struct plat_pm_ops;
 struct meminfo;
-struct io_dev_info;
 
 /*******************************************************************************
  * Function and variable prototypes
@@ -370,7 +369,7 @@ extern unsigned long warm_boot_entrypoint;
 extern void bl1_plat_arch_setup(void);
 extern void bl2_plat_arch_setup(void);
 extern void bl31_plat_arch_setup(void);
-extern int platform_setup_pm(struct plat_pm_ops **);
+extern int platform_setup_pm(const struct plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
 extern void disable_mmu(void);
 extern void enable_mmu(void);
@@ -401,7 +400,7 @@ extern unsigned int plat_get_aff_state(unsigned int, unsigned long);
 /* Declarations for plat_io_storage.c */
 extern void io_setup(void);
 extern int plat_get_image_source(const char *image_name,
-		struct io_dev_info **dev_handle, void **image_spec);
+		uintptr_t *dev_handle, uintptr_t *image_spec);
 
 /* Declarations for plat_security.c */
 extern void plat_security_setup(void);

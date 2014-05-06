@@ -50,7 +50,7 @@ static int32_t (*bl32_init)(meminfo_t *);
  * Variable to indicate whether next image to execute after BL31 is BL33
  * (non-secure & default) or BL32 (secure).
  ******************************************************************************/
-static uint32_t next_image_type = NON_SECURE;
+static uint32_t next_image_type;
 
 /*******************************************************************************
  * Simple function to initialise all BL31 helper libraries.
@@ -100,6 +100,7 @@ void bl31_main(void)
 	assert(cm_get_context(mpidr, NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
 	write_vbar_el3((uint64_t) runtime_exceptions);
+	next_image_type = NON_SECURE;
 
 	/*
 	 * All the cold boot actions on the primary cpu are done. We now need to

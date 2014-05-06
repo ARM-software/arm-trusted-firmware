@@ -388,7 +388,7 @@ int fvp_affinst_suspend_finish(unsigned long mpidr,
 /*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
-static plat_pm_ops_t fvp_plat_pm_ops = {
+static const plat_pm_ops_t fvp_plat_pm_ops = {
 	fvp_affinst_standby,
 	fvp_affinst_on,
 	fvp_affinst_off,
@@ -400,7 +400,7 @@ static plat_pm_ops_t fvp_plat_pm_ops = {
 /*******************************************************************************
  * Export the platform specific power ops & initialize the fvp power controller
  ******************************************************************************/
-int platform_setup_pm(plat_pm_ops_t **plat_ops)
+int platform_setup_pm(const plat_pm_ops_t **plat_ops)
 {
 	*plat_ops = &fvp_plat_pm_ops;
 	return 0;

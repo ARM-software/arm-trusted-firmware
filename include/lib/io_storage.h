@@ -31,6 +31,7 @@
 #ifndef __IO_H__
 #define __IO_H__
 
+#include <stdint.h>
 #include <stdio.h> /* For ssize_t */
 
 
@@ -58,13 +59,6 @@ typedef enum {
 /* Connector type, providing a means of identifying a device to open */
 struct io_dev_connector;
 
-/* Device handle, providing a client with access to a specific device */
-typedef struct io_dev_info *io_dev_handle;
-
-/* IO handle, providing a client with access to a specific source of data from
- * a device */
-typedef struct io_entity *io_handle;
-
 
 /* File specification - used to refer to data on a device supporting file-like
  * entities */
@@ -77,7 +71,7 @@ typedef struct io_file_spec {
 /* Block specification - used to refer to data on a device supporting
  * block-like entities */
 typedef struct io_block_spec {
-	unsigned long offset;
+	size_t offset;
 	size_t length;
 } io_block_spec_t;
 
@@ -96,33 +90,35 @@ typedef struct io_block_spec {
 
 
 /* Open a connection to a device */
-int io_dev_open(struct io_dev_connector *dev_con, void *dev_spec,
-		io_dev_handle *dev_handle);
+int io_dev_open(const struct io_dev_connector *dev_con,
+		const uintptr_t dev_spec,
+		uintptr_t *dev_handle);
 
 
 /* Initialise a device explicitly - to permit lazy initialisation or
  * re-initialisation */
-int io_dev_init(io_dev_handle dev_handle, const void *init_params);
+int io_dev_init(uintptr_t dev_handle, const uintptr_t init_params);
 
 /* TODO: Consider whether an explicit "shutdown" API should be included */
 
 /* Close a connection to a device */
-int io_dev_close(io_dev_handle dev_handle);
+int io_dev_close(uintptr_t dev_handle);
 
 
 /* Synchronous operations */
-int io_open(io_dev_handle dev_handle, const void *spec, io_handle *handle);
+int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle);
 
-int io_seek(io_handle handle, io_seek_mode_t mode, ssize_t offset);
+int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset);
 
-int io_size(io_handle handle, size_t *length);
+int io_size(uintptr_t handle, size_t *length);
 
-int io_read(io_handle handle, void *buffer, size_t length, size_t *length_read);
+int io_read(uintptr_t handle, uintptr_t buffer, size_t length,
+		size_t *length_read);
 
-int io_write(io_handle handle, const void *buffer, size_t length,
+int io_write(uintptr_t handle, const uintptr_t buffer, size_t length,
 		size_t *length_written);
 
-int io_close(io_handle handle);
+int io_close(uintptr_t handle);
 
 
 #endif /* __IO_H__ */

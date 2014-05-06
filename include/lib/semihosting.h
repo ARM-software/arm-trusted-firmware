@@ -31,6 +31,7 @@
 #ifndef __SEMIHOSTING_H__
 #define __SEMIHOSTING_H__
 
+#include <stdint.h>
 #include <stdio.h> /* For ssize_t */
 
 
@@ -63,17 +64,17 @@
 long semihosting_connection_supported(void);
 long semihosting_file_open(const char *file_name, size_t mode);
 long semihosting_file_seek(long file_handle, ssize_t offset);
-long semihosting_file_read(long file_handle, size_t *length, void *buffer);
+long semihosting_file_read(long file_handle, size_t *length, uintptr_t buffer);
 long semihosting_file_write(long file_handle,
 			    size_t *length,
-			    const void *buffer);
+			    const uintptr_t buffer);
 long semihosting_file_close(long file_handle);
 long semihosting_file_length(long file_handle);
 long semihosting_system(char *command_line);
 long semihosting_get_flen(const char *file_name);
 long semihosting_download_file(const char *file_name,
 			       size_t buf_size,
-			       void *buf);
+			       uintptr_t buf);
 void semihosting_write_char(char character);
 void semihosting_write_string(char *string);
 char semihosting_read_char(void);
