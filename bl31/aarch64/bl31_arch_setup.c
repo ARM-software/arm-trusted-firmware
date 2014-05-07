@@ -51,11 +51,9 @@ void bl31_arch_setup(void)
 	write_sctlr_el3(tmp_reg);
 
 	/*
-	 * Enable HVCs, route FIQs to EL3, set the next EL to be AArch64, route
-	 * external abort and SError interrupts to EL3
+	 * Enable HVCs, route FIQs to EL3 and set the next EL to be AArch64
 	 */
-	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT | SCR_HCE_BIT | SCR_EA_BIT |
-		  SCR_FIQ_BIT;
+	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT | SCR_HCE_BIT | SCR_FIQ_BIT;
 	write_scr(tmp_reg);
 
 	/*

@@ -152,9 +152,7 @@ BL1 performs minimal architectural initialization as follows.
     -   `SCR`. Use of the HVC instruction from EL1 is enabled by setting the
         `SCR.HCE` bit. FIQ exceptions are configured to be taken in EL3 by
         setting the `SCR.FIQ` bit. The register width of the next lower
-        exception level is set to AArch64 by setting the `SCR.RW` bit. External
-        Aborts and SError Interrupts are configured to be taken in EL3 by
-        setting the `SCR.EA` bit.
+        exception level is set to AArch64 by setting the `SCR.RW` bit.
 
     -   `CPTR_EL3`. Accesses to the `CPACR_EL1` register from EL1 or EL2, or the
         `CPTR_EL2` register from EL2 are configured to not trap to EL3 by
