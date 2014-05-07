@@ -43,6 +43,16 @@
 
 func bl1_entrypoint
 	/* ---------------------------------------------
+	 * Set the CPU endianness before doing anything
+	 * that might involve memory reads or writes
+	 * ---------------------------------------------
+	 */
+	mrs	x0, sctlr_el3
+	bic	x0, x0, #SCTLR_EE_BIT
+	msr	sctlr_el3, x0
+	isb
+
+	/* ---------------------------------------------
 	 * Perform any processor specific actions upon
 	 * reset e.g. cache, tlb invalidations etc.
 	 * ---------------------------------------------
