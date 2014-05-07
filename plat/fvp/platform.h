@@ -243,7 +243,10 @@
 /*******************************************************************************
  * BL32 specific defines.
  ******************************************************************************/
+#define TSP_SEC_MEM_BASE		TZDRAM_BASE
+#define TSP_SEC_MEM_SIZE		TZDRAM_SIZE
 #define BL32_BASE			(TZDRAM_BASE + 0x2000)
+#define BL32_LIMIT			(TZDRAM_BASE + (1 << 21))
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants

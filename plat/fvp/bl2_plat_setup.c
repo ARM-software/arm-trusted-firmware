@@ -158,9 +158,9 @@ void bl2_platform_setup()
 	bl2_to_bl31_args->bl32_meminfo.free_base = BL32_BASE;
 
 	bl2_to_bl31_args->bl32_meminfo.total_size =
-		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+		(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
 	bl2_to_bl31_args->bl32_meminfo.free_size =
-		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+		(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
 
 	bl2_to_bl31_args->bl32_meminfo.attr = BOT_LOAD;
 	bl2_to_bl31_args->bl32_meminfo.next = 0;

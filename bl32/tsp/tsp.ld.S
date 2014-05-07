@@ -36,7 +36,7 @@ ENTRY(tsp_entrypoint)
 
 
 MEMORY {
-    RAM (rwx): ORIGIN = TZDRAM_BASE, LENGTH = TZDRAM_SIZE
+    RAM (rwx): ORIGIN = TSP_SEC_MEM_BASE, LENGTH = TSP_SEC_MEM_SIZE
 }
 
 
@@ -119,5 +119,5 @@ SECTIONS
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 
-    ASSERT(. <= TZDRAM_BASE + (1 << 21), "BL32 image does not fit in the first 2MB of Trusted DRAM.")
+    ASSERT(. <= BL32_LIMIT, "BL3-2 image does not fit.")
 }
