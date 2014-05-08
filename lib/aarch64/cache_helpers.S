@@ -122,94 +122,92 @@ inv_loop:
 	ret
 
 
-	/* ------------------------------------------
-	 * Data cache operations by set/way to the
-	 * level specified
-	 * ------------------------------------------
-	 * ----------------------------------
-	 * Call this func with the clidr in
-	 * x0, starting cache level in x10,
-	 * last cache level in x3 & cm op in
-	 * x14
-	 * ----------------------------------
+	/* ---------------------------------------------------------------
+	 * Data cache operations by set/way to the level specified
+	 *
+	 * The main function, do_dcsw_op requires:
+	 * x0: The operation type (0-2), as defined in arch.h
+	 * x3: The last cache level to operate on
+	 * x9: clidr_el1
+	 * and will carry out the operation on each data cache from level 0
+	 * to the level in x3 in sequence
+	 *
+	 * The dcsw_op macro sets up the x3 and x9 parameters based on
+	 * clidr_el1 cache information before invoking the main function
+	 * ---------------------------------------------------------------
 	 */
-func dcsw_op
-all_start_at_level:
-	add	x2, x10, x10, lsr #1            // work out 3x current cache level
-	lsr	x1, x0, x2                      // extract cache type bits from clidr
-	and	x1, x1, #7                      // mask of the bits for current cache only
-	cmp	x1, #2                          // see what cache we have at this level
-	b.lt	skip                            // skip if no cache, or just i-cache
-	msr	csselr_el1, x10                 // select current cache level in csselr
-	isb                                     // isb to sych the new cssr&csidr
-	mrs	x1, ccsidr_el1                  // read the new ccsidr
-	and	x2, x1, #7                      // extract the length of the cache lines
-	add	x2, x2, #4                      // add 4 (line length offset)
-	mov	x4, #0x3ff
-	and	x4, x4, x1, lsr #3              // find maximum number on the way size
-	clz	w5, w4                          // find bit position of way size increment
-	mov	x7, #0x7fff
-	and	x7, x7, x1, lsr #13             // extract max number of the index size
-loop2:
-	mov	x9, x4                          // create working copy of max way size
-loop3:
-	lsl	x6, x9, x5
-	orr	x11, x10, x6                    // factor way and cache number into x11
-	lsl	x6, x7, x2
-	orr	x11, x11, x6                    // factor index number into x11
-	mov	x12, x0
-	mov	x13, x30 // lr
-	mov	x0, x11
-	blr	x14
-	mov	x0, x12
-	mov	x30, x13 // lr
-	subs	x9, x9, #1                      // decrement the way
-	b.ge    loop3
-	subs	x7, x7, #1                      // decrement the index
-	b.ge    loop2
-skip:
-	add	x10, x10, #2                    // increment cache number
-	cmp	x3, x10
-	b.gt    all_start_at_level
-finished:
-	mov	x10, #0                         // swith back to cache level 0
-	msr	csselr_el1, x10                 // select current cache level in csselr
-	dsb	sy
-	isb
-	ret
 
+	.macro	dcsw_op shift, fw, ls
+	mrs	x9, clidr_el1
+	ubfx	x3, x9, \shift, \fw
+	lsl	x3, x3, \ls
+	b	do_dcsw_op
+	.endm
 
 func do_dcsw_op
 	cbz	x3, exit
-	cmp	x0, #DCISW
-	b.eq	dc_isw
-	cmp	x0, #DCCISW
-	b.eq	dc_cisw
-	cmp	x0, #DCCSW
-	b.eq	dc_csw
-dc_isw:
+	mov	x10, xzr
+	adr	x14, dcsw_loop_table	// compute inner loop address
+	add	x14, x14, x0, lsl #5	// inner loop is 8x32-bit instructions
 	mov	x0, x9
-	adr	x14, dcisw
-	b	dcsw_op
-dc_cisw:
-	mov	x0, x9
-	adr	x14, dccisw
-	b	dcsw_op
-dc_csw:
-	mov	x0, x9
-	adr	x14, dccsw
-	b	dcsw_op
+	mov	w8, #1
+loop1:
+	add	x2, x10, x10, lsr #1	// work out 3x current cache level
+	lsr	x1, x0, x2		// extract cache type bits from clidr
+	and	x1, x1, #7		// mask the bits for current cache only
+	cmp	x1, #2			// see what cache we have at this level
+	b.lt	level_done		// nothing to do if no cache or icache
+
+	msr	csselr_el1, x10		// select current cache level in csselr
+	isb				// isb to sych the new cssr&csidr
+	mrs	x1, ccsidr_el1		// read the new ccsidr
+	and	x2, x1, #7		// extract the length of the cache lines
+	add	x2, x2, #4		// add 4 (line length offset)
+	ubfx	x4, x1, #3, #10		// maximum way number
+	clz	w5, w4			// bit position of way size increment
+	lsl	w9, w4, w5		// w9 = aligned max way number
+	lsl	w16, w8, w5		// w16 = way number loop decrement
+	orr	w9, w10, w9		// w9 = combine way and cache number
+	ubfx	w6, w1, #13, #15	// w6 = max set number
+	lsl	w17, w8, w2		// w17 = set number loop decrement
+	dsb	sy			// barrier before we start this level
+	br	x14			// jump to DC operation specific loop
+
+	.macro	dcsw_loop _op
+loop2_\_op:
+	lsl	w7, w6, w2		// w7 = aligned max set number
+
+loop3_\_op:
+	orr	w11, w9, w7		// combine cache, way and set number
+	dc	\_op, x11
+	subs	w7, w7, w17		// decrement set number
+	b.ge	loop3_\_op
+
+	subs	x9, x9, x16		// decrement way number
+	b.ge	loop2_\_op
+
+	b	level_done
+	.endm
+
+level_done:
+	add	x10, x10, #2		// increment cache number
+	cmp	x3, x10
+	b.gt    loop1
+	msr	csselr_el1, xzr		// select cache level 0 in csselr
+	dsb	sy			// barrier to complete final cache operation
+	isb
 exit:
 	ret
 
+dcsw_loop_table:
+	dcsw_loop isw
+	dcsw_loop cisw
+	dcsw_loop csw
+
 
 func dcsw_op_louis
-	dsb	sy
-	setup_dcsw_op_args x10, x3, x9, #LOUIS_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
-	b	do_dcsw_op
+	dcsw_op #LOUIS_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
 
 
 func dcsw_op_all
-	dsb	sy
-	setup_dcsw_op_args x10, x3, x9, #LOC_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
-	b	do_dcsw_op
+	dcsw_op #LOC_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
