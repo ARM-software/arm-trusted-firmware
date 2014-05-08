@@ -55,10 +55,20 @@
 #define CTX_GPREG_X16		0x80
 #define CTX_GPREG_X17		0x88
 #define CTX_GPREG_X18		0x90
-#define CTX_GPREG_SP_EL0	0x98
-#define CTX_GPREG_LR		0xa0
-/* Unused space to allow registers to be stored as pairs */
-#define CTX_GPREGS_END		0xb0
+#define CTX_GPREG_X19		0x98
+#define CTX_GPREG_X20		0xa0
+#define CTX_GPREG_X21		0xa8
+#define CTX_GPREG_X22		0xb0
+#define CTX_GPREG_X23		0xb8
+#define CTX_GPREG_X24		0xc0
+#define CTX_GPREG_X25		0xc8
+#define CTX_GPREG_X26		0xd0
+#define CTX_GPREG_X27		0xd8
+#define CTX_GPREG_X28		0xe0
+#define CTX_GPREG_X29		0xe8
+#define CTX_GPREG_LR		0xf0
+#define CTX_GPREG_SP_EL0	0xf8
+#define CTX_GPREGS_END		0x100
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'el3_state'
@@ -188,10 +198,11 @@
 #define CTX_EL3STATE_ALL	(CTX_EL3STATE_END >> DWORD_SHIFT)
 
 /*
- * AArch64 general purpose register context structure. Only x0-x18, lr
- * are saved as the compiler is expected to preserve the remaining
+ * AArch64 general purpose register context structure. Usually x0-x18,
+ * lr are saved as the compiler is expected to preserve the remaining
  * callee saved registers if used by the C runtime and the assembler
- * does not touch the remaining.
+ * does not touch the remaining. But in case of world switch during
+ * exception handling, we need to save the callee registers too.
  */
 DEFINE_REG_STRUCT(gp_regs, CTX_GPREG_ALL);
 
