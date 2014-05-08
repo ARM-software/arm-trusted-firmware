@@ -76,6 +76,12 @@ psci_aff_common_finish_entry:
 	isb
 
 	/* ---------------------------------------------
+	 * Enable Debug and SError interrupts
+	 * ---------------------------------------------
+	 */
+	msr	daifclr, #(DAIF_ABT_BIT | DAIF_DBG_BIT)
+
+	/* ---------------------------------------------
 	 * Use SP_EL0 for the C runtime stack.
 	 * ---------------------------------------------
 	 */
