@@ -298,7 +298,6 @@
 #define PL011_UART1_BASE		0x1c0a0000
 #define PL011_UART2_BASE		0x1c0b0000
 #define PL011_UART3_BASE		0x1c0c0000
-#define PL011_BASE			PL011_UART0_BASE
 
 
 /*******************************************************************************
