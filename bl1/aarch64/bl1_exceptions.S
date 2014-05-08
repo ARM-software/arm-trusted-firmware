@@ -189,7 +189,7 @@ func process_exception
 	mov	x0, #SYNC_EXCEPTION_AARCH64
 	bl	plat_report_exception
 
-	bl	read_esr_el3
+	mrs	x0, esr_el3
 	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 	cmp	x1, #EC_AARCH64_SMC
 	b.ne	panic
@@ -201,10 +201,8 @@ func process_exception
 	mov	x2, x3
 	mov	x3, x4
 	bl	display_boot_progress
-	mov	x0, x20
-	bl	write_elr
-	mov	x0, x21
-	bl	write_spsr
+	msr	elr_el3, x20
+	msr	spsr_el3, x21
 	ubfx	x0, x21, #MODE_EL_SHIFT, #2
 	cmp	x0, #MODE_EL3
 	b.ne	skip_mmu_teardown
@@ -216,7 +214,7 @@ func process_exception
 	 * ---------------------------------------------
 	 */
 	bl	disable_mmu_icache_el3
-	bl	tlbialle3
+	tlbi	alle3
 skip_mmu_teardown:
 	ldp     x6, x7, [sp, #0x30]
 	ldp     x4, x5, [sp, #0x20]

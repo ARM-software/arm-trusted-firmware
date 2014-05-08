@@ -97,10 +97,10 @@ _wait_for_entrypoint:
 	 * their turn to be woken up
 	 * ---------------------------------------------
 	 */
-	bl	read_mpidr
+	mrs	x0, mpidr_el1
 	bl	platform_get_entrypoint
 	cbnz	x0, _do_warm_boot
-	bl	read_mpidr
+	mrs	x0, mpidr_el1
 	bl	platform_is_primary_cpu
 	cbnz	x0, _do_cold_boot
 
