@@ -212,18 +212,10 @@ func process_exception
 	/* ---------------------------------------------
 	 * If BL31 is to be executed in EL3 as well
 	 * then turn off the MMU so that it can perform
-	 * its own setup. TODO: Assuming flat mapped
-	 * translations here. Also all should go into a
-	 * separate MMU teardown function
+	 * its own setup.
 	 * ---------------------------------------------
 	 */
-	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
-	bl	read_sctlr_el3
-	bic	x0, x0, x1
-	bl	write_sctlr_el3
-	isb
-	mov	x0, #DCCISW
-	bl	dcsw_op_all
+	bl	disable_mmu_icache_el3
 	bl	tlbialle3
 skip_mmu_teardown:
 	ldp     x6, x7, [sp, #0x30]

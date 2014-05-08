@@ -370,7 +370,6 @@ extern void bl2_plat_arch_setup(void);
 extern void bl31_plat_arch_setup(void);
 extern int platform_setup_pm(const struct plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
-extern void disable_mmu(void);
 extern void enable_mmu(void);
 extern void configure_mmu(struct meminfo *,
 			  unsigned long,
