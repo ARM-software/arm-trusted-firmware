@@ -307,18 +307,21 @@
 
 /*
  * The NSAIDs for this platform as used to program the TZC400.
- * TODO:
- * This list and the numbers in it is still changing on the Base FVP.
- * For now only specify the NSAIDs we actually use.
  */
 
 /* The FVP has 4 bits of NSAIDs. Used with TZC FAIL_ID (ACE Lite ID width) */
 #define FVP_AID_WIDTH			4
-#define FVP_NSAID_DEFAULT		0
-#define FVP_NSAID_AP			9  /* Application Processors */
 
-/* FIXME: Currently incorrectly used by Virtio */
-#define FVP_NSAID_RES5			15
+/* NSAIDs used by devices in TZC filter 0 on FVP */
+#define FVP_NSAID_DEFAULT		0
+#define FVP_NSAID_PCI			1
+#define FVP_NSAID_VIRTIO		8  /* from FVP v5.6 onwards */
+#define FVP_NSAID_AP			9  /* Application Processors */
+#define FVP_NSAID_VIRTIO_OLD		15 /* until FVP v5.5 */
+
+/* NSAIDs used by devices in TZC filter 2 on FVP */
+#define FVP_NSAID_HDLCD0		2
+#define FVP_NSAID_CLCD			7
 
 
 /*******************************************************************************
