@@ -29,9 +29,12 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <debug.h>
 #include <gic_v2.h>
 #include <gic_v3.h>
+#include <interrupt_mgmt.h>
 #include <platform.h>
 #include <stdint.h>
 
@@ -284,3 +287,38 @@ void gic_setup(void)
 	gic_cpuif_setup(gicc_base);
 	gic_distif_setup(gicd_base);
 }
+
+/*******************************************************************************
+ * An ARM processor signals interrupt exceptions through the IRQ and FIQ pins.
+ * The interrupt controller knows which pin/line it uses to signal a type of
+ * interrupt. The platform knows which interrupt controller type is being used
+ * in a particular security state e.g. with an ARM GIC, normal world could use
+ * the GICv2 features while the secure world could use GICv3 features and vice
+ * versa.
+ * This function is exported by the platform to let the interrupt management
+ * framework determine for a type of interrupt and security state, which line
+ * should be used in the SCR_EL3 to control its routing to EL3. The interrupt
+ * line is represented as the bit position of the IRQ or FIQ bit in the SCR_EL3.
+ ******************************************************************************/
+uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state)
+{
+	uint32_t gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+
+	assert(type == INTR_TYPE_S_EL1 ||
+	       type == INTR_TYPE_EL3 ||
+	       type == INTR_TYPE_NS);
+
+	assert(security_state == NON_SECURE || security_state == SECURE);
+
+	/*
+	 * We ignore the security state parameter under the assumption that
+	 * both normal and secure worlds are using ARM GICv2. This parameter
+	 * will be used when the secure world starts using GICv3.
+	 */
+#if FVP_GIC_ARCH == 2
+	return gicv2_interrupt_type_to_line(gicc_base, type);
+#else
+#error "Invalid GIC architecture version specified for FVP port"
+#endif
+}
+

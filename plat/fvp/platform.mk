@@ -71,3 +71,8 @@ ifeq (${RESET_TO_BL31}, 1)
 	BL31_SOURCES		+=	drivers/arm/tzc400/tzc400.c		\
 					plat/fvp/plat_security.c
 endif
+
+# Flag used by the FVP port to determine the version of ARM GIC architecture
+# to use for interrupt management in EL3.
+FVP_GIC_ARCH		:=	2
+$(eval $(call add_define,FVP_GIC_ARCH))
