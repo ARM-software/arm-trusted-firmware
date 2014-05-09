@@ -265,6 +265,28 @@
 	((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT)
 
 
+/* Physical timer control register bit fields shifts and masks */
+#define CNTP_CTL_ENABLE_SHIFT   0
+#define CNTP_CTL_IMASK_SHIFT    1
+#define CNTP_CTL_ISTATUS_SHIFT  2
+
+#define CNTP_CTL_ENABLE_MASK    1
+#define CNTP_CTL_IMASK_MASK     1
+#define CNTP_CTL_ISTATUS_MASK   1
+
+#define get_cntp_ctl_enable(x)  ((x >> CNTP_CTL_ENABLE_SHIFT) & \
+					CNTP_CTL_ENABLE_MASK)
+#define get_cntp_ctl_imask(x)   ((x >> CNTP_CTL_IMASK_SHIFT) & \
+					CNTP_CTL_IMASK_MASK)
+#define get_cntp_ctl_istatus(x) ((x >> CNTP_CTL_ISTATUS_SHIFT) & \
+					CNTP_CTL_ISTATUS_MASK)
+
+#define set_cntp_ctl_enable(x)  (x |= 1 << CNTP_CTL_ENABLE_SHIFT)
+#define set_cntp_ctl_imask(x)   (x |= 1 << CNTP_CTL_IMASK_SHIFT)
+
+#define clr_cntp_ctl_enable(x)  (x &= ~(1 << CNTP_CTL_ENABLE_SHIFT))
+#define clr_cntp_ctl_imask(x)   (x &= ~(1 << CNTP_CTL_IMASK_SHIFT))
+
 /* Miscellaneous MMU related constants */
 #define NUM_2MB_IN_GB		(1 << 9)
 #define NUM_4K_IN_2MB		(1 << 9)
