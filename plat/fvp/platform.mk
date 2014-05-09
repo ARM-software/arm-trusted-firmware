@@ -67,3 +67,9 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				plat/fvp/aarch64/plat_helpers.S			\
 				plat/fvp/aarch64/plat_common.c			\
 				plat/fvp/drivers/pwrc/fvp_pwrc.c
+
+# Flag used by the FVP port to determine the version of ARM GIC architecture
+# to use for interrupt management in EL3.
+FVP_GIC_ARCH		:=	2
+$(eval $(call add_define,FVP_GIC_ARCH))
+

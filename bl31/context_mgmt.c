@@ -35,6 +35,7 @@
 #include <bl31.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <interrupt_mgmt.h>
 #include <platform.h>
 #include <runtime_svc.h>
 
@@ -159,6 +160,11 @@ void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
 
 	ctx = cm_get_context(read_mpidr(), security_state);
 	assert(ctx);
+
+	/* Program the interrupt routing model for this security state */
+	scr &= ~SCR_FIQ_BIT;
+	scr &= ~SCR_IRQ_BIT;
+	scr |= get_scr_el3_from_routing_model(security_state);
 
 	/* Populate EL3 state so that we've the right context before doing ERET */
 	state = get_el3state_ctx(ctx);
