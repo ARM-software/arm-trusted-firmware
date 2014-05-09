@@ -107,3 +107,18 @@ int32_t tsp_fiq_handler()
 
 	return 0;
 }
+
+int32_t tsp_irq_received()
+{
+	uint64_t mpidr = read_mpidr();
+	uint32_t linear_id = platform_get_core_pos(mpidr);
+
+	tsp_stats[linear_id].irq_count++;
+	spin_lock(&console_lock);
+	printf("TSP: cpu 0x%x received irq\n\r", mpidr);
+	INFO("cpu 0x%x: %d irq requests \n",
+	     mpidr, tsp_stats[linear_id].irq_count);
+	spin_unlock(&console_lock);
+
+	return TSP_PREEMPTED;
+}
