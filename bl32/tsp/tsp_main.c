@@ -51,7 +51,7 @@ static tsp_args_t tsp_smc_args[PLATFORM_CORE_COUNT];
 /*******************************************************************************
  * Per cpu data structure to keep track of TSP activity
  ******************************************************************************/
-static work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
+work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Single reference to the various entry points exported by the test secure
@@ -64,6 +64,7 @@ static const entry_info_t tsp_entry_info = {
 	tsp_cpu_off_entry,
 	tsp_cpu_resume_entry,
 	tsp_cpu_suspend_entry,
+	tsp_fiq_entry,
 };
 
 static tsp_args_t *set_smc_args(uint64_t arg0,
