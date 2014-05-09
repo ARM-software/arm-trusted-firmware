@@ -39,7 +39,10 @@
 	.globl	tsp_cpu_suspend_entry
 	.globl	tsp_cpu_resume_entry
 	.globl	tsp_fast_smc_entry
+	.globl	tsp_std_smc_entry
 	.globl	tsp_fiq_entry
+
+
 
 	/* ---------------------------------------------
 	 * Populate the params in x0-x7 from the pointer
@@ -329,8 +332,22 @@ tsp_cpu_resume_panic:
 	 * ---------------------------------------------
 	 */
 func tsp_fast_smc_entry
-	bl	tsp_fast_smc_handler
+	bl	tsp_smc_handler
 	restore_args_call_smc
 tsp_fast_smc_entry_panic:
 	b	tsp_fast_smc_entry_panic
 
+	/*---------------------------------------------
+	 * This entrypoint is used by the TSPD to ask
+	 * the TSP to service a std smc request.
+	 * We will enable preemption during execution
+	 * of tsp_smc_handler.
+	 * ---------------------------------------------
+	 */
+func tsp_std_smc_entry
+	msr	daifclr, #DAIF_FIQ_BIT | DAIF_IRQ_BIT
+	bl	tsp_smc_handler
+	msr	daifset, #DAIF_FIQ_BIT | DAIF_IRQ_BIT
+	restore_args_call_smc
+tsp_std_smc_entry_panic:
+	b	tsp_std_smc_entry_panic

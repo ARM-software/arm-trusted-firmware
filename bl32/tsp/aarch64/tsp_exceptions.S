@@ -120,7 +120,14 @@ sync_exception_sp_elx:
 
 	.align	7
 irq_sp_elx:
-	b	irq_sp_elx
+	save_caller_regs_and_lr
+	/* We just update some statistics in the handler */
+	bl	tsp_irq_received
+	/* Hand over control to the normal world to handle the IRQ */
+	smc	#0
+	/* The resume std smc starts from here */
+	restore_caller_regs_and_lr
+	eret
 	check_vector_size irq_sp_elx
 
 	.align	7

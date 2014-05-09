@@ -59,6 +59,7 @@ work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
  * to change.
  ******************************************************************************/
 static const entry_info_t tsp_entry_info = {
+	tsp_std_smc_entry,
 	tsp_fast_smc_entry,
 	tsp_cpu_on_entry,
 	tsp_cpu_off_entry,
@@ -298,9 +299,9 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
  * TSP fast smc handler. The secure monitor jumps to this function by
  * doing the ERET after populating X0-X7 registers. The arguments are received
  * in the function arguments in order. Once the service is rendered, this
- * function returns to Secure Monitor by raising SMC
+ * function returns to Secure Monitor by raising SMC.
  ******************************************************************************/
-tsp_args_t *tsp_fast_smc_handler(uint64_t func,
+tsp_args_t *tsp_smc_handler(uint64_t func,
 			       uint64_t arg1,
 			       uint64_t arg2,
 			       uint64_t arg3,
@@ -313,18 +314,20 @@ tsp_args_t *tsp_fast_smc_handler(uint64_t func,
 	uint64_t service_args[2];
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
+	const char *smc_type;
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
 
-	printf("SP: cpu 0x%x received fast smc 0x%x\n", read_mpidr(), func);
+	smc_type = ((func >> 31) & 1) == 1 ? "fast" : "standard";
+
+	printf("SP: cpu 0x%x received %s smc 0x%x\n", read_mpidr(), smc_type, func);
 	INFO("cpu 0x%x: %d smcs, %d erets\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
 
 	/* Render secure services and obtain results here */
-
 	results[0] = arg1;
 	results[1] = arg2;
 
@@ -335,20 +338,20 @@ tsp_args_t *tsp_fast_smc_handler(uint64_t func,
 	tsp_get_magic(service_args);
 
 	/* Determine the function to perform based on the function ID */
-	switch (func) {
-	case TSP_FID_ADD:
+	switch (TSP_BARE_FID(func)) {
+	case TSP_ADD:
 		results[0] += service_args[0];
 		results[1] += service_args[1];
 		break;
-	case TSP_FID_SUB:
+	case TSP_SUB:
 		results[0] -= service_args[0];
 		results[1] -= service_args[1];
 		break;
-	case TSP_FID_MUL:
+	case TSP_MUL:
 		results[0] *= service_args[0];
 		results[1] *= service_args[1];
 		break;
-	case TSP_FID_DIV:
+	case TSP_DIV:
 		results[0] /= service_args[0] ? service_args[0] : 1;
 		results[1] /= service_args[1] ? service_args[1] : 1;
 		break;
@@ -356,9 +359,9 @@ tsp_args_t *tsp_fast_smc_handler(uint64_t func,
 		break;
 	}
 
-	return set_smc_args(func,
+	return set_smc_args(func, 0,
 			    results[0],
 			    results[1],
-			    0, 0, 0, 0, 0);
+			    0, 0, 0, 0);
 }
 

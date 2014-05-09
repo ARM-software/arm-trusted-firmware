@@ -270,7 +270,6 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 uint64_t flags)
 {
 	cpu_context_t *ns_cpu_context;
-	gp_regs_t *ns_gp_regs;
 	unsigned long mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr), ns;
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
@@ -279,6 +278,31 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	ns = is_caller_non_secure(flags);
 
 	switch (smc_fid) {
+
+	/*
+	 * This function ID is used by TSP to indicate that it was
+	 * preempted by a normal world IRQ.
+	 *
+	 */
+	case TSP_PREEMPTED:
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		assert(handle == cm_get_context(mpidr, SECURE));
+		cm_el1_sysregs_context_save(SECURE);
+		/* Get a reference to the non-secure context */
+		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+		assert(ns_cpu_context);
+
+		/*
+		 * Restore non-secure state. There is no need to save the
+		 * secure system register context since the TSP was supposed
+		 * to preserve it during S-EL1 interrupt handling.
+		 */
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+
+		SMC_RET1(ns_cpu_context, SMC_PREEMPTED);
 
 	/*
 	 * This function ID is used only by the TSP to indicate that it has
@@ -370,9 +394,6 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 */
 		tspd_synchronous_sp_exit(tsp_ctx, x1);
 
-		/* Should never reach here */
-		assert(0);
-
 	/*
 	 * These function IDs is used only by the SP to indicate it has
 	 * finished:
@@ -405,18 +426,20 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 */
 		tspd_synchronous_sp_exit(tsp_ctx, x1);
 
-		/* Should never reach here */
-		assert(0);
-
 		/*
 		 * Request from non-secure client to perform an
 		 * arithmetic operation or response from secure
 		 * payload to an earlier request.
 		 */
-	case TSP_FID_ADD:
-	case TSP_FID_SUB:
-	case TSP_FID_MUL:
-	case TSP_FID_DIV:
+	case TSP_FAST_FID(TSP_ADD):
+	case TSP_FAST_FID(TSP_SUB):
+	case TSP_FAST_FID(TSP_MUL):
+	case TSP_FAST_FID(TSP_DIV):
+
+	case TSP_STD_FID(TSP_ADD):
+	case TSP_STD_FID(TSP_SUB):
+	case TSP_STD_FID(TSP_MUL):
+	case TSP_STD_FID(TSP_DIV):
 		if (ns) {
 			/*
 			 * This is a fresh request from the non-secure client.
@@ -425,11 +448,15 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 * state and send the request to the secure payload.
 			 */
 			assert(handle == cm_get_context(mpidr, NON_SECURE));
+
+			/* Check if we are already preempted */
+			if (get_std_smc_active_flag(tsp_ctx->state))
+				SMC_RET1(handle, SMC_UNK);
+
 			cm_el1_sysregs_context_save(NON_SECURE);
 
 			/* Save x1 and x2 for use by TSP_GET_ARGS call below */
-			SMC_SET_GP(handle, CTX_GPREG_X1, x1);
-			SMC_SET_GP(handle, CTX_GPREG_X2, x2);
+			store_tsp_args(tsp_ctx, x1, x2);
 
 			/*
 			 * We are done stashing the non-secure context. Ask the
@@ -444,17 +471,27 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 * from this function.
 			 */
 			assert(&tsp_ctx->cpu_ctx == cm_get_context(mpidr, SECURE));
-			set_aapcs_args7(&tsp_ctx->cpu_ctx, smc_fid, x1, x2, 0, 0,
-					0, 0, 0);
-			cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->fast_smc_entry);
+
+			/* Set appropriate entry for SMC.
+			 * We expect the TSP to manage the PSTATE.I and PSTATE.F
+			 * flags as appropriate.
+			 */
+			if (GET_SMC_TYPE(smc_fid) == SMC_TYPE_FAST) {
+				cm_set_elr_el3(SECURE, (uint64_t)
+						tsp_entry_info->fast_smc_entry);
+			} else {
+				set_std_smc_active_flag(tsp_ctx->state);
+				cm_set_elr_el3(SECURE, (uint64_t)
+						tsp_entry_info->std_smc_entry);
+			}
+
 			cm_el1_sysregs_context_restore(SECURE);
 			cm_set_next_eret_context(SECURE);
-
-			return smc_fid;
+			SMC_RET3(&tsp_ctx->cpu_ctx, smc_fid, x1, x2);
 		} else {
 			/*
 			 * This is the result from the secure client of an
-			 * earlier request. The results are in x1-x2. Copy it
+			 * earlier request. The results are in x1-x3. Copy it
 			 * into the non-secure context, save the secure state
 			 * and return to the non-secure state.
 			 */
@@ -464,16 +501,51 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			/* Get a reference to the non-secure context */
 			ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
 			assert(ns_cpu_context);
-			ns_gp_regs = get_gpregs_ctx(ns_cpu_context);
 
 			/* Restore non-secure state */
 			cm_el1_sysregs_context_restore(NON_SECURE);
 			cm_set_next_eret_context(NON_SECURE);
-
-			SMC_RET2(ns_gp_regs, x1, x2);
+			if (GET_SMC_TYPE(smc_fid) == SMC_TYPE_STD)
+				clr_std_smc_active_flag(tsp_ctx->state);
+			SMC_RET3(ns_cpu_context, x1, x2, x3);
 		}
 
 		break;
+
+		/*
+		 * Request from non secure world to resume the preempted
+		 * Standard SMC call.
+		 */
+	case TSP_FID_RESUME:
+			/* RESUME should be invoked only by normal world */
+			if (!ns) {
+				assert(0);
+				break;
+			}
+
+			/*
+			 * This is a resume request from the non-secure client.
+			 * save the non-secure state and send the request to
+			 * the secure payload.
+			 */
+			assert(handle == cm_get_context(mpidr, NON_SECURE));
+
+			/* Check if we are already preempted before resume */
+			if (!get_std_smc_active_flag(tsp_ctx->state))
+				SMC_RET1(handle, SMC_UNK);
+
+			cm_el1_sysregs_context_save(NON_SECURE);
+
+			/*
+			 * We are done stashing the non-secure context. Ask the
+			 * secure payload to do the work now.
+			 */
+
+			/* We just need to return to the preempted point in
+			 * TSP and the execution will resume as normal.
+			 */
+			cm_el1_sysregs_context_restore(SECURE);
+			cm_set_next_eret_context(SECURE);
 
 		/*
 		 * This is a request from the secure payload for more arguments
@@ -488,10 +560,9 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		/* Get a reference to the non-secure context */
 		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
 		assert(ns_cpu_context);
-		ns_gp_regs = get_gpregs_ctx(ns_cpu_context);
 
-		SMC_RET2(handle, read_ctx_reg(ns_gp_regs, CTX_GPREG_X1),
-				read_ctx_reg(ns_gp_regs, CTX_GPREG_X2));
+		get_tsp_args(tsp_ctx, x1, x2);
+		SMC_RET2(handle, x1, x2);
 
 	case TOS_CALL_COUNT:
 		/*
@@ -515,13 +586,24 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	SMC_RET1(handle, SMC_UNK);
 }
 
-/* Define a SPD runtime service descriptor */
+/* Define a SPD runtime service descriptor for fast SMC calls */
 DECLARE_RT_SVC(
-	spd,
+	tspd_fast,
 
 	OEN_TOS_START,
 	OEN_TOS_END,
 	SMC_TYPE_FAST,
 	tspd_setup,
+	tspd_smc_handler
+);
+
+/* Define a SPD runtime service descriptor for standard SMC calls */
+DECLARE_RT_SVC(
+	tspd_std,
+
+	OEN_TOS_START,
+	OEN_TOS_END,
+	SMC_TYPE_STD,
+	NULL,
 	tspd_smc_handler
 );

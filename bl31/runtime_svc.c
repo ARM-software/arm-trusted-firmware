@@ -109,26 +109,35 @@ void runtime_svc_init()
 			goto error;
 		}
 
-		/* Call the initialisation routine for this runtime service */
-		rc = rt_svc_descs[index].init();
-		if (rc) {
-			ERROR("Error initializing runtime service %s\n",
-					rt_svc_descs[index].name);
-		} else {
-			/*
-			 * Fill the indices corresponding to the start and end
-			 * owning entity numbers with the index of the
-			 * descriptor which will handle the SMCs for this owning
-			 * entity range.
-			 */
-			start_idx = get_unique_oen(rt_svc_descs[index].start_oen,
-					rt_svc_descs[index].call_type);
-			end_idx = get_unique_oen(rt_svc_descs[index].end_oen,
-					rt_svc_descs[index].call_type);
-
-			for (; start_idx <= end_idx; start_idx++)
-				rt_svc_descs_indices[start_idx] = index;
+		/*
+		 * The runtime service may have seperate rt_svc_desc_t
+		 * for its fast smc and standard smc. Since the service itself
+		 * need to be initialized only once, only one of them will have
+		 * an initialisation routine defined. Call the initialisation
+		 * routine for this runtime service, if it is defined.
+		 */
+		if (rt_svc_descs[index].init) {
+			rc = rt_svc_descs[index].init();
+			if (rc) {
+				ERROR("Error initializing runtime service %s\n",
+						rt_svc_descs[index].name);
+				continue;
+			}
 		}
+
+		/*
+		 * Fill the indices corresponding to the start and end
+		 * owning entity numbers with the index of the
+		 * descriptor which will handle the SMCs for this owning
+		 * entity range.
+		 */
+		start_idx = get_unique_oen(rt_svc_descs[index].start_oen,
+				rt_svc_descs[index].call_type);
+		end_idx = get_unique_oen(rt_svc_descs[index].end_oen,
+				rt_svc_descs[index].call_type);
+
+		for (; start_idx <= end_idx; start_idx++)
+			rt_svc_descs_indices[start_idx] = index;
 	}
 
 	return;
