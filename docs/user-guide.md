@@ -162,6 +162,11 @@ performed.
     for implementing the platform GIC API. This API is used by the interrupt
     management framework. Default is 2 i.e. version 2.0
 
+*   `IMF_READ_INTERRUPT_ID`: Boolean flag used by the interrupt management
+    framework to enable passing of the interrupt id to its handler. The id is
+    read using a platform GIC API. `INTR_ID_UNAVAILABLE` is passed instead if
+    this option set to 0. Default is 0.
+
 ### Creating a Firmware Image Package
 
 FIPs are automatically created as part of the build instructions described in
