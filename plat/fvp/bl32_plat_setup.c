@@ -95,6 +95,8 @@ void bl32_early_platform_setup(meminfo_t *mem_layout,
 	bl32_tzdram_layout.attr = mem_layout->attr;
 	bl32_tzdram_layout.next = 0;
 
+	/* Initialize the platform config for future decision making */
+	platform_config_setup();
 }
 
 /*******************************************************************************
