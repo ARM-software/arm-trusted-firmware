@@ -65,10 +65,14 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	 */
 	memset(tsp_ctx, 0, sizeof(*tsp_ctx));
 
-	/* Set the right security state and register width for the SP */
+	/*
+	 * Set the right security state, register width and enable access to
+	 * the secure physical timer for the SP.
+	 */
 	scr = read_scr();
 	scr &= ~SCR_NS_BIT;
 	scr &= ~SCR_RW_BIT;
+	scr |= SCR_ST_BIT;
 	if (rw == TSP_AARCH64)
 		scr |= SCR_RW_BIT;
 

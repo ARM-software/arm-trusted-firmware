@@ -196,6 +196,13 @@ extern tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 				  uint64_t arg5,
 				  uint64_t arg6,
 				  uint64_t arg7);
+
+/* Generic Timer functions */
+extern void tsp_generic_timer_start(void);
+extern void tsp_generic_timer_handler(void);
+extern void tsp_generic_timer_stop(void);
+extern void tsp_generic_timer_save(void);
+extern void tsp_generic_timer_restore(void);
 #endif /* __ASSEMBLY__ */
 
 #endif /* __BL2_H__ */
