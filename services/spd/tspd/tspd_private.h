@@ -33,6 +33,7 @@
 
 #include <arch.h>
 #include <context.h>
+#include <interrupt_mgmt.h>
 #include <platform.h>
 #include <psci.h>
 
@@ -137,13 +138,19 @@ CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
 
 /*******************************************************************************
  * Structure which helps the SPD to maintain the per-cpu state of the SP.
- * 'state'    - collection of flags to track SP state e.g. on/off
- * 'mpidr'    - mpidr to associate a context with a cpu
- * 'c_rt_ctx' - stack address to restore C runtime context from after returning
- *              from a synchronous entry into the SP.
- * 'cpu_ctx'  - space to maintain SP architectural state
+ * 'saved_spsr_el3' - temporary copy to allow FIQ handling when the TSP has been
+ *                    preempted.
+ * 'saved_elr_el3'  - temporary copy to allow FIQ handling when the TSP has been
+ *                    preempted.
+ * 'state'          - collection of flags to track SP state e.g. on/off
+ * 'mpidr'          - mpidr to associate a context with a cpu
+ * 'c_rt_ctx'       - stack address to restore C runtime context from after
+ *                    returning from a synchronous entry into the SP.
+ * 'cpu_ctx'        - space to maintain SP architectural state
  ******************************************************************************/
 typedef struct tsp_context {
+	uint64_t saved_elr_el3;
+	uint32_t saved_spsr_el3;
 	uint32_t state;
 	uint64_t mpidr;
 	uint64_t c_rt_ctx;

@@ -42,9 +42,9 @@
  * programming an entry into the secure payload.
  ******************************************************************************/
 int32_t tspd_init_secure_context(uint64_t entrypoint,
-				uint32_t rw,
-				uint64_t mpidr,
-				tsp_context_t *tsp_ctx)
+				 uint32_t rw,
+				 uint64_t mpidr,
+				 tsp_context_t *tsp_ctx)
 {
 	uint32_t scr, sctlr;
 	el1_sys_regs_t *el1_state;
