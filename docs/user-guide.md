@@ -158,6 +158,10 @@ performed.
 *   `V`: Verbose build. If assigned anything other than 0, the build commands
     are printed. Default is 0
 
+*   `FVP_GIC_ARCH`: Choice of ARM GIC architecture version used by the FVP port
+    for implementing the platform GIC API. This API is used by the interrupt
+    management framework. Default is 2 i.e. version 2.0
+
 ### Creating a Firmware Image Package
 
 FIPs are automatically created as part of the build instructions described in
