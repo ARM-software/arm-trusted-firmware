@@ -298,6 +298,12 @@ static inline void gicc_write_dir(unsigned int base, unsigned int val)
 	mmio_write_32(base + GICC_DIR, val);
 }
 
+/*******************************************************************************
+ * Prototype of function to map an interrupt type to the interrupt line used to
+ * signal it.
+ ******************************************************************************/
+uint32_t gicv2_interrupt_type_to_line(uint32_t cpuif_base, uint32_t type);
+
 #endif /*__ASSEMBLY__*/
 
 #endif /* __GIC_V2_H__ */
