@@ -52,7 +52,6 @@ static unsigned long platform_config[CONFIG_LIMIT];
 void enable_mmu()
 {
 	unsigned long mair, tcr, ttbr, sctlr;
-	unsigned long current_el = read_current_el();
 
 	/* Set the attributes in the right indices of the MAIR */
 	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
@@ -68,7 +67,7 @@ void enable_mmu()
 	/* Set TTBR bits as well */
 	ttbr = (unsigned long) l1_xlation_table;
 
-	if (GET_EL(current_el) == MODE_EL3) {
+	if (IS_IN_EL3()) {
 		assert((read_sctlr_el3() & SCTLR_M_BIT) == 0);
 
 		write_mair_el3(mair);
