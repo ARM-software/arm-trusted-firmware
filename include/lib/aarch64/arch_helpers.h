@@ -264,5 +264,10 @@ extern void write_cpuectlr(unsigned long);
 extern void write_cptr_el2(unsigned long);
 extern void write_cptr_el3(unsigned long);
 
+#define IS_IN_EL(x) \
+	(GET_EL(read_current_el()) == MODE_EL##x)
+
+#define IS_IN_EL1() IS_IN_EL(1)
+#define IS_IN_EL3() IS_IN_EL(3)
 
 #endif /* __ARCH_HELPERS_H__ */
