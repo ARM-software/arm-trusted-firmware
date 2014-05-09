@@ -97,7 +97,7 @@ func tsp_entrypoint
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
 	 */
-	adr	x0, early_exceptions
+	adr	x0, tsp_exceptions
 	msr	vbar_el1, x0
 
 	/* ---------------------------------------------
@@ -196,7 +196,7 @@ func tsp_cpu_on_entry
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
 	 */
-	adr	x0, early_exceptions
+	adr	x0, tsp_exceptions
 	msr	vbar_el1, x0
 
 	/* ---------------------------------------------
