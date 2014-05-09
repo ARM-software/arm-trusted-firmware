@@ -631,8 +631,10 @@ this function. This information is accessible in the `bl33_meminfo` field in
 the `bl31_args` structure pointed to by `bl2_to_bl31_args`.
 
 Platform security components are configured if required. For the Base FVP the
-TZC-400 TrustZone controller is configured to grant secure and non-secure access
-to DRAM.
+TZC-400 TrustZone controller is configured to only grant non-secure access
+to DRAM. This avoids aliasing between secure and non-secure accesses in the
+TLB and cache - secure execution states can use the NS attributes in the
+MMU translation tables to access the DRAM.
 
 This function is also responsible for initializing the storage abstraction layer
 which is used to load further bootloader images.
