@@ -362,7 +362,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	/*
 	 * Arch. management: Turn on mmu & restore architectural state
 	 */
-	enable_mmu();
+	enable_mmu_el3();
 
 	/*
 	 * All the platform specific actions for turning this cpu
