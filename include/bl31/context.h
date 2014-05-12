@@ -127,6 +127,11 @@
 #define CTX_AFSR1_EL1		0xc8
 #define CTX_CONTEXTIDR_EL1	0xd0
 #define CTX_VBAR_EL1		0xd8
+/*
+ * If the timer registers aren't saved and restored, we don't have to reserve
+ * space for them in the context
+ */
+#if NS_TIMER_SWITCH
 #define CTX_CNTP_CTL_EL0	0xe0
 #define CTX_CNTP_CVAL_EL0	0xe8
 #define CTX_CNTV_CTL_EL0	0xf0
@@ -134,6 +139,10 @@
 #define CTX_CNTKCTL_EL1		0x100
 #define CTX_FP_FPEXC32_EL2	0x108
 #define CTX_SYSREGS_END		0x110
+#else
+#define CTX_FP_FPEXC32_EL2	0xe0
+#define CTX_SYSREGS_END		0xf0
+#endif
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'fp_regs'
