@@ -141,6 +141,11 @@ performed.
 *   `DEBUG`: Chooses between a debug and release build. It can take either 0
     (release) or 1 (debug) as values. 0 is the default
 
+*   `NS_TIMER_SWITCH`: Enable save and restore for non-secure timer register
+    contents upon world switch. It can take either 0 (don't save and restore) or
+    1 (do save and restore). 0 is the default. An SPD could set this to 1 if it
+    wants the timer registers to be saved and restored
+
 *   `PLAT`: Choose a platform to build ARM Trusted Firmware for. The chosen
     platform name must be the name of one of the directories under the `plat/`
     directory other than `common`
