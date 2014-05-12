@@ -45,6 +45,8 @@ PLAT			:= ${DEFAULT_PLAT}
 SPD			:= none
 # Base commit to perform code check on
 BASE_COMMIT		:= origin/master
+# NS timer register save and restore
+NS_TIMER_SWITCH		:= 0
 
 
 # Checkpatch ignores
@@ -171,6 +173,10 @@ else
 CFLAGS			+= 	-g
 ASFLAGS			+= 	-g -Wa,--gdwarf-2
 endif
+
+# Process NS_TIMER_SWITCH flag
+$(eval $(call assert_boolean,NS_TIMER_SWITCH))
+$(eval $(call add_define,NS_TIMER_SWITCH))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-mgeneral-regs-only -D__ASSEMBLY__		\
