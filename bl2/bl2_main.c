@@ -140,7 +140,7 @@ void bl2_main(void)
 	 * well.
 	 */
 	bl2_to_bl31_args->bl33_image_info.spsr =
-		make_spsr(mode, MODE_SP_ELX, MODE_RW_64);
+			SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
 	bl2_to_bl31_args->bl33_image_info.security_state = NON_SECURE;
 
 	if (bl32_base) {
@@ -165,7 +165,7 @@ void bl2_main(void)
 	 * BL31 as an argument.
 	 */
 	run_image(bl31_base,
-		  make_spsr(MODE_EL3, MODE_SP_ELX, MODE_RW_64),
+		  SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTION),
 		  SECURE,
 		  (void *) bl2_to_bl31_args,
 		  NULL);
