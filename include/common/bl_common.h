@@ -118,7 +118,6 @@ extern void change_security_state(unsigned int);
 extern void __dead2 drop_el(aapcs64_params_t *, unsigned long, unsigned long);
 extern void __dead2 raise_el(aapcs64_params_t *);
 extern void __dead2 change_el(el_change_info_t *);
-extern unsigned long make_spsr(unsigned long, unsigned long, unsigned long);
 extern void init_bl2_mem_layout(meminfo_t *,
 				meminfo_t *,
 				unsigned int,

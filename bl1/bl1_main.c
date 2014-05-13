@@ -95,7 +95,7 @@ void bl1_main(void)
 
 	if (bl2_base) {
 		bl1_arch_next_el_setup();
-		spsr = make_spsr(MODE_EL1, MODE_SP_ELX, MODE_RW_64);
+		spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 		printf("Booting trusted firmware boot loader stage 2\n\r");
 #if DEBUG
 		printf("BL2 address = 0x%llx \n\r", (unsigned long long) bl2_base);
