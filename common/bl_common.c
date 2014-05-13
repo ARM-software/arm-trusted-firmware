@@ -122,20 +122,6 @@ void __dead2 change_el(el_change_info_t *info)
 		raise_el(&info->args);
 }
 
-/* TODO: add a parameter for DAIF. not needed right now */
-unsigned long make_spsr(unsigned long target_el,
-			unsigned long target_sp,
-			unsigned long target_rw)
-{
-	unsigned long spsr;
-
-	/* Disable all exceptions & setup the EL */
-	spsr = (DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
-		<< PSR_DAIF_SHIFT;
-	spsr |= PSR_MODE(target_rw, target_el, target_sp);
-
-	return spsr;
-}
 
 /*******************************************************************************
  * The next two functions are the weak definitions. Platform specific
