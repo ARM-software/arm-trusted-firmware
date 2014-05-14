@@ -141,41 +141,41 @@
  * GIC Distributor function prototypes
  ******************************************************************************/
 
-extern unsigned int gicd_read_igroupr(unsigned int, unsigned int);
-extern unsigned int gicd_read_isenabler(unsigned int, unsigned int);
-extern unsigned int gicd_read_icenabler(unsigned int, unsigned int);
-extern unsigned int gicd_read_ispendr(unsigned int, unsigned int);
-extern unsigned int gicd_read_icpendr(unsigned int, unsigned int);
-extern unsigned int gicd_read_isactiver(unsigned int, unsigned int);
-extern unsigned int gicd_read_icactiver(unsigned int, unsigned int);
-extern unsigned int gicd_read_ipriorityr(unsigned int, unsigned int);
-extern unsigned int gicd_read_itargetsr(unsigned int, unsigned int);
-extern unsigned int gicd_read_icfgr(unsigned int, unsigned int);
-extern unsigned int gicd_read_cpendsgir(unsigned int, unsigned int);
-extern unsigned int gicd_read_spendsgir(unsigned int, unsigned int);
-extern void gicd_write_igroupr(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_isenabler(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_icenabler(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_ispendr(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_icpendr(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_isactiver(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_icactiver(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_ipriorityr(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_itargetsr(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_icfgr(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_cpendsgir(unsigned int, unsigned int, unsigned int);
-extern void gicd_write_spendsgir(unsigned int, unsigned int, unsigned int);
-extern unsigned int gicd_get_igroupr(unsigned int, unsigned int);
-extern void gicd_set_igroupr(unsigned int, unsigned int);
-extern void gicd_clr_igroupr(unsigned int, unsigned int);
-extern void gicd_set_isenabler(unsigned int, unsigned int);
-extern void gicd_set_icenabler(unsigned int, unsigned int);
-extern void gicd_set_ispendr(unsigned int, unsigned int);
-extern void gicd_set_icpendr(unsigned int, unsigned int);
-extern void gicd_set_isactiver(unsigned int, unsigned int);
-extern void gicd_set_icactiver(unsigned int, unsigned int);
-extern void gicd_set_ipriorityr(unsigned int, unsigned int, unsigned int);
-extern void gicd_set_itargetsr(unsigned int, unsigned int, unsigned int);
+unsigned int gicd_read_igroupr(unsigned int, unsigned int);
+unsigned int gicd_read_isenabler(unsigned int, unsigned int);
+unsigned int gicd_read_icenabler(unsigned int, unsigned int);
+unsigned int gicd_read_ispendr(unsigned int, unsigned int);
+unsigned int gicd_read_icpendr(unsigned int, unsigned int);
+unsigned int gicd_read_isactiver(unsigned int, unsigned int);
+unsigned int gicd_read_icactiver(unsigned int, unsigned int);
+unsigned int gicd_read_ipriorityr(unsigned int, unsigned int);
+unsigned int gicd_read_itargetsr(unsigned int, unsigned int);
+unsigned int gicd_read_icfgr(unsigned int, unsigned int);
+unsigned int gicd_read_cpendsgir(unsigned int, unsigned int);
+unsigned int gicd_read_spendsgir(unsigned int, unsigned int);
+void gicd_write_igroupr(unsigned int, unsigned int, unsigned int);
+void gicd_write_isenabler(unsigned int, unsigned int, unsigned int);
+void gicd_write_icenabler(unsigned int, unsigned int, unsigned int);
+void gicd_write_ispendr(unsigned int, unsigned int, unsigned int);
+void gicd_write_icpendr(unsigned int, unsigned int, unsigned int);
+void gicd_write_isactiver(unsigned int, unsigned int, unsigned int);
+void gicd_write_icactiver(unsigned int, unsigned int, unsigned int);
+void gicd_write_ipriorityr(unsigned int, unsigned int, unsigned int);
+void gicd_write_itargetsr(unsigned int, unsigned int, unsigned int);
+void gicd_write_icfgr(unsigned int, unsigned int, unsigned int);
+void gicd_write_cpendsgir(unsigned int, unsigned int, unsigned int);
+void gicd_write_spendsgir(unsigned int, unsigned int, unsigned int);
+unsigned int gicd_get_igroupr(unsigned int, unsigned int);
+void gicd_set_igroupr(unsigned int, unsigned int);
+void gicd_clr_igroupr(unsigned int, unsigned int);
+void gicd_set_isenabler(unsigned int, unsigned int);
+void gicd_set_icenabler(unsigned int, unsigned int);
+void gicd_set_ispendr(unsigned int, unsigned int);
+void gicd_set_icpendr(unsigned int, unsigned int);
+void gicd_set_isactiver(unsigned int, unsigned int);
+void gicd_set_icactiver(unsigned int, unsigned int);
+void gicd_set_ipriorityr(unsigned int, unsigned int, unsigned int);
+void gicd_set_itargetsr(unsigned int, unsigned int, unsigned int);
 
 
 /*******************************************************************************

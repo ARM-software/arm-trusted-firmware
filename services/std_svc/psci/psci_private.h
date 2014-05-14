@@ -102,59 +102,59 @@ extern const spd_pm_ops_t *psci_spd_pm;
  * Function prototypes
  ******************************************************************************/
 /* Private exported functions from psci_common.c */
-extern int get_max_afflvl(void);
-extern unsigned short psci_get_state(aff_map_node_t *node);
-extern unsigned short psci_get_phys_state(aff_map_node_t *node);
-extern void psci_set_state(aff_map_node_t *node, unsigned short state);
-extern void psci_get_ns_entry_info(unsigned int index);
-extern unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
-extern int psci_validate_mpidr(unsigned long, int);
-extern int get_power_on_target_afflvl(unsigned long mpidr);
-extern void psci_afflvl_power_on_finish(unsigned long,
-						int,
-						int,
-						afflvl_power_on_finisher_t *);
-extern int psci_set_ns_entry_info(unsigned int index,
-				  unsigned long entrypoint,
-				  unsigned long context_id);
-extern int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
-extern void psci_acquire_afflvl_locks(unsigned long mpidr,
-				      int start_afflvl,
-				      int end_afflvl,
-				      mpidr_aff_map_nodes_t mpidr_nodes);
-extern void psci_release_afflvl_locks(unsigned long mpidr,
-				      int start_afflvl,
-				      int end_afflvl,
-				      mpidr_aff_map_nodes_t mpidr_nodes);
+int get_max_afflvl(void);
+unsigned short psci_get_state(aff_map_node_t *node);
+unsigned short psci_get_phys_state(aff_map_node_t *node);
+void psci_set_state(aff_map_node_t *node, unsigned short state);
+void psci_get_ns_entry_info(unsigned int index);
+unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
+int psci_validate_mpidr(unsigned long, int);
+int get_power_on_target_afflvl(unsigned long mpidr);
+void psci_afflvl_power_on_finish(unsigned long,
+				int,
+				int,
+				afflvl_power_on_finisher_t *);
+int psci_set_ns_entry_info(unsigned int index,
+				unsigned long entrypoint,
+				unsigned long context_id);
+int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
+void psci_acquire_afflvl_locks(unsigned long mpidr,
+				int start_afflvl,
+				int end_afflvl,
+				mpidr_aff_map_nodes_t mpidr_nodes);
+void psci_release_afflvl_locks(unsigned long mpidr,
+				int start_afflvl,
+				int end_afflvl,
+				mpidr_aff_map_nodes_t mpidr_nodes);
 
 /* Private exported functions from psci_setup.c */
-extern int psci_get_aff_map_nodes(unsigned long mpidr,
-				  int start_afflvl,
-				  int end_afflvl,
-				  mpidr_aff_map_nodes_t mpidr_nodes);
-extern aff_map_node_t *psci_get_aff_map_node(unsigned long, int);
+int psci_get_aff_map_nodes(unsigned long mpidr,
+				int start_afflvl,
+				int end_afflvl,
+				mpidr_aff_map_nodes_t mpidr_nodes);
+aff_map_node_t *psci_get_aff_map_node(unsigned long, int);
 
 /* Private exported functions from psci_affinity_on.c */
-extern int psci_afflvl_on(unsigned long,
-			  unsigned long,
-			  unsigned long,
-			  int,
-			  int);
+int psci_afflvl_on(unsigned long,
+			unsigned long,
+			unsigned long,
+			int,
+			int);
 
 /* Private exported functions from psci_affinity_off.c */
-extern int psci_afflvl_off(unsigned long, int, int);
+int psci_afflvl_off(unsigned long, int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
-extern void psci_set_suspend_power_state(aff_map_node_t *node,
-					unsigned int power_state);
-extern int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node);
-extern int psci_afflvl_suspend(unsigned long,
-			       unsigned long,
-			       unsigned long,
-			       unsigned int,
-			       int,
-			       int);
-extern unsigned int psci_afflvl_suspend_finish(unsigned long, int, int);
+void psci_set_suspend_power_state(aff_map_node_t *node,
+				unsigned int power_state);
+int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node);
+int psci_afflvl_suspend(unsigned long,
+			unsigned long,
+			unsigned long,
+			unsigned int,
+			int,
+			int);
+unsigned int psci_afflvl_suspend_finish(unsigned long, int, int);
 
 
 #endif /* __PSCI_PRIVATE_H__ */

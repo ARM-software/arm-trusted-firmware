@@ -113,30 +113,30 @@ typedef struct bl31_args {
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-extern unsigned long page_align(unsigned long, unsigned);
-extern void change_security_state(unsigned int);
-extern void __dead2 drop_el(aapcs64_params_t *, unsigned long, unsigned long);
-extern void __dead2 raise_el(aapcs64_params_t *);
-extern void __dead2 change_el(el_change_info_t *);
-extern unsigned long make_spsr(unsigned long, unsigned long, unsigned long);
-extern void init_bl2_mem_layout(meminfo_t *,
-				meminfo_t *,
-				unsigned int,
-				unsigned long) __attribute__((weak));
-extern void init_bl31_mem_layout(const meminfo_t *,
-				meminfo_t *,
-				unsigned int) __attribute__((weak));
-extern unsigned long image_size(const char *);
-extern unsigned long load_image(meminfo_t *,
-				const char *,
-				unsigned int,
-				unsigned long);
-extern void __dead2 run_image(unsigned long entrypoint,
-				unsigned long spsr,
-				unsigned long security_state,
-				void *first_arg,
-				void *second_arg);
-extern unsigned long *get_el_change_mem_ptr(void);
+unsigned long page_align(unsigned long, unsigned);
+void change_security_state(unsigned int);
+void __dead2 drop_el(aapcs64_params_t *, unsigned long, unsigned long);
+void __dead2 raise_el(aapcs64_params_t *);
+void __dead2 change_el(el_change_info_t *);
+unsigned long make_spsr(unsigned long, unsigned long, unsigned long);
+void init_bl2_mem_layout(meminfo_t *,
+			meminfo_t *,
+			unsigned int,
+			unsigned long) __attribute__((weak));
+void init_bl31_mem_layout(const meminfo_t *,
+			meminfo_t *,
+			unsigned int) __attribute__((weak));
+unsigned long image_size(const char *);
+unsigned long load_image(meminfo_t *,
+			const char *,
+			unsigned int,
+			unsigned long);
+void __dead2 run_image(unsigned long entrypoint,
+			unsigned long spsr,
+			unsigned long security_state,
+			void *first_arg,
+			void *second_arg);
+unsigned long *get_el_change_mem_ptr(void);
 extern const char build_message[];
 
 #endif /*__ASSEMBLY__*/

@@ -40,7 +40,7 @@ struct meminfo;
 /******************************************
  * Function prototypes
  *****************************************/
-extern void bl1_platform_setup(void);
-extern struct meminfo *bl1_plat_sec_mem_layout(void);
+void bl1_platform_setup(void);
+struct meminfo *bl1_plat_sec_mem_layout(void);
 
 #endif /* __BL1_H__ */

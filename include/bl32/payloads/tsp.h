@@ -129,9 +129,17 @@ typedef struct tsp_args {
  */
 CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args_t), assert_sp_args_size_mismatch);
 
-extern void tsp_get_magic(uint64_t args[4]);
+void tsp_get_magic(uint64_t args[4]);
 
-extern void tsp_fast_smc_entry(uint64_t arg0,
+void tsp_fast_smc_entry(uint64_t arg0,
+			uint64_t arg1,
+			uint64_t arg2,
+			uint64_t arg3,
+			uint64_t arg4,
+			uint64_t arg5,
+			uint64_t arg6,
+			uint64_t arg7);
+void tsp_cpu_resume_entry(uint64_t arg0,
 				uint64_t arg1,
 				uint64_t arg2,
 				uint64_t arg3,
@@ -139,63 +147,55 @@ extern void tsp_fast_smc_entry(uint64_t arg0,
 				uint64_t arg5,
 				uint64_t arg6,
 				uint64_t arg7);
-extern void tsp_cpu_resume_entry(uint64_t arg0,
-				 uint64_t arg1,
-				 uint64_t arg2,
-				 uint64_t arg3,
-				 uint64_t arg4,
-				 uint64_t arg5,
-				 uint64_t arg6,
-				 uint64_t arg7);
-extern tsp_args_t *tsp_cpu_resume_main(uint64_t arg0,
-				     uint64_t arg1,
-				     uint64_t arg2,
-				     uint64_t arg3,
-				     uint64_t arg4,
-				     uint64_t arg5,
-				     uint64_t arg6,
-				     uint64_t arg7);
-extern void tsp_cpu_suspend_entry(uint64_t arg0,
-				  uint64_t arg1,
-				  uint64_t arg2,
-				  uint64_t arg3,
-				  uint64_t arg4,
-				  uint64_t arg5,
-				  uint64_t arg6,
-				  uint64_t arg7);
-extern tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
-				      uint64_t arg1,
-				      uint64_t arg2,
-				      uint64_t arg3,
-				      uint64_t arg4,
-				      uint64_t arg5,
-				      uint64_t arg6,
-				      uint64_t arg7);
-extern void tsp_cpu_on_entry(uint64_t arg0,
-			     uint64_t arg1,
-			     uint64_t arg2,
-			     uint64_t arg3,
-			     uint64_t arg4,
-			     uint64_t arg5,
-			     uint64_t arg6,
-			     uint64_t arg7);
-extern tsp_args_t *tsp_cpu_on_main(void);
-extern void tsp_cpu_off_entry(uint64_t arg0,
-			      uint64_t arg1,
-			      uint64_t arg2,
-			      uint64_t arg3,
-			      uint64_t arg4,
-			      uint64_t arg5,
-			      uint64_t arg6,
-			      uint64_t arg7);
-extern tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
-				  uint64_t arg1,
-				  uint64_t arg2,
-				  uint64_t arg3,
-				  uint64_t arg4,
-				  uint64_t arg5,
-				  uint64_t arg6,
-				  uint64_t arg7);
+tsp_args_t *tsp_cpu_resume_main(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7);
+void tsp_cpu_suspend_entry(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7);
+tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7);
+void tsp_cpu_on_entry(uint64_t arg0,
+			uint64_t arg1,
+			uint64_t arg2,
+			uint64_t arg3,
+			uint64_t arg4,
+			uint64_t arg5,
+			uint64_t arg6,
+			uint64_t arg7);
+tsp_args_t *tsp_cpu_on_main(void);
+void tsp_cpu_off_entry(uint64_t arg0,
+			uint64_t arg1,
+			uint64_t arg2,
+			uint64_t arg3,
+			uint64_t arg4,
+			uint64_t arg5,
+			uint64_t arg6,
+			uint64_t arg7);
+tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7);
 #endif /* __ASSEMBLY__ */
 
 #endif /* __BL2_H__ */
