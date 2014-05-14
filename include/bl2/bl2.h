@@ -32,11 +32,6 @@
 #define __BL2_H__
 
 /******************************************
- * Data declarations
- *****************************************/
-extern unsigned long long bl2_entrypoint;
-
-/******************************************
  * Forward declarations
  *****************************************/
 struct meminfo;
