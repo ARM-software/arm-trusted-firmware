@@ -77,10 +77,10 @@ void cm_init()
 
 /*******************************************************************************
  * This function returns a pointer to the most recent 'cpu_context' structure
- * that was set as the context for the specified security state. NULL is
- * returned if no such structure has been specified.
+ * for the CPU identified by MPIDR that was set as the context for the specified
+ * security state. NULL is returned if no such structure has been specified.
  ******************************************************************************/
-void *cm_get_context(uint64_t mpidr, uint32_t security_state)
+void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state)
 {
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
@@ -90,16 +90,39 @@ void *cm_get_context(uint64_t mpidr, uint32_t security_state)
 }
 
 /*******************************************************************************
- * This function sets the pointer to the current 'cpu_context' structure for the
- * specified security state.
+ * This function returns a pointer to the most recent 'cpu_context' structure
+ * for the calling CPU that was set as the context for the specified security
+ * state. NULL is returned if no such structure has been specified.
  ******************************************************************************/
-void cm_set_context(uint64_t mpidr, void *context, uint32_t security_state)
+void *cm_get_context(uint32_t security_state)
+{
+	uint32_t linear_id = platform_get_core_pos(read_mpidr());
+
+	assert(security_state <= NON_SECURE);
+
+	return cm_context_info[linear_id].ptr[security_state];
+}
+
+/*******************************************************************************
+ * This function sets the pointer to the current 'cpu_context' structure for the
+ * specified security state for the CPU identified by MPIDR
+ ******************************************************************************/
+void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_state)
 {
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
 	assert(security_state <= NON_SECURE);
 
 	cm_context_info[linear_id].ptr[security_state] = context;
+}
+
+/*******************************************************************************
+ * This function sets the pointer to the current 'cpu_context' structure for the
+ * specified security state for the calling CPU
+ ******************************************************************************/
+void cm_set_context(void *context, uint32_t security_state)
+{
+	cm_set_context_by_mpidr(read_mpidr(), context, security_state);
 }
 
 /*******************************************************************************
@@ -111,7 +134,7 @@ void cm_el3_sysregs_context_save(uint32_t security_state)
 {
 	cpu_context_t *ctx;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	el3_sysregs_context_save(get_el3state_ctx(ctx));
@@ -121,7 +144,7 @@ void cm_el3_sysregs_context_restore(uint32_t security_state)
 {
 	cpu_context_t *ctx;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	el3_sysregs_context_restore(get_el3state_ctx(ctx));
@@ -131,7 +154,7 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 {
 	cpu_context_t *ctx;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	el1_sysregs_context_save(get_sysregs_ctx(ctx));
@@ -141,7 +164,7 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 {
 	cpu_context_t *ctx;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	el1_sysregs_context_restore(get_sysregs_ctx(ctx));
@@ -159,7 +182,7 @@ void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
 	cpu_context_t *ctx;
 	el3_state_t *state;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	/* Program the interrupt routing model for this security state */
@@ -183,7 +206,7 @@ void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint)
 	cpu_context_t *ctx;
 	el3_state_t *state;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	/* Populate EL3 state so that ERET jumps to the correct entry */
@@ -204,7 +227,7 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 	el3_state_t *state;
 	uint32_t scr_el3;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	/* Ensure that the bit position is a valid one */
@@ -233,7 +256,7 @@ uint32_t cm_get_scr_el3(uint32_t security_state)
 	cpu_context_t *ctx;
 	el3_state_t *state;
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 	/* Populate EL3 state so that ERET jumps to the correct entry */
@@ -253,7 +276,7 @@ void cm_set_next_eret_context(uint32_t security_state)
 	uint64_t sp_mode;
 #endif
 
-	ctx = cm_get_context(read_mpidr(), security_state);
+	ctx = cm_get_context(security_state);
 	assert(ctx);
 
 #if DEBUG

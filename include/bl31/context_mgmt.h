@@ -37,10 +37,12 @@
  * Function & variable prototypes
  ******************************************************************************/
 void cm_init(void);
-void *cm_get_context(uint64_t mpidr, uint32_t security_state);
-void cm_set_context(uint64_t mpidr,
-		    void *context,
-		    uint32_t security_state);
+void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state);
+void *cm_get_context(uint32_t security_state);
+void cm_set_context_by_mpidr(uint64_t mpidr,
+			     void *context,
+			     uint32_t security_state);
+void cm_set_context(void *context, uint32_t security_state);
 void cm_el3_sysregs_context_save(uint32_t security_state);
 void cm_el3_sysregs_context_restore(uint32_t security_state);
 void cm_el1_sysregs_context_save(uint32_t security_state);

@@ -219,7 +219,6 @@ int psci_validate_mpidr(unsigned long mpidr, int level)
 void psci_get_ns_entry_info(unsigned int index)
 {
 	unsigned long sctlr = 0, scr, el_status, id_aa64pfr0;
-	uint64_t mpidr = read_mpidr();
 	cpu_context_t *ns_entry_context;
 	gp_regs_t *ns_entry_gpregs;
 
@@ -253,7 +252,7 @@ void psci_get_ns_entry_info(unsigned int index)
 		write_sctlr_el1(sctlr);
 
 	/* Fulfill the cpu_on entry reqs. as per the psci spec */
-	ns_entry_context = (cpu_context_t *) cm_get_context(mpidr, NON_SECURE);
+	ns_entry_context = (cpu_context_t *) cm_get_context(NON_SECURE);
 	assert(ns_entry_context);
 
 	/*

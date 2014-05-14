@@ -100,7 +100,7 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	/* Associate this context with the cpu specified */
 	tsp_ctx->mpidr = mpidr;
 
-	cm_set_context(mpidr, &tsp_ctx->cpu_ctx, SECURE);
+	cm_set_context(&tsp_ctx->cpu_ctx, SECURE);
 	spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	cm_set_el3_eret_context(SECURE, entrypoint, spsr, scr);
 
@@ -122,7 +122,7 @@ uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx)
 	assert(tsp_ctx->c_rt_ctx == 0);
 
 	/* Apply the Secure EL1 system register context and switch to it */
-	assert(cm_get_context(read_mpidr(), SECURE) == &tsp_ctx->cpu_ctx);
+	assert(cm_get_context(SECURE) == &tsp_ctx->cpu_ctx);
 	cm_el1_sysregs_context_restore(SECURE);
 	cm_set_next_eret_context(SECURE);
 
@@ -146,7 +146,7 @@ uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx)
 void tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret)
 {
 	/* Save the Secure EL1 system register context */
-	assert(cm_get_context(read_mpidr(), SECURE) == &tsp_ctx->cpu_ctx);
+	assert(cm_get_context(SECURE) == &tsp_ctx->cpu_ctx);
 	cm_el1_sysregs_context_save(SECURE);
 
 	assert(tsp_ctx->c_rt_ctx != 0);
