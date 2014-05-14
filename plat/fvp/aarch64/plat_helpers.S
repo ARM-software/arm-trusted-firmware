@@ -31,7 +31,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <bl_common.h>
-#include <platform.h>
+#include <fvp_def.h>
 
 	.globl	plat_report_exception
 

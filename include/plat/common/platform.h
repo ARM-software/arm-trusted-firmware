@@ -28,24 +28,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BAKERY_LOCK_H__
-#define __BAKERY_LOCK_H__
+#ifndef __PLATFORM_H__
+#define __PLATFORM_H__
 
-#include <platform_def.h>
+#include <stdint.h>
 
-#define BAKERY_LOCK_MAX_CPUS		PLATFORM_CORE_COUNT
 
-typedef struct bakery_lock {
-	int owner;
-	volatile char entering[BAKERY_LOCK_MAX_CPUS];
-	volatile unsigned number[BAKERY_LOCK_MAX_CPUS];
-} bakery_lock_t;
+/*******************************************************************************
+ * Forward declarations
+ ******************************************************************************/
+struct plat_pm_ops;
+struct meminfo;
 
-#define NO_OWNER (-1)
+/*******************************************************************************
+ * Function and variable prototypes
+ ******************************************************************************/
+void bl1_plat_arch_setup(void);
+void bl2_plat_arch_setup(void);
+void bl31_plat_arch_setup(void);
+int platform_setup_pm(const struct plat_pm_ops **);
+unsigned int platform_get_core_pos(unsigned long mpidr);
+void enable_mmu_el1(void);
+void enable_mmu_el3(void);
+void configure_mmu_el1(struct meminfo *,
+			unsigned long,
+			unsigned long,
+			unsigned long,
+			unsigned long);
+void configure_mmu_el3(struct meminfo *,
+			unsigned long,
+			unsigned long,
+			unsigned long,
+			unsigned long);
+void plat_report_exception(unsigned long);
+unsigned long plat_get_ns_image_entrypoint(void);
+unsigned long platform_get_stack(unsigned long mpidr);
+uint64_t plat_get_syscnt_freq(void);
+int plat_get_max_afflvl(void);
+unsigned int plat_get_aff_count(unsigned int, unsigned long);
+unsigned int plat_get_aff_state(unsigned int, unsigned long);
+int plat_get_image_source(const char *image_name,
+			uintptr_t *dev_handle,
+			uintptr_t *image_spec);
 
-void bakery_lock_init(bakery_lock_t *bakery);
-void bakery_lock_get(unsigned long mpidr, bakery_lock_t *bakery);
-void bakery_lock_release(unsigned long mpidr, bakery_lock_t *bakery);
-int bakery_lock_try(unsigned long mpidr, bakery_lock_t *bakery);
 
-#endif /* __BAKERY_LOCK_H__ */
+#endif /* __PLATFORM_H__ */

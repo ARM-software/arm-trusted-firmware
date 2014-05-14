@@ -85,7 +85,7 @@
 #ifndef __ASSEMBLY__
 
 #include <cassert.h>
-#include <platform.h>	/* For CACHE_WRITEBACK_GRANULE */
+#include <platform_def.h> /* For CACHE_WRITEBACK_GRANULE */
 #include <stdint.h>
 
 typedef void (*tsp_generic_fptr_t)(uint64_t arg0,

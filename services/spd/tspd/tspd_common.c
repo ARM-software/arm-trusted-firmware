@@ -32,7 +32,6 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <context_mgmt.h>
-#include <platform.h>
 #include <string.h>
 #include "tspd_private.h"
 

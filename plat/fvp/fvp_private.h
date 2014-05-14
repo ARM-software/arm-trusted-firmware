@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,24 +28,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BAKERY_LOCK_H__
-#define __BAKERY_LOCK_H__
+#ifndef __FVP_PRIVATE_H__
+#define __FVP_PRIVATE_H__
 
 #include <platform_def.h>
 
-#define BAKERY_LOCK_MAX_CPUS		PLATFORM_CORE_COUNT
 
-typedef struct bakery_lock {
-	int owner;
-	volatile char entering[BAKERY_LOCK_MAX_CPUS];
-	volatile unsigned number[BAKERY_LOCK_MAX_CPUS];
-} bakery_lock_t;
+typedef volatile struct mailbox {
+	unsigned long value
+	__attribute__((__aligned__(CACHE_WRITEBACK_GRANULE)));
+} mailbox_t;
 
-#define NO_OWNER (-1)
 
-void bakery_lock_init(bakery_lock_t *bakery);
-void bakery_lock_get(unsigned long mpidr, bakery_lock_t *bakery);
-void bakery_lock_release(unsigned long mpidr, bakery_lock_t *bakery);
-int bakery_lock_try(unsigned long mpidr, bakery_lock_t *bakery);
+/*******************************************************************************
+ * Function and variable prototypes
+ ******************************************************************************/
+unsigned long platform_get_cfgvar(unsigned int);
+int platform_config_setup(void);
 
-#endif /* __BAKERY_LOCK_H__ */
+/* Declarations for fvp_gic.c */
+void gic_cpuif_deactivate(unsigned int);
+void gic_cpuif_setup(unsigned int);
+void gic_pcpu_distif_setup(unsigned int);
+void gic_setup(void);
+
+/* Declarations for fvp_topology.c */
+int plat_setup_topology(void);
+
+/* Declarations for plat_io_storage.c */
+void io_setup(void);
+
+/* Declarations for plat_security.c */
+void plat_security_setup(void);
+
+
+#endif /* __FVP_PRIVATE_H__ */

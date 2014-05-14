@@ -34,6 +34,7 @@
 #include <context.h>
 #include <context_mgmt.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <runtime_svc.h>
 
 /*******************************************************************************

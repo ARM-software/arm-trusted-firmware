@@ -30,10 +30,12 @@
 
 #include <arch_helpers.h>
 #include <debug.h>
+#include <fvp_def.h>
 #include <gic_v2.h>
 #include <gic_v3.h>
 #include <platform.h>
 #include <stdint.h>
+#include "fvp_private.h"
 
 
 /*******************************************************************************

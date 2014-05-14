@@ -32,7 +32,7 @@
 #include <asm_macros.S>
 #include <cm_macros.S>
 #include <context.h>
-#include <platform.h>
+#include <platform_def.h>
 #include <runtime_svc.h>
 
 	.globl	runtime_exceptions

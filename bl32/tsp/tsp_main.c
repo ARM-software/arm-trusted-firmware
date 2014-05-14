@@ -33,6 +33,7 @@
 #include <bl32.h>
 #include <debug.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <spinlock.h>
 #include <stdio.h>
 #include <tsp.h>

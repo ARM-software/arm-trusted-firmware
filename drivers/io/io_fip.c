@@ -36,6 +36,7 @@
 #include <io_fip.h>
 #include <io_storage.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <stdint.h>
 #include <string.h>
 #include <uuid.h>

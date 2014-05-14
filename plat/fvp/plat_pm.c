@@ -32,10 +32,13 @@
 #include <assert.h>
 #include <bakery_lock.h>
 #include <cci400.h>
+#include <fvp_def.h>
 #include <mmio.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <psci.h>
 #include "drivers/pwrc/fvp_pwrc.h"
+#include "fvp_private.h"
 
 /*******************************************************************************
  * FVP handler called when an affinity instance is about to enter standby.

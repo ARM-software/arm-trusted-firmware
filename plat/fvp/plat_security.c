@@ -29,9 +29,10 @@
  */
 
 #include <assert.h>
-#include <platform.h>
-#include <tzc400.h>
 #include <debug.h>
+#include <fvp_def.h>
+#include <tzc400.h>
+#include "fvp_private.h"
 
 /* Used to improve readability for configuring regions. */
 #define FILTER_SHIFT(filter)	(1 << filter)

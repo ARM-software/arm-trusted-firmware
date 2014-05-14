@@ -31,7 +31,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <gic_v2.h>
-#include <platform.h>
+#include <fvp_def.h>
 #include "../drivers/pwrc/fvp_pwrc.h"
 
 	.globl	platform_get_entrypoint

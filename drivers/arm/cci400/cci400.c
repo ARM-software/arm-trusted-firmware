@@ -30,7 +30,7 @@
 
 #include <cci400.h>
 #include <mmio.h>
-#include <platform.h>
+#include <platform_def.h>
 
 static inline unsigned long get_slave_iface_base(unsigned long mpidr)
 {

@@ -29,6 +29,7 @@
  */
 
 #include <bakery_lock.h>
+#include <fvp_def.h>
 #include <mmio.h>
 #include "fvp_pwrc.h"
 

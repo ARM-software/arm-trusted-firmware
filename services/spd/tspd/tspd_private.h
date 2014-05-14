@@ -33,7 +33,7 @@
 
 #include <arch.h>
 #include <context.h>
-#include <platform.h>
+#include <platform_def.h>
 #include <psci.h>
 
 /*******************************************************************************

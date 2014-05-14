@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <fvp_def.h>
 #include <mmio.h>
 #include <platform.h>
 #include <xlat_tables.h>

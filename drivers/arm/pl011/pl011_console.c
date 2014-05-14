@@ -30,7 +30,6 @@
 
 #include <assert.h>
 #include <console.h>
-#include <platform.h>
 #include <pl011.h>
 
 static unsigned long uart_base;
