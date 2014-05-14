@@ -404,76 +404,77 @@ struct meminfo;
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
-extern unsigned long *bl1_normal_ram_base;
-extern unsigned long *bl1_normal_ram_len;
-extern unsigned long *bl1_normal_ram_limit;
-extern unsigned long *bl1_normal_ram_zi_base;
-extern unsigned long *bl1_normal_ram_zi_len;
+unsigned long *bl1_normal_ram_base;
+unsigned long *bl1_normal_ram_len;
+unsigned long *bl1_normal_ram_limit;
+unsigned long *bl1_normal_ram_zi_base;
+unsigned long *bl1_normal_ram_zi_len;
 
-extern unsigned long *bl1_coherent_ram_base;
-extern unsigned long *bl1_coherent_ram_len;
-extern unsigned long *bl1_coherent_ram_limit;
-extern unsigned long *bl1_coherent_ram_zi_base;
-extern unsigned long *bl1_coherent_ram_zi_len;
-extern unsigned long warm_boot_entrypoint;
+unsigned long *bl1_coherent_ram_base;
+unsigned long *bl1_coherent_ram_len;
+unsigned long *bl1_coherent_ram_limit;
+unsigned long *bl1_coherent_ram_zi_base;
+unsigned long *bl1_coherent_ram_zi_len;
+unsigned long warm_boot_entrypoint;
 
-extern void bl1_plat_arch_setup(void);
-extern void bl2_plat_arch_setup(void);
-extern void bl31_plat_arch_setup(void);
-extern int platform_setup_pm(const struct plat_pm_ops **);
-extern unsigned int platform_get_core_pos(unsigned long mpidr);
-extern void enable_mmu_el1(void);
-extern void enable_mmu_el3(void);
-extern void configure_mmu_el1(unsigned long total_base,
-				  unsigned long total_size,
-			      unsigned long ro_start,
-			      unsigned long ro_limit,
-			      unsigned long coh_start,
-			      unsigned long coh_limit);
-extern void configure_mmu_el3(unsigned long total_base,
-				  unsigned long total_size,
-			      unsigned long ro_start,
-			      unsigned long ro_limit,
-			      unsigned long coh_start,
-			      unsigned long coh_limit);
-extern unsigned long platform_get_cfgvar(unsigned int);
-extern int platform_config_setup(void);
-extern void plat_report_exception(unsigned long);
-extern unsigned long plat_get_ns_image_entrypoint(void);
-extern unsigned long platform_get_stack(unsigned long mpidr);
-extern uint64_t plat_get_syscnt_freq(void);
+void bl1_plat_arch_setup(void);
+void bl2_plat_arch_setup(void);
+void bl31_plat_arch_setup(void);
+int platform_setup_pm(const struct plat_pm_ops **);
+unsigned int platform_get_core_pos(unsigned long mpidr);
+void enable_mmu_el1(void);
+void enable_mmu_el3(void);
+void configure_mmu_el1(unsigned long total_base,
+		       unsigned long total_size,
+		       unsigned long ro_start,
+		       unsigned long ro_limit,
+		       unsigned long coh_start,
+		       unsigned long coh_limit);
+void configure_mmu_el3(unsigned long total_base,
+		       unsigned long total_size,
+		       unsigned long ro_start,
+		       unsigned long ro_limit,
+		       unsigned long coh_start,
+		       unsigned long coh_limit);
+unsigned long platform_get_cfgvar(unsigned int);
+int platform_config_setup(void);
+void plat_report_exception(unsigned long);
+unsigned long plat_get_ns_image_entrypoint(void);
+unsigned long platform_get_stack(unsigned long mpidr);
+uint64_t plat_get_syscnt_freq(void);
 #if RESET_TO_BL31
-extern void plat_get_entry_point_info(unsigned long target_security,
+void plat_get_entry_point_info(unsigned long target_security,
 				el_change_info_t *target_entry_info);
 #endif
-extern void plat_cci_setup(void);
+void plat_cci_setup(void);
 
 /* Declarations for plat_gic.c */
-extern uint32_t ic_get_pending_interrupt_id(void);
-extern uint32_t ic_get_pending_interrupt_type(void);
-extern uint32_t ic_acknowledge_interrupt(void);
-extern uint32_t ic_get_interrupt_type(uint32_t id);
-extern void ic_end_of_interrupt(uint32_t id);
-extern void gic_cpuif_deactivate(unsigned int);
-extern void gic_cpuif_setup(unsigned int);
-extern void gic_pcpu_distif_setup(unsigned int);
-extern void gic_setup(void);
-extern uint32_t plat_interrupt_type_to_line(uint32_t type,
+uint32_t ic_get_pending_interrupt_id(void);
+uint32_t ic_get_pending_interrupt_type(void);
+uint32_t ic_acknowledge_interrupt(void);
+uint32_t ic_get_interrupt_type(uint32_t id);
+void ic_end_of_interrupt(uint32_t id);
+void gic_cpuif_deactivate(unsigned int);
+void gic_cpuif_setup(unsigned int);
+void gic_pcpu_distif_setup(unsigned int);
+void gic_setup(void);
+uint32_t plat_interrupt_type_to_line(uint32_t type,
 					    uint32_t security_state);
 
 /* Declarations for plat_topology.c */
-extern int plat_setup_topology(void);
-extern int plat_get_max_afflvl(void);
-extern unsigned int plat_get_aff_count(unsigned int, unsigned long);
-extern unsigned int plat_get_aff_state(unsigned int, unsigned long);
+int plat_setup_topology(void);
+int plat_get_max_afflvl(void);
+unsigned int plat_get_aff_count(unsigned int, unsigned long);
+unsigned int plat_get_aff_state(unsigned int, unsigned long);
 
 /* Declarations for plat_io_storage.c */
-extern void io_setup(void);
-extern int plat_get_image_source(const char *image_name,
-		uintptr_t *dev_handle, uintptr_t *image_spec);
+void io_setup(void);
+int plat_get_image_source(const char *image_name,
+			uintptr_t *dev_handle,
+			uintptr_t *image_spec);
 
 /* Declarations for plat_security.c */
-extern void plat_security_setup(void);
+void plat_security_setup(void);
 
 /*
  * Before calling this function BL2 is loaded in memory and its entrypoint
@@ -481,7 +482,7 @@ extern void plat_security_setup(void);
  * the entrypoint of BL2 and set SPSR and security state.
  * On FVP we are only setting the security state, entrypoint
  */
-extern void bl1_plat_bl2_loaded(image_info_t *image, el_change_info_t *ep);
+void bl1_plat_bl2_loaded(image_info_t *image, el_change_info_t *ep);
 
 /*
  * Before calling this function BL31 is loaded in memory and its entrypoint
@@ -489,7 +490,7 @@ extern void bl1_plat_bl2_loaded(image_info_t *image, el_change_info_t *ep);
  * the entrypoint of BL31 and set SPSR and security state.
  * On FVP we are only setting the security state, entrypoint
  */
-extern void bl2_plat_bl31_post_load_actions(image_info_t *image,
+void bl2_plat_bl31_post_load_actions(image_info_t *image,
 					el_change_info_t *ep);
 
 /*
@@ -498,7 +499,7 @@ extern void bl2_plat_bl31_post_load_actions(image_info_t *image,
  * the entrypoint of BL32 and set SPSR and security state.
  * On FVP we are only setting the security state, entrypoint
  */
-extern void bl2_plat_bl32_post_load_actions(image_info_t *image,
+void bl2_plat_bl32_post_load_actions(image_info_t *image,
 					el_change_info_t *ep);
 
 /*
@@ -507,20 +508,20 @@ extern void bl2_plat_bl32_post_load_actions(image_info_t *image,
  * the entrypoint of BL33 and set SPSR and security state.
  * On FVP we are only setting the security state, entrypoint
  */
-extern void bl2_plat_bl33_post_load_actions(image_info_t *image,
+void bl2_plat_bl33_post_load_actions(image_info_t *image,
 					el_change_info_t *ep);
 
 /* Gets the memory layout for BL32 */
-extern void bl2_plat_get_bl32_meminfo(meminfo_t *mem_info);
+void bl2_plat_get_bl32_meminfo(meminfo_t *mem_info);
 
 /* Gets the memory layout for BL33 */
-extern void bl2_plat_get_bl33_meminfo(meminfo_t *mem_info);
+void bl2_plat_get_bl33_meminfo(meminfo_t *mem_info);
 
 /* Sets the entrypoint  for BL32 */
-extern void fvp_set_bl32_entrypoint(el_change_info_t *bl32_ep);
+void fvp_set_bl32_entrypoint(el_change_info_t *bl32_ep);
 
 /* Sets the entrypoint  for BL33 */
-extern void fvp_set_bl33_entrypoint(el_change_info_t *bl33_ep);
+void fvp_set_bl33_entrypoint(el_change_info_t *bl33_ep);
 
 
 #endif /*__ASSEMBLY__*/

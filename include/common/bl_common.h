@@ -191,23 +191,23 @@ CASSERT(sizeof(unsigned long) == __builtin_offsetof(el_change_info_t, spsr) - \
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-extern unsigned long page_align(unsigned long, unsigned);
-extern void change_security_state(unsigned int);
-extern void init_bl2_mem_layout(meminfo_t *,
-				meminfo_t *,
-				unsigned int,
-				unsigned long) __attribute__((weak));
-extern void init_bl31_mem_layout(const meminfo_t *,
-				meminfo_t *,
-				unsigned int) __attribute__((weak));
-extern unsigned long image_size(const char *);
-extern int load_image(meminfo_t *,
-				const char *,
-				unsigned int,
-				unsigned long,
-				image_info_t *,
-				el_change_info_t *);
-extern unsigned long *get_el_change_mem_ptr(void);
+unsigned long page_align(unsigned long, unsigned);
+void change_security_state(unsigned int);
+void init_bl2_mem_layout(meminfo_t *,
+			 meminfo_t *,
+			 unsigned int,
+			 unsigned long) __attribute__((weak));
+void init_bl31_mem_layout(const meminfo_t *,
+			  meminfo_t *,
+			  unsigned int) __attribute__((weak));
+unsigned long image_size(const char *);
+int load_image(meminfo_t *,
+		const char *,
+		unsigned int,
+		unsigned long,
+		image_info_t *,
+		el_change_info_t *);
+unsigned long *get_el_change_mem_ptr(void);
 extern const char build_message[];
 
 #endif /*__ASSEMBLY__*/

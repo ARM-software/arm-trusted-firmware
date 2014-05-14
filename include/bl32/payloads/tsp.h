@@ -157,43 +157,43 @@ typedef struct tsp_args {
  */
 CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args_t), assert_sp_args_size_mismatch);
 
-extern void tsp_get_magic(uint64_t args[4]);
+void tsp_get_magic(uint64_t args[4]);
 
-extern tsp_args_t *tsp_cpu_resume_main(uint64_t arg0,
-				     uint64_t arg1,
-				     uint64_t arg2,
-				     uint64_t arg3,
-				     uint64_t arg4,
-				     uint64_t arg5,
-				     uint64_t arg6,
-				     uint64_t arg7);
-extern tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
-				      uint64_t arg1,
-				      uint64_t arg2,
-				      uint64_t arg3,
-				      uint64_t arg4,
-				      uint64_t arg5,
-				      uint64_t arg6,
-				      uint64_t arg7);
-extern tsp_args_t *tsp_cpu_on_main(void);
-extern tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
-				  uint64_t arg1,
-				  uint64_t arg2,
-				  uint64_t arg3,
-				  uint64_t arg4,
-				  uint64_t arg5,
-				  uint64_t arg6,
-				  uint64_t arg7);
+tsp_args_t *tsp_cpu_resume_main(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7);
+tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
+				 uint64_t arg1,
+				 uint64_t arg2,
+				 uint64_t arg3,
+				 uint64_t arg4,
+				 uint64_t arg5,
+				 uint64_t arg6,
+				 uint64_t arg7);
+tsp_args_t *tsp_cpu_on_main(void);
+tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
+			     uint64_t arg1,
+			     uint64_t arg2,
+			     uint64_t arg3,
+			     uint64_t arg4,
+			     uint64_t arg5,
+			     uint64_t arg6,
+			     uint64_t arg7);
 
 /* Generic Timer functions */
-extern void tsp_generic_timer_start(void);
-extern void tsp_generic_timer_handler(void);
-extern void tsp_generic_timer_stop(void);
-extern void tsp_generic_timer_save(void);
-extern void tsp_generic_timer_restore(void);
+void tsp_generic_timer_start(void);
+void tsp_generic_timer_handler(void);
+void tsp_generic_timer_stop(void);
+void tsp_generic_timer_save(void);
+void tsp_generic_timer_restore(void);
 
 /* FIQ management functions */
-extern void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3);
+void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3);
 
 /* Data structure to keep track of TSP statistics */
 extern spinlock_t console_lock;

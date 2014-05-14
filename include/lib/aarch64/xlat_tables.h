@@ -60,11 +60,11 @@ typedef struct mmap_region {
 	mmap_attr_t	attr;
 } mmap_region_t;
 
-extern void mmap_add_region(unsigned long base, unsigned long size,
-				unsigned attr);
-extern void mmap_add(const mmap_region_t *mm);
+void mmap_add_region(unsigned long base, unsigned long size,
+			unsigned attr);
+void mmap_add(const mmap_region_t *mm);
 
-extern void init_xlat_tables(void);
+void init_xlat_tables(void);
 
 extern uint64_t l1_xlation_table[];
 

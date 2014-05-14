@@ -63,14 +63,14 @@
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-extern int fvp_pwrc_setup(void);
-extern void fvp_pwrc_write_pcoffr(unsigned long);
-extern void fvp_pwrc_write_ppoffr(unsigned long);
-extern void fvp_pwrc_write_pponr(unsigned long);
-extern void fvp_pwrc_set_wen(unsigned long);
-extern void fvp_pwrc_clr_wen(unsigned long);
-extern unsigned int fvp_pwrc_read_psysr(unsigned long);
-extern unsigned int fvp_pwrc_get_cpu_wkr(unsigned long);
+int fvp_pwrc_setup(void);
+void fvp_pwrc_write_pcoffr(unsigned long);
+void fvp_pwrc_write_ppoffr(unsigned long);
+void fvp_pwrc_write_pponr(unsigned long);
+void fvp_pwrc_set_wen(unsigned long);
+void fvp_pwrc_clr_wen(unsigned long);
+unsigned int fvp_pwrc_read_psysr(unsigned long);
+unsigned int fvp_pwrc_get_cpu_wkr(unsigned long);
 
 #endif /*__ASSEMBLY__*/
 
