@@ -71,9 +71,6 @@ void bl31_lib_init()
  ******************************************************************************/
 void bl31_main(void)
 {
-#if DEBUG
-	unsigned long mpidr = read_mpidr();
-#endif
 
 	/* Perform remaining generic architectural setup from EL3 */
 	bl31_arch_setup();
@@ -98,7 +95,7 @@ void bl31_main(void)
 	 * structure which has an exception stack allocated.  The PSCI
 	 * service should have set the context.
 	 */
-	assert(cm_get_context(mpidr, NON_SECURE));
+	assert(cm_get_context(NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
 	cm_init_pcpu_ptr_cache();
 	write_vbar_el3((uint64_t) runtime_exceptions);
@@ -195,7 +192,7 @@ void bl31_prepare_next_image_entry()
 	 * Save the args generated in BL2 for the image in the right context
 	 * used on its entry
 	 */
-	ctx = cm_get_context(read_mpidr(), image_type);
+	ctx = cm_get_context(image_type);
 	gp_regs = get_gpregs_ctx(ctx);
 	memcpy(gp_regs, (void *)&next_image_info->args, sizeof(aapcs64_params_t));
 
