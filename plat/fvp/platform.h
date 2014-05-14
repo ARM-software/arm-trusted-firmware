@@ -404,19 +404,6 @@ struct meminfo;
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
-unsigned long *bl1_normal_ram_base;
-unsigned long *bl1_normal_ram_len;
-unsigned long *bl1_normal_ram_limit;
-unsigned long *bl1_normal_ram_zi_base;
-unsigned long *bl1_normal_ram_zi_len;
-
-unsigned long *bl1_coherent_ram_base;
-unsigned long *bl1_coherent_ram_len;
-unsigned long *bl1_coherent_ram_limit;
-unsigned long *bl1_coherent_ram_zi_base;
-unsigned long *bl1_coherent_ram_zi_len;
-unsigned long warm_boot_entrypoint;
-
 void bl1_plat_arch_setup(void);
 void bl2_plat_arch_setup(void);
 void bl31_plat_arch_setup(void);
