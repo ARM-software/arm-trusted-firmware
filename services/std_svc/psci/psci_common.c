@@ -45,13 +45,11 @@ const spd_pm_ops_t *psci_spd_pm;
 
 /*******************************************************************************
  * Arrays that contains information needs to resume a cpu's execution when woken
- * out of suspend or off states. 'psci_ns_einfo_idx' keeps track of the next
- * free index in the 'psci_ns_entry_info' & 'psci_suspend_context' arrays. Each
- * cpu is allocated a single entry in each array during startup.
+ * out of suspend or off states. Each cpu is allocated a single entry in each
+ * array during startup.
  ******************************************************************************/
 suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
 ns_entry_info_t psci_ns_entry_info[PSCI_NUM_AFFS];
-unsigned int psci_ns_einfo_idx;
 
 /*******************************************************************************
  * Grand array that holds the platform's topology information for state
@@ -60,16 +58,6 @@ unsigned int psci_ns_einfo_idx;
  ******************************************************************************/
 aff_map_node_t psci_aff_map[PSCI_NUM_AFFS]
 __attribute__ ((section("tzfw_coherent_mem")));
-
-/*******************************************************************************
- * In a system, a certain number of affinity instances are present at an
- * affinity level. The cumulative number of instances across all levels are
- * stored in 'psci_aff_map'. The topology tree has been flattenned into this
- * array. To retrieve nodes, information about the extents of each affinity
- * level i.e. start index and end index needs to be present. 'psci_aff_limits'
- * stores this information.
- ******************************************************************************/
-aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops

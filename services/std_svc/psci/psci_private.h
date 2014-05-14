@@ -86,12 +86,8 @@ typedef unsigned int (*afflvl_power_on_finisher_t)(unsigned long,
  ******************************************************************************/
 extern suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
 extern ns_entry_info_t psci_ns_entry_info[PSCI_NUM_AFFS];
-extern unsigned int psci_ns_einfo_idx;
-extern aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 extern const plat_pm_ops_t *psci_plat_pm_ops;
 extern aff_map_node_t psci_aff_map[PSCI_NUM_AFFS];
-extern afflvl_power_on_finisher_t psci_afflvl_off_finish_handlers[];
-extern afflvl_power_on_finisher_t psci_afflvl_sus_finish_handlers[];
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
