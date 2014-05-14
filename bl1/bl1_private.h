@@ -34,7 +34,7 @@
 /******************************************
  * Function prototypes
  *****************************************/
-extern void bl1_arch_setup(void);
-extern void bl1_arch_next_el_setup(void);
+void bl1_arch_setup(void);
+void bl1_arch_next_el_setup(void);
 
 #endif /* __BL1_PRIVATE_H__ */
