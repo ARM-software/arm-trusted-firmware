@@ -31,6 +31,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bakery_lock.h>
+#include <platform.h>
 #include <string.h>
 
 /*

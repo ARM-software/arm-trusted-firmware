@@ -33,6 +33,7 @@
 #include <bl_common.h>
 #include <context_mgmt.h>
 #include <debug.h>
+#include <platform.h>
 #include <tsp.h>
 #include "tspd_private.h"
 

@@ -32,8 +32,8 @@
 #include <asm_macros.S>
 #include <bl_common.h>
 #include <gic_v2.h>
-#include <platform.h>
 #include "../drivers/pwrc/fvp_pwrc.h"
+#include "../fvp_def.h"
 
 	.globl	platform_get_entrypoint
 	.globl	plat_secondary_cold_boot_setup

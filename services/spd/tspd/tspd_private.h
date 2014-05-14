@@ -34,7 +34,7 @@
 #include <arch.h>
 #include <context.h>
 #include <interrupt_mgmt.h>
-#include <platform.h>
+#include <platform_def.h>
 #include <psci.h>
 
 /*******************************************************************************

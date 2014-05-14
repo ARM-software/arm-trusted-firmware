@@ -35,6 +35,7 @@
 #include <context.h>
 #include <context_mgmt.h>
 #include <debug.h>
+#include <platform.h>
 #include "psci_private.h"
 
 /*

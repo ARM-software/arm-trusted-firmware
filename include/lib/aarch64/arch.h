@@ -394,4 +394,19 @@
 
 #define EC_BITS(x)			(x >> ESR_EC_SHIFT) & ESR_EC_MASK
 
+/*******************************************************************************
+ * Definitions of register offsets and fields in the CNTCTLBase Frame of the
+ * system level implementation of the Generic Timer.
+ ******************************************************************************/
+#define CNTNSAR			0x4
+#define CNTNSAR_NS_SHIFT(x)	x
+
+#define CNTACR_BASE(x)		(0x40 + (x << 2))
+#define CNTACR_RPCT_SHIFT	0x0
+#define CNTACR_RVCT_SHIFT	0x1
+#define CNTACR_RFRQ_SHIFT	0x2
+#define CNTACR_RVOFF_SHIFT	0x3
+#define CNTACR_RWVT_SHIFT	0x4
+#define CNTACR_RWPT_SHIFT	0x5
+
 #endif /* __ARCH_H__ */
