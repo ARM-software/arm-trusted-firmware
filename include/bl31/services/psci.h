@@ -178,36 +178,36 @@ typedef struct spd_pm_ops {
 /*******************************************************************************
  * Function & Data prototypes
  ******************************************************************************/
-extern unsigned int psci_version(void);
-extern int __psci_cpu_suspend(unsigned int, unsigned long, unsigned long);
-extern int __psci_cpu_off(void);
-extern int psci_affinity_info(unsigned long, unsigned int);
-extern int psci_migrate(unsigned int);
-extern unsigned int psci_migrate_info_type(void);
-extern unsigned long psci_migrate_info_up_cpu(void);
-extern void psci_system_off(void);
-extern void psci_system_reset(void);
-extern int psci_cpu_on(unsigned long,
-		       unsigned long,
-		       unsigned long);
-extern void __dead2 psci_power_down_wfi(void);
-extern void psci_aff_on_finish_entry(void);
-extern void psci_aff_suspend_finish_entry(void);
-extern void psci_register_spd_pm_hook(const spd_pm_ops_t *);
-extern int psci_get_suspend_stateid(unsigned long mpidr);
-extern int psci_get_suspend_afflvl(unsigned long mpidr);
+unsigned int psci_version(void);
+int __psci_cpu_suspend(unsigned int, unsigned long, unsigned long);
+int __psci_cpu_off(void);
+int psci_affinity_info(unsigned long, unsigned int);
+int psci_migrate(unsigned int);
+unsigned int psci_migrate_info_type(void);
+unsigned long psci_migrate_info_up_cpu(void);
+void psci_system_off(void);
+void psci_system_reset(void);
+int psci_cpu_on(unsigned long,
+		unsigned long,
+		unsigned long);
+void __dead2 psci_power_down_wfi(void);
+void psci_aff_on_finish_entry(void);
+void psci_aff_suspend_finish_entry(void);
+void psci_register_spd_pm_hook(const spd_pm_ops_t *);
+int psci_get_suspend_stateid(unsigned long mpidr);
+int psci_get_suspend_afflvl(unsigned long mpidr);
 
-extern uint64_t psci_smc_handler(uint32_t smc_fid,
-				 uint64_t x1,
-				 uint64_t x2,
-				 uint64_t x3,
-				 uint64_t x4,
-				 void *cookie,
-				 void *handle,
-				 uint64_t flags);
+uint64_t psci_smc_handler(uint32_t smc_fid,
+			  uint64_t x1,
+			  uint64_t x2,
+			  uint64_t x3,
+			  uint64_t x4,
+			  void *cookie,
+			  void *handle,
+			  uint64_t flags);
 
 /* PSCI setup function */
-extern int32_t psci_setup(void);
+int32_t psci_setup(void);
 
 
 #endif /*__ASSEMBLY__*/

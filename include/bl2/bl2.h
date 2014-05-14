@@ -40,34 +40,32 @@ extern unsigned long long bl2_entrypoint;
  * Forward declarations
  *****************************************/
 struct meminfo;
-struct bl31_args;
+struct bl31_params;
+struct entry_point_info;
 
 /******************************************
  * Function prototypes
  *****************************************/
-extern void bl2_platform_setup(void);
-extern struct meminfo *bl2_plat_sec_mem_layout(void);
+void bl2_platform_setup(void);
+struct meminfo *bl2_plat_sec_mem_layout(void);
 
 /*******************************************************************************
  * This function returns a pointer to the shared memory that the platform has
  * kept aside to pass trusted firmware related information that BL3-1
  * could need
  ******************************************************************************/
-extern struct bl31_params *bl2_plat_get_bl31_params(void);
-
+struct bl31_params *bl2_plat_get_bl31_params(void);
 
 /*******************************************************************************
  * This function returns a pointer to the shared memory that the platform
  * has kept to point to entry point information of BL31 to BL2
  ******************************************************************************/
-extern struct entry_point_info *bl2_plat_get_bl31_ep_info(void);
-
+struct entry_point_info *bl2_plat_get_bl31_ep_info(void);
 
 /************************************************************************
  * This function flushes to main memory all the params that are
  * passed to BL3-1
  **************************************************************************/
-extern void bl2_plat_flush_bl31_params(void);
-
+void bl2_plat_flush_bl31_params(void);
 
 #endif /* __BL2_H__ */

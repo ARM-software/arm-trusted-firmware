@@ -264,10 +264,10 @@ CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-extern void runtime_svc_init();
+void runtime_svc_init();
 extern uint64_t __RT_SVC_DESCS_START__;
 extern uint64_t __RT_SVC_DESCS_END__;
-extern uint64_t get_crash_stack(uint64_t mpidr);
-extern void runtime_exceptions(void);
+uint64_t get_crash_stack(uint64_t mpidr);
+void runtime_exceptions(void);
 #endif /*__ASSEMBLY__*/
 #endif /* __RUNTIME_SVC_H__ */

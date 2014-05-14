@@ -117,12 +117,12 @@ typedef uint64_t (*interrupt_type_handler_t)(uint32_t id,
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-extern uint32_t get_scr_el3_from_routing_model(uint32_t security_state);
-extern int32_t set_routing_model(uint32_t type, uint32_t flags);
-extern int32_t register_interrupt_type_handler(uint32_t type,
-					       interrupt_type_handler_t handler,
-					       uint32_t flags);
-extern interrupt_type_handler_t get_interrupt_type_handler(uint32_t interrupt_type);
+uint32_t get_scr_el3_from_routing_model(uint32_t security_state);
+int32_t set_routing_model(uint32_t type, uint32_t flags);
+int32_t register_interrupt_type_handler(uint32_t type,
+					interrupt_type_handler_t handler,
+					uint32_t flags);
+interrupt_type_handler_t get_interrupt_type_handler(uint32_t interrupt_type);
 
 #endif /*__ASSEMBLY__*/
 #endif /* __INTERRUPT_MGMT_H__ */

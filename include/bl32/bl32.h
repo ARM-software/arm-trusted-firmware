@@ -41,8 +41,8 @@ struct meminfo;
 /******************************************
  * Function prototypes
  *****************************************/
-extern void bl32_platform_setup(void);
-extern struct meminfo *bl32_plat_sec_mem_layout(void);
-extern uint64_t bl32_main(void);
+void bl32_platform_setup(void);
+struct meminfo *bl32_plat_sec_mem_layout(void);
+uint64_t bl32_main(void);
 
 #endif /* __BL32_H__ */
