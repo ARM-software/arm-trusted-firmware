@@ -37,6 +37,8 @@
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <stdint.h>
+#include "fvp_def.h"
+#include "fvp_private.h"
 
 /*******************************************************************************
  * This function does some minimal GICv3 configuration. The Firmware itself does

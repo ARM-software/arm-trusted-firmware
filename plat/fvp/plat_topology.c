@@ -29,7 +29,7 @@
  */
 
 #include <assert.h>
-#include <platform.h>
+#include <platform_def.h>
 /* TODO: Reusing psci error codes & state information. Get our own! */
 #include <psci.h>
 #include "drivers/pwrc/fvp_pwrc.h"

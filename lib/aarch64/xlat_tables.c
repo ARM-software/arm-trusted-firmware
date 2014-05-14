@@ -29,7 +29,7 @@
  */
 
 #include <assert.h>
-#include <platform.h>
+#include <platform_def.h>
 #include <string.h>
 #include <xlat_tables.h>
 

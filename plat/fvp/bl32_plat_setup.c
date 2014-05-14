@@ -33,6 +33,8 @@
 #include <bl32.h>
 #include <console.h>
 #include <platform.h>
+#include "fvp_def.h"
+#include "fvp_private.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

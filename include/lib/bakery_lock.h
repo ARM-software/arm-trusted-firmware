@@ -31,7 +31,7 @@
 #ifndef __BAKERY_LOCK_H__
 #define __BAKERY_LOCK_H__
 
-#include <platform.h>
+#include <platform_def.h>
 
 #define BAKERY_LOCK_MAX_CPUS		PLATFORM_CORE_COUNT
 

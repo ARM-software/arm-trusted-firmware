@@ -29,7 +29,6 @@
  */
 
 #include <assert.h>
-#include <platform.h>
 #include <pl011.h>
 
 void pl011_setbaudrate(unsigned long base_addr, unsigned int baudrate)

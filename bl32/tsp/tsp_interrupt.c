@@ -34,6 +34,7 @@
 #include <gic_v2.h>
 #include <tsp.h>
 #include <platform.h>
+#include "../../plat/fvp/fvp_def.h"
 
 /*******************************************************************************
  * This function updates the TSP statistics for FIQs handled synchronously i.e

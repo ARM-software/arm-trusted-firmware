@@ -29,7 +29,7 @@
  */
 
 #include <gic_v2.h>
-#include <platform.h>
+#include "../fvp_def.h"
 
 .section .rodata.gic_reg_name, "aS"
 gic_regs: .asciz "gic_iar", "gic_ctlr", ""

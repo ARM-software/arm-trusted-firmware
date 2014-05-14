@@ -34,6 +34,7 @@
 #include <bl_common.h>
 #include <bl31.h>
 #include <context_mgmt.h>
+#include <platform.h>
 #include <runtime_svc.h>
 #include <stddef.h>
 #include "psci_private.h"

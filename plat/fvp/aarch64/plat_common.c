@@ -37,6 +37,7 @@
 #include <mmio.h>
 #include <platform.h>
 #include <xlat_tables.h>
+#include "../fvp_def.h"
 
 /*******************************************************************************
  * This array holds the characteristics of the differences between the three
