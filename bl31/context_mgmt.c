@@ -37,6 +37,7 @@
 #include <context_mgmt.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <runtime_svc.h>
 
 /*******************************************************************************

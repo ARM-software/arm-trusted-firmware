@@ -35,6 +35,7 @@
 #include <bl1.h>
 #include <debug.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <stdio.h>
 #include "bl1_private.h"
 

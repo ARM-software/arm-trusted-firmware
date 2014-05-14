@@ -29,6 +29,7 @@
  */
 #include <arch_helpers.h>
 #include <assert.h>
+#include <platform.h>
 #include <tsp.h>
 
 /*******************************************************************************

@@ -32,11 +32,13 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <fvp_def.h>
 #include <gic_v2.h>
 #include <gic_v3.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <stdint.h>
+#include "fvp_private.h"
 
 /*******************************************************************************
  * This function does some minimal GICv3 configuration. The Firmware itself does

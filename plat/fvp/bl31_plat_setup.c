@@ -34,10 +34,12 @@
 #include <bl_common.h>
 #include <bl31.h>
 #include <console.h>
+#include <fvp_def.h>
 #include <mmio.h>
 #include <platform.h>
 #include <stddef.h>
 #include "drivers/pwrc/fvp_pwrc.h"
+#include "fvp_private.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

@@ -28,8 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <fvp_def.h>
 #include <gic_v2.h>
-#include <platform.h>
 
 .section .rodata.gic_reg_name, "aS"
 gic_regs: .asciz "gic_iar", "gic_ctlr", ""

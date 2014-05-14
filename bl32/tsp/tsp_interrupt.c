@@ -31,6 +31,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
+#include <fvp_def.h>
 #include <gic_v2.h>
 #include <tsp.h>
 #include <platform.h>

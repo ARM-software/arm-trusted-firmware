@@ -32,6 +32,8 @@
 #include <bl_common.h>
 #include <bl32.h>
 #include <console.h>
+#include <fvp_def.h>
+#include <fvp_private.h>
 #include <platform.h>
 
 /*******************************************************************************

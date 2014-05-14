@@ -160,6 +160,7 @@ INCLUDES		+=	-Iinclude/bl1			\
 				-Iinclude/drivers/arm		\
 				-Iinclude/lib			\
 				-Iinclude/lib/aarch64		\
+				-Iinclude/plat/common		\
 				-Iinclude/stdlib		\
 				-Iinclude/stdlib/sys		\
 				-Iplat/${PLAT}			\
