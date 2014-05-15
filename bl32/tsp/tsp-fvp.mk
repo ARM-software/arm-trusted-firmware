@@ -30,6 +30,6 @@
 
 # TSP source files specific to FVP platform
 BL32_SOURCES		+=	plat/common/aarch64/platform_mp_stack.S		\
-				plat/fvp/bl32_plat_setup.c			\
-				plat/fvp/aarch64/plat_common.c			\
-				plat/fvp/aarch64/plat_helpers.S
+				plat/fvp/bl32_fvp_setup.c			\
+				plat/fvp/aarch64/fvp_common.c			\
+				plat/fvp/aarch64/fvp_helpers.S

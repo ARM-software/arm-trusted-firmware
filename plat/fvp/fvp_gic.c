@@ -280,8 +280,8 @@ void gic_setup(void)
 {
 	unsigned int gicd_base, gicc_base;
 
-	gicd_base = platform_get_cfgvar(CONFIG_GICD_ADDR);
-	gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+	gicd_base = fvp_get_cfgvar(CONFIG_GICD_ADDR);
+	gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 
 	gic_cpuif_setup(gicc_base);
 	gic_distif_setup(gicd_base);

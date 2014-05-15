@@ -139,7 +139,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Disable coherency if this cluster is to be
 			 * turned off
 			 */
-			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+			cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
 			if (cci_setup) {
 				cci_disable_coherency(mpidr);
 			}
@@ -160,7 +160,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Take this cpu out of intra-cluster coherency if
 			 * the FVP flavour supports the SMP bit.
 			 */
-			cpu_setup = platform_get_cfgvar(CONFIG_CPU_SETUP);
+			cpu_setup = fvp_get_cfgvar(CONFIG_CPU_SETUP);
 			if (cpu_setup) {
 				ectlr = read_cpuectlr();
 				ectlr &= ~CPUECTLR_SMP_BIT;
@@ -171,7 +171,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Prevent interrupts from spuriously waking up
 			 * this cpu
 			 */
-			gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+			gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 			gic_cpuif_deactivate(gicc_base);
 
 			/*
@@ -219,7 +219,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Disable coherency if this cluster is to be
 			 * turned off
 			 */
-			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+			cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
 			if (cci_setup) {
 				cci_disable_coherency(mpidr);
 			}
@@ -239,7 +239,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Take this cpu out of intra-cluster coherency if
 			 * the FVP flavour supports the SMP bit.
 			 */
-			cpu_setup = platform_get_cfgvar(CONFIG_CPU_SETUP);
+			cpu_setup = fvp_get_cfgvar(CONFIG_CPU_SETUP);
 			if (cpu_setup) {
 				ectlr = read_cpuectlr();
 				ectlr &= ~CPUECTLR_SMP_BIT;
@@ -257,7 +257,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Prevent interrupts from spuriously waking up
 			 * this cpu
 			 */
-			gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+			gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 			gic_cpuif_deactivate(gicc_base);
 
 			/*
@@ -311,7 +311,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			 */
 			fvp_pwrc_write_pponr(mpidr);
 
-			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+			cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
 			if (cci_setup) {
 				cci_enable_coherency(mpidr);
 			}
@@ -328,7 +328,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 		 * Turn on intra-cluster coherency if the FVP flavour supports
 		 * it.
 		 */
-		cpu_setup = platform_get_cfgvar(CONFIG_CPU_SETUP);
+		cpu_setup = fvp_get_cfgvar(CONFIG_CPU_SETUP);
 		if (cpu_setup) {
 			ectlr = read_cpuectlr();
 			ectlr |= CPUECTLR_SMP_BIT;
@@ -348,8 +348,8 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 		flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
 				   sizeof(unsigned long));
 
-		gicd_base = platform_get_cfgvar(CONFIG_GICD_ADDR);
-		gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+		gicd_base = fvp_get_cfgvar(CONFIG_GICD_ADDR);
+		gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 
 		/* Enable the gic cpu interface */
 		gic_cpuif_setup(gicc_base);

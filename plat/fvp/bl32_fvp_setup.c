@@ -110,7 +110,7 @@ void bl32_platform_setup()
  ******************************************************************************/
 void bl32_plat_arch_setup()
 {
-	configure_mmu_el1(&bl32_tzdram_layout,
+	fvp_configure_mmu_el1(&bl32_tzdram_layout,
 			  BL32_RO_BASE,
 			  BL32_RO_LIMIT,
 			  BL32_COHERENT_RAM_BASE,

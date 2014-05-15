@@ -106,7 +106,7 @@ void bl1_early_platform_setup(void)
 	}
 
 	/* Initialize the platform config for future decision making */
-	platform_config_setup();
+	fvp_config_setup();
 }
 
 /*******************************************************************************
@@ -117,7 +117,7 @@ void bl1_early_platform_setup(void)
 void bl1_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
-	io_setup();
+	fvp_io_setup();
 }
 
 
@@ -135,12 +135,12 @@ void bl1_plat_arch_setup(void)
 	 * for locks as no other cpu is active at the
 	 * moment
 	 */
-	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+	cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
 	if (cci_setup) {
 		cci_enable_coherency(read_mpidr());
 	}
 
-	configure_mmu_el3(&bl1_tzram_layout,
+	fvp_configure_mmu_el3(&bl1_tzram_layout,
 			  TZROM_BASE,
 			  TZROM_BASE + TZROM_SIZE,
 			  BL1_COHERENT_RAM_BASE,

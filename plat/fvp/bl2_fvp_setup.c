@@ -28,15 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
+#include <arch_helpers.h>
+#include <assert.h>
 #include <bl_common.h>
-#include <bl31.h>
 #include <console.h>
 #include <fvp_def.h>
-#include <mmio.h>
 #include <platform.h>
-#include <stddef.h>
-#include "drivers/pwrc/fvp_pwrc.h"
+#include <platform_def.h>
 #include "fvp_private.h"
 
 /*******************************************************************************
@@ -55,128 +53,130 @@ extern unsigned long __COHERENT_RAM_END__;
  * page-aligned.  It is the responsibility of the linker script to ensure that
  * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
  */
-#define BL31_RO_BASE (unsigned long)(&__RO_START__)
-#define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
+#define BL2_RO_BASE (unsigned long)(&__RO_START__)
+#define BL2_RO_LIMIT (unsigned long)(&__RO_END__)
 
 /*
  * The next 2 constants identify the extents of the coherent memory region.
  * These addresses are used by the MMU setup code and therefore they must be
  * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
- * refer to page-aligned addresses.
+ * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
+ * page-aligned addresses.
  */
-#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
+#define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+
+/* Pointer to memory visible to both BL2 and BL31 for passing data */
+extern unsigned char **bl2_el_change_mem_ptr;
+
+/* Data structure which holds the extents of the trusted SRAM for BL2 */
+static meminfo_t bl2_tzram_layout
+__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
+		section("tzfw_coherent_mem")));
 
 /*******************************************************************************
- * Reference to structure which holds the arguments that have been passed to
- * BL31 from BL2.
+ * Reference to structure which holds the arguments which need to be passed
+ * to BL31
  ******************************************************************************/
 static bl31_args_t *bl2_to_bl31_args;
 
-meminfo_t *bl31_plat_sec_mem_layout(void)
+meminfo_t *bl2_plat_sec_mem_layout(void)
 {
-	return &bl2_to_bl31_args->bl31_meminfo;
-}
-
-meminfo_t *bl31_plat_get_bl32_mem_layout(void)
-{
-	return &bl2_to_bl31_args->bl32_meminfo;
+	return &bl2_tzram_layout;
 }
 
 /*******************************************************************************
- * Return a pointer to the 'el_change_info' structure of the next image for the
- * security state specified. BL33 corresponds to the non-secure image type
- * while BL32 corresponds to the secure image type. A NULL pointer is returned
- * if the image does not exist.
+ * This function returns a pointer to the memory that the platform has kept
+ * aside to pass all the information that BL31 could need.
  ******************************************************************************/
-el_change_info_t *bl31_get_next_image_info(uint32_t type)
+bl31_args_t *bl2_get_bl31_args_ptr(void)
 {
-	el_change_info_t *next_image_info;
-
-	next_image_info = (type == NON_SECURE) ?
-		&bl2_to_bl31_args->bl33_image_info :
-		&bl2_to_bl31_args->bl32_image_info;
-
-	/* None of the images on this platform can have 0x0 as the entrypoint */
-	if (next_image_info->entrypoint)
-		return next_image_info;
-	else
-		return NULL;
+	return bl2_to_bl31_args;
 }
 
 /*******************************************************************************
- * Perform any BL31 specific platform actions. Here is an opportunity to copy
- * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
- * are lost (potentially). This needs to be done before the MMU is initialized
- * so that the memory layout can be used while creating page tables. On the FVP
- * we know that BL2 has populated the parameters in secure DRAM. So we just use
- * the reference passed in 'from_bl2' instead of copying. The 'data' parameter
- * is not used since all the information is contained in 'from_bl2'. Also, BL2
- * has flushed this information to memory, so we are guaranteed to pick up good
- * data
+ * BL1 has passed the extents of the trusted SRAM that should be visible to BL2
+ * in x0. This memory layout is sitting at the base of the free trusted SRAM.
+ * Copy it to a safe loaction before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void bl31_early_platform_setup(bl31_args_t *from_bl2,
-			       void *data)
+void bl2_early_platform_setup(meminfo_t *mem_layout,
+			      void *data)
 {
-	bl2_to_bl31_args = from_bl2;
-
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
 
+	/* Setup the BL2 memory layout */
+	bl2_tzram_layout.total_base = mem_layout->total_base;
+	bl2_tzram_layout.total_size = mem_layout->total_size;
+	bl2_tzram_layout.free_base = mem_layout->free_base;
+	bl2_tzram_layout.free_size = mem_layout->free_size;
+	bl2_tzram_layout.attr = mem_layout->attr;
+	bl2_tzram_layout.next = 0;
+
 	/* Initialize the platform config for future decision making */
-	platform_config_setup();
+	fvp_config_setup();
 }
 
 /*******************************************************************************
- * Initialize the gic, configure the CLCD and zero out variables needed by the
- * secondaries to boot up correctly.
+ * Perform platform specific setup. For now just initialize the memory location
+ * to use for passing arguments to BL31.
  ******************************************************************************/
-void bl31_platform_setup()
+void bl2_platform_setup()
 {
-	unsigned int reg_val;
+	/*
+	 * Do initial security configuration to allow DRAM/device access. On
+	 * Base FVP only DRAM security is programmable (via TrustZone), but
+	 * other platforms might have more programmable security devices
+	 * present.
+	 */
+	fvp_security_setup();
 
-	/* Initialize the gic cpu and distributor interfaces */
-	gic_setup();
+	/* Initialise the IO layer and register platform IO devices */
+	fvp_io_setup();
 
 	/*
-	 * TODO: Configure the CLCD before handing control to
-	 * linux. Need to see if a separate driver is needed
-	 * instead.
+	 * Ensure that the secure DRAM memory used for passing BL31 arguments
+	 * does not overlap with the BL32_BASE.
 	 */
-	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGDATA, 0);
-	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGCTRL,
-		      (1ull << 31) | (1 << 30) | (7 << 20) | (0 << 16));
+	assert (BL32_BASE > TZDRAM_BASE + sizeof(bl31_args_t));
 
-	/* Enable and initialize the System level generic timer */
-	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_FCREQ(0) | CNTCR_EN);
+	/* Use the Trusted DRAM for passing args to BL31 */
+	bl2_to_bl31_args = (bl31_args_t *) TZDRAM_BASE;
 
-	/* Allow access to the System counter timer module */
-	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
-	reg_val |= (1 << CNTACR_RFRQ_SHIFT) | (1 << CNTACR_RVOFF_SHIFT);
-	reg_val |= (1 << CNTACR_RWVT_SHIFT) | (1 << CNTACR_RWPT_SHIFT);
-	mmio_write_32(SYS_TIMCTL_BASE + CNTACR_BASE(0), reg_val);
-	mmio_write_32(SYS_TIMCTL_BASE + CNTACR_BASE(1), reg_val);
+	/* Populate the extents of memory available for loading BL33 */
+	bl2_to_bl31_args->bl33_meminfo.total_base = DRAM_BASE;
+	bl2_to_bl31_args->bl33_meminfo.total_size = DRAM_SIZE;
+	bl2_to_bl31_args->bl33_meminfo.free_base = DRAM_BASE;
+	bl2_to_bl31_args->bl33_meminfo.free_size = DRAM_SIZE;
+	bl2_to_bl31_args->bl33_meminfo.attr = 0;
+	bl2_to_bl31_args->bl33_meminfo.next = 0;
 
-	reg_val = (1 << CNTNSAR_NS_SHIFT(0)) | (1 << CNTNSAR_NS_SHIFT(1));
-	mmio_write_32(SYS_TIMCTL_BASE + CNTNSAR, reg_val);
+	/*
+	 * Populate the extents of memory available for loading BL32.
+	 * TODO: We are temporarily executing BL2 from TZDRAM; will eventually
+	 * move to Trusted SRAM
+	 */
+	bl2_to_bl31_args->bl32_meminfo.total_base = BL32_BASE;
+	bl2_to_bl31_args->bl32_meminfo.free_base = BL32_BASE;
 
-	/* Intialize the power controller */
-	fvp_pwrc_setup();
+	bl2_to_bl31_args->bl32_meminfo.total_size =
+		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+	bl2_to_bl31_args->bl32_meminfo.free_size =
+		(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
 
-	/* Topologies are best known to the platform. */
-	plat_setup_topology();
+	bl2_to_bl31_args->bl32_meminfo.attr = BOT_LOAD;
+	bl2_to_bl31_args->bl32_meminfo.next = 0;
 }
 
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here. At the
  * moment this is only intializes the mmu in a quick and dirty way.
  ******************************************************************************/
-void bl31_plat_arch_setup()
+void bl2_plat_arch_setup()
 {
-	configure_mmu_el3(&bl2_to_bl31_args->bl31_meminfo,
-			  BL31_RO_BASE,
-			  BL31_RO_LIMIT,
-			  BL31_COHERENT_RAM_BASE,
-			  BL31_COHERENT_RAM_LIMIT);
+	fvp_configure_mmu_el1(&bl2_tzram_layout,
+			  BL2_RO_BASE,
+			  BL2_RO_LIMIT,
+			  BL2_COHERENT_RAM_BASE,
+			  BL2_COHERENT_RAM_LIMIT);
 }

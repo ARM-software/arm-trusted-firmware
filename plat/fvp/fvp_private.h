@@ -48,18 +48,18 @@ struct meminfo;
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
-void configure_mmu_el1(struct meminfo *,
+void fvp_configure_mmu_el1(struct meminfo *,
 			unsigned long,
 			unsigned long,
 			unsigned long,
 			unsigned long);
-void configure_mmu_el3(struct meminfo *,
+void fvp_configure_mmu_el3(struct meminfo *,
 			unsigned long,
 			unsigned long,
 			unsigned long,
 			unsigned long);
-unsigned long platform_get_cfgvar(unsigned int);
-int platform_config_setup(void);
+unsigned long fvp_get_cfgvar(unsigned int);
+int fvp_config_setup(void);
 
 /* Declarations for fvp_gic.c */
 void gic_cpuif_deactivate(unsigned int);
@@ -68,13 +68,13 @@ void gic_pcpu_distif_setup(unsigned int);
 void gic_setup(void);
 
 /* Declarations for fvp_topology.c */
-int plat_setup_topology(void);
+int fvp_setup_topology(void);
 
 /* Declarations for plat_io_storage.c */
-void io_setup(void);
+void fvp_io_setup(void);
 
 /* Declarations for plat_security.c */
-void plat_security_setup(void);
+void fvp_security_setup(void);
 
 
 #endif /* __FVP_PRIVATE_H__ */

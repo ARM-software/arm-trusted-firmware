@@ -131,7 +131,7 @@ const mmap_region_t fvp_mmap[] = {
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
 #define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void configure_mmu_el##_el(meminfo_t *mem_layout,		\
+	void fvp_configure_mmu_el##_el(meminfo_t *mem_layout,		\
 				   unsigned long ro_start,		\
 				   unsigned long ro_limit,		\
 				   unsigned long coh_start,		\
@@ -155,7 +155,7 @@ DEFINE_CONFIGURE_MMU_EL(1)
 DEFINE_CONFIGURE_MMU_EL(3)
 
 /* Simple routine which returns a configuration variable value */
-unsigned long platform_get_cfgvar(unsigned int var_id)
+unsigned long fvp_get_cfgvar(unsigned int var_id)
 {
 	assert(var_id < CONFIG_LIMIT);
 	return platform_config[var_id];
@@ -168,7 +168,7 @@ unsigned long platform_get_cfgvar(unsigned int var_id)
  * these platforms. This information is stored in a per-BL array to allow the
  * code to take the correct path.Per BL platform configuration.
  ******************************************************************************/
-int platform_config_setup(void)
+int fvp_config_setup(void)
 {
 	unsigned int rev, hbi, bld, arch, sys_id, midr_pn;
 
