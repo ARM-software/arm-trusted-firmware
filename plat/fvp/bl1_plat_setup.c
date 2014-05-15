@@ -31,7 +31,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl1.h>
 #include <console.h>
 #include <cci400.h>
 #include <fvp_def.h>

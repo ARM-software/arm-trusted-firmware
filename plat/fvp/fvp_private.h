@@ -41,8 +41,23 @@ typedef volatile struct mailbox {
 
 
 /*******************************************************************************
+ * Forward declarations
+ ******************************************************************************/
+struct meminfo;
+
+/*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
+void configure_mmu_el1(struct meminfo *,
+			unsigned long,
+			unsigned long,
+			unsigned long,
+			unsigned long);
+void configure_mmu_el3(struct meminfo *,
+			unsigned long,
+			unsigned long,
+			unsigned long,
+			unsigned long);
 unsigned long platform_get_cfgvar(unsigned int);
 int platform_config_setup(void);
 

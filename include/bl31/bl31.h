@@ -37,7 +37,6 @@
  * Forward declarations
  *****************************************/
 struct meminfo;
-struct el_change_info;
 
 /*******************************************************************************
  * Function prototypes
@@ -47,10 +46,6 @@ void bl31_next_el_arch_setup(uint32_t security_state);
 void bl31_set_next_image_type(uint32_t type);
 uint32_t bl31_get_next_image_type(void);
 void bl31_prepare_next_image_entry();
-struct el_change_info *bl31_get_next_image_info(uint32_t type);
-void bl31_platform_setup(void);
-struct meminfo *bl31_plat_get_bl32_mem_layout(void);
-struct meminfo *bl31_plat_sec_mem_layout(void);
 void bl31_register_bl32_init(int32_t (*)(struct meminfo *));
 
 #endif /* __BL31_H__ */

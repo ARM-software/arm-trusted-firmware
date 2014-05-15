@@ -32,7 +32,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl1.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <stdio.h>

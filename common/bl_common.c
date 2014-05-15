@@ -138,9 +138,11 @@ unsigned long make_spsr(unsigned long target_el,
 }
 
 /*******************************************************************************
- * The next two functions are the weak definitions. Platform specific
+ * The next two functions are weak definitions. Platform specific
  * code can override them if it wishes to.
  ******************************************************************************/
+#pragma weak init_bl31_mem_layout
+#pragma weak init_bl2_mem_layout
 
 /*******************************************************************************
  * Function that takes a memory layout into which BL31 has been either top or
