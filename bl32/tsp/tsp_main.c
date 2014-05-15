@@ -30,7 +30,6 @@
 
 #include <arch_helpers.h>
 #include <bl_common.h>
-#include <bl32.h>
 #include <debug.h>
 #include <platform.h>
 #include <platform_def.h>
