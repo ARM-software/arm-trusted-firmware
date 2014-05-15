@@ -28,63 +28,45 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_INCLUDES		:=	-Idrivers/arm/interconnect/cci-400	\
-				-Idrivers/console			\
-				-Idrivers/arm/trustzone/tzc-400		\
-				-Idrivers/arm/peripherals/pl011
+#
+# No additional platform system include directories required
+#
+# PLAT_INCLUDES		:=
 
-PLAT_BL1_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
-				drivers/arm/peripherals/pl011		\
-				lib/arch/${ARCH}			\
-				lib/stdlib				\
-				drivers/io
+PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.c	\
+				drivers/arm/pl011/pl011.c		\
+				drivers/io/io_fip.c			\
+				drivers/ioio_memmap.c			\
+				lib/mmio.c				\
+				lib/aarch64/xlat_tables.c		\
+				lib/aarch64/sysreg_helpers.S		\
+				plat/juno/plat_io_storage.c
 
-PLAT_BL2_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
-				drivers/arm/peripherals/pl011		\
-				lib/arch/${ARCH}			\
-				lib/stdlib				\
-				drivers/io
+BL1_SOURCES		+=	drivers/arm/cci400/cci400.c		\
+				plat/common/aarch64/platform_up_stack.S	\
+				plat/juno/bl1_plat_setup.c		\
+				plat/juno/aarch64/bl1_plat_helpers.S	\
+				plat/juno/aarch64/plat_helpers.S	\
+				plat/juno/aarch64/plat_common.c
 
-PLAT_BL31_C_VPATH	:=	drivers/arm/interconnect/cci-400	\
-				drivers/arm/peripherals/pl011		\
-				lib/arch/${ARCH}			\
-				lib/stdlib				\
-				drivers/io
+BL2_SOURCES		+=	lib/locks/bakery/bakery_lock.c		\
+				plat/common/aarch64/platform_up_stack.S	\
+				plat/juno/bl2_plat_setup.c		\
+				plat/juno/mhu.c				\
+				plat/juno/aarch64/plat_helpers.S	\
+				plat/juno/aarch64/plat_common.c		\
+				plat/juno/scp_bootloader.c		\
+				plat/juno/scpi.c
 
-PLAT_BL_COMMON_SOURCES	:=	mmio.c					\
-				pl011_console.c				\
-				pl011.c					\
-				sysreg_helpers.S			\
-				plat_io_storage.c			\
-				io_fip.c				\
-				io_memmap.c				\
-				xlat_tables.c
-
-BL1_SOURCES		+=	bl1_plat_setup.c			\
-				bl1_plat_helpers.S			\
-				plat_helpers.S				\
-				platform_up_stack.S			\
-				plat_common.c				\
-				cci400.c
-
-BL2_SOURCES		+=	bakery_lock.c				\
-				bl2_plat_setup.c			\
-				platform_up_stack.S			\
-				mhu.c					\
-				plat_helpers.S				\
-				plat_common.c				\
-				scp_bootloader.c			\
-				scpi.c
-
-BL31_SOURCES		+=	bl31_plat_setup.c			\
-				mhu.c					\
-				plat_helpers.S				\
-				platform_mp_stack.S			\
-				plat_common.c				\
-				plat_pm.c				\
-				plat_topology.c				\
-				plat_gic.c				\
-				scpi.c					\
-				smc_arm.c				\
-				cci400.c				\
-				gic_v2.c
+BL31_SOURCES		+=	drivers/arm/cci400/cci400.c		\
+				drivers/arm/gic/gic_v2.c		\
+				plat/common/aarch64/platform_mp_stack.S	\
+				plat/juno/bl31_plat_setup.c		\
+				plat/juno/mhu.c				\
+				plat/juno/aarch64/plat_helpers.S	\
+				plat/juno/aarch64/plat_common.c		\
+				plat/juno/plat_pm.c			\
+				plat/juno/plat_topology.c		\
+				plat/juno/plat_gic.c			\
+				plat/juno/scpi.c			\
+				plat/juno/smc_arm.c
