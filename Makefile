@@ -28,13 +28,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Decrease the verbosity of the make script
-# can be made verbose by passing V=1 at the make command line
-ifdef V
-  KBUILD_VERBOSE = ${V}
-else
-  KBUILD_VERBOSE = 0
-endif
+#
+# Default values for build configurations
+#
+
+# Build verbosity
+V			:= 0
+# Debug build
+DEBUG			:= 0
+# Build architecture
+ARCH 			:= aarch64
+# Build platform
+DEFAULT_PLAT		:= fvp
+PLAT			:= ${DEFAULT_PLAT}
+# SPD choice
+SPD			:= none
+# Base commit to perform code check on
+BASE_COMMIT		:= origin/master
+
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO
@@ -42,16 +53,13 @@ CHECK_IGNORE		=	--ignore COMPLEX_MACRO
 CHECKPATCH_ARGS		=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 
-ifeq "${KBUILD_VERBOSE}" "0"
+ifeq (${V},0)
 	Q=@
 	CHECKCODE_ARGS	+=	--no-summary --terse
 else
 	Q=
 endif
-
 export Q
-
-DEBUG	?= 0
 
 ifneq (${DEBUG}, 0)
 	BUILD_TYPE	:=	debug
@@ -67,14 +75,6 @@ BL_COMMON_SOURCES	:=	common/bl_common.c			\
 				lib/stdlib/std.c			\
 				lib/io_storage.c			\
 				plat/common/aarch64/platform_helpers.S
-
-ARCH 			?=	aarch64
-
-# By default, build fvp platform
-DEFAULT_PLAT		:=	fvp
-PLAT			?=	${DEFAULT_PLAT}
-# By default, build no SPD component
-SPD			?=	none
 
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
@@ -161,26 +161,26 @@ INCLUDES		+=	-Iinclude/bl1			\
 				${PLAT_INCLUDES}		\
 				${SPD_INCLUDES}
 
+# Process DEBUG flag
+$(eval $(call assert_boolean,DEBUG))
+$(eval $(call add_define,DEBUG))
+ifeq (${DEBUG},0)
+  $(eval $(call add_define,NDEBUG))
+else
+CFLAGS			+= 	-g
+ASFLAGS			+= 	-g -Wa,--gdwarf-2
+endif
+
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
-				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}	\
-				-DDEBUG=${DEBUG}
-CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall	\
+				-mgeneral-regs-only -D__ASSEMBLY__		\
+				${DEFINES} ${INCLUDES}
+CFLAGS			+= 	-nostdinc -pedantic -ffreestanding -Wall	\
 				-Werror -mgeneral-regs-only -std=c99 -c -Os	\
-				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
+				${DEFINES} ${INCLUDES}
 CFLAGS			+=	-ffunction-sections -fdata-sections
 
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
-
-
-ifneq (${DEBUG}, 0)
-#CFLAGS			+= 	-g -O0
-CFLAGS			+= 	-g
-# -save-temps -fverbose-asm
-ASFLAGS			+= 	-g -Wa,--gdwarf-2
-else
-CFLAGS			+=	-DNDEBUG=1
-endif
 
 
 CC			:=	${CROSS_COMPILE}gcc
@@ -192,8 +192,6 @@ OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
-
-BASE_COMMIT		?=	origin/master
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fip_create
