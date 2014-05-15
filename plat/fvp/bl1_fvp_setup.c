@@ -105,7 +105,7 @@ void bl1_early_platform_setup(void)
 	}
 
 	/* Initialize the platform config for future decision making */
-	platform_config_setup();
+	fvp_config_setup();
 }
 
 /*******************************************************************************
@@ -116,7 +116,7 @@ void bl1_early_platform_setup(void)
 void bl1_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
-	io_setup();
+	fvp_io_setup();
 }
 
 
@@ -127,15 +127,14 @@ void bl1_platform_setup(void)
  ******************************************************************************/
 void bl1_plat_arch_setup(void)
 {
-	plat_cci_setup();
+	fvp_cci_setup();
 
-
-	configure_mmu_el3(bl1_tzram_layout.total_base,
-			  bl1_tzram_layout.total_size,
-			  TZROM_BASE,
-			  TZROM_BASE + TZROM_SIZE,
-			  BL1_COHERENT_RAM_BASE,
-			  BL1_COHERENT_RAM_LIMIT);
+	fvp_configure_mmu_el3(bl1_tzram_layout.total_base,
+			      bl1_tzram_layout.total_size,
+			      TZROM_BASE,
+			      TZROM_BASE + TZROM_SIZE,
+			      BL1_COHERENT_RAM_BASE,
+			      BL1_COHERENT_RAM_LIMIT);
 }
 
 

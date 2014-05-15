@@ -132,7 +132,7 @@ const mmap_region_t fvp_mmap[] = {
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
 #define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void configure_mmu_el##_el(unsigned long total_base,		\
+	void fvp_configure_mmu_el##_el(unsigned long total_base,		\
 				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
 				   unsigned long ro_limit,		\
@@ -157,7 +157,7 @@ DEFINE_CONFIGURE_MMU_EL(1)
 DEFINE_CONFIGURE_MMU_EL(3)
 
 /* Simple routine which returns a configuration variable value */
-unsigned long platform_get_cfgvar(unsigned int var_id)
+unsigned long fvp_get_cfgvar(unsigned int var_id)
 {
 	assert(var_id < CONFIG_LIMIT);
 	return platform_config[var_id];
@@ -170,7 +170,7 @@ unsigned long platform_get_cfgvar(unsigned int var_id)
  * these platforms. This information is stored in a per-BL array to allow the
  * code to take the correct path.Per BL platform configuration.
  ******************************************************************************/
-int platform_config_setup(void)
+int fvp_config_setup(void)
 {
 	unsigned int rev, hbi, bld, arch, sys_id, midr_pn;
 
@@ -255,7 +255,7 @@ uint64_t plat_get_syscnt_freq(void)
 	return counter_base_frequency;
 }
 
-void plat_cci_setup(void)
+void fvp_cci_setup(void)
 {
 	unsigned long cci_setup;
 
@@ -264,7 +264,7 @@ void plat_cci_setup(void)
 	 * for locks as no other cpu is active at the
 	 * moment
 	 */
-	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+	cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
 	if (cci_setup)
 		cci_enable_coherency(read_mpidr());
 }

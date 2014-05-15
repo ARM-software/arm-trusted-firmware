@@ -277,8 +277,8 @@ void gic_setup(void)
 {
 	unsigned int gicd_base, gicc_base;
 
-	gicd_base = platform_get_cfgvar(CONFIG_GICD_ADDR);
-	gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+	gicd_base = fvp_get_cfgvar(CONFIG_GICD_ADDR);
+	gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 
 	gic_cpuif_setup(gicc_base);
 	gic_distif_setup(gicd_base);
@@ -298,7 +298,7 @@ void gic_setup(void)
  ******************************************************************************/
 uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state)
 {
-	uint32_t gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+	uint32_t gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 
 	assert(type == INTR_TYPE_S_EL1 ||
 	       type == INTR_TYPE_EL3 ||
@@ -328,7 +328,7 @@ uint32_t ic_get_pending_interrupt_type()
 {
 	uint32_t id, gicc_base;
 
-	gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+	gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 	id = gicc_read_hppir(gicc_base);
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
@@ -350,7 +350,7 @@ uint32_t ic_get_pending_interrupt_id()
 {
 	uint32_t id, gicc_base;
 
-	gicc_base = platform_get_cfgvar(CONFIG_GICC_ADDR);
+	gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 	id = gicc_read_hppir(gicc_base);
 
 	if (id < 1022)
@@ -372,7 +372,7 @@ uint32_t ic_get_pending_interrupt_id()
  ******************************************************************************/
 uint32_t ic_acknowledge_interrupt()
 {
-	return gicc_read_IAR(platform_get_cfgvar(CONFIG_GICC_ADDR));
+	return gicc_read_IAR(fvp_get_cfgvar(CONFIG_GICC_ADDR));
 }
 
 /*******************************************************************************
@@ -381,7 +381,7 @@ uint32_t ic_acknowledge_interrupt()
  ******************************************************************************/
 void ic_end_of_interrupt(uint32_t id)
 {
-	gicc_write_EOIR(platform_get_cfgvar(CONFIG_GICC_ADDR), id);
+	gicc_write_EOIR(fvp_get_cfgvar(CONFIG_GICC_ADDR), id);
 	return;
 }
 
@@ -394,7 +394,7 @@ uint32_t ic_get_interrupt_type(uint32_t id)
 {
 	uint32_t group;
 
-	group = gicd_get_igroupr(platform_get_cfgvar(CONFIG_GICD_ADDR), id);
+	group = gicd_get_igroupr(fvp_get_cfgvar(CONFIG_GICD_ADDR), id);
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
 	if (group == GRP0)

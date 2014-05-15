@@ -95,9 +95,9 @@ el_change_info_t *bl31_get_next_image_info(uint32_t type)
 #if RESET_TO_BL31
 
 	if (type == NON_SECURE)
-		plat_get_entry_point_info(NON_SECURE, &bl33_entrypoint_info);
+		fvp_get_entry_point_info(NON_SECURE, &bl33_entrypoint_info);
 	else
-		plat_get_entry_point_info(SECURE, &bl32_entrypoint_info);
+		fvp_get_entry_point_info(SECURE, &bl32_entrypoint_info);
 
 	next_image_info = (type == NON_SECURE) ?
 		&bl33_entrypoint_info :
@@ -130,7 +130,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 				void *plat_params_from_bl2)
 {
 	/* Initialize the platform config for future decision making */
-	platform_config_setup();
+	fvp_config_setup();
 
 	console_init(PL011_UART0_BASE);
 
@@ -142,7 +142,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * other platforms might have more programmable security devices
 	 * present.
 	 */
-	plat_security_setup();
+	fvp_security_setup();
 #else
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
@@ -188,7 +188,7 @@ void bl31_platform_setup()
 	fvp_pwrc_setup();
 
 	/* Topologies are best known to the platform. */
-	plat_setup_topology();
+	fvp_setup_topology();
 }
 
 /*******************************************************************************
@@ -198,15 +198,15 @@ void bl31_platform_setup()
 void bl31_plat_arch_setup()
 {
 #if RESET_TO_BL31
-	plat_cci_setup();
+	fvp_cci_setup();
 
 #endif
-	configure_mmu_el3(BL31_RO_BASE,
-			  (BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE),
-			  BL31_RO_BASE,
-			  BL31_RO_LIMIT,
-			  BL31_COHERENT_RAM_BASE,
-			  BL31_COHERENT_RAM_LIMIT);
+	fvp_configure_mmu_el3(BL31_RO_BASE,
+			      (BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE),
+			      BL31_RO_BASE,
+			      BL31_RO_LIMIT,
+			      BL31_COHERENT_RAM_BASE,
+			      BL31_COHERENT_RAM_LIMIT);
 }
 
 #if RESET_TO_BL31
@@ -214,7 +214,7 @@ void bl31_plat_arch_setup()
  * Generate the entry point info for Non Secure and Secure images
  * for transferring control from BL31
  ******************************************************************************/
-void plat_get_entry_point_info(unsigned long target_security,
+void fvp_get_entry_point_info(unsigned long target_security,
 					el_change_info_t *target_entry_info)
 {
 	if (target_security == NON_SECURE) {

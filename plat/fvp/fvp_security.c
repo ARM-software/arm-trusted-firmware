@@ -43,7 +43,7 @@
  * TODO:
  * Might want to enable interrupt on violations when supported?
  */
-void plat_security_setup(void)
+void fvp_security_setup(void)
 {
 	tzc_instance_t controller;
 
@@ -56,7 +56,7 @@ void plat_security_setup(void)
 	 * configurations, those would be configured here.
 	 */
 
-	if (!platform_get_cfgvar(CONFIG_HAS_TZC))
+	if (!fvp_get_cfgvar(CONFIG_HAS_TZC))
 		return;
 
 	/*
