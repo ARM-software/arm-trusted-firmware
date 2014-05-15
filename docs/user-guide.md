@@ -83,6 +83,9 @@ To build the software for the FVPs, follow these steps:
         BL33=<path-to>/<bl33_image>                               \
         make PLAT=fvp all fip
 
+    See the "Summary of build options" for information on available build
+    options.
+
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below. UEFI can be
     used as the BL3-3 image, refer to the "Obtaining the normal world software"
@@ -120,6 +123,34 @@ To build the software for the FVPs, follow these steps:
 
         make realclean
 
+### Summary of build options
+
+ARM Trusted Firmware build system supports the following build options. Unless
+mentioned otherwise, these options are expected to be specified at the build
+command line and are not to be modified in any component makefiles. Note that
+the build system doesn't track dependency for build options. Therefore, if any
+of the build options are changed from a previous build, a clean build must be
+performed.
+
+*   `BL33`: Path to BL33 image in the host file system. This is mandatory for
+    `fip` target
+
+*   `CROSS_COMPILE`: Prefix to tool chain binaries. Please refer to examples in
+    this document for usage
+
+*   `DEBUG`: Chooses between a debug and release build. It can take either 0
+    (release) or 1 (debug) as values. 0 is the default
+
+*   `PLAT`: Choose a platform to build ARM Trusted Firmware for. The chosen
+    platform name must be the name of one of the directories under the `plat/`
+    directory other than `common`
+
+*   `SPD`: Choose a Secure Payload Dispatcher component to be built into the
+    Trusted Firmware. The value should be the path to the directory containing
+    SPD source; the directory is expected to contain `spd.mk` makefile
+
+*   `V`: Verbose build. If assigned anything other than 0, the build commands
+    are printed. Default is 0
 
 ### Creating a Firmware Image Package
 
