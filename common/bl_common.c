@@ -74,9 +74,11 @@ void change_security_state(unsigned int target_security_state)
 
 
 /*******************************************************************************
- * The next function is a weak definition. Platform specific
- * code can override it if it wishes to.
+ * The next two functions are weak definitions. Platform specific
+ * code can override them if it wishes to.
  ******************************************************************************/
+#pragma weak init_bl31_mem_layout
+#pragma weak init_bl2_mem_layout
 
 /*******************************************************************************
  * Function that takes a memory layout into which BL2 has been either top or
