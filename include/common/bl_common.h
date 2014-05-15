@@ -193,13 +193,6 @@ CASSERT(sizeof(unsigned long) == __builtin_offsetof(el_change_info_t, spsr) - \
  ******************************************************************************/
 unsigned long page_align(unsigned long, unsigned);
 void change_security_state(unsigned int);
-void init_bl2_mem_layout(meminfo_t *,
-			 meminfo_t *,
-			 unsigned int,
-			 unsigned long) __attribute__((weak));
-void init_bl31_mem_layout(const meminfo_t *,
-			  meminfo_t *,
-			  unsigned int) __attribute__((weak));
 unsigned long image_size(const char *);
 int load_image(meminfo_t *,
 		const char *,
@@ -207,7 +200,6 @@ int load_image(meminfo_t *,
 		unsigned long,
 		image_info_t *,
 		el_change_info_t *);
-unsigned long *get_el_change_mem_ptr(void);
 extern const char build_message[];
 
 #endif /*__ASSEMBLY__*/

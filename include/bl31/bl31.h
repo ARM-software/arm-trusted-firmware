@@ -37,7 +37,6 @@
  * Forward declarations
  *****************************************/
 struct meminfo;
-struct el_change_info;
 
 /*******************************************************************************
  * Function prototypes

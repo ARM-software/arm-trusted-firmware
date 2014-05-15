@@ -41,33 +41,25 @@ struct plat_pm_ops;
 struct meminfo;
 struct image_info;
 struct el_change_info;
+struct bl31_params;
 
 /*******************************************************************************
- * Function and variable prototypes
+ * Function declarations
  ******************************************************************************/
-void bl1_plat_arch_setup(void);
-void bl2_plat_arch_setup(void);
-void bl31_plat_arch_setup(void);
-int platform_setup_pm(const struct plat_pm_ops **);
-unsigned int platform_get_core_pos(unsigned long mpidr);
+/*******************************************************************************
+ * Mandatory common functions
+ ******************************************************************************/
+uint64_t plat_get_syscnt_freq(void);
 void enable_mmu_el1(void);
 void enable_mmu_el3(void);
-void configure_mmu_el1(unsigned long total_base,
-		       unsigned long total_size,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long);
-void configure_mmu_el3(unsigned long total_base,
-		       unsigned long total_size,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long);
-void plat_report_exception(unsigned long);
+int plat_get_image_source(const char *image_name,
+			uintptr_t *dev_handle,
+			uintptr_t *image_spec);
 unsigned long plat_get_ns_image_entrypoint(void);
-unsigned long platform_get_stack(unsigned long mpidr);
-uint64_t plat_get_syscnt_freq(void);
+
+/*******************************************************************************
+ * Mandatory interrupt management functions
+ ******************************************************************************/
 uint32_t ic_get_pending_interrupt_id(void);
 uint32_t ic_get_pending_interrupt_type(void);
 uint32_t ic_acknowledge_interrupt(void);
@@ -76,13 +68,19 @@ void ic_end_of_interrupt(uint32_t id);
 uint32_t plat_interrupt_type_to_line(uint32_t type,
 				     uint32_t security_state);
 
-int plat_get_max_afflvl(void);
-unsigned int plat_get_aff_count(unsigned int, unsigned long);
-unsigned int plat_get_aff_state(unsigned int, unsigned long);
-int plat_get_image_source(const char *image_name,
-			uintptr_t *dev_handle,
-			uintptr_t *image_spec);
+/*******************************************************************************
+ * Optional common functions (may be overridden)
+ ******************************************************************************/
+unsigned int platform_get_core_pos(unsigned long mpidr);
+unsigned long platform_get_stack(unsigned long mpidr);
+void plat_report_exception(unsigned long);
 
+/*******************************************************************************
+ * Mandatory BL1 functions
+ ******************************************************************************/
+void bl1_plat_arch_setup(void);
+void bl1_platform_setup(void);
+struct meminfo *bl1_plat_sec_mem_layout(void);
 /*
  * Before calling this function BL2 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
@@ -92,6 +90,36 @@ int plat_get_image_source(const char *image_name,
 void bl1_plat_bl2_loaded(struct image_info *image,
 			 struct el_change_info *ep);
 
+/*******************************************************************************
+ * Optional BL1 functions (may be overridden)
+ ******************************************************************************/
+void init_bl2_mem_layout(struct meminfo *,
+			struct meminfo *,
+			unsigned int,
+			unsigned long);
+
+/*******************************************************************************
+ * Mandatory BL2 functions
+ ******************************************************************************/
+void bl2_plat_arch_setup(void);
+void bl2_platform_setup(void);
+struct meminfo *bl2_plat_sec_mem_layout(void);
+/*******************************************************************************
+ * This function returns a pointer to the shared memory that the platform has
+ * kept aside to pass trusted firmware related information that BL3-1
+ * could need
+ ******************************************************************************/
+struct bl31_params *bl2_plat_get_bl31_params(void);
+/*******************************************************************************
+ * This function returns a pointer to the shared memory that the platform
+ * has kept to point to entry point information of BL31 to BL2
+ ******************************************************************************/
+struct el_change_info *bl2_plat_get_bl31_ep(void);
+/************************************************************************
+ * This function flushes to main memory all the params that are
+ * passed to BL3-1
+ **************************************************************************/
+void bl2_plat_flush_bl31_params(void);
 /*
  * Before calling this function BL31 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
@@ -100,7 +128,6 @@ void bl1_plat_bl2_loaded(struct image_info *image,
  */
 void bl2_plat_bl31_post_load_actions(struct image_info *image,
 				     struct el_change_info *ep);
-
 /*
  * Before calling this function BL32 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
@@ -109,7 +136,6 @@ void bl2_plat_bl31_post_load_actions(struct image_info *image,
  */
 void bl2_plat_bl32_post_load_actions(struct image_info *image,
 				     struct el_change_info *ep);
-
 /*
  * Before calling this function BL33 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
@@ -118,12 +144,35 @@ void bl2_plat_bl32_post_load_actions(struct image_info *image,
  */
 void bl2_plat_bl33_post_load_actions(struct image_info *image,
 				     struct el_change_info *ep);
-
 /* Gets the memory layout for BL32 */
 void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
-
 /* Gets the memory layout for BL33 */
 void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
+
+/*******************************************************************************
+ * Optional BL2 functions (may be overridden)
+ ******************************************************************************/
+
+/*******************************************************************************
+ * Mandatory BL3-1 functions
+ ******************************************************************************/
+void bl31_plat_arch_setup(void);
+void bl31_platform_setup(void);
+struct el_change_info *bl31_get_next_image_info(uint32_t type);
+
+/*******************************************************************************
+ * Mandatory PSCI functions (BL3-1)
+ ******************************************************************************/
+int platform_setup_pm(const struct plat_pm_ops **);
+int plat_get_max_afflvl(void);
+unsigned int plat_get_aff_count(unsigned int, unsigned long);
+unsigned int plat_get_aff_state(unsigned int, unsigned long);
+
+/*******************************************************************************
+ * Mandatory BL3-2 functions (only if platform contains a BL3-2
+ ******************************************************************************/
+void bl32_platform_setup(void);
+struct meminfo *bl32_plat_sec_mem_layout(void);
 
 
 #endif /* __PLATFORM_H__ */
