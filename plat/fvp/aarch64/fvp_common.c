@@ -46,7 +46,7 @@
  * configuration) & used thereafter. Each BL will have its own copy to allow
  * independent operation.
  ******************************************************************************/
-static unsigned long platform_config[CONFIG_LIMIT];
+static unsigned long fvp_config[CONFIG_LIMIT];
 
 /*******************************************************************************
  * Macro generating the code for the function enabling the MMU in the given
@@ -132,7 +132,7 @@ const mmap_region_t fvp_mmap[] = {
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
 #define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void configure_mmu_el##_el(unsigned long total_base,		\
+	void fvp_configure_mmu_el##_el(unsigned long total_base,		\
 				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
 				   unsigned long ro_limit,		\
@@ -157,10 +157,10 @@ DEFINE_CONFIGURE_MMU_EL(1)
 DEFINE_CONFIGURE_MMU_EL(3)
 
 /* Simple routine which returns a configuration variable value */
-unsigned long platform_get_cfgvar(unsigned int var_id)
+unsigned long fvp_get_cfgvar(unsigned int var_id)
 {
 	assert(var_id < CONFIG_LIMIT);
-	return platform_config[var_id];
+	return fvp_config[var_id];
 }
 
 /*******************************************************************************
@@ -170,7 +170,7 @@ unsigned long platform_get_cfgvar(unsigned int var_id)
  * these platforms. This information is stored in a per-BL array to allow the
  * code to take the correct path.Per BL platform configuration.
  ******************************************************************************/
-int platform_config_setup(void)
+int fvp_config_setup(void)
 {
 	unsigned int rev, hbi, bld, arch, sys_id, midr_pn;
 
@@ -189,16 +189,16 @@ int platform_config_setup(void)
 	 */
 	switch (bld) {
 	case BLD_GIC_VE_MMAP:
-		platform_config[CONFIG_GICD_ADDR] = VE_GICD_BASE;
-		platform_config[CONFIG_GICC_ADDR] = VE_GICC_BASE;
-		platform_config[CONFIG_GICH_ADDR] = VE_GICH_BASE;
-		platform_config[CONFIG_GICV_ADDR] = VE_GICV_BASE;
+		fvp_config[CONFIG_GICD_ADDR] = VE_GICD_BASE;
+		fvp_config[CONFIG_GICC_ADDR] = VE_GICC_BASE;
+		fvp_config[CONFIG_GICH_ADDR] = VE_GICH_BASE;
+		fvp_config[CONFIG_GICV_ADDR] = VE_GICV_BASE;
 		break;
 	case BLD_GIC_A53A57_MMAP:
-		platform_config[CONFIG_GICD_ADDR] = BASE_GICD_BASE;
-		platform_config[CONFIG_GICC_ADDR] = BASE_GICC_BASE;
-		platform_config[CONFIG_GICH_ADDR] = BASE_GICH_BASE;
-		platform_config[CONFIG_GICV_ADDR] = BASE_GICV_BASE;
+		fvp_config[CONFIG_GICD_ADDR] = BASE_GICD_BASE;
+		fvp_config[CONFIG_GICC_ADDR] = BASE_GICC_BASE;
+		fvp_config[CONFIG_GICH_ADDR] = BASE_GICH_BASE;
+		fvp_config[CONFIG_GICV_ADDR] = BASE_GICV_BASE;
 		break;
 	default:
 		assert(0);
@@ -210,25 +210,25 @@ int platform_config_setup(void)
 	 */
 	switch (hbi) {
 	case HBI_FOUNDATION:
-		platform_config[CONFIG_MAX_AFF0] = 4;
-		platform_config[CONFIG_MAX_AFF1] = 1;
-		platform_config[CONFIG_CPU_SETUP] = 0;
-		platform_config[CONFIG_BASE_MMAP] = 0;
-		platform_config[CONFIG_HAS_CCI] = 0;
-		platform_config[CONFIG_HAS_TZC] = 0;
+		fvp_config[CONFIG_MAX_AFF0] = 4;
+		fvp_config[CONFIG_MAX_AFF1] = 1;
+		fvp_config[CONFIG_CPU_SETUP] = 0;
+		fvp_config[CONFIG_BASE_MMAP] = 0;
+		fvp_config[CONFIG_HAS_CCI] = 0;
+		fvp_config[CONFIG_HAS_TZC] = 0;
 		break;
 	case HBI_FVP_BASE:
 		midr_pn = (read_midr() >> MIDR_PN_SHIFT) & MIDR_PN_MASK;
 		if ((midr_pn == MIDR_PN_A57) || (midr_pn == MIDR_PN_A53))
-			platform_config[CONFIG_CPU_SETUP] = 1;
+			fvp_config[CONFIG_CPU_SETUP] = 1;
 		else
-			platform_config[CONFIG_CPU_SETUP] = 0;
+			fvp_config[CONFIG_CPU_SETUP] = 0;
 
-		platform_config[CONFIG_MAX_AFF0] = 4;
-		platform_config[CONFIG_MAX_AFF1] = 2;
-		platform_config[CONFIG_BASE_MMAP] = 1;
-		platform_config[CONFIG_HAS_CCI] = 1;
-		platform_config[CONFIG_HAS_TZC] = 1;
+		fvp_config[CONFIG_MAX_AFF0] = 4;
+		fvp_config[CONFIG_MAX_AFF1] = 2;
+		fvp_config[CONFIG_BASE_MMAP] = 1;
+		fvp_config[CONFIG_HAS_CCI] = 1;
+		fvp_config[CONFIG_HAS_TZC] = 1;
 		break;
 	default:
 		assert(0);
@@ -264,7 +264,7 @@ void fvp_cci_setup(void)
 	 * for locks as no other cpu is active at the
 	 * moment
 	 */
-	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+	cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
 	if (cci_setup)
 		cci_enable_coherency(read_mpidr());
 }
