@@ -56,8 +56,25 @@ typedef struct bl2_to_bl31_params_mem {
 } bl2_to_bl31_params_mem_t;
 
 /*******************************************************************************
+ * Forward declarations
+ ******************************************************************************/
+struct meminfo;
+
+/*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
+void configure_mmu_el1(unsigned long total_base,
+		       unsigned long total_size,
+		       unsigned long,
+		       unsigned long,
+		       unsigned long,
+		       unsigned long);
+void configure_mmu_el3(unsigned long total_base,
+		       unsigned long total_size,
+		       unsigned long,
+		       unsigned long,
+		       unsigned long,
+		       unsigned long);
 unsigned long platform_get_cfgvar(unsigned int);
 int platform_config_setup(void);
 
