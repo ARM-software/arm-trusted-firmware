@@ -39,6 +39,16 @@
 #include "bl2_private.h"
 
 /*******************************************************************************
+ * Runs BL31 from the given entry point. It jumps to a higher exception level
+ * through an SMC.
+ ******************************************************************************/
+static void __dead2 bl2_run_bl31(const el_change_info_t *bl31_ep_info)
+{
+	smc(RUN_IMAGE, (unsigned long)bl31_ep_info, 0, 0, 0, 0, 0, 0);
+}
+
+
+/*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
  * BL31. The memory occupied by BL2 will be reclaimed by BL3_x stages. BL2 runs
  * entirely in S-EL1. Since arm standard c libraries are not PIC, printf et al
@@ -58,6 +68,12 @@ void bl2_main(void)
 	bl2_platform_setup();
 
 	printf("BL2 %s\n\r", build_message);
+
+	/*
+	 * Get a pointer to the memory the platform has set aside to pass
+	 * information to BL31.
+	 */
+	bl2_to_bl31_args = bl2_get_bl31_args_ptr();
 
 	/* Find out how much free trusted ram remains after BL2 load */
 	bl2_tzram_layout = bl2_plat_sec_mem_layout();
@@ -79,12 +95,10 @@ void bl2_main(void)
 		ERROR("Failed to load BL3-1.\n");
 		panic();
 	}
-
-	/*
-	 * Get a pointer to the memory the platform has set aside to pass
-	 * information to BL31.
-	 */
-	bl2_to_bl31_args = bl2_get_bl31_args_ptr();
+	bl2_to_bl31_args->bl31_image_info.entrypoint = bl31_base;
+	bl2_to_bl31_args->bl31_image_info.security_state = SECURE;
+	bl2_to_bl31_args->bl31_image_info.spsr =
+			SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
 
 	/*
 	 * Load the BL32 image if there's one. It is upto to platform
@@ -159,14 +173,15 @@ void bl2_main(void)
 	flush_dcache_range((unsigned long) bl2_to_bl31_args,
 			   sizeof(*bl2_to_bl31_args));
 
+	/* Set the args pointers for X0 and X1 to BL31 */
+	bl2_to_bl31_args->bl31_image_info.args.arg0 =
+				(unsigned long)bl2_to_bl31_args;
+	bl2_to_bl31_args->bl31_image_info.args.arg1 = (unsigned long)0;
+
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
 	 * the BL32 (if present) and BL33 software images will be passed to
 	 * BL31 as an argument.
 	 */
-	run_image(bl31_base,
-		  SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTION),
-		  SECURE,
-		  (void *) bl2_to_bl31_args,
-		  NULL);
+	 bl2_run_bl31(&bl2_to_bl31_args->bl31_image_info);
 }

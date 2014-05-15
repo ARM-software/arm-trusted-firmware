@@ -38,6 +38,22 @@
 #include "bl1_private.h"
 
 /*******************************************************************************
+ * Runs BL2 from the given entry point. It results in dropping the
+ * exception level
+ ******************************************************************************/
+static void __dead2 bl1_run_bl2(el_change_info_t *bl2_ep)
+{
+	/* Tell next EL what we want done */
+	bl2_ep->args.arg0 = RUN_IMAGE;
+
+	if (bl2_ep->security_state == NON_SECURE)
+		change_security_state(bl2_ep->security_state);
+
+	drop_el(&bl2_ep->args, bl2_ep->spsr, bl2_ep->entrypoint);
+}
+
+
+/*******************************************************************************
  * Function to perform late architectural and platform specific initialization.
  * It also locates and loads the BL2 raw binary image in the trusted DRAM. Only
  * called by the primary cpu after a cold boot.
@@ -50,9 +66,10 @@ void bl1_main(void)
 	unsigned long sctlr_el3 = read_sctlr_el3();
 #endif
 	unsigned long bl2_base;
-	unsigned int load_type = TOP_LOAD, spsr;
+	unsigned int load_type = TOP_LOAD;
 	meminfo_t *bl1_tzram_layout;
 	meminfo_t *bl2_tzram_layout = 0x0;
+	el_change_info_t bl2_ep = {0};
 
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
@@ -95,19 +112,19 @@ void bl1_main(void)
 
 	if (bl2_base) {
 		bl1_arch_next_el_setup();
-		spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
+		bl2_ep.spsr =
+			SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
+		bl2_ep.entrypoint = bl2_base;
+		bl2_ep.security_state = SECURE;
+		bl2_ep.args.arg1 = (unsigned long)bl2_tzram_layout;
 		printf("Booting trusted firmware boot loader stage 2\n\r");
 #if DEBUG
 		printf("BL2 address = 0x%llx \n\r", (unsigned long long) bl2_base);
-		printf("BL2 cpsr = 0x%x \n\r", spsr);
+		printf("BL2 cpsr = 0x%x \n\r", bl2_ep.spsr);
 		printf("BL2 memory layout address = 0x%llx \n\r",
 		       (unsigned long long) bl2_tzram_layout);
 #endif
-		run_image(bl2_base,
-			  spsr,
-			  SECURE,
-			  (void *) bl2_tzram_layout,
-			  NULL);
+		bl1_run_bl2(&bl2_ep);
 	}
 
 	/*
@@ -122,17 +139,16 @@ void bl1_main(void)
  * Temporary function to print the fact that BL2 has done its job and BL31 is
  * about to be loaded. This is needed as long as printfs cannot be used
  ******************************************************************************/
-void display_boot_progress(unsigned long entrypoint,
-			   unsigned long spsr,
-			   unsigned long mem_layout,
-			   unsigned long ns_image_info)
+void display_boot_progress(el_change_info_t *bl31_ep_info)
 {
 	printf("Booting trusted firmware boot loader stage 3\n\r");
 #if DEBUG
-	printf("BL31 address = 0x%llx \n\r", (unsigned long long) entrypoint);
-	printf("BL31 cpsr = 0x%llx \n\r", (unsigned long long)spsr);
-	printf("BL31 memory layout address = 0x%llx \n\r", (unsigned long long)mem_layout);
-	printf("BL31 non-trusted image info address = 0x%llx\n\r", (unsigned long long)ns_image_info);
+	printf("BL31 address = 0x%llx\n",
+			(unsigned long long)bl31_ep_info->entrypoint);
+	printf("BL31 cpsr = 0x%llx\n",
+			(unsigned long long)bl31_ep_info->spsr);
+	printf("BL31 args address = 0x%llx\n",
+			(unsigned long long)bl31_ep_info->args.arg0);
 #endif
 	return;
 }
