@@ -39,6 +39,27 @@
 #include "bl2_private.h"
 
 /*******************************************************************************
+ * Runs BL31 from the given entry point. It jumps to a higher exception level
+ * through an SMC.
+ ******************************************************************************/
+static void __dead2 bl2_run_bl31(bl31_args_t *bl2_to_bl31_args,
+				unsigned long arg1,
+				unsigned long arg2)
+{
+	/* Set the args pointers for X0 and X1 to BL31 */
+	bl2_to_bl31_args->bl31_image_info.args.arg0 = arg1;
+	bl2_to_bl31_args->bl31_image_info.args.arg1 = arg2;
+
+	/* Flush the entire BL31 args buffer */
+	flush_dcache_range((unsigned long) bl2_to_bl31_args,
+			   sizeof(*bl2_to_bl31_args));
+
+	smc(RUN_IMAGE, (unsigned long)&bl2_to_bl31_args->bl31_image_info,
+				0, 0, 0, 0, 0, 0);
+}
+
+
+/*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
  * BL31. The memory occupied by BL2 will be reclaimed by BL3_x stages. BL2 runs
  * entirely in S-EL1. Since arm standard c libraries are not PIC, printf et al
@@ -86,19 +107,9 @@ void bl2_main(void)
 	 */
 	bl2_to_bl31_args = bl2_get_bl31_args_ptr();
 
-	/*
-	 * Load the BL32 image if there's one. It is upto to platform
-	 * to specify where BL32 should be loaded if it exists. It
-	 * could create space in the secure sram or point to a
-	 * completely different memory. A zero size indicates that the
-	 * platform does not want to load a BL32 image.
-	 */
-	if (bl2_to_bl31_args->bl32_meminfo.total_size)
-		bl32_base = load_image(&bl2_to_bl31_args->bl32_meminfo,
-				       BL32_IMAGE_NAME,
-				       bl2_to_bl31_args->bl32_meminfo.attr &
-				       LOAD_MASK,
-				       BL32_BASE);
+	bl2_to_bl31_args->bl31_image_info.entrypoint = bl31_base;
+	bl2_to_bl31_args->bl31_image_info.spsr =
+			SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
 	/*
 	 * Create a new layout of memory for BL31 as seen by BL2. This
@@ -143,6 +154,20 @@ void bl2_main(void)
 			SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	bl2_to_bl31_args->bl33_image_info.security_state = NON_SECURE;
 
+	/*
+	 * Load the BL32 image if there's one. It is upto to platform
+	 * to specify where BL32 should be loaded if it exists. It
+	 * could create space in the secure sram or point to a
+	 * completely different memory. A zero size indicates that the
+	 * platform does not want to load a BL32 image.
+	 */
+	if (bl2_to_bl31_args->bl32_meminfo.total_size)
+		bl32_base = load_image(&bl2_to_bl31_args->bl32_meminfo,
+				       BL32_IMAGE_NAME,
+				       bl2_to_bl31_args->bl32_meminfo.attr &
+				       LOAD_MASK,
+				       BL32_BASE);
+
 	if (bl32_base) {
 		/* Fill BL32 image info */
 		bl2_to_bl31_args->bl32_image_info.entrypoint = bl32_base;
@@ -155,18 +180,10 @@ void bl2_main(void)
 		bl2_to_bl31_args->bl32_image_info.spsr = 0;
 	}
 
-	/* Flush the entire BL31 args buffer */
-	flush_dcache_range((unsigned long) bl2_to_bl31_args,
-			   sizeof(*bl2_to_bl31_args));
-
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
 	 * the BL32 (if present) and BL33 software images will be passed to
 	 * BL31 as an argument.
 	 */
-	run_image(bl31_base,
-		  SPSR_64(MODE_EL3, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS),
-		  SECURE,
-		  (void *) bl2_to_bl31_args,
-		  NULL);
+	 bl2_run_bl31(bl2_to_bl31_args, (unsigned long)bl2_to_bl31_args, 0);
 }

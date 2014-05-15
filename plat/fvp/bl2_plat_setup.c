@@ -97,8 +97,7 @@ bl31_args_t *bl2_get_bl31_args_ptr(void)
  * in x0. This memory layout is sitting at the base of the free trusted SRAM.
  * Copy it to a safe loaction before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void bl2_early_platform_setup(meminfo_t *mem_layout,
-			      void *data)
+void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
