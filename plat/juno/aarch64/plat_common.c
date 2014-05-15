@@ -56,6 +56,8 @@ void enable_mmu()
 	ttbr = (unsigned long) l1_xlation_table;
 
 	if (GET_EL(current_el) == MODE_EL3) {
+		assert((read_sctlr_el3() & SCTLR_M_BIT) == 0);
+
 		write_mair_el3(mair);
 		tcr |= TCR_EL3_RES1;
 		/* Invalidate EL3 TLBs */
@@ -64,11 +66,20 @@ void enable_mmu()
 		write_tcr_el3(tcr);
 		write_ttbr0_el3(ttbr);
 
+		/* ensure all translation table writes have drained into memory,
+		 * the TLB invalidation is complete, and translation register
+		 * writes are committed before enabling the MMU
+		 */
+		dsb();
+		isb();
+
 		sctlr = read_sctlr_el3();
 		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;
 		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;
 		write_sctlr_el3(sctlr);
 	} else {
+		assert((read_sctlr_el1() & SCTLR_M_BIT) == 0);
+
 		write_mair_el1(mair);
 		/* Invalidate EL1 TLBs */
 		tlbivmalle1();
@@ -76,11 +87,20 @@ void enable_mmu()
 		write_tcr_el1(tcr);
 		write_ttbr0_el1(ttbr);
 
+		/* ensure all translation table writes have drained into memory,
+		 * the TLB invalidation is complete, and translation register
+		 * writes are committed before enabling the MMU
+		 */
+		dsb();
+		isb();
+
 		sctlr = read_sctlr_el1();
 		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;
 		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;
 		write_sctlr_el1(sctlr);
 	}
+	/* ensure the MMU enable takes effect immediately */
+	isb();
 
 	return;
 }
