@@ -85,27 +85,6 @@ void enable_mmu()
 	return;
 }
 
-void disable_mmu(void)
-{
-	unsigned long sctlr;
-	unsigned long current_el = read_current_el();
-
-	if (GET_EL(current_el) == MODE_EL3) {
-		sctlr = read_sctlr_el3();
-		sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
-		write_sctlr_el3(sctlr);
-	} else {
-		sctlr = read_sctlr_el1();
-		sctlr = sctlr & ~(SCTLR_M_BIT | SCTLR_C_BIT);
-		write_sctlr_el1(sctlr);
-	}
-
-	/* Flush the caches */
-	dcsw_op_all(DCCISW);
-
-	return;
-}
-
 static const mmap_region_t juno_mmap[] = {
 	{ TZROM_BASE,		TZROM_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
 	{ MHU_SECURE_BASE,	MHU_SECURE_SIZE,	(MHU_PAYLOAD_CACHED ? MT_MEMORY : MT_DEVICE)
