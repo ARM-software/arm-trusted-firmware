@@ -43,13 +43,20 @@ func cpu_reset_handler
 	lsr	x0, x0, #MIDR_PN_SHIFT
 	and	x0, x0, #MIDR_PN_MASK
 	cmp	x0, #MIDR_PN_A57
-	b.eq	smp_setup_begin
+	b.eq	a57_setup_begin
 	cmp	x0, #MIDR_PN_A53
-	b.ne	smp_setup_end
+	b.eq	smp_setup_begin
+	b	smp_setup_end
+
+a57_setup_begin:
+	mov	x0, #0x082
+	msr	s3_1_c11_c0_2, x0
+
 smp_setup_begin:
 	mrs	x0, CPUECTLR_EL1
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
 	isb
+
 smp_setup_end:
 	ret
