@@ -40,7 +40,7 @@
 	.globl	platform_mem_init
 	.globl	plat_report_exception
 
-	.macro	platform_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
+	.macro	fvp_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
 	ldr	\x_tmp, =VE_SYSREGS_BASE + V2M_SYS_ID
 	ldr	\w_tmp, [\x_tmp]
 	ubfx	\w_tmp, \w_tmp, #SYS_ID_BLD_SHIFT, #SYS_ID_BLD_LENGTH
@@ -78,7 +78,7 @@ func plat_secondary_cold_boot_setup
 	 */
 	ldr	x0, =VE_GICC_BASE
 	ldr	x1, =BASE_GICC_BASE
-	platform_choose_gicmmap	x0, x1, x2, w2, x1
+	fvp_choose_gicmmap	x0, x1, x2, w2, x1
 	mov	w0, #(IRQ_BYP_DIS_GRP1 | FIQ_BYP_DIS_GRP1)
 	orr	w0, w0, #(IRQ_BYP_DIS_GRP0 | FIQ_BYP_DIS_GRP0)
 	str	w0, [x1, #GICC_CTLR]

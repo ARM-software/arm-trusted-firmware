@@ -179,7 +179,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 	bl2_tzram_layout.next = 0;
 
 	/* Initialize the platform config for future decision making */
-	platform_config_setup();
+	fvp_config_setup();
 }
 
 /*******************************************************************************
@@ -194,10 +194,10 @@ void bl2_platform_setup(void)
 	 * other platforms might have more programmable security devices
 	 * present.
 	 */
-	plat_security_setup();
+	fvp_security_setup();
 
 	/* Initialise the IO layer and register platform IO devices */
-	io_setup();
+	fvp_io_setup();
 }
 
 /* Flush the TF params and the TF plat params */
@@ -214,12 +214,12 @@ void bl2_plat_flush_bl31_params(void)
  ******************************************************************************/
 void bl2_plat_arch_setup()
 {
-	configure_mmu_el1(bl2_tzram_layout.total_base,
-			  bl2_tzram_layout.total_size,
-			  BL2_RO_BASE,
-			  BL2_RO_LIMIT,
-			  BL2_COHERENT_RAM_BASE,
-			  BL2_COHERENT_RAM_LIMIT);
+	fvp_configure_mmu_el1(bl2_tzram_layout.total_base,
+			      bl2_tzram_layout.total_size,
+			      BL2_RO_BASE,
+			      BL2_RO_LIMIT,
+			      BL2_COHERENT_RAM_BASE,
+			      BL2_COHERENT_RAM_LIMIT);
 }
 
 /*******************************************************************************

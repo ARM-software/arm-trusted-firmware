@@ -63,23 +63,23 @@ struct meminfo;
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
-void configure_mmu_el1(unsigned long total_base,
-		       unsigned long total_size,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long);
-void configure_mmu_el3(unsigned long total_base,
-		       unsigned long total_size,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long,
-		       unsigned long);
-unsigned long platform_get_cfgvar(unsigned int);
-int platform_config_setup(void);
+void fvp_configure_mmu_el1(unsigned long total_base,
+			   unsigned long total_size,
+			   unsigned long,
+			   unsigned long,
+			   unsigned long,
+			   unsigned long);
+void fvp_configure_mmu_el3(unsigned long total_base,
+			   unsigned long total_size,
+			   unsigned long,
+			   unsigned long,
+			   unsigned long,
+			   unsigned long);
+unsigned long fvp_get_cfgvar(unsigned int);
+int fvp_config_setup(void);
 
 #if RESET_TO_BL31
-void plat_get_entry_point_info(unsigned long target_security,
+void fvp_get_entry_point_info(unsigned long target_security,
 				struct entry_point_info *target_entry_info);
 #endif
 void fvp_cci_setup(void);
@@ -91,13 +91,13 @@ void gic_pcpu_distif_setup(unsigned int);
 void gic_setup(void);
 
 /* Declarations for fvp_topology.c */
-int plat_setup_topology(void);
+int fvp_setup_topology(void);
 
-/* Declarations for plat_io_storage.c */
-void io_setup(void);
+/* Declarations for fvp_io_storage.c */
+void fvp_io_setup(void);
 
-/* Declarations for plat_security.c */
-void plat_security_setup(void);
+/* Declarations for fvp_security.c */
+void fvp_security_setup(void);
 
 /* Sets the entrypoint for BL32 */
 void fvp_set_bl32_ep_info(struct entry_point_info *bl32_ep);

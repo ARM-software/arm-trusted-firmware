@@ -168,7 +168,7 @@ static int open_semihosting(const uintptr_t spec)
 	return result;
 }
 
-void io_setup (void)
+void fvp_io_setup (void)
 {
 	int io_result = IO_FAIL;
 
