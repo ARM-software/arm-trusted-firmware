@@ -48,27 +48,27 @@ static uintptr_t memmap_dev_spec;
 static uintptr_t memmap_init_params;
 static uintptr_t memmap_dev_handle;
 
-static io_block_spec_t fip_block_spec = {
+static const io_block_spec_t fip_block_spec = {
 	.offset = FLASH_BASE,
 	.length = FLASH_SIZE
 };
 
-static io_file_spec_t bl2_file_spec = {
+static const io_file_spec_t bl2_file_spec = {
 	.path = BL2_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec_t bl30_file_spec = {
+static const io_file_spec_t bl30_file_spec = {
 	.path = BL30_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec_t bl31_file_spec = {
+static const io_file_spec_t bl31_file_spec = {
 	.path = BL31_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec_t bl33_file_spec = {
+static const io_file_spec_t bl33_file_spec = {
 	.path = BL33_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
@@ -77,13 +77,13 @@ static int open_fip(const uintptr_t spec);
 static int open_memmap(const uintptr_t spec);
 
 struct plat_io_policy {
-	char *image_name;
+	const char *image_name;
 	uintptr_t *dev_handle;
 	uintptr_t image_spec;
 	int (*check)(const uintptr_t spec);
 };
 
-static struct plat_io_policy policies[] = {
+static const struct plat_io_policy policies[] = {
 	{
 		FIP_IMAGE_NAME,
 		&memmap_dev_handle,
@@ -178,7 +178,7 @@ int plat_get_image_source(const char *image_name, uintptr_t *dev_handle,
 			  uintptr_t *image_spec)
 {
 	int result = IO_FAIL;
-	struct plat_io_policy *policy;
+	const struct plat_io_policy *policy;
 
 	if ((image_name != NULL) && (dev_handle != NULL) &&
 	    (image_spec != NULL)) {

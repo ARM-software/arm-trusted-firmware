@@ -145,7 +145,7 @@ int pm_off(unsigned long mpidr, unsigned int afflvl, unsigned int state)
 /*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
-static plat_pm_ops_t pm_ops = {
+static const plat_pm_ops_t pm_ops = {
 	.affinst_on		= pm_on,
 	.affinst_on_finish	= pm_on_finish,
 	.affinst_off		= pm_off
