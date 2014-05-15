@@ -36,7 +36,7 @@
 #include <console.h>
 #include <mmio.h>
 #include <platform.h>
-#include "../../drivers/arm/trustzone/tzc-400/tzc400.h"
+#include <tzc400.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -156,30 +156,30 @@ static void init_nic400(void)
 static void init_tzc400(void)
 {
 	/* Enable all filter units available */
-	mmio_write_32(TZC400_BASE + TZC400_GATE_KEEPER_REG, 0x0000000f);
+	mmio_write_32(TZC400_BASE + GATE_KEEPER_OFF, 0x0000000f);
 
 	/*
 	 * Secure read and write are enabled for region 0, and the background
 	 * region (region 0) is enabled for all four filter units
 	 */
-	mmio_write_32(TZC400_BASE + TZC400_REGION_ATTRIBUTES_0_REG, 0xc0000000);
+	mmio_write_32(TZC400_BASE + REGION_ATTRIBUTES_OFF, 0xc0000000);
 
 	/*
 	 * Enable Non-secure read/write accesses for the Soc Devices from the
 	 * Non-Secure World
 	 */
-	mmio_write_32(TZC400_BASE + TZC400_REGION_ID_ACCESS_0_REG,
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_CCI400)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_PCIE)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_HDLCD0)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_HDLCD1)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_USB)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_DMA330)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_THINLINKS)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_AP)		|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_GPU)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_SCP)	|
-		(TZC400_NSAID_RD_RW << TZC400_NSAID_CORESIGHT)
+	mmio_write_32(TZC400_BASE + REGION_ID_ACCESS_OFF,
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CCI400)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_PCIE)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD0)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD1)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_USB)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_DMA330)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_THINLINKS)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_AP)		|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_GPU)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_SCP)	|
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CORESIGHT)
 		);
 }
 
