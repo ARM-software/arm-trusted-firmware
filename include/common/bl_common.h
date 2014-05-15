@@ -56,10 +56,17 @@
  *****************************************************************************/
 #define RUN_IMAGE	0xC0000000
 
+/*******************************************************************************
+ * Constants that allow assembler code to access members of and the
+ *  'el_change_info' structure at their correct offsets.
+ ******************************************************************************/
+#define EL_CHANGE_INFO_PC_OFFSET 0x0
+#define EL_CHANGE_INFO_ARGS_OFFSET 0x18
 
 #ifndef __ASSEMBLY__
 
 #include <cdefs.h> /* For __dead2 */
+#include <cassert.h>
 
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
@@ -89,6 +96,8 @@ typedef struct aapcs64_params {
  * This structure represents the superset of information needed while switching
  * exception levels. The only two mechanisms to do so are ERET & SMC. In case of
  * SMC all members apart from 'aapcs64_params' will be ignored.
+ * NOTE: BL1 expects entrypoint followed by spsr while processing SMC to jump
+ * to BL31 from the start of el_change_info
  ******************************************************************************/
 typedef struct el_change_info {
 	unsigned long entrypoint;
@@ -103,6 +112,7 @@ typedef struct el_change_info {
  * populated only if BL2 detects its presence.
  ******************************************************************************/
 typedef struct bl31_args {
+	el_change_info_t bl31_image_info;
 	meminfo_t bl31_meminfo;
 	el_change_info_t bl32_image_info;
 	meminfo_t bl32_meminfo;
@@ -110,14 +120,29 @@ typedef struct bl31_args {
 	meminfo_t bl33_meminfo;
 } bl31_args_t;
 
+
+/*
+ * Compile time assertions related to the 'el_change_info' structure to
+ * ensure that the assembler and the compiler view of the offsets of
+ * the structure members is the same.
+ */
+CASSERT(EL_CHANGE_INFO_PC_OFFSET == \
+	__builtin_offsetof(el_change_info_t, entrypoint), \
+	assert_BL31_pc_offset_mismatch);
+
+CASSERT(EL_CHANGE_INFO_ARGS_OFFSET == \
+		__builtin_offsetof(el_change_info_t, args), \
+		assert_BL31_args_offset_mismatch);
+
+CASSERT(sizeof(unsigned long) == __builtin_offsetof(el_change_info_t, spsr) - \
+		__builtin_offsetof(el_change_info_t, entrypoint), \
+		assert_entrypoint_and_spsr_should_be_adjacent);
+
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
 extern unsigned long page_align(unsigned long, unsigned);
 extern void change_security_state(unsigned int);
-extern void __dead2 drop_el(aapcs64_params_t *, unsigned long, unsigned long);
-extern void __dead2 raise_el(aapcs64_params_t *);
-extern void __dead2 change_el(el_change_info_t *);
 extern void init_bl2_mem_layout(meminfo_t *,
 				meminfo_t *,
 				unsigned int,
@@ -130,11 +155,6 @@ extern unsigned long load_image(meminfo_t *,
 				const char *,
 				unsigned int,
 				unsigned long);
-extern void __dead2 run_image(unsigned long entrypoint,
-				unsigned long spsr,
-				unsigned long security_state,
-				void *first_arg,
-				void *second_arg);
 extern unsigned long *get_el_change_mem_ptr(void);
 extern const char build_message[];
 

@@ -45,12 +45,12 @@
 
 func bl31_entrypoint
 	/* ---------------------------------------------
-	 * BL2 has populated x0 with the opcode
-	 * indicating BL31 should be run, x3 with
-	 * a pointer to a 'bl31_args' structure & x4
+	 * BL2 has populated x0 with a pointer to a 'bl31_args' structure & x1
  	 * with any other optional information
 	 * ---------------------------------------------
 	 */
+	mov	x20, x0
+	mov	x21, x1
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
@@ -90,16 +90,6 @@ func bl31_entrypoint
 	orr	x1, x1, #SCTLR_I_BIT
 	msr	sctlr_el3, x1
 	isb
-
-	/* ---------------------------------------------
-	 * Check the opcodes out of paranoia.
-	 * ---------------------------------------------
-	 */
-	mov	x19, #RUN_IMAGE
-	cmp	x0, x19
-	b.ne	_panic
-	mov	x20, x3
-	mov	x21, x4
 
 	/* ---------------------------------------------
 	 * This is BL31 which is expected to be executed

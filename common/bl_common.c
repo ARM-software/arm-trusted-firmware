@@ -71,57 +71,6 @@ void change_security_state(unsigned int target_security_state)
 	write_scr(scr);
 }
 
-void __dead2 drop_el(aapcs64_params_t *args,
-		     unsigned long spsr,
-		     unsigned long entrypoint)
-{
-	write_spsr_el3(spsr);
-	write_elr_el3(entrypoint);
-	eret(args->arg0,
-	     args->arg1,
-	     args->arg2,
-	     args->arg3,
-	     args->arg4,
-	     args->arg5,
-	     args->arg6,
-	     args->arg7);
-}
-
-void __dead2 raise_el(aapcs64_params_t *args)
-{
-	smc(args->arg0,
-	    args->arg1,
-	    args->arg2,
-	    args->arg3,
-	    args->arg4,
-	    args->arg5,
-	    args->arg6,
-	    args->arg7);
-}
-
-/*
- * TODO: If we are not EL3 then currently we only issue an SMC.
- * Add support for dropping into EL0 etc. Consider adding support
- * for switching from S-EL1 to S-EL0/1 etc.
- */
-void __dead2 change_el(el_change_info_t *info)
-{
-	if (IS_IN_EL3()) {
-		/*
-		 * We can go anywhere from EL3. So find where.
-		 * TODO: Lots to do if we are going non-secure.
-		 * Flip the NS bit. Restore NS registers etc.
-		 * Just doing the bare minimal for now.
-		 */
-
-		if (info->security_state == NON_SECURE)
-			change_security_state(info->security_state);
-
-		drop_el(&info->args, info->spsr, info->entrypoint);
-	} else
-		raise_el(&info->args);
-}
-
 
 /*******************************************************************************
  * The next two functions are the weak definitions. Platform specific
@@ -520,43 +469,4 @@ exit:
 
 fail:	image_base = 0;
 	goto exit;
-}
-
-/*******************************************************************************
- * Run a loaded image from the given entry point. This could result in either
- * dropping into a lower exception level or jumping to a higher exception level.
- * The only way of doing the latter is through an SMC. In either case, setup the
- * parameters for the EL change request correctly.
- ******************************************************************************/
-void __dead2 run_image(unsigned long entrypoint,
-		       unsigned long spsr,
-		       unsigned long target_security_state,
-		       void *first_arg,
-		       void *second_arg)
-{
-	el_change_info_t run_image_info;
-
-	/* Tell next EL what we want done */
-	run_image_info.args.arg0 = RUN_IMAGE;
-	run_image_info.entrypoint = entrypoint;
-	run_image_info.spsr = spsr;
-	run_image_info.security_state = target_security_state;
-
-	/*
-	 * If we are EL3 then only an eret can take us to the desired
-	 * exception level. Else for the time being assume that we have
-	 * to jump to a higher EL and issue an SMC. Contents of argY
-	 * will go into the general purpose register xY e.g. arg0->x0
-	 */
-	if (IS_IN_EL3()) {
-		run_image_info.args.arg1 = (unsigned long) first_arg;
-		run_image_info.args.arg2 = (unsigned long) second_arg;
-	} else {
-		run_image_info.args.arg1 = entrypoint;
-		run_image_info.args.arg2 = spsr;
-		run_image_info.args.arg3 = (unsigned long) first_arg;
-		run_image_info.args.arg4 = (unsigned long) second_arg;
-	}
-
-	change_el(&run_image_info);
 }
