@@ -43,6 +43,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011.c			\
 				lib/aarch64/xlat_tables.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
+				plat/common/aarch64/plat_common.c		\
 				plat/fvp/fvp_io_storage.c
 
 BL1_SOURCES		+=	drivers/arm/cci400/cci400.c			\
