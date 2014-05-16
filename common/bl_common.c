@@ -106,9 +106,7 @@ void __dead2 raise_el(aapcs64_params_t *args)
  */
 void __dead2 change_el(el_change_info_t *info)
 {
-	unsigned long current_el = read_current_el();
-
-	if (GET_EL(current_el) == MODE_EL3) {
+	if (IS_IN_EL3()) {
 		/*
 		 * We can go anywhere from EL3. So find where.
 		 * TODO: Lots to do if we are going non-secure.
@@ -551,7 +549,6 @@ void __dead2 run_image(unsigned long entrypoint,
 		       void *second_arg)
 {
 	el_change_info_t run_image_info;
-	unsigned long current_el = read_current_el();
 
 	/* Tell next EL what we want done */
 	run_image_info.args.arg0 = RUN_IMAGE;
@@ -565,7 +562,7 @@ void __dead2 run_image(unsigned long entrypoint,
 	 * to jump to a higher EL and issue an SMC. Contents of argY
 	 * will go into the general purpose register xY e.g. arg0->x0
 	 */
-	if (GET_EL(current_el) == MODE_EL3) {
+	if (IS_IN_EL3()) {
 		run_image_info.args.arg1 = (unsigned long) first_arg;
 		run_image_info.args.arg2 = (unsigned long) second_arg;
 	} else {

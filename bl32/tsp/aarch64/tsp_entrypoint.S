@@ -203,7 +203,7 @@ func tsp_cpu_on_entry
 	 * Initialise the MMU
 	 * ---------------------------------------------
 	 */
-	bl	enable_mmu
+	bl	enable_mmu_el1
 
 	/* ---------------------------------------------
 	 * Give ourselves a stack allocated in Normal

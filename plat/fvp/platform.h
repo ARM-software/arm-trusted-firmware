@@ -373,12 +373,18 @@ extern void bl2_plat_arch_setup(void);
 extern void bl31_plat_arch_setup(void);
 extern int platform_setup_pm(const struct plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
-extern void enable_mmu(void);
-extern void configure_mmu(struct meminfo *,
-			  unsigned long,
-			  unsigned long,
-			  unsigned long,
-			  unsigned long);
+extern void enable_mmu_el1(void);
+extern void enable_mmu_el3(void);
+extern void configure_mmu_el1(struct meminfo *mem_layout,
+			      unsigned long ro_start,
+			      unsigned long ro_limit,
+			      unsigned long coh_start,
+			      unsigned long coh_limit);
+extern void configure_mmu_el3(struct meminfo *mem_layout,
+			      unsigned long ro_start,
+			      unsigned long ro_limit,
+			      unsigned long coh_start,
+			      unsigned long coh_limit);
 extern unsigned long platform_get_cfgvar(unsigned int);
 extern int platform_config_setup(void);
 extern void plat_report_exception(unsigned long);
