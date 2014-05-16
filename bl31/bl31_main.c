@@ -37,7 +37,6 @@
 #include <runtime_svc.h>
 #include <stdio.h>
 
-
 /*******************************************************************************
  * This function pointer is used to initialise the BL32 image. It's initialized
  * by SPD calling bl31_register_bl32_init after setting up all things necessary
@@ -99,6 +98,7 @@ void bl31_main(void)
 	 */
 	assert(cm_get_context(mpidr, NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
+	cm_init_pcpu_ptr_cache();
 	write_vbar_el3((uint64_t) runtime_exceptions);
 	isb();
 	next_image_type = NON_SECURE;

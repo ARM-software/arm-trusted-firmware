@@ -493,12 +493,12 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	/*
 	 * Use the more complex exception vectors to enable SPD
 	 * initialisation. SP_EL3 should point to a 'cpu_context'
-	 * structure which has an exception stack allocated. The
-	 * non-secure context should have been set on this cpu
-	 * prior to suspension.
+	 * structure. The non-secure context should have been
+	 * set on this cpu prior to suspension.
 	 */
 	assert(cm_get_context(mpidr, NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
+	cm_init_pcpu_ptr_cache();
 	write_vbar_el3((uint64_t) runtime_exceptions);
 
 	/*

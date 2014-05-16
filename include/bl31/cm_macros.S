@@ -30,12 +30,6 @@
 #include <arch.h>
 #include <context.h>
 
-	.macro	switch_to_exception_stack reg1 reg2
-	mov     \reg1 , sp
-	ldr	\reg2, [\reg1, #CTX_EL3STATE_OFFSET + CTX_EXCEPTION_SP]
-	mov	sp, \reg2
-	.endm
-
 	/* -----------------------------------------------------
 	 * Handle SMC exceptions seperately from other sync.
 	 * exceptions.
@@ -54,45 +48,10 @@
 
 	/* -----------------------------------------------------
 	 * The following code handles any synchronous exception
-	 * that is not an SMC. SP_EL3 is pointing to a context
-	 * structure where all the scratch registers are saved.
-	 * An exception stack is also retrieved from the context
-	 * Currently, a register dump is printed since BL31 does
-	 * not expect any such exceptions.
+	 * that is not an SMC.
 	 * -----------------------------------------------------
 	 */
-	bl	save_gp_registers
-	switch_to_exception_stack x0 x1
 
-	/* Save the core_context pointer for handled faults */
-	stp	x0, xzr, [sp, #-0x10]!
-	bl	fault_handler
-	ldp	x0, xzr, [sp], #0x10
-
-	mov	sp, x0
-	bl	restore_gp_registers
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	eret
-	.endm
-
-	/* -----------------------------------------------------
-	 * Use a platform defined mechanism to report an async.
-	 * exception.
-	 * -----------------------------------------------------
-	 */
-	.macro	handle_async_exception type
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	bl	save_gp_registers
-	switch_to_exception_stack x0 x1
-
-	/* Save the core_context pointer */
-	stp	x0, xzr, [sp, #-0x10]!
-	mov	x0, \type
-	bl	plat_report_exception
-	ldp	x0, xzr, [sp], #0x10
-
-	mov	sp, x0
-	bl	restore_gp_registers
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	bl	dump_state_and_die
 	.endm
 

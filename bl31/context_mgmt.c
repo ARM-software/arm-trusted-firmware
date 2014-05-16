@@ -31,6 +31,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <bl31.h>
 #include <context.h>
 #include <context_mgmt.h>
 #include <platform.h>
@@ -46,6 +47,9 @@ typedef struct {
 } __aligned (CACHE_WRITEBACK_GRANULE) context_info_t;
 
 static context_info_t cm_context_info[PLATFORM_CORE_COUNT];
+
+/* The per_cpu_ptr_cache_t space allocation */
+static per_cpu_ptr_cache_t per_cpu_ptr_cache_space[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Context management library initialisation routine. This library is used by
@@ -211,21 +215,31 @@ void cm_set_next_eret_context(uint32_t security_state)
 			 : : "r" (ctx));
 }
 
-/*******************************************************************************
- * This function is used to program exception stack in the 'cpu_context'
- * structure. This is the initial stack used for taking and handling exceptions
- * at EL3. This stack is expected to be initialized once by each security state
- ******************************************************************************/
-void cm_init_exception_stack(uint64_t mpidr, uint32_t security_state)
+/************************************************************************
+ * The following function is used to populate the per cpu pointer cache.
+ * The pointer will be stored in the tpidr_el3 register.
+ *************************************************************************/
+void cm_init_pcpu_ptr_cache()
 {
-	cpu_context_t *ctx;
-	el3_state_t *state;
+	unsigned long mpidr = read_mpidr();
+	uint32_t linear_id = platform_get_core_pos(mpidr);
+	per_cpu_ptr_cache_t *pcpu_ptr_cache;
 
-	ctx = cm_get_context(mpidr, security_state);
-	assert(ctx);
+	pcpu_ptr_cache = &per_cpu_ptr_cache_space[linear_id];
+	assert(pcpu_ptr_cache);
+	pcpu_ptr_cache->crash_stack = get_crash_stack(mpidr);
 
-	/* Set exception stack in the context */
-	state = get_el3state_ctx(ctx);
-
-	write_ctx_reg(state, CTX_EXCEPTION_SP, get_exception_stack(mpidr));
+	cm_set_pcpu_ptr_cache(pcpu_ptr_cache);
 }
+
+
+void cm_set_pcpu_ptr_cache(const void *pcpu_ptr)
+{
+	write_tpidr_el3((unsigned long)pcpu_ptr);
+}
+
+void *cm_get_pcpu_ptr_cache(void)
+{
+	return (void *)read_tpidr_el3();
+}
+

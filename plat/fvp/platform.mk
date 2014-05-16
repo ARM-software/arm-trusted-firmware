@@ -28,10 +28,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-#
-# No additional platform system include directories required
-#
-# PLAT_INCLUDES		:=
+PLAT_INCLUDES		:=	-Iplat/fvp/include/
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011.c			\
 				drivers/arm/pl011/pl011_console.c		\
