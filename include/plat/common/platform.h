@@ -50,8 +50,6 @@ struct bl31_params;
  * Mandatory common functions
  ******************************************************************************/
 uint64_t plat_get_syscnt_freq(void);
-void enable_mmu_el1(void);
-void enable_mmu_el3(void);
 int plat_get_image_source(const char *image_name,
 			uintptr_t *dev_handle,
 			uintptr_t *image_spec);
@@ -169,10 +167,20 @@ unsigned int plat_get_aff_count(unsigned int, unsigned long);
 unsigned int plat_get_aff_state(unsigned int, unsigned long);
 
 /*******************************************************************************
+ * Optional BL3-1 functions (may be overridden)
+ ******************************************************************************/
+void bl31_plat_enable_mmu();
+
+/*******************************************************************************
  * Mandatory BL3-2 functions (only if platform contains a BL3-2
  ******************************************************************************/
 void bl32_platform_setup(void);
 struct meminfo *bl32_plat_sec_mem_layout(void);
+
+/*******************************************************************************
+ * Optional BL3-2 functions (may be overridden)
+ ******************************************************************************/
+void bl32_plat_enable_mmu();
 
 
 #endif /* __PLATFORM_H__ */
