@@ -358,7 +358,6 @@ typedef volatile struct mailbox {
  ******************************************************************************/
 typedef struct bl2_to_bl31_params_mem {
 	bl31_tf_params_t bl31_tf_params;
-	bl31_plat_params_t bl31_plat_params;
 	image_info_t bl31_image;
 	image_info_t bl32_image;
 	image_info_t bl33_image;
@@ -397,12 +396,14 @@ extern int platform_setup_pm(const struct plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
 extern void enable_mmu_el1(void);
 extern void enable_mmu_el3(void);
-extern void configure_mmu_el1(struct meminfo *mem_layout,
+extern void configure_mmu_el1(unsigned long total_base,
+				  unsigned long total_size,
 			      unsigned long ro_start,
 			      unsigned long ro_limit,
 			      unsigned long coh_start,
 			      unsigned long coh_limit);
-extern void configure_mmu_el3(struct meminfo *mem_layout,
+extern void configure_mmu_el3(unsigned long total_base,
+				  unsigned long total_size,
 			      unsigned long ro_start,
 			      unsigned long ro_limit,
 			      unsigned long coh_start,
@@ -445,6 +446,12 @@ extern void bl2_plat_bl32_loaded(image_info_t *image, el_change_info_t *ep);
 
 /* Do adjustments to the entrypoint, mode etc for BL33 */
 extern void bl2_plat_bl33_loaded(image_info_t *image, el_change_info_t *ep);
+
+/* Gets the memory layout for BL32 */
+extern void bl2_plat_get_bl32_meminfo(meminfo_t *mem_info);
+
+/* Gets the memory layout for BL33 */
+extern void bl2_plat_get_bl33_meminfo(meminfo_t *mem_info);
 
 
 #endif /*__ASSEMBLY__*/

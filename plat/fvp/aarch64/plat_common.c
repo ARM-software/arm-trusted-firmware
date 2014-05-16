@@ -130,14 +130,15 @@ const mmap_region_t fvp_mmap[] = {
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
 #define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void configure_mmu_el##_el(meminfo_t *mem_layout,		\
+	void configure_mmu_el##_el(unsigned long total_base,		\
+				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
 				   unsigned long ro_limit,		\
 				   unsigned long coh_start,		\
 				   unsigned long coh_limit)		\
 	{								\
-		mmap_add_region(mem_layout->total_base,			\
-				mem_layout->total_size,			\
+		mmap_add_region(total_base,				\
+				total_size,				\
 				MT_MEMORY | MT_RW | MT_SECURE);		\
 		mmap_add_region(ro_start, ro_limit - ro_start,		\
 				MT_MEMORY | MT_RO | MT_SECURE);		\
