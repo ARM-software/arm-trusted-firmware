@@ -131,6 +131,18 @@ endif
 .PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
 .SUFFIXES:
 
+# Convenience function for adding build definitions
+# $(eval $(call add_define,FOO)) will have:
+# -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
+define add_define
+DEFINES			+=	-D$(1)$(if $(value $(1)),=$(value $(1)),)
+endef
+
+# Convenience function for verifying option has a boolean value
+# $(eval $(call assert_boolean,FOO)) will assert FOO is 0 or 1
+define assert_boolean
+$(and $(patsubst 0,,$(value $(1))),$(patsubst 1,,$(value $(1))),$(error $(1) must be boolean))
+endef
 
 INCLUDES		+=	-Iinclude/bl1			\
 				-Iinclude/bl2			\
