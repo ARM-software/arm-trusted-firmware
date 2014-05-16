@@ -172,7 +172,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * this cpu
 			 */
 			gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
-			gic_cpuif_deactivate(gicc_base);
+			fvp_gic_cpuif_deactivate(gicc_base);
 
 			/*
 			 * Program the power controller to power this
@@ -258,7 +258,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * this cpu
 			 */
 			gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
-			gic_cpuif_deactivate(gicc_base);
+			fvp_gic_cpuif_deactivate(gicc_base);
 
 			/*
 			 * Program the power controller to power this
@@ -352,10 +352,10 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 		gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
 
 		/* Enable the gic cpu interface */
-		gic_cpuif_setup(gicc_base);
+		fvp_gic_cpuif_setup(gicc_base);
 
 		/* TODO: This setup is needed only after a cold boot */
-		gic_pcpu_distif_setup(gicd_base);
+		fvp_gic_pcpu_distif_setup(gicd_base);
 
 		/* Allow access to the System counter timer module */
 		reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);

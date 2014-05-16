@@ -28,53 +28,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __FVP_PRIVATE_H__
-#define __FVP_PRIVATE_H__
+#ifndef __PLAT_GIC_H__
+#define __PLAT_GIC_H__
 
-#include <platform_def.h>
-
-
-typedef volatile struct mailbox {
-	unsigned long value
-	__attribute__((__aligned__(CACHE_WRITEBACK_GRANULE)));
-} mailbox_t;
+#include <stdint.h>
 
 
 /*******************************************************************************
- * Forward declarations
+ * Function declarations for optional re-use across platforms
  ******************************************************************************/
-struct meminfo;
-
-/*******************************************************************************
- * Function and variable prototypes
- ******************************************************************************/
-void fvp_configure_mmu_el1(struct meminfo *,
-			unsigned long,
-			unsigned long,
-			unsigned long,
-			unsigned long);
-void fvp_configure_mmu_el3(struct meminfo *,
-			unsigned long,
-			unsigned long,
-			unsigned long,
-			unsigned long);
-unsigned long fvp_get_cfgvar(unsigned int);
-int fvp_config_setup(void);
-
-/* Declarations for fvp_gic.c */
-void fvp_gic_cpuif_deactivate(unsigned int);
-void fvp_gic_cpuif_setup(unsigned int);
-void fvp_gic_pcpu_distif_setup(unsigned int);
-void fvp_gic_setup(void);
-
-/* Declarations for fvp_topology.c */
-int fvp_setup_topology(void);
-
-/* Declarations for plat_io_storage.c */
-void fvp_io_setup(void);
-
-/* Declarations for plat_security.c */
-void fvp_security_setup(void);
+void plat_gic_cpuif_deactivate(unsigned int gicc_base, uintptr_t gicr_base);
+void plat_gic_cpuif_setup(unsigned int gicc_base, uintptr_t gicr_base);
+void plat_gic_pcpu_distif_setup(unsigned int gicd_base,
+			const unsigned int *irq_sec_ptr,
+			unsigned int num_irqs);
+void plat_gic_distif_setup(unsigned int gicd_base,
+			const unsigned int *irq_sec_ptr,
+			unsigned int num_irqs);
 
 
-#endif /* __FVP_PRIVATE_H__ */
+#endif /* __PLAT_GIC_H__ */

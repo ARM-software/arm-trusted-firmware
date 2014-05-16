@@ -36,6 +36,10 @@
 #define MAX_PPIS		14
 #define MAX_SGIS		16
 
+#define MIN_SGI_ID		0
+#define MIN_PPI_ID		16
+#define MIN_SPI_ID		32
+
 #define GRP0			0
 #define GRP1			1
 #define GIC_PRI_MASK		0xff

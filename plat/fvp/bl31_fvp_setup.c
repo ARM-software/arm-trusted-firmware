@@ -137,7 +137,7 @@ void bl31_platform_setup()
 	unsigned int reg_val;
 
 	/* Initialize the gic cpu and distributor interfaces */
-	gic_setup();
+	fvp_gic_setup();
 
 	/*
 	 * TODO: Configure the CLCD before handing control to
