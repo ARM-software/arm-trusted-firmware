@@ -85,8 +85,6 @@ func platform_get_entrypoint
 	 */
 func platform_cold_boot_init
 	mov	x20, x0
-	bl	read_mpidr
-	mov	x19, x0
 
 	/* ---------------------------------------------
 	 * Give ourselves a small coherent stack to
@@ -94,6 +92,7 @@ func platform_cold_boot_init
 	 * CCI in assembler
 	 * ---------------------------------------------
 	 */
+	mrs	x0, mpidr_el1
 	bl	platform_set_coherent_stack
 
 	/* ---------------------------------------------
@@ -112,7 +111,7 @@ func platform_cold_boot_init
 	 * -IS-WBWA memory
 	 * ---------------------------------------------
 	 */
-	mov	x0, x19
+	mrs	x0, mpidr_el1
 	bl	platform_set_stack
 
 	/* ---------------------------------------------
