@@ -63,38 +63,16 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL32_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL32_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
-/* Data structure which holds the extents of the trusted SRAM for BL32 */
-static meminfo_t bl32_tzdram_layout
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem")));
-
-meminfo_t *bl32_plat_sec_mem_layout(void)
-{
-	return &bl32_tzdram_layout;
-}
-
 /*******************************************************************************
- * BL1 has passed the extents of the trusted SRAM that's at BL32's disposal.
- * Initialize the BL32 data structure with the memory extends and initialize
- * the UART
+ * Initialize the UART
  ******************************************************************************/
-void bl32_early_platform_setup(meminfo_t *mem_layout,
-			      void *data)
+void bl32_early_platform_setup(void)
 {
 	/*
 	 * Initialize a different console than already in use to display
 	 * messages from TSP
 	 */
 	console_init(PL011_UART1_BASE);
-
-	/* Setup the BL32 memory layout */
-	bl32_tzdram_layout.total_base = mem_layout->total_base;
-	bl32_tzdram_layout.total_size = mem_layout->total_size;
-	bl32_tzdram_layout.free_base = mem_layout->free_base;
-	bl32_tzdram_layout.free_size = mem_layout->free_size;
-	bl32_tzdram_layout.attr = mem_layout->attr;
-	bl32_tzdram_layout.next = 0;
-
 }
 
 /*******************************************************************************
@@ -111,7 +89,8 @@ void bl32_platform_setup()
  ******************************************************************************/
 void bl32_plat_arch_setup()
 {
-	configure_mmu_el1(&bl32_tzdram_layout,
+	configure_mmu_el1(BL32_RO_BASE,
+			  (BL32_COHERENT_RAM_LIMIT - BL32_RO_BASE),
 			  BL32_RO_BASE,
 			  BL32_RO_LIMIT,
 			  BL32_COHERENT_RAM_BASE,

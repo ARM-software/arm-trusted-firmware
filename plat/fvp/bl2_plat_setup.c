@@ -78,7 +78,6 @@ __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
  * to BL31
  ******************************************************************************/
 static bl31_params_t *bl2_to_bl31_params;
-static bl31_plat_params_t *bl2_to_bl31_plat_params;
 static entry_point_info_t *bl31_ep_info;
 
 meminfo_t *bl2_plat_sec_mem_layout(void)
@@ -116,9 +115,6 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	bl2_to_bl31_params = &bl31_params_mem->bl31_params;
 	SET_PARAM_HEAD(bl2_to_bl31_params, PARAM_BL31, VERSION_1, 0);
 
-	/* Assign memory for platform specific information */
-	bl2_to_bl31_plat_params = &bl31_params_mem->bl31_plat_params;
-
 	/* Fill BL31 related information */
 	bl31_ep_info = &bl31_params_mem->bl31_ep_info;
 	bl2_to_bl31_params->bl31_image_info = &bl31_params_mem->bl31_image_info;
@@ -136,18 +132,6 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 		SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info,
 					PARAM_IMAGE_BINARY,
 					VERSION_1, 0);
-		/*
-		 * Populate the extents of memory available for loading BL32.
-		 * TODO: We are temporarily executing BL2 from TZDRAM;
-		 * will eventually move to Trusted SRAM
-		 */
-		bl2_to_bl31_plat_params->bl32_meminfo.total_base = BL32_BASE;
-		bl2_to_bl31_plat_params->bl32_meminfo.free_base = BL32_BASE;
-		bl2_to_bl31_plat_params->bl32_meminfo.total_size =
-			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
-		bl2_to_bl31_plat_params->bl32_meminfo.free_size =
-			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
-		bl2_to_bl31_plat_params->bl32_meminfo.attr = BOT_LOAD;
 	}
 
 	/* Fill BL33 related information */
@@ -157,23 +141,10 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem->bl33_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info, PARAM_IMAGE_BINARY,
 					VERSION_1, 0);
-	/* Populate the extents of memory available for loading BL33 */
-	bl2_to_bl31_plat_params->bl33_meminfo.total_base = DRAM_BASE;
-	bl2_to_bl31_plat_params->bl33_meminfo.total_size = DRAM_SIZE;
-	bl2_to_bl31_plat_params->bl33_meminfo.free_base = DRAM_BASE;
-	bl2_to_bl31_plat_params->bl33_meminfo.free_size = DRAM_SIZE;
 
 	return bl2_to_bl31_params;
 }
 
-/*******************************************************************************
- * This function returns a pointer to the memory that the platform has kept
- * aside to pass platform related information that BL31 could need
- ******************************************************************************/
-bl31_plat_params_t *bl2_plat_get_bl31_plat_params(void)
-{
-	return bl2_to_bl31_plat_params;
-}
 
 /*******************************************************************************
  * This function returns a pointer to the shared memory that the platform
@@ -239,7 +210,8 @@ void bl2_plat_flush_bl31_params(void)
  ******************************************************************************/
 void bl2_plat_arch_setup()
 {
-	configure_mmu_el1(&bl2_tzram_layout,
+	configure_mmu_el1(bl2_tzram_layout.total_base,
+			  bl2_tzram_layout.total_size,
 			  BL2_RO_BASE,
 			  BL2_RO_LIMIT,
 			  BL2_COHERENT_RAM_BASE,
@@ -307,4 +279,39 @@ void bl2_plat_set_bl33_ep_info(image_info_t *image,
 	bl33_ep_info->spsr = SPSR_64(mode, MODE_SP_ELX,
 					DISABLE_ALL_EXCEPTIONS);
 	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
+}
+
+
+/*******************************************************************************
+ * Populate the extents of memory available for loading BL32
+ ******************************************************************************/
+void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
+{
+	/*
+	 * Populate the extents of memory available for loading BL32.
+	 * TODO: We are temporarily executing BL2 from TZDRAM;
+	 * will eventually move to Trusted SRAM
+	 */
+	bl32_meminfo->total_base = BL32_BASE;
+	bl32_meminfo->free_base = BL32_BASE;
+	bl32_meminfo->total_size =
+			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+	bl32_meminfo->free_size =
+			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+	bl32_meminfo->attr = BOT_LOAD;
+	bl32_meminfo->next = 0;
+}
+
+
+/*******************************************************************************
+ * Populate the extents of memory available for loading BL33
+ ******************************************************************************/
+void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
+{
+	bl33_meminfo->total_base = DRAM_BASE;
+	bl33_meminfo->total_size = DRAM_SIZE;
+	bl33_meminfo->free_base = DRAM_BASE;
+	bl33_meminfo->free_size = DRAM_SIZE;
+	bl33_meminfo->attr = 0;
+	bl33_meminfo->attr = 0;
 }

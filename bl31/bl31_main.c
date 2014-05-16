@@ -43,7 +43,7 @@
  * for SP execution. In cases where both SPD and SP are absent, or when SPD
  * finds it impossible to execute SP, this pointer is left as NULL
  ******************************************************************************/
-static int32_t (*bl32_init)(meminfo_t *);
+static int32_t (*bl32_init)(void);
 
 /*******************************************************************************
  * Variable to indicate whether next image to execute after BL31 is BL33
@@ -114,11 +114,10 @@ void bl31_main(void)
 	 */
 
 	/*
-	 * If SPD had registerd an init hook, invoke it. Pass it the information
-	 * about memory extents
+	 * If SPD had registerd an init hook, invoke it.
 	 */
 	if (bl32_init)
-		(*bl32_init)(bl31_plat_get_bl32_mem_layout());
+		(*bl32_init)();
 
 	/*
 	 * We are ready to enter the next EL. Prepare entry into the image
@@ -195,7 +194,7 @@ void bl31_prepare_next_image_entry()
  * This function initializes the pointer to BL32 init function. This is expected
  * to be called by the SPD after it finishes all its initialization
  ******************************************************************************/
-void bl31_register_bl32_init(int32_t (*func)(meminfo_t *))
+void bl31_register_bl32_init(int32_t (*func)(void))
 {
 	bl32_init = func;
 }

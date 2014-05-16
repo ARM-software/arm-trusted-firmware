@@ -138,7 +138,8 @@ void bl1_plat_arch_setup(void)
 		cci_enable_coherency(read_mpidr());
 	}
 
-	configure_mmu_el3(&bl1_tzram_layout,
+	configure_mmu_el3(bl1_tzram_layout.total_base,
+			  bl1_tzram_layout.total_size,
 			  TZROM_BASE,
 			  TZROM_BASE + TZROM_SIZE,
 			  BL1_COHERENT_RAM_BASE,

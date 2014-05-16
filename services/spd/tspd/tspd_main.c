@@ -66,7 +66,7 @@ DEFINE_SVC_UUID(tsp_uuid,
 		0x5b3056a0, 0x3291, 0x427b, 0x98, 0x11,
 		0x71, 0x68, 0xca, 0x50, 0xf3, 0xfa);
 
-int32_t tspd_init(meminfo_t *bl32_meminfo);
+int32_t tspd_init(void);
 
 
 /*******************************************************************************
@@ -126,27 +126,14 @@ int32_t tspd_setup(void)
  * It also assumes that a valid non-secure context has been initialised by PSCI
  * so it does not need to save and restore any non-secure state. This function
  * performs a synchronous entry into the Secure payload. The SP passes control
- * back to this routine through a SMC. It also passes the extents of memory made
- * available to BL32 by BL31.
+ * back to this routine through a SMC.
  ******************************************************************************/
-int32_t tspd_init(meminfo_t *bl32_meminfo)
+int32_t tspd_init(void)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 	uint64_t rc;
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
-
-	/*
-	 * Arrange for passing a pointer to the meminfo structure
-	 * describing the memory extents available to the secure
-	 * payload.
-	 * TODO: We are passing a pointer to BL31 internal memory
-	 * whereas this structure should be copied to a communication
-	 * buffer between the SP and SPD.
-	 */
-	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
-		      CTX_GPREG_X0,
-		      (uint64_t) bl32_meminfo);
 
 	/*
 	 * Arrange for an entry into the test secure payload. We expect an array

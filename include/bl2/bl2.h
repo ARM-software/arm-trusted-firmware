@@ -55,11 +55,6 @@ extern struct meminfo *bl2_plat_sec_mem_layout(void);
  ******************************************************************************/
 extern struct bl31_params *bl2_plat_get_bl31_params(void);
 
-/*******************************************************************************
- * This function returns a pointer to the shared memory that the platform has
- * kept aside to pass platform related information that BL3-1 could need
- ******************************************************************************/
-extern struct bl31_plat_params *bl2_plat_get_bl31_plat_params(void);
 
 /*******************************************************************************
  * This function returns a pointer to the shared memory that the platform

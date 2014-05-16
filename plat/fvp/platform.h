@@ -356,7 +356,6 @@ typedef volatile struct mailbox {
 struct plat_pm_ops;
 struct meminfo;
 struct bl31_params;
-struct bl31_plat_params;
 struct image_info;
 struct entry_point_info;
 
@@ -364,11 +363,10 @@ struct entry_point_info;
 /*******************************************************************************
  * This structure represents the superset of information that is passed to
  * BL31 e.g. while passing control to it from BL2 which is bl31_params
- * and bl31_plat_params and its elements
+ * and another platform specific params
  ******************************************************************************/
 typedef struct bl2_to_bl31_params_mem {
 	struct bl31_params bl31_params;
-	struct bl31_plat_params bl31_plat_params;
 	struct image_info bl31_image_info;
 	struct image_info bl32_image_info;
 	struct image_info bl33_image_info;
@@ -401,12 +399,14 @@ extern int platform_setup_pm(const struct plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
 extern void enable_mmu_el1(void);
 extern void enable_mmu_el3(void);
-extern void configure_mmu_el1(struct meminfo *mem_layout,
+extern void configure_mmu_el1(unsigned long total_base,
+			      unsigned long total_size,
 			      unsigned long ro_start,
 			      unsigned long ro_limit,
 			      unsigned long coh_start,
 			      unsigned long coh_limit);
-extern void configure_mmu_el3(struct meminfo *mem_layout,
+extern void configure_mmu_el3(unsigned long total_base,
+			      unsigned long total_size,
 			      unsigned long ro_start,
 			      unsigned long ro_limit,
 			      unsigned long coh_start,
@@ -473,6 +473,12 @@ extern void bl2_plat_set_bl32_ep_info(struct image_info *image,
  */
 extern void bl2_plat_set_bl33_ep_info(struct image_info *image,
 					struct entry_point_info *ep);
+
+/* Gets the memory layout for BL32 */
+extern void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
+
+/* Gets the memory layout for BL33 */
+extern void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
 
 
 #endif /*__ASSEMBLY__*/
