@@ -67,9 +67,10 @@ void bl2_main(void)
 {
 	meminfo_t *bl2_tzram_layout;
 	bl31_params_t *bl2_to_bl31_params;
-	bl31_plat_params_t *bl2_to_bl31_plat_params;
 	unsigned int bl2_load, bl31_load;
 	entry_point_info_t *bl31_ep_info;
+	meminfo_t bl32_mem_info;
+	meminfo_t bl33_mem_info;
 	int e;
 
 	/* Perform remaining generic architectural setup in S-El1 */
@@ -88,7 +89,6 @@ void bl2_main(void)
 	 * information to BL31.
 	 */
 	bl2_to_bl31_params = bl2_plat_get_bl31_params();
-	bl2_to_bl31_plat_params = bl2_plat_get_bl31_plat_params();
 	bl31_ep_info = bl2_plat_get_bl31_ep_info();
 
 	/*
@@ -116,16 +116,10 @@ void bl2_main(void)
 	bl2_plat_set_bl31_ep_info(bl2_to_bl31_params->bl31_image_info,
 				bl31_ep_info);
 
-	/*
-	 * Create a new layout of memory for BL31 as seen by BL2. This
-	 * will gobble up all the BL2 memory.
-	 */
-	init_bl31_mem_layout(bl2_tzram_layout,
-			     &bl2_to_bl31_plat_params->bl31_meminfo,
-			     bl31_load);
+	bl2_plat_get_bl33_meminfo(&bl33_mem_info);
 
 	/* Load the BL33 image in non-secure memory provided by the platform */
-	e = load_image(&bl2_to_bl31_plat_params->bl33_meminfo,
+	e = load_image(&bl33_mem_info,
 			BL33_IMAGE_NAME,
 			BOT_LOAD,
 			plat_get_ns_image_entrypoint(),
@@ -147,10 +141,11 @@ void bl2_main(void)
 	 * completely different memory. A zero size indicates that the
 	 * platform does not want to load a BL32 image.
 	 */
-	if (bl2_to_bl31_plat_params->bl32_meminfo.total_size) {
-		e = load_image(&bl2_to_bl31_plat_params->bl32_meminfo,
+	bl2_plat_get_bl32_meminfo(&bl32_mem_info);
+	if (bl32_mem_info.total_size) {
+		e = load_image(&bl32_mem_info,
 			       BL32_IMAGE_NAME,
-			       bl2_to_bl31_plat_params->bl32_meminfo.attr &
+			       bl32_mem_info.attr &
 			       LOAD_MASK,
 			       BL32_BASE,
 			       bl2_to_bl31_params->bl32_image_info,
@@ -166,12 +161,10 @@ void bl2_main(void)
 		}
 	}
 
-
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
 	 * the BL32 (if present) and BL33 software images will be passed to
 	 * BL31 as an argument.
 	 */
-	 bl2_run_bl31(bl31_ep_info, (unsigned long)bl2_to_bl31_params,
-				(unsigned long)bl2_to_bl31_plat_params);
+	 bl2_run_bl31(bl31_ep_info, (unsigned long)bl2_to_bl31_params, 0);
 }

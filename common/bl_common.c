@@ -74,66 +74,9 @@ void change_security_state(unsigned int target_security_state)
 
 
 /*******************************************************************************
- * The next two functions are the weak definitions. Platform specific
- * code can override them if it wishes to.
+ * The next function is a weak definition. Platform specific
+ * code can override it if it wishes to.
  ******************************************************************************/
-
-/*******************************************************************************
- * Function that takes a memory layout into which BL31 has been either top or
- * bottom loaded. Using this information, it populates bl31_mem_layout to tell
- * BL31 how much memory it has access to and how much is available for use. It
- * does not need the address where BL31 has been loaded as BL31 will reclaim
- * all the memory used by BL2.
- * TODO: Revisit if this and init_bl2_mem_layout can be replaced by a single
- * routine.
- ******************************************************************************/
-void init_bl31_mem_layout(const meminfo_t *bl2_mem_layout,
-			  meminfo_t *bl31_mem_layout,
-			  unsigned int load_type)
-{
-	if (load_type == BOT_LOAD) {
-		/*
-		 * ------------                             ^
-		 * |   BL2    |                             |
-		 * |----------|                 ^           |  BL2
-		 * |          |                 | BL2 free  |  total
-		 * |          |                 |   size    |  size
-		 * |----------| BL2 free base   v           |
-		 * |   BL31   |                             |
-		 * ------------ BL2 total base              v
-		 */
-		unsigned long bl31_size;
-
-		bl31_mem_layout->free_base = bl2_mem_layout->free_base;
-
-		bl31_size = bl2_mem_layout->free_base - bl2_mem_layout->total_base;
-		bl31_mem_layout->free_size = bl2_mem_layout->total_size - bl31_size;
-	} else {
-		/*
-		 * ------------                             ^
-		 * |   BL31   |                             |
-		 * |----------|                 ^           |  BL2
-		 * |          |                 | BL2 free  |  total
-		 * |          |                 |   size    |  size
-		 * |----------| BL2 free base   v           |
-		 * |   BL2    |                             |
-		 * ------------ BL2 total base              v
-		 */
-		unsigned long bl2_size;
-
-		bl31_mem_layout->free_base = bl2_mem_layout->total_base;
-
-		bl2_size = bl2_mem_layout->free_base - bl2_mem_layout->total_base;
-		bl31_mem_layout->free_size = bl2_mem_layout->free_size + bl2_size;
-	}
-
-	bl31_mem_layout->total_base = bl2_mem_layout->total_base;
-	bl31_mem_layout->total_size = bl2_mem_layout->total_size;
-	bl31_mem_layout->attr = load_type;
-
-	flush_dcache_range((unsigned long) bl31_mem_layout, sizeof(meminfo_t));
-	return;
-}
 
 /*******************************************************************************
  * Function that takes a memory layout into which BL2 has been either top or

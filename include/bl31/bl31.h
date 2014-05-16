@@ -43,6 +43,7 @@ extern unsigned long bl31_entrypoint;
  *****************************************/
 struct meminfo;
 struct entry_point_info;
+struct bl31_parms;
 
 /*******************************************************************************
  * Function prototypes
@@ -53,9 +54,9 @@ extern void bl31_set_next_image_type(uint32_t type);
 extern uint32_t bl31_get_next_image_type(void);
 extern void bl31_prepare_next_image_entry();
 extern struct entry_point_info *bl31_get_next_image_info(uint32_t type);
+extern void bl31_early_platform_setup(struct bl31_params *from_bl2,
+					void *plat_params_from_bl2);
 extern void bl31_platform_setup(void);
-extern struct meminfo *bl31_plat_get_bl32_mem_layout(void);
-extern struct meminfo *bl31_plat_sec_mem_layout(void);
-extern void bl31_register_bl32_init(int32_t (*)(struct meminfo *));
+extern void bl31_register_bl32_init(int32_t (*)(void));
 
 #endif /* __BL31_H__ */

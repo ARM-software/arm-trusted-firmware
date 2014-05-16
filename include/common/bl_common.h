@@ -173,18 +173,6 @@ typedef struct bl31_params {
 } bl31_params_t;
 
 
-/***************************************************************************
- * This structure provides platform specific data that needs to be known to
- * BL31. Currently, The loader updates the memory information available for
- * each binary
- ***************************************************************************/
-typedef struct bl31_plat_params {
-	meminfo_t bl31_meminfo;
-	meminfo_t bl32_meminfo;
-	meminfo_t bl33_meminfo;
-} bl31_plat_params_t;
-
-
 /*
  * Compile time assertions related to the 'entry_point_info' structure to
  * ensure that the assembler and the compiler view of the offsets of
