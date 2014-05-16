@@ -142,10 +142,10 @@ void bl2_platform_setup()
 	bl2_to_bl31_args = (bl31_args_t *) TZDRAM_BASE;
 
 	/* Populate the extents of memory available for loading BL33 */
-	bl2_to_bl31_args->bl33_meminfo.total_base = DRAM_BASE;
-	bl2_to_bl31_args->bl33_meminfo.total_size = DRAM_SIZE;
-	bl2_to_bl31_args->bl33_meminfo.free_base = DRAM_BASE;
-	bl2_to_bl31_args->bl33_meminfo.free_size = DRAM_SIZE;
+	bl2_to_bl31_args->bl33_meminfo.total_base = DRAM1_BASE;
+	bl2_to_bl31_args->bl33_meminfo.total_size = DRAM1_SIZE - DRAM1_SEC_SIZE;
+	bl2_to_bl31_args->bl33_meminfo.free_base = DRAM1_BASE;
+	bl2_to_bl31_args->bl33_meminfo.free_size = DRAM1_SIZE - DRAM1_SEC_SIZE;
 	bl2_to_bl31_args->bl33_meminfo.attr = 0;
 	bl2_to_bl31_args->bl33_meminfo.next = 0;
 
