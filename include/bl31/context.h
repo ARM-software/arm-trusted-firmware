@@ -76,7 +76,7 @@
  * 32-bits wide but are stored as 64-bit values for convenience
  ******************************************************************************/
 #define CTX_EL3STATE_OFFSET	(CTX_GPREGS_OFFSET + CTX_GPREGS_END)
-#define CTX_EXCEPTION_SP	0x0
+#define CTX_VBAR_EL3	0x0		/* Currently unused */
 #define CTX_RUNTIME_SP		0x8
 #define CTX_SPSR_EL3		0x10
 #define CTX_ELR_EL3		0x18
@@ -89,7 +89,7 @@
 #define CTX_TCR_EL3		0x50
 #define CTX_TTBR0_EL3		0x58
 #define CTX_DAIF_EL3		0x60
-#define CTX_VBAR_EL3		0x68	/* Currently unused */
+/* Unused space to honour alignment requirements */
 #define CTX_EL3STATE_END	0x70
 
 /*******************************************************************************
@@ -175,6 +175,11 @@
 #define CTX_FP_FPSR		0x200
 #define CTX_FP_FPCR		0x208
 #define CTX_FPREGS_END		0x210
+
+/******************************************************************************
+ * Offsets for the per cpu cache implementation
+ ******************************************************************************/
+#define PTR_CACHE_CRASH_STACK_OFFSET 0x0
 
 #ifndef __ASSEMBLY__
 
@@ -315,6 +320,18 @@ void el1_sysregs_context_save(el1_sys_regs_t *regs);
 void el1_sysregs_context_restore(el1_sys_regs_t *regs);
 void fpregs_context_save(fp_regs_t *regs);
 void fpregs_context_restore(fp_regs_t *regs);
+
+
+/* Per-CPU pointer cache of recently used pointers and also the crash stack
+ * TODO: Add other commonly used variables to this (tf_issues#90)
+ */
+typedef struct per_cpu_ptr_cache {
+	uint64_t crash_stack;
+} per_cpu_ptr_cache_t;
+
+CASSERT(PTR_CACHE_CRASH_STACK_OFFSET == __builtin_offsetof\
+	(per_cpu_ptr_cache_t, crash_stack), \
+	assert_per_cpu_ptr_cache_crash_stack_offset_mismatch);
 
 #undef CTX_SYSREG_ALL
 #undef CTX_FP_ALL

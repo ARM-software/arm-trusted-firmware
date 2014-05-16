@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,65 +28,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <console.h>
+#include <gic_v2.h>
 #include <platform.h>
-#include <pl011.h>
 
-static unsigned long uart_base;
+.section .rodata.gic_reg_name, "aS"
+gic_regs: .asciz "gic_iar", "gic_ctlr", ""
 
-void console_init(unsigned long base_addr)
-{
-	/* TODO: assert() internally calls printf() and will result in
-	 * an infinite loop. This needs to be fixed with some kind of
-	 * exception  mechanism or early panic support. This also applies
-	 * to the other assert() calls below.
+/* Currently we have only 2 GIC registers to report */
+#define GIC_REG_SIZE 				(2 * 8)
+	/* ---------------------------------------------
+	 * The below macro prints out relevant GIC
+	 * registers whenever an unhandled exception is
+	 * taken in BL31.
+	 * ---------------------------------------------
 	 */
-	assert(base_addr);
-
-	/* Initialise internal base address variable */
-	uart_base = base_addr;
-
-	/* Baud Rate */
-#if defined(PL011_INTEGER) && defined(PL011_FRACTIONAL)
-	pl011_write_ibrd(uart_base, PL011_INTEGER);
-	pl011_write_fbrd(uart_base, PL011_FRACTIONAL);
-#else
-	pl011_setbaudrate(uart_base, PL011_BAUDRATE);
-#endif
-
-	pl011_write_lcr_h(uart_base, PL011_LINE_CONTROL);
-
-	/* Clear any pending errors */
-	pl011_write_ecr(uart_base, 0);
-
-	/* Enable tx, rx, and uart overall */
-	pl011_write_cr(uart_base, PL011_UARTCR_RXE | PL011_UARTCR_TXE |
-			PL011_UARTCR_UARTEN);
-
-}
-
-#define WAIT_UNTIL_UART_FREE(base) while ((pl011_read_fr(base)\
-					& PL011_UARTFR_TXFF) == 1)
-int console_putc(int c)
-{
-	assert(uart_base);
-
-	if (c == '\n') {
-		WAIT_UNTIL_UART_FREE(uart_base);
-		pl011_write_dr(uart_base, '\r');
-	}
-
-	WAIT_UNTIL_UART_FREE(uart_base);
-	pl011_write_dr(uart_base, c);
-	return c;
-}
-
-int console_getc(void)
-{
-	assert(uart_base);
-
-	while ((pl011_read_fr(uart_base) & PL011_UARTFR_RXFE) != 0)
-		;
-	return pl011_read_dr(uart_base);
-}
+	.macro plat_print_gic_regs
+	mov	x0, #CONFIG_GICC_ADDR
+	bl	platform_get_cfgvar
+	/* gic base address is now in x0 */
+	ldr	w1, [x0, #GICC_IAR]
+	ldr	w2, [x0, #GICD_CTLR]
+	sub	sp, sp, #GIC_REG_SIZE
+	stp	x1, x2, [sp] /* we store the gic registers as 64 bit */
+	adr	x0, gic_regs
+	mov	x1, sp
+	bl	print_string_value
+	add	sp, sp, #GIC_REG_SIZE
+	.endm

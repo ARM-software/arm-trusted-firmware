@@ -49,6 +49,8 @@ extern void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint
 		uint32_t spsr, uint32_t scr);
 extern void cm_set_el3_elr(uint32_t security_state, uint64_t entrypoint);
 extern void cm_set_next_eret_context(uint32_t security_state);
-extern void cm_init_exception_stack(uint64_t mpidr, uint32_t security_state);
+extern void cm_init_pcpu_ptr_cache();
+extern void cm_set_pcpu_ptr_cache(const void *pcpu_ptr);
+extern void *cm_get_pcpu_ptr_cache(void);
 
 #endif /* __CM_H__ */

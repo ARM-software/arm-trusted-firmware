@@ -37,7 +37,6 @@
 
 	.globl	runtime_exceptions
 	.globl	el3_exit
-	.globl	get_exception_stack
 
 	.macro save_x18_to_x29_sp_el0
 	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
@@ -63,8 +62,7 @@ sync_exception_sp_el0:
 	 * We don't expect any synchronous exceptions from EL3
 	 * -----------------------------------------------------
 	 */
-	wfi
-	b	sync_exception_sp_el0
+	bl	dump_state_and_die
 	check_vector_size sync_exception_sp_el0
 
 	.align	7
@@ -74,20 +72,17 @@ sync_exception_sp_el0:
 	 * -----------------------------------------------------
 	 */
 irq_sp_el0:
-	handle_async_exception IRQ_SP_EL0
-	b	irq_sp_el0
+	bl	dump_intr_state_and_die
 	check_vector_size irq_sp_el0
 
 	.align	7
 fiq_sp_el0:
-	handle_async_exception FIQ_SP_EL0
-	b	fiq_sp_el0
+	bl	dump_intr_state_and_die
 	check_vector_size fiq_sp_el0
 
 	.align	7
 serror_sp_el0:
-	handle_async_exception SERROR_SP_EL0
-	b	serror_sp_el0
+	bl	dump_state_and_die
 	check_vector_size serror_sp_el0
 
 	/* -----------------------------------------------------
@@ -100,36 +95,25 @@ sync_exception_sp_elx:
 	 * This exception will trigger if anything went wrong
 	 * during a previous exception entry or exit or while
 	 * handling an earlier unexpected synchronous exception.
-	 * In any case we cannot rely on SP_EL3. Switching to a
-	 * known safe area of memory will corrupt at least a
-	 * single register. It is best to enter wfi in loop as
-	 * that will preserve the system state for analysis
-	 * through a debugger later.
+	 * There is a high probability that SP_EL3 is corrupted.
 	 * -----------------------------------------------------
 	 */
-	wfi
-	b	sync_exception_sp_elx
+	bl	dump_state_and_die
 	check_vector_size sync_exception_sp_elx
 
-	/* -----------------------------------------------------
-	 * As mentioned in the previous comment, all bets are
-	 * off if SP_EL3 cannot be relied upon. Report their
-	 * occurrence.
-	 * -----------------------------------------------------
-	 */
 	.align	7
 irq_sp_elx:
-	b	irq_sp_elx
+	bl	dump_intr_state_and_die
 	check_vector_size irq_sp_elx
 
 	.align	7
 fiq_sp_elx:
-	b	fiq_sp_elx
+	bl	dump_intr_state_and_die
 	check_vector_size fiq_sp_elx
 
 	.align	7
 serror_sp_elx:
-	b	serror_sp_elx
+	bl	dump_state_and_die
 	check_vector_size serror_sp_elx
 
 	/* -----------------------------------------------------
@@ -156,20 +140,17 @@ sync_exception_aarch64:
 	 * -----------------------------------------------------
 	 */
 irq_aarch64:
-	handle_async_exception IRQ_AARCH64
-	b	irq_aarch64
+	bl	dump_intr_state_and_die
 	check_vector_size irq_aarch64
 
 	.align	7
 fiq_aarch64:
-	handle_async_exception FIQ_AARCH64
-	b	fiq_aarch64
+	bl	dump_intr_state_and_die
 	check_vector_size fiq_aarch64
 
 	.align	7
 serror_aarch64:
-	handle_async_exception SERROR_AARCH64
-	b	serror_aarch64
+	bl	dump_state_and_die
 	check_vector_size serror_aarch64
 
 	/* -----------------------------------------------------
@@ -196,20 +177,17 @@ sync_exception_aarch32:
 	 * -----------------------------------------------------
 	 */
 irq_aarch32:
-	handle_async_exception IRQ_AARCH32
-	b	irq_aarch32
+	bl	dump_intr_state_and_die
 	check_vector_size irq_aarch32
 
 	.align	7
 fiq_aarch32:
-	handle_async_exception FIQ_AARCH32
-	b	fiq_aarch32
+	bl	dump_intr_state_and_die
 	check_vector_size fiq_aarch32
 
 	.align	7
 serror_aarch32:
-	handle_async_exception SERROR_AARCH32
-	b	serror_aarch32
+	bl	dump_state_and_die
 	check_vector_size serror_aarch32
 
 	.align	7
@@ -367,9 +345,7 @@ el3_exit: ; .type el3_exit, %function
 	msr	elr_el3, x17
 
 	/* Restore saved general purpose registers and return */
-	bl	restore_gp_registers
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	eret
+	b	restore_gp_registers_eret
 
 smc_unknown:
 	/*
@@ -379,7 +355,8 @@ smc_unknown:
 	 * content). Either way, we aren't leaking any secure information
 	 * through them
 	 */
-	bl	restore_gp_registers_callee
+	mov	w0, #SMC_UNK
+	b	restore_gp_registers_callee_eret
 
 smc_prohibited:
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
@@ -387,7 +364,8 @@ smc_prohibited:
 	eret
 
 rt_svc_fw_critical_error:
-	b	rt_svc_fw_critical_error
+	msr	spsel, #1 /* Switch to SP_ELx */
+	bl	dump_state_and_die
 
 	/* -----------------------------------------------------
 	 * The following functions are used to saved and restore
@@ -413,52 +391,24 @@ func save_gp_registers
 	save_x18_to_x29_sp_el0
 	ret
 
-func restore_gp_registers
+func restore_gp_registers_eret
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 
-restore_gp_registers_callee:
-	ldr	x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
-
+restore_gp_registers_callee_eret:
 	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
 	ldp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
 	ldp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
 	ldp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
 	ldp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
 	ldp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
-	msr	sp_el0, x17
-	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
 	ldp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
 	ldp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
 	ldp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
 	ldp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
 	ldp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
 	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	ret
-
-	/* -----------------------------------------------------
-	 * 256 bytes of exception stack for each cpu
-	 * -----------------------------------------------------
-	 */
-#if DEBUG
-#define PCPU_EXCEPTION_STACK_SIZE	0x300
-#else
-#define PCPU_EXCEPTION_STACK_SIZE	0x100
-#endif
-	/* -----------------------------------------------------
-	 * void get_exception_stack (uint64_t mpidr) : This
-	 * function is used to allocate a small stack for
-	 * reporting unhandled exceptions
-	 * -----------------------------------------------------
-	 */
-func get_exception_stack
-	mov	x10, x30 // lr
-	get_mp_stack pcpu_exception_stack, PCPU_EXCEPTION_STACK_SIZE
-	ret	x10
-
-	/* -----------------------------------------------------
-	 * Per-cpu exception stacks in normal memory.
-	 * -----------------------------------------------------
-	 */
-declare_stack pcpu_exception_stack, tzfw_normal_stacks, \
-		PCPU_EXCEPTION_STACK_SIZE, PLATFORM_CORE_COUNT
+	ldp	x30, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	msr	sp_el0, x17
+	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
+	eret
