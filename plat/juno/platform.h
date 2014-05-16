@@ -171,12 +171,12 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			0x0402a000
+#define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xd000)
 
 /*******************************************************************************
  * BL3-1 specific defines.
  ******************************************************************************/
-#define BL31_BASE			0x0400C000
+#define BL31_BASE			(TZRAM_BASE + 0x8000)
 
 /*******************************************************************************
  * BL3-0 specific defines.
@@ -186,10 +186,11 @@
 #define BL30_BASE			BL31_BASE
 
 /*******************************************************************************
- * Workaround for issue #68
- * We don't support BL3-2 on Juno yet
+ * BL3-2 specific defines.
  ******************************************************************************/
-#define BL32_BASE			0
+#define TSP_SEC_MEM_BASE		TZRAM_BASE
+#define TSP_SEC_MEM_SIZE		TZRAM_SIZE
+#define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1d000)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
