@@ -172,6 +172,8 @@ func el1_sysregs_context_save
 	mrs	x9, vbar_el1
 	stp	x17, x9, [x0, #CTX_CONTEXTIDR_EL1]
 
+	/* Save NS timer registers if the build has instructed so */
+#if NS_TIMER_SWITCH
 	mrs	x10, cntp_ctl_el0
 	mrs	x11, cntp_cval_el0
 	stp	x10, x11, [x0, #CTX_CNTP_CTL_EL0]
@@ -181,8 +183,11 @@ func el1_sysregs_context_save
 	stp	x12, x13, [x0, #CTX_CNTV_CTL_EL0]
 
 	mrs	x14, cntkctl_el1
+	str	x14, [x0, #CTX_CNTKCTL_EL1]
+#endif
+
 	mrs	x15, fpexc32_el2
-	stp	x14, x15, [x0, #CTX_CNTKCTL_EL1]
+	str	x15, [x0, #CTX_FP_FPEXC32_EL2]
 
 	ret
 
@@ -253,6 +258,8 @@ func el1_sysregs_context_restore
 	msr	contextidr_el1, x17
 	msr	vbar_el1, x9
 
+	/* Restore NS timer registers if the build has instructed so */
+#if NS_TIMER_SWITCH
 	ldp	x10, x11, [x0, #CTX_CNTP_CTL_EL0]
 	msr	cntp_ctl_el0, x10
 	msr	cntp_cval_el0, x11
@@ -261,8 +268,11 @@ func el1_sysregs_context_restore
 	msr	cntv_ctl_el0, x12
 	msr	cntv_cval_el0, x13
 
-	ldp	x14, x15, [x0, #CTX_CNTKCTL_EL1]
+	ldr	x14, [x0, #CTX_CNTKCTL_EL1]
 	msr	cntkctl_el1, x14
+#endif
+
+	ldr	x15, [x0, #CTX_FP_FPEXC32_EL2]
 	msr	fpexc32_el2, x15
 
 	/* No explict ISB required here as ERET covers it */
