@@ -169,8 +169,14 @@ void bl31_prepare_next_image_entry()
 	assert(next_image_info);
 
 	scr = read_scr();
+	scr &= ~SCR_NS_BIT;
 	if (image_type == NON_SECURE)
 		scr |= SCR_NS_BIT;
+
+	scr &= ~SCR_RW_BIT;
+	if ((next_image_info->spsr & (1 << MODE_RW_SHIFT)) ==
+				(MODE_RW_64 << MODE_RW_SHIFT))
+		scr |= SCR_RW_BIT;
 
 	/*
 	 * Tell the context mgmt. library to ensure that SP_EL3 points to
