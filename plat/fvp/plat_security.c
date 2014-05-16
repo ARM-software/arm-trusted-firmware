@@ -88,36 +88,33 @@ void plat_security_setup(void)
 	tzc_disable_filters(&controller);
 
 	/*
-	 * Allow full access to all DRAM to supported devices for the
-	 * moment. Give access to the CPUs and Virtio. Some devices
+	 * Allow only non-secure access to all DRAM to supported devices.
+	 * Give access to the CPUs and Virtio. Some devices
 	 * would normally use the default ID so allow that too. We use
-	 * three different regions to cover the three separate blocks of
-	 * memory in the FVPs. We allow secure access to DRAM to load NS
-	 * software.
-	 * FIXME: In current models Virtio uses a reserved ID. This is
-	 * not correct and will be fixed.
+	 * two regions to cover the blocks of physical memory in the FVPs.
+	 *
+	 * Software executing in the secure state, such as a secure
+	 * boot-loader, can access the DRAM by using the NS attributes in
+	 * the MMU translation tables and descriptors.
 	 */
 
-	/* Set to cover 2GB block of DRAM */
+	/* Set to cover the first block of DRAM */
 	tzc_configure_region(&controller, FILTER_SHIFT(0), 1,
-			DRAM_BASE, 0xFFFFFFFF, TZC_REGION_S_RDWR,
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
+			DRAM_BASE, 0xFFFFFFFF, TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_RES5));
+			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
+			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
+			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO) |
+			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
 
-	/* Set to cover the 30GB block */
+	/* Set to cover the second block of DRAM */
 	tzc_configure_region(&controller, FILTER_SHIFT(0), 2,
-			0x880000000, 0xFFFFFFFFF, TZC_REGION_S_RDWR,
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
+			0x880000000, 0xFFFFFFFFF, TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_RES5));
-
-	/* Set to cover 480GB block */
-	tzc_configure_region(&controller, FILTER_SHIFT(0), 3,
-			0x8800000000, 0xFFFFFFFFFF, TZC_REGION_S_RDWR,
+			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_RES5));
+			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO) |
+			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
 
 	/*
 	 * TODO: Interrupts are not currently supported. The only
