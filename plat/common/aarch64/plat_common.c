@@ -28,45 +28,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __XLAT_TABLES_H__
-#define __XLAT_TABLES_H__
-
-#include <stdint.h>
+#include <xlat_tables.h>
 
 /*
- * Flags for building up memory mapping attributes.
- * These are organised so that a clear bit gives a more restrictive  mapping
- * that a set bit, that way a bitwise-and two sets of attributes will never give
- * an attribute which has greater access rights that any of the original
- * attributes.
+ * The following 2 platform setup functions are weakly defined. They
+ * provide typical implementations that may be re-used by multiple
+ * platforms but may also be overridden by a platform if required.
  */
-typedef enum  {
-	MT_DEVICE	= 0 << 0,
-	MT_MEMORY	= 1 << 0,
+#pragma weak bl31_plat_enable_mmu
+#pragma weak bl32_plat_enable_mmu
 
-	MT_RO		= 0 << 1,
-	MT_RW		= 1 << 1,
+void bl31_plat_enable_mmu()
+{
+	enable_mmu_el3();
+}
 
-	MT_SECURE	= 0 << 2,
-	MT_NS		= 1 << 2
-} mmap_attr_t;
-
-/*
- * Structure for specifying a single region of memory.
- */
-typedef struct mmap_region {
-	unsigned long	base;
-	unsigned long	size;
-	mmap_attr_t	attr;
-} mmap_region_t;
-
-void mmap_add_region(unsigned long base, unsigned long size,
-			unsigned attr);
-void mmap_add(const mmap_region_t *mm);
-
-void init_xlat_tables(void);
-
-void enable_mmu_el1(void);
-void enable_mmu_el3(void);
-
-#endif /* __XLAT_TABLES_H__ */
+void bl32_plat_enable_mmu()
+{
+	enable_mmu_el1();
+}
