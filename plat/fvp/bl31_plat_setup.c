@@ -72,17 +72,6 @@ extern unsigned long __COHERENT_RAM_END__;
  * BL31 from BL2.
  ******************************************************************************/
 static bl31_params_t *bl2_to_bl31_params;
-static bl31_plat_params_t *bl2_to_bl31_plat_params;
-
-meminfo_t *bl31_plat_sec_mem_layout(void)
-{
-	return &bl2_to_bl31_plat_params->bl31_meminfo;
-}
-
-meminfo_t *bl31_plat_get_bl32_mem_layout(void)
-{
-	return &bl2_to_bl31_plat_params->bl32_meminfo;
-}
 
 /*******************************************************************************
  * Return a pointer to the 'el_change_info' structure of the next image for the
@@ -117,14 +106,12 @@ el_change_info_t *bl31_get_next_image_info(uint32_t type)
  * data
  ******************************************************************************/
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
-			       bl31_plat_params_t *plat_info_from_bl2)
+				void *plat_params_from_bl2)
 {
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
 
 	bl2_to_bl31_params = from_bl2;
-	bl2_to_bl31_plat_params = plat_info_from_bl2;
-
 
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
@@ -179,7 +166,8 @@ void bl31_platform_setup()
  ******************************************************************************/
 void bl31_plat_arch_setup()
 {
-	configure_mmu_el3(&bl2_to_bl31_plat_params->bl31_meminfo,
+	configure_mmu_el3(TZRAM_BASE,
+			  TZRAM_SIZE,
 			  BL31_RO_BASE,
 			  BL31_RO_LIMIT,
 			  BL31_COHERENT_RAM_BASE,
