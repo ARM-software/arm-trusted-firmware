@@ -107,32 +107,32 @@
  * Pl011 CPU interface accessors for writing registers
  ******************************************************************************/
 
-static inline void pl011_write_ibrd(unsigned int base, unsigned int val)
+static inline void pl011_write_ibrd(unsigned long base, unsigned long val)
 {
 	mmio_write_32(base + UARTIBRD, val);
 }
 
-static inline void pl011_write_fbrd(unsigned int base, unsigned int val)
+static inline void pl011_write_fbrd(unsigned long base, unsigned long val)
 {
 	mmio_write_32(base + UARTFBRD, val);
 }
 
-static inline void pl011_write_lcr_h(unsigned int base, unsigned int val)
+static inline void pl011_write_lcr_h(unsigned long base, unsigned long val)
 {
 	mmio_write_32(base + UARTLCR_H, val);
 }
 
-static inline void pl011_write_ecr(unsigned int base, unsigned int val)
+static inline void pl011_write_ecr(unsigned long base, unsigned long val)
 {
 	mmio_write_32(base + UARTECR, val);
 }
 
-static inline void pl011_write_cr(unsigned int base, unsigned int val)
+static inline void pl011_write_cr(unsigned long base, unsigned long val)
 {
 	mmio_write_32(base + UARTCR, val);
 }
 
-static inline void pl011_write_dr(unsigned int base, unsigned int val)
+static inline void pl011_write_dr(unsigned long base, unsigned long val)
 {
 	mmio_write_32(base + UARTDR, val);
 }
@@ -141,12 +141,12 @@ static inline void pl011_write_dr(unsigned int base, unsigned int val)
  * Pl011 CPU interface accessors for reading registers
  ******************************************************************************/
 
-static inline unsigned int pl011_read_fr(unsigned int base)
+static inline unsigned long pl011_read_fr(unsigned long base)
 {
 	return mmio_read_32(base + UARTFR);
 }
 
-static inline unsigned int pl011_read_dr(unsigned int base)
+static inline unsigned long pl011_read_dr(unsigned long base)
 {
 	return mmio_read_32(base + UARTDR);
 }
@@ -155,6 +155,6 @@ static inline unsigned int pl011_read_dr(unsigned int base)
  * Function prototypes
  ******************************************************************************/
 
-void pl011_setbaudrate(unsigned long base_addr, unsigned int baudrate);
+void pl011_setbaudrate(unsigned long base_addr, unsigned long baudrate);
 
 #endif	/* __PL011_H__ */
