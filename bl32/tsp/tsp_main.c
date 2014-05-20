@@ -53,21 +53,6 @@ static tsp_args_t tsp_smc_args[PLATFORM_CORE_COUNT];
  ******************************************************************************/
 work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 
-/*******************************************************************************
- * Single reference to the various entry points exported by the test secure
- * payload.  A single copy should suffice for all cpus as they are not expected
- * to change.
- ******************************************************************************/
-static const entry_info_t tsp_entry_info = {
-	tsp_std_smc_entry,
-	tsp_fast_smc_entry,
-	tsp_cpu_on_entry,
-	tsp_cpu_off_entry,
-	tsp_cpu_resume_entry,
-	tsp_cpu_suspend_entry,
-	tsp_fiq_entry,
-};
-
 static tsp_args_t *set_smc_args(uint64_t arg0,
 			     uint64_t arg1,
 			     uint64_t arg2,
@@ -102,7 +87,7 @@ static tsp_args_t *set_smc_args(uint64_t arg0,
 /*******************************************************************************
  * TSP main entry point where it gets the opportunity to initialize its secure
  * state/applications. Once the state is initialized, it must return to the
- * SPD with a pointer to the 'tsp_entry_info' structure.
+ * SPD with a pointer to the 'tsp_vector_table' jump table.
  ******************************************************************************/
 uint64_t tsp_main(void)
 {
@@ -136,12 +121,7 @@ uint64_t tsp_main(void)
 	     tsp_stats[linear_id].cpu_on_count);
 	spin_unlock(&console_lock);
 
-	/*
-	 * TODO: There is a massive assumption that the SPD and SP can see each
-	 * other's memory without issues so it is safe to pass pointers to
-	 * internal memory. Replace this with a shared communication buffer.
-	 */
-	return (uint64_t) &tsp_entry_info;
+	return (uint64_t) &tsp_vector_table;
 }
 
 /*******************************************************************************
