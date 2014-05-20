@@ -28,6 +28,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+# On FVP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
+# Trusted SRAM is the default.
+TSP_RAM_LOCATION	:=	tsram
+
+ifeq (${TSP_RAM_LOCATION}, tsram)
+  TSP_RAM_LOCATION_ID := TSP_IN_TZRAM
+else ifeq (${TSP_RAM_LOCATION}, tdram)
+  TSP_RAM_LOCATION_ID := TSP_IN_TZDRAM
+else
+  $(error "Unsupported TSP_RAM_LOCATION value")
+endif
+
+# Process TSP_RAM_LOCATION_ID flag
+$(eval $(call add_define,TSP_RAM_LOCATION_ID))
+
 #
 # No additional platform system include directories required
 #
