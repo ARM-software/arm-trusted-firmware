@@ -112,13 +112,57 @@ SErrorSPx:
 	 */
 	.align	7
 SynchronousExceptionA64:
-	/* ---------------------------------------------
+	/* ------------------------------------------------
 	 * Only a single SMC exception from BL2 to ask
 	 * BL1 to pass EL3 control to BL31 is expected
 	 * here.
+	 * It expects X0 with RUN_IMAGE SMC function id
+	 * X1 with Address of a el_change_info_t structure
+	 * describing the BL3-1 entrypoint
+	 * ------------------------------------------------
+	 */
+	mov	x19, x0
+	mov	x20, x1
+
+	mov	x0, #SYNC_EXCEPTION_AARCH64
+	bl	plat_report_exception
+
+	mrs	x0, esr_el3
+	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+	cmp	x1, #EC_AARCH64_SMC
+	b.ne	panic
+
+	mov	x0, #RUN_IMAGE
+	cmp	x19, x0
+	b.ne	panic
+
+	mov	x0, x20
+	bl	display_boot_progress
+
+	ldp	x0, x1, [x20, #EL_CHANGE_INFO_PC_OFFSET]
+	msr	elr_el3, x0
+	msr	spsr_el3, x1
+	ubfx	x0, x1, #MODE_EL_SHIFT, #2
+	cmp	x0, #MODE_EL3
+	b.ne	skip_mmu_teardown
+
+	/* ---------------------------------------------
+	 * If BL31 is to be executed in EL3 as well
+	 * then turn off the MMU so that it can perform
+	 * its own setup.
 	 * ---------------------------------------------
 	 */
-	b	process_exception
+	bl	disable_mmu_icache_el3
+	tlbi	alle3
+skip_mmu_teardown:
+	ldp	x6, x7, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x30)]
+	ldp	x4, x5, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x20)]
+	ldp	x2, x3, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x10)]
+	ldp	x0, x1, [x20, #(EL_CHANGE_INFO_ARGS_OFFSET + 0x0)]
+	eret
+panic:
+	wfi
+	b	panic
 	check_vector_size SynchronousExceptionA64
 
 	.align	7
@@ -173,56 +217,3 @@ SErrorA32:
 	bl	plat_report_exception
 	b	SErrorA32
 	check_vector_size SErrorA32
-
-	.align	7
-
-func process_exception
-	sub	sp, sp, #0x40
-	stp	x0, x1, [sp, #0x0]
-	stp	x2, x3, [sp, #0x10]
-	stp	x4, x5, [sp, #0x20]
-	stp	x6, x7, [sp, #0x30]
-
-	mov	x19, x0
-	mov	x20, x1
-	mov	x21, x2
-	mov	x0, #SYNC_EXCEPTION_AARCH64
-	bl	plat_report_exception
-
-	mrs	x0, esr_el3
-	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x1, #EC_AARCH64_SMC
-	b.ne	panic
-	mov	x1, #RUN_IMAGE
-	cmp	x19, x1
-	b.ne	panic
-	mov	x0, x20
-	mov	x1, x21
-	mov	x2, x3
-	mov	x3, x4
-	bl	display_boot_progress
-	msr	elr_el3, x20
-	msr	spsr_el3, x21
-	ubfx	x0, x21, #MODE_EL_SHIFT, #2
-	cmp	x0, #MODE_EL3
-	b.ne	skip_mmu_teardown
-
-	/* ---------------------------------------------
-	 * If BL31 is to be executed in EL3 as well
-	 * then turn off the MMU so that it can perform
-	 * its own setup.
-	 * ---------------------------------------------
-	 */
-	bl	disable_mmu_icache_el3
-	tlbi	alle3
-skip_mmu_teardown:
-	ldp     x6, x7, [sp, #0x30]
-	ldp     x4, x5, [sp, #0x20]
-	ldp     x2, x3, [sp, #0x10]
-	ldp     x0, x1, [sp, #0x0]
-	add     sp, sp, #0x40
-	eret
-
-panic:
-	wfi
-	b	panic

@@ -28,13 +28,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Decrease the verbosity of the make script
-# can be made verbose by passing V=1 at the make command line
-ifdef V
-  KBUILD_VERBOSE = ${V}
-else
-  KBUILD_VERBOSE = 0
-endif
+#
+# Default values for build configurations
+#
+
+# Build verbosity
+V			:= 0
+# Debug build
+DEBUG			:= 0
+# Build architecture
+ARCH 			:= aarch64
+# Build platform
+DEFAULT_PLAT		:= fvp
+PLAT			:= ${DEFAULT_PLAT}
+# SPD choice
+SPD			:= none
+# Base commit to perform code check on
+BASE_COMMIT		:= origin/master
+# NS timer register save and restore
+NS_TIMER_SWITCH		:= 0
+# By default, Bl1 acts as the reset handler, not BL31
+RESET_TO_BL31		:= 0
+
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO
@@ -42,16 +57,13 @@ CHECK_IGNORE		=	--ignore COMPLEX_MACRO
 CHECKPATCH_ARGS		=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 
-ifeq "${KBUILD_VERBOSE}" "0"
+ifeq (${V},0)
 	Q=@
 	CHECKCODE_ARGS	+=	--no-summary --terse
 else
 	Q=
 endif
-
 export Q
-
-DEBUG	?= 0
 
 ifneq (${DEBUG}, 0)
 	BUILD_TYPE	:=	debug
@@ -60,6 +72,7 @@ else
 endif
 
 BL_COMMON_SOURCES	:=	common/bl_common.c			\
+				common/debug.c				\
 				lib/aarch64/cache_helpers.S		\
 				lib/aarch64/misc_helpers.S		\
 				lib/aarch64/tlb_helpers.S		\
@@ -68,20 +81,25 @@ BL_COMMON_SOURCES	:=	common/bl_common.c			\
 				lib/io_storage.c			\
 				plat/common/aarch64/platform_helpers.S
 
-ARCH 			?=	aarch64
-
-# By default, build fvp platform
-DEFAULT_PLAT		:=	fvp
-PLAT			?=	${DEFAULT_PLAT}
-# By default, build no SPD component
-SPD			?=	none
-
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
 
 PLATFORMS		:=	$(shell ls -I common plat/)
 SPDS			:=	$(shell ls -I none services/spd)
 HELP_PLATFORMS		:=	$(shell echo ${PLATFORMS} | sed 's/ /|/g')
+
+# Convenience function for adding build definitions
+# $(eval $(call add_define,FOO)) will have:
+# -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
+define add_define
+DEFINES			+=	-D$(1)$(if $(value $(1)),=$(value $(1)),)
+endef
+
+# Convenience function for verifying option has a boolean value
+# $(eval $(call assert_boolean,FOO)) will assert FOO is 0 or 1
+define assert_boolean
+$(and $(patsubst 0,,$(value $(1))),$(patsubst 1,,$(value $(1))),$(error $(1) must be boolean))
+endef
 
 ifeq (${PLAT},)
   $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform.")
@@ -131,7 +149,6 @@ endif
 .PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
 .SUFFIXES:
 
-
 INCLUDES		+=	-Iinclude/bl1			\
 				-Iinclude/bl2			\
 				-Iinclude/bl31			\
@@ -149,26 +166,34 @@ INCLUDES		+=	-Iinclude/bl1			\
 				${PLAT_INCLUDES}		\
 				${SPD_INCLUDES}
 
+# Process DEBUG flag
+$(eval $(call assert_boolean,DEBUG))
+$(eval $(call add_define,DEBUG))
+ifeq (${DEBUG},0)
+  $(eval $(call add_define,NDEBUG))
+else
+CFLAGS			+= 	-g
+ASFLAGS			+= 	-g -Wa,--gdwarf-2
+endif
+
+# Process NS_TIMER_SWITCH flag
+$(eval $(call assert_boolean,NS_TIMER_SWITCH))
+$(eval $(call add_define,NS_TIMER_SWITCH))
+
+# Process RESET_TO_BL31 flag
+$(eval $(call assert_boolean,RESET_TO_BL31))
+$(eval $(call add_define,RESET_TO_BL31))
+
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
-				-mgeneral-regs-only -D__ASSEMBLY__ ${INCLUDES}	\
-				-DDEBUG=${DEBUG}
-CFLAGS			:= 	-nostdinc -pedantic -ffreestanding -Wall	\
+				-mgeneral-regs-only -D__ASSEMBLY__		\
+				${DEFINES} ${INCLUDES}
+CFLAGS			+= 	-nostdinc -pedantic -ffreestanding -Wall	\
 				-Werror -mgeneral-regs-only -std=c99 -c -Os	\
-				-DDEBUG=${DEBUG} ${INCLUDES} ${CFLAGS}
+				${DEFINES} ${INCLUDES}
 CFLAGS			+=	-ffunction-sections -fdata-sections
 
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
-
-
-ifneq (${DEBUG}, 0)
-#CFLAGS			+= 	-g -O0
-CFLAGS			+= 	-g
-# -save-temps -fverbose-asm
-ASFLAGS			+= 	-g -Wa,--gdwarf-2
-else
-CFLAGS			+=	-DNDEBUG=1
-endif
 
 
 CC			:=	${CROSS_COMPILE}gcc
@@ -180,8 +205,6 @@ OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
-
-BASE_COMMIT		?=	origin/master
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fip_create

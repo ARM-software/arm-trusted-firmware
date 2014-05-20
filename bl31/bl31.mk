@@ -35,7 +35,9 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				bl31/aarch64/bl31_entrypoint.S			\
 				bl31/aarch64/context.S				\
 				bl31/aarch64/runtime_exceptions.S		\
+				bl31/aarch64/crash_reporting.S	\
 				common/aarch64/early_exceptions.S		\
+				lib/aarch64/cpu_helpers.S			\
 				lib/locks/bakery/bakery_lock.c			\
 				lib/locks/exclusive/spinlock.S			\
 				services/std_svc/std_svc_setup.c		\

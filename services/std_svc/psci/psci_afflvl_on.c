@@ -374,11 +374,12 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	/*
 	 * Use the more complex exception vectors to enable SPD
 	 * initialisation. SP_EL3 should point to a 'cpu_context'
-	 * structure which has an exception stack allocated. The
-	 * calling cpu should have set the context already
+	 * structure. The calling cpu should have set the
+	 * context already
 	 */
 	assert(cm_get_context(mpidr, NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
+	cm_init_pcpu_ptr_cache();
 	write_vbar_el3((uint64_t) runtime_exceptions);
 
 	/*
