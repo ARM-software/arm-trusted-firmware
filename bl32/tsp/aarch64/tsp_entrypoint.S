@@ -34,13 +34,7 @@
 
 
 	.globl	tsp_entrypoint
-	.globl	tsp_cpu_on_entry
-	.globl	tsp_cpu_off_entry
-	.globl	tsp_cpu_suspend_entry
-	.globl	tsp_cpu_resume_entry
-	.globl	tsp_fast_smc_entry
-	.globl	tsp_std_smc_entry
-	.globl	tsp_fiq_entry
+	.globl  tsp_vector_table
 
 
 
@@ -156,6 +150,21 @@ func tsp_entrypoint
 
 tsp_entrypoint_panic:
 	b	tsp_entrypoint_panic
+
+
+	/* -------------------------------------------
+	 * Table of entrypoint vectors provided to the
+	 * TSPD for the various entrypoints
+	 * -------------------------------------------
+	 */
+func tsp_vector_table
+	b	tsp_std_smc_entry
+	b	tsp_fast_smc_entry
+	b	tsp_cpu_on_entry
+	b	tsp_cpu_off_entry
+	b	tsp_cpu_resume_entry
+	b	tsp_cpu_suspend_entry
+	b	tsp_fiq_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this

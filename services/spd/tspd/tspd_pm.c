@@ -55,11 +55,11 @@ static int32_t tspd_cpu_off_handler(uint64_t cookie)
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
-	assert(tsp_entry_info);
+	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
 	/* Program the entry point and enter the TSP */
-	cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->cpu_off_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_off_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	/*
@@ -89,14 +89,14 @@ static void tspd_cpu_suspend_handler(uint64_t power_state)
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
-	assert(tsp_entry_info);
+	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
 	/* Program the entry point, power_state parameter and enter the TSP */
 	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
 		      CTX_GPREG_X0,
 		      power_state);
-	cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->cpu_suspend_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_suspend_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	/*
@@ -123,11 +123,11 @@ static void tspd_cpu_on_finish_handler(uint64_t cookie)
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
-	assert(tsp_entry_info);
+	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_OFF);
 
 	/* Initialise this cpu's secure context */
-	tspd_init_secure_context((uint64_t) tsp_entry_info->cpu_on_entry,
+	tspd_init_secure_context((uint64_t) &tsp_vectors->cpu_on_entry,
 				TSP_AARCH64,
 				mpidr,
 				tsp_ctx);
@@ -158,14 +158,14 @@ static void tspd_cpu_suspend_finish_handler(uint64_t suspend_level)
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
-	assert(tsp_entry_info);
+	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_SUSPEND);
 
 	/* Program the entry point, suspend_level and enter the SP */
 	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
 		      CTX_GPREG_X0,
 		      suspend_level);
-	cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->cpu_resume_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_resume_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	/*

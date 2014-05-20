@@ -117,24 +117,17 @@
 #include <spinlock.h>
 #include <stdint.h>
 
-typedef void (*tsp_generic_fptr_t)(uint64_t arg0,
-				   uint64_t arg1,
-				   uint64_t arg2,
-				   uint64_t arg3,
-				   uint64_t arg4,
-				   uint64_t arg5,
-				   uint64_t arg6,
-				   uint64_t arg7);
+typedef uint32_t tsp_vector_isn_t;
 
-typedef struct entry_info {
-	tsp_generic_fptr_t std_smc_entry;
-	tsp_generic_fptr_t fast_smc_entry;
-	tsp_generic_fptr_t cpu_on_entry;
-	tsp_generic_fptr_t cpu_off_entry;
-	tsp_generic_fptr_t cpu_resume_entry;
-	tsp_generic_fptr_t cpu_suspend_entry;
-	tsp_generic_fptr_t fiq_entry;
-} entry_info_t;
+typedef struct tsp_vectors {
+	tsp_vector_isn_t std_smc_entry;
+	tsp_vector_isn_t fast_smc_entry;
+	tsp_vector_isn_t cpu_on_entry;
+	tsp_vector_isn_t cpu_off_entry;
+	tsp_vector_isn_t cpu_resume_entry;
+	tsp_vector_isn_t cpu_suspend_entry;
+	tsp_vector_isn_t fiq_entry;
+} tsp_vectors_t;
 
 typedef struct work_statistics {
 	uint32_t fiq_count;		/* Number of FIQs on this cpu */
@@ -166,38 +159,6 @@ CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args_t), assert_sp_args_size_mismatch);
 
 extern void tsp_get_magic(uint64_t args[4]);
 
-extern void tsp_fiq_entry(uint64_t arg0,
-				uint64_t arg1,
-				uint64_t arg2,
-				uint64_t arg3,
-				uint64_t arg4,
-				uint64_t arg5,
-				uint64_t arg6,
-				uint64_t arg7);
-extern void tsp_std_smc_entry(uint64_t arg0,
-				uint64_t arg1,
-				uint64_t arg2,
-				uint64_t arg3,
-				uint64_t arg4,
-				uint64_t arg5,
-				uint64_t arg6,
-				uint64_t arg7);
-extern void tsp_fast_smc_entry(uint64_t arg0,
-				uint64_t arg1,
-				uint64_t arg2,
-				uint64_t arg3,
-				uint64_t arg4,
-				uint64_t arg5,
-				uint64_t arg6,
-				uint64_t arg7);
-extern void tsp_cpu_resume_entry(uint64_t arg0,
-				 uint64_t arg1,
-				 uint64_t arg2,
-				 uint64_t arg3,
-				 uint64_t arg4,
-				 uint64_t arg5,
-				 uint64_t arg6,
-				 uint64_t arg7);
 extern tsp_args_t *tsp_cpu_resume_main(uint64_t arg0,
 				     uint64_t arg1,
 				     uint64_t arg2,
@@ -206,14 +167,6 @@ extern tsp_args_t *tsp_cpu_resume_main(uint64_t arg0,
 				     uint64_t arg5,
 				     uint64_t arg6,
 				     uint64_t arg7);
-extern void tsp_cpu_suspend_entry(uint64_t arg0,
-				  uint64_t arg1,
-				  uint64_t arg2,
-				  uint64_t arg3,
-				  uint64_t arg4,
-				  uint64_t arg5,
-				  uint64_t arg6,
-				  uint64_t arg7);
 extern tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
 				      uint64_t arg1,
 				      uint64_t arg2,
@@ -222,23 +175,7 @@ extern tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
 				      uint64_t arg5,
 				      uint64_t arg6,
 				      uint64_t arg7);
-extern void tsp_cpu_on_entry(uint64_t arg0,
-			     uint64_t arg1,
-			     uint64_t arg2,
-			     uint64_t arg3,
-			     uint64_t arg4,
-			     uint64_t arg5,
-			     uint64_t arg6,
-			     uint64_t arg7);
 extern tsp_args_t *tsp_cpu_on_main(void);
-extern void tsp_cpu_off_entry(uint64_t arg0,
-			      uint64_t arg1,
-			      uint64_t arg2,
-			      uint64_t arg3,
-			      uint64_t arg4,
-			      uint64_t arg5,
-			      uint64_t arg6,
-			      uint64_t arg7);
 extern tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 				  uint64_t arg1,
 				  uint64_t arg2,
@@ -261,6 +198,10 @@ extern void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3);
 /* Data structure to keep track of TSP statistics */
 extern spinlock_t console_lock;
 extern work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
+
+/* Vector table of jumps */
+extern tsp_vectors_t tsp_vector_table;
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* __BL2_H__ */
