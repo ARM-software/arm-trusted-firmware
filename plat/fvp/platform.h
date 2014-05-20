@@ -247,20 +247,35 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			0x0402D000
+#define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xc000)
 
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
-#define BL31_BASE			0x0400C000
+#define BL31_BASE			(TZRAM_BASE + 0x6000)
 
 /*******************************************************************************
  * BL32 specific defines.
  ******************************************************************************/
-#define TSP_SEC_MEM_BASE		TZDRAM_BASE
-#define TSP_SEC_MEM_SIZE		TZDRAM_SIZE
-#define BL32_BASE			(TZDRAM_BASE + 0x2000)
-#define BL32_LIMIT			(TZDRAM_BASE + (1 << 21))
+/*
+ * On FVP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
+ */
+#define TSP_IN_TZRAM			0
+#define TSP_IN_TZDRAM			1
+
+#if TSP_RAM_LOCATION_ID == TSP_IN_TZRAM
+# define TSP_SEC_MEM_BASE		TZRAM_BASE
+# define TSP_SEC_MEM_SIZE		TZRAM_SIZE
+# define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1c000)
+# define BL32_LIMIT			BL2_BASE
+#elif TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
+# define TSP_SEC_MEM_BASE		TZDRAM_BASE
+# define TSP_SEC_MEM_SIZE		TZDRAM_SIZE
+# define BL32_BASE			(TZDRAM_BASE + 0x2000)
+# define BL32_LIMIT			(TZDRAM_BASE + (1 << 21))
+#else
+# error "Unsupported TSP_RAM_LOCATION_ID value"
+#endif
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
