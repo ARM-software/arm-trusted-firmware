@@ -183,7 +183,7 @@ extern const spd_pm_ops_t tspd_pm;
 /*******************************************************************************
  * Forward declarations
  ******************************************************************************/
-struct entry_info;
+struct tsp_vectors;
 
 /*******************************************************************************
  * Function & Data prototypes
@@ -197,7 +197,7 @@ extern int32_t tspd_init_secure_context(uint64_t entrypoint,
 					uint64_t mpidr,
 					tsp_context_t *tsp_ctx);
 extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
-extern struct entry_info *tsp_entry_info;
+extern struct tsp_vectors *tsp_vectors;
 #endif /*__ASSEMBLY__*/
 
 #endif /* __TSPD_PRIVATE_H__ */
