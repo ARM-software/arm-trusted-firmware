@@ -113,7 +113,7 @@ SECTIONS
         __COHERENT_RAM_END__ = .;
     } >RAM
 
-    __BL2_END__ = .;
+    __BL32_END__ = .;
 
     __BSS_SIZE__ = SIZEOF(.bss);
     __COHERENT_RAM_UNALIGNED_SIZE__ =
