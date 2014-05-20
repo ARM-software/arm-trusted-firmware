@@ -100,16 +100,23 @@ void plat_security_setup(void)
 
 	/* Set to cover the first block of DRAM */
 	tzc_configure_region(&controller, FILTER_SHIFT(0), 1,
-			DRAM_BASE, 0xFFFFFFFF, TZC_REGION_S_NONE,
+			DRAM1_BASE, DRAM1_END - DRAM1_SEC_SIZE,
+			TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
 
+	/* Set to cover the secure reserved region */
+	tzc_configure_region(&controller, FILTER_SHIFT(0), 3,
+			(DRAM1_END - DRAM1_SEC_SIZE) + 1 , DRAM1_END,
+			TZC_REGION_S_RDWR,
+			0x0);
+
 	/* Set to cover the second block of DRAM */
 	tzc_configure_region(&controller, FILTER_SHIFT(0), 2,
-			0x880000000, 0xFFFFFFFFF, TZC_REGION_S_NONE,
+			DRAM2_BASE, DRAM2_END, TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |

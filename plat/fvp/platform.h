@@ -67,7 +67,7 @@
 
 /* Non-Trusted Firmware BL33 and its load address */
 #define BL33_IMAGE_NAME			"bl33.bin" /* e.g. UEFI */
-#define NS_IMAGE_OFFSET			(DRAM_BASE + 0x8000000) /* DRAM + 128MB */
+#define NS_IMAGE_OFFSET			(DRAM1_BASE + 0x8000000) /* DRAM + 128MB */
 
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
@@ -134,8 +134,14 @@
 #define TZDRAM_SIZE		0x02000000
 #define MBOX_OFF		0x1000
 
-#define DRAM_BASE              0x80000000ull
-#define DRAM_SIZE              0x80000000ull
+#define DRAM1_BASE		0x80000000ull
+#define DRAM1_SIZE		0x80000000ull
+#define DRAM1_END		(DRAM1_BASE + DRAM1_SIZE - 1)
+#define DRAM1_SEC_SIZE		0x01000000ull
+
+#define DRAM2_BASE		0x880000000ull
+#define DRAM2_SIZE		0x780000000ull
+#define DRAM2_END		(DRAM2_BASE + DRAM2_SIZE - 1)
 
 #define PCIE_EXP_BASE		0x40000000
 #define TZRNG_BASE		0x7fe60000
