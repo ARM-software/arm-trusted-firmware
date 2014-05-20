@@ -191,8 +191,35 @@ constants defined. In the ARM FVP port, this file is found in
     image. Must be aligned on a page-size boundary.
 
 *   **#define : NS_IMAGE_OFFSET**
+
     Defines the base address in non-secure DRAM where BL2 loads the BL3-3 binary
     image. Must be aligned on a page-size boundary.
+
+If the BL3-2 image is supported by the platform, the following constants must
+be defined as well:
+
+*   **#define : TSP_SEC_MEM_BASE**
+
+    Defines the base address of the secure memory used by the BL3-2 image on the
+    platform.
+
+*   **#define : TSP_SEC_MEM_SIZE**
+
+    Defines the size of the secure memory used by the BL3-2 image on the
+    platform.
+
+*   **#define : BL32_BASE**
+
+    Defines the base address in secure memory where BL2 loads the BL3-2 binary
+    image. Must be inside the secure memory identified by `TSP_SEC_MEM_BASE` and
+    `TSP_SEC_MEM_SIZE` constants. Must also be aligned on a page-size boundary.
+
+*   **#define : BL32_LIMIT**
+
+    Defines the maximum address that the BL3-2 image can occupy. Must be inside
+    the secure memory identified by `TSP_SEC_MEM_BASE` and `TSP_SEC_MEM_SIZE`
+    constants.
+
 
 ### File : platform_macros.S [mandatory]
 
@@ -206,6 +233,7 @@ macro defined. In the ARM FVP port, this file is found in
     in case of an unhandled IRQ or FIQ in BL3-1. This aids in debugging and
     this macro can be defined to be empty in case GIC register reporting is
     not desired.
+
 
 ### Other mandatory modifications
 
