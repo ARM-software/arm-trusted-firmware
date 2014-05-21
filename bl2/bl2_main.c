@@ -86,6 +86,7 @@ void bl2_main(void)
 	 */
 	bl2_to_bl31_args = bl2_get_bl31_args_ptr();
 
+#ifdef BL32_BASE
 	/*
 	 * Load the BL32 image if there's one. It is upto to platform
 	 * to specify where BL32 should be loaded if it exists. It
@@ -99,6 +100,7 @@ void bl2_main(void)
 				       bl2_to_bl31_args->bl32_meminfo.attr &
 				       LOAD_MASK,
 				       BL32_BASE);
+#endif /* BL32_BASE */
 
 	/*
 	 * Create a new layout of memory for BL31 as seen by BL2. This
