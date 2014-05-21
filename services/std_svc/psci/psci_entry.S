@@ -30,13 +30,13 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <cm_macros.S>
 #include <psci.h>
 
 	.globl	psci_aff_on_finish_entry
 	.globl	psci_aff_suspend_finish_entry
 	.globl	__psci_cpu_off
 	.globl	__psci_cpu_suspend
+	.globl	psci_power_down_wfi
 
 	/* -----------------------------------------------------
 	 * This cpu has been physically powered up. Depending
@@ -120,9 +120,6 @@ func __psci_cpu_off
 	mrs	x0, mpidr_el1
 	bl	platform_set_coherent_stack
 	bl	psci_cpu_off
-	mov	x1, #PSCI_E_SUCCESS
-	cmp	x0, x1
-	b.eq	final_wfi
 	mov	sp, x19
 	ldp	x19, x20, [sp,#0]
 	add	sp, sp, #0x10
@@ -144,9 +141,6 @@ func __psci_cpu_suspend
 	mov	x1, x21
 	mov	x2, x22
 	bl	psci_cpu_suspend
-	mov	x1, #PSCI_E_SUCCESS
-	cmp	x0, x1
-	b.eq	final_wfi
 	mov	sp, x19
 	ldp	x21, x22, [sp,#0x10]
 	ldp	x19, x20, [sp,#0]
@@ -154,7 +148,16 @@ func __psci_cpu_suspend
 	func_epilogue
 	ret
 
-func final_wfi
+	/* --------------------------------------------
+	 * This function is called to indicate to the
+	 * power controller that it is safe to power
+	 * down this cpu. It should not exit the wfi
+	 * and will be released from reset upon power
+	 * up. 'wfi_spill' is used to catch erroneous
+	 * exits from wfi.
+	 * --------------------------------------------
+	 */
+func psci_power_down_wfi
 	dsb	sy		// ensure write buffer empty
 	wfi
 wfi_spill:

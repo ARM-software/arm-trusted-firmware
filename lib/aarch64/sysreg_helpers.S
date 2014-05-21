@@ -142,6 +142,15 @@
 	.globl	read_cntfrq_el0
 	.globl	write_cntfrq_el0
 
+	.globl	read_cntps_ctl_el1
+	.globl	write_cntps_ctl_el1
+
+	.globl	read_cntps_cval_el1
+	.globl	write_cntps_cval_el1
+
+	.globl	read_cntps_tval_el1
+	.globl	write_cntps_tval_el1
+
 	.globl	read_scr
 	.globl	write_scr
 
@@ -151,6 +160,7 @@
 	.globl	read_midr
 	.globl	read_mpidr
 
+	.globl	read_cntpct_el0
 	.globl	read_current_el
 	.globl	read_id_pfr1_el1
 	.globl	read_id_aa64pfr0_el1
@@ -672,6 +682,33 @@ func write_cntfrq_el0
 	msr	cntfrq_el0, x0
 	ret
 
+func read_cntps_ctl_el1
+	mrs	x0, cntps_ctl_el1
+	ret
+
+func write_cntps_ctl_el1
+	msr	cntps_ctl_el1, x0
+	ret
+
+func read_cntps_cval_el1
+	mrs	x0, cntps_cval_el1
+	ret
+
+func write_cntps_cval_el1
+	msr	cntps_cval_el1, x0
+	ret
+
+func read_cntps_tval_el1
+	mrs	x0, cntps_tval_el1
+	ret
+
+func write_cntps_tval_el1
+	msr	cntps_tval_el1, x0
+	ret
+
+func read_cntpct_el0
+	mrs	x0, cntpct_el0
+	ret
 
 func read_cpuectlr
 	mrs	x0, CPUECTLR_EL1

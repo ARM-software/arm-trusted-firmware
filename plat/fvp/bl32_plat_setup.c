@@ -73,6 +73,9 @@ void bl32_early_platform_setup(void)
 	 * messages from TSP
 	 */
 	console_init(PL011_UART1_BASE);
+
+	/* Initialize the platform config for future decision making */
+	platform_config_setup();
 }
 
 /*******************************************************************************
