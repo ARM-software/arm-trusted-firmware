@@ -660,16 +660,22 @@ before returning through EL3 and running the non-trusted firmware (BL3-3):
 ----------------------------------
 
 On FVP platforms, we use the Trusted ROM and Trusted SRAM to store the trusted
-firmware binaries. BL1 is originally sitting in the Trusted ROM. Its read-write
-data are relocated at the base of the Trusted SRAM at runtime. BL1 loads BL2
-image near the top of the the trusted SRAM. BL2 loads BL3-1 image between BL1
-and BL2. This memory layout is illustrated by the following diagram.
+firmware binaries. BL1 is originally sitting in the Trusted ROM at address
+`0x0`. Its read-write data are relocated at the base of the Trusted SRAM at
+runtime. BL1 loads BL2 image near the top of the trusted SRAM. BL2 loads BL3-1
+image between BL1 and BL2. Optionally, BL2 then loads the TSP as the BL3-2
+image. By default it is loaded in Trusted SRAM, in this case it sits between
+BL3-1 and BL2. This memory layout is illustrated by the following diagram.
 
     Trusted SRAM
     +----------+ 0x04040000
     |          |
     |----------|
     |   BL2    |
+    |----------|
+    |          |
+    |----------|
+    |   BL32   | (optional)
     |----------|
     |          |
     |----------|
@@ -684,6 +690,14 @@ and BL2. This memory layout is illustrated by the following diagram.
     +----------+ 0x04000000
     | BL1 (ro) |
     +----------+ 0x00000000
+
+The TSP image may be loaded in Trusted DRAM instead. This doesn't change the
+memory layout of the other boot loader images in Trusted SRAM.
+
+Although the goal at long term is to give complete flexibility over the memory
+layout, all platforms should conform to this layout at the moment. This is
+because of some limitations in the implementation of the image loader in the
+Trusted Firmware. Refer to the "Limitations of the image loader" section below.
 
 Each bootloader stage image layout is described by its own linker script. The
 linker scripts export some symbols into the program symbol table. Their values
@@ -768,97 +782,51 @@ for this purpose:
 * `__BL1_RAM_START__` This is the start address of BL1 RW data.
 * `__BL1_RAM_END__` This is the end address of BL1 RW data.
 
-### BL2's and BL3-1's linker symbols
+### BL2's, BL3-1's and TSP's linker symbols
 
-Both BL2 and BL3-1 need to know the extents of their read-only section to set
+BL2, BL3-1 and TSP need to know the extents of their read-only section to set
 the right memory attributes for this memory region in their MMU setup code. The
 following linker symbols are defined for this purpose:
 
 * `__RO_START__`
 * `__RO_END__`
 
-### How to choose the right base address for each bootloader stage image
+### How to choose the right base addresses for each bootloader stage image
 
-The current implementation of the image loader has some limitations. It is
-designed to load images dynamically, at a load address chosen to minimize memory
-fragmentation. The chosen image location can be either at the top or the bottom
-of free memory. However, until this feature is fully functional, the code also
-contains support for loading images at a link-time fixed address.
+There is currently no support for dynamic image loading in the Trusted Firmware.
+This means that all bootloader images need to be linked against their ultimate
+runtime locations and the base addresses of each image must be chosen carefully
+such that images don't overlap each other in an undesired way. As the code
+grows, the base addresses might need adjustments to cope with the new memory
+layout.
 
-BL1 is always loaded at address `0x0`. BL2 and BL3-1 are loaded at specified
-locations in Trusted SRAM. The lack of dynamic image loader support means these
-load addresses must currently be adjusted as the code grows. The individual
-images must be linked against their ultimate runtime locations.
-
-BL2 is loaded near the top of the Trusted SRAM. BL3-1 is loaded between BL1
-and BL2. All three images are resident concurrently in Trusted RAM during boot
-so overlaps are not permitted.
-
-The image end addresses can be determined from the link map files of the
-different images. These are the `build/<platform>/<build-type>/bl<x>/bl<x>.map`
-files, with `<x>` the stage bootloader.
+The memory layout is completely specific to the platform and so there is no
+general recipe for choosing the right base addresses for each bootloader image.
+However, there are tools to aid in understanding the memory layout. These are
+the link map files: `build/<platform>/<build-type>/bl<x>/bl<x>.map`, with `<x>`
+being the stage bootloader. They provide a detailed view of the memory usage of
+each image. Among other useful information, they provide the end address of
+each image.
 
 * `bl1.map` link map file provides `__BL1_RAM_END__` address.
 * `bl2.map` link map file provides `__BL2_END__` address.
 * `bl31.map` link map file provides `__BL31_END__` address.
+* `bl32.map` link map file provides `__BL32_END__` address.
 
-To prevent images from overlapping each other, the following constraints must be
-enforced:
+For each bootloader image, the platform code must provide its start address
+as well as a limit address that it must not overstep. The latter is used in the
+linker scripts to check that the image doesn't grow past that address. If that
+happens, the linker will issue a message similar to the following:
 
-1.  `__BL1_RAM_END__ <= BL31_BASE`
-2.  `__BL31_END__ <= BL2_BASE`
-3.  `__BL2_END__ <= (<Top of Trusted SRAM>)`
+    aarch64-none-elf-ld: BLx has exceeded its limit.
 
-This is illustrated by the following memory layout diagram:
+On FVP platforms, the base addresses have been chosen such that all images can
+reside concurrently in Trusted RAM without overlapping each other. Note that
+this is not a requirement, as not all images live in memory at the same time.
+For example, when the BL3-1 image takes over execution, BL1 and BL2 images are
+not needed anymore.
 
-    +----------+ 0x04040000
-    |          |
-    |----------| __BL2_END__
-    |   BL2    |
-    |----------| BL2_BASE
-    |          |
-    |----------| __BL31_END__
-    |   BL31   |
-    |----------| BL31_BASE
-    |          |
-    |----------| __BL1_RAM_END__
-    | BL1 (rw) |
-    +----------+ 0x04000000
-
-Overlaps are detected during image linking as follows.
-
-Constraint 1 is enforced by BL1's linker script. If it is violated then the
-linker will report an error while building BL1 to indicate that it doesn't
-fit:
-
-    aarch64-none-elf-ld: BL31 image overlaps BL1 image.
-
-This error means that the BL3-1 base address needs to be incremented. Ensure
-that the new memory layout still obeys all constraints.
-
-Constraint 2 is enforced by BL3-1's linker script. If it is violated then the
-linker will report an error while building BL3-1 to indicate that it doesn't
-fit:
-
-    aarch64-none-elf-ld: BL31 image overlaps BL2 image.
-
-This error can either mean that the BL3-1 base address needs to be decremented
-or that BL2 base address needs to be incremented. Ensure that the new memory
-layout still obeys all constraints.
-
-Constraint 3 is enforced by BL2's linker script. If it is violated then the
-linker will report an error while building BL2 to indicate that it doesn't
-fit. For example:
-
-    aarch64-none-elf-ld: address 0x40400c8 of bl2.elf section `.bss' is not
-    within region `RAM'
-
-This error means that the BL2 base address needs to be decremented. Ensure that
-the new memory layout still obeys all constraints.
-
-Since constraint checks are scattered across linker scripts, it is required to
-`make clean` prior to building to ensure that all possible overlapping scenarios
-are checked.
+### Limitations of the image loader
 
 The current implementation of the image loader can result in wasted space
 because of the simplified data structure used to represent the extents of free
