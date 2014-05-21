@@ -323,7 +323,7 @@ and Foundation FVPs:
 
     git clone -n https://github.com/tianocore/edk2.git
     cd edk2
-    git checkout c1cdcab9526506673b882017845a043cead8bc69
+    git checkout 10ddca8db92de5a535ca1ab71b780260aae8003d
 
 
 To build the software to be compatible with Foundation and Base FVPs, follow

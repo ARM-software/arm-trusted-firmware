@@ -268,10 +268,10 @@ extern void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
  ******************************************************************************/
 extern void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 {
-	bl33_meminfo->total_base = DRAM_BASE;
-	bl33_meminfo->total_size = DRAM_SIZE;
-	bl33_meminfo->free_base = DRAM_BASE;
-	bl33_meminfo->free_size = DRAM_SIZE;
+	bl33_meminfo->total_base = DRAM1_BASE;
+	bl33_meminfo->total_size = DRAM1_SIZE;
+	bl33_meminfo->free_base = DRAM1_BASE;
+	bl33_meminfo->free_size = DRAM1_SIZE;
 	bl33_meminfo->attr = 0;
 	bl33_meminfo->attr = 0;
 }
