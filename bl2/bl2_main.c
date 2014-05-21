@@ -126,6 +126,7 @@ void bl2_main(void)
 				bl2_to_bl31_params->bl33_ep);
 
 
+#ifdef BL32_BASE
 	/*
 	 * Load the BL32 image if there's one. It is upto to platform
 	 * to specify where BL32 should be loaded if it exists. It
@@ -151,6 +152,7 @@ void bl2_main(void)
 		bl2_plat_bl32_loaded(bl2_to_bl31_params->bl32_image,
 					bl2_to_bl31_params->bl32_ep);
 	}
+#endif /* BL32_BASE */
 
 	/* Flush the params to be passed to memory */
 	bl2_plat_flush_bl31_params();
