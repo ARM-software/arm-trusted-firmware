@@ -190,6 +190,7 @@ extern void psci_system_reset(void);
 extern int psci_cpu_on(unsigned long,
 		       unsigned long,
 		       unsigned long);
+extern void __dead2 psci_power_down_wfi(void);
 extern void psci_aff_on_finish_entry(void);
 extern void psci_aff_suspend_finish_entry(void);
 extern void psci_register_spd_pm_hook(const spd_pm_ops_t *);
