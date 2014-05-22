@@ -246,21 +246,29 @@
 
 /*******************************************************************************
  * BL1 specific defines.
- * BL1 RW data is relocated from ROM to RAM at runtime so we need 2 base
+ * BL1 RW data is relocated from ROM to RAM at runtime so we need 2 sets of
  * addresses.
  ******************************************************************************/
 #define BL1_RO_BASE			TZROM_BASE
+#define BL1_RO_LIMIT			(TZROM_BASE + TZROM_SIZE)
 #define BL1_RW_BASE			TZRAM_BASE
+#define BL1_RW_LIMIT			BL31_BASE
 
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
 #define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xc000)
+#define BL2_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
 #define BL31_BASE			(TZRAM_BASE + 0x6000)
+#if TSP_RAM_LOCATION_ID == TSP_IN_TZRAM
+#define BL31_LIMIT			BL32_BASE
+#elif TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
+#define BL31_LIMIT			BL2_BASE
+#endif
 
 /*******************************************************************************
  * BL32 specific defines.

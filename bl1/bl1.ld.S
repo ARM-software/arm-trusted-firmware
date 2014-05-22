@@ -118,11 +118,17 @@ SECTIONS
 
     __DATA_ROM_START__ = LOADADDR(.data);
     __DATA_SIZE__ = SIZEOF(.data);
+    /*
+     * The .data section is the last PROGBITS section so its end marks the end
+     * of the read-only part of BL1's binary.
+     */
+    ASSERT(__DATA_ROM_START__ + __DATA_SIZE__ <= BL1_RO_LIMIT,
+           "BL1's RO section has exceeded its limit.")
 
     __BSS_SIZE__ = SIZEOF(.bss);
 
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 
-    ASSERT(. <= BL31_BASE, "BL1 image overlaps BL31 image.")
+    ASSERT(. <= BL1_RW_LIMIT, "BL1's RW section has exceeded its limit.")
 }
