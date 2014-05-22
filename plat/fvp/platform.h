@@ -236,6 +236,14 @@
 #define PLAT_AFF1_ON		0x3
 
 /*******************************************************************************
+ * BL1 specific defines.
+ * BL1 RW data is relocated from ROM to RAM at runtime so we need 2 base
+ * addresses.
+ ******************************************************************************/
+#define BL1_RO_BASE			TZROM_BASE
+#define BL1_RW_BASE			TZRAM_BASE
+
+/*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
 #define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xc000)
