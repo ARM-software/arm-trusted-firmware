@@ -41,7 +41,11 @@ MEMORY {
 
 SECTIONS
 {
-    ro : {
+    . = BL1_RO_BASE;
+    ASSERT(. == ALIGN(4096),
+           "BL1_RO_BASE address is not aligned on a page boundary.")
+
+    ro . : {
         __RO_START__ = .;
         *bl1_entrypoint.o(.text*)
         *(.text*)
@@ -52,16 +56,19 @@ SECTIONS
 
     /*
      * The .data section gets copied from ROM to RAM at runtime.
-     * Its LMA and VMA must be 16-byte aligned.
+     * Its LMA must be 16-byte aligned.
+     * Its VMA must be page-aligned as it marks the first read/write page.
      */
-    . = NEXT(16);        /* Align LMA */
-    .data : ALIGN(16) {  /* Align VMA */
+    . = BL1_RW_BASE;
+    ASSERT(. == ALIGN(4096),
+           "BL1_RW_BASE address is not aligned on a page boundary.")
+    .data . : ALIGN(16) {
         __DATA_RAM_START__ = .;
         *(.data*)
         __DATA_RAM_END__ = .;
     } >RAM AT>ROM
 
-    stacks (NOLOAD) : {
+    stacks . (NOLOAD) : {
         __STACKS_START__ = .;
         *(tzfw_normal_stacks)
         __STACKS_END__ = .;
