@@ -38,6 +38,13 @@
 #include <tsp.h>
 
 /*******************************************************************************
+ * Declarations of linker defined symbols which will help us find the layout
+ * of trusted SRAM
+ ******************************************************************************/
+extern unsigned long __RO_START__;
+extern unsigned long __COHERENT_RAM_END__;
+
+/*******************************************************************************
  * Lock to control access to the console
  ******************************************************************************/
 spinlock_t console_lock;
@@ -65,6 +72,15 @@ static const entry_info_t tsp_entry_info = {
 	tsp_cpu_resume_entry,
 	tsp_cpu_suspend_entry,
 };
+
+
+/*******************************************************************************
+ * The BL32 memory footprint starts with an RO sections and ends
+ * with a section for coherent RAM. Use it to find the memory size
+ ******************************************************************************/
+#define BL32_TOTAL_BASE (unsigned long)(&__RO_START__)
+
+#define BL32_TOTAL_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 static tsp_args_t *set_smc_args(uint64_t arg0,
 			     uint64_t arg1,
@@ -107,10 +123,6 @@ uint64_t tsp_main(void)
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
-#if DEBUG
-	meminfo_t *mem_layout = bl32_plat_sec_mem_layout();
-#endif
-
 	/* Initialize the platform */
 	bl32_platform_setup();
 
@@ -123,10 +135,9 @@ uint64_t tsp_main(void)
 
 	spin_lock(&console_lock);
 	printf("TSP %s\n\r", build_message);
-	INFO("Total memory base : 0x%x\n", mem_layout->total_base);
-	INFO("Total memory size : 0x%x bytes\n", mem_layout->total_size);
-	INFO("Free memory base  : 0x%x\n", mem_layout->free_base);
-	INFO("Free memory size  : 0x%x bytes\n", mem_layout->free_size);
+	INFO("Total memory base : 0x%x\n", (unsigned long)BL32_TOTAL_BASE);
+	INFO("Total memory size : 0x%x bytes\n",
+			 (unsigned long)(BL32_TOTAL_LIMIT - BL32_TOTAL_BASE));
 	INFO("cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count,
