@@ -98,11 +98,13 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 {
 	bl2_to_bl31_params_mem_t *bl31_params_mem;
 
+#if TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
 	/*
 	 * Ensure that the secure DRAM memory used for passing BL31 arguments
 	 * does not overlap with the BL32_BASE.
 	 */
 	assert(BL32_BASE > PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t));
+#endif
 
 	/*
 	 * Allocate the memory for all the arguments that needs to
@@ -261,15 +263,13 @@ extern void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
 {
 	/*
 	 * Populate the extents of memory available for loading BL32.
-	 * TODO: We are temporarily executing BL2 from TZDRAM;
-	 * will eventually move to Trusted SRAM
 	 */
 	bl32_meminfo->total_base = BL32_BASE;
 	bl32_meminfo->free_base = BL32_BASE;
 	bl32_meminfo->total_size =
-			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
 	bl32_meminfo->free_size =
-			(TZDRAM_BASE + TZDRAM_SIZE) - BL32_BASE;
+			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
 	bl32_meminfo->attr = BOT_LOAD;
 	bl32_meminfo->next = 0;
 }
