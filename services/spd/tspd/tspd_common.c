@@ -91,7 +91,7 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	tsp_ctx->mpidr = mpidr;
 
 	cm_set_context(mpidr, &tsp_ctx->cpu_ctx, SECURE);
-	spsr = make_spsr(MODE_EL1, MODE_SP_ELX, rw);
+	spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
 	cm_set_el3_eret_context(SECURE, entrypoint, spsr, scr);
 
 	return 0;

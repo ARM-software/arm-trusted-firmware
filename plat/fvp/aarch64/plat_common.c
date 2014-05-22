@@ -32,6 +32,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <cci400.h>
 #include <debug.h>
 #include <mmio.h>
 #include <platform.h>
@@ -121,7 +122,7 @@ const mmap_region_t fvp_mmap[] = {
 	{ DEVICE1_BASE,	DEVICE1_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
 	/* 2nd GB as device for now...*/
 	{ 0x40000000,	0x40000000,	MT_DEVICE | MT_RW | MT_SECURE },
-	{ DRAM_BASE,	DRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
+	{ DRAM1_BASE,	DRAM1_SIZE,	MT_MEMORY | MT_RW | MT_NS },
 	{0}
 };
 
@@ -130,14 +131,15 @@ const mmap_region_t fvp_mmap[] = {
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
 #define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void configure_mmu_el##_el(meminfo_t *mem_layout,		\
+	void configure_mmu_el##_el(unsigned long total_base,		\
+				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
 				   unsigned long ro_limit,		\
 				   unsigned long coh_start,		\
 				   unsigned long coh_limit)		\
 	{								\
-		mmap_add_region(mem_layout->total_base,			\
-				mem_layout->total_size,			\
+		mmap_add_region(total_base,				\
+				total_size,				\
 				MT_MEMORY | MT_RW | MT_SECURE);		\
 		mmap_add_region(ro_start, ro_limit - ro_start,		\
 				MT_MEMORY | MT_RO | MT_SECURE);		\
@@ -250,4 +252,58 @@ uint64_t plat_get_syscnt_freq(void)
 	assert(counter_base_frequency != 0);
 
 	return counter_base_frequency;
+}
+
+void plat_cci_setup(void)
+{
+	unsigned long cci_setup;
+
+	/*
+	 * Enable CCI-400 for this cluster. No need
+	 * for locks as no other cpu is active at the
+	 * moment
+	 */
+	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
+	if (cci_setup)
+		cci_enable_coherency(read_mpidr());
+}
+
+
+/*******************************************************************************
+ * Set SPSR and secure state for BL32 image
+ ******************************************************************************/
+void fvp_set_bl32_entrypoint(el_change_info_t *bl32_ep)
+{
+	SET_SECURITY_STATE(bl32_ep->h.attr, SECURE);
+	/*
+	 * The Secure Payload Dispatcher service is responsible for
+	 * setting the SPSR prior to entry into the BL32 image.
+	*/
+	bl32_ep->spsr = 0;
+}
+
+/*******************************************************************************
+ * Set SPSR and secure state for BL33 image
+ ******************************************************************************/
+void fvp_set_bl33_entrypoint(el_change_info_t *bl33_ep)
+{
+	unsigned long el_status;
+	unsigned int mode;
+
+	/* Figure out what mode we enter the non-secure world in */
+	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
+	el_status &= ID_AA64PFR0_ELX_MASK;
+
+	if (el_status)
+		mode = MODE_EL2;
+	else
+		mode = MODE_EL1;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	bl33_ep->spsr =	SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
+	SET_SECURITY_STATE(bl33_ep->h.attr, NON_SECURE);
 }

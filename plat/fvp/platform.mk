@@ -45,7 +45,6 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011.c			\
 BL1_SOURCES		+=	drivers/arm/cci400/cci400.c			\
 				plat/common/aarch64/platform_up_stack.S		\
 				plat/fvp/bl1_plat_setup.c			\
-				plat/fvp/aarch64/bl1_plat_helpers.S		\
 				plat/fvp/aarch64/plat_common.c			\
 				plat/fvp/aarch64/plat_helpers.S
 
@@ -67,3 +66,8 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				plat/fvp/aarch64/plat_helpers.S			\
 				plat/fvp/aarch64/plat_common.c			\
 				plat/fvp/drivers/pwrc/fvp_pwrc.c
+
+ifeq (${RESET_TO_BL31}, 1)
+	BL31_SOURCES		+=	drivers/arm/tzc400/tzc400.c		\
+					plat/fvp/plat_security.c
+endif
