@@ -148,6 +148,7 @@
 #define SCR_FIQ_BIT		(1 << 2)
 #define SCR_IRQ_BIT		(1 << 1)
 #define SCR_NS_BIT		(1 << 0)
+#define SCR_VALID_BIT_MASK	0x2f8f
 
 /* HCR definitions */
 #define HCR_RW_BIT		(1ull << 31)
@@ -221,6 +222,28 @@
 
 #define AARCH32_MODE_SVC	0x13
 #define AARCH32_MODE_HYP	0x1a
+
+/* Physical timer control register bit fields shifts and masks */
+#define CNTP_CTL_ENABLE_SHIFT   0
+#define CNTP_CTL_IMASK_SHIFT    1
+#define CNTP_CTL_ISTATUS_SHIFT  2
+
+#define CNTP_CTL_ENABLE_MASK    1
+#define CNTP_CTL_IMASK_MASK     1
+#define CNTP_CTL_ISTATUS_MASK   1
+
+#define get_cntp_ctl_enable(x)  ((x >> CNTP_CTL_ENABLE_SHIFT) & \
+					CNTP_CTL_ENABLE_MASK)
+#define get_cntp_ctl_imask(x)   ((x >> CNTP_CTL_IMASK_SHIFT) & \
+					CNTP_CTL_IMASK_MASK)
+#define get_cntp_ctl_istatus(x) ((x >> CNTP_CTL_ISTATUS_SHIFT) & \
+					CNTP_CTL_ISTATUS_MASK)
+
+#define set_cntp_ctl_enable(x)  (x |= 1 << CNTP_CTL_ENABLE_SHIFT)
+#define set_cntp_ctl_imask(x)   (x |= 1 << CNTP_CTL_IMASK_SHIFT)
+
+#define clr_cntp_ctl_enable(x)  (x &= ~(1 << CNTP_CTL_ENABLE_SHIFT))
+#define clr_cntp_ctl_imask(x)   (x &= ~(1 << CNTP_CTL_IMASK_SHIFT))
 
 /* Miscellaneous MMU related constants */
 #define NUM_2MB_IN_GB		(1 << 9)

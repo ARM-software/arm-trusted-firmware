@@ -51,13 +51,15 @@
 
 #define GET_SMC_CC(id)			((id >> FUNCID_CC_SHIFT) & \
 					 FUNCID_CC_MASK)
+#define GET_SMC_TYPE(id)		((id >> FUNCID_TYPE_SHIFT) & \
+					 FUNCID_TYPE_MASK)
 
 #define SMC_64				1
 #define SMC_32				0
 #define SMC_UNK				0xffffffff
 #define SMC_TYPE_FAST			1
 #define SMC_TYPE_STD			0
-
+#define SMC_PREEMPTED		0xfffffffe
 /*******************************************************************************
  * Owning entity number definitions inside the function id as per the SMC
  * calling convention
@@ -135,9 +137,12 @@
 typedef int32_t (*rt_svc_init_t)(void);
 
 /* Convenience macros to return from SMC handler */
+#define SMC_RET0(_h)	{ \
+	return (uint64_t) (_h);		\
+}
 #define SMC_RET1(_h, _x0)	{ \
 	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X0, (_x0)); \
-	return _x0; \
+	SMC_RET0(_h);						\
 }
 #define SMC_RET2(_h, _x0, _x1)	{ \
 	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X1, (_x1)); \
