@@ -30,7 +30,6 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <cm_macros.S>
 #include <psci.h>
 
 	.globl	psci_aff_on_finish_entry

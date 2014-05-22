@@ -58,7 +58,7 @@ static tsp_args_t tsp_smc_args[PLATFORM_CORE_COUNT];
 /*******************************************************************************
  * Per cpu data structure to keep track of TSP activity
  ******************************************************************************/
-static work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
+work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Single reference to the various entry points exported by the test secure
@@ -71,6 +71,7 @@ static const entry_info_t tsp_entry_info = {
 	tsp_cpu_off_entry,
 	tsp_cpu_resume_entry,
 	tsp_cpu_suspend_entry,
+	tsp_fiq_entry,
 };
 
 
@@ -127,6 +128,7 @@ uint64_t tsp_main(void)
 	bl32_platform_setup();
 
 	/* Initialize secure/applications state here */
+	tsp_generic_timer_start();
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
@@ -162,6 +164,9 @@ tsp_args_t *tsp_cpu_on_main(void)
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
+	/* Initialize secure/applications state here */
+	tsp_generic_timer_start();
+
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
@@ -194,6 +199,13 @@ tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
+
+	/*
+	 * This cpu is being turned off, so disable the timer to prevent the
+	 * secure timer interrupt from interfering with power down. A pending
+	 * interrupt will be lost but we do not care as we are turning off.
+	 */
+	tsp_generic_timer_stop();
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
@@ -230,6 +242,13 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t power_state,
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
+	/*
+	 * Save the time context and disable it to prevent the secure timer
+	 * interrupt from interfering with wakeup from the suspend state.
+	 */
+	tsp_generic_timer_save();
+	tsp_generic_timer_stop();
+
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
@@ -264,6 +283,9 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
+
+	/* Restore the generic timer context */
+	tsp_generic_timer_restore();
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;

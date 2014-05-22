@@ -43,6 +43,9 @@
 #include <bl_common.h>
 #include <bl31.h>
 #include <context_mgmt.h>
+#include <debug.h>
+#include <errno.h>
+#include <platform.h>
 #include <runtime_svc.h>
 #include <stddef.h>
 #include <tsp.h>
@@ -68,6 +71,75 @@ DEFINE_SVC_UUID(tsp_uuid,
 
 int32_t tspd_init(void);
 
+/*******************************************************************************
+ * This function is the handler registered for S-EL1 interrupts by the TSPD. It
+ * validates the interrupt and upon success arranges entry into the TSP at
+ * 'tsp_fiq_entry()' for handling the interrupt.
+ ******************************************************************************/
+static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
+					    uint32_t flags,
+					    void *handle,
+					    void *cookie)
+{
+	uint32_t linear_id;
+	uint64_t mpidr;
+	tsp_context_t *tsp_ctx;
+
+	/* Check the security state when the exception was generated */
+	assert(get_interrupt_src_ss(flags) == NON_SECURE);
+
+#if IMF_READ_INTERRUPT_ID
+	/* Check the security status of the interrupt */
+	assert(ic_get_interrupt_group(id) == SECURE);
+#endif
+
+	/* Sanity check the pointer to this cpu's context */
+	mpidr = read_mpidr();
+	assert(handle == cm_get_context(mpidr, NON_SECURE));
+
+	/* Save the non-secure context before entering the TSP */
+	cm_el1_sysregs_context_save(NON_SECURE);
+
+	/* Get a reference to this cpu's TSP context */
+	linear_id = platform_get_core_pos(mpidr);
+	tsp_ctx = &tspd_sp_context[linear_id];
+	assert(&tsp_ctx->cpu_ctx == cm_get_context(mpidr, SECURE));
+
+	/*
+	 * Determine if the TSP was previously preempted. Its last known
+	 * context has to be preserved in this case.
+	 * The TSP should return control to the TSPD after handling this
+	 * FIQ. Preserve essential EL3 context to allow entry into the
+	 * TSP at the FIQ entry point using the 'cpu_context' structure.
+	 * There is no need to save the secure system register context
+	 * since the TSP is supposed to preserve it during S-EL1 interrupt
+	 * handling.
+	 */
+	if (get_std_smc_active_flag(tsp_ctx->state)) {
+		tsp_ctx->saved_spsr_el3 = SMC_GET_EL3(&tsp_ctx->cpu_ctx,
+						      CTX_SPSR_EL3);
+		tsp_ctx->saved_elr_el3 = SMC_GET_EL3(&tsp_ctx->cpu_ctx,
+						     CTX_ELR_EL3);
+	}
+
+	SMC_SET_EL3(&tsp_ctx->cpu_ctx,
+		    CTX_SPSR_EL3,
+		    SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS));
+	SMC_SET_EL3(&tsp_ctx->cpu_ctx,
+		    CTX_ELR_EL3,
+		    (uint64_t) tsp_entry_info->fiq_entry);
+	cm_el1_sysregs_context_restore(SECURE);
+	cm_set_next_eret_context(SECURE);
+
+	/*
+	 * Tell the TSP that it has to handle an FIQ synchronously. Also the
+	 * instruction in normal world where the interrupt was generated is
+	 * passed for debugging purposes. It is safe to retrieve this address
+	 * from ELR_EL3 as the secure context will not take effect until
+	 * el3_exit().
+	 */
+	SMC_RET2(&tsp_ctx->cpu_ctx, TSP_HANDLE_FIQ_AND_RETURN, read_elr_el3());
+}
 
 /*******************************************************************************
  * Secure Payload Dispatcher setup. The SPD finds out the SP entrypoint and type
@@ -131,7 +203,7 @@ int32_t tspd_setup(void)
 int32_t tspd_init(void)
 {
 	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_get_core_pos(mpidr), flags;
 	uint64_t rc;
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 
@@ -142,7 +214,7 @@ int32_t tspd_init(void)
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 	assert(rc != 0);
 	if (rc) {
-		tsp_ctx->state = TSP_STATE_ON;
+		set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_ON);
 
 		/*
 		 * TSP has been successfully initialized. Register power
@@ -150,6 +222,18 @@ int32_t tspd_init(void)
 		 */
 		psci_register_spd_pm_hook(&tspd_pm);
 	}
+
+	/*
+	 * Register an interrupt handler for S-EL1 interrupts when generated
+	 * during code executing in the non-secure state.
+	 */
+	flags = 0;
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+					     tspd_sel1_interrupt_handler,
+					     flags);
+	if (rc)
+		panic();
 
 	return rc;
 }
@@ -182,6 +266,73 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	ns = is_caller_non_secure(flags);
 
 	switch (smc_fid) {
+
+	/*
+	 * This function ID is used only by the TSP to indicate that it has
+	 * finished handling a S-EL1 FIQ interrupt. Execution should resume
+	 * in the normal world.
+	 */
+	case TSP_HANDLED_S_EL1_FIQ:
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		assert(handle == cm_get_context(mpidr, SECURE));
+
+		/*
+		 * Restore the relevant EL3 state which saved to service
+		 * this SMC.
+		 */
+		if (get_std_smc_active_flag(tsp_ctx->state)) {
+			SMC_SET_EL3(&tsp_ctx->cpu_ctx,
+				    CTX_SPSR_EL3,
+				    tsp_ctx->saved_spsr_el3);
+			SMC_SET_EL3(&tsp_ctx->cpu_ctx,
+				    CTX_ELR_EL3,
+				    tsp_ctx->saved_elr_el3);
+		}
+
+		/* Get a reference to the non-secure context */
+		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+		assert(ns_cpu_context);
+
+		/*
+		 * Restore non-secure state. There is no need to save the
+		 * secure system register context since the TSP was supposed
+		 * to preserve it during S-EL1 interrupt handling.
+		 */
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+
+		SMC_RET0((uint64_t) ns_cpu_context);
+
+
+	/*
+	 * This function ID is used only by the TSP to indicate that it was
+	 * interrupted due to a EL3 FIQ interrupt. Execution should resume
+	 * in the normal world.
+	 */
+	case TSP_EL3_FIQ:
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		assert(handle == cm_get_context(mpidr, SECURE));
+
+		/* Assert that standard SMC execution has been preempted */
+		assert(get_std_smc_active_flag(tsp_ctx->state));
+
+		/* Save the secure system register state */
+		cm_el1_sysregs_context_save(SECURE);
+
+		/* Get a reference to the non-secure context */
+		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+		assert(ns_cpu_context);
+
+		/* Restore non-secure state */
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+
+		SMC_RET1(ns_cpu_context, TSP_EL3_FIQ);
+
 
 	/*
 	 * This function ID is used only by the SP to indicate it has
@@ -282,7 +433,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			assert(&tsp_ctx->cpu_ctx == cm_get_context(mpidr, SECURE));
 			set_aapcs_args7(&tsp_ctx->cpu_ctx, smc_fid, x1, x2, 0, 0,
 					0, 0, 0);
-			cm_set_el3_elr(SECURE, (uint64_t) tsp_entry_info->fast_smc_entry);
+			cm_set_elr_el3(SECURE, (uint64_t) tsp_entry_info->fast_smc_entry);
 			cm_el1_sysregs_context_restore(SECURE);
 			cm_set_next_eret_context(SECURE);
 
