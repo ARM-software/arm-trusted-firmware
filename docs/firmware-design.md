@@ -219,6 +219,15 @@ access to access controlled components. On the Base FVP a TrustZone controller
 abstraction layer is initialized which is used to load further bootloader
 images.
 
+#### BL3-0 (System Control Processor Firmware) image load
+
+Some systems have a separate System Control Processor (SCP) for power, clock,
+reset and system control. BL2 loads the optional BL3-0 image from platform
+storage into a platform-specific region of secure memory. The subsequent
+handling of BL3-0 is platform specific. Typically the image is transferred into
+SCP memory using a platform-specific protocol. The SCP executes BL3-0 and
+signals to the Application Processor (AP) for BL2 execution to continue.
+
 #### BL3-1 (EL3 Runtime Firmware) image load
 
 BL2 loads the BL3-1 image from platform storage into a platform-specific address
