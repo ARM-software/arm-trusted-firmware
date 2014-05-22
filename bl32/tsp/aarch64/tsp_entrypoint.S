@@ -55,16 +55,6 @@
 
 
 func tsp_entrypoint
-	/*---------------------------------------------
-	 * Store the extents of the tzram available to
-	 * BL32 for future use.
-	 * TODO: We are assuming that x9-x10 will not be
-	 * corrupted by any function before platform
-	 * setup.
-	 * ---------------------------------------------
-	 */
-	mov	x9, x0
-	mov	x10, x1
 
 	/* ---------------------------------------------
 	 * The entrypoint is expected to be executed
@@ -119,8 +109,6 @@ func tsp_entrypoint
 	 * specific early arch. setup e.g. mmu setup
 	 * ---------------------------------------------
 	 */
-	mov	x0, x9
-	mov	x1, x10
 	bl	bl32_early_platform_setup
 	bl	bl32_plat_arch_setup
 
