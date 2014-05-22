@@ -53,10 +53,10 @@
 #include "tspd_private.h"
 
 /*******************************************************************************
- * Single structure to hold information about the various entry points into the
- * Secure Payload. It is initialised once on the primary core after a cold boot.
+ * Address of the entrypoint vector table in the Secure Payload. It is
+ * initialised once on the primary core after a cold boot.
  ******************************************************************************/
-entry_info_t *tsp_entry_info;
+tsp_vectors_t *tsp_vectors;
 
 /*******************************************************************************
  * Array to keep track of per-cpu Secure Payload state
@@ -127,7 +127,7 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 		    SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS));
 	SMC_SET_EL3(&tsp_ctx->cpu_ctx,
 		    CTX_ELR_EL3,
-		    (uint64_t) tsp_entry_info->fiq_entry);
+		    (uint64_t) &tsp_vectors->fiq_entry);
 	cm_el1_sysregs_context_restore(SECURE);
 	cm_set_next_eret_context(SECURE);
 
@@ -370,8 +370,8 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * Stash the SP entry points information. This is done
 		 * only once on the primary cpu
 		 */
-		assert(tsp_entry_info == NULL);
-		tsp_entry_info = (entry_info_t *) x1;
+		assert(tsp_vectors == NULL);
+		tsp_vectors = (tsp_vectors_t *) x1;
 
 		/*
 		 * SP reports completion. The SPD must have initiated
@@ -465,11 +465,11 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 */
 			if (GET_SMC_TYPE(smc_fid) == SMC_TYPE_FAST) {
 				cm_set_elr_el3(SECURE, (uint64_t)
-						tsp_entry_info->fast_smc_entry);
+						&tsp_vectors->fast_smc_entry);
 			} else {
 				set_std_smc_active_flag(tsp_ctx->state);
 				cm_set_elr_el3(SECURE, (uint64_t)
-						tsp_entry_info->std_smc_entry);
+						&tsp_vectors->std_smc_entry);
 			}
 
 			cm_el1_sysregs_context_restore(SECURE);
