@@ -303,6 +303,7 @@ int psci_set_ns_entry_info(unsigned int index,
 	unsigned int rw, mode, ee, spsr = 0;
 	unsigned long id_aa64pfr0 = read_id_aa64pfr0_el1(), scr = read_scr();
 	unsigned long el_status;
+	unsigned long daif;
 
 	/* Figure out what mode do we enter the non-secure world in */
 	el_status = (id_aa64pfr0 >> ID_AA64PFR0_EL2_SHIFT) &
@@ -330,24 +331,18 @@ int psci_set_ns_entry_info(unsigned int index,
 			ee = read_sctlr_el1() & SCTLR_EE_BIT;
 		}
 
-		spsr = DAIF_DBG_BIT | DAIF_ABT_BIT;
-		spsr |= DAIF_IRQ_BIT | DAIF_FIQ_BIT;
-		spsr <<= PSR_DAIF_SHIFT;
-		spsr |= make_spsr(mode, MODE_SP_ELX, !rw);
+		spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
 		psci_ns_entry_info[index].sctlr |= ee;
 		psci_ns_entry_info[index].scr |= SCR_RW_BIT;
 	} else {
 
-		/* Check whether aarch32 has to be entered in Thumb mode */
-		if (entrypoint & 0x1)
-			spsr = SPSR32_T_BIT;
 
 		if (el_status && (scr & SCR_HCE_BIT)) {
-			mode = AARCH32_MODE_HYP;
+			mode = MODE32_hyp;
 			ee = read_sctlr_el2() & SCTLR_EE_BIT;
 		} else {
-			mode = AARCH32_MODE_SVC;
+			mode = MODE32_svc;
 			ee = read_sctlr_el1() & SCTLR_EE_BIT;
 		}
 
@@ -355,11 +350,9 @@ int psci_set_ns_entry_info(unsigned int index,
 		 * TODO: Choose async. exception bits if HYP mode is not
 		 * implemented according to the values of SCR.{AW, FW} bits
 		 */
-		spsr |= DAIF_ABT_BIT | DAIF_IRQ_BIT | DAIF_FIQ_BIT;
-		spsr <<= PSR_DAIF_SHIFT;
-		if (ee)
-			spsr |= SPSR32_EE_BIT;
-		spsr |= mode;
+		daif = DAIF_ABT_BIT | DAIF_IRQ_BIT | DAIF_FIQ_BIT;
+
+		spsr = SPSR_MODE32(mode, entrypoint & 0x1, ee, daif);
 
 		/* Ensure that the CSPR.E and SCTLR.EE bits match */
 		psci_ns_entry_info[index].sctlr |= ee;
