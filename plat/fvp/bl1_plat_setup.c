@@ -33,7 +33,6 @@
 #include <bl_common.h>
 #include <bl1.h>
 #include <console.h>
-#include <cci400.h>
 #include <mmio.h>
 #include <platform.h>
 
@@ -126,21 +125,23 @@ void bl1_platform_setup(void)
  ******************************************************************************/
 void bl1_plat_arch_setup(void)
 {
-	unsigned long cci_setup;
+	plat_cci_setup();
 
-	/*
-	 * Enable CCI-400 for this cluster. No need
-	 * for locks as no other cpu is active at the
-	 * moment
-	 */
-	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
-	if (cci_setup) {
-		cci_enable_coherency(read_mpidr());
-	}
 
-	configure_mmu_el3(&bl1_tzram_layout,
+	configure_mmu_el3(bl1_tzram_layout.total_base,
+			  bl1_tzram_layout.total_size,
 			  TZROM_BASE,
 			  TZROM_BASE + TZROM_SIZE,
 			  BL1_COHERENT_RAM_BASE,
 			  BL1_COHERENT_RAM_LIMIT);
+}
+
+
+/*******************************************************************************
+ * Update SPSR and secure state for BL2 image
+ ******************************************************************************/
+void bl1_plat_bl2_loaded(image_info_t *bl2_image, el_change_info_t *bl2_ep)
+{
+	SET_SECURITY_STATE(bl2_ep->h.attr, SECURE);
+	bl2_ep->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTION);
 }

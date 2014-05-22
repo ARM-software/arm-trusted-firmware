@@ -46,7 +46,6 @@ func bl2_entrypoint
 	 */
 	mov	x20, x0
 	mov	x21, x1
-	mov	x22, x2
 
 	/* ---------------------------------------------
 	 * This is BL2 which is expected to be executed
@@ -110,7 +109,6 @@ func bl2_entrypoint
 	 * ---------------------------------------------
 	 */
 	mov	x0, x21
-	mov	x1, x22
 	bl	bl2_early_platform_setup
 	bl	bl2_plat_arch_setup
 

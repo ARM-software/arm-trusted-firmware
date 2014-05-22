@@ -47,6 +47,8 @@ SPD			:= none
 BASE_COMMIT		:= origin/master
 # NS timer register save and restore
 NS_TIMER_SWITCH		:= 0
+# By default, Bl1 acts as the reset handler, not BL31
+RESET_TO_BL31		:= 0
 
 
 # Checkpatch ignores
@@ -177,6 +179,10 @@ endif
 # Process NS_TIMER_SWITCH flag
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call add_define,NS_TIMER_SWITCH))
+
+# Process RESET_TO_BL31 flag
+$(eval $(call assert_boolean,RESET_TO_BL31))
+$(eval $(call add_define,RESET_TO_BL31))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-mgeneral-regs-only -D__ASSEMBLY__		\
