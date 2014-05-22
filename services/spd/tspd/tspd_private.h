@@ -125,6 +125,12 @@
 #include <cassert.h>
 #include <stdint.h>
 
+/*
+ * The number of arguments to save during a SMC call for TSP.
+ * Currently only x1 and x2 are used by TSP.
+ */
+#define TSP_NUM_ARGS	0x2
+
 /* AArch64 callee saved general purpose register context structure. */
 DEFINE_REG_STRUCT(c_rt_regs, TSPD_C_RT_CTX_ENTRIES);
 
@@ -147,6 +153,8 @@ CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
  * 'c_rt_ctx'       - stack address to restore C runtime context from after
  *                    returning from a synchronous entry into the SP.
  * 'cpu_ctx'        - space to maintain SP architectural state
+ * 'saved_tsp_args' - space to store arguments for TSP arithmetic operations
+ *                    which will queried using the TSP_GET_ARGS SMC by TSP.
  ******************************************************************************/
 typedef struct tsp_context {
 	uint64_t saved_elr_el3;
@@ -155,7 +163,19 @@ typedef struct tsp_context {
 	uint64_t mpidr;
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
+	uint64_t saved_tsp_args[TSP_NUM_ARGS];
 } tsp_context_t;
+
+/* Helper macros to store and retrieve tsp args from tsp_context */
+#define store_tsp_args(tsp_ctx, x1, x2)		do {\
+				tsp_ctx->saved_tsp_args[0] = x1;\
+				tsp_ctx->saved_tsp_args[1] = x2;\
+			} while (0)
+
+#define get_tsp_args(tsp_ctx, x1, x2)	do {\
+				x1 = tsp_ctx->saved_tsp_args[0];\
+				x2 = tsp_ctx->saved_tsp_args[1];\
+			} while (0)
 
 /* TSPD power management handlers */
 extern const spd_pm_ops_t tspd_pm;
