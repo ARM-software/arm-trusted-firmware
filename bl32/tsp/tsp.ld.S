@@ -119,5 +119,5 @@ SECTIONS
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 
-    ASSERT(. <= BL32_LIMIT, "BL3-2 image does not fit.")
+    ASSERT(. <= BL32_LIMIT, "BL3-2 image has exceeded its limit.")
 }
