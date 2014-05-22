@@ -33,15 +33,47 @@
 
 #include <arch.h>
 #include <context.h>
+#include <interrupt_mgmt.h>
 #include <platform.h>
 #include <psci.h>
 
 /*******************************************************************************
  * Secure Payload PM state information e.g. SP is suspended, uninitialised etc
+ * and macros to access the state information in the per-cpu 'state' flags
  ******************************************************************************/
-#define TSP_STATE_OFF		0
-#define TSP_STATE_ON		1
-#define TSP_STATE_SUSPEND	2
+#define TSP_PSTATE_OFF		0
+#define TSP_PSTATE_ON		1
+#define TSP_PSTATE_SUSPEND	2
+#define TSP_PSTATE_SHIFT	0
+#define TSP_PSTATE_MASK	0x3
+#define get_tsp_pstate(state)	((state >> TSP_PSTATE_SHIFT) & TSP_PSTATE_MASK)
+#define clr_tsp_pstate(state)	(state &= ~(TSP_PSTATE_MASK \
+					    << TSP_PSTATE_SHIFT))
+#define set_tsp_pstate(st, pst)	do {					       \
+					clr_tsp_pstate(st);		       \
+					st |= (pst & TSP_PSTATE_MASK) <<       \
+						TSP_PSTATE_SHIFT;	       \
+				} while (0);
+
+
+/*
+ * This flag is used by the TSPD to determine if the TSP is servicing a standard
+ * SMC request prior to programming the next entry into the TSP e.g. if TSP
+ * execution is preempted by a non-secure interrupt and handed control to the
+ * normal world. If another request which is distinct from what the TSP was
+ * previously doing arrives, then this flag will be help the TSPD to either
+ * reject the new request or service it while ensuring that the previous context
+ * is not corrupted.
+ */
+#define STD_SMC_ACTIVE_FLAG_SHIFT	2
+#define STD_SMC_ACTIVE_FLAG_MASK	1
+#define get_std_smc_active_flag(state)	((state >> STD_SMC_ACTIVE_FLAG_SHIFT) \
+					 & STD_SMC_ACTIVE_FLAG_MASK)
+#define set_std_smc_active_flag(state)	(state |=                             \
+					 1 << STD_SMC_ACTIVE_FLAG_SHIFT)
+#define clr_std_smc_active_flag(state)	(state &=                             \
+					 ~(STD_SMC_ACTIVE_FLAG_MASK           \
+					   << STD_SMC_ACTIVE_FLAG_SHIFT))
 
 /*******************************************************************************
  * Secure Payload execution state information i.e. aarch32 or aarch64
@@ -106,13 +138,19 @@ CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
 
 /*******************************************************************************
  * Structure which helps the SPD to maintain the per-cpu state of the SP.
- * 'state'    - collection of flags to track SP state e.g. on/off
- * 'mpidr'    - mpidr to associate a context with a cpu
- * 'c_rt_ctx' - stack address to restore C runtime context from after returning
- *              from a synchronous entry into the SP.
- * 'cpu_ctx'  - space to maintain SP architectural state
+ * 'saved_spsr_el3' - temporary copy to allow FIQ handling when the TSP has been
+ *                    preempted.
+ * 'saved_elr_el3'  - temporary copy to allow FIQ handling when the TSP has been
+ *                    preempted.
+ * 'state'          - collection of flags to track SP state e.g. on/off
+ * 'mpidr'          - mpidr to associate a context with a cpu
+ * 'c_rt_ctx'       - stack address to restore C runtime context from after
+ *                    returning from a synchronous entry into the SP.
+ * 'cpu_ctx'        - space to maintain SP architectural state
  ******************************************************************************/
 typedef struct tsp_context {
+	uint64_t saved_elr_el3;
+	uint32_t saved_spsr_el3;
 	uint32_t state;
 	uint64_t mpidr;
 	uint64_t c_rt_ctx;

@@ -28,8 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <assert.h>
 #include <gic_v2.h>
+#include <interrupt_mgmt.h>
 #include <mmio.h>
 
 /*******************************************************************************
@@ -290,3 +292,27 @@ void gicd_set_itargetsr(unsigned int base, unsigned int id, unsigned int iface)
 			     (1 << iface) << (byte_off << 3));
 }
 
+/*******************************************************************************
+ * This function allows the interrupt management framework to determine (through
+ * the platform) which interrupt line (IRQ/FIQ) to use for an interrupt type to
+ * route it to EL3. The interrupt line is represented as the bit position of the
+ * IRQ or FIQ bit in the SCR_EL3.
+ ******************************************************************************/
+uint32_t gicv2_interrupt_type_to_line(uint32_t cpuif_base, uint32_t type)
+{
+	uint32_t gicc_ctlr;
+
+	/* Non-secure interrupts are signalled on the IRQ line always */
+	if (type == INTR_TYPE_NS)
+		return __builtin_ctz(SCR_IRQ_BIT);
+
+	/*
+	 * Secure interrupts are signalled using the IRQ line if the FIQ_EN
+	 * bit is not set else they are signalled using the FIQ line.
+	 */
+	gicc_ctlr = gicc_read_ctlr(cpuif_base);
+	if (gicc_ctlr & FIQ_EN)
+		return __builtin_ctz(SCR_FIQ_BIT);
+	else
+		return __builtin_ctz(SCR_IRQ_BIT);
+}
