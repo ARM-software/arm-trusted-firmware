@@ -29,7 +29,7 @@
  */
 
 #include <gic_v2.h>
-#include <platform.h>
+#include "../fvp_def.h"
 
 .section .rodata.gic_reg_name, "aS"
 gic_regs: .asciz "gic_iar", "gic_ctlr", ""
@@ -44,7 +44,7 @@ gic_regs: .asciz "gic_iar", "gic_ctlr", ""
 	 */
 	.macro plat_print_gic_regs
 	mov	x0, #CONFIG_GICC_ADDR
-	bl	platform_get_cfgvar
+	bl	fvp_get_cfgvar
 	/* gic base address is now in x0 */
 	ldr	w1, [x0, #GICC_IAR]
 	ldr	w2, [x0, #GICD_CTLR]

@@ -31,11 +31,12 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl1.h>
 #include <console.h>
-#include <cci400.h>
 #include <mmio.h>
 #include <platform.h>
+#include <platform_def.h>
+#include "fvp_def.h"
+#include "fvp_private.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -104,7 +105,7 @@ void bl1_early_platform_setup(void)
 	}
 
 	/* Initialize the platform config for future decision making */
-	platform_config_setup();
+	fvp_config_setup();
 }
 
 /*******************************************************************************
@@ -115,7 +116,7 @@ void bl1_early_platform_setup(void)
 void bl1_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
-	io_setup();
+	fvp_io_setup();
 }
 
 
@@ -126,21 +127,26 @@ void bl1_platform_setup(void)
  ******************************************************************************/
 void bl1_plat_arch_setup(void)
 {
-	unsigned long cci_setup;
+	fvp_cci_setup();
 
-	/*
-	 * Enable CCI-400 for this cluster. No need
-	 * for locks as no other cpu is active at the
-	 * moment
-	 */
-	cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
-	if (cci_setup) {
-		cci_enable_coherency(read_mpidr());
-	}
+	fvp_configure_mmu_el3(bl1_tzram_layout.total_base,
+			      bl1_tzram_layout.total_size,
+			      TZROM_BASE,
+			      TZROM_BASE + TZROM_SIZE,
+			      BL1_COHERENT_RAM_BASE,
+			      BL1_COHERENT_RAM_LIMIT);
+}
 
-	configure_mmu_el3(&bl1_tzram_layout,
-			  TZROM_BASE,
-			  TZROM_BASE + TZROM_SIZE,
-			  BL1_COHERENT_RAM_BASE,
-			  BL1_COHERENT_RAM_LIMIT);
+
+/*******************************************************************************
+ * Before calling this function BL2 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL2 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl1_plat_set_bl2_ep_info(image_info_t *bl2_image,
+				entry_point_info_t *bl2_ep)
+{
+	SET_SECURITY_STATE(bl2_ep->h.attr, SECURE);
+	bl2_ep->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 }

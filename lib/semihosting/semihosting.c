@@ -37,8 +37,8 @@
 #define SEMIHOSTING_SUPPORTED  1
 #endif
 
-extern long semihosting_call(unsigned long operation,
-			    void *system_block_address);
+long semihosting_call(unsigned long operation,
+			void *system_block_address);
 
 typedef struct {
 	const char *file_name;

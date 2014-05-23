@@ -29,6 +29,7 @@
  */
 
 #include <assert.h>
+#include <bl_common.h>
 #include <debug.h>
 #include <errno.h>
 #include <firmware_image_package.h>
@@ -36,6 +37,7 @@
 #include <io_fip.h>
 #include <io_storage.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <stdint.h>
 #include <string.h>
 #include <uuid.h>
@@ -65,7 +67,10 @@ typedef struct {
 static const plat_fip_name_uuid_t name_uuid[] = {
 	{BL2_IMAGE_NAME, UUID_TRUSTED_BOOT_FIRMWARE_BL2},
 	{BL31_IMAGE_NAME, UUID_EL3_RUNTIME_FIRMWARE_BL31},
+#ifdef BL32_IMAGE_NAME
+	/* BL3-2 is optional in the platform */
 	{BL32_IMAGE_NAME, UUID_SECURE_PAYLOAD_BL32},
+#endif /* BL32_IMAGE_NAME */
 	{BL33_IMAGE_NAME, UUID_NON_TRUSTED_FIRMWARE_BL33},
 };
 

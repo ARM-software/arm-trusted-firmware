@@ -32,10 +32,12 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <cci400.h>
 #include <debug.h>
 #include <mmio.h>
 #include <platform.h>
 #include <xlat_tables.h>
+#include "../fvp_def.h"
 
 /*******************************************************************************
  * This array holds the characteristics of the differences between the three
@@ -45,65 +47,6 @@
  * independent operation.
  ******************************************************************************/
 static unsigned long platform_config[CONFIG_LIMIT];
-
-/*******************************************************************************
- * Macro generating the code for the function enabling the MMU in the given
- * exception level, assuming that the pagetables have already been created.
- *
- *   _el:		Exception level at which the function will run
- *   _tcr_extra:	Extra bits to set in the TCR register. This mask will
- *			be OR'ed with the default TCR value.
- *   _tlbi_fct:		Function to invalidate the TLBs at the current
- *			exception level
- ******************************************************************************/
-#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
-	void enable_mmu_el##_el(void)					\
-	{								\
-		uint64_t mair, tcr, ttbr;				\
-		uint32_t sctlr;						\
-									\
-		assert(IS_IN_EL(_el));					\
-		assert((read_sctlr_el##_el() & SCTLR_M_BIT) == 0);	\
-									\
-		/* Set attributes in the right indices of the MAIR */	\
-		mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);	\
-		mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,		\
-				ATTR_IWBWA_OWBWA_NTR_INDEX);		\
-		write_mair_el##_el(mair);				\
-									\
-		/* Invalidate TLBs at the current exception level */	\
-		_tlbi_fct();						\
-									\
-		/* Set TCR bits as well. */				\
-		/* Inner & outer WBWA & shareable + T0SZ = 32 */	\
-		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
-			TCR_RGN_INNER_WBA | TCR_T0SZ_4GB;		\
-		tcr |= _tcr_extra;					\
-		write_tcr_el##_el(tcr);					\
-									\
-		/* Set TTBR bits as well */				\
-		ttbr = (uint64_t) l1_xlation_table;			\
-		write_ttbr0_el##_el(ttbr);				\
-									\
-		/* Ensure all translation table writes have drained */	\
-		/* into memory, the TLB invalidation is complete, */	\
-		/* and translation register writes are committed */	\
-		/* before enabling the MMU */				\
-		dsb();							\
-		isb();							\
-									\
-		sctlr = read_sctlr_el##_el();				\
-		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;	\
-		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;			\
-		write_sctlr_el##_el(sctlr);				\
-									\
-		/* Ensure the MMU enable takes effect immediately */	\
-		isb();							\
-	}
-
-/* Define EL1 and EL3 variants of the function enabling the MMU */
-DEFINE_ENABLE_MMU_EL(1, 0, tlbivmalle1)
-DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1, tlbialle3)
 
 /*
  * Table of regions to map using the MMU.
@@ -121,7 +64,7 @@ const mmap_region_t fvp_mmap[] = {
 	{ DEVICE1_BASE,	DEVICE1_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
 	/* 2nd GB as device for now...*/
 	{ 0x40000000,	0x40000000,	MT_DEVICE | MT_RW | MT_SECURE },
-	{ DRAM_BASE,	DRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
+	{ DRAM1_BASE,	DRAM1_SIZE,	MT_MEMORY | MT_RW | MT_NS },
 	{0}
 };
 
@@ -130,14 +73,15 @@ const mmap_region_t fvp_mmap[] = {
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
 #define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void configure_mmu_el##_el(meminfo_t *mem_layout,		\
+	void fvp_configure_mmu_el##_el(unsigned long total_base,		\
+				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
 				   unsigned long ro_limit,		\
 				   unsigned long coh_start,		\
 				   unsigned long coh_limit)		\
 	{								\
-		mmap_add_region(mem_layout->total_base,			\
-				mem_layout->total_size,			\
+		mmap_add_region(total_base,				\
+				total_size,				\
 				MT_MEMORY | MT_RW | MT_SECURE);		\
 		mmap_add_region(ro_start, ro_limit - ro_start,		\
 				MT_MEMORY | MT_RO | MT_SECURE);		\
@@ -154,7 +98,7 @@ DEFINE_CONFIGURE_MMU_EL(1)
 DEFINE_CONFIGURE_MMU_EL(3)
 
 /* Simple routine which returns a configuration variable value */
-unsigned long platform_get_cfgvar(unsigned int var_id)
+unsigned long fvp_get_cfgvar(unsigned int var_id)
 {
 	assert(var_id < CONFIG_LIMIT);
 	return platform_config[var_id];
@@ -167,7 +111,7 @@ unsigned long platform_get_cfgvar(unsigned int var_id)
  * these platforms. This information is stored in a per-BL array to allow the
  * code to take the correct path.Per BL platform configuration.
  ******************************************************************************/
-int platform_config_setup(void)
+int fvp_config_setup(void)
 {
 	unsigned int rev, hbi, bld, arch, sys_id, midr_pn;
 
@@ -250,4 +194,58 @@ uint64_t plat_get_syscnt_freq(void)
 	assert(counter_base_frequency != 0);
 
 	return counter_base_frequency;
+}
+
+void fvp_cci_setup(void)
+{
+	unsigned long cci_setup;
+
+	/*
+	 * Enable CCI-400 for this cluster. No need
+	 * for locks as no other cpu is active at the
+	 * moment
+	 */
+	cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
+	if (cci_setup)
+		cci_enable_coherency(read_mpidr());
+}
+
+
+/*******************************************************************************
+ * Set SPSR and secure state for BL32 image
+ ******************************************************************************/
+void fvp_set_bl32_ep_info(entry_point_info_t *bl32_ep_info)
+{
+	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
+	/*
+	 * The Secure Payload Dispatcher service is responsible for
+	 * setting the SPSR prior to entry into the BL32 image.
+	 */
+	bl32_ep_info->spsr = 0;
+}
+
+/*******************************************************************************
+ * Set SPSR and secure state for BL33 image
+ ******************************************************************************/
+void fvp_set_bl33_ep_info(entry_point_info_t *bl33_ep_info)
+{
+	unsigned long el_status;
+	unsigned int mode;
+
+	/* Figure out what mode we enter the non-secure world in */
+	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
+	el_status &= ID_AA64PFR0_ELX_MASK;
+
+	if (el_status)
+		mode = MODE_EL2;
+	else
+		mode = MODE_EL1;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	bl33_ep_info->spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
 }

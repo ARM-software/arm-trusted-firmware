@@ -35,6 +35,7 @@
 #include <debug.h>
 #include <io_storage.h>
 #include <platform.h>
+#include <errno.h>
 #include <stdio.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
@@ -71,133 +72,13 @@ void change_security_state(unsigned int target_security_state)
 	write_scr(scr);
 }
 
-void __dead2 drop_el(aapcs64_params_t *args,
-		     unsigned long spsr,
-		     unsigned long entrypoint)
-{
-	write_spsr_el3(spsr);
-	write_elr_el3(entrypoint);
-	eret(args->arg0,
-	     args->arg1,
-	     args->arg2,
-	     args->arg3,
-	     args->arg4,
-	     args->arg5,
-	     args->arg6,
-	     args->arg7);
-}
-
-void __dead2 raise_el(aapcs64_params_t *args)
-{
-	smc(args->arg0,
-	    args->arg1,
-	    args->arg2,
-	    args->arg3,
-	    args->arg4,
-	    args->arg5,
-	    args->arg6,
-	    args->arg7);
-}
-
-/*
- * TODO: If we are not EL3 then currently we only issue an SMC.
- * Add support for dropping into EL0 etc. Consider adding support
- * for switching from S-EL1 to S-EL0/1 etc.
- */
-void __dead2 change_el(el_change_info_t *info)
-{
-	if (IS_IN_EL3()) {
-		/*
-		 * We can go anywhere from EL3. So find where.
-		 * TODO: Lots to do if we are going non-secure.
-		 * Flip the NS bit. Restore NS registers etc.
-		 * Just doing the bare minimal for now.
-		 */
-
-		if (info->security_state == NON_SECURE)
-			change_security_state(info->security_state);
-
-		drop_el(&info->args, info->spsr, info->entrypoint);
-	} else
-		raise_el(&info->args);
-}
-
-/* TODO: add a parameter for DAIF. not needed right now */
-unsigned long make_spsr(unsigned long target_el,
-			unsigned long target_sp,
-			unsigned long target_rw)
-{
-	unsigned long spsr;
-
-	/* Disable all exceptions & setup the EL */
-	spsr = (DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
-		<< PSR_DAIF_SHIFT;
-	spsr |= PSR_MODE(target_rw, target_el, target_sp);
-
-	return spsr;
-}
 
 /*******************************************************************************
- * The next two functions are the weak definitions. Platform specific
+ * The next two functions are weak definitions. Platform specific
  * code can override them if it wishes to.
  ******************************************************************************/
-
-/*******************************************************************************
- * Function that takes a memory layout into which BL31 has been either top or
- * bottom loaded. Using this information, it populates bl31_mem_layout to tell
- * BL31 how much memory it has access to and how much is available for use. It
- * does not need the address where BL31 has been loaded as BL31 will reclaim
- * all the memory used by BL2.
- * TODO: Revisit if this and init_bl2_mem_layout can be replaced by a single
- * routine.
- ******************************************************************************/
-void init_bl31_mem_layout(const meminfo_t *bl2_mem_layout,
-			  meminfo_t *bl31_mem_layout,
-			  unsigned int load_type)
-{
-	if (load_type == BOT_LOAD) {
-		/*
-		 * ------------                             ^
-		 * |   BL2    |                             |
-		 * |----------|                 ^           |  BL2
-		 * |          |                 | BL2 free  |  total
-		 * |          |                 |   size    |  size
-		 * |----------| BL2 free base   v           |
-		 * |   BL31   |                             |
-		 * ------------ BL2 total base              v
-		 */
-		unsigned long bl31_size;
-
-		bl31_mem_layout->free_base = bl2_mem_layout->free_base;
-
-		bl31_size = bl2_mem_layout->free_base - bl2_mem_layout->total_base;
-		bl31_mem_layout->free_size = bl2_mem_layout->total_size - bl31_size;
-	} else {
-		/*
-		 * ------------                             ^
-		 * |   BL31   |                             |
-		 * |----------|                 ^           |  BL2
-		 * |          |                 | BL2 free  |  total
-		 * |          |                 |   size    |  size
-		 * |----------| BL2 free base   v           |
-		 * |   BL2    |                             |
-		 * ------------ BL2 total base              v
-		 */
-		unsigned long bl2_size;
-
-		bl31_mem_layout->free_base = bl2_mem_layout->total_base;
-
-		bl2_size = bl2_mem_layout->free_base - bl2_mem_layout->total_base;
-		bl31_mem_layout->free_size = bl2_mem_layout->free_size + bl2_size;
-	}
-
-	bl31_mem_layout->total_base = bl2_mem_layout->total_base;
-	bl31_mem_layout->total_size = bl2_mem_layout->total_size;
-	bl31_mem_layout->attr = load_type;
-
-	flush_dcache_range((unsigned long) bl31_mem_layout, sizeof(meminfo_t));
-	return;
-}
+#pragma weak init_bl31_mem_layout
+#pragma weak init_bl2_mem_layout
 
 /*******************************************************************************
  * Function that takes a memory layout into which BL2 has been either top or
@@ -294,12 +175,15 @@ unsigned long image_size(const char *image_name)
  * Generic function to load an image into the trusted RAM,
  * given a name, extents of free memory & whether the image should be loaded at
  * the bottom or top of the free memory. It updates the memory layout if the
- * load is successful.
+ * load is successful. It also updates the image information and the entry point
+ * information in the params passed
  ******************************************************************************/
-unsigned long load_image(meminfo_t *mem_layout,
+int load_image(meminfo_t *mem_layout,
 			 const char *image_name,
 			 unsigned int load_type,
-			 unsigned long fixed_addr)
+			 unsigned long fixed_addr,
+			 image_info_t *image_data,
+			 entry_point_info_t *entry_point_info)
 {
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
@@ -313,13 +197,14 @@ unsigned long load_image(meminfo_t *mem_layout,
 
 	assert(mem_layout != NULL);
 	assert(image_name != NULL);
+	assert(image_data->h.version >= VERSION_1);
 
 	/* Obtain a reference to the image by querying the platform layer */
 	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
 	if (io_result != IO_SUCCESS) {
 		WARN("Failed to obtain reference to image '%s' (%i)\n",
 			image_name, io_result);
-		return 0;
+		return io_result;
 	}
 
 	/* Attempt to access the image */
@@ -327,7 +212,7 @@ unsigned long load_image(meminfo_t *mem_layout,
 	if (io_result != IO_SUCCESS) {
 		WARN("Failed to access image '%s' (%i)\n",
 			image_name, io_result);
-		return 0;
+		return io_result;
 	}
 
 	/* Find the size of the image */
@@ -335,7 +220,7 @@ unsigned long load_image(meminfo_t *mem_layout,
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
 		WARN("Failed to determine the size of the image '%s' file (%i)\n",
 			image_name, io_result);
-		goto fail;
+		goto exit;
 	}
 
 	/* See if we have enough space */
@@ -343,7 +228,7 @@ unsigned long load_image(meminfo_t *mem_layout,
 		WARN("Cannot load '%s' file: Not enough space.\n",
 			image_name);
 		dump_load_info(0, image_size, mem_layout);
-		goto fail;
+		goto exit;
 	}
 
 	switch (load_type) {
@@ -362,7 +247,8 @@ unsigned long load_image(meminfo_t *mem_layout,
 		WARN("Cannot load '%s' file: Not enough space.\n",
 			image_name);
 		dump_load_info(image_base, image_size, mem_layout);
-		goto fail;
+		io_result = -ENOMEM;
+		goto exit;
 	  }
 
 	  /* Calculate the amount of extra memory used due to alignment */
@@ -380,10 +266,11 @@ unsigned long load_image(meminfo_t *mem_layout,
 	  /* Page align base address and check whether the image still fits */
 	  if (image_base + image_size >
 	      mem_layout->free_base + mem_layout->free_size) {
-		  WARN("Cannot load '%s' file: Not enough space.\n",
-			  image_name);
-		  dump_load_info(image_base, image_size, mem_layout);
-		  goto fail;
+		WARN("Cannot load '%s' file: Not enough space.\n",
+		  image_name);
+		dump_load_info(image_base, image_size, mem_layout);
+		io_result = -ENOMEM;
+		goto exit;
 	  }
 
 	  /* Calculate the amount of extra memory used due to alignment */
@@ -448,14 +335,16 @@ unsigned long load_image(meminfo_t *mem_layout,
 			WARN("Cannot load '%s' file: Not enough space.\n",
 				image_name);
 			dump_load_info(image_base, image_size, mem_layout);
-			goto fail;
+			io_result = -ENOMEM;
+			goto exit;
 		}
 
 		/* Check whether the fixed load address is page-aligned. */
 		if (!is_page_aligned(image_base)) {
 			WARN("Cannot load '%s' file at unaligned address 0x%lx\n",
 				image_name, fixed_addr);
-			goto fail;
+			io_result = -ENOMEM;
+			goto exit;
 		}
 
 		/*
@@ -505,8 +394,13 @@ unsigned long load_image(meminfo_t *mem_layout,
 	io_result = io_read(image_handle, image_base, image_size, &bytes_read);
 	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
 		WARN("Failed to load '%s' file (%i)\n", image_name, io_result);
-		goto fail;
+		goto exit;
 	}
+
+	image_data->image_base = image_base;
+	image_data->image_size = image_size;
+
+	entry_point_info->pc = image_base;
 
 	/*
 	 * File has been successfully loaded. Update the free memory
@@ -523,54 +417,12 @@ unsigned long load_image(meminfo_t *mem_layout,
 		mem_layout->free_base += offset + image_size;
 
 exit:
-	io_result = io_close(image_handle);
+	io_close(image_handle);
 	/* Ignore improbable/unrecoverable error in 'close' */
 
 	/* TODO: Consider maintaining open device connection from this bootloader stage */
-	io_result = io_dev_close(dev_handle);
+	io_dev_close(dev_handle);
 	/* Ignore improbable/unrecoverable error in 'dev_close' */
 
-	return image_base;
-
-fail:	image_base = 0;
-	goto exit;
-}
-
-/*******************************************************************************
- * Run a loaded image from the given entry point. This could result in either
- * dropping into a lower exception level or jumping to a higher exception level.
- * The only way of doing the latter is through an SMC. In either case, setup the
- * parameters for the EL change request correctly.
- ******************************************************************************/
-void __dead2 run_image(unsigned long entrypoint,
-		       unsigned long spsr,
-		       unsigned long target_security_state,
-		       void *first_arg,
-		       void *second_arg)
-{
-	el_change_info_t run_image_info;
-
-	/* Tell next EL what we want done */
-	run_image_info.args.arg0 = RUN_IMAGE;
-	run_image_info.entrypoint = entrypoint;
-	run_image_info.spsr = spsr;
-	run_image_info.security_state = target_security_state;
-
-	/*
-	 * If we are EL3 then only an eret can take us to the desired
-	 * exception level. Else for the time being assume that we have
-	 * to jump to a higher EL and issue an SMC. Contents of argY
-	 * will go into the general purpose register xY e.g. arg0->x0
-	 */
-	if (IS_IN_EL3()) {
-		run_image_info.args.arg1 = (unsigned long) first_arg;
-		run_image_info.args.arg2 = (unsigned long) second_arg;
-	} else {
-		run_image_info.args.arg1 = entrypoint;
-		run_image_info.args.arg2 = spsr;
-		run_image_info.args.arg3 = (unsigned long) first_arg;
-		run_image_info.args.arg4 = (unsigned long) second_arg;
-	}
-
-	change_el(&run_image_info);
+	return io_result;
 }

@@ -28,7 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <platform.h>
+#include <platform_def.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
@@ -36,7 +36,7 @@ ENTRY(tsp_entrypoint)
 
 
 MEMORY {
-    RAM (rwx): ORIGIN = TZDRAM_BASE, LENGTH = TZDRAM_SIZE
+    RAM (rwx): ORIGIN = TSP_SEC_MEM_BASE, LENGTH = TSP_SEC_MEM_SIZE
 }
 
 
@@ -113,11 +113,11 @@ SECTIONS
         __COHERENT_RAM_END__ = .;
     } >RAM
 
-    __BL2_END__ = .;
+    __BL32_END__ = .;
 
     __BSS_SIZE__ = SIZEOF(.bss);
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 
-    ASSERT(. <= TZDRAM_BASE + (1 << 21), "BL32 image does not fit in the first 2MB of Trusted DRAM.")
+    ASSERT(. <= BL32_LIMIT, "BL3-2 image has exceeded its limit.")
 }

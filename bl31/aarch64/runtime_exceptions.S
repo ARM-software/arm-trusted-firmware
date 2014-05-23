@@ -30,13 +30,117 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <cm_macros.S>
 #include <context.h>
-#include <platform.h>
+#include <interrupt_mgmt.h>
+#include <platform_def.h>
 #include <runtime_svc.h>
 
 	.globl	runtime_exceptions
 	.globl	el3_exit
+
+	/* -----------------------------------------------------
+	 * Handle SMC exceptions seperately from other sync.
+	 * exceptions.
+	 * -----------------------------------------------------
+	 */
+	.macro	handle_sync_exception
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	mrs	x30, esr_el3
+	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+
+	cmp	x30, #EC_AARCH32_SMC
+	b.eq	smc_handler32
+
+	cmp	x30, #EC_AARCH64_SMC
+	b.eq	smc_handler64
+
+	/* -----------------------------------------------------
+	 * The following code handles any synchronous exception
+	 * that is not an SMC.
+	 * -----------------------------------------------------
+	 */
+
+	bl	dump_state_and_die
+	.endm
+
+
+	/* -----------------------------------------------------
+	 * This macro handles FIQ or IRQ interrupts i.e. EL3,
+	 * S-EL1 and NS interrupts.
+	 * -----------------------------------------------------
+	 */
+	.macro	handle_interrupt_exception label
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	bl	save_gp_registers
+
+	/* Switch to the runtime stack i.e. SP_EL0 */
+	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
+	mov	x20, sp
+	msr	spsel, #0
+	mov	sp, x2
+
+	/*
+	 * Find out whether this is a valid interrupt type. If the
+	 * interrupt controller reports a spurious interrupt then
+	 * return to where we came from.
+	 */
+	bl	ic_get_pending_interrupt_type
+	cmp	x0, #INTR_TYPE_INVAL
+	b.eq	interrupt_exit_\label
+
+	/*
+	 * Get the registered handler for this interrupt type. A
+	 * NULL return value implies that an interrupt was generated
+	 * for which there is no handler registered or the interrupt
+	 * was routed incorrectly. This is a problem of the framework
+	 * so report it as an error.
+	 */
+	bl	get_interrupt_type_handler
+	cbz	x0, interrupt_error_\label
+	mov	x21, x0
+
+	mov	x0, #INTR_ID_UNAVAILABLE
+#if IMF_READ_INTERRUPT_ID
+	/*
+	 * Read the id of the highest priority pending interrupt. If
+	 * no interrupt is asserted then return to where we came from.
+	 */
+	bl	ic_get_pending_interrupt_id
+	cmp	x0, #INTR_ID_UNAVAILABLE
+	b.eq	interrupt_exit_\label
+#endif
+
+	/*
+	 * Save the EL3 system registers needed to return from
+	 * this exception.
+	 */
+	mrs	x3, spsr_el3
+	mrs	x4, elr_el3
+	stp	x3, x4, [x20, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+
+	/* Set the current security state in the 'flags' parameter */
+	mrs	x2, scr_el3
+	ubfx	x1, x2, #0, #1
+
+	/* Restore the reference to the 'handle' i.e. SP_EL3 */
+	mov	x2, x20
+
+	/* Call the interrupt type handler */
+	blr	x21
+
+interrupt_exit_\label:
+	/* Return from exception, possibly in a different security state */
+	b	el3_exit
+
+	/*
+	 * This label signifies a problem with the interrupt management
+	 * framework where it is not safe to go back to the instruction
+	 * where the interrupt was generated.
+	 */
+interrupt_error_\label:
+	bl	dump_intr_state_and_die
+	.endm
+
 
 	.macro save_x18_to_x29_sp_el0
 	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
@@ -140,12 +244,12 @@ sync_exception_aarch64:
 	 * -----------------------------------------------------
 	 */
 irq_aarch64:
-	bl	dump_intr_state_and_die
+	handle_interrupt_exception irq_aarch64
 	check_vector_size irq_aarch64
 
 	.align	7
 fiq_aarch64:
-	bl	dump_intr_state_and_die
+	handle_interrupt_exception fiq_aarch64
 	check_vector_size fiq_aarch64
 
 	.align	7
@@ -177,12 +281,12 @@ sync_exception_aarch32:
 	 * -----------------------------------------------------
 	 */
 irq_aarch32:
-	bl	dump_intr_state_and_die
+	handle_interrupt_exception irq_aarch32
 	check_vector_size irq_aarch32
 
 	.align	7
 fiq_aarch32:
-	bl	dump_intr_state_and_die
+	handle_interrupt_exception fiq_aarch32
 	check_vector_size fiq_aarch32
 
 	.align	7

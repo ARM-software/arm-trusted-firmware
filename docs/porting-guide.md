@@ -180,19 +180,74 @@ constants defined. In the ARM FVP port, this file is found in
     Defines the base address of the `CNTCTLBase` frame of the memory mapped
     counter and timer in the system level implementation of the generic timer.
 
+*   **#define : BL1_RO_BASE**
+
+    Defines the base address in secure ROM where BL1 originally lives. Must be
+    aligned on a page-size boundary.
+
+*   **#define : BL1_RO_LIMIT**
+
+    Defines the maximum address in secure ROM that BL1's actual content (i.e.
+    excluding any data section allocated at runtime) can occupy.
+
+*   **#define : BL1_RW_BASE**
+
+    Defines the base address in secure RAM where BL1's read-write data will live
+    at runtime. Must be aligned on a page-size boundary.
+
+*   **#define : BL1_RW_LIMIT**
+
+    Defines the maximum address in secure RAM that BL1's read-write data can
+    occupy at runtime.
+
 *   **#define : BL2_BASE**
 
     Defines the base address in secure RAM where BL1 loads the BL2 binary image.
     Must be aligned on a page-size boundary.
+
+*   **#define : BL2_LIMIT**
+
+    Defines the maximum address in secure RAM that the BL2 image can occupy.
 
 *   **#define : BL31_BASE**
 
     Defines the base address in secure RAM where BL2 loads the BL3-1 binary
     image. Must be aligned on a page-size boundary.
 
+*   **#define : BL31_LIMIT**
+
+    Defines the maximum address in secure RAM that the BL3-1 image can occupy.
+
 *   **#define : NS_IMAGE_OFFSET**
+
     Defines the base address in non-secure DRAM where BL2 loads the BL3-3 binary
     image. Must be aligned on a page-size boundary.
+
+If the BL3-2 image is supported by the platform, the following constants must
+be defined as well:
+
+*   **#define : TSP_SEC_MEM_BASE**
+
+    Defines the base address of the secure memory used by the BL3-2 image on the
+    platform.
+
+*   **#define : TSP_SEC_MEM_SIZE**
+
+    Defines the size of the secure memory used by the BL3-2 image on the
+    platform.
+
+*   **#define : BL32_BASE**
+
+    Defines the base address in secure memory where BL2 loads the BL3-2 binary
+    image. Must be inside the secure memory identified by `TSP_SEC_MEM_BASE` and
+    `TSP_SEC_MEM_SIZE` constants. Must also be aligned on a page-size boundary.
+
+*   **#define : BL32_LIMIT**
+
+    Defines the maximum address that the BL3-2 image can occupy. Must be inside
+    the secure memory identified by `TSP_SEC_MEM_BASE` and `TSP_SEC_MEM_SIZE`
+    constants.
+
 
 ### File : platform_macros.S [mandatory]
 
@@ -555,23 +610,24 @@ using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
     if the platform wants to restrict the amount of memory visible to BL3-1.
     Details of this function are given below.
 
-4.  Loading the BL3-2 binary image (if present) in platform provided memory
-    using semi-hosting. To load the BL3-2 image, BL2 makes use of the
-    `bl32_meminfo` field in the `bl31_args` structure to which a pointer is
+4.  (Optional) Loading the BL3-2 binary image (if present) from platform
+    provided non-volatile storage. To load the BL3-2 image, BL2 makes use of
+    the `bl32_meminfo` field in the `bl31_args` structure to which a pointer is
     returned by the `bl2_get_bl31_args_ptr()` function. The platform also
-    defines the address in memory where BL3-2 is loaded through the constant
-    `BL32_BASE`. BL2 uses this information to determine if there is enough
-    memory to load the BL3-2 image.
+    defines the address in memory where BL3-2 is loaded through the optional
+    constant `BL32_BASE`. BL2 uses this information to determine if there is
+    enough memory to load the BL3-2 image. If `BL32_BASE` is not defined then
+    this and the following two steps are not performed.
 
-5.  Arranging to pass control to the BL3-2 image (if present) that has been
-    pre-loaded at `BL32_BASE`. BL2 populates an `el_change_info` structure
-    in memory provided by the platform with information about how BL3-1 should
-    pass control to the BL3-2 image. This structure follows the
+5.  (Optional) Arranging to pass control to the BL3-2 image (if present) that
+    has been pre-loaded at `BL32_BASE`. BL2 populates an `el_change_info`
+    structure in memory provided by the platform with information about how
+    BL3-1 should pass control to the BL3-2 image. This structure follows the
     `el_change_info` structure populated for the normal world BL image in 2.
     above.
 
-6.  Populating a `meminfo` structure with the following information in
-    memory that is accessible by BL3-1 immediately upon entry.
+6.  (Optional) Populating a `meminfo` structure with the following information
+    in memory that is accessible by BL3-1 immediately upon entry.
 
         meminfo.total_base = Base address of memory visible to BL3-2
         meminfo.total_size = Size of memory visible to BL3-2
@@ -581,7 +637,7 @@ using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
                              BL3-2
 
     BL2 populates this information in the `bl32_meminfo` field of the pointer
-    returned by the `bl2_get_bl31_args_ptr() function.
+    returned by the `bl2_get_bl31_args_ptr()` function.
 
 The following functions must be implemented by the platform port to enable BL2
 to perform the above tasks.

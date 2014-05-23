@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,30 +28,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <asm_macros.S>
-#include <bl_common.h>
-#include <platform.h>
+#include <xlat_tables.h>
 
-	.globl	plat_report_exception
+/*
+ * The following 2 platform setup functions are weakly defined. They
+ * provide typical implementations that may be re-used by multiple
+ * platforms but may also be overridden by a platform if required.
+ */
+#pragma weak bl31_plat_enable_mmu
+#pragma weak bl32_plat_enable_mmu
 
-	/* ---------------------------------------------
-	 * void plat_report_exception(unsigned int type)
-	 * Function to report an unhandled exception
-	 * with platform-specific means.
-	 * On FVP platform, it updates the LEDs
-	 * to indicate where we are
-	 * ---------------------------------------------
-	 */
-func plat_report_exception
-	mrs	x1, CurrentEl
-	lsr	x1, x1, #MODE_EL_SHIFT
-	lsl	x1, x1, #SYS_LED_EL_SHIFT
-	lsl	x0, x0, #SYS_LED_EC_SHIFT
-	mov	x2, #(SECURE << SYS_LED_SS_SHIFT)
-	orr	x0, x0, x2
-	orr	x0, x0, x1
-	mov	x1, #VE_SYSREGS_BASE
-	add	x1, x1, #V2M_SYS_LED
-	str	w0, [x1]
-	ret
+void bl31_plat_enable_mmu()
+{
+	enable_mmu_el3();
+}
+
+void bl32_plat_enable_mmu()
+{
+	enable_mmu_el1();
+}

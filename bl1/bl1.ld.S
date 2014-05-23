@@ -28,7 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <platform.h>
+#include <platform_def.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
@@ -41,7 +41,11 @@ MEMORY {
 
 SECTIONS
 {
-    ro : {
+    . = BL1_RO_BASE;
+    ASSERT(. == ALIGN(4096),
+           "BL1_RO_BASE address is not aligned on a page boundary.")
+
+    ro . : {
         __RO_START__ = .;
         *bl1_entrypoint.o(.text*)
         *(.text*)
@@ -52,16 +56,19 @@ SECTIONS
 
     /*
      * The .data section gets copied from ROM to RAM at runtime.
-     * Its LMA and VMA must be 16-byte aligned.
+     * Its LMA must be 16-byte aligned.
+     * Its VMA must be page-aligned as it marks the first read/write page.
      */
-    . = NEXT(16);        /* Align LMA */
-    .data : ALIGN(16) {  /* Align VMA */
+    . = BL1_RW_BASE;
+    ASSERT(. == ALIGN(4096),
+           "BL1_RW_BASE address is not aligned on a page boundary.")
+    .data . : ALIGN(16) {
         __DATA_RAM_START__ = .;
         *(.data*)
         __DATA_RAM_END__ = .;
     } >RAM AT>ROM
 
-    stacks (NOLOAD) : {
+    stacks . (NOLOAD) : {
         __STACKS_START__ = .;
         *(tzfw_normal_stacks)
         __STACKS_END__ = .;
@@ -111,11 +118,17 @@ SECTIONS
 
     __DATA_ROM_START__ = LOADADDR(.data);
     __DATA_SIZE__ = SIZEOF(.data);
+    /*
+     * The .data section is the last PROGBITS section so its end marks the end
+     * of the read-only part of BL1's binary.
+     */
+    ASSERT(__DATA_ROM_START__ + __DATA_SIZE__ <= BL1_RO_LIMIT,
+           "BL1's RO section has exceeded its limit.")
 
     __BSS_SIZE__ = SIZEOF(.bss);
 
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 
-    ASSERT(. <= BL31_BASE, "BL1 image overlaps BL31 image.")
+    ASSERT(. <= BL1_RW_LIMIT, "BL1's RW section has exceeded its limit.")
 }

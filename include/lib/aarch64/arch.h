@@ -148,6 +148,7 @@
 #define SCR_FIQ_BIT		(1 << 2)
 #define SCR_IRQ_BIT		(1 << 1)
 #define SCR_NS_BIT		(1 << 0)
+#define SCR_VALID_BIT_MASK	0x2f8f
 
 /* HCR definitions */
 #define HCR_RW_BIT		(1ull << 31)
@@ -175,7 +176,25 @@
 #define DAIF_IRQ_BIT		(1 << 1)
 #define DAIF_ABT_BIT		(1 << 2)
 #define DAIF_DBG_BIT		(1 << 3)
-#define PSR_DAIF_SHIFT		0x6
+#define SPSR_DAIF_SHIFT		6
+#define SPSR_DAIF_MASK		0xf
+
+#define SPSR_AIF_SHIFT		6
+#define SPSR_AIF_MASK		0x7
+
+#define SPSR_E_SHIFT		9
+#define SPSR_E_MASK			0x1
+#define SPSR_E_LITTLE		0x0
+#define SPSR_E_BIG			0x1
+
+#define SPSR_T_SHIFT		5
+#define SPSR_T_MASK			0x1
+#define SPSR_T_ARM			0x0
+#define SPSR_T_THUMB		0x1
+
+#define DISABLE_ALL_EXCEPTIONS \
+		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
+
 
 /*
  * TCR defintions
@@ -198,29 +217,75 @@
 #define TCR_SH_OUTER_SHAREABLE	(0x2 << 12)
 #define TCR_SH_INNER_SHAREABLE	(0x3 << 12)
 
-#define MODE_RW_64		0x0
-#define MODE_RW_32		0x1
+#define MODE_SP_SHIFT		0x0
+#define MODE_SP_MASK		0x1
 #define MODE_SP_EL0		0x0
 #define MODE_SP_ELX		0x1
+
+#define MODE_RW_SHIFT		0x4
+#define MODE_RW_MASK		0x1
+#define MODE_RW_64			0x0
+#define MODE_RW_32			0x1
+
+#define MODE_EL_SHIFT		0x2
+#define MODE_EL_MASK		0x3
 #define MODE_EL3		0x3
 #define MODE_EL2		0x2
 #define MODE_EL1		0x1
 #define MODE_EL0		0x0
 
-#define MODE_RW_SHIFT		0x4
-#define MODE_EL_SHIFT		0x2
-#define MODE_SP_SHIFT		0x0
+#define MODE32_SHIFT		0
+#define MODE32_MASK		0xf
+#define MODE32_usr		0x0
+#define MODE32_fiq		0x1
+#define MODE32_irq		0x2
+#define MODE32_svc		0x3
+#define MODE32_mon		0x6
+#define MODE32_abt		0x7
+#define MODE32_hyp		0xa
+#define MODE32_und		0xb
+#define MODE32_sys		0xf
 
-#define GET_RW(mode)		((mode >> MODE_RW_SHIFT) & 0x1)
-#define GET_EL(mode)		((mode >> MODE_EL_SHIFT) & 0x3)
-#define PSR_MODE(rw, el, sp)	(rw << MODE_RW_SHIFT | el << MODE_EL_SHIFT \
-				 | sp << MODE_SP_SHIFT)
+#define GET_RW(mode)		(((mode) >> MODE_RW_SHIFT) & MODE_RW_MASK)
+#define GET_EL(mode)		(((mode) >> MODE_EL_SHIFT) & MODE_EL_MASK)
+#define GET_SP(mode)		(((mode) >> MODE_SP_SHIFT) & MODE_SP_MASK)
+#define GET_M32(mode)		(((mode) >> MODE32_SHIFT) & MODE32_MASK)
 
-#define SPSR32_EE_BIT		(1 << 9)
-#define SPSR32_T_BIT		(1 << 5)
+#define SPSR_64(el, sp, daif)				\
+	(MODE_RW_64 << MODE_RW_SHIFT |			\
+	((el) & MODE_EL_MASK) << MODE_EL_SHIFT |	\
+	((sp) & MODE_SP_MASK) << MODE_SP_SHIFT |	\
+	((daif) & SPSR_DAIF_MASK) << SPSR_DAIF_SHIFT)
 
-#define AARCH32_MODE_SVC	0x13
-#define AARCH32_MODE_HYP	0x1a
+#define SPSR_MODE32(mode, isa, endian, aif)		\
+	(MODE_RW_32 << MODE_RW_SHIFT |			\
+	((mode) & MODE32_MASK) << MODE32_SHIFT |	\
+	((isa) & SPSR_T_MASK) << SPSR_T_SHIFT |		\
+	((endian) & SPSR_E_MASK) << SPSR_E_SHIFT |	\
+	((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT)
+
+
+/* Physical timer control register bit fields shifts and masks */
+#define CNTP_CTL_ENABLE_SHIFT   0
+#define CNTP_CTL_IMASK_SHIFT    1
+#define CNTP_CTL_ISTATUS_SHIFT  2
+
+#define CNTP_CTL_ENABLE_MASK    1
+#define CNTP_CTL_IMASK_MASK     1
+#define CNTP_CTL_ISTATUS_MASK   1
+
+#define get_cntp_ctl_enable(x)  ((x >> CNTP_CTL_ENABLE_SHIFT) & \
+					CNTP_CTL_ENABLE_MASK)
+#define get_cntp_ctl_imask(x)   ((x >> CNTP_CTL_IMASK_SHIFT) & \
+					CNTP_CTL_IMASK_MASK)
+#define get_cntp_ctl_istatus(x) ((x >> CNTP_CTL_ISTATUS_SHIFT) & \
+					CNTP_CTL_ISTATUS_MASK)
+
+#define set_cntp_ctl_enable(x)  (x |= 1 << CNTP_CTL_ENABLE_SHIFT)
+#define set_cntp_ctl_imask(x)   (x |= 1 << CNTP_CTL_IMASK_SHIFT)
+
+#define clr_cntp_ctl_enable(x)  (x &= ~(1 << CNTP_CTL_ENABLE_SHIFT))
+#define clr_cntp_ctl_imask(x)   (x &= ~(1 << CNTP_CTL_IMASK_SHIFT))
 
 /* Miscellaneous MMU related constants */
 #define NUM_2MB_IN_GB		(1 << 9)
