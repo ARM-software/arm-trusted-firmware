@@ -285,7 +285,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			  unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned long linear_id, cpu_setup, cci_setup;
+	unsigned long linear_id, cpu_setup;
 	mailbox_t *fvp_mboxes;
 	unsigned int gicd_base, gicc_base, reg_val, ectlr;
 
@@ -308,10 +308,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			 */
 			fvp_pwrc_write_pponr(mpidr);
 
-			cci_setup = platform_get_cfgvar(CONFIG_HAS_CCI);
-			if (cci_setup) {
-				cci_enable_coherency(mpidr);
-			}
+			fvp_cci_setup();
 		}
 		break;
 
