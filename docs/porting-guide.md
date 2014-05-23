@@ -180,15 +180,43 @@ constants defined. In the ARM FVP port, this file is found in
     Defines the base address of the `CNTCTLBase` frame of the memory mapped
     counter and timer in the system level implementation of the generic timer.
 
+*   **#define : BL1_RO_BASE**
+
+    Defines the base address in secure ROM where BL1 originally lives. Must be
+    aligned on a page-size boundary.
+
+*   **#define : BL1_RO_LIMIT**
+
+    Defines the maximum address in secure ROM that BL1's actual content (i.e.
+    excluding any data section allocated at runtime) can occupy.
+
+*   **#define : BL1_RW_BASE**
+
+    Defines the base address in secure RAM where BL1's read-write data will live
+    at runtime. Must be aligned on a page-size boundary.
+
+*   **#define : BL1_RW_LIMIT**
+
+    Defines the maximum address in secure RAM that BL1's read-write data can
+    occupy at runtime.
+
 *   **#define : BL2_BASE**
 
     Defines the base address in secure RAM where BL1 loads the BL2 binary image.
     Must be aligned on a page-size boundary.
 
+*   **#define : BL2_LIMIT**
+
+    Defines the maximum address in secure RAM that the BL2 image can occupy.
+
 *   **#define : BL31_BASE**
 
     Defines the base address in secure RAM where BL2 loads the BL3-1 binary
     image. Must be aligned on a page-size boundary.
+
+*   **#define : BL31_LIMIT**
+
+    Defines the maximum address in secure RAM that the BL3-1 image can occupy.
 
 *   **#define : NS_IMAGE_OFFSET**
 

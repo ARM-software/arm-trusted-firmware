@@ -117,4 +117,6 @@ SECTIONS
     __BSS_SIZE__ = SIZEOF(.bss);
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
+
+    ASSERT(. <= BL2_LIMIT, "BL2 image has exceeded its limit.")
 }
