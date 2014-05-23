@@ -36,75 +36,70 @@
 #include <xlat_tables.h>
 
 
-void enable_mmu()
-{
-	unsigned long mair, tcr, ttbr, sctlr;
-	unsigned long current_el = read_current_el();
-
-	/* Set the attributes in the right indices of the MAIR */
-	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
-	mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,
-				  ATTR_IWBWA_OWBWA_NTR_INDEX);
-
-	/*
-	 * Set TCR bits as well. Inner & outer WBWA & shareable + T0SZ = 32
-	 */
-	tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |
-		  TCR_RGN_INNER_WBA | TCR_T0SZ_4GB;
-
-	/* Set TTBR bits as well */
-	ttbr = (unsigned long) l1_xlation_table;
-
-	if (GET_EL(current_el) == MODE_EL3) {
-		assert((read_sctlr_el3() & SCTLR_M_BIT) == 0);
-
-		write_mair_el3(mair);
-		tcr |= TCR_EL3_RES1;
-		/* Invalidate EL3 TLBs */
-		tlbialle3();
-
-		write_tcr_el3(tcr);
-		write_ttbr0_el3(ttbr);
-
-		/* ensure all translation table writes have drained into memory,
-		 * the TLB invalidation is complete, and translation register
-		 * writes are committed before enabling the MMU
-		 */
-		dsb();
-		isb();
-
-		sctlr = read_sctlr_el3();
-		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;
-		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;
-		write_sctlr_el3(sctlr);
-	} else {
-		assert((read_sctlr_el1() & SCTLR_M_BIT) == 0);
-
-		write_mair_el1(mair);
-		/* Invalidate EL1 TLBs */
-		tlbivmalle1();
-
-		write_tcr_el1(tcr);
-		write_ttbr0_el1(ttbr);
-
-		/* ensure all translation table writes have drained into memory,
-		 * the TLB invalidation is complete, and translation register
-		 * writes are committed before enabling the MMU
-		 */
-		dsb();
-		isb();
-
-		sctlr = read_sctlr_el1();
-		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;
-		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;
-		write_sctlr_el1(sctlr);
+/*******************************************************************************
+ * Macro generating the code for the function enabling the MMU in the given
+ * exception level, assuming that the pagetables have already been created.
+ *
+ *   _el:		Exception level at which the function will run
+ *   _tcr_extra:	Extra bits to set in the TCR register. This mask will
+ *			be OR'ed with the default TCR value.
+ *   _tlbi_fct:		Function to invalidate the TLBs at the current
+ *			exception level
+ ******************************************************************************/
+#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
+	void enable_mmu_el##_el(void)					\
+	{								\
+		uint64_t mair, tcr, ttbr;				\
+		uint32_t sctlr;						\
+									\
+		assert(IS_IN_EL(_el));					\
+		assert((read_sctlr_el##_el() & SCTLR_M_BIT) == 0);	\
+									\
+		/* Set attributes in the right indices of the MAIR */	\
+		mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);	\
+		mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,		\
+				ATTR_IWBWA_OWBWA_NTR_INDEX);		\
+		write_mair_el##_el(mair);				\
+									\
+		/* Invalidate TLBs at the current exception level */	\
+		_tlbi_fct();						\
+									\
+		/* Set TCR bits as well. */				\
+		/* Inner & outer WBWA & shareable + T0SZ = 32 */	\
+		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
+			TCR_RGN_INNER_WBA | TCR_T0SZ_4GB;		\
+		tcr |= _tcr_extra;					\
+		write_tcr_el##_el(tcr);					\
+									\
+		/* Set TTBR bits as well */				\
+		ttbr = (uint64_t) l1_xlation_table;			\
+		write_ttbr0_el##_el(ttbr);				\
+									\
+		/* Ensure all translation table writes have drained */	\
+		/* into memory, the TLB invalidation is complete, */	\
+		/* and translation register writes are committed */	\
+		/* before enabling the MMU */				\
+		dsb();							\
+		isb();							\
+									\
+		sctlr = read_sctlr_el##_el();				\
+		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;	\
+		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;			\
+		write_sctlr_el##_el(sctlr);				\
+									\
+		/* Ensure the MMU enable takes effect immediately */	\
+		isb();							\
 	}
-	/* ensure the MMU enable takes effect immediately */
-	isb();
 
-	return;
-}
+/* Define EL1 and EL3 variants of the function enabling the MMU */
+DEFINE_ENABLE_MMU_EL(1, 0, tlbivmalle1)
+DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1, tlbialle3)
 
+/*
+ * Table of regions to map using the MMU.
+ * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
+ * configure_mmu_elx() will give the available subset of that,
+ */
 static const mmap_region_t juno_mmap[] = {
 	{ TZROM_BASE,		TZROM_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
 	{ MHU_SECURE_BASE,	MHU_SECURE_SIZE,	(MHU_PAYLOAD_CACHED ? MT_MEMORY : MT_DEVICE)
@@ -122,26 +117,34 @@ static const mmap_region_t juno_mmap[] = {
 	{0}
 };
 
-void configure_mmu(meminfo_t *mem_layout,
-		   unsigned long ro_start,
-		   unsigned long ro_limit,
-		   unsigned long coh_start,
-		   unsigned long coh_limit)
-{
-	mmap_add_region(mem_layout->total_base, mem_layout->total_size,
-				MT_MEMORY | MT_RW | MT_SECURE);
-	mmap_add_region(ro_start, ro_limit - ro_start,
-				MT_MEMORY | MT_RO | MT_SECURE);
-	mmap_add_region(coh_start, coh_limit - coh_start,
-				MT_DEVICE | MT_RW | MT_SECURE);
+/*******************************************************************************
++ * Macro generating the code for the function setting up the pagetables as per
++ * the platform memory map & initialize the mmu, for the given exception level
++ ******************************************************************************/
+#define DEFINE_CONFIGURE_MMU_EL(_el)				       \
+       void configure_mmu_el##_el(meminfo_t *mem_layout,	       \
+				  unsigned long ro_start,	       \
+				  unsigned long ro_limit,	       \
+				  unsigned long coh_start,	       \
+				  unsigned long coh_limit)	       \
+       {							       \
+	       mmap_add_region(mem_layout->total_base,		       \
+			       mem_layout->total_size,		       \
+			       MT_MEMORY | MT_RW | MT_SECURE);	       \
+	       mmap_add_region(ro_start, ro_limit - ro_start,	       \
+			       MT_MEMORY | MT_RO | MT_SECURE);	       \
+	       mmap_add_region(coh_start, coh_limit - coh_start,       \
+			       MT_DEVICE | MT_RW | MT_SECURE);	       \
+	       mmap_add(juno_mmap);				       \
+	       init_xlat_tables();				       \
+								       \
+	       enable_mmu_el##_el();				       \
+       }
 
-	mmap_add(juno_mmap);
+/* Define EL1 and EL3 variants of the function initialising the MMU */
+DEFINE_CONFIGURE_MMU_EL(1)
+DEFINE_CONFIGURE_MMU_EL(3)
 
-	init_xlat_tables();
-
-	enable_mmu();
-	return;
-}
 
 unsigned long plat_get_ns_image_entrypoint(void)
 {
