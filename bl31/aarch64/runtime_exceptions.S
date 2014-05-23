@@ -44,6 +44,12 @@
 	 * -----------------------------------------------------
 	 */
 	.macro	handle_sync_exception
+	/* ---------------------------------------------
+	 * Enable Debug and SError interrupts
+	 * ---------------------------------------------
+	 */
+	msr	daifclr, #(DAIF_ABT_BIT | DAIF_DBG_BIT)
+
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mrs	x30, esr_el3
 	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
