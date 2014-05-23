@@ -89,7 +89,8 @@ To build the software for the FVPs, follow these steps:
     By default this produces a release version of the build. To produce a debug
     version instead, refer to the "Debugging options" section below. UEFI can be
     used as the BL3-3 image, refer to the "Obtaining the normal world software"
-    section below.
+    section below. By default this won't compile the TSP in, refer to the
+    "Building the Test Secure Payload" section below.
 
     The build process creates products in a `build` directory tree, building
     the objects and binaries for each boot loader stage in separate
@@ -241,6 +242,48 @@ Extra debug options can be passed to the build system by setting `CFLAGS`:
 
 
 NOTE: The Foundation FVP does not provide a debugger interface.
+
+
+### Building the Test Secure Payload
+
+The TSP is coupled with a companion runtime service in the BL3-1 firmware,
+called the TSPD. Therefore, if you intend to use the TSP, the BL3-1 image
+must be recompiled as well. For more information on SPs and SPDs, see the
+"Secure-EL1 Payloads and Dispatchers" section in the [Firmware Design].
+
+First clean the Trusted Firmware build directory to get rid of any previous
+BL3-1 binary. Then to build the TSP image and include it into the FIP use:
+
+    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
+    BL33=<path-to>/<bl33_image>                               \
+    make PLAT=fvp SPD=tspd all fip
+
+An additional boot loader binary file is created in the `build` directory:
+
+    *   `build/<platform>/<build-type>/bl32.bin`
+
+The Firmware Package contains this new image:
+
+    Firmware Image Package ToC:
+    ---------------------------
+    - Trusted Boot Firmware BL2: offset=0xD8, size=0x6000
+      file: './build/fvp/release/bl2.bin'
+    - EL3 Runtime Firmware BL3-1: offset=0x60D8, size=0x9000
+      file: './build/fvp/release/bl31.bin'
+    - Secure Payload BL3-2 (Trusted OS): offset=0xF0D8, size=0x3000
+      file: './build/fvp/release/bl32.bin'
+    - Non-Trusted Firmware BL3-3: offset=0x120D8, size=0x280000
+      file: '../FVP_AARCH64_EFI.fd'
+    ---------------------------
+    Creating "build/fvp/release/fip.bin"
+
+On FVP, the TSP binary runs from Trusted SRAM by default. It is also possible
+to run it from Trusted DRAM. This is controlled by the build configuration
+`TSP_RAM_LOCATION`:
+
+    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
+    BL33=<path-to>/<bl33_image>                               \
+    make PLAT=fvp SPD=tspd TSP_RAM_LOCATION=tdram all fip
 
 
 ### Checking source code style
