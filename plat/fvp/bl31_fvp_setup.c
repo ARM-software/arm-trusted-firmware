@@ -29,6 +29,8 @@
  */
 
 #include <arch.h>
+#include <arch_helpers.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <bl31.h>
 #include <console.h>
@@ -36,6 +38,8 @@
 #include <platform.h>
 #include <stddef.h>
 #include "drivers/pwrc/fvp_pwrc.h"
+#include "fvp_def.h"
+#include "fvp_private.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -66,38 +70,47 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
+
+#if RESET_TO_BL31
+static entry_point_info_t  bl32_entrypoint_info;
+static entry_point_info_t  bl33_entrypoint_info;
+#else
 /*******************************************************************************
  * Reference to structure which holds the arguments that have been passed to
  * BL31 from BL2.
  ******************************************************************************/
-static bl31_args_t *bl2_to_bl31_args;
-
-meminfo_t *bl31_plat_sec_mem_layout(void)
-{
-	return &bl2_to_bl31_args->bl31_meminfo;
-}
-
-meminfo_t *bl31_plat_get_bl32_mem_layout(void)
-{
-	return &bl2_to_bl31_args->bl32_meminfo;
-}
+static bl31_params_t *bl2_to_bl31_params;
+#endif
 
 /*******************************************************************************
- * Return a pointer to the 'el_change_info' structure of the next image for the
+ * Return a pointer to the 'entry_point_info' structure of the next image for the
  * security state specified. BL33 corresponds to the non-secure image type
  * while BL32 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  ******************************************************************************/
-el_change_info_t *bl31_get_next_image_info(uint32_t type)
+entry_point_info_t *bl31_get_next_image_info(uint32_t type)
 {
-	el_change_info_t *next_image_info;
+	entry_point_info_t *next_image_info;
+
+#if RESET_TO_BL31
+
+	if (type == NON_SECURE)
+		fvp_get_entry_point_info(NON_SECURE, &bl33_entrypoint_info);
+	else
+		fvp_get_entry_point_info(SECURE, &bl32_entrypoint_info);
 
 	next_image_info = (type == NON_SECURE) ?
-		&bl2_to_bl31_args->bl33_image_info :
-		&bl2_to_bl31_args->bl32_image_info;
+		&bl33_entrypoint_info :
+		&bl32_entrypoint_info;
+#else
+	next_image_info = (type == NON_SECURE) ?
+		bl2_to_bl31_params->bl33_ep_info :
+		bl2_to_bl31_params->bl32_ep_info;
+#endif
+
 
 	/* None of the images on this platform can have 0x0 as the entrypoint */
-	if (next_image_info->entrypoint)
+	if (next_image_info->pc)
 		return next_image_info;
 	else
 		return NULL;
@@ -114,16 +127,39 @@ el_change_info_t *bl31_get_next_image_info(uint32_t type)
  * has flushed this information to memory, so we are guaranteed to pick up good
  * data
  ******************************************************************************/
-void bl31_early_platform_setup(bl31_args_t *from_bl2,
-			       void *data)
+void bl31_early_platform_setup(bl31_params_t *from_bl2,
+				void *plat_params_from_bl2)
 {
-	bl2_to_bl31_args = from_bl2;
-
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
 
 	/* Initialize the platform config for future decision making */
-	platform_config_setup();
+	fvp_config_setup();
+
+#if RESET_TO_BL31
+	/* There are no parameters from BL2 if BL31 is a reset vector */
+	assert(from_bl2 == NULL);
+	assert(plat_params_from_bl2 == NULL);
+
+
+	/*
+	 * Do initial security configuration to allow DRAM/device access. On
+	 * Base FVP only DRAM security is programmable (via TrustZone), but
+	 * other platforms might have more programmable security devices
+	 * present.
+	 */
+	fvp_security_setup();
+#else
+	/* Check params passed from BL2 should not be NULL,
+	 * We are not checking plat_params_from_bl2 as NULL as we are not
+	 * using it on FVP
+	 */
+	assert(from_bl2 != NULL);
+	assert(from_bl2->h.type == PARAM_BL31);
+	assert(from_bl2->h.version >= VERSION_1);
+
+	bl2_to_bl31_params = from_bl2;
+#endif
 }
 
 /*******************************************************************************
@@ -163,7 +199,7 @@ void bl31_platform_setup()
 	fvp_pwrc_setup();
 
 	/* Topologies are best known to the platform. */
-	plat_setup_topology();
+	fvp_setup_topology();
 }
 
 /*******************************************************************************
@@ -172,9 +208,49 @@ void bl31_platform_setup()
  ******************************************************************************/
 void bl31_plat_arch_setup()
 {
-	configure_mmu_el3(&bl2_to_bl31_args->bl31_meminfo,
-			  BL31_RO_BASE,
-			  BL31_RO_LIMIT,
-			  BL31_COHERENT_RAM_BASE,
-			  BL31_COHERENT_RAM_LIMIT);
+#if RESET_TO_BL31
+	fvp_cci_setup();
+
+#endif
+	fvp_configure_mmu_el3(BL31_RO_BASE,
+			      (BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE),
+			      BL31_RO_BASE,
+			      BL31_RO_LIMIT,
+			      BL31_COHERENT_RAM_BASE,
+			      BL31_COHERENT_RAM_LIMIT);
 }
+
+#if RESET_TO_BL31
+/*******************************************************************************
+ * Generate the entry point info for Non Secure and Secure images
+ * for transferring control from BL31
+ ******************************************************************************/
+void fvp_get_entry_point_info(unsigned long target_security,
+					entry_point_info_t *target_entry_info)
+{
+	if (target_security == NON_SECURE) {
+		SET_PARAM_HEAD(target_entry_info,
+					PARAM_EP,
+					VERSION_1,
+					0);
+		/*
+		 * Tell BL31 where the non-trusted software image
+		 * is located and the entry state information
+		 */
+		target_entry_info->pc =  plat_get_ns_image_entrypoint();
+
+		fvp_set_bl33_ep_info(target_entry_info);
+
+	} else {
+		SET_PARAM_HEAD(target_entry_info,
+				PARAM_EP,
+				VERSION_1,
+				0);
+		if (BL32_BASE != 0) {
+			/* Hard coding entry point to the base of the BL32 */
+			target_entry_info->pc = BL32_BASE;
+			fvp_set_bl32_ep_info(target_entry_info);
+		}
+	}
+}
+#endif

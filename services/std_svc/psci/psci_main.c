@@ -90,23 +90,37 @@ int psci_cpu_suspend(unsigned int power_state,
 	if (target_afflvl > MPIDR_MAX_AFFLVL)
 		return PSCI_E_INVALID_PARAMS;
 
+	/* Determine the 'state type' in the 'power_state' parameter */
 	pstate_type = psci_get_pstate_type(power_state);
+
+	/*
+	 * Ensure that we have a platform specific handler for entering
+	 * a standby state.
+	 */
 	if (pstate_type == PSTATE_TYPE_STANDBY) {
-		if  (psci_plat_pm_ops->affinst_standby)
-			rc = psci_plat_pm_ops->affinst_standby(power_state);
-		else
+		if  (!psci_plat_pm_ops->affinst_standby)
 			return PSCI_E_INVALID_PARAMS;
-	} else {
-		mpidr = read_mpidr();
-		rc = psci_afflvl_suspend(mpidr,
-					 entrypoint,
-					 context_id,
-					 power_state,
-					 MPIDR_AFFLVL0,
-					 target_afflvl);
+
+		rc = psci_plat_pm_ops->affinst_standby(power_state);
+		assert(rc == PSCI_E_INVALID_PARAMS || rc == PSCI_E_SUCCESS);
+		return rc;
 	}
 
-	assert(rc == PSCI_E_INVALID_PARAMS || rc == PSCI_E_SUCCESS);
+	/*
+	 * Do what is needed to enter the power down state. Upon success,
+	 * enter the final wfi which will power down this cpu else return
+	 * an error.
+	 */
+	mpidr = read_mpidr();
+	rc = psci_afflvl_suspend(mpidr,
+				 entrypoint,
+				 context_id,
+				 power_state,
+				 MPIDR_AFFLVL0,
+				 target_afflvl);
+	if (rc == PSCI_E_SUCCESS)
+		psci_power_down_wfi();
+	assert(rc == PSCI_E_INVALID_PARAMS);
 	return rc;
 }
 
@@ -127,10 +141,18 @@ int psci_cpu_off(void)
 	rc = psci_afflvl_off(mpidr, MPIDR_AFFLVL0, target_afflvl);
 
 	/*
+	 * Check if all actions needed to safely power down this cpu have
+	 * successfully completed. Enter a wfi loop which will allow the
+	 * power controller to physically power down this cpu.
+	 */
+	if (rc == PSCI_E_SUCCESS)
+		psci_power_down_wfi();
+
+	/*
 	 * The only error cpu_off can return is E_DENIED. So check if that's
 	 * indeed the case.
 	 */
-	assert (rc == PSCI_E_SUCCESS || rc == PSCI_E_DENIED);
+	assert (rc == PSCI_E_DENIED);
 
 	return rc;
 }

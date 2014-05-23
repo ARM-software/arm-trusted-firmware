@@ -32,11 +32,30 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl2.h>
 #include <debug.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <stdio.h>
 #include "bl2_private.h"
+
+/*******************************************************************************
+ * Runs BL31 from the given entry point. It jumps to a higher exception level
+ * through an SMC.
+ ******************************************************************************/
+static void __dead2 bl2_run_bl31(entry_point_info_t *bl31_ep_info,
+				unsigned long arg1,
+				unsigned long arg2)
+{
+	/* Set the args pointer */
+	bl31_ep_info->args.arg0 = arg1;
+	bl31_ep_info->args.arg1 = arg2;
+
+	/* Flush the params to be passed to memory */
+	bl2_plat_flush_bl31_params();
+
+	smc(RUN_IMAGE, (unsigned long)bl31_ep_info, 0, 0, 0, 0, 0, 0);
+}
+
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
@@ -47,9 +66,12 @@
 void bl2_main(void)
 {
 	meminfo_t *bl2_tzram_layout;
-	bl31_args_t *bl2_to_bl31_args;
-	unsigned long bl31_base, bl32_base = 0, bl33_base, el_status;
-	unsigned int bl2_load, bl31_load, mode;
+	bl31_params_t *bl2_to_bl31_params;
+	unsigned int bl2_load, bl31_load;
+	entry_point_info_t *bl31_ep_info;
+	meminfo_t bl32_mem_info;
+	meminfo_t bl33_mem_info;
+	int e;
 
 	/* Perform remaining generic architectural setup in S-El1 */
 	bl2_arch_setup();
@@ -63,6 +85,13 @@ void bl2_main(void)
 	bl2_tzram_layout = bl2_plat_sec_mem_layout();
 
 	/*
+	 * Get a pointer to the memory the platform has set aside to pass
+	 * information to BL31.
+	 */
+	bl2_to_bl31_params = bl2_plat_get_bl31_params();
+	bl31_ep_info = bl2_plat_get_bl31_ep_info();
+
+	/*
 	 * Load BL31. BL1 tells BL2 whether it has been TOP or BOTTOM loaded.
 	 * To avoid fragmentation of trusted SRAM memory, BL31 is always
 	 * loaded opposite to BL2. This allows BL31 to reclaim BL2 memory
@@ -71,102 +100,73 @@ void bl2_main(void)
 	bl2_load = bl2_tzram_layout->attr & LOAD_MASK;
 	assert((bl2_load == TOP_LOAD) || (bl2_load == BOT_LOAD));
 	bl31_load = (bl2_load == TOP_LOAD) ? BOT_LOAD : TOP_LOAD;
-	bl31_base = load_image(bl2_tzram_layout, BL31_IMAGE_NAME,
-	                       bl31_load, BL31_BASE);
+	e = load_image(bl2_tzram_layout,
+			BL31_IMAGE_NAME,
+			bl31_load,
+			BL31_BASE,
+			bl2_to_bl31_params->bl31_image_info,
+			bl31_ep_info);
 
 	/* Assert if it has not been possible to load BL31 */
-	if (bl31_base == 0) {
+	if (e) {
 		ERROR("Failed to load BL3-1.\n");
 		panic();
 	}
 
-	/*
-	 * Get a pointer to the memory the platform has set aside to pass
-	 * information to BL31.
-	 */
-	bl2_to_bl31_args = bl2_get_bl31_args_ptr();
+	bl2_plat_set_bl31_ep_info(bl2_to_bl31_params->bl31_image_info,
+				bl31_ep_info);
 
+	bl2_plat_get_bl33_meminfo(&bl33_mem_info);
+
+	/* Load the BL33 image in non-secure memory provided by the platform */
+	e = load_image(&bl33_mem_info,
+			BL33_IMAGE_NAME,
+			BOT_LOAD,
+			plat_get_ns_image_entrypoint(),
+			bl2_to_bl31_params->bl33_image_info,
+			bl2_to_bl31_params->bl33_ep_info);
+
+	/* Halt if failed to load normal world firmware. */
+	if (e) {
+		ERROR("Failed to load BL3-3.\n");
+		panic();
+	}
+	bl2_plat_set_bl33_ep_info(bl2_to_bl31_params->bl33_image_info,
+				bl2_to_bl31_params->bl33_ep_info);
+
+
+#ifdef BL32_BASE
 	/*
 	 * Load the BL32 image if there's one. It is upto to platform
 	 * to specify where BL32 should be loaded if it exists. It
 	 * could create space in the secure sram or point to a
-	 * completely different memory. A zero size indicates that the
-	 * platform does not want to load a BL32 image.
+	 * completely different memory.
+	 *
+	 * If a platform does not want to attempt to load BL3-2 image
+	 * it must leave BL32_BASE undefined
 	 */
-	if (bl2_to_bl31_args->bl32_meminfo.total_size)
-		bl32_base = load_image(&bl2_to_bl31_args->bl32_meminfo,
-				       BL32_IMAGE_NAME,
-				       bl2_to_bl31_args->bl32_meminfo.attr &
-				       LOAD_MASK,
-				       BL32_BASE);
+	bl2_plat_get_bl32_meminfo(&bl32_mem_info);
+	e = load_image(&bl32_mem_info,
+		       BL32_IMAGE_NAME,
+		       bl32_mem_info.attr & LOAD_MASK,
+		       BL32_BASE,
+		       bl2_to_bl31_params->bl32_image_info,
+		       bl2_to_bl31_params->bl32_ep_info);
 
-	/*
-	 * Create a new layout of memory for BL31 as seen by BL2. This
-	 * will gobble up all the BL2 memory.
-	 */
-	init_bl31_mem_layout(bl2_tzram_layout,
-			     &bl2_to_bl31_args->bl31_meminfo,
-			     bl31_load);
-
-	/* Load the BL33 image in non-secure memory provided by the platform */
-	bl33_base = load_image(&bl2_to_bl31_args->bl33_meminfo,
-			       BL33_IMAGE_NAME,
-			       BOT_LOAD,
-			       plat_get_ns_image_entrypoint());
-	/* Halt if failed to load normal world firmware. */
-	if (bl33_base == 0) {
-		ERROR("Failed to load BL3-3.\n");
-		panic();
+	/* Issue a diagnostic if no Secure Payload could be loaded */
+	if (e) {
+		WARN("Failed to load BL3-2.\n");
+	} else {
+		bl2_plat_set_bl32_ep_info(
+			bl2_to_bl31_params->bl32_image_info,
+			bl2_to_bl31_params->bl32_ep_info);
 	}
-
-	/*
-	 * BL2 also needs to tell BL31 where the non-trusted software image
-	 * is located.
-	 */
-	bl2_to_bl31_args->bl33_image_info.entrypoint = bl33_base;
-
-	/* Figure out what mode we enter the non-secure world in */
-	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
-	el_status &= ID_AA64PFR0_ELX_MASK;
-
-	if (el_status)
-		mode = MODE_EL2;
-	else
-		mode = MODE_EL1;
-
-	/*
-	 * TODO: Consider the possibility of specifying the SPSR in
-	 * the FIP ToC and allowing the platform to have a say as
-	 * well.
-	 */
-	bl2_to_bl31_args->bl33_image_info.spsr =
-		make_spsr(mode, MODE_SP_ELX, MODE_RW_64);
-	bl2_to_bl31_args->bl33_image_info.security_state = NON_SECURE;
-
-	if (bl32_base) {
-		/* Fill BL32 image info */
-		bl2_to_bl31_args->bl32_image_info.entrypoint = bl32_base;
-		bl2_to_bl31_args->bl32_image_info.security_state = SECURE;
-
-		/*
-		 * The Secure Payload Dispatcher service is responsible for
-		 * setting the SPSR prior to entry into the BL32 image.
-		 */
-		bl2_to_bl31_args->bl32_image_info.spsr = 0;
-	}
-
-	/* Flush the entire BL31 args buffer */
-	flush_dcache_range((unsigned long) bl2_to_bl31_args,
-			   sizeof(*bl2_to_bl31_args));
+#endif /* BL32_BASE */
 
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
 	 * the BL32 (if present) and BL33 software images will be passed to
 	 * BL31 as an argument.
 	 */
-	run_image(bl31_base,
-		  make_spsr(MODE_EL3, MODE_SP_ELX, MODE_RW_64),
-		  SECURE,
-		  (void *) bl2_to_bl31_args,
-		  NULL);
+	 bl2_run_bl31(bl31_ep_info, (unsigned long)bl2_to_bl31_params, 0);
 }

@@ -30,19 +30,20 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <bl_common.h>
 #include <gic_v2.h>
-#include <platform.h>
 #include "../drivers/pwrc/fvp_pwrc.h"
+#include "../fvp_def.h"
 
 	.globl	platform_get_entrypoint
-	.globl	platform_cold_boot_init
 	.globl	plat_secondary_cold_boot_setup
+	.globl	platform_mem_init
+	.globl	plat_report_exception
 
-
-	.macro	platform_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
+	.macro	fvp_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
 	ldr	\x_tmp, =VE_SYSREGS_BASE + V2M_SYS_ID
 	ldr	\w_tmp, [\x_tmp]
-	ubfx \w_tmp, \w_tmp, #SYS_ID_BLD_SHIFT, #SYS_ID_BLD_LENGTH
+	ubfx	\w_tmp, \w_tmp, #SYS_ID_BLD_SHIFT, #SYS_ID_BLD_LENGTH
 	cmp	\w_tmp, #BLD_GIC_VE_MMAP
 	csel	\res, \param1, \param2, eq
 	.endm
@@ -77,7 +78,7 @@ func plat_secondary_cold_boot_setup
 	 */
 	ldr	x0, =VE_GICC_BASE
 	ldr	x1, =BASE_GICC_BASE
-	platform_choose_gicmmap	x0, x1, x2, w2, x1
+	fvp_choose_gicmmap	x0, x1, x2, w2, x1
 	mov	w0, #(IRQ_BYP_DIS_GRP1 | FIQ_BYP_DIS_GRP1)
 	orr	w0, w0, #(IRQ_BYP_DIS_GRP0 | FIQ_BYP_DIS_GRP0)
 	str	w0, [x1, #GICC_CTLR]
@@ -156,58 +157,30 @@ _panic:	b	_panic
 	 */
 func platform_mem_init
 	ldr	x0, =TZDRAM_BASE + MBOX_OFF
-	stp	xzr, xzr, [x0, #0]
-	stp	xzr, xzr, [x0, #0x10]
-	stp	xzr, xzr, [x0, #0x20]
-	stp	xzr, xzr, [x0, #0x30]
+	mov	w1, #PLATFORM_CORE_COUNT
+loop:
+	str	xzr, [x0], #CACHE_WRITEBACK_GRANULE
+	subs	w1, w1, #1
+	b.gt	loop
 	ret
 
-
-	/* -----------------------------------------------------
-	 * void platform_cold_boot_init (bl1_main function);
-	 *
-	 * Routine called only by the primary cpu after a cold
-	 * boot to perform early platform initialization
-	 * -----------------------------------------------------
-	 */
-func platform_cold_boot_init
-	mov	x20, x0
-	bl	platform_mem_init
-
 	/* ---------------------------------------------
-	 * Give ourselves a small coherent stack to
-	 * ease the pain of initializing the MMU and
-	 * CCI in assembler
+	 * void plat_report_exception(unsigned int type)
+	 * Function to report an unhandled exception
+	 * with platform-specific means.
+	 * On FVP platform, it updates the LEDs
+	 * to indicate where we are
 	 * ---------------------------------------------
 	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_coherent_stack
-
-	/* ---------------------------------------------
-	 * Architectural init. can be generic e.g.
-	 * enabling stack alignment and platform spec-
-	 * ific e.g. MMU & page table setup as per the
-	 * platform memory map. Perform the latter here
-	 * and the former in bl1_main.
-	 * ---------------------------------------------
-	 */
-	bl	bl1_early_platform_setup
-	bl	bl1_plat_arch_setup
-
-	/* ---------------------------------------------
-	 * Give ourselves a stack allocated in Normal
-	 * -IS-WBWA memory
-	 * ---------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
-
-	/* ---------------------------------------------
-	 * Jump to the main function. Returning from it
-	 * is a terminal error.
-	 * ---------------------------------------------
-	 */
-	blr	x20
-
-cb_init_panic:
-	b	cb_init_panic
+func plat_report_exception
+	mrs	x1, CurrentEl
+	lsr	x1, x1, #MODE_EL_SHIFT
+	lsl	x1, x1, #SYS_LED_EL_SHIFT
+	lsl	x0, x0, #SYS_LED_EC_SHIFT
+	mov	x2, #(SECURE << SYS_LED_SS_SHIFT)
+	orr	x0, x0, x2
+	orr	x0, x0, x1
+	mov	x1, #VE_SYSREGS_BASE
+	add	x1, x1, #V2M_SYS_LED
+	str	w0, [x1]
+	ret

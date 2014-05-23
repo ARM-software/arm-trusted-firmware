@@ -48,6 +48,22 @@
 static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
+ * In a system, a certain number of affinity instances are present at an
+ * affinity level. The cumulative number of instances across all levels are
+ * stored in 'psci_aff_map'. The topology tree has been flattenned into this
+ * array. To retrieve nodes, information about the extents of each affinity
+ * level i.e. start index and end index needs to be present. 'psci_aff_limits'
+ * stores this information.
+ ******************************************************************************/
+static aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
+
+/*******************************************************************************
+ * 'psci_ns_einfo_idx' keeps track of the next free index in the
+ * 'psci_ns_entry_info' & 'psci_suspend_context' arrays.
+ ******************************************************************************/
+static unsigned int psci_ns_einfo_idx;
+
+/*******************************************************************************
  * Routines for retrieving the node corresponding to an affinity level instance
  * in the mpidr. The first one uses binary search to find the node corresponding
  * to the mpidr (key) at a particular affinity level. The second routine decides

@@ -30,7 +30,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <platform.h>
+#include <platform_def.h>
 
 
 	.local	pcpu_dv_mem_stack

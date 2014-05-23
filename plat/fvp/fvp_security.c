@@ -29,9 +29,10 @@
  */
 
 #include <assert.h>
-#include <platform.h>
-#include <tzc400.h>
 #include <debug.h>
+#include <tzc400.h>
+#include "fvp_def.h"
+#include "fvp_private.h"
 
 /* Used to improve readability for configuring regions. */
 #define FILTER_SHIFT(filter)	(1 << filter)
@@ -42,7 +43,7 @@
  * TODO:
  * Might want to enable interrupt on violations when supported?
  */
-void plat_security_setup(void)
+void fvp_security_setup(void)
 {
 	tzc_instance_t controller;
 
@@ -55,7 +56,7 @@ void plat_security_setup(void)
 	 * configurations, those would be configured here.
 	 */
 
-	if (!platform_get_cfgvar(CONFIG_HAS_TZC))
+	if (!fvp_get_cfgvar(CONFIG_HAS_TZC))
 		return;
 
 	/*
@@ -100,16 +101,23 @@ void plat_security_setup(void)
 
 	/* Set to cover the first block of DRAM */
 	tzc_configure_region(&controller, FILTER_SHIFT(0), 1,
-			DRAM_BASE, 0xFFFFFFFF, TZC_REGION_S_NONE,
+			DRAM1_BASE, DRAM1_END - DRAM1_SEC_SIZE,
+			TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
 
+	/* Set to cover the secure reserved region */
+	tzc_configure_region(&controller, FILTER_SHIFT(0), 3,
+			(DRAM1_END - DRAM1_SEC_SIZE) + 1 , DRAM1_END,
+			TZC_REGION_S_RDWR,
+			0x0);
+
 	/* Set to cover the second block of DRAM */
 	tzc_configure_region(&controller, FILTER_SHIFT(0), 2,
-			0x880000000, 0xFFFFFFFFF, TZC_REGION_S_NONE,
+			DRAM2_BASE, DRAM2_END, TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |

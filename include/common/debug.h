@@ -57,15 +57,15 @@
  * spin. This can be expanded in the future to provide more information.
  */
 #if DEBUG
-extern void __dead2 do_panic(const char *file, int line);
+void __dead2 do_panic(const char *file, int line);
 #define panic()	do_panic(__FILE__, __LINE__)
 
 #else
-extern void __dead2 do_panic(void);
+void __dead2 do_panic(void);
 #define panic()	do_panic()
 
 #endif
 
-extern void print_string_value(char *s, unsigned long *mem);
+void print_string_value(char *s, unsigned long *mem);
 
 #endif /* __DEBUG_H__ */

@@ -30,7 +30,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <platform.h>
+#include <platform_def.h>
 
 
 	.weak	platform_get_core_pos

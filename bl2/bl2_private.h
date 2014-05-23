@@ -34,6 +34,6 @@
 /******************************************
  * Function prototypes
  *****************************************/
-extern void bl2_arch_setup(void);
+void bl2_arch_setup(void);
 
 #endif /* __BL2_PRIVATE_H__ */

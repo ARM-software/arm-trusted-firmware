@@ -32,7 +32,6 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <context_mgmt.h>
-#include <platform.h>
 #include <string.h>
 #include "tspd_private.h"
 
@@ -42,9 +41,9 @@
  * programming an entry into the secure payload.
  ******************************************************************************/
 int32_t tspd_init_secure_context(uint64_t entrypoint,
-				uint32_t rw,
-				uint64_t mpidr,
-				tsp_context_t *tsp_ctx)
+				 uint32_t rw,
+				 uint64_t mpidr,
+				 tsp_context_t *tsp_ctx)
 {
 	uint32_t scr, sctlr;
 	el1_sys_regs_t *el1_state;
@@ -65,10 +64,14 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	 */
 	memset(tsp_ctx, 0, sizeof(*tsp_ctx));
 
-	/* Set the right security state and register width for the SP */
+	/*
+	 * Set the right security state, register width and enable access to
+	 * the secure physical timer for the SP.
+	 */
 	scr = read_scr();
 	scr &= ~SCR_NS_BIT;
 	scr &= ~SCR_RW_BIT;
+	scr |= SCR_ST_BIT;
 	if (rw == TSP_AARCH64)
 		scr |= SCR_RW_BIT;
 
@@ -85,13 +88,20 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	write_ctx_reg(el1_state, CTX_SCTLR_EL1, sctlr);
 
 	/* Set this context as ready to be initialised i.e OFF */
-	tsp_ctx->state = TSP_STATE_OFF;
+	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_OFF);
+
+	/*
+	 * This context has not been used yet. It will become valid
+	 * when the TSP is interrupted and wants the TSPD to preserve
+	 * the context.
+	 */
+	clr_std_smc_active_flag(tsp_ctx->state);
 
 	/* Associate this context with the cpu specified */
 	tsp_ctx->mpidr = mpidr;
 
 	cm_set_context(mpidr, &tsp_ctx->cpu_ctx, SECURE);
-	spsr = make_spsr(MODE_EL1, MODE_SP_ELX, rw);
+	spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	cm_set_el3_eret_context(SECURE, entrypoint, spsr, scr);
 
 	return 0;

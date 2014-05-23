@@ -29,7 +29,7 @@
  */
 
 #include <assert.h>
-#include <platform.h>
+#include <platform_def.h>
 /* TODO: Reusing psci error codes & state information. Get our own! */
 #include <psci.h>
 #include "drivers/pwrc/fvp_pwrc.h"
@@ -190,7 +190,7 @@ int plat_get_max_afflvl()
  * the FVP flavour its running on. We construct all the mpidrs we can handle
  * and rely on the PWRC.PSYSR to flag absent cpus when their status is queried.
  ******************************************************************************/
-int plat_setup_topology()
+int fvp_setup_topology()
 {
 	unsigned char aff0, aff1, aff_state, aff0_offset = 0;
 	unsigned long mpidr;

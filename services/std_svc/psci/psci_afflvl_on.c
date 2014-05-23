@@ -34,6 +34,7 @@
 #include <bl_common.h>
 #include <bl31.h>
 #include <context_mgmt.h>
+#include <platform.h>
 #include <runtime_svc.h>
 #include <stddef.h>
 #include "psci_private.h"
@@ -362,7 +363,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	/*
 	 * Arch. management: Turn on mmu & restore architectural state
 	 */
-	enable_mmu_el3();
+	bl31_plat_enable_mmu();
 
 	/*
 	 * All the platform specific actions for turning this cpu

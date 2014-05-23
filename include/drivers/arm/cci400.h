@@ -66,7 +66,7 @@
 #define CHANGE_PENDING_BIT		(1 << 0)
 
 /* Function declarations */
-extern void cci_enable_coherency(unsigned long mpidr);
-extern void cci_disable_coherency(unsigned long mpidr);
+void cci_enable_coherency(unsigned long mpidr);
+void cci_disable_coherency(unsigned long mpidr);
 
 #endif /* __CCI_400_H__ */
