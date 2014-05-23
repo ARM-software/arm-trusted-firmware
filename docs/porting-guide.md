@@ -382,8 +382,6 @@ called in the following circumstances:
 
 *   In BL1, whenever an exception is taken.
 *   In BL2, whenever an exception is taken.
-*   In BL3-1, whenever an asynchronous exception or a synchronous exception
-    other than an SMC32/SMC64 exception is taken.
 
 The default implementation doesn't do anything, to avoid making assumptions
 about the way the platform displays its status information.
