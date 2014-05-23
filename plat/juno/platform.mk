@@ -36,7 +36,7 @@
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.c	\
 				drivers/arm/pl011/pl011.c		\
 				drivers/io/io_fip.c			\
-				drivers/ioio_memmap.c			\
+				drivers/io/io_memmap.c			\
 				lib/mmio.c				\
 				lib/aarch64/xlat_tables.c		\
 				lib/aarch64/sysreg_helpers.S		\

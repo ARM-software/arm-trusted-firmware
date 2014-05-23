@@ -29,9 +29,11 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
+#include <mmio.h>
 #include <platform.h>
 #include <xlat_tables.h>
-#include <assert.h>
 
 
 void enable_mmu()
@@ -104,7 +106,7 @@ void disable_mmu(void)
 	return;
 }
 
-static const mmap_region juno_mmap[] = {
+static const mmap_region_t juno_mmap[] = {
 	{ TZROM_BASE,		TZROM_SIZE,		MT_MEMORY | MT_RO | MT_SECURE },
 	{ MHU_SECURE_BASE,	MHU_SECURE_SIZE,	(MHU_PAYLOAD_CACHED ? MT_MEMORY : MT_DEVICE)
 								  | MT_RW | MT_SECURE },
@@ -121,7 +123,7 @@ static const mmap_region juno_mmap[] = {
 	{0}
 };
 
-void configure_mmu(meminfo *mem_layout,
+void configure_mmu(meminfo_t *mem_layout,
 		   unsigned long ro_start,
 		   unsigned long ro_limit,
 		   unsigned long coh_start,

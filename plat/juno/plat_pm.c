@@ -145,7 +145,7 @@ int pm_off(unsigned long mpidr, unsigned int afflvl, unsigned int state)
 /*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
-static plat_pm_ops pm_ops = {
+static plat_pm_ops_t pm_ops = {
 	.affinst_on		= pm_on,
 	.affinst_on_finish	= pm_on_finish,
 	.affinst_off		= pm_off
@@ -154,7 +154,7 @@ static plat_pm_ops pm_ops = {
 /*******************************************************************************
  * Export the platform specific power ops & initialize the fvp power controller
  ******************************************************************************/
-int platform_setup_pm(plat_pm_ops **plat_ops)
+int platform_setup_pm(const plat_pm_ops_t **plat_ops)
 {
 	*plat_ops = &pm_ops;
 	return 0;

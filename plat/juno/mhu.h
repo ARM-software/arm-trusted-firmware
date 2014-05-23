@@ -32,7 +32,6 @@
 #define __MHU_H__
 
 #include <stdint.h>
-#include <stddef.h>
 
 extern void mhu_secure_message_start(void);
 extern void mhu_secure_message_send(uint32_t command);

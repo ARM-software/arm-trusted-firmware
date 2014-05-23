@@ -30,75 +30,97 @@
 
 #include <assert.h>
 #include <string.h>
-#include "platform.h"
-#include "io_storage.h"
-#include "io_driver.h"
-#include "semihosting.h"	/* For FOPEN_MODE_... */
-#include "io_fip.h"
-#include "io_memmap.h"
-#include "debug.h"
+#include <platform.h>
+#include <io_storage.h>
+#include <io_driver.h>
+#include <semihosting.h>	/* For FOPEN_MODE_... */
+#include <io_fip.h>
+#include <io_memmap.h>
+#include <debug.h>
 
 /* IO devices */
-static struct io_plat_data io_data;
-static struct io_dev_connector *fip_dev_con;
-static void *const fip_dev_spec;
-static io_dev_handle fip_dev_handle;
-static struct io_dev_connector *memmap_dev_con;
-static void *const memmap_dev_spec;
-static void *const memmap_init_params;
-static io_dev_handle memmap_dev_handle;
+static io_plat_data_t io_data;
+static const io_dev_connector_t *fip_dev_con;
+static uintptr_t fip_dev_spec;
+static uintptr_t fip_dev_handle;
+static const io_dev_connector_t *memmap_dev_con;
+static uintptr_t memmap_dev_spec;
+static uintptr_t memmap_init_params;
+static uintptr_t memmap_dev_handle;
 
-static io_block_spec fip_block_spec = {
+static io_block_spec_t fip_block_spec = {
 	.offset = FLASH_BASE,
 	.length = FLASH_SIZE
 };
 
-static io_file_spec bl2_file_spec = {
+static io_file_spec_t bl2_file_spec = {
 	.path = BL2_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec bl30_file_spec = {
+static io_file_spec_t bl30_file_spec = {
 	.path = BL30_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec bl31_file_spec = {
+static io_file_spec_t bl31_file_spec = {
 	.path = BL31_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static io_file_spec bl33_file_spec = {
+static io_file_spec_t bl33_file_spec = {
 	.path = BL33_IMAGE_NAME,
 	.mode = FOPEN_MODE_RB
 };
 
-static int open_fip(void *spec);
-static int open_memmap(void *spec);
+static int open_fip(const uintptr_t spec);
+static int open_memmap(const uintptr_t spec);
 
-typedef struct {
+struct plat_io_policy {
 	char *image_name;
-	io_dev_handle *dev_handle;
-	void *image_spec;
-	int (*check)(void *spec);
-} plat_io_policy;
+	uintptr_t *dev_handle;
+	uintptr_t image_spec;
+	int (*check)(const uintptr_t spec);
+};
 
-static plat_io_policy policies[] = {
-	{ FIP_IMAGE_NAME,  &memmap_dev_handle, &fip_block_spec, open_memmap },
-	{ BL2_IMAGE_NAME,  &fip_dev_handle,    &bl2_file_spec,  open_fip    },
-	{ BL30_IMAGE_NAME, &fip_dev_handle,    &bl30_file_spec, open_fip    },
-	{ BL31_IMAGE_NAME, &fip_dev_handle,    &bl31_file_spec, open_fip    },
-	{ BL33_IMAGE_NAME, &fip_dev_handle,    &bl33_file_spec, open_fip    },
-	{0, 0, 0}
+static struct plat_io_policy policies[] = {
+	{
+		FIP_IMAGE_NAME,
+		&memmap_dev_handle,
+		(uintptr_t)&fip_block_spec,
+		open_memmap
+	}, {
+		BL2_IMAGE_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl2_file_spec,
+		open_fip
+	}, {
+		BL30_IMAGE_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl30_file_spec,
+		open_fip
+	}, {
+		BL31_IMAGE_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl31_file_spec,
+		open_fip
+	}, {
+		BL33_IMAGE_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl33_file_spec,
+		open_fip
+	}, {
+		0, 0, 0
+	}
 };
 
 
-static int open_fip(void *spec)
+static int open_fip(const uintptr_t spec)
 {
 	int result = IO_FAIL;
 
 	/* See if a Firmware Image Package is available */
-	result = io_dev_init(fip_dev_handle, (void *)FIP_IMAGE_NAME);
+	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_NAME);
 	if (result == IO_SUCCESS) {
 		INFO("Using FIP\n");
 		/*TODO: Check image defined in spec is present in FIP. */
@@ -107,10 +129,10 @@ static int open_fip(void *spec)
 }
 
 
-static int open_memmap(void *spec)
+static int open_memmap(const uintptr_t spec)
 {
 	int result = IO_FAIL;
-	io_handle local_image_handle;
+	uintptr_t local_image_handle;
 
 	result = io_dev_init(memmap_dev_handle, memmap_init_params);
 	if (result == IO_SUCCESS) {
@@ -152,11 +174,11 @@ void io_setup (void)
 
 /* Return an IO device handle and specification which can be used to access
  * an image. Use this to enforce platform load policy */
-int plat_get_image_source(const char *image_name, io_dev_handle *dev_handle,
-			  void **image_spec)
+int plat_get_image_source(const char *image_name, uintptr_t *dev_handle,
+			  uintptr_t *image_spec)
 {
 	int result = IO_FAIL;
-	plat_io_policy *policy;
+	struct plat_io_policy *policy;
 
 	if ((image_name != NULL) && (dev_handle != NULL) &&
 	    (image_spec != NULL)) {
@@ -165,7 +187,7 @@ int plat_get_image_source(const char *image_name, io_dev_handle *dev_handle,
 			if (strcmp(policy->image_name, image_name) == 0) {
 				result = policy->check(policy->image_spec);
 				if (result == IO_SUCCESS) {
-					*(io_file_spec **)image_spec = policy->image_spec;
+					*image_spec = policy->image_spec;
 					*dev_handle = *(policy->dev_handle);
 					break;
 				}

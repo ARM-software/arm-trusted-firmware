@@ -31,7 +31,7 @@
 #include <arch_helpers.h>
 #include <bakery_lock.h>
 #include <mhu.h>
-#include <platform.h>
+#include <mmio.h>
 
 /* SCP MHU secure channel registers */
 #define SCP_INTR_S_STAT		0x200
@@ -44,7 +44,7 @@
 #define CPU_INTR_S_CLEAR	0x310
 
 
-static bakery_lock mhu_secure_lock __attribute__ ((section("tzfw_coherent_mem")));
+static bakery_lock_t mhu_secure_lock __attribute__ ((section("tzfw_coherent_mem")));
 
 
 void mhu_secure_message_start(void)

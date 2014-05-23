@@ -185,7 +185,7 @@ void bl31_prepare_next_image_entry()
 	/*
 	 * Setup general purpose registers context for next image.
 	 */
-	cpu_context *context = cm_get_context(read_mpidr(),
+	cpu_context_t *context = cm_get_context(read_mpidr(),
 					next_image_info->security_state);
 	memcpy(&context->gpregs_ctx, &next_image_info->args,
 					sizeof(next_image_info->args));

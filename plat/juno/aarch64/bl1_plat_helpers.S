@@ -29,8 +29,8 @@
  */
 
 #include <arch.h>
-#include <platform.h>
 #include <asm_macros.S>
+#include <platform.h>
 
 	.globl	platform_get_entrypoint
 	.globl	platform_cold_boot_init

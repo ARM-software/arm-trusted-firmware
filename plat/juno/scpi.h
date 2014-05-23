@@ -31,8 +31,8 @@
 #ifndef __SCPI_H__
 #define __SCPI_H__
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 extern void *scpi_secure_message_start(void);
 extern void scpi_secure_message_send(unsigned command, size_t size);

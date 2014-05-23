@@ -32,11 +32,6 @@
 #define __PLATFORM_H__
 
 #include <arch.h>
-#include <mmio.h>
-#include <psci.h>
-#include <bl_common.h>
-#include "io_storage.h"
-
 
 /*******************************************************************************
  * Platform binary types for linking
@@ -316,6 +311,14 @@
 
 #ifndef __ASSEMBLY__
 
+#include <stdint.h>
+
+/*******************************************************************************
+ * Forward declarations
+ ******************************************************************************/
+struct plat_pm_ops;
+struct meminfo;
+
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
@@ -335,11 +338,11 @@ extern unsigned long warm_boot_entrypoint;
 extern void bl1_plat_arch_setup(void);
 extern void bl2_plat_arch_setup(void);
 extern void bl31_plat_arch_setup(void);
-extern int platform_setup_pm(plat_pm_ops **);
+extern int platform_setup_pm(const struct plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
 extern void disable_mmu(void);
 extern void enable_mmu(void);
-extern void configure_mmu(meminfo *,
+extern void configure_mmu(struct meminfo *,
 			  unsigned long,
 			  unsigned long,
 			  unsigned long,
@@ -364,7 +367,7 @@ extern unsigned int plat_get_aff_state(unsigned int, unsigned long);
 /* Declarations for plat_io_storage.c */
 extern void io_setup(void);
 extern int plat_get_image_source(const char *image_name,
-		io_dev_handle *dev_handle, void **image_spec);
+		uintptr_t *dev_handle, uintptr_t *image_spec);
 
 #endif /*__ASSEMBLY__*/
 

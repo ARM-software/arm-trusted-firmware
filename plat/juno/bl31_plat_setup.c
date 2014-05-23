@@ -28,10 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <mhu.h>
-#include <platform.h>
-#include <arch_helpers.h>
+#include <arch.h>
+#include <bl31.h>
+#include <bl_common.h>
 #include <console.h>
+#include <mhu.h>
+#include <mmio.h>
+#include <platform.h>
+#include <stddef.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -62,14 +66,14 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
-static bl31_args bl2_to_bl31_args;
+static bl31_args_t bl2_to_bl31_args;
 
-meminfo *bl31_plat_sec_mem_layout(void)
+meminfo_t *bl31_plat_sec_mem_layout(void)
 {
 	return &bl2_to_bl31_args.bl31_meminfo;
 }
 
-meminfo *bl31_plat_get_bl32_mem_layout(void)
+meminfo_t *bl31_plat_get_bl32_mem_layout(void)
 {
 	return &bl2_to_bl31_args.bl32_meminfo;
 }
@@ -80,9 +84,9 @@ meminfo *bl31_plat_get_bl32_mem_layout(void)
  * while BL3-2 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  ******************************************************************************/
-el_change_info *bl31_get_next_image_info(uint32_t type)
+el_change_info_t *bl31_get_next_image_info(uint32_t type)
 {
-	el_change_info *next_image_info;
+	el_change_info_t *next_image_info;
 
 	next_image_info = (type == NON_SECURE) ?
 		&bl2_to_bl31_args.bl33_image_info :
@@ -104,7 +108,7 @@ el_change_info *bl31_get_next_image_info(uint32_t type)
  * Also, BL2 has flushed this information to memory, so we are guaranteed to
  * pick up good data
  ******************************************************************************/
-void bl31_early_platform_setup(bl31_args *from_bl2,
+void bl31_early_platform_setup(bl31_args_t *from_bl2,
 			       void *data)
 {
 	/* Initialize the console to provide early debug support */

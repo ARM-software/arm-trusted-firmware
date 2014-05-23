@@ -29,6 +29,7 @@
  */
 
 #include <platform.h>
+#include <psci.h>
 
 unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr)
 {

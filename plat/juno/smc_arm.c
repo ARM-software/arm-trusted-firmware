@@ -28,11 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include <context.h>
+#include <psci.h>
 #include <runtime_svc.h>
-#include <psci_private.h>
-
 
 #define ARM_SMC_ARM_CPU_SUSPEND   0x80100001
 #define ARM_SMC_ARM_CPU_OFF       0x80100002

@@ -29,8 +29,8 @@
  */
 
 #include <arch_helpers.h>
+#include <gic_v2.h>
 #include <platform.h>
-#include <gic.h>
 
 
 /* Value used to initialise Non-Secure irq priorities four at a time */
