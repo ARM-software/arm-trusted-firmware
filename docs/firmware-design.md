@@ -56,6 +56,14 @@ The ARM Fixed Virtual Platforms (FVPs) provide trusted ROM, trusted SRAM and
 trusted DRAM regions. Each boot loader stage uses one or more of these
 memories for its code and data.
 
+The sections below provide the following details:
+
+*   initialization and execution of the first three stages during cold boot
+*   specification of the BL3-1 entrypoint requirements for use by alternative
+    Trusted Boot Firmware in place of the provided BL1 and BL2
+*   changes in BL3-1 behavior when using the `RESET_TO_BL31` option which
+    allows BL3-1 to run without BL1 and BL2
+
 
 ### BL1
 
@@ -368,6 +376,167 @@ level implementation of the generic timer through the memory mapped interface.
     available Exception Level (EL2 if available, otherwise EL1).
 
 
+### Using alternative Trusted Boot Firmware in place of BL1 and BL2
+
+Some platforms have existing implementations of Trusted Boot Firmware that
+would like to use ARM Trusted Firmware BL3-1 for the EL3 Runtime Firmware. To
+enable this firmware architecture it is important to provide a fully documented
+and stable interface between the Trusted Boot Firmware and BL3-1.
+
+Future changes to the BL3-1 interface will be done in a backwards compatible
+way, and this enables these firmware components to be independently enhanced/
+updated to develop and exploit new functionality.
+
+#### Required CPU state when calling `bl31_entrypoint()` during cold boot
+
+This function must only be called by the primary CPU, if this is called by any
+other CPU the firmware will abort.
+
+On entry to this function the calling primary CPU must be executing in AArch64
+EL3, little-endian data access, and all interrupt sources masked:
+
+    PSTATE.EL = 3
+    PSTATE.RW = 1
+    PSTATE.DAIF = 0xf
+    CTLR_EL3.EE = 0
+
+X0 and X1 can be used to pass information from the Trusted Boot Firmware to the
+platform code in BL3-1:
+
+    X0 : Reserved for common Trusted Firmware information
+    X1 : Platform specific information
+
+BL3-1 zero-init sections (e.g. `.bss`) should not contain valid data on entry,
+these will be zero filled prior to invoking platform setup code.
+
+##### Use of the X0 and X1 parameters
+
+The parameters are platform specific and passed from `bl31_entrypoint()` to
+`bl31_early_platform_setup()`. The value of these parameters is never directly
+used by the common BL3-1 code.
+
+The convention is that `X0` conveys information regarding the BL3-1, BL3-2 and
+BL3-3 images from the Trusted Boot firmware and `X1` can be used for other
+platform specific purpose. This convention allows platforms which use ARM
+Trusted Firmware's BL1 and BL2 images to transfer additional platform specific
+information from Secure Boot without conflicting with future evolution of the
+Trusted Firmware using `X0` to pass a `bl31_params` structure.
+
+BL3-1 common and SPD initialization code depends on image and entrypoint
+information about BL3-3 and BL3-2, which is provided via BL3-1 platform APIs.
+This information is required until the start of execution of BL3-3. This
+information can be provided in a platform defined manner, e.g. compiled into
+the platform code in BL3-1, or provided in a platform defined memory location
+by the Trusted Boot firmware, or passed from the Trusted Boot Firmware via the
+Cold boot Initialization parameters. This data may need to be cleaned out of
+the CPU caches if it is provided by an earlier boot stage and then accessed by
+BL3-1 platform code before the caches are enabled.
+
+ARM Trusted Firmware's BL2 implementation passes a `bl31_params` structure in
+`X0` and the FVP port interprets this in the BL3-1 platform code.
+
+##### MMU, Data caches & Coherency
+
+BL3-1 does not depend on the enabled state of the MMU, data caches or
+interconnect coherency on entry to `bl31_entrypoint()`. If these are disabled
+on entry, these should be enabled during `bl31_plat_arch_setup()`.
+
+##### Data structures used in the BL3-1 cold boot interface
+
+These structures are designed to support compatibility and independent
+evolution of the structures and the firmware images. For example, a version of
+BL3-1 that can interpret the BL3-x image information from different versions of
+BL2, a platform that uses an extended entry_point_info structure to convey
+additional register information to BL3-1, or a ELF image loader that can convey
+more details about the firmware images.
+
+To support these scenarios the structures are versioned and sized, which enables
+BL3-1 to detect which information is present and respond appropriately. The
+`param_header` is defined to capture this information:
+
+    typedef struct param_header {
+        uint8_t type;       /* type of the structure */
+        uint8_t version;    /* version of this structure */
+        uint16_t size;      /* size of this structure in bytes */
+        uint32_t attr;      /* attributes: unused bits SBZ */
+    } param_header_t;
+
+The structures using this format are `entry_point_info`, `image_info` and
+`bl31_params`. The code that allocates and populates these structures must set
+the header fields appropriately, and the `SET_PARA_HEAD()` a macro is defined
+to simplify this action.
+
+#### Required CPU state for BL3-1 Warm boot initialization
+
+When requesting a CPU power-on, or suspending a running CPU, ARM Trusted
+Firmware provides the platform power management code with a Warm boot
+initialization entry-point, to be invoked by the CPU immediately after the
+reset handler. On entry to the Warm boot initialization function the calling
+CPU must be in AArch64 EL3, little-endian data access and all interrupt sources
+masked:
+
+    PSTATE.EL = 3
+    PSTATE.RW = 1
+    PSTATE.DAIF = 0xf
+    SCTLR_EL3.EE = 0
+
+The PSCI implementation will initialize the processor state and ensure that the
+platform power management code is then invoked as required to initialize all
+necessary system, cluster and CPU resources.
+
+
+### Using BL3-1 as the CPU reset vector
+
+On some platforms the runtime firmware (BL3-x images) for the application
+processors are loaded by trusted firmware running on a secure system processor
+on the SoC, rather than by BL1 and BL2 running on the primary application
+processor. For this type of SoC it is desirable for the application processor
+to always reset to BL3-1 which eliminates the need for BL1 and BL2.
+
+ARM Trusted Firmware provides a build-time option `RESET_TO_BL31` that includes
+some additional logic in the BL3-1 entrypoint to support this use case.
+
+In this configuration, the platform's Trusted Boot Firmware must ensure that
+BL3-1 is loaded to its runtime address, which must match the CPU's RVBAR reset
+vector address, before the application processor is powered on. Additionally,
+platform software is responsible for loading the other BL3-x images required and
+providing entry point information for them to BL3-1. Loading these images might
+be done by the Trusted Boot Firmware or by platform code in BL3-1.
+
+The ARM FVP port supports the `RESET_TO_BL31` configuration, in which case the
+`bl31.bin` image must be loaded to its run address in Trusted SRAM and all CPU
+reset vectors be changed from the default `0x0` to this run address. See the
+[User Guide] for details of running the FVP models in this way.
+
+This configuration requires some additions and changes in the BL3-1
+functionality:
+
+#### Determination of boot path
+
+In this configuration, BL3-1 uses the same reset framework and code as the one
+described for BL1 above. On a warm boot a CPU is directed to the PSCI
+implementation via a platform defined mechanism. On a cold boot, the platform
+must place any secondary CPUs into a safe state while the primary CPU executes
+a modified BL3-1 initialization, as described below.
+
+#### Architectural initialization
+
+As the first image to execute in this configuration BL3-1 must ensure that
+interconnect coherency is enabled (if required) before enabling the MMU.
+
+#### Platform initialization
+
+In this configuration, when the CPU resets to BL3-1 there are no parameters
+that can be passed in registers by previous boot stages. Instead, the platform
+code in BL3-1 needs to know, or be able to determine, the location of the BL3-2
+(if required) and BL3-3 images and provide this information in response to the
+`bl31_plat_get_next_image_ep_info()` function.
+
+As the first image to execute in this configuration BL3-1 must also ensure that
+any security initialisation, for example programming a TrustZone address space
+controller, is carried out during early platform initialisation.
+
+
 3.  EL3 runtime services framework
 ----------------------------------
 
@@ -613,16 +782,13 @@ The TSPD service is responsible for.
 
 The Secure-EL1 Payload Dispatcher (SPD) service is responsible for initializing
 the BL3-2 image. It needs access to the information passed by BL2 to BL3-1 to do
-so. Hence BL3-1 implements:
+so. This is provided by:
 
-1.  `bl31_plat_get_bl32_mem_layout()` to return the extents of memory
-    available for BL3-2's use as communicated by BL2.
+    entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t);
 
-2.  `bl31_get_next_image_info(uint32_t security_state)` to return a reference
-    to the `el_change_info` structure corresponding to the next image which will
-    be run in the specified security state. The SPD uses this api with the
-    secure security state as the parameter to get entry related information about
-    BL3-2.
+which returns a reference to the `entry_point_info` structure corresponding to
+the image which will be run in the specified security state. The SPD uses this
+API to get entry point information for the SECURE image, BL3-2.
 
 In the absence of a BL3-2 image, BL3-1 passes control to the normal world
 bootloader image (BL3-3). When the BL3-2 image is present, it is typical
@@ -632,7 +798,7 @@ To do this the SPD has to register a BL3-2 initialization function during
 initialization of the SPD service. The BL3-2 initialization function has this
 prototype:
 
-    int32_t init(meminfo *bl32_meminfo);
+    int32_t init();
 
 and is registered using the `bl31_register_bl32_init()` function.
 
@@ -1044,3 +1210,4 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
+[User Guide]:       user-guide.md
