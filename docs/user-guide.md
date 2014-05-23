@@ -167,6 +167,12 @@ performed.
     read using a platform GIC API. `INTR_ID_UNAVAILABLE` is passed instead if
     this option set to 0. Default is 0.
 
+*   `RESET_TO_BL31`: Enable BL3-1 entrypoint as the CPU reset vector in place
+    of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
+    entrypoint) or 1 (CPU reset to BL3-1 entrypoint).
+    The default value is 0.
+
+
 ### Creating a Firmware Image Package
 
 FIPs are automatically created as part of the build instructions described in
@@ -577,7 +583,8 @@ ARM Trusted Firmware and normal world software behavior is provided below.
 The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
 downloaded for free from [ARM's website][ARM FVP website].
 
-### Running on the Foundation FVP
+
+### Running on the Foundation FVP with reset to BL1 entrypoint
 
 The following `Foundation_v8` parameters should be used to boot Linux with
 4 CPUs using the ARM Trusted Firmware.
@@ -605,27 +612,42 @@ emulation mode.
 The memory mapped addresses `0x0` and `0x8000000` correspond to the start of
 trusted ROM and NOR FLASH0 respectively.
 
-### Running on the AEMv8 Base FVP
+### Notes regarding Base FVP configuration options
 
-The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
-with 8 CPUs using the ARM Trusted Firmware.
-
-NOTE: Using `cache_state_modelled=1` makes booting very slow. The software will
-still work (and run much faster) without this option but this will hide any
-cache maintenance defects in the software.
-
-NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
-if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
-section above).
-
-NOTE: The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
+1. The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
 Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
 section above).
 
-NOTE: Setting the `-C bp.secure_memory` parameter to `1` is only supported on
-FVP versions 5.4 and newer. Setting this parameter to `0` is also supported.
-The `-C bp.tzc_400.diagnostics=1` parameter is optional. It instructs the FVP to
-provide some helpful information if a secure memory violation occurs.
+2. Using `cache_state_modelled=1` makes booting very slow. The software will
+still work (and run much faster) without this option but this will hide any
+cache maintenance defects in the software.
+
+3. Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
+if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
+section above).
+
+4. Setting the `-C bp.secure_memory` parameter to `1` is only supported on
+Base FVP versions 5.4 and newer. Setting this parameter to `0` is also
+supported. The `-C bp.tzc_400.diagnostics=1` parameter is optional. It
+instructs the FVP to provide some helpful information if a secure memory
+violation occurs.
+
+5. The `--data="<path-to><bl31/bl32/bl33-binary>"@base address of binaries`
+parameter is used to load bootloader images in the Base FVP memory (see the
+"Building the Trusted Firmware" section above). The base address used to
+load the binaries with --data should match the image base addresses in
+platform_def.h used while linking the images.
+BL3-2 image is only needed if BL3-1 has been built to expect a secure-EL1
+payload.
+
+
+### Running on the AEMv8 Base FVP with reset to BL1 entrypoint
+
+Please read "Notes regarding Base FVP configuration options" section above for
+information about some of the options to run the software.
+
+The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
+with 8 CPUs using the ARM Trusted Firmware.
 
     <path-to>/FVP_Base_AEMv8A-AEMv8A                       \
     -C pctl.startup=0.0.0.0                                \
@@ -639,27 +661,13 @@ provide some helpful information if a secure memory violation occurs.
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"      \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
-### Running on the Cortex-A57-A53 Base FVP
+### Running on the Cortex-A57-A53 Base FVP with reset to BL1 entrypoint
+
+Please read "Notes regarding Base FVP configuration options" section above for
+information about some of the options to run the software.
 
 The following `FVP_Base_Cortex-A57x4-A53x4` model parameters should be used to
 boot Linux with 8 CPUs using the ARM Trusted Firmware.
-
-NOTE: Using `cache_state_modelled=1` makes booting very slow. The software will
-still work (and run much faster) without this option but this will hide any
-cache maintenance defects in the software.
-
-NOTE: Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
-if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
-section above).
-
-NOTE: The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
-Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
-section above).
-
-NOTE: Setting the `-C bp.secure_memory` parameter to `1` is only supported on
-FVP versions 5.4 and newer. Setting this parameter to `0` is also supported.
-The `-C bp.tzc_400.diagnostics=1` parameter is optional. It instructs the FVP to
-provide some helpful information if a secure memory violation occurs.
 
     <path-to>/FVP_Base_Cortex-A57x4-A53x4                  \
     -C pctl.startup=0.0.0.0                                \
@@ -669,6 +677,70 @@ provide some helpful information if a secure memory violation occurs.
     -C bp.pl011_uart0.untimed_fifos=1                      \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>" \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"      \
+    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+
+### Running on the AEMv8 Base FVP with reset to BL3-1 entrypoint
+
+Please read "Notes regarding Base FVP configuration options" section above for
+information about some of the options to run the software.
+
+The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
+with 8 CPUs using the ARM Trusted Firmware.
+
+NOTE: Uses the `-c clusterX.cpuX.RVBAR=@base address of BL3-1` where X is
+the cluster number in clusterX and cpu number in cpuX is used to set the reset
+vector for each core.
+
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                             \
+    -C pctl.startup=0.0.0.0                                      \
+    -C bp.secure_memory=1                                        \
+    -C bp.tzc_400.diagnostics=1                                  \
+    -C cluster0.NUM_CORES=4                                      \
+    -C cluster1.NUM_CORES=4                                      \
+    -C cache_state_modelled=1                                    \
+    -C bp.pl011_uart0.untimed_fifos=1                            \
+    -C cluster0.cpu0.RVBAR=0x04006000                            \
+    -C cluster0.cpu1.RVBAR=0x04006000                            \
+    -C cluster0.cpu2.RVBAR=0x04006000                            \
+    -C cluster0.cpu3.RVBAR=0x04006000                            \
+    -C cluster1.cpu0.RVBAR=0x04006000                            \
+    -C cluster1.cpu1.RVBAR=0x04006000                            \
+    -C cluster1.cpu2.RVBAR=0x04006000                            \
+    -C cluster1.cpu3.RVBAR=0x04006000                            \
+    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04006000    \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04024000    \
+    --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
+    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+
+### Running on the Cortex-A57-A53 Base FVP with reset to BL3-1 entrypoint
+
+Please read "Notes regarding Base FVP configuration options" section above for
+information about some of the options to run the software.
+
+The following `FVP_Base_Cortex-A57x4-A53x4` model parameters should be used to
+boot Linux with 8 CPUs using the ARM Trusted Firmware.
+
+NOTE: Uses the `-c clusterX.cpuX.RVBARADDR=@base address of BL3-1` where X is
+the cluster number in clusterX and cpu number in cpuX is used to set the reset
+vector for each core.
+
+    <path-to>/FVP_Base_Cortex-A57x4-A53x4                        \
+    -C pctl.startup=0.0.0.0                                      \
+    -C bp.secure_memory=1                                        \
+    -C bp.tzc_400.diagnostics=1                                  \
+    -C cache_state_modelled=1                                    \
+    -C bp.pl011_uart0.untimed_fifos=1                            \
+    -C cluster0.cpu0.RVBARADDR=0x04006000                        \
+    -C cluster0.cpu1.RVBARADDR=0x04006000                        \
+    -C cluster0.cpu2.RVBARADDR=0x04006000                        \
+    -C cluster0.cpu3.RVBARADDR=0x04006000                        \
+    -C cluster1.cpu0.RVBARADDR=0x04006000                        \
+    -C cluster1.cpu1.RVBARADDR=0x04006000                        \
+    -C cluster1.cpu2.RVBARADDR=0x04006000                        \
+    -C cluster1.cpu3.RVBARADDR=0x04006000                        \
+    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04006000    \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04024000    \
+    --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
 ### Configuring the GICv2 memory map
