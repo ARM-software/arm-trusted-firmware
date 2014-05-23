@@ -42,7 +42,16 @@
 #define TSP_RESUME_DONE		0xf2000004
 #define TSP_WORK_DONE		0xf2000005
 
-/* SMC function ID that TSP uses to request service from secure montior */
+/*
+ * Function identifiers to handle FIQs through the synchronous handling model.
+ * If the TSP was previously interrupted then control has to be returned to
+ * the TSPD after handling the interrupt else execution can remain in the TSP.
+ */
+#define TSP_HANDLED_S_EL1_FIQ		0xf2000006
+#define TSP_EL3_FIQ			0xf2000007
+#define TSP_HANDLE_FIQ_AND_RETURN	0x2004
+
+/* SMC function ID that TSP uses to request service from secure monitor */
 #define TSP_GET_ARGS		0xf2001000
 
 /* Function IDs for various TSP services */
@@ -86,16 +95,17 @@
 
 #include <cassert.h>
 #include <platform.h>	/* For CACHE_WRITEBACK_GRANULE */
+#include <spinlock.h>
 #include <stdint.h>
 
 typedef void (*tsp_generic_fptr_t)(uint64_t arg0,
-				 uint64_t arg1,
-				 uint64_t arg2,
-				 uint64_t arg3,
-				 uint64_t arg4,
-				 uint64_t arg5,
-				 uint64_t arg6,
-				 uint64_t arg7);
+				   uint64_t arg1,
+				   uint64_t arg2,
+				   uint64_t arg3,
+				   uint64_t arg4,
+				   uint64_t arg5,
+				   uint64_t arg6,
+				   uint64_t arg7);
 
 typedef struct entry_info {
 	tsp_generic_fptr_t fast_smc_entry;
@@ -103,9 +113,13 @@ typedef struct entry_info {
 	tsp_generic_fptr_t cpu_off_entry;
 	tsp_generic_fptr_t cpu_resume_entry;
 	tsp_generic_fptr_t cpu_suspend_entry;
+	tsp_generic_fptr_t fiq_entry;
 } entry_info_t;
 
 typedef struct work_statistics {
+	uint32_t fiq_count;		/* Number of FIQs on this cpu */
+	uint32_t sync_fiq_count;	/* Number of sync. fiqs on this cpu */
+	uint32_t sync_fiq_ret_count;	/* Number of fiq returns on this cpu */
 	uint32_t smc_count;		/* Number of returns on this cpu */
 	uint32_t eret_count;		/* Number of entries on this cpu */
 	uint32_t cpu_on_count;		/* Number of cpu on requests */
@@ -120,7 +134,7 @@ typedef struct tsp_args {
 
 /* Macros to access members of the above structure using their offsets */
 #define read_sp_arg(args, offset)	((args)->_regs[offset >> 3])
-#define write_sp_arg(args, offset, val)(((args)->_regs[offset >> 3])	\
+#define write_sp_arg(args, offset, val) (((args)->_regs[offset >> 3])	\
 					 = val)
 
 /*
@@ -131,6 +145,14 @@ CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args_t), assert_sp_args_size_mismatch);
 
 extern void tsp_get_magic(uint64_t args[4]);
 
+extern void tsp_fiq_entry(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7);
 extern void tsp_fast_smc_entry(uint64_t arg0,
 				uint64_t arg1,
 				uint64_t arg2,
@@ -196,6 +218,20 @@ extern tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 				  uint64_t arg5,
 				  uint64_t arg6,
 				  uint64_t arg7);
+
+/* Generic Timer functions */
+extern void tsp_generic_timer_start(void);
+extern void tsp_generic_timer_handler(void);
+extern void tsp_generic_timer_stop(void);
+extern void tsp_generic_timer_save(void);
+extern void tsp_generic_timer_restore(void);
+
+/* FIQ management functions */
+extern void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3);
+
+/* Data structure to keep track of TSP statistics */
+extern spinlock_t console_lock;
+extern work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 #endif /* __ASSEMBLY__ */
 
 #endif /* __BL2_H__ */
