@@ -31,6 +31,7 @@
 #include <asm_macros.S>
 #include <context.h>
 #include <plat_macros.S>
+#include <platform_def.h>
 
 	.globl	get_crash_stack
 	.globl	dump_state_and_die
