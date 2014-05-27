@@ -88,7 +88,7 @@ static bl31_params_t *bl2_to_bl31_params;
  * while BL32 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  ******************************************************************************/
-entry_point_info_t *bl31_get_next_image_info(uint32_t type)
+entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	entry_point_info_t *next_image_info;
 

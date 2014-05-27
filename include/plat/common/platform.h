@@ -58,11 +58,11 @@ unsigned long plat_get_ns_image_entrypoint(void);
 /*******************************************************************************
  * Mandatory interrupt management functions
  ******************************************************************************/
-uint32_t ic_get_pending_interrupt_id(void);
-uint32_t ic_get_pending_interrupt_type(void);
-uint32_t ic_acknowledge_interrupt(void);
-uint32_t ic_get_interrupt_type(uint32_t id);
-void ic_end_of_interrupt(uint32_t id);
+uint32_t plat_ic_get_pending_interrupt_id(void);
+uint32_t plat_ic_get_pending_interrupt_type(void);
+uint32_t plat_ic_acknowledge_interrupt(void);
+uint32_t plat_ic_get_interrupt_type(uint32_t id);
+void plat_ic_end_of_interrupt(uint32_t id);
 uint32_t plat_interrupt_type_to_line(uint32_t type,
 				     uint32_t security_state);
 
@@ -152,7 +152,7 @@ void bl31_early_platform_setup(struct bl31_params *from_bl2,
 				void *plat_params_from_bl2);
 void bl31_plat_arch_setup(void);
 void bl31_platform_setup(void);
-struct entry_point_info *bl31_get_next_image_info(uint32_t type);
+struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
 
 /*******************************************************************************
  * Mandatory PSCI functions (BL3-1)

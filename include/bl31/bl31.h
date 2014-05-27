@@ -33,11 +33,6 @@
 
 #include <stdint.h>
 
-/******************************************
- * Forward declarations
- *****************************************/
-struct entry_point_info;
-
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
@@ -46,7 +41,6 @@ void bl31_next_el_arch_setup(uint32_t security_state);
 void bl31_set_next_image_type(uint32_t type);
 uint32_t bl31_get_next_image_type(void);
 void bl31_prepare_next_image_entry();
-struct entry_point_info *bl31_get_next_image_info(uint32_t type);
 void bl31_register_bl32_init(int32_t (*)(void));
 
 #endif /* __BL31_H__ */
