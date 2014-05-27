@@ -134,6 +134,10 @@
 #define DRAM_BASE		0x80000000
 #define DRAM_SIZE		0x80000000
 
+/* Base address where parameters to BL31 are stored */
+/* Juno TODO: Move BL3-1 arguments somewhere in trusted memory  */
+#define PARAMS_BASE		DRAM_BASE
+
 /* Memory mapped Generic timer interfaces  */
 #define SYS_CNTCTL_BASE		0x2a430000
 
@@ -313,12 +317,31 @@
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
+#include <bl_common.h>
 
 /*******************************************************************************
  * Forward declarations
  ******************************************************************************/
 struct plat_pm_ops;
 struct meminfo;
+struct bl31_params;
+struct image_info;
+struct entry_point_info;
+
+/*******************************************************************************
+ * This structure represents the superset of information that is passed to
+ * BL31 e.g. while passing control to it from BL2 which is bl31_params
+ * and another platform specific params
+ ******************************************************************************/
+typedef struct bl2_to_bl31_params_mem {
+       struct bl31_params bl31_params;
+       struct image_info bl31_image_info;
+       struct image_info bl32_image_info;
+       struct image_info bl33_image_info;
+       struct entry_point_info bl33_ep_info;
+       struct entry_point_info bl32_ep_info;
+       struct entry_point_info bl31_ep_info;
+} bl2_to_bl31_params_mem_t;
 
 /*******************************************************************************
  * Function and variable prototypes
@@ -343,12 +366,14 @@ extern int platform_setup_pm(const struct plat_pm_ops **);
 extern unsigned int platform_get_core_pos(unsigned long mpidr);
 extern void enable_mmu_el1(void);
 extern void enable_mmu_el3(void);
-extern void configure_mmu_el1(meminfo_t *mem_layout,
+extern void configure_mmu_el1(unsigned long total_base,
+			      unsigned long total_size,
 			      unsigned long ro_start,
 			      unsigned long ro_limit,
 			      unsigned long coh_start,
 			      unsigned long coh_limit);
-extern void configure_mmu_el3(meminfo_t *mem_layout,
+extern void configure_mmu_el3(unsigned long total_base,
+			      unsigned long total_size,
 			      unsigned long ro_start,
 			      unsigned long ro_limit,
 			      unsigned long coh_start,
@@ -374,6 +399,48 @@ extern unsigned int plat_get_aff_state(unsigned int, unsigned long);
 extern void io_setup(void);
 extern int plat_get_image_source(const char *image_name,
 		uintptr_t *dev_handle, uintptr_t *image_spec);
+
+/*
+ * Before calling this function BL2 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL2 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl1_plat_set_bl2_ep_info(struct image_info *image,
+				     struct entry_point_info *ep);
+
+/*
+ * Before calling this function BL31 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL31 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl2_plat_set_bl31_ep_info(struct image_info *image,
+				      struct entry_point_info *ep);
+
+/*
+ * Before calling this function BL32 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL32 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl2_plat_set_bl32_ep_info(struct image_info *image,
+				      struct entry_point_info *ep);
+
+/*
+ * Before calling this function BL33 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL33 and set SPSR and security state.
+ * On FVP we are only setting the security state, entrypoint
+ */
+extern void bl2_plat_set_bl33_ep_info(struct image_info *image,
+				      struct entry_point_info *ep);
+
+/* Gets the memory layout for BL3-2 */
+extern void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
+
+/* Gets the memory layout for BL3-3 */
+extern void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
 
 #endif /*__ASSEMBLY__*/
 

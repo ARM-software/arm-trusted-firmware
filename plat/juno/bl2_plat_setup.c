@@ -75,18 +75,80 @@ static meminfo_t bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
-static bl31_args_t bl2_to_bl31_args
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem")));
+/*******************************************************************************
+ * Reference to structures which holds the arguments which need to be passed
+ * to BL31
+ ******************************************************************************/
+static bl31_params_t *bl2_to_bl31_params;
+static entry_point_info_t *bl31_ep_info;
 
 meminfo_t *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
 }
 
-bl31_args_t *bl2_get_bl31_args_ptr(void)
+/*******************************************************************************
+ * This function assigns a pointer to the memory that the platform has kept
+ * aside to pass platform specific and trusted firmware related information
+ * to BL31. This memory is allocated by allocating memory to
+ * bl2_to_bl31_params_mem_t structure which is a superset of all the
+ * structure whose information is passed to BL31
+ * NOTE: This function should be called only once and should be done
+ * before generating params to BL31
+ ******************************************************************************/
+bl31_params_t *bl2_plat_get_bl31_params(void)
 {
-	return &bl2_to_bl31_args;
+	bl2_to_bl31_params_mem_t *bl31_params_mem;
+
+	/*
+	 * Allocate the memory for all the arguments that needs to
+	 * be passed to BL31
+	 */
+	bl31_params_mem = (bl2_to_bl31_params_mem_t *)PARAMS_BASE;
+	memset((void *)PARAMS_BASE, 0, sizeof(bl2_to_bl31_params_mem_t));
+
+	/* Assign memory for TF related information */
+	bl2_to_bl31_params = &bl31_params_mem->bl31_params;
+	SET_PARAM_HEAD(bl2_to_bl31_params, PARAM_BL31, VERSION_1, 0);
+
+	/* Fill BL31 related information */
+	bl31_ep_info = &bl31_params_mem->bl31_ep_info;
+	bl2_to_bl31_params->bl31_image_info = &bl31_params_mem->bl31_image_info;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl31_image_info, PARAM_IMAGE_BINARY,
+		VERSION_1, 0);
+
+	/* Fill BL32 related information if it exists */
+	if (BL32_BASE) {
+		bl2_to_bl31_params->bl32_ep_info =
+			&bl31_params_mem->bl32_ep_info;
+		SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info,
+			PARAM_EP, VERSION_1, 0);
+		bl2_to_bl31_params->bl32_image_info =
+			&bl31_params_mem->bl32_image_info;
+		SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info,
+			PARAM_IMAGE_BINARY,
+			VERSION_1, 0);
+	}
+
+	/* Fill BL33 related information */
+	/* Juno TODO: Pass the primary CPU MPID to UEFI. Must be in x0. */
+	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem->bl33_ep_info;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_ep_info,
+		PARAM_EP, VERSION_1, 0);
+	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem->bl33_image_info;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info, PARAM_IMAGE_BINARY,
+		VERSION_1, 0);
+
+	return bl2_to_bl31_params;
+}
+
+/*******************************************************************************
+ * This function returns a pointer to the shared memory that the platform
+ * has kept to point to entry point information of BL31 to BL2
+ ******************************************************************************/
+struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
+{
+	return bl31_ep_info;
 }
 
 /*******************************************************************************
@@ -94,10 +156,8 @@ bl31_args_t *bl2_get_bl31_args_ptr(void)
  * in x0. This memory layout is sitting at the base of the free trusted RAM.
  * Copy it to a safe loaction before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void bl2_early_platform_setup(meminfo_t *mem_layout,
-			      void *data)
+void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
-
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
 
@@ -117,6 +177,9 @@ void bl2_early_platform_setup(meminfo_t *mem_layout,
  * the image into. When this function exits, the RAM layout remains untouched
  * so the BL2 can load BL3-1 as normal.
  ******************************************************************************/
+/*
+ * Juno TODO: revisit, it won't compile.
+ */
 static int load_bl30(void)
 {
 	meminfo_t *bl2_tzram_layout;
@@ -163,7 +226,7 @@ static int load_bl30(void)
  * image and initialise the memory location to use for passing arguments to
  * BL3-1.
  ******************************************************************************/
-void bl2_platform_setup()
+void bl2_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
 	io_setup();
@@ -171,26 +234,13 @@ void bl2_platform_setup()
 	/* Load BL3-0  */
 	if (load_bl30() != 0)
 		panic();
+}
 
-	/* Populate the extents of memory available for loading BL3-3 */
-	bl2_to_bl31_args.bl33_meminfo.total_base = DRAM_BASE;
-	bl2_to_bl31_args.bl33_meminfo.total_size = DRAM_SIZE;
-	bl2_to_bl31_args.bl33_meminfo.free_base = DRAM_BASE;
-	bl2_to_bl31_args.bl33_meminfo.free_size = DRAM_SIZE;
-	bl2_to_bl31_args.bl33_meminfo.attr = BOT_LOAD;
-	bl2_to_bl31_args.bl33_meminfo.next = 0;
-
-	/* Populate the extents of memory available for loading BL3-2 */
-	bl2_to_bl31_args.bl32_meminfo.total_base = BL32_BASE;
-	bl2_to_bl31_args.bl32_meminfo.free_base = BL32_BASE;
-
-	bl2_to_bl31_args.bl32_meminfo.total_size =
-		(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
-	bl2_to_bl31_args.bl32_meminfo.free_size =
-		(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
-
-	bl2_to_bl31_args.bl32_meminfo.attr = BOT_LOAD;
-	bl2_to_bl31_args.bl32_meminfo.next = 0;
+/* Flush the TF params and the TF plat params */
+void bl2_plat_flush_bl31_params(void)
+{
+	flush_dcache_range((unsigned long)PARAMS_BASE,
+			sizeof(bl2_to_bl31_params_mem_t));
 }
 
 /*******************************************************************************
@@ -199,9 +249,106 @@ void bl2_platform_setup()
  ******************************************************************************/
 void bl2_plat_arch_setup()
 {
-	configure_mmu_el1(&bl2_tzram_layout,
+	configure_mmu_el1(bl2_tzram_layout.total_base,
+			  bl2_tzram_layout.total_size,
 			  BL2_RO_BASE,
 			  BL2_RO_LIMIT,
 			  BL2_COHERENT_RAM_BASE,
 			  BL2_COHERENT_RAM_LIMIT);
+}
+
+
+/*******************************************************************************
+ * Before calling this function BL31 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL31 and set SPSR and security state.
+ * On Juno we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
+				       entry_point_info_t *bl31_ep_info)
+{
+	SET_SECURITY_STATE(bl31_ep_info->h.attr, SECURE);
+	bl31_ep_info->spsr = SPSR_64(MODE_EL3, MODE_SP_ELX,
+				       DISABLE_ALL_EXCEPTIONS);
+}
+
+
+/*******************************************************************************
+ * Before calling this function BL32 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL32 and set SPSR and security state.
+ * On Juno we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
+				       entry_point_info_t *bl32_ep_info)
+{
+	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
+	/*
+	* The Secure Payload Dispatcher service is responsible for
+	* setting the SPSR prior to entry into the BL32 image.
+	*/
+	bl32_ep_info->spsr = 0;
+}
+
+/*******************************************************************************
+ * Before calling this function BL33 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL33 and set SPSR and security state.
+ * On Juno we are only setting the security state, entrypoint
+ ******************************************************************************/
+void bl2_plat_set_bl33_ep_info(image_info_t *image,
+				       entry_point_info_t *bl33_ep_info)
+{
+	unsigned long el_status;
+	unsigned int mode;
+
+	/* Figure out what mode we enter the non-secure world in */
+	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
+	el_status &= ID_AA64PFR0_ELX_MASK;
+
+	if (el_status)
+		mode = MODE_EL2;
+	else
+		mode = MODE_EL1;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	bl33_ep_info->spsr = SPSR_64(mode, MODE_SP_ELX,
+				       DISABLE_ALL_EXCEPTIONS);
+	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
+}
+
+/*******************************************************************************
+ * Populate the extents of memory available for loading BL3-2
+ ******************************************************************************/
+void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
+{
+	/*
+	 * Populate the extents of memory available for loading BL3-2.
+	 */
+	bl32_meminfo->total_base = BL32_BASE;
+	bl32_meminfo->free_base = BL32_BASE;
+	bl32_meminfo->total_size =
+		       (TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
+	bl32_meminfo->free_size =
+		       (TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
+	bl32_meminfo->attr = BOT_LOAD;
+	bl32_meminfo->next = 0;
+}
+
+
+/*******************************************************************************
+ * Populate the extents of memory available for loading BL3-3
+ ******************************************************************************/
+void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
+{
+	bl33_meminfo->total_base = DRAM_BASE;
+	bl33_meminfo->total_size = DRAM_SIZE;
+	bl33_meminfo->free_base = DRAM_BASE;
+	bl33_meminfo->free_size = DRAM_SIZE;
+	bl33_meminfo->attr = 0;
+	bl33_meminfo->attr = 0;
 }
