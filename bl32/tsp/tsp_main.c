@@ -38,6 +38,13 @@
 #include <tsp.h>
 
 /*******************************************************************************
+ * Declarations of linker defined symbols which will help us find the layout
+ * of trusted SRAM
+ ******************************************************************************/
+extern unsigned long __RO_START__;
+extern unsigned long __COHERENT_RAM_END__;
+
+/*******************************************************************************
  * Lock to control access to the console
  ******************************************************************************/
 spinlock_t console_lock;
@@ -51,7 +58,7 @@ static tsp_args_t tsp_smc_args[PLATFORM_CORE_COUNT];
 /*******************************************************************************
  * Per cpu data structure to keep track of TSP activity
  ******************************************************************************/
-static work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
+work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Single reference to the various entry points exported by the test secure
@@ -59,12 +66,23 @@ static work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
  * to change.
  ******************************************************************************/
 static const entry_info_t tsp_entry_info = {
+	tsp_std_smc_entry,
 	tsp_fast_smc_entry,
 	tsp_cpu_on_entry,
 	tsp_cpu_off_entry,
 	tsp_cpu_resume_entry,
 	tsp_cpu_suspend_entry,
+	tsp_fiq_entry,
 };
+
+
+/*******************************************************************************
+ * The BL32 memory footprint starts with an RO sections and ends
+ * with a section for coherent RAM. Use it to find the memory size
+ ******************************************************************************/
+#define BL32_TOTAL_BASE (unsigned long)(&__RO_START__)
+
+#define BL32_TOTAL_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 static tsp_args_t *set_smc_args(uint64_t arg0,
 			     uint64_t arg1,
@@ -107,14 +125,11 @@ uint64_t tsp_main(void)
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
-#if DEBUG
-	meminfo_t *mem_layout = bl32_plat_sec_mem_layout();
-#endif
-
 	/* Initialize the platform */
 	bl32_platform_setup();
 
 	/* Initialize secure/applications state here */
+	tsp_generic_timer_start();
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
@@ -123,10 +138,9 @@ uint64_t tsp_main(void)
 
 	spin_lock(&console_lock);
 	printf("TSP %s\n\r", build_message);
-	INFO("Total memory base : 0x%x\n", mem_layout->total_base);
-	INFO("Total memory size : 0x%x bytes\n", mem_layout->total_size);
-	INFO("Free memory base  : 0x%x\n", mem_layout->free_base);
-	INFO("Free memory size  : 0x%x bytes\n", mem_layout->free_size);
+	INFO("Total memory base : 0x%x\n", (unsigned long)BL32_TOTAL_BASE);
+	INFO("Total memory size : 0x%x bytes\n",
+			 (unsigned long)(BL32_TOTAL_LIMIT - BL32_TOTAL_BASE));
 	INFO("cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count,
@@ -150,6 +164,9 @@ tsp_args_t *tsp_cpu_on_main(void)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
+
+	/* Initialize secure/applications state here */
+	tsp_generic_timer_start();
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
@@ -183,6 +200,13 @@ tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
+
+	/*
+	 * This cpu is being turned off, so disable the timer to prevent the
+	 * secure timer interrupt from interfering with power down. A pending
+	 * interrupt will be lost but we do not care as we are turning off.
+	 */
+	tsp_generic_timer_stop();
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
@@ -219,6 +243,13 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t power_state,
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
+	/*
+	 * Save the time context and disable it to prevent the secure timer
+	 * interrupt from interfering with wakeup from the suspend state.
+	 */
+	tsp_generic_timer_save();
+	tsp_generic_timer_stop();
+
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
@@ -254,6 +285,9 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
+	/* Restore the generic timer context */
+	tsp_generic_timer_restore();
+
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
@@ -276,9 +310,9 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
  * TSP fast smc handler. The secure monitor jumps to this function by
  * doing the ERET after populating X0-X7 registers. The arguments are received
  * in the function arguments in order. Once the service is rendered, this
- * function returns to Secure Monitor by raising SMC
+ * function returns to Secure Monitor by raising SMC.
  ******************************************************************************/
-tsp_args_t *tsp_fast_smc_handler(uint64_t func,
+tsp_args_t *tsp_smc_handler(uint64_t func,
 			       uint64_t arg1,
 			       uint64_t arg2,
 			       uint64_t arg3,
@@ -291,18 +325,20 @@ tsp_args_t *tsp_fast_smc_handler(uint64_t func,
 	uint64_t service_args[2];
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
+	const char *smc_type;
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
 
-	printf("SP: cpu 0x%x received fast smc 0x%x\n", read_mpidr(), func);
+	smc_type = ((func >> 31) & 1) == 1 ? "fast" : "standard";
+
+	printf("SP: cpu 0x%x received %s smc 0x%x\n", read_mpidr(), smc_type, func);
 	INFO("cpu 0x%x: %d smcs, %d erets\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
 
 	/* Render secure services and obtain results here */
-
 	results[0] = arg1;
 	results[1] = arg2;
 
@@ -313,20 +349,20 @@ tsp_args_t *tsp_fast_smc_handler(uint64_t func,
 	tsp_get_magic(service_args);
 
 	/* Determine the function to perform based on the function ID */
-	switch (func) {
-	case TSP_FID_ADD:
+	switch (TSP_BARE_FID(func)) {
+	case TSP_ADD:
 		results[0] += service_args[0];
 		results[1] += service_args[1];
 		break;
-	case TSP_FID_SUB:
+	case TSP_SUB:
 		results[0] -= service_args[0];
 		results[1] -= service_args[1];
 		break;
-	case TSP_FID_MUL:
+	case TSP_MUL:
 		results[0] *= service_args[0];
 		results[1] *= service_args[1];
 		break;
-	case TSP_FID_DIV:
+	case TSP_DIV:
 		results[0] /= service_args[0] ? service_args[0] : 1;
 		results[1] /= service_args[1] ? service_args[1] : 1;
 		break;
@@ -334,9 +370,9 @@ tsp_args_t *tsp_fast_smc_handler(uint64_t func,
 		break;
 	}
 
-	return set_smc_args(func,
+	return set_smc_args(func, 0,
 			    results[0],
 			    results[1],
-			    0, 0, 0, 0, 0);
+			    0, 0, 0, 0);
 }
 

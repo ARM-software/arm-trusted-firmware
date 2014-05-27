@@ -39,6 +39,10 @@
 	.globl	tsp_cpu_suspend_entry
 	.globl	tsp_cpu_resume_entry
 	.globl	tsp_fast_smc_entry
+	.globl	tsp_std_smc_entry
+	.globl	tsp_fiq_entry
+
+
 
 	/* ---------------------------------------------
 	 * Populate the params in x0-x7 from the pointer
@@ -53,18 +57,24 @@
 	smc	#0
 	.endm
 
+	.macro	save_eret_context reg1 reg2
+	mrs	\reg1, elr_el1
+	mrs	\reg2, spsr_el1
+	stp	\reg1, \reg2, [sp, #-0x10]!
+	stp	x30, x18, [sp, #-0x10]!
+	.endm
+
+	.macro restore_eret_context reg1 reg2
+	ldp	x30, x18, [sp], #0x10
+	ldp	\reg1, \reg2, [sp], #0x10
+	msr	elr_el1, \reg1
+	msr	spsr_el1, \reg2
+	.endm
+
+	.section	.text, "ax"
+	.align 3
 
 func tsp_entrypoint
-	/*---------------------------------------------
-	 * Store the extents of the tzram available to
-	 * BL32 for future use.
-	 * TODO: We are assuming that x9-x10 will not be
-	 * corrupted by any function before platform
-	 * setup.
-	 * ---------------------------------------------
-	 */
-	mov	x9, x0
-	mov	x10, x1
 
 	/* ---------------------------------------------
 	 * The entrypoint is expected to be executed
@@ -80,7 +90,7 @@ func tsp_entrypoint
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
 	 */
-	adr	x0, early_exceptions
+	adr	x0, tsp_exceptions
 	msr	vbar_el1, x0
 
 	/* ---------------------------------------------
@@ -119,8 +129,6 @@ func tsp_entrypoint
 	 * specific early arch. setup e.g. mmu setup
 	 * ---------------------------------------------
 	 */
-	mov	x0, x9
-	mov	x1, x10
 	bl	bl32_early_platform_setup
 	bl	bl32_plat_arch_setup
 
@@ -179,7 +187,7 @@ func tsp_cpu_on_entry
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
 	 */
-	adr	x0, early_exceptions
+	adr	x0, tsp_exceptions
 	msr	vbar_el1, x0
 
 	/* ---------------------------------------------
@@ -239,6 +247,58 @@ func tsp_cpu_suspend_entry
 	restore_args_call_smc
 
 	/*---------------------------------------------
+	 * This entrypoint is used by the TSPD to pass
+	 * control for handling a pending S-EL1 FIQ.
+	 * 'x0' contains a magic number which indicates
+	 * this. TSPD expects control to be handed back
+	 * at the end of FIQ processing. This is done
+	 * through an SMC. The handover agreement is:
+	 *
+	 * 1. PSTATE.DAIF are set upon entry. 'x1' has
+	 *    the ELR_EL3 from the non-secure state.
+	 * 2. TSP has to preserve the callee saved
+	 *    general purpose registers, SP_EL1/EL0 and
+	 *    LR.
+	 * 3. TSP has to preserve the system and vfp
+	 *    registers (if applicable).
+	 * 4. TSP can use 'x0-x18' to enable its C
+	 *    runtime.
+	 * 5. TSP returns to TSPD using an SMC with
+	 *    'x0' = TSP_HANDLED_S_EL1_FIQ
+	 * ---------------------------------------------
+	 */
+func	tsp_fiq_entry
+#if DEBUG
+	mov	x2, #(TSP_HANDLE_FIQ_AND_RETURN & ~0xffff)
+	movk	x2, #(TSP_HANDLE_FIQ_AND_RETURN &  0xffff)
+	cmp	x0, x2
+	b.ne	tsp_fiq_entry_panic
+#endif
+	/*---------------------------------------------
+	 * Save any previous context needed to perform
+	 * an exception return from S-EL1 e.g. context
+	 * from a previous IRQ. Update statistics and
+	 * handle the FIQ before returning to the TSPD.
+	 * IRQ/FIQs are not enabled since that will
+	 * complicate the implementation. Execution
+	 * will be transferred back to the normal world
+	 * in any case. A non-zero return value from the
+	 * fiq handler is an error.
+	 * ---------------------------------------------
+	 */
+	save_eret_context x2 x3
+	bl	tsp_update_sync_fiq_stats
+	bl	tsp_fiq_handler
+	cbnz	x0, tsp_fiq_entry_panic
+	restore_eret_context x2 x3
+	mov	x0, #(TSP_HANDLED_S_EL1_FIQ & ~0xffff)
+	movk	x0, #(TSP_HANDLED_S_EL1_FIQ &  0xffff)
+	smc	#0
+
+tsp_fiq_entry_panic:
+	b	tsp_fiq_entry_panic
+
+	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this
 	 * cpu resumes execution after an earlier
 	 * CPU_SUSPEND psci call to ask the TSP to
@@ -260,8 +320,22 @@ tsp_cpu_resume_panic:
 	 * ---------------------------------------------
 	 */
 func tsp_fast_smc_entry
-	bl	tsp_fast_smc_handler
+	bl	tsp_smc_handler
 	restore_args_call_smc
 tsp_fast_smc_entry_panic:
 	b	tsp_fast_smc_entry_panic
 
+	/*---------------------------------------------
+	 * This entrypoint is used by the TSPD to ask
+	 * the TSP to service a std smc request.
+	 * We will enable preemption during execution
+	 * of tsp_smc_handler.
+	 * ---------------------------------------------
+	 */
+func tsp_std_smc_entry
+	msr	daifclr, #DAIF_FIQ_BIT | DAIF_IRQ_BIT
+	bl	tsp_smc_handler
+	msr	daifset, #DAIF_FIQ_BIT | DAIF_IRQ_BIT
+	restore_args_call_smc
+tsp_std_smc_entry_panic:
+	b	tsp_std_smc_entry_panic

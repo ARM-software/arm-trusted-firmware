@@ -43,6 +43,7 @@
 #define GIC_LOWEST_SEC_PRIORITY	127
 #define GIC_HIGHEST_NS_PRIORITY	128
 #define GIC_LOWEST_NS_PRIORITY	254 /* 255 would disable an interrupt */
+#define GIC_SPURIOUS_INTERRUPT	1023
 
 #define ENABLE_GRP0		(1 << 0)
 #define ENABLE_GRP1		(1 << 1)
@@ -88,6 +89,7 @@
 #define GICC_EOIR		0x10
 #define GICC_RPR		0x14
 #define GICC_HPPIR		0x18
+#define GICC_AHPPIR		0x28
 #define GICC_IIDR		0xFC
 #define GICC_DIR		0x1000
 #define GICC_PRIODROP           GICC_EOIR
@@ -247,6 +249,11 @@ static inline unsigned int gicc_read_hppir(unsigned int base)
 	return mmio_read_32(base + GICC_HPPIR);
 }
 
+static inline unsigned int gicc_read_ahppir(unsigned int base)
+{
+	return mmio_read_32(base + GICC_AHPPIR);
+}
+
 static inline unsigned int gicc_read_dir(unsigned int base)
 {
 	return mmio_read_32(base + GICC_DIR);
@@ -297,6 +304,12 @@ static inline void gicc_write_dir(unsigned int base, unsigned int val)
 {
 	mmio_write_32(base + GICC_DIR, val);
 }
+
+/*******************************************************************************
+ * Prototype of function to map an interrupt type to the interrupt line used to
+ * signal it.
+ ******************************************************************************/
+uint32_t gicv2_interrupt_type_to_line(uint32_t cpuif_base, uint32_t type);
 
 #endif /*__ASSEMBLY__*/
 
