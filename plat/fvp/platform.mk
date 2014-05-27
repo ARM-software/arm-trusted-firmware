@@ -51,40 +51,41 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011.c			\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_semihosting.c			\
 				lib/mmio.c					\
-				lib/aarch64/sysreg_helpers.S		\
+				lib/aarch64/sysreg_helpers.S			\
 				lib/aarch64/xlat_tables.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
-				plat/fvp/plat_io_storage.c
+				plat/common/aarch64/plat_common.c		\
+				plat/fvp/fvp_io_storage.c
 
 BL1_SOURCES		+=	drivers/arm/cci400/cci400.c			\
 				plat/common/aarch64/platform_up_stack.S		\
-				plat/fvp/bl1_plat_setup.c			\
-				plat/fvp/aarch64/plat_common.c			\
-				plat/fvp/aarch64/plat_helpers.S
+				plat/fvp/bl1_fvp_setup.c			\
+				plat/fvp/aarch64/fvp_common.c			\
+				plat/fvp/aarch64/fvp_helpers.S
 
 BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 				plat/common/aarch64/platform_up_stack.S		\
-				plat/fvp/bl2_plat_setup.c			\
-				plat/fvp/plat_security.c			\
-				plat/fvp/aarch64/plat_common.c
+				plat/fvp/bl2_fvp_setup.c			\
+				plat/fvp/fvp_security.c				\
+				plat/fvp/aarch64/fvp_common.c
 
 BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\
 				drivers/arm/gic/aarch64/gic_v3_sysregs.S	\
 				drivers/arm/cci400/cci400.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
-				plat/fvp/bl31_plat_setup.c			\
-				plat/fvp/plat_gic.c				\
-				plat/fvp/plat_pm.c				\
-				plat/fvp/plat_topology.c			\
-				plat/fvp/aarch64/plat_helpers.S			\
-				plat/fvp/aarch64/plat_common.c			\
+				plat/fvp/bl31_fvp_setup.c			\
+				plat/fvp/fvp_gic.c				\
+				plat/fvp/fvp_pm.c				\
+				plat/fvp/fvp_topology.c				\
+				plat/fvp/aarch64/fvp_helpers.S			\
+				plat/fvp/aarch64/fvp_common.c			\
 				plat/fvp/drivers/pwrc/fvp_pwrc.c
 
 ifeq (${RESET_TO_BL31}, 1)
-	BL31_SOURCES		+=	drivers/arm/tzc400/tzc400.c		\
-					plat/fvp/plat_security.c
+BL31_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
+				plat/fvp/fvp_security.c
 endif
 
 # Flag used by the FVP port to determine the version of ARM GIC architecture

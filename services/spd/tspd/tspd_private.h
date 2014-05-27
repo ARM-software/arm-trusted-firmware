@@ -34,7 +34,7 @@
 #include <arch.h>
 #include <context.h>
 #include <interrupt_mgmt.h>
-#include <platform.h>
+#include <platform_def.h>
 #include <psci.h>
 
 /*******************************************************************************
@@ -188,11 +188,11 @@ struct tsp_vectors;
 /*******************************************************************************
  * Function & Data prototypes
  ******************************************************************************/
-extern uint64_t tspd_enter_sp(uint64_t *c_rt_ctx);
-extern void __dead2 tspd_exit_sp(uint64_t c_rt_ctx, uint64_t ret);
-extern uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx);
-extern void __dead2 tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret);
-extern int32_t tspd_init_secure_context(uint64_t entrypoint,
+uint64_t tspd_enter_sp(uint64_t *c_rt_ctx);
+void __dead2 tspd_exit_sp(uint64_t c_rt_ctx, uint64_t ret);
+uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx);
+void __dead2 tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret);
+int32_t tspd_init_secure_context(uint64_t entrypoint,
 					uint32_t rw,
 					uint64_t mpidr,
 					tsp_context_t *tsp_ctx);

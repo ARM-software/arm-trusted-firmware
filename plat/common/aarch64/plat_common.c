@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,21 +28,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL32_H__
-#define __BL32_H__
+#include <xlat_tables.h>
 
-#include <stdint.h>
+/*
+ * The following 2 platform setup functions are weakly defined. They
+ * provide typical implementations that may be re-used by multiple
+ * platforms but may also be overridden by a platform if required.
+ */
+#pragma weak bl31_plat_enable_mmu
+#pragma weak bl32_plat_enable_mmu
 
-/******************************************
- * Forward declarations
- *****************************************/
-struct meminfo;
+void bl31_plat_enable_mmu()
+{
+	enable_mmu_el3();
+}
 
-/******************************************
- * Function prototypes
- *****************************************/
-extern void bl32_platform_setup(void);
-extern struct meminfo *bl32_plat_sec_mem_layout(void);
-extern uint64_t bl32_main(void);
-
-#endif /* __BL32_H__ */
+void bl32_plat_enable_mmu()
+{
+	enable_mmu_el1();
+}

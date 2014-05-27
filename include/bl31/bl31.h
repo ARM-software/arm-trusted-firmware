@@ -34,29 +34,13 @@
 #include <stdint.h>
 
 /*******************************************************************************
- * Data declarations
- ******************************************************************************/
-extern unsigned long bl31_entrypoint;
-
-/******************************************
- * Forward declarations
- *****************************************/
-struct meminfo;
-struct entry_point_info;
-struct bl31_parms;
-
-/*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-extern void bl31_arch_setup(void);
-extern void bl31_next_el_arch_setup(uint32_t security_state);
-extern void bl31_set_next_image_type(uint32_t type);
-extern uint32_t bl31_get_next_image_type(void);
-extern void bl31_prepare_next_image_entry();
-extern struct entry_point_info *bl31_get_next_image_info(uint32_t type);
-extern void bl31_early_platform_setup(struct bl31_params *from_bl2,
-					void *plat_params_from_bl2);
-extern void bl31_platform_setup(void);
-extern void bl31_register_bl32_init(int32_t (*)(void));
+void bl31_arch_setup(void);
+void bl31_next_el_arch_setup(uint32_t security_state);
+void bl31_set_next_image_type(uint32_t type);
+uint32_t bl31_get_next_image_type(void);
+void bl31_prepare_next_image_entry();
+void bl31_register_bl32_init(int32_t (*)(void));
 
 #endif /* __BL31_H__ */

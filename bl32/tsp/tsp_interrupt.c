@@ -34,6 +34,7 @@
 #include <gic_v2.h>
 #include <tsp.h>
 #include <platform.h>
+#include <platform_def.h>
 
 /*******************************************************************************
  * This function updates the TSP statistics for FIQs handled synchronously i.e
@@ -81,7 +82,7 @@ int32_t tsp_fiq_handler()
 	 * secure physical generic timer interrupt in which case, handle it.
 	 * Otherwise throw this interrupt at the EL3 firmware.
 	 */
-	id = ic_get_pending_interrupt_id();
+	id = plat_ic_get_pending_interrupt_id();
 
 	/* TSP can only handle the secure physical timer interrupt */
 	if (id != IRQ_SEC_PHY_TIMER)
@@ -91,10 +92,10 @@ int32_t tsp_fiq_handler()
 	 * Handle the interrupt. Also sanity check if it has been preempted by
 	 * another secure interrupt through an assertion.
 	 */
-	id = ic_acknowledge_interrupt();
+	id = plat_ic_acknowledge_interrupt();
 	assert(id == IRQ_SEC_PHY_TIMER);
 	tsp_generic_timer_handler();
-	ic_end_of_interrupt(id);
+	plat_ic_end_of_interrupt(id);
 
 	/* Update the statistics and print some messages */
 	tsp_stats[linear_id].fiq_count++;

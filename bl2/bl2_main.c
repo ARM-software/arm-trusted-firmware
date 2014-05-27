@@ -32,9 +32,9 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl2.h>
 #include <debug.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <stdio.h>
 #include "bl2_private.h"
 

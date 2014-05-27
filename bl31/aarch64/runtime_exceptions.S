@@ -32,7 +32,7 @@
 #include <asm_macros.S>
 #include <context.h>
 #include <interrupt_mgmt.h>
-#include <platform.h>
+#include <platform_def.h>
 #include <runtime_svc.h>
 
 	.globl	runtime_exceptions
@@ -84,7 +84,7 @@
 	 * interrupt controller reports a spurious interrupt then
 	 * return to where we came from.
 	 */
-	bl	ic_get_pending_interrupt_type
+	bl	plat_ic_get_pending_interrupt_type
 	cmp	x0, #INTR_TYPE_INVAL
 	b.eq	interrupt_exit_\label
 
@@ -105,7 +105,7 @@
 	 * Read the id of the highest priority pending interrupt. If
 	 * no interrupt is asserted then return to where we came from.
 	 */
-	bl	ic_get_pending_interrupt_id
+	bl	plat_ic_get_pending_interrupt_id
 	cmp	x0, #INTR_ID_UNAVAILABLE
 	b.eq	interrupt_exit_\label
 #endif

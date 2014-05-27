@@ -29,9 +29,10 @@
  */
 
 #include <assert.h>
-#include <platform.h>
-#include <tzc400.h>
 #include <debug.h>
+#include <tzc400.h>
+#include "fvp_def.h"
+#include "fvp_private.h"
 
 /* Used to improve readability for configuring regions. */
 #define FILTER_SHIFT(filter)	(1 << filter)
@@ -42,7 +43,7 @@
  * TODO:
  * Might want to enable interrupt on violations when supported?
  */
-void plat_security_setup(void)
+void fvp_security_setup(void)
 {
 	tzc_instance_t controller;
 
@@ -55,7 +56,7 @@ void plat_security_setup(void)
 	 * configurations, those would be configured here.
 	 */
 
-	if (!platform_get_cfgvar(CONFIG_HAS_TZC))
+	if (!fvp_get_cfgvar(CONFIG_HAS_TZC))
 		return;
 
 	/*

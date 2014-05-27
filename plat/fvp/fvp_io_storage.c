@@ -35,9 +35,9 @@
 #include <io_memmap.h>
 #include <io_storage.h>
 #include <io_semihosting.h>
-#include <platform.h>
 #include <semihosting.h>	/* For FOPEN_MODE_... */
 #include <string.h>
+#include "fvp_def.h"
 
 /* IO devices */
 static io_plat_data_t io_data;
@@ -168,7 +168,7 @@ static int open_semihosting(const uintptr_t spec)
 	return result;
 }
 
-void io_setup (void)
+void fvp_io_setup (void)
 {
 	int io_result = IO_FAIL;
 
