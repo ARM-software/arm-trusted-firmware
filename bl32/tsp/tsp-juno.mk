@@ -29,7 +29,9 @@
 #
 
 # TSP source files specific to Juno platform
-BL32_SOURCES		+=	plat/common/aarch64/platform_mp_stack.S	\
-				plat/juno/bl32_plat_setup.c		\
+BL32_SOURCES		+=	drivers/arm/gic/gic_v2.c		\
+				plat/common/aarch64/platform_mp_stack.S	\
 				plat/juno/aarch64/plat_common.c		\
-				plat/juno/aarch64/plat_helpers.S
+				plat/juno/aarch64/plat_helpers.S	\
+				plat/juno/bl32_plat_setup.c		\
+				plat/juno/plat_gic.c
