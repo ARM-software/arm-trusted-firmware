@@ -171,16 +171,27 @@
 #define SYS_LED_EL_SHIFT		0x1
 #define SYS_LED_EC_SHIFT		0x3
 
+/*******************************************************************************
+ * BL1 specific defines.
+ * BL1 RW data is relocated from ROM to RAM at runtime so we need 2 base
+ * addresses.
+ ******************************************************************************/
+#define BL1_RO_BASE			(FLASH_BASE + BL1_ROM_BYPASS_OFFSET)
+#define BL1_RO_LIMIT			(FLASH_BASE + FLASH_SIZE)
+#define BL1_RW_BASE			TZRAM_BASE
+#define BL1_RW_LIMIT			BL31_BASE
 
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
 #define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xd000)
+#define BL2_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL3-1 specific defines.
  ******************************************************************************/
 #define BL31_BASE			(TZRAM_BASE + 0x8000)
+#define BL31_LIMIT			BL32_BASE
 
 /*******************************************************************************
  * BL3-0 specific defines.
@@ -195,6 +206,7 @@
 #define TSP_SEC_MEM_BASE		TZRAM_BASE
 #define TSP_SEC_MEM_SIZE		TZRAM_SIZE
 #define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1d000)
+#define BL32_LIMIT			BL2_BASE
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
