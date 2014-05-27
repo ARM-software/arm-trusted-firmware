@@ -388,6 +388,8 @@ extern void gic_cpuif_deactivate(unsigned int);
 extern void gic_cpuif_setup(unsigned int);
 extern void gic_pcpu_distif_setup(unsigned int);
 extern void gic_setup(void);
+extern uint32_t plat_interrupt_type_to_line(uint32_t type,
+					    uint32_t security_state);
 
 /* Declarations for fvp_topology.c */
 extern int plat_setup_topology(void);
