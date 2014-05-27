@@ -29,7 +29,10 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <gic_v2.h>
+#include <interrupt_mgmt.h>
 #include <platform.h>
 
 
@@ -194,4 +197,85 @@ uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state)
 	 * so both normal and secure worlds are using ARM GICv2.
 	 */
 	return gicv2_interrupt_type_to_line(GICC_BASE, type);
+}
+
+/*******************************************************************************
+ * This function returns the type of the highest priority pending interrupt at
+ * the GIC cpu interface. INTR_TYPE_INVAL is returned when there is no
+ * interrupt pending.
+ ******************************************************************************/
+uint32_t ic_get_pending_interrupt_type(void)
+{
+	uint32_t id;
+
+	id = gicc_read_hppir(GICC_BASE);
+
+	/* Assume that all secure interrupts are S-EL1 interrupts */
+	if (id < 1022)
+		return INTR_TYPE_S_EL1;
+
+	if (id == GIC_SPURIOUS_INTERRUPT)
+		return INTR_TYPE_INVAL;
+
+	return INTR_TYPE_NS;
+}
+
+/*******************************************************************************
+ * This function returns the id of the highest priority pending interrupt at
+ * the GIC cpu interface. INTR_ID_UNAVAILABLE is returned when there is no
+ * interrupt pending.
+ ******************************************************************************/
+uint32_t ic_get_pending_interrupt_id(void)
+{
+	uint32_t id;
+
+	id = gicc_read_hppir(GICC_BASE);
+
+	if (id < 1022)
+		return id;
+
+	if (id == 1023)
+		return INTR_ID_UNAVAILABLE;
+
+	/*
+	 * Find out which non-secure interrupt it is under the assumption that
+	 * the GICC_CTLR.AckCtl bit is 0.
+	 */
+	return gicc_read_ahppir(GICC_BASE);
+}
+
+/*******************************************************************************
+ * This functions reads the GIC cpu interface Interrupt Acknowledge register
+ * to start handling the pending interrupt. It returns the contents of the IAR.
+ ******************************************************************************/
+uint32_t ic_acknowledge_interrupt(void)
+{
+	return gicc_read_IAR(GICC_BASE);
+}
+
+/*******************************************************************************
+ * This functions writes the GIC cpu interface End Of Interrupt register with
+ * the passed value to finish handling the active interrupt
+ ******************************************************************************/
+void ic_end_of_interrupt(uint32_t id)
+{
+	gicc_write_EOIR(GICC_BASE, id);
+}
+
+/*******************************************************************************
+ * This function returns the type of the interrupt id depending upon the group
+ * this interrupt has been configured under by the interrupt controller i.e.
+ * group0 or group1.
+ ******************************************************************************/
+uint32_t ic_get_interrupt_type(uint32_t id)
+{
+	uint32_t group;
+
+	group = gicd_get_igroupr(GICD_BASE, id);
+
+	/* Assume that all secure interrupts are S-EL1 interrupts */
+	if (group == GRP0)
+		return INTR_TYPE_S_EL1;
+	else
+		return INTR_TYPE_NS;
 }

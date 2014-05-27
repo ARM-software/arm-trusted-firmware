@@ -383,7 +383,12 @@ extern unsigned long plat_get_ns_image_entrypoint(void);
 extern unsigned long platform_get_stack(unsigned long mpidr);
 extern uint64_t plat_get_syscnt_freq(void);
 
-/* Declarations for fvp_gic.c */
+/* Declarations for plat_gic.c */
+extern uint32_t ic_get_pending_interrupt_id(void);
+extern uint32_t ic_get_pending_interrupt_type(void);
+extern uint32_t ic_acknowledge_interrupt(void);
+extern uint32_t ic_get_interrupt_type(uint32_t id);
+extern void ic_end_of_interrupt(uint32_t id);
 extern void gic_cpuif_deactivate(unsigned int);
 extern void gic_cpuif_setup(unsigned int);
 extern void gic_pcpu_distif_setup(unsigned int);
@@ -391,7 +396,7 @@ extern void gic_setup(void);
 extern uint32_t plat_interrupt_type_to_line(uint32_t type,
 					    uint32_t security_state);
 
-/* Declarations for fvp_topology.c */
+/* Declarations for plat_topology.c */
 extern int plat_setup_topology(void);
 extern int plat_get_max_afflvl(void);
 extern unsigned int plat_get_aff_count(unsigned int, unsigned long);
