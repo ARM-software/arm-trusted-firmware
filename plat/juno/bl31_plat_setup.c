@@ -138,8 +138,8 @@ void bl31_platform_setup(void)
  ******************************************************************************/
 void bl31_plat_arch_setup()
 {
-	configure_mmu_el3(TZRAM_BASE,
-			  TZRAM_SIZE,
+	configure_mmu_el3(BL31_RO_BASE,
+			  BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE,
 			  BL31_RO_BASE,
 			  BL31_RO_LIMIT,
 			  BL31_COHERENT_RAM_BASE,
