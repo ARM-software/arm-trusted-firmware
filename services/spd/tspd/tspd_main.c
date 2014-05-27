@@ -504,35 +504,36 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * Standard SMC call.
 		 */
 	case TSP_FID_RESUME:
-			/* RESUME should be invoked only by normal world */
-			if (!ns) {
-				assert(0);
-				break;
-			}
+		/* RESUME should be invoked only by normal world */
+		if (!ns) {
+			assert(0);
+			break;
+		}
 
-			/*
-			 * This is a resume request from the non-secure client.
-			 * save the non-secure state and send the request to
-			 * the secure payload.
-			 */
-			assert(handle == cm_get_context(mpidr, NON_SECURE));
+		/*
+		 * This is a resume request from the non-secure client.
+		 * save the non-secure state and send the request to
+		 * the secure payload.
+		 */
+		assert(handle == cm_get_context(mpidr, NON_SECURE));
 
-			/* Check if we are already preempted before resume */
-			if (!get_std_smc_active_flag(tsp_ctx->state))
-				SMC_RET1(handle, SMC_UNK);
+		/* Check if we are already preempted before resume */
+		if (!get_std_smc_active_flag(tsp_ctx->state))
+			SMC_RET1(handle, SMC_UNK);
 
-			cm_el1_sysregs_context_save(NON_SECURE);
+		cm_el1_sysregs_context_save(NON_SECURE);
 
-			/*
-			 * We are done stashing the non-secure context. Ask the
-			 * secure payload to do the work now.
-			 */
+		/*
+		 * We are done stashing the non-secure context. Ask the
+		 * secure payload to do the work now.
+		 */
 
-			/* We just need to return to the preempted point in
-			 * TSP and the execution will resume as normal.
-			 */
-			cm_el1_sysregs_context_restore(SECURE);
-			cm_set_next_eret_context(SECURE);
+		/* We just need to return to the preempted point in
+		 * TSP and the execution will resume as normal.
+		 */
+		cm_el1_sysregs_context_restore(SECURE);
+		cm_set_next_eret_context(SECURE);
+		SMC_RET0(&tsp_ctx->cpu_ctx);
 
 		/*
 		 * This is a request from the secure payload for more arguments
@@ -543,10 +544,6 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	case TSP_GET_ARGS:
 		if (ns)
 			SMC_RET1(handle, SMC_UNK);
-
-		/* Get a reference to the non-secure context */
-		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
-		assert(ns_cpu_context);
 
 		get_tsp_args(tsp_ctx, x1, x2);
 		SMC_RET2(handle, x1, x2);
