@@ -114,8 +114,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 
 	bl2_to_bl31_params = from_bl2;
 
-	/* UEFI expects x0 to be primary CPU MPID */
-	bl2_to_bl31_args.bl33_image_info.args.arg0 = PRIMARY_CPU;
 }
 
 /*******************************************************************************
