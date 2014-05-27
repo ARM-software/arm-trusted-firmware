@@ -125,6 +125,9 @@
 	/* Restore the reference to the 'handle' i.e. SP_EL3 */
 	mov	x2, x20
 
+	/*  x3 will point to a cookie (not used now) */
+	mov	x3, xzr
+
 	/* Call the interrupt type handler */
 	blr	x21
 
