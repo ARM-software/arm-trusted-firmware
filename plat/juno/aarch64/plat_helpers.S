@@ -34,6 +34,7 @@
 #include <platform.h>
 
 	.globl	plat_report_exception
+	.globl	platform_mem_init
 
 	/* ---------------------------------------------
 	 * void plat_report_exception(unsigned int type)
@@ -82,4 +83,15 @@ func platform_is_primary_cpu
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #PRIMARY_CPU
 	cset	x0, eq
+	ret
+
+
+	/* -----------------------------------------------------
+	 * void platform_mem_init(void);
+	 *
+	 * We don't need to carry out any memory initialization
+	 * on Juno. The Secure RAM is accessible straight away.
+	 * -----------------------------------------------------
+	 */
+func platform_mem_init
 	ret
