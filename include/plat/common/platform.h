@@ -81,10 +81,8 @@ void bl1_platform_setup(void);
 struct meminfo *bl1_plat_sec_mem_layout(void);
 
 /*
- * Before calling this function BL2 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL2 and set SPSR and security state.
- * On FVP we are only setting the security state, entrypoint
+ * This function allows the platform to change the entrypoint information for
+ * BL2, after BL1 has loaded BL2 into memory but before BL2 is executed.
  */
 void bl1_plat_set_bl2_ep_info(struct image_info *image,
 			      struct entry_point_info *ep);
@@ -124,29 +122,16 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void);
 void bl2_plat_flush_bl31_params(void);
 
 /*
- * Before calling this function BL31 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL31 and set SPSR and security state.
- * On FVP we are only setting the security state, entrypoint
+ * The next 3 functions allow the platform to change the entrypoint
+ * information for the 3rd level BL images, after BL2 has loaded the 3rd
+ * level BL images into memory but before BL3-1 is executed.
  */
 void bl2_plat_set_bl31_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
 
-/*
- * Before calling this function BL32 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL32 and set SPSR and security state.
- * On FVP we are only setting the security state, entrypoint
- */
 void bl2_plat_set_bl32_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
 
-/*
- * Before calling this function BL33 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL33 and set SPSR and security state.
- * On FVP we are only setting the security state, entrypoint
- */
 void bl2_plat_set_bl33_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
 
