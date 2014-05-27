@@ -165,7 +165,7 @@ void bl31_prepare_next_image_entry()
 	bl31_next_el_arch_setup(image_type);
 
 	/* Program EL3 registers to enable entry into the next EL */
-	next_image_info = bl31_get_next_image_info(image_type);
+	next_image_info = bl31_plat_get_next_image_ep_info(image_type);
 	assert(next_image_info);
 
 	scr = read_scr();

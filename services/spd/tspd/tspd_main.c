@@ -160,7 +160,7 @@ int32_t tspd_setup(void)
 	 * absence is a critical failure.  TODO: Add support to
 	 * conditionally include the SPD service
 	 */
-	image_info = bl31_get_next_image_info(SECURE);
+	image_info = bl31_plat_get_next_image_ep_info(SECURE);
 	assert(image_info);
 
 	/*
