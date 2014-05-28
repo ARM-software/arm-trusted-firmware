@@ -55,12 +55,13 @@ typedef enum  {
  * Structure for specifying a single region of memory.
  */
 typedef struct mmap_region {
-	unsigned long	base;
+	unsigned long	base_pa;
+	unsigned long	base_va;
 	unsigned long	size;
 	mmap_attr_t	attr;
 } mmap_region_t;
 
-extern void mmap_add_region(unsigned long base, unsigned long size,
+extern void mmap_add_region(unsigned long base_pa, unsigned long base_va, unsigned long size,
 				unsigned attr);
 extern void mmap_add(const mmap_region_t *mm);
 

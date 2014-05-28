@@ -70,26 +70,27 @@ static void print_mmap(void)
 	debug_print("mmap:\n");
 	mmap_region_t *mm = mmap;
 	while (mm->size) {
-		debug_print(" %010lx %10lx %x\n", mm->base, mm->size, mm->attr);
+		debug_print(" %010lx %010lx %10lx %x\n", mm->base_va, mm->base_pa, mm->size, mm->attr);
 		++mm;
 	};
 	debug_print("\n");
 #endif
 }
 
-void mmap_add_region(unsigned long base, unsigned long size, unsigned attr)
+void mmap_add_region(unsigned long base_pa, unsigned long base_va, unsigned long size, unsigned attr)
 {
 	mmap_region_t *mm = mmap;
 	mmap_region_t *mm_last = mm + sizeof(mmap) / sizeof(mmap[0]) - 1;
 
-	assert(IS_PAGE_ALIGNED(base));
+	assert(IS_PAGE_ALIGNED(base_pa));
+	assert(IS_PAGE_ALIGNED(base_va));
 	assert(IS_PAGE_ALIGNED(size));
 
 	if (!size)
 		return;
 
 	/* Find correct place in mmap to insert new region */
-	while (mm->base < base && mm->size)
+	while (mm->base_va < base_va && mm->size)
 		++mm;
 
 	/* Make room for new region by moving other regions up by one place */
@@ -98,7 +99,8 @@ void mmap_add_region(unsigned long base, unsigned long size, unsigned attr)
 	/* Check we haven't lost the empty sentinal from the end of the array */
 	assert(mm_last->size == 0);
 
-	mm->base = base;
+	mm->base_pa = base_pa;
+	mm->base_va = base_va;
 	mm->size = size;
 	mm->attr = attr;
 }
@@ -106,15 +108,15 @@ void mmap_add_region(unsigned long base, unsigned long size, unsigned attr)
 void mmap_add(const mmap_region_t *mm)
 {
 	while (mm->size) {
-		mmap_add_region(mm->base, mm->size, mm->attr);
+		mmap_add_region(mm->base_pa, mm->base_va, mm->size, mm->attr);
 		++mm;
 	}
 }
 
-static unsigned long mmap_desc(unsigned attr, unsigned long addr,
+static unsigned long mmap_desc(unsigned attr, unsigned long addr_pa,
 					unsigned level)
 {
-	unsigned long desc = addr;
+	unsigned long desc = addr_pa;
 
 	desc |= level == 3 ? TABLE_DESC : BLOCK_DESC;
 
@@ -140,7 +142,7 @@ static unsigned long mmap_desc(unsigned attr, unsigned long addr,
 	return desc;
 }
 
-static int mmap_region_attr(mmap_region_t *mm, unsigned long base,
+static int mmap_region_attr(mmap_region_t *mm, unsigned long base_va,
 					unsigned long size)
 {
 	int attr = mm->attr;
@@ -151,10 +153,10 @@ static int mmap_region_attr(mmap_region_t *mm, unsigned long base,
 		if (!mm->size)
 			return attr; /* Reached end of list */
 
-		if (mm->base >= base + size)
+		if (mm->base_va >= base_va + size)
 			return attr; /* Next region is after area so end */
 
-		if (mm->base + mm->size <= base)
+		if (mm->base_va + mm->size <= base_va)
 			continue; /* Next region has already been overtaken */
 
 		if ((mm->attr & attr) == attr)
@@ -162,12 +164,12 @@ static int mmap_region_attr(mmap_region_t *mm, unsigned long base,
 
 		attr &= mm->attr;
 
-		if (mm->base > base || mm->base + mm->size < base + size)
+		if (mm->base_va > base_va || mm->base_va + mm->size < base_va + size)
 			return -1; /* Region doesn't fully cover our area */
 	}
 }
 
-static mmap_region_t *init_xlation_table(mmap_region_t *mm, unsigned long base,
+static mmap_region_t *init_xlation_table(mmap_region_t *mm, unsigned long base_va,
 					unsigned long *table, unsigned level)
 {
 	unsigned level_size_shift = L1_XLAT_ADDRESS_SHIFT - (level - 1) *
@@ -182,23 +184,23 @@ static mmap_region_t *init_xlation_table(mmap_region_t *mm, unsigned long base,
 	do  {
 		unsigned long desc = UNSET_DESC;
 
-		if (mm->base + mm->size <= base) {
+		if (mm->base_va + mm->size <= base_va) {
 			/* Area now after the region so skip it */
 			++mm;
 			continue;
 		}
 
-		debug_print("      %010lx %8lx " + 6 - 2 * level, base, level_size);
+		debug_print("      %010lx %8lx " + 6 - 2 * level, base_va, level_size);
 
-		if (mm->base >= base + level_size) {
+		if (mm->base_va >= base_va + level_size) {
 			/* Next region is after area so nothing to map yet */
 			desc = INVALID_DESC;
-		} else if (mm->base <= base &&
-				mm->base + mm->size >= base + level_size) {
+		} else if (mm->base_va <= base_va &&
+				mm->base_va + mm->size >= base_va + level_size) {
 			/* Next region covers all of area */
-			int attr = mmap_region_attr(mm, base, level_size);
+			int attr = mmap_region_attr(mm, base_va, level_size);
 			if (attr >= 0)
-				desc = mmap_desc(attr, base, level);
+				desc = mmap_desc(attr, base_va - mm->base_va + mm->base_pa, level);
 		}
 		/* else Next region only partially covers area, so need */
 
@@ -209,14 +211,14 @@ static mmap_region_t *init_xlation_table(mmap_region_t *mm, unsigned long base,
 			desc = TABLE_DESC | (unsigned long)new_table;
 
 			/* Recurse to fill in new table */
-			mm = init_xlation_table(mm, base, new_table, level+1);
+			mm = init_xlation_table(mm, base_va, new_table, level+1);
 		}
 
 		debug_print("\n");
 
 		*table++ = desc;
-		base += level_size;
-	} while (mm->size && (base & level_index_mask));
+		base_va += level_size;
+	} while (mm->size && (base_va & level_index_mask));
 
 	return mm;
 }

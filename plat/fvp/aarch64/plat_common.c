@@ -111,17 +111,17 @@ DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1, tlbialle3)
  * configure_mmu_elx() will give the available subset of that,
  */
 const mmap_region_t fvp_mmap[] = {
-	{ TZROM_BASE,	TZROM_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
-	{ TZDRAM_BASE,	TZDRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
-	{ FLASH0_BASE,	FLASH0_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
-	{ FLASH1_BASE,	FLASH1_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
-	{ VRAM_BASE,	VRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
-	{ DEVICE0_BASE,	DEVICE0_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
-	{ NSRAM_BASE,	NSRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
-	{ DEVICE1_BASE,	DEVICE1_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
+	{TZROM_BASE,	TZROM_BASE,	TZROM_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
+	{TZDRAM_BASE,	TZDRAM_BASE,	TZDRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
+	{FLASH0_BASE,	FLASH0_BASE,	FLASH0_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
+	{FLASH1_BASE,	FLASH1_BASE,	FLASH1_SIZE,	MT_MEMORY | MT_RO | MT_SECURE },
+	{VRAM_BASE,	VRAM_BASE,	VRAM_SIZE,	MT_MEMORY | MT_RW | MT_SECURE },
+	{DEVICE0_BASE,	DEVICE0_BASE,	DEVICE0_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
+	{NSRAM_BASE,	NSRAM_BASE,	NSRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
+	{DEVICE1_BASE,	DEVICE1_BASE,	DEVICE1_SIZE,	MT_DEVICE | MT_RW | MT_SECURE },
 	/* 2nd GB as device for now...*/
-	{ 0x40000000,	0x40000000,	MT_DEVICE | MT_RW | MT_SECURE },
-	{ DRAM_BASE,	DRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
+	{0x40000000,	0x40000000,	0x40000000,	MT_DEVICE | MT_RW | MT_SECURE },
+	{DRAM_BASE,	DRAM_BASE,	DRAM_SIZE,	MT_MEMORY | MT_RW | MT_NS },
 	{0}
 };
 
@@ -137,11 +137,14 @@ const mmap_region_t fvp_mmap[] = {
 				   unsigned long coh_limit)		\
 	{								\
 		mmap_add_region(mem_layout->total_base,			\
+				mem_layout->total_base,			\
 				mem_layout->total_size,			\
 				MT_MEMORY | MT_RW | MT_SECURE);		\
-		mmap_add_region(ro_start, ro_limit - ro_start,		\
+		mmap_add_region(ro_start, ro_start,			\
+				ro_limit - ro_start,			\
 				MT_MEMORY | MT_RO | MT_SECURE);		\
-		mmap_add_region(coh_start, coh_limit - coh_start,	\
+		mmap_add_region(coh_start, coh_start,			\
+				coh_limit - coh_start,			\
 				MT_DEVICE | MT_RW | MT_SECURE);		\
 		mmap_add(fvp_mmap);					\
 		init_xlat_tables();					\
