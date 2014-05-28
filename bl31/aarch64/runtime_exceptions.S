@@ -105,8 +105,9 @@
 	 * Read the id of the highest priority pending interrupt. If
 	 * no interrupt is asserted then return to where we came from.
 	 */
+	mov	x19,  #INTR_ID_UNAVAILABLE
 	bl	plat_ic_get_pending_interrupt_id
-	cmp	x0, #INTR_ID_UNAVAILABLE
+	cmp	x19, x0
 	b.eq	interrupt_exit_\label
 #endif
 
