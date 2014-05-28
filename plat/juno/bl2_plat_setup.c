@@ -131,10 +131,12 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	}
 
 	/* Fill BL33 related information */
-	/* Juno TODO: Pass the primary CPU MPID to UEFI. Must be in x0. */
 	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem->bl33_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_ep_info,
 		PARAM_EP, VERSION_1, 0);
+	/* UEFI expects to receive the primary CPU MPID (through x0) */
+	bl2_to_bl31_params->bl33_ep_info->args.arg0 = PRIMARY_CPU;
+
 	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem->bl33_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info, PARAM_IMAGE_BINARY,
 		VERSION_1, 0);
