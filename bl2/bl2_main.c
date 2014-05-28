@@ -38,24 +38,6 @@
 #include <stdio.h>
 #include "bl2_private.h"
 
-/*******************************************************************************
- * Runs BL31 from the given entry point. It jumps to a higher exception level
- * through an SMC.
- ******************************************************************************/
-static void __dead2 bl2_run_bl31(entry_point_info_t *bl31_ep_info,
-				unsigned long arg1,
-				unsigned long arg2)
-{
-	/* Set the args pointer */
-	bl31_ep_info->args.arg0 = arg1;
-	bl31_ep_info->args.arg1 = arg2;
-
-	/* Flush the params to be passed to memory */
-	bl2_plat_flush_bl31_params();
-
-	smc(RUN_IMAGE, (unsigned long)bl31_ep_info, 0, 0, 0, 0, 0, 0);
-}
-
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
@@ -90,6 +72,9 @@ void bl2_main(void)
 	 */
 	bl2_to_bl31_params = bl2_plat_get_bl31_params();
 	bl31_ep_info = bl2_plat_get_bl31_ep_info();
+
+	/* Set the X0 parameter to bl31 */
+	bl31_ep_info->args.arg0 = (unsigned long)bl2_to_bl31_params;
 
 	/*
 	 * Load BL31. BL1 tells BL2 whether it has been TOP or BOTTOM loaded.
@@ -163,10 +148,13 @@ void bl2_main(void)
 	}
 #endif /* BL32_BASE */
 
+	/* Flush the params to be passed to memory */
+	bl2_plat_flush_bl31_params();
+
 	/*
 	 * Run BL31 via an SMC to BL1. Information on how to pass control to
 	 * the BL32 (if present) and BL33 software images will be passed to
 	 * BL31 as an argument.
 	 */
-	 bl2_run_bl31(bl31_ep_info, (unsigned long)bl2_to_bl31_params, 0);
+	smc(RUN_IMAGE, (unsigned long)bl31_ep_info, 0, 0, 0, 0, 0, 0);
 }

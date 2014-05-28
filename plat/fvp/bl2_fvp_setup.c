@@ -156,6 +156,9 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
  ******************************************************************************/
 struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 {
+#if DEBUG
+	bl31_ep_info->args.arg1 = FVP_BL31_PLAT_PARAM_VAL;
+#endif
 	return bl31_ep_info;
 }
 
