@@ -90,7 +90,7 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 
 #if IMF_READ_INTERRUPT_ID
 	/* Check the security status of the interrupt */
-	assert(ic_get_interrupt_group(id) == SECURE);
+	assert(plat_ic_get_interrupt_type(id) == INTR_TYPE_S_EL1);
 #endif
 
 	/* Sanity check the pointer to this cpu's context */
