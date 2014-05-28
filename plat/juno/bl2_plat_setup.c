@@ -189,7 +189,6 @@ static int load_bl30(void)
 	int ret;
 	int e;
 	image_info_t bl30_image_info;
-	entry_point_info_t bl30_ep;
 
 	/* Find out how much free trusted ram remains after BL2 load */
 	bl2_tzram_layout = bl2_plat_sec_mem_layout();
@@ -210,7 +209,7 @@ static int load_bl30(void)
 		       bl30_load,
 		       BL30_BASE,
 		       &bl30_image_info,
-		       &bl30_ep);
+		       NULL);
 
 	/* Panic if it has not been possible to load BL3-0 */
 	if (e) {
