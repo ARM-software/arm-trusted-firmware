@@ -37,6 +37,7 @@
 #include <platform.h>
 #include <runtime_svc.h>
 #include <stdio.h>
+#include <string.h>
 
 /*******************************************************************************
  * This function pointer is used to initialise the BL32 image. It's initialized
@@ -154,6 +155,8 @@ void bl31_prepare_next_image_entry()
 {
 	entry_point_info_t *next_image_info;
 	uint32_t scr, image_type;
+	cpu_context_t *ctx;
+	gp_regs_t *gp_regs;
 
 	/* Determine which image to execute next */
 	image_type = bl31_get_next_image_type();
@@ -167,6 +170,7 @@ void bl31_prepare_next_image_entry()
 	/* Program EL3 registers to enable entry into the next EL */
 	next_image_info = bl31_plat_get_next_image_ep_info(image_type);
 	assert(next_image_info);
+	assert(image_type == GET_SECURITY_STATE(next_image_info->h.attr));
 
 	scr = read_scr();
 	scr &= ~SCR_NS_BIT;
@@ -182,13 +186,21 @@ void bl31_prepare_next_image_entry()
 	 * Tell the context mgmt. library to ensure that SP_EL3 points to
 	 * the right context to exit from EL3 correctly.
 	 */
-	cm_set_el3_eret_context(GET_SECURITY_STATE(next_image_info->h.attr),
+	cm_set_el3_eret_context(image_type,
 			next_image_info->pc,
 			next_image_info->spsr,
 			scr);
 
+	/*
+	 * Save the args generated in BL2 for the image in the right context
+	 * used on its entry
+	 */
+	ctx = cm_get_context(read_mpidr(), image_type);
+	gp_regs = get_gpregs_ctx(ctx);
+	memcpy(gp_regs, (void *)&next_image_info->args, sizeof(aapcs64_params_t));
+
 	/* Finally set the next context */
-	cm_set_next_eret_context(GET_SECURITY_STATE(next_image_info->h.attr));
+	cm_set_next_eret_context(image_type);
 }
 
 /*******************************************************************************
