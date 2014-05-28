@@ -159,6 +159,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->h.version >= VERSION_1);
 
 	bl2_to_bl31_params = from_bl2;
+	assert(((unsigned long)plat_params_from_bl2) == FVP_BL31_PLAT_PARAM_VAL);
 #endif
 }
 
