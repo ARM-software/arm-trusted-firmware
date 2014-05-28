@@ -175,7 +175,9 @@ unsigned long image_size(const char *image_name)
  * given a name, extents of free memory & whether the image should be loaded at
  * the bottom or top of the free memory. It updates the memory layout if the
  * load is successful. It also updates the image information and the entry point
- * information in the params passed
+ * information in the params passed. The caller might pass a NULL pointer for
+ * the entry point if it is not interested in this information, e.g. because
+ * the image just needs to be loaded in memory but won't ever be executed.
  ******************************************************************************/
 int load_image(meminfo_t *mem_layout,
 			 const char *image_name,
@@ -399,7 +401,8 @@ int load_image(meminfo_t *mem_layout,
 	image_data->image_base = image_base;
 	image_data->image_size = image_size;
 
-	entry_point_info->pc = image_base;
+	if (entry_point_info != NULL)
+		entry_point_info->pc = image_base;
 
 	/*
 	 * File has been successfully loaded. Update the free memory
