@@ -37,6 +37,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.c	\
 				lib/mmio.c				\
 				lib/aarch64/xlat_tables.c		\
 				lib/aarch64/sysreg_helpers.S		\
+				plat/common/aarch64/plat_common.c	\
 				plat/juno/plat_io_storage.c
 
 BL1_SOURCES		+=	drivers/arm/cci400/cci400.c		\
@@ -44,14 +45,14 @@ BL1_SOURCES		+=	drivers/arm/cci400/cci400.c		\
 				plat/juno/bl1_plat_setup.c		\
 				plat/juno/aarch64/bl1_plat_helpers.S	\
 				plat/juno/aarch64/plat_helpers.S	\
-				plat/juno/aarch64/plat_common.c
+				plat/juno/aarch64/juno_common.c
 
 BL2_SOURCES		+=	lib/locks/bakery/bakery_lock.c		\
 				plat/common/aarch64/platform_up_stack.S	\
 				plat/juno/bl2_plat_setup.c		\
 				plat/juno/mhu.c				\
 				plat/juno/aarch64/plat_helpers.S	\
-				plat/juno/aarch64/plat_common.c		\
+				plat/juno/aarch64/juno_common.c		\
 				plat/juno/scp_bootloader.c		\
 				plat/juno/scpi.c
 
@@ -61,7 +62,7 @@ BL31_SOURCES		+=	drivers/arm/cci400/cci400.c		\
 				plat/juno/bl31_plat_setup.c		\
 				plat/juno/mhu.c				\
 				plat/juno/aarch64/plat_helpers.S	\
-				plat/juno/aarch64/plat_common.c		\
+				plat/juno/aarch64/juno_common.c		\
 				plat/juno/plat_pm.c			\
 				plat/juno/plat_topology.c		\
 				plat/juno/plat_gic.c			\

@@ -67,8 +67,6 @@ void bl2_plat_arch_setup(void);
 void bl31_plat_arch_setup(void);
 int platform_setup_pm(const struct plat_pm_ops **plat_ops);
 unsigned int platform_get_core_pos(unsigned long mpidr);
-void enable_mmu_el1(void);
-void enable_mmu_el3(void);
 void configure_mmu_el1(unsigned long total_base,
 		       unsigned long total_size,
 		       unsigned long ro_start,
