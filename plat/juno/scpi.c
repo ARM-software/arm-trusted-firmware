@@ -29,9 +29,10 @@
  */
 
 #include <arch_helpers.h>
-#include <mhu.h>
 #include <platform.h>
-#include <scpi.h>
+#include "juno_def.h"
+#include "mhu.h"
+#include "scpi.h"
 
 #define MHU_SECURE_SCP_TO_AP_PAYLOAD	(MHU_SECURE_BASE+0x0080)
 #define MHU_SECURE_AP_TO_SCP_PAYLOAD	(MHU_SECURE_BASE+0x0280)

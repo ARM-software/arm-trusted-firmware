@@ -31,12 +31,14 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl1.h>
 #include <cci400.h>
 #include <console.h>
 #include <mmio.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <tzc400.h>
+#include "juno_def.h"
+#include "juno_private.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

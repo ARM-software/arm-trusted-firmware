@@ -34,6 +34,8 @@
 #include <gic_v2.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
+#include "juno_def.h"
+#include "juno_private.h"
 
 
 /* Value used to initialise Non-Secure irq priorities four at a time */

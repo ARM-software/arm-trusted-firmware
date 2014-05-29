@@ -31,8 +31,11 @@
 #include <arch_helpers.h>
 #include <cci400.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <psci.h>
-#include <scpi.h>
+#include "juno_def.h"
+#include "juno_private.h"
+#include "scpi.h"
 
 int pm_on(unsigned long mpidr,
 		   unsigned long sec_entrypoint,

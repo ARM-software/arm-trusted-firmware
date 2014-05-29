@@ -30,8 +30,9 @@
 
 #include <arch_helpers.h>
 #include <bakery_lock.h>
-#include <mhu.h>
 #include <mmio.h>
+#include "juno_def.h"
+#include "mhu.h"
 
 /* SCP MHU secure channel registers */
 #define SCP_INTR_S_STAT		0x200

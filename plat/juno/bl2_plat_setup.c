@@ -31,12 +31,14 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl2.h>
 #include <console.h>
 #include <debug.h>
 #include <platform.h>
-#include <scp_bootloader.h>
+#include <platform_def.h>
 #include <string.h>
+#include "juno_def.h"
+#include "juno_private.h"
+#include "scp_bootloader.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

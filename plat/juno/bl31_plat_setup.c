@@ -33,10 +33,12 @@
 #include <bl31.h>
 #include <bl_common.h>
 #include <console.h>
-#include <mhu.h>
 #include <mmio.h>
 #include <platform.h>
 #include <stddef.h>
+#include "juno_def.h"
+#include "juno_private.h"
+#include "mhu.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

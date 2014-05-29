@@ -31,7 +31,8 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <bl_common.h>
-#include <platform.h>
+#include <platform_def.h>
+#include "../juno_def.h"
 
 	.globl	plat_report_exception
 	.globl	platform_mem_init

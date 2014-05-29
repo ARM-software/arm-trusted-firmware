@@ -29,10 +29,11 @@
  */
 
 #include <arch_helpers.h>
-#include <mhu.h>
 #include <platform.h>
-#include <scp_bootloader.h>
-#include <scpi.h>
+#include "juno_def.h"
+#include "mhu.h"
+#include "scp_bootloader.h"
+#include "scpi.h"
 
 /* Boot commands sent from AP -> SCP */
 #define BOOT_CMD_START	0x01

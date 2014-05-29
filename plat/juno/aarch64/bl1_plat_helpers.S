@@ -30,7 +30,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <platform.h>
+#include "../juno_def.h"
 
 	.globl	platform_get_entrypoint
 	.globl	platform_cold_boot_init

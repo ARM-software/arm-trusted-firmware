@@ -33,6 +33,7 @@
 #include <bl_common.h>
 #include <mmio.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <xlat_tables.h>
 
 

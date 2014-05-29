@@ -37,6 +37,7 @@
 #include <io_fip.h>
 #include <io_memmap.h>
 #include <debug.h>
+#include "juno_def.h"
 
 /* IO devices */
 static io_plat_data_t io_data;
