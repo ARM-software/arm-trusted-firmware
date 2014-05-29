@@ -1,4 +1,4 @@
-ARM Trusted Firmware - version 0.3
+ARM Trusted Firmware - version 0.4
 ==================================
 
 ARM Trusted Firmware provides a reference implementation of secure world
@@ -11,14 +11,12 @@ Board Boot Requirements (TBBR) and [Secure Monitor] [TEE-SMC] code. As far as
 possible the code is designed for reuse or porting to other ARMv8-A model and
 hardware platforms.
 
-This release builds on the previous source code release, which has been
-available in source and binary form since the [Linaro AArch64 OpenEmbedded 13.11
-Engineering Build] [AArch64 LEB]. These support the Base FVP platform
-models from ARM.
+This release builds on previous source code releases, supporting the Base and
+Foundation FVP platform models from ARM.
 
 ARM will continue development in collaboration with interested parties to
 provide a full reference implementation of PSCI, TBBR and Secure Monitor code
-to the benefit of all developers working with ARMv8-A TrustZone software.
+to the benefit of all developers working with ARMv8-A TrustZone technology.
 
 
 License
@@ -32,9 +30,9 @@ source files.
 This Release
 ------------
 
-This release is an incomplete implementation of the Trusted Firmware. Only
-limited functionality is provided at present and it has not been optimized or
-subjected to extended robustness or stress testing.
+This release is a limited functionality implementation of the Trusted Firmware.
+It provides a suitable starting point for productization. Future versions will
+contain new features, optimizations and quality improvements.
 
 ### Functionality
 
@@ -60,14 +58,21 @@ subjected to extended robustness or stress testing.
     for the Secondary CPU Boot, CPU hotplug and CPU idle use-cases.
 
 *   A Test Secure-EL1 Payload and Dispatcher to demonstrate Secure Monitor
-    functionality such as world switching and EL1 context management. This
-    also demonstrates Secure-EL1 interaction with PSCI. Some of this
-    functionality is provided in library form for re-use by other Secure-EL1
-    Payload Dispatchers.
+    functionality such as world switching, EL1 context management and interrupt
+    routing. This also demonstrates Secure-EL1 interaction with PSCI. Some of
+    this functionality is provided in library form for re-use by other
+    Secure-EL1 Payload Dispatchers.
 
-For a full list of updated functionality and implementation details, please
-see the [User Guide]. The [Change Log] provides details of changes made
-since the last release.
+*   Support for alternative Trusted Boot Firmware. Some platforms have their own
+    Trusted Boot implementation and only require the Secure Monitor
+    functionality provided by ARM Trusted Firmware.
+
+*   Isolation of memory accessible by the secure world from the normal world
+    through programming of a TrustZone controller.
+
+For a full description of functionality and implementation details, please
+see the [Firmware Design] and supporting documentation. The [Change Log]
+provides details of changes made since the last release.
 
 ### Platforms
 
@@ -75,21 +80,23 @@ This release of the Trusted Firmware has been tested on the following ARM
 [FVP]s (64-bit versions only):
 
 *   `Foundation_v8` (Version 2.0, Build 0.8.5206)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.4, Build 0.8.5405)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.4, Build 0.8.5405)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.4, Build 0.8.5405)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.6, Build 0.8.5602)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.6, Build 0.8.5602)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.6, Build 0.8.5602)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.6, Build 0.8.5602)
 
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from ARM: see [www.arm.com/fvp] [FVP].
 
 ### Still to Come
 
+*   Support for ARMv8-A development board as a reference platform.
+
+*   Complete Trusted Boot implementation.
+
 *   Complete implementation of the [PSCI] specification.
 
-*   Secure memory, Secure interrupts and support for other types of Secure-EL1
-    Payloads.
-
-*   Booting the firmware from a Virtio block device.
+*   Support for alternative types of Secure-EL1 Payloads.
 
 *   Completing the currently experimental GICv3 support.
 
@@ -112,7 +119,7 @@ See the [Porting Guide] as well for information about how to use this
 software on another ARMv8-A platform.
 
 See the [Contributing Guidelines] for information on how to contribute to this
-project and the [Acknowledgements] file for a list of contributors to the
+project and the [Acknowledgments] file for a list of contributors to the
 project.
 
 ### Feedback and support
@@ -130,7 +137,7 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 [License]:                  ./license.md "BSD license for ARM Trusted Firmware"
 [Contributing Guidelines]:  ./contributing.md "Guidelines for contributors"
-[Acknowledgements]:         ./acknowledgements.md "Contributor acknowledgements"
+[Acknowledgments]:          ./acknowledgements.md "Contributor acknowledgments"
 [Change Log]:               ./docs/change-log.md
 [User Guide]:               ./docs/user-guide.md
 [Firmware Design]:          ./docs/firmware-design.md
@@ -141,5 +148,4 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [PSCI]:                  http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:                 http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [TEE-SMC]:               http://www.arm.com/products/processors/technologies/trustzone/tee-smc.php "Secure Monitor and TEEs"
-[AArch64 LEB]:           http://releases.linaro.org/13.11/openembedded/aarch64 "Linaro AArch64 OpenEmbedded ARM Fast Model 13.11 Release"
 [GitHub issue tracker]:  https://github.com/ARM-software/tf-issues/issues

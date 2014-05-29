@@ -1,3 +1,136 @@
+ARM Trusted Firmware - version 0.4
+==================================
+
+New features
+------------
+
+*   Makefile improvements:
+
+    *   Improved dependency checking when building.
+
+    *   Removed `dump` target (build now always produces dump files).
+
+    *   Enabled platform ports to optionally make use of parts of the Trusted
+        Firmware (e.g. BL3-1 only), rather than being forced to use all parts.
+        Also made the `fip` target optional.
+
+    *   Specified the full path to source files and removed use of the `vpath`
+        keyword.
+
+*   Provided translation table library code for potential re-use by platforms
+    other than the FVPs.
+
+*   Moved architectural timer setup to platform-specific code.
+
+*   Added standby state support to PSCI cpu_suspend implementation.
+
+*   SRAM usage improvements:
+
+    *   Started using the `-ffunction-sections`, `-fdata-sections` and
+        `--gc-sections` compiler/linker options to remove unused code and data
+        from the images. Previously, all common functions were being built into
+        all binary images, whether or not they were actually used.
+
+    *   Placed all assembler functions in their own section to allow more unused
+        functions to be removed from images.
+
+    *   Updated BL1 and BL2 to use a single coherent stack each, rather than one
+        per CPU.
+
+    *   Changed variables that were unnecessarily declared and initialized as
+        non-const (i.e. in the .data section) so they are either uninitialized
+        (zero init) or const.
+
+*   Moved the Test Secure-EL1 Payload (BL3-2) to execute in Trusted SRAM by
+    default. The option for it to run in Trusted DRAM remains.
+
+*   Implemented a TrustZone Address Space Controller (TZC-400) driver. A
+    default configuration is provided for the Base FVPs. This means the model
+    parameter `-C bp.secure_memory=1` is now supported.
+
+*   Started saving the PSCI cpu_suspend 'power_state' parameter prior to
+    suspending a CPU. This allows platforms that implement multiple power-down
+    states at the same affinity level to identify a specific state.
+
+*   Refactored the entire codebase to reduce the amount of nesting in header
+    files and to make the use of system/user includes more consistent. Also
+    split platform.h to separate out the platform porting declarations from the
+    required platform porting definitions and the definitions/declarations
+    specific to the platform port.
+
+*   Optimized the data cache clean/invalidate operations.
+
+*   Improved the BL3-1 unhandled exception handling and reporting. Unhandled
+    exceptions now result in a dump of registers to the console.
+
+*   Major rework to the handover interface between BL stages, in particular the
+    interface to BL3-1. The interface now conforms to a specification and is
+    more future proof.
+
+*   Added support for optionally making the BL3-1 entrypoint a reset handler
+    (instead of BL1). This allows platforms with an alternative image loading
+    architecture to re-use BL3-1 with fewer modifications to generic code.
+
+*   Reserved some DDR DRAM for secure use on FVP platforms to avoid future
+    compatibility problems with non-secure software.
+
+*   Added support for secure interrupts targeting the Secure-EL1 Payload (SP)
+    (using GICv2 routing only). Demonstrated this working by adding an interrupt
+    target and supporting test code to the TSP. Also demonstrated non-secure
+    interrupt handling during TSP processing.
+
+
+Issues resolved since last release
+----------------------------------
+
+*   Now support use of the model parameter `-C bp.secure_memory=1` in the Base
+    FVPs (see **New features**).
+
+*   Support for secure world interrupt handling now available (see **New
+    features**).
+
+*   Made enough SRAM savings (see **New features**) to enable the Test Secure-EL1
+    Payload (BL3-2) to execute in Trusted SRAM by default.
+
+*   The tested filesystem used for this release (Linaro AArch64 OpenEmbedded
+    14.04) now correctly reports progress in the console.
+
+*   Improved the Makefile structure to make it easier to separate out parts of
+    the Trusted Firmware for re-use in platform ports. Also, improved target
+    dependency checking.
+
+
+Known issues
+------------
+
+*   GICv3 support is experimental. The Linux kernel patches to support this are
+    not widely available. There are known issues with GICv3 initialization in
+    the ARM Trusted Firmware.
+
+*   Dynamic image loading is not available yet. The current image loader
+    implementation (used to load BL2 and all subsequent images) has some
+    limitations. Changing BL2 or BL3-1 load addresses in certain ways can lead
+    to loading errors, even if the images should theoretically fit in memory.
+
+*   The ARM Trusted Firmware still uses too much on-chip Trusted SRAM. A number
+    of RAM usage enhancements have been identified to rectify this situation.
+
+*   CPU idle does not work on the advertised version of the Foundation FVP.
+    Some FVP fixes are required that are not available externally at the time
+    of writing. This can be worked around by disabling CPU idle in the Linux
+    kernel.
+
+*   Various bugs in ARM Trusted Firmware, UEFI and the Linux kernel have been
+    observed when using Linaro toolchain versions later than 13.11. Although
+    most of these have been fixed, some remain at the time of writing. These
+    mainly seem to relate to a subtle change in the way the compiler converts
+    between 64-bit and 32-bit values (e.g. during casting operations), which
+    reveals previously hidden bugs in client code.
+
+*   The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
+    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
+
+
 ARM Trusted Firmware - version 0.3
 ==================================
 
