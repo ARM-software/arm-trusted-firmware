@@ -115,6 +115,9 @@
 /* Load address of BL33 in the FVP port */
 #define NS_IMAGE_OFFSET		(DRAM1_BASE + 0x8000000) /* DRAM + 128MB */
 
+/* Special value used to verify platform parameters from BL2 to BL3-1 */
+#define FVP_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
+
 /*
  * V2M sysled bit definitions. The values written to this
  * register are defined in arch.h & runtime_svc.h. Only
