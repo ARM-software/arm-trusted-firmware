@@ -67,9 +67,6 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
-/* Pointer to memory visible to both BL2 and BL31 for passing data */
-extern unsigned char **bl2_el_change_mem_ptr;
-
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
