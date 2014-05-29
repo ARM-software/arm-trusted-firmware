@@ -206,7 +206,7 @@ uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state)
  * the GIC cpu interface. INTR_TYPE_INVAL is returned when there is no
  * interrupt pending.
  ******************************************************************************/
-uint32_t ic_get_pending_interrupt_type(void)
+uint32_t plat_ic_get_pending_interrupt_type(void)
 {
 	uint32_t id;
 
@@ -227,7 +227,7 @@ uint32_t ic_get_pending_interrupt_type(void)
  * the GIC cpu interface. INTR_ID_UNAVAILABLE is returned when there is no
  * interrupt pending.
  ******************************************************************************/
-uint32_t ic_get_pending_interrupt_id(void)
+uint32_t plat_ic_get_pending_interrupt_id(void)
 {
 	uint32_t id;
 
@@ -250,7 +250,7 @@ uint32_t ic_get_pending_interrupt_id(void)
  * This functions reads the GIC cpu interface Interrupt Acknowledge register
  * to start handling the pending interrupt. It returns the contents of the IAR.
  ******************************************************************************/
-uint32_t ic_acknowledge_interrupt(void)
+uint32_t plat_ic_acknowledge_interrupt(void)
 {
 	return gicc_read_IAR(GICC_BASE);
 }
@@ -259,7 +259,7 @@ uint32_t ic_acknowledge_interrupt(void)
  * This functions writes the GIC cpu interface End Of Interrupt register with
  * the passed value to finish handling the active interrupt
  ******************************************************************************/
-void ic_end_of_interrupt(uint32_t id)
+void plat_ic_end_of_interrupt(uint32_t id)
 {
 	gicc_write_EOIR(GICC_BASE, id);
 }
@@ -269,7 +269,7 @@ void ic_end_of_interrupt(uint32_t id)
  * this interrupt has been configured under by the interrupt controller i.e.
  * group0 or group1.
  ******************************************************************************/
-uint32_t ic_get_interrupt_type(uint32_t id)
+uint32_t plat_ic_get_interrupt_type(uint32_t id)
 {
 	uint32_t group;
 

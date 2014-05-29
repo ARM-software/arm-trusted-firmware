@@ -82,7 +82,7 @@ static entry_point_info_t bl33_ep_info;
  * while BL3-2 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  ******************************************************************************/
-entry_point_info_t *bl31_get_next_image_info(uint32_t type)
+entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	entry_point_info_t *next_image_info;
 
