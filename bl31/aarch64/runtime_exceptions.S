@@ -105,8 +105,9 @@
 	 * Read the id of the highest priority pending interrupt. If
 	 * no interrupt is asserted then return to where we came from.
 	 */
+	mov	x19,  #INTR_ID_UNAVAILABLE
 	bl	plat_ic_get_pending_interrupt_id
-	cmp	x0, #INTR_ID_UNAVAILABLE
+	cmp	x19, x0
 	b.eq	interrupt_exit_\label
 #endif
 
@@ -124,6 +125,9 @@
 
 	/* Restore the reference to the 'handle' i.e. SP_EL3 */
 	mov	x2, x20
+
+	/*  x3 will point to a cookie (not used now) */
+	mov	x3, xzr
 
 	/* Call the interrupt type handler */
 	blr	x21
