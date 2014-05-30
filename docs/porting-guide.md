@@ -29,10 +29,12 @@ Modifications consist of:
 *   Setting up the execution context in a certain way, or
 *   Defining certain constants (for example #defines).
 
-The firmware provides a default implementation of variables and functions to
-fulfill the optional requirements. These implementations are all weakly defined;
-they are provided to ease the porting effort. Each platform port can override
-them with its own implementation if the default implementation is inadequate.
+The platform-specific functions and variables are all declared in
+[include/plat/common/platform.h]. The firmware provides a default implementation
+of variables and functions to fulfill the optional requirements. These
+implementations are all weakly defined; they are provided to ease the porting
+effort. Each platform port can override them with its own implementation if the
+default implementation is inadequate.
 
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
@@ -77,11 +79,12 @@ The following variables, functions and constants must be defined by the platform
 for the firmware to work correctly.
 
 
-### File : platform.h [mandatory]
+### File : platform_def.h [mandatory]
 
-Each platform must export a header file of this name with the following
-constants defined. In the ARM FVP port, this file is found in
-[plat/fvp/platform.h].
+Each platform must ensure that a header file of this name is in the system
+include path with the following constants defined. This may require updating the
+list of `PLAT_INCLUDES` in the `platform.mk` file. In the ARM FVP port, this
+file is found in [plat/fvp/include/platform_def.h].
 
 *   **#define : PLATFORM_LINKER_FORMAT**
 
@@ -175,11 +178,6 @@ constants defined. In the ARM FVP port, this file is found in
     the linker scripts to ensure that the BL1 data section and BL2/BL3-1 binary
     images fit into the available memory.
 
-*   **#define : SYS_CNTCTL_BASE**
-
-    Defines the base address of the `CNTCTLBase` frame of the memory mapped
-    counter and timer in the system level implementation of the generic timer.
-
 *   **#define : BL1_RO_BASE**
 
     Defines the base address in secure ROM where BL1 originally lives. Must be
@@ -249,11 +247,11 @@ be defined as well:
     constants.
 
 
-### File : platform_macros.S [mandatory]
+### File : plat_macros.S [mandatory]
 
-Each platform must export a file of this name with the following
-macro defined. In the ARM FVP port, this file is found in
-[plat/fvp/include/platform_macros.S].
+Each platform must ensure a file of this name is in the system include path with
+the following macro defined. In the ARM FVP port, this file is found in
+[plat/fvp/include/plat_macros.S].
 
 *   **Macro : plat_print_gic_regs**
 
@@ -1187,10 +1185,10 @@ provide at least one driver for a device capable of supporting generic
 operations such as loading a bootloader image.
 
 The current implementation only allows for known images to be loaded by the
-firmware.  These images are specified by using their names, as defined in the
-`platform.h` file.  The platform layer (`plat_get_image_source()`) then returns
-a reference to a device and a driver-specific `spec` which will be understood
-by the driver to allow access to the image data.
+firmware.  These images are specified by using their names, as defined in
+[include/plat/common/platform.h]. The platform layer (`plat_get_image_source()`)
+then returns a reference to a device and a driver-specific `spec` which will be
+understood by the driver to allow access to the image data.
 
 The layer is designed in such a way that is it possible to chain drivers with
 other drivers.  For example, file-system drivers may be implemented on top of
@@ -1214,8 +1212,9 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S
-[plat/fvp/platform.h]:                     ../plat/fvp/platform.h
-[plat/fvp/include/platform_macros.S]:      ../plat/fvp/include/platform_macros.S
+[plat/fvp/include/platform_def.h]:         ../plat/fvp/include/platform_def.h
+[plat/fvp/include/plat_macros.S]:          ../plat/fvp/include/plat_macros.S
 [plat/fvp/aarch64/plat_common.c]:          ../plat/fvp/aarch64/plat_common.c
 [plat/fvp/plat_pm.c]:                      ../plat/fvp/plat_pm.c
 [include/runtime_svc.h]:                   ../include/runtime_svc.h
+[include/plat/common/platform.h]:          ../include/plat/common/platform.h
