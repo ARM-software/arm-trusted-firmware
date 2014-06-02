@@ -222,25 +222,25 @@ void fvp_cci_setup(void)
 
 
 /*******************************************************************************
- * Set SPSR and secure state for BL32 image
+ * Gets SPSR for BL32 entry
  ******************************************************************************/
-void fvp_set_bl32_ep_info(entry_point_info_t *bl32_ep_info)
+uint32_t fvp_get_spsr_for_bl32_entry(void)
 {
-	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
 	/*
 	 * The Secure Payload Dispatcher service is responsible for
 	 * setting the SPSR prior to entry into the BL32 image.
 	 */
-	bl32_ep_info->spsr = 0;
+	return 0;
 }
 
 /*******************************************************************************
- * Set SPSR and secure state for BL33 image
+ * Gets SPSR for BL33 entry
  ******************************************************************************/
-void fvp_set_bl33_ep_info(entry_point_info_t *bl33_ep_info)
+uint32_t fvp_get_spsr_for_bl33_entry(void)
 {
 	unsigned long el_status;
 	unsigned int mode;
+	uint32_t spsr;
 
 	/* Figure out what mode we enter the non-secure world in */
 	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
@@ -256,6 +256,6 @@ void fvp_set_bl33_ep_info(entry_point_info_t *bl33_ep_info)
 	 * the FIP ToC and allowing the platform to have a say as
 	 * well.
 	 */
-	bl33_ep_info->spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
-	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
+	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	return spsr;
 }
