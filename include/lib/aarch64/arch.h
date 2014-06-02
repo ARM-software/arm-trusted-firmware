@@ -409,4 +409,55 @@
 #define CNTACR_RWVT_SHIFT	0x4
 #define CNTACR_RWPT_SHIFT	0x5
 
+/* Macros to create inline asm helpers for system register read/write */
+
+#define _SYSTEM_REG2_R(_name, _reg_name)		\
+static inline uint64_t read_ ## _name(void)		\
+{							\
+	uint64_t v;					\
+	__asm__ ("mrs %0, " #_reg_name : "=r" (v));	\
+	return v;					\
+}
+
+#define _SYSTEM_REG2_W(_name, _reg_name)		\
+static inline void write_ ## _name(uint64_t v)		\
+{							\
+	__asm__ ("msr " #_reg_name ", %0" : : "r" (v));	\
+}
+
+#define _SYSTEM_REG2_WC(_name, _reg_name)		\
+static inline void write_ ## _name(const uint64_t v)	\
+{							\
+	__asm__ ("msr " #_reg_name ", %0" : : "i" (v));	\
+}
+
+#define SYSTEM_REG2_RO(_name, _reg_name) 		\
+	_SYSTEM_REG2_R(_name, _reg_name)
+#define SYSTEM_REG2(_name, _reg_name)			\
+	_SYSTEM_REG2_R(_name, _reg_name)		\
+	_SYSTEM_REG2_W(_name, _reg_name)
+#define SYSTEM_REG_RO(_name) SYSTEM_REG2_RO(_name, _name)
+#define SYSTEM_REG(_name) SYSTEM_REG2(_name, _name)
+#define SYSTEM_REG_WC(_name) _SYSTEM_REG2_WC(_name, _name)
+
+/* Macros to create inline asm helpers for system instructions*/
+
+#define SYSTEM_OP1(_op)					\
+static inline void _op()				\
+{							\
+	__asm__ (#_op);					\
+}
+
+#define SYSTEM_OP2(_op, _type)				\
+static inline void _op ## _type()			\
+{							\
+	__asm__ (#_op " " #_type);			\
+}
+
+#define SYSTEM_OP2_P(_op, _type)			\
+static inline void _op ## _type(uint64_t v)		\
+{							\
+	 __asm__ (#_op " " #_type ", %0" : : "r" (v));	\
+}
+
 #endif /* __ARCH_H__ */

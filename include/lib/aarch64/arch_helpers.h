@@ -31,12 +31,13 @@
 #ifndef __ARCH_HELPERS_H__
 #define __ARCH_HELPERS_H__
 
-#include <cdefs.h> /* For __dead2 */
-
+#include <arch.h>	/* for CPUECTLR_EL1 */
+#include <cdefs.h>	/* For __dead2 */
+#include <stdint.h>
 
 /*******************************************************************************
  * Aarch64 translation tables manipulation helper prototypes
- ******************************************************************************/
+******************************************************************************/
 unsigned long create_table_desc(unsigned long *next_table_ptr);
 unsigned long create_block_desc(unsigned long desc,
 				unsigned long addr,
@@ -54,25 +55,26 @@ unsigned long create_rwmem_block(unsigned long output_addr,
 /*******************************************************************************
  * TLB maintenance accessor prototypes
  ******************************************************************************/
-void tlbialle1(void);
-void tlbialle1is(void);
-void tlbialle2(void);
-void tlbialle2is(void);
-void tlbialle3(void);
-void tlbialle3is(void);
-void tlbivmalle1(void);
+SYSTEM_OP2(tlbi, alle1)
+SYSTEM_OP2(tlbi, alle1is)
+SYSTEM_OP2(tlbi, alle2)
+SYSTEM_OP2(tlbi, alle2is)
+SYSTEM_OP2(tlbi, alle3)
+SYSTEM_OP2(tlbi, alle3is)
+SYSTEM_OP2(tlbi, vmalle1)
 
 /*******************************************************************************
  * Cache maintenance accessor prototypes
  ******************************************************************************/
-void dcisw(unsigned long);
-void dccisw(unsigned long);
-void dccsw(unsigned long);
-void dccvac(unsigned long);
-void dcivac(unsigned long);
-void dccivac(unsigned long);
-void dccvau(unsigned long);
-void dczva(unsigned long);
+SYSTEM_OP2_P(dc, isw)
+SYSTEM_OP2_P(dc, cisw)
+SYSTEM_OP2_P(dc, csw)
+SYSTEM_OP2_P(dc, cvac)
+SYSTEM_OP2_P(dc, ivac)
+SYSTEM_OP2_P(dc, civac)
+SYSTEM_OP2_P(dc, cvau)
+SYSTEM_OP2_P(dc, zva)
+
 void flush_dcache_range(unsigned long, unsigned long);
 void inv_dcache_range(unsigned long, unsigned long);
 void dcsw_op_louis(unsigned int);
@@ -84,202 +86,148 @@ void disable_mmu_icache_el3(void);
 /*******************************************************************************
  * Misc. accessor prototypes
  ******************************************************************************/
-void enable_irq(void);
-void enable_fiq(void);
-void enable_serror(void);
-void enable_debug_exceptions(void);
 
-void disable_irq(void);
-void disable_fiq(void);
-void disable_serror(void);
-void disable_debug_exceptions(void);
+SYSTEM_REG_WC(daifset)
+SYSTEM_REG_WC(daifclr)
 
-unsigned long read_id_pfr1_el1(void);
-unsigned long read_id_aa64pfr0_el1(void);
-unsigned long read_current_el(void);
-unsigned long read_daif(void);
-unsigned long read_spsr_el1(void);
-unsigned long read_spsr_el2(void);
-unsigned long read_spsr_el3(void);
-unsigned long read_elr_el1(void);
-unsigned long read_elr_el2(void);
-unsigned long read_elr_el3(void);
+#define enable_irq()			write_daifclr(DAIF_IRQ_BIT)
+#define enable_fiq()			write_daifclr(DAIF_FIQ_BIT)
+#define enable_serror()			write_daifclr(DAIF_ABT_BIT)
+#define enable_debug_exceptions()	write_daifclr(DAIF_DBG_BIT)
+#define disable_irq()			write_daifset(DAIF_IRQ_BIT)
+#define disable_fiq()			write_daifset(DAIF_FIQ_BIT)
+#define disable_serror()		write_daifset(DAIF_ABT_BIT)
+#define disable_debug_exceptions()	write_daifset(DAIF_DBG_BIT)
 
-void write_daif(unsigned long);
-void write_spsr_el1(unsigned long);
-void write_spsr_el2(unsigned long);
-void write_spsr_el3(unsigned long);
-void write_elr_el1(unsigned long);
-void write_elr_el2(unsigned long);
-void write_elr_el3(unsigned long);
+SYSTEM_REG_RO(id_pfr1_el1)
+SYSTEM_REG_RO(id_aa64pfr0_el1)
+SYSTEM_REG_RO(CurrentEl)
+SYSTEM_REG(daif)
+SYSTEM_REG(spsr_el1)
+SYSTEM_REG(spsr_el2)
+SYSTEM_REG(spsr_el3)
+SYSTEM_REG(elr_el1)
+SYSTEM_REG(elr_el2)
+SYSTEM_REG(elr_el3)
 
-void wfi(void);
-void wfe(void);
-void rfe(void);
-void sev(void);
-void dsb(void);
-void isb(void);
+SYSTEM_OP1(wfi)
+SYSTEM_OP1(wfe)
+SYSTEM_OP1(sev)
+SYSTEM_OP2(dsb, sy)
+SYSTEM_OP1(isb)
 
 unsigned int get_afflvl_shift(unsigned int);
 unsigned int mpidr_mask_lower_afflvls(unsigned long, unsigned int);
 
-void __dead2 eret(unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long);
 
-void __dead2 smc(unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long);
+void __dead2 eret(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
+		  uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
+void __dead2 smc(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
+		 uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
 
 /*******************************************************************************
  * System register accessor prototypes
  ******************************************************************************/
-unsigned long read_midr(void);
-unsigned long read_mpidr(void);
+SYSTEM_REG_RO(midr_el1)
+SYSTEM_REG_RO(mpidr_el1)
 
-unsigned long read_scr(void);
-unsigned long read_hcr(void);
+SYSTEM_REG(scr_el3)
+SYSTEM_REG(hcr_el2)
 
-unsigned long read_vbar_el1(void);
-unsigned long read_vbar_el2(void);
-unsigned long read_vbar_el3(void);
+SYSTEM_REG(vbar_el1)
+SYSTEM_REG(vbar_el2)
+SYSTEM_REG(vbar_el3)
 
-unsigned long read_sctlr_el1(void);
-unsigned long read_sctlr_el2(void);
-unsigned long read_sctlr_el3(void);
+SYSTEM_REG(sctlr_el1)
+SYSTEM_REG(sctlr_el2)
+SYSTEM_REG(sctlr_el3)
 
-unsigned long read_actlr_el1(void);
-unsigned long read_actlr_el2(void);
-unsigned long read_actlr_el3(void);
+SYSTEM_REG(actlr_el1)
+SYSTEM_REG(actlr_el2)
+SYSTEM_REG(actlr_el3)
 
-unsigned long read_esr_el1(void);
-unsigned long read_esr_el2(void);
-unsigned long read_esr_el3(void);
+SYSTEM_REG(esr_el1)
+SYSTEM_REG(esr_el2)
+SYSTEM_REG(esr_el3)
 
-unsigned long read_afsr0_el1(void);
-unsigned long read_afsr0_el2(void);
-unsigned long read_afsr0_el3(void);
+SYSTEM_REG(afsr0_el1)
+SYSTEM_REG(afsr0_el2)
+SYSTEM_REG(afsr0_el3)
 
-unsigned long read_afsr1_el1(void);
-unsigned long read_afsr1_el2(void);
-unsigned long read_afsr1_el3(void);
+SYSTEM_REG(afsr1_el1)
+SYSTEM_REG(afsr1_el2)
+SYSTEM_REG(afsr1_el3)
 
-unsigned long read_far_el1(void);
-unsigned long read_far_el2(void);
-unsigned long read_far_el3(void);
+SYSTEM_REG(far_el1)
+SYSTEM_REG(far_el2)
+SYSTEM_REG(far_el3)
 
-unsigned long read_mair_el1(void);
-unsigned long read_mair_el2(void);
-unsigned long read_mair_el3(void);
+SYSTEM_REG(mair_el1)
+SYSTEM_REG(mair_el2)
+SYSTEM_REG(mair_el3)
 
-unsigned long read_amair_el1(void);
-unsigned long read_amair_el2(void);
-unsigned long read_amair_el3(void);
+SYSTEM_REG(amair_el1)
+SYSTEM_REG(amair_el2)
+SYSTEM_REG(amair_el3)
 
-unsigned long read_rvbar_el1(void);
-unsigned long read_rvbar_el2(void);
-unsigned long read_rvbar_el3(void);
+SYSTEM_REG_RO(rvbar_el1)
+SYSTEM_REG_RO(rvbar_el2)
+SYSTEM_REG_RO(rvbar_el3)
 
-unsigned long read_rmr_el1(void);
-unsigned long read_rmr_el2(void);
-unsigned long read_rmr_el3(void);
+SYSTEM_REG(rmr_el1)
+SYSTEM_REG(rmr_el2)
+SYSTEM_REG(rmr_el3)
 
-unsigned long read_tcr_el1(void);
-unsigned long read_tcr_el2(void);
-unsigned long read_tcr_el3(void);
+SYSTEM_REG(tcr_el1)
+SYSTEM_REG(tcr_el2)
+SYSTEM_REG(tcr_el3)
 
-unsigned long read_ttbr0_el1(void);
-unsigned long read_ttbr0_el2(void);
-unsigned long read_ttbr0_el3(void);
+SYSTEM_REG(ttbr0_el1)
+SYSTEM_REG(ttbr0_el2)
+SYSTEM_REG(ttbr0_el3)
 
-unsigned long read_ttbr1_el1(void);
+SYSTEM_REG(ttbr1_el1)
 
-unsigned long read_cptr_el2(void);
-unsigned long read_cptr_el3(void);
+SYSTEM_REG(cptr_el2)
+SYSTEM_REG(cptr_el3)
 
-unsigned long read_cpacr(void);
-unsigned long read_cpuectlr(void);
-unsigned int read_cntfrq_el0(void);
-unsigned int read_cntps_ctl_el1(void);
-unsigned int read_cntps_tval_el1(void);
-unsigned long read_cntps_cval_el1(void);
-unsigned long read_cntpct_el0(void);
-unsigned long read_cnthctl_el2(void);
+SYSTEM_REG(cpacr_el1)
+SYSTEM_REG2(cpuectlr_el1, CPUECTLR_EL1)
+SYSTEM_REG(cntfrq_el0)
+SYSTEM_REG(cntps_ctl_el1)
+SYSTEM_REG(cntps_tval_el1)
+SYSTEM_REG(cntps_cval_el1)
+SYSTEM_REG_RO(cntpct_el0)
+SYSTEM_REG(cnthctl_el2)
 
-unsigned long read_tpidr_el3(void);
-
-void write_scr(unsigned long);
-void write_hcr(unsigned long);
-void write_cpacr(unsigned long);
-void write_cntfrq_el0(unsigned int);
-void write_cntps_ctl_el1(unsigned int);
-void write_cntps_tval_el1(unsigned int);
-void write_cntps_cval_el1(unsigned long);
-void write_cnthctl_el2(unsigned long);
-
-void write_vbar_el1(unsigned long);
-void write_vbar_el2(unsigned long);
-void write_vbar_el3(unsigned long);
-
-void write_sctlr_el1(unsigned long);
-void write_sctlr_el2(unsigned long);
-void write_sctlr_el3(unsigned long);
-
-void write_actlr_el1(unsigned long);
-void write_actlr_el2(unsigned long);
-void write_actlr_el3(unsigned long);
-
-void write_esr_el1(unsigned long);
-void write_esr_el2(unsigned long);
-void write_esr_el3(unsigned long);
-
-void write_afsr0_el1(unsigned long);
-void write_afsr0_el2(unsigned long);
-void write_afsr0_el3(unsigned long);
-
-void write_afsr1_el1(unsigned long);
-void write_afsr1_el2(unsigned long);
-void write_afsr1_el3(unsigned long);
-
-void write_far_el1(unsigned long);
-void write_far_el2(unsigned long);
-void write_far_el3(unsigned long);
-
-void write_mair_el1(unsigned long);
-void write_mair_el2(unsigned long);
-void write_mair_el3(unsigned long);
-
-void write_amair_el1(unsigned long);
-void write_amair_el2(unsigned long);
-void write_amair_el3(unsigned long);
-
-void write_rmr_el1(unsigned long);
-void write_rmr_el2(unsigned long);
-void write_rmr_el3(unsigned long);
-
-void write_tcr_el1(unsigned long);
-void write_tcr_el2(unsigned long);
-void write_tcr_el3(unsigned long);
-
-void write_ttbr0_el1(unsigned long);
-void write_ttbr0_el2(unsigned long);
-void write_ttbr0_el3(unsigned long);
-
-void write_ttbr1_el1(unsigned long);
-
-void write_cpuectlr(unsigned long);
-void write_cptr_el2(unsigned long);
-void write_cptr_el3(unsigned long);
-
-void write_tpidr_el3(unsigned long);
+SYSTEM_REG(tpidr_el3)
 
 #define IS_IN_EL(x) \
-	(GET_EL(read_current_el()) == MODE_EL##x)
+	(GET_EL(read_CurrentEl()) == MODE_EL##x)
 
 #define IS_IN_EL1() IS_IN_EL(1)
 #define IS_IN_EL3() IS_IN_EL(3)
 
+/* Some currently in use unsuffixed register accessors */
+
+#define read_current_el()	read_CurrentEl()
+
+#define dsb()			dsbsy()
+
+#define read_midr()		read_midr_el1()
+
+#define read_mpidr()		read_mpidr_el1()
+
+#define read_scr()		read_scr_el3()
+#define write_scr(v)		write_scr_el3(v)
+
+#define read_hcr()		read_hcr_el2()
+#define write_hcr(v)		write_hcr_el2(v)
+
+#define read_cpuectlr()		read_cpuectlr_el1()
+#define write_cpuectlr(v)	write_cpuectlr_el1(v)
+
+#define read_cpacr()		read_cpacr_el1()
+#define write_cpacr(v)		write_cpacr_el1(v)
 
 #endif /* __ARCH_HELPERS_H__ */
