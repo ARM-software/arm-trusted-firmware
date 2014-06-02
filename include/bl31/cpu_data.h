@@ -32,7 +32,7 @@
 #define __CPU_DATA_H__
 
 /* Offsets for the cpu_data structure */
-#define CPU_DATA_CRASH_STACK_OFFSET	0x0
+#define CPU_DATA_CRASH_STACK_OFFSET	0x10
 #define CPU_DATA_LOG2SIZE		6
 
 #ifndef __ASSEMBLY__
@@ -47,6 +47,7 @@
 
 /*******************************************************************************
  * Cache of frequently used per-cpu data:
+ *   Pointers to non-secure and secure security state contexts
  *   Address of the crash stack
  * It is aligned to the cache line boundary to allow efficient concurrent
  * manipulation of these pointers on different cpus
@@ -59,6 +60,7 @@
  ******************************************************************************/
 
 typedef struct cpu_data {
+	void *cpu_context[2];
 	uint64_t crash_stack;
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 

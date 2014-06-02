@@ -35,21 +35,12 @@
 #include <bl31.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <cpu_data.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <runtime_svc.h>
 
-/*******************************************************************************
- * Data structure which holds the pointers to non-secure and secure security
- * state contexts for each cpu. It is aligned to the cache line boundary to
- * allow efficient concurrent manipulation of these pointers on different cpus
- ******************************************************************************/
-typedef struct {
-	void *ptr[2];
-} __aligned (CACHE_WRITEBACK_GRANULE) context_info_t;
-
-static context_info_t cm_context_info[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Context management library initialisation routine. This library is used by
@@ -79,25 +70,9 @@ void cm_init()
  ******************************************************************************/
 void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state)
 {
-	uint32_t linear_id = platform_get_core_pos(mpidr);
-
 	assert(security_state <= NON_SECURE);
 
-	return cm_context_info[linear_id].ptr[security_state];
-}
-
-/*******************************************************************************
- * This function returns a pointer to the most recent 'cpu_context' structure
- * for the calling CPU that was set as the context for the specified security
- * state. NULL is returned if no such structure has been specified.
- ******************************************************************************/
-void *cm_get_context(uint32_t security_state)
-{
-	uint32_t linear_id = platform_get_core_pos(read_mpidr());
-
-	assert(security_state <= NON_SECURE);
-
-	return cm_context_info[linear_id].ptr[security_state];
+	return get_cpu_data_by_mpidr(mpidr, cpu_context[security_state]);
 }
 
 /*******************************************************************************
@@ -106,20 +81,9 @@ void *cm_get_context(uint32_t security_state)
  ******************************************************************************/
 void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_state)
 {
-	uint32_t linear_id = platform_get_core_pos(mpidr);
-
 	assert(security_state <= NON_SECURE);
 
-	cm_context_info[linear_id].ptr[security_state] = context;
-}
-
-/*******************************************************************************
- * This function sets the pointer to the current 'cpu_context' structure for the
- * specified security state for the calling CPU
- ******************************************************************************/
-void cm_set_context(void *context, uint32_t security_state)
-{
-	cm_set_context_by_mpidr(read_mpidr(), context, security_state);
+	set_cpu_data_by_mpidr(mpidr, cpu_context[security_state], context);
 }
 
 /*******************************************************************************
