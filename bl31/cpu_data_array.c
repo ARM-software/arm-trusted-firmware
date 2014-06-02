@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,32 +28,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CM_H__
-#define __CM_H__
+#include <cassert.h>
+#include <cpu_data.h>
+#include <platform_def.h>
 
-#include <stdint.h>
+/* verify assembler offsets match data structures */
+CASSERT(CPU_DATA_CRASH_STACK_OFFSET == __builtin_offsetof
+	(cpu_data_t, crash_stack),
+	assert_cpu_data_crash_stack_offset_mismatch);
 
-/*******************************************************************************
- * Function & variable prototypes
- ******************************************************************************/
-void cm_init(void);
-void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state);
-void *cm_get_context(uint32_t security_state);
-void cm_set_context_by_mpidr(uint64_t mpidr,
-			     void *context,
-			     uint32_t security_state);
-void cm_set_context(void *context, uint32_t security_state);
-void cm_el3_sysregs_context_save(uint32_t security_state);
-void cm_el3_sysregs_context_restore(uint32_t security_state);
-void cm_el1_sysregs_context_save(uint32_t security_state);
-void cm_el1_sysregs_context_restore(uint32_t security_state);
-void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
-			     uint32_t spsr, uint32_t scr);
-void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint);
-void cm_write_scr_el3_bit(uint32_t security_state,
-			  uint32_t bit_pos,
-			  uint32_t value);
-void cm_set_next_eret_context(uint32_t security_state);
-uint32_t cm_get_scr_el3(uint32_t security_state);
+CASSERT((1 << CPU_DATA_LOG2SIZE) == sizeof(cpu_data_t),
+	assert_cpu_data_log2size_mismatch);
 
-#endif /* __CM_H__ */
+/* The per_cpu_ptr_cache_t space allocation */
+cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
