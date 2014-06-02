@@ -65,8 +65,10 @@ void console_init(unsigned long base_addr)
 
 }
 
-#define WAIT_UNTIL_UART_FREE(base) while ((pl011_read_fr(base)\
-					& PL011_UARTFR_TXFF) == 1)
+#define WAIT_UNTIL_UART_FREE(base)				\
+	while ((pl011_read_fr(base) & PL011_UARTFR_TXFF))	\
+		continue
+
 int console_putc(int c)
 {
 	assert(uart_base);
