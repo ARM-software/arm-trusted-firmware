@@ -31,52 +31,115 @@
 #ifndef __ARCH_HELPERS_H__
 #define __ARCH_HELPERS_H__
 
-#include <cdefs.h> /* For __dead2 */
+#include <arch.h>	/* for additional register definitions */
+#include <cdefs.h>	/* For __dead2 */
+#include <stdint.h>
 
+/**********************************************************************
+ * Macros which create inline functions to read or write CPU system
+ * registers
+ *********************************************************************/
+
+#define _DEFINE_SYSREG_READ_FUNC(_name, _reg_name)	\
+static inline uint64_t read_ ## _name(void)		\
+{							\
+	uint64_t v;					\
+	__asm__ ("mrs %0, " #_reg_name : "=r" (v));	\
+	return v;					\
+}
+
+#define _DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)		\
+static inline void write_ ## _name(uint64_t v)		\
+{							\
+	__asm__ ("msr " #_reg_name ", %0" : : "r" (v));	\
+}
+
+#define _DEFINE_SYSREG_WRITE_CONST_FUNC(_name, _reg_name)		\
+static inline void write_ ## _name(const uint64_t v)	\
+{							\
+	__asm__ ("msr " #_reg_name ", %0" : : "i" (v));	\
+}
+
+/* Define read function for system register */
+#define DEFINE_SYSREG_READ_FUNC(_name) 			\
+	_DEFINE_SYSREG_READ_FUNC(_name, _name)
+
+/* Define read & write function for system register */
+#define DEFINE_SYSREG_RW_FUNCS(_name)			\
+	_DEFINE_SYSREG_READ_FUNC(_name, _name)		\
+	_DEFINE_SYSREG_WRITE_FUNC(_name, _name)
+
+/* Define read & write function for renamed system register */
+#define DEFINE_RENAME_SYSREG_RW_FUNCS(_name, _reg_name)	\
+	_DEFINE_SYSREG_READ_FUNC(_name, _reg_name)	\
+	_DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)
+
+/* Define write function for special system registers */
+#define DEFINE_SYSREG_WRITE_CONST_FUNC(_name)		\
+	_DEFINE_SYSREG_WRITE_CONST_FUNC(_name, _name)
+
+
+/**********************************************************************
+ * Macros to create inline functions for system instructions
+ *********************************************************************/
+
+/* Define function for simple system instruction */
+#define DEFINE_SYSOP_FUNC(_op)				\
+static inline void _op()				\
+{							\
+	__asm__ (#_op);					\
+}
+
+/* Define function for system instruction with type specifier */
+#define DEFINE_SYSOP_TYPE_FUNC(_op, _type)		\
+static inline void _op ## _type()			\
+{							\
+	__asm__ (#_op " " #_type);			\
+}
+
+/* Define function for system instruction with register parameter */
+#define DEFINE_SYSOP_TYPE_PARAM_FUNC(_op, _type)	\
+static inline void _op ## _type(uint64_t v)		\
+{							\
+	 __asm__ (#_op " " #_type ", %0" : : "r" (v));	\
+}
 
 /*******************************************************************************
  * Aarch64 translation tables manipulation helper prototypes
- ******************************************************************************/
-unsigned long create_table_desc(unsigned long *next_table_ptr);
-unsigned long create_block_desc(unsigned long desc,
-				unsigned long addr,
-				unsigned int level);
-unsigned long create_device_block(unsigned long output_addr,
-				unsigned int level,
-				unsigned int ns);
-unsigned long create_romem_block(unsigned long output_addr,
-				unsigned int level,
-				unsigned int ns);
-unsigned long create_rwmem_block(unsigned long output_addr,
-				unsigned int level,
-				unsigned int ns);
+******************************************************************************/
+uint64_t create_table_desc(uint64_t *next_table_ptr);
+uint64_t create_block_desc(uint64_t desc, uint64_t addr, uint32_t level);
+uint64_t create_device_block(uint64_t output_addr, uint32_t level, uint32_t ns);
+uint64_t create_romem_block(uint64_t output_addr, uint32_t level, uint32_t ns);
+uint64_t create_rwmem_block(uint64_t output_addr, uint32_t level, uint32_t ns);
 
 /*******************************************************************************
  * TLB maintenance accessor prototypes
  ******************************************************************************/
-void tlbialle1(void);
-void tlbialle1is(void);
-void tlbialle2(void);
-void tlbialle2is(void);
-void tlbialle3(void);
-void tlbialle3is(void);
-void tlbivmalle1(void);
+DEFINE_SYSOP_TYPE_FUNC(tlbi, alle1)
+DEFINE_SYSOP_TYPE_FUNC(tlbi, alle1is)
+DEFINE_SYSOP_TYPE_FUNC(tlbi, alle2)
+DEFINE_SYSOP_TYPE_FUNC(tlbi, alle2is)
+DEFINE_SYSOP_TYPE_FUNC(tlbi, alle3)
+DEFINE_SYSOP_TYPE_FUNC(tlbi, alle3is)
+DEFINE_SYSOP_TYPE_FUNC(tlbi, vmalle1)
 
 /*******************************************************************************
  * Cache maintenance accessor prototypes
  ******************************************************************************/
-void dcisw(unsigned long);
-void dccisw(unsigned long);
-void dccsw(unsigned long);
-void dccvac(unsigned long);
-void dcivac(unsigned long);
-void dccivac(unsigned long);
-void dccvau(unsigned long);
-void dczva(unsigned long);
-void flush_dcache_range(unsigned long, unsigned long);
-void inv_dcache_range(unsigned long, unsigned long);
-void dcsw_op_louis(unsigned int);
-void dcsw_op_all(unsigned int);
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, isw)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, cisw)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, csw)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, cvac)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, ivac)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, civac)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, cvau)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, zva)
+
+void flush_dcache_range(uint64_t, uint64_t);
+void inv_dcache_range(uint64_t, uint64_t);
+void dcsw_op_louis(uint32_t);
+void dcsw_op_all(uint32_t);
 
 void disable_mmu_el3(void);
 void disable_mmu_icache_el3(void);
@@ -84,202 +147,159 @@ void disable_mmu_icache_el3(void);
 /*******************************************************************************
  * Misc. accessor prototypes
  ******************************************************************************/
-void enable_irq(void);
-void enable_fiq(void);
-void enable_serror(void);
-void enable_debug_exceptions(void);
 
-void disable_irq(void);
-void disable_fiq(void);
-void disable_serror(void);
-void disable_debug_exceptions(void);
+DEFINE_SYSREG_WRITE_CONST_FUNC(daifset)
+DEFINE_SYSREG_WRITE_CONST_FUNC(daifclr)
 
-unsigned long read_id_pfr1_el1(void);
-unsigned long read_id_aa64pfr0_el1(void);
-unsigned long read_current_el(void);
-unsigned long read_daif(void);
-unsigned long read_spsr_el1(void);
-unsigned long read_spsr_el2(void);
-unsigned long read_spsr_el3(void);
-unsigned long read_elr_el1(void);
-unsigned long read_elr_el2(void);
-unsigned long read_elr_el3(void);
+#define enable_irq()			write_daifclr(DAIF_IRQ_BIT)
+#define enable_fiq()			write_daifclr(DAIF_FIQ_BIT)
+#define enable_serror()			write_daifclr(DAIF_ABT_BIT)
+#define enable_debug_exceptions()	write_daifclr(DAIF_DBG_BIT)
+#define disable_irq()			write_daifset(DAIF_IRQ_BIT)
+#define disable_fiq()			write_daifset(DAIF_FIQ_BIT)
+#define disable_serror()		write_daifset(DAIF_ABT_BIT)
+#define disable_debug_exceptions()	write_daifset(DAIF_DBG_BIT)
 
-void write_daif(unsigned long);
-void write_spsr_el1(unsigned long);
-void write_spsr_el2(unsigned long);
-void write_spsr_el3(unsigned long);
-void write_elr_el1(unsigned long);
-void write_elr_el2(unsigned long);
-void write_elr_el3(unsigned long);
+DEFINE_SYSREG_READ_FUNC(id_pfr1_el1)
+DEFINE_SYSREG_READ_FUNC(id_aa64pfr0_el1)
+DEFINE_SYSREG_READ_FUNC(CurrentEl)
+DEFINE_SYSREG_RW_FUNCS(daif)
+DEFINE_SYSREG_RW_FUNCS(spsr_el1)
+DEFINE_SYSREG_RW_FUNCS(spsr_el2)
+DEFINE_SYSREG_RW_FUNCS(spsr_el3)
+DEFINE_SYSREG_RW_FUNCS(elr_el1)
+DEFINE_SYSREG_RW_FUNCS(elr_el2)
+DEFINE_SYSREG_RW_FUNCS(elr_el3)
 
-void wfi(void);
-void wfe(void);
-void rfe(void);
-void sev(void);
-void dsb(void);
-void isb(void);
+DEFINE_SYSOP_FUNC(wfi)
+DEFINE_SYSOP_FUNC(wfe)
+DEFINE_SYSOP_FUNC(sev)
+DEFINE_SYSOP_TYPE_FUNC(dsb, sy)
+DEFINE_SYSOP_FUNC(isb)
 
-unsigned int get_afflvl_shift(unsigned int);
-unsigned int mpidr_mask_lower_afflvls(unsigned long, unsigned int);
+uint32_t get_afflvl_shift(uint32_t);
+uint32_t mpidr_mask_lower_afflvls(uint64_t, uint32_t);
 
-void __dead2 eret(unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long);
 
-void __dead2 smc(unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long,
-		unsigned long, unsigned long);
+void __dead2 eret(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
+		  uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
+void __dead2 smc(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
+		 uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
 
 /*******************************************************************************
  * System register accessor prototypes
  ******************************************************************************/
-unsigned long read_midr(void);
-unsigned long read_mpidr(void);
+DEFINE_SYSREG_READ_FUNC(midr_el1)
+DEFINE_SYSREG_READ_FUNC(mpidr_el1)
 
-unsigned long read_scr(void);
-unsigned long read_hcr(void);
+DEFINE_SYSREG_RW_FUNCS(scr_el3)
+DEFINE_SYSREG_RW_FUNCS(hcr_el2)
 
-unsigned long read_vbar_el1(void);
-unsigned long read_vbar_el2(void);
-unsigned long read_vbar_el3(void);
+DEFINE_SYSREG_RW_FUNCS(vbar_el1)
+DEFINE_SYSREG_RW_FUNCS(vbar_el2)
+DEFINE_SYSREG_RW_FUNCS(vbar_el3)
 
-unsigned long read_sctlr_el1(void);
-unsigned long read_sctlr_el2(void);
-unsigned long read_sctlr_el3(void);
+DEFINE_SYSREG_RW_FUNCS(sctlr_el1)
+DEFINE_SYSREG_RW_FUNCS(sctlr_el2)
+DEFINE_SYSREG_RW_FUNCS(sctlr_el3)
 
-unsigned long read_actlr_el1(void);
-unsigned long read_actlr_el2(void);
-unsigned long read_actlr_el3(void);
+DEFINE_SYSREG_RW_FUNCS(actlr_el1)
+DEFINE_SYSREG_RW_FUNCS(actlr_el2)
+DEFINE_SYSREG_RW_FUNCS(actlr_el3)
 
-unsigned long read_esr_el1(void);
-unsigned long read_esr_el2(void);
-unsigned long read_esr_el3(void);
+DEFINE_SYSREG_RW_FUNCS(esr_el1)
+DEFINE_SYSREG_RW_FUNCS(esr_el2)
+DEFINE_SYSREG_RW_FUNCS(esr_el3)
 
-unsigned long read_afsr0_el1(void);
-unsigned long read_afsr0_el2(void);
-unsigned long read_afsr0_el3(void);
+DEFINE_SYSREG_RW_FUNCS(afsr0_el1)
+DEFINE_SYSREG_RW_FUNCS(afsr0_el2)
+DEFINE_SYSREG_RW_FUNCS(afsr0_el3)
 
-unsigned long read_afsr1_el1(void);
-unsigned long read_afsr1_el2(void);
-unsigned long read_afsr1_el3(void);
+DEFINE_SYSREG_RW_FUNCS(afsr1_el1)
+DEFINE_SYSREG_RW_FUNCS(afsr1_el2)
+DEFINE_SYSREG_RW_FUNCS(afsr1_el3)
 
-unsigned long read_far_el1(void);
-unsigned long read_far_el2(void);
-unsigned long read_far_el3(void);
+DEFINE_SYSREG_RW_FUNCS(far_el1)
+DEFINE_SYSREG_RW_FUNCS(far_el2)
+DEFINE_SYSREG_RW_FUNCS(far_el3)
 
-unsigned long read_mair_el1(void);
-unsigned long read_mair_el2(void);
-unsigned long read_mair_el3(void);
+DEFINE_SYSREG_RW_FUNCS(mair_el1)
+DEFINE_SYSREG_RW_FUNCS(mair_el2)
+DEFINE_SYSREG_RW_FUNCS(mair_el3)
 
-unsigned long read_amair_el1(void);
-unsigned long read_amair_el2(void);
-unsigned long read_amair_el3(void);
+DEFINE_SYSREG_RW_FUNCS(amair_el1)
+DEFINE_SYSREG_RW_FUNCS(amair_el2)
+DEFINE_SYSREG_RW_FUNCS(amair_el3)
 
-unsigned long read_rvbar_el1(void);
-unsigned long read_rvbar_el2(void);
-unsigned long read_rvbar_el3(void);
+DEFINE_SYSREG_READ_FUNC(rvbar_el1)
+DEFINE_SYSREG_READ_FUNC(rvbar_el2)
+DEFINE_SYSREG_READ_FUNC(rvbar_el3)
 
-unsigned long read_rmr_el1(void);
-unsigned long read_rmr_el2(void);
-unsigned long read_rmr_el3(void);
+DEFINE_SYSREG_RW_FUNCS(rmr_el1)
+DEFINE_SYSREG_RW_FUNCS(rmr_el2)
+DEFINE_SYSREG_RW_FUNCS(rmr_el3)
 
-unsigned long read_tcr_el1(void);
-unsigned long read_tcr_el2(void);
-unsigned long read_tcr_el3(void);
+DEFINE_SYSREG_RW_FUNCS(tcr_el1)
+DEFINE_SYSREG_RW_FUNCS(tcr_el2)
+DEFINE_SYSREG_RW_FUNCS(tcr_el3)
 
-unsigned long read_ttbr0_el1(void);
-unsigned long read_ttbr0_el2(void);
-unsigned long read_ttbr0_el3(void);
+DEFINE_SYSREG_RW_FUNCS(ttbr0_el1)
+DEFINE_SYSREG_RW_FUNCS(ttbr0_el2)
+DEFINE_SYSREG_RW_FUNCS(ttbr0_el3)
 
-unsigned long read_ttbr1_el1(void);
+DEFINE_SYSREG_RW_FUNCS(ttbr1_el1)
 
-unsigned long read_cptr_el2(void);
-unsigned long read_cptr_el3(void);
+DEFINE_SYSREG_RW_FUNCS(cptr_el2)
+DEFINE_SYSREG_RW_FUNCS(cptr_el3)
 
-unsigned long read_cpacr(void);
-unsigned long read_cpuectlr(void);
-unsigned int read_cntfrq_el0(void);
-unsigned int read_cntps_ctl_el1(void);
-unsigned int read_cntps_tval_el1(void);
-unsigned long read_cntps_cval_el1(void);
-unsigned long read_cntpct_el0(void);
-unsigned long read_cnthctl_el2(void);
+DEFINE_SYSREG_RW_FUNCS(cpacr_el1)
+DEFINE_SYSREG_RW_FUNCS(cntfrq_el0)
+DEFINE_SYSREG_RW_FUNCS(cntps_ctl_el1)
+DEFINE_SYSREG_RW_FUNCS(cntps_tval_el1)
+DEFINE_SYSREG_RW_FUNCS(cntps_cval_el1)
+DEFINE_SYSREG_READ_FUNC(cntpct_el0)
+DEFINE_SYSREG_RW_FUNCS(cnthctl_el2)
 
-unsigned long read_tpidr_el3(void);
+DEFINE_SYSREG_RW_FUNCS(tpidr_el3)
 
-void write_scr(unsigned long);
-void write_hcr(unsigned long);
-void write_cpacr(unsigned long);
-void write_cntfrq_el0(unsigned int);
-void write_cntps_ctl_el1(unsigned int);
-void write_cntps_tval_el1(unsigned int);
-void write_cntps_cval_el1(unsigned long);
-void write_cnthctl_el2(unsigned long);
+/* Implementation specific registers */
 
-void write_vbar_el1(unsigned long);
-void write_vbar_el2(unsigned long);
-void write_vbar_el3(unsigned long);
+DEFINE_RENAME_SYSREG_RW_FUNCS(cpuectlr_el1, CPUECTLR_EL1)
 
-void write_sctlr_el1(unsigned long);
-void write_sctlr_el2(unsigned long);
-void write_sctlr_el3(unsigned long);
+/* GICv3 System Registers */
 
-void write_actlr_el1(unsigned long);
-void write_actlr_el2(unsigned long);
-void write_actlr_el3(unsigned long);
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el1, ICC_SRE_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el2, ICC_SRE_EL2)
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el3, ICC_SRE_EL3)
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_pmr_el1, ICC_PMR_EL1)
 
-void write_esr_el1(unsigned long);
-void write_esr_el2(unsigned long);
-void write_esr_el3(unsigned long);
-
-void write_afsr0_el1(unsigned long);
-void write_afsr0_el2(unsigned long);
-void write_afsr0_el3(unsigned long);
-
-void write_afsr1_el1(unsigned long);
-void write_afsr1_el2(unsigned long);
-void write_afsr1_el3(unsigned long);
-
-void write_far_el1(unsigned long);
-void write_far_el2(unsigned long);
-void write_far_el3(unsigned long);
-
-void write_mair_el1(unsigned long);
-void write_mair_el2(unsigned long);
-void write_mair_el3(unsigned long);
-
-void write_amair_el1(unsigned long);
-void write_amair_el2(unsigned long);
-void write_amair_el3(unsigned long);
-
-void write_rmr_el1(unsigned long);
-void write_rmr_el2(unsigned long);
-void write_rmr_el3(unsigned long);
-
-void write_tcr_el1(unsigned long);
-void write_tcr_el2(unsigned long);
-void write_tcr_el3(unsigned long);
-
-void write_ttbr0_el1(unsigned long);
-void write_ttbr0_el2(unsigned long);
-void write_ttbr0_el3(unsigned long);
-
-void write_ttbr1_el1(unsigned long);
-
-void write_cpuectlr(unsigned long);
-void write_cptr_el2(unsigned long);
-void write_cptr_el3(unsigned long);
-
-void write_tpidr_el3(unsigned long);
 
 #define IS_IN_EL(x) \
-	(GET_EL(read_current_el()) == MODE_EL##x)
+	(GET_EL(read_CurrentEl()) == MODE_EL##x)
 
 #define IS_IN_EL1() IS_IN_EL(1)
 #define IS_IN_EL3() IS_IN_EL(3)
 
+/* Previously defined accesor functions with incomplete register names  */
+
+#define read_current_el()	read_CurrentEl()
+
+#define dsb()			dsbsy()
+
+#define read_midr()		read_midr_el1()
+
+#define read_mpidr()		read_mpidr_el1()
+
+#define read_scr()		read_scr_el3()
+#define write_scr(_v)		write_scr_el3(_v)
+
+#define read_hcr()		read_hcr_el2()
+#define write_hcr(_v)		write_hcr_el2(_v)
+
+#define read_cpuectlr()		read_cpuectlr_el1()
+#define write_cpuectlr(_v)	write_cpuectlr_el1(_v)
+
+#define read_cpacr()		read_cpacr_el1()
+#define write_cpacr(_v)		write_cpacr_el1(_v)
 
 #endif /* __ARCH_HELPERS_H__ */

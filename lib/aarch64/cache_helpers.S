@@ -31,58 +31,10 @@
 #include <arch.h>
 #include <asm_macros.S>
 
-	.globl	dcisw
-	.globl	dccisw
-	.globl	dccsw
-	.globl	dccvac
-	.globl	dcivac
-	.globl	dccivac
-	.globl	dccvau
-	.globl	dczva
 	.globl	flush_dcache_range
 	.globl	inv_dcache_range
 	.globl	dcsw_op_louis
 	.globl	dcsw_op_all
-
-func dcisw
-	dc	isw, x0
-	ret
-
-
-func dccisw
-	dc	cisw, x0
-	ret
-
-
-func dccsw
-	dc	csw, x0
-	ret
-
-
-func dccvac
-	dc	cvac, x0
-	ret
-
-
-func dcivac
-	dc	ivac, x0
-	ret
-
-
-func dccivac
-	dc	civac, x0
-	ret
-
-
-func dccvau
-	dc	cvau, x0
-	ret
-
-
-func dczva
-	dc	zva, x0
-	ret
-
 
 	/* ------------------------------------------
 	 * Clean+Invalidate from base address till

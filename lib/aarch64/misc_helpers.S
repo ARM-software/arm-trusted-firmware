@@ -31,44 +31,8 @@
 #include <arch.h>
 #include <asm_macros.S>
 
-	.globl	enable_irq
-	.globl	disable_irq
-
-	.globl	enable_fiq
-	.globl	disable_fiq
-
-	.globl	enable_serror
-	.globl	disable_serror
-
-	.globl	enable_debug_exceptions
-	.globl	disable_debug_exceptions
-
-	.globl	read_daif
-	.globl	write_daif
-
-	.globl	read_spsr_el1
-	.globl	read_spsr_el2
-	.globl	read_spsr_el3
-
-	.globl	write_spsr_el1
-	.globl	write_spsr_el2
-	.globl	write_spsr_el3
-
-	.globl	read_elr_el1
-	.globl	read_elr_el2
-	.globl	read_elr_el3
-
-	.globl	write_elr_el1
-	.globl	write_elr_el2
-	.globl	write_elr_el3
-
 	.globl	get_afflvl_shift
 	.globl	mpidr_mask_lower_afflvls
-	.globl	dsb
-	.globl	isb
-	.globl	sev
-	.globl	wfe
-	.globl	wfi
 	.globl	eret
 	.globl	smc
 
@@ -77,6 +41,10 @@
 
 	.globl	disable_mmu_el3
 	.globl	disable_mmu_icache_el3
+
+#if SUPPORT_VFP
+	.globl	enable_vfp
+#endif
 
 
 func get_afflvl_shift
@@ -93,144 +61,6 @@ func mpidr_mask_lower_afflvls
 	lsl	x2, x1, x2
 	lsr	x0, x0, x2
 	lsl	x0, x0, x2
-	ret
-
-	/* -----------------------------------------------------
-	 * Asynchronous exception manipulation accessors
-	 * -----------------------------------------------------
-	 */
-func enable_irq
-	msr	daifclr, #DAIF_IRQ_BIT
-	ret
-
-
-func enable_fiq
-	msr	daifclr, #DAIF_FIQ_BIT
-	ret
-
-
-func enable_serror
-	msr	daifclr, #DAIF_ABT_BIT
-	ret
-
-
-func enable_debug_exceptions
-	msr	daifclr, #DAIF_DBG_BIT
-	ret
-
-
-func disable_irq
-	msr	daifset, #DAIF_IRQ_BIT
-	ret
-
-
-func disable_fiq
-	msr	daifset, #DAIF_FIQ_BIT
-	ret
-
-
-func disable_serror
-	msr	daifset, #DAIF_ABT_BIT
-	ret
-
-
-func disable_debug_exceptions
-	msr	daifset, #DAIF_DBG_BIT
-	ret
-
-
-func read_daif
-	mrs	x0, daif
-	ret
-
-
-func write_daif
-	msr	daif, x0
-	ret
-
-
-func read_spsr_el1
-	mrs	x0, spsr_el1
-	ret
-
-
-func read_spsr_el2
-	mrs	x0, spsr_el2
-	ret
-
-
-func read_spsr_el3
-	mrs	x0, spsr_el3
-	ret
-
-
-func write_spsr_el1
-	msr	spsr_el1, x0
-	ret
-
-
-func write_spsr_el2
-	msr	spsr_el2, x0
-	ret
-
-
-func write_spsr_el3
-	msr	spsr_el3, x0
-	ret
-
-
-func read_elr_el1
-	mrs	x0, elr_el1
-	ret
-
-
-func read_elr_el2
-	mrs	x0, elr_el2
-	ret
-
-
-func read_elr_el3
-	mrs	x0, elr_el3
-	ret
-
-
-func write_elr_el1
-	msr	elr_el1, x0
-	ret
-
-
-func write_elr_el2
-	msr	elr_el2, x0
-	ret
-
-
-func write_elr_el3
-	msr	elr_el3, x0
-	ret
-
-
-func dsb
-	dsb	sy
-	ret
-
-
-func isb
-	isb
-	ret
-
-
-func sev
-	sev
-	ret
-
-
-func wfe
-	wfe
-	ret
-
-
-func wfi
-	wfi
 	ret
 
 
@@ -315,3 +145,20 @@ func disable_mmu_icache_el3
 	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
 	b	do_disable_mmu
 
+
+/* ---------------------------------------------------------------------------
+ * Enable the use of VFP at EL3
+ * ---------------------------------------------------------------------------
+ */
+#if SUPPORT_VFP
+func enable_vfp
+	mrs	x0, cpacr_el1
+	orr	x0, x0, #CPACR_VFP_BITS
+	msr	cpacr_el1, x0
+	mrs	x0, cptr_el3
+	mov	x1, #AARCH64_CPTR_TFP
+	bic	x0, x0, x1
+	msr	cptr_el3, x0
+	isb
+	ret
+#endif

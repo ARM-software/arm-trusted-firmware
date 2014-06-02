@@ -65,6 +65,16 @@
 #define FIRST_MPIDR		0
 
 /*******************************************************************************
+ * Definitions for CPU system register interface to GICv3
+ ******************************************************************************/
+#define ICC_SRE_EL1     S3_0_C12_C12_5
+#define ICC_SRE_EL2     S3_4_C12_C9_5
+#define ICC_SRE_EL3     S3_6_C12_C12_5
+#define ICC_CTLR_EL1    S3_0_C12_C12_4
+#define ICC_CTLR_EL3    S3_6_C12_C12_4
+#define ICC_PMR_EL1     S3_0_C4_C6_0
+
+/*******************************************************************************
  * Implementation defined sysreg encodings
  ******************************************************************************/
 #define CPUECTLR_EL1	S3_1_C15_C2_1
