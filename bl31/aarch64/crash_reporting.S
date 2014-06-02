@@ -30,12 +30,13 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <context.h>
+#include <cpu_data.h>
 #include <plat_macros.S>
 #include <platform_def.h>
 
-	.globl	get_crash_stack
 	.globl	dump_state_and_die
 	.globl	dump_intr_state_and_die
+	.globl  init_crash_reporting
 
 #if CRASH_REPORTING
 	/* ------------------------------------------------------
@@ -232,7 +233,7 @@ non_el3_sys_1_regs: .asciz "tpidr_el0", "tpidrro_el0", "dacr32_el2",\
 	/* Check if tpidr is initialized */
 	cbz	x0, infinite_loop
 
-	ldr	x0, [x0, #PTR_CACHE_CRASH_STACK_OFFSET]
+	ldr	x0, [x0, #CPU_DATA_CRASH_STACK_OFFSET]
 	/* store the x30 and sp to stack */
 	str	x30, [x0, #-(REG_SIZE)]!
 	mov	x30, sp
@@ -281,19 +282,31 @@ infinite_loop:
 #define PCPU_CRASH_STACK_SIZE	0x140
 
 	/* -----------------------------------------------------
-	 * void get_crash_stack (uint64_t mpidr) : This
-	 * function is used to allocate a small stack for
-	 * reporting unhandled exceptions
-	 * -----------------------------------------------------
-	 */
-func get_crash_stack
-	mov	x10, x30 // lr
-	get_mp_stack pcpu_crash_stack, PCPU_CRASH_STACK_SIZE
-	ret	x10
-
-	/* -----------------------------------------------------
 	 * Per-cpu crash stacks in normal memory.
 	 * -----------------------------------------------------
 	 */
 declare_stack pcpu_crash_stack, tzfw_normal_stacks, \
 		PCPU_CRASH_STACK_SIZE, PLATFORM_CORE_COUNT
+
+	/* -----------------------------------------------------
+	 * Provides each CPU with a small stacks for reporting
+	 * unhandled exceptions, and stores the stack address
+	 * in cpu_data
+	 *
+	 * This can be called without a runtime stack
+	 * clobbers: x0 - x4
+	 * -----------------------------------------------------
+	 */
+func init_crash_reporting
+	mov	x4, x30
+	mov	x2, #0
+	adr	x3, pcpu_crash_stack
+init_crash_loop:
+	mov	x0, x2
+	bl	_cpu_data_by_index
+	add	x3, x3, #PCPU_CRASH_STACK_SIZE
+	str	x3, [x0, #CPU_DATA_CRASH_STACK_OFFSET]
+	add	x2, x2, #1
+	cmp	x2, #PLATFORM_CORE_COUNT
+	b.lo	init_crash_loop
+	ret	x4

@@ -51,9 +51,6 @@ typedef struct {
 
 static context_info_t cm_context_info[PLATFORM_CORE_COUNT];
 
-/* The per_cpu_ptr_cache_t space allocation */
-static per_cpu_ptr_cache_t per_cpu_ptr_cache_space[PLATFORM_CORE_COUNT];
-
 /*******************************************************************************
  * Context management library initialisation routine. This library is used by
  * runtime services to share pointers to 'cpu_context' structures for the secure
@@ -295,34 +292,3 @@ void cm_set_next_eret_context(uint32_t security_state)
 			 "msr	spsel, #0\n"
 			 : : "r" (ctx));
 }
-
-/************************************************************************
- * The following function is used to populate the per cpu pointer cache.
- * The pointer will be stored in the tpidr_el3 register.
- *************************************************************************/
-void cm_init_pcpu_ptr_cache()
-{
-	unsigned long mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
-	per_cpu_ptr_cache_t *pcpu_ptr_cache;
-
-	pcpu_ptr_cache = &per_cpu_ptr_cache_space[linear_id];
-	assert(pcpu_ptr_cache);
-#if CRASH_REPORTING
-	pcpu_ptr_cache->crash_stack = get_crash_stack(mpidr);
-#endif
-
-	cm_set_pcpu_ptr_cache(pcpu_ptr_cache);
-}
-
-
-void cm_set_pcpu_ptr_cache(const void *pcpu_ptr)
-{
-	write_tpidr_el3((unsigned long)pcpu_ptr);
-}
-
-void *cm_get_pcpu_ptr_cache(void)
-{
-	return (void *)read_tpidr_el3();
-}
-

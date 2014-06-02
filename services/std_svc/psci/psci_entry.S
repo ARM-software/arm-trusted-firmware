@@ -61,6 +61,12 @@ psci_aff_common_finish_entry:
 	adr	x22, psci_afflvl_power_on_finish
 
 	/* ---------------------------------------------
+	 * Initialise the pcpu cache pointer for the CPU
+	 * ---------------------------------------------
+	 */
+	bl	init_cpu_data_ptr
+
+	/* ---------------------------------------------
 	 * Exceptions should not occur at this point.
 	 * Set VBAR in order to handle and report any
 	 * that do occur

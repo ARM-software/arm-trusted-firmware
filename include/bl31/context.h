@@ -185,11 +185,6 @@
 #define CTX_FP_FPCR		0x208
 #define CTX_FPREGS_END		0x210
 
-/******************************************************************************
- * Offsets for the per cpu cache implementation
- ******************************************************************************/
-#define PTR_CACHE_CRASH_STACK_OFFSET 0x0
-
 #ifndef __ASSEMBLY__
 
 #include <cassert.h>
@@ -330,17 +325,6 @@ void el1_sysregs_context_restore(el1_sys_regs_t *regs);
 void fpregs_context_save(fp_regs_t *regs);
 void fpregs_context_restore(fp_regs_t *regs);
 
-
-/* Per-CPU pointer cache of recently used pointers and also the crash stack
- * TODO: Add other commonly used variables to this (tf_issues#90)
- */
-typedef struct per_cpu_ptr_cache {
-	uint64_t crash_stack;
-} per_cpu_ptr_cache_t;
-
-CASSERT(PTR_CACHE_CRASH_STACK_OFFSET == __builtin_offsetof\
-	(per_cpu_ptr_cache_t, crash_stack), \
-	assert_per_cpu_ptr_cache_crash_stack_offset_mismatch);
 
 #undef CTX_SYSREG_ALL
 #undef CTX_FP_ALL

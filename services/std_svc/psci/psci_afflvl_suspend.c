@@ -497,7 +497,6 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * set on this cpu prior to suspension.
 	 */
 	cm_set_next_eret_context(NON_SECURE);
-	cm_init_pcpu_ptr_cache();
 	write_vbar_el3((uint64_t) runtime_exceptions);
 
 	/*

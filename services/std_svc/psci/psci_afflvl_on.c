@@ -380,7 +380,6 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	 */
 	assert(cm_get_context(NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
-	cm_init_pcpu_ptr_cache();
 	write_vbar_el3((uint64_t) runtime_exceptions);
 
 	/*

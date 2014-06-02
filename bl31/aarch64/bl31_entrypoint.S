@@ -131,6 +131,15 @@ func bl31_entrypoint
 	bl	zeromem16
 
 	/* ---------------------------------------------
+	 * Initialise cpu_data and crash reporting
+	 * ---------------------------------------------
+	 */
+	bl	init_cpu_data_ptr
+#if CRASH_REPORTING
+	bl	init_crash_reporting
+#endif
+
+	/* ---------------------------------------------
 	 * Use SP_EL0 for the C runtime stack.
 	 * ---------------------------------------------
 	 */
