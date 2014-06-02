@@ -67,12 +67,10 @@ psci_aff_common_finish_entry:
 	bl	init_cpu_data_ptr
 
 	/* ---------------------------------------------
-	 * Exceptions should not occur at this point.
-	 * Set VBAR in order to handle and report any
-	 * that do occur
+	 * Set the exception vectors
 	 * ---------------------------------------------
 	 */
-	adr	x0, early_exceptions
+	adr	x0, runtime_exceptions
 	msr	vbar_el3, x0
 	isb
 
