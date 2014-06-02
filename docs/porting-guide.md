@@ -14,6 +14,7 @@ Contents
     *   Boot Loader stage 2 (BL2)
     *   Boot Loader stage 3-1 (BL3-1)
     *   PSCI implementation (in BL3-1)
+    *   Interrupt Management framework (in BL3-1)
 4.  C Library
 5.  Storage abstraction layer
 
@@ -1135,6 +1136,135 @@ critical for the PSCI runtime service to function correctly. More details are
 provided in the description of the `plat_get_aff_count()` and
 `plat_get_aff_state()` functions above.
 
+3.4  Interrupt Management framework (in BL3-1)
+----------------------------------------------
+BL3-1 implements an Interrupt Management Framework (IMF) to manage interrupts
+generated in either security state and targeted to EL1 or EL2 in the non-secure
+state or EL3/S-EL1 in the secure state.  The design of this framework is
+described in the [IMF Design Guide]
+
+A platform should export the following APIs to support the IMF. The following
+text briefly describes each api and its implementation on the FVP port. The API
+implementation depends upon the type of interrupt controller present in the
+platform. The FVP implements an ARM Generic Interrupt Controller (ARM GIC) as
+per the version 2.0 of the [ARM GIC Architecture Specification]
+
+### Function : plat_interrupt_type_to_line() [mandatory]
+
+    Argument : uint32_t, uint32_t
+    Return   : uint32_t
+
+The ARM processor signals an interrupt exception either through the IRQ or FIQ
+interrupt line. The specific line that is signaled depends on how the interrupt
+controller (IC) reports different interrupt types from an execution context in
+either security state. The IMF uses this API to determine which interrupt line
+the platform IC uses to signal each type of interrupt supported by the framework
+from a given security state.
+
+The first parameter will be one of the `INTR_TYPE_*` values (see [IMF Design
+Guide]) indicating the target type of the interrupt, the second parameter is the
+security state of the originating execution context. The return result is the
+bit position in the `SCR_EL3` register of the respective interrupt trap: IRQ=1,
+FIQ=2.
+
+The FVP port configures the ARM GIC to signal S-EL1 interrupts as FIQs and
+Non-secure interrupts as IRQs from either security state.
+
+
+### Function : plat_ic_get_pending_interrupt_type() [mandatory]
+
+    Argument : void
+    Return   : uint32_t
+
+This API returns the type of the highest priority pending interrupt at the
+platform IC. The IMF uses the interrupt type to retrieve the corresponding
+handler function. `INTR_TYPE_INVAL` is returned when there is no interrupt
+pending. The valid interrupt types that can be returned are `INTR_TYPE_EL3`,
+`INTR_TYPE_S_EL1` and `INTR_TYPE_NS`.
+
+The FVP port reads the _Highest Priority Pending Interrupt Register_
+(`GICC_HPPIR`) to determine the id of the pending interrupt. The type of interrupt
+depends upon the id value as follows.
+
+1. id < 1022 is reported as a S-EL1 interrupt
+2. id = 1022 is reported as a Non-secure interrupt.
+3. id = 1023 is reported as an invalid interrupt type.
+
+
+### Function : plat_ic_get_pending_interrupt_id() [mandatory]
+
+    Argument : void
+    Return   : uint32_t
+
+This API returns the id of the highest priority pending interrupt at the
+platform IC. The IMF passes the id returned by this API to the registered
+handler for the pending interrupt if the `IMF_READ_INTERRUPT_ID` build time flag
+is set. INTR_ID_UNAVAILABLE is returned when there is no interrupt pending.
+
+The FVP port reads the _Highest Priority Pending Interrupt Register_
+(`GICC_HPPIR`) to determine the id of the pending interrupt. The id that is
+returned by API depends upon the value of the id read from the interrupt
+controller as follows.
+
+1. id < 1022. id is returned as is.
+2. id = 1022. The _Aliased Highest Priority Pending Interrupt Register_
+   (`GICC_AHPPIR`) is read to determine the id of the non-secure interrupt. This
+   id is returned by the API.
+3. id = 1023. `INTR_ID_UNAVAILABLE` is returned.
+
+
+### Function : plat_ic_acknowledge_interrupt() [mandatory]
+
+    Argument : void
+    Return   : uint32_t
+
+This API is used by the CPU to indicate to the platform IC that processing of
+the highest pending interrupt has begun. It should return the id of the
+interrupt which is being processed.
+
+The FVP port reads the _Interrupt Acknowledge Register_ (`GICC_IAR`). This
+changes the state of the highest priority pending interrupt from pending to
+active in the interrupt controller. It returns the value read from the
+`GICC_IAR`. This value is the id of the interrupt whose state has been changed.
+
+The TSP uses this API to start processing of the secure physical timer
+interrupt.
+
+
+### Function : plat_ic_end_of_interrupt() [mandatory]
+
+    Argument : uint32_t
+    Return   : void
+
+This API is used by the CPU to indicate to the platform IC that processing of
+the interrupt corresponding to the id (passed as the parameter) has
+finished. The id should be the same as the id returned by the
+`plat_ic_acknowledge_interrupt()` API.
+
+The FVP port writes the id to the _End of Interrupt Register_
+(`GICC_EOIR`). This deactivates the corresponding interrupt in the interrupt
+controller.
+
+The TSP uses this API to finish processing of the secure physical timer
+interrupt.
+
+
+### Function : plat_ic_get_interrupt_type() [mandatory]
+
+    Argument : uint32_t
+    Return   : uint32_t
+
+This API returns the type of the interrupt id passed as the parameter.
+`INTR_TYPE_INVAL` is returned if the id is invalid. If the id is valid, a valid
+interrupt type (one of `INTR_TYPE_EL3`, `INTR_TYPE_S_EL1` and `INTR_TYPE_NS`) is
+returned depending upon how the interrupt has been configured by the platform
+IC.
+
+The FVP port configures S-EL1 interrupts as Group0 interrupts and Non-secure
+interrupts as Group1 interrupts. It reads the group value corresponding to the
+interrupt id from the relevant _Interrupt Group Register_ (`GICD_IGROUPRn`). It
+uses the group value to determine the type of interrupt.
+
 
 4.  C Library
 -------------
@@ -1227,8 +1357,10 @@ amount of open resources per driver.
 _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 
-[User Guide]: user-guide.md
-[FreeBSD]:    http://www.freebsd.org
+[ARM GIC Architecture Specification]: http://arminfo.emea.arm.com/help/topic/com.arm.doc.ihi0048b/IHI0048B_gic_architecture_specification.pdf
+[IMF Design Guide]:                   interrupt-framework-design.md
+[User Guide]:                         user-guide.md
+[FreeBSD]:                            http://www.freebsd.org
 
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S
