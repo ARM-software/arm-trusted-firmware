@@ -373,16 +373,6 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	bl31_arch_setup();
 
 	/*
-	 * Use the more complex exception vectors to enable SPD
-	 * initialisation. SP_EL3 should point to a 'cpu_context'
-	 * structure. The calling cpu should have set the
-	 * context already
-	 */
-	assert(cm_get_context(NON_SECURE));
-	cm_set_next_eret_context(NON_SECURE);
-	write_vbar_el3((uint64_t) runtime_exceptions);
-
-	/*
 	 * Call the cpu on finish handler registered by the Secure Payload
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an
 	 * error, it's expected to assert within

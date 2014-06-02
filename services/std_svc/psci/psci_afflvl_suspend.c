@@ -491,15 +491,6 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	rc = PSCI_E_SUCCESS;
 
 	/*
-	 * Use the more complex exception vectors to enable SPD
-	 * initialisation. SP_EL3 should point to a 'cpu_context'
-	 * structure. The non-secure context should have been
-	 * set on this cpu prior to suspension.
-	 */
-	cm_set_next_eret_context(NON_SECURE);
-	write_vbar_el3((uint64_t) runtime_exceptions);
-
-	/*
 	 * Call the cpu suspend finish handler registered by the Secure Payload
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an
 	 * error, it's expected to assert within

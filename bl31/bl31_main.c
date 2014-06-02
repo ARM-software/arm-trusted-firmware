@@ -71,7 +71,6 @@ void bl31_lib_init()
  ******************************************************************************/
 void bl31_main(void)
 {
-
 	/* Perform remaining generic architectural setup from EL3 */
 	bl31_arch_setup();
 
@@ -89,16 +88,7 @@ void bl31_main(void)
 	/* Clean caches before re-entering normal world */
 	dcsw_op_all(DCCSW);
 
-	/*
-	 * Use the more complex exception vectors now that context
-	 * management is setup. SP_EL3 should point to a 'cpu_context'
-	 * structure which has an exception stack allocated.  The PSCI
-	 * service should have set the context.
-	 */
-	assert(cm_get_context(NON_SECURE));
-	cm_set_next_eret_context(NON_SECURE);
-	write_vbar_el3((uint64_t) runtime_exceptions);
-	isb();
+	/* By default run the non-secure BL3-3 image next */
 	next_image_type = NON_SECURE;
 
 	/*

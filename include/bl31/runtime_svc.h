@@ -268,7 +268,6 @@ void runtime_svc_init();
 extern uint64_t __RT_SVC_DESCS_START__;
 extern uint64_t __RT_SVC_DESCS_END__;
 void init_crash_reporting(void);
-void runtime_exceptions(void);
 
 #endif /*__ASSEMBLY__*/
 #endif /* __RUNTIME_SVC_H__ */
