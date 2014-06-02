@@ -111,12 +111,17 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
-	 * We are not checking plat_params_from_bl2 as NULL as we are not
-	 * using it on Juno
 	 */
 	assert(from_bl2 != NULL);
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
+	/*
+	 * In debug builds, we pass a special value in 'plat_params_from_bl2'
+	 * to verify platform parameters from BL2 to BL3-1.
+	 * In release builds, it's not used.
+	 */
+	assert(((unsigned long long)plat_params_from_bl2) ==
+		JUNO_BL31_PLAT_PARAM_VAL);
 
 	/*
 	 * Copy BL3-2 and BL3-3 entry point information.

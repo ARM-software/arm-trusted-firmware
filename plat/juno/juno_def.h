@@ -31,6 +31,9 @@
 #ifndef __JUNO_DEF_H__
 #define __JUNO_DEF_H__
 
+/* Special value used to verify platform parameters from BL2 to BL3-1 */
+#define JUNO_BL31_PLAT_PARAM_VAL        0x0f1e2d3c4b5a6978ULL
+
 /*******************************************************************************
  * Juno memory map related constants
  ******************************************************************************/
