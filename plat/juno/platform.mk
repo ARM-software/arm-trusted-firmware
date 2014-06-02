@@ -68,3 +68,8 @@ BL31_SOURCES		+=	drivers/arm/cci400/cci400.c		\
 				plat/juno/plat_gic.c			\
 				plat/juno/scpi.c			\
 				plat/juno/smc_arm.c
+
+ifneq (${RESET_TO_BL31},0)
+  $(error "Using BL3-1 as the reset vector is not supported on Juno. \
+  Please set RESET_TO_BL31 to 0.")
+endif
