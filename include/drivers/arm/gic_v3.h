@@ -68,14 +68,6 @@
  ******************************************************************************/
 uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr);
 
-unsigned int read_icc_sre_el1(void);
-unsigned int read_icc_sre_el2(void);
-unsigned int read_icc_sre_el3(void);
-void write_icc_sre_el1(unsigned int);
-void write_icc_sre_el2(unsigned int);
-void write_icc_sre_el3(unsigned int);
-void write_icc_pmr_el1(unsigned int);
-
 /*******************************************************************************
  * GIC Redistributor interface accessors
  ******************************************************************************/
