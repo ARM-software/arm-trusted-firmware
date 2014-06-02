@@ -98,13 +98,9 @@ func bl1_entrypoint
 	bic	w0, w0, #TFP_BIT
 	msr	cptr_el3, x0
 
-	/* ---------------------------------------------
-	 * Find the type of reset and jump to handler
-	 * if present. If the handler is null then it is
-	 * a cold boot. The primary cpu will set up the
-	 * platform while the secondaries wait for
-	 * their turn to be woken up
-	 * ---------------------------------------------
+	/* -------------------------------------------------------
+	 * Will not return from this macro if it is a warm boot.
+	 * -------------------------------------------------------
 	 */
 	wait_for_entrypoint
 

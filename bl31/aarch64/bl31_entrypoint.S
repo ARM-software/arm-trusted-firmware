@@ -102,6 +102,10 @@ func bl31_entrypoint
 	msr	cptr_el3, x1
 
 #if RESET_TO_BL31
+	/* -------------------------------------------------------
+	 * Will not return from this macro if it is a warm boot.
+	 * -------------------------------------------------------
+	 */
 	wait_for_entrypoint
 	bl	platform_mem_init
 #else
