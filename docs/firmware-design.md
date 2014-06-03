@@ -31,6 +31,10 @@ Trusted Firmware runtime services via the ARM SMC (Secure Monitor Call)
 instruction. The SMC instruction must be used as mandated by the [SMC Calling
 Convention PDD][SMCCC] [3].
 
+The ARM Trusted Firmware implements a framework for configuring and managing
+interrupts generated in either security state. The details of the interrupt
+management framework and its design can be found in [ARM Trusted
+Firmware Interrupt Management Design guide][INTRG] [4].
 
 2.  Cold boot
 -------------
@@ -1034,6 +1038,7 @@ kernel at boot time. These can be found in the `fdts` directory.
 
 3.  [SMC Calling Convention PDD (ARM DEN 0028A)][SMCCC].
 
+4.  [ARM Trusted Firmware Interrupt Management Design guide][INTRG].
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1044,3 +1049,4 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
+[INTRG]:            ./interrupt-framework-design.md
