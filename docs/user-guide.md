@@ -30,7 +30,7 @@ running the FVP models is a dual-core processor running at 2GHz with 12GB of
 RAM.  For best performance, use a machine with a quad-core processor running at
 2.6GHz with 16GB of RAM.
 
-The software has been tested on Ubuntu 12.04.02 (64-bit).  Packages used
+The software has been tested on Ubuntu 12.04.04 (64-bit).  Packages used
 for building the software were installed from that distribution unless
 otherwise specified.
 
@@ -56,11 +56,11 @@ The following tools are required to use the ARM Trusted Firmware:
         wget http://releases.linaro.org/13.11/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz
         tar -xf gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz
 
-*   The Device Tree Compiler (DTC) included with Linux kernel 3.13 is used
+*   The Device Tree Compiler (DTC) included with Linux kernel 3.15-rc6 is used
     to build the Flattened Device Tree (FDT) source files (`.dts` files)
     provided with this software.
 
-*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.17.
+*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.18.
 
 
 4.  Building the Trusted Firmware
@@ -393,7 +393,7 @@ these steps:
 
 ### Obtaining a Linux kernel
 
-The software has been verified using a Linux kernel based on version 3.13.
+The software has been verified using a Linux kernel based on version 3.15-rc6.
 Patches have been applied in order to enable the CPU idle feature.
 
 Preparing a Linux kernel for use on the FVPs with CPU idle support can
@@ -404,12 +404,11 @@ be done as follows (GICv2 support only):
         git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 
     Not all CPU idle features are included in the mainline kernel yet. To
-    use these, add the patches from Sudeep Holla's kernel, based on
-    Linux 3.13:
+    use these, add the patches from Sudeep Holla's kernel:
 
         cd linux
-        git remote add -f --tags arm64_idle_genfw_ref git://linux-arm.org/linux-skn.git
-        git checkout -b cpuidle arm64_idle_genfw_ref
+        git remote add -f --tags arm64_idle_v3.15-rc6 git://linux-arm.org/linux-skn.git
+        git checkout -b cpuidle arm64_idle_v3.15-rc6
 
 2.  Build with the Linaro GCC tools.
 
@@ -479,10 +478,10 @@ To prepare a VirtioBlock file-system, do the following:
 
 1.  Download and unpack the disk image.
 
-    NOTE: The unpacked disk image grows to 2 GiB in size.
+    NOTE: The unpacked disk image grows to 3 GiB in size.
 
-        wget http://releases.linaro.org/14.01/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.8_20140126-596.img.gz
-        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.8_20140126-596.img.gz
+        wget http://releases.linaro.org/14.04/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.8_20140417-630.img.gz
+        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.8_20140417-630.img.gz
 
 2.  Make sure the Linux kernel has Virtio support enabled using
     `make ARCH=arm64 menuconfig`.
@@ -522,9 +521,11 @@ To prepare a VirtioBlock file-system, do the following:
     to the real file must be provided.
 
     On the Base FVPs:
+
         -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
     On the Foundation FVP:
+
         --block-device="<path-to>/<file-system-image>"
 
 
@@ -543,14 +544,14 @@ To prepare a RAM-disk root file-system, do the following:
 
 1.  Download the file-system image:
 
-        wget http://releases.linaro.org/14.01/openembedded/aarch64/linaro-image-lamp-genericarmv8-20140127-635.rootfs.tar.gz
+        wget http://releases.linaro.org/14.04/openembedded/aarch64/linaro-image-lamp-genericarmv8-20140417-667.rootfs.tar.gz
 
 2.  Modify the Linaro image:
 
         # Prepare for use as RAM-disk. Normally use MMC, NFS or VirtioBlock.
         # Be careful, otherwise you could damage your host file-system.
         mkdir tmp; cd tmp
-        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20140127-635.rootfs.tar.gz | cpio -id"
+        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20140417-667.rootfs.tar.gz | cpio -id"
         sudo ln -s sbin/init .
         sudo sh -c "echo 'devtmpfs /dev devtmpfs mode=0755,nosuid 0 0' >> etc/fstab"
         sudo sh -c "find . | cpio --quiet -H newc -o | gzip -3 -n > ../filesystem.cpio.gz"
@@ -567,9 +568,10 @@ This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
 *   `Foundation_v8` (Version 2.0, Build 0.8.5206)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.4, Build 0.8.5405)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.4, Build 0.8.5405)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.4, Build 0.8.5405)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.6, Build 0.8.5602)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.6, Build 0.8.5602)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.6, Build 0.8.5602)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.6, Build 0.8.5602)
 
 NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 The commands below would report an `unhandled argument` error in this case.
@@ -830,6 +832,6 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [Firmware Design]:  ./firmware-design.md
 
 [ARM FVP website]:  http://www.arm.com/fvp
-[Linaro Toolchain]: http://releases.linaro.org/13.09/components/toolchain/binaries/
+[Linaro Toolchain]: http://releases.linaro.org/13.11/components/toolchain/binaries/
 [EDK2]:             http://github.com/tianocore/edk2
 [DS-5]:             http://www.arm.com/products/tools/software-tools/ds-5/index.php
