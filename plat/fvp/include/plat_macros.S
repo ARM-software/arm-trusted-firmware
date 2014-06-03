@@ -47,7 +47,7 @@ gic_regs: .asciz "gic_iar", "gic_ctlr", ""
 	bl	fvp_get_cfgvar
 	/* gic base address is now in x0 */
 	ldr	w1, [x0, #GICC_IAR]
-	ldr	w2, [x0, #GICD_CTLR]
+	ldr	w2, [x0, #GICC_CTLR]
 	sub	sp, sp, #GIC_REG_SIZE
 	stp	x1, x2, [sp] /* we store the gic registers as 64 bit */
 	adr	x0, gic_regs
