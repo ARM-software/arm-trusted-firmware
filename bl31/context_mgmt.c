@@ -308,7 +308,9 @@ void cm_init_pcpu_ptr_cache()
 
 	pcpu_ptr_cache = &per_cpu_ptr_cache_space[linear_id];
 	assert(pcpu_ptr_cache);
+#if CRASH_REPORTING
 	pcpu_ptr_cache->crash_stack = get_crash_stack(mpidr);
+#endif
 
 	cm_set_pcpu_ptr_cache(pcpu_ptr_cache);
 }

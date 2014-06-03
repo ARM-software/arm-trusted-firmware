@@ -59,3 +59,11 @@ IMF_READ_INTERRUPT_ID	:=	0
 $(eval $(call assert_boolean,IMF_READ_INTERRUPT_ID))
 $(eval $(call add_define,IMF_READ_INTERRUPT_ID))
 
+# Flag used to inidicate if Crash reporting via console should be included
+# in BL3-1. This defaults to being present in DEBUG builds only
+ifndef CRASH_REPORTING
+CRASH_REPORTING		:=	$(DEBUG)
+endif
+
+$(eval $(call assert_boolean,CRASH_REPORTING))
+$(eval $(call add_define,CRASH_REPORTING))
