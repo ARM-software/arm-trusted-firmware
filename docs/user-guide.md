@@ -172,6 +172,10 @@ performed.
     entrypoint) or 1 (CPU reset to BL3-1 entrypoint).
     The default value is 0.
 
+*   `CRASH_REPORTING`: A non-zero value enables a console dump of processor
+    register state when an unexpected exception occurs during execution of
+    BL3-1. This option defaults to the value of `DEBUG` - i.e. by default
+    this is only enabled for a debug build of the firmware.
 
 ### Creating a Firmware Image Package
 
