@@ -8,10 +8,11 @@ Contents :
 3.  EL3 runtime services framework
 4.  Power State Coordination Interface
 5.  Secure-EL1 Payloads and Dispatchers
-6.  Memory layout on FVP platforms
-7.  Firmware Image Package (FIP)
-8.  Code Structure
-9.  References
+6.  Crash Reporting in BL3-1
+7.  Memory layout on FVP platforms
+8.  Firmware Image Package (FIP)
+9.  Code Structure
+10.  References
 
 
 1.  Introduction
@@ -296,15 +297,16 @@ Currently, BL3-1 performs a similar architectural initialization to BL1 as
 far as system register settings are concerned. Since BL1 code resides in ROM,
 architectural initialization in BL3-1 allows override of any previous
 initialization done by BL1. BL3-1 creates page tables to address the first
-4GB of physical address space and initializes the MMU accordingly. It replaces
-the exception vectors populated by BL1 with its own. BL3-1 exception vectors
-signal error conditions in the same way as BL1 does if an unexpected
-exception is raised. They implement more elaborate support for handling SMCs
-since this is the only mechanism to access the runtime services implemented by
-BL3-1 (PSCI for example). BL3-1 checks each SMC for validity as specified by
-the [SMC calling convention PDD][SMCCC] before passing control to the required
-SMC handler routine. BL3-1 programs the `CNTFRQ_EL0` register with the clock
-frequency of the system counter, which is provided by the platform.
+4GB of physical address space and initializes the MMU accordingly. It initializes
+a buffer of frequently used pointers, called per-cpu pointer cache, in memory for
+faster access. Currently the per-cpu pointer cache contains only the pointer
+to crash stack. It then replaces the exception vectors populated by BL1 with its
+own. BL3-1 exception vectors implement more elaborate support for
+handling SMCs since this is the only mechanism to access the runtime services
+implemented by BL3-1 (PSCI for example). BL3-1 checks each SMC for validity as
+specified by the [SMC calling convention PDD][SMCCC] before passing control to
+the required SMC handler routine. BL3-1 programs the `CNTFRQ_EL0` register with
+the clock frequency of the system counter, which is provided by the platform.
 
 #### Platform initialization
 
@@ -830,8 +832,102 @@ before returning through EL3 and running the non-trusted firmware (BL3-3):
     `bl31_main()` will set up the return to the normal world firmware BL3-3 and
     continue the boot process in the normal world.
 
+6.  Crash Reporting in BL3-1
+----------------------------------
 
-6.  Memory layout on FVP platforms
+The BL3-1 implements a scheme for reporting the processor state when an unhandled
+exception is encountered. The reporting mechanism attempts to preserve all the
+register contents and report it via the default serial output. The general purpose
+registers, EL3, Secure EL1 and some EL2 state registers are reported.
+
+A dedicated per-cpu crash stack is maintained by BL3-1 and this is retrieved via
+the per-cpu pointer cache. The implementation attempts to minimise the memory
+required for this feature. The file `crash_reporting.S` contains the
+implementation for crash reporting.
+
+The sample crash output is shown below.
+
+    x0	:0x000000004F00007C
+    x1	:0x0000000007FFFFFF
+    x2	:0x0000000004014D50
+    x3	:0x0000000000000000
+    x4	:0x0000000088007998
+    x5	:0x00000000001343AC
+    x6	:0x0000000000000016
+    x7	:0x00000000000B8A38
+    x8	:0x00000000001343AC
+    x9	:0x00000000000101A8
+    x10	:0x0000000000000002
+    x11	:0x000000000000011C
+    x12	:0x00000000FEFDC644
+    x13	:0x00000000FED93FFC
+    x14	:0x0000000000247950
+    x15	:0x00000000000007A2
+    x16	:0x00000000000007A4
+    x17	:0x0000000000247950
+    x18	:0x0000000000000000
+    x19	:0x00000000FFFFFFFF
+    x20	:0x0000000004014D50
+    x21	:0x000000000400A38C
+    x22	:0x0000000000247950
+    x23	:0x0000000000000010
+    x24	:0x0000000000000024
+    x25	:0x00000000FEFDC868
+    x26	:0x00000000FEFDC86A
+    x27	:0x00000000019EDEDC
+    x28	:0x000000000A7CFDAA
+    x29	:0x0000000004010780
+    x30	:0x000000000400F004
+    scr_el3	:0x0000000000000D3D
+    sctlr_el3	:0x0000000000C8181F
+    cptr_el3	:0x0000000000000000
+    tcr_el3	:0x0000000080803520
+    daif	:0x00000000000003C0
+    mair_el3	:0x00000000000004FF
+    spsr_el3	:0x00000000800003CC
+    elr_el3	:0x000000000400C0CC
+    ttbr0_el3	:0x00000000040172A0
+    esr_el3	:0x0000000096000210
+    sp_el3	:0x0000000004014D50
+    far_el3	:0x000000004F00007C
+    spsr_el1	:0x0000000000000000
+    elr_el1	:0x0000000000000000
+    spsr_abt	:0x0000000000000000
+    spsr_und	:0x0000000000000000
+    spsr_irq	:0x0000000000000000
+    spsr_fiq	:0x0000000000000000
+    sctlr_el1	:0x0000000030C81807
+    actlr_el1	:0x0000000000000000
+    cpacr_el1	:0x0000000000300000
+    csselr_el1	:0x0000000000000002
+    sp_el1	:0x0000000004028800
+    esr_el1	:0x0000000000000000
+    ttbr0_el1	:0x000000000402C200
+    ttbr1_el1	:0x0000000000000000
+    mair_el1	:0x00000000000004FF
+    amair_el1	:0x0000000000000000
+    tcr_el1	:0x0000000000003520
+    tpidr_el1	:0x0000000000000000
+    tpidr_el0	:0x0000000000000000
+    tpidrro_el0	:0x0000000000000000
+    dacr32_el2	:0x0000000000000000
+    ifsr32_el2	:0x0000000000000000
+    par_el1	:0x0000000000000000
+    far_el1	:0x0000000000000000
+    afsr0_el1	:0x0000000000000000
+    afsr1_el1	:0x0000000000000000
+    contextidr_el1	:0x0000000000000000
+    vbar_el1	:0x0000000004027000
+    cntp_ctl_el0	:0x0000000000000000
+    cntp_cval_el0	:0x0000000000000000
+    cntv_ctl_el0	:0x0000000000000000
+    cntv_cval_el0	:0x0000000000000000
+    cntkctl_el1	:0x0000000000000000
+    fpexc32_el2	:0x0000000004000700
+    sp_el0	:0x0000000004010780
+
+
+7.  Memory layout on FVP platforms
 ----------------------------------
 
 On FVP platforms, we use the Trusted ROM and Trusted SRAM to store the trusted
@@ -1072,7 +1168,7 @@ following view:
     ------------ 0x04000000
 
 
-7.  Firmware Image Package (FIP)
+8.  Firmware Image Package (FIP)
 --------------------------------
 
 Using a Firmware Image Package (FIP) allows for packing bootloader images (and
@@ -1150,7 +1246,7 @@ Currently the FVP's policy only allows loading of a known set of images. The
 platform policy can be modified to allow additional images.
 
 
-8.  Code Structure
+9.  Code Structure
 ------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -1190,7 +1286,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-9.  References
+10.  References
 --------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
