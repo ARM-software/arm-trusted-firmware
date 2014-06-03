@@ -75,6 +75,8 @@
 
 /* Memory mapped Generic timer interfaces  */
 #define SYS_CNTCTL_BASE		0x2a430000
+#define SYS_CNTREAD_BASE	0x2a800000
+#define SYS_TIMCTL_BASE		0x2a810000
 
 /* V2M motherboard system registers & offsets */
 #define VE_SYSREGS_BASE		0x1c010000
