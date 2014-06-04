@@ -122,13 +122,9 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 						     CTX_ELR_EL3);
 	}
 
-	SMC_SET_EL3(&tsp_ctx->cpu_ctx,
-		    CTX_SPSR_EL3,
-		    SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS));
-	SMC_SET_EL3(&tsp_ctx->cpu_ctx,
-		    CTX_ELR_EL3,
-		    (uint64_t) &tsp_vectors->fiq_entry);
 	cm_el1_sysregs_context_restore(SECURE);
+	cm_set_elr_spsr_el3(SECURE, (uint64_t) &tsp_vectors->fiq_entry,
+		    SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS));
 	cm_set_next_eret_context(SECURE);
 
 	/*

@@ -36,22 +36,6 @@
 #include <psci.h>
 
 /*******************************************************************************
- * The following two data structures hold the generic information to bringup
- * a suspended/hotplugged out cpu
- ******************************************************************************/
-typedef struct eret_params {
-	unsigned long entrypoint;
-	unsigned long spsr;
-} eret_params_t;
-
-typedef struct ns_entry_info {
-	eret_params_t eret_info;
-	unsigned long context_id;
-	unsigned int scr;
-	unsigned int sctlr;
-} ns_entry_info_t;
-
-/*******************************************************************************
  * The following two data structures hold the topology tree which in turn tracks
  * the state of the all the affinity instances supported by the platform.
  ******************************************************************************/
@@ -85,7 +69,6 @@ typedef unsigned int (*afflvl_power_on_finisher_t)(unsigned long,
  * Data prototypes
  ******************************************************************************/
 extern suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
-extern ns_entry_info_t psci_ns_entry_info[PSCI_NUM_AFFS];
 extern const plat_pm_ops_t *psci_plat_pm_ops;
 extern aff_map_node_t psci_aff_map[PSCI_NUM_AFFS];
 
@@ -102,7 +85,6 @@ int get_max_afflvl(void);
 unsigned short psci_get_state(aff_map_node_t *node);
 unsigned short psci_get_phys_state(aff_map_node_t *node);
 void psci_set_state(aff_map_node_t *node, unsigned short state);
-void psci_get_ns_entry_info(unsigned int index);
 unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
 int psci_validate_mpidr(unsigned long, int);
 int get_power_on_target_afflvl(unsigned long mpidr);
@@ -110,9 +92,9 @@ void psci_afflvl_power_on_finish(unsigned long,
 				int,
 				int,
 				afflvl_power_on_finisher_t *);
-int psci_set_ns_entry_info(unsigned int index,
-				unsigned long entrypoint,
-				unsigned long context_id);
+int psci_save_ns_entry(uint64_t mpidr,
+		       uint64_t entrypoint, uint64_t context_id,
+		       uint32_t caller_scr_el3, uint32_t caller_sctlr_el1);
 int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
 void psci_acquire_afflvl_locks(unsigned long mpidr,
 				int start_afflvl,

@@ -167,6 +167,7 @@
 #define HCR_FMO_BIT		(1 << 3)
 
 /* CNTHCTL_EL2 definitions */
+#define EVNTEN_BIT		(1 << 2)
 #define EL1PCEN_BIT		(1 << 1)
 #define EL1PCTEN_BIT		(1 << 0)
 
