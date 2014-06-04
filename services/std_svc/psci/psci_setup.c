@@ -59,7 +59,7 @@ static aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 
 /*******************************************************************************
  * 'psci_ns_einfo_idx' keeps track of the next free index in the
- * 'psci_ns_entry_info' & 'psci_suspend_context' arrays.
+ * 'psci_suspend_context' arrays.
  ******************************************************************************/
 static unsigned int psci_ns_einfo_idx;
 
