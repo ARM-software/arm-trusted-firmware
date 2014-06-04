@@ -262,6 +262,9 @@ DEFINE_SYSREG_RW_FUNCS(cnthctl_el2)
 
 DEFINE_SYSREG_RW_FUNCS(tpidr_el3)
 
+DEFINE_SYSREG_RW_FUNCS(vpidr_el2)
+DEFINE_SYSREG_RW_FUNCS(vmpidr_el2)
+
 /* Implementation specific registers */
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(cpuectlr_el1, CPUECTLR_EL1)

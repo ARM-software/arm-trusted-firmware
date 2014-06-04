@@ -40,6 +40,7 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <runtime_svc.h>
+#include <string.h>
 
 
 /*******************************************************************************
@@ -84,6 +85,177 @@ void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_st
 	assert(security_state <= NON_SECURE);
 
 	set_cpu_data_by_mpidr(mpidr, cpu_context[security_state], context);
+}
+
+/*******************************************************************************
+ * This function is used to program the context that's used for exception
+ * return. This initializes the SP_EL3 to a pointer to a 'cpu_context' set for
+ * the required security state
+ ******************************************************************************/
+static inline void cm_set_next_context(void *context)
+{
+#if DEBUG
+	uint64_t sp_mode;
+
+	/*
+	 * Check that this function is called with SP_EL0 as the stack
+	 * pointer
+	 */
+	__asm__ volatile("mrs	%0, SPSel\n"
+			 : "=r" (sp_mode));
+
+	assert(sp_mode == MODE_SP_EL0);
+#endif
+
+	__asm__ volatile("msr	spsel, #1\n"
+			 "mov	sp, %0\n"
+			 "msr	spsel, #0\n"
+			 : : "r" (context));
+}
+
+/*******************************************************************************
+ * The following function initializes a cpu_context for the current CPU for
+ * first use, and sets the initial entrypoint state as specified by the
+ * entry_point_info structure.
+ *
+ * The security state to initialize is determined by the SECURE attribute
+ * of the entry_point_info. The function returns a pointer to the initialized
+ * context and sets this as the next context to return to.
+ *
+ * The EE and ST attributes are used to configure the endianess and secure
+ * timer availability for the new excution context.
+ *
+ * To prepare the register state for entry call cm_prepare_el3_exit() and
+ * el3_exit(). For Secure-EL1 cm_prepare_el3_exit() is equivalent to
+ * cm_e1_sysreg_context_restore().
+ ******************************************************************************/
+void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
+{
+	uint32_t security_state;
+	cpu_context_t *ctx;
+	uint32_t scr_el3;
+	el3_state_t *state;
+	gp_regs_t *gp_regs;
+	unsigned long sctlr_elx;
+
+	security_state = GET_SECURITY_STATE(ep->h.attr);
+	ctx = cm_get_context_by_mpidr(mpidr, security_state);
+	assert(ctx);
+
+	/* Clear any residual register values from the context */
+	memset(ctx, 0, sizeof(*ctx));
+
+	/*
+	 * Base the context SCR on the current value, adjust for entry point
+	 * specific requirements and set trap bits from the IMF
+	 * TODO: provide the base/global SCR bits using another mechanism?
+	 */
+	scr_el3 = read_scr();
+	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
+			SCR_ST_BIT | SCR_HCE_BIT);
+
+	if (security_state != SECURE)
+		scr_el3 |= SCR_NS_BIT;
+
+	if (GET_RW(ep->spsr) == MODE_RW_64)
+		scr_el3 |= SCR_RW_BIT;
+
+	if (EP_GET_ST(ep->h.attr))
+		scr_el3 |= SCR_ST_BIT;
+
+	scr_el3 |= get_scr_el3_from_routing_model(security_state);
+
+	/*
+	 * Set up SCTLR_ELx for the target exception level:
+	 * EE bit is taken from the entrpoint attributes
+	 * M, C and I bits must be zero (as required by PSCI specification)
+	 *
+	 * The target exception level is based on the spsr mode requested.
+	 * If execution is requested to EL2 or hyp mode, HVC is enabled
+	 * via SCR_EL3.HCE.
+	 *
+	 * Always compute the SCTLR_EL1 value and save in the cpu_context
+	 * - the EL2 registers are set up by cm_preapre_ns_entry() as they
+	 * are not part of the stored cpu_context
+	 *
+	 * TODO: In debug builds the spsr should be validated and checked
+	 * against the CPU support, security state, endianess and pc
+	 */
+	sctlr_elx = EP_GET_EE(ep->h.attr) ? SCTLR_EE_BIT : 0;
+	sctlr_elx |= SCTLR_EL1_RES1;
+	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
+
+	if ((GET_RW(ep->spsr) == MODE_RW_64
+	     && GET_EL(ep->spsr) == MODE_EL2)
+	    || (GET_RW(ep->spsr) != MODE_RW_64
+		&& GET_M32(ep->spsr) == MODE32_hyp)) {
+		scr_el3 |= SCR_HCE_BIT;
+	}
+
+	/* Populate EL3 state so that we've the right context before doing ERET */
+	state = get_el3state_ctx(ctx);
+	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
+	write_ctx_reg(state, CTX_ELR_EL3, ep->pc);
+	write_ctx_reg(state, CTX_SPSR_EL3, ep->spsr);
+
+	/*
+	 * Store the X0-X7 value from the entrypoint into the context
+	 * Use memcpy as we are in control of the layout of the structures
+	 */
+	gp_regs = get_gpregs_ctx(ctx);
+	memcpy(gp_regs, (void *)&ep->args, sizeof(aapcs64_params_t));
+}
+
+/*******************************************************************************
+ * Prepare the CPU system registers for first entry into secure or normal world
+ *
+ * If execution is requested to EL2 or hyp mode, SCTLR_EL2 is initialized
+ * If execution is requested to non-secure EL1 or svc mode, and the CPU supports
+ * EL2 then EL2 is disabled by configuring all necessary EL2 registers.
+ * For all entries, the EL1 registers are initialized from the cpu_context
+ ******************************************************************************/
+void cm_prepare_el3_exit(uint32_t security_state)
+{
+	uint32_t sctlr_elx, scr_el3, cptr_el2;
+	cpu_context_t *ctx = cm_get_context(security_state);
+
+	assert(ctx);
+
+	if (security_state == NON_SECURE) {
+		scr_el3 = read_ctx_reg(get_el3state_ctx(ctx), CTX_SCR_EL3);
+		if (scr_el3 & SCR_HCE_BIT) {
+			/* Use SCTLR_EL1.EE value to initialise sctlr_el2 */
+			sctlr_elx = read_ctx_reg(get_sysregs_ctx(ctx),
+						 CTX_SCTLR_EL1);
+			sctlr_elx &= ~SCTLR_EE_BIT;
+			sctlr_elx |= SCTLR_EL2_RES1;
+			write_sctlr_el2(sctlr_elx);
+		} else if (read_id_aa64pfr0_el1() &
+			   (ID_AA64PFR0_ELX_MASK << ID_AA64PFR0_EL2_SHIFT)) {
+			/* EL2 present but unused, need to disable safely */
+
+			/* HCR_EL2 = 0, except RW bit set to match SCR_EL3 */
+			write_hcr_el2((scr_el3 & SCR_RW_BIT) ? HCR_RW_BIT : 0);
+
+			/* SCTLR_EL2 : can be ignored when bypassing */
+
+			/* CPTR_EL2 : disable all traps TCPAC, TTA, TFP */
+			cptr_el2 = read_cptr_el2();
+			cptr_el2 &= ~(TCPAC_BIT | TTA_BIT | TFP_BIT);
+			write_cptr_el2(cptr_el2);
+
+			/* Enable EL1 access to timer */
+			write_cnthctl_el2(EL1PCEN_BIT | EL1PCTEN_BIT);
+
+			/* Set VPIDR, VMPIDR to match MIDR, MPIDR */
+			write_vpidr_el2(read_midr_el1());
+			write_vmpidr_el2(read_mpidr_el1());
+		}
+	}
+
+	el1_sysregs_context_restore(get_sysregs_ctx(ctx));
+
+	cm_set_next_context(ctx);
 }
 
 /*******************************************************************************
@@ -132,33 +304,6 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 }
 
 /*******************************************************************************
- * This function populates 'cpu_context' pertaining to the given security state
- * with the entrypoint, SPSR and SCR values so that an ERET from this security
- * state correctly restores corresponding values to drop the CPU to the next
- * exception level
- ******************************************************************************/
-void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
-		uint32_t spsr, uint32_t scr)
-{
-	cpu_context_t *ctx;
-	el3_state_t *state;
-
-	ctx = cm_get_context(security_state);
-	assert(ctx);
-
-	/* Program the interrupt routing model for this security state */
-	scr &= ~SCR_FIQ_BIT;
-	scr &= ~SCR_IRQ_BIT;
-	scr |= get_scr_el3_from_routing_model(security_state);
-
-	/* Populate EL3 state so that we've the right context before doing ERET */
-	state = get_el3state_ctx(ctx);
-	write_ctx_reg(state, CTX_SPSR_EL3, spsr);
-	write_ctx_reg(state, CTX_ELR_EL3, entrypoint);
-	write_ctx_reg(state, CTX_SCR_EL3, scr);
-}
-
-/*******************************************************************************
  * This function populates ELR_EL3 member of 'cpu_context' pertaining to the
  * given security state with the given entrypoint
  ******************************************************************************/
@@ -173,6 +318,25 @@ void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint)
 	/* Populate EL3 state so that ERET jumps to the correct entry */
 	state = get_el3state_ctx(ctx);
 	write_ctx_reg(state, CTX_ELR_EL3, entrypoint);
+}
+
+/*******************************************************************************
+ * This function populates ELR_EL3 and SPSR_EL3 members of 'cpu_context'
+ * pertaining to the given security state
+ ******************************************************************************/
+void cm_set_elr_spsr_el3(uint32_t security_state,
+			 uint64_t entrypoint, uint32_t spsr)
+{
+	cpu_context_t *ctx;
+	el3_state_t *state;
+
+	ctx = cm_get_context(security_state);
+	assert(ctx);
+
+	/* Populate EL3 state so that ERET jumps to the correct entry */
+	state = get_el3state_ctx(ctx);
+	write_ctx_reg(state, CTX_ELR_EL3, entrypoint);
+	write_ctx_reg(state, CTX_SPSR_EL3, spsr);
 }
 
 /*******************************************************************************
@@ -233,26 +397,9 @@ uint32_t cm_get_scr_el3(uint32_t security_state)
 void cm_set_next_eret_context(uint32_t security_state)
 {
 	cpu_context_t *ctx;
-#if DEBUG
-	uint64_t sp_mode;
-#endif
 
 	ctx = cm_get_context(security_state);
 	assert(ctx);
 
-#if DEBUG
-	/*
-	 * Check that this function is called with SP_EL0 as the stack
-	 * pointer
-	 */
-	__asm__ volatile("mrs	%0, SPSel\n"
-			 : "=r" (sp_mode));
-
-	assert(sp_mode == MODE_SP_EL0);
-#endif
-
-	__asm__ volatile("msr	spsel, #1\n"
-			 "mov	sp, %0\n"
-			 "msr	spsel, #0\n"
-			 : : "r" (ctx));
+	cm_set_next_context(ctx);
 }
