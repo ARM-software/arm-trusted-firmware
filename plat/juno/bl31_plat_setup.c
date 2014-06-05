@@ -107,6 +107,12 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
 
+	/*
+	 * Check params passed from BL2 should not be NULL,
+	 * We are not checking plat_params_from_bl2 as NULL as we are not
+	 * using it on Juno
+	 */
+	assert(from_bl2 != NULL);
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
 

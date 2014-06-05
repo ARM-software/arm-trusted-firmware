@@ -67,9 +67,6 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
-/* Pointer to memory visible to both BL2 and BL3-1 for passing data */
-extern unsigned char **bl2_el_change_mem_ptr;
-
 /* Data structure which holds the extents of the trusted RAM for BL2 */
 static meminfo_t bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
@@ -254,7 +251,7 @@ void bl2_plat_flush_bl31_params(void)
  * Perform the very early platform specific architectural setup here. At the
  * moment this is only intializes the mmu in a quick and dirty way.
  ******************************************************************************/
-void bl2_plat_arch_setup()
+void bl2_plat_arch_setup(void)
 {
 	configure_mmu_el1(bl2_tzram_layout.total_base,
 			  bl2_tzram_layout.total_size,
@@ -264,7 +261,6 @@ void bl2_plat_arch_setup()
 			  BL2_COHERENT_RAM_LIMIT);
 }
 
-
 /*******************************************************************************
  * Before calling this function BL31 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
@@ -272,7 +268,7 @@ void bl2_plat_arch_setup()
  * On Juno we are only setting the security state, entrypoint
  ******************************************************************************/
 void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
-				       entry_point_info_t *bl31_ep_info)
+			       entry_point_info_t *bl31_ep_info)
 {
 	SET_SECURITY_STATE(bl31_ep_info->h.attr, SECURE);
 	bl31_ep_info->spsr = SPSR_64(MODE_EL3, MODE_SP_ELX,
@@ -287,7 +283,7 @@ void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
  * On Juno we are only setting the security state, entrypoint
  ******************************************************************************/
 void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
-				       entry_point_info_t *bl32_ep_info)
+			       entry_point_info_t *bl32_ep_info)
 {
 	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
 	/*
