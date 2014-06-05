@@ -76,11 +76,9 @@ __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
 /*******************************************************************************
- * Reference to structures which holds the arguments which need to be passed
- * to BL31
+ * Structure which holds the arguments which need to be passed to BL3-1
  ******************************************************************************/
-static bl31_params_t *bl2_to_bl31_params;
-static entry_point_info_t *bl31_ep_info;
+static bl2_to_bl31_params_mem_t bl31_params_mem;
 
 meminfo_t *bl2_plat_sec_mem_layout(void)
 {
@@ -98,46 +96,41 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
  ******************************************************************************/
 bl31_params_t *bl2_plat_get_bl31_params(void)
 {
-	bl2_to_bl31_params_mem_t *bl31_params_mem;
+	bl31_params_t *bl2_to_bl31_params;
 
 	/*
-	 * Allocate the memory for all the arguments that needs to
-	 * be passed to BL31
+	 * Initialise the memory for all the arguments that needs to
+	 * be passed to BL3-1
 	 */
-	bl31_params_mem = (bl2_to_bl31_params_mem_t *)PARAMS_BASE;
-	memset((void *)PARAMS_BASE, 0, sizeof(bl2_to_bl31_params_mem_t));
+	memset(&bl31_params_mem, 0, sizeof(bl2_to_bl31_params_mem_t));
 
 	/* Assign memory for TF related information */
-	bl2_to_bl31_params = &bl31_params_mem->bl31_params;
+	bl2_to_bl31_params = &bl31_params_mem.bl31_params;
 	SET_PARAM_HEAD(bl2_to_bl31_params, PARAM_BL31, VERSION_1, 0);
 
-	/* Fill BL31 related information */
-	bl31_ep_info = &bl31_params_mem->bl31_ep_info;
-	bl2_to_bl31_params->bl31_image_info = &bl31_params_mem->bl31_image_info;
+	/* Fill BL3-1 related information */
+	bl2_to_bl31_params->bl31_image_info = &bl31_params_mem.bl31_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl31_image_info, PARAM_IMAGE_BINARY,
 		VERSION_1, 0);
 
-	/* Fill BL32 related information if it exists */
-	if (BL32_BASE) {
-		bl2_to_bl31_params->bl32_ep_info =
-			&bl31_params_mem->bl32_ep_info;
-		SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info,
-			PARAM_EP, VERSION_1, 0);
-		bl2_to_bl31_params->bl32_image_info =
-			&bl31_params_mem->bl32_image_info;
-		SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info,
-			PARAM_IMAGE_BINARY,
-			VERSION_1, 0);
-	}
+	/* Fill BL3-2 related information if it exists */
+#if BL32_BASE
+	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, PARAM_EP,
+		VERSION_1, 0);
+	bl2_to_bl31_params->bl32_image_info = &bl31_params_mem.bl32_image_info;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info, PARAM_IMAGE_BINARY,
+		VERSION_1, 0);
+#endif
 
-	/* Fill BL33 related information */
-	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem->bl33_ep_info;
+	/* Fill BL3-3 related information */
+	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem.bl33_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_ep_info,
 		PARAM_EP, VERSION_1, 0);
 	/* UEFI expects to receive the primary CPU MPID (through x0) */
 	bl2_to_bl31_params->bl33_ep_info->args.arg0 = PRIMARY_CPU;
 
-	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem->bl33_image_info;
+	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem.bl33_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info, PARAM_IMAGE_BINARY,
 		VERSION_1, 0);
 
@@ -150,7 +143,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
  ******************************************************************************/
 struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 {
-	return bl31_ep_info;
+	return &bl31_params_mem.bl31_ep_info;
 }
 
 /*******************************************************************************
@@ -253,7 +246,7 @@ void bl2_platform_setup(void)
 /* Flush the TF params and the TF plat params */
 void bl2_plat_flush_bl31_params(void)
 {
-	flush_dcache_range((unsigned long)PARAMS_BASE,
+	flush_dcache_range((unsigned long)&bl31_params_mem,
 			sizeof(bl2_to_bl31_params_mem_t));
 }
 

@@ -134,10 +134,6 @@
 #define DRAM_BASE		0x80000000
 #define DRAM_SIZE		0x80000000
 
-/* Base address where parameters to BL31 are stored */
-/* Juno TODO: Move BL3-1 arguments somewhere in trusted memory  */
-#define PARAMS_BASE		DRAM_BASE
-
 /* Memory mapped Generic timer interfaces  */
 #define SYS_CNTCTL_BASE		0x2a430000
 

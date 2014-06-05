@@ -68,10 +68,11 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 /******************************************************************************
- * Reference to structures which hold the arguments that have been passed to
- * BL31 from BL2.
+ * Placeholder variables for copying the arguments that have been passed to
+ * BL3-1 from BL2.
  ******************************************************************************/
-static bl31_params_t *bl2_to_bl31_params;
+static entry_point_info_t bl32_ep_info;
+static entry_point_info_t bl33_ep_info;
 
 /*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for
@@ -83,9 +84,7 @@ entry_point_info_t *bl31_get_next_image_info(uint32_t type)
 {
 	entry_point_info_t *next_image_info;
 
-	next_image_info = (type == NON_SECURE) ?
-		bl2_to_bl31_params->bl33_ep_info :
-		bl2_to_bl31_params->bl32_ep_info;
+	next_image_info = (type == NON_SECURE) ? &bl33_ep_info : &bl32_ep_info;
 
 	/* None of the images on this platform can have 0x0 as the entrypoint */
 	if (next_image_info->pc)
@@ -98,10 +97,9 @@ entry_point_info_t *bl31_get_next_image_info(uint32_t type)
  * Perform any BL3-1 specific platform actions. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
  * are lost (potentially). This needs to be done before the MMU is initialized
- * so that the memory layout can be used while creating page tables. The 'data'
- * parameter is not used since all the information is contained in 'from_bl2'.
- * Also, BL2 has flushed this information to memory, so we are guaranteed to
- * pick up good data
+ * so that the memory layout can be used while creating page tables. Also, BL2
+ * has flushed this information to memory, so we are guaranteed to pick up good
+ * data
  ******************************************************************************/
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			       void *plat_params_from_bl2)
@@ -112,8 +110,12 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
 
-	bl2_to_bl31_params = from_bl2;
-
+	/*
+	 * Copy BL3-2 and BL3-3 entry point information.
+	 * They are stored in Secure RAM, in BL2's address space.
+	 */
+	bl32_ep_info = *from_bl2->bl32_ep_info;
+	bl33_ep_info = *from_bl2->bl33_ep_info;
 }
 
 /*******************************************************************************
