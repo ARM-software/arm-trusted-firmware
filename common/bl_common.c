@@ -61,12 +61,11 @@ void change_security_state(unsigned int target_security_state)
 {
 	unsigned long scr = read_scr();
 
+	assert(sec_state_is_valid(target_security_state));
 	if (target_security_state == SECURE)
 		scr &= ~SCR_NS_BIT;
-	else if (target_security_state == NON_SECURE)
-		scr |= SCR_NS_BIT;
 	else
-		assert(0);
+		scr |= SCR_NS_BIT;
 
 	write_scr(scr);
 }

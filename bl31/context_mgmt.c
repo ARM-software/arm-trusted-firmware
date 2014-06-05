@@ -71,7 +71,7 @@ void cm_init(void)
  ******************************************************************************/
 void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state)
 {
-	assert(security_state <= NON_SECURE);
+	assert(sec_state_is_valid(security_state));
 
 	return get_cpu_data_by_mpidr(mpidr, cpu_context[security_state]);
 }
@@ -82,7 +82,7 @@ void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state)
  ******************************************************************************/
 void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_state)
 {
-	assert(security_state <= NON_SECURE);
+	assert(sec_state_is_valid(security_state));
 
 	set_cpu_data_by_mpidr(mpidr, cpu_context[security_state], context);
 }

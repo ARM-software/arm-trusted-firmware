@@ -107,7 +107,7 @@ uint32_t get_scr_el3_from_routing_model(uint32_t security_state)
 {
 	uint32_t scr_el3;
 
-	assert(security_state <= NON_SECURE);
+	assert(sec_state_is_valid(security_state));
 	scr_el3 = intr_type_descs[INTR_TYPE_NS].scr_el3[security_state];
 	scr_el3 |= intr_type_descs[INTR_TYPE_S_EL1].scr_el3[security_state];
 	scr_el3 |= intr_type_descs[INTR_TYPE_EL3].scr_el3[security_state];

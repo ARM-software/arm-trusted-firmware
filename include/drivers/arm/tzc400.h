@@ -90,6 +90,7 @@
 #define GATE_KEEPER_OS_MASK	0xf
 #define GATE_KEEPER_OR_SHIFT	0
 #define GATE_KEEPER_OR_MASK	0xf
+#define GATE_KEEPER_FILTER_MASK	0x1
 
 /* Speculation is enabled by default. */
 #define SPECULATION_CTRL_WRITE_DISABLE	(1 << 1)

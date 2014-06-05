@@ -33,6 +33,7 @@
 
 #define SECURE		0x0
 #define NON_SECURE	0x1
+#define sec_state_is_valid(s) (((s) == SECURE) || ((s) == NON_SECURE))
 
 #define UP	1
 #define DOWN	0

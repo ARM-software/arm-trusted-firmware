@@ -322,7 +322,7 @@ uint32_t arm_gic_interrupt_type_to_line(uint32_t type,
 	       type == INTR_TYPE_EL3 ||
 	       type == INTR_TYPE_NS);
 
-	assert(security_state == NON_SECURE || security_state == SECURE);
+	assert(sec_state_is_valid(security_state));
 
 	/*
 	 * We ignore the security state parameter under the assumption that

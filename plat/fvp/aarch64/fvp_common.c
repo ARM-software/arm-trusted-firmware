@@ -237,7 +237,8 @@ uint64_t plat_get_syscnt_freq(void)
 	counter_base_frequency = mmio_read_32(SYS_CNTCTL_BASE + CNTFID_OFF);
 
 	/* The first entry of the frequency modes table must not be 0 */
-	assert(counter_base_frequency != 0);
+	if (counter_base_frequency == 0)
+		panic();
 
 	return counter_base_frequency;
 }
