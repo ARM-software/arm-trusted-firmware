@@ -75,7 +75,6 @@ BL_COMMON_SOURCES	:=	common/bl_common.c			\
 				common/debug.c				\
 				lib/aarch64/cache_helpers.S		\
 				lib/aarch64/misc_helpers.S		\
-				lib/aarch64/tlb_helpers.S		\
 				lib/aarch64/xlat_helpers.c		\
 				lib/stdlib/std.c			\
 				lib/io_storage.c			\

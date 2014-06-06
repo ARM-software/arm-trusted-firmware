@@ -31,6 +31,7 @@
 #ifndef __GIC_V3_H__
 #define __GIC_V3_H__
 
+#include <arch.h>
 #include <mmio.h>
 #include <stdint.h>
 
@@ -68,13 +69,20 @@
  ******************************************************************************/
 uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr);
 
-unsigned int read_icc_sre_el1(void);
-unsigned int read_icc_sre_el2(void);
-unsigned int read_icc_sre_el3(void);
-void write_icc_sre_el1(unsigned int);
-void write_icc_sre_el2(unsigned int);
-void write_icc_sre_el3(unsigned int);
-void write_icc_pmr_el1(unsigned int);
+/*
+ * Register definitions used by GCC for GICv3 access.
+ */
+#define ICC_SRE_EL1     S3_0_C12_C12_5
+#define ICC_SRE_EL2     S3_4_C12_C9_5
+#define ICC_SRE_EL3     S3_6_C12_C12_5
+#define ICC_CTLR_EL1    S3_0_C12_C12_4
+#define ICC_CTLR_EL3    S3_6_C12_C12_4
+#define ICC_PMR_EL1     S3_0_C4_C6_0
+
+SYSTEM_REG2(icc_sre_el1, ICC_SRE_EL1)
+SYSTEM_REG2(icc_sre_el2, ICC_SRE_EL2)
+SYSTEM_REG2(icc_sre_el3, ICC_SRE_EL3)
+SYSTEM_REG2(icc_pmr_el1, ICC_PMR_EL1)
 
 /*******************************************************************************
  * GIC Redistributor interface accessors
