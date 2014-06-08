@@ -40,19 +40,38 @@ func cpu_reset_handler
 	 * ---------------------------------------------
 	 */
 	mrs	x0, midr_el1
-	lsr	x0, x0, #MIDR_PN_SHIFT
-	and	x0, x0, #MIDR_PN_MASK
-	cmp	x0, #MIDR_PN_A57
+	lsr     x1, x0, #MIDR_PN_SHIFT
+	and     x1, x1, #MIDR_PN_MASK
+	cmp	x1, #MIDR_PN_A57
 	b.eq	a57_setup_begin
-	cmp	x0, #MIDR_PN_A53
+	cmp	x1, #MIDR_PN_A53
 	b.eq	smp_setup_begin
 	b	smp_setup_end
 
 a57_setup_begin:
+	ubfx	x1, x0, #MIDR_VAR_SHIFT, #4
+	cmp	x1, #0		// Major Revision 0
+	b.ne	smp_setup_begin
+	ubfx	x1, x0, #MIDR_REV_SHIFT, #4
+	cmp	x1, #0		// Minor Revision 0
+	b.ne	smp_setup_begin
+	mov	x1, #CPUACTLR_NO_ALLOC_WBWA
+	orr	x1, x1, #CPUACTLR_DCC_AS_DCCI
+	mrs	x0, CPUACTLR_EL1
+	orr	x0, x0, x1
+	msr	CPUACTLR_EL1, x0
 	mov	x0, #0x082
 	msr	s3_1_c11_c0_2, x0
 
 smp_setup_begin:
+	/* ---------------------------------------------
+	 * Enable the event stream every 65536 cycles
+	 * ---------------------------------------------
+	 */
+	mov     x0, #(0xf << EVNTI_SHIFT)
+	orr	x0, x0, #EVNTEN_BIT
+	msr     CNTKCTL_EL1, x0
+
 	mrs	x0, CPUECTLR_EL1
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
