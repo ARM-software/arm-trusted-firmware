@@ -35,8 +35,12 @@
 /*******************************************************************************
  * MIDR bit definitions
  ******************************************************************************/
+#define MIDR_VAR_MASK		0xf
+#define MIDR_REV_MASK		0xf
 #define MIDR_PN_MASK		0xfff
-#define MIDR_PN_SHIFT		0x4
+#define MIDR_VAR_SHIFT		20
+#define MIDR_REV_SHIFT		0
+#define MIDR_PN_SHIFT		4
 #define MIDR_PN_AEM		0xd0f
 #define MIDR_PN_A57		0xd07
 #define MIDR_PN_A53		0xd03
@@ -68,6 +72,7 @@
  * Implementation defined sysreg encodings
  ******************************************************************************/
 #define CPUECTLR_EL1	S3_1_C15_C2_1
+#define CPUACTLR_EL1	S3_1_C15_C2_0
 
 /*******************************************************************************
  * Generic timer memory mapped registers & offsets
@@ -125,9 +130,6 @@
 #define SCTLR_WXN_BIT		(1 << 19)
 #define SCTLR_EXCEPTION_BITS	(0x3 << 6)
 #define SCTLR_EE_BIT		(1 << 25)
-
-/* CPUECTLR definitions */
-#define CPUECTLR_SMP_BIT	(1 << 6)
 
 /* CPACR_El1 definitions */
 #define CPACR_EL1_FPEN(x)	(x << 20)
@@ -393,6 +395,17 @@
 #define EC_SERROR			0x2f
 
 #define EC_BITS(x)			(x >> ESR_EC_SHIFT) & ESR_EC_MASK
+
+/*******************************************************************************
+ * Imp. Def. register defines.
+ ******************************************************************************/
+/* CPUECTLR definitions */
+#define CPUECTLR_SMP_BIT	(1 << 6)
+
+/* A57 CPUACTLR definitions */
+#define CPUACTLR_NO_ALLOC_WBWA	(1 << 49)
+#define CPUACTLR_DIS_DMB_NULL	(1 << 58)
+#define CPUACTLR_DCC_AS_DCCI	(1 << 44)
 
 /*******************************************************************************
  * Definitions of register offsets and fields in the CNTCTLBase Frame of the
