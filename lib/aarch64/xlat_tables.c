@@ -249,8 +249,8 @@ void init_xlat_tables(void)
  *   _tlbi_fct:		Function to invalidate the TLBs at the current
  *			exception level
  ******************************************************************************/
-#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
-	void enable_mmu_el##_el(void)					\
+#define DEFINE_ENABLE_MMU_EL(_el, _tlbi_fct)				\
+	void enable_mmu_el##_el(uint64_t tcr_extra)			\
 	{								\
 		uint64_t mair, tcr, ttbr;				\
 		uint32_t sctlr;						\
@@ -271,7 +271,7 @@ void init_xlat_tables(void)
 		/* Inner & outer WBWA & shareable + T0SZ = 32 */	\
 		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
 			TCR_RGN_INNER_WBA | TCR_T0SZ_4GB;		\
-		tcr |= _tcr_extra;					\
+		tcr |= tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
 									\
 		/* Set TTBR bits as well */				\
@@ -295,5 +295,5 @@ void init_xlat_tables(void)
 	}
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */
-DEFINE_ENABLE_MMU_EL(1, 0, tlbivmalle1)
-DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1, tlbialle3)
+DEFINE_ENABLE_MMU_EL(1, tlbivmalle1)
+DEFINE_ENABLE_MMU_EL(3, tlbialle3)

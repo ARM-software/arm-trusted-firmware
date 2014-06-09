@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <xlat_tables.h>
 
 /*
@@ -40,10 +41,10 @@
 
 void bl31_plat_enable_mmu()
 {
-	enable_mmu_el3();
+	enable_mmu_el3(TCR_EL3_RES1);
 }
 
 void bl32_plat_enable_mmu()
 {
-	enable_mmu_el1();
+	enable_mmu_el1(0x0);
 }
