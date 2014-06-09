@@ -34,13 +34,13 @@
 #include <string.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_off_handler_t)(unsigned long, aff_map_node_t *);
+typedef int (*afflvl_off_handler_t)(aff_map_node_t *);
 
 /*******************************************************************************
  * The next three functions implement a handler for each supported affinity
  * level which is called when that affinity level is turned off.
  ******************************************************************************/
-static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
+static int psci_afflvl0_off(aff_map_node_t *cpu_node)
 {
 	unsigned int plat_state;
 	int rc;
@@ -98,7 +98,7 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
 
 		/* Get the current physical state of this cpu */
 		plat_state = psci_get_phys_state(cpu_node);
-		rc = psci_plat_pm_ops->affinst_off(mpidr,
+		rc = psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
 						   cpu_node->level,
 						   plat_state);
 	}
@@ -106,7 +106,7 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
 	return rc;
 }
 
-static int psci_afflvl1_off(unsigned long mpidr, aff_map_node_t *cluster_node)
+static int psci_afflvl1_off(aff_map_node_t *cluster_node)
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
@@ -136,14 +136,14 @@ static int psci_afflvl1_off(unsigned long mpidr, aff_map_node_t *cluster_node)
 	 * program the power controller etc.
 	 */
 	if (psci_plat_pm_ops->affinst_off)
-		rc = psci_plat_pm_ops->affinst_off(mpidr,
+		rc = psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
 						   cluster_node->level,
 						   plat_state);
 
 	return rc;
 }
 
-static int psci_afflvl2_off(unsigned long mpidr, aff_map_node_t *system_node)
+static int psci_afflvl2_off(aff_map_node_t *system_node)
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
@@ -167,7 +167,7 @@ static int psci_afflvl2_off(unsigned long mpidr, aff_map_node_t *system_node)
 	 * at this affinity level
 	 */
 	if (psci_plat_pm_ops->affinst_off)
-		rc = psci_plat_pm_ops->affinst_off(mpidr,
+		rc = psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
 						   system_node->level,
 						   plat_state);
 	return rc;
@@ -186,8 +186,7 @@ static const afflvl_off_handler_t psci_afflvl_off_handlers[] = {
  ******************************************************************************/
 static int psci_call_off_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 				  int start_afflvl,
-				  int end_afflvl,
-				  unsigned long mpidr)
+				  int end_afflvl)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
 	aff_map_node_t *node;
@@ -202,7 +201,7 @@ static int psci_call_off_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 		 * of restoring what we might have torn down at
 		 * lower affinity levels.
 		 */
-		rc = psci_afflvl_off_handlers[level](mpidr, node);
+		rc = psci_afflvl_off_handlers[level](node);
 		if (rc != PSCI_E_SUCCESS)
 			break;
 	}
@@ -232,14 +231,12 @@ static int psci_call_off_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
  * CAUTION: This function is called with coherent stacks so that coherency can
  * be turned off and caches can be flushed safely.
  ******************************************************************************/
-int psci_afflvl_off(unsigned long mpidr,
-		    int start_afflvl,
+int psci_afflvl_off(int start_afflvl,
 		    int end_afflvl)
 {
 	int rc = PSCI_E_SUCCESS;
 	mpidr_aff_map_nodes_t mpidr_nodes;
 
-	mpidr &= MPIDR_AFFINITY_MASK;;
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -248,7 +245,7 @@ int psci_afflvl_off(unsigned long mpidr,
 	 * levels are incorrect. In either case, we cannot return back
 	 * to the caller as it would not know what to do.
 	 */
-	rc = psci_get_aff_map_nodes(mpidr,
+	rc = psci_get_aff_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
 				    start_afflvl,
 				    end_afflvl,
 				    mpidr_nodes);
@@ -259,23 +256,20 @@ int psci_afflvl_off(unsigned long mpidr,
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_acquire_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_off_handlers(mpidr_nodes,
 				    start_afflvl,
-				    end_afflvl,
-				    mpidr);
+				    end_afflvl);
 
 	/*
 	 * Release the locks corresponding to each affinity level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_release_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 
