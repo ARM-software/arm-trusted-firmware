@@ -41,59 +41,54 @@ static bakery_lock_t pwrc_lock __attribute__ ((section("tzfw_coherent_mem")));
 
 unsigned int fvp_pwrc_get_cpu_wkr(unsigned long mpidr)
 {
-	unsigned int rc = 0;
-	bakery_lock_get(mpidr, &pwrc_lock);
-	mmio_write_32(PWRC_BASE + PSYSR_OFF, (unsigned int) mpidr);
-	rc = PSYSR_WK(mmio_read_32(PWRC_BASE + PSYSR_OFF));
-	bakery_lock_release(mpidr, &pwrc_lock);
-	return rc;
+	return PSYSR_WK(fvp_pwrc_read_psysr(mpidr));
 }
 
 unsigned int fvp_pwrc_read_psysr(unsigned long mpidr)
 {
-	unsigned int rc = 0;
-	bakery_lock_get(mpidr, &pwrc_lock);
+	unsigned int rc;
+	bakery_lock_get(&pwrc_lock);
 	mmio_write_32(PWRC_BASE + PSYSR_OFF, (unsigned int) mpidr);
 	rc = mmio_read_32(PWRC_BASE + PSYSR_OFF);
-	bakery_lock_release(mpidr, &pwrc_lock);
+	bakery_lock_release(&pwrc_lock);
 	return rc;
 }
 
 void fvp_pwrc_write_pponr(unsigned long mpidr)
 {
-	bakery_lock_get(mpidr, &pwrc_lock);
+	bakery_lock_get(&pwrc_lock);
 	mmio_write_32(PWRC_BASE + PPONR_OFF, (unsigned int) mpidr);
-	bakery_lock_release(mpidr, &pwrc_lock);
+	bakery_lock_release(&pwrc_lock);
 }
 
 void fvp_pwrc_write_ppoffr(unsigned long mpidr)
 {
-	bakery_lock_get(mpidr, &pwrc_lock);
+	bakery_lock_get(&pwrc_lock);
 	mmio_write_32(PWRC_BASE + PPOFFR_OFF, (unsigned int) mpidr);
-	bakery_lock_release(mpidr, &pwrc_lock);
+	bakery_lock_release(&pwrc_lock);
 }
 
 void fvp_pwrc_set_wen(unsigned long mpidr)
 {
-	bakery_lock_get(mpidr, &pwrc_lock);
+	bakery_lock_get(&pwrc_lock);
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
 		      (unsigned int) (PWKUPR_WEN | mpidr));
-	bakery_lock_release(mpidr, &pwrc_lock);
+	bakery_lock_release(&pwrc_lock);
 }
 
 void fvp_pwrc_clr_wen(unsigned long mpidr)
 {
-	bakery_lock_get(mpidr, &pwrc_lock);
+	bakery_lock_get(&pwrc_lock);
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
 		      (unsigned int) mpidr);
-	bakery_lock_release(mpidr, &pwrc_lock);
+	bakery_lock_release(&pwrc_lock);
 }
 
 void fvp_pwrc_write_pcoffr(unsigned long mpidr)
 {
-	bakery_lock_get(mpidr, &pwrc_lock);
+	bakery_lock_get(&pwrc_lock);
 	mmio_write_32(PWRC_BASE + PCOFFR_OFF, (unsigned int) mpidr);
-	bakery_lock_release(mpidr, &pwrc_lock);
+	bakery_lock_release(&pwrc_lock);
 }
 
 /* Nothing else to do here apart from initializing the lock */
