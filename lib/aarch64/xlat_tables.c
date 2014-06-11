@@ -58,6 +58,10 @@ static uint64_t xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
 __aligned(XLAT_TABLE_SIZE) __attribute__((section("xlat_table")));
 
 static unsigned next_xlat;
+static unsigned long max_pa = 0;
+static unsigned long max_va = 0;
+static unsigned long tcr_ps_bits = 0;
+static unsigned int tcr_t0sz_bits = 0;
 
 /*
  * Array of all memory regions stored in order of ascending base address.
@@ -85,6 +89,8 @@ void mmap_add_region(unsigned long base_pa, unsigned long base_va,
 {
 	mmap_region_t *mm = mmap;
 	mmap_region_t *mm_last = mm + sizeof(mmap) / sizeof(mmap[0]) - 1;
+	unsigned long pa_end = base_pa + size - 1;
+	unsigned long va_end = base_va + size - 1;
 
 	assert(IS_PAGE_ALIGNED(base_pa));
 	assert(IS_PAGE_ALIGNED(base_va));
@@ -107,6 +113,11 @@ void mmap_add_region(unsigned long base_pa, unsigned long base_va,
 	mm->base_va = base_va;
 	mm->size = size;
 	mm->attr = attr;
+
+	if (pa_end > max_pa)
+		max_pa = pa_end;
+	if (base_va + size > max_va)
+		max_va = va_end;
 }
 
 void mmap_add(const mmap_region_t *mm)
@@ -233,10 +244,68 @@ static mmap_region_t *init_xlation_table(mmap_region_t *mm,
 	return mm;
 }
 
+static unsigned int calc_physical_addr_size_bits(unsigned long max_addr)
+{
+	/* Physical address can't exceed 48 bits */
+	assert((max_addr & 0xFFFF000000000000UL) == 0);
+
+	/* 48 bits address */
+	if (max_addr & 0xF00000000000UL)
+		return TCR_PS_BITS_256TB;
+
+	/* 44 bits address */
+	if (max_addr & 0x0C0000000000UL)
+		return TCR_PS_BITS_16TB;
+
+	/* 42 bits address */
+	if (max_addr & 0x030000000000UL)
+		return TCR_PS_BITS_4TB;
+
+	/* 40 bits address */
+	if (max_addr & 0x00F000000000UL)
+		return TCR_PS_BITS_1TB;
+
+	/* 36 bits address */
+	if (max_addr & 0x000F00000000UL)
+		return TCR_PS_BITS_64GB;
+
+	return TCR_PS_BITS_4GB;
+}
+
+static unsigned int calc_t0sz_bits(unsigned long max_addr)
+{
+	/* High address is not allowed with ttbr0 */
+	assert((max_addr & 0xFFFF000000000000UL) == 0);
+
+	/* 48 bits address */
+	if (max_addr & 0xF00000000000UL)
+		return TCR_T0SZ_256TB;
+
+	/* 44 bits address */
+	if (max_addr & 0x0C0000000000UL)
+		return TCR_T0SZ_16TB;
+
+	/* 42 bits address */
+	if (max_addr & 0x030000000000UL)
+		return TCR_T0SZ_4TB;
+
+	/* 40 bits address */
+	if (max_addr & 0x00F000000000UL)
+		return TCR_T0SZ_1TB;
+
+	/* 36 bits address */
+	if (max_addr & 0x000F00000000UL)
+		return TCR_T0SZ_64GB;
+
+	return TCR_T0SZ_4GB;
+}
+
 void init_xlat_tables(void)
 {
 	print_mmap();
 	init_xlation_table(mmap, 0, l1_xlation_table, 1);
+	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
+	tcr_t0sz_bits = calc_t0sz_bits(max_va);
 }
 
 /*******************************************************************************
@@ -270,7 +339,7 @@ void init_xlat_tables(void)
 		/* Set TCR bits as well. */				\
 		/* Inner & outer WBWA & shareable + T0SZ = 32 */	\
 		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
-			TCR_RGN_INNER_WBA | TCR_T0SZ_4GB;		\
+			TCR_RGN_INNER_WBA;				\
 		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
 									\
@@ -295,5 +364,5 @@ void init_xlat_tables(void)
 	}
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */
-DEFINE_ENABLE_MMU_EL(1, 0, tlbivmalle1)
-DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1, tlbialle3)
+DEFINE_ENABLE_MMU_EL(1, (tcr_ps_bits << 32) | tcr_t0sz_bits, tlbivmalle1)
+DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1 | (tcr_ps_bits << 16) | tcr_t0sz_bits, tlbialle3)
