@@ -35,7 +35,6 @@
 #include <debug.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <stdio.h>
 #include "bl2_private.h"
 
 /*******************************************************************************
@@ -196,7 +195,7 @@ void bl2_main(void)
 	/* Perform platform setup in BL2 */
 	bl2_platform_setup();
 
-	printf("BL2 %s\n\r", build_message);
+	tf_printf("BL2 %s\n\r", build_message);
 
 	/*
 	 * Load the subsequent bootloader images

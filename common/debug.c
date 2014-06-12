@@ -29,6 +29,7 @@
  */
 #include <console.h>
 #include <debug.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 /******************************************************************
@@ -73,7 +74,7 @@ void print_string_value(char *s, unsigned long *mem)
 #if DEBUG
 void __dead2 do_panic(const char *file, int line)
 {
-		printf("PANIC in file: %s line: %d\n", file, line);
+		tf_printf("PANIC in file: %s line: %d\n", file, line);
 		while (1)
 			;
 }
@@ -87,7 +88,7 @@ void __dead2 do_panic(void)
 	/* x30 reports the next eligible instruction whereas we want the
 	 * place where panic() is invoked. Hence decrement by 4.
 	 */
-	printf("PANIC in PC location 0x%016X\n", pc_reg - 0x4);
+	tf_printf("PANIC in PC location 0x%016X\n", pc_reg - 0x4);
 	while (1)
 		;
 
