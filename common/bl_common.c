@@ -148,12 +148,12 @@ static void dump_load_info(unsigned long image_load_addr,
 			   const meminfo_t *mem_layout)
 {
 #if DEBUG
-	printf("Trying to load image at address 0x%lx, size = 0x%lx\r\n",
+	tf_printf("Trying to load image at address 0x%lx, size = 0x%lx\r\n",
 		image_load_addr, image_size);
-	printf("Current memory layout:\r\n");
-	printf("  total region = [0x%lx, 0x%lx]\r\n", mem_layout->total_base,
+	tf_printf("Current memory layout:\r\n");
+	tf_printf("  total region = [0x%lx, 0x%lx]\r\n", mem_layout->total_base,
 			mem_layout->total_base + mem_layout->total_size);
-	printf("  free region = [0x%lx, 0x%lx]\r\n", mem_layout->free_base,
+	tf_printf("  free region = [0x%lx, 0x%lx]\r\n", mem_layout->free_base,
 			mem_layout->free_base + mem_layout->free_size);
 #endif
 }
