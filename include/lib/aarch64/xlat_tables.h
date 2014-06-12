@@ -67,7 +67,7 @@ void mmap_add(const mmap_region_t *mm);
 
 void init_xlat_tables(void);
 
-void enable_mmu_el1(void);
-void enable_mmu_el3(void);
+void enable_mmu_el1(uint64_t tcr_extra);
+void enable_mmu_el3(uint64_t tcr_extra);
 
 #endif /* __XLAT_TABLES_H__ */

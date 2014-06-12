@@ -82,7 +82,7 @@ const mmap_region_t fvp_mmap[] = {
  * Macro generating the code for the function setting up the pagetables as per
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
-#define DEFINE_CONFIGURE_MMU_EL(_el)					\
+#define DEFINE_CONFIGURE_MMU_EL(_el, _tcr_extra)			\
 	void fvp_configure_mmu_el##_el(unsigned long total_base,	\
 				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
@@ -102,12 +102,12 @@ const mmap_region_t fvp_mmap[] = {
 		mmap_add(fvp_mmap);					\
 		init_xlat_tables();					\
 									\
-		enable_mmu_el##_el();					\
+		enable_mmu_el##_el(_tcr_extra);				\
 	}
 
 /* Define EL1 and EL3 variants of the function initialising the MMU */
-DEFINE_CONFIGURE_MMU_EL(1)
-DEFINE_CONFIGURE_MMU_EL(3)
+DEFINE_CONFIGURE_MMU_EL(1, 0x0)
+DEFINE_CONFIGURE_MMU_EL(3, TCR_EL3_RES1)
 
 /* Simple routine which returns a configuration variable value */
 unsigned long fvp_get_cfgvar(unsigned int var_id)
