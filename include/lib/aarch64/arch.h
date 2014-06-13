@@ -209,13 +209,6 @@
 #define TCR_PS_BITS_16TB	(0x4)
 #define TCR_PS_BITS_256TB	(0x5)
 
-#define TCR_T0SZ_4GB		32
-#define TCR_T0SZ_64GB		28
-#define TCR_T0SZ_1TB		24
-#define TCR_T0SZ_4TB		22
-#define TCR_T0SZ_16TB		20
-#define TCR_T0SZ_256TB		16
-
 #define TCR_RGN_INNER_NC	(0x0 << 8)
 #define TCR_RGN_INNER_WBA	(0x1 << 8)
 #define TCR_RGN_INNER_WT	(0x2 << 8)
