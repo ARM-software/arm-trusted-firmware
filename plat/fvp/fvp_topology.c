@@ -180,7 +180,7 @@ unsigned int plat_get_aff_state(unsigned int aff_lvl,
  * Handy optimization to prevent the psci implementation from traversing through
  * affinity levels which are not present while detecting the platform topology.
  ******************************************************************************/
-int plat_get_max_afflvl()
+int plat_get_max_afflvl(void)
 {
 	return MPIDR_AFFLVL1;
 }
@@ -190,7 +190,7 @@ int plat_get_max_afflvl()
  * the FVP flavour its running on. We construct all the mpidrs we can handle
  * and rely on the PWRC.PSYSR to flag absent cpus when their status is queried.
  ******************************************************************************/
-int fvp_setup_topology()
+int fvp_setup_topology(void)
 {
 	unsigned char aff0, aff1, aff_state, aff0_offset = 0;
 	unsigned long mpidr;

@@ -178,7 +178,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
  * Initialize the gic, configure the CLCD and zero out variables needed by the
  * secondaries to boot up correctly.
  ******************************************************************************/
-void bl31_platform_setup()
+void bl31_platform_setup(void)
 {
 	unsigned int reg_val;
 
@@ -218,7 +218,7 @@ void bl31_platform_setup()
  * Perform the very early platform specific architectural setup here. At the
  * moment this is only intializes the mmu in a quick and dirty way.
  ******************************************************************************/
-void bl31_plat_arch_setup()
+void bl31_plat_arch_setup(void)
 {
 #if RESET_TO_BL31
 	fvp_cci_setup();

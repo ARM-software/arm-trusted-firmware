@@ -212,7 +212,7 @@ void bl2_plat_flush_bl31_params(void)
  * Perform the very early platform specific architectural setup here. At the
  * moment this is only intializes the mmu in a quick and dirty way.
  ******************************************************************************/
-void bl2_plat_arch_setup()
+void bl2_plat_arch_setup(void)
 {
 	fvp_configure_mmu_el1(bl2_tzram_layout.total_base,
 			      bl2_tzram_layout.total_size,

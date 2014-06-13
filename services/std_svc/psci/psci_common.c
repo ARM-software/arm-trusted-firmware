@@ -98,7 +98,7 @@ int get_power_on_target_afflvl(unsigned long mpidr)
  * Simple routine to retrieve the maximum affinity level supported by the
  * platform and check that it makes sense.
  ******************************************************************************/
-int get_max_afflvl()
+int get_max_afflvl(void)
 {
 	int aff_lvl;
 

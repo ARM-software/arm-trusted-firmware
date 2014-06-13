@@ -81,7 +81,7 @@ void bl32_early_platform_setup(void)
 /*******************************************************************************
  * Perform platform specific setup placeholder
  ******************************************************************************/
-void bl32_platform_setup()
+void bl32_platform_setup(void)
 {
 
 }
@@ -90,7 +90,7 @@ void bl32_platform_setup()
  * Perform the very early platform specific architectural setup here. At the
  * moment this is only intializes the MMU
  ******************************************************************************/
-void bl32_plat_arch_setup()
+void bl32_plat_arch_setup(void)
 {
 	fvp_configure_mmu_el1(BL32_RO_BASE,
 			      (BL32_COHERENT_RAM_LIMIT - BL32_RO_BASE),

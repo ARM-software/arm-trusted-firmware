@@ -62,7 +62,8 @@ void bl1_arch_setup(void)
 /*******************************************************************************
  * Set the Secure EL1 required architectural state
  ******************************************************************************/
-void bl1_arch_next_el_setup(void) {
+void bl1_arch_next_el_setup(void)
+{
 	unsigned long next_sctlr;
 
 	/* Use the same endianness than the current BL */
