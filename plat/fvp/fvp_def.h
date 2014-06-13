@@ -137,7 +137,7 @@
 #define SYS_LED_EC_MASK		0x1f
 
 /* V2M sysid register bits */
-#define SYS_ID_REV_SHIFT	27
+#define SYS_ID_REV_SHIFT	28
 #define SYS_ID_HBI_SHIFT	16
 #define SYS_ID_BLD_SHIFT	12
 #define SYS_ID_ARCH_SHIFT	8
