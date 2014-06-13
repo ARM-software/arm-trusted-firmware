@@ -234,9 +234,9 @@ realclean distclean:
 checkcodebase:		locate-checkpatch
 			@echo "  CHECKING STYLE"
 			@if test -d .git ; then	\
-				git ls-files | while read GIT_FILE ; do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ; done ;	\
+				git ls-files | grep -v stdlib | while read GIT_FILE ; do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ; done ;	\
 			 else			\
-				 find . -type f -not -iwholename "*.git*" -not -iwholename "*build*" -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
+				 find . -type f -not -iwholename "*.git*" -not -iwholename "*build*" -not -iwholename "*stdlib*" -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
 			 fi
 
 checkpatch:		locate-checkpatch

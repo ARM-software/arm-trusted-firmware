@@ -78,7 +78,7 @@ static int32_t validate_rt_svc_desc(rt_svc_desc_t *desc)
  * The unique oen is used as an index into the 'rt_svc_descs_indices' array.
  * The index of the runtime service descriptor is stored at this index.
  ******************************************************************************/
-void runtime_svc_init()
+void runtime_svc_init(void)
 {
 	int32_t rc = 0;
 	uint32_t index, start_idx, end_idx;

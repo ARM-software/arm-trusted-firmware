@@ -54,7 +54,7 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 			  uint32_t bit_pos,
 			  uint32_t value);
 void cm_set_next_eret_context(uint32_t security_state);
-void cm_init_pcpu_ptr_cache();
+void cm_init_pcpu_ptr_cache(void);
 void cm_set_pcpu_ptr_cache(const void *pcpu_ptr);
 void *cm_get_pcpu_ptr_cache(void);
 uint32_t cm_get_scr_el3(uint32_t security_state);

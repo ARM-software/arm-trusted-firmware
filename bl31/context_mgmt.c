@@ -67,7 +67,7 @@ static per_cpu_ptr_cache_t per_cpu_ptr_cache_space[PLATFORM_CORE_COUNT];
  * which will used for programming an entry into a lower EL. The same context
  * will used to save state upon exception entry from that EL.
  ******************************************************************************/
-void cm_init()
+void cm_init(void)
 {
 	/*
 	 * The context management library has only global data to intialize, but
@@ -300,7 +300,7 @@ void cm_set_next_eret_context(uint32_t security_state)
  * The following function is used to populate the per cpu pointer cache.
  * The pointer will be stored in the tpidr_el3 register.
  *************************************************************************/
-void cm_init_pcpu_ptr_cache()
+void cm_init_pcpu_ptr_cache(void)
 {
 	unsigned long mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
