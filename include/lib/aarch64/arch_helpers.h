@@ -85,14 +85,14 @@ static inline void write_ ## _name(const uint64_t v)	\
 
 /* Define function for simple system instruction */
 #define DEFINE_SYSOP_FUNC(_op)				\
-static inline void _op()				\
+static inline void _op(void)				\
 {							\
 	__asm__ (#_op);					\
 }
 
 /* Define function for system instruction with type specifier */
 #define DEFINE_SYSOP_TYPE_FUNC(_op, _type)		\
-static inline void _op ## _type()			\
+static inline void _op ## _type(void)			\
 {							\
 	__asm__ (#_op " " #_type);			\
 }

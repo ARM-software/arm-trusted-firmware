@@ -46,7 +46,7 @@ static timer_context_t pcpu_timer_context[PLATFORM_CORE_COUNT];
 /*******************************************************************************
  * This function initializes the generic timer to fire every 0.5 second
  ******************************************************************************/
-void tsp_generic_timer_start()
+void tsp_generic_timer_start(void)
 {
 	uint64_t cval;
 	uint32_t ctl = 0;
@@ -63,7 +63,7 @@ void tsp_generic_timer_start()
 /*******************************************************************************
  * This function deasserts the timer interrupt and sets it up again
  ******************************************************************************/
-void tsp_generic_timer_handler()
+void tsp_generic_timer_handler(void)
 {
 	/* Ensure that the timer did assert the interrupt */
 	assert(get_cntp_ctl_istatus(read_cntps_ctl_el1()));
@@ -76,7 +76,7 @@ void tsp_generic_timer_handler()
 /*******************************************************************************
  * This function deasserts the timer interrupt prior to cpu power down
  ******************************************************************************/
-void tsp_generic_timer_stop()
+void tsp_generic_timer_stop(void)
 {
 	/* Disable the timer */
 	write_cntps_ctl_el1(0);
@@ -85,7 +85,7 @@ void tsp_generic_timer_stop()
 /*******************************************************************************
  * This function saves the timer context prior to cpu suspension
  ******************************************************************************/
-void tsp_generic_timer_save()
+void tsp_generic_timer_save(void)
 {
 	uint32_t linear_id = platform_get_core_pos(read_mpidr());
 
@@ -98,7 +98,7 @@ void tsp_generic_timer_save()
 /*******************************************************************************
  * This function restores the timer context post cpu resummption
  ******************************************************************************/
-void tsp_generic_timer_restore()
+void tsp_generic_timer_restore(void)
 {
 	uint32_t linear_id = platform_get_core_pos(read_mpidr());
 
