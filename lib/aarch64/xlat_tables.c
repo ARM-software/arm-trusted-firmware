@@ -273,6 +273,7 @@ static unsigned int calc_physical_addr_size_bits(unsigned long max_addr)
 
 static unsigned int check_va_size(unsigned long max_addr)
 {
+	assert(ADDR_SPACE_SIZE > 0);
 	assert(max_addr < ADDR_SPACE_SIZE);
 	return (max_addr < ADDR_SPACE_SIZE);
 }
@@ -317,7 +318,7 @@ void init_xlat_tables(void)
 		/* Inner & outer WBWA & shareable + T0SZ = 32 */	\
 		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
 			TCR_RGN_INNER_WBA |				\
-			(64 - ADDR_SPACE_SIZE_SHIFT);			\
+			(64 - __builtin_ctzl(ADDR_SPACE_SIZE));		\
 		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
 									\
@@ -342,5 +343,5 @@ void init_xlat_tables(void)
 	}
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */
-DEFINE_ENABLE_MMU_EL(1, (tcr_ps_bits << 32), tlbivmalle1)
-DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1 | (tcr_ps_bits << 16), tlbialle3)
+DEFINE_ENABLE_MMU_EL(1, (tcr_ps_bits << TCR_EL1_IPS_SHIFT), tlbivmalle1)
+DEFINE_ENABLE_MMU_EL(3, TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT), tlbialle3)
