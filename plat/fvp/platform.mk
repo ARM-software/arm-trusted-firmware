@@ -51,7 +51,6 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011.c			\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_semihosting.c			\
 				lib/mmio.c					\
-				lib/aarch64/sysreg_helpers.S			\
 				lib/aarch64/xlat_tables.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
@@ -72,7 +71,6 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 
 BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\
-				drivers/arm/gic/aarch64/gic_v3_sysregs.S	\
 				drivers/arm/cci400/cci400.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/fvp/bl31_fvp_setup.c			\
