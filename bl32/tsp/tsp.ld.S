@@ -68,6 +68,10 @@ SECTIONS
         __DATA_END__ = .;
     } >RAM
 
+#ifdef BL32_PROGBITS_LIMIT
+    ASSERT(. <= BL32_PROGBITS_LIMIT, "BL3-2 progbits has exceeded its limit.")
+#endif
+
     stacks (NOLOAD) : {
         __STACKS_START__ = .;
         *(tzfw_normal_stacks)
