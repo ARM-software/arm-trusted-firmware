@@ -180,7 +180,7 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 * The EL3 state to PoC since it will be accessed after a
 	 * reset with the caches turned off
 	 */
-	saved_el3_state = get_el3state_ctx(cm_get_context(mpidr, NON_SECURE));
+	saved_el3_state = get_el3state_ctx(cm_get_context(NON_SECURE));
 	flush_dcache_range((uint64_t) saved_el3_state, sizeof(*saved_el3_state));
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
@@ -496,7 +496,6 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * structure. The non-secure context should have been
 	 * set on this cpu prior to suspension.
 	 */
-	assert(cm_get_context(mpidr, NON_SECURE));
 	cm_set_next_eret_context(NON_SECURE);
 	cm_init_pcpu_ptr_cache();
 	write_vbar_el3((uint64_t) runtime_exceptions);

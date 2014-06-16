@@ -210,9 +210,9 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 		linear_id = platform_get_core_pos(mpidr);
 		assert(linear_id < PLATFORM_CORE_COUNT);
 
-		cm_set_context(mpidr,
-				(void *) &psci_ns_context[linear_id],
-				NON_SECURE);
+		cm_set_context_by_mpidr(mpidr,
+					(void *) &psci_ns_context[linear_id],
+					NON_SECURE);
 
 	}
 

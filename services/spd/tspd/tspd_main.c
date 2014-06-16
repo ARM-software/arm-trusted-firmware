@@ -95,7 +95,7 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 
 	/* Sanity check the pointer to this cpu's context */
 	mpidr = read_mpidr();
-	assert(handle == cm_get_context(mpidr, NON_SECURE));
+	assert(handle == cm_get_context(NON_SECURE));
 
 	/* Save the non-secure context before entering the TSP */
 	cm_el1_sysregs_context_save(NON_SECURE);
@@ -103,7 +103,7 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 	/* Get a reference to this cpu's TSP context */
 	linear_id = platform_get_core_pos(mpidr);
 	tsp_ctx = &tspd_sp_context[linear_id];
-	assert(&tsp_ctx->cpu_ctx == cm_get_context(mpidr, SECURE));
+	assert(&tsp_ctx->cpu_ctx == cm_get_context(SECURE));
 
 	/*
 	 * Determine if the TSP was previously preempted. Its last known
@@ -275,10 +275,10 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		if (ns)
 			SMC_RET1(handle, SMC_UNK);
 
-		assert(handle == cm_get_context(mpidr, SECURE));
+		assert(handle == cm_get_context(SECURE));
 		cm_el1_sysregs_context_save(SECURE);
 		/* Get a reference to the non-secure context */
-		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+		ns_cpu_context = cm_get_context(NON_SECURE);
 		assert(ns_cpu_context);
 
 		/*
@@ -300,7 +300,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		if (ns)
 			SMC_RET1(handle, SMC_UNK);
 
-		assert(handle == cm_get_context(mpidr, SECURE));
+		assert(handle == cm_get_context(SECURE));
 
 		/*
 		 * Restore the relevant EL3 state which saved to service
@@ -316,7 +316,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		}
 
 		/* Get a reference to the non-secure context */
-		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+		ns_cpu_context = cm_get_context(NON_SECURE);
 		assert(ns_cpu_context);
 
 		/*
@@ -339,7 +339,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		if (ns)
 			SMC_RET1(handle, SMC_UNK);
 
-		assert(handle == cm_get_context(mpidr, SECURE));
+		assert(handle == cm_get_context(SECURE));
 
 		/* Assert that standard SMC execution has been preempted */
 		assert(get_std_smc_active_flag(tsp_ctx->state));
@@ -348,7 +348,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		cm_el1_sysregs_context_save(SECURE);
 
 		/* Get a reference to the non-secure context */
-		ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+		ns_cpu_context = cm_get_context(NON_SECURE);
 		assert(ns_cpu_context);
 
 		/* Restore non-secure state */
@@ -434,7 +434,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 * registers need to be preserved, save the non-secure
 			 * state and send the request to the secure payload.
 			 */
-			assert(handle == cm_get_context(mpidr, NON_SECURE));
+			assert(handle == cm_get_context(NON_SECURE));
 
 			/* Check if we are already preempted */
 			if (get_std_smc_active_flag(tsp_ctx->state))
@@ -457,7 +457,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 * payload. Entry into S-EL1 will take place upon exit
 			 * from this function.
 			 */
-			assert(&tsp_ctx->cpu_ctx == cm_get_context(mpidr, SECURE));
+			assert(&tsp_ctx->cpu_ctx == cm_get_context(SECURE));
 
 			/* Set appropriate entry for SMC.
 			 * We expect the TSP to manage the PSTATE.I and PSTATE.F
@@ -482,11 +482,11 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 * into the non-secure context, save the secure state
 			 * and return to the non-secure state.
 			 */
-			assert(handle == cm_get_context(mpidr, SECURE));
+			assert(handle == cm_get_context(SECURE));
 			cm_el1_sysregs_context_save(SECURE);
 
 			/* Get a reference to the non-secure context */
-			ns_cpu_context = cm_get_context(mpidr, NON_SECURE);
+			ns_cpu_context = cm_get_context(NON_SECURE);
 			assert(ns_cpu_context);
 
 			/* Restore non-secure state */
@@ -515,7 +515,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * save the non-secure state and send the request to
 		 * the secure payload.
 		 */
-		assert(handle == cm_get_context(mpidr, NON_SECURE));
+		assert(handle == cm_get_context(NON_SECURE));
 
 		/* Check if we are already preempted before resume */
 		if (!get_std_smc_active_flag(tsp_ctx->state))
