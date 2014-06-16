@@ -37,6 +37,7 @@
 	.globl	dump_state_and_die
 	.globl	dump_intr_state_and_die
 
+#if CRASH_REPORTING
 	/* ------------------------------------------------------
 	 * The below section deals with dumping the system state
 	 * when an unhandled exception is taken in EL3.
@@ -265,9 +266,15 @@ print_state:
 	print_el3_sys_regs
 	print_non_el3_sys_0_regs
 	print_non_el3_sys_1_regs
-	b	infinite_loop
 
-func infinite_loop
+#else	/* CRASH_REPORING */
+
+func dump_state_and_die
+dump_intr_state_and_die:
+
+#endif	/* CRASH_REPORING */
+
+infinite_loop:
 	b	infinite_loop
 
 
