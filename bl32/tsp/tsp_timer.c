@@ -68,9 +68,14 @@ void tsp_generic_timer_handler()
 	/* Ensure that the timer did assert the interrupt */
 	assert(get_cntp_ctl_istatus(read_cntps_ctl_el1()));
 
-	/* Disable the timer and reprogram it */
+	/*
+	 * Disable the timer and reprogram it. The barriers ensure that there is
+	 * no reordering of instructions around the reprogramming code.
+	 */
+	isb();
 	write_cntps_ctl_el1(0);
 	tsp_generic_timer_start();
+	isb();
 }
 
 /*******************************************************************************
