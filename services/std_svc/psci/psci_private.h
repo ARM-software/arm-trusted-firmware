@@ -33,7 +33,15 @@
 
 #include <arch.h>
 #include <bakery_lock.h>
+#include <platform_def.h>	/* for PLATFORM_NUM_AFFS */
 #include <psci.h>
+
+/* Number of affinity instances whose state this psci imp. can track */
+#ifdef PLATFORM_NUM_AFFS
+#define PSCI_NUM_AFFS		PLATFORM_NUM_AFFS
+#else
+#define PSCI_NUM_AFFS		(2 * PLATFORM_CORE_COUNT)
+#endif
 
 /*******************************************************************************
  * The following two data structures hold the topology tree which in turn tracks
