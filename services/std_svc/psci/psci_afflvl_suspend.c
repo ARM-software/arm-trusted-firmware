@@ -57,16 +57,11 @@ void psci_set_suspend_power_state(aff_map_node_t *node, unsigned int power_state
 	assert(node->mpidr == (read_mpidr() & MPIDR_AFFINITY_MASK));
 	assert(node->level == MPIDR_AFFLVL0);
 
-	/* Save PSCI power state parameter for the core in suspend context */
-	psci_suspend_context[node->data].power_state = power_state;
-
 	/*
-	 * Flush the suspend data to PoC since it will be accessed while
-	 * returning back from suspend with the caches turned off
+	 * Save PSCI power state parameter for the core in suspend context.
+	 * The node is in always-coherent RAM so it does not need to be flushed
 	 */
-	flush_dcache_range(
-		(unsigned long)&psci_suspend_context[node->data],
-		sizeof(suspend_context_t));
+	node->power_state = power_state;
 }
 
 /*******************************************************************************
@@ -97,7 +92,7 @@ int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node)
 
 	assert(node->level == MPIDR_AFFLVL0);
 
-	power_state = psci_suspend_context[node->data].power_state;
+	power_state = node->power_state;
 	return ((power_state == PSCI_INVALID_DATA) ?
 				power_state : psci_get_pstate_afflvl(power_state));
 }
@@ -117,7 +112,7 @@ int psci_get_suspend_stateid(unsigned long mpidr)
 	assert(node);
 	assert(node->level == MPIDR_AFFLVL0);
 
-	power_state = psci_suspend_context[node->data].power_state;
+	power_state = node->power_state;
 	return ((power_state == PSCI_INVALID_DATA) ?
 					power_state : psci_get_pstate_id(power_state));
 }
