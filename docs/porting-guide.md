@@ -150,6 +150,11 @@ file is found in [plat/fvp/include/platform_def.h].
     Defines the maximum number of CPUs that can be implemented within a cluster
     on the platform.
 
+*   **#define : PLATFORM_NUM_AFFS**
+
+    Defines the total number of nodes in the affinity heirarchy at all affinity
+    levels used by the platform.
+
 *   **#define : PRIMARY_CPU**
 
     Defines the `MPIDR` of the primary CPU on the platform. This value is used
