@@ -46,13 +46,6 @@
 const spd_pm_ops_t *psci_spd_pm;
 
 /*******************************************************************************
- * Arrays that contains information needs to resume a cpu's execution when woken
- * out of suspend or off states. Each cpu is allocated a single entry in each
- * array during startup.
- ******************************************************************************/
-suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
-
-/*******************************************************************************
  * Grand array that holds the platform's topology information for state
  * management of affinity instances. Each node (aff_map_node) in the array
  * corresponds to an affinity instance e.g. cluster, cpu within an mpidr
