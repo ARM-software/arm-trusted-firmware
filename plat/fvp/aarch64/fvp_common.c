@@ -66,8 +66,6 @@ const mmap_region_t fvp_mmap[] = {
 						MT_MEMORY | MT_RW | MT_SECURE },
 	{ DEVICE0_BASE,	DEVICE0_BASE,	DEVICE0_SIZE,
 						MT_DEVICE | MT_RW | MT_SECURE },
-	{ NSRAM_BASE,	NSRAM_BASE,	NSRAM_SIZE,
-						MT_MEMORY | MT_RW | MT_NS },
 	{ DEVICE1_BASE,	DEVICE1_BASE,	DEVICE1_SIZE,
 						MT_DEVICE | MT_RW | MT_SECURE },
 	/* 2nd GB as device for now...*/
