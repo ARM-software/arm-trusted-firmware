@@ -29,9 +29,10 @@
 #
 
 # TSP source files specific to FVP platform
-BL32_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
+BL32_SOURCES		+=	drivers/arm/gic/arm_gic.c			\
+				drivers/arm/gic/gic_v2.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
+				plat/common/plat_gic.c				\
 				plat/fvp/aarch64/fvp_common.c			\
 				plat/fvp/aarch64/fvp_helpers.S			\
-				plat/fvp/bl32_fvp_setup.c			\
-				plat/fvp/fvp_gic.c
+				plat/fvp/bl32_fvp_setup.c

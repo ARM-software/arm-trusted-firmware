@@ -69,12 +69,13 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 				plat/fvp/aarch64/fvp_common.c
 
 BL31_SOURCES		+=	drivers/arm/cci400/cci400.c			\
+				drivers/arm/gic/arm_gic.c			\
 				drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\
 				drivers/arm/tzc400/tzc400.c			\
+				plat/common/plat_gic.c				\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/fvp/bl31_fvp_setup.c			\
-				plat/fvp/fvp_gic.c				\
 				plat/fvp/fvp_pm.c				\
 				plat/fvp/fvp_security.c				\
 				plat/fvp/fvp_topology.c				\
@@ -82,7 +83,7 @@ BL31_SOURCES		+=	drivers/arm/cci400/cci400.c			\
 				plat/fvp/aarch64/fvp_common.c			\
 				plat/fvp/drivers/pwrc/fvp_pwrc.c
 
-# Flag used by the FVP port to determine the version of ARM GIC architecture
-# to use for interrupt management in EL3.
-FVP_GIC_ARCH		:=	2
-$(eval $(call add_define,FVP_GIC_ARCH))
+# Flag used by the platform port to determine the version of ARM GIC
+# architecture to use for interrupt management in EL3.
+ARM_GIC_ARCH		:=	2
+$(eval $(call add_define,ARM_GIC_ARCH))

@@ -29,6 +29,7 @@
  */
 
 #include <arch_helpers.h>
+#include <arm_gic.h>
 #include <assert.h>
 #include <bakery_lock.h>
 #include <cci400.h>
@@ -130,7 +131,7 @@ int fvp_affinst_off(unsigned long mpidr,
 		    unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned int gicc_base, ectlr;
+	unsigned int ectlr;
 
 	switch (afflvl) {
 	case MPIDR_AFFLVL1:
@@ -168,8 +169,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Prevent interrupts from spuriously waking up
 			 * this cpu
 			 */
-			gicc_base = get_plat_config()->gicc_base;
-			gic_cpuif_deactivate(gicc_base);
+			arm_gic_cpuif_deactivate();
 
 			/*
 			 * Program the power controller to power this
@@ -205,7 +205,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned int gicc_base, ectlr;
+	unsigned int ectlr;
 	unsigned long linear_id;
 	mailbox_t *fvp_mboxes;
 
@@ -251,8 +251,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Prevent interrupts from spuriously waking up
 			 * this cpu
 			 */
-			gicc_base = get_plat_config()->gicc_base;
-			gic_cpuif_deactivate(gicc_base);
+			arm_gic_cpuif_deactivate();
 
 			/*
 			 * Program the power controller to power this
@@ -284,7 +283,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 	int rc = PSCI_E_SUCCESS;
 	unsigned long linear_id;
 	mailbox_t *fvp_mboxes;
-	unsigned int gicd_base, gicc_base, ectlr;
+	unsigned int ectlr;
 
 	switch (afflvl) {
 
@@ -339,12 +338,10 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 				   sizeof(unsigned long));
 
 		/* Enable the gic cpu interface */
-		gicc_base = get_plat_config()->gicc_base;
-		gic_cpuif_setup(gicc_base);
+		arm_gic_cpuif_setup();
 
 		/* TODO: This setup is needed only after a cold boot */
-		gicd_base = get_plat_config()->gicd_base;
-		gic_pcpu_distif_setup(gicd_base);
+		arm_gic_pcpu_distif_setup();
 
 		break;
 
