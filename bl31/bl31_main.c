@@ -151,53 +151,18 @@ uint32_t bl31_get_next_image_type(void)
 void bl31_prepare_next_image_entry()
 {
 	entry_point_info_t *next_image_info;
-	uint32_t scr, image_type;
-	cpu_context_t *ctx;
-	gp_regs_t *gp_regs;
+	uint32_t image_type;
 
 	/* Determine which image to execute next */
 	image_type = bl31_get_next_image_type();
-
-	/*
-	 * Setup minimal architectural state of the next highest EL to
-	 * allow execution in it immediately upon entering it.
-	 */
-	bl31_next_el_arch_setup(image_type);
 
 	/* Program EL3 registers to enable entry into the next EL */
 	next_image_info = bl31_plat_get_next_image_ep_info(image_type);
 	assert(next_image_info);
 	assert(image_type == GET_SECURITY_STATE(next_image_info->h.attr));
 
-	scr = read_scr();
-	scr &= ~SCR_NS_BIT;
-	if (image_type == NON_SECURE)
-		scr |= SCR_NS_BIT;
-
-	scr &= ~SCR_RW_BIT;
-	if ((next_image_info->spsr & (1 << MODE_RW_SHIFT)) ==
-				(MODE_RW_64 << MODE_RW_SHIFT))
-		scr |= SCR_RW_BIT;
-
-	/*
-	 * Tell the context mgmt. library to ensure that SP_EL3 points to
-	 * the right context to exit from EL3 correctly.
-	 */
-	cm_set_el3_eret_context(image_type,
-			next_image_info->pc,
-			next_image_info->spsr,
-			scr);
-
-	/*
-	 * Save the args generated in BL2 for the image in the right context
-	 * used on its entry
-	 */
-	ctx = cm_get_context(image_type);
-	gp_regs = get_gpregs_ctx(ctx);
-	memcpy(gp_regs, (void *)&next_image_info->args, sizeof(aapcs64_params_t));
-
-	/* Finally set the next context */
-	cm_set_next_eret_context(image_type);
+	cm_init_context(read_mpidr_el1(), next_image_info);
+	cm_prepare_el3_exit(image_type);
 }
 
 /*******************************************************************************

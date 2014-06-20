@@ -34,6 +34,11 @@
 #include <stdint.h>
 
 /*******************************************************************************
+ * Forward declarations
+ ******************************************************************************/
+struct entry_point_info;
+
+/*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
 void cm_init(void);
@@ -44,12 +49,14 @@ void cm_set_context_by_mpidr(uint64_t mpidr,
 			     uint32_t security_state);
 void cm_set_context(void *context, uint32_t security_state);
 void cm_el3_sysregs_context_save(uint32_t security_state);
+void cm_init_context(uint64_t mpidr, const struct entry_point_info *ep);
+void cm_prepare_el3_exit(uint32_t security_state);
 void cm_el3_sysregs_context_restore(uint32_t security_state);
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
-void cm_set_el3_eret_context(uint32_t security_state, uint64_t entrypoint,
-			     uint32_t spsr, uint32_t scr);
 void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint);
+void cm_set_elr_spsr_el3(uint32_t security_state,
+			 uint64_t entrypoint, uint32_t spsr);
 void cm_write_scr_el3_bit(uint32_t security_state,
 			  uint32_t bit_pos,
 			  uint32_t value);
@@ -58,4 +65,5 @@ void cm_init_pcpu_ptr_cache();
 void cm_set_pcpu_ptr_cache(const void *pcpu_ptr);
 void *cm_get_pcpu_ptr_cache(void);
 uint32_t cm_get_scr_el3(uint32_t security_state);
+
 #endif /* __CM_H__ */
