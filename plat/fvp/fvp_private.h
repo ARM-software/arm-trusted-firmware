@@ -79,11 +79,7 @@ int fvp_config_setup(void);
 
 void fvp_cci_setup(void);
 
-/* Declarations for fvp_gic.c */
-void gic_cpuif_deactivate(unsigned int);
-void gic_cpuif_setup(unsigned int);
-void gic_pcpu_distif_setup(unsigned int);
-void gic_setup(void);
+void fvp_gic_init(void);
 
 /* Declarations for fvp_topology.c */
 int fvp_setup_topology(void);

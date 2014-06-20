@@ -30,6 +30,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <cci400.h>
@@ -76,6 +77,23 @@ const mmap_region_t fvp_mmap[] = {
 						MT_MEMORY | MT_RW | MT_NS },
 	{0}
 };
+
+/* Array of secure interrupts to be configured by the gic driver */
+const unsigned int irq_sec_array[] = {
+	IRQ_TZ_WDOG,
+	IRQ_SEC_PHY_TIMER,
+	IRQ_SEC_SGI_0,
+	IRQ_SEC_SGI_1,
+	IRQ_SEC_SGI_2,
+	IRQ_SEC_SGI_3,
+	IRQ_SEC_SGI_4,
+	IRQ_SEC_SGI_5,
+	IRQ_SEC_SGI_6,
+	IRQ_SEC_SGI_7
+};
+
+const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
+	sizeof(irq_sec_array[0]);
 
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
@@ -233,6 +251,15 @@ void fvp_cci_setup(void)
 	 */
 	if (plat_config.flags & CONFIG_HAS_CCI)
 		cci_enable_coherency(read_mpidr());
+}
+
+void fvp_gic_init(void)
+{
+	arm_gic_init(plat_config.gicc_base,
+		plat_config.gicd_base,
+		BASE_GICR_BASE,
+		irq_sec_array,
+		num_sec_irqs);
 }
 
 

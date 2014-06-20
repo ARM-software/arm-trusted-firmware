@@ -158,9 +158,9 @@ performed.
 *   `V`: Verbose build. If assigned anything other than 0, the build commands
     are printed. Default is 0
 
-*   `FVP_GIC_ARCH`: Choice of ARM GIC architecture version used by the FVP port
-    for implementing the platform GIC API. This API is used by the interrupt
-    management framework. Default is 2 i.e. version 2.0
+*   `ARM_GIC_ARCH`: Choice of ARM GIC architecture version used by the ARM GIC
+    driver for implementing the platform GIC API. This API is used
+    by the interrupt management framework. Default is 2 i.e. version 2.0.
 
 *   `IMF_READ_INTERRUPT_ID`: Boolean flag used by the interrupt management
     framework to enable passing of the interrupt id to its handler. The id is
