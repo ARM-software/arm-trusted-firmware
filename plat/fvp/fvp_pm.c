@@ -34,6 +34,7 @@
 #include <cci400.h>
 #include <mmio.h>
 #include <platform.h>
+#include <plat_config.h>
 #include <platform_def.h>
 #include <psci.h>
 #include "drivers/pwrc/fvp_pwrc.h"
@@ -130,7 +131,6 @@ int fvp_affinst_off(unsigned long mpidr,
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int gicc_base, ectlr;
-	unsigned long cpu_setup, cci_setup;
 
 	switch (afflvl) {
 	case MPIDR_AFFLVL1:
@@ -139,10 +139,8 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Disable coherency if this cluster is to be
 			 * turned off
 			 */
-			cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
-			if (cci_setup) {
+			if (get_plat_config()->flags & CONFIG_HAS_CCI)
 				cci_disable_coherency(mpidr);
-			}
 
 			/*
 			 * Program the power controller to turn the
@@ -160,8 +158,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Take this cpu out of intra-cluster coherency if
 			 * the FVP flavour supports the SMP bit.
 			 */
-			cpu_setup = fvp_get_cfgvar(CONFIG_CPU_SETUP);
-			if (cpu_setup) {
+			if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
 				ectlr = read_cpuectlr();
 				ectlr &= ~CPUECTLR_SMP_BIT;
 				write_cpuectlr(ectlr);
@@ -171,7 +168,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * Prevent interrupts from spuriously waking up
 			 * this cpu
 			 */
-			gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
+			gicc_base = get_plat_config()->gicc_base;
 			gic_cpuif_deactivate(gicc_base);
 
 			/*
@@ -209,7 +206,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int gicc_base, ectlr;
-	unsigned long cpu_setup, cci_setup, linear_id;
+	unsigned long linear_id;
 	mailbox_t *fvp_mboxes;
 
 	switch (afflvl) {
@@ -219,10 +216,8 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Disable coherency if this cluster is to be
 			 * turned off
 			 */
-			cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
-			if (cci_setup) {
+			if (get_plat_config()->flags & CONFIG_HAS_CCI)
 				cci_disable_coherency(mpidr);
-			}
 
 			/*
 			 * Program the power controller to turn the
@@ -239,8 +234,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Take this cpu out of intra-cluster coherency if
 			 * the FVP flavour supports the SMP bit.
 			 */
-			cpu_setup = fvp_get_cfgvar(CONFIG_CPU_SETUP);
-			if (cpu_setup) {
+			if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
 				ectlr = read_cpuectlr();
 				ectlr &= ~CPUECTLR_SMP_BIT;
 				write_cpuectlr(ectlr);
@@ -257,7 +251,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * Prevent interrupts from spuriously waking up
 			 * this cpu
 			 */
-			gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
+			gicc_base = get_plat_config()->gicc_base;
 			gic_cpuif_deactivate(gicc_base);
 
 			/*
@@ -288,7 +282,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			  unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned long linear_id, cpu_setup;
+	unsigned long linear_id;
 	mailbox_t *fvp_mboxes;
 	unsigned int gicd_base, gicc_base, ectlr;
 
@@ -325,8 +319,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 		 * Turn on intra-cluster coherency if the FVP flavour supports
 		 * it.
 		 */
-		cpu_setup = fvp_get_cfgvar(CONFIG_CPU_SETUP);
-		if (cpu_setup) {
+		if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
 			ectlr = read_cpuectlr();
 			ectlr |= CPUECTLR_SMP_BIT;
 			write_cpuectlr(ectlr);
@@ -345,13 +338,12 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 		flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
 				   sizeof(unsigned long));
 
-		gicd_base = fvp_get_cfgvar(CONFIG_GICD_ADDR);
-		gicc_base = fvp_get_cfgvar(CONFIG_GICC_ADDR);
-
 		/* Enable the gic cpu interface */
+		gicc_base = get_plat_config()->gicc_base;
 		gic_cpuif_setup(gicc_base);
 
 		/* TODO: This setup is needed only after a cold boot */
+		gicd_base = get_plat_config()->gicd_base;
 		gic_pcpu_distif_setup(gicd_base);
 
 		break;

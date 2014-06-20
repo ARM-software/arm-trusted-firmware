@@ -37,21 +37,6 @@
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
 
-/* Constants for accessing platform configuration */
-#define CONFIG_GICD_ADDR		0
-#define CONFIG_GICC_ADDR		1
-#define CONFIG_GICH_ADDR		2
-#define CONFIG_GICV_ADDR		3
-#define CONFIG_MAX_AFF0		4
-#define CONFIG_MAX_AFF1		5
-/* Indicate whether the CPUECTLR SMP bit should be enabled. */
-#define CONFIG_CPU_SETUP		6
-#define CONFIG_BASE_MMAP		7
-/* Indicates whether CCI should be enabled on the platform. */
-#define CONFIG_HAS_CCI			8
-#define CONFIG_HAS_TZC			9
-#define CONFIG_LIMIT			10
-
 /*******************************************************************************
  * FVP memory map related constants
  ******************************************************************************/

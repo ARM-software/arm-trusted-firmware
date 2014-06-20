@@ -27,31 +27,54 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __PLAT_CONFIG_H__
+#define __PLAT_CONFIG_H__
 
-#include <gic_v2.h>
-#include <plat_config.h>
+#define CONFIG_GICC_BASE_OFFSET		0x4
 
-.section .rodata.gic_reg_name, "aS"
-gic_regs: .asciz "gic_iar", "gic_ctlr", ""
 
-/* Currently we have only 2 GIC registers to report */
-#define GIC_REG_SIZE 				(2 * 8)
-	/* ---------------------------------------------
-	 * The below macro prints out relevant GIC
-	 * registers whenever an unhandled exception is
-	 * taken in BL31.
-	 * ---------------------------------------------
-	 */
-	.macro plat_print_gic_regs
-	adr	x0, plat_config;
-	ldr	w0, [x0, #CONFIG_GICC_BASE_OFFSET]
-	/* gic base address is now in x0 */
-	ldr	w1, [x0, #GICC_IAR]
-	ldr	w2, [x0, #GICC_CTLR]
-	sub	sp, sp, #GIC_REG_SIZE
-	stp	x1, x2, [sp] /* we store the gic registers as 64 bit */
-	adr	x0, gic_regs
-	mov	x1, sp
-	bl	print_string_value
-	add	sp, sp, #GIC_REG_SIZE
-	.endm
+#ifndef __ASSEMBLY__
+
+#include <cassert.h>
+
+
+enum plat_config_flags {
+	/* Whether CPUECTLR SMP bit should be enabled */
+	CONFIG_CPUECTLR_SMP_BIT		= 0x1,
+	/* Whether Base FVP memory map is in use */
+	CONFIG_BASE_MMAP		= 0x2,
+	/* Whether CCI should be enabled */
+	CONFIG_HAS_CCI			= 0x4,
+	/* Whether TZC should be configured */
+	CONFIG_HAS_TZC			= 0x8
+};
+
+typedef struct plat_config {
+	unsigned int gicd_base;
+	unsigned int gicc_base;
+	unsigned int gich_base;
+	unsigned int gicv_base;
+	unsigned int max_aff0;
+	unsigned int max_aff1;
+	unsigned long flags;
+} plat_config_t;
+
+inline const plat_config_t *get_plat_config();
+
+
+CASSERT(CONFIG_GICC_BASE_OFFSET == __builtin_offsetof(
+	plat_config_t, gicc_base),
+	assert_gicc_base_offset_mismatch);
+
+/* If used, plat_config must be defined and populated in the platform port*/
+extern plat_config_t plat_config;
+
+inline const plat_config_t *get_plat_config()
+{
+	return &plat_config;
+}
+
+
+#endif /* __ASSEMBLY__ */
+
+#endif /* __PLAT_CONFIG_H__ */
