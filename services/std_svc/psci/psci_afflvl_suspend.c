@@ -57,16 +57,11 @@ void psci_set_suspend_power_state(aff_map_node_t *node, unsigned int power_state
 	assert(node->mpidr == (read_mpidr() & MPIDR_AFFINITY_MASK));
 	assert(node->level == MPIDR_AFFLVL0);
 
-	/* Save PSCI power state parameter for the core in suspend context */
-	psci_suspend_context[node->data].power_state = power_state;
-
 	/*
-	 * Flush the suspend data to PoC since it will be accessed while
-	 * returning back from suspend with the caches turned off
+	 * Save PSCI power state parameter for the core in suspend context.
+	 * The node is in always-coherent RAM so it does not need to be flushed
 	 */
-	flush_dcache_range(
-		(unsigned long)&psci_suspend_context[node->data],
-		sizeof(suspend_context_t));
+	node->power_state = power_state;
 }
 
 /*******************************************************************************
@@ -97,7 +92,7 @@ int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node)
 
 	assert(node->level == MPIDR_AFFLVL0);
 
-	power_state = psci_suspend_context[node->data].power_state;
+	power_state = node->power_state;
 	return ((power_state == PSCI_INVALID_DATA) ?
 				power_state : psci_get_pstate_afflvl(power_state));
 }
@@ -117,7 +112,7 @@ int psci_get_suspend_stateid(unsigned long mpidr)
 	assert(node);
 	assert(node->level == MPIDR_AFFLVL0);
 
-	power_state = psci_suspend_context[node->data].power_state;
+	power_state = node->power_state;
 	return ((power_state == PSCI_INVALID_DATA) ?
 					power_state : psci_get_pstate_id(power_state));
 }
@@ -132,10 +127,12 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 				unsigned long context_id,
 				unsigned int power_state)
 {
-	unsigned int index, plat_state;
+	unsigned int plat_state;
 	unsigned long psci_entrypoint, sctlr;
 	el3_state_t *saved_el3_state;
-	int rc = PSCI_E_SUCCESS;
+	uint32_t ns_scr_el3 = read_scr_el3();
+	uint32_t ns_sctlr_el1 = read_sctlr_el1();
+	int rc;
 
 	/* Sanity check to safeguard against data corruption */
 	assert(cpu_node->level == MPIDR_AFFLVL0);
@@ -163,8 +160,8 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 * Generic management: Store the re-entry information for the
 	 * non-secure world
 	 */
-	index = cpu_node->data;
-	rc = psci_set_ns_entry_info(index, ns_entrypoint, context_id);
+	rc = psci_save_ns_entry(read_mpidr_el1(), ns_entrypoint, context_id,
+				ns_scr_el3, ns_sctlr_el1);
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
@@ -174,7 +171,6 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 * L1 caches and exit intra-cluster coherency et al
 	 */
 	cm_el3_sysregs_context_save(NON_SECURE);
-	rc = PSCI_E_SUCCESS;
 
 	/*
 	 * The EL3 state to PoC since it will be accessed after a
@@ -214,6 +210,8 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	 * platform defined mailbox with the psci entrypoint,
 	 * program the power controller etc.
 	 */
+	rc = PSCI_E_SUCCESS;
+
 	if (psci_plat_pm_ops->affinst_suspend) {
 		plat_state = psci_get_phys_state(cpu_node);
 		rc = psci_plat_pm_ops->affinst_suspend(mpidr,
@@ -454,7 +452,7 @@ int psci_afflvl_suspend(unsigned long mpidr,
 static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 						aff_map_node_t *cpu_node)
 {
-	unsigned int index, plat_state, state, rc = PSCI_E_SUCCESS;
+	unsigned int plat_state, state, rc;
 	int32_t suspend_level;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
@@ -481,14 +479,11 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	}
 
 	/* Get the index for restoring the re-entry information */
-	index = cpu_node->data;
-
 	/*
 	 * Arch. management: Restore the stashed EL3 architectural
 	 * context from the 'cpu_context' structure for this cpu.
 	 */
 	cm_el3_sysregs_context_restore(NON_SECURE);
-	rc = PSCI_E_SUCCESS;
 
 	/*
 	 * Use the more complex exception vectors to enable SPD
@@ -519,7 +514,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	 * information that we had stashed away during the suspend
 	 * call to set this cpu on its way.
 	 */
-	psci_get_ns_entry_info(index);
+	cm_prepare_el3_exit(NON_SECURE);
 
 	/* State management: mark this cpu as on */
 	psci_set_state(cpu_node, PSCI_STATE_ON);
@@ -527,6 +522,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 
+	rc = PSCI_E_SUCCESS;
 	return rc;
 }
 

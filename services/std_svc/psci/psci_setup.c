@@ -58,12 +58,6 @@ static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
 static aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 
 /*******************************************************************************
- * 'psci_ns_einfo_idx' keeps track of the next free index in the
- * 'psci_ns_entry_info' & 'psci_suspend_context' arrays.
- ******************************************************************************/
-static unsigned int psci_ns_einfo_idx;
-
-/*******************************************************************************
  * Routines for retrieving the node corresponding to an affinity level instance
  * in the mpidr. The first one uses binary search to find the node corresponding
  * to the mpidr (key) at a particular affinity level. The second routine decides
@@ -195,13 +189,8 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 		if (state & PSCI_AFF_PRESENT)
 			psci_set_state(&psci_aff_map[idx], PSCI_STATE_OFF);
 
-		/* Ensure that we have not overflowed the psci_ns_einfo array */
-		assert(psci_ns_einfo_idx < PSCI_NUM_AFFS);
-
-		psci_aff_map[idx].data = psci_ns_einfo_idx;
 		/* Invalidate the suspend context for the node */
-		psci_suspend_context[psci_ns_einfo_idx].power_state = PSCI_INVALID_DATA;
-		psci_ns_einfo_idx++;
+		psci_aff_map[idx].power_state = PSCI_INVALID_DATA;
 
 		/*
 		 * Associate a non-secure context with this affinity
@@ -301,7 +290,6 @@ int32_t psci_setup(void)
 	int afflvl, affmap_idx, max_afflvl;
 	aff_map_node_t *node;
 
-	psci_ns_einfo_idx = 0;
 	psci_plat_pm_ops = NULL;
 
 	/* Find out the maximum affinity level that the platform implements */

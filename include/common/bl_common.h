@@ -33,7 +33,6 @@
 
 #define SECURE		0x0
 #define NON_SECURE	0x1
-#define PARAM_EP_SECURITY_MASK    0x1
 
 #define UP	1
 #define DOWN	0
@@ -64,9 +63,22 @@
 #define ENTRY_POINT_INFO_PC_OFFSET	0x08
 #define ENTRY_POINT_INFO_ARGS_OFFSET	0x18
 
+#define PARAM_EP_SECURITY_MASK    0x1
 #define GET_SECURITY_STATE(x) (x & PARAM_EP_SECURITY_MASK)
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
+
+#define EP_EE_MASK	0x2
+#define EP_EE_LITTLE	0x0
+#define EP_EE_BIG	0x2
+#define EP_GET_EE(x) (x & EP_EE_MASK)
+#define EP_SET_EE(x, ee) ((x) = ((x) & ~EP_EE_MASK) | (ee))
+
+#define EP_ST_MASK	0x4
+#define EP_ST_DISABLE	0x0
+#define EP_ST_ENABLE	0x4
+#define EP_GET_ST(x) (x & EP_ST_MASK)
+#define EP_SET_ST(x, ee) ((x) = ((x) & ~EP_ST_MASK) | (ee))
 
 #define PARAM_EP     0x01
 #define PARAM_IMAGE_BINARY  0x02

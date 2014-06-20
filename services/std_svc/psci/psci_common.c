@@ -36,6 +36,7 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <platform.h>
+#include <string.h>
 #include "psci_private.h"
 
 /*
@@ -43,14 +44,6 @@
  * SPD on successful SP initialization
  */
 const spd_pm_ops_t *psci_spd_pm;
-
-/*******************************************************************************
- * Arrays that contains information needs to resume a cpu's execution when woken
- * out of suspend or off states. Each cpu is allocated a single entry in each
- * array during startup.
- ******************************************************************************/
-suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
-ns_entry_info_t psci_ns_entry_info[PSCI_NUM_AFFS];
 
 /*******************************************************************************
  * Grand array that holds the platform's topology information for state
@@ -212,97 +205,36 @@ int psci_validate_mpidr(unsigned long mpidr, int level)
 }
 
 /*******************************************************************************
- * This function retrieves all the stashed information needed to correctly
- * resume a cpu's execution in the non-secure state after it has been physically
- * powered on i.e. turned ON or resumed from SUSPEND
+ * This function determines the full entrypoint information for the requested
+ * PSCI entrypoint on power on/resume and saves this in the non-secure CPU
+ * cpu_context, ready for when the core boots.
  ******************************************************************************/
-void psci_get_ns_entry_info(unsigned int index)
+int psci_save_ns_entry(uint64_t mpidr,
+		       uint64_t entrypoint, uint64_t context_id,
+		       uint32_t ns_scr_el3, uint32_t ns_sctlr_el1)
 {
-	unsigned long sctlr = 0, scr, el_status, id_aa64pfr0;
-	cpu_context_t *ns_entry_context;
-	gp_regs_t *ns_entry_gpregs;
+	uint32_t ep_attr, mode, sctlr, daif, ee;
+	entry_point_info_t ep;
 
-	scr = read_scr();
+	sctlr = ns_scr_el3 & SCR_HCE_BIT ? read_sctlr_el2() : ns_sctlr_el1;
+	ee = 0;
 
-	/* Find out which EL we are going to */
-	id_aa64pfr0 = read_id_aa64pfr0_el1();
-	el_status = (id_aa64pfr0 >> ID_AA64PFR0_EL2_SHIFT) &
-		ID_AA64PFR0_ELX_MASK;
+	ep_attr = NON_SECURE | EP_ST_DISABLE;
+	if (sctlr & SCTLR_EE_BIT) {
+		ep_attr |= EP_EE_BIG;
+		ee = 1;
+	}
+	SET_PARAM_HEAD(&ep, PARAM_EP, VERSION_1, ep_attr);
 
-	/* Restore endianess */
-	if (psci_ns_entry_info[index].sctlr & SCTLR_EE_BIT)
-		sctlr |= SCTLR_EE_BIT;
-	else
-		sctlr &= ~SCTLR_EE_BIT;
-
-	/* Turn off MMU and Caching */
-	sctlr &= ~(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_M_BIT);
-
-	/* Set the register width */
-	if (psci_ns_entry_info[index].scr & SCR_RW_BIT)
-		scr |= SCR_RW_BIT;
-	else
-		scr &= ~SCR_RW_BIT;
-
-	scr |= SCR_NS_BIT;
-
-	if (el_status)
-		write_sctlr_el2(sctlr);
-	else
-		write_sctlr_el1(sctlr);
-
-	/* Fulfill the cpu_on entry reqs. as per the psci spec */
-	ns_entry_context = (cpu_context_t *) cm_get_context(NON_SECURE);
-	assert(ns_entry_context);
-
-	/*
-	 * Setup general purpose registers to return the context id and
-	 * prevent leakage of secure information into the normal world.
-	 */
-	ns_entry_gpregs = get_gpregs_ctx(ns_entry_context);
-	write_ctx_reg(ns_entry_gpregs,
-		      CTX_GPREG_X0,
-		      psci_ns_entry_info[index].context_id);
-
-	/*
-	 * Tell the context management library to setup EL3 system registers to
-	 * be able to ERET into the ns state, and SP_EL3 points to the right
-	 * context to exit from EL3 correctly.
-	 */
-	cm_set_el3_eret_context(NON_SECURE,
-			psci_ns_entry_info[index].eret_info.entrypoint,
-			psci_ns_entry_info[index].eret_info.spsr,
-			scr);
-
-	cm_set_next_eret_context(NON_SECURE);
-}
-
-/*******************************************************************************
- * This function retrieves and stashes all the information needed to correctly
- * resume a cpu's execution in the non-secure state after it has been physically
- * powered on i.e. turned ON or resumed from SUSPEND. This is done prior to
- * turning it on or before suspending it.
- ******************************************************************************/
-int psci_set_ns_entry_info(unsigned int index,
-			   unsigned long entrypoint,
-			   unsigned long context_id)
-{
-	int rc = PSCI_E_SUCCESS;
-	unsigned int rw, mode, ee, spsr = 0;
-	unsigned long id_aa64pfr0 = read_id_aa64pfr0_el1(), scr = read_scr();
-	unsigned long el_status;
-	unsigned long daif;
-
-	/* Figure out what mode do we enter the non-secure world in */
-	el_status = (id_aa64pfr0 >> ID_AA64PFR0_EL2_SHIFT) &
-		ID_AA64PFR0_ELX_MASK;
+	ep.pc = entrypoint;
+	memset(&ep.args, 0, sizeof(ep.args));
+	ep.args.arg0 = context_id;
 
 	/*
 	 * Figure out whether the cpu enters the non-secure address space
 	 * in aarch32 or aarch64
 	 */
-	rw = scr & SCR_RW_BIT;
-	if (rw) {
+	if (ns_scr_el3 & SCR_RW_BIT) {
 
 		/*
 		 * Check whether a Thumb entry point has been provided for an
@@ -311,28 +243,12 @@ int psci_set_ns_entry_info(unsigned int index,
 		if (entrypoint & 0x1)
 			return PSCI_E_INVALID_PARAMS;
 
-		if (el_status && (scr & SCR_HCE_BIT)) {
-			mode = MODE_EL2;
-			ee = read_sctlr_el2() & SCTLR_EE_BIT;
-		} else {
-			mode = MODE_EL1;
-			ee = read_sctlr_el1() & SCTLR_EE_BIT;
-		}
+		mode = ns_scr_el3 & SCR_HCE_BIT ? MODE_EL2 : MODE_EL1;
 
-		spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
-
-		psci_ns_entry_info[index].sctlr |= ee;
-		psci_ns_entry_info[index].scr |= SCR_RW_BIT;
+		ep.spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	} else {
 
-
-		if (el_status && (scr & SCR_HCE_BIT)) {
-			mode = MODE32_hyp;
-			ee = read_sctlr_el2() & SCTLR_EE_BIT;
-		} else {
-			mode = MODE32_svc;
-			ee = read_sctlr_el1() & SCTLR_EE_BIT;
-		}
+		mode = ns_scr_el3 & SCR_HCE_BIT ? MODE32_hyp : MODE32_svc;
 
 		/*
 		 * TODO: Choose async. exception bits if HYP mode is not
@@ -340,18 +256,13 @@ int psci_set_ns_entry_info(unsigned int index,
 		 */
 		daif = DAIF_ABT_BIT | DAIF_IRQ_BIT | DAIF_FIQ_BIT;
 
-		spsr = SPSR_MODE32(mode, entrypoint & 0x1, ee, daif);
-
-		/* Ensure that the CSPR.E and SCTLR.EE bits match */
-		psci_ns_entry_info[index].sctlr |= ee;
-		psci_ns_entry_info[index].scr &= ~SCR_RW_BIT;
+		ep.spsr = SPSR_MODE32(mode, entrypoint & 0x1, ee, daif);
 	}
 
-	psci_ns_entry_info[index].eret_info.entrypoint = entrypoint;
-	psci_ns_entry_info[index].eret_info.spsr = spsr;
-	psci_ns_entry_info[index].context_id = context_id;
+	/* initialise an entrypoint to set up the CPU context */
+	cm_init_context(mpidr, &ep);
 
-	return rc;
+	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************

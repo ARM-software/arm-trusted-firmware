@@ -45,9 +45,8 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 				 uint64_t mpidr,
 				 tsp_context_t *tsp_ctx)
 {
-	uint32_t scr, sctlr;
-	el1_sys_regs_t *el1_state;
-	uint32_t spsr;
+	entry_point_info_t ep;
+	uint32_t ep_attr;
 
 	/* Passing a NULL context is a critical programming error */
 	assert(tsp_ctx);
@@ -58,51 +57,24 @@ int32_t tspd_init_secure_context(uint64_t entrypoint,
 	 */
 	assert(rw == TSP_AARCH64);
 
-	/*
-	 * This might look redundant if the context was statically
-	 * allocated but this function cannot make that assumption.
-	 */
-	memset(tsp_ctx, 0, sizeof(*tsp_ctx));
-
-	/*
-	 * Set the right security state, register width and enable access to
-	 * the secure physical timer for the SP.
-	 */
-	scr = read_scr();
-	scr &= ~SCR_NS_BIT;
-	scr &= ~SCR_RW_BIT;
-	scr |= SCR_ST_BIT;
-	if (rw == TSP_AARCH64)
-		scr |= SCR_RW_BIT;
-
-	/* Get a pointer to the S-EL1 context memory */
-	el1_state = get_sysregs_ctx(&tsp_ctx->cpu_ctx);
-
-	/*
-	 * Program the SCTLR_EL1 such that upon entry in S-EL1, caches and MMU are
-	 * disabled and exception endianess is set to be the same as EL3
-	 */
-	sctlr = read_sctlr_el3();
-	sctlr &= SCTLR_EE_BIT;
-	sctlr |= SCTLR_EL1_RES1;
-	write_ctx_reg(el1_state, CTX_SCTLR_EL1, sctlr);
-
-	/* Set this context as ready to be initialised i.e OFF */
-	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_OFF);
-
-	/*
-	 * This context has not been used yet. It will become valid
-	 * when the TSP is interrupted and wants the TSPD to preserve
-	 * the context.
-	 */
-	clr_std_smc_active_flag(tsp_ctx->state);
-
 	/* Associate this context with the cpu specified */
 	tsp_ctx->mpidr = mpidr;
+	tsp_ctx->state = 0;
+	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_OFF);
+	clr_std_smc_active_flag(tsp_ctx->state);
 
-	cm_set_context(&tsp_ctx->cpu_ctx, SECURE);
-	spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
-	cm_set_el3_eret_context(SECURE, entrypoint, spsr, scr);
+	cm_set_context_by_mpidr(mpidr, &tsp_ctx->cpu_ctx, SECURE);
+
+	/* initialise an entrypoint to set up the CPU context */
+	ep_attr = SECURE | EP_ST_ENABLE;
+	if (read_sctlr_el3() & SCTLR_EE_BIT)
+		ep_attr |= EP_EE_BIG;
+	SET_PARAM_HEAD(&ep, PARAM_EP, VERSION_1, ep_attr);
+	ep.pc = entrypoint;
+	ep.spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	memset(&ep.args, 0, sizeof(ep.args));
+
+	cm_init_context(mpidr, &ep);
 
 	return 0;
 }

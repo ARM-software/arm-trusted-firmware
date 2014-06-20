@@ -42,8 +42,8 @@ typedef int (*afflvl_off_handler_t)(unsigned long, aff_map_node_t *);
  ******************************************************************************/
 static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
 {
-	unsigned int index, plat_state;
-	int rc = PSCI_E_SUCCESS;
+	unsigned int plat_state;
+	int rc;
 	unsigned long sctlr;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
@@ -66,9 +66,6 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
 		if (rc)
 			return rc;
 	}
-
-	index = cpu_node->data;
-	memset(&psci_ns_entry_info[index], 0, sizeof(psci_ns_entry_info[index]));
 
 	/*
 	 * Arch. management. Perform the necessary steps to flush all
@@ -96,6 +93,7 @@ static int psci_afflvl0_off(unsigned long mpidr, aff_map_node_t *cpu_node)
 	 * Plat. management: Perform platform specific actions to turn this
 	 * cpu off e.g. exit cpu coherency, program the power controller etc.
 	 */
+	rc = PSCI_E_SUCCESS;
 	if (psci_plat_pm_ops->affinst_off) {
 
 		/* Get the current physical state of this cpu */

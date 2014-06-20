@@ -128,9 +128,6 @@
 #define psci_validate_power_state(pstate) (pstate & PSTATE_VALID_MASK)
 
 
-/* Number of affinity instances whose state this psci imp. can track */
-#define PSCI_NUM_AFFS		32ull
-
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
