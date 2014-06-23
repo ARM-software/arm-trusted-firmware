@@ -51,11 +51,11 @@ void bl31_arch_setup(void)
 	write_sctlr_el3(tmp_reg);
 
 	/*
-	 * Enable HVCs, route FIQs to EL3, set the next EL to be AArch64, route
-	 * external abort and SError interrupts to EL3
+	 * Route external abort and SError interrupts to EL3
+	 * other SCR bits will be configured before exiting to a lower exception
+	 * level
 	 */
-	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT | SCR_HCE_BIT | SCR_EA_BIT |
-		  SCR_FIQ_BIT;
+	tmp_reg = SCR_RES1_BITS | SCR_EA_BIT;
 	write_scr(tmp_reg);
 
 	/*
@@ -67,40 +67,4 @@ void bl31_arch_setup(void)
 	/* Program the counter frequency */
 	counter_freq = plat_get_syscnt_freq();
 	write_cntfrq_el0(counter_freq);
-}
-
-/*******************************************************************************
- * Detect what the security state of the next EL is and setup the minimum
- * required architectural state: program SCTRL to reflect the RES1 bits, and to
- * have MMU and caches disabled
- ******************************************************************************/
-void bl31_next_el_arch_setup(uint32_t security_state)
-{
-	unsigned long id_aa64pfr0 = read_id_aa64pfr0_el1();
-	unsigned long next_sctlr;
-	unsigned long el_status;
-	unsigned long scr = read_scr();
-
-	/* Use the same endianness than the current BL */
-	next_sctlr = (read_sctlr_el3() & SCTLR_EE_BIT);
-
-	/* Find out which EL we are going to */
-	el_status = (id_aa64pfr0 >> ID_AA64PFR0_EL2_SHIFT) & ID_AA64PFR0_ELX_MASK;
-
-	if (security_state == NON_SECURE) {
-		/* Check if EL2 is supported */
-		if (el_status && (scr & SCR_HCE_BIT)) {
-			/* Set SCTLR EL2 */
-			next_sctlr |= SCTLR_EL2_RES1;
-			write_sctlr_el2(next_sctlr);
-			return;
-		}
-	}
-
-	/*
-	 * SCTLR_EL1 needs the same programming irrespective of the
-	 * security state of EL1.
-	 */
-	next_sctlr |= SCTLR_EL1_RES1;
-	write_sctlr_el1(next_sctlr);
 }

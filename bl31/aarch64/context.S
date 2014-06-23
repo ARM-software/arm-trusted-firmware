@@ -43,9 +43,8 @@
 	.global el3_sysregs_context_save
 func el3_sysregs_context_save
 
-	mrs	x9, scr_el3
 	mrs	x10, sctlr_el3
-	stp	x9, x10, [x0, #CTX_SCR_EL3]
+	str	x10, [x0, #CTX_SCTLR_EL3]
 
 	mrs	x11, cptr_el3
 	stp	x11, xzr, [x0, #CTX_CPTR_EL3]
@@ -98,8 +97,7 @@ func el3_sysregs_context_restore
 	/* Make sure all the above changes are observed */
 	isb
 
-	ldp	x9, x10, [x0, #CTX_SCR_EL3]
-	msr	scr_el3, x9
+	ldr	x10, [x0, #CTX_SCTLR_EL3]
 	msr	sctlr_el3, x10
 	isb
 

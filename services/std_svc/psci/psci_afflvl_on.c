@@ -75,8 +75,10 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 			   unsigned long ns_entrypoint,
 			   unsigned long context_id)
 {
-	unsigned int index, plat_state;
+	unsigned int plat_state;
 	unsigned long psci_entrypoint;
+	uint32_t ns_scr_el3 = read_scr_el3();
+	uint32_t ns_sctlr_el1 = read_sctlr_el1();
 	int rc;
 
 	/* Sanity check to safeguard against data corruption */
@@ -103,8 +105,8 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	 * the non-secure world from the non-secure state from
 	 * where this call originated.
 	 */
-	index = cpu_node->data;
-	rc = psci_set_ns_entry_info(index, ns_entrypoint, context_id);
+	rc = psci_save_ns_entry(target_cpu, ns_entrypoint, context_id,
+				ns_scr_el3, ns_sctlr_el1);
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
@@ -336,7 +338,7 @@ int psci_afflvl_on(unsigned long target_cpu,
 static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 					   aff_map_node_t *cpu_node)
 {
-	unsigned int index, plat_state, state, rc = PSCI_E_SUCCESS;
+	unsigned int plat_state, state, rc;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
@@ -383,11 +385,9 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	/*
 	 * Generic management: Now we just need to retrieve the
 	 * information that we had stashed away during the cpu_on
-	 * call to set this cpu on its way. First get the index
-	 * for restoring the re-entry info
+	 * call to set this cpu on its way.
 	 */
-	index = cpu_node->data;
-	psci_get_ns_entry_info(index);
+	cm_prepare_el3_exit(NON_SECURE);
 
 	/* State management: mark this cpu as on */
 	psci_set_state(cpu_node, PSCI_STATE_ON);
@@ -395,6 +395,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 
+	rc = PSCI_E_SUCCESS;
 	return rc;
 }
 
