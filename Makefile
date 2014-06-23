@@ -148,9 +148,7 @@ endif
 .PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
 .SUFFIXES:
 
-INCLUDES		+=	-Iinclude/bl1			\
-				-Iinclude/bl2			\
-				-Iinclude/bl31			\
+INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/bl31/services		\
 				-Iinclude/bl32			\
 				-Iinclude/bl32/payloads		\
@@ -184,10 +182,12 @@ $(eval $(call assert_boolean,RESET_TO_BL31))
 $(eval $(call add_define,RESET_TO_BL31))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
+				-Werror -Wmissing-include-dirs			\
 				-mgeneral-regs-only -D__ASSEMBLY__		\
 				${DEFINES} ${INCLUDES}
 CFLAGS			+= 	-nostdinc -pedantic -ffreestanding -Wall	\
-				-Werror -mgeneral-regs-only -std=c99 -c -Os	\
+				-Werror -Wmissing-include-dirs			\
+				-mgeneral-regs-only -std=c99 -c -Os		\
 				${DEFINES} ${INCLUDES}
 CFLAGS			+=	-ffunction-sections -fdata-sections
 
