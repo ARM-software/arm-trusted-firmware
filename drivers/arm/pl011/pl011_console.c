@@ -71,7 +71,12 @@ void console_init(unsigned long base_addr)
 
 int console_putc(int c)
 {
-	assert(uart_base);
+	/* If the console has not been initialized then return an error
+	 * code. Asserting here would result in recursion and stack
+	 * exhaustion
+	 */
+	if (!uart_base)
+		return -1;
 
 	if (c == '\n') {
 		WAIT_UNTIL_UART_FREE(uart_base);
