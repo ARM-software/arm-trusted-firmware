@@ -72,11 +72,13 @@ func bl31_entrypoint
 	isb
 
 	/* ---------------------------------------------
-	 * Set the exception vector to something sane.
+	 * Set the exception vector and zero tpidr_el3
+	 * until the crash reporting is set up
 	 * ---------------------------------------------
 	 */
-	adr	x1, early_exceptions
+	adr	x1, runtime_exceptions
 	msr	vbar_el3, x1
+	msr	tpidr_el3, xzr
 
 	/* ---------------------------------------------------------------------
 	 * The initial state of the Architectural feature trap register
@@ -134,10 +136,10 @@ func bl31_entrypoint
 	 * Initialise cpu_data and crash reporting
 	 * ---------------------------------------------
 	 */
-	bl	init_cpu_data_ptr
 #if CRASH_REPORTING
 	bl	init_crash_reporting
 #endif
+	bl	init_cpu_data_ptr
 
 	/* ---------------------------------------------
 	 * Use SP_EL0 for the C runtime stack.
