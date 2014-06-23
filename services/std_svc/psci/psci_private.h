@@ -33,7 +33,15 @@
 
 #include <arch.h>
 #include <bakery_lock.h>
+#include <platform_def.h>	/* for PLATFORM_NUM_AFFS */
 #include <psci.h>
+
+/* Number of affinity instances whose state this psci imp. can track */
+#ifdef PLATFORM_NUM_AFFS
+#define PSCI_NUM_AFFS		PLATFORM_NUM_AFFS
+#else
+#define PSCI_NUM_AFFS		(2 * PLATFORM_CORE_COUNT)
+#endif
 
 /*******************************************************************************
  * The following two data structures hold the topology tree which in turn tracks
@@ -44,7 +52,7 @@ typedef struct aff_map_node {
 	unsigned short ref_count;
 	unsigned char state;
 	unsigned char level;
-	unsigned int data;
+	unsigned int power_state;
 	bakery_lock_t lock;
 } aff_map_node_t;
 
@@ -53,14 +61,6 @@ typedef struct aff_limits_node {
 	int max;
 } aff_limits_node_t;
 
-/*******************************************************************************
- * This data structure holds secure world context that needs to be preserved
- * across cpu_suspend calls which enter the power down state.
- ******************************************************************************/
-typedef struct suspend_context {
-	unsigned int power_state;
-} __aligned(CACHE_WRITEBACK_GRANULE) suspend_context_t;
-
 typedef aff_map_node_t (*mpidr_aff_map_nodes_t[MPIDR_MAX_AFFLVL]);
 typedef unsigned int (*afflvl_power_on_finisher_t)(unsigned long,
 						 aff_map_node_t *);
@@ -68,7 +68,6 @@ typedef unsigned int (*afflvl_power_on_finisher_t)(unsigned long,
 /*******************************************************************************
  * Data prototypes
  ******************************************************************************/
-extern suspend_context_t psci_suspend_context[PSCI_NUM_AFFS];
 extern const plat_pm_ops_t *psci_plat_pm_ops;
 extern aff_map_node_t psci_aff_map[PSCI_NUM_AFFS];
 
