@@ -934,45 +934,61 @@ The sample crash output is shown below.
 7.  Memory layout on FVP platforms
 ----------------------------------
 
+Each bootloader image can be divided in 2 parts:
+
+ *    the static contents of the image. These are data actually stored in the
+      binary on the disk. In the ELF terminology, they are called `PROGBITS`
+      sections;
+
+ *    the run-time contents of the image. These are data that don't occupy any
+      space in the binary on the disk. The ELF binary just contains some
+      metadata indicating where these data will be stored at run-time and the
+      corresponding sections need to be allocated and initialized at run-time.
+      In the ELF terminology, they are called `NOBITS` sections.
+
+All PROGBITS sections are grouped together at the beginning of the image,
+followed by all NOBITS sections. This is true for all Trusted Firmware images
+and it is governed by the linker scripts. This ensures that the raw binary
+images are as small as possible. If a NOBITS section would sneak in between
+PROGBITS sections then the resulting binary file would contain a bunch of zero
+bytes at the location of this NOBITS section, making the image unnecessarily
+bigger. Smaller images allow faster loading from the FIP to the main memory.
+
 On FVP platforms, we use the Trusted ROM and Trusted SRAM to store the trusted
-firmware binaries. BL1 is originally sitting in the Trusted ROM at address
-`0x0`. Its read-write data are relocated at the base of the Trusted SRAM at
-runtime. BL1 loads BL2 image near the top of the trusted SRAM. BL2 loads BL3-1
-image between BL1 and BL2. Optionally, BL2 then loads the TSP as the BL3-2
-image. By default it is loaded in Trusted SRAM, in this case it sits between
-BL3-1 and BL2. This memory layout is illustrated by the following diagram.
+firmware binaries.
 
-    Trusted SRAM
-    +----------+ 0x04040000
-    |          |
-    |----------|
-    |   BL2    |
-    |----------|
-    |          |
-    |----------|
-    |   BL32   | (optional)
-    |----------|
-    |          |
-    |----------|
-    |   BL31   |
-    |----------|
-    |          |
-    |----------|
-    | BL1 (rw) |
-    +----------+ 0x04000000
+ *    BL1 is originally sitting in the Trusted ROM at address `0x0`. Its
+      read-write data are relocated at the top of the Trusted SRAM at runtime.
 
-    Trusted ROM
-    +----------+ 0x04000000
-    | BL1 (ro) |
-    +----------+ 0x00000000
+ *    BL3-1 is loaded at the top of the Trusted SRAM, such that its NOBITS
+      sections will overwrite BL1 R/W data.
+
+ *    BL2 is loaded below BL3-1.
+
+ *    The TSP is loaded as the BL3-2 image at the base of the Trusted SRAM. Its
+      NOBITS sections are allowed to overlay BL2.
+
+This memory layout is designed to give the BL3-2 image as much memory as
+possible. It is illustrated by the following diagram.
+
+               Trusted SRAM
+    0x04040000 +----------+  loaded by BL2  ------------------
+               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               |----------|                 ------------------
+               |   BL2    |  <<<<<<<<<<<<<  |  BL3-2 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  | BL3-2 PROGBITS |
+    0x04000000 +----------+                 ------------------
+
+               Trusted ROM
+    0x04000000 +----------+
+               | BL1 (ro) |
+    0x00000000 +----------+
 
 The TSP image may be loaded in Trusted DRAM instead. This doesn't change the
 memory layout of the other boot loader images in Trusted SRAM.
-
-Although the goal at long term is to give complete flexibility over the memory
-layout, all platforms should conform to this layout at the moment. This is
-because of some limitations in the implementation of the image loader in the
-Trusted Firmware. Refer to the "Limitations of the image loader" section below.
 
 Each bootloader stage image layout is described by its own linker script. The
 linker scripts export some symbols into the program symbol table. Their values
@@ -1095,82 +1111,9 @@ happens, the linker will issue a message similar to the following:
 
     aarch64-none-elf-ld: BLx has exceeded its limit.
 
-On FVP platforms, the base addresses have been chosen such that all images can
-reside concurrently in Trusted RAM without overlapping each other. Note that
-this is not a requirement, as not all images live in memory at the same time.
-For example, when the BL3-1 image takes over execution, BL1 and BL2 images are
-not needed anymore.
-
-### Limitations of the image loader
-
-The current implementation of the image loader can result in wasted space
-because of the simplified data structure used to represent the extents of free
-memory. For example, to load BL2 at address `0x0402D000`, the resulting memory
-layout should be as follows:
-
-    ------------ 0x04040000
-    |          |  <- Free space (1)
-    |----------|
-    |   BL2    |
-    |----------| BL2_BASE (0x0402D000)
-    |          |  <- Free space (2)
-    |----------|
-    |   BL1    |
-    ------------ 0x04000000
-
-In the current implementation, we need to specify whether BL2 is loaded at the
-top or bottom of the free memory. BL2 is top-loaded so in the example above,
-the free space (1) above BL2 is hidden, resulting in the following view of
-memory:
-
-    ------------ 0x04040000
-    |          |
-    |          |
-    |   BL2    |
-    |----------| BL2_BASE (0x0402D000)
-    |          |  <- Free space (2)
-    |----------|
-    |   BL1    |
-    ------------ 0x04000000
-
-BL3-1 is bottom-loaded above BL1. For example, if BL3-1 is bottom-loaded at
-`0x0400E000`, the memory layout should look like this:
-
-    ------------ 0x04040000
-    |          |
-    |          |
-    |   BL2    |
-    |----------| BL2_BASE (0x0402D000)
-    |          |  <- Free space (2)
-    |          |
-    |----------|
-    |          |
-    |   BL31   |
-    |----------|  BL31_BASE (0x0400E000)
-    |          |  <- Free space (3)
-    |----------|
-    |   BL1    |
-    ------------ 0x04000000
-
-But the free space (3) between BL1 and BL3-1 is wasted, resulting in the
-following view:
-
-    ------------ 0x04040000
-    |          |
-    |          |
-    |   BL2    |
-    |----------| BL2_BASE (0x0402D000)
-    |          |  <- Free space (2)
-    |          |
-    |----------|
-    |          |
-    |          |
-    |   BL31   | BL31_BASE (0x0400E000)
-    |          |
-    |----------|
-    |   BL1    |
-    ------------ 0x04000000
-
+Additionally, if the platform memory layout implies some image overlaying like
+on FVP, BL3-1 and TSP need to know the limit address that their PROGBITS
+sections must not overstep. The platform code must provide those.
 
 8.  Firmware Image Package (FIP)
 --------------------------------
