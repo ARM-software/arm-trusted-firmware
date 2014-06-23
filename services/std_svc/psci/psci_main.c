@@ -221,50 +221,68 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 			  void *handle,
 			  uint64_t flags)
 {
-	uint64_t rc;
+	if (is_caller_secure(flags))
+		SMC_RET1(handle, SMC_UNK);
 
-	switch (smc_fid) {
-	case PSCI_VERSION:
-		rc = psci_version();
-		break;
+	if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
+		/* 32-bit PSCI function, clear top parameter bits */
 
-	case PSCI_CPU_OFF:
-		rc = __psci_cpu_off();
-		break;
+		x1 = (uint32_t)x1;
+		x2 = (uint32_t)x2;
+		x3 = (uint32_t)x3;
 
-	case PSCI_CPU_SUSPEND_AARCH64:
-	case PSCI_CPU_SUSPEND_AARCH32:
-		rc = __psci_cpu_suspend(x1, x2, x3);
-		break;
+		switch (smc_fid) {
+		case PSCI_VERSION:
+			SMC_RET1(handle, psci_version());
 
-	case PSCI_CPU_ON_AARCH64:
-	case PSCI_CPU_ON_AARCH32:
-		rc = psci_cpu_on(x1, x2, x3);
-		break;
+		case PSCI_CPU_OFF:
+			SMC_RET1(handle, __psci_cpu_off());
 
-	case PSCI_AFFINITY_INFO_AARCH32:
-	case PSCI_AFFINITY_INFO_AARCH64:
-		rc = psci_affinity_info(x1, x2);
-		break;
+		case PSCI_CPU_SUSPEND_AARCH32:
+			SMC_RET1(handle, __psci_cpu_suspend(x1, x2, x3));
 
-	case PSCI_MIG_AARCH32:
-	case PSCI_MIG_AARCH64:
-		rc = psci_migrate(x1);
-		break;
+		case PSCI_CPU_ON_AARCH32:
+			SMC_RET1(handle, psci_cpu_on(x1, x2, x3));
 
-	case PSCI_MIG_INFO_TYPE:
-		rc = psci_migrate_info_type();
-		break;
+		case PSCI_AFFINITY_INFO_AARCH32:
+			SMC_RET1(handle, psci_affinity_info(x1, x2));
 
-	case PSCI_MIG_INFO_UP_CPU_AARCH32:
-	case PSCI_MIG_INFO_UP_CPU_AARCH64:
-		rc = psci_migrate_info_up_cpu();
-		break;
+		case PSCI_MIG_AARCH32:
+			SMC_RET1(handle, psci_migrate(x1));
 
-	default:
-		rc = SMC_UNK;
-		WARN("Unimplemented PSCI Call: 0x%x \n", smc_fid);
+		case PSCI_MIG_INFO_TYPE:
+			SMC_RET1(handle, psci_migrate_info_type());
+
+		case PSCI_MIG_INFO_UP_CPU_AARCH32:
+			SMC_RET1(handle, psci_migrate_info_up_cpu());
+
+		default:
+			break;
+		}
+	} else {
+		/* 64-bit PSCI function */
+
+		switch (smc_fid) {
+		case PSCI_CPU_SUSPEND_AARCH64:
+			SMC_RET1(handle, __psci_cpu_suspend(x1, x2, x3));
+
+		case PSCI_CPU_ON_AARCH64:
+			SMC_RET1(handle, psci_cpu_on(x1, x2, x3));
+
+		case PSCI_AFFINITY_INFO_AARCH64:
+			SMC_RET1(handle, psci_affinity_info(x1, x2));
+
+		case PSCI_MIG_AARCH64:
+			SMC_RET1(handle, psci_migrate(x1));
+
+		case PSCI_MIG_INFO_UP_CPU_AARCH64:
+			SMC_RET1(handle, psci_migrate_info_up_cpu());
+
+		default:
+			break;
+		}
 	}
 
-	SMC_RET1(handle, rc);
+	WARN("Unimplemented PSCI Call: 0x%x \n", smc_fid);
+	SMC_RET1(handle, SMC_UNK);
 }
