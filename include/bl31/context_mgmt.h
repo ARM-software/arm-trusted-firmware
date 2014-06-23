@@ -31,6 +31,7 @@
 #ifndef __CM_H__
 #define __CM_H__
 
+#include <cpu_data.h>
 #include <stdint.h>
 
 /*******************************************************************************
@@ -38,11 +39,11 @@
  ******************************************************************************/
 void cm_init(void);
 void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state);
-void *cm_get_context(uint32_t security_state);
+static inline void *cm_get_context(uint32_t security_state);
 void cm_set_context_by_mpidr(uint64_t mpidr,
 			     void *context,
 			     uint32_t security_state);
-void cm_set_context(void *context, uint32_t security_state);
+static inline void cm_set_context(void *context, uint32_t security_state);
 void cm_el3_sysregs_context_save(uint32_t security_state);
 void cm_el3_sysregs_context_restore(uint32_t security_state);
 void cm_el1_sysregs_context_save(uint32_t security_state);
@@ -55,5 +56,31 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 			  uint32_t value);
 void cm_set_next_eret_context(uint32_t security_state);
 uint32_t cm_get_scr_el3(uint32_t security_state);
+
+/* Inline definitions */
+
+/*******************************************************************************
+ * This function returns a pointer to the most recent 'cpu_context' structure
+ * for the calling CPU that was set as the context for the specified security
+ * state. NULL is returned if no such structure has been specified.
+ ******************************************************************************/
+void *cm_get_context(uint32_t security_state)
+{
+	assert(security_state <= NON_SECURE);
+
+	return get_cpu_data(cpu_context[security_state]);
+}
+
+/*******************************************************************************
+ * This function sets the pointer to the current 'cpu_context' structure for the
+ * specified security state for the calling CPU
+ ******************************************************************************/
+void cm_set_context(void *context, uint32_t security_state)
+{
+	assert(security_state <= NON_SECURE);
+
+	set_cpu_data(cpu_context[security_state], context);
+}
+
 
 #endif /* __CM_H__ */

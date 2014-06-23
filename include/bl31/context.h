@@ -188,6 +188,7 @@
 #ifndef __ASSEMBLY__
 
 #include <cassert.h>
+#include <platform_def.h>	/* for CACHE_WRITEBACK_GRANULE */
 #include <stdint.h>
 
 /*
