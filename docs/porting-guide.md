@@ -253,6 +253,17 @@ be defined as well:
     the secure memory identified by `TSP_SEC_MEM_BASE` and `TSP_SEC_MEM_SIZE`
     constants.
 
+The following constants are optional. They should be defined when the platform
+memory layout implies some image overlaying like on FVP.
+
+*   **#define : BL31_PROGBITS_LIMIT**
+
+    Defines the maximum address in secure RAM that the BL3-1's progbits sections
+    can occupy.
+
+*   **#define : BL32_PROGBITS_LIMIT**
+
+    Defines the maximum address that the TSP's progbits sections can occupy.
 
 ### File : plat_macros.S [mandatory]
 
