@@ -65,6 +65,38 @@ static void __dead2 bl1_run_bl2(entry_point_info_t *bl2_ep)
 		bl2_ep->args.arg7);
 }
 
+/*******************************************************************************
+ * The next function has a weak definition. Platform specific code can override
+ * it if it wishes to.
+ ******************************************************************************/
+#pragma weak bl1_init_bl2_mem_layout
+
+/*******************************************************************************
+ * Function that takes a memory layout into which BL2 has been loaded and
+ * populates a new memory layout for BL2 that ensures that BL1's data sections
+ * resident in secure RAM are not visible to BL2.
+ ******************************************************************************/
+void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
+			     meminfo_t *bl2_mem_layout)
+{
+	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
+
+	assert(bl1_mem_layout != NULL);
+	assert(bl2_mem_layout != NULL);
+
+	/* Check that BL1's memory is lying outside of the free memory */
+	assert((BL1_RAM_LIMIT <= bl1_mem_layout->free_base) ||
+	       (BL1_RAM_BASE >= bl1_mem_layout->free_base + bl1_mem_layout->free_size));
+
+	/* Remove BL1 RW data from the scope of memory visible to BL2 */
+	*bl2_mem_layout = *bl1_mem_layout;
+	reserve_mem(&bl2_mem_layout->total_base,
+		    &bl2_mem_layout->total_size,
+		    BL1_RAM_BASE,
+		    bl1_size);
+
+	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
+}
 
 /*******************************************************************************
  * Function to perform late architectural and platform specific initialization.
@@ -78,7 +110,6 @@ void bl1_main(void)
 #if DEBUG
 	unsigned long sctlr_el3 = read_sctlr_el3();
 #endif
-	unsigned int load_type = TOP_LOAD;
 	image_info_t bl2_image_info = { {0} };
 	entry_point_info_t bl2_ep = { {0} };
 	meminfo_t *bl1_tzram_layout;
@@ -105,17 +136,15 @@ void bl1_main(void)
 	SET_PARAM_HEAD(&bl2_image_info, PARAM_IMAGE_BINARY, VERSION_1, 0);
 	SET_PARAM_HEAD(&bl2_ep, PARAM_EP, VERSION_1, 0);
 
-	/*
-	 * Find out how much free trusted ram remains after BL1 load
-	 * & load the BL2 image at its top
-	 */
+	/* Find out how much free trusted ram remains after BL1 load */
 	bl1_tzram_layout = bl1_plat_sec_mem_layout();
+
+	/* Load the BL2 image */
 	err = load_image(bl1_tzram_layout,
-			      (const char *) BL2_IMAGE_NAME,
-			      load_type,
-			      BL2_BASE,
-			      &bl2_image_info,
-			      &bl2_ep);
+			 BL2_IMAGE_NAME,
+			 BL2_BASE,
+			 &bl2_image_info,
+			 &bl2_ep);
 	if (err) {
 		/*
 		 * TODO: print failure to load BL2 but also add a tzwdog timer
@@ -132,10 +161,7 @@ void bl1_main(void)
 	 * memory for other purposes.
 	 */
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;
-	init_bl2_mem_layout(bl1_tzram_layout,
-			    bl2_tzram_layout,
-			    load_type,
-			    bl2_image_info.image_base);
+	bl1_init_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
 
 	bl1_plat_set_bl2_ep_info(&bl2_image_info, &bl2_ep);
 	bl2_ep.args.arg1 = (unsigned long)bl2_tzram_layout;

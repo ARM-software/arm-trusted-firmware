@@ -35,6 +35,7 @@
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
+#include "../../bl1/bl1_private.h"
 #include "fvp_def.h"
 #include "fvp_private.h"
 
@@ -45,9 +46,6 @@
 extern unsigned long __COHERENT_RAM_START__;
 extern unsigned long __COHERENT_RAM_END__;
 
-extern unsigned long __BL1_RAM_START__;
-extern unsigned long __BL1_RAM_END__;
-
 /*
  * The next 2 constants identify the extents of the coherent memory region.
  * These addresses are used by the MMU setup code and therefore they must be
@@ -57,10 +55,6 @@ extern unsigned long __BL1_RAM_END__;
  */
 #define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-
-#define BL1_RAM_BASE (unsigned long)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (unsigned long)(&__BL1_RAM_END__)
-
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;

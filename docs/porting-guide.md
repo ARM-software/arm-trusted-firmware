@@ -511,7 +511,7 @@ warm boot. For each CPU, BL1 is responsible for the following tasks:
     the platform to decide where it wants to place the `meminfo` structure for
     BL2.
 
-    BL1 implements the `init_bl2_mem_layout()` function to populate the
+    BL1 implements the `bl1_init_bl2_mem_layout()` function to populate the
     BL2 `meminfo` structure. The platform may override this implementation, for
     example if the platform wants to restrict the amount of memory visible to
     BL2. Details of how to do this are given below.
@@ -574,7 +574,7 @@ its own use.
 This function helps fulfill requirement 3 above.
 
 
-### Function : init_bl2_mem_layout() [optional]
+### Function : bl1_init_bl2_mem_layout() [optional]
 
     Argument : meminfo *, meminfo *, unsigned int, unsigned long
     Return   : void

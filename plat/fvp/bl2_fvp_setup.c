@@ -171,12 +171,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 	console_init(PL011_UART0_BASE);
 
 	/* Setup the BL2 memory layout */
-	bl2_tzram_layout.total_base = mem_layout->total_base;
-	bl2_tzram_layout.total_size = mem_layout->total_size;
-	bl2_tzram_layout.free_base = mem_layout->free_base;
-	bl2_tzram_layout.free_size = mem_layout->free_size;
-	bl2_tzram_layout.attr = mem_layout->attr;
-	bl2_tzram_layout.next = 0;
+	bl2_tzram_layout = *mem_layout;
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();
@@ -276,8 +271,6 @@ void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
 			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
 	bl32_meminfo->free_size =
 			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
-	bl32_meminfo->attr = BOT_LOAD;
-	bl32_meminfo->next = 0;
 }
 
 
@@ -290,6 +283,4 @@ void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 	bl33_meminfo->total_size = DRAM_SIZE - DRAM1_SEC_SIZE;
 	bl33_meminfo->free_base = DRAM_BASE;
 	bl33_meminfo->free_size = DRAM_SIZE - DRAM1_SEC_SIZE;
-	bl33_meminfo->attr = 0;
-	bl33_meminfo->attr = 0;
 }
