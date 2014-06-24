@@ -124,12 +124,12 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
  * of others'. The CPU with the highest priority (lowest numerical value)
  * acquires the lock
  */
-void bakery_lock_get(unsigned long mpidr, bakery_lock_t *bakery)
+void bakery_lock_get(bakery_lock_t *bakery)
 {
 	unsigned int they, me;
 	unsigned int my_ticket, my_prio, their_ticket;
 
-	me = platform_get_core_pos(mpidr);
+	me = platform_get_core_pos(read_mpidr_el1());
 
 	assert_bakery_entry_valid(me, bakery);
 
@@ -176,9 +176,9 @@ void bakery_lock_get(unsigned long mpidr, bakery_lock_t *bakery)
 
 
 /* Release the lock and signal contenders */
-void bakery_lock_release(unsigned long mpidr, bakery_lock_t *bakery)
+void bakery_lock_release(bakery_lock_t *bakery)
 {
-	unsigned int me = platform_get_core_pos(mpidr);
+	unsigned int me = platform_get_core_pos(read_mpidr_el1());
 
 	assert_bakery_entry_valid(me, bakery);
 	assert(bakery->owner == me);
