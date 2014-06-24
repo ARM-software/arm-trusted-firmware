@@ -609,23 +609,24 @@ The BL2 stage is executed only by the primary CPU, which is determined in BL1
 using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
 `BL2_BASE`. BL2 executes in Secure EL1 and is responsible for:
 
-1.  Loading the BL3-1 binary image into secure RAM from non-volatile storage. To
+1.  (Optional) Loading the BL3-0 binary image (if present) from platform
+    provided non-volatile storage. To load the BL3-0 image, BL2 makes use of
+    the `meminfo` returned by the `bl2_plat_get_bl30_meminfo()` function.
+    The platform also defines the address in memory where BL3-0 is loaded
+    through the optional constant `BL30_BASE`. BL2 uses this information
+    to determine if there is enough memory to load the BL3-0 image.
+    Subsequent handling of the BL3-0 image is platform-specific and is
+    implemented in the `bl2_plat_handle_bl30()` function.
+    If `BL30_BASE` is not defined then this step is not performed.
+
+2.  Loading the BL3-1 binary image into secure RAM from non-volatile storage. To
     load the BL3-1 image, BL2 makes use of the `meminfo` structure passed to it
     by BL1. This structure allows BL2 to calculate how much secure RAM is
     available for its use. The platform also defines the address in secure RAM
     where BL3-1 is loaded through the constant `BL31_BASE`. BL2 uses this
     information to determine if there is enough memory to load the BL3-1 image.
 
-2.  Loading the normal world BL3-3 binary image into non-secure DRAM from
-    platform storage and arranging for BL3-1 to pass control to this image. This
-    address is determined using the `plat_get_ns_image_entrypoint()` function
-    described below.
-
-3.  BL2 populates an `entry_point_info` structure in memory provided by the
-    platform with information about how BL3-1 should pass control to the
-    other BL images.
-
-4.  (Optional) Loading the BL3-2 binary image (if present) from platform
+3.  (Optional) Loading the BL3-2 binary image (if present) from platform
     provided non-volatile storage. To load the BL3-2 image, BL2 makes use of
     the `meminfo` returned by the `bl2_plat_get_bl32_meminfo()` function.
     The platform also defines the address in memory where BL3-2 is loaded
@@ -633,10 +634,19 @@ using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
     to determine if there is enough memory to load the BL3-2 image.
     If `BL32_BASE` is not defined then this and the next step is not performed.
 
-5.  (Optional) Arranging to pass control to the BL3-2 image (if present) that
+4.  (Optional) Arranging to pass control to the BL3-2 image (if present) that
     has been pre-loaded at `BL32_BASE`. BL2 populates an `entry_point_info`
     structure in memory provided by the platform with information about how
     BL3-1 should pass control to the BL3-2 image.
+
+5.  Loading the normal world BL3-3 binary image into non-secure DRAM from
+    platform storage and arranging for BL3-1 to pass control to this image. This
+    address is determined using the `plat_get_ns_image_entrypoint()` function
+    described below.
+
+6.  BL2 populates an `entry_point_info` structure in memory provided by the
+    platform with information about how BL3-1 should pass control to the
+    other BL images.
 
 The following functions must be implemented by the platform port to enable BL2
 to perform the above tasks.
@@ -702,6 +712,31 @@ initialization in `bl2_plat_arch_setup()`. It is only called by the primary CPU.
 The purpose of this function is to return a pointer to a `meminfo` structure
 populated with the extents of secure RAM available for BL2 to use. See
 `bl2_early_platform_setup()` above.
+
+
+### Function : bl2_plat_get_bl30_meminfo() [mandatory]
+
+    Argument : meminfo *
+    Return   : void
+
+This function is used to get the memory limits where BL2 can load the
+BL3-0 image. The meminfo provided by this is used by load_image() to
+validate whether the BL3-0 image can be loaded within the given
+memory from the given base.
+
+
+### Function : bl2_plat_handle_bl30() [mandatory]
+
+    Argument : image_info *
+    Return   : int
+
+This function is called after loading BL3-0 image and it is used to perform any
+platform-specific actions required to handle the SCP firmware. Typically it
+transfers the image into SCP memory using a platform-specific protocol and waits
+until SCP executes it and signals to the Application Processor (AP) for BL2
+execution to continue.
+
+This function returns 0 on success, a negative error code otherwise.
 
 
 ### Function : bl2_plat_get_bl31_params() [mandatory]
