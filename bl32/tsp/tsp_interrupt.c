@@ -72,7 +72,7 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
  * architecture version in v2.0 and the secure physical timer interrupt is the
  * only S-EL1 interrupt that it needs to handle.
  ******************************************************************************/
-int32_t tsp_fiq_handler()
+int32_t tsp_fiq_handler(void)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr), id;
@@ -109,7 +109,7 @@ int32_t tsp_fiq_handler()
 	return 0;
 }
 
-int32_t tsp_irq_received()
+int32_t tsp_irq_received(void)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
