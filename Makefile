@@ -413,7 +413,23 @@ ifeq (${NEED_BL32},yes)
 $(eval $(call MAKE_BL,32,in_fip))
 endif
 
-${BUILD_PLAT}/fip.bin:	${FIP_DEPS} ${BL33} ${FIPTOOL}
+ifeq (${NEED_BL30},yes)
+FIP_DEPS += ${BL30}
+FIP_ARGS += --bl30 ${BL30}
+endif
+
+ifeq (${NEED_BL30},yes)
+# If BL3-0 is needed by the platform then 'BL30' variable must be defined.
+check_bl30:
+	$(if ${BL30},,$(error "To build a FIP for platform ${PLAT}, please set BL30 to point to the SCP firmware"))
+else
+# If BL3-0 is not needed by the platform but the user still specified the path
+# to a BL3-0 image then warn him that it will be ignored.
+check_bl30:
+	$(if ${BL30},$(warning "BL3-0 is not supported on platform ${PLAT}, it will just be ignored"),)
+endif
+
+${BUILD_PLAT}/fip.bin: ${FIP_DEPS} ${BL33} ${FIPTOOL} check_bl30
 			$(if ${BL33},,$(error "To build a FIP, please set BL33 to point to the Normal World binary, eg: BL33=../uefi/FVP_AARCH64_EFI.fd"))
 			${Q}${FIPTOOL} --dump \
 				${FIP_ARGS} \

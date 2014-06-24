@@ -133,6 +133,10 @@ the build system doesn't track dependency for build options. Therefore, if any
 of the build options are changed from a previous build, a clean build must be
 performed.
 
+*   `BL30`: Path to BL3-0 image in the host file system. This image is optional.
+    If a BL3-0 image is present then this option must be passed for the `fip`
+    target
+
 *   `BL33`: Path to BL33 image in the host file system. This is mandatory for
     `fip` target
 
