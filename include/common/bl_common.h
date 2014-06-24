@@ -38,15 +38,11 @@
 #define DOWN	0
 
 /*******************************************************************************
- * Constants for loading images. When BLx wants to load BLy, it looks at a
- * meminfo structure to find the extents of free memory. Then depending upon
- * how it has been configured, it can either load BLy at the top or bottom of
- * the free memory. These constants indicate the choice.
- * TODO: Make this configurable while building the trusted firmware.
- ******************************************************************************/
-#define TOP_LOAD	0x1
-#define BOT_LOAD	!TOP_LOAD
-#define LOAD_MASK	(1 << 0)
+ * Constants to identify the location of a memory region in a given memory
+ * layout.
+******************************************************************************/
+#define TOP	0x1
+#define BOTTOM	!TOP
 
 /******************************************************************************
  * Opcode passed in x0 to tell next EL that we want to run an image.
@@ -97,18 +93,17 @@
 #include <cdefs.h> /* For __dead2 */
 #include <cassert.h>
 #include <stdint.h>
+#include <stddef.h>
 
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
  * memory is available for its use and how much is already used.
  ******************************************************************************/
 typedef struct meminfo {
-	unsigned long total_base;
-	long total_size;
-	unsigned long free_base;
-	long free_size;
-	unsigned long attr;
-	unsigned long next;
+	uint64_t total_base;
+	size_t total_size;
+	uint64_t free_base;
+	size_t free_size;
 } meminfo_t;
 
 typedef struct aapcs64_params {
@@ -209,13 +204,15 @@ CASSERT(sizeof(unsigned long) ==
 unsigned long page_align(unsigned long, unsigned);
 void change_security_state(unsigned int);
 unsigned long image_size(const char *);
-int load_image(meminfo_t *,
-		const char *,
-		unsigned int,
-		unsigned long,
-		image_info_t *,
-		entry_point_info_t *);
+int load_image(meminfo_t *mem_layout,
+	       const char *image_name,
+	       uint64_t image_base,
+	       image_info_t *image_data,
+	       entry_point_info_t *entry_point_info);
 extern const char build_message[];
+
+void reserve_mem(uint64_t *free_base, size_t *free_size,
+		uint64_t addr, size_t size);
 
 #endif /*__ASSEMBLY__*/
 

@@ -33,10 +33,9 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <errno.h>
 #include <io_storage.h>
 #include <platform.h>
-#include <errno.h>
-#include <stdio.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
 {
@@ -72,43 +71,76 @@ void change_security_state(unsigned int target_security_state)
 	write_scr(scr);
 }
 
-
-/*******************************************************************************
- * The next function has a weak definition. Platform specific code can override
- * it if it wishes to.
- ******************************************************************************/
-#pragma weak init_bl2_mem_layout
-
-/*******************************************************************************
- * Function that takes a memory layout into which BL2 has been either top or
- * bottom loaded along with the address where BL2 has been loaded in it. Using
- * this information, it populates bl2_mem_layout to tell BL2 how much memory
- * it has access to and how much is available for use.
- ******************************************************************************/
-void init_bl2_mem_layout(meminfo_t *bl1_mem_layout,
-			 meminfo_t *bl2_mem_layout,
-			 unsigned int load_type,
-			 unsigned long bl2_base)
+/******************************************************************************
+ * Determine whether the memory region delimited by 'addr' and 'size' is free,
+ * given the extents of free memory.
+ * Return 1 if it is free, 0 otherwise.
+ *****************************************************************************/
+static int is_mem_free(uint64_t free_base, size_t free_size,
+		       uint64_t addr, size_t size)
 {
-	unsigned tmp;
+	return (addr >= free_base) && (addr + size <= free_base + free_size);
+}
 
-	if (load_type == BOT_LOAD) {
-		bl2_mem_layout->total_base = bl2_base;
-		tmp = bl1_mem_layout->free_base - bl2_base;
-		bl2_mem_layout->total_size = bl1_mem_layout->free_size + tmp;
+/******************************************************************************
+ * Inside a given memory region, determine whether a sub-region of memory is
+ * closer from the top or the bottom of the encompassing region. Return the
+ * size of the smallest chunk of free memory surrounding the sub-region in
+ * 'small_chunk_size'.
+ *****************************************************************************/
+static unsigned int choose_mem_pos(uint64_t mem_start, uint64_t mem_end,
+				   uint64_t submem_start, uint64_t submem_end,
+				   size_t *small_chunk_size)
+{
+	size_t top_chunk_size, bottom_chunk_size;
 
+	assert(mem_start <= submem_start);
+	assert(submem_start <= submem_end);
+	assert(submem_end <= mem_end);
+	assert(small_chunk_size != NULL);
+
+	top_chunk_size = mem_end - submem_end;
+	bottom_chunk_size = submem_start - mem_start;
+
+	if (top_chunk_size < bottom_chunk_size) {
+		*small_chunk_size = top_chunk_size;
+		return TOP;
 	} else {
-		bl2_mem_layout->total_base = bl1_mem_layout->free_base;
-		tmp = bl1_mem_layout->total_base + bl1_mem_layout->total_size;
-		bl2_mem_layout->total_size = tmp - bl1_mem_layout->free_base;
+		*small_chunk_size = bottom_chunk_size;
+		return BOTTOM;
 	}
+}
 
-	bl2_mem_layout->free_base = bl1_mem_layout->free_base;
-	bl2_mem_layout->free_size = bl1_mem_layout->free_size;
-	bl2_mem_layout->attr = load_type;
+/******************************************************************************
+ * Reserve the memory region delimited by 'addr' and 'size'. The extents of free
+ * memory are passed in 'free_base' and 'free_size' and they will be updated to
+ * reflect the memory usage.
+ * The caller must ensure the memory to reserve is free.
+ *****************************************************************************/
+void reserve_mem(uint64_t *free_base, size_t *free_size,
+		 uint64_t addr, size_t size)
+{
+	size_t discard_size;
+	size_t reserved_size;
+	unsigned int pos;
 
-	flush_dcache_range((unsigned long) bl2_mem_layout, sizeof(meminfo_t));
-	return;
+	assert(free_base != NULL);
+	assert(free_size != NULL);
+	assert(is_mem_free(*free_base, *free_size, addr, size));
+
+	pos = choose_mem_pos(*free_base, *free_base + *free_size,
+			     addr, addr + size,
+			     &discard_size);
+
+	reserved_size = size + discard_size;
+	*free_size -= reserved_size;
+
+	if (pos == BOTTOM)
+		*free_base = addr + size;
+
+	INFO("Reserved %u bytes (discarded %u bytes %s)\n",
+	     reserved_size, discard_size,
+	     pos == TOP ? "above" : "below");
 }
 
 static void dump_load_info(unsigned long image_load_addr,
@@ -170,34 +202,32 @@ unsigned long image_size(const char *image_name)
 
 	return image_size;
 }
+
 /*******************************************************************************
- * Generic function to load an image into the trusted RAM,
- * given a name, extents of free memory & whether the image should be loaded at
- * the bottom or top of the free memory. It updates the memory layout if the
- * load is successful. It also updates the image information and the entry point
- * information in the params passed. The caller might pass a NULL pointer for
- * the entry point if it is not interested in this information, e.g. because
- * the image just needs to be loaded in memory but won't ever be executed.
+ * Generic function to load an image at a specific address given a name and
+ * extents of free memory. It updates the memory layout if the load is
+ * successful, as well as the image information and the entry point information.
+ * The caller might pass a NULL pointer for the entry point if it is not
+ * interested in this information, e.g. because the image just needs to be
+ * loaded in memory but won't ever be executed.
+ * Returns 0 on success, a negative error code otherwise.
  ******************************************************************************/
 int load_image(meminfo_t *mem_layout,
-			 const char *image_name,
-			 unsigned int load_type,
-			 unsigned long fixed_addr,
-			 image_info_t *image_data,
-			 entry_point_info_t *entry_point_info)
+	       const char *image_name,
+	       uint64_t image_base,
+	       image_info_t *image_data,
+	       entry_point_info_t *entry_point_info)
 {
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
 	uintptr_t image_spec;
-	unsigned long temp_image_base = 0;
-	unsigned long image_base = 0;
-	long offset = 0;
-	size_t image_size = 0;
-	size_t bytes_read = 0;
+	size_t image_size;
+	size_t bytes_read;
 	int io_result = IO_FAIL;
 
 	assert(mem_layout != NULL);
 	assert(image_name != NULL);
+	assert(image_data != NULL);
 	assert(image_data->h.version >= VERSION_1);
 
 	/* Obtain a reference to the image by querying the platform layer */
@@ -216,6 +246,8 @@ int load_image(meminfo_t *mem_layout,
 		return io_result;
 	}
 
+	INFO("Loading file '%s' at address 0x%lx\n", image_name, image_base);
+
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
@@ -224,170 +256,14 @@ int load_image(meminfo_t *mem_layout,
 		goto exit;
 	}
 
-	/* See if we have enough space */
-	if (image_size > mem_layout->free_size) {
-		WARN("Cannot load '%s' file: Not enough space.\n",
-			image_name);
-		dump_load_info(0, image_size, mem_layout);
-		goto exit;
-	}
-
-	switch (load_type) {
-
-	case TOP_LOAD:
-
-	  /* Load the image in the top of free memory */
-	  temp_image_base = mem_layout->free_base + mem_layout->free_size;
-	  temp_image_base -= image_size;
-
-	  /* Page align base address and check whether the image still fits */
-	  image_base = page_align(temp_image_base, DOWN);
-	  assert(image_base <= temp_image_base);
-
-	  if (image_base < mem_layout->free_base) {
-		WARN("Cannot load '%s' file: Not enough space.\n",
-			image_name);
+	/* Check that the memory where the image will be loaded is free */
+	if (!is_mem_free(mem_layout->free_base, mem_layout->free_size,
+			 image_base, image_size)) {
+		WARN("Failed to reserve memory: 0x%lx - 0x%lx\n",
+			image_base, image_base + image_size);
 		dump_load_info(image_base, image_size, mem_layout);
 		io_result = -ENOMEM;
 		goto exit;
-	  }
-
-	  /* Calculate the amount of extra memory used due to alignment */
-	  offset = temp_image_base - image_base;
-
-	  break;
-
-	case BOT_LOAD:
-
-	  /* Load the BL2 image in the bottom of free memory */
-	  temp_image_base = mem_layout->free_base;
-	  image_base = page_align(temp_image_base, UP);
-	  assert(image_base >= temp_image_base);
-
-	  /* Page align base address and check whether the image still fits */
-	  if (image_base + image_size >
-	      mem_layout->free_base + mem_layout->free_size) {
-		WARN("Cannot load '%s' file: Not enough space.\n",
-		  image_name);
-		dump_load_info(image_base, image_size, mem_layout);
-		io_result = -ENOMEM;
-		goto exit;
-	  }
-
-	  /* Calculate the amount of extra memory used due to alignment */
-	  offset = image_base - temp_image_base;
-
-	  break;
-
-	default:
-	  assert(0);
-
-	}
-
-	/*
-	 * Some images must be loaded at a fixed address, not a dynamic one.
-	 *
-	 * This has been implemented as a hack on top of the existing dynamic
-	 * loading mechanism, for the time being.  If the 'fixed_addr' function
-	 * argument is different from zero, then it will force the load address.
-	 * So we still have this principle of top/bottom loading but the code
-	 * determining the load address is bypassed and the load address is
-	 * forced to the fixed one.
-	 *
-	 * This can result in quite a lot of wasted space because we still use
-	 * 1 sole meminfo structure to represent the extents of free memory,
-	 * where we should use some sort of linked list.
-	 *
-	 * E.g. we want to load BL2 at address 0x04020000, the resulting memory
-	 *      layout should look as follows:
-	 * ------------ 0x04040000
-	 * |          |  <- Free space (1)
-	 * |----------|
-	 * |   BL2    |
-	 * |----------| 0x04020000
-	 * |          |  <- Free space (2)
-	 * |----------|
-	 * |   BL1    |
-	 * ------------ 0x04000000
-	 *
-	 * But in the current hacky implementation, we'll need to specify
-	 * whether BL2 is loaded at the top or bottom of the free memory.
-	 * E.g. if BL2 is considered as top-loaded, the meminfo structure
-	 * will give the following view of the memory, hiding the chunk of
-	 * free memory above BL2:
-	 * ------------ 0x04040000
-	 * |          |
-	 * |          |
-	 * |   BL2    |
-	 * |----------| 0x04020000
-	 * |          |  <- Free space (2)
-	 * |----------|
-	 * |   BL1    |
-	 * ------------ 0x04000000
-	 */
-	if (fixed_addr != 0) {
-		/* Load the image at the given address. */
-		image_base = fixed_addr;
-
-		/* Check whether the image fits. */
-		if ((image_base < mem_layout->free_base) ||
-		    (image_base + image_size >
-		       mem_layout->free_base + mem_layout->free_size)) {
-			WARN("Cannot load '%s' file: Not enough space.\n",
-				image_name);
-			dump_load_info(image_base, image_size, mem_layout);
-			io_result = -ENOMEM;
-			goto exit;
-		}
-
-		/* Check whether the fixed load address is page-aligned. */
-		if (!is_page_aligned(image_base)) {
-			WARN("Cannot load '%s' file at unaligned address 0x%lx\n",
-				image_name, fixed_addr);
-			io_result = -ENOMEM;
-			goto exit;
-		}
-
-		/*
-		 * Calculate the amount of extra memory used due to fixed
-		 * loading.
-		 */
-		if (load_type == TOP_LOAD) {
-			unsigned long max_addr, space_used;
-			/*
-			 * ------------ max_addr
-			 * | /wasted/ |                 | offset
-			 * |..........|..............................
-			 * |  image   |                 | image_flen
-			 * |----------| fixed_addr
-			 * |          |
-			 * |          |
-			 * ------------ total_base
-			 */
-			max_addr = mem_layout->total_base + mem_layout->total_size;
-			/*
-			 * Compute the amount of memory used by the image.
-			 * Corresponds to all space above the image load
-			 * address.
-			 */
-			space_used = max_addr - fixed_addr;
-			/*
-			 * Calculate the amount of wasted memory within the
-			 * amount of memory used by the image.
-			 */
-			offset = space_used - image_size;
-		} else /* BOT_LOAD */
-			/*
-			 * ------------
-			 * |          |
-			 * |          |
-			 * |----------|
-			 * |  image   |
-			 * |..........| fixed_addr
-			 * | /wasted/ |                 | offset
-			 * ------------ total_base
-			 */
-			offset = fixed_addr - mem_layout->total_base;
 	}
 
 	/* We have enough space so load the image now */
@@ -398,6 +274,14 @@ int load_image(meminfo_t *mem_layout,
 		goto exit;
 	}
 
+	/*
+	 * Update the memory usage info.
+	 * This is done after the actual loading so that it is not updated when
+	 * the load is unsuccessful.
+	 */
+	reserve_mem(&mem_layout->free_base, &mem_layout->free_size,
+		    image_base, image_size);
+
 	image_data->image_base = image_base;
 	image_data->image_size = image_size;
 
@@ -405,18 +289,13 @@ int load_image(meminfo_t *mem_layout,
 		entry_point_info->pc = image_base;
 
 	/*
-	 * File has been successfully loaded. Update the free memory
-	 * data structure & flush the contents of the TZRAM so that
-	 * the next EL can see it.
+	 * File has been successfully loaded.
+	 * Flush the image in TZRAM so that the next EL can see it.
 	 */
-	/* Update the memory contents */
 	flush_dcache_range(image_base, image_size);
 
-	mem_layout->free_size -= image_size + offset;
-
-	/* Update the base of free memory since its moved up */
-	if (load_type == BOT_LOAD)
-		mem_layout->free_base += offset + image_size;
+	INFO("File '%s' loaded: 0x%lx - 0x%lx\n", image_name, image_base,
+	     image_base + image_size);
 
 exit:
 	io_close(image_handle);

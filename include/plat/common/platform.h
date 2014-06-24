@@ -90,10 +90,8 @@ void bl1_plat_set_bl2_ep_info(struct image_info *image,
 /*******************************************************************************
  * Optional BL1 functions (may be overridden)
  ******************************************************************************/
-void init_bl2_mem_layout(struct meminfo *,
-			struct meminfo *,
-			unsigned int,
-			unsigned long);
+void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
+			     struct meminfo *bl2_mem_layout);
 
 /*******************************************************************************
  * Mandatory BL2 functions
