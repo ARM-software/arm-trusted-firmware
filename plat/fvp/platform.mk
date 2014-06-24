@@ -45,8 +45,7 @@ $(eval $(call add_define,TSP_RAM_LOCATION_ID))
 
 PLAT_INCLUDES		:=	-Iplat/fvp/include/
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011.c			\
-				drivers/arm/pl011/pl011_console.c		\
+PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S		\
 				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_semihosting.c			\
