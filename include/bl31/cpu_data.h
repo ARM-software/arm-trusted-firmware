@@ -32,9 +32,14 @@
 #define __CPU_DATA_H__
 
 /* Offsets for the cpu_data structure */
-#define CPU_DATA_CRASH_STACK_OFFSET	0x10
+#define CPU_DATA_CRASH_BUF_OFFSET	0x10
+#if CRASH_REPORTING
+#define CPU_DATA_LOG2SIZE		7
+#else
 #define CPU_DATA_LOG2SIZE		6
-
+#endif
+/* need enough space in crash buffer to save 8 registers */
+#define CPU_DATA_CRASH_BUF_SIZE	64
 #ifndef __ASSEMBLY__
 
 #include <arch_helpers.h>
@@ -61,8 +66,20 @@
 
 typedef struct cpu_data {
 	void *cpu_context[2];
-	uint64_t crash_stack;
+#if CRASH_REPORTING
+	uint64_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
+#endif
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
+
+#if CRASH_REPORTING
+/* verify assembler offsets match data structures */
+CASSERT(CPU_DATA_CRASH_BUF_OFFSET == __builtin_offsetof
+	(cpu_data_t, crash_buf),
+	assert_cpu_data_crash_stack_offset_mismatch);
+#endif
+
+CASSERT((1 << CPU_DATA_LOG2SIZE) == sizeof(cpu_data_t),
+	assert_cpu_data_log2size_mismatch);
 
 struct cpu_data *_cpu_data_by_index(uint32_t cpu_index);
 struct cpu_data *_cpu_data_by_mpidr(uint64_t mpidr);

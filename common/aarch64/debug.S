@@ -139,3 +139,50 @@ func asm_print_hex
 	cbnz	x5, 1b
 	ret	x3
 
+	/***********************************************************
+	 * The common implementation of do_panic for all BL stages
+	 ***********************************************************/
+
+.section .rodata.panic_str, "aS"
+	panic_msg: .asciz "PANIC at PC : 0x"
+
+/* ---------------------------------------------------------------------------
+ * do_panic assumes that it is invoked from a C Runtime Environment ie a
+ * valid stack exists. This call will not return.
+ * Clobber list : if CRASH_REPORTING is not enabled then x30, x0 - x6
+ * ---------------------------------------------------------------------------
+ */
+
+/* This is for the non el3 BL stages to compile through */
+	.weak el3_panic
+
+func do_panic
+#if CRASH_REPORTING
+	str	x0, [sp, #-0x10]!
+	mrs	x0, currentel
+	ubfx	x0, x0, #2, #2
+	cmp	x0, #0x3
+	ldr	x0, [sp], #0x10
+	b.eq	el3_panic
+#endif
+
+panic_common:
+/*
+ * el3_panic will be redefined by the BL31
+ * crash reporting mechanism (if enabled)
+ */
+el3_panic:
+	mov	x6, x30
+	bl	plat_crash_console_init
+	/* Check if the console is initialized */
+	cbz	x0, _panic_loop
+	/* The console is initialized */
+	adr	x4, panic_msg
+	bl	asm_print_str
+	mov	x4, x6
+	/* The panic location is lr -4 */
+	sub	x4, x4, #4
+	bl	asm_print_hex
+_panic_loop:
+	b	_panic_loop
+
