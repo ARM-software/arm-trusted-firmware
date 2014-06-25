@@ -293,6 +293,7 @@ func el1_sysregs_context_restore
  * TODO: Revisit when VFP is used in secure world
  * -----------------------------------------------------
  */
+#if CTX_INCLUDE_FPREGS
 	.global fpregs_context_save
 func fpregs_context_save
 	stp	q0, q1, [x0, #CTX_FP_Q0]
@@ -368,3 +369,4 @@ func fpregs_context_restore
 	 */
 
 	ret
+#endif /* CTX_INCLUDE_FPREGS */
