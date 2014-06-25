@@ -49,6 +49,8 @@ BASE_COMMIT		:= origin/master
 NS_TIMER_SWITCH		:= 0
 # By default, Bl1 acts as the reset handler, not BL31
 RESET_TO_BL31		:= 0
+# Include FP registers in cpu context
+CTX_INCLUDE_FPREGS		:= 0
 
 
 # Checkpatch ignores
@@ -180,6 +182,10 @@ $(eval $(call add_define,NS_TIMER_SWITCH))
 # Process RESET_TO_BL31 flag
 $(eval $(call assert_boolean,RESET_TO_BL31))
 $(eval $(call add_define,RESET_TO_BL31))
+
+# Process CTX_INCLUDE_FPREGS flag
+$(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
+$(eval $(call add_define,CTX_INCLUDE_FPREGS))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
