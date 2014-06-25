@@ -32,26 +32,50 @@
 #include <plat_config.h>
 
 .section .rodata.gic_reg_name, "aS"
-gic_regs: .asciz "gic_iar", "gic_ctlr", ""
+gic_regs:
+	.asciz "gic_hppir", "gic_ahppir", "gic_ctlr", ""
+gicd_pend_reg:
+	.asciz "gicd_ispendr regs (Offsets 0x200 - 0x278)\n Offset:\t\t\tvalue\n"
+newline:
+	.asciz "\n"
+spacer:
+	.asciz ":\t\t0x"
 
-/* Currently we have only 2 GIC registers to report */
-#define GIC_REG_SIZE 				(2 * 8)
 	/* ---------------------------------------------
 	 * The below macro prints out relevant GIC
 	 * registers whenever an unhandled exception is
 	 * taken in BL31.
+	 * Clobbers: x0 - x10, x16, sp
 	 * ---------------------------------------------
 	 */
 	.macro plat_print_gic_regs
-	adr	x0, plat_config;
-	ldr	w0, [x0, #CONFIG_GICC_BASE_OFFSET]
-	/* gic base address is now in x0 */
-	ldr	w1, [x0, #GICC_IAR]
-	ldr	w2, [x0, #GICC_CTLR]
-	sub	sp, sp, #GIC_REG_SIZE
-	stp	x1, x2, [sp] /* we store the gic registers as 64 bit */
-	adr	x0, gic_regs
-	mov	x1, sp
-	bl	print_string_value
-	add	sp, sp, #GIC_REG_SIZE
+	adr	x0, plat_config
+	ldr	w16, [x0, #CONFIG_GICC_BASE_OFFSET]
+	cbz	x16, 1f
+	/* gic base address is now in x16 */
+	adr	x6, gic_regs	/* Load the gic reg list to x6 */
+	/* Load the gic regs to gp regs used by str_in_crash_buf_print */
+	ldr	w8, [x16, #GICC_HPPIR]
+	ldr	w9, [x16, #GICC_AHPPIR]
+	ldr	w10, [x16, #GICC_CTLR]
+	/* Store to the crash buf and print to cosole */
+	bl	str_in_crash_buf_print
+
+	/* Print the GICD_ISPENDR regs */
+	add	x7, x16, #GICD_ISPENDR
+	adr	x4, gicd_pend_reg
+	bl	asm_print_str
+2:
+	sub	x4, x7, x16
+	cmp	x4, #0x280
+	b.eq	1f
+	bl	asm_print_hex
+	adr	x4, spacer
+	bl	asm_print_str
+	ldr	x4, [x7], #8
+	bl	asm_print_hex
+	adr	x4, newline
+	bl	asm_print_str
+	b	2b
+1:
 	.endm

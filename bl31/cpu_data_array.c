@@ -32,13 +32,5 @@
 #include <cpu_data.h>
 #include <platform_def.h>
 
-/* verify assembler offsets match data structures */
-CASSERT(CPU_DATA_CRASH_STACK_OFFSET == __builtin_offsetof
-	(cpu_data_t, crash_stack),
-	assert_cpu_data_crash_stack_offset_mismatch);
-
-CASSERT((1 << CPU_DATA_LOG2SIZE) == sizeof(cpu_data_t),
-	assert_cpu_data_log2size_mismatch);
-
 /* The per_cpu_ptr_cache_t space allocation */
 cpu_data_t percpu_data[PLATFORM_CORE_COUNT];

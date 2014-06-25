@@ -92,9 +92,8 @@ endif
 VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STRING}
 
 BL_COMMON_SOURCES	:=	common/bl_common.c			\
-				common/debug.c				\
 				common/tf_printf.c			\
-				common/aarch64/assert.S			\
+				common/aarch64/debug.S			\
 				lib/aarch64/cache_helpers.S		\
 				lib/aarch64/misc_helpers.S		\
 				lib/aarch64/xlat_helpers.c		\
