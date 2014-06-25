@@ -111,12 +111,15 @@ func tsp_entrypoint
 	bl	zeromem16
 
 	/* --------------------------------------------
-	 * Give ourselves a small coherent stack to
-	 * ease the pain of initializing the MMU
+	 * Allocate a stack whose memory will be marked
+	 * as Normal-IS-WBWA when the MMU is enabled.
+	 * There is no risk of reading stale stack
+	 * memory after enabling the MMU as only the
+	 * primary cpu is running at the moment.
 	 * --------------------------------------------
 	 */
 	mrs	x0, mpidr_el1
-	bl	platform_set_coherent_stack
+	bl	platform_set_stack
 
 	/* ---------------------------------------------
 	 * Perform early platform setup & platform
@@ -125,14 +128,6 @@ func tsp_entrypoint
 	 */
 	bl	bl32_early_platform_setup
 	bl	bl32_plat_arch_setup
-
-	/* ---------------------------------------------
-	 * Give ourselves a stack allocated in Normal
-	 * -IS-WBWA memory
-	 * ---------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
 
 	/* ---------------------------------------------
 	 * Jump to main function.
