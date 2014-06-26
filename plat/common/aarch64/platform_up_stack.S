@@ -33,26 +33,9 @@
 #include <platform_def.h>
 
 
-	.local	pcpu_dv_mem_stack
 	.local	platform_normal_stacks
 	.globl	platform_set_stack
 	.globl	platform_get_stack
-	.globl	platform_set_coherent_stack
-
-
-	/* -----------------------------------------------------
-	 * void platform_set_coherent_stack (unsigned long)
-	 *
-	 * For cold-boot BL images, only the primary CPU needs a
-	 * stack. This function sets the stack pointer to a stack
-	 * allocated in device memory.
-	 * -----------------------------------------------------
-	 */
-func platform_set_coherent_stack
-	get_up_stack pcpu_dv_mem_stack, PCPU_DV_MEM_STACK_SIZE
-	mov sp, x0
-	ret
-
 
 	/* -----------------------------------------------------
 	 * unsigned long platform_get_stack (unsigned long)
@@ -87,11 +70,3 @@ func platform_set_stack
 	 */
 declare_stack platform_normal_stacks, tzfw_normal_stacks, \
 		PLATFORM_STACK_SIZE, 1
-
-	/* -----------------------------------------------------
-	 * Single cpu stack in device/coherent memory.
-	 * PCPU_DV_MEM_STACK_SIZE bytes are allocated.
-	 * -----------------------------------------------------
-	 */
-declare_stack pcpu_dv_mem_stack, tzfw_coherent_mem, \
-		PCPU_DV_MEM_STACK_SIZE, 1

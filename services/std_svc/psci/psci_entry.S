@@ -44,11 +44,6 @@
 	 * upon whether it was resumed from suspend or simply
 	 * turned on, call the common power on finisher with
 	 * the handlers (chosen depending upon original state).
-	 * For ease, the finisher is called with coherent
-	 * stacks. This allows the cluster/cpu finishers to
-	 * enter coherency and enable the mmu without running
-	 * into issues. We switch back to normal stacks once
-	 * all this is done.
 	 * -----------------------------------------------------
 	 */
 func psci_aff_on_finish_entry

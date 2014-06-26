@@ -104,12 +104,6 @@ file is found in [plat/fvp/include/platform_def.h].
     by [plat/common/aarch64/platform_mp_stack.S] and
     [plat/common/aarch64/platform_up_stack.S].
 
-*   **#define : PCPU_DV_MEM_STACK_SIZE**
-
-    Defines the coherent stack memory available to each CPU. This constant is used
-    by [plat/common/aarch64/platform_mp_stack.S] and
-    [plat/common/aarch64/platform_up_stack.S].
-
 *   **#define : FIRMWARE_WELCOME_STR**
 
     Defines the character string printed by BL1 upon entry into the `bl1_main()`
@@ -393,31 +387,6 @@ maximum of 4 CPUs:
 
     cpu_id = 8-bit value in MPIDR at affinity level 0
     cluster_id = 8-bit value in MPIDR at affinity level 1
-
-
-### Function : platform_set_coherent_stack()
-
-    Argument : unsigned long
-    Return   : void
-
-A platform may need stack memory that is coherent with main memory to perform
-certain operations like:
-
-*   Turning the MMU on, or
-*   Flushing caches prior to powering down a CPU or cluster.
-
-Each BL stage allocates this coherent stack memory for each CPU in the
-`tzfw_coherent_mem` section.
-
-This function sets the current stack pointer to the coherent stack that
-has been allocated for the CPU specified by MPIDR. For BL images that only
-require a stack for the primary CPU the parameter is ignored. The size of
-the stack allocated to each CPU is specified by the platform defined constant
-`PCPU_DV_MEM_STACK_SIZE`.
-
-Common implementations of this function for the UP and MP BL images are
-provided in [plat/common/aarch64/platform_up_stack.S] and
-[plat/common/aarch64/platform_mp_stack.S]
 
 
 ### Function : platform_is_primary_cpu()
@@ -1116,11 +1085,6 @@ the calling CPU is the last powered on CPU in the cluster, after powering down
 affinity level 0 (CPU), the platform port should power down affinity level 1
 (the cluster) as well.
 
-This function is called with coherent stacks. This allows the PSCI
-implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8-A cache hits do not
-occur after the cache has been turned off.
-
 #### plat_pm_ops.affinst_suspend()
 
 Perform the platform specific setup to power off an affinity instance in the
@@ -1143,11 +1107,6 @@ case, the affinity instance is expected to save enough state so that it can
 resume execution by restoring this state when its powered on (see
 `affinst_suspend_finish()`).
 
-This function is called with coherent stacks. This allows the PSCI
-implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8-A cache hits do not
-occur after the cache has been turned off.
-
 #### plat_pm_ops.affinst_on_finish()
 
 This function is called by the PSCI implementation after the calling CPU is
@@ -1158,11 +1117,6 @@ services.
 
 The `MPIDR` (first argument), `affinity level` (second argument) and `state`
 (third argument) have a similar meaning as described in the previous operations.
-
-This function is called with coherent stacks. This allows the PSCI
-implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8-A cache hits do not
-occur after the cache has been turned off.
 
 #### plat_pm_ops.affinst_on_suspend()
 
@@ -1175,11 +1129,6 @@ and also provide secure runtime firmware services.
 
 The `MPIDR` (first argument), `affinity level` (second argument) and `state`
 (third argument) have a similar meaning as described in the previous operations.
-
-This function is called with coherent stacks. This allows the PSCI
-implementation to flush caches at a given affinity level without running into
-stale stack state after turning off the caches. On ARMv8-A cache hits do not
-occur after the cache has been turned off.
 
 BL3-1 platform initialization code must also detect the system topology and
 the state of each affinity instance in the topology. This information is

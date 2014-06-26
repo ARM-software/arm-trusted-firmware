@@ -210,9 +210,6 @@ static int psci_call_off_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
  * the lowest to the highest affinity level implemented by the platform because
  * to turn off affinity level X it is neccesary to turn off affinity level X - 1
  * first.
- *
- * CAUTION: This function is called with coherent stacks so that coherency can
- * be turned off and caches can be flushed safely.
  ******************************************************************************/
 int psci_afflvl_off(int start_afflvl,
 		    int end_afflvl)
