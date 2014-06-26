@@ -131,8 +131,10 @@ int fvp_config_setup(void)
 	bld = (sys_id >> SYS_ID_BLD_SHIFT) & SYS_ID_BLD_MASK;
 	arch = (sys_id >> SYS_ID_ARCH_SHIFT) & SYS_ID_ARCH_MASK;
 
-	if ((rev != REV_FVP) || (arch != ARCH_MODEL))
+	if (arch != ARCH_MODEL) {
+		ERROR("This firmware is for FVP models\n");
 		panic();
+	}
 
 	/*
 	 * The build field in the SYS_ID tells which variant of the GIC
@@ -152,7 +154,8 @@ int fvp_config_setup(void)
 		fvp_config[CONFIG_GICV_ADDR] = BASE_GICV_BASE;
 		break;
 	default:
-		assert(0);
+		ERROR("Unsupported board build %x\n", bld);
+		panic();
 	}
 
 	/*
@@ -167,6 +170,19 @@ int fvp_config_setup(void)
 		fvp_config[CONFIG_BASE_MMAP] = 0;
 		fvp_config[CONFIG_HAS_CCI] = 0;
 		fvp_config[CONFIG_HAS_TZC] = 0;
+
+		/*
+		 * Check for supported revisions of Foundation FVP
+		 * Allow future revisions to run but emit warning diagnostic
+		 */
+		switch (rev) {
+		case REV_FOUNDATION_V2_0:
+		case REV_FOUNDATION_V2_1:
+			break;
+		default:
+			WARN("Unrecognized Foundation FVP revision %x\n", rev);
+			break;
+		}
 		break;
 	case HBI_FVP_BASE:
 		midr_pn = (read_midr() >> MIDR_PN_SHIFT) & MIDR_PN_MASK;
@@ -180,9 +196,22 @@ int fvp_config_setup(void)
 		fvp_config[CONFIG_BASE_MMAP] = 1;
 		fvp_config[CONFIG_HAS_CCI] = 1;
 		fvp_config[CONFIG_HAS_TZC] = 1;
+
+		/*
+		 * Check for supported revisions
+		 * Allow future revisions to run but emit warning diagnostic
+		 */
+		switch (rev) {
+		case REV_FVP_BASE_V0:
+			break;
+		default:
+			WARN("Unrecognized Base FVP revision %x\n", rev);
+			break;
+		}
 		break;
 	default:
-		assert(0);
+		ERROR("Unsupported board HBI number 0x%x\n", hbi);
+		panic();
 	}
 
 	return 0;
