@@ -78,7 +78,6 @@ int psci_cpu_suspend(unsigned int power_state,
 		     unsigned long context_id)
 {
 	int rc;
-	unsigned long mpidr;
 	unsigned int target_afflvl, pstate_type;
 
 	/* Check SBZ bits in power state are zero */
@@ -111,9 +110,7 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * enter the final wfi which will power down this cpu else return
 	 * an error.
 	 */
-	mpidr = read_mpidr();
-	rc = psci_afflvl_suspend(mpidr,
-				 entrypoint,
+	rc = psci_afflvl_suspend(entrypoint,
 				 context_id,
 				 power_state,
 				 MPIDR_AFFLVL0,
@@ -127,10 +124,7 @@ int psci_cpu_suspend(unsigned int power_state,
 int psci_cpu_off(void)
 {
 	int rc;
-	unsigned long mpidr;
 	int target_afflvl = get_max_afflvl();
-
-	mpidr = read_mpidr();
 
 	/*
 	 * Traverse from the highest to the lowest affinity level. When the
@@ -138,7 +132,7 @@ int psci_cpu_off(void)
 	 * management is done immediately followed by cpu, cluster ...
 	 * ..target_afflvl specific actions as this function unwinds back.
 	 */
-	rc = psci_afflvl_off(mpidr, MPIDR_AFFLVL0, target_afflvl);
+	rc = psci_afflvl_off(MPIDR_AFFLVL0, target_afflvl);
 
 	/*
 	 * Check if all actions needed to safely power down this cpu have

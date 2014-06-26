@@ -38,8 +38,7 @@
 #include <stddef.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_suspend_handler_t)(unsigned long,
-				      aff_map_node_t *,
+typedef int (*afflvl_suspend_handler_t)(aff_map_node_t *,
 				      unsigned long,
 				      unsigned long,
 				      unsigned int);
@@ -121,8 +120,7 @@ int psci_get_suspend_stateid(unsigned long mpidr)
  * The next three functions implement a handler for each supported affinity
  * level which is called when that affinity level is about to be suspended.
  ******************************************************************************/
-static int psci_afflvl0_suspend(unsigned long mpidr,
-				aff_map_node_t *cpu_node,
+static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 				unsigned long ns_entrypoint,
 				unsigned long context_id,
 				unsigned int power_state)
@@ -214,7 +212,7 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 
 	if (psci_plat_pm_ops->affinst_suspend) {
 		plat_state = psci_get_phys_state(cpu_node);
-		rc = psci_plat_pm_ops->affinst_suspend(mpidr,
+		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
 						       psci_entrypoint,
 						       ns_entrypoint,
 						       cpu_node->level,
@@ -224,8 +222,7 @@ static int psci_afflvl0_suspend(unsigned long mpidr,
 	return rc;
 }
 
-static int psci_afflvl1_suspend(unsigned long mpidr,
-				aff_map_node_t *cluster_node,
+static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 				unsigned long ns_entrypoint,
 				unsigned long context_id,
 				unsigned int power_state)
@@ -267,7 +264,7 @@ static int psci_afflvl1_suspend(unsigned long mpidr,
 		 * platform handler prototype the same.
 		 */
 		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-		rc = psci_plat_pm_ops->affinst_suspend(mpidr,
+		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
 						       psci_entrypoint,
 						       ns_entrypoint,
 						       cluster_node->level,
@@ -278,8 +275,7 @@ static int psci_afflvl1_suspend(unsigned long mpidr,
 }
 
 
-static int psci_afflvl2_suspend(unsigned long mpidr,
-				aff_map_node_t *system_node,
+static int psci_afflvl2_suspend(aff_map_node_t *system_node,
 				unsigned long ns_entrypoint,
 				unsigned long context_id,
 				unsigned int power_state)
@@ -313,7 +309,7 @@ static int psci_afflvl2_suspend(unsigned long mpidr,
 		 * platform handler prototype the same.
 		 */
 		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-		rc = psci_plat_pm_ops->affinst_suspend(mpidr,
+		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
 						       psci_entrypoint,
 						       ns_entrypoint,
 						       system_node->level,
@@ -337,7 +333,6 @@ static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
 static int psci_call_suspend_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 				      int start_afflvl,
 				      int end_afflvl,
-				      unsigned long mpidr,
 				      unsigned long entrypoint,
 				      unsigned long context_id,
 				      unsigned int power_state)
@@ -355,8 +350,7 @@ static int psci_call_suspend_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 		 * of restoring what we might have torn down at
 		 * lower affinity levels.
 		 */
-		rc = psci_afflvl_suspend_handlers[level](mpidr,
-							 node,
+		rc = psci_afflvl_suspend_handlers[level](node,
 							 entrypoint,
 							 context_id,
 							 power_state);
@@ -389,8 +383,7 @@ static int psci_call_suspend_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
  * CAUTION: This function is called with coherent stacks so that coherency can
  * be turned off and caches can be flushed safely.
  ******************************************************************************/
-int psci_afflvl_suspend(unsigned long mpidr,
-			unsigned long entrypoint,
+int psci_afflvl_suspend(unsigned long entrypoint,
 			unsigned long context_id,
 			unsigned int power_state,
 			int start_afflvl,
@@ -399,15 +392,13 @@ int psci_afflvl_suspend(unsigned long mpidr,
 	int rc = PSCI_E_SUCCESS;
 	mpidr_aff_map_nodes_t mpidr_nodes;
 
-	mpidr &= MPIDR_AFFINITY_MASK;
-
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
 	 * each affinity instance in the mpidr. If this function does
 	 * not return successfully then either the mpidr or the affinity
 	 * levels are incorrect.
 	 */
-	rc = psci_get_aff_map_nodes(mpidr,
+	rc = psci_get_aff_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
 				    start_afflvl,
 				    end_afflvl,
 				    mpidr_nodes);
@@ -419,8 +410,7 @@ int psci_afflvl_suspend(unsigned long mpidr,
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_acquire_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 
@@ -428,7 +418,6 @@ int psci_afflvl_suspend(unsigned long mpidr,
 	rc = psci_call_suspend_handlers(mpidr_nodes,
 					start_afflvl,
 					end_afflvl,
-					mpidr,
 					entrypoint,
 					context_id,
 					power_state);
@@ -437,8 +426,7 @@ int psci_afflvl_suspend(unsigned long mpidr,
 	 * Release the locks corresponding to each affinity level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_release_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 
@@ -449,8 +437,7 @@ int psci_afflvl_suspend(unsigned long mpidr,
  * The following functions finish an earlier affinity suspend request. They
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
-static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
-						aff_map_node_t *cpu_node)
+static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 {
 	unsigned int plat_state, state, rc;
 	int32_t suspend_level;
@@ -472,7 +459,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 
 		/* Get the physical state of this cpu */
 		plat_state = get_phys_state(state);
-		rc = psci_plat_pm_ops->affinst_suspend_finish(mpidr,
+		rc = psci_plat_pm_ops->affinst_suspend_finish(read_mpidr_el1(),
 							      cpu_node->level,
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
@@ -516,8 +503,7 @@ static unsigned int psci_afflvl0_suspend_finish(unsigned long mpidr,
 	return rc;
 }
 
-static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
-						aff_map_node_t *cluster_node)
+static unsigned int psci_afflvl1_suspend_finish(aff_map_node_t *cluster_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;
 
@@ -535,7 +521,7 @@ static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
 
 		/* Get the physical state of this cpu */
 		plat_state = psci_get_phys_state(cluster_node);
-		rc = psci_plat_pm_ops->affinst_suspend_finish(mpidr,
+		rc = psci_plat_pm_ops->affinst_suspend_finish(read_mpidr_el1(),
 							      cluster_node->level,
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
@@ -548,8 +534,7 @@ static unsigned int psci_afflvl1_suspend_finish(unsigned long mpidr,
 }
 
 
-static unsigned int psci_afflvl2_suspend_finish(unsigned long mpidr,
-						aff_map_node_t *system_node)
+static unsigned int psci_afflvl2_suspend_finish(aff_map_node_t *system_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;;
 
@@ -573,7 +558,7 @@ static unsigned int psci_afflvl2_suspend_finish(unsigned long mpidr,
 
 		/* Get the physical state of the system */
 		plat_state = psci_get_phys_state(system_node);
-		rc = psci_plat_pm_ops->affinst_suspend_finish(mpidr,
+		rc = psci_plat_pm_ops->affinst_suspend_finish(read_mpidr_el1(),
 							      system_node->level,
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);

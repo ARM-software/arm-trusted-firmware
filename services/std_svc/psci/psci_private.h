@@ -62,8 +62,7 @@ typedef struct aff_limits_node {
 } aff_limits_node_t;
 
 typedef aff_map_node_t (*mpidr_aff_map_nodes_t[MPIDR_MAX_AFFLVL]);
-typedef unsigned int (*afflvl_power_on_finisher_t)(unsigned long,
-						 aff_map_node_t *);
+typedef unsigned int (*afflvl_power_on_finisher_t)(aff_map_node_t *);
 
 /*******************************************************************************
  * Data prototypes
@@ -87,20 +86,17 @@ void psci_set_state(aff_map_node_t *node, unsigned short state);
 unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
 int psci_validate_mpidr(unsigned long, int);
 int get_power_on_target_afflvl(unsigned long mpidr);
-void psci_afflvl_power_on_finish(unsigned long,
-				int,
+void psci_afflvl_power_on_finish(int,
 				int,
 				afflvl_power_on_finisher_t *);
 int psci_save_ns_entry(uint64_t mpidr,
 		       uint64_t entrypoint, uint64_t context_id,
 		       uint32_t caller_scr_el3, uint32_t caller_sctlr_el1);
 int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
-void psci_acquire_afflvl_locks(unsigned long mpidr,
-				int start_afflvl,
+void psci_acquire_afflvl_locks(int start_afflvl,
 				int end_afflvl,
 				mpidr_aff_map_nodes_t mpidr_nodes);
-void psci_release_afflvl_locks(unsigned long mpidr,
-				int start_afflvl,
+void psci_release_afflvl_locks(int start_afflvl,
 				int end_afflvl,
 				mpidr_aff_map_nodes_t mpidr_nodes);
 
@@ -119,7 +115,7 @@ int psci_afflvl_on(unsigned long,
 			int);
 
 /* Private exported functions from psci_affinity_off.c */
-int psci_afflvl_off(unsigned long, int, int);
+int psci_afflvl_off(int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
 void psci_set_suspend_power_state(aff_map_node_t *node,
@@ -127,11 +123,10 @@ void psci_set_suspend_power_state(aff_map_node_t *node,
 int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node);
 int psci_afflvl_suspend(unsigned long,
 			unsigned long,
-			unsigned long,
 			unsigned int,
 			int,
 			int);
-unsigned int psci_afflvl_suspend_finish(unsigned long, int, int);
+unsigned int psci_afflvl_suspend_finish(int, int);
 
 
 #endif /* __PSCI_PRIVATE_H__ */

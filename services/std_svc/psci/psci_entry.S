@@ -58,8 +58,6 @@ psci_aff_suspend_finish_entry:
 	adr	x23, psci_afflvl_suspend_finishers
 
 psci_aff_common_finish_entry:
-	adr	x22, psci_afflvl_power_on_finish
-
 	/* ---------------------------------------------
 	 * Initialise the pcpu cache pointer for the CPU
 	 * ---------------------------------------------
@@ -92,11 +90,10 @@ psci_aff_common_finish_entry:
 	bl	get_power_on_target_afflvl
 	cmp	x0, xzr
 	b.lt	_panic
-	mov	x3, x23
-	mov	x2, x0
-	mov	x1, #MPIDR_AFFLVL0
-	mrs	x0, mpidr_el1
-	blr	x22
+	mov	x2, x23
+	mov	x1, x0
+	mov	x0, #MPIDR_AFFLVL0
+	bl	psci_afflvl_power_on_finish
 
 	/* --------------------------------------------
 	 * Give ourselves a stack allocated in Normal

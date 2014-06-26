@@ -285,7 +285,6 @@ int psci_afflvl_on(unsigned long target_cpu,
 {
 	int rc = PSCI_E_SUCCESS;
 	mpidr_aff_map_nodes_t target_cpu_nodes;
-	unsigned long mpidr = read_mpidr() & MPIDR_AFFINITY_MASK;
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -306,8 +305,7 @@ int psci_afflvl_on(unsigned long target_cpu,
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_acquire_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  target_cpu_nodes);
 
@@ -323,8 +321,7 @@ int psci_afflvl_on(unsigned long target_cpu,
 	 * This loop releases the lock corresponding to each affinity level
 	 * in the reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_release_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  target_cpu_nodes);
 
@@ -335,8 +332,7 @@ int psci_afflvl_on(unsigned long target_cpu,
  * The following functions finish an earlier affinity power on request. They
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
-static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
-					   aff_map_node_t *cpu_node)
+static unsigned int psci_afflvl0_on_finish(aff_map_node_t *cpu_node)
 {
 	unsigned int plat_state, state, rc;
 
@@ -356,7 +352,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 
 		/* Get the physical state of this cpu */
 		plat_state = get_phys_state(state);
-		rc = psci_plat_pm_ops->affinst_on_finish(mpidr,
+		rc = psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
 							 cpu_node->level,
 							 plat_state);
 		assert(rc == PSCI_E_SUCCESS);
@@ -399,8 +395,7 @@ static unsigned int psci_afflvl0_on_finish(unsigned long mpidr,
 	return rc;
 }
 
-static unsigned int psci_afflvl1_on_finish(unsigned long mpidr,
-					   aff_map_node_t *cluster_node)
+static unsigned int psci_afflvl1_on_finish(aff_map_node_t *cluster_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;
 
@@ -418,7 +413,7 @@ static unsigned int psci_afflvl1_on_finish(unsigned long mpidr,
 
 		/* Get the physical state of this cluster */
 		plat_state = psci_get_phys_state(cluster_node);
-		rc = psci_plat_pm_ops->affinst_on_finish(mpidr,
+		rc = psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
 							 cluster_node->level,
 							 plat_state);
 		assert(rc == PSCI_E_SUCCESS);
@@ -431,8 +426,7 @@ static unsigned int psci_afflvl1_on_finish(unsigned long mpidr,
 }
 
 
-static unsigned int psci_afflvl2_on_finish(unsigned long mpidr,
-					   aff_map_node_t *system_node)
+static unsigned int psci_afflvl2_on_finish(aff_map_node_t *system_node)
 {
 	unsigned int plat_state, rc = PSCI_E_SUCCESS;
 
@@ -456,7 +450,7 @@ static unsigned int psci_afflvl2_on_finish(unsigned long mpidr,
 
 		/* Get the physical state of the system */
 		plat_state = psci_get_phys_state(system_node);
-		rc = psci_plat_pm_ops->affinst_on_finish(mpidr,
+		rc = psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
 							 system_node->level,
 							 plat_state);
 		assert(rc == PSCI_E_SUCCESS);

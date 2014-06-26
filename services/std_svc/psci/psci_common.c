@@ -156,8 +156,7 @@ int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
  * topology tree for an mpidr. It picks up locks for each affinity level bottom
  * up in the range specified.
  ******************************************************************************/
-void psci_acquire_afflvl_locks(unsigned long mpidr,
-			       int start_afflvl,
+void psci_acquire_afflvl_locks(int start_afflvl,
 			       int end_afflvl,
 			       mpidr_aff_map_nodes_t mpidr_nodes)
 {
@@ -175,8 +174,7 @@ void psci_acquire_afflvl_locks(unsigned long mpidr,
  * topology tree for an mpidr. It releases the lock for each affinity level top
  * down in the range specified.
  ******************************************************************************/
-void psci_release_afflvl_locks(unsigned long mpidr,
-			       int start_afflvl,
+void psci_release_afflvl_locks(int start_afflvl,
 			       int end_afflvl,
 			       mpidr_aff_map_nodes_t mpidr_nodes)
 {
@@ -353,8 +351,7 @@ unsigned short psci_get_phys_state(aff_map_node_t *node)
 static int psci_call_power_on_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 				       int start_afflvl,
 				       int end_afflvl,
-				       afflvl_power_on_finisher_t *pon_handlers,
-				       unsigned long mpidr)
+				       afflvl_power_on_finisher_t *pon_handlers)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
 	aff_map_node_t *node;
@@ -370,7 +367,7 @@ static int psci_call_power_on_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
 		 * so simply return an error and let the caller take
 		 * care of the situation.
 		 */
-		rc = pon_handlers[level](mpidr, node);
+		rc = pon_handlers[level](node);
 		if (rc != PSCI_E_SUCCESS)
 			break;
 	}
@@ -397,15 +394,12 @@ static int psci_call_power_on_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
  * CAUTION: This function is called with coherent stacks so that coherency and
  * the mmu can be turned on safely.
  ******************************************************************************/
-void psci_afflvl_power_on_finish(unsigned long mpidr,
-				 int start_afflvl,
+void psci_afflvl_power_on_finish(int start_afflvl,
 				 int end_afflvl,
 				 afflvl_power_on_finisher_t *pon_handlers)
 {
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	int rc;
-
-	mpidr &= MPIDR_AFFINITY_MASK;
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -413,7 +407,7 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 	 * not return successfully then either the mpidr or the affinity
 	 * levels are incorrect. Either case is an irrecoverable error.
 	 */
-	rc = psci_get_aff_map_nodes(mpidr,
+	rc = psci_get_aff_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
 				    start_afflvl,
 				    end_afflvl,
 				    mpidr_nodes);
@@ -425,8 +419,7 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_acquire_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 
@@ -434,8 +427,7 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 	rc = psci_call_power_on_handlers(mpidr_nodes,
 					 start_afflvl,
 					 end_afflvl,
-					 pon_handlers,
-					 mpidr);
+					 pon_handlers);
 	if (rc != PSCI_E_SUCCESS)
 		panic();
 
@@ -443,8 +435,7 @@ void psci_afflvl_power_on_finish(unsigned long mpidr,
 	 * This loop releases the lock corresponding to each affinity level
 	 * in the reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(mpidr,
-				  start_afflvl,
+	psci_release_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 }
