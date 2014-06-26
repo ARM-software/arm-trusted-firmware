@@ -361,7 +361,7 @@ static unsigned int psci_afflvl0_on_finish(aff_map_node_t *cpu_node)
 	/*
 	 * Arch. management: Turn on mmu & restore architectural state
 	 */
-	bl31_plat_enable_mmu();
+	bl31_plat_enable_mmu(0);
 
 	/*
 	 * All the platform specific actions for turning this cpu

@@ -38,12 +38,12 @@
 #pragma weak bl31_plat_enable_mmu
 #pragma weak bl32_plat_enable_mmu
 
-void bl31_plat_enable_mmu(void)
+void bl31_plat_enable_mmu(uint32_t flags)
 {
-	enable_mmu_el3();
+	enable_mmu_el3(flags);
 }
 
-void bl32_plat_enable_mmu(void)
+void bl32_plat_enable_mmu(uint32_t flags)
 {
-	enable_mmu_el1();
+	enable_mmu_el1(flags);
 }
