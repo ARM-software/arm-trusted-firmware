@@ -126,8 +126,7 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 				unsigned int power_state)
 {
 	unsigned int plat_state;
-	unsigned long psci_entrypoint, sctlr;
-	el3_state_t *saved_el3_state;
+	unsigned long psci_entrypoint;
 	uint32_t ns_scr_el3 = read_scr_el3();
 	uint32_t ns_sctlr_el1 = read_sctlr_el1();
 	int rc;
@@ -170,37 +169,14 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	 */
 	cm_el3_sysregs_context_save(NON_SECURE);
 
-	/*
-	 * The EL3 state to PoC since it will be accessed after a
-	 * reset with the caches turned off
-	 */
-	saved_el3_state = get_el3state_ctx(cm_get_context(NON_SECURE));
-	flush_dcache_range((uint64_t) saved_el3_state, sizeof(*saved_el3_state));
-
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
 
 	/*
 	 * Arch. management. Perform the necessary steps to flush all
 	 * cpu caches.
-	 *
-	 * TODO: This power down sequence varies across cpus so it needs to be
-	 * abstracted out on the basis of the MIDR like in cpu_reset_handler().
-	 * Do the bare minimal for the time being. Fix this before porting to
-	 * Cortex models.
 	 */
-	sctlr = read_sctlr_el3();
-	sctlr &= ~SCTLR_C_BIT;
-	write_sctlr_el3(sctlr);
-	isb();	/* ensure MMU disable takes immediate effect */
-
-	/*
-	 * CAUTION: This flush to the level of unification makes an assumption
-	 * about the cache hierarchy at affinity level 0 (cpu) in the platform.
-	 * Ideally the platform should tell psci which levels to flush to exit
-	 * coherency.
-	 */
-	dcsw_op_louis(DCCISW);
+	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
 
 	/*
 	 * Plat. management: Allow the platform to perform the
@@ -467,9 +443,11 @@ static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 
 	/* Get the index for restoring the re-entry information */
 	/*
-	 * Arch. management: Restore the stashed EL3 architectural
-	 * context from the 'cpu_context' structure for this cpu.
+	 * Arch. management: Enable the data cache, manage stack memory and
+	 * restore the stashed EL3 architectural context from the 'cpu_context'
+	 * structure for this cpu.
 	 */
+	psci_do_pwrup_cache_maintenance();
 	cm_el3_sysregs_context_restore(NON_SECURE);
 
 	/*
@@ -575,4 +553,3 @@ const afflvl_power_on_finisher_t psci_afflvl_suspend_finishers[] = {
 	psci_afflvl1_suspend_finish,
 	psci_afflvl2_suspend_finish,
 };
-

@@ -76,21 +76,13 @@
  * 32-bits wide but are stored as 64-bit values for convenience
  ******************************************************************************/
 #define CTX_EL3STATE_OFFSET	(CTX_GPREGS_OFFSET + CTX_GPREGS_END)
-#define CTX_VBAR_EL3	0x0		/* Currently unused */
+#define CTX_SCR_EL3		0x0
 #define CTX_RUNTIME_SP		0x8
 #define CTX_SPSR_EL3		0x10
 #define CTX_ELR_EL3		0x18
-#define CTX_SCR_EL3		0x20
-#define CTX_SCTLR_EL3		0x28
-#define CTX_CPTR_EL3		0x30
-/* Unused space to allow registers to be stored as pairs */
-#define CTX_CNTFRQ_EL0		0x40
-#define CTX_MAIR_EL3		0x48
-#define CTX_TCR_EL3		0x50
-#define CTX_TTBR0_EL3		0x58
-#define CTX_DAIF_EL3		0x60
-/* Unused space to honour alignment requirements */
-#define CTX_EL3STATE_END	0x70
+#define CTX_CPTR_EL3		0x20
+#define CTX_CNTFRQ_EL0		0x28
+#define CTX_EL3STATE_END	0x30
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the

@@ -44,7 +44,6 @@ static int psci_afflvl0_off(aff_map_node_t *cpu_node)
 {
 	unsigned int plat_state;
 	int rc;
-	unsigned long sctlr;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
@@ -70,24 +69,8 @@ static int psci_afflvl0_off(aff_map_node_t *cpu_node)
 	/*
 	 * Arch. management. Perform the necessary steps to flush all
 	 * cpu caches.
-	 *
-	 * TODO: This power down sequence varies across cpus so it needs to be
-	 * abstracted out on the basis of the MIDR like in cpu_reset_handler().
-	 * Do the bare minimal for the time being. Fix this before porting to
-	 * Cortex models.
 	 */
-	sctlr = read_sctlr_el3();
-	sctlr &= ~SCTLR_C_BIT;
-	write_sctlr_el3(sctlr);
-	isb();	/* ensure MMU disable takes immediate effect */
-
-	/*
-	 * CAUTION: This flush to the level of unification makes an assumption
-	 * about the cache hierarchy at affinity level 0 (cpu) in the platform.
-	 * Ideally the platform should tell psci which levels to flush to exit
-	 * coherency.
-	 */
-	dcsw_op_louis(DCCISW);
+	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
 
 	/*
 	 * Plat. management: Perform platform specific actions to turn this

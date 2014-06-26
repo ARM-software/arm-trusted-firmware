@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <psci.h>
+#include <xlat_tables.h>
 
 	.globl	psci_aff_on_finish_entry
 	.globl	psci_aff_suspend_finish_entry
@@ -78,8 +79,34 @@ psci_aff_common_finish_entry:
 	 */
 	msr	spsel, #0
 
+	/* --------------------------------------------
+	 * Give ourselves a stack whose memory will be
+	 * marked as Normal-IS-WBWA when the MMU is
+	 * enabled.
+	 * --------------------------------------------
+	 */
 	mrs	x0, mpidr_el1
-	bl	platform_set_coherent_stack
+	bl	platform_set_stack
+
+	/* --------------------------------------------
+	 * Enable the MMU with the DCache disabled. It
+	 * is safe to use stacks allocated in normal
+	 * memory as a result. All memory accesses are
+	 * marked nGnRnE when the MMU is disabled. So
+	 * all the stack writes will make it to memory.
+	 * All memory accesses are marked Non-cacheable
+	 * when the MMU is enabled but D$ is disabled.
+	 * So used stack memory is guaranteed to be
+	 * visible immediately after the MMU is enabled
+	 * Enabling the DCache at the same time as the
+	 * MMU can lead to speculatively fetched and
+	 * possibly stale stack memory being read from
+	 * other caches. This can lead to coherency
+	 * issues.
+	 * --------------------------------------------
+	 */
+	mov	x0, #DISABLE_DCACHE
+	bl	bl31_plat_enable_mmu
 
 	/* ---------------------------------------------
 	 * Call the finishers starting from affinity
@@ -95,59 +122,9 @@ psci_aff_common_finish_entry:
 	mov	x0, #MPIDR_AFFLVL0
 	bl	psci_afflvl_power_on_finish
 
-	/* --------------------------------------------
-	 * Give ourselves a stack allocated in Normal
-	 * -IS-WBWA memory
-	 * --------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
-
 	b	el3_exit
 _panic:
 	b	_panic
-
-	/* -----------------------------------------------------
-	 * The following two stubs give the calling cpu a
-	 * coherent stack to allow flushing of caches without
-	 * suffering from stack coherency issues
-	 * -----------------------------------------------------
-	 */
-func __psci_cpu_off
-	func_prologue
-	sub	sp, sp, #0x10
-	stp	x19, x20, [sp, #0]
-	mov	x19, sp
-	mrs	x0, mpidr_el1
-	bl	platform_set_coherent_stack
-	bl	psci_cpu_off
-	mov	sp, x19
-	ldp	x19, x20, [sp,#0]
-	add	sp, sp, #0x10
-	func_epilogue
-	ret
-
-func __psci_cpu_suspend
-	func_prologue
-	sub	sp, sp, #0x20
-	stp	x19, x20, [sp, #0]
-	stp	x21, x22, [sp, #0x10]
-	mov	x19, sp
-	mov	x20, x0
-	mov	x21, x1
-	mov	x22, x2
-	mrs	x0, mpidr_el1
-	bl	platform_set_coherent_stack
-	mov	x0, x20
-	mov	x1, x21
-	mov	x2, x22
-	bl	psci_cpu_suspend
-	mov	sp, x19
-	ldp	x21, x22, [sp,#0x10]
-	ldp	x19, x20, [sp,#0]
-	add	sp, sp, #0x20
-	func_epilogue
-	ret
 
 	/* --------------------------------------------
 	 * This function is called to indicate to the

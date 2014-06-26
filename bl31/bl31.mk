@@ -48,6 +48,7 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				services/std_svc/psci/psci_afflvl_suspend.c	\
 				services/std_svc/psci/psci_common.c		\
 				services/std_svc/psci/psci_entry.S		\
+				services/std_svc/psci/psci_helpers.S		\
 				services/std_svc/psci/psci_main.c		\
 				services/std_svc/psci/psci_setup.c
 

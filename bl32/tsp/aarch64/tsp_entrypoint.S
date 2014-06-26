@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <tsp.h>
+#include <xlat_tables.h>
 
 
 	.globl	tsp_entrypoint
@@ -204,26 +205,48 @@ func tsp_cpu_on_entry
 	isb
 
 	/* --------------------------------------------
-	 * Give ourselves a small coherent stack to
-	 * ease the pain of initializing the MMU
+	 * Give ourselves a stack whose memory will be
+	 * marked as Normal-IS-WBWA when the MMU is
+	 * enabled.
 	 * --------------------------------------------
 	 */
 	mrs	x0, mpidr_el1
-	bl	platform_set_coherent_stack
+	bl	platform_set_stack
 
-	/* ---------------------------------------------
-	 * Initialise the MMU
-	 * ---------------------------------------------
+	/* --------------------------------------------
+	 * Enable the MMU with the DCache disabled. It
+	 * is safe to use stacks allocated in normal
+	 * memory as a result. All memory accesses are
+	 * marked nGnRnE when the MMU is disabled. So
+	 * all the stack writes will make it to memory.
+	 * All memory accesses are marked Non-cacheable
+	 * when the MMU is enabled but D$ is disabled.
+	 * So used stack memory is guaranteed to be
+	 * visible immediately after the MMU is enabled
+	 * Enabling the DCache at the same time as the
+	 * MMU can lead to speculatively fetched and
+	 * possibly stale stack memory being read from
+	 * other caches. This can lead to coherency
+	 * issues.
+	 * --------------------------------------------
 	 */
+	mov	x0, #DISABLE_DCACHE
 	bl	bl32_plat_enable_mmu
 
 	/* ---------------------------------------------
-	 * Give ourselves a stack allocated in Normal
-	 * -IS-WBWA memory
+	 * Enable the Data cache now that the MMU has
+	 * been enabled. The stack has been unwound. It
+	 * will be written first before being read. This
+	 * will invalidate any stale cache lines resi-
+	 * -dent in other caches. We assume that
+	 * interconnect coherency has been enabled for
+	 * this cluster by EL3 firmware.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
+	mrs	x0, sctlr_el1
+	orr	x0, x0, #SCTLR_C_BIT
+	msr	sctlr_el1, x0
+	isb
 
 	/* ---------------------------------------------
 	 * Enter C runtime to perform any remaining
