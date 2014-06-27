@@ -1,4 +1,4 @@
-/*
+#/*
  * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -151,9 +151,12 @@
 
 #define SYS_ID_BLD_LENGTH	4
 
-#define REV_FVP		0x0
 #define HBI_FVP_BASE		0x020
+#define REV_FVP_BASE_V0		0x0
+
 #define HBI_FOUNDATION		0x010
+#define REV_FOUNDATION_V2_0	0x0
+#define REV_FOUNDATION_V2_1	0x1
 
 #define BLD_GIC_VE_MMAP	0x0
 #define BLD_GIC_A53A57_MMAP	0x1
