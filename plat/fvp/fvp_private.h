@@ -78,10 +78,6 @@ void fvp_configure_mmu_el3(unsigned long total_base,
 unsigned long fvp_get_cfgvar(unsigned int);
 int fvp_config_setup(void);
 
-#if RESET_TO_BL31
-void fvp_get_entry_point_info(unsigned long target_security,
-				struct entry_point_info *target_entry_info);
-#endif
 void fvp_cci_setup(void);
 
 /* Declarations for fvp_gic.c */
@@ -99,11 +95,11 @@ void fvp_io_setup(void);
 /* Declarations for fvp_security.c */
 void fvp_security_setup(void);
 
-/* Sets the entrypoint for BL32 */
-void fvp_set_bl32_ep_info(struct entry_point_info *bl32_ep);
+/* Gets the SPR for BL32 entry */
+uint32_t fvp_get_spsr_for_bl32_entry(void);
 
-/* Sets the entrypoint for BL33 */
-void fvp_set_bl33_ep_info(struct entry_point_info *bl33_ep);
+/* Gets the SPSR for BL33 entry */
+uint32_t fvp_get_spsr_for_bl33_entry(void);
 
 
 #endif /* __FVP_PRIVATE_H__ */

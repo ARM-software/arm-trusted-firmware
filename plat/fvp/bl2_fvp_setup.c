@@ -246,7 +246,8 @@ void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
 void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
 					entry_point_info_t *bl32_ep_info)
 {
-	fvp_set_bl32_ep_info(bl32_ep_info);
+	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
+	bl32_ep_info->spsr = fvp_get_spsr_for_bl32_entry();
 }
 
 /*******************************************************************************
@@ -258,7 +259,8 @@ void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
 void bl2_plat_set_bl33_ep_info(image_info_t *image,
 					entry_point_info_t *bl33_ep_info)
 {
-	fvp_set_bl33_ep_info(bl33_ep_info);
+	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
+	bl33_ep_info->spsr = fvp_get_spsr_for_bl33_entry();
 }
 
 

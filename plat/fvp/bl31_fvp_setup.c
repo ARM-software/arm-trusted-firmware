@@ -72,8 +72,7 @@ extern unsigned long __COHERENT_RAM_END__;
 
 
 #if RESET_TO_BL31
-static entry_point_info_t  bl32_entrypoint_info;
-static entry_point_info_t  bl33_entrypoint_info;
+static entry_point_info_t  next_image_ep_info;
 #else
 /*******************************************************************************
  * Reference to structure which holds the arguments that have been passed to
@@ -90,30 +89,42 @@ static bl31_params_t *bl2_to_bl31_params;
  ******************************************************************************/
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
-	entry_point_info_t *next_image_info;
-
 #if RESET_TO_BL31
 
-	if (type == NON_SECURE)
-		fvp_get_entry_point_info(NON_SECURE, &bl33_entrypoint_info);
-	else
-		fvp_get_entry_point_info(SECURE, &bl32_entrypoint_info);
+	assert(type <= NON_SECURE);
+	SET_PARAM_HEAD(&next_image_ep_info,
+				PARAM_EP,
+				VERSION_1,
+				0);
 
-	next_image_info = (type == NON_SECURE) ?
-		&bl33_entrypoint_info :
-		&bl32_entrypoint_info;
+	SET_SECURITY_STATE(next_image_ep_info.h.attr, type);
+
+	if (type == NON_SECURE) {
+		/*
+		 * Tell BL31 where the non-trusted software image
+		 * is located and the entry state information
+		 */
+		next_image_ep_info.pc = plat_get_ns_image_entrypoint();
+		next_image_ep_info.spsr = fvp_get_spsr_for_bl33_entry();
+	} else {
+		next_image_ep_info.pc = BL32_BASE;
+		next_image_ep_info.spsr = fvp_get_spsr_for_bl32_entry();
+	}
+
+	return &next_image_ep_info;
 #else
+	entry_point_info_t *next_image_info;
+
 	next_image_info = (type == NON_SECURE) ?
 		bl2_to_bl31_params->bl33_ep_info :
 		bl2_to_bl31_params->bl32_ep_info;
-#endif
-
 
 	/* None of the images on this platform can have 0x0 as the entrypoint */
 	if (next_image_info->pc)
 		return next_image_info;
 	else
 		return NULL;
+#endif
 }
 
 /*******************************************************************************
@@ -220,38 +231,3 @@ void bl31_plat_arch_setup(void)
 			      BL31_COHERENT_RAM_BASE,
 			      BL31_COHERENT_RAM_LIMIT);
 }
-
-#if RESET_TO_BL31
-/*******************************************************************************
- * Generate the entry point info for Non Secure and Secure images
- * for transferring control from BL31
- ******************************************************************************/
-void fvp_get_entry_point_info(unsigned long target_security,
-					entry_point_info_t *target_entry_info)
-{
-	if (target_security == NON_SECURE) {
-		SET_PARAM_HEAD(target_entry_info,
-					PARAM_EP,
-					VERSION_1,
-					0);
-		/*
-		 * Tell BL31 where the non-trusted software image
-		 * is located and the entry state information
-		 */
-		target_entry_info->pc =  plat_get_ns_image_entrypoint();
-
-		fvp_set_bl33_ep_info(target_entry_info);
-
-	} else {
-		SET_PARAM_HEAD(target_entry_info,
-				PARAM_EP,
-				VERSION_1,
-				0);
-		if (BL32_BASE != 0) {
-			/* Hard coding entry point to the base of the BL32 */
-			target_entry_info->pc = BL32_BASE;
-			fvp_set_bl32_ep_info(target_entry_info);
-		}
-	}
-}
-#endif
