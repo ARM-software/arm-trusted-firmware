@@ -211,8 +211,23 @@
  * TCR defintions
  */
 #define TCR_EL3_RES1		((1UL << 31) | (1UL << 23))
+#define TCR_EL1_IPS_SHIFT 	32
+#define TCR_EL3_PS_SHIFT	16
 
-#define TCR_T0SZ_4GB		32
+/* (internal) physical address size bits in EL3/EL1 */
+#define TCR_PS_BITS_4GB		(0x0)
+#define TCR_PS_BITS_64GB	(0x1)
+#define TCR_PS_BITS_1TB		(0x2)
+#define TCR_PS_BITS_4TB		(0x3)
+#define TCR_PS_BITS_16TB	(0x4)
+#define TCR_PS_BITS_256TB	(0x5)
+
+#define ADDR_MASK_48_TO_63      0xFFFF000000000000UL
+#define ADDR_MASK_44_TO_47      0x0000F00000000000UL
+#define ADDR_MASK_42_TO_43      0x00000C0000000000UL
+#define ADDR_MASK_40_TO_41      0x0000030000000000UL
+#define ADDR_MASK_36_TO_39      0x000000F000000000UL
+#define ADDR_MASK_32_TO_35      0x0000000F00000000UL
 
 #define TCR_RGN_INNER_NC	(0x0 << 8)
 #define TCR_RGN_INNER_WBA	(0x1 << 8)
