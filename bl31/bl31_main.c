@@ -77,7 +77,8 @@ void bl31_main(void)
 	/* Perform platform setup in BL1 */
 	bl31_platform_setup();
 
-	tf_printf("BL31 %s\n\r", build_message);
+	tf_printf("BL31 %s\n", version_string);
+	tf_printf("BL31 %s\n", build_message);
 
 	/* Initialise helper libraries */
 	bl31_lib_init();

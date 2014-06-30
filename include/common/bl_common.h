@@ -210,6 +210,7 @@ int load_image(meminfo_t *mem_layout,
 	       image_info_t *image_data,
 	       entry_point_info_t *entry_point_info);
 extern const char build_message[];
+extern const char version_string[];
 
 void reserve_mem(uint64_t *free_base, size_t *free_size,
 		uint64_t addr, size_t size);
