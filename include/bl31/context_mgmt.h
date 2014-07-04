@@ -49,10 +49,8 @@ void cm_set_context_by_mpidr(uint64_t mpidr,
 			     void *context,
 			     uint32_t security_state);
 static inline void cm_set_context(void *context, uint32_t security_state);
-void cm_el3_sysregs_context_save(uint32_t security_state);
 void cm_init_context(uint64_t mpidr, const struct entry_point_info *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
-void cm_el3_sysregs_context_restore(uint32_t security_state);
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
 void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint);

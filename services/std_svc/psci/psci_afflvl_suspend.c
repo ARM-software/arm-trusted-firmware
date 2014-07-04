@@ -34,6 +34,7 @@
 #include <arch_helpers.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <platform.h>
 #include <runtime_svc.h>
 #include <stddef.h>
 #include "psci_private.h"
@@ -161,13 +162,6 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 				ns_scr_el3, ns_sctlr_el1);
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
-
-	/*
-	 * Arch. management: Save the EL3 state in the 'cpu_context'
-	 * structure that has been allocated for this cpu, flush the
-	 * L1 caches and exit intra-cluster coherency et al
-	 */
-	cm_el3_sysregs_context_save(NON_SECURE);
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
@@ -414,6 +408,7 @@ static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 {
 	unsigned int plat_state, state, rc;
 	int32_t suspend_level;
+	uint64_t counter_freq;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
@@ -445,7 +440,10 @@ static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 	 * structure for this cpu.
 	 */
 	psci_do_pwrup_cache_maintenance();
-	cm_el3_sysregs_context_restore(NON_SECURE);
+
+	/* Re-init the cntfrq_el0 register */
+	counter_freq = plat_get_syscnt_freq();
+	write_cntfrq_el0(counter_freq);
 
 	/*
 	 * Call the cpu suspend finish handler registered by the Secure Payload
