@@ -41,15 +41,13 @@
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
- * BL31. The memory occupied by BL2 will be reclaimed by BL3_x stages. BL2 runs
- * entirely in S-EL1. Since arm standard c libraries are not PIC, printf et al
- * are not available. We rely on assertions to signal error conditions
+ * BL3-1. The memory occupied by BL2 will be reclaimed by BL3-x stages. BL2 runs
+ * entirely in S-EL1.
  ******************************************************************************/
 void bl2_main(void)
 {
 	meminfo_t *bl2_tzram_layout;
 	bl31_params_t *bl2_to_bl31_params;
-	unsigned int bl2_load, bl31_load;
 	entry_point_info_t *bl31_ep_info;
 	meminfo_t bl32_mem_info;
 	meminfo_t bl33_mem_info;
@@ -76,18 +74,9 @@ void bl2_main(void)
 	/* Set the X0 parameter to bl31 */
 	bl31_ep_info->args.arg0 = (unsigned long)bl2_to_bl31_params;
 
-	/*
-	 * Load BL31. BL1 tells BL2 whether it has been TOP or BOTTOM loaded.
-	 * To avoid fragmentation of trusted SRAM memory, BL31 is always
-	 * loaded opposite to BL2. This allows BL31 to reclaim BL2 memory
-	 * while maintaining its free space in one contiguous chunk.
-	 */
-	bl2_load = bl2_tzram_layout->attr & LOAD_MASK;
-	assert((bl2_load == TOP_LOAD) || (bl2_load == BOT_LOAD));
-	bl31_load = (bl2_load == TOP_LOAD) ? BOT_LOAD : TOP_LOAD;
+	/* Load the BL3-1 image */
 	e = load_image(bl2_tzram_layout,
 			BL31_IMAGE_NAME,
-			bl31_load,
 			BL31_BASE,
 			bl2_to_bl31_params->bl31_image_info,
 			bl31_ep_info);
@@ -106,7 +95,6 @@ void bl2_main(void)
 	/* Load the BL33 image in non-secure memory provided by the platform */
 	e = load_image(&bl33_mem_info,
 			BL33_IMAGE_NAME,
-			BOT_LOAD,
 			plat_get_ns_image_entrypoint(),
 			bl2_to_bl31_params->bl33_image_info,
 			bl2_to_bl31_params->bl33_ep_info);
@@ -133,7 +121,6 @@ void bl2_main(void)
 	bl2_plat_get_bl32_meminfo(&bl32_mem_info);
 	e = load_image(&bl32_mem_info,
 		       BL32_IMAGE_NAME,
-		       bl32_mem_info.attr & LOAD_MASK,
 		       BL32_BASE,
 		       bl2_to_bl31_params->bl32_image_info,
 		       bl2_to_bl31_params->bl32_ep_info);

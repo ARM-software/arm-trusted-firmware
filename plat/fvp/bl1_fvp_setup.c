@@ -31,10 +31,12 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <debug.h>
 #include <console.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
+#include "../../bl1/bl1_private.h"
 #include "fvp_def.h"
 #include "fvp_private.h"
 
@@ -45,9 +47,6 @@
 extern unsigned long __COHERENT_RAM_START__;
 extern unsigned long __COHERENT_RAM_END__;
 
-extern unsigned long __BL1_RAM_START__;
-extern unsigned long __BL1_RAM_END__;
-
 /*
  * The next 2 constants identify the extents of the coherent memory region.
  * These addresses are used by the MMU setup code and therefore they must be
@@ -57,10 +56,6 @@ extern unsigned long __BL1_RAM_END__;
  */
 #define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-
-#define BL1_RAM_BASE (unsigned long)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (unsigned long)(&__BL1_RAM_END__)
-
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
@@ -75,34 +70,25 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
  ******************************************************************************/
 void bl1_early_platform_setup(void)
 {
-	const unsigned long bl1_ram_base = BL1_RAM_BASE;
-	const unsigned long bl1_ram_limit = BL1_RAM_LIMIT;
-	const unsigned long tzram_limit = TZRAM_BASE + TZRAM_SIZE;
+	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
 
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE);
 
-	/*
-	 * Calculate how much ram is BL1 using & how much remains free.
-	 * This also includes a rudimentary mechanism to detect whether
-	 * the BL1 data is loaded at the top or bottom of memory.
-	 * TODO: add support for discontigous chunks of free ram if
-	 *       needed. Might need dynamic memory allocation support
-	 *       et al.
-	 */
+	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = TZRAM_BASE;
 	bl1_tzram_layout.total_size = TZRAM_SIZE;
 
-	if (bl1_ram_limit == tzram_limit) {
-		/* BL1 has been loaded at the top of memory. */
-		bl1_tzram_layout.free_base = TZRAM_BASE;
-		bl1_tzram_layout.free_size = bl1_ram_base - TZRAM_BASE;
-	} else {
-		/* BL1 has been loaded at the bottom of memory. */
-		bl1_tzram_layout.free_base = bl1_ram_limit;
-		bl1_tzram_layout.free_size =
-			tzram_limit - bl1_ram_limit;
-	}
+	/* Calculate how much RAM BL1 is using and how much remains free */
+	bl1_tzram_layout.free_base = TZRAM_BASE;
+	bl1_tzram_layout.free_size = TZRAM_SIZE;
+	reserve_mem(&bl1_tzram_layout.free_base,
+		    &bl1_tzram_layout.free_size,
+		    BL1_RAM_BASE,
+		    bl1_size);
+
+	INFO("BL1: 0x%lx - 0x%lx [size = %u]\n", BL1_RAM_BASE, BL1_RAM_LIMIT,
+	     bl1_size);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

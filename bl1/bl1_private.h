@@ -31,6 +31,15 @@
 #ifndef __BL1_PRIVATE_H__
 #define __BL1_PRIVATE_H__
 
+/*******************************************************************************
+ * Declarations of linker defined symbols which will tell us where BL1 lives
+ * in Trusted RAM
+ ******************************************************************************/
+extern uint64_t __BL1_RAM_START__;
+extern uint64_t __BL1_RAM_END__;
+#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
+#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
+
 /******************************************
  * Function prototypes
  *****************************************/
