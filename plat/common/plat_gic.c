@@ -27,31 +27,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <arm_gic.h>
 
-#include <gic_v2.h>
-#include <plat_config.h>
+/*
+ * The following platform GIC functions are weakly defined. They
+ * provide typical implementations that may be re-used by multiple
+ * platforms but may also be overridden by a platform if required.
+ */
+#pragma weak plat_ic_get_pending_interrupt_id
+#pragma weak plat_ic_get_pending_interrupt_type
+#pragma weak plat_ic_acknowledge_interrupt
+#pragma weak plat_ic_get_interrupt_type
+#pragma weak plat_ic_end_of_interrupt
+#pragma weak plat_interrupt_type_to_line
 
-.section .rodata.gic_reg_name, "aS"
-gic_regs: .asciz "gic_iar", "gic_ctlr", ""
+uint32_t plat_ic_get_pending_interrupt_id(void)
+{
+	return arm_gic_get_pending_interrupt_id();
+}
 
-/* Currently we have only 2 GIC registers to report */
-#define GIC_REG_SIZE 				(2 * 8)
-	/* ---------------------------------------------
-	 * The below macro prints out relevant GIC
-	 * registers whenever an unhandled exception is
-	 * taken in BL31.
-	 * ---------------------------------------------
-	 */
-	.macro plat_print_gic_regs
-	adr	x0, plat_config;
-	ldr	w0, [x0, #CONFIG_GICC_BASE_OFFSET]
-	/* gic base address is now in x0 */
-	ldr	w1, [x0, #GICC_IAR]
-	ldr	w2, [x0, #GICC_CTLR]
-	sub	sp, sp, #GIC_REG_SIZE
-	stp	x1, x2, [sp] /* we store the gic registers as 64 bit */
-	adr	x0, gic_regs
-	mov	x1, sp
-	bl	print_string_value
-	add	sp, sp, #GIC_REG_SIZE
-	.endm
+uint32_t plat_ic_get_pending_interrupt_type(void)
+{
+	return arm_gic_get_pending_interrupt_type();
+}
+
+uint32_t plat_ic_acknowledge_interrupt(void)
+{
+	return arm_gic_acknowledge_interrupt();
+}
+
+uint32_t plat_ic_get_interrupt_type(uint32_t id)
+{
+	return arm_gic_get_interrupt_type(id);
+}
+
+void plat_ic_end_of_interrupt(uint32_t id)
+{
+	arm_gic_end_of_interrupt(id);
+}
+
+uint32_t plat_interrupt_type_to_line(uint32_t type,
+				uint32_t security_state)
+{
+	return arm_gic_interrupt_type_to_line(type, security_state);
+}

@@ -28,30 +28,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gic_v2.h>
-#include <plat_config.h>
+#ifndef __ARM_GIC_H__
+#define __ARM_GIC_H__
 
-.section .rodata.gic_reg_name, "aS"
-gic_regs: .asciz "gic_iar", "gic_ctlr", ""
+#include <stdint.h>
 
-/* Currently we have only 2 GIC registers to report */
-#define GIC_REG_SIZE 				(2 * 8)
-	/* ---------------------------------------------
-	 * The below macro prints out relevant GIC
-	 * registers whenever an unhandled exception is
-	 * taken in BL31.
-	 * ---------------------------------------------
-	 */
-	.macro plat_print_gic_regs
-	adr	x0, plat_config;
-	ldr	w0, [x0, #CONFIG_GICC_BASE_OFFSET]
-	/* gic base address is now in x0 */
-	ldr	w1, [x0, #GICC_IAR]
-	ldr	w2, [x0, #GICC_CTLR]
-	sub	sp, sp, #GIC_REG_SIZE
-	stp	x1, x2, [sp] /* we store the gic registers as 64 bit */
-	adr	x0, gic_regs
-	mov	x1, sp
-	bl	print_string_value
-	add	sp, sp, #GIC_REG_SIZE
-	.endm
+/*******************************************************************************
+ * Function declarations
+ ******************************************************************************/
+void arm_gic_init(unsigned int gicc_base,
+		unsigned int gicd_base,
+		unsigned long gicr_base,
+		const unsigned int *irq_sec_ptr,
+		unsigned int num_irqs);
+void arm_gic_setup(void);
+void arm_gic_cpuif_deactivate(void);
+void arm_gic_cpuif_setup(void);
+void arm_gic_pcpu_distif_setup(void);
+
+uint32_t arm_gic_interrupt_type_to_line(uint32_t type,
+				uint32_t security_state);
+uint32_t arm_gic_get_pending_interrupt_type(void);
+uint32_t arm_gic_get_pending_interrupt_id(void);
+uint32_t arm_gic_acknowledge_interrupt(void);
+void arm_gic_end_of_interrupt(uint32_t id);
+uint32_t arm_gic_get_interrupt_type(uint32_t id);
+
+#endif /* __GIC_H__ */

@@ -30,23 +30,25 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <cci400.h>
 #include <debug.h>
 #include <mmio.h>
 #include <platform.h>
+#include <plat_config.h>
 #include <xlat_tables.h>
 #include "../fvp_def.h"
 
 /*******************************************************************************
- * This array holds the characteristics of the differences between the three
+ * plat_config holds the characteristics of the differences between the three
  * FVP platforms (Base, A53_A57 & Foundation). It will be populated during cold
  * boot at each boot stage by the primary before enabling the MMU (to allow cci
  * configuration) & used thereafter. Each BL will have its own copy to allow
  * independent operation.
  ******************************************************************************/
-static unsigned long fvp_config[CONFIG_LIMIT];
+plat_config_t plat_config;
 
 /*
  * Table of regions to map using the MMU.
@@ -75,6 +77,23 @@ const mmap_region_t fvp_mmap[] = {
 						MT_MEMORY | MT_RW | MT_NS },
 	{0}
 };
+
+/* Array of secure interrupts to be configured by the gic driver */
+const unsigned int irq_sec_array[] = {
+	IRQ_TZ_WDOG,
+	IRQ_SEC_PHY_TIMER,
+	IRQ_SEC_SGI_0,
+	IRQ_SEC_SGI_1,
+	IRQ_SEC_SGI_2,
+	IRQ_SEC_SGI_3,
+	IRQ_SEC_SGI_4,
+	IRQ_SEC_SGI_5,
+	IRQ_SEC_SGI_6,
+	IRQ_SEC_SGI_7
+};
+
+const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
+	sizeof(irq_sec_array[0]);
 
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
@@ -107,13 +126,6 @@ const mmap_region_t fvp_mmap[] = {
 DEFINE_CONFIGURE_MMU_EL(1)
 DEFINE_CONFIGURE_MMU_EL(3)
 
-/* Simple routine which returns a configuration variable value */
-unsigned long fvp_get_cfgvar(unsigned int var_id)
-{
-	assert(var_id < CONFIG_LIMIT);
-	return fvp_config[var_id];
-}
-
 /*******************************************************************************
  * A single boot loader stack is expected to work on both the Foundation FVP
  * models and the two flavours of the Base FVP models (AEMv8 & Cortex). The
@@ -142,16 +154,16 @@ int fvp_config_setup(void)
 	 */
 	switch (bld) {
 	case BLD_GIC_VE_MMAP:
-		fvp_config[CONFIG_GICD_ADDR] = VE_GICD_BASE;
-		fvp_config[CONFIG_GICC_ADDR] = VE_GICC_BASE;
-		fvp_config[CONFIG_GICH_ADDR] = VE_GICH_BASE;
-		fvp_config[CONFIG_GICV_ADDR] = VE_GICV_BASE;
+		plat_config.gicd_base = VE_GICD_BASE;
+		plat_config.gicc_base = VE_GICC_BASE;
+		plat_config.gich_base = VE_GICH_BASE;
+		plat_config.gicv_base = VE_GICV_BASE;
 		break;
 	case BLD_GIC_A53A57_MMAP:
-		fvp_config[CONFIG_GICD_ADDR] = BASE_GICD_BASE;
-		fvp_config[CONFIG_GICC_ADDR] = BASE_GICC_BASE;
-		fvp_config[CONFIG_GICH_ADDR] = BASE_GICH_BASE;
-		fvp_config[CONFIG_GICV_ADDR] = BASE_GICV_BASE;
+		plat_config.gicd_base = BASE_GICD_BASE;
+		plat_config.gicc_base = BASE_GICC_BASE;
+		plat_config.gich_base = BASE_GICH_BASE;
+		plat_config.gicv_base = BASE_GICV_BASE;
 		break;
 	default:
 		ERROR("Unsupported board build %x\n", bld);
@@ -164,12 +176,9 @@ int fvp_config_setup(void)
 	 */
 	switch (hbi) {
 	case HBI_FOUNDATION:
-		fvp_config[CONFIG_MAX_AFF0] = 4;
-		fvp_config[CONFIG_MAX_AFF1] = 1;
-		fvp_config[CONFIG_CPU_SETUP] = 0;
-		fvp_config[CONFIG_BASE_MMAP] = 0;
-		fvp_config[CONFIG_HAS_CCI] = 0;
-		fvp_config[CONFIG_HAS_TZC] = 0;
+		plat_config.max_aff0 = 4;
+		plat_config.max_aff1 = 1;
+		plat_config.flags = 0;
 
 		/*
 		 * Check for supported revisions of Foundation FVP
@@ -186,16 +195,14 @@ int fvp_config_setup(void)
 		break;
 	case HBI_FVP_BASE:
 		midr_pn = (read_midr() >> MIDR_PN_SHIFT) & MIDR_PN_MASK;
-		if ((midr_pn == MIDR_PN_A57) || (midr_pn == MIDR_PN_A53))
-			fvp_config[CONFIG_CPU_SETUP] = 1;
-		else
-			fvp_config[CONFIG_CPU_SETUP] = 0;
+		plat_config.flags =
+			((midr_pn == MIDR_PN_A57) || (midr_pn == MIDR_PN_A53))
+			? CONFIG_CPUECTLR_SMP_BIT : 0;
 
-		fvp_config[CONFIG_MAX_AFF0] = 4;
-		fvp_config[CONFIG_MAX_AFF1] = 2;
-		fvp_config[CONFIG_BASE_MMAP] = 1;
-		fvp_config[CONFIG_HAS_CCI] = 1;
-		fvp_config[CONFIG_HAS_TZC] = 1;
+		plat_config.max_aff0 = 4;
+		plat_config.max_aff1 = 2;
+		plat_config.flags |= CONFIG_BASE_MMAP | CONFIG_HAS_CCI |
+			CONFIG_HAS_TZC;
 
 		/*
 		 * Check for supported revisions
@@ -237,16 +244,22 @@ uint64_t plat_get_syscnt_freq(void)
 
 void fvp_cci_setup(void)
 {
-	unsigned long cci_setup;
-
 	/*
 	 * Enable CCI-400 for this cluster. No need
 	 * for locks as no other cpu is active at the
 	 * moment
 	 */
-	cci_setup = fvp_get_cfgvar(CONFIG_HAS_CCI);
-	if (cci_setup)
+	if (plat_config.flags & CONFIG_HAS_CCI)
 		cci_enable_coherency(read_mpidr());
+}
+
+void fvp_gic_init(void)
+{
+	arm_gic_init(plat_config.gicc_base,
+		plat_config.gicd_base,
+		BASE_GICR_BASE,
+		irq_sec_array,
+		num_sec_irqs);
 }
 
 

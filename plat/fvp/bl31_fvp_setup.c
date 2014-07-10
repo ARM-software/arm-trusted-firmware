@@ -30,6 +30,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <bl31.h>
@@ -183,7 +184,8 @@ void bl31_platform_setup(void)
 	unsigned int reg_val;
 
 	/* Initialize the gic cpu and distributor interfaces */
-	gic_setup();
+	fvp_gic_init();
+	arm_gic_setup();
 
 	/*
 	 * TODO: Configure the CLCD before handing control to

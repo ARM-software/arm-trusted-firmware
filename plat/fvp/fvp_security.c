@@ -30,6 +30,7 @@
 
 #include <assert.h>
 #include <debug.h>
+#include <plat_config.h>
 #include <tzc400.h>
 #include "fvp_def.h"
 #include "fvp_private.h"
@@ -56,7 +57,7 @@ void fvp_security_setup(void)
 	 * configurations, those would be configured here.
 	 */
 
-	if (!fvp_get_cfgvar(CONFIG_HAS_TZC))
+	if (!(get_plat_config()->flags & CONFIG_HAS_TZC))
 		return;
 
 	/*
