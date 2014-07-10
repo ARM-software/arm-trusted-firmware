@@ -136,6 +136,10 @@ performed.
 *   `BL33`: Path to BL33 image in the host file system. This is mandatory for
     `fip` target
 
+*   `BL30`: Path to BL3-0 image in the host file system. This image is optional.
+    If a BL3-0 image is present then this option must be passed for the `fip`
+    target
+
 *   `CROSS_COMPILE`: Prefix to tool chain binaries. Please refer to examples in
     this document for usage
 

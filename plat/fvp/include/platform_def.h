@@ -101,24 +101,24 @@
  ******************************************************************************/
 #define BL1_RO_BASE			TZROM_BASE
 #define BL1_RO_LIMIT			(TZROM_BASE + TZROM_SIZE)
-#define BL1_RW_BASE			TZRAM_BASE
-#define BL1_RW_LIMIT			BL31_BASE
+/* 0x6000 = 0x5000 (current BL1 RW debug size) + 4KB (room for some growth) */
+#define BL1_RW_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x6000)
+#define BL1_RW_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xc000)
-#define BL2_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
+/* 0xC000 = 0xB000 (current BL2 debug size) + 4KB (room for some growth) */
+#define BL2_BASE			(BL31_BASE - 0xC000)
+#define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
-#define BL31_BASE			(TZRAM_BASE + 0x6000)
-#if TSP_RAM_LOCATION_ID == TSP_IN_TZRAM
-#define BL31_LIMIT			BL32_BASE
-#elif TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
-#define BL31_LIMIT			BL2_BASE
-#endif
+/* 0x1D000 = 0x1B000 (current BL3-1 debug size) + 8KB (room for some growth) */
+#define BL31_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1D000)
+#define BL31_PROGBITS_LIMIT		BL1_RW_BASE
+#define BL31_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL32 specific defines.
@@ -132,8 +132,9 @@
 #if TSP_RAM_LOCATION_ID == TSP_IN_TZRAM
 # define TSP_SEC_MEM_BASE		TZRAM_BASE
 # define TSP_SEC_MEM_SIZE		TZRAM_SIZE
-# define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1c000)
-# define BL32_LIMIT			BL2_BASE
+# define BL32_BASE			TZRAM_BASE
+# define BL32_PROGBITS_LIMIT		BL2_BASE
+# define BL32_LIMIT			BL31_BASE
 #elif TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
 # define TSP_SEC_MEM_BASE		TZDRAM_BASE
 # define TSP_SEC_MEM_SIZE		TZDRAM_SIZE
