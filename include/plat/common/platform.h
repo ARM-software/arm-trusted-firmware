@@ -120,24 +120,41 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void);
 void bl2_plat_flush_bl31_params(void);
 
 /*
- * The next 3 functions allow the platform to change the entrypoint
- * information for the 3rd level BL images, after BL2 has loaded the 3rd
- * level BL images into memory but before BL3-1 is executed.
+ * The next 2 functions allow the platform to change the entrypoint information
+ * for the mandatory 3rd level BL images, BL3-1 and BL3-3. This is done after
+ * BL2 has loaded those images into memory but before BL3-1 is executed.
  */
 void bl2_plat_set_bl31_ep_info(struct image_info *image,
-			       struct entry_point_info *ep);
-
-void bl2_plat_set_bl32_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
 
 void bl2_plat_set_bl33_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
 
-/* Gets the memory layout for BL32 */
-void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
-
-/* Gets the memory layout for BL33 */
+/* Gets the memory layout for BL3-3 */
 void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
+
+/*******************************************************************************
+ * Conditionally mandatory BL2 functions: must be implemented if BL3-0 image
+ * is supported
+ ******************************************************************************/
+/* Gets the memory layout for BL3-0 */
+void bl2_plat_get_bl30_meminfo(struct meminfo *mem_info);
+
+/*
+ * This function is called after loading BL3-0 image and it is used to perform
+ * any platform-specific actions required to handle the SCP firmware.
+ */
+int bl2_plat_handle_bl30(struct image_info *bl30_image_info);
+
+/*******************************************************************************
+ * Conditionally mandatory BL2 functions: must be implemented if BL3-2 image
+ * is supported
+ ******************************************************************************/
+void bl2_plat_set_bl32_ep_info(struct image_info *image,
+			       struct entry_point_info *ep);
+
+/* Gets the memory layout for BL3-2 */
+void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
 
 /*******************************************************************************
  * Optional BL2 functions (may be overridden)
