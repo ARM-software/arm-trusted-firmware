@@ -101,24 +101,33 @@
  ******************************************************************************/
 #define BL1_RO_BASE			TZROM_BASE
 #define BL1_RO_LIMIT			(TZROM_BASE + TZROM_SIZE)
-#define BL1_RW_BASE			TZRAM_BASE
-#define BL1_RW_LIMIT			BL31_BASE
+/*
+ * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
+ * the current BL1 RW debug size plus a little space for growth.
+ */
+#define BL1_RW_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x6000)
+#define BL1_RW_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xc000)
-#define BL2_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
+/*
+ * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
+ * size plus a little space for growth.
+ */
+#define BL2_BASE			(BL31_BASE - 0xC000)
+#define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
-#define BL31_BASE			(TZRAM_BASE + 0x6000)
-#if TSP_RAM_LOCATION_ID == TSP_IN_TZRAM
-#define BL31_LIMIT			BL32_BASE
-#elif TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
-#define BL31_LIMIT			BL2_BASE
-#endif
+/*
+ * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
+ * current BL3-1 debug size plus a little space for growth.
+ */
+#define BL31_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1D000)
+#define BL31_PROGBITS_LIMIT		BL1_RW_BASE
+#define BL31_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL32 specific defines.
@@ -132,8 +141,9 @@
 #if TSP_RAM_LOCATION_ID == TSP_IN_TZRAM
 # define TSP_SEC_MEM_BASE		TZRAM_BASE
 # define TSP_SEC_MEM_SIZE		TZRAM_SIZE
-# define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1c000)
-# define BL32_LIMIT			BL2_BASE
+# define BL32_BASE			TZRAM_BASE
+# define BL32_PROGBITS_LIMIT		BL2_BASE
+# define BL32_LIMIT			BL31_BASE
 #elif TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
 # define TSP_SEC_MEM_BASE		TZDRAM_BASE
 # define TSP_SEC_MEM_SIZE		TZDRAM_SIZE
