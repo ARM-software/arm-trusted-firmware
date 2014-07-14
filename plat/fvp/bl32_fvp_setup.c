@@ -72,7 +72,7 @@ void bl32_early_platform_setup(void)
 	 * Initialize a different console than already in use to display
 	 * messages from TSP
 	 */
-	console_init(PL011_UART1_BASE);
+	console_init(PL011_UART1_BASE, PL011_UART1_CLK_IN_HZ, PL011_BAUDRATE);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

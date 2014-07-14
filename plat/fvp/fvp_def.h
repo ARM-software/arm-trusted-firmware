@@ -198,6 +198,13 @@
 #define PL011_UART2_BASE		0x1c0b0000
 #define PL011_UART3_BASE		0x1c0c0000
 
+#define PL011_BAUDRATE  115200
+
+#define PL011_UART0_CLK_IN_HZ 24000000
+#define PL011_UART1_CLK_IN_HZ 24000000
+#define PL011_UART2_CLK_IN_HZ 24000000
+#define PL011_UART3_CLK_IN_HZ 24000000
+
 /*******************************************************************************
  * TrustZone address space controller related constants
  ******************************************************************************/

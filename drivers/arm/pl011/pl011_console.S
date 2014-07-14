@@ -47,53 +47,56 @@
 .section .data.console_base ; .align 3
 	console_base: .quad 0x0
 
-	/* ---------------------------------------------
-	 * int console_init(unsigned long base_addr)
+	/* -----------------------------------------------
+	 * int console_init(unsigned long base_addr,
+	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. It saves
 	 * the console base to the data section.
 	 * In: x0 - console base address
+	 *     w1 - Uart clock in Hz
+	 *     w2 - Baud rate
 	 * out: return 1 on success.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
+	 * Clobber list : x1 - x3
+	 * -----------------------------------------------
 	 */
 func console_init
-	adrp	x1, console_base
-	str	x0, [x1, :lo12:console_base]
+	adrp	x3, console_base
+	str	x0, [x3, :lo12:console_base]
 	b	console_core_init
 
-	/* ---------------------------------------------
-	 * int console_core_init(unsigned long base_addr)
+	/* -----------------------------------------------
+	 * int console_core_init(unsigned long base_addr,
+	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. This
 	 * function will be accessed by console_init and
 	 * crash reporting.
 	 * In: x0 - console base address
+	 *     w1 - Uart clock in Hz
+	 *     w2 - Baud rate
 	 * Out: return 1 on success
 	 * Clobber list : x1, x2
-	 * ---------------------------------------------
+	 * -----------------------------------------------
 	 */
 func console_core_init
 	/* Check the input base address */
 	cbz	x0, init_fail
+	/* Check baud rate and uart clock for sanity */
+	cbz	w1, init_fail
+	cbz	w2, init_fail
 	/* Program the baudrate */
-#if defined(PL011_INTEGER) && defined(PL011_FRACTIONAL)
-	mov	w1, #PL011_INTEGER
-	str	w1, [x0, #UARTIBRD]
-	mov	w1, #PL011_FRACTIONAL
-	str	w1, [x0, #UARTFBRD]
-#else
-.set BRD, ((PL011_CLK_IN_HZ << 2) / PL011_BAUDRATE)
+	/* Divisor =  (Uart clock * 4) / baudrate */
+	lsl	w1, w1, #2
+	udiv	w2, w1, w2
+	/* IBRD = Divisor >> 6 */
+	lsr	w1, w2, #6
 	/* Write the IBRD */
-	mov	w1, #((BRD >> 6) & 0xffff)
-.if BRD>=0x400000
-	movk	w1, #(BRD >> 22), LSL #16
-.endif
 	str	w1, [x0, #UARTIBRD]
+	/* FBRD = Divisor & 0x3F */
+	and	w1, w2, #0x3f
 	/* Write the FBRD */
-	mov	w1, #(BRD & 0x3f)
 	str	w1, [x0, #UARTFBRD]
-#endif
 	mov	w1, #PL011_LINE_CONTROL
 	str	w1, [x0, #UARTLCR_H]
 	/* Clear any pending errors */
@@ -121,10 +124,10 @@ func console_putc
 	b	console_core_putc
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned long base_addr)
+	 * int console_core_putc(int c, unsigned int base_addr)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
-	 * In : x0 - character to be printed
+	 * In : w0 - character to be printed
 	 *      x1 - console base address
 	 * Out : return -1 on error else return character.
 	 * Clobber list : x2
@@ -134,7 +137,7 @@ func console_core_putc
 	/* Check the input parameter */
 	cbz	x1, putc_error
 	/* Prepend '\r' to '\n' */
-	cmp	x0, #0xA
+	cmp	w0, #0xA
 	b.ne	2f
 1:
 	/* Check if the transmit FIFO is full */
