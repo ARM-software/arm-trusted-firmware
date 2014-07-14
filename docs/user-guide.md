@@ -181,6 +181,11 @@ performed.
     BL3-1. This option defaults to the value of `DEBUG` - i.e. by default
     this is only enabled for a debug build of the firmware.
 
+*   `ASM_ASSERTION`: This flag determines whether the assertion checks within
+    assembly source files are enabled or not. This option defaults to the
+    value of `DEBUG` - i.e. by default this is only enabled for a debug
+    build of the firmware.
+
 ### Creating a Firmware Image Package
 
 FIPs are automatically created as part of the build instructions described in

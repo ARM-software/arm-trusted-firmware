@@ -30,6 +30,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
 
 	.globl	get_afflvl_shift
 	.globl	mpidr_mask_lower_afflvls
@@ -45,7 +46,6 @@
 #if SUPPORT_VFP
 	.globl	enable_vfp
 #endif
-
 
 func get_afflvl_shift
 	cmp	x0, #3
@@ -79,6 +79,10 @@ func smc
  * -----------------------------------------------------------------------
  */
 func zeromem16
+#if ASM_ASSERTION
+	tst	x0, #0xf
+	ASM_ASSERT(eq)
+#endif
 	add	x2, x0, x1
 /* zero 16 bytes at a time */
 z_loop16:
@@ -105,6 +109,11 @@ z_end:	ret
  * --------------------------------------------------------------------------
  */
 func memcpy16
+#if ASM_ASSERTION
+	orr	x3, x0, x1
+	tst	x3, #0xf
+	ASM_ASSERT(eq)
+#endif
 /* copy 16 bytes at a time */
 m_loop16:
 	cmp	x2, #16
@@ -144,7 +153,6 @@ do_disable_mmu:
 func disable_mmu_icache_el3
 	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
 	b	do_disable_mmu
-
 
 /* ---------------------------------------------------------------------------
  * Enable the use of VFP at EL3
