@@ -51,7 +51,9 @@ NS_TIMER_SWITCH		:= 0
 RESET_TO_BL31		:= 0
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
-
+# Flag used to indicate if ASM_ASSERTION should be enabled for the build.
+# This defaults to being present in DEBUG builds only.
+ASM_ASSERTION		:=	${DEBUG}
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO
@@ -75,6 +77,7 @@ endif
 
 BL_COMMON_SOURCES	:=	common/bl_common.c			\
 				common/debug.c				\
+				common/aarch64/assert.S			\
 				lib/aarch64/cache_helpers.S		\
 				lib/aarch64/misc_helpers.S		\
 				lib/aarch64/xlat_helpers.c		\
@@ -186,6 +189,10 @@ $(eval $(call add_define,RESET_TO_BL31))
 # Process CTX_INCLUDE_FPREGS flag
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
+
+# Process ASM_ASSERTION flag
+$(eval $(call assert_boolean,ASM_ASSERTION))
+$(eval $(call add_define,ASM_ASSERTION))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
