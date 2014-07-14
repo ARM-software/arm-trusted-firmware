@@ -73,7 +73,7 @@ void bl1_early_platform_setup(void)
 	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
 
 	/* Initialize the console to provide early debug support */
-	console_init(PL011_UART0_BASE);
+	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = TZRAM_BASE;

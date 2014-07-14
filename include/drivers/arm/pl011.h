@@ -78,14 +78,6 @@
 #define PL011_UARTCR_LBE          (1 << 7)	/* Loopback enable */
 #define PL011_UARTCR_UARTEN       (1 << 0)	/* UART Enable */
 
-#if !defined(PL011_BAUDRATE)
-#define PL011_BAUDRATE  115200
-#endif
-
-#if !defined(PL011_CLK_IN_HZ)
-#define PL011_CLK_IN_HZ 24000000
-#endif
-
 #if !defined(PL011_LINE_CONTROL)
 /* FIFO Enabled / No Parity / 8 Data bit / One Stop Bit */
 #define PL011_LINE_CONTROL  (PL011_UARTLCR_H_FEN | PL011_UARTLCR_H_WLEN_8)
