@@ -72,6 +72,8 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 unsigned int platform_get_core_pos(unsigned long mpidr);
 unsigned long platform_get_stack(unsigned long mpidr);
 void plat_report_exception(unsigned long);
+void plat_crash_console_init(unsigned long base_addr);
+int plat_crash_console_putc(int c);
 
 /*******************************************************************************
  * Mandatory BL1 functions

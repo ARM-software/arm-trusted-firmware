@@ -32,6 +32,7 @@
 #include <asm_macros.S>
 #include <bl_common.h>
 #include <gic_v2.h>
+#include <pl011.h>
 #include "../drivers/pwrc/fvp_pwrc.h"
 #include "../fvp_def.h"
 
@@ -39,6 +40,8 @@
 	.globl	plat_secondary_cold_boot_setup
 	.globl	platform_mem_init
 	.globl	plat_report_exception
+	.globl	plat_crash_console_init
+	.globl	plat_crash_console_putc
 
 	.macro	fvp_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
 	ldr	\x_tmp, =VE_SYSREGS_BASE + V2M_SYS_ID
@@ -184,3 +187,30 @@ func plat_report_exception
 	add	x1, x1, #V2M_SYS_LED
 	str	w0, [x1]
 	ret
+
+	/* Define a crash console for the plaform */
+#define FVP_CRASH_CONSOLE_BASE		PL011_UART0_BASE
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_init(void)
+	 * Function to initialize the crash console
+	 * without a C Runtime to print crash report.
+	 * Clobber list : x0, x1, x2
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_init
+	mov_imm	x0, FVP_CRASH_CONSOLE_BASE
+	mov_imm	x1, PL011_UART0_CLK_IN_HZ
+	mov_imm	x2, PL011_BAUDRATE
+	b	console_core_init
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_putc(void)
+	 * Function to print a character on the crash
+	 * console without a C Runtime.
+	 * Clobber list : x1, x2
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_putc
+	mov_imm	x1, FVP_CRASH_CONSOLE_BASE
+	b	console_core_putc

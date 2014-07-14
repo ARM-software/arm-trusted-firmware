@@ -37,6 +37,8 @@
 	.weak	platform_is_primary_cpu
 	.weak	platform_check_mpidr
 	.weak	plat_report_exception
+	.weak	plat_crash_console_init
+	.weak	plat_crash_console_putc
 
 	/* -----------------------------------------------------
 	 *  int platform_get_core_pos(int mpidr);
@@ -78,4 +80,21 @@ func platform_check_mpidr
 	 * -----------------------------------------------------
 	 */
 func plat_report_exception
+	ret
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_crash_console_init
+	mov	x0, #0
+	ret
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_crash_console_putc
 	ret
