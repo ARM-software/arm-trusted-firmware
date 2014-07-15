@@ -144,8 +144,7 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
  ******************************************************************************/
 int32_t tspd_setup(void)
 {
-	entry_point_info_t *image_info;
-	int32_t rc;
+	entry_point_info_t *tsp_ep_info;
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id;
 
@@ -156,15 +155,20 @@ int32_t tspd_setup(void)
 	 * absence is a critical failure.  TODO: Add support to
 	 * conditionally include the SPD service
 	 */
-	image_info = bl31_plat_get_next_image_ep_info(SECURE);
-	assert(image_info);
+	tsp_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
+	if (!tsp_ep_info) {
+		WARN("No TSP provided by BL2 boot loader, Booting device"
+			" without TSP initialization. SMC`s destined for TSP"
+			" will return SMC_UNK\n");
+		return 1;
+	}
 
 	/*
 	 * If there's no valid entry point for SP, we return a non-zero value
 	 * signalling failure initializing the service. We bail out without
 	 * registering any handlers
 	 */
-	if (!image_info->pc)
+	if (!tsp_ep_info->pc)
 		return 1;
 
 	/*
@@ -172,11 +176,10 @@ int32_t tspd_setup(void)
 	 * state i.e whether AArch32 or AArch64. Assuming it's AArch64
 	 * for the time being.
 	 */
-	rc = tspd_init_secure_context(image_info->pc,
-				     TSP_AARCH64,
-				     mpidr,
-				     &tspd_sp_context[linear_id]);
-	assert(rc == 0);
+	tspd_init_tsp_ep_state(tsp_ep_info,
+				TSP_AARCH64,
+				tsp_ep_info->pc,
+				&tspd_sp_context[linear_id]);
 
 	/*
 	 * All TSPD initialization done. Now register our init function with
@@ -184,7 +187,7 @@ int32_t tspd_setup(void)
 	 */
 	bl31_register_bl32_init(&tspd_init);
 
-	return rc;
+	return 0;
 }
 
 /*******************************************************************************
@@ -202,6 +205,16 @@ int32_t tspd_init(void)
 	uint32_t linear_id = platform_get_core_pos(mpidr), flags;
 	uint64_t rc;
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
+	entry_point_info_t *tsp_entry_point;
+
+	/*
+	 * Get information about the Secure Payload (BL32) image. Its
+	 * absence is a critical failure.
+	 */
+	tsp_entry_point = bl31_plat_get_next_image_ep_info(SECURE);
+	assert(tsp_entry_point);
+
+	cm_init_context(mpidr, tsp_entry_point);
 
 	/*
 	 * Arrange for an entry into the test secure payload. We expect an array

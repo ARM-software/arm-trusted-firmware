@@ -123,15 +123,18 @@ static void tspd_cpu_on_finish_handler(uint64_t cookie)
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
+	entry_point_info_t tsp_on_entrypoint;
 
 	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_OFF);
 
-	/* Initialise this cpu's secure context */
-	tspd_init_secure_context((uint64_t) &tsp_vectors->cpu_on_entry,
+	tspd_init_tsp_ep_state(&tsp_on_entrypoint,
 				TSP_AARCH64,
-				mpidr,
+				(uint64_t) &tsp_vectors->cpu_on_entry,
 				tsp_ctx);
+
+	/* Initialise this cpu's secure context */
+	cm_init_context(mpidr, &tsp_on_entrypoint);
 
 	/* Enter the TSP */
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
