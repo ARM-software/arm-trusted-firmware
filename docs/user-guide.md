@@ -186,6 +186,13 @@ performed.
     value of `DEBUG` - i.e. by default this is only enabled for a debug
     build of the firmware.
 
+*   `TSP_INIT_ASYNC`: Choose BL3-2 initialization method as asynchronous or
+    synchronous, e.g. "(see "Initializing a BL3-2 Image" section in [Firmware
+    Design])". It can take the value 0 (BL3-2 is initialized using
+    synchronous method) or 1 (BL3-2 is initialized using asynchronous method).
+    Default is 0.
+
+
 ### Creating a Firmware Image Package
 
 FIPs are automatically created as part of the build instructions described in

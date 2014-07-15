@@ -811,10 +811,10 @@ and is registered using the `bl31_register_bl32_init()` function.
 Trusted Firmware supports two approaches for the SPD to pass control to BL3-2
 before returning through EL3 and running the non-trusted firmware (BL3-3):
 
-1.  In the BL3-2 initialization function, set up a secure context (see below
-    for more details of CPU context support) for this CPU and use
-    `bl31_set_next_image_type()` to request that the exit from `bl31_main()` is
-    to the BL3-2 entrypoint in Secure-EL1.
+1.  In the BL3-2 setup function, use `bl31_set_next_image_type()` to
+    request that the exit from `bl31_main()` is to the BL3-2 entrypoint in
+    Secure-EL1. BL3-1 will exit to BL3-2 using the asynchronous method by
+    calling bl31_prepare_next_image_entry() and el3_exit().
 
     When the BL3-2 has completed initialization at Secure-EL1, it returns to
     BL3-1 by issuing an SMC, using a Function ID allocated to the SPD. On
@@ -824,7 +824,8 @@ before returning through EL3 and running the non-trusted firmware (BL3-3):
     the normal world firmware BL3-3. On return from the handler the framework
     will exit to EL2 and run BL3-3.
 
-2.  In the BL3-2 initialization function, use an SPD-defined mechanism to
+2.  The BL3-2 setup function registers a initialization function using
+    `bl31_register_bl32_init()` which provides a SPD-defined mechanism to
     invoke a 'world-switch synchronous call' to Secure-EL1 to run the BL3-2
     entrypoint.
     NOTE: The Test SPD service included with the Trusted Firmware provides one

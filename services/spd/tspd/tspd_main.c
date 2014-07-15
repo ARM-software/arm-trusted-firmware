@@ -181,12 +181,15 @@ int32_t tspd_setup(void)
 				tsp_ep_info->pc,
 				&tspd_sp_context[linear_id]);
 
+#if TSP_INIT_ASYNC
+	bl31_set_next_image_type(SECURE);
+#else
 	/*
 	 * All TSPD initialization done. Now register our init function with
 	 * BL31 for deferred invocation
 	 */
 	bl31_register_bl32_init(&tspd_init);
-
+#endif
 	return 0;
 }
 
@@ -202,10 +205,10 @@ int32_t tspd_setup(void)
 int32_t tspd_init(void)
 {
 	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr), flags;
-	uint64_t rc;
+	uint32_t linear_id = platform_get_core_pos(mpidr);
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 	entry_point_info_t *tsp_entry_point;
+	uint64_t rc;
 
 	/*
 	 * Get information about the Secure Payload (BL32) image. Its
@@ -217,32 +220,11 @@ int32_t tspd_init(void)
 	cm_init_context(mpidr, tsp_entry_point);
 
 	/*
-	 * Arrange for an entry into the test secure payload. We expect an array
-	 * of vectors in return
+	 * Arrange for an entry into the test secure payload. It will be
+	 * returned via TSP_ENTRY_DONE case
 	 */
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 	assert(rc != 0);
-	if (rc) {
-		set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_ON);
-
-		/*
-		 * TSP has been successfully initialized. Register power
-		 * managemnt hooks with PSCI
-		 */
-		psci_register_spd_pm_hook(&tspd_pm);
-	}
-
-	/*
-	 * Register an interrupt handler for S-EL1 interrupts when generated
-	 * during code executing in the non-secure state.
-	 */
-	flags = 0;
-	set_interrupt_rm_flag(flags, NON_SECURE);
-	rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
-					     tspd_sel1_interrupt_handler,
-					     flags);
-	if (rc)
-		panic();
 
 	return rc;
 }
@@ -269,6 +251,10 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	unsigned long mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr), ns;
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
+	uint64_t rc;
+#if TSP_INIT_ASYNC
+	entry_point_info_t *next_image_info;
+#endif
 
 	/* Determine which security state this SMC originated from */
 	ns = is_caller_non_secure(flags);
@@ -382,6 +368,45 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		assert(tsp_vectors == NULL);
 		tsp_vectors = (tsp_vectors_t *) x1;
 
+		if (tsp_vectors) {
+			set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_ON);
+
+			/*
+			 * TSP has been successfully initialized. Register power
+			 * managemnt hooks with PSCI
+			 */
+			psci_register_spd_pm_hook(&tspd_pm);
+
+			/*
+			 * Register an interrupt handler for S-EL1 interrupts
+			 * when generated during code executing in the
+			 * non-secure state.
+			 */
+			flags = 0;
+			set_interrupt_rm_flag(flags, NON_SECURE);
+			rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+						tspd_sel1_interrupt_handler,
+						flags);
+			if (rc)
+				panic();
+		}
+
+
+#if TSP_INIT_ASYNC
+		/* Save the Secure EL1 system register context */
+		assert(cm_get_context(SECURE) == &tsp_ctx->cpu_ctx);
+		cm_el1_sysregs_context_save(SECURE);
+
+		/* Program EL3 registers to enable entry into the next EL */
+		next_image_info = bl31_plat_get_next_image_ep_info(NON_SECURE);
+		assert(next_image_info);
+		assert(NON_SECURE ==
+				GET_SECURITY_STATE(next_image_info->h.attr));
+
+		cm_init_context(read_mpidr_el1(), next_image_info);
+		cm_prepare_el3_exit(NON_SECURE);
+		SMC_RET0(cm_get_context(NON_SECURE));
+#else
 		/*
 		 * SP reports completion. The SPD must have initiated
 		 * the original request through a synchronous entry
@@ -389,6 +414,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * context.
 		 */
 		tspd_synchronous_sp_exit(tsp_ctx, x1);
+#endif
 
 	/*
 	 * These function IDs is used only by the SP to indicate it has

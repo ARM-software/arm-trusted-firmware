@@ -39,6 +39,14 @@ BL32_SOURCES		+=	bl32/tsp/tsp_main.c			\
 
 BL32_LINKERFILE		:=	bl32/tsp/tsp.ld.S
 
+# This flag determines if the TSPD initializes BL3-2 in tspd_init() (synchronous
+# method) or configures BL3-1 to pass control to BL3-2 instead of BL3-3
+# (asynchronous method).
+TSP_INIT_ASYNC         :=      0
+
+$(eval $(call assert_boolean,TSP_INIT_ASYNC))
+$(eval $(call add_define,TSP_INIT_ASYNC))
+
 # Include the platform-specific TSP Makefile
 # If no platform-specific TSP Makefile exists, it means TSP is not supported
 # on this platform.
