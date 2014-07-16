@@ -72,16 +72,6 @@
 func tsp_entrypoint
 
 	/* ---------------------------------------------
-	 * The entrypoint is expected to be executed
-	 * only by the primary cpu (at least for now).
-	 * So, make sure no secondary has lost its way.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_is_primary_cpu
-	cbz	x0, tsp_entrypoint_panic
-
-	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
 	 * ---------------------------------------------
 	 */

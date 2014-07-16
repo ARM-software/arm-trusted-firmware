@@ -40,6 +40,7 @@
 	.globl	plat_secondary_cold_boot_setup
 	.globl	platform_mem_init
 	.globl	plat_report_exception
+	.globl	platform_is_primary_cpu
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
 
@@ -189,6 +190,12 @@ func plat_report_exception
 	mov	x1, #VE_SYSREGS_BASE
 	add	x1, x1, #V2M_SYS_LED
 	str	w0, [x1]
+	ret
+
+func platform_is_primary_cpu
+	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
+	cmp	x0, #FVP_PRIMARY_CPU
+	cset	x0, eq
 	ret
 
 	/* Define a crash console for the plaform */
