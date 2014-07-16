@@ -27,9 +27,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include <cci400.h>
 #include <gic_v2.h>
 #include <plat_config.h>
+#include "platform_def.h"
 
 .section .rodata.gic_reg_name, "aS"
 gic_regs:
@@ -78,4 +79,27 @@ spacer:
 	bl	asm_print_str
 	b	2b
 1:
+	.endm
+
+.section .rodata.cci_reg_name, "aS"
+cci_iface_regs:
+	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
+
+	/* ------------------------------------------------
+	 * The below macro prints out relevant interconnect
+	 * registers whenever an unhandled exception is
+	 * taken in BL31.
+	 * Clobbers: x0 - x9, sp
+	 * ------------------------------------------------
+	 */
+	.macro plat_print_interconnect_regs
+	adr	x6, cci_iface_regs
+	/* Store in x7 the base address of the first interface */
+	mov_imm	x7, (CCI400_BASE + SLAVE_IFACE3_OFFSET)
+	ldr	w8, [x7, #SNOOP_CTRL_REG]
+	/* Store in x7 the base address of the second interface */
+	mov_imm	x7, (CCI400_BASE + SLAVE_IFACE4_OFFSET)
+	ldr	w9, [x7, #SNOOP_CTRL_REG]
+	/* Store to the crash buf and print to console */
+	bl	str_in_crash_buf_print
 	.endm

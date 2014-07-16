@@ -275,9 +275,17 @@ the following macro defined. In the ARM FVP port, this file is found in
 *   **Macro : plat_print_gic_regs**
 
     This macro allows the crash reporting routine to print GIC registers
-    in case of an unhandled IRQ or FIQ in BL3-1. This aids in debugging and
+    in case of an unhandled exception in BL3-1. This aids in debugging and
     this macro can be defined to be empty in case GIC register reporting is
     not desired.
+
+*   **Macro : plat_print_interconnect_regs**
+
+    This macro allows the crash reporting routine to print interconnect registers
+    in case of an unhandled exception in BL3-1. This aids in debugging and
+    this macro can be defined to be empty in case interconnect register reporting
+    is not desired. In the ARM FVP port, the CCI snoop control registers are
+    reported.
 
 ### Other mandatory modifications
 

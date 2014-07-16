@@ -65,8 +65,11 @@
 /* Status register bit definitions */
 #define CHANGE_PENDING_BIT		(1 << 0)
 
+#ifndef __ASSEMBLY__
+
 /* Function declarations */
 void cci_enable_coherency(unsigned long mpidr);
 void cci_disable_coherency(unsigned long mpidr);
 
+#endif /* __ASSEMBLY__ */
 #endif /* __CCI_400_H__ */
