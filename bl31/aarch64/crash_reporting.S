@@ -52,6 +52,9 @@
 print_spacer:
 	.asciz	" =\t\t0x"
 
+cpu_ectlr_reg:
+	.asciz	"cpuectlr_el1 =\t\t0x"
+
 gp_regs:
 	.asciz	"x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7",\
 		"x8", "x9", "x10", "x11", "x12", "x13", "x14", "x15",\
@@ -334,8 +337,27 @@ func do_crash_reporting
 	mrs	x10, sp_el0
 	bl	str_in_crash_buf_print
 
+	/* Print the CPUECTLR_EL1 reg */
+	mrs	x0, midr_el1
+	lsr	x0, x0, #MIDR_PN_SHIFT
+	and	x0, x0, #MIDR_PN_MASK
+	cmp	x0, #MIDR_PN_A57
+	b.eq	1f
+	cmp	x0, #MIDR_PN_A53
+	b.ne	2f
+1:
+	adr	x4, cpu_ectlr_reg
+	bl	asm_print_str
+	mrs	x4, CPUECTLR_EL1
+	bl	asm_print_hex
+	bl	print_newline
+2:
+
 	/* Print the gic registers */
 	plat_print_gic_regs
+
+	/* Print the interconnect registers */
+	plat_print_interconnect_regs
 
 	/* Done reporting */
 	b	crash_panic
