@@ -1226,6 +1226,11 @@ categories. Based upon the above, the code layout looks like this:
     lib          Yes             Yes             Yes
     services     No              No              Yes
 
+The build system provides a non configurable build option IMAGE_BLx for each
+boot loader stage (where x = BL stage). e.g. for BL1 , IMAGE_BL1 will be
+defined by the build system. This enables the Trusted Firmware to compile
+certain code only for specific boot loader stages
+
 All assembler files have the `.S` extension. The linker source files for each
 boot stage have the extension `.ld.S`. These are processed by GCC to create the
 linker scripts which have the extension `.ld`.
