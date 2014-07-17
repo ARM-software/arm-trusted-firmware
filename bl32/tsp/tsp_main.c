@@ -121,7 +121,8 @@ uint64_t tsp_main(void)
 	tsp_stats[linear_id].cpu_on_count++;
 
 	spin_lock(&console_lock);
-	printf("TSP %s\n\r", build_message);
+	printf("TSP %s\n", version_string);
+	printf("TSP %s\n", build_message);
 	INFO("Total memory base : 0x%x\n", (unsigned long)BL32_TOTAL_BASE);
 	INFO("Total memory size : 0x%x bytes\n",
 			 (unsigned long)(BL32_TOTAL_LIMIT - BL32_TOTAL_BASE));

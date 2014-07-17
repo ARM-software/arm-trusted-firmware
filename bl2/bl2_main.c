@@ -196,7 +196,8 @@ void bl2_main(void)
 	/* Perform platform setup in BL2 */
 	bl2_platform_setup();
 
-	printf("BL2 %s\n\r", build_message);
+	printf("BL2 %s\n", version_string);
+	printf("BL2 %s\n", build_message);
 
 	/*
 	 * Load the subsequent bootloader images

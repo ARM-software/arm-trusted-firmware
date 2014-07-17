@@ -29,6 +29,12 @@
 #
 
 #
+# Trusted Firmware Version
+#
+VERSION_MAJOR		:= 0
+VERSION_MINOR		:= 4
+
+#
 # Default values for build configurations
 #
 
@@ -72,6 +78,13 @@ ifneq (${DEBUG}, 0)
 else
 	BUILD_TYPE	:=	release
 endif
+
+# Default build string (git branch and commit)
+ifeq (${BUILD_STRING},)
+	BUILD_STRING	:=	$(shell git log -n 1 --pretty=format:"%h")
+endif
+
+VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STRING}
 
 BL_COMMON_SOURCES	:=	common/bl_common.c			\
 				common/debug.c				\
@@ -369,7 +382,8 @@ $(BUILD_DIR) :
 
 $(ELF) : $(OBJS) $(LINKERFILE)
 	@echo "  LD      $$@"
-	@echo 'const char build_message[] = "Built : "__TIME__", "__DATE__;' | \
+	@echo 'const char build_message[] = "Built : "__TIME__", "__DATE__; \
+	       const char version_string[] = "${VERSION_STRING}";' | \
 		$$(CC) $$(CFLAGS) -xc - -o $(BUILD_DIR)/build_message.o
 	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
 					$(BUILD_DIR)/build_message.o $(OBJS)
