@@ -166,6 +166,10 @@
 #define EL0VTEN_BIT		(1 << 8)
 #define EL0PCTEN_BIT		(1 << 0)
 #define EL0VCTEN_BIT		(1 << 1)
+#define EVNTEN_BIT		(1 << 2)
+#define EVNTDIR_BIT		(1 << 3)
+#define EVNTI_SHIFT		4
+#define EVNTI_MASK		0xf
 
 /* CPTR_EL3 definitions */
 #define TCPAC_BIT		(1 << 31)

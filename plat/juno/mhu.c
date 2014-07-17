@@ -28,39 +28,68 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A57_H__
-#define __CORTEX_A57_H__
+#include <arch_helpers.h>
+#include <bakery_lock.h>
+#include <mmio.h>
+#include "juno_def.h"
+#include "mhu.h"
 
-/* Cortex-A57 midr for revision 0 */
-#define CORTEX_A57_MIDR 0x410FD070
+/* SCP MHU secure channel registers */
+#define SCP_INTR_S_STAT		0x200
+#define SCP_INTR_S_SET		0x208
+#define SCP_INTR_S_CLEAR	0x210
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+/* CPU MHU secure channel registers */
+#define CPU_INTR_S_STAT		0x300
+#define CPU_INTR_S_SET		0x308
+#define CPU_INTR_S_CLEAR	0x310
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
-#define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
-#define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
-#define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+static bakery_lock_t mhu_secure_lock __attribute__ ((section("tzfw_coherent_mem")));
 
-#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
-#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
 
-/*******************************************************************************
- * L2 Control register specific definitions.
- ******************************************************************************/
-#define L2CTLR_EL1			S3_1_C11_C0_2	/* Instruction def. */
+void mhu_secure_message_start(void)
+{
+	bakery_lock_get(&mhu_secure_lock);
 
-#define L2CTLR_DATA_RAM_LATENCY_SHIFT	0
-#define L2CTLR_TAG_RAM_LATENCY_SHIFT	6
+	/* Make sure any previous command has finished */
+	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) != 0)
+		;
+}
 
-#define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
-#define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
+void mhu_secure_message_send(uint32_t command)
+{
+	/* Send command to SCP and wait for it to pick it up */
+	mmio_write_32(MHU_BASE + CPU_INTR_S_SET, command);
+	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) != 0)
+		;
+}
 
-#endif /* __CORTEX_A57_H__ */
+uint32_t mhu_secure_message_wait(void)
+{
+	/* Wait for response from SCP */
+	uint32_t response;
+	while (!(response = mmio_read_32(MHU_BASE + SCP_INTR_S_STAT)))
+		;
+
+	return response;
+}
+
+void mhu_secure_message_end(void)
+{
+	/* Clear any response we got by writing all ones to the CLEAR register */
+	mmio_write_32(MHU_BASE + SCP_INTR_S_CLEAR, 0xffffffffu);
+
+	bakery_lock_release(&mhu_secure_lock);
+}
+
+void mhu_secure_init(void)
+{
+	bakery_lock_init(&mhu_secure_lock);
+
+	/*
+	 * Clear the CPU's INTR register to make sure we don't see a stale
+	 * or garbage value and think it's a message we've already sent.
+	 */
+	mmio_write_32(MHU_BASE + CPU_INTR_S_CLEAR, 0xffffffffu);
+}
