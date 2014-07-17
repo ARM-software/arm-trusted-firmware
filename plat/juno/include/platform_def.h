@@ -32,6 +32,7 @@
 #define __PLATFORM_DEF_H__
 
 #include <arch.h>
+#include "../juno_def.h"
 
 /*******************************************************************************
  * Platform binary types for linking
@@ -142,9 +143,9 @@
 #define MAX_MMAP_REGIONS		16
 
 /*******************************************************************************
- * ID of the secure physical generic timer interrupt.
+ * ID of the secure physical generic timer interrupt used by the TSP
  ******************************************************************************/
-#define IRQ_SEC_PHY_TIMER		29
+#define TSP_IRQ_SEC_PHY_TIMER		IRQ_SEC_PHY_TIMER
 
 /*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is

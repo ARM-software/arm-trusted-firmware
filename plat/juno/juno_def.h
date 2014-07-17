@@ -113,6 +113,7 @@
 #define IRQ_TZC400		80
 #define IRQ_TZ_WDOG		86
 
+#define IRQ_SEC_PHY_TIMER		29
 #define IRQ_SEC_SGI_0			8
 #define IRQ_SEC_SGI_1			9
 #define IRQ_SEC_SGI_2			10
