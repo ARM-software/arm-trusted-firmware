@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,35 +28,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <asm_macros.S>
+#include <platform_def.h>
+#include <psci.h>
 
-	.weak	cpu_reset_handler
+unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr)
+{
+	/* Report 1 (absent) instance at levels higher that the cluster level */
+	if (aff_lvl > MPIDR_AFFLVL1)
+		return 1;
 
+	if (aff_lvl == MPIDR_AFFLVL1)
+		return 2; /* We have two clusters */
 
-func cpu_reset_handler
-	/* ---------------------------------------------
-	 * As a bare minimal enable the SMP bit.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, midr_el1
-	lsr	x0, x0, #MIDR_PN_SHIFT
-	and	x0, x0, #MIDR_PN_MASK
-	cmp	x0, #MIDR_PN_A57
-	b.eq	a57_setup_begin
-	cmp	x0, #MIDR_PN_A53
-	b.eq	smp_setup_begin
-	b	smp_setup_end
+	return mpidr & 0x100 ? 4 : 2; /* 4 cpus in cluster 1, 2 in cluster 0 */
+}
 
-a57_setup_begin:
-	mov	x0, #0x082
-	msr	s3_1_c11_c0_2, x0
+unsigned int plat_get_aff_state(unsigned int aff_lvl, unsigned long mpidr)
+{
+	return aff_lvl <= MPIDR_AFFLVL1 ? PSCI_AFF_PRESENT : PSCI_AFF_ABSENT;
+}
 
-smp_setup_begin:
-	mrs	x0, CPUECTLR_EL1
-	orr	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
-	isb
+int plat_get_max_afflvl()
+{
+	return MPIDR_AFFLVL1;
+}
 
-smp_setup_end:
-	ret
+int plat_setup_topology()
+{
+	/* Juno todo: Make topology configurable via SCC */
+	return 0;
+}

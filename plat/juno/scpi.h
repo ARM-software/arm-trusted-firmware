@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,35 +28,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <asm_macros.S>
+#ifndef __SCPI_H__
+#define __SCPI_H__
 
-	.weak	cpu_reset_handler
+#include <stddef.h>
+#include <stdint.h>
+
+extern void *scpi_secure_message_start(void);
+extern void scpi_secure_message_send(unsigned command, size_t size);
+extern unsigned scpi_secure_message_receive(void **message_out, size_t *size_out);
+extern void scpi_secure_message_end(void);
 
 
-func cpu_reset_handler
-	/* ---------------------------------------------
-	 * As a bare minimal enable the SMP bit.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, midr_el1
-	lsr	x0, x0, #MIDR_PN_SHIFT
-	and	x0, x0, #MIDR_PN_MASK
-	cmp	x0, #MIDR_PN_A57
-	b.eq	a57_setup_begin
-	cmp	x0, #MIDR_PN_A53
-	b.eq	smp_setup_begin
-	b	smp_setup_end
+enum {
+	SCP_OK = 0,	/* Success */
+	SCP_E_PARAM,	/* Invalid parameter(s) */
+	SCP_E_ALIGN,	/* Invalid alignment */
+	SCP_E_SIZE,	/* Invalid size */
+	SCP_E_HANDLER,	/* Invalid handler or callback */
+	SCP_E_ACCESS,	/* Invalid access or permission denied */
+	SCP_E_RANGE,	/* Value out of range */
+	SCP_E_TIMEOUT,	/* Time out has ocurred */
+	SCP_E_NOMEM,	/* Invalid memory area or pointer */
+	SCP_E_PWRSTATE,	/* Invalid power state */
+	SCP_E_SUPPORT,	/* Feature not supported or disabled */
+};
 
-a57_setup_begin:
-	mov	x0, #0x082
-	msr	s3_1_c11_c0_2, x0
+typedef uint32_t spci_status;
 
-smp_setup_begin:
-	mrs	x0, CPUECTLR_EL1
-	orr	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
-	isb
+typedef enum {
+	SCPI_CMD_SCP_READY = 0x01,
+	SCPI_CMD_SET_CSS_POWER_STATE = 0x04,
+} spci_command;
 
-smp_setup_end:
-	ret
+typedef enum {
+	scpi_power_on = 0,
+	scpi_power_retention = 1,
+	scpi_power_off = 3,
+} scpi_power_state;
+
+extern int scpi_wait_ready(void);
+extern void scpi_set_css_power_state(unsigned mpidr, scpi_power_state cpu_state,
+		scpi_power_state cluster_state, scpi_power_state css_state);
+
+#endif	/* __SCPI_H__ */
