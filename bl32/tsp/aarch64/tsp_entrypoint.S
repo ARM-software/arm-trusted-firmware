@@ -89,11 +89,13 @@ func tsp_entrypoint
 	msr	vbar_el1, x0
 
 	/* ---------------------------------------------
-	 * Enable the instruction cache.
+	 * Enable the instruction cache, stack pointer
+	 * and data access alignment checks
 	 * ---------------------------------------------
 	 */
+	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
 	mrs	x0, sctlr_el1
-	orr	x0, x0, #SCTLR_I_BIT
+	orr	x0, x0, x1
 	msr	sctlr_el1, x0
 	isb
 
@@ -196,11 +198,13 @@ func tsp_cpu_on_entry
 	msr	vbar_el1, x0
 
 	/* ---------------------------------------------
-	 * Enable the instruction cache.
+	 * Enable the instruction cache, stack pointer
+	 * and data access alignment checks
 	 * ---------------------------------------------
 	 */
+	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
 	mrs	x0, sctlr_el1
-	orr	x0, x0, #SCTLR_I_BIT
+	orr	x0, x0, x1
 	msr	sctlr_el1, x0
 	isb
 

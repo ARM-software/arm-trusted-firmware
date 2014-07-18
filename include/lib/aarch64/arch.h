@@ -129,11 +129,8 @@
 #define SCTLR_A_BIT		(1 << 1)
 #define SCTLR_C_BIT		(1 << 2)
 #define SCTLR_SA_BIT		(1 << 3)
-#define SCTLR_B_BIT		(1 << 7)
-#define SCTLR_Z_BIT		(1 << 11)
 #define SCTLR_I_BIT		(1 << 12)
 #define SCTLR_WXN_BIT		(1 << 19)
-#define SCTLR_EXCEPTION_BITS	(0x3 << 6)
 #define SCTLR_EE_BIT		(1 << 25)
 
 /* CPUECTLR definitions */
