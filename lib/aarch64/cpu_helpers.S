@@ -64,6 +64,14 @@ a57_setup_begin:
 	msr	s3_1_c11_c0_2, x0
 
 smp_setup_begin:
+	/* ---------------------------------------------
+	 * Enable the event stream every 65536 cycles
+	 * ---------------------------------------------
+	 */
+	mov     x0, #(0xf << EVNTI_SHIFT)
+	orr	x0, x0, #EVNTEN_BIT
+	msr     CNTKCTL_EL1, x0
+
 	mrs	x0, CPUECTLR_EL1
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
