@@ -56,7 +56,6 @@ a57_setup_begin:
 	cmp	x1, #0		// Minor Revision 0
 	b.ne	smp_setup_begin
 	mov	x1, #CPUACTLR_NO_ALLOC_WBWA
-	orr	x1, x1, #CPUACTLR_DIS_DMB_NULL
 	orr	x1, x1, #CPUACTLR_DCC_AS_DCCI
 	mrs	x0, CPUACTLR_EL1
 	orr	x0, x0, x1

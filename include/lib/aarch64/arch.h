@@ -404,7 +404,6 @@
 
 /* A57 CPUACTLR definitions */
 #define CPUACTLR_NO_ALLOC_WBWA	(1 << 49)
-#define CPUACTLR_DIS_DMB_NULL	(1 << 58)
 #define CPUACTLR_DCC_AS_DCCI	(1 << 44)
 
 /*******************************************************************************
