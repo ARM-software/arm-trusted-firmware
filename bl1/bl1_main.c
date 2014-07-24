@@ -35,7 +35,6 @@
 #include <debug.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <stdio.h>
 #include "bl1_private.h"
 
 /*******************************************************************************
@@ -130,8 +129,8 @@ void bl1_main(void)
 	bl1_platform_setup();
 
 	/* Announce our arrival */
-	printf(FIRMWARE_WELCOME_STR);
-	printf("%s\n\r", build_message);
+	tf_printf(FIRMWARE_WELCOME_STR);
+	tf_printf("%s\n\r", build_message);
 
 	SET_PARAM_HEAD(&bl2_image_info, PARAM_IMAGE_BINARY, VERSION_1, 0);
 	SET_PARAM_HEAD(&bl2_ep, PARAM_EP, VERSION_1, 0);
@@ -150,7 +149,7 @@ void bl1_main(void)
 		 * TODO: print failure to load BL2 but also add a tzwdog timer
 		 * which will reset the system eventually.
 		 */
-		printf("Failed to load boot loader stage 2 (BL2) firmware.\n");
+		tf_printf("Failed to load boot loader stage 2 (BL2) firmware.\n");
 		panic();
 	}
 	/*
@@ -165,12 +164,12 @@ void bl1_main(void)
 
 	bl1_plat_set_bl2_ep_info(&bl2_image_info, &bl2_ep);
 	bl2_ep.args.arg1 = (unsigned long)bl2_tzram_layout;
-	printf("Booting trusted firmware boot loader stage 2\n");
+	tf_printf("Booting trusted firmware boot loader stage 2\n");
 #if DEBUG
-	printf("BL2 address = 0x%llx\n",
+	tf_printf("BL2 address = 0x%llx\n",
 		(unsigned long long) bl2_ep.pc);
-	printf("BL2 cpsr = 0x%x\n", bl2_ep.spsr);
-	printf("BL2 memory layout address = 0x%llx\n",
+	tf_printf("BL2 cpsr = 0x%x\n", bl2_ep.spsr);
+	tf_printf("BL2 memory layout address = 0x%llx\n",
 	       (unsigned long long) bl2_tzram_layout);
 #endif
 	bl1_run_bl2(&bl2_ep);
@@ -184,13 +183,13 @@ void bl1_main(void)
  ******************************************************************************/
 void display_boot_progress(entry_point_info_t *bl31_ep_info)
 {
-	printf("Booting trusted firmware boot loader stage 3\n\r");
+	tf_printf("Booting trusted firmware boot loader stage 3\n\r");
 #if DEBUG
-	printf("BL31 address = 0x%llx\n", (unsigned long long)bl31_ep_info->pc);
-	printf("BL31 cpsr = 0x%llx\n", (unsigned long long)bl31_ep_info->spsr);
-	printf("BL31 params address = 0x%llx\n",
+	tf_printf("BL31 address = 0x%llx\n", (unsigned long long)bl31_ep_info->pc);
+	tf_printf("BL31 cpsr = 0x%llx\n", (unsigned long long)bl31_ep_info->spsr);
+	tf_printf("BL31 params address = 0x%llx\n",
 			(unsigned long long)bl31_ep_info->args.arg0);
-	printf("BL31 plat params address = 0x%llx\n",
+	tf_printf("BL31 plat params address = 0x%llx\n",
 			(unsigned long long)bl31_ep_info->args.arg1);
 #endif
 	return;

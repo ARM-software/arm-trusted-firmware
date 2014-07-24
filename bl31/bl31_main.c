@@ -34,9 +34,9 @@
 #include <bl_common.h>
 #include <bl31.h>
 #include <context_mgmt.h>
+#include <debug.h>
 #include <platform.h>
 #include <runtime_svc.h>
-#include <stdio.h>
 #include <string.h>
 
 /*******************************************************************************
@@ -77,7 +77,7 @@ void bl31_main(void)
 	/* Perform platform setup in BL1 */
 	bl31_platform_setup();
 
-	printf("BL31 %s\n\r", build_message);
+	tf_printf("BL31 %s\n\r", build_message);
 
 	/* Initialise helper libraries */
 	bl31_lib_init();

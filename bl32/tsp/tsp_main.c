@@ -34,7 +34,6 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <spinlock.h>
-#include <stdio.h>
 #include <tsp.h>
 
 /*******************************************************************************
@@ -121,7 +120,7 @@ uint64_t tsp_main(void)
 	tsp_stats[linear_id].cpu_on_count++;
 
 	spin_lock(&console_lock);
-	printf("TSP %s\n\r", build_message);
+	tf_printf("TSP %s\n\r", build_message);
 	INFO("Total memory base : 0x%x\n", (unsigned long)BL32_TOTAL_BASE);
 	INFO("Total memory size : 0x%x bytes\n",
 			 (unsigned long)(BL32_TOTAL_LIMIT - BL32_TOTAL_BASE));
@@ -153,7 +152,7 @@ tsp_args_t *tsp_cpu_on_main(void)
 	tsp_stats[linear_id].cpu_on_count++;
 
 	spin_lock(&console_lock);
-	printf("SP: cpu 0x%x turned on\n\r", mpidr);
+	tf_printf("SP: cpu 0x%x turned on\n\r", mpidr);
 	INFO("cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count,
@@ -193,7 +192,7 @@ tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 	tsp_stats[linear_id].cpu_off_count++;
 
 	spin_lock(&console_lock);
-	printf("SP: cpu 0x%x off request\n\r", mpidr);
+	tf_printf("SP: cpu 0x%x off request\n\r", mpidr);
 	INFO("cpu 0x%x: %d smcs, %d erets %d cpu off requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count,
@@ -235,7 +234,7 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t power_state,
 	tsp_stats[linear_id].cpu_suspend_count++;
 
 	spin_lock(&console_lock);
-	printf("SP: cpu 0x%x suspend request. power state: 0x%x\n\r",
+	tf_printf("SP: cpu 0x%x suspend request. power state: 0x%x\n\r",
 	       mpidr, power_state);
 	INFO("cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
@@ -273,7 +272,7 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 	tsp_stats[linear_id].cpu_resume_count++;
 
 	spin_lock(&console_lock);
-	printf("SP: cpu 0x%x resumed. suspend level %d \n\r",
+	tf_printf("SP: cpu 0x%x resumed. suspend level %d \n\r",
 	       mpidr, suspend_level);
 	INFO("cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
@@ -312,7 +311,7 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 
 	smc_type = ((func >> 31) & 1) == 1 ? "fast" : "standard";
 
-	printf("SP: cpu 0x%x received %s smc 0x%x\n", read_mpidr(), smc_type, func);
+	tf_printf("SP: cpu 0x%x received %s smc 0x%x\n", read_mpidr(), smc_type, func);
 	INFO("cpu 0x%x: %d smcs, %d erets\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);

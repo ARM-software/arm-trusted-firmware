@@ -43,14 +43,14 @@
  * TODO : add debug levels.
  */
 #if DEBUG
- #define INFO(...)	printf("INFO: " __VA_ARGS__)
- #define WARN(...)	printf("WARN: " __VA_ARGS__)
+ #define INFO(...)	tf_printf("INFO: " __VA_ARGS__)
+ #define WARN(...)	tf_printf("WARN: " __VA_ARGS__)
 #else
  #define INFO(...)
  #define WARN(...)
 #endif
 
-#define ERROR(...)	printf("ERROR: " __VA_ARGS__)
+#define ERROR(...)	tf_printf("ERROR: " __VA_ARGS__)
 
 
 /* For the moment this Panic function is very basic, Report an error and
@@ -67,5 +67,7 @@ void __dead2 do_panic(void);
 #endif
 
 void print_string_value(char *s, unsigned long *mem);
+void tf_printf(const char *fmt, ...);
+
 
 #endif /* __DEBUG_H__ */
