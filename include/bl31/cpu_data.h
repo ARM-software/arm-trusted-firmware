@@ -104,6 +104,10 @@ void init_cpu_data_ptr(void);
 #define get_cpu_data_by_mpidr(_id, _m)	   _cpu_data_by_mpidr(_id)->_m
 #define set_cpu_data_by_mpidr(_id, _m, _v) _cpu_data_by_mpidr(_id)->_m = _v
 
+#define flush_cpu_data(_m)	   flush_dcache_range((uint64_t) 	  \
+						      &(_cpu_data()->_m), \
+						      sizeof(_cpu_data()->_m))
+
 
 #endif /* __ASSEMBLY__ */
 #endif /* __CPU_DATA_H__ */
