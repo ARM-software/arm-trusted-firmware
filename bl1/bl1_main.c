@@ -130,7 +130,8 @@ void bl1_main(void)
 
 	/* Announce our arrival */
 	tf_printf(FIRMWARE_WELCOME_STR);
-	tf_printf("%s\n\r", build_message);
+	tf_printf("%s\n", version_string);
+	tf_printf("%s\n", build_message);
 
 	SET_PARAM_HEAD(&bl2_image_info, PARAM_IMAGE_BINARY, VERSION_1, 0);
 	SET_PARAM_HEAD(&bl2_ep, PARAM_EP, VERSION_1, 0);
