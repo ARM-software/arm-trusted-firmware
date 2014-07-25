@@ -44,6 +44,7 @@
 
 #include <arch_helpers.h>
 #include <platform_def.h>
+#include <psci.h>
 #include <stdint.h>
 
 /*******************************************************************************
@@ -63,12 +64,12 @@
  * by components that have per-cpu members. The member access macros should be
  * used for this.
  ******************************************************************************/
-
 typedef struct cpu_data {
 	void *cpu_context[2];
 #if CRASH_REPORTING
 	uint64_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
 #endif
+	struct psci_cpu_data psci_svc_cpu_data;
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 
 #if CRASH_REPORTING

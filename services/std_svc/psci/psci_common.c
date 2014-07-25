@@ -61,37 +61,39 @@ const plat_pm_ops_t *psci_plat_pm_ops;
 /*******************************************************************************
  * Routine to return the maximum affinity level to traverse to after a cpu has
  * been physically powered up. It is expected to be called immediately after
- * reset from assembler code. It has to find its 'aff_map_node' instead of
- * getting it as an argument.
- * TODO: Calling psci_get_aff_map_node() with the MMU disabled is slow. Add
- * support to allow faster access to the target affinity level.
+ * reset from assembler code.
  ******************************************************************************/
-int get_power_on_target_afflvl(unsigned long mpidr)
+int get_power_on_target_afflvl()
 {
-	aff_map_node_t *node;
-	unsigned int state;
 	int afflvl;
 
+#if DEBUG
+	unsigned int state;
+	aff_map_node_t *node;
+
 	/* Retrieve our node from the topology tree */
-	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
-			MPIDR_AFFLVL0);
+	node = psci_get_aff_map_node(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
+				     MPIDR_AFFLVL0);
 	assert(node);
 
 	/*
-	 * Return the maximum supported affinity level if this cpu was off.
-	 * Call the handler in the suspend code if this cpu had been suspended.
-	 * Any other state is invalid.
+	 * Sanity check the state of the cpu. It should be either suspend or "on
+	 * pending"
 	 */
 	state = psci_get_state(node);
-	if (state == PSCI_STATE_ON_PENDING)
-		return get_max_afflvl();
+	assert(state == PSCI_STATE_SUSPEND || state == PSCI_STATE_ON_PENDING);
+#endif
 
-	if (state == PSCI_STATE_SUSPEND) {
-		afflvl = psci_get_aff_map_node_suspend_afflvl(node);
-		assert(afflvl != PSCI_INVALID_DATA);
-		return afflvl;
-	}
-	return PSCI_E_INVALID_PARAMS;
+	/*
+	 * Assume that this cpu was suspended and retrieve its target affinity
+	 * level. If it is invalid then it could only have been turned off
+	 * earlier. get_max_afflvl() will return the highest affinity level a
+	 * cpu can be turned off to.
+	 */
+	afflvl = psci_get_suspend_afflvl();
+	if (afflvl == PSCI_INVALID_DATA)
+		afflvl = get_max_afflvl();
+	return afflvl;
 }
 
 /*******************************************************************************

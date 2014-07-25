@@ -189,15 +189,17 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 		if (state & PSCI_AFF_PRESENT)
 			psci_set_state(&psci_aff_map[idx], PSCI_STATE_OFF);
 
-		/* Invalidate the suspend context for the node */
-		psci_aff_map[idx].power_state = PSCI_INVALID_DATA;
-
 		/*
 		 * Associate a non-secure context with this affinity
 		 * instance through the context management library.
 		 */
 		linear_id = platform_get_core_pos(mpidr);
 		assert(linear_id < PLATFORM_CORE_COUNT);
+
+		/* Invalidate the suspend context for the node */
+		set_cpu_data_by_index(linear_id,
+				      psci_svc_cpu_data.power_state,
+				      PSCI_INVALID_DATA);
 
 		cm_set_context_by_mpidr(mpidr,
 					(void *) &psci_ns_context[linear_id],

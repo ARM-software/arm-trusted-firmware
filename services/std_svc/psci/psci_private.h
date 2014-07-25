@@ -52,7 +52,6 @@ typedef struct aff_map_node {
 	unsigned short ref_count;
 	unsigned char state;
 	unsigned char level;
-	unsigned int power_state;
 	bakery_lock_t lock;
 } aff_map_node_t;
 
@@ -85,7 +84,7 @@ unsigned short psci_get_phys_state(aff_map_node_t *node);
 void psci_set_state(aff_map_node_t *node, unsigned short state);
 unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
 int psci_validate_mpidr(unsigned long, int);
-int get_power_on_target_afflvl(unsigned long mpidr);
+int get_power_on_target_afflvl(void);
 void psci_afflvl_power_on_finish(int,
 				int,
 				afflvl_power_on_finisher_t *);
@@ -119,15 +118,13 @@ int psci_afflvl_on(unsigned long,
 int psci_afflvl_off(int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
-void psci_set_suspend_power_state(aff_map_node_t *node,
-				unsigned int power_state);
-int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node);
 int psci_afflvl_suspend(unsigned long,
 			unsigned long,
 			unsigned int,
 			int,
 			int);
 unsigned int psci_afflvl_suspend_finish(int, int);
+void psci_set_suspend_power_state(unsigned int power_state);
 
 /* Private exported functions from psci_helpers.S */
 void psci_do_pwrdown_cache_maintenance(uint32_t affinity_level);
