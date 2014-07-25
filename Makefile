@@ -51,6 +51,9 @@ NS_TIMER_SWITCH		:= 0
 RESET_TO_BL31		:= 0
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
+# Determine the version of ARM GIC architecture to use for interrupt management
+# in EL3. The platform port can change this value if needed.
+ARM_GIC_ARCH		:=	2
 
 
 # Checkpatch ignores
@@ -187,6 +190,10 @@ $(eval $(call add_define,RESET_TO_BL31))
 # Process CTX_INCLUDE_FPREGS flag
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
+
+# Process ARM_GIC_ARCH flag
+$(eval $(call add_define,ARM_GIC_ARCH))
+
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
