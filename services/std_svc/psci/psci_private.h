@@ -94,11 +94,11 @@ int psci_save_ns_entry(uint64_t mpidr,
 int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
 void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
 			       uint32_t end_afflvl,
-			       mpidr_aff_map_nodes_t mpidr_nodes,
+			       aff_map_node_t *mpidr_nodes[],
 			       uint32_t state);
 void psci_acquire_afflvl_locks(int start_afflvl,
-				int end_afflvl,
-				mpidr_aff_map_nodes_t mpidr_nodes);
+			       int end_afflvl,
+			       aff_map_node_t *mpidr_nodes[]);
 void psci_release_afflvl_locks(int start_afflvl,
 				int end_afflvl,
 				mpidr_aff_map_nodes_t mpidr_nodes);
@@ -106,13 +106,13 @@ void psci_print_affinity_map(void);
 void psci_set_max_phys_off_afflvl(uint32_t afflvl);
 uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
 				       uint32_t end_afflvl,
-				       mpidr_aff_map_nodes_t mpidr_nodes);
+				       aff_map_node_t *mpidr_nodes[]);
 
 /* Private exported functions from psci_setup.c */
 int psci_get_aff_map_nodes(unsigned long mpidr,
 				int start_afflvl,
 				int end_afflvl,
-				mpidr_aff_map_nodes_t mpidr_nodes);
+				aff_map_node_t *mpidr_nodes[]);
 aff_map_node_t *psci_get_aff_map_node(unsigned long, int);
 
 /* Private exported functions from psci_affinity_on.c */

@@ -189,8 +189,6 @@ typedef struct spd_pm_ops {
  * Function & Data prototypes
  ******************************************************************************/
 unsigned int psci_version(void);
-int __psci_cpu_suspend(unsigned int, unsigned long, unsigned long);
-int __psci_cpu_off(void);
 int psci_affinity_info(unsigned long, unsigned int);
 int psci_migrate(unsigned int);
 unsigned int psci_migrate_info_type(void);

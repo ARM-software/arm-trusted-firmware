@@ -116,7 +116,7 @@ aff_map_node_t *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
 int psci_get_aff_map_nodes(unsigned long mpidr,
 			   int start_afflvl,
 			   int end_afflvl,
-			   mpidr_aff_map_nodes_t mpidr_nodes)
+			   aff_map_node_t *mpidr_nodes[])
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
 	aff_map_node_t *node;

@@ -65,7 +65,7 @@ const plat_pm_ops_t *psci_plat_pm_ops;
  ******************************************************************************/
 uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
 				       uint32_t end_afflvl,
-				       mpidr_aff_map_nodes_t mpidr_nodes)
+				       aff_map_node_t *mpidr_nodes[])
 {
 	uint32_t max_afflvl = PSCI_INVALID_DATA;
 
@@ -220,7 +220,7 @@ int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
  ******************************************************************************/
 void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
 			       uint32_t end_afflvl,
-			       mpidr_aff_map_nodes_t mpidr_nodes,
+			       aff_map_node_t *mpidr_nodes[],
 			       uint32_t state)
 {
 	uint32_t level;
@@ -239,7 +239,7 @@ void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
  ******************************************************************************/
 void psci_acquire_afflvl_locks(int start_afflvl,
 			       int end_afflvl,
-			       mpidr_aff_map_nodes_t mpidr_nodes)
+			       aff_map_node_t *mpidr_nodes[])
 {
 	int level;
 
@@ -257,7 +257,7 @@ void psci_acquire_afflvl_locks(int start_afflvl,
  ******************************************************************************/
 void psci_release_afflvl_locks(int start_afflvl,
 			       int end_afflvl,
-			       mpidr_aff_map_nodes_t mpidr_nodes)
+			       aff_map_node_t *mpidr_nodes[])
 {
 	int level;
 
@@ -429,7 +429,7 @@ unsigned short psci_get_phys_state(aff_map_node_t *node)
  * topology tree and calls the physical power on handler for the corresponding
  * affinity levels
  ******************************************************************************/
-static int psci_call_power_on_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
+static int psci_call_power_on_handlers(aff_map_node_t *mpidr_nodes[],
 				       int start_afflvl,
 				       int end_afflvl,
 				       afflvl_power_on_finisher_t *pon_handlers)

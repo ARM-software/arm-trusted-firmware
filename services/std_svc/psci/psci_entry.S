@@ -35,8 +35,6 @@
 
 	.globl	psci_aff_on_finish_entry
 	.globl	psci_aff_suspend_finish_entry
-	.globl	__psci_cpu_off
-	.globl	__psci_cpu_suspend
 	.globl	psci_power_down_wfi
 
 	/* -----------------------------------------------------

@@ -110,7 +110,6 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 				unsigned long context_id,
 				unsigned int power_state)
 {
-	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 	uint32_t ns_scr_el3 = read_scr_el3();
 	uint32_t ns_sctlr_el1 = read_sctlr_el1();
@@ -153,24 +152,20 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
 
+	if (!psci_plat_pm_ops->affinst_suspend)
+		return PSCI_E_SUCCESS;
+
 	/*
 	 * Plat. management: Allow the platform to perform the
 	 * necessary actions to turn off this cpu e.g. set the
 	 * platform defined mailbox with the psci entrypoint,
 	 * program the power controller etc.
 	 */
-	rc = PSCI_E_SUCCESS;
-
-	if (psci_plat_pm_ops->affinst_suspend) {
-		plat_state = psci_get_phys_state(cpu_node);
-		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						       psci_entrypoint,
-						       ns_entrypoint,
-						       cpu_node->level,
-						       plat_state);
-	}
-
-	return rc;
+	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
+						 psci_entrypoint,
+						 ns_entrypoint,
+						 cpu_node->level,
+						 psci_get_phys_state(cpu_node));
 }
 
 static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
@@ -178,7 +173,6 @@ static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 				unsigned long context_id,
 				unsigned int power_state)
 {
-	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 
@@ -186,39 +180,29 @@ static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 	assert(cluster_node->level == MPIDR_AFFLVL1);
 
 	/*
-	 * Keep the physical state of this cluster handy to decide
-	 * what action needs to be taken
-	 */
-	plat_state = psci_get_phys_state(cluster_node);
-
-	/*
 	 * Arch. management: Flush all levels of caches to PoC if the
 	 * cluster is to be shutdown.
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL1);
 
+	if (!psci_plat_pm_ops->affinst_suspend)
+		return PSCI_E_SUCCESS;
+
 	/*
-	 * Plat. Management. Allow the platform to do its cluster
-	 * specific bookeeping e.g. turn off interconnect coherency,
-	 * program the power controller etc.
+	 * Plat. Management. Allow the platform to do its cluster specific
+	 * bookeeping e.g. turn off interconnect coherency, program the power
+	 * controller etc. Sending the psci entrypoint is currently redundant
+	 * beyond affinity level 0 but one never knows what a platform might
+	 * do. Also it allows us to keep the platform handler prototype the
+	 * same.
 	 */
-	if (psci_plat_pm_ops->affinst_suspend) {
-
-		/*
-		 * Sending the psci entrypoint is currently redundant
-		 * beyond affinity level 0 but one never knows what a
-		 * platform might do. Also it allows us to keep the
-		 * platform handler prototype the same.
-		 */
-		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						       psci_entrypoint,
-						       ns_entrypoint,
-						       cluster_node->level,
-						       plat_state);
-	}
-
-	return rc;
+	plat_state = psci_get_phys_state(cluster_node);
+	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
+	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
+						 psci_entrypoint,
+						 ns_entrypoint,
+						 cluster_node->level,
+						 plat_state);
 }
 
 
@@ -227,7 +211,6 @@ static int psci_afflvl2_suspend(aff_map_node_t *system_node,
 				unsigned long context_id,
 				unsigned int power_state)
 {
-	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 
@@ -250,23 +233,22 @@ static int psci_afflvl2_suspend(aff_map_node_t *system_node,
 	 * Plat. Management : Allow the platform to do its bookeeping
 	 * at this affinity level
 	 */
-	if (psci_plat_pm_ops->affinst_suspend) {
+	if (!psci_plat_pm_ops->affinst_suspend)
+		return PSCI_E_SUCCESS;
 
-		/*
-		 * Sending the psci entrypoint is currently redundant
-		 * beyond affinity level 0 but one never knows what a
-		 * platform might do. Also it allows us to keep the
-		 * platform handler prototype the same.
-		 */
-		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						       psci_entrypoint,
-						       ns_entrypoint,
-						       system_node->level,
-						       plat_state);
-	}
-
-	return rc;
+	/*
+	 * Sending the psci entrypoint is currently redundant
+	 * beyond affinity level 0 but one never knows what a
+	 * platform might do. Also it allows us to keep the
+	 * platform handler prototype the same.
+	 */
+	plat_state = psci_get_phys_state(system_node);
+	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
+	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
+						 psci_entrypoint,
+						 ns_entrypoint,
+						 system_node->level,
+						 plat_state);
 }
 
 static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
@@ -280,7 +262,7 @@ static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
  * topology tree and calls the suspend handler for the corresponding affinity
  * levels
  ******************************************************************************/
-static int psci_call_suspend_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
+static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
 				      int start_afflvl,
 				      int end_afflvl,
 				      unsigned long entrypoint,

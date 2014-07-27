@@ -42,7 +42,6 @@ typedef int (*afflvl_off_handler_t)(aff_map_node_t *);
  ******************************************************************************/
 static int psci_afflvl0_off(aff_map_node_t *cpu_node)
 {
-	unsigned int plat_state;
 	int rc;
 
 	assert(cpu_node->level == MPIDR_AFFLVL0);
@@ -69,36 +68,22 @@ static int psci_afflvl0_off(aff_map_node_t *cpu_node)
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
 
+	if (!psci_plat_pm_ops->affinst_off)
+		return PSCI_E_SUCCESS;
+
 	/*
 	 * Plat. management: Perform platform specific actions to turn this
 	 * cpu off e.g. exit cpu coherency, program the power controller etc.
 	 */
-	rc = PSCI_E_SUCCESS;
-	if (psci_plat_pm_ops->affinst_off) {
-
-		/* Get the current physical state of this cpu */
-		plat_state = psci_get_phys_state(cpu_node);
-		rc = psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
-						   cpu_node->level,
-						   plat_state);
-	}
-
-	return rc;
+	return psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
+					     cpu_node->level,
+					     psci_get_phys_state(cpu_node));
 }
 
 static int psci_afflvl1_off(aff_map_node_t *cluster_node)
 {
-	int rc = PSCI_E_SUCCESS;
-	unsigned int plat_state;
-
 	/* Sanity check the cluster level */
 	assert(cluster_node->level == MPIDR_AFFLVL1);
-
-	/*
-	 * Keep the physical state of this cluster handy to decide
-	 * what action needs to be taken
-	 */
-	plat_state = psci_get_phys_state(cluster_node);
 
 	/*
 	 * Arch. Management. Flush all levels of caches to PoC if
@@ -106,24 +91,21 @@ static int psci_afflvl1_off(aff_map_node_t *cluster_node)
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL1);
 
+	if (!psci_plat_pm_ops->affinst_off)
+		return PSCI_E_SUCCESS;
+
 	/*
 	 * Plat. Management. Allow the platform to do its cluster
 	 * specific bookeeping e.g. turn off interconnect coherency,
 	 * program the power controller etc.
 	 */
-	if (psci_plat_pm_ops->affinst_off)
-		rc = psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
-						   cluster_node->level,
-						   plat_state);
-
-	return rc;
+	return psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
+					     cluster_node->level,
+					     psci_get_phys_state(cluster_node));
 }
 
 static int psci_afflvl2_off(aff_map_node_t *system_node)
 {
-	int rc = PSCI_E_SUCCESS;
-	unsigned int plat_state;
-
 	/* Cannot go beyond this level */
 	assert(system_node->level == MPIDR_AFFLVL2);
 
@@ -131,7 +113,6 @@ static int psci_afflvl2_off(aff_map_node_t *system_node)
 	 * Keep the physical state of the system handy to decide what
 	 * action needs to be taken
 	 */
-	plat_state = psci_get_phys_state(system_node);
 
 	/*
 	 * Arch. Management. Flush all levels of caches to PoC if
@@ -139,15 +120,16 @@ static int psci_afflvl2_off(aff_map_node_t *system_node)
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL2);
 
+	if (!psci_plat_pm_ops->affinst_off)
+		return PSCI_E_SUCCESS;
+
 	/*
 	 * Plat. Management : Allow the platform to do its bookeeping
 	 * at this affinity level
 	 */
-	if (psci_plat_pm_ops->affinst_off)
-		rc = psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
-						   system_node->level,
-						   plat_state);
-	return rc;
+	return psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
+					     system_node->level,
+					     psci_get_phys_state(system_node));
 }
 
 static const afflvl_off_handler_t psci_afflvl_off_handlers[] = {
@@ -161,7 +143,7 @@ static const afflvl_off_handler_t psci_afflvl_off_handlers[] = {
  * topology tree and calls the off handler for the corresponding affinity
  * levels
  ******************************************************************************/
-static int psci_call_off_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
+static int psci_call_off_handlers(aff_map_node_t *mpidr_nodes[],
 				  int start_afflvl,
 				  int end_afflvl)
 {
