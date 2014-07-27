@@ -135,9 +135,6 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	if (psci_spd_pm && psci_spd_pm->svc_suspend)
 		psci_spd_pm->svc_suspend(power_state);
 
-	/* State management: mark this cpu as suspended */
-	psci_set_state(cpu_node, PSCI_STATE_SUSPEND);
-
 	/*
 	 * Generic management: Store the re-entry information for the
 	 * non-secure world
@@ -188,9 +185,6 @@ static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 	/* Sanity check the cluster level */
 	assert(cluster_node->level == MPIDR_AFFLVL1);
 
-	/* State management: Decrement the cluster reference count */
-	psci_set_state(cluster_node, PSCI_STATE_SUSPEND);
-
 	/*
 	 * Keep the physical state of this cluster handy to decide
 	 * what action needs to be taken
@@ -240,9 +234,6 @@ static int psci_afflvl2_suspend(aff_map_node_t *system_node,
 
 	/* Cannot go beyond this */
 	assert(system_node->level == MPIDR_AFFLVL2);
-
-	/* State management: Decrement the system reference count */
-	psci_set_state(system_node, PSCI_STATE_SUSPEND);
 
 	/*
 	 * Keep the physical state of the system handy to decide what
@@ -365,6 +356,15 @@ int psci_afflvl_suspend(unsigned long entrypoint,
 				  end_afflvl,
 				  mpidr_nodes);
 
+	/*
+	 * This function updates the state of each affinity instance
+	 * corresponding to the mpidr in the range of affinity levels
+	 * specified.
+	 */
+	psci_do_afflvl_state_mgmt(start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes,
+				  PSCI_STATE_SUSPEND);
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_suspend_handlers(mpidr_nodes,
 					start_afflvl,
@@ -450,9 +450,6 @@ static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 	 */
 	cm_prepare_el3_exit(NON_SECURE);
 
-	/* State management: mark this cpu as on */
-	psci_set_state(cpu_node, PSCI_STATE_ON);
-
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 
@@ -483,9 +480,6 @@ static unsigned int psci_afflvl1_suspend_finish(aff_map_node_t *cluster_node)
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
-
-	/* State management: Increment the cluster reference count */
-	psci_set_state(cluster_node, PSCI_STATE_ON);
 
 	return rc;
 }
@@ -520,9 +514,6 @@ static unsigned int psci_afflvl2_suspend_finish(aff_map_node_t *system_node)
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
-
-	/* State management: Increment the system reference count */
-	psci_set_state(system_node, PSCI_STATE_ON);
 
 	return rc;
 }

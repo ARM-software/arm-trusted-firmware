@@ -92,6 +92,10 @@ int psci_save_ns_entry(uint64_t mpidr,
 		       uint64_t entrypoint, uint64_t context_id,
 		       uint32_t caller_scr_el3, uint32_t caller_sctlr_el1);
 int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
+void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
+			       uint32_t end_afflvl,
+			       mpidr_aff_map_nodes_t mpidr_nodes,
+			       uint32_t state);
 void psci_acquire_afflvl_locks(int start_afflvl,
 				int end_afflvl,
 				mpidr_aff_map_nodes_t mpidr_nodes);

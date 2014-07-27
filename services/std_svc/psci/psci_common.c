@@ -155,6 +155,25 @@ int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
 
 /*******************************************************************************
  * This function is passed an array of pointers to affinity level nodes in the
+ * topology tree for an mpidr and the state which each node should transition
+ * to. It updates the state of each node between the specified affinity levels.
+ ******************************************************************************/
+void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
+			       uint32_t end_afflvl,
+			       mpidr_aff_map_nodes_t mpidr_nodes,
+			       uint32_t state)
+{
+	uint32_t level;
+
+	for (level = start_afflvl; level <= end_afflvl; level++) {
+		if (mpidr_nodes[level] == NULL)
+			continue;
+		psci_set_state(mpidr_nodes[level], state);
+	}
+}
+
+/*******************************************************************************
+ * This function is passed an array of pointers to affinity level nodes in the
  * topology tree for an mpidr. It picks up locks for each affinity level bottom
  * up in the range specified.
  ******************************************************************************/
@@ -429,6 +448,16 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 					 pon_handlers);
 	if (rc != PSCI_E_SUCCESS)
 		panic();
+
+	/*
+	 * This function updates the state of each affinity instance
+	 * corresponding to the mpidr in the range of affinity levels
+	 * specified.
+	 */
+	psci_do_afflvl_state_mgmt(start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes,
+				  PSCI_STATE_ON);
 
 	/*
 	 * This loop releases the lock corresponding to each affinity level

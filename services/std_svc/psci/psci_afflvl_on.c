@@ -113,9 +113,6 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 
-	/* State management: Set this cpu's state as ON PENDING */
-	psci_set_state(cpu_node, PSCI_STATE_ON_PENDING);
-
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
@@ -318,6 +315,17 @@ int psci_afflvl_on(unsigned long target_cpu,
 				   context_id);
 
 	/*
+	 * This function updates the state of each affinity instance
+	 * corresponding to the mpidr in the range of affinity levels
+	 * specified.
+	 */
+	if (rc == PSCI_E_SUCCESS)
+		psci_do_afflvl_state_mgmt(start_afflvl,
+					  end_afflvl,
+					  target_cpu_nodes,
+					  PSCI_STATE_ON_PENDING);
+
+	/*
 	 * This loop releases the lock corresponding to each affinity level
 	 * in the reverse order to which they were acquired.
 	 */
@@ -385,9 +393,6 @@ static unsigned int psci_afflvl0_on_finish(aff_map_node_t *cpu_node)
 	 */
 	cm_prepare_el3_exit(NON_SECURE);
 
-	/* State management: mark this cpu as on */
-	psci_set_state(cpu_node, PSCI_STATE_ON);
-
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 
@@ -418,9 +423,6 @@ static unsigned int psci_afflvl1_on_finish(aff_map_node_t *cluster_node)
 							 plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
-
-	/* State management: Increment the cluster reference count */
-	psci_set_state(cluster_node, PSCI_STATE_ON);
 
 	return rc;
 }
@@ -456,9 +458,6 @@ static unsigned int psci_afflvl2_on_finish(aff_map_node_t *system_node)
 		assert(rc == PSCI_E_SUCCESS);
 	}
 
-	/* State management: Increment the system reference count */
-	psci_set_state(system_node, PSCI_STATE_ON);
-
 	return rc;
 }
 
@@ -467,4 +466,3 @@ const afflvl_power_on_finisher_t psci_afflvl_on_finishers[] = {
 	psci_afflvl1_on_finish,
 	psci_afflvl2_on_finish,
 };
-
