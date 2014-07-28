@@ -143,7 +143,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 				void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PL011_UART0_BASE);
+	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

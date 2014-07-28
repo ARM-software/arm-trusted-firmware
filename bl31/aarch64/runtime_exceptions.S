@@ -60,7 +60,7 @@
 	 * -----------------------------------------------------
 	 */
 
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 	.endm
 
 
@@ -142,7 +142,7 @@ interrupt_exit_\label:
 	 * where the interrupt was generated.
 	 */
 interrupt_error_\label:
-	bl	dump_intr_state_and_die
+	bl	report_unhandled_interrupt
 	.endm
 
 
@@ -158,7 +158,6 @@ interrupt_error_\label:
 	.endm
 
 	.section	.vectors, "ax"; .align 11
-
 	.align	7
 runtime_exceptions:
 	/* -----------------------------------------------------
@@ -170,7 +169,7 @@ sync_exception_sp_el0:
 	 * We don't expect any synchronous exceptions from EL3
 	 * -----------------------------------------------------
 	 */
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 	check_vector_size sync_exception_sp_el0
 
 	.align	7
@@ -180,17 +179,17 @@ sync_exception_sp_el0:
 	 * -----------------------------------------------------
 	 */
 irq_sp_el0:
-	bl	dump_intr_state_and_die
+	bl	report_unhandled_interrupt
 	check_vector_size irq_sp_el0
 
 	.align	7
 fiq_sp_el0:
-	bl	dump_intr_state_and_die
+	bl	report_unhandled_interrupt
 	check_vector_size fiq_sp_el0
 
 	.align	7
 serror_sp_el0:
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 	check_vector_size serror_sp_el0
 
 	/* -----------------------------------------------------
@@ -206,22 +205,22 @@ sync_exception_sp_elx:
 	 * There is a high probability that SP_EL3 is corrupted.
 	 * -----------------------------------------------------
 	 */
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 	check_vector_size sync_exception_sp_elx
 
 	.align	7
 irq_sp_elx:
-	bl	dump_intr_state_and_die
+	bl	report_unhandled_interrupt
 	check_vector_size irq_sp_elx
 
 	.align	7
 fiq_sp_elx:
-	bl	dump_intr_state_and_die
+	bl	report_unhandled_interrupt
 	check_vector_size fiq_sp_elx
 
 	.align	7
 serror_sp_elx:
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 	check_vector_size serror_sp_elx
 
 	/* -----------------------------------------------------
@@ -258,7 +257,7 @@ fiq_aarch64:
 
 	.align	7
 serror_aarch64:
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 	check_vector_size serror_aarch64
 
 	/* -----------------------------------------------------
@@ -295,7 +294,7 @@ fiq_aarch32:
 
 	.align	7
 serror_aarch32:
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 	check_vector_size serror_aarch32
 
 	.align	7
@@ -473,7 +472,7 @@ smc_prohibited:
 
 rt_svc_fw_critical_error:
 	msr	spsel, #1 /* Switch to SP_ELx */
-	bl	dump_state_and_die
+	bl	report_unhandled_exception
 
 	/* -----------------------------------------------------
 	 * The following functions are used to saved and restore

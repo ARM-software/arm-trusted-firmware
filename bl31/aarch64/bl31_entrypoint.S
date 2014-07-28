@@ -82,13 +82,22 @@ func bl31_entrypoint
 	isb
 
 	/* ---------------------------------------------
-	 * Set the exception vector and zero tpidr_el3
-	 * until the crash reporting is set up
+	 * Initialise cpu_data early to enable crash
+	 * reporting to have access to crash stack.
+	 * Since crash reporting depends on cpu_data to
+	 * report the unhandled exception, not
+	 * doing so can lead to recursive exceptions due
+	 * to a NULL TPIDR_EL3
+	 * ---------------------------------------------
+	 */
+	bl	init_cpu_data_ptr
+
+	/* ---------------------------------------------
+	 * Set the exception vector.
 	 * ---------------------------------------------
 	 */
 	adr	x1, runtime_exceptions
 	msr	vbar_el3, x1
-	msr	tpidr_el3, xzr
 
 	/* ---------------------------------------------------------------------
 	 * The initial state of the Architectural feature trap register
@@ -145,15 +154,6 @@ func bl31_entrypoint
 	ldr	x0, =__COHERENT_RAM_START__
 	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
 	bl	zeromem16
-
-	/* ---------------------------------------------
-	 * Initialise cpu_data and crash reporting
-	 * ---------------------------------------------
-	 */
-#if CRASH_REPORTING
-	bl	init_crash_reporting
-#endif
-	bl	init_cpu_data_ptr
 
 	/* ---------------------------------------------
 	 * Use SP_EL0 for the C runtime stack.

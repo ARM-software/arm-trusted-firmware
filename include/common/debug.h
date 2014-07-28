@@ -52,22 +52,9 @@
 
 #define ERROR(...)	tf_printf("ERROR: " __VA_ARGS__)
 
-
-/* For the moment this Panic function is very basic, Report an error and
- * spin. This can be expanded in the future to provide more information.
- */
-#if DEBUG
-void __dead2 do_panic(const char *file, int line);
-#define panic()	do_panic(__FILE__, __LINE__)
-
-#else
 void __dead2 do_panic(void);
 #define panic()	do_panic()
 
-#endif
-
-void print_string_value(char *s, unsigned long *mem);
 void tf_printf(const char *fmt, ...);
-
 
 #endif /* __DEBUG_H__ */

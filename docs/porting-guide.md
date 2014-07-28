@@ -15,6 +15,7 @@ Contents
     *   Boot Loader stage 3-1 (BL3-1)
     *   PSCI implementation (in BL3-1)
     *   Interrupt Management framework (in BL3-1)
+    *   Crash Reporting mechanism (in BL3-1)
 4.  C Library
 5.  Storage abstraction layer
 
@@ -268,9 +269,17 @@ the following macro defined. In the ARM FVP port, this file is found in
 *   **Macro : plat_print_gic_regs**
 
     This macro allows the crash reporting routine to print GIC registers
-    in case of an unhandled IRQ or FIQ in BL3-1. This aids in debugging and
+    in case of an unhandled exception in BL3-1. This aids in debugging and
     this macro can be defined to be empty in case GIC register reporting is
     not desired.
+
+*   **Macro : plat_print_interconnect_regs**
+
+    This macro allows the crash reporting routine to print interconnect registers
+    in case of an unhandled exception in BL3-1. This aids in debugging and
+    this macro can be defined to be empty in case interconnect register reporting
+    is not desired. In the ARM FVP port, the CCI snoop control registers are
+    reported.
 
 ### Other mandatory modifications
 
@@ -1265,6 +1274,41 @@ interrupts as Group1 interrupts. It reads the group value corresponding to the
 interrupt id from the relevant _Interrupt Group Register_ (`GICD_IGROUPRn`). It
 uses the group value to determine the type of interrupt.
 
+3.5  Crash Reporting mechanism (in BL3-1)
+----------------------------------------------
+BL3-1 implements a crash reporting mechanism which prints the various registers
+of the CPU to enable quick crash analysis and debugging. It requires that a console
+is designated as the crash console by the platform which will used to print the
+register dump.
+
+The following functions must be implemented by the platform if it wants crash reporting
+mechanism in BL3-1. The functions are implemented in assembly so that they can be
+invoked without a C Runtime stack.
+
+### Function : plat_crash_console_init
+
+    Argument : void
+    Return   : int
+
+This API is used by the crash reporting mechanism to intialize the crash console.
+It should only use the general purpose registers x0 to x2 to do the initiaization
+and returns 1 on success.
+
+The FVP port designates the PL011_UART0 as the crash console and calls the
+console_core_init() to initialize the console.
+
+### Function : plat_crash_console_putc
+
+    Argument : int
+    Return   : int
+
+This API is used by the crash reporting mechanism to print a character on the
+designated crash console. It should only use general purpose registers x1 and
+x2 to do its work. The parameter and the return value are in general purpose
+register x0.
+
+The FVP port designates the PL011_UART0 as the crash console and calls the
+console_core_putc() to print the character on the console.
 
 4.  C Library
 -------------

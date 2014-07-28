@@ -27,70 +27,20 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <console.h>
-#include <debug.h>
-#include <stdarg.h>
-#include <stdio.h>
 
-/******************************************************************
-* This function is invoked from assembler error handling routines and
-* prints out the string and the value in 64 bit hex format. These
-* are passed to the function as input parameters.
-********************************************************************/
-void print_string_value(char *s, unsigned long *mem)
-{
-	unsigned char i, temp;
-	unsigned long val;
-
-	while (*s) {
-		i = 16;
-		while (*s)
-			console_putc(*s++);
-
-		s++;
-
-		console_putc('\t');
-		console_putc(':');
-		console_putc('0');
-		console_putc('x');
-
-		val = *mem++;
-
-		while (i--) {
-			temp = (val >> (i << 2)) & 0xf;
-			if (temp <  0xa)
-				console_putc('0' + temp);
-			else
-				console_putc('A' + (temp - 0xa));
-		}
-		console_putc('\n');
-	}
-}
-
-/***********************************************************
- * The common implementation of do_panic for all BL stages
- ***********************************************************/
-
-#if DEBUG
-void __dead2 do_panic(const char *file, int line)
-{
-		tf_printf("PANIC in file: %s line: %d\n", file, line);
-		while (1)
-			;
-}
-#else
-void __dead2 do_panic(void)
-{
-	unsigned long pc_reg;
-	__asm__ volatile("mov %0, x30\n"
-					: "=r" (pc_reg) : );
-
-	/* x30 reports the next eligible instruction whereas we want the
-	 * place where panic() is invoked. Hence decrement by 4.
+	/*
+	 * Assembler macro to enable asm_assert. Use this macro wherever
+	 * assert is required in assembly.
 	 */
-	tf_printf("PANIC in PC location 0x%016X\n", pc_reg - 0x4);
-	while (1)
-		;
-
-}
-#endif
+#define ASM_ASSERT(_cc) \
+.ifndef .L_assert_filename ;\
+	.pushsection .rodata.str1.1, "aS" ;\
+	.L_assert_filename: ;\
+			.string	__FILE__ ;\
+	.popsection ;\
+.endif ;\
+	b._cc	1f ;\
+	adr	x0, .L_assert_filename ;\
+	mov	x1, __LINE__ ;\
+	b	asm_assert ;\
+1:

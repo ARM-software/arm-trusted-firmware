@@ -60,7 +60,9 @@ CTX_INCLUDE_FPREGS		:= 0
 # Determine the version of ARM GIC architecture to use for interrupt management
 # in EL3. The platform port can change this value if needed.
 ARM_GIC_ARCH		:=	2
-
+# Flag used to indicate if ASM_ASSERTION should be enabled for the build.
+# This defaults to being present in DEBUG builds only.
+ASM_ASSERTION		:=	${DEBUG}
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO
@@ -90,8 +92,8 @@ endif
 VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STRING}
 
 BL_COMMON_SOURCES	:=	common/bl_common.c			\
-				common/debug.c				\
 				common/tf_printf.c			\
+				common/aarch64/debug.S			\
 				lib/aarch64/cache_helpers.S		\
 				lib/aarch64/misc_helpers.S		\
 				lib/aarch64/xlat_helpers.c		\
@@ -207,6 +209,9 @@ $(eval $(call add_define,CTX_INCLUDE_FPREGS))
 # Process ARM_GIC_ARCH flag
 $(eval $(call add_define,ARM_GIC_ARCH))
 
+# Process ASM_ASSERTION flag
+$(eval $(call assert_boolean,ASM_ASSERTION))
+$(eval $(call add_define,ASM_ASSERTION))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
