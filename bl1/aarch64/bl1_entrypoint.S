@@ -44,7 +44,7 @@
 func bl1_entrypoint
 	/* ---------------------------------------------
 	 * Set the CPU endianness before doing anything
-	 * that might involve memory reads or writes
+	 * that might involve memory reads or writes.
 	 * ---------------------------------------------
 	 */
 	mrs	x0, sctlr_el3
@@ -59,12 +59,14 @@ func bl1_entrypoint
 	 */
 	bl	cpu_reset_handler
 
-	/* -------------------------------
-	 * Enable the instruction cache.
-	 * -------------------------------
+	/* ---------------------------------------------
+	 * Enable the instruction cache, stack pointer
+	 * and data access alignment checks
+	 * ---------------------------------------------
 	 */
+	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
 	mrs	x0, sctlr_el3
-	orr	x0, x0, #SCTLR_I_BIT
+	orr	x0, x0, x1
 	msr	sctlr_el3, x0
 	isb
 

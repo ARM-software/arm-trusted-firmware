@@ -52,6 +52,15 @@ func bl31_entrypoint
 	mov	x20, x0
 	mov	x21, x1
 #else
+	/* ---------------------------------------------
+	 * Set the CPU endianness before doing anything
+	 * that might involve memory reads or writes.
+	 * ---------------------------------------------
+	 */
+	mrs	x0, sctlr_el3
+	bic	x0, x0, #SCTLR_EE_BIT
+	msr	sctlr_el3, x0
+	isb
 
 	/* -----------------------------------------------------
 	 * Perform any processor specific actions upon reset
@@ -61,14 +70,15 @@ func bl31_entrypoint
 	 */
 	bl	cpu_reset_handler
 #endif
-
 	/* ---------------------------------------------
-	 * Enable the instruction cache.
+	 * Enable the instruction cache, stack pointer
+	 * and data access alignment checks
 	 * ---------------------------------------------
 	 */
-	mrs	x1, sctlr_el3
-	orr	x1, x1, #SCTLR_I_BIT
-	msr	sctlr_el3, x1
+	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
+	mrs	x0, sctlr_el3
+	orr	x0, x0, x1
+	msr	sctlr_el3, x0
 	isb
 
 	/* ---------------------------------------------

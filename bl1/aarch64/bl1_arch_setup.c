@@ -37,20 +37,11 @@
  ******************************************************************************/
 void bl1_arch_setup(void)
 {
-	unsigned long tmp_reg = 0;
-
-	/* Enable alignment checks */
-	tmp_reg = read_sctlr_el3();
-	tmp_reg |= (SCTLR_A_BIT | SCTLR_SA_BIT);
-	write_sctlr_el3(tmp_reg);
-	isb();
-
 	/*
 	 * Set the next EL to be AArch64, route external abort and SError
 	 * interrupts to EL3
 	 */
-	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT | SCR_EA_BIT;
-	write_scr(tmp_reg);
+	write_scr_el3(SCR_RES1_BITS | SCR_RW_BIT | SCR_EA_BIT);
 
 	/*
 	 * Enable SError and Debug exceptions

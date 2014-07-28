@@ -54,6 +54,25 @@ psci_aff_suspend_finish_entry:
 	adr	x23, psci_afflvl_suspend_finishers
 
 psci_aff_common_finish_entry:
+#if !RESET_TO_BL31
+	/* ---------------------------------------------
+	 * Enable the instruction cache, stack pointer
+	 * and data access alignment checks. Also, set
+	 * the EL3 exception endianess to little-endian.
+	 * It can be assumed that BL3-1 entrypoint code
+	 * will do this when RESET_TO_BL31 is set. The
+	 * same  assumption cannot be made when another
+	 * boot loader executes before BL3-1 in the warm
+	 * boot path e.g. BL1.
+	 * ---------------------------------------------
+	 */
+	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
+	mrs	x0, sctlr_el3
+	orr	x0, x0, x1
+	msr	sctlr_el3, x0
+	isb
+#endif
+
 	/* ---------------------------------------------
 	 * Initialise the pcpu cache pointer for the CPU
 	 * ---------------------------------------------
