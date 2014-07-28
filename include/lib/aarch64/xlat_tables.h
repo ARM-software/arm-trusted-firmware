@@ -31,6 +31,14 @@
 #ifndef __XLAT_TABLES_H__
 #define __XLAT_TABLES_H__
 
+
+/*
+ * Flags to override default values used to program system registers while
+ * enabling the MMU.
+ */
+#define DISABLE_DCACHE		(1 << 0)
+
+#ifndef __ASSEMBLY__
 #include <stdint.h>
 
 /*
@@ -67,7 +75,8 @@ void mmap_add(const mmap_region_t *mm);
 
 void init_xlat_tables(void);
 
-void enable_mmu_el1(void);
-void enable_mmu_el3(void);
+void enable_mmu_el1(uint32_t flags);
+void enable_mmu_el3(uint32_t flags);
 
+#endif /*__ASSEMBLY__*/
 #endif /* __XLAT_TABLES_H__ */

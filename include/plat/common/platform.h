@@ -180,7 +180,7 @@ unsigned int plat_get_aff_state(unsigned int, unsigned long);
 /*******************************************************************************
  * Optional BL3-1 functions (may be overridden)
  ******************************************************************************/
-void bl31_plat_enable_mmu(void);
+void bl31_plat_enable_mmu(uint32_t flags);
 
 /*******************************************************************************
  * Mandatory BL3-2 functions (only if platform contains a BL3-2)
@@ -190,6 +190,6 @@ void bl32_platform_setup(void);
 /*******************************************************************************
  * Optional BL3-2 functions (may be overridden)
  ******************************************************************************/
-void bl32_plat_enable_mmu(void);
+void bl32_plat_enable_mmu(uint32_t flags);
 
 #endif /* __PLATFORM_H__ */

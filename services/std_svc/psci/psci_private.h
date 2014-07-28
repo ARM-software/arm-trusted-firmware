@@ -128,5 +128,8 @@ int psci_afflvl_suspend(unsigned long,
 			int);
 unsigned int psci_afflvl_suspend_finish(int, int);
 
+/* Private exported functions from psci_helpers.S */
+void psci_do_pwrdown_cache_maintenance(uint32_t affinity_level);
+void psci_do_pwrup_cache_maintenance(void);
 
 #endif /* __PSCI_PRIVATE_H__ */

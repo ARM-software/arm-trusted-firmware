@@ -390,9 +390,6 @@ static int psci_call_power_on_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
  * the highest to the lowest affinity level implemented by the platform because
  * to turn on affinity level X it is neccesary to turn on affinity level X + 1
  * first.
- *
- * CAUTION: This function is called with coherent stacks so that coherency and
- * the mmu can be turned on safely.
  ******************************************************************************/
 void psci_afflvl_power_on_finish(int start_afflvl,
 				 int end_afflvl,

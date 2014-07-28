@@ -130,14 +130,16 @@ func bl1_entrypoint
 	ldr	x2, =__DATA_SIZE__
 	bl	memcpy16
 
-	/* ---------------------------------------------
-	 * Give ourselves a small coherent stack to
-	 * ease the pain of initializing the MMU and
-	 * CCI in assembler
-	 * ---------------------------------------------
+	/* --------------------------------------------
+	 * Allocate a stack whose memory will be marked
+	 * as Normal-IS-WBWA when the MMU is enabled.
+	 * There is no risk of reading stale stack
+	 * memory after enabling the MMU as only the
+	 * primary cpu is running at the moment.
+	 * --------------------------------------------
 	 */
 	mrs	x0, mpidr_el1
-	bl	platform_set_coherent_stack
+	bl	platform_set_stack
 
 	/* ---------------------------------------------
 	 * Architectural init. can be generic e.g.
@@ -149,14 +151,6 @@ func bl1_entrypoint
 	 */
 	bl	bl1_early_platform_setup
 	bl	bl1_plat_arch_setup
-
-	/* ---------------------------------------------
-	 * Give ourselves a stack allocated in Normal
-	 * -IS-WBWA memory
-	 * ---------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
 
 	/* --------------------------------------------------
 	 * Initialize platform and jump to our c-entry point

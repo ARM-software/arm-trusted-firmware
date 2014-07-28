@@ -403,7 +403,7 @@ smc_handler64:
 	mrs	x17, elr_el3
 	mrs	x18, scr_el3
 	stp	x16, x17, [x6, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	stp	x18, xzr, [x6, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	str	x18, [x6, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 
 	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
 	bfi	x7, x18, #0, #1
@@ -446,7 +446,7 @@ el3_exit: ; .type el3_exit, %function
 	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
 	 * -----------------------------------------------------
 	 */
-	ldp	x18, xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 	ldp	x16, x17, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
 	msr	scr_el3, x18
 	msr	spsr_el3, x16

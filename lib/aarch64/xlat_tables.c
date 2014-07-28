@@ -292,7 +292,7 @@ void init_xlat_tables(void)
  *			exception level
  ******************************************************************************/
 #define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
-	void enable_mmu_el##_el(void)					\
+	void enable_mmu_el##_el(uint32_t flags)				\
 	{								\
 		uint64_t mair, tcr, ttbr;				\
 		uint32_t sctlr;						\
@@ -330,7 +330,13 @@ void init_xlat_tables(void)
 									\
 		sctlr = read_sctlr_el##_el();				\
 		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT | SCTLR_I_BIT;	\
-		sctlr |= SCTLR_A_BIT | SCTLR_C_BIT;			\
+		sctlr |= SCTLR_A_BIT;					\
+									\
+		if (flags & DISABLE_DCACHE)				\
+			sctlr &= ~SCTLR_C_BIT;				\
+		else							\
+			sctlr |= SCTLR_C_BIT;				\
+									\
 		write_sctlr_el##_el(sctlr);				\
 									\
 		/* Ensure the MMU enable takes effect immediately */	\

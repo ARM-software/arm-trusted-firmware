@@ -120,11 +120,10 @@ exit:
  * platform to decide whether the cluster is being turned off and take apt
  * actions.
  *
- * CAUTION: This function is called with coherent stacks so that caches can be
- * turned off, flushed and coherency disabled. There is no guarantee that caches
- * will remain turned on across calls to this function as each affinity level is
- * dealt with. So do not write & read global variables across calls. It will be
- * wise to do flush a write to the global to prevent unpredictable results.
+ * CAUTION: There is no guarantee that caches will remain turned on across calls
+ * to this function as each affinity level is dealt with. So do not write & read
+ * global variables across calls. It will be wise to do flush a write to the
+ * global to prevent unpredictable results.
  ******************************************************************************/
 int fvp_affinst_off(unsigned long mpidr,
 		    unsigned int afflvl,
@@ -192,11 +191,10 @@ int fvp_affinst_off(unsigned long mpidr,
  * platform to decide whether the cluster is being turned off and take apt
  * actions.
  *
- * CAUTION: This function is called with coherent stacks so that caches can be
- * turned off, flushed and coherency disabled. There is no guarantee that caches
- * will remain turned on across calls to this function as each affinity level is
- * dealt with. So do not write & read global variables across calls. It will be
- * wise to do flush a write to the global to prevent unpredictable results.
+ * CAUTION: There is no guarantee that caches will remain turned on across calls
+ * to this function as each affinity level is dealt with. So do not write & read
+ * global variables across calls. It will be wise to do flush a write to the
+ * global to prevent unpredictable results.
  ******************************************************************************/
 int fvp_affinst_suspend(unsigned long mpidr,
 			unsigned long sec_entrypoint,

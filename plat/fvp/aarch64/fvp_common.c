@@ -119,7 +119,7 @@ const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
 		mmap_add(fvp_mmap);					\
 		init_xlat_tables();					\
 									\
-		enable_mmu_el##_el();					\
+		enable_mmu_el##_el(0);					\
 	}
 
 /* Define EL1 and EL3 variants of the function initialising the MMU */
