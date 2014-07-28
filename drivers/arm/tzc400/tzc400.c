@@ -103,7 +103,7 @@ static uint32_t tzc_get_gate_keeper(uint64_t base, uint8_t filter)
 	tmp = (tzc_read_gate_keeper(base) >> GATE_KEEPER_OS_SHIFT) &
 		GATE_KEEPER_OS_MASK;
 
-	return tmp >> filter;
+	return (tmp >> filter) & GATE_KEEPER_FILTER_MASK;
 }
 
 /* This function is not MP safe. */
@@ -241,6 +241,13 @@ void tzc_enable_filters(const tzc_instance_t *controller)
 	for (filter = 0; filter < controller->num_filters; filter++) {
 		state = tzc_get_gate_keeper(controller->base, filter);
 		if (state) {
+			/* The TZC filter is already configured. Changing the
+			 * programmer's view in an active system can cause
+			 * unpredictable behavior therefore panic for now rather
+			 * than try to determine whether this is safe in this
+			 * instance. See:
+			 * http://infocenter.arm.com/help/index.jsp?\
+			 * topic=/com.arm.doc.ddi0504c/CJHHECBF.html */
 			ERROR("TZC : Filter %d Gatekeeper already enabled.\n",
 				filter);
 			panic();

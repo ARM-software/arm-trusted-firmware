@@ -91,6 +91,7 @@ uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx)
 {
 	uint64_t rc;
 
+	assert(tsp_ctx != NULL);
 	assert(tsp_ctx->c_rt_ctx == 0);
 
 	/* Apply the Secure EL1 system register context and switch to it */
@@ -117,6 +118,7 @@ uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx)
  ******************************************************************************/
 void tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret)
 {
+	assert(tsp_ctx != NULL);
 	/* Save the Secure EL1 system register context */
 	assert(cm_get_context(SECURE) == &tsp_ctx->cpu_ctx);
 	cm_el1_sysregs_context_save(SECURE);

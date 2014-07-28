@@ -125,7 +125,7 @@ void bl31_main(void)
  ******************************************************************************/
 void bl31_set_next_image_type(uint32_t security_state)
 {
-	assert(security_state == NON_SECURE || security_state == SECURE);
+	assert(sec_state_is_valid(security_state));
 	next_image_type = security_state;
 }
 

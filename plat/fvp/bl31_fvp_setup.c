@@ -92,7 +92,7 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 #if RESET_TO_BL31
 
-	assert(type <= NON_SECURE);
+	assert(sec_state_is_valid(type));
 	SET_PARAM_HEAD(&next_image_ep_info,
 				PARAM_EP,
 				VERSION_1,
@@ -115,6 +115,8 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	return &next_image_ep_info;
 #else
 	entry_point_info_t *next_image_info;
+
+	assert(sec_state_is_valid(type));
 
 	next_image_info = (type == NON_SECURE) ?
 		bl2_to_bl31_params->bl33_ep_info :
