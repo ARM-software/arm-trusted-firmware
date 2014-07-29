@@ -215,7 +215,7 @@ static int fip_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params)
 			WARN("Firmware Image Package header check failed.\n");
 			result = IO_FAIL;
 		} else {
-			INFO("FIP header looks OK.\n");
+			VERBOSE("FIP header looks OK.\n");
 		}
 	}
 

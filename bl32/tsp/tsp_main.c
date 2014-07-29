@@ -105,6 +105,12 @@ static tsp_args_t *set_smc_args(uint64_t arg0,
  ******************************************************************************/
 uint64_t tsp_main(void)
 {
+	NOTICE("TSP: %s\n", version_string);
+	NOTICE("TSP: %s\n", build_message);
+	INFO("TSP: Total memory base : 0x%x\n", (unsigned long)BL32_TOTAL_BASE);
+	INFO("TSP: Total memory size : 0x%x bytes\n",
+			 (unsigned long)(BL32_TOTAL_LIMIT - BL32_TOTAL_BASE));
+
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
@@ -119,18 +125,14 @@ uint64_t tsp_main(void)
 	tsp_stats[linear_id].eret_count++;
 	tsp_stats[linear_id].cpu_on_count++;
 
+#if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	tf_printf("TSP %s\n", version_string);
-	tf_printf("TSP %s\n", build_message);
-	INFO("Total memory base : 0x%x\n", (unsigned long)BL32_TOTAL_BASE);
-	INFO("Total memory size : 0x%x bytes\n",
-			 (unsigned long)(BL32_TOTAL_LIMIT - BL32_TOTAL_BASE));
-	INFO("cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count,
 	     tsp_stats[linear_id].cpu_on_count);
 	spin_unlock(&console_lock);
-
+#endif
 	return (uint64_t) &tsp_vector_table;
 }
 
@@ -152,14 +154,15 @@ tsp_args_t *tsp_cpu_on_main(void)
 	tsp_stats[linear_id].eret_count++;
 	tsp_stats[linear_id].cpu_on_count++;
 
+#if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	tf_printf("SP: cpu 0x%x turned on\n\r", mpidr);
-	INFO("cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
-	     tsp_stats[linear_id].smc_count,
-	     tsp_stats[linear_id].eret_count,
-	     tsp_stats[linear_id].cpu_on_count);
+	INFO("TSP: cpu 0x%x turned on\n", mpidr);
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
+		tsp_stats[linear_id].smc_count,
+		tsp_stats[linear_id].eret_count,
+		tsp_stats[linear_id].cpu_on_count);
 	spin_unlock(&console_lock);
-
+#endif
 	/* Indicate to the SPD that we have completed turned ourselves on */
 	return set_smc_args(TSP_ON_DONE, 0, 0, 0, 0, 0, 0, 0);
 }
@@ -192,14 +195,15 @@ tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 	tsp_stats[linear_id].eret_count++;
 	tsp_stats[linear_id].cpu_off_count++;
 
+#if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	tf_printf("SP: cpu 0x%x off request\n\r", mpidr);
-	INFO("cpu 0x%x: %d smcs, %d erets %d cpu off requests\n", mpidr,
-	     tsp_stats[linear_id].smc_count,
-	     tsp_stats[linear_id].eret_count,
-	     tsp_stats[linear_id].cpu_off_count);
+	INFO("TSP: cpu 0x%x off request\n", mpidr);
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu off requests\n", mpidr,
+		tsp_stats[linear_id].smc_count,
+		tsp_stats[linear_id].eret_count,
+		tsp_stats[linear_id].cpu_off_count);
 	spin_unlock(&console_lock);
-
+#endif
 
 	/* Indicate to the SPD that we have completed this request */
 	return set_smc_args(TSP_OFF_DONE, 0, 0, 0, 0, 0, 0, 0);
@@ -234,14 +238,17 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t power_state,
 	tsp_stats[linear_id].eret_count++;
 	tsp_stats[linear_id].cpu_suspend_count++;
 
+#if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	tf_printf("SP: cpu 0x%x suspend request. power state: 0x%x\n\r",
-	       mpidr, power_state);
-	INFO("cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n", mpidr,
-	     tsp_stats[linear_id].smc_count,
-	     tsp_stats[linear_id].eret_count,
-	     tsp_stats[linear_id].cpu_suspend_count);
+	INFO("TSP: cpu 0x%x suspend request. power state: 0x%x\n",
+		mpidr, power_state);
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n",
+		mpidr,
+		tsp_stats[linear_id].smc_count,
+		tsp_stats[linear_id].eret_count,
+		tsp_stats[linear_id].cpu_suspend_count);
 	spin_unlock(&console_lock);
+#endif
 
 	/* Indicate to the SPD that we have completed this request */
 	return set_smc_args(TSP_SUSPEND_DONE, 0, 0, 0, 0, 0, 0, 0);
@@ -272,15 +279,17 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 	tsp_stats[linear_id].eret_count++;
 	tsp_stats[linear_id].cpu_resume_count++;
 
+#if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	tf_printf("SP: cpu 0x%x resumed. suspend level %d \n\r",
-	       mpidr, suspend_level);
-	INFO("cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n", mpidr,
-	     tsp_stats[linear_id].smc_count,
-	     tsp_stats[linear_id].eret_count,
-	     tsp_stats[linear_id].cpu_suspend_count);
+	INFO("TSP: cpu 0x%x resumed. suspend level %d\n",
+		mpidr, suspend_level);
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n",
+		mpidr,
+		tsp_stats[linear_id].smc_count,
+		tsp_stats[linear_id].eret_count,
+		tsp_stats[linear_id].cpu_suspend_count);
 	spin_unlock(&console_lock);
-
+#endif
 	/* Indicate to the SPD that we have completed this request */
 	return set_smc_args(TSP_RESUME_DONE, 0, 0, 0, 0, 0, 0, 0);
 }
@@ -304,18 +313,17 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 	uint64_t service_args[2];
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
-	const char *smc_type;
 
 	/* Update this cpu's statistics */
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
 
-	smc_type = ((func >> 31) & 1) == 1 ? "fast" : "standard";
-
-	tf_printf("SP: cpu 0x%x received %s smc 0x%x\n", read_mpidr(), smc_type, func);
-	INFO("cpu 0x%x: %d smcs, %d erets\n", mpidr,
-	     tsp_stats[linear_id].smc_count,
-	     tsp_stats[linear_id].eret_count);
+	INFO("TSP: cpu 0x%x received %s smc 0x%x\n", read_mpidr(),
+		((func >> 31) & 1) == 1 ? "fast" : "standard",
+		func);
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets\n", mpidr,
+		tsp_stats[linear_id].smc_count,
+		tsp_stats[linear_id].eret_count);
 
 	/* Render secure services and obtain results here */
 	results[0] = arg1;

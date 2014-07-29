@@ -59,6 +59,7 @@ static int load_bl30(void)
 	 * The entry point information is not relevant in this case as the AP
 	 * won't execute the BL3-0 image.
 	 */
+	INFO("BL2: Loading BL3-0\n");
 	bl2_plat_get_bl30_meminfo(&bl30_mem_info);
 	e = load_image(&bl30_mem_info,
 		       BL30_IMAGE_NAME,
@@ -87,6 +88,7 @@ static int load_bl31(bl31_params_t *bl2_to_bl31_params,
 	meminfo_t *bl2_tzram_layout;
 	int e;
 
+	INFO("BL2: Loading BL3-1\n");
 	assert(bl2_to_bl31_params != NULL);
 	assert(bl31_ep_info != NULL);
 
@@ -125,6 +127,7 @@ static int load_bl32(bl31_params_t *bl2_to_bl31_params)
 #ifdef BL32_BASE
 	meminfo_t bl32_mem_info;
 
+	INFO("BL2: Loading BL3-2\n");
 	assert(bl2_to_bl31_params != NULL);
 
 	/*
@@ -160,6 +163,7 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 	meminfo_t bl33_mem_info;
 	int e;
 
+	INFO("BL2: Loading BL3-3\n");
 	assert(bl2_to_bl31_params != NULL);
 
 	bl2_plat_get_bl33_meminfo(&bl33_mem_info);
@@ -189,14 +193,14 @@ void bl2_main(void)
 	entry_point_info_t *bl31_ep_info;
 	int e;
 
+	NOTICE("BL2: %s\n", version_string);
+	NOTICE("BL2: %s\n", build_message);
+
 	/* Perform remaining generic architectural setup in S-EL1 */
 	bl2_arch_setup();
 
 	/* Perform platform setup in BL2 */
 	bl2_platform_setup();
-
-	tf_printf("BL2 %s\n", version_string);
-	tf_printf("BL2 %s\n", build_message);
 
 	/*
 	 * Load the subsequent bootloader images

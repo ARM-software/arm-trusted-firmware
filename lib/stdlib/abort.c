@@ -28,13 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
+#include <debug.h>
 
 /*
  * This is a basic implementation. This could be improved.
  */
 void abort (void)
 {
-	printf("ABORT\n\r");
-	while(1);
+	ERROR("ABORT\n");
+	panic();
 }

@@ -127,7 +127,7 @@ static int open_fip(const uintptr_t spec)
 	/* See if a Firmware Image Package is available */
 	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_NAME);
 	if (result == IO_SUCCESS) {
-		INFO("Using FIP\n");
+		VERBOSE("Using FIP\n");
 		/*TODO: Check image defined in spec is present in FIP. */
 	}
 	return result;
@@ -143,7 +143,7 @@ static int open_memmap(const uintptr_t spec)
 	if (result == IO_SUCCESS) {
 		result = io_open(memmap_dev_handle, spec, &local_image_handle);
 		if (result == IO_SUCCESS) {
-			/* INFO("Using Memmap IO\n"); */
+			VERBOSE("Using Memmap IO\n");
 			io_close(local_image_handle);
 		}
 	}
@@ -161,7 +161,7 @@ static int open_semihosting(const uintptr_t spec)
 	if (result == IO_SUCCESS) {
 		result = io_open(sh_dev_handle, spec, &local_image_handle);
 		if (result == IO_SUCCESS) {
-			INFO("Using Semi-hosting IO\n");
+			VERBOSE("Using Semi-hosting IO\n");
 			io_close(local_image_handle);
 		}
 	}

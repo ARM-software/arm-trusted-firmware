@@ -47,7 +47,7 @@
 /* Size of cacheable stacks */
 #define PLATFORM_STACK_SIZE	0x800
 
-#define FIRMWARE_WELCOME_STR		"Booting trusted firmware boot loader stage 1\n\r"
+#define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
 
 /* Trusted Boot Firmware BL2 */
 #define BL2_IMAGE_NAME			"bl2.bin"

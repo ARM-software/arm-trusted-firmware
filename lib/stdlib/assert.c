@@ -36,6 +36,6 @@
 void __assert (const char *function, const char *file, unsigned int line,
 		const char *assertion)
 {
-	tf_printf("ASSERT: %s <%d> : %s\n\r", function, line, assertion);
+	tf_printf("ASSERT: %s <%d> : %s\n", function, line, assertion);
 	while(1);
 }
