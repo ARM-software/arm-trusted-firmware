@@ -30,7 +30,9 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
 #include <platform_def.h>
+#include <psci.h>
 
 	.globl	psci_do_pwrdown_cache_maintenance
 	.globl	psci_do_pwrup_cache_maintenance
@@ -38,17 +40,30 @@
 /* -----------------------------------------------------------------------
  * void psci_do_pwrdown_cache_maintenance(uint32_t affinity level);
  *
- * This function performs cache maintenance before this cpu is powered
- * off. The levels of cache affected are determined by the affinity level
- * which is passed as the argument. Additionally, this function also
- * ensures that stack memory is correctly flushed out to avoid coherency
- * issues due to a change in its memory attributes after the data cache
- * is disabled.
+ * This function performs cache maintenance if the specified affinity
+ * level is the equal to the level of the highest affinity instance which
+ * will be/is physically powered off. The levels of cache affected are
+ * determined by the affinity level which is passed as the argument i.e.
+ * level 0 results in a flush of the L1 cache. Both the L1 and L2 caches
+ * are flushed for a higher affinity level.
+ *
+ * Additionally, this function also ensures that stack memory is correctly
+ * flushed out to avoid coherency issues due to a change in its memory
+ * attributes after the data cache is disabled.
  * -----------------------------------------------------------------------
  */
 func psci_do_pwrdown_cache_maintenance
 	stp     x29, x30, [sp,#-16]!
 	stp     x19, x20, [sp,#-16]!
+
+	mov	x19, x0
+	bl	psci_get_max_phys_off_afflvl
+#if ASM_ASSERTION
+	cmp	x0, #PSCI_INVALID_DATA
+	ASM_ASSERT(ne)
+#endif
+	cmp	x0, x19
+	b.ne	1f
 
 	/* ---------------------------------------------
 	 * Disable the Data Cache.
@@ -127,6 +142,7 @@ do_stack_maintenance:
 	sub	x1, sp, x0
 	bl	inv_dcache_range
 
+1:
 	ldp	x19, x20, [sp], #16
 	ldp	x29, x30, [sp], #16
 	ret

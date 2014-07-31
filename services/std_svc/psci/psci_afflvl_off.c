@@ -102,10 +102,9 @@ static int psci_afflvl1_off(aff_map_node_t *cluster_node)
 
 	/*
 	 * Arch. Management. Flush all levels of caches to PoC if
-	 * the cluster is to be shutdown
+	 * the cluster is to be shutdown.
 	 */
-	if (plat_state == PSCI_STATE_OFF)
-		dcsw_op_all(DCCISW);
+	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL1);
 
 	/*
 	 * Plat. Management. Allow the platform to do its cluster
@@ -134,7 +133,11 @@ static int psci_afflvl2_off(aff_map_node_t *system_node)
 	 */
 	plat_state = psci_get_phys_state(system_node);
 
-	/* No arch. and generic bookeeping to do here currently */
+	/*
+	 * Arch. Management. Flush all levels of caches to PoC if
+	 * the system is to be shutdown.
+	 */
+	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL2);
 
 	/*
 	 * Plat. Management : Allow the platform to do its bookeeping
@@ -207,7 +210,7 @@ int psci_afflvl_off(int start_afflvl,
 {
 	int rc = PSCI_E_SUCCESS;
 	mpidr_aff_map_nodes_t mpidr_nodes;
-
+	unsigned int max_phys_off_afflvl;
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -240,10 +243,27 @@ int psci_afflvl_off(int start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes,
 				  PSCI_STATE_OFF);
+
+	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(start_afflvl,
+							   end_afflvl,
+							   mpidr_nodes);
+	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
+
+	/* Stash the highest affinity level that will enter the OFF state. */
+	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
+
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_off_handlers(mpidr_nodes,
 				    start_afflvl,
 				    end_afflvl);
+
+	/*
+	 * Invalidate the entry for the highest affinity level stashed earlier.
+	 * This ensures that any reads of this variable outside the power
+	 * up/down sequences return PSCI_INVALID_DATA.
+	 *
+	 */
+	psci_set_max_phys_off_afflvl(PSCI_INVALID_DATA);
 
 	/*
 	 * Release the locks corresponding to each affinity level in the

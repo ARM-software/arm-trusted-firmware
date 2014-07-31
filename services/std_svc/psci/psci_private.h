@@ -103,6 +103,10 @@ void psci_release_afflvl_locks(int start_afflvl,
 				int end_afflvl,
 				mpidr_aff_map_nodes_t mpidr_nodes);
 void psci_print_affinity_map(void);
+void psci_set_max_phys_off_afflvl(uint32_t afflvl);
+uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
+				       uint32_t end_afflvl,
+				       mpidr_aff_map_nodes_t mpidr_nodes);
 
 /* Private exported functions from psci_setup.c */
 int psci_get_aff_map_nodes(unsigned long mpidr,

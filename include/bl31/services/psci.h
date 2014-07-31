@@ -138,6 +138,8 @@
  ******************************************************************************/
 typedef struct psci_cpu_data {
 	uint32_t power_state;
+	uint32_t max_phys_off_afflvl;	/* Highest affinity level in physically
+					   powered off state */
 } psci_cpu_data_t;
 
 /*******************************************************************************
@@ -203,6 +205,7 @@ void psci_register_spd_pm_hook(const spd_pm_ops_t *);
 int psci_get_suspend_stateid_by_mpidr(unsigned long);
 int psci_get_suspend_stateid(void);
 int psci_get_suspend_afflvl(void);
+uint32_t psci_get_max_phys_off_afflvl(void);
 
 uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,

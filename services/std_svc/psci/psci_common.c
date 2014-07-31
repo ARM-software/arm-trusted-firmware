@@ -59,6 +59,66 @@ __attribute__ ((section("tzfw_coherent_mem")));
 const plat_pm_ops_t *psci_plat_pm_ops;
 
 /*******************************************************************************
+ * This function is passed an array of pointers to affinity level nodes in the
+ * topology tree for an mpidr. It iterates through the nodes to find the highest
+ * affinity level which is marked as physically powered off.
+ ******************************************************************************/
+uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
+				       uint32_t end_afflvl,
+				       mpidr_aff_map_nodes_t mpidr_nodes)
+{
+	uint32_t max_afflvl = PSCI_INVALID_DATA;
+
+	for (; start_afflvl <= end_afflvl; start_afflvl++) {
+		if (mpidr_nodes[start_afflvl] == NULL)
+			continue;
+
+		if (psci_get_phys_state(mpidr_nodes[start_afflvl]) ==
+		    PSCI_STATE_OFF)
+			max_afflvl = start_afflvl;
+	}
+
+	return max_afflvl;
+}
+
+/*******************************************************************************
+ * This function saves the highest affinity level which is in OFF state. The
+ * affinity instance with which the level is associated is determined by the
+ * caller.
+ ******************************************************************************/
+void psci_set_max_phys_off_afflvl(uint32_t afflvl)
+{
+	set_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl, afflvl);
+
+	/*
+	 * Ensure that the saved value is flushed to main memory and any
+	 * speculatively pre-fetched stale copies are invalidated from the
+	 * caches of other cpus in the same coherency domain. This ensures that
+	 * the value can be safely read irrespective of the state of the data
+	 * cache.
+	 */
+	flush_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
+}
+
+/*******************************************************************************
+ * This function reads the saved highest affinity level which is in OFF
+ * state. The affinity instance with which the level is associated is determined
+ * by the caller.
+ ******************************************************************************/
+uint32_t psci_get_max_phys_off_afflvl(void)
+{
+	/*
+	 * Ensure that the last update of this value in this cpu's cache is
+	 * flushed to main memory and any speculatively pre-fetched stale copies
+	 * are invalidated from the caches of other cpus in the same coherency
+	 * domain. This ensures that the value is always read from the main
+	 * memory when it was written before the data cache was enabled.
+	 */
+	flush_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
+	return get_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
+}
+
+/*******************************************************************************
  * Routine to return the maximum affinity level to traverse to after a cpu has
  * been physically powered up. It is expected to be called immediately after
  * reset from assembler code.
@@ -418,6 +478,8 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 {
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	int rc;
+	unsigned int max_phys_off_afflvl;
+
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -441,6 +503,17 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 
+	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(start_afflvl,
+							    end_afflvl,
+							    mpidr_nodes);
+	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
+
+	/*
+	 * Stash the highest affinity level that will come out of the OFF or
+	 * SUSPEND states.
+	 */
+	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
+
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_power_on_handlers(mpidr_nodes,
 					 start_afflvl,
@@ -458,6 +531,13 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes,
 				  PSCI_STATE_ON);
+
+	/*
+	 * Invalidate the entry for the highest affinity level stashed earlier.
+	 * This ensures that any reads of this variable outside the power
+	 * up/down sequences return PSCI_INVALID_DATA
+	 */
+	psci_set_max_phys_off_afflvl(PSCI_INVALID_DATA);
 
 	/*
 	 * This loop releases the lock corresponding to each affinity level
