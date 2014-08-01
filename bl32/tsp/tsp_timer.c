@@ -30,7 +30,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <platform.h>
-#include <tsp.h>
+#include "tsp_private.h"
 
 /*******************************************************************************
  * Data structure to keep track of per-cpu secure generic timer context across

@@ -32,6 +32,7 @@
 #include <asm_macros.S>
 #include <tsp.h>
 #include <xlat_tables.h>
+#include "../tsp_private.h"
 
 
 	.globl	tsp_entrypoint

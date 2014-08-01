@@ -32,9 +32,10 @@
 #include <assert.h>
 #include <debug.h>
 #include <gic_v2.h>
-#include <tsp.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <tsp.h>
+#include "tsp_private.h"
 
 /*******************************************************************************
  * This function updates the TSP statistics for FIQs handled synchronously i.e

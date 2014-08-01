@@ -35,6 +35,7 @@
 #include <platform_def.h>
 #include <spinlock.h>
 #include <tsp.h>
+#include "tsp_private.h"
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
