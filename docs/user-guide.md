@@ -51,10 +51,10 @@ The following tools are required to use the ARM Trusted Firmware:
 
 *   Baremetal GNU GCC tools. Verified packages can be downloaded from [Linaro]
     [Linaro Toolchain]. The rest of this document assumes that the
-    `gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz` tools are used.
+    `gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz` tools are used.
 
-        wget http://releases.linaro.org/13.11/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz
-        tar -xf gcc-linaro-aarch64-none-elf-4.8-2013.11_linux.tar.xz
+        wget http://releases.linaro.org/14.07/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
+        tar -xf gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
 
 *   The Device Tree Compiler (DTC) included with Linux kernel 3.15-rc6 is used
     to build the Flattened Device Tree (FDT) source files (`.dts` files)
@@ -852,6 +852,6 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [Firmware Design]:  ./firmware-design.md
 
 [ARM FVP website]:  http://www.arm.com/fvp
-[Linaro Toolchain]: http://releases.linaro.org/13.11/components/toolchain/binaries/
+[Linaro Toolchain]: http://releases.linaro.org/14.07/components/toolchain/binaries/
 [EDK2]:             http://github.com/tianocore/edk2
 [DS-5]:             http://www.arm.com/products/tools/software-tools/ds-5/index.php
