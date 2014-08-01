@@ -192,10 +192,11 @@ uint64_t tspd_enter_sp(uint64_t *c_rt_ctx);
 void __dead2 tspd_exit_sp(uint64_t c_rt_ctx, uint64_t ret);
 uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx);
 void __dead2 tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret);
-int32_t tspd_init_secure_context(uint64_t entrypoint,
-					uint32_t rw,
-					uint64_t mpidr,
-					tsp_context_t *tsp_ctx);
+void tspd_init_tsp_ep_state(struct entry_point_info *tsp_ep,
+				uint32_t rw,
+				uint64_t pc,
+				tsp_context_t *tsp_ctx);
+
 extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
 extern struct tsp_vectors *tsp_vectors;
 #endif /*__ASSEMBLY__*/
