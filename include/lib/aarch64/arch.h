@@ -188,6 +188,9 @@
 #define SPSR_DAIF_SHIFT		6
 #define SPSR_DAIF_MASK		0xf
 
+#define AIF_FIQ_BIT		(1 << 0)
+#define AIF_IRQ_BIT		(1 << 1)
+#define AIF_ABT_BIT		(1 << 2)
 #define SPSR_AIF_SHIFT		6
 #define SPSR_AIF_MASK		0x7
 
