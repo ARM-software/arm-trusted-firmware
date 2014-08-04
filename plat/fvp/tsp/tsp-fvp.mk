@@ -35,4 +35,4 @@ BL32_SOURCES		+=	drivers/arm/gic/arm_gic.c			\
 				plat/common/plat_gic.c				\
 				plat/fvp/aarch64/fvp_common.c			\
 				plat/fvp/aarch64/fvp_helpers.S			\
-				plat/fvp/bl32_fvp_setup.c
+				plat/fvp/tsp/tsp_fvp_setup.c

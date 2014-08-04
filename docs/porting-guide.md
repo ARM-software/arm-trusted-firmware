@@ -193,30 +193,42 @@ file is found in [plat/fvp/include/platform_def.h].
     Defines the base address in non-secure DRAM where BL2 loads the BL3-3 binary
     image. Must be aligned on a page-size boundary.
 
-If the BL3-2 image is supported by the platform, the following constants must
-be defined as well:
+If a BL3-2 image is supported by the platform, the following constants must
+also be defined:
 
-*   **#define : TSP_SEC_MEM_BASE**
+*   **#define : BL32_IMAGE_NAME**
 
-    Defines the base address of the secure memory used by the BL3-2 image on the
-    platform.
-
-*   **#define : TSP_SEC_MEM_SIZE**
-
-    Defines the size of the secure memory used by the BL3-2 image on the
-    platform.
+    Name of the BL3-2 binary image on the host file-system. This name is used by
+    BL2 to load BL3-2 into secure memory from platform storage.
 
 *   **#define : BL32_BASE**
 
     Defines the base address in secure memory where BL2 loads the BL3-2 binary
-    image. Must be inside the secure memory identified by `TSP_SEC_MEM_BASE` and
-    `TSP_SEC_MEM_SIZE` constants. Must also be aligned on a page-size boundary.
+    image. Must be aligned on a page-size boundary.
 
 *   **#define : BL32_LIMIT**
 
-    Defines the maximum address that the BL3-2 image can occupy. Must be inside
-    the secure memory identified by `TSP_SEC_MEM_BASE` and `TSP_SEC_MEM_SIZE`
-    constants.
+    Defines the maximum address that the BL3-2 image can occupy.
+
+If the Test Secure-EL1 Payload (TSP) instantiation of BL3-2 is supported by the
+platform, the following constants must also be defined:
+
+*   **#define : TSP_SEC_MEM_BASE**
+
+    Defines the base address of the secure memory used by the TSP image on the
+    platform. This must be at the same address or below `BL32_BASE`.
+
+*   **#define : TSP_SEC_MEM_SIZE**
+
+    Defines the size of the secure memory used by the BL3-2 image on the
+    platform. `TSP_SEC_MEM_BASE` and `TSP_SEC_MEM_SIZE` must fully accomodate
+    the memory required by the BL3-2 image, defined by `BL32_BASE` and
+    `BL32_LIMIT`.
+
+*   **#define : TSP_IRQ_SEC_PHY_TIMER**
+
+    Defines the ID of the secure physical generic timer interrupt used by the
+    TSP's interrupt handling code.
 
 If the platform port uses the IO storage framework, the following constants
 must also be defined:
@@ -241,7 +253,7 @@ memory layout implies some image overlaying like on FVP.
     Defines the maximum address in secure RAM that the BL3-1's progbits sections
     can occupy.
 
-*   **#define : BL32_PROGBITS_LIMIT**
+*   **#define : TSP_PROGBITS_LIMIT**
 
     Defines the maximum address that the TSP's progbits sections can occupy.
 
