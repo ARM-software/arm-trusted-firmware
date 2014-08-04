@@ -212,9 +212,6 @@
  * The NSAIDs for this platform as used to program the TZC400.
  */
 
-/* The FVP has 4 bits of NSAIDs. Used with TZC FAIL_ID (ACE Lite ID width) */
-#define FVP_AID_WIDTH			4
-
 /* NSAIDs used by devices in TZC filter 0 on FVP */
 #define FVP_NSAID_DEFAULT		0
 #define FVP_NSAID_PCI			1
