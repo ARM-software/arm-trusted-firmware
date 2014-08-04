@@ -42,18 +42,8 @@
  ******************************************************************************/
 void bl31_arch_setup(void)
 {
-	/*
-	 * Route external abort and SError interrupts to EL3
-	 * other SCR bits will be configured before exiting to a lower exception
-	 * level
-	 */
-	write_scr_el3(SCR_RES1_BITS | SCR_EA_BIT);
-
-	/*
-	 * Enable SError and Debug exceptions
-	 */
-	enable_serror();
-	enable_debug_exceptions();
+	/* Set the RES1 bits in the SCR_EL3 */
+	write_scr_el3(SCR_RES1_BITS);
 
 	/* Program the counter frequency */
 	write_cntfrq_el0(plat_get_syscnt_freq());

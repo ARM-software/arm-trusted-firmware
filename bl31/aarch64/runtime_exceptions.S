@@ -44,6 +44,9 @@
 	 * -----------------------------------------------------
 	 */
 	.macro	handle_sync_exception
+	/* Enable the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mrs	x30, esr_el3
 	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
@@ -70,6 +73,9 @@
 	 * -----------------------------------------------------
 	 */
 	.macro	handle_interrupt_exception label
+	/* Enable the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	bl	save_gp_registers
 
