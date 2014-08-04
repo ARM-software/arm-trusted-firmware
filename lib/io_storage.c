@@ -31,11 +31,8 @@
 #include <assert.h>
 #include <io_driver.h>
 #include <io_storage.h>
+#include <platform_def.h>
 #include <stddef.h>
-
-
-#define MAX_DEVICES(plat_data)						\
-	(sizeof((plat_data)->devices)/sizeof((plat_data)->devices[0]))
 
 
 /* Storage for a fixed maximum number of IO entities, definable by platform */
@@ -48,9 +45,11 @@ static io_entity_t *entity_map[MAX_IO_HANDLES];
 /* Track number of allocated entities */
 static unsigned int entity_count;
 
+/* Array of fixed maximum of registered devices, definable by platform */
+static const io_dev_info_t *devices[MAX_IO_DEVICES];
 
-/* Used to keep a reference to platform-specific data */
-static io_plat_data_t *platform_data;
+/* Number of currently registered devices */
+static unsigned int dev_count;
 
 
 #if DEBUG	/* Extra validation functions only used in debug builds */
@@ -167,27 +166,15 @@ static int free_entity(const io_entity_t *entity)
 
 /* Exported API */
 
-
-/* Initialise the IO layer */
-void io_init(io_plat_data_t *data)
-{
-	assert(data != NULL);
-	platform_data = data;
-}
-
-
 /* Register a device driver */
 int io_register_device(const io_dev_info_t *dev_info)
 {
 	int result = IO_FAIL;
 	assert(dev_info != NULL);
-	assert(platform_data != NULL);
 
-	unsigned int dev_count = platform_data->dev_count;
-
-	if (dev_count < MAX_DEVICES(platform_data)) {
-		platform_data->devices[dev_count] = dev_info;
-		platform_data->dev_count++;
+	if (dev_count < MAX_IO_DEVICES) {
+		devices[dev_count] = dev_info;
+		dev_count++;
 		result = IO_SUCCESS;
 	} else {
 		result = IO_RESOURCES_EXHAUSTED;
