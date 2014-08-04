@@ -28,6 +28,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+INCLUDES		+=	-Iinclude/bl32/tsp
+
 BL32_SOURCES		+=	bl32/tsp/tsp_main.c			\
 				bl32/tsp/aarch64/tsp_entrypoint.S	\
 				bl32/tsp/aarch64/tsp_exceptions.S	\
@@ -50,7 +52,7 @@ $(eval $(call add_define,TSP_INIT_ASYNC))
 # Include the platform-specific TSP Makefile
 # If no platform-specific TSP Makefile exists, it means TSP is not supported
 # on this platform.
-TSP_PLAT_MAKEFILE := bl32/tsp/tsp-${PLAT}.mk
+TSP_PLAT_MAKEFILE := plat/${PLAT}/tsp/tsp-${PLAT}.mk
 ifeq (,$(wildcard ${TSP_PLAT_MAKEFILE}))
   $(error TSP is not supported on platform ${PLAT})
 else

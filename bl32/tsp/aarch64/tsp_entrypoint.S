@@ -119,8 +119,8 @@ func tsp_entrypoint
 	 * specific early arch. setup e.g. mmu setup
 	 * ---------------------------------------------
 	 */
-	bl	bl32_early_platform_setup
-	bl	bl32_plat_arch_setup
+	bl	tsp_early_platform_setup
+	bl	tsp_plat_arch_setup
 
 	/* ---------------------------------------------
 	 * Jump to main function.

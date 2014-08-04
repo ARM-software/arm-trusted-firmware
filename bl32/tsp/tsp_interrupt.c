@@ -87,7 +87,7 @@ int32_t tsp_fiq_handler(void)
 	id = plat_ic_get_pending_interrupt_id();
 
 	/* TSP can only handle the secure physical timer interrupt */
-	if (id != IRQ_SEC_PHY_TIMER)
+	if (id != TSP_IRQ_SEC_PHY_TIMER)
 		return TSP_EL3_FIQ;
 
 	/*
@@ -95,7 +95,7 @@ int32_t tsp_fiq_handler(void)
 	 * another secure interrupt through an assertion.
 	 */
 	id = plat_ic_acknowledge_interrupt();
-	assert(id == IRQ_SEC_PHY_TIMER);
+	assert(id == TSP_IRQ_SEC_PHY_TIMER);
 	tsp_generic_timer_handler();
 	plat_ic_end_of_interrupt(id);
 
