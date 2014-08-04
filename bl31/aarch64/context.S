@@ -35,45 +35,6 @@
 /* -----------------------------------------------------
  * The following function strictly follows the AArch64
  * PCS to use x9-x17 (temporary caller-saved registers)
- * to save essential EL3 system register context. It
- * assumes that 'x0' is pointing to a 'el1_sys_regs'
- * structure where the register context will be saved.
- * -----------------------------------------------------
- */
-	.global el3_sysregs_context_save
-func el3_sysregs_context_save
-
-	mrs	x10, cptr_el3
-	mrs	x11, cntfrq_el0
-	stp	x10, x11, [x0, #CTX_CPTR_EL3]
-
-	ret
-
-/* -----------------------------------------------------
- * The following function strictly follows the AArch64
- * PCS to use x9-x17 (temporary caller-saved registers)
- * to restore essential EL3 system register context. It
- * assumes that 'x0' is pointing to a 'el1_sys_regs'
- * structure from where the register context will be
- * restored.
- *
- * Note that the sequence differs from that of the save
- * function as we want the MMU to be enabled last
- * -----------------------------------------------------
- */
-	.global el3_sysregs_context_restore
-func el3_sysregs_context_restore
-
-	ldp	x13, x14, [x0, #CTX_CPTR_EL3]
-	msr	cptr_el3, x13
-	msr	cntfrq_el0, x14
-	isb
-
-	ret
-
-/* -----------------------------------------------------
- * The following function strictly follows the AArch64
- * PCS to use x9-x17 (temporary caller-saved registers)
  * to save EL1 system register context. It assumes that
  * 'x0' is pointing to a 'el1_sys_regs' structure where
  * the register context will be saved.

@@ -80,9 +80,7 @@
 #define CTX_RUNTIME_SP		0x8
 #define CTX_SPSR_EL3		0x10
 #define CTX_ELR_EL3		0x18
-#define CTX_CPTR_EL3		0x20
-#define CTX_CNTFRQ_EL0		0x28
-#define CTX_EL3STATE_END	0x30
+#define CTX_EL3STATE_END	0x20
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the
@@ -323,8 +321,6 @@ CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx), 
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-void el3_sysregs_context_save(el3_state_t *regs);
-void el3_sysregs_context_restore(el3_state_t *regs);
 void el1_sysregs_context_save(el1_sys_regs_t *regs);
 void el1_sysregs_context_restore(el1_sys_regs_t *regs);
 #if CTX_INCLUDE_FPREGS
