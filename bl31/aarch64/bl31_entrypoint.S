@@ -129,16 +129,6 @@ func bl31_entrypoint
 	 */
 	wait_for_entrypoint
 	bl	platform_mem_init
-#else
-	/* ---------------------------------------------
-	 * This is BL31 which is expected to be executed
-	 * only by the primary cpu (at least for now).
-	 * So, make sure no secondary has lost its way.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_is_primary_cpu
-	cbz	x0, _panic
 #endif
 
 	/* ---------------------------------------------

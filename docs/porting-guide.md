@@ -150,11 +150,6 @@ file is found in [plat/fvp/include/platform_def.h].
     Defines the total number of nodes in the affinity heirarchy at all affinity
     levels used by the platform.
 
-*   **#define : PRIMARY_CPU**
-
-    Defines the `MPIDR` of the primary CPU on the platform. This value is used
-    after a cold boot to distinguish between primary and secondary CPUs.
-
 *   **#define : TZROM_BASE**
 
     Defines the base address of secure ROM on the platform, where the BL1 binary
@@ -360,6 +355,17 @@ requires them.
 This function fulfills requirement 2 above.
 
 
+### Function : platform_is_primary_cpu() [mandatory]
+
+    Argument : unsigned long
+    Return   : unsigned int
+
+This function identifies a CPU by its `MPIDR`, which is passed as the argument,
+to determine whether this CPU is the primary CPU or a secondary CPU. A return
+value of zero indicates that the CPU is not the primary CPU, while a non-zero
+return value indicates that the CPU is the primary CPU.
+
+
 ### Function : platform_mem_init() [mandatory]
 
     Argument : void
@@ -396,17 +402,6 @@ maximum of 4 CPUs:
 
     cpu_id = 8-bit value in MPIDR at affinity level 0
     cluster_id = 8-bit value in MPIDR at affinity level 1
-
-
-### Function : platform_is_primary_cpu()
-
-    Argument : unsigned long
-    Return   : unsigned int
-
-This function identifies a CPU by its `MPIDR`, which is passed as the argument,
-to determine whether this CPU is the primary CPU or a secondary CPU. A return
-value of zero indicates that the CPU is not the primary CPU, while a non-zero
-return value indicates that the CPU is the primary CPU.
 
 
 ### Function : platform_set_stack()

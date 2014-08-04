@@ -34,7 +34,6 @@
 
 
 	.weak	platform_get_core_pos
-	.weak	platform_is_primary_cpu
 	.weak	platform_check_mpidr
 	.weak	plat_report_exception
 	.weak	plat_crash_console_init
@@ -50,19 +49,6 @@ func platform_get_core_pos
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
 	add	x0, x1, x0, LSR #6
-	ret
-
-	/* -----------------------------------------------------
-	 * void platform_is_primary_cpu (unsigned int mpid);
-	 *
-	 * Given the mpidr say whether this cpu is the primary
-	 * cpu (applicable ony after a cold boot)
-	 * -----------------------------------------------------
-	 */
-func platform_is_primary_cpu
-	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
-	cmp	x0, #PRIMARY_CPU
-	cset	x0, eq
 	ret
 
 	/* -----------------------------------------------------

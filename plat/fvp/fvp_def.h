@@ -36,6 +36,7 @@
 
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
+#define FVP_PRIMARY_CPU			0x0
 
 /*******************************************************************************
  * FVP memory map related constants
