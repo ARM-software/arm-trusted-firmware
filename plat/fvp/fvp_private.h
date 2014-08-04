@@ -77,7 +77,8 @@ void fvp_configure_mmu_el3(unsigned long total_base,
 			   unsigned long);
 int fvp_config_setup(void);
 
-void fvp_cci_setup(void);
+void fvp_cci_init(void);
+void fvp_cci_enable(void);
 
 void fvp_gic_init(void);
 
