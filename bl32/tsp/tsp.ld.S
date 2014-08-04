@@ -68,8 +68,8 @@ SECTIONS
         __DATA_END__ = .;
     } >RAM
 
-#ifdef BL32_PROGBITS_LIMIT
-    ASSERT(. <= BL32_PROGBITS_LIMIT, "BL3-2 progbits has exceeded its limit.")
+#ifdef TSP_PROGBITS_LIMIT
+    ASSERT(. <= TSP_PROGBITS_LIMIT, "TSP progbits has exceeded its limit.")
 #endif
 
     stacks (NOLOAD) : {
