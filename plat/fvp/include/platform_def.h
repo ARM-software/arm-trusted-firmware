@@ -158,17 +158,6 @@
 #define IRQ_SEC_PHY_TIMER		29
 
 /*******************************************************************************
- * CCI-400 related constants
- ******************************************************************************/
-#define CCI400_BASE			0x2c090000
-#define CCI400_SL_IFACE_CLUSTER0	3
-#define CCI400_SL_IFACE_CLUSTER1	4
-#define CCI400_SL_IFACE_INDEX(mpidr)	(mpidr & MPIDR_CLUSTER_MASK ? \
-					 CCI400_SL_IFACE_CLUSTER1 :   \
-					 CCI400_SL_IFACE_CLUSTER0)
-
-
-/*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is
  * aligned on the biggest cache line size in the platform. This is known only
  * to the platform as it might have a combination of integrated and external

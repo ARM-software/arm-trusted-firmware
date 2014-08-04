@@ -31,7 +31,6 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <arm_gic.h>
-#include <assert.h>
 #include <bl_common.h>
 #include <cci400.h>
 #include <debug.h>
@@ -243,15 +242,26 @@ uint64_t plat_get_syscnt_freq(void)
 	return counter_base_frequency;
 }
 
-void fvp_cci_setup(void)
+void fvp_cci_init(void)
 {
 	/*
-	 * Enable CCI-400 for this cluster. No need
+	 * Initialize CCI-400 driver
+	 */
+	if (plat_config.flags & CONFIG_HAS_CCI)
+		cci_init(CCI400_BASE,
+			CCI400_SL_IFACE3_CLUSTER_IX,
+			CCI400_SL_IFACE4_CLUSTER_IX);
+}
+
+void fvp_cci_enable(void)
+{
+	/*
+	 * Enable CCI-400 coherency for this cluster. No need
 	 * for locks as no other cpu is active at the
 	 * moment
 	 */
 	if (plat_config.flags & CONFIG_HAS_CCI)
-		cci_enable_coherency(read_mpidr());
+		cci_enable_cluster_coherency(read_mpidr());
 }
 
 void fvp_gic_init(void)

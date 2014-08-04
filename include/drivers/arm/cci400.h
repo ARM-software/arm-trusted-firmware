@@ -37,7 +37,8 @@
 #define SLAVE_IFACE2_OFFSET		0x3000
 #define SLAVE_IFACE1_OFFSET		0x2000
 #define SLAVE_IFACE0_OFFSET		0x1000
-#define SLAVE_IFACE_OFFSET(index)	SLAVE_IFACE0_OFFSET + (0x1000 * index)
+#define SLAVE_IFACE_OFFSET(index)	SLAVE_IFACE0_OFFSET +	\
+					(0x1000 * (index))
 
 /* Control and ID register offsets */
 #define CTRL_OVERRIDE_REG		0x0
@@ -68,8 +69,22 @@
 #ifndef __ASSEMBLY__
 
 /* Function declarations */
-void cci_enable_coherency(unsigned long mpidr);
-void cci_disable_coherency(unsigned long mpidr);
+
+/*
+ * The CCI-400 driver must be initialized with the base address of the
+ * CCI-400 device in the platform memory map, and the cluster indices for
+ * the CCI-400 slave interfaces 3 and 4 respectively. These are the fully
+ * coherent ACE slave interfaces of CCI-400.
+ * The cluster indices must either be 0 or 1, corresponding to the level 1
+ * affinity instance of the mpidr representing the cluster. A negative cluster
+ * index indicates that no cluster is present on that slave interface.
+ */
+void cci_init(unsigned long cci_base,
+		int slave_iface3_cluster_ix,
+		int slave_iface4_cluster_ix);
+
+void cci_enable_cluster_coherency(unsigned long mpidr);
+void cci_disable_cluster_coherency(unsigned long mpidr);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __CCI_400_H__ */
