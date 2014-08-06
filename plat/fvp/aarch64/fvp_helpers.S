@@ -215,7 +215,7 @@ func plat_crash_console_init
 	b	console_core_init
 
 	/* ---------------------------------------------
-	 * int plat_crash_console_putc(void)
+	 * int plat_crash_console_putc(int c)
 	 * Function to print a character on the crash
 	 * console without a C Runtime.
 	 * Clobber list : x1, x2

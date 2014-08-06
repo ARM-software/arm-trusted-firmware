@@ -17,10 +17,10 @@ Contents :
 1.  Introduction
 ----------------
 This document describes how to build ARM Trusted Firmware and run it with a
-tested set of other software components using defined configurations on ARM
-Fixed Virtual Platform (FVP) models. It is possible to use other software
-components, configurations and platforms but that is outside the scope of this
-document.
+tested set of other software components using defined configurations on the Juno
+ARM development platform and ARM Fixed Virtual Platform (FVP) models. It is
+possible to use other software components, configurations and platforms but that
+is outside the scope of this document.
 
 This document should be used in conjunction with the [Firmware Design].
 
@@ -48,7 +48,7 @@ The following tools are required to use the ARM Trusted Firmware:
 *   `ia32-libs` package.
 
 *   `build-essential`, `uuid-dev` and `iasl` packages for building UEFI and the
-    Firmware Image Package(FIP) tool.
+    Firmware Image Package (FIP) tool.
 
 *   `bc` and `ncurses-dev` packages for building Linux.
 
@@ -79,7 +79,7 @@ To build the Trusted Firmware images, follow these steps:
         cd arm-trusted-firmware
 
 3.  Set the compiler path, specify a Non-trusted Firmware image (BL3-3) and
-    a valid platform and build:
+    a valid platform, and then build:
 
         CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
         BL33=<path-to>/<bl33_image>                               \
@@ -109,8 +109,9 @@ To build the Trusted Firmware images, follow these steps:
     *   `build/<platform>/<build-type>/bl31.bin`
 
     where `<platform>` is the name of the chosen platform and `<build-type>` is
-    either `debug` or `release`. A Firmare Image Package(FIP) will be created as
-    part of the build. It contains all boot loader images except for `bl1.bin`.
+    either `debug` or `release`. A Firmare Image Package (FIP) will be created
+    as part of the build. It contains all boot loader images except for
+    `bl1.bin`.
 
     *   `build/<platform>/<build-type>/fip.bin`
 
@@ -119,7 +120,7 @@ To build the Trusted Firmware images, follow these steps:
 
 4.  (Optional) Some platforms may require a BL3-0 image to boot. This image can
     be included in the FIP when building the Trusted Firmware by specifying the
-    BL30 build option:
+    `BL30` build option:
 
         BL30=<path-to>/<bl30_image>
 
@@ -150,16 +151,16 @@ performed.
 
 *   `BL30`: Path to BL3-0 image in the host file system. This image is optional.
     If a BL3-0 image is present then this option must be passed for the `fip`
-    target
+    target.
 
 *   `BL33`: Path to BL33 image in the host file system. This is mandatory for
-    `fip` target
+    `fip` target.
 
-*   `CROSS_COMPILE`: Prefix to tool chain binaries. Please refer to examples in
-    this document for usage
+*   `CROSS_COMPILE`: Prefix to toolchain binaries. Please refer to examples in
+    this document for usage.
 
 *   `DEBUG`: Chooses between a debug and release build. It can take either 0
-    (release) or 1 (debug) as values. 0 is the default
+    (release) or 1 (debug) as values. 0 is the default.
 
 *   `LOG_LEVEL`: Chooses the log level, which controls the amount of console log
     output compiled into the build. This should be one of the following:
@@ -176,30 +177,31 @@ performed.
 
 *   `NS_TIMER_SWITCH`: Enable save and restore for non-secure timer register
     contents upon world switch. It can take either 0 (don't save and restore) or
-    1 (do save and restore). 0 is the default. An SPD could set this to 1 if it
-    wants the timer registers to be saved and restored
+    1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
+    wants the timer registers to be saved and restored.
 
 *   `PLAT`: Choose a platform to build ARM Trusted Firmware for. The chosen
     platform name must be the name of one of the directories under the `plat/`
-    directory other than `common`
+    directory other than `common`.
 
 *   `SPD`: Choose a Secure Payload Dispatcher component to be built into the
     Trusted Firmware. The value should be the path to the directory containing
-    SPD source; the directory is expected to contain `spd.mk` makefile
+    the SPD source, relative to `services/spd/`; the directory is expected to
+    contain a makefile called `<spd-value>.mk`.
 
 *   `V`: Verbose build. If assigned anything other than 0, the build commands
-    are printed. Default is 0
+    are printed. Default is 0.
 
 *   `ARM_GIC_ARCH`: Choice of ARM GIC architecture version used by the ARM GIC
     driver for implementing the platform GIC API. This API is used
-    by the interrupt management framework. Default is 2 i.e. version 2.0.
+    by the interrupt management framework. Default is 2 (that is, version 2.0).
 
 *   `IMF_READ_INTERRUPT_ID`: Boolean flag used by the interrupt management
     framework to enable passing of the interrupt id to its handler. The id is
     read using a platform GIC API. `INTR_ID_UNAVAILABLE` is passed instead if
     this option set to 0. Default is 0.
 
-*   `RESET_TO_BL31`: Enable BL3-1 entrypoint as the CPU reset vector in place
+*   `RESET_TO_BL31`: Enable BL3-1 entrypoint as the CPU reset vector instead
     of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
     entrypoint) or 1 (CPU reset to BL3-1 entrypoint).
     The default value is 0.
@@ -211,12 +213,12 @@ performed.
 
 *   `ASM_ASSERTION`: This flag determines whether the assertion checks within
     assembly source files are enabled or not. This option defaults to the
-    value of `DEBUG` - i.e. by default this is only enabled for a debug
+    value of `DEBUG` - that is, by default this is only enabled for a debug
     build of the firmware.
 
 *   `TSP_INIT_ASYNC`: Choose BL3-2 initialization method as asynchronous or
-    synchronous, e.g. "(see "Initializing a BL3-2 Image" section in [Firmware
-    Design])". It can take the value 0 (BL3-2 is initialized using
+    synchronous, (see "Initializing a BL3-2 Image" section in [Firmware
+    Design]). It can take the value 0 (BL3-2 is initialized using
     synchronous method) or 1 (BL3-2 is initialized using asynchronous method).
     Default is 0.
 
@@ -224,15 +226,15 @@ performed.
 
 *   `FVP_SHARED_DATA_LOCATION`: location of the shared memory page. Available
     options:
-      - 'tsram' (default) : top of Trusted SRAM
-      - 'tdram' : base of Trusted DRAM
+    -   `tsram` (default) : top of Trusted SRAM
+    -   `tdram` : base of Trusted DRAM
 
 *   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
-      - 'tsram' (default) : base of Trusted SRAM
-      - 'tdram' : Trusted DRAM (above shared data)
+    -   `tsram` (default) : base of Trusted SRAM
+    -   `tdram` : Trusted DRAM (above shared data)
 
-For a better understanding of FVP options, the FVP memory map is detailed in
-[Firmware Design].
+For a better understanding of FVP options, the FVP memory map is explained in
+the [Firmware Design].
 
 ### Creating a Firmware Image Package
 
@@ -307,7 +309,8 @@ When debugging logic problems it might also be useful to disable all compiler
 optimizations by using `-O0`.
 
 NOTE: Using `-O0` could cause output images to be larger and base addresses
-might need to be recalculated (see the later memory layout section).
+might need to be recalculated (see the "Memory layout of BL images" section in
+the [Firmware Design]).
 
 Extra debug options can be passed to the build system by setting `CFLAGS`:
 
@@ -333,7 +336,7 @@ BL3-1 binary. Then to build the TSP image and include it into the FIP use:
 
 An additional boot loader binary file is created in the `build` directory:
 
-    *   `build/<platform>/<build-type>/bl32.bin`
+*   `build/<platform>/<build-type>/bl32.bin`
 
 The FIP will now contain the additional BL3-2 image. Here is an example
 output from an FVP build in release mode including BL3-2 and using
@@ -357,12 +360,12 @@ FVP_AARCH64_EFI.fd as BL3-3 image:
 
 When making changes to the source for submission to the project, the source
 must be in compliance with the Linux style guide, and to assist with this check
-the project Makefile contains two targets, which both utilise the checkpatch.pl
-script that ships with the Linux source tree.
+the project Makefile contains two targets, which both utilise the
+`checkpatch.pl` script that ships with the Linux source tree.
 
-To check the entire source tree, you must first download a copy of checkpatch.pl
-(or the full Linux source), set the CHECKPATCH environment variable to point to
-the script and build the target checkcodebase:
+To check the entire source tree, you must first download a copy of
+`checkpatch.pl` (or the full Linux source), set the `CHECKPATCH` environment
+variable to point to the script and build the target checkcodebase:
 
     make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkcodebase
 
@@ -372,8 +375,8 @@ the remote master, use:
     make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkpatch
 
 If you wish to check your patch against something other than the remote master,
-set the BASE_COMMIT variable to your desired branch.  By default, BASE_COMMIT
-is set to 'origin/master'.
+set the `BASE_COMMIT` variable to your desired branch. By default, `BASE_COMMIT`
+is set to `origin/master`.
 
 
 5.  Obtaining the normal world software
@@ -385,7 +388,7 @@ Potentially any kind of non-trusted firmware may be used with the ARM Trusted
 Firmware but the software has only been tested with the EFI Development Kit 2
 (EDK2) open source implementation of the UEFI specification.
 
-To build the software to be compatible with Foundation and Base FVPs and the
+To build the software to be compatible with the Foundation and Base FVPs, or the
 Juno platform, follow these steps:
 
 1.  Clone the [EDK2 source code][EDK2] from GitHub:
@@ -598,7 +601,6 @@ To prepare a VirtioBlock file-system, do the following:
     On the Foundation FVP:
 
         --block-device="<path-to>/<file-system-image>"
-
 
 5.  Ensure that the FVP doesn't output any error messages. If the following
     error message is displayed:

@@ -198,7 +198,3 @@ func bl31_entrypoint
 	bl	bl31_main
 
 	b	el3_exit
-
-_panic:
-	wfi
-	b	_panic

@@ -44,7 +44,7 @@
 	.align	7
 bl1_exceptions:
 	/* -----------------------------------------------------
-	 * Current EL with SP0 : 0x0 - 0x180
+	 * Current EL with SP0 : 0x0 - 0x200
 	 * -----------------------------------------------------
 	 */
 SynchronousExceptionSP0:
@@ -75,7 +75,7 @@ SErrorSP0:
 	check_vector_size SErrorSP0
 
 	/* -----------------------------------------------------
-	 * Current EL with SPx: 0x200 - 0x380
+	 * Current EL with SPx: 0x200 - 0x400
 	 * -----------------------------------------------------
 	 */
 	.align	7
@@ -107,7 +107,7 @@ SErrorSPx:
 	check_vector_size SErrorSPx
 
 	/* -----------------------------------------------------
-	 * Lower EL using AArch64 : 0x400 - 0x580
+	 * Lower EL using AArch64 : 0x400 - 0x600
 	 * -----------------------------------------------------
 	 */
 	.align	7
@@ -184,7 +184,7 @@ SErrorA64:
 	check_vector_size SErrorA64
 
 	/* -----------------------------------------------------
-	 * Lower EL using AArch32 : 0x0 - 0x180
+	 * Lower EL using AArch32 : 0x600 - 0x800
 	 * -----------------------------------------------------
 	 */
 	.align	7

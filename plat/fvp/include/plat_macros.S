@@ -45,7 +45,7 @@ spacer:
 	/* ---------------------------------------------
 	 * The below macro prints out relevant GIC
 	 * registers whenever an unhandled exception is
-	 * taken in BL31.
+	 * taken in BL3-1.
 	 * Clobbers: x0 - x10, x16, sp
 	 * ---------------------------------------------
 	 */
@@ -59,7 +59,7 @@ spacer:
 	ldr	w8, [x16, #GICC_HPPIR]
 	ldr	w9, [x16, #GICC_AHPPIR]
 	ldr	w10, [x16, #GICC_CTLR]
-	/* Store to the crash buf and print to cosole */
+	/* Store to the crash buf and print to console */
 	bl	str_in_crash_buf_print
 
 	/* Print the GICD_ISPENDR regs */
@@ -88,7 +88,7 @@ cci_iface_regs:
 	/* ------------------------------------------------
 	 * The below macro prints out relevant interconnect
 	 * registers whenever an unhandled exception is
-	 * taken in BL31.
+	 * taken in BL3-1.
 	 * Clobbers: x0 - x9, sp
 	 * ------------------------------------------------
 	 */
