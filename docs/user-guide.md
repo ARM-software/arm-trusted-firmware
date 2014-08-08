@@ -146,6 +146,19 @@ performed.
 *   `DEBUG`: Chooses between a debug and release build. It can take either 0
     (release) or 1 (debug) as values. 0 is the default
 
+*   `LOG_LEVEL`: Chooses the log level, which controls the amount of console log
+    output compiled into the build. This should be one of the following:
+
+        0  (LOG_LEVEL_NONE)
+        10 (LOG_LEVEL_NOTICE)
+        20 (LOG_LEVEL_ERROR)
+        30 (LOG_LEVEL_WARNING)
+        40 (LOG_LEVEL_INFO)
+        50 (LOG_LEVEL_VERBOSE)
+
+    All log output up to and including the log level is compiled into the build.
+    The default value is 40 in debug builds and 20 in release builds.
+
 *   `NS_TIMER_SWITCH`: Enable save and restore for non-secure timer register
     contents upon world switch. It can take either 0 (don't save and restore) or
     1 (do save and restore). 0 is the default. An SPD could set this to 1 if it
