@@ -133,6 +133,8 @@ the build system doesn't track dependency for build options. Therefore, if any
 of the build options are changed from a previous build, a clean build must be
 performed.
 
+#### Common build options
+
 *   `BL30`: Path to BL3-0 image in the host file system. This image is optional.
     If a BL3-0 image is present then this option must be passed for the `fip`
     target
@@ -192,6 +194,19 @@ performed.
     synchronous method) or 1 (BL3-2 is initialized using asynchronous method).
     Default is 0.
 
+#### FVP specific build options
+
+*   `FVP_SHARED_DATA_LOCATION`: location of the shared memory page. Available
+    options:
+      - 'tsram' (default) : top of Trusted SRAM
+      - 'tdram' : base of Trusted DRAM
+
+*   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
+      - 'tsram' (default) : base of Trusted SRAM
+      - 'tdram' : Trusted DRAM (above shared data)
+
+For a better understanding of FVP options, the FVP memory map is detailed in
+[Firmware Design].
 
 ### Creating a Firmware Image Package
 

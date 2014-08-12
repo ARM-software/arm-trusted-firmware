@@ -74,10 +74,27 @@
 #define NSRAM_BASE		0x2e000000
 #define NSRAM_SIZE		0x10000
 
-#define MBOX_OFF		0x1000
+/* 4KB shared memory */
+#define FVP_SHARED_RAM_SIZE	0x1000
 
-/* Base address where parameters to BL31 are stored */
-#define PARAMS_BASE		FVP_TRUSTED_DRAM_BASE
+/* Location of shared memory */
+#if (FVP_SHARED_DATA_LOCATION_ID == FVP_IN_TRUSTED_DRAM)
+/* Shared memory at the base of Trusted DRAM */
+# define FVP_SHARED_RAM_BASE		FVP_TRUSTED_DRAM_BASE
+# define FVP_TRUSTED_SRAM_LIMIT		(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE)
+#elif (FVP_SHARED_DATA_LOCATION_ID == FVP_IN_TRUSTED_SRAM)
+# if (FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_DRAM)
+#  error "Shared data in Trusted SRAM and TSP in Trusted DRAM is not supported"
+# endif
+/* Shared memory at the top of the Trusted SRAM */
+# define FVP_SHARED_RAM_BASE		(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE \
+					- FVP_SHARED_RAM_SIZE)
+# define FVP_TRUSTED_SRAM_LIMIT		FVP_SHARED_RAM_BASE
+#else
+# error "Unsupported FVP_SHARED_DATA_LOCATION_ID value"
+#endif
 
 #define DRAM1_BASE		0x80000000ull
 #define DRAM1_SIZE		0x80000000ull
@@ -238,5 +255,16 @@
 /* NSAIDs used by devices in TZC filter 2 on FVP */
 #define FVP_NSAID_HDLCD0		2
 #define FVP_NSAID_CLCD			7
+
+/*******************************************************************************
+ *  Shared Data
+ ******************************************************************************/
+
+/* Entrypoint mailboxes */
+#define MBOX_BASE		FVP_SHARED_RAM_BASE
+#define MBOX_SIZE		0x200
+
+/* Base address where parameters to BL31 are stored */
+#define PARAMS_BASE		(MBOX_BASE + MBOX_SIZE)
 
 #endif /* __FVP_DEF_H__ */

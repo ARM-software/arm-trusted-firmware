@@ -72,6 +72,11 @@ static meminfo_t bl2_tzram_layout
 __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 		section("tzfw_coherent_mem")));
 
+/* Assert that BL3-1 parameters fit in shared memory */
+CASSERT((PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t)) <
+	(FVP_SHARED_RAM_BASE + FVP_SHARED_RAM_SIZE),
+	assert_bl31_params_do_not_fit_in_shared_memory);
+
 /*******************************************************************************
  * Reference to structures which holds the arguments which need to be passed
  * to BL31
@@ -96,14 +101,6 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 bl31_params_t *bl2_plat_get_bl31_params(void)
 {
 	bl2_to_bl31_params_mem_t *bl31_params_mem;
-
-#if FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_DRAM
-	/*
-	 * Ensure that the secure DRAM memory used for passing BL31 arguments
-	 * does not overlap with the BL32_BASE.
-	 */
-	assert(BL32_BASE > PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t));
-#endif
 
 	/*
 	 * Allocate the memory for all the arguments that needs to
