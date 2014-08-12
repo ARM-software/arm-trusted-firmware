@@ -300,7 +300,7 @@ $(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ) : $(2)
 	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(CFLAGS) -c $$< -o $$@
+	$$(Q)$$(CC) $$(CFLAGS) -DIMAGE_BL$(3) -c $$< -o $$@
 
 
 $(PREREQUISITES) : $(2)
@@ -322,7 +322,7 @@ $(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ) : $(2)
 	@echo "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -c $$< -o $$@
+	$$(Q)$$(AS) $$(ASFLAGS) -DIMAGE_BL$(3) -c $$< -o $$@
 
 $(PREREQUISITES) : $(2)
 	@echo "  DEPS    $$@"
@@ -359,11 +359,11 @@ endef
 define MAKE_OBJS
 	$(eval C_OBJS := $(filter %.c,$(2)))
 	$(eval REMAIN := $(filter-out %.c,$(2)))
-	$(eval $(foreach obj,$(C_OBJS),$(call MAKE_C,$(1),$(obj))))
+	$(eval $(foreach obj,$(C_OBJS),$(call MAKE_C,$(1),$(obj),$(3))))
 
 	$(eval S_OBJS := $(filter %.S,$(REMAIN)))
 	$(eval REMAIN := $(filter-out %.S,$(REMAIN)))
-	$(eval $(foreach obj,$(S_OBJS),$(call MAKE_S,$(1),$(obj))))
+	$(eval $(foreach obj,$(S_OBJS),$(call MAKE_S,$(1),$(obj),$(3))))
 
 	$(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
 endef
@@ -387,7 +387,7 @@ define MAKE_BL
 	$(eval DUMP       := $(BUILD_DIR)/bl$(1).dump)
 	$(eval BIN        := $(BUILD_PLAT)/bl$(1).bin)
 
-	$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES)))
+	$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 	$(eval $(call MAKE_LD,$(LINKERFILE),$(BL$(1)_LINKERFILE)))
 
 $(BUILD_DIR) :

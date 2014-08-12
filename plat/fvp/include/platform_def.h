@@ -45,7 +45,17 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
-#define PLATFORM_STACK_SIZE	0x800
+#if DEBUG_XLAT_TABLE
+#define PLATFORM_STACK_SIZE 0x800
+#elif IMAGE_BL1
+#define PLATFORM_STACK_SIZE 0x440
+#elif IMAGE_BL2
+#define PLATFORM_STACK_SIZE 0x400
+#elif IMAGE_BL31
+#define PLATFORM_STACK_SIZE 0x400
+#elif IMAGE_BL32
+#define PLATFORM_STACK_SIZE 0x440
+#endif
 
 #define FIRMWARE_WELCOME_STR		"Booting trusted firmware boot loader stage 1\n\r"
 
