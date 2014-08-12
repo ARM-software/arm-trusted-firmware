@@ -236,37 +236,25 @@
 				clock-output-names = "v2m:oscclk1";
 			};
 
-			/*
-			 * Not supported in FVP models
-			 *
-			 * reset@0 {
-			 * 	compatible = "arm,vexpress-reset";
-			 * 	arm,vexpress-sysreg,func = <5 0>;
-			 * };
-			 */
+			reset@0 {
+				compatible = "arm,vexpress-reset";
+				arm,vexpress-sysreg,func = <5 0>;
+			};
 
 			muxfpga@0 {
 				compatible = "arm,vexpress-muxfpga";
 				arm,vexpress-sysreg,func = <7 0>;
 			};
 
-			/*
-			 * Not used - Superseded by PSCI sys_poweroff
-			 *
-			 * shutdown@0 {
-			 * 	compatible = "arm,vexpress-shutdown";
-			 * 	arm,vexpress-sysreg,func = <8 0>;
-			 * };
-			 */
+			shutdown@0 {
+				compatible = "arm,vexpress-shutdown";
+				arm,vexpress-sysreg,func = <8 0>;
+			};
 
-			/*
-			 * Not used - Superseded by PSCI sys_reset
-			 *
-			 * reboot@0 {
-			 * 	compatible = "arm,vexpress-reboot";
-			 * 	arm,vexpress-sysreg,func = <9 0>;
-			 * };
-			 */
+			reboot@0 {
+				compatible = "arm,vexpress-reboot";
+				arm,vexpress-sysreg,func = <9 0>;
+			};
 
 			dvimode@0 {
 				compatible = "arm,vexpress-dvimode";

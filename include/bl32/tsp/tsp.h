@@ -41,6 +41,8 @@
 #define TSP_SUSPEND_DONE	0xf2000003
 #define TSP_RESUME_DONE		0xf2000004
 #define TSP_PREEMPTED		0xf2000005
+#define TSP_SYSTEM_OFF_DONE	0xf2000008
+#define TSP_SYSTEM_RESET_DONE	0xf2000009
 
 /*
  * Function identifiers to handle FIQs through the synchronous handling model.
@@ -114,6 +116,8 @@ typedef struct tsp_vectors {
 	tsp_vector_isn_t cpu_resume_entry;
 	tsp_vector_isn_t cpu_suspend_entry;
 	tsp_vector_isn_t fiq_entry;
+	tsp_vector_isn_t system_off_entry;
+	tsp_vector_isn_t system_reset_entry;
 } tsp_vectors_t;
 
 

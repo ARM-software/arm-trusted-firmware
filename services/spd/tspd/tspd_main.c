@@ -437,6 +437,8 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	 */
 	case TSP_OFF_DONE:
 	case TSP_SUSPEND_DONE:
+	case TSP_SYSTEM_OFF_DONE:
+	case TSP_SYSTEM_RESET_DONE:
 		if (ns)
 			SMC_RET1(handle, SMC_UNK);
 

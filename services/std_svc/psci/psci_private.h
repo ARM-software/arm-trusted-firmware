@@ -99,6 +99,7 @@ void psci_acquire_afflvl_locks(int start_afflvl,
 void psci_release_afflvl_locks(int start_afflvl,
 				int end_afflvl,
 				mpidr_aff_map_nodes_t mpidr_nodes);
+void psci_print_affinity_map(void);
 
 /* Private exported functions from psci_setup.c */
 int psci_get_aff_map_nodes(unsigned long mpidr,
@@ -131,5 +132,9 @@ unsigned int psci_afflvl_suspend_finish(int, int);
 /* Private exported functions from psci_helpers.S */
 void psci_do_pwrdown_cache_maintenance(uint32_t affinity_level);
 void psci_do_pwrup_cache_maintenance(void);
+
+/* Private exported functions from psci_system_off.c */
+void __dead2 psci_system_off(void);
+void __dead2 psci_system_reset(void);
 
 #endif /* __PSCI_PRIVATE_H__ */

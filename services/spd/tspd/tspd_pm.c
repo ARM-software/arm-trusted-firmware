@@ -193,16 +193,59 @@ static int32_t tspd_cpu_migrate_info(uint64_t *resident_cpu)
 }
 
 /*******************************************************************************
+ * System is about to be switched off. Allow the TSPD/TSP to perform
+ * any actions needed.
+ ******************************************************************************/
+static void tspd_system_off(void)
+{
+	uint64_t mpidr = read_mpidr();
+	uint32_t linear_id = platform_get_core_pos(mpidr);
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
+
+	assert(tsp_vectors);
+	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
+
+	/* Program the entry point */
+	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->system_off_entry);
+
+	/* Enter the TSP. We do not care about the return value because we
+	 * must continue the shutdown anyway */
+	tspd_synchronous_sp_entry(tsp_ctx);
+}
+
+/*******************************************************************************
+ * System is about to be reset. Allow the TSPD/TSP to perform
+ * any actions needed.
+ ******************************************************************************/
+static void tspd_system_reset(void)
+{
+	uint64_t mpidr = read_mpidr();
+	uint32_t linear_id = platform_get_core_pos(mpidr);
+	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
+
+	assert(tsp_vectors);
+	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
+
+	/* Program the entry point */
+	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->system_reset_entry);
+
+	/* Enter the TSP. We do not care about the return value because we
+	 * must continue the reset anyway */
+	tspd_synchronous_sp_entry(tsp_ctx);
+}
+
+/*******************************************************************************
  * Structure populated by the TSP Dispatcher to be given a chance to perform any
  * TSP bookkeeping before PSCI executes a power mgmt.  operation.
  ******************************************************************************/
 const spd_pm_ops_t tspd_pm = {
-	tspd_cpu_on_handler,
-	tspd_cpu_off_handler,
-	tspd_cpu_suspend_handler,
-	tspd_cpu_on_finish_handler,
-	tspd_cpu_suspend_finish_handler,
-	NULL,
-	tspd_cpu_migrate_info
+	.svc_on = tspd_cpu_on_handler,
+	.svc_off = tspd_cpu_off_handler,
+	.svc_suspend = tspd_cpu_suspend_handler,
+	.svc_on_finish = tspd_cpu_on_finish_handler,
+	.svc_suspend_finish = tspd_cpu_suspend_finish_handler,
+	.svc_migrate = NULL,
+	.svc_migrate_info = tspd_cpu_migrate_info,
+	.svc_system_off = tspd_system_off,
+	.svc_system_reset = tspd_system_reset
 };
-
