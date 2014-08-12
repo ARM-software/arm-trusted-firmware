@@ -446,3 +446,33 @@ void psci_register_spd_pm_hook(const spd_pm_ops_t *pm)
 {
 	psci_spd_pm = pm;
 }
+
+/*******************************************************************************
+ * This function prints the state of all affinity instances present in the
+ * system
+ ******************************************************************************/
+void psci_print_affinity_map(void)
+{
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+	aff_map_node_t *node;
+	unsigned int idx;
+	/* This array maps to the PSCI_STATE_X definitions in psci.h */
+	static const char *psci_state_str[] = {
+		"ON",
+		"OFF",
+		"ON_PENDING",
+		"SUSPEND"
+	};
+
+	INFO("PSCI Affinity Map:\n");
+	for (idx = 0; idx < PSCI_NUM_AFFS ; idx++) {
+		node = &psci_aff_map[idx];
+		if (!(node->state & PSCI_AFF_PRESENT)) {
+			continue;
+		}
+		INFO("  AffInst: Level %u, MPID 0x%lx, State %s\n",
+				node->level, node->mpidr,
+				psci_state_str[psci_get_state(node)]);
+	}
+#endif
+}

@@ -50,7 +50,8 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				services/std_svc/psci/psci_entry.S		\
 				services/std_svc/psci/psci_helpers.S		\
 				services/std_svc/psci/psci_main.c		\
-				services/std_svc/psci/psci_setup.c
+				services/std_svc/psci/psci_setup.c		\
+				services/std_svc/psci/psci_system_off.c
 
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 

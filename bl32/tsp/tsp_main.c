@@ -296,6 +296,72 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 }
 
 /*******************************************************************************
+ * This function performs any remaining bookkeeping in the test secure payload
+ * before the system is switched off (in response to a psci SYSTEM_OFF request)
+ ******************************************************************************/
+tsp_args_t *tsp_system_off_main(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7)
+{
+	uint64_t mpidr = read_mpidr();
+	uint32_t linear_id = platform_get_core_pos(mpidr);
+
+	/* Update this cpu's statistics */
+	tsp_stats[linear_id].smc_count++;
+	tsp_stats[linear_id].eret_count++;
+
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+	spin_lock(&console_lock);
+	INFO("TSP: cpu 0x%x SYSTEM_OFF request\n", mpidr);
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets requests\n", mpidr,
+	     tsp_stats[linear_id].smc_count,
+	     tsp_stats[linear_id].eret_count);
+	spin_unlock(&console_lock);
+#endif
+
+	/* Indicate to the SPD that we have completed this request */
+	return set_smc_args(TSP_SYSTEM_OFF_DONE, 0, 0, 0, 0, 0, 0, 0);
+}
+
+/*******************************************************************************
+ * This function performs any remaining bookkeeping in the test secure payload
+ * before the system is reset (in response to a psci SYSTEM_RESET request)
+ ******************************************************************************/
+tsp_args_t *tsp_system_reset_main(uint64_t arg0,
+				uint64_t arg1,
+				uint64_t arg2,
+				uint64_t arg3,
+				uint64_t arg4,
+				uint64_t arg5,
+				uint64_t arg6,
+				uint64_t arg7)
+{
+	uint64_t mpidr = read_mpidr();
+	uint32_t linear_id = platform_get_core_pos(mpidr);
+
+	/* Update this cpu's statistics */
+	tsp_stats[linear_id].smc_count++;
+	tsp_stats[linear_id].eret_count++;
+
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+	spin_lock(&console_lock);
+	INFO("TSP: cpu 0x%x SYSTEM_RESET request\n", mpidr);
+	INFO("TSP: cpu 0x%x: %d smcs, %d erets requests\n", mpidr,
+	     tsp_stats[linear_id].smc_count,
+	     tsp_stats[linear_id].eret_count);
+	spin_unlock(&console_lock);
+#endif
+
+	/* Indicate to the SPD that we have completed this request */
+	return set_smc_args(TSP_SYSTEM_RESET_DONE, 0, 0, 0, 0, 0, 0, 0);
+}
+
+/*******************************************************************************
  * TSP fast smc handler. The secure monitor jumps to this function by
  * doing the ERET after populating X0-X7 registers. The arguments are received
  * in the function arguments in order. Once the service is rendered, this

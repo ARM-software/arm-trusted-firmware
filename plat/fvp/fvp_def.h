@@ -120,10 +120,23 @@
 
 /* V2M motherboard system registers & offsets */
 #define VE_SYSREGS_BASE		0x1c010000
-#define V2M_SYS_ID			0x0
-#define V2M_SYS_LED			0x8
+#define V2M_SYS_ID		0x0
+#define V2M_SYS_SWITCH		0x4
+#define V2M_SYS_LED		0x8
 #define V2M_SYS_CFGDATA		0xa0
 #define V2M_SYS_CFGCTRL		0xa4
+#define V2M_SYS_CFGSTATUS	0xa8
+
+#define CFGCTRL_START		(1 << 31)
+#define CFGCTRL_RW		(1 << 30)
+#define CFGCTRL_FUNC_SHIFT	20
+#define CFGCTRL_FUNC(fn)	(fn << CFGCTRL_FUNC_SHIFT)
+#define FUNC_CLK_GEN		0x01
+#define FUNC_TEMP		0x04
+#define FUNC_DB_RESET		0x05
+#define FUNC_SCC_CFG		0x06
+#define FUNC_SHUTDOWN		0x08
+#define FUNC_REBOOT		0x09
 
 /* Load address of BL33 in the FVP port */
 #define NS_IMAGE_OFFSET		(DRAM1_BASE + 0x8000000) /* DRAM + 128MB */

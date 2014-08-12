@@ -250,6 +250,14 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_MIG_INFO_UP_CPU_AARCH32:
 			SMC_RET1(handle, psci_migrate_info_up_cpu());
 
+		case PSCI_SYSTEM_OFF:
+			psci_system_off();
+			/* We should never return from psci_system_off() */
+
+		case PSCI_SYSTEM_RESET:
+			psci_system_reset();
+			/* We should never return from psci_system_reset() */
+
 		default:
 			break;
 		}
