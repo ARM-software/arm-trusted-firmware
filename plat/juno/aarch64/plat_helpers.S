@@ -41,7 +41,6 @@
 	.globl	plat_report_exception
 	.globl	plat_reset_handler
 	.globl	platform_get_core_pos
-	.globl	platform_is_primary_cpu
 	.globl	platform_mem_init
 
 	/* Define a crash console for the plaform */
@@ -100,21 +99,6 @@ func platform_get_core_pos
 	and	x0, x0, #MPIDR_CLUSTER_MASK
 	eor	x0, x0, #(1 << MPIDR_AFFINITY_BITS)  // swap A53/A57 order
 	add	x0, x1, x0, LSR #6
-	ret
-
-
-	/* -----------------------------------------------------
-	 * unsigned int platform_is_primary_cpu(unsigned long mpid);
-	 *
-	 * Given the mpidr say whether this cpu is the primary
-	 * cpu (applicable only after a cold boot)
-	 * -----------------------------------------------------
-	 */
-func platform_is_primary_cpu
-	/* Juno todo: allow configuration of primary CPU using SCC */
-	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
-	cmp	x0, #JUNO_PRIMARY_CPU
-	cset	x0, eq
 	ret
 
 

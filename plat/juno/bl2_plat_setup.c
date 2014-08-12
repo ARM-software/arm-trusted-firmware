@@ -128,7 +128,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 		PARAM_EP, VERSION_1, 0);
 
 	/* BL3-3 expects to receive the primary CPU MPID (through x0) */
-	bl2_to_bl31_params->bl33_ep_info->args.arg0 = JUNO_PRIMARY_CPU;
+	bl2_to_bl31_params->bl33_ep_info->args.arg0 = 0xffff & read_mpidr();
 
 	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem.bl33_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info, PARAM_IMAGE_BINARY,

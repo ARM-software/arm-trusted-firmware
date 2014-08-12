@@ -34,8 +34,6 @@
 /* Special value used to verify platform parameters from BL2 to BL3-1 */
 #define JUNO_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
 
-#define JUNO_PRIMARY_CPU		0x100
-
 /*******************************************************************************
  * Juno memory map related constants
  ******************************************************************************/
@@ -193,5 +191,12 @@
 #define CCI400_BASE			0x2c090000
 #define CCI400_SL_IFACE3_CLUSTER_IX	1
 #define CCI400_SL_IFACE4_CLUSTER_IX	0
+
+/*******************************************************************************
+ * SCP <=> AP boot configuration
+ ******************************************************************************/
+#define SCP_BOOT_CFG_ADDR	0x04000080
+#define PRIMARY_CPU_SHIFT	8
+#define PRIMARY_CPU_MASK	0xf
 
 #endif /* __JUNO_DEF_H__ */

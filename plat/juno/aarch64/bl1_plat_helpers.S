@@ -32,10 +32,27 @@
 #include <asm_macros.S>
 #include "../juno_def.h"
 
+	.globl	platform_is_primary_cpu
 	.globl	platform_get_entrypoint
 	.globl	platform_cold_boot_init
 	.globl	plat_secondary_cold_boot_setup
 
+	/* -----------------------------------------------------
+	 * unsigned int platform_is_primary_cpu (unsigned int mpid);
+	 *
+	 * Given the mpidr say whether this cpu is the primary
+	 * cpu (applicable ony after a cold boot)
+	 * -----------------------------------------------------
+	 */
+func platform_is_primary_cpu
+	mov	x9, x30
+	bl	platform_get_core_pos
+	ldr	x1, =SCP_BOOT_CFG_ADDR
+	ldr	x1, [x1]
+	ubfx	x1, x1, #PRIMARY_CPU_SHIFT, #PRIMARY_CPU_MASK
+	cmp	x0, x1
+	cset	x0, eq
+	ret	x9
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
