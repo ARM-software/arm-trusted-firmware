@@ -30,18 +30,17 @@
 
 # On FVP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
 # Trusted SRAM is the default.
-TSP_RAM_LOCATION	:=	tsram
-
-ifeq (${TSP_RAM_LOCATION}, tsram)
-  TSP_RAM_LOCATION_ID := TSP_IN_TZRAM
-else ifeq (${TSP_RAM_LOCATION}, tdram)
-  TSP_RAM_LOCATION_ID := TSP_IN_TZDRAM
+FVP_TSP_RAM_LOCATION	:=	tsram
+ifeq (${FVP_TSP_RAM_LOCATION}, tsram)
+  FVP_TSP_RAM_LOCATION_ID := FVP_IN_TRUSTED_SRAM
+else ifeq (${FVP_TSP_RAM_LOCATION}, tdram)
+  FVP_TSP_RAM_LOCATION_ID := FVP_IN_TRUSTED_DRAM
 else
-  $(error "Unsupported TSP_RAM_LOCATION value")
+  $(error "Unsupported FVP_TSP_RAM_LOCATION value")
 endif
 
-# Process TSP_RAM_LOCATION_ID flag
-$(eval $(call add_define,TSP_RAM_LOCATION_ID))
+# Process flags
+$(eval $(call add_define,FVP_TSP_RAM_LOCATION_ID))
 
 PLAT_INCLUDES		:=	-Iplat/fvp/include/
 

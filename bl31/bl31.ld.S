@@ -36,7 +36,7 @@ ENTRY(bl31_entrypoint)
 
 
 MEMORY {
-    RAM (rwx): ORIGIN = TZRAM_BASE, LENGTH = TZRAM_SIZE
+    RAM (rwx): ORIGIN = BL31_BASE, LENGTH = BL31_LIMIT
 }
 
 

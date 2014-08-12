@@ -97,7 +97,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 {
 	bl2_to_bl31_params_mem_t *bl31_params_mem;
 
-#if TSP_RAM_LOCATION_ID == TSP_IN_TZDRAM
+#if FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_DRAM
 	/*
 	 * Ensure that the secure DRAM memory used for passing BL31 arguments
 	 * does not overlap with the BL32_BASE.

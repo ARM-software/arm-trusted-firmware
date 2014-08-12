@@ -34,7 +34,7 @@
 #include <gic_v2.h>
 #include <pl011.h>
 #include "../drivers/pwrc/fvp_pwrc.h"
-#include "../fvp_def.h"
+#include "platform_def.h"
 
 	.globl	platform_get_entrypoint
 	.globl	plat_secondary_cold_boot_setup
@@ -140,7 +140,7 @@ warm_reset:
 	 * its safe to read it here with SO attributes
 	 * ---------------------------------------------
 	 */
-	ldr	x10, =TZDRAM_BASE + MBOX_OFF
+	ldr	x10, =FVP_TRUSTED_DRAM_BASE + MBOX_OFF
 	bl	platform_get_core_pos
 	lsl	x0, x0, #CACHE_WRITEBACK_SHIFT
 	ldr	x0, [x10, x0]
@@ -163,7 +163,7 @@ _panic:	b	_panic
 	 * -----------------------------------------------------
 	 */
 func platform_mem_init
-	ldr	x0, =TZDRAM_BASE + MBOX_OFF
+	ldr	x0, =FVP_TRUSTED_DRAM_BASE + MBOX_OFF
 	mov	w1, #PLATFORM_CORE_COUNT
 loop:
 	str	xzr, [x0], #CACHE_WRITEBACK_GRANULE

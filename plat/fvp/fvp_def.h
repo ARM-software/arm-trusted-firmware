@@ -1,4 +1,4 @@
-#/*
+/*
  * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,29 @@
 #ifndef __FVP_DEF_H__
 #define __FVP_DEF_H__
 
-#include <platform_def.h> /* for TZROM_SIZE */
-
-
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
 #define FVP_PRIMARY_CPU			0x0
+
+/* Memory location options for Shared data and TSP in FVP */
+#define FVP_IN_TRUSTED_SRAM		0
+#define FVP_IN_TRUSTED_DRAM		1
 
 /*******************************************************************************
  * FVP memory map related constants
  ******************************************************************************/
 
+#define FVP_TRUSTED_ROM_BASE	0x00000000
+#define FVP_TRUSTED_ROM_SIZE	0x04000000	/* 64 MB */
+
+#define FVP_TRUSTED_SRAM_BASE	0x04000000
+#define FVP_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
+
+#define FVP_TRUSTED_DRAM_BASE	0x06000000
+#define FVP_TRUSTED_DRAM_SIZE	0x02000000	/* 32 MB */
+
 #define FLASH0_BASE		0x08000000
-#define FLASH0_SIZE		TZROM_SIZE
+#define FLASH0_SIZE		0x04000000
 
 #define FLASH1_BASE		0x0c000000
 #define FLASH1_SIZE		0x04000000
@@ -67,7 +77,7 @@
 #define MBOX_OFF		0x1000
 
 /* Base address where parameters to BL31 are stored */
-#define PARAMS_BASE		TZDRAM_BASE
+#define PARAMS_BASE		FVP_TRUSTED_DRAM_BASE
 
 #define DRAM1_BASE		0x80000000ull
 #define DRAM1_SIZE		0x80000000ull
@@ -228,6 +238,5 @@
 /* NSAIDs used by devices in TZC filter 2 on FVP */
 #define FVP_NSAID_HDLCD0		2
 #define FVP_NSAID_CLCD			7
-
 
 #endif /* __FVP_DEF_H__ */

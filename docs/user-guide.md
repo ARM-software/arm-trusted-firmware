@@ -314,11 +314,11 @@ The Firmware Package contains this new image:
 
 On FVP, the TSP binary runs from Trusted SRAM by default. It is also possible
 to run it from Trusted DRAM. This is controlled by the build configuration
-`TSP_RAM_LOCATION`:
+`FVP_TSP_RAM_LOCATION`:
 
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
     BL33=<path-to>/<bl33_image>                               \
-    make PLAT=fvp SPD=tspd TSP_RAM_LOCATION=tdram all fip
+    make PLAT=fvp SPD=tspd FVP_TSP_RAM_LOCATION=tdram all fip
 
 
 ### Checking source code style

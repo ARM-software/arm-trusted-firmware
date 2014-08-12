@@ -103,7 +103,7 @@ int fvp_affinst_on(unsigned long mpidr,
 	} while (psysr & PSYSR_AFF_L0);
 
 	linear_id = platform_get_core_pos(mpidr);
-	fvp_mboxes = (mailbox_t *) (TZDRAM_BASE + MBOX_OFF);
+	fvp_mboxes = (mailbox_t *) (FVP_TRUSTED_DRAM_BASE + MBOX_OFF);
 	fvp_mboxes[linear_id].value = sec_entrypoint;
 	flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
 			   sizeof(unsigned long));
@@ -240,7 +240,8 @@ int fvp_affinst_suspend(unsigned long mpidr,
 
 			/* Program the jump address for the target cpu */
 			linear_id = platform_get_core_pos(mpidr);
-			fvp_mboxes = (mailbox_t *) (TZDRAM_BASE + MBOX_OFF);
+			fvp_mboxes = (mailbox_t *) (FVP_TRUSTED_DRAM_BASE +
+					MBOX_OFF);
 			fvp_mboxes[linear_id].value = sec_entrypoint;
 			flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
 					   sizeof(unsigned long));
@@ -329,7 +330,8 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 		fvp_pwrc_clr_wen(mpidr);
 
 		/* Zero the jump address in the mailbox for this cpu */
-		fvp_mboxes = (mailbox_t *) (TZDRAM_BASE + MBOX_OFF);
+		fvp_mboxes = (mailbox_t *) (FVP_TRUSTED_DRAM_BASE +
+				MBOX_OFF);
 		linear_id = platform_get_core_pos(mpidr);
 		fvp_mboxes[linear_id].value = 0;
 		flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
