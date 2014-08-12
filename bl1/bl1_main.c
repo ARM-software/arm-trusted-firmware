@@ -106,6 +106,13 @@ void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
   ******************************************************************************/
 void bl1_main(void)
 {
+	/* Announce our arrival */
+	NOTICE(FIRMWARE_WELCOME_STR);
+	NOTICE("BL1: %s\n", version_string);
+	NOTICE("BL1: %s\n", build_message);
+
+	INFO("BL1: RAM 0x%lx - 0x%lx\n", BL1_RAM_BASE, BL1_RAM_LIMIT);
+
 #if DEBUG
 	unsigned long sctlr_el3 = read_sctlr_el3();
 #endif
@@ -128,11 +135,6 @@ void bl1_main(void)
 	/* Perform platform setup in BL1. */
 	bl1_platform_setup();
 
-	/* Announce our arrival */
-	tf_printf(FIRMWARE_WELCOME_STR);
-	tf_printf("%s\n", version_string);
-	tf_printf("%s\n", build_message);
-
 	SET_PARAM_HEAD(&bl2_image_info, PARAM_IMAGE_BINARY, VERSION_1, 0);
 	SET_PARAM_HEAD(&bl2_ep, PARAM_EP, VERSION_1, 0);
 
@@ -150,7 +152,7 @@ void bl1_main(void)
 		 * TODO: print failure to load BL2 but also add a tzwdog timer
 		 * which will reset the system eventually.
 		 */
-		tf_printf("Failed to load boot loader stage 2 (BL2) firmware.\n");
+		ERROR("Failed to load BL2 firmware.\n");
 		panic();
 	}
 	/*
@@ -165,14 +167,13 @@ void bl1_main(void)
 
 	bl1_plat_set_bl2_ep_info(&bl2_image_info, &bl2_ep);
 	bl2_ep.args.arg1 = (unsigned long)bl2_tzram_layout;
-	tf_printf("Booting trusted firmware boot loader stage 2\n");
-#if DEBUG
-	tf_printf("BL2 address = 0x%llx\n",
+	NOTICE("BL1: Booting BL2\n");
+	INFO("BL1: BL2 address = 0x%llx\n",
 		(unsigned long long) bl2_ep.pc);
-	tf_printf("BL2 cpsr = 0x%x\n", bl2_ep.spsr);
-	tf_printf("BL2 memory layout address = 0x%llx\n",
-	       (unsigned long long) bl2_tzram_layout);
-#endif
+	INFO("BL1: BL2 spsr = 0x%x\n", bl2_ep.spsr);
+	VERBOSE("BL1: BL2 memory layout address = 0x%llx\n",
+		(unsigned long long) bl2_tzram_layout);
+
 	bl1_run_bl2(&bl2_ep);
 
 	return;
@@ -184,14 +185,13 @@ void bl1_main(void)
  ******************************************************************************/
 void display_boot_progress(entry_point_info_t *bl31_ep_info)
 {
-	tf_printf("Booting trusted firmware boot loader stage 3\n\r");
-#if DEBUG
-	tf_printf("BL31 address = 0x%llx\n", (unsigned long long)bl31_ep_info->pc);
-	tf_printf("BL31 cpsr = 0x%llx\n", (unsigned long long)bl31_ep_info->spsr);
-	tf_printf("BL31 params address = 0x%llx\n",
-			(unsigned long long)bl31_ep_info->args.arg0);
-	tf_printf("BL31 plat params address = 0x%llx\n",
-			(unsigned long long)bl31_ep_info->args.arg1);
-#endif
-	return;
+	NOTICE("BL1: Booting BL3-1\n");
+	INFO("BL1: BL3-1 address = 0x%llx\n",
+		(unsigned long long)bl31_ep_info->pc);
+	INFO("BL1: BL3-1 spsr = 0x%llx\n",
+		(unsigned long long)bl31_ep_info->spsr);
+	INFO("BL1: BL3-1 params address = 0x%llx\n",
+		(unsigned long long)bl31_ep_info->args.arg0);
+	INFO("BL1: BL3-1 plat params address = 0x%llx\n",
+		(unsigned long long)bl31_ep_info->args.arg1);
 }

@@ -80,8 +80,12 @@ export Q
 
 ifneq (${DEBUG}, 0)
 	BUILD_TYPE	:=	debug
+	# Use LOG_LEVEL_INFO by default for debug builds
+	LOG_LEVEL	:=	40
 else
 	BUILD_TYPE	:=	release
+	# Use LOG_LEVEL_NOTICE by default for release builds
+	LOG_LEVEL	:=	20
 endif
 
 # Default build string (git branch and commit)
@@ -212,6 +216,9 @@ $(eval $(call add_define,ARM_GIC_ARCH))
 # Process ASM_ASSERTION flag
 $(eval $(call assert_boolean,ASM_ASSERTION))
 $(eval $(call add_define,ASM_ASSERTION))
+
+# Process LOG_LEVEL flag
+$(eval $(call add_define,LOG_LEVEL))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
