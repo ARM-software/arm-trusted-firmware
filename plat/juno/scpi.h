@@ -59,6 +59,7 @@ typedef uint32_t scpi_status_t;
 typedef enum {
 	SCPI_CMD_SCP_READY = 0x01,
 	SCPI_CMD_SET_CSS_POWER_STATE = 0x04,
+	SCPI_CMD_SYS_POWER_STATE = 0x08
 } scpi_command_t;
 
 typedef enum {
@@ -67,8 +68,15 @@ typedef enum {
 	scpi_power_off = 3,
 } scpi_power_state_t;
 
+typedef enum {
+	scpi_system_shutdown = 0,
+	scpi_system_reboot = 1,
+	scpi_system_reset = 2
+} scpi_system_state_t;
+
 extern int scpi_wait_ready(void);
 extern void scpi_set_css_power_state(unsigned mpidr, scpi_power_state_t cpu_state,
 		scpi_power_state_t cluster_state, scpi_power_state_t css_state);
+uint32_t scpi_sys_power_state(scpi_system_state_t system_state);
 
 #endif	/* __SCPI_H__ */

@@ -124,3 +124,17 @@ void scpi_set_css_power_state(unsigned mpidr, scpi_power_state_t cpu_state,
 	state |= css_state << 16;
 	scpi_secure_send32(SCPI_CMD_SET_CSS_POWER_STATE, state);
 }
+
+uint32_t scpi_sys_power_state(scpi_system_state_t system_state)
+{
+	uint32_t *response;
+	size_t size;
+	uint8_t state = system_state & 0xff;
+
+	/* Send the command */
+	*(__typeof__(state) *)scpi_secure_message_start() = state;
+	scpi_secure_message_send(SCPI_CMD_SYS_POWER_STATE, sizeof(state));
+	scpi_secure_message_receive((void *)&response, &size);
+	scpi_secure_message_end();
+	return *response;
+}

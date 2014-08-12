@@ -30,6 +30,7 @@
 
 #include <assert.h>
 #include <arch_helpers.h>
+#include <debug.h>
 #include <cci400.h>
 #include <errno.h>
 #include <platform.h>
@@ -239,6 +240,41 @@ static int32_t juno_affinst_suspend_finish(uint64_t mpidr,
 }
 
 /*******************************************************************************
+ * Juno handlers to shutdown/reboot the system
+ ******************************************************************************/
+static void __dead2 juno_system_off(void)
+{
+	uint32_t response;
+
+	/* Send the power down request to the SCP */
+	response = scpi_sys_power_state(scpi_system_shutdown);
+
+	if (response != SCP_OK) {
+		ERROR("Juno System Off: SCP error %u.\n", response);
+		panic();
+	}
+	wfi();
+	ERROR("Juno System Off: operation not handled.\n");
+	panic();
+}
+
+static void __dead2 juno_system_reset(void)
+{
+	uint32_t response;
+
+	/* Send the system reset request to the SCP */
+	response = scpi_sys_power_state(scpi_system_reboot);
+
+	if (response != SCP_OK) {
+		ERROR("Juno System Reset: SCP error %u.\n", response);
+		panic();
+	}
+	wfi();
+	ERROR("Juno System Reset: operation not handled.\n");
+	panic();
+}
+
+/*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static const plat_pm_ops_t juno_ops = {
@@ -246,7 +282,9 @@ static const plat_pm_ops_t juno_ops = {
 	.affinst_on_finish	= juno_affinst_on_finish,
 	.affinst_off		= juno_affinst_off,
 	.affinst_suspend	= juno_affinst_suspend,
-	.affinst_suspend_finish	= juno_affinst_suspend_finish
+	.affinst_suspend_finish	= juno_affinst_suspend_finish,
+	.system_off		= juno_system_off,
+	.system_reset		= juno_system_reset
 };
 
 /*******************************************************************************
