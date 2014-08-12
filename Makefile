@@ -98,7 +98,6 @@ BL_COMMON_SOURCES	:=	common/bl_common.c			\
 				lib/aarch64/misc_helpers.S		\
 				lib/aarch64/xlat_helpers.c		\
 				lib/stdlib/std.c			\
-				lib/io_storage.c			\
 				plat/common/aarch64/platform_helpers.S
 
 BUILD_BASE		:=	./build
@@ -176,6 +175,7 @@ INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/common		\
 				-Iinclude/drivers		\
 				-Iinclude/drivers/arm		\
+				-Iinclude/drivers/io		\
 				-Iinclude/lib			\
 				-Iinclude/lib/aarch64		\
 				-Iinclude/plat/common		\

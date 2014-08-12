@@ -49,6 +49,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S		\
 				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_semihosting.c			\
+				drivers/io/io_storage.c				\
 				lib/aarch64/xlat_tables.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
