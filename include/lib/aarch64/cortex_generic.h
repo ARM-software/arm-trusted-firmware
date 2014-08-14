@@ -31,6 +31,9 @@
 #ifndef __CORTEX_GENERIC_H__
 #define __CORTEX_GENERIC_H__
 
+/* ARM Cortex Generic midr part number */
+#define MIDR_PN_GENERIC		0xd0f
+
 /* Cortex Generic MIDR mask to strip out revision information */
 #define CORTEX_GENERIC_MIDR 0x410FD0F0
 

@@ -125,6 +125,30 @@ func init_cpu_ops
 	ret
 #endif /* IMAGE_BL31 */
 
+#if IMAGE_BL31 && CRASH_REPORTING
+	/*
+	 * The cpu specific registers which need to be reported in a crash
+	 * are reported via cpu_ops cpu_reg_dump function. After a matching
+	 * cpu_ops structure entry is found, the correponding cpu_reg_dump
+	 * in the cpu_ops is invoked.
+	 */
+	.globl	do_cpu_reg_dump
+func do_cpu_reg_dump
+	mov	x16, x30
+
+	/* Get the matching cpu_ops pointer */
+	bl	get_cpu_ops_ptr
+	cbz	x0, 1f
+
+	/* Get the cpu_ops cpu_reg_dump */
+	ldr	x2, [x0, #CPU_REG_DUMP]
+	cbz	x2, 1f
+	blr	x2
+1:
+	mov	x30, x16
+	ret
+#endif
+
 	/*
 	 * The below function returns the cpu_ops structure matching the
 	 * midr of the core. It reads the MIDR_EL1 and finds the matching

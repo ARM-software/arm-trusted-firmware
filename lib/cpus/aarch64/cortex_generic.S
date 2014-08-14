@@ -69,4 +69,17 @@ func cortex_generic_cluster_pwr_dwn
 	mov	x0, #DCCISW
 	b	dcsw_op_all
 
+	/* ---------------------------------------------
+	 * This function provides cpu specific
+	 * register information for crash reporting.
+	 * It needs to return with x6 pointing to
+	 * a list of register names in ascii and
+	 * x8 - x15 having values of registers to be
+	 * reported.
+	 * ---------------------------------------------
+	 */
+func cortex_generic_cpu_reg_dump
+	mov	x6, #0 /* no registers to report */
+	ret
+
 declare_cpu_ops cortex_generic, CORTEX_GENERIC_MIDR, 1
