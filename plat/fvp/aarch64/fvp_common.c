@@ -56,9 +56,9 @@ plat_config_t plat_config;
  * configure_mmu_elx() will give the available subset of that,
  */
 const mmap_region_t fvp_mmap[] = {
-	{ TZROM_BASE,	TZROM_BASE,	TZROM_SIZE,
-						MT_MEMORY | MT_RO | MT_SECURE },
-	{ TZDRAM_BASE,	TZDRAM_BASE,	TZDRAM_SIZE,
+	{ FVP_SHARED_RAM_BASE,	FVP_SHARED_RAM_BASE,	FVP_SHARED_RAM_SIZE,
+						MT_MEMORY | MT_RW | MT_SECURE },
+	{ FVP_TRUSTED_DRAM_BASE, FVP_TRUSTED_DRAM_BASE,	FVP_TRUSTED_DRAM_SIZE,
 						MT_MEMORY | MT_RW | MT_SECURE },
 	{ FLASH0_BASE,	FLASH0_BASE,	FLASH0_SIZE,
 						MT_MEMORY | MT_RO | MT_SECURE },

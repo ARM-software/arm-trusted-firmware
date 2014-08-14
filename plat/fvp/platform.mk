@@ -28,20 +28,37 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# On FVP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
-# Trusted SRAM is the default.
-TSP_RAM_LOCATION	:=	tsram
-
-ifeq (${TSP_RAM_LOCATION}, tsram)
-  TSP_RAM_LOCATION_ID := TSP_IN_TZRAM
-else ifeq (${TSP_RAM_LOCATION}, tdram)
-  TSP_RAM_LOCATION_ID := TSP_IN_TZDRAM
+# Shared memory may be allocated at the top of Trusted SRAM (tsram) or at the
+# base of Trusted SRAM (tdram)
+FVP_SHARED_DATA_LOCATION	:=	tsram
+ifeq (${FVP_SHARED_DATA_LOCATION}, tsram)
+  FVP_SHARED_DATA_LOCATION_ID := FVP_IN_TRUSTED_SRAM
+else ifeq (${FVP_SHARED_DATA_LOCATION}, tdram)
+  FVP_SHARED_DATA_LOCATION_ID := FVP_IN_TRUSTED_DRAM
 else
-  $(error "Unsupported TSP_RAM_LOCATION value")
+  $(error "Unsupported FVP_SHARED_DATA_LOCATION value")
 endif
 
-# Process TSP_RAM_LOCATION_ID flag
-$(eval $(call add_define,TSP_RAM_LOCATION_ID))
+# On FVP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
+# Trusted SRAM is the default.
+FVP_TSP_RAM_LOCATION	:=	tsram
+ifeq (${FVP_TSP_RAM_LOCATION}, tsram)
+  FVP_TSP_RAM_LOCATION_ID := FVP_IN_TRUSTED_SRAM
+else ifeq (${FVP_TSP_RAM_LOCATION}, tdram)
+  FVP_TSP_RAM_LOCATION_ID := FVP_IN_TRUSTED_DRAM
+else
+  $(error "Unsupported FVP_TSP_RAM_LOCATION value")
+endif
+
+ifeq (${FVP_SHARED_DATA_LOCATION}, tsram)
+  ifeq (${FVP_TSP_RAM_LOCATION}, tdram)
+    $(error Shared data in Trusted SRAM and TSP in Trusted DRAM is not supported)
+  endif
+endif
+
+# Process flags
+$(eval $(call add_define,FVP_SHARED_DATA_LOCATION_ID))
+$(eval $(call add_define,FVP_TSP_RAM_LOCATION_ID))
 
 PLAT_INCLUDES		:=	-Iplat/fvp/include/
 

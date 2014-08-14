@@ -150,31 +150,6 @@ file is found in [plat/fvp/include/platform_def.h].
     Defines the total number of nodes in the affinity heirarchy at all affinity
     levels used by the platform.
 
-*   **#define : TZROM_BASE**
-
-    Defines the base address of secure ROM on the platform, where the BL1 binary
-    is loaded. This constant is used by the linker scripts to ensure that the
-    BL1 image fits into the available memory.
-
-*   **#define : TZROM_SIZE**
-
-    Defines the size of secure ROM on the platform. This constant is used by the
-    linker scripts to ensure that the BL1 image fits into the available memory.
-
-*   **#define : TZRAM_BASE**
-
-    Defines the base address of the secure RAM on platform, where the data
-    section of the BL1 binary is loaded. The BL2 and BL3-1 images are also
-    loaded in this secure RAM region. This constant is used by the linker
-    scripts to ensure that the BL1 data section and BL2/BL3-1 binary images fit
-    into the available memory.
-
-*   **#define : TZRAM_SIZE**
-
-    Defines the size of the secure RAM on the platform. This constant is used by
-    the linker scripts to ensure that the BL1 data section and BL2/BL3-1 binary
-    images fit into the available memory.
-
 *   **#define : BL1_RO_BASE**
 
     Defines the base address in secure ROM where BL1 originally lives. Must be

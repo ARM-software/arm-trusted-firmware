@@ -955,22 +955,95 @@ PROGBITS sections then the resulting binary file would contain a bunch of zero
 bytes at the location of this NOBITS section, making the image unnecessarily
 bigger. Smaller images allow faster loading from the FIP to the main memory.
 
-On FVP platforms, we use the Trusted ROM and Trusted SRAM to store the trusted
-firmware binaries.
+On FVP platforms, we use the Trusted ROM, Trusted SRAM and, optionally, Trusted
+DRAM to store the trusted firmware binaries and shared data.
+
+ *    A 4KB page of shared memory is used to store the entrypoint mailboxes
+      and the parameters passed between bootloaders. The shared memory can be
+      allocated either at the top of Trusted SRAM or at the base of Trusted
+      DRAM at build time. When allocated in Trusted SRAM, the amount of Trusted
+      SRAM available to load the bootloader images will be reduced by the size
+      of the shared memory.
 
  *    BL1 is originally sitting in the Trusted ROM at address `0x0`. Its
       read-write data are relocated at the top of the Trusted SRAM at runtime.
+      If the shared memory is allocated in Trusted SRAM, the BL1 read-write data
+      is relocated just below the shared memory.
 
  *    BL3-1 is loaded at the top of the Trusted SRAM, such that its NOBITS
       sections will overwrite BL1 R/W data.
 
  *    BL2 is loaded below BL3-1.
 
- *    The TSP is loaded as the BL3-2 image at the base of the Trusted SRAM. Its
-      NOBITS sections are allowed to overlay BL2.
+ *    The TSP is loaded as the BL3-2 image at the base of either the Trusted
+      SRAM or Trusted DRAM. When loaded into Trusted SRAM, its NOBITS sections
+      are allowed to overlay BL2. When loaded into Trusted DRAM, an offset
+      corresponding to the size of the shared memory is applied to avoid
+      overlap.
 
 This memory layout is designed to give the BL3-2 image as much memory as
-possible. It is illustrated by the following diagram.
+possible when it is loaded into Trusted SRAM. Depending on the location of the
+shared memory page and the TSP, it will result in different memory maps,
+illustrated by the following diagrams.
+
+** Shared data & TSP in Trusted SRAM (default option): **
+
+               Trusted SRAM
+    0x04040000 +----------+
+               |  Shared  |
+    0x0403F000 +----------+  loaded by BL2  ------------------
+               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               |----------|                 ------------------
+               |   BL2    |  <<<<<<<<<<<<<  |  BL3-2 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  | BL3-2 PROGBITS |
+    0x04000000 +----------+                 ------------------
+
+               Trusted ROM
+    0x04000000 +----------+
+               | BL1 (ro) |
+    0x00000000 +----------+
+
+
+** Shared data & TSP in Trusted DRAM: **
+
+               Trusted DRAM
+    0x08000000 +----------+
+               |          |
+               |  BL3-2   |
+               |          |
+    0x06001000 |----------|
+               |  Shared  |
+    0x06000000 +----------+
+
+               Trusted SRAM
+    0x04040000 +----------+  loaded by BL2  ------------------
+               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               |----------|                 ------------------
+               |   BL2    |
+               |----------|
+               |          |
+    0x04000000 +----------+
+
+               Trusted ROM
+    0x04000000 +----------+
+               | BL1 (ro) |
+    0x00000000 +----------+
+
+** Shared data in Trusted DRAM, TSP in Trusted SRAM: **
+
+               Trusted DRAM
+    0x08000000 +----------+
+               |          |
+               |          |
+               |          |
+    0x06001000 |----------|
+               |  Shared  |
+    0x06000000 +----------+
 
                Trusted SRAM
     0x04040000 +----------+  loaded by BL2  ------------------
@@ -988,8 +1061,8 @@ possible. It is illustrated by the following diagram.
                | BL1 (ro) |
     0x00000000 +----------+
 
-The TSP image may be loaded in Trusted DRAM instead. This doesn't change the
-memory layout of the other boot loader images in Trusted SRAM.
+Loading the TSP image in Trusted DRAM doesn't change the memory layout of the
+other boot loader images in Trusted SRAM.
 
 Each bootloader stage image layout is described by its own linker script. The
 linker scripts export some symbols into the program symbol table. Their values
