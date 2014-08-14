@@ -37,6 +37,8 @@
  ******************************************************************************/
 #define MIDR_IMPL_MASK		0xff
 #define MIDR_IMPL_SHIFT		0x18
+#define MIDR_VAR_SHIFT		20
+#define MIDR_REV_SHIFT		0
 #define MIDR_PN_MASK		0xfff
 #define MIDR_PN_SHIFT		0x4
 

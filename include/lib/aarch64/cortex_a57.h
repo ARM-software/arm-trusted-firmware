@@ -47,4 +47,12 @@
 #define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
 #define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
 
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+
+#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
+#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
+
 #endif /* __CORTEX_A57_H__ */
