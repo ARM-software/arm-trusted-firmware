@@ -65,6 +65,66 @@ func reset_handler
 
 #endif /* IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31) */
 
+#if IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
+	/*
+	 * The prepare core power down function for all platforms.  After
+	 * the cpu_ops pointer is retrieved from cpu_data, the corresponding
+	 * pwr_dwn_core in the cpu_ops is invoked.
+	 */
+	.globl	prepare_core_pwr_dwn
+func prepare_core_pwr_dwn
+	mrs	x1, tpidr_el3
+	ldr	x0, [x1, #CPU_DATA_CPU_OPS_PTR]
+#if ASM_ASSERTION
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+
+	/* Get the cpu_ops core_pwr_dwn handler */
+	ldr	x1, [x0, #CPU_PWR_DWN_CORE]
+	br	x1
+
+	/*
+	 * The prepare cluster power down function for all platforms.  After
+	 * the cpu_ops pointer is retrieved from cpu_data, the corresponding
+	 * pwr_dwn_cluster in the cpu_ops is invoked.
+	 */
+	.globl	prepare_cluster_pwr_dwn
+func prepare_cluster_pwr_dwn
+	mrs	x1, tpidr_el3
+	ldr	x0, [x1, #CPU_DATA_CPU_OPS_PTR]
+#if ASM_ASSERTION
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+
+	/* Get the cpu_ops cluster_pwr_dwn handler */
+	ldr	x1, [x0, #CPU_PWR_DWN_CLUSTER]
+	br	x1
+
+
+	/*
+	 * Initializes the cpu_ops_ptr if not already initialized
+	 * in cpu_data. This can be called without a runtime stack.
+	 * clobbers: x0 - x6, x10
+	 */
+	.globl	init_cpu_ops
+func init_cpu_ops
+	mrs	x6, tpidr_el3
+	ldr	x0, [x6, #CPU_DATA_CPU_OPS_PTR]
+	cbnz	x0, 1f
+	mov	x10, x30
+	bl	get_cpu_ops_ptr
+#if ASM_ASSERTION
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+	str	x0, [x6, #CPU_DATA_CPU_OPS_PTR]
+	mov x30, x10
+1:
+	ret
+#endif /* IMAGE_BL31 */
+
 	/*
 	 * The below function returns the cpu_ops structure matching the
 	 * midr of the core. It reads the MIDR_EL1 and finds the matching

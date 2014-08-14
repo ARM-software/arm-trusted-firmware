@@ -180,6 +180,7 @@ INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/drivers/io		\
 				-Iinclude/lib			\
 				-Iinclude/lib/aarch64		\
+				-Iinclude/lib/cpus/aarch64	\
 				-Iinclude/plat/common		\
 				-Iinclude/stdlib		\
 				-Iinclude/stdlib/sys		\

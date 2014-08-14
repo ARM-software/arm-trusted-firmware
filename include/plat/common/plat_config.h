@@ -39,14 +39,12 @@
 
 
 enum plat_config_flags {
-	/* Whether CPUECTLR SMP bit should be enabled */
-	CONFIG_CPUECTLR_SMP_BIT		= 0x1,
 	/* Whether Base FVP memory map is in use */
-	CONFIG_BASE_MMAP		= 0x2,
+	CONFIG_BASE_MMAP		= 0x1,
 	/* Whether CCI should be enabled */
-	CONFIG_HAS_CCI			= 0x4,
+	CONFIG_HAS_CCI			= 0x2,
 	/* Whether TZC should be configured */
-	CONFIG_HAS_TZC			= 0x8
+	CONFIG_HAS_TZC			= 0x4
 };
 
 typedef struct plat_config {

@@ -39,9 +39,9 @@
 #define MIDR_IMPL_SHIFT		0x18
 #define MIDR_PN_MASK		0xfff
 #define MIDR_PN_SHIFT		0x4
-#define MIDR_PN_AEM		0xd0f
-#define MIDR_PN_A57		0xd07
-#define MIDR_PN_A53		0xd03
+#define MIDR_PN_AEM			0xd0f
+#define MIDR_PN_A57			0xd07
+#define MIDR_PN_A53			0xd03
 
 /*******************************************************************************
  * MPIDR macros
@@ -134,9 +134,6 @@
 #define SCTLR_I_BIT		(1 << 12)
 #define SCTLR_WXN_BIT		(1 << 19)
 #define SCTLR_EE_BIT		(1 << 25)
-
-/* CPUECTLR definitions */
-#define CPUECTLR_SMP_BIT	(1 << 6)
 
 /* CPACR_El1 definitions */
 #define CPACR_EL1_FPEN(x)	(x << 20)

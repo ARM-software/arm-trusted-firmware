@@ -27,50 +27,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <aem_generic.h>
-#include <arch.h>
-#include <asm_macros.S>
-#include <cpu_macros.S>
 
-func aem_generic_core_pwr_dwn
-	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
+#ifndef __CORTEX_A53_H__
+#define __CORTEX_A53_H__
 
-	mov	x0, #DCCISW
+/* Cortex-A53 midr for revision 0 */
+#define CORTEX_A53_MIDR 0x410FD030
 
-	/* ---------------------------------------------
-	 * Flush L1 cache to PoU.
-	 * ---------------------------------------------
-	 */
-	b	dcsw_op_louis
+/*******************************************************************************
+ * CPU Extended Control register specific definitions.
+ ******************************************************************************/
+#define CPUECTLR_SMP_BIT		(1 << 6)
 
-
-func aem_generic_cluster_pwr_dwn
-	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-
-	/* ---------------------------------------------
-	 * Flush L1 and L2 caches to PoC.
-	 * ---------------------------------------------
-	 */
-	mov	x0, #DCCISW
-	b	dcsw_op_all
-
-
-/* cpu_ops for Base AEM FVP */
-declare_cpu_ops aem_generic, BASE_AEM_MIDR, 1
-
-/* cpu_ops for Foundation FVP */
-declare_cpu_ops aem_generic, FOUNDATION_AEM_MIDR, 1
+#endif /* __CORTEX_A53_H__ */

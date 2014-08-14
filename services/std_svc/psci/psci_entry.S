@@ -78,6 +78,12 @@ psci_aff_common_finish_entry:
 	bl	init_cpu_data_ptr
 
 	/* ---------------------------------------------
+	 * Initialize the cpu_ops pointer.
+	 * ---------------------------------------------
+	 */
+	bl	init_cpu_ops
+
+	/* ---------------------------------------------
 	 * Set the exception vectors
 	 * ---------------------------------------------
 	 */

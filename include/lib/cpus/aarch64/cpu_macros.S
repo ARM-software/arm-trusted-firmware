@@ -27,50 +27,49 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <aem_generic.h>
+
 #include <arch.h>
-#include <asm_macros.S>
-#include <cpu_macros.S>
 
-func aem_generic_core_pwr_dwn
-	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
+#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
+				(MIDR_PN_MASK << MIDR_PN_SHIFT)
+
+	/*
+	 * Define the offsets to the fields in cpu_ops structure.
 	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
+	.struct 0
+CPU_MIDR: /* cpu_ops midr */
+	.space  8
+/* Reset fn is needed in BL at reset vector */
+#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+CPU_RESET_FUNC: /* cpu_ops reset_func */
+	.space  8
+#endif
+#if IMAGE_BL31 /* The power down core and cluster is needed only in BL3-1 */
+CPU_PWR_DWN_CORE: /* cpu_ops core_pwr_dwn */
+	.space  8
+CPU_PWR_DWN_CLUSTER: /* cpu_ops cluster_pwr_dwn */
+	.space  8
+#endif
+CPU_OPS_SIZE = .
 
-	mov	x0, #DCCISW
-
-	/* ---------------------------------------------
-	 * Flush L1 cache to PoU.
-	 * ---------------------------------------------
+	/*
+	 * Convenience macro to declare cpu_ops structure.
+	 * Make sure the structure fields are as per the offsets
+	 * defined above.
 	 */
-	b	dcsw_op_louis
-
-
-func aem_generic_cluster_pwr_dwn
-	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-
-	/* ---------------------------------------------
-	 * Flush L1 and L2 caches to PoC.
-	 * ---------------------------------------------
-	 */
-	mov	x0, #DCCISW
-	b	dcsw_op_all
-
-
-/* cpu_ops for Base AEM FVP */
-declare_cpu_ops aem_generic, BASE_AEM_MIDR, 1
-
-/* cpu_ops for Foundation FVP */
-declare_cpu_ops aem_generic, FOUNDATION_AEM_MIDR, 1
+	.macro declare_cpu_ops _name:req, _midr:req, _noresetfunc = 0
+	.section cpu_ops, "a"; .align 3
+	.type cpu_ops_\_name, %object
+	.quad \_midr
+#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+	.if \_noresetfunc
+	.quad 0
+	.else
+	.quad \_name\()_reset_func
+	.endif
+#endif
+#if IMAGE_BL31
+	.quad \_name\()_core_pwr_dwn
+	.quad \_name\()_cluster_pwr_dwn
+#endif
+	.endm

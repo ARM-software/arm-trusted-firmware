@@ -28,38 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
+#ifndef __AEM_GENERIC_H__
+#define __AEM_GENERIC_H__
 
-#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
-				(MIDR_PN_MASK << MIDR_PN_SHIFT)
+/* BASE AEM midr for revision 0 */
+#define BASE_AEM_MIDR 0x410FD0F0
 
-	/*
-	 * Define the offsets to the fields in cpu_ops structure.
-	 */
-	.struct 0
-CPU_MIDR: /* cpu_ops midr */
-	.space  8
-/* Reset fn is needed in BL at reset vector */
-#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
-CPU_RESET_FUNC: /* cpu_ops reset_func */
-	.space  8
-#endif
-CPU_OPS_SIZE = .
+/* Foundation AEM midr for revision 0 */
+#define FOUNDATION_AEM_MIDR  0x410FD000
 
-	/*
-	 * Convenience macro to declare cpu_ops structure.
-	 * Make sure the structure fields are as per the offsets
-	 * defined above.
-	 */
-	.macro declare_cpu_ops _name:req, _midr:req, _noresetfunc = 0
-	.section cpu_ops, "a"; .align 3
-	.type cpu_ops_\_name, %object
-	.quad \_midr
-#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
-	.if \_noresetfunc
-	.quad 0
-	.else
-	.quad \_name\()_reset_func
-	.endif
-#endif
-	.endm
+
+#endif /* __AEM_GENERIC_H__ */
