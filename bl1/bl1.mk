@@ -32,6 +32,6 @@ BL1_SOURCES		+=	bl1/bl1_main.c				\
 				bl1/aarch64/bl1_arch_setup.c		\
 				bl1/aarch64/bl1_entrypoint.S		\
 				bl1/aarch64/bl1_exceptions.S		\
-				lib/aarch64/cpu_helpers.S
+				lib/cpus/aarch64/cpu_helpers.S
 
 BL1_LINKERFILE		:=	bl1/bl1.ld.S

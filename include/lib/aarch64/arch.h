@@ -35,6 +35,8 @@
 /*******************************************************************************
  * MIDR bit definitions
  ******************************************************************************/
+#define MIDR_IMPL_MASK		0xff
+#define MIDR_IMPL_SHIFT		0x18
 #define MIDR_PN_MASK		0xfff
 #define MIDR_PN_SHIFT		0x4
 #define MIDR_PN_AEM		0xd0f

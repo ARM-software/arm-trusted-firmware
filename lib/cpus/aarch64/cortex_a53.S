@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,29 +27,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include <arch.h>
 #include <asm_macros.S>
+#include <cpu_macros.S>
+#include <plat_macros.S>
 
-	.weak	cpu_reset_handler
+#define CORTEX_A53_MIDR 0x410FD030
 
-
-func cpu_reset_handler
+func cortex_a53_reset_func
 	/* ---------------------------------------------
-	 * As a bare minimal enable the SMP bit.
+	 * As a bare minimum enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, midr_el1
-	lsr	x0, x0, #MIDR_PN_SHIFT
-	and	x0, x0, #MIDR_PN_MASK
-	cmp	x0, #MIDR_PN_A57
-	b.eq	smp_setup_begin
-	cmp	x0, #MIDR_PN_A53
-	b.ne	smp_setup_end
-smp_setup_begin:
 	mrs	x0, CPUECTLR_EL1
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
 	isb
-smp_setup_end:
 	ret
+
+declare_cpu_ops cortex_a53, CORTEX_A53_MIDR
