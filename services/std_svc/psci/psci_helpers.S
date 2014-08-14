@@ -66,15 +66,6 @@ func psci_do_pwrdown_cache_maintenance
 	b.ne	1f
 
 	/* ---------------------------------------------
-	 * Disable the Data Cache.
-	 * ---------------------------------------------
-	 */
-	mrs	x1, sctlr_el3
-	bic	x1, x1, #SCTLR_C_BIT
-	msr	sctlr_el3, x1
-	isb
-
-	/* ---------------------------------------------
 	 * Determine to how many levels of cache will be
 	 * subject to cache maintenance. Affinity level
 	 * 0 implies that only the cpu is being powered
@@ -87,29 +78,12 @@ func psci_do_pwrdown_cache_maintenance
 	 * ---------------------------------------------
 	 */
 	cmp	x0, #MPIDR_AFFLVL0
-	mov	x0, #DCCISW
-	b.ne	flush_caches_to_poc
-
-	/* ---------------------------------------------
-	 * Flush L1 cache to PoU.
-	 * ---------------------------------------------
-	 */
-	bl	dcsw_op_louis
+	b.eq	do_core_pwr_dwn
+	bl	prepare_cluster_pwr_dwn
 	b	do_stack_maintenance
 
-	/* ---------------------------------------------
-	 * Flush L1 and L2 caches to PoC.
-	 * ---------------------------------------------
-	 */
-flush_caches_to_poc:
-	bl	dcsw_op_all
-
-	/* ---------------------------------------------
-	 * TODO: Intra-cluster coherency should be
-	 * turned off here once cpu-specific
-	 * abstractions are in place.
-	 * ---------------------------------------------
-	 */
+do_core_pwr_dwn:
+	bl	prepare_core_pwr_dwn
 
 	/* ---------------------------------------------
 	 * Do stack maintenance by flushing the used

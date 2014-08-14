@@ -66,18 +66,6 @@ static void fvp_program_mailbox(uint64_t mpidr, uint64_t address)
  ******************************************************************************/
 static void fvp_cpu_pwrdwn_common()
 {
-	uint32_t ectlr;
-
-	/*
-	 * Take this cpu out of intra-cluster coherency if the FVP flavour
-	 * supports the SMP bit.
-	 */
-	if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
-		ectlr = read_cpuectlr();
-		ectlr &= ~CPUECTLR_SMP_BIT;
-		write_cpuectlr(ectlr);
-	}
-
 	/* Prevent interrupts from spuriously waking up this cpu */
 	arm_gic_cpuif_deactivate();
 
@@ -273,7 +261,6 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			  unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned int ectlr;
 
 	/* Determine if any platform actions need to be executed. */
 	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
@@ -294,16 +281,6 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 
 		/* Enable coherency if this cluster was off */
 		fvp_cci_enable();
-	}
-
-	/*
-	 * Turn on intra-cluster coherency if the FVP flavour supports
-	 * it.
-	 */
-	if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
-		ectlr = read_cpuectlr();
-		ectlr |= CPUECTLR_SMP_BIT;
-		write_cpuectlr(ectlr);
 	}
 
 	/*
