@@ -37,6 +37,8 @@
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/
+#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+
 #define CPUECTLR_SMP_BIT		(1 << 6)
 #define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
 #define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)

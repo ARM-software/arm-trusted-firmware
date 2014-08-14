@@ -50,6 +50,10 @@ CPU_PWR_DWN_CORE: /* cpu_ops core_pwr_dwn */
 CPU_PWR_DWN_CLUSTER: /* cpu_ops cluster_pwr_dwn */
 	.space  8
 #endif
+#if (IMAGE_BL31 && CRASH_REPORTING)
+CPU_REG_DUMP: /* cpu specific register dump for crash reporting */
+	.space  8
+#endif
 CPU_OPS_SIZE = .
 
 	/*
@@ -71,5 +75,8 @@ CPU_OPS_SIZE = .
 #if IMAGE_BL31
 	.quad \_name\()_core_pwr_dwn
 	.quad \_name\()_cluster_pwr_dwn
+#endif
+#if (IMAGE_BL31 && CRASH_REPORTING)
+	.quad \_name\()_cpu_reg_dump
 #endif
 	.endm

@@ -39,9 +39,6 @@
 #define MIDR_IMPL_SHIFT		0x18
 #define MIDR_PN_MASK		0xfff
 #define MIDR_PN_SHIFT		0x4
-#define MIDR_PN_AEM			0xd0f
-#define MIDR_PN_A57			0xd07
-#define MIDR_PN_A53			0xd03
 
 /*******************************************************************************
  * MPIDR macros
@@ -75,11 +72,6 @@
 #define ICC_CTLR_EL1    S3_0_C12_C12_4
 #define ICC_CTLR_EL3    S3_6_C12_C12_4
 #define ICC_PMR_EL1     S3_0_C4_C6_0
-
-/*******************************************************************************
- * Implementation defined sysreg encodings
- ******************************************************************************/
-#define CPUECTLR_EL1	S3_1_C15_C2_1
 
 /*******************************************************************************
  * Generic timer memory mapped registers & offsets

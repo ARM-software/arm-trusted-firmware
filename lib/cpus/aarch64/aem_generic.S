@@ -68,6 +68,19 @@ func aem_generic_cluster_pwr_dwn
 	mov	x0, #DCCISW
 	b	dcsw_op_all
 
+	/* ---------------------------------------------
+	 * This function provides cpu specific
+	 * register information for crash reporting.
+	 * It needs to return with x6 pointing to
+	 * a list of register names in ascii and
+	 * x8 - x15 having values of registers to be
+	 * reported.
+	 * ---------------------------------------------
+	 */
+func aem_generic_cpu_reg_dump
+	mov	x6, #0 /* no registers to report */
+	ret
+
 
 /* cpu_ops for Base AEM FVP */
 declare_cpu_ops aem_generic, BASE_AEM_MIDR, 1

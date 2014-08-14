@@ -37,6 +37,8 @@
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/
+#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+
 #define CPUECTLR_SMP_BIT		(1 << 6)
 
 #endif /* __CORTEX_A53_H__ */
