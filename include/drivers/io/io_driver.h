@@ -32,7 +32,6 @@
 #define __IO_DRIVER_H__
 
 #include <io_storage.h>
-#include <platform_def.h> /* For MAX_IO_DEVICES */
 #include <stdint.h>
 
 
@@ -76,20 +75,9 @@ typedef struct io_dev_funcs {
 } io_dev_funcs_t;
 
 
-/* IO platform data - used to track devices registered for a specific
- * platform */
-typedef struct io_plat_data {
-	const io_dev_info_t *devices[MAX_IO_DEVICES];
-	unsigned int dev_count;
-} io_plat_data_t;
-
-
 /* Operations intended to be performed during platform initialisation */
 
-/* Initialise the IO layer */
-void io_init(io_plat_data_t *data);
-
-/* Register a device driver */
+/* Register an IO device */
 int io_register_device(const io_dev_info_t *dev_info);
 
 #endif  /* __IO_DRIVER_H__ */

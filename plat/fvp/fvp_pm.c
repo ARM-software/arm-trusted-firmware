@@ -140,7 +140,7 @@ int fvp_affinst_off(unsigned long mpidr,
 			 * turned off
 			 */
 			if (get_plat_config()->flags & CONFIG_HAS_CCI)
-				cci_disable_coherency(mpidr);
+				cci_disable_cluster_coherency(mpidr);
 
 			/*
 			 * Program the power controller to turn the
@@ -215,7 +215,7 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			 * turned off
 			 */
 			if (get_plat_config()->flags & CONFIG_HAS_CCI)
-				cci_disable_coherency(mpidr);
+				cci_disable_cluster_coherency(mpidr);
 
 			/*
 			 * Program the power controller to turn the
@@ -302,7 +302,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			 */
 			fvp_pwrc_write_pponr(mpidr);
 
-			fvp_cci_setup();
+			fvp_cci_enable();
 		}
 		break;
 

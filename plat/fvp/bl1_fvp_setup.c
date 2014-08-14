@@ -110,7 +110,8 @@ void bl1_platform_setup(void)
  ******************************************************************************/
 void bl1_plat_arch_setup(void)
 {
-	fvp_cci_setup();
+	fvp_cci_init();
+	fvp_cci_enable();
 
 	fvp_configure_mmu_el3(bl1_tzram_layout.total_base,
 			      bl1_tzram_layout.total_size,

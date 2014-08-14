@@ -46,8 +46,6 @@
  */
 void fvp_security_setup(void)
 {
-	tzc_instance_t controller;
-
 	/*
 	 * The Base FVP has a TrustZone address space controller, the Foundation
 	 * FVP does not. Trying to program the device on the foundation FVP will
@@ -71,9 +69,7 @@ void fvp_security_setup(void)
 	 * - Provide base address of device on platform.
 	 * - Provide width of ACE-Lite IDs on platform.
 	 */
-	controller.base = TZC400_BASE;
-	controller.aid_width = FVP_AID_WIDTH;
-	tzc_init(&controller);
+	tzc_init(TZC400_BASE);
 
 	/*
 	 * Currently only filters 0 and 2 are connected on Base FVP.
@@ -87,7 +83,7 @@ void fvp_security_setup(void)
 	 */
 
 	/* Disable all filters before programming. */
-	tzc_disable_filters(&controller);
+	tzc_disable_filters();
 
 	/*
 	 * Allow only non-secure access to all DRAM to supported devices.
@@ -101,7 +97,7 @@ void fvp_security_setup(void)
 	 */
 
 	/* Set to cover the first block of DRAM */
-	tzc_configure_region(&controller, FILTER_SHIFT(0), 1,
+	tzc_configure_region(FILTER_SHIFT(0), 1,
 			DRAM1_BASE, DRAM1_END - DRAM1_SEC_SIZE,
 			TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
@@ -111,13 +107,13 @@ void fvp_security_setup(void)
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
 
 	/* Set to cover the secure reserved region */
-	tzc_configure_region(&controller, FILTER_SHIFT(0), 3,
+	tzc_configure_region(FILTER_SHIFT(0), 3,
 			(DRAM1_END - DRAM1_SEC_SIZE) + 1 , DRAM1_END,
 			TZC_REGION_S_RDWR,
 			0x0);
 
 	/* Set to cover the second block of DRAM */
-	tzc_configure_region(&controller, FILTER_SHIFT(0), 2,
+	tzc_configure_region(FILTER_SHIFT(0), 2,
 			DRAM2_BASE, DRAM2_END, TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
@@ -130,8 +126,8 @@ void fvp_security_setup(void)
 	 * options we have are for access errors to occur quietly or to
 	 * cause an exception. We choose to cause an exception.
 	 */
-	tzc_set_action(&controller, TZC_ACTION_ERR);
+	tzc_set_action(TZC_ACTION_ERR);
 
 	/* Enable filters. */
-	tzc_enable_filters(&controller);
+	tzc_enable_filters();
 }

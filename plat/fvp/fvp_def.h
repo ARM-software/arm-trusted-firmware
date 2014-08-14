@@ -184,11 +184,8 @@
  * CCI-400 related constants
  ******************************************************************************/
 #define CCI400_BASE			0x2c090000
-#define CCI400_SL_IFACE_CLUSTER0	3
-#define CCI400_SL_IFACE_CLUSTER1	4
-#define CCI400_SL_IFACE_INDEX(mpidr)	(mpidr & MPIDR_CLUSTER_MASK ? \
-					 CCI400_SL_IFACE_CLUSTER1 :   \
-					 CCI400_SL_IFACE_CLUSTER0)
+#define CCI400_SL_IFACE3_CLUSTER_IX	0
+#define CCI400_SL_IFACE4_CLUSTER_IX	1
 
 /*******************************************************************************
  * GIC-400 & interrupt handling related constants
@@ -241,9 +238,6 @@
 /*
  * The NSAIDs for this platform as used to program the TZC400.
  */
-
-/* The FVP has 4 bits of NSAIDs. Used with TZC FAIL_ID (ACE Lite ID width) */
-#define FVP_AID_WIDTH			4
 
 /* NSAIDs used by devices in TZC filter 0 on FVP */
 #define FVP_NSAID_DEFAULT		0

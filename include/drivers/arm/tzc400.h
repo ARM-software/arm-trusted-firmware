@@ -182,27 +182,17 @@ typedef enum {
 	TZC_REGION_S_RDWR = (TZC_REGION_S_RD | TZC_REGION_S_WR)
 } tzc_region_attributes_t;
 
-/*
- * Implementation defined values used to validate inputs later.
- * Filters : max of 4 ; 0 to 3
- * Regions : max of 9 ; 0 to 8
- * Address width : Values between 32 to 64
- */
-typedef struct tzc_instance {
-	uint64_t base;
-	uint32_t aid_width;
-	uint8_t addr_width;
-	uint8_t num_filters;
-	uint8_t num_regions;
-} tzc_instance_t ;
 
-void tzc_init(tzc_instance_t *controller);
-void tzc_configure_region(const tzc_instance_t *controller, uint32_t filters,
-	uint8_t region, uint64_t region_base, uint64_t region_top,
-	tzc_region_attributes_t sec_attr, uint32_t ns_device_access);
-void tzc_enable_filters(const tzc_instance_t *controller);
-void tzc_disable_filters(const tzc_instance_t *controller);
-void tzc_set_action(const tzc_instance_t *controller, tzc_action_t action);
+void tzc_init(uint64_t base);
+void tzc_configure_region(uint32_t filters,
+			uint8_t region,
+			uint64_t region_base,
+			uint64_t region_top,
+			tzc_region_attributes_t sec_attr,
+			uint32_t ns_device_access);
+void tzc_enable_filters(void);
+void tzc_disable_filters(void);
+void tzc_set_action(tzc_action_t action);
 
 
 #endif /* __TZC400__ */

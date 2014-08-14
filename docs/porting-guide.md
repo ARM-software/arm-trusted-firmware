@@ -218,6 +218,21 @@ be defined as well:
     the secure memory identified by `TSP_SEC_MEM_BASE` and `TSP_SEC_MEM_SIZE`
     constants.
 
+If the platform port uses the IO storage framework, the following constants
+must also be defined:
+
+*   **#define : MAX_IO_DEVICES**
+
+    Defines the maximum number of registered IO devices. Attempting to register
+    more devices than this value using `io_register_device()` will fail with
+    IO_RESOURCES_EXHAUSTED.
+
+*   **#define : MAX_IO_HANDLES**
+
+    Defines the maximum number of open IO handles. Attempting to open more IO
+    entities than this value using `io_open()` will fail with
+    IO_RESOURCES_EXHAUSTED.
+
 The following constants are optional. They should be defined when the platform
 memory layout implies some image overlaying like on FVP.
 
