@@ -31,6 +31,9 @@
 #ifndef __CORTEX_GENERIC_H__
 #define __CORTEX_GENERIC_H__
 
+/* ARM Cortex Generic AEM midr part number */
+#define MIDR_PN_GENERIC_AEM		0xd0f
+
 /* Cortex Generic AEM midr for revision 0 */
 #define CORTEX_GENERIC_AEM_MIDR 0x410FD0F0
 

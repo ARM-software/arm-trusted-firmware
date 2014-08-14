@@ -31,12 +31,17 @@
 #ifndef __CORTEX_A53_H__
 #define __CORTEX_A53_H__
 
+/* ARM Cortex A53 midr part number */
+#define MIDR_PN_A53		0xd03
+
 /* Cortex A53 midr for revision 0 */
 #define CORTEX_A53_MIDR 0x410FD030
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/
+#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+
 #define CPUECTLR_SMP_BIT		(1 << 6)
 
 #endif /* __CORTEX_A53_H__ */
