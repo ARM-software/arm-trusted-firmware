@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,26 +30,77 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
+#include <cpu_macros.S>
+#if IMAGE_BL31
+#include <cpu_data.h>
+#endif
 
-	.weak	cpu_reset_handler
-
-
-func cpu_reset_handler
-	/* ---------------------------------------------
-	 * As a bare minimal enable the SMP bit.
-	 * ---------------------------------------------
+ /* Reset fn is needed in BL at reset vector */
+#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+	/*
+	 * The reset handler common to all platforms.  After a matching
+	 * cpu_ops structure entry is found, the correponding reset_handler
+	 * in the cpu_ops is invoked.
 	 */
-	mrs	x0, midr_el1
-	lsr	x0, x0, #MIDR_PN_SHIFT
-	and	x0, x0, #MIDR_PN_MASK
-	cmp	x0, #MIDR_PN_A57
-	b.eq	smp_setup_begin
-	cmp	x0, #MIDR_PN_A53
-	b.ne	smp_setup_end
-smp_setup_begin:
-	mrs	x0, CPUECTLR_EL1
-	orr	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
-	isb
-smp_setup_end:
+	.globl	reset_handler
+func reset_handler
+	mov	x10, x30
+
+	/* Get the matching cpu_ops pointer */
+	bl	get_cpu_ops_ptr
+#if ASM_ASSERTION
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+
+	/* Get the cpu_ops reset handler */
+	ldr	x2, [x0, #CPU_RESET_FUNC]
+	cbz	x2, 1f
+	blr	x2
+1:
+	ret	x10
+#endif /* IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31) */
+
+	/*
+	 * The below function returns the cpu_ops structure matching the
+	 * midr of the core. It reads the MIDR_EL1 and finds the matching
+	 * entry in cpu_ops entries. Only the implementation and part number
+	 * are used to match the entries.
+	 * Return :
+	 *     x0 - The matching cpu_ops pointer on Success
+	 *     x0 - 0 on failure.
+	 * Clobbers : x0 - x5
+	 */
+	.globl	get_cpu_ops_ptr
+func get_cpu_ops_ptr
+	/* Get the cpu_ops start and end locations */
+	adr	x4, (__CPU_OPS_START__ + CPU_MIDR)
+	adr	x5, (__CPU_OPS_END__ + CPU_MIDR)
+
+	/* Initialize the return parameter */
+	mov	x0, #0
+
+	/* Read the MIDR_EL1 */
+	mrs	x2, midr_el1
+	mov_imm	x3, CPU_IMPL_PN_MASK
+
+	/* Retain only the implementation and part number using mask */
+	and	w2, w2, w3
+1:
+	/* Check if we have reached end of list */
+	cmp	x4, x5
+	b.eq	error_exit
+
+	/* load the midr from the cpu_ops */
+	ldr	x1, [x4], #CPU_OPS_SIZE
+	and	w1, w1, w3
+
+	/* Check if midr matches to midr of this core */
+	cmp	w1, w2
+	b.ne	1b
+
+	/* Subtract the increment and offset to get the cpu-ops pointer */
+	sub	x0, x4, #(CPU_OPS_SIZE + CPU_MIDR)
+error_exit:
 	ret

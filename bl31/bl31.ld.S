@@ -58,6 +58,15 @@ SECTIONS
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
 
+        /*
+         * Ensure 8-byte alignment for cpu_ops so that its fields are also
+         * aligned. Also ensure cpu_ops inclusion.
+         */
+        . = ALIGN(8);
+        __CPU_OPS_START__ = .;
+        KEEP(*(cpu_ops))
+        __CPU_OPS_END__ = .;
+
         *(.vectors)
         __RO_END_UNALIGNED__ = .;
         /*
@@ -68,6 +77,9 @@ SECTIONS
         . = NEXT(4096);
         __RO_END__ = .;
     } >RAM
+
+    ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
+           "cpu_ops not defined for this platform.")
 
     .data . : {
         __DATA_START__ = .;

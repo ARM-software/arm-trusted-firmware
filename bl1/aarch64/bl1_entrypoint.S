@@ -57,7 +57,7 @@ func bl1_entrypoint
 	 * reset e.g. cache, tlb invalidations etc.
 	 * ---------------------------------------------
 	 */
-	bl	cpu_reset_handler
+	bl	reset_handler
 
 	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer

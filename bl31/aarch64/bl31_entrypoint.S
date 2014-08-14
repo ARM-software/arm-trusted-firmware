@@ -68,7 +68,7 @@ func bl31_entrypoint
 	 * Boot ROM(BL0) programming sequence
 	 * -----------------------------------------------------
 	 */
-	bl	cpu_reset_handler
+	bl	reset_handler
 #endif
 	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer
