@@ -47,6 +47,8 @@
 func reset_handler
 	mov	x10, x30
 
+	bl	plat_reset_handler
+
 	/* Get the matching cpu_ops pointer */
 	bl	get_cpu_ops_ptr
 #if ASM_ASSERTION
@@ -60,6 +62,7 @@ func reset_handler
 	blr	x2
 1:
 	ret	x10
+
 #endif /* IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31) */
 
 	/*

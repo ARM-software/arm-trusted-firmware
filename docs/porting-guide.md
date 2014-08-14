@@ -460,6 +460,20 @@ that these constants are not related to any architectural exception code; they
 are just an ARM Trusted Firmware convention.
 
 
+### Function : plat_reset_handler()
+
+    Argument : void
+    Return   : void
+
+A platform may need to do additional initialization after reset. This function
+allows the platform to do the platform specific intializations. Platform
+specific errata workarounds could also be implemented here. The api should
+preserve the value in x10 register as it is used by the caller to store the
+return address.
+
+The default implementation doesn't do anything.
+
+
 3.  Modifications specific to a Boot Loader stage
 -------------------------------------------------
 
