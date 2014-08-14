@@ -29,6 +29,7 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
 #include <cortex_a57.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
@@ -81,6 +82,32 @@ func cortex_a57_disable_ext_debug
 	ret
 
 func cortex_a57_reset_func
+#if ERRATA_A57_806969 || ERRATA_A57_813420
+	/* ---------------------------------------------
+	 * Ensure that the following errata is only
+	 * applied on r0p0 parts.
+	 * ---------------------------------------------
+	 */
+#if ASM_ASSERTION
+	mrs	x0, midr_el1
+	ubfx	x1, x0, #MIDR_VAR_SHIFT, #4
+	ubfx	x2, x0, #MIDR_REV_SHIFT, #4
+	orr	x0, x1, x2
+	cmp	x0, #0
+	ASM_ASSERT(eq)
+#endif
+	mov	x1, xzr
+#if ERRATA_A57_806969
+	orr	x1, x1, #CPUACTLR_NO_ALLOC_WBWA
+#endif
+#if ERRATA_A57_813420
+	orr	x1, x1, #CPUACTLR_DCC_AS_DCCI
+#endif
+	mrs	x0, CPUACTLR_EL1
+	orr	x0, x0, x1
+	msr	CPUACTLR_EL1, x0
+#endif
+
 	/* ---------------------------------------------
 	 * As a bare minimum enable the SMP bit.
 	 * ---------------------------------------------
