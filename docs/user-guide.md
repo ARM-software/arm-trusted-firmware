@@ -40,14 +40,17 @@ otherwise specified.
 
 The following tools are required to use the ARM Trusted Firmware:
 
-*   `git` package to obtain source code
+*   `git` package to obtain source code.
 
-*   `ia32-libs` package
+*   `ia32-libs` package.
 
-*   `build-essential` and `uuid-dev` packages for building UEFI and the Firmware
-    Image Package(FIP) tool
+*   `build-essential`, `uuid-dev` and `iasl` packages for building UEFI and the
+    Firmware Image Package(FIP) tool.
 
-*   `bc` and `ncurses-dev` packages for building Linux
+*   `bc` and `ncurses-dev` packages for building Linux.
+
+*   `device-tree-compiler` package for building the Flattened Device Tree (FDT)
+    source files (`.dts` files) provided with this software.
 
 *   Baremetal GNU GCC tools. Verified packages can be downloaded from [Linaro]
     [Linaro Toolchain]. The rest of this document assumes that the
@@ -56,11 +59,7 @@ The following tools are required to use the ARM Trusted Firmware:
         wget http://releases.linaro.org/14.07/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
         tar -xf gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
 
-*   The Device Tree Compiler (DTC) included with Linux kernel 3.15-rc6 is used
-    to build the Flattened Device Tree (FDT) source files (`.dts` files)
-    provided with this software.
-
-*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.18.
+*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.19.
 
 
 4.  Building the Trusted Firmware
@@ -381,28 +380,31 @@ Potentially any kind of non-trusted firmware may be used with the ARM Trusted
 Firmware but the software has only been tested with the EFI Development Kit 2
 (EDK2) open source implementation of the UEFI specification.
 
-Clone the [EDK2 source code][EDK2] from GitHub. This version supports the Base
-and Foundation FVPs:
-
-    git clone -n https://github.com/tianocore/edk2.git
-    cd edk2
-    git checkout 129ff94661bd3a6c759b1e154c143d0136bedc7d
-
-
 To build the software to be compatible with Foundation and Base FVPs, follow
 these steps:
 
-1.  Copy build config templates to local workspace
+1.  Clone the [EDK2 source code][EDK2] from GitHub:
+
+        git clone -n https://github.com/tianocore/edk2.git
+
+    Not all required features are available in the EDK2 mainline yet. These can
+    be obtained from the ARM-software EDK2 repository instead:
+
+        cd edk2
+        git remote add -f --tags arm-software https://github.com/ARM-software/edk2.git
+        git checkout --detach v1.2
+
+2.  Copy build config templates to local workspace
 
         # in edk2/
         . edksetup.sh
 
-2.  Build the EDK2 host tools
+3.  Build the EDK2 host tools
 
         make -C BaseTools clean
         make -C BaseTools
 
-3.  Build the EDK2 software
+4.  Build the EDK2 software
 
         CROSS_COMPILE=<absolute-path-to-aarch64-gcc>/bin/aarch64-none-elf- \
         make -f ArmPlatformPkg/Scripts/Makefile EDK2_ARCH=AARCH64          \
@@ -419,11 +421,11 @@ these steps:
     command line when building the Trusted Firmware. See the "Building the
     Trusted Firmware" section above.
 
-4.  (Optional) To boot Linux using a VirtioBlock file-system, the command line
+5.  (Optional) To boot Linux using a VirtioBlock file-system, the command line
     passed from EDK2 to the Linux kernel must be modified as described in the
     "Obtaining a root file-system" section below.
 
-5.  (Optional) If legacy GICv2 locations are used, the EDK2 platform description
+6.  (Optional) If legacy GICv2 locations are used, the EDK2 platform description
     must be updated. This is required as EDK2 does not support probing for the
     GIC location. To do this, first clean the EDK2 build directory.
 
@@ -441,33 +443,25 @@ these steps:
 
 ### Obtaining a Linux kernel
 
-The software has been verified using a Linux kernel based on version 3.15-rc6.
-Patches have been applied in order to enable the CPU idle feature.
-
-Preparing a Linux kernel for use on the FVPs with CPU idle support can
-be done as follows (GICv2 support only):
+Preparing a Linux kernel for use on the FVPs can be done as follows
+(GICv2 support only):
 
 1.  Clone Linux:
 
         git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 
-    Not all CPU idle features are included in the mainline kernel yet. To
-    use these, add the patches from Sudeep Holla's kernel:
+    Not all required features are available in the kernel mainline yet. These
+    can be obtained from the ARM-software EDK2 repository instead:
 
         cd linux
-        git remote add -f --tags arm64_idle_v3.15-rc6 git://linux-arm.org/linux-skn.git
-        git checkout -b cpuidle arm64_idle_v3.15-rc6
+        git remote add -f --tags arm-software https://github.com/ARM-software/linux.git
+        git checkout --detach 1.1-Juno
 
 2.  Build with the Linaro GCC tools.
 
         # in linux/
         make mrproper
         make ARCH=arm64 defconfig
-
-        # Enable CPU idle
-        make ARCH=arm64 menuconfig
-        # CPU Power Management ---> CPU Idle ---> [*] CPU idle PM support
-        # CPU Power Management ---> CPU Idle ---> ARM64 CPU Idle Drivers ---> [*] Generic ARM64 CPU idle Driver
 
         CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
         make -j6 ARCH=arm64
@@ -528,8 +522,8 @@ To prepare a VirtioBlock file-system, do the following:
 
     NOTE: The unpacked disk image grows to 3 GiB in size.
 
-        wget http://releases.linaro.org/14.04/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.8_20140417-630.img.gz
-        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.8_20140417-630.img.gz
+        wget http://releases.linaro.org/14.07/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.9_20140727-682.img.gz
+        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.9_20140727-682.img.gz
 
 2.  Make sure the Linux kernel has Virtio support enabled using
     `make ARCH=arm64 menuconfig`.
@@ -592,14 +586,14 @@ To prepare a RAM-disk root file-system, do the following:
 
 1.  Download the file-system image:
 
-        wget http://releases.linaro.org/14.04/openembedded/aarch64/linaro-image-lamp-genericarmv8-20140417-667.rootfs.tar.gz
+        wget http://releases.linaro.org/14.07/openembedded/aarch64/linaro-image-lamp-genericarmv8-20140727-701.rootfs.tar.gz
 
 2.  Modify the Linaro image:
 
         # Prepare for use as RAM-disk. Normally use MMC, NFS or VirtioBlock.
         # Be careful, otherwise you could damage your host file-system.
         mkdir tmp; cd tmp
-        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20140417-667.rootfs.tar.gz | cpio -id"
+        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20140727-701.rootfs.tar.gz | cpio -id"
         sudo ln -s sbin/init .
         sudo sh -c "echo 'devtmpfs /dev devtmpfs mode=0755,nosuid 0 0' >> etc/fstab"
         sudo sh -c "find . | cpio --quiet -H newc -o | gzip -3 -n > ../filesystem.cpio.gz"
@@ -615,11 +609,14 @@ To prepare a RAM-disk root file-system, do the following:
 This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
-*   `Foundation_v8` (Version 2.0, Build 0.8.5206)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.6, Build 0.8.5602)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.6, Build 0.8.5602)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.6, Build 0.8.5602)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.6, Build 0.8.5602)
+*   `Foundation_v8` (Version 2.1, Build 9.0.24)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.8, Build 0.8.5802)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.8, Build 0.8.5802)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.8, Build 0.8.5802)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.8, Build 0.8.5802)
+
+NOTE: The build numbers quoted above are those reported by launching the FVP
+with the `--version` parameter.
 
 NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 The commands below would report an `unhandled argument` error in this case.
