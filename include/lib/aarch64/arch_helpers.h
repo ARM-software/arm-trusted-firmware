@@ -265,10 +265,6 @@ DEFINE_SYSREG_RW_FUNCS(tpidr_el3)
 DEFINE_SYSREG_RW_FUNCS(vpidr_el2)
 DEFINE_SYSREG_RW_FUNCS(vmpidr_el2)
 
-/* Implementation specific registers */
-
-DEFINE_RENAME_SYSREG_RW_FUNCS(cpuectlr_el1, CPUECTLR_EL1)
-
 /* GICv3 System Registers */
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el1, ICC_SRE_EL1)
@@ -298,9 +294,6 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(icc_pmr_el1, ICC_PMR_EL1)
 
 #define read_hcr()		read_hcr_el2()
 #define write_hcr(_v)		write_hcr_el2(_v)
-
-#define read_cpuectlr()		read_cpuectlr_el1()
-#define write_cpuectlr(_v)	write_cpuectlr_el1(_v)
 
 #define read_cpacr()		read_cpacr_el1()
 #define write_cpacr(_v)		write_cpacr_el1(_v)

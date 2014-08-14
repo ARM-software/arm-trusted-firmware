@@ -39,6 +39,7 @@
 	.weak	plat_crash_console_init
 	.weak	plat_crash_console_putc
 	.weak	plat_reset_handler
+	.weak	plat_disable_acp
 
 	/* -----------------------------------------------------
 	 *  int platform_get_core_pos(int mpidr);
@@ -92,4 +93,13 @@ func plat_crash_console_putc
 	 * -----------------------------------------------------
 	 */
 func plat_reset_handler
+	ret
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform. This function is allowed to use
+	 * registers x0 - x17.
+	 * -----------------------------------------------------
+	 */
+func plat_disable_acp
 	ret

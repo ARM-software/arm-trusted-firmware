@@ -29,10 +29,32 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
+#include <cortex_a53.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
-#define CORTEX_A53_MIDR 0x410FD030
+	/* ---------------------------------------------
+	 * Disable L1 data cache and unified L2 cache
+	 * ---------------------------------------------
+	 */
+func cortex_a53_disable_dcache
+	mrs	x1, sctlr_el3
+	bic	x1, x1, #SCTLR_C_BIT
+	msr	sctlr_el3, x1
+	isb
+	ret
+
+	/* ---------------------------------------------
+	 * Disable intra-cluster coherency
+	 * ---------------------------------------------
+	 */
+func cortex_a53_disable_smp
+	mrs	x0, CPUECTLR_EL1
+	bic	x0, x0, #CPUECTLR_SMP_BIT
+	msr	CPUECTLR_EL1, x0
+	isb
+	dsb	sy
+	ret
 
 func cortex_a53_reset_func
 	/* ---------------------------------------------
@@ -44,5 +66,57 @@ func cortex_a53_reset_func
 	msr	CPUECTLR_EL1, x0
 	isb
 	ret
+
+func cortex_a53_core_pwr_dwn
+	mov	x18, x30
+
+	/* ---------------------------------------------
+	 * Turn off caches.
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a53_disable_dcache
+
+	/* ---------------------------------------------
+	 * Flush L1 cache to PoU.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	bl	dcsw_op_louis
+
+	/* ---------------------------------------------
+	 * Come out of intra cluster coherency
+	 * ---------------------------------------------
+	 */
+	mov	x30, x18
+	b	cortex_a53_disable_smp
+
+func cortex_a53_cluster_pwr_dwn
+	mov	x18, x30
+
+	/* ---------------------------------------------
+	 * Turn off caches.
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a53_disable_dcache
+
+	/* ---------------------------------------------
+	 * Disable the optional ACP.
+	 * ---------------------------------------------
+	 */
+	bl	plat_disable_acp
+
+	/* ---------------------------------------------
+	 * Flush L1 and L2 caches to PoC.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	bl	dcsw_op_all
+
+	/* ---------------------------------------------
+	 * Come out of intra cluster coherency
+	 * ---------------------------------------------
+	 */
+	mov	x30, x18
+	b	cortex_a53_disable_smp
 
 declare_cpu_ops cortex_a53, CORTEX_A53_MIDR

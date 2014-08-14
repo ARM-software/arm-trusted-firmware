@@ -29,10 +29,56 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
+#include <cortex_a57.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
-#define CORTEX_A57_MIDR 0x410FD070
+	/* ---------------------------------------------
+	 * Disable L1 data cache and unified L2 cache
+	 * ---------------------------------------------
+	 */
+func cortex_a57_disable_dcache
+	mrs	x1, sctlr_el3
+	bic	x1, x1, #SCTLR_C_BIT
+	msr	sctlr_el3, x1
+	isb
+	ret
+
+	/* ---------------------------------------------
+	 * Disable all types of L2 prefetches.
+	 * ---------------------------------------------
+	 */
+func cortex_a57_disable_l2_prefetch
+	mrs	x0, CPUECTLR_EL1
+	orr	x0, x0, #CPUECTLR_DIS_TWD_ACC_PFTCH_BIT
+	mov	x1, #CPUECTLR_L2_IPFTCH_DIST_MASK
+	orr	x1, x1, #CPUECTLR_L2_DPFTCH_DIST_MASK
+	bic	x0, x0, x1
+	msr	CPUECTLR_EL1, x0
+	isb
+	dsb	sy
+	ret
+
+	/* ---------------------------------------------
+	 * Disable intra-cluster coherency
+	 * ---------------------------------------------
+	 */
+func cortex_a57_disable_smp
+	mrs	x0, CPUECTLR_EL1
+	bic	x0, x0, #CPUECTLR_SMP_BIT
+	msr	CPUECTLR_EL1, x0
+	ret
+
+	/* ---------------------------------------------
+	 * Disable debug interfaces
+	 * ---------------------------------------------
+	 */
+func cortex_a57_disable_ext_debug
+	mov	x0, #1
+	msr	osdlr_el1, x0
+	isb
+	dsb	sy
+	ret
 
 func cortex_a57_reset_func
 	/* ---------------------------------------------
@@ -44,5 +90,81 @@ func cortex_a57_reset_func
 	msr	CPUECTLR_EL1, x0
 	isb
 	ret
+
+func cortex_a57_core_pwr_dwn
+	mov	x18, x30
+
+	/* ---------------------------------------------
+	 * Turn off caches.
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a57_disable_dcache
+
+	/* ---------------------------------------------
+	 * Disable the L2 prefetches.
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a57_disable_l2_prefetch
+
+	/* ---------------------------------------------
+	 * Flush L1 cache to PoU.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	bl	dcsw_op_louis
+
+	/* ---------------------------------------------
+	 * Come out of intra cluster coherency
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a57_disable_smp
+
+	/* ---------------------------------------------
+	 * Force the debug interfaces to be quiescent
+	 * ---------------------------------------------
+	 */
+	mov	x30, x18
+	b	cortex_a57_disable_ext_debug
+
+func cortex_a57_cluster_pwr_dwn
+	mov	x18, x30
+
+	/* ---------------------------------------------
+	 * Turn off caches.
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a57_disable_dcache
+
+	/* ---------------------------------------------
+	 * Disable the L2 prefetches.
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a57_disable_l2_prefetch
+
+	/* ---------------------------------------------
+	 * Disable the optional ACP.
+	 * ---------------------------------------------
+	 */
+	bl	plat_disable_acp
+
+	/* ---------------------------------------------
+	 * Flush L1 and L2 caches to PoC.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	bl	dcsw_op_all
+
+	/* ---------------------------------------------
+	 * Come out of intra cluster coherency
+	 * ---------------------------------------------
+	 */
+	bl	cortex_a57_disable_smp
+
+	/* ---------------------------------------------
+	 * Force the debug interfaces to be quiescent
+	 * ---------------------------------------------
+	 */
+	mov	x30, x18
+	b	cortex_a57_disable_ext_debug
 
 declare_cpu_ops cortex_a57, CORTEX_A57_MIDR

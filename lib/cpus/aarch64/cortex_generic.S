@@ -29,9 +29,44 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
+#include <cortex_generic.h>
 #include <cpu_macros.S>
 
-#define CORTEX_GENERIC_MIDR 0x410FD0F0
+func cortex_generic_core_pwr_dwn
+	/* ---------------------------------------------
+	 * Disable the Data Cache.
+	 * ---------------------------------------------
+	 */
+	mrs	x1, sctlr_el3
+	bic	x1, x1, #SCTLR_C_BIT
+	msr	sctlr_el3, x1
+	isb
 
+	mov	x0, #DCCISW
+
+	/* ---------------------------------------------
+	 * Flush L1 cache to PoU.
+	 * ---------------------------------------------
+	 */
+	b	dcsw_op_louis
+
+
+
+func cortex_generic_cluster_pwr_dwn
+	/* ---------------------------------------------
+	 * Disable the Data Cache.
+	 * ---------------------------------------------
+	 */
+	mrs	x1, sctlr_el3
+	bic	x1, x1, #SCTLR_C_BIT
+	msr	sctlr_el3, x1
+	isb
+
+	/* ---------------------------------------------
+	 * Flush L1 and L2 caches to PoC.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	b	dcsw_op_all
 
 declare_cpu_ops cortex_generic, CORTEX_GENERIC_MIDR, 1
