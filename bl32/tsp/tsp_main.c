@@ -33,6 +33,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <platform_tsp.h>
 #include <spinlock.h>
 #include <tsp.h>
 
@@ -115,7 +116,7 @@ uint64_t tsp_main(void)
 	uint32_t linear_id = platform_get_core_pos(mpidr);
 
 	/* Initialize the platform */
-	bl32_platform_setup();
+	tsp_platform_setup();
 
 	/* Initialize secure/applications state here */
 	tsp_generic_timer_start();

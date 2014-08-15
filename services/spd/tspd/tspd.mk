@@ -29,7 +29,7 @@
 #
 
 TSPD_DIR		:=	services/spd/tspd
-SPD_INCLUDES		:=	-Iinclude/bl32/payloads
+SPD_INCLUDES		:=	-Iinclude/bl32/tsp
 
 SPD_SOURCES		:=	services/spd/tspd/tspd_common.c		\
 				services/spd/tspd/tspd_helpers.S	\

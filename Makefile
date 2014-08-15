@@ -174,8 +174,6 @@ endif
 
 INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/bl31/services		\
-				-Iinclude/bl32			\
-				-Iinclude/bl32/payloads		\
 				-Iinclude/common		\
 				-Iinclude/drivers		\
 				-Iinclude/drivers/arm		\

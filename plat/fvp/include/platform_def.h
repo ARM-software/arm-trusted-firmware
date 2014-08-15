@@ -32,7 +32,7 @@
 #define __PLATFORM_DEF_H__
 
 #include <arch.h>
-#include <../fvp_def.h>
+#include "../fvp_def.h"
 
 
 /*******************************************************************************
@@ -131,8 +131,8 @@
 #if FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_SRAM
 # define TSP_SEC_MEM_BASE		FVP_TRUSTED_SRAM_BASE
 # define TSP_SEC_MEM_SIZE		FVP_TRUSTED_SRAM_SIZE
+# define TSP_PROGBITS_LIMIT		BL2_BASE
 # define BL32_BASE			FVP_TRUSTED_SRAM_BASE
-# define BL32_PROGBITS_LIMIT		BL2_BASE
 # define BL32_LIMIT			BL31_BASE
 #elif FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_DRAM
 # define TSP_SEC_MEM_BASE		FVP_TRUSTED_DRAM_BASE
@@ -144,17 +144,17 @@
 # error "Unsupported FVP_TSP_RAM_LOCATION_ID value"
 #endif
 
+/*
+ * ID of the secure physical generic timer interrupt used by the TSP.
+ */
+#define TSP_IRQ_SEC_PHY_TIMER		IRQ_SEC_PHY_TIMER
+
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define ADDR_SPACE_SIZE			(1ull << 32)
 #define MAX_XLAT_TABLES			2
 #define MAX_MMAP_REGIONS		16
-
-/*******************************************************************************
- * ID of the secure physical generic timer interrupt.
- ******************************************************************************/
-#define IRQ_SEC_PHY_TIMER		29
 
 /*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is
