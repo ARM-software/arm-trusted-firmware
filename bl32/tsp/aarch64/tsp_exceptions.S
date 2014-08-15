@@ -120,6 +120,9 @@ sync_exception_sp_elx:
 
 	.align	7
 irq_sp_elx:
+	/* Enable the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
 	save_caller_regs_and_lr
 	/* We just update some statistics in the handler */
 	bl	tsp_irq_received
@@ -132,6 +135,9 @@ irq_sp_elx:
 
 	.align	7
 fiq_sp_elx:
+	/* Enable the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
 	save_caller_regs_and_lr
 	bl	tsp_fiq_handler
 	cbz	x0, fiq_sp_elx_done

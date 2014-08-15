@@ -98,6 +98,14 @@ func bl31_entrypoint
 	 */
 	adr	x1, runtime_exceptions
 	msr	vbar_el3, x1
+	isb
+
+	/* ---------------------------------------------
+	 * Enable the SError interrupt now that the
+	 * exception vectors have been setup.
+	 * ---------------------------------------------
+	 */
+	msr	daifclr, #DAIF_ABT_BIT
 
 	/* ---------------------------------------------------------------------
 	 * The initial state of the Architectural feature trap register

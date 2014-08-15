@@ -112,6 +112,9 @@ SErrorSPx:
 	 */
 	.align	7
 SynchronousExceptionA64:
+	/* Enable the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
 	/* ------------------------------------------------
 	 * Only a single SMC exception from BL2 to ask
 	 * BL1 to pass EL3 control to BL31 is expected
