@@ -86,11 +86,11 @@ static int32_t juno_do_plat_actions(uint32_t afflvl, uint32_t state)
  * Juno handler called when an affinity instance is about to be turned on. The
  * level and mpidr determine the affinity instance.
  ******************************************************************************/
-int32_t juno_on(uint64_t mpidr,
-		uint64_t sec_entrypoint,
-		uint64_t ns_entrypoint,
-		uint32_t afflvl,
-		uint32_t state)
+int32_t juno_affinst_on(uint64_t mpidr,
+			uint64_t sec_entrypoint,
+			uint64_t ns_entrypoint,
+			uint32_t afflvl,
+			uint32_t state)
 {
 	/*
 	 * SCP takes care of powering up higher affinity levels so we
@@ -117,7 +117,7 @@ int32_t juno_on(uint64_t mpidr,
  * was turned off prior to wakeup and do what's necessary to setup it up
  * correctly.
  ******************************************************************************/
-int32_t juno_on_finish(uint64_t mpidr, uint32_t afflvl, uint32_t state)
+int32_t juno_affinst_on_finish(uint64_t mpidr, uint32_t afflvl, uint32_t state)
 {
 	/* Determine if any platform actions need to be executed. */
 	if (juno_do_plat_actions(afflvl, state) == -EAGAIN)
@@ -144,11 +144,109 @@ int32_t juno_on_finish(uint64_t mpidr, uint32_t afflvl, uint32_t state)
 }
 
 /*******************************************************************************
+ * Common function called while turning a cpu off or suspending it. It is called
+ * from juno_off() or juno_suspend() when these functions in turn are called for
+ * the highest affinity level which will be powered down. It performs the
+ * actions common to the OFF and SUSPEND calls.
+ ******************************************************************************/
+static int32_t juno_power_down_common(uint32_t afflvl)
+{
+	uint32_t cluster_state = scpi_power_on;
+
+	/* Prevent interrupts from spuriously waking up this cpu */
+	gic_cpuif_deactivate(GICC_BASE);
+
+	/* Cluster is to be turned off, so disable coherency */
+	if (afflvl > MPIDR_AFFLVL0) {
+		cci_disable_cluster_coherency(read_mpidr_el1());
+		cluster_state = scpi_power_off;
+	}
+
+	/*
+	 * Ask the SCP to power down the appropriate components depending upon
+	 * their state.
+	 */
+	scpi_set_css_power_state(read_mpidr_el1(),
+				 scpi_power_off,
+				 cluster_state,
+				 scpi_power_on);
+
+	return PSCI_E_SUCCESS;
+}
+
+/*******************************************************************************
+ * Handler called when an affinity instance is about to be turned off. The
+ * level and mpidr determine the affinity instance. The 'state' arg. allows the
+ * platform to decide whether the cluster is being turned off and take
+ * appropriate actions.
+ *
+ * CAUTION: There is no guarantee that caches will remain turned on across calls
+ * to this function as each affinity level is dealt with. So do not write & read
+ * global variables across calls. It will be wise to do flush a write to the
+ * global to prevent unpredictable results.
+ ******************************************************************************/
+static int32_t juno_affinst_off(uint64_t mpidr, uint32_t afflvl, uint32_t state)
+{
+	/* Determine if any platform actions need to be executed */
+	if (juno_do_plat_actions(afflvl, state) == -EAGAIN)
+		return PSCI_E_SUCCESS;
+
+	return juno_power_down_common(afflvl);
+}
+
+/*******************************************************************************
+ * Handler called when an affinity instance is about to be suspended. The
+ * level and mpidr determine the affinity instance. The 'state' arg. allows the
+ * platform to decide whether the cluster is being turned off and take apt
+ * actions. The 'sec_entrypoint' determines the address in BL3-1 from where
+ * execution should resume.
+ *
+ * CAUTION: There is no guarantee that caches will remain turned on across calls
+ * to this function as each affinity level is dealt with. So do not write & read
+ * global variables across calls. It will be wise to do flush a write to the
+ * global to prevent unpredictable results.
+ ******************************************************************************/
+static int32_t juno_affinst_suspend(uint64_t mpidr,
+				    uint64_t sec_entrypoint,
+				    uint64_t ns_entrypoint,
+				    uint32_t afflvl,
+				    uint32_t state)
+{
+	/* Determine if any platform actions need to be executed */
+	if (juno_do_plat_actions(afflvl, state) == -EAGAIN)
+		return PSCI_E_SUCCESS;
+
+	/*
+	 * Setup mailbox with address for CPU entrypoint when it next powers up.
+	 */
+	juno_program_mailbox(mpidr, sec_entrypoint);
+
+	return juno_power_down_common(afflvl);
+}
+
+/*******************************************************************************
+ * Juno handler called when an affinity instance has just been powered on after
+ * having been suspended earlier. The level and mpidr determine the affinity
+ * instance.
+ * TODO: At the moment we reuse the on finisher and reinitialize the secure
+ * context. Need to implement a separate suspend finisher.
+ ******************************************************************************/
+static int32_t juno_affinst_suspend_finish(uint64_t mpidr,
+					   uint32_t afflvl,
+					   uint32_t state)
+{
+	return juno_affinst_on_finish(mpidr, afflvl, state);
+}
+
+/*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static const plat_pm_ops_t juno_ops = {
-	.affinst_on		= juno_on,
-	.affinst_on_finish	= juno_on_finish,
+	.affinst_on		= juno_affinst_on,
+	.affinst_on_finish	= juno_affinst_on_finish,
+	.affinst_off		= juno_affinst_off,
+	.affinst_suspend	= juno_affinst_suspend,
+	.affinst_suspend_finish	= juno_affinst_suspend_finish
 };
 
 /*******************************************************************************
