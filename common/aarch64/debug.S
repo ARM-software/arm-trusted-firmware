@@ -58,13 +58,13 @@ assert_msg2:
 	.macro asm_print_line_dec
 	mov	x6, #10		/* Divide by 10 after every loop iteration */
 	mov	x5, #MAX_DEC_DIVISOR
-1:
+dec_print_loop:
 	udiv	x0, x4, x5		/* Get the quotient */
 	msub	x4, x0, x5, x4		/* Find the remainder */
 	add	x0, x0, #ASCII_OFFSET_NUM		/* Convert to ascii */
 	bl	plat_crash_console_putc
 	udiv	x5, x5, x6		/* Reduce divisor */
-	cbnz	x5, 1b
+	cbnz	x5, dec_print_loop
 	.endm
 
 
