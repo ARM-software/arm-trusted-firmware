@@ -37,17 +37,8 @@
  ******************************************************************************/
 void bl1_arch_setup(void)
 {
-	/*
-	 * Set the next EL to be AArch64, route external abort and SError
-	 * interrupts to EL3
-	 */
-	write_scr_el3(SCR_RES1_BITS | SCR_RW_BIT | SCR_EA_BIT);
-
-	/*
-	 * Enable SError and Debug exceptions
-	 */
-	enable_serror();
-	enable_debug_exceptions();
+	/* Set the next EL to be AArch64 */
+	write_scr_el3(SCR_RES1_BITS | SCR_RW_BIT);
 }
 
 /*******************************************************************************

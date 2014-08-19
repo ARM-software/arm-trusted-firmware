@@ -53,6 +53,14 @@ func bl2_entrypoint
 	 */
 	adr	x0, early_exceptions
 	msr	vbar_el1, x0
+	isb
+
+	/* ---------------------------------------------
+	 * Enable the SError interrupt now that the
+	 * exception vectors have been setup.
+	 * ---------------------------------------------
+	 */
+	msr	daifclr, #DAIF_ABT_BIT
 
 	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer

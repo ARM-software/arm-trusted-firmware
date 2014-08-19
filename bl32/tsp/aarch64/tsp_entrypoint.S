@@ -78,6 +78,14 @@ func tsp_entrypoint
 	 */
 	adr	x0, tsp_exceptions
 	msr	vbar_el1, x0
+	isb
+
+	/* ---------------------------------------------
+	 * Enable the SError interrupt now that the
+	 * exception vectors have been setup.
+	 * ---------------------------------------------
+	 */
+	msr	daifclr, #DAIF_ABT_BIT
 
 	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer
@@ -187,6 +195,10 @@ func tsp_cpu_on_entry
 	 */
 	adr	x0, tsp_exceptions
 	msr	vbar_el1, x0
+	isb
+
+	/* Enable the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
 
 	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer
