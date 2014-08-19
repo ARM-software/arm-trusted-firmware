@@ -8,7 +8,10 @@ Contents :
 3.  Tools
 4.  Building the Trusted Firmware
 5.  Obtaining the normal world software
-6.  Running the software
+6.  Preparing the images to run on FVP
+7.  Running the software on FVP
+8.  Preparing the images to run on Juno
+9.  Running the software on Juno
 
 
 1.  Introduction
@@ -65,7 +68,7 @@ The following tools are required to use the ARM Trusted Firmware:
 4.  Building the Trusted Firmware
 ---------------------------------
 
-To build the software for the FVPs, follow these steps:
+To build the Trusted Firmware images, follow these steps:
 
 1.  Clone the ARM Trusted Firmware repository from GitHub:
 
@@ -76,20 +79,25 @@ To build the software for the FVPs, follow these steps:
         cd arm-trusted-firmware
 
 3.  Set the compiler path, specify a Non-trusted Firmware image (BL3-3) and
-    build:
+    a valid platform and build:
 
         CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
         BL33=<path-to>/<bl33_image>                               \
-        make PLAT=fvp all fip
+        make PLAT=<platform> all fip
 
-    See the "Summary of build options" for information on available build
-    options.
+    If `PLAT` is not specified, `fvp` is assumed by default. See the "Summary of
+    build options" for more information on available build options.
+
+    The BL3-3 image corresponds to the software that is executed after switching
+    to the non-secure world. UEFI can be used as the BL3-3 image. Refer to the
+    "Obtaining the normal world software" section below.
+
+    The TSP (Test Secure Payload), corresponding to the BL3-2 image, is not
+    compiled in by default. Refer to the "Building the Test Secure Payload"
+    section below.
 
     By default this produces a release version of the build. To produce a debug
-    version instead, refer to the "Debugging options" section below. UEFI can be
-    used as the BL3-3 image, refer to the "Obtaining the normal world software"
-    section below. By default this won't compile the TSP in, refer to the
-    "Building the Test Secure Payload" section below.
+    version instead, refer to the "Debugging options" section below.
 
     The build process creates products in a `build` directory tree, building
     the objects and binaries for each boot loader stage in separate
@@ -100,7 +108,7 @@ To build the software for the FVPs, follow these steps:
     *   `build/<platform>/<build-type>/bl2.bin`
     *   `build/<platform>/<build-type>/bl31.bin`
 
-    ... where `<platform>` currently defaults to `fvp` and `<build-type>` is
+    where `<platform>` is the name of the chosen platform and `<build-type>` is
     either `debug` or `release`. A Firmare Image Package(FIP) will be created as
     part of the build. It contains all boot loader images except for `bl1.bin`.
 
@@ -109,13 +117,19 @@ To build the software for the FVPs, follow these steps:
     For more information on FIPs, see the "Firmware Image Package" section in
     the [Firmware Design].
 
-4.  Copy the `bl1.bin` and `fip.bin` binary files to the directory from which
-    the FVP will be launched. Symbolic links of the same names may be created
-    instead.
+4.  (Optional) Some platforms may require a BL3-0 image to boot. This image can
+    be included in the FIP when building the Trusted Firmware by specifying the
+    BL30 build option:
 
-5.  (Optional) Build products for a specific build variant can be removed using:
+        BL30=<path-to>/<bl30_image>
 
-        make DEBUG=<D> PLAT=fvp clean
+5.  Output binary files `bl1.bin` and `fip.bin` are both required to boot the
+    system. How these files are used is platform specific. Refer to the
+    platform documentation on how to use the firmware images.
+
+6.  (Optional) Build products for a specific build variant can be removed using:
+
+        make DEBUG=<D> PLAT=<platform> clean
 
     ... where `<D>` is `0` or `1`, as specified when building.
 
@@ -234,19 +248,19 @@ It is recommended to remove the build artifacts before rebuilding:
 
     make -C tools/fip_create clean
 
-Create a Firmware package that contains existing FVP BL2 and BL3-1 images:
+Create a Firmware package that contains existing BL2 and BL3-1 images:
 
     # fip_create --help to print usage information
     # fip_create <fip_name> <images to add> [--dump to show result]
     ./tools/fip_create/fip_create fip.bin --dump \
-       --bl2 build/fvp/debug/bl2.bin --bl31 build/fvp/debug/bl31.bin
+       --bl2 build/<platform>/debug/bl2.bin --bl31 build/<platform>/debug/bl31.bin
 
      Firmware Image Package ToC:
     ---------------------------
     - Trusted Boot Firmware BL2: offset=0x88, size=0x81E8
-      file: 'build/fvp/debug/bl2.bin'
+      file: 'build/<platform>/debug/bl2.bin'
     - EL3 Runtime Firmware BL3-1: offset=0x8270, size=0xC218
-      file: 'build/fvp/debug/bl31.bin'
+      file: 'build/<platform>/debug/bl31.bin'
     ---------------------------
     Creating "fip.bin"
 
@@ -264,12 +278,12 @@ Existing package entries can be individially updated:
 
     # Change the BL2 from Debug to Release version
     ./tools/fip_create/fip_create fip.bin --dump \
-      --bl2 build/fvp/release/bl2.bin
+      --bl2 build/<platform>/release/bl2.bin
 
     Firmware Image Package ToC:
     ---------------------------
     - Trusted Boot Firmware BL2: offset=0x88, size=0x7240
-      file: 'build/fvp/release/bl2.bin'
+      file: 'build/<platform>/release/bl2.bin'
     - EL3 Runtime Firmware BL3-1: offset=0x72C8, size=0xC218
     ---------------------------
     Updating "fip.bin"
@@ -281,7 +295,7 @@ To compile a debug version and make the build more verbose use
 
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
     BL33=<path-to>/<bl33_image>                               \
-    make PLAT=fvp DEBUG=1 V=1 all fip
+    make PLAT=<platform> DEBUG=1 V=1 all fip
 
 AArch64 GCC uses DWARF version 4 debugging symbols by default. Some tools (for
 example DS-5) might not support this and may need an older version of DWARF
@@ -300,10 +314,7 @@ Extra debug options can be passed to the build system by setting `CFLAGS`:
     CFLAGS='-O0 -gdwarf-2'                                    \
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
     BL33=<path-to>/<bl33_image>                               \
-    make PLAT=fvp DEBUG=1 V=1 all fip
-
-
-NOTE: The Foundation FVP does not provide a debugger interface.
+    make PLAT=<platform> DEBUG=1 V=1 all fip
 
 
 ### Building the Test Secure Payload
@@ -318,13 +329,15 @@ BL3-1 binary. Then to build the TSP image and include it into the FIP use:
 
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
     BL33=<path-to>/<bl33_image>                               \
-    make PLAT=fvp SPD=tspd all fip
+    make PLAT=<platform> SPD=tspd all fip
 
 An additional boot loader binary file is created in the `build` directory:
 
     *   `build/<platform>/<build-type>/bl32.bin`
 
-The Firmware Package contains this new image:
+The FIP will now contain the additional BL3-2 image. Here is an example
+output from an FVP build in release mode including BL3-2 and using
+FVP_AARCH64_EFI.fd as BL3-3 image:
 
     Firmware Image Package ToC:
     ---------------------------
@@ -339,14 +352,6 @@ The Firmware Package contains this new image:
     ---------------------------
     Creating "build/fvp/release/fip.bin"
 
-On FVP, the TSP binary runs from Trusted SRAM by default. It is also possible
-to run it from Trusted DRAM. This is controlled by the build configuration
-`FVP_TSP_RAM_LOCATION`:
-
-    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
-    BL33=<path-to>/<bl33_image>                               \
-    make PLAT=fvp SPD=tspd FVP_TSP_RAM_LOCATION=tdram all fip
-
 
 ### Checking source code style
 
@@ -359,12 +364,12 @@ To check the entire source tree, you must first download a copy of checkpatch.pl
 (or the full Linux source), set the CHECKPATCH environment variable to point to
 the script and build the target checkcodebase:
 
-    make CHECKPATCH=../linux/scripts/checkpatch.pl checkcodebase
+    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkcodebase
 
 To just check the style on the files that differ between your local branch and
 the remote master, use:
 
-    make CHECKPATCH=../linux/scripts/checkpatch.pl checkpatch
+    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkpatch
 
 If you wish to check your patch against something other than the remote master,
 set the BASE_COMMIT variable to your desired branch.  By default, BASE_COMMIT
@@ -380,8 +385,8 @@ Potentially any kind of non-trusted firmware may be used with the ARM Trusted
 Firmware but the software has only been tested with the EFI Development Kit 2
 (EDK2) open source implementation of the UEFI specification.
 
-To build the software to be compatible with Foundation and Base FVPs, follow
-these steps:
+To build the software to be compatible with Foundation and Base FVPs and the
+Juno platform, follow these steps:
 
 1.  Clone the [EDK2 source code][EDK2] from GitHub:
 
@@ -406,26 +411,42 @@ these steps:
 
 4.  Build the EDK2 software
 
-        CROSS_COMPILE=<absolute-path-to-aarch64-gcc>/bin/aarch64-none-elf- \
-        make -f ArmPlatformPkg/Scripts/Makefile EDK2_ARCH=AARCH64          \
-        EDK2_DSC=ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc \
-        EDK2_TOOLCHAIN=ARMGCC EDK2_MACROS="-n 6 -D ARM_FOUNDATION_FVP=1"
+    1.  Build for FVP
 
-    The EDK2 binary for use with the ARM Trusted Firmware can then be found
-    here:
+            GCC49_AARCH64_PREFIX=<absolute-path-to-aarch64-gcc>/bin/aarch64-none-elf- \
+            make -f ArmPlatformPkg/Scripts/Makefile EDK2_ARCH=AARCH64 \
+            EDK2_DSC=ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc \
+            EDK2_TOOLCHAIN=GCC49 EDK2_BUILD=RELEASE \
+            EDK2_MACROS="-n 6 -D ARM_FOUNDATION_FVP=1"
 
-        Build/ArmVExpress-FVP-AArch64/DEBUG_ARMGCC/FV/FVP_AARCH64_EFI.fd
+        The EDK2 binary for use with the ARM Trusted Firmware can then be found
+        here:
 
-    This will build EDK2 for the default settings as used by the FVPs. The EDK2
-    binary `FVP_AARCH64_EFI.fd` should be specified as `BL33` in in the `make`
-    command line when building the Trusted Firmware. See the "Building the
-    Trusted Firmware" section above.
+             Build/ArmVExpress-FVP-AArch64/RELEASE_GCC49/FV/FVP_AARCH64_EFI.fd
 
-5.  (Optional) To boot Linux using a VirtioBlock file-system, the command line
+    2.  Build for Juno
+
+            GCC49_AARCH64_PREFIX=<absolute-path-to-aarch64-gcc>/bin/aarch64-none-elf- \
+            make -f ArmPlatformPkg/ArmJunoPkg/Makefile EDK2_ARCH=AARCH64 \
+            EDK2_TOOLCHAIN=GCC49 EDK2_BUILD=RELEASE
+
+        The EDK2 binary for use with the ARM Trusted Firmware can then be found
+        here:
+
+            Build/ArmJuno/RELEASE_GCC49/FV/BL33_AP_UEFI.fd
+
+    The EDK2 binary should be specified as `BL33` in in the `make` command line
+    when building the Trusted Firmware. See the "Building the Trusted Firmware"
+    section above.
+
+5.  (Optional) To build EDK2 in debug mode, remove `EDK2_BUILD=RELEASE` from the
+    command line.
+
+6.  (Optional) To boot Linux using a VirtioBlock file-system, the command line
     passed from EDK2 to the Linux kernel must be modified as described in the
     "Obtaining a root file-system" section below.
 
-6.  (Optional) If legacy GICv2 locations are used, the EDK2 platform description
+7.  (Optional) If legacy GICv2 locations are used, the EDK2 platform description
     must be updated. This is required as EDK2 does not support probing for the
     GIC location. To do this, first clean the EDK2 build directory.
 
@@ -466,8 +487,11 @@ Preparing a Linux kernel for use on the FVPs can be done as follows
         CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- \
         make -j6 ARCH=arm64
 
-3.  Copy the Linux image `arch/arm64/boot/Image` to the working directory from
-    where the FVP is launched. Alternatively a symbolic link may be used.
+The compiled Linux image will now be found at `arch/arm64/boot/Image`.
+
+
+6.  Preparing the images to run on FVP
+--------------------------------------
 
 ### Obtaining the Flattened Device Trees
 
@@ -507,6 +531,11 @@ and MMC support, and has only one CPU cluster.
 
 Copy the chosen FDT blob as `fdt.dtb` to the directory from which the FVP
 is launched. Alternatively a symbolic link may be used.
+
+### Preparing the kernel image
+
+Copy the kernel image file `arch/arm64/boot/Image` to the directory from which
+the FVP is launched. Alternatively a symbolic link may be used.
 
 ### Obtaining a root file-system
 
@@ -557,7 +586,7 @@ To prepare a VirtioBlock file-system, do the following:
 4.  The file-system image file should be provided to the model environment by
     passing it the correct command line option. In the FVPs the following
     option should be provided in addition to the ones described in the
-    "Running the software" section below.
+    "Running the software on FVP" section below.
 
     NOTE: A symbolic link to this file cannot be used with the FVP; the path
     to the real file must be provided.
@@ -603,8 +632,8 @@ To prepare a RAM-disk root file-system, do the following:
     launched from. Alternatively a symbolic link may be used.
 
 
-6.  Running the software
-------------------------
+7.  Running the software on FVP
+-------------------------------
 
 This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
@@ -620,6 +649,8 @@ with the `--version` parameter.
 
 NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 The commands below would report an `unhandled argument` error in this case.
+
+NOTE: The Foundation FVP does not provide a debugger interface.
 
 Please refer to the FVP documentation for a detailed description of the model
 parameter options. A brief description of the important ones that affect the
@@ -869,6 +900,104 @@ The `bp.variant` parameter corresponds to the build variant field of the
 detect the legacy VE memory map while configuring the GIC.
 
 
+8.  Preparing the images to run on Juno
+---------------------------------------
+
+### Preparing Trusted Firmware images
+
+The Juno platform requires a BL3-0 image to boot up. This image contains the
+runtime firmware that runs on the SCP (System Control Processor). It can be
+downloaded from the [ARM Silver SCP website] (requires registration).
+
+Rebuild the Trusted Firmware specifying the BL3-0 image. Refer to the section
+"Building the Trusted Firmware". Alternatively, the FIP image can be updated
+manually with the BL3-0 image:
+
+    fip_create --dump --bl30 <path-to>/<bl30-binary> <path-to>/<FIP-binary>
+
+### Obtaining the Flattened Device Tree
+
+Juno's device tree blob is built along with the kernel. It is located in:
+
+    <path-to-linux>/arch/arm64/boot/dts/juno.dtb
+
+### Deploying a root filesystem on a USB mass storage device
+
+1.  Format the partition on the USB mass storage as ext4 filesystem.
+
+    A 2GB or larger USB mass storage device is required. If another filesystem
+    type is preferred then support needs to be enabled in the kernel. For
+    example, if the USB mass storage corresponds to /dev/sdb device on your
+    computer, use the following command to format partition 1 as ext4:
+
+        sudo mkfs.ext4 /dev/sdb1
+
+    Note: Please be cautious with this command as it could format your hard
+    drive instead if you specify the wrong device.
+
+2.  Mount the USB mass storage on the computer (if not done automatically):
+
+        sudo mount /dev/sdb1 /media/usb_storage
+
+    where '/media/usb_storage' corresponds to the mount point (the directory
+    must exist prior to using the mount command).
+
+3.  Download the rootfs specified in section "Prepare RAM-disk" and extract the
+    files as root user onto the formatted partition:
+
+        sudo tar zxf <linaro-image>.tar.gz -C /media/usb_storage/
+
+    Note: It is not necessary to modify the Linaro image as described in that
+    section since we are not using a RAM-disk.
+
+5.  Unmount the USB mass storage:
+
+        sudo umount /media/usb_storage
+
+
+9.  Running the software on Juno
+--------------------------------
+
+The steps to install and run the binaries on Juno are as follows:
+
+1.  Connect a serial cable to the UART0 port (the top UART port on the back
+    panel). The UART settings are 115200 bauds, 8 bits data, no parity, 1 stop
+    bit.
+
+2.  Mount the Juno board storage via the CONFIG USB port
+
+    This is the only USB type B port on the board, labelled DBG_USB and located
+    on the back panel next to the ON/OFF and HW RESET buttons. Plug a type B USB
+    cable into this port on the Juno board and plug the other end into a host
+    PC, and then issue the following command in the UART0 session:
+
+        Cmd> usb_on
+
+    If the board doesn't show the Cmd> prompt then press the black HW RESET
+    button once. Once the Juno board storage is detected by your PC, mount it
+    (if not automatically done by your operating system).
+
+        mount /dev/sdbX /media/JUNO
+
+    For the rest of the installation instructions, we will assume that the Juno
+    board storage has been mounted under the /media/JUNO directory.
+
+3.  Copy the files obtained from the build process into /media/JUNO/SOFTWARE:
+
+        bl1.bin
+        fip.bin
+        Image
+        juno.dtb
+
+4.  Umount the Juno board storage
+
+        umount /media/JUNO
+
+5.  Reboot the board. In the UART0 session, type:
+
+        Cmd> reboot
+
+
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
@@ -876,7 +1005,8 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 [Firmware Design]:  ./firmware-design.md
 
-[ARM FVP website]:  http://www.arm.com/fvp
-[Linaro Toolchain]: http://releases.linaro.org/14.07/components/toolchain/binaries/
-[EDK2]:             http://github.com/tianocore/edk2
-[DS-5]:             http://www.arm.com/products/tools/software-tools/ds-5/index.php
+[ARM FVP website]:         http://www.arm.com/fvp
+[ARM Silver SCP website]:  https://silver.arm.com/download/download.tm?pv=1764630
+[Linaro Toolchain]:        http://releases.linaro.org/14.07/components/toolchain/binaries/
+[EDK2]:                    http://github.com/tianocore/edk2
+[DS-5]:                    http://www.arm.com/products/tools/software-tools/ds-5/index.php
