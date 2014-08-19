@@ -78,6 +78,7 @@ int plat_crash_console_putc(int c);
 /*******************************************************************************
  * Mandatory BL1 functions
  ******************************************************************************/
+void bl1_early_platform_setup(void);
 void bl1_plat_arch_setup(void);
 void bl1_platform_setup(void);
 struct meminfo *bl1_plat_sec_mem_layout(void);
@@ -98,6 +99,7 @@ void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
 /*******************************************************************************
  * Mandatory BL2 functions
  ******************************************************************************/
+void bl2_early_platform_setup(struct meminfo *mem_layout);
 void bl2_plat_arch_setup(void);
 void bl2_platform_setup(void);
 struct meminfo *bl2_plat_sec_mem_layout(void);
@@ -183,11 +185,6 @@ unsigned int plat_get_aff_state(unsigned int, unsigned long);
  * Optional BL3-1 functions (may be overridden)
  ******************************************************************************/
 void bl31_plat_enable_mmu(uint32_t flags);
-
-/*******************************************************************************
- * Mandatory BL3-2 functions (only if platform contains a BL3-2)
- ******************************************************************************/
-void bl32_platform_setup(void);
 
 /*******************************************************************************
  * Optional BL3-2 functions (may be overridden)
