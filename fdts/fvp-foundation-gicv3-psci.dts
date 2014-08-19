@@ -205,6 +205,6 @@
 				<0 0 41 &gic 0 0 0 41 4>,
 				<0 0 42 &gic 0 0 0 42 4>;
 
-		/include/ "fvp-foundation-motherboard.dtsi"
+		/include/ "fvp-foundation-motherboard-no_psci.dtsi"
 	};
 };

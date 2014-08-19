@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <bakery_lock.h>
 #include <cci400.h>
+#include <debug.h>
 #include <mmio.h>
 #include <platform.h>
 #include <plat_config.h>
@@ -364,17 +365,41 @@ int fvp_affinst_suspend_finish(unsigned long mpidr,
 	return fvp_affinst_on_finish(mpidr, afflvl, state);
 }
 
+/*******************************************************************************
+ * FVP handlers to shutdown/reboot the system
+ ******************************************************************************/
+static void __dead2 fvp_system_off(void)
+{
+	/* Write the System Configuration Control Register */
+	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGCTRL,
+		CFGCTRL_START | CFGCTRL_RW | CFGCTRL_FUNC(FUNC_SHUTDOWN));
+	wfi();
+	ERROR("FVP System Off: operation not handled.\n");
+	panic();
+}
+
+static void __dead2 fvp_system_reset(void)
+{
+	/* Write the System Configuration Control Register */
+	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGCTRL,
+		CFGCTRL_START | CFGCTRL_RW | CFGCTRL_FUNC(FUNC_REBOOT));
+	wfi();
+	ERROR("FVP System Reset: operation not handled.\n");
+	panic();
+}
 
 /*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static const plat_pm_ops_t fvp_plat_pm_ops = {
-	fvp_affinst_standby,
-	fvp_affinst_on,
-	fvp_affinst_off,
-	fvp_affinst_suspend,
-	fvp_affinst_on_finish,
-	fvp_affinst_suspend_finish,
+	.affinst_standby = fvp_affinst_standby,
+	.affinst_on = fvp_affinst_on,
+	.affinst_off = fvp_affinst_off,
+	.affinst_suspend = fvp_affinst_suspend,
+	.affinst_on_finish = fvp_affinst_on_finish,
+	.affinst_suspend_finish = fvp_affinst_suspend_finish,
+	.system_off = fvp_system_off,
+	.system_reset = fvp_system_reset
 };
 
 /*******************************************************************************

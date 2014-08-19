@@ -52,10 +52,9 @@
 #define PSCI_SYSTEM_RESET		0x84000009
 
 /*
- * Number of PSCI calls (above) implemented. System off and reset aren't
- * implemented as yet
+ * Number of PSCI calls (above) implemented
  */
-#define PSCI_NUM_CALLS			13
+#define PSCI_NUM_CALLS			15
 
 /*******************************************************************************
  * PSCI Migrate and friends
@@ -154,6 +153,8 @@ typedef struct plat_pm_ops {
 	int (*affinst_suspend_finish)(unsigned long,
 				      unsigned int,
 				      unsigned int);
+	void (*system_off)(void) __dead2;
+	void (*system_reset)(void) __dead2;
 } plat_pm_ops_t;
 
 /*******************************************************************************
@@ -170,6 +171,8 @@ typedef struct spd_pm_ops {
 	void (*svc_suspend_finish)(uint64_t suspend_level);
 	void (*svc_migrate)(uint64_t __unused1, uint64_t __unused2);
 	int32_t (*svc_migrate_info)(uint64_t *__unused);
+	void (*svc_system_off)(void);
+	void (*svc_system_reset)(void);
 } spd_pm_ops_t;
 
 /*******************************************************************************
@@ -182,8 +185,6 @@ int psci_affinity_info(unsigned long, unsigned int);
 int psci_migrate(unsigned int);
 unsigned int psci_migrate_info_type(void);
 unsigned long psci_migrate_info_up_cpu(void);
-void psci_system_off(void);
-void psci_system_reset(void);
 int psci_cpu_on(unsigned long,
 		unsigned long,
 		unsigned long);

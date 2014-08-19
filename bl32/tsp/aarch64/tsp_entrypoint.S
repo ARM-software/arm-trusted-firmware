@@ -162,6 +162,8 @@ func tsp_vector_table
 	b	tsp_cpu_resume_entry
 	b	tsp_cpu_suspend_entry
 	b	tsp_fiq_entry
+	b	tsp_system_off_entry
+	b	tsp_system_reset_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this
@@ -175,6 +177,28 @@ func tsp_vector_table
 	 */
 func tsp_cpu_off_entry
 	bl	tsp_cpu_off_main
+	restore_args_call_smc
+
+	/*---------------------------------------------
+	 * This entrypoint is used by the TSPD when the
+	 * system is about to be switched off (through
+	 * a SYSTEM_OFF psci call) to ask the TSP to
+	 * perform any necessary bookkeeping.
+	 * ---------------------------------------------
+	 */
+func tsp_system_off_entry
+	bl	tsp_system_off_main
+	restore_args_call_smc
+
+	/*---------------------------------------------
+	 * This entrypoint is used by the TSPD when the
+	 * system is about to be reset (through a
+	 * SYSTEM_RESET psci call) to ask the TSP to
+	 * perform any necessary bookkeeping.
+	 * ---------------------------------------------
+	 */
+func tsp_system_reset_entry
+	bl	tsp_system_reset_main
 	restore_args_call_smc
 
 	/*---------------------------------------------
