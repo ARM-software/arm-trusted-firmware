@@ -134,7 +134,7 @@ DEFINE_CONFIGURE_MMU_EL(3)
  ******************************************************************************/
 int fvp_config_setup(void)
 {
-	unsigned int rev, hbi, bld, arch, sys_id, midr_pn;
+	unsigned int rev, hbi, bld, arch, sys_id;
 
 	sys_id = mmio_read_32(VE_SYSREGS_BASE + V2M_SYS_ID);
 	rev = (sys_id >> SYS_ID_REV_SHIFT) & SYS_ID_REV_MASK;
@@ -193,11 +193,6 @@ int fvp_config_setup(void)
 		}
 		break;
 	case HBI_FVP_BASE:
-		midr_pn = (read_midr() >> MIDR_PN_SHIFT) & MIDR_PN_MASK;
-		plat_config.flags =
-			((midr_pn == MIDR_PN_A57) || (midr_pn == MIDR_PN_A53))
-			? CONFIG_CPUECTLR_SMP_BIT : 0;
-
 		plat_config.max_aff0 = 4;
 		plat_config.max_aff1 = 2;
 		plat_config.flags |= CONFIG_BASE_MMAP | CONFIG_HAS_CCI |

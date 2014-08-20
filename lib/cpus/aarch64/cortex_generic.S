@@ -27,52 +27,64 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __PLAT_CONFIG_H__
-#define __PLAT_CONFIG_H__
+#include <arch.h>
+#include <asm_macros.S>
+#include <cortex_generic.h>
+#include <cpu_macros.S>
 
-#define CONFIG_GICC_BASE_OFFSET		0x4
+func cortex_generic_core_pwr_dwn
+	/* ---------------------------------------------
+	 * Disable the Data Cache.
+	 * ---------------------------------------------
+	 */
+	mrs	x1, sctlr_el3
+	bic	x1, x1, #SCTLR_C_BIT
+	msr	sctlr_el3, x1
+	isb
 
+	mov	x0, #DCCISW
 
-#ifndef __ASSEMBLY__
-
-#include <cassert.h>
-
-
-enum plat_config_flags {
-	/* Whether Base FVP memory map is in use */
-	CONFIG_BASE_MMAP		= 0x1,
-	/* Whether CCI should be enabled */
-	CONFIG_HAS_CCI			= 0x2,
-	/* Whether TZC should be configured */
-	CONFIG_HAS_TZC			= 0x4
-};
-
-typedef struct plat_config {
-	unsigned int gicd_base;
-	unsigned int gicc_base;
-	unsigned int gich_base;
-	unsigned int gicv_base;
-	unsigned int max_aff0;
-	unsigned int max_aff1;
-	unsigned long flags;
-} plat_config_t;
-
-inline const plat_config_t *get_plat_config();
+	/* ---------------------------------------------
+	 * Flush L1 cache to PoU.
+	 * ---------------------------------------------
+	 */
+	b	dcsw_op_louis
 
 
-CASSERT(CONFIG_GICC_BASE_OFFSET == __builtin_offsetof(
-	plat_config_t, gicc_base),
-	assert_gicc_base_offset_mismatch);
 
-/* If used, plat_config must be defined and populated in the platform port*/
-extern plat_config_t plat_config;
+func cortex_generic_cluster_pwr_dwn
+	/* ---------------------------------------------
+	 * Disable the Data Cache.
+	 * ---------------------------------------------
+	 */
+	mrs	x1, sctlr_el3
+	bic	x1, x1, #SCTLR_C_BIT
+	msr	sctlr_el3, x1
+	isb
 
-inline const plat_config_t *get_plat_config()
-{
-	return &plat_config;
-}
+	/* ---------------------------------------------
+	 * Flush L1 and L2 caches to PoC.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	b	dcsw_op_all
 
+	/* ---------------------------------------------
+	 * This function provides cpu specific
+	 * register information for crash reporting.
+	 * It needs to return with x6 pointing to
+	 * a list of register names in ascii and
+	 * x8 - x15 having values of registers to be
+	 * reported.
+	 * ---------------------------------------------
+	 */
+func cortex_generic_cpu_reg_dump
+	mov	x6, #0 /* no registers to report */
+	ret
 
-#endif /* __ASSEMBLY__ */
+	/* cpu_ops for AEM models */
+declare_cpu_ops cortex_generic, CORTEX_GENERIC_AEM_MIDR, 1
 
-#endif /* __PLAT_CONFIG_H__ */
+	/* cpu_ops for Foundation models */
+declare_cpu_ops cortex_generic, CORTEX_GENERIC_FOUNDATION_MIDR, 1
+

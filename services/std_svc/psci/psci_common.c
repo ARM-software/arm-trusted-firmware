@@ -59,39 +59,101 @@ __attribute__ ((section("tzfw_coherent_mem")));
 const plat_pm_ops_t *psci_plat_pm_ops;
 
 /*******************************************************************************
+ * This function is passed an array of pointers to affinity level nodes in the
+ * topology tree for an mpidr. It iterates through the nodes to find the highest
+ * affinity level which is marked as physically powered off.
+ ******************************************************************************/
+uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
+				       uint32_t end_afflvl,
+				       aff_map_node_t *mpidr_nodes[])
+{
+	uint32_t max_afflvl = PSCI_INVALID_DATA;
+
+	for (; start_afflvl <= end_afflvl; start_afflvl++) {
+		if (mpidr_nodes[start_afflvl] == NULL)
+			continue;
+
+		if (psci_get_phys_state(mpidr_nodes[start_afflvl]) ==
+		    PSCI_STATE_OFF)
+			max_afflvl = start_afflvl;
+	}
+
+	return max_afflvl;
+}
+
+/*******************************************************************************
+ * This function saves the highest affinity level which is in OFF state. The
+ * affinity instance with which the level is associated is determined by the
+ * caller.
+ ******************************************************************************/
+void psci_set_max_phys_off_afflvl(uint32_t afflvl)
+{
+	set_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl, afflvl);
+
+	/*
+	 * Ensure that the saved value is flushed to main memory and any
+	 * speculatively pre-fetched stale copies are invalidated from the
+	 * caches of other cpus in the same coherency domain. This ensures that
+	 * the value can be safely read irrespective of the state of the data
+	 * cache.
+	 */
+	flush_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
+}
+
+/*******************************************************************************
+ * This function reads the saved highest affinity level which is in OFF
+ * state. The affinity instance with which the level is associated is determined
+ * by the caller.
+ ******************************************************************************/
+uint32_t psci_get_max_phys_off_afflvl(void)
+{
+	/*
+	 * Ensure that the last update of this value in this cpu's cache is
+	 * flushed to main memory and any speculatively pre-fetched stale copies
+	 * are invalidated from the caches of other cpus in the same coherency
+	 * domain. This ensures that the value is always read from the main
+	 * memory when it was written before the data cache was enabled.
+	 */
+	flush_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
+	return get_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
+}
+
+/*******************************************************************************
  * Routine to return the maximum affinity level to traverse to after a cpu has
  * been physically powered up. It is expected to be called immediately after
- * reset from assembler code. It has to find its 'aff_map_node' instead of
- * getting it as an argument.
- * TODO: Calling psci_get_aff_map_node() with the MMU disabled is slow. Add
- * support to allow faster access to the target affinity level.
+ * reset from assembler code.
  ******************************************************************************/
-int get_power_on_target_afflvl(unsigned long mpidr)
+int get_power_on_target_afflvl()
 {
-	aff_map_node_t *node;
-	unsigned int state;
 	int afflvl;
 
+#if DEBUG
+	unsigned int state;
+	aff_map_node_t *node;
+
 	/* Retrieve our node from the topology tree */
-	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
-			MPIDR_AFFLVL0);
+	node = psci_get_aff_map_node(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
+				     MPIDR_AFFLVL0);
 	assert(node);
 
 	/*
-	 * Return the maximum supported affinity level if this cpu was off.
-	 * Call the handler in the suspend code if this cpu had been suspended.
-	 * Any other state is invalid.
+	 * Sanity check the state of the cpu. It should be either suspend or "on
+	 * pending"
 	 */
 	state = psci_get_state(node);
-	if (state == PSCI_STATE_ON_PENDING)
-		return get_max_afflvl();
+	assert(state == PSCI_STATE_SUSPEND || state == PSCI_STATE_ON_PENDING);
+#endif
 
-	if (state == PSCI_STATE_SUSPEND) {
-		afflvl = psci_get_aff_map_node_suspend_afflvl(node);
-		assert(afflvl != PSCI_INVALID_DATA);
-		return afflvl;
-	}
-	return PSCI_E_INVALID_PARAMS;
+	/*
+	 * Assume that this cpu was suspended and retrieve its target affinity
+	 * level. If it is invalid then it could only have been turned off
+	 * earlier. get_max_afflvl() will return the highest affinity level a
+	 * cpu can be turned off to.
+	 */
+	afflvl = psci_get_suspend_afflvl();
+	if (afflvl == PSCI_INVALID_DATA)
+		afflvl = get_max_afflvl();
+	return afflvl;
 }
 
 /*******************************************************************************
@@ -153,12 +215,31 @@ int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
 
 /*******************************************************************************
  * This function is passed an array of pointers to affinity level nodes in the
+ * topology tree for an mpidr and the state which each node should transition
+ * to. It updates the state of each node between the specified affinity levels.
+ ******************************************************************************/
+void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
+			       uint32_t end_afflvl,
+			       aff_map_node_t *mpidr_nodes[],
+			       uint32_t state)
+{
+	uint32_t level;
+
+	for (level = start_afflvl; level <= end_afflvl; level++) {
+		if (mpidr_nodes[level] == NULL)
+			continue;
+		psci_set_state(mpidr_nodes[level], state);
+	}
+}
+
+/*******************************************************************************
+ * This function is passed an array of pointers to affinity level nodes in the
  * topology tree for an mpidr. It picks up locks for each affinity level bottom
  * up in the range specified.
  ******************************************************************************/
 void psci_acquire_afflvl_locks(int start_afflvl,
 			       int end_afflvl,
-			       mpidr_aff_map_nodes_t mpidr_nodes)
+			       aff_map_node_t *mpidr_nodes[])
 {
 	int level;
 
@@ -176,7 +257,7 @@ void psci_acquire_afflvl_locks(int start_afflvl,
  ******************************************************************************/
 void psci_release_afflvl_locks(int start_afflvl,
 			       int end_afflvl,
-			       mpidr_aff_map_nodes_t mpidr_nodes)
+			       aff_map_node_t *mpidr_nodes[])
 {
 	int level;
 
@@ -348,7 +429,7 @@ unsigned short psci_get_phys_state(aff_map_node_t *node)
  * topology tree and calls the physical power on handler for the corresponding
  * affinity levels
  ******************************************************************************/
-static int psci_call_power_on_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
+static int psci_call_power_on_handlers(aff_map_node_t *mpidr_nodes[],
 				       int start_afflvl,
 				       int end_afflvl,
 				       afflvl_power_on_finisher_t *pon_handlers)
@@ -397,6 +478,8 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 {
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	int rc;
+	unsigned int max_phys_off_afflvl;
+
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -420,6 +503,17 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
 
+	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(start_afflvl,
+							    end_afflvl,
+							    mpidr_nodes);
+	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
+
+	/*
+	 * Stash the highest affinity level that will come out of the OFF or
+	 * SUSPEND states.
+	 */
+	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
+
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_power_on_handlers(mpidr_nodes,
 					 start_afflvl,
@@ -427,6 +521,23 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 					 pon_handlers);
 	if (rc != PSCI_E_SUCCESS)
 		panic();
+
+	/*
+	 * This function updates the state of each affinity instance
+	 * corresponding to the mpidr in the range of affinity levels
+	 * specified.
+	 */
+	psci_do_afflvl_state_mgmt(start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes,
+				  PSCI_STATE_ON);
+
+	/*
+	 * Invalidate the entry for the highest affinity level stashed earlier.
+	 * This ensures that any reads of this variable outside the power
+	 * up/down sequences return PSCI_INVALID_DATA
+	 */
+	psci_set_max_phys_off_afflvl(PSCI_INVALID_DATA);
 
 	/*
 	 * This loop releases the lock corresponding to each affinity level

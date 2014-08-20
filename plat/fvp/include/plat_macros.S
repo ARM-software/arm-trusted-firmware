@@ -52,7 +52,7 @@ spacer:
 	.macro plat_print_gic_regs
 	adr	x0, plat_config
 	ldr	w16, [x0, #CONFIG_GICC_BASE_OFFSET]
-	cbz	x16, 1f
+	cbz	x16, exit_print_gic_regs
 	/* gic base address is now in x16 */
 	adr	x6, gic_regs	/* Load the gic reg list to x6 */
 	/* Load the gic regs to gp regs used by str_in_crash_buf_print */
@@ -66,10 +66,10 @@ spacer:
 	add	x7, x16, #GICD_ISPENDR
 	adr	x4, gicd_pend_reg
 	bl	asm_print_str
-2:
+gicd_ispendr_loop:
 	sub	x4, x7, x16
 	cmp	x4, #0x280
-	b.eq	1f
+	b.eq	exit_print_gic_regs
 	bl	asm_print_hex
 	adr	x4, spacer
 	bl	asm_print_str
@@ -77,8 +77,8 @@ spacer:
 	bl	asm_print_hex
 	adr	x4, newline
 	bl	asm_print_str
-	b	2b
-1:
+	b	gicd_ispendr_loop
+exit_print_gic_regs:
 	.endm
 
 .section .rodata.cci_reg_name, "aS"

@@ -68,7 +68,7 @@ func bl31_entrypoint
 	 * Boot ROM(BL0) programming sequence
 	 * -----------------------------------------------------
 	 */
-	bl	cpu_reset_handler
+	bl	reset_handler
 #endif
 	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer
@@ -152,6 +152,12 @@ func bl31_entrypoint
 	ldr	x0, =__COHERENT_RAM_START__
 	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
 	bl	zeromem16
+
+	/* ---------------------------------------------
+	 * Initialize the cpu_ops pointer.
+	 * ---------------------------------------------
+	 */
+	bl	init_cpu_ops
 
 	/* ---------------------------------------------
 	 * Use SP_EL0 for the C runtime stack.

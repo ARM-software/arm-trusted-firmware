@@ -116,7 +116,7 @@ aff_map_node_t *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
 int psci_get_aff_map_nodes(unsigned long mpidr,
 			   int start_afflvl,
 			   int end_afflvl,
-			   mpidr_aff_map_nodes_t mpidr_nodes)
+			   aff_map_node_t *mpidr_nodes[])
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
 	aff_map_node_t *node;
@@ -189,15 +189,26 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 		if (state & PSCI_AFF_PRESENT)
 			psci_set_state(&psci_aff_map[idx], PSCI_STATE_OFF);
 
-		/* Invalidate the suspend context for the node */
-		psci_aff_map[idx].power_state = PSCI_INVALID_DATA;
-
 		/*
 		 * Associate a non-secure context with this affinity
 		 * instance through the context management library.
 		 */
 		linear_id = platform_get_core_pos(mpidr);
 		assert(linear_id < PLATFORM_CORE_COUNT);
+
+		/* Invalidate the suspend context for the node */
+		set_cpu_data_by_index(linear_id,
+				      psci_svc_cpu_data.power_state,
+				      PSCI_INVALID_DATA);
+
+		/*
+		 * There is no state associated with the current execution
+		 * context so ensure that any reads of the highest affinity
+		 * level in a powered down state return PSCI_INVALID_DATA.
+		 */
+		set_cpu_data_by_index(linear_id,
+				      psci_svc_cpu_data.max_phys_off_afflvl,
+				      PSCI_INVALID_DATA);
 
 		cm_set_context_by_mpidr(mpidr,
 					(void *) &psci_ns_context[linear_id],

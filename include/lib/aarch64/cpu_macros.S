@@ -27,52 +27,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __PLAT_CONFIG_H__
-#define __PLAT_CONFIG_H__
 
-#define CONFIG_GICC_BASE_OFFSET		0x4
+#include <arch.h>
 
+#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
+				(MIDR_PN_MASK << MIDR_PN_SHIFT)
 
-#ifndef __ASSEMBLY__
+	/*
+	 * Define the offsets to the fields in cpu_ops structure.
+	 */
+	.struct 0
+CPU_MIDR: /* cpu_ops midr */
+	.space  8
+/* Reset fn is needed in BL at reset vector */
+#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+CPU_RESET_FUNC: /* cpu_ops reset_func */
+	.space  8
+#endif
+#if IMAGE_BL31 /* The power down core and cluster is needed only in BL3-1 */
+CPU_PWR_DWN_CORE: /* cpu_ops core_pwr_dwn */
+	.space  8
+CPU_PWR_DWN_CLUSTER: /* cpu_ops cluster_pwr_dwn */
+	.space  8
+#endif
+#if (IMAGE_BL31 && CRASH_REPORTING)
+CPU_REG_DUMP: /* cpu specific register dump for crash reporting */
+	.space  8
+#endif
+CPU_OPS_SIZE = .
 
-#include <cassert.h>
-
-
-enum plat_config_flags {
-	/* Whether Base FVP memory map is in use */
-	CONFIG_BASE_MMAP		= 0x1,
-	/* Whether CCI should be enabled */
-	CONFIG_HAS_CCI			= 0x2,
-	/* Whether TZC should be configured */
-	CONFIG_HAS_TZC			= 0x4
-};
-
-typedef struct plat_config {
-	unsigned int gicd_base;
-	unsigned int gicc_base;
-	unsigned int gich_base;
-	unsigned int gicv_base;
-	unsigned int max_aff0;
-	unsigned int max_aff1;
-	unsigned long flags;
-} plat_config_t;
-
-inline const plat_config_t *get_plat_config();
-
-
-CASSERT(CONFIG_GICC_BASE_OFFSET == __builtin_offsetof(
-	plat_config_t, gicc_base),
-	assert_gicc_base_offset_mismatch);
-
-/* If used, plat_config must be defined and populated in the platform port*/
-extern plat_config_t plat_config;
-
-inline const plat_config_t *get_plat_config()
-{
-	return &plat_config;
-}
-
-
-#endif /* __ASSEMBLY__ */
-
-#endif /* __PLAT_CONFIG_H__ */
+	/*
+	 * Convenience macro to declare cpu_ops structure.
+	 * Make sure the structure fields are as per the offsets
+	 * defined above.
+	 */
+	.macro declare_cpu_ops _name:req, _midr:req, _noresetfunc = 0
+	.section cpu_ops, "a"; .align 3
+	.type cpu_ops_\_name, %object
+	.quad \_midr
+#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+	.if \_noresetfunc
+	.quad 0
+	.else
+	.quad \_name\()_reset_func
+	.endif
+#endif
+#if IMAGE_BL31
+	.quad \_name\()_core_pwr_dwn
+	.quad \_name\()_cluster_pwr_dwn
+#endif
+#if (IMAGE_BL31 && CRASH_REPORTING)
+	.quad \_name\()_cpu_reg_dump
+#endif
+	.endm
