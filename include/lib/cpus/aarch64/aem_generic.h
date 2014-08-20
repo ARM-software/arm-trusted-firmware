@@ -27,52 +27,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __PLAT_CONFIG_H__
-#define __PLAT_CONFIG_H__
 
-#define CONFIG_GICC_BASE_OFFSET		0x4
+#ifndef __AEM_GENERIC_H__
+#define __AEM_GENERIC_H__
 
+/* BASE AEM midr for revision 0 */
+#define BASE_AEM_MIDR 0x410FD0F0
 
-#ifndef __ASSEMBLY__
-
-#include <cassert.h>
-
-
-enum plat_config_flags {
-	/* Whether Base FVP memory map is in use */
-	CONFIG_BASE_MMAP		= 0x1,
-	/* Whether CCI should be enabled */
-	CONFIG_HAS_CCI			= 0x2,
-	/* Whether TZC should be configured */
-	CONFIG_HAS_TZC			= 0x4
-};
-
-typedef struct plat_config {
-	unsigned int gicd_base;
-	unsigned int gicc_base;
-	unsigned int gich_base;
-	unsigned int gicv_base;
-	unsigned int max_aff0;
-	unsigned int max_aff1;
-	unsigned long flags;
-} plat_config_t;
-
-inline const plat_config_t *get_plat_config();
+/* Foundation AEM midr for revision 0 */
+#define FOUNDATION_AEM_MIDR  0x410FD000
 
 
-CASSERT(CONFIG_GICC_BASE_OFFSET == __builtin_offsetof(
-	plat_config_t, gicc_base),
-	assert_gicc_base_offset_mismatch);
-
-/* If used, plat_config must be defined and populated in the platform port*/
-extern plat_config_t plat_config;
-
-inline const plat_config_t *get_plat_config()
-{
-	return &plat_config;
-}
-
-
-#endif /* __ASSEMBLY__ */
-
-#endif /* __PLAT_CONFIG_H__ */
+#endif /* __AEM_GENERIC_H__ */

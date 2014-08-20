@@ -131,6 +131,16 @@
 
 #include <stdint.h>
 
+/*******************************************************************************
+ * Structure used to store per-cpu information relevant to the PSCI service.
+ * It is populated in the per-cpu data array. In return we get a guarantee that
+ * this information will not reside on a cache line shared with another cpu.
+ ******************************************************************************/
+typedef struct psci_cpu_data {
+	uint32_t power_state;
+	uint32_t max_phys_off_afflvl;	/* Highest affinity level in physically
+					   powered off state */
+} psci_cpu_data_t;
 
 /*******************************************************************************
  * Structure populated by platform specific code to export routines which
@@ -179,8 +189,6 @@ typedef struct spd_pm_ops {
  * Function & Data prototypes
  ******************************************************************************/
 unsigned int psci_version(void);
-int __psci_cpu_suspend(unsigned int, unsigned long, unsigned long);
-int __psci_cpu_off(void);
 int psci_affinity_info(unsigned long, unsigned int);
 int psci_migrate(unsigned int);
 unsigned int psci_migrate_info_type(void);
@@ -192,8 +200,10 @@ void __dead2 psci_power_down_wfi(void);
 void psci_aff_on_finish_entry(void);
 void psci_aff_suspend_finish_entry(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *);
-int psci_get_suspend_stateid(unsigned long mpidr);
-int psci_get_suspend_afflvl(unsigned long mpidr);
+int psci_get_suspend_stateid_by_mpidr(unsigned long);
+int psci_get_suspend_stateid(void);
+int psci_get_suspend_afflvl(void);
+uint32_t psci_get_max_phys_off_afflvl(void);
 
 uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,

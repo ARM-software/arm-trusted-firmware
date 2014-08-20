@@ -460,6 +460,32 @@ that these constants are not related to any architectural exception code; they
 are just an ARM Trusted Firmware convention.
 
 
+### Function : plat_reset_handler()
+
+    Argument : void
+    Return   : void
+
+A platform may need to do additional initialization after reset. This function
+allows the platform to do the platform specific intializations. Platform
+specific errata workarounds could also be implemented here. The api should
+preserve the value in x10 register as it is used by the caller to store the
+return address.
+
+The default implementation doesn't do anything.
+
+### Function : plat_disable_acp()
+
+    Argument : void
+    Return   : void
+
+This api allows a platform to disable the Accelerator Coherency Port (if
+present) during a cluster power down sequence. The default weak implementation
+doesn't do anything. Since this api is called during the power down sequence,
+it has restrictions for stack usage and it can use the registers x0 - x17 as
+scratch registers. It should preserve the value in x18 register as it is used
+by the caller to store the return address.
+
+
 3.  Modifications specific to a Boot Loader stage
 -------------------------------------------------
 

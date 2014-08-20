@@ -9,10 +9,11 @@ Contents :
 4.  Power State Coordination Interface
 5.  Secure-EL1 Payloads and Dispatchers
 6.  Crash Reporting in BL3-1
-7.  Memory layout on FVP platforms
-8.  Firmware Image Package (FIP)
-9.  Code Structure
-10.  References
+7.  CPU specific operations framework
+8.  Memory layout on FVP platforms
+9.  Firmware Image Package (FIP)
+10.  Code Structure
+11.  References
 
 
 1.  Introduction
@@ -302,8 +303,8 @@ far as system register settings are concerned. Since BL1 code resides in ROM,
 architectural initialization in BL3-1 allows override of any previous
 initialization done by BL1. BL3-1 creates page tables to address the first
 4GB of physical address space and initializes the MMU accordingly. It initializes
-a buffer of frequently used pointers, called per-cpu pointer cache, in memory for
-faster access. Currently the per-cpu pointer cache contains only the pointer
+a buffer of frequently used pointers, called per-CPU pointer cache, in memory for
+faster access. Currently the per-CPU pointer cache contains only the pointer
 to crash stack. It then replaces the exception vectors populated by BL1 with its
 own. BL3-1 exception vectors implement more elaborate support for
 handling SMCs since this is the only mechanism to access the runtime services
@@ -845,8 +846,8 @@ exception is encountered. The reporting mechanism attempts to preserve all the
 register contents and report it via the default serial output. The general purpose
 registers, EL3, Secure EL1 and some EL2 state registers are reported.
 
-A dedicated per-cpu crash stack is maintained by BL3-1 and this is retrieved via
-the per-cpu pointer cache. The implementation attempts to minimise the memory
+A dedicated per-CPU crash stack is maintained by BL3-1 and this is retrieved via
+the per-CPU pointer cache. The implementation attempts to minimise the memory
 required for this feature. The file `crash_reporting.S` contains the
 implementation for crash reporting.
 
@@ -931,8 +932,100 @@ The sample crash output is shown below.
     fpexc32_el2	:0x0000000004000700
     sp_el0	:0x0000000004010780
 
+7.  CPU specific operations framework
+-----------------------------
 
-7.  Memory layout on FVP platforms
+Certain aspects of the ARMv8 architecture are implementation defined,
+that is, certain behaviours are not architecturally defined, but must be defined
+and documented by individual processor implementations. The ARM Trusted
+Firmware implements a framework which categorises the common implementation
+defined behaviours and allows a processor to export its implementation of that
+behaviour. The categories are:
+
+1.  Processor specific reset sequence.
+
+2.  Processor specific power down sequences.
+
+3.  Processor specific register dumping as a part of crash reporting.
+
+Each of the above categories fulfils a different requirement.
+
+1.  allows any processor specific initialization before the caches and MMU
+    are turned on, like implementation of errata workarounds, entry into
+    the intra-cluster coherency domain etc.
+
+2.  allows each processor to implement the power down sequence mandated in
+    its Technical Reference Manual (TRM).
+
+3.  allows a processor to provide additional information to the developer
+    in the event of a crash, for example Cortex-A53 has registers which
+    can expose the data cache contents.
+
+Please note that only 2. is mandated by the TRM.
+
+The CPU specific operations framework scales to accommodate a large number of
+different CPUs during power down and reset handling. The platform can specify
+the CPU errata workarounds to be applied for each CPU type during reset
+handling by defining CPU errata compile time macros. Details on these macros
+can be found in the [cpu-errata-workarounds.md][ERRW] file.
+
+The CPU specific operations framework depends on the `cpu_ops` structure which
+needs to be exported for each type of CPU in the platform. It is defined in
+`include/lib/cpus/aarch64/cpu_macros.S` and has the following fields : `midr`,
+`reset_func()`, `core_pwr_dwn()`, `cluster_pwr_dwn()` and `cpu_reg_dump()`.
+
+The CPU specific files in `lib/cpus` export a `cpu_ops` data structure with
+suitable handlers for that CPU.  For example, `lib/cpus/cortex_a53.S` exports
+the `cpu_ops` for Cortex-A53 CPU. According to the platform configuration,
+these CPU specific files must must be included in the build by the platform
+makefile. The generic CPU specific operations framework code exists in
+`lib/cpus/aarch64/cpu_helpers.S`.
+
+### CPU specific Reset Handling
+
+After a reset, the state of the CPU when it calls generic reset handler is:
+MMU turned off, both instruction and data caches turned off and not part
+of any coherency domain.
+
+The BL entrypoint code first invokes the `plat_reset_handler()` to allow
+the platform to perform any system initialization required and any system
+errata wrokarounds that needs to be applied. The `get_cpu_ops_ptr()` reads
+the current CPU midr, finds the matching `cpu_ops` entry in the `cpu_ops`
+array and returns it. Note that only the part number and implementator fields
+in midr are used to find the matching `cpu_ops` entry. The `reset_func()` in
+the returned `cpu_ops` is then invoked which executes the required reset
+handling for that CPU and also any errata workarounds enabled by the platform.
+
+### CPU specific power down sequence
+
+During the BL3-1 initialization sequence, the pointer to the matching `cpu_ops`
+entry is stored in per-CPU data by `init_cpu_ops()` so that it can be quickly
+retrieved during power down sequences.
+
+The PSCI service, upon receiving a power down request, determines the highest
+affinity level at which to execute power down sequence for a particular CPU and
+invokes the corresponding 'prepare' power down handler in the CPU specific
+operations framework. For example, when a CPU executes a power down for affinity
+level 0, the `prepare_core_pwr_dwn()` retrieves the `cpu_ops` pointer from the
+per-CPU data and the corresponding `core_pwr_dwn()` is invoked. Similarly when
+a CPU executes power down at affinity level 1, the `prepare_cluster_pwr_dwn()`
+retrieves the `cpu_ops` pointer and the corresponding `cluster_pwr_dwn()` is
+invoked.
+
+At runtime the platform hooks for power down are invoked by the PSCI service to
+perform platform specific operations during a power down sequence, for example
+turning off CCI coherency during a cluster power down.
+
+### CPU specific register reporting during crash
+
+If the crash reporting is enabled in BL3-1, when a crash occurs, the crash
+reporting framework calls `do_cpu_reg_dump` which retrieves the matching
+`cpu_ops` using `get_cpu_ops_ptr()` function. The `cpu_reg_dump()` in
+`cpu_ops` is invoked, which then returns the CPU specific register values to
+be reported and a pointer to the ASCII list of register names in a format
+expected by the crash reporting framework.
+
+8.  Memory layout on FVP platforms
 ----------------------------------
 
 Each bootloader image can be divided in 2 parts:
@@ -1189,7 +1282,7 @@ Additionally, if the platform memory layout implies some image overlaying like
 on FVP, BL3-1 and TSP need to know the limit address that their PROGBITS
 sections must not overstep. The platform code must provide those.
 
-8.  Firmware Image Package (FIP)
+9.  Firmware Image Package (FIP)
 --------------------------------
 
 Using a Firmware Image Package (FIP) allows for packing bootloader images (and
@@ -1267,7 +1360,7 @@ Currently the FVP's policy only allows loading of a known set of images. The
 platform policy can be modified to allow additional images.
 
 
-9.  Code Structure
+10.  Code Structure
 ------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -1312,7 +1405,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-10.  References
+11.  References
 --------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
@@ -1324,7 +1417,6 @@ kernel at boot time. These can be found in the `fdts` directory.
 
 4.  [ARM Trusted Firmware Interrupt Management Design guide][INTRG].
 
-
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
@@ -1335,3 +1427,4 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
 [User Guide]:       ./user-guide.md
 [INTRG]:            ./interrupt-framework-design.md
+[ERRW]:             ./cpu-errata-workarounds.md

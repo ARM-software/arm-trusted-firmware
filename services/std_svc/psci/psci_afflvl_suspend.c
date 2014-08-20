@@ -34,6 +34,7 @@
 #include <arch_helpers.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <cpu_data.h>
 #include <platform.h>
 #include <runtime_svc.h>
 #include <stddef.h>
@@ -45,76 +46,59 @@ typedef int (*afflvl_suspend_handler_t)(aff_map_node_t *,
 				      unsigned int);
 
 /*******************************************************************************
- * This function sets the power state of the current cpu while
- * powering down during a cpu_suspend call
+ * This function saves the power state parameter passed in the current PSCI
+ * cpu_suspend call in the per-cpu data array.
  ******************************************************************************/
-void psci_set_suspend_power_state(aff_map_node_t *node, unsigned int power_state)
+void psci_set_suspend_power_state(unsigned int power_state)
 {
-	/*
-	 * Check that nobody else is calling this function on our behalf &
-	 * this information is being set only in the cpu node
-	 */
-	assert(node->mpidr == (read_mpidr() & MPIDR_AFFINITY_MASK));
-	assert(node->level == MPIDR_AFFLVL0);
-
-	/*
-	 * Save PSCI power state parameter for the core in suspend context.
-	 * The node is in always-coherent RAM so it does not need to be flushed
-	 */
-	node->power_state = power_state;
+	set_cpu_data(psci_svc_cpu_data.power_state, power_state);
+	flush_cpu_data(psci_svc_cpu_data.power_state);
 }
 
 /*******************************************************************************
- * This function gets the affinity level till which a cpu is powered down
- * during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
- * power state saved for the node is invalid
+ * This function gets the affinity level till which the current cpu could be
+ * powered down during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
+ * power state is invalid.
  ******************************************************************************/
-int psci_get_suspend_afflvl(unsigned long mpidr)
-{
-	aff_map_node_t *node;
-
-	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
-			MPIDR_AFFLVL0);
-	assert(node);
-
-	return psci_get_aff_map_node_suspend_afflvl(node);
-}
-
-
-/*******************************************************************************
- * This function gets the affinity level till which the current cpu was powered
- * down during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
- * power state saved for the node is invalid
- ******************************************************************************/
-int psci_get_aff_map_node_suspend_afflvl(aff_map_node_t *node)
+int psci_get_suspend_afflvl()
 {
 	unsigned int power_state;
 
-	assert(node->level == MPIDR_AFFLVL0);
+	power_state = get_cpu_data(psci_svc_cpu_data.power_state);
 
-	power_state = node->power_state;
 	return ((power_state == PSCI_INVALID_DATA) ?
-				power_state : psci_get_pstate_afflvl(power_state));
+		power_state : psci_get_pstate_afflvl(power_state));
 }
 
 /*******************************************************************************
- * This function gets the state id of a cpu stored in suspend context
- * while powering down during a cpu_suspend call. Returns 0xFFFFFFFF
- * if the power state saved for the node is invalid
+ * This function gets the state id of the current cpu from the power state
+ * parameter saved in the per-cpu data array. Returns PSCI_INVALID_DATA if the
+ * power state saved is invalid.
  ******************************************************************************/
-int psci_get_suspend_stateid(unsigned long mpidr)
+int psci_get_suspend_stateid()
 {
-	aff_map_node_t *node;
 	unsigned int power_state;
 
-	node = psci_get_aff_map_node(mpidr & MPIDR_AFFINITY_MASK,
-			MPIDR_AFFLVL0);
-	assert(node);
-	assert(node->level == MPIDR_AFFLVL0);
+	power_state = get_cpu_data(psci_svc_cpu_data.power_state);
 
-	power_state = node->power_state;
 	return ((power_state == PSCI_INVALID_DATA) ?
-					power_state : psci_get_pstate_id(power_state));
+		power_state : psci_get_pstate_id(power_state));
+}
+
+/*******************************************************************************
+ * This function gets the state id of the cpu specified by the 'mpidr' parameter
+ * from the power state parameter saved in the per-cpu data array. Returns
+ * PSCI_INVALID_DATA if the power state saved is invalid.
+ ******************************************************************************/
+int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
+{
+	unsigned int power_state;
+
+	power_state = get_cpu_data_by_mpidr(mpidr,
+					    psci_svc_cpu_data.power_state);
+
+	return ((power_state == PSCI_INVALID_DATA) ?
+		power_state : psci_get_pstate_id(power_state));
 }
 
 /*******************************************************************************
@@ -126,7 +110,6 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 				unsigned long context_id,
 				unsigned int power_state)
 {
-	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 	uint32_t ns_scr_el3 = read_scr_el3();
 	uint32_t ns_sctlr_el1 = read_sctlr_el1();
@@ -136,7 +119,7 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	assert(cpu_node->level == MPIDR_AFFLVL0);
 
 	/* Save PSCI power state parameter for the core in suspend context */
-	psci_set_suspend_power_state(cpu_node, power_state);
+	psci_set_suspend_power_state(power_state);
 
 	/*
 	 * Generic management: Store the re-entry information for the non-secure
@@ -150,9 +133,6 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend)
 		psci_spd_pm->svc_suspend(power_state);
-
-	/* State management: mark this cpu as suspended */
-	psci_set_state(cpu_node, PSCI_STATE_SUSPEND);
 
 	/*
 	 * Generic management: Store the re-entry information for the
@@ -172,24 +152,20 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
 
+	if (!psci_plat_pm_ops->affinst_suspend)
+		return PSCI_E_SUCCESS;
+
 	/*
 	 * Plat. management: Allow the platform to perform the
 	 * necessary actions to turn off this cpu e.g. set the
 	 * platform defined mailbox with the psci entrypoint,
 	 * program the power controller etc.
 	 */
-	rc = PSCI_E_SUCCESS;
-
-	if (psci_plat_pm_ops->affinst_suspend) {
-		plat_state = psci_get_phys_state(cpu_node);
-		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						       psci_entrypoint,
-						       ns_entrypoint,
-						       cpu_node->level,
-						       plat_state);
-	}
-
-	return rc;
+	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
+						 psci_entrypoint,
+						 ns_entrypoint,
+						 cpu_node->level,
+						 psci_get_phys_state(cpu_node));
 }
 
 static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
@@ -197,51 +173,36 @@ static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 				unsigned long context_id,
 				unsigned int power_state)
 {
-	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 
 	/* Sanity check the cluster level */
 	assert(cluster_node->level == MPIDR_AFFLVL1);
 
-	/* State management: Decrement the cluster reference count */
-	psci_set_state(cluster_node, PSCI_STATE_SUSPEND);
-
-	/*
-	 * Keep the physical state of this cluster handy to decide
-	 * what action needs to be taken
-	 */
-	plat_state = psci_get_phys_state(cluster_node);
-
 	/*
 	 * Arch. management: Flush all levels of caches to PoC if the
-	 * cluster is to be shutdown
+	 * cluster is to be shutdown.
 	 */
-	if (plat_state == PSCI_STATE_OFF)
-		dcsw_op_all(DCCISW);
+	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL1);
+
+	if (!psci_plat_pm_ops->affinst_suspend)
+		return PSCI_E_SUCCESS;
 
 	/*
-	 * Plat. Management. Allow the platform to do its cluster
-	 * specific bookeeping e.g. turn off interconnect coherency,
-	 * program the power controller etc.
+	 * Plat. Management. Allow the platform to do its cluster specific
+	 * bookeeping e.g. turn off interconnect coherency, program the power
+	 * controller etc. Sending the psci entrypoint is currently redundant
+	 * beyond affinity level 0 but one never knows what a platform might
+	 * do. Also it allows us to keep the platform handler prototype the
+	 * same.
 	 */
-	if (psci_plat_pm_ops->affinst_suspend) {
-
-		/*
-		 * Sending the psci entrypoint is currently redundant
-		 * beyond affinity level 0 but one never knows what a
-		 * platform might do. Also it allows us to keep the
-		 * platform handler prototype the same.
-		 */
-		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						       psci_entrypoint,
-						       ns_entrypoint,
-						       cluster_node->level,
-						       plat_state);
-	}
-
-	return rc;
+	plat_state = psci_get_phys_state(cluster_node);
+	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
+	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
+						 psci_entrypoint,
+						 ns_entrypoint,
+						 cluster_node->level,
+						 plat_state);
 }
 
 
@@ -250,15 +211,11 @@ static int psci_afflvl2_suspend(aff_map_node_t *system_node,
 				unsigned long context_id,
 				unsigned int power_state)
 {
-	int rc = PSCI_E_SUCCESS;
 	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 
 	/* Cannot go beyond this */
 	assert(system_node->level == MPIDR_AFFLVL2);
-
-	/* State management: Decrement the system reference count */
-	psci_set_state(system_node, PSCI_STATE_SUSPEND);
 
 	/*
 	 * Keep the physical state of the system handy to decide what
@@ -267,26 +224,31 @@ static int psci_afflvl2_suspend(aff_map_node_t *system_node,
 	plat_state = psci_get_phys_state(system_node);
 
 	/*
+	 * Arch. management: Flush all levels of caches to PoC if the
+	 * system is to be shutdown.
+	 */
+	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL2);
+
+	/*
 	 * Plat. Management : Allow the platform to do its bookeeping
 	 * at this affinity level
 	 */
-	if (psci_plat_pm_ops->affinst_suspend) {
+	if (!psci_plat_pm_ops->affinst_suspend)
+		return PSCI_E_SUCCESS;
 
-		/*
-		 * Sending the psci entrypoint is currently redundant
-		 * beyond affinity level 0 but one never knows what a
-		 * platform might do. Also it allows us to keep the
-		 * platform handler prototype the same.
-		 */
-		psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-		rc = psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						       psci_entrypoint,
-						       ns_entrypoint,
-						       system_node->level,
-						       plat_state);
-	}
-
-	return rc;
+	/*
+	 * Sending the psci entrypoint is currently redundant
+	 * beyond affinity level 0 but one never knows what a
+	 * platform might do. Also it allows us to keep the
+	 * platform handler prototype the same.
+	 */
+	plat_state = psci_get_phys_state(system_node);
+	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
+	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
+						 psci_entrypoint,
+						 ns_entrypoint,
+						 system_node->level,
+						 plat_state);
 }
 
 static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
@@ -300,7 +262,7 @@ static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
  * topology tree and calls the suspend handler for the corresponding affinity
  * levels
  ******************************************************************************/
-static int psci_call_suspend_handlers(mpidr_aff_map_nodes_t mpidr_nodes,
+static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
 				      int start_afflvl,
 				      int end_afflvl,
 				      unsigned long entrypoint,
@@ -358,6 +320,7 @@ int psci_afflvl_suspend(unsigned long entrypoint,
 {
 	int rc = PSCI_E_SUCCESS;
 	mpidr_aff_map_nodes_t mpidr_nodes;
+	unsigned int max_phys_off_afflvl;
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -381,6 +344,24 @@ int psci_afflvl_suspend(unsigned long entrypoint,
 				  end_afflvl,
 				  mpidr_nodes);
 
+	/*
+	 * This function updates the state of each affinity instance
+	 * corresponding to the mpidr in the range of affinity levels
+	 * specified.
+	 */
+	psci_do_afflvl_state_mgmt(start_afflvl,
+				  end_afflvl,
+				  mpidr_nodes,
+				  PSCI_STATE_SUSPEND);
+
+	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(start_afflvl,
+							    end_afflvl,
+							    mpidr_nodes);
+	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
+
+	/* Stash the highest affinity level that will be turned off */
+	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
+
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_suspend_handlers(mpidr_nodes,
 					start_afflvl,
@@ -388,6 +369,13 @@ int psci_afflvl_suspend(unsigned long entrypoint,
 					entrypoint,
 					context_id,
 					power_state);
+
+	/*
+	 * Invalidate the entry for the highest affinity level stashed earlier.
+	 * This ensures that any reads of this variable outside the power
+	 * up/down sequences return PSCI_INVALID_DATA.
+	 */
+	psci_set_max_phys_off_afflvl(PSCI_INVALID_DATA);
 
 	/*
 	 * Release the locks corresponding to each affinity level in the
@@ -451,13 +439,13 @@ static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 	 * error, it's expected to assert within
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend) {
-		suspend_level = psci_get_aff_map_node_suspend_afflvl(cpu_node);
+		suspend_level = psci_get_suspend_afflvl();
 		assert (suspend_level != PSCI_INVALID_DATA);
 		psci_spd_pm->svc_suspend_finish(suspend_level);
 	}
 
 	/* Invalidate the suspend context for the node */
-	psci_set_suspend_power_state(cpu_node, PSCI_INVALID_DATA);
+	psci_set_suspend_power_state(PSCI_INVALID_DATA);
 
 	/*
 	 * Generic management: Now we just need to retrieve the
@@ -465,9 +453,6 @@ static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 	 * call to set this cpu on its way.
 	 */
 	cm_prepare_el3_exit(NON_SECURE);
-
-	/* State management: mark this cpu as on */
-	psci_set_state(cpu_node, PSCI_STATE_ON);
 
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
@@ -499,9 +484,6 @@ static unsigned int psci_afflvl1_suspend_finish(aff_map_node_t *cluster_node)
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
-
-	/* State management: Increment the cluster reference count */
-	psci_set_state(cluster_node, PSCI_STATE_ON);
 
 	return rc;
 }
@@ -536,9 +518,6 @@ static unsigned int psci_afflvl2_suspend_finish(aff_map_node_t *system_node)
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
-
-	/* State management: Increment the system reference count */
-	psci_set_state(system_node, PSCI_STATE_ON);
 
 	return rc;
 }

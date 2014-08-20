@@ -27,52 +27,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __PLAT_CONFIG_H__
-#define __PLAT_CONFIG_H__
 
-#define CONFIG_GICC_BASE_OFFSET		0x4
+#ifndef __CORTEX_A57_H__
+#define __CORTEX_A57_H__
 
+/* Cortex-A57 midr for revision 0 */
+#define CORTEX_A57_MIDR 0x410FD070
 
-#ifndef __ASSEMBLY__
+/*******************************************************************************
+ * CPU Extended Control register specific definitions.
+ ******************************************************************************/
+#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
 
-#include <cassert.h>
+#define CPUECTLR_SMP_BIT		(1 << 6)
+#define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
+#define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
+#define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
 
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
 
-enum plat_config_flags {
-	/* Whether Base FVP memory map is in use */
-	CONFIG_BASE_MMAP		= 0x1,
-	/* Whether CCI should be enabled */
-	CONFIG_HAS_CCI			= 0x2,
-	/* Whether TZC should be configured */
-	CONFIG_HAS_TZC			= 0x4
-};
+#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
+#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
 
-typedef struct plat_config {
-	unsigned int gicd_base;
-	unsigned int gicc_base;
-	unsigned int gich_base;
-	unsigned int gicv_base;
-	unsigned int max_aff0;
-	unsigned int max_aff1;
-	unsigned long flags;
-} plat_config_t;
-
-inline const plat_config_t *get_plat_config();
-
-
-CASSERT(CONFIG_GICC_BASE_OFFSET == __builtin_offsetof(
-	plat_config_t, gicc_base),
-	assert_gicc_base_offset_mismatch);
-
-/* If used, plat_config must be defined and populated in the platform port*/
-extern plat_config_t plat_config;
-
-inline const plat_config_t *get_plat_config()
-{
-	return &plat_config;
-}
-
-
-#endif /* __ASSEMBLY__ */
-
-#endif /* __PLAT_CONFIG_H__ */
+#endif /* __CORTEX_A57_H__ */

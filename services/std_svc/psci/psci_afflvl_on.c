@@ -75,7 +75,6 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 			   unsigned long ns_entrypoint,
 			   unsigned long context_id)
 {
-	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 	uint32_t ns_scr_el3 = read_scr_el3();
 	uint32_t ns_sctlr_el1 = read_sctlr_el1();
@@ -113,26 +112,19 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 
-	/* State management: Set this cpu's state as ON PENDING */
-	psci_set_state(cpu_node, PSCI_STATE_ON_PENDING);
+	if (!psci_plat_pm_ops->affinst_on)
+		return PSCI_E_SUCCESS;
 
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
-	if (psci_plat_pm_ops->affinst_on) {
-
-		/* Get the current physical state of this cpu */
-		plat_state = psci_get_phys_state(cpu_node);
-		rc = psci_plat_pm_ops->affinst_on(target_cpu,
-						  psci_entrypoint,
-						  ns_entrypoint,
-						  cpu_node->level,
-						  plat_state);
-	}
-
-	return rc;
+	return psci_plat_pm_ops->affinst_on(target_cpu,
+					    psci_entrypoint,
+					    ns_entrypoint,
+					    cpu_node->level,
+					    psci_get_phys_state(cpu_node));
 }
 
 /*******************************************************************************
@@ -145,8 +137,6 @@ static int psci_afflvl1_on(unsigned long target_cpu,
 			   unsigned long ns_entrypoint,
 			   unsigned long context_id)
 {
-	int rc = PSCI_E_SUCCESS;
-	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 
 	assert(cluster_node->level == MPIDR_AFFLVL1);
@@ -158,22 +148,20 @@ static int psci_afflvl1_on(unsigned long target_cpu,
 
 	/* State management: Is not required while turning a cluster on */
 
+	if (!psci_plat_pm_ops->affinst_on)
+		return PSCI_E_SUCCESS;
+
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
-	if (psci_plat_pm_ops->affinst_on) {
-		plat_state = psci_get_phys_state(cluster_node);
-		psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
-		rc = psci_plat_pm_ops->affinst_on(target_cpu,
-						  psci_entrypoint,
-						  ns_entrypoint,
-						  cluster_node->level,
-						  plat_state);
-	}
-
-	return rc;
+	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
+	return psci_plat_pm_ops->affinst_on(target_cpu,
+					    psci_entrypoint,
+					    ns_entrypoint,
+					    cluster_node->level,
+					    psci_get_phys_state(cluster_node));
 }
 
 /*******************************************************************************
@@ -186,8 +174,6 @@ static int psci_afflvl2_on(unsigned long target_cpu,
 			   unsigned long ns_entrypoint,
 			   unsigned long context_id)
 {
-	int rc = PSCI_E_SUCCESS;
-	unsigned int plat_state;
 	unsigned long psci_entrypoint;
 
 	/* Cannot go beyond affinity level 2 in this psci imp. */
@@ -200,22 +186,20 @@ static int psci_afflvl2_on(unsigned long target_cpu,
 
 	/* State management: Is not required while turning a system on */
 
+	if (!psci_plat_pm_ops->affinst_on)
+		return PSCI_E_SUCCESS;
+
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
-	if (psci_plat_pm_ops->affinst_on) {
-		plat_state = psci_get_phys_state(system_node);
-		psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
-		rc = psci_plat_pm_ops->affinst_on(target_cpu,
-						  psci_entrypoint,
-						  ns_entrypoint,
-						  system_node->level,
-						  plat_state);
-	}
-
-	return rc;
+	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
+	return psci_plat_pm_ops->affinst_on(target_cpu,
+					    psci_entrypoint,
+					    ns_entrypoint,
+					    system_node->level,
+					    psci_get_phys_state(system_node));
 }
 
 /* Private data structure to make this handlers accessible through indexing */
@@ -230,7 +214,7 @@ static const afflvl_on_handler_t psci_afflvl_on_handlers[] = {
  * topology tree and calls the on handler for the corresponding affinity
  * levels
  ******************************************************************************/
-static int psci_call_on_handlers(mpidr_aff_map_nodes_t target_cpu_nodes,
+static int psci_call_on_handlers(aff_map_node_t *target_cpu_nodes[],
 				 int start_afflvl,
 				 int end_afflvl,
 				 unsigned long target_cpu,
@@ -318,6 +302,17 @@ int psci_afflvl_on(unsigned long target_cpu,
 				   context_id);
 
 	/*
+	 * This function updates the state of each affinity instance
+	 * corresponding to the mpidr in the range of affinity levels
+	 * specified.
+	 */
+	if (rc == PSCI_E_SUCCESS)
+		psci_do_afflvl_state_mgmt(start_afflvl,
+					  end_afflvl,
+					  target_cpu_nodes,
+					  PSCI_STATE_ON_PENDING);
+
+	/*
 	 * This loop releases the lock corresponding to each affinity level
 	 * in the reverse order to which they were acquired.
 	 */
@@ -385,9 +380,6 @@ static unsigned int psci_afflvl0_on_finish(aff_map_node_t *cpu_node)
 	 */
 	cm_prepare_el3_exit(NON_SECURE);
 
-	/* State management: mark this cpu as on */
-	psci_set_state(cpu_node, PSCI_STATE_ON);
-
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 
@@ -397,9 +389,12 @@ static unsigned int psci_afflvl0_on_finish(aff_map_node_t *cpu_node)
 
 static unsigned int psci_afflvl1_on_finish(aff_map_node_t *cluster_node)
 {
-	unsigned int plat_state, rc = PSCI_E_SUCCESS;
+	unsigned int plat_state;
 
 	assert(cluster_node->level == MPIDR_AFFLVL1);
+
+	if (!psci_plat_pm_ops->affinst_on_finish)
+		return PSCI_E_SUCCESS;
 
 	/*
 	 * Plat. management: Perform the platform specific actions
@@ -409,29 +404,22 @@ static unsigned int psci_afflvl1_on_finish(aff_map_node_t *cluster_node)
 	 * then assert as there is no way to recover from this
 	 * situation.
 	 */
-	if (psci_plat_pm_ops->affinst_on_finish) {
-
-		/* Get the physical state of this cluster */
-		plat_state = psci_get_phys_state(cluster_node);
-		rc = psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
-							 cluster_node->level,
-							 plat_state);
-		assert(rc == PSCI_E_SUCCESS);
-	}
-
-	/* State management: Increment the cluster reference count */
-	psci_set_state(cluster_node, PSCI_STATE_ON);
-
-	return rc;
+	plat_state = psci_get_phys_state(cluster_node);
+	return psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
+						 cluster_node->level,
+						 plat_state);
 }
 
 
 static unsigned int psci_afflvl2_on_finish(aff_map_node_t *system_node)
 {
-	unsigned int plat_state, rc = PSCI_E_SUCCESS;
+	unsigned int plat_state;
 
 	/* Cannot go beyond this affinity level */
 	assert(system_node->level == MPIDR_AFFLVL2);
+
+	if (!psci_plat_pm_ops->affinst_on_finish)
+		return PSCI_E_SUCCESS;
 
 	/*
 	 * Currently, there are no architectural actions to perform
@@ -446,20 +434,10 @@ static unsigned int psci_afflvl2_on_finish(aff_map_node_t *system_node)
 	 * then assert as there is no way to recover from this
 	 * situation.
 	 */
-	if (psci_plat_pm_ops->affinst_on_finish) {
-
-		/* Get the physical state of the system */
-		plat_state = psci_get_phys_state(system_node);
-		rc = psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
-							 system_node->level,
-							 plat_state);
-		assert(rc == PSCI_E_SUCCESS);
-	}
-
-	/* State management: Increment the system reference count */
-	psci_set_state(system_node, PSCI_STATE_ON);
-
-	return rc;
+	plat_state = psci_get_phys_state(system_node);
+	return psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
+						   system_node->level,
+						   plat_state);
 }
 
 const afflvl_power_on_finisher_t psci_afflvl_on_finishers[] = {
@@ -467,4 +445,3 @@ const afflvl_power_on_finisher_t psci_afflvl_on_finishers[] = {
 	psci_afflvl1_on_finish,
 	psci_afflvl2_on_finish,
 };
-

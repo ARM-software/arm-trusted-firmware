@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,28 +28,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <asm_macros.S>
+#ifndef __CORTEX_A53_H__
+#define __CORTEX_A53_H__
 
-	.weak	cpu_reset_handler
+/* Cortex-A53 midr for revision 0 */
+#define CORTEX_A53_MIDR 0x410FD030
 
+/*******************************************************************************
+ * CPU Extended Control register specific definitions.
+ ******************************************************************************/
+#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
 
-func cpu_reset_handler
-	/* ---------------------------------------------
-	 * As a bare minimal enable the SMP bit.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, midr_el1
-	lsr	x0, x0, #MIDR_PN_SHIFT
-	and	x0, x0, #MIDR_PN_MASK
-	cmp	x0, #MIDR_PN_A57
-	b.eq	smp_setup_begin
-	cmp	x0, #MIDR_PN_A53
-	b.ne	smp_setup_end
-smp_setup_begin:
-	mrs	x0, CPUECTLR_EL1
-	orr	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
-	isb
-smp_setup_end:
-	ret
+#define CPUECTLR_SMP_BIT		(1 << 6)
+
+#endif /* __CORTEX_A53_H__ */

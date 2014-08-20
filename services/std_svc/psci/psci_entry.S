@@ -35,8 +35,6 @@
 
 	.globl	psci_aff_on_finish_entry
 	.globl	psci_aff_suspend_finish_entry
-	.globl	__psci_cpu_off
-	.globl	__psci_cpu_suspend
 	.globl	psci_power_down_wfi
 
 	/* -----------------------------------------------------
@@ -78,6 +76,12 @@ psci_aff_common_finish_entry:
 	 * ---------------------------------------------
 	 */
 	bl	init_cpu_data_ptr
+
+	/* ---------------------------------------------
+	 * Initialize the cpu_ops pointer.
+	 * ---------------------------------------------
+	 */
+	bl	init_cpu_ops
 
 	/* ---------------------------------------------
 	 * Set the exception vectors
@@ -134,18 +138,13 @@ psci_aff_common_finish_entry:
 	 * level 0.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, mpidr_el1
 	bl	get_power_on_target_afflvl
-	cmp	x0, xzr
-	b.lt	_panic
 	mov	x2, x23
 	mov	x1, x0
 	mov	x0, #MPIDR_AFFLVL0
 	bl	psci_afflvl_power_on_finish
 
 	b	el3_exit
-_panic:
-	b	_panic
 
 	/* --------------------------------------------
 	 * This function is called to indicate to the

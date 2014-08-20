@@ -39,9 +39,82 @@
 #include <plat_config.h>
 #include <platform_def.h>
 #include <psci.h>
+#include <errno.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 #include "fvp_def.h"
 #include "fvp_private.h"
+
+/*******************************************************************************
+ * Private FVP function to program the mailbox for a cpu before it is released
+ * from reset.
+ ******************************************************************************/
+static void fvp_program_mailbox(uint64_t mpidr, uint64_t address)
+{
+	uint64_t linear_id;
+	mailbox_t *fvp_mboxes;
+
+	linear_id = platform_get_core_pos(mpidr);
+	fvp_mboxes = (mailbox_t *)MBOX_BASE;
+	fvp_mboxes[linear_id].value = address;
+	flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
+			   sizeof(unsigned long));
+}
+
+/*******************************************************************************
+ * Function which implements the common FVP specific operations to power down a
+ * cpu in response to a CPU_OFF or CPU_SUSPEND request.
+ ******************************************************************************/
+static void fvp_cpu_pwrdwn_common()
+{
+	/* Prevent interrupts from spuriously waking up this cpu */
+	arm_gic_cpuif_deactivate();
+
+	/* Program the power controller to power off this cpu. */
+	fvp_pwrc_write_ppoffr(read_mpidr_el1());
+}
+
+/*******************************************************************************
+ * Function which implements the common FVP specific operations to power down a
+ * cluster in response to a CPU_OFF or CPU_SUSPEND request.
+ ******************************************************************************/
+static void fvp_cluster_pwrdwn_common()
+{
+	uint64_t mpidr = read_mpidr_el1();
+
+	/* Disable coherency if this cluster is to be turned off */
+	if (get_plat_config()->flags & CONFIG_HAS_CCI)
+		cci_disable_cluster_coherency(mpidr);
+
+	/* Program the power controller to turn the cluster off */
+	fvp_pwrc_write_pcoffr(mpidr);
+}
+
+/*******************************************************************************
+ * Private FVP function which is used to determine if any platform actions
+ * should be performed for the specified affinity instance given its
+ * state. Nothing needs to be done if the 'state' is not off or if this is not
+ * the highest affinity level which will enter the 'state'.
+ ******************************************************************************/
+static int32_t fvp_do_plat_actions(unsigned int afflvl, unsigned int state)
+{
+	unsigned int max_phys_off_afflvl;
+
+	assert(afflvl <= MPIDR_AFFLVL1);
+
+	if (state != PSCI_STATE_OFF)
+		return -EAGAIN;
+
+	/*
+	 * Find the highest affinity level which will be suspended and postpone
+	 * all the platform specific actions until that level is hit.
+	 */
+	max_phys_off_afflvl = psci_get_max_phys_off_afflvl();
+	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
+	if (afflvl != max_phys_off_afflvl)
+		return -EAGAIN;
+
+	return 0;
+}
 
 /*******************************************************************************
  * FVP handler called when an affinity instance is about to enter standby.
@@ -81,8 +154,6 @@ int fvp_affinst_on(unsigned long mpidr,
 		   unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned long linear_id;
-	mailbox_t *fvp_mboxes;
 	unsigned int psysr;
 
 	/*
@@ -90,7 +161,7 @@ int fvp_affinst_on(unsigned long mpidr,
 	 * on the FVP. Ignore any other affinity level.
 	 */
 	if (afflvl != MPIDR_AFFLVL0)
-		goto exit;
+		return rc;
 
 	/*
 	 * Ensure that we do not cancel an inflight power off request
@@ -103,15 +174,9 @@ int fvp_affinst_on(unsigned long mpidr,
 		psysr = fvp_pwrc_read_psysr(mpidr);
 	} while (psysr & PSYSR_AFF_L0);
 
-	linear_id = platform_get_core_pos(mpidr);
-	fvp_mboxes = (mailbox_t *)MBOX_BASE;
-	fvp_mboxes[linear_id].value = sec_entrypoint;
-	flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
-			   sizeof(unsigned long));
-
+	fvp_program_mailbox(mpidr, sec_entrypoint);
 	fvp_pwrc_write_pponr(mpidr);
 
-exit:
 	return rc;
 }
 
@@ -130,60 +195,21 @@ int fvp_affinst_off(unsigned long mpidr,
 		    unsigned int afflvl,
 		    unsigned int state)
 {
-	int rc = PSCI_E_SUCCESS;
-	unsigned int ectlr;
+	/* Determine if any platform actions need to be executed */
+	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
+		return PSCI_E_SUCCESS;
 
-	switch (afflvl) {
-	case MPIDR_AFFLVL1:
-		if (state == PSCI_STATE_OFF) {
-			/*
-			 * Disable coherency if this cluster is to be
-			 * turned off
-			 */
-			if (get_plat_config()->flags & CONFIG_HAS_CCI)
-				cci_disable_cluster_coherency(mpidr);
+	/*
+	 * If execution reaches this stage then this affinity level will be
+	 * suspended. Perform at least the cpu specific actions followed the
+	 * cluster specific operations if applicable.
+	 */
+	fvp_cpu_pwrdwn_common();
 
-			/*
-			 * Program the power controller to turn the
-			 * cluster off
-			 */
-			fvp_pwrc_write_pcoffr(mpidr);
+	if (afflvl != MPIDR_AFFLVL0)
+		fvp_cluster_pwrdwn_common();
 
-		}
-		break;
-
-	case MPIDR_AFFLVL0:
-		if (state == PSCI_STATE_OFF) {
-
-			/*
-			 * Take this cpu out of intra-cluster coherency if
-			 * the FVP flavour supports the SMP bit.
-			 */
-			if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
-				ectlr = read_cpuectlr();
-				ectlr &= ~CPUECTLR_SMP_BIT;
-				write_cpuectlr(ectlr);
-			}
-
-			/*
-			 * Prevent interrupts from spuriously waking up
-			 * this cpu
-			 */
-			arm_gic_cpuif_deactivate();
-
-			/*
-			 * Program the power controller to power this
-			 * cpu off
-			 */
-			fvp_pwrc_write_ppoffr(mpidr);
-		}
-		break;
-
-	default:
-		assert(0);
-	}
-
-	return rc;
+	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
@@ -203,69 +229,24 @@ int fvp_affinst_suspend(unsigned long mpidr,
 			unsigned int afflvl,
 			unsigned int state)
 {
-	int rc = PSCI_E_SUCCESS;
-	unsigned int ectlr;
-	unsigned long linear_id;
-	mailbox_t *fvp_mboxes;
+	/* Determine if any platform actions need to be executed. */
+	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
+		return PSCI_E_SUCCESS;
 
-	switch (afflvl) {
-	case MPIDR_AFFLVL1:
-		if (state == PSCI_STATE_OFF) {
-			/*
-			 * Disable coherency if this cluster is to be
-			 * turned off
-			 */
-			if (get_plat_config()->flags & CONFIG_HAS_CCI)
-				cci_disable_cluster_coherency(mpidr);
+	/* Program the jump address for the target cpu */
+	fvp_program_mailbox(read_mpidr_el1(), sec_entrypoint);
 
-			/*
-			 * Program the power controller to turn the
-			 * cluster off
-			 */
-			fvp_pwrc_write_pcoffr(mpidr);
+	/* Program the power controller to enable wakeup interrupts. */
+	fvp_pwrc_set_wen(mpidr);
 
-		}
-		break;
+	/* Perform the common cpu specific operations */
+	fvp_cpu_pwrdwn_common();
 
-	case MPIDR_AFFLVL0:
-		if (state == PSCI_STATE_OFF) {
-			/*
-			 * Take this cpu out of intra-cluster coherency if
-			 * the FVP flavour supports the SMP bit.
-			 */
-			if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
-				ectlr = read_cpuectlr();
-				ectlr &= ~CPUECTLR_SMP_BIT;
-				write_cpuectlr(ectlr);
-			}
+	/* Perform the common cluster specific operations */
+	if (afflvl != MPIDR_AFFLVL0)
+		fvp_cluster_pwrdwn_common();
 
-			/* Program the jump address for the target cpu */
-			linear_id = platform_get_core_pos(mpidr);
-			fvp_mboxes = (mailbox_t *)MBOX_BASE;
-			fvp_mboxes[linear_id].value = sec_entrypoint;
-			flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
-					   sizeof(unsigned long));
-
-			/*
-			 * Prevent interrupts from spuriously waking up
-			 * this cpu
-			 */
-			arm_gic_cpuif_deactivate();
-
-			/*
-			 * Program the power controller to power this
-			 * cpu off and enable wakeup interrupts.
-			 */
-			fvp_pwrc_set_wen(mpidr);
-			fvp_pwrc_write_ppoffr(mpidr);
-		}
-		break;
-
-	default:
-		assert(0);
-	}
-
-	return rc;
+	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
@@ -280,73 +261,42 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 			  unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
-	unsigned long linear_id;
-	mailbox_t *fvp_mboxes;
-	unsigned int ectlr;
 
-	switch (afflvl) {
+	/* Determine if any platform actions need to be executed. */
+	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
+		return PSCI_E_SUCCESS;
 
-	case MPIDR_AFFLVL1:
+	/* Perform the common cluster specific operations */
+	if (afflvl != MPIDR_AFFLVL0) {
+		/*
+		 * This CPU might have woken up whilst the cluster was
+		 * attempting to power down. In this case the FVP power
+		 * controller will have a pending cluster power off request
+		 * which needs to be cleared by writing to the PPONR register.
+		 * This prevents the power controller from interpreting a
+		 * subsequent entry of this cpu into a simple wfi as a power
+		 * down request.
+		 */
+		fvp_pwrc_write_pponr(mpidr);
+
 		/* Enable coherency if this cluster was off */
-		if (state == PSCI_STATE_OFF) {
-
-			/*
-			 * This CPU might have woken up whilst the
-			 * cluster was attempting to power down. In
-			 * this case the FVP power controller will
-			 * have a pending cluster power off request
-			 * which needs to be cleared by writing to the
-			 * PPONR register. This prevents the power
-			 * controller from interpreting a subsequent
-			 * entry of this cpu into a simple wfi as a
-			 * power down request.
-			 */
-			fvp_pwrc_write_pponr(mpidr);
-
-			fvp_cci_enable();
-		}
-		break;
-
-	case MPIDR_AFFLVL0:
-		/*
-		 * Ignore the state passed for a cpu. It could only have
-		 * been off if we are here.
-		 */
-
-		/*
-		 * Turn on intra-cluster coherency if the FVP flavour supports
-		 * it.
-		 */
-		if (get_plat_config()->flags & CONFIG_CPUECTLR_SMP_BIT) {
-			ectlr = read_cpuectlr();
-			ectlr |= CPUECTLR_SMP_BIT;
-			write_cpuectlr(ectlr);
-		}
-
-		/*
-		 * Clear PWKUPR.WEN bit to ensure interrupts do not interfere
-		 * with a cpu power down unless the bit is set again
-		 */
-		fvp_pwrc_clr_wen(mpidr);
-
-		/* Zero the jump address in the mailbox for this cpu */
-		fvp_mboxes = (mailbox_t *)MBOX_BASE;
-		linear_id = platform_get_core_pos(mpidr);
-		fvp_mboxes[linear_id].value = 0;
-		flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
-				   sizeof(unsigned long));
-
-		/* Enable the gic cpu interface */
-		arm_gic_cpuif_setup();
-
-		/* TODO: This setup is needed only after a cold boot */
-		arm_gic_pcpu_distif_setup();
-
-		break;
-
-	default:
-		assert(0);
+		fvp_cci_enable();
 	}
+
+	/*
+	 * Clear PWKUPR.WEN bit to ensure interrupts do not interfere
+	 * with a cpu power down unless the bit is set again
+	 */
+	fvp_pwrc_clr_wen(mpidr);
+
+	/* Zero the jump address in the mailbox for this cpu */
+	fvp_program_mailbox(read_mpidr_el1(), 0);
+
+	/* Enable the gic cpu interface */
+	arm_gic_cpuif_setup();
+
+	/* TODO: This setup is needed only after a cold boot */
+	arm_gic_pcpu_distif_setup();
 
 	return rc;
 }

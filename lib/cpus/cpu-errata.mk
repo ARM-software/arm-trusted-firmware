@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,10 +28,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-BL1_SOURCES		+=	bl1/bl1_main.c				\
-				bl1/aarch64/bl1_arch_setup.c		\
-				bl1/aarch64/bl1_entrypoint.S		\
-				bl1/aarch64/bl1_exceptions.S		\
-				lib/cpus/aarch64/cpu_helpers.S
+# CPU Errata Build flags. These should be enabled by the
+# platform if the errata needs to be applied.
 
-BL1_LINKERFILE		:=	bl1/bl1.ld.S
+# Flag to apply errata 806969 during reset. This errata applies only to
+# revision r0p0 of the Cortex A57 cpu.
+ERRATA_A57_806969	?=0
+
+# Flag to apply errata 813420 during reset. This errata applies only to
+# revision r0p0 of the Cortex A57 cpu.
+ERRATA_A57_813420	?=0
+
+# Process ERRATA_A57_806969 flag
+$(eval $(call assert_boolean,ERRATA_A57_806969))
+$(eval $(call add_define,ERRATA_A57_806969))
+
+# Process ERRATA_A57_813420 flag
+$(eval $(call assert_boolean,ERRATA_A57_813420))
+$(eval $(call add_define,ERRATA_A57_813420))

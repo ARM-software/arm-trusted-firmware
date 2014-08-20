@@ -138,6 +138,10 @@ msg_start:
 
 include plat/${PLAT}/platform.mk
 
+# By default all CPU errata workarounds are disabled. This can be
+# overridden by the platform.
+include lib/cpus/cpu-errata.mk
+
 ifdef BL1_SOURCES
 NEED_BL1 := yes
 include bl1/bl1.mk
@@ -180,6 +184,7 @@ INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/drivers/io		\
 				-Iinclude/lib			\
 				-Iinclude/lib/aarch64		\
+				-Iinclude/lib/cpus/aarch64	\
 				-Iinclude/plat/common		\
 				-Iinclude/stdlib		\
 				-Iinclude/stdlib/sys		\
