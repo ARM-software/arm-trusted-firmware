@@ -138,6 +138,8 @@
 
 #define PL011_UART0_CLK_IN_HZ		24000000
 #define PL011_UART1_CLK_IN_HZ		24000000
+#define PL011_UART2_CLK_IN_HZ		7273800
+#define PL011_UART3_CLK_IN_HZ		7273800
 
 /*******************************************************************************
  * NIC-400 related constants
