@@ -28,39 +28,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A57_H__
-#define __CORTEX_A57_H__
+#ifndef __MHU_H__
+#define __MHU_H__
 
-/* Cortex-A57 midr for revision 0 */
-#define CORTEX_A57_MIDR 0x410FD070
+#include <stdint.h>
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+extern void mhu_secure_message_start(void);
+extern void mhu_secure_message_send(uint32_t command);
+extern uint32_t mhu_secure_message_wait(void);
+extern void mhu_secure_message_end(void);
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
-#define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
-#define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
-#define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
+extern void mhu_secure_init(void);
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
-
-#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
-#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
-
-/*******************************************************************************
- * L2 Control register specific definitions.
- ******************************************************************************/
-#define L2CTLR_EL1			S3_1_C11_C0_2	/* Instruction def. */
-
-#define L2CTLR_DATA_RAM_LATENCY_SHIFT	0
-#define L2CTLR_TAG_RAM_LATENCY_SHIFT	6
-
-#define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
-#define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
-
-#endif /* __CORTEX_A57_H__ */
+#endif	/* __MHU_H__ */

@@ -28,39 +28,55 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A57_H__
-#define __CORTEX_A57_H__
+#ifndef __SCPI_H__
+#define __SCPI_H__
 
-/* Cortex-A57 midr for revision 0 */
-#define CORTEX_A57_MIDR 0x410FD070
+#include <stddef.h>
+#include <stdint.h>
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+extern void *scpi_secure_message_start(void);
+extern void scpi_secure_message_send(unsigned command, size_t size);
+extern unsigned scpi_secure_message_receive(void **message_out, size_t *size_out);
+extern void scpi_secure_message_end(void);
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
-#define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
-#define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
-#define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+enum {
+	SCP_OK = 0,	/* Success */
+	SCP_E_PARAM,	/* Invalid parameter(s) */
+	SCP_E_ALIGN,	/* Invalid alignment */
+	SCP_E_SIZE,	/* Invalid size */
+	SCP_E_HANDLER,	/* Invalid handler or callback */
+	SCP_E_ACCESS,	/* Invalid access or permission denied */
+	SCP_E_RANGE,	/* Value out of range */
+	SCP_E_TIMEOUT,	/* Time out has ocurred */
+	SCP_E_NOMEM,	/* Invalid memory area or pointer */
+	SCP_E_PWRSTATE,	/* Invalid power state */
+	SCP_E_SUPPORT,	/* Feature not supported or disabled */
+};
 
-#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
-#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
+typedef uint32_t scpi_status_t;
 
-/*******************************************************************************
- * L2 Control register specific definitions.
- ******************************************************************************/
-#define L2CTLR_EL1			S3_1_C11_C0_2	/* Instruction def. */
+typedef enum {
+	SCPI_CMD_SCP_READY = 0x01,
+	SCPI_CMD_SET_CSS_POWER_STATE = 0x04,
+	SCPI_CMD_SYS_POWER_STATE = 0x08
+} scpi_command_t;
 
-#define L2CTLR_DATA_RAM_LATENCY_SHIFT	0
-#define L2CTLR_TAG_RAM_LATENCY_SHIFT	6
+typedef enum {
+	scpi_power_on = 0,
+	scpi_power_retention = 1,
+	scpi_power_off = 3,
+} scpi_power_state_t;
 
-#define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
-#define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
+typedef enum {
+	scpi_system_shutdown = 0,
+	scpi_system_reboot = 1,
+	scpi_system_reset = 2
+} scpi_system_state_t;
 
-#endif /* __CORTEX_A57_H__ */
+extern int scpi_wait_ready(void);
+extern void scpi_set_css_power_state(unsigned mpidr, scpi_power_state_t cpu_state,
+		scpi_power_state_t cluster_state, scpi_power_state_t css_state);
+uint32_t scpi_sys_power_state(scpi_system_state_t system_state);
+
+#endif	/* __SCPI_H__ */

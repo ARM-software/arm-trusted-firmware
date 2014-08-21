@@ -28,39 +28,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A57_H__
-#define __CORTEX_A57_H__
+#include <platform_def.h>
+#include <psci.h>
 
-/* Cortex-A57 midr for revision 0 */
-#define CORTEX_A57_MIDR 0x410FD070
+unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr)
+{
+	/* Report 1 (absent) instance at levels higher that the cluster level */
+	if (aff_lvl > MPIDR_AFFLVL1)
+		return 1;
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+	if (aff_lvl == MPIDR_AFFLVL1)
+		return 2; /* We have two clusters */
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
-#define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
-#define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
-#define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
+	return mpidr & 0x100 ? 4 : 2; /* 4 cpus in cluster 1, 2 in cluster 0 */
+}
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+unsigned int plat_get_aff_state(unsigned int aff_lvl, unsigned long mpidr)
+{
+	return aff_lvl <= MPIDR_AFFLVL1 ? PSCI_AFF_PRESENT : PSCI_AFF_ABSENT;
+}
 
-#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
-#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
+int plat_get_max_afflvl()
+{
+	return MPIDR_AFFLVL1;
+}
 
-/*******************************************************************************
- * L2 Control register specific definitions.
- ******************************************************************************/
-#define L2CTLR_EL1			S3_1_C11_C0_2	/* Instruction def. */
-
-#define L2CTLR_DATA_RAM_LATENCY_SHIFT	0
-#define L2CTLR_TAG_RAM_LATENCY_SHIFT	6
-
-#define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
-#define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
-
-#endif /* __CORTEX_A57_H__ */
+int plat_setup_topology()
+{
+	/* Juno todo: Make topology configurable via SCC */
+	return 0;
+}
