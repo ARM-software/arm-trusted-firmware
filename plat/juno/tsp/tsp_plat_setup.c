@@ -72,7 +72,7 @@ void tsp_early_platform_setup(void)
 	 * Initialize a different console than already in use to display
 	 * messages from TSP
 	 */
-	console_init(PL011_UART1_BASE, PL011_UART1_CLK_IN_HZ, PL011_BAUDRATE);
+	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
 }
 
 /*******************************************************************************

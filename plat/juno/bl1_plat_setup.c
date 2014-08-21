@@ -75,7 +75,7 @@ void bl1_early_platform_setup(void)
 	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
 
 	/* Initialize the console to provide early debug support */
-	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
+	console_init(PL011_UART2_BASE, PL011_UART2_CLK_IN_HZ, PL011_BAUDRATE);
 
 	/*
 	 * Enable CCI-400 for this cluster. No need for locks as no other cpu is
