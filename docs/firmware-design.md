@@ -10,7 +10,7 @@ Contents :
 5.  Secure-EL1 Payloads and Dispatchers
 6.  Crash Reporting in BL3-1
 7.  CPU specific operations framework
-8.  Memory layout on FVP platforms
+8.  Memory layout of BL images
 9.  Firmware Image Package (FIP)
 10.  Code Structure
 11.  References
@@ -58,9 +58,18 @@ into five steps (in order of execution):
 *   Boot Loader stage 3-2 (BL3-2) _Secure-EL1 Payload_ (optional)
 *   Boot Loader stage 3-3 (BL3-3) _Non-trusted Firmware_
 
-The ARM Fixed Virtual Platforms (FVPs) provide trusted ROM, trusted SRAM and
-trusted DRAM regions. Each boot loader stage uses one or more of these
-memories for its code and data.
+ARM development platforms (Fixed Virtual Platforms (FVPs) and Juno) implement a
+combination of the following types of memory regions. Each bootloader stage uses
+one or more of these memory regions.
+
+*   Regions accessible from both non-secure and secure states. For example,
+    non-trusted SRAM, ROM and DRAM.
+*   Regions accessible from only the secure state. For example, trusted SRAM and
+    ROM. The FVPs also implement the trusted DRAM which is statically
+    configured. Additionally, the Base FVPs and Juno development platform
+    configure the TrustZone Controller (TZC) to create a region in the DRAM
+    which is accessible only from the secure state.
+
 
 The sections below provide the following details:
 
@@ -73,23 +82,30 @@ The sections below provide the following details:
 
 ### BL1
 
-This stage begins execution from the platform's reset vector in trusted ROM at
-EL3. BL1 code starts at `0x00000000` (trusted ROM) in the FVP memory map. The
-BL1 data section is placed at the start of trusted SRAM, `0x04000000`. The
-functionality implemented by this stage is as follows.
+This stage begins execution from the platform's reset vector at EL3. The reset
+address is platform dependent but it is usually located in a Trusted ROM area.
+The BL1 data section is copied to trusted SRAM at runtime.
+
+On the ARM FVP port, BL1 code starts execution from the reset vector at address
+`0x00000000` (trusted ROM). The BL1 data section is copied to the start of
+trusted SRAM at address `0x04000000`.
+
+On the Juno ARM development platform port, BL1 code starts execution at
+`0x0BEC0000` (FLASH). The BL1 data section is copied to trusted SRAM at address
+`0x04001000.
+
+The functionality implemented by this stage is as follows.
 
 #### Determination of boot path
 
 Whenever a CPU is released from reset, BL1 needs to distinguish between a warm
-boot and a cold boot. This is done using a platform-specific mechanism. The
-ARM FVPs implement a simple power controller at `0x1c100000`. The `PSYS`
-register (`0x10`) is used to distinguish between a cold and warm boot. This
-information is contained in the `PSYS.WK[25:24]` field. Additionally, a
-per-CPU mailbox is maintained in trusted DRAM (`0x00600000`), to which BL1
-writes an entrypoint. Each CPU jumps to this entrypoint upon warm boot. During
-cold boot, BL1 places the secondary CPUs in a safe platform-specific state while
-the primary CPU executes the remaining cold boot path as described in the
-following sections.
+boot and a cold boot. This is done using platform-specific mechanisms (see the
+`platform_get_entrypoint()` function in the [Porting Guide]). In the case of a
+warm boot, a CPU is expected to continue execution from a seperate
+entrypoint. In the case of a cold boot, the secondary CPUs are placed in a safe
+platform-specific state (see the `plat_secondary_cold_boot_setup()` function in
+the [Porting Guide]) while the primary CPU executes the remaining cold boot path
+as described in the following sections.
 
 #### Architectural initialization
 
@@ -98,14 +114,10 @@ BL1 performs minimal architectural initialization as follows.
 *   Exception vectors
 
     BL1 sets up simple exception vectors for both synchronous and asynchronous
-    exceptions. The default behavior upon receiving an exception is to set a
-    status code. In the case of the FVP this code is written to the Versatile
-    Express System LED register in the following format:
-
-        SYS_LED[0]   - Security state (Secure=0/Non-Secure=1)
-        SYS_LED[2:1] - Exception Level (EL3=0x3, EL2=0x2, EL1=0x1, EL0=0x0)
-        SYS_LED[7:3] - Exception Class (Sync/Async & origin). The values for
-                       each exception class are:
+    exceptions. The default behavior upon receiving an exception is to populate
+    a status code in the general purpose register `X0` and call the
+    `plat_report_exception()` function (see the [Porting Guide]). The status
+    code is one of:
 
         0x0 : Synchronous exception from Current EL with SP_EL0
         0x1 : IRQ exception from Current EL with SP_EL0
@@ -124,14 +136,30 @@ BL1 performs minimal architectural initialization as follows.
         0xe : FIQ exception from Lower EL using aarch32
         0xf : System Error exception from Lower EL using aarch32
 
+    The `plat_report_exception()` implementation on the ARM FVP port programs
+    the Versatile Express System LED register in the following format to
+    indicate the occurence of an unexpected exception:
+
+        SYS_LED[0]   - Security state (Secure=0/Non-Secure=1)
+        SYS_LED[2:1] - Exception Level (EL3=0x3, EL2=0x2, EL1=0x1, EL0=0x0)
+        SYS_LED[7:3] - Exception Class (Sync/Async & origin). This is the value
+                       of the status code
+
     A write to the LED register reflects in the System LEDs (S6LED0..7) in the
-    CLCD window of the FVP. This behavior is because this boot loader stage
-    does not expect to receive any exceptions other than the SMC exception.
+    CLCD window of the FVP.
+
+    BL1 does not expect to receive any exceptions other than the SMC exception.
     For the latter, BL1 installs a simple stub. The stub expects to receive
     only a single type of SMC (determined by its function ID in the general
     purpose register `X0`). This SMC is raised by BL2 to make BL1 pass control
     to BL3-1 (loaded by BL2) at EL3. Any other SMC leads to an assertion
     failure.
+
+*   CPU initialization
+
+    BL1 calls the `reset_handler()` function which in turn calls the CPU
+    specific reset handler function (see the section: "CPU specific operations
+    framework").
 
 *   MMU setup
 
@@ -145,17 +173,8 @@ BL1 performs minimal architectural initialization as follows.
         `SCTLR_EL3.A` and `SCTLR_EL3.SA` bits. Exception endianness is set to
         little-endian by clearing the `SCTLR_EL3.EE` bit.
 
-    -   `CPUECTLR`. When the FVP includes a model of a specific ARM processor
-        implementation (for example A57 or A53), then intra-cluster coherency is
-        enabled by setting the `CPUECTLR.SMPEN` bit. The AEMv8 Base FVP is
-        inherently coherent so does not implement `CPUECTLR`.
-
-    -   `SCR`. Use of the HVC instruction from EL1 is enabled by setting the
-        `SCR.HCE` bit. FIQ exceptions are configured to be taken in EL3 by
-        setting the `SCR.FIQ` bit. The register width of the next lower
-        exception level is set to AArch64 by setting the `SCR.RW` bit. External
-        Aborts and SError Interrupts are configured to be taken in EL3 by
-        setting the `SCR.EA` bit.
+    -  `SCR_EL3`. The register width of the next lower exception level is set to
+        AArch64 by setting the `SCR.RW` bit.
 
     -   `CPTR_EL3`. Accesses to the `CPACR_EL1` register from EL1 or EL2, or the
         `CPTR_EL2` register from EL2 are configured to not trap to EL3 by
@@ -228,19 +247,19 @@ defined base address is used to specify the load address for the BL3-1 image.
 It also defines the extents of memory available for use by the BL3-2 image.
 BL2 also initializes UART0 (PL011 console), which enables  access to the
 `printf` family of functions in BL2. Platform security is initialized to allow
-access to access controlled components. On the Base FVP a TrustZone controller
-(TZC-400) is configured to give full access to the platform DRAM. The storage
-abstraction layer is initialized which is used to load further bootloader
-images.
+access to controlled components. The storage abstraction layer is initialized
+which is used to load further bootloader images.
 
 #### BL3-0 (System Control Processor Firmware) image load
 
 Some systems have a separate System Control Processor (SCP) for power, clock,
 reset and system control. BL2 loads the optional BL3-0 image from platform
 storage into a platform-specific region of secure memory. The subsequent
-handling of BL3-0 is platform specific. Typically the image is transferred into
-SCP memory using a platform-specific protocol. The SCP executes BL3-0 and
-signals to the Application Processor (AP) for BL2 execution to continue.
+handling of BL3-0 is platform specific. For example, on the Juno ARM development
+platform port the image is transferred into SCP memory using the SCPI protocol
+after being loaded in the trusted SRAM memory at address `0x04009000`. The SCP
+executes BL3-0 and signals to the Application Processor (AP) for BL2 execution
+to continue.
 
 #### BL3-1 (EL3 Runtime Firmware) image load
 
@@ -264,8 +283,7 @@ managing interaction with BL3-2. This information is passed to BL3-1.
 #### BL3-3 (Non-trusted Firmware) image load
 
 BL2 loads the BL3-3 image (e.g. UEFI or other test or boot software) from
-platform storage into non-secure memory as defined by the platform
-(`0x88000000` for FVPs).
+platform storage into non-secure memory as defined by the platform.
 
 BL2 relies on BL3-1 to pass control to BL3-3 once secure state initialization is
 complete. Hence, BL2 populates a platform-specific area of memory with the
@@ -723,6 +741,8 @@ currently implemented:
 -   `CPU_ON`
 -   `CPU_SUSPEND`
 -   `AFFINITY_INFO`
+-   `SYSTEM_OFF`
+-   `SYSTEM_RESET`
 
 The `CPU_ON`, `CPU_OFF` and `CPU_SUSPEND` functions implement the warm boot
 path in ARM Trusted Firmware. `CPU_ON` and `CPU_OFF` have undergone testing
@@ -732,21 +752,13 @@ experimental. Support for `CPU_SUSPEND` is stable for entry into power down
 states. Standby states are currently not supported. `PSCI_VERSION` is
 present but completely untested in this version of the software.
 
-Unsupported PSCI functions can be divided into ones that can return
-execution to the caller and ones that cannot. The following functions
-return with a error code as documented in the [Power State Coordination
-Interface PDD] [PSCI].
+The following unsupported functions return with a error code as documented in
+the [Power State Coordination Interface PDD] [PSCI].
 
 -   `MIGRATE` : -1 (NOT_SUPPORTED)
 -   `MIGRATE_INFO_TYPE` : 2 (Trusted OS is either not present or does not
      require migration)
 -   `MIGRATE_INFO_UP_CPU` : 0 (Return value is UNDEFINED)
-
-The following unsupported functions do not return and signal an assertion
-failure if invoked.
-
--   `SYSTEM_OFF`
--   `SYSTEM_RESET`
 
 
 5.  Secure-EL1 Payloads and Dispatchers
@@ -838,8 +850,9 @@ before returning through EL3 and running the non-trusted firmware (BL3-3):
     `bl31_main()` will set up the return to the normal world firmware BL3-3 and
     continue the boot process in the normal world.
 
+
 6.  Crash Reporting in BL3-1
-----------------------------------
+----------------------------
 
 The BL3-1 implements a scheme for reporting the processor state when an unhandled
 exception is encountered. The reporting mechanism attempts to preserve all the
@@ -931,6 +944,7 @@ The sample crash output is shown below.
     cntkctl_el1	:0x0000000000000000
     fpexc32_el2	:0x0000000004000700
     sp_el0	:0x0000000004010780
+
 
 7.  CPU specific operations framework
 -----------------------------
@@ -1025,8 +1039,9 @@ reporting framework calls `do_cpu_reg_dump` which retrieves the matching
 be reported and a pointer to the ASCII list of register names in a format
 expected by the crash reporting framework.
 
-8.  Memory layout on FVP platforms
-----------------------------------
+
+8. Memory layout of BL images
+-----------------------------
 
 Each bootloader image can be divided in 2 parts:
 
@@ -1048,8 +1063,137 @@ PROGBITS sections then the resulting binary file would contain a bunch of zero
 bytes at the location of this NOBITS section, making the image unnecessarily
 bigger. Smaller images allow faster loading from the FIP to the main memory.
 
-On FVP platforms, we use the Trusted ROM, Trusted SRAM and, optionally, Trusted
-DRAM to store the trusted firmware binaries and shared data.
+### Linker scripts and symbols
+
+Each bootloader stage image layout is described by its own linker script. The
+linker scripts export some symbols into the program symbol table. Their values
+correspond to particular addresses. The trusted firmware code can refer to these
+symbols to figure out the image memory layout.
+
+Linker symbols follow the following naming convention in the trusted firmware.
+
+*   `__<SECTION>_START__`
+
+    Start address of a given section named `<SECTION>`.
+
+*   `__<SECTION>_END__`
+
+    End address of a given section named `<SECTION>`. If there is an alignment
+    constraint on the section's end address then `__<SECTION>_END__` corresponds
+    to the end address of the section's actual contents, rounded up to the right
+    boundary. Refer to the value of `__<SECTION>_UNALIGNED_END__`  to know the
+    actual end address of the section's contents.
+
+*   `__<SECTION>_UNALIGNED_END__`
+
+    End address of a given section named `<SECTION>` without any padding or
+    rounding up due to some alignment constraint.
+
+*   `__<SECTION>_SIZE__`
+
+    Size (in bytes) of a given section named `<SECTION>`. If there is an
+    alignment constraint on the section's end address then `__<SECTION>_SIZE__`
+    corresponds to the size of the section's actual contents, rounded up to the
+    right boundary. In other words, `__<SECTION>_SIZE__ = __<SECTION>_END__ -
+    _<SECTION>_START__`. Refer to the value of `__<SECTION>_UNALIGNED_SIZE__`
+    to know the actual size of the section's contents.
+
+*   `__<SECTION>_UNALIGNED_SIZE__`
+
+    Size (in bytes) of a given section named `<SECTION>` without any padding or
+    rounding up due to some alignment constraint. In other words,
+    `__<SECTION>_UNALIGNED_SIZE__ = __<SECTION>_UNALIGNED_END__ -
+    __<SECTION>_START__`.
+
+Some of the linker symbols are mandatory as the trusted firmware code relies on
+them to be defined. They are listed in the following subsections. Some of them
+must be provided for each bootloader stage and some are specific to a given
+bootloader stage.
+
+The linker scripts define some extra, optional symbols. They are not actually
+used by any code but they help in understanding the bootloader images' memory
+layout as they are easy to spot in the link map files.
+
+#### Common linker symbols
+
+Early setup code needs to know the extents of the BSS section to zero-initialise
+it before executing any C code. The following linker symbols are defined for
+this purpose:
+
+* `__BSS_START__` This address must be aligned on a 16-byte boundary.
+* `__BSS_SIZE__`
+
+Similarly, the coherent memory section must be zero-initialised. Also, the MMU
+setup code needs to know the extents of this section to set the right memory
+attributes for it. The following linker symbols are defined for this purpose:
+
+* `__COHERENT_RAM_START__` This address must be aligned on a page-size boundary.
+* `__COHERENT_RAM_END__` This address must be aligned on a page-size boundary.
+* `__COHERENT_RAM_UNALIGNED_SIZE__`
+
+#### BL1's linker symbols
+
+BL1's early setup code needs to know the extents of the .data section to
+relocate it from ROM to RAM before executing any C code. The following linker
+symbols are defined for this purpose:
+
+* `__DATA_ROM_START__` This address must be aligned on a 16-byte boundary.
+* `__DATA_RAM_START__` This address must be aligned on a 16-byte boundary.
+* `__DATA_SIZE__`
+
+BL1's platform setup code needs to know the extents of its read-write data
+region to figure out its memory layout. The following linker symbols are defined
+for this purpose:
+
+* `__BL1_RAM_START__` This is the start address of BL1 RW data.
+* `__BL1_RAM_END__` This is the end address of BL1 RW data.
+
+#### BL2's, BL3-1's and TSP's linker symbols
+
+BL2, BL3-1 and TSP need to know the extents of their read-only section to set
+the right memory attributes for this memory region in their MMU setup code. The
+following linker symbols are defined for this purpose:
+
+* `__RO_START__`
+* `__RO_END__`
+
+### How to choose the right base addresses for each bootloader stage image
+
+There is currently no support for dynamic image loading in the Trusted Firmware.
+This means that all bootloader images need to be linked against their ultimate
+runtime locations and the base addresses of each image must be chosen carefully
+such that images don't overlap each other in an undesired way. As the code
+grows, the base addresses might need adjustments to cope with the new memory
+layout.
+
+The memory layout is completely specific to the platform and so there is no
+general recipe for choosing the right base addresses for each bootloader image.
+However, there are tools to aid in understanding the memory layout. These are
+the link map files: `build/<platform>/<build-type>/bl<x>/bl<x>.map`, with `<x>`
+being the stage bootloader. They provide a detailed view of the memory usage of
+each image. Among other useful information, they provide the end address of
+each image.
+
+* `bl1.map` link map file provides `__BL1_RAM_END__` address.
+* `bl2.map` link map file provides `__BL2_END__` address.
+* `bl31.map` link map file provides `__BL31_END__` address.
+* `bl32.map` link map file provides `__BL32_END__` address.
+
+For each bootloader image, the platform code must provide its start address
+as well as a limit address that it must not overstep. The latter is used in the
+linker scripts to check that the image doesn't grow past that address. If that
+happens, the linker will issue a message similar to the following:
+
+    aarch64-none-elf-ld: BLx has exceeded its limit.
+
+Additionally, if the platform memory layout implies some image overlaying like
+on FVP, BL3-1 and TSP need to know the limit address that their PROGBITS
+sections must not overstep. The platform code must provide those.
+
+
+####  Memory layout on ARM FVPs
+
+The following list describes the memory layout on the FVP:
 
  *    A 4KB page of shared memory is used to store the entrypoint mailboxes
       and the parameters passed between bootloaders. The shared memory can be
@@ -1157,133 +1301,42 @@ illustrated by the following diagrams.
 Loading the TSP image in Trusted DRAM doesn't change the memory layout of the
 other boot loader images in Trusted SRAM.
 
-Each bootloader stage image layout is described by its own linker script. The
-linker scripts export some symbols into the program symbol table. Their values
-correspond to particular addresses. The trusted firmware code can refer to these
-symbols to figure out the image memory layout.
+####  Memory layout on Juno ARM development platform
 
-Linker symbols follow the following naming convention in the trusted firmware.
+                  Flash0
+    0x0C000000 +----------+
+               :          :
+    0x0BED0000 |----------|
+               | BL1 (ro) |
+    0x0BEC0000 |----------|
+               :          :
+               |  Bypass  |
+    0x08000000 +----------+
 
-*   `__<SECTION>_START__`
+               Trusted SRAM
+    0x04040000 +----------+
+               |   BL2    |                 BL3-1 is loaded
+    0x04033000 |----------|                 after BL3-0 has
+               |  BL3-2   |                 been sent to SCP
+    0x04023000 |----------|                 ------------------
+               |  BL3-0   |  <<<<<<<<<<<<<  |     BL3-1      |
+    0x04009000 |----------|                 ------------------
+               | BL1 (rw) |
+    0x04001000 |----------|
+               |   MHU    |
+    0x04000000 +----------+
 
-    Start address of a given section named `<SECTION>`.
+The Message Handling Unit (MHU) page contains the entrypoint mailboxes and a
+shared memory area. This shared memory is used as a communication channel
+between the AP and the SCP.
 
-*   `__<SECTION>_END__`
+BL1 code starts at `0x0BEC0000`. The BL1 data section is copied to trusted SRAM
+at `0x04001000`, right after the MHU page. Entrypoint mailboxes are stored in
+the first 128 bytes of the MHU page.
 
-    End address of a given section named `<SECTION>`. If there is an alignment
-    constraint on the section's end address then `__<SECTION>_END__` corresponds
-    to the end address of the section's actual contents, rounded up to the right
-    boundary. Refer to the value of `__<SECTION>_UNALIGNED_END__`  to know the
-    actual end address of the section's contents.
-
-*   `__<SECTION>_UNALIGNED_END__`
-
-    End address of a given section named `<SECTION>` without any padding or
-    rounding up due to some alignment constraint.
-
-*   `__<SECTION>_SIZE__`
-
-    Size (in bytes) of a given section named `<SECTION>`. If there is an
-    alignment constraint on the section's end address then `__<SECTION>_SIZE__`
-    corresponds to the size of the section's actual contents, rounded up to the
-    right boundary. In other words, `__<SECTION>_SIZE__ = __<SECTION>_END__ -
-    _<SECTION>_START__`. Refer to the value of `__<SECTION>_UNALIGNED_SIZE__`
-    to know the actual size of the section's contents.
-
-*   `__<SECTION>_UNALIGNED_SIZE__`
-
-    Size (in bytes) of a given section named `<SECTION>` without any padding or
-    rounding up due to some alignment constraint. In other words,
-    `__<SECTION>_UNALIGNED_SIZE__ = __<SECTION>_UNALIGNED_END__ -
-    __<SECTION>_START__`.
-
-Some of the linker symbols are mandatory as the trusted firmware code relies on
-them to be defined. They are listed in the following subsections. Some of them
-must be provided for each bootloader stage and some are specific to a given
-bootloader stage.
-
-The linker scripts define some extra, optional symbols. They are not actually
-used by any code but they help in understanding the bootloader images' memory
-layout as they are easy to spot in the link map files.
-
-### Common linker symbols
-
-Early setup code needs to know the extents of the BSS section to zero-initialise
-it before executing any C code. The following linker symbols are defined for
-this purpose:
-
-* `__BSS_START__` This address must be aligned on a 16-byte boundary.
-* `__BSS_SIZE__`
-
-Similarly, the coherent memory section must be zero-initialised. Also, the MMU
-setup code needs to know the extents of this section to set the right memory
-attributes for it. The following linker symbols are defined for this purpose:
-
-* `__COHERENT_RAM_START__` This address must be aligned on a page-size boundary.
-* `__COHERENT_RAM_END__` This address must be aligned on a page-size boundary.
-* `__COHERENT_RAM_UNALIGNED_SIZE__`
-
-### BL1's linker symbols
-
-BL1's early setup code needs to know the extents of the .data section to
-relocate it from ROM to RAM before executing any C code. The following linker
-symbols are defined for this purpose:
-
-* `__DATA_ROM_START__` This address must be aligned on a 16-byte boundary.
-* `__DATA_RAM_START__` This address must be aligned on a 16-byte boundary.
-* `__DATA_SIZE__`
-
-BL1's platform setup code needs to know the extents of its read-write data
-region to figure out its memory layout. The following linker symbols are defined
-for this purpose:
-
-* `__BL1_RAM_START__` This is the start address of BL1 RW data.
-* `__BL1_RAM_END__` This is the end address of BL1 RW data.
-
-### BL2's, BL3-1's and TSP's linker symbols
-
-BL2, BL3-1 and TSP need to know the extents of their read-only section to set
-the right memory attributes for this memory region in their MMU setup code. The
-following linker symbols are defined for this purpose:
-
-* `__RO_START__`
-* `__RO_END__`
-
-### How to choose the right base addresses for each bootloader stage image
-
-There is currently no support for dynamic image loading in the Trusted Firmware.
-This means that all bootloader images need to be linked against their ultimate
-runtime locations and the base addresses of each image must be chosen carefully
-such that images don't overlap each other in an undesired way. As the code
-grows, the base addresses might need adjustments to cope with the new memory
-layout.
-
-The memory layout is completely specific to the platform and so there is no
-general recipe for choosing the right base addresses for each bootloader image.
-However, there are tools to aid in understanding the memory layout. These are
-the link map files: `build/<platform>/<build-type>/bl<x>/bl<x>.map`, with `<x>`
-being the stage bootloader. They provide a detailed view of the memory usage of
-each image. Among other useful information, they provide the end address of
-each image.
-
-* `bl1.map` link map file provides `__BL1_RAM_END__` address.
-* `bl2.map` link map file provides `__BL2_END__` address.
-* `bl31.map` link map file provides `__BL31_END__` address.
-* `bl32.map` link map file provides `__BL32_END__` address.
-
-For each bootloader image, the platform code must provide its start address
-as well as a limit address that it must not overstep. The latter is used in the
-linker scripts to check that the image doesn't grow past that address. If that
-happens, the linker will issue a message similar to the following:
-
-    aarch64-none-elf-ld: BLx has exceeded its limit.
-
-Additionally, if the platform memory layout implies some image overlaying like
-on FVP, BL3-1 and TSP need to know the limit address that their PROGBITS
-sections must not overstep. The platform code must provide those.
 
 9.  Firmware Image Package (FIP)
---------------------------------
+---------------------------------
 
 Using a Firmware Image Package (FIP) allows for packing bootloader images (and
 potentially other payloads) into a single archive that can be loaded by the ARM
@@ -1361,7 +1414,7 @@ platform policy can be modified to allow additional images.
 
 
 10.  Code Structure
-------------------
+-------------------
 
 Trusted Firmware code is logically divided between the three boot loader
 stages mentioned in the previous sections. The code is also divided into the
@@ -1406,7 +1459,7 @@ kernel at boot time. These can be found in the `fdts` directory.
 
 
 11.  References
---------------
+---------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
     under NDA through your ARM account representative.
@@ -1426,5 +1479,6 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
 [User Guide]:       ./user-guide.md
+[Porting Guide]:    ./porting-guide.md
 [INTRG]:            ./interrupt-framework-design.md
 [ERRW]:             ./cpu-errata-workarounds.md
