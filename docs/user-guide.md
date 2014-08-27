@@ -690,31 +690,51 @@ trusted ROM and NOR FLASH0 respectively.
 
 ### Notes regarding Base FVP configuration options
 
-1. The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
-Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
-section above).
+Please refer to these notes in the subsequent "Running on the Base FVP"
+sections.
 
-2. Using `cache_state_modelled=1` makes booting very slow. The software will
-still work (and run much faster) without this option but this will hide any
-cache maintenance defects in the software.
+1.  The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
+    Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
+    section above).
 
-3. Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
-if a Linux RAM-disk file-system is used (see the "Obtaining a root file-system"
-section above).
+2.  Using `cache_state_modelled=1` makes booting very slow. The software will
+    still work (and run much faster) without this option but this will hide any
+    cache maintenance defects in the software.
 
-4. Setting the `-C bp.secure_memory` parameter to `1` is only supported on
-Base FVP versions 5.4 and newer. Setting this parameter to `0` is also
-supported. The `-C bp.tzc_400.diagnostics=1` parameter is optional. It
-instructs the FVP to provide some helpful information if a secure memory
-violation occurs.
+3.  Using the `-C bp.virtioblockdevice.image_path` parameter is not necessary
+    if a Linux RAM-disk file-system is used (see the "Obtaining a root
+    file-system" section above).
 
-5. The `--data="<path-to><bl31/bl32/bl33-binary>"@base address of binaries`
-parameter is used to load bootloader images in the Base FVP memory (see the
-"Building the Trusted Firmware" section above). The base address used to
-load the binaries with --data should match the image base addresses in
-platform_def.h used while linking the images.
-BL3-2 image is only needed if BL3-1 has been built to expect a secure-EL1
-payload.
+4.  Setting the `-C bp.secure_memory` parameter to `1` is only supported on
+    Base FVP versions 5.4 and newer. Setting this parameter to `0` is also
+    supported. The `-C bp.tzc_400.diagnostics=1` parameter is optional. It
+    instructs the FVP to provide some helpful information if a secure memory
+    violation occurs.
+
+5.  This and the following notes only apply when the firmware is built with
+    the `RESET_TO_BL31` option.
+
+    The `--data="<path-to><bl31|bl32|bl33-binary>"@<base-address-of-binary>`
+    parameter is used to load bootloader images into Base FVP memory (see the
+    "Building the Trusted Firmware" section above). The base addresses used
+    should match the image base addresses in `platform_def.h` used while linking
+    the images. The BL3-2 image is only needed if BL3-1 has been built to expect
+    a Secure-EL1 Payload.
+
+6.  The `-C cluster<X>.cpu<Y>.RVBAR=@<base-address-of-bl31>` parameter, where
+    X and Y are the cluster and CPU numbers respectively, is used to set the
+    reset vector for each core.
+
+7.  Changing the default value of `FVP_SHARED_DATA_LOCATION` will also require
+    changing the value of
+    `--data="<path-to><bl31-binary>"@<base-address-of-bl31>` and
+    `-C cluster<X>.cpu<X>.RVBAR=@<base-address-of-bl31>`, to the new value of
+    `BL31_BASE` in `platform_def.h`.
+
+8.  Changing the default value of `FVP_TSP_RAM_LOCATION` will also require
+    changing the value of
+    `--data="<path-to><bl32-binary>"@<base-address-of-bl32>` to the new value of
+    `BL32_BASE` in `platform_def.h`.
 
 
 ### Running on the AEMv8 Base FVP with reset to BL1 entrypoint
@@ -763,10 +783,6 @@ information about some of the options to run the software.
 The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
 with 8 CPUs using the ARM Trusted Firmware.
 
-NOTE: Uses the `-c clusterX.cpuX.RVBAR=@base address of BL3-1` where X is
-the cluster number in clusterX and cpu number in cpuX is used to set the reset
-vector for each core.
-
     <path-to>/FVP_Base_AEMv8A-AEMv8A                             \
     -C pctl.startup=0.0.0.0                                      \
     -C bp.secure_memory=1                                        \
@@ -775,15 +791,15 @@ vector for each core.
     -C cluster1.NUM_CORES=4                                      \
     -C cache_state_modelled=1                                    \
     -C bp.pl011_uart0.untimed_fifos=1                            \
-    -C cluster0.cpu0.RVBAR=0x04023000                            \
-    -C cluster0.cpu1.RVBAR=0x04023000                            \
-    -C cluster0.cpu2.RVBAR=0x04023000                            \
-    -C cluster0.cpu3.RVBAR=0x04023000                            \
-    -C cluster1.cpu0.RVBAR=0x04023000                            \
-    -C cluster1.cpu1.RVBAR=0x04023000                            \
-    -C cluster1.cpu2.RVBAR=0x04023000                            \
-    -C cluster1.cpu3.RVBAR=0x04023000                            \
-    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04023000    \
+    -C cluster0.cpu0.RVBAR=0x04022000                            \
+    -C cluster0.cpu1.RVBAR=0x04022000                            \
+    -C cluster0.cpu2.RVBAR=0x04022000                            \
+    -C cluster0.cpu3.RVBAR=0x04022000                            \
+    -C cluster1.cpu0.RVBAR=0x04022000                            \
+    -C cluster1.cpu1.RVBAR=0x04022000                            \
+    -C cluster1.cpu2.RVBAR=0x04022000                            \
+    -C cluster1.cpu3.RVBAR=0x04022000                            \
+    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04022000    \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04000000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
@@ -796,25 +812,21 @@ information about some of the options to run the software.
 The following `FVP_Base_Cortex-A57x4-A53x4` model parameters should be used to
 boot Linux with 8 CPUs using the ARM Trusted Firmware.
 
-NOTE: Uses the `-c clusterX.cpuX.RVBARADDR=@base address of BL3-1` where X is
-the cluster number in clusterX and cpu number in cpuX is used to set the reset
-vector for each core.
-
     <path-to>/FVP_Base_Cortex-A57x4-A53x4                        \
     -C pctl.startup=0.0.0.0                                      \
     -C bp.secure_memory=1                                        \
     -C bp.tzc_400.diagnostics=1                                  \
     -C cache_state_modelled=1                                    \
     -C bp.pl011_uart0.untimed_fifos=1                            \
-    -C cluster0.cpu0.RVBARADDR=0x04023000                        \
-    -C cluster0.cpu1.RVBARADDR=0x04023000                        \
-    -C cluster0.cpu2.RVBARADDR=0x04023000                        \
-    -C cluster0.cpu3.RVBARADDR=0x04023000                        \
-    -C cluster1.cpu0.RVBARADDR=0x04023000                        \
-    -C cluster1.cpu1.RVBARADDR=0x04023000                        \
-    -C cluster1.cpu2.RVBARADDR=0x04023000                        \
-    -C cluster1.cpu3.RVBARADDR=0x04023000                        \
-    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04023000    \
+    -C cluster0.cpu0.RVBARADDR=0x04022000                        \
+    -C cluster0.cpu1.RVBARADDR=0x04022000                        \
+    -C cluster0.cpu2.RVBARADDR=0x04022000                        \
+    -C cluster0.cpu3.RVBARADDR=0x04022000                        \
+    -C cluster1.cpu0.RVBARADDR=0x04022000                        \
+    -C cluster1.cpu1.RVBARADDR=0x04022000                        \
+    -C cluster1.cpu2.RVBARADDR=0x04022000                        \
+    -C cluster1.cpu3.RVBARADDR=0x04022000                        \
+    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04022000    \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04000000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
