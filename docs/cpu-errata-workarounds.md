@@ -1,7 +1,7 @@
 ARM CPU Errata Workarounds
 ==========================
 
-ARM Trusted Firmware exports a series of build flags which controls the
+ARM Trusted Firmware exports a series of build flags which control the
 errata workarounds that are applied to each CPU by the reset handler. The
 errata details can be found in the CPU specifc errata documents published
 by ARM. The errata workarounds are implemented for a particular revision
@@ -19,7 +19,7 @@ In the current implementation, a platform which has more than 1 variant
 with different revisions of a processor has no runtime mechanism available
 for it to specify which errata workarounds should be enabled or not.
 
-The value of the build flags are 0 by default, that is disabled. Any other
+The value of the build flags are 0 by default, that is, disabled. Any other
 value will enable it.
 
 For Cortex A57, following errata build flags are defined :

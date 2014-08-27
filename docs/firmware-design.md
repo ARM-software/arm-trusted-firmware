@@ -1195,35 +1195,35 @@ sections must not overstep. The platform code must provide those.
 
 The following list describes the memory layout on the FVP:
 
- *    A 4KB page of shared memory is used to store the entrypoint mailboxes
-      and the parameters passed between bootloaders. The shared memory can be
-      allocated either at the top of Trusted SRAM or at the base of Trusted
-      DRAM at build time. When allocated in Trusted SRAM, the amount of Trusted
-      SRAM available to load the bootloader images will be reduced by the size
-      of the shared memory.
+*   A 4KB page of shared memory is used to store the entrypoint mailboxes
+    and the parameters passed between bootloaders. The shared memory can be
+    allocated either at the top of Trusted SRAM or at the base of Trusted
+    DRAM at build time. When allocated in Trusted SRAM, the amount of Trusted
+    SRAM available to load the bootloader images will be reduced by the size
+    of the shared memory.
 
- *    BL1 is originally sitting in the Trusted ROM at address `0x0`. Its
-      read-write data are relocated at the top of the Trusted SRAM at runtime.
-      If the shared memory is allocated in Trusted SRAM, the BL1 read-write data
-      is relocated just below the shared memory.
+*   BL1 is originally sitting in the Trusted ROM at address `0x0`. Its
+    read-write data are relocated at the top of the Trusted SRAM at runtime.
+    If the shared memory is allocated in Trusted SRAM, the BL1 read-write data
+    is relocated just below the shared memory.
 
- *    BL3-1 is loaded at the top of the Trusted SRAM, such that its NOBITS
-      sections will overwrite BL1 R/W data.
+*   BL3-1 is loaded at the top of the Trusted SRAM, such that its NOBITS
+    sections will overwrite BL1 R/W data.
 
- *    BL2 is loaded below BL3-1.
+*   BL2 is loaded below BL3-1.
 
- *    The TSP is loaded as the BL3-2 image at the base of either the Trusted
-      SRAM or Trusted DRAM. When loaded into Trusted SRAM, its NOBITS sections
-      are allowed to overlay BL2. When loaded into Trusted DRAM, an offset
-      corresponding to the size of the shared memory is applied to avoid
-      overlap.
+*   The TSP is loaded as the BL3-2 image at the base of either the Trusted
+    SRAM or Trusted DRAM. When loaded into Trusted SRAM, its NOBITS sections
+    are allowed to overlay BL2. When loaded into Trusted DRAM, an offset
+    corresponding to the size of the shared memory is applied to avoid
+    overlap.
 
 This memory layout is designed to give the BL3-2 image as much memory as
 possible when it is loaded into Trusted SRAM. Depending on the location of the
 shared memory page and the TSP, it will result in different memory maps,
 illustrated by the following diagrams.
 
-** Shared data & TSP in Trusted SRAM (default option): **
+**Shared data & TSP in Trusted SRAM (default option):**
 
                Trusted SRAM
     0x04040000 +----------+
@@ -1244,7 +1244,7 @@ illustrated by the following diagrams.
     0x00000000 +----------+
 
 
-** Shared data & TSP in Trusted DRAM: **
+**Shared data & TSP in Trusted DRAM:**
 
                Trusted DRAM
     0x08000000 +----------+
@@ -1271,7 +1271,7 @@ illustrated by the following diagrams.
                | BL1 (ro) |
     0x00000000 +----------+
 
-** Shared data in Trusted DRAM, TSP in Trusted SRAM: **
+**Shared data in Trusted DRAM, TSP in Trusted SRAM:**
 
                Trusted DRAM
     0x08000000 +----------+

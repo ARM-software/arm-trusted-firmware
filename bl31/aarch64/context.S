@@ -207,7 +207,7 @@ func el1_sysregs_context_restore
 	ret
 
 /* -----------------------------------------------------
- * The followsing function follows the aapcs_64 strictly
+ * The following function follows the aapcs_64 strictly
  * to use x9-x17 (temporary caller-saved registers
  * according to AArch64 PCS) to save floating point
  * register context. It assumes that 'x0' is pointing to

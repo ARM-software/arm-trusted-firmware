@@ -55,7 +55,7 @@ objective is to implement the following two requirements.
     intervention from non-secure software.
 
 2.  It should be possible to route interrupts meant to be handled by
-  non-secure software (Non-secure interrupts) to the last executed exception
+    non-secure software (Non-secure interrupts) to the last executed exception
     level in the normal world when the execution is in secure world at
     exception levels lower than EL3. This could be done with or without the
     knowledge of software executing in Secure-EL1/Secure-EL0. The choice of
@@ -151,9 +151,9 @@ terminology used in the following sub-sections is explained below.
     is not visible to the secure software which violates the motivation behind
     the ARM Security Extensions.
 
-4.  __CSS=1, TEL3=1__. Interrupt is routed to EL3 when execution is in secure
-    state. This is a valid routing model as secure software in EL3 can
-    handover the interrupt to Secure-EL1 for handling.
+4.  __CSS=1, TEL3=1__. Interrupt is routed to EL3 when execution is in
+    non-secure state. This is a valid routing model as secure software in EL3
+    can handover the interrupt to Secure-EL1 for handling.
 
 
 ##### 1.2.3.2 Non-secure interrupts
@@ -240,7 +240,7 @@ is expected to be aware of the secure devices present in the system and their
 associated interrupt numbers. It should configure the interrupt controller to
 enable the secure interrupts, ensure that their priority is always higher than
 the non-secure interrupts and target them to the primary CPU. It should also
-export the interface described in the the [Porting Guide][PRTG] to enable
+export the interface described in the [Porting Guide] to enable
 handling of interrupts.
 
 In the remainder of this document, for the sake of simplicity it is assumed that
@@ -685,7 +685,7 @@ should handle this secure monitor call so that execution resumes in the
 exception level and the security state from where the Secure-EL1 interrupt was
 originally taken.
 
-##### 2.3.2.1 Test secure payload dispatcher behavior
+##### 2.3.2.3 Test secure payload dispatcher behavior
 The example TSPD service registers a handler for Secure-EL1 interrupts taken
 from the non-secure state. Its handler `tspd_secure_el1_interrupt_handler()`
 takes the following actions upon being invoked.

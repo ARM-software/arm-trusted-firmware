@@ -1069,7 +1069,7 @@ level as 1, resulting in PSCI power control up to the cluster level.
 
 ### Function : platform_setup_pm() [mandatory]
 
-    Argument : plat_pm_ops **
+    Argument : const plat_pm_ops **
     Return   : int
 
 This function may execute with the MMU and data caches enabled if the platform
@@ -1081,10 +1081,9 @@ handler routines for platform-specific power management actions by populating
 the passed pointer with a pointer to BL3-1's private `plat_pm_ops` structure.
 
 A description of each member of this structure is given below. Please refer to
-the ARM FVP specific implementation of these handlers in [plat/fvp/plat_pm.c]
+the ARM FVP specific implementation of these handlers in [plat/fvp/fvp_pm.c]
 as an example. A platform port may choose not implement some of the power
-management operations. For example, the ARM FVP port does not implement the
-`affinst_standby()` function.
+management operations.
 
 #### plat_pm_ops.affinst_standby()
 
@@ -1300,24 +1299,24 @@ uses the group value to determine the type of interrupt.
 3.5  Crash Reporting mechanism (in BL3-1)
 ----------------------------------------------
 BL3-1 implements a crash reporting mechanism which prints the various registers
-of the CPU to enable quick crash analysis and debugging. It requires that a console
-is designated as the crash console by the platform which will used to print the
-register dump.
+of the CPU to enable quick crash analysis and debugging. It requires that a
+console is designated as the crash console by the platform which will be used to
+print the register dump.
 
-The following functions must be implemented by the platform if it wants crash reporting
-mechanism in BL3-1. The functions are implemented in assembly so that they can be
-invoked without a C Runtime stack.
+The following functions must be implemented by the platform if it wants crash
+reporting mechanism in BL3-1. The functions are implemented in assembly so that
+they can be invoked without a C Runtime stack.
 
 ### Function : plat_crash_console_init
 
     Argument : void
     Return   : int
 
-This API is used by the crash reporting mechanism to intialize the crash console.
-It should only use the general purpose registers x0 to x2 to do the initiaization
-and returns 1 on success.
+This API is used by the crash reporting mechanism to initialize the crash
+console. It should only use the general purpose registers x0 to x2 to do the
+initialization and returns 1 on success.
 
-The FVP port designates the PL011_UART0 as the crash console and calls the
+The FVP port designates the `PL011_UART0` as the crash console and calls the
 console_core_init() to initialize the console.
 
 ### Function : plat_crash_console_putc
@@ -1330,7 +1329,7 @@ designated crash console. It should only use general purpose registers x1 and
 x2 to do its work. The parameter and the return value are in general purpose
 register x0.
 
-The FVP port designates the PL011_UART0 as the crash console and calls the
+The FVP port designates the `PL011_UART0` as the crash console and calls the
 console_core_putc() to print the character on the console.
 
 4.  C Library
