@@ -45,8 +45,6 @@ The following tools are required to use the ARM Trusted Firmware:
 
 *   `git` package to obtain source code.
 
-*   `ia32-libs` package.
-
 *   `build-essential`, `uuid-dev` and `iasl` packages for building UEFI and the
     Firmware Image Package (FIP) tool.
 
@@ -921,7 +919,7 @@ detect the legacy VE memory map while configuring the GIC.
 
 The Juno platform requires a BL3-0 image to boot up. This image contains the
 runtime firmware that runs on the SCP (System Control Processor). It can be
-downloaded from the [ARM Silver SCP website] (requires registration).
+downloaded from [this ARM website] [SCP download] (requires registration).
 
 Rebuild the Trusted Firmware specifying the BL3-0 image. Refer to the section
 "Building the Trusted Firmware". Alternatively, the FIP image can be updated
@@ -1020,7 +1018,7 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [Firmware Design]:  ./firmware-design.md
 
 [ARM FVP website]:         http://www.arm.com/fvp
-[ARM Silver SCP website]:  https://silver.arm.com/download/download.tm?pv=1764630
+[SCP download]:            https://silver.arm.com/download/download.tm?pv=1764630
 [Linaro Toolchain]:        http://releases.linaro.org/14.07/components/toolchain/binaries/
 [EDK2]:                    http://github.com/tianocore/edk2
 [DS-5]:                    http://www.arm.com/products/tools/software-tools/ds-5/index.php
