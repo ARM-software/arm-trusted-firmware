@@ -1,18 +1,17 @@
-ARM Trusted Firmware - version 0.4
+ARM Trusted Firmware - version 1.0
 ==================================
 
 ARM Trusted Firmware provides a reference implementation of secure world
 software for [ARMv8-A], including Exception Level 3 (EL3) software. This
-release focuses on support for ARM's [Fixed Virtual Platforms (FVPs)] [FVP].
+release provides initial support for the [Juno ARM Development Platform] [Juno],
+complementing the existing support for the Base and Foundation
+[Fixed Virtual Platforms (FVPs)] [FVP] from ARM.
 
 The intent is to provide a reference implementation of various ARM interface
 standards, such as the Power State Coordination Interface ([PSCI]), Trusted
 Board Boot Requirements (TBBR) and [Secure Monitor] [TEE-SMC] code. As far as
 possible the code is designed for reuse or porting to other ARMv8-A model and
 hardware platforms.
-
-This release builds on previous source code releases, supporting the Base and
-Foundation FVP platform models from ARM.
 
 ARM will continue development in collaboration with interested parties to
 provide a full reference implementation of PSCI, TBBR and Secure Monitor code
@@ -48,14 +47,15 @@ contain new features, optimizations and quality improvements.
 *   Supports both GICv2 and GICv3 initialization for use by normal world
     software.
 
-*   Starts the normal world at the highest available Exception Level: EL2
-    if available, otherwise EL1.
+*   Starts the normal world at the Exception Level and Register Width provided
+    by the platform port. Typically this is AArch64 EL2 if available.
 
 *   Handles SMCs (Secure Monitor Calls) conforming to the [SMC Calling
     Convention PDD] [SMCCC] using an EL3 runtime services framework.
 
 *   Handles SMCs relating to the [Power State Coordination Interface PDD] [PSCI]
-    for the Secondary CPU Boot, CPU hotplug and CPU idle use-cases.
+    for the Secondary CPU Boot, CPU Hotplug, CPU Idle and System Shutdown/Reset
+    use-cases.
 
 *   A Test Secure-EL1 Payload and Dispatcher to demonstrate Secure Monitor
     functionality such as world switching, EL1 context management and interrupt
@@ -70,27 +70,33 @@ contain new features, optimizations and quality improvements.
 *   Isolation of memory accessible by the secure world from the normal world
     through programming of a TrustZone controller.
 
+*   Support for CPU specific reset sequences, power down sequences and register
+    dumping during crash reporting. The CPU specific reset sequences include
+    support for errata workarounds.
+
 For a full description of functionality and implementation details, please
 see the [Firmware Design] and supporting documentation. The [Change Log]
 provides details of changes made since the last release.
 
 ### Platforms
 
-This release of the Trusted Firmware has been tested on the following ARM
-[FVP]s (64-bit versions only):
+This release of the Trusted Firmware has been tested on Revision B of the
+[Juno ARM Development Platform] [Juno] with Version r0p0-00rel7 of the
+[ARM SCP Firmware] [SCP download].
 
-*   `Foundation_v8` (Version 2.0, Build 0.8.5206)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.6, Build 0.8.5602)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.6, Build 0.8.5602)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.6, Build 0.8.5602)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.6, Build 0.8.5602)
+The Trusted Firmware has also been tested on the 64-bit Linux versions of the
+following ARM [FVP]s:
+
+*   `Foundation_v8` (Version 2.1, Build 9.0.24)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.8, Build 0.8.5802)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.8, Build 0.8.5802)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.8, Build 0.8.5802)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.8, Build 0.8.5802)
 
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from ARM: see [www.arm.com/fvp] [FVP].
 
 ### Still to Come
-
-*   Support for ARMv8-A development board as a reference platform.
 
 *   Complete Trusted Boot implementation.
 
@@ -99,6 +105,8 @@ licensed from ARM: see [www.arm.com/fvp] [FVP].
 *   Support for alternative types of Secure-EL1 Payloads.
 
 *   Completing the currently experimental GICv3 support.
+
+*   Support for new System IP devices.
 
 For a full list of detailed issues in the current code, please see the [Change
 Log] and the [GitHub issue tracker].
@@ -145,6 +153,8 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 [ARMv8-A]:               http://www.arm.com/products/processors/armv8-architecture.php "ARMv8-A Architecture"
 [FVP]:                   http://www.arm.com/fvp "ARM's Fixed Virtual Platforms"
+[Juno]:                  http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php "Juno ARM Development Platform"
+[SCP download]:          https://silver.arm.com/download/download.tm?pv=1764630
 [PSCI]:                  http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:                 http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [TEE-SMC]:               http://www.arm.com/products/processors/technologies/trustzone/tee-smc.php "Secure Monitor and TEEs"

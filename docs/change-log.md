@@ -1,3 +1,183 @@
+ARM Trusted Firmware - version 1.0
+==================================
+
+New features
+------------
+
+*   It is now possible to map higher physical addresses using non-flat virtual
+    to physical address mappings in the MMU setup.
+
+*   Wider use is now made of the per-CPU data cache in BL3-1 to store:
+
+    *   Pointers to the non-secure and secure security state contexts.
+
+    *   A pointer to the CPU-specific operations.
+
+    *   A pointer to PSCI specific information (for example the current power
+        state).
+
+    *   A crash reporting buffer.
+
+*   The following RAM usage improvements result in a BL3-1 RAM usage reduction
+    from 96KB to 56KB (for FVP with TSPD), and a total RAM usage reduction
+    across all images from 208KB to 88KB, compared to the previous release.
+
+    *   Removed the separate `early_exception` vectors from BL3-1 (2KB code size
+        saving).
+
+    *   Removed NSRAM from the FVP memory map, allowing the removal of one
+        (4KB) translation table.
+
+    *   Eliminated the internal `psci_suspend_context` array, saving 2KB.
+
+    *   Correctly dimensioned the PSCI `aff_map_node` array, saving 1.5KB in the
+        FVP port.
+
+    *   Removed calling CPU mpidr from the bakery lock API, saving 160 bytes.
+
+    *   Removed current CPU mpidr from PSCI common code, saving 160 bytes.
+
+    *   Inlined the mmio accessor functions, saving 360 bytes.
+
+    *   Fully reclaimed all BL1 RW memory and BL2 memory on the FVP port by
+        overlaying the BL3-1/BL3-2 NOBITS sections on top of these at runtime.
+
+    *   Made storing the FP register context optional, saving 0.5KB per context
+        (8KB on the FVP port, with TSPD enabled and running on 8 CPUs).
+
+    *   Implemented a leaner `tf_printf()` function, allowing the stack to be
+        greatly reduced.
+
+    *   Removed coherent stacks from the codebase. Stacks allocated in normal
+        memory are now used before and after the MMU is enabled. This saves 768
+        bytes per CPU in BL3-1.
+
+    *   Reworked the crash reporting in BL3-1 to use less stack.
+
+    *   Optimized the EL3 register state stored in the `cpu_context` structure
+        so that registers that do not change during normal execution are
+        re-initialized each time during cold/warm boot, rather than restored
+        from memory. This saves about 1.2KB.
+
+    *   As a result of some of the above, reduced the runtime stack size in all
+        BL images. For BL3-1, this saves 1KB per CPU.
+
+*   PSCI SMC handler improvements to correctly handle calls from secure states
+    and from AArch32.
+
+*   CPU contexts are now initialized from the `entry_point_info`. BL3-1 fully
+    determines the exception level to use for the non-trusted firmware (BL3-3)
+    based on the SPSR value provided by the BL2 platform code (or otherwise
+    provided to BL3-1). This allows platform code to directly run non-trusted
+    firmware payloads at either EL2 or EL1 without requiring an EL2 stub or OS
+    loader.
+
+*   Code refactoring improvements:
+
+    *   Refactored `fvp_config` into a common platform header.
+
+    *   Refactored the fvp gic code to be a generic driver that no longer has an
+        explicit dependency on platform code.
+
+    *   Refactored the CCI-400 driver to not have dependency on platform code.
+
+    *   Simplified the IO driver so it's no longer necessary to call `io_init()`
+        and moved all the IO storage framework code to one place.
+
+    *   Simplified the interface the the TZC-400 driver.
+
+    *   Clarified the platform porting interface to the TSP.
+
+    *   Reworked the TSPD setup code to support the alternate BL3-2
+        intialization flow where BL3-1 generic code hands control to BL3-2,
+        rather than expecting the TSPD to hand control directly to BL3-2.
+
+    *   Considerable rework to PSCI generic code to support CPU specific
+        operations.
+
+*   Improved console log output, by:
+
+    *   Adding the concept of debug log levels.
+
+    *   Rationalizing the existing debug messages and adding new ones.
+
+    *   Printing out the version of each BL stage at runtime.
+
+    *   Adding support for printing console output from assembler code,
+        including when a crash occurs before the C runtime is initialized.
+
+*   Moved up to the latest versions of the FVPs, toolchain, EDK2, kernel, Linaro
+    file system and DS-5.
+
+*   On the FVP port, made the use of the Trusted DRAM region optional at build
+    time (off by default). Normal platforms will not have such a "ready-to-use"
+    DRAM area so it is not a good example to use it.
+
+*   Added support for PSCI `SYSTEM_OFF` and `SYSTEM_RESET` APIs.
+
+*   Added support for CPU specific reset sequences, power down sequences and
+    register dumping during crash reporting. The CPU specific reset sequences
+    include support for errata workarounds.
+
+*   Merged the Juno port into the master branch. Added support for CPU hotplug
+    and CPU idle. Updated the user guide to describe how to build and run on the
+    Juno platform.
+
+
+Issues resolved since last release
+----------------------------------
+
+*   Removed the concept of top/bottom image loading. The image loader now
+    automatically detects the position of the image inside the current memory
+    layout and updates the layout to minimize fragementation. This resolves the
+    image loader limitations of previously releases. There are currently no
+    plans to support dynamic image loading.
+
+*   CPU idle now works on the publicized version of the Foundation FVP.
+
+*   All known issues relating to the compiler version used have now been
+    resolved. This TF version uses Linaro toolchain 14.07 (based on GCC 4.9).
+
+
+Known issues
+------------
+
+*   GICv3 support is experimental. The Linux kernel patches to support this are
+    not widely available. There are known issues with GICv3 initialization in
+    the ARM Trusted Firmware.
+
+*   While this version greatly reduces the on-chip RAM requirements, there are
+    further RAM usage enhancements that could be made.
+
+*   The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
+    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
+
+*   The Juno-specific firmware design documentation is incomplete.
+
+*   Some recent enhancements to the FVP port have not yet been translated into
+    the Juno port. These will be tracked via the tf-issues project.
+
+*   The Linux kernel version referred to in the user guide has DVFS and HMP
+    support disabled due to some known instabilities at the time of this
+    release. A future kernel version will re-enable these features.
+
+*   DS-5 v5.19 does not detect Version 5.8 of the Cortex-A57-A53 Base FVPs in
+    CADI server mode. This is because the `<SimName>` reported by the FVP in
+    this version has changed. For example, for the Cortex-A57x4-A53x4 Base FVP,
+    the `<SimName>` reported by the FVP is `FVP_Base_Cortex_A57x4_A53x4`, while
+    DS-5 expects it to be `FVP_Base_A57x4_A53x4`.
+
+    The temporary fix to this problem is to change the name of the FVP in
+    `sw/debugger/configdb/Boards/ARM FVP/Base_A57x4_A53x4/cadi_config.xml`.
+    Change the following line:
+
+        <SimName>System Generator:FVP_Base_A57x4_A53x4</SimName>
+    to
+        <SimName>System Generator:FVP_Base_Cortex-A57x4_A53x4</SimName>
+
+    A similar change can be made to the other Cortex-A57-A53 Base FVP variants.
+
+
 ARM Trusted Firmware - version 0.4
 ==================================
 
