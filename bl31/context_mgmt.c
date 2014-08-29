@@ -247,6 +247,9 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			/* Enable EL1 access to timer */
 			write_cnthctl_el2(EL1PCEN_BIT | EL1PCTEN_BIT);
 
+			/* Reset CNTVOFF_EL2 */
+			write_cntvoff_el2(0);
+
 			/* Set VPIDR, VMPIDR to match MIDR, MPIDR */
 			write_vpidr_el2(read_midr_el1());
 			write_vmpidr_el2(read_mpidr_el1());
