@@ -41,6 +41,16 @@
 #ifndef __ASSEMBLY__
 #include <stdint.h>
 
+/* Helper macro to define entries for mmap_region_t. It creates
+ * identity mappings for each region.
+ */
+#define MAP_REGION_FLAT(adr, sz, attr) MAP_REGION(adr, adr, sz, attr)
+
+/* Helper macro to define entries for mmap_region_t. It allows to
+ * re-map address mappings from 'pa' to 'va' for each region.
+ */
+#define MAP_REGION(pa, va, sz, attr) {(pa), (va), (sz), (attr)}
+
 /*
  * Flags for building up memory mapping attributes.
  * These are organised so that a clear bit gives a more restrictive  mapping
