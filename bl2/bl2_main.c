@@ -199,9 +199,6 @@ void bl2_main(void)
 	/* Perform remaining generic architectural setup in S-EL1 */
 	bl2_arch_setup();
 
-	/* Perform platform setup in BL2 */
-	bl2_platform_setup();
-
 	/*
 	 * Load the subsequent bootloader images
 	 */
@@ -210,6 +207,9 @@ void bl2_main(void)
 		ERROR("Failed to load BL3-0 (%i)\n", e);
 		panic();
 	}
+
+	/* Perform platform setup in BL2 after loading BL3-0 */
+	bl2_platform_setup();
 
 	/*
 	 * Get a pointer to the memory the platform has set aside to pass

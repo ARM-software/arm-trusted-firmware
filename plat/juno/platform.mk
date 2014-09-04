@@ -47,10 +47,12 @@ BL1_SOURCES		+=	drivers/arm/cci400/cci400.c		\
 				plat/juno/aarch64/plat_helpers.S	\
 				plat/juno/aarch64/juno_common.c
 
-BL2_SOURCES		+=	lib/locks/bakery/bakery_lock.c		\
+BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c		\
+				lib/locks/bakery/bakery_lock.c		\
 				plat/common/aarch64/platform_up_stack.S	\
 				plat/juno/bl2_plat_setup.c		\
 				plat/juno/mhu.c				\
+				plat/juno/plat_security.c		\
 				plat/juno/aarch64/plat_helpers.S	\
 				plat/juno/aarch64/juno_common.c		\
 				plat/juno/scp_bootloader.c		\

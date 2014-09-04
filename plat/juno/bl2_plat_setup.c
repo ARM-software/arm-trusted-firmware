@@ -162,6 +162,9 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
+
+	/* Initialise the IO layer and register platform IO devices */
+	io_setup();
 }
 
 /*******************************************************************************
@@ -171,8 +174,8 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
  ******************************************************************************/
 void bl2_platform_setup(void)
 {
-	/* Initialise the IO layer and register platform IO devices */
-	io_setup();
+	/* Initialize the secure environment */
+	plat_security_setup();
 }
 
 /* Flush the TF params and the TF plat params */

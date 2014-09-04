@@ -37,7 +37,6 @@
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <tzc400.h>
 #include "../../bl1/bl1_private.h"
 #include "juno_def.h"
 #include "juno_private.h"
@@ -150,36 +149,6 @@ static void init_nic400(void)
 }
 
 
-static void init_tzc400(void)
-{
-	/* Enable all filter units available */
-	mmio_write_32(TZC400_BASE + GATE_KEEPER_OFF, 0x0000000f);
-
-	/*
-	 * Secure read and write are enabled for region 0, and the background
-	 * region (region 0) is enabled for all four filter units
-	 */
-	mmio_write_32(TZC400_BASE + REGION_ATTRIBUTES_OFF, 0xc0000000);
-
-	/*
-	 * Enable Non-secure read/write accesses for the Soc Devices from the
-	 * Non-Secure World
-	 */
-	mmio_write_32(TZC400_BASE + REGION_ID_ACCESS_OFF,
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CCI400)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_PCIE)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD0)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD1)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_USB)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_DMA330)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_THINLINKS)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_AP)		|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_GPU)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_SCP)	|
-		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CORESIGHT)
-		);
-}
-
 #define PCIE_SECURE_REG		0x3000
 #define PCIE_SEC_ACCESS_MASK	((1 << 0) | (1 << 1)) /* REG and MEM access bits */
 
@@ -200,7 +169,6 @@ static void init_pcie(void)
 void bl1_platform_setup(void)
 {
 	init_nic400();
-	init_tzc400();
 	init_pcie();
 
 	/* Initialise the IO layer and register platform IO devices */
