@@ -121,6 +121,10 @@
 
 #define SCTLR_EL1_RES1  ((1 << 29) | (1 << 28) | (1 << 23) | (1 << 22) | \
 			(1 << 11))
+#define SCTLR_AARCH32_EL1_RES1 \
+			((1 << 23) | (1 << 22) | (1 << 11) | (1 << 4) | \
+			(1 << 3))
+
 #define SCTLR_M_BIT		(1 << 0)
 #define SCTLR_A_BIT		(1 << 1)
 #define SCTLR_C_BIT		(1 << 2)
