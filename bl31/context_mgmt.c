@@ -134,6 +134,7 @@ void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
 	uint32_t security_state;
 	cpu_context_t *ctx;
 	uint32_t scr_el3;
+	uint64_t hcr_el2;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
 	unsigned long sctlr_elx;
@@ -192,11 +193,20 @@ void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
 		scr_el3 |= SCR_HCE_BIT;
 	}
 
+	hcr_el2 = read_hcr();
+	if ((security_state != SECURE) && !(scr_el3 & SCR_HCE_BIT)) {
+		if (scr_el3 & SCR_RW_BIT)
+			hcr_el2 |= HCR_RW_BIT;
+		else
+			hcr_el2 &= ~HCR_RW_BIT;
+	}
+
 	/* Populate EL3 state so that we've the right context before doing ERET */
 	state = get_el3state_ctx(ctx);
+	write_ctx_reg(state, CTX_HCR_EL2, hcr_el2);
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
-	write_ctx_reg(state, CTX_ELR_EL3, ep->pc);
 	write_ctx_reg(state, CTX_SPSR_EL3, ep->spsr);
+	write_ctx_reg(state, CTX_ELR_EL3, ep->pc);
 
 	/*
 	 * Store the X0-X7 value from the entrypoint into the context
