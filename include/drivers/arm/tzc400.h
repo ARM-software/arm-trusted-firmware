@@ -126,9 +126,12 @@
 #define FAIL_ID_ID_SHIFT		0
 
 /* Used along with 'tzc_region_attributes_t' below */
-#define REGION_ATTRIBUTES_SEC_SHIFT	30
-#define REGION_ATTRIBUTES_F_EN_SHIFT	0
-#define REGION_ATTRIBUTES_F_EN_MASK	0xf
+#define REG_ATTR_SEC_SHIFT		30
+#define REG_ATTR_F_EN_SHIFT		0
+#define REG_ATTR_F_EN_MASK		0xf
+#define REG_ATTR_FILTER_BIT(x)		((1 << x) << REG_ATTR_F_EN_SHIFT)
+#define REG_ATTR_FILTER_BIT_ALL		(REG_ATTR_F_EN_MASK << \
+					REG_ATTR_F_EN_SHIFT)
 
 #define REGION_ID_ACCESS_NSAID_WR_EN_SHIFT	16
 #define REGION_ID_ACCESS_NSAID_RD_EN_SHIFT	0

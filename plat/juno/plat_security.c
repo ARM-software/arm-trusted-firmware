@@ -43,9 +43,11 @@ static void init_tzc400(void)
 	/* Disable filters. */
 	tzc_disable_filters();
 
-	/* Configure region 0. Juno TZC-400 handles 40-bit addresses. */
-	tzc_configure_region(0xf, 0, 0x0ull, 0xffffffffffull,
-			TZC_REGION_S_RDWR,
+	/* Region 1 set to cover Non-Secure DRAM at 0x8000_0000. Apply the
+	 * same configuration to all filters in the TZC. */
+	tzc_configure_region(REG_ATTR_FILTER_BIT_ALL, 1,
+			DRAM_NS_BASE, DRAM_NS_BASE + DRAM_NS_SIZE - 1,
+			TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CCI400)	|
 			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_PCIE)	|
 			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD0)	|
@@ -55,7 +57,33 @@ static void init_tzc400(void)
 			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_THINLINKS)	|
 			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_AP)		|
 			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_GPU)	|
-			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_SCP)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CORESIGHT));
+
+	/* Region 2 set to cover Secure DRAM */
+	tzc_configure_region(REG_ATTR_FILTER_BIT_ALL, 2,
+			DRAM_SEC_BASE, DRAM_SEC_BASE + DRAM_SEC_SIZE - 1,
+			TZC_REGION_S_RDWR,
+			0);
+
+	/* Region 3 set to cover DRAM used by SCP for DDR retraining */
+	tzc_configure_region(REG_ATTR_FILTER_BIT_ALL, 3,
+			DRAM_SCP_BASE, DRAM_SCP_BASE + DRAM_SCP_SIZE - 1,
+			TZC_REGION_S_NONE,
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_SCP));
+
+	/* Region 4 set to cover Non-Secure DRAM at 0x8_8000_0000 */
+	tzc_configure_region(REG_ATTR_FILTER_BIT_ALL, 4,
+			DRAM2_BASE, DRAM2_BASE + DRAM2_SIZE - 1,
+			TZC_REGION_S_NONE,
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CCI400)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_PCIE)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD0)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD1)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_USB)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_DMA330)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_THINLINKS)	|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_AP)		|
+			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_GPU)	|
 			TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CORESIGHT));
 
 	/* Raise an exception if a NS device tries to access secure memory */

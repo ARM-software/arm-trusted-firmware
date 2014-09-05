@@ -28,6 +28,23 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+# On Juno, the Secure Payload can be loaded either in Trusted SRAM (default) or
+# Secure DRAM allocated by the TrustZone Controller.
+
+PLAT_TSP_LOCATION	:=	tsram
+
+ifeq (${PLAT_TSP_LOCATION}, tsram)
+  PLAT_TSP_LOCATION_ID := PLAT_TRUSTED_SRAM_ID
+else ifeq (${PLAT_TSP_LOCATION}, dram)
+  PLAT_TSP_LOCATION_ID := PLAT_DRAM_ID
+else
+  $(error "Unsupported PLAT_TSP_LOCATION value")
+endif
+
+# Process flags
+$(eval $(call add_define,PLAT_TSP_LOCATION_ID))
+
+
 PLAT_INCLUDES		:=	-Iplat/juno/include/
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S	\

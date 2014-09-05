@@ -60,9 +60,14 @@
 					DEVICE1_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_DRAM	MAP_REGION_FLAT(DRAM_BASE,			\
-					DRAM_SIZE,			\
+#define MAP_NS_DRAM	MAP_REGION_FLAT(DRAM_NS_BASE,			\
+					DRAM_NS_SIZE,			\
 					MT_MEMORY | MT_RW | MT_NS)
+
+#define MAP_TSP_MEM	MAP_REGION_FLAT(TSP_SEC_MEM_BASE, 		\
+					TSP_SEC_MEM_SIZE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
 /*
  * Table of regions for different BL stages to map using the MMU.
  * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
@@ -85,7 +90,8 @@ static const mmap_region_t juno_mmap[] = {
 	MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
-	MAP_DRAM,
+	MAP_NS_DRAM,
+	MAP_TSP_MEM,
 	{0}
 };
 #endif
