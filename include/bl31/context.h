@@ -77,10 +77,11 @@
  ******************************************************************************/
 #define CTX_EL3STATE_OFFSET	(CTX_GPREGS_OFFSET + CTX_GPREGS_END)
 #define CTX_SCR_EL3		0x0
-#define CTX_RUNTIME_SP		0x8
-#define CTX_SPSR_EL3		0x10
-#define CTX_ELR_EL3		0x18
-#define CTX_EL3STATE_END	0x20
+#define CTX_HCR_EL2		0x8
+#define CTX_RUNTIME_SP		0x10
+#define CTX_SPSR_EL3		0x18
+#define CTX_ELR_EL3		0x20
+#define CTX_EL3STATE_END	0x30
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the
