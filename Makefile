@@ -150,6 +150,9 @@ endif
 ifdef BL2_SOURCES
 NEED_BL2 := yes
 include bl2/bl2.mk
+# Using the ARM Trusted Firmware BL2 implies that a BL3-3 image also need to be supplied for the FIP.
+# This flag can be overridden by the platform.
+NEED_BL33 ?= yes
 endif
 
 ifdef BL31_SOURCES
@@ -168,9 +171,10 @@ ifneq (${SPD},none)
   $(info Including ${SPD_MAKE})
   include ${SPD_MAKE}
 
-  # If there's BL32 companion for the chosen SPD, and the SPD wants to build the
-  # BL2 from source, we expect that the SPD's Makefile would set NEED_BL32
-  # variable to "yes"
+  # If there's BL3-2 companion for the chosen SPD, and the SPD wants to build the
+  # BL3-2 from source, we expect that the SPD's Makefile would set NEED_BL32
+  # variable to "yes". In case the BL3-2 is a binary which needs to be included in
+  # fip, then the NEED_BL32 needs to be set and BL3-2 would need to point to the bin.
 endif
 
 .PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
@@ -438,39 +442,53 @@ $(eval $(call MAKE_BL,1))
 endif
 
 ifeq (${NEED_BL2},yes)
-$(eval $(call MAKE_BL,2,in_fip))
+$(if ${BL2}, $(eval FIP_DEPS += ${BL2}) $(eval FIP_ARGS += --bl2 ${BL2}),\
+	$(eval $(call MAKE_BL,2,in_fip)))
 endif
 
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
-$(eval $(call MAKE_BL,31,in_fip))
+$(if ${BL31}, $(eval FIP_DEPS += ${BL31}) $(eval FIP_ARGS += --bl31 ${BL31}),\
+	$(eval $(call MAKE_BL,31,in_fip)))
 endif
 
 ifeq (${NEED_BL32},yes)
-$(eval $(call MAKE_BL,32,in_fip))
+$(if ${BL32}, $(eval FIP_DEPS += ${BL32}) $(eval FIP_ARGS += --bl32 ${BL32}),\
+	$(eval $(call MAKE_BL,32,in_fip)))
 endif
 
 ifeq (${NEED_BL30},yes)
-FIP_DEPS += ${BL30}
-FIP_ARGS += --bl30 ${BL30}
-endif
+$(if ${BL30}, $(eval FIP_DEPS += ${BL30}) $(eval FIP_ARGS += --bl30 ${BL30}), )
 
-ifeq (${NEED_BL30},yes)
 # If BL3-0 is needed by the platform then 'BL30' variable must be defined.
 check_bl30:
 	$(if ${BL30},,$(error "To build a FIP for platform ${PLAT}, please set BL30 to point to the SCP firmware"))
 else
+
 # If BL3-0 is not needed by the platform but the user still specified the path
 # to a BL3-0 image then warn him that it will be ignored.
 check_bl30:
 	$(if ${BL30},$(warning "BL3-0 is not supported on platform ${PLAT}, it will just be ignored"),)
 endif
 
-${BUILD_PLAT}/fip.bin: ${FIP_DEPS} ${BL33} ${FIPTOOL} check_bl30
-			$(if ${BL33},,$(error "To build a FIP, please set BL33 to point to the Normal World binary, eg: BL33=../uefi/FVP_AARCH64_EFI.fd"))
+ifeq (${NEED_BL33},yes)
+$(if ${BL33}, $(eval FIP_DEPS += ${BL33}) $(eval FIP_ARGS += --bl33 ${BL33}), )
+
+# If BL3-3 is needed by the platform then 'BL33' variable must be defined.
+check_bl33:
+	$(if ${BL33},,$(error "To build a FIP, please set BL33 to point to the Normal World binary, eg: BL33=../uefi/FVP_AARCH64_EFI.fd"))
+else
+
+# If BL3-3 is not needed by the platform but the user still specified the path
+# to a BL3-3 image then warn him that it will be ignored.
+check_bl33:
+	$(if ${BL33},$(warning "BL3-3 is not supported on platform ${PLAT}, it will just be ignored"),)
+endif
+
+
+${BUILD_PLAT}/fip.bin: ${FIP_DEPS} ${FIPTOOL} check_bl30 check_bl33
 			${Q}${FIPTOOL} --dump \
 				${FIP_ARGS} \
-				--bl33 ${BL33} \
 				$@
 			@echo
 			@echo "Built $@ successfully"
