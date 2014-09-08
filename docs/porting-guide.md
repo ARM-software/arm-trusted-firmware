@@ -16,8 +16,9 @@ Contents
     *   PSCI implementation (in BL3-1)
     *   Interrupt Management framework (in BL3-1)
     *   Crash Reporting mechanism (in BL3-1)
-4.  C Library
-5.  Storage abstraction layer
+4.  Build flags
+5.  C Library
+6.  Storage abstraction layer
 
 - - - - - - - - - - - - - - - - - -
 
@@ -1332,7 +1333,26 @@ register x0.
 The FVP port designates the `PL011_UART0` as the crash console and calls the
 console_core_putc() to print the character on the console.
 
-4.  C Library
+4.  Build flags
+---------------
+
+There are some build flags which can be defined by the platform to control
+inclusion or exclusion of certain BL stages from the FIP image. These flags
+need to be defined in the platform makefile which will get included by the
+build system.
+
+*   **NEED_BL30**
+    This flag if defined by the platform mandates that a BL3-0 binary should
+    be included in the FIP image. The path to the BL3-0 binary can be specified
+    by the `BL30` build option (see build options in the [User Guide]).
+
+*   **NEED_BL33**
+    By default, this flag is defined `yes` by the build system and `BL33`
+    build option should be supplied as a build option. The platform has the option
+    of excluding the BL3-3 image in the `fip` image by defining this flag to
+    `no`.
+
+5.  C Library
 -------------
 
 To avoid subtle toolchain behavioral dependencies, the header files provided
@@ -1369,7 +1389,7 @@ A copy of the [FreeBSD] sources can be downloaded with `git`.
     git clone git://github.com/freebsd/freebsd.git -b origin/release/9.2.0
 
 
-5.  Storage abstraction layer
+6.  Storage abstraction layer
 -----------------------------
 
 In order to improve platform independence and portability an storage abstraction
