@@ -189,7 +189,7 @@ typedef enum {
 } tzc_region_attributes_t;
 
 
-void tzc_init(uint64_t base);
+void tzc_init(uintptr_t base);
 void tzc_configure_region0(tzc_region_attributes_t sec_attr,
 			uint32_t ns_device_access);
 void tzc_configure_region(uint32_t filters,

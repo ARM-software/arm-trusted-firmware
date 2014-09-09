@@ -36,11 +36,11 @@
 /*******************************************************************************
  * Function declarations
  ******************************************************************************/
-void arm_gic_init(unsigned int gicc_base,
-		unsigned int gicd_base,
-		unsigned long gicr_base,
-		const unsigned int *irq_sec_ptr,
-		unsigned int num_irqs);
+void arm_gic_init(uintptr_t gicc_base,
+		  uintptr_t gicd_base,
+		  uintptr_t gicr_base,
+		  const unsigned int *irq_sec_ptr,
+		  unsigned int num_irqs);
 void arm_gic_setup(void);
 void arm_gic_cpuif_deactivate(void);
 void arm_gic_cpuif_setup(void);

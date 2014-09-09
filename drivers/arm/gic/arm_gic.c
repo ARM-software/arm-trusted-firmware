@@ -47,9 +47,9 @@
 	(GIC_HIGHEST_NS_PRIORITY << 16) | \
 	(GIC_HIGHEST_NS_PRIORITY << 24))
 
-static unsigned int g_gicc_base;
-static unsigned int g_gicd_base;
-static unsigned long g_gicr_base;
+static uintptr_t g_gicc_base;
+static uintptr_t g_gicd_base;
+static uintptr_t g_gicr_base;
 static const unsigned int *g_irq_sec_ptr;
 static unsigned int g_num_irqs;
 
@@ -323,12 +323,11 @@ static void arm_gic_distif_setup(void)
 /*******************************************************************************
  * Initialize the ARM GIC driver with the provided platform inputs
 ******************************************************************************/
-void arm_gic_init(unsigned int gicc_base,
-		unsigned int gicd_base,
-		unsigned long gicr_base,
-		const unsigned int *irq_sec_ptr,
-		unsigned int num_irqs
-		)
+void arm_gic_init(uintptr_t gicc_base,
+		  uintptr_t gicd_base,
+		  uintptr_t gicr_base,
+		  const unsigned int *irq_sec_ptr,
+		  unsigned int num_irqs)
 {
 	unsigned int val;
 

@@ -38,73 +38,73 @@
  * GIC Distributor interface accessors for reading entire registers
  ******************************************************************************/
 
-unsigned int gicd_read_igroupr(unsigned int base, unsigned int id)
+unsigned int gicd_read_igroupr(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> IGROUPR_SHIFT;
 	return mmio_read_32(base + GICD_IGROUPR + (n << 2));
 }
 
-unsigned int gicd_read_isenabler(unsigned int base, unsigned int id)
+unsigned int gicd_read_isenabler(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ISENABLER_SHIFT;
 	return mmio_read_32(base + GICD_ISENABLER + (n << 2));
 }
 
-unsigned int gicd_read_icenabler(unsigned int base, unsigned int id)
+unsigned int gicd_read_icenabler(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ICENABLER_SHIFT;
 	return mmio_read_32(base + GICD_ICENABLER + (n << 2));
 }
 
-unsigned int gicd_read_ispendr(unsigned int base, unsigned int id)
+unsigned int gicd_read_ispendr(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ISPENDR_SHIFT;
 	return mmio_read_32(base + GICD_ISPENDR + (n << 2));
 }
 
-unsigned int gicd_read_icpendr(unsigned int base, unsigned int id)
+unsigned int gicd_read_icpendr(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ICPENDR_SHIFT;
 	return mmio_read_32(base + GICD_ICPENDR + (n << 2));
 }
 
-unsigned int gicd_read_isactiver(unsigned int base, unsigned int id)
+unsigned int gicd_read_isactiver(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ISACTIVER_SHIFT;
 	return mmio_read_32(base + GICD_ISACTIVER + (n << 2));
 }
 
-unsigned int gicd_read_icactiver(unsigned int base, unsigned int id)
+unsigned int gicd_read_icactiver(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ICACTIVER_SHIFT;
 	return mmio_read_32(base + GICD_ICACTIVER + (n << 2));
 }
 
-unsigned int gicd_read_ipriorityr(unsigned int base, unsigned int id)
+unsigned int gicd_read_ipriorityr(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> IPRIORITYR_SHIFT;
 	return mmio_read_32(base + GICD_IPRIORITYR + (n << 2));
 }
 
-unsigned int gicd_read_itargetsr(unsigned int base, unsigned int id)
+unsigned int gicd_read_itargetsr(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ITARGETSR_SHIFT;
 	return mmio_read_32(base + GICD_ITARGETSR + (n << 2));
 }
 
-unsigned int gicd_read_icfgr(unsigned int base, unsigned int id)
+unsigned int gicd_read_icfgr(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> ICFGR_SHIFT;
 	return mmio_read_32(base + GICD_ICFGR + (n << 2));
 }
 
-unsigned int gicd_read_cpendsgir(unsigned int base, unsigned int id)
+unsigned int gicd_read_cpendsgir(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> CPENDSGIR_SHIFT;
 	return mmio_read_32(base + GICD_CPENDSGIR + (n << 2));
 }
 
-unsigned int gicd_read_spendsgir(unsigned int base, unsigned int id)
+unsigned int gicd_read_spendsgir(uintptr_t base, unsigned int id)
 {
 	unsigned n = id >> SPENDSGIR_SHIFT;
 	return mmio_read_32(base + GICD_SPENDSGIR + (n << 2));
@@ -114,73 +114,73 @@ unsigned int gicd_read_spendsgir(unsigned int base, unsigned int id)
  * GIC Distributor interface accessors for writing entire registers
  ******************************************************************************/
 
-void gicd_write_igroupr(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_igroupr(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> IGROUPR_SHIFT;
 	mmio_write_32(base + GICD_IGROUPR + (n << 2), val);
 }
 
-void gicd_write_isenabler(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_isenabler(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ISENABLER_SHIFT;
 	mmio_write_32(base + GICD_ISENABLER + (n << 2), val);
 }
 
-void gicd_write_icenabler(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_icenabler(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ICENABLER_SHIFT;
 	mmio_write_32(base + GICD_ICENABLER + (n << 2), val);
 }
 
-void gicd_write_ispendr(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_ispendr(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ISPENDR_SHIFT;
 	mmio_write_32(base + GICD_ISPENDR + (n << 2), val);
 }
 
-void gicd_write_icpendr(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_icpendr(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ICPENDR_SHIFT;
 	mmio_write_32(base + GICD_ICPENDR + (n << 2), val);
 }
 
-void gicd_write_isactiver(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_isactiver(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ISACTIVER_SHIFT;
 	mmio_write_32(base + GICD_ISACTIVER + (n << 2), val);
 }
 
-void gicd_write_icactiver(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_icactiver(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ICACTIVER_SHIFT;
 	mmio_write_32(base + GICD_ICACTIVER + (n << 2), val);
 }
 
-void gicd_write_ipriorityr(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_ipriorityr(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> IPRIORITYR_SHIFT;
 	mmio_write_32(base + GICD_IPRIORITYR + (n << 2), val);
 }
 
-void gicd_write_itargetsr(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_itargetsr(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ITARGETSR_SHIFT;
 	mmio_write_32(base + GICD_ITARGETSR + (n << 2), val);
 }
 
-void gicd_write_icfgr(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_icfgr(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> ICFGR_SHIFT;
 	mmio_write_32(base + GICD_ICFGR + (n << 2), val);
 }
 
-void gicd_write_cpendsgir(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_cpendsgir(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> CPENDSGIR_SHIFT;
 	mmio_write_32(base + GICD_CPENDSGIR + (n << 2), val);
 }
 
-void gicd_write_spendsgir(unsigned int base, unsigned int id, unsigned int val)
+void gicd_write_spendsgir(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> SPENDSGIR_SHIFT;
 	mmio_write_32(base + GICD_SPENDSGIR + (n << 2), val);
@@ -189,7 +189,7 @@ void gicd_write_spendsgir(unsigned int base, unsigned int id, unsigned int val)
 /*******************************************************************************
  * GIC Distributor interface accessors for individual interrupt manipulation
  ******************************************************************************/
-unsigned int gicd_get_igroupr(unsigned int base, unsigned int id)
+unsigned int gicd_get_igroupr(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << IGROUPR_SHIFT) - 1);
 	unsigned int reg_val = gicd_read_igroupr(base, id);
@@ -197,7 +197,7 @@ unsigned int gicd_get_igroupr(unsigned int base, unsigned int id)
 	return (reg_val >> bit_num) & 0x1;
 }
 
-void gicd_set_igroupr(unsigned int base, unsigned int id)
+void gicd_set_igroupr(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << IGROUPR_SHIFT) - 1);
 	unsigned int reg_val = gicd_read_igroupr(base, id);
@@ -205,7 +205,7 @@ void gicd_set_igroupr(unsigned int base, unsigned int id)
 	gicd_write_igroupr(base, id, reg_val | (1 << bit_num));
 }
 
-void gicd_clr_igroupr(unsigned int base, unsigned int id)
+void gicd_clr_igroupr(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << IGROUPR_SHIFT) - 1);
 	unsigned int reg_val = gicd_read_igroupr(base, id);
@@ -213,42 +213,42 @@ void gicd_clr_igroupr(unsigned int base, unsigned int id)
 	gicd_write_igroupr(base, id, reg_val & ~(1 << bit_num));
 }
 
-void gicd_set_isenabler(unsigned int base, unsigned int id)
+void gicd_set_isenabler(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ISENABLER_SHIFT) - 1);
 
 	gicd_write_isenabler(base, id, (1 << bit_num));
 }
 
-void gicd_set_icenabler(unsigned int base, unsigned int id)
+void gicd_set_icenabler(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ICENABLER_SHIFT) - 1);
 
 	gicd_write_icenabler(base, id, (1 << bit_num));
 }
 
-void gicd_set_ispendr(unsigned int base, unsigned int id)
+void gicd_set_ispendr(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ISPENDR_SHIFT) - 1);
 
 	gicd_write_ispendr(base, id, (1 << bit_num));
 }
 
-void gicd_set_icpendr(unsigned int base, unsigned int id)
+void gicd_set_icpendr(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ICPENDR_SHIFT) - 1);
 
 	gicd_write_icpendr(base, id, (1 << bit_num));
 }
 
-void gicd_set_isactiver(unsigned int base, unsigned int id)
+void gicd_set_isactiver(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ISACTIVER_SHIFT) - 1);
 
 	gicd_write_isactiver(base, id, (1 << bit_num));
 }
 
-void gicd_set_icactiver(unsigned int base, unsigned int id)
+void gicd_set_icactiver(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ICACTIVER_SHIFT) - 1);
 
@@ -259,7 +259,7 @@ void gicd_set_icactiver(unsigned int base, unsigned int id)
  * Make sure that the interrupt's group is set before expecting
  * this function to do its job correctly.
  */
-void gicd_set_ipriorityr(unsigned int base, unsigned int id, unsigned int pri)
+void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 {
 	unsigned int reg = base + GICD_IPRIORITYR + (id & ~3);
 	unsigned int shift = (id & 3) << 3;
@@ -283,7 +283,7 @@ void gicd_set_ipriorityr(unsigned int base, unsigned int id, unsigned int pri)
 	mmio_write_32(reg, reg_val);
 }
 
-void gicd_set_itargetsr(unsigned int base, unsigned int id, unsigned int target)
+void gicd_set_itargetsr(uintptr_t base, unsigned int id, unsigned int target)
 {
 	unsigned byte_off = id & ((1 << ITARGETSR_SHIFT) - 1);
 	unsigned int reg_val = gicd_read_itargetsr(base, id);

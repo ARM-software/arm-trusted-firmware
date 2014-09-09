@@ -31,7 +31,9 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-int console_init(unsigned long base_addr,
+#include <stdint.h>
+
+int console_init(uintptr_t base_addr,
 		unsigned int uart_clk, unsigned int baud_rate);
 int console_putc(int c);
 int console_getc(void);

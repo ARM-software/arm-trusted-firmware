@@ -41,7 +41,7 @@
  * Address width : Values between 32 to 64
  */
 typedef struct tzc_instance {
-	uint64_t base;
+	uintptr_t base;
 	uint8_t addr_width;
 	uint8_t num_filters;
 	uint8_t num_regions;
@@ -50,27 +50,27 @@ typedef struct tzc_instance {
 tzc_instance_t tzc;
 
 
-static inline uint32_t tzc_read_build_config(uint64_t base)
+static inline uint32_t tzc_read_build_config(uintptr_t base)
 {
 	return mmio_read_32(base + BUILD_CONFIG_OFF);
 }
 
-static inline uint32_t tzc_read_gate_keeper(uint64_t base)
+static inline uint32_t tzc_read_gate_keeper(uintptr_t base)
 {
 	return mmio_read_32(base + GATE_KEEPER_OFF);
 }
 
-static inline void tzc_write_gate_keeper(uint64_t base, uint32_t val)
+static inline void tzc_write_gate_keeper(uintptr_t base, uint32_t val)
 {
 	mmio_write_32(base + GATE_KEEPER_OFF, val);
 }
 
-static inline void tzc_write_action(uint64_t base, tzc_action_t action)
+static inline void tzc_write_action(uintptr_t base, tzc_action_t action)
 {
 	mmio_write_32(base + ACTION_OFF, action);
 }
 
-static inline void tzc_write_region_base_low(uint64_t base,
+static inline void tzc_write_region_base_low(uintptr_t base,
 					uint32_t region,
 					uint32_t val)
 {
@@ -78,7 +78,7 @@ static inline void tzc_write_region_base_low(uint64_t base,
 		REGION_NUM_OFF(region), val);
 }
 
-static inline void tzc_write_region_base_high(uint64_t base,
+static inline void tzc_write_region_base_high(uintptr_t base,
 					uint32_t region,
 					uint32_t val)
 {
@@ -86,7 +86,7 @@ static inline void tzc_write_region_base_high(uint64_t base,
 		REGION_NUM_OFF(region), val);
 }
 
-static inline void tzc_write_region_top_low(uint64_t base,
+static inline void tzc_write_region_top_low(uintptr_t base,
 					uint32_t region,
 					uint32_t val)
 {
@@ -94,7 +94,7 @@ static inline void tzc_write_region_top_low(uint64_t base,
 		REGION_NUM_OFF(region), val);
 }
 
-static inline void tzc_write_region_top_high(uint64_t base,
+static inline void tzc_write_region_top_high(uintptr_t base,
 					uint32_t region,
 					uint32_t val)
 {
@@ -102,7 +102,7 @@ static inline void tzc_write_region_top_high(uint64_t base,
 		REGION_NUM_OFF(region), val);
 }
 
-static inline void tzc_write_region_attributes(uint64_t base,
+static inline void tzc_write_region_attributes(uintptr_t base,
 					uint32_t region,
 					uint32_t val)
 {
@@ -110,7 +110,7 @@ static inline void tzc_write_region_attributes(uint64_t base,
 		REGION_NUM_OFF(region), val);
 }
 
-static inline void tzc_write_region_id_access(uint64_t base,
+static inline void tzc_write_region_id_access(uintptr_t base,
 					uint32_t region,
 					uint32_t val)
 {
@@ -118,7 +118,7 @@ static inline void tzc_write_region_id_access(uint64_t base,
 		REGION_NUM_OFF(region), val);
 }
 
-static uint32_t tzc_read_component_id(uint64_t base)
+static uint32_t tzc_read_component_id(uintptr_t base)
 {
 	uint32_t id;
 
@@ -130,7 +130,7 @@ static uint32_t tzc_read_component_id(uint64_t base)
 	return id;
 }
 
-static uint32_t tzc_get_gate_keeper(uint64_t base, uint8_t filter)
+static uint32_t tzc_get_gate_keeper(uintptr_t base, uint8_t filter)
 {
 	uint32_t tmp;
 
@@ -141,7 +141,7 @@ static uint32_t tzc_get_gate_keeper(uint64_t base, uint8_t filter)
 }
 
 /* This function is not MP safe. */
-static void tzc_set_gate_keeper(uint64_t base, uint8_t filter, uint32_t val)
+static void tzc_set_gate_keeper(uintptr_t base, uint8_t filter, uint32_t val)
 {
 	uint32_t tmp;
 
@@ -164,7 +164,7 @@ static void tzc_set_gate_keeper(uint64_t base, uint8_t filter, uint32_t val)
 }
 
 
-void tzc_init(uint64_t base)
+void tzc_init(uintptr_t base)
 {
 	uint32_t tzc_id, tzc_build;
 
