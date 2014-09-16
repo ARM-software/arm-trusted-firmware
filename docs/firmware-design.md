@@ -778,7 +778,10 @@ The ARM Trusted Firmware provides a Test Secure-EL1 Payload (TSP) and a Test
 Secure-EL1 Payload Dispatcher (TSPD) service as an example of how a Trusted OS
 is supported on a production system using the Runtime Services Framework. On
 such a system, the Test BL3-2 image and service are replaced by the Trusted OS
-and its dispatcher service.
+and its dispatcher service. The ARM Trusted Firmware build system expects that
+the dispatcher will define the build flag `NEED_BL32` to enable it to include
+the BL3-2 in the build either as a binary or to compile from source depending
+on whether the `BL32` build option is specified or not.
 
 The TSP runs in Secure-EL1. It is designed to demonstrate synchronous
 communication with the normal-world software running in EL1/EL2. Communication

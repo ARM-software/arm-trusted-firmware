@@ -136,6 +136,16 @@ To build the Trusted Firmware images, follow these steps:
 
         make realclean
 
+7.  (Optional) Path to binary for certain BL stages (BL2, BL3-1 and BL3-2) can be
+    provided by specifying the BLx=<path-to>/<blx_image> where BLx is the BL stage.
+    This will bypass the build of the BL component from source, but will include
+    the specified binary in the final FIP image. Please note that BL3-2 will be
+    included in the build, only if the `SPD` build option is specified.
+
+    For example, specifying BL2=<path-to>/<bl2_image> in the build option, will
+    skip compilation of BL2 source in trusted firmware, but include the BL2
+    binary specified in the final FIP image.
+
 ### Summary of build options
 
 ARM Trusted Firmware build system supports the following build options. Unless
@@ -151,8 +161,20 @@ performed.
     If a BL3-0 image is present then this option must be passed for the `fip`
     target.
 
-*   `BL33`: Path to BL33 image in the host file system. This is mandatory for
-    `fip` target.
+*   `BL33`: Path to BL3-3 image in the host file system. This is mandatory for
+    `fip` target in case the BL2 from ARM Trusted Firmware is used.
+
+*   `BL2`: This is an optional build option which specifies the path to BL2
+    image for the `fip` target. In this case, the BL2 in the ARM Trusted
+    Firmware will not be built.
+
+*   `BL31`:  This is an optional build option which specifies the path to
+    BL3-1 image for the `fip` target. In this case, the BL3-1 in the ARM
+    Trusted Firmware will not be built.
+
+*   `BL32`:  This is an optional build option which specifies the path to
+    BL3-2 image for the `fip` target. In this case, the BL3-2 in the ARM
+    Trusted Firmware will not be built.
 
 *   `CROSS_COMPILE`: Prefix to toolchain binaries. Please refer to examples in
     this document for usage.
