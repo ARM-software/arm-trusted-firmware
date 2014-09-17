@@ -182,7 +182,10 @@ void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
 	 * against the CPU support, security state, endianess and pc
 	 */
 	sctlr_elx = EP_GET_EE(ep->h.attr) ? SCTLR_EE_BIT : 0;
-	sctlr_elx |= SCTLR_EL1_RES1;
+	if (GET_RW(ep->spsr) == MODE_RW_64)
+		sctlr_elx |= SCTLR_EL1_RES1;
+	else
+		sctlr_elx |= SCTLR_AARCH32_EL1_RES1;
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
 
 	if ((GET_RW(ep->spsr) == MODE_RW_64
