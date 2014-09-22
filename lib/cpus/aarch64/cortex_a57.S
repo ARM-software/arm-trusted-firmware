@@ -57,7 +57,7 @@ func cortex_a57_disable_l2_prefetch
 	bic	x0, x0, x1
 	msr	CPUECTLR_EL1, x0
 	isb
-	dsb	sy
+	dsb	ish
 	ret
 
 	/* ---------------------------------------------
