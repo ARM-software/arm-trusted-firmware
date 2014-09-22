@@ -982,9 +982,10 @@ Please note that only 2. is mandated by the TRM.
 
 The CPU specific operations framework scales to accommodate a large number of
 different CPUs during power down and reset handling. The platform can specify
+any CPU optimization it wants to enable for each CPU. It can also specify
 the CPU errata workarounds to be applied for each CPU type during reset
 handling by defining CPU errata compile time macros. Details on these macros
-can be found in the [cpu-errata-workarounds.md][ERRW] file.
+can be found in the [cpu-specific-build-macros.md][CPUBM] file.
 
 The CPU specific operations framework depends on the `cpu_ops` structure which
 needs to be exported for each type of CPU in the platform. It is defined in
@@ -1485,4 +1486,4 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [User Guide]:       ./user-guide.md
 [Porting Guide]:    ./porting-guide.md
 [INTRG]:            ./interrupt-framework-design.md
-[ERRW]:             ./cpu-errata-workarounds.md
+[CPUBM]:            ./cpu-specific-build-macros.md.md

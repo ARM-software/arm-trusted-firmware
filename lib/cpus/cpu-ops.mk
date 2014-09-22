@@ -28,6 +28,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+# Cortex A57 specific optimisation to skip L1 cache flush when
+# cluster is powered down.
+SKIP_A57_L1_FLUSH_PWR_DWN	?=0
+
+# Process SKIP_A57_L1_FLUSH_PWR_DWN flag
+$(eval $(call assert_boolean,SKIP_A57_L1_FLUSH_PWR_DWN))
+$(eval $(call add_define,SKIP_A57_L1_FLUSH_PWR_DWN))
+
+
 # CPU Errata Build flags. These should be enabled by the
 # platform if the errata needs to be applied.
 

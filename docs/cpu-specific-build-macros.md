@@ -1,5 +1,22 @@
-ARM CPU Errata Workarounds
-==========================
+ARM CPU Specific Build Macros
+=============================
+
+Contents
+--------
+
+1.  Introduction
+2.  CPU Errata Workarounds
+3.  CPU Specific optimizations
+
+1.  Introduction
+----------------
+
+This document describes the various build options present in the CPU specific
+operations framework to enable errata workarounds and to enable optimizations
+for a specific CPU on a platform.
+
+2.  CPU Errata Workarounds
+--------------------------
 
 ARM Trusted Firmware exports a series of build flags which control the
 errata workarounds that are applied to each CPU by the reset handler. The
@@ -32,6 +49,20 @@ For Cortex-A57, following errata build flags are defined :
 
 *   `ERRATA_A57_813420`: This applies errata 813420 workaround to Cortex-A57
      CPU. This needs to be enabled only for revision r0p0 of the CPU.
+
+3.  CPU Specific optimizations
+------------------------------
+
+This section describes some of the optimizations allowed by the CPU micro
+architecture that can be enabled by the platform as desired.
+
+*    `SKIP_A57_L1_FLUSH_PWR_DWN`: This flag enables an optimization in the
+     Cortex-A57 cluster power down sequence by not flushing the Level 1 data
+     cache. The L1 data cache and the L2 unified cache are inclusive. A flush
+     of the L2 by set/way flushes any dirty lines from the L1 as well. This
+     is a known safe deviation from the Cortex-A57 TRM defined power down
+     sequence. Each Cortex-A57 based platform must make its own decision on
+     whether to use the optimization.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

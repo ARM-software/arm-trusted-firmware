@@ -99,3 +99,7 @@ NEED_BL30		:=	yes
 # Enable workarounds for selected Cortex-A57 erratas.
 ERRATA_A57_806969	:=	1
 ERRATA_A57_813420	:=	1
+
+# Enable option to skip L1 data cache flush during the Cortex-A57 cluster
+# power down sequence
+SKIP_A57_L1_FLUSH_PWR_DWN	:=	 1

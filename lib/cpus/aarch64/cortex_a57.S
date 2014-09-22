@@ -222,13 +222,14 @@ func cortex_a57_cluster_pwr_dwn
 	 */
 	bl	cortex_a57_disable_l2_prefetch
 
+#if !SKIP_A57_L1_FLUSH_PWR_DWN
 	/* -------------------------------------------------
 	 * Flush the L1 caches.
 	 * -------------------------------------------------
 	 */
 	mov	x0, #DCCISW
 	bl	dcsw_op_level1
-
+#endif
 	/* ---------------------------------------------
 	 * Disable the optional ACP.
 	 * ---------------------------------------------

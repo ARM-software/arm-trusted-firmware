@@ -138,9 +138,10 @@ msg_start:
 
 include plat/${PLAT}/platform.mk
 
-# By default all CPU errata workarounds are disabled. This can be
+# Include the CPU specific operations makefile. By default all CPU errata
+# workarounds and CPU specifc optimisations are disabled. This can be
 # overridden by the platform.
-include lib/cpus/cpu-errata.mk
+include lib/cpus/cpu-ops.mk
 
 ifdef BL1_SOURCES
 NEED_BL1 := yes
