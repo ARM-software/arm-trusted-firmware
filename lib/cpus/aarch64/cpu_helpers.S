@@ -45,7 +45,7 @@
 	 */
 	.globl	reset_handler
 func reset_handler
-	mov	x10, x30
+	mov	x19, x30
 
 	bl	plat_reset_handler
 
@@ -58,10 +58,11 @@ func reset_handler
 
 	/* Get the cpu_ops reset handler */
 	ldr	x2, [x0, #CPU_RESET_FUNC]
+	mov	x30, x19
 	cbz	x2, 1f
-	blr	x2
+	br	x2
 1:
-	ret	x10
+	ret
 
 #endif /* IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31) */
 
@@ -191,3 +192,29 @@ func get_cpu_ops_ptr
 	sub	x0, x4, #(CPU_OPS_SIZE + CPU_MIDR)
 error_exit:
 	ret
+
+#if DEBUG
+	/*
+	 * This function prints a warning message to the crash console
+	 * if the CPU revision/part number does not match the errata
+	 * workaround enabled in the build.
+	 * Clobber: x30, x0 - x5
+	 */
+.section .rodata.rev_warn_str, "aS"
+rev_warn_str:
+	.asciz "Warning: Skipping Errata workaround for non matching CPU revision number.\n"
+
+	.globl	print_revision_warning
+func print_revision_warning
+	mov	x5, x30
+	/* Ensure the console is initialized */
+	bl	plat_crash_console_init
+	/* Check if the console is initialized */
+	cbz	x0, 1f
+	/* The console is initialized */
+	adr	x4, rev_warn_str
+	bl	asm_print_str
+1:
+	ret	x5
+#endif
+
