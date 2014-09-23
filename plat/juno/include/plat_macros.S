@@ -34,8 +34,8 @@
 #include "../juno_def.h"
 
 .section .rodata.gic_reg_name, "aS"
-gic_regs:
-	.asciz "gic_hppir", "gic_ahppir", "gic_ctlr", ""
+gicc_regs:
+	.asciz "gicc_hppir", "gicc_ahppir", "gicc_ctlr", ""
 gicd_pend_reg:
 	.asciz "gicd_ispendr regs (Offsets 0x200 - 0x278)\n Offset:\t\t\tvalue\n"
 newline:
@@ -52,13 +52,14 @@ spacer:
 	 * ---------------------------------------------
 	 */
 	.macro plat_print_gic_regs
-	ldr	x16, =GICC_BASE
-	/* Load the gic reg list to x6 */
-	adr	x6, gic_regs
-	/* Load the gic regs to gp regs used by str_in_crash_buf_print */
-	ldr	w8, [x16, #GICC_HPPIR]
-	ldr	w9, [x16, #GICC_AHPPIR]
-	ldr	w10, [x16, #GICC_CTLR]
+	mov_imm	x16, GICD_BASE
+	mov_imm	x17, GICC_BASE
+	/* Load the gicc reg list to x6 */
+	adr	x6, gicc_regs
+	/* Load the gicc regs to gp regs used by str_in_crash_buf_print */
+	ldr	w8, [x17, #GICC_HPPIR]
+	ldr	w9, [x17, #GICC_AHPPIR]
+	ldr	w10, [x17, #GICC_CTLR]
 	/* Store to the crash buf and print to console */
 	bl	str_in_crash_buf_print
 
