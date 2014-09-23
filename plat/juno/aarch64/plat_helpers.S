@@ -44,7 +44,7 @@
 	.globl	platform_mem_init
 
 	/* Define a crash console for the plaform */
-#define JUNO_CRASH_CONSOLE_BASE		PL011_UART0_BASE
+#define JUNO_CRASH_CONSOLE_BASE		PL011_UART3_BASE
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)
@@ -55,7 +55,7 @@
 	 */
 func plat_crash_console_init
 	mov_imm	x0, JUNO_CRASH_CONSOLE_BASE
-	mov_imm	x1, PL011_UART0_CLK_IN_HZ
+	mov_imm	x1, PL011_UART3_CLK_IN_HZ
 	mov_imm	x2, PL011_BAUDRATE
 	b	console_core_init
 
