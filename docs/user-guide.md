@@ -244,14 +244,9 @@ performed.
 
 #### FVP specific build options
 
-*   `FVP_SHARED_DATA_LOCATION`: location of the shared memory page. Available
-    options:
-    -   `tsram` (default) : top of Trusted SRAM
-    -   `tdram` : base of Trusted DRAM
-
 *   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
-    -   `tsram` (default) : base of Trusted SRAM
-    -   `tdram` : Trusted DRAM (above shared data)
+    -   `tsram` (default) : Trusted SRAM
+    -   `tdram` : Trusted DRAM
 
 For a better understanding of FVP options, the FVP memory map is explained in
 the [Firmware Design].

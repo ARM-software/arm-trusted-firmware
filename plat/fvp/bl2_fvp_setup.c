@@ -74,7 +74,7 @@ __attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
 
 /* Assert that BL3-1 parameters fit in shared memory */
 CASSERT((PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t)) <
-	(FVP_SHARED_RAM_BASE + FVP_SHARED_RAM_SIZE),
+	(FVP_SHARED_MEM_BASE + FVP_SHARED_MEM_SIZE),
 	assert_bl31_params_do_not_fit_in_shared_memory);
 
 /*******************************************************************************

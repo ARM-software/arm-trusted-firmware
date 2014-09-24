@@ -50,8 +50,8 @@
  ******************************************************************************/
 plat_config_t plat_config;
 
-#define MAP_SHARED_RAM	MAP_REGION_FLAT(FVP_SHARED_RAM_BASE,		\
-					FVP_SHARED_RAM_SIZE,		\
+#define MAP_SHARED_RAM	MAP_REGION_FLAT(FVP_SHARED_MEM_BASE,		\
+					FVP_SHARED_MEM_SIZE,		\
 					MT_MEMORY | MT_RW | MT_SECURE)
 
 #define MAP_FLASH0	MAP_REGION_FLAT(FLASH0_BASE,			\
