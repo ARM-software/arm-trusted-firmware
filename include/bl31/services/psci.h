@@ -161,22 +161,18 @@ typedef struct psci_cpu_data {
  * perform common low level pm functions
  ******************************************************************************/
 typedef struct plat_pm_ops {
-	int (*affinst_standby)(unsigned int);
-	int (*affinst_on)(unsigned long,
-			  unsigned long,
-			  unsigned long,
-			  unsigned int,
-			  unsigned int);
-	int (*affinst_off)(unsigned long, unsigned int, unsigned int);
-	int (*affinst_suspend)(unsigned long,
-			       unsigned long,
-			       unsigned long,
-			       unsigned int,
-			       unsigned int);
-	int (*affinst_on_finish)(unsigned long, unsigned int, unsigned int);
-	int (*affinst_suspend_finish)(unsigned long,
-				      unsigned int,
-				      unsigned int);
+	int (*affinst_standby)(unsigned int power_state);
+	int (*affinst_on)(unsigned long mpidr,
+			  unsigned long sec_entrypoint,
+			  unsigned int afflvl,
+			  unsigned int state);
+	int (*affinst_off)(unsigned int afflvl, unsigned int state);
+	int (*affinst_suspend)(unsigned long sec_entrypoint,
+			       unsigned int afflvl,
+			       unsigned int state);
+	int (*affinst_on_finish)(unsigned int afflvl, unsigned int state);
+	int (*affinst_suspend_finish)(unsigned int afflvl,
+				      unsigned int state);
 	void (*system_off)(void) __dead2;
 	void (*system_reset)(void) __dead2;
 } plat_pm_ops_t;

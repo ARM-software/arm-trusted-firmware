@@ -34,7 +34,7 @@
 #include <string.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_off_handler_t)(aff_map_node_t *);
+typedef int (*afflvl_off_handler_t)(aff_map_node_t *node);
 
 /*******************************************************************************
  * The next three functions implement a handler for each supported affinity
@@ -75,8 +75,7 @@ static int psci_afflvl0_off(aff_map_node_t *cpu_node)
 	 * Plat. management: Perform platform specific actions to turn this
 	 * cpu off e.g. exit cpu coherency, program the power controller etc.
 	 */
-	return psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
-					     cpu_node->level,
+	return psci_plat_pm_ops->affinst_off(cpu_node->level,
 					     psci_get_phys_state(cpu_node));
 }
 
@@ -99,8 +98,7 @@ static int psci_afflvl1_off(aff_map_node_t *cluster_node)
 	 * specific bookeeping e.g. turn off interconnect coherency,
 	 * program the power controller etc.
 	 */
-	return psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
-					     cluster_node->level,
+	return psci_plat_pm_ops->affinst_off(cluster_node->level,
 					     psci_get_phys_state(cluster_node));
 }
 
@@ -127,8 +125,7 @@ static int psci_afflvl2_off(aff_map_node_t *system_node)
 	 * Plat. Management : Allow the platform to do its bookeeping
 	 * at this affinity level
 	 */
-	return psci_plat_pm_ops->affinst_off(read_mpidr_el1(),
-					     system_node->level,
+	return psci_plat_pm_ops->affinst_off(system_node->level,
 					     psci_get_phys_state(system_node));
 }
 
