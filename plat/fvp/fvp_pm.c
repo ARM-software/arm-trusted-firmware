@@ -149,7 +149,6 @@ int fvp_affinst_standby(unsigned int power_state)
  ******************************************************************************/
 int fvp_affinst_on(unsigned long mpidr,
 		   unsigned long sec_entrypoint,
-		   unsigned long ns_entrypoint,
 		   unsigned int afflvl,
 		   unsigned int state)
 {
@@ -191,8 +190,7 @@ int fvp_affinst_on(unsigned long mpidr,
  * global variables across calls. It will be wise to do flush a write to the
  * global to prevent unpredictable results.
  ******************************************************************************/
-int fvp_affinst_off(unsigned long mpidr,
-		    unsigned int afflvl,
+int fvp_affinst_off(unsigned int afflvl,
 		    unsigned int state)
 {
 	/* Determine if any platform actions need to be executed */
@@ -223,18 +221,21 @@ int fvp_affinst_off(unsigned long mpidr,
  * global variables across calls. It will be wise to do flush a write to the
  * global to prevent unpredictable results.
  ******************************************************************************/
-int fvp_affinst_suspend(unsigned long mpidr,
-			unsigned long sec_entrypoint,
-			unsigned long ns_entrypoint,
+int fvp_affinst_suspend(unsigned long sec_entrypoint,
 			unsigned int afflvl,
 			unsigned int state)
 {
+	unsigned long mpidr;
+
 	/* Determine if any platform actions need to be executed. */
 	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
 		return PSCI_E_SUCCESS;
 
-	/* Program the jump address for the target cpu */
-	fvp_program_mailbox(read_mpidr_el1(), sec_entrypoint);
+	/* Get the mpidr for this cpu */
+	mpidr = read_mpidr_el1();
+
+	/* Program the jump address for the this cpu */
+	fvp_program_mailbox(mpidr, sec_entrypoint);
 
 	/* Program the power controller to enable wakeup interrupts. */
 	fvp_pwrc_set_wen(mpidr);
@@ -256,15 +257,18 @@ int fvp_affinst_suspend(unsigned long mpidr,
  * was turned off prior to wakeup and do what's necessary to setup it up
  * correctly.
  ******************************************************************************/
-int fvp_affinst_on_finish(unsigned long mpidr,
-			  unsigned int afflvl,
+int fvp_affinst_on_finish(unsigned int afflvl,
 			  unsigned int state)
 {
 	int rc = PSCI_E_SUCCESS;
+	unsigned long mpidr;
 
 	/* Determine if any platform actions need to be executed. */
 	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
 		return PSCI_E_SUCCESS;
+
+	/* Get the mpidr for this cpu */
+	mpidr = read_mpidr_el1();
 
 	/* Perform the common cluster specific operations */
 	if (afflvl != MPIDR_AFFLVL0) {
@@ -290,7 +294,7 @@ int fvp_affinst_on_finish(unsigned long mpidr,
 	fvp_pwrc_clr_wen(mpidr);
 
 	/* Zero the jump address in the mailbox for this cpu */
-	fvp_program_mailbox(read_mpidr_el1(), 0);
+	fvp_program_mailbox(mpidr, 0);
 
 	/* Enable the gic cpu interface */
 	arm_gic_cpuif_setup();
@@ -308,11 +312,10 @@ int fvp_affinst_on_finish(unsigned long mpidr,
  * TODO: At the moment we reuse the on finisher and reinitialize the secure
  * context. Need to implement a separate suspend finisher.
  ******************************************************************************/
-int fvp_affinst_suspend_finish(unsigned long mpidr,
-			       unsigned int afflvl,
+int fvp_affinst_suspend_finish(unsigned int afflvl,
 			       unsigned int state)
 {
-	return fvp_affinst_on_finish(mpidr, afflvl, state);
+	return fvp_affinst_on_finish(afflvl, state);
 }
 
 /*******************************************************************************

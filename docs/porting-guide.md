@@ -1105,8 +1105,8 @@ passed argument.
 #### plat_pm_ops.affinst_on()
 
 Perform the platform specific setup to power on an affinity instance, specified
-by the `MPIDR` (first argument) and `affinity level` (fourth argument). The
-`state` (fifth argument) contains the current state of that affinity instance
+by the `MPIDR` (first argument) and `affinity level` (third argument). The
+`state` (fourth argument) contains the current state of that affinity instance
 (ON or OFF). This is useful to determine whether any action must be taken. For
 example, while powering on a CPU, the cluster that contains this CPU might
 already be in the ON state. The platform decides what actions must be taken to
@@ -1115,14 +1115,13 @@ management operation).
 
 #### plat_pm_ops.affinst_off()
 
-Perform the platform specific setup to power off an affinity instance in the
-`MPIDR` of the calling CPU. It is called by the PSCI `CPU_OFF` API
-implementation.
+Perform the platform specific setup to power off an affinity instance of the
+calling CPU. It is called by the PSCI `CPU_OFF` API implementation.
 
-The `MPIDR` (first argument), `affinity level` (second argument) and `state`
-(third argument) have a similar meaning as described in the `affinst_on()`
-operation. They are used to identify the affinity instance on which the call
-is made and its current state. This gives the platform port an indication of the
+The `affinity level` (first argument) and `state` (second argument) have
+a similar meaning as described in the `affinst_on()` operation. They are
+used to identify the affinity instance on which the call is made and its
+current state. This gives the platform port an indication of the
 state transition it must make to perform the requested action. For example, if
 the calling CPU is the last powered on CPU in the cluster, after powering down
 affinity level 0 (CPU), the platform port should power down affinity level 1
@@ -1130,18 +1129,17 @@ affinity level 0 (CPU), the platform port should power down affinity level 1
 
 #### plat_pm_ops.affinst_suspend()
 
-Perform the platform specific setup to power off an affinity instance in the
-`MPIDR` of the calling CPU. It is called by the PSCI `CPU_SUSPEND` API
+Perform the platform specific setup to power off an affinity instance of the
+calling CPU. It is called by the PSCI `CPU_SUSPEND` API
 implementation.
 
-The `MPIDR` (first argument), `affinity level` (third argument) and `state`
-(fifth argument) have a similar meaning as described in the `affinst_on()`
-operation. They are used to identify the affinity instance on which the call
-is made and its current state. This gives the platform port an indication of the
-state transition it must make to perform the requested action. For example, if
-the calling CPU is the last powered on CPU in the cluster, after powering down
-affinity level 0 (CPU), the platform port should power down affinity level 1
-(the cluster) as well.
+The `affinity level` (second argument) and `state` (third argument) have a
+similar meaning as described in the `affinst_on()` operation. They are used to
+identify the affinity instance on which the call is made and its current state.
+This gives the platform port an indication of the state transition it must
+make to perform the requested action. For example, if the calling CPU is the
+last powered on CPU in the cluster, after powering down affinity level 0 (CPU),
+the platform port should power down affinity level 1 (the cluster) as well.
 
 The difference between turning an affinity instance off versus suspending it
 is that in the former case, the affinity instance is expected to re-initialize
@@ -1158,8 +1156,8 @@ It performs the platform-specific setup required to initialize enough state for
 this CPU to enter the normal world and also provide secure runtime firmware
 services.
 
-The `MPIDR` (first argument), `affinity level` (second argument) and `state`
-(third argument) have a similar meaning as described in the previous operations.
+The `affinity level` (first argument) and `state` (second argument) have a
+similar meaning as described in the previous operations.
 
 #### plat_pm_ops.affinst_on_suspend()
 
@@ -1170,8 +1168,8 @@ event, for example a timer interrupt that was programmed by the CPU during the
 restore the saved state for this CPU to resume execution in the normal world
 and also provide secure runtime firmware services.
 
-The `MPIDR` (first argument), `affinity level` (second argument) and `state`
-(third argument) have a similar meaning as described in the previous operations.
+The `affinity level` (first argument) and `state` (second argument) have a
+similar meaning as described in the previous operations.
 
 BL3-1 platform initialization code must also detect the system topology and
 the state of each affinity instance in the topology. This information is

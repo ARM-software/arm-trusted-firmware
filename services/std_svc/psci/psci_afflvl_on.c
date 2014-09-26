@@ -39,10 +39,10 @@
 #include <stddef.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_on_handler_t)(unsigned long,
-				 aff_map_node_t *,
-				 unsigned long,
-				 unsigned long);
+typedef int (*afflvl_on_handler_t)(unsigned long target_cpu,
+				 aff_map_node_t *node,
+				 unsigned long ns_entrypoint,
+				 unsigned long context_id);
 
 /*******************************************************************************
  * This function checks whether a cpu which has been requested to be turned on
@@ -122,7 +122,6 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	 */
 	return psci_plat_pm_ops->affinst_on(target_cpu,
 					    psci_entrypoint,
-					    ns_entrypoint,
 					    cpu_node->level,
 					    psci_get_phys_state(cpu_node));
 }
@@ -159,7 +158,6 @@ static int psci_afflvl1_on(unsigned long target_cpu,
 	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 	return psci_plat_pm_ops->affinst_on(target_cpu,
 					    psci_entrypoint,
-					    ns_entrypoint,
 					    cluster_node->level,
 					    psci_get_phys_state(cluster_node));
 }
@@ -197,7 +195,6 @@ static int psci_afflvl2_on(unsigned long target_cpu,
 	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 	return psci_plat_pm_ops->affinst_on(target_cpu,
 					    psci_entrypoint,
-					    ns_entrypoint,
 					    system_node->level,
 					    psci_get_phys_state(system_node));
 }
@@ -258,7 +255,7 @@ static int psci_call_on_handlers(aff_map_node_t *target_cpu_nodes[],
  *
  * The affinity level specific handlers are called in descending order i.e. from
  * the highest to the lowest affinity level implemented by the platform because
- * to turn on affinity level X it is neccesary to turn on affinity level X + 1
+ * to turn on affinity level X it is necessary to turn on affinity level X + 1
  * first.
  ******************************************************************************/
 int psci_afflvl_on(unsigned long target_cpu,
@@ -347,8 +344,7 @@ static unsigned int psci_afflvl0_on_finish(aff_map_node_t *cpu_node)
 
 		/* Get the physical state of this cpu */
 		plat_state = get_phys_state(state);
-		rc = psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
-							 cpu_node->level,
+		rc = psci_plat_pm_ops->affinst_on_finish(cpu_node->level,
 							 plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
@@ -405,8 +401,7 @@ static unsigned int psci_afflvl1_on_finish(aff_map_node_t *cluster_node)
 	 * situation.
 	 */
 	plat_state = psci_get_phys_state(cluster_node);
-	return psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
-						 cluster_node->level,
+	return psci_plat_pm_ops->affinst_on_finish(cluster_node->level,
 						 plat_state);
 }
 
@@ -435,8 +430,7 @@ static unsigned int psci_afflvl2_on_finish(aff_map_node_t *system_node)
 	 * situation.
 	 */
 	plat_state = psci_get_phys_state(system_node);
-	return psci_plat_pm_ops->affinst_on_finish(read_mpidr_el1(),
-						   system_node->level,
+	return psci_plat_pm_ops->affinst_on_finish(system_node->level,
 						   plat_state);
 }
 
