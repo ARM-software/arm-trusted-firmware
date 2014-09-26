@@ -40,10 +40,10 @@
 #include <stddef.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_suspend_handler_t)(aff_map_node_t *,
-				      unsigned long,
-				      unsigned long,
-				      unsigned int);
+typedef int (*afflvl_suspend_handler_t)(aff_map_node_t *node,
+				      unsigned long ns_entrypoint,
+				      unsigned long context_id,
+				      unsigned int power_state);
 
 /*******************************************************************************
  * This function saves the power state parameter passed in the current PSCI
@@ -161,9 +161,7 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	 * platform defined mailbox with the psci entrypoint,
 	 * program the power controller etc.
 	 */
-	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						 psci_entrypoint,
-						 ns_entrypoint,
+	return psci_plat_pm_ops->affinst_suspend(psci_entrypoint,
 						 cpu_node->level,
 						 psci_get_phys_state(cpu_node));
 }
@@ -198,9 +196,7 @@ static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 	 */
 	plat_state = psci_get_phys_state(cluster_node);
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						 psci_entrypoint,
-						 ns_entrypoint,
+	return psci_plat_pm_ops->affinst_suspend(psci_entrypoint,
 						 cluster_node->level,
 						 plat_state);
 }
@@ -244,9 +240,7 @@ static int psci_afflvl2_suspend(aff_map_node_t *system_node,
 	 */
 	plat_state = psci_get_phys_state(system_node);
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-	return psci_plat_pm_ops->affinst_suspend(read_mpidr_el1(),
-						 psci_entrypoint,
-						 ns_entrypoint,
+	return psci_plat_pm_ops->affinst_suspend(psci_entrypoint,
 						 system_node->level,
 						 plat_state);
 }
@@ -415,8 +409,7 @@ static unsigned int psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 
 		/* Get the physical state of this cpu */
 		plat_state = get_phys_state(state);
-		rc = psci_plat_pm_ops->affinst_suspend_finish(read_mpidr_el1(),
-							      cpu_node->level,
+		rc = psci_plat_pm_ops->affinst_suspend_finish(cpu_node->level,
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
@@ -479,8 +472,7 @@ static unsigned int psci_afflvl1_suspend_finish(aff_map_node_t *cluster_node)
 
 		/* Get the physical state of this cpu */
 		plat_state = psci_get_phys_state(cluster_node);
-		rc = psci_plat_pm_ops->affinst_suspend_finish(read_mpidr_el1(),
-							      cluster_node->level,
+		rc = psci_plat_pm_ops->affinst_suspend_finish(cluster_node->level,
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}
@@ -513,8 +505,7 @@ static unsigned int psci_afflvl2_suspend_finish(aff_map_node_t *system_node)
 
 		/* Get the physical state of the system */
 		plat_state = psci_get_phys_state(system_node);
-		rc = psci_plat_pm_ops->affinst_suspend_finish(read_mpidr_el1(),
-							      system_node->level,
+		rc = psci_plat_pm_ops->affinst_suspend_finish(system_node->level,
 							      plat_state);
 		assert(rc == PSCI_E_SUCCESS);
 	}

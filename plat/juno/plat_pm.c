@@ -90,7 +90,6 @@ static int32_t juno_do_plat_actions(uint32_t afflvl, uint32_t state)
  ******************************************************************************/
 int32_t juno_affinst_on(uint64_t mpidr,
 			uint64_t sec_entrypoint,
-			uint64_t ns_entrypoint,
 			uint32_t afflvl,
 			uint32_t state)
 {
@@ -119,11 +118,16 @@ int32_t juno_affinst_on(uint64_t mpidr,
  * was turned off prior to wakeup and do what's necessary to setup it up
  * correctly.
  ******************************************************************************/
-int32_t juno_affinst_on_finish(uint64_t mpidr, uint32_t afflvl, uint32_t state)
+int32_t juno_affinst_on_finish(uint32_t afflvl, uint32_t state)
 {
+	unsigned long mpidr;
+
 	/* Determine if any platform actions need to be executed. */
 	if (juno_do_plat_actions(afflvl, state) == -EAGAIN)
 		return PSCI_E_SUCCESS;
+
+	/* Get the mpidr for this cpu */
+	mpidr = read_mpidr_el1();
 
 	/*
 	 * Perform the common cluster specific operations i.e enable coherency
@@ -187,7 +191,7 @@ static int32_t juno_power_down_common(uint32_t afflvl)
  * global variables across calls. It will be wise to do flush a write to the
  * global to prevent unpredictable results.
  ******************************************************************************/
-static int32_t juno_affinst_off(uint64_t mpidr, uint32_t afflvl, uint32_t state)
+static int32_t juno_affinst_off(uint32_t afflvl, uint32_t state)
 {
 	/* Determine if any platform actions need to be executed */
 	if (juno_do_plat_actions(afflvl, state) == -EAGAIN)
@@ -208,9 +212,7 @@ static int32_t juno_affinst_off(uint64_t mpidr, uint32_t afflvl, uint32_t state)
  * global variables across calls. It will be wise to do flush a write to the
  * global to prevent unpredictable results.
  ******************************************************************************/
-static int32_t juno_affinst_suspend(uint64_t mpidr,
-				    uint64_t sec_entrypoint,
-				    uint64_t ns_entrypoint,
+static int32_t juno_affinst_suspend(uint64_t sec_entrypoint,
 				    uint32_t afflvl,
 				    uint32_t state)
 {
@@ -221,7 +223,7 @@ static int32_t juno_affinst_suspend(uint64_t mpidr,
 	/*
 	 * Setup mailbox with address for CPU entrypoint when it next powers up.
 	 */
-	juno_program_mailbox(mpidr, sec_entrypoint);
+	juno_program_mailbox(read_mpidr_el1(), sec_entrypoint);
 
 	return juno_power_down_common(afflvl);
 }
@@ -233,11 +235,10 @@ static int32_t juno_affinst_suspend(uint64_t mpidr,
  * TODO: At the moment we reuse the on finisher and reinitialize the secure
  * context. Need to implement a separate suspend finisher.
  ******************************************************************************/
-static int32_t juno_affinst_suspend_finish(uint64_t mpidr,
-					   uint32_t afflvl,
+static int32_t juno_affinst_suspend_finish(uint32_t afflvl,
 					   uint32_t state)
 {
-	return juno_affinst_on_finish(mpidr, afflvl, state);
+	return juno_affinst_on_finish(afflvl, state);
 }
 
 /*******************************************************************************
