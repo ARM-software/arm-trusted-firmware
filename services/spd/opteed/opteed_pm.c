@@ -48,7 +48,7 @@ static void opteed_cpu_on_handler(uint64_t target_cpu)
  * This cpu is being turned off. Allow the OPTEED/OPTEE to perform any actions
  * needed
  ******************************************************************************/
-static int32_t opteed_cpu_off_handler(uint64_t cookie)
+static int32_t opteed_cpu_off_handler(uint64_t unused)
 {
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
@@ -82,7 +82,7 @@ static int32_t opteed_cpu_off_handler(uint64_t cookie)
  * This cpu is being suspended. S-EL1 state must have been saved in the
  * resident cpu (mpidr format) if it is a UP/UP migratable OPTEE.
  ******************************************************************************/
-static void opteed_cpu_suspend_handler(uint64_t power_state)
+static void opteed_cpu_suspend_handler(uint64_t unused)
 {
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
@@ -92,10 +92,7 @@ static void opteed_cpu_suspend_handler(uint64_t power_state)
 	assert(optee_vectors);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_ON);
 
-	/* Program the entry point, power_state parameter and enter OPTEE */
-	write_ctx_reg(get_gpregs_ctx(&optee_ctx->cpu_ctx),
-		      CTX_GPREG_X0,
-		      power_state);
+	/* Program the entry point and enter OPTEE */
 	cm_set_elr_el3(SECURE, (uint64_t) &optee_vectors->cpu_suspend_entry);
 	rc = opteed_synchronous_sp_entry(optee_ctx);
 
@@ -116,7 +113,7 @@ static void opteed_cpu_suspend_handler(uint64_t power_state)
  * after initialising minimal architectural state that guarantees safe
  * execution.
  ******************************************************************************/
-static void opteed_cpu_on_finish_handler(uint64_t cookie)
+static void opteed_cpu_on_finish_handler(uint64_t unused)
 {
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
