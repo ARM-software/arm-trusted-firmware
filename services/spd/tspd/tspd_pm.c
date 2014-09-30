@@ -49,7 +49,7 @@ static void tspd_cpu_on_handler(uint64_t target_cpu)
  * This cpu is being turned off. Allow the TSPD/TSP to perform any actions
  * needed
  ******************************************************************************/
-static int32_t tspd_cpu_off_handler(uint64_t cookie)
+static int32_t tspd_cpu_off_handler(uint64_t unused)
 {
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
@@ -83,7 +83,7 @@ static int32_t tspd_cpu_off_handler(uint64_t cookie)
  * This cpu is being suspended. S-EL1 state must have been saved in the
  * resident cpu (mpidr format) if it is a UP/UP migratable TSP.
  ******************************************************************************/
-static void tspd_cpu_suspend_handler(uint64_t power_state)
+static void tspd_cpu_suspend_handler(uint64_t unused)
 {
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
@@ -93,10 +93,7 @@ static void tspd_cpu_suspend_handler(uint64_t power_state)
 	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
-	/* Program the entry point, power_state parameter and enter the TSP */
-	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
-		      CTX_GPREG_X0,
-		      power_state);
+	/* Program the entry point and enter the TSP */
 	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_suspend_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
@@ -117,7 +114,7 @@ static void tspd_cpu_suspend_handler(uint64_t power_state)
  * after initialising minimal architectural state that guarantees safe
  * execution.
  ******************************************************************************/
-static void tspd_cpu_on_finish_handler(uint64_t cookie)
+static void tspd_cpu_on_finish_handler(uint64_t unused)
 {
 	int32_t rc = 0;
 	uint64_t mpidr = read_mpidr();
