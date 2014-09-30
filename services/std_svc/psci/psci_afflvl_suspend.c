@@ -40,8 +40,7 @@
 #include <stddef.h>
 #include "psci_private.h"
 
-typedef int (*afflvl_suspend_handler_t)(aff_map_node_t *node,
-				      unsigned int power_state);
+typedef int (*afflvl_suspend_handler_t)(aff_map_node_t *node);
 
 /*******************************************************************************
  * This function saves the power state parameter passed in the current PSCI
@@ -103,16 +102,12 @@ int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
  * The next three functions implement a handler for each supported affinity
  * level which is called when that affinity level is about to be suspended.
  ******************************************************************************/
-static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
-				unsigned int power_state)
+static int psci_afflvl0_suspend(aff_map_node_t *cpu_node)
 {
 	unsigned long psci_entrypoint;
 
 	/* Sanity check to safeguard against data corruption */
 	assert(cpu_node->level == MPIDR_AFFLVL0);
-
-	/* Save PSCI power state parameter for the core in suspend context */
-	psci_set_suspend_power_state(power_state);
 
 	/*
 	 * Generic management: Allow the Secure world to suspend itself
@@ -124,8 +119,7 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	 * error, it's expected to assert within
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend)
-		psci_spd_pm->svc_suspend(power_state);
-
+		psci_spd_pm->svc_suspend(0);
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
@@ -150,8 +144,7 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 						 psci_get_phys_state(cpu_node));
 }
 
-static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
-				unsigned int power_state)
+static int psci_afflvl1_suspend(aff_map_node_t *cluster_node)
 {
 	unsigned int plat_state;
 	unsigned long psci_entrypoint;
@@ -184,8 +177,7 @@ static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 }
 
 
-static int psci_afflvl2_suspend(aff_map_node_t *system_node,
-				unsigned int power_state)
+static int psci_afflvl2_suspend(aff_map_node_t *system_node)
 {
 	unsigned int plat_state;
 	unsigned long psci_entrypoint;
@@ -238,8 +230,7 @@ static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
  ******************************************************************************/
 static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
 				      int start_afflvl,
-				      int end_afflvl,
-				      unsigned int power_state)
+				      int end_afflvl)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
 	aff_map_node_t *node;
@@ -254,8 +245,7 @@ static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
 		 * of restoring what we might have torn down at
 		 * lower affinity levels.
 		 */
-		rc = psci_afflvl_suspend_handlers[level](node,
-							 power_state);
+		rc = psci_afflvl_suspend_handlers[level](node);
 		if (rc != PSCI_E_SUCCESS)
 			break;
 	}
@@ -283,7 +273,6 @@ static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
  * first.
  ******************************************************************************/
 int psci_afflvl_suspend(entry_point_info_t *ep,
-			unsigned int power_state,
 			int start_afflvl,
 			int end_afflvl)
 {
@@ -339,8 +328,7 @@ int psci_afflvl_suspend(entry_point_info_t *ep,
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_suspend_handlers(mpidr_nodes,
 					start_afflvl,
-					end_afflvl,
-					power_state);
+					end_afflvl);
 
 	/*
 	 * Invalidate the entry for the highest affinity level stashed earlier.

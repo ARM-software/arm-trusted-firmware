@@ -186,7 +186,7 @@ typedef struct plat_pm_ops {
 typedef struct spd_pm_ops {
 	void (*svc_on)(uint64_t target_cpu);
 	int32_t (*svc_off)(uint64_t __unused);
-	void (*svc_suspend)(uint64_t power_state);
+	void (*svc_suspend)(uint64_t __unused);
 	void (*svc_on_finish)(uint64_t __unused);
 	void (*svc_suspend_finish)(uint64_t suspend_level);
 	void (*svc_migrate)(uint64_t __unused1, uint64_t __unused2);

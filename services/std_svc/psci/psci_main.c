@@ -125,18 +125,23 @@ int psci_cpu_suspend(unsigned int power_state,
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
+	/* Save PSCI power state parameter for the core in suspend context */
+	psci_set_suspend_power_state(power_state);
+
 	/*
 	 * Do what is needed to enter the power down state. Upon success,
 	 * enter the final wfi which will power down this cpu else return
 	 * an error.
 	 */
 	rc = psci_afflvl_suspend(&ep,
-				 power_state,
 				 MPIDR_AFFLVL0,
 				 target_afflvl);
 	if (rc == PSCI_E_SUCCESS)
 		psci_power_down_wfi();
 	assert(rc == PSCI_E_INVALID_PARAMS);
+
+	/* Reset PSCI power state parameter for the core. */
+	psci_set_suspend_power_state(PSCI_INVALID_DATA);
 	return rc;
 }
 

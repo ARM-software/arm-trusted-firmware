@@ -139,7 +139,6 @@ int psci_afflvl_off(int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
 int psci_afflvl_suspend(entry_point_info_t *ep,
-			unsigned int power_state,
 			int start_afflvl,
 			int end_afflvl);
 
