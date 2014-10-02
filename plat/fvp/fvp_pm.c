@@ -119,28 +119,14 @@ static int32_t fvp_do_plat_actions(unsigned int afflvl, unsigned int state)
 /*******************************************************************************
  * FVP handler called when an affinity instance is about to enter standby.
  ******************************************************************************/
-int fvp_affinst_standby(unsigned int power_state)
+void fvp_affinst_standby(unsigned int power_state)
 {
-	unsigned int target_afflvl;
-
-	/* Sanity check the requested state */
-	target_afflvl = psci_get_pstate_afflvl(power_state);
-
-	/*
-	 * It's possible to enter standby only on affinity level 0 i.e. a cpu
-	 * on the FVP. Ignore any other affinity level.
-	 */
-	if (target_afflvl != MPIDR_AFFLVL0)
-		return PSCI_E_INVALID_PARAMS;
-
 	/*
 	 * Enter standby state
 	 * dsb is good practice before using wfi to enter low power states
 	 */
 	dsb();
 	wfi();
-
-	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
@@ -190,12 +176,12 @@ int fvp_affinst_on(unsigned long mpidr,
  * global variables across calls. It will be wise to do flush a write to the
  * global to prevent unpredictable results.
  ******************************************************************************/
-int fvp_affinst_off(unsigned int afflvl,
+void fvp_affinst_off(unsigned int afflvl,
 		    unsigned int state)
 {
 	/* Determine if any platform actions need to be executed */
 	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
-		return PSCI_E_SUCCESS;
+		return;
 
 	/*
 	 * If execution reaches this stage then this affinity level will be
@@ -207,7 +193,6 @@ int fvp_affinst_off(unsigned int afflvl,
 	if (afflvl != MPIDR_AFFLVL0)
 		fvp_cluster_pwrdwn_common();
 
-	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
@@ -221,7 +206,7 @@ int fvp_affinst_off(unsigned int afflvl,
  * global variables across calls. It will be wise to do flush a write to the
  * global to prevent unpredictable results.
  ******************************************************************************/
-int fvp_affinst_suspend(unsigned long sec_entrypoint,
+void fvp_affinst_suspend(unsigned long sec_entrypoint,
 			unsigned int afflvl,
 			unsigned int state)
 {
@@ -229,7 +214,7 @@ int fvp_affinst_suspend(unsigned long sec_entrypoint,
 
 	/* Determine if any platform actions need to be executed. */
 	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
-		return PSCI_E_SUCCESS;
+		return;
 
 	/* Get the mpidr for this cpu */
 	mpidr = read_mpidr_el1();
@@ -246,8 +231,6 @@ int fvp_affinst_suspend(unsigned long sec_entrypoint,
 	/* Perform the common cluster specific operations */
 	if (afflvl != MPIDR_AFFLVL0)
 		fvp_cluster_pwrdwn_common();
-
-	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
@@ -257,15 +240,14 @@ int fvp_affinst_suspend(unsigned long sec_entrypoint,
  * was turned off prior to wakeup and do what's necessary to setup it up
  * correctly.
  ******************************************************************************/
-int fvp_affinst_on_finish(unsigned int afflvl,
+void fvp_affinst_on_finish(unsigned int afflvl,
 			  unsigned int state)
 {
-	int rc = PSCI_E_SUCCESS;
 	unsigned long mpidr;
 
 	/* Determine if any platform actions need to be executed. */
 	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
-		return PSCI_E_SUCCESS;
+		return;
 
 	/* Get the mpidr for this cpu */
 	mpidr = read_mpidr_el1();
@@ -301,8 +283,6 @@ int fvp_affinst_on_finish(unsigned int afflvl,
 
 	/* TODO: This setup is needed only after a cold boot */
 	arm_gic_pcpu_distif_setup();
-
-	return rc;
 }
 
 /*******************************************************************************
@@ -312,10 +292,10 @@ int fvp_affinst_on_finish(unsigned int afflvl,
  * TODO: At the moment we reuse the on finisher and reinitialize the secure
  * context. Need to implement a separate suspend finisher.
  ******************************************************************************/
-int fvp_affinst_suspend_finish(unsigned int afflvl,
+void fvp_affinst_suspend_finish(unsigned int afflvl,
 			       unsigned int state)
 {
-	return fvp_affinst_on_finish(afflvl, state);
+	fvp_affinst_on_finish(afflvl, state);
 }
 
 /*******************************************************************************
@@ -342,6 +322,30 @@ static void __dead2 fvp_system_reset(void)
 }
 
 /*******************************************************************************
+ * FVP handler called to check the validity of the power state parameter.
+ ******************************************************************************/
+int fvp_validate_power_state(unsigned int power_state)
+{
+	/* Sanity check the requested state */
+	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
+		/*
+		 * It's possible to enter standby only on affinity level 0
+		 * i.e. a cpu on the fvp. Ignore any other affinity level.
+		 */
+		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
+			return PSCI_E_INVALID_PARAMS;
+	}
+
+	/*
+	 * We expect the 'state id' to be zero.
+	 */
+	if (psci_get_pstate_id(power_state))
+		return PSCI_E_INVALID_PARAMS;
+
+	return PSCI_E_SUCCESS;
+}
+
+/*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static const plat_pm_ops_t fvp_plat_pm_ops = {
@@ -352,7 +356,8 @@ static const plat_pm_ops_t fvp_plat_pm_ops = {
 	.affinst_on_finish = fvp_affinst_on_finish,
 	.affinst_suspend_finish = fvp_affinst_suspend_finish,
 	.system_off = fvp_system_off,
-	.system_reset = fvp_system_reset
+	.system_reset = fvp_system_reset,
+	.validate_power_state = fvp_validate_power_state
 };
 
 /*******************************************************************************

@@ -75,7 +75,7 @@ typedef struct aff_limits_node {
 } aff_limits_node_t;
 
 typedef aff_map_node_t (*mpidr_aff_map_nodes_t[MPIDR_MAX_AFFLVL + 1]);
-typedef unsigned int (*afflvl_power_on_finisher_t)(aff_map_node_t *);
+typedef void (*afflvl_power_on_finisher_t)(aff_map_node_t *);
 
 /*******************************************************************************
  * Data prototypes
@@ -138,7 +138,7 @@ int psci_afflvl_on(unsigned long target_cpu,
 int psci_afflvl_off(int, int);
 
 /* Private exported functions from psci_affinity_suspend.c */
-int psci_afflvl_suspend(entry_point_info_t *ep,
+void psci_afflvl_suspend(entry_point_info_t *ep,
 			int start_afflvl,
 			int end_afflvl);
 

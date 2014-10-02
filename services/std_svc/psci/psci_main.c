@@ -50,7 +50,16 @@ int psci_cpu_on(unsigned long target_cpu,
 	/* Determine if the cpu exists of not */
 	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
 	if (rc != PSCI_E_SUCCESS) {
-		goto exit;
+		return PSCI_E_INVALID_PARAMS;
+	}
+
+	/* Validate the entrypoint using platform pm_ops */
+	if (psci_plat_pm_ops->validate_ns_entrypoint) {
+		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
+		if (rc != PSCI_E_SUCCESS) {
+			assert(rc == PSCI_E_INVALID_PARAMS);
+			return PSCI_E_INVALID_PARAMS;
+		}
 	}
 
 	/*
@@ -74,7 +83,6 @@ int psci_cpu_on(unsigned long target_cpu,
 			    start_afflvl,
 			    end_afflvl);
 
-exit:
 	return rc;
 }
 
@@ -100,6 +108,24 @@ int psci_cpu_suspend(unsigned int power_state,
 	if (target_afflvl > get_max_afflvl())
 		return PSCI_E_INVALID_PARAMS;
 
+	/* Validate the power_state using platform pm_ops */
+	if (psci_plat_pm_ops->validate_power_state) {
+		rc = psci_plat_pm_ops->validate_power_state(power_state);
+		if (rc != PSCI_E_SUCCESS) {
+			assert(rc == PSCI_E_INVALID_PARAMS);
+			return PSCI_E_INVALID_PARAMS;
+		}
+	}
+
+	/* Validate the entrypoint using platform pm_ops */
+	if (psci_plat_pm_ops->validate_ns_entrypoint) {
+		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
+		if (rc != PSCI_E_SUCCESS) {
+			assert(rc == PSCI_E_INVALID_PARAMS);
+			return PSCI_E_INVALID_PARAMS;
+		}
+	}
+
 	/* Determine the 'state type' in the 'power_state' parameter */
 	pstate_type = psci_get_pstate_type(power_state);
 
@@ -111,9 +137,8 @@ int psci_cpu_suspend(unsigned int power_state,
 		if  (!psci_plat_pm_ops->affinst_standby)
 			return PSCI_E_INVALID_PARAMS;
 
-		rc = psci_plat_pm_ops->affinst_standby(power_state);
-		assert(rc == PSCI_E_INVALID_PARAMS || rc == PSCI_E_SUCCESS);
-		return rc;
+		psci_plat_pm_ops->affinst_standby(power_state);
+		return PSCI_E_SUCCESS;
 	}
 
 	/*
@@ -130,19 +155,17 @@ int psci_cpu_suspend(unsigned int power_state,
 
 	/*
 	 * Do what is needed to enter the power down state. Upon success,
-	 * enter the final wfi which will power down this cpu else return
-	 * an error.
+	 * enter the final wfi which will power down this CPU.
 	 */
-	rc = psci_afflvl_suspend(&ep,
-				 MPIDR_AFFLVL0,
-				 target_afflvl);
-	if (rc == PSCI_E_SUCCESS)
-		psci_power_down_wfi();
-	assert(rc == PSCI_E_INVALID_PARAMS);
+	psci_afflvl_suspend(&ep,
+			    MPIDR_AFFLVL0,
+			    target_afflvl);
+
+	psci_power_down_wfi();
 
 	/* Reset PSCI power state parameter for the core. */
 	psci_set_suspend_power_state(PSCI_INVALID_DATA);
-	return rc;
+	return PSCI_E_SUCCESS;
 }
 
 int psci_cpu_off(void)

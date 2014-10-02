@@ -438,12 +438,12 @@ unsigned short psci_get_phys_state(aff_map_node_t *node)
  * topology tree and calls the physical power on handler for the corresponding
  * affinity levels
  ******************************************************************************/
-static int psci_call_power_on_handlers(aff_map_node_t *mpidr_nodes[],
+static void psci_call_power_on_handlers(aff_map_node_t *mpidr_nodes[],
 				       int start_afflvl,
 				       int end_afflvl,
 				       afflvl_power_on_finisher_t *pon_handlers)
 {
-	int rc = PSCI_E_INVALID_PARAMS, level;
+	int level;
 	aff_map_node_t *node;
 
 	for (level = end_afflvl; level >= start_afflvl; level--) {
@@ -457,12 +457,8 @@ static int psci_call_power_on_handlers(aff_map_node_t *mpidr_nodes[],
 		 * so simply return an error and let the caller take
 		 * care of the situation.
 		 */
-		rc = pon_handlers[level](node);
-		if (rc != PSCI_E_SUCCESS)
-			break;
+		pon_handlers[level](node);
 	}
-
-	return rc;
 }
 
 /*******************************************************************************
@@ -524,12 +520,10 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
 
 	/* Perform generic, architecture and platform specific handling */
-	rc = psci_call_power_on_handlers(mpidr_nodes,
+	psci_call_power_on_handlers(mpidr_nodes,
 					 start_afflvl,
 					 end_afflvl,
 					 pon_handlers);
-	if (rc != PSCI_E_SUCCESS)
-		panic();
 
 	/*
 	 * This function updates the state of each affinity instance
