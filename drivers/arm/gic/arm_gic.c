@@ -40,6 +40,12 @@
 #include <platform.h>
 #include <stdint.h>
 
+/* Value used to initialize Non-Secure IRQ priorities four at a time */
+#define GICD_IPRIORITYR_DEF_VAL \
+	(GIC_HIGHEST_NS_PRIORITY | \
+	(GIC_HIGHEST_NS_PRIORITY << 8) | \
+	(GIC_HIGHEST_NS_PRIORITY << 16) | \
+	(GIC_HIGHEST_NS_PRIORITY << 24))
 
 static unsigned int g_gicc_base;
 static unsigned int g_gicd_base;
@@ -216,7 +222,15 @@ void arm_gic_pcpu_distif_setup(void)
 	unsigned int index, irq_num;
 
 	assert(g_gicd_base);
+
+	/* Mark all 32 SGI+PPI interrupts as Group 1 (non-secure) */
 	gicd_write_igroupr(g_gicd_base, 0, ~0);
+
+	/* Setup PPI priorities doing four at a time */
+	for (index = 0; index < 32; index += 4) {
+		gicd_write_ipriorityr(g_gicd_base, index,
+				GICD_IPRIORITYR_DEF_VAL);
+	}
 
 	assert(g_irq_sec_ptr);
 	for (index = 0; index < g_num_irqs; index++) {
@@ -232,6 +246,17 @@ void arm_gic_pcpu_distif_setup(void)
 }
 
 /*******************************************************************************
+ * Get the current CPU bit mask from GICD_ITARGETSR0
+ ******************************************************************************/
+static unsigned int arm_gic_get_cpuif_id(void)
+{
+	unsigned int val;
+
+	val = gicd_read_itargetsr(g_gicd_base, 0);
+	return val & GIC_TARGET_CPU_MASK;
+}
+
+/*******************************************************************************
  * Global gic distributor setup which will be done by the primary cpu after a
  * cold boot. It marks out the secure SPIs, PPIs & SGIs and enables them. It
  * then enables the secure GIC distributor interface.
@@ -239,6 +264,7 @@ void arm_gic_pcpu_distif_setup(void)
 static void arm_gic_distif_setup(void)
 {
 	unsigned int num_ints, ctlr, index, irq_num;
+	uint8_t target_cpu;
 
 	/* Disable the distributor before going further */
 	assert(g_gicd_base);
@@ -247,16 +273,24 @@ static void arm_gic_distif_setup(void)
 	gicd_write_ctlr(g_gicd_base, ctlr);
 
 	/*
-	 * Mark out non-secure interrupts. Calculate number of
-	 * IGROUPR registers to consider. Will be equal to the
-	 * number of IT_LINES
+	 * Mark out non-secure SPI interrupts. The number of interrupts is
+	 * calculated as 32 * (IT_LINES + 1). We do 32 at a time.
 	 */
 	num_ints = gicd_read_typer(g_gicd_base) & IT_LINES_NO_MASK;
-	num_ints++;
-	for (index = 0; index < num_ints; index++)
-		gicd_write_igroupr(g_gicd_base, index << IGROUPR_SHIFT, ~0);
+	num_ints = (num_ints + 1) << 5;
+	for (index = MIN_SPI_ID; index < num_ints; index += 32)
+		gicd_write_igroupr(g_gicd_base, index, ~0);
 
-	/* Configure secure interrupts now */
+	/* Setup SPI priorities doing four at a time */
+	for (index = MIN_SPI_ID; index < num_ints; index += 4) {
+		gicd_write_ipriorityr(g_gicd_base, index,
+				GICD_IPRIORITYR_DEF_VAL);
+	}
+
+	/* Read the target CPU mask */
+	target_cpu = arm_gic_get_cpuif_id();
+
+	/* Configure SPI secure interrupts now */
 	assert(g_irq_sec_ptr);
 	for (index = 0; index < g_num_irqs; index++) {
 		irq_num = g_irq_sec_ptr[index];
@@ -265,11 +299,16 @@ static void arm_gic_distif_setup(void)
 			gicd_clr_igroupr(g_gicd_base, irq_num);
 			gicd_set_ipriorityr(g_gicd_base, irq_num,
 				GIC_HIGHEST_SEC_PRIORITY);
-			gicd_set_itargetsr(g_gicd_base, irq_num,
-					platform_get_core_pos(read_mpidr()));
+			gicd_set_itargetsr(g_gicd_base, irq_num, target_cpu);
 			gicd_set_isenabler(g_gicd_base, irq_num);
 		}
 	}
+
+	/*
+	 * Configure the SGI and PPI. This is done in a separated function
+	 * because each CPU is responsible for initializing its own private
+	 * interrupts.
+	 */
 	arm_gic_pcpu_distif_setup();
 
 	gicd_write_ctlr(g_gicd_base, ctlr | ENABLE_GRP0);
@@ -285,13 +324,22 @@ void arm_gic_init(unsigned int gicc_base,
 		unsigned int num_irqs
 		)
 {
+	unsigned int val;
+
 	assert(gicc_base);
 	assert(gicd_base);
-	assert(gicr_base);
 	assert(irq_sec_ptr);
+
 	g_gicc_base = gicc_base;
 	g_gicd_base = gicd_base;
-	g_gicr_base = gicr_base;
+
+	val = gicc_read_iidr(g_gicc_base);
+
+	if (((val >> GICC_IIDR_ARCH_SHIFT) & GICC_IIDR_ARCH_MASK) >= 3) {
+		assert(gicr_base);
+		g_gicr_base = gicr_base;
+	}
+
 	g_irq_sec_ptr = irq_sec_ptr;
 	g_num_irqs = num_irqs;
 }

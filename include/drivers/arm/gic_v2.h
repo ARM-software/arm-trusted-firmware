@@ -48,6 +48,7 @@
 #define GIC_HIGHEST_NS_PRIORITY	128
 #define GIC_LOWEST_NS_PRIORITY	254 /* 255 would disable an interrupt */
 #define GIC_SPURIOUS_INTERRUPT	1023
+#define GIC_TARGET_CPU_MASK	0xff
 
 #define ENABLE_GRP0		(1 << 0)
 #define ENABLE_GRP1		(1 << 1)
