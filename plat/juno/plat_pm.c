@@ -30,6 +30,7 @@
 
 #include <assert.h>
 #include <arch_helpers.h>
+#include <arm_gic.h>
 #include <debug.h>
 #include <cci400.h>
 #include <errno.h>
@@ -133,10 +134,10 @@ int32_t juno_affinst_on_finish(uint64_t mpidr, uint32_t afflvl, uint32_t state)
 
 
 	/* Enable the gic cpu interface */
-	gic_cpuif_setup(GICC_BASE);
+	arm_gic_cpuif_setup();
 
 	/* Juno todo: Is this setup only needed after a cold boot? */
-	gic_pcpu_distif_setup(GICD_BASE);
+	arm_gic_pcpu_distif_setup();
 
 	/* Clear the mailbox for this cpu. */
 	juno_program_mailbox(mpidr, 0);
@@ -155,7 +156,7 @@ static int32_t juno_power_down_common(uint32_t afflvl)
 	uint32_t cluster_state = scpi_power_on;
 
 	/* Prevent interrupts from spuriously waking up this cpu */
-	gic_cpuif_deactivate(GICC_BASE);
+	arm_gic_cpuif_deactivate();
 
 	/* Cluster is to be turned off, so disable coherency */
 	if (afflvl > MPIDR_AFFLVL0) {

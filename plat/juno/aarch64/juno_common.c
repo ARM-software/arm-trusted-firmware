@@ -29,6 +29,7 @@
  */
 
 #include <arch_helpers.h>
+#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
@@ -107,6 +108,28 @@ static const mmap_region_t juno_mmap[] = {
 };
 #endif
 
+/* Array of secure interrupts to be configured by the gic driver */
+const unsigned int irq_sec_array[] = {
+	IRQ_MHU,
+	IRQ_GPU_SMMU_0,
+	IRQ_GPU_SMMU_1,
+	IRQ_ETR_SMMU,
+	IRQ_TZC400,
+	IRQ_TZ_WDOG,
+	IRQ_SEC_PHY_TIMER,
+	IRQ_SEC_SGI_0,
+	IRQ_SEC_SGI_1,
+	IRQ_SEC_SGI_2,
+	IRQ_SEC_SGI_3,
+	IRQ_SEC_SGI_4,
+	IRQ_SEC_SGI_5,
+	IRQ_SEC_SGI_6,
+	IRQ_SEC_SGI_7
+};
+
+const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
+	sizeof(irq_sec_array[0]);
+
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
  * the platform memory map & initialize the mmu, for the given exception level
@@ -156,4 +179,9 @@ uint64_t plat_get_syscnt_freq(void)
 		panic();
 
 	return counter_base_frequency;
+}
+
+void plat_gic_init(void)
+{
+	arm_gic_init(GICC_BASE, GICD_BASE, 0, irq_sec_array, num_sec_irqs);
 }

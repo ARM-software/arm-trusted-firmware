@@ -83,18 +83,7 @@ void plat_report_exception(unsigned long type);
 unsigned long plat_get_ns_image_entrypoint(void);
 unsigned long platform_get_stack(unsigned long mpidr);
 uint64_t plat_get_syscnt_freq(void);
-
-/* Declarations for plat_gic.c */
-uint32_t ic_get_pending_interrupt_id(void);
-uint32_t ic_get_pending_interrupt_type(void);
-uint32_t ic_acknowledge_interrupt(void);
-uint32_t ic_get_interrupt_type(uint32_t id);
-void ic_end_of_interrupt(uint32_t id);
-void gic_cpuif_deactivate(unsigned int gicc_base);
-void gic_cpuif_setup(unsigned int gicc_base);
-void gic_pcpu_distif_setup(unsigned int gicd_base);
-void gic_setup(void);
-uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state);
+void plat_gic_init(void);
 
 /* Declarations for plat_topology.c */
 int plat_setup_topology(void);
