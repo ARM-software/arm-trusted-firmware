@@ -219,25 +219,57 @@ int psci_affinity_info(unsigned long target_affinity,
 	return rc;
 }
 
-/* Unimplemented */
-int psci_migrate(unsigned int target_cpu)
+int psci_migrate(unsigned long target_cpu)
 {
-	return PSCI_E_NOT_SUPPORTED;
-}
+	int rc;
+	unsigned long resident_cpu_mpidr;
 
-/* Unimplemented */
-unsigned int psci_migrate_info_type(void)
-{
-	return PSCI_TOS_NOT_PRESENT_MP;
-}
+	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
+	if (rc != PSCI_TOS_UP_MIG_CAP)
+		return (rc == PSCI_TOS_NOT_UP_MIG_CAP) ?
+			  PSCI_E_DENIED : PSCI_E_NOT_SUPPORTED;
 
-unsigned long psci_migrate_info_up_cpu(void)
-{
 	/*
-	 * Return value of this currently unsupported call depends upon
-	 * what psci_migrate_info_type() returns.
+	 * Migrate should only be invoked on the CPU where
+	 * the Secure OS is resident.
 	 */
-	return PSCI_E_SUCCESS;
+	if (resident_cpu_mpidr != read_mpidr_el1())
+		return PSCI_E_NOT_PRESENT;
+
+	/* Check the validity of the specified target cpu */
+	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
+	if (rc != PSCI_E_SUCCESS)
+		return PSCI_E_INVALID_PARAMS;
+
+	assert(psci_spd_pm && psci_spd_pm->svc_migrate);
+
+	rc = psci_spd_pm->svc_migrate(read_mpidr_el1(), target_cpu);
+	assert(rc == PSCI_E_SUCCESS || rc == PSCI_E_INTERN_FAIL);
+
+	return rc;
+}
+
+int psci_migrate_info_type(void)
+{
+	unsigned long resident_cpu_mpidr;
+
+	return psci_spd_migrate_info(&resident_cpu_mpidr);
+}
+
+long psci_migrate_info_up_cpu(void)
+{
+	unsigned long resident_cpu_mpidr;
+	int rc;
+
+	/*
+	 * Return value of this depends upon what
+	 * psci_spd_migrate_info() returns.
+	 */
+	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
+	if (rc != PSCI_TOS_NOT_UP_MIG_CAP && rc != PSCI_TOS_UP_MIG_CAP)
+		return PSCI_E_INVALID_PARAMS;
+
+	return resident_cpu_mpidr;
 }
 
 /*******************************************************************************
