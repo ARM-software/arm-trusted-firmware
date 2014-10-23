@@ -191,8 +191,8 @@ typedef struct spd_pm_ops {
 	void (*svc_suspend)(uint64_t __unused);
 	void (*svc_on_finish)(uint64_t __unused);
 	void (*svc_suspend_finish)(uint64_t suspend_level);
-	void (*svc_migrate)(uint64_t __unused1, uint64_t __unused2);
-	int32_t (*svc_migrate_info)(uint64_t *__unused);
+	int32_t (*svc_migrate)(uint64_t from_cpu, uint64_t to_cpu);
+	int32_t (*svc_migrate_info)(uint64_t *resident_cpu);
 	void (*svc_system_off)(void);
 	void (*svc_system_reset)(void);
 } spd_pm_ops_t;
@@ -202,9 +202,9 @@ typedef struct spd_pm_ops {
  ******************************************************************************/
 unsigned int psci_version(void);
 int psci_affinity_info(unsigned long, unsigned int);
-int psci_migrate(unsigned int);
-unsigned int psci_migrate_info_type(void);
-unsigned long psci_migrate_info_up_cpu(void);
+int psci_migrate(unsigned long);
+int psci_migrate_info_type(void);
+long psci_migrate_info_up_cpu(void);
 int psci_cpu_on(unsigned long,
 		unsigned long,
 		unsigned long);
