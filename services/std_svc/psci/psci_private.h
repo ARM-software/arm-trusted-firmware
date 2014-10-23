@@ -120,6 +120,7 @@ void psci_set_max_phys_off_afflvl(uint32_t afflvl);
 uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
 				       uint32_t end_afflvl,
 				       aff_map_node_t *mpidr_nodes[]);
+int psci_spd_migrate_info(uint64_t *mpidr);
 
 /* Private exported functions from psci_setup.c */
 int psci_get_aff_map_nodes(unsigned long mpidr,

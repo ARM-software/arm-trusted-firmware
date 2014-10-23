@@ -562,6 +562,29 @@ void psci_register_spd_pm_hook(const spd_pm_ops_t *pm)
 }
 
 /*******************************************************************************
+ * This function invokes the migrate info hook in the spd_pm_ops. It performs
+ * the necessary return value validation. If the Secure Payload is UP and
+ * migrate capable, it returns the mpidr of the CPU on which the Secure payload
+ * is resident through the mpidr parameter. Else the value of the parameter on
+ * return is undefined.
+ ******************************************************************************/
+int psci_spd_migrate_info(uint64_t *mpidr)
+{
+	int rc;
+
+	if (!psci_spd_pm || !psci_spd_pm->svc_migrate_info)
+		return PSCI_E_NOT_SUPPORTED;
+
+	rc = psci_spd_pm->svc_migrate_info(mpidr);
+
+	assert(rc == PSCI_TOS_UP_MIG_CAP || rc == PSCI_TOS_NOT_UP_MIG_CAP \
+		|| rc == PSCI_TOS_NOT_PRESENT_MP || rc == PSCI_E_NOT_SUPPORTED);
+
+	return rc;
+}
+
+
+/*******************************************************************************
  * This function prints the state of all affinity instances present in the
  * system
  ******************************************************************************/
