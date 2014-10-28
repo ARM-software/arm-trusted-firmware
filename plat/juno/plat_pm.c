@@ -275,12 +275,47 @@ static void __dead2 juno_system_reset(void)
 }
 
 /*******************************************************************************
+ * Handler called when an affinity instance is about to enter standby.
+ ******************************************************************************/
+int32_t juno_affinst_standby(unsigned int power_state)
+{
+	unsigned int target_afflvl;
+	unsigned int scr;
+
+	/* Sanity check the requested state */
+	target_afflvl = psci_get_pstate_afflvl(power_state);
+
+	/*
+	 * It's possible to enter standby only on affinity level 0 i.e. a cpu
+	 * on the Juno. Ignore any other affinity level.
+	 */
+	if (target_afflvl != MPIDR_AFFLVL0)
+		return PSCI_E_INVALID_PARAMS;
+
+	scr = read_scr_el3();
+	/* Enable PhysicalIRQ bit for NS world to wake the CPU */
+	write_scr_el3(scr | SCR_IRQ_BIT);
+	isb();
+	dsb();
+	wfi();
+
+	/*
+	 * Restore SCR to the original value, synchronisation of scr_el3 is
+	 * done by eret while el3_exit to save some execution cycles.
+	 */
+	write_scr_el3(scr);
+
+	return PSCI_E_SUCCESS;
+}
+
+/*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
 static const plat_pm_ops_t juno_ops = {
 	.affinst_on		= juno_affinst_on,
 	.affinst_on_finish	= juno_affinst_on_finish,
 	.affinst_off		= juno_affinst_off,
+	.affinst_standby	= juno_affinst_standby,
 	.affinst_suspend	= juno_affinst_suspend,
 	.affinst_suspend_finish	= juno_affinst_suspend_finish,
 	.system_off		= juno_system_off,
