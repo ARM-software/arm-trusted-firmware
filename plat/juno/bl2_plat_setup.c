@@ -162,6 +162,9 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
+
+	/* Initialise the IO layer and register platform IO devices */
+	io_setup();
 }
 
 /*******************************************************************************
@@ -171,8 +174,8 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
  ******************************************************************************/
 void bl2_platform_setup(void)
 {
-	/* Initialise the IO layer and register platform IO devices */
-	io_setup();
+	/* Initialize the secure environment */
+	plat_security_setup();
 }
 
 /* Flush the TF params and the TF plat params */
@@ -309,8 +312,8 @@ void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
  ******************************************************************************/
 void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 {
-	bl33_meminfo->total_base = DRAM_BASE;
-	bl33_meminfo->total_size = DRAM_SIZE;
-	bl33_meminfo->free_base = DRAM_BASE;
-	bl33_meminfo->free_size = DRAM_SIZE;
+	bl33_meminfo->total_base = DRAM_NS_BASE;
+	bl33_meminfo->total_size = DRAM_NS_SIZE;
+	bl33_meminfo->free_base = DRAM_NS_BASE;
+	bl33_meminfo->free_size = DRAM_NS_SIZE;
 }

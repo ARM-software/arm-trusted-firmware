@@ -125,10 +125,20 @@
 /*******************************************************************************
  * BL3-2 specific defines.
  ******************************************************************************/
-#define TSP_SEC_MEM_BASE		TZRAM_BASE
-#define TSP_SEC_MEM_SIZE		TZRAM_SIZE
-#define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1d000)
-#define BL32_LIMIT			BL2_BASE
+#if (PLAT_TSP_LOCATION_ID == PLAT_TRUSTED_SRAM_ID)
+# define TSP_SEC_MEM_BASE		TZRAM_BASE
+# define TSP_SEC_MEM_SIZE		TZRAM_SIZE
+# define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1d000)
+# define BL32_LIMIT			BL2_BASE
+#elif (PLAT_TSP_LOCATION_ID == PLAT_DRAM_ID)
+# define TSP_SEC_MEM_BASE		DRAM_SEC_BASE
+# define TSP_SEC_MEM_SIZE		(DRAM_SEC_SIZE - DRAM_SCP_SIZE)
+# define BL32_BASE			DRAM_SEC_BASE
+# define BL32_LIMIT			(DRAM_SEC_BASE + DRAM_SEC_SIZE - \
+					DRAM_SCP_SIZE)
+#else
+# error "Unsupported PLAT_TSP_LOCATION_ID value"
+#endif
 
 /*******************************************************************************
  * Load address of BL3-3 in the Juno port
@@ -139,7 +149,15 @@
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define ADDR_SPACE_SIZE			(1ull << 32)
-#define MAX_XLAT_TABLES			2
+
+#if IMAGE_BL1 || IMAGE_BL31
+# define MAX_XLAT_TABLES		2
+#endif
+
+#if IMAGE_BL2 || IMAGE_BL32
+# define MAX_XLAT_TABLES		3
+#endif
+
 #define MAX_MMAP_REGIONS		16
 
 /*******************************************************************************

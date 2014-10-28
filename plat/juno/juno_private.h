@@ -108,6 +108,9 @@ int plat_get_image_source(const char *image_name,
 			  uintptr_t *dev_handle,
 			  uintptr_t *image_spec);
 
+/* Declarations for security.c */
+void plat_security_setup(void);
+
 /*
  * Before calling this function BL2 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change

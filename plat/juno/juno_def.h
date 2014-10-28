@@ -37,6 +37,9 @@
 /*******************************************************************************
  * Juno memory map related constants
  ******************************************************************************/
+#define PLAT_TRUSTED_SRAM_ID	0
+#define PLAT_DRAM_ID		1
+
 #define MHU_SECURE_BASE		0x04000000
 #define MHU_SECURE_SIZE		0x00001000
 
@@ -72,6 +75,26 @@
 
 #define DRAM_BASE		0x80000000
 #define DRAM_SIZE		0x80000000
+
+/*
+ * DRAM at 0x8000_0000 is divided in two regions:
+ *   - Secure DRAM (default is the top 16MB except for the last 2MB, which are
+ *     used by the SCP for DDR retraining)
+ *   - Non-Secure DRAM (remaining DRAM starting at DRAM_BASE)
+ */
+
+#define DRAM_SCP_SIZE		0x00200000
+#define DRAM_SCP_BASE		(DRAM_BASE + DRAM_SIZE - DRAM_SCP_SIZE)
+
+#define DRAM_SEC_SIZE		0x00E00000
+#define DRAM_SEC_BASE		(DRAM_SCP_BASE - DRAM_SEC_SIZE)
+
+#define DRAM_NS_BASE		DRAM_BASE
+#define DRAM_NS_SIZE		(DRAM_SIZE - DRAM_SCP_SIZE - DRAM_SEC_SIZE)
+
+/* Second region of DRAM */
+#define DRAM2_BASE		0x880000000
+#define DRAM2_SIZE		0x180000000
 
 /* Memory mapped Generic timer interfaces  */
 #define SYS_CNTCTL_BASE		0x2a430000

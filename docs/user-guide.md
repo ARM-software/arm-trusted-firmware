@@ -256,6 +256,12 @@ performed.
 For a better understanding of FVP options, the FVP memory map is explained in
 the [Firmware Design].
 
+#### Juno specific build options
+
+*   `PLAT_TSP_LOCATION`: location of the TSP binary. Options:
+    -   `tsram` : Trusted SRAM (default option)
+    -   `dram`  : Secure region in DRAM (set by the TrustZone controller)
+
 ### Creating a Firmware Image Package
 
 FIPs are automatically created as part of the build instructions described in

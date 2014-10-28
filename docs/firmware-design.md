@@ -1306,6 +1306,8 @@ other boot loader images in Trusted SRAM.
 
 ####  Memory layout on Juno ARM development platform
 
+**TSP in Trusted SRAM (default option):**
+
                   Flash0
     0x0C000000 +----------+
                :          :
@@ -1321,6 +1323,40 @@ other boot loader images in Trusted SRAM.
                |   BL2    |                 BL3-1 is loaded
     0x04033000 |----------|                 after BL3-0 has
                |  BL3-2   |                 been sent to SCP
+    0x04023000 |----------|                 ------------------
+               |  BL3-0   |  <<<<<<<<<<<<<  |     BL3-1      |
+    0x04009000 |----------|                 ------------------
+               | BL1 (rw) |
+    0x04001000 |----------|
+               |   MHU    |
+    0x04000000 +----------+
+
+**TSP in the secure region of DRAM:**
+
+                   DRAM
+    0xFFE00000 +----------+
+               |  BL3-2   |
+    0xFF000000 |----------|
+               |          |
+               :          :
+               |          |
+    0x80000000 +----------+
+
+                  Flash0
+    0x0C000000 +----------+
+               :          :
+    0x0BED0000 |----------|
+               | BL1 (ro) |
+    0x0BEC0000 |----------|
+               :          :
+               |  Bypass  |
+    0x08000000 +----------+
+
+               Trusted SRAM
+    0x04040000 +----------+
+               |   BL2    |                 BL3-1 is loaded
+    0x04033000 |----------|                 after BL3-0 has
+               |          |                 been sent to SCP
     0x04023000 |----------|                 ------------------
                |  BL3-0   |  <<<<<<<<<<<<<  |     BL3-1      |
     0x04009000 |----------|                 ------------------

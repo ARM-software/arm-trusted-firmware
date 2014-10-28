@@ -243,7 +243,7 @@ void tzc_configure_region(uint32_t filters,
 
 	/* Assign the region to a filter and set secure attributes */
 	tzc_write_region_attributes(tzc.base, region,
-		(sec_attr << REGION_ATTRIBUTES_SEC_SHIFT) | filters);
+		(sec_attr << REG_ATTR_SEC_SHIFT) | filters);
 
 	/*
 	 * Specify which non-secure devices have permission to access this
