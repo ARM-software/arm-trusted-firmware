@@ -35,7 +35,7 @@
 #define FIP_IMAGE_NAME			"fip.bin"
 #define FVP_PRIMARY_CPU			0x0
 
-/* Memory location options for Shared data and TSP in FVP */
+/* Memory location options for TSP */
 #define FVP_IN_TRUSTED_SRAM		0
 #define FVP_IN_TRUSTED_DRAM		1
 
@@ -46,8 +46,13 @@
 #define FVP_TRUSTED_ROM_BASE	0x00000000
 #define FVP_TRUSTED_ROM_SIZE	0x04000000	/* 64 MB */
 
-#define FVP_TRUSTED_SRAM_BASE	0x04000000
-#define FVP_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
+/* The first 4KB of Trusted SRAM are used as shared memory */
+#define FVP_SHARED_MEM_BASE	0x04000000
+#define FVP_SHARED_MEM_SIZE	0x00001000	/* 4 KB */
+
+/* The remaining Trusted SRAM is used to load the BL images */
+#define FVP_TRUSTED_SRAM_BASE	0x04001000
+#define FVP_TRUSTED_SRAM_SIZE	0x0003F000	/* 252 KB */
 
 #define FVP_TRUSTED_DRAM_BASE	0x06000000
 #define FVP_TRUSTED_DRAM_SIZE	0x02000000	/* 32 MB */
@@ -73,28 +78,6 @@
 
 #define NSRAM_BASE		0x2e000000
 #define NSRAM_SIZE		0x10000
-
-/* 4KB shared memory */
-#define FVP_SHARED_RAM_SIZE	0x1000
-
-/* Location of shared memory */
-#if (FVP_SHARED_DATA_LOCATION_ID == FVP_IN_TRUSTED_DRAM)
-/* Shared memory at the base of Trusted DRAM */
-# define FVP_SHARED_RAM_BASE		FVP_TRUSTED_DRAM_BASE
-# define FVP_TRUSTED_SRAM_LIMIT		(FVP_TRUSTED_SRAM_BASE \
-					+ FVP_TRUSTED_SRAM_SIZE)
-#elif (FVP_SHARED_DATA_LOCATION_ID == FVP_IN_TRUSTED_SRAM)
-# if (FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_DRAM)
-#  error "Shared data in Trusted SRAM and TSP in Trusted DRAM is not supported"
-# endif
-/* Shared memory at the top of the Trusted SRAM */
-# define FVP_SHARED_RAM_BASE		(FVP_TRUSTED_SRAM_BASE \
-					+ FVP_TRUSTED_SRAM_SIZE \
-					- FVP_SHARED_RAM_SIZE)
-# define FVP_TRUSTED_SRAM_LIMIT		FVP_SHARED_RAM_BASE
-#else
-# error "Unsupported FVP_SHARED_DATA_LOCATION_ID value"
-#endif
 
 #define DRAM1_BASE		0x80000000ull
 #define DRAM1_SIZE		0x80000000ull
@@ -268,7 +251,7 @@
  ******************************************************************************/
 
 /* Entrypoint mailboxes */
-#define MBOX_BASE		FVP_SHARED_RAM_BASE
+#define MBOX_BASE		FVP_SHARED_MEM_BASE
 #define MBOX_SIZE		0x200
 
 /* Base address where parameters to BL31 are stored */

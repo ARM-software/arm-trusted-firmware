@@ -93,12 +93,13 @@
 #define BL1_RO_LIMIT			(FVP_TRUSTED_ROM_BASE \
 					+ FVP_TRUSTED_ROM_SIZE)
 /*
- * Put BL1 RW at the top of the Trusted SRAM (just below the shared memory, if
- * present). BL1_RW_BASE is calculated using the current BL1 RW debug size plus
- * a little space for growth.
+ * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
+ * the current BL1 RW debug size plus a little space for growth.
  */
-#define BL1_RW_BASE			(FVP_TRUSTED_SRAM_LIMIT - 0x6000)
-#define BL1_RW_LIMIT			FVP_TRUSTED_SRAM_LIMIT
+#define BL1_RW_BASE			(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE - 0x6000)
+#define BL1_RW_LIMIT			(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE)
 
 /*******************************************************************************
  * BL2 specific defines.
@@ -114,13 +115,14 @@
  * BL31 specific defines.
  ******************************************************************************/
 /*
- * Put BL3-1 at the top of the Trusted SRAM (just below the shared memory, if
- * present). BL31_BASE is calculated using the current BL3-1 debug size plus a
- * little space for growth.
+ * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
+ * current BL3-1 debug size plus a little space for growth.
  */
-#define BL31_BASE			(FVP_TRUSTED_SRAM_LIMIT - 0x1D000)
+#define BL31_BASE			(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE - 0x1D000)
 #define BL31_PROGBITS_LIMIT		BL1_RW_BASE
-#define BL31_LIMIT			FVP_TRUSTED_SRAM_LIMIT
+#define BL31_LIMIT			(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE)
 
 /*******************************************************************************
  * BL32 specific defines.
@@ -137,8 +139,7 @@
 #elif FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_DRAM
 # define TSP_SEC_MEM_BASE		FVP_TRUSTED_DRAM_BASE
 # define TSP_SEC_MEM_SIZE		FVP_TRUSTED_DRAM_SIZE
-# define BL32_BASE			(FVP_TRUSTED_DRAM_BASE \
-					+ FVP_SHARED_RAM_SIZE)
+# define BL32_BASE			FVP_TRUSTED_DRAM_BASE
 # define BL32_LIMIT			(FVP_TRUSTED_DRAM_BASE + (1 << 21))
 #else
 # error "Unsupported FVP_TSP_RAM_LOCATION_ID value"
