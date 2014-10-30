@@ -77,11 +77,11 @@ func cortex_a53_core_pwr_dwn
 	bl	cortex_a53_disable_dcache
 
 	/* ---------------------------------------------
-	 * Flush L1 cache to PoU.
+	 * Flush L1 caches.
 	 * ---------------------------------------------
 	 */
 	mov	x0, #DCCISW
-	bl	dcsw_op_louis
+	bl	dcsw_op_level1
 
 	/* ---------------------------------------------
 	 * Come out of intra cluster coherency
@@ -100,17 +100,24 @@ func cortex_a53_cluster_pwr_dwn
 	bl	cortex_a53_disable_dcache
 
 	/* ---------------------------------------------
+	 * Flush L1 caches.
+	 * ---------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	bl	dcsw_op_level1
+
+	/* ---------------------------------------------
 	 * Disable the optional ACP.
 	 * ---------------------------------------------
 	 */
 	bl	plat_disable_acp
 
 	/* ---------------------------------------------
-	 * Flush L1 and L2 caches to PoC.
+	 * Flush L2 caches.
 	 * ---------------------------------------------
 	 */
 	mov	x0, #DCCISW
-	bl	dcsw_op_all
+	bl	dcsw_op_level2
 
 	/* ---------------------------------------------
 	 * Come out of intra cluster coherency

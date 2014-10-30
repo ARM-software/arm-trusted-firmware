@@ -57,7 +57,7 @@ func cortex_a57_disable_l2_prefetch
 	bic	x0, x0, x1
 	msr	CPUECTLR_EL1, x0
 	isb
-	dsb	sy
+	dsb	ish
 	ret
 
 	/* ---------------------------------------------
@@ -81,33 +81,79 @@ func cortex_a57_disable_ext_debug
 	dsb	sy
 	ret
 
-func cortex_a57_reset_func
-#if ERRATA_A57_806969 || ERRATA_A57_813420
-	/* ---------------------------------------------
-	 * Ensure that the following errata is only
-	 * applied on r0p0 parts.
-	 * ---------------------------------------------
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #806969.
+	 * This applies only to revision r0p0 of Cortex A57.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * --------------------------------------------------
 	 */
-#if ASM_ASSERTION
-	mrs	x0, midr_el1
-	ubfx	x1, x0, #MIDR_VAR_SHIFT, #4
-	ubfx	x2, x0, #MIDR_REV_SHIFT, #4
-	orr	x0, x1, x2
-	cmp	x0, #0
-	ASM_ASSERT(eq)
+func errata_a57_806969_wa
+	/*
+	 * Compare x0 against revision r0p0
+	 */
+	cbz	x0, apply_806969
+#if DEBUG
+	b	print_revision_warning
+#else
+	ret
 #endif
-	mov	x1, xzr
-#if ERRATA_A57_806969
+apply_806969:
+	mrs	x1, CPUACTLR_EL1
 	orr	x1, x1, #CPUACTLR_NO_ALLOC_WBWA
+	msr	CPUACTLR_EL1, x1
+	ret
+
+
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #813420.
+	 * This applies only to revision r0p0 of Cortex A57.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * ---------------------------------------------------
+	 */
+func errata_a57_813420_wa
+	/*
+	 * Compare x0 against revision r0p0
+	 */
+	cbz	x0, apply_813420
+#if DEBUG
+	b	print_revision_warning
+#else
+	ret
 #endif
-#if ERRATA_A57_813420
+apply_813420:
+	mrs	x1, CPUACTLR_EL1
 	orr	x1, x1, #CPUACTLR_DCC_AS_DCCI
-#endif
-	mrs	x0, CPUACTLR_EL1
-	orr	x0, x0, x1
-	msr	CPUACTLR_EL1, x0
+	msr	CPUACTLR_EL1, x1
+	ret
+
+	/* -------------------------------------------------
+	 * The CPU Ops reset function for Cortex-A57.
+	 * -------------------------------------------------
+	 */
+func cortex_a57_reset_func
+	mov	x19, x30
+	mrs	x0, midr_el1
+
+	/*
+	 * Extract the variant[20:23] and revision[0:3] from x0
+	 * and pack it in x20[0:7] as variant[4:7] and revision[0:3].
+	 * First extract x0[16:23] to x20[0:7] and zero fill the rest.
+	 * Then extract x0[0:3] into x20[0:3] retaining other bits.
+	 */
+	ubfx	x20, x0, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
+	bfxil	x20, x0, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+
+#if ERRATA_A57_806969
+	mov	x0, x20
+	bl	errata_a57_806969_wa
 #endif
 
+#if ERRATA_A57_813420
+	mov	x0, x20
+	bl	errata_a57_813420_wa
+#endif
 	/* ---------------------------------------------
 	 * As a bare minimum enable the SMP bit.
 	 * ---------------------------------------------
@@ -116,8 +162,12 @@ func cortex_a57_reset_func
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
 	isb
-	ret
+	ret	x19
 
+	/* ----------------------------------------------------
+	 * The CPU Ops core power down function for Cortex-A57.
+	 * ----------------------------------------------------
+	 */
 func cortex_a57_core_pwr_dwn
 	mov	x18, x30
 
@@ -134,11 +184,11 @@ func cortex_a57_core_pwr_dwn
 	bl	cortex_a57_disable_l2_prefetch
 
 	/* ---------------------------------------------
-	 * Flush L1 cache to PoU.
+	 * Flush L1 caches.
 	 * ---------------------------------------------
 	 */
 	mov	x0, #DCCISW
-	bl	dcsw_op_louis
+	bl	dcsw_op_level1
 
 	/* ---------------------------------------------
 	 * Come out of intra cluster coherency
@@ -153,6 +203,10 @@ func cortex_a57_core_pwr_dwn
 	mov	x30, x18
 	b	cortex_a57_disable_ext_debug
 
+	/* -------------------------------------------------------
+	 * The CPU Ops cluster power down function for Cortex-A57.
+	 * -------------------------------------------------------
+	 */
 func cortex_a57_cluster_pwr_dwn
 	mov	x18, x30
 
@@ -168,18 +222,26 @@ func cortex_a57_cluster_pwr_dwn
 	 */
 	bl	cortex_a57_disable_l2_prefetch
 
+#if !SKIP_A57_L1_FLUSH_PWR_DWN
+	/* -------------------------------------------------
+	 * Flush the L1 caches.
+	 * -------------------------------------------------
+	 */
+	mov	x0, #DCCISW
+	bl	dcsw_op_level1
+#endif
 	/* ---------------------------------------------
 	 * Disable the optional ACP.
 	 * ---------------------------------------------
 	 */
 	bl	plat_disable_acp
 
-	/* ---------------------------------------------
-	 * Flush L1 and L2 caches to PoC.
-	 * ---------------------------------------------
+	/* -------------------------------------------------
+	 * Flush the L2 caches.
+	 * -------------------------------------------------
 	 */
 	mov	x0, #DCCISW
-	bl	dcsw_op_all
+	bl	dcsw_op_level2
 
 	/* ---------------------------------------------
 	 * Come out of intra cluster coherency
