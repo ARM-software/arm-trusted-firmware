@@ -65,6 +65,30 @@ static entry_lookup_list_t toc_entry_lookup_list[] = {
 	  "bl32", NULL, FLAG_FILENAME},
 	{ "Non-Trusted Firmware BL3-3", UUID_NON_TRUSTED_FIRMWARE_BL33,
 	  "bl33", NULL, FLAG_FILENAME},
+	/* Key Certificates */
+	{ "Root Of Trust key certificate", UUID_ROT_KEY_CERT,
+	  "rot-cert", NULL, FLAG_FILENAME },
+	{ "Trusted key certificate", UUID_TRUSTED_KEY_CERT,
+	  "trusted-key-cert", NULL, FLAG_FILENAME},
+	{ "SCP Firmware BL3-0 key certificate", UUID_SCP_FIRMWARE_BL30_KEY_CERT,
+	  "bl30-key-cert", NULL, FLAG_FILENAME},
+	{ "EL3 Runtime Firmware BL3-1 key certificate", UUID_EL3_RUNTIME_FIRMWARE_BL31_KEY_CERT,
+	  "bl31-key-cert", NULL, FLAG_FILENAME},
+	{ "Secure Payload BL3-2 (Trusted OS) key certificate", UUID_SECURE_PAYLOAD_BL32_KEY_CERT,
+	  "bl32-key-cert", NULL, FLAG_FILENAME},
+	{ "Non-Trusted Firmware BL3-3 key certificate", UUID_NON_TRUSTED_FIRMWARE_BL33_KEY_CERT,
+	  "bl33-key-cert", NULL, FLAG_FILENAME},
+	/* Content certificates */
+	{ "Trusted Boot Firmware BL2 certificate", UUID_TRUSTED_BOOT_FIRMWARE_BL2_CERT,
+	  "bl2-cert", NULL, FLAG_FILENAME },
+	{ "SCP Firmware BL3-0 certificate", UUID_SCP_FIRMWARE_BL30_CERT,
+	  "bl30-cert", NULL, FLAG_FILENAME},
+	{ "EL3 Runtime Firmware BL3-1 certificate", UUID_EL3_RUNTIME_FIRMWARE_BL31_CERT,
+	  "bl31-cert", NULL, FLAG_FILENAME},
+	{ "Secure Payload BL3-2 (Trusted OS) certificate", UUID_SECURE_PAYLOAD_BL32_CERT,
+	  "bl32-cert", NULL, FLAG_FILENAME},
+	{ "Non-Trusted Firmware BL3-3 certificate", UUID_NON_TRUSTED_FIRMWARE_BL33_CERT,
+	  "bl33-cert", NULL, FLAG_FILENAME},
 	{ NULL, {0}, 0 }
 };
 

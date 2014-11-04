@@ -286,6 +286,9 @@ TRUSTED_KEY_CERT	:=	${BUILD_PLAT}/trusted_key.crt
 ifneq (${GENERATE_COT},0)
     $(eval CERTS := yes)
 
+    $(eval FIP_DEPS += certificates)
+    $(eval FIP_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
+
     ifneq (${CREATE_KEYS},0)
         $(eval CRT_ARGS += -n)
     endif
@@ -449,6 +452,8 @@ define MAKE_TOOL_ARGS
 
 $(eval FIP_DEPS += $(if $3,$(2),))
 $(eval FIP_ARGS += $(if $3,--bl$(1) $(2),))
+$(eval FIP_ARGS += $(if $4,--bl$(1)-cert $(BUILD_PLAT)/bl$(1).crt))
+$(eval FIP_ARGS += $(if $4,$(if $5,--bl$(1)-key-cert $(BUILD_PLAT)/bl$(1)_key.crt)))
 
 $(eval CRT_DEPS += $(if $4,$(2),))
 $(eval CRT_DEPS += $(if $4,$(if $6,$(6),)))
