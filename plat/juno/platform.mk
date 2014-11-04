@@ -53,6 +53,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S	\
 				drivers/io/io_storage.c			\
 				lib/aarch64/xlat_tables.c		\
 				plat/common/aarch64/plat_common.c	\
+				plat/common/plat_gic.c			\
 				plat/juno/plat_io_storage.c
 
 BL1_SOURCES		+=	drivers/arm/cci400/cci400.c		\
@@ -76,7 +77,9 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c		\
 				plat/juno/scpi.c
 
 BL31_SOURCES		+=	drivers/arm/cci400/cci400.c		\
+				drivers/arm/gic/arm_gic.c		\
 				drivers/arm/gic/gic_v2.c		\
+				drivers/arm/gic/gic_v3.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				plat/common/aarch64/platform_mp_stack.S	\
@@ -86,7 +89,6 @@ BL31_SOURCES		+=	drivers/arm/cci400/cci400.c		\
 				plat/juno/aarch64/juno_common.c		\
 				plat/juno/plat_pm.c			\
 				plat/juno/plat_topology.c		\
-				plat/juno/plat_gic.c			\
 				plat/juno/scpi.c
 
 ifneq (${RESET_TO_BL31},0)

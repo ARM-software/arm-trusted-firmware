@@ -29,6 +29,7 @@
  */
 
 #include <arch.h>
+#include <arm_gic.h>
 #include <assert.h>
 #include <bl31.h>
 #include <bl_common.h>
@@ -151,7 +152,8 @@ void bl31_platform_setup(void)
 	mhu_secure_init();
 
 	/* Initialize the gic cpu and distributor interfaces */
-	gic_setup();
+	plat_gic_init();
+	arm_gic_setup();
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF, CNTCR_FCREQ(0) | CNTCR_EN);

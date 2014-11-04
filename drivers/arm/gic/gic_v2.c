@@ -283,13 +283,12 @@ void gicd_set_ipriorityr(unsigned int base, unsigned int id, unsigned int pri)
 	mmio_write_32(reg, reg_val);
 }
 
-void gicd_set_itargetsr(unsigned int base, unsigned int id, unsigned int iface)
+void gicd_set_itargetsr(unsigned int base, unsigned int id, unsigned int target)
 {
 	unsigned byte_off = id & ((1 << ITARGETSR_SHIFT) - 1);
 	unsigned int reg_val = gicd_read_itargetsr(base, id);
 
-	gicd_write_itargetsr(base, id, reg_val |
-			     (1 << iface) << (byte_off << 3));
+	gicd_write_itargetsr(base, id, reg_val | (target << (byte_off << 3)));
 }
 
 /*******************************************************************************
