@@ -1270,9 +1270,40 @@ diagrams.
 Loading the TSP image in Trusted DRAM doesn't change the memory layout of the
 other boot loader images in Trusted SRAM.
 
+
 ####  Memory layout on Juno ARM development platform
 
-**TSP in Trusted SRAM (default option):**
+The following list describes the memory layout on Juno:
+
+*   Trusted SRAM at 0x04000000 contains the MHU page, BL1 r/w section, BL2
+    image, BL3-1 image and, optionally, the BL3-2 image.
+
+*   The MHU 4 KB page is used as communication channel between SCP and AP. It
+    also contains the entrypoint mailboxes for the AP. Mailboxes are stored in
+    the first 128 bytes of the MHU page.
+
+*   BL1 resides in flash memory at address `0x0BEC0000`. Its read-write data
+    section is relocated to the top of the Trusted SRAM at runtime.
+
+*   BL3-1 is loaded at the top of the Trusted SRAM, such that its NOBITS
+    sections will overwrite BL1 R/W data. This implies that BL1 global variables
+    will remain valid only until execution reaches the BL3-1 entry point during
+    a cold boot.
+
+*   BL2 is loaded below BL3-1.
+
+*   BL3-0 is loaded temporarily into the BL3-1 memory region and transfered to
+    the SCP before being overwritten by BL3-1.
+
+*   The BL3-2 image is optional and can be loaded into one of these two
+    locations: Trusted SRAM (right after the MHU page) or DRAM (14 MB starting
+    at 0xFF000000 and secured by the TrustZone controller). When loaded into
+    Trusted SRAM, its NOBITS sections are allowed to overlap BL2.
+
+Depending on the location of the BL3-2 image, it will result in different memory
+maps, illustrated by the following diagrams.
+
+**BL3-2 in Trusted SRAM (default option):**
 
                   Flash0
     0x0C000000 +----------+
@@ -1281,30 +1312,30 @@ other boot loader images in Trusted SRAM.
                | BL1 (ro) |
     0x0BEC0000 |----------|
                :          :
-               |  Bypass  |
-    0x08000000 +----------+
-
-               Trusted SRAM
-    0x04040000 +----------+
-               |   BL2    |                 BL3-1 is loaded
-    0x04033000 |----------|                 after BL3-0 has
-               |  BL3-2   |                 been sent to SCP
-    0x04023000 |----------|                 ------------------
-               |  BL3-0   |  <<<<<<<<<<<<<  |     BL3-1      |
-    0x04009000 |----------|                 ------------------
-               | BL1 (rw) |
-    0x04001000 |----------|
+    0x08000000 +----------+                  BL3-1 is loaded
+                                             after BL3-0 has
+               Trusted SRAM                  been sent to SCP
+    0x04040000 +----------+  loaded by BL2  ------------------
+               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |  BL3-0   |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               |----------|                 ------------------
+               |   BL2    |  <<<<<<<<<<<<<  |  BL3-2 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  | BL3-2 PROGBITS |
+    0x04001000 +----------+                 ------------------
                |   MHU    |
     0x04000000 +----------+
 
-**TSP in the secure region of DRAM:**
+
+**BL3-2 in the secure region of DRAM:**
 
                    DRAM
     0xFFE00000 +----------+
-               |  BL3-2   |
+               |  BL3-2   |  (secure)
     0xFF000000 |----------|
                |          |
-               :          :
+               :          :  (non-secure)
                |          |
     0x80000000 +----------+
 
@@ -1315,29 +1346,23 @@ other boot loader images in Trusted SRAM.
                | BL1 (ro) |
     0x0BEC0000 |----------|
                :          :
-               |  Bypass  |
-    0x08000000 +----------+
-
-               Trusted SRAM
-    0x04040000 +----------+
-               |   BL2    |                 BL3-1 is loaded
-    0x04033000 |----------|                 after BL3-0 has
-               |          |                 been sent to SCP
-    0x04023000 |----------|                 ------------------
-               |  BL3-0   |  <<<<<<<<<<<<<  |     BL3-1      |
-    0x04009000 |----------|                 ------------------
-               | BL1 (rw) |
-    0x04001000 |----------|
+    0x08000000 +----------+                  BL3-1 is loaded
+                                             after BL3-0 has
+               Trusted SRAM                  been sent to SCP
+    0x04040000 +----------+  loaded by BL2  ------------------
+               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |  BL3-0   |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               |----------|                 ------------------
+               |   BL2    |
+               |----------|
+               |          |
+    0x04001000 +----------+
                |   MHU    |
     0x04000000 +----------+
 
-The Message Handling Unit (MHU) page contains the entrypoint mailboxes and a
-shared memory area. This shared memory is used as a communication channel
-between the AP and the SCP.
-
-BL1 code starts at `0x0BEC0000`. The BL1 data section is copied to trusted SRAM
-at `0x04001000`, right after the MHU page. Entrypoint mailboxes are stored in
-the first 128 bytes of the MHU page.
+Loading the BL3-2 image in DRAM doesn't change the memory layout of the other
+images in Trusted SRAM.
 
 
 9.  Firmware Image Package (FIP)

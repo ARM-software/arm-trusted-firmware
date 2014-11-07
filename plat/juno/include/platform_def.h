@@ -76,38 +76,29 @@
 #define MAX_IO_HANDLES			4
 
 /*******************************************************************************
- * Platform memory map related constants
- ******************************************************************************/
-#define FLASH_BASE		0x08000000
-#define FLASH_SIZE		0x04000000
-
-/* Bypass offset from start of NOR flash */
-#define BL1_ROM_BYPASS_OFFSET	0x03EC0000
-
-#ifndef TZROM_BASE
-/* Use the bypass address */
-#define TZROM_BASE		FLASH_BASE + BL1_ROM_BYPASS_OFFSET
-#endif
-#define TZROM_SIZE		0x00010000
-
-#define TZRAM_BASE		0x04001000
-#define TZRAM_SIZE		0x0003F000
-
-/*******************************************************************************
  * BL1 specific defines.
  * BL1 RW data is relocated from ROM to RAM at runtime so we need 2 base
  * addresses.
  ******************************************************************************/
 #define BL1_RO_BASE			TZROM_BASE
 #define BL1_RO_LIMIT			(TZROM_BASE + TZROM_SIZE)
-#define BL1_RW_BASE			TZRAM_BASE
-#define BL1_RW_LIMIT			BL31_BASE
+
+/*
+ * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
+ * the current BL1 RW debug size plus a little space for growth.
+ */
+#define BL1_RW_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x6000)
+#define BL1_RW_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#define BL2_BASE			(TZRAM_BASE + TZRAM_SIZE - 0xd000)
-#define BL2_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
+/*
+ * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
+ * size plus a little space for growth.
+ */
+#define BL2_BASE			(BL31_BASE - 0xC000)
+#define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************
  * Load address of BL3-0 in the Juno port
@@ -119,8 +110,13 @@
 /*******************************************************************************
  * BL3-1 specific defines.
  ******************************************************************************/
-#define BL31_BASE			(TZRAM_BASE + 0x8000)
-#define BL31_LIMIT			BL32_BASE
+/*
+ * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
+ * current BL3-1 debug size plus a little space for growth.
+ */
+#define BL31_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1D000)
+#define BL31_PROGBITS_LIMIT		BL1_RW_BASE
+#define BL31_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * BL3-2 specific defines.
@@ -128,8 +124,9 @@
 #if (PLAT_TSP_LOCATION_ID == PLAT_TRUSTED_SRAM_ID)
 # define TSP_SEC_MEM_BASE		TZRAM_BASE
 # define TSP_SEC_MEM_SIZE		TZRAM_SIZE
-# define BL32_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1d000)
-# define BL32_LIMIT			BL2_BASE
+# define BL32_BASE			TZRAM_BASE
+# define BL32_LIMIT			BL31_BASE
+# define BL32_PROGBITS_LIMIT		BL2_BASE
 #elif (PLAT_TSP_LOCATION_ID == PLAT_DRAM_ID)
 # define TSP_SEC_MEM_BASE		DRAM_SEC_BASE
 # define TSP_SEC_MEM_SIZE		(DRAM_SEC_SIZE - DRAM_SCP_SIZE)
