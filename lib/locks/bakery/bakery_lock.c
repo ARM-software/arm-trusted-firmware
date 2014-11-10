@@ -107,6 +107,7 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	++my_ticket;
 	bakery->number[me] = my_ticket;
 	bakery->entering[me] = 0;
+	dsb();
 	sev();
 
 	return my_ticket;
@@ -189,5 +190,6 @@ void bakery_lock_release(bakery_lock_t *bakery)
 	 */
 	bakery->owner = NO_OWNER;
 	bakery->number[me] = 0;
+	dsb();
 	sev();
 }
