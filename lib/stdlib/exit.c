@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,18 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <debug.h>
 
-/* Include the various implemented functions */
-#include "abort.c"
-#include "assert.c"
-#include "exit.c"
-#include "mem.c"
-#include "printf.c"
-#include "putchar.c"
-#include "puts.c"
-#include "sscanf.c"
-#include "strchr.c"
-#include "strcmp.c"
-#include "strlen.c"
-#include "strncmp.c"
-#include "subr_prf.c"
+void exit(int v)
+{
+	ERROR("EXIT\n");
+	panic();
+}

@@ -1,9 +1,6 @@
 /*-
- * Copyright (c) 1990, 1993
+ * Copyright (c) 1982, 1986, 1993
  *	The Regents of the University of California.  All rights reserved.
- *
- * This code is derived from software contributed to Berkeley by
- * Chris Torek.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -13,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -29,49 +26,24 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)stdio.h	8.5 (Berkeley) 4/29/95
- * $FreeBSD$
+ *	@(#)time.h	8.5 (Berkeley) 5/4/95
+ * from: FreeBSD: src/sys/sys/time.h,v 1.43 2000/03/20 14:09:05 phk Exp
+ *	$FreeBSD$
  */
 
-/*
- * Portions copyright (c) 2013-2014, ARM Limited and Contributors.
- * All rights reserved.
- */
+#ifndef _SYS__TIMESPEC_H_
+#define	_SYS__TIMESPEC_H_
 
-
-#ifndef	_STDIO_H_
-#define	_STDIO_H_
-
-#include <sys/cdefs.h>
-#include <sys/_null.h>
 #include <sys/_types.h>
 
-#ifndef _SIZE_T_DECLARED
-typedef	__size_t	size_t;
-#define	_SIZE_T_DECLARED
+#ifndef _TIME_T_DECLARED
+typedef	__time_t	time_t;
+#define	_TIME_T_DECLARED
 #endif
 
-#ifndef _SSIZE_T_DECLARED
-#define	_SSIZE_T_DECLARED
-typedef	__ssize_t	ssize_t;
-#endif
+struct timespec {
+	time_t	tv_sec;		/* seconds */
+	long	tv_nsec;	/* and nanoseconds */
+};
 
-#define	EOF	(-1)
-
-int	 printf(const char * __restrict, ...);
-int	 putchar(int);
-int	 puts(const char *);
-int	 sprintf(char * __restrict, const char * __restrict, ...);
-int	 vsprintf(char * __restrict, const char * __restrict,
-	   __va_list);
-
-int	 sscanf(const char *__restrict, char const *__restrict, ...);
-
-#if __ISO_C_VISIBLE >= 1999
-int	 snprintf(char * __restrict, size_t, const char * __restrict,
-	   ...) __printflike(3, 4);
-int	 vsnprintf(char * __restrict, size_t, const char * __restrict,
-	   __va_list) __printflike(3, 0);
-#endif
-
-#endif /* !_STDIO_H_ */
+#endif /* !_SYS__TIMESPEC_H_ */

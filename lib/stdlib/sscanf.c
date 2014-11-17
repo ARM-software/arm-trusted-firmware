@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,18 +28,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/cdefs.h>
 
-/* Include the various implemented functions */
-#include "abort.c"
-#include "assert.c"
-#include "exit.c"
-#include "mem.c"
-#include "printf.c"
-#include "putchar.c"
-#include "puts.c"
-#include "sscanf.c"
-#include "strchr.c"
-#include "strcmp.c"
-#include "strlen.c"
-#include "strncmp.c"
-#include "subr_prf.c"
+/*
+ * TODO: This is not a real implementation of the sscanf() function. It just
+ * returns the number of expected arguments based on the number of '%' found
+ * in the format string.
+ */
+int
+sscanf(const char *__restrict str, char const *__restrict fmt, ...)
+{
+	int ret = 0;
+
+	while (*fmt != '\0') {
+		if (*fmt++ == '%') {
+			ret++;
+		}
+	}
+
+	return ret;
+}

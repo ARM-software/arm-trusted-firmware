@@ -1,9 +1,6 @@
 /*-
- * Copyright (c) 1990, 1993
+ * Copyright (c) 1982, 1986, 1993
  *	The Regents of the University of California.  All rights reserved.
- *
- * This code is derived from software contributed to Berkeley by
- * Chris Torek.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -13,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -29,49 +26,38 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)stdio.h	8.5 (Berkeley) 4/29/95
- * $FreeBSD$
+ *	@(#)time.h	8.5 (Berkeley) 5/4/95
+ * from: FreeBSD: src/sys/sys/time.h,v 1.43 2000/03/20 14:09:05 phk Exp
+ *	$FreeBSD$
  */
 
-/*
- * Portions copyright (c) 2013-2014, ARM Limited and Contributors.
- * All rights reserved.
- */
-
-
-#ifndef	_STDIO_H_
-#define	_STDIO_H_
+#ifndef _SYS_TIMESPEC_H_
+#define _SYS_TIMESPEC_H_
 
 #include <sys/cdefs.h>
-#include <sys/_null.h>
-#include <sys/_types.h>
+#include <sys/_timespec.h>
 
-#ifndef _SIZE_T_DECLARED
-typedef	__size_t	size_t;
-#define	_SIZE_T_DECLARED
-#endif
+#if __BSD_VISIBLE
+#define	TIMEVAL_TO_TIMESPEC(tv, ts)					\
+	do {								\
+		(ts)->tv_sec = (tv)->tv_sec;				\
+		(ts)->tv_nsec = (tv)->tv_usec * 1000;			\
+	} while (0)
+#define	TIMESPEC_TO_TIMEVAL(tv, ts)					\
+	do {								\
+		(tv)->tv_sec = (ts)->tv_sec;				\
+		(tv)->tv_usec = (ts)->tv_nsec / 1000;			\
+	} while (0)
 
-#ifndef _SSIZE_T_DECLARED
-#define	_SSIZE_T_DECLARED
-typedef	__ssize_t	ssize_t;
-#endif
+#endif /* __BSD_VISIBLE */
 
-#define	EOF	(-1)
+/*
+ * Structure defined by POSIX.1b to be like a itimerval, but with
+ * timespecs. Used in the timer_*() system calls.
+ */
+struct itimerspec {
+	struct timespec  it_interval;
+	struct timespec  it_value;
+};
 
-int	 printf(const char * __restrict, ...);
-int	 putchar(int);
-int	 puts(const char *);
-int	 sprintf(char * __restrict, const char * __restrict, ...);
-int	 vsprintf(char * __restrict, const char * __restrict,
-	   __va_list);
-
-int	 sscanf(const char *__restrict, char const *__restrict, ...);
-
-#if __ISO_C_VISIBLE >= 1999
-int	 snprintf(char * __restrict, size_t, const char * __restrict,
-	   ...) __printflike(3, 4);
-int	 vsnprintf(char * __restrict, size_t, const char * __restrict,
-	   __va_list) __printflike(3, 0);
-#endif
-
-#endif /* !_STDIO_H_ */
+#endif /* _SYS_TIMESPEC_H_ */
