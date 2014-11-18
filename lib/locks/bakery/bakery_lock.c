@@ -107,8 +107,6 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	++my_ticket;
 	bakery->number[me] = my_ticket;
 	bakery->entering[me] = 0;
-	dsb();
-	sev();
 
 	return my_ticket;
 }
@@ -151,7 +149,7 @@ void bakery_lock_get(bakery_lock_t *bakery)
 
 		/* Wait for the contender to get their ticket */
 		while (bakery->entering[they])
-			wfe();
+			;
 
 		/*
 		 * If the other party is a contender, they'll have non-zero
