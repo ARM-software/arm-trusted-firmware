@@ -143,7 +143,6 @@
 #define IRQ_SEC_SGI_5			13
 #define IRQ_SEC_SGI_6			14
 #define IRQ_SEC_SGI_7			15
-#define IRQ_SEC_SGI_8			16
 
 /*******************************************************************************
  * PL011 related constants
