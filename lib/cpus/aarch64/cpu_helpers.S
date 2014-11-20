@@ -37,7 +37,7 @@
 #endif
 
  /* Reset fn is needed in BL at reset vector */
-#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+#if IMAGE_BL1 || IMAGE_BL31
 	/*
 	 * The reset handler common to all platforms.  After a matching
 	 * cpu_ops structure entry is found, the correponding reset_handler
@@ -64,7 +64,7 @@ func reset_handler
 1:
 	ret
 
-#endif /* IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31) */
+#endif /* IMAGE_BL1 || IMAGE_BL31 */
 
 #if IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*

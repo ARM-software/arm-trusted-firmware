@@ -30,6 +30,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <bl_common.h>
 #include <cortex_a57.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
@@ -99,9 +100,17 @@ func errata_a57_806969_wa
 	ret
 #endif
 apply_806969:
+	/*
+	 * Test if errata has already been applied in an earlier
+	 * invocation of the reset handler and does not need to
+	 * be applied again.
+	 */
 	mrs	x1, CPUACTLR_EL1
+	tst	x1, #CPUACTLR_NO_ALLOC_WBWA
+	b.ne	skip_806969
 	orr	x1, x1, #CPUACTLR_NO_ALLOC_WBWA
 	msr	CPUACTLR_EL1, x1
+skip_806969:
 	ret
 
 
@@ -123,9 +132,17 @@ func errata_a57_813420_wa
 	ret
 #endif
 apply_813420:
+	/*
+	 * Test if errata has already been applied in an earlier
+	 * invocation of the reset handler and does not need to
+	 * be applied again.
+	 */
 	mrs	x1, CPUACTLR_EL1
+	tst	x1, #CPUACTLR_DCC_AS_DCCI
+	b.ne	skip_813420
 	orr	x1, x1, #CPUACTLR_DCC_AS_DCCI
 	msr	CPUACTLR_EL1, x1
+skip_813420:
 	ret
 
 	/* -------------------------------------------------
@@ -154,13 +171,18 @@ func cortex_a57_reset_func
 	mov	x0, x20
 	bl	errata_a57_813420_wa
 #endif
+
 	/* ---------------------------------------------
-	 * As a bare minimum enable the SMP bit.
+	 * As a bare minimum enable the SMP bit if it is
+	 * not already set.
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CPUECTLR_EL1
+	tst	x0, #CPUECTLR_SMP_BIT
+	b.ne	skip_smp_setup
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
+skip_smp_setup:
 	isb
 	ret	x19
 

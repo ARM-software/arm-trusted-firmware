@@ -54,9 +54,18 @@ psci_aff_suspend_finish_entry:
 psci_aff_common_finish_entry:
 #if !RESET_TO_BL31
 	/* ---------------------------------------------
+	 * Perform any processor specific actions which
+	 * undo or are in addition to the actions
+	 * performed by the reset handler in the BootROM
+	 * (BL1) e.g. cache, tlb invalidations, errata
+	 * workarounds etc.
+	 * ---------------------------------------------
+	 */
+	bl      reset_handler
+
+	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer
-	 * and data access alignment checks. Also, set
-	 * the EL3 exception endianess to little-endian.
+	 * and data access alignment checks.
 	 * It can be assumed that BL3-1 entrypoint code
 	 * will do this when RESET_TO_BL31 is set. The
 	 * same  assumption cannot be made when another

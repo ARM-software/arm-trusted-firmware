@@ -40,7 +40,7 @@
 CPU_MIDR: /* cpu_ops midr */
 	.space  8
 /* Reset fn is needed in BL at reset vector */
-#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+#if IMAGE_BL1 || IMAGE_BL31
 CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  8
 #endif
@@ -65,7 +65,7 @@ CPU_OPS_SIZE = .
 	.section cpu_ops, "a"; .align 3
 	.type cpu_ops_\_name, %object
 	.quad \_midr
-#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
+#if IMAGE_BL1 || IMAGE_BL31
 	.if \_noresetfunc
 	.quad 0
 	.else
