@@ -48,10 +48,28 @@
 #include <platform.h>
 #include <runtime_svc.h>
 #include <stddef.h>
+#include <string.h>
 #include <uuid.h>
 #include "opteed_private.h"
 #include "teesmc_opteed_macros.h"
 #include "teesmc_opteed.h"
+
+#define OPTEE_MAGIC		0x4554504f
+#define OPTEE_VERSION		1
+#define OPTEE_ARCH_ARM32	0
+#define OPTEE_ARCH_ARM64	1
+
+struct optee_header {
+	uint32_t magic;
+	uint8_t version;
+	uint8_t arch;
+	uint16_t flags;
+	uint32_t init_size;
+	uint32_t init_load_addr_hi;
+	uint32_t init_load_addr_lo;
+	uint32_t init_mem_usage;
+	uint32_t paged_size;
+};
 
 /*******************************************************************************
  * Address of the entrypoint vector table in OPTEE. It is
@@ -110,6 +128,13 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	SMC_RET1(&optee_ctx->cpu_ctx, read_elr_el3());
 }
 
+
+static int is_mem_free(uint64_t free_base, size_t free_size,
+		       uint64_t addr, size_t size)
+{
+	return (addr >= free_base) && (addr + size <= free_base + free_size);
+}
+
 /*******************************************************************************
  * OPTEE Dispatcher setup. The OPTEED finds out the OPTEE entrypoint and type
  * (aarch32/aarch64) if not already known and initialises the context for entry
@@ -117,8 +142,16 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
  ******************************************************************************/
 int32_t opteed_setup(void)
 {
-	entry_point_info_t *optee_ep_info;
+	entry_point_info_t *ep_info;
+	struct optee_header *header;
 	uint32_t linear_id;
+	uintptr_t init_load_addr;
+	size_t init_size;
+	size_t init_mem_usage;
+	uintptr_t payload_addr;
+	uintptr_t mem_limit;
+	uintptr_t paged_part;
+	uintptr_t paged_size;
 
 	linear_id = plat_my_core_pos();
 
@@ -127,32 +160,117 @@ int32_t opteed_setup(void)
 	 * absence is a critical failure.  TODO: Add support to
 	 * conditionally include the SPD service
 	 */
-	optee_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
-	if (!optee_ep_info) {
-		WARN("No OPTEE provided by BL2 boot loader, Booting device"
-			" without OPTEE initialization. SMC`s destined for OPTEE"
-			" will return SMC_UNK\n");
-		return 1;
+	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
+	if (!ep_info) {
+		WARN("No OPTEE provided by BL2 boot loader.\n");
+		goto err;
 	}
 
-	/*
-	 * If there's no valid entry point for SP, we return a non-zero value
-	 * signalling failure initializing the service. We bail out without
-	 * registering any handlers
-	 */
-	if (!optee_ep_info->pc)
-		return 1;
+	header = (struct optee_header *)ep_info->pc;
+
+	if (header->magic != OPTEE_MAGIC || header->version != OPTEE_VERSION) {
+		WARN("Invalid OPTEE header.\n");
+		goto err;
+	}
+
+	if (header->arch == OPTEE_ARCH_ARM32)
+		opteed_rw = OPTEE_AARCH32;
+	else if (header->arch == OPTEE_ARCH_ARM64)
+		opteed_rw = OPTEE_AARCH64;
+	else {
+		WARN("Invalid OPTEE architecture (%d)\n", header->arch);
+		goto err;
+	}
+
+	init_load_addr = ((uint64_t)header->init_load_addr_hi << 32) |
+				header->init_load_addr_lo;
+	init_size = header->init_size;
+	init_mem_usage = header->init_mem_usage;
+	payload_addr = (uintptr_t)(header + 1);
+	paged_size = header->paged_size;
 
 	/*
-	 * We could inspect the SP image and determine it's execution
-	 * state i.e whether AArch32 or AArch64. Assuming it's AArch32
-	 * for the time being.
+	 * Move OPTEE binary to the required location in memory.
+	 *
+	 * There's two ways OPTEE can be running in memory:
+	 * 1. A memory large enough to keep the entire OPTEE binary
+	 *    (DRAM currently)
+	 * 2. A part of OPTEE in a smaller (and more secure) memory
+	 *    (SRAM currently). This is achieved with demand paging
+	 *    of read-only data/code against a backing store in some
+	 *    larger memory (DRAM currently).
+	 *
+	 * In either case dictates init_load_addr in the OPTEE
+	 * header the address where what's after the header
+	 * (payload) should be residing when started. init_size in
+	 * the header tells how much of the payload that need to be
+	 * copied. init_mem_usage tells how much runtime memory in
+	 * total is needed by OPTEE.
+	 *
+	 * In alternative 2 there's additional data after
+	 * init_size, this is the rest of OPTEE which is demand
+	 * paged into memory.  A pointer to that data is supplied
+	 * to OPTEE when initializing.
+	 *
+	 * Alternative 1 only uses DRAM when executing OPTEE while
+	 * alternative 2 uses both SRAM and DRAM to execute.
+	 *
+	 * All data written which is later read by OPTEE must be flushed
+	 * out to memory since OPTEE starts with MMU turned off and caches
+	 * disabled.
 	 */
-	opteed_rw = OPTEE_AARCH64;
-	opteed_init_optee_ep_state(optee_ep_info,
-				opteed_rw,
-				optee_ep_info->pc,
-				&opteed_sp_context[linear_id]);
+	if (is_mem_free(BL32_SRAM_BASE,
+			 BL32_SRAM_LIMIT - BL32_SRAM_BASE,
+			 init_load_addr, init_mem_usage)) {
+		/* Running in SRAM, paging some code against DRAM */
+		memcpy((void *)init_load_addr, (void *)payload_addr,
+		       init_size);
+		flush_dcache_range(init_load_addr, init_size);
+		paged_part = payload_addr + init_size;
+		mem_limit = BL32_SRAM_LIMIT;
+	} else if (is_mem_free(BL32_DRAM_BASE,
+			       BL32_DRAM_LIMIT - BL32_DRAM_BASE,
+			       init_load_addr, init_mem_usage)) {
+		/*
+		 * Running in DRAM.
+		 *
+		 * The paged part normally empty, but if it isn't,
+		 * move it to the end of DRAM before moving the
+		 * init part in place.
+		 */
+		paged_part = BL32_DRAM_LIMIT - paged_size;
+		if (paged_size) {
+			if (!is_mem_free(BL32_DRAM_BASE,
+					 BL32_DRAM_LIMIT - BL32_DRAM_BASE,
+					 init_load_addr,
+					 init_mem_usage + paged_size)) {
+				WARN("Failed to reserve memory 0x%lx - 0x%lx\n",
+				      init_load_addr,
+				      init_load_addr + init_mem_usage +
+					paged_size);
+				goto err;
+			}
+
+			memcpy((void *)paged_part,
+				(void *)(payload_addr + init_size),
+				paged_size);
+			flush_dcache_range(paged_part, paged_size);
+		}
+
+		memmove((void *)init_load_addr, (void *)payload_addr,
+			init_size);
+		flush_dcache_range(init_load_addr, init_size);
+		mem_limit = BL32_DRAM_LIMIT;
+	} else {
+		WARN("Failed to reserve memory 0x%lx - 0x%lx\n",
+			init_load_addr, init_load_addr + init_mem_usage);
+		goto err;
+	}
+
+
+	opteed_init_optee_ep_state(ep_info, opteed_rw, init_load_addr,
+				   paged_part, mem_limit,
+				   &opteed_sp_context[linear_id]);
 
 	/*
 	 * All OPTEED initialization done. Now register our init function with
@@ -161,6 +279,11 @@ int32_t opteed_setup(void)
 	bl31_register_bl32_init(&opteed_init);
 
 	return 0;
+
+err:
+	WARN("Booting device without OPTEE initialization.\n");
+	WARN("SMC`s destined for OPTEE will return SMC_UNK\n");
+	return 1;
 }
 
 /*******************************************************************************

@@ -290,6 +290,11 @@
  * Trusted DRAM (if available) or the DRAM region secured by the TrustZone
  * controller.
  */
+#define BL32_SRAM_BASE                  ARM_BL_RAM_BASE
+#define BL32_SRAM_LIMIT                 BL31_BASE
+#define BL32_DRAM_BASE                  TSP_SEC_MEM_BASE
+#define BL32_DRAM_LIMIT                 (TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE)
+
 #if ARM_BL31_IN_DRAM
 # define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
@@ -303,8 +308,8 @@
 # define TSP_SEC_MEM_BASE		ARM_BL_RAM_BASE
 # define TSP_SEC_MEM_SIZE		ARM_BL_RAM_SIZE
 # define TSP_PROGBITS_LIMIT		BL2_BASE
-# define BL32_BASE			ARM_BL_RAM_BASE
-# define BL32_LIMIT			BL31_BASE
+# define BL32_BASE			BL32_SRAM_BASE
+# define BL32_LIMIT			BL32_SRAM_LIMIT
 #elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_DRAM_ID
 # define TSP_SEC_MEM_BASE		PLAT_ARM_TRUSTED_DRAM_BASE
 # define TSP_SEC_MEM_SIZE		PLAT_ARM_TRUSTED_DRAM_SIZE

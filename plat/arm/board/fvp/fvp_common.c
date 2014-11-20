@@ -113,6 +113,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
+	ARM_MAP_TSP_SEC_MEM,
 	{0}
 };
 #endif

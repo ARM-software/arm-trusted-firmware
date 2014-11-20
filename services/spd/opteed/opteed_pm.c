@@ -123,7 +123,7 @@ static void opteed_cpu_on_finish_handler(uint64_t unused)
 
 	opteed_init_optee_ep_state(&optee_on_entrypoint, opteed_rw,
 				(uint64_t)&optee_vectors->cpu_on_entry,
-				optee_ctx);
+				0, 0, optee_ctx);
 
 	/* Initialise this cpu's secure context */
 	cm_init_my_context(&optee_on_entrypoint);
