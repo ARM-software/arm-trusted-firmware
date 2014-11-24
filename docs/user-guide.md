@@ -176,6 +176,9 @@ performed.
     BL3-2 image for the `fip` target. In this case, the BL3-2 in the ARM
     Trusted Firmware will not be built.
 
+*   `FIP_NAME`: This is an optional build option which specifies the FIP
+    filename for the `fip` target. Default is `fip.bin`.
+
 *   `CROSS_COMPILE`: Prefix to toolchain binaries. Please refer to examples in
     this document for usage.
 

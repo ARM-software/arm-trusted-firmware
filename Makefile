@@ -63,6 +63,8 @@ ARM_GIC_ARCH		:=	2
 # Flag used to indicate if ASM_ASSERTION should be enabled for the build.
 # This defaults to being present in DEBUG builds only.
 ASM_ASSERTION		:=	${DEBUG}
+# Default FIP file name
+FIP_NAME		:= fip.bin
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO
@@ -256,7 +258,7 @@ PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
 FIPTOOLPATH		?=	tools/fip_create
 FIPTOOL			?=	${FIPTOOLPATH}/fip_create
 fiptool:		${FIPTOOL}
-fip:			${BUILD_PLAT}/fip.bin
+fip:			${BUILD_PLAT}/${FIP_NAME}
 
 locate-checkpatch:
 ifndef CHECKPATCH
@@ -485,7 +487,7 @@ check_bl33:
 endif
 
 
-${BUILD_PLAT}/fip.bin: ${FIP_DEPS} ${FIPTOOL} check_bl30 check_bl33
+${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL} check_bl30 check_bl33
 			${Q}${FIPTOOL} --dump \
 				${FIP_ARGS} \
 				$@
