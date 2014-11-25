@@ -3,37 +3,37 @@ ARM Trusted Firmware Interrupt Management Design guide
 
 Contents :
 
-1.  Introduction
-    *    Assumptions
-    *    Concepts
-         -    Interrupt Types
-         -    Routing Model
-         -    Valid Routing Models
-              +    Secure-EL1 Interrupts
-              +    Non-secure Interrupts
-         -    Mapping of Interrupt Type to Signal
+1.  [Introduction](#1-introduction)
+    *   [Assumptions](#11-assumptions)
+    *   [Concepts](#12-concepts)
+        -   [Interrupt Types](#121-interrupt-types)
+        -   [Routing Model](#122-routing-model)
+        -   [Valid Routing Models](#123-valid-routing-models)
+            +   [Secure-EL1 Interrupts](#1231-secure-el1-interrupts)
+            +   [Non-secure Interrupts](#1232-non-secure-interrupts)
+        -   [Mapping of Interrupt Type to Signal](#124-mapping-of-interrupt-type-to-signal)
 
-2.  Interrupt Management
-    *    Software Components
-    *    Interrupt Registration
-         -    EL3 Runtime Firmware
-         -    Secure Payload Dispatcher
-              +    Test Secure Payload Dispatcher behavior
-         -    Secure Payload
-              +    Secure Payload IHF design w.r.t Secure-EL1 interrupts
-              +    Secure Payload IHF design w.r.t Non-secure interrupts
-              +    Test Secure Payload behavior
-    *    Interrupt Handling
-         -    EL3 Runtime Firmware
-         -    Secure Payload Dispatcher
-              +    Interrupt Entry
-              +    Interrupt Exit
-              +    Test Secure Payload Dispatcher behavior
-         -    Secure Payload
-              +    Test Secure Payload behavior
+2.  [Interrupt Management](#2-interrupt-management)
+    *   [Software Components](#21-software-components)
+    *   [Interrupt Registration](#22-interrupt-registration)
+        -   [EL3 Runtime Firmware](#221-el3-runtime-firmware)
+        -   [Secure Payload Dispatcher](#222-secure-payload-dispatcher)
+            +   [Test Secure Payload Dispatcher behavior](#2221-test-secure-payload-dispatcher-behavior)
+        -   [Secure Payload](#223-secure-payload)
+            +   [Secure Payload IHF design w.r.t Secure-EL1 interrupts](#2231-secure-payload-ihf-design-wrt-secure-el1-interrupts)
+            +   [Secure Payload IHF design w.r.t Non-secure interrupts](#2232-secure-payload-ihf-design-wrt-non-secure-interrupts)
+            +   [Test Secure Payload behavior](#2233-test-secure-payload-behavior)
+    *   [Interrupt Handling](#23-interrupt-handling)
+        -   [EL3 Runtime Firmware](#231-el3-runtime-firmware)
+        -   [Secure Payload Dispatcher](#232-secure-payload-dispatcher)
+            +   [Interrupt Entry](#2321-interrupt-entry)
+            +   [Interrupt Exit](#2322-interrupt-exit)
+            +   [Test Secure Payload Dispatcher behavior](#2323-test-secure-payload-dispatcher-behavior)
+        -   [Secure Payload](#233-secure-payload)
+            +   [Test Secure Payload behavior](#2331-test-secure-payload-behavior)
 
 
-1.  Introduction
+1. Introduction
 ----------------
 This document describes the design of the Interrupt management framework in ARM
 Trusted Firmware. This section briefly describes the requirements from this

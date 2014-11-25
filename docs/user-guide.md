@@ -3,15 +3,15 @@ ARM Trusted Firmware User Guide
 
 Contents :
 
-1.  Introduction
-2.  Host machine requirements
-3.  Tools
-4.  Building the Trusted Firmware
-5.  Obtaining the normal world software
-6.  Preparing the images to run on FVP
-7.  Running the software on FVP
-8.  Preparing the images to run on Juno
-9.  Running the software on Juno
+1.  [Introduction](#1--introduction)
+2.  [Host machine requirements](#2--host-machine-requirements)
+3.  [Tools](#3--tools)
+4.  [Building the Trusted Firmware](#4--building-the-trusted-firmware)
+5.  [Obtaining the normal world software](#5--obtaining-the-normal-world-software)
+6.  [Preparing the images to run on FVP](#6--preparing-the-images-to-run-on-fvp)
+7.  [Running the software on FVP](#7--running-the-software-on-fvp)
+8.  [Preparing the images to run on Juno](#8--preparing-the-images-to-run-on-juno)
+9.  [Running the software on Juno](#9--running-the-software-on-juno)
 
 
 1.  Introduction

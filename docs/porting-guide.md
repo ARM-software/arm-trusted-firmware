@@ -4,21 +4,21 @@ ARM Trusted Firmware Porting Guide
 Contents
 --------
 
-1.  Introduction
-2.  Common Modifications
-    *   Common mandatory modifications
-    *   Handling reset
-    *   Common optional modifications
-3.  Boot Loader stage specific modifications
-    *   Boot Loader stage 1 (BL1)
-    *   Boot Loader stage 2 (BL2)
-    *   Boot Loader stage 3-1 (BL3-1)
-    *   PSCI implementation (in BL3-1)
-    *   Interrupt Management framework (in BL3-1)
-    *   Crash Reporting mechanism (in BL3-1)
-4.  Build flags
-5.  C Library
-6.  Storage abstraction layer
+1.  [Introduction](#1--introduction)
+2.  [Common Modifications](#2--common-modifications)
+    *   [Common mandatory modifications](#21-common-mandatory-modifications)
+    *   [Handling reset](#22-handling-reset)
+    *   [Common optional modifications](#23-common-optional-modifications)
+3.  [Boot Loader stage specific modifications](#3--modifications-specific-to-a-boot-loader-stage)
+    *   [Boot Loader stage 1 (BL1)](#31-boot-loader-stage-1-bl1)
+    *   [Boot Loader stage 2 (BL2)](#32-boot-loader-stage-2-bl2)
+    *   [Boot Loader stage 3-1 (BL3-1)](#32-boot-loader-stage-3-1-bl3-1)
+    *   [PSCI implementation (in BL3-1)](#33-power-state-coordination-interface-in-bl3-1)
+    *   [Interrupt Management framework (in BL3-1)](#34--interrupt-management-framework-in-bl3-1)
+    *   [Crash Reporting mechanism (in BL3-1)](#35--crash-reporting-mechanism-in-bl3-1)
+4.  [Build flags](#4--build-flags)
+5.  [C Library](#5--c-library)
+6.  [Storage abstraction layer](#6--storage-abstraction-layer)
 
 - - - - - - - - - - - - - - - - - -
 

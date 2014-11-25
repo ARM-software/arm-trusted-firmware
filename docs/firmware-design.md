@@ -3,17 +3,17 @@ ARM Trusted Firmware Design
 
 Contents :
 
-1.  Introduction
-2.  Cold boot
-3.  EL3 runtime services framework
-4.  Power State Coordination Interface
-5.  Secure-EL1 Payloads and Dispatchers
-6.  Crash Reporting in BL3-1
-7.  CPU specific operations framework
-8.  Memory layout of BL images
-9.  Firmware Image Package (FIP)
-10.  Code Structure
-11.  References
+1.  [Introduction](#1--introduction)
+2.  [Cold boot](#2--cold-boot)
+3.  [EL3 runtime services framework](#3--el3-runtime-services-framework)
+4.  [Power State Coordination Interface](#4--power-state-coordination-interface)
+5.  [Secure-EL1 Payloads and Dispatchers](#5--secure-el1-payloads-and-dispatchers)
+6.  [Crash Reporting in BL3-1](#6--crash-reporting-in-bl3-1)
+7.  [CPU specific operations framework](#7--cpu-specific-operations-framework)
+8.  [Memory layout of BL images](#8-memory-layout-of-bl-images)
+9.  [Firmware Image Package (FIP)](#9--firmware-image-package-fip)
+10. [Code Structure](#10--code-structure)
+11. [References](#11--references)
 
 
 1.  Introduction

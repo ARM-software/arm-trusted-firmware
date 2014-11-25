@@ -4,9 +4,10 @@ ARM CPU Specific Build Macros
 Contents
 --------
 
-1.  Introduction
-2.  CPU Errata Workarounds
-3.  CPU Specific optimizations
+1.  [Introduction](#1--introduction)
+2.  [CPU Errata Workarounds](#2--cpu-errata-workarounds)
+3.  [CPU Specific optimizations](#3--cpu-specific-optimizations)
+
 
 1.  Introduction
 ----------------
