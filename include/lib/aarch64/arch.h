@@ -61,7 +61,11 @@
 #define MPIDR_AFFLVL1		1
 #define MPIDR_AFFLVL2		2
 #define MPIDR_AFFLVL3		3
-/* TODO: Support only the first 3 affinity levels for now */
+/*
+ * The MPIDR_MAX_AFFLVL count starts from 0. Take care to
+ * add one while using this macro to define array sizes.
+ * TODO: Support only the first 3 affinity levels for now.
+ */
 #define MPIDR_MAX_AFFLVL	2
 
 /* Constant to highlight the assumption that MPIDR allocation starts from 0 */

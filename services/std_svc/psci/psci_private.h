@@ -60,7 +60,7 @@ typedef struct aff_limits_node {
 	int max;
 } aff_limits_node_t;
 
-typedef aff_map_node_t (*mpidr_aff_map_nodes_t[MPIDR_MAX_AFFLVL]);
+typedef aff_map_node_t (*mpidr_aff_map_nodes_t[MPIDR_MAX_AFFLVL + 1]);
 typedef unsigned int (*afflvl_power_on_finisher_t)(aff_map_node_t *);
 
 /*******************************************************************************
