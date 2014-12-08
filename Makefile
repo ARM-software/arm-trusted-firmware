@@ -290,11 +290,9 @@ checkpatch:		locate-checkpatch
 			@echo "  CHECKING STYLE"
 			@git format-patch --stdout ${BASE_COMMIT} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
 
+.PHONY: ${FIPTOOL}
 ${FIPTOOL}:
 			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH}
-			@echo
-			@echo "Built $@ successfully"
-			@echo
 
 define match_goals
 $(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))

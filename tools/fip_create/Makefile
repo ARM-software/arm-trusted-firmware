@@ -52,6 +52,9 @@ all: ${PROJECT}
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  LD      $@"
 	${Q}${CC} ${OBJECTS} -o $@
+	@echo
+	@echo "Built $@ successfully"
+	@echo
 
 %.o: %.c %.h Makefile
 	@echo "  CC      $<"
