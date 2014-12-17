@@ -62,6 +62,8 @@
 #define PSCI_SYSTEM_OFF			0x84000008
 #define PSCI_SYSTEM_RESET		0x84000009
 #define PSCI_FEATURES			0x8400000A
+#define PSCI_SYSTEM_SUSPEND_AARCH32	0x8400000E
+#define PSCI_SYSTEM_SUSPEND_AARCH64	0xc400000E
 
 /* Macro to help build the psci capabilities bitfield */
 #define define_psci_cap(x)		(1 << (x & 0x1f))
@@ -69,7 +71,7 @@
 /*
  * Number of PSCI calls (above) implemented
  */
-#define PSCI_NUM_CALLS			16
+#define PSCI_NUM_CALLS			18
 
 /*******************************************************************************
  * PSCI Migrate and friends
@@ -93,12 +95,16 @@
 #define PSTATE_TYPE_STANDBY	0x0
 #define PSTATE_TYPE_POWERDOWN	0x1
 
-#define psci_get_pstate_id(pstate)	((pstate >> PSTATE_ID_SHIFT) & \
+#define psci_get_pstate_id(pstate)	(((pstate) >> PSTATE_ID_SHIFT) & \
 					PSTATE_ID_MASK)
-#define psci_get_pstate_type(pstate)	((pstate >> PSTATE_TYPE_SHIFT) & \
+#define psci_get_pstate_type(pstate)	(((pstate) >> PSTATE_TYPE_SHIFT) & \
 					PSTATE_TYPE_MASK)
-#define psci_get_pstate_afflvl(pstate)	((pstate >> PSTATE_AFF_LVL_SHIFT) & \
+#define psci_get_pstate_afflvl(pstate)	(((pstate) >> PSTATE_AFF_LVL_SHIFT) & \
 					PSTATE_AFF_LVL_MASK)
+#define psci_make_powerstate(state_id, type, afflvl) \
+			(((state_id) & PSTATE_ID_MASK) << PSTATE_ID_SHIFT) |\
+			(((type) & PSTATE_TYPE_MASK) << PSTATE_TYPE_SHIFT) |\
+			(((afflvl) & PSTATE_AFF_LVL_MASK) << PSTATE_AFF_LVL_SHIFT)
 
 /*******************************************************************************
  * PSCI CPU_FEATURES feature flag specific defines
@@ -193,6 +199,7 @@ typedef struct plat_pm_ops {
 	void (*system_reset)(void) __dead2;
 	int (*validate_power_state)(unsigned int power_state);
 	int (*validate_ns_entrypoint)(unsigned long ns_entrypoint);
+	unsigned int (*get_sys_suspend_power_state)(void);
 } plat_pm_ops_t;
 
 /*******************************************************************************

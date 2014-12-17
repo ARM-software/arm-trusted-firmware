@@ -92,6 +92,38 @@ uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
 }
 
 /*******************************************************************************
+ * This function verifies that the all the other cores in the system have been
+ * turned OFF and the current CPU is the last running CPU in the system.
+ * Returns 1 (true) if the current CPU is the last ON CPU or 0 (false)
+ * otherwise.
+ ******************************************************************************/
+unsigned int psci_is_last_on_cpu(void)
+{
+	unsigned long mpidr = read_mpidr_el1() & MPIDR_AFFINITY_MASK;
+	unsigned int i;
+
+	for (i = psci_aff_limits[MPIDR_AFFLVL0].min;
+			i <= psci_aff_limits[MPIDR_AFFLVL0].max; i++) {
+
+		assert(psci_aff_map[i].level == MPIDR_AFFLVL0);
+
+		if (!(psci_aff_map[i].state & PSCI_AFF_PRESENT))
+			continue;
+
+		if (psci_aff_map[i].mpidr == mpidr) {
+			assert(psci_get_state(&psci_aff_map[i])
+					== PSCI_STATE_ON);
+			continue;
+		}
+
+		if (psci_get_state(&psci_aff_map[i]) != PSCI_STATE_OFF)
+			return 0;
+	}
+
+	return 1;
+}
+
+/*******************************************************************************
  * This function saves the highest affinity level which is in OFF state. The
  * affinity instance with which the level is associated is determined by the
  * caller.

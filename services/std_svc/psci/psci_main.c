@@ -31,9 +31,10 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
+#include <debug.h>
+#include <platform.h>
 #include <runtime_svc.h>
 #include <std_svc.h>
-#include <debug.h>
 #include "psci_private.h"
 
 /*******************************************************************************
@@ -161,6 +162,62 @@ int psci_cpu_suspend(unsigned int power_state,
 	psci_afflvl_suspend(&ep,
 			    MPIDR_AFFLVL0,
 			    target_afflvl);
+
+	/* Reset PSCI power state parameter for the core. */
+	psci_set_suspend_power_state(PSCI_INVALID_DATA);
+	return PSCI_E_SUCCESS;
+}
+
+int psci_system_suspend(unsigned long entrypoint,
+			unsigned long context_id)
+{
+	int rc;
+	unsigned int power_state;
+	entry_point_info_t ep;
+
+	/* Validate the entrypoint using platform pm_ops */
+	if (psci_plat_pm_ops->validate_ns_entrypoint) {
+		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
+		if (rc != PSCI_E_SUCCESS) {
+			assert(rc == PSCI_E_INVALID_PARAMS);
+			return PSCI_E_INVALID_PARAMS;
+		}
+	}
+
+	/* Check if the current CPU is the last ON CPU in the system */
+	if (!psci_is_last_on_cpu())
+		return PSCI_E_DENIED;
+
+	/*
+	 * Verify and derive the re-entry information for
+	 * the non-secure world from the non-secure state from
+	 * where this call originated.
+	 */
+	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+	if (rc != PSCI_E_SUCCESS)
+		return rc;
+
+	/*
+	 * Assert that the required pm_ops hook is implemented to ensure that
+	 * the capability detected during psci_setup() is valid.
+	 */
+	assert(psci_plat_pm_ops->get_sys_suspend_power_state);
+
+	/*
+	 * Query the platform for the power_state required for system suspend
+	 */
+	power_state = psci_plat_pm_ops->get_sys_suspend_power_state();
+
+	/* Save PSCI power state parameter for the core in suspend context */
+	psci_set_suspend_power_state(power_state);
+
+	/*
+	 * Do what is needed to enter the power down state. Upon success,
+	 * enter the final wfi which will power down this cpu.
+	 */
+	psci_afflvl_suspend(&ep,
+			    MPIDR_AFFLVL0,
+			    PLATFORM_MAX_AFFLVL);
 
 	/* Reset PSCI power state parameter for the core. */
 	psci_set_suspend_power_state(PSCI_INVALID_DATA);
@@ -357,6 +414,9 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_MIG_INFO_UP_CPU_AARCH32:
 			SMC_RET1(handle, psci_migrate_info_up_cpu());
 
+		case PSCI_SYSTEM_SUSPEND_AARCH32:
+			SMC_RET1(handle, psci_system_suspend(x1, x2));
+
 		case PSCI_SYSTEM_OFF:
 			psci_system_off();
 			/* We should never return from psci_system_off() */
@@ -389,6 +449,9 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 
 		case PSCI_MIG_INFO_UP_CPU_AARCH64:
 			SMC_RET1(handle, psci_migrate_info_up_cpu());
+
+		case PSCI_SYSTEM_SUSPEND_AARCH64:
+			SMC_RET1(handle, psci_system_suspend(x1, x2));
 
 		default:
 			break;

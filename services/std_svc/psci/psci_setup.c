@@ -55,7 +55,7 @@ static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
  * level i.e. start index and end index needs to be present. 'psci_aff_limits'
  * stores this information.
  ******************************************************************************/
-static aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
+aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 
 /******************************************************************************
  * Define the psci capability variable.
@@ -385,8 +385,12 @@ int32_t psci_setup(void)
 		psci_caps |=  define_psci_cap(PSCI_CPU_OFF);
 	if (psci_plat_pm_ops->affinst_on && psci_plat_pm_ops->affinst_on_finish)
 		psci_caps |=  define_psci_cap(PSCI_CPU_ON_AARCH64);
-	if (psci_plat_pm_ops->affinst_suspend && psci_plat_pm_ops->affinst_suspend_finish)
+	if (psci_plat_pm_ops->affinst_suspend &&
+			psci_plat_pm_ops->affinst_suspend_finish) {
 		psci_caps |=  define_psci_cap(PSCI_CPU_SUSPEND_AARCH64);
+		if (psci_plat_pm_ops->get_sys_suspend_power_state)
+			psci_caps |=  define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64);
+	}
 	if (psci_plat_pm_ops->system_off)
 		psci_caps |=  define_psci_cap(PSCI_SYSTEM_OFF);
 	if (psci_plat_pm_ops->system_reset)
