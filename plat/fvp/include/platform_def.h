@@ -128,19 +128,25 @@
  * BL32 specific defines.
  ******************************************************************************/
 /*
- * On FVP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
+ * On FVP, the TSP can execute from Trusted SRAM, Trusted DRAM or the DRAM
+ * region secured by the TrustZone controller.
  */
-#if FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_SRAM
+#if FVP_TSP_RAM_LOCATION_ID == FVP_TRUSTED_SRAM_ID
 # define TSP_SEC_MEM_BASE		FVP_TRUSTED_SRAM_BASE
 # define TSP_SEC_MEM_SIZE		FVP_TRUSTED_SRAM_SIZE
 # define TSP_PROGBITS_LIMIT		BL2_BASE
 # define BL32_BASE			FVP_TRUSTED_SRAM_BASE
 # define BL32_LIMIT			BL31_BASE
-#elif FVP_TSP_RAM_LOCATION_ID == FVP_IN_TRUSTED_DRAM
+#elif FVP_TSP_RAM_LOCATION_ID == FVP_TRUSTED_DRAM_ID
 # define TSP_SEC_MEM_BASE		FVP_TRUSTED_DRAM_BASE
 # define TSP_SEC_MEM_SIZE		FVP_TRUSTED_DRAM_SIZE
 # define BL32_BASE			FVP_TRUSTED_DRAM_BASE
 # define BL32_LIMIT			(FVP_TRUSTED_DRAM_BASE + (1 << 21))
+#elif FVP_TSP_RAM_LOCATION_ID == FVP_DRAM_ID
+# define TSP_SEC_MEM_BASE		DRAM1_SEC_BASE
+# define TSP_SEC_MEM_SIZE		DRAM1_SEC_SIZE
+# define BL32_BASE			DRAM1_SEC_BASE
+# define BL32_LIMIT			(DRAM1_SEC_BASE + DRAM1_SEC_SIZE)
 #else
 # error "Unsupported FVP_TSP_RAM_LOCATION_ID value"
 #endif
@@ -154,11 +160,21 @@
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define ADDR_SPACE_SIZE			(1ull << 32)
-#if IMAGE_BL2
-# define MAX_XLAT_TABLES		3
-#else
+
+#if IMAGE_BL1
 # define MAX_XLAT_TABLES		2
+#elif IMAGE_BL2
+# define MAX_XLAT_TABLES		3
+#elif IMAGE_BL31
+# define MAX_XLAT_TABLES		2
+#elif IMAGE_BL32
+# if FVP_TSP_RAM_LOCATION_ID == FVP_DRAM_ID
+#  define MAX_XLAT_TABLES		3
+# else
+#  define MAX_XLAT_TABLES		2
+# endif
 #endif
+
 #define MAX_MMAP_REGIONS		16
 
 /*******************************************************************************
