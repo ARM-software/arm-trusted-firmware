@@ -154,7 +154,11 @@
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define ADDR_SPACE_SIZE			(1ull << 32)
-#define MAX_XLAT_TABLES			2
+#if IMAGE_BL2
+# define MAX_XLAT_TABLES		3
+#else
+# define MAX_XLAT_TABLES		2
+#endif
 #define MAX_MMAP_REGIONS		16
 
 /*******************************************************************************

@@ -66,8 +66,8 @@ plat_config_t plat_config;
 					DEVICE1_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_DRAM1	MAP_REGION_FLAT(DRAM1_BASE,			\
-					DRAM1_SIZE,			\
+#define MAP_DRAM1_NS	MAP_REGION_FLAT(DRAM1_NS_BASE,			\
+					DRAM1_NS_SIZE,			\
 					MT_MEMORY | MT_RW | MT_NS)
 
 #define MAP_TSP_SEC_MEM	MAP_REGION_FLAT(TSP_SEC_MEM_BASE,		\
@@ -94,7 +94,7 @@ const mmap_region_t fvp_mmap[] = {
 	MAP_FLASH0,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
-	MAP_DRAM1,
+	MAP_DRAM1_NS,
 	MAP_TSP_SEC_MEM,
 	{0}
 };
