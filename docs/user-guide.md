@@ -218,6 +218,10 @@ performed.
     driver for implementing the platform GIC API. This API is used
     by the interrupt management framework. Default is 2 (that is, version 2.0).
 
+*   `ARM_CCI_PRODUCT_ID`: Choice of ARM CCI product used by the platform. This
+    is used to determine the number of valid slave interfaces available in the
+    ARM CCI driver. Default is 400 (that is, CCI-400).
+
 *   `IMF_READ_INTERRUPT_ID`: Boolean flag used by the interrupt management
     framework to enable passing of the interrupt id to its handler. The id is
     read using a platform GIC API. `INTR_ID_UNAVAILABLE` is passed instead if

@@ -60,6 +60,9 @@ CTX_INCLUDE_FPREGS		:= 0
 # Determine the version of ARM GIC architecture to use for interrupt management
 # in EL3. The platform port can change this value if needed.
 ARM_GIC_ARCH		:=	2
+# Determine the version of ARM CCI product used in the platform. The platform
+# port can change this value if needed.
+ARM_CCI_PRODUCT_ID	:=	400
 # Flag used to indicate if ASM_ASSERTION should be enabled for the build.
 # This defaults to being present in DEBUG builds only.
 ASM_ASSERTION		:=	${DEBUG}
@@ -234,6 +237,9 @@ $(eval $(call add_define,CTX_INCLUDE_FPREGS))
 
 # Process ARM_GIC_ARCH flag
 $(eval $(call add_define,ARM_GIC_ARCH))
+
+# Process ARM_CCI_PRODUCT_ID flag
+$(eval $(call add_define,ARM_CCI_PRODUCT_ID))
 
 # Process ASM_ASSERTION flag
 $(eval $(call assert_boolean,ASM_ASSERTION))
