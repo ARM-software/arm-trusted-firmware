@@ -257,6 +257,7 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 			int start_afflvl,
 			int end_afflvl)
 {
+	int skip_wfi = 0;
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	unsigned int max_phys_off_afflvl;
 
@@ -279,6 +280,16 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 	psci_acquire_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
+
+	/*
+	 * We check if there are any pending interrupts after the delay
+	 * introduced by lock contention to increase the chances of early
+	 * detection that a wake-up interrupt has fired.
+	 */
+	if (read_isr_el1()) {
+		skip_wfi = 1;
+		goto exit;
+	}
 
 	/*
 	 * Call the cpu suspend handler registered by the Secure Payload
@@ -323,6 +334,7 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 	 */
 	psci_set_max_phys_off_afflvl(PSCI_INVALID_DATA);
 
+exit:
 	/*
 	 * Release the locks corresponding to each affinity level in the
 	 * reverse order to which they were acquired.
@@ -330,6 +342,8 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 	psci_release_afflvl_locks(start_afflvl,
 				  end_afflvl,
 				  mpidr_nodes);
+	if (!skip_wfi)
+		psci_power_down_wfi();
 }
 
 /*******************************************************************************

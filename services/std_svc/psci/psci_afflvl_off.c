@@ -236,5 +236,13 @@ exit:
 				  end_afflvl,
 				  mpidr_nodes);
 
+	/*
+	 * Check if all actions needed to safely power down this cpu have
+	 * successfully completed. Enter a wfi loop which will allow the
+	 * power controller to physically power down this cpu.
+	 */
+	if (rc == PSCI_E_SUCCESS)
+		psci_power_down_wfi();
+
 	return rc;
 }

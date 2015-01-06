@@ -161,8 +161,6 @@ int psci_cpu_suspend(unsigned int power_state,
 			    MPIDR_AFFLVL0,
 			    target_afflvl);
 
-	psci_power_down_wfi();
-
 	/* Reset PSCI power state parameter for the core. */
 	psci_set_suspend_power_state(PSCI_INVALID_DATA);
 	return PSCI_E_SUCCESS;
@@ -180,14 +178,6 @@ int psci_cpu_off(void)
 	 * ..target_afflvl specific actions as this function unwinds back.
 	 */
 	rc = psci_afflvl_off(MPIDR_AFFLVL0, target_afflvl);
-
-	/*
-	 * Check if all actions needed to safely power down this cpu have
-	 * successfully completed. Enter a wfi loop which will allow the
-	 * power controller to physically power down this cpu.
-	 */
-	if (rc == PSCI_E_SUCCESS)
-		psci_power_down_wfi();
 
 	/*
 	 * The only error cpu_off can return is E_DENIED. So check if that's
