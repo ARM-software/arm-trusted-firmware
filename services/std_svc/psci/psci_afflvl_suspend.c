@@ -41,8 +41,6 @@
 #include "psci_private.h"
 
 typedef int (*afflvl_suspend_handler_t)(aff_map_node_t *node,
-				      unsigned long ns_entrypoint,
-				      unsigned long context_id,
 				      unsigned int power_state);
 
 /*******************************************************************************
@@ -106,14 +104,9 @@ int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
  * level which is called when that affinity level is about to be suspended.
  ******************************************************************************/
 static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
-				unsigned long ns_entrypoint,
-				unsigned long context_id,
 				unsigned int power_state)
 {
 	unsigned long psci_entrypoint;
-	uint32_t ns_scr_el3 = read_scr_el3();
-	uint32_t ns_sctlr_el1 = read_sctlr_el1();
-	int rc;
 
 	/* Sanity check to safeguard against data corruption */
 	assert(cpu_node->level == MPIDR_AFFLVL0);
@@ -122,8 +115,7 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	psci_set_suspend_power_state(power_state);
 
 	/*
-	 * Generic management: Store the re-entry information for the non-secure
-	 * world and allow the secure world to suspend itself
+	 * Generic management: Allow the Secure world to suspend itself
 	 */
 
 	/*
@@ -134,14 +126,6 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 	if (psci_spd_pm && psci_spd_pm->svc_suspend)
 		psci_spd_pm->svc_suspend(power_state);
 
-	/*
-	 * Generic management: Store the re-entry information for the
-	 * non-secure world
-	 */
-	rc = psci_save_ns_entry(read_mpidr_el1(), ns_entrypoint, context_id,
-				ns_scr_el3, ns_sctlr_el1);
-	if (rc != PSCI_E_SUCCESS)
-		return rc;
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
@@ -167,8 +151,6 @@ static int psci_afflvl0_suspend(aff_map_node_t *cpu_node,
 }
 
 static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
-				unsigned long ns_entrypoint,
-				unsigned long context_id,
 				unsigned int power_state)
 {
 	unsigned int plat_state;
@@ -203,8 +185,6 @@ static int psci_afflvl1_suspend(aff_map_node_t *cluster_node,
 
 
 static int psci_afflvl2_suspend(aff_map_node_t *system_node,
-				unsigned long ns_entrypoint,
-				unsigned long context_id,
 				unsigned int power_state)
 {
 	unsigned int plat_state;
@@ -259,8 +239,6 @@ static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
 static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
 				      int start_afflvl,
 				      int end_afflvl,
-				      unsigned long entrypoint,
-				      unsigned long context_id,
 				      unsigned int power_state)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
@@ -277,8 +255,6 @@ static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
 		 * lower affinity levels.
 		 */
 		rc = psci_afflvl_suspend_handlers[level](node,
-							 entrypoint,
-							 context_id,
 							 power_state);
 		if (rc != PSCI_E_SUCCESS)
 			break;
@@ -306,8 +282,7 @@ static int psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
  * to turn off affinity level X it is neccesary to turn off affinity level X - 1
  * first.
  ******************************************************************************/
-int psci_afflvl_suspend(unsigned long entrypoint,
-			unsigned long context_id,
+int psci_afflvl_suspend(entry_point_info_t *ep,
 			unsigned int power_state,
 			int start_afflvl,
 			int end_afflvl)
@@ -356,12 +331,15 @@ int psci_afflvl_suspend(unsigned long entrypoint,
 	/* Stash the highest affinity level that will be turned off */
 	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
 
+	/*
+	 * Store the re-entry information for the non-secure world.
+	 */
+	cm_init_context(read_mpidr_el1(), ep);
+
 	/* Perform generic, architecture and platform specific handling */
 	rc = psci_call_suspend_handlers(mpidr_nodes,
 					start_afflvl,
 					end_afflvl,
-					entrypoint,
-					context_id,
 					power_state);
 
 	/*

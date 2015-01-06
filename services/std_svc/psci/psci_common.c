@@ -290,15 +290,14 @@ int psci_validate_mpidr(unsigned long mpidr, int level)
 
 /*******************************************************************************
  * This function determines the full entrypoint information for the requested
- * PSCI entrypoint on power on/resume and saves this in the non-secure CPU
- * cpu_context, ready for when the core boots.
+ * PSCI entrypoint on power on/resume and returns it.
  ******************************************************************************/
-int psci_save_ns_entry(uint64_t mpidr,
-		       uint64_t entrypoint, uint64_t context_id,
-		       uint32_t ns_scr_el3, uint32_t ns_sctlr_el1)
+int psci_get_ns_ep_info(entry_point_info_t *ep,
+		       uint64_t entrypoint, uint64_t context_id)
 {
 	uint32_t ep_attr, mode, sctlr, daif, ee;
-	entry_point_info_t ep;
+	uint32_t ns_scr_el3 = read_scr_el3();
+	uint32_t ns_sctlr_el1 = read_sctlr_el1();
 
 	sctlr = ns_scr_el3 & SCR_HCE_BIT ? read_sctlr_el2() : ns_sctlr_el1;
 	ee = 0;
@@ -308,11 +307,11 @@ int psci_save_ns_entry(uint64_t mpidr,
 		ep_attr |= EP_EE_BIG;
 		ee = 1;
 	}
-	SET_PARAM_HEAD(&ep, PARAM_EP, VERSION_1, ep_attr);
+	SET_PARAM_HEAD(ep, PARAM_EP, VERSION_1, ep_attr);
 
-	ep.pc = entrypoint;
-	memset(&ep.args, 0, sizeof(ep.args));
-	ep.args.arg0 = context_id;
+	ep->pc = entrypoint;
+	memset(&ep->args, 0, sizeof(ep->args));
+	ep->args.arg0 = context_id;
 
 	/*
 	 * Figure out whether the cpu enters the non-secure address space
@@ -329,7 +328,7 @@ int psci_save_ns_entry(uint64_t mpidr,
 
 		mode = ns_scr_el3 & SCR_HCE_BIT ? MODE_EL2 : MODE_EL1;
 
-		ep.spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+		ep->spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	} else {
 
 		mode = ns_scr_el3 & SCR_HCE_BIT ? MODE32_hyp : MODE32_svc;
@@ -340,11 +339,8 @@ int psci_save_ns_entry(uint64_t mpidr,
 		 */
 		daif = DAIF_ABT_BIT | DAIF_IRQ_BIT | DAIF_FIQ_BIT;
 
-		ep.spsr = SPSR_MODE32(mode, entrypoint & 0x1, ee, daif);
+		ep->spsr = SPSR_MODE32(mode, entrypoint & 0x1, ee, daif);
 	}
-
-	/* initialise an entrypoint to set up the CPU context */
-	cm_init_context(mpidr, &ep);
 
 	return PSCI_E_SUCCESS;
 }
