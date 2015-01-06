@@ -45,6 +45,7 @@ int psci_cpu_on(unsigned long target_cpu,
 {
 	int rc;
 	unsigned int start_afflvl, end_afflvl;
+	entry_point_info_t ep;
 
 	/* Determine if the cpu exists of not */
 	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
@@ -53,14 +54,23 @@ int psci_cpu_on(unsigned long target_cpu,
 	}
 
 	/*
+	 * Verify and derive the re-entry information for
+	 * the non-secure world from the non-secure state from
+	 * where this call originated.
+	 */
+	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+	if (rc != PSCI_E_SUCCESS)
+		return rc;
+
+
+	/*
 	 * To turn this cpu on, specify which affinity
 	 * levels need to be turned on
 	 */
 	start_afflvl = MPIDR_AFFLVL0;
 	end_afflvl = get_max_afflvl();
 	rc = psci_afflvl_on(target_cpu,
-			    entrypoint,
-			    context_id,
+			    &ep,
 			    start_afflvl,
 			    end_afflvl);
 
@@ -79,6 +89,7 @@ int psci_cpu_suspend(unsigned int power_state,
 {
 	int rc;
 	unsigned int target_afflvl, pstate_type;
+	entry_point_info_t ep;
 
 	/* Check SBZ bits in power state are zero */
 	if (psci_validate_power_state(power_state))
@@ -106,12 +117,20 @@ int psci_cpu_suspend(unsigned int power_state,
 	}
 
 	/*
+	 * Verify and derive the re-entry information for
+	 * the non-secure world from the non-secure state from
+	 * where this call originated.
+	 */
+	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+	if (rc != PSCI_E_SUCCESS)
+		return rc;
+
+	/*
 	 * Do what is needed to enter the power down state. Upon success,
 	 * enter the final wfi which will power down this cpu else return
 	 * an error.
 	 */
-	rc = psci_afflvl_suspend(entrypoint,
-				 context_id,
+	rc = psci_afflvl_suspend(&ep,
 				 power_state,
 				 MPIDR_AFFLVL0,
 				 target_afflvl);
