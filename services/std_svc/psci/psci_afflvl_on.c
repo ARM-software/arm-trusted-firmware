@@ -40,9 +40,7 @@
 #include "psci_private.h"
 
 typedef int (*afflvl_on_handler_t)(unsigned long target_cpu,
-				 aff_map_node_t *node,
-				 unsigned long ns_entrypoint,
-				 unsigned long context_id);
+				 aff_map_node_t *node);
 
 /*******************************************************************************
  * This function checks whether a cpu which has been requested to be turned on
@@ -66,14 +64,9 @@ static int cpu_on_validate_state(unsigned int psci_state)
  * TODO: Split this code across separate handlers for each type of setup?
  ******************************************************************************/
 static int psci_afflvl0_on(unsigned long target_cpu,
-			   aff_map_node_t *cpu_node,
-			   unsigned long ns_entrypoint,
-			   unsigned long context_id)
+			   aff_map_node_t *cpu_node)
 {
 	unsigned long psci_entrypoint;
-	uint32_t ns_scr_el3 = read_scr_el3();
-	uint32_t ns_sctlr_el1 = read_sctlr_el1();
-	int rc;
 
 	/* Sanity check to safeguard against data corruption */
 	assert(cpu_node->level == MPIDR_AFFLVL0);
@@ -85,16 +78,6 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_on)
 		psci_spd_pm->svc_on(target_cpu);
-
-	/*
-	 * Arch. management: Derive the re-entry information for
-	 * the non-secure world from the non-secure state from
-	 * where this call originated.
-	 */
-	rc = psci_save_ns_entry(target_cpu, ns_entrypoint, context_id,
-				ns_scr_el3, ns_sctlr_el1);
-	if (rc != PSCI_E_SUCCESS)
-		return rc;
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
@@ -119,9 +102,7 @@ static int psci_afflvl0_on(unsigned long target_cpu,
  * TODO: Split this code across separate handlers for each type of setup?
  ******************************************************************************/
 static int psci_afflvl1_on(unsigned long target_cpu,
-			   aff_map_node_t *cluster_node,
-			   unsigned long ns_entrypoint,
-			   unsigned long context_id)
+			   aff_map_node_t *cluster_node)
 {
 	unsigned long psci_entrypoint;
 
@@ -155,9 +136,7 @@ static int psci_afflvl1_on(unsigned long target_cpu,
  * TODO: Split this code across separate handlers for each type of setup?
  ******************************************************************************/
 static int psci_afflvl2_on(unsigned long target_cpu,
-			   aff_map_node_t *system_node,
-			   unsigned long ns_entrypoint,
-			   unsigned long context_id)
+			   aff_map_node_t *system_node)
 {
 	unsigned long psci_entrypoint;
 
@@ -201,9 +180,7 @@ static const afflvl_on_handler_t psci_afflvl_on_handlers[] = {
 static int psci_call_on_handlers(aff_map_node_t *target_cpu_nodes[],
 				 int start_afflvl,
 				 int end_afflvl,
-				 unsigned long target_cpu,
-				 unsigned long entrypoint,
-				 unsigned long context_id)
+				 unsigned long target_cpu)
 {
 	int rc = PSCI_E_INVALID_PARAMS, level;
 	aff_map_node_t *node;
@@ -219,9 +196,7 @@ static int psci_call_on_handlers(aff_map_node_t *target_cpu_nodes[],
 		 * affinity levels.
 		 */
 		rc = psci_afflvl_on_handlers[level](target_cpu,
-						    node,
-						    entrypoint,
-						    context_id);
+						    node);
 		if (rc != PSCI_E_SUCCESS)
 			break;
 	}
@@ -246,8 +221,7 @@ static int psci_call_on_handlers(aff_map_node_t *target_cpu_nodes[],
  * first.
  ******************************************************************************/
 int psci_afflvl_on(unsigned long target_cpu,
-		   unsigned long entrypoint,
-		   unsigned long context_id,
+		   entry_point_info_t *ep,
 		   int start_afflvl,
 		   int end_afflvl)
 {
@@ -290,20 +264,23 @@ int psci_afflvl_on(unsigned long target_cpu,
 	rc = psci_call_on_handlers(target_cpu_nodes,
 				   start_afflvl,
 				   end_afflvl,
-				   target_cpu,
-				   entrypoint,
-				   context_id);
+				   target_cpu);
 
 	/*
 	 * This function updates the state of each affinity instance
 	 * corresponding to the mpidr in the range of affinity levels
 	 * specified.
 	 */
-	if (rc == PSCI_E_SUCCESS)
+	if (rc == PSCI_E_SUCCESS) {
 		psci_do_afflvl_state_mgmt(start_afflvl,
 					  end_afflvl,
 					  target_cpu_nodes,
 					  PSCI_STATE_ON_PENDING);
+		/*
+		 * Store the re-entry information for the non-secure world.
+		 */
+		cm_init_context(target_cpu, ep);
+	}
 
 exit:
 	/*
