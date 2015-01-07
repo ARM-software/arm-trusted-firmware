@@ -201,7 +201,7 @@ unsigned long mpidr_set_aff_inst(unsigned long mpidr,
 int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
 {
 	/* Sanity check the parameters passed */
-	if (end_afflvl > MPIDR_MAX_AFFLVL)
+	if (end_afflvl > get_max_afflvl())
 		return PSCI_E_INVALID_PARAMS;
 
 	if (start_afflvl < MPIDR_AFFLVL0)

@@ -86,7 +86,7 @@ int psci_cpu_suspend(unsigned int power_state,
 
 	/* Sanity check the requested state */
 	target_afflvl = psci_get_pstate_afflvl(power_state);
-	if (target_afflvl > MPIDR_MAX_AFFLVL)
+	if (target_afflvl > get_max_afflvl())
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Determine the 'state type' in the 'power_state' parameter */

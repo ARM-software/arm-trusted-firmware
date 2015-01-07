@@ -77,12 +77,18 @@ static int psci_aff_map_get_idx(unsigned long key,
 		return PSCI_E_INVALID_PARAMS;
 
 	/*
+	 * Make sure we are within array limits.
+	 */
+	assert(min_idx >= 0 && max_idx < PSCI_NUM_AFFS);
+
+	/*
 	 * Bisect the array around 'mid' and then recurse into the array chunk
 	 * where the key is likely to be found. The mpidrs in each node in the
 	 * 'psci_aff_map' for a given affinity level are stored in an ascending
 	 * order which makes the binary search possible.
 	 */
 	mid = min_idx + ((max_idx - min_idx) >> 1);	/* Divide by 2 */
+
 	if (psci_aff_map[mid].mpidr > key)
 		return psci_aff_map_get_idx(key, min_idx, mid - 1);
 	else if (psci_aff_map[mid].mpidr < key)
@@ -94,6 +100,9 @@ static int psci_aff_map_get_idx(unsigned long key,
 aff_map_node_t *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
 {
 	int rc;
+
+	if (aff_lvl > get_max_afflvl())
+		return NULL;
 
 	/* Right shift the mpidr to the required affinity level */
 	mpidr = mpidr_mask_lower_afflvls(mpidr, aff_lvl);
