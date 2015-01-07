@@ -70,6 +70,8 @@ FIP_NAME		:= fip.bin
 # Flags to generate the Chain of Trust
 GENERATE_COT		:= 0
 CREATE_KEYS		:= 1
+# Flags to build TF with Trusted Boot support
+TRUSTED_BOARD_BOOT	:= 0
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO
@@ -242,6 +244,10 @@ $(eval $(call add_define,USE_COHERENT_MEM))
 # Process Generate CoT flags
 $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,CREATE_KEYS))
+
+# Process TRUSTED_BOARD_BOOT flag
+$(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
+$(eval $(call add_define,TRUSTED_BOARD_BOOT))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\

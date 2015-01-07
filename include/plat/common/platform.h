@@ -191,4 +191,9 @@ void bl31_plat_enable_mmu(uint32_t flags);
  ******************************************************************************/
 void bl32_plat_enable_mmu(uint32_t flags);
 
+/*******************************************************************************
+ * Trusted Boot functions
+ ******************************************************************************/
+int plat_match_rotpk(const unsigned char *, unsigned int);
+
 #endif /* __PLATFORM_H__ */
