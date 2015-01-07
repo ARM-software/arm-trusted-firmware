@@ -77,6 +77,13 @@ static const io_file_spec_t bl33_file_spec = {
 	.mode = FOPEN_MODE_RB
 };
 
+#if TRUSTED_BOARD_BOOT
+static const io_file_spec_t bl2_cert_file_spec = {
+	.path = BL2_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+#endif /* TRUSTED_BOARD_BOOT */
+
 static int open_fip(const uintptr_t spec);
 static int open_memmap(const uintptr_t spec);
 
@@ -114,6 +121,13 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&bl33_file_spec,
 		open_fip
 	}, {
+#if TRUSTED_BOARD_BOOT
+		BL2_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl2_cert_file_spec,
+		open_fip
+	}, {
+#endif /* TRUSTED_BOARD_BOOT */
 		0, 0, 0
 	}
 };

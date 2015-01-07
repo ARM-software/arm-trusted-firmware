@@ -80,6 +80,11 @@
 /* Non-Trusted Firmware BL33 */
 #define BL33_IMAGE_NAME			"bl33.bin" /* e.g. UEFI */
 
+#if TRUSTED_BOARD_BOOT
+/* Certificates */
+# define BL2_CERT_NAME			"bl2.crt"
+#endif /* TRUSTED_BOARD_BOOT */
+
 #define PLATFORM_CACHE_LINE_SIZE	64
 #define PLATFORM_CLUSTER_COUNT		2ull
 #define PLATFORM_CLUSTER0_CORE_COUNT	4

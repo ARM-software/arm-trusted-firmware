@@ -71,6 +71,11 @@
 /* Firmware Image Package */
 #define FIP_IMAGE_NAME			"fip.bin"
 
+#if TRUSTED_BOARD_BOOT
+/* Certificates */
+# define BL2_CERT_NAME			"bl2.crt"
+#endif /* TRUSTED_BOARD_BOOT */
+
 #define PLATFORM_CACHE_LINE_SIZE	64
 #define PLATFORM_CLUSTER_COUNT		2
 #define PLATFORM_CORE_COUNT             6
