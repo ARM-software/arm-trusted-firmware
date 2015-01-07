@@ -543,7 +543,7 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 					if (status != 0) {
 						printf("Failed to process %s\n",
 						       options[option_index].name);
-						break;
+						return status;
 					} else {
 						/* Update package */
 						*do_pack = 1;
