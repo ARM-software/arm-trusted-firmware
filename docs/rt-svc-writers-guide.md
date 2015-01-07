@@ -4,14 +4,14 @@ EL3 Runtime Service Writers Guide for ARM Trusted Firmware
 Contents
 --------
 
-1.  Introduction
-2.  Owning Entities, Call Types and Function IDs
-3.  Getting started
-4.  Registering a runtime service
-5.  Initializing a runtime service
-6.  Handling runtime service requests
-7.  Services that contain multiple sub-services
-8.  Secure-EL1 Payload Dispatcher service (SPD)
+1.  [Introduction](#1--introduction)
+2.  [Owning Entities, Call Types and Function IDs](#2--owning-entities-call-types-and-function-ids)
+3.  [Getting started](#3--getting-started)
+4.  [Registering a runtime service](#4--registering-a-runtime-service)
+5.  [Initializing a runtime service](#5-initializing-a-runtime-service)
+6.  [Handling runtime service requests](#6--handling-runtime-service-requests)
+7.  [Services that contain multiple sub-services](#7--services-that-contain-multiple-sub-services)
+8.  [Secure-EL1 Payload Dispatcher service (SPD)](#8--secure-el1-payload-dispatcher-service-spd)
 
 - - - - - - - - - - - - - - - - - -
 
