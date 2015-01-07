@@ -32,6 +32,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <runtime_svc.h>
+#include <std_svc.h>
 #include <debug.h>
 #include "psci_private.h"
 
@@ -272,6 +273,39 @@ long psci_migrate_info_up_cpu(void)
 	return resident_cpu_mpidr;
 }
 
+int psci_features(unsigned int psci_fid)
+{
+	uint32_t local_caps = psci_caps;
+
+	/* Check if it is a 64 bit function */
+	if (((psci_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_64)
+		local_caps &= PSCI_CAP_64BIT_MASK;
+
+	/* Check for invalid fid */
+	if (!(is_std_svc_call(psci_fid) && is_valid_fast_smc(psci_fid)
+			&& is_psci_fid(psci_fid)))
+		return PSCI_E_NOT_SUPPORTED;
+
+
+	/* Check if the psci fid is supported or not */
+	if (!(local_caps & define_psci_cap(psci_fid)))
+		return PSCI_E_NOT_SUPPORTED;
+
+	/* Format the feature flags */
+	if (psci_fid == PSCI_CPU_SUSPEND_AARCH32 ||
+			psci_fid == PSCI_CPU_SUSPEND_AARCH64) {
+		/*
+		 * The trusted firmware uses the original power state format
+		 * and does not support OS Initiated Mode.
+		 */
+		return (FF_PSTATE_ORIG << FF_PSTATE_SHIFT) |
+			((!FF_SUPPORTS_OS_INIT_MODE) << FF_MODE_SUPPORT_SHIFT);
+	}
+
+	/* Return 0 for all other fid's */
+	return PSCI_E_SUCCESS;
+}
+
 /*******************************************************************************
  * PSCI top level handler for servicing SMCs.
  ******************************************************************************/
@@ -326,6 +360,9 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_SYSTEM_RESET:
 			psci_system_reset();
 			/* We should never return from psci_system_reset() */
+
+		case PSCI_FEATURES:
+			SMC_RET1(handle, psci_features(x1));
 
 		default:
 			break;

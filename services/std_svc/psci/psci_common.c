@@ -558,7 +558,15 @@ void psci_afflvl_power_on_finish(int start_afflvl,
  ******************************************************************************/
 void psci_register_spd_pm_hook(const spd_pm_ops_t *pm)
 {
+	assert(pm);
 	psci_spd_pm = pm;
+
+	if (pm->svc_migrate)
+		psci_caps |= define_psci_cap(PSCI_MIG_AARCH64);
+
+	if (pm->svc_migrate_info)
+		psci_caps |= define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64)
+				| define_psci_cap(PSCI_MIG_INFO_TYPE);
 }
 
 /*******************************************************************************
