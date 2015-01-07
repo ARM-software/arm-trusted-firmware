@@ -176,6 +176,14 @@ typedef int32_t (*rt_svc_init_t)(void);
 #define SMC_SET_EL3(_h, _e, _v) \
 	write_ctx_reg(get_el3state_ctx(_h), (_e), (_v));
 
+/* The macro below is used to identify a Standard Service SMC call */
+#define is_std_svc_call(_fid)		((((_fid) >> FUNCID_OEN_SHIFT) & \
+					   FUNCID_OEN_MASK) == OEN_STD_START)
+
+/* The macro below is used to identify a valid Fast SMC call */
+#define is_valid_fast_smc(_fid)		((!(((_fid) >> 16) & 0xff)) && \
+					   (GET_SMC_TYPE(_fid) == SMC_TYPE_FAST))
+
 /*
  * Prototype for runtime service SMC handler function. x0 (SMC Function ID) to
  * x4 are as passed by the caller. Rest of the arguments to SMC and the context
