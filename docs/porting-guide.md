@@ -63,11 +63,11 @@ mapped page tables, and enable both the instruction and data caches for each BL
 stage. In the ARM FVP port, each BL stage configures the MMU in its platform-
 specific architecture setup function, for example `blX_plat_arch_setup()`.
 
-Each platform must allocate a block of identity mapped secure memory with
-Device-nGnRE attributes aligned to page boundary (4K) for each BL stage. This
-memory is identified by the section name `tzfw_coherent_mem` so that its
-possible for the firmware to place variables in it using the following C code
-directive:
+If the build option `USE_COHERENT_MEM` is enabled, each platform must allocate a
+block of identity mapped secure memory with Device-nGnRE attributes aligned to
+page boundary (4K) for each BL stage. This memory is identified by the section
+name `tzfw_coherent_mem` so that its possible for the firmware to place
+variables in it using the following C code directive:
 
     __attribute__ ((section("tzfw_coherent_mem")))
 
@@ -245,6 +245,17 @@ must also be defined:
     Defines the maximum number of open IO handles. Attempting to open more IO
     entities than this value using `io_open()` will fail with
     IO_RESOURCES_EXHAUSTED.
+
+If the platform needs to allocate data within the per-cpu data framework in
+BL3-1, it should define the following macro. Currently this is only required if
+the platform decides not to use the coherent memory section by undefining the
+USE_COHERENT_MEM build flag. In this case, the framework allocates the required
+memory within the the per-cpu data to minimize wastage.
+
+*   **#define : PLAT_PCPU_DATA_SIZE**
+
+    Defines the memory (in bytes) to be reserved within the per-cpu data
+    structure for use by the platform layer.
 
 The following constants are optional. They should be defined when the platform
 memory layout implies some image overlaying like on FVP.

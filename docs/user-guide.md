@@ -245,6 +245,12 @@ performed.
     synchronous method) or 1 (BL3-2 is initialized using asynchronous method).
     Default is 0.
 
+*   `USE_COHERENT_MEM`: This flag determines whether to include the coherent
+    memory region in the BL memory map or not (see "Use of Coherent memory in
+    Trusted Firmware" section in [Firmware Design]). It can take the value 1
+    (Coherent memory region is included) or 0 (Coherent memory region is
+    excluded). Default is 1.
+
 #### FVP specific build options
 
 *   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:

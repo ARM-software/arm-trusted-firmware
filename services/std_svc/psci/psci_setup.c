@@ -331,13 +331,20 @@ int32_t psci_setup(void)
 					       afflvl);
 	}
 
+#if !USE_COHERENT_MEM
+	/*
+	 * The psci_aff_map only needs flushing when it's not allocated in
+	 * coherent memory.
+	 */
+	flush_dcache_range((uint64_t) &psci_aff_map, sizeof(psci_aff_map));
+#endif
+
 	/*
 	 * Set the bounds for the affinity counts of each level in the map. Also
 	 * flush out the entire array so that it's visible to subsequent power
-	 * management operations. The 'psci_aff_map' array is allocated in
-	 * coherent memory so does not need flushing. The 'psci_aff_limits'
-	 * array is allocated in normal memory. It will be accessed when the mmu
-	 * is off e.g. after reset. Hence it needs to be flushed.
+	 * management operations. The 'psci_aff_limits' array is allocated in
+	 * normal memory. It will be accessed when the mmu is off e.g. after
+	 * reset. Hence it needs to be flushed.
 	 */
 	for (afflvl = MPIDR_AFFLVL0; afflvl < max_afflvl; afflvl++) {
 		psci_aff_limits[afflvl].min =

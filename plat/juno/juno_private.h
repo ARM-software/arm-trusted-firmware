@@ -134,15 +134,21 @@ unsigned int platform_get_core_pos(unsigned long mpidr);
 void configure_mmu_el1(unsigned long total_base,
 		       unsigned long total_size,
 		       unsigned long ro_start,
-		       unsigned long ro_limit,
-		       unsigned long coh_start,
-		       unsigned long coh_limit);
+		       unsigned long ro_limit
+#if USE_COHERENT_MEM
+		       , unsigned long coh_start,
+		       unsigned long coh_limit
+#endif
+		       );
 void configure_mmu_el3(unsigned long total_base,
 		       unsigned long total_size,
 		       unsigned long ro_start,
-		       unsigned long ro_limit,
-		       unsigned long coh_start,
-		       unsigned long coh_limit);
+		       unsigned long ro_limit
+#if USE_COHERENT_MEM
+		       , unsigned long coh_start,
+		       unsigned long coh_limit
+#endif
+		       );
 void plat_report_exception(unsigned long type);
 unsigned long plat_get_ns_image_entrypoint(void);
 unsigned long platform_get_stack(unsigned long mpidr);

@@ -40,19 +40,25 @@
  ******************************************************************************/
 extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
+extern unsigned long __BL32_END__;
 
+#if USE_COHERENT_MEM
 extern unsigned long __COHERENT_RAM_START__;
 extern unsigned long __COHERENT_RAM_END__;
+#endif
 
 /*
- * The next 2 constants identify the extents of the code & RO data region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
+ * The next 3 constants identify the extents of the code, RO data region and the
+ * limit of the BL3-2 image.  These addresses are used by the MMU setup code and
+ * therefore they must be page-aligned.  It is the responsibility of the linker
+ * script to ensure that __RO_START__, __RO_END__ & __BL32_END__ linker symbols
+ * refer to page-aligned addresses.
  */
 #define BL32_RO_BASE (unsigned long)(&__RO_START__)
 #define BL32_RO_LIMIT (unsigned long)(&__RO_END__)
+#define BL32_END (unsigned long)(&__BL32_END__)
 
+#if USE_COHERENT_MEM
 /*
  * The next 2 constants identify the extents of the coherent memory region.
  * These addresses are used by the MMU setup code and therefore they must be
@@ -62,6 +68,7 @@ extern unsigned long __COHERENT_RAM_END__;
  */
 #define BL32_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL32_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#endif
 
 /*******************************************************************************
  * Initialize the UART
@@ -90,9 +97,12 @@ void tsp_platform_setup(void)
 void tsp_plat_arch_setup(void)
 {
 	configure_mmu_el1(BL32_RO_BASE,
-			  BL32_COHERENT_RAM_LIMIT - BL32_RO_BASE,
+			  (BL32_END - BL32_RO_BASE),
 			  BL32_RO_BASE,
-			  BL32_RO_LIMIT,
-			  BL32_COHERENT_RAM_BASE,
-			  BL32_COHERENT_RAM_LIMIT);
+			  BL32_RO_LIMIT
+#if USE_COHERENT_MEM
+			  , BL32_COHERENT_RAM_BASE,
+			  BL32_COHERENT_RAM_LIMIT
+#endif
+			  );
 }
