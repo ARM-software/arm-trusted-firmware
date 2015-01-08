@@ -40,6 +40,7 @@
 #include "fvp_def.h"
 #include "fvp_private.h"
 
+#if USE_COHERENT_MEM
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
@@ -56,6 +57,7 @@ extern unsigned long __COHERENT_RAM_END__;
  */
 #define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
@@ -116,9 +118,12 @@ void bl1_plat_arch_setup(void)
 	fvp_configure_mmu_el3(bl1_tzram_layout.total_base,
 			      bl1_tzram_layout.total_size,
 			      BL1_RO_BASE,
-			      BL1_RO_LIMIT,
-			      BL1_COHERENT_RAM_BASE,
-			      BL1_COHERENT_RAM_LIMIT);
+			      BL1_RO_LIMIT
+#if USE_COHERENT_MEM
+			      , BL1_COHERENT_RAM_BASE,
+			      BL1_COHERENT_RAM_LIMIT
+#endif
+			     );
 }
 
 

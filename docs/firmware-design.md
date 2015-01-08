@@ -12,8 +12,9 @@ Contents :
 7.  [CPU specific operations framework](#7--cpu-specific-operations-framework)
 8.  [Memory layout of BL images](#8-memory-layout-of-bl-images)
 9.  [Firmware Image Package (FIP)](#9--firmware-image-package-fip)
-10. [Code Structure](#10--code-structure)
-11. [References](#11--references)
+10. [Use of coherent memory in Trusted Firmware](#10--use-of-coherent-memory-in-trusted-firmware)
+11. [Code Structure](#11--code-structure)
+12. [References](#12--references)
 
 
 1.  Introduction
@@ -368,10 +369,10 @@ level implementation of the generic timer through the memory mapped interface.
     `ON`; any other cluster is `OFF`. BL3-1 initializes the data structures that
     implement the state machine, including the locks that protect them. BL3-1
     accesses the state of a CPU or cluster immediately after reset and before
-    the MMU is enabled in the warm boot path. It is not currently possible to
-    use 'exclusive' based spinlocks, therefore BL3-1 uses locks based on
-    Lamport's Bakery algorithm instead. BL3-1 allocates these locks in device
-    memory. They are accessible irrespective of MMU state.
+    the data cache is enabled in the warm boot path. It is not currently
+    possible to use 'exclusive' based spinlocks, therefore BL3-1 uses locks
+    based on Lamport's Bakery algorithm instead. BL3-1 allocates these locks in
+    device memory by default.
 
 *   Runtime services initialization:
 
@@ -1127,9 +1128,10 @@ this purpose:
 * `__BSS_START__` This address must be aligned on a 16-byte boundary.
 * `__BSS_SIZE__`
 
-Similarly, the coherent memory section must be zero-initialised. Also, the MMU
-setup code needs to know the extents of this section to set the right memory
-attributes for it. The following linker symbols are defined for this purpose:
+Similarly, the coherent memory section (if enabled) must be zero-initialised.
+Also, the MMU setup code needs to know the extents of this section to set the
+right memory attributes for it. The following linker symbols are defined for
+this purpose:
 
 * `__COHERENT_RAM_START__` This address must be aligned on a page-size boundary.
 * `__COHERENT_RAM_END__` This address must be aligned on a page-size boundary.
@@ -1418,7 +1420,208 @@ Currently the FVP's policy only allows loading of a known set of images. The
 platform policy can be modified to allow additional images.
 
 
-10.  Code Structure
+10. Use of coherent memory in Trusted Firmware
+----------------------------------------------
+
+There might be loss of coherency when physical memory with mismatched
+shareability, cacheability and memory attributes is accessed by multiple CPUs
+(refer to section B2.9 of [ARM ARM] for more details). This possibility occurs
+in Trusted Firmware during power up/down sequences when coherency, MMU and
+caches are turned on/off incrementally.
+
+Trusted Firmware defines coherent memory as a region of memory with Device
+nGnRE attributes in the translation tables. The translation granule size in
+Trusted Firmware is 4KB. This is the smallest possible size of the coherent
+memory region.
+
+By default, all data structures which are susceptible to accesses with
+mismatched attributes from various CPUs are allocated in a coherent memory
+region (refer to section 2.1 of [Porting Guide]). The coherent memory region
+accesses are Outer Shareable, non-cacheable and they can be accessed
+with the Device nGnRE attributes when the MMU is turned on. Hence, at the
+expense of at least an extra page of memory, Trusted Firmware is able to work
+around coherency issues due to mismatched memory attributes.
+
+The alternative to the above approach is to allocate the susceptible data
+structures in Normal WriteBack WriteAllocate Inner shareable memory. This
+approach requires the data structures to be designed so that it is possible to
+work around the issue of mismatched memory attributes by performing software
+cache maintenance on them.
+
+### Disabling the use of coherent memory in Trusted Firmware
+
+It might be desirable to avoid the cost of allocating coherent memory on
+platforms which are memory constrained. Trusted Firmware enables inclusion of
+coherent memory in firmware images through the build flag `USE_COHERENT_MEM`.
+This flag is enabled by default. It can be disabled to choose the second
+approach described above.
+
+The below sections analyze the data structures allocated in the coherent memory
+region and the changes required to allocate them in normal memory.
+
+### PSCI Affinity map nodes
+
+The `psci_aff_map` data structure stores the hierarchial node information for
+each affinity level in the system including the PSCI states associated with them.
+By default, this data structure is allocated in the coherent memory region in
+the Trusted Firmware because it can be accessed by multiple CPUs, either with
+their caches enabled or disabled.
+
+	typedef struct aff_map_node {
+		unsigned long mpidr;
+		unsigned char ref_count;
+		unsigned char state;
+		unsigned char level;
+	#if USE_COHERENT_MEM
+		bakery_lock_t lock;
+	#else
+		unsigned char aff_map_index;
+	#endif
+	} aff_map_node_t;
+
+In order to move this data structure to normal memory, the use of each of its
+fields must be analyzed. Fields like `mpidr` and `level` are only written once
+during cold boot. Hence removing them from coherent memory involves only doing
+a clean and invalidate of the cache lines after these fields are written.
+
+The fields `state` and `ref_count` can be concurrently accessed by multiple
+CPUs in different cache states. A Lamport's Bakery lock is used to ensure mutual
+exlusion to these fields. As a result, it is possible to move these fields out
+of coherent memory by performing software cache maintenance on them. The field
+`lock` is the bakery lock data structure when `USE_COHERENT_MEM` is enabled.
+The `aff_map_index` is used to identify the bakery lock when `USE_COHERENT_MEM`
+is disabled.
+
+### Bakery lock data
+
+The bakery lock data structure `bakery_lock_t` is allocated in coherent memory
+and is accessed by multiple CPUs with mismatched attributes. `bakery_lock_t` is
+defined as follows:
+
+    typedef struct bakery_lock {
+        int owner;
+        volatile char entering[BAKERY_LOCK_MAX_CPUS];
+        volatile unsigned number[BAKERY_LOCK_MAX_CPUS];
+    } bakery_lock_t;
+
+It is a characteristic of Lamport's Bakery algorithm that the volatile per-CPU
+fields can be read by all CPUs but only written to by the owning CPU.
+
+Depending upon the data cache line size, the per-CPU fields of the
+`bakery_lock_t` structure for multiple CPUs may exist on a single cache line.
+These per-CPU fields can be read and written during lock contention by multiple
+CPUs with mismatched memory attributes. Since these fields are a part of the
+lock implementation, they do not have access to any other locking primitive to
+safeguard against the resulting coherency issues. As a result, simple software
+cache maintenance is not enough to allocate them in coherent memory. Consider
+the following example.
+
+CPU0 updates its per-CPU field with data cache enabled. This write updates a
+local cache line which contains a copy of the fields for other CPUs as well. Now
+CPU1 updates its per-CPU field of the `bakery_lock_t` structure with data cache
+disabled. CPU1 then issues a DCIVAC operation to invalidate any stale copies of
+its field in any other cache line in the system. This operation will invalidate
+the update made by CPU0 as well.
+
+To use bakery locks when `USE_COHERENT_MEM` is disabled, the lock data structure
+has been redesigned. The changes utilise the characteristic of Lamport's Bakery
+algorithm mentioned earlier. The per-CPU fields of the new lock structure are
+aligned such that they are allocated on separate cache lines. The per-CPU data
+framework in Trusted Firmware is used to achieve this. This enables software to
+perform software cache maintenance on the lock data structure without running
+into coherency issues associated with mismatched attributes.
+
+The per-CPU data framework enables consolidation of data structures on the
+fewest cache lines possible. This saves memory as compared to the scenario where
+each data structure is separately aligned to the cache line boundary to achieve
+the same effect.
+
+The bakery lock data structure `bakery_info_t` is defined for use when
+`USE_COHERENT_MEM` is disabled as follows:
+
+    typedef struct bakery_info {
+        /*
+         * The lock_data is a bit-field of 2 members:
+         * Bit[0]       : choosing. This field is set when the CPU is
+         *                choosing its bakery number.
+         * Bits[1 - 15] : number. This is the bakery number allocated.
+         */
+         volatile uint16_t lock_data;
+    } bakery_info_t;
+
+The `bakery_info_t` represents a single per-CPU field of one lock and
+the combination of corresponding `bakery_info_t` structures for all CPUs in the
+system represents the complete bakery lock. It is embedded in the per-CPU
+data framework `cpu_data` as shown below:
+
+      CPU0 cpu_data
+    ------------------
+    | ....           |
+    |----------------|
+    | `bakery_info_t`| <-- Lock_0 per-CPU field
+    |    Lock_0      |     for CPU0
+    |----------------|
+    | `bakery_info_t`| <-- Lock_1 per-CPU field
+    |    Lock_1      |     for CPU0
+    |----------------|
+    | ....           |
+    |----------------|
+    | `bakery_info_t`| <-- Lock_N per-CPU field
+    |    Lock_N      |     for CPU0
+    ------------------
+
+
+      CPU1 cpu_data
+    ------------------
+    | ....           |
+    |----------------|
+    | `bakery_info_t`| <-- Lock_0 per-CPU field
+    |    Lock_0      |     for CPU1
+    |----------------|
+    | `bakery_info_t`| <-- Lock_1 per-CPU field
+    |    Lock_1      |     for CPU1
+    |----------------|
+    | ....           |
+    |----------------|
+    | `bakery_info_t`| <-- Lock_N per-CPU field
+    |    Lock_N      |     for CPU1
+    ------------------
+
+Consider a system of 2 CPUs with 'N' bakery locks as shown above.  For an
+operation on Lock_N, the corresponding `bakery_info_t` in both CPU0 and CPU1
+`cpu_data` need to be fetched and appropriate cache operations need to be
+performed for each access.
+
+For multiple bakery locks, an array of `bakery_info_t` is declared in `cpu_data`
+and each lock is given an `id` to identify it in the array.
+
+### Non Functional Impact of removing coherent memory
+
+Removal of the coherent memory region leads to the additional software overhead
+of performing cache maintenance for the affected data structures. However, since
+the memory where the data structures are allocated is cacheable, the overhead is
+mostly mitigated by an increase in performance.
+
+There is however a performance impact for bakery locks, due to:
+*   Additional cache maintenance operations, and
+*   Multiple cache line reads for each lock operation, since the bakery locks
+    for each CPU are distributed across different cache lines.
+
+The implementation has been optimized to mimimize this additional overhead.
+Measurements indicate that when bakery locks are allocated in Normal memory, the
+minimum latency of acquiring a lock is on an average 3-4 micro seconds whereas
+in Device memory the same is 2 micro seconds. The measurements were done on the
+Juno ARM development platform.
+
+As mentioned earlier, almost a page of memory can be saved by disabling
+`USE_COHERENT_MEM`. Each platform needs to consider these trade-offs to decide
+whether coherent memory should be used. If a platform disables
+`USE_COHERENT_MEM` and needs to use bakery locks in the porting layer, it should
+reserve memory in `cpu_data` by defining the macro `PLAT_PCPU_DATA_SIZE` (see
+the [Porting Guide]). Refer to the reference platform code for examples.
+
+
+11.  Code Structure
 -------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -1463,7 +1666,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-11.  References
+12.  References
 ---------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
@@ -1479,7 +1682,7 @@ kernel at boot time. These can be found in the `fdts` directory.
 
 _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
-
+[ARM ARM]:          http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html "ARMv8-A Reference Manual (ARM DDI0487A.E)"
 [PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
 [SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"

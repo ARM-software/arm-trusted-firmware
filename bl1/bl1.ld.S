@@ -107,6 +107,7 @@ SECTIONS
         *(xlat_table)
     } >RAM
 
+#if USE_COHERENT_MEM
     /*
      * The base address of the coherent memory section must be page-aligned (4K)
      * to guarantee that the coherent data are stored on their own pages and
@@ -125,6 +126,7 @@ SECTIONS
         . = NEXT(4096);
         __COHERENT_RAM_END__ = .;
     } >RAM
+#endif
 
     __BL1_RAM_START__ = ADDR(.data);
     __BL1_RAM_END__ = .;
@@ -140,8 +142,10 @@ SECTIONS
 
     __BSS_SIZE__ = SIZEOF(.bss);
 
+#if USE_COHERENT_MEM
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
+#endif
 
     ASSERT(. <= BL1_RW_LIMIT, "BL1's RW section has exceeded its limit.")
 }

@@ -118,15 +118,21 @@ CASSERT(PLAT_PCPU_DATA_SIZE == sizeof(fvp_cpu_data_t),	\
 void fvp_configure_mmu_el1(unsigned long total_base,
 			   unsigned long total_size,
 			   unsigned long,
-			   unsigned long,
-			   unsigned long,
-			   unsigned long);
+			   unsigned long
+#if USE_COHERENT_MEM
+			   , unsigned long,
+			   unsigned long
+#endif
+			   );
 void fvp_configure_mmu_el3(unsigned long total_base,
 			   unsigned long total_size,
 			   unsigned long,
-			   unsigned long,
-			   unsigned long,
-			   unsigned long);
+			   unsigned long
+#if USE_COHERENT_MEM
+			   , unsigned long,
+			   unsigned long
+#endif
+			   );
 
 int fvp_config_setup(void);
 
