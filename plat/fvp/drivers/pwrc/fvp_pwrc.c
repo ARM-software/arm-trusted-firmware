@@ -31,13 +31,19 @@
 #include <bakery_lock.h>
 #include <mmio.h>
 #include "../../fvp_def.h"
+#include "../../fvp_private.h"
 #include "fvp_pwrc.h"
 
 /*
  * TODO: Someday there will be a generic power controller api. At the moment
  * each platform has its own pwrc so just exporting functions is fine.
  */
+#if USE_COHERENT_MEM
 static bakery_lock_t pwrc_lock __attribute__ ((section("tzfw_coherent_mem")));
+#define LOCK_ARG	&pwrc_lock
+#else
+#define LOCK_ARG	FVP_PWRC_BAKERY_ID
+#endif
 
 unsigned int fvp_pwrc_get_cpu_wkr(unsigned long mpidr)
 {
@@ -47,54 +53,55 @@ unsigned int fvp_pwrc_get_cpu_wkr(unsigned long mpidr)
 unsigned int fvp_pwrc_read_psysr(unsigned long mpidr)
 {
 	unsigned int rc;
-	bakery_lock_get(&pwrc_lock);
+	fvp_lock_get(LOCK_ARG);
 	mmio_write_32(PWRC_BASE + PSYSR_OFF, (unsigned int) mpidr);
 	rc = mmio_read_32(PWRC_BASE + PSYSR_OFF);
-	bakery_lock_release(&pwrc_lock);
+	fvp_lock_release(LOCK_ARG);
 	return rc;
 }
 
 void fvp_pwrc_write_pponr(unsigned long mpidr)
 {
-	bakery_lock_get(&pwrc_lock);
+	fvp_lock_get(LOCK_ARG);
 	mmio_write_32(PWRC_BASE + PPONR_OFF, (unsigned int) mpidr);
-	bakery_lock_release(&pwrc_lock);
+	fvp_lock_release(LOCK_ARG);
 }
 
 void fvp_pwrc_write_ppoffr(unsigned long mpidr)
 {
-	bakery_lock_get(&pwrc_lock);
+	fvp_lock_get(LOCK_ARG);
 	mmio_write_32(PWRC_BASE + PPOFFR_OFF, (unsigned int) mpidr);
-	bakery_lock_release(&pwrc_lock);
+	fvp_lock_release(LOCK_ARG);
 }
 
 void fvp_pwrc_set_wen(unsigned long mpidr)
 {
-	bakery_lock_get(&pwrc_lock);
+	fvp_lock_get(LOCK_ARG);
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
 		      (unsigned int) (PWKUPR_WEN | mpidr));
-	bakery_lock_release(&pwrc_lock);
+	fvp_lock_release(LOCK_ARG);
 }
 
 void fvp_pwrc_clr_wen(unsigned long mpidr)
 {
-	bakery_lock_get(&pwrc_lock);
+	fvp_lock_get(LOCK_ARG);
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
 		      (unsigned int) mpidr);
-	bakery_lock_release(&pwrc_lock);
+	fvp_lock_release(LOCK_ARG);
 }
 
 void fvp_pwrc_write_pcoffr(unsigned long mpidr)
 {
-	bakery_lock_get(&pwrc_lock);
+	fvp_lock_get(LOCK_ARG);
 	mmio_write_32(PWRC_BASE + PCOFFR_OFF, (unsigned int) mpidr);
-	bakery_lock_release(&pwrc_lock);
+	fvp_lock_release(LOCK_ARG);
 }
 
 /* Nothing else to do here apart from initializing the lock */
 int fvp_pwrc_setup(void)
 {
-	bakery_lock_init(&pwrc_lock);
+	fvp_lock_init(LOCK_ARG);
+
 	return 0;
 }
 

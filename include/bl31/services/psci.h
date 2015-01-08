@@ -31,6 +31,17 @@
 #ifndef __PSCI_H__
 #define __PSCI_H__
 
+#include <bakery_lock.h>
+#include <platform_def.h>	/* for PLATFORM_NUM_AFFS */
+
+/*******************************************************************************
+ * Number of affinity instances whose state this psci imp. can track
+ ******************************************************************************/
+#ifdef PLATFORM_NUM_AFFS
+#define PSCI_NUM_AFFS		PLATFORM_NUM_AFFS
+#else
+#define PSCI_NUM_AFFS		(2 * PLATFORM_CORE_COUNT)
+#endif
 
 /*******************************************************************************
  * Defines for runtime services func ids
@@ -140,6 +151,9 @@ typedef struct psci_cpu_data {
 	uint32_t power_state;
 	uint32_t max_phys_off_afflvl;	/* Highest affinity level in physically
 					   powered off state */
+#if !USE_COHERENT_MEM
+	bakery_info_t pcpu_bakery_info[PSCI_NUM_AFFS];
+#endif
 } psci_cpu_data_t;
 
 /*******************************************************************************

@@ -177,4 +177,12 @@
 #define CACHE_WRITEBACK_SHIFT   6
 #define CACHE_WRITEBACK_GRANULE (1 << CACHE_WRITEBACK_SHIFT)
 
+#if !USE_COHERENT_MEM
+/*******************************************************************************
+ * Size of the per-cpu data in bytes that should be reserved in the generic
+ * per-cpu data structure for the Juno port.
+ ******************************************************************************/
+#define PLAT_PCPU_DATA_SIZE	2
+#endif
+
 #endif /* __PLATFORM_DEF_H__ */
