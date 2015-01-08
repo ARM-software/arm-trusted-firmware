@@ -31,11 +31,13 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bakery_lock.h>
+#include <cpu_data.h>
 #include <platform.h>
 #include <string.h>
 
 /*
- * Functions in this file implement Bakery Algorithm for mutual exclusion.
+ * Functions in this file implement Bakery Algorithm for mutual exclusion with the
+ * bakery lock data structures in coherent memory.
  *
  * ARM architecture offers a family of exclusive access instructions to
  * efficiently implement mutual exclusion with hardware support. However, as

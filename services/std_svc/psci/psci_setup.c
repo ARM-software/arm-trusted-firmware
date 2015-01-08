@@ -181,7 +181,7 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 	uint32_t linear_id;
 	psci_aff_map[idx].mpidr = mpidr;
 	psci_aff_map[idx].level = level;
-	bakery_lock_init(&psci_aff_map[idx].lock);
+	psci_lock_init(psci_aff_map, idx);
 
 	/*
 	 * If an affinity instance is present then mark it as OFF to begin with.

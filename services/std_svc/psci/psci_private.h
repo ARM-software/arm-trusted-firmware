@@ -33,14 +33,22 @@
 
 #include <arch.h>
 #include <bakery_lock.h>
-#include <platform_def.h>	/* for PLATFORM_NUM_AFFS */
 #include <psci.h>
 
-/* Number of affinity instances whose state this psci imp. can track */
-#ifdef PLATFORM_NUM_AFFS
-#define PSCI_NUM_AFFS		PLATFORM_NUM_AFFS
+/*
+ * The following helper macros abstract the interface to the Bakery
+ * Lock API.
+ */
+#if USE_COHERENT_MEM
+#define psci_lock_init(aff_map, idx)	bakery_lock_init(&(aff_map)[(idx)].lock)
+#define psci_lock_get(node)		bakery_lock_get(&((node)->lock))
+#define psci_lock_release(node)		bakery_lock_release(&((node)->lock))
 #else
-#define PSCI_NUM_AFFS		(2 * PLATFORM_CORE_COUNT)
+#define psci_lock_init(aff_map, idx)	((aff_map)[(idx)].aff_map_index = (idx))
+#define psci_lock_get(node)		bakery_lock_get((node)->aff_map_index,	  \
+						CPU_DATA_PSCI_LOCK_OFFSET)
+#define psci_lock_release(node)		bakery_lock_release((node)->aff_map_index,\
+						CPU_DATA_PSCI_LOCK_OFFSET)
 #endif
 
 /*******************************************************************************
@@ -49,10 +57,15 @@
  ******************************************************************************/
 typedef struct aff_map_node {
 	unsigned long mpidr;
-	unsigned short ref_count;
+	unsigned char ref_count;
 	unsigned char state;
 	unsigned char level;
+#if USE_COHERENT_MEM
 	bakery_lock_t lock;
+#else
+	/* For indexing the bakery_info array in per CPU data */
+	unsigned char aff_map_index;
+#endif
 } aff_map_node_t;
 
 typedef struct aff_limits_node {

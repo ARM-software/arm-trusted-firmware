@@ -246,7 +246,8 @@ void psci_acquire_afflvl_locks(int start_afflvl,
 	for (level = start_afflvl; level <= end_afflvl; level++) {
 		if (mpidr_nodes[level] == NULL)
 			continue;
-		bakery_lock_get(&mpidr_nodes[level]->lock);
+
+		psci_lock_get(mpidr_nodes[level]);
 	}
 }
 
@@ -264,7 +265,8 @@ void psci_release_afflvl_locks(int start_afflvl,
 	for (level = end_afflvl; level >= start_afflvl; level--) {
 		if (mpidr_nodes[level] == NULL)
 			continue;
-		bakery_lock_release(&mpidr_nodes[level]->lock);
+
+		psci_lock_release(mpidr_nodes[level]);
 	}
 }
 

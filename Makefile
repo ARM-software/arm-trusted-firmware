@@ -63,6 +63,8 @@ ARM_GIC_ARCH		:=	2
 # Flag used to indicate if ASM_ASSERTION should be enabled for the build.
 # This defaults to being present in DEBUG builds only.
 ASM_ASSERTION		:=	${DEBUG}
+# Build option to choose whether Trusted firmware uses Coherent memory or not.
+USE_COHERENT_MEM	:=	1
 # Default FIP file name
 FIP_NAME		:= fip.bin
 
@@ -229,6 +231,10 @@ $(eval $(call add_define,ASM_ASSERTION))
 
 # Process LOG_LEVEL flag
 $(eval $(call add_define,LOG_LEVEL))
+
+# Process USE_COHERENT_MEM flag
+$(eval $(call assert_boolean,USE_COHERENT_MEM))
+$(eval $(call add_define,USE_COHERENT_MEM))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
