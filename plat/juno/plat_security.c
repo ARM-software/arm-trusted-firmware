@@ -29,6 +29,7 @@
  */
 
 #include <debug.h>
+#include <mmio.h>
 #include <tzc400.h>
 #include "juno_def.h"
 
@@ -94,6 +95,19 @@ static void init_tzc400(void)
 }
 
 /*******************************************************************************
+ * Set up the MMU-401 SSD tables. The power-on configuration has all stream IDs
+ * assigned to Non-Secure except some for the DMA-330. Assign those back to the
+ * Non-Secure world as well, otherwise EL1 may end up erroneously generating
+ * (untranslated) Secure transactions if it turns the SMMU on.
+ ******************************************************************************/
+static void init_mmu401(void)
+{
+	uint32_t reg = mmio_read_32(MMU401_DMA330_BASE + MMU401_SSD_OFFSET);
+	reg |= 0x1FF;
+	mmio_write_32(MMU401_DMA330_BASE + MMU401_SSD_OFFSET, reg);
+}
+
+/*******************************************************************************
  * Initialize the secure environment. At this moment only the TrustZone
  * Controller is initialized.
  ******************************************************************************/
@@ -101,4 +115,6 @@ void plat_security_setup(void)
 {
 	/* Initialize the TrustZone Controller */
 	init_tzc400();
+	/* Initialize the SMMU SSD tables*/
+	init_mmu401();
 }
