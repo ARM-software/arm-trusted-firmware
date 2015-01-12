@@ -40,24 +40,24 @@
  * registers
  *********************************************************************/
 
-#define _DEFINE_SYSREG_READ_FUNC(_name, _reg_name)	\
-static inline uint64_t read_ ## _name(void)		\
-{							\
-	uint64_t v;					\
-	__asm__ ("mrs %0, " #_reg_name : "=r" (v));	\
-	return v;					\
+#define _DEFINE_SYSREG_READ_FUNC(_name, _reg_name)		\
+static inline uint64_t read_ ## _name(void)			\
+{								\
+	uint64_t v;						\
+	__asm__ volatile ("mrs %0, " #_reg_name : "=r" (v));	\
+	return v;						\
 }
 
-#define _DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)		\
-static inline void write_ ## _name(uint64_t v)		\
-{							\
-	__asm__ ("msr " #_reg_name ", %0" : : "r" (v));	\
+#define _DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)			\
+static inline void write_ ## _name(uint64_t v)				\
+{									\
+	__asm__ volatile ("msr " #_reg_name ", %0" : : "r" (v));	\
 }
 
 #define _DEFINE_SYSREG_WRITE_CONST_FUNC(_name, _reg_name)		\
-static inline void write_ ## _name(const uint64_t v)	\
-{							\
-	__asm__ ("msr " #_reg_name ", %0" : : "i" (v));	\
+static inline void write_ ## _name(const uint64_t v)			\
+{									\
+	__asm__ volatile ("msr " #_reg_name ", %0" : : "i" (v));	\
 }
 
 /* Define read function for system register */
