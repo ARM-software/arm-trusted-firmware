@@ -697,7 +697,7 @@ Trusted Firmware" section above).
 
     <path-to>/Foundation_v8                   \
     --cores=4                                 \
-    --no-secure-memory                        \
+    --secure-memory                           \
     --visualization                           \
     --gicv3                                   \
     --data="<path-to>/<bl1-binary>"@0x0       \
@@ -900,7 +900,7 @@ legacy VE memory map:
 
     <path-to>/Foundation_v8                   \
     --cores=4                                 \
-    --no-secure-memory                        \
+    --secure-memory                           \
     --visualization                           \
     --no-gicv3                                \
     --data="<path-to>/<bl1-binary>"@0x0       \
