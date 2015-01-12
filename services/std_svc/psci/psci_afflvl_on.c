@@ -48,13 +48,8 @@ typedef int (*afflvl_on_handler_t)(unsigned long target_cpu,
  * This function checks whether a cpu which has been requested to be turned on
  * is OFF to begin with.
  ******************************************************************************/
-static int cpu_on_validate_state(aff_map_node_t *node)
+static int cpu_on_validate_state(unsigned int psci_state)
 {
-	unsigned int psci_state;
-
-	/* Get the raw psci state */
-	psci_state = psci_get_state(node);
-
 	if (psci_state == PSCI_STATE_ON || psci_state == PSCI_STATE_SUSPEND)
 		return PSCI_E_ALREADY_ON;
 
@@ -82,14 +77,6 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 
 	/* Sanity check to safeguard against data corruption */
 	assert(cpu_node->level == MPIDR_AFFLVL0);
-
-	/*
-	 * Generic management: Ensure that the cpu is off to be
-	 * turned on
-	 */
-	rc = cpu_on_validate_state(cpu_node);
-	if (rc != PSCI_E_SUCCESS)
-		return rc;
 
 	/*
 	 * Call the cpu on handler registered by the Secure Payload Dispatcher
@@ -290,6 +277,15 @@ int psci_afflvl_on(unsigned long target_cpu,
 				  end_afflvl,
 				  target_cpu_nodes);
 
+	/*
+	 * Generic management: Ensure that the cpu is off to be
+	 * turned on.
+	 */
+	rc = cpu_on_validate_state(psci_get_state(
+			(aff_map_node_t *)target_cpu_nodes[MPIDR_AFFLVL0]));
+	if (rc != PSCI_E_SUCCESS)
+		goto exit;
+
 	/* Perform generic, architecture and platform specific handling. */
 	rc = psci_call_on_handlers(target_cpu_nodes,
 				   start_afflvl,
@@ -309,6 +305,7 @@ int psci_afflvl_on(unsigned long target_cpu,
 					  target_cpu_nodes,
 					  PSCI_STATE_ON_PENDING);
 
+exit:
 	/*
 	 * This loop releases the lock corresponding to each affinity level
 	 * in the reverse order to which they were acquired.
