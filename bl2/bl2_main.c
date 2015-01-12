@@ -61,6 +61,7 @@ static int load_bl30(void)
 	 */
 	INFO("BL2: Loading BL3-0\n");
 	bl2_plat_get_bl30_meminfo(&bl30_mem_info);
+	bl30_image_info.h.version = VERSION_1;
 	e = load_image(&bl30_mem_info,
 		       BL30_IMAGE_NAME,
 		       BL30_BASE,
