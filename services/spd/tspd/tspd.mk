@@ -52,3 +52,10 @@ include ${BL32_ROOT}/tsp.mk
 
 # Let the top-level Makefile know that we intend to build the SP from source
 NEED_BL32		:=	yes
+
+# Flag used to enable routing of non-secure interrupts to EL3 when they are
+# generated while the code is executing in S-EL1/0.
+TSPD_ROUTE_IRQ_TO_EL3	:=	0
+
+$(eval $(call assert_boolean,TSPD_ROUTE_IRQ_TO_EL3))
+$(eval $(call add_define,TSPD_ROUTE_IRQ_TO_EL3))

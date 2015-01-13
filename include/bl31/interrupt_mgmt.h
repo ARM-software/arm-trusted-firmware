@@ -63,7 +63,8 @@
 #define INTR_NS_VALID_RM0		0x0
 /* Routed to EL1/EL2 from NS and to EL3 from Secure */
 #define INTR_NS_VALID_RM1		0x1
-
+/* This is the default routing model */
+#define INTR_DEFAULT_RM		0x0
 
 /*******************************************************************************
  * Constants for the _individual_ routing model bits in the 'flags' field for
@@ -123,6 +124,8 @@ int32_t register_interrupt_type_handler(uint32_t type,
 					interrupt_type_handler_t handler,
 					uint32_t flags);
 interrupt_type_handler_t get_interrupt_type_handler(uint32_t interrupt_type);
+int disable_intr_rm_local(uint32_t type, uint32_t security_state);
+int enable_intr_rm_local(uint32_t type, uint32_t security_state);
 
 #endif /*__ASSEMBLY__*/
 #endif /* __INTERRUPT_MGMT_H__ */

@@ -133,6 +133,14 @@ static void tspd_cpu_on_finish_handler(uint64_t unused)
 	/* Initialise this cpu's secure context */
 	cm_init_context(mpidr, &tsp_on_entrypoint);
 
+#if TSPD_ROUTE_IRQ_TO_EL3
+	/*
+	 * Disable the NS interrupt locally since it will be enabled globally
+	 * within cm_init_context.
+	 */
+	disable_intr_rm_local(INTR_TYPE_NS, SECURE);
+#endif
+
 	/* Enter the TSP */
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 

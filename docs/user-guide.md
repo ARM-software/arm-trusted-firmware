@@ -251,6 +251,11 @@ performed.
     (Coherent memory region is included) or 0 (Coherent memory region is
     excluded). Default is 1.
 
+*   `TSPD_ROUTE_IRQ_TO_EL3`: A non zero value enables the routing model
+    for non-secure interrupts in which they are routed to EL3 (TSPD). The
+    default model (when the value is 0) is to route non-secure interrupts
+    to S-EL1 (TSP).
+
 #### FVP specific build options
 
 *   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
