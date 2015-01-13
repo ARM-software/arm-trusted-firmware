@@ -49,9 +49,17 @@
 #if DEBUG_XLAT_TABLE
 #define PLATFORM_STACK_SIZE 0x800
 #elif IMAGE_BL1
+#if TRUSTED_BOARD_BOOT
+#define PLATFORM_STACK_SIZE 0x1000
+#else
 #define PLATFORM_STACK_SIZE 0x440
+#endif
 #elif IMAGE_BL2
+#if TRUSTED_BOARD_BOOT
+#define PLATFORM_STACK_SIZE 0x1000
+#else
 #define PLATFORM_STACK_SIZE 0x400
+#endif
 #elif IMAGE_BL31
 #define PLATFORM_STACK_SIZE 0x400
 #elif IMAGE_BL32
@@ -96,8 +104,13 @@
  * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
  * the current BL1 RW debug size plus a little space for growth.
  */
+#if TRUSTED_BOARD_BOOT
+#define BL1_RW_BASE			(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE - 0x8000)
+#else
 #define BL1_RW_BASE			(FVP_TRUSTED_SRAM_BASE \
 					+ FVP_TRUSTED_SRAM_SIZE - 0x6000)
+#endif
 #define BL1_RW_LIMIT			(FVP_TRUSTED_SRAM_BASE \
 					+ FVP_TRUSTED_SRAM_SIZE)
 
@@ -108,7 +121,11 @@
  * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
  * size plus a little space for growth.
  */
+#if TRUSTED_BOARD_BOOT
+#define BL2_BASE			(BL31_BASE - 0x1C000)
+#else
 #define BL2_BASE			(BL31_BASE - 0xC000)
+#endif
 #define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************

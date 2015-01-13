@@ -45,7 +45,11 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
-#define PLATFORM_STACK_SIZE    0x800
+#if TRUSTED_BOARD_BOOT && (IMAGE_BL1 || IMAGE_BL2)
+#define PLATFORM_STACK_SIZE 0x1000
+#else
+#define PLATFORM_STACK_SIZE 0x800
+#endif
 
 #define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
 
@@ -87,7 +91,11 @@
  * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
  * the current BL1 RW debug size plus a little space for growth.
  */
+#if TRUSTED_BOARD_BOOT
+#define BL1_RW_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x8000)
+#else
 #define BL1_RW_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x6000)
+#endif
 #define BL1_RW_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
@@ -97,7 +105,11 @@
  * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
  * size plus a little space for growth.
  */
+#if TRUSTED_BOARD_BOOT
+#define BL2_BASE			(BL31_BASE - 0x1D000)
+#else
 #define BL2_BASE			(BL31_BASE - 0xC000)
+#endif
 #define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************

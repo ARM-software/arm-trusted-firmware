@@ -67,6 +67,8 @@ ASM_ASSERTION		:=	${DEBUG}
 USE_COHERENT_MEM	:=	1
 # Default FIP file name
 FIP_NAME		:= fip.bin
+# By default, use the -pedantic option in the gcc command line
+DISABLE_PEDANTIC	:= 0
 # Flags to generate the Chain of Trust
 GENERATE_COT		:= 0
 CREATE_KEYS		:= 1
@@ -253,7 +255,7 @@ ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
 				-mgeneral-regs-only -D__ASSEMBLY__		\
 				${DEFINES} ${INCLUDES}
-CFLAGS			+= 	-nostdinc -pedantic -ffreestanding -Wall	\
+CFLAGS			+= 	-nostdinc -ffreestanding -Wall			\
 				-Werror -Wmissing-include-dirs			\
 				-mgeneral-regs-only -std=c99 -c -Os		\
 				${DEFINES} ${INCLUDES}
@@ -302,6 +304,11 @@ ifneq (${GENERATE_COT},0)
     $(eval CRT_ARGS += $(if ${TRUSTED_WORLD_KEY}, --trusted-world-key ${TRUSTED_WORLD_KEY}))
     $(eval CRT_ARGS += $(if ${NON_TRUSTED_WORLD_KEY}, --non-trusted-world-key ${NON_TRUSTED_WORLD_KEY}))
     $(eval CRT_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
+endif
+
+# Check if -pedantic option should be used
+ifeq (${DISABLE_PEDANTIC},0)
+    CFLAGS		+= 	-pedantic
 endif
 
 locate-checkpatch:
