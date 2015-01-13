@@ -120,7 +120,19 @@ func init_cpu_ops
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif
-	str	x0, [x6, #CPU_DATA_CPU_OPS_PTR]
+	str	x0, [x6, #CPU_DATA_CPU_OPS_PTR]!
+
+	/*
+	 * Make sure that any pre-fetched cache copies are invalidated.
+	 * Ensure that we are running with cache disable else we
+	 * invalidate our own update.
+	 */
+#if ASM_ASSERTION
+	mrs	x1, sctlr_el3
+	tst	x1, #SCTLR_C_BIT
+	ASM_ASSERT(eq)
+#endif
+	dc	ivac, x6
 	mov x30, x10
 1:
 	ret

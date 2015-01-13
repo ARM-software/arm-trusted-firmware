@@ -115,6 +115,10 @@ void init_cpu_data_ptr(void);
 #define flush_cpu_data(_m)	   flush_dcache_range((uint64_t) 	  \
 						      &(_cpu_data()->_m), \
 						      sizeof(_cpu_data()->_m))
+#define flush_cpu_data_by_index(_ix, _m)	\
+				   flush_dcache_range((uint64_t)	  \
+					 &(_cpu_data_by_index(_ix)->_m),  \
+					 sizeof(_cpu_data_by_index(_ix)->_m))
 
 
 #endif /* __ASSEMBLY__ */
