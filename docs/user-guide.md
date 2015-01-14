@@ -10,8 +10,7 @@ Contents :
 5.  [Obtaining the normal world software](#5--obtaining-the-normal-world-software)
 6.  [Preparing the images to run on FVP](#6--preparing-the-images-to-run-on-fvp)
 7.  [Running the software on FVP](#7--running-the-software-on-fvp)
-8.  [Preparing the images to run on Juno](#8--preparing-the-images-to-run-on-juno)
-9.  [Running the software on Juno](#9--running-the-software-on-juno)
+8.  [Running the software on Juno](#8--running-the-software-on-juno)
 
 
 1.  Introduction
@@ -60,7 +59,7 @@ The following tools are required to use the ARM Trusted Firmware:
         wget http://releases.linaro.org/14.07/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
         tar -xf gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
 
-*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.19.
+*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.20.
 
 
 4.  Building the Trusted Firmware
@@ -436,7 +435,7 @@ Juno platform, follow these steps:
 
         cd edk2
         git remote add -f --tags arm-software https://github.com/ARM-software/edk2.git
-        git checkout --detach v1.2
+        git checkout --detach v2.1-rc0
 
 2.  Copy build config templates to local workspace
 
@@ -515,7 +514,7 @@ Preparing a Linux kernel for use on the FVPs can be done as follows
 
         cd linux
         git remote add -f --tags arm-software https://github.com/ARM-software/linux.git
-        git checkout --detach 1.1-Juno
+        git checkout --detach 1.3-Juno
 
 2.  Build with the Linaro GCC tools.
 
@@ -590,8 +589,8 @@ To prepare a VirtioBlock file-system, do the following:
 
     NOTE: The unpacked disk image grows to 3 GiB in size.
 
-        wget http://releases.linaro.org/14.07/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.9_20140727-682.img.gz
-        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.9_20140727-682.img.gz
+        wget http://releases.linaro.org/14.12/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.9_20141211-701.img.gz
+        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.9_20141211-701.img.gz
 
 2.  Make sure the Linux kernel has Virtio support enabled using
     `make ARCH=arm64 menuconfig`.
@@ -653,14 +652,14 @@ To prepare a RAM-disk root file-system, do the following:
 
 1.  Download the file-system image:
 
-        wget http://releases.linaro.org/14.07/openembedded/aarch64/linaro-image-lamp-genericarmv8-20140727-701.rootfs.tar.gz
+        wget http://releases.linaro.org/14.12/openembedded/aarch64/linaro-image-lamp-genericarmv8-20141212-729.rootfs.tar.gz
 
 2.  Modify the Linaro image:
 
         # Prepare for use as RAM-disk. Normally use MMC, NFS or VirtioBlock.
         # Be careful, otherwise you could damage your host file-system.
         mkdir tmp; cd tmp
-        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20140727-701.rootfs.tar.gz | cpio -id"
+        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20141212-729.rootfs.tar.gz | cpio -id"
         sudo ln -s sbin/init .
         sudo sh -c "echo 'devtmpfs /dev devtmpfs mode=0755,nosuid 0 0' >> etc/fstab"
         sudo sh -c "find . | cpio --quiet -H newc -o | gzip -3 -n > ../filesystem.cpio.gz"
@@ -676,11 +675,11 @@ To prepare a RAM-disk root file-system, do the following:
 This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
-*   `Foundation_v8` (Version 2.1, Build 9.0.24)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.8, Build 0.8.5802)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.8, Build 0.8.5802)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.8, Build 0.8.5802)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.8, Build 0.8.5802)
+*   `Foundation_Platform` (Version 9.1, Build 9.1.33)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 6.2, Build 0.8.6202)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 6.2, Build 0.8.6202)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 6.2, Build 0.8.6202)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 6.2, Build 0.8.6202)
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
 with the `--version` parameter.
@@ -700,7 +699,7 @@ downloaded for free from [ARM's website][ARM FVP website].
 
 ### Running on the Foundation FVP with reset to BL1 entrypoint
 
-The following `Foundation_v8` parameters should be used to boot Linux with
+The following `Foundation_Platform` parameters should be used to boot Linux with
 4 CPUs using the ARM Trusted Firmware.
 
 NOTE: Using the `--block-device` parameter is not necessary if a Linux RAM-disk
@@ -710,7 +709,7 @@ NOTE: The `--data="<path to FIP binary>"@0x8000000` parameter is used to load a
 Firmware Image Package at the start of NOR FLASH0 (see the "Building the
 Trusted Firmware" section above).
 
-    <path-to>/Foundation_v8                   \
+    <path-to>/Foundation_Platform             \
     --cores=4                                 \
     --secure-memory                           \
     --visualization                           \
@@ -913,7 +912,7 @@ BL3-3 images should be used.
 The following parameters configure the Foundation FVP to use GICv2 with the
 legacy VE memory map:
 
-    <path-to>/Foundation_v8                   \
+    <path-to>/Foundation_Platform             \
     --cores=4                                 \
     --secure-memory                           \
     --visualization                           \
@@ -950,14 +949,21 @@ The `bp.variant` parameter corresponds to the build variant field of the
 detect the legacy VE memory map while configuring the GIC.
 
 
-8.  Preparing the images to run on Juno
----------------------------------------
+8.  Running the software on Juno
+--------------------------------
 
 ### Preparing Trusted Firmware images
 
+To execute the versions of software components on Juno referred to in this
+document, the latest [Juno Board Recovery Image] must be installed. If you
+have an earlier version installed or are unsure which version is installed,
+follow the recovery image update instructions in the [Juno Software Guide]
+on the [ARM Connected Community] website.
+
 The Juno platform requires a BL3-0 image to boot up. This image contains the
-runtime firmware that runs on the SCP (System Control Processor). It can be
-downloaded from [this ARM website] [SCP download] (requires registration).
+runtime firmware that runs on the SCP (System Control Processor). This image is
+embedded within the [Juno Board Recovery Image] but can also be
+[downloaded directly][Juno SCP Firmware].
 
 Rebuild the Trusted Firmware specifying the BL3-0 image. Refer to the section
 "Building the Trusted Firmware". Alternatively, the FIP image can be updated
@@ -971,92 +977,27 @@ Juno's device tree blob is built along with the kernel. It is located in:
 
     <path-to-linux>/arch/arm64/boot/dts/juno.dtb
 
-### Deploying a root filesystem on a USB mass storage device
+### Other Juno software information
 
-1.  Format the partition on the USB mass storage as ext4 filesystem.
+Please refer to the [Juno Software Guide] to:
 
-    A 2GB or larger USB mass storage device is required. If another filesystem
-    type is preferred then support needs to be enabled in the kernel. For
-    example, if the USB mass storage corresponds to /dev/sdb device on your
-    computer, use the following command to format partition 1 as ext4:
-
-        sudo mkfs.ext4 /dev/sdb1
-
-    Note: Please be cautious with this command as it could format your hard
-    drive instead if you specify the wrong device.
-
-2.  Mount the USB mass storage on the computer (if not done automatically):
-
-        sudo mount /dev/sdb1 /media/usb_storage
-
-    where '/media/usb_storage' corresponds to the mount point (the directory
-    must exist prior to using the mount command).
-
-3.  Download the rootfs specified in section "Prepare RAM-disk" and extract the
-    files as root user onto the formatted partition:
-
-        sudo tar zxf <linaro-image>.tar.gz -C /media/usb_storage/
-
-    Note: It is not necessary to modify the Linaro image as described in that
-    section since we are not using a RAM-disk.
-
-5.  Unmount the USB mass storage:
-
-        sudo umount /media/usb_storage
-
-
-9.  Running the software on Juno
---------------------------------
-
-The steps to install and run the binaries on Juno are as follows:
-
-1.  Connect a serial cable to the UART0 port (the top UART port on the back
-    panel). The UART settings are 115200 bauds, 8 bits data, no parity, 1 stop
-    bit.
-
-2.  Mount the Juno board storage via the CONFIG USB port
-
-    This is the only USB type B port on the board, labelled DBG_USB and located
-    on the back panel next to the ON/OFF and HW RESET buttons. Plug a type B USB
-    cable into this port on the Juno board and plug the other end into a host
-    PC, and then issue the following command in the UART0 session:
-
-        Cmd> usb_on
-
-    If the board doesn't show the Cmd> prompt then press the black HW RESET
-    button once. Once the Juno board storage is detected by your PC, mount it
-    (if not automatically done by your operating system).
-
-        mount /dev/sdbX /media/JUNO
-
-    For the rest of the installation instructions, we will assume that the Juno
-    board storage has been mounted under the /media/JUNO directory.
-
-3.  Copy the files obtained from the build process into /media/JUNO/SOFTWARE:
-
-        bl1.bin
-        fip.bin
-        Image
-        juno.dtb
-
-4.  Umount the Juno board storage
-
-        umount /media/JUNO
-
-5.  Reboot the board. In the UART0 session, type:
-
-        Cmd> reboot
+*   Deploy a root filesystem
+*   Install and run the Juno binaries on the board
+*   Obtain any other Juno software information
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 
 [Firmware Design]:  ./firmware-design.md
 
-[ARM FVP website]:         http://www.arm.com/fvp
-[SCP download]:            https://silver.arm.com/download/download.tm?pv=1764630
-[Linaro Toolchain]:        http://releases.linaro.org/14.07/components/toolchain/binaries/
-[EDK2]:                    http://github.com/tianocore/edk2
-[DS-5]:                    http://www.arm.com/products/tools/software-tools/ds-5/index.php
+[ARM FVP website]:             http://www.arm.com/fvp
+[ARM Connected Community]:     http://community.arm.com
+[Juno Software Guide]:         http://community.arm.com/docs/DOC-8396
+[Juno Board Recovery Image]:   http://community.arm.com/servlet/JiveServlet/download/9427-1-15432/board_recovery_image_0.10.1.zip
+[Juno SCP Firmware]:           http://community.arm.com/servlet/JiveServlet/download/9427-1-15422/bl30.bin.zip
+[Linaro Toolchain]:            http://releases.linaro.org/14.07/components/toolchain/binaries/
+[EDK2]:                        http://github.com/tianocore/edk2
+[DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
