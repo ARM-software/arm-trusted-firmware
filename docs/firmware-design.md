@@ -734,32 +734,43 @@ restoring the stack and CPU state and returning from the original SMC.
 
 TODO: Provide design walkthrough of PSCI implementation.
 
-The complete PSCI API is not yet implemented. The following functions are
-currently implemented:
+The PSCI v1.0 specification categorizes APIs as optional and mandatory. All the
+mandatory APIs in PSCI v1.0 and all the APIs in PSCI v0.2 draft specification
+[Power State Coordination Interface PDD] [PSCI] are implemented. The table lists
+the PSCI v1.0 APIs and their support in generic code.
 
--   `PSCI_VERSION`
--   `CPU_OFF`
--   `CPU_ON`
--   `CPU_SUSPEND`
--   `AFFINITY_INFO`
--   `SYSTEM_OFF`
--   `SYSTEM_RESET`
+An API implementation might have a dependency on platform code e.g. CPU_SUSPEND
+requires the platform to export a part of the implementation. Hence the level
+of support of the mandatory APIs depends upon the support exported by the
+platform port as well. The Juno and FVP (all variants) platforms export all the
+required support.
 
-The `CPU_ON`, `CPU_OFF` and `CPU_SUSPEND` functions implement the warm boot
-path in ARM Trusted Firmware. `CPU_ON` and `CPU_OFF` have undergone testing
-on all the supported FVPs. `CPU_SUSPEND` & `AFFINITY_INFO` have undergone
-testing only on the AEM v8 Base FVP. Support for `AFFINITY_INFO` is still
-experimental. Support for `CPU_SUSPEND` is stable for entry into power down
-states. Standby states are currently not supported. `PSCI_VERSION` is
-present but completely untested in this version of the software.
+| PSCI v1.0 API         |Supported| Comments                                  |
+|:----------------------|:--------|:------------------------------------------|
+|`PSCI_VERSION`         | Yes     | The version returned is 1.0               |
+|`CPU_SUSPEND`          | Yes*    | The original `power_state` format is used |
+|`CPU_OFF`              | Yes*    |                                           |
+|`CPU_ON`               | Yes*    |                                           |
+|`AFFINITY_INFO`        | Yes     |                                           |
+|`MIGRATE`              | Yes**   |                                           |
+|`MIGRATE_INFO_TYPE`    | Yes**   |                                           |
+|`MIGRATE_INFO_CPU`     | Yes**   |                                           |
+|`SYSTEM_OFF`           | Yes*    |                                           |
+|`SYSTEM_RESET`         | Yes*    |                                           |
+|`PSCI_FEATURES`        | Yes     |                                           |
+|`CPU_FREEZE`           | No      |                                           |
+|`CPU_DEFAULT_SUSPEND`  | No      |                                           |
+|`CPU_HW_STATE`         | No      |                                           |
+|`SYSTEM_SUSPEND`       | No      |                                           |
+|`PSCI_SET_SUSPEND_MODE`| No      |                                           |
+|`PSCI_STAT_RESIDENCY`  | No      |                                           |
+|`PSCI_STAT_COUNT`      | No      |                                           |
 
-The following unsupported functions return with a error code as documented in
-the [Power State Coordination Interface PDD] [PSCI].
+*Note : These PSCI APIs require platform power management hooks to be
+registered with the generic PSCI code to be supported.
 
--   `MIGRATE` : -1 (NOT_SUPPORTED)
--   `MIGRATE_INFO_TYPE` : 2 (Trusted OS is either not present or does not
-     require migration)
--   `MIGRATE_INFO_UP_CPU` : 0 (Return value is UNDEFINED)
+**Note : These PSCI APIs require appropriate Secure Payload Dispatcher
+hooks to be registered with the generic PSCI code to be supported.
 
 
 5.  Secure-EL1 Payloads and Dispatchers
