@@ -119,8 +119,6 @@ static void psci_afflvl0_suspend(aff_map_node_t *cpu_node)
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
 
-	assert(psci_plat_pm_ops->affinst_suspend);
-
 	/*
 	 * Plat. management: Allow the platform to perform the
 	 * necessary actions to turn off this cpu e.g. set the
@@ -145,8 +143,6 @@ static void psci_afflvl1_suspend(aff_map_node_t *cluster_node)
 	 * cluster is to be shutdown.
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL1);
-
-	assert(psci_plat_pm_ops->affinst_suspend);
 
 	/*
 	 * Plat. Management. Allow the platform to do its cluster specific
@@ -188,7 +184,6 @@ static void psci_afflvl2_suspend(aff_map_node_t *system_node)
 	 * Plat. Management : Allow the platform to do its bookeeping
 	 * at this affinity level
 	 */
-	assert(psci_plat_pm_ops->affinst_suspend);
 
 	/*
 	 * Sending the psci entrypoint is currently redundant
@@ -261,6 +256,13 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 	int skip_wfi = 0;
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	unsigned int max_phys_off_afflvl;
+
+	/*
+	 * This function must only be called on platforms where the
+	 * CPU_SUSPEND platform hooks have been implemented.
+	 */
+	assert(psci_plat_pm_ops->affinst_suspend &&
+			psci_plat_pm_ops->affinst_suspend_finish);
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -374,8 +376,6 @@ static void psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 	 * situation.
 	 */
 
-	assert(psci_plat_pm_ops->affinst_suspend_finish);
-
 	/* Get the physical state of this cpu */
 	plat_state = get_phys_state(state);
 	psci_plat_pm_ops->affinst_suspend_finish(cpu_node->level,
@@ -432,8 +432,6 @@ static void psci_afflvl1_suspend_finish(aff_map_node_t *cluster_node)
 	 * situation.
 	 */
 
-	assert(psci_plat_pm_ops->affinst_suspend_finish);
-
 	/* Get the physical state of this cpu */
 	plat_state = psci_get_phys_state(cluster_node);
 	psci_plat_pm_ops->affinst_suspend_finish(cluster_node->level,
@@ -461,8 +459,6 @@ static void psci_afflvl2_suspend_finish(aff_map_node_t *system_node)
 	 * then assert as there is no way to recover from this
 	 * situation.
 	 */
-
-	assert(psci_plat_pm_ops->affinst_suspend_finish);
 
 	/* Get the physical state of the system */
 	plat_state = psci_get_phys_state(system_node);
