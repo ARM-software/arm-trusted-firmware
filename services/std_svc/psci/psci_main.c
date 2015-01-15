@@ -317,6 +317,10 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 	if (is_caller_secure(flags))
 		SMC_RET1(handle, SMC_UNK);
 
+	/* Check the fid against the capabilities */
+	if (!(psci_caps & define_psci_cap(smc_fid)))
+		SMC_RET1(handle, SMC_UNK);
+
 	if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
 		/* 32-bit PSCI function, clear top parameter bits */
 

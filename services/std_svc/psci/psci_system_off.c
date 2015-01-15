@@ -30,19 +30,16 @@
 
 #include <stddef.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <debug.h>
 #include <platform.h>
 #include "psci_private.h"
 
 void psci_system_off(void)
 {
-	/* Check platform support */
-	if (!psci_plat_pm_ops->system_off) {
-		ERROR("Platform has not exported a PSCI System Off hook.\n");
-		panic();
-	}
-
 	psci_print_affinity_map();
+
+	assert(psci_plat_pm_ops->system_off);
 
 	/* Notify the Secure Payload Dispatcher */
 	if (psci_spd_pm && psci_spd_pm->svc_system_off) {
@@ -57,13 +54,9 @@ void psci_system_off(void)
 
 void psci_system_reset(void)
 {
-	/* Check platform support */
-	if (!psci_plat_pm_ops->system_reset) {
-		ERROR("Platform has not exported a PSCI System Reset hook.\n");
-		panic();
-	}
-
 	psci_print_affinity_map();
+
+	assert(psci_plat_pm_ops->system_reset);
 
 	/* Notify the Secure Payload Dispatcher */
 	if (psci_spd_pm && psci_spd_pm->svc_system_reset) {
