@@ -219,10 +219,11 @@ static void psci_init_aff_map_node(unsigned long mpidr,
 				      psci_svc_cpu_data.max_phys_off_afflvl,
 				      PSCI_INVALID_DATA);
 
+		flush_cpu_data_by_index(linear_id, psci_svc_cpu_data);
+
 		cm_set_context_by_mpidr(mpidr,
 					(void *) &psci_ns_context[linear_id],
 					NON_SECURE);
-
 	}
 
 	return;
