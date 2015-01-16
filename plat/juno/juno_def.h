@@ -37,6 +37,21 @@
 /*******************************************************************************
  * Juno memory map related constants
  ******************************************************************************/
+#define FLASH_BASE		0x08000000
+#define FLASH_SIZE		0x04000000
+
+/* Bypass offset from start of NOR flash */
+#define BL1_ROM_BYPASS_OFFSET	0x03EC0000
+
+#ifndef TZROM_BASE
+/* Use the bypass address */
+#define TZROM_BASE		FLASH_BASE + BL1_ROM_BYPASS_OFFSET
+#endif
+#define TZROM_SIZE		0x00010000
+
+#define TZRAM_BASE		0x04001000
+#define TZRAM_SIZE		0x0003F000
+
 #define PLAT_TRUSTED_SRAM_ID	0
 #define PLAT_DRAM_ID		1
 
