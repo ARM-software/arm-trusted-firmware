@@ -131,9 +131,11 @@ func bl1_entrypoint
 	ldr	x1, =__BSS_SIZE__
 	bl	zeromem16
 
+#if USE_COHERENT_MEM
 	ldr	x0, =__COHERENT_RAM_START__
 	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
 	bl	zeromem16
+#endif
 
 	ldr	x0, =__DATA_RAM_START__
 	ldr	x1, =__DATA_ROM_START__

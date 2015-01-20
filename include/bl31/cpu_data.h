@@ -32,7 +32,7 @@
 #define __CPU_DATA_H__
 
 /* Offsets for the cpu_data structure */
-#define CPU_DATA_CRASH_BUF_OFFSET	0x20
+#define CPU_DATA_CRASH_BUF_OFFSET	0x18
 #if CRASH_REPORTING
 #define CPU_DATA_LOG2SIZE		7
 #else
@@ -45,9 +45,19 @@
 #ifndef __ASSEMBLY__
 
 #include <arch_helpers.h>
+#include <cassert.h>
 #include <platform_def.h>
 #include <psci.h>
 #include <stdint.h>
+
+/* Offsets for the cpu_data structure */
+#define CPU_DATA_PSCI_LOCK_OFFSET	__builtin_offsetof\
+		(cpu_data_t, psci_svc_cpu_data.pcpu_bakery_info)
+
+#if PLAT_PCPU_DATA_SIZE
+#define CPU_DATA_PLAT_PCPU_OFFSET	__builtin_offsetof\
+		(cpu_data_t, platform_cpu_data)
+#endif
 
 /*******************************************************************************
  * Function & variable prototypes
@@ -69,9 +79,12 @@
 typedef struct cpu_data {
 	void *cpu_context[2];
 	uint64_t cpu_ops_ptr;
-	struct psci_cpu_data psci_svc_cpu_data;
 #if CRASH_REPORTING
 	uint64_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
+#endif
+	struct psci_cpu_data psci_svc_cpu_data;
+#if PLAT_PCPU_DATA_SIZE
+	uint8_t platform_cpu_data[PLAT_PCPU_DATA_SIZE];
 #endif
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 

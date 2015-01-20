@@ -48,19 +48,25 @@
  ******************************************************************************/
 extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
+extern unsigned long __BL31_END__;
 
+#if USE_COHERENT_MEM
 extern unsigned long __COHERENT_RAM_START__;
 extern unsigned long __COHERENT_RAM_END__;
+#endif
 
 /*
- * The next 2 constants identify the extents of the code & RO data region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
+ * The next 3 constants identify the extents of the code, RO data region and the
+ * limit of the BL3-1 image.  These addresses are used by the MMU setup code and
+ * therefore they must be page-aligned.  It is the responsibility of the linker
+ * script to ensure that __RO_START__, __RO_END__ & __BL31_END__ linker symbols
+ * refer to page-aligned addresses.
  */
 #define BL31_RO_BASE (unsigned long)(&__RO_START__)
 #define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
+#define BL31_END (unsigned long)(&__BL31_END__)
 
+#if USE_COHERENT_MEM
 /*
  * The next 2 constants identify the extents of the coherent memory region.
  * These addresses are used by the MMU setup code and therefore they must be
@@ -70,7 +76,7 @@ extern unsigned long __COHERENT_RAM_END__;
  */
 #define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-
+#endif
 
 #if RESET_TO_BL31
 static entry_point_info_t bl32_image_ep_info;
@@ -235,9 +241,12 @@ void bl31_plat_arch_setup(void)
 	fvp_cci_enable();
 #endif
 	fvp_configure_mmu_el3(BL31_RO_BASE,
-			      (BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE),
+			      (BL31_END - BL31_RO_BASE),
 			      BL31_RO_BASE,
-			      BL31_RO_LIMIT,
-			      BL31_COHERENT_RAM_BASE,
-			      BL31_COHERENT_RAM_LIMIT);
+			      BL31_RO_LIMIT
+#if USE_COHERENT_MEM
+			      , BL31_COHERENT_RAM_BASE,
+			      BL31_COHERENT_RAM_LIMIT
+#endif
+			      );
 }

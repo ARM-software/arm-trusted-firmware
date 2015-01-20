@@ -31,7 +31,9 @@
 #ifndef __FVP_PRIVATE_H__
 #define __FVP_PRIVATE_H__
 
+#include <bakery_lock.h>
 #include <bl_common.h>
+#include <cpu_data.h>
 #include <platform_def.h>
 
 
@@ -55,10 +57,60 @@ typedef struct bl2_to_bl31_params_mem {
 	entry_point_info_t bl31_ep_info;
 } bl2_to_bl31_params_mem_t;
 
+#if USE_COHERENT_MEM
+/*
+ * These are wrapper macros to the Coherent Memory Bakery Lock API.
+ */
+#define fvp_lock_init(_lock_arg)	bakery_lock_init(_lock_arg)
+#define fvp_lock_get(_lock_arg)		bakery_lock_get(_lock_arg)
+#define fvp_lock_release(_lock_arg)	bakery_lock_release(_lock_arg)
+
+#else
+
 /*******************************************************************************
- * Forward declarations
+ * Constants to specify how many bakery locks this platform implements. These
+ * are used if the platform chooses not to use coherent memory for bakery lock
+ * data structures.
  ******************************************************************************/
-struct meminfo;
+#define FVP_MAX_BAKERIES	1
+#define FVP_PWRC_BAKERY_ID	0
+
+/*******************************************************************************
+ * Definition of structure which holds platform specific per-cpu data. Currently
+ * it holds only the bakery lock information for each cpu. Constants to
+ * specify how many bakeries this platform implements and bakery ids are
+ * specified in fvp_def.h
+ ******************************************************************************/
+typedef struct fvp_cpu_data {
+	bakery_info_t pcpu_bakery_info[FVP_MAX_BAKERIES];
+} fvp_cpu_data_t;
+
+/* Macro to define the offset of bakery_info_t in fvp_cpu_data_t */
+#define FVP_CPU_DATA_LOCK_OFFSET	__builtin_offsetof\
+					    (fvp_cpu_data_t, pcpu_bakery_info)
+
+
+/*******************************************************************************
+ * Helper macros for bakery lock api when using the above fvp_cpu_data_t for
+ * bakery lock data structures. It assumes that the bakery_info is at the
+ * beginning of the platform specific per-cpu data.
+ ******************************************************************************/
+#define fvp_lock_init(_lock_arg)	/* No init required */
+#define fvp_lock_get(_lock_arg)		bakery_lock_get(_lock_arg,  	    \
+						CPU_DATA_PLAT_PCPU_OFFSET + \
+						FVP_CPU_DATA_LOCK_OFFSET)
+#define fvp_lock_release(_lock_arg)	bakery_lock_release(_lock_arg,	    \
+						CPU_DATA_PLAT_PCPU_OFFSET + \
+						FVP_CPU_DATA_LOCK_OFFSET)
+
+/*
+ * Ensure that the size of the FVP specific per-cpu data structure and the size
+ * of the memory allocated in generic per-cpu data for the platform are the same.
+ */
+CASSERT(PLAT_PCPU_DATA_SIZE == sizeof(fvp_cpu_data_t),	\
+	fvp_pcpu_data_size_mismatch);
+
+#endif /* __USE_COHERENT_MEM__ */
 
 /*******************************************************************************
  * Function and variable prototypes
@@ -66,15 +118,22 @@ struct meminfo;
 void fvp_configure_mmu_el1(unsigned long total_base,
 			   unsigned long total_size,
 			   unsigned long,
-			   unsigned long,
-			   unsigned long,
-			   unsigned long);
+			   unsigned long
+#if USE_COHERENT_MEM
+			   , unsigned long,
+			   unsigned long
+#endif
+			   );
 void fvp_configure_mmu_el3(unsigned long total_base,
 			   unsigned long total_size,
 			   unsigned long,
-			   unsigned long,
-			   unsigned long,
-			   unsigned long);
+			   unsigned long
+#if USE_COHERENT_MEM
+			   , unsigned long,
+			   unsigned long
+#endif
+			   );
+
 int fvp_config_setup(void);
 
 void fvp_cci_init(void);
