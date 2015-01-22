@@ -35,6 +35,11 @@
 
 #define BAKERY_LOCK_MAX_CPUS		PLATFORM_CORE_COUNT
 
+#ifndef __ASSEMBLY__
+#include <stdint.h>
+
+#if USE_COHERENT_MEM
+
 typedef struct bakery_lock {
 	int owner;
 	volatile char entering[BAKERY_LOCK_MAX_CPUS];
@@ -48,4 +53,21 @@ void bakery_lock_get(bakery_lock_t *bakery);
 void bakery_lock_release(bakery_lock_t *bakery);
 int bakery_lock_try(bakery_lock_t *bakery);
 
+#else
+
+typedef struct bakery_info {
+	/*
+	 * The lock_data is a bit-field of 2 members:
+	 * Bit[0]       : choosing. This field is set when the CPU is
+	 *                choosing its bakery number.
+	 * Bits[1 - 15] : number. This is the bakery number allocated.
+	 */
+	volatile uint16_t lock_data;
+} bakery_info_t;
+
+void bakery_lock_get(unsigned int id, unsigned int offset);
+void bakery_lock_release(unsigned int id, unsigned int offset);
+
+#endif /* __USE_COHERENT_MEM__ */
+#endif /* __ASSEMBLY__ */
 #endif /* __BAKERY_LOCK_H__ */

@@ -51,7 +51,10 @@ const spd_pm_ops_t *psci_spd_pm;
  * corresponds to an affinity instance e.g. cluster, cpu within an mpidr
  ******************************************************************************/
 aff_map_node_t psci_aff_map[PSCI_NUM_AFFS]
-__attribute__ ((section("tzfw_coherent_mem")));
+#if USE_COHERENT_MEM
+__attribute__ ((section("tzfw_coherent_mem")))
+#endif
+;
 
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops
@@ -246,7 +249,8 @@ void psci_acquire_afflvl_locks(int start_afflvl,
 	for (level = start_afflvl; level <= end_afflvl; level++) {
 		if (mpidr_nodes[level] == NULL)
 			continue;
-		bakery_lock_get(&mpidr_nodes[level]->lock);
+
+		psci_lock_get(mpidr_nodes[level]);
 	}
 }
 
@@ -264,7 +268,8 @@ void psci_release_afflvl_locks(int start_afflvl,
 	for (level = end_afflvl; level >= start_afflvl; level--) {
 		if (mpidr_nodes[level] == NULL)
 			continue;
-		bakery_lock_release(&mpidr_nodes[level]->lock);
+
+		psci_lock_release(mpidr_nodes[level]);
 	}
 }
 
@@ -350,6 +355,10 @@ int psci_save_ns_entry(uint64_t mpidr,
  ******************************************************************************/
 unsigned short psci_get_state(aff_map_node_t *node)
 {
+#if !USE_COHERENT_MEM
+	flush_dcache_range((uint64_t) node, sizeof(*node));
+#endif
+
 	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
 
 	/* A cpu node just contains the state which can be directly returned */
@@ -407,6 +416,10 @@ void psci_set_state(aff_map_node_t *node, unsigned short state)
 		node->state &= ~(PSCI_STATE_MASK << PSCI_STATE_SHIFT);
 		node->state |= (state & PSCI_STATE_MASK) << PSCI_STATE_SHIFT;
 	}
+
+#if !USE_COHERENT_MEM
+	flush_dcache_range((uint64_t) node, sizeof(*node));
+#endif
 }
 
 /*******************************************************************************

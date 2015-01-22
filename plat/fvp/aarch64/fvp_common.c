@@ -136,7 +136,8 @@ const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
  * Macro generating the code for the function setting up the pagetables as per
  * the platform memory map & initialize the mmu, for the given exception level
  ******************************************************************************/
-#define DEFINE_CONFIGURE_MMU_EL(_el)					\
+#if USE_COHERENT_MEM
+#define DEFINE_CONFIGURE_MMU_EL(_el)				\
 	void fvp_configure_mmu_el##_el(unsigned long total_base,	\
 				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
@@ -158,6 +159,25 @@ const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
 									\
 		enable_mmu_el##_el(0);					\
 	}
+#else
+#define DEFINE_CONFIGURE_MMU_EL(_el)				\
+	void fvp_configure_mmu_el##_el(unsigned long total_base,	\
+				   unsigned long total_size,		\
+				   unsigned long ro_start,		\
+				   unsigned long ro_limit)		\
+	{								\
+		mmap_add_region(total_base, total_base,			\
+				total_size,				\
+				MT_MEMORY | MT_RW | MT_SECURE);		\
+		mmap_add_region(ro_start, ro_start,			\
+				ro_limit - ro_start,			\
+				MT_MEMORY | MT_RO | MT_SECURE);		\
+		mmap_add(fvp_mmap);					\
+		init_xlat_tables();					\
+									\
+		enable_mmu_el##_el(0);					\
+	}
+#endif
 
 /* Define EL1 and EL3 variants of the function initialising the MMU */
 DEFINE_CONFIGURE_MMU_EL(1)

@@ -47,8 +47,10 @@
 extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
 
+#if USE_COHERENT_MEM
 extern unsigned long __COHERENT_RAM_START__;
 extern unsigned long __COHERENT_RAM_END__;
+#endif
 
 /*
  * The next 2 constants identify the extents of the code & RO data region.
@@ -59,6 +61,7 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL2_RO_BASE (unsigned long)(&__RO_START__)
 #define BL2_RO_LIMIT (unsigned long)(&__RO_END__)
 
+#if USE_COHERENT_MEM
 /*
  * The next 2 constants identify the extents of the coherent memory region.
  * These addresses are used by the MMU setup code and therefore they must be
@@ -68,11 +71,11 @@ extern unsigned long __COHERENT_RAM_END__;
  */
 #define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#endif
 
 /* Data structure which holds the extents of the trusted RAM for BL2 */
 static meminfo_t bl2_tzram_layout
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE),
-		section("tzfw_coherent_mem")));
+__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE)));
 
 /*******************************************************************************
  * Structure which holds the arguments which need to be passed to BL3-1
@@ -194,9 +197,12 @@ void bl2_plat_arch_setup(void)
 	configure_mmu_el1(bl2_tzram_layout.total_base,
 			  bl2_tzram_layout.total_size,
 			  BL2_RO_BASE,
-			  BL2_RO_LIMIT,
-			  BL2_COHERENT_RAM_BASE,
-			  BL2_COHERENT_RAM_LIMIT);
+			  BL2_RO_LIMIT
+#if USE_COHERENT_MEM
+			  , BL2_COHERENT_RAM_BASE,
+			  BL2_COHERENT_RAM_LIMIT
+#endif
+			  );
 }
 
 /*******************************************************************************

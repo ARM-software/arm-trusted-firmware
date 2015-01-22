@@ -32,6 +32,7 @@
 #include <bakery_lock.h>
 #include <mmio.h>
 #include "juno_def.h"
+#include "juno_private.h"
 #include "mhu.h"
 
 /* SCP MHU secure channel registers */
@@ -44,13 +45,20 @@
 #define CPU_INTR_S_SET		0x308
 #define CPU_INTR_S_CLEAR	0x310
 
-
+#if IMAGE_BL31
+#if USE_COHERENT_MEM
 static bakery_lock_t mhu_secure_lock __attribute__ ((section("tzfw_coherent_mem")));
-
+#define LOCK_ARG		&mhu_secure_lock
+#else
+#define LOCK_ARG		JUNO_MHU_BAKERY_ID
+#endif /*__USE_COHERENT_MEM__ */
+#else
+#define LOCK_ARG	/* Locks required only for BL3-1 images */
+#endif /* __IMAGE_BL31__ */
 
 void mhu_secure_message_start(void)
 {
-	bakery_lock_get(&mhu_secure_lock);
+	juno_lock_get(LOCK_ARG);
 
 	/* Make sure any previous command has finished */
 	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) != 0)
@@ -80,12 +88,12 @@ void mhu_secure_message_end(void)
 	/* Clear any response we got by writing all ones to the CLEAR register */
 	mmio_write_32(MHU_BASE + SCP_INTR_S_CLEAR, 0xffffffffu);
 
-	bakery_lock_release(&mhu_secure_lock);
+	juno_lock_release(LOCK_ARG);
 }
 
 void mhu_secure_init(void)
 {
-	bakery_lock_init(&mhu_secure_lock);
+	juno_lock_init(LOCK_ARG);
 
 	/*
 	 * Clear the CPU's INTR register to make sure we don't see a stale

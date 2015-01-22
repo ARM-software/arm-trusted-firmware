@@ -31,11 +31,13 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bakery_lock.h>
+#include <cpu_data.h>
 #include <platform.h>
 #include <string.h>
 
 /*
- * Functions in this file implement Bakery Algorithm for mutual exclusion.
+ * Functions in this file implement Bakery Algorithm for mutual exclusion with the
+ * bakery lock data structures in coherent memory.
  *
  * ARM architecture offers a family of exclusive access instructions to
  * efficiently implement mutual exclusion with hardware support. However, as
@@ -107,8 +109,6 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	++my_ticket;
 	bakery->number[me] = my_ticket;
 	bakery->entering[me] = 0;
-	dsb();
-	sev();
 
 	return my_ticket;
 }
@@ -151,7 +151,7 @@ void bakery_lock_get(bakery_lock_t *bakery)
 
 		/* Wait for the contender to get their ticket */
 		while (bakery->entering[they])
-			wfe();
+			;
 
 		/*
 		 * If the other party is a contender, they'll have non-zero
