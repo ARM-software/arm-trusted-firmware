@@ -61,11 +61,15 @@
 #define PSCI_MIG_INFO_UP_CPU_AARCH64	0xc4000007
 #define PSCI_SYSTEM_OFF			0x84000008
 #define PSCI_SYSTEM_RESET		0x84000009
+#define PSCI_FEATURES			0x8400000A
+
+/* Macro to help build the psci capabilities bitfield */
+#define define_psci_cap(x)		(1 << (x & 0x1f))
 
 /*
  * Number of PSCI calls (above) implemented
  */
-#define PSCI_NUM_CALLS			15
+#define PSCI_NUM_CALLS			16
 
 /*******************************************************************************
  * PSCI Migrate and friends
@@ -95,6 +99,18 @@
 					PSTATE_TYPE_MASK)
 #define psci_get_pstate_afflvl(pstate)	((pstate >> PSTATE_AFF_LVL_SHIFT) & \
 					PSTATE_AFF_LVL_MASK)
+
+/*******************************************************************************
+ * PSCI CPU_FEATURES feature flag specific defines
+ ******************************************************************************/
+/* Features flags for CPU SUSPEND power state parameter format. Bits [1:1] */
+#define FF_PSTATE_SHIFT		1
+#define FF_PSTATE_ORIG		0
+#define FF_PSTATE_EXTENDED	1
+
+/* Features flags for CPU SUSPEND OS Initiated mode support. Bits [0:0] */
+#define FF_MODE_SUPPORT_SHIFT		0
+#define FF_SUPPORTS_OS_INIT_MODE	1
 
 /*******************************************************************************
  * PSCI version
@@ -191,8 +207,8 @@ typedef struct spd_pm_ops {
 	void (*svc_suspend)(uint64_t __unused);
 	void (*svc_on_finish)(uint64_t __unused);
 	void (*svc_suspend_finish)(uint64_t suspend_level);
-	void (*svc_migrate)(uint64_t __unused1, uint64_t __unused2);
-	int32_t (*svc_migrate_info)(uint64_t *__unused);
+	int32_t (*svc_migrate)(uint64_t from_cpu, uint64_t to_cpu);
+	int32_t (*svc_migrate_info)(uint64_t *resident_cpu);
 	void (*svc_system_off)(void);
 	void (*svc_system_reset)(void);
 } spd_pm_ops_t;
@@ -202,9 +218,9 @@ typedef struct spd_pm_ops {
  ******************************************************************************/
 unsigned int psci_version(void);
 int psci_affinity_info(unsigned long, unsigned int);
-int psci_migrate(unsigned int);
-unsigned int psci_migrate_info_type(void);
-unsigned long psci_migrate_info_up_cpu(void);
+int psci_migrate(unsigned long);
+int psci_migrate_info_type(void);
+long psci_migrate_info_up_cpu(void);
 int psci_cpu_on(unsigned long,
 		unsigned long,
 		unsigned long);
