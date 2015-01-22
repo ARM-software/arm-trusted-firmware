@@ -89,12 +89,12 @@
 #define PSTATE_TYPE_STANDBY	0x0
 #define PSTATE_TYPE_POWERDOWN	0x1
 
-#define psci_get_pstate_id(pstate)	(pstate >> PSTATE_ID_SHIFT) & \
-					PSTATE_ID_MASK
-#define psci_get_pstate_type(pstate)	(pstate >> PSTATE_TYPE_SHIFT) & \
-					PSTATE_TYPE_MASK
-#define psci_get_pstate_afflvl(pstate)	(pstate >> PSTATE_AFF_LVL_SHIFT) & \
-					PSTATE_AFF_LVL_MASK
+#define psci_get_pstate_id(pstate)	((pstate >> PSTATE_ID_SHIFT) & \
+					PSTATE_ID_MASK)
+#define psci_get_pstate_type(pstate)	((pstate >> PSTATE_TYPE_SHIFT) & \
+					PSTATE_TYPE_MASK)
+#define psci_get_pstate_afflvl(pstate)	((pstate >> PSTATE_AFF_LVL_SHIFT) & \
+					PSTATE_AFF_LVL_MASK)
 
 /*******************************************************************************
  * PSCI version
@@ -161,24 +161,22 @@ typedef struct psci_cpu_data {
  * perform common low level pm functions
  ******************************************************************************/
 typedef struct plat_pm_ops {
-	int (*affinst_standby)(unsigned int);
-	int (*affinst_on)(unsigned long,
-			  unsigned long,
-			  unsigned long,
-			  unsigned int,
-			  unsigned int);
-	int (*affinst_off)(unsigned long, unsigned int, unsigned int);
-	int (*affinst_suspend)(unsigned long,
-			       unsigned long,
-			       unsigned long,
-			       unsigned int,
-			       unsigned int);
-	int (*affinst_on_finish)(unsigned long, unsigned int, unsigned int);
-	int (*affinst_suspend_finish)(unsigned long,
-				      unsigned int,
-				      unsigned int);
+	void (*affinst_standby)(unsigned int power_state);
+	int (*affinst_on)(unsigned long mpidr,
+			  unsigned long sec_entrypoint,
+			  unsigned int afflvl,
+			  unsigned int state);
+	void (*affinst_off)(unsigned int afflvl, unsigned int state);
+	void (*affinst_suspend)(unsigned long sec_entrypoint,
+			       unsigned int afflvl,
+			       unsigned int state);
+	void (*affinst_on_finish)(unsigned int afflvl, unsigned int state);
+	void (*affinst_suspend_finish)(unsigned int afflvl,
+				      unsigned int state);
 	void (*system_off)(void) __dead2;
 	void (*system_reset)(void) __dead2;
+	int (*validate_power_state)(unsigned int power_state);
+	int (*validate_ns_entrypoint)(unsigned long ns_entrypoint);
 } plat_pm_ops_t;
 
 /*******************************************************************************
@@ -190,7 +188,7 @@ typedef struct plat_pm_ops {
 typedef struct spd_pm_ops {
 	void (*svc_on)(uint64_t target_cpu);
 	int32_t (*svc_off)(uint64_t __unused);
-	void (*svc_suspend)(uint64_t power_state);
+	void (*svc_suspend)(uint64_t __unused);
 	void (*svc_on_finish)(uint64_t __unused);
 	void (*svc_suspend_finish)(uint64_t suspend_level);
 	void (*svc_migrate)(uint64_t __unused1, uint64_t __unused2);

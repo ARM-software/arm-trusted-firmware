@@ -216,7 +216,7 @@ tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
  * this cpu's architectural state is saved in response to an earlier psci
  * cpu_suspend request.
  ******************************************************************************/
-tsp_args_t *tsp_cpu_suspend_main(uint64_t power_state,
+tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
 			       uint64_t arg1,
 			       uint64_t arg2,
 			       uint64_t arg3,
@@ -242,8 +242,6 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t power_state,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x suspend request. power state: 0x%x\n",
-		mpidr, power_state);
 	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n",
 		mpidr,
 		tsp_stats[linear_id].smc_count,

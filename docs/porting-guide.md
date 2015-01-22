@@ -1094,61 +1094,61 @@ the passed pointer with a pointer to BL3-1's private `plat_pm_ops` structure.
 
 A description of each member of this structure is given below. Please refer to
 the ARM FVP specific implementation of these handlers in [plat/fvp/fvp_pm.c]
-as an example. A platform port may choose not implement some of the power
-management operations.
+as an example. A platform port is expected to implement these handlers if the
+corresponding PSCI operation is to be supported and these handlers are expected
+to succeed if the return type is `void`.
 
 #### plat_pm_ops.affinst_standby()
 
 Perform the platform-specific setup to enter the standby state indicated by the
-passed argument.
+passed argument. The generic code expects the handler to succeed.
 
 #### plat_pm_ops.affinst_on()
 
 Perform the platform specific setup to power on an affinity instance, specified
-by the `MPIDR` (first argument) and `affinity level` (fourth argument). The
-`state` (fifth argument) contains the current state of that affinity instance
+by the `MPIDR` (first argument) and `affinity level` (third argument). The
+`state` (fourth argument) contains the current state of that affinity instance
 (ON or OFF). This is useful to determine whether any action must be taken. For
 example, while powering on a CPU, the cluster that contains this CPU might
 already be in the ON state. The platform decides what actions must be taken to
 transition from the current state to the target state (indicated by the power
-management operation).
+management operation). The generic code expects the platform to return
+E_SUCCESS on success or E_INTERN_FAIL for any failure.
 
 #### plat_pm_ops.affinst_off()
 
-Perform the platform specific setup to power off an affinity instance in the
-`MPIDR` of the calling CPU. It is called by the PSCI `CPU_OFF` API
-implementation.
+Perform the platform specific setup to power off an affinity instance of the
+calling CPU. It is called by the PSCI `CPU_OFF` API implementation.
 
-The `MPIDR` (first argument), `affinity level` (second argument) and `state`
-(third argument) have a similar meaning as described in the `affinst_on()`
-operation. They are used to identify the affinity instance on which the call
-is made and its current state. This gives the platform port an indication of the
+The `affinity level` (first argument) and `state` (second argument) have
+a similar meaning as described in the `affinst_on()` operation. They are
+used to identify the affinity instance on which the call is made and its
+current state. This gives the platform port an indication of the
 state transition it must make to perform the requested action. For example, if
 the calling CPU is the last powered on CPU in the cluster, after powering down
 affinity level 0 (CPU), the platform port should power down affinity level 1
-(the cluster) as well.
+(the cluster) as well. The generic code expects the handler to succeed.
 
 #### plat_pm_ops.affinst_suspend()
 
-Perform the platform specific setup to power off an affinity instance in the
-`MPIDR` of the calling CPU. It is called by the PSCI `CPU_SUSPEND` API
+Perform the platform specific setup to power off an affinity instance of the
+calling CPU. It is called by the PSCI `CPU_SUSPEND` API
 implementation.
 
-The `MPIDR` (first argument), `affinity level` (third argument) and `state`
-(fifth argument) have a similar meaning as described in the `affinst_on()`
-operation. They are used to identify the affinity instance on which the call
-is made and its current state. This gives the platform port an indication of the
-state transition it must make to perform the requested action. For example, if
-the calling CPU is the last powered on CPU in the cluster, after powering down
-affinity level 0 (CPU), the platform port should power down affinity level 1
-(the cluster) as well.
+The `affinity level` (second argument) and `state` (third argument) have a
+similar meaning as described in the `affinst_on()` operation. They are used to
+identify the affinity instance on which the call is made and its current state.
+This gives the platform port an indication of the state transition it must
+make to perform the requested action. For example, if the calling CPU is the
+last powered on CPU in the cluster, after powering down affinity level 0 (CPU),
+the platform port should power down affinity level 1 (the cluster) as well.
 
 The difference between turning an affinity instance off versus suspending it
 is that in the former case, the affinity instance is expected to re-initialize
 its state when its next powered on (see `affinst_on_finish()`). In the latter
 case, the affinity instance is expected to save enough state so that it can
 resume execution by restoring this state when its powered on (see
-`affinst_suspend_finish()`).
+`affinst_suspend_finish()`).The generic code expects the handler to succeed.
 
 #### plat_pm_ops.affinst_on_finish()
 
@@ -1158,8 +1158,9 @@ It performs the platform-specific setup required to initialize enough state for
 this CPU to enter the normal world and also provide secure runtime firmware
 services.
 
-The `MPIDR` (first argument), `affinity level` (second argument) and `state`
-(third argument) have a similar meaning as described in the previous operations.
+The `affinity level` (first argument) and `state` (second argument) have a
+similar meaning as described in the previous operations. The generic code
+expects the handler to succeed.
 
 #### plat_pm_ops.affinst_on_suspend()
 
@@ -1170,8 +1171,25 @@ event, for example a timer interrupt that was programmed by the CPU during the
 restore the saved state for this CPU to resume execution in the normal world
 and also provide secure runtime firmware services.
 
-The `MPIDR` (first argument), `affinity level` (second argument) and `state`
-(third argument) have a similar meaning as described in the previous operations.
+The `affinity level` (first argument) and `state` (second argument) have a
+similar meaning as described in the previous operations. The generic code
+expects the platform to succeed.
+
+#### plat_pm_ops.validate_power_state()
+
+This function is called by the PSCI implementation during the `CPU_SUSPEND`
+call to validate the `power_state` parameter of the PSCI API. If the
+`power_state` is known to be invalid, the platform must return
+PSCI_E_INVALID_PARAMS as error, which is propagated back to the normal
+world PSCI client.
+
+#### plat_pm_ops.validate_ns_entrypoint()
+
+This function is called by the PSCI implementation during the `CPU_SUSPEND`
+and `CPU_ON` calls to validate the non-secure `entry_point` parameter passed
+by the normal world. If the `entry_point` is known to be invalid, the platform
+must return PSCI_E_INVALID_PARAMS as error, which is propagated back to the
+normal world PSCI client.
 
 BL3-1 platform initialization code must also detect the system topology and
 the state of each affinity instance in the topology. This information is

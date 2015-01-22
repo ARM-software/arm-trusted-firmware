@@ -45,12 +45,32 @@ int psci_cpu_on(unsigned long target_cpu,
 {
 	int rc;
 	unsigned int start_afflvl, end_afflvl;
+	entry_point_info_t ep;
 
 	/* Determine if the cpu exists of not */
 	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
 	if (rc != PSCI_E_SUCCESS) {
-		goto exit;
+		return PSCI_E_INVALID_PARAMS;
 	}
+
+	/* Validate the entrypoint using platform pm_ops */
+	if (psci_plat_pm_ops->validate_ns_entrypoint) {
+		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
+		if (rc != PSCI_E_SUCCESS) {
+			assert(rc == PSCI_E_INVALID_PARAMS);
+			return PSCI_E_INVALID_PARAMS;
+		}
+	}
+
+	/*
+	 * Verify and derive the re-entry information for
+	 * the non-secure world from the non-secure state from
+	 * where this call originated.
+	 */
+	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+	if (rc != PSCI_E_SUCCESS)
+		return rc;
+
 
 	/*
 	 * To turn this cpu on, specify which affinity
@@ -59,12 +79,10 @@ int psci_cpu_on(unsigned long target_cpu,
 	start_afflvl = MPIDR_AFFLVL0;
 	end_afflvl = get_max_afflvl();
 	rc = psci_afflvl_on(target_cpu,
-			    entrypoint,
-			    context_id,
+			    &ep,
 			    start_afflvl,
 			    end_afflvl);
 
-exit:
 	return rc;
 }
 
@@ -79,6 +97,7 @@ int psci_cpu_suspend(unsigned int power_state,
 {
 	int rc;
 	unsigned int target_afflvl, pstate_type;
+	entry_point_info_t ep;
 
 	/* Check SBZ bits in power state are zero */
 	if (psci_validate_power_state(power_state))
@@ -88,6 +107,24 @@ int psci_cpu_suspend(unsigned int power_state,
 	target_afflvl = psci_get_pstate_afflvl(power_state);
 	if (target_afflvl > get_max_afflvl())
 		return PSCI_E_INVALID_PARAMS;
+
+	/* Validate the power_state using platform pm_ops */
+	if (psci_plat_pm_ops->validate_power_state) {
+		rc = psci_plat_pm_ops->validate_power_state(power_state);
+		if (rc != PSCI_E_SUCCESS) {
+			assert(rc == PSCI_E_INVALID_PARAMS);
+			return PSCI_E_INVALID_PARAMS;
+		}
+	}
+
+	/* Validate the entrypoint using platform pm_ops */
+	if (psci_plat_pm_ops->validate_ns_entrypoint) {
+		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
+		if (rc != PSCI_E_SUCCESS) {
+			assert(rc == PSCI_E_INVALID_PARAMS);
+			return PSCI_E_INVALID_PARAMS;
+		}
+	}
 
 	/* Determine the 'state type' in the 'power_state' parameter */
 	pstate_type = psci_get_pstate_type(power_state);
@@ -100,25 +137,29 @@ int psci_cpu_suspend(unsigned int power_state,
 		if  (!psci_plat_pm_ops->affinst_standby)
 			return PSCI_E_INVALID_PARAMS;
 
-		rc = psci_plat_pm_ops->affinst_standby(power_state);
-		assert(rc == PSCI_E_INVALID_PARAMS || rc == PSCI_E_SUCCESS);
-		return rc;
+		psci_plat_pm_ops->affinst_standby(power_state);
+		return PSCI_E_SUCCESS;
 	}
 
 	/*
-	 * Do what is needed to enter the power down state. Upon success,
-	 * enter the final wfi which will power down this cpu else return
-	 * an error.
+	 * Verify and derive the re-entry information for
+	 * the non-secure world from the non-secure state from
+	 * where this call originated.
 	 */
-	rc = psci_afflvl_suspend(entrypoint,
-				 context_id,
-				 power_state,
-				 MPIDR_AFFLVL0,
-				 target_afflvl);
-	if (rc == PSCI_E_SUCCESS)
-		psci_power_down_wfi();
-	assert(rc == PSCI_E_INVALID_PARAMS);
-	return rc;
+	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+	if (rc != PSCI_E_SUCCESS)
+		return rc;
+
+	/*
+	 * Do what is needed to enter the power down state. Upon success,
+	 * enter the final wfi which will power down this CPU.
+	 */
+	psci_afflvl_suspend(&ep,
+			    power_state,
+			    MPIDR_AFFLVL0,
+			    target_afflvl);
+
+	return PSCI_E_SUCCESS;
 }
 
 int psci_cpu_off(void)
@@ -133,14 +174,6 @@ int psci_cpu_off(void)
 	 * ..target_afflvl specific actions as this function unwinds back.
 	 */
 	rc = psci_afflvl_off(MPIDR_AFFLVL0, target_afflvl);
-
-	/*
-	 * Check if all actions needed to safely power down this cpu have
-	 * successfully completed. Enter a wfi loop which will allow the
-	 * power controller to physically power down this cpu.
-	 */
-	if (rc == PSCI_E_SUCCESS)
-		psci_power_down_wfi();
 
 	/*
 	 * The only error cpu_off can return is E_DENIED. So check if that's
