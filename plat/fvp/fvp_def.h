@@ -150,6 +150,33 @@
 #define FUNC_SHUTDOWN		0x08
 #define FUNC_REBOOT		0x09
 
+/*
+ * The number of regions like RO(code), coherent and data required by
+ * different BL stages which need to be mapped in the MMU.
+ */
+#if USE_COHERENT_MEM
+#define FVP_BL_REGIONS		3
+#else
+#define FVP_BL_REGIONS		2
+#endif
+
+/*
+ * The FVP_MAX_MMAP_REGIONS depend on the number of entries in fvp_mmap[]
+ * defined for each BL stage in fvp_common.c.
+ */
+#if IMAGE_BL1
+#define FVP_MMAP_ENTRIES		5
+#endif
+#if IMAGE_BL2
+#define FVP_MMAP_ENTRIES		7
+#endif
+#if IMAGE_BL31
+#define FVP_MMAP_ENTRIES		4
+#endif
+#if IMAGE_BL32
+#define FVP_MMAP_ENTRIES		3
+#endif
+
 /* Load address of BL33 in the FVP port */
 #define NS_IMAGE_OFFSET		(DRAM1_BASE + 0x8000000) /* DRAM + 128MB */
 

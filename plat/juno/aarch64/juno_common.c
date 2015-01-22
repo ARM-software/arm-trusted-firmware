@@ -114,6 +114,9 @@ static const mmap_region_t juno_mmap[] = {
 };
 #endif
 
+CASSERT((sizeof(juno_mmap)/sizeof(juno_mmap[0])) + JUNO_BL_REGIONS \
+		<= MAX_MMAP_REGIONS, assert_max_mmap_regions);
+
 /* Array of secure interrupts to be configured by the gic driver */
 const unsigned int irq_sec_array[] = {
 	IRQ_MHU,

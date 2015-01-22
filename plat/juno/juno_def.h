@@ -140,6 +140,33 @@
 #define SYS_LED_EL_SHIFT		0x1
 #define SYS_LED_EC_SHIFT		0x3
 
+/*
+ * The number of regions like RO(code), coherent and data required by
+ * different BL stages which need to be mapped in the MMU.
+ */
+#if USE_COHERENT_MEM
+#define JUNO_BL_REGIONS		3
+#else
+#define JUNO_BL_REGIONS		2
+#endif
+
+/*
+ * The JUNO_MAX_MMAP_REGIONS depend on the number of entries in juno_mmap[]
+ * defined for each BL stage in juno_common.c.
+ */
+#if IMAGE_BL1
+#define JUNO_MMAP_ENTRIES		6
+#endif
+#if IMAGE_BL2
+#define JUNO_MMAP_ENTRIES		8
+#endif
+#if IMAGE_BL31
+#define JUNO_MMAP_ENTRIES		5
+#endif
+#if IMAGE_BL32
+#define JUNO_MMAP_ENTRIES		4
+#endif
+
 /*******************************************************************************
  * GIC-400 & interrupt handling related constants
  ******************************************************************************/

@@ -115,6 +115,9 @@ const mmap_region_t fvp_mmap[] = {
 };
 #endif
 
+CASSERT((sizeof(fvp_mmap)/sizeof(fvp_mmap[0])) + FVP_BL_REGIONS \
+		<= MAX_MMAP_REGIONS, assert_max_mmap_regions);
+
 /* Array of secure interrupts to be configured by the gic driver */
 const unsigned int irq_sec_array[] = {
 	IRQ_TZ_WDOG,
