@@ -255,6 +255,64 @@ performed.
     default model (when the value is 0) is to route non-secure interrupts
     to S-EL1 (TSP).
 
+*   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
+    Boot feature. When set to '1', BL1 and BL2 images include support to load
+    and verify the certificates and images in a FIP. The default value is '0'.
+    A successful build, when `TRUSTED_BOARD_BOOT=1`, depends upon the correct
+    initialization of the `AUTH_MOD` option. Generation and inclusion of
+    certificates in the FIP depends upon the value of the `GENERATE_COT` option.
+
+*   `AUTH_MOD`: This option is used when `TRUSTED_BOARD_BOOT=1`. It specifies
+    the name of the authentication module that will be used in the Trusted Board
+    Boot sequence. The module must be located in `common/auth/<module name>`
+    directory. The directory must contain a makefile `<module name>.mk` which
+    will be used to build the module. More information can be found in
+    [Trusted Board Boot]. The default module name is 'none'.
+
+*   `GENERATE_COT`: Boolean flag used to build and execute the `cert_create`
+    tool to create certificates as per the Chain of Trust described in
+    [Trusted Board Boot].  The build system then calls the `fip_create` tool to
+    include the certificates in the FIP. Default value is '0'.
+
+    Specify `TRUSTED_BOARD_BOOT=1` and `GENERATE_COT=1` to include support for
+    the Trusted Board Boot Sequence in the BL1 and BL2 images and the FIP.
+
+    Note that if `TRUSTED_BOARD_BOOT=0` and `GENERATE_COT=1`, the BL1 and BL2
+    images will not include support for Trusted Board Boot. The FIP will still
+    include the key and content certificates. This FIP can be used to verify the
+    Chain of Trust on the host machine through other mechanisms.
+
+    Note that if `TRUSTED_BOARD_BOOT=1` and `GENERATE_COT=0`, the BL1 and BL2
+    images will include support for Trusted Board Boot, but the FIP will not
+    include the key and content certificates, causing a boot failure.
+
+*   `CREATE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
+    certificate generation tool to create new keys in case no valid keys are
+    present or specified. Allowed options are '0' or '1'. Default is '1'.
+
+*   `ROT_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the ROT private key in PEM format.
+
+*   `TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
+    specifies the file that contains the Trusted World private key in PEM
+    format.
+
+*   `NON_TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
+    specifies the file that contains the Non-Trusted World private key in PEM
+    format.
+
+*   `BL30_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the BL3-0 private key in PEM format.
+
+*   `BL31_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the BL3-1 private key in PEM format.
+
+*   `BL32_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the BL3-2 private key in PEM format.
+
+*   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the BL3-3 private key in PEM format.
+
 #### FVP specific build options
 
 *   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
@@ -389,6 +447,48 @@ FVP_AARCH64_EFI.fd as BL3-3 image:
       file: '../FVP_AARCH64_EFI.fd'
     ---------------------------
     Creating "build/fvp/release/fip.bin"
+
+
+### Building the Certificate Generation Tool
+
+The `cert_create` tool can be built separately through the following commands:
+
+    $ cd tools/cert_create
+    $ make [DEBUG=1] [V=1]
+
+`DEBUG=1` builds the tool in debug mode. `V=1` makes the build process more
+verbose. The following command should be used to obtain help about the tool:
+
+    $ ./cert_create -h
+
+The `cert_create` tool is automatically built with the `fip` target when
+`GENERATE_COT=1`.
+
+
+### Building a FIP image with support for Trusted Board Boot
+
+The Trusted Board Boot feature is described in [Trusted Board Boot]. The
+following steps should be followed to build a FIP image with support for this
+feature.
+
+1.  Fulfill the dependencies of the `polarssl` authentication module by checking
+    out the tag `polarssl-1.3.9` from the [PolarSSL Repository].
+
+    The `common/auth/polarssl/polarssl.mk` contains the list of PolarSSL source
+    files the module depends upon. `common/auth/polarssl/polarssl_config.h`
+    contains the configuration options required to build the PolarSSL sources.
+
+    Note that the PolarSSL SSL library is licensed under the GNU GPL version 2
+    or later license. Using PolarSSL source code will affect the licensing of
+    Trusted Firmware binaries that are built using this library.
+
+2.  Ensure that the following command line variables are set while invoking
+    `make` to build Trusted Firmware:
+
+    *   `POLARSSL_DIR=<path of the directory containing PolarSSL sources>`
+    *   `AUTH_MOD=polarssl`
+    *   `TRUSTED_BOARD_BOOT=1`
+    *   `GENERATE_COT=1`
 
 
 ### Checking source code style
@@ -997,3 +1097,5 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [Linaro Toolchain]:            http://releases.linaro.org/14.07/components/toolchain/binaries/
 [EDK2]:                        http://github.com/tianocore/edk2
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
+[Polarssl Repository]:         https://github.com/polarssl/polarssl.git
+[Trusted Board Boot]:          trusted-board-boot.md
