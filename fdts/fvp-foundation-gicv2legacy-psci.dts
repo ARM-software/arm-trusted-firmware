@@ -83,7 +83,7 @@
 		};
 
 		idle-states {
-			entry-method = "arm,psci";
+			entry-method = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
 
 			CPU_SLEEP_0: cpu-sleep-0 {
 				compatible = "arm,idle-state";
