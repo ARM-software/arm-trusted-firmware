@@ -158,6 +158,45 @@ int32_t set_routing_model(uint32_t type, uint32_t flags)
 	return 0;
 }
 
+/******************************************************************************
+ * This function disables the routing model of interrupt 'type' from the
+ * specified 'security_state' on the local core. The disable is in effect
+ * till the core powers down or till the next enable for that interrupt
+ * type.
+ *****************************************************************************/
+int disable_intr_rm_local(uint32_t type, uint32_t security_state)
+{
+	uint32_t bit_pos, flag;
+
+	assert(intr_type_descs[type].handler);
+
+	flag = get_interrupt_rm_flag(INTR_DEFAULT_RM, security_state);
+
+	bit_pos = plat_interrupt_type_to_line(type, security_state);
+	cm_write_scr_el3_bit(security_state, bit_pos, flag);
+
+	return 0;
+}
+
+/******************************************************************************
+ * This function enables the routing model of interrupt 'type' from the
+ * specified 'security_state' on the local core.
+ *****************************************************************************/
+int enable_intr_rm_local(uint32_t type, uint32_t security_state)
+{
+	uint32_t bit_pos, flag;
+
+	assert(intr_type_descs[type].handler);
+
+	flag = get_interrupt_rm_flag(intr_type_descs[type].flags,
+				security_state);
+
+	bit_pos = plat_interrupt_type_to_line(type, security_state);
+	cm_write_scr_el3_bit(security_state, bit_pos, flag);
+
+	return 0;
+}
+
 /*******************************************************************************
  * This function registers a handler for the 'type' of interrupt specified. It
  * also validates the routing model specified in the 'flags' for this type of

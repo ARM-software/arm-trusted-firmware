@@ -120,6 +120,34 @@
 #define TSPD_C_RT_CTX_SIZE		0x60
 #define TSPD_C_RT_CTX_ENTRIES		(TSPD_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
+/*******************************************************************************
+ * Constants that allow assembler code to preserve caller-saved registers of the
+ * SP context while performing a TSP preemption.
+ * Note: These offsets have to match with the offsets for the corresponding
+ * registers in cpu_context as we are using memcpy to copy the values from
+ * cpu_context to sp_ctx.
+ ******************************************************************************/
+#define TSPD_SP_CTX_X0		0x0
+#define TSPD_SP_CTX_X1		0x8
+#define TSPD_SP_CTX_X2		0x10
+#define TSPD_SP_CTX_X3		0x18
+#define TSPD_SP_CTX_X4		0x20
+#define TSPD_SP_CTX_X5		0x28
+#define TSPD_SP_CTX_X6		0x30
+#define TSPD_SP_CTX_X7		0x38
+#define TSPD_SP_CTX_X8		0x40
+#define TSPD_SP_CTX_X9		0x48
+#define TSPD_SP_CTX_X10		0x50
+#define TSPD_SP_CTX_X11		0x58
+#define TSPD_SP_CTX_X12		0x60
+#define TSPD_SP_CTX_X13		0x68
+#define TSPD_SP_CTX_X14		0x70
+#define TSPD_SP_CTX_X15		0x78
+#define TSPD_SP_CTX_X16		0x80
+#define TSPD_SP_CTX_X17		0x88
+#define TSPD_SP_CTX_SIZE	0x90
+#define TSPD_SP_CTX_ENTRIES		(TSPD_SP_CTX_SIZE >> DWORD_SHIFT)
+
 #ifndef __ASSEMBLY__
 
 #include <cassert.h>
@@ -142,6 +170,17 @@ DEFINE_REG_STRUCT(c_rt_regs, TSPD_C_RT_CTX_ENTRIES);
 CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
 	assert_spd_c_rt_regs_size_mismatch);
 
+/* SEL1 Secure payload (SP) caller saved register context structure. */
+DEFINE_REG_STRUCT(sp_ctx_regs, TSPD_SP_CTX_ENTRIES);
+
+/*
+ * Compile time assertion to ensure that both the compiler and linker
+ * have the same double word aligned view of the size of the C runtime
+ * register context.
+ */
+CASSERT(TSPD_SP_CTX_SIZE == sizeof(sp_ctx_regs_t),	\
+	assert_spd_sp_regs_size_mismatch);
+
 /*******************************************************************************
  * Structure which helps the SPD to maintain the per-cpu state of the SP.
  * 'saved_spsr_el3' - temporary copy to allow FIQ handling when the TSP has been
@@ -155,6 +194,10 @@ CASSERT(TSPD_C_RT_CTX_SIZE == sizeof(c_rt_regs_t),	\
  * 'cpu_ctx'        - space to maintain SP architectural state
  * 'saved_tsp_args' - space to store arguments for TSP arithmetic operations
  *                    which will queried using the TSP_GET_ARGS SMC by TSP.
+ * 'sp_ctx'         - space to save the SEL1 Secure Payload(SP) caller saved
+ *                    register context after it has been preempted by an EL3
+ *                    routed NS interrupt and when a Secure Interrupt is taken
+ *                    to SP.
  ******************************************************************************/
 typedef struct tsp_context {
 	uint64_t saved_elr_el3;
@@ -164,6 +207,9 @@ typedef struct tsp_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	uint64_t saved_tsp_args[TSP_NUM_ARGS];
+#if TSPD_ROUTE_IRQ_TO_EL3
+	sp_ctx_regs_t sp_ctx;
+#endif
 } tsp_context_t;
 
 /* Helper macros to store and retrieve tsp args from tsp_context */
