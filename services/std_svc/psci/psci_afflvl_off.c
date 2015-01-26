@@ -51,8 +51,6 @@ static void psci_afflvl0_off(aff_map_node_t *cpu_node)
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
 
-	assert(psci_plat_pm_ops->affinst_off);
-
 	/*
 	 * Plat. management: Perform platform specific actions to turn this
 	 * cpu off e.g. exit cpu coherency, program the power controller etc.
@@ -71,8 +69,6 @@ static void psci_afflvl1_off(aff_map_node_t *cluster_node)
 	 * the cluster is to be shutdown.
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL1);
-
-	assert(psci_plat_pm_ops->affinst_off);
 
 	/*
 	 * Plat. Management. Allow the platform to do its cluster
@@ -98,8 +94,6 @@ static void psci_afflvl2_off(aff_map_node_t *system_node)
 	 * the system is to be shutdown.
 	 */
 	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL2);
-
-	assert(psci_plat_pm_ops->affinst_off);
 
 	/*
 	 * Plat. Management : Allow the platform to do its bookeeping
@@ -161,6 +155,12 @@ int psci_afflvl_off(int start_afflvl,
 	int rc;
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	unsigned int max_phys_off_afflvl;
+
+	/*
+	 * This function must only be called on platforms where the
+	 * CPU_OFF platform hooks have been implemented.
+	 */
+	assert(psci_plat_pm_ops->affinst_off);
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for

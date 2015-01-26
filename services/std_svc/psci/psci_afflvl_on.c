@@ -75,8 +75,6 @@ static int psci_afflvl0_on(unsigned long target_cpu,
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
 
-	assert(psci_plat_pm_ops->affinst_on);
-
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
@@ -106,8 +104,6 @@ static int psci_afflvl1_on(unsigned long target_cpu,
 	 */
 
 	/* State management: Is not required while turning a cluster on */
-
-	assert(psci_plat_pm_ops->affinst_on);
 
 	/*
 	 * Plat. management: Give the platform the current state
@@ -140,8 +136,6 @@ static int psci_afflvl2_on(unsigned long target_cpu,
 	 */
 
 	/* State management: Is not required while turning a system on */
-
-	assert(psci_plat_pm_ops->affinst_on);
 
 	/*
 	 * Plat. management: Give the platform the current state
@@ -217,6 +211,13 @@ int psci_afflvl_on(unsigned long target_cpu,
 {
 	int rc;
 	mpidr_aff_map_nodes_t target_cpu_nodes;
+
+	/*
+	 * This function must only be called on platforms where the
+	 * CPU_ON platform hooks have been implemented.
+	 */
+	assert(psci_plat_pm_ops->affinst_on &&
+			psci_plat_pm_ops->affinst_on_finish);
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
@@ -313,7 +314,6 @@ static void psci_afflvl0_on_finish(aff_map_node_t *cpu_node)
 	 * register. The actual state of this cpu has already been
 	 * changed.
 	 */
-	assert(psci_plat_pm_ops->affinst_on_finish);
 
 	/* Get the physical state of this cpu */
 	plat_state = get_phys_state(state);
@@ -357,8 +357,6 @@ static void psci_afflvl1_on_finish(aff_map_node_t *cluster_node)
 
 	assert(cluster_node->level == MPIDR_AFFLVL1);
 
-	assert(psci_plat_pm_ops->affinst_on_finish);
-
 	/*
 	 * Plat. management: Perform the platform specific actions
 	 * as per the old state of the cluster e.g. enabling
@@ -379,8 +377,6 @@ static void psci_afflvl2_on_finish(aff_map_node_t *system_node)
 
 	/* Cannot go beyond this affinity level */
 	assert(system_node->level == MPIDR_AFFLVL2);
-
-	assert(psci_plat_pm_ops->affinst_on_finish);
 
 	/*
 	 * Currently, there are no architectural actions to perform

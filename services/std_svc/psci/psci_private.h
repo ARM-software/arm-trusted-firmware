@@ -52,6 +52,26 @@
 						CPU_DATA_PSCI_LOCK_OFFSET)
 #endif
 
+/*
+ * The PSCI capability which are provided by the generic code but does not
+ * depend on the platform or spd capabilities.
+ */
+#define PSCI_GENERIC_CAP	\
+			(define_psci_cap(PSCI_VERSION) |		\
+			define_psci_cap(PSCI_AFFINITY_INFO_AARCH64) |	\
+			define_psci_cap(PSCI_FEATURES))
+
+/*
+ * The PSCI capabilities mask for 64 bit functions.
+ */
+#define PSCI_CAP_64BIT_MASK	\
+			(define_psci_cap(PSCI_CPU_SUSPEND_AARCH64) |	\
+			define_psci_cap(PSCI_CPU_ON_AARCH64) |		\
+			define_psci_cap(PSCI_AFFINITY_INFO_AARCH64) |	\
+			define_psci_cap(PSCI_MIG_AARCH64) |		\
+			define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64))
+
+
 /*******************************************************************************
  * The following two data structures hold the topology tree which in turn tracks
  * the state of the all the affinity instances supported by the platform.
@@ -82,6 +102,7 @@ typedef void (*afflvl_power_on_finisher_t)(aff_map_node_t *);
  ******************************************************************************/
 extern const plat_pm_ops_t *psci_plat_pm_ops;
 extern aff_map_node_t psci_aff_map[PSCI_NUM_AFFS];
+extern uint32_t psci_caps;
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
@@ -120,6 +141,7 @@ void psci_set_max_phys_off_afflvl(uint32_t afflvl);
 uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
 				       uint32_t end_afflvl,
 				       aff_map_node_t *mpidr_nodes[]);
+int psci_spd_migrate_info(uint64_t *mpidr);
 
 /* Private exported functions from psci_setup.c */
 int psci_get_aff_map_nodes(unsigned long mpidr,
