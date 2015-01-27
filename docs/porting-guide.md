@@ -483,7 +483,9 @@ specific errata workarounds could also be implemented here. The api should
 preserve the value in x10 register as it is used by the caller to store the
 return address.
 
-The default implementation doesn't do anything.
+The default implementation doesn't do anything. If a platform needs to override
+the default implementation, refer to the [Firmware Design Guide] for general
+guidelines regarding placement of code in a reset handler.
 
 ### Function : plat_disable_acp()
 
@@ -1476,6 +1478,7 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [IMF Design Guide]:                   interrupt-framework-design.md
 [User Guide]:                         user-guide.md
 [FreeBSD]:                            http://www.freebsd.org
+[Firmware Design Guide]:              firmware-design.md
 
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S

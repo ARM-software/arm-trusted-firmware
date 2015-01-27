@@ -29,6 +29,7 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
+#include <bl_common.h>
 #include <cortex_a53.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
@@ -58,13 +59,17 @@ func cortex_a53_disable_smp
 
 func cortex_a53_reset_func
 	/* ---------------------------------------------
-	 * As a bare minimum enable the SMP bit.
+	 * As a bare minimum enable the SMP bit if it is
+	 * not already set.
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CPUECTLR_EL1
+	tst	x0, #CPUECTLR_SMP_BIT
+	b.ne	skip_smp_setup
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
 	isb
+skip_smp_setup:
 	ret
 
 func cortex_a53_core_pwr_dwn

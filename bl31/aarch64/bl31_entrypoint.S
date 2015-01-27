@@ -61,15 +61,21 @@ func bl31_entrypoint
 	bic	x0, x0, #SCTLR_EE_BIT
 	msr	sctlr_el3, x0
 	isb
+#endif
 
-	/* -----------------------------------------------------
-	 * Perform any processor specific actions upon reset
-	 * e.g. cache, tlb invalidations etc. Override the
-	 * Boot ROM(BL0) programming sequence
-	 * -----------------------------------------------------
+	/* ---------------------------------------------
+	 * When RESET_TO_BL31 is true, perform any
+	 * processor specific actions upon reset e.g.
+	 * cache, tlb invalidations, errata workarounds
+	 * etc.
+	 * When RESET_TO_BL31 is false, perform any
+	 * processor specific actions which undo or are
+	 * in addition to the actions performed by the
+	 * reset handler in the Boot ROM (BL1).
+	 * ---------------------------------------------
 	 */
 	bl	reset_handler
-#endif
+
 	/* ---------------------------------------------
 	 * Enable the instruction cache, stack pointer
 	 * and data access alignment checks

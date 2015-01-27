@@ -9,12 +9,13 @@ Contents :
 4.  [Power State Coordination Interface](#4--power-state-coordination-interface)
 5.  [Secure-EL1 Payloads and Dispatchers](#5--secure-el1-payloads-and-dispatchers)
 6.  [Crash Reporting in BL3-1](#6--crash-reporting-in-bl3-1)
-7.  [CPU specific operations framework](#7--cpu-specific-operations-framework)
-8.  [Memory layout of BL images](#8-memory-layout-of-bl-images)
-9.  [Firmware Image Package (FIP)](#9--firmware-image-package-fip)
-10. [Use of coherent memory in Trusted Firmware](#10--use-of-coherent-memory-in-trusted-firmware)
-11. [Code Structure](#11--code-structure)
-12. [References](#12--references)
+7.  [Guidelines for Reset Handlers](#7--guidelines-for-reset-handlers)
+8.  [CPU specific operations framework](#8--cpu-specific-operations-framework)
+9.  [Memory layout of BL images](#9-memory-layout-of-bl-images)
+10. [Firmware Image Package (FIP)](#10--firmware-image-package-fip)
+11. [Use of coherent memory in Trusted Firmware](#11--use-of-coherent-memory-in-trusted-firmware)
+12. [Code Structure](#12--code-structure)
+13. [References](#13--references)
 
 
 1.  Introduction
@@ -960,8 +961,48 @@ The sample crash output is shown below.
     fpexc32_el2	:0x0000000004000700
     sp_el0	:0x0000000004010780
 
+7.  Guidelines for Reset Handlers
+---------------------------------
 
-7.  CPU specific operations framework
+Trusted Firmware implements a framework that allows CPU and platform ports to
+perform actions immediately after a CPU is released from reset in both the cold
+and warm boot paths. This is done by calling the `reset_handler()` function in
+both the BL1 and BL3-1 images. It in turn calls the platform and CPU specific
+reset handling functions.
+
+Details for implementing a CPU specific reset handler can be found in
+Section 8. Details for implementing a platform specific reset handler can be
+found in the [Porting Guide](see the `plat_reset_handler()` function).
+
+When adding functionality to a reset handler, the following points should be
+kept in mind.
+
+1.   The first reset handler in the system exists either in a ROM image
+     (e.g. BL1), or BL3-1 if `RESET_TO_BL31` is true. This may be detected at
+     compile time using the constant `FIRST_RESET_HANDLER_CALL`.
+
+2.   When considering ROM images, it's important to consider non TF-based ROMs
+     and ROMs based on previous versions of the TF code.
+
+3.   If the functionality should be applied to a ROM and there is no possibility
+     of a ROM being used that does not apply the functionality (or equivalent),
+     then the functionality should be applied within a `#if
+     FIRST_RESET_HANDLER_CALL` block.
+
+4.   If the functionality should execute in BL3-1 in order to override or
+     supplement a ROM version of the functionality, then the functionality
+     should be applied in the `#else` part of a `#if FIRST_RESET_HANDLER_CALL`
+     block.
+
+5.   If the functionality should be applied to a ROM but there is a possibility
+     of ROMs being used that do not apply the functionality, then the
+     functionality should be applied outside of a `FIRST_RESET_HANDLER_CALL`
+     block, so that BL3-1 has an opportunity to apply the functionality instead.
+     In this case, additional code may be needed to cope with different ROMs
+     that do or do not apply the functionality.
+
+
+8.  CPU specific operations framework
 -----------------------------
 
 Certain aspects of the ARMv8 architecture are implementation defined,
@@ -1026,6 +1067,9 @@ in midr are used to find the matching `cpu_ops` entry. The `reset_func()` in
 the returned `cpu_ops` is then invoked which executes the required reset
 handling for that CPU and also any errata workarounds enabled by the platform.
 
+Refer to Section "Guidelines for Reset Handlers" for general guidelines
+regarding placement of code in a reset handler.
+
 ### CPU specific power down sequence
 
 During the BL3-1 initialization sequence, the pointer to the matching `cpu_ops`
@@ -1056,7 +1100,7 @@ be reported and a pointer to the ASCII list of register names in a format
 expected by the crash reporting framework.
 
 
-8. Memory layout of BL images
+9. Memory layout of BL images
 -----------------------------
 
 Each bootloader image can be divided in 2 parts:
@@ -1378,7 +1422,7 @@ Loading the BL3-2 image in DRAM doesn't change the memory layout of the other
 images in Trusted SRAM.
 
 
-9.  Firmware Image Package (FIP)
+10.  Firmware Image Package (FIP)
 ---------------------------------
 
 Using a Firmware Image Package (FIP) allows for packing bootloader images (and
@@ -1456,7 +1500,7 @@ Currently the FVP's policy only allows loading of a known set of images. The
 platform policy can be modified to allow additional images.
 
 
-10. Use of coherent memory in Trusted Firmware
+11. Use of coherent memory in Trusted Firmware
 ----------------------------------------------
 
 There might be loss of coherency when physical memory with mismatched
@@ -1657,7 +1701,7 @@ reserve memory in `cpu_data` by defining the macro `PLAT_PCPU_DATA_SIZE` (see
 the [Porting Guide]). Refer to the reference platform code for examples.
 
 
-11.  Code Structure
+12.  Code Structure
 -------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -1702,7 +1746,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-12.  References
+13.  References
 ---------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
