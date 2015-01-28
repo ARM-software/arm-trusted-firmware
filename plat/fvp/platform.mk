@@ -89,3 +89,8 @@ BL31_SOURCES		+=	drivers/arm/cci400/cci400.c			\
 				plat/fvp/aarch64/fvp_helpers.S			\
 				plat/fvp/aarch64/fvp_common.c			\
 				plat/fvp/drivers/pwrc/fvp_pwrc.c
+
+ifneq (${TRUSTED_BOARD_BOOT},0)
+  BL1_SOURCES		+=	plat/fvp/fvp_trusted_boot.c
+  BL2_SOURCES		+=	plat/fvp/fvp_trusted_boot.c
+endif

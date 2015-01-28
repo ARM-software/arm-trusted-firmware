@@ -34,7 +34,7 @@
 #include <stdint.h>
 #include <uuid.h>
 
-#define MAX_FILES			10
+#define MAX_FILES			20
 
 /* TODO: Update this number as required */
 #define TOC_HEADER_SERIAL_NUMBER	0x12345678

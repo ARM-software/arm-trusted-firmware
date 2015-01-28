@@ -49,9 +49,17 @@
 #if DEBUG_XLAT_TABLE
 #define PLATFORM_STACK_SIZE 0x800
 #elif IMAGE_BL1
+#if TRUSTED_BOARD_BOOT
+#define PLATFORM_STACK_SIZE 0x1000
+#else
 #define PLATFORM_STACK_SIZE 0x440
+#endif
 #elif IMAGE_BL2
+#if TRUSTED_BOARD_BOOT
+#define PLATFORM_STACK_SIZE 0x1000
+#else
 #define PLATFORM_STACK_SIZE 0x400
+#endif
 #elif IMAGE_BL31
 #define PLATFORM_STACK_SIZE 0x400
 #elif IMAGE_BL32
@@ -71,6 +79,22 @@
 
 /* Non-Trusted Firmware BL33 */
 #define BL33_IMAGE_NAME			"bl33.bin" /* e.g. UEFI */
+
+#if TRUSTED_BOARD_BOOT
+/* Certificates */
+# define BL2_CERT_NAME			"bl2.crt"
+# define TRUSTED_KEY_CERT_NAME		"trusted_key.crt"
+
+# define BL30_KEY_CERT_NAME		"bl30_key.crt"
+# define BL31_KEY_CERT_NAME		"bl31_key.crt"
+# define BL32_KEY_CERT_NAME		"bl32_key.crt"
+# define BL33_KEY_CERT_NAME		"bl33_key.crt"
+
+# define BL30_CERT_NAME			"bl30.crt"
+# define BL31_CERT_NAME			"bl31.crt"
+# define BL32_CERT_NAME			"bl32.crt"
+# define BL33_CERT_NAME			"bl33.crt"
+#endif /* TRUSTED_BOARD_BOOT */
 
 #define PLATFORM_CACHE_LINE_SIZE	64
 #define PLATFORM_CLUSTER_COUNT		2ull
@@ -96,8 +120,13 @@
  * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
  * the current BL1 RW debug size plus a little space for growth.
  */
+#if TRUSTED_BOARD_BOOT
+#define BL1_RW_BASE			(FVP_TRUSTED_SRAM_BASE \
+					+ FVP_TRUSTED_SRAM_SIZE - 0x8000)
+#else
 #define BL1_RW_BASE			(FVP_TRUSTED_SRAM_BASE \
 					+ FVP_TRUSTED_SRAM_SIZE - 0x6000)
+#endif
 #define BL1_RW_LIMIT			(FVP_TRUSTED_SRAM_BASE \
 					+ FVP_TRUSTED_SRAM_SIZE)
 
@@ -108,7 +137,11 @@
  * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
  * size plus a little space for growth.
  */
+#if TRUSTED_BOARD_BOOT
+#define BL2_BASE			(BL31_BASE - 0x1C000)
+#else
 #define BL2_BASE			(BL31_BASE - 0xC000)
+#endif
 #define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************

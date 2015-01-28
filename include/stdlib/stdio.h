@@ -65,6 +65,8 @@ int	 sprintf(char * __restrict, const char * __restrict, ...);
 int	 vsprintf(char * __restrict, const char * __restrict,
 	   __va_list);
 
+int	 sscanf(const char *__restrict, char const *__restrict, ...);
+
 #if __ISO_C_VISIBLE >= 1999
 int	 snprintf(char * __restrict, size_t, const char * __restrict,
 	   ...) __printflike(3, 4);

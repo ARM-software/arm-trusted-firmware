@@ -275,9 +275,16 @@ int load_image(meminfo_t *mem_layout,
 	 * Update the memory usage info.
 	 * This is done after the actual loading so that it is not updated when
 	 * the load is unsuccessful.
+	 * If the caller does not provide an entry point, bypass the memory
+	 * reservation.
 	 */
-	reserve_mem(&mem_layout->free_base, &mem_layout->free_size,
-		    image_base, image_size);
+	if (entry_point_info != NULL) {
+		reserve_mem(&mem_layout->free_base, &mem_layout->free_size,
+				image_base, image_size);
+	} else {
+		INFO("Skip reserving memory: 0x%lx - 0x%lx\n",
+				image_base, image_base + image_size);
+	}
 
 	image_data->image_base = image_base;
 	image_data->image_size = image_size;

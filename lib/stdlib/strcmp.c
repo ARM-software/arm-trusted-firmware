@@ -36,6 +36,7 @@
  */
 
 #include <sys/cdefs.h>
+#include <sys/ctype.h>
 #include <string.h>
 
 /*
@@ -48,4 +49,18 @@ strcmp(const char *s1, const char *s2)
 		if (*s1++ == '\0')
 			return 0;
 	return *(const unsigned char *)s1 - *(const unsigned char *)(s2 - 1);
+}
+
+int
+strcasecmp(const char *s1, const char *s2)
+{
+	const unsigned char *us1 = (const unsigned char *)s1;
+	const unsigned char *us2 = (const unsigned char *)s2;
+
+	while (tolower(*us1) == tolower(*us2)) {
+		if (*us1++ == '\0')
+			return 0;
+		us2++;
+	}
+	return tolower(*us1) - tolower(*us2);
 }

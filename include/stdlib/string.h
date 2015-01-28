@@ -59,6 +59,7 @@ char	*strchr(const char *, int) __pure;
 int	 strcmp(const char *, const char *) __pure;
 size_t	 strlen(const char *) __pure;
 int	 strncmp(const char *, const char *, size_t) __pure;
+int	 strcasecmp(const char *, const char *);
 
 __END_DECLS
 

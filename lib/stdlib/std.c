@@ -32,10 +32,12 @@
 /* Include the various implemented functions */
 #include "abort.c"
 #include "assert.c"
+#include "exit.c"
 #include "mem.c"
 #include "printf.c"
 #include "putchar.c"
 #include "puts.c"
+#include "sscanf.c"
 #include "strchr.c"
 #include "strcmp.c"
 #include "strlen.c"

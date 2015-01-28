@@ -67,6 +67,14 @@ ASM_ASSERTION		:=	${DEBUG}
 USE_COHERENT_MEM	:=	1
 # Default FIP file name
 FIP_NAME		:= fip.bin
+# By default, use the -pedantic option in the gcc command line
+DISABLE_PEDANTIC	:= 0
+# Flags to generate the Chain of Trust
+GENERATE_COT		:= 0
+CREATE_KEYS		:= 1
+# Flags to build TF with Trusted Boot support
+TRUSTED_BOARD_BOOT	:= 0
+AUTH_MOD		:= none
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO
@@ -182,7 +190,7 @@ ifneq (${SPD},none)
   # fip, then the NEED_BL32 needs to be set and BL3-2 would need to point to the bin.
 endif
 
-.PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip
+.PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip certtool
 .SUFFIXES:
 
 INCLUDES		+=	-Iinclude/bl31			\
@@ -236,11 +244,19 @@ $(eval $(call add_define,LOG_LEVEL))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_COHERENT_MEM))
 
+# Process Generate CoT flags
+$(eval $(call assert_boolean,GENERATE_COT))
+$(eval $(call assert_boolean,CREATE_KEYS))
+
+# Process TRUSTED_BOARD_BOOT flag
+$(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
+$(eval $(call add_define,TRUSTED_BOARD_BOOT))
+
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
 				-mgeneral-regs-only -D__ASSEMBLY__		\
 				${DEFINES} ${INCLUDES}
-CFLAGS			+= 	-nostdinc -pedantic -ffreestanding -Wall	\
+CFLAGS			+= 	-nostdinc -ffreestanding -Wall			\
 				-Werror -Wmissing-include-dirs			\
 				-mgeneral-regs-only -std=c99 -c -Os		\
 				${DEFINES} ${INCLUDES}
@@ -266,6 +282,53 @@ FIPTOOL			?=	${FIPTOOLPATH}/fip_create
 fiptool:		${FIPTOOL}
 fip:			${BUILD_PLAT}/${FIP_NAME}
 
+# Variables for use with Certificate Generation Tool
+CRTTOOLPATH		?=	tools/cert_create
+CRTTOOL			?=	${CRTTOOLPATH}/cert_create
+certtool:		${CRTTOOL}
+
+# CoT generation tool default parameters
+TRUSTED_KEY_CERT	:=	${BUILD_PLAT}/trusted_key.crt
+
+# Pass the private keys to the CoT generation tool in the command line
+# If CREATE_KEYS is set, the '-n' option will be added, indicating the tool to create new keys
+ifneq (${GENERATE_COT},0)
+    $(eval CERTS := yes)
+
+    $(eval FIP_DEPS += certificates)
+    $(eval FIP_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
+
+    ifneq (${CREATE_KEYS},0)
+        $(eval CRT_ARGS += -n)
+    endif
+    $(eval CRT_ARGS += $(if ${ROT_KEY}, --rot-key ${ROT_KEY}))
+    $(eval CRT_ARGS += $(if ${TRUSTED_WORLD_KEY}, --trusted-world-key ${TRUSTED_WORLD_KEY}))
+    $(eval CRT_ARGS += $(if ${NON_TRUSTED_WORLD_KEY}, --non-trusted-world-key ${NON_TRUSTED_WORLD_KEY}))
+    $(eval CRT_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
+endif
+
+# Check Trusted Board Boot options
+ifneq (${TRUSTED_BOARD_BOOT},0)
+    ifeq (${AUTH_MOD},none)
+        $(error Error: When TRUSTED_BOARD_BOOT=1, AUTH_MOD has to be the name of a valid authentication module)
+    else
+        # We expect to locate an *.mk file under the specified AUTH_MOD directory
+        AUTH_MAKE := $(shell m="common/auth/${AUTH_MOD}/${AUTH_MOD}.mk"; [ -f "$$m" ] && echo "$$m")
+        ifeq (${AUTH_MAKE},)
+            $(error Error: No common/auth/${AUTH_MOD}/${AUTH_MOD}.mk located)
+        endif
+        $(info Including ${AUTH_MAKE})
+        include ${AUTH_MAKE}
+    endif
+
+    BL_COMMON_SOURCES	+=	common/auth.c
+endif
+
+# Check if -pedantic option should be used
+ifeq (${DISABLE_PEDANTIC},0)
+    CFLAGS		+= 	-pedantic
+endif
+
 locate-checkpatch:
 ifndef CHECKPATCH
 	$(error "Please set CHECKPATCH to point to the Linux checkpatch.pl file, eg: CHECKPATCH=../linux/script/checkpatch.pl")
@@ -279,12 +342,14 @@ clean:
 			@echo "  CLEAN"
 			${Q}rm -rf ${BUILD_PLAT}
 			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
+			${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 
 realclean distclean:
 			@echo "  REALCLEAN"
 			${Q}rm -rf ${BUILD_BASE}
 			${Q}rm -f ${CURDIR}/cscope.*
 			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
+			${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 
 checkcodebase:		locate-checkpatch
 			@echo "  CHECKING STYLE"
@@ -297,6 +362,13 @@ checkcodebase:		locate-checkpatch
 checkpatch:		locate-checkpatch
 			@echo "  CHECKING STYLE"
 			@git format-patch --stdout ${BASE_COMMIT} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
+
+.PHONY: ${CRTTOOL}
+${CRTTOOL}:
+			${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH}
+			@echo
+			@echo "Built $@ successfully"
+			@echo
 
 .PHONY: ${FIPTOOL}
 ${FIPTOOL}:
@@ -398,6 +470,39 @@ define SOURCES_TO_OBJS
 	$(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
 endef
 
+
+# MAKE_TOOL_ARGS macro defines the command line arguments for the FIP and CRT
+# tools at each BL stage. Arguments:
+#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(2) = Binary file
+#   $(3) = In FIP (false if empty)
+#   $(4) = Create certificates (false if empty)
+#   $(5) = Create key certificate (false if empty)
+#   $(6) = Private key (optional)
+define MAKE_TOOL_ARGS
+
+$(eval FIP_DEPS += $(if $3,$(2),))
+$(eval FIP_ARGS += $(if $3,--bl$(1) $(2),))
+$(eval FIP_ARGS += $(if $4,--bl$(1)-cert $(BUILD_PLAT)/bl$(1).crt))
+$(eval FIP_ARGS += $(if $4,$(if $5,--bl$(1)-key-cert $(BUILD_PLAT)/bl$(1)_key.crt)))
+
+$(eval CRT_DEPS += $(if $4,$(2),))
+$(eval CRT_DEPS += $(if $4,$(if $6,$(6),)))
+$(eval CRT_ARGS += $(if $4,--bl$(1) $(2)))
+$(eval CRT_ARGS += $(if $4,$(if $6,--bl$(1)-key $(6))))
+$(eval CRT_ARGS += $(if $4,--bl$(1)-cert $(BUILD_PLAT)/bl$(1).crt))
+$(eval CRT_ARGS += $(if $4,$(if $5,--bl$(1)-key-cert $(BUILD_PLAT)/bl$(1)_key.crt)))
+
+endef
+
+
+# MAKE_BL macro defines the targets and options to build each BL image.
+# Arguments:
+#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(2) = In FIP (false if empty)
+#   $(3) = Create certificates (false if empty)
+#   $(4) = Create key certificate (false if empty)
+#   $(5) = Private key (optional)
 define MAKE_BL
 	$(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
 	$(eval SOURCES    := $(BL$(1)_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
@@ -438,8 +543,7 @@ bl$(1) : $(BUILD_DIR) $(BIN) $(DUMP)
 
 all : bl$(1)
 
-$(eval FIP_DEPS += $(if $2,$(BIN),))
-$(eval FIP_ARGS += $(if $2,--bl$(1) $(BIN),))
+$(eval $(call MAKE_TOOL_ARGS,$(1),$(BIN),$(2),$(3),$(4),$(5)))
 
 endef
 
@@ -449,23 +553,23 @@ $(eval $(call MAKE_BL,1))
 endif
 
 ifeq (${NEED_BL2},yes)
-$(if ${BL2}, $(eval FIP_DEPS += ${BL2}) $(eval FIP_ARGS += --bl2 ${BL2}),\
-	$(eval $(call MAKE_BL,2,in_fip)))
+$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},in_fip,${CERTS})),\
+	$(eval $(call MAKE_BL,2,in_fip,${CERTS})))
 endif
 
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
-$(if ${BL31}, $(eval FIP_DEPS += ${BL31}) $(eval FIP_ARGS += --bl31 ${BL31}),\
-	$(eval $(call MAKE_BL,31,in_fip)))
+$(if ${BL31}, $(eval $(call MAKE_TOOL_ARGS,31,${BL31},in_fip,${CERTS},${CERTS},${BL31_KEY})),\
+	$(eval $(call MAKE_BL,31,in_fip,${CERTS},${CERTS},${BL31_KEY})))
 endif
 
 ifeq (${NEED_BL32},yes)
-$(if ${BL32}, $(eval FIP_DEPS += ${BL32}) $(eval FIP_ARGS += --bl32 ${BL32}),\
-	$(eval $(call MAKE_BL,32,in_fip)))
+$(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},in_fip,${CERTS},${CERTS},${BL32_KEY})),\
+	$(eval $(call MAKE_BL,32,in_fip,${CERTS},${CERTS},${BL32_KEY})))
 endif
 
 ifeq (${NEED_BL30},yes)
-$(if ${BL30}, $(eval FIP_DEPS += ${BL30}) $(eval FIP_ARGS += --bl30 ${BL30}), )
+$(if ${BL30}, $(eval $(call MAKE_TOOL_ARGS,30,${BL30},in_fip,${CERTS},${CERTS},${BL30_KEY})))
 
 # If BL3-0 is needed by the platform then 'BL30' variable must be defined.
 check_bl30:
@@ -479,7 +583,7 @@ check_bl30:
 endif
 
 ifeq (${NEED_BL33},yes)
-$(if ${BL33}, $(eval FIP_DEPS += ${BL33}) $(eval FIP_ARGS += --bl33 ${BL33}), )
+$(if ${BL33}, $(eval $(call MAKE_TOOL_ARGS,33,${BL33},in_fip,${CERTS},${CERTS},${BL33_KEY})))
 
 # If BL3-3 is needed by the platform then 'BL33' variable must be defined.
 check_bl33:
@@ -492,6 +596,17 @@ check_bl33:
 	$(if ${BL33},$(warning "BL3-3 is not supported on platform ${PLAT}, it will just be ignored"),)
 endif
 
+# Add the dependency on the certificates
+ifneq (${GENERATE_COT},0)
+    all: certificates
+endif
+
+certificates: ${CRT_DEPS} ${CRTTOOL} check_bl30 check_bl33
+			${Q}${CRTTOOL} ${CRT_ARGS}
+			@echo
+			@echo "Built $@ successfully"
+			@echo "Certificates can be found in ${BUILD_PLAT}"
+			@echo
 
 ${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL} check_bl30 check_bl33
 			${Q}${FIPTOOL} --dump \
@@ -524,6 +639,7 @@ help:
 	@echo "  clean          Clean the build for the selected platform"
 	@echo "  cscope         Generate cscope index"
 	@echo "  distclean      Remove all build artifacts for all platforms"
+	@echo "  certtool       Build the Certificate generation tool"
 	@echo "  fiptool        Build the Firmware Image Package(FIP) creation tool"
 	@echo ""
 	@echo "note: most build targets require PLAT to be set to a specific platform."

@@ -47,7 +47,13 @@
 /* Use the bypass address */
 #define TZROM_BASE		FLASH_BASE + BL1_ROM_BYPASS_OFFSET
 #endif
+/* Actual ROM size on Juno is 64 KB, but TBB requires at least 80 KB in debug
+ * mode. We can test TBB on Juno bypassing the ROM and using 128 KB of flash */
+#if TRUSTED_BOARD_BOOT
+#define TZROM_SIZE		0x00020000
+#else
 #define TZROM_SIZE		0x00010000
+#endif
 
 #define TZRAM_BASE		0x04001000
 #define TZRAM_SIZE		0x0003F000

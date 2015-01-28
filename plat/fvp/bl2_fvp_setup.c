@@ -175,6 +175,9 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();
+
+	/* Initialise the IO layer and register platform IO devices */
+	fvp_io_setup();
 }
 
 /*******************************************************************************
@@ -190,9 +193,6 @@ void bl2_platform_setup(void)
 	 * present.
 	 */
 	fvp_security_setup();
-
-	/* Initialise the IO layer and register platform IO devices */
-	fvp_io_setup();
 }
 
 /* Flush the TF params and the TF plat params */

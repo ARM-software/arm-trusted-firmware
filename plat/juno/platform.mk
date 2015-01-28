@@ -90,6 +90,11 @@ BL31_SOURCES		+=	drivers/arm/cci400/cci400.c		\
 				plat/juno/plat_topology.c		\
 				plat/juno/scpi.c
 
+ifneq (${TRUSTED_BOARD_BOOT},0)
+  BL1_SOURCES		+=	plat/juno/juno_trusted_boot.c
+  BL2_SOURCES		+=	plat/juno/juno_trusted_boot.c
+endif
+
 ifneq (${RESET_TO_BL31},0)
   $(error "Using BL3-1 as the reset vector is not supported on Juno. \
   Please set RESET_TO_BL31 to 0.")
