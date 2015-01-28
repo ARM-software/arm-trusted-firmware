@@ -82,6 +82,51 @@ static const io_file_spec_t bl2_cert_file_spec = {
 	.path = BL2_CERT_NAME,
 	.mode = FOPEN_MODE_RB
 };
+
+static const io_file_spec_t trusted_key_cert_file_spec = {
+	.path = TRUSTED_KEY_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl30_key_cert_file_spec = {
+	.path = BL30_KEY_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl31_key_cert_file_spec = {
+	.path = BL31_KEY_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl32_key_cert_file_spec = {
+	.path = BL32_KEY_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl33_key_cert_file_spec = {
+	.path = BL33_KEY_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl30_cert_file_spec = {
+	.path = BL30_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl31_cert_file_spec = {
+	.path = BL31_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl32_cert_file_spec = {
+	.path = BL32_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
+
+static const io_file_spec_t bl33_cert_file_spec = {
+	.path = BL33_CERT_NAME,
+	.mode = FOPEN_MODE_RB
+};
 #endif /* TRUSTED_BOARD_BOOT */
 
 static int open_fip(const uintptr_t spec);
@@ -125,6 +170,51 @@ static const struct plat_io_policy policies[] = {
 		BL2_CERT_NAME,
 		&fip_dev_handle,
 		(uintptr_t)&bl2_cert_file_spec,
+		open_fip
+	}, {
+		TRUSTED_KEY_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&trusted_key_cert_file_spec,
+		open_fip
+	}, {
+		BL30_KEY_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl30_key_cert_file_spec,
+		open_fip
+	}, {
+		BL31_KEY_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl31_key_cert_file_spec,
+		open_fip
+	}, {
+		BL32_KEY_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl32_key_cert_file_spec,
+		open_fip
+	}, {
+		BL33_KEY_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl33_key_cert_file_spec,
+		open_fip
+	}, {
+		BL30_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl30_cert_file_spec,
+		open_fip
+	}, {
+		BL31_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl31_cert_file_spec,
+		open_fip
+	}, {
+		BL32_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl32_cert_file_spec,
+		open_fip
+	}, {
+		BL33_CERT_NAME,
+		&fip_dev_handle,
+		(uintptr_t)&bl33_cert_file_spec,
 		open_fip
 	}, {
 #endif /* TRUSTED_BOARD_BOOT */
