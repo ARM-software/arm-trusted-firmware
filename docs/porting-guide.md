@@ -1445,9 +1445,10 @@ function uses the storage layer to access non-volatile platform storage.
 It is mandatory to implement at least one storage driver. For the FVP the
 Firmware Image Package(FIP) driver is provided as the default means to load data
 from storage (see the "Firmware Image Package" section in the [User Guide]).
-The storage layer is described in the header file `include/io_storage.h`.  The
-implementation of the common library is in `lib/io_storage.c` and the driver
-files are located in `drivers/io/`.
+The storage layer is described in the header file
+`include/drivers/io/io_storage.h`.  The implementation of the common library
+is in `drivers/io/io_storage.c` and the driver files are located in
+`drivers/io/`.
 
 Each IO driver must provide `io_dev_*` structures, as described in
 `drivers/io/io_driver.h`.  These are returned via a mandatory registration

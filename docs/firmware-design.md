@@ -425,7 +425,7 @@ EL3, little-endian data access, and all interrupt sources masked:
     PSTATE.EL = 3
     PSTATE.RW = 1
     PSTATE.DAIF = 0xf
-    CTLR_EL3.EE = 0
+    SCTLR_EL3.EE = 0
 
 X0 and X1 can be used to pass information from the Trusted Boot Firmware to the
 platform code in BL3-1:
@@ -1060,9 +1060,9 @@ of any coherency domain.
 
 The BL entrypoint code first invokes the `plat_reset_handler()` to allow
 the platform to perform any system initialization required and any system
-errata wrokarounds that needs to be applied. The `get_cpu_ops_ptr()` reads
+errata workarounds that needs to be applied. The `get_cpu_ops_ptr()` reads
 the current CPU midr, finds the matching `cpu_ops` entry in the `cpu_ops`
-array and returns it. Note that only the part number and implementator fields
+array and returns it. Note that only the part number and implementer fields
 in midr are used to find the matching `cpu_ops` entry. The `reset_func()` in
 the returned `cpu_ops` is then invoked which executes the required reset
 handling for that CPU and also any errata workarounds enabled by the platform.
