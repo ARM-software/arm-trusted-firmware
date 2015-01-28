@@ -363,7 +363,7 @@ $(eval PREREQUISITES := $(1).d)
 
 $(1) : $(2)
 	@echo "  PP      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -P -E -o $$@ $$<
+	$$(Q)$$(AS) $$(ASFLAGS) -P -E -D__LINKER__ -o $$@ $$<
 
 $(PREREQUISITES) : $(2)
 	@echo "  DEPS    $$@"

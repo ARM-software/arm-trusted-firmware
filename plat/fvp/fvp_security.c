@@ -89,16 +89,17 @@ void fvp_security_setup(void)
 	 * Allow only non-secure access to all DRAM to supported devices.
 	 * Give access to the CPUs and Virtio. Some devices
 	 * would normally use the default ID so allow that too. We use
-	 * two regions to cover the blocks of physical memory in the FVPs.
+	 * two regions to cover the blocks of physical memory in the FVPs
+	 * plus one region to reserve some memory as secure.
 	 *
 	 * Software executing in the secure state, such as a secure
 	 * boot-loader, can access the DRAM by using the NS attributes in
 	 * the MMU translation tables and descriptors.
 	 */
 
-	/* Set to cover the first block of DRAM */
+	/* Region 1 set to cover the Non-Secure DRAM */
 	tzc_configure_region(FILTER_SHIFT(0), 1,
-			DRAM1_BASE, DRAM1_END - DRAM1_SEC_SIZE,
+			DRAM1_NS_BASE, DRAM1_NS_END,
 			TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
@@ -106,14 +107,14 @@ void fvp_security_setup(void)
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
 
-	/* Set to cover the secure reserved region */
-	tzc_configure_region(FILTER_SHIFT(0), 3,
-			(DRAM1_END - DRAM1_SEC_SIZE) + 1 , DRAM1_END,
+	/* Region 2 set to cover the Secure DRAM */
+	tzc_configure_region(FILTER_SHIFT(0), 2,
+			DRAM1_SEC_BASE, DRAM1_SEC_END,
 			TZC_REGION_S_RDWR,
 			0x0);
 
-	/* Set to cover the second block of DRAM */
-	tzc_configure_region(FILTER_SHIFT(0), 2,
+	/* Region 3 set to cover the second block of DRAM */
+	tzc_configure_region(FILTER_SHIFT(0), 3,
 			DRAM2_BASE, DRAM2_END, TZC_REGION_S_NONE,
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
 			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |

@@ -259,8 +259,9 @@ performed.
 #### FVP specific build options
 
 *   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
-    -   `tsram` (default) : Trusted SRAM
+    -   `tsram` : Trusted SRAM (default option)
     -   `tdram` : Trusted DRAM
+    -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
 
 For a better understanding of FVP options, the FVP memory map is explained in
 the [Firmware Design].

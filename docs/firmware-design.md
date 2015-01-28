@@ -1269,14 +1269,19 @@ The following list describes the memory layout on the FVP:
 
 *   BL2 is loaded below BL3-1.
 
-*   The TSP is loaded as the BL3-2 image at the base of either the Trusted
-    SRAM or Trusted DRAM. When loaded into Trusted SRAM, its NOBITS sections
-    are allowed to overlay BL2.
+*   BL3-2 can be loaded in one of the following locations:
 
-This memory layout is designed to give the BL3-2 image as much memory as
-possible when it is loaded into Trusted SRAM. Depending on the location of the
-TSP, it will result in different memory maps, illustrated by the following
-diagrams.
+    *   Trusted SRAM
+    *   Trusted DRAM
+    *   Secure region of DRAM (top 16MB of DRAM configured by the TrustZone
+        controller)
+
+When BL3-2 is loaded into Trusted SRAM, its NOBITS sections are allowed to
+overlay BL2. This memory layout is designed to give the BL3-2 image as much
+memory as possible when it is loaded into Trusted SRAM.
+
+The location of the BL3-2 image will result in different memory maps. This is
+illustrated in the following diagrams using the TSP as an example.
 
 **TSP in Trusted SRAM (default option):**
 
@@ -1324,8 +1329,37 @@ diagrams.
                | BL1 (ro) |
     0x00000000 +----------+
 
-Loading the TSP image in Trusted DRAM doesn't change the memory layout of the
-other boot loader images in Trusted SRAM.
+**TSP in the TZC-Secured DRAM:**
+
+                   DRAM
+    0xffffffff +----------+
+               |  BL3-2   |  (secure)
+    0xff000000 +----------+
+               |          |
+               :          :  (non-secure)
+               |          |
+    0x80000000 +----------+
+
+               Trusted SRAM
+    0x04040000 +----------+  loaded by BL2  ------------------
+               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
+               |----------|  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               |----------|                 ------------------
+               |   BL2    |
+               |----------|
+               |          |
+    0x04001000 +----------+
+               |  Shared  |
+    0x04000000 +----------+
+
+               Trusted ROM
+    0x04000000 +----------+
+               | BL1 (ro) |
+    0x00000000 +----------+
+
+Moving the TSP image out of the Trusted SRAM doesn't change the memory layout
+of the other boot loader images in Trusted SRAM.
 
 
 ####  Memory layout on Juno ARM development platform

@@ -36,8 +36,29 @@
 #define FVP_PRIMARY_CPU			0x0
 
 /* Memory location options for TSP */
-#define FVP_IN_TRUSTED_SRAM		0
-#define FVP_IN_TRUSTED_DRAM		1
+#define FVP_TRUSTED_SRAM_ID		0
+#define FVP_TRUSTED_DRAM_ID		1
+#define FVP_DRAM_ID			2
+
+/*
+ * Some of the definitions in this file use the 'ull' suffix in order to avoid
+ * subtle integer overflow errors due to implicit integer type promotion when
+ * working with 32-bit values.
+ *
+ * The TSP linker script includes some of these definitions to define the BL3-2
+ * memory map, but the GNU LD does not support the 'ull' suffix, causing the
+ * build process to fail. To solve this problem, the auxiliary macro MAKE_ULL(x)
+ * will add the 'ull' suffix only when the macro __LINKER__  is not defined
+ * (__LINKER__ is defined in the command line to preprocess the linker script).
+ * Constants in the linker script will not have the 'ull' suffix, but this is
+ * not a problem since the linker evaluates all constant expressions to 64 bit
+ * (assuming the target architecture is 64 bit).
+ */
+#ifndef __LINKER__
+  #define MAKE_ULL(x)			x##ull
+#else
+  #define MAKE_ULL(x)			x
+#endif
 
 /*******************************************************************************
  * FVP memory map related constants
@@ -79,16 +100,24 @@
 #define NSRAM_BASE		0x2e000000
 #define NSRAM_SIZE		0x10000
 
-#define DRAM1_BASE		0x80000000ull
-#define DRAM1_SIZE		0x80000000ull
+#define DRAM1_BASE		MAKE_ULL(0x80000000)
+#define DRAM1_SIZE		MAKE_ULL(0x80000000)
 #define DRAM1_END		(DRAM1_BASE + DRAM1_SIZE - 1)
-#define DRAM1_SEC_SIZE		0x01000000ull
+
+/* Define the top 16 MB of DRAM1 as secure */
+#define DRAM1_SEC_SIZE		MAKE_ULL(0x01000000)
+#define DRAM1_SEC_BASE		(DRAM1_BASE + DRAM1_SIZE - DRAM1_SEC_SIZE)
+#define DRAM1_SEC_END		(DRAM1_SEC_BASE + DRAM1_SEC_SIZE - 1)
+
+#define DRAM1_NS_BASE		DRAM1_BASE
+#define DRAM1_NS_SIZE		(DRAM1_SIZE - DRAM1_SEC_SIZE)
+#define DRAM1_NS_END		(DRAM1_NS_BASE + DRAM1_NS_SIZE - 1)
 
 #define DRAM_BASE		DRAM1_BASE
 #define DRAM_SIZE		DRAM1_SIZE
 
-#define DRAM2_BASE		0x880000000ull
-#define DRAM2_SIZE		0x780000000ull
+#define DRAM2_BASE		MAKE_ULL(0x880000000)
+#define DRAM2_SIZE		MAKE_ULL(0x780000000)
 #define DRAM2_END		(DRAM2_BASE + DRAM2_SIZE - 1)
 
 #define PCIE_EXP_BASE		0x40000000
