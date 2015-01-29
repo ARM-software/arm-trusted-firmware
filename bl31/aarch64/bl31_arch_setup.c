@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <bl31.h>
+#include <cpu_data.h>
 #include <platform.h>
 
 /*******************************************************************************
@@ -47,4 +48,7 @@ void bl31_arch_setup(void)
 
 	/* Program the counter frequency */
 	write_cntfrq_el0(plat_get_syscnt_freq());
+
+	/* Initialize the cpu_ops pointer. */
+	init_cpu_ops();
 }
