@@ -87,6 +87,7 @@ func cortex_a57_disable_ext_debug
 	 * This applies only to revision r0p0 of Cortex A57.
 	 * Inputs:
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5
 	 * --------------------------------------------------
 	 */
 func errata_a57_806969_wa
@@ -119,6 +120,7 @@ skip_806969:
 	 * This applies only to revision r0p0 of Cortex A57.
 	 * Inputs:
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5
 	 * ---------------------------------------------------
 	 */
 func errata_a57_813420_wa
@@ -147,6 +149,7 @@ skip_813420:
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
+	 * Clobbers: x0-x5, x15, x19, x30
 	 * -------------------------------------------------
 	 */
 func cortex_a57_reset_func
@@ -155,20 +158,20 @@ func cortex_a57_reset_func
 
 	/*
 	 * Extract the variant[20:23] and revision[0:3] from x0
-	 * and pack it in x20[0:7] as variant[4:7] and revision[0:3].
-	 * First extract x0[16:23] to x20[0:7] and zero fill the rest.
-	 * Then extract x0[0:3] into x20[0:3] retaining other bits.
+	 * and pack it in x15[0:7] as variant[4:7] and revision[0:3].
+	 * First extract x0[16:23] to x15[0:7] and zero fill the rest.
+	 * Then extract x0[0:3] into x15[0:3] retaining other bits.
 	 */
-	ubfx	x20, x0, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
-	bfxil	x20, x0, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+	ubfx	x15, x0, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
+	bfxil	x15, x0, #MIDR_REV_SHIFT, #MIDR_REV_BITS
 
 #if ERRATA_A57_806969
-	mov	x0, x20
+	mov	x0, x15
 	bl	errata_a57_806969_wa
 #endif
 
 #if ERRATA_A57_813420
-	mov	x0, x20
+	mov	x0, x15
 	bl	errata_a57_813420_wa
 #endif
 

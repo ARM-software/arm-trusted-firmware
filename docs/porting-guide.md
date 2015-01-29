@@ -491,8 +491,7 @@ are just an ARM Trusted Firmware convention.
 A platform may need to do additional initialization after reset. This function
 allows the platform to do the platform specific intializations. Platform
 specific errata workarounds could also be implemented here. The api should
-preserve the value in x10 register as it is used by the caller to store the
-return address.
+preserve the values of callee saved registers x19 to x29.
 
 The default implementation doesn't do anything. If a platform needs to override
 the default implementation, refer to the [Firmware Design Guide] for general
