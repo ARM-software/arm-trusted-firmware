@@ -1066,6 +1066,7 @@ array and returns it. Note that only the part number and implementator fields
 in midr are used to find the matching `cpu_ops` entry. The `reset_func()` in
 the returned `cpu_ops` is then invoked which executes the required reset
 handling for that CPU and also any errata workarounds enabled by the platform.
+This function must preserve the values of general purpose registers x20 to x29.
 
 Refer to Section "Guidelines for Reset Handlers" for general guidelines
 regarding placement of code in a reset handler.

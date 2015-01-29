@@ -42,11 +42,13 @@
 	 * The reset handler common to all platforms.  After a matching
 	 * cpu_ops structure entry is found, the correponding reset_handler
 	 * in the cpu_ops is invoked.
+	 * Clobbers: x0 - x19, x30
 	 */
 	.globl	reset_handler
 func reset_handler
 	mov	x19, x30
 
+	/* The plat_reset_handler can clobber x0 - x18, x30 */
 	bl	plat_reset_handler
 
 	/* Get the matching cpu_ops pointer */
@@ -60,6 +62,8 @@ func reset_handler
 	ldr	x2, [x0, #CPU_RESET_FUNC]
 	mov	x30, x19
 	cbz	x2, 1f
+
+	/* The cpu_ops reset handler can clobber x0 - x19, x30 */
 	br	x2
 1:
 	ret
