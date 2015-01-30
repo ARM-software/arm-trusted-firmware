@@ -61,6 +61,7 @@ func cortex_a53_reset_func
 	/* ---------------------------------------------
 	 * As a bare minimum enable the SMP bit if it is
 	 * not already set.
+	 * Clobbers : x0
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CPUECTLR_EL1
