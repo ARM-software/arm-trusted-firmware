@@ -1,11 +1,11 @@
-ARM Trusted Firmware - version 1.0
+ARM Trusted Firmware - version 1.1
 ==================================
 
 ARM Trusted Firmware provides a reference implementation of secure world
-software for [ARMv8-A], including Exception Level 3 (EL3) software. This
-release provides initial support for the [Juno ARM Development Platform] [Juno],
-complementing the existing support for the Base and Foundation
-[Fixed Virtual Platforms (FVPs)] [FVP] from ARM.
+software for [ARMv8-A], including Exception Level 3 (EL3) software. This release
+provides complete support for version 0.2 of the [PSCI] specification, initial
+support for the new version 1.0 of that specification, and prototype support for
+the Trusted Board Boot Requirements specification.
 
 The intent is to provide a reference implementation of various ARM interface
 standards, such as the Power State Coordination Interface ([PSCI]), Trusted
@@ -35,10 +35,11 @@ contain new features, optimizations and quality improvements.
 
 ### Functionality
 
-*   Initial implementation of a subset of the Trusted Board Boot Requirements
+*   Prototype implementation of a subset of the Trusted Board Boot Requirements
     Platform Design Document (PDD). This includes packaging the various firmware
     images into a Firmware Image Package (FIP) to be loaded from non-volatile
-    storage.
+    storage, and a prototype of authenticated boot using key certificates stored
+    in the FIP.
 
 *   Initializes the secure world (for example, exception vectors, control
     registers, GIC and interrupts for the platform), before transitioning into
@@ -47,7 +48,7 @@ contain new features, optimizations and quality improvements.
 *   Supports both GICv2 and GICv3 initialization for use by normal world
     software.
 
-*   Starts the normal world at the Exception Level and Register Width provided
+*   Starts the normal world at the Exception Level and Register Width specified
     by the platform port. Typically this is AArch64 EL2 if available.
 
 *   Handles SMCs (Secure Monitor Calls) conforming to the [SMC Calling
@@ -87,24 +88,24 @@ This release of the Trusted Firmware has been tested on Revision B of the
 The Trusted Firmware has also been tested on the 64-bit Linux versions of the
 following ARM [FVP]s:
 
-*   `Foundation_v8` (Version 2.1, Build 9.0.24)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 5.8, Build 0.8.5802)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 5.8, Build 0.8.5802)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 5.8, Build 0.8.5802)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 5.8, Build 0.8.5802)
+*   `Foundation_Platform` (Version 9.1, Build 9.1.33)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 6.2, Build 0.8.6202)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 6.2, Build 0.8.6202)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 6.2, Build 0.8.6202)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 6.2, Build 0.8.6202)
 
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from ARM: see [www.arm.com/fvp] [FVP].
 
 ### Still to Come
 
-*   Complete Trusted Boot implementation.
+*   Complete and more flexible Trusted Board Boot implementation.
 
-*   Complete implementation of the [PSCI] specification.
+*   Complete implementation of the [PSCI] v1.0 specification.
 
 *   Support for alternative types of Secure-EL1 Payloads.
 
-*   Completing the currently experimental GICv3 support.
+*   Extending the GICv3 support to the secure world.
 
 *   Support for new System IP devices.
 
@@ -140,7 +141,7 @@ ARM licensees may contact ARM directly via their partner managers.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 
 [License]:                  ./license.md "BSD license for ARM Trusted Firmware"
@@ -155,7 +156,7 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [FVP]:                   http://www.arm.com/fvp "ARM's Fixed Virtual Platforms"
 [Juno]:                  http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php "Juno ARM Development Platform"
 [SCP download]:          https://silver.arm.com/download/download.tm?pv=1764630
-[PSCI]:                  http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
+[PSCI]:                  http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [SMCCC]:                 http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [TEE-SMC]:               http://www.arm.com/products/processors/technologies/trustzone/tee-smc.php "Secure Monitor and TEEs"
 [GitHub issue tracker]:  https://github.com/ARM-software/tf-issues/issues
