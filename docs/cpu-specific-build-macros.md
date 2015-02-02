@@ -21,7 +21,7 @@ for a specific CPU on a platform.
 
 ARM Trusted Firmware exports a series of build flags which control the
 errata workarounds that are applied to each CPU by the reset handler. The
-errata details can be found in the CPU specifc errata documents published
+errata details can be found in the CPU specific errata documents published
 by ARM. The errata workarounds are implemented for a particular revision
 or a set of processor revisions. This is checked by reset handler at runtime.
 Each errata workaround is identified by its `ID` as specified in the processor's

@@ -511,7 +511,7 @@ Preparing a Linux kernel for use on the FVPs can be done as follows
         git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 
     Not all required features are available in the kernel mainline yet. These
-    can be obtained from the ARM-software EDK2 repository instead:
+    can be obtained from the ARM-software Linux repository instead:
 
         cd linux
         git remote add -f --tags arm-software https://github.com/ARM-software/linux.git
@@ -790,7 +790,6 @@ with 8 CPUs using the ARM Trusted Firmware.
     -C cluster0.NUM_CORES=4                                \
     -C cluster1.NUM_CORES=4                                \
     -C cache_state_modelled=1                              \
-    -C bp.pl011_uart0.untimed_fifos=1                      \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>" \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"      \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
@@ -808,7 +807,6 @@ boot Linux with 8 CPUs using the ARM Trusted Firmware.
     -C bp.secure_memory=1                                  \
     -C bp.tzc_400.diagnostics=1                            \
     -C cache_state_modelled=1                              \
-    -C bp.pl011_uart0.untimed_fifos=1                      \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>" \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"      \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
@@ -828,7 +826,6 @@ with 8 CPUs using the ARM Trusted Firmware.
     -C cluster0.NUM_CORES=4                                      \
     -C cluster1.NUM_CORES=4                                      \
     -C cache_state_modelled=1                                    \
-    -C bp.pl011_uart0.untimed_fifos=1                            \
     -C cluster0.cpu0.RVBAR=0x04023000                            \
     -C cluster0.cpu1.RVBAR=0x04023000                            \
     -C cluster0.cpu2.RVBAR=0x04023000                            \
@@ -855,7 +852,6 @@ boot Linux with 8 CPUs using the ARM Trusted Firmware.
     -C bp.secure_memory=1                                        \
     -C bp.tzc_400.diagnostics=1                                  \
     -C cache_state_modelled=1                                    \
-    -C bp.pl011_uart0.untimed_fifos=1                            \
     -C cluster0.cpu0.RVBARADDR=0x04023000                        \
     -C cluster0.cpu1.RVBARADDR=0x04023000                        \
     -C cluster0.cpu2.RVBARADDR=0x04023000                        \
