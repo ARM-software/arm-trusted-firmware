@@ -126,6 +126,36 @@ file is found in [plat/fvp/include/platform_def.h].
     Name of the BL3-3 binary image on the host file-system. This name is used by
     BL2 to load BL3-3 into non-secure memory from platform storage.
 
+*   **#define : BL2_CERT_NAME**
+
+    Name of the BL2 content certificate on the host file-system (mandatory when
+    Trusted Board Boot is enabled).
+
+*   **#define : TRUSTED_KEY_CERT_NAME**
+
+    Name of the Trusted Key certificate on the host file-system (mandatory when
+    Trusted Board Boot is enabled).
+
+*   **#define : BL31_KEY_CERT_NAME**
+
+    Name of the BL3-1 Key certificate on the host file-system (mandatory when
+    Trusted Board Boot is enabled).
+
+*   **#define : BL31_CERT_NAME**
+
+    Name of the BL3-1 Content certificate on the host file-system (mandatory
+    when Trusted Board Boot is enabled).
+
+*   **#define : BL33_KEY_CERT_NAME**
+
+    Name of the BL3-3 Key certificate on the host file-system (mandatory when
+    Trusted Board Boot is enabled).
+
+*   **#define : BL33_CERT_NAME**
+
+    Name of the BL3-3 Content certificate on the host file-system (mandatory
+    when Trusted Board Boot is enabled).
+
 *   **#define : PLATFORM_CACHE_LINE_SIZE**
 
     Defines the size (in bytes) of the largest cache line across all the cache
@@ -194,6 +224,25 @@ file is found in [plat/fvp/include/platform_def.h].
     Defines the base address in non-secure DRAM where BL2 loads the BL3-3 binary
     image. Must be aligned on a page-size boundary.
 
+If a BL3-0 image is supported by the platform, the following constants must
+also be defined:
+
+*   **#define : BL30_IMAGE_NAME**
+
+    Name of the BL3-0 binary image on the host file-system. This name is used by
+    BL2 to load BL3-0 into secure memory from platform storage before being
+    transfered to the SCP.
+
+*   **#define : BL30_KEY_CERT_NAME**
+
+    Name of the BL3-0 Key certificate on the host file-system (mandatory when
+    Trusted Board Boot is enabled).
+
+*   **#define : BL30_CERT_NAME**
+
+    Name of the BL3-0 Content certificate on the host file-system (mandatory
+    when Trusted Board Boot is enabled).
+
 If a BL3-2 image is supported by the platform, the following constants must
 also be defined:
 
@@ -201,6 +250,16 @@ also be defined:
 
     Name of the BL3-2 binary image on the host file-system. This name is used by
     BL2 to load BL3-2 into secure memory from platform storage.
+
+*   **#define : BL32_KEY_CERT_NAME**
+
+    Name of the BL3-2 Key certificate on the host file-system (mandatory when
+    Trusted Board Boot is enabled).
+
+*   **#define : BL32_CERT_NAME**
+
+    Name of the BL3-2 Content certificate on the host file-system (mandatory
+    when Trusted Board Boot is enabled).
 
 *   **#define : BL32_BASE**
 
