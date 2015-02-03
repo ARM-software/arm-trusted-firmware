@@ -1,3 +1,170 @@
+ARM Trusted Firmware - version 1.1
+==================================
+
+New features
+------------
+
+*   A prototype implementation of Trusted Board Boot has been added. Boot
+    loader images are verified by BL1 and BL2 during the cold boot path. BL1 and
+    BL2 use the PolarSSL SSL library to verify certificates and images. The
+    OpenSSL library is used to create the X.509 certificates. Support has been
+    added to `fip_create` tool to package the certificates in a FIP.
+
+*   Support for calling CPU and platform specific reset handlers upon entry into
+    BL3-1 during the cold and warm boot paths has been added. This happens after
+    another Boot ROM `reset_handler()` has already run. This enables a developer
+    to perform additional actions or undo actions already performed during the
+    first call of the reset handlers e.g. apply additional errata workarounds.
+
+*   Support has been added to demonstrate routing of IRQs to EL3 instead of
+    S-EL1 when execution is in secure world.
+
+*   The PSCI implementation now conforms to version 1.0 of the PSCI
+    specification. All the mandatory APIs and selected optional APIs are
+    supported. In particular, support for the `PSCI_FEATURES` API has been
+    added. A capability variable is constructed during initialization by
+    examining the `plat_pm_ops` and `spd_pm_ops` exported by the platform and
+    the Secure Payload Dispatcher.  This is used by the PSCI FEATURES function
+    to determine which PSCI APIs are supported by the platform.
+
+*   Improvements have been made to the PSCI code as follows.
+
+    *   The code has been refactored to remove redundant parameters from
+        internal functions.
+
+    *   Changes have been made to the code for PSCI `CPU_SUSPEND`, `CPU_ON` and
+        `CPU_OFF` calls to facilitate an early return to the caller in case a
+        failure condition is detected. For example, a PSCI `CPU_SUSPEND` call
+        returns `SUCCESS` to the caller if a pending interrupt is detected early
+        in the code path.
+
+    *   Optional platform APIs have been added to validate the `power_state` and
+        `entrypoint` parameters early in PSCI `CPU_ON` and `CPU_SUSPEND` code
+        paths.
+
+    *   PSCI migrate APIs have been reworked to invoke the SPD hook to determine
+        the type of Trusted OS and the CPU it is resident on (if
+        applicable). Also, during a PSCI `MIGRATE` call, the SPD hook to migrate
+        the Trusted OS is invoked.
+
+*   It is now possible to build Trusted Firmware without marking at least an
+    extra page of memory as coherent. The build flag `USE_COHERENT_MEM` can be
+    used to choose between the two implementations. This has been made possible
+    through these changes.
+
+    *   An implementation of Bakery locks, where the locks are not allocated in
+        coherent memory has been added.
+
+    *   Memory which was previously marked as coherent is now kept coherent
+        through the use of software cache maintenance operations.
+
+    Approximately, 4K worth of memory is saved for each boot loader stage when
+    `USE_COHERENT_MEM=0`. Enabling this option increases the latencies
+    associated with acquire and release of locks. It also requires changes to
+    the platform ports.
+
+*   It is now possible to specify the name of the FIP at build time by defining
+    the `FIP_NAME` variable.
+
+*   Issues with depedencies on the 'fiptool' makefile target have been
+    rectified. The `fip_create` tool is now rebuilt whenever its source files
+    change.
+
+*   The BL3-1 runtime console is now also used as the crash console. The crash
+    console is changed to SoC UART0 (UART2) from the previous FPGA UART0 (UART0)
+    on Juno. In FVP, it is changed from UART0 to UART1.
+
+*   CPU errata workarounds are applied only when the revision and part number
+    match. This behaviour has been made consistent across the debug and release
+    builds. The debug build additionally prints a warning if a mismatch is
+    detected.
+
+*   It is now possible to issue cache maintenance operations by set/way for a
+    particular level of data cache. Levels 1-3 are currently supported.
+
+*   The following improvements have been made to the FVP port.
+
+    *   The build option `FVP_SHARED_DATA_LOCATION` which allowed relocation of
+        shared data into the Trusted DRAM has been deprecated. Shared data is
+        now always located at the base of Trusted SRAM.
+
+    *   BL2 Translation tables have been updated to map only the region of
+        DRAM which is accessible to normal world. This is the region of the 2GB
+        DDR-DRAM memory at 0x80000000 excluding the top 16MB. The top 16MB is
+        accessible to only the secure world.
+
+    *   BL3-2 can now reside in the top 16MB of DRAM which is accessible only to
+        the secure world. This can be done by setting the build flag
+        `FVP_TSP_RAM_LOCATION` to the value `dram`.
+
+*   Separate transation tables are created for each boot loader image. The
+    `IMAGE_BLx` build options are used to do this.  This allows each stage to
+    create mappings only for areas in the memory map that it needs.
+
+*   A Secure Payload Dispatcher (OPTEED) for the OP-TEE Trusted OS has been
+    added.  Details of using it with ARM Trusted Firmware can be found in
+    [OP-TEE Dispatcher]
+
+
+
+Issues resolved since last release
+----------------------------------
+
+*   The Juno port has been aligned with the FVP port as follows.
+
+    *   Support for reclaiming all BL1 RW memory and BL2 memory by overlaying
+        the BL3-1/BL3-2 NOBITS sections on top of them has been added to the
+        Juno port.
+
+    *   The top 16MB of the 2GB DDR-DRAM memory at 0x80000000 is configured
+        using the TZC-400 controller to be accessible only to the secure world.
+
+    *   The ARM GIC driver is used to configure the GIC-400 instead of using a
+        GIC driver private to the Juno port.
+
+    *   PSCI `CPU_SUSPEND` calls that target a standby state are now supported.
+
+    *   The TZC-400 driver is used to configure the controller instead of direct
+        accesses to the registers.
+
+*   The Linux kernel version referred to in the user guide has DVFS and HMP
+    support enabled.
+
+*   DS-5 v5.19 did not detect Version 5.8 of the Cortex-A57-A53 Base FVPs in
+    CADI server mode. This issue is not seen with DS-5 v5.20 and Version 6.2 of
+    the Cortex-A57-A53 Base FVPs.
+
+
+Known issues
+------------
+
+*   The Trusted Board Boot implementation is a prototype. There are issues with
+    the modularity and scalability of the design. Support for a Trusted
+    Watchdog, firmware update mechanism, recovery images and Trusted debug is
+    absent. These issues will be addressed in future releases.
+
+*   The FVP and Juno ports do not use the hash of the ROTPK stored in the
+    Trusted Key Storage registers to verify the ROTPK in the
+    `plat_match_rotpk()` function. This prevents the correct establishment of
+    the Chain of Trust at the first step in the Trusted Board Boot process.
+
+*   The version of the AEMv8 Base FVP used in this release resets the model
+    instead of terminating its execution in response to a shutdown request using
+    the PSCI `SYSTEM_OFF` API. This issue will be fixed in a future version of
+    the model.
+
+*   GICv3 support is experimental. There are known issues with GICv3
+    initialization in the ARM Trusted Firmware.
+
+*   While this version greatly reduces the on-chip RAM requirements, there are
+    further RAM usage enhancements that could be made.
+
+*   The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
+    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
+
+*   The Juno-specific firmware design documentation is incomplete.
+
+
 ARM Trusted Firmware - version 1.0
 ==================================
 
@@ -538,4 +705,6 @@ releases of the ARM Trusted Firmware.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
+
+[OP-TEE Dispatcher]:       ./optee-dispatcher.md

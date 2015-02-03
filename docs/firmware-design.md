@@ -1798,7 +1798,7 @@ kernel at boot time. These can be found in the `fdts` directory.
 _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 
 [ARM ARM]:          http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html "ARMv8-A Reference Manual (ARM DDI0487A.E)"
-[PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022b/index.html "Power State Coordination Interface PDD (ARM DEN 0022B.b)"
+[PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
 [User Guide]:       ./user-guide.md
