@@ -1038,6 +1038,7 @@ legacy VE memory map. They must added to the parameters described in the
     -C cluster1.gic.GICV-offset=0x6000                  \
     -C cluster1.gic.PERIPH-size=0x8000                  \
     -C gic_distributor.GICD-alias=0x2c001000            \
+    -C gicv3.gicv2-only=1                               \
     -C bp.variant=0x0
 
 The `bp.variant` parameter corresponds to the build variant field of the
