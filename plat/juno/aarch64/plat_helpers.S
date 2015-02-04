@@ -112,43 +112,88 @@ func platform_get_core_pos
 func platform_mem_init
 	ret
 
-	/* -----------------------------------------------------
+	/* --------------------------------------------------------------------
 	 * void plat_reset_handler(void);
 	 *
-	 * Before adding code in this function, refer to the
-	 * guidelines in docs/firmware-design.md to determine
-	 * whether the code should reside within the
-	 * FIRST_RESET_HANDLER_CALL block or not.
+	 * Before adding code in this function, refer to the guidelines in
+	 * docs/firmware-design.md to determine whether the code should reside
+	 * within the FIRST_RESET_HANDLER_CALL block or not.
 	 *
-	 * Implement workaround for defect id 831273 by enabling
-	 * an event stream every 65536 cycles and set the L2 RAM
-	 * latencies for Cortex-A57. This code is included only
-	 * when FIRST_RESET_HANDLER_CALL is defined since it
-	 * should be executed only during BL1.
-	 * -----------------------------------------------------
+	 * For Juno r0:
+	 * - Implement workaround for defect id 831273 by enabling an event
+	 *   stream every 65536 cycles.
+	 * - Set the L2 Data RAM latency to 2 (i.e. 3 cycles) for Cortex-A57
+	 * - Set the L2 Tag RAM latency to 2 (i.e. 3 cycles) for Cortex-A57
+	 *
+	 * For Juno r1:
+	 * - Set the L2 Data RAM latency to 2 (i.e. 3 cycles) for Cortex-A57
+	 * Note that:
+	 * - The default value for the L2 Tag RAM latency for Cortex-A57 is
+	 *   suitable.
+	 * - Defect #831273 doesn't affect Juno r1.
+	 *
+	 * This code is included only when FIRST_RESET_HANDLER_CALL is defined
+	 * since it should be executed only during BL1.
+	 * --------------------------------------------------------------------
 	 */
 func plat_reset_handler
 #ifdef FIRST_RESET_HANDLER_CALL
-	/* Read the MIDR_EL1 */
+	/* --------------------------------------------------------------------
+	 * Determine whether this code is running on Juno r0 or Juno r1.
+	 * Keep this information in x2.
+	 * --------------------------------------------------------------------
+	 */
+	/* Read the V2M SYS_ID register */
+	mov_imm	x0, (VE_SYSREGS_BASE + V2M_SYS_ID)
+	ldr	w1, [x0]
+	/* Extract board revision from the SYS_ID */
+	ubfx	x1, x1, #SYS_ID_REV_SHIFT, #4
+	/*
+	 * On Juno R0:  x2 := REV_JUNO_R0 - 1 = 0
+	 * On Juno R1:  x2 := REV_JUNO_R1 - 1 = 1
+	 */
+	sub	x2, x1, #1
+
+	/* --------------------------------------------------------------------
+	 * Determine whether this code is executed on a Cortex-A53 or on a
+	 * Cortex-A57 core.
+	 * --------------------------------------------------------------------
+	 */
 	mrs	x0, midr_el1
 	ubfx	x1, x0, MIDR_PN_SHIFT, #12
 	cmp     w1, #((CORTEX_A57_MIDR >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
-	b.ne    1f
+	b.eq	A57
 
-	/* Change the L2 Data and Tag Ram latency to 3 cycles */
-	mov	x0, #(L2_DATA_RAM_LATENCY_3_CYCLES |    \
-			(L2_TAG_RAM_LATENCY_3_CYCLES << \
-			 L2CTLR_TAG_RAM_LATENCY_SHIFT))
+	/* Nothing needs to be done for the Cortex-A53 on Juno r1 */
+	cbz	x2, apply_831273
+	ret
+
+A57:
+	/* --------------------------------------------------------------------
+	 * Cortex-A57 specific settings
+	 * --------------------------------------------------------------------
+	 */
+
+	/* Change the L2 Data RAM latency to 3 cycles */
+	mov	x0, #L2_DATA_RAM_LATENCY_3_CYCLES
+	cbnz	x2, apply_l2_ram_latencies
+	/* On Juno r0, also change the L2 Tag RAM latency to 3 cycles */
+	orr	x0, x0, #(L2_TAG_RAM_LATENCY_3_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT)
+apply_l2_ram_latencies:
 	msr     L2CTLR_EL1, x0
 
-1:
-	/* ---------------------------------------------
-	 * Enable the event stream every 65536 cycles
-	 * ---------------------------------------------
+	/* Juno r1 doesn't suffer from defect #831273 */
+	cbnz	x2, ret
+
+apply_831273:
+	/* --------------------------------------------------------------------
+	 * On Juno r0, enable the event stream every 65536 cycles
+	 * --------------------------------------------------------------------
 	 */
 	mov     x0, #(0xf << EVNTI_SHIFT)
 	orr     x0, x0, #EVNTEN_BIT
 	msr     CNTKCTL_EL1, x0
+ret:
 	isb
 #endif /* FIRST_RESET_HANDLER_CALL */
 	ret
