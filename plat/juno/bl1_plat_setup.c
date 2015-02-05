@@ -99,7 +99,7 @@ void bl1_early_platform_setup(void)
 		    BL1_RAM_BASE,
 		    bl1_size);
 
-	INFO("BL1: 0x%lx - 0x%lx [size = %u]\n", BL1_RAM_BASE, BL1_RAM_LIMIT,
+	INFO("BL1: 0x%lx - 0x%lx [size = %lu]\n", BL1_RAM_BASE, BL1_RAM_LIMIT,
 	     bl1_size);
 }
 

@@ -109,9 +109,9 @@ uint64_t tsp_main(void)
 {
 	NOTICE("TSP: %s\n", version_string);
 	NOTICE("TSP: %s\n", build_message);
-	INFO("TSP: Total memory base : 0x%x\n", (unsigned long)BL32_TOTAL_BASE);
-	INFO("TSP: Total memory size : 0x%x bytes\n",
-			 (unsigned long)(BL32_TOTAL_LIMIT - BL32_TOTAL_BASE));
+	INFO("TSP: Total memory base : 0x%lx\n", BL32_TOTAL_BASE);
+	INFO("TSP: Total memory size : 0x%lx bytes\n",
+			 BL32_TOTAL_LIMIT - BL32_TOTAL_BASE);
 
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
@@ -129,7 +129,7 @@ uint64_t tsp_main(void)
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets %d cpu on requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count,
 	     tsp_stats[linear_id].cpu_on_count);
@@ -158,8 +158,8 @@ tsp_args_t *tsp_cpu_on_main(void)
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x turned on\n", mpidr);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu on requests\n", mpidr,
+	INFO("TSP: cpu 0x%lx turned on\n", mpidr);
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets %d cpu on requests\n", mpidr,
 		tsp_stats[linear_id].smc_count,
 		tsp_stats[linear_id].eret_count,
 		tsp_stats[linear_id].cpu_on_count);
@@ -199,8 +199,8 @@ tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x off request\n", mpidr);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu off requests\n", mpidr,
+	INFO("TSP: cpu 0x%lx off request\n", mpidr);
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets %d cpu off requests\n", mpidr,
 		tsp_stats[linear_id].smc_count,
 		tsp_stats[linear_id].eret_count,
 		tsp_stats[linear_id].cpu_off_count);
@@ -242,7 +242,7 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n",
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets %d cpu suspend requests\n",
 		mpidr,
 		tsp_stats[linear_id].smc_count,
 		tsp_stats[linear_id].eret_count,
@@ -281,9 +281,9 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x resumed. suspend level %d\n",
+	INFO("TSP: cpu 0x%lx resumed. suspend level %ld\n",
 		mpidr, suspend_level);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets %d cpu suspend requests\n",
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets %d cpu suspend requests\n",
 		mpidr,
 		tsp_stats[linear_id].smc_count,
 		tsp_stats[linear_id].eret_count,
@@ -316,8 +316,8 @@ tsp_args_t *tsp_system_off_main(uint64_t arg0,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x SYSTEM_OFF request\n", mpidr);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets requests\n", mpidr,
+	INFO("TSP: cpu 0x%lx SYSTEM_OFF request\n", mpidr);
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
 	spin_unlock(&console_lock);
@@ -349,8 +349,8 @@ tsp_args_t *tsp_system_reset_main(uint64_t arg0,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%x SYSTEM_RESET request\n", mpidr);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets requests\n", mpidr,
+	INFO("TSP: cpu 0x%lx SYSTEM_RESET request\n", mpidr);
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets requests\n", mpidr,
 	     tsp_stats[linear_id].smc_count,
 	     tsp_stats[linear_id].eret_count);
 	spin_unlock(&console_lock);
@@ -384,10 +384,10 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
 
-	INFO("TSP: cpu 0x%x received %s smc 0x%x\n", read_mpidr(),
+	INFO("TSP: cpu 0x%lx received %s smc 0x%lx\n", mpidr,
 		((func >> 31) & 1) == 1 ? "fast" : "standard",
 		func);
-	INFO("TSP: cpu 0x%x: %d smcs, %d erets\n", mpidr,
+	INFO("TSP: cpu 0x%lx: %d smcs, %d erets\n", mpidr,
 		tsp_stats[linear_id].smc_count,
 		tsp_stats[linear_id].eret_count);
 
