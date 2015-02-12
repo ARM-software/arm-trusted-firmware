@@ -62,6 +62,13 @@ __attribute__ ((section("tzfw_coherent_mem")))
 const plat_pm_ops_t *psci_plat_pm_ops;
 
 /*******************************************************************************
+ * Check that the maximum affinity level supported by the platform makes sense
+ * ****************************************************************************/
+CASSERT(PLATFORM_MAX_AFFLVL <= MPIDR_MAX_AFFLVL && \
+		PLATFORM_MAX_AFFLVL >= MPIDR_AFFLVL0, \
+		assert_platform_max_afflvl_check);
+
+/*******************************************************************************
  * This function is passed an array of pointers to affinity level nodes in the
  * topology tree for an mpidr. It iterates through the nodes to find the highest
  * affinity level which is marked as physically powered off.
@@ -150,27 +157,13 @@ int get_power_on_target_afflvl()
 	/*
 	 * Assume that this cpu was suspended and retrieve its target affinity
 	 * level. If it is invalid then it could only have been turned off
-	 * earlier. get_max_afflvl() will return the highest affinity level a
+	 * earlier. PLATFORM_MAX_AFFLVL will be the highest affinity level a
 	 * cpu can be turned off to.
 	 */
 	afflvl = psci_get_suspend_afflvl();
 	if (afflvl == PSCI_INVALID_DATA)
-		afflvl = get_max_afflvl();
+		afflvl = PLATFORM_MAX_AFFLVL;
 	return afflvl;
-}
-
-/*******************************************************************************
- * Simple routine to retrieve the maximum affinity level supported by the
- * platform and check that it makes sense.
- ******************************************************************************/
-int get_max_afflvl(void)
-{
-	int aff_lvl;
-
-	aff_lvl = plat_get_max_afflvl();
-	assert(aff_lvl <= MPIDR_MAX_AFFLVL && aff_lvl >= MPIDR_AFFLVL0);
-
-	return aff_lvl;
 }
 
 /*******************************************************************************
@@ -204,7 +197,7 @@ unsigned long mpidr_set_aff_inst(unsigned long mpidr,
 int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
 {
 	/* Sanity check the parameters passed */
-	if (end_afflvl > get_max_afflvl())
+	if (end_afflvl > PLATFORM_MAX_AFFLVL)
 		return PSCI_E_INVALID_PARAMS;
 
 	if (start_afflvl < MPIDR_AFFLVL0)

@@ -157,7 +157,6 @@ void plat_gic_init(void);
 
 /* Declarations for plat_topology.c */
 int plat_setup_topology(void);
-int plat_get_max_afflvl(void);
 unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr);
 unsigned int plat_get_aff_state(unsigned int aff_lvl, unsigned long mpidr);
 

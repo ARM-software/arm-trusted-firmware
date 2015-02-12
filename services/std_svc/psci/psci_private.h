@@ -113,7 +113,6 @@ extern const spd_pm_ops_t *psci_spd_pm;
  * Function prototypes
  ******************************************************************************/
 /* Private exported functions from psci_common.c */
-int get_max_afflvl(void);
 unsigned short psci_get_state(aff_map_node_t *node);
 unsigned short psci_get_phys_state(aff_map_node_t *node);
 void psci_set_state(aff_map_node_t *node, unsigned short state);

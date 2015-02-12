@@ -78,7 +78,7 @@ int psci_cpu_on(unsigned long target_cpu,
 	 * levels need to be turned on
 	 */
 	start_afflvl = MPIDR_AFFLVL0;
-	end_afflvl = get_max_afflvl();
+	end_afflvl = PLATFORM_MAX_AFFLVL;
 	rc = psci_afflvl_on(target_cpu,
 			    &ep,
 			    start_afflvl,
@@ -106,7 +106,7 @@ int psci_cpu_suspend(unsigned int power_state,
 
 	/* Sanity check the requested state */
 	target_afflvl = psci_get_pstate_afflvl(power_state);
-	if (target_afflvl > get_max_afflvl())
+	if (target_afflvl > PLATFORM_MAX_AFFLVL)
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Validate the power_state using platform pm_ops */
@@ -170,7 +170,7 @@ int psci_cpu_suspend(unsigned int power_state,
 int psci_cpu_off(void)
 {
 	int rc;
-	int target_afflvl = get_max_afflvl();
+	int target_afflvl = PLATFORM_MAX_AFFLVL;
 
 	/*
 	 * Traverse from the highest to the lowest affinity level. When the
@@ -196,7 +196,7 @@ int psci_affinity_info(unsigned long target_affinity,
 	unsigned int aff_state;
 	aff_map_node_t *node;
 
-	if (lowest_affinity_level > get_max_afflvl())
+	if (lowest_affinity_level > PLATFORM_MAX_AFFLVL)
 		return rc;
 
 	node = psci_get_aff_map_node(target_affinity, lowest_affinity_level);

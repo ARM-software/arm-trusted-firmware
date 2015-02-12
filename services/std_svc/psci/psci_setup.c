@@ -107,7 +107,7 @@ aff_map_node_t *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
 {
 	int rc;
 
-	if (aff_lvl > get_max_afflvl())
+	if (aff_lvl > PLATFORM_MAX_AFFLVL)
 		return NULL;
 
 	/* Right shift the mpidr to the required affinity level */
@@ -320,7 +320,7 @@ int32_t psci_setup(void)
 	psci_plat_pm_ops = NULL;
 
 	/* Find out the maximum affinity level that the platform implements */
-	max_afflvl = get_max_afflvl();
+	max_afflvl = PLATFORM_MAX_AFFLVL;
 	assert(max_afflvl <= MPIDR_MAX_AFFLVL);
 
 	/*

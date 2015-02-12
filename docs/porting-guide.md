@@ -181,6 +181,17 @@ file is found in [plat/fvp/include/platform_def.h].
     Defines the total number of nodes in the affinity heirarchy at all affinity
     levels used by the platform.
 
+*   **#define : PLATFORM_MAX_AFFLVL**
+
+    Defines the maximum affinity level that the power management operations
+    should apply to. ARMv8-A has support for 4 affinity levels. It is likely
+    that hardware will implement fewer affinity levels. This macro allows the
+    PSCI implementation to consider only those affinity levels in the system
+    that the platform implements. For example, the Base AEM FVP implements two
+    clusters with a configurable number of CPUs. It reports the maximum
+    affinity level as 1, resulting in PSCI power control up to the cluster
+    level.
+
 *   **#define : BL1_RO_BASE**
 
     Defines the base address in secure ROM where BL1 originally lives. Must be
@@ -1129,25 +1140,6 @@ another CPU implemented directly on the interconnect with the cluster. The
 CPU would be 0x100 to indicate that it does not belong to cluster 0. Cluster 1
 is missing but needs to be accounted for to reach this single CPU in the
 topology tree. Hence it is marked as `PSCI_AFF_ABSENT`.
-
-
-### Function : plat_get_max_afflvl() [mandatory]
-
-    Argument : void
-    Return   : int
-
-This function may execute with the MMU and data caches enabled if the platform
-port does the necessary initializations in `bl31_plat_arch_setup()`. It is only
-called by the primary CPU.
-
-This function is called by the PSCI implementation both during cold and warm
-boot, to determine the maximum affinity level that the power management
-operations should apply to. ARMv8-A has support for 4 affinity levels. It is
-likely that hardware will implement fewer affinity levels. This function allows
-the PSCI implementation to consider only those affinity levels in the system
-that the platform implements. For example, the Base AEM FVP implements two
-clusters with a configurable number of CPUs. It reports the maximum affinity
-level as 1, resulting in PSCI power control up to the cluster level.
 
 
 ### Function : platform_setup_pm() [mandatory]
