@@ -44,10 +44,9 @@ essential information to establish the CoT.
 In the TBB CoT all certificates are self-signed. There is no need for a
 Certificate Authority (CA) because the CoT is not established by verifying the
 validity of a certificate's issuer but by the content of the certificate
-extensions. To sign the certificates, the PKCS#1 SHA-1 with RSA Encryption
+extensions. To sign the certificates, the PKCS#1 SHA-256 with RSA Encryption
 signature scheme is used with a RSA key length of 2048 bits. Future version of
-Trusted Firmware will replace SHA-1 usage with SHA-256 and support additional
-cryptographic algorithms.
+Trusted Firmware will support additional cryptographic algorithms.
 
 The certificates are categorised as "Key" and "Content" certificates. Key
 certificates are used to verify public keys which have been used to sign content
@@ -218,7 +217,7 @@ corresponding certificates or images at each step in the Trusted Board Boot
 sequence. The module relies on the PolarSSL library (v1.3.9) to perform the
 following operations:
 
-*   Parsing X.509 certificates and verifying them using SHA-1 with RSA
+*   Parsing X.509 certificates and verifying them using SHA-256 with RSA
     Encryption.
 *   Extracting public keys and hashes from the certificates.
 *   Generating hashes (SHA-256) of boot loader images

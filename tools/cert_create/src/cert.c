@@ -170,7 +170,7 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 	}
 
 	/* Sign the certificate with the issuer key */
-	if (!X509_sign(x, ikey, EVP_sha1())) {
+	if (!X509_sign(x, ikey, EVP_sha256())) {
 		ERR_print_errors_fp(stdout);
 		return 0;
 	}
