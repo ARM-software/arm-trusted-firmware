@@ -59,6 +59,9 @@ The following tools are required to use the ARM Trusted Firmware:
         wget http://releases.linaro.org/14.07/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
         tar -xf gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
 
+*   `libssl-dev` package to build the certificate generation tool when support
+    for Trusted Board Boot is needed.
+
 *   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.20.
 
 
