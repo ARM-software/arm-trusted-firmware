@@ -183,7 +183,7 @@
 # define MAX_XLAT_TABLES		3
 #endif
 
-#define MAX_MMAP_REGIONS		16
+#define MAX_MMAP_REGIONS		(JUNO_MMAP_ENTRIES + JUNO_BL_REGIONS)
 
 /*******************************************************************************
  * ID of the secure physical generic timer interrupt used by the TSP

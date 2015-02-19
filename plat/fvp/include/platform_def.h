@@ -208,7 +208,7 @@
 # endif
 #endif
 
-#define MAX_MMAP_REGIONS		16
+#define MAX_MMAP_REGIONS		(FVP_MMAP_ENTRIES + FVP_BL_REGIONS)
 
 /*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is
