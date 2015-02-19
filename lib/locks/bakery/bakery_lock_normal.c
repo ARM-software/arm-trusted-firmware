@@ -56,17 +56,6 @@
  * accesses regardless of status of address translation.
  */
 
-/* Convert a ticket to priority */
-#define PRIORITY(t, pos)	(((t) << 8) | (pos))
-
-#define CHOOSING_TICKET		0x1
-#define CHOOSING_DONE		0x0
-
-#define bakery_is_choosing(info)	(info & 0x1)
-#define bakery_ticket_number(info)	((info >> 1) & 0x7FFF)
-#define make_bakery_data(choosing, number) \
-		(((choosing & 0x1) | (number << 1)) & 0xFFFF)
-
 /* This macro assumes that the bakery_info array is located at the offset specified */
 #define get_my_bakery_info(offset, id)		\
 	(((bakery_info_t *) (((uint8_t *)_cpu_data()) + offset)) + id)
@@ -138,7 +127,7 @@ static unsigned int bakery_get_ticket(int id, unsigned int offset,
 	 * finish calculating our ticket value that we're done
 	 */
 	++my_ticket;
-	my_bakery_info->lock_data = make_bakery_data(CHOOSING_DONE, my_ticket);
+	my_bakery_info->lock_data = make_bakery_data(CHOSEN_TICKET, my_ticket);
 
 	write_cache_op(my_bakery_info, is_cached);
 
@@ -150,7 +139,7 @@ void bakery_lock_get(unsigned int id, unsigned int offset)
 	unsigned int they, me, is_cached;
 	unsigned int my_ticket, my_prio, their_ticket;
 	bakery_info_t *their_bakery_info;
-	uint16_t their_bakery_data;
+	unsigned int their_bakery_data;
 
 	me = platform_get_core_pos(read_mpidr_el1());
 
@@ -174,15 +163,12 @@ void bakery_lock_get(unsigned int id, unsigned int offset)
 		 */
 		their_bakery_info = get_bakery_info_by_index(offset, id, they);
 		assert(their_bakery_info);
-		read_cache_op(their_bakery_info, is_cached);
-
-		their_bakery_data = their_bakery_info->lock_data;
 
 		/* Wait for the contender to get their ticket */
-		while (bakery_is_choosing(their_bakery_data)) {
+		do {
 			read_cache_op(their_bakery_info, is_cached);
 			their_bakery_data = their_bakery_info->lock_data;
-		}
+		} while (bakery_is_choosing(their_bakery_data));
 
 		/*
 		 * If the other party is a contender, they'll have non-zero

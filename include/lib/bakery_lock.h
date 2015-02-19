@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,12 +38,34 @@
 #ifndef __ASSEMBLY__
 #include <stdint.h>
 
+/*****************************************************************************
+ * Internal helper macros used by the bakery lock implementation.
+ ****************************************************************************/
+/* Convert a ticket to priority */
+#define PRIORITY(t, pos)	(((t) << 8) | (pos))
+
+#define CHOOSING_TICKET		0x1
+#define CHOSEN_TICKET		0x0
+
+#define bakery_is_choosing(info)	(info & 0x1)
+#define bakery_ticket_number(info)	((info >> 1) & 0x7FFF)
+#define make_bakery_data(choosing, number) \
+		(((choosing & 0x1) | (number << 1)) & 0xFFFF)
+
+/*****************************************************************************
+ * External bakery lock interface.
+ ****************************************************************************/
 #if USE_COHERENT_MEM
 
 typedef struct bakery_lock {
 	int owner;
-	volatile char entering[BAKERY_LOCK_MAX_CPUS];
-	volatile unsigned number[BAKERY_LOCK_MAX_CPUS];
+	/*
+	 * The lock_data is a bit-field of 2 members:
+	 * Bit[0]       : choosing. This field is set when the CPU is
+	 *                choosing its bakery number.
+	 * Bits[1 - 15] : number. This is the bakery number allocated.
+	 */
+	volatile uint16_t lock_data[BAKERY_LOCK_MAX_CPUS];
 } bakery_lock_t;
 
 #define NO_OWNER (-1)

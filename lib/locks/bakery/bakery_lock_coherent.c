@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,10 +63,6 @@
 	assert(entry < BAKERY_LOCK_MAX_CPUS);		\
 } while (0)
 
-/* Convert a ticket to priority */
-#define PRIORITY(t, pos)	(((t) << 8) | (pos))
-
-
 /* Initialize Bakery Lock to reset ownership and all ticket values */
 void bakery_lock_init(bakery_lock_t *bakery)
 {
@@ -95,9 +91,9 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	 * value, not the ticket value alone.
 	 */
 	my_ticket = 0;
-	bakery->entering[me] = 1;
+	bakery->lock_data[me] = make_bakery_data(CHOOSING_TICKET, my_ticket);
 	for (they = 0; they < BAKERY_LOCK_MAX_CPUS; they++) {
-		their_ticket = bakery->number[they];
+		their_ticket = bakery_ticket_number(bakery->lock_data[they]);
 		if (their_ticket > my_ticket)
 			my_ticket = their_ticket;
 	}
@@ -107,8 +103,7 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	 * finish calculating our ticket value that we're done
 	 */
 	++my_ticket;
-	bakery->number[me] = my_ticket;
-	bakery->entering[me] = 0;
+	bakery->lock_data[me] = make_bakery_data(CHOSEN_TICKET, my_ticket);
 
 	return my_ticket;
 }
@@ -129,6 +124,7 @@ void bakery_lock_get(bakery_lock_t *bakery)
 {
 	unsigned int they, me;
 	unsigned int my_ticket, my_prio, their_ticket;
+	unsigned int their_bakery_data;
 
 	me = platform_get_core_pos(read_mpidr_el1());
 
@@ -150,14 +146,15 @@ void bakery_lock_get(bakery_lock_t *bakery)
 			continue;
 
 		/* Wait for the contender to get their ticket */
-		while (bakery->entering[they])
-			;
+		do {
+			their_bakery_data = bakery->lock_data[they];
+		} while (bakery_is_choosing(their_bakery_data));
 
 		/*
 		 * If the other party is a contender, they'll have non-zero
 		 * (valid) ticket value. If they do, compare priorities
 		 */
-		their_ticket = bakery->number[they];
+		their_ticket = bakery_ticket_number(their_bakery_data);
 		if (their_ticket && (PRIORITY(their_ticket, they) < my_prio)) {
 			/*
 			 * They have higher priority (lower value). Wait for
@@ -167,7 +164,8 @@ void bakery_lock_get(bakery_lock_t *bakery)
 			 */
 			do {
 				wfe();
-			} while (their_ticket == bakery->number[they]);
+			} while (their_ticket ==
+				bakery_ticket_number(bakery->lock_data[they]));
 		}
 	}
 
@@ -189,7 +187,7 @@ void bakery_lock_release(bakery_lock_t *bakery)
 	 * waiting contenders
 	 */
 	bakery->owner = NO_OWNER;
-	bakery->number[me] = 0;
+	bakery->lock_data[me] = 0;
 	dsb();
 	sev();
 }
