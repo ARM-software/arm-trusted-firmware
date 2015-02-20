@@ -58,7 +58,6 @@
 #if USE_COHERENT_MEM
 
 typedef struct bakery_lock {
-	int owner;
 	/*
 	 * The lock_data is a bit-field of 2 members:
 	 * Bit[0]       : choosing. This field is set when the CPU is
@@ -67,8 +66,6 @@ typedef struct bakery_lock {
 	 */
 	volatile uint16_t lock_data[BAKERY_LOCK_MAX_CPUS];
 } bakery_lock_t;
-
-#define NO_OWNER (-1)
 
 void bakery_lock_init(bakery_lock_t *bakery);
 void bakery_lock_get(bakery_lock_t *bakery);

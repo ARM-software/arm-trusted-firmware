@@ -63,14 +63,13 @@
 	assert(entry < BAKERY_LOCK_MAX_CPUS);		\
 } while (0)
 
-/* Initialize Bakery Lock to reset ownership and all ticket values */
+/* Initialize Bakery Lock to reset all ticket values */
 void bakery_lock_init(bakery_lock_t *bakery)
 {
 	assert(bakery);
 
 	/* All ticket values need to be 0 */
 	memset(bakery, 0, sizeof(*bakery));
-	bakery->owner = NO_OWNER;
 }
 
 
@@ -79,6 +78,9 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 {
 	unsigned int my_ticket, their_ticket;
 	unsigned int they;
+
+	/* Prevent recursive acquisition */
+	assert(!bakery_ticket_number(bakery->lock_data[me]));
 
 	/*
 	 * Flag that we're busy getting our ticket. All CPUs are iterated in the
@@ -130,9 +132,6 @@ void bakery_lock_get(bakery_lock_t *bakery)
 
 	assert_bakery_entry_valid(me, bakery);
 
-	/* Prevent recursive acquisition */
-	assert(bakery->owner != me);
-
 	/* Get a ticket */
 	my_ticket = bakery_get_ticket(bakery, me);
 
@@ -168,9 +167,7 @@ void bakery_lock_get(bakery_lock_t *bakery)
 				bakery_ticket_number(bakery->lock_data[they]));
 		}
 	}
-
 	/* Lock acquired */
-	bakery->owner = me;
 }
 
 
@@ -180,13 +177,12 @@ void bakery_lock_release(bakery_lock_t *bakery)
 	unsigned int me = platform_get_core_pos(read_mpidr_el1());
 
 	assert_bakery_entry_valid(me, bakery);
-	assert(bakery->owner == me);
+	assert(bakery_ticket_number(bakery->lock_data[me]));
 
 	/*
-	 * Release lock by resetting ownership and ticket. Then signal other
+	 * Release lock by resetting ticket. Then signal other
 	 * waiting contenders
 	 */
-	bakery->owner = NO_OWNER;
 	bakery->lock_data[me] = 0;
 	dsb();
 	sev();

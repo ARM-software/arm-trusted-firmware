@@ -88,6 +88,13 @@ static unsigned int bakery_get_ticket(int id, unsigned int offset,
 	assert(my_bakery_info);
 
 	/*
+	 * Prevent recursive acquisition.
+	 * Since lock data is written to and cleaned by the owning cpu, it
+	 * doesn't require any cache operations prior to reading the lock data.
+	 */
+	assert(!bakery_ticket_number(my_bakery_info->lock_data));
+
+	/*
 	 * Tell other contenders that we are through the bakery doorway i.e.
 	 * going to allocate a ticket for this cpu.
 	 */
@@ -189,6 +196,7 @@ void bakery_lock_get(unsigned int id, unsigned int offset)
 				== bakery_ticket_number(their_bakery_info->lock_data));
 		}
 	}
+	/* Lock acquired */
 }
 
 void bakery_lock_release(unsigned int id, unsigned int offset)
@@ -197,6 +205,8 @@ void bakery_lock_release(unsigned int id, unsigned int offset)
 	unsigned int is_cached = read_sctlr_el3() & SCTLR_C_BIT;
 
 	my_bakery_info = get_my_bakery_info(offset, id);
+	assert(bakery_ticket_number(my_bakery_info->lock_data));
+
 	my_bakery_info->lock_data = 0;
 	write_cache_op(my_bakery_info, is_cached);
 	sev();
