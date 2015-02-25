@@ -297,28 +297,40 @@ performed.
     certificate generation tool to create new keys in case no valid keys are
     present or specified. Allowed options are '0' or '1'. Default is '1'.
 
+*   `SAVE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
+    certificate generation tool to save the keys used to establish the Chain of
+    Trust. Allowed options are '0' or '1'. Default is '0' (do not save).
+
+    Note: This option depends on 'CREATE_KEYS' to be enabled. If the keys
+    already exist in disk, they will be overwritten without further notice.
+
 *   `ROT_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the ROT private key in PEM format.
+    file that contains the ROT private key in PEM format. If `SAVE_KEYS=1`, this
+    file name will be used to save the key.
 
 *   `TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
     specifies the file that contains the Trusted World private key in PEM
-    format.
+    format. If `SAVE_KEYS=1`, this file name will be used to save the key.
 
 *   `NON_TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
     specifies the file that contains the Non-Trusted World private key in PEM
-    format.
+    format. If `SAVE_KEYS=1`, this file name will be used to save the key.
 
 *   `BL30_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-0 private key in PEM format.
+    file that contains the BL3-0 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `BL31_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-1 private key in PEM format.
+    file that contains the BL3-1 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `BL32_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-2 private key in PEM format.
+    file that contains the BL3-2 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-3 private key in PEM format.
+    file that contains the BL3-3 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `PROGRAMMABLE_RESET_ADDRESS`: This option indicates whether the reset
     vector address can be programmed or is fixed on the platform. It can take
