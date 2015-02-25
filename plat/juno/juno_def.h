@@ -271,4 +271,10 @@
 #define PRIMARY_CPU_SHIFT	8
 #define PRIMARY_CPU_MASK	0xf
 
+/*******************************************************************************
+ * MMU-401 related constants
+ ******************************************************************************/
+#define MMU401_SSD_OFFSET	0x4000
+#define MMU401_DMA330_BASE	0x7fb00000
+
 #endif /* __JUNO_DEF_H__ */
