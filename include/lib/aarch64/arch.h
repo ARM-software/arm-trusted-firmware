@@ -61,6 +61,14 @@
 #define MPIDR_AFFLVL1		1
 #define MPIDR_AFFLVL2		2
 #define MPIDR_AFFLVL3		3
+#define MPIDR_AFFLVL0_VAL(mpidr) \
+		((mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK)
+#define MPIDR_AFFLVL1_VAL(mpidr) \
+		((mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK)
+#define MPIDR_AFFLVL2_VAL(mpidr) \
+		((mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK)
+#define MPIDR_AFFLVL3_VAL(mpidr) \
+		((mpidr >> MPIDR_AFF3_SHIFT) & MPIDR_AFFLVL_MASK)
 /*
  * The MPIDR_MAX_AFFLVL count starts from 0. Take care to
  * add one while using this macro to define array sizes.

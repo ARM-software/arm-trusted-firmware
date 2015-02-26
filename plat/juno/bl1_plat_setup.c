@@ -31,7 +31,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <cci400.h>
+#include <cci.h>
 #include <console.h>
 #include <debug.h>
 #include <mmio.h>
@@ -82,10 +82,8 @@ void bl1_early_platform_setup(void)
 	 * Enable CCI-400 for this cluster. No need for locks as no other cpu is
 	 * active at the moment
 	 */
-	cci_init(CCI400_BASE,
-		 CCI400_SL_IFACE3_CLUSTER_IX,
-		 CCI400_SL_IFACE4_CLUSTER_IX);
-	cci_enable_cluster_coherency(read_mpidr());
+	plat_cci_init();
+	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = TZRAM_BASE;

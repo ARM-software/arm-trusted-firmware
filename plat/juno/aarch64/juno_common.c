@@ -32,6 +32,7 @@
 #include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <cci.h>
 #include <debug.h>
 #include <mmio.h>
 #include <platform.h>
@@ -135,6 +136,18 @@ const unsigned int irq_sec_array[] = {
 	IRQ_SEC_SGI_6,
 	IRQ_SEC_SGI_7
 };
+
+static const int cci_map[] = {
+	CCI400_CLUSTER0_SL_IFACE_IX,
+	CCI400_CLUSTER1_SL_IFACE_IX
+};
+
+void plat_cci_init(void)
+{
+	cci_init(CCI400_BASE,
+		cci_map,
+		ARRAY_SIZE(cci_map));
+}
 
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
