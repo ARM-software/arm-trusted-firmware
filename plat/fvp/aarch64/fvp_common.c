@@ -115,7 +115,7 @@ const mmap_region_t fvp_mmap[] = {
 };
 #endif
 
-CASSERT((sizeof(fvp_mmap)/sizeof(fvp_mmap[0])) + FVP_BL_REGIONS \
+CASSERT(ARRAY_SIZE(fvp_mmap) + FVP_BL_REGIONS \
 		<= MAX_MMAP_REGIONS, assert_max_mmap_regions);
 
 /* Array of secure interrupts to be configured by the gic driver */
@@ -131,9 +131,6 @@ const unsigned int irq_sec_array[] = {
 	IRQ_SEC_SGI_6,
 	IRQ_SEC_SGI_7
 };
-
-const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
-	sizeof(irq_sec_array[0]);
 
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
@@ -326,7 +323,7 @@ void fvp_gic_init(void)
 		plat_config.gicd_base,
 		BASE_GICR_BASE,
 		irq_sec_array,
-		num_sec_irqs);
+		ARRAY_SIZE(irq_sec_array));
 }
 
 
