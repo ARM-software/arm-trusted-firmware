@@ -48,7 +48,7 @@ unsigned int plat_get_aff_state(unsigned int aff_lvl, unsigned long mpidr)
 	return aff_lvl <= MPIDR_AFFLVL1 ? PSCI_AFF_PRESENT : PSCI_AFF_ABSENT;
 }
 
-int plat_setup_topology()
+int plat_setup_topology(void)
 {
 	/* Juno todo: Make topology configurable via SCC */
 	return 0;

@@ -58,7 +58,7 @@ void psci_set_suspend_power_state(unsigned int power_state)
  * powered down during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
  * power state is invalid.
  ******************************************************************************/
-int psci_get_suspend_afflvl()
+int psci_get_suspend_afflvl(void)
 {
 	unsigned int power_state;
 
@@ -73,7 +73,7 @@ int psci_get_suspend_afflvl()
  * parameter saved in the per-cpu data array. Returns PSCI_INVALID_DATA if the
  * power state saved is invalid.
  ******************************************************************************/
-int psci_get_suspend_stateid()
+int psci_get_suspend_stateid(void)
 {
 	unsigned int power_state;
 

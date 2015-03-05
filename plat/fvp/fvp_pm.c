@@ -64,7 +64,7 @@ static void fvp_program_mailbox(uint64_t mpidr, uint64_t address)
  * Function which implements the common FVP specific operations to power down a
  * cpu in response to a CPU_OFF or CPU_SUSPEND request.
  ******************************************************************************/
-static void fvp_cpu_pwrdwn_common()
+static void fvp_cpu_pwrdwn_common(void)
 {
 	/* Prevent interrupts from spuriously waking up this cpu */
 	arm_gic_cpuif_deactivate();
@@ -77,7 +77,7 @@ static void fvp_cpu_pwrdwn_common()
  * Function which implements the common FVP specific operations to power down a
  * cluster in response to a CPU_OFF or CPU_SUSPEND request.
  ******************************************************************************/
-static void fvp_cluster_pwrdwn_common()
+static void fvp_cluster_pwrdwn_common(void)
 {
 	uint64_t mpidr = read_mpidr_el1();
 

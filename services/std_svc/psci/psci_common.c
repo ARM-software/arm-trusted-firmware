@@ -133,7 +133,7 @@ uint32_t psci_get_max_phys_off_afflvl(void)
  * been physically powered up. It is expected to be called immediately after
  * reset from assembler code.
  ******************************************************************************/
-int get_power_on_target_afflvl()
+int get_power_on_target_afflvl(void)
 {
 	int afflvl;
 
