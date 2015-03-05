@@ -51,8 +51,8 @@
  * during the Trusted Boot process.
  */
 
-/* SHA256 algorithm */
-#define SHA_BYTES			32
+/* Maximum OID string length ("a.b.c.d.e.f ...") */
+#define MAX_OID_STR_LEN			64
 
 /*
  * An 8 KB stack has been proven to be enough for the current Trusted Boot
@@ -79,6 +79,18 @@ static unsigned char heap[POLARSSL_HEAP_SIZE];
 #define RSA_PUB_DER_MAX_BYTES   38 + 2 * POLARSSL_MPI_MAX_SIZE
 
 /*
+ * SHA256:
+ *   DigestInfo ::= SEQUENCE {                      1 + 1
+ *     digestAlgorithm AlgorithmIdentifier,       + 1 + 1 (sequence)
+ *                                                + 1 + 1 + 9 (sha256 oid)
+ *                                                + 1 + 1 (params null)
+ *     digest OCTET STRING                        + 1 + 1 + 32 (sha256)
+ * }
+ */
+#define SHA256_BYTES		32
+#define SHA256_DER_BYTES	(19 + SHA256_BYTES)
+
+/*
  * Buffer for storing public keys extracted from certificates while they are
  * verified
  */
@@ -89,13 +101,13 @@ static x509_crt cert;
 
 /* BL specific variables */
 #if IMAGE_BL1
-static unsigned char sha_bl2[SHA_BYTES];
+static unsigned char sha_bl2[SHA256_DER_BYTES];
 #elif IMAGE_BL2
 /* Buffers to store the hash of BL3-x images */
-static unsigned char sha_bl30[SHA_BYTES];
-static unsigned char sha_bl31[SHA_BYTES];
-static unsigned char sha_bl32[SHA_BYTES];
-static unsigned char sha_bl33[SHA_BYTES];
+static unsigned char sha_bl30[SHA256_DER_BYTES];
+static unsigned char sha_bl31[SHA256_DER_BYTES];
+static unsigned char sha_bl32[SHA256_DER_BYTES];
+static unsigned char sha_bl33[SHA256_DER_BYTES];
 /* Buffers to store the Trusted and Non-Trusted world public keys */
 static unsigned char tz_world_pk[RSA_PUB_DER_MAX_BYTES];
 static unsigned char ntz_world_pk[RSA_PUB_DER_MAX_BYTES];
@@ -111,12 +123,12 @@ static int x509_get_crt_ext_data(const unsigned char **ext_data,
 				 x509_crt *crt,
 				 const char *oid)
 {
-	int ret;
+	int ret, oid_len;
 	size_t len;
 	unsigned char *end_ext_data, *end_ext_octet;
 	unsigned char *p;
 	const unsigned char *end;
-	char oid_str[64];
+	char oid_str[MAX_OID_STR_LEN];
 
 	p = crt->v3_ext.p;
 	end = crt->v3_ext.p + crt->v3_ext.len;
@@ -177,8 +189,12 @@ static int x509_get_crt_ext_data(const unsigned char **ext_data,
 					POLARSSL_ERR_ASN1_LENGTH_MISMATCH;
 
 		/* Detect requested extension */
-		oid_get_numeric_string(oid_str, 64, &extn_oid);
-		if (memcmp(oid, oid_str, sizeof(oid)) == 0) {
+		oid_len = oid_get_numeric_string(oid_str,
+				MAX_OID_STR_LEN, &extn_oid);
+		if (oid_len == POLARSSL_ERR_OID_BUF_TOO_SMALL)
+			return POLARSSL_ERR_X509_INVALID_EXTENSIONS +
+					POLARSSL_ERR_ASN1_BUF_TOO_SMALL;
+		if ((oid_len == strlen(oid_str)) && !strcmp(oid, oid_str)) {
 			*ext_data = p;
 			*ext_len = len;
 			return 0;
@@ -251,11 +267,8 @@ static int check_bl2_cert(unsigned char *buf, size_t len)
 		goto error;
 	}
 
-	assert(sz == SHA_BYTES + 2);
-
-	/* Skip the tag and length bytes and copy the hash */
-	p += 2;
-	memcpy(sha_bl2, p, SHA_BYTES);
+	assert(sz == SHA256_DER_BYTES);
+	memcpy(sha_bl2, p, SHA256_DER_BYTES);
 
 error:
 	x509_crt_free(&cert);
@@ -433,11 +446,8 @@ static int check_bl3x_cert(unsigned char *buf, size_t len,
 		goto error;
 	}
 
-	assert(sz == SHA_BYTES + 2);
-
-	/* Skip the tag and length bytes and copy the hash */
-	p += 2;
-	memcpy(sha, p, SHA_BYTES);
+	assert(sz == SHA256_DER_BYTES);
+	memcpy(sha, p, SHA256_DER_BYTES);
 
 error:
 	x509_crt_free(&cert);
@@ -460,18 +470,68 @@ error:
 static int check_bl_img(unsigned char *buf, size_t len,
 			const unsigned char *sha)
 {
-	unsigned char img_sha[SHA_BYTES];
+	asn1_buf md_oid, params;
+	md_type_t md_alg;
+	int err;
+	unsigned char *p = NULL;
+	const unsigned char *end = NULL;
+	size_t sz;
+	unsigned char img_sha[SHA256_BYTES];
+
+	/*
+	 * Extract the image hash from the ASN.1 structure:
+	 *
+	 * DigestInfo ::= SEQUENCE {
+	 *     digestAlgorithm AlgorithmIdentifier,
+	 *     digest OCTET STRING
+	 * }
+	 */
+
+	p = (unsigned char *)sha;
+	end = sha + SHA256_DER_BYTES;
+	err = asn1_get_tag(&p, end, &sz, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	if (err != 0) {
+		ERROR("Malformed image hash extension\n");
+		goto error;
+	}
+
+	err = asn1_get_alg(&p, end, &md_oid, &params);
+	if (err != 0) {
+		ERROR("Malformed image hash algorithm\n");
+		goto error;
+	}
+
+	err = oid_get_md_alg(&md_oid, &md_alg);
+	if (err != 0) {
+		ERROR("Unknown image hash algorithm\n");
+		goto error;
+	}
+
+	/* Only SHA256 is supported */
+	if (md_alg != POLARSSL_MD_SHA256) {
+		ERROR("Only SHA256 is supported as image hash algorithm\n");
+		err = 1;
+		goto error;
+	}
+
+	/* Get the hash */
+	err = asn1_get_tag(&p, end, &sz, ASN1_OCTET_STRING);
+	if (err != 0) {
+		ERROR("Image hash not found in extension\n");
+		goto error;
+	}
 
 	/* Calculate the hash of the image */
 	sha256(buf, len, img_sha, 0);
 
 	/* Match the hash with the one extracted from the certificate */
-	if (memcmp(img_sha, sha, SHA_BYTES)) {
+	if (memcmp(img_sha, p, SHA256_BYTES)) {
 		ERROR("Image hash mismatch\n");
 		return 1;
 	}
 
-	return 0;
+error:
+	return err;
 }
 
 /*

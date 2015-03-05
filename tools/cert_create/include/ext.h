@@ -63,7 +63,8 @@ enum {
 };
 
 int ext_init(ext_t *tbb_ext);
-X509_EXTENSION *ext_new_hash(int nid, int crit, unsigned char *buf, size_t len);
+X509_EXTENSION *ext_new_hash(int nid, int crit, const EVP_MD *md,
+		unsigned char *buf, size_t len);
 X509_EXTENSION *ext_new_nvcounter(int nid, int crit, int value);
 X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k);
 

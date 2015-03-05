@@ -277,6 +277,7 @@ int main(int argc, char *argv[])
 	int i, tz_nvctr_nid, ntz_nvctr_nid, hash_nid, pk_nid;
 	int c, opt_idx = 0;
 	unsigned char md[SHA256_DIGEST_LENGTH];
+	const EVP_MD *md_info;
 
 	NOTICE("CoT Generation Tool: %s\n", build_msg);
 	NOTICE("Target platform: %s\n", platform_msg);
@@ -389,6 +390,10 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	/* Indicate SHA256 as image hash algorithm in the certificate
+	 * extension */
+	md_info = EVP_sha256();
+
 	/* Get non-volatile counters NIDs */
 	CHECK_OID(tz_nvctr_nid, TZ_FW_NVCOUNTER_OID);
 	CHECK_OID(ntz_nvctr_nid, NTZ_FW_NVCOUNTER_OID);
@@ -430,7 +435,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	CHECK_OID(hash_nid, BL2_HASH_OID);
-	CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md,
+	CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md_info, md,
 			SHA256_DIGEST_LENGTH));
 	sk_X509_EXTENSION_push(sk, hash_ext);
 
@@ -509,8 +514,8 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		CHECK_OID(hash_nid, BL30_HASH_OID);
-		CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md,
-				SHA256_DIGEST_LENGTH));
+		CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md_info,
+				md, SHA256_DIGEST_LENGTH));
 		sk_X509_EXTENSION_push(sk, hash_ext);
 
 		if (!cert_new(&certs[BL30_CERT], VAL_DAYS, 0, sk)) {
@@ -559,7 +564,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	CHECK_OID(hash_nid, BL31_HASH_OID);
-	CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md,
+	CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md_info, md,
 			SHA256_DIGEST_LENGTH));
 	sk_X509_EXTENSION_push(sk, hash_ext);
 
@@ -612,8 +617,8 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		CHECK_OID(hash_nid, BL32_HASH_OID);
-		CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md,
-				SHA256_DIGEST_LENGTH));
+		CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md_info,
+				md, SHA256_DIGEST_LENGTH));
 		sk_X509_EXTENSION_push(sk, hash_ext);
 
 		if (!cert_new(&certs[BL32_CERT], VAL_DAYS, 0, sk)) {
@@ -662,7 +667,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	CHECK_OID(hash_nid, BL33_HASH_OID);
-	CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md,
+	CHECK_NULL(hash_ext, ext_new_hash(hash_nid, EXT_CRIT, md_info, md,
 			SHA256_DIGEST_LENGTH));
 	sk_X509_EXTENSION_push(sk, hash_ext);
 
