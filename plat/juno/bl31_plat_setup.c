@@ -182,7 +182,7 @@ void bl31_platform_setup(void)
  * Perform the very early platform specific architectural setup here. At the
  * moment this is only intializes the mmu in a quick and dirty way.
  ******************************************************************************/
-void bl31_plat_arch_setup()
+void bl31_plat_arch_setup(void)
 {
 	configure_mmu_el3(BL31_RO_BASE,
 			  (BL31_END - BL31_RO_BASE),

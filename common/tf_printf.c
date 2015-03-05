@@ -38,7 +38,7 @@ static void unsigned_num_print(unsigned long int unum, unsigned int radix)
 {
 	/* Just need enough space to store 64 bit decimal integer */
 	unsigned char num_buf[20];
-	int i = 0 , rem;
+	int i = 0, rem;
 
 	do {
 		rem = unum % radix;
