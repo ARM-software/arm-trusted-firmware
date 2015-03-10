@@ -32,7 +32,6 @@
 
 #include <stddef.h>
 
-#include <assert.h>
 #include <auth.h>
 #include <debug.h>
 #include <platform.h>
@@ -267,7 +266,11 @@ static int check_bl2_cert(unsigned char *buf, size_t len)
 		goto error;
 	}
 
-	assert(sz == SHA256_DER_BYTES);
+	if (sz != SHA256_DER_BYTES) {
+		ERROR("Wrong BL2 hash size: %lu\n", sz);
+		err = 1;
+		goto error;
+	}
 	memcpy(sha_bl2, p, SHA256_DER_BYTES);
 
 error:
@@ -324,7 +327,11 @@ static int check_trusted_key_cert(unsigned char *buf, size_t len)
 		goto error;
 	}
 
-	assert(tz_world_pk_len <= RSA_PUB_DER_MAX_BYTES);
+	if (tz_world_pk_len > RSA_PUB_DER_MAX_BYTES) {
+		ERROR("Wrong RSA key size: %lu\n", tz_world_pk_len);
+		err = 1;
+		goto error;
+	}
 	memcpy(tz_world_pk, p, tz_world_pk_len);
 
 	/* Extract Non-Trusted World key from extensions */
@@ -335,7 +342,11 @@ static int check_trusted_key_cert(unsigned char *buf, size_t len)
 		goto error;
 	}
 
-	assert(tz_world_pk_len <= RSA_PUB_DER_MAX_BYTES);
+	if (ntz_world_pk_len > RSA_PUB_DER_MAX_BYTES) {
+		ERROR("Wrong RSA key size: %lu\n", ntz_world_pk_len);
+		err = 1;
+		goto error;
+	}
 	memcpy(ntz_world_pk, p, ntz_world_pk_len);
 
 error:
@@ -392,7 +403,11 @@ static int check_bl3x_key_cert(const unsigned char *buf, size_t len,
 		goto error;
 	}
 
-	assert(sz <= RSA_PUB_DER_MAX_BYTES);
+	if (sz > RSA_PUB_DER_MAX_BYTES) {
+		ERROR("Wrong RSA key size: %lu\n", sz);
+		err = 1;
+		goto error;
+	}
 	memcpy(s_key, p, sz);
 	*s_key_len = sz;
 
@@ -446,7 +461,11 @@ static int check_bl3x_cert(unsigned char *buf, size_t len,
 		goto error;
 	}
 
-	assert(sz == SHA256_DER_BYTES);
+	if (sz != SHA256_DER_BYTES) {
+		ERROR("Wrong image hash length: %lu\n", sz);
+		err = 1;
+		goto error;
+	}
 	memcpy(sha, p, SHA256_DER_BYTES);
 
 error:
