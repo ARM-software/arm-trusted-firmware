@@ -213,6 +213,67 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	switch (smc_fid) {
 
 	/*
+	 * This function ID is used by SP to indicate that it was
+	 * preempted by a non-secure world IRQ.
+	 */
+	case TLK_PREEMPTED:
+
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		assert(handle == cm_get_context(SECURE));
+		cm_el1_sysregs_context_save(SECURE);
+
+		/* Get a reference to the non-secure context */
+		ns_cpu_context = cm_get_context(NON_SECURE);
+		assert(ns_cpu_context);
+
+		/*
+		 * Restore non-secure state. There is no need to save the
+		 * secure system register context since the SP was supposed
+		 * to preserve it during S-EL1 interrupt handling.
+		 */
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+
+		SMC_RET1(ns_cpu_context, tlk_args_results_buf->args[0]);
+
+	/*
+	 * Request from non secure world to resume the preempted
+	 * Standard SMC call.
+	 */
+	case TLK_RESUME_FID:
+
+		/* RESUME should be invoked only by normal world */
+		if (!ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		/*
+		 * This is a resume request from the non-secure client.
+		 * save the non-secure state and send the request to
+		 * the secure payload.
+		 */
+		assert(handle == cm_get_context(NON_SECURE));
+
+		/* Check if we are already preempted before resume */
+		if (!get_std_smc_active_flag(tlk_ctx->state))
+			SMC_RET1(handle, SMC_UNK);
+
+		cm_el1_sysregs_context_save(NON_SECURE);
+
+		/*
+		 * We are done stashing the non-secure context. Ask the
+		 * secure payload to do the work now.
+		 */
+
+		/* We just need to return to the preempted point in
+		 * SP and the execution will resume as normal.
+		 */
+		cm_el1_sysregs_context_restore(SECURE);
+		cm_set_next_eret_context(SECURE);
+		SMC_RET0(handle);
+
+	/*
 	 * This is a request from the non-secure context to:
 	 *
 	 * a. register shared memory with the SP for storing it's
