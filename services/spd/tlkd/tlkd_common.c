@@ -35,6 +35,66 @@
 #include <string.h>
 #include "tlkd_private.h"
 
+#define AT_MASK		3
+
+/*******************************************************************************
+ * This function helps the SP to translate NS/S virtual addresses.
+ ******************************************************************************/
+uint64_t tlkd_va_translate(uintptr_t va, int type)
+{
+	uint32_t scr;
+	uint64_t pa;
+
+	if (type & TLK_TRANSLATE_NS_VADDR) {
+
+		/* save secure context */
+		cm_el1_sysregs_context_save(SECURE);
+
+		/* restore non-secure context */
+		cm_el1_sysregs_context_restore(NON_SECURE);
+
+		/* switch NS bit to start using 64-bit, non-secure mappings */
+		scr = cm_get_scr_el3(NON_SECURE);
+		write_scr(scr | SCR_NS_BIT | SCR_RW_BIT);
+		isb();
+	}
+
+	int at = type & AT_MASK;
+	switch (at) {
+	case 0:
+		ats12e1r(va);
+		break;
+	case 1:
+		ats12e1w(va);
+		break;
+	case 2:
+		ats12e0r(va);
+		break;
+	case 3:
+		ats12e0w(va);
+		break;
+	default:
+		assert(0);
+	}
+
+	/* get the (NS/S) physical address */
+	isb();
+	pa = read_par_el1();
+
+	/* Restore secure state */
+	if (type & TLK_TRANSLATE_NS_VADDR) {
+
+		/* restore secure context */
+		cm_el1_sysregs_context_restore(SECURE);
+
+		/* switch NS bit to start using 32-bit, secure mappings */
+		write_scr(scr);
+		isb();
+	}
+
+	return pa;
+}
+
 /*******************************************************************************
  * Given a secure payload entrypoint, register width, cpu id & pointer to a
  * context data structure, this function will create a secure context ready for
