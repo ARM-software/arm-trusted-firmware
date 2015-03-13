@@ -36,6 +36,7 @@
  * Generate function IDs for the Trusted OS/Apps
  */
 #define TLK_TOS_STD_FID(fid)	((fid) | 0x72000000 | (0 << 31))
+#define TLK_TA_STD_FID(fid)	((fid) | 0x70000000 | (0 << 31))
 
 /*
  * Trusted OS specific function IDs
@@ -53,6 +54,13 @@
 #define TLK_ENTRY_DONE		(0x32000003 | (1 << 31))
 #define TLK_VA_TRANSLATE	(0x32000004 | (1 << 31))
 #define TLK_FID_SHARED_MEMBUF	(0x32000005 | (1 << 31))
+
+/*
+ * Trusted Application specific function IDs
+ */
+#define TLK_OPEN_TA_SESSION	TLK_TA_STD_FID(0x1)
+#define TLK_CLOSE_TA_SESSION	TLK_TA_STD_FID(0x2)
+#define TLK_TA_LAUNCH_OP	TLK_TA_STD_FID(0x3)
 
 /*
  * Total number of function IDs implemented for services offered to NS clients.

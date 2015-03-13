@@ -278,9 +278,14 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	 * b. register shared memory with the SP for passing args
 	 *    required for maintaining sessions with the Trusted
 	 *    Applications.
+	 * c. open/close sessions
+	 * d. issue commands to the Trusted Apps
 	 */
 	case TLK_REGISTER_LOGBUF:
 	case TLK_REGISTER_REQBUF:
+	case TLK_OPEN_TA_SESSION:
+	case TLK_CLOSE_TA_SESSION:
+	case TLK_TA_LAUNCH_OP:
 
 		assert(ns);
 		assert(tlk_args_results_buf);
@@ -452,6 +457,28 @@ DECLARE_RT_SVC(
 
 	OEN_TOS_START,
 	OEN_TOS_END,
+	SMC_TYPE_STD,
+	NULL,
+	tlkd_smc_handler
+);
+
+/* Define a SPD runtime service descriptor for fast SMC calls */
+DECLARE_RT_SVC(
+	tlkd_tap_fast,
+
+	OEN_TAP_START,
+	OEN_TAP_END,
+	SMC_TYPE_FAST,
+	NULL,
+	tlkd_smc_handler
+);
+
+/* Define a SPD runtime service descriptor for standard SMC calls */
+DECLARE_RT_SVC(
+	tlkd_tap_std,
+
+	OEN_TAP_START,
+	OEN_TAP_END,
 	SMC_TYPE_STD,
 	NULL,
 	tlkd_smc_handler
