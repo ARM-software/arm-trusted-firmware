@@ -57,6 +57,11 @@
 					   << STD_SMC_ACTIVE_FLAG_SHIFT))
 
 /*******************************************************************************
+ * Translate virtual address received from the NS world
+ ******************************************************************************/
+#define TLK_TRANSLATE_NS_VADDR		4
+
+/*******************************************************************************
  * Secure Payload execution state information i.e. aarch32 or aarch64
  ******************************************************************************/
 #define SP_AARCH32		MODE_RW_32
@@ -124,6 +129,7 @@ typedef struct tlk_context {
 /*******************************************************************************
  * Function & Data prototypes
  ******************************************************************************/
+uint64_t tlkd_va_translate(uintptr_t va, int type);
 uint64_t tlkd_enter_sp(uint64_t *c_rt_ctx);
 void __dead2 tlkd_exit_sp(uint64_t c_rt_ctx, uint64_t ret);
 uint64_t tlkd_synchronous_sp_entry(tlk_context_t *tlk_ctx);
