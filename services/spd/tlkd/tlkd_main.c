@@ -195,6 +195,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 uint64_t flags)
 {
+	cpu_context_t *ns_cpu_context;
 	unsigned long mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr), ns;
 	tlk_context_t *tlk_ctx = &tlk_context[linear_id];
@@ -206,6 +207,84 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	ns = is_caller_non_secure(flags);
 
 	switch (smc_fid) {
+
+	/*
+	 * This is a request from the non-secure context to:
+	 *
+	 * a. register shared memory with the SP for storing it's
+	 *    activity logs.
+	 * b. register shared memory with the SP for passing args
+	 *    required for maintaining sessions with the Trusted
+	 *    Applications.
+	 */
+	case TLK_REGISTER_LOGBUF:
+	case TLK_REGISTER_REQBUF:
+
+		assert(ns);
+
+		/*
+		 * This is a fresh request from the non-secure client.
+		 * The parameters are in x1 and x2. Figure out which
+		 * registers need to be preserved, save the non-secure
+		 * state and send the request to the secure payload.
+		 */
+		assert(handle == cm_get_context(NON_SECURE));
+
+		/* Check if we are already preempted */
+		if (get_std_smc_active_flag(tlk_ctx->state))
+			SMC_RET1(handle, SMC_UNK);
+
+		cm_el1_sysregs_context_save(NON_SECURE);
+
+		/*
+		 * Verify if there is a valid context to use.
+		 */
+		assert(&tlk_ctx->cpu_ctx == cm_get_context(SECURE));
+
+		/*
+		 * Mark the SP state as active.
+		 */
+		set_std_smc_active_flag(tlk_ctx->state);
+
+		/* Save args for use by the SP on return */
+		store_tlk_args_results(smc_fid, x1, x2, x3);
+
+		/*
+		 * We are done stashing the non-secure context. Ask the
+		 * secure payload to do the work now.
+		 */
+		cm_el1_sysregs_context_restore(SECURE);
+		cm_set_next_eret_context(SECURE);
+		SMC_RET0(&tlk_ctx->cpu_ctx);
+
+	/*
+	 * This is a request from the SP to mark completion of
+	 * a standard function ID.
+	 */
+	case TLK_REQUEST_DONE:
+
+		/*
+		 * Mark the SP state as inactive.
+		 */
+		clr_std_smc_active_flag(tlk_ctx->state);
+
+		/* Get a reference to the non-secure context */
+		ns_cpu_context = cm_get_context(NON_SECURE);
+		assert(ns_cpu_context);
+
+		/*
+		 * This is a request completion SMC and we must switch to
+		 * the non-secure world to pass the result.
+		 */
+		cm_el1_sysregs_context_save(SECURE);
+
+		/*
+		 * We are done stashing the secure context. Switch to the
+		 * non-secure context and return the result.
+		 */
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+		SMC_RET1(ns_cpu_context, tlk_args_results_buf->args[0]);
 
 	/*
 	 * This function ID is used only by the SP to indicate it has
