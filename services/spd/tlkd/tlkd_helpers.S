@@ -34,6 +34,10 @@
 
 	.global tlkd_enter_sp
 	.global tlkd_exit_sp
+	.global	tlkd_priv_read
+	.global	tlkd_priv_write
+	.global	tlkd_user_read
+	.global	tlkd_user_write
 
 	/* ---------------------------------------------
 	 * This function is called with SP_EL0 as stack.
@@ -100,4 +104,24 @@ func tlkd_exit_sp
 	 * ------------------------------------------------
 	 */
 	mov	x0, x1
+	ret
+
+	/* ---------------------------------------------
+	 * Virtual-to-Physical translation helper fns
+	 * ---------------------------------------------
+	 */
+func tlkd_priv_read
+	at	s12e1r, x0
+	ret
+
+func tlkd_priv_write
+	at	s12e1w, x0
+	ret
+
+func tlkd_user_read
+	at	s12e0r, x0
+	ret
+
+func tlkd_user_write
+	at	s12e0w, x0
 	ret

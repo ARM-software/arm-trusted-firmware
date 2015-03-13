@@ -202,6 +202,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	unsigned long mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr), ns;
 	tlk_context_t *tlk_ctx = &tlk_context[linear_id];
+	uint64_t vaddr, type;
 
 	/* Passing a NULL context is a critical programming error */
 	assert(handle);
@@ -224,6 +225,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	case TLK_REGISTER_REQBUF:
 
 		assert(ns);
+		assert(tlk_args_results_buf);
 
 		/*
 		 * This is a fresh request from the non-secure client.
@@ -261,10 +263,33 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		SMC_RET0(&tlk_ctx->cpu_ctx);
 
 	/*
+	 * Translate NS/EL1-S virtual addresses
+	 */
+	case TLK_VA_TRANSLATE:
+
+		assert(tlk_args_results_buf);
+
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		/* virtual address and type: ns/s */
+		vaddr = tlk_args_results_buf->args[0];
+		type = tlk_args_results_buf->args[1];
+
+		uint64_t par = tlkd_va_translate(vaddr, type);
+
+		/* Save PA for use by the SP on return */
+		store_tlk_args_results(par, 0, 0, 0);
+
+		SMC_RET0(handle);
+
+	/*
 	 * This is a request from the SP to mark completion of
 	 * a standard function ID.
 	 */
 	case TLK_REQUEST_DONE:
+
+		assert(tlk_args_results_buf);
 
 		/*
 		 * Mark the SP state as inactive.
@@ -294,6 +319,9 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	 * finished initialising itself after a cold boot
 	 */
 	case TLK_ENTRY_DONE:
+
+		assert(tlk_args_results_buf);
+
 		if (ns)
 			SMC_RET1(handle, SMC_UNK);
 
