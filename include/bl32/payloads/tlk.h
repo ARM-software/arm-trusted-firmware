@@ -32,9 +32,21 @@
 #define __TLK_H__
 
 /*
+ * Generate function IDs for the Trusted OS/Apps
+ */
+#define TLK_TOS_STD_FID(fid)	((fid) | 0x72000000 | (0 << 31))
+
+/*
+ * Trusted OS specific function IDs
+ */
+#define TLK_REGISTER_LOGBUF	TLK_TOS_STD_FID(0x1)
+#define TLK_REGISTER_REQBUF	TLK_TOS_STD_FID(0x2)
+
+/*
  * SMC function IDs that TLK uses to signal various forms of completions
  * to the secure payload dispatcher.
  */
+#define TLK_REQUEST_DONE	(0x32000001 | (1 << 31))
 #define TLK_ENTRY_DONE		(0x32000003 | (1 << 31))
 #define TLK_FID_SHARED_MEMBUF	(0x32000005 | (1 << 31))
 
