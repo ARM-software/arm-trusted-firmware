@@ -65,7 +65,7 @@
 /*
  * Total number of function IDs implemented for services offered to NS clients.
  */
-#define TLK_NUM_FID		0
+#define TLK_NUM_FID		8
 
 /* TLK implementation version numbers */
 #define TLK_VERSION_MAJOR	0x0 /* Major version */
