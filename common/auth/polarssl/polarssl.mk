@@ -54,7 +54,6 @@ POLARSSL_SOURCES	:=	$(addprefix ${POLARSSL_DIR}/library/,	\
 				pkwrite.c 				\
 				platform.c 				\
 				rsa.c 					\
-				sha1.c					\
 				sha256.c				\
 				x509.c 					\
 				x509_crt.c 				\
