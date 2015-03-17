@@ -58,12 +58,13 @@ typedef	__ssize_t	ssize_t;
 
 #define	EOF	(-1)
 
-int	 printf(const char * __restrict, ...);
+int	 printf(const char * __restrict, ...) __printflike(1, 2);
 int	 putchar(int);
 int	 puts(const char *);
-int	 sprintf(char * __restrict, const char * __restrict, ...);
+int	 sprintf(char * __restrict, const char * __restrict, ...)
+	__printflike(2, 3);
 int	 vsprintf(char * __restrict, const char * __restrict,
-	   __va_list);
+	   __va_list) __printflike(2, 0);
 
 int	 sscanf(const char *__restrict, char const *__restrict, ...);
 
