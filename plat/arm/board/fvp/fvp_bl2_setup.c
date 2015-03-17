@@ -29,6 +29,9 @@
  */
 
 #include <plat_arm.h>
+#include <sp804_delay_timer.h>
+#include <v2m_def.h>
+#include "fvp_def.h"
 #include "fvp_private.h"
 
 
@@ -38,4 +41,13 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();
+}
+
+void bl2_platform_setup(void)
+{
+	arm_bl2_platform_setup();
+
+	/* Initialize delay timer driver using SP804 dual timer 0 */
+	sp804_timer_init(V2M_SP804_TIMER0_BASE,
+			SP804_TIMER_CLKMULT, SP804_TIMER_CLKDIV);
 }
