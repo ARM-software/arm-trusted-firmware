@@ -31,8 +31,8 @@
 #include <assert.h>
 #include <arch_helpers.h>
 #include <arm_gic.h>
+#include <cci.h>
 #include <debug.h>
-#include <cci400.h>
 #include <errno.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -159,8 +159,7 @@ void juno_affinst_on_finish(uint32_t afflvl, uint32_t state)
 	 * if this cluster was off.
 	 */
 	if (afflvl != MPIDR_AFFLVL0)
-		cci_enable_cluster_coherency(mpidr);
-
+		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(mpidr));
 
 	/* Enable the gic cpu interface */
 	arm_gic_cpuif_setup();
@@ -187,7 +186,7 @@ static void juno_power_down_common(uint32_t afflvl)
 
 	/* Cluster is to be turned off, so disable coherency */
 	if (afflvl > MPIDR_AFFLVL0) {
-		cci_disable_cluster_coherency(read_mpidr_el1());
+		cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
 		cluster_state = scpi_power_off;
 	}
 

@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
+#include <bl_common.h>
 #include <cassert.h>
 #include <platform_def.h>
 #include <string.h>
@@ -89,7 +90,7 @@ void mmap_add_region(unsigned long base_pa, unsigned long base_va,
 			unsigned long size, unsigned attr)
 {
 	mmap_region_t *mm = mmap;
-	mmap_region_t *mm_last = mm + sizeof(mmap) / sizeof(mmap[0]) - 1;
+	mmap_region_t *mm_last = mm + ARRAY_SIZE(mmap) - 1;
 	unsigned long pa_end = base_pa + size - 1;
 	unsigned long va_end = base_va + size - 1;
 

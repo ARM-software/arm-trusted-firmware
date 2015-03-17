@@ -154,6 +154,7 @@ unsigned long plat_get_ns_image_entrypoint(void);
 unsigned long platform_get_stack(unsigned long mpidr);
 uint64_t plat_get_syscnt_freq(void);
 void plat_gic_init(void);
+void plat_cci_init(void);
 
 /* Declarations for plat_topology.c */
 int plat_setup_topology(void);

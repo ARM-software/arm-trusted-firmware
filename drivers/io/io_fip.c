@@ -143,7 +143,7 @@ static int file_to_uuid(const char *filename, uuid_t *uuid)
 	int i;
 	int status = -EINVAL;
 
-	for (i = 0; i < (sizeof(name_uuid) / sizeof(name_uuid[0])); i++) {
+	for (i = 0; i < ARRAY_SIZE(name_uuid); i++) {
 		if (strcmp(filename, name_uuid[i].name) == 0) {
 			copy_uuid(uuid, &name_uuid[i].uuid);
 			status = 0;

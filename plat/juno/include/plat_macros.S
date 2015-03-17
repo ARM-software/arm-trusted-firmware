@@ -28,7 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cci400.h>
+#include <cci.h>
 #include <gic_v2.h>
 #include "platform_def.h"
 #include "../juno_def.h"

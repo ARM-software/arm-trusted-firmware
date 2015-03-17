@@ -108,6 +108,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
+
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
  * memory is available for its use and how much is already used.
