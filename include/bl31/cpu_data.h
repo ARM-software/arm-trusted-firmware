@@ -117,6 +117,7 @@ static inline struct cpu_data *_cpu_data(void)
  *************************************************************************/
 
 void init_cpu_data_ptr(void);
+void init_cpu_ops(void);
 
 #define get_cpu_data(_m)		   _cpu_data()->_m
 #define set_cpu_data(_m, _v)		   _cpu_data()->_m = _v

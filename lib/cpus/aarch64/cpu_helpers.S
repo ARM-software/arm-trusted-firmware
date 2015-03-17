@@ -110,7 +110,8 @@ func prepare_cluster_pwr_dwn
 
 	/*
 	 * Initializes the cpu_ops_ptr if not already initialized
-	 * in cpu_data. This can be called without a runtime stack.
+	 * in cpu_data. This can be called without a runtime stack, but may
+	 * only be called after the MMU is enabled.
 	 * clobbers: x0 - x6, x10
 	 */
 	.globl	init_cpu_ops
@@ -125,18 +126,6 @@ func init_cpu_ops
 	ASM_ASSERT(ne)
 #endif
 	str	x0, [x6, #CPU_DATA_CPU_OPS_PTR]!
-
-	/*
-	 * Make sure that any pre-fetched cache copies are invalidated.
-	 * Ensure that we are running with cache disable else we
-	 * invalidate our own update.
-	 */
-#if ASM_ASSERTION
-	mrs	x1, sctlr_el3
-	tst	x1, #SCTLR_C_BIT
-	ASM_ASSERT(eq)
-#endif
-	dc	ivac, x6
 	mov x30, x10
 1:
 	ret
