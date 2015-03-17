@@ -77,7 +77,9 @@ TRUSTED_BOARD_BOOT	:= 0
 AUTH_MOD		:= none
 
 # Checkpatch ignores
-CHECK_IGNORE		=	--ignore COMPLEX_MACRO --ignore GERRIT_CHANGE_ID
+CHECK_IGNORE		=	--ignore COMPLEX_MACRO \
+				--ignore GERRIT_CHANGE_ID \
+				--ignore GIT_COMMIT_ID
 
 CHECKPATCH_ARGS		=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
