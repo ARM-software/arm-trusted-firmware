@@ -39,6 +39,7 @@
 #include "../../bl1/bl1_private.h"
 #include "fvp_def.h"
 #include "fvp_private.h"
+#include <sp804.h>
 
 #if USE_COHERENT_MEM
 /*******************************************************************************
@@ -124,6 +125,7 @@ void bl1_plat_arch_setup(void)
 			      BL1_COHERENT_RAM_LIMIT
 #endif
 			     );
+	sp804_init();
 }
 
 
