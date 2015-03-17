@@ -602,7 +602,7 @@ endif
 
 # Add the dependency on the certificates
 ifneq (${GENERATE_COT},0)
-    all: certificates
+    fip: certificates
 endif
 
 certificates: ${CRT_DEPS} ${CRTTOOL} check_bl30 check_bl33
