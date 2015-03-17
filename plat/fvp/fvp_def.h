@@ -312,4 +312,11 @@
 /* Base address where parameters to BL31 are stored */
 #define PARAMS_BASE		(MBOX_BASE + MBOX_SIZE)
 
+/*******************************************************************************
+ * SP804 timer
+ ******************************************************************************/
+#define SP804_BASE		0x1C110000
+#define SP804_CLKDIV		1
+#define SP804_CLKMULT		30
+
 #endif /* __FVP_DEF_H__ */
