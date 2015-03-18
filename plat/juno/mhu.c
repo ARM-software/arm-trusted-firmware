@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <bakery_lock.h>
 #include <mmio.h>
 #include "juno_def.h"
@@ -56,37 +57,51 @@ static bakery_lock_t mhu_secure_lock __attribute__ ((section("tzfw_coherent_mem"
 #define LOCK_ARG	/* Locks required only for BL3-1 images */
 #endif /* __IMAGE_BL31__ */
 
-void mhu_secure_message_start(void)
+/*
+ * Slot 31 is reserved because the MHU hardware uses this register bit to
+ * indicate a non-secure access attempt. The total number of available slots is
+ * therefore 31 [30:0].
+ */
+#define MHU_MAX_SLOT_ID		30
+
+void mhu_secure_message_start(unsigned int slot_id)
 {
+	assert(slot_id <= MHU_MAX_SLOT_ID);
+
 	juno_lock_get(LOCK_ARG);
 
 	/* Make sure any previous command has finished */
-	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) != 0)
+	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) & (1 << slot_id))
 		;
 }
 
-void mhu_secure_message_send(uint32_t command)
+void mhu_secure_message_send(unsigned int slot_id)
 {
-	/* Send command to SCP and wait for it to pick it up */
-	mmio_write_32(MHU_BASE + CPU_INTR_S_SET, command);
-	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) != 0)
-		;
+	assert(slot_id <= MHU_MAX_SLOT_ID);
+	assert(!(mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) & (1 << slot_id)));
+
+	/* Send command to SCP */
+	mmio_write_32(MHU_BASE + CPU_INTR_S_SET, 1 << slot_id);
 }
 
-uint32_t mhu_secure_message_wait(void)
+void mhu_secure_message_wait(unsigned int slot_id)
 {
+	assert(slot_id <= MHU_MAX_SLOT_ID);
+
 	/* Wait for response from SCP */
-	uint32_t response;
-	while (!(response = mmio_read_32(MHU_BASE + SCP_INTR_S_STAT)))
+	while (!(mmio_read_32(MHU_BASE + SCP_INTR_S_STAT) & (1 << slot_id)))
 		;
-
-	return response;
 }
 
-void mhu_secure_message_end(void)
+void mhu_secure_message_end(unsigned int slot_id)
 {
-	/* Clear any response we got by writing all ones to the CLEAR register */
-	mmio_write_32(MHU_BASE + SCP_INTR_S_CLEAR, 0xffffffffu);
+	assert(slot_id <= MHU_MAX_SLOT_ID);
+
+	/*
+	 * Clear any response we got by writing one in the relevant slot bit to
+	 * the CLEAR register
+	 */
+	mmio_write_32(MHU_BASE + SCP_INTR_S_CLEAR, 1 << slot_id);
 
 	juno_lock_release(LOCK_ARG);
 }
@@ -96,8 +111,9 @@ void mhu_secure_init(void)
 	juno_lock_init(LOCK_ARG);
 
 	/*
-	 * Clear the CPU's INTR register to make sure we don't see a stale
-	 * or garbage value and think it's a message we've already sent.
+	 * The STAT register resets to zero. Ensure it is in the expected state,
+	 * as a stale or garbage value would make us think it's a message we've
+	 * already sent.
 	 */
-	mmio_write_32(MHU_BASE + CPU_INTR_S_CLEAR, 0xffffffffu);
+	assert(mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) == 0);
 }
