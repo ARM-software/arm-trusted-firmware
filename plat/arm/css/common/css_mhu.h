@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,11 +33,11 @@
 
 #include <stdint.h>
 
-extern void mhu_secure_message_start(void);
-extern void mhu_secure_message_send(uint32_t command);
-extern uint32_t mhu_secure_message_wait(void);
-extern void mhu_secure_message_end(void);
+void mhu_secure_message_start(unsigned int slot_id);
+void mhu_secure_message_send(unsigned int slot_id);
+uint32_t mhu_secure_message_wait(void);
+void mhu_secure_message_end(unsigned int slot_id);
 
-extern void mhu_secure_init(void);
+void mhu_secure_init(void);
 
 #endif	/* __CSS_MHU_H__ */
