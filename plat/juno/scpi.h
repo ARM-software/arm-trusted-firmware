@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,11 +34,31 @@
 #include <stddef.h>
 #include <stdint.h>
 
-extern void *scpi_secure_message_start(void);
-extern void scpi_secure_message_send(unsigned command, size_t size);
-extern unsigned scpi_secure_message_receive(void **message_out, size_t *size_out);
-extern void scpi_secure_message_end(void);
+/*
+ * An SCPI command consists of a header and a payload.
+ * The following structure describes the header. It is 64-bit long.
+ */
+typedef struct {
+	/* Command ID */
+	uint32_t id		: 7;
+	/* Set ID. Identifies whether this is a standard or extended command. */
+	uint32_t set		: 1;
+	/* Sender ID to match a reply. The value is sender specific. */
+	uint32_t sender		: 8;
+	/* Size of the payload in bytes (0 – 511) */
+	uint32_t size		: 9;
+	uint32_t reserved	: 7;
+	/*
+	 * Status indicating the success of a command.
+	 * See the enum below.
+	 */
+	uint32_t status;
+} scpi_cmd_t;
 
+typedef enum {
+	SCPI_SET_NORMAL = 0,	/* Normal SCPI commands */
+	SCPI_SET_EXTENDED	/* Extended SCPI commands */
+} scpi_set_t;
 
 enum {
 	SCP_OK = 0,	/* Success */
@@ -52,14 +72,16 @@ enum {
 	SCP_E_NOMEM,	/* Invalid memory area or pointer */
 	SCP_E_PWRSTATE,	/* Invalid power state */
 	SCP_E_SUPPORT,	/* Feature not supported or disabled */
+	SCPI_E_DEVICE,	/* Device error */
+	SCPI_E_BUSY,	/* Device is busy */
 };
 
 typedef uint32_t scpi_status_t;
 
 typedef enum {
 	SCPI_CMD_SCP_READY = 0x01,
-	SCPI_CMD_SET_CSS_POWER_STATE = 0x04,
-	SCPI_CMD_SYS_POWER_STATE = 0x08
+	SCPI_CMD_SET_CSS_POWER_STATE = 0x03,
+	SCPI_CMD_SYS_POWER_STATE = 0x05
 } scpi_command_t;
 
 typedef enum {
