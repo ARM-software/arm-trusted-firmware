@@ -88,13 +88,9 @@ This stage begins execution from the platform's reset vector at EL3. The reset
 address is platform dependent but it is usually located in a Trusted ROM area.
 The BL1 data section is copied to trusted SRAM at runtime.
 
-On the ARM FVP port, BL1 code starts execution from the reset vector at address
-`0x00000000` (trusted ROM). The BL1 data section is copied to the start of
-trusted SRAM at address `0x04000000`.
-
-On the Juno ARM development platform port, BL1 code starts execution at
-`0x0BEC0000` (FLASH). The BL1 data section is copied to trusted SRAM at address
-`0x04001000.
+On the ARM development platforms, BL1 code starts execution from the reset
+vector defined by the constant `BL1_RO_BASE`. The BL1 data section is copied
+to the top of trusted SRAM as defined by the constant `BL1_RW_BASE`.
 
 The functionality implemented by this stage is as follows.
 
@@ -189,9 +185,9 @@ BL1 performs minimal architectural initialization as follows.
 #### Platform initialization
 
 BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests from
-the CCI-400 slave interface corresponding to the cluster that includes the
-primary CPU. BL1 also initializes UART0 (PL011 console), which enables access to
-the `printf` family of functions in BL1.
+the CCI slave interface corresponding to the cluster that includes the
+primary CPU. BL1 also initializes a UART (PL011 console), which enables access
+to the `printf` family of functions in BL1.
 
 #### BL2 image load and execution
 
@@ -247,7 +243,7 @@ platform-specific mechanism. It calculates the limits of DRAM (main memory)
 to determine whether there is enough space to load the BL3-3 image. A platform
 defined base address is used to specify the load address for the BL3-1 image.
 It also defines the extents of memory available for use by the BL3-2 image.
-BL2 also initializes UART0 (PL011 console), which enables  access to the
+BL2 also initializes a UART (PL011 console), which enables  access to the
 `printf` family of functions in BL2. Platform security is initialized to allow
 access to controlled components. The storage abstraction layer is initialized
 which is used to load further bootloader images.
@@ -258,8 +254,8 @@ Some systems have a separate System Control Processor (SCP) for power, clock,
 reset and system control. BL2 loads the optional BL3-0 image from platform
 storage into a platform-specific region of secure memory. The subsequent
 handling of BL3-0 is platform specific. For example, on the Juno ARM development
-platform port the image is transferred into SCP memory using the SCPI protocol
-after being loaded in the trusted SRAM memory at address `0x04009000`. The SCP
+platform port the image is transferred into SCP's internal memory using the Boot
+Over MHU (BOM) protocol after being loaded in the trusted SRAM memory. The SCP
 executes BL3-0 and signals to the Application Processor (AP) for BL2 execution
 to continue.
 
@@ -338,7 +334,7 @@ the clock frequency of the system counter, which is provided by the platform.
 BL3-1 performs detailed platform initialization, which enables normal world
 software to function correctly. It also retrieves entrypoint information for
 the BL3-3 image loaded by BL2 from the platform defined memory address populated
-by BL2. BL3-1 also initializes UART0 (PL011 console), which enables
+by BL2. BL3-1 also initializes a UART (PL011 console), which enables
 access to the `printf` family of functions in BL3-1.  It enables the system
 level implementation of the generic timer through the memory mapped interface.
 
@@ -460,7 +456,8 @@ the CPU caches if it is provided by an earlier boot stage and then accessed by
 BL3-1 platform code before the caches are enabled.
 
 ARM Trusted Firmware's BL2 implementation passes a `bl31_params` structure in
-`X0` and the FVP port interprets this in the BL3-1 platform code.
+`X0` and the ARM development platforms interpret this in the BL3-1 platform
+code.
 
 ##### MMU, Data caches & Coherency
 
@@ -490,7 +487,7 @@ BL3-1 to detect which information is present and respond appropriately. The
 
 The structures using this format are `entry_point_info`, `image_info` and
 `bl31_params`. The code that allocates and populates these structures must set
-the header fields appropriately, and the `SET_PARA_HEAD()` a macro is defined
+the header fields appropriately, and the `SET_PARAM_HEAD()` a macro is defined
 to simplify this action.
 
 #### Required CPU state for BL3-1 Warm boot initialization
@@ -870,10 +867,10 @@ before returning through EL3 and running the non-trusted firmware (BL3-3):
 6.  Crash Reporting in BL3-1
 ----------------------------
 
-The BL3-1 implements a scheme for reporting the processor state when an unhandled
+BL3-1 implements a scheme for reporting the processor state when an unhandled
 exception is encountered. The reporting mechanism attempts to preserve all the
-register contents and report it via the default serial output. The general purpose
-registers, EL3, Secure EL1 and some EL2 state registers are reported.
+register contents and report it via a dedicated UART (PL011 console). BL3-1
+reports the general purpose, EL3, Secure EL1 and some EL2 state registers.
 
 A dedicated per-CPU crash stack is maintained by BL3-1 and this is retrieved via
 the per-CPU pointer cache. The implementation attempts to minimise the memory
@@ -1253,27 +1250,37 @@ on FVP, BL3-1 and TSP need to know the limit address that their PROGBITS
 sections must not overstep. The platform code must provide those.
 
 
-####  Memory layout on ARM FVPs
+####  Memory layout on ARM development platforms
 
-The following list describes the memory layout on the FVP:
+The following list describes the memory layout on the ARM development platforms:
 
-*   A 4KB page of shared memory is used to store the entrypoint mailboxes
-    and the parameters passed between bootloaders. The shared memory is located
-    at the base of the Trusted SRAM. The amount of Trusted SRAM available to
-    load the bootloader images will be reduced by the size of the shared memory.
+*   A 4KB page of shared memory is used for communication between Trusted
+    Firmware and the platform's power controller. This is located at the base of
+    Trusted SRAM. The amount of Trusted SRAM available to load the bootloader
+    images is reduced by the size of the shared memory.
 
-*   BL1 is originally sitting in the Trusted ROM at address `0x0`. Its
-    read-write data are relocated at the top of the Trusted SRAM at runtime.
+    The shared memory is used to store the entrypoint mailboxes for each CPU.
+    On Juno, this is also used for the MHU payload when passing messages to and
+    from the SCP.
+
+*   On FVP, BL1 is originally sitting in the Trusted ROM at address `0x0`. On
+    Juno, BL1 resides in flash memory at address `0x0BEC0000`. BL1 read-write
+    data are relocated to the top of Trusted SRAM at runtime.
 
 *   BL3-1 is loaded at the top of the Trusted SRAM, such that its NOBITS
-    sections will overwrite BL1 R/W data.
+    sections will overwrite BL1 R/W data. This implies that BL1 global variables
+    remain valid only until execution reaches the BL3-1 entry point during
+    a cold boot.
 
 *   BL2 is loaded below BL3-1.
+
+*   On Juno, BL3-0 is loaded temporarily into the BL3-1 memory region and
+    transfered to the SCP before being overwritten by BL3-1.
 
 *   BL3-2 can be loaded in one of the following locations:
 
     *   Trusted SRAM
-    *   Trusted DRAM
+    *   Trusted DRAM (FVP only)
     *   Secure region of DRAM (top 16MB of DRAM configured by the TrustZone
         controller)
 
@@ -1282,9 +1289,13 @@ overlay BL2. This memory layout is designed to give the BL3-2 image as much
 memory as possible when it is loaded into Trusted SRAM.
 
 The location of the BL3-2 image will result in different memory maps. This is
-illustrated in the following diagrams using the TSP as an example.
+illustrated for both FVP and Juno in the following diagrams, using the TSP as
+an example.
 
-**TSP in Trusted SRAM (default option):**
+Note: Loading the BL3-2 image in TZC secured DRAM doesn't change the memory
+layout of the other images in Trusted SRAM.
+
+**FVP with TSP in Trusted SRAM (default option):**
 
                Trusted SRAM
     0x04040000 +----------+  loaded by BL2  ------------------
@@ -1305,7 +1316,7 @@ illustrated in the following diagrams using the TSP as an example.
     0x00000000 +----------+
 
 
-**TSP in Trusted DRAM:**
+**FVP with TSP in Trusted DRAM:**
 
                Trusted DRAM
     0x08000000 +----------+
@@ -1330,7 +1341,7 @@ illustrated in the following diagrams using the TSP as an example.
                | BL1 (ro) |
     0x00000000 +----------+
 
-**TSP in the TZC-Secured DRAM:**
+**FVP with TSP in TZC-Secured DRAM:**
 
                    DRAM
     0xffffffff +----------+
@@ -1359,43 +1370,8 @@ illustrated in the following diagrams using the TSP as an example.
                | BL1 (ro) |
     0x00000000 +----------+
 
-Moving the TSP image out of the Trusted SRAM doesn't change the memory layout
-of the other boot loader images in Trusted SRAM.
 
-
-####  Memory layout on Juno ARM development platform
-
-The following list describes the memory layout on Juno:
-
-*   Trusted SRAM at 0x04000000 contains the MHU page, BL1 r/w section, BL2
-    image, BL3-1 image and, optionally, the BL3-2 image.
-
-*   The MHU 4 KB page is used as communication channel between SCP and AP. It
-    also contains the entrypoint mailboxes for the AP. Mailboxes are stored in
-    the first 128 bytes of the MHU page.
-
-*   BL1 resides in flash memory at address `0x0BEC0000`. Its read-write data
-    section is relocated to the top of the Trusted SRAM at runtime.
-
-*   BL3-1 is loaded at the top of the Trusted SRAM, such that its NOBITS
-    sections will overwrite BL1 R/W data. This implies that BL1 global variables
-    will remain valid only until execution reaches the BL3-1 entry point during
-    a cold boot.
-
-*   BL2 is loaded below BL3-1.
-
-*   BL3-0 is loaded temporarily into the BL3-1 memory region and transfered to
-    the SCP before being overwritten by BL3-1.
-
-*   The BL3-2 image is optional and can be loaded into one of these two
-    locations: Trusted SRAM (right after the MHU page) or DRAM (14 MB starting
-    at 0xFF000000 and secured by the TrustZone controller). When loaded into
-    Trusted SRAM, its NOBITS sections are allowed to overlap BL2.
-
-Depending on the location of the BL3-2 image, it will result in different memory
-maps, illustrated by the following diagrams.
-
-**BL3-2 in Trusted SRAM (default option):**
+**Juno with BL3-2 in Trusted SRAM (default option):**
 
                   Flash0
     0x0C000000 +----------+
@@ -1420,7 +1396,7 @@ maps, illustrated by the following diagrams.
     0x04000000 +----------+
 
 
-**BL3-2 in the secure region of DRAM:**
+**Juno with BL3-2 in TZC-secured DRAM:**
 
                    DRAM
     0xFFE00000 +----------+
@@ -1452,9 +1428,6 @@ maps, illustrated by the following diagrams.
     0x04001000 +----------+
                |   MHU    |
     0x04000000 +----------+
-
-Loading the BL3-2 image in DRAM doesn't change the memory layout of the other
-images in Trusted SRAM.
 
 
 10.  Firmware Image Package (FIP)
@@ -1524,15 +1497,16 @@ The tool can be found in `tools/fip_create`.
 ### Loading from a Firmware Image Package (FIP)
 
 The Firmware Image Package (FIP) driver can load images from a binary package on
-non-volatile platform storage. For the FVPs this is currently NOR FLASH.
+non-volatile platform storage. For the ARM development platforms, this is
+currently NOR FLASH.
 
-Bootloader images are loaded according to the platform policy as specified in
-`plat/<platform>/plat_io_storage.c`. For the FVPs this means the platform will
-attempt to load images from a Firmware Image Package located at the start of NOR
-FLASH0.
+Bootloader images are loaded according to the platform policy as specified by
+the function `plat_get_image_source()`. For the ARM development platforms, this
+means the platform will attempt to load images from a Firmware Image Package
+located at the start of NOR FLASH0.
 
-Currently the FVP's policy only allows loading of a known set of images. The
-platform policy can be modified to allow additional images.
+The ARM development platforms' policy is to only allow loading of a known set of
+images. The platform policy can be modified to allow additional images.
 
 
 11. Use of coherent memory in Trusted Firmware
@@ -1743,7 +1717,6 @@ Trusted Firmware code is logically divided between the three boot loader
 stages mentioned in the previous sections. The code is also divided into the
 following categories (present as directories in the source code):
 
-*   **Architecture specific.** This could be AArch32 or AArch64.
 *   **Platform specific.** Choice of architecture specific code depends upon
     the platform.
 *   **Common code.** This is platform and architecture agnostic code.
@@ -1761,7 +1734,6 @@ categories. Based upon the above, the code layout looks like this:
     bl1          Yes             No              No
     bl2          No              Yes             No
     bl31         No              No              Yes
-    arch         Yes             Yes             Yes
     plat         Yes             Yes             Yes
     drivers      Yes             No              Yes
     common       Yes             Yes             Yes
@@ -1795,7 +1767,7 @@ kernel at boot time. These can be found in the `fdts` directory.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 [ARM ARM]:          http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html "ARMv8-A Reference Manual (ARM DDI0487A.E)"
 [PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"

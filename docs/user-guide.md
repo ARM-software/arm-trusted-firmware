@@ -206,8 +206,8 @@ performed.
     wants the timer registers to be saved and restored.
 
 *   `PLAT`: Choose a platform to build ARM Trusted Firmware for. The chosen
-    platform name must be the name of one of the directories under the `plat/`
-    directory other than `common`.
+    platform name must be subdirectory of any depth under `plat/`, and must
+    contain a platform makefile named `platform.mk`.
 
 *   `SPD`: Choose a Secure Payload Dispatcher component to be built into the
     Trusted Firmware. The value should be the path to the directory containing
@@ -320,21 +320,16 @@ performed.
 *   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
     file that contains the BL3-3 private key in PEM format.
 
-#### FVP specific build options
+#### ARM development platform specific build options
 
-*   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
+*   `ARM_TSP_RAM_LOCATION_ID`: location of the TSP binary. Options:
     -   `tsram` : Trusted SRAM (default option)
-    -   `tdram` : Trusted DRAM
+    -   `tdram` : Trusted DRAM (if available)
     -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
 
-For a better understanding of FVP options, the FVP memory map is explained in
-the [Firmware Design].
+For a better understanding of these options, the ARM development platform memory
+map is explained in the [Firmware Design].
 
-#### Juno specific build options
-
-*   `PLAT_TSP_LOCATION`: location of the TSP binary. Options:
-    -   `tsram` : Trusted SRAM (default option)
-    -   `dram`  : Secure region in DRAM (set by the TrustZone controller)
 
 ### Creating a Firmware Image Package
 
@@ -409,8 +404,8 @@ When debugging logic problems it might also be useful to disable all compiler
 optimizations by using `-O0`.
 
 NOTE: Using `-O0` could cause output images to be larger and base addresses
-might need to be recalculated (see the "Memory layout of BL images" section in
-the [Firmware Design]).
+might need to be recalculated (see the **Memory layout on ARM development
+platforms** section in the [Firmware Design]).
 
 Extra debug options can be passed to the build system by setting `CFLAGS`:
 
@@ -461,7 +456,7 @@ FVP_AARCH64_EFI.fd as BL3-3 image:
 The `cert_create` tool can be built separately through the following commands:
 
     $ cd tools/cert_create
-    $ make [DEBUG=1] [V=1]
+    $ make PLAT=<platform> [DEBUG=1] [V=1]
 
 `DEBUG=1` builds the tool in debug mode. `V=1` makes the build process more
 verbose. The following command should be used to obtain help about the tool:
