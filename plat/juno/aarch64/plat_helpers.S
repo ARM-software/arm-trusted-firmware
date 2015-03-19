@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,90 +32,12 @@
 #include <asm_macros.S>
 #include <bl_common.h>
 #include <cortex_a57.h>
-#include <cpu_macros.S>
-#include <platform_def.h>
+#include <v2m_def.h>
 #include "../juno_def.h"
 
-	.globl	plat_crash_console_init
-	.globl	plat_crash_console_putc
-	.globl	plat_report_exception
+
 	.globl	plat_reset_handler
-	.globl	platform_get_core_pos
-	.globl	platform_mem_init
 
-	/* Define a crash console for the plaform */
-#define JUNO_CRASH_CONSOLE_BASE		PL011_UART3_BASE
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_init(void)
-	 * Function to initialize the crash console
-	 * without a C Runtime to print crash report.
-	 * Clobber list : x0, x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_init
-	mov_imm	x0, JUNO_CRASH_CONSOLE_BASE
-	mov_imm	x1, PL011_UART3_CLK_IN_HZ
-	mov_imm	x2, PL011_BAUDRATE
-	b	console_core_init
-endfunc plat_crash_console_init
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_putc(int c)
-	 * Function to print a character on the crash
-	 * console without a C Runtime.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_putc
-	mov_imm	x1, JUNO_CRASH_CONSOLE_BASE
-	b	console_core_putc
-endfunc plat_crash_console_putc
-
-	/* ---------------------------------------------
-	 * void plat_report_exception(unsigned int type)
-	 * Function to report an unhandled exception
-	 * with platform-specific means.
-	 * On Juno platform, it updates the LEDs
-	 * to indicate where we are
-	 * ---------------------------------------------
-	 */
-func plat_report_exception
-	mrs	x1, CurrentEl
-	lsr	x1, x1, #MODE_EL_SHIFT
-	lsl	x1, x1, #SYS_LED_EL_SHIFT
-	lsl	x0, x0, #SYS_LED_EC_SHIFT
-	mov	x2, #(SECURE << SYS_LED_SS_SHIFT)
-	orr	x0, x0, x2
-	orr	x0, x0, x1
-	mov	x1, #VE_SYSREGS_BASE
-	add	x1, x1, #V2M_SYS_LED
-	str	w0, [x1]
-	ret
-endfunc plat_report_exception
-
-	/*
-	 * Return 0 to 3 for the A53s and 4 or 5 for the A57s
-	 */
-func platform_get_core_pos
-	and	x1, x0, #MPIDR_CPU_MASK
-	and	x0, x0, #MPIDR_CLUSTER_MASK
-	eor	x0, x0, #(1 << MPIDR_AFFINITY_BITS)  // swap A53/A57 order
-	add	x0, x1, x0, LSR #6
-	ret
-endfunc platform_get_core_pos
-
-
-	/* -----------------------------------------------------
-	 * void platform_mem_init(void);
-	 *
-	 * We don't need to carry out any memory initialization
-	 * on Juno. The Secure RAM is accessible straight away.
-	 * -----------------------------------------------------
-	 */
-func platform_mem_init
-	ret
-endfunc platform_mem_init
 
 	/* --------------------------------------------------------------------
 	 * void plat_reset_handler(void);
@@ -149,10 +71,10 @@ func plat_reset_handler
 	 * --------------------------------------------------------------------
 	 */
 	/* Read the V2M SYS_ID register */
-	mov_imm	x0, (VE_SYSREGS_BASE + V2M_SYS_ID)
+	mov_imm	x0, (V2M_SYSREGS_BASE + V2M_SYS_ID)
 	ldr	w1, [x0]
 	/* Extract board revision from the SYS_ID */
-	ubfx	x1, x1, #SYS_ID_REV_SHIFT, #4
+	ubfx	x1, x1, #V2M_SYS_ID_REV_SHIFT, #4
 	/*
 	 * On Juno R0:  x2 := REV_JUNO_R0 - 1 = 0
 	 * On Juno R1:  x2 := REV_JUNO_R1 - 1 = 1
@@ -183,7 +105,8 @@ A57:
 	mov	x0, #L2_DATA_RAM_LATENCY_3_CYCLES
 	cbnz	x2, apply_l2_ram_latencies
 	/* On Juno r0, also change the L2 Tag RAM latency to 3 cycles */
-	orr	x0, x0, #(L2_TAG_RAM_LATENCY_3_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT)
+	orr	x0, x0, #(L2_TAG_RAM_LATENCY_3_CYCLES << 		\
+				L2CTLR_TAG_RAM_LATENCY_SHIFT)
 apply_l2_ram_latencies:
 	msr     L2CTLR_EL1, x0
 

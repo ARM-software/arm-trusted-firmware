@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,10 +28,4 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# TSP source files specific to Juno platform
-BL32_SOURCES		+=	drivers/arm/gic/arm_gic.c		\
-				drivers/arm/gic/gic_v2.c		\
-				plat/common/aarch64/platform_mp_stack.S	\
-				plat/juno/aarch64/juno_common.c		\
-				plat/juno/aarch64/plat_helpers.S	\
-				plat/juno/tsp/tsp_plat_setup.c
+include plat/arm/common/tsp/arm_tsp.mk

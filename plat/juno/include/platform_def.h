@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,183 +31,84 @@
 #ifndef __PLATFORM_DEF_H__
 #define __PLATFORM_DEF_H__
 
-#include <arch.h>
+#include <arm_def.h>
+#include <board_arm_def.h>
+#include <board_css_def.h>
+#include <common_def.h>
+#include <css_def.h>
+#include <soc_css_def.h>
+#include <tzc400.h>
+#include <v2m_def.h>
 #include "../juno_def.h"
 
-/*******************************************************************************
- * Platform binary types for linking
- ******************************************************************************/
-#define PLATFORM_LINKER_FORMAT          "elf64-littleaarch64"
-#define PLATFORM_LINKER_ARCH            aarch64
 
-/*******************************************************************************
- * Generic platform constants
- ******************************************************************************/
+/*
+ * Most platform porting definitions provided by included headers
+ */
 
-/* Size of cacheable stacks */
-#if TRUSTED_BOARD_BOOT && (IMAGE_BL1 || IMAGE_BL2)
-#define PLATFORM_STACK_SIZE 0x1000
-#else
-#define PLATFORM_STACK_SIZE 0x800
-#endif
+/*
+ * Required ARM standard platform porting definitions
+ */
+#define PLAT_ARM_CLUSTER0_CORE_COUNT	2
+#define PLAT_ARM_CLUSTER1_CORE_COUNT	4
 
-#define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
+/* Use the bypass address */
+#define PLAT_ARM_TRUSTED_ROM_BASE	V2M_FLASH0_BASE + BL1_ROM_BYPASS_OFFSET
 
-/* Trusted Boot Firmware BL2 */
-#define BL2_IMAGE_NAME			"bl2.bin"
-
-/* EL3 Runtime Firmware BL3-1 */
-#define BL31_IMAGE_NAME			"bl31.bin"
-
-/* SCP Firmware BL3-0 */
-#define BL30_IMAGE_NAME			"bl30.bin"
-
-/* Secure Payload BL3-2 (Trusted OS) */
-#define BL32_IMAGE_NAME			"bl32.bin"
-
-/* Non-Trusted Firmware BL3-3 */
-#define BL33_IMAGE_NAME			"bl33.bin" /* e.g. UEFI */
-
-/* Firmware Image Package */
-#define FIP_IMAGE_NAME			"fip.bin"
-
+/*
+ * Actual ROM size on Juno is 64 KB, but TBB currently requires at least 80 KB
+ * in debug mode. We can test TBB on Juno bypassing the ROM and using 128 KB of
+ * flash
+ */
 #if TRUSTED_BOARD_BOOT
-/* Certificates */
-# define BL2_CERT_NAME			"bl2.crt"
-# define TRUSTED_KEY_CERT_NAME		"trusted_key.crt"
-
-# define BL30_KEY_CERT_NAME		"bl30_key.crt"
-# define BL31_KEY_CERT_NAME		"bl31_key.crt"
-# define BL32_KEY_CERT_NAME		"bl32_key.crt"
-# define BL33_KEY_CERT_NAME		"bl33_key.crt"
-
-# define BL30_CERT_NAME			"bl30.crt"
-# define BL31_CERT_NAME			"bl31.crt"
-# define BL32_CERT_NAME			"bl32.crt"
-# define BL33_CERT_NAME			"bl33.crt"
+#define PLAT_ARM_TRUSTED_ROM_SIZE	0x00020000
+#else
+#define PLAT_ARM_TRUSTED_ROM_SIZE	0x00010000
 #endif /* TRUSTED_BOARD_BOOT */
 
-#define PLATFORM_CLUSTER_COUNT		2
-#define PLATFORM_CORE_COUNT             6
-#define PLATFORM_NUM_AFFS		(PLATFORM_CLUSTER_COUNT + \
-					 PLATFORM_CORE_COUNT)
-#define PLATFORM_MAX_AFFLVL		MPIDR_AFFLVL1
-#define MAX_IO_DEVICES			3
-#define MAX_IO_HANDLES			4
 
-/*******************************************************************************
- * BL1 specific defines.
- * BL1 RW data is relocated from ROM to RAM at runtime so we need 2 base
- * addresses.
- ******************************************************************************/
-#define BL1_RO_BASE			TZROM_BASE
-#define BL1_RO_LIMIT			(TZROM_BASE + TZROM_SIZE)
+/* CCI related constants */
+#define PLAT_ARM_CCI_BASE		0x2c090000
+#define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	4
+#define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	3
+
+/* TZC related constants */
+#define PLAT_ARM_TZC_NS_DEV_ACCESS	(				\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CCI400)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_PCIE)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD0)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_HDLCD1)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_USB)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_DMA330)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_THINLINKS)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_AP)		|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_GPU)	|	\
+		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CORESIGHT))
 
 /*
- * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
- * the current BL1 RW debug size plus a little space for growth.
+ * Required ARM CSS based platform porting definitions
  */
-#if TRUSTED_BOARD_BOOT
-#define BL1_RW_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x8000)
-#else
-#define BL1_RW_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x6000)
-#endif
-#define BL1_RW_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
 
-/*******************************************************************************
- * BL2 specific defines.
- ******************************************************************************/
+/* GIC related constants (no GICR in GIC-400) */
+#define PLAT_CSS_GICD_BASE		0x2c010000
+#define PLAT_CSS_GICR_BASE		0x0
+#define PLAT_CSS_GICC_BASE		0x2c02f000
+#define PLAT_CSS_GICH_BASE		0x2c04f000
+#define PLAT_CSS_GICV_BASE		0x2c06f000
+
+#define PLAT_CSS_IRQ_SEC_LIST		CSS_IRQ_MHU,		\
+					CSS_IRQ_GPU_SMMU_0,	\
+					CSS_IRQ_GPU_SMMU_1,	\
+					CSS_IRQ_ETR_SMMU,	\
+					CSS_IRQ_TZC,		\
+					CSS_IRQ_TZ_WDOG
+
 /*
- * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
- * size plus a little space for growth.
+ * Required ARM CSS SoC based platform porting definitions
  */
-#if TRUSTED_BOARD_BOOT
-#define BL2_BASE			(BL31_BASE - 0x1D000)
-#else
-#define BL2_BASE			(BL31_BASE - 0xC000)
-#endif
-#define BL2_LIMIT			BL31_BASE
 
-/*******************************************************************************
- * Load address of BL3-0 in the Juno port
- * BL3-0 is loaded to the same place as BL3-1.  Once BL3-0 is transferred to the
- * SCP, it is discarded and BL3-1 is loaded over the top.
- ******************************************************************************/
-#define BL30_BASE			BL31_BASE
+/* CSS SoC NIC-400 Global Programmers View (GPV) */
+#define PLAT_SOC_CSS_NIC400_BASE	0x2a000000
 
-/*******************************************************************************
- * BL3-1 specific defines.
- ******************************************************************************/
-/*
- * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
- * current BL3-1 debug size plus a little space for growth.
- */
-#define BL31_BASE			(TZRAM_BASE + TZRAM_SIZE - 0x1D000)
-#define BL31_PROGBITS_LIMIT		BL1_RW_BASE
-#define BL31_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
-
-/*******************************************************************************
- * BL3-2 specific defines.
- ******************************************************************************/
-#if (PLAT_TSP_LOCATION_ID == PLAT_TRUSTED_SRAM_ID)
-# define TSP_SEC_MEM_BASE		TZRAM_BASE
-# define TSP_SEC_MEM_SIZE		TZRAM_SIZE
-# define BL32_BASE			TZRAM_BASE
-# define BL32_LIMIT			BL31_BASE
-# define BL32_PROGBITS_LIMIT		BL2_BASE
-#elif (PLAT_TSP_LOCATION_ID == PLAT_DRAM_ID)
-# define TSP_SEC_MEM_BASE		DRAM_SEC_BASE
-# define TSP_SEC_MEM_SIZE		(DRAM_SEC_SIZE - DRAM_SCP_SIZE)
-# define BL32_BASE			DRAM_SEC_BASE
-# define BL32_LIMIT			(DRAM_SEC_BASE + DRAM_SEC_SIZE - \
-					DRAM_SCP_SIZE)
-#else
-# error "Unsupported PLAT_TSP_LOCATION_ID value"
-#endif
-
-/*******************************************************************************
- * Load address of BL3-3 in the Juno port
- ******************************************************************************/
-#define NS_IMAGE_OFFSET			0xE0000000
-
-/*******************************************************************************
- * Platform specific page table and MMU setup constants
- ******************************************************************************/
-#define ADDR_SPACE_SIZE			(1ull << 32)
-
-#if IMAGE_BL1 || IMAGE_BL31
-# define MAX_XLAT_TABLES		2
-#endif
-
-#if IMAGE_BL2 || IMAGE_BL32
-# define MAX_XLAT_TABLES		3
-#endif
-
-#define MAX_MMAP_REGIONS		(JUNO_MMAP_ENTRIES + JUNO_BL_REGIONS)
-
-/*******************************************************************************
- * ID of the secure physical generic timer interrupt used by the TSP
- ******************************************************************************/
-#define TSP_IRQ_SEC_PHY_TIMER		IRQ_SEC_PHY_TIMER
-
-/*******************************************************************************
- * Declarations and constants to access the mailboxes safely. Each mailbox is
- * aligned on the biggest cache line size in the platform. This is known only
- * to the platform as it might have a combination of integrated and external
- * caches. Such alignment ensures that two maiboxes do not sit on the same cache
- * line at any cache level. They could belong to different cpus/clusters &
- * get written while being protected by different locks causing corruption of
- * a valid mailbox address.
- ******************************************************************************/
-#define CACHE_WRITEBACK_SHIFT   6
-#define CACHE_WRITEBACK_GRANULE (1 << CACHE_WRITEBACK_SHIFT)
-
-#if !USE_COHERENT_MEM
-/*******************************************************************************
- * Size of the per-cpu data in bytes that should be reserved in the generic
- * per-cpu data structure for the Juno port.
- ******************************************************************************/
-#define PLAT_PCPU_DATA_SIZE	2
-#endif
 
 #endif /* __PLATFORM_DEF_H__ */
