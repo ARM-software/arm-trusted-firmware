@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,11 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <assert.h>
 #include <platform_def.h>
 /* TODO: Reusing psci error codes & state information. Get our own! */
 #include <psci.h>
 #include "drivers/pwrc/fvp_pwrc.h"
+#include "fvp_def.h"
 
 /* We treat '255' as an invalid affinity instance */
 #define AFFINST_INVAL	0xff
@@ -57,7 +59,7 @@ typedef struct affinity_info {
  * is a separate array for each affinity level i.e. cpus and clusters. The child
  * and sibling references allow traversal inside and in between the two arrays.
  ******************************************************************************/
-static affinity_info_t fvp_aff1_topology_map[PLATFORM_CLUSTER_COUNT];
+static affinity_info_t fvp_aff1_topology_map[ARM_CLUSTER_COUNT];
 static affinity_info_t fvp_aff0_topology_map[PLATFORM_CORE_COUNT];
 
 /* Simple global variable to safeguard us from stupidity */
@@ -113,7 +115,7 @@ unsigned int plat_get_aff_count(unsigned int aff_lvl,
 	case 0:
 		/* Assert if the cluster id is anything apart from 0 or 1 */
 		parent_aff_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-		assert(parent_aff_id < PLATFORM_CLUSTER_COUNT);
+		assert(parent_aff_id < ARM_CLUSTER_COUNT);
 
 		/* Fetch the starting index in the aff0 array */
 		for (ctr = fvp_aff1_topology_map[parent_aff_id].child;
@@ -181,19 +183,19 @@ unsigned int plat_get_aff_state(unsigned int aff_lvl,
  * the FVP flavour its running on. We construct all the mpidrs we can handle
  * and rely on the PWRC.PSYSR to flag absent cpus when their status is queried.
  ******************************************************************************/
-int fvp_setup_topology(void)
+int plat_arm_topology_setup(void)
 {
 	unsigned char aff0, aff1, aff_state, aff0_offset = 0;
 	unsigned long mpidr;
 
 	topology_setup_done = 0;
 
-	for (aff1 = 0; aff1 < PLATFORM_CLUSTER_COUNT; aff1++) {
+	for (aff1 = 0; aff1 < ARM_CLUSTER_COUNT; aff1++) {
 
 		fvp_aff1_topology_map[aff1].child = aff0_offset;
 		fvp_aff1_topology_map[aff1].sibling = aff1 + 1;
 
-		for (aff0 = 0; aff0 < PLATFORM_MAX_CPUS_PER_CLUSTER; aff0++) {
+		for (aff0 = 0; aff0 < FVP_MAX_CPUS_PER_CLUSTER; aff0++) {
 
 			mpidr = aff1 << MPIDR_AFF1_SHIFT;
 			mpidr |= aff0 << MPIDR_AFF0_SHIFT;

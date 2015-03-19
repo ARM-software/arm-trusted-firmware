@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,69 +28,45 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# On FVP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
-# Trusted SRAM is the default.
-FVP_TSP_RAM_LOCATION	:=	tsram
-ifeq (${FVP_TSP_RAM_LOCATION}, tsram)
-  FVP_TSP_RAM_LOCATION_ID := FVP_TRUSTED_SRAM_ID
-else ifeq (${FVP_TSP_RAM_LOCATION}, tdram)
-  FVP_TSP_RAM_LOCATION_ID := FVP_TRUSTED_DRAM_ID
-else ifeq (${FVP_TSP_RAM_LOCATION}, dram)
-  FVP_TSP_RAM_LOCATION_ID := FVP_DRAM_ID
-else
-  $(error "Unsupported FVP_TSP_RAM_LOCATION value")
-endif
 
-# Process flags
-$(eval $(call add_define,FVP_TSP_RAM_LOCATION_ID))
+PLAT_INCLUDES		:=	-Iinclude/plat/arm/board/common			\
+				-Iplat/fvp/include
 
-PLAT_INCLUDES		:=	-Iplat/fvp/include/
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S		\
-				drivers/io/io_fip.c				\
-				drivers/io/io_memmap.c				\
-				drivers/io/io_semihosting.c			\
-				drivers/io/io_storage.c				\
-				lib/aarch64/xlat_tables.c			\
-				lib/semihosting/semihosting.c			\
-				lib/semihosting/aarch64/semihosting_call.S	\
-				plat/common/aarch64/plat_common.c		\
-				plat/fvp/fvp_io_storage.c
-
-BL1_SOURCES		+=	drivers/arm/cci/cci.c				\
-				lib/cpus/aarch64/aem_generic.S			\
-				lib/cpus/aarch64/cortex_a53.S			\
-				lib/cpus/aarch64/cortex_a57.S			\
-				plat/common/aarch64/platform_up_stack.S		\
-				plat/fvp/bl1_fvp_setup.c			\
-				plat/fvp/aarch64/fvp_common.c			\
-				plat/fvp/aarch64/fvp_helpers.S
-
-BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
-				plat/common/aarch64/platform_up_stack.S		\
-				plat/fvp/bl2_fvp_setup.c			\
-				plat/fvp/fvp_security.c				\
 				plat/fvp/aarch64/fvp_common.c
 
-BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
-				drivers/arm/gic/arm_gic.c			\
-				drivers/arm/gic/gic_v2.c			\
-				drivers/arm/gic/gic_v3.c			\
-				drivers/arm/tzc400/tzc400.c			\
+BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
-				plat/common/plat_gic.c				\
-				plat/common/aarch64/platform_mp_stack.S		\
+				lib/semihosting/semihosting.c			\
+				lib/semihosting/aarch64/semihosting_call.S	\
+				plat/fvp/aarch64/fvp_helpers.S			\
+				plat/fvp/bl1_fvp_setup.c			\
+				plat/fvp/fvp_io_storage.c
+
+BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
+				lib/semihosting/semihosting.c			\
+				lib/semihosting/aarch64/semihosting_call.S	\
+				plat/fvp/bl2_fvp_setup.c			\
+				plat/fvp/fvp_io_storage.c			\
+				plat/fvp/fvp_security.c
+
+BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
+				lib/cpus/aarch64/cortex_a53.S			\
+				lib/cpus/aarch64/cortex_a57.S			\
 				plat/fvp/bl31_fvp_setup.c			\
 				plat/fvp/fvp_pm.c				\
 				plat/fvp/fvp_security.c				\
 				plat/fvp/fvp_topology.c				\
 				plat/fvp/aarch64/fvp_helpers.S			\
-				plat/fvp/aarch64/fvp_common.c			\
 				plat/fvp/drivers/pwrc/fvp_pwrc.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
-  BL1_SOURCES		+=	plat/fvp/fvp_trusted_boot.c
-  BL2_SOURCES		+=	plat/fvp/fvp_trusted_boot.c
+  BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
+  BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
 endif
+
+
+include plat/arm/common/arm_common.mk

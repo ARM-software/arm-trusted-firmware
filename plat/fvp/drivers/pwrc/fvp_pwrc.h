@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,7 +63,6 @@
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-int fvp_pwrc_setup(void);
 void fvp_pwrc_write_pcoffr(unsigned long);
 void fvp_pwrc_write_ppoffr(unsigned long);
 void fvp_pwrc_write_pponr(unsigned long);

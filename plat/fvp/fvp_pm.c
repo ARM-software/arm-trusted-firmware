@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,20 +29,24 @@
  */
 
 #include <arch_helpers.h>
+#include <arm_config.h>
 #include <arm_gic.h>
 #include <assert.h>
-#include <bakery_lock.h>
-#include <cci.h>
 #include <debug.h>
+#include <errno.h>
 #include <mmio.h>
 #include <platform.h>
-#include <plat_config.h>
-#include <platform_def.h>
+#include <plat_arm.h>
 #include <psci.h>
-#include <errno.h>
+#include <v2m_def.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 #include "fvp_def.h"
 #include "fvp_private.h"
+
+
+typedef volatile struct mailbox {
+	unsigned long value __aligned(CACHE_WRITEBACK_GRANULE);
+} mailbox_t;
 
 /*******************************************************************************
  * Private FVP function to program the mailbox for a cpu before it is released
@@ -86,33 +90,6 @@ static void fvp_cluster_pwrdwn_common(void)
 
 	/* Program the power controller to turn the cluster off */
 	fvp_pwrc_write_pcoffr(mpidr);
-}
-
-/*******************************************************************************
- * Private FVP function which is used to determine if any platform actions
- * should be performed for the specified affinity instance given its
- * state. Nothing needs to be done if the 'state' is not off or if this is not
- * the highest affinity level which will enter the 'state'.
- ******************************************************************************/
-static int32_t fvp_do_plat_actions(unsigned int afflvl, unsigned int state)
-{
-	unsigned int max_phys_off_afflvl;
-
-	assert(afflvl <= MPIDR_AFFLVL1);
-
-	if (state != PSCI_STATE_OFF)
-		return -EAGAIN;
-
-	/*
-	 * Find the highest affinity level which will be suspended and postpone
-	 * all the platform specific actions until that level is hit.
-	 */
-	max_phys_off_afflvl = psci_get_max_phys_off_afflvl();
-	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
-	if (afflvl != max_phys_off_afflvl)
-		return -EAGAIN;
-
-	return 0;
 }
 
 /*******************************************************************************
@@ -179,7 +156,7 @@ void fvp_affinst_off(unsigned int afflvl,
 		    unsigned int state)
 {
 	/* Determine if any platform actions need to be executed */
-	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
+	if (arm_do_affinst_actions(afflvl, state) == -EAGAIN)
 		return;
 
 	/*
@@ -212,7 +189,7 @@ void fvp_affinst_suspend(unsigned long sec_entrypoint,
 	unsigned long mpidr;
 
 	/* Determine if any platform actions need to be executed. */
-	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
+	if (arm_do_affinst_actions(afflvl, state) == -EAGAIN)
 		return;
 
 	/* Get the mpidr for this cpu */
@@ -245,7 +222,7 @@ void fvp_affinst_on_finish(unsigned int afflvl,
 	unsigned long mpidr;
 
 	/* Determine if any platform actions need to be executed. */
-	if (fvp_do_plat_actions(afflvl, state) == -EAGAIN)
+	if (arm_do_affinst_actions(afflvl, state) == -EAGAIN)
 		return;
 
 	/* Get the mpidr for this cpu */
@@ -303,8 +280,10 @@ void fvp_affinst_suspend_finish(unsigned int afflvl,
 static void __dead2 fvp_system_off(void)
 {
 	/* Write the System Configuration Control Register */
-	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGCTRL,
-		CFGCTRL_START | CFGCTRL_RW | CFGCTRL_FUNC(FUNC_SHUTDOWN));
+	mmio_write_32(V2M_SYSREGS_BASE + V2M_SYS_CFGCTRL,
+		V2M_CFGCTRL_START |
+		V2M_CFGCTRL_RW |
+		V2M_CFGCTRL_FUNC(V2M_FUNC_SHUTDOWN));
 	wfi();
 	ERROR("FVP System Off: operation not handled.\n");
 	panic();
@@ -313,35 +292,13 @@ static void __dead2 fvp_system_off(void)
 static void __dead2 fvp_system_reset(void)
 {
 	/* Write the System Configuration Control Register */
-	mmio_write_32(VE_SYSREGS_BASE + V2M_SYS_CFGCTRL,
-		CFGCTRL_START | CFGCTRL_RW | CFGCTRL_FUNC(FUNC_REBOOT));
+	mmio_write_32(V2M_SYSREGS_BASE + V2M_SYS_CFGCTRL,
+		V2M_CFGCTRL_START |
+		V2M_CFGCTRL_RW |
+		V2M_CFGCTRL_FUNC(V2M_FUNC_REBOOT));
 	wfi();
 	ERROR("FVP System Reset: operation not handled.\n");
 	panic();
-}
-
-/*******************************************************************************
- * FVP handler called to check the validity of the power state parameter.
- ******************************************************************************/
-int fvp_validate_power_state(unsigned int power_state)
-{
-	/* Sanity check the requested state */
-	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
-		/*
-		 * It's possible to enter standby only on affinity level 0
-		 * i.e. a cpu on the fvp. Ignore any other affinity level.
-		 */
-		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
-			return PSCI_E_INVALID_PARAMS;
-	}
-
-	/*
-	 * We expect the 'state id' to be zero.
-	 */
-	if (psci_get_pstate_id(power_state))
-		return PSCI_E_INVALID_PARAMS;
-
-	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
@@ -356,7 +313,7 @@ static const plat_pm_ops_t fvp_plat_pm_ops = {
 	.affinst_suspend_finish = fvp_affinst_suspend_finish,
 	.system_off = fvp_system_off,
 	.system_reset = fvp_system_reset,
-	.validate_power_state = fvp_validate_power_state
+	.validate_power_state = arm_validate_power_state
 };
 
 /*******************************************************************************

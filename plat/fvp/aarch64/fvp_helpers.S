@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,24 +30,21 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
 #include <gic_v2.h>
 #include <platform_def.h>
-#include <pl011.h>
+#include <v2m_def.h>
 #include "../drivers/pwrc/fvp_pwrc.h"
+#include "../fvp_def.h"
 
-	.globl	platform_get_entrypoint
 	.globl	plat_secondary_cold_boot_setup
+	.globl	platform_get_entrypoint
 	.globl	platform_mem_init
-	.globl	plat_report_exception
 	.globl	platform_is_primary_cpu
-	.globl	plat_crash_console_init
-	.globl	plat_crash_console_putc
 
 	.macro	fvp_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
-	ldr	\x_tmp, =VE_SYSREGS_BASE + V2M_SYS_ID
+	ldr	\x_tmp, =V2M_SYSREGS_BASE + V2M_SYS_ID
 	ldr	\w_tmp, [\x_tmp]
-	ubfx	\w_tmp, \w_tmp, #SYS_ID_BLD_SHIFT, #SYS_ID_BLD_LENGTH
+	ubfx	\w_tmp, \w_tmp, #V2M_SYS_ID_BLD_SHIFT, #V2M_SYS_ID_BLD_LENGTH
 	cmp	\w_tmp, #BLD_GIC_VE_MMAP
 	csel	\res, \param1, \param2, eq
 	.endm
@@ -143,7 +140,7 @@ warm_reset:
 	 */
 	ldr	x10, =MBOX_BASE
 	bl	platform_get_core_pos
-	lsl	x0, x0, #CACHE_WRITEBACK_SHIFT
+	lsl	x0, x0, #ARM_CACHE_WRITEBACK_SHIFT
 	ldr	x0, [x10, x0]
 	cbz	x0, _panic
 exit:
@@ -174,27 +171,6 @@ loop:
 	ret
 endfunc platform_mem_init
 
-	/* ---------------------------------------------
-	 * void plat_report_exception(unsigned int type)
-	 * Function to report an unhandled exception
-	 * with platform-specific means.
-	 * On FVP platform, it updates the LEDs
-	 * to indicate where we are
-	 * ---------------------------------------------
-	 */
-func plat_report_exception
-	mrs	x1, CurrentEl
-	lsr	x1, x1, #MODE_EL_SHIFT
-	lsl	x1, x1, #SYS_LED_EL_SHIFT
-	lsl	x0, x0, #SYS_LED_EC_SHIFT
-	mov	x2, #(SECURE << SYS_LED_SS_SHIFT)
-	orr	x0, x0, x2
-	orr	x0, x0, x1
-	mov	x1, #VE_SYSREGS_BASE
-	add	x1, x1, #V2M_SYS_LED
-	str	w0, [x1]
-	ret
-endfunc plat_report_exception
 
 func platform_is_primary_cpu
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
@@ -202,32 +178,3 @@ func platform_is_primary_cpu
 	cset	x0, eq
 	ret
 endfunc platform_is_primary_cpu
-
-	/* Define a crash console for the plaform */
-#define FVP_CRASH_CONSOLE_BASE		PL011_UART1_BASE
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_init(void)
-	 * Function to initialize the crash console
-	 * without a C Runtime to print crash report.
-	 * Clobber list : x0, x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_init
-	mov_imm	x0, FVP_CRASH_CONSOLE_BASE
-	mov_imm	x1, PL011_UART1_CLK_IN_HZ
-	mov_imm	x2, PL011_BAUDRATE
-	b	console_core_init
-endfunc plat_crash_console_init
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_putc(int c)
-	 * Function to print a character on the crash
-	 * console without a C Runtime.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_putc
-	mov_imm	x1, FVP_CRASH_CONSOLE_BASE
-	b	console_core_putc
-endfunc plat_crash_console_putc

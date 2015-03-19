@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,114 +28,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <console.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
-#include "../../bl1/bl1_private.h"
-#include "fvp_def.h"
+#include <plat_arm.h>
 #include "fvp_private.h"
 
-#if USE_COHERENT_MEM
-/*******************************************************************************
- * Declarations of linker defined symbols which will help us find the layout
- * of trusted SRAM
- ******************************************************************************/
-extern unsigned long __COHERENT_RAM_START__;
-extern unsigned long __COHERENT_RAM_END__;
-
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
- * page-aligned addresses.
- */
-#define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-#endif
-
-/* Data structure which holds the extents of the trusted SRAM for BL1*/
-static meminfo_t bl1_tzram_layout;
-
-meminfo_t *bl1_plat_sec_mem_layout(void)
-{
-	return &bl1_tzram_layout;
-}
 
 /*******************************************************************************
  * Perform any BL1 specific platform actions.
  ******************************************************************************/
 void bl1_early_platform_setup(void)
 {
-	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
-
-	/* Initialize the console to provide early debug support */
-	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
-
-	/* Allow BL1 to see the whole Trusted RAM */
-	bl1_tzram_layout.total_base = FVP_TRUSTED_SRAM_BASE;
-	bl1_tzram_layout.total_size = FVP_TRUSTED_SRAM_SIZE;
-
-	/* Calculate how much RAM BL1 is using and how much remains free */
-	bl1_tzram_layout.free_base = FVP_TRUSTED_SRAM_BASE;
-	bl1_tzram_layout.free_size = FVP_TRUSTED_SRAM_SIZE;
-	reserve_mem(&bl1_tzram_layout.free_base,
-		    &bl1_tzram_layout.free_size,
-		    BL1_RAM_BASE,
-		    bl1_size);
+	arm_bl1_early_platform_setup();
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();
-}
 
-/*******************************************************************************
- * Function which will evaluate how much of the trusted ram has been gobbled
- * up by BL1 and return the base and size of whats available for loading BL2.
- * Its called after coherency and the MMU have been turned on.
- ******************************************************************************/
-void bl1_platform_setup(void)
-{
-	/* Initialise the IO layer and register platform IO devices */
-	fvp_io_setup();
-}
-
-
-/*******************************************************************************
- * Perform the very early platform specific architecture setup here. At the
- * moment this only does basic initialization. Later architectural setup
- * (bl1_arch_setup()) does not do anything platform specific.
- ******************************************************************************/
-void bl1_plat_arch_setup(void)
-{
+	/*
+	 * Initialize CCI for this cluster during cold boot.
+	 * No need for locks as no other CPU is active.
+	 */
 	fvp_cci_init();
+	/*
+	 * Enable CCI coherency for the primary CPU's cluster.
+	 */
 	fvp_cci_enable();
-
-	fvp_configure_mmu_el3(bl1_tzram_layout.total_base,
-			      bl1_tzram_layout.total_size,
-			      BL1_RO_BASE,
-			      BL1_RO_LIMIT
-#if USE_COHERENT_MEM
-			      , BL1_COHERENT_RAM_BASE,
-			      BL1_COHERENT_RAM_LIMIT
-#endif
-			     );
-}
-
-
-/*******************************************************************************
- * Before calling this function BL2 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL2 and set SPSR and security state.
- * On FVP we are only setting the security state, entrypoint
- ******************************************************************************/
-void bl1_plat_set_bl2_ep_info(image_info_t *bl2_image,
-				entry_point_info_t *bl2_ep)
-{
-	SET_SECURITY_STATE(bl2_ep->h.attr, SECURE);
-	bl2_ep->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 }

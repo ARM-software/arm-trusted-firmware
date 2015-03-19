@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,10 +29,6 @@
 #
 
 # TSP source files specific to FVP platform
-BL32_SOURCES		+=	drivers/arm/gic/arm_gic.c			\
-				drivers/arm/gic/gic_v2.c			\
-				plat/common/aarch64/platform_mp_stack.S		\
-				plat/common/plat_gic.c				\
-				plat/fvp/aarch64/fvp_common.c			\
-				plat/fvp/aarch64/fvp_helpers.S			\
-				plat/fvp/tsp/tsp_fvp_setup.c
+BL32_SOURCES		+=	plat/fvp/tsp/tsp_fvp_setup.c
+
+include plat/arm/common/tsp/arm_tsp.mk

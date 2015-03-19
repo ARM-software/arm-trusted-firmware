@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 
 #include <bakery_lock.h>
 #include <mmio.h>
+#include <plat_arm.h>
 #include "../../fvp_def.h"
 #include "../../fvp_private.h"
 #include "fvp_pwrc.h"
@@ -38,12 +39,7 @@
  * TODO: Someday there will be a generic power controller api. At the moment
  * each platform has its own pwrc so just exporting functions is fine.
  */
-#if USE_COHERENT_MEM
-static bakery_lock_t pwrc_lock __attribute__ ((section("tzfw_coherent_mem")));
-#define LOCK_ARG	&pwrc_lock
-#else
-#define LOCK_ARG	FVP_PWRC_BAKERY_ID
-#endif
+ARM_INSTANTIATE_LOCK
 
 unsigned int fvp_pwrc_get_cpu_wkr(unsigned long mpidr)
 {
@@ -53,56 +49,54 @@ unsigned int fvp_pwrc_get_cpu_wkr(unsigned long mpidr)
 unsigned int fvp_pwrc_read_psysr(unsigned long mpidr)
 {
 	unsigned int rc;
-	fvp_lock_get(LOCK_ARG);
+	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PSYSR_OFF, (unsigned int) mpidr);
 	rc = mmio_read_32(PWRC_BASE + PSYSR_OFF);
-	fvp_lock_release(LOCK_ARG);
+	arm_lock_release();
 	return rc;
 }
 
 void fvp_pwrc_write_pponr(unsigned long mpidr)
 {
-	fvp_lock_get(LOCK_ARG);
+	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PPONR_OFF, (unsigned int) mpidr);
-	fvp_lock_release(LOCK_ARG);
+	arm_lock_release();
 }
 
 void fvp_pwrc_write_ppoffr(unsigned long mpidr)
 {
-	fvp_lock_get(LOCK_ARG);
+	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PPOFFR_OFF, (unsigned int) mpidr);
-	fvp_lock_release(LOCK_ARG);
+	arm_lock_release();
 }
 
 void fvp_pwrc_set_wen(unsigned long mpidr)
 {
-	fvp_lock_get(LOCK_ARG);
+	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
 		      (unsigned int) (PWKUPR_WEN | mpidr));
-	fvp_lock_release(LOCK_ARG);
+	arm_lock_release();
 }
 
 void fvp_pwrc_clr_wen(unsigned long mpidr)
 {
-	fvp_lock_get(LOCK_ARG);
+	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
 		      (unsigned int) mpidr);
-	fvp_lock_release(LOCK_ARG);
+	arm_lock_release();
 }
 
 void fvp_pwrc_write_pcoffr(unsigned long mpidr)
 {
-	fvp_lock_get(LOCK_ARG);
+	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PCOFFR_OFF, (unsigned int) mpidr);
-	fvp_lock_release(LOCK_ARG);
+	arm_lock_release();
 }
 
 /* Nothing else to do here apart from initializing the lock */
-int fvp_pwrc_setup(void)
+void plat_arm_pwrc_setup(void)
 {
-	fvp_lock_init(LOCK_ARG);
-
-	return 0;
+	arm_lock_init();
 }
 
 

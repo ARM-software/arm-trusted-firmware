@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,23 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <debug.h>
-#include <plat_config.h>
-#include <tzc400.h>
-#include "fvp_def.h"
-#include "fvp_private.h"
-
-/* Used to improve readability for configuring regions. */
-#define FILTER_SHIFT(filter)	(1 << filter)
+#include <arm_config.h>
+#include <plat_arm.h>
 
 /*
- * For the moment we assume that all security programming is done by the
- * primary core.
- * TODO:
- * Might want to enable interrupt on violations when supported?
+ * We assume that all security programming is done by the primary core.
  */
-void fvp_security_setup(void)
+void plat_arm_security_setup(void)
 {
 	/*
 	 * The Base FVP has a TrustZone address space controller, the Foundation
@@ -55,80 +45,6 @@ void fvp_security_setup(void)
 	 * configurations, those would be configured here.
 	 */
 
-	if (!(get_plat_config()->flags & CONFIG_HAS_TZC))
-		return;
-
-	/*
-	 * The TrustZone controller controls access to main DRAM. Give
-	 * full NS access for the moment to use with OS.
-	 */
-	INFO("Configuring TrustZone Controller\n");
-
-	/*
-	 * The driver does some error checking and will assert.
-	 * - Provide base address of device on platform.
-	 * - Provide width of ACE-Lite IDs on platform.
-	 */
-	tzc_init(TZC400_BASE);
-
-	/*
-	 * Currently only filters 0 and 2 are connected on Base FVP.
-	 * Filter 0 : CPU clusters (no access to DRAM by default)
-	 * Filter 1 : not connected
-	 * Filter 2 : LCDs (access to VRAM allowed by default)
-	 * Filter 3 : not connected
-	 * Programming unconnected filters will have no effect at the
-	 * moment. These filter could, however, be connected in future.
-	 * So care should be taken not to configure the unused filters.
-	 */
-
-	/* Disable all filters before programming. */
-	tzc_disable_filters();
-
-	/*
-	 * Allow only non-secure access to all DRAM to supported devices.
-	 * Give access to the CPUs and Virtio. Some devices
-	 * would normally use the default ID so allow that too. We use
-	 * two regions to cover the blocks of physical memory in the FVPs
-	 * plus one region to reserve some memory as secure.
-	 *
-	 * Software executing in the secure state, such as a secure
-	 * boot-loader, can access the DRAM by using the NS attributes in
-	 * the MMU translation tables and descriptors.
-	 */
-
-	/* Region 1 set to cover the Non-Secure DRAM */
-	tzc_configure_region(FILTER_SHIFT(0), 1,
-			DRAM1_NS_BASE, DRAM1_NS_END,
-			TZC_REGION_S_NONE,
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
-
-	/* Region 2 set to cover the Secure DRAM */
-	tzc_configure_region(FILTER_SHIFT(0), 2,
-			DRAM1_SEC_BASE, DRAM1_SEC_END,
-			TZC_REGION_S_RDWR,
-			0x0);
-
-	/* Region 3 set to cover the second block of DRAM */
-	tzc_configure_region(FILTER_SHIFT(0), 3,
-			DRAM2_BASE, DRAM2_END, TZC_REGION_S_NONE,
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_DEFAULT) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_PCI) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_AP) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO) |
-			TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD));
-
-	/*
-	 * TODO: Interrupts are not currently supported. The only
-	 * options we have are for access errors to occur quietly or to
-	 * cause an exception. We choose to cause an exception.
-	 */
-	tzc_set_action(TZC_ACTION_ERR);
-
-	/* Enable filters. */
-	tzc_enable_filters();
+	if (get_arm_config()->flags & ARM_CONFIG_HAS_TZC)
+		arm_tzc_setup();
 }
