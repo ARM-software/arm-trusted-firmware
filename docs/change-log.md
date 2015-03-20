@@ -105,7 +105,9 @@ New features
     added.  Details of using it with ARM Trusted Firmware can be found in
     [OP-TEE Dispatcher]
 
-
+*   A Secure Payload Dispatcher (TLKD) for the TLK Trusted OS has been
+    added.  Details of using it with ARM Trusted Firmware can be found in
+    [TLK Dispatcher]
 
 Issues resolved since last release
 ----------------------------------
@@ -708,3 +710,4 @@ releases of the ARM Trusted Firmware.
 _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 [OP-TEE Dispatcher]:       ./optee-dispatcher.md
+[TLK Dispatcher]:          ./tlk-dispatcher.md
