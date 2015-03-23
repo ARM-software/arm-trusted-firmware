@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -137,7 +137,7 @@ void reserve_mem(uint64_t *free_base, size_t *free_size,
 	if (pos == BOTTOM)
 		*free_base = addr + size;
 
-	VERBOSE("Reserved %u bytes (discarded %u bytes %s)\n",
+	VERBOSE("Reserved 0x%lx bytes (discarded 0x%lx bytes %s)\n",
 	     reserved_size, discard_size,
 	     pos == TOP ? "above" : "below");
 }
