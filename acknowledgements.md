@@ -5,5 +5,7 @@ Companies
 ---------
 Linaro Limited
 
+NVIDIA Corporation
+
 Individuals
 -----------
