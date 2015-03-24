@@ -49,6 +49,7 @@ func aem_generic_core_pwr_dwn
 	 * ---------------------------------------------
 	 */
 	b	dcsw_op_louis
+endfunc aem_generic_core_pwr_dwn
 
 
 func aem_generic_cluster_pwr_dwn
@@ -67,6 +68,7 @@ func aem_generic_cluster_pwr_dwn
 	 */
 	mov	x0, #DCCISW
 	b	dcsw_op_all
+endfunc aem_generic_cluster_pwr_dwn
 
 	/* ---------------------------------------------
 	 * This function provides cpu specific
@@ -80,6 +82,7 @@ func aem_generic_cluster_pwr_dwn
 func aem_generic_cpu_reg_dump
 	mov	x6, #0 /* no registers to report */
 	ret
+endfunc aem_generic_cpu_reg_dump
 
 
 /* cpu_ops for Base AEM FVP */

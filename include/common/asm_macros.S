@@ -85,7 +85,16 @@
 	.macro func _name
 	.section .text.\_name, "ax"
 	.type \_name, %function
+	.func \_name
 	\_name:
+	.endm
+
+	/*
+	 * This macro is used to mark the end of a function.
+	 */
+	.macro endfunc _name
+	.endfunc
+	.size \_name, . - \_name
 	.endm
 
 	/* ---------------------------------------------

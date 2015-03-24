@@ -53,6 +53,7 @@ func platform_is_primary_cpu
 	cmp	x0, x1
 	cset	x0, eq
 	ret	x9
+endfunc platform_is_primary_cpu
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -67,6 +68,7 @@ func plat_secondary_cold_boot_setup
 	/* Juno todo: Implement secondary CPU cold boot setup on Juno */
 cb_panic:
 	b	cb_panic
+endfunc plat_secondary_cold_boot_setup
 
 
 	/* -----------------------------------------------------
@@ -91,6 +93,7 @@ func platform_get_entrypoint
 	lsl	x0, x0, #TRUSTED_MAILBOX_SHIFT
 	ldr	x0, [x1, x0]
 	ret	x9
+endfunc platform_get_entrypoint
 
 
 	/* -----------------------------------------------------
@@ -140,3 +143,4 @@ func platform_cold_boot_init
 
 cb_init_panic:
 	b	cb_init_panic
+endfunc platform_cold_boot_init

@@ -44,6 +44,7 @@ func cortex_a53_disable_dcache
 	msr	sctlr_el3, x1
 	isb
 	ret
+endfunc cortex_a53_disable_dcache
 
 	/* ---------------------------------------------
 	 * Disable intra-cluster coherency
@@ -56,6 +57,7 @@ func cortex_a53_disable_smp
 	isb
 	dsb	sy
 	ret
+endfunc cortex_a53_disable_smp
 
 func cortex_a53_reset_func
 	/* ---------------------------------------------
@@ -72,6 +74,7 @@ func cortex_a53_reset_func
 	isb
 skip_smp_setup:
 	ret
+endfunc cortex_a53_reset_func
 
 func cortex_a53_core_pwr_dwn
 	mov	x18, x30
@@ -95,6 +98,7 @@ func cortex_a53_core_pwr_dwn
 	 */
 	mov	x30, x18
 	b	cortex_a53_disable_smp
+endfunc cortex_a53_core_pwr_dwn
 
 func cortex_a53_cluster_pwr_dwn
 	mov	x18, x30
@@ -131,6 +135,7 @@ func cortex_a53_cluster_pwr_dwn
 	 */
 	mov	x30, x18
 	b	cortex_a53_disable_smp
+endfunc cortex_a53_cluster_pwr_dwn
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a53 specific
@@ -149,5 +154,6 @@ func cortex_a53_cpu_reg_dump
 	adr	x6, cortex_a53_regs
 	mrs	x8, CPUECTLR_EL1
 	ret
+endfunc cortex_a53_cpu_reg_dump
 
 declare_cpu_ops cortex_a53, CORTEX_A53_MIDR

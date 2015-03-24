@@ -148,6 +148,7 @@ psci_aff_common_finish_entry:
 	bl	psci_afflvl_power_on_finish
 
 	b	el3_exit
+endfunc psci_aff_on_finish_entry
 
 	/* --------------------------------------------
 	 * This function is called to indicate to the
@@ -163,4 +164,5 @@ func psci_power_down_wfi
 	wfi
 wfi_spill:
 	b	wfi_spill
+endfunc psci_power_down_wfi
 

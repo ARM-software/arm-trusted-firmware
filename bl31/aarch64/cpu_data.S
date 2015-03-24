@@ -51,6 +51,7 @@ func init_cpu_data_ptr
 	bl	_cpu_data_by_mpidr
 	msr	tpidr_el3, x0
 	ret	x10
+endfunc init_cpu_data_ptr
 
 
 /* -----------------------------------------------------------------
@@ -68,6 +69,7 @@ func _cpu_data_by_mpidr
 	bl	platform_get_core_pos
 	mov	x30, x9
 	b	_cpu_data_by_index
+endfunc _cpu_data_by_mpidr
 
 
 /* -----------------------------------------------------------------
@@ -83,3 +85,4 @@ func _cpu_data_by_index
 	adr	x1, percpu_data
 	add	x0, x1, x0, LSL #CPU_DATA_LOG2SIZE
 	ret
+endfunc _cpu_data_by_index

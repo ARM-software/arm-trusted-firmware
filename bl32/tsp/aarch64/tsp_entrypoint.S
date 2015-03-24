@@ -149,6 +149,7 @@ func tsp_entrypoint
 
 tsp_entrypoint_panic:
 	b	tsp_entrypoint_panic
+endfunc tsp_entrypoint
 
 
 	/* -------------------------------------------
@@ -166,6 +167,7 @@ func tsp_vector_table
 	b	tsp_fiq_entry
 	b	tsp_system_off_entry
 	b	tsp_system_reset_entry
+endfunc tsp_vector_table
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this
@@ -180,6 +182,7 @@ func tsp_vector_table
 func tsp_cpu_off_entry
 	bl	tsp_cpu_off_main
 	restore_args_call_smc
+endfunc tsp_cpu_off_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when the
@@ -191,6 +194,7 @@ func tsp_cpu_off_entry
 func tsp_system_off_entry
 	bl	tsp_system_off_main
 	restore_args_call_smc
+endfunc tsp_system_off_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when the
@@ -202,6 +206,7 @@ func tsp_system_off_entry
 func tsp_system_reset_entry
 	bl	tsp_system_reset_main
 	restore_args_call_smc
+endfunc tsp_system_reset_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this
@@ -292,6 +297,7 @@ func tsp_cpu_on_entry
 	/* Should never reach here */
 tsp_cpu_on_entry_panic:
 	b	tsp_cpu_on_entry_panic
+endfunc tsp_cpu_on_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this
@@ -305,6 +311,7 @@ tsp_cpu_on_entry_panic:
 func tsp_cpu_suspend_entry
 	bl	tsp_cpu_suspend_main
 	restore_args_call_smc
+endfunc tsp_cpu_suspend_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD to pass
@@ -357,6 +364,7 @@ func	tsp_fiq_entry
 
 tsp_fiq_entry_panic:
 	b	tsp_fiq_entry_panic
+endfunc tsp_fiq_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this
@@ -373,6 +381,7 @@ func tsp_cpu_resume_entry
 	restore_args_call_smc
 tsp_cpu_resume_panic:
 	b	tsp_cpu_resume_panic
+endfunc tsp_cpu_resume_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD to ask
@@ -384,6 +393,7 @@ func tsp_fast_smc_entry
 	restore_args_call_smc
 tsp_fast_smc_entry_panic:
 	b	tsp_fast_smc_entry_panic
+endfunc tsp_fast_smc_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD to ask
@@ -399,3 +409,4 @@ func tsp_std_smc_entry
 	restore_args_call_smc
 tsp_std_smc_entry_panic:
 	b	tsp_std_smc_entry_panic
+endfunc tsp_std_smc_entry

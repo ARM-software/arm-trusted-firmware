@@ -67,6 +67,7 @@ func reset_handler
 	br	x2
 1:
 	ret
+endfunc reset_handler
 
 #endif /* IMAGE_BL1 || IMAGE_BL31 */
 
@@ -88,6 +89,7 @@ func prepare_core_pwr_dwn
 	/* Get the cpu_ops core_pwr_dwn handler */
 	ldr	x1, [x0, #CPU_PWR_DWN_CORE]
 	br	x1
+endfunc prepare_core_pwr_dwn
 
 	/*
 	 * The prepare cluster power down function for all platforms.  After
@@ -106,6 +108,7 @@ func prepare_cluster_pwr_dwn
 	/* Get the cpu_ops cluster_pwr_dwn handler */
 	ldr	x1, [x0, #CPU_PWR_DWN_CLUSTER]
 	br	x1
+endfunc prepare_cluster_pwr_dwn
 
 
 	/*
@@ -129,6 +132,7 @@ func init_cpu_ops
 	mov x30, x10
 1:
 	ret
+endfunc init_cpu_ops
 #endif /* IMAGE_BL31 */
 
 #if IMAGE_BL31 && CRASH_REPORTING
@@ -153,6 +157,7 @@ func do_cpu_reg_dump
 1:
 	mov	x30, x16
 	ret
+endfunc do_cpu_reg_dump
 #endif
 
 	/*
@@ -197,6 +202,7 @@ func get_cpu_ops_ptr
 	sub	x0, x4, #(CPU_OPS_SIZE + CPU_MIDR)
 error_exit:
 	ret
+endfunc get_cpu_ops_ptr
 
 #if DEBUG
 	/*
@@ -221,5 +227,6 @@ func print_revision_warning
 	bl	asm_print_str
 1:
 	ret	x5
+endfunc print_revision_warning
 #endif
 

@@ -52,6 +52,7 @@ func platform_get_core_pos
 	and	x0, x0, #MPIDR_CLUSTER_MASK
 	add	x0, x1, x0, LSR #6
 	ret
+endfunc platform_get_core_pos
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
@@ -61,6 +62,7 @@ func platform_get_core_pos
 func platform_check_mpidr
 	mov	x0, xzr
 	ret
+endfunc platform_check_mpidr
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
@@ -69,6 +71,7 @@ func platform_check_mpidr
 	 */
 func plat_report_exception
 	ret
+endfunc plat_report_exception
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
@@ -78,6 +81,7 @@ func plat_report_exception
 func plat_crash_console_init
 	mov	x0, #0
 	ret
+endfunc plat_crash_console_init
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
@@ -86,6 +90,7 @@ func plat_crash_console_init
 	 */
 func plat_crash_console_putc
 	ret
+endfunc plat_crash_console_putc
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
@@ -94,6 +99,7 @@ func plat_crash_console_putc
 	 */
 func plat_reset_handler
 	ret
+endfunc plat_reset_handler
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
@@ -103,3 +109,4 @@ func plat_reset_handler
 	 */
 func plat_disable_acp
 	ret
+endfunc plat_disable_acp

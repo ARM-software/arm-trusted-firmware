@@ -44,6 +44,7 @@ func cortex_a72_disable_dcache
 	msr	sctlr_el3, x1
 	isb
 	ret
+endfunc cortex_a72_disable_dcache
 
 	/* ---------------------------------------------
 	 * Disable all types of L2 prefetches.
@@ -58,6 +59,7 @@ func cortex_a72_disable_l2_prefetch
 	msr	CPUECTLR_EL1, x0
 	isb
 	ret
+endfunc cortex_a72_disable_l2_prefetch
 
 	/* ---------------------------------------------
 	 * Disable the load-store hardware prefetcher.
@@ -70,6 +72,7 @@ func cortex_a72_disable_hw_prefetcher
 	isb
 	dsb	ish
 	ret
+endfunc cortex_a72_disable_hw_prefetcher
 
 	/* ---------------------------------------------
 	 * Disable intra-cluster coherency
@@ -80,6 +83,7 @@ func cortex_a72_disable_smp
 	bic	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
 	ret
+endfunc cortex_a72_disable_smp
 
 	/* ---------------------------------------------
 	 * Disable debug interfaces
@@ -91,6 +95,7 @@ func cortex_a72_disable_ext_debug
 	isb
 	dsb	sy
 	ret
+endfunc cortex_a72_disable_ext_debug
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
@@ -106,6 +111,7 @@ func cortex_a72_reset_func
 	msr	CPUECTLR_EL1, x0
 	isb
 	ret
+endfunc cortex_a72_reset_func
 
 	/* ----------------------------------------------------
 	 * The CPU Ops core power down function for Cortex-A72.
@@ -151,6 +157,7 @@ func cortex_a72_core_pwr_dwn
 	 */
 	mov	x30, x18
 	b	cortex_a72_disable_ext_debug
+endfunc cortex_a72_core_pwr_dwn
 
 	/* -------------------------------------------------------
 	 * The CPU Ops cluster power down function for Cortex-A72.
@@ -211,6 +218,7 @@ func cortex_a72_cluster_pwr_dwn
 	 */
 	mov	x30, x18
 	b	cortex_a72_disable_ext_debug
+endfunc cortex_a72_cluster_pwr_dwn
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a72 specific
@@ -229,6 +237,7 @@ func cortex_a72_cpu_reg_dump
 	adr	x6, cortex_a72_regs
 	mrs	x8, CPUECTLR_EL1
 	ret
+endfunc cortex_a72_cpu_reg_dump
 
 
 declare_cpu_ops cortex_a72, CORTEX_A72_MIDR

@@ -53,6 +53,7 @@ func get_afflvl_shift
 	mov	x1, #MPIDR_AFFLVL_SHIFT
 	lsl	x0, x0, x1
 	ret
+endfunc get_afflvl_shift
 
 func mpidr_mask_lower_afflvls
 	cmp	x1, #3
@@ -62,14 +63,17 @@ func mpidr_mask_lower_afflvls
 	lsr	x0, x0, x2
 	lsl	x0, x0, x2
 	ret
+endfunc mpidr_mask_lower_afflvls
 
 
 func eret
 	eret
+endfunc eret
 
 
 func smc
 	smc	#0
+endfunc smc
 
 /* -----------------------------------------------------------------------
  * void zeromem16(void *mem, unsigned int length);
@@ -97,7 +101,9 @@ z_loop1:
 	b.eq	z_end
 	strb	wzr, [x0], #1
 	b	z_loop1
-z_end:	ret
+z_end:
+	ret
+endfunc zeromem16
 
 
 /* --------------------------------------------------------------------------
@@ -129,7 +135,9 @@ m_loop1:
 	strb	w3, [x0], #1
 	subs	x2, x2, #1
 	b.ne	m_loop1
-m_end:	ret
+m_end:
+	ret
+endfunc memcpy16
 
 /* ---------------------------------------------------------------------------
  * Disable the MMU at EL3
@@ -148,11 +156,13 @@ do_disable_mmu:
 	isb				// ensure MMU is off
 	mov	x0, #DCCISW		// DCache clean and invalidate
 	b	dcsw_op_all
+endfunc disable_mmu_el3
 
 
 func disable_mmu_icache_el3
 	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
 	b	do_disable_mmu
+endfunc disable_mmu_icache_el3
 
 /* ---------------------------------------------------------------------------
  * Enable the use of VFP at EL3
@@ -169,4 +179,5 @@ func enable_vfp
 	msr	cptr_el3, x0
 	isb
 	ret
+endfunc enable_vfp
 #endif
