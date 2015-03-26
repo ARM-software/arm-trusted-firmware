@@ -122,9 +122,22 @@
 #define SYS_CNTREAD_BASE	0x2a800000
 #define SYS_TIMCTL_BASE		0x2a810000
 
-/* V2M motherboard system registers & offsets */
+/*
+ * Base memory address of the V2M-Juno motherboard APB system registers in the
+ * IOFPGA
+ */
 #define VE_SYSREGS_BASE		0x1c010000
+/* APB system registers in address offset order from the base memory address */
+#define V2M_SYS_ID		0x0
 #define V2M_SYS_LED		0x8
+
+/* V2M SYS_ID register bits */
+#define SYS_ID_REV_SHIFT	28
+#define SYS_ID_REV_MASK		0xf
+
+/* Board revisions */
+#define REV_JUNO_R0		0x1	/* Rev B */
+#define REV_JUNO_R1		0x2	/* Rev C */
 
 /*
  * V2M sysled bit definitions. The values written to this
