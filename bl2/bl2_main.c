@@ -205,23 +205,28 @@ static int load_bl30(void)
 		       &bl30_image_info,
 		       NULL);
 
-	if (e == 0) {
-#if TRUSTED_BOARD_BOOT
-		e = auth_verify_obj(AUTH_BL30_IMG,
-				bl30_image_info.image_base,
-				bl30_image_info.image_size);
-		if (e) {
-			ERROR("Failed to authenticate BL3-0 image.\n");
-			panic();
-		}
+	if (e)
+		return e;
 
-		/* After working with data, invalidate the data cache */
-		inv_dcache_range(bl30_image_info.image_base,
-				 (size_t)bl30_image_info.image_size);
+#if TRUSTED_BOARD_BOOT
+	e = auth_verify_obj(AUTH_BL30_IMG,
+			bl30_image_info.image_base,
+			bl30_image_info.image_size);
+	if (e) {
+		ERROR("Failed to authenticate BL3-0 image.\n");
+		return e;
+	}
+
+	/* After working with data, invalidate the data cache */
+	inv_dcache_range(bl30_image_info.image_base,
+			(size_t)bl30_image_info.image_size);
 #endif /* TRUSTED_BOARD_BOOT */
 
-		/* The subsequent handling of BL3-0 is platform specific */
-		bl2_plat_handle_bl30(&bl30_image_info);
+	/* The subsequent handling of BL3-0 is platform specific */
+	e = bl2_plat_handle_bl30(&bl30_image_info);
+	if (e) {
+		ERROR("Failure in platform-specific handling of BL3-0 image.\n");
+		return e;
 	}
 #endif /* BL30_BASE */
 
@@ -256,25 +261,25 @@ static int load_bl31(bl31_params_t *bl2_to_bl31_params,
 		       BL31_BASE,
 		       bl2_to_bl31_params->bl31_image_info,
 		       bl31_ep_info);
+	if (e)
+		return e;
 
-	if (e == 0) {
 #if TRUSTED_BOARD_BOOT
-		e = auth_verify_obj(AUTH_BL31_IMG,
-			bl2_to_bl31_params->bl31_image_info->image_base,
-			bl2_to_bl31_params->bl31_image_info->image_size);
-		if (e) {
-			ERROR("Failed to authenticate BL3-1 image.\n");
-			panic();
-		}
+	e = auth_verify_obj(AUTH_BL31_IMG,
+			    bl2_to_bl31_params->bl31_image_info->image_base,
+			    bl2_to_bl31_params->bl31_image_info->image_size);
+	if (e) {
+		ERROR("Failed to authenticate BL3-1 image.\n");
+		return e;
+	}
 
-		/* After working with data, invalidate the data cache */
-		inv_dcache_range(bl2_to_bl31_params->bl31_image_info->image_base,
+	/* After working with data, invalidate the data cache */
+	inv_dcache_range(bl2_to_bl31_params->bl31_image_info->image_base,
 			(size_t)bl2_to_bl31_params->bl31_image_info->image_size);
 #endif /* TRUSTED_BOARD_BOOT */
 
-		bl2_plat_set_bl31_ep_info(bl2_to_bl31_params->bl31_image_info,
-					  bl31_ep_info);
-	}
+	bl2_plat_set_bl31_ep_info(bl2_to_bl31_params->bl31_image_info,
+				  bl31_ep_info);
 
 	return e;
 }
@@ -309,30 +314,31 @@ static int load_bl32(bl31_params_t *bl2_to_bl31_params)
 		       bl2_to_bl31_params->bl32_image_info,
 		       bl2_to_bl31_params->bl32_ep_info);
 
-	if (e == 0) {
-#if TRUSTED_BOARD_BOOT
-		/* Image is present. Check if there is a valid certificate */
-		if (bl32_cert_error) {
-			ERROR("Failed to authenticate BL3-2 certificates.\n");
-			panic();
-		}
+	if (e)
+		return e;
 
-		e = auth_verify_obj(AUTH_BL32_IMG,
-			bl2_to_bl31_params->bl32_image_info->image_base,
-			bl2_to_bl31_params->bl32_image_info->image_size);
-		if (e) {
-			ERROR("Failed to authenticate BL3-2 image.\n");
-			panic();
-		}
-		/* After working with data, invalidate the data cache */
-		inv_dcache_range(bl2_to_bl31_params->bl32_image_info->image_base,
+#if TRUSTED_BOARD_BOOT
+	/* Image is present. Check if there is a valid certificate */
+	if (bl32_cert_error) {
+		ERROR("Failed to authenticate BL3-2 certificates.\n");
+		return bl32_cert_error;
+	}
+
+	e = auth_verify_obj(AUTH_BL32_IMG,
+			    bl2_to_bl31_params->bl32_image_info->image_base,
+			    bl2_to_bl31_params->bl32_image_info->image_size);
+	if (e) {
+		ERROR("Failed to authenticate BL3-2 image.\n");
+		return e;
+	}
+	/* After working with data, invalidate the data cache */
+	inv_dcache_range(bl2_to_bl31_params->bl32_image_info->image_base,
 			(size_t)bl2_to_bl31_params->bl32_image_info->image_size);
 #endif /* TRUSTED_BOARD_BOOT */
 
-		bl2_plat_set_bl32_ep_info(
-			bl2_to_bl31_params->bl32_image_info,
-			bl2_to_bl31_params->bl32_ep_info);
-	}
+	bl2_plat_set_bl32_ep_info(
+		bl2_to_bl31_params->bl32_image_info,
+		bl2_to_bl31_params->bl32_ep_info);
 #endif /* BL32_BASE */
 
 	return e;
@@ -361,23 +367,24 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 		       bl2_to_bl31_params->bl33_image_info,
 		       bl2_to_bl31_params->bl33_ep_info);
 
-	if (e == 0) {
+	if (e)
+		return e;
+
 #if TRUSTED_BOARD_BOOT
-		e = auth_verify_obj(AUTH_BL33_IMG,
-				bl2_to_bl31_params->bl33_image_info->image_base,
-				bl2_to_bl31_params->bl33_image_info->image_size);
-		if (e) {
-			ERROR("Failed to authenticate BL3-3 image.\n");
-			panic();
-		}
-		/* After working with data, invalidate the data cache */
-		inv_dcache_range(bl2_to_bl31_params->bl33_image_info->image_base,
+	e = auth_verify_obj(AUTH_BL33_IMG,
+			    bl2_to_bl31_params->bl33_image_info->image_base,
+			    bl2_to_bl31_params->bl33_image_info->image_size);
+	if (e) {
+		ERROR("Failed to authenticate BL3-3 image.\n");
+		return e;
+	}
+	/* After working with data, invalidate the data cache */
+	inv_dcache_range(bl2_to_bl31_params->bl33_image_info->image_base,
 			(size_t)bl2_to_bl31_params->bl33_image_info->image_size);
 #endif /* TRUSTED_BOARD_BOOT */
 
-		bl2_plat_set_bl33_ep_info(bl2_to_bl31_params->bl33_image_info,
-					  bl2_to_bl31_params->bl33_ep_info);
-	}
+	bl2_plat_set_bl33_ep_info(bl2_to_bl31_params->bl33_image_info,
+				  bl2_to_bl31_params->bl33_ep_info);
 
 	return e;
 }
