@@ -52,7 +52,7 @@ $(eval $(call add_define,TSP_INIT_ASYNC))
 # Include the platform-specific TSP Makefile
 # If no platform-specific TSP Makefile exists, it means TSP is not supported
 # on this platform.
-TSP_PLAT_MAKEFILE := plat/${PLAT}/tsp/tsp-${PLAT}.mk
+TSP_PLAT_MAKEFILE := $(shell find plat/ -wholename '*/${PLAT}/tsp/tsp-${PLAT}.mk')
 ifeq (,$(wildcard ${TSP_PLAT_MAKEFILE}))
   $(error TSP is not supported on platform ${PLAT})
 else
