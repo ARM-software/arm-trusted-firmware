@@ -136,6 +136,14 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, civac)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, cvau)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, zva)
 
+/*******************************************************************************
+ * Address translation accessor prototypes
+ ******************************************************************************/
+DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e1r)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e1w)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0r)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0w)
+
 void flush_dcache_range(uint64_t, uint64_t);
 void inv_dcache_range(uint64_t, uint64_t);
 void dcsw_op_louis(uint32_t);
@@ -160,6 +168,7 @@ DEFINE_SYSREG_WRITE_CONST_FUNC(daifclr)
 #define disable_serror()		write_daifset(DAIF_ABT_BIT)
 #define disable_debug_exceptions()	write_daifset(DAIF_DBG_BIT)
 
+DEFINE_SYSREG_READ_FUNC(par_el1)
 DEFINE_SYSREG_READ_FUNC(id_pfr1_el1)
 DEFINE_SYSREG_READ_FUNC(id_aa64pfr0_el1)
 DEFINE_SYSREG_READ_FUNC(CurrentEl)
