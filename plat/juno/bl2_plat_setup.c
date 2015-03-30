@@ -75,7 +75,7 @@ extern unsigned long __COHERENT_RAM_END__;
 
 /* Data structure which holds the extents of the trusted RAM for BL2 */
 static meminfo_t bl2_tzram_layout
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE)));
+__attribute__ ((aligned(CACHE_WRITEBACK_GRANULE)));
 
 /*******************************************************************************
  * Structure which holds the arguments which need to be passed to BL3-1

@@ -73,7 +73,7 @@ extern unsigned long __COHERENT_RAM_END__;
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout
-__attribute__ ((aligned(PLATFORM_CACHE_LINE_SIZE)));
+__attribute__ ((aligned(CACHE_WRITEBACK_GRANULE)));
 
 /* Assert that BL3-1 parameters fit in shared memory */
 CASSERT((PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t)) <
