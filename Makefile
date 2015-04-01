@@ -87,7 +87,9 @@ CHECK_IGNORE		=	--ignore COMPLEX_MACRO \
 CHECKPATCH_ARGS		=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 # Do not check the coding style on C library files
-CHECK_PATHS		=	$(shell ls -I include -I lib) $(shell ls -I stdlib include) $(shell ls -I stdlib lib)
+CHECK_PATHS		=	$(shell ls -I include -I lib) \
+				$(addprefix include/,$(shell ls -I stdlib include)) \
+				$(addprefix lib/,$(shell ls -I stdlib lib))
 
 ifeq (${V},0)
 	Q=@
@@ -371,7 +373,7 @@ checkcodebase:		locate-checkpatch
 
 checkpatch:		locate-checkpatch
 			@echo "  CHECKING STYLE"
-			@git log -p ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
+			${Q}git log -p ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
 
 .PHONY: ${CRTTOOL}
 ${CRTTOOL}:
