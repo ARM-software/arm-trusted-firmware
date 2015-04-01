@@ -27,6 +27,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __PLAT_MACROS_S__
+#define __PLAT_MACROS_S__
 
 #include <cci.h>
 #include <gic_v2.h>
@@ -107,3 +109,6 @@ cci_iface_regs:
 	/* Store to the crash buf and print to console */
 	bl	str_in_crash_buf_print
 	.endm
+
+
+#endif /* __PLAT_MACROS_S__ */
