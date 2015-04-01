@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,21 +27,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arch.h>
 #include <asm_macros.S>
-#include <pl011.h>
 
-/*
- * Pull in generic functions to provide backwards compatibility for
- * platform makefiles
- */
-#include "../../console/console.S"
-
+	/*
+	 * This file contains a skeleton console implementation that can
+	 * be used as basis for a real console implementation by platforms
+	 * that do not contain PL011 hardware.
+	 */
 
 	.globl	console_core_init
 	.globl	console_core_putc
 	.globl	console_core_getc
-
 
 	/* -----------------------------------------------
 	 * int console_core_init(unsigned long base_addr,
@@ -63,25 +59,7 @@ func console_core_init
 	/* Check baud rate and uart clock for sanity */
 	cbz	w1, core_init_fail
 	cbz	w2, core_init_fail
-	/* Program the baudrate */
-	/* Divisor =  (Uart clock * 4) / baudrate */
-	lsl	w1, w1, #2
-	udiv	w2, w1, w2
-	/* IBRD = Divisor >> 6 */
-	lsr	w1, w2, #6
-	/* Write the IBRD */
-	str	w1, [x0, #UARTIBRD]
-	/* FBRD = Divisor & 0x3F */
-	and	w1, w2, #0x3f
-	/* Write the FBRD */
-	str	w1, [x0, #UARTFBRD]
-	mov	w1, #PL011_LINE_CONTROL
-	str	w1, [x0, #UARTLCR_H]
-	/* Clear any pending errors */
-	str	wzr, [x0, #UARTECR]
-	/* Enable tx, rx, and uart overall */
-	mov	w1, #(PL011_UARTCR_RXE | PL011_UARTCR_TXE | PL011_UARTCR_UARTEN)
-	str	w1, [x0, #UARTCR]
+	/* Insert implementation here */
 	mov	w0, #1
 	ret
 core_init_fail:
@@ -102,20 +80,7 @@ endfunc console_core_init
 func console_core_putc
 	/* Check the input parameter */
 	cbz	x1, putc_error
-	/* Prepend '\r' to '\n' */
-	cmp	w0, #0xA
-	b.ne	2f
-1:
-	/* Check if the transmit FIFO is full */
-	ldr	w2, [x1, #UARTFR]
-	tbnz	w2, #PL011_UARTFR_TXFF_BIT, 1b
-	mov	w2, #0xD
-	str	w2, [x1, #UARTDR]
-2:
-	/* Check if the transmit FIFO is full */
-	ldr	w2, [x1, #UARTFR]
-	tbnz	w2, #PL011_UARTFR_TXFF_BIT, 2b
-	str	w0, [x1, #UARTDR]
+	/* Insert implementation here */
 	ret
 putc_error:
 	mov	w0, #-1
@@ -133,12 +98,7 @@ endfunc console_core_putc
 	 */
 func console_core_getc
 	cbz	x0, getc_error
-1:
-	/* Check if the receive FIFO is empty */
-	ldr	w1, [x0, #UARTFR]
-	tbnz	w1, #PL011_UARTFR_RXFE_BIT, 1b
-	ldr	w1, [x0, #UARTDR]
-	mov	w0, w1
+	/* Insert implementation here */
 	ret
 getc_error:
 	mov	w0, #-1
