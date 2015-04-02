@@ -51,6 +51,12 @@ SECTIONS
         *(.text*)
         *(.rodata*)
 
+        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
+        . = ALIGN(8);
+        __PARSER_LIB_DESCS_START__ = .;
+        KEEP(*(.img_parser_lib_descs))
+        __PARSER_LIB_DESCS_END__ = .;
+
         /*
          * Ensure 8-byte alignment for cpu_ops so that its fields are also
          * aligned. Also ensure cpu_ops inclusion.
