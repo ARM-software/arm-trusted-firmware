@@ -57,7 +57,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S		\
 				plat/common/aarch64/plat_common.c		\
 				plat/fvp/fvp_io_storage.c
 
-BL1_SOURCES		+=	drivers/arm/cci400/cci400.c			\
+BL1_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
@@ -72,7 +72,7 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 				plat/fvp/fvp_security.c				\
 				plat/fvp/aarch64/fvp_common.c
 
-BL31_SOURCES		+=	drivers/arm/cci400/cci400.c			\
+BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/gic/arm_gic.c			\
 				drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\

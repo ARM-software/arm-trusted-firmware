@@ -56,7 +56,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S	\
 				plat/common/plat_gic.c			\
 				plat/juno/plat_io_storage.c
 
-BL1_SOURCES		+=	drivers/arm/cci400/cci400.c		\
+BL1_SOURCES		+=	drivers/arm/cci/cci.c			\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				plat/common/aarch64/platform_up_stack.S	\
@@ -75,7 +75,7 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c		\
 				plat/juno/scp_bootloader.c		\
 				plat/juno/scpi.c
 
-BL31_SOURCES		+=	drivers/arm/cci400/cci400.c		\
+BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				drivers/arm/gic/arm_gic.c		\
 				drivers/arm/gic/gic_v2.c		\
 				drivers/arm/gic/gic_v3.c		\
@@ -103,7 +103,7 @@ endif
 NEED_BL30		:=	yes
 
 # Enable workarounds for selected Cortex-A57 erratas.
-ERRATA_A57_806969	:=	1
+ERRATA_A57_806969	:=	0
 ERRATA_A57_813420	:=	1
 
 # Enable option to skip L1 data cache flush during the Cortex-A57 cluster

@@ -32,6 +32,7 @@
 #include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <cci.h>
 #include <debug.h>
 #include <mmio.h>
 #include <platform.h>
@@ -114,7 +115,7 @@ static const mmap_region_t juno_mmap[] = {
 };
 #endif
 
-CASSERT((sizeof(juno_mmap)/sizeof(juno_mmap[0])) + JUNO_BL_REGIONS \
+CASSERT(ARRAY_SIZE(juno_mmap) + JUNO_BL_REGIONS \
 		<= MAX_MMAP_REGIONS, assert_max_mmap_regions);
 
 /* Array of secure interrupts to be configured by the gic driver */
@@ -136,8 +137,17 @@ const unsigned int irq_sec_array[] = {
 	IRQ_SEC_SGI_7
 };
 
-const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
-	sizeof(irq_sec_array[0]);
+static const int cci_map[] = {
+	CCI400_CLUSTER0_SL_IFACE_IX,
+	CCI400_CLUSTER1_SL_IFACE_IX
+};
+
+void plat_cci_init(void)
+{
+	cci_init(CCI400_BASE,
+		cci_map,
+		ARRAY_SIZE(cci_map));
+}
 
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
@@ -211,5 +221,9 @@ uint64_t plat_get_syscnt_freq(void)
 
 void plat_gic_init(void)
 {
-	arm_gic_init(GICC_BASE, GICD_BASE, 0, irq_sec_array, num_sec_irqs);
+	arm_gic_init(GICC_BASE,
+		GICD_BASE,
+		0,
+		irq_sec_array,
+		ARRAY_SIZE(irq_sec_array));
 }

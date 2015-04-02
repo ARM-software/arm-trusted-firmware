@@ -84,6 +84,6 @@
 void __dead2 do_panic(void);
 #define panic()	do_panic()
 
-void tf_printf(const char *fmt, ...);
+void tf_printf(const char *fmt, ...) __printflike(1, 2);
 
 #endif /* __DEBUG_H__ */

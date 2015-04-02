@@ -27,58 +27,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __POLARSSL_CONFIG_H__
-#define __POLARSSL_CONFIG_H__
 
+#include <psci.h>
 
-/*
- * Configuration file to build PolarSSL with the required features for
- * Trusted Boot
- */
+#define MPIDR_CPU0	0x80000000
 
-#define POLARSSL_PLATFORM_MEMORY
-#define POLARSSL_PLATFORM_NO_STD_FUNCTIONS
+/*******************************************************************************
+ * Return the type of payload TLKD is dealing with. Report the current
+ * resident cpu (mpidr format) if it is a UP/UP migratable payload.
+ ******************************************************************************/
+static int32_t cpu_migrate_info(uint64_t *resident_cpu)
+{
+	/* the payload runs only on CPU0 */
+	*resident_cpu = MPIDR_CPU0;
 
-#define POLARSSL_PKCS1_V15
-#define POLARSSL_PKCS1_V21
+	/* Uniprocessor, not migrate capable payload */
+	return PSCI_TOS_NOT_UP_MIG_CAP;
+}
 
-#define POLARSSL_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
-#define POLARSSL_X509_CHECK_KEY_USAGE
-#define POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE
-
-#define POLARSSL_ASN1_PARSE_C
-#define POLARSSL_ASN1_WRITE_C
-
-#define POLARSSL_BASE64_C
-#define POLARSSL_BIGNUM_C
-
-#define POLARSSL_ERROR_C
-#define POLARSSL_MD_C
-
-#define POLARSSL_MEMORY_BUFFER_ALLOC_C
-#define POLARSSL_OID_C
-
-#define POLARSSL_PK_C
-#define POLARSSL_PK_PARSE_C
-#define POLARSSL_PK_WRITE_C
-
-#define POLARSSL_PLATFORM_C
-
-#define POLARSSL_RSA_C
-#define POLARSSL_SHA256_C
-
-#define POLARSSL_VERSION_C
-
-#define POLARSSL_X509_USE_C
-#define POLARSSL_X509_CRT_PARSE_C
-
-/* MPI / BIGNUM options */
-#define POLARSSL_MPI_WINDOW_SIZE              2
-#define POLARSSL_MPI_MAX_SIZE               256
-
-/* Memory buffer allocator options */
-#define POLARSSL_MEMORY_ALIGN_MULTIPLE        8
-
-#include "polarssl/check_config.h"
-
-#endif /* __POLARSSL_CONFIG_H__ */
+/*******************************************************************************
+ * Structure populated by the Dispatcher to be given a chance to perform any
+ * bookkeeping before PSCI executes a power mgmt.  operation.
+ ******************************************************************************/
+const spd_pm_ops_t tlkd_pm_ops = {
+	.svc_migrate_info = cpu_migrate_info,
+};

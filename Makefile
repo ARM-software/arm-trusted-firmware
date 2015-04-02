@@ -60,6 +60,9 @@ CTX_INCLUDE_FPREGS		:= 0
 # Determine the version of ARM GIC architecture to use for interrupt management
 # in EL3. The platform port can change this value if needed.
 ARM_GIC_ARCH		:=	2
+# Determine the version of ARM CCI product used in the platform. The platform
+# port can change this value if needed.
+ARM_CCI_PRODUCT_ID	:=	400
 # Flag used to indicate if ASM_ASSERTION should be enabled for the build.
 # This defaults to being present in DEBUG builds only.
 ASM_ASSERTION		:=	${DEBUG}
@@ -77,12 +80,16 @@ TRUSTED_BOARD_BOOT	:= 0
 AUTH_MOD		:= none
 
 # Checkpatch ignores
-CHECK_IGNORE		=	--ignore COMPLEX_MACRO --ignore GERRIT_CHANGE_ID
+CHECK_IGNORE		=	--ignore COMPLEX_MACRO \
+				--ignore GERRIT_CHANGE_ID \
+				--ignore GIT_COMMIT_ID
 
 CHECKPATCH_ARGS		=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 # Do not check the coding style on C library files
-CHECK_PATHS		=	$(shell ls -I include -I lib) $(shell ls -I stdlib include) $(shell ls -I stdlib lib)
+CHECK_PATHS		=	$(shell ls -I include -I lib) \
+				$(addprefix include/,$(shell ls -I stdlib include)) \
+				$(addprefix lib/,$(shell ls -I stdlib lib))
 
 ifeq (${V},0)
 	Q=@
@@ -235,6 +242,9 @@ $(eval $(call add_define,CTX_INCLUDE_FPREGS))
 # Process ARM_GIC_ARCH flag
 $(eval $(call add_define,ARM_GIC_ARCH))
 
+# Process ARM_CCI_PRODUCT_ID flag
+$(eval $(call add_define,ARM_CCI_PRODUCT_ID))
+
 # Process ASM_ASSERTION flag
 $(eval $(call assert_boolean,ASM_ASSERTION))
 $(eval $(call add_define,ASM_ASSERTION))
@@ -363,7 +373,7 @@ checkcodebase:		locate-checkpatch
 
 checkpatch:		locate-checkpatch
 			@echo "  CHECKING STYLE"
-			@git log -p ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
+			${Q}git log -p ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
 
 .PHONY: ${CRTTOOL}
 ${CRTTOOL}:
@@ -600,7 +610,7 @@ endif
 
 # Add the dependency on the certificates
 ifneq (${GENERATE_COT},0)
-    all: certificates
+    fip: certificates
 endif
 
 certificates: ${CRT_DEPS} ${CRTTOOL} check_bl30 check_bl33
@@ -625,16 +635,23 @@ cscope:
 	${Q}cscope -b -q -k
 
 help:
-	@echo "usage: ${MAKE} PLAT=<${HELP_PLATFORMS}> <all|bl1|bl2|bl31|distclean|clean|checkcodebase|checkpatch>"
+	@echo "usage: ${MAKE} PLAT=<${HELP_PLATFORMS}> [OPTIONS] [TARGET]"
 	@echo ""
 	@echo "PLAT is used to specify which platform you wish to build."
 	@echo "If no platform is specified, PLAT defaults to: ${DEFAULT_PLAT}"
 	@echo ""
+	@echo "Please refer to the User Guide for a list of all supported options."
+	@echo "Note that the build system doesn't track dependencies for build "
+	@echo "options. Therefore, if any of the build options are changed "
+	@echo "from a previous build, a clean build must be performed."
+	@echo ""
 	@echo "Supported Targets:"
-	@echo "  all            Build the BL1, BL2 and BL31 binaries"
+	@echo "  all            Build all individual bootloader binaries"
 	@echo "  bl1            Build the BL1 binary"
 	@echo "  bl2            Build the BL2 binary"
-	@echo "  bl31           Build the BL31 binary"
+	@echo "  bl31           Build the BL3-1 binary"
+	@echo "  bl32           Build the BL3-2 binary"
+	@echo "  fip            Build the Firmware Image Package (FIP)"
 	@echo "  checkcodebase  Check the coding style of the entire source tree"
 	@echo "  checkpatch     Check the coding style on changes in the current"
 	@echo "                 branch against BASE_COMMIT (default origin/master)"
@@ -644,7 +661,7 @@ help:
 	@echo "  certtool       Build the Certificate generation tool"
 	@echo "  fiptool        Build the Firmware Image Package(FIP) creation tool"
 	@echo ""
-	@echo "note: most build targets require PLAT to be set to a specific platform."
+	@echo "Note: most build targets require PLAT to be set to a specific platform."
 	@echo ""
 	@echo "example: build all targets for the FVP platform:"
 	@echo "  CROSS_COMPILE=aarch64-none-elf- make PLAT=fvp all"

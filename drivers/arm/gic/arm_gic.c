@@ -219,12 +219,9 @@ void arm_gic_cpuif_deactivate(void)
  ******************************************************************************/
 void arm_gic_pcpu_distif_setup(void)
 {
-	unsigned int index, irq_num;
+	unsigned int index, irq_num, sec_ppi_sgi_mask;
 
 	assert(g_gicd_base);
-
-	/* Mark all 32 SGI+PPI interrupts as Group 1 (non-secure) */
-	gicd_write_igroupr(g_gicd_base, 0, ~0);
 
 	/* Setup PPI priorities doing four at a time */
 	for (index = 0; index < 32; index += 4) {
@@ -233,16 +230,25 @@ void arm_gic_pcpu_distif_setup(void)
 	}
 
 	assert(g_irq_sec_ptr);
+	sec_ppi_sgi_mask = 0;
 	for (index = 0; index < g_num_irqs; index++) {
 		irq_num = g_irq_sec_ptr[index];
 		if (irq_num < MIN_SPI_ID) {
-			/* We have an SGI or a PPI */
-			gicd_clr_igroupr(g_gicd_base, irq_num);
+			/* We have an SGI or a PPI. They are Group0 at reset */
+			sec_ppi_sgi_mask |= 1U << irq_num;
 			gicd_set_ipriorityr(g_gicd_base, irq_num,
 				GIC_HIGHEST_SEC_PRIORITY);
 			gicd_set_isenabler(g_gicd_base, irq_num);
 		}
 	}
+
+	/*
+	 * Invert the bitmask to create a mask for non-secure PPIs and
+	 * SGIs. Program the GICD_IGROUPR0 with this bit mask. This write will
+	 * update the GICR_IGROUPR0 as well in case we are running on a GICv3
+	 * system. This is critical if GICD_CTLR.ARE_NS=1.
+	 */
+	gicd_write_igroupr(g_gicd_base, 0, ~sec_ppi_sgi_mask);
 }
 
 /*******************************************************************************

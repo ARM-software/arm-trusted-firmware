@@ -59,6 +59,9 @@ The following tools are required to use the ARM Trusted Firmware:
         wget http://releases.linaro.org/14.07/components/toolchain/binaries/gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
         tar -xf gcc-linaro-aarch64-none-elf-4.9-2014.07_linux.tar.xz
 
+*   `libssl-dev` package to build the certificate generation tool when support
+    for Trusted Board Boot is needed.
+
 *   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.20.
 
 
@@ -217,6 +220,10 @@ performed.
 *   `ARM_GIC_ARCH`: Choice of ARM GIC architecture version used by the ARM GIC
     driver for implementing the platform GIC API. This API is used
     by the interrupt management framework. Default is 2 (that is, version 2.0).
+
+*   `ARM_CCI_PRODUCT_ID`: Choice of ARM CCI product used by the platform. This
+    is used to determine the number of valid slave interfaces available in the
+    ARM CCI driver. Default is 400 (that is, CCI-400).
 
 *   `IMF_READ_INTERRUPT_ID`: Boolean flag used by the interrupt management
     framework to enable passing of the interrupt id to its handler. The id is

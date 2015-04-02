@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <assert.h>
 #include <cci400.h>
+#include <debug.h>
 #include <mmio.h>
 
 #define MAX_CLUSTERS		2
@@ -54,6 +55,9 @@ void cci_init(unsigned long cci_base,
 	assert(slave_iface3_cluster_ix != slave_iface4_cluster_ix);
 	assert((slave_iface3_cluster_ix >= 0) ||
 		(slave_iface3_cluster_ix >= 0));
+
+	WARN("Please migrate to common cci driver, This driver will be" \
+		" deprecated in future\n");
 
 	cci_base_addr = cci_base;
 	if (slave_iface3_cluster_ix >= 0)

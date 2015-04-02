@@ -32,7 +32,7 @@
 #include <arch_helpers.h>
 #include <arm_gic.h>
 #include <bl_common.h>
-#include <cci400.h>
+#include <cci.h>
 #include <debug.h>
 #include <mmio.h>
 #include <platform.h>
@@ -115,7 +115,7 @@ const mmap_region_t fvp_mmap[] = {
 };
 #endif
 
-CASSERT((sizeof(fvp_mmap)/sizeof(fvp_mmap[0])) + FVP_BL_REGIONS \
+CASSERT(ARRAY_SIZE(fvp_mmap) + FVP_BL_REGIONS \
 		<= MAX_MMAP_REGIONS, assert_max_mmap_regions);
 
 /* Array of secure interrupts to be configured by the gic driver */
@@ -131,9 +131,6 @@ const unsigned int irq_sec_array[] = {
 	IRQ_SEC_SGI_6,
 	IRQ_SEC_SGI_7
 };
-
-const unsigned int num_sec_irqs = sizeof(irq_sec_array) /
-	sizeof(irq_sec_array[0]);
 
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
@@ -298,6 +295,12 @@ uint64_t plat_get_syscnt_freq(void)
 	return counter_base_frequency;
 }
 
+/* Map of CCI masters with the slave interfaces they are connected */
+static const int cci_map[] = {
+	CCI400_CLUSTER0_SL_IFACE_IX,
+	CCI400_CLUSTER1_SL_IFACE_IX
+};
+
 void fvp_cci_init(void)
 {
 	/*
@@ -305,19 +308,20 @@ void fvp_cci_init(void)
 	 */
 	if (plat_config.flags & CONFIG_HAS_CCI)
 		cci_init(CCI400_BASE,
-			CCI400_SL_IFACE3_CLUSTER_IX,
-			CCI400_SL_IFACE4_CLUSTER_IX);
+			cci_map,
+			ARRAY_SIZE(cci_map));
 }
 
 void fvp_cci_enable(void)
 {
-	/*
-	 * Enable CCI-400 coherency for this cluster. No need
-	 * for locks as no other cpu is active at the
-	 * moment
-	 */
 	if (plat_config.flags & CONFIG_HAS_CCI)
-		cci_enable_cluster_coherency(read_mpidr());
+		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
+}
+
+void fvp_cci_disable(void)
+{
+	if (plat_config.flags & CONFIG_HAS_CCI)
+		cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
 }
 
 void fvp_gic_init(void)
@@ -326,7 +330,7 @@ void fvp_gic_init(void)
 		plat_config.gicd_base,
 		BASE_GICR_BASE,
 		irq_sec_array,
-		num_sec_irqs);
+		ARRAY_SIZE(irq_sec_array));
 }
 
 

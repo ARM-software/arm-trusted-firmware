@@ -28,41 +28,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# POLARSSL_DIR must be set to the PolarSSL main directory (it must contain
-# the 'include' and 'library' subdirectories).
-ifeq (${POLARSSL_DIR},)
-  $(error Error: POLARSSL_DIR not set)
-endif
+SPD_INCLUDES		:=	-Iinclude/bl32/payloads
 
-INCLUDES		+=	-I${POLARSSL_DIR}/include		\
-				-Icommon/auth/polarssl
+SPD_SOURCES		:=	services/spd/tlkd/tlkd_common.c		\
+				services/spd/tlkd/tlkd_helpers.S	\
+				services/spd/tlkd/tlkd_main.c		\
+				services/spd/tlkd/tlkd_pm.c
 
-POLARSSL_CONFIG_FILE	:=	"<polarssl_config.h>"
-$(eval $(call add_define,POLARSSL_CONFIG_FILE))
-
-POLARSSL_SOURCES	:=	$(addprefix ${POLARSSL_DIR}/library/,	\
-				asn1parse.c 				\
-				asn1write.c 				\
-				bignum.c				\
-				md.c					\
-				md_wrap.c				\
-				memory_buffer_alloc.c			\
-				oid.c 					\
-				pk.c 					\
-				pk_wrap.c 				\
-				pkparse.c 				\
-				pkwrite.c 				\
-				platform.c 				\
-				rsa.c 					\
-				sha256.c				\
-				x509.c 					\
-				x509_crt.c 				\
-				)
-
-BL1_SOURCES		+=	${POLARSSL_SOURCES} 			\
-				common/auth/polarssl/polarssl.c
-
-BL2_SOURCES		+=	${POLARSSL_SOURCES} 			\
-				common/auth/polarssl/polarssl.c
-
-DISABLE_PEDANTIC	:=	1
+NEED_BL32		:=	yes
