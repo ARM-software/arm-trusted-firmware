@@ -52,7 +52,6 @@
 #define TLK_PREEMPTED		(0x32000002 | (1 << 31))
 #define TLK_ENTRY_DONE		(0x32000003 | (1 << 31))
 #define TLK_VA_TRANSLATE	(0x32000004 | (1 << 31))
-#define TLK_FID_SHARED_MEMBUF	(0x32000005 | (1 << 31))
 
 /*
  * Trusted Application specific function IDs
