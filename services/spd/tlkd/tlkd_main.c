@@ -65,36 +65,6 @@ DEFINE_SVC_UUID(tlk_uuid,
 
 int32_t tlkd_init(void);
 
-/*
- * The number of arguments/results to save during a SMC call for TLK.
- */
-#define TLK_SHDBUF_SIZE		4
-
-/*******************************************************************************
- * Shared memory buffer for passing SMC args/results to TLK
- ******************************************************************************/
-typedef struct tlk_args_results {
-	uint64_t args[TLK_SHDBUF_SIZE];
-} tlk_args_results_t;
-
-static tlk_args_results_t *tlk_args_results_buf;
-
-/*
- * Helper function to store args from TLK and pass results back
- */
-static inline void store_tlk_args_results(uint64_t x0, uint64_t x1, uint64_t x2,
-	uint64_t x3)
-{
-	/* store arguments sent by TLK */
-	tlk_args_results_buf->args[0] = x0;
-	tlk_args_results_buf->args[1] = x1;
-	tlk_args_results_buf->args[2] = x2;
-	tlk_args_results_buf->args[3] = x3;
-
-	flush_dcache_range((uint64_t)tlk_args_results_buf,
-		sizeof(tlk_args_results_t));
-}
-
 /*******************************************************************************
  * Secure Payload Dispatcher setup. The SPD finds out the SP entrypoint and type
  * (aarch32/aarch64) if not already known and initialises the context for entry
@@ -187,8 +157,9 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 			 uint64_t flags)
 {
 	cpu_context_t *ns_cpu_context;
+	gp_regs_t *gp_regs;
 	uint32_t ns;
-	uint64_t vaddr, type, par;
+	uint64_t par;
 
 	/* Passing a NULL context is a critical programming error */
 	assert(handle);
@@ -226,7 +197,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		cm_el1_sysregs_context_restore(NON_SECURE);
 		cm_set_next_eret_context(NON_SECURE);
 
-		SMC_RET1(ns_cpu_context, tlk_args_results_buf->args[0]);
+		SMC_RET1(ns_cpu_context, x1);
 
 	/*
 	 * Request from non secure world to resume the preempted
@@ -281,7 +252,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	case TLK_TA_LAUNCH_OP:
 	case TLK_TA_SEND_EVENT:
 
-		if (!ns || !tlk_args_results_buf)
+		if (!ns)
 			SMC_RET1(handle, SMC_UNK);
 
 		/*
@@ -308,41 +279,51 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		 */
 		set_std_smc_active_flag(tlk_ctx.state);
 
-		/* Save args for use by the SP on return */
-		store_tlk_args_results(smc_fid, x1, x2, x3);
-
 		/*
 		 * We are done stashing the non-secure context. Ask the
 		 * secure payload to do the work now.
 		 */
 		cm_el1_sysregs_context_restore(SECURE);
 		cm_set_next_eret_context(SECURE);
-		SMC_RET0(&tlk_ctx.cpu_ctx);
+
+		/*
+		 * TLK is a 32-bit Trusted OS and so expects the SMC
+		 * arguments via r0-r7.
+		 */
+		gp_regs = get_gpregs_ctx(&tlk_ctx.cpu_ctx);
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, (x2 & 0xffffffff));
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, (x2 >> 32));
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, (x3 & 0xffffffff));
+		write_ctx_reg(gp_regs, CTX_GPREG_X7, (x3 >> 32));
+		SMC_RET4(&tlk_ctx.cpu_ctx, smc_fid, 0, x1, x1 >> 32);
 
 	/*
 	 * Translate NS/EL1-S virtual addresses
 	 */
 	case TLK_VA_TRANSLATE:
-		if (ns || !tlk_args_results_buf)
+
+		/* NS virtual addresses are 64-bit long */
+		if (x3 & TLK_TRANSLATE_NS_VADDR)
+			x1 |= (x2 << 32);
+
+		if (ns || !x1)
 			SMC_RET1(handle, SMC_UNK);
 
+		/*
+		 * TODO: Sanity check x1. This would require platform
+		 * support.
+		 */
+
 		/* virtual address and type: ns/s */
-		vaddr = tlk_args_results_buf->args[0];
-		type = tlk_args_results_buf->args[1];
-
-		par = tlkd_va_translate(vaddr, type);
-
-		/* Save PA for use by the SP on return */
-		store_tlk_args_results(par, 0, 0, 0);
-
-		SMC_RET0(handle);
+		par = tlkd_va_translate(x1, x3);
+		SMC_RET4(handle, (uint32_t)par, (uint32_t)(par >> 32), 0, 0);
 
 	/*
 	 * This is a request from the SP to mark completion of
 	 * a standard function ID.
 	 */
 	case TLK_REQUEST_DONE:
-		if (ns || !tlk_args_results_buf)
+		if (ns)
 			SMC_RET1(handle, SMC_UNK);
 
 		/*
@@ -366,14 +347,14 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		 */
 		cm_el1_sysregs_context_restore(NON_SECURE);
 		cm_set_next_eret_context(NON_SECURE);
-		SMC_RET1(ns_cpu_context, tlk_args_results_buf->args[0]);
+		SMC_RET1(ns_cpu_context, x1);
 
 	/*
 	 * This function ID is used only by the SP to indicate it has
 	 * finished initialising itself after a cold boot
 	 */
 	case TLK_ENTRY_DONE:
-		if (ns || !tlk_args_results_buf)
+		if (ns)
 			SMC_RET1(handle, SMC_UNK);
 
 		/*
@@ -388,23 +369,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		 * into the SP. Jump back to the original C runtime
 		 * context.
 		 */
-		tlkd_synchronous_sp_exit(&tlk_ctx, tlk_args_results_buf->args[0]);
-
-	/*
-	 * This is a request from the secure payload to register
-	 * shared memory to pass SMC args/results between EL1, EL3.
-	 */
-	case TLK_FID_SHARED_MEMBUF:
-		if (ns || !x1)
-			SMC_RET1(handle, SMC_UNK);
-
-		/*
-		 * TODO: Check if the passed memory pointer is valid. Might
-		 * require a call into the platform code.
-		 */
-
-		tlk_args_results_buf = (tlk_args_results_t *)x1;
-		SMC_RET0(handle);
+		tlkd_synchronous_sp_exit(&tlk_ctx, x1);
 
 	/*
 	 * Return the number of service function IDs implemented to
