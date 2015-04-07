@@ -353,6 +353,15 @@ performed.
     vector address can be programmed or is fixed on the platform. It can take
     either 0 (fixed) or 1 (programmable). Default is 0.
 
+*   `PSCI_EXTENDED_STATE_ID`: As per PSCI1.0 Specification, there are 2 formats
+    possible for the PSCI power-state parameter viz original and extended
+    State-ID formats. This flag if set to 1, configures the generic PSCI layer
+    to use the extended format. The default value of this flag is 0, which
+    means by default the original power-state format is used by the PSCI
+    implementation. This flag should be specified by the platform makefile
+    and it governs the return value of PSCI_FEATURES API for CPU_SUSPEND
+    smc function id.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:

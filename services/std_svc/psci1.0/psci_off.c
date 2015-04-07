@@ -37,6 +37,17 @@
 #include "psci_private.h"
 
 /******************************************************************************
+ * Construct the psci_power_state to request power OFF at all power levels.
+ ******************************************************************************/
+static void psci_set_power_off_state(psci_power_state_t *state_info)
+{
+	int lvl;
+
+	for (lvl = PSCI_CPU_PWR_LVL; lvl <= PLAT_MAX_PWR_LVL; lvl++)
+		state_info->pwr_domain_state[lvl] = PLAT_MAX_OFF_STATE;
+}
+
+/******************************************************************************
  * Top level handler which is called when a cpu wants to power itself down.
  * It's assumed that along with turning the cpu power domain off, power
  * domains at higher levels will be turned off as far as possible. It finds
@@ -52,7 +63,7 @@
 int psci_do_cpu_off(int end_pwrlvl)
 {
 	int rc, idx = platform_my_core_pos();
-	unsigned int max_phys_off_pwrlvl;
+	psci_power_state_t state_info;
 
 	/*
 	 * This function must only be called on platforms where the
@@ -79,29 +90,27 @@ int psci_do_cpu_off(int end_pwrlvl)
 			goto exit;
 	}
 
-	/*
-	 * This function updates the state of each power domain instance
-	 * corresponding to the cpu index in the range of power levels
-	 * specified.
-	 */
-	psci_do_state_coordination(end_pwrlvl,
-				   idx,
-				   PSCI_STATE_OFF);
+	/* Construct the psci_power_state for CPU_OFF */
+	psci_set_power_off_state(&state_info);
 
-	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(end_pwrlvl, idx);
-	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
+	/*
+	 * This function is passed the requested state info and
+	 * it returns the negotiated state info for each power level upto
+	 * the end level specified.
+	 */
+	psci_do_state_coordination(end_pwrlvl, &state_info);
 
 	/*
 	 * Arch. management. Perform the necessary steps to flush all
 	 * cpu caches.
 	 */
-	psci_do_pwrdown_cache_maintenance(max_phys_off_pwrlvl);
+	psci_do_pwrdown_cache_maintenance(psci_find_max_off_lvl(&state_info));
 
 	/*
 	 * Plat. management: Perform platform specific actions to turn this
 	 * cpu off e.g. exit cpu coherency, program the power controller etc.
 	 */
-	psci_plat_pm_ops->pwr_domain_off(max_phys_off_pwrlvl);
+	psci_plat_pm_ops->pwr_domain_off(&state_info);
 
 exit:
 	/*
@@ -110,6 +119,16 @@ exit:
 	 */
 	psci_release_pwr_domain_locks(end_pwrlvl,
 				      idx);
+
+	/*
+	 * Set the affinity info state to OFF. This writes directly to main
+	 * memory as caches are disabled, so cache maintenance is required
+	 * to ensure that later cached reads of aff_info_state return
+	 * AFF_STATE_OFF.
+	 */
+	flush_cpu_data(psci_svc_cpu_data.aff_info_state);
+	psci_set_aff_info_state(AFF_STATE_OFF);
+	inv_cpu_data(psci_svc_cpu_data.aff_info_state);
 
 	/*
 	 * Check if all actions needed to safely power down this cpu have

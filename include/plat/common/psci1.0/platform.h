@@ -32,12 +32,11 @@
 #define __PLATFORM_H__
 
 #include <stdint.h>
-
+#include <psci.h>
 
 /*******************************************************************************
  * Forward declarations
  ******************************************************************************/
-struct plat_pm_ops;
 struct meminfo;
 struct image_info;
 struct entry_point_info;
@@ -182,8 +181,15 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
 /*******************************************************************************
  * Mandatory PSCI functions (BL3-1)
  ******************************************************************************/
-int platform_setup_pm(const struct plat_pm_ops **);
+int platform_setup_psci_ops(const struct plat_psci_ops **);
 const unsigned char *platform_get_power_domain_tree_desc(void);
+
+/*******************************************************************************
+ * Optional PSCI functions (BL3-1).
+ ******************************************************************************/
+plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
+			const plat_local_state_t *states,
+			unsigned int ncpu);
 
 /*******************************************************************************
  * Optional BL3-1 functions (may be overridden)
