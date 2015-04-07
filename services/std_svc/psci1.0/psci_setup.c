@@ -61,26 +61,30 @@ static void psci_init_pwr_domain_node(int node_idx, int parent_idx, int level)
 		psci_non_cpu_pd_nodes[node_idx].level = level;
 		psci_lock_init(psci_non_cpu_pd_nodes, node_idx);
 		psci_non_cpu_pd_nodes[node_idx].parent_node = parent_idx;
+		psci_non_cpu_pd_nodes[node_idx].local_state =
+							 PLAT_MAX_OFF_STATE;
 	} else {
+		psci_cpu_data_t *svc_cpu_data;
 
 		psci_cpu_pd_nodes[node_idx].parent_node = parent_idx;
 
 		/* Initialize with an invalid mpidr */
 		psci_cpu_pd_nodes[node_idx].mpidr = PSCI_INVALID_MPIDR;
 
-		/*
-		 * Mark the cpu as OFF.
-		 */
-		set_cpu_data_by_index(node_idx,
-				      psci_svc_cpu_data.psci_state,
-				      PSCI_STATE_OFF);
+		svc_cpu_data =
+			&(_cpu_data_by_index(node_idx)->psci_svc_cpu_data);
 
-		/* Invalidate the suspend context for the node */
-		set_cpu_data_by_index(node_idx,
-				      psci_svc_cpu_data.power_state,
-				      PSCI_INVALID_DATA);
+		/* Set the Affinity Info for the cores as OFF */
+		svc_cpu_data->aff_info_state = AFF_STATE_OFF;
 
-		flush_cpu_data_by_index(node_idx, psci_svc_cpu_data);
+		/* Invalidate the suspend level for the cpu */
+		svc_cpu_data->target_pwrlvl = PSCI_INVALID_DATA;
+
+		/* Set the power state to OFF state */
+		svc_cpu_data->local_state = PLAT_MAX_OFF_STATE;
+
+		flush_dcache_range((uint64_t)svc_cpu_data,
+						 sizeof(*svc_cpu_data));
 
 		cm_set_context_by_index(node_idx,
 					(void *) &psci_ns_context[node_idx],
@@ -233,14 +237,15 @@ int32_t psci_setup(void)
 	flush_dcache_range((uint64_t) &psci_cpu_pd_nodes,
 			   sizeof(psci_cpu_pd_nodes));
 
-	/*
-	 * Mark the current CPU and its parent power domains as ON. No need to lock
-	 * as the system is UP on the primary at this stage of boot.
-	 */
-	psci_do_state_coordination(PLAT_MAX_PWR_LVL, platform_my_core_pos(),
-				   PSCI_STATE_ON);
+	psci_init_req_local_pwr_states();
 
-	platform_setup_pm(&psci_plat_pm_ops);
+	/*
+	 * Set the requested and target state of this CPU and all the higher
+	 * power domain levels for this CPU to run.
+	 */
+	psci_set_pwr_domains_to_run(PLAT_MAX_PWR_LVL);
+
+	platform_setup_psci_ops(&psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
 	/* Initialize the psci capability */

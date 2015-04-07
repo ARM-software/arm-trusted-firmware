@@ -81,10 +81,34 @@
 			define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64))
 
 /*
+ * Helper macros to get/set the fields of PSCI per-cpu data.
+ */
+#define psci_set_aff_info_state(aff_state) \
+		set_cpu_data(psci_svc_cpu_data.aff_info_state, aff_state)
+#define psci_get_aff_info_state() \
+		get_cpu_data(psci_svc_cpu_data.aff_info_state)
+#define psci_get_aff_info_state_by_idx(idx) \
+		get_cpu_data_by_index(idx, psci_svc_cpu_data.aff_info_state)
+#define psci_get_suspend_pwrlvl() \
+		get_cpu_data(psci_svc_cpu_data.target_pwrlvl)
+#define psci_set_suspend_pwrlvl(target_lvl) \
+		set_cpu_data(psci_svc_cpu_data.target_pwrlvl, target_lvl)
+#define psci_set_cpu_local_state(state) \
+		set_cpu_data(psci_svc_cpu_data.local_state, state)
+#define psci_get_cpu_local_state() \
+		get_cpu_data(psci_svc_cpu_data.local_state)
+#define psci_get_cpu_local_state_by_idx(idx) \
+		get_cpu_data_by_index(idx, psci_svc_cpu_data.local_state)
+
+/*
  * Helper macros for the CPU level spinlocks
  */
 #define psci_spin_lock_cpu(idx)	spin_lock(&psci_cpu_pd_nodes[idx].cpu_lock)
 #define psci_spin_unlock_cpu(idx) spin_unlock(&psci_cpu_pd_nodes[idx].cpu_lock)
+
+/* Helper macro to identify a CPU standby request in PSCI Suspend call */
+#define is_cpu_standby_req(is_power_down_state, retn_lvl) \
+		(((!(is_power_down_state)) && ((retn_lvl) == 0)) ? 1 : 0)
 
 /*******************************************************************************
  * The following two data structures implement the power domain tree. The tree
@@ -113,7 +137,8 @@ typedef struct non_cpu_pwr_domain_node {
 	 */
 	unsigned int parent_node;
 
-	unsigned char ref_count;
+	plat_local_state_t local_state;
+
 	unsigned char level;
 #if USE_COHERENT_MEM
 	bakery_lock_t lock;
@@ -142,12 +167,12 @@ typedef struct cpu_pwr_domain_node {
 } cpu_pd_node_t;
 
 typedef void (*pwrlvl_power_on_finisher_t)(unsigned int cpu_idx,
-					   int max_off_pwrlvl);
+					   psci_power_state_t *state_info);
 
 /*******************************************************************************
  * Data prototypes
  ******************************************************************************/
-extern const plat_pm_ops_t *psci_plat_pm_ops;
+extern const plat_psci_ops_t *psci_plat_pm_ops;
 extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 extern uint32_t psci_caps;
@@ -161,28 +186,31 @@ extern const spd_pm_ops_t *psci_spd_pm;
  * Function prototypes
  ******************************************************************************/
 /* Private exported functions from psci_common.c */
-unsigned short psci_get_state(unsigned int idx, int level);
-unsigned short psci_get_phys_state(unsigned int idx, int level);
-void psci_set_state(unsigned int idx, unsigned short state, int level);
+int psci_validate_power_state(unsigned int power_state,
+			      psci_power_state_t *state_info);
+void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info);
 int psci_validate_mpidr(unsigned long mpidr);
 int get_power_on_target_pwrlvl(void);
+void psci_init_req_local_pwr_states(void);
 void psci_power_up_finish(int end_pwrlvl,
-				 pwrlvl_power_on_finisher_t pon_handler);
+				 pwrlvl_power_on_finisher_t power_on_handler);
 int psci_get_ns_ep_info(entry_point_info_t *ep,
 		       uint64_t entrypoint, uint64_t context_id);
 void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 				      int end_lvl,
 				      unsigned int node_index[]);
 void psci_do_state_coordination(int end_pwrlvl,
-				unsigned int cpu_idx,
-				uint32_t state);
+				psci_power_state_t *state_info);
 void psci_acquire_pwr_domain_locks(int end_pwrlvl,
 				   unsigned int cpu_idx);
 void psci_release_pwr_domain_locks(int end_pwrlvl,
 				   unsigned int cpu_idx);
+int psci_validate_suspend_req(const psci_power_state_t *state_info,
+			      unsigned int is_power_down_state_req);
+unsigned int psci_find_max_off_lvl(const psci_power_state_t *state_info);
+unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info);
+void psci_set_pwr_domains_to_run(uint32_t end_pwrlvl);
 void psci_print_power_domain_map(void);
-uint32_t psci_find_max_phys_off_pwrlvl(uint32_t end_pwrlvl,
-			       unsigned int cpu_idx);
 unsigned int psci_is_last_on_cpu(void);
 int psci_spd_migrate_info(uint64_t *mpidr);
 
@@ -192,18 +220,19 @@ int psci_cpu_on_start(unsigned long target_cpu,
 		      int end_pwrlvl);
 
 void psci_cpu_on_finish(unsigned int cpu_idx,
-			int max_off_pwrlvl);
+			psci_power_state_t *state_info);
 
 /* Private exported functions from psci_cpu_off.c */
 int psci_do_cpu_off(int end_pwrlvl);
 
-/* Private exported functions from psci_suspend.c */
+/* Private exported functions from psci_pwrlvl_suspend.c */
 void psci_cpu_suspend_start(entry_point_info_t *ep,
-			int end_pwrlvl);
-void psci_cpu_suspend_finish(unsigned int cpu_idx,
-			     int max_off_pwrlvl);
+			int end_pwrlvl,
+			psci_power_state_t *state_info,
+			unsigned int is_power_down_state_req);
 
-void psci_set_suspend_power_state(unsigned int power_state);
+void psci_cpu_suspend_finish(unsigned int cpu_idx,
+			psci_power_state_t *state_info);
 
 /* Private exported functions from psci_helpers.S */
 void psci_do_pwrdown_cache_maintenance(uint32_t pwr_level);

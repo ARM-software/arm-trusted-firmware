@@ -45,6 +45,26 @@
  */
 const spd_pm_ops_t *psci_spd_pm;
 
+/*
+ * PSCI requested local power state map. This array is used to store the local
+ * power states requested by a CPU for power levels from level 1 to
+ * PLAT_MAX_PWR_LVL. It does not store the requested local power state for power
+ * level 0 (PSCI_CPU_PWR_LVL) as the requested and the target power state for a
+ * CPU are the same.
+ *
+ * During state coordination, the platform is passed an array containing the
+ * local states requested for a particular non cpu power domain by each cpu
+ * within the domain.
+ *
+ * TODO: Dense packing of the requested states will cause cache thrashing
+ * when multiple power domains write to it. If we allocate the requested
+ * states at each power level in a cache-line aligned per-domain memory,
+ * the cache thrashing can be avoided.
+ */
+static plat_local_state_t
+	psci_req_local_pwr_states[PLAT_MAX_PWR_LVL][PLATFORM_CORE_COUNT];
+
+
 /*******************************************************************************
  * Arrays that hold the platform's power domain tree information for state
  * management of power domains.
@@ -63,39 +83,82 @@ cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops
  ******************************************************************************/
-const plat_pm_ops_t *psci_plat_pm_ops;
+const plat_psci_ops_t *psci_plat_pm_ops;
 
-/*******************************************************************************
+/******************************************************************************
  * Check that the maximum power level supported by the platform makes sense
- * ****************************************************************************/
+ *****************************************************************************/
 CASSERT(PLAT_MAX_PWR_LVL <= PSCI_MAX_PWR_LVL && \
 		PLAT_MAX_PWR_LVL >= PSCI_CPU_PWR_LVL, \
 		assert_platform_max_pwrlvl_check);
 
-/*******************************************************************************
- * This function is passed a cpu_index and the highest level in the topology
- * tree. It iterates through the nodes to find the highest power level at which
- * a domain is physically powered off.
- ******************************************************************************/
-uint32_t psci_find_max_phys_off_pwrlvl(uint32_t end_pwrlvl,
-				       unsigned int cpu_idx)
+/*
+ * The plat_local_state used by the platform is one of these types: RUN,
+ * RETENTION and OFF. The platform can define further sub-states for each type
+ * apart from RUN. This categorization is done to verify the sanity of the
+ * psci_power_state passed by the platform and to print debug information. The
+ * categorization is done on the basis of the following conditions:
+ *
+ * 1. If (plat_local_state == 0) then the category is STATE_TYPE_RUN.
+ *
+ * 2. If (0 < plat_local_state <= PLAT_MAX_RET_STATE), then the category is
+ *    STATE_TYPE_RETN.
+ *
+ * 3. If (plat_local_state > PLAT_MAX_RET_STATE), then the category is
+ *    STATE_TYPE_OFF.
+ */
+typedef enum{
+	STATE_TYPE_RUN = 0,
+	STATE_TYPE_RETN,
+	STATE_TYPE_OFF
+} plat_local_state_type_t;
+
+/* The macro used to categorize plat_local_state. */
+#define find_local_state_type(plat_local_state)					\
+		((plat_local_state) ? ((plat_local_state > PLAT_MAX_RET_STATE)	\
+		? STATE_TYPE_OFF : STATE_TYPE_RETN)				\
+		: STATE_TYPE_RUN)
+
+/******************************************************************************
+ * Check that the maximum retention level supported by the platform is less
+ * than the maximum off level.
+ *****************************************************************************/
+CASSERT(PLAT_MAX_RET_STATE < PLAT_MAX_OFF_STATE, \
+		assert_platform_max_off_and_retn_state_check);
+
+/******************************************************************************
+ * This function ensures that the power state parameter in a CPU_SUSPEND request
+ * is valid. If so, it returns the requested states for each power level.
+ *****************************************************************************/
+int psci_validate_power_state(unsigned int power_state,
+			      psci_power_state_t *state_info)
 {
-	int max_pwrlvl, level;
-	unsigned int parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	/* Check SBZ bits in power state are zero */
+	if (psci_check_power_state(power_state))
+		return PSCI_E_INVALID_PARAMS;
 
-	if (psci_get_phys_state(cpu_idx, PSCI_CPU_PWR_LVL) != PSCI_STATE_OFF)
-		return PSCI_INVALID_DATA;
+	assert(psci_plat_pm_ops->validate_power_state);
 
-	max_pwrlvl = PSCI_CPU_PWR_LVL;
+	/* Validate the power_state using platform pm_ops */
+	return psci_plat_pm_ops->validate_power_state(power_state, state_info);
+}
 
-	for (level = PSCI_CPU_PWR_LVL + 1; level <= end_pwrlvl; level++) {
-		if (psci_get_phys_state(parent_idx, level) == PSCI_STATE_OFF)
-			max_pwrlvl = level;
+/******************************************************************************
+ * This function retrieves the `psci_power_state_t` for system suspend from
+ * the platform.
+ *****************************************************************************/
+void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info)
+{
+	/*
+	 * Assert that the required pm_ops hook is implemented to ensure that
+	 * the capability detected during psci_setup() is valid.
+	 */
+	assert(psci_plat_pm_ops->get_sys_suspend_power_state);
 
-		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
-	}
-
-	return max_pwrlvl;
+	/*
+	 * Query the platform for the power_state required for system suspend
+	 */
+	psci_plat_pm_ops->get_sys_suspend_power_state(state_info);
 }
 
 /*******************************************************************************
@@ -106,17 +169,15 @@ uint32_t psci_find_max_phys_off_pwrlvl(uint32_t end_pwrlvl,
  ******************************************************************************/
 unsigned int psci_is_last_on_cpu(void)
 {
-	unsigned long mpidr = read_mpidr_el1() & MPIDR_AFFINITY_MASK;
-	unsigned int i;
+	unsigned int cpu_idx, my_idx = platform_my_core_pos();
 
-	for (i = 0; i < PLATFORM_CORE_COUNT; i++) {
-		if (psci_cpu_pd_nodes[i].mpidr == mpidr) {
-			assert(psci_get_state(i, PSCI_CPU_PWR_LVL)
-					== PSCI_STATE_ON);
+	for (cpu_idx = 0; cpu_idx < PLATFORM_CORE_COUNT; cpu_idx++) {
+		if (cpu_idx == my_idx) {
+			assert(psci_get_aff_info_state() == AFF_STATE_ON);
 			continue;
 		}
 
-		if (psci_get_state(i, PSCI_CPU_PWR_LVL) != PSCI_STATE_OFF)
+		if (psci_get_aff_info_state_by_idx(cpu_idx) != AFF_STATE_OFF)
 			return 0;
 	}
 
@@ -132,17 +193,6 @@ int get_power_on_target_pwrlvl(void)
 {
 	int pwrlvl;
 
-#if DEBUG
-	unsigned int state;
-
-	/*
-	 * Sanity check the state of the cpu. It should be either suspend or "on
-	 * pending"
-	 */
-	state = psci_get_state(platform_my_core_pos(), PSCI_CPU_PWR_LVL);
-	assert(state == PSCI_STATE_SUSPEND || state == PSCI_STATE_ON_PENDING);
-#endif
-
 	/*
 	 * Assume that this cpu was suspended and retrieve its target power
 	 * level. If it is invalid then it could only have been turned off
@@ -154,6 +204,119 @@ int get_power_on_target_pwrlvl(void)
 		pwrlvl = PLAT_MAX_PWR_LVL;
 	return pwrlvl;
 }
+
+/******************************************************************************
+ * Helper function to update the requested local power state array. This array
+ * does not store the requested state for the CPU power level. Hence an
+ * assertion is added to prevent us from accessing the wrong index.
+ *****************************************************************************/
+static void psci_set_req_local_pwr_state(unsigned int pwrlvl,
+					 unsigned int cpu_idx,
+					 plat_local_state_t req_pwr_state)
+{
+	assert(pwrlvl > PSCI_CPU_PWR_LVL);
+	psci_req_local_pwr_states[pwrlvl - 1][cpu_idx] = req_pwr_state;
+}
+
+/******************************************************************************
+ * This function initializes the psci_req_local_pwr_states.
+ *****************************************************************************/
+void psci_init_req_local_pwr_states(void)
+{
+	/* Initialize the requested state of all non CPU power domains as OFF */
+	memset(&psci_req_local_pwr_states, PLAT_MAX_OFF_STATE,
+			sizeof(psci_req_local_pwr_states));
+}
+
+/******************************************************************************
+ * Helper function to return a reference to an array containing the local power
+ * states requested by each cpu for a power domain at 'pwrlvl'. The size of the
+ * array will be the number of cpu power domains of which this power domain is
+ * an ancestor. These requested states will be used to determine a suitable
+ * target state for this power domain during psci state coordination. An
+ * assertion is added to prevent us from accessing the CPU power level.
+ *****************************************************************************/
+static plat_local_state_t *psci_get_req_local_pwr_states(int pwrlvl,
+							 int cpu_idx)
+{
+	assert(pwrlvl > PSCI_CPU_PWR_LVL);
+
+	return &psci_req_local_pwr_states[pwrlvl - 1][cpu_idx];
+}
+
+/******************************************************************************
+ * Helper function to return the current local power state of each power domain
+ * from the current cpu power domain to its ancestor at the 'end_pwrlvl'. This
+ * function will be called after a cpu is powered on to find the local state
+ * each power domain has emerged from.
+ *****************************************************************************/
+static void psci_get_target_local_pwr_states(uint32_t end_pwrlvl,
+					     psci_power_state_t *target_state)
+{
+	int lvl;
+	unsigned int parent_idx;
+	plat_local_state_t *pd_state = target_state->pwr_domain_state;
+
+	pd_state[PSCI_CPU_PWR_LVL] = psci_get_cpu_local_state();
+	parent_idx = psci_cpu_pd_nodes[platform_my_core_pos()].parent_node;
+
+	/* Copy the local power state from node to state_info */
+	for (lvl = PSCI_CPU_PWR_LVL + 1; lvl <= end_pwrlvl; lvl++) {
+#if !USE_COHERENT_MEM
+		/*
+		 * If using normal memory for psci_non_cpu_pd_nodes, we need
+		 * to flush before reading the local power state as another
+		 * cpu in the same power domain could have updated it and this
+		 * code runs before caches are enabled.
+		 */
+		flush_dcache_range(
+			(uint64_t)&psci_non_cpu_pd_nodes[parent_idx],
+				sizeof(psci_non_cpu_pd_nodes[parent_idx]));
+#endif
+		pd_state[lvl] =	psci_non_cpu_pd_nodes[parent_idx].local_state;
+		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
+	}
+
+	/* Set the the higher levels to RUN */
+	for (; lvl <= PLAT_MAX_PWR_LVL; lvl++)
+		target_state->pwr_domain_state[lvl] = PSCI_LOCAL_STATE_RUN;
+}
+
+/******************************************************************************
+ * Helper function to set the target local power state that each power domain
+ * from the current cpu power domain to its ancestor at the 'end_pwrlvl' will
+ * enter. This function will be called after coordination of requested power
+ * states has been done for each power level.
+ *****************************************************************************/
+static void psci_set_target_local_pwr_states(uint32_t end_pwrlvl,
+					const psci_power_state_t *target_state)
+{
+	int lvl;
+	unsigned int parent_idx;
+	const plat_local_state_t *pd_state = target_state->pwr_domain_state;
+
+	psci_set_cpu_local_state(pd_state[PSCI_CPU_PWR_LVL]);
+
+	/*
+	 * Need to flush as local_state will be accessed with Data Cache
+	 * disabled during power on
+	 */
+	flush_cpu_data(psci_svc_cpu_data.local_state);
+
+	parent_idx = psci_cpu_pd_nodes[platform_my_core_pos()].parent_node;
+
+	/* Copy the local_state from state_info */
+	for (lvl = 1; lvl <= end_pwrlvl; lvl++) {
+		psci_non_cpu_pd_nodes[parent_idx].local_state =	pd_state[lvl];
+#if !USE_COHERENT_MEM
+		flush_dcache_range(
+			(uint64_t)&psci_non_cpu_pd_nodes[parent_idx],
+			sizeof(psci_non_cpu_pd_nodes[parent_idx]));
+#endif
+		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
+	}
+}
+
 
 /*******************************************************************************
  * PSCI helper function to get the parent nodes corresponding to a cpu_index.
@@ -171,23 +334,196 @@ void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 	}
 }
 
-/*******************************************************************************
- * This function is passed a cpu_index and the highest level in the topology
- * tree and the state which each node should transition to. It updates the
- * state of each node between the specified power levels.
- ******************************************************************************/
-void psci_do_state_coordination(int end_pwrlvl,
-				unsigned int cpu_idx,
-				uint32_t state)
+/******************************************************************************
+ * This function is invoked post CPU power up and initialization. It sets the
+ * affinity info state, target power state and requested power state for the
+ * current CPU and all its ancestor power domains to RUN.
+ *****************************************************************************/
+void psci_set_pwr_domains_to_run(uint32_t end_pwrlvl)
 {
-	int level;
-	unsigned int parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
-	psci_set_state(cpu_idx, state, PSCI_CPU_PWR_LVL);
+	int lvl;
+	unsigned int parent_idx, cpu_idx = platform_my_core_pos();
+	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
 
-	for (level = PSCI_CPU_PWR_LVL + 1; level <= end_pwrlvl; level++) {
-		psci_set_state(parent_idx, state, level);
+	/* Reset the local_state to RUN for the non cpu power domains. */
+	for (lvl = PSCI_CPU_PWR_LVL + 1; lvl <= end_pwrlvl; lvl++) {
+		psci_non_cpu_pd_nodes[parent_idx].local_state =
+				PSCI_LOCAL_STATE_RUN;
+#if !USE_COHERENT_MEM
+		flush_dcache_range(
+				(uint64_t)&psci_non_cpu_pd_nodes[parent_idx],
+				sizeof(psci_non_cpu_pd_nodes[parent_idx]));
+#endif
+		psci_set_req_local_pwr_state(lvl,
+					     cpu_idx,
+					     PSCI_LOCAL_STATE_RUN);
 		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
+
+	/* Set the affinity info state to ON */
+	psci_set_aff_info_state(AFF_STATE_ON);
+
+	psci_set_cpu_local_state(PSCI_LOCAL_STATE_RUN);
+	flush_cpu_data(psci_svc_cpu_data);
+}
+
+/******************************************************************************
+ * This function is passed the local power states requested for each power
+ * domain (state_info) between the current CPU domain and its ancestors until
+ * the target power level (end_pwrlvl). It updates the array of requested power
+ * states with this information.
+ *
+ * Then, for each level (apart from the CPU level) until the 'end_pwrlvl', it
+ * retrieves the states requested by all the cpus of which the power domain at
+ * that level is an ancestor. It passes this information to the platform to
+ * coordinate and return the target power state. If the target state for a level
+ * is RUN then subsequent levels are not considered. At the CPU level, state
+ * coordination is not required. Hence, the requested and the target states are
+ * the same.
+ *
+ * The 'state_info' is updated with the target state for each level between the
+ * CPU and the 'end_pwrlvl' and returned to the caller.
+ *
+ * This function will only be invoked with data cache enabled and while
+ * powering down a core.
+ *****************************************************************************/
+void psci_do_state_coordination(int end_pwrlvl, psci_power_state_t *state_info)
+{
+	unsigned int lvl, parent_idx, cpu_idx = platform_my_core_pos();
+	unsigned int start_idx, ncpus;
+	plat_local_state_t target_state, *req_states;
+
+	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+
+	/* For level 0, the requested state will be equivalent
+	   to target state */
+	for (lvl = PSCI_CPU_PWR_LVL + 1; lvl <= end_pwrlvl; lvl++) {
+
+		/* First update the requested power state */
+		psci_set_req_local_pwr_state(lvl, cpu_idx,
+					     state_info->pwr_domain_state[lvl]);
+
+		/* Get the requested power states for this power level */
+		start_idx = psci_non_cpu_pd_nodes[parent_idx].cpu_start_idx;
+		req_states = psci_get_req_local_pwr_states(lvl, start_idx);
+
+		/*
+		 * Let the platform coordinate amongst the requested states at
+		 * this power level and return the target local power state.
+		 */
+		ncpus = psci_non_cpu_pd_nodes[parent_idx].ncpus;
+		target_state = plat_get_target_pwr_state(lvl,
+							 req_states,
+							 ncpus);
+
+		state_info->pwr_domain_state[lvl] = target_state;
+
+		/* Break early if the negotiated target power state is RUN */
+		if (is_local_state_run(state_info->pwr_domain_state[lvl]))
+			break;
+
+		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
+	}
+
+	/*
+	 * This is for cases when we break out of the above loop early because
+	 * the target power state is RUN at a power level < end_pwlvl.
+	 * We update the requested power state from state_info and then
+	 * set the target state as RUN.
+	 */
+	for (lvl = lvl + 1; lvl <= end_pwrlvl; lvl++) {
+		psci_set_req_local_pwr_state(lvl, cpu_idx,
+					     state_info->pwr_domain_state[lvl]);
+		state_info->pwr_domain_state[lvl] = PSCI_LOCAL_STATE_RUN;
+
+	}
+
+	/* Update the target state in the power domain nodes */
+	psci_set_target_local_pwr_states(end_pwrlvl, state_info);
+}
+
+/******************************************************************************
+ * This function validates a suspend request by making sure that if a standby
+ * state is requested then no power level is turned off and the highest power
+ * level is placed in a standby/retention state.
+ *
+ * It also ensures that the state level X will enter is not shallower than the
+ * state level X + 1 will enter.
+ *
+ * This validation will be enabled only for DEBUG builds as the platform is
+ * expected to perform these validations as well.
+ *****************************************************************************/
+int psci_validate_suspend_req(const psci_power_state_t *state_info,
+			      unsigned int is_power_down_state)
+{
+	unsigned int max_off_lvl, target_lvl, max_retn_lvl;
+	plat_local_state_type_t type, prev_type;
+	int i;
+
+	/* Find the target suspend power level */
+	target_lvl = psci_find_target_suspend_lvl(state_info);
+	if (target_lvl == PSCI_INVALID_DATA)
+		return PSCI_E_INVALID_PARAMS;
+
+	prev_type = STATE_TYPE_RUN;
+	for (i = target_lvl; i >= PSCI_CPU_PWR_LVL; i--) {
+		type = find_local_state_type(state_info->pwr_domain_state[i]);
+		if (type < prev_type)
+			return PSCI_E_INVALID_PARAMS;
+
+		prev_type = type;
+	}
+
+	/* Find the highest off power level */
+	max_off_lvl = psci_find_max_off_lvl(state_info);
+
+	/* The target_lvl is either equal to the max_off_lvl or max_retn_lvl */
+	max_retn_lvl = PSCI_INVALID_DATA;
+	if (target_lvl != max_off_lvl)
+		max_retn_lvl = target_lvl;
+
+	/*
+	 * If this is not a request for a power down state then max off level
+	 * has to be invalid and max retention level has to be a valid power
+	 * level.
+	 */
+	if (!is_power_down_state && (max_off_lvl != PSCI_INVALID_DATA ||
+				    max_retn_lvl == PSCI_INVALID_DATA))
+		return PSCI_E_INVALID_PARAMS;
+
+	return PSCI_E_SUCCESS;
+}
+
+/******************************************************************************
+ * This function finds the highest power level which will be powered down
+ * amongst all the power levels specified in the 'state_info' structure
+ *****************************************************************************/
+unsigned int psci_find_max_off_lvl(const psci_power_state_t *state_info)
+{
+	int i;
+
+	for (i = PLAT_MAX_PWR_LVL; i >= PSCI_CPU_PWR_LVL; i--) {
+		if (is_local_state_off(state_info->pwr_domain_state[i]))
+			return i;
+	}
+
+	return PSCI_INVALID_DATA;
+}
+
+/******************************************************************************
+ * This functions finds the level of the highest power domain which will be
+ * placed in a low power state during a suspend operation.
+ *****************************************************************************/
+unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info)
+{
+	int i;
+
+	for (i = PLAT_MAX_PWR_LVL; i >= PSCI_CPU_PWR_LVL; i--) {
+		if (!is_local_state_run(state_info->pwr_domain_state[i]))
+			return i;
+	}
+
+	return PSCI_INVALID_DATA;
 }
 
 /*******************************************************************************
@@ -296,97 +632,6 @@ int psci_get_ns_ep_info(entry_point_info_t *ep,
 }
 
 /*******************************************************************************
- * This function takes an index and level of a power domain node in the topology
- * tree and returns its state. State of a non-leaf node needs to be calculated.
- ******************************************************************************/
-unsigned short psci_get_state(unsigned int idx,
-			      int level)
-{
-	/* A cpu node just contains the state which can be directly returned */
-	if (level == PSCI_CPU_PWR_LVL) {
-		flush_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state);
-		return get_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state);
-	}
-
-#if !USE_COHERENT_MEM
-	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes[idx],
-					sizeof(psci_non_cpu_pd_nodes[idx]));
-#endif
-	/*
-	 * For a power level higher than a cpu, the state has to be
-	 * calculated. It depends upon the value of the reference count
-	 * which is managed by each node at the next lower power level
-	 * e.g. for a cluster, each cpu increments/decrements the reference
-	 * count. If the reference count is 0 then the power level is
-	 * OFF else ON.
-	 */
-	if (psci_non_cpu_pd_nodes[idx].ref_count)
-		return PSCI_STATE_ON;
-	else
-		return PSCI_STATE_OFF;
-}
-
-/*******************************************************************************
- * This function takes an index and level of a power domain node in the topology
- * tree and a target state. State of a non-leaf node needs to be converted to
- * a reference count. State of a leaf node can be set directly.
- ******************************************************************************/
-void psci_set_state(unsigned int idx,
-		    unsigned short state,
-		    int level)
-{
-	/*
-	 * For a power level higher than a cpu, the state is used
-	 * to decide whether the reference count is incremented or
-	 * decremented. Entry into the ON_PENDING state does not have
-	 * effect.
-	 */
-	if (level > PSCI_CPU_PWR_LVL) {
-		switch (state) {
-		case PSCI_STATE_ON:
-			psci_non_cpu_pd_nodes[idx].ref_count++;
-			break;
-		case PSCI_STATE_OFF:
-		case PSCI_STATE_SUSPEND:
-			psci_non_cpu_pd_nodes[idx].ref_count--;
-			break;
-		case PSCI_STATE_ON_PENDING:
-			/*
-			 * A power level higher than a cpu will not undergo
-			 * a state change when it is about to be turned on
-			 */
-			return;
-		default:
-			assert(0);
-
-#if !USE_COHERENT_MEM
-		flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes[idx],
-				sizeof(psci_non_cpu_pd_nodes[idx]));
-#endif
-		}
-	} else {
-		set_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state, state);
-		flush_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state);
-	}
-}
-
-/*******************************************************************************
- * A power domain could be on, on_pending, suspended or off. These are the
- * logical states it can be in. Physically either it is off or on. When it is in
- * the state on_pending then it is about to be turned on. It is not possible to
- * tell whether that's actually happened or not. So we err on the side of
- * caution & treat the power domain as being turned off.
- ******************************************************************************/
-unsigned short psci_get_phys_state(unsigned int idx,
-				int level)
-{
-	unsigned int state;
-
-	state = psci_get_state(idx, level);
-	return get_phys_state(state);
-}
-
-/*******************************************************************************
  * Generic handler which is called when a cpu is physically powered on. It
  * traverses the node information and finds the highest power level powered
  * off and performs generic, architectural, platform setup and state management
@@ -396,34 +641,31 @@ unsigned short psci_get_phys_state(unsigned int idx,
  * coherency at the interconnect level in addition to gic cpu interface.
  ******************************************************************************/
 void psci_power_up_finish(int end_pwrlvl,
-			  pwrlvl_power_on_finisher_t pon_handler)
+			  pwrlvl_power_on_finisher_t power_on_handler)
 {
 	unsigned int cpu_idx = platform_my_core_pos();
-	unsigned int max_phys_off_pwrlvl;
+	psci_power_state_t state_info = { {0} };
 
 	/*
-	 * This function acquires the lock corresponding to each power
-	 * level so that by the time all locks are taken, the system topology
-	 * is snapshot and state management can be done safely.
+	 * This function acquires the lock corresponding to each power level so
+	 * that by the time all locks are taken, the system topology is snapshot
+	 * and state management can be done safely.
 	 */
 	psci_acquire_pwr_domain_locks(end_pwrlvl,
 				      cpu_idx);
 
-	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(end_pwrlvl,
-							    cpu_idx);
-	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
-
-	/* Perform generic, architecture and platform specific handling */
-	pon_handler(cpu_idx, max_phys_off_pwrlvl);
+	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
 
 	/*
-	 * This function updates the state of each power instance
-	 * corresponding to the cpu index in the range of power levels
-	 * specified.
+	 * Perform generic, architecture and platform specific handling.
 	 */
-	psci_do_state_coordination(end_pwrlvl,
-				   cpu_idx,
-				   PSCI_STATE_ON);
+	power_on_handler(cpu_idx, &state_info);
+
+	/*
+	 * Set the requested and target state of this CPU and all the higher
+	 * power domains which are ancestors of this CPU to run.
+	 */
+	psci_set_pwr_domains_to_run(end_pwrlvl);
 
 	/*
 	 * This loop releases the lock corresponding to each power level
@@ -481,31 +723,36 @@ int psci_spd_migrate_info(uint64_t *mpidr)
 void psci_print_power_domain_map(void)
 {
 #if LOG_LEVEL >= LOG_LEVEL_INFO
-	unsigned int idx, state;
+	unsigned int idx, type;
 
 	/* This array maps to the PSCI_STATE_X definitions in psci.h */
-	static const char *psci_state_str[] = {
+	static const char *psci_state_type_str[] = {
 		"ON",
+		"RETENTION",
 		"OFF",
-		"ON_PENDING",
-		"SUSPEND"
 	};
 
 	INFO("PSCI Power Domain Map:\n");
-	for (idx = 0; idx < (PSCI_NUM_PWR_DOMAINS - PLATFORM_CORE_COUNT); idx++) {
-		state = psci_get_state(idx, psci_non_cpu_pd_nodes[idx].level);
-		INFO("  Domain Node : Level %u, parent_node %d, State %s\n",
+	for (idx = 0; idx < (PSCI_NUM_PWR_DOMAINS - PLATFORM_CORE_COUNT);
+							idx++) {
+		type = find_local_state_type(
+				psci_non_cpu_pd_nodes[idx].local_state);
+		INFO("  Domain Node : Level %u, parent_node %d,"
+				" State %s (0x%x)\n",
 				psci_non_cpu_pd_nodes[idx].level,
 				psci_non_cpu_pd_nodes[idx].parent_node,
-				psci_state_str[state]);
+				psci_state_type_str[type],
+				psci_non_cpu_pd_nodes[idx].local_state);
 	}
 
 	for (idx = 0; idx < PLATFORM_CORE_COUNT; idx++) {
-		state = psci_get_state(idx, PSCI_CPU_PWR_LVL);
-		INFO("  CPU Node : MPID 0x%lx, parent_node %d, State %s\n",
+		type = find_local_state_type(psci_get_cpu_local_state_by_idx(idx));
+		INFO("  CPU Node : MPID 0x%lx, parent_node %d,"
+				" State %s (0x%x)\n",
 				psci_cpu_pd_nodes[idx].mpidr,
 				psci_cpu_pd_nodes[idx].parent_node,
-				psci_state_str[state]);
+				psci_state_type_str[type],
+				psci_get_cpu_local_state_by_idx(idx));
 	}
 #endif
 }
