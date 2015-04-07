@@ -42,82 +42,97 @@
 #include "psci_private.h"
 
 /*******************************************************************************
- * This function saves the power state parameter passed in the current PSCI
- * cpu_suspend call in the per-cpu data array.
+ * This function does generic and platform specific operations after a wake-up
+ * from standby/retention states at multiple power levels.
  ******************************************************************************/
-void psci_set_suspend_power_state(unsigned int power_state)
+static void psci_suspend_to_standby_finisher(unsigned int cpu_idx,
+					     psci_power_state_t *state_info,
+					     unsigned int end_pwrlvl)
 {
-	set_cpu_data(psci_svc_cpu_data.power_state, power_state);
-	flush_cpu_data(psci_svc_cpu_data.power_state);
+	psci_acquire_pwr_domain_locks(end_pwrlvl,
+				cpu_idx);
+
+	/*
+	 * Plat. management: Allow the platform to do operations
+	 * on waking up from retention.
+	 */
+	psci_plat_pm_ops->pwr_domain_suspend_finish(state_info);
+
+	/*
+	 * Set the requested and target state of this CPU and all the higher
+	 * power domain levels for this CPU to run.
+	 */
+	psci_set_pwr_domains_to_run(end_pwrlvl);
+
+	psci_release_pwr_domain_locks(end_pwrlvl,
+				cpu_idx);
 }
 
 /*******************************************************************************
- * This function gets the power level till which the current cpu could be
- * powered down during a cpu_suspend call. Returns PSCI_INVALID_DATA if the
- * power state is invalid.
+ * This function does generic and platform specific suspend to power down
+ * operations.
  ******************************************************************************/
-int psci_get_suspend_pwrlvl(void)
+static void psci_suspend_to_pwrdown_start(int end_pwrlvl,
+					  entry_point_info_t *ep,
+					  psci_power_state_t *state_info)
 {
-	unsigned int power_state;
+	/* Save PSCI target power level for the suspend finisher handler */
+	psci_set_suspend_pwrlvl(end_pwrlvl);
 
-	power_state = get_cpu_data(psci_svc_cpu_data.power_state);
+	/*
+	 * Flush the target power level as it will be accessed on power up with
+	 * Data cache disabled.
+	 */
+	flush_cpu_data(psci_svc_cpu_data.target_pwrlvl);
 
-	return ((power_state == PSCI_INVALID_DATA) ?
-		power_state : psci_get_pstate_pwrlvl(power_state));
-}
+	/*
+	 * Call the cpu suspend handler registered by the Secure Payload
+	 * Dispatcher to let it do any book-keeping. If the handler encounters an
+	 * error, it's expected to assert within
+	 */
+	if (psci_spd_pm && psci_spd_pm->svc_suspend)
+		psci_spd_pm->svc_suspend(0);
 
-/*******************************************************************************
- * This function gets the state id of the current cpu from the power state
- * parameter saved in the per-cpu data array. Returns PSCI_INVALID_DATA if the
- * power state saved is invalid.
- ******************************************************************************/
-int psci_get_suspend_stateid(void)
-{
-	unsigned int power_state;
+	/*
+	 * Store the re-entry information for the non-secure world.
+	 */
+	cm_init_my_context(ep);
 
-	power_state = get_cpu_data(psci_svc_cpu_data.power_state);
-
-	return ((power_state == PSCI_INVALID_DATA) ?
-		power_state : psci_get_pstate_id(power_state));
-}
-
-/*******************************************************************************
- * This function gets the state id of the cpu specified by the cpu index
- * from the power state parameter saved in the per-cpu data array. Returns
- * PSCI_INVALID_DATA if the power state saved is invalid.
- ******************************************************************************/
-int psci_get_suspend_stateid_by_idx(unsigned long cpu_idx)
-{
-	unsigned int power_state;
-
-	power_state = get_cpu_data_by_index(cpu_idx,
-					    psci_svc_cpu_data.power_state);
-
-	return ((power_state == PSCI_INVALID_DATA) ?
-		power_state : psci_get_pstate_id(power_state));
+	/*
+	 * Arch. management. Perform the necessary steps to flush all
+	 * cpu caches. Currently we assume that the power level correspond
+	 * the cache level.
+	 * TODO : Introduce a mechanism to query the cache level to flush
+	 * and the cpu-ops power down to perform from the platform.
+	 */
+	psci_do_pwrdown_cache_maintenance(psci_find_max_off_lvl(state_info));
 }
 
 /*******************************************************************************
  * Top level handler which is called when a cpu wants to suspend its execution.
  * It is assumed that along with suspending the cpu power domain, power domains
- * at higher levels until the target power level will be suspended as well.
- * It finds the highest level where a domain has to be suspended by traversing
- * the node information and then performs generic, architectural, platform
- * setup and state management required to suspend that power domain and domains
- * below it. * e.g. For a cpu that's to be suspended, it could mean programming
- * the power controller whereas for a cluster that's to be suspended, it will
- * call the platform specific code which will disable coherency at the
- * interconnect level if the cpu is the last in the cluster and also the
- * program the power controller.
+ * at higher levels until the target power level will be suspended as well. It
+ * coordinates with the platform to negotiate the target state for each of
+ * the power domain level till the target power domain level. It then performs
+ * generic, architectural, platform setup and state management required to
+ * suspend that power domain level and power domain levels below it.
+ * e.g. For a cpu that's to be suspended, it could mean programming the
+ * power controller whereas for a cluster that's to be suspended, it will call
+ * the platform specific code which will disable coherency at the interconnect
+ * level if the cpu is the last in the cluster and also the program the power
+ * controller.
  *
  * All the required parameter checks are performed at the beginning and after
  * the state transition has been done, no further error is expected and it is
  * not possible to undo any of the actions taken beyond that point.
  ******************************************************************************/
-void psci_cpu_suspend_start(entry_point_info_t *ep, int end_pwrlvl)
+void psci_cpu_suspend_start(entry_point_info_t *ep,
+			    int end_pwrlvl,
+			    psci_power_state_t *state_info,
+			    unsigned int is_power_down_state)
 {
 	int skip_wfi = 0;
-	unsigned int max_phys_off_pwrlvl, idx = plat_my_core_pos();
+	unsigned int idx = plat_my_core_pos();
 	unsigned long psci_entrypoint;
 
 	/*
@@ -146,39 +161,20 @@ void psci_cpu_suspend_start(entry_point_info_t *ep, int end_pwrlvl)
 	}
 
 	/*
-	 * Call the cpu suspend handler registered by the Secure Payload
-	 * Dispatcher to let it do any bookeeping. If the handler encounters an
-	 * error, it's expected to assert within
+	 * This function is passed the requested state info and
+	 * it returns the negotiated state info for each power level upto
+	 * the end level specified.
 	 */
-	if (psci_spd_pm && psci_spd_pm->svc_suspend)
-		psci_spd_pm->svc_suspend(0);
+	psci_do_state_coordination(end_pwrlvl, state_info);
 
-	/*
-	 * This function updates the state of each power domain instance
-	 * corresponding to the cpu index in the range of power levels
-	 * specified.
-	 */
-	psci_do_state_coordination(end_pwrlvl,
-				   idx,
-				   PSCI_STATE_SUSPEND);
+	psci_entrypoint = 0;
+	if (is_power_down_state) {
+		psci_suspend_to_pwrdown_start(end_pwrlvl, ep, state_info);
 
-	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(end_pwrlvl,
-							    idx);
-	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
-
-	/*
-	 * Store the re-entry information for the non-secure world.
-	 */
-	cm_init_my_context(ep);
-
-	/* Set the secure world (EL3) re-entry point after BL1 */
-	psci_entrypoint = (unsigned long) psci_cpu_suspend_finish_entry;
-
-	/*
-	 * Arch. management. Perform the necessary steps to flush all
-	 * cpu caches.
-	 */
-	psci_do_pwrdown_cache_maintenance(max_phys_off_pwrlvl);
+		/* Set the secure world (EL3) re-entry point after BL1. */
+		psci_entrypoint =
+			(unsigned long) psci_cpu_suspend_finish_entry;
+	}
 
 	/*
 	 * Plat. management: Allow the platform to perform the
@@ -186,8 +182,7 @@ void psci_cpu_suspend_start(entry_point_info_t *ep, int end_pwrlvl)
 	 * platform defined mailbox with the psci entrypoint,
 	 * program the power controller etc.
 	 */
-	psci_plat_pm_ops->pwr_domain_suspend(psci_entrypoint,
-					max_phys_off_pwrlvl);
+	psci_plat_pm_ops->pwr_domain_suspend(psci_entrypoint, state_info);
 
 exit:
 	/*
@@ -195,23 +190,41 @@ exit:
 	 * reverse order to which they were acquired.
 	 */
 	psci_release_pwr_domain_locks(end_pwrlvl,
-				      idx);
-	if (!skip_wfi)
+				  idx);
+	if (skip_wfi)
+		return;
+
+	if (is_power_down_state)
 		psci_power_down_wfi();
+
+	/*
+	 * We will reach here if only retention/standby states have been
+	 * requested at multiple power levels. This means that the cpu
+	 * context will be preserved.
+	 */
+	wfi();
+
+	/*
+	 * After we wake up from context retaining suspend, call the
+	 * context retaining suspend finisher.
+	 */
+	psci_suspend_to_standby_finisher(idx, state_info, end_pwrlvl);
 }
 
 /*******************************************************************************
  * The following functions finish an earlier suspend request. They
- * are called by the common finisher routine in psci_common.c.
+ * are called by the common finisher routine in psci_common.c. The `state_info`
+ * is the psci_power_state from which this CPU has woken up from.
  ******************************************************************************/
-void psci_cpu_suspend_finish(unsigned int cpu_idx, int max_off_pwrlvl)
+void psci_cpu_suspend_finish(unsigned int cpu_idx,
+			     psci_power_state_t *state_info)
 {
 	int32_t suspend_level;
 	uint64_t counter_freq;
 
 	/* Ensure we have been woken up from a suspended state */
-	assert(psci_get_state(cpu_idx, PSCI_CPU_PWR_LVL)
-				== PSCI_STATE_SUSPEND);
+	assert(psci_get_aff_info_state() == AFF_STATE_ON && is_local_state_off(\
+			state_info->pwr_domain_state[PSCI_CPU_PWR_LVL]));
 
 	/*
 	 * Plat. management: Perform the platform specific actions
@@ -220,7 +233,7 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx, int max_off_pwrlvl)
 	 * wrong then assert as there is no way to recover from this
 	 * situation.
 	 */
-	psci_plat_pm_ops->pwr_domain_suspend_finish(max_off_pwrlvl);
+	psci_plat_pm_ops->pwr_domain_suspend_finish(state_info);
 
 	/*
 	 * Arch. management: Enable the data cache, manage stack memory and
@@ -244,8 +257,8 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx, int max_off_pwrlvl)
 		psci_spd_pm->svc_suspend_finish(suspend_level);
 	}
 
-	/* Invalidate the suspend context for the node */
-	psci_set_suspend_power_state(PSCI_INVALID_DATA);
+	/* Invalidate the suspend level for the cpu */
+	psci_set_suspend_pwrlvl(PSCI_INVALID_DATA);
 
 	/*
 	 * Generic management: Now we just need to retrieve the

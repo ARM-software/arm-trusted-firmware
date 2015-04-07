@@ -66,6 +66,9 @@ ARM_CCI_PRODUCT_ID	:=	400
 ASM_ASSERTION		:=	${DEBUG}
 # Build option to choose whether Trusted firmware uses Coherent memory or not.
 USE_COHERENT_MEM	:=	1
+# Flag used to choose the power state format viz Extended State-ID or the Original
+# format.
+PSCI_EXTENDED_STATE_ID	:=	0
 # Default FIP file name
 FIP_NAME		:= fip.bin
 # By default, use the -pedantic option in the gcc command line
@@ -267,6 +270,10 @@ $(eval $(call add_define,LOG_LEVEL))
 # Process USE_COHERENT_MEM flag
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_COHERENT_MEM))
+
+# Process PSCI_EXTENDED_STATE_ID flag
+$(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
+$(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 
 # Process Generate CoT flags
 $(eval $(call assert_boolean,GENERATE_COT))
