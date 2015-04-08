@@ -42,335 +42,203 @@
  * Per cpu non-secure contexts used to program the architectural state prior
  * return to the normal world.
  * TODO: Use the memory allocator to set aside memory for the contexts instead
- * of relying on platform defined constants. Using PSCI_NUM_PWR_DOMAINS will be
- * an overkill.
+ * of relying on platform defined constants.
  ******************************************************************************/
 static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
-
-/*******************************************************************************
- * In a system, a certain number of power domain instances are present at a
- * power level. The cumulative number of instances across all levels are
- * stored in 'psci_pwr_domain_map'. The topology tree has been flattenned into
- * this array. To retrieve nodes, information about the extents of each power
- * level i.e. start index and end index needs to be present.
- * 'psci_pwr_lvl_limits' stores this information.
- ******************************************************************************/
-pwr_lvl_limits_node_t psci_pwr_lvl_limits[MPIDR_MAX_AFFLVL + 1];
 
 /******************************************************************************
  * Define the psci capability variable.
  *****************************************************************************/
 uint32_t psci_caps;
 
-
 /*******************************************************************************
- * Routines for retrieving the node corresponding to a power domain instance
- * in the mpidr. The first one uses binary search to find the node corresponding
- * to the mpidr (key) at a particular power level. The second routine decides
- * extents of the binary search at each power level.
+ * Function which initializes the 'psci_non_cpu_pd_nodes' or the
+ * 'psci_cpu_pd_nodes' corresponding to the power level.
  ******************************************************************************/
-static int psci_pwr_domain_map_get_idx(unsigned long key,
-				int min_idx,
-				int max_idx)
+static void psci_init_pwr_domain_node(int node_idx, int parent_idx, int level)
 {
-	int mid;
-
-	/*
-	 * Terminating condition: If the max and min indices have crossed paths
-	 * during the binary search then the key has not been found.
-	 */
-	if (max_idx < min_idx)
-		return PSCI_E_INVALID_PARAMS;
-
-	/*
-	 * Make sure we are within array limits.
-	 */
-	assert(min_idx >= 0 && max_idx < PSCI_NUM_PWR_DOMAINS);
-
-	/*
-	 * Bisect the array around 'mid' and then recurse into the array chunk
-	 * where the key is likely to be found. The mpidrs in each node in the
-	 * 'psci_pwr_domain_map' for a given power level are stored in an
-	 * ascending order which makes the binary search possible.
-	 */
-	mid = min_idx + ((max_idx - min_idx) >> 1);	/* Divide by 2 */
-
-	if (psci_pwr_domain_map[mid].mpidr > key)
-		return psci_pwr_domain_map_get_idx(key, min_idx, mid - 1);
-	else if (psci_pwr_domain_map[mid].mpidr < key)
-		return psci_pwr_domain_map_get_idx(key, mid + 1, max_idx);
-	else
-		return mid;
-}
-
-pwr_map_node_t *psci_get_pwr_map_node(unsigned long mpidr, int pwr_lvl)
-{
-	int rc;
-
-	if (pwr_lvl > PLAT_MAX_PWR_LVL)
-		return NULL;
-
-	/* Right shift the mpidr to the required power level */
-	mpidr = mpidr_mask_lower_afflvls(mpidr, pwr_lvl);
-
-	rc = psci_pwr_domain_map_get_idx(mpidr,
-				  psci_pwr_lvl_limits[pwr_lvl].min,
-				  psci_pwr_lvl_limits[pwr_lvl].max);
-	if (rc >= 0)
-		return &psci_pwr_domain_map[rc];
-	else
-		return NULL;
-}
-
-/*******************************************************************************
- * This function populates an array with nodes corresponding to a given range of
- * power levels in an mpidr. It returns successfully only when the power
- * levels are correct, the mpidr is valid i.e. no power level is absent from
- * the topology tree & the power domain instance at level 0 is not absent.
- ******************************************************************************/
-int psci_get_pwr_map_nodes(unsigned long mpidr,
-			   int start_pwrlvl,
-			   int end_pwrlvl,
-			   pwr_map_node_t *mpidr_nodes[])
-{
-	int rc = PSCI_E_INVALID_PARAMS, level;
-	pwr_map_node_t *node;
-
-	rc = psci_check_pwrlvl_range(start_pwrlvl, end_pwrlvl);
-	if (rc != PSCI_E_SUCCESS)
-		return rc;
-
-	for (level = start_pwrlvl; level <= end_pwrlvl; level++) {
-
-		/*
-		 * Grab the node for each power level. No power level
-		 * can be missing as that would mean that the topology tree
-		 * is corrupted.
-		 */
-		node = psci_get_pwr_map_node(mpidr, level);
-		if (node == NULL) {
-			rc = PSCI_E_INVALID_PARAMS;
-			break;
-		}
-
-		/*
-		 * Skip absent power levels unless it's power level 0.
-		 * An absent cpu means that the mpidr is invalid. Save the
-		 * pointer to the node for the present power level
-		 */
-		if (!(node->state & PSCI_PWR_DOMAIN_PRESENT)) {
-			if (level == MPIDR_AFFLVL0) {
-				rc = PSCI_E_INVALID_PARAMS;
-				break;
-			}
-
-			mpidr_nodes[level] = NULL;
-		} else
-			mpidr_nodes[level] = node;
-	}
-
-	return rc;
-}
-
-/*******************************************************************************
- * Function which initializes the 'pwr_map_node' corresponding to a power
- * domain instance. Each node has a unique mpidr, level and bakery lock.
- ******************************************************************************/
-static void psci_init_pwr_map_node(unsigned long mpidr,
-				   int level,
-				   unsigned int idx)
-{
-	unsigned char state;
-	uint32_t linear_id;
-	psci_pwr_domain_map[idx].mpidr = mpidr;
-	psci_pwr_domain_map[idx].level = level;
-	psci_lock_init(psci_pwr_domain_map, idx);
-
-	/*
-	 * If an power domain instance is present then mark it as OFF
-	 * to begin with.
-	 */
-	state = plat_get_pwr_domain_state(level, mpidr);
-	psci_pwr_domain_map[idx].state = state;
-
-	/*
-	 * Check if this is a CPU node and is present in which case certain
-	 * other initialisations are required.
-	 */
-	if (level != MPIDR_AFFLVL0)
-		return;
-
-	if (!(state & PSCI_PWR_DOMAIN_PRESENT))
-		return;
-
-	/*
-	 * Mark the cpu as OFF. Higher power level reference counts
-	 * have already been memset to 0
-	 */
-	psci_set_state(&psci_pwr_domain_map[idx], PSCI_STATE_OFF);
-
-	/*
-	 * Associate a non-secure context with this power
-	 * instance through the context management library.
-	 */
-	linear_id = platform_core_pos_by_mpidr(mpidr);
-	assert(linear_id < PLATFORM_CORE_COUNT);
-
-	/* Invalidate the suspend context for the node */
-	set_cpu_data_by_index(linear_id,
-			      psci_svc_cpu_data.power_state,
-			      PSCI_INVALID_DATA);
-
-	flush_cpu_data_by_index(linear_id, psci_svc_cpu_data);
-
-	cm_set_context_by_index(linear_id,
-				(void *) &psci_ns_context[linear_id],
-				NON_SECURE);
-}
-
-/*******************************************************************************
- * Core routine used by the Breadth-First-Search algorithm to populate the
- * power domain tree. Each level in the tree corresponds to a power level. This
- * routine's aim is to traverse to the target power level and populate nodes
- * in the 'psci_pwr_domain_map' for all the siblings at that level. It uses the
- * current power level to keep track of how many levels from the root of the
- * tree have been traversed. If the current power level != target power level,
- * then the platform is asked to return the number of children that each
- * power domain instance has at the current power level. Traversal is then done
- * for each child at the next lower level i.e. current power level - 1.
- *
- * CAUTION: This routine assumes that power domain instance ids are allocated
- * in a monotonically increasing manner at each power level in a mpidr starting
- * from 0. If the platform breaks this assumption then this code will have to
- * be reworked accordingly.
- ******************************************************************************/
-static unsigned int psci_init_pwr_map(unsigned long mpidr,
-				      unsigned int pwrmap_idx,
-				      int cur_pwrlvl,
-				      int tgt_pwrlvl)
-{
-	unsigned int ctr, pwr_inst_count;
-
-	assert(cur_pwrlvl >= tgt_pwrlvl);
-
-	/*
-	 * Find the number of siblings at the current power level &
-	 * assert if there are none 'cause then we have been invoked with
-	 * an invalid mpidr.
-	 */
-	pwr_inst_count = plat_get_pwr_domain_count(cur_pwrlvl, mpidr);
-	assert(pwr_inst_count);
-
-	if (tgt_pwrlvl < cur_pwrlvl) {
-		for (ctr = 0; ctr < pwr_inst_count; ctr++) {
-			mpidr = mpidr_set_pwr_domain_inst(mpidr, ctr,
-								cur_pwrlvl);
-			pwrmap_idx = psci_init_pwr_map(mpidr,
-						       pwrmap_idx,
-						       cur_pwrlvl - 1,
-						       tgt_pwrlvl);
-		}
+	if (level > PSCI_CPU_PWR_LVL) {
+		psci_non_cpu_pd_nodes[node_idx].level = level;
+		psci_lock_init(psci_non_cpu_pd_nodes, node_idx);
+		psci_non_cpu_pd_nodes[node_idx].parent_node = parent_idx;
 	} else {
-		for (ctr = 0; ctr < pwr_inst_count; ctr++, pwrmap_idx++) {
-			mpidr = mpidr_set_pwr_domain_inst(mpidr, ctr,
-								cur_pwrlvl);
-			psci_init_pwr_map_node(mpidr, cur_pwrlvl, pwrmap_idx);
-		}
 
-		/* pwrmap_idx is 1 greater than the max index of cur_pwrlvl */
-		psci_pwr_lvl_limits[cur_pwrlvl].max = pwrmap_idx - 1;
+		psci_cpu_pd_nodes[node_idx].parent_node = parent_idx;
+
+		/* Initialize with an invalid mpidr */
+		psci_cpu_pd_nodes[node_idx].mpidr = PSCI_INVALID_MPIDR;
+
+		/*
+		 * Mark the cpu as OFF.
+		 */
+		set_cpu_data_by_index(node_idx,
+				      psci_svc_cpu_data.psci_state,
+				      PSCI_STATE_OFF);
+
+		/* Invalidate the suspend context for the node */
+		set_cpu_data_by_index(node_idx,
+				      psci_svc_cpu_data.power_state,
+				      PSCI_INVALID_DATA);
+
+		flush_cpu_data_by_index(node_idx, psci_svc_cpu_data);
+
+		cm_set_context_by_index(node_idx,
+					(void *) &psci_ns_context[node_idx],
+					NON_SECURE);
 	}
-
-	return pwrmap_idx;
 }
 
 /*******************************************************************************
- * This function initializes the topology tree by querying the platform. To do
- * so, it's helper routines implement a Breadth-First-Search. At each power
- * level the platform conveys the number of power domain instances that exist
- * i.e. the power instance count. The algorithm populates the
- * psci_pwr_domain_map* recursively using this information. On a platform that
- * implements two clusters of 4 cpus each, the populated pwr_map_array would
- * look like this:
+ * This functions updates cpu_start_idx and ncpus field for each of the node in
+ * psci_non_cpu_pd_nodes[]. It does so by comparing the parent nodes of each of
+ * the CPUs and check whether they match with the parent of the previous
+ * CPU. The basic assumption for this work is that children of the same parent
+ * are allocated adjacent indices. The platform should ensure this though proper
+ * mapping of the CPUs to indices via platform_core_pos_by_mpidr() and
+ * platform_my_core_pos() APIs.
+ *******************************************************************************/
+static void psci_update_pwrlvl_limits(void)
+{
+	int cpu_idx, j;
+	unsigned int nodes_idx[PLAT_MAX_PWR_LVL] = {0};
+	unsigned int temp_index[PLAT_MAX_PWR_LVL];
+
+	for (cpu_idx = 0; cpu_idx < PLATFORM_CORE_COUNT; cpu_idx++) {
+		psci_get_parent_pwr_domain_nodes(cpu_idx,
+						 PLAT_MAX_PWR_LVL,
+						 temp_index);
+		for (j = PLAT_MAX_PWR_LVL - 1; j >= 0; j--) {
+			if (temp_index[j] != nodes_idx[j]) {
+				nodes_idx[j] = temp_index[j];
+				psci_non_cpu_pd_nodes[nodes_idx[j]].cpu_start_idx
+					= cpu_idx;
+			}
+			psci_non_cpu_pd_nodes[nodes_idx[j]].ncpus++;
+		}
+	}
+}
+
+/*******************************************************************************
+ * Core routine to populate the power domain tree. The tree descriptor passed by
+ * the platform is populated breadth-first and the first entry in the map
+ * informs the number of root power domains. The parent nodes of the root nodes
+ * will point to an invalid entry(-1).
+ ******************************************************************************/
+static void populate_power_domain_tree(const unsigned char *topology)
+{
+	unsigned int i, j = 0, num_nodes_at_lvl = 1, num_nodes_at_next_lvl;
+	unsigned int node_index = 0, parent_node_index = 0, num_children;
+	int level = PLAT_MAX_PWR_LVL;
+
+	/*
+	 * For each level the inputs are:
+	 * - number of nodes at this level in plat_array i.e. num_nodes_at_level
+	 *   This is the sum of values of nodes at the parent level.
+	 * - Index of first entry at this level in the plat_array i.e.
+	 *   parent_node_index.
+	 * - Index of first free entry in psci_non_cpu_pd_nodes[] or
+	 *   psci_cpu_pd_nodes[] i.e. node_index depending upon the level.
+	 */
+	while (level >= PSCI_CPU_PWR_LVL) {
+		num_nodes_at_next_lvl = 0;
+		/*
+		 * For each entry (parent node) at this level in the plat_array:
+		 * - Find the number of children
+		 * - Allocate a node in a power domain array for each child
+		 * - Set the parent of the child to the parent_node_index - 1
+		 * - Increment parent_node_index to point to the next parent
+		 * - Accumulate the number of children at next level.
+		 */
+		for (i = 0; i < num_nodes_at_lvl; i++) {
+			assert(parent_node_index <=
+					PSCI_NUM_NON_CPU_PWR_DOMAINS);
+			num_children = topology[parent_node_index];
+
+			for (j = node_index;
+				j < node_index + num_children; j++)
+				psci_init_pwr_domain_node(j,
+							  parent_node_index - 1,
+							  level);
+
+			node_index = j;
+			num_nodes_at_next_lvl += num_children;
+			parent_node_index++;
+		}
+
+		num_nodes_at_lvl = num_nodes_at_next_lvl;
+		level--;
+
+		/* Reset the index for the cpu power domain array */
+		if (level == PSCI_CPU_PWR_LVL)
+			node_index = 0;
+	}
+
+	/* Validate the sanity of array exported by the platform */
+	assert(j == PLATFORM_CORE_COUNT);
+
+#if !USE_COHERENT_MEM
+	/* Flush the non CPU power domain data to memory */
+	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes,
+			   sizeof(psci_non_cpu_pd_nodes));
+#endif
+}
+
+/*******************************************************************************
+ * This function initializes the power domain topology tree by querying the
+ * platform. The power domain nodes higher than the CPU are populated in the
+ * array psci_non_cpu_pd_nodes[] and the CPU power domains are populated in
+ * psci_cpu_pd_nodes[]. The platform exports its static topology map through the
+ * populate_power_domain_topology_tree() API. The algorithm populates the
+ * psci_non_cpu_pd_nodes and psci_cpu_pd_nodes iteratively by using this
+ * topology map.  On a platform that implements two clusters of 2 cpus each, and
+ * supporting 3 domain levels, the populated psci_non_cpu_pd_nodes would look
+ * like this:
  *
- *            <- cpus cluster0 -><- cpus cluster1 ->
  * ---------------------------------------------------
- * | 0  | 1  | 0  | 1  | 2  | 3  | 0  | 1  | 2  | 3  |
+ * | system node | cluster 0 node  | cluster 1 node  |
  * ---------------------------------------------------
- *           ^                                       ^
- * cluster __|                                 cpu __|
- * limit                                      limit
  *
- * The first 2 entries are of the cluster nodes. The next 4 entries are of cpus
- * within cluster 0. The last 4 entries are of cpus within cluster 1.
- * The 'psci_pwr_lvl_limits' array contains the max & min index of each power
- * level within the 'psci_pwr_domain_map' array. This allows restricting search
- * of a node at a power level between the indices in the limits array.
+ * And populated psci_cpu_pd_nodes would look like this :
+ * <-    cpus cluster0   -><-   cpus cluster1   ->
+ * ------------------------------------------------
+ * |   CPU 0   |   CPU 1   |   CPU 2   |   CPU 3  |
+ * ------------------------------------------------
  ******************************************************************************/
 int32_t psci_setup(void)
 {
-	unsigned long mpidr = read_mpidr();
-	int pwrlvl, pwrmap_idx, max_pwrlvl;
-	pwr_map_node_t *node;
+	const unsigned char *topology_tree;
 
-	psci_plat_pm_ops = NULL;
+	/* Query the topology map from the platform */
+	topology_tree = platform_get_power_domain_tree_desc();
 
-	/* Find out the maximum power level that the platform implements */
-	max_pwrlvl = PLAT_MAX_PWR_LVL;
-	assert(max_pwrlvl <= MPIDR_MAX_AFFLVL);
+	/* Populate the power domain arrays using the platform topology map */
+	populate_power_domain_tree(topology_tree);
 
-	/*
-	 * This call traverses the topology tree with help from the platform and
-	 * populates the power map using a breadth-first-search recursively.
-	 * We assume that the platform allocates power domain instance ids from
-	 * 0 onwards at each power level in the mpidr. FIRST_MPIDR = 0.0.0.0
-	 */
-	pwrmap_idx = 0;
-	for (pwrlvl = max_pwrlvl; pwrlvl >= MPIDR_AFFLVL0; pwrlvl--) {
-		pwrmap_idx = psci_init_pwr_map(FIRST_MPIDR,
-					       pwrmap_idx,
-					       max_pwrlvl,
-					       pwrlvl);
-	}
+	/* Update the CPU limits for each node in psci_non_cpu_pd_nodes */
+	psci_update_pwrlvl_limits();
+
+	/* Populate the mpidr field of cpu node for this CPU */
+	psci_cpu_pd_nodes[platform_my_core_pos()].mpidr =
+		read_mpidr() & MPIDR_AFFINITY_MASK;
 
 #if !USE_COHERENT_MEM
 	/*
-	 * The psci_pwr_domain_map only needs flushing when it's not allocated
-	 * in coherent memory.
+	 * The psci_non_cpu_pd_nodes only needs flushing when it's not allocated in
+	 * coherent memory.
 	 */
-	flush_dcache_range((uint64_t) &psci_pwr_domain_map,
-					sizeof(psci_pwr_domain_map));
+	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes,
+			   sizeof(psci_non_cpu_pd_nodes));
 #endif
 
-	/*
-	 * Set the bounds for number of instances of each level in the map. Also
-	 * flush out the entire array so that it's visible to subsequent power
-	 * management operations. The 'psci_pwr_lvl_limits' array is allocated
-	 * in normal memory. It will be accessed when the mmu is off e.g. after
-	 * reset. Hence it needs to be flushed.
-	 */
-	for (pwrlvl = MPIDR_AFFLVL0; pwrlvl < max_pwrlvl; pwrlvl++) {
-		psci_pwr_lvl_limits[pwrlvl].min =
-			psci_pwr_lvl_limits[pwrlvl + 1].max + 1;
-	}
-
-	flush_dcache_range((unsigned long) psci_pwr_lvl_limits,
-			   sizeof(psci_pwr_lvl_limits));
+	flush_dcache_range((uint64_t) &psci_cpu_pd_nodes,
+			   sizeof(psci_cpu_pd_nodes));
 
 	/*
-	 * Mark the power domain instances in our mpidr as ON. No need to lock
-	 * as this is the primary cpu.
+	 * Mark the current CPU and its parent power domains as ON. No need to lock
+	 * as the system is UP on the primary at this stage of boot.
 	 */
-	mpidr &= MPIDR_AFFINITY_MASK;
-	for (pwrlvl = MPIDR_AFFLVL0; pwrlvl <= max_pwrlvl; pwrlvl++) {
-
-		node = psci_get_pwr_map_node(mpidr, pwrlvl);
-		assert(node);
-
-		/* Mark each present node as ON. */
-		if (node->state & PSCI_PWR_DOMAIN_PRESENT)
-			psci_set_state(node, PSCI_STATE_ON);
-	}
+	psci_do_state_coordination(PLAT_MAX_PWR_LVL, platform_my_core_pos(),
+				   PSCI_STATE_ON);
 
 	platform_setup_pm(&psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);

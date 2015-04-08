@@ -32,6 +32,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
+#include <platform.h>
 #include <string.h>
 #include "psci_private.h"
 
@@ -50,8 +51,7 @@
  ******************************************************************************/
 int psci_do_cpu_off(int end_pwrlvl)
 {
-	int rc;
-	mpidr_pwr_map_nodes_t mpidr_nodes;
+	int rc, idx = platform_my_core_pos();
 	unsigned int max_phys_off_pwrlvl;
 
 	/*
@@ -61,27 +61,12 @@ int psci_do_cpu_off(int end_pwrlvl)
 	assert(psci_plat_pm_ops->pwr_domain_off);
 
 	/*
-	 * Collect the pointers to the nodes in the topology tree for
-	 * each power domain instance in the mpidr. If this function does
-	 * not return successfully then either the mpidr or the power
-	 * levels are incorrect. Either way, this an internal TF error
-	 * therefore assert.
-	 */
-	rc = psci_get_pwr_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
-				    MPIDR_AFFLVL0,
-				    end_pwrlvl,
-				    mpidr_nodes);
-	assert(rc == PSCI_E_SUCCESS);
-
-	/*
 	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes);
-
+	psci_acquire_pwr_domain_locks(end_pwrlvl,
+				      idx);
 
 	/*
 	 * Call the cpu off handler registered by the Secure Payload Dispatcher
@@ -96,17 +81,14 @@ int psci_do_cpu_off(int end_pwrlvl)
 
 	/*
 	 * This function updates the state of each power domain instance
-	 * corresponding to the mpidr in the range of power levels
+	 * corresponding to the cpu index in the range of power levels
 	 * specified.
 	 */
-	psci_do_state_coordination(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes,
-				  PSCI_STATE_OFF);
+	psci_do_state_coordination(end_pwrlvl,
+				   idx,
+				   PSCI_STATE_OFF);
 
-	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(MPIDR_AFFLVL0,
-							   end_pwrlvl,
-							   mpidr_nodes);
+	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(end_pwrlvl, idx);
 	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
 
 	/*
@@ -126,9 +108,8 @@ exit:
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes);
+	psci_release_pwr_domain_locks(end_pwrlvl,
+				      idx);
 
 	/*
 	 * Check if all actions needed to safely power down this cpu have

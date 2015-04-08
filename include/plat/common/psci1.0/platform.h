@@ -183,8 +183,7 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
  * Mandatory PSCI functions (BL3-1)
  ******************************************************************************/
 int platform_setup_pm(const struct plat_pm_ops **);
-unsigned int plat_get_pwr_domain_count(unsigned int, unsigned long);
-unsigned int plat_get_pwr_domain_state(unsigned int, unsigned long);
+const unsigned char *platform_get_power_domain_tree_desc(void);
 
 /*******************************************************************************
  * Optional BL3-1 functions (may be overridden)
