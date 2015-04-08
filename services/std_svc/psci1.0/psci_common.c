@@ -46,15 +46,19 @@
 const spd_pm_ops_t *psci_spd_pm;
 
 /*******************************************************************************
- * Grand array that holds the platform's topology information for state
- * management of power domain instances. Each node (pwr_map_node) in the array
- * corresponds to a power domain instance e.g. cluster, cpu within an mpidr
+ * Arrays that hold the platform's power domain tree information for state
+ * management of power domains.
+ * Each node in the array 'psci_non_cpu_pd_nodes' corresponds to a power domain
+ * which is an ancestor of a CPU power domain.
+ * Each node in the array 'psci_cpu_pd_nodes' corresponds to a cpu power domain
  ******************************************************************************/
-pwr_map_node_t psci_pwr_domain_map[PSCI_NUM_PWR_DOMAINS]
+non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS]
 #if USE_COHERENT_MEM
 __attribute__ ((section("tzfw_coherent_mem")))
 #endif
 ;
+
+cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops
@@ -64,29 +68,31 @@ const plat_pm_ops_t *psci_plat_pm_ops;
 /*******************************************************************************
  * Check that the maximum power level supported by the platform makes sense
  * ****************************************************************************/
-CASSERT(PLAT_MAX_PWR_LVL <= MPIDR_MAX_AFFLVL && \
-		PLAT_MAX_PWR_LVL >= MPIDR_AFFLVL0, \
+CASSERT(PLAT_MAX_PWR_LVL <= PSCI_MAX_PWR_LVL && \
+		PLAT_MAX_PWR_LVL >= PSCI_CPU_PWR_LVL, \
 		assert_platform_max_pwrlvl_check);
 
 /*******************************************************************************
- * This function is passed an array of pointers to power domain nodes in the
- * topology tree for an mpidr. It iterates through the nodes to find the
- * highest power level where the power domain is marked as physically powered
- * off.
+ * This function is passed a cpu_index and the highest level in the topology
+ * tree. It iterates through the nodes to find the highest power level at which
+ * a domain is physically powered off.
  ******************************************************************************/
-uint32_t psci_find_max_phys_off_pwrlvl(uint32_t start_pwrlvl,
-				       uint32_t end_pwrlvl,
-				       pwr_map_node_t *mpidr_nodes[])
+uint32_t psci_find_max_phys_off_pwrlvl(uint32_t end_pwrlvl,
+				       unsigned int cpu_idx)
 {
-	uint32_t max_pwrlvl = PSCI_INVALID_DATA;
+	int max_pwrlvl, level;
+	unsigned int parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
 
-	for (; start_pwrlvl <= end_pwrlvl; start_pwrlvl++) {
-		if (mpidr_nodes[start_pwrlvl] == NULL)
-			continue;
+	if (psci_get_phys_state(cpu_idx, PSCI_CPU_PWR_LVL) != PSCI_STATE_OFF)
+		return PSCI_INVALID_DATA;
 
-		if (psci_get_phys_state(mpidr_nodes[start_pwrlvl]) ==
-		    PSCI_STATE_OFF)
-			max_pwrlvl = start_pwrlvl;
+	max_pwrlvl = PSCI_CPU_PWR_LVL;
+
+	for (level = PSCI_CPU_PWR_LVL + 1; level <= end_pwrlvl; level++) {
+		if (psci_get_phys_state(parent_idx, level) == PSCI_STATE_OFF)
+			max_pwrlvl = level;
+
+		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
 
 	return max_pwrlvl;
@@ -103,21 +109,14 @@ unsigned int psci_is_last_on_cpu(void)
 	unsigned long mpidr = read_mpidr_el1() & MPIDR_AFFINITY_MASK;
 	unsigned int i;
 
-	for (i = psci_pwr_lvl_limits[MPIDR_AFFLVL0].min;
-			i <= psci_pwr_lvl_limits[MPIDR_AFFLVL0].max; i++) {
-
-		assert(psci_pwr_domain_map[i].level == MPIDR_AFFLVL0);
-
-		if (!(psci_pwr_domain_map[i].state & PSCI_AFF_PRESENT))
-			continue;
-
-		if (psci_pwr_domain_map[i].mpidr == mpidr) {
-			assert(psci_get_state(&psci_pwr_domain_map[i])
+	for (i = 0; i < PLATFORM_CORE_COUNT; i++) {
+		if (psci_cpu_pd_nodes[i].mpidr == mpidr) {
+			assert(psci_get_state(i, PSCI_CPU_PWR_LVL)
 					== PSCI_STATE_ON);
 			continue;
 		}
 
-		if (psci_get_state(&psci_pwr_domain_map[i]) != PSCI_STATE_OFF)
+		if (psci_get_state(i, PSCI_CPU_PWR_LVL) != PSCI_STATE_OFF)
 			return 0;
 	}
 
@@ -135,18 +134,12 @@ int get_power_on_target_pwrlvl(void)
 
 #if DEBUG
 	unsigned int state;
-	pwr_map_node_t *node;
-
-	/* Retrieve our node from the topology tree */
-	node = psci_get_pwr_map_node(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
-				     MPIDR_AFFLVL0);
-	assert(node);
 
 	/*
 	 * Sanity check the state of the cpu. It should be either suspend or "on
 	 * pending"
 	 */
-	state = psci_get_state(node);
+	state = psci_get_state(plat_my_core_pos(), PSCI_CPU_PWR_LVL);
 	assert(state == PSCI_STATE_SUSPEND || state == PSCI_STATE_ON_PENDING);
 #endif
 
@@ -163,103 +156,74 @@ int get_power_on_target_pwrlvl(void)
 }
 
 /*******************************************************************************
- * Simple routine to set the id of a power domain instance at a given level
- * in the mpidr. The assumption is that the affinity level and the power
- * level are the same.
+ * PSCI helper function to get the parent nodes corresponding to a cpu_index.
  ******************************************************************************/
-unsigned long mpidr_set_pwr_domain_inst(unsigned long mpidr,
-				 unsigned char pwr_inst,
-				 int pwr_lvl)
+void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
+				      int end_lvl,
+				      unsigned int node_index[])
 {
-	unsigned long aff_shift;
+	unsigned int parent_node = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	int i;
 
-	assert(pwr_lvl <= MPIDR_AFFLVL3);
-
-	/*
-	 * Decide the number of bits to shift by depending upon
-	 * the power level
-	 */
-	aff_shift = get_afflvl_shift(pwr_lvl);
-
-	/* Clear the existing affinity instance & set the new one*/
-	mpidr &= ~(((unsigned long)MPIDR_AFFLVL_MASK) << aff_shift);
-	mpidr |= ((unsigned long)pwr_inst) << aff_shift;
-
-	return mpidr;
-}
-
-/*******************************************************************************
- * This function sanity checks a range of power levels.
- ******************************************************************************/
-int psci_check_pwrlvl_range(int start_pwrlvl, int end_pwrlvl)
-{
-	/* Sanity check the parameters passed */
-	if (end_pwrlvl > PLAT_MAX_PWR_LVL)
-		return PSCI_E_INVALID_PARAMS;
-
-	if (start_pwrlvl < MPIDR_AFFLVL0)
-		return PSCI_E_INVALID_PARAMS;
-
-	if (end_pwrlvl < start_pwrlvl)
-		return PSCI_E_INVALID_PARAMS;
-
-	return PSCI_E_SUCCESS;
-}
-
-/*******************************************************************************
- * This function is passed an array of pointers to power domain nodes in the
- * topology tree for an mpidr and the state which each node should transition
- * to. It updates the state of each node between the specified power levels.
- ******************************************************************************/
-void psci_do_state_coordination(uint32_t start_pwrlvl,
-			       uint32_t end_pwrlvl,
-			       pwr_map_node_t *mpidr_nodes[],
-			       uint32_t state)
-{
-	uint32_t level;
-
-	for (level = start_pwrlvl; level <= end_pwrlvl; level++) {
-		if (mpidr_nodes[level] == NULL)
-			continue;
-		psci_set_state(mpidr_nodes[level], state);
+	for (i = PSCI_CPU_PWR_LVL + 1; i <= end_lvl; i++) {
+		*node_index++ = parent_node;
+		parent_node = psci_non_cpu_pd_nodes[parent_node].parent_node;
 	}
 }
 
 /*******************************************************************************
- * This function is passed an array of pointers to power domain nodes in the
- * topology tree for an mpidr. It picks up locks for each power level bottom
- * up in the range specified.
+ * This function is passed a cpu_index and the highest level in the topology
+ * tree and the state which each node should transition to. It updates the
+ * state of each node between the specified power levels.
  ******************************************************************************/
-void psci_acquire_pwr_domain_locks(int start_pwrlvl,
-			       int end_pwrlvl,
-			       pwr_map_node_t *mpidr_nodes[])
+void psci_do_state_coordination(int end_pwrlvl,
+				unsigned int cpu_idx,
+				uint32_t state)
 {
 	int level;
+	unsigned int parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	psci_set_state(cpu_idx, state, PSCI_CPU_PWR_LVL);
 
-	for (level = start_pwrlvl; level <= end_pwrlvl; level++) {
-		if (mpidr_nodes[level] == NULL)
-			continue;
-
-		psci_lock_get(mpidr_nodes[level]);
+	for (level = PSCI_CPU_PWR_LVL + 1; level <= end_pwrlvl; level++) {
+		psci_set_state(parent_idx, state, level);
+		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
 }
 
 /*******************************************************************************
- * This function is passed an array of pointers to power domain nodes in the
- * topology tree for an mpidr. It releases the lock for each power level top
- * down in the range specified.
+ * This function is passed a cpu_index and the highest level in the topology
+ * tree that the operation should be applied to. It picks up locks in order of
+ * increasing power domain level in the range specified.
  ******************************************************************************/
-void psci_release_pwr_domain_locks(int start_pwrlvl,
-			       int end_pwrlvl,
-			       pwr_map_node_t *mpidr_nodes[])
+void psci_acquire_pwr_domain_locks(int end_pwrlvl, unsigned int cpu_idx)
 {
+	unsigned int parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
 	int level;
 
-	for (level = end_pwrlvl; level >= start_pwrlvl; level--) {
-		if (mpidr_nodes[level] == NULL)
-			continue;
+	/* No locking required for level 0. Hence start locking from level 1 */
+	for (level = PSCI_CPU_PWR_LVL + 1; level <= end_pwrlvl; level++) {
+		psci_lock_get(&psci_non_cpu_pd_nodes[parent_idx]);
+		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
+	}
+}
 
-		psci_lock_release(mpidr_nodes[level]);
+/*******************************************************************************
+ * This function is passed a cpu_index and the highest level in the topology
+ * tree that the operation should be applied to. It releases the locks in order
+ * of decreasing power domain level in the range specified.
+ ******************************************************************************/
+void psci_release_pwr_domain_locks(int end_pwrlvl, unsigned int cpu_idx)
+{
+	unsigned int parent_idx, parent_nodes[PLAT_MAX_PWR_LVL] = {0};
+	int level;
+
+	/* Get the parent nodes */
+	psci_get_parent_pwr_domain_nodes(cpu_idx, end_pwrlvl, parent_nodes);
+
+	/* Unlock top down. No unlocking required for level 0. */
+	for (level = end_pwrlvl; level >= PSCI_CPU_PWR_LVL + 1; level--) {
+		parent_idx = parent_nodes[level - 1];
+		psci_lock_release(&psci_non_cpu_pd_nodes[parent_idx]);
 	}
 }
 
@@ -332,21 +296,22 @@ int psci_get_ns_ep_info(entry_point_info_t *ep,
 }
 
 /*******************************************************************************
- * This function takes a pointer to a power domain node in the topology tree
- * and returns its state. State of a non-leaf node needs to be calculated.
+ * This function takes an index and level of a power domain node in the topology
+ * tree and returns its state. State of a non-leaf node needs to be calculated.
  ******************************************************************************/
-unsigned short psci_get_state(pwr_map_node_t *node)
+unsigned short psci_get_state(unsigned int idx,
+			      int level)
 {
-#if !USE_COHERENT_MEM
-	flush_dcache_range((uint64_t) node, sizeof(*node));
-#endif
-
-	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
-
 	/* A cpu node just contains the state which can be directly returned */
-	if (node->level == MPIDR_AFFLVL0)
-		return (node->state >> PSCI_STATE_SHIFT) & PSCI_STATE_MASK;
+	if (level == PSCI_CPU_PWR_LVL) {
+		flush_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state);
+		return get_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state);
+	}
 
+#if !USE_COHERENT_MEM
+	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes[idx],
+					sizeof(psci_non_cpu_pd_nodes[idx]));
+#endif
 	/*
 	 * For a power level higher than a cpu, the state has to be
 	 * calculated. It depends upon the value of the reference count
@@ -355,35 +320,35 @@ unsigned short psci_get_state(pwr_map_node_t *node)
 	 * count. If the reference count is 0 then the power level is
 	 * OFF else ON.
 	 */
-	if (node->ref_count)
+	if (psci_non_cpu_pd_nodes[idx].ref_count)
 		return PSCI_STATE_ON;
 	else
 		return PSCI_STATE_OFF;
 }
 
 /*******************************************************************************
- * This function takes a pointer to a power domain node in the topology
- * tree and a target state. State of a non-leaf node needs to be converted
- * to a reference count. State of a leaf node can be set directly.
+ * This function takes an index and level of a power domain node in the topology
+ * tree and a target state. State of a non-leaf node needs to be converted to
+ * a reference count. State of a leaf node can be set directly.
  ******************************************************************************/
-void psci_set_state(pwr_map_node_t *node, unsigned short state)
+void psci_set_state(unsigned int idx,
+		    unsigned short state,
+		    int level)
 {
-	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
-
 	/*
 	 * For a power level higher than a cpu, the state is used
 	 * to decide whether the reference count is incremented or
 	 * decremented. Entry into the ON_PENDING state does not have
 	 * effect.
 	 */
-	if (node->level > MPIDR_AFFLVL0) {
+	if (level > PSCI_CPU_PWR_LVL) {
 		switch (state) {
 		case PSCI_STATE_ON:
-			node->ref_count++;
+			psci_non_cpu_pd_nodes[idx].ref_count++;
 			break;
 		case PSCI_STATE_OFF:
 		case PSCI_STATE_SUSPEND:
-			node->ref_count--;
+			psci_non_cpu_pd_nodes[idx].ref_count--;
 			break;
 		case PSCI_STATE_ON_PENDING:
 			/*
@@ -393,15 +358,16 @@ void psci_set_state(pwr_map_node_t *node, unsigned short state)
 			return;
 		default:
 			assert(0);
-		}
-	} else {
-		node->state &= ~(PSCI_STATE_MASK << PSCI_STATE_SHIFT);
-		node->state |= (state & PSCI_STATE_MASK) << PSCI_STATE_SHIFT;
-	}
 
 #if !USE_COHERENT_MEM
-	flush_dcache_range((uint64_t) node, sizeof(*node));
+		flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes[idx],
+				sizeof(psci_non_cpu_pd_nodes[idx]));
 #endif
+		}
+	} else {
+		set_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state, state);
+		flush_cpu_data_by_index(idx, psci_svc_cpu_data.psci_state);
+	}
 }
 
 /*******************************************************************************
@@ -411,11 +377,12 @@ void psci_set_state(pwr_map_node_t *node, unsigned short state)
  * tell whether that's actually happened or not. So we err on the side of
  * caution & treat the power domain as being turned off.
  ******************************************************************************/
-unsigned short psci_get_phys_state(pwr_map_node_t *node)
+unsigned short psci_get_phys_state(unsigned int idx,
+				int level)
 {
 	unsigned int state;
 
-	state = psci_get_state(node);
+	state = psci_get_state(idx, level);
 	return get_phys_state(state);
 }
 
@@ -429,60 +396,41 @@ unsigned short psci_get_phys_state(pwr_map_node_t *node)
  * coherency at the interconnect level in addition to gic cpu interface.
  ******************************************************************************/
 void psci_power_up_finish(int end_pwrlvl,
-				 pwrlvl_power_on_finisher_t pon_handler)
+			  pwrlvl_power_on_finisher_t pon_handler)
 {
-	mpidr_pwr_map_nodes_t mpidr_nodes;
-	int rc;
+	unsigned int cpu_idx = plat_my_core_pos();
 	unsigned int max_phys_off_pwrlvl;
-
-
-	/*
-	 * Collect the pointers to the nodes in the topology tree for
-	 * each power domain instances in the mpidr. If this function does
-	 * not return successfully then either the mpidr or the power
-	 * levels are incorrect. Either case is an irrecoverable error.
-	 */
-	rc = psci_get_pwr_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
-				    MPIDR_AFFLVL0,
-				    end_pwrlvl,
-				    mpidr_nodes);
-	if (rc != PSCI_E_SUCCESS)
-		panic();
 
 	/*
 	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes);
+	psci_acquire_pwr_domain_locks(end_pwrlvl,
+				      cpu_idx);
 
-	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(MPIDR_AFFLVL0,
-							    end_pwrlvl,
-							    mpidr_nodes);
+	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(end_pwrlvl,
+							    cpu_idx);
 	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
 
 	/* Perform generic, architecture and platform specific handling */
-	pon_handler(mpidr_nodes, max_phys_off_pwrlvl);
+	pon_handler(cpu_idx, max_phys_off_pwrlvl);
 
 	/*
 	 * This function updates the state of each power instance
-	 * corresponding to the mpidr in the range of power levels
+	 * corresponding to the cpu index in the range of power levels
 	 * specified.
 	 */
-	psci_do_state_coordination(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes,
-				  PSCI_STATE_ON);
+	psci_do_state_coordination(end_pwrlvl,
+				   cpu_idx,
+				   PSCI_STATE_ON);
 
 	/*
 	 * This loop releases the lock corresponding to each power level
 	 * in the reverse order to which they were acquired.
 	 */
-	psci_release_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes);
+	psci_release_pwr_domain_locks(end_pwrlvl,
+				      cpu_idx);
 }
 
 /*******************************************************************************
@@ -533,8 +481,8 @@ int psci_spd_migrate_info(uint64_t *mpidr)
 void psci_print_power_domain_map(void)
 {
 #if LOG_LEVEL >= LOG_LEVEL_INFO
-	pwr_map_node_t *node;
-	unsigned int idx;
+	unsigned int idx, state;
+
 	/* This array maps to the PSCI_STATE_X definitions in psci.h */
 	static const char *psci_state_str[] = {
 		"ON",
@@ -544,14 +492,20 @@ void psci_print_power_domain_map(void)
 	};
 
 	INFO("PSCI Power Domain Map:\n");
-	for (idx = 0; idx < PSCI_NUM_PWR_DOMAINS; idx++) {
-		node = &psci_pwr_domain_map[idx];
-		if (!(node->state & PSCI_PWR_DOMAIN_PRESENT)) {
-			continue;
-		}
-		INFO("  pwrInst: Level %u, MPID 0x%lx, State %s\n",
-				node->level, node->mpidr,
-				psci_state_str[psci_get_state(node)]);
+	for (idx = 0; idx < (PSCI_NUM_PWR_DOMAINS - PLATFORM_CORE_COUNT); idx++) {
+		state = psci_get_state(idx, psci_non_cpu_pd_nodes[idx].level);
+		INFO("  Domain Node : Level %u, parent_node %d, State %s\n",
+				psci_non_cpu_pd_nodes[idx].level,
+				psci_non_cpu_pd_nodes[idx].parent_node,
+				psci_state_str[state]);
+	}
+
+	for (idx = 0; idx < PLATFORM_CORE_COUNT; idx++) {
+		state = psci_get_state(idx, PSCI_CPU_PWR_LVL);
+		INFO("  CPU Node : MPID 0x%lx, parent_node %d, State %s\n",
+				psci_cpu_pd_nodes[idx].mpidr,
+				psci_cpu_pd_nodes[idx].parent_node,
+				psci_state_str[state]);
 	}
 #endif
 }

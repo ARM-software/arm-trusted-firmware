@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <platform_def.h>
@@ -67,7 +66,7 @@ func psci_do_pwrdown_cache_maintenance
 	 * platform.
 	 * ---------------------------------------------
 	 */
-	cmp	x0, #MPIDR_AFFLVL0
+	cmp	x0, #PSCI_CPU_PWR_LVL
 	b.eq	do_core_pwr_dwn
 	bl	prepare_cluster_pwr_dwn
 	b	do_stack_maintenance
