@@ -71,8 +71,8 @@ int psci_cpu_on_start(unsigned long target_cpu,
 		   int end_pwrlvl)
 {
 	int rc;
-	mpidr_pwr_map_nodes_t target_cpu_nodes;
 	unsigned long psci_entrypoint;
+	unsigned int target_idx = platform_core_pos_by_mpidr(target_cpu);
 
 	/*
 	 * This function must only be called on platforms where the
@@ -81,33 +81,14 @@ int psci_cpu_on_start(unsigned long target_cpu,
 	assert(psci_plat_pm_ops->pwr_domain_on &&
 			psci_plat_pm_ops->pwr_domain_on_finish);
 
-	/*
-	 * Collect the pointers to the nodes in the topology tree for
-	 * each power domain instance in the mpidr. If this function does
-	 * not return successfully then either the mpidr or the power
-	 * levels are incorrect.
-	 */
-	rc = psci_get_pwr_map_nodes(target_cpu,
-				    MPIDR_AFFLVL0,
-				    end_pwrlvl,
-				    target_cpu_nodes);
-	assert(rc == PSCI_E_SUCCESS);
-
-	/*
-	 * This function acquires the lock corresponding to each power
-	 * level so that by the time all locks are taken, the system topology
-	 * is snapshot and state management can be done safely.
-	 */
-	psci_acquire_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  target_cpu_nodes);
+	/* Protect against multiple CPUs trying to turn ON the same target CPU */
+	psci_spin_lock_cpu(target_idx);
 
 	/*
 	 * Generic management: Ensure that the cpu is off to be
 	 * turned on.
 	 */
-	rc = cpu_on_validate_state(psci_get_state(
-				    target_cpu_nodes[MPIDR_AFFLVL0]));
+	rc = cpu_on_validate_state(psci_get_state(target_idx, PSCI_CPU_PWR_LVL));
 	if (rc != PSCI_E_SUCCESS)
 		goto exit;
 
@@ -121,13 +102,12 @@ int psci_cpu_on_start(unsigned long target_cpu,
 
 	/*
 	 * This function updates the state of each affinity instance
-	 * corresponding to the mpidr in the range of affinity levels
+	 * corresponding to the mpidr in the range of power domain levels
 	 * specified.
 	 */
-	psci_do_state_coordination(MPIDR_AFFLVL0,
-				   end_pwrlvl,
-				   target_cpu_nodes,
-				   PSCI_STATE_ON_PENDING);
+	psci_do_state_coordination(end_pwrlvl,
+				    target_idx,
+				    PSCI_STATE_ON_PENDING);
 
 	/*
 	 * Perform generic, architecture and platform specific handling.
@@ -150,20 +130,12 @@ int psci_cpu_on_start(unsigned long target_cpu,
 		cm_init_context_by_index(target_idx, ep);
 	else
 		/* Restore the state on error. */
-		psci_do_state_coordination(MPIDR_AFFLVL0,
-					  end_pwrlvl,
-					  target_cpu_nodes,
-					  PSCI_STATE_OFF);
+		psci_do_state_coordination(end_pwrlvl,
+				    target_idx,
+				    PSCI_STATE_OFF);
 
 exit:
-	/*
-	 * This loop releases the lock corresponding to each power level
-	 * in the reverse order to which they were acquired.
-	 */
-	psci_release_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  target_cpu_nodes);
-
+	psci_spin_unlock_cpu(target_idx);
 	return rc;
 }
 
@@ -171,12 +143,12 @@ exit:
  * The following function finish an earlier power on request. They
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
-void psci_cpu_on_finish(pwr_map_node_t *node[], int pwrlvl)
+void psci_cpu_on_finish(unsigned int cpu_idx,
+			int max_off_pwrlvl)
 {
-	assert(node[pwrlvl]->level == pwrlvl);
-
 	/* Ensure we have been explicitly woken up by another cpu */
-	assert(psci_get_state(node[MPIDR_AFFLVL0]) == PSCI_STATE_ON_PENDING);
+	assert(psci_get_state(cpu_idx, PSCI_CPU_PWR_LVL)
+	       == PSCI_STATE_ON_PENDING);
 
 	/*
 	 * Plat. management: Perform the platform specific actions
@@ -184,7 +156,7 @@ void psci_cpu_on_finish(pwr_map_node_t *node[], int pwrlvl)
 	 * register. The actual state of this cpu has already been
 	 * changed.
 	 */
-	psci_plat_pm_ops->pwr_domain_on_finish(pwrlvl);
+	psci_plat_pm_ops->pwr_domain_on_finish(max_off_pwrlvl);
 
 	/*
 	 * Arch. management: Enable data cache and manage stack memory
@@ -199,12 +171,25 @@ void psci_cpu_on_finish(pwr_map_node_t *node[], int pwrlvl)
 	bl31_arch_setup();
 
 	/*
+	 * Lock the CPU spin lock to make sure that the context initialization
+	 * is done. Since the lock is only used in this function to create
+	 * a synchronization point with cpu_on_start(), it can be released
+	 * immediately.
+	 */
+	psci_spin_lock_cpu(cpu_idx);
+	psci_spin_unlock_cpu(cpu_idx);
+
+	/*
 	 * Call the cpu on finish handler registered by the Secure Payload
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an
 	 * error, it's expected to assert within
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_on_finish)
 		psci_spd_pm->svc_on_finish(0);
+
+	/* Populate the mpidr field within the cpu node array */
+	/* This needs to be done only once */
+	psci_cpu_pd_nodes[cpu_idx].mpidr = read_mpidr() & MPIDR_AFFINITY_MASK;
 
 	/*
 	 * Generic management: Now we just need to retrieve the
@@ -216,4 +201,3 @@ void psci_cpu_on_finish(pwr_map_node_t *node[], int pwrlvl)
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 }
-

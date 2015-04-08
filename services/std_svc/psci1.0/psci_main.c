@@ -240,32 +240,26 @@ int psci_cpu_off(void)
 int psci_affinity_info(unsigned long target_affinity,
 		       unsigned int lowest_affinity_level)
 {
-	int rc = PSCI_E_INVALID_PARAMS;
-	unsigned int pwr_domain_state;
-	pwr_map_node_t *node;
+	unsigned int cpu_idx;
+	unsigned char cpu_pwr_domain_state;
 
-	if (lowest_affinity_level > PLAT_MAX_PWR_LVL)
-		return rc;
+	/* We dont support level higher than PSCI_CPU_PWR_LVL */
+	if (lowest_affinity_level > PSCI_CPU_PWR_LVL)
+		return PSCI_E_INVALID_PARAMS;
 
-	node = psci_get_pwr_map_node(target_affinity, lowest_affinity_level);
-	if (node && (node->state & PSCI_PWR_DOMAIN_PRESENT)) {
+	/* Calculate the cpu index of the target */
+	cpu_idx = platform_core_pos_by_mpidr(target_affinity);
+	if (cpu_idx == -1)
+		return PSCI_E_INVALID_PARAMS;
 
-		/*
-		 * TODO: For power levels higher than 0 i.e. cpu, the
-		 * state will always be either ON or OFF. Need to investigate
-		 * how critical is it to support ON_PENDING here.
-		 */
-		pwr_domain_state = psci_get_state(node);
+	cpu_pwr_domain_state = psci_get_state(cpu_idx, PSCI_CPU_PWR_LVL);
 
-		/* A suspended cpu is available & on for the OS */
-		if (pwr_domain_state == PSCI_STATE_SUSPEND) {
-			pwr_domain_state = PSCI_STATE_ON;
-		}
-
-		rc = pwr_domain_state;
+	/* A suspended cpu is available & on for the OS */
+	if (cpu_pwr_domain_state == PSCI_STATE_SUSPEND) {
+		cpu_pwr_domain_state = PSCI_STATE_ON;
 	}
 
-	return rc;
+	return cpu_pwr_domain_state;
 }
 
 int psci_migrate(unsigned long target_cpu)

@@ -82,15 +82,15 @@ int psci_get_suspend_stateid(void)
 }
 
 /*******************************************************************************
- * This function gets the state id of the cpu specified by the 'mpidr' parameter
+ * This function gets the state id of the cpu specified by the cpu index
  * from the power state parameter saved in the per-cpu data array. Returns
  * PSCI_INVALID_DATA if the power state saved is invalid.
  ******************************************************************************/
-int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
+int psci_get_suspend_stateid_by_idx(unsigned long cpu_idx)
 {
 	unsigned int power_state;
 
-	power_state = get_cpu_data_by_index(platform_core_pos_by_mpidr(mpidr),
+	power_state = get_cpu_data_by_index(cpu_idx,
 					    psci_svc_cpu_data.power_state);
 
 	return ((power_state == PSCI_INVALID_DATA) ?
@@ -114,12 +114,10 @@ int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
  * the state transition has been done, no further error is expected and it is
  * not possible to undo any of the actions taken beyond that point.
  ******************************************************************************/
-void psci_cpu_suspend_start(entry_point_info_t *ep,
-			int end_pwrlvl)
+void psci_cpu_suspend_start(entry_point_info_t *ep, int end_pwrlvl)
 {
 	int skip_wfi = 0;
-	mpidr_pwr_map_nodes_t mpidr_nodes;
-	unsigned int max_phys_off_pwrlvl;
+	unsigned int max_phys_off_pwrlvl, idx = platform_my_core_pos();
 	unsigned long psci_entrypoint;
 
 	/*
@@ -130,24 +128,12 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 			psci_plat_pm_ops->pwr_domain_suspend_finish);
 
 	/*
-	 * Collect the pointers to the nodes in the topology tree for
-	 * each power domain instance in the mpidr. If this function does
-	 * not return successfully then either the mpidr or the power
-	 * levels are incorrect. Either way, this an internal TF error
-	 * therefore assert.
-	 */
-	if (psci_get_pwr_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
-		   MPIDR_AFFLVL0, end_pwrlvl, mpidr_nodes) != PSCI_E_SUCCESS)
-		assert(0);
-
-	/*
 	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes);
+	psci_acquire_pwr_domain_locks(end_pwrlvl,
+				      idx);
 
 	/*
 	 * We check if there are any pending interrupts after the delay
@@ -169,17 +155,15 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 
 	/*
 	 * This function updates the state of each power domain instance
-	 * corresponding to the mpidr in the range of power levels
+	 * corresponding to the cpu index in the range of power levels
 	 * specified.
 	 */
-	psci_do_state_coordination(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes,
-				  PSCI_STATE_SUSPEND);
+	psci_do_state_coordination(end_pwrlvl,
+				   idx,
+				   PSCI_STATE_SUSPEND);
 
-	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(MPIDR_AFFLVL0,
-							    end_pwrlvl,
-							    mpidr_nodes);
+	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(end_pwrlvl,
+							    idx);
 	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
 
 	/*
@@ -210,9 +194,8 @@ exit:
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_pwr_domain_locks(MPIDR_AFFLVL0,
-				  end_pwrlvl,
-				  mpidr_nodes);
+	psci_release_pwr_domain_locks(end_pwrlvl,
+				      idx);
 	if (!skip_wfi)
 		psci_power_down_wfi();
 }
@@ -221,15 +204,14 @@ exit:
  * The following functions finish an earlier suspend request. They
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
-void psci_cpu_suspend_finish(pwr_map_node_t *node[], int pwrlvl)
+void psci_cpu_suspend_finish(unsigned int cpu_idx, int max_off_pwrlvl)
 {
 	int32_t suspend_level;
 	uint64_t counter_freq;
 
-	assert(node[pwrlvl]->level == pwrlvl);
-
 	/* Ensure we have been woken up from a suspended state */
-	assert(psci_get_state(node[MPIDR_AFFLVL0]) == PSCI_STATE_SUSPEND);
+	assert(psci_get_state(cpu_idx, PSCI_CPU_PWR_LVL)
+				== PSCI_STATE_SUSPEND);
 
 	/*
 	 * Plat. management: Perform the platform specific actions
@@ -238,7 +220,7 @@ void psci_cpu_suspend_finish(pwr_map_node_t *node[], int pwrlvl)
 	 * wrong then assert as there is no way to recover from this
 	 * situation.
 	 */
-	psci_plat_pm_ops->pwr_domain_suspend_finish(pwrlvl);
+	psci_plat_pm_ops->pwr_domain_suspend_finish(max_off_pwrlvl);
 
 	/*
 	 * Arch. management: Enable the data cache, manage stack memory and
@@ -275,4 +257,3 @@ void psci_cpu_suspend_finish(pwr_map_node_t *node[], int pwrlvl)
 	/* Clean caches before re-entering normal world */
 	dcsw_op_louis(DCCSW);
 }
-

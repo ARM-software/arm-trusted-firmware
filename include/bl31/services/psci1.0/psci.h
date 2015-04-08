@@ -43,6 +43,19 @@
 #define PSCI_NUM_PWR_DOMAINS	(2 * PLATFORM_CORE_COUNT)
 #endif
 
+#define PSCI_NUM_NON_CPU_PWR_DOMAINS	(PSCI_NUM_PWR_DOMAINS - \
+					 PLATFORM_CORE_COUNT)
+
+/* This is the power level corresponding to a CPU */
+#define PSCI_CPU_PWR_LVL	0
+
+/*
+ * The maximum power level supported by PSCI. Since PSCI CPU_SUSPEND
+ * uses the old power_state parameter format which has 2 bits to specify the
+ * power level, this constant is defined to be 3.
+ */
+#define PSCI_MAX_PWR_LVL	3
+
 /*******************************************************************************
  * Defines for runtime services func ids
  ******************************************************************************/
@@ -137,16 +150,11 @@
 #define PSCI_E_NOT_PRESENT	-7
 #define PSCI_E_DISABLED		-8
 
-/*******************************************************************************
- * PSCI power domain state related constants. A power domain instance could
- * be present or absent physically to cater for asymmetric topologies. If
- * present then it could be in one of the 4 further defined states.
- ******************************************************************************/
-#define PSCI_STATE_SHIFT	1
-#define PSCI_STATE_MASK		0xff
+#define PSCI_INVALID_MPIDR	~(0ULL)
 
-#define PSCI_PWR_DOMAIN_ABSENT		0x0
-#define PSCI_PWR_DOMAIN_PRESENT		0x1
+/*******************************************************************************
+ * PSCI power domain state related constants.
+ ******************************************************************************/
 #define PSCI_STATE_ON		0x0
 #define PSCI_STATE_OFF		0x1
 #define PSCI_STATE_ON_PENDING	0x2
@@ -170,9 +178,10 @@
  * this information will not reside on a cache line shared with another cpu.
  ******************************************************************************/
 typedef struct psci_cpu_data {
-	uint32_t power_state;
+	uint32_t power_state;	/* The power state from CPU_SUSPEND */
+	unsigned char psci_state;   /* The state of this CPU as seen by PSCI */
 #if !USE_COHERENT_MEM
-	bakery_info_t pcpu_bakery_info[PSCI_NUM_PWR_DOMAINS];
+	bakery_info_t pcpu_bakery_info[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 #endif
 } psci_cpu_data_t;
 
@@ -230,7 +239,7 @@ void __dead2 psci_power_down_wfi(void);
 void psci_cpu_on_finish_entry(void);
 void psci_cpu_suspend_finish_entry(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *);
-int psci_get_suspend_stateid_by_mpidr(unsigned long);
+int psci_get_suspend_stateid_by_idx(unsigned long);
 int psci_get_suspend_stateid(void);
 int psci_get_suspend_pwrlvl(void);
 
