@@ -36,7 +36,8 @@
 	.local	platform_normal_stacks
 	.weak	platform_set_stack
 	.weak	platform_get_stack
-
+	.weak	plat_get_my_stack
+	.weak	plat_set_my_stack
 
 	/* -----------------------------------------------------
 	 * unsigned long platform_get_stack (unsigned long mpidr)
@@ -64,6 +65,33 @@ func platform_set_stack
 	mov sp, x0
 	ret x9
 endfunc platform_set_stack
+
+	/* -----------------------------------------------------
+	 * unsigned long plat_get_my_stack ()
+	 *
+	 * For the current CPU, this function returns the stack
+	 * pointer for a stack allocated in device memory.
+	 * -----------------------------------------------------
+	 */
+func plat_get_my_stack
+	mov	x10, x30 // lr
+	get_my_mp_stack platform_normal_stacks, PLATFORM_STACK_SIZE
+	ret	x10
+endfunc plat_get_my_stack
+
+	/* -----------------------------------------------------
+	 * void plat_set_my_stack ()
+	 *
+	 * For the current CPU, this function sets the stack
+	 * pointer to a stack allocated in normal memory.
+	 * -----------------------------------------------------
+	 */
+func plat_set_my_stack
+	mov	x9, x30 // lr
+	bl 	plat_get_my_stack
+	mov	sp, x0
+	ret	x9
+endfunc plat_set_my_stack
 
 	/* -----------------------------------------------------
 	 * Per-cpu stacks in normal memory. Each cpu gets a

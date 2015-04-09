@@ -123,7 +123,7 @@ unsigned short psci_get_state(pwr_map_node_t *node);
 unsigned short psci_get_phys_state(pwr_map_node_t *node);
 void psci_set_state(pwr_map_node_t *node, unsigned short state);
 unsigned long mpidr_set_pwr_domain_inst(unsigned long, unsigned char, int);
-int psci_validate_mpidr(unsigned long, int);
+int psci_validate_mpidr(unsigned long mpidr);
 int get_power_on_target_pwrlvl(void);
 void psci_power_up_finish(int end_pwrlvl,
 				 pwrlvl_power_on_finisher_t pon_handler);

@@ -193,36 +193,39 @@ static void psci_init_pwr_map_node(unsigned long mpidr,
 	state = plat_get_pwr_domain_state(level, mpidr);
 	psci_pwr_domain_map[idx].state = state;
 
-	if (level == MPIDR_AFFLVL0) {
+	/*
+	 * Check if this is a CPU node and is present in which case certain
+	 * other initialisations are required.
+	 */
+	if (level != MPIDR_AFFLVL0)
+		return;
 
-		/*
-		 * Mark the cpu as OFF. Higher power level reference counts
-		 * have already been memset to 0
-		 */
-		if (state & PSCI_PWR_DOMAIN_PRESENT)
-			psci_set_state(&psci_pwr_domain_map[idx],
-						PSCI_STATE_OFF);
+	if (!(state & PSCI_PWR_DOMAIN_PRESENT))
+		return;
 
-		/*
-		 * Associate a non-secure context with this power
-		 * instance through the context management library.
-		 */
-		linear_id = platform_get_core_pos(mpidr);
-		assert(linear_id < PLATFORM_CORE_COUNT);
+	/*
+	 * Mark the cpu as OFF. Higher power level reference counts
+	 * have already been memset to 0
+	 */
+	psci_set_state(&psci_pwr_domain_map[idx], PSCI_STATE_OFF);
 
-		/* Invalidate the suspend context for the node */
-		set_cpu_data_by_index(linear_id,
-				      psci_svc_cpu_data.power_state,
-				      PSCI_INVALID_DATA);
+	/*
+	 * Associate a non-secure context with this power
+	 * instance through the context management library.
+	 */
+	linear_id = plat_core_pos_by_mpidr(mpidr);
+	assert(linear_id < PLATFORM_CORE_COUNT);
 
-		flush_cpu_data_by_index(linear_id, psci_svc_cpu_data);
+	/* Invalidate the suspend context for the node */
+	set_cpu_data_by_index(linear_id,
+			      psci_svc_cpu_data.power_state,
+			      PSCI_INVALID_DATA);
 
-		cm_set_context_by_mpidr(mpidr,
-					(void *) &psci_ns_context[linear_id],
-					NON_SECURE);
-	}
+	flush_cpu_data_by_index(linear_id, psci_svc_cpu_data);
 
-	return;
+	cm_set_context_by_index(linear_id,
+				(void *) &psci_ns_context[linear_id],
+				NON_SECURE);
 }
 
 /*******************************************************************************

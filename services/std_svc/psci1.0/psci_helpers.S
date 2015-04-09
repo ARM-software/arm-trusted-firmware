@@ -82,8 +82,7 @@ do_core_pwr_dwn:
 	 * ---------------------------------------------
 	 */
 do_stack_maintenance:
-	mrs	x0, mpidr_el1
-	bl	platform_get_stack
+	bl	plat_get_my_stack
 
 	/* ---------------------------------------------
 	 * Calculate and store the size of the used
@@ -136,8 +135,7 @@ func psci_do_pwrup_cache_maintenance
 	 * stack base address in x0.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, mpidr_el1
-	bl	platform_get_stack
+	bl	plat_get_my_stack
 	mov	x1, sp
 	sub	x1, x0, x1
 	mov	x0, sp

@@ -90,7 +90,7 @@ int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
 {
 	unsigned int power_state;
 
-	power_state = get_cpu_data_by_mpidr(mpidr,
+	power_state = get_cpu_data_by_index(plat_core_pos_by_mpidr(mpidr),
 					    psci_svc_cpu_data.power_state);
 
 	return ((power_state == PSCI_INVALID_DATA) ?
@@ -185,7 +185,7 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 	/*
 	 * Store the re-entry information for the non-secure world.
 	 */
-	cm_init_context(read_mpidr_el1(), ep);
+	cm_init_my_context(ep);
 
 	/* Set the secure world (EL3) re-entry point after BL1 */
 	psci_entrypoint = (unsigned long) psci_cpu_suspend_finish_entry;

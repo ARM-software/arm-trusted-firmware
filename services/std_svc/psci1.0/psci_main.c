@@ -50,10 +50,9 @@ int psci_cpu_on(unsigned long target_cpu,
 	entry_point_info_t ep;
 
 	/* Determine if the cpu exists of not */
-	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
-	if (rc != PSCI_E_SUCCESS) {
+	rc = psci_validate_mpidr(target_cpu);
+	if (rc != PSCI_E_SUCCESS)
 		return PSCI_E_INVALID_PARAMS;
-	}
 
 	/* Validate the entrypoint using platform pm_ops */
 	if (psci_plat_pm_ops->validate_ns_entrypoint) {
@@ -287,7 +286,7 @@ int psci_migrate(unsigned long target_cpu)
 		return PSCI_E_NOT_PRESENT;
 
 	/* Check the validity of the specified target cpu */
-	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
+	rc = psci_validate_mpidr(target_cpu);
 	if (rc != PSCI_E_SUCCESS)
 		return PSCI_E_INVALID_PARAMS;
 
