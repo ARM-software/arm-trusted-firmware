@@ -131,6 +131,20 @@
 	.endm
 
 	/*
+	 * This macro calculates the base address of the current CPU's MP stack
+	 * using the platform_my_core_pos() index, the name of the stack storage
+	 * and the size of each stack
+	 * Out: X0 = physical address of stack base
+	 * Clobber: X30, X1, X2
+	 */
+	.macro get_my_mp_stack _name, _size
+	bl  platform_my_core_pos
+	ldr x2, =(\_name + \_size)
+	mov x1, #\_size
+	madd x0, x0, x1, x2
+	.endm
+
+	/*
 	 * This macro calculates the base address of a UP stack using the
 	 * name of the stack storage and the size of the stack
 	 * Out: X0 = physical address of stack base

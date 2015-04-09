@@ -34,10 +34,13 @@
 
 
 	.local	platform_normal_stacks
+	.globl	platform_set_my_stack
+	.globl	platform_get_my_stack
 	.globl	platform_set_stack
 	.globl	platform_get_stack
 
 	/* -----------------------------------------------------
+	 * unsigned long platform_get_my_stack ()
 	 * unsigned long platform_get_stack (unsigned long)
 	 *
 	 * For cold-boot BL images, only the primary CPU needs a
@@ -45,12 +48,14 @@
 	 * stack allocated in device memory.
 	 * -----------------------------------------------------
 	 */
-func platform_get_stack
+func platform_get_my_stack
+platform_get_stack:
 	get_up_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	ret
-endfunc platform_get_stack
+endfunc platform_get_my_stack
 
 	/* -----------------------------------------------------
+	 * void platform_set_my_stack ()
 	 * void platform_set_stack (unsigned long)
 	 *
 	 * For cold-boot BL images, only the primary CPU needs a
@@ -58,11 +63,12 @@ endfunc platform_get_stack
 	 * allocated in normal memory.
 	 * -----------------------------------------------------
 	 */
-func platform_set_stack
+func platform_set_my_stack
+platform_set_stack:
 	get_up_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	mov sp, x0
 	ret
-endfunc platform_set_stack
+endfunc platform_set_my_stack
 
 	/* -----------------------------------------------------
 	 * Single cpu stack in normal memory.
