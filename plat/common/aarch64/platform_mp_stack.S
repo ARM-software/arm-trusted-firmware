@@ -49,6 +49,7 @@ func platform_get_stack
 	mov x10, x30 // lr
 	get_mp_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	ret x10
+endfunc platform_get_stack
 
 	/* -----------------------------------------------------
 	 * void platform_set_stack (unsigned long mpidr)
@@ -62,6 +63,7 @@ func platform_set_stack
 	bl  platform_get_stack
 	mov sp, x0
 	ret x9
+endfunc platform_set_stack
 
 	/* -----------------------------------------------------
 	 * Per-cpu stacks in normal memory. Each cpu gets a

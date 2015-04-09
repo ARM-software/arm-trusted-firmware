@@ -124,3 +124,4 @@ func bl2_entrypoint
 	bl	bl2_main
 _panic:
 	b	_panic
+endfunc bl2_entrypoint

@@ -58,6 +58,7 @@ func plat_crash_console_init
 	mov_imm	x1, PL011_UART3_CLK_IN_HZ
 	mov_imm	x2, PL011_BAUDRATE
 	b	console_core_init
+endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_putc(int c)
@@ -69,6 +70,7 @@ func plat_crash_console_init
 func plat_crash_console_putc
 	mov_imm	x1, JUNO_CRASH_CONSOLE_BASE
 	b	console_core_putc
+endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
 	 * void plat_report_exception(unsigned int type)
@@ -90,6 +92,7 @@ func plat_report_exception
 	add	x1, x1, #V2M_SYS_LED
 	str	w0, [x1]
 	ret
+endfunc plat_report_exception
 
 	/*
 	 * Return 0 to 3 for the A53s and 4 or 5 for the A57s
@@ -100,6 +103,7 @@ func platform_get_core_pos
 	eor	x0, x0, #(1 << MPIDR_AFFINITY_BITS)  // swap A53/A57 order
 	add	x0, x1, x0, LSR #6
 	ret
+endfunc platform_get_core_pos
 
 
 	/* -----------------------------------------------------
@@ -111,6 +115,7 @@ func platform_get_core_pos
 	 */
 func platform_mem_init
 	ret
+endfunc platform_mem_init
 
 	/* --------------------------------------------------------------------
 	 * void plat_reset_handler(void);
@@ -197,3 +202,4 @@ ret:
 	isb
 #endif /* FIRST_RESET_HANDLER_CALL */
 	ret
+endfunc plat_reset_handler

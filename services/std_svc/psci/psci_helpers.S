@@ -120,6 +120,7 @@ do_stack_maintenance:
 	ldp	x19, x20, [sp], #16
 	ldp	x29, x30, [sp], #16
 	ret
+endfunc psci_do_pwrdown_cache_maintenance
 
 
 /* -----------------------------------------------------------------------
@@ -164,3 +165,4 @@ func psci_do_pwrup_cache_maintenance
 
 	ldp	x29, x30, [sp], #16
 	ret
+endfunc psci_do_pwrup_cache_maintenance

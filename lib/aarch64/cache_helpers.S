@@ -56,6 +56,7 @@ flush_loop:
 	b.lo    flush_loop
 	dsb	sy
 	ret
+endfunc flush_dcache_range
 
 
 	/* ------------------------------------------
@@ -75,6 +76,7 @@ inv_loop:
 	b.lo    inv_loop
 	dsb	sy
 	ret
+endfunc inv_dcache_range
 
 
 	/* ---------------------------------------------------------------
@@ -154,6 +156,7 @@ level_done:
 	isb
 exit:
 	ret
+endfunc do_dcsw_op
 
 dcsw_loop_table:
 	dcsw_loop isw
@@ -163,10 +166,12 @@ dcsw_loop_table:
 
 func dcsw_op_louis
 	dcsw_op #LOUIS_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
+endfunc dcsw_op_louis
 
 
 func dcsw_op_all
 	dcsw_op #LOC_SHIFT, #CLIDR_FIELD_WIDTH, #LEVEL_SHIFT
+endfunc dcsw_op_all
 
 	/* ---------------------------------------------------------------
 	 *  Helper macro for data cache operations by set/way for the
@@ -189,6 +194,7 @@ func dcsw_op_all
 	 */
 func dcsw_op_level1
 	dcsw_op_level #(1 << LEVEL_SHIFT)
+endfunc dcsw_op_level1
 
 	/* ---------------------------------------------------------------
 	 * Data cache operations by set/way for level 2 cache
@@ -199,6 +205,7 @@ func dcsw_op_level1
 	 */
 func dcsw_op_level2
 	dcsw_op_level #(2 << LEVEL_SHIFT)
+endfunc dcsw_op_level2
 
 	/* ---------------------------------------------------------------
 	 * Data cache operations by set/way for level 3 cache
@@ -209,3 +216,4 @@ func dcsw_op_level2
 	 */
 func dcsw_op_level3
 	dcsw_op_level #(3 << LEVEL_SHIFT)
+endfunc dcsw_op_level3

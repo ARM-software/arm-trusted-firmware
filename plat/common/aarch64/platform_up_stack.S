@@ -48,6 +48,7 @@
 func platform_get_stack
 	get_up_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	ret
+endfunc platform_get_stack
 
 	/* -----------------------------------------------------
 	 * void platform_set_stack (unsigned long)
@@ -61,6 +62,7 @@ func platform_set_stack
 	get_up_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	mov sp, x0
 	ret
+endfunc platform_set_stack
 
 	/* -----------------------------------------------------
 	 * Single cpu stack in normal memory.
