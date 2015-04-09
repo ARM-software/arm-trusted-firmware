@@ -59,6 +59,8 @@ int plat_get_image_source(unsigned int image_id,
 			uintptr_t *dev_handle,
 			uintptr_t *image_spec);
 unsigned long plat_get_ns_image_entrypoint(void);
+unsigned int platform_my_core_pos(void);
+int platform_core_pos_by_mpidr(unsigned long mpidr);
 
 /*******************************************************************************
  * Mandatory interrupt management functions
@@ -74,8 +76,7 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 /*******************************************************************************
  * Optional common functions (may be overridden)
  ******************************************************************************/
-unsigned int platform_get_core_pos(unsigned long mpidr);
-unsigned long platform_get_stack(unsigned long mpidr);
+unsigned long platform_get_my_stack(void);
 void plat_report_exception(unsigned long);
 int plat_crash_console_init(void);
 int plat_crash_console_putc(int c);

@@ -264,18 +264,14 @@ void psci_release_pwr_domain_locks(int start_pwrlvl,
 }
 
 /*******************************************************************************
- * Simple routine to determine whether an power domain instance at a given
- * level in an mpidr exists or not.
+ * Simple routine to determine whether a mpidr is valid or not.
  ******************************************************************************/
-int psci_validate_mpidr(unsigned long mpidr, int level)
+int psci_validate_mpidr(unsigned long mpidr)
 {
-	pwr_map_node_t *node;
-
-	node = psci_get_pwr_map_node(mpidr, level);
-	if (node && (node->state & PSCI_PWR_DOMAIN_PRESENT))
-		return PSCI_E_SUCCESS;
-	else
+	if (platform_core_pos_by_mpidr(mpidr) < 0)
 		return PSCI_E_INVALID_PARAMS;
+
+	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************

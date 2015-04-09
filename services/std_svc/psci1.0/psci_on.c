@@ -147,13 +147,14 @@ int psci_cpu_on_start(unsigned long target_cpu,
 
 	if (rc == PSCI_E_SUCCESS)
 		/* Store the re-entry information for the non-secure world. */
-		cm_init_context(target_cpu, ep);
+		cm_init_context_by_index(target_idx, ep);
 	else
 		/* Restore the state on error. */
 		psci_do_state_coordination(MPIDR_AFFLVL0,
 					  end_pwrlvl,
 					  target_cpu_nodes,
 					  PSCI_STATE_OFF);
+
 exit:
 	/*
 	 * This loop releases the lock corresponding to each power level
