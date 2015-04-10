@@ -63,17 +63,6 @@ static const unsigned char arm_devel_rotpk_hash[] =	\
 #endif
 
 /*
- * Check the validity of the key
- *
- * 0 = success, Otherwise = error
- */
-int plat_match_rotpk(const unsigned char *key_buf, unsigned int key_len)
-{
-	/* TODO: check against the ROT key stored in the platform */
-	return 0;
-}
-
-/*
  * Return the ROTPK hash in the following ASN.1 structure in DER format:
  *
  * AlgorithmIdentifier  ::=  SEQUENCE  {

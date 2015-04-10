@@ -472,17 +472,6 @@ The ARM FVP port uses this function to initialize the mailbox memory used for
 providing the warm-boot entry-point addresses.
 
 
-### Function: plat_match_rotpk()
-
-    Argument : const unsigned char *, unsigned int
-    Return   : int
-
-This function is mandatory when Trusted Board Boot is enabled. It receives a
-pointer to a buffer containing a signing key and its size as parameters and
-returns 0 (success) if that key matches the ROT (Root Of Trust) key stored in
-the platform. Any other return value means a mismatch.
-
-
 ### Function: plat_get_rotpk_info()
 
     Argument : void *, void **, unsigned int *, unsigned int *
