@@ -330,6 +330,15 @@ performed.
 For a better understanding of these options, the ARM development platform memory
 map is explained in the [Firmware Design].
 
+#### ARM CSS platform specific build options
+
+*   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version
+    incompatibility. Version 1.7.0 of the SCP firmware made a non-backwards
+    compatible change to the MTL protocol, used for AP/SCP communication.
+    Trusted Firmware no longer supports earlier SCP versions. If this option is
+    set to 1 then Trusted Firmware will detect if an earlier version is in use.
+    Default is 1.
+
 
 ### Creating a Firmware Image Package
 

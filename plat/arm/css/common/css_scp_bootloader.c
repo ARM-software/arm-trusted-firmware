@@ -148,6 +148,24 @@ int scp_bootloader_transfer(void *image, unsigned int image_size)
 	cmd_info_payload->checksum = checksum;
 
 	scp_boot_message_send(sizeof(*cmd_info_payload));
+#if CSS_DETECT_PRE_1_7_0_SCP
+	{
+		const uint32_t deprecated_scp_nack_cmd = 0x404;
+		uint32_t mhu_status;
+
+		VERBOSE("Detecting SCP version incompatibility\n");
+
+		mhu_status = mhu_secure_message_wait();
+		if (mhu_status == deprecated_scp_nack_cmd) {
+			ERROR("Detected an incompatible version of the SCP firmware.\n");
+			ERROR("Only versions from v1.7.0 onwards are supported.\n");
+			ERROR("Please update the SCP firmware.\n");
+			return -1;
+		}
+
+		VERBOSE("SCP version looks OK\n");
+	}
+#endif /* CSS_DETECT_PRE_1_7_0_SCP */
 	response = scp_boot_message_wait(sizeof(response));
 	scp_boot_message_end();
 
