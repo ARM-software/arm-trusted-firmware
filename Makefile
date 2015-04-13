@@ -42,8 +42,6 @@ VERSION_MINOR		:= 1
 V			:= 0
 # Debug build
 DEBUG			:= 0
-# Build architecture
-ARCH 			:= aarch64
 # Build platform
 DEFAULT_PLAT		:= fvp
 PLAT			:= ${DEFAULT_PLAT}
