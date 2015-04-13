@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -79,8 +79,12 @@ endfunc aem_generic_cluster_pwr_dwn
 	 * reported.
 	 * ---------------------------------------------
 	 */
+.section .rodata.aem_generic_regs, "aS"
+aem_generic_regs:  /* The ascii list of register names to be reported */
+	.asciz	"" /* no registers to report */
+
 func aem_generic_cpu_reg_dump
-	mov	x6, #0 /* no registers to report */
+	adr	x6, aem_generic_regs
 	ret
 endfunc aem_generic_cpu_reg_dump
 
