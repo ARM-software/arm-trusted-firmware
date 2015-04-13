@@ -226,9 +226,9 @@ CASSERT(sizeof(unsigned long) ==
  ******************************************************************************/
 unsigned long page_align(unsigned long, unsigned);
 void change_security_state(unsigned int);
-unsigned long image_size(const char *);
+unsigned long image_size(unsigned int image_id);
 int load_image(meminfo_t *mem_layout,
-	       const char *image_name,
+	       unsigned int image_id,
 	       uint64_t image_base,
 	       image_info_t *image_data,
 	       entry_point_info_t *entry_point_info);

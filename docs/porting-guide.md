@@ -134,51 +134,6 @@ platform port to define additional platform porting constants in
     Defines the character string printed by BL1 upon entry into the `bl1_main()`
     function.
 
-*   **#define : BL2_IMAGE_NAME**
-
-    Name of the BL2 binary image on the host file-system. This name is used by
-    BL1 to load BL2 into secure memory from non-volatile storage.
-
-*   **#define : BL31_IMAGE_NAME**
-
-    Name of the BL3-1 binary image on the host file-system. This name is used by
-    BL2 to load BL3-1 into secure memory from platform storage.
-
-*   **#define : BL33_IMAGE_NAME**
-
-    Name of the BL3-3 binary image on the host file-system. This name is used by
-    BL2 to load BL3-3 into non-secure memory from platform storage.
-
-*   **#define : BL2_CERT_NAME**
-
-    Name of the BL2 content certificate on the host file-system (mandatory when
-    Trusted Board Boot is enabled).
-
-*   **#define : TRUSTED_KEY_CERT_NAME**
-
-    Name of the Trusted Key certificate on the host file-system (mandatory when
-    Trusted Board Boot is enabled).
-
-*   **#define : BL31_KEY_CERT_NAME**
-
-    Name of the BL3-1 Key certificate on the host file-system (mandatory when
-    Trusted Board Boot is enabled).
-
-*   **#define : BL31_CERT_NAME**
-
-    Name of the BL3-1 Content certificate on the host file-system (mandatory
-    when Trusted Board Boot is enabled).
-
-*   **#define : BL33_KEY_CERT_NAME**
-
-    Name of the BL3-3 Key certificate on the host file-system (mandatory when
-    Trusted Board Boot is enabled).
-
-*   **#define : BL33_CERT_NAME**
-
-    Name of the BL3-3 Content certificate on the host file-system (mandatory
-    when Trusted Board Boot is enabled).
-
 *   **#define : PLATFORM_CORE_COUNT**
 
     Defines the total number of CPUs implemented by the platform across all
@@ -243,42 +198,93 @@ platform port to define additional platform porting constants in
     Defines the base address in non-secure DRAM where BL2 loads the BL3-3 binary
     image. Must be aligned on a page-size boundary.
 
+For every image, the platform must define individual identifiers that will be
+used by BL1 or BL2 to load the corresponding image into memory from non-volatile
+storage. For the sake of performance, integer numbers will be used as
+identifiers. The platform will use those identifiers to return the relevant
+information about the image to be loaded (file handler, load address,
+authentication information, etc.). The following image identifiers are
+mandatory:
+
+*   **#define : BL2_IMAGE_ID**
+
+    BL2 image identifier, used by BL1 to load BL2.
+
+*   **#define : BL31_IMAGE_ID**
+
+    BL3-1 image identifier, used by BL2 to load BL3-1.
+
+*   **#define : BL33_IMAGE_ID**
+
+    BL3-3 image identifier, used by BL2 to load BL3-3.
+
+If Trusted Board Boot is enabled, the following certificate identifiers must
+also be defined:
+
+*   **#define : BL2_CERT_ID**
+
+    BL2 content certificate identifier, used by BL1 to load the BL2 content
+    certificate.
+
+*   **#define : TRUSTED_KEY_CERT_ID**
+
+    Trusted key certificate identifier, used by BL2 to load the trusted key
+    certificate.
+
+*   **#define : BL31_KEY_CERT_ID**
+
+    BL3-1 key certificate identifier, used by BL2 to load the BL3-1 key
+    certificate.
+
+*   **#define : BL31_CERT_ID**
+
+    BL3-1 content certificate identifier, used by BL2 to load the BL3-1 content
+    certificate.
+
+*   **#define : BL33_KEY_CERT_ID**
+
+    BL3-3 key certificate identifier, used by BL2 to load the BL3-3 key
+    certificate.
+
+*   **#define : BL33_CERT_ID**
+
+    BL3-3 content certificate identifier, used by BL2 to load the BL3-3 content
+    certificate.
+
 If a BL3-0 image is supported by the platform, the following constants must
 also be defined:
 
-*   **#define : BL30_IMAGE_NAME**
+*   **#define : BL30_IMAGE_ID**
 
-    Name of the BL3-0 binary image on the host file-system. This name is used by
-    BL2 to load BL3-0 into secure memory from platform storage before being
-    transfered to the SCP.
+    BL3-0 image identifier, used by BL2 to load BL3-0 into secure memory from
+    platform storage before being transfered to the SCP.
 
-*   **#define : BL30_KEY_CERT_NAME**
+*   **#define : BL30_KEY_CERT_ID**
 
-    Name of the BL3-0 Key certificate on the host file-system (mandatory when
-    Trusted Board Boot is enabled).
+    BL3-0 key certificate identifier, used by BL2 to load the BL3-0 key
+    certificate (mandatory when Trusted Board Boot is enabled).
 
-*   **#define : BL30_CERT_NAME**
+*   **#define : BL30_CERT_ID**
 
-    Name of the BL3-0 Content certificate on the host file-system (mandatory
-    when Trusted Board Boot is enabled).
+    BL3-0 content certificate identifier, used by BL2 to load the BL3-0 content
+    certificate (mandatory when Trusted Board Boot is enabled).
 
 If a BL3-2 image is supported by the platform, the following constants must
 also be defined:
 
-*   **#define : BL32_IMAGE_NAME**
+*   **#define : BL32_IMAGE_ID**
 
-    Name of the BL3-2 binary image on the host file-system. This name is used by
-    BL2 to load BL3-2 into secure memory from platform storage.
+    BL3-2 image identifier, used by BL2 to load BL3-2.
 
-*   **#define : BL32_KEY_CERT_NAME**
+*   **#define : BL32_KEY_CERT_ID**
 
-    Name of the BL3-2 Key certificate on the host file-system (mandatory when
-    Trusted Board Boot is enabled).
+    BL3-2 key certificate identifier, used by BL2 to load the BL3-2 key
+    certificate (mandatory when Trusted Board Boot is enabled).
 
-*   **#define : BL32_CERT_NAME**
+*   **#define : BL32_CERT_ID**
 
-    Name of the BL3-2 Content certificate on the host file-system (mandatory
-    when Trusted Board Boot is enabled).
+    BL3-2 content certificate identifier, used by BL2 to load the BL3-2 content
+    certificate (mandatory when Trusted Board Boot is enabled).
 
 *   **#define : BL32_BASE**
 
@@ -1528,10 +1534,11 @@ provide at least one driver for a device capable of supporting generic
 operations such as loading a bootloader image.
 
 The current implementation only allows for known images to be loaded by the
-firmware.  These images are specified by using their names, as defined in
-[include/plat/common/platform.h]. The platform layer (`plat_get_image_source()`)
-then returns a reference to a device and a driver-specific `spec` which will be
-understood by the driver to allow access to the image data.
+firmware. These images are specified by using their identifiers, as defined in
+[include/plat/common/platform_def.h] (or a separate header file included from
+there). The platform layer (`plat_get_image_source()`) then returns a reference
+to a device and a driver-specific `spec` which will be understood by the driver
+to allow access to the image data.
 
 The layer is designed in such a way that is it possible to chain drivers with
 other drivers.  For example, file-system drivers may be implemented on top of

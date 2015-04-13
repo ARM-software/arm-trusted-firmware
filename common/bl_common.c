@@ -156,7 +156,7 @@ static void dump_load_info(unsigned long image_load_addr,
 }
 
 /* Generic function to return the size of an image */
-unsigned long image_size(const char *image_name)
+unsigned long image_size(unsigned int image_id)
 {
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
@@ -164,29 +164,27 @@ unsigned long image_size(const char *image_name)
 	size_t image_size = 0;
 	int io_result = IO_FAIL;
 
-	assert(image_name != NULL);
-
 	/* Obtain a reference to the image by querying the platform layer */
-	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
+	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to obtain reference to image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, io_result);
 		return 0;
 	}
 
 	/* Attempt to access the image */
 	io_result = io_open(dev_handle, image_spec, &image_handle);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to access image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to access image id=%u (%i)\n",
+			image_id, io_result);
 		return 0;
 	}
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
-		WARN("Failed to determine the size of the image '%s' file (%i)\n",
-			image_name, io_result);
+		WARN("Failed to determine the size of the image id=%u (%i)\n",
+			image_id, io_result);
 	}
 	io_result = io_close(image_handle);
 	/* Ignore improbable/unrecoverable error in 'close' */
@@ -210,7 +208,7 @@ unsigned long image_size(const char *image_name)
  * Returns 0 on success, a negative error code otherwise.
  ******************************************************************************/
 int load_image(meminfo_t *mem_layout,
-	       const char *image_name,
+	       unsigned int image_id,
 	       uint64_t image_base,
 	       image_info_t *image_data,
 	       entry_point_info_t *entry_point_info)
@@ -223,33 +221,32 @@ int load_image(meminfo_t *mem_layout,
 	int io_result = IO_FAIL;
 
 	assert(mem_layout != NULL);
-	assert(image_name != NULL);
 	assert(image_data != NULL);
 	assert(image_data->h.version >= VERSION_1);
 
 	/* Obtain a reference to the image by querying the platform layer */
-	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
+	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to obtain reference to image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, io_result);
 		return io_result;
 	}
 
 	/* Attempt to access the image */
 	io_result = io_open(dev_handle, image_spec, &image_handle);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to access image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to access image id=%u (%i)\n",
+			image_id, io_result);
 		return io_result;
 	}
 
-	INFO("Loading file '%s' at address 0x%lx\n", image_name, image_base);
+	INFO("Loading image id=%u at address 0x%lx\n", image_id, image_base);
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
-		WARN("Failed to determine the size of the image '%s' file (%i)\n",
-			image_name, io_result);
+		WARN("Failed to determine the size of the image id=%u (%i)\n",
+			image_id, io_result);
 		goto exit;
 	}
 
@@ -267,7 +264,7 @@ int load_image(meminfo_t *mem_layout,
 	/* TODO: Consider whether to try to recover/retry a partially successful read */
 	io_result = io_read(image_handle, image_base, image_size, &bytes_read);
 	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
-		WARN("Failed to load '%s' file (%i)\n", image_name, io_result);
+		WARN("Failed to load image id=%u (%i)\n", image_id, io_result);
 		goto exit;
 	}
 
@@ -298,7 +295,7 @@ int load_image(meminfo_t *mem_layout,
 	 */
 	flush_dcache_range(image_base, image_size);
 
-	INFO("File '%s' loaded: 0x%lx - 0x%lx\n", image_name, image_base,
+	INFO("Image id=%u loaded: 0x%lx - 0x%lx\n", image_id, image_base,
 	     image_base + image_size);
 
 exit:

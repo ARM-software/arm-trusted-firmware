@@ -36,6 +36,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <stdint.h>
 #include "bl2_private.h"
 
 #if TRUSTED_BOARD_BOOT
@@ -45,20 +46,24 @@ static int bl32_cert_error;
 #endif
 
 /*
- * Load and authenticate the key and content certificates for a BL3-x image
+ * Load and authenticate the key and content certificates for a BL3-x image.
+ * The _blob values identify the authentication objects (an object may be seen
+ * as a single stage in the authentication process). See auth.h for the complete
+ * list of objects. The _id values are passed to the IO framework to identify
+ * the images to load.
  *
  * Parameters:
  *   key_cert_blob: key certificate blob id (see auth.h)
- *   key_cert_name: key certificate filename
+ *   key_cert_id: key certificate image identifier (for IO framework)
  *   cont_cert_blob: content certificate blob id (see auth.h)
- *   cont_cert_name: content certificate filename
+ *   cont_cert_id: content certificate image identifier (for IO framework)
  *   mem_layout: Trusted SRAM memory layout
  *   load_addr: load the certificates at this address
  *
  * Return: 0 = success, Otherwise = error
  */
-static int load_cert_bl3x(int key_cert_blob, const char *key_cert_name,
-			  int cont_cert_blob, const char *cont_cert_name,
+static int load_cert_bl3x(unsigned int key_cert_blob, unsigned int key_cert_id,
+			  unsigned int cont_cert_blob, unsigned int cont_cert_id,
 			  meminfo_t *mem_layout, uint64_t load_addr)
 {
 	image_info_t image_info;
@@ -66,31 +71,32 @@ static int load_cert_bl3x(int key_cert_blob, const char *key_cert_name,
 
 	/* Load Key certificate */
 	image_info.h.version = VERSION_1;
-	err = load_image(mem_layout, key_cert_name, load_addr, &image_info, NULL);
+	err = load_image(mem_layout, key_cert_id, load_addr, &image_info, NULL);
 	if (err) {
-		ERROR("Cannot load %s.\n", key_cert_name);
+		ERROR("Cannot load key certificate id=%u\n", key_cert_id);
 		return err;
 	}
 
 	err = auth_verify_obj(key_cert_blob, image_info.image_base,
 			image_info.image_size);
 	if (err) {
-		ERROR("Invalid key certificate %s.\n", key_cert_name);
+		ERROR("Invalid key certificate id=%u\n", key_cert_id);
 		return err;
 	}
 
 	/* Load Content certificate */
 	image_info.h.version = VERSION_1;
-	err = load_image(mem_layout, cont_cert_name, load_addr, &image_info, NULL);
+	err = load_image(mem_layout, cont_cert_id, load_addr, &image_info, NULL);
 	if (err) {
-		ERROR("Cannot load %s.\n", cont_cert_name);
+		ERROR("Cannot load content certificate id=%u\n",
+				cont_cert_id);
 		return err;
 	}
 
 	err = auth_verify_obj(cont_cert_blob, image_info.image_base,
 			image_info.image_size);
 	if (err) {
-		ERROR("Invalid content certificate %s.\n", cont_cert_name);
+		ERROR("Invalid content certificate id=%u\n", cont_cert_id);
 		return err;
 	}
 
@@ -115,7 +121,7 @@ static int load_certs(void)
 
 	/* Load the Trusted Key certificate in the BL31 region */
 	image_info.h.version = VERSION_1;
-	err = load_image(mem_layout, TRUSTED_KEY_CERT_NAME, load_addr,
+	err = load_image(mem_layout, TRUSTED_KEY_CERT_ID, load_addr,
 			 &image_info, NULL);
 	if (err) {
 		ERROR("Failed to load Trusted Key certificate.\n");
@@ -132,8 +138,8 @@ static int load_certs(void)
 
 	/* Load and validate Key and Content certificates for BL3-x images */
 #ifdef BL30_BASE
-	err = load_cert_bl3x(AUTH_BL30_KEY_CERT, BL30_KEY_CERT_NAME,
-			     AUTH_BL30_IMG_CERT, BL30_CERT_NAME,
+	err = load_cert_bl3x(AUTH_BL30_KEY_CERT, BL30_KEY_CERT_ID,
+			     AUTH_BL30_IMG_CERT, BL30_CERT_ID,
 			     mem_layout, load_addr);
 	if (err) {
 		ERROR("Failed to verify BL3-0 authenticity\n");
@@ -141,8 +147,8 @@ static int load_certs(void)
 	}
 #endif /* BL30_BASE */
 
-	err = load_cert_bl3x(AUTH_BL31_KEY_CERT, BL31_KEY_CERT_NAME,
-			     AUTH_BL31_IMG_CERT, BL31_CERT_NAME,
+	err = load_cert_bl3x(AUTH_BL31_KEY_CERT, BL31_KEY_CERT_ID,
+			     AUTH_BL31_IMG_CERT, BL31_CERT_ID,
 			     mem_layout, load_addr);
 	if (err) {
 		ERROR("Failed to verify BL3-1 authenticity\n");
@@ -152,8 +158,8 @@ static int load_certs(void)
 #ifdef BL32_BASE
 	/* BL3-2 image is optional, but keep the return value in case the
 	 * image is present but the certificate is missing */
-	err = load_cert_bl3x(AUTH_BL32_KEY_CERT, BL32_KEY_CERT_NAME,
-			     AUTH_BL32_IMG_CERT, BL32_CERT_NAME,
+	err = load_cert_bl3x(AUTH_BL32_KEY_CERT, BL32_KEY_CERT_ID,
+			     AUTH_BL32_IMG_CERT, BL32_CERT_ID,
 			     mem_layout, load_addr);
 	if (err) {
 		WARN("Failed to verify BL3-2 authenticity\n");
@@ -161,8 +167,8 @@ static int load_certs(void)
 	bl32_cert_error = err;
 #endif /* BL32_BASE */
 
-	err = load_cert_bl3x(AUTH_BL33_KEY_CERT, BL33_KEY_CERT_NAME,
-			     AUTH_BL33_IMG_CERT, BL33_CERT_NAME,
+	err = load_cert_bl3x(AUTH_BL33_KEY_CERT, BL33_KEY_CERT_ID,
+			     AUTH_BL33_IMG_CERT, BL33_CERT_ID,
 			     mem_layout, load_addr);
 	if (err) {
 		ERROR("Failed to verify BL3-3 authenticity\n");
@@ -200,7 +206,7 @@ static int load_bl30(void)
 	bl2_plat_get_bl30_meminfo(&bl30_mem_info);
 	bl30_image_info.h.version = VERSION_1;
 	e = load_image(&bl30_mem_info,
-		       BL30_IMAGE_NAME,
+		       BL30_IMAGE_ID,
 		       BL30_BASE,
 		       &bl30_image_info,
 		       NULL);
@@ -257,7 +263,7 @@ static int load_bl31(bl31_params_t *bl2_to_bl31_params,
 
 	/* Load the BL3-1 image */
 	e = load_image(bl2_tzram_layout,
-		       BL31_IMAGE_NAME,
+		       BL31_IMAGE_ID,
 		       BL31_BASE,
 		       bl2_to_bl31_params->bl31_image_info,
 		       bl31_ep_info);
@@ -309,7 +315,7 @@ static int load_bl32(bl31_params_t *bl2_to_bl31_params)
 	 */
 	bl2_plat_get_bl32_meminfo(&bl32_mem_info);
 	e = load_image(&bl32_mem_info,
-		       BL32_IMAGE_NAME,
+		       BL32_IMAGE_ID,
 		       BL32_BASE,
 		       bl2_to_bl31_params->bl32_image_info,
 		       bl2_to_bl31_params->bl32_ep_info);
@@ -362,7 +368,7 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 
 	/* Load the BL3-3 image in non-secure memory provided by the platform */
 	e = load_image(&bl33_mem_info,
-		       BL33_IMAGE_NAME,
+		       BL33_IMAGE_ID,
 		       plat_get_ns_image_entrypoint(),
 		       bl2_to_bl31_params->bl33_image_info,
 		       bl2_to_bl31_params->bl33_ep_info);

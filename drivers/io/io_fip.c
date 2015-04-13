@@ -51,11 +51,6 @@
 		x.node[4], x.node[5]
 
 typedef struct {
-	const char	*name;
-	const uuid_t	 uuid;
-} plat_fip_name_uuid_t;
-
-typedef struct {
 	/* Put file_pos above the struct to allow {0} on static init.
 	 * It is a workaround for a known bug in GCC
 	 * http://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
@@ -63,37 +58,6 @@ typedef struct {
 	unsigned int file_pos;
 	fip_toc_entry_t entry;
 } file_state_t;
-
-static const plat_fip_name_uuid_t name_uuid[] = {
-	{BL2_IMAGE_NAME, UUID_TRUSTED_BOOT_FIRMWARE_BL2},
-#ifdef BL30_IMAGE_NAME
-	/* BL3-0 is optional in the platform */
-	{BL30_IMAGE_NAME, UUID_SCP_FIRMWARE_BL30},
-#endif /* BL30_IMAGE_NAME */
-	{BL31_IMAGE_NAME, UUID_EL3_RUNTIME_FIRMWARE_BL31},
-#ifdef BL32_IMAGE_NAME
-	/* BL3-2 is optional in the platform */
-	{BL32_IMAGE_NAME, UUID_SECURE_PAYLOAD_BL32},
-#endif /* BL32_IMAGE_NAME */
-	{BL33_IMAGE_NAME, UUID_NON_TRUSTED_FIRMWARE_BL33},
-#if TRUSTED_BOARD_BOOT
-	/* Certificates */
-	{BL2_CERT_NAME, UUID_TRUSTED_BOOT_FIRMWARE_BL2_CERT},
-	{TRUSTED_KEY_CERT_NAME, UUID_TRUSTED_KEY_CERT},
-#ifdef BL30_KEY_CERT_NAME
-	{BL30_KEY_CERT_NAME, UUID_SCP_FIRMWARE_BL30_KEY_CERT},
-#endif
-	{BL31_KEY_CERT_NAME, UUID_EL3_RUNTIME_FIRMWARE_BL31_KEY_CERT},
-	{BL32_KEY_CERT_NAME, UUID_SECURE_PAYLOAD_BL32_KEY_CERT},
-	{BL33_KEY_CERT_NAME, UUID_NON_TRUSTED_FIRMWARE_BL33_KEY_CERT},
-#ifdef BL30_CERT_NAME
-	{BL30_CERT_NAME, UUID_SCP_FIRMWARE_BL30_CERT},
-#endif
-	{BL31_CERT_NAME, UUID_EL3_RUNTIME_FIRMWARE_BL31_CERT},
-	{BL32_CERT_NAME, UUID_SECURE_PAYLOAD_BL32_CERT},
-	{BL33_CERT_NAME, UUID_NON_TRUSTED_FIRMWARE_BL33_CERT},
-#endif /* TRUSTED_BOARD_BOOT */
-};
 
 static const uuid_t uuid_null = {0};
 static file_state_t current_file = {0};
@@ -113,13 +77,6 @@ static int fip_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params);
 static int fip_dev_close(io_dev_info_t *dev_info);
 
 
-static inline int copy_uuid(uuid_t *dst, const uuid_t *src)
-{
-	memcpy(dst, src, sizeof(uuid_t));
-	return 0;
-}
-
-
 /* Return 0 for equal uuids. */
 static inline int compare_uuids(const uuid_t *uuid1, const uuid_t *uuid2)
 {
@@ -135,22 +92,6 @@ static inline int is_valid_header(fip_toc_header_t *header)
 	} else {
 		return 0;
 	}
-}
-
-
-static int file_to_uuid(const char *filename, uuid_t *uuid)
-{
-	int i;
-	int status = -EINVAL;
-
-	for (i = 0; i < ARRAY_SIZE(name_uuid); i++) {
-		if (strcmp(filename, name_uuid[i].name) == 0) {
-			copy_uuid(uuid, &name_uuid[i].uuid);
-			status = 0;
-			break;
-		}
-	}
-	return status;
 }
 
 
@@ -201,17 +142,17 @@ static int fip_dev_open(const uintptr_t dev_spec __attribute__((unused)),
 static int fip_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params)
 {
 	int result = IO_FAIL;
-	char *image_name = (char *)init_params;
+	unsigned int image_id = (unsigned int)init_params;
 	uintptr_t backend_handle;
 	fip_toc_header_t header;
 	size_t bytes_read;
 
 	/* Obtain a reference to the image by querying the platform layer */
-	result = plat_get_image_source(image_name, &backend_dev_handle,
+	result = plat_get_image_source(image_id, &backend_dev_handle,
 				       &backend_image_spec);
 	if (result != IO_SUCCESS) {
-		WARN("Failed to obtain reference to image '%s' (%i)\n",
-			image_name, result);
+		WARN("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, result);
 		result = IO_FAIL;
 		goto fip_dev_init_exit;
 	}
@@ -220,7 +161,7 @@ static int fip_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params)
 	result = io_open(backend_dev_handle, backend_image_spec,
 			 &backend_handle);
 	if (result != IO_SUCCESS) {
-		WARN("Failed to access image '%s' (%i)\n", image_name, result);
+		WARN("Failed to access image id=%u (%i)\n", image_id, result);
 		result = IO_FAIL;
 		goto fip_dev_init_exit;
 	}
@@ -261,12 +202,11 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 {
 	int result = IO_FAIL;
 	uintptr_t backend_handle;
-	uuid_t file_uuid;
-	const io_file_spec_t *file_spec = (io_file_spec_t *)spec;
+	const io_uuid_spec_t *uuid_spec = (io_uuid_spec_t *)spec;
 	size_t bytes_read;
 	int found_file = 0;
 
-	assert(file_spec != NULL);
+	assert(uuid_spec != NULL);
 	assert(entity != NULL);
 
 	/* Can only have one file open at a time for the moment. We need to
@@ -297,8 +237,6 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		goto fip_file_open_close;
 	}
 
-	file_to_uuid(file_spec->path, &file_uuid);
-
 	found_file = 0;
 	do {
 		result = io_read(backend_handle,
@@ -307,7 +245,7 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 				 &bytes_read);
 		if (result == IO_SUCCESS) {
 			if (compare_uuids(&current_file.entry.uuid,
-					  &file_uuid) == 0) {
+					  &uuid_spec->uuid) == 0) {
 				found_file = 1;
 				break;
 			}

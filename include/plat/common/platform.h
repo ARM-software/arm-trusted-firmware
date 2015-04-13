@@ -50,7 +50,7 @@ struct bl31_params;
  * Mandatory common functions
  ******************************************************************************/
 uint64_t plat_get_syscnt_freq(void);
-int plat_get_image_source(const char *image_name,
+int plat_get_image_source(unsigned int image_id,
 			uintptr_t *dev_handle,
 			uintptr_t *image_spec);
 unsigned long plat_get_ns_image_entrypoint(void);

@@ -47,38 +47,40 @@
  */
 #define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
 
+/* Firmware Image Package */
+#define FIP_IMAGE_ID			0
+
 /* Trusted Boot Firmware BL2 */
-#define BL2_IMAGE_NAME			"bl2.bin"
+#define BL2_IMAGE_ID			1
 
 /* SCP Firmware BL3-0 */
-#define BL30_IMAGE_NAME			"bl30.bin"
+#define BL30_IMAGE_ID			2
 
 /* EL3 Runtime Firmware BL31 */
-#define BL31_IMAGE_NAME			"bl31.bin"
+#define BL31_IMAGE_ID			3
 
 /* Secure Payload BL32 (Trusted OS) */
-#define BL32_IMAGE_NAME			"bl32.bin"
+#define BL32_IMAGE_ID			4
 
 /* Non-Trusted Firmware BL33 */
-#define BL33_IMAGE_NAME			"bl33.bin"
-
-/* Firmware Image Package */
-#define FIP_IMAGE_NAME			"fip.bin"
+#define BL33_IMAGE_ID			5
 
 #if TRUSTED_BOARD_BOOT
+
 /* Certificates */
-# define BL2_CERT_NAME			"bl2.crt"
-# define TRUSTED_KEY_CERT_NAME		"trusted_key.crt"
+#define BL2_CERT_ID			6
+#define TRUSTED_KEY_CERT_ID		7
 
-# define BL30_KEY_CERT_NAME		"bl30_key.crt"
-# define BL31_KEY_CERT_NAME		"bl31_key.crt"
-# define BL32_KEY_CERT_NAME		"bl32_key.crt"
-# define BL33_KEY_CERT_NAME		"bl33_key.crt"
+#define BL30_KEY_CERT_ID		8
+#define BL31_KEY_CERT_ID		9
+#define BL32_KEY_CERT_ID		10
+#define BL33_KEY_CERT_ID		11
 
-# define BL30_CERT_NAME			"bl30.crt"
-# define BL31_CERT_NAME			"bl31.crt"
-# define BL32_CERT_NAME			"bl32.crt"
-# define BL33_CERT_NAME			"bl33.crt"
+#define BL30_CERT_ID			12
+#define BL31_CERT_ID			13
+#define BL32_CERT_ID			14
+#define BL33_CERT_ID			15
+
 #endif /* TRUSTED_BOARD_BOOT */
 
 /*

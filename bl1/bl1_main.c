@@ -157,6 +157,8 @@ void bl1_main(void)
 	/* Find out how much free trusted ram remains after BL1 load */
 	bl1_tzram_layout = bl1_plat_sec_mem_layout();
 
+	INFO("BL1: Loading BL2\n");
+
 #if TRUSTED_BOARD_BOOT
 	/* Initialize authentication module */
 	auth_init();
@@ -168,7 +170,7 @@ void bl1_main(void)
 	 * etc.) so it can be used later.
 	 */
 	err = load_image(bl1_tzram_layout,
-			 BL2_CERT_NAME,
+			 BL2_CERT_ID,
 			 BL2_BASE,
 			 &bl2_image_info,
 			 NULL);
@@ -187,7 +189,7 @@ void bl1_main(void)
 
 	/* Load the BL2 image */
 	err = load_image(bl1_tzram_layout,
-			 BL2_IMAGE_NAME,
+			 BL2_IMAGE_ID,
 			 BL2_BASE,
 			 &bl2_image_info,
 			 &bl2_ep);
