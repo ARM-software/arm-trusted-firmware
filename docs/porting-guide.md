@@ -483,6 +483,38 @@ returns 0 (success) if that key matches the ROT (Root Of Trust) key stored in
 the platform. Any other return value means a mismatch.
 
 
+### Function: plat_get_rotpk_info()
+
+    Argument : void *, void **, unsigned int *, unsigned int *
+    Return   : int
+
+This function is mandatory when Trusted Board Boot is enabled. It returns a
+pointer to the ROTPK stored in the platform (or a hash of it) and its length.
+The ROTPK must be encoded in DER format according to the following ASN.1
+structure:
+
+    AlgorithmIdentifier  ::=  SEQUENCE  {
+        algorithm         OBJECT IDENTIFIER,
+        parameters        ANY DEFINED BY algorithm OPTIONAL
+    }
+
+    SubjectPublicKeyInfo  ::=  SEQUENCE  {
+        algorithm         AlgorithmIdentifier,
+        subjectPublicKey  BIT STRING
+    }
+
+In case the function returns a hash of the key:
+
+    DigestInfo ::= SEQUENCE {
+        digestAlgorithm   AlgorithmIdentifier,
+        digest            OCTET STRING
+    }
+
+The function returns 0 on success. Any other value means the ROTPK could not be
+retrieved from the platform. The function also reports extra information related
+to the ROTPK in the flags parameter.
+
+
 
 2.3 Common optional modifications
 ---------------------------------

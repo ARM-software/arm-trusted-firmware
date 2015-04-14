@@ -28,6 +28,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/common/board_css_common.c
+PLAT_INCLUDES		+=	-Iinclude/plat/arm/board/common/
 
-include plat/arm/board/common/board_common.mk
+PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/pl011_console.S			\
+				plat/arm/board/common/aarch64/board_arm_helpers.S
+
+#BL1_SOURCES		+=
+
+#BL2_SOURCES		+=
+
+#BL31_SOURCES		+=
+
+ifneq (${TRUSTED_BOARD_BOOT},0)
+    # ROTPK hash location
+    ifeq (${ARM_ROTPK_LOCATION}, regs)
+        ARM_ROTPK_LOCATION_ID = ARM_ROTPK_REGS_ID
+    else ifeq (${ARM_ROTPK_LOCATION}, devel_rsa)
+        ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_RSA_ID
+    else
+        $(error "Unsupported ARM_ROTPK_LOCATION value")
+    endif
+    $(eval $(call add_define,ARM_ROTPK_LOCATION_ID))
+
+    BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
+    BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
+endif

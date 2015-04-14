@@ -64,29 +64,41 @@
  * plat_arm_mmap array defined for each BL stage.
  */
 #if IMAGE_BL1
-# define PLAT_ARM_MMAP_ENTRIES		6
+# if PLAT_fvp
+#  define PLAT_ARM_MMAP_ENTRIES		7
+# else
+#  define PLAT_ARM_MMAP_ENTRIES		6
+# endif
 #endif
 #if IMAGE_BL2
-# define PLAT_ARM_MMAP_ENTRIES		8
+# if PLAT_fvp
+#  define PLAT_ARM_MMAP_ENTRIES		9
+# else
+#  define PLAT_ARM_MMAP_ENTRIES		8
+# endif
 #endif
 #if IMAGE_BL31
-# define PLAT_ARM_MMAP_ENTRIES		5
+#define PLAT_ARM_MMAP_ENTRIES		5
 #endif
 #if IMAGE_BL32
-# define PLAT_ARM_MMAP_ENTRIES		4
+#define PLAT_ARM_MMAP_ENTRIES		4
 #endif
 
 /*
  * Platform specific page table and MMU setup constants
  */
 #if IMAGE_BL1
-# if PLAT_fvp || PLAT_juno
+# if PLAT_juno
 #  define MAX_XLAT_TABLES		2
 # else
 #  define MAX_XLAT_TABLES		3
 # endif /* PLAT_ */
 #elif IMAGE_BL2
-# define MAX_XLAT_TABLES		3
+# if PLAT_juno
+#  define MAX_XLAT_TABLES		3
+# else
+#  define MAX_XLAT_TABLES		4
+# endif /* PLAT_ */
 #elif IMAGE_BL31
 # define MAX_XLAT_TABLES		2
 #elif IMAGE_BL32

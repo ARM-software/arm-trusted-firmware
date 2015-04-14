@@ -346,6 +346,23 @@ performed.
 For a better understanding of these options, the ARM development platform memory
 map is explained in the [Firmware Design].
 
+*   `ARM_ROTPK_LOCATION`: used when `TRUSTED_BOARD_BOOT=1`. It specifies the
+    location of the ROTPK hash returned by the function `plat_get_rotpk_info()`
+    for ARM platforms. Depending on the selected option, the proper private key
+    must be specified using the `ROT_KEY` option when building the Trusted
+    Firmware. This private key will be used by the certificate generation tool
+    to sign the BL2 and Trusted Key certificates. Available options for
+    `ARM_ROTPK_LOCATION` are:
+
+    -   `regs` : return the ROTPK hash stored in the Trusted root-key storage
+        registers. The private key corresponding to this ROTPK hash is not
+        currently available.
+    -   `devel_rsa` : return a development public key hash embedded in the BL1
+        and BL2 binaries. This hash has been obtained from the RSA public key
+        `arm_rotpk_rsa.der`, located in `plat/arm/board/common/rotpk`. To use
+        this option, `arm_rotprivk_rsa.pem` must be specified as `ROT_KEY` when
+        creating the certificates.
+
 #### ARM CSS platform specific build options
 
 *   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version

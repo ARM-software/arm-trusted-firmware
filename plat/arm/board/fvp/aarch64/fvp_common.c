@@ -55,6 +55,11 @@ arm_config_t arm_config;
 					DEVICE1_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
+#define MAP_DEVICE2	MAP_REGION_FLAT(DEVICE2_BASE,			\
+					DEVICE2_SIZE,			\
+					MT_DEVICE | MT_RO | MT_SECURE)
+
+
 /*
  * Table of regions for various BL stages to map using the MMU.
  * This doesn't include TZRAM as the 'mem_layout' argument passed to
@@ -67,6 +72,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
+	MAP_DEVICE2,
 	{0}
 };
 #endif
@@ -77,6 +83,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
+	MAP_DEVICE2,
 	ARM_MAP_NS_DRAM1,
 	ARM_MAP_TSP_SEC_MEM,
 	{0}

@@ -29,12 +29,10 @@
 #
 
 
-PLAT_INCLUDES		:=	-Iinclude/plat/arm/board/common			\
-				-Iplat/arm/board/fvp/include
+PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
 
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S		\
-				plat/arm/board/fvp/aarch64/fvp_common.c
+PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/aarch64/fvp_common.c
 
 BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/cpus/aarch64/aem_generic.S			\
@@ -65,10 +63,5 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c
 
-ifneq (${TRUSTED_BOARD_BOOT},0)
-  BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
-  BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
-endif
-
-
+include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
