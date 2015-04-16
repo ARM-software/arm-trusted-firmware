@@ -43,6 +43,27 @@
 
 unsigned long wakeup_address;
 
+#if ARM_RECOM_STATE_ID_ENC
+/*
+ *  The table storing the valid idle power states. Ensure that the
+ *  array entries are populated in ascending order of state-id to
+ *  enable us to use binary search during power state validation.
+ *  The table must be terminated by a NULL entry.
+ */
+const unsigned int arm_pm_idle_states[] = {
+	/* State-id - 0x01 */
+	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RET,
+			ARM_PWR_LVL0, PSTATE_TYPE_STANDBY),
+	/* State-id - 0x02 */
+	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_OFF,
+			ARM_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x22 */
+	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
+			ARM_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
+	0,
+};
+#endif
+
 /*******************************************************************************
  * Private function to program the mailbox for a cpu before it is released
  * from reset.
