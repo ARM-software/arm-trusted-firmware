@@ -394,6 +394,14 @@ map is explained in the [Firmware Design].
         this option, `arm_rotprivk_rsa.pem` must be specified as `ROT_KEY` when
         creating the certificates.
 
+*   `ARM_RECOM_STATE_ID_ENC`: The PSCI1.0 specification recommends an encoding
+    for the construction of composite state-ID in the power-state parameter.
+    The existing PSCI clients currently do not support this encoding of
+    State-ID yet. Hence this flag is used to configure whether to use the
+    recommended State-ID encoding or not. The default value of this flag is 0,
+    in which case the platform is configured to expect NULL in the State-ID
+    field of power-state parameter.
+
 #### ARM CSS platform specific build options
 
 *   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version
