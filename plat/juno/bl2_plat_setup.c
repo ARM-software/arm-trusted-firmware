@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -222,13 +222,15 @@ int bl2_plat_handle_bl30(image_info_t *bl30_image_info)
 {
 	int ret;
 
+	INFO("BL2: Initiating BL3-0 transfer to SCP\n");
+
 	ret = scp_bootloader_transfer((void *)bl30_image_info->image_base,
 		bl30_image_info->image_size);
 
 	if (ret == 0)
-		INFO("BL2: BL3-0 transferred to SCP\n\r");
+		INFO("BL2: BL3-0 transferred to SCP\n");
 	else
-		ERROR("BL2: BL3-0 transfer failure\n\r");
+		ERROR("BL2: BL3-0 transfer failure\n");
 
 	return ret;
 }

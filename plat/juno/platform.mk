@@ -109,3 +109,11 @@ ERRATA_A57_813420	:=	1
 # Enable option to skip L1 data cache flush during the Cortex-A57 cluster
 # power down sequence
 SKIP_A57_L1_FLUSH_PWR_DWN	:=	 1
+
+# Enable option to detect whether the SCP ROM firmware in use predates version
+# 1.7.0 and therefore, is incompatible.
+DETECT_PRE_1_7_0_SCP	:=	1
+
+# Process DETECT_PRE_1_7_0_SCP flag
+$(eval $(call assert_boolean,DETECT_PRE_1_7_0_SCP))
+$(eval $(call add_define,DETECT_PRE_1_7_0_SCP))

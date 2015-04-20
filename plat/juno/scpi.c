@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,112 +29,160 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
+#include <debug.h>
 #include <platform.h>
+#include <string.h>
 #include "juno_def.h"
 #include "mhu.h"
 #include "scpi.h"
 
-#define MHU_SECURE_SCP_TO_AP_PAYLOAD	(MHU_SECURE_BASE+0x0080)
-#define MHU_SECURE_AP_TO_SCP_PAYLOAD	(MHU_SECURE_BASE+0x0280)
+#define SCPI_SHARED_MEM_SCP_TO_AP	(MHU_SECURE_BASE + 0x0080)
+#define SCPI_SHARED_MEM_AP_TO_SCP	(MHU_SECURE_BASE + 0x0180)
 
-#define SIZE_SHIFT	20	/* Bit position for size value in MHU header */
-#define SIZE_MASK	0x1ff	/* Mask to extract size value in MHU header*/
+#define SCPI_CMD_HEADER_AP_TO_SCP		\
+	((scpi_cmd_t *) SCPI_SHARED_MEM_AP_TO_SCP)
+#define SCPI_CMD_PAYLOAD_AP_TO_SCP		\
+	((void *) (SCPI_SHARED_MEM_AP_TO_SCP + sizeof(scpi_cmd_t)))
 
+/* ID of the MHU slot used for the SCPI protocol */
+#define SCPI_MHU_SLOT_ID		0
 
-void *scpi_secure_message_start(void)
+static void scpi_secure_message_start(void)
 {
-	mhu_secure_message_start();
-
-	/* Return address of payload area. */
-	return (void *)MHU_SECURE_AP_TO_SCP_PAYLOAD;
+	mhu_secure_message_start(SCPI_MHU_SLOT_ID);
 }
 
-void scpi_secure_message_send(unsigned command, size_t size)
+static void scpi_secure_message_send(size_t payload_size)
 {
 	/* Make sure payload can be seen by SCP */
 	if (MHU_PAYLOAD_CACHED)
-		flush_dcache_range(MHU_SECURE_AP_TO_SCP_PAYLOAD, size);
+		flush_dcache_range(SCPI_SHARED_MEM_AP_TO_SCP,
+				   sizeof(scpi_cmd_t) + payload_size);
 
-	mhu_secure_message_send(command | (size << SIZE_SHIFT));
+	mhu_secure_message_send(SCPI_MHU_SLOT_ID);
 }
 
-unsigned scpi_secure_message_receive(void **message_out, size_t *size_out)
+static void scpi_secure_message_receive(scpi_cmd_t *cmd)
 {
-	uint32_t response =  mhu_secure_message_wait();
+	uint32_t mhu_status;
 
-	/* Get size of payload */
-	size_t size = (response >> SIZE_SHIFT) & SIZE_MASK;
+	assert(cmd != NULL);
 
-	/* Clear size from response */
-	response &= ~(SIZE_MASK << SIZE_SHIFT);
+	mhu_status = mhu_secure_message_wait();
+
+	/* Expect an SCPI message, reject any other protocol */
+	if (mhu_status != (1 << SCPI_MHU_SLOT_ID)) {
+		ERROR("MHU: Unexpected protocol (MHU status: 0x%x)\n",
+			mhu_status);
+		panic();
+	}
 
 	/* Make sure we don't read stale data */
 	if (MHU_PAYLOAD_CACHED)
-		inv_dcache_range(MHU_SECURE_SCP_TO_AP_PAYLOAD, size);
+		inv_dcache_range(SCPI_SHARED_MEM_SCP_TO_AP, sizeof(*cmd));
 
-	if (size_out)
-		*size_out = size;
-
-	if (message_out)
-		*message_out = (void *)MHU_SECURE_SCP_TO_AP_PAYLOAD;
-
-	return response;
+	memcpy(cmd, (void *) SCPI_SHARED_MEM_SCP_TO_AP, sizeof(*cmd));
 }
 
-void scpi_secure_message_end(void)
+static void scpi_secure_message_end(void)
 {
-	mhu_secure_message_end();
-}
-
-static void scpi_secure_send32(unsigned command, uint32_t message)
-{
-	*(__typeof__(message) *)scpi_secure_message_start() = message;
-	scpi_secure_message_send(command, sizeof(message));
-	scpi_secure_message_end();
+	mhu_secure_message_end(SCPI_MHU_SLOT_ID);
 }
 
 int scpi_wait_ready(void)
 {
+	scpi_cmd_t scpi_cmd;
+
+	VERBOSE("Waiting for SCP_READY command...\n");
+
 	/* Get a message from the SCP */
 	scpi_secure_message_start();
-	size_t size;
-	unsigned command = scpi_secure_message_receive(NULL, &size);
+	scpi_secure_message_receive(&scpi_cmd);
 	scpi_secure_message_end();
 
 	/* We are expecting 'SCP Ready', produce correct error if it's not */
-	scpi_status_t response = SCP_OK;
-	if (command != SCPI_CMD_SCP_READY)
-		response = SCP_E_SUPPORT;
-	else if (size != 0)
-		response = SCP_E_SIZE;
+	scpi_status_t status = SCP_OK;
+	if (scpi_cmd.id != SCPI_CMD_SCP_READY) {
+		ERROR("Unexpected SCP command: expected command #%u, got command #%u\n",
+		      SCPI_CMD_SCP_READY, scpi_cmd.id);
+		status = SCP_E_SUPPORT;
+	} else if (scpi_cmd.size != 0) {
+		ERROR("SCP_READY command has incorrect size: expected 0, got %u\n",
+		      scpi_cmd.size);
+		status = SCP_E_SIZE;
+	}
 
-	/* Send our response back to SCP */
-	scpi_secure_send32(command, response);
+	VERBOSE("Sending response for SCP_READY command\n");
 
-	return response == SCP_OK ? 0 : -1;
+	/*
+	 * Send our response back to SCP.
+	 * We are using the same SCPI header, just update the status field.
+	 */
+	scpi_cmd.status = status;
+	scpi_secure_message_start();
+	memcpy((void *) SCPI_SHARED_MEM_AP_TO_SCP, &scpi_cmd, sizeof(scpi_cmd));
+	scpi_secure_message_send(0);
+	scpi_secure_message_end();
+
+	return status == SCP_OK ? 0 : -1;
 }
 
 void scpi_set_css_power_state(unsigned mpidr, scpi_power_state_t cpu_state,
 		scpi_power_state_t cluster_state, scpi_power_state_t css_state)
 {
-	uint32_t state = mpidr & 0x0f;	/* CPU ID */
+	scpi_cmd_t *cmd;
+	uint32_t state = 0;
+	uint32_t *payload_addr;
+
+	state |= mpidr & 0x0f;	/* CPU ID */
 	state |= (mpidr & 0xf00) >> 4;	/* Cluster ID */
 	state |= cpu_state << 8;
 	state |= cluster_state << 12;
 	state |= css_state << 16;
-	scpi_secure_send32(SCPI_CMD_SET_CSS_POWER_STATE, state);
+
+	scpi_secure_message_start();
+
+	/* Populate the command header */
+	cmd = SCPI_CMD_HEADER_AP_TO_SCP;
+	cmd->id = SCPI_CMD_SET_CSS_POWER_STATE;
+	cmd->set = SCPI_SET_NORMAL;
+	cmd->sender = 0;
+	cmd->size = sizeof(state);
+	/* Populate the command payload */
+	payload_addr = SCPI_CMD_PAYLOAD_AP_TO_SCP;
+	*payload_addr = state;
+	scpi_secure_message_send(sizeof(state));
+	/*
+	 * SCP does not reply to this command in order to avoid MHU interrupts
+	 * from the sender, which could interfere with its power state request.
+	 */
+
+	scpi_secure_message_end();
 }
 
 uint32_t scpi_sys_power_state(scpi_system_state_t system_state)
 {
-	uint32_t *response;
-	size_t size;
-	uint8_t state = system_state & 0xff;
+	scpi_cmd_t *cmd;
+	uint8_t *payload_addr;
+	scpi_cmd_t response;
 
-	/* Send the command */
-	*(__typeof__(state) *)scpi_secure_message_start() = state;
-	scpi_secure_message_send(SCPI_CMD_SYS_POWER_STATE, sizeof(state));
-	scpi_secure_message_receive((void *)&response, &size);
+	scpi_secure_message_start();
+
+	/* Populate the command header */
+	cmd = SCPI_CMD_HEADER_AP_TO_SCP;
+	cmd->id = SCPI_CMD_SYS_POWER_STATE;
+	cmd->set = 0;
+	cmd->sender = 0;
+	cmd->size = sizeof(*payload_addr);
+	/* Populate the command payload */
+	payload_addr = SCPI_CMD_PAYLOAD_AP_TO_SCP;
+	*payload_addr = system_state & 0xff;
+	scpi_secure_message_send(sizeof(*payload_addr));
+
+	scpi_secure_message_receive(&response);
+
 	scpi_secure_message_end();
-	return *response;
+
+	return response.status;
 }
