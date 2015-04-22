@@ -39,6 +39,8 @@
 #include "../../bl1/bl1_private.h"
 #include "fvp_def.h"
 #include "fvp_private.h"
+#include <sp804.h>
+#include <timer.h>
 
 #if USE_COHERENT_MEM
 /*******************************************************************************
@@ -58,6 +60,9 @@ extern unsigned long __COHERENT_RAM_END__;
 #define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
 #define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 #endif
+
+
+static timer_ops_t timer_ops;
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
@@ -124,6 +129,9 @@ void bl1_plat_arch_setup(void)
 			      BL1_COHERENT_RAM_LIMIT
 #endif
 			     );
+	timer_ops.clkdiv = SP804_CLKDIV;
+	timer_ops.clkmult = SP804_CLKMULT;
+	sp804_init(SP804_BASE, &timer_ops);
 }
 
 
