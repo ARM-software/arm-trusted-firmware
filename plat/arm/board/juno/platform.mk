@@ -28,14 +28,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_INCLUDES		:=	-Iplat/juno/include
+PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
 
-PLAT_BL_COMMON_SOURCES	:=	plat/juno/aarch64/plat_helpers.S
+PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/aarch64/juno_helpers.S
 
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S
 
-BL2_SOURCES		+=	plat/juno/plat_security.c		\
+BL2_SOURCES		+=	plat/arm/board/juno/juno_security.c	\
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S
