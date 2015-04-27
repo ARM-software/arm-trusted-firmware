@@ -110,6 +110,26 @@
 
 #define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
 
+/*
+ * Declarations of linker defined symbols to help determine memory layout of
+ * BL images
+ */
+extern unsigned long __RO_START__;
+extern unsigned long __RO_END__;
+#if IMAGE_BL2
+extern unsigned long __BL2_END__;
+#elif IMAGE_BL31
+extern unsigned long __BL31_END__;
+#elif IMAGE_BL32
+extern unsigned long __BL32_END__;
+#endif /* IMAGE_BLX */
+
+#if USE_COHERENT_MEM
+extern unsigned long __COHERENT_RAM_START__;
+extern unsigned long __COHERENT_RAM_END__;
+#endif
+
+
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
  * memory is available for its use and how much is already used.
