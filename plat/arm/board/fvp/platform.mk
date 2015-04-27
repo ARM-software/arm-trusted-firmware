@@ -30,11 +30,11 @@
 
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/board/common			\
-				-Iplat/fvp/include
+				-Iplat/arm/board/fvp/include
 
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S		\
-				plat/fvp/aarch64/fvp_common.c
+				plat/arm/board/fvp/aarch64/fvp_common.c
 
 BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/cpus/aarch64/aem_generic.S			\
@@ -42,26 +42,26 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
-				plat/fvp/aarch64/fvp_helpers.S			\
-				plat/fvp/bl1_fvp_setup.c			\
-				plat/fvp/fvp_io_storage.c
+				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
+				plat/arm/board/fvp/fvp_bl1_setup.c		\
+				plat/arm/board/fvp/fvp_io_storage.c
 
 BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
-				plat/fvp/bl2_fvp_setup.c			\
-				plat/fvp/fvp_io_storage.c			\
-				plat/fvp/fvp_security.c
+				plat/arm/board/fvp/fvp_bl2_setup.c		\
+				plat/arm/board/fvp/fvp_io_storage.c		\
+				plat/arm/board/fvp/fvp_security.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
-				plat/fvp/bl31_fvp_setup.c			\
-				plat/fvp/fvp_pm.c				\
-				plat/fvp/fvp_security.c				\
-				plat/fvp/fvp_topology.c				\
-				plat/fvp/aarch64/fvp_helpers.S			\
-				plat/fvp/drivers/pwrc/fvp_pwrc.c
+				plat/arm/board/fvp/fvp_bl31_setup.c		\
+				plat/arm/board/fvp/fvp_pm.c			\
+				plat/arm/board/fvp/fvp_security.c		\
+				plat/arm/board/fvp/fvp_topology.c		\
+				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
+				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
   BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c

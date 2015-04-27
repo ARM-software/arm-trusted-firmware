@@ -29,6 +29,6 @@
 #
 
 # TSP source files specific to FVP platform
-BL32_SOURCES		+=	plat/fvp/tsp/tsp_fvp_setup.c
+BL32_SOURCES		+=	plat/arm/board/fvp/tsp/fvp_tsp_setup.c
 
 include plat/arm/common/tsp/arm_tsp.mk
