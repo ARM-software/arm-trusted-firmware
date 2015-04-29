@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,124 +29,171 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <css_def.h>
+#include <debug.h>
 #include <platform.h>
+#include <stdint.h>
 #include "css_mhu.h"
 #include "css_scp_bootloader.h"
 #include "css_scpi.h"
 
+/* ID of the MHU slot used for the BOM protocol */
+#define BOM_MHU_SLOT_ID		0
+
 /* Boot commands sent from AP -> SCP */
-#define BOOT_CMD_START	0x01
-#define BOOT_CMD_DATA	0x02
+#define BOOT_CMD_INFO	0x00
+#define BOOT_CMD_DATA	0x01
+
+/* BOM command header */
+typedef struct {
+	uint32_t id : 8;
+	uint32_t reserved : 24;
+} bom_cmd_t;
 
 typedef struct {
 	uint32_t image_size;
-} cmd_start_payload;
-
-typedef struct {
-	uint32_t sequence_num;
-	uint32_t offset;
-	uint32_t size;
-} cmd_data_payload;
-
-#define BOOT_DATA_MAX_SIZE  0x1000
-
-/* Boot commands sent from SCP -> AP */
-#define BOOT_CMD_ACK	0x03
-#define BOOT_CMD_NACK	0x04
-
-typedef struct {
-	uint32_t sequence_num;
-} cmd_ack_payload;
+	uint32_t checksum;
+} cmd_info_payload_t;
 
 /*
- * Unlike the runtime protocol, the boot protocol uses the same memory region
+ * Unlike the SCPI protocol, the boot protocol uses the same memory region
  * for both AP -> SCP and SCP -> AP transfers; define the address of this...
  */
-static void * const cmd_payload = (void *)(MHU_SECURE_BASE + 0x0080);
+#define BOM_SHARED_MEM		(MHU_SECURE_BASE + 0x0080)
+#define BOM_CMD_HEADER		((bom_cmd_t *) BOM_SHARED_MEM)
+#define BOM_CMD_PAYLOAD		((void *) (BOM_SHARED_MEM + sizeof(bom_cmd_t)))
 
-static void *scp_boot_message_start(void)
+typedef struct {
+	/* Offset from the base address of the Trusted RAM */
+	uint32_t offset;
+	uint32_t block_size;
+} cmd_data_payload_t;
+
+static void scp_boot_message_start(void)
 {
-	mhu_secure_message_start();
-
-	return cmd_payload;
+	mhu_secure_message_start(BOM_MHU_SLOT_ID);
 }
 
-static void scp_boot_message_send(unsigned command, size_t size)
+static void scp_boot_message_send(size_t payload_size)
 {
 	/* Make sure payload can be seen by SCP */
 	if (MHU_PAYLOAD_CACHED)
-		flush_dcache_range((unsigned long)cmd_payload, size);
+		flush_dcache_range(BOM_SHARED_MEM,
+				   sizeof(bom_cmd_t) + payload_size);
 
 	/* Send command to SCP */
-	mhu_secure_message_send(command | (size << 8));
+	mhu_secure_message_send(BOM_MHU_SLOT_ID);
 }
 
 static uint32_t scp_boot_message_wait(size_t size)
 {
-	uint32_t response =  mhu_secure_message_wait();
+	uint32_t mhu_status;
+
+	mhu_status = mhu_secure_message_wait();
+
+	/* Expect an SCP Boot Protocol message, reject any other protocol */
+	if (mhu_status != (1 << BOM_MHU_SLOT_ID)) {
+		ERROR("MHU: Unexpected protocol (MHU status: 0x%x)\n",
+			mhu_status);
+		panic();
+	}
 
 	/* Make sure we see the reply from the SCP and not any stale data */
 	if (MHU_PAYLOAD_CACHED)
-		inv_dcache_range((unsigned long)cmd_payload, size);
+		inv_dcache_range(BOM_SHARED_MEM, size);
 
-	return response & 0xff;
+	return *(uint32_t *) BOM_SHARED_MEM;
 }
 
 static void scp_boot_message_end(void)
 {
-	mhu_secure_message_end();
-}
-
-static int transfer_block(uint32_t sequence_num, uint32_t offset, uint32_t size)
-{
-	cmd_data_payload *cmd_data = scp_boot_message_start();
-	cmd_data->sequence_num = sequence_num;
-	cmd_data->offset = offset;
-	cmd_data->size = size;
-
-	scp_boot_message_send(BOOT_CMD_DATA, sizeof(*cmd_data));
-
-	cmd_ack_payload *cmd_ack = cmd_payload;
-	int ok = scp_boot_message_wait(sizeof(*cmd_ack)) == BOOT_CMD_ACK
-		 && cmd_ack->sequence_num == sequence_num;
-
-	scp_boot_message_end();
-
-	return ok;
+	mhu_secure_message_end(BOM_MHU_SLOT_ID);
 }
 
 int scp_bootloader_transfer(void *image, unsigned int image_size)
 {
-	uintptr_t offset = (uintptr_t)image - MHU_SECURE_BASE;
-	uintptr_t end = offset + image_size;
 	uint32_t response;
+	uint32_t checksum;
+	cmd_info_payload_t *cmd_info_payload;
+	cmd_data_payload_t *cmd_data_payload;
+
+	assert((uintptr_t) image == BL30_BASE);
+
+	if ((image_size == 0) || (image_size % 4 != 0)) {
+		ERROR("Invalid size for the BL3-0 image. Must be a multiple of "
+			"4 bytes and not zero (current size = 0x%x)\n",
+			image_size);
+		return -1;
+	}
+
+	/* Extract the checksum from the image */
+	checksum = *(uint32_t *) image;
+	image = (char *) image + sizeof(checksum);
+	image_size -= sizeof(checksum);
 
 	mhu_secure_init();
 
-	/* Initiate communications with SCP */
-	do {
-		cmd_start_payload *cmd_start = scp_boot_message_start();
-		cmd_start->image_size = image_size;
+	VERBOSE("Send info about the BL3-0 image to be transferred to SCP\n");
 
-		scp_boot_message_send(BOOT_CMD_START, sizeof(*cmd_start));
+	/*
+	 * Send information about the SCP firmware image about to be transferred
+	 * to SCP
+	 */
+	scp_boot_message_start();
 
-		response = scp_boot_message_wait(0);
+	BOM_CMD_HEADER->id = BOOT_CMD_INFO;
+	cmd_info_payload = BOM_CMD_PAYLOAD;
+	cmd_info_payload->image_size = image_size;
+	cmd_info_payload->checksum = checksum;
 
-		scp_boot_message_end();
-	} while (response != BOOT_CMD_ACK);
+	scp_boot_message_send(sizeof(*cmd_info_payload));
+#if CSS_DETECT_PRE_1_7_0_SCP
+	{
+		const uint32_t deprecated_scp_nack_cmd = 0x404;
+		uint32_t mhu_status;
 
-	/* Transfer image to SCP a block at a time */
-	uint32_t sequence_num = 1;
-	size_t size;
-	while ((size = end - offset) != 0) {
-		if (size > BOOT_DATA_MAX_SIZE)
-			size = BOOT_DATA_MAX_SIZE;
-		while (!transfer_block(sequence_num, offset, size))
-			; /* Retry forever */
-		offset += size;
-		sequence_num++;
+		VERBOSE("Detecting SCP version incompatibility\n");
+
+		mhu_status = mhu_secure_message_wait();
+		if (mhu_status == deprecated_scp_nack_cmd) {
+			ERROR("Detected an incompatible version of the SCP firmware.\n");
+			ERROR("Only versions from v1.7.0 onwards are supported.\n");
+			ERROR("Please update the SCP firmware.\n");
+			return -1;
+		}
+
+		VERBOSE("SCP version looks OK\n");
 	}
+#endif /* CSS_DETECT_PRE_1_7_0_SCP */
+	response = scp_boot_message_wait(sizeof(response));
+	scp_boot_message_end();
+
+	if (response != 0) {
+		ERROR("SCP BOOT_CMD_INFO returned error %u\n", response);
+		return -1;
+	}
+
+	VERBOSE("Transferring BL3-0 image to SCP\n");
+
+	/* Transfer BL3-0 image to SCP */
+	scp_boot_message_start();
+
+	BOM_CMD_HEADER->id = BOOT_CMD_DATA;
+	cmd_data_payload = BOM_CMD_PAYLOAD;
+	cmd_data_payload->offset = (uintptr_t) image - MHU_SECURE_BASE;
+	cmd_data_payload->block_size = image_size;
+
+	scp_boot_message_send(sizeof(*cmd_data_payload));
+	response = scp_boot_message_wait(sizeof(response));
+	scp_boot_message_end();
+
+	if (response != 0) {
+		ERROR("SCP BOOT_CMD_DATA returned error %u\n", response);
+		return -1;
+	}
+
+	VERBOSE("Waiting for SCP to signal it is ready to go on\n");
 
 	/* Wait for SCP to signal it's ready */
 	return scpi_wait_ready();
