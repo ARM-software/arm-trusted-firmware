@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -280,6 +280,8 @@ DEFINE_SYSREG_RW_FUNCS(vpidr_el2)
 DEFINE_SYSREG_RW_FUNCS(vmpidr_el2)
 
 DEFINE_SYSREG_READ_FUNC(isr_el1)
+
+DEFINE_SYSREG_READ_FUNC(ctr_el0)
 
 /* GICv3 System Registers */
 

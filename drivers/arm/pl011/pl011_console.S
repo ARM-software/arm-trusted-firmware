@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,40 +31,17 @@
 #include <asm_macros.S>
 #include <pl011.h>
 
-	.globl	console_init
-	.globl	console_putc
+/*
+ * Pull in generic functions to provide backwards compatibility for
+ * platform makefiles
+ */
+#include "../../console/console.S"
+
+
 	.globl	console_core_init
 	.globl	console_core_putc
-	.globl	console_getc
+	.globl	console_core_getc
 
-	/*
-	 *  The console base is in the data section and not in .bss
-	 *  even though it is zero-init. In particular, this allows
-	 *  the console functions to start using this variable before
-	 *  the runtime memory is initialized for images which do not
-	 *  need to copy the .data section from ROM to RAM.
-	 */
-.section .data.console_base ; .align 3
-	console_base: .quad 0x0
-
-	/* -----------------------------------------------
-	 * int console_init(unsigned long base_addr,
-	 * unsigned int uart_clk, unsigned int baud_rate)
-	 * Function to initialize the console without a
-	 * C Runtime to print debug information. It saves
-	 * the console base to the data section.
-	 * In: x0 - console base address
-	 *     w1 - Uart clock in Hz
-	 *     w2 - Baud rate
-	 * out: return 1 on success.
-	 * Clobber list : x1 - x3
-	 * -----------------------------------------------
-	 */
-func console_init
-	adrp	x3, console_base
-	str	x0, [x3, :lo12:console_base]
-	b	console_core_init
-endfunc console_init
 
 	/* -----------------------------------------------
 	 * int console_core_init(unsigned long base_addr,
@@ -76,16 +53,16 @@ endfunc console_init
 	 * In: x0 - console base address
 	 *     w1 - Uart clock in Hz
 	 *     w2 - Baud rate
-	 * Out: return 1 on success
+	 * Out: return 1 on success else 0 on error
 	 * Clobber list : x1, x2
 	 * -----------------------------------------------
 	 */
 func console_core_init
 	/* Check the input base address */
-	cbz	x0, init_fail
+	cbz	x0, core_init_fail
 	/* Check baud rate and uart clock for sanity */
-	cbz	w1, init_fail
-	cbz	w2, init_fail
+	cbz	w1, core_init_fail
+	cbz	w2, core_init_fail
 	/* Program the baudrate */
 	/* Divisor =  (Uart clock * 4) / baudrate */
 	lsl	w1, w1, #2
@@ -106,28 +83,14 @@ func console_core_init
 	mov	w1, #(PL011_UARTCR_RXE | PL011_UARTCR_TXE | PL011_UARTCR_UARTEN)
 	str	w1, [x0, #UARTCR]
 	mov	w0, #1
-init_fail:
+	ret
+core_init_fail:
+	mov	w0, wzr
 	ret
 endfunc console_core_init
 
-	/* ---------------------------------------------
-	 * int console_putc(int c)
-	 * Function to output a character over the
-	 * console. It returns the character printed on
-	 * success or -1 on error.
-	 * In : x0 - character to be printed
-	 * Out : return -1 on error else return character.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
-	 */
-func console_putc
-	adrp	x2, console_base
-	ldr	x1, [x2, :lo12:console_base]
-	b	console_core_putc
-endfunc console_putc
-
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned int base_addr)
+	 * int console_core_putc(int c, unsigned long base_addr)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -160,24 +123,24 @@ putc_error:
 endfunc console_core_putc
 
 	/* ---------------------------------------------
-	 * int console_getc(void)
+	 * int console_core_getc(unsigned long base_addr)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on error.
+	 * In : x0 - console base address
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_getc
-	adrp	x0, console_base
-	ldr	x1, [x0, :lo12:console_base]
-	cbz	x1, getc_error
+func console_core_getc
+	cbz	x0, getc_error
 1:
 	/* Check if the receive FIFO is empty */
-	ldr	w0, [x1, #UARTFR]
-	tbnz	w0, #PL011_UARTFR_RXFE_BIT, 1b
-	ldr	w0, [x1, #UARTDR]
+	ldr	w1, [x0, #UARTFR]
+	tbnz	w1, #PL011_UARTFR_RXFE_BIT, 1b
+	ldr	w1, [x0, #UARTDR]
+	mov	w0, w1
 	ret
 getc_error:
 	mov	w0, #-1
 	ret
-endfunc console_getc
+endfunc console_core_getc

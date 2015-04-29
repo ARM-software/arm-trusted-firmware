@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -114,21 +114,36 @@ void bl1_main(void)
 
 	INFO("BL1: RAM 0x%lx - 0x%lx\n", BL1_RAM_BASE, BL1_RAM_LIMIT);
 
-#if DEBUG
-	unsigned long sctlr_el3 = read_sctlr_el3();
-#endif
 	image_info_t bl2_image_info = { {0} };
 	entry_point_info_t bl2_ep = { {0} };
 	meminfo_t *bl1_tzram_layout;
 	meminfo_t *bl2_tzram_layout = 0x0;
 	int err;
 
+#if DEBUG
+	unsigned long val;
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
 	 */
-	assert(sctlr_el3 | SCTLR_M_BIT);
-	assert(sctlr_el3 | SCTLR_C_BIT);
-	assert(sctlr_el3 | SCTLR_I_BIT);
+	val = read_sctlr_el3();
+	assert(val | SCTLR_M_BIT);
+	assert(val | SCTLR_C_BIT);
+	assert(val | SCTLR_I_BIT);
+	/*
+	 * Check that Cache Writeback Granule (CWG) in CTR_EL0 matches the
+	 * provided platform value
+	 */
+	val = (read_ctr_el0() >> CTR_CWG_SHIFT) & CTR_CWG_MASK;
+	/*
+	 * If CWG is zero, then no CWG information is available but we can
+	 * at least check the platform value is less than the architectural
+	 * maximum.
+	 */
+	if (val != 0)
+		assert(CACHE_WRITEBACK_GRANULE == SIZE_FROM_LOG2_WORDS(val));
+	else
+		assert(CACHE_WRITEBACK_GRANULE <= MAX_CACHE_LINE_SIZE);
+#endif
 
 	/* Perform remaining generic architectural setup from EL3 */
 	bl1_arch_setup();

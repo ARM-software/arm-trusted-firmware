@@ -38,12 +38,6 @@
 #include <tsp.h>
 #include "tsp_private.h"
 
-/*******************************************************************************
- * Declarations of linker defined symbols which will help us find the layout
- * of trusted SRAM
- ******************************************************************************/
-extern unsigned long __RO_START__;
-extern unsigned long __BL32_END__;
 
 /*******************************************************************************
  * Lock to control access to the console

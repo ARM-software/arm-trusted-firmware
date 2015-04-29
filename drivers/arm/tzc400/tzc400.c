@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -191,15 +191,41 @@ void tzc_init(uint64_t base)
 			   BUILD_CONFIG_NR_MASK) + 1;
 }
 
+/*
+ * `tzc_configure_region0` is used to program region 0 into the TrustZone
+ * controller. Region 0 covers the whole address space that is not mapped
+ * to any other region, and is enabled on all filters; this cannot be
+ * changed. This function only changes the access permissions.
+ */
+void tzc_configure_region0(tzc_region_attributes_t sec_attr,
+			   uint32_t ns_device_access)
+{
+	assert(tzc.base);
+
+	VERBOSE("TZC : Configuring region 0 (sec_attr=0x%x, ns_devs=0x%x)\n",
+		sec_attr, ns_device_access);
+
+	assert(sec_attr <= TZC_REGION_S_RDWR);
+
+	/* Set secure attributes on region 0 */
+	tzc_write_region_attributes(tzc.base, 0,
+		sec_attr << REG_ATTR_SEC_SHIFT);
+
+	/*
+	 * Specify which non-secure devices have permission to access
+	 * region 0.
+	 */
+	tzc_write_region_id_access(tzc.base, 0, ns_device_access);
+}
+
 
 /*
  * `tzc_configure_region` is used to program regions into the TrustZone
  * controller. A region can be associated with more than one filter. The
  * associated filters are passed in as a bitmap (bit0 = filter0).
  * NOTE:
- * The region 0 covers the whole address space and is enabled on all filters,
- * this cannot be changed. It is, however, possible to change some region 0
- * permissions.
+ * Region 0 is special; it is preferable to use tzc_configure_region0
+ * for this region (see comment for that function).
  */
 void tzc_configure_region(uint32_t filters,
 			  uint8_t  region,
@@ -209,6 +235,13 @@ void tzc_configure_region(uint32_t filters,
 			  uint32_t ns_device_access)
 {
 	assert(tzc.base);
+
+	VERBOSE("TZC : Configuring region (filters=0x%x, region=%d, ...\n",
+		filters, region);
+	VERBOSE("TZC : ... base=0x%lx, top=0x%lx, ...\n",
+		region_base, region_top);
+	VERBOSE("TZC : ... sec_attr=0x%x, ns_devs=0x%x)\n",
+		sec_attr, ns_device_access);
 
 	/* Do range checks on filters and regions. */
 	assert(((filters >> tzc.num_filters) == 0) &&
