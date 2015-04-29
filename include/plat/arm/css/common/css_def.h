@@ -66,8 +66,17 @@
 #define CSS_IRQ_TZC			80
 #define CSS_IRQ_TZ_WDOG			86
 
-/* SCP <=> AP boot configuration */
-#define SCP_BOOT_CFG_ADDR		0x04000080
+/*
+ * SCP <=> AP boot configuration
+ *
+ * The SCP/AP boot configuration is a 32-bit word located at a known offset from
+ * the start of the Trusted SRAM. Part of this configuration is which CPU is the
+ * primary, according to the shift and mask definitions below.
+ *
+ * Note that the value stored at this address is only valid at boot time, before
+ * the BL3-0 image is transferred to SCP.
+ */
+#define SCP_BOOT_CFG_ADDR		(ARM_TRUSTED_SRAM_BASE + 0x80)
 #define PRIMARY_CPU_SHIFT		8
 #define PRIMARY_CPU_BIT_WIDTH		4
 
