@@ -123,7 +123,7 @@ func platform_get_entrypoint
 	ldr	x1, =PWRC_BASE
 	str	w2, [x1, #PSYSR_OFF]
 	ldr	w2, [x1, #PSYSR_OFF]
-	ubfx	w2, w2, #PSYSR_WK_SHIFT, #PSYSR_WK_MASK
+	ubfx	w2, w2, #PSYSR_WK_SHIFT, #PSYSR_WK_WIDTH
 	cmp	w2, #WKUP_PPONR
 	beq	warm_reset
 	cmp	w2, #WKUP_GICREQ

@@ -48,7 +48,8 @@
 #define PSYSR_PP		(1 << 26)
 
 #define PSYSR_WK_SHIFT		24
-#define PSYSR_WK_MASK		0x3
+#define PSYSR_WK_WIDTH		0x2
+#define PSYSR_WK_MASK		((1 << PSYSR_WK_WIDTH) - 1)
 #define PSYSR_WK(x)		(x >> PSYSR_WK_SHIFT) & PSYSR_WK_MASK
 
 #define WKUP_COLD		0x0
