@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,15 +32,15 @@
 #define __PSCI_H__
 
 #include <bakery_lock.h>
-#include <platform_def.h>	/* for PLATFORM_NUM_AFFS */
+#include <platform_def.h>	/* for PLAT_NUM_PWR_DOMAINS */
 
 /*******************************************************************************
- * Number of affinity instances whose state this psci imp. can track
+ * Number of power domains whose state this psci imp. can track
  ******************************************************************************/
-#ifdef PLATFORM_NUM_AFFS
-#define PSCI_NUM_AFFS		PLATFORM_NUM_AFFS
+#ifdef PLAT_NUM_PWR_DOMAINS
+#define PSCI_NUM_PWR_DOMAINS	PLAT_NUM_PWR_DOMAINS
 #else
-#define PSCI_NUM_AFFS		(2 * PLATFORM_CORE_COUNT)
+#define PSCI_NUM_PWR_DOMAINS	(2 * PLATFORM_CORE_COUNT)
 #endif
 
 /*******************************************************************************
@@ -85,11 +85,11 @@
  ******************************************************************************/
 #define PSTATE_ID_SHIFT		0
 #define PSTATE_TYPE_SHIFT	16
-#define PSTATE_AFF_LVL_SHIFT	24
+#define PSTATE_PWR_LVL_SHIFT	24
 
 #define PSTATE_ID_MASK		0xffff
 #define PSTATE_TYPE_MASK	0x1
-#define PSTATE_AFF_LVL_MASK	0x3
+#define PSTATE_PWR_LVL_MASK	0x3
 #define PSTATE_VALID_MASK     0xFCFE0000
 
 #define PSTATE_TYPE_STANDBY	0x0
@@ -99,12 +99,12 @@
 					PSTATE_ID_MASK)
 #define psci_get_pstate_type(pstate)	(((pstate) >> PSTATE_TYPE_SHIFT) & \
 					PSTATE_TYPE_MASK)
-#define psci_get_pstate_afflvl(pstate)	(((pstate) >> PSTATE_AFF_LVL_SHIFT) & \
-					PSTATE_AFF_LVL_MASK)
-#define psci_make_powerstate(state_id, type, afflvl) \
+#define psci_get_pstate_pwrlvl(pstate)	((pstate >> PSTATE_PWR_LVL_SHIFT) & \
+					PSTATE_PWR_LVL_MASK)
+#define psci_make_powerstate(state_id, type, pwrlvl) \
 			(((state_id) & PSTATE_ID_MASK) << PSTATE_ID_SHIFT) |\
 			(((type) & PSTATE_TYPE_MASK) << PSTATE_TYPE_SHIFT) |\
-			(((afflvl) & PSTATE_AFF_LVL_MASK) << PSTATE_AFF_LVL_SHIFT)
+			(((pwrlvl) & PSTATE_PWR_LVL_MASK) << PSTATE_PWR_LVL_SHIFT)
 
 /*******************************************************************************
  * PSCI CPU_FEATURES feature flag specific defines
@@ -138,15 +138,15 @@
 #define PSCI_E_DISABLED		-8
 
 /*******************************************************************************
- * PSCI affinity state related constants. An affinity instance could be present
- * or absent physically to cater for asymmetric topologies. If present then it
- * could in one of the 4 further defined states.
+ * PSCI power domain state related constants. A power domain instance could
+ * be present or absent physically to cater for asymmetric topologies. If
+ * present then it could be in one of the 4 further defined states.
  ******************************************************************************/
 #define PSCI_STATE_SHIFT	1
 #define PSCI_STATE_MASK		0xff
 
-#define PSCI_AFF_ABSENT		0x0
-#define PSCI_AFF_PRESENT	0x1
+#define PSCI_PWR_DOMAIN_ABSENT		0x0
+#define PSCI_PWR_DOMAIN_PRESENT		0x1
 #define PSCI_STATE_ON		0x0
 #define PSCI_STATE_OFF		0x1
 #define PSCI_STATE_ON_PENDING	0x2
@@ -172,7 +172,7 @@
 typedef struct psci_cpu_data {
 	uint32_t power_state;
 #if !USE_COHERENT_MEM
-	bakery_info_t pcpu_bakery_info[PSCI_NUM_AFFS];
+	bakery_info_t pcpu_bakery_info[PSCI_NUM_PWR_DOMAINS];
 #endif
 } psci_cpu_data_t;
 
@@ -181,15 +181,15 @@ typedef struct psci_cpu_data {
  * perform common low level pm functions
  ******************************************************************************/
 typedef struct plat_pm_ops {
-	void (*affinst_standby)(unsigned int power_state);
-	int (*affinst_on)(unsigned long mpidr,
+	void (*pwr_domain_standby)(unsigned int power_state);
+	int (*pwr_domain_on)(unsigned long mpidr,
 			  unsigned long sec_entrypoint,
-			  unsigned int afflvl);
-	void (*affinst_off)(unsigned int afflvl);
-	void (*affinst_suspend)(unsigned long sec_entrypoint,
-			       unsigned int afflvl);
-	void (*affinst_on_finish)(unsigned int afflvl);
-	void (*affinst_suspend_finish)(unsigned int afflvl);
+			  unsigned int pwrlvl);
+	void (*pwr_domain_off)(unsigned int pwrlvl);
+	void (*pwr_domain_suspend)(unsigned long sec_entrypoint,
+			       unsigned int pwrlvl);
+	void (*pwr_domain_on_finish)(unsigned int pwrlvl);
+	void (*pwr_domain_suspend_finish)(unsigned int pwrlvl);
 	void (*system_off)(void) __dead2;
 	void (*system_reset)(void) __dead2;
 	int (*validate_power_state)(unsigned int power_state);
@@ -227,12 +227,12 @@ int psci_cpu_on(unsigned long,
 		unsigned long,
 		unsigned long);
 void __dead2 psci_power_down_wfi(void);
-void psci_aff_on_finish_entry(void);
-void psci_aff_suspend_finish_entry(void);
+void psci_cpu_on_finish_entry(void);
+void psci_cpu_suspend_finish_entry(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *);
 int psci_get_suspend_stateid_by_mpidr(unsigned long);
 int psci_get_suspend_stateid(void);
-int psci_get_suspend_afflvl(void);
+int psci_get_suspend_pwrlvl(void);
 
 uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,

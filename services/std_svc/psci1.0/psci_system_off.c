@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@
 
 void psci_system_off(void)
 {
-	psci_print_affinity_map();
+	psci_print_power_domain_map();
 
 	assert(psci_plat_pm_ops->system_off);
 
@@ -54,7 +54,7 @@ void psci_system_off(void)
 
 void psci_system_reset(void)
 {
-	psci_print_affinity_map();
+	psci_print_power_domain_map();
 
 	assert(psci_plat_pm_ops->system_reset);
 

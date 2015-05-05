@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,14 +38,13 @@
 	.globl	psci_do_pwrup_cache_maintenance
 
 /* -----------------------------------------------------------------------
- * void psci_do_pwrdown_cache_maintenance(uint32_t affinity level);
+ * void psci_do_pwrdown_cache_maintenance(uint32_t power level);
  *
- * This function performs cache maintenance if the specified affinity
- * level is the equal to the level of the highest affinity instance which
- * will be/is physically powered off. The levels of cache affected are
- * determined by the affinity level which is passed as the argument i.e.
- * level 0 results in a flush of the L1 cache. Both the L1 and L2 caches
- * are flushed for a higher affinity level.
+ * This function performs cache maintenance for the specified power
+ * level. The levels of cache affected are determined by the power
+ * level which is passed as the argument i.e. level 0 results
+ * in a flush of the L1 cache. Both the L1 and L2 caches are flushed
+ * for a higher power level.
  *
  * Additionally, this function also ensures that stack memory is correctly
  * flushed out to avoid coherency issues due to a change in its memory
@@ -58,11 +57,11 @@ func psci_do_pwrdown_cache_maintenance
 
 	/* ---------------------------------------------
 	 * Determine to how many levels of cache will be
-	 * subject to cache maintenance. Affinity level
+	 * subject to cache maintenance. Power level
 	 * 0 implies that only the cpu is being powered
 	 * down. Only the L1 data cache needs to be
 	 * flushed to the PoU in this case. For a higher
-	 * affinity level we are assuming that a flush
+	 * power level we are assuming that a flush
 	 * of L1 data and L2 unified cache is enough.
 	 * This information should be provided by the
 	 * platform.

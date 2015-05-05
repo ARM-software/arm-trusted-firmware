@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -182,8 +182,8 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
  * Mandatory PSCI functions (BL3-1)
  ******************************************************************************/
 int platform_setup_pm(const struct plat_pm_ops **);
-unsigned int plat_get_aff_count(unsigned int, unsigned long);
-unsigned int plat_get_aff_state(unsigned int, unsigned long);
+unsigned int plat_get_pwr_domain_count(unsigned int, unsigned long);
+unsigned int plat_get_pwr_domain_state(unsigned int, unsigned long);
 
 /*******************************************************************************
  * Optional BL3-1 functions (may be overridden)

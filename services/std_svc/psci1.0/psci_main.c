@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ int psci_cpu_on(unsigned long target_cpu,
 
 {
 	int rc;
-	unsigned int end_afflvl;
+	unsigned int end_pwrlvl;
 	entry_point_info_t ep;
 
 	/* Determine if the cpu exists of not */
@@ -74,13 +74,13 @@ int psci_cpu_on(unsigned long target_cpu,
 		return rc;
 
 	/*
-	 * To turn this cpu on, specify which affinity
+	 * To turn this cpu on, specify which power
 	 * levels need to be turned on
 	 */
-	end_afflvl = PLATFORM_MAX_AFFLVL;
-	rc = psci_afflvl_on(target_cpu,
+	end_pwrlvl = PLAT_MAX_PWR_LVL;
+	rc = psci_cpu_on_start(target_cpu,
 			    &ep,
-			    end_afflvl);
+			    end_pwrlvl);
 	return rc;
 }
 
@@ -94,7 +94,7 @@ int psci_cpu_suspend(unsigned int power_state,
 		     unsigned long context_id)
 {
 	int rc;
-	unsigned int target_afflvl, pstate_type;
+	unsigned int target_pwrlvl, pstate_type;
 	entry_point_info_t ep;
 
 	/* Check SBZ bits in power state are zero */
@@ -102,8 +102,8 @@ int psci_cpu_suspend(unsigned int power_state,
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Sanity check the requested state */
-	target_afflvl = psci_get_pstate_afflvl(power_state);
-	if (target_afflvl > PLATFORM_MAX_AFFLVL)
+	target_pwrlvl = psci_get_pstate_pwrlvl(power_state);
+	if (target_pwrlvl > PLAT_MAX_PWR_LVL)
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Validate the power_state using platform pm_ops */
@@ -132,10 +132,10 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * a standby state.
 	 */
 	if (pstate_type == PSTATE_TYPE_STANDBY) {
-		if  (!psci_plat_pm_ops->affinst_standby)
+		if  (!psci_plat_pm_ops->pwr_domain_standby)
 			return PSCI_E_INVALID_PARAMS;
 
-		psci_plat_pm_ops->affinst_standby(power_state);
+		psci_plat_pm_ops->pwr_domain_standby(power_state);
 		return PSCI_E_SUCCESS;
 	}
 
@@ -155,8 +155,8 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * Do what is needed to enter the power down state. Upon success,
 	 * enter the final wfi which will power down this CPU.
 	 */
-	psci_afflvl_suspend(&ep,
-			    target_afflvl);
+	psci_cpu_suspend_start(&ep,
+			    target_pwrlvl);
 
 	/* Reset PSCI power state parameter for the core. */
 	psci_set_suspend_power_state(PSCI_INVALID_DATA);
@@ -210,9 +210,7 @@ int psci_system_suspend(unsigned long entrypoint,
 	 * Do what is needed to enter the power down state. Upon success,
 	 * enter the final wfi which will power down this cpu.
 	 */
-	psci_afflvl_suspend(&ep,
-			    MPIDR_AFFLVL0,
-			    PLATFORM_MAX_AFFLVL);
+	psci_cpu_suspend_start(&ep, PLAT_MAX_PWR_LVL);
 
 	/* Reset PSCI power state parameter for the core. */
 	psci_set_suspend_power_state(PSCI_INVALID_DATA);
@@ -222,15 +220,14 @@ int psci_system_suspend(unsigned long entrypoint,
 int psci_cpu_off(void)
 {
 	int rc;
-	int target_afflvl = PLATFORM_MAX_AFFLVL;
+	int target_pwrlvl = PLAT_MAX_PWR_LVL;
 
 	/*
-	 * Traverse from the highest to the lowest affinity level. When the
-	 * lowest affinity level is hit, all the locks are acquired. State
-	 * management is done immediately followed by cpu, cluster ...
-	 * ..target_afflvl specific actions as this function unwinds back.
+	 * Do what is needed to power off this CPU and possible higher power
+	 * levels if it able to do so. Upon success, enter the final wfi
+	 * which will power down this CPU.
 	 */
-	rc = psci_afflvl_off(target_afflvl);
+	rc = psci_do_cpu_off(target_pwrlvl);
 
 	/*
 	 * The only error cpu_off can return is E_DENIED. So check if that's
@@ -245,28 +242,28 @@ int psci_affinity_info(unsigned long target_affinity,
 		       unsigned int lowest_affinity_level)
 {
 	int rc = PSCI_E_INVALID_PARAMS;
-	unsigned int aff_state;
-	aff_map_node_t *node;
+	unsigned int pwr_domain_state;
+	pwr_map_node_t *node;
 
-	if (lowest_affinity_level > PLATFORM_MAX_AFFLVL)
+	if (lowest_affinity_level > PLAT_MAX_PWR_LVL)
 		return rc;
 
-	node = psci_get_aff_map_node(target_affinity, lowest_affinity_level);
-	if (node && (node->state & PSCI_AFF_PRESENT)) {
+	node = psci_get_pwr_map_node(target_affinity, lowest_affinity_level);
+	if (node && (node->state & PSCI_PWR_DOMAIN_PRESENT)) {
 
 		/*
-		 * TODO: For affinity levels higher than 0 i.e. cpu, the
+		 * TODO: For power levels higher than 0 i.e. cpu, the
 		 * state will always be either ON or OFF. Need to investigate
 		 * how critical is it to support ON_PENDING here.
 		 */
-		aff_state = psci_get_state(node);
+		pwr_domain_state = psci_get_state(node);
 
 		/* A suspended cpu is available & on for the OS */
-		if (aff_state == PSCI_STATE_SUSPEND) {
-			aff_state = PSCI_STATE_ON;
+		if (pwr_domain_state == PSCI_STATE_SUSPEND) {
+			pwr_domain_state = PSCI_STATE_ON;
 		}
 
-		rc = aff_state;
+		rc = pwr_domain_state;
 	}
 
 	return rc;

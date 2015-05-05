@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,43 +63,43 @@ static int cpu_on_validate_state(unsigned int psci_state)
  * enough information is stashed for it to resume execution in the non-secure
  * security state.
  *
- * The state of all the relevant affinity levels is changed after calling the
+ * The state of all the relevant power domains are changed after calling the
  * platform handler as it can return error.
  ******************************************************************************/
-int psci_afflvl_on(unsigned long target_cpu,
+int psci_cpu_on_start(unsigned long target_cpu,
 		   entry_point_info_t *ep,
-		   int end_afflvl)
+		   int end_pwrlvl)
 {
 	int rc;
-	mpidr_aff_map_nodes_t target_cpu_nodes;
+	mpidr_pwr_map_nodes_t target_cpu_nodes;
 	unsigned long psci_entrypoint;
 
 	/*
 	 * This function must only be called on platforms where the
 	 * CPU_ON platform hooks have been implemented.
 	 */
-	assert(psci_plat_pm_ops->affinst_on &&
-			psci_plat_pm_ops->affinst_on_finish);
+	assert(psci_plat_pm_ops->pwr_domain_on &&
+			psci_plat_pm_ops->pwr_domain_on_finish);
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
-	 * each affinity instance in the mpidr. If this function does
-	 * not return successfully then either the mpidr or the affinity
+	 * each power domain instance in the mpidr. If this function does
+	 * not return successfully then either the mpidr or the power
 	 * levels are incorrect.
 	 */
-	rc = psci_get_aff_map_nodes(target_cpu,
+	rc = psci_get_pwr_map_nodes(target_cpu,
 				    MPIDR_AFFLVL0,
-				    end_afflvl,
+				    end_pwrlvl,
 				    target_cpu_nodes);
 	assert(rc == PSCI_E_SUCCESS);
 
 	/*
-	 * This function acquires the lock corresponding to each affinity
+	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_acquire_pwr_domain_locks(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  target_cpu_nodes);
 
 	/*
@@ -124,8 +124,8 @@ int psci_afflvl_on(unsigned long target_cpu,
 	 * corresponding to the mpidr in the range of affinity levels
 	 * specified.
 	 */
-	psci_do_afflvl_state_mgmt(MPIDR_AFFLVL0,
-				   end_afflvl,
+	psci_do_state_coordination(MPIDR_AFFLVL0,
+				   end_pwrlvl,
 				   target_cpu_nodes,
 				   PSCI_STATE_ON_PENDING);
 
@@ -133,14 +133,14 @@ int psci_afflvl_on(unsigned long target_cpu,
 	 * Perform generic, architecture and platform specific handling.
 	 */
 	/* Set the secure world (EL3) re-entry point after BL1 */
-	psci_entrypoint = (unsigned long) psci_aff_on_finish_entry;
+	psci_entrypoint = (unsigned long) psci_cpu_on_finish_entry;
 
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
-	rc = psci_plat_pm_ops->affinst_on(target_cpu,
+	rc = psci_plat_pm_ops->pwr_domain_on(target_cpu,
 				    psci_entrypoint,
 				    MPIDR_AFFLVL0);
 	assert(rc == PSCI_E_SUCCESS || rc == PSCI_E_INTERN_FAIL);
@@ -150,29 +150,29 @@ int psci_afflvl_on(unsigned long target_cpu,
 		cm_init_context(target_cpu, ep);
 	else
 		/* Restore the state on error. */
-		psci_do_afflvl_state_mgmt(MPIDR_AFFLVL0,
-					  end_afflvl,
+		psci_do_state_coordination(MPIDR_AFFLVL0,
+					  end_pwrlvl,
 					  target_cpu_nodes,
 					  PSCI_STATE_OFF);
 exit:
 	/*
-	 * This loop releases the lock corresponding to each affinity level
+	 * This loop releases the lock corresponding to each power level
 	 * in the reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_release_pwr_domain_locks(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  target_cpu_nodes);
 
 	return rc;
 }
 
 /*******************************************************************************
- * The following function finish an earlier affinity power on request. They
+ * The following function finish an earlier power on request. They
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
-void psci_afflvl_on_finisher(aff_map_node_t *node[], int afflvl)
+void psci_cpu_on_finish(pwr_map_node_t *node[], int pwrlvl)
 {
-	assert(node[afflvl]->level == afflvl);
+	assert(node[pwrlvl]->level == pwrlvl);
 
 	/* Ensure we have been explicitly woken up by another cpu */
 	assert(psci_get_state(node[MPIDR_AFFLVL0]) == PSCI_STATE_ON_PENDING);
@@ -183,7 +183,7 @@ void psci_afflvl_on_finisher(aff_map_node_t *node[], int afflvl)
 	 * register. The actual state of this cpu has already been
 	 * changed.
 	 */
-	psci_plat_pm_ops->affinst_on_finish(afflvl);
+	psci_plat_pm_ops->pwr_domain_on_finish(pwrlvl);
 
 	/*
 	 * Arch. management: Enable data cache and manage stack memory

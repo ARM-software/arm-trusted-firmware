@@ -34,8 +34,8 @@
 #include <psci.h>
 #include <xlat_tables.h>
 
-	.globl	psci_aff_on_finish_entry
-	.globl	psci_aff_suspend_finish_entry
+	.globl	psci_cpu_on_finish_entry
+	.globl	psci_cpu_suspend_finish_entry
 	.globl	psci_power_down_wfi
 
 	/* -----------------------------------------------------
@@ -45,14 +45,14 @@
 	 * the handlers (chosen depending upon original state).
 	 * -----------------------------------------------------
 	 */
-func psci_aff_on_finish_entry
-	adr	x23, psci_afflvl_on_finisher
-	b	psci_aff_common_finish_entry
+func psci_cpu_on_finish_entry
+	adr	x23, psci_cpu_on_finish
+	b	psci_power_up_entry
 
-psci_aff_suspend_finish_entry:
-	adr	x23, psci_afflvl_suspend_finisher
+psci_cpu_suspend_finish_entry:
+	adr	x23, psci_cpu_suspend_finish
 
-psci_aff_common_finish_entry:
+psci_power_up_entry:
 	/*
 	 * On the warm boot path, most of the EL3 initialisations performed by
 	 * 'el3_entrypoint_common' must be skipped:
@@ -98,12 +98,12 @@ psci_aff_common_finish_entry:
 	mov	x0, #DISABLE_DCACHE
 	bl	bl31_plat_enable_mmu
 
-	bl	get_power_on_target_afflvl
+	bl	get_power_on_target_pwrlvl
 	mov	x1, x23
-	bl	psci_afflvl_power_on_finish
+	bl	psci_power_up_finish
 
 	b	el3_exit
-endfunc psci_aff_on_finish_entry
+endfunc psci_cpu_on_finish_entry
 
 	/* --------------------------------------------
 	 * This function is called to indicate to the

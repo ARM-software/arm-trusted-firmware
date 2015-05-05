@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,48 +37,49 @@
 
 /******************************************************************************
  * Top level handler which is called when a cpu wants to power itself down.
- * It's assumed that along with turning the cpu off, higher affinity levels
- * will be turned off as far as possible. It finds the highest level to be
- * powered off by traversing the node information and then performs generic,
- * architectural, platform setup and state management required to turn OFF
- * that affinity level and affinity levels below it. e.g. For a cpu that's to
- * be powered OFF, it could mean programming the power controller whereas for
- * a cluster that's to be powered off, it will call the platform specific code
- * which will disable coherency at the interconnect level if the cpu is the
- * last in the cluster and also the program the power controller.
+ * It's assumed that along with turning the cpu power domain off, power
+ * domains at higher levels will be turned off as far as possible. It finds
+ * the highest level where a domain has to be powered off by traversing the
+ * node information and then performs generic, architectural, platform setup
+ * and state management required to turn OFF that power domain and domains
+ * below it. e.g. For a cpu that's to be powered OFF, it could mean programming
+ * the power controller whereas for a cluster that's to be powered off, it will
+ * call the platform specific code which will disable coherency at the
+ * interconnect level if the cpu is the last in the cluster and also the
+ * program the power controller.
  ******************************************************************************/
-int psci_afflvl_off(int end_afflvl)
+int psci_do_cpu_off(int end_pwrlvl)
 {
 	int rc;
-	mpidr_aff_map_nodes_t mpidr_nodes;
-	unsigned int max_phys_off_afflvl;
+	mpidr_pwr_map_nodes_t mpidr_nodes;
+	unsigned int max_phys_off_pwrlvl;
 
 	/*
 	 * This function must only be called on platforms where the
 	 * CPU_OFF platform hooks have been implemented.
 	 */
-	assert(psci_plat_pm_ops->affinst_off);
+	assert(psci_plat_pm_ops->pwr_domain_off);
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
-	 * each affinity instance in the mpidr. If this function does
-	 * not return successfully then either the mpidr or the affinity
+	 * each power domain instance in the mpidr. If this function does
+	 * not return successfully then either the mpidr or the power
 	 * levels are incorrect. Either way, this an internal TF error
 	 * therefore assert.
 	 */
-	rc = psci_get_aff_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
+	rc = psci_get_pwr_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
 				    MPIDR_AFFLVL0,
-				    end_afflvl,
+				    end_pwrlvl,
 				    mpidr_nodes);
 	assert(rc == PSCI_E_SUCCESS);
 
 	/*
-	 * This function acquires the lock corresponding to each affinity
+	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_acquire_pwr_domain_locks(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  mpidr_nodes);
 
 
@@ -94,39 +95,39 @@ int psci_afflvl_off(int end_afflvl)
 	}
 
 	/*
-	 * This function updates the state of each affinity instance
-	 * corresponding to the mpidr in the range of affinity levels
+	 * This function updates the state of each power domain instance
+	 * corresponding to the mpidr in the range of power levels
 	 * specified.
 	 */
-	psci_do_afflvl_state_mgmt(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_do_state_coordination(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  mpidr_nodes,
 				  PSCI_STATE_OFF);
 
-	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(MPIDR_AFFLVL0,
-							   end_afflvl,
+	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(MPIDR_AFFLVL0,
+							   end_pwrlvl,
 							   mpidr_nodes);
-	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
+	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
 
 	/*
 	 * Arch. management. Perform the necessary steps to flush all
 	 * cpu caches.
 	 */
-	psci_do_pwrdown_cache_maintenance(max_phys_off_afflvl);
+	psci_do_pwrdown_cache_maintenance(max_phys_off_pwrlvl);
 
 	/*
 	 * Plat. management: Perform platform specific actions to turn this
 	 * cpu off e.g. exit cpu coherency, program the power controller etc.
 	 */
-	psci_plat_pm_ops->affinst_off(max_phys_off_afflvl);
+	psci_plat_pm_ops->pwr_domain_off(max_phys_off_pwrlvl);
 
 exit:
 	/*
-	 * Release the locks corresponding to each affinity level in the
+	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_release_pwr_domain_locks(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  mpidr_nodes);
 
 	/*

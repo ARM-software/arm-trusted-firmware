@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,10 +47,10 @@ const spd_pm_ops_t *psci_spd_pm;
 
 /*******************************************************************************
  * Grand array that holds the platform's topology information for state
- * management of affinity instances. Each node (aff_map_node) in the array
- * corresponds to an affinity instance e.g. cluster, cpu within an mpidr
+ * management of power domain instances. Each node (pwr_map_node) in the array
+ * corresponds to a power domain instance e.g. cluster, cpu within an mpidr
  ******************************************************************************/
-aff_map_node_t psci_aff_map[PSCI_NUM_AFFS]
+pwr_map_node_t psci_pwr_domain_map[PSCI_NUM_PWR_DOMAINS]
 #if USE_COHERENT_MEM
 __attribute__ ((section("tzfw_coherent_mem")))
 #endif
@@ -62,33 +62,34 @@ __attribute__ ((section("tzfw_coherent_mem")))
 const plat_pm_ops_t *psci_plat_pm_ops;
 
 /*******************************************************************************
- * Check that the maximum affinity level supported by the platform makes sense
+ * Check that the maximum power level supported by the platform makes sense
  * ****************************************************************************/
-CASSERT(PLATFORM_MAX_AFFLVL <= MPIDR_MAX_AFFLVL && \
-		PLATFORM_MAX_AFFLVL >= MPIDR_AFFLVL0, \
-		assert_platform_max_afflvl_check);
+CASSERT(PLAT_MAX_PWR_LVL <= MPIDR_MAX_AFFLVL && \
+		PLAT_MAX_PWR_LVL >= MPIDR_AFFLVL0, \
+		assert_platform_max_pwrlvl_check);
 
 /*******************************************************************************
- * This function is passed an array of pointers to affinity level nodes in the
- * topology tree for an mpidr. It iterates through the nodes to find the highest
- * affinity level which is marked as physically powered off.
+ * This function is passed an array of pointers to power domain nodes in the
+ * topology tree for an mpidr. It iterates through the nodes to find the
+ * highest power level where the power domain is marked as physically powered
+ * off.
  ******************************************************************************/
-uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
-				       uint32_t end_afflvl,
-				       aff_map_node_t *mpidr_nodes[])
+uint32_t psci_find_max_phys_off_pwrlvl(uint32_t start_pwrlvl,
+				       uint32_t end_pwrlvl,
+				       pwr_map_node_t *mpidr_nodes[])
 {
-	uint32_t max_afflvl = PSCI_INVALID_DATA;
+	uint32_t max_pwrlvl = PSCI_INVALID_DATA;
 
-	for (; start_afflvl <= end_afflvl; start_afflvl++) {
-		if (mpidr_nodes[start_afflvl] == NULL)
+	for (; start_pwrlvl <= end_pwrlvl; start_pwrlvl++) {
+		if (mpidr_nodes[start_pwrlvl] == NULL)
 			continue;
 
-		if (psci_get_phys_state(mpidr_nodes[start_afflvl]) ==
+		if (psci_get_phys_state(mpidr_nodes[start_pwrlvl]) ==
 		    PSCI_STATE_OFF)
-			max_afflvl = start_afflvl;
+			max_pwrlvl = start_pwrlvl;
 	}
 
-	return max_afflvl;
+	return max_pwrlvl;
 }
 
 /*******************************************************************************
@@ -102,21 +103,21 @@ unsigned int psci_is_last_on_cpu(void)
 	unsigned long mpidr = read_mpidr_el1() & MPIDR_AFFINITY_MASK;
 	unsigned int i;
 
-	for (i = psci_aff_limits[MPIDR_AFFLVL0].min;
-			i <= psci_aff_limits[MPIDR_AFFLVL0].max; i++) {
+	for (i = psci_pwr_lvl_limits[MPIDR_AFFLVL0].min;
+			i <= psci_pwr_lvl_limits[MPIDR_AFFLVL0].max; i++) {
 
-		assert(psci_aff_map[i].level == MPIDR_AFFLVL0);
+		assert(psci_pwr_domain_map[i].level == MPIDR_AFFLVL0);
 
-		if (!(psci_aff_map[i].state & PSCI_AFF_PRESENT))
+		if (!(psci_pwr_domain_map[i].state & PSCI_AFF_PRESENT))
 			continue;
 
-		if (psci_aff_map[i].mpidr == mpidr) {
-			assert(psci_get_state(&psci_aff_map[i])
+		if (psci_pwr_domain_map[i].mpidr == mpidr) {
+			assert(psci_get_state(&psci_pwr_domain_map[i])
 					== PSCI_STATE_ON);
 			continue;
 		}
 
-		if (psci_get_state(&psci_aff_map[i]) != PSCI_STATE_OFF)
+		if (psci_get_state(&psci_pwr_domain_map[i]) != PSCI_STATE_OFF)
 			return 0;
 	}
 
@@ -124,20 +125,20 @@ unsigned int psci_is_last_on_cpu(void)
 }
 
 /*******************************************************************************
- * Routine to return the maximum affinity level to traverse to after a cpu has
+ * Routine to return the maximum power level to traverse to after a cpu has
  * been physically powered up. It is expected to be called immediately after
  * reset from assembler code.
  ******************************************************************************/
-int get_power_on_target_afflvl(void)
+int get_power_on_target_pwrlvl(void)
 {
-	int afflvl;
+	int pwrlvl;
 
 #if DEBUG
 	unsigned int state;
-	aff_map_node_t *node;
+	pwr_map_node_t *node;
 
 	/* Retrieve our node from the topology tree */
-	node = psci_get_aff_map_node(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
+	node = psci_get_pwr_map_node(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
 				     MPIDR_AFFLVL0);
 	assert(node);
 
@@ -150,73 +151,74 @@ int get_power_on_target_afflvl(void)
 #endif
 
 	/*
-	 * Assume that this cpu was suspended and retrieve its target affinity
+	 * Assume that this cpu was suspended and retrieve its target power
 	 * level. If it is invalid then it could only have been turned off
-	 * earlier. PLATFORM_MAX_AFFLVL will be the highest affinity level a
+	 * earlier. PLAT_MAX_PWR_LVL will be the highest power level a
 	 * cpu can be turned off to.
 	 */
-	afflvl = psci_get_suspend_afflvl();
-	if (afflvl == PSCI_INVALID_DATA)
-		afflvl = PLATFORM_MAX_AFFLVL;
-	return afflvl;
+	pwrlvl = psci_get_suspend_pwrlvl();
+	if (pwrlvl == PSCI_INVALID_DATA)
+		pwrlvl = PLAT_MAX_PWR_LVL;
+	return pwrlvl;
 }
 
 /*******************************************************************************
- * Simple routine to set the id of an affinity instance at a given level in the
- * mpidr.
+ * Simple routine to set the id of a power domain instance at a given level
+ * in the mpidr. The assumption is that the affinity level and the power
+ * level are the same.
  ******************************************************************************/
-unsigned long mpidr_set_aff_inst(unsigned long mpidr,
-				 unsigned char aff_inst,
-				 int aff_lvl)
+unsigned long mpidr_set_pwr_domain_inst(unsigned long mpidr,
+				 unsigned char pwr_inst,
+				 int pwr_lvl)
 {
 	unsigned long aff_shift;
 
-	assert(aff_lvl <= MPIDR_AFFLVL3);
+	assert(pwr_lvl <= MPIDR_AFFLVL3);
 
 	/*
 	 * Decide the number of bits to shift by depending upon
-	 * the affinity level
+	 * the power level
 	 */
-	aff_shift = get_afflvl_shift(aff_lvl);
+	aff_shift = get_afflvl_shift(pwr_lvl);
 
 	/* Clear the existing affinity instance & set the new one*/
 	mpidr &= ~(((unsigned long)MPIDR_AFFLVL_MASK) << aff_shift);
-	mpidr |= ((unsigned long)aff_inst) << aff_shift;
+	mpidr |= ((unsigned long)pwr_inst) << aff_shift;
 
 	return mpidr;
 }
 
 /*******************************************************************************
- * This function sanity checks a range of affinity levels.
+ * This function sanity checks a range of power levels.
  ******************************************************************************/
-int psci_check_afflvl_range(int start_afflvl, int end_afflvl)
+int psci_check_pwrlvl_range(int start_pwrlvl, int end_pwrlvl)
 {
 	/* Sanity check the parameters passed */
-	if (end_afflvl > PLATFORM_MAX_AFFLVL)
+	if (end_pwrlvl > PLAT_MAX_PWR_LVL)
 		return PSCI_E_INVALID_PARAMS;
 
-	if (start_afflvl < MPIDR_AFFLVL0)
+	if (start_pwrlvl < MPIDR_AFFLVL0)
 		return PSCI_E_INVALID_PARAMS;
 
-	if (end_afflvl < start_afflvl)
+	if (end_pwrlvl < start_pwrlvl)
 		return PSCI_E_INVALID_PARAMS;
 
 	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
- * This function is passed an array of pointers to affinity level nodes in the
+ * This function is passed an array of pointers to power domain nodes in the
  * topology tree for an mpidr and the state which each node should transition
- * to. It updates the state of each node between the specified affinity levels.
+ * to. It updates the state of each node between the specified power levels.
  ******************************************************************************/
-void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
-			       uint32_t end_afflvl,
-			       aff_map_node_t *mpidr_nodes[],
+void psci_do_state_coordination(uint32_t start_pwrlvl,
+			       uint32_t end_pwrlvl,
+			       pwr_map_node_t *mpidr_nodes[],
 			       uint32_t state)
 {
 	uint32_t level;
 
-	for (level = start_afflvl; level <= end_afflvl; level++) {
+	for (level = start_pwrlvl; level <= end_pwrlvl; level++) {
 		if (mpidr_nodes[level] == NULL)
 			continue;
 		psci_set_state(mpidr_nodes[level], state);
@@ -224,17 +226,17 @@ void psci_do_afflvl_state_mgmt(uint32_t start_afflvl,
 }
 
 /*******************************************************************************
- * This function is passed an array of pointers to affinity level nodes in the
- * topology tree for an mpidr. It picks up locks for each affinity level bottom
+ * This function is passed an array of pointers to power domain nodes in the
+ * topology tree for an mpidr. It picks up locks for each power level bottom
  * up in the range specified.
  ******************************************************************************/
-void psci_acquire_afflvl_locks(int start_afflvl,
-			       int end_afflvl,
-			       aff_map_node_t *mpidr_nodes[])
+void psci_acquire_pwr_domain_locks(int start_pwrlvl,
+			       int end_pwrlvl,
+			       pwr_map_node_t *mpidr_nodes[])
 {
 	int level;
 
-	for (level = start_afflvl; level <= end_afflvl; level++) {
+	for (level = start_pwrlvl; level <= end_pwrlvl; level++) {
 		if (mpidr_nodes[level] == NULL)
 			continue;
 
@@ -243,17 +245,17 @@ void psci_acquire_afflvl_locks(int start_afflvl,
 }
 
 /*******************************************************************************
- * This function is passed an array of pointers to affinity level nodes in the
- * topology tree for an mpidr. It releases the lock for each affinity level top
+ * This function is passed an array of pointers to power domain nodes in the
+ * topology tree for an mpidr. It releases the lock for each power level top
  * down in the range specified.
  ******************************************************************************/
-void psci_release_afflvl_locks(int start_afflvl,
-			       int end_afflvl,
-			       aff_map_node_t *mpidr_nodes[])
+void psci_release_pwr_domain_locks(int start_pwrlvl,
+			       int end_pwrlvl,
+			       pwr_map_node_t *mpidr_nodes[])
 {
 	int level;
 
-	for (level = end_afflvl; level >= start_afflvl; level--) {
+	for (level = end_pwrlvl; level >= start_pwrlvl; level--) {
 		if (mpidr_nodes[level] == NULL)
 			continue;
 
@@ -262,15 +264,15 @@ void psci_release_afflvl_locks(int start_afflvl,
 }
 
 /*******************************************************************************
- * Simple routine to determine whether an affinity instance at a given level
- * in an mpidr exists or not.
+ * Simple routine to determine whether an power domain instance at a given
+ * level in an mpidr exists or not.
  ******************************************************************************/
 int psci_validate_mpidr(unsigned long mpidr, int level)
 {
-	aff_map_node_t *node;
+	pwr_map_node_t *node;
 
-	node = psci_get_aff_map_node(mpidr, level);
-	if (node && (node->state & PSCI_AFF_PRESENT))
+	node = psci_get_pwr_map_node(mpidr, level);
+	if (node && (node->state & PSCI_PWR_DOMAIN_PRESENT))
 		return PSCI_E_SUCCESS;
 	else
 		return PSCI_E_INVALID_PARAMS;
@@ -334,10 +336,10 @@ int psci_get_ns_ep_info(entry_point_info_t *ep,
 }
 
 /*******************************************************************************
- * This function takes a pointer to an affinity node in the topology tree and
- * returns its state. State of a non-leaf node needs to be calculated.
+ * This function takes a pointer to a power domain node in the topology tree
+ * and returns its state. State of a non-leaf node needs to be calculated.
  ******************************************************************************/
-unsigned short psci_get_state(aff_map_node_t *node)
+unsigned short psci_get_state(pwr_map_node_t *node)
 {
 #if !USE_COHERENT_MEM
 	flush_dcache_range((uint64_t) node, sizeof(*node));
@@ -350,11 +352,11 @@ unsigned short psci_get_state(aff_map_node_t *node)
 		return (node->state >> PSCI_STATE_SHIFT) & PSCI_STATE_MASK;
 
 	/*
-	 * For an affinity level higher than a cpu, the state has to be
+	 * For a power level higher than a cpu, the state has to be
 	 * calculated. It depends upon the value of the reference count
-	 * which is managed by each node at the next lower affinity level
+	 * which is managed by each node at the next lower power level
 	 * e.g. for a cluster, each cpu increments/decrements the reference
-	 * count. If the reference count is 0 then the affinity level is
+	 * count. If the reference count is 0 then the power level is
 	 * OFF else ON.
 	 */
 	if (node->ref_count)
@@ -364,16 +366,16 @@ unsigned short psci_get_state(aff_map_node_t *node)
 }
 
 /*******************************************************************************
- * This function takes a pointer to an affinity node in the topology tree and
- * a target state. State of a non-leaf node needs to be converted to a reference
- * count. State of a leaf node can be set directly.
+ * This function takes a pointer to a power domain node in the topology
+ * tree and a target state. State of a non-leaf node needs to be converted
+ * to a reference count. State of a leaf node can be set directly.
  ******************************************************************************/
-void psci_set_state(aff_map_node_t *node, unsigned short state)
+void psci_set_state(pwr_map_node_t *node, unsigned short state)
 {
 	assert(node->level >= MPIDR_AFFLVL0 && node->level <= MPIDR_MAX_AFFLVL);
 
 	/*
-	 * For an affinity level higher than a cpu, the state is used
+	 * For a power level higher than a cpu, the state is used
 	 * to decide whether the reference count is incremented or
 	 * decremented. Entry into the ON_PENDING state does not have
 	 * effect.
@@ -389,7 +391,7 @@ void psci_set_state(aff_map_node_t *node, unsigned short state)
 			break;
 		case PSCI_STATE_ON_PENDING:
 			/*
-			 * An affinity level higher than a cpu will not undergo
+			 * A power level higher than a cpu will not undergo
 			 * a state change when it is about to be turned on
 			 */
 			return;
@@ -407,13 +409,13 @@ void psci_set_state(aff_map_node_t *node, unsigned short state)
 }
 
 /*******************************************************************************
- * An affinity level could be on, on_pending, suspended or off. These are the
+ * A power domain could be on, on_pending, suspended or off. These are the
  * logical states it can be in. Physically either it is off or on. When it is in
  * the state on_pending then it is about to be turned on. It is not possible to
- * tell whether that's actually happenned or not. So we err on the side of
- * caution & treat the affinity level as being turned off.
+ * tell whether that's actually happened or not. So we err on the side of
+ * caution & treat the power domain as being turned off.
  ******************************************************************************/
-unsigned short psci_get_phys_state(aff_map_node_t *node)
+unsigned short psci_get_phys_state(pwr_map_node_t *node)
 {
 	unsigned int state;
 
@@ -423,70 +425,67 @@ unsigned short psci_get_phys_state(aff_map_node_t *node)
 
 /*******************************************************************************
  * Generic handler which is called when a cpu is physically powered on. It
- * traverses the node information and finds the highest affinity level powered
+ * traverses the node information and finds the highest power level powered
  * off and performs generic, architectural, platform setup and state management
- * to power on that affinity level and affinity levels below it.
+ * to power on that power level and power levels below it.
  * e.g. For a cpu that's been powered on, it will call the platform specific
  * code to enable the gic cpu interface and for a cluster it will enable
  * coherency at the interconnect level in addition to gic cpu interface.
- *
- * The state of all the relevant affinity levels is changed prior to calling
- * the platform specific code.
  ******************************************************************************/
-void psci_afflvl_power_on_finish(int end_afflvl,
-				 afflvl_power_on_finisher_t pon_handler)
+void psci_power_up_finish(int end_pwrlvl,
+				 pwrlvl_power_on_finisher_t pon_handler)
 {
-	mpidr_aff_map_nodes_t mpidr_nodes;
+	mpidr_pwr_map_nodes_t mpidr_nodes;
 	int rc;
-	unsigned int max_phys_off_afflvl;
+	unsigned int max_phys_off_pwrlvl;
 
 
 	/*
 	 * Collect the pointers to the nodes in the topology tree for
-	 * each affinity instance in the mpidr. If this function does
-	 * not return successfully then either the mpidr or the affinity
+	 * each power domain instances in the mpidr. If this function does
+	 * not return successfully then either the mpidr or the power
 	 * levels are incorrect. Either case is an irrecoverable error.
 	 */
-	rc = psci_get_aff_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
+	rc = psci_get_pwr_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
 				    MPIDR_AFFLVL0,
-				    end_afflvl,
+				    end_pwrlvl,
 				    mpidr_nodes);
 	if (rc != PSCI_E_SUCCESS)
 		panic();
 
 	/*
-	 * This function acquires the lock corresponding to each affinity
+	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_acquire_pwr_domain_locks(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  mpidr_nodes);
 
-	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(MPIDR_AFFLVL0,
-							    end_afflvl,
+	max_phys_off_pwrlvl = psci_find_max_phys_off_pwrlvl(MPIDR_AFFLVL0,
+							    end_pwrlvl,
 							    mpidr_nodes);
-	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
+	assert(max_phys_off_pwrlvl != PSCI_INVALID_DATA);
 
 	/* Perform generic, architecture and platform specific handling */
-	pon_handler(mpidr_nodes, max_phys_off_afflvl);
+	pon_handler(mpidr_nodes, max_phys_off_pwrlvl);
 
 	/*
-	 * This function updates the state of each affinity instance
-	 * corresponding to the mpidr in the range of affinity levels
+	 * This function updates the state of each power instance
+	 * corresponding to the mpidr in the range of power levels
 	 * specified.
 	 */
-	psci_do_afflvl_state_mgmt(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_do_state_coordination(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  mpidr_nodes,
 				  PSCI_STATE_ON);
 
 	/*
-	 * This loop releases the lock corresponding to each affinity level
+	 * This loop releases the lock corresponding to each power level
 	 * in the reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(MPIDR_AFFLVL0,
-				  end_afflvl,
+	psci_release_pwr_domain_locks(MPIDR_AFFLVL0,
+				  end_pwrlvl,
 				  mpidr_nodes);
 }
 
@@ -532,13 +531,13 @@ int psci_spd_migrate_info(uint64_t *mpidr)
 
 
 /*******************************************************************************
- * This function prints the state of all affinity instances present in the
+ * This function prints the state of all power domains present in the
  * system
  ******************************************************************************/
-void psci_print_affinity_map(void)
+void psci_print_power_domain_map(void)
 {
 #if LOG_LEVEL >= LOG_LEVEL_INFO
-	aff_map_node_t *node;
+	pwr_map_node_t *node;
 	unsigned int idx;
 	/* This array maps to the PSCI_STATE_X definitions in psci.h */
 	static const char *psci_state_str[] = {
@@ -548,13 +547,13 @@ void psci_print_affinity_map(void)
 		"SUSPEND"
 	};
 
-	INFO("PSCI Affinity Map:\n");
-	for (idx = 0; idx < PSCI_NUM_AFFS ; idx++) {
-		node = &psci_aff_map[idx];
-		if (!(node->state & PSCI_AFF_PRESENT)) {
+	INFO("PSCI Power Domain Map:\n");
+	for (idx = 0; idx < PSCI_NUM_PWR_DOMAINS; idx++) {
+		node = &psci_pwr_domain_map[idx];
+		if (!(node->state & PSCI_PWR_DOMAIN_PRESENT)) {
 			continue;
 		}
-		INFO("  AffInst: Level %u, MPID 0x%lx, State %s\n",
+		INFO("  pwrInst: Level %u, MPID 0x%lx, State %s\n",
 				node->level, node->mpidr,
 				psci_state_str[psci_get_state(node)]);
 	}
