@@ -183,7 +183,7 @@ unsigned int plat_get_aff_state(unsigned int aff_lvl,
  * the FVP flavour its running on. We construct all the mpidrs we can handle
  * and rely on the PWRC.PSYSR to flag absent cpus when their status is queried.
  ******************************************************************************/
-int plat_arm_topology_setup(void)
+void plat_arm_topology_setup(void)
 {
 	unsigned char aff0, aff1, aff_state, aff0_offset = 0;
 	unsigned long mpidr;
@@ -229,5 +229,4 @@ int plat_arm_topology_setup(void)
 	fvp_aff1_topology_map[aff1 - 1].sibling = AFFINST_INVAL;
 
 	topology_setup_done = 1;
-	return 0;
 }
