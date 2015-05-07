@@ -32,6 +32,7 @@
 
 #include <common_def.h>
 #include <platform_def.h>
+#include <tbbr_img_def.h>
 #include <xlat_tables.h>
 
 

@@ -46,7 +46,8 @@ endif
 # Process flags
 $(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
 
-PLAT_INCLUDES		+=	-Iinclude/plat/arm/common			\
+PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
+				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64
 
 
