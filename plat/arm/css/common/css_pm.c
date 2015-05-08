@@ -51,18 +51,23 @@
  *  The table must be terminated by a NULL entry.
  */
 const unsigned int arm_pm_idle_states[] = {
-	/* State-id - 0x01 */
-	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RET,
-			ARM_PWR_LVL0, PSTATE_TYPE_STANDBY),
-	/* State-id - 0x02 */
-	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_OFF,
-			ARM_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
-	/* State-id - 0x22 */
-	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
-			ARM_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x001 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
+		ARM_LOCAL_STATE_RET, ARM_PWR_LVL0, PSTATE_TYPE_STANDBY),
+	/* State-id - 0x002 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
+		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x022 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_OFF,
+		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
+#if PLAT_MAX_PWR_LVL > ARM_PWR_LVL1
+	/* State-id - 0x222 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
+		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL2, PSTATE_TYPE_POWERDOWN),
+#endif
 	0,
 };
-#endif
+#endif /* __ARM_RECOM_STATE_ID_ENC__ */
 
 /*******************************************************************************
  * Handler called when a power domain is about to be turned on. The

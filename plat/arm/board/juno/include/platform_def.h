@@ -41,9 +41,13 @@
 #include <v2m_def.h>
 #include "../juno_def.h"
 
-
+/* Juno supports system power domain */
+#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL2
+#define PLAT_NUM_PWR_DOMAINS		(ARM_SYSTEM_COUNT + \
+					ARM_CLUSTER_COUNT + \
+					PLATFORM_CORE_COUNT)
 /*
- * Most platform porting definitions provided by included headers
+ * Other platform porting definitions are provided by included headers
  */
 
 /*

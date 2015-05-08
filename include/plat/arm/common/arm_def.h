@@ -44,7 +44,8 @@
 /* Special value used to verify platform parameters from BL2 to BL3-1 */
 #define ARM_BL31_PLAT_PARAM_VAL		0x0f1e2d3c4b5a6978ULL
 
-#define ARM_CLUSTER_COUNT		2ull
+#define ARM_CLUSTER_COUNT		2
+#define ARM_SYSTEM_COUNT		1
 
 #define ARM_CACHE_WRITEBACK_SHIFT	6
 
@@ -54,6 +55,7 @@
  */
 #define ARM_PWR_LVL0		MPIDR_AFFLVL0
 #define ARM_PWR_LVL1		MPIDR_AFFLVL1
+#define ARM_PWR_LVL2		MPIDR_AFFLVL2
 
 /*
  *  Macros for local power states in ARM platforms encoded by State-ID field
@@ -178,10 +180,6 @@
  *****************************************************************************/
 
 #define ADDR_SPACE_SIZE			(1ull << 32)
-
-#define PLAT_NUM_PWR_DOMAINS		(ARM_CLUSTER_COUNT + \
-					 PLATFORM_CORE_COUNT)
-#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
 
 /*
  * This macro defines the deepest retention state possible. A higher state

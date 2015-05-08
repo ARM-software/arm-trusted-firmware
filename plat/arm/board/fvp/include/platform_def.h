@@ -38,9 +38,13 @@
 #include <v2m_def.h>
 #include "../fvp_def.h"
 
+/* Required platform porting definitions */
+#define PLAT_NUM_PWR_DOMAINS		(ARM_CLUSTER_COUNT + \
+					PLATFORM_CORE_COUNT)
+#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
 
 /*
- * Most platform porting definitions provided by included headers
+ * Other platform porting definitions are provided by included headers
  */
 
 /*
