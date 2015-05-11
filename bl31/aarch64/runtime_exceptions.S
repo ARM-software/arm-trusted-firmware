@@ -479,6 +479,7 @@ smc_prohibited:
 rt_svc_fw_critical_error:
 	msr	spsel, #1 /* Switch to SP_ELx */
 	bl	report_unhandled_exception
+endfunc smc_handler
 
 	/* -----------------------------------------------------
 	 * The following functions are used to saved and restore
@@ -503,6 +504,7 @@ func save_gp_registers
 	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
 	save_x18_to_x29_sp_el0
 	ret
+endfunc save_gp_registers
 
 func restore_gp_registers_eret
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
@@ -525,3 +527,4 @@ restore_gp_registers_callee_eret:
 	msr	sp_el0, x17
 	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
 	eret
+endfunc restore_gp_registers_eret

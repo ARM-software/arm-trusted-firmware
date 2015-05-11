@@ -43,8 +43,10 @@ l2:	ldaxr	w1, [x0]
 	stxr	w1, w2, [x0]
 	cbnz	w1, l2
 	ret
+endfunc spin_lock
 
 
 func spin_unlock
 	stlr	wzr, [x0]
 	ret
+endfunc spin_unlock

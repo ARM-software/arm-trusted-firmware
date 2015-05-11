@@ -66,6 +66,7 @@ func tlkd_enter_sp
 	 * ----------------------------------------------
 	 */
 	b	el3_exit
+endfunc tlkd_enter_sp
 
 	/* ----------------------------------------------
 	 * This function is called with 'x0' pointing to
@@ -100,3 +101,4 @@ func tlkd_exit_sp
 	 */
 	mov	x0, x1
 	ret
+endfunc tlkd_exit_sp

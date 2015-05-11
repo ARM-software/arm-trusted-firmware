@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __ASM_MACROS_S__
+#define __ASM_MACROS_S__
 
 #include <arch.h>
 
@@ -85,7 +87,16 @@
 	.macro func _name
 	.section .text.\_name, "ax"
 	.type \_name, %function
+	.func \_name
 	\_name:
+	.endm
+
+	/*
+	 * This macro is used to mark the end of a function.
+	 */
+	.macro endfunc _name
+	.endfunc
+	.size \_name, . - \_name
 	.endm
 
 	/* ---------------------------------------------
@@ -195,3 +206,5 @@ wait_for_entrypoint:
 			_mov_imm16	\_reg, (\_val), 48
 		.endif
 	.endm
+
+#endif /* __ASM_MACROS_S__ */

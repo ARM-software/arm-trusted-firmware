@@ -64,6 +64,7 @@ func tspd_enter_sp
 	 * ---------------------------------------------
 	 */
 	b	el3_exit
+endfunc tspd_enter_sp
 
 	/* ---------------------------------------------
 	 * This function is called 'x0' pointing to a C
@@ -99,3 +100,4 @@ func tspd_exit_sp
 	 */
 	mov	x0, x1
 	ret
+endfunc tspd_exit_sp

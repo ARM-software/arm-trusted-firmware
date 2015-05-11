@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -42,8 +42,6 @@ VERSION_MINOR		:= 1
 V			:= 0
 # Debug build
 DEBUG			:= 0
-# Build architecture
-ARCH 			:= aarch64
 # Build platform
 DEFAULT_PLAT		:= fvp
 PLAT			:= ${DEFAULT_PLAT}
@@ -128,9 +126,14 @@ BL_COMMON_SOURCES	:=	common/bl_common.c			\
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
 
-PLATFORMS		:=	$(shell ls -I common plat/)
+PLAT_MAKEFILE		:=	platform.mk
+# Generate the platforms list by recursively searching for all directories
+# under /plat containing a PLAT_MAKEFILE. Append each platform with a `|`
+# char and strip out the final '|'.
+PLATFORMS		:=	$(shell find plat/ -name '${PLAT_MAKEFILE}' -print0 |			\
+					sed -r 's%[^\x00]*\/([^/]*)\/${PLAT_MAKEFILE}\x00%\1|%g' |	\
+					sed -r 's/\|$$//')
 SPDS			:=	$(shell ls -I none services/spd)
-HELP_PLATFORMS		:=	$(shell echo ${PLATFORMS} | sed 's/ /|/g')
 
 # Convenience function for adding build definitions
 # $(eval $(call add_define,FOO)) will have:
@@ -146,9 +149,10 @@ $(and $(patsubst 0,,$(value $(1))),$(patsubst 1,,$(value $(1))),$(error $(1) mus
 endef
 
 ifeq (${PLAT},)
-  $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform.")
+  $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform")
 endif
-ifeq ($(findstring ${PLAT},${PLATFORMS}),)
+PLAT_MAKEFILE_FULL	:=	$(shell find plat/ -wholename '*/${PLAT}/${PLAT_MAKEFILE}')
+ifeq ($(PLAT_MAKEFILE_FULL),)
   $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
 endif
 
@@ -157,7 +161,7 @@ all: msg_start
 msg_start:
 	@echo "Building ${PLAT}"
 
-include plat/${PLAT}/platform.mk
+include ${PLAT_MAKEFILE_FULL}
 
 # Include the CPU specific operations makefile. By default all CPU errata
 # workarounds and CPU specifc optimisations are disabled. This can be
@@ -226,6 +230,9 @@ else
 CFLAGS			+= 	-g
 ASFLAGS			+= 	-g -Wa,--gdwarf-2
 endif
+
+# Process PLAT flag
+$(eval $(call add_define,PLAT_${PLAT}))
 
 # Process NS_TIMER_SWITCH flag
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
@@ -635,7 +642,7 @@ cscope:
 	${Q}cscope -b -q -k
 
 help:
-	@echo "usage: ${MAKE} PLAT=<${HELP_PLATFORMS}> [OPTIONS] [TARGET]"
+	@echo "usage: ${MAKE} PLAT=<${PLATFORMS}> [OPTIONS] [TARGET]"
 	@echo ""
 	@echo "PLAT is used to specify which platform you wish to build."
 	@echo "If no platform is specified, PLAT defaults to: ${DEFAULT_PLAT}"

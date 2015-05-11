@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,6 @@
 #ifndef __TZC400_H__
 #define __TZC400_H__
 
-#include <stdint.h>
 
 #define BUILD_CONFIG_OFF	0x000
 #define ACTION_OFF		0x004
@@ -148,8 +147,12 @@
 #define TZC_REGION_ACCESS_RDWR(id)					\
 		(TZC_REGION_ACCESS_RD(id) | TZC_REGION_ACCESS_WR(id))
 
-/* Filters are bit mapped 0 to 3. */
 #define TZC400_COMPONENT_ID	0xb105f00d
+
+
+#ifndef __ASSEMBLY__
+
+#include <stdint.h>
 
 /*******************************************************************************
  * Function & variable prototypes
@@ -187,6 +190,8 @@ typedef enum {
 
 
 void tzc_init(uint64_t base);
+void tzc_configure_region0(tzc_region_attributes_t sec_attr,
+			uint32_t ns_device_access);
 void tzc_configure_region(uint32_t filters,
 			uint8_t region,
 			uint64_t region_base,
@@ -197,5 +202,6 @@ void tzc_enable_filters(void);
 void tzc_disable_filters(void);
 void tzc_set_action(tzc_action_t action);
 
+#endif /* __ASSEMBLY__ */
 
 #endif /* __TZC400__ */

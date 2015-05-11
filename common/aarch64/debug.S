@@ -98,6 +98,7 @@ func asm_assert
 	asm_print_line_dec
 _assert_loop:
 	b	_assert_loop
+endfunc asm_assert
 #endif
 
 /*
@@ -114,6 +115,7 @@ func asm_print_str
 	b	1b
 2:
 	ret	x3
+endfunc asm_print_str
 
 /*
  * This function prints a hexadecimal number in x4.
@@ -138,6 +140,7 @@ func asm_print_hex
 	bl	plat_crash_console_putc
 	cbnz	x5, 1b
 	ret	x3
+endfunc asm_print_hex
 
 	/***********************************************************
 	 * The common implementation of do_panic for all BL stages
@@ -185,4 +188,5 @@ el3_panic:
 	bl	asm_print_hex
 _panic_loop:
 	b	_panic_loop
+endfunc do_panic
 

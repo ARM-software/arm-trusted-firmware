@@ -33,12 +33,20 @@ Modifications consist of:
 *   Setting up the execution context in a certain way, or
 *   Defining certain constants (for example #defines).
 
-The platform-specific functions and variables are all declared in
+The platform-specific functions and variables are declared in
 [include/plat/common/platform.h]. The firmware provides a default implementation
 of variables and functions to fulfill the optional requirements. These
 implementations are all weakly defined; they are provided to ease the porting
 effort. Each platform port can override them with its own implementation if the
 default implementation is inadequate.
+
+Platform ports that want to be aligned with standard ARM platforms (for example
+FVP and Juno) may also use [include/plat/arm/common/plat_arm.h] and the
+corresponding source files in `plat/arm/common/`. These provide standard
+implementations for some of the required platform porting functions. However,
+using these functions requires the platform port to implement additional
+ARM standard platform porting functions. These additional functions are not
+documented here.
 
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
@@ -60,8 +68,8 @@ either mandatory or optional.
 ----------------------------------
 A platform port must enable the Memory Management Unit (MMU) with identity
 mapped page tables, and enable both the instruction and data caches for each BL
-stage. In the ARM FVP port, each BL stage configures the MMU in its platform-
-specific architecture setup function, for example `blX_plat_arch_setup()`.
+stage. In ARM standard platforms, each BL stage configures the MMU in
+the platform-specific architecture setup function, `blX_plat_arch_setup()`.
 
 If the build option `USE_COHERENT_MEM` is enabled, each platform must allocate a
 block of identity mapped secure memory with Device-nGnRE attributes aligned to
@@ -87,24 +95,39 @@ for the firmware to work correctly.
 
 Each platform must ensure that a header file of this name is in the system
 include path with the following constants defined. This may require updating the
-list of `PLAT_INCLUDES` in the `platform.mk` file. In the ARM FVP port, this
-file is found in [plat/fvp/include/platform_def.h].
+list of `PLAT_INCLUDES` in the `platform.mk` file. In the ARM development
+platforms, this file is found in `plat/arm/board/<plat_name>/include/`.
+
+Platform ports may optionally use the file [include/plat/common/common_def.h],
+which provides typical values for some of the constants below. These values are
+likely to be suitable for all platform ports.
+
+Platform ports that want to be aligned with standard ARM platforms (for example
+FVP and Juno) may also use [include/plat/arm/common/arm_def.h], which provides
+standard values for some of the constants below. However, this requires the
+platform port to define additional platform porting constants in
+`platform_def.h`. These additional constants are not documented here.
 
 *   **#define : PLATFORM_LINKER_FORMAT**
 
     Defines the linker format used by the platform, for example
-    `elf64-littleaarch64` used by the FVP.
+    `elf64-littleaarch64`.
 
 *   **#define : PLATFORM_LINKER_ARCH**
 
     Defines the processor architecture for the linker by the platform, for
-    example `aarch64` used by the FVP.
+    example `aarch64`.
 
 *   **#define : PLATFORM_STACK_SIZE**
 
     Defines the normal stack memory available to each CPU. This constant is used
     by [plat/common/aarch64/platform_mp_stack.S] and
     [plat/common/aarch64/platform_up_stack.S].
+
+*   **define  : CACHE_WRITEBACK_GRANULE**
+
+    Defines the size in bits of the largest cache line across all the cache
+    levels in the platform.
 
 *   **#define : FIRMWARE_WELCOME_STR**
 
@@ -156,25 +179,10 @@ file is found in [plat/fvp/include/platform_def.h].
     Name of the BL3-3 Content certificate on the host file-system (mandatory
     when Trusted Board Boot is enabled).
 
-*   **#define : PLATFORM_CACHE_LINE_SIZE**
-
-    Defines the size (in bytes) of the largest cache line across all the cache
-    levels in the platform.
-
-*   **#define : PLATFORM_CLUSTER_COUNT**
-
-    Defines the total number of clusters implemented by the platform in the
-    system.
-
 *   **#define : PLATFORM_CORE_COUNT**
 
     Defines the total number of CPUs implemented by the platform across all
     clusters in the system.
-
-*   **#define : PLATFORM_MAX_CPUS_PER_CLUSTER**
-
-    Defines the maximum number of CPUs that can be implemented within a cluster
-    on the platform.
 
 *   **#define : PLATFORM_NUM_AFFS**
 
@@ -301,6 +309,16 @@ platform, the following constants must also be defined:
     Defines the ID of the secure physical generic timer interrupt used by the
     TSP's interrupt handling code.
 
+If the platform port uses the translation table library code, the following
+constant must also be defined:
+
+*   **#define : MAX_XLAT_TABLES**
+
+    Defines the maximum number of translation tables that are allocated by the
+    translation table library code. To minimize the amount of runtime memory
+    used, choose the smallest value needed to map the required virtual addresses
+    for each BL stage.
+
 If the platform port uses the IO storage framework, the following constants
 must also be defined:
 
@@ -328,7 +346,7 @@ memory within the the per-cpu data to minimize wastage.
     structure for use by the platform layer.
 
 The following constants are optional. They should be defined when the platform
-memory layout implies some image overlaying like on FVP.
+memory layout implies some image overlaying like in ARM standard platforms.
 
 *   **#define : BL31_PROGBITS_LIMIT**
 
@@ -342,8 +360,8 @@ memory layout implies some image overlaying like on FVP.
 ### File : plat_macros.S [mandatory]
 
 Each platform must ensure a file of this name is in the system include path with
-the following macro defined. In the ARM FVP port, this file is found in
-[plat/fvp/include/plat_macros.S].
+the following macro defined. In the ARM development platforms, this file is
+found in `plat/arm/board/<plat_name>/include/plat_macros.S`.
 
 *   **Macro : plat_print_gic_regs**
 
@@ -354,25 +372,11 @@ the following macro defined. In the ARM FVP port, this file is found in
 
 *   **Macro : plat_print_interconnect_regs**
 
-    This macro allows the crash reporting routine to print interconnect registers
-    in case of an unhandled exception in BL3-1. This aids in debugging and
-    this macro can be defined to be empty in case interconnect register reporting
-    is not desired. In the ARM FVP port, the CCI snoop control registers are
-    reported.
-
-### Other mandatory modifications
-
-The following mandatory modifications may be implemented in any file
-the implementer chooses. In the ARM FVP port, they are implemented in
-[plat/fvp/aarch64/plat_common.c].
-
-*   **Function : uint64_t plat_get_syscnt_freq(void)**
-
-    This function is used by the architecture setup code to retrieve the
-    counter frequency for the CPU's generic timer.  This value will be
-    programmed into the `CNTFRQ_EL0` register.
-    In the ARM FVP port, it returns the base frequency of the system counter,
-    which is retrieved from the first entry in the frequency modes table.
+    This macro allows the crash reporting routine to print interconnect
+    registers in case of an unhandled exception in BL3-1. This aids in debugging
+    and this macro can be defined to be empty in case interconnect register
+    reporting is not desired. In ARM standard platforms, the CCI snoop
+    control registers are reported.
 
 
 2.2 Handling Reset
@@ -564,7 +568,7 @@ specific errata workarounds could also be implemented here. The api should
 preserve the values of callee saved registers x19 to x29.
 
 The default implementation doesn't do anything. If a platform needs to override
-the default implementation, refer to the [Firmware Design Guide] for general
+the default implementation, refer to the [Firmware Design] for general
 guidelines regarding placement of code in a reset handler.
 
 ### Function : plat_disable_acp()
@@ -626,18 +630,27 @@ The following functions need to be implemented by the platform port to enable
 BL1 to perform the above tasks.
 
 
+### Function : bl1_early_platform_setup() [mandatory]
+
+    Argument : void
+    Return   : void
+
+This function executes with the MMU and data caches disabled. It is only called
+by the primary CPU.
+
+In ARM standard platforms, this function initializes the console and enables
+snoop requests into the primary CPU's cluster.
+
 ### Function : bl1_plat_arch_setup() [mandatory]
 
     Argument : void
     Return   : void
 
 This function performs any platform-specific and architectural setup that the
-platform requires.  Platform-specific setup might include configuration of
-memory controllers, configuration of the interconnect to allow the cluster
-to service cache snoop requests from another cluster, and so on.
+platform requires. Platform-specific setup might include configuration of
+memory controllers and the interconnect.
 
-In the ARM FVP port, this function enables CCI snoops into the cluster that the
-primary CPU is part of. It also enables the MMU.
+In ARM standard platforms, this function enables the MMU.
 
 This function helps fulfill requirement 2 above.
 
@@ -651,8 +664,8 @@ This function executes with the MMU and data caches enabled. It is responsible
 for performing any remaining platform-specific setup that can occur after the
 MMU and data cache have been enabled.
 
-This function is also responsible for initializing the storage abstraction layer
-which is used to load further bootloader images.
+In ARM standard platforms, this function initializes the storage abstraction
+layer used to load the next bootloader image.
 
 This function helps fulfill requirement 3 above.
 
@@ -692,8 +705,9 @@ structure.
 Depending upon where BL2 has been loaded in secure RAM (determined by
 `BL2_BASE`), BL1 calculates the amount of free memory available for BL2 to use.
 BL1 also ensures that its data sections resident in secure RAM are not visible
-to BL2. An illustration of how this is done in the ARM FVP port is given in the
-[User Guide], in the Section "Memory layout on Base FVP".
+to BL2. An illustration of how this is done in ARM standard platforms is given
+in the **Memory layout on ARM development platforms** section in the
+[Firmware Design].
 
 
 ### Function : bl1_plat_set_bl2_ep_info() [mandatory]
@@ -704,8 +718,6 @@ to BL2. An illustration of how this is done in the ARM FVP port is given in the
 This function is called after loading BL2 image and it can be used to overwrite
 the entry point set by loader and also set the security state and SPSR which
 represents the entry point system state for BL2.
-
-On FVP, we are setting the security state and the SPSR for the BL2 entrypoint
 
 
 3.2 Boot Loader Stage 2 (BL2)
@@ -772,6 +784,11 @@ variable as the original memory may be subsequently overwritten by BL2. The
 copied structure is made available to all BL2 code through the
 `bl2_plat_sec_mem_layout()` function.
 
+In ARM standard platforms, this function also initializes the storage
+abstraction layer used to load further bootloader images. It is necessary to do
+this early on platforms with a BL3-0 image, since the later `bl2_platform_setup`
+must be done after BL3-0 is loaded.
+
 
 ### Function : bl2_plat_arch_setup() [mandatory]
 
@@ -796,14 +813,11 @@ port does the necessary initialization in `bl2_plat_arch_setup()`. It is only
 called by the primary CPU.
 
 The purpose of this function is to perform any platform initialization
-specific to BL2. Platform security components are configured if required.
-For the Base FVP the TZC-400 TrustZone controller is configured to only
-grant non-secure access to DRAM. This avoids aliasing between secure and
-non-secure accesses in the TLB and cache - secure execution states can use
-the NS attributes in the MMU translation tables to access the DRAM.
+specific to BL2.
 
-This function is also responsible for initializing the storage abstraction layer
-which is used to load further bootloader images.
+In ARM standard platforms, this function performs security setup, including
+configuration of the TrustZone controller to allow non-secure masters access
+to most of DRAM. Part of DRAM is reserved for secure world use.
 
 
 ### Function : bl2_plat_sec_mem_layout() [mandatory]
@@ -878,8 +892,8 @@ BL2 platform code returns a pointer which is used to populate the entry point
 information for BL3-1 entry point. The location pointed by it should be
 accessible from BL1 while processing the synchronous exception to run to BL3-1.
 
-On FVP this is allocated inside an bl2_to_bl31_params_mem structure which
-is allocated at an address pointed by PARAMS_BASE.
+In ARM standard platforms this is allocated inside a bl2_to_bl31_params_mem
+structure in BL2 memory.
 
 
 ### Function : bl2_plat_set_bl31_ep_info() [mandatory]
@@ -891,8 +905,6 @@ This function is called after loading BL3-1 image and it can be used to
 overwrite the entry point set by loader and also set the security state
 and SPSR which represents the entry point system state for BL3-1.
 
-On FVP, we are setting the security state and the SPSR for the BL3-1
-entrypoint.
 
 ### Function : bl2_plat_set_bl32_ep_info() [mandatory]
 
@@ -903,8 +915,6 @@ This function is called after loading BL3-2 image and it can be used to
 overwrite the entry point set by loader and also set the security state
 and SPSR which represents the entry point system state for BL3-2.
 
-On FVP, we are setting the security state and the SPSR for the BL3-2
-entrypoint
 
 ### Function : bl2_plat_set_bl33_ep_info() [mandatory]
 
@@ -915,8 +925,6 @@ This function is called after loading BL3-3 image and it can be used to
 overwrite the entry point set by loader and also set the security state
 and SPSR which represents the entry point system state for BL3-3.
 
-On FVP, we are setting the security state and the SPSR for the BL3-3
-entrypoint
 
 ### Function : bl2_plat_get_bl32_meminfo() [mandatory]
 
@@ -1012,12 +1020,10 @@ sub-structures into private variables if the original memory may be
 subsequently overwritten by BL3-1 and similarly the `void *` pointing
 to the platform data also needs to be saved.
 
-On the ARM FVP port, BL2 passes a pointer to a `bl31_params` structure populated
-in the secure DRAM at address `0x6000000` in the bl31_params * argument and it
-does not use opaque pointer mentioned earlier. BL3-1 does not copy this
-information to internal data structures as it guarantees that the secure
-DRAM memory will not be overwritten. It maintains an internal reference to this
-information in the `bl2_to_bl31_params` variable.
+In ARM standard platforms, BL2 passes a pointer to a `bl31_params` structure
+in BL2 memory. BL3-1 copies the information in this pointer to internal data
+structures.
+
 
 ### Function : bl31_plat_arch_setup() [mandatory]
 
@@ -1044,12 +1050,11 @@ called by the primary CPU.
 The purpose of this function is to complete platform initialization so that both
 BL3-1 runtime services and normal world software can function correctly.
 
-The ARM FVP port does the following:
+In ARM standard platforms, this function does the following:
 *   Initializes the generic interrupt controller.
-*   Configures the CLCD controller.
 *   Enables system-level implementation of the generic timer counter.
 *   Grants access to the system counter timer module
-*   Initializes the FVP power controller device
+*   Initializes the power controller device
 *   Detects the system topology.
 
 
@@ -1067,6 +1072,17 @@ uses this information to pass control to that image in the specified security
 state. This function must return a pointer to the `entry_point_info` structure
 (that was copied during `bl31_early_platform_setup()`) if the image exists. It
 should return NULL otherwise.
+
+### Function : plat_get_syscnt_freq() [mandatory]
+
+    Argument : void
+    Return   : uint64_t
+
+This function is used by the architecture setup code to retrieve the counter
+frequency for the CPU's generic timer.  This value will be programmed into the
+`CNTFRQ_EL0` register. In ARM standard platforms, it returns the base frequency
+of the system counter, which is retrieved from the first entry in the frequency
+modes table.
 
 
 3.3 Power State Coordination Interface (in BL3-1)
@@ -1156,10 +1172,10 @@ handler routines for platform-specific power management actions by populating
 the passed pointer with a pointer to BL3-1's private `plat_pm_ops` structure.
 
 A description of each member of this structure is given below. Please refer to
-the ARM FVP specific implementation of these handlers in [plat/fvp/fvp_pm.c]
-as an example. A platform port is expected to implement these handlers if the
-corresponding PSCI operation is to be supported and these handlers are expected
-to succeed if the return type is `void`.
+the ARM FVP specific implementation of these handlers in
+[plat/arm/board/fvp/fvp_pm.c] as an example. A platform port is expected to
+implement these handlers if the corresponding PSCI operation is to be supported
+and these handlers are expected to succeed if the return type is `void`.
 
 #### plat_pm_ops.affinst_standby()
 
@@ -1268,10 +1284,11 @@ state or EL3/S-EL1 in the secure state.  The design of this framework is
 described in the [IMF Design Guide]
 
 A platform should export the following APIs to support the IMF. The following
-text briefly describes each api and its implementation on the FVP port. The API
-implementation depends upon the type of interrupt controller present in the
-platform. The FVP implements an ARM Generic Interrupt Controller (ARM GIC) as
-per the version 2.0 of the [ARM GIC Architecture Specification]
+text briefly describes each api and its implementation in ARM standard
+platforms. The API implementation depends upon the type of interrupt controller
+present in the platform. ARM standard platforms implements an ARM Generic
+Interrupt Controller (ARM GIC) as per the version 2.0 of the
+[ARM GIC Architecture Specification].
 
 ### Function : plat_interrupt_type_to_line() [mandatory]
 
@@ -1291,8 +1308,8 @@ security state of the originating execution context. The return result is the
 bit position in the `SCR_EL3` register of the respective interrupt trap: IRQ=1,
 FIQ=2.
 
-The FVP port configures the ARM GIC to signal S-EL1 interrupts as FIQs and
-Non-secure interrupts as IRQs from either security state.
+ARM standard platforms configure the ARM GIC to signal S-EL1 interrupts
+as FIQs and Non-secure interrupts as IRQs from either security state.
 
 
 ### Function : plat_ic_get_pending_interrupt_type() [mandatory]
@@ -1306,9 +1323,9 @@ handler function. `INTR_TYPE_INVAL` is returned when there is no interrupt
 pending. The valid interrupt types that can be returned are `INTR_TYPE_EL3`,
 `INTR_TYPE_S_EL1` and `INTR_TYPE_NS`.
 
-The FVP port reads the _Highest Priority Pending Interrupt Register_
-(`GICC_HPPIR`) to determine the id of the pending interrupt. The type of interrupt
-depends upon the id value as follows.
+ARM standard platforms read the _Highest Priority Pending Interrupt
+Register_ (`GICC_HPPIR`) to determine the id of the pending interrupt. The type
+of interrupt depends upon the id value as follows.
 
 1. id < 1022 is reported as a S-EL1 interrupt
 2. id = 1022 is reported as a Non-secure interrupt.
@@ -1325,9 +1342,9 @@ platform IC. The IMF passes the id returned by this API to the registered
 handler for the pending interrupt if the `IMF_READ_INTERRUPT_ID` build time flag
 is set. INTR_ID_UNAVAILABLE is returned when there is no interrupt pending.
 
-The FVP port reads the _Highest Priority Pending Interrupt Register_
-(`GICC_HPPIR`) to determine the id of the pending interrupt. The id that is
-returned by API depends upon the value of the id read from the interrupt
+ARM standard platforms read the _Highest Priority Pending Interrupt
+Register_ (`GICC_HPPIR`) to determine the id of the pending interrupt. The id
+that is returned by API depends upon the value of the id read from the interrupt
 controller as follows.
 
 1. id < 1022. id is returned as is.
@@ -1346,10 +1363,11 @@ This API is used by the CPU to indicate to the platform IC that processing of
 the highest pending interrupt has begun. It should return the id of the
 interrupt which is being processed.
 
-The FVP port reads the _Interrupt Acknowledge Register_ (`GICC_IAR`). This
-changes the state of the highest priority pending interrupt from pending to
-active in the interrupt controller. It returns the value read from the
-`GICC_IAR`. This value is the id of the interrupt whose state has been changed.
+This function in ARM standard platforms reads the _Interrupt Acknowledge
+Register_ (`GICC_IAR`). This changes the state of the highest priority pending
+interrupt from pending to active in the interrupt controller. It returns the
+value read from the `GICC_IAR`. This value is the id of the interrupt whose
+state has been changed.
 
 The TSP uses this API to start processing of the secure physical timer
 interrupt.
@@ -1365,7 +1383,7 @@ the interrupt corresponding to the id (passed as the parameter) has
 finished. The id should be the same as the id returned by the
 `plat_ic_acknowledge_interrupt()` API.
 
-The FVP port writes the id to the _End of Interrupt Register_
+ARM standard platforms write the id to the _End of Interrupt Register_
 (`GICC_EOIR`). This deactivates the corresponding interrupt in the interrupt
 controller.
 
@@ -1384,10 +1402,12 @@ interrupt type (one of `INTR_TYPE_EL3`, `INTR_TYPE_S_EL1` and `INTR_TYPE_NS`) is
 returned depending upon how the interrupt has been configured by the platform
 IC.
 
-The FVP port configures S-EL1 interrupts as Group0 interrupts and Non-secure
-interrupts as Group1 interrupts. It reads the group value corresponding to the
-interrupt id from the relevant _Interrupt Group Register_ (`GICD_IGROUPRn`). It
-uses the group value to determine the type of interrupt.
+This function in ARM standard platforms configures S-EL1 interrupts
+as Group0 interrupts and Non-secure interrupts as Group1 interrupts. It reads
+the group value corresponding to the interrupt id from the relevant _Interrupt
+Group Register_ (`GICD_IGROUPRn`). It uses the group value to determine the
+type of interrupt.
+
 
 3.5  Crash Reporting mechanism (in BL3-1)
 ----------------------------------------------
@@ -1409,9 +1429,6 @@ This API is used by the crash reporting mechanism to initialize the crash
 console. It should only use the general purpose registers x0 to x2 to do the
 initialization and returns 1 on success.
 
-The FVP port designates the `PL011_UART0` as the crash console and calls the
-console_core_init() to initialize the console.
-
 ### Function : plat_crash_console_putc
 
     Argument : int
@@ -1421,9 +1438,6 @@ This API is used by the crash reporting mechanism to print a character on the
 designated crash console. It should only use general purpose registers x1 and
 x2 to do its work. The parameter and the return value are in general purpose
 register x0.
-
-The FVP port designates the `PL011_UART0` as the crash console and calls the
-console_core_putc() to print the character on the console.
 
 4.  Build flags
 ---------------
@@ -1493,11 +1507,11 @@ required in their respective `blx_platform_setup()` functions.  Currently
 storage access is only required by BL1 and BL2 phases. The `load_image()`
 function uses the storage layer to access non-volatile platform storage.
 
-It is mandatory to implement at least one storage driver. For the FVP the
-Firmware Image Package(FIP) driver is provided as the default means to load data
-from storage (see the "Firmware Image Package" section in the [User Guide]).
-The storage layer is described in the header file
-`include/drivers/io/io_storage.h`.  The implementation of the common library
+It is mandatory to implement at least one storage driver. For the ARM
+development platforms the Firmware Image Package (FIP) driver is provided as
+the default means to load data from storage (see the "Firmware Image Package"
+section in the [User Guide]). The storage layer is described in the header file
+`include/drivers/io/io_storage.h`. The implementation of the common library
 is in `drivers/io/io_storage.c` and the driver files are located in
 `drivers/io/`.
 
@@ -1533,20 +1547,20 @@ amount of open resources per driver.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 
 [ARM GIC Architecture Specification]: http://arminfo.emea.arm.com/help/topic/com.arm.doc.ihi0048b/IHI0048B_gic_architecture_specification.pdf
 [IMF Design Guide]:                   interrupt-framework-design.md
 [User Guide]:                         user-guide.md
 [FreeBSD]:                            http://www.freebsd.org
-[Firmware Design Guide]:              firmware-design.md
+[Firmware Design]:                    firmware-design.md
 
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S
-[plat/fvp/include/platform_def.h]:         ../plat/fvp/include/platform_def.h
-[plat/fvp/include/plat_macros.S]:          ../plat/fvp/include/plat_macros.S
-[plat/fvp/aarch64/plat_common.c]:          ../plat/fvp/aarch64/plat_common.c
-[plat/fvp/plat_pm.c]:                      ../plat/fvp/plat_pm.c
+[plat/arm/board/fvp/fvp_pm.c]:             ../plat/arm/board/fvp/fvp_pm.c
 [include/runtime_svc.h]:                   ../include/runtime_svc.h
+[include/plat/arm/common/arm_def.h]:       ../include/plat/arm/common/arm_def.h
+[include/plat/common/common_def.h]:        ../include/plat/common/common_def.h
 [include/plat/common/platform.h]:          ../include/plat/common/platform.h
+[include/plat/arm/common/plat_arm.h]:      ../include/plat/arm/common/plat_arm.h]

@@ -47,7 +47,13 @@ CFLAGS := -Wall -std=c99
 
 # Check the platform
 ifeq (${PLAT},none)
-  $(error Error: No platform defined. Use PLAT=<platform>.)
+  $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform")
+endif
+PLAT_MAKEFILE		:=	platform.mk
+PLAT_INCLUDE	:=	$(shell find ../../plat/ -wholename '*/${PLAT}/${PLAT_MAKEFILE}' |	\
+				sed 's/${PLAT_MAKEFILE}/include/')
+ifeq ($(PLAT_INCLUDE),)
+  $(error "Error: Invalid platform '${PLAT}'")
 endif
 
 ifeq (${DEBUG},1)
@@ -63,7 +69,7 @@ endif
 
 # Make soft links and include from local directory otherwise wrong headers
 # could get pulled in from firmware tree.
-INC_DIR := -I ./include -I ../../plat/${PLAT}/include
+INC_DIR := -I ./include -I ${PLAT_INCLUDE}
 LIB_DIR :=
 LIB := -lssl -lcrypto
 

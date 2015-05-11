@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -301,6 +301,23 @@
 	((isa) & SPSR_T_MASK) << SPSR_T_SHIFT |		\
 	((endian) & SPSR_E_MASK) << SPSR_E_SHIFT |	\
 	((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT)
+
+/*
+ * CTR_EL0 definitions
+ */
+#define CTR_CWG_SHIFT		24
+#define CTR_CWG_MASK		0xf
+#define CTR_ERG_SHIFT		20
+#define CTR_ERG_MASK		0xf
+#define CTR_DMINLINE_SHIFT	16
+#define CTR_DMINLINE_MASK	0xf
+#define CTR_L1IP_SHIFT		14
+#define CTR_L1IP_MASK		0x3
+#define CTR_IMINLINE_SHIFT	0
+#define CTR_IMINLINE_MASK	0xf
+
+#define MAX_CACHE_LINE_SIZE	0x800 /* 2KB */
+#define SIZE_FROM_LOG2_WORDS(n)	(4 << (n))
 
 
 /* Physical timer control register bit fields shifts and masks */

@@ -56,6 +56,7 @@ func tsp_get_magic
 	stp	x0, x1, [x4, #0]
 
 	ret
+endfunc tsp_get_magic
 
 	.align 2
 _tsp_fid_get_magic:

@@ -52,7 +52,7 @@
 	};
 
 	psci {
-		compatible = "arm,psci";
+		compatible = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
 		method = "smc";
 		cpu_suspend = <0xc4000001>;
 		cpu_off = <0x84000002>;
@@ -83,11 +83,12 @@
 		};
 
 		idle-states {
-			entry-method = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
+			entry-method = "arm,psci";
 
 			CPU_SLEEP_0: cpu-sleep-0 {
 				compatible = "arm,idle-state";
-				entry-method-param = <0x0010000>;
+				local-timer-stop;
+				arm,psci-suspend-param = <0x0010000>;
 				entry-latency-us = <40>;
 				exit-latency-us = <100>;
 				min-residency-us = <150>;
@@ -95,7 +96,8 @@
 
 			CLUSTER_SLEEP_0: cluster-sleep-0 {
 				compatible = "arm,idle-state";
-				entry-method-param = <0x1010000>;
+				local-timer-stop;
+				arm,psci-suspend-param = <0x1010000>;
 				entry-latency-us = <500>;
 				exit-latency-us = <1000>;
 				min-residency-us = <2500>;

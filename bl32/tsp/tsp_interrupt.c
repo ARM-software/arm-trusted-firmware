@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -58,9 +58,9 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%x sync fiq request from 0x%llx\n",
+	VERBOSE("TSP: cpu 0x%lx sync fiq request from 0x%lx\n",
 		mpidr, elr_el3);
-	VERBOSE("TSP: cpu 0x%x: %d sync fiq requests, %d sync fiq returns\n",
+	VERBOSE("TSP: cpu 0x%lx: %d sync fiq requests, %d sync fiq returns\n",
 		mpidr,
 		tsp_stats[linear_id].sync_fiq_count,
 		tsp_stats[linear_id].sync_fiq_ret_count);
@@ -104,9 +104,9 @@ int32_t tsp_fiq_handler(void)
 	tsp_stats[linear_id].fiq_count++;
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%x handled fiq %d\n",
+	VERBOSE("TSP: cpu 0x%lx handled fiq %d\n",
 	       mpidr, id);
-	VERBOSE("TSP: cpu 0x%x: %d fiq requests\n",
+	VERBOSE("TSP: cpu 0x%lx: %d fiq requests\n",
 	     mpidr, tsp_stats[linear_id].fiq_count);
 	spin_unlock(&console_lock);
 #endif
@@ -121,8 +121,8 @@ int32_t tsp_irq_received(void)
 	tsp_stats[linear_id].irq_count++;
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%x received irq\n", mpidr);
-	VERBOSE("TSP: cpu 0x%x: %d irq requests\n",
+	VERBOSE("TSP: cpu 0x%lx received irq\n", mpidr);
+	VERBOSE("TSP: cpu 0x%lx: %d irq requests\n",
 		mpidr, tsp_stats[linear_id].irq_count);
 	spin_unlock(&console_lock);
 #endif

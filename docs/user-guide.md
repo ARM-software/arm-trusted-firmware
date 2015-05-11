@@ -62,7 +62,7 @@ The following tools are required to use the ARM Trusted Firmware:
 *   `libssl-dev` package to build the certificate generation tool when support
     for Trusted Board Boot is needed.
 
-*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.20.
+*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.21.
 
 
 4.  Building the Trusted Firmware
@@ -206,8 +206,8 @@ performed.
     wants the timer registers to be saved and restored.
 
 *   `PLAT`: Choose a platform to build ARM Trusted Firmware for. The chosen
-    platform name must be the name of one of the directories under the `plat/`
-    directory other than `common`.
+    platform name must be subdirectory of any depth under `plat/`, and must
+    contain a platform makefile named `platform.mk`.
 
 *   `SPD`: Choose a Secure Payload Dispatcher component to be built into the
     Trusted Firmware. The value should be the path to the directory containing
@@ -320,21 +320,25 @@ performed.
 *   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
     file that contains the BL3-3 private key in PEM format.
 
-#### FVP specific build options
+#### ARM development platform specific build options
 
-*   `FVP_TSP_RAM_LOCATION`: location of the TSP binary. Options:
+*   `ARM_TSP_RAM_LOCATION_ID`: location of the TSP binary. Options:
     -   `tsram` : Trusted SRAM (default option)
-    -   `tdram` : Trusted DRAM
+    -   `tdram` : Trusted DRAM (if available)
     -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
 
-For a better understanding of FVP options, the FVP memory map is explained in
-the [Firmware Design].
+For a better understanding of these options, the ARM development platform memory
+map is explained in the [Firmware Design].
 
-#### Juno specific build options
+#### ARM CSS platform specific build options
 
-*   `PLAT_TSP_LOCATION`: location of the TSP binary. Options:
-    -   `tsram` : Trusted SRAM (default option)
-    -   `dram`  : Secure region in DRAM (set by the TrustZone controller)
+*   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version
+    incompatibility. Version 1.7.0 of the SCP firmware made a non-backwards
+    compatible change to the MTL protocol, used for AP/SCP communication.
+    Trusted Firmware no longer supports earlier SCP versions. If this option is
+    set to 1 then Trusted Firmware will detect if an earlier version is in use.
+    Default is 1.
+
 
 ### Creating a Firmware Image Package
 
@@ -409,8 +413,8 @@ When debugging logic problems it might also be useful to disable all compiler
 optimizations by using `-O0`.
 
 NOTE: Using `-O0` could cause output images to be larger and base addresses
-might need to be recalculated (see the "Memory layout of BL images" section in
-the [Firmware Design]).
+might need to be recalculated (see the **Memory layout on ARM development
+platforms** section in the [Firmware Design]).
 
 Extra debug options can be passed to the build system by setting `CFLAGS`:
 
@@ -461,7 +465,7 @@ FVP_AARCH64_EFI.fd as BL3-3 image:
 The `cert_create` tool can be built separately through the following commands:
 
     $ cd tools/cert_create
-    $ make [DEBUG=1] [V=1]
+    $ make PLAT=<platform> [DEBUG=1] [V=1]
 
 `DEBUG=1` builds the tool in debug mode. `V=1` makes the build process more
 verbose. The following command should be used to obtain help about the tool:
@@ -542,7 +546,7 @@ Juno platform, follow these steps:
 
         cd edk2
         git remote add -f --tags arm-software https://github.com/ARM-software/edk2.git
-        git checkout --detach v2.1-rc0
+        git checkout --detach v3.0
 
 2.  Copy build config templates to local workspace
 
@@ -621,7 +625,7 @@ Preparing a Linux kernel for use on the FVPs can be done as follows
 
         cd linux
         git remote add -f --tags arm-software https://github.com/ARM-software/linux.git
-        git checkout --detach 1.3-Juno
+        git checkout --detach 1.6-Juno
 
 2.  Build with the Linaro GCC tools.
 
@@ -696,8 +700,8 @@ To prepare a VirtioBlock file-system, do the following:
 
     NOTE: The unpacked disk image grows to 3 GiB in size.
 
-        wget http://releases.linaro.org/14.12/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.9_20141211-701.img.gz
-        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.9_20141211-701.img.gz
+        wget http://releases.linaro.org/15.03/members/arm/openembedded/aarch64/vexpress64-openembedded_lamp-armv8-gcc-4.9_20150324-715.img.gz
+        gunzip vexpress64-openembedded_lamp-armv8-gcc-4.9_20150324-715.img.gz
 
 2.  Make sure the Linux kernel has Virtio support enabled using
     `make ARCH=arm64 menuconfig`.
@@ -759,14 +763,14 @@ To prepare a RAM-disk root file-system, do the following:
 
 1.  Download the file-system image:
 
-        wget http://releases.linaro.org/14.12/openembedded/aarch64/linaro-image-lamp-genericarmv8-20141212-729.rootfs.tar.gz
+        wget http://releases.linaro.org/15.03/members/arm/openembedded/aarch64/linaro-image-lamp-genericarmv8-20150323-747.rootfs.tar.gz
 
 2.  Modify the Linaro image:
 
         # Prepare for use as RAM-disk. Normally use MMC, NFS or VirtioBlock.
         # Be careful, otherwise you could damage your host file-system.
         mkdir tmp; cd tmp
-        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20141212-729.rootfs.tar.gz | cpio -id"
+        sudo sh -c "zcat ../linaro-image-lamp-genericarmv8-20150323-747.rootfs.tar.gz | cpio -id"
         sudo ln -s sbin/init .
         sudo sh -c "echo 'devtmpfs /dev devtmpfs mode=0755,nosuid 0 0' >> etc/fstab"
         sudo sh -c "find . | cpio --quiet -H newc -o | gzip -3 -n > ../filesystem.cpio.gz"
@@ -1064,10 +1068,19 @@ have an earlier version installed or are unsure which version is installed,
 follow the recovery image update instructions in the [Juno Software Guide]
 on the [ARM Connected Community] website.
 
-The Juno platform requires a BL3-0 image to boot up. This image contains the
-runtime firmware that runs on the SCP (System Control Processor). This image is
-embedded within the [Juno Board Recovery Image] but can also be
-[downloaded directly][Juno SCP Firmware].
+Note that you must use the board recovery image provided in the Juno R1 Initial
+Alpha release, even for Juno R0. This is because the Trusted Firmware now
+supports the new [SCPI v1.0 final protocol][Juno SCP Protocols v1.0]
+exclusively, which is not compatible with the SCP firmware provided in the
+latest Juno R0 release. Although the Juno R1 Initial Alpha release is generally
+not recommended for use with Juno R0 boards, it is suitable for Trusted Firmware
+development.
+
+The Juno platform requires a BL0 and a BL3-0 image to boot up. The BL0 image
+contains the ROM firmware that runs on the SCP (System Control Processor),
+whereas the BL3-0 image contains the SCP Runtime firmware. Both images are
+embedded within the [Juno Board Recovery Image] but they can also be downloaded
+directly: [Juno SCP ROM Firmware] and [Juno SCP Runtime Firmware].
 
 Rebuild the Trusted Firmware specifying the BL3-0 image. Refer to the section
 "Building the Trusted Firmware". Alternatively, the FIP image can be updated
@@ -1079,7 +1092,7 @@ manually with the BL3-0 image:
 
 Juno's device tree blob is built along with the kernel. It is located in:
 
-    <path-to-linux>/arch/arm64/boot/dts/juno.dtb
+    <path-to-linux>/arch/arm64/boot/dts/arm/juno.dtb
 
 ### Other Juno software information
 
@@ -1100,8 +1113,10 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [ARM FVP website]:             http://www.arm.com/fvp
 [ARM Connected Community]:     http://community.arm.com
 [Juno Software Guide]:         http://community.arm.com/docs/DOC-8396
-[Juno Board Recovery Image]:   http://community.arm.com/servlet/JiveServlet/download/9427-1-15432/board_recovery_image_0.10.1.zip
-[Juno SCP Firmware]:           http://community.arm.com/servlet/JiveServlet/download/9427-1-15422/bl30.bin.zip
+[Juno Board Recovery Image]:   http://community.arm.com/servlet/JiveServlet/download/10177-1-18236/board_recovery_image_0.11.3.zip
+[Juno SCP ROM Firmware]:       http://community.arm.com/servlet/JiveServlet/download/10177-1-18187/bl0.bin.zip
+[Juno SCP Runtime Firmware]:   http://community.arm.com/servlet/JiveServlet/download/10177-1-18193/bl30.bin.zip
+[Juno SCP Protocols v1.0]:     http://community.arm.com/servlet/JiveServlet/download/8401-40-18262/DUI0922A_scp_message_interface.pdf
 [Linaro Toolchain]:            http://releases.linaro.org/14.07/components/toolchain/binaries/
 [EDK2]:                        http://github.com/tianocore/edk2
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php

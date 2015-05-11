@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __CPU_MACROS_S__
+#define __CPU_MACROS_S__
 
 #include <arch.h>
 
@@ -80,3 +82,5 @@ CPU_OPS_SIZE = .
 	.quad \_name\()_cpu_reg_dump
 #endif
 	.endm
+
+#endif /* __CPU_MACROS_S__ */
