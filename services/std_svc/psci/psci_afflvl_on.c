@@ -257,6 +257,16 @@ int psci_afflvl_on(unsigned long target_cpu,
 	if (psci_spd_pm && psci_spd_pm->svc_on)
 		psci_spd_pm->svc_on(target_cpu);
 
+	/*
+	 * This function updates the state of each affinity instance
+	 * corresponding to the mpidr in the range of affinity levels
+	 * specified.
+	 */
+	psci_do_afflvl_state_mgmt(start_afflvl,
+				  end_afflvl,
+				  target_cpu_nodes,
+				  PSCI_STATE_ON_PENDING);
+
 	/* Perform generic, architecture and platform specific handling. */
 	rc = psci_call_on_handlers(target_cpu_nodes,
 				   start_afflvl,
@@ -265,23 +275,15 @@ int psci_afflvl_on(unsigned long target_cpu,
 
 	assert(rc == PSCI_E_SUCCESS || rc == PSCI_E_INTERN_FAIL);
 
-	/*
-	 * This function updates the state of each affinity instance
-	 * corresponding to the mpidr in the range of affinity levels
-	 * specified.
-	 */
-	if (rc == PSCI_E_SUCCESS) {
+	if (rc == PSCI_E_SUCCESS)
+		/* Store the re-entry information for the non-secure world. */
+		cm_init_context(target_cpu, ep);
+	else
+		/* Restore the state on error. */
 		psci_do_afflvl_state_mgmt(start_afflvl,
 					  end_afflvl,
 					  target_cpu_nodes,
-					  PSCI_STATE_ON_PENDING);
-
-		/*
-		 * Store the re-entry information for the non-secure world.
-		 */
-		cm_init_context(target_cpu, ep);
-	}
-
+					  PSCI_STATE_OFF);
 exit:
 	/*
 	 * This loop releases the lock corresponding to each affinity level
