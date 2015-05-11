@@ -57,9 +57,9 @@ func bl31_entrypoint
 	 * that might involve memory reads or writes.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, sctlr_el3
-	bic	x0, x0, #SCTLR_EE_BIT
-	msr	sctlr_el3, x0
+	mrs	x20, sctlr_el3
+	bic	x20, x20, #SCTLR_EE_BIT
+	msr	sctlr_el3, x20
 	isb
 #endif
 
