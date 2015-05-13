@@ -79,6 +79,14 @@
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	bl	save_gp_registers
 
+	/*
+	 * Save the EL3 system registers needed to return from
+	 * this exception.
+	 */
+	mrs	x0, spsr_el3
+	mrs	x1, elr_el3
+	stp	x0, x1, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+
 	/* Switch to the runtime stack i.e. SP_EL0 */
 	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
 	mov	x20, sp
@@ -96,13 +104,29 @@
 
 	/*
 	 * Get the registered handler for this interrupt type. A
-	 * NULL return value implies that an interrupt was generated
-	 * for which there is no handler registered or the interrupt
-	 * was routed incorrectly. This is a problem of the framework
-	 * so report it as an error.
+	 * NULL return value could be 'cause of the following
+	 * conditions:
+	 *
+	 * a. An interrupt of a type was routed correctly but a
+	 *    handler for its type was not registered.
+	 *
+	 * b. An interrupt of a type was not routed correctly so
+	 *    a handler for its type was not registered.
+	 *
+	 * c. An interrupt of a type was routed correctly to EL3,
+	 *    but was deasserted before its pending state could
+	 *    be read. Another interrupt of a different type pended
+	 *    at the same time and its type was reported as pending
+	 *    instead. However, a handler for this type was not
+	 *    registered.
+	 *
+	 * a. and b. can only happen due to a programming error.
+	 * The occurrence of c. could be beyond the control of
+	 * Trusted Firmware. It makes sense to return from this
+	 * exception instead of reporting an error.
 	 */
 	bl	get_interrupt_type_handler
-	cbz	x0, interrupt_error_\label
+	cbz	x0, interrupt_exit_\label
 	mov	x21, x0
 
 	mov	x0, #INTR_ID_UNAVAILABLE
@@ -116,14 +140,6 @@
 	cmp	x19, x0
 	b.eq	interrupt_exit_\label
 #endif
-
-	/*
-	 * Save the EL3 system registers needed to return from
-	 * this exception.
-	 */
-	mrs	x3, spsr_el3
-	mrs	x4, elr_el3
-	stp	x3, x4, [x20, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
 
 	/* Set the current security state in the 'flags' parameter */
 	mrs	x2, scr_el3
@@ -142,13 +158,6 @@ interrupt_exit_\label:
 	/* Return from exception, possibly in a different security state */
 	b	el3_exit
 
-	/*
-	 * This label signifies a problem with the interrupt management
-	 * framework where it is not safe to go back to the instruction
-	 * where the interrupt was generated.
-	 */
-interrupt_error_\label:
-	bl	report_unhandled_interrupt
 	.endm
 
 
