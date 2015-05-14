@@ -184,7 +184,7 @@ BL1 performs minimal architectural initialization as follows.
 
 #### Platform initialization
 
-BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests from
+BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests to
 the CCI slave interface corresponding to the cluster that includes the
 primary CPU. BL1 also initializes a UART (PL011 console), which enables access
 to the `printf` family of functions in BL1.
@@ -334,7 +334,9 @@ the clock frequency of the system counter, which is provided by the platform.
 BL3-1 performs detailed platform initialization, which enables normal world
 software to function correctly. It also retrieves entrypoint information for
 the BL3-3 image loaded by BL2 from the platform defined memory address populated
-by BL2. BL3-1 also initializes a UART (PL011 console), which enables
+by BL2. It enables issuing of snoop and DVM (Distributed Virtual Memory)
+requests to the CCI slave interface corresponding to the cluster that includes
+the primary CPU. BL3-1 also initializes a UART (PL011 console), which enables
 access to the `printf` family of functions in BL3-1.  It enables the system
 level implementation of the generic timer through the memory mapped interface.
 
@@ -542,11 +544,6 @@ described for BL1 above. On a warm boot a CPU is directed to the PSCI
 implementation via a platform defined mechanism. On a cold boot, the platform
 must place any secondary CPUs into a safe state while the primary CPU executes
 a modified BL3-1 initialization, as described below.
-
-#### Architectural initialization
-
-As the first image to execute in this configuration BL3-1 must ensure that
-interconnect coherency is enabled (if required) before enabling the MMU.
 
 #### Platform initialization
 
