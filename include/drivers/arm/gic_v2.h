@@ -99,6 +99,9 @@
 #define GICC_DIR		0x1000
 #define GICC_PRIODROP           GICC_EOIR
 
+/* Common CPU Interface definitions */
+#define INT_ID_MASK		0x3ff
+
 /* GICC_CTLR bit definitions */
 #define EOI_MODE_NS		(1 << 10)
 #define EOI_MODE_S		(1 << 9)

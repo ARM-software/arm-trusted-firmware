@@ -401,7 +401,7 @@ uint32_t arm_gic_get_pending_interrupt_type(void)
 	uint32_t id;
 
 	assert(g_gicc_base);
-	id = gicc_read_hppir(g_gicc_base);
+	id = gicc_read_hppir(g_gicc_base) & INT_ID_MASK;
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
 	if (id < 1022)
@@ -423,7 +423,7 @@ uint32_t arm_gic_get_pending_interrupt_id(void)
 	uint32_t id;
 
 	assert(g_gicc_base);
-	id = gicc_read_hppir(g_gicc_base);
+	id = gicc_read_hppir(g_gicc_base) & INT_ID_MASK;
 
 	if (id < 1022)
 		return id;
@@ -435,7 +435,7 @@ uint32_t arm_gic_get_pending_interrupt_id(void)
 	 * Find out which non-secure interrupt it is under the assumption that
 	 * the GICC_CTLR.AckCtl bit is 0.
 	 */
-	return gicc_read_ahppir(g_gicc_base);
+	return gicc_read_ahppir(g_gicc_base) & INT_ID_MASK;
 }
 
 /*******************************************************************************
