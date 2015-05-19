@@ -229,9 +229,14 @@ void change_security_state(unsigned int);
 unsigned long image_size(unsigned int image_id);
 int load_image(meminfo_t *mem_layout,
 	       unsigned int image_id,
-	       uint64_t image_base,
+	       uintptr_t image_base,
 	       image_info_t *image_data,
 	       entry_point_info_t *entry_point_info);
+int load_auth_image(meminfo_t *mem_layout,
+		    unsigned int image_name,
+		    uintptr_t image_base,
+		    image_info_t *image_data,
+		    entry_point_info_t *entry_point_info);
 extern const char build_message[];
 extern const char version_string[];
 

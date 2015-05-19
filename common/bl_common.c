@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
+#include <auth_mod.h>
 #include <bl_common.h>
 #include <debug.h>
 #include <errno.h>
@@ -209,7 +210,7 @@ unsigned long image_size(unsigned int image_id)
  ******************************************************************************/
 int load_image(meminfo_t *mem_layout,
 	       unsigned int image_id,
-	       uint64_t image_base,
+	       uintptr_t image_base,
 	       image_info_t *image_data,
 	       entry_point_info_t *entry_point_info)
 {
@@ -307,4 +308,55 @@ exit:
 	/* Ignore improbable/unrecoverable error in 'dev_close' */
 
 	return io_result;
+}
+
+/*******************************************************************************
+ * Generic function to load and authenticate an image. The image is actually
+ * loaded by calling the 'load_image()' function. In addition, this function
+ * uses recursion to authenticate the parent images up to the root of trust.
+ ******************************************************************************/
+int load_auth_image(meminfo_t *mem_layout,
+		    unsigned int image_id,
+		    uintptr_t image_base,
+		    image_info_t *image_data,
+		    entry_point_info_t *entry_point_info)
+{
+	int rc;
+
+#if TRUSTED_BOARD_BOOT
+	unsigned int parent_id;
+
+	/* Use recursion to authenticate parent images */
+	rc = auth_mod_get_parent_id(image_id, &parent_id);
+	if (rc == 0) {
+		rc = load_auth_image(mem_layout, parent_id, image_base,
+				     image_data, NULL);
+		if (rc != IO_SUCCESS) {
+			return rc;
+		}
+	}
+#endif /* TRUSTED_BOARD_BOOT */
+
+	/* Load the image */
+	rc = load_image(mem_layout, image_id, image_base, image_data,
+			entry_point_info);
+	if (rc != IO_SUCCESS) {
+		return rc;
+	}
+
+#if TRUSTED_BOARD_BOOT
+	/* Authenticate it */
+	rc = auth_mod_verify_img(image_id,
+				 (void *)image_data->image_base,
+				 image_data->image_size);
+	if (rc != 0) {
+		return IO_FAIL;
+	}
+
+	/* After working with data, invalidate the data cache */
+	inv_dcache_range(image_data->image_base,
+			(size_t)image_data->image_size);
+#endif /* TRUSTED_BOARD_BOOT */
+
+	return IO_SUCCESS;
 }

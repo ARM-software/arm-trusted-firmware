@@ -76,7 +76,6 @@ CREATE_KEYS		:= 1
 SAVE_KEYS		:= 0
 # Flags to build TF with Trusted Boot support
 TRUSTED_BOARD_BOOT	:= 0
-AUTH_MOD		:= none
 # By default, consider that the platform's reset address is not programmable.
 # The platform Makefile is free to override this value.
 PROGRAMMABLE_RESET_ADDRESS	:= 0
@@ -215,6 +214,7 @@ INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/common		\
 				-Iinclude/drivers		\
 				-Iinclude/drivers/arm		\
+				-Iinclude/drivers/auth		\
 				-Iinclude/drivers/io		\
 				-Iinclude/drivers/ti/uart	\
 				-Iinclude/lib			\
@@ -338,23 +338,6 @@ ifneq (${GENERATE_COT},0)
     $(eval CRT_ARGS += $(if ${NON_TRUSTED_WORLD_KEY}, --non-trusted-world-key ${NON_TRUSTED_WORLD_KEY}))
     $(eval CRT_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
     $(eval CRT_ARGS += $(if ${KEY_ALG}, --key-alg ${KEY_ALG}))
-endif
-
-# Check Trusted Board Boot options
-ifneq (${TRUSTED_BOARD_BOOT},0)
-    ifeq (${AUTH_MOD},none)
-        $(error Error: When TRUSTED_BOARD_BOOT=1, AUTH_MOD has to be the name of a valid authentication module)
-    else
-        # We expect to locate an *.mk file under the specified AUTH_MOD directory
-        AUTH_MAKE := $(shell m="common/auth/${AUTH_MOD}/${AUTH_MOD}.mk"; [ -f "$$m" ] && echo "$$m")
-        ifeq (${AUTH_MAKE},)
-            $(error Error: No common/auth/${AUTH_MOD}/${AUTH_MOD}.mk located)
-        endif
-        $(info Including ${AUTH_MAKE})
-        include ${AUTH_MAKE}
-    endif
-
-    BL_COMMON_SOURCES	+=	common/auth.c
 endif
 
 # Check if -pedantic option should be used

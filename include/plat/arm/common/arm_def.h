@@ -201,7 +201,7 @@
 #if TRUSTED_BOARD_BOOT
 #define BL1_RW_BASE			(ARM_BL_RAM_BASE +		\
 						ARM_BL_RAM_SIZE -	\
-						0x8000)
+						0x9000)
 #else
 #define BL1_RW_BASE			(ARM_BL_RAM_BASE +		\
 						ARM_BL_RAM_SIZE -	\
@@ -217,7 +217,7 @@
  * size plus a little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
-#define BL2_BASE			(BL31_BASE - 0x1C000)
+#define BL2_BASE			(BL31_BASE - 0x1D000)
 #else
 #define BL2_BASE			(BL31_BASE - 0xC000)
 #endif

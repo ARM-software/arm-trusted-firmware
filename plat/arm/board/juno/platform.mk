@@ -40,7 +40,6 @@ BL2_SOURCES		+=	plat/arm/board/juno/juno_security.c	\
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S
 
-
 # Enable workarounds for selected Cortex-A57 erratas.
 ERRATA_A57_806969	:=	0
 ERRATA_A57_813420	:=	1
@@ -53,3 +52,7 @@ include plat/arm/board/common/board_css.mk
 include plat/arm/common/arm_common.mk
 include plat/arm/soc/common/soc_css.mk
 include plat/arm/css/common/css_common.mk
+
+ifeq (${KEY_ALG},ecdsa)
+    $(error "ECDSA key algorithm is not fully supported on Juno.")
+endif

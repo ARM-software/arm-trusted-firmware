@@ -31,7 +31,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <auth.h>
+#include <auth_mod.h>
 #include <bl_common.h>
 #include <debug.h>
 #include <platform.h>
@@ -161,38 +161,16 @@ void bl1_main(void)
 
 #if TRUSTED_BOARD_BOOT
 	/* Initialize authentication module */
-	auth_init();
-
-	/*
-	 * Load the BL2 certificate into the BL2 region. This region will be
-	 * overwritten by the image, so the authentication module is responsible
-	 * for storing the relevant data from the certificate (keys, hashes,
-	 * etc.) so it can be used later.
-	 */
-	err = load_image(bl1_tzram_layout,
-			 BL2_CERT_ID,
-			 BL2_BASE,
-			 &bl2_image_info,
-			 NULL);
-	if (err) {
-		ERROR("Failed to load BL2 certificate.\n");
-		panic();
-	}
-
-	err = auth_verify_obj(AUTH_BL2_IMG_CERT, bl2_image_info.image_base,
-			bl2_image_info.image_size);
-	if (err) {
-		ERROR("Failed to validate BL2 certificate.\n");
-		panic();
-	}
+	auth_mod_init();
 #endif /* TRUSTED_BOARD_BOOT */
 
 	/* Load the BL2 image */
-	err = load_image(bl1_tzram_layout,
+	err = load_auth_image(bl1_tzram_layout,
 			 BL2_IMAGE_ID,
 			 BL2_BASE,
 			 &bl2_image_info,
 			 &bl2_ep);
+
 	if (err) {
 		/*
 		 * TODO: print failure to load BL2 but also add a tzwdog timer
@@ -201,19 +179,6 @@ void bl1_main(void)
 		ERROR("Failed to load BL2 firmware.\n");
 		panic();
 	}
-
-#if TRUSTED_BOARD_BOOT
-	err = auth_verify_obj(AUTH_BL2_IMG, bl2_image_info.image_base,
-				bl2_image_info.image_size);
-	if (err) {
-		ERROR("Failed to validate BL2 image.\n");
-		panic();
-	}
-
-	/* After working with data, invalidate the data cache */
-	inv_dcache_range(bl2_image_info.image_base,
-			(size_t)bl2_image_info.image_size);
-#endif /* TRUSTED_BOARD_BOOT */
 
 	/*
 	 * Create a new layout of memory for BL2 as seen by BL1 i.e.

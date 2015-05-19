@@ -265,16 +265,8 @@ performed.
 *   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
     Boot feature. When set to '1', BL1 and BL2 images include support to load
     and verify the certificates and images in a FIP. The default value is '0'.
-    A successful build, when `TRUSTED_BOARD_BOOT=1`, depends upon the correct
-    initialization of the `AUTH_MOD` option. Generation and inclusion of
-    certificates in the FIP depends upon the value of the `GENERATE_COT` option.
-
-*   `AUTH_MOD`: This option is used when `TRUSTED_BOARD_BOOT=1`. It specifies
-    the name of the authentication module that will be used in the Trusted Board
-    Boot sequence. The module must be located in `common/auth/<module name>`
-    directory. The directory must contain a makefile `<module name>.mk` which
-    will be used to build the module. More information can be found in
-    [Trusted Board Boot]. The default module name is 'none'.
+    Generation and inclusion of certificates in the FIP depends upon the value
+    of the `GENERATE_COT` option.
 
 *   `GENERATE_COT`: Boolean flag used to build and execute the `cert_create`
     tool to create certificates as per the Chain of Trust described in
