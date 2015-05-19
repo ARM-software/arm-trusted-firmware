@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <el3_common_macros.S>
 #include <psci.h>
 #include <xlat_tables.h>
 
@@ -52,69 +53,25 @@ psci_aff_suspend_finish_entry:
 	adr	x23, psci_afflvl_suspend_finishers
 
 psci_aff_common_finish_entry:
-#if !RESET_TO_BL31
-	/* ---------------------------------------------
-	 * Perform any processor specific actions which
-	 * undo or are in addition to the actions
-	 * performed by the reset handler in the BootROM
-	 * (BL1) e.g. cache, tlb invalidations, errata
-	 * workarounds etc.
-	 * ---------------------------------------------
+	/*
+	 * On the warm boot path, most of the EL3 initialisations performed by
+	 * 'el3_entrypoint_common' must be skipped:
+	 *
+	 *  - No need to determine the type of boot, we know it is a warm boot.
+	 *
+	 *  - Do not try to distinguish between primary and secondary CPUs, this
+	 *    notion only exists for a cold boot.
+	 *
+	 *  - No need to initialise the memory or the C runtime environment,
+	 *    it has been done once and for all on the cold boot path.
 	 */
-	bl      reset_handler
-
-	/* ---------------------------------------------
-	 * Enable the instruction cache, stack pointer
-	 * and data access alignment checks.
-	 * It can be assumed that BL3-1 entrypoint code
-	 * will do this when RESET_TO_BL31 is set. The
-	 * same  assumption cannot be made when another
-	 * boot loader executes before BL3-1 in the warm
-	 * boot path e.g. BL1.
-	 * ---------------------------------------------
-	 */
-	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
-	mrs	x0, sctlr_el3
-	orr	x0, x0, x1
-	msr	sctlr_el3, x0
-	isb
-#endif
-
-	/* ---------------------------------------------
-	 * Initialise the pcpu cache pointer for the CPU
-	 * ---------------------------------------------
-	 */
-	bl	init_cpu_data_ptr
-
-	/* ---------------------------------------------
-	 * Set the exception vectors
-	 * ---------------------------------------------
-	 */
-	adr	x0, runtime_exceptions
-	msr	vbar_el3, x0
-	isb
-
-	/* ---------------------------------------------
-	 * Enable the SError interrupt now that the
-	 * exception vectors have been setup.
-	 * ---------------------------------------------
-	 */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	/* ---------------------------------------------
-	 * Use SP_EL0 for the C runtime stack.
-	 * ---------------------------------------------
-	 */
-	msr	spsel, #0
-
-	/* --------------------------------------------
-	 * Give ourselves a stack whose memory will be
-	 * marked as Normal-IS-WBWA when the MMU is
-	 * enabled.
-	 * --------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
+	el3_entrypoint_common					\
+		_set_endian=0					\
+		_warm_boot_mailbox=0				\
+		_secondary_cold_boot=0				\
+		_init_memory=0					\
+		_init_c_runtime=0				\
+		_exception_vectors=runtime_exceptions
 
 	/* --------------------------------------------
 	 * Enable the MMU with the DCache disabled. It

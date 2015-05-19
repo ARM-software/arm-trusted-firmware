@@ -414,8 +414,7 @@ updated to develop and exploit new functionality.
 
 #### Required CPU state when calling `bl31_entrypoint()` during cold boot
 
-This function must only be called by the primary CPU, if this is called by any
-other CPU the firmware will abort.
+This function must only be called by the primary CPU.
 
 On entry to this function the calling primary CPU must be executing in AArch64
 EL3, little-endian data access, and all interrupt sources masked:

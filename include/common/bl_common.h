@@ -183,9 +183,9 @@ typedef struct image_info {
  * This structure represents the superset of information that can be passed to
  * BL31 e.g. while passing control to it from BL2. The BL32 parameters will be
  * populated only if BL2 detects its presence. A pointer to a structure of this
- * type should be passed in X3 to BL31's cold boot entrypoint
+ * type should be passed in X0 to BL3-1's cold boot entrypoint.
  *
- * Use of this structure and the X3 parameter is not mandatory: the BL3-1
+ * Use of this structure and the X0 parameter is not mandatory: the BL3-1
  * platform code can use other mechanisms to provide the necessary information
  * about BL3-2 and BL3-3 to the common and SPD code.
  *
