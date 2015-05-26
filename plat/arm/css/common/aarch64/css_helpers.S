@@ -115,7 +115,7 @@ func platform_is_primary_cpu
 	bl	platform_get_core_pos
 	ldr	x1, =SCP_BOOT_CFG_ADDR
 	ldr	x1, [x1]
-	ubfx	x1, x1, #PRIMARY_CPU_SHIFT, #PRIMARY_CPU_MASK
+	ubfx	x1, x1, #PRIMARY_CPU_SHIFT, #PRIMARY_CPU_BIT_WIDTH
 	cmp	x0, x1
 	cset	x0, eq
 	ret	x9
