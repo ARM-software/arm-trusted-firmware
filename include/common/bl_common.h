@@ -90,18 +90,6 @@
 	(_p)->h.attr = (uint32_t)(_attr) ; \
 	} while (0)
 
-/*******************************************************************************
- * Constant that indicates if this is the first version of the reset handler
- * contained in an image. This will be the case when the image is BL1 or when
- * its BL3-1 and RESET_TO_BL31 is true. This constant enables a subsequent
- * version of the reset handler to perform actions that override the ones
- * performed in the first version of the code. This will be required when the
- * first version exists in an un-modifiable image e.g. a BootROM image.
- ******************************************************************************/
-#if IMAGE_BL1 || (IMAGE_BL31 && RESET_TO_BL31)
-#define FIRST_RESET_HANDLER_CALL
-#endif
-
 #ifndef __ASSEMBLY__
 #include <cdefs.h> /* For __dead2 */
 #include <cassert.h>

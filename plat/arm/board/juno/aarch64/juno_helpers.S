@@ -42,10 +42,6 @@
 	/* --------------------------------------------------------------------
 	 * void plat_reset_handler(void);
 	 *
-	 * Before adding code in this function, refer to the guidelines in
-	 * docs/firmware-design.md to determine whether the code should reside
-	 * within the FIRST_RESET_HANDLER_CALL block or not.
-	 *
 	 * For Juno r0:
 	 * - Implement workaround for defect id 831273 by enabling an event
 	 *   stream every 65536 cycles.
@@ -58,13 +54,9 @@
 	 * - The default value for the L2 Tag RAM latency for Cortex-A57 is
 	 *   suitable.
 	 * - Defect #831273 doesn't affect Juno r1.
-	 *
-	 * This code is included only when FIRST_RESET_HANDLER_CALL is defined
-	 * since it should be executed only during BL1.
 	 * --------------------------------------------------------------------
 	 */
 func plat_reset_handler
-#ifdef FIRST_RESET_HANDLER_CALL
 	/* --------------------------------------------------------------------
 	 * Determine whether this code is running on Juno r0 or Juno r1.
 	 * Keep this information in x2.
@@ -123,6 +115,5 @@ apply_831273:
 	msr     CNTKCTL_EL1, x0
 ret:
 	isb
-#endif /* FIRST_RESET_HANDLER_CALL */
 	ret
 endfunc plat_reset_handler

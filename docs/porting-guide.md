@@ -569,7 +569,7 @@ preserve the values of callee saved registers x19 to x29.
 
 The default implementation doesn't do anything. If a platform needs to override
 the default implementation, refer to the [Firmware Design] for general
-guidelines regarding placement of code in a reset handler.
+guidelines.
 
 ### Function : plat_disable_acp()
 
