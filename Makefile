@@ -212,6 +212,7 @@ INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/drivers		\
 				-Iinclude/drivers/arm		\
 				-Iinclude/drivers/io		\
+				-Iinclude/drivers/ti/uart	\
 				-Iinclude/lib			\
 				-Iinclude/lib/aarch64		\
 				-Iinclude/lib/cpus/aarch64	\
