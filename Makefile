@@ -337,6 +337,7 @@ ifneq (${GENERATE_COT},0)
     $(eval CRT_ARGS += $(if ${TRUSTED_WORLD_KEY}, --trusted-world-key ${TRUSTED_WORLD_KEY}))
     $(eval CRT_ARGS += $(if ${NON_TRUSTED_WORLD_KEY}, --non-trusted-world-key ${NON_TRUSTED_WORLD_KEY}))
     $(eval CRT_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
+    $(eval CRT_ARGS += $(if ${KEY_ALG}, --key-alg ${KEY_ALG}))
 endif
 
 # Check Trusted Board Boot options

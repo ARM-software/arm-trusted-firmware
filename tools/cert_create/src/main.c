@@ -80,6 +80,7 @@
 #define VAL_DAYS			7300
 #define ID_TO_BIT_MASK(id)		(1 << id)
 #define NVCOUNTER_VALUE			0
+#define NUM_ELEM(x)			((sizeof(x)) / (sizeof(x[0])))
 
 /* Files */
 enum {
@@ -112,6 +113,7 @@ enum {
 };
 
 /* Global options */
+static int key_alg;
 static int new_keys;
 static int save_keys;
 static int print_cert;
@@ -137,6 +139,11 @@ static char *strdup(const char *str)
 	}
 	return dup;
 }
+
+static const char *key_algs_str[] = {
+	[KEY_ALG_RSA] = "rsa",
+	[KEY_ALG_ECDSA] = "ecdsa"
+};
 
 /* Command line options */
 static const struct option long_opt[] = {
@@ -166,6 +173,7 @@ static const struct option long_opt[] = {
 	{"bl32-key", required_argument, 0, BL32_KEY_ID},
 	{"bl33-key", required_argument, 0, BL33_KEY_ID},
 	/* Common options */
+	{"key-alg", required_argument, 0, 'a'},
 	{"help", no_argument, 0, 'h'},
 	{"save-keys", no_argument, 0, 'k'},
 	{"new-chain", no_argument, 0, 'n'},
@@ -189,6 +197,7 @@ static void print_help(const char *cmd)
 		printf("        --%s <file>  \\\n", long_opt[i].name);
 	}
 	printf("\n");
+	printf("-a    Key algorithm: rsa (default), ecdsa\n");
 	printf("-h    Print help and exit\n");
 	printf("-k    Save key pairs into files. Filenames must be provided\n");
 	printf("-n    Generate new key pairs if no key files are provided\n");
@@ -198,8 +207,27 @@ static void print_help(const char *cmd)
 	exit(0);
 }
 
+static int get_key_alg(const char *key_alg_str)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_ELEM(key_algs_str) ; i++) {
+		if (0 == strcmp(key_alg_str, key_algs_str[i])) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
 static void check_cmd_params(void)
 {
+	/* Only save new keys */
+	if (save_keys && !new_keys) {
+		ERROR("Only new keys can be saved to disk\n");
+		exit(1);
+	}
+
 	/* BL2, BL31 and BL33 are mandatory */
 	if (certs[BL2_CERT].bin == NULL) {
 		ERROR("BL2 image not specified\n");
@@ -276,15 +304,19 @@ int main(int argc, char *argv[])
 	FILE *file = NULL;
 	int i, tz_nvctr_nid, ntz_nvctr_nid, hash_nid, pk_nid;
 	int c, opt_idx = 0;
+	unsigned int err_code;
 	unsigned char md[SHA256_DIGEST_LENGTH];
 	const EVP_MD *md_info;
 
 	NOTICE("CoT Generation Tool: %s\n", build_msg);
 	NOTICE("Target platform: %s\n", platform_msg);
 
+	/* Set default options */
+	key_alg = KEY_ALG_RSA;
+
 	while (1) {
 		/* getopt_long stores the option index here. */
-		c = getopt_long(argc, argv, "hknp", long_opt, &opt_idx);
+		c = getopt_long(argc, argv, "ahknp", long_opt, &opt_idx);
 
 		/* Detect the end of the options. */
 		if (c == -1) {
@@ -292,6 +324,13 @@ int main(int argc, char *argv[])
 		}
 
 		switch (c) {
+		case 'a':
+			key_alg = get_key_alg(optarg);
+			if (key_alg < 0) {
+				ERROR("Invalid key algorithm '%s'\n", optarg);
+				exit(1);
+			}
+			break;
 		case 'h':
 			print_help(argv[0]);
 			break;
@@ -399,19 +438,41 @@ int main(int argc, char *argv[])
 	CHECK_OID(ntz_nvctr_nid, NTZ_FW_NVCOUNTER_OID);
 
 	/* Load private keys from files (or generate new ones) */
-	if (new_keys) {
-		for (i = 0 ; i < NUM_KEYS ; i++) {
-			if (!key_new(&keys[i])) {
-				ERROR("Error creating %s\n", keys[i].desc);
-				exit(1);
-			}
+	for (i = 0 ; i < NUM_KEYS ; i++) {
+		/* First try to load the key from disk */
+		if (key_load(&keys[i], &err_code)) {
+			/* Key loaded successfully */
+			continue;
 		}
-	} else {
-		for (i = 0 ; i < NUM_KEYS ; i++) {
-			if (!key_load(&keys[i])) {
-				ERROR("Error loading %s\n", keys[i].desc);
+
+		/* Key not loaded. Check the error code */
+		if (err_code == KEY_ERR_MALLOC) {
+			/* Cannot allocate memory. Abort. */
+			ERROR("Malloc error while loading '%s'\n", keys[i].fn);
+			exit(1);
+		} else if (err_code == KEY_ERR_LOAD) {
+			/* File exists, but it does not contain a valid private
+			 * key. Abort. */
+			ERROR("Error loading '%s'\n", keys[i].fn);
+			exit(1);
+		}
+
+		/* File does not exist, could not be opened or no filename was
+		 * given */
+		if (new_keys) {
+			/* Try to create a new key */
+			NOTICE("Creating new key for '%s'\n", keys[i].desc);
+			if (!key_create(&keys[i], key_alg)) {
+				ERROR("Error creating key '%s'\n", keys[i].desc);
 				exit(1);
 			}
+		} else {
+			if (err_code == KEY_ERR_OPEN) {
+				ERROR("Error opening '%s'\n", keys[i].fn);
+			} else {
+				ERROR("Key '%s' not specified\n", keys[i].desc);
+			}
+			exit(1);
 		}
 	}
 
