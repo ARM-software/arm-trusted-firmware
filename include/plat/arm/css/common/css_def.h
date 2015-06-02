@@ -69,7 +69,7 @@
 /* SCP <=> AP boot configuration */
 #define SCP_BOOT_CFG_ADDR		0x04000080
 #define PRIMARY_CPU_SHIFT		8
-#define PRIMARY_CPU_MASK		0xf
+#define PRIMARY_CPU_BIT_WIDTH		4
 
 
 #define CSS_MAP_DEVICE			MAP_REGION_FLAT(		\
