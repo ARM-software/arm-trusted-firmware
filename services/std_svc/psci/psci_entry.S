@@ -57,6 +57,11 @@ psci_aff_common_finish_entry:
 	 * On the warm boot path, most of the EL3 initialisations performed by
 	 * 'el3_entrypoint_common' must be skipped:
 	 *
+	 *  - Only when the platform bypasses the BL1/BL3-1 entrypoint by
+	 *    programming the reset address do we need to set the CPU endianness.
+	 *    In other cases, we assume this has been taken care by the
+	 *    entrypoint code.
+	 *
 	 *  - No need to determine the type of boot, we know it is a warm boot.
 	 *
 	 *  - Do not try to distinguish between primary and secondary CPUs, this
@@ -66,7 +71,7 @@ psci_aff_common_finish_entry:
 	 *    it has been done once and for all on the cold boot path.
 	 */
 	el3_entrypoint_common					\
-		_set_endian=0					\
+		_set_endian=PROGRAMMABLE_RESET_ADDRESS		\
 		_warm_boot_mailbox=0				\
 		_secondary_cold_boot=0				\
 		_init_memory=0					\

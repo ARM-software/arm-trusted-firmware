@@ -320,6 +320,10 @@ performed.
 *   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
     file that contains the BL3-3 private key in PEM format.
 
+*   `PROGRAMMABLE_RESET_ADDRESS`: This option indicates whether the reset
+    vector address can be programmed or is fixed on the platform. It can take
+    either 0 (fixed) or 1 (programmable). Default is 0.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION_ID`: location of the TSP binary. Options:

@@ -42,9 +42,15 @@
 	 */
 
 func bl1_entrypoint
+	/* ---------------------------------------------------------------------
+	 * If the reset address is programmable then bl1_entrypoint() is
+	 * executed only on the cold boot path. Therefore, we can skip the warm
+	 * boot mailbox mechanism.
+	 * ---------------------------------------------------------------------
+	 */
 	el3_entrypoint_common					\
 		_set_endian=1					\
-		_warm_boot_mailbox=1				\
+		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS	\
 		_secondary_cold_boot=1				\
 		_init_memory=1					\
 		_init_c_runtime=1				\

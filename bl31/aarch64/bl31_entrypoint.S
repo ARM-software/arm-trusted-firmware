@@ -76,9 +76,15 @@ func bl31_entrypoint
 	mov	x0, x20
 	mov	x1, x21
 #else
+	/* ---------------------------------------------------------------------
+	 * For RESET_TO_BL31 systems which have a programmable reset address,
+	 * bl31_entrypoint() is executed only on the cold boot path so we can
+	 * skip the warm boot mailbox mechanism.
+	 * ---------------------------------------------------------------------
+	 */
 	el3_entrypoint_common					\
 		_set_endian=1					\
-		_warm_boot_mailbox=1				\
+		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS	\
 		_secondary_cold_boot=1				\
 		_init_memory=1					\
 		_init_c_runtime=1				\

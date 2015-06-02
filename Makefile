@@ -76,6 +76,9 @@ CREATE_KEYS		:= 1
 # Flags to build TF with Trusted Boot support
 TRUSTED_BOARD_BOOT	:= 0
 AUTH_MOD		:= none
+# By default, consider that the platform's reset address is not programmable.
+# The platform Makefile is free to override this value.
+PROGRAMMABLE_RESET_ADDRESS	:= 0
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO \
@@ -270,6 +273,10 @@ $(eval $(call assert_boolean,CREATE_KEYS))
 # Process TRUSTED_BOARD_BOOT flag
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
+
+# Process PROGRAMMABLE_RESET_ADDRESS flag
+$(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
+$(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
