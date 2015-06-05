@@ -82,7 +82,7 @@ extern uint64_t tegra_bl31_phys_base;
 #define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 #endif
 
-static entry_point_info_t bl33_image_ep_info;
+static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
 	(uint64_t)TZDRAM_SIZE, (uintptr_t)NULL
 };
@@ -101,6 +101,9 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	if (type == NON_SECURE)
 		return &bl33_image_ep_info;
+
+	if (type == SECURE)
+		return &bl32_image_ep_info;
 
 	return NULL;
 }
@@ -134,10 +137,11 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	plat_crash_console_init();
 
 	/*
-	 * Copy BL3-3 entry point information.
+	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
+	bl32_image_ep_info = *from_bl2->bl32_ep_info;
 
 	/*
 	 * Parse platform specific parameters - TZDRAM aperture size and
