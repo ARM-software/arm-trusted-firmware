@@ -69,8 +69,11 @@
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
+#define BL31_SIZE			0x20000
 #define BL31_BASE			TZDRAM_BASE
-#define BL31_LIMIT			(TZDRAM_BASE + 0x11FFF)
+#define BL31_LIMIT			(TZDRAM_BASE + BL31_SIZE - 1)
+#define BL32_BASE			(TZDRAM_BASE + BL31_SIZE)
+#define BL32_LIMIT			TZDRAM_END
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
