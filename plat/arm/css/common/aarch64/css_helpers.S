@@ -77,7 +77,7 @@ endfunc platform_get_my_entrypoint
 	 * Function to calculate the core position by
 	 * swapping the cluster order. This is necessary in order to
 	 * match the format of the boot information passed by the SCP
-	 * and read in platform_is_primary_cpu below.
+	 * and read in platform_is_my_cpu_primary below.
 	 * -----------------------------------------------------------
 	 */
 func plat_arm_calc_core_pos
@@ -102,6 +102,6 @@ func platform_is_my_cpu_primary
 	ldr	x1, [x1]
 	ubfx	x1, x1, #PRIMARY_CPU_SHIFT, #PRIMARY_CPU_BIT_WIDTH
 	cmp	x0, x1
-	cset	x0, eq
+	cset	w0, eq
 	ret	x9
 endfunc platform_is_my_cpu_primary

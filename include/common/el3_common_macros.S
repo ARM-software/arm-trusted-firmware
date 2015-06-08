@@ -181,7 +181,7 @@
 		 * -------------------------------------------------------------
 		 */
 		bl	platform_is_my_cpu_primary
-		cbnz	x0, do_primary_cold_boot
+		cbnz	w0, do_primary_cold_boot
 
 		/* This is a cold boot on a secondary CPU */
 		bl	plat_secondary_cold_boot_setup
