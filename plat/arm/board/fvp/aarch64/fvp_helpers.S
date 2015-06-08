@@ -154,11 +154,17 @@ _panic:
 	b	_panic
 endfunc plat_get_my_entrypoint
 
-
+	/* -----------------------------------------------------
+	 * unsigned int plat_is_my_cpu_primary (void);
+	 *
+	 * Find out whether the current cpu is the primary
+	 * cpu.
+	 * -----------------------------------------------------
+	 */
 func plat_is_my_cpu_primary
 	mrs	x0, mpidr_el1
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #FVP_PRIMARY_CPU
-	cset	x0, eq
+	cset	w0, eq
 	ret
 endfunc plat_is_my_cpu_primary
