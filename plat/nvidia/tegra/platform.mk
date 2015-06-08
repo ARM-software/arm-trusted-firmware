@@ -28,6 +28,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+SPD		:=	${SPD}
+
 SOC_DIR		:=	plat/nvidia/tegra/soc/${TARGET_SOC}
 
 include plat/nvidia/tegra/common/tegra_common.mk
