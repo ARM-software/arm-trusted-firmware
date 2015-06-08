@@ -322,7 +322,7 @@ performed.
 
 #### ARM development platform specific build options
 
-*   `ARM_TSP_RAM_LOCATION_ID`: location of the TSP binary. Options:
+*   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
     -   `tsram` : Trusted SRAM (default option)
     -   `tdram` : Trusted DRAM (if available)
     -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
