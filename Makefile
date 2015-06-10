@@ -169,6 +169,20 @@ msg_start:
 
 include ${PLAT_MAKEFILE_FULL}
 
+# Disable the Platform Compatibility layer till the new PSCI framework is
+# introduced.
+ENABLE_PLAT_COMPAT := 0
+
+# If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
+ifndef ENABLE_PLAT_COMPAT
+ENABLE_PLAT_COMPAT := 1
+endif
+
+# Include the platform compatibility helpers for PSCI
+ifneq (${ENABLE_PLAT_COMPAT}, 0)
+include plat/compat/plat_compat.mk
+endif
+
 # Include the CPU specific operations makefile. By default all CPU errata
 # workarounds and CPU specifc optimisations are disabled. This can be
 # overridden by the platform.
@@ -287,6 +301,10 @@ $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 # Process PROGRAMMABLE_RESET_ADDRESS flag
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
+
+# Process ENABLE_PLAT_COMPAT flag
+$(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
+$(eval $(call add_define,ENABLE_PLAT_COMPAT))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
