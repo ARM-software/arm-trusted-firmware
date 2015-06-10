@@ -33,6 +33,9 @@
 
 #include <bakery_lock.h>
 #include <platform_def.h>	/* for PLAT_NUM_PWR_DOMAINS */
+#if ENABLE_PLAT_COMPAT
+#include <psci_compat.h>
+#endif
 
 /*******************************************************************************
  * Number of power domains whose state this psci imp. can track
@@ -316,8 +319,6 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 /* PSCI setup function */
 int32_t psci_setup(void);
 
-
 #endif /*__ASSEMBLY__*/
-
 
 #endif /* __PSCI_H__ */

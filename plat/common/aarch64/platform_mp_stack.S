@@ -30,15 +30,57 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
 #include <platform_def.h>
 
-
 	.local	platform_normal_stacks
-	.weak	platform_set_stack
+#if ENABLE_PLAT_COMPAT
+	.globl	platform_get_my_stack
+	.globl	platform_set_my_stack
+#else
 	.weak	platform_get_stack
+	.weak	platform_set_stack
 	.weak	platform_get_my_stack
 	.weak	platform_set_my_stack
+#endif /*__ENABLE_PLAT_COMPAT__*/
 
+
+#if ENABLE_PLAT_COMPAT
+	/* ---------------------------------------------------------------------
+	 * When the compatility layer is enabled, the new platform APIs
+	 * viz platform_get_my_stack() and platform_set_my_stack() need to be
+	 * defined using the previous APIs platform_get_stack() and
+	 * platform_set_stack(). Also we need to provide weak definitions
+	 * of platform_get_stack() and platform_set_stack() for the platforms
+	 * to reuse.
+	 * --------------------------------------------------------------------
+	 */
+
+	/* -----------------------------------------------------
+	 * unsigned long platform_get_my_stack ()
+	 *
+	 * For the current CPU, this function returns the stack
+	 * pointer for a stack allocated in device memory.
+	 * -----------------------------------------------------
+	 */
+func platform_get_my_stack
+	mrs	x0, mpidr_el1
+	b	platform_get_stack
+endfunc platform_get_my_stack
+
+	/* -----------------------------------------------------
+	 * void platform_set_my_stack ()
+	 *
+	 * For the current CPU, this function sets the stack
+	 * pointer to a stack allocated in normal memory.
+	 * -----------------------------------------------------
+	 */
+func platform_set_my_stack
+	mrs	x0, mpidr_el1
+	b	platform_set_stack
+endfunc platform_set_my_stack
+
+#else
 	/* -----------------------------------------------------
 	 * unsigned long platform_get_stack (unsigned long mpidr)
 	 *
@@ -92,6 +134,8 @@ func platform_set_my_stack
 	mov	sp, x0
 	ret	x9
 endfunc platform_set_my_stack
+
+#endif /*__ENABLE_PLAT_COMPAT__*/
 
 	/* -----------------------------------------------------
 	 * Per-cpu stacks in normal memory. Each cpu gets a

@@ -783,3 +783,81 @@ void psci_print_power_domain_map(void)
 	}
 #endif
 }
+
+#if ENABLE_PLAT_COMPAT
+/*******************************************************************************
+ * PSCI Compatibility helper function to return the 'power_state' parameter of
+ * the PSCI CPU SUSPEND request for the current CPU. Returns PSCI_INVALID_DATA
+ * if not invoked within CPU_SUSPEND for the current CPU.
+ ******************************************************************************/
+int psci_get_suspend_powerstate(void)
+{
+	/* Sanity check to verify that CPU is within CPU_SUSPEND */
+	if (psci_get_aff_info_state() == AFF_STATE_ON &&
+		!is_local_state_run(psci_get_cpu_local_state()))
+		return psci_power_state_compat[platform_my_core_pos()];
+
+	return PSCI_INVALID_DATA;
+}
+
+/*******************************************************************************
+ * PSCI Compatibility helper function to return the state id of the current
+ * cpu encoded in the 'power_state' parameter. Returns PSCI_INVALID_DATA
+ * if not invoked within CPU_SUSPEND for the current CPU.
+ ******************************************************************************/
+int psci_get_suspend_stateid(void)
+{
+	unsigned int power_state;
+	power_state = psci_get_suspend_powerstate();
+	if (power_state != PSCI_INVALID_DATA)
+		return psci_get_pstate_id(power_state);
+
+	return PSCI_INVALID_DATA;
+}
+
+/*******************************************************************************
+ * PSCI Compatibility helper function to return the state id encoded in the
+ * 'power_state' parameter of the CPU specified by 'mpidr'. Returns
+ * PSCI_INVALID_DATA if the CPU is not in CPU_SUSPEND.
+ ******************************************************************************/
+int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
+{
+	int cpu_idx = platform_core_pos_by_mpidr(mpidr);
+
+	if (cpu_idx == -1)
+		return PSCI_INVALID_DATA;
+
+	/* Sanity check to verify that the CPU is in CPU_SUSPEND */
+	if (psci_get_aff_info_state_by_idx(cpu_idx) == AFF_STATE_ON &&
+		!is_local_state_run(psci_get_cpu_local_state_by_idx(cpu_idx)))
+		return psci_get_pstate_id(psci_power_state_compat[cpu_idx]);
+
+	return PSCI_INVALID_DATA;
+}
+
+/*******************************************************************************
+ * This function returns highest affinity level which is in OFF
+ * state. The affinity instance with which the level is associated is
+ * determined by the caller.
+ ******************************************************************************/
+unsigned int psci_get_max_phys_off_afflvl(void)
+{
+	psci_power_state_t state_info;
+
+	memset(&state_info, 0, sizeof(state_info));
+	psci_get_target_local_pwr_states(PLAT_MAX_PWR_LVL, &state_info);
+
+	return psci_find_target_suspend_lvl(&state_info);
+}
+
+/*******************************************************************************
+ * PSCI Compatibility helper function to return target affinity level requested
+ * for the CPU_SUSPEND. This function assumes affinity levels correspond to
+ * power domain levels on the platform.
+ ******************************************************************************/
+int psci_get_suspend_afflvl(void)
+{
+	return psci_get_suspend_pwrlvl();
+}
+
+#endif
