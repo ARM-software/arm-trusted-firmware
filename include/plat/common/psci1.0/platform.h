@@ -31,8 +31,10 @@
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 
-#include <stdint.h>
 #include <psci.h>
+#include <stdint.h>
+#include <types.h>
+
 
 /*******************************************************************************
  * Forward declarations
@@ -59,7 +61,7 @@ int plat_get_image_source(unsigned int image_id,
 			uintptr_t *image_spec);
 unsigned long plat_get_ns_image_entrypoint(void);
 unsigned int plat_my_core_pos(void);
-int plat_core_pos_by_mpidr(unsigned long mpidr);
+int plat_core_pos_by_mpidr(u_register_t mpidr);
 
 /*******************************************************************************
  * Mandatory interrupt management functions
@@ -207,5 +209,25 @@ void bl32_plat_enable_mmu(uint32_t flags);
  ******************************************************************************/
 int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags);
+
+#if ENABLE_PLAT_COMPAT
+/*
+ * The below declarations are to enable compatibility for the platform ports
+ * using the old platform interface.
+ */
+
+/*******************************************************************************
+ * Optional common functions (may be overridden)
+ ******************************************************************************/
+unsigned int platform_get_core_pos(unsigned long mpidr);
+
+/*******************************************************************************
+ * Mandatory PSCI Compatibility functions (BL3-1)
+ ******************************************************************************/
+int platform_setup_pm(const plat_pm_ops_t **);
+
+unsigned int plat_get_aff_count(unsigned int, unsigned long);
+unsigned int plat_get_aff_state(unsigned int, unsigned long);
+#endif /* __ENABLE_PLAT_COMPAT__ */
 
 #endif /* __PLATFORM_H__ */
