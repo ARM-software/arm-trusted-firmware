@@ -28,50 +28,78 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __TEGRA_PRIVATE_H__
-#define __TEGRA_PRIVATE_H__
+#include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
+#include <context_mgmt.h>
+#include <debug.h>
+#include <errno.h>
+#include <memctrl.h>
+#include <runtime_svc.h>
+#include <tegra_private.h>
 
-#include <xlat_tables.h>
-#include <platform_def.h>
+#define TEGRA_SIP_NEW_VIDEOMEM_REGION		0x82000003
 
 /*******************************************************************************
- * Tegra DRAM memory base address
+ * This function is responsible for handling all SiP calls from the NS world
  ******************************************************************************/
-#define TEGRA_DRAM_BASE		0x80000000
-#define TEGRA_DRAM_END		0x27FFFFFFF
+uint64_t tegra_sip_handler(uint32_t smc_fid,
+			   uint64_t x1,
+			   uint64_t x2,
+			   uint64_t x3,
+			   uint64_t x4,
+			   void *cookie,
+			   void *handle,
+			   uint64_t flags)
+{
+	uint32_t ns;
+	int err;
 
-typedef struct plat_params_from_bl2 {
-	uint64_t tzdram_size;
-	uintptr_t bl32_params;
-} plat_params_from_bl2_t;
+	/* Determine which security state this SMC originated from */
+	ns = is_caller_non_secure(flags);
+	if (!ns)
+		SMC_RET1(handle, SMC_UNK);
 
-/* Declarations for plat_setup.c */
-const mmap_region_t *plat_get_mmio_map(void);
-uint64_t plat_get_syscnt_freq(void);
+	switch (smc_fid) {
 
-/* Declarations for plat_secondary.c */
-void plat_secondary_setup(void);
-int plat_lock_cpu_vectors(void);
+	case TEGRA_SIP_NEW_VIDEOMEM_REGION:
 
-/* Declarations for tegra_gic.c */
-void tegra_gic_setup(void);
-void tegra_gic_cpuif_deactivate(void);
+		/*
+		 * Check if Video Memory overlaps TZDRAM (contains bl31/bl32)
+		 * or falls outside of the valid DRAM range
+		 */
+		err = bl31_check_ns_address(x1, x2);
+		if (err)
+			SMC_RET1(handle, err);
 
-/* Declarations for tegra_security.c */
-void tegra_security_setup(void);
-void tegra_security_setup_videomem(uintptr_t base, uint64_t size);
+		/*
+		 * Check if Video Memory is aligned to 1MB.
+		 */
+		if ((x1 & 0xFFFFF) || (x2 & 0xFFFFF)) {
+			ERROR("Unaligned Video Memory base address!\n");
+			SMC_RET1(handle, -ENOTSUP);
+		}
 
-/* Declarations for tegra_pm.c */
-void tegra_pm_system_suspend_entry(void);
-void tegra_pm_system_suspend_exit(void);
-int tegra_system_suspended(void);
+		/* new video memory carveout settings */
+		tegra_memctrl_videomem_setup(x1, x2);
 
-/* Declarations for tegraXXX_pm.c */
-int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl);
-int tegra_prepare_cpu_on_finish(unsigned long mpidr);
+		SMC_RET1(handle, 0);
 
-/* Declarations for tegra_bl31_setup.c */
-plat_params_from_bl2_t *bl31_get_plat_params(void);
-int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
+	default:
+		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
+		break;
+	}
 
-#endif /* __TEGRA_PRIVATE_H__ */
+	SMC_RET1(handle, SMC_UNK);
+}
+
+/* Define a runtime service descriptor for fast SMC calls */
+DECLARE_RT_SVC(
+	tegra_sip_fast,
+
+	OEN_SIP_START,
+	OEN_SIP_END,
+	SMC_TYPE_FAST,
+	NULL,
+	tegra_sip_handler
+);
