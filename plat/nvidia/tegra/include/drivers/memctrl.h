@@ -64,6 +64,10 @@
 #define MC_SECURITY_CFG0_0			0x70
 #define MC_SECURITY_CFG1_0			0x74
 
+/* Video Memory carveout configuration registers */
+#define MC_VIDEO_PROTECT_BASE			0x648
+#define MC_VIDEO_PROTECT_SIZE_MB		0x64c
+
 static inline uint32_t tegra_mc_read_32(uint32_t off)
 {
 	return mmio_read_32(TEGRA_MC_BASE + off);
@@ -76,5 +80,6 @@ static inline void tegra_mc_write_32(uint32_t off, uint32_t val)
 
 void tegra_memctrl_setup(void);
 void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes);
+void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes);
 
 #endif /* __MEMCTRL_H__ */
