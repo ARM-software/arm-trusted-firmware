@@ -166,9 +166,6 @@ typedef struct cpu_pwr_domain_node {
 	spinlock_t cpu_lock;
 } cpu_pd_node_t;
 
-typedef void (*pwrlvl_power_on_finisher_t)(unsigned int cpu_idx,
-					   psci_power_state_t *state_info);
-
 /*******************************************************************************
  * Data prototypes
  ******************************************************************************/
@@ -190,10 +187,8 @@ int psci_validate_power_state(unsigned int power_state,
 			      psci_power_state_t *state_info);
 void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info);
 int psci_validate_mpidr(unsigned long mpidr);
-int get_power_on_target_pwrlvl(void);
 void psci_init_req_local_pwr_states(void);
-void psci_power_up_finish(int end_pwrlvl,
-				 pwrlvl_power_on_finisher_t power_on_handler);
+void psci_power_up_finish(void);
 int psci_get_ns_ep_info(entry_point_info_t *ep,
 		       uint64_t entrypoint, uint64_t context_id);
 void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,

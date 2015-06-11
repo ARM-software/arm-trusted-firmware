@@ -256,13 +256,12 @@ typedef struct psci_cpu_data {
  ******************************************************************************/
 typedef struct plat_psci_ops {
 	void (*cpu_standby)(plat_local_state_t cpu_state);
-	int (*pwr_domain_on)(u_register_t mpidr,
-			  unsigned long sec_entrypoint);
+	int (*pwr_domain_on)(u_register_t mpidr);
 	void (*pwr_domain_off)(const psci_power_state_t *target_state);
-	void (*pwr_domain_suspend)(unsigned long sec_entrypoint,
-			       const psci_power_state_t *target_state);
+	void (*pwr_domain_suspend)(const psci_power_state_t *target_state);
 	void (*pwr_domain_on_finish)(const psci_power_state_t *target_state);
-	void (*pwr_domain_suspend_finish)(const psci_power_state_t *target_state);
+	void (*pwr_domain_suspend_finish)(
+				const psci_power_state_t *target_state);
 	void (*system_off)(void) __dead2;
 	void (*system_reset)(void) __dead2;
 	int (*validate_power_state)(unsigned int power_state,
@@ -302,8 +301,7 @@ int psci_cpu_on(unsigned long,
 		unsigned long,
 		unsigned long);
 void __dead2 psci_power_down_wfi(void);
-void psci_cpu_on_finish_entry(void);
-void psci_cpu_suspend_finish_entry(void);
+void psci_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *);
 
 uint64_t psci_smc_handler(uint32_t smc_fid,
