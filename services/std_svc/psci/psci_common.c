@@ -185,8 +185,8 @@ unsigned long mpidr_set_aff_inst(unsigned long mpidr,
 	aff_shift = get_afflvl_shift(aff_lvl);
 
 	/* Clear the existing affinity instance & set the new one*/
-	mpidr &= ~(MPIDR_AFFLVL_MASK << aff_shift);
-	mpidr |= aff_inst << aff_shift;
+	mpidr &= ~(((unsigned long)MPIDR_AFFLVL_MASK) << aff_shift);
+	mpidr |= ((unsigned long)aff_inst) << aff_shift;
 
 	return mpidr;
 }
