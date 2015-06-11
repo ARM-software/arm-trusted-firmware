@@ -34,25 +34,16 @@
 #include <psci.h>
 #include <xlat_tables.h>
 
-	.globl	psci_cpu_on_finish_entry
-	.globl	psci_cpu_suspend_finish_entry
+	.globl	psci_entrypoint
 	.globl	psci_power_down_wfi
 
-	/* -----------------------------------------------------
-	 * This cpu has been physically powered up. Depending
-	 * upon whether it was resumed from suspend or simply
-	 * turned on, call the common power on finisher with
-	 * the handlers (chosen depending upon original state).
-	 * -----------------------------------------------------
+	/* --------------------------------------------------------------------
+	 * This CPU has been physically powered up. It is either resuming from
+	 * suspend or has simply been turned on. In both cases, call the power
+	 * on finisher.
+	 * --------------------------------------------------------------------
 	 */
-func psci_cpu_on_finish_entry
-	adr	x23, psci_cpu_on_finish
-	b	psci_power_up_entry
-
-psci_cpu_suspend_finish_entry:
-	adr	x23, psci_cpu_suspend_finish
-
-psci_power_up_entry:
+func psci_entrypoint
 	/*
 	 * On the warm boot path, most of the EL3 initialisations performed by
 	 * 'el3_entrypoint_common' must be skipped:
@@ -98,12 +89,10 @@ psci_power_up_entry:
 	mov	x0, #DISABLE_DCACHE
 	bl	bl31_plat_enable_mmu
 
-	bl	get_power_on_target_pwrlvl
-	mov	x1, x23
 	bl	psci_power_up_finish
 
 	b	el3_exit
-endfunc psci_cpu_on_finish_entry
+endfunc psci_entrypoint
 
 	/* --------------------------------------------
 	 * This function is called to indicate to the

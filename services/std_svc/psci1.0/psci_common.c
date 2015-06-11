@@ -189,7 +189,7 @@ unsigned int psci_is_last_on_cpu(void)
  * been physically powered up. It is expected to be called immediately after
  * reset from assembler code.
  ******************************************************************************/
-int get_power_on_target_pwrlvl(void)
+static int get_power_on_target_pwrlvl(void)
 {
 	int pwrlvl;
 
@@ -640,11 +640,26 @@ int psci_get_ns_ep_info(entry_point_info_t *ep,
  * code to enable the gic cpu interface and for a cluster it will enable
  * coherency at the interconnect level in addition to gic cpu interface.
  ******************************************************************************/
-void psci_power_up_finish(int end_pwrlvl,
-			  pwrlvl_power_on_finisher_t power_on_handler)
+void psci_power_up_finish(void)
 {
 	unsigned int cpu_idx = platform_my_core_pos();
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
+	int end_pwrlvl;
+
+	/*
+	 * Verify that we have been explicitly turned ON or resumed from
+	 * suspend.
+	 */
+	if (psci_get_aff_info_state() == AFF_STATE_OFF) {
+		ERROR("Unexpected affinity info state");
+		panic();
+	}
+
+	/*
+	 * Get the maximum power domain level to traverse to after this cpu
+	 * has been physically powered up.
+	 */
+	end_pwrlvl = get_power_on_target_pwrlvl();
 
 	/*
 	 * This function acquires the lock corresponding to each power level so
@@ -657,9 +672,21 @@ void psci_power_up_finish(int end_pwrlvl,
 	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
 
 	/*
-	 * Perform generic, architecture and platform specific handling.
+	 * This CPU could be resuming from suspend or it could have just been
+	 * turned on. To distinguish between these 2 cases, we examine the
+	 * affinity state of the CPU:
+	 *  - If the affinity state is ON_PENDING then it has just been
+	 *    turned on.
+	 *  - Else it is resuming from suspend.
+	 *
+	 * Depending on the type of warm reset identified, choose the right set
+	 * of power management handler and perform the generic, architecture
+	 * and platform specific handling.
 	 */
-	power_on_handler(cpu_idx, &state_info);
+	if (psci_get_aff_info_state() == AFF_STATE_ON_PENDING)
+		psci_cpu_on_finish(cpu_idx, &state_info);
+	else
+		psci_cpu_suspend_finish(cpu_idx, &state_info);
 
 	/*
 	 * Set the requested and target state of this CPU and all the higher

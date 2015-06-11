@@ -133,7 +133,6 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 {
 	int skip_wfi = 0;
 	unsigned int idx = platform_my_core_pos();
-	unsigned long psci_entrypoint;
 
 	/*
 	 * This function must only be called on platforms where the
@@ -167,14 +166,8 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 	 */
 	psci_do_state_coordination(end_pwrlvl, state_info);
 
-	psci_entrypoint = 0;
-	if (is_power_down_state) {
+	if (is_power_down_state)
 		psci_suspend_to_pwrdown_start(end_pwrlvl, ep, state_info);
-
-		/* Set the secure world (EL3) re-entry point after BL1. */
-		psci_entrypoint =
-			(unsigned long) psci_cpu_suspend_finish_entry;
-	}
 
 	/*
 	 * Plat. management: Allow the platform to perform the
@@ -182,7 +175,7 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 	 * platform defined mailbox with the psci entrypoint,
 	 * program the power controller etc.
 	 */
-	psci_plat_pm_ops->pwr_domain_suspend(psci_entrypoint, state_info);
+	psci_plat_pm_ops->pwr_domain_suspend(state_info);
 
 exit:
 	/*

@@ -89,7 +89,6 @@ int psci_cpu_on_start(unsigned long target_cpu,
 		      int end_pwrlvl)
 {
 	int rc;
-	unsigned long psci_entrypoint;
 	unsigned int target_idx = platform_core_pos_by_mpidr(target_cpu);
 
 	/*
@@ -126,16 +125,12 @@ int psci_cpu_on_start(unsigned long target_cpu,
 	/*
 	 * Perform generic, architecture and platform specific handling.
 	 */
-	/* Set the secure world (EL3) re-entry point after BL1 */
-	psci_entrypoint = (unsigned long) psci_cpu_on_finish_entry;
-
 	/*
 	 * Plat. management: Give the platform the current state
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
-	rc = psci_plat_pm_ops->pwr_domain_on((u_register_t)target_cpu,
-				    psci_entrypoint);
+	rc = psci_plat_pm_ops->pwr_domain_on((u_register_t)target_cpu);
 	assert(rc == PSCI_E_SUCCESS || rc == PSCI_E_INTERN_FAIL);
 
 	if (rc == PSCI_E_SUCCESS)
