@@ -245,7 +245,8 @@ int32_t psci_setup(void)
 	 */
 	psci_set_pwr_domains_to_run(PLAT_MAX_PWR_LVL);
 
-	plat_setup_psci_ops(&psci_plat_pm_ops);
+	plat_setup_psci_ops((uintptr_t)psci_entrypoint,
+					&psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
 	/* Initialize the psci capability */

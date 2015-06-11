@@ -181,7 +181,8 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
 /*******************************************************************************
  * Mandatory PSCI functions (BL3-1)
  ******************************************************************************/
-int plat_setup_psci_ops(const struct plat_psci_ops **);
+int plat_setup_psci_ops(uintptr_t sec_entrypoint,
+			const struct plat_psci_ops **);
 const unsigned char *plat_get_power_domain_tree_desc(void);
 
 /*******************************************************************************
