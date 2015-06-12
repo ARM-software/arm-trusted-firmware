@@ -15,7 +15,16 @@ Directory structure
 * plat/nvidia/tegra/common - Common code for all Tegra SoCs
 * plat/nvidia/tegra/soc/txxx - Chip specific code
 
+Trusted OS dispatcher
+=====================
+Tegra supports multiple Trusted OS', Trusted Little Kernel (TLK) being one of
+them. In order to include the 'tlkd' dispatcher in the image, pass 'SPD=tlkd'
+on the command line while preparing a bl31 image. This allows other Trusted OS
+vendors to use the upstream code and include their dispatchers in the image
+without changing any makefiles.
+
 Preparing the BL31 image to run on Tegra SoCs
 ===================================================
 CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=tegra \
-TARGET_SOC=<target-soc e.g. t210> all
+TARGET_SOC=<target-soc e.g. t210> BL32=<path-to-trusted-os-binary> \
+SPD=<dispatcher e.g. tlkd> all

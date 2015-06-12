@@ -10,10 +10,11 @@ In order to compile TLK-D, we need a BL32 image to be present. Since, TLKD
 just needs to compile, any BL32 image would do. To use TLK as the BL32, please
 refer to the "Build TLK" section.
 
-Once a BL32 is ready, TLKD can be compiled using the following command:
+Once a BL32 is ready, TLKD can be included in the image using the following
+command:
 
 CROSS_COMPILE=<path_to_linaro_chain>/bin/aarch64-none-elf- make NEED_BL1=0
-NEED_BL2=0 BL32=<path_to_BL32_image> PLAT=<platform> all
+NEED_BL2=0 BL32=<path_to_BL32_image> PLAT=<platform> SPD=tlkd all
 _
 Trusted Little Kernel (TLK)
 ===========================
