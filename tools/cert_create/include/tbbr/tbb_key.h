@@ -27,12 +27,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TBB_EXT_H_
-#define TBB_EXT_H_
 
-#include "ext.h"
+#ifndef TBB_KEY_H_
+#define TBB_KEY_H_
 
-/* Array containing the extensions used in the chain of trust */
-extern ext_t tbb_ext[];
+#include "key.h"
 
-#endif /* TBB_EXT_H_ */
+/*
+ * Enumerate the keys that are used to establish the chain of trust
+ */
+enum {
+	ROT_KEY,
+	TRUSTED_WORLD_KEY,
+	NON_TRUSTED_WORLD_KEY,
+	BL30_KEY,
+	BL31_KEY,
+	BL32_KEY,
+	BL33_KEY
+};
+
+#endif /* TBB_KEY_H_ */

@@ -33,7 +33,10 @@
 
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
+#include "ext.h"
 #include "key.h"
+
+#define CERT_MAX_EXT			4
 
 /*
  * This structure contains information related to the generation of the
@@ -52,18 +55,28 @@ struct cert_s {
 	int id;			/* Unique identifier */
 
 	const char *fn;		/* Filename to save the certificate */
-	const char *bin;	/* Image associated to this certificate */
-
 	const char *cn;		/* Subject CN (Company Name) */
 
-	X509 *x;		/* X509 certificate container */
-	key_t *key;		/* Key to be signed */
+	/* These fields must be defined statically */
+	int key;		/* Key to be signed */
+	int issuer;		/* Issuer certificate */
+	int ext[CERT_MAX_EXT];	/* Certificate extensions */
+	int num_ext;		/* Number of extensions in the certificate */
 
-	cert_t *issuer;		/* Issuer certificate */
+	X509 *x;		/* X509 certificate container */
 };
 
+/* Exported API */
 int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value);
-
 int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk);
+
+/* Macro to register the certificates used in the CoT */
+#define REGISTER_COT(_certs) \
+	cert_t *certs = &_certs[0]; \
+	const unsigned int num_certs = sizeof(_certs)/sizeof(_certs[0]);
+
+/* Exported variables */
+extern cert_t *certs;
+extern const unsigned int num_certs;
 
 #endif /* CERT_H_ */
