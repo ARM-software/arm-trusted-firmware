@@ -59,4 +59,5 @@ BL31_SOURCES		+=	drivers/arm/gic/arm_gic.c			\
 				${COMMON_DIR}/tegra_bl31_setup.c		\
 				${COMMON_DIR}/tegra_gic.c			\
 				${COMMON_DIR}/tegra_pm.c			\
+				${COMMON_DIR}/tegra_sip_calls.c			\
 				${COMMON_DIR}/tegra_topology.c
