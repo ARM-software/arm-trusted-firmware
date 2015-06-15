@@ -40,4 +40,8 @@ unsigned int zynqmp_get_uart_clk(void);
 int zynqmp_is_pmu_up(void);
 unsigned int zynqmp_get_bootmode(void);
 
+/* For FSBL handover */
+void fsbl_atf_handover(entry_point_info_t *bl32_image_ep_info,
+		       entry_point_info_t *bl33_image_ep_info);
+
 #endif /* __ZYNQMP_PRIVATE_H__ */
