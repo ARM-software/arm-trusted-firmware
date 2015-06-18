@@ -37,6 +37,7 @@
 #include <cortex_a57.h>
 #include <cortex_a53.h>
 #include <debug.h>
+#include <errno.h>
 #include <memctrl.h>
 #include <mmio.h>
 #include <platform.h>
@@ -229,4 +230,33 @@ void bl31_plat_arch_setup(void)
 
 	/* enable the MMU */
 	enable_mmu_el3(0);
+}
+
+/*******************************************************************************
+ * Check if the given NS DRAM range is valid
+ ******************************************************************************/
+int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
+{
+	uint64_t end = base + size_in_bytes - 1;
+
+	/*
+	 * Check if the NS DRAM address is valid
+	 */
+	if ((base < TEGRA_DRAM_BASE) || (end > TEGRA_DRAM_END) ||
+	    (base >= end)) {
+		ERROR("NS address is out-of-bounds!\n");
+		return -EFAULT;
+	}
+
+	/*
+	 * TZDRAM aperture contains the BL31 and BL32 images, so we need
+	 * to check if the NS DRAM range overlaps the TZDRAM aperture.
+	 */
+	if ((base < TZDRAM_END) && (end > tegra_bl31_phys_base)) {
+		ERROR("NS address overlaps TZDRAM!\n");
+		return -ENOTSUP;
+	}
+
+	/* valid NS address */
+	return 0;
 }
