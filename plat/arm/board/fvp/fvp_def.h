@@ -83,6 +83,9 @@
 /* FVP Power controller base address*/
 #define PWRC_BASE			0x1c100000
 
+/* FVP SP804 timer frequency is 35 MHz*/
+#define SP804_TIMER_CLKMULT		35
+#define SP804_TIMER_CLKDIV		1
 
 /*******************************************************************************
  * GIC-400 & interrupt handling related constants

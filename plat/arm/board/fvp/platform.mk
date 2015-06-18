@@ -46,7 +46,9 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				plat/arm/board/fvp/fvp_bl1_setup.c		\
 				plat/arm/board/fvp/fvp_io_storage.c
 
-BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
+BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c		\
+				drivers/io/io_semihosting.c			\
+				drivers/delay_timer/delay_timer.c		\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
