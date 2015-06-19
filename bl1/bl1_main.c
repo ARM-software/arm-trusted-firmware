@@ -126,9 +126,9 @@ void bl1_main(void)
 	 * Ensure that MMU/Caches and coherency are turned on
 	 */
 	val = read_sctlr_el3();
-	assert(val | SCTLR_M_BIT);
-	assert(val | SCTLR_C_BIT);
-	assert(val | SCTLR_I_BIT);
+	assert(val & SCTLR_M_BIT);
+	assert(val & SCTLR_C_BIT);
+	assert(val & SCTLR_I_BIT);
 	/*
 	 * Check that Cache Writeback Granule (CWG) in CTR_EL0 matches the
 	 * provided platform value
