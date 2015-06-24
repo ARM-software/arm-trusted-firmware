@@ -434,7 +434,7 @@ This function fulfills requirement 1 and 3 listed above.
 This function is called with the MMU and data caches disabled. It is responsible
 for placing the executing secondary CPU in a platform-specific state until the
 primary CPU performs the necessary actions to bring it out of that state and
-allow entry into the OS.
+allow entry into the OS. This function must not return.
 
 In the ARM FVP port, each secondary CPU powers itself off. The primary CPU is
 responsible for powering up the secondary CPU when normal world software
@@ -569,7 +569,7 @@ preserve the values of callee saved registers x19 to x29.
 
 The default implementation doesn't do anything. If a platform needs to override
 the default implementation, refer to the [Firmware Design] for general
-guidelines regarding placement of code in a reset handler.
+guidelines.
 
 ### Function : plat_disable_acp()
 

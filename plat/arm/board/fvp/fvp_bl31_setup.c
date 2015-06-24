@@ -45,13 +45,13 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * No need for locks as no other CPU is active.
 	 */
 	fvp_cci_init();
-#if RESET_TO_BL31
+
 	/*
-	 * Enable CCI coherency for the primary CPU's cluster
-	 * (if earlier BL has not already done so).
+	 * Enable CCI coherency for the primary CPU's cluster.
+	 * Earlier bootloader stages might already do this (e.g. Trusted
+	 * Firmware's BL1 does it) but we can't assume so. There is no harm in
+	 * executing this code twice anyway.
 	 * FVP PSCI code will enable coherency for other clusters.
 	 */
 	fvp_cci_enable();
-
-#endif /* RESET_TO_BL31 */
 }

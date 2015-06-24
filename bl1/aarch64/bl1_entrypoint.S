@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@
  */
 
 #include <arch.h>
-#include <asm_macros.S>
+#include <el3_common_macros.S>
 
 	.globl	bl1_entrypoint
 
@@ -42,116 +42,19 @@
 	 */
 
 func bl1_entrypoint
-	/* ---------------------------------------------
-	 * Set the CPU endianness before doing anything
-	 * that might involve memory reads or writes.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, sctlr_el3
-	bic	x0, x0, #SCTLR_EE_BIT
-	msr	sctlr_el3, x0
-	isb
-
-	/* ---------------------------------------------
-	 * Perform any processor specific actions upon
-	 * reset e.g. cache, tlb invalidations etc.
-	 * ---------------------------------------------
-	 */
-	bl	reset_handler
-
-	/* ---------------------------------------------
-	 * Enable the instruction cache, stack pointer
-	 * and data access alignment checks
-	 * ---------------------------------------------
-	 */
-	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
-	mrs	x0, sctlr_el3
-	orr	x0, x0, x1
-	msr	sctlr_el3, x0
-	isb
-
-	/* ---------------------------------------------
-	 * Set the exception vector to something sane.
-	 * ---------------------------------------------
-	 */
-	adr	x0, bl1_exceptions
-	msr	vbar_el3, x0
-	isb
-
-	/* ---------------------------------------------
-	 * Enable the SError interrupt now that the
-	 * exception vectors have been setup.
-	 * ---------------------------------------------
-	 */
-	msr	daifclr, #DAIF_ABT_BIT
-
 	/* ---------------------------------------------------------------------
-	 * The initial state of the Architectural feature trap register
-	 * (CPTR_EL3) is unknown and it must be set to a known state. All
-	 * feature traps are disabled. Some bits in this register are marked as
-	 * Reserved and should not be modified.
-	 *
-	 * CPTR_EL3.TCPAC: This causes a direct access to the CPACR_EL1 from EL1
-	 *  or the CPTR_EL2 from EL2 to trap to EL3 unless it is trapped at EL2.
-	 * CPTR_EL3.TTA: This causes access to the Trace functionality to trap
-	 *  to EL3 when executed from EL0, EL1, EL2, or EL3. If system register
-	 *  access to trace functionality is not supported, this bit is RES0.
-	 * CPTR_EL3.TFP: This causes instructions that access the registers
-	 *  associated with Floating Point and Advanced SIMD execution to trap
-	 *  to EL3 when executed from any exception level, unless trapped to EL1
-	 *  or EL2.
+	 * If the reset address is programmable then bl1_entrypoint() is
+	 * executed only on the cold boot path. Therefore, we can skip the warm
+	 * boot mailbox mechanism.
 	 * ---------------------------------------------------------------------
 	 */
-	mrs	x0, cptr_el3
-	bic	w0, w0, #TCPAC_BIT
-	bic	w0, w0, #TTA_BIT
-	bic	w0, w0, #TFP_BIT
-	msr	cptr_el3, x0
-
-	/* -------------------------------------------------------
-	 * Will not return from this macro if it is a warm boot.
-	 * -------------------------------------------------------
-	 */
-	wait_for_entrypoint
-
-	bl	platform_mem_init
-
-	/* ---------------------------------------------
-	 * Init C runtime environment.
-	 *   - Zero-initialise the NOBITS sections.
-	 *     There are 2 of them:
-	 *       - the .bss section;
-	 *       - the coherent memory section.
-	 *   - Copy the data section from BL1 image
-	 *     (stored in ROM) to the correct location
-	 *     in RAM.
-	 * ---------------------------------------------
-	 */
-	ldr	x0, =__BSS_START__
-	ldr	x1, =__BSS_SIZE__
-	bl	zeromem16
-
-#if USE_COHERENT_MEM
-	ldr	x0, =__COHERENT_RAM_START__
-	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
-	bl	zeromem16
-#endif
-
-	ldr	x0, =__DATA_RAM_START__
-	ldr	x1, =__DATA_ROM_START__
-	ldr	x2, =__DATA_SIZE__
-	bl	memcpy16
-
-	/* --------------------------------------------
-	 * Allocate a stack whose memory will be marked
-	 * as Normal-IS-WBWA when the MMU is enabled.
-	 * There is no risk of reading stale stack
-	 * memory after enabling the MMU as only the
-	 * primary cpu is running at the moment.
-	 * --------------------------------------------
-	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
+	el3_entrypoint_common					\
+		_set_endian=1					\
+		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS	\
+		_secondary_cold_boot=1				\
+		_init_memory=1					\
+		_init_c_runtime=1				\
+		_exception_vectors=bl1_exceptions
 
 	/* ---------------------------------------------
 	 * Architectural init. can be generic e.g.

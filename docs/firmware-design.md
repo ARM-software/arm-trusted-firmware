@@ -184,7 +184,7 @@ BL1 performs minimal architectural initialization as follows.
 
 #### Platform initialization
 
-BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests from
+BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests to
 the CCI slave interface corresponding to the cluster that includes the
 primary CPU. BL1 also initializes a UART (PL011 console), which enables access
 to the `printf` family of functions in BL1.
@@ -334,7 +334,9 @@ the clock frequency of the system counter, which is provided by the platform.
 BL3-1 performs detailed platform initialization, which enables normal world
 software to function correctly. It also retrieves entrypoint information for
 the BL3-3 image loaded by BL2 from the platform defined memory address populated
-by BL2. BL3-1 also initializes a UART (PL011 console), which enables
+by BL2. It enables issuing of snoop and DVM (Distributed Virtual Memory)
+requests to the CCI slave interface corresponding to the cluster that includes
+the primary CPU. BL3-1 also initializes a UART (PL011 console), which enables
 access to the `printf` family of functions in BL3-1.  It enables the system
 level implementation of the generic timer through the memory mapped interface.
 
@@ -412,8 +414,7 @@ updated to develop and exploit new functionality.
 
 #### Required CPU state when calling `bl31_entrypoint()` during cold boot
 
-This function must only be called by the primary CPU, if this is called by any
-other CPU the firmware will abort.
+This function must only be called by the primary CPU.
 
 On entry to this function the calling primary CPU must be executing in AArch64
 EL3, little-endian data access, and all interrupt sources masked:
@@ -542,11 +543,6 @@ described for BL1 above. On a warm boot a CPU is directed to the PSCI
 implementation via a platform defined mechanism. On a cold boot, the platform
 must place any secondary CPUs into a safe state while the primary CPU executes
 a modified BL3-1 initialization, as described below.
-
-#### Architectural initialization
-
-As the first image to execute in this configuration BL3-1 must ensure that
-interconnect coherency is enabled (if required) before enabling the MMU.
 
 #### Platform initialization
 
@@ -962,7 +958,7 @@ The sample crash output is shown below.
 ---------------------------------
 
 Trusted Firmware implements a framework that allows CPU and platform ports to
-perform actions immediately after a CPU is released from reset in both the cold
+perform actions very early after a CPU is released from reset in both the cold
 and warm boot paths. This is done by calling the `reset_handler()` function in
 both the BL1 and BL3-1 images. It in turn calls the platform and CPU specific
 reset handling functions.
@@ -971,33 +967,12 @@ Details for implementing a CPU specific reset handler can be found in
 Section 8. Details for implementing a platform specific reset handler can be
 found in the [Porting Guide](see the `plat_reset_handler()` function).
 
-When adding functionality to a reset handler, the following points should be
-kept in mind.
-
-1.   The first reset handler in the system exists either in a ROM image
-     (e.g. BL1), or BL3-1 if `RESET_TO_BL31` is true. This may be detected at
-     compile time using the constant `FIRST_RESET_HANDLER_CALL`.
-
-2.   When considering ROM images, it's important to consider non TF-based ROMs
-     and ROMs based on previous versions of the TF code.
-
-3.   If the functionality should be applied to a ROM and there is no possibility
-     of a ROM being used that does not apply the functionality (or equivalent),
-     then the functionality should be applied within a `#if
-     FIRST_RESET_HANDLER_CALL` block.
-
-4.   If the functionality should execute in BL3-1 in order to override or
-     supplement a ROM version of the functionality, then the functionality
-     should be applied in the `#else` part of a `#if FIRST_RESET_HANDLER_CALL`
-     block.
-
-5.   If the functionality should be applied to a ROM but there is a possibility
-     of ROMs being used that do not apply the functionality, then the
-     functionality should be applied outside of a `FIRST_RESET_HANDLER_CALL`
-     block, so that BL3-1 has an opportunity to apply the functionality instead.
-     In this case, additional code may be needed to cope with different ROMs
-     that do or do not apply the functionality.
-
+When adding functionality to a reset handler, keep in mind that if a different
+reset handling behavior is required between the first and the subsequent
+invocations of the reset handling code, this should be detected at runtime.
+In other words, the reset handler should be able to detect whether an action has
+already been performed and act as appropriate. Possible courses of actions are,
+e.g. skip the action the second time, or undo/redo it.
 
 8.  CPU specific operations framework
 -----------------------------
