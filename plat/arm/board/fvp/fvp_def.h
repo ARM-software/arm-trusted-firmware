@@ -115,7 +115,8 @@
 #define BASE_GICH_BASE			0x2c010000
 #define BASE_GICV_BASE			0x2c02f000
 
-#define IRQ_TZ_WDOG			56
+#define FVP_IRQ_TZ_WDOG			56
+#define FVP_IRQ_SEC_SYS_TIMER		57
 
 
 /*******************************************************************************

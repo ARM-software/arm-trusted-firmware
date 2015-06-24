@@ -58,10 +58,9 @@
 /* Interrupt handling constants */
 #define CSS_IRQ_MHU			69
 #define CSS_IRQ_GPU_SMMU_0		71
-#define CSS_IRQ_GPU_SMMU_1		73
-#define CSS_IRQ_ETR_SMMU		75
 #define CSS_IRQ_TZC			80
 #define CSS_IRQ_TZ_WDOG			86
+#define CSS_IRQ_SEC_SYS_TIMER		91
 
 /*
  * SCP <=> AP boot configuration

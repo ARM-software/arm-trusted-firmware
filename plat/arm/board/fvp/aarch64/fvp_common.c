@@ -113,7 +113,6 @@ ARM_CASSERT_MMAP
 #if IMAGE_BL31 || IMAGE_BL32
 /* Array of secure interrupts to be configured by the gic driver */
 const unsigned int irq_sec_array[] = {
-	IRQ_TZ_WDOG,
 	ARM_IRQ_SEC_PHY_TIMER,
 	ARM_IRQ_SEC_SGI_0,
 	ARM_IRQ_SEC_SGI_1,
@@ -122,7 +121,9 @@ const unsigned int irq_sec_array[] = {
 	ARM_IRQ_SEC_SGI_4,
 	ARM_IRQ_SEC_SGI_5,
 	ARM_IRQ_SEC_SGI_6,
-	ARM_IRQ_SEC_SGI_7
+	ARM_IRQ_SEC_SGI_7,
+	FVP_IRQ_TZ_WDOG,
+	FVP_IRQ_SEC_SYS_TIMER
 };
 
 void plat_arm_gic_init(void)

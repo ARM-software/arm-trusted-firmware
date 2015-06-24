@@ -96,12 +96,19 @@
 #define PLAT_CSS_GICH_BASE		0x2c04f000
 #define PLAT_CSS_GICV_BASE		0x2c06f000
 
-#define PLAT_CSS_IRQ_SEC_LIST		CSS_IRQ_MHU,		\
-					CSS_IRQ_GPU_SMMU_0,	\
-					CSS_IRQ_GPU_SMMU_1,	\
-					CSS_IRQ_ETR_SMMU,	\
-					CSS_IRQ_TZC,		\
-					CSS_IRQ_TZ_WDOG
+#define PLAT_CSS_IRQ_SEC_LIST		CSS_IRQ_MHU,			\
+					CSS_IRQ_GPU_SMMU_0,		\
+					CSS_IRQ_TZC,			\
+					CSS_IRQ_TZ_WDOG,		\
+					CSS_IRQ_SEC_SYS_TIMER,		\
+					JUNO_IRQ_DMA_SMMU,		\
+					JUNO_IRQ_HDLCD0_SMMU,		\
+					JUNO_IRQ_HDLCD1_SMMU,		\
+					JUNO_IRQ_USB_SMMU,		\
+					JUNO_IRQ_THIN_LINKS_SMMU,	\
+					JUNO_IRQ_SEC_I2C,		\
+					JUNO_IRQ_GPU_SMMU_1,		\
+					JUNO_IRQ_ETR_SMMU
 
 /*
  * Required ARM CSS SoC based platform porting definitions
