@@ -196,8 +196,9 @@ void plat_arm_pwrc_setup(void);
  */
 void plat_arm_io_setup(void);
 int plat_arm_get_alt_image_source(
-	const uintptr_t image_spec,
-	uintptr_t *dev_handle);
+	unsigned int image_id,
+	uintptr_t *dev_handle,
+	uintptr_t *image_spec);
 void plat_arm_topology_setup(void);
 
 

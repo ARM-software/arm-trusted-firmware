@@ -31,12 +31,28 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <openssl/asn1.h>
+#include <openssl/asn1t.h>
 #include <openssl/err.h>
 #include <openssl/x509v3.h>
 #include "ext.h"
 
 DECLARE_ASN1_ITEM(ASN1_INTEGER)
+DECLARE_ASN1_ITEM(X509_ALGOR)
 DECLARE_ASN1_ITEM(ASN1_OCTET_STRING)
+
+typedef struct {
+	X509_ALGOR *hashAlgorithm;
+	ASN1_OCTET_STRING *dataHash;
+} HASH;
+
+ASN1_SEQUENCE(HASH) = {
+	ASN1_SIMPLE(HASH, hashAlgorithm, X509_ALGOR),
+	ASN1_SIMPLE(HASH, dataHash, ASN1_OCTET_STRING),
+} ASN1_SEQUENCE_END(HASH)
+
+DECLARE_ASN1_FUNCTIONS(HASH)
+IMPLEMENT_ASN1_FUNCTIONS(HASH)
 
 /*
  * This function adds the TBB extensions to the internal extension list
@@ -123,37 +139,85 @@ X509_EXTENSION *ext_new(int nid, int crit, unsigned char *data, int len)
 }
 
 /*
- * Creates a x509v3 extension containing a hash encapsulated in an ASN1 Octet
- * String
+ * Creates a x509v3 extension containing a hash
+ *
+ * DigestInfo ::= SEQUENCE {
+ *     digestAlgorithm  AlgorithmIdentifier,
+ *     digest           OCTET STRING
+ * }
+ *
+ * AlgorithmIdentifier ::=  SEQUENCE  {
+ *     algorithm        OBJECT IDENTIFIER,
+ *     parameters       ANY DEFINED BY algorithm OPTIONAL
+ * }
  *
  * Parameters:
- *   pex: OpenSSL extension pointer (output parameter)
  *   nid: extension identifier
  *   crit: extension critical (EXT_NON_CRIT, EXT_CRIT)
+ *   md: hash algorithm
  *   buf: pointer to the buffer that contains the hash
  *   len: size of the hash in bytes
  *
  * Return: Extension address, NULL if error
  */
-X509_EXTENSION *ext_new_hash(int nid, int crit, unsigned char *buf, size_t len)
+X509_EXTENSION *ext_new_hash(int nid, int crit, const EVP_MD *md,
+		unsigned char *buf, size_t len)
 {
 	X509_EXTENSION *ex = NULL;
-	ASN1_OCTET_STRING *hash = NULL;
+	ASN1_OCTET_STRING *octet = NULL;
+	HASH *hash = NULL;
+	ASN1_OBJECT *algorithm = NULL;
+	X509_ALGOR *x509_algor = NULL;
 	unsigned char *p = NULL;
 	int sz = -1;
 
-	/* Encode Hash */
-	hash = ASN1_OCTET_STRING_new();
-	ASN1_OCTET_STRING_set(hash, buf, len);
-	sz = i2d_ASN1_OCTET_STRING(hash, NULL);
-	i2d_ASN1_OCTET_STRING(hash, &p);
+	/* OBJECT_IDENTIFIER with hash algorithm */
+	algorithm = OBJ_nid2obj(md->type);
+	if (algorithm == NULL) {
+		return NULL;
+	}
+
+	/* Create X509_ALGOR */
+	x509_algor = X509_ALGOR_new();
+	if (x509_algor == NULL) {
+		return NULL;
+	}
+	x509_algor->algorithm = algorithm;
+	x509_algor->parameter = ASN1_TYPE_new();
+	ASN1_TYPE_set(x509_algor->parameter, V_ASN1_NULL, NULL);
+
+	/* OCTET_STRING with the actual hash */
+	octet = ASN1_OCTET_STRING_new();
+	if (octet == NULL) {
+		X509_ALGOR_free(x509_algor);
+		return NULL;
+	}
+	ASN1_OCTET_STRING_set(octet, buf, len);
+
+	/* HASH structure containing algorithm + hash */
+	hash = HASH_new();
+	if (hash == NULL) {
+		ASN1_OCTET_STRING_free(octet);
+		X509_ALGOR_free(x509_algor);
+		return NULL;
+	}
+	hash->hashAlgorithm = x509_algor;
+	hash->dataHash = octet;
+
+	/* DER encoded HASH */
+	sz = i2d_HASH(hash, &p);
+	if ((sz <= 0) || (p == NULL)) {
+		HASH_free(hash);
+		X509_ALGOR_free(x509_algor);
+		return NULL;
+	}
 
 	/* Create the extension */
 	ex = ext_new(nid, crit, p, sz);
 
 	/* Clean up */
 	OPENSSL_free(p);
-	ASN1_OCTET_STRING_free(hash);
+	HASH_free(hash);
 
 	return ex;
 }

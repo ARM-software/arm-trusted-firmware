@@ -46,7 +46,8 @@ endif
 # Process flags
 $(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
 
-PLAT_INCLUDES		+=	-Iinclude/plat/arm/common			\
+PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
+				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64
 
 
@@ -83,3 +84,31 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/arm/common/arm_topology.c			\
 				plat/common/plat_gic.c				\
 				plat/common/aarch64/platform_mp_stack.S
+
+ifneq (${TRUSTED_BOARD_BOOT},0)
+
+    # By default, ARM platforms use RSA keys
+    KEY_ALG		:=	rsa
+
+    # Include common TBB sources
+    AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
+    				drivers/auth/crypto_mod.c			\
+    				drivers/auth/img_parser_mod.c			\
+    				drivers/auth/tbbr/tbbr_cot.c			\
+
+    BL1_SOURCES		+=	${AUTH_SOURCES}
+    BL2_SOURCES		+=	${AUTH_SOURCES}
+
+    MBEDTLS_KEY_ALG	:=	${KEY_ALG}
+
+    # We expect to locate the *.mk files under the directories specified below
+    CRYPTO_LIB_MK := drivers/auth/mbedtls/mbedtls_crypto.mk
+    IMG_PARSER_LIB_MK := drivers/auth/mbedtls/mbedtls_x509.mk
+
+    $(info Including ${CRYPTO_LIB_MK})
+    include ${CRYPTO_LIB_MK}
+
+    $(info Including ${IMG_PARSER_LIB_MK})
+    include ${IMG_PARSER_LIB_MK}
+
+endif

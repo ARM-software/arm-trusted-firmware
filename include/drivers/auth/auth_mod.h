@@ -28,34 +28,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <auth.h>
-#include <debug.h>
+#ifndef __AUTH_MOD_H__
+#define __AUTH_MOD_H__
+
+#if TRUSTED_BOARD_BOOT
+
+#include <auth_common.h>
+#include <cot_def.h>
+#include <img_parser_mod.h>
 
 /*
- * Initialize the authentication module
+ * Image flags
  */
-void auth_init(void)
-{
-	assert(auth_mod.name);
-	assert(auth_mod.init);
-	assert(auth_mod.verify);
+#define IMG_FLAG_AUTHENTICATED		(1 << 0)
 
-	INFO("Using authentication module '%s'\n", auth_mod.name);
-	if (auth_mod.init() != 0)
-		assert(0);
-}
 
 /*
- * Authenticate a certificate/image
- *
- * Return: 0 = success, Otherwise = error
+ * Authentication image descriptor
  */
-int auth_verify_obj(unsigned int obj_id, uintptr_t obj_buf, size_t len)
-{
-	assert(obj_id < AUTH_NUM_OBJ);
-	assert(obj_buf != 0);
-	assert(auth_mod.verify);
+typedef struct auth_img_desc_s {
+	unsigned int img_id;
+	const struct auth_img_desc_s *parent;
+	img_type_t img_type;
+	auth_method_desc_t img_auth_methods[AUTH_METHOD_NUM];
+	auth_param_desc_t authenticated_data[COT_MAX_VERIFIED_PARAMS];
+} auth_img_desc_t;
 
-	return auth_mod.verify(obj_id, obj_buf, len);
-}
+/* Public functions */
+void auth_mod_init(void);
+int auth_mod_get_parent_id(unsigned int img_id, unsigned int *parent_id);
+int auth_mod_verify_img(unsigned int img_id,
+			void *img_ptr,
+			unsigned int img_len);
+
+/* Macro to register a CoT defined as an array of auth_img_desc_t */
+#define REGISTER_COT(_cot) \
+	const auth_img_desc_t *const cot_desc_ptr = \
+			(const auth_img_desc_t *const)&_cot[0]; \
+	unsigned int auth_img_flags[sizeof(_cot)/sizeof(_cot[0])];
+
+#endif /* TRUSTED_BOARD_BOOT */
+
+#endif /* __AUTH_MOD_H__ */

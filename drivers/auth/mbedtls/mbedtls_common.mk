@@ -28,6 +28,33 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/common/board_css_common.c
+ifneq (${MBEDTLS_COMMON_MK},1)
+MBEDTLS_COMMON_MK	:=	1
 
-include plat/arm/board/common/board_common.mk
+# MBEDTLS_DIR must be set to the mbedTLS main directory (it must contain
+# the 'include' and 'library' subdirectories).
+ifeq (${MBEDTLS_DIR},)
+  $(error Error: MBEDTLS_DIR not set)
+endif
+
+INCLUDES		+=	-I${MBEDTLS_DIR}/include		\
+				-Iinclude/drivers/auth/mbedtls
+
+# Specify mbedTLS configuration file
+POLARSSL_CONFIG_FILE	:=	"<mbedtls_config.h>"
+$(eval $(call add_define,POLARSSL_CONFIG_FILE))
+
+MBEDTLS_COMMON_SOURCES	:=	drivers/auth/mbedtls/mbedtls_common.c	\
+				$(addprefix ${MBEDTLS_DIR}/library/,	\
+				asn1parse.c 				\
+				asn1write.c 				\
+				memory_buffer_alloc.c			\
+				oid.c 					\
+				platform.c 				\
+				)
+
+BL1_SOURCES		+=	${MBEDTLS_COMMON_SOURCES}
+BL2_SOURCES		+=	${MBEDTLS_COMMON_SOURCES}
+DISABLE_PEDANTIC	:=	1
+
+endif

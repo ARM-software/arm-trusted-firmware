@@ -27,46 +27,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __COMMON_DEF_H__
-#define __COMMON_DEF_H__
 
-/******************************************************************************
- * Required platform porting definitions that are expected to be common to
- * all platforms
- *****************************************************************************/
+#ifndef __MBEDTLS_COMMON_H__
+#define __MBEDTLS_COMMON_H__
 
-/*
- * Platform binary types for linking
- */
-#define PLATFORM_LINKER_FORMAT          "elf64-littleaarch64"
-#define PLATFORM_LINKER_ARCH            aarch64
+void mbedtls_init(void);
 
-
-/*
- * Generic platform constants
- */
-#define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
-
-/*
- * Some of the platform porting definitions use the 'ull' suffix in order to
- * avoid subtle integer overflow errors due to implicit integer type promotion
- * when working with 32-bit values.
- *
- * The TSP linker script includes some of these definitions to define the BL3-2
- * memory map, but the GNU LD does not support the 'ull' suffix, causing the
- * build process to fail. To solve this problem, the auxiliary macro MAKE_ULL(x)
- * will add the 'ull' suffix only when the macro __LINKER__  is not defined
- * (__LINKER__ is defined in the command line to preprocess the linker script).
- * Constants in the linker script will not have the 'ull' suffix, but this is
- * not a problem since the linker evaluates all constant expressions to 64 bit
- * (assuming the target architecture is 64 bit).
- */
-#ifndef __LINKER__
-  #define MAKE_ULL(x)			x##ull
-#else
-  #define MAKE_ULL(x)			x
-#endif
-
-
-#endif /* __COMMON_DEF_H__ */
-
+#endif /* __MBEDTLS_COMMON_H__ */

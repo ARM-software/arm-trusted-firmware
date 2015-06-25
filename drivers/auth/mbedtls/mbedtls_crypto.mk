@@ -28,6 +28,45 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/common/board_css_common.c
+include drivers/auth/mbedtls/mbedtls_common.mk
 
-include plat/arm/board/common/board_common.mk
+# The platform may define the variable 'MBEDTLS_KEY_ALG' to select the key
+# algorithm to use. Default algorithm is ECDSA.
+ifeq (${MBEDTLS_KEY_ALG},)
+    MBEDTLS_KEY_ALG		:=	rsa
+endif
+
+MBEDTLS_CRYPTO_SOURCES		:=	drivers/auth/mbedtls/mbedtls_crypto.c	\
+					$(addprefix ${MBEDTLS_DIR}/library/,	\
+					bignum.c				\
+					md.c					\
+					md_wrap.c				\
+					pk.c 					\
+					pk_wrap.c 				\
+					pkparse.c 				\
+					pkwrite.c 				\
+					sha256.c				\
+					)
+
+# Key algorithm specific files
+ifeq (${MBEDTLS_KEY_ALG},ecdsa)
+    MBEDTLS_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
+    					ecdsa.c					\
+    					ecp_curves.c				\
+    					ecp.c					\
+    					)
+    MBEDTLS_KEY_ALG_ID		:=	MBEDTLS_ECDSA
+else ifeq (${MBEDTLS_KEY_ALG},rsa)
+    MBEDTLS_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
+    					rsa.c					\
+    					)
+    MBEDTLS_KEY_ALG_ID		:=	MBEDTLS_RSA
+else
+    $(error "MBEDTLS_KEY_ALG=${MBEDTLS_KEY_ALG} not supported on mbedTLS")
+endif
+
+# mbedTLS libraries rely on this define to build correctly
+$(eval $(call add_define,MBEDTLS_KEY_ALG_ID))
+
+BL1_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}
+BL2_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}

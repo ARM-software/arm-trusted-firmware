@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
+#include <auth_mod.h>
 #include <bl_common.h>
 #include <debug.h>
 #include <errno.h>
@@ -156,7 +157,7 @@ static void dump_load_info(unsigned long image_load_addr,
 }
 
 /* Generic function to return the size of an image */
-unsigned long image_size(const char *image_name)
+unsigned long image_size(unsigned int image_id)
 {
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
@@ -164,29 +165,27 @@ unsigned long image_size(const char *image_name)
 	size_t image_size = 0;
 	int io_result = IO_FAIL;
 
-	assert(image_name != NULL);
-
 	/* Obtain a reference to the image by querying the platform layer */
-	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
+	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to obtain reference to image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, io_result);
 		return 0;
 	}
 
 	/* Attempt to access the image */
 	io_result = io_open(dev_handle, image_spec, &image_handle);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to access image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to access image id=%u (%i)\n",
+			image_id, io_result);
 		return 0;
 	}
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
-		WARN("Failed to determine the size of the image '%s' file (%i)\n",
-			image_name, io_result);
+		WARN("Failed to determine the size of the image id=%u (%i)\n",
+			image_id, io_result);
 	}
 	io_result = io_close(image_handle);
 	/* Ignore improbable/unrecoverable error in 'close' */
@@ -210,8 +209,8 @@ unsigned long image_size(const char *image_name)
  * Returns 0 on success, a negative error code otherwise.
  ******************************************************************************/
 int load_image(meminfo_t *mem_layout,
-	       const char *image_name,
-	       uint64_t image_base,
+	       unsigned int image_id,
+	       uintptr_t image_base,
 	       image_info_t *image_data,
 	       entry_point_info_t *entry_point_info)
 {
@@ -223,33 +222,32 @@ int load_image(meminfo_t *mem_layout,
 	int io_result = IO_FAIL;
 
 	assert(mem_layout != NULL);
-	assert(image_name != NULL);
 	assert(image_data != NULL);
 	assert(image_data->h.version >= VERSION_1);
 
 	/* Obtain a reference to the image by querying the platform layer */
-	io_result = plat_get_image_source(image_name, &dev_handle, &image_spec);
+	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to obtain reference to image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, io_result);
 		return io_result;
 	}
 
 	/* Attempt to access the image */
 	io_result = io_open(dev_handle, image_spec, &image_handle);
 	if (io_result != IO_SUCCESS) {
-		WARN("Failed to access image '%s' (%i)\n",
-			image_name, io_result);
+		WARN("Failed to access image id=%u (%i)\n",
+			image_id, io_result);
 		return io_result;
 	}
 
-	INFO("Loading file '%s' at address 0x%lx\n", image_name, image_base);
+	INFO("Loading image id=%u at address 0x%lx\n", image_id, image_base);
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
 	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
-		WARN("Failed to determine the size of the image '%s' file (%i)\n",
-			image_name, io_result);
+		WARN("Failed to determine the size of the image id=%u (%i)\n",
+			image_id, io_result);
 		goto exit;
 	}
 
@@ -267,7 +265,7 @@ int load_image(meminfo_t *mem_layout,
 	/* TODO: Consider whether to try to recover/retry a partially successful read */
 	io_result = io_read(image_handle, image_base, image_size, &bytes_read);
 	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
-		WARN("Failed to load '%s' file (%i)\n", image_name, io_result);
+		WARN("Failed to load image id=%u (%i)\n", image_id, io_result);
 		goto exit;
 	}
 
@@ -298,7 +296,7 @@ int load_image(meminfo_t *mem_layout,
 	 */
 	flush_dcache_range(image_base, image_size);
 
-	INFO("File '%s' loaded: 0x%lx - 0x%lx\n", image_name, image_base,
+	INFO("Image id=%u loaded: 0x%lx - 0x%lx\n", image_id, image_base,
 	     image_base + image_size);
 
 exit:
@@ -310,4 +308,55 @@ exit:
 	/* Ignore improbable/unrecoverable error in 'dev_close' */
 
 	return io_result;
+}
+
+/*******************************************************************************
+ * Generic function to load and authenticate an image. The image is actually
+ * loaded by calling the 'load_image()' function. In addition, this function
+ * uses recursion to authenticate the parent images up to the root of trust.
+ ******************************************************************************/
+int load_auth_image(meminfo_t *mem_layout,
+		    unsigned int image_id,
+		    uintptr_t image_base,
+		    image_info_t *image_data,
+		    entry_point_info_t *entry_point_info)
+{
+	int rc;
+
+#if TRUSTED_BOARD_BOOT
+	unsigned int parent_id;
+
+	/* Use recursion to authenticate parent images */
+	rc = auth_mod_get_parent_id(image_id, &parent_id);
+	if (rc == 0) {
+		rc = load_auth_image(mem_layout, parent_id, image_base,
+				     image_data, NULL);
+		if (rc != IO_SUCCESS) {
+			return rc;
+		}
+	}
+#endif /* TRUSTED_BOARD_BOOT */
+
+	/* Load the image */
+	rc = load_image(mem_layout, image_id, image_base, image_data,
+			entry_point_info);
+	if (rc != IO_SUCCESS) {
+		return rc;
+	}
+
+#if TRUSTED_BOARD_BOOT
+	/* Authenticate it */
+	rc = auth_mod_verify_img(image_id,
+				 (void *)image_data->image_base,
+				 image_data->image_size);
+	if (rc != 0) {
+		return IO_FAIL;
+	}
+
+	/* After working with data, invalidate the data cache */
+	inv_dcache_range(image_data->image_base,
+			(size_t)image_data->image_size);
+#endif /* TRUSTED_BOARD_BOOT */
+
+	return IO_SUCCESS;
 }

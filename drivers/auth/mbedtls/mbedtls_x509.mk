@@ -28,41 +28,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# POLARSSL_DIR must be set to the PolarSSL main directory (it must contain
-# the 'include' and 'library' subdirectories).
-ifeq (${POLARSSL_DIR},)
-  $(error Error: POLARSSL_DIR not set)
-endif
+include drivers/auth/mbedtls/mbedtls_common.mk
 
-INCLUDES		+=	-I${POLARSSL_DIR}/include		\
-				-Icommon/auth/polarssl
-
-POLARSSL_CONFIG_FILE	:=	"<polarssl_config.h>"
-$(eval $(call add_define,POLARSSL_CONFIG_FILE))
-
-POLARSSL_SOURCES	:=	$(addprefix ${POLARSSL_DIR}/library/,	\
-				asn1parse.c 				\
-				asn1write.c 				\
-				bignum.c				\
-				md.c					\
-				md_wrap.c				\
-				memory_buffer_alloc.c			\
-				oid.c 					\
-				pk.c 					\
-				pk_wrap.c 				\
-				pkparse.c 				\
-				pkwrite.c 				\
-				platform.c 				\
-				rsa.c 					\
-				sha256.c				\
-				x509.c 					\
-				x509_crt.c 				\
+MBEDTLS_X509_SOURCES	:=	drivers/auth/mbedtls/mbedtls_x509_parser.c	\
+				$(addprefix ${MBEDTLS_DIR}/library/,		\
+				x509.c 						\
+				x509_crt.c 					\
 				)
 
-BL1_SOURCES		+=	${POLARSSL_SOURCES} 			\
-				common/auth/polarssl/polarssl.c
-
-BL2_SOURCES		+=	${POLARSSL_SOURCES} 			\
-				common/auth/polarssl/polarssl.c
-
-DISABLE_PEDANTIC	:=	1
+BL1_SOURCES		+=	${MBEDTLS_X509_SOURCES}
+BL2_SOURCES		+=	${MBEDTLS_X509_SOURCES}

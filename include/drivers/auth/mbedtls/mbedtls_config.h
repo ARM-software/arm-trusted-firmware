@@ -27,46 +27,73 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __COMMON_DEF_H__
-#define __COMMON_DEF_H__
-
-/******************************************************************************
- * Required platform porting definitions that are expected to be common to
- * all platforms
- *****************************************************************************/
+#ifndef __MBEDTLS_CONFIG_H__
+#define __MBEDTLS_CONFIG_H__
 
 /*
- * Platform binary types for linking
+ * Key algorithms currently supported on mbedTLS libraries
  */
-#define PLATFORM_LINKER_FORMAT          "elf64-littleaarch64"
-#define PLATFORM_LINKER_ARCH            aarch64
-
-
-/*
- * Generic platform constants
- */
-#define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
+#define MBEDTLS_RSA			1
+#define MBEDTLS_ECDSA			2
 
 /*
- * Some of the platform porting definitions use the 'ull' suffix in order to
- * avoid subtle integer overflow errors due to implicit integer type promotion
- * when working with 32-bit values.
- *
- * The TSP linker script includes some of these definitions to define the BL3-2
- * memory map, but the GNU LD does not support the 'ull' suffix, causing the
- * build process to fail. To solve this problem, the auxiliary macro MAKE_ULL(x)
- * will add the 'ull' suffix only when the macro __LINKER__  is not defined
- * (__LINKER__ is defined in the command line to preprocess the linker script).
- * Constants in the linker script will not have the 'ull' suffix, but this is
- * not a problem since the linker evaluates all constant expressions to 64 bit
- * (assuming the target architecture is 64 bit).
+ * Configuration file to build PolarSSL with the required features for
+ * Trusted Boot
  */
-#ifndef __LINKER__
-  #define MAKE_ULL(x)			x##ull
-#else
-  #define MAKE_ULL(x)			x
+
+#define POLARSSL_PLATFORM_MEMORY
+#define POLARSSL_PLATFORM_NO_STD_FUNCTIONS
+
+#define POLARSSL_PKCS1_V15
+#define POLARSSL_PKCS1_V21
+
+#define POLARSSL_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
+#define POLARSSL_X509_CHECK_KEY_USAGE
+#define POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE
+
+#define POLARSSL_ASN1_PARSE_C
+#define POLARSSL_ASN1_WRITE_C
+
+#define POLARSSL_BASE64_C
+#define POLARSSL_BIGNUM_C
+
+#define POLARSSL_ERROR_C
+#define POLARSSL_MD_C
+
+#define POLARSSL_MEMORY_BUFFER_ALLOC_C
+#define POLARSSL_OID_C
+
+#define POLARSSL_PK_C
+#define POLARSSL_PK_PARSE_C
+#define POLARSSL_PK_WRITE_C
+
+#define POLARSSL_PLATFORM_C
+
+#if (MBEDTLS_KEY_ALG_ID == MBEDTLS_ECDSA)
+#define POLARSSL_ECDSA_C
+#define POLARSSL_ECP_C
+#define POLARSSL_ECP_DP_SECP256R1_ENABLED
+#elif (MBEDTLS_KEY_ALG_ID == MBEDTLS_RSA)
+#define POLARSSL_RSA_C
 #endif
 
+#define POLARSSL_SHA256_C
 
-#endif /* __COMMON_DEF_H__ */
+#define POLARSSL_VERSION_C
 
+#define POLARSSL_X509_USE_C
+#define POLARSSL_X509_CRT_PARSE_C
+
+/* MPI / BIGNUM options */
+#define POLARSSL_MPI_WINDOW_SIZE              2
+#define POLARSSL_MPI_MAX_SIZE               256
+
+/* Memory buffer allocator options */
+#define POLARSSL_MEMORY_ALIGN_MULTIPLE        8
+
+#include "polarssl/check_config.h"
+
+/* System headers required to build mbedTLS with the current configuration */
+#include <stdlib.h>
+
+#endif /* __MBEDTLS_CONFIG_H__ */

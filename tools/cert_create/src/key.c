@@ -46,41 +46,81 @@
 #define MAX_FILENAME_LEN		1024
 
 /*
- * Create a new key
+ * Create a new key container
  */
-int key_new(key_t *key)
+static int key_new(key_t *key)
 {
-	RSA *rsa = NULL;
-	EVP_PKEY *k = NULL;
-
 	/* Create key pair container */
-	k = EVP_PKEY_new();
-	if (k == NULL) {
+	key->key = EVP_PKEY_new();
+	if (key->key == NULL) {
 		return 0;
 	}
 
-	/* Generate a new RSA key */
-	rsa = RSA_generate_key(RSA_KEY_BITS, RSA_F4, NULL, NULL);
-	if (EVP_PKEY_assign_RSA(k, rsa)) {
-		key->key = k;
-		return 1;
-	} else {
-		printf("Cannot assign RSA key\n");
+	return 1;
+}
+
+int key_create(key_t *key, int type)
+{
+	RSA *rsa = NULL;
+	EC_KEY *ec = NULL;
+
+	/* Create OpenSSL key container */
+	if (!key_new(key)) {
+		goto err;
 	}
 
-	if (k)
-		EVP_PKEY_free(k);
+	switch (type) {
+	case KEY_ALG_RSA:
+		/* Generate a new RSA key */
+		rsa = RSA_generate_key(RSA_KEY_BITS, RSA_F4, NULL, NULL);
+		if (rsa == NULL) {
+			printf("Cannot create RSA key\n");
+			goto err;
+		}
+		if (!EVP_PKEY_assign_RSA(key->key, rsa)) {
+			printf("Cannot assign RSA key\n");
+			goto err;
+		}
+		break;
+	case KEY_ALG_ECDSA:
+		/* Generate a new ECDSA key */
+		ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+		if (ec == NULL) {
+			printf("Cannot create EC key\n");
+			goto err;
+		}
+		if (!EC_KEY_generate_key(ec)) {
+			printf("Cannot generate EC key\n");
+			goto err;
+		}
+		EC_KEY_set_flags(ec, EC_PKEY_NO_PARAMETERS);
+		EC_KEY_set_asn1_flag(ec, OPENSSL_EC_NAMED_CURVE);
+		if (!EVP_PKEY_assign_EC_KEY(key->key, ec)) {
+			printf("Cannot assign EC key\n");
+			goto err;
+		}
+		break;
+	default:
+		goto err;
+	}
+
+	return 1;
+
+err:
+	RSA_free(rsa);
+	EC_KEY_free(ec);
+
 	return 0;
 }
 
-int key_load(key_t *key)
+int key_load(key_t *key, unsigned int *err_code)
 {
 	FILE *fp = NULL;
 	EVP_PKEY *k = NULL;
 
-	/* Create key pair container */
-	k = EVP_PKEY_new();
-	if (k == NULL) {
+	/* Create OpenSSL key container */
+	if (!key_new(key)) {
+		*err_code = KEY_ERR_MALLOC;
 		return 0;
 	}
 
@@ -88,23 +128,23 @@ int key_load(key_t *key)
 		/* Load key from file */
 		fp = fopen(key->fn, "r");
 		if (fp) {
-			k = PEM_read_PrivateKey(fp, &k, NULL, NULL);
+			k = PEM_read_PrivateKey(fp, &key->key, NULL, NULL);
 			fclose(fp);
 			if (k) {
-				key->key = k;
+				*err_code = KEY_ERR_NONE;
 				return 1;
 			} else {
-				ERROR("Cannot read key from %s\n", key->fn);
+				ERROR("Cannot load key from %s\n", key->fn);
+				*err_code = KEY_ERR_LOAD;
 			}
 		} else {
-			ERROR("Cannot open file %s\n", key->fn);
+			WARN("Cannot open file %s\n", key->fn);
+			*err_code = KEY_ERR_OPEN;
 		}
 	} else {
-		ERROR("Key filename not specified\n");
+		WARN("Key filename not specified\n");
+		*err_code = KEY_ERR_FILENAME;
 	}
-
-	if (k)
-		EVP_PKEY_free(k);
 
 	return 0;
 }

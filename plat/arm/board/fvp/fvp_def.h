@@ -58,13 +58,25 @@
 #define DEVICE1_BASE			0x2f000000
 #define DEVICE1_SIZE			0x200000
 
+/* Devices in the second GB */
+#define DEVICE2_BASE			0x7fe00000
+#define DEVICE2_SIZE			0x00200000
+
 #define NSRAM_BASE			0x2e000000
 #define NSRAM_SIZE			0x10000
 
 #define PCIE_EXP_BASE			0x40000000
 #define TZRNG_BASE			0x7fe60000
 #define TZNVCTR_BASE			0x7fe70000
-#define TZROOTKEY_BASE			0x7fe80000
+
+/* Keys */
+#define SOC_KEYS_BASE			0x7fe80000
+#define TZ_PUB_KEY_HASH_BASE		(SOC_KEYS_BASE + 0x0000)
+#define TZ_PUB_KEY_HASH_SIZE		32
+#define HU_KEY_BASE			(SOC_KEYS_BASE + 0x0020)
+#define HU_KEY_SIZE			16
+#define END_KEY_BASE			(SOC_KEYS_BASE + 0x0044)
+#define END_KEY_SIZE			32
 
 /* Constants to distinguish FVP type */
 #define HBI_BASE_FVP			0x020

@@ -27,46 +27,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __COMMON_DEF_H__
-#define __COMMON_DEF_H__
 
-/******************************************************************************
- * Required platform porting definitions that are expected to be common to
- * all platforms
- *****************************************************************************/
+#ifndef __TBBR_IMG_DEF_H__
+#define __TBBR_IMG_DEF_H__
 
-/*
- * Platform binary types for linking
- */
-#define PLATFORM_LINKER_FORMAT          "elf64-littleaarch64"
-#define PLATFORM_LINKER_ARCH            aarch64
+/* Firmware Image Package */
+#define FIP_IMAGE_ID			0
 
+/* Trusted Boot Firmware BL2 */
+#define BL2_IMAGE_ID			1
 
-/*
- * Generic platform constants
- */
-#define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
+/* SCP Firmware BL3-0 */
+#define BL30_IMAGE_ID			2
 
-/*
- * Some of the platform porting definitions use the 'ull' suffix in order to
- * avoid subtle integer overflow errors due to implicit integer type promotion
- * when working with 32-bit values.
- *
- * The TSP linker script includes some of these definitions to define the BL3-2
- * memory map, but the GNU LD does not support the 'ull' suffix, causing the
- * build process to fail. To solve this problem, the auxiliary macro MAKE_ULL(x)
- * will add the 'ull' suffix only when the macro __LINKER__  is not defined
- * (__LINKER__ is defined in the command line to preprocess the linker script).
- * Constants in the linker script will not have the 'ull' suffix, but this is
- * not a problem since the linker evaluates all constant expressions to 64 bit
- * (assuming the target architecture is 64 bit).
- */
-#ifndef __LINKER__
-  #define MAKE_ULL(x)			x##ull
-#else
-  #define MAKE_ULL(x)			x
-#endif
+/* EL3 Runtime Firmware BL31 */
+#define BL31_IMAGE_ID			3
 
+/* Secure Payload BL32 (Trusted OS) */
+#define BL32_IMAGE_ID			4
 
-#endif /* __COMMON_DEF_H__ */
+/* Non-Trusted Firmware BL33 */
+#define BL33_IMAGE_ID			5
 
+/* Certificates */
+#define BL2_CERT_ID			6
+#define TRUSTED_KEY_CERT_ID		7
+
+#define BL30_KEY_CERT_ID		8
+#define BL31_KEY_CERT_ID		9
+#define BL32_KEY_CERT_ID		10
+#define BL33_KEY_CERT_ID		11
+
+#define BL30_CERT_ID			12
+#define BL31_CERT_ID			13
+#define BL32_CERT_ID			14
+#define BL33_CERT_ID			15
+
+#endif /* __TBBR_IMG_DEF_H__ */

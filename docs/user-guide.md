@@ -265,16 +265,8 @@ performed.
 *   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
     Boot feature. When set to '1', BL1 and BL2 images include support to load
     and verify the certificates and images in a FIP. The default value is '0'.
-    A successful build, when `TRUSTED_BOARD_BOOT=1`, depends upon the correct
-    initialization of the `AUTH_MOD` option. Generation and inclusion of
-    certificates in the FIP depends upon the value of the `GENERATE_COT` option.
-
-*   `AUTH_MOD`: This option is used when `TRUSTED_BOARD_BOOT=1`. It specifies
-    the name of the authentication module that will be used in the Trusted Board
-    Boot sequence. The module must be located in `common/auth/<module name>`
-    directory. The directory must contain a makefile `<module name>.mk` which
-    will be used to build the module. More information can be found in
-    [Trusted Board Boot]. The default module name is 'none'.
+    Generation and inclusion of certificates in the FIP depends upon the value
+    of the `GENERATE_COT` option.
 
 *   `GENERATE_COT`: Boolean flag used to build and execute the `cert_create`
     tool to create certificates as per the Chain of Trust described in
@@ -297,28 +289,40 @@ performed.
     certificate generation tool to create new keys in case no valid keys are
     present or specified. Allowed options are '0' or '1'. Default is '1'.
 
+*   `SAVE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
+    certificate generation tool to save the keys used to establish the Chain of
+    Trust. Allowed options are '0' or '1'. Default is '0' (do not save).
+
+    Note: This option depends on 'CREATE_KEYS' to be enabled. If the keys
+    already exist in disk, they will be overwritten without further notice.
+
 *   `ROT_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the ROT private key in PEM format.
+    file that contains the ROT private key in PEM format. If `SAVE_KEYS=1`, this
+    file name will be used to save the key.
 
 *   `TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
     specifies the file that contains the Trusted World private key in PEM
-    format.
+    format. If `SAVE_KEYS=1`, this file name will be used to save the key.
 
 *   `NON_TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
     specifies the file that contains the Non-Trusted World private key in PEM
-    format.
+    format. If `SAVE_KEYS=1`, this file name will be used to save the key.
 
 *   `BL30_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-0 private key in PEM format.
+    file that contains the BL3-0 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `BL31_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-1 private key in PEM format.
+    file that contains the BL3-1 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `BL32_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-2 private key in PEM format.
+    file that contains the BL3-2 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-3 private key in PEM format.
+    file that contains the BL3-3 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
 *   `PROGRAMMABLE_RESET_ADDRESS`: This option indicates whether the reset
     vector address can be programmed or is fixed on the platform. It can take
@@ -333,6 +337,23 @@ performed.
 
 For a better understanding of these options, the ARM development platform memory
 map is explained in the [Firmware Design].
+
+*   `ARM_ROTPK_LOCATION`: used when `TRUSTED_BOARD_BOOT=1`. It specifies the
+    location of the ROTPK hash returned by the function `plat_get_rotpk_info()`
+    for ARM platforms. Depending on the selected option, the proper private key
+    must be specified using the `ROT_KEY` option when building the Trusted
+    Firmware. This private key will be used by the certificate generation tool
+    to sign the BL2 and Trusted Key certificates. Available options for
+    `ARM_ROTPK_LOCATION` are:
+
+    -   `regs` : return the ROTPK hash stored in the Trusted root-key storage
+        registers. The private key corresponding to this ROTPK hash is not
+        currently available.
+    -   `devel_rsa` : return a development public key hash embedded in the BL1
+        and BL2 binaries. This hash has been obtained from the RSA public key
+        `arm_rotpk_rsa.der`, located in `plat/arm/board/common/rotpk`. To use
+        this option, `arm_rotprivk_rsa.pem` must be specified as `ROT_KEY` when
+        creating the certificates.
 
 #### ARM CSS platform specific build options
 
@@ -486,24 +507,57 @@ The Trusted Board Boot feature is described in [Trusted Board Boot]. The
 following steps should be followed to build a FIP image with support for this
 feature.
 
-1.  Fulfill the dependencies of the `polarssl` authentication module by checking
-    out the tag `polarssl-1.3.9` from the [PolarSSL Repository].
+1.  Fulfill the dependencies of the `mbedtls` cryptographic and image parser
+    modules by checking out the tag `mbedtls-1.3.11` from the
+    [mbedTLS Repository].
 
-    The `common/auth/polarssl/polarssl.mk` contains the list of PolarSSL source
-    files the module depends upon. `common/auth/polarssl/polarssl_config.h`
-    contains the configuration options required to build the PolarSSL sources.
+    The `drivers/auth/mbedtls/mbedtls_*.mk` files contain the list of mbedTLS
+    source files the modules depend upon.
+    `include/drivers/auth/mbedtls/mbedtls_config.h` contains the configuration
+    options required to build the mbedTLS sources.
 
-    Note that the PolarSSL SSL library is licensed under the GNU GPL version 2
-    or later license. Using PolarSSL source code will affect the licensing of
+    Note that the mbedTLS library is licensed under the GNU GPL version 2
+    or later license. Using mbedTLS source code will affect the licensing of
     Trusted Firmware binaries that are built using this library.
 
 2.  Ensure that the following command line variables are set while invoking
     `make` to build Trusted Firmware:
 
-    *   `POLARSSL_DIR=<path of the directory containing PolarSSL sources>`
-    *   `AUTH_MOD=polarssl`
+    *   `MBEDTLS_DIR=<path of the directory containing mbedTLS sources>`
     *   `TRUSTED_BOARD_BOOT=1`
     *   `GENERATE_COT=1`
+
+    In the case of ARM platforms, the location of the ROTPK hash must also be
+    specified at build time. Two locations are currently supported (see
+    `ARM_ROTPK_LOCATION` build option):
+
+    *   `ARM_ROTPK_LOCATION=regs`: the ROTPK hash is obtained from the Trusted
+        root-key storage registers present in the platform. On Juno, this
+        registers are read-only. On FVP Base and Cortex models, the registers
+        are read-only, but the value can be specified using the command line
+        option `bp.trusted_key_storage.public_key` when launching the model.
+        On both Juno and FVP models, the default value corresponds to an
+        ECDSA-SECP256R1 public key hash, whose private part is not currently
+        available.
+
+    *   `ARM_ROTPK_LOCATION=devel_rsa`: use the ROTPK hash that is hardcoded
+        in the ARM platform port. The private/public RSA key pair may be
+        found in `plat/arm/board/common/rotpk`.
+
+    Example of command line using RSA development keys:
+
+        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-       \
+        BL33=<path-to>/<bl33_image>                                     \
+        MBEDTLS_DIR=<path of the directory containing mbedTLS sources>  \
+        make PLAT=<platform> TRUSTED_BOARD_BOOT=1 GENERATE_COT=1        \
+        ARM_ROTPK_LOCATION=devel_rsa                                    \
+        ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
+        all fip
+
+    The result of this build will be the bl1.bin and the fip.bin binaries, with
+    the difference that the FIP will include the certificates corresponding to
+    the Chain of Trust described in the TBBR-client document. These certificates
+    can also be found in the output build directory.
 
 
 ### Checking source code style
@@ -1124,5 +1178,5 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [Linaro Toolchain]:            http://releases.linaro.org/14.07/components/toolchain/binaries/
 [EDK2]:                        http://github.com/tianocore/edk2
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
-[Polarssl Repository]:         https://github.com/polarssl/polarssl.git
+[mbedTLS Repository]:          https://github.com/ARMmbed/mbedtls.git
 [Trusted Board Boot]:          trusted-board-boot.md

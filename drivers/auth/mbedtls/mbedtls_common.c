@@ -27,58 +27,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __POLARSSL_CONFIG_H__
-#define __POLARSSL_CONFIG_H__
 
+#include <assert.h>
+
+/* mbedTLS headers */
+#include <polarssl/memory_buffer_alloc.h>
 
 /*
- * Configuration file to build PolarSSL with the required features for
- * Trusted Boot
+ * mbedTLS heap
  */
+#if (MBEDTLS_KEY_ALG_ID == MBEDTLS_ECDSA)
+#define MBEDTLS_HEAP_SIZE		(14*1024)
+#elif (MBEDTLS_KEY_ALG_ID == MBEDTLS_RSA)
+#define MBEDTLS_HEAP_SIZE		(8*1024)
+#endif
+static unsigned char heap[MBEDTLS_HEAP_SIZE];
 
-#define POLARSSL_PLATFORM_MEMORY
-#define POLARSSL_PLATFORM_NO_STD_FUNCTIONS
+/*
+ * mbedTLS initialization function
+ *
+ * Return: 0 = success, Otherwise = error
+ */
+void mbedtls_init(void)
+{
+	static int ready;
+	int rc;
 
-#define POLARSSL_PKCS1_V15
-#define POLARSSL_PKCS1_V21
-
-#define POLARSSL_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
-#define POLARSSL_X509_CHECK_KEY_USAGE
-#define POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE
-
-#define POLARSSL_ASN1_PARSE_C
-#define POLARSSL_ASN1_WRITE_C
-
-#define POLARSSL_BASE64_C
-#define POLARSSL_BIGNUM_C
-
-#define POLARSSL_ERROR_C
-#define POLARSSL_MD_C
-
-#define POLARSSL_MEMORY_BUFFER_ALLOC_C
-#define POLARSSL_OID_C
-
-#define POLARSSL_PK_C
-#define POLARSSL_PK_PARSE_C
-#define POLARSSL_PK_WRITE_C
-
-#define POLARSSL_PLATFORM_C
-
-#define POLARSSL_RSA_C
-#define POLARSSL_SHA256_C
-
-#define POLARSSL_VERSION_C
-
-#define POLARSSL_X509_USE_C
-#define POLARSSL_X509_CRT_PARSE_C
-
-/* MPI / BIGNUM options */
-#define POLARSSL_MPI_WINDOW_SIZE              2
-#define POLARSSL_MPI_MAX_SIZE               256
-
-/* Memory buffer allocator options */
-#define POLARSSL_MEMORY_ALIGN_MULTIPLE        8
-
-#include "polarssl/check_config.h"
-
-#endif /* __POLARSSL_CONFIG_H__ */
+	if (!ready) {
+		/* Initialize the mbedTLS heap */
+		rc = memory_buffer_alloc_init(heap, MBEDTLS_HEAP_SIZE);
+		if (rc == 0) {
+			ready = 1;
+		} else {
+			assert(0);
+		}
+	}
+}

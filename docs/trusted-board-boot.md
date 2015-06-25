@@ -6,7 +6,7 @@ Contents :
 1.  [Introduction](#1--introduction)
 2.  [Chain of Trust](#2--chain-of-trust)
 3.  [Trusted Board Boot Sequence](#3--trusted-board-boot-sequence)
-4.  [Authentication Module](#4--authentication-module)
+4.  [Authentication Framework](#4--authentication-framework)
 5.  [Certificate Generation Tool](#5--certificate-generation-tool)
 
 
@@ -209,27 +209,15 @@ The mechanism used for generating the FIP and the Authentication module are
 described in the following sections.
 
 
-4.  Authentication Module
--------------------------
+4.  Authentication Framework
+----------------------------
 
-The authentication module implements the required support to authenticate the
-corresponding certificates or images at each step in the Trusted Board Boot
-sequence. The module relies on the PolarSSL library (v1.3.9) to perform the
-following operations:
+The authentication framework included in the Trusted Firmware provides support
+to implement the desired trusted boot sequence. ARM platforms use this framework
+to implement the boot requirements specified in the TBBR-client document.
 
-*   Parsing X.509 certificates and verifying them using SHA-256 with RSA
-    Encryption.
-*   Extracting public keys and hashes from the certificates.
-*   Generating hashes (SHA-256) of boot loader images
-
-At each step, the module is responsible for allocating memory to store the
-public keys or hashes that will be used in later steps. The step identifier is
-used to determine what information must be saved, according to the CoT model
-detailed in the previous sections.
-
-The authentication module resides in the `common/auth/polarssl` directory.
-Instructions for including the necessary modules of the PolarSSL SSL library and
-building the authentication module can be found in the [User Guide].
+More information about the authentication framework can be found in the
+[Auth Framework] document.
 
 
 5.  Certificate Generation Tool
@@ -257,4 +245,5 @@ _Copyright (c) 2015, ARM Limited and Contributors. All rights reserved._
 
 [X.509 v3]:          http://www.ietf.org/rfc/rfc5280.txt
 [X.690]:             http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
+[Auth Framework]:    auth-framework.md
 [User Guide]:        user-guide.md

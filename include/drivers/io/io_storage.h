@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 #include <stdio.h> /* For ssize_t */
+#include <uuid.h>
 
 
 /* Device type which can be used to enable policy decisions about which device
@@ -67,6 +68,11 @@ typedef struct io_file_spec {
 	unsigned int mode;
 } io_file_spec_t;
 
+/* UUID specification - used to refer to data accessed using UUIDs (i.e. FIP
+ * images) */
+typedef struct io_uuid_spec {
+	const uuid_t uuid;
+} io_uuid_spec_t;
 
 /* Block specification - used to refer to data on a device supporting
  * block-like entities */
