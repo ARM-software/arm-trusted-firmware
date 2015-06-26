@@ -62,7 +62,7 @@ static unsigned int g_num_irqs;
  ******************************************************************************/
 static void gicv3_cpuif_setup(void)
 {
-	unsigned int scr_val, val;
+	unsigned int val;
 	uintptr_t base;
 
 	/*
@@ -93,35 +93,9 @@ static void gicv3_cpuif_setup(void)
 	while (val & WAKER_CA)
 		val = gicr_read_waker(base);
 
-	/*
-	 * We need to set SCR_EL3.NS in order to see GICv3 non-secure state.
-	 * Restore SCR_EL3.NS again before exit.
-	 */
-	scr_val = read_scr();
-	write_scr(scr_val | SCR_NS_BIT);
-	isb();	/* ensure NS=1 takes effect before accessing ICC_SRE_EL2 */
-
-	/*
-	 * By default EL2 and NS-EL1 software should be able to enable GICv3
-	 * System register access without any configuration at EL3. But it turns
-	 * out that GICC PMR as set in GICv2 mode does not affect GICv3 mode. So
-	 * we need to set it here again. In order to do that we need to enable
-	 * register access. We leave it enabled as it should be fine and might
-	 * prevent problems with later software trying to access GIC System
-	 * Registers.
-	 */
 	val = read_icc_sre_el3();
 	write_icc_sre_el3(val | ICC_SRE_EN | ICC_SRE_SRE);
-
-	val = read_icc_sre_el2();
-	write_icc_sre_el2(val | ICC_SRE_EN | ICC_SRE_SRE);
-
-	write_icc_pmr_el1(GIC_PRI_MASK);
-	isb();	/* commit ICC_* changes before setting NS=0 */
-
-	/* Restore SCR_EL3 */
-	write_scr(scr_val);
-	isb();	/* ensure NS=0 takes effect immediately */
+	isb();
 }
 
 /*******************************************************************************
