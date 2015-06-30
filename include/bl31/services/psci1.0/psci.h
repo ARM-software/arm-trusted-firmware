@@ -171,8 +171,6 @@
  ******************************************************************************/
 typedef struct psci_cpu_data {
 	uint32_t power_state;
-	uint32_t max_phys_off_afflvl;	/* Highest affinity level in physically
-					   powered off state */
 #if !USE_COHERENT_MEM
 	bakery_info_t pcpu_bakery_info[PSCI_NUM_AFFS];
 #endif
@@ -186,15 +184,12 @@ typedef struct plat_pm_ops {
 	void (*affinst_standby)(unsigned int power_state);
 	int (*affinst_on)(unsigned long mpidr,
 			  unsigned long sec_entrypoint,
-			  unsigned int afflvl,
-			  unsigned int state);
-	void (*affinst_off)(unsigned int afflvl, unsigned int state);
+			  unsigned int afflvl);
+	void (*affinst_off)(unsigned int afflvl);
 	void (*affinst_suspend)(unsigned long sec_entrypoint,
-			       unsigned int afflvl,
-			       unsigned int state);
-	void (*affinst_on_finish)(unsigned int afflvl, unsigned int state);
-	void (*affinst_suspend_finish)(unsigned int afflvl,
-				      unsigned int state);
+			       unsigned int afflvl);
+	void (*affinst_on_finish)(unsigned int afflvl);
+	void (*affinst_suspend_finish)(unsigned int afflvl);
 	void (*system_off)(void) __dead2;
 	void (*system_reset)(void) __dead2;
 	int (*validate_power_state)(unsigned int power_state);
@@ -238,7 +233,6 @@ void psci_register_spd_pm_hook(const spd_pm_ops_t *);
 int psci_get_suspend_stateid_by_mpidr(unsigned long);
 int psci_get_suspend_stateid(void);
 int psci_get_suspend_afflvl(void);
-uint32_t psci_get_max_phys_off_afflvl(void);
 
 uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,

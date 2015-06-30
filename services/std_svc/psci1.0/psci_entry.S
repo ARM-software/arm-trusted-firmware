@@ -46,11 +46,11 @@
 	 * -----------------------------------------------------
 	 */
 func psci_aff_on_finish_entry
-	adr	x23, psci_afflvl_on_finishers
+	adr	x23, psci_afflvl_on_finisher
 	b	psci_aff_common_finish_entry
 
 psci_aff_suspend_finish_entry:
-	adr	x23, psci_afflvl_suspend_finishers
+	adr	x23, psci_afflvl_suspend_finisher
 
 psci_aff_common_finish_entry:
 	/*
@@ -98,15 +98,8 @@ psci_aff_common_finish_entry:
 	mov	x0, #DISABLE_DCACHE
 	bl	bl31_plat_enable_mmu
 
-	/* ---------------------------------------------
-	 * Call the finishers starting from affinity
-	 * level 0.
-	 * ---------------------------------------------
-	 */
 	bl	get_power_on_target_afflvl
-	mov	x2, x23
-	mov	x1, x0
-	mov	x0, #MPIDR_AFFLVL0
+	mov	x1, x23
 	bl	psci_afflvl_power_on_finish
 
 	b	el3_exit

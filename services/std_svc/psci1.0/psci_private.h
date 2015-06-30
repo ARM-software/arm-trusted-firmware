@@ -96,7 +96,8 @@ typedef struct aff_limits_node {
 } aff_limits_node_t;
 
 typedef aff_map_node_t (*mpidr_aff_map_nodes_t[MPIDR_MAX_AFFLVL + 1]);
-typedef void (*afflvl_power_on_finisher_t)(aff_map_node_t *);
+typedef void (*afflvl_power_on_finisher_t)(aff_map_node_t *mpidr_nodes[],
+					int afflvl);
 
 /*******************************************************************************
  * Data prototypes
@@ -121,9 +122,8 @@ void psci_set_state(aff_map_node_t *node, unsigned short state);
 unsigned long mpidr_set_aff_inst(unsigned long, unsigned char, int);
 int psci_validate_mpidr(unsigned long, int);
 int get_power_on_target_afflvl(void);
-void psci_afflvl_power_on_finish(int,
-				int,
-				afflvl_power_on_finisher_t *);
+void psci_afflvl_power_on_finish(int end_afflvl,
+				 afflvl_power_on_finisher_t pon_handler);
 int psci_get_ns_ep_info(entry_point_info_t *ep,
 		       uint64_t entrypoint, uint64_t context_id);
 int psci_check_afflvl_range(int start_afflvl, int end_afflvl);
@@ -138,7 +138,6 @@ void psci_release_afflvl_locks(int start_afflvl,
 				int end_afflvl,
 				mpidr_aff_map_nodes_t mpidr_nodes);
 void psci_print_affinity_map(void);
-void psci_set_max_phys_off_afflvl(uint32_t afflvl);
 uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
 				       uint32_t end_afflvl,
 				       aff_map_node_t *mpidr_nodes[]);
@@ -155,18 +154,19 @@ aff_map_node_t *psci_get_aff_map_node(unsigned long, int);
 /* Private exported functions from psci_affinity_on.c */
 int psci_afflvl_on(unsigned long target_cpu,
 		   entry_point_info_t *ep,
-		   int start_afflvl,
 		   int end_afflvl);
 
+void psci_afflvl_on_finisher(aff_map_node_t *node[], int afflvl);
+
 /* Private exported functions from psci_affinity_off.c */
-int psci_afflvl_off(int, int);
+int psci_afflvl_off(int end_afflvl);
 
 /* Private exported functions from psci_affinity_suspend.c */
 void psci_afflvl_suspend(entry_point_info_t *ep,
-			int start_afflvl,
 			int end_afflvl);
 
-unsigned int psci_afflvl_suspend_finish(int, int);
+void psci_afflvl_suspend_finisher(aff_map_node_t *node[], int afflvl);
+
 void psci_set_suspend_power_state(unsigned int power_state);
 
 /* Private exported functions from psci_helpers.S */

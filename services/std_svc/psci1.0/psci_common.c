@@ -124,43 +124,6 @@ unsigned int psci_is_last_on_cpu(void)
 }
 
 /*******************************************************************************
- * This function saves the highest affinity level which is in OFF state. The
- * affinity instance with which the level is associated is determined by the
- * caller.
- ******************************************************************************/
-void psci_set_max_phys_off_afflvl(uint32_t afflvl)
-{
-	set_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl, afflvl);
-
-	/*
-	 * Ensure that the saved value is flushed to main memory and any
-	 * speculatively pre-fetched stale copies are invalidated from the
-	 * caches of other cpus in the same coherency domain. This ensures that
-	 * the value can be safely read irrespective of the state of the data
-	 * cache.
-	 */
-	flush_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
-}
-
-/*******************************************************************************
- * This function reads the saved highest affinity level which is in OFF
- * state. The affinity instance with which the level is associated is determined
- * by the caller.
- ******************************************************************************/
-uint32_t psci_get_max_phys_off_afflvl(void)
-{
-	/*
-	 * Ensure that the last update of this value in this cpu's cache is
-	 * flushed to main memory and any speculatively pre-fetched stale copies
-	 * are invalidated from the caches of other cpus in the same coherency
-	 * domain. This ensures that the value is always read from the main
-	 * memory when it was written before the data cache was enabled.
-	 */
-	flush_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
-	return get_cpu_data(psci_svc_cpu_data.max_phys_off_afflvl);
-}
-
-/*******************************************************************************
  * Routine to return the maximum affinity level to traverse to after a cpu has
  * been physically powered up. It is expected to be called immediately after
  * reset from assembler code.
@@ -459,52 +422,19 @@ unsigned short psci_get_phys_state(aff_map_node_t *node)
 }
 
 /*******************************************************************************
- * This function takes an array of pointers to affinity instance nodes in the
- * topology tree and calls the physical power on handler for the corresponding
- * affinity levels
- ******************************************************************************/
-static void psci_call_power_on_handlers(aff_map_node_t *mpidr_nodes[],
-				       int start_afflvl,
-				       int end_afflvl,
-				       afflvl_power_on_finisher_t *pon_handlers)
-{
-	int level;
-	aff_map_node_t *node;
-
-	for (level = end_afflvl; level >= start_afflvl; level--) {
-		node = mpidr_nodes[level];
-		if (node == NULL)
-			continue;
-
-		/*
-		 * If we run into any trouble while powering up an
-		 * affinity instance, then there is no recovery path
-		 * so simply return an error and let the caller take
-		 * care of the situation.
-		 */
-		pon_handlers[level](node);
-	}
-}
-
-/*******************************************************************************
  * Generic handler which is called when a cpu is physically powered on. It
- * traverses through all the affinity levels performing generic, architectural,
- * platform setup and state management e.g. for a cluster that's been powered
- * on, it will call the platform specific code which will enable coherency at
- * the interconnect level. For a cpu it could mean turning on the MMU etc.
+ * traverses the node information and finds the highest affinity level powered
+ * off and performs generic, architectural, platform setup and state management
+ * to power on that affinity level and affinity levels below it.
+ * e.g. For a cpu that's been powered on, it will call the platform specific
+ * code to enable the gic cpu interface and for a cluster it will enable
+ * coherency at the interconnect level in addition to gic cpu interface.
  *
- * The state of all the relevant affinity levels is changed after calling the
- * affinity level specific handlers as their actions would depend upon the state
- * the affinity level is exiting from.
- *
- * The affinity level specific handlers are called in descending order i.e. from
- * the highest to the lowest affinity level implemented by the platform because
- * to turn on affinity level X it is neccesary to turn on affinity level X + 1
- * first.
+ * The state of all the relevant affinity levels is changed prior to calling
+ * the platform specific code.
  ******************************************************************************/
-void psci_afflvl_power_on_finish(int start_afflvl,
-				 int end_afflvl,
-				 afflvl_power_on_finisher_t *pon_handlers)
+void psci_afflvl_power_on_finish(int end_afflvl,
+				 afflvl_power_on_finisher_t pon_handler)
 {
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	int rc;
@@ -518,7 +448,7 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 	 * levels are incorrect. Either case is an irrecoverable error.
 	 */
 	rc = psci_get_aff_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
-				    start_afflvl,
+				    MPIDR_AFFLVL0,
 				    end_afflvl,
 				    mpidr_nodes);
 	if (rc != PSCI_E_SUCCESS)
@@ -529,49 +459,33 @@ void psci_afflvl_power_on_finish(int start_afflvl,
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(start_afflvl,
+	psci_acquire_afflvl_locks(MPIDR_AFFLVL0,
 				  end_afflvl,
 				  mpidr_nodes);
 
-	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(start_afflvl,
+	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(MPIDR_AFFLVL0,
 							    end_afflvl,
 							    mpidr_nodes);
 	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
 
-	/*
-	 * Stash the highest affinity level that will come out of the OFF or
-	 * SUSPEND states.
-	 */
-	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
-
 	/* Perform generic, architecture and platform specific handling */
-	psci_call_power_on_handlers(mpidr_nodes,
-					 start_afflvl,
-					 end_afflvl,
-					 pon_handlers);
+	pon_handler(mpidr_nodes, max_phys_off_afflvl);
 
 	/*
 	 * This function updates the state of each affinity instance
 	 * corresponding to the mpidr in the range of affinity levels
 	 * specified.
 	 */
-	psci_do_afflvl_state_mgmt(start_afflvl,
+	psci_do_afflvl_state_mgmt(MPIDR_AFFLVL0,
 				  end_afflvl,
 				  mpidr_nodes,
 				  PSCI_STATE_ON);
 
 	/*
-	 * Invalidate the entry for the highest affinity level stashed earlier.
-	 * This ensures that any reads of this variable outside the power
-	 * up/down sequences return PSCI_INVALID_DATA
-	 */
-	psci_set_max_phys_off_afflvl(PSCI_INVALID_DATA);
-
-	/*
 	 * This loop releases the lock corresponding to each affinity level
 	 * in the reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(start_afflvl,
+	psci_release_afflvl_locks(MPIDR_AFFLVL0,
 				  end_afflvl,
 				  mpidr_nodes);
 }

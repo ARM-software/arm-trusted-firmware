@@ -56,15 +56,6 @@ func psci_do_pwrdown_cache_maintenance
 	stp     x29, x30, [sp,#-16]!
 	stp     x19, x20, [sp,#-16]!
 
-	mov	x19, x0
-	bl	psci_get_max_phys_off_afflvl
-#if ASM_ASSERTION
-	cmp	x0, #PSCI_INVALID_DATA
-	ASM_ASSERT(ne)
-#endif
-	cmp	x0, x19
-	b.ne	1f
-
 	/* ---------------------------------------------
 	 * Determine to how many levels of cache will be
 	 * subject to cache maintenance. Affinity level
@@ -116,7 +107,6 @@ do_stack_maintenance:
 	sub	x1, sp, x0
 	bl	inv_dcache_range
 
-1:
 	ldp	x19, x20, [sp], #16
 	ldp	x29, x30, [sp], #16
 	ret

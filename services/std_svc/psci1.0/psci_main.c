@@ -46,7 +46,7 @@ int psci_cpu_on(unsigned long target_cpu,
 
 {
 	int rc;
-	unsigned int start_afflvl, end_afflvl;
+	unsigned int end_afflvl;
 	entry_point_info_t ep;
 
 	/* Determine if the cpu exists of not */
@@ -73,18 +73,14 @@ int psci_cpu_on(unsigned long target_cpu,
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
-
 	/*
 	 * To turn this cpu on, specify which affinity
 	 * levels need to be turned on
 	 */
-	start_afflvl = MPIDR_AFFLVL0;
 	end_afflvl = PLATFORM_MAX_AFFLVL;
 	rc = psci_afflvl_on(target_cpu,
 			    &ep,
-			    start_afflvl,
 			    end_afflvl);
-
 	return rc;
 }
 
@@ -160,7 +156,6 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * enter the final wfi which will power down this CPU.
 	 */
 	psci_afflvl_suspend(&ep,
-			    MPIDR_AFFLVL0,
 			    target_afflvl);
 
 	/* Reset PSCI power state parameter for the core. */
@@ -235,7 +230,7 @@ int psci_cpu_off(void)
 	 * management is done immediately followed by cpu, cluster ...
 	 * ..target_afflvl specific actions as this function unwinds back.
 	 */
-	rc = psci_afflvl_off(MPIDR_AFFLVL0, target_afflvl);
+	rc = psci_afflvl_off(target_afflvl);
 
 	/*
 	 * The only error cpu_off can return is E_DENIED. So check if that's

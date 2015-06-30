@@ -41,8 +41,6 @@
 #include <stddef.h>
 #include "psci_private.h"
 
-typedef void (*afflvl_suspend_handler_t)(aff_map_node_t *node);
-
 /*******************************************************************************
  * This function saves the power state parameter passed in the current PSCI
  * cpu_suspend call in the per-cpu data array.
@@ -100,161 +98,29 @@ int psci_get_suspend_stateid_by_mpidr(unsigned long mpidr)
 }
 
 /*******************************************************************************
- * The next three functions implement a handler for each supported affinity
- * level which is called when that affinity level is about to be suspended.
- ******************************************************************************/
-static void psci_afflvl0_suspend(aff_map_node_t *cpu_node)
-{
-	unsigned long psci_entrypoint;
-
-	/* Sanity check to safeguard against data corruption */
-	assert(cpu_node->level == MPIDR_AFFLVL0);
-
-	/* Set the secure world (EL3) re-entry point after BL1 */
-	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-
-	/*
-	 * Arch. management. Perform the necessary steps to flush all
-	 * cpu caches.
-	 */
-	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL0);
-
-	/*
-	 * Plat. management: Allow the platform to perform the
-	 * necessary actions to turn off this cpu e.g. set the
-	 * platform defined mailbox with the psci entrypoint,
-	 * program the power controller etc.
-	 */
-	psci_plat_pm_ops->affinst_suspend(psci_entrypoint,
-						 cpu_node->level,
-						 psci_get_phys_state(cpu_node));
-}
-
-static void psci_afflvl1_suspend(aff_map_node_t *cluster_node)
-{
-	unsigned int plat_state;
-	unsigned long psci_entrypoint;
-
-	/* Sanity check the cluster level */
-	assert(cluster_node->level == MPIDR_AFFLVL1);
-
-	/*
-	 * Arch. management: Flush all levels of caches to PoC if the
-	 * cluster is to be shutdown.
-	 */
-	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL1);
-
-	/*
-	 * Plat. Management. Allow the platform to do its cluster specific
-	 * bookeeping e.g. turn off interconnect coherency, program the power
-	 * controller etc. Sending the psci entrypoint is currently redundant
-	 * beyond affinity level 0 but one never knows what a platform might
-	 * do. Also it allows us to keep the platform handler prototype the
-	 * same.
-	 */
-	plat_state = psci_get_phys_state(cluster_node);
-	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-	psci_plat_pm_ops->affinst_suspend(psci_entrypoint,
-						 cluster_node->level,
-						 plat_state);
-}
-
-
-static void psci_afflvl2_suspend(aff_map_node_t *system_node)
-{
-	unsigned int plat_state;
-	unsigned long psci_entrypoint;
-
-	/* Cannot go beyond this */
-	assert(system_node->level == MPIDR_AFFLVL2);
-
-	/*
-	 * Keep the physical state of the system handy to decide what
-	 * action needs to be taken
-	 */
-	plat_state = psci_get_phys_state(system_node);
-
-	/*
-	 * Arch. management: Flush all levels of caches to PoC if the
-	 * system is to be shutdown.
-	 */
-	psci_do_pwrdown_cache_maintenance(MPIDR_AFFLVL2);
-
-	/*
-	 * Plat. Management : Allow the platform to do its bookeeping
-	 * at this affinity level
-	 */
-
-	/*
-	 * Sending the psci entrypoint is currently redundant
-	 * beyond affinity level 0 but one never knows what a
-	 * platform might do. Also it allows us to keep the
-	 * platform handler prototype the same.
-	 */
-	plat_state = psci_get_phys_state(system_node);
-	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
-	psci_plat_pm_ops->affinst_suspend(psci_entrypoint,
-						 system_node->level,
-						 plat_state);
-}
-
-static const afflvl_suspend_handler_t psci_afflvl_suspend_handlers[] = {
-	psci_afflvl0_suspend,
-	psci_afflvl1_suspend,
-	psci_afflvl2_suspend,
-};
-
-/*******************************************************************************
- * This function takes an array of pointers to affinity instance nodes in the
- * topology tree and calls the suspend handler for the corresponding affinity
- * levels
- ******************************************************************************/
-static void psci_call_suspend_handlers(aff_map_node_t *mpidr_nodes[],
-				      int start_afflvl,
-				      int end_afflvl)
-{
-	int level;
-	aff_map_node_t *node;
-
-	for (level = start_afflvl; level <= end_afflvl; level++) {
-		node = mpidr_nodes[level];
-		if (node == NULL)
-			continue;
-
-		psci_afflvl_suspend_handlers[level](node);
-	}
-}
-
-/*******************************************************************************
  * Top level handler which is called when a cpu wants to suspend its execution.
- * It is assumed that along with turning the cpu off, higher affinity levels
- * until the target affinity level will be turned off as well. It traverses
- * through all the affinity levels performing generic, architectural, platform
- * setup and state management e.g. for a cluster that's to be suspended, it will
- * call the platform specific code which will disable coherency at the
- * interconnect level if the cpu is the last in the cluster. For a cpu it could
- * mean programming the power controller etc.
- *
- * The state of all the relevant affinity levels is changed prior to calling the
- * affinity level specific handlers as their actions would depend upon the state
- * the affinity level is about to enter.
- *
- * The affinity level specific handlers are called in ascending order i.e. from
- * the lowest to the highest affinity level implemented by the platform because
- * to turn off affinity level X it is neccesary to turn off affinity level X - 1
- * first.
+ * It is assumed that along with suspending the cpu, higher affinity levels
+ * until the target affinity level will be suspended as well.  It finds the
+ * highest level to be suspended by traversing the node information and then
+ * performs generic, architectural, platform setup and state management
+ * required to suspend that affinity level and affinity levels below it.
+ * e.g. For a cpu that's to be suspended, it could mean programming the
+ * power controller whereas for a cluster that's to be suspended, it will call
+ * the platform specific code which will disable coherency at the interconnect
+ * level if the cpu is the last in the cluster and also the program the power
+ * controller.
  *
  * All the required parameter checks are performed at the beginning and after
- * the state transition has been done, no further error is expected and it
- * is not possible to undo any of the actions taken beyond that point.
+ * the state transition has been done, no further error is expected and it is
+ * not possible to undo any of the actions taken beyond that point.
  ******************************************************************************/
 void psci_afflvl_suspend(entry_point_info_t *ep,
-			int start_afflvl,
 			int end_afflvl)
 {
 	int skip_wfi = 0;
 	mpidr_aff_map_nodes_t mpidr_nodes;
 	unsigned int max_phys_off_afflvl;
+	unsigned long psci_entrypoint;
 
 	/*
 	 * This function must only be called on platforms where the
@@ -271,7 +137,7 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 	 * therefore assert.
 	 */
 	if (psci_get_aff_map_nodes(read_mpidr_el1() & MPIDR_AFFINITY_MASK,
-		   start_afflvl, end_afflvl, mpidr_nodes) != PSCI_E_SUCCESS)
+		   MPIDR_AFFLVL0, end_afflvl, mpidr_nodes) != PSCI_E_SUCCESS)
 		assert(0);
 
 	/*
@@ -279,7 +145,7 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_afflvl_locks(start_afflvl,
+	psci_acquire_afflvl_locks(MPIDR_AFFLVL0,
 				  end_afflvl,
 				  mpidr_nodes);
 
@@ -306,42 +172,45 @@ void psci_afflvl_suspend(entry_point_info_t *ep,
 	 * corresponding to the mpidr in the range of affinity levels
 	 * specified.
 	 */
-	psci_do_afflvl_state_mgmt(start_afflvl,
+	psci_do_afflvl_state_mgmt(MPIDR_AFFLVL0,
 				  end_afflvl,
 				  mpidr_nodes,
 				  PSCI_STATE_SUSPEND);
 
-	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(start_afflvl,
+	max_phys_off_afflvl = psci_find_max_phys_off_afflvl(MPIDR_AFFLVL0,
 							    end_afflvl,
 							    mpidr_nodes);
 	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
-
-	/* Stash the highest affinity level that will be turned off */
-	psci_set_max_phys_off_afflvl(max_phys_off_afflvl);
 
 	/*
 	 * Store the re-entry information for the non-secure world.
 	 */
 	cm_init_context(read_mpidr_el1(), ep);
 
-	/* Perform generic, architecture and platform specific handling */
-	psci_call_suspend_handlers(mpidr_nodes,
-					start_afflvl,
-					end_afflvl);
+	/* Set the secure world (EL3) re-entry point after BL1 */
+	psci_entrypoint = (unsigned long) psci_aff_suspend_finish_entry;
 
 	/*
-	 * Invalidate the entry for the highest affinity level stashed earlier.
-	 * This ensures that any reads of this variable outside the power
-	 * up/down sequences return PSCI_INVALID_DATA.
+	 * Arch. management. Perform the necessary steps to flush all
+	 * cpu caches.
 	 */
-	psci_set_max_phys_off_afflvl(PSCI_INVALID_DATA);
+	psci_do_pwrdown_cache_maintenance(max_phys_off_afflvl);
+
+	/*
+	 * Plat. management: Allow the platform to perform the
+	 * necessary actions to turn off this cpu e.g. set the
+	 * platform defined mailbox with the psci entrypoint,
+	 * program the power controller etc.
+	 */
+	psci_plat_pm_ops->affinst_suspend(psci_entrypoint,
+					max_phys_off_afflvl);
 
 exit:
 	/*
 	 * Release the locks corresponding to each affinity level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_afflvl_locks(start_afflvl,
+	psci_release_afflvl_locks(MPIDR_AFFLVL0,
 				  end_afflvl,
 				  mpidr_nodes);
 	if (!skip_wfi)
@@ -352,17 +221,15 @@ exit:
  * The following functions finish an earlier affinity suspend request. They
  * are called by the common finisher routine in psci_common.c.
  ******************************************************************************/
-static void psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
+void psci_afflvl_suspend_finisher(aff_map_node_t *node[], int afflvl)
 {
-	unsigned int plat_state, state;
 	int32_t suspend_level;
 	uint64_t counter_freq;
 
-	assert(cpu_node->level == MPIDR_AFFLVL0);
+	assert(node[afflvl]->level == afflvl);
 
 	/* Ensure we have been woken up from a suspended state */
-	state = psci_get_state(cpu_node);
-	assert(state == PSCI_STATE_SUSPEND);
+	assert(psci_get_state(node[MPIDR_AFFLVL0]) == PSCI_STATE_SUSPEND);
 
 	/*
 	 * Plat. management: Perform the platform specific actions
@@ -371,11 +238,7 @@ static void psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 	 * wrong then assert as there is no way to recover from this
 	 * situation.
 	 */
-
-	/* Get the physical state of this cpu */
-	plat_state = get_phys_state(state);
-	psci_plat_pm_ops->affinst_suspend_finish(cpu_node->level,
-							      plat_state);
+	psci_plat_pm_ops->affinst_suspend_finish(afflvl);
 
 	/*
 	 * Arch. management: Enable the data cache, manage stack memory and
@@ -413,57 +276,3 @@ static void psci_afflvl0_suspend_finish(aff_map_node_t *cpu_node)
 	dcsw_op_louis(DCCSW);
 }
 
-static void psci_afflvl1_suspend_finish(aff_map_node_t *cluster_node)
-{
-	unsigned int plat_state;
-
-	assert(cluster_node->level == MPIDR_AFFLVL1);
-
-	/*
-	 * Plat. management: Perform the platform specific actions
-	 * as per the old state of the cluster e.g. enabling
-	 * coherency at the interconnect depends upon the state with
-	 * which this cluster was powered up. If anything goes wrong
-	 * then assert as there is no way to recover from this
-	 * situation.
-	 */
-
-	/* Get the physical state of this cpu */
-	plat_state = psci_get_phys_state(cluster_node);
-	psci_plat_pm_ops->affinst_suspend_finish(cluster_node->level,
-						      plat_state);
-}
-
-
-static void psci_afflvl2_suspend_finish(aff_map_node_t *system_node)
-{
-	unsigned int plat_state;
-
-	/* Cannot go beyond this affinity level */
-	assert(system_node->level == MPIDR_AFFLVL2);
-
-	/*
-	 * Currently, there are no architectural actions to perform
-	 * at the system level.
-	 */
-
-	/*
-	 * Plat. management: Perform the platform specific actions
-	 * as per the old state of the cluster e.g. enabling
-	 * coherency at the interconnect depends upon the state with
-	 * which this cluster was powered up. If anything goes wrong
-	 * then assert as there is no way to recover from this
-	 * situation.
-	 */
-
-	/* Get the physical state of the system */
-	plat_state = psci_get_phys_state(system_node);
-	psci_plat_pm_ops->affinst_suspend_finish(system_node->level,
-						      plat_state);
-}
-
-const afflvl_power_on_finisher_t psci_afflvl_suspend_finishers[] = {
-	psci_afflvl0_suspend_finish,
-	psci_afflvl1_suspend_finish,
-	psci_afflvl2_suspend_finish,
-};
