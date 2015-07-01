@@ -33,49 +33,37 @@
 #include <errno.h>
 #include <psci.h>
 
-
-/*******************************************************************************
- * ARM standard platform utility function which is used to determine if any
- * platform actions should be performed for the specified affinity instance
- * given its state. Nothing needs to be done if the 'state' is not off or if
- * this is not the highest affinity level which will enter the 'state'.
- ******************************************************************************/
-int32_t arm_do_affinst_actions(unsigned int afflvl, unsigned int state)
-{
-	unsigned int max_phys_off_afflvl;
-
-	assert(afflvl <= MPIDR_AFFLVL1);
-
-	if (state != PSCI_STATE_OFF)
-		return -EAGAIN;
-
-	/*
-	 * Find the highest affinity level which will be suspended and postpone
-	 * all the platform specific actions until that level is hit.
-	 */
-	max_phys_off_afflvl = psci_get_max_phys_off_afflvl();
-	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
-	if (afflvl != max_phys_off_afflvl)
-		return -EAGAIN;
-
-	return 0;
-}
-
 /*******************************************************************************
  * ARM standard platform handler called to check the validity of the power state
  * parameter.
  ******************************************************************************/
-int arm_validate_power_state(unsigned int power_state)
+int arm_validate_power_state(unsigned int power_state,
+			    psci_power_state_t *req_state)
 {
+	int pstate = psci_get_pstate_type(power_state);
+	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+	int i;
+
+	assert(req_state);
+
+	if (pwr_lvl > PLAT_MAX_PWR_LVL)
+		return PSCI_E_INVALID_PARAMS;
+
 	/* Sanity check the requested state */
-	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
+	if (pstate == PSTATE_TYPE_STANDBY) {
 		/*
-		 * It's possible to enter standby only on affinity level 0
-		 * (i.e. a CPU on ARM standard platforms).
-		 * Ignore any other affinity level.
+		 * It's possible to enter standby only on power level 0
+		 * Ignore any other power level.
 		 */
-		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
+		if (pwr_lvl != ARM_PWR_LVL0)
 			return PSCI_E_INVALID_PARAMS;
+
+		req_state->pwr_domain_state[ARM_PWR_LVL0] =
+					ARM_LOCAL_STATE_RET;
+	} else {
+		for (i = ARM_PWR_LVL0; i <= pwr_lvl; i++)
+			req_state->pwr_domain_state[i] =
+					ARM_LOCAL_STATE_OFF;
 	}
 
 	/*

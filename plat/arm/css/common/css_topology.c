@@ -28,51 +28,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <psci.h>
 #include <plat_arm.h>
-#include <platform_def.h>
 
-#define get_arm_cluster_core_count(mpidr)\
-		(((mpidr) & 0x100) ? PLAT_ARM_CLUSTER1_CORE_COUNT :\
-				PLAT_ARM_CLUSTER0_CORE_COUNT)
+/*
+ * On ARM platforms, by default the cluster power level is treated as the
+ * highest. The first entry in the power domain descriptor specifies the
+ * number of cluster power domains i.e. 2.
+ */
+#define CSS_PWR_DOMAINS_AT_MAX_PWR_LVL	ARM_CLUSTER_COUNT
 
-/* The power domain tree descriptor which need to be exported by ARM platforms */
-extern const unsigned char arm_power_domain_tree_desc[];
+/*
+ * The CSS power domain tree descriptor. The cluster power domains are
+ * arranged so that when the PSCI generic code creates the power domain tree,
+ * the indices of the CPU power domain nodes it allocates match the linear
+ * indices returned by platform_core_pos_by_mpidr() i.e.
+ * CLUSTER1 CPUs are allocated indices from 0 to 3 and the higher indices for
+ * CLUSTER0 CPUs.
+ */
+const unsigned char arm_power_domain_tree_desc[] = {
+	/* No of root nodes */
+	CSS_PWR_DOMAINS_AT_MAX_PWR_LVL,
+	/* No of children for the first node */
+	PLAT_ARM_CLUSTER1_CORE_COUNT,
+	/* No of children for the second node */
+	PLAT_ARM_CLUSTER0_CORE_COUNT
+};
 
 
-/*******************************************************************************
- * This function returns the ARM default topology tree information.
- ******************************************************************************/
-const unsigned char *platform_get_power_domain_tree_desc(void)
+/******************************************************************************
+ * This function implements a part of the critical interface between the psci
+ * generic layer and the platform that allows the former to query the platform
+ * to convert an MPIDR to a unique linear index. An error code (-1) is
+ * returned in case the MPIDR is invalid.
+ *****************************************************************************/
+int platform_core_pos_by_mpidr(u_register_t mpidr)
 {
-	return arm_power_domain_tree_desc;
-}
+	if (arm_check_mpidr(mpidr) == 0)
+		return plat_arm_calc_core_pos(mpidr);
 
-/*******************************************************************************
- * This function validates an MPIDR by checking whether it falls within the
- * acceptable bounds. An error code (-1) is returned if an incorrect mpidr
- * is passed.
- ******************************************************************************/
-int arm_check_mpidr(u_register_t mpidr)
-{
-	unsigned int cluster_id, cpu_id;
-
-	mpidr &= MPIDR_AFFINITY_MASK;
-
-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
-		return -1;
-
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
-
-	if (cluster_id >= ARM_CLUSTER_COUNT)
-		return -1;
-
-	/* Validate cpu_id by checking whether it represents a CPU in
-	   one of the two clusters present on the platform. */
-	if (cpu_id >= get_arm_cluster_core_count(mpidr))
-		return -1;
-
-	return 0;
+	return -1;
 }
