@@ -83,7 +83,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/arm/common/arm_security.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/plat_gic.c				\
-				plat/common/aarch64/platform_mp_stack.S
+				plat/common/aarch64/platform_mp_stack.S		\
+				plat/common/aarch64/plat_psci_common.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 

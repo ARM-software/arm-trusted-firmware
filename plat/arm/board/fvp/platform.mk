@@ -28,7 +28,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-
 PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
 
 
@@ -62,6 +61,9 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c
+
+# Disable the PSCI platform compatibility layer
+ENABLE_PLAT_COMPAT	:= 	0
 
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
