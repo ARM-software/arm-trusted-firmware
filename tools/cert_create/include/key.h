@@ -47,7 +47,10 @@ enum {
 /* Supported key algorithms */
 enum {
 	KEY_ALG_RSA,
-	KEY_ALG_ECDSA
+#ifndef OPENSSL_NO_EC
+	KEY_ALG_ECDSA,
+#endif /* OPENSSL_NO_EC */
+	KEY_ALG_MAX_NUM
 };
 
 /*

@@ -59,56 +59,77 @@ static int key_new(key_t *key)
 	return 1;
 }
 
-int key_create(key_t *key, int type)
+static int key_create_rsa(key_t *key)
 {
 	RSA *rsa = NULL;
-	EC_KEY *ec = NULL;
 
-	/* Create OpenSSL key container */
-	if (!key_new(key)) {
+	rsa = RSA_generate_key(RSA_KEY_BITS, RSA_F4, NULL, NULL);
+	if (rsa == NULL) {
+		printf("Cannot create RSA key\n");
 		goto err;
 	}
-
-	switch (type) {
-	case KEY_ALG_RSA:
-		/* Generate a new RSA key */
-		rsa = RSA_generate_key(RSA_KEY_BITS, RSA_F4, NULL, NULL);
-		if (rsa == NULL) {
-			printf("Cannot create RSA key\n");
-			goto err;
-		}
-		if (!EVP_PKEY_assign_RSA(key->key, rsa)) {
-			printf("Cannot assign RSA key\n");
-			goto err;
-		}
-		break;
-	case KEY_ALG_ECDSA:
-		/* Generate a new ECDSA key */
-		ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
-		if (ec == NULL) {
-			printf("Cannot create EC key\n");
-			goto err;
-		}
-		if (!EC_KEY_generate_key(ec)) {
-			printf("Cannot generate EC key\n");
-			goto err;
-		}
-		EC_KEY_set_flags(ec, EC_PKEY_NO_PARAMETERS);
-		EC_KEY_set_asn1_flag(ec, OPENSSL_EC_NAMED_CURVE);
-		if (!EVP_PKEY_assign_EC_KEY(key->key, ec)) {
-			printf("Cannot assign EC key\n");
-			goto err;
-		}
-		break;
-	default:
+	if (!EVP_PKEY_assign_RSA(key->key, rsa)) {
+		printf("Cannot assign RSA key\n");
 		goto err;
 	}
 
 	return 1;
-
 err:
 	RSA_free(rsa);
+	return 0;
+}
+
+#ifndef OPENSSL_NO_EC
+static int key_create_ecdsa(key_t *key)
+{
+	EC_KEY *ec = NULL;
+
+	ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+	if (ec == NULL) {
+		printf("Cannot create EC key\n");
+		goto err;
+	}
+	if (!EC_KEY_generate_key(ec)) {
+		printf("Cannot generate EC key\n");
+		goto err;
+	}
+	EC_KEY_set_flags(ec, EC_PKEY_NO_PARAMETERS);
+	EC_KEY_set_asn1_flag(ec, OPENSSL_EC_NAMED_CURVE);
+	if (!EVP_PKEY_assign_EC_KEY(key->key, ec)) {
+		printf("Cannot assign EC key\n");
+		goto err;
+	}
+
+	return 1;
+err:
 	EC_KEY_free(ec);
+	return 0;
+}
+#endif /* OPENSSL_NO_EC */
+
+typedef int (*key_create_fn_t)(key_t *key);
+static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
+	key_create_rsa,
+#ifndef OPENSSL_NO_EC
+	key_create_ecdsa,
+#endif /* OPENSSL_NO_EC */
+};
+
+int key_create(key_t *key, int type)
+{
+	if (type >= KEY_ALG_MAX_NUM) {
+		printf("Invalid key type\n");
+		return 0;
+	}
+
+	/* Create OpenSSL key container */
+	if (!key_new(key)) {
+		return 0;
+	}
+
+	if (key_create_fn[type]) {
+		return key_create_fn[type](key);
+	}
 
 	return 0;
 }
