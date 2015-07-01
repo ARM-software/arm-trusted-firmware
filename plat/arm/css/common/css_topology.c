@@ -28,49 +28,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
-#include <assert.h>
-#include <errno.h>
-#include <psci.h>
+#include <plat_arm.h>
 
-/*******************************************************************************
- * ARM standard platform handler called to check the validity of the power state
- * parameter.
- ******************************************************************************/
-int arm_validate_power_state(unsigned int power_state,
-			    psci_power_state_t *req_state)
+/*
+ * On ARM platforms, by default the cluster power level is treated as the
+ * highest. The first entry in the power domain descriptor specifies the
+ * number of cluster power domains i.e. 2.
+ */
+#define CSS_PWR_DOMAINS_AT_MAX_PWR_LVL	ARM_CLUSTER_COUNT
+
+/*
+ * The CSS power domain tree descriptor. The cluster power domains are
+ * arranged so that when the PSCI generic code creates the power domain tree,
+ * the indices of the CPU power domain nodes it allocates match the linear
+ * indices returned by plat_core_pos_by_mpidr() i.e.
+ * CLUSTER1 CPUs are allocated indices from 0 to 3 and the higher indices for
+ * CLUSTER0 CPUs.
+ */
+const unsigned char arm_power_domain_tree_desc[] = {
+	/* No of root nodes */
+	CSS_PWR_DOMAINS_AT_MAX_PWR_LVL,
+	/* No of children for the first node */
+	PLAT_ARM_CLUSTER1_CORE_COUNT,
+	/* No of children for the second node */
+	PLAT_ARM_CLUSTER0_CORE_COUNT
+};
+
+
+/******************************************************************************
+ * This function implements a part of the critical interface between the psci
+ * generic layer and the platform that allows the former to query the platform
+ * to convert an MPIDR to a unique linear index. An error code (-1) is
+ * returned in case the MPIDR is invalid.
+ *****************************************************************************/
+int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	int pstate = psci_get_pstate_type(power_state);
-	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
-	int i;
+	if (arm_check_mpidr(mpidr) == 0)
+		return plat_arm_calc_core_pos(mpidr);
 
-	assert(req_state);
-
-	if (pwr_lvl > PLAT_MAX_PWR_LVL)
-		return PSCI_E_INVALID_PARAMS;
-
-	/* Sanity check the requested state */
-	if (pstate == PSTATE_TYPE_STANDBY) {
-		/*
-		 * It's possible to enter standby only on power level 0
-		 * Ignore any other power level.
-		 */
-		if (pwr_lvl != ARM_PWR_LVL0)
-			return PSCI_E_INVALID_PARAMS;
-
-		req_state->pwr_domain_state[ARM_PWR_LVL0] =
-					ARM_LOCAL_STATE_RET;
-	} else {
-		for (i = ARM_PWR_LVL0; i <= pwr_lvl; i++)
-			req_state->pwr_domain_state[i] =
-					ARM_LOCAL_STATE_OFF;
-	}
-
-	/*
-	 * We expect the 'state id' to be zero.
-	 */
-	if (psci_get_pstate_id(power_state))
-		return PSCI_E_INVALID_PARAMS;
-
-	return PSCI_E_SUCCESS;
+	return -1;
 }

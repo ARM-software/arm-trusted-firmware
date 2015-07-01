@@ -28,4 +28,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+BL32_SOURCES		+=	plat/arm/css/common/css_topology.c
+
 include plat/arm/common/tsp/arm_tsp.mk

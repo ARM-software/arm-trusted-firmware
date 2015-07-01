@@ -33,11 +33,10 @@
 #include <css_def.h>
 
 	.weak	plat_secondary_cold_boot_setup
-	.weak	platform_get_entrypoint
+	.weak	plat_get_my_entrypoint
 	.weak	platform_mem_init
-	.globl	platform_get_core_pos
-	.weak	platform_is_primary_cpu
-
+	.globl	plat_arm_calc_core_pos
+	.weak	plat_is_my_cpu_primary
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -55,10 +54,10 @@ cb_panic:
 endfunc plat_secondary_cold_boot_setup
 
 	/* -----------------------------------------------------
-	 * void platform_get_entrypoint (unsigned int mpid);
+	 * unsigned long plat_get_my_entrypoint (void);
 	 *
 	 * Main job of this routine is to distinguish between
-	 * a cold and warm boot.
+	 * a cold and warm boot on the current CPU.
 	 * On a cold boot the secondaries first wait for the
 	 * platform to be initialized after which they are
 	 * hotplugged in. The primary proceeds to perform the
@@ -69,28 +68,30 @@ endfunc plat_secondary_cold_boot_setup
 	 * TODO: Not a good idea to save lr in a temp reg
 	 * -----------------------------------------------------
 	 */
-func platform_get_entrypoint
+func plat_get_my_entrypoint
 	mov	x9, x30 // lr
-	bl	platform_get_core_pos
+	bl	plat_my_core_pos
 	ldr	x1, =TRUSTED_MAILBOXES_BASE
 	lsl	x0, x0, #TRUSTED_MAILBOX_SHIFT
 	ldr	x0, [x1, x0]
 	ret	x9
-endfunc platform_get_entrypoint
+endfunc plat_get_my_entrypoint
 
-	/*
-	 * Override the default implementation to swap the cluster order.
-	 * This is necessary in order to match the format of the boot
-	 * information passed by the SCP and read in platform_is_primary_cpu
-	 * below.
+	/* -----------------------------------------------------------
+	 * unsigned int plat_arm_calc_core_pos(uint64_t mpidr)
+	 * Function to calculate the core position by
+	 * swapping the cluster order. This is necessary in order to
+	 * match the format of the boot information passed by the SCP
+	 * and read in platform_is_primary_cpu below.
+	 * -----------------------------------------------------------
 	 */
-func platform_get_core_pos
+func plat_arm_calc_core_pos
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
 	eor	x0, x0, #(1 << MPIDR_AFFINITY_BITS)  // swap cluster order
 	add	x0, x1, x0, LSR #6
 	ret
-endfunc platform_get_core_pos
+endfunc plat_arm_calc_core_pos
 
 	/* -----------------------------------------------------
 	 * void platform_mem_init(void);
@@ -104,19 +105,19 @@ func platform_mem_init
 endfunc platform_mem_init
 
 	/* -----------------------------------------------------
-	 * unsigned int platform_is_primary_cpu (unsigned int mpid);
+	 * unsigned int plat_is_my_cpu_primary (void);
 	 *
-	 * Given the mpidr say whether this cpu is the primary
+	 * Find out whether the current cpu is the primary
 	 * cpu (applicable ony after a cold boot)
 	 * -----------------------------------------------------
 	 */
-func platform_is_primary_cpu
+func plat_is_my_cpu_primary
 	mov	x9, x30
-	bl	platform_get_core_pos
+	bl	plat_my_core_pos
 	ldr	x1, =SCP_BOOT_CFG_ADDR
 	ldr	x1, [x1]
 	ubfx	x1, x1, #PRIMARY_CPU_SHIFT, #PRIMARY_CPU_BIT_WIDTH
 	cmp	x0, x1
 	cset	x0, eq
 	ret	x9
-endfunc platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary

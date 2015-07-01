@@ -37,9 +37,9 @@
 #include "../fvp_def.h"
 
 	.globl	plat_secondary_cold_boot_setup
-	.globl	platform_get_entrypoint
+	.globl	plat_get_my_entrypoint
 	.globl	platform_mem_init
-	.globl	platform_is_primary_cpu
+	.globl	plat_is_my_cpu_primary
 
 	.macro	fvp_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
 	ldr	\x_tmp, =V2M_SYSREGS_BASE + V2M_SYS_ID
@@ -98,10 +98,10 @@ endfunc plat_secondary_cold_boot_setup
 
 
 	/* -----------------------------------------------------
-	 * void platform_get_entrypoint (unsigned int mpid);
+	 * unsigned long plat_get_my_entrypoint (void);
 	 *
 	 * Main job of this routine is to distinguish between
-	 * a cold and warm boot.
+	 * a cold and warm boot on the current CPU.
 	 * On a cold boot the secondaries first wait for the
 	 * platform to be initialized after which they are
 	 * hotplugged in. The primary proceeds to perform the
@@ -117,9 +117,9 @@ endfunc plat_secondary_cold_boot_setup
 	 * 	reset all cpus will read the same WK field
 	 * -----------------------------------------------------
 	 */
-func platform_get_entrypoint
+func plat_get_my_entrypoint
 	mov	x9, x30 // lr
-	mov	x2, x0
+	mrs	x2, mpidr_el1
 	ldr	x1, =PWRC_BASE
 	str	w2, [x1, #PSYSR_OFF]
 	ldr	w2, [x1, #PSYSR_OFF]
@@ -139,14 +139,14 @@ warm_reset:
 	 * ---------------------------------------------
 	 */
 	ldr	x10, =MBOX_BASE
-	bl	platform_get_core_pos
+	bl	plat_my_core_pos
 	lsl	x0, x0, #ARM_CACHE_WRITEBACK_SHIFT
 	ldr	x0, [x10, x0]
 	cbz	x0, _panic
 exit:
 	ret	x9
 _panic:	b	_panic
-endfunc platform_get_entrypoint
+endfunc plat_get_my_entrypoint
 
 
 	/* -----------------------------------------------------
@@ -172,9 +172,10 @@ loop:
 endfunc platform_mem_init
 
 
-func platform_is_primary_cpu
+func plat_is_my_cpu_primary
+	mrs	x0, mpidr_el1
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #FVP_PRIMARY_CPU
 	cset	x0, eq
 	ret
-endfunc platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary

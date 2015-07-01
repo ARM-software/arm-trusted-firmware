@@ -30,10 +30,36 @@
 #include <asm_macros.S>
 #include <platform_def.h>
 
-
+	.weak	plat_arm_calc_core_pos
+	.weak	plat_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
 
+
+	/* -----------------------------------------------------
+	 *  unsigned int plat_my_core_pos(void)
+	 *  This function uses the plat_arm_calc_core_pos()
+	 *  definition to get the index of the calling CPU.
+	 * -----------------------------------------------------
+	 */
+func plat_my_core_pos
+	mrs	x0, mpidr_el1
+	b	plat_arm_calc_core_pos
+endfunc plat_my_core_pos
+
+	/* -----------------------------------------------------
+	 *  unsigned int plat_arm_calc_core_pos(uint64_t mpidr)
+	 *  Helper function to calculate the core position.
+	 *  With this function: CorePos = (ClusterId * 4) +
+	 *  				  CoreId
+	 * -----------------------------------------------------
+	 */
+func plat_arm_calc_core_pos
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
+	ret
+endfunc plat_arm_calc_core_pos
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)
