@@ -159,8 +159,11 @@ void arm_io_setup(void);
 void arm_tzc_setup(void);
 
 /* PM utility functions */
-int32_t arm_do_affinst_actions(unsigned int afflvl, unsigned int state);
-int arm_validate_power_state(unsigned int power_state);
+int arm_validate_power_state(unsigned int power_state,
+			    psci_power_state_t *req_state);
+
+/* Topology utility function */
+int arm_check_mpidr(u_register_t mpidr);
 
 /* BL1 utility functions */
 void arm_bl1_early_platform_setup(void);
@@ -199,7 +202,7 @@ int plat_arm_get_alt_image_source(
 	unsigned int image_id,
 	uintptr_t *dev_handle,
 	uintptr_t *image_spec);
-void plat_arm_topology_setup(void);
+unsigned int plat_arm_calc_core_pos(u_register_t mpidr);
 
 
 #endif /* __PLAT_ARM_H__ */
