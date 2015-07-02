@@ -1238,8 +1238,8 @@ affinity level 0 (CPU), the platform port should power down affinity level 1
 #### plat_pm_ops.affinst_suspend()
 
 Perform the platform specific setup to power off an affinity instance of the
-calling CPU. It is called by the PSCI `CPU_SUSPEND` API
-implementation.
+calling CPU. It is called by the PSCI `CPU_SUSPEND` API and `SYSTEM_SUSPEND`
+API implementation
 
 The `affinity level` (second argument) and `state` (third argument) have a
 similar meaning as described in the `affinst_on()` operation. They are used to
@@ -1268,14 +1268,14 @@ The `affinity level` (first argument) and `state` (second argument) have a
 similar meaning as described in the previous operations. The generic code
 expects the handler to succeed.
 
-#### plat_pm_ops.affinst_on_suspend()
+#### plat_pm_ops.affinst_suspend_finish()
 
 This function is called by the PSCI implementation after the calling CPU is
 powered on and released from reset in response to an asynchronous wakeup
 event, for example a timer interrupt that was programmed by the CPU during the
-`CPU_SUSPEND` call. It performs the platform-specific setup required to
-restore the saved state for this CPU to resume execution in the normal world
-and also provide secure runtime firmware services.
+`CPU_SUSPEND` call or `SYSTEM_SUSPEND` call. It performs the platform-specific
+setup required to restore the saved state for this CPU to resume execution
+in the normal world and also provide secure runtime firmware services.
 
 The `affinity level` (first argument) and `state` (second argument) have a
 similar meaning as described in the previous operations. The generic code
@@ -1291,11 +1291,20 @@ world PSCI client.
 
 #### plat_pm_ops.validate_ns_entrypoint()
 
-This function is called by the PSCI implementation during the `CPU_SUSPEND`
-and `CPU_ON` calls to validate the non-secure `entry_point` parameter passed
-by the normal world. If the `entry_point` is known to be invalid, the platform
-must return PSCI_E_INVALID_PARAMS as error, which is propagated back to the
-normal world PSCI client.
+This function is called by the PSCI implementation during the `CPU_SUSPEND`,
+`SYSTEM_SUSPEND` and `CPU_ON` calls to validate the non-secure `entry_point`
+parameter passed by the normal world. If the `entry_point` is known to be
+invalid, the platform must return PSCI_E_INVALID_PARAMS as error, which is
+propagated back to the normal world PSCI client.
+
+#### plat_pm_ops.get_sys_suspend_power_state()
+
+This function is called by the PSCI implementation during the `SYSTEM_SUSPEND`
+call to return the `power_state` parameter. This allows the platform to encode
+the appropriate State-ID field within the `power_state` parameter which can be
+utilized in `affinst_suspend()` to suspend to system affinity level. The
+`power_state` parameter should be in the same format as specified by the
+PSCI specification for the CPU_SUSPEND API.
 
 BL3-1 platform initialization code must also detect the system topology and
 the state of each affinity instance in the topology. This information is

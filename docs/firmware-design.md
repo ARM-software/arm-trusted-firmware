@@ -755,7 +755,7 @@ required support.
 |`CPU_FREEZE`           | No      |                                           |
 |`CPU_DEFAULT_SUSPEND`  | No      |                                           |
 |`CPU_HW_STATE`         | No      |                                           |
-|`SYSTEM_SUSPEND`       | No      |                                           |
+|`SYSTEM_SUSPEND`       | Yes*    |                                           |
 |`PSCI_SET_SUSPEND_MODE`| No      |                                           |
 |`PSCI_STAT_RESIDENCY`  | No      |                                           |
 |`PSCI_STAT_COUNT`      | No      |                                           |

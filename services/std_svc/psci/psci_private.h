@@ -69,7 +69,8 @@
 			define_psci_cap(PSCI_CPU_ON_AARCH64) |		\
 			define_psci_cap(PSCI_AFFINITY_INFO_AARCH64) |	\
 			define_psci_cap(PSCI_MIG_AARCH64) |		\
-			define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64))
+			define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64) |	\
+			define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64))
 
 
 /*******************************************************************************
@@ -102,6 +103,7 @@ typedef void (*afflvl_power_on_finisher_t)(aff_map_node_t *);
  ******************************************************************************/
 extern const plat_pm_ops_t *psci_plat_pm_ops;
 extern aff_map_node_t psci_aff_map[PSCI_NUM_AFFS];
+extern aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 extern uint32_t psci_caps;
 
 /*******************************************************************************
@@ -140,6 +142,7 @@ void psci_set_max_phys_off_afflvl(uint32_t afflvl);
 uint32_t psci_find_max_phys_off_afflvl(uint32_t start_afflvl,
 				       uint32_t end_afflvl,
 				       aff_map_node_t *mpidr_nodes[]);
+unsigned int psci_is_last_on_cpu(void);
 int psci_spd_migrate_info(uint64_t *mpidr);
 
 /* Private exported functions from psci_setup.c */
