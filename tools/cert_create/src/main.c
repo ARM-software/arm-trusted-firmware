@@ -41,6 +41,7 @@
 #include <openssl/x509v3.h>
 
 #include "cert.h"
+#include "cmd_opt.h"
 #include "debug.h"
 #include "ext.h"
 #include "key.h"
@@ -139,43 +140,7 @@ static const char *key_algs_str[] = {
 #endif /* OPENSSL_NO_EC */
 };
 
-/* Command line options */
-static const struct option long_opt[] = {
-	/* Binary images */
-	{"bl2", required_argument, 0, BL2_ID},
-	{"bl30", required_argument, 0, BL30_ID},
-	{"bl31", required_argument, 0, BL31_ID},
-	{"bl32", required_argument, 0, BL32_ID},
-	{"bl33", required_argument, 0, BL33_ID},
-	/* Certificate files */
-	{"bl2-cert", required_argument, 0, BL2_CERT_ID},
-	{"trusted-key-cert", required_argument, 0, TRUSTED_KEY_CERT_ID},
-	{"bl30-key-cert", required_argument, 0, BL30_KEY_CERT_ID},
-	{"bl30-cert", required_argument, 0, BL30_CERT_ID},
-	{"bl31-key-cert", required_argument, 0, BL31_KEY_CERT_ID},
-	{"bl31-cert", required_argument, 0, BL31_CERT_ID},
-	{"bl32-key-cert", required_argument, 0, BL32_KEY_CERT_ID},
-	{"bl32-cert", required_argument, 0, BL32_CERT_ID},
-	{"bl33-key-cert", required_argument, 0, BL33_KEY_CERT_ID},
-	{"bl33-cert", required_argument, 0, BL33_CERT_ID},
-	/* Private key files */
-	{"rot-key", required_argument, 0, ROT_KEY_ID},
-	{"trusted-world-key", required_argument, 0, TRUSTED_WORLD_KEY_ID},
-	{"non-trusted-world-key", required_argument, 0, NON_TRUSTED_WORLD_KEY_ID},
-	{"bl30-key", required_argument, 0, BL30_KEY_ID},
-	{"bl31-key", required_argument, 0, BL31_KEY_ID},
-	{"bl32-key", required_argument, 0, BL32_KEY_ID},
-	{"bl33-key", required_argument, 0, BL33_KEY_ID},
-	/* Common options */
-	{"key-alg", required_argument, 0, 'a'},
-	{"help", no_argument, 0, 'h'},
-	{"save-keys", no_argument, 0, 'k'},
-	{"new-chain", no_argument, 0, 'n'},
-	{"print-cert", no_argument, 0, 'p'},
-	{0, 0, 0, 0}
-};
-
-static void print_help(const char *cmd)
+static void print_help(const char *cmd, const struct option *long_opt)
 {
 	int i = 0;
 	printf("\n\n");
@@ -274,10 +239,13 @@ int main(int argc, char *argv[])
 	STACK_OF(X509_EXTENSION) * sk = NULL;
 	X509_EXTENSION *cert_ext = NULL;
 	ext_t *ext = NULL;
-	cert_t *cert;
+	key_t *key = NULL;
+	cert_t *cert = NULL;
 	FILE *file = NULL;
 	int i, j, ext_nid;
 	int c, opt_idx = 0;
+	const struct option *cmd_opt;
+	const char *cur_opt;
 	unsigned int err_code;
 	unsigned char md[SHA256_DIGEST_LENGTH];
 	const EVP_MD *md_info;
@@ -288,9 +256,37 @@ int main(int argc, char *argv[])
 	/* Set default options */
 	key_alg = KEY_ALG_RSA;
 
+	/* Add common command line options */
+	cmd_opt_add("key-alg", required_argument, 'a');
+	cmd_opt_add("help", no_argument, 'h');
+	cmd_opt_add("save-keys", no_argument, 'k');
+	cmd_opt_add("new-chain", no_argument, 'n');
+	cmd_opt_add("print-cert", no_argument, 'p');
+
+	/* Initialize the certificates */
+	if (cert_init() != 0) {
+		ERROR("Cannot initialize certificates\n");
+		exit(1);
+	}
+
+	/* Initialize the keys */
+	if (key_init() != 0) {
+		ERROR("Cannot initialize keys\n");
+		exit(1);
+	}
+
+	/* Initialize the new types and register OIDs for the extensions */
+	if (ext_init() != 0) {
+		ERROR("Cannot initialize TBB extensions\n");
+		exit(1);
+	}
+
+	/* Get the command line options populated during the initialization */
+	cmd_opt = cmd_opt_get_array();
+
 	while (1) {
 		/* getopt_long stores the option index here. */
-		c = getopt_long(argc, argv, "ahknp", long_opt, &opt_idx);
+		c = getopt_long(argc, argv, "ahknp", cmd_opt, &opt_idx);
 
 		/* Detect the end of the options. */
 		if (c == -1) {
@@ -306,7 +302,7 @@ int main(int argc, char *argv[])
 			}
 			break;
 		case 'h':
-			print_help(argv[0]);
+			print_help(argv[0], cmd_opt);
 			break;
 		case 'k':
 			save_keys = 1;
@@ -317,71 +313,20 @@ int main(int argc, char *argv[])
 		case 'p':
 			print_cert = 1;
 			break;
-		case BL2_ID:
-			extensions[BL2_HASH_EXT].data.fn = strdup(optarg);
+		case CMD_OPT_EXT:
+			cur_opt = cmd_opt_get_name(opt_idx);
+			ext = ext_get_by_opt(cur_opt);
+			ext->data.fn = strdup(optarg);
 			break;
-		case BL30_ID:
-			extensions[BL30_HASH_EXT].data.fn = strdup(optarg);
+		case CMD_OPT_KEY:
+			cur_opt = cmd_opt_get_name(opt_idx);
+			key = key_get_by_opt(cur_opt);
+			key->fn = strdup(optarg);
 			break;
-		case BL31_ID:
-			extensions[BL31_HASH_EXT].data.fn = strdup(optarg);
-			break;
-		case BL32_ID:
-			extensions[BL32_HASH_EXT].data.fn = strdup(optarg);
-			break;
-		case BL33_ID:
-			extensions[BL33_HASH_EXT].data.fn = strdup(optarg);
-			break;
-		case BL2_CERT_ID:
-			certs[BL2_CERT].fn = strdup(optarg);
-			break;
-		case TRUSTED_KEY_CERT_ID:
-			certs[TRUSTED_KEY_CERT].fn = strdup(optarg);
-			break;
-		case BL30_KEY_CERT_ID:
-			certs[BL30_KEY_CERT].fn = strdup(optarg);
-			break;
-		case BL30_CERT_ID:
-			certs[BL30_CERT].fn = strdup(optarg);
-			break;
-		case BL31_KEY_CERT_ID:
-			certs[BL31_KEY_CERT].fn = strdup(optarg);
-			break;
-		case BL31_CERT_ID:
-			certs[BL31_CERT].fn = strdup(optarg);
-			break;
-		case BL32_KEY_CERT_ID:
-			certs[BL32_KEY_CERT].fn = strdup(optarg);
-			break;
-		case BL32_CERT_ID:
-			certs[BL32_CERT].fn = strdup(optarg);
-			break;
-		case BL33_KEY_CERT_ID:
-			certs[BL33_KEY_CERT].fn = strdup(optarg);
-			break;
-		case BL33_CERT_ID:
-			certs[BL33_CERT].fn = strdup(optarg);
-			break;
-		case ROT_KEY_ID:
-			keys[ROT_KEY].fn = strdup(optarg);
-			break;
-		case TRUSTED_WORLD_KEY_ID:
-			keys[TRUSTED_WORLD_KEY].fn = strdup(optarg);
-			break;
-		case NON_TRUSTED_WORLD_KEY_ID:
-			keys[NON_TRUSTED_WORLD_KEY].fn = strdup(optarg);
-			break;
-		case BL30_KEY_ID:
-			keys[BL30_KEY].fn = strdup(optarg);
-			break;
-		case BL31_KEY_ID:
-			keys[BL31_KEY].fn = strdup(optarg);
-			break;
-		case BL32_KEY_ID:
-			keys[BL32_KEY].fn = strdup(optarg);
-			break;
-		case BL33_KEY_ID:
-			keys[BL33_KEY].fn = strdup(optarg);
+		case CMD_OPT_CERT:
+			cur_opt = cmd_opt_get_name(opt_idx);
+			cert = cert_get_by_opt(cur_opt);
+			cert->fn = strdup(optarg);
 			break;
 		case '?':
 		default:
@@ -392,12 +337,6 @@ int main(int argc, char *argv[])
 
 	/* Check command line arguments */
 	check_cmd_params();
-
-	/* Register the new types and OIDs for the extensions */
-	if (ext_register(extensions) != 0) {
-		ERROR("Cannot register TBB extensions\n");
-		exit(1);
-	}
 
 	/* Indicate SHA256 as image hash algorithm in the certificate
 	 * extension */

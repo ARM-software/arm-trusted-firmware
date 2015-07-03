@@ -54,6 +54,7 @@ typedef struct cert_s cert_t;
 struct cert_s {
 	int id;			/* Unique identifier */
 
+	const char *opt;	/* Command line option to pass filename */
 	const char *fn;		/* Filename to save the certificate */
 	const char *cn;		/* Subject CN (Company Name) */
 
@@ -67,6 +68,8 @@ struct cert_s {
 };
 
 /* Exported API */
+int cert_init(void);
+cert_t *cert_get_by_opt(const char *opt);
 int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value);
 int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk);
 

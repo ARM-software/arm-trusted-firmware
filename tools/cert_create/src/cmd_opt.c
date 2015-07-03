@@ -28,61 +28,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KEY_H_
-#define KEY_H_
+#include <getopt.h>
+#include <stddef.h>
+#include <cmd_opt.h>
 
-#include <openssl/ossl_typ.h>
+/* Command line options */
+static struct option long_opt[CMD_OPT_MAX_NUM+1];
+static int num_reg_opt;
 
-#define RSA_KEY_BITS		2048
+int cmd_opt_add(const char *name, int has_arg, int val)
+{
+	if (num_reg_opt >= CMD_OPT_MAX_NUM) {
+		return -1;
+	}
+	long_opt[num_reg_opt].name = name;
+	long_opt[num_reg_opt].has_arg = has_arg;
+	long_opt[num_reg_opt].flag = 0;
+	long_opt[num_reg_opt].val = val;
+	num_reg_opt++;
 
-/* Error codes */
-enum {
-	KEY_ERR_NONE,
-	KEY_ERR_MALLOC,
-	KEY_ERR_FILENAME,
-	KEY_ERR_OPEN,
-	KEY_ERR_LOAD
-};
+	return 0;
+}
 
-/* Supported key algorithms */
-enum {
-	KEY_ALG_RSA,
-#ifndef OPENSSL_NO_EC
-	KEY_ALG_ECDSA,
-#endif /* OPENSSL_NO_EC */
-	KEY_ALG_MAX_NUM
-};
+const struct option *cmd_opt_get_array(void)
+{
+	return long_opt;
+}
 
-/*
- * This structure contains the relevant information to create the keys
- * required to sign the certificates.
- *
- * One instance of this structure must be created for each key, usually in an
- * array fashion. The filename is obtained at run time from the command line
- * parameters
- */
-typedef struct key_s {
-	int id;			/* Key id */
-	const char *opt;	/* Command line option to specify a key */
-	const char *desc;	/* Key description (debug purposes) */
-	char *fn;		/* Filename to load/store the key */
-	EVP_PKEY *key;		/* Key container */
-} key_t;
+const char *cmd_opt_get_name(int idx)
+{
+	if (idx >= num_reg_opt) {
+		return NULL;
+	}
 
-/* Exported API */
-int key_init(void);
-key_t *key_get_by_opt(const char *opt);
-int key_create(key_t *key, int type);
-int key_load(key_t *key, unsigned int *err_code);
-int key_store(key_t *key);
-
-/* Macro to register the keys used in the CoT */
-#define REGISTER_KEYS(_keys) \
-	key_t *keys = &_keys[0]; \
-	const unsigned int num_keys = sizeof(_keys)/sizeof(_keys[0]);
-
-/* Exported variables */
-extern key_t *keys;
-extern const unsigned int num_keys;
-
-#endif /* KEY_H_ */
+	return long_opt[idx].name;
+}

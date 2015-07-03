@@ -38,30 +38,37 @@
 static key_t tbb_keys[] = {
 	[ROT_KEY] = {
 		.id = ROT_KEY,
+		.opt = "rot-key",
 		.desc = "Root Of Trust key"
 	},
 	[TRUSTED_WORLD_KEY] = {
 		.id = TRUSTED_WORLD_KEY,
+		.opt = "trusted-world-key",
 		.desc = "Trusted World key"
 	},
 	[NON_TRUSTED_WORLD_KEY] = {
 		.id = NON_TRUSTED_WORLD_KEY,
+		.opt = "non-trusted-world-key",
 		.desc = "Non Trusted World key"
 	},
 	[BL30_KEY] = {
 		.id = BL30_KEY,
+		.opt = "bl30-key",
 		.desc = "BL30 key"
 	},
 	[BL31_KEY] = {
 		.id = BL31_KEY,
+		.opt = "bl31-key",
 		.desc = "BL31 key"
 	},
 	[BL32_KEY] = {
 		.id = BL32_KEY,
+		.opt = "bl32-key",
 		.desc = "BL32 key"
 	},
 	[BL33_KEY] = {
 		.id = BL33_KEY,
+		.opt = "bl33-key",
 		.desc = "BL33 key"
 	}
 };

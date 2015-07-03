@@ -42,6 +42,7 @@
 static cert_t tbb_certs[] = {
 	[BL2_CERT] = {
 		.id = BL2_CERT,
+		.opt = "bl2-cert",
 		.fn = NULL,
 		.cn = "BL2 Certificate",
 		.key = ROT_KEY,
@@ -53,6 +54,7 @@ static cert_t tbb_certs[] = {
 	},
 	[TRUSTED_KEY_CERT] = {
 		.id = TRUSTED_KEY_CERT,
+		.opt = "trusted-key-cert",
 		.fn = NULL,
 		.cn = "Trusted Key Certificate",
 		.key = ROT_KEY,
@@ -65,6 +67,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL30_KEY_CERT] = {
 		.id = BL30_KEY_CERT,
+		.opt = "bl30-key-cert",
 		.fn = NULL,
 		.cn = "BL3-0 Key Certificate",
 		.key = TRUSTED_WORLD_KEY,
@@ -76,6 +79,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL30_CERT] = {
 		.id = BL30_CERT,
+		.opt = "bl30-cert",
 		.fn = NULL,
 		.cn = "BL3-0 Content Certificate",
 		.key = BL30_KEY,
@@ -87,6 +91,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL31_KEY_CERT] = {
 		.id = BL31_KEY_CERT,
+		.opt = "bl31-key-cert",
 		.fn = NULL,
 		.cn = "BL3-1 Key Certificate",
 		.key = TRUSTED_WORLD_KEY,
@@ -98,6 +103,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL31_CERT] = {
 		.id = BL31_CERT,
+		.opt = "bl31-cert",
 		.fn = NULL,
 		.cn = "BL3-1 Content Certificate",
 		.key = BL31_KEY,
@@ -109,6 +115,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL32_KEY_CERT] = {
 		.id = BL32_KEY_CERT,
+		.opt = "bl32-key-cert",
 		.fn = NULL,
 		.cn = "BL3-2 Key Certificate",
 		.key = TRUSTED_WORLD_KEY,
@@ -120,6 +127,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL32_CERT] = {
 		.id = BL32_CERT,
+		.opt = "bl32-cert",
 		.fn = NULL,
 		.cn = "BL3-2 Content Certificate",
 		.key = BL32_KEY,
@@ -131,6 +139,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL33_KEY_CERT] = {
 		.id = BL33_KEY_CERT,
+		.opt = "bl33-key-cert",
 		.fn = NULL,
 		.cn = "BL3-3 Key Certificate",
 		.key = NON_TRUSTED_WORLD_KEY,
@@ -142,6 +151,7 @@ static cert_t tbb_certs[] = {
 	},
 	[BL33_CERT] = {
 		.id = BL33_CERT,
+		.opt = "bl33-cert",
 		.fn = NULL,
 		.cn = "BL3-3 Content Certificate",
 		.key = BL33_KEY,
