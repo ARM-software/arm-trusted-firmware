@@ -34,6 +34,26 @@
 #include <platform_def.h>
 
 /*******************************************************************************
+ * Power down state IDs
+ ******************************************************************************/
+#define PSTATE_ID_CORE_POWERDN		7
+#define PSTATE_ID_CLUSTER_IDLE		16
+#define PSTATE_ID_CLUSTER_POWERDN	17
+#define PSTATE_ID_SOC_POWERDN		27
+
+/*******************************************************************************
+ * This value is used by the PSCI implementation during the `SYSTEM_SUSPEND`
+ * call as the `power_state` parameter. This allows the platform to encode
+ * the appropriate State-ID field within the `power_state` parameter which
+ * can be utilized in `affinst_suspend()` to suspend to system affinity level.
+ * The `power_state` parameter should be in the same format as specified by the
+ * PSCI specification for the CPU_SUSPEND API.
+ ******************************************************************************/
+#define PLAT_SYS_SUSPEND_STATE	((MPIDR_AFFLVL2 << PSTATE_AFF_LVL_SHIFT) | \
+				 (PSTATE_TYPE_POWERDOWN << PSTATE_TYPE_SHIFT) | \
+				 (PSTATE_ID_SOC_POWERDN << PSTATE_ID_SHIFT))
+
+/*******************************************************************************
  * Implementation defined ACTLR_EL3 bit definitions
  ******************************************************************************/
 #define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)
