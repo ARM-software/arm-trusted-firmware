@@ -40,12 +40,6 @@
 #include <tegra_def.h>
 #include <tegra_private.h>
 
-/* Power down state IDs */
-#define PSTATE_ID_CORE_POWERDN		7
-#define PSTATE_ID_CLUSTER_IDLE		16
-#define PSTATE_ID_CLUSTER_POWERDN	17
-#define PSTATE_ID_SOC_POWERDN		27
-
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
 
 int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)

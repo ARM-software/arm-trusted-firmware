@@ -114,6 +114,22 @@ void tegra_affinst_standby(unsigned int power_state)
 }
 
 /*******************************************************************************
+ * This handler is called by the PSCI implementation during the `SYSTEM_SUSPEND`
+ * call to get the `power_state` parameter. This allows the platform to encode
+ * the appropriate State-ID field within the `power_state` parameter which can
+ * be utilized in `affinst_suspend()` to suspend to system affinity level.
+******************************************************************************/
+unsigned int tegra_get_sys_suspend_power_state(void)
+{
+	unsigned int power_state;
+
+	power_state = psci_make_powerstate(PLAT_SYS_SUSPEND_STATE_ID,
+			PSTATE_TYPE_POWERDOWN, MPIDR_AFFLVL2);
+
+	return power_state;
+}
+
+/*******************************************************************************
  * Handler called to check the validity of the power state parameter.
  ******************************************************************************/
 int32_t tegra_validate_power_state(unsigned int power_state)
@@ -310,7 +326,8 @@ static const plat_pm_ops_t tegra_plat_pm_ops = {
 	.affinst_suspend_finish	= tegra_affinst_suspend_finish,
 	.system_off		= tegra_system_off,
 	.system_reset		= tegra_system_reset,
-	.validate_power_state	= tegra_validate_power_state
+	.validate_power_state	= tegra_validate_power_state,
+	.get_sys_suspend_power_state = tegra_get_sys_suspend_power_state
 };
 
 /*******************************************************************************

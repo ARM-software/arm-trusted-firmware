@@ -34,6 +34,20 @@
 #include <platform_def.h>
 
 /*******************************************************************************
+ * Power down state IDs
+ ******************************************************************************/
+#define PSTATE_ID_CORE_POWERDN		7
+#define PSTATE_ID_CLUSTER_IDLE		16
+#define PSTATE_ID_CLUSTER_POWERDN	17
+#define PSTATE_ID_SOC_POWERDN		27
+
+/*******************************************************************************
+ * This value is used by the PSCI implementation during the `SYSTEM_SUSPEND`
+ * call as the `state-id` field in the 'power state' parameter.
+ ******************************************************************************/
+#define PLAT_SYS_SUSPEND_STATE_ID	PSTATE_ID_SOC_POWERDN
+
+/*******************************************************************************
  * Implementation defined ACTLR_EL3 bit definitions
  ******************************************************************************/
 #define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)

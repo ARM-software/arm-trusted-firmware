@@ -28,3 +28,10 @@ Preparing the BL31 image to run on Tegra SoCs
 CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=tegra \
 TARGET_SOC=<target-soc e.g. t210> BL32=<path-to-trusted-os-binary> \
 SPD=<dispatcher e.g. tlkd> all
+
+Power Management
+================
+The PSCI implementation expects each platform to expose the 'power state'
+parameter to be used during the 'SYSTEM SUSPEND' call. The state-id field
+is implementation defined on Tegra SoCs and is preferably defined by
+tegra_def.h.
