@@ -121,7 +121,6 @@ int32_t tlkd_setup(void)
  ******************************************************************************/
 int32_t tlkd_init(void)
 {
-	uint64_t mpidr = read_mpidr();
 	entry_point_info_t *tlk_entry_point;
 
 	/*
@@ -131,7 +130,7 @@ int32_t tlkd_init(void)
 	tlk_entry_point = bl31_plat_get_next_image_ep_info(SECURE);
 	assert(tlk_entry_point);
 
-	cm_init_context(mpidr, tlk_entry_point);
+	cm_init_my_context(tlk_entry_point);
 
 	/*
 	 * Arrange for an entry into the test secure payload.
