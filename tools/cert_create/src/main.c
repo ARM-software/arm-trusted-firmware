@@ -116,8 +116,6 @@ static int key_alg;
 static int new_keys;
 static int save_keys;
 static int print_cert;
-static int bl30_present;
-static int bl32_present;
 
 /* Info messages created in the Makefile */
 extern const char build_msg[];
@@ -218,74 +216,55 @@ static int get_key_alg(const char *key_alg_str)
 
 static void check_cmd_params(void)
 {
+	cert_t *cert;
+	ext_t *ext;
+	key_t *key;
+	int i, j;
+
 	/* Only save new keys */
 	if (save_keys && !new_keys) {
 		ERROR("Only new keys can be saved to disk\n");
 		exit(1);
 	}
 
-	/* BL2, BL31 and BL33 are mandatory */
-	if (extensions[BL2_HASH_EXT].data.fn == NULL) {
-		ERROR("BL2 image not specified\n");
-		exit(1);
-	}
-
-	if (extensions[BL31_HASH_EXT].data.fn == NULL) {
-		ERROR("BL31 image not specified\n");
-		exit(1);
-	}
-
-	if (extensions[BL33_HASH_EXT].data.fn == NULL) {
-		ERROR("BL33 image not specified\n");
-		exit(1);
-	}
-
-	/* BL30 and BL32 are optional */
-	if (extensions[BL30_HASH_EXT].data.fn != NULL) {
-		bl30_present = 1;
-	}
-
-	if (extensions[BL32_HASH_EXT].data.fn != NULL) {
-		bl32_present = 1;
-	}
-
-	/* TODO: Certificate filenames */
-
-	/* Filenames to store keys must be specified */
-	if (save_keys || !new_keys) {
-		if (keys[ROT_KEY].fn == NULL) {
-			ERROR("ROT key not specified\n");
-			exit(1);
+	/* Check that all required options have been specified in the
+	 * command line */
+	for (i = 0; i < num_certs; i++) {
+		cert = &certs[i];
+		if (cert->fn == NULL) {
+			/* Certificate not requested. Skip to the next one */
+			continue;
 		}
 
-		if (keys[TRUSTED_WORLD_KEY].fn == NULL) {
-			ERROR("Trusted World key not specified\n");
-			exit(1);
-		}
-
-		if (keys[NON_TRUSTED_WORLD_KEY].fn == NULL) {
-			ERROR("Non-trusted World key not specified\n");
-			exit(1);
-		}
-
-		if (keys[BL31_KEY].fn == NULL) {
-			ERROR("BL31 key not specified\n");
-			exit(1);
-		}
-
-		if (keys[BL33_KEY].fn == NULL) {
-			ERROR("BL33 key not specified\n");
-			exit(1);
-		}
-
-		if (bl30_present && (keys[BL30_KEY].fn == NULL)) {
-			ERROR("BL30 key not specified\n");
-			exit(1);
-		}
-
-		if (bl32_present && (keys[BL32_KEY].fn == NULL)) {
-			ERROR("BL32 key not specified\n");
-			exit(1);
+		/* Check that all parameters required to create this certificate
+		 * have been specified in the command line */
+		for (j = 0; j < cert->num_ext; j++) {
+			ext = &extensions[cert->ext[j]];
+			switch (ext->type) {
+			case EXT_TYPE_PKEY:
+				/* Key filename must be specified */
+				key = &keys[ext->data.key];
+				if (!new_keys && key->fn == NULL) {
+					ERROR("Key '%s' required by '%s' not "
+					      "specified\n", key->desc,
+					      cert->cn);
+					exit(1);
+				}
+				break;
+			case EXT_TYPE_HASH:
+				/* Binary image must be specified */
+				if (ext->data.fn == NULL) {
+					ERROR("Image for '%s' not specified\n",
+					      ext->ln);
+					exit(1);
+				}
+				break;
+			default:
+				ERROR("Unknown extension type in '%s'\n",
+				      ext->ln);
+				exit(1);
+				break;
+			}
 		}
 	}
 }
@@ -518,7 +497,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* Create certificate. Signed with ROT key */
-		if (!cert_new(cert, VAL_DAYS, 0, sk)) {
+		if (cert->fn && !cert_new(cert, VAL_DAYS, 0, sk)) {
 			ERROR("Cannot create %s\n", cert->cn);
 			exit(1);
 		}
