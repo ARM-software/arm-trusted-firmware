@@ -49,8 +49,7 @@
  ******************************************************************************/
 void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
 {
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 
 	tsp_stats[linear_id].sync_fiq_count++;
 	if (type == TSP_HANDLE_FIQ_AND_RETURN)
@@ -59,9 +58,9 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
 	VERBOSE("TSP: cpu 0x%lx sync fiq request from 0x%lx\n",
-		mpidr, elr_el3);
+		read_mpidr(), elr_el3);
 	VERBOSE("TSP: cpu 0x%lx: %d sync fiq requests, %d sync fiq returns\n",
-		mpidr,
+		read_mpidr(),
 		tsp_stats[linear_id].sync_fiq_count,
 		tsp_stats[linear_id].sync_fiq_ret_count);
 	spin_unlock(&console_lock);
@@ -77,8 +76,7 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
  ******************************************************************************/
 int32_t tsp_fiq_handler(void)
 {
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr), id;
+	uint32_t linear_id = platform_my_core_pos(), id;
 
 	/*
 	 * Get the highest priority pending interrupt id and see if it is the
@@ -105,9 +103,9 @@ int32_t tsp_fiq_handler(void)
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
 	VERBOSE("TSP: cpu 0x%lx handled fiq %d\n",
-	       mpidr, id);
+	       read_mpidr(), id);
 	VERBOSE("TSP: cpu 0x%lx: %d fiq requests\n",
-	     mpidr, tsp_stats[linear_id].fiq_count);
+	     read_mpidr(), tsp_stats[linear_id].fiq_count);
 	spin_unlock(&console_lock);
 #endif
 	return 0;
@@ -115,15 +113,14 @@ int32_t tsp_fiq_handler(void)
 
 int32_t tsp_irq_received(void)
 {
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 
 	tsp_stats[linear_id].irq_count++;
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%lx received irq\n", mpidr);
+	VERBOSE("TSP: cpu 0x%lx received irq\n", read_mpidr());
 	VERBOSE("TSP: cpu 0x%lx: %d irq requests\n",
-		mpidr, tsp_stats[linear_id].irq_count);
+		read_mpidr(), tsp_stats[linear_id].irq_count);
 	spin_unlock(&console_lock);
 #endif
 	return TSP_PREEMPTED;
