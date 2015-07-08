@@ -196,13 +196,10 @@ void bl31_plat_arch_setup(void)
 	unsigned long total_size = TZDRAM_END - BL31_RO_BASE;
 	unsigned long ro_start = bl31_base_pa;
 	unsigned long ro_size = BL31_RO_LIMIT - BL31_RO_BASE;
+	const mmap_region_t *plat_mmio_map = NULL;
+#if USE_COHERENT_MEM
 	unsigned long coh_start = 0;
 	unsigned long coh_size = 0;
-	const mmap_region_t *plat_mmio_map = NULL;
-
-#if USE_COHERENT_MEM
-	coh_start = total_base + (BL31_COHERENT_RAM_BASE - BL31_RO_BASE);
-	coh_size = BL31_COHERENT_RAM_LIMIT - BL31_COHERENT_RAM_BASE;
 #endif
 
 	/* add memory regions */
@@ -212,7 +209,11 @@ void bl31_plat_arch_setup(void)
 	mmap_add_region(ro_start, ro_start,
 			ro_size,
 			MT_MEMORY | MT_RO | MT_SECURE);
+
 #if USE_COHERENT_MEM
+	coh_start = total_base + (BL31_COHERENT_RAM_BASE - BL31_RO_BASE);
+	coh_size = BL31_COHERENT_RAM_LIMIT - BL31_COHERENT_RAM_BASE;
+
 	mmap_add_region(coh_start, coh_start,
 			coh_size,
 			MT_DEVICE | MT_RW | MT_SECURE);
