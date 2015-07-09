@@ -215,7 +215,7 @@ void tegra_fc_lock_active_cluster(void)
  ******************************************************************************/
 void tegra_fc_reset_bpmp(void)
 {
-	uint32_t val;
+	uint32_t val, start, now;
 
 	/* halt BPMP */
 	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, FLOWCTRL_WAITEVENT);
@@ -230,10 +230,10 @@ void tegra_fc_reset_bpmp(void)
 		; /* wait till value reaches EVP_BPMP_RESET_VECTOR */
 
 	/* Wait for 2us before de-asserting the reset signal. */
-	val = mmio_read_32(TEGRA_TMRUS_BASE);
-	val += 2;
-	while (val > mmio_read_32(TEGRA_TMRUS_BASE))
-		; /* wait for 2us */
+	start = mmio_read_32(TEGRA_TMRUS_BASE);
+	do {
+		now = mmio_read_32(TEGRA_TMRUS_BASE);
+	} while ((now - start) <= 2);
 
 	/* De-assert BPMP reset */
 	mmio_write_32(TEGRA_CAR_RESET_BASE + CLK_RST_DEV_L_CLR, CLK_BPMP_RST);
