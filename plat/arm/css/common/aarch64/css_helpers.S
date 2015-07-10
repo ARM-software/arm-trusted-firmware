@@ -34,7 +34,6 @@
 
 	.weak	plat_secondary_cold_boot_setup
 	.weak	plat_get_my_entrypoint
-	.weak	platform_mem_init
 	.globl	plat_arm_calc_core_pos
 	.weak	plat_is_my_cpu_primary
 
@@ -88,17 +87,6 @@ func plat_arm_calc_core_pos
 	add	x0, x1, x0, LSR #6
 	ret
 endfunc plat_arm_calc_core_pos
-
-	/* -----------------------------------------------------
-	 * void platform_mem_init(void);
-	 *
-	 * We don't need to carry out any memory initialization
-	 * on CSS platforms. The Secure RAM is accessible straight away.
-	 * -----------------------------------------------------
-	 */
-func platform_mem_init
-	ret
-endfunc platform_mem_init
 
 	/* -----------------------------------------------------
 	 * unsigned int plat_is_my_cpu_primary (void);
