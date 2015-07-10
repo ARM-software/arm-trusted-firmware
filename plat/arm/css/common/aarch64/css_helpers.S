@@ -53,28 +53,24 @@ cb_panic:
 	b	cb_panic
 endfunc plat_secondary_cold_boot_setup
 
-	/* -----------------------------------------------------
+	/* ---------------------------------------------------------------------
 	 * unsigned long platform_get_my_entrypoint (void);
 	 *
-	 * Main job of this routine is to distinguish between
-	 * a cold and warm boot on the current CPU.
-	 * On a cold boot the secondaries first wait for the
-	 * platform to be initialized after which they are
-	 * hotplugged in. The primary proceeds to perform the
-	 * platform initialization.
-	 * On a warm boot, each cpu jumps to the address in its
-	 * mailbox.
+	 * Main job of this routine is to distinguish between a cold and a warm
+	 * boot. On CSS platforms, this distinction is based on the contents of
+	 * the Trusted Mailbox. It is initialised to zero by the SCP before the
+	 * AP cores are released from reset. Therefore, a zero mailbox means
+	 * it's a cold reset.
 	 *
-	 * TODO: Not a good idea to save lr in a temp reg
-	 * -----------------------------------------------------
+	 * This functions returns the contents of the mailbox, i.e.:
+	 *  - 0 for a cold boot;
+	 *  - the warm boot entrypoint for a warm boot.
+	 * ---------------------------------------------------------------------
 	 */
 func platform_get_my_entrypoint
-	mov	x9, x30 // lr
-	bl	platform_my_core_pos
-	ldr	x1, =TRUSTED_MAILBOXES_BASE
-	lsl	x0, x0, #TRUSTED_MAILBOX_SHIFT
-	ldr	x0, [x1, x0]
-	ret	x9
+	mov_imm	x0, TRUSTED_MAILBOX_BASE
+	ldr	x0, [x0]
+	ret
 endfunc platform_get_my_entrypoint
 
 	/* -----------------------------------------------------------
