@@ -39,8 +39,7 @@
  *************************************************************************/
 #define MHU_PAYLOAD_CACHED		0
 
-#define TRUSTED_MAILBOXES_BASE		ARM_TRUSTED_SRAM_BASE
-#define TRUSTED_MAILBOX_SHIFT		4
+#define TRUSTED_MAILBOX_BASE		ARM_TRUSTED_SRAM_BASE
 
 #define NSROM_BASE			0x1f000000
 #define NSROM_SIZE			0x00001000

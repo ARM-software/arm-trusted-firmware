@@ -139,7 +139,6 @@
 
 /* Entrypoint mailboxes */
 #define MBOX_BASE			ARM_SHARED_RAM_BASE
-#define MBOX_SIZE			0x200
 
 
 #endif /* __FVP_DEF_H__ */

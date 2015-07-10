@@ -96,29 +96,30 @@ cb_panic:
 	b	cb_panic
 endfunc plat_secondary_cold_boot_setup
 
-
-	/* -----------------------------------------------------
+	/* ---------------------------------------------------------------------
 	 * unsigned long plat_get_my_entrypoint (void);
 	 *
-	 * Main job of this routine is to distinguish between
-	 * a cold and warm boot on the current CPU.
-	 * On a cold boot the secondaries first wait for the
-	 * platform to be initialized after which they are
-	 * hotplugged in. The primary proceeds to perform the
-	 * platform initialization.
-	 * On a warm boot, each cpu jumps to the address in its
-	 * mailbox.
+	 * Main job of this routine is to distinguish between a cold and warm
+	 * boot. On FVP, this information can be queried from the power
+	 * controller. The Power Control SYS Status Register (PSYSR) indicates
+	 * the wake-up reason for the CPU.
 	 *
-	 * TODO: Not a good idea to save lr in a temp reg
+	 * For a cold boot, return 0.
+	 * For a warm boot, read the mailbox and return the address it contains.
+	 *
 	 * TODO: PSYSR is a common register and should be
 	 * 	accessed using locks. Since its not possible
 	 * 	to use locks immediately after a cold reset
 	 * 	we are relying on the fact that after a cold
 	 * 	reset all cpus will read the same WK field
-	 * -----------------------------------------------------
+	 * ---------------------------------------------------------------------
 	 */
 func plat_get_my_entrypoint
-	mov	x9, x30 // lr
+	/* ---------------------------------------------------------------------
+	 * When bit PSYSR.WK indicates either "Wake by PPONR" or "Wake by GIC
+	 * WakeRequest signal" then it is a warm boot.
+	 * ---------------------------------------------------------------------
+	 */
 	mrs	x2, mpidr_el1
 	ldr	x1, =PWRC_BASE
 	str	w2, [x1, #PSYSR_OFF]
@@ -128,46 +129,41 @@ func plat_get_my_entrypoint
 	beq	warm_reset
 	cmp	w2, #WKUP_GICREQ
 	beq	warm_reset
+
+	/* Cold reset */
 	mov	x0, #0
-	b	exit
+	ret
+
 warm_reset:
-	/* ---------------------------------------------
-	 * A per-cpu mailbox is maintained in the tru-
-	 * sted DRAM. Its flushed out of the caches
-	 * after every update using normal memory so
-	 * its safe to read it here with SO attributes
-	 * ---------------------------------------------
+	/* ---------------------------------------------------------------------
+	 * A mailbox is maintained in the trusted SRAM. It is flushed out of the
+	 * caches after every update using normal memory so it is safe to read
+	 * it here with SO attributes.
+	 * ---------------------------------------------------------------------
 	 */
-	ldr	x10, =MBOX_BASE
-	bl	plat_my_core_pos
-	lsl	x0, x0, #ARM_CACHE_WRITEBACK_SHIFT
-	ldr	x0, [x10, x0]
+	mov_imm	x0, MBOX_BASE
+	ldr	x0, [x0]
 	cbz	x0, _panic
-exit:
-	ret	x9
-_panic:	b	_panic
+	ret
+
+	/* ---------------------------------------------------------------------
+	 * The power controller indicates this is a warm reset but the mailbox
+	 * is empty. This should never happen!
+	 * ---------------------------------------------------------------------
+	 */
+_panic:
+	b	_panic
 endfunc plat_get_my_entrypoint
 
 
-	/* -----------------------------------------------------
+	/* ---------------------------------------------------------------------
 	 * void platform_mem_init (void);
 	 *
-	 * Zero out the mailbox registers in the shared memory.
-	 * The mmu is turned off right now and only the primary can
-	 * ever execute this code. Secondaries will read the
-	 * mailboxes using SO accesses. In short, BL31 will
-	 * update the mailboxes after mapping the tzdram as
-	 * normal memory. It will flush its copy after update.
-	 * BL1 will always read the mailboxes with the MMU off
-	 * -----------------------------------------------------
+	 * Nothing to do on FVP, the Trusted SRAM is available straight away
+	 * after reset.
+	 * ---------------------------------------------------------------------
 	 */
 func platform_mem_init
-	ldr	x0, =MBOX_BASE
-	mov	w1, #PLATFORM_CORE_COUNT
-loop:
-	str	xzr, [x0], #CACHE_WRITEBACK_GRANULE
-	subs	w1, w1, #1
-	b.gt	loop
 	ret
 endfunc platform_mem_init
 

@@ -43,11 +43,6 @@
 #include "fvp_def.h"
 #include "fvp_private.h"
 
-unsigned long wakeup_address;
-
-typedef volatile struct mailbox {
-	unsigned long value __aligned(CACHE_WRITEBACK_GRANULE);
-} mailbox_t;
 
 #if ARM_RECOM_STATE_ID_ENC
 /*
@@ -74,16 +69,11 @@ const unsigned int arm_pm_idle_states[] = {
  * Private FVP function to program the mailbox for a cpu before it is released
  * from reset.
  ******************************************************************************/
-static void fvp_program_mailbox(uint64_t mpidr, uint64_t address)
+static void fvp_program_mailbox(uintptr_t address)
 {
-	uint64_t linear_id;
-	mailbox_t *fvp_mboxes;
-
-	linear_id = plat_arm_calc_core_pos(mpidr);
-	fvp_mboxes = (mailbox_t *)MBOX_BASE;
-	fvp_mboxes[linear_id].value = address;
-	flush_dcache_range((unsigned long) &fvp_mboxes[linear_id],
-			   sizeof(unsigned long));
+	uintptr_t *mailbox = (void *) MBOX_BASE;
+	*mailbox = address;
+	flush_dcache_range((uintptr_t) mailbox, sizeof(*mailbox));
 }
 
 /*******************************************************************************
@@ -150,9 +140,7 @@ int fvp_pwr_domain_on(u_register_t mpidr)
 		psysr = fvp_pwrc_read_psysr(mpidr);
 	} while (psysr & PSYSR_AFF_L0);
 
-	fvp_program_mailbox(mpidr, wakeup_address);
 	fvp_pwrc_write_pponr(mpidr);
-
 	return rc;
 }
 
@@ -199,9 +187,6 @@ void fvp_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	/* Get the mpidr for this cpu */
 	mpidr = read_mpidr_el1();
-
-	/* Program the jump address for the this cpu */
-	fvp_program_mailbox(mpidr, wakeup_address);
 
 	/* Program the power controller to enable wakeup interrupts. */
 	fvp_pwrc_set_wen(mpidr);
@@ -253,9 +238,6 @@ void fvp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 * with a cpu power down unless the bit is set again
 	 */
 	fvp_pwrc_clr_wen(mpidr);
-
-	/* Zero the jump address in the mailbox for this cpu */
-	fvp_program_mailbox(mpidr, 0);
 
 	/* Enable the gic cpu interface */
 	arm_gic_cpuif_setup();
@@ -332,9 +314,8 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 				const plat_psci_ops_t **psci_ops)
 {
 	*psci_ops = &fvp_plat_psci_ops;
-	wakeup_address = sec_entrypoint;
 
-	flush_dcache_range((unsigned long)&wakeup_address,
-				sizeof(wakeup_address));
+	/* Program the jump address */
+	fvp_program_mailbox(sec_entrypoint);
 	return 0;
 }
