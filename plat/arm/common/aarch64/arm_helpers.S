@@ -34,6 +34,7 @@
 	.weak	platform_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	platform_mem_init
 
 
 	/* -----------------------------------------------------
@@ -86,3 +87,12 @@ func plat_crash_console_putc
 	mov_imm	x1, PLAT_ARM_CRASH_UART_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------------------------------
+	 * We don't need to carry out any memory initialization on ARM
+	 * platforms. The Secure RAM is accessible straight away.
+	 * ---------------------------------------------------------------------
+	 */
+func platform_mem_init
+	ret
+endfunc platform_mem_init
