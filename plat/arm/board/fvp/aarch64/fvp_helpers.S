@@ -38,7 +38,6 @@
 
 	.globl	plat_secondary_cold_boot_setup
 	.globl	platform_get_my_entrypoint
-	.globl	platform_mem_init
 	.globl	platform_is_my_cpu_primary
 
 	.macro	fvp_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
@@ -154,18 +153,6 @@ warm_reset:
 _panic:
 	b	_panic
 endfunc platform_get_my_entrypoint
-
-
-	/* ---------------------------------------------------------------------
-	 * void platform_mem_init (void);
-	 *
-	 * Nothing to do on FVP, the Trusted SRAM is available straight away
-	 * after reset.
-	 * ---------------------------------------------------------------------
-	 */
-func platform_mem_init
-	ret
-endfunc platform_mem_init
 
 
 func platform_is_my_cpu_primary
