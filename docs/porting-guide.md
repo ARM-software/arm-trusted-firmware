@@ -468,9 +468,6 @@ return value indicates that the CPU is the primary CPU.
 This function is called before any access to data is made by the firmware, in
 order to carry out any essential memory initialization.
 
-The ARM FVP port uses this function to initialize the mailbox memory used for
-providing the warm-boot entry-point addresses.
-
 
 ### Function: plat_get_rotpk_info()
 

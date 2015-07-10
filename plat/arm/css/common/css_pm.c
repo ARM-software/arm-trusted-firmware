@@ -41,7 +41,6 @@
 #include <psci.h>
 #include "css_scpi.h"
 
-unsigned long wakeup_address;
 
 #if ARM_RECOM_STATE_ID_ENC
 /*
@@ -68,15 +67,11 @@ const unsigned int arm_pm_idle_states[] = {
  * Private function to program the mailbox for a cpu before it is released
  * from reset.
  ******************************************************************************/
-static void css_program_mailbox(uint64_t mpidr, uint64_t address)
+static void css_program_mailbox(uintptr_t address)
 {
-	uint64_t linear_id;
-	uint64_t mbox;
-
-	linear_id = plat_arm_calc_core_pos(mpidr);
-	mbox = TRUSTED_MAILBOXES_BASE +	(linear_id << TRUSTED_MAILBOX_SHIFT);
-	*((uint64_t *) mbox) = address;
-	flush_dcache_range(mbox, sizeof(mbox));
+	uintptr_t *mailbox = (void *) TRUSTED_MAILBOX_BASE;
+	*mailbox = address;
+	flush_dcache_range((uintptr_t) mailbox, sizeof(*mailbox));
 }
 
 /*******************************************************************************
@@ -89,12 +84,6 @@ int css_pwr_domain_on(u_register_t mpidr)
 	 * SCP takes care of powering up parent power domains so we
 	 * only need to care about level 0
 	 */
-
-	/*
-	 * Setup mailbox with address for CPU entrypoint when it next powers up
-	 */
-	css_program_mailbox(mpidr, wakeup_address);
-
 	scpi_set_css_power_state(mpidr, scpi_power_on, scpi_power_on,
 				 scpi_power_on);
 
@@ -124,9 +113,6 @@ void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 	/* todo: Is this setup only needed after a cold boot? */
 	arm_gic_pcpu_distif_setup();
-
-	/* Clear the mailbox for this cpu. */
-	css_program_mailbox(read_mpidr_el1(), 0);
 }
 
 /*******************************************************************************
@@ -187,11 +173,6 @@ static void css_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	assert(target_state->pwr_domain_state[ARM_PWR_LVL0] ==
 						ARM_LOCAL_STATE_OFF);
-
-	/*
-	 * Setup mailbox with address for CPU entrypoint when it next powers up.
-	 */
-	css_program_mailbox(read_mpidr_el1(), wakeup_address);
 
 	css_power_down_common(target_state);
 }
@@ -297,8 +278,7 @@ int platform_setup_psci_ops(uintptr_t sec_entrypoint,
 {
 	*psci_ops = &css_ops;
 
-	wakeup_address = sec_entrypoint;
-	flush_dcache_range((unsigned long)&wakeup_address,
-				sizeof(wakeup_address));
+	/* Setup mailbox with entry point. */
+	css_program_mailbox(sec_entrypoint);
 	return 0;
 }
