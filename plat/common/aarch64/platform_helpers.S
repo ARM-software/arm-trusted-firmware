@@ -38,6 +38,33 @@
 	.weak	plat_reset_handler
 	.weak	plat_disable_acp
 
+#if !ENABLE_PLAT_COMPAT
+	.globl	platform_get_core_pos
+
+#define MPIDR_RES_BIT_MASK	0xff000000
+
+	/* ------------------------------------------------------------------
+	 *  int platform_get_core_pos(int mpidr)
+	 *  Returns the CPU index of the CPU specified by mpidr. This is
+	 *  defined when platform compatibility is disabled to enable Trusted
+	 *  Firmware components like SPD using the old  platform API to work.
+	 *  This API is deprecated and it assumes that the mpidr specified is
+	 *  that of a valid and present CPU. Instead, platform_my_core_pos()
+	 *  should be used for CPU index of the current CPU and
+	 *  platform_core_pos_by_mpidr() should be used for CPU index of a
+	 *  CPU specified by its mpidr.
+	 * ------------------------------------------------------------------
+	 */
+func_deprecated platform_get_core_pos
+	bic	x0, x0, #MPIDR_RES_BIT_MASK
+	mrs	x1, mpidr_el1
+	bic	x1, x1, #MPIDR_RES_BIT_MASK
+	cmp	x0, x1
+	beq	platform_my_core_pos
+	b	platform_core_pos_helper
+endfunc_deprecated platform_get_core_pos
+#endif
+
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
 	 * each platform.
