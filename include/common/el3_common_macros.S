@@ -164,8 +164,7 @@
 		 * then it means it is a warm boot so jump to this address.
 		 * -------------------------------------------------------------
 		 */
-		mrs	x0, mpidr_el1
-		bl	platform_get_entrypoint
+		bl	platform_get_my_entrypoint
 		cbz	x0, do_cold_boot
 		br	x0
 
@@ -181,8 +180,7 @@
 		 * of that state and allows entry into the OS.
 		 * -------------------------------------------------------------
 		 */
-		mrs	x0, mpidr_el1
-		bl	platform_is_primary_cpu
+		bl	platform_is_my_cpu_primary
 		cbnz	x0, do_primary_cold_boot
 
 		/* This is a cold boot on a secondary CPU */
@@ -249,8 +247,7 @@
 	 * moment.
 	 * ---------------------------------------------------------------------
 	 */
-	mrs	x0, mpidr_el1
-	bl	platform_set_stack
+	bl	platform_set_my_stack
 	.endm
 
 #endif /* __EL3_COMMON_MACROS_S__ */
