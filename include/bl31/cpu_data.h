@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -103,7 +103,6 @@ CASSERT(CPU_DATA_CPU_OPS_PTR == __builtin_offsetof
 		assert_cpu_data_cpu_ops_ptr_offset_mismatch);
 
 struct cpu_data *_cpu_data_by_index(uint32_t cpu_index);
-struct cpu_data *_cpu_data_by_mpidr(uint64_t mpidr);
 
 /* Return the cpu_data structure for the current CPU. */
 static inline struct cpu_data *_cpu_data(void)
@@ -123,8 +122,6 @@ void init_cpu_ops(void);
 #define set_cpu_data(_m, _v)		   _cpu_data()->_m = _v
 #define get_cpu_data_by_index(_ix, _m)	   _cpu_data_by_index(_ix)->_m
 #define set_cpu_data_by_index(_ix, _m, _v) _cpu_data_by_index(_ix)->_m = _v
-#define get_cpu_data_by_mpidr(_id, _m)	   _cpu_data_by_mpidr(_id)->_m
-#define set_cpu_data_by_mpidr(_id, _m, _v) _cpu_data_by_mpidr(_id)->_m = _v
 
 #define flush_cpu_data(_m)	   flush_dcache_range((uint64_t) 	  \
 						      &(_cpu_data()->_m), \

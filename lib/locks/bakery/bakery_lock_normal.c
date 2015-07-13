@@ -148,7 +148,7 @@ void bakery_lock_get(unsigned int id, unsigned int offset)
 	bakery_info_t *their_bakery_info;
 	unsigned int their_bakery_data;
 
-	me = platform_get_core_pos(read_mpidr_el1());
+	me = platform_my_core_pos();
 
 	is_cached = read_sctlr_el3() & SCTLR_C_BIT;
 
