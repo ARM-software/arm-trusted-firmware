@@ -115,6 +115,7 @@
 	.space ((\_count) * (\_size)), 0
 	.endm
 
+#if ENABLE_PLAT_COMPAT
 	/*
 	 * This macro calculates the base address of an MP stack using the
 	 * platform_get_core_pos() index, the name of the stack storage and
@@ -129,6 +130,7 @@
 	mov x1, #\_size
 	madd x0, x0, x1, x2
 	.endm
+#endif
 
 	/*
 	 * This macro calculates the base address of the current CPU's MP stack
