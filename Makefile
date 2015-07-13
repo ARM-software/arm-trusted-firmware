@@ -82,6 +82,8 @@ TRUSTED_BOARD_BOOT	:= 0
 # By default, consider that the platform's reset address is not programmable.
 # The platform Makefile is free to override this value.
 PROGRAMMABLE_RESET_ADDRESS	:= 0
+# Build flag to warn about usage of deprecated platform and framework APIs
+WARN_DEPRECATED	:= 0
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO \
@@ -301,6 +303,10 @@ $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 # Process ENABLE_PLAT_COMPAT flag
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
+
+# Process WARN_DEPRECATED flag
+$(eval $(call assert_boolean,WARN_DEPRECATED))
+$(eval $(call add_define,WARN_DEPRECATED))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
