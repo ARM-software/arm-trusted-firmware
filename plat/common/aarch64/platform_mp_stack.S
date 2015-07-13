@@ -37,9 +37,9 @@
 #if ENABLE_PLAT_COMPAT
 	.globl	plat_get_my_stack
 	.globl	plat_set_my_stack
-#else
 	.weak	platform_get_stack
 	.weak	platform_set_stack
+#else
 	.weak	plat_get_my_stack
 	.weak	plat_set_my_stack
 #endif /*__ENABLE_PLAT_COMPAT__*/
@@ -80,7 +80,6 @@ func plat_set_my_stack
 	b	platform_set_stack
 endfunc plat_set_my_stack
 
-#else
 	/* -----------------------------------------------------
 	 * unsigned long platform_get_stack (unsigned long mpidr)
 	 *
@@ -107,6 +106,8 @@ func platform_set_stack
 	mov sp, x0
 	ret x9
 endfunc platform_set_stack
+
+#else
 
 	/* -----------------------------------------------------
 	 * unsigned long plat_get_my_stack ()

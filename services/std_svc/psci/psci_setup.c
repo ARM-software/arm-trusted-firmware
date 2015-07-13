@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,351 +42,223 @@
  * Per cpu non-secure contexts used to program the architectural state prior
  * return to the normal world.
  * TODO: Use the memory allocator to set aside memory for the contexts instead
- * of relying on platform defined constants. Using PSCI_NUM_AFFS will be an
- * overkill.
+ * of relying on platform defined constants.
  ******************************************************************************/
 static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
-
-/*******************************************************************************
- * In a system, a certain number of affinity instances are present at an
- * affinity level. The cumulative number of instances across all levels are
- * stored in 'psci_aff_map'. The topology tree has been flattenned into this
- * array. To retrieve nodes, information about the extents of each affinity
- * level i.e. start index and end index needs to be present. 'psci_aff_limits'
- * stores this information.
- ******************************************************************************/
-aff_limits_node_t psci_aff_limits[MPIDR_MAX_AFFLVL + 1];
 
 /******************************************************************************
  * Define the psci capability variable.
  *****************************************************************************/
 uint32_t psci_caps;
 
-
 /*******************************************************************************
- * Routines for retrieving the node corresponding to an affinity level instance
- * in the mpidr. The first one uses binary search to find the node corresponding
- * to the mpidr (key) at a particular affinity level. The second routine decides
- * extents of the binary search at each affinity level.
+ * Function which initializes the 'psci_non_cpu_pd_nodes' or the
+ * 'psci_cpu_pd_nodes' corresponding to the power level.
  ******************************************************************************/
-static int psci_aff_map_get_idx(unsigned long key,
-				int min_idx,
-				int max_idx)
+static void psci_init_pwr_domain_node(int node_idx, int parent_idx, int level)
 {
-	int mid;
+	if (level > PSCI_CPU_PWR_LVL) {
+		psci_non_cpu_pd_nodes[node_idx].level = level;
+		psci_lock_init(psci_non_cpu_pd_nodes, node_idx);
+		psci_non_cpu_pd_nodes[node_idx].parent_node = parent_idx;
+		psci_non_cpu_pd_nodes[node_idx].local_state =
+							 PLAT_MAX_OFF_STATE;
+	} else {
+		psci_cpu_data_t *svc_cpu_data;
 
-	/*
-	 * Terminating condition: If the max and min indices have crossed paths
-	 * during the binary search then the key has not been found.
-	 */
-	if (max_idx < min_idx)
-		return PSCI_E_INVALID_PARAMS;
+		psci_cpu_pd_nodes[node_idx].parent_node = parent_idx;
 
-	/*
-	 * Make sure we are within array limits.
-	 */
-	assert(min_idx >= 0 && max_idx < PSCI_NUM_AFFS);
+		/* Initialize with an invalid mpidr */
+		psci_cpu_pd_nodes[node_idx].mpidr = PSCI_INVALID_MPIDR;
 
-	/*
-	 * Bisect the array around 'mid' and then recurse into the array chunk
-	 * where the key is likely to be found. The mpidrs in each node in the
-	 * 'psci_aff_map' for a given affinity level are stored in an ascending
-	 * order which makes the binary search possible.
-	 */
-	mid = min_idx + ((max_idx - min_idx) >> 1);	/* Divide by 2 */
+		svc_cpu_data =
+			&(_cpu_data_by_index(node_idx)->psci_svc_cpu_data);
 
-	if (psci_aff_map[mid].mpidr > key)
-		return psci_aff_map_get_idx(key, min_idx, mid - 1);
-	else if (psci_aff_map[mid].mpidr < key)
-		return psci_aff_map_get_idx(key, mid + 1, max_idx);
-	else
-		return mid;
-}
+		/* Set the Affinity Info for the cores as OFF */
+		svc_cpu_data->aff_info_state = AFF_STATE_OFF;
 
-aff_map_node_t *psci_get_aff_map_node(unsigned long mpidr, int aff_lvl)
-{
-	int rc;
+		/* Invalidate the suspend level for the cpu */
+		svc_cpu_data->target_pwrlvl = PSCI_INVALID_DATA;
 
-	if (aff_lvl > PLATFORM_MAX_AFFLVL)
-		return NULL;
+		/* Set the power state to OFF state */
+		svc_cpu_data->local_state = PLAT_MAX_OFF_STATE;
 
-	/* Right shift the mpidr to the required affinity level */
-	mpidr = mpidr_mask_lower_afflvls(mpidr, aff_lvl);
+		flush_dcache_range((uint64_t)svc_cpu_data,
+						 sizeof(*svc_cpu_data));
 
-	rc = psci_aff_map_get_idx(mpidr,
-				  psci_aff_limits[aff_lvl].min,
-				  psci_aff_limits[aff_lvl].max);
-	if (rc >= 0)
-		return &psci_aff_map[rc];
-	else
-		return NULL;
-}
-
-/*******************************************************************************
- * This function populates an array with nodes corresponding to a given range of
- * affinity levels in an mpidr. It returns successfully only when the affinity
- * levels are correct, the mpidr is valid i.e. no affinity level is absent from
- * the topology tree & the affinity instance at level 0 is not absent.
- ******************************************************************************/
-int psci_get_aff_map_nodes(unsigned long mpidr,
-			   int start_afflvl,
-			   int end_afflvl,
-			   aff_map_node_t *mpidr_nodes[])
-{
-	int rc = PSCI_E_INVALID_PARAMS, level;
-	aff_map_node_t *node;
-
-	rc = psci_check_afflvl_range(start_afflvl, end_afflvl);
-	if (rc != PSCI_E_SUCCESS)
-		return rc;
-
-	for (level = start_afflvl; level <= end_afflvl; level++) {
-
-		/*
-		 * Grab the node for each affinity level. No affinity level
-		 * can be missing as that would mean that the topology tree
-		 * is corrupted.
-		 */
-		node = psci_get_aff_map_node(mpidr, level);
-		if (node == NULL) {
-			rc = PSCI_E_INVALID_PARAMS;
-			break;
-		}
-
-		/*
-		 * Skip absent affinity levels unless it's afffinity level 0.
-		 * An absent cpu means that the mpidr is invalid. Save the
-		 * pointer to the node for the present affinity level
-		 */
-		if (!(node->state & PSCI_AFF_PRESENT)) {
-			if (level == MPIDR_AFFLVL0) {
-				rc = PSCI_E_INVALID_PARAMS;
-				break;
-			}
-
-			mpidr_nodes[level] = NULL;
-		} else
-			mpidr_nodes[level] = node;
-	}
-
-	return rc;
-}
-
-/*******************************************************************************
- * Function which initializes the 'aff_map_node' corresponding to an affinity
- * level instance. Each node has a unique mpidr, level and bakery lock. The data
- * field is opaque and holds affinity level specific data e.g. for affinity
- * level 0 it contains the index into arrays that hold the secure/non-secure
- * state for a cpu that's been turned on/off
- ******************************************************************************/
-static void psci_init_aff_map_node(unsigned long mpidr,
-				   int level,
-				   unsigned int idx)
-{
-	unsigned char state;
-	uint32_t linear_id;
-	psci_aff_map[idx].mpidr = mpidr;
-	psci_aff_map[idx].level = level;
-	psci_lock_init(psci_aff_map, idx);
-
-	/*
-	 * If an affinity instance is present then mark it as OFF to begin with.
-	 */
-	state = plat_get_aff_state(level, mpidr);
-	psci_aff_map[idx].state = state;
-
-	if (level == MPIDR_AFFLVL0) {
-
-		/*
-		 * Mark the cpu as OFF. Higher affinity level reference counts
-		 * have already been memset to 0
-		 */
-		if (state & PSCI_AFF_PRESENT)
-			psci_set_state(&psci_aff_map[idx], PSCI_STATE_OFF);
-
-		/*
-		 * Associate a non-secure context with this affinity
-		 * instance through the context management library.
-		 */
-		linear_id = platform_get_core_pos(mpidr);
-		assert(linear_id < PLATFORM_CORE_COUNT);
-
-		/* Invalidate the suspend context for the node */
-		set_cpu_data_by_index(linear_id,
-				      psci_svc_cpu_data.power_state,
-				      PSCI_INVALID_DATA);
-
-		/*
-		 * There is no state associated with the current execution
-		 * context so ensure that any reads of the highest affinity
-		 * level in a powered down state return PSCI_INVALID_DATA.
-		 */
-		set_cpu_data_by_index(linear_id,
-				      psci_svc_cpu_data.max_phys_off_afflvl,
-				      PSCI_INVALID_DATA);
-
-		flush_cpu_data_by_index(linear_id, psci_svc_cpu_data);
-
-		cm_set_context_by_mpidr(mpidr,
-					(void *) &psci_ns_context[linear_id],
+		cm_set_context_by_index(node_idx,
+					(void *) &psci_ns_context[node_idx],
 					NON_SECURE);
 	}
-
-	return;
 }
 
 /*******************************************************************************
- * Core routine used by the Breadth-First-Search algorithm to populate the
- * affinity tree. Each level in the tree corresponds to an affinity level. This
- * routine's aim is to traverse to the target affinity level and populate nodes
- * in the 'psci_aff_map' for all the siblings at that level. It uses the current
- * affinity level to keep track of how many levels from the root of the tree
- * have been traversed. If the current affinity level != target affinity level,
- * then the platform is asked to return the number of children that each
- * affinity instance has at the current affinity level. Traversal is then done
- * for each child at the next lower level i.e. current affinity level - 1.
- *
- * CAUTION: This routine assumes that affinity instance ids are allocated in a
- * monotonically increasing manner at each affinity level in a mpidr starting
- * from 0. If the platform breaks this assumption then this code will have to
- * be reworked accordingly.
- ******************************************************************************/
-static unsigned int psci_init_aff_map(unsigned long mpidr,
-				      unsigned int affmap_idx,
-				      int cur_afflvl,
-				      int tgt_afflvl)
+ * This functions updates cpu_start_idx and ncpus field for each of the node in
+ * psci_non_cpu_pd_nodes[]. It does so by comparing the parent nodes of each of
+ * the CPUs and check whether they match with the parent of the previous
+ * CPU. The basic assumption for this work is that children of the same parent
+ * are allocated adjacent indices. The platform should ensure this though proper
+ * mapping of the CPUs to indices via plat_core_pos_by_mpidr() and
+ * plat_my_core_pos() APIs.
+ *******************************************************************************/
+static void psci_update_pwrlvl_limits(void)
 {
-	unsigned int ctr, aff_count;
+	int cpu_idx, j;
+	unsigned int nodes_idx[PLAT_MAX_PWR_LVL] = {0};
+	unsigned int temp_index[PLAT_MAX_PWR_LVL];
 
-	assert(cur_afflvl >= tgt_afflvl);
+	for (cpu_idx = 0; cpu_idx < PLATFORM_CORE_COUNT; cpu_idx++) {
+		psci_get_parent_pwr_domain_nodes(cpu_idx,
+						 PLAT_MAX_PWR_LVL,
+						 temp_index);
+		for (j = PLAT_MAX_PWR_LVL - 1; j >= 0; j--) {
+			if (temp_index[j] != nodes_idx[j]) {
+				nodes_idx[j] = temp_index[j];
+				psci_non_cpu_pd_nodes[nodes_idx[j]].cpu_start_idx
+					= cpu_idx;
+			}
+			psci_non_cpu_pd_nodes[nodes_idx[j]].ncpus++;
+		}
+	}
+}
+
+/*******************************************************************************
+ * Core routine to populate the power domain tree. The tree descriptor passed by
+ * the platform is populated breadth-first and the first entry in the map
+ * informs the number of root power domains. The parent nodes of the root nodes
+ * will point to an invalid entry(-1).
+ ******************************************************************************/
+static void populate_power_domain_tree(const unsigned char *topology)
+{
+	unsigned int i, j = 0, num_nodes_at_lvl = 1, num_nodes_at_next_lvl;
+	unsigned int node_index = 0, parent_node_index = 0, num_children;
+	int level = PLAT_MAX_PWR_LVL;
 
 	/*
-	 * Find the number of siblings at the current affinity level &
-	 * assert if there are none 'cause then we have been invoked with
-	 * an invalid mpidr.
+	 * For each level the inputs are:
+	 * - number of nodes at this level in plat_array i.e. num_nodes_at_level
+	 *   This is the sum of values of nodes at the parent level.
+	 * - Index of first entry at this level in the plat_array i.e.
+	 *   parent_node_index.
+	 * - Index of first free entry in psci_non_cpu_pd_nodes[] or
+	 *   psci_cpu_pd_nodes[] i.e. node_index depending upon the level.
 	 */
-	aff_count = plat_get_aff_count(cur_afflvl, mpidr);
-	assert(aff_count);
+	while (level >= PSCI_CPU_PWR_LVL) {
+		num_nodes_at_next_lvl = 0;
+		/*
+		 * For each entry (parent node) at this level in the plat_array:
+		 * - Find the number of children
+		 * - Allocate a node in a power domain array for each child
+		 * - Set the parent of the child to the parent_node_index - 1
+		 * - Increment parent_node_index to point to the next parent
+		 * - Accumulate the number of children at next level.
+		 */
+		for (i = 0; i < num_nodes_at_lvl; i++) {
+			assert(parent_node_index <=
+					PSCI_NUM_NON_CPU_PWR_DOMAINS);
+			num_children = topology[parent_node_index];
 
-	if (tgt_afflvl < cur_afflvl) {
-		for (ctr = 0; ctr < aff_count; ctr++) {
-			mpidr = mpidr_set_aff_inst(mpidr, ctr, cur_afflvl);
-			affmap_idx = psci_init_aff_map(mpidr,
-						       affmap_idx,
-						       cur_afflvl - 1,
-						       tgt_afflvl);
-		}
-	} else {
-		for (ctr = 0; ctr < aff_count; ctr++, affmap_idx++) {
-			mpidr = mpidr_set_aff_inst(mpidr, ctr, cur_afflvl);
-			psci_init_aff_map_node(mpidr, cur_afflvl, affmap_idx);
+			for (j = node_index;
+				j < node_index + num_children; j++)
+				psci_init_pwr_domain_node(j,
+							  parent_node_index - 1,
+							  level);
+
+			node_index = j;
+			num_nodes_at_next_lvl += num_children;
+			parent_node_index++;
 		}
 
-		/* affmap_idx is 1 greater than the max index of cur_afflvl */
-		psci_aff_limits[cur_afflvl].max = affmap_idx - 1;
+		num_nodes_at_lvl = num_nodes_at_next_lvl;
+		level--;
+
+		/* Reset the index for the cpu power domain array */
+		if (level == PSCI_CPU_PWR_LVL)
+			node_index = 0;
 	}
 
-	return affmap_idx;
+	/* Validate the sanity of array exported by the platform */
+	assert(j == PLATFORM_CORE_COUNT);
+
+#if !USE_COHERENT_MEM
+	/* Flush the non CPU power domain data to memory */
+	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes,
+			   sizeof(psci_non_cpu_pd_nodes));
+#endif
 }
 
 /*******************************************************************************
- * This function initializes the topology tree by querying the platform. To do
- * so, it's helper routines implement a Breadth-First-Search. At each affinity
- * level the platform conveys the number of affinity instances that exist i.e.
- * the affinity count. The algorithm populates the psci_aff_map recursively
- * using this information. On a platform that implements two clusters of 4 cpus
- * each, the populated aff_map_array would look like this:
+ * This function initializes the power domain topology tree by querying the
+ * platform. The power domain nodes higher than the CPU are populated in the
+ * array psci_non_cpu_pd_nodes[] and the CPU power domains are populated in
+ * psci_cpu_pd_nodes[]. The platform exports its static topology map through the
+ * populate_power_domain_topology_tree() API. The algorithm populates the
+ * psci_non_cpu_pd_nodes and psci_cpu_pd_nodes iteratively by using this
+ * topology map.  On a platform that implements two clusters of 2 cpus each, and
+ * supporting 3 domain levels, the populated psci_non_cpu_pd_nodes would look
+ * like this:
  *
- *            <- cpus cluster0 -><- cpus cluster1 ->
  * ---------------------------------------------------
- * | 0  | 1  | 0  | 1  | 2  | 3  | 0  | 1  | 2  | 3  |
+ * | system node | cluster 0 node  | cluster 1 node  |
  * ---------------------------------------------------
- *           ^                                       ^
- * cluster __|                                 cpu __|
- * limit                                      limit
  *
- * The first 2 entries are of the cluster nodes. The next 4 entries are of cpus
- * within cluster 0. The last 4 entries are of cpus within cluster 1.
- * The 'psci_aff_limits' array contains the max & min index of each affinity
- * level within the 'psci_aff_map' array. This allows restricting search of a
- * node at an affinity level between the indices in the limits array.
+ * And populated psci_cpu_pd_nodes would look like this :
+ * <-    cpus cluster0   -><-   cpus cluster1   ->
+ * ------------------------------------------------
+ * |   CPU 0   |   CPU 1   |   CPU 2   |   CPU 3  |
+ * ------------------------------------------------
  ******************************************************************************/
 int32_t psci_setup(void)
 {
-	unsigned long mpidr = read_mpidr();
-	int afflvl, affmap_idx, max_afflvl;
-	aff_map_node_t *node;
+	const unsigned char *topology_tree;
 
-	psci_plat_pm_ops = NULL;
+	/* Query the topology map from the platform */
+	topology_tree = plat_get_power_domain_tree_desc();
 
-	/* Find out the maximum affinity level that the platform implements */
-	max_afflvl = PLATFORM_MAX_AFFLVL;
-	assert(max_afflvl <= MPIDR_MAX_AFFLVL);
+	/* Populate the power domain arrays using the platform topology map */
+	populate_power_domain_tree(topology_tree);
 
-	/*
-	 * This call traverses the topology tree with help from the platform and
-	 * populates the affinity map using a breadth-first-search recursively.
-	 * We assume that the platform allocates affinity instance ids from 0
-	 * onwards at each affinity level in the mpidr. FIRST_MPIDR = 0.0.0.0
-	 */
-	affmap_idx = 0;
-	for (afflvl = max_afflvl; afflvl >= MPIDR_AFFLVL0; afflvl--) {
-		affmap_idx = psci_init_aff_map(FIRST_MPIDR,
-					       affmap_idx,
-					       max_afflvl,
-					       afflvl);
-	}
+	/* Update the CPU limits for each node in psci_non_cpu_pd_nodes */
+	psci_update_pwrlvl_limits();
+
+	/* Populate the mpidr field of cpu node for this CPU */
+	psci_cpu_pd_nodes[plat_my_core_pos()].mpidr =
+		read_mpidr() & MPIDR_AFFINITY_MASK;
 
 #if !USE_COHERENT_MEM
 	/*
-	 * The psci_aff_map only needs flushing when it's not allocated in
+	 * The psci_non_cpu_pd_nodes only needs flushing when it's not allocated in
 	 * coherent memory.
 	 */
-	flush_dcache_range((uint64_t) &psci_aff_map, sizeof(psci_aff_map));
+	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes,
+			   sizeof(psci_non_cpu_pd_nodes));
 #endif
 
-	/*
-	 * Set the bounds for the affinity counts of each level in the map. Also
-	 * flush out the entire array so that it's visible to subsequent power
-	 * management operations. The 'psci_aff_limits' array is allocated in
-	 * normal memory. It will be accessed when the mmu is off e.g. after
-	 * reset. Hence it needs to be flushed.
-	 */
-	for (afflvl = MPIDR_AFFLVL0; afflvl < max_afflvl; afflvl++) {
-		psci_aff_limits[afflvl].min =
-			psci_aff_limits[afflvl + 1].max + 1;
-	}
+	flush_dcache_range((uint64_t) &psci_cpu_pd_nodes,
+			   sizeof(psci_cpu_pd_nodes));
 
-	flush_dcache_range((unsigned long) psci_aff_limits,
-			   sizeof(psci_aff_limits));
+	psci_init_req_local_pwr_states();
 
 	/*
-	 * Mark the affinity instances in our mpidr as ON. No need to lock as
-	 * this is the primary cpu.
+	 * Set the requested and target state of this CPU and all the higher
+	 * power domain levels for this CPU to run.
 	 */
-	mpidr &= MPIDR_AFFINITY_MASK;
-	for (afflvl = MPIDR_AFFLVL0; afflvl <= max_afflvl; afflvl++) {
+	psci_set_pwr_domains_to_run(PLAT_MAX_PWR_LVL);
 
-		node = psci_get_aff_map_node(mpidr, afflvl);
-		assert(node);
-
-		/* Mark each present node as ON. */
-		if (node->state & PSCI_AFF_PRESENT)
-			psci_set_state(node, PSCI_STATE_ON);
-	}
-
-	platform_setup_pm(&psci_plat_pm_ops);
+	plat_setup_psci_ops((uintptr_t)psci_entrypoint,
+					&psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
 	/* Initialize the psci capability */
 	psci_caps = PSCI_GENERIC_CAP;
 
-	if (psci_plat_pm_ops->affinst_off)
+	if (psci_plat_pm_ops->pwr_domain_off)
 		psci_caps |=  define_psci_cap(PSCI_CPU_OFF);
-	if (psci_plat_pm_ops->affinst_on && psci_plat_pm_ops->affinst_on_finish)
+	if (psci_plat_pm_ops->pwr_domain_on &&
+			psci_plat_pm_ops->pwr_domain_on_finish)
 		psci_caps |=  define_psci_cap(PSCI_CPU_ON_AARCH64);
-	if (psci_plat_pm_ops->affinst_suspend &&
-			psci_plat_pm_ops->affinst_suspend_finish) {
+	if (psci_plat_pm_ops->pwr_domain_suspend &&
+			psci_plat_pm_ops->pwr_domain_suspend_finish) {
 		psci_caps |=  define_psci_cap(PSCI_CPU_SUSPEND_AARCH64);
 		if (psci_plat_pm_ops->get_sys_suspend_power_state)
 			psci_caps |=  define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64);
