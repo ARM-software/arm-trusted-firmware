@@ -67,6 +67,17 @@
   #define MAKE_ULL(x)			x
 #endif
 
+/*
+ * Macros to wrap declarations of deprecated APIs within Trusted Firmware.
+ * The callers of these APIs will continue to compile as long as the build
+ * flag WARN_DEPRECATED is zero. Else the compiler will emit a warning
+ * when the callers of these APIs are compiled.
+ */
+#if WARN_DEPRECATED
+#define __warn_deprecated	__attribute__ ((deprecated))
+#else
+#define __warn_deprecated
+#endif
 
 #endif /* __COMMON_DEF_H__ */
 

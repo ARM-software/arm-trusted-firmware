@@ -228,6 +228,13 @@ int platform_setup_pm(const plat_pm_ops_t **);
 
 unsigned int plat_get_aff_count(unsigned int, unsigned long);
 unsigned int plat_get_aff_state(unsigned int, unsigned long);
-#endif /* __ENABLE_PLAT_COMPAT__ */
+#else
+/*
+ * The below function enable Trusted Firmware components like SPDs which
+ * haven't migrated to the new platform API to compile on platforms which
+ * have the compatibility layer disabled.
+ */
+unsigned int platform_get_core_pos(unsigned long mpidr) __warn_deprecated;
 
+#endif /* __ENABLE_PLAT_COMPAT__ */
 #endif /* __PLATFORM_H__ */

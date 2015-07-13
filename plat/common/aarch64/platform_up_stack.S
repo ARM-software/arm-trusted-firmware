@@ -41,7 +41,6 @@
 
 	/* -----------------------------------------------------
 	 * unsigned long platform_get_my_stack ()
-	 * unsigned long platform_get_stack (unsigned long)
 	 *
 	 * For cold-boot BL images, only the primary CPU needs a
 	 * stack. This function returns the stack pointer for a
@@ -49,14 +48,12 @@
 	 * -----------------------------------------------------
 	 */
 func platform_get_my_stack
-platform_get_stack:
 	get_up_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	ret
 endfunc platform_get_my_stack
 
 	/* -----------------------------------------------------
 	 * void platform_set_my_stack ()
-	 * void platform_set_stack (unsigned long)
 	 *
 	 * For cold-boot BL images, only the primary CPU needs a
 	 * stack. This function sets the stack pointer to a stack
@@ -64,11 +61,36 @@ endfunc platform_get_my_stack
 	 * -----------------------------------------------------
 	 */
 func platform_set_my_stack
-platform_set_stack:
 	get_up_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	mov sp, x0
 	ret
 endfunc platform_set_my_stack
+
+	/* -----------------------------------------------------
+	 * unsigned long platform_get_stack ()
+	 *
+	 * For cold-boot BL images, only the primary CPU needs a
+	 * stack. This function returns the stack pointer for a
+	 * stack allocated in device memory. This function
+	 * is deprecated.
+	 * -----------------------------------------------------
+	 */
+func_deprecated platform_get_stack
+	b	platform_get_my_stack
+endfunc_deprecated platform_get_stack
+
+	/* -----------------------------------------------------
+	 * void platform_set_stack ()
+	 *
+	 * For cold-boot BL images, only the primary CPU needs a
+	 * stack. This function sets the stack pointer to a stack
+	 * allocated in normal memory.This function is
+	 * deprecated.
+	 * -----------------------------------------------------
+	 */
+func_deprecated platform_set_stack
+	b	platform_set_my_stack
+endfunc_deprecated platform_set_stack
 
 	/* -----------------------------------------------------
 	 * Single cpu stack in normal memory.
