@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -42,9 +42,9 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				lib/cpus/aarch64/cpu_helpers.S			\
 				lib/locks/exclusive/spinlock.S			\
 				services/std_svc/std_svc_setup.c		\
-				services/std_svc/psci/psci_afflvl_off.c		\
-				services/std_svc/psci/psci_afflvl_on.c		\
-				services/std_svc/psci/psci_afflvl_suspend.c	\
+				services/std_svc/psci/psci_off.c		\
+				services/std_svc/psci/psci_on.c			\
+				services/std_svc/psci/psci_suspend.c		\
 				services/std_svc/psci/psci_common.c		\
 				services/std_svc/psci/psci_entry.S		\
 				services/std_svc/psci/psci_helpers.S		\

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 #include <platform.h>
 #include <runtime_svc.h>
 #include <std_svc.h>
+#include <string.h>
 #include "psci_private.h"
 
 /*******************************************************************************
@@ -46,14 +47,13 @@ int psci_cpu_on(unsigned long target_cpu,
 
 {
 	int rc;
-	unsigned int start_afflvl, end_afflvl;
+	unsigned int end_pwrlvl;
 	entry_point_info_t ep;
 
 	/* Determine if the cpu exists of not */
-	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
-	if (rc != PSCI_E_SUCCESS) {
+	rc = psci_validate_mpidr(target_cpu);
+	if (rc != PSCI_E_SUCCESS)
 		return PSCI_E_INVALID_PARAMS;
-	}
 
 	/* Validate the entrypoint using platform pm_ops */
 	if (psci_plat_pm_ops->validate_ns_entrypoint) {
@@ -73,18 +73,14 @@ int psci_cpu_on(unsigned long target_cpu,
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
-
 	/*
-	 * To turn this cpu on, specify which affinity
+	 * To turn this cpu on, specify which power
 	 * levels need to be turned on
 	 */
-	start_afflvl = MPIDR_AFFLVL0;
-	end_afflvl = PLATFORM_MAX_AFFLVL;
-	rc = psci_afflvl_on(target_cpu,
+	end_pwrlvl = PLAT_MAX_PWR_LVL;
+	rc = psci_cpu_on_start(target_cpu,
 			    &ep,
-			    start_afflvl,
-			    end_afflvl);
-
+			    end_pwrlvl);
 	return rc;
 }
 
@@ -98,73 +94,82 @@ int psci_cpu_suspend(unsigned int power_state,
 		     unsigned long context_id)
 {
 	int rc;
-	unsigned int target_afflvl, pstate_type;
+	unsigned int target_pwrlvl, is_power_down_state;
 	entry_point_info_t ep;
+	psci_power_state_t state_info = { {0} };
+	plat_local_state_t cpu_pd_state;
 
-	/* Check SBZ bits in power state are zero */
-	if (psci_validate_power_state(power_state))
-		return PSCI_E_INVALID_PARAMS;
-
-	/* Sanity check the requested state */
-	target_afflvl = psci_get_pstate_afflvl(power_state);
-	if (target_afflvl > PLATFORM_MAX_AFFLVL)
-		return PSCI_E_INVALID_PARAMS;
-
-	/* Validate the power_state using platform pm_ops */
-	if (psci_plat_pm_ops->validate_power_state) {
-		rc = psci_plat_pm_ops->validate_power_state(power_state);
-		if (rc != PSCI_E_SUCCESS) {
-			assert(rc == PSCI_E_INVALID_PARAMS);
-			return PSCI_E_INVALID_PARAMS;
-		}
+	/* Validate the power_state parameter */
+	rc = psci_validate_power_state(power_state, &state_info);
+	if (rc != PSCI_E_SUCCESS) {
+		assert(rc == PSCI_E_INVALID_PARAMS);
+		return rc;
 	}
-
-	/* Validate the entrypoint using platform pm_ops */
-	if (psci_plat_pm_ops->validate_ns_entrypoint) {
-		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
-		if (rc != PSCI_E_SUCCESS) {
-			assert(rc == PSCI_E_INVALID_PARAMS);
-			return PSCI_E_INVALID_PARAMS;
-		}
-	}
-
-	/* Determine the 'state type' in the 'power_state' parameter */
-	pstate_type = psci_get_pstate_type(power_state);
 
 	/*
-	 * Ensure that we have a platform specific handler for entering
-	 * a standby state.
+	 * Get the value of the state type bit from the power state parameter.
 	 */
-	if (pstate_type == PSTATE_TYPE_STANDBY) {
-		if  (!psci_plat_pm_ops->affinst_standby)
+	is_power_down_state = psci_get_pstate_type(power_state);
+
+	/* Sanity check the requested suspend levels */
+	assert (psci_validate_suspend_req(&state_info, is_power_down_state)
+			== PSCI_E_SUCCESS);
+
+	target_pwrlvl = psci_find_target_suspend_lvl(&state_info);
+
+	/* Fast path for CPU standby.*/
+	if (is_cpu_standby_req(is_power_down_state, target_pwrlvl)) {
+		if  (!psci_plat_pm_ops->cpu_standby)
 			return PSCI_E_INVALID_PARAMS;
 
-		psci_plat_pm_ops->affinst_standby(power_state);
+		/*
+		 * Set the state of the CPU power domain to the platform
+		 * specific retention state and enter the standby state.
+		 */
+		cpu_pd_state = state_info.pwr_domain_state[PSCI_CPU_PWR_LVL];
+		psci_set_cpu_local_state(cpu_pd_state);
+		psci_plat_pm_ops->cpu_standby(cpu_pd_state);
+
+		/* Upon exit from standby, set the state back to RUN. */
+		psci_set_cpu_local_state(PSCI_LOCAL_STATE_RUN);
+
 		return PSCI_E_SUCCESS;
 	}
 
 	/*
-	 * Verify and derive the re-entry information for
-	 * the non-secure world from the non-secure state from
-	 * where this call originated.
+	 * If a power down state has been requested, we need to verify entry
+	 * point and program entry information.
 	 */
-	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
-	if (rc != PSCI_E_SUCCESS)
-		return rc;
+	if (is_power_down_state) {
+		if (psci_plat_pm_ops->validate_ns_entrypoint) {
+			rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
+			if (rc != PSCI_E_SUCCESS) {
+				assert(rc == PSCI_E_INVALID_PARAMS);
+				return rc;
+			}
+		}
 
-	/* Save PSCI power state parameter for the core in suspend context */
-	psci_set_suspend_power_state(power_state);
+		/*
+		 * Verify and derive the re-entry information for
+		 * the non-secure world from the non-secure state from
+		 * where this call originated.
+		 */
+		rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+		if (rc != PSCI_E_SUCCESS)
+			return rc;
+	}
 
 	/*
 	 * Do what is needed to enter the power down state. Upon success,
-	 * enter the final wfi which will power down this CPU.
+	 * enter the final wfi which will power down this CPU. This function
+	 * might return if the power down was abandoned for any reason, e.g.
+	 * arrival of an interrupt
 	 */
-	psci_afflvl_suspend(&ep,
-			    MPIDR_AFFLVL0,
-			    target_afflvl);
+	psci_cpu_suspend_start(&ep,
+			    target_pwrlvl,
+			    &state_info,
+			    is_power_down_state);
 
-	/* Reset PSCI power state parameter for the core. */
-	psci_set_suspend_power_state(PSCI_INVALID_DATA);
 	return PSCI_E_SUCCESS;
 }
 
@@ -172,7 +177,7 @@ int psci_system_suspend(unsigned long entrypoint,
 			unsigned long context_id)
 {
 	int rc;
-	unsigned int power_state;
+	psci_power_state_t state_info;
 	entry_point_info_t ep;
 
 	/* Validate the entrypoint using platform pm_ops */
@@ -180,7 +185,7 @@ int psci_system_suspend(unsigned long entrypoint,
 		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
 		if (rc != PSCI_E_SUCCESS) {
 			assert(rc == PSCI_E_INVALID_PARAMS);
-			return PSCI_E_INVALID_PARAMS;
+			return rc;
 		}
 	}
 
@@ -197,45 +202,39 @@ int psci_system_suspend(unsigned long entrypoint,
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
-	/*
-	 * Assert that the required pm_ops hook is implemented to ensure that
-	 * the capability detected during psci_setup() is valid.
-	 */
-	assert(psci_plat_pm_ops->get_sys_suspend_power_state);
+	/* Query the psci_power_state for system suspend */
+	psci_query_sys_suspend_pwrstate(&state_info);
+
+	/* Ensure that the psci_power_state makes sense */
+	assert(psci_find_target_suspend_lvl(&state_info) == PLAT_MAX_PWR_LVL);
+	assert(psci_validate_suspend_req(&state_info, PSTATE_TYPE_POWERDOWN)
+						== PSCI_E_SUCCESS);
+	assert(is_local_state_off(state_info.pwr_domain_state[PLAT_MAX_PWR_LVL]));
 
 	/*
-	 * Query the platform for the power_state required for system suspend
+	 * Do what is needed to enter the system suspend state. This function
+	 * might return if the power down was abandoned for any reason, e.g.
+	 * arrival of an interrupt
 	 */
-	power_state = psci_plat_pm_ops->get_sys_suspend_power_state();
+	psci_cpu_suspend_start(&ep,
+			    PLAT_MAX_PWR_LVL,
+			    &state_info,
+			    PSTATE_TYPE_POWERDOWN);
 
-	/* Save PSCI power state parameter for the core in suspend context */
-	psci_set_suspend_power_state(power_state);
-
-	/*
-	 * Do what is needed to enter the power down state. Upon success,
-	 * enter the final wfi which will power down this cpu.
-	 */
-	psci_afflvl_suspend(&ep,
-			    MPIDR_AFFLVL0,
-			    PLATFORM_MAX_AFFLVL);
-
-	/* Reset PSCI power state parameter for the core. */
-	psci_set_suspend_power_state(PSCI_INVALID_DATA);
 	return PSCI_E_SUCCESS;
 }
 
 int psci_cpu_off(void)
 {
 	int rc;
-	int target_afflvl = PLATFORM_MAX_AFFLVL;
+	int target_pwrlvl = PLAT_MAX_PWR_LVL;
 
 	/*
-	 * Traverse from the highest to the lowest affinity level. When the
-	 * lowest affinity level is hit, all the locks are acquired. State
-	 * management is done immediately followed by cpu, cluster ...
-	 * ..target_afflvl specific actions as this function unwinds back.
+	 * Do what is needed to power off this CPU and possible higher power
+	 * levels if it able to do so. Upon success, enter the final wfi
+	 * which will power down this CPU.
 	 */
-	rc = psci_afflvl_off(MPIDR_AFFLVL0, target_afflvl);
+	rc = psci_do_cpu_off(target_pwrlvl);
 
 	/*
 	 * The only error cpu_off can return is E_DENIED. So check if that's
@@ -249,32 +248,18 @@ int psci_cpu_off(void)
 int psci_affinity_info(unsigned long target_affinity,
 		       unsigned int lowest_affinity_level)
 {
-	int rc = PSCI_E_INVALID_PARAMS;
-	unsigned int aff_state;
-	aff_map_node_t *node;
+	unsigned int target_idx;
 
-	if (lowest_affinity_level > PLATFORM_MAX_AFFLVL)
-		return rc;
+	/* We dont support level higher than PSCI_CPU_PWR_LVL */
+	if (lowest_affinity_level > PSCI_CPU_PWR_LVL)
+		return PSCI_E_INVALID_PARAMS;
 
-	node = psci_get_aff_map_node(target_affinity, lowest_affinity_level);
-	if (node && (node->state & PSCI_AFF_PRESENT)) {
+	/* Calculate the cpu index of the target */
+	target_idx = platform_core_pos_by_mpidr(target_affinity);
+	if (target_idx == -1)
+		return PSCI_E_INVALID_PARAMS;
 
-		/*
-		 * TODO: For affinity levels higher than 0 i.e. cpu, the
-		 * state will always be either ON or OFF. Need to investigate
-		 * how critical is it to support ON_PENDING here.
-		 */
-		aff_state = psci_get_state(node);
-
-		/* A suspended cpu is available & on for the OS */
-		if (aff_state == PSCI_STATE_SUSPEND) {
-			aff_state = PSCI_STATE_ON;
-		}
-
-		rc = aff_state;
-	}
-
-	return rc;
+	return psci_get_aff_info_state_by_idx(target_idx);
 }
 
 int psci_migrate(unsigned long target_cpu)
@@ -295,7 +280,7 @@ int psci_migrate(unsigned long target_cpu)
 		return PSCI_E_NOT_PRESENT;
 
 	/* Check the validity of the specified target cpu */
-	rc = psci_validate_mpidr(target_cpu, MPIDR_AFFLVL0);
+	rc = psci_validate_mpidr(target_cpu);
 	if (rc != PSCI_E_SUCCESS)
 		return PSCI_E_INVALID_PARAMS;
 
@@ -352,10 +337,9 @@ int psci_features(unsigned int psci_fid)
 	if (psci_fid == PSCI_CPU_SUSPEND_AARCH32 ||
 			psci_fid == PSCI_CPU_SUSPEND_AARCH64) {
 		/*
-		 * The trusted firmware uses the original power state format
-		 * and does not support OS Initiated Mode.
+		 * The trusted firmware does not support OS Initiated Mode.
 		 */
-		return (FF_PSTATE_ORIG << FF_PSTATE_SHIFT) |
+		return (FF_PSTATE << FF_PSTATE_SHIFT) |
 			((!FF_SUPPORTS_OS_INIT_MODE) << FF_MODE_SUPPORT_SHIFT);
 	}
 
