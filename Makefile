@@ -169,10 +169,6 @@ msg_start:
 
 include ${PLAT_MAKEFILE_FULL}
 
-# Disable the Platform Compatibility layer till the new PSCI framework is
-# introduced.
-ENABLE_PLAT_COMPAT := 0
-
 # If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
 ifndef ENABLE_PLAT_COMPAT
 ENABLE_PLAT_COMPAT := 1
