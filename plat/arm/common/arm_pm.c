@@ -29,6 +29,7 @@
  */
 
 #include <arch_helpers.h>
+#include <arm_def.h>
 #include <assert.h>
 #include <errno.h>
 #include <plat_arm.h>
@@ -123,3 +124,23 @@ int arm_validate_power_state(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 #endif /* __ARM_RECOM_STATE_ID_ENC__ */
+
+/*******************************************************************************
+ * ARM standard platform handler called to check the validity of the non secure
+ * entrypoint.
+ ******************************************************************************/
+int arm_validate_ns_entrypoint(uintptr_t entrypoint)
+{
+	/*
+	 * Check if the non secure entrypoint lies within the non
+	 * secure DRAM.
+	 */
+	if ((entrypoint >= ARM_NS_DRAM1_BASE) && (entrypoint <
+			(ARM_NS_DRAM1_BASE + ARM_NS_DRAM1_SIZE)))
+		return PSCI_E_SUCCESS;
+	if ((entrypoint >= ARM_DRAM2_BASE) && (entrypoint <
+			(ARM_DRAM2_BASE + ARM_DRAM2_SIZE)))
+		return PSCI_E_SUCCESS;
+
+	return PSCI_E_INVALID_ADDRESS;
+}

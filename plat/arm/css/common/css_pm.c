@@ -267,7 +267,8 @@ static const plat_psci_ops_t css_ops = {
 	.pwr_domain_suspend_finish	= css_pwr_domain_suspend_finish,
 	.system_off		= css_system_off,
 	.system_reset		= css_system_reset,
-	.validate_power_state	= arm_validate_power_state
+	.validate_power_state	= arm_validate_power_state,
+	.validate_ns_entrypoint = arm_validate_ns_entrypoint
 };
 
 /*******************************************************************************
