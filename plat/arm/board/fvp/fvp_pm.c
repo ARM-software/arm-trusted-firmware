@@ -304,7 +304,8 @@ static const plat_psci_ops_t fvp_plat_psci_ops = {
 	.pwr_domain_suspend_finish = fvp_pwr_domain_suspend_finish,
 	.system_off = fvp_system_off,
 	.system_reset = fvp_system_reset,
-	.validate_power_state = arm_validate_power_state
+	.validate_power_state = arm_validate_power_state,
+	.validate_ns_entrypoint = arm_validate_ns_entrypoint
 };
 
 /*******************************************************************************
