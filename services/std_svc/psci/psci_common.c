@@ -578,7 +578,7 @@ int psci_validate_mpidr(unsigned long mpidr)
  * This function determines the full entrypoint information for the requested
  * PSCI entrypoint on power on/resume and returns it.
  ******************************************************************************/
-int psci_get_ns_ep_info(entry_point_info_t *ep,
+static int psci_get_ns_ep_info(entry_point_info_t *ep,
 		       uint64_t entrypoint, uint64_t context_id)
 {
 	uint32_t ep_attr, mode, sctlr, daif, ee;
@@ -610,7 +610,7 @@ int psci_get_ns_ep_info(entry_point_info_t *ep,
 		 * aarch64 EL
 		 */
 		if (entrypoint & 0x1)
-			return PSCI_E_INVALID_PARAMS;
+			return PSCI_E_INVALID_ADDRESS;
 
 		mode = ns_scr_el3 & SCR_HCE_BIT ? MODE_EL2 : MODE_EL1;
 
@@ -629,6 +629,32 @@ int psci_get_ns_ep_info(entry_point_info_t *ep,
 	}
 
 	return PSCI_E_SUCCESS;
+}
+
+/*******************************************************************************
+ * This function validates the entrypoint with the platform layer if the
+ * appropriate pm_ops hook is exported by the platform and returns the
+ * 'entry_point_info'.
+ ******************************************************************************/
+int psci_validate_entry_point(entry_point_info_t *ep,
+		       uint64_t entrypoint, uint64_t context_id)
+{
+	int rc;
+
+	/* Validate the entrypoint using platform psci_ops */
+	if (psci_plat_pm_ops->validate_ns_entrypoint) {
+		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
+		if (rc != PSCI_E_SUCCESS)
+			return PSCI_E_INVALID_ADDRESS;
+	}
+
+	/*
+	 * Verify and derive the re-entry information for
+	 * the non-secure world from the non-secure state from
+	 * where this call originated.
+	 */
+	rc = psci_get_ns_ep_info(ep, entrypoint, context_id);
+	return rc;
 }
 
 /*******************************************************************************
