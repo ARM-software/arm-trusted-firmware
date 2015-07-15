@@ -55,21 +55,8 @@ int psci_cpu_on(unsigned long target_cpu,
 	if (rc != PSCI_E_SUCCESS)
 		return PSCI_E_INVALID_PARAMS;
 
-	/* Validate the entrypoint using platform pm_ops */
-	if (psci_plat_pm_ops->validate_ns_entrypoint) {
-		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
-		if (rc != PSCI_E_SUCCESS) {
-			assert(rc == PSCI_E_INVALID_PARAMS);
-			return PSCI_E_INVALID_PARAMS;
-		}
-	}
-
-	/*
-	 * Verify and derive the re-entry information for
-	 * the non-secure world from the non-secure state from
-	 * where this call originated.
-	 */
-	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+	/* Validate the entry point and get the entry_point_info */
+	rc = psci_validate_entry_point(&ep, entrypoint, context_id);
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
@@ -141,20 +128,7 @@ int psci_cpu_suspend(unsigned int power_state,
 	 * point and program entry information.
 	 */
 	if (is_power_down_state) {
-		if (psci_plat_pm_ops->validate_ns_entrypoint) {
-			rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
-			if (rc != PSCI_E_SUCCESS) {
-				assert(rc == PSCI_E_INVALID_PARAMS);
-				return rc;
-			}
-		}
-
-		/*
-		 * Verify and derive the re-entry information for
-		 * the non-secure world from the non-secure state from
-		 * where this call originated.
-		 */
-		rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+		rc = psci_validate_entry_point(&ep, entrypoint, context_id);
 		if (rc != PSCI_E_SUCCESS)
 			return rc;
 	}
@@ -180,25 +154,12 @@ int psci_system_suspend(unsigned long entrypoint,
 	psci_power_state_t state_info;
 	entry_point_info_t ep;
 
-	/* Validate the entrypoint using platform pm_ops */
-	if (psci_plat_pm_ops->validate_ns_entrypoint) {
-		rc = psci_plat_pm_ops->validate_ns_entrypoint(entrypoint);
-		if (rc != PSCI_E_SUCCESS) {
-			assert(rc == PSCI_E_INVALID_PARAMS);
-			return rc;
-		}
-	}
-
 	/* Check if the current CPU is the last ON CPU in the system */
 	if (!psci_is_last_on_cpu())
 		return PSCI_E_DENIED;
 
-	/*
-	 * Verify and derive the re-entry information for
-	 * the non-secure world from the non-secure state from
-	 * where this call originated.
-	 */
-	rc = psci_get_ns_ep_info(&ep, entrypoint, context_id);
+	/* Validate the entry point and get the entry_point_info */
+	rc = psci_validate_entry_point(&ep, entrypoint, context_id);
 	if (rc != PSCI_E_SUCCESS)
 		return rc;
 
