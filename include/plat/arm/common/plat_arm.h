@@ -190,6 +190,7 @@ void arm_tzc_setup(void);
 /* PM utility functions */
 int arm_validate_power_state(unsigned int power_state,
 			    psci_power_state_t *req_state);
+int arm_validate_ns_entrypoint(uintptr_t entrypoint);
 
 /* Topology utility function */
 int arm_check_mpidr(u_register_t mpidr);
