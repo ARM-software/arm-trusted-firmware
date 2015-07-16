@@ -38,7 +38,14 @@
 #include <runtime_svc.h>
 #include <tegra_private.h>
 
+#define NS_SWITCH_AARCH32	1
+#define SCR_RW_BITPOS		10
+
+/*******************************************************************************
+ * Tegra SiP SMCs
+ ******************************************************************************/
 #define TEGRA_SIP_NEW_VIDEOMEM_REGION		0x82000003
+#define TEGRA_SIP_AARCH_SWITCH			0x82000004
 
 /*******************************************************************************
  * This function is responsible for handling all SiP calls from the NS world
@@ -54,6 +61,9 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 {
 	uint32_t ns;
 	int err;
+	uint32_t spsr_32 = SPSR_MODE32(MODE32_svc, SPSR_T_ARM, SPSR_E_LITTLE,
+				DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT);
+	uint32_t spsr_64 = SPSR_64(MODE_EL2, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
 	/* Determine which security state this SMC originated from */
 	ns = is_caller_non_secure(flags);
@@ -83,6 +93,24 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 		/* new video memory carveout settings */
 		tegra_memctrl_videomem_setup(x1, x2);
 
+		SMC_RET1(handle, 0);
+
+	case TEGRA_SIP_AARCH_SWITCH:
+
+		if (!x1 || x2 > NS_SWITCH_AARCH32) {
+			ERROR("%s: invalid parameters\n", __func__);
+			SMC_RET1(handle, SMC_UNK);
+		}
+
+		/* x1 = ns entry point */
+		cm_set_elr_spsr_el3(NON_SECURE, x1,
+			(x2 == NS_SWITCH_AARCH32) ? spsr_32 : spsr_64);
+
+		/* switch NS world mode */
+		cm_write_scr_el3_bit(NON_SECURE, SCR_RW_BITPOS, !x2);
+
+		INFO("CPU switched to AARCH%s mode\n",
+			(x2 == NS_SWITCH_AARCH32) ? "32" : "64");
 		SMC_RET1(handle, 0);
 
 	default:
