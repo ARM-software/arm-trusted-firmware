@@ -28,19 +28,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-TEGRA_BOOT_UART_BASE 		:= 0x70006000
+TEGRA_BOOT_UART_BASE 			:= 0x70006000
 $(eval $(call add_define,TEGRA_BOOT_UART_BASE))
 
-TZDRAM_BASE			:= 0xFDC00000
+TZDRAM_BASE				:= 0xFDC00000
 $(eval $(call add_define,TZDRAM_BASE))
 
 ERRATA_TEGRA_INVALIDATE_BTB_AT_BOOT	:= 1
 $(eval $(call add_define,ERRATA_TEGRA_INVALIDATE_BTB_AT_BOOT))
 
-PLATFORM_CLUSTER_COUNT		:= 2
+ENABLE_NS_L2_CPUECTRL_RW_ACCESS		:= 1
+$(eval $(call add_define,ENABLE_NS_L2_CPUECTRL_RW_ACCESS))
+
+PLATFORM_CLUSTER_COUNT			:= 2
 $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 
-PLATFORM_MAX_CPUS_PER_CLUSTER	:= 4
+PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
 BL31_SOURCES		+=	${SOC_DIR}/plat_psci_handlers.c \
@@ -49,3 +52,4 @@ BL31_SOURCES		+=	${SOC_DIR}/plat_psci_handlers.c \
 
 # Enable workarounds for selected Cortex-A53 erratas.
 ERRATA_A53_826319	:=	1
+
