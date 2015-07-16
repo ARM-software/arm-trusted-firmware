@@ -105,6 +105,11 @@ void tegra_pmc_lock_cpu_vectors(void)
 {
 	uint32_t val;
 
+	/* lock PMC_SECURE_SCRATCH22 */
+	val = mmio_read_32(TEGRA_PMC_BASE + PMC_SECURE_DISABLE2);
+	val |= PMC_SECURE_DISABLE2_WRITE22_ON;
+	mmio_write_32(TEGRA_PMC_BASE + PMC_SECURE_DISABLE2, val);
+
 	/* lock PMC_SECURE_SCRATCH34/35 */
 	val = tegra_pmc_read_32(PMC_SECURE_DISABLE3);
 	val |= (PMC_SECURE_DISABLE3_WRITE34_ON |
