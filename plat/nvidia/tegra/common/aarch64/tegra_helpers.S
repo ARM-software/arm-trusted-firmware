@@ -57,6 +57,7 @@
 	 */
 .macro	cpu_init_common
 
+#if ENABLE_NS_L2_CPUECTRL_RW_ACCESS
 	/* -------------------------------------------------------
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
 	 * -------------------------------------------------------
@@ -65,6 +66,7 @@
 	msr	actlr_el3, x0
 	msr	actlr_el2, x0
 	isb
+#endif
 
 	/* --------------------------------
 	 * Enable the cycle count register
