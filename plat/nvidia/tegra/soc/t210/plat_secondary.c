@@ -60,4 +60,5 @@ void plat_secondary_setup(void)
 
 	/* configure PMC */
 	tegra_pmc_cpu_setup(reset_addr);
+	tegra_pmc_lock_cpu_vectors();
 }
