@@ -162,6 +162,11 @@ void bl31_platform_setup(void)
 	uint32_t tmp_reg;
 
 	/*
+	 * Initialize delay timer
+	 */
+	tegra_delay_timer_init();
+
+	/*
 	 * Setup secondary CPU POR infrastructure.
 	 */
 	plat_secondary_setup();

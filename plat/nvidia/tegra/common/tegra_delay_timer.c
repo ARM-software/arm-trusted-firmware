@@ -28,53 +28,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __TEGRA_PRIVATE_H__
-#define __TEGRA_PRIVATE_H__
+#include <delay_timer.h>
+#include <mmio.h>
+#include <tegra_def.h>
 
-#include <xlat_tables.h>
-#include <platform_def.h>
+static uint32_t tegra_timerus_get_value(void)
+{
+	return mmio_read_32(TEGRA_TMRUS_BASE);
+}
 
-/*******************************************************************************
- * Tegra DRAM memory base address
- ******************************************************************************/
-#define TEGRA_DRAM_BASE		0x80000000
-#define TEGRA_DRAM_END		0x27FFFFFFF
+static const timer_ops_t tegra_timer_ops = {
+	.get_timer_value	= tegra_timerus_get_value,
+	.clk_mult		= 1,
+	.clk_div		= 1,
+};
 
-typedef struct plat_params_from_bl2 {
-	uint64_t tzdram_size;
-	uintptr_t bl32_params;
-} plat_params_from_bl2_t;
-
-/* Declarations for plat_setup.c */
-const mmap_region_t *plat_get_mmio_map(void);
-uint64_t plat_get_syscnt_freq(void);
-
-/* Declarations for plat_secondary.c */
-void plat_secondary_setup(void);
-int plat_lock_cpu_vectors(void);
-
-/* Declarations for tegra_gic.c */
-void tegra_gic_setup(void);
-void tegra_gic_cpuif_deactivate(void);
-
-/* Declarations for tegra_security.c */
-void tegra_security_setup(void);
-void tegra_security_setup_videomem(uintptr_t base, uint64_t size);
-
-/* Declarations for tegra_pm.c */
-void tegra_pm_system_suspend_entry(void);
-void tegra_pm_system_suspend_exit(void);
-int tegra_system_suspended(void);
-
-/* Declarations for tegraXXX_pm.c */
-int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl);
-int tegra_prepare_cpu_on_finish(unsigned long mpidr);
-
-/* Declarations for tegra_bl31_setup.c */
-plat_params_from_bl2_t *bl31_get_plat_params(void);
-int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
-
-/* Declarations for tegra_delay_timer.c */
-void tegra_delay_timer_init(void);
-
-#endif /* __TEGRA_PRIVATE_H__ */
+/*
+ * Initialise the on-chip free rolling us counter as the delay
+ * timer.
+ */
+void tegra_delay_timer_init(void)
+{
+	timer_init(&tegra_timer_ops);
+}
