@@ -26,7 +26,7 @@ without changing any makefiles.
 Preparing the BL31 image to run on Tegra SoCs
 ===================================================
 CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=tegra \
-TARGET_SOC=<target-soc e.g. t210> BL32=<path-to-trusted-os-binary> \
+TARGET_SOC=<target-soc e.g. t210|t132> BL32=<path-to-trusted-os-binary> \
 SPD=<dispatcher e.g. tlkd> all
 
 Power Management
