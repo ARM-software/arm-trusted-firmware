@@ -125,6 +125,7 @@ long semihosting_file_write(long file_handle,
 			    const uintptr_t buffer)
 {
 	smh_file_read_write_block_t write_block;
+	long result = -EINVAL;
 
 	if ((length == NULL) || (buffer == (uintptr_t)NULL))
 		return -EINVAL;
@@ -133,10 +134,12 @@ long semihosting_file_write(long file_handle,
 	write_block.buffer = (uintptr_t)buffer; /* cast away const */
 	write_block.length = *length;
 
-	*length = semihosting_call(SEMIHOSTING_SYS_WRITE,
+	result = semihosting_call(SEMIHOSTING_SYS_WRITE,
 				   (void *) &write_block);
 
-	return *length;
+	*length = result;
+
+	return (result == 0) ? 0 : -EINVAL;
 }
 
 long semihosting_file_close(long file_handle)

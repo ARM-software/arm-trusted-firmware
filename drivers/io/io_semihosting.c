@@ -183,7 +183,6 @@ static int sh_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 static int sh_file_write(io_entity_t *entity, const uintptr_t buffer,
 		size_t length, size_t *length_written)
 {
-	int result = IO_FAIL;
 	long sh_result = -1;
 	long file_handle;
 	size_t bytes = length;
@@ -196,13 +195,9 @@ static int sh_file_write(io_entity_t *entity, const uintptr_t buffer,
 
 	sh_result = semihosting_file_write(file_handle, &bytes, buffer);
 
-	if (sh_result >= 0) {
-		*length_written = sh_result;
-		result = IO_SUCCESS;
-	} else
-		result = IO_FAIL;
+	*length_written = length - bytes;
 
-	return result;
+	return (sh_result == 0) ? IO_SUCCESS : IO_FAIL;
 }
 
 
