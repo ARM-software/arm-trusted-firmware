@@ -52,6 +52,13 @@ void tegra_pmc_cpu_on(int cpu)
 	uint32_t val;
 
 	/*
+	 * Check if CPU is already power ungated
+	 */
+	val = tegra_pmc_read_32(PMC_PWRGATE_STATUS);
+	if (val & (1 << pmc_cpu_powergate_id[cpu]))
+		return;
+
+	/*
 	 * The PMC deasserts the START bit when it starts the power
 	 * ungate process. Loop till no power toggle is in progress.
 	 */
@@ -97,6 +104,11 @@ void tegra_pmc_cpu_setup(uint64_t reset_addr)
 void tegra_pmc_lock_cpu_vectors(void)
 {
 	uint32_t val;
+
+	/* lock PMC_SECURE_SCRATCH22 */
+	val = tegra_pmc_read_32(PMC_SECURE_DISABLE2);
+	val |= PMC_SECURE_DISABLE2_WRITE22_ON;
+	tegra_pmc_write_32(PMC_SECURE_DISABLE2, val);
 
 	/* lock PMC_SECURE_SCRATCH34/35 */
 	val = tegra_pmc_read_32(PMC_SECURE_DISABLE3);

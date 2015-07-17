@@ -34,6 +34,8 @@ $(eval $(call add_define,CRASH_REPORTING))
 ASM_ASSERTION		:=	1
 $(eval $(call add_define,ASM_ASSERTION))
 
+USE_COHERENT_MEM	:=	0
+
 PLAT_INCLUDES		:=	-Iplat/nvidia/tegra/include/drivers \
 				-Iplat/nvidia/tegra/include \
 				-Iplat/nvidia/tegra/include/${TARGET_SOC}
@@ -46,6 +48,7 @@ COMMON_DIR		:=	plat/nvidia/tegra/common
 BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\
 				drivers/console/console.S			\
+				drivers/delay_timer/delay_timer.c		\
 				drivers/ti/uart/16550_console.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
@@ -55,6 +58,7 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\
 				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
 				${COMMON_DIR}/tegra_bl31_setup.c		\
+				${COMMON_DIR}/tegra_delay_timer.c		\
 				${COMMON_DIR}/tegra_gic.c			\
 				${COMMON_DIR}/tegra_pm.c			\
 				${COMMON_DIR}/tegra_sip_calls.c			\
