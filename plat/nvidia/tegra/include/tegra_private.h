@@ -74,4 +74,7 @@ int tegra_prepare_cpu_on_finish(unsigned long mpidr);
 plat_params_from_bl2_t *bl31_get_plat_params(void);
 int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
 
+/* Declarations for tegra_delay_timer.c */
+void tegra_delay_timer_init(void);
+
 #endif /* __TEGRA_PRIVATE_H__ */

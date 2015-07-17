@@ -40,6 +40,13 @@
 #include <tegra_def.h>
 #include <tegra_private.h>
 
+/*
+ * Register used to clear CPU reset signals. Each CPU has two reset
+ * signals: CPU reset (3:0) and Core reset (19:16).
+ */
+#define CPU_CMPLX_RESET_CLR		0x454
+#define CPU_CORE_RESET_MASK		0x10001
+
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
 
 int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
@@ -116,6 +123,10 @@ int tegra_prepare_cpu_on_finish(unsigned long mpidr)
 int tegra_prepare_cpu_on(unsigned long mpidr)
 {
 	int cpu = mpidr & MPIDR_CPU_MASK;
+	uint32_t mask = CPU_CORE_RESET_MASK << cpu;
+
+	/* Deassert CPU reset signals */
+	mmio_write_32(TEGRA_CAR_RESET_BASE + CPU_CMPLX_RESET_CLR, mask);
 
 	/* Turn on CPU using flow controller or PMC */
 	if (cpu_powergate_mask[cpu] == 0) {
