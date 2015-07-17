@@ -145,64 +145,64 @@
 #ifndef __ASSEMBLY__
 
 #include <mmio.h>
-
+#include <stdint.h>
 
 /*******************************************************************************
  * GIC Distributor function prototypes
  ******************************************************************************/
 
-unsigned int gicd_read_igroupr(unsigned int, unsigned int);
-unsigned int gicd_read_isenabler(unsigned int, unsigned int);
-unsigned int gicd_read_icenabler(unsigned int, unsigned int);
-unsigned int gicd_read_ispendr(unsigned int, unsigned int);
-unsigned int gicd_read_icpendr(unsigned int, unsigned int);
-unsigned int gicd_read_isactiver(unsigned int, unsigned int);
-unsigned int gicd_read_icactiver(unsigned int, unsigned int);
-unsigned int gicd_read_ipriorityr(unsigned int, unsigned int);
-unsigned int gicd_read_itargetsr(unsigned int, unsigned int);
-unsigned int gicd_read_icfgr(unsigned int, unsigned int);
-unsigned int gicd_read_cpendsgir(unsigned int, unsigned int);
-unsigned int gicd_read_spendsgir(unsigned int, unsigned int);
-void gicd_write_igroupr(unsigned int, unsigned int, unsigned int);
-void gicd_write_isenabler(unsigned int, unsigned int, unsigned int);
-void gicd_write_icenabler(unsigned int, unsigned int, unsigned int);
-void gicd_write_ispendr(unsigned int, unsigned int, unsigned int);
-void gicd_write_icpendr(unsigned int, unsigned int, unsigned int);
-void gicd_write_isactiver(unsigned int, unsigned int, unsigned int);
-void gicd_write_icactiver(unsigned int, unsigned int, unsigned int);
-void gicd_write_ipriorityr(unsigned int, unsigned int, unsigned int);
-void gicd_write_itargetsr(unsigned int, unsigned int, unsigned int);
-void gicd_write_icfgr(unsigned int, unsigned int, unsigned int);
-void gicd_write_cpendsgir(unsigned int, unsigned int, unsigned int);
-void gicd_write_spendsgir(unsigned int, unsigned int, unsigned int);
-unsigned int gicd_get_igroupr(unsigned int, unsigned int);
-void gicd_set_igroupr(unsigned int, unsigned int);
-void gicd_clr_igroupr(unsigned int, unsigned int);
-void gicd_set_isenabler(unsigned int, unsigned int);
-void gicd_set_icenabler(unsigned int, unsigned int);
-void gicd_set_ispendr(unsigned int, unsigned int);
-void gicd_set_icpendr(unsigned int, unsigned int);
-void gicd_set_isactiver(unsigned int, unsigned int);
-void gicd_set_icactiver(unsigned int, unsigned int);
-void gicd_set_ipriorityr(unsigned int, unsigned int, unsigned int);
-void gicd_set_itargetsr(unsigned int, unsigned int, unsigned int);
+unsigned int gicd_read_igroupr(uintptr_t, unsigned int);
+unsigned int gicd_read_isenabler(uintptr_t, unsigned int);
+unsigned int gicd_read_icenabler(uintptr_t, unsigned int);
+unsigned int gicd_read_ispendr(uintptr_t, unsigned int);
+unsigned int gicd_read_icpendr(uintptr_t, unsigned int);
+unsigned int gicd_read_isactiver(uintptr_t, unsigned int);
+unsigned int gicd_read_icactiver(uintptr_t, unsigned int);
+unsigned int gicd_read_ipriorityr(uintptr_t, unsigned int);
+unsigned int gicd_read_itargetsr(uintptr_t, unsigned int);
+unsigned int gicd_read_icfgr(uintptr_t, unsigned int);
+unsigned int gicd_read_cpendsgir(uintptr_t, unsigned int);
+unsigned int gicd_read_spendsgir(uintptr_t, unsigned int);
+void gicd_write_igroupr(uintptr_t, unsigned int, unsigned int);
+void gicd_write_isenabler(uintptr_t, unsigned int, unsigned int);
+void gicd_write_icenabler(uintptr_t, unsigned int, unsigned int);
+void gicd_write_ispendr(uintptr_t, unsigned int, unsigned int);
+void gicd_write_icpendr(uintptr_t, unsigned int, unsigned int);
+void gicd_write_isactiver(uintptr_t, unsigned int, unsigned int);
+void gicd_write_icactiver(uintptr_t, unsigned int, unsigned int);
+void gicd_write_ipriorityr(uintptr_t, unsigned int, unsigned int);
+void gicd_write_itargetsr(uintptr_t, unsigned int, unsigned int);
+void gicd_write_icfgr(uintptr_t, unsigned int, unsigned int);
+void gicd_write_cpendsgir(uintptr_t, unsigned int, unsigned int);
+void gicd_write_spendsgir(uintptr_t, unsigned int, unsigned int);
+unsigned int gicd_get_igroupr(uintptr_t, unsigned int);
+void gicd_set_igroupr(uintptr_t, unsigned int);
+void gicd_clr_igroupr(uintptr_t, unsigned int);
+void gicd_set_isenabler(uintptr_t, unsigned int);
+void gicd_set_icenabler(uintptr_t, unsigned int);
+void gicd_set_ispendr(uintptr_t, unsigned int);
+void gicd_set_icpendr(uintptr_t, unsigned int);
+void gicd_set_isactiver(uintptr_t, unsigned int);
+void gicd_set_icactiver(uintptr_t, unsigned int);
+void gicd_set_ipriorityr(uintptr_t, unsigned int, unsigned int);
+void gicd_set_itargetsr(uintptr_t, unsigned int, unsigned int);
 
 
 /*******************************************************************************
  * GIC Distributor interface accessors for reading entire registers
  ******************************************************************************/
 
-static inline unsigned int gicd_read_ctlr(unsigned int base)
+static inline unsigned int gicd_read_ctlr(uintptr_t base)
 {
 	return mmio_read_32(base + GICD_CTLR);
 }
 
-static inline unsigned int gicd_read_typer(unsigned int base)
+static inline unsigned int gicd_read_typer(uintptr_t base)
 {
 	return mmio_read_32(base + GICD_TYPER);
 }
 
-static inline unsigned int gicd_read_sgir(unsigned int base)
+static inline unsigned int gicd_read_sgir(uintptr_t base)
 {
 	return mmio_read_32(base + GICD_SGIR);
 }
@@ -212,12 +212,12 @@ static inline unsigned int gicd_read_sgir(unsigned int base)
  * GIC Distributor interface accessors for writing entire registers
  ******************************************************************************/
 
-static inline void gicd_write_ctlr(unsigned int base, unsigned int val)
+static inline void gicd_write_ctlr(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICD_CTLR, val);
 }
 
-static inline void gicd_write_sgir(unsigned int base, unsigned int val)
+static inline void gicd_write_sgir(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICD_SGIR, val);
 }
@@ -227,47 +227,47 @@ static inline void gicd_write_sgir(unsigned int base, unsigned int val)
  * GIC CPU interface accessors for reading entire registers
  ******************************************************************************/
 
-static inline unsigned int gicc_read_ctlr(unsigned int base)
+static inline unsigned int gicc_read_ctlr(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_CTLR);
 }
 
-static inline unsigned int gicc_read_pmr(unsigned int base)
+static inline unsigned int gicc_read_pmr(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_PMR);
 }
 
-static inline unsigned int gicc_read_BPR(unsigned int base)
+static inline unsigned int gicc_read_BPR(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_BPR);
 }
 
-static inline unsigned int gicc_read_IAR(unsigned int base)
+static inline unsigned int gicc_read_IAR(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_IAR);
 }
 
-static inline unsigned int gicc_read_EOIR(unsigned int base)
+static inline unsigned int gicc_read_EOIR(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_EOIR);
 }
 
-static inline unsigned int gicc_read_hppir(unsigned int base)
+static inline unsigned int gicc_read_hppir(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_HPPIR);
 }
 
-static inline unsigned int gicc_read_ahppir(unsigned int base)
+static inline unsigned int gicc_read_ahppir(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_AHPPIR);
 }
 
-static inline unsigned int gicc_read_dir(unsigned int base)
+static inline unsigned int gicc_read_dir(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_DIR);
 }
 
-static inline unsigned int gicc_read_iidr(unsigned int base)
+static inline unsigned int gicc_read_iidr(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_IIDR);
 }
@@ -277,38 +277,38 @@ static inline unsigned int gicc_read_iidr(unsigned int base)
  * GIC CPU interface accessors for writing entire registers
  ******************************************************************************/
 
-static inline void gicc_write_ctlr(unsigned int base, unsigned int val)
+static inline void gicc_write_ctlr(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICC_CTLR, val);
 }
 
-static inline void gicc_write_pmr(unsigned int base, unsigned int val)
+static inline void gicc_write_pmr(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICC_PMR, val);
 }
 
-static inline void gicc_write_BPR(unsigned int base, unsigned int val)
+static inline void gicc_write_BPR(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICC_BPR, val);
 }
 
 
-static inline void gicc_write_IAR(unsigned int base, unsigned int val)
+static inline void gicc_write_IAR(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICC_IAR, val);
 }
 
-static inline void gicc_write_EOIR(unsigned int base, unsigned int val)
+static inline void gicc_write_EOIR(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICC_EOIR, val);
 }
 
-static inline void gicc_write_hppir(unsigned int base, unsigned int val)
+static inline void gicc_write_hppir(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICC_HPPIR, val);
 }
 
-static inline void gicc_write_dir(unsigned int base, unsigned int val)
+static inline void gicc_write_dir(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICC_DIR, val);
 }

@@ -68,6 +68,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <stdint.h>
+
 /* Function declarations */
 
 /*
@@ -79,7 +81,7 @@
  * affinity instance of the mpidr representing the cluster. A negative cluster
  * index indicates that no cluster is present on that slave interface.
  */
-void cci_init(unsigned long cci_base,
+void cci_init(uintptr_t cci_base,
 		int slave_iface3_cluster_ix,
 		int slave_iface4_cluster_ix);
 

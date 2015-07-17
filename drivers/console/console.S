@@ -44,7 +44,7 @@
 	console_base: .quad 0x0
 
 	/* -----------------------------------------------
-	 * int console_init(unsigned long base_addr,
+	 * int console_init(uintptr_t base_addr,
 	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. It saves

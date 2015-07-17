@@ -33,8 +33,9 @@
 #include <cci.h>
 #include <debug.h>
 #include <mmio.h>
+#include <stdint.h>
 
-static unsigned long g_cci_base;
+static uintptr_t g_cci_base;
 static unsigned int g_max_master_id;
 static const int *g_cci_slave_if_map;
 
@@ -74,7 +75,7 @@ static int validate_cci_map(const int *map)
 }
 #endif /* DEBUG */
 
-void cci_init(unsigned long cci_base,
+void cci_init(uintptr_t cci_base,
 		const int *map,
 		unsigned int num_cci_masters)
 {

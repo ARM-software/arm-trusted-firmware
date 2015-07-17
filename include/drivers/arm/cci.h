@@ -146,7 +146,7 @@
  * SLAVE_IF_UNUSED should be used in the map to represent no AMBA 4 master exists
  * for that interface.
  */
-void cci_init(unsigned long cci_base,
+void cci_init(uintptr_t cci_base,
 	const int *map,
 	unsigned int num_cci_masters);
 

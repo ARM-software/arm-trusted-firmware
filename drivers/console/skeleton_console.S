@@ -40,7 +40,7 @@
 	.globl	console_core_getc
 
 	/* -----------------------------------------------
-	 * int console_core_init(unsigned long base_addr,
+	 * int console_core_init(uintptr_t base_addr,
 	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. This
@@ -68,7 +68,7 @@ core_init_fail:
 endfunc console_core_init
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned long base_addr)
+	 * int console_core_putc(int c, uintptr_t base_addr)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -88,7 +88,7 @@ putc_error:
 endfunc console_core_putc
 
 	/* ---------------------------------------------
-	 * int console_core_getc(unsigned long base_addr)
+	 * int console_core_getc(uintptr_t base_addr)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on error.

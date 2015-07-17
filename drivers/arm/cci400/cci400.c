@@ -33,14 +33,15 @@
 #include <cci400.h>
 #include <debug.h>
 #include <mmio.h>
+#include <stdint.h>
 
 #define MAX_CLUSTERS		2
 
-static unsigned long cci_base_addr;
+static uintptr_t cci_base_addr;
 static unsigned int cci_cluster_ix_to_iface[MAX_CLUSTERS];
 
 
-void cci_init(unsigned long cci_base,
+void cci_init(uintptr_t cci_base,
 		int slave_iface3_cluster_ix,
 		int slave_iface4_cluster_ix)
 {
