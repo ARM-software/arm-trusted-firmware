@@ -95,6 +95,8 @@
 					 (x == INTR_NS_VALID_RM1 ? 0 :\
 					  -EINVAL))
 
+#define validate_el3_interrupt_rm(x)	(x == INTR_SEL1_VALID_RM1 ? 0 : -EINVAL)
+
 /*******************************************************************************
  * Macros to set the 'flags' parameter passed to an interrupt type handler. Only
  * the flag to indicate the security state when the exception was generated is

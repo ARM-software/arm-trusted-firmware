@@ -403,9 +403,14 @@ uint32_t arm_gic_get_pending_interrupt_type(void)
 	assert(g_gicc_base);
 	id = gicc_read_hppir(g_gicc_base) & INT_ID_MASK;
 
-	/* Assume that all secure interrupts are S-EL1 interrupts */
 	if (id < 1022)
+#if TSPD_ROUTE_FIQ_TO_EL3
+		/* Assume that all secure interrupts are EL3 interrupts */
+		return INTR_TYPE_EL3;
+#else
+		/* Assume that all secure interrupts are S-EL1 interrupts */
 		return INTR_TYPE_S_EL1;
+#endif
 
 	if (id == GIC_SPURIOUS_INTERRUPT)
 		return INTR_TYPE_INVAL;
@@ -472,7 +477,13 @@ uint32_t arm_gic_get_interrupt_type(uint32_t id)
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
 	if (group == GRP0)
+#if TSPD_ROUTE_FIQ_TO_EL3
+		/* Assume that all secure interrupts are EL3 interrupts */
+		return INTR_TYPE_EL3;
+#else
+		/* Assume that all secure interrupts are S-EL1 interrupts */
 		return INTR_TYPE_S_EL1;
+#endif
 	else
 		return INTR_TYPE_NS;
 }

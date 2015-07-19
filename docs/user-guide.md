@@ -262,6 +262,11 @@ performed.
     default model (when the value is 0) is to route non-secure interrupts
     to S-EL1 (TSP).
 
+*   `TSPD_ROUTE_FIQ_TO_EL3`: A non zero value enables the routing model
+    for secure interrupts in which they are routed to EL3 (TSPD). The
+    default model (when the value is 0) is to route non-secure interrupts
+    to S-EL1 (TSP).
+
 *   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
     Boot feature. When set to '1', BL1 and BL2 images include support to load
     and verify the certificates and images in a FIP. The default value is '0'.

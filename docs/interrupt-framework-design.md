@@ -331,7 +331,7 @@ the type of interrupt.
 
 
 The `type` parameter can be one of the three interrupt types listed above i.e.
-`INTR_TYPE_S_EL1`, `INTR_TYPE_NS` & `INTR_TYPE_EL3` (currently unimplemented).
+`INTR_TYPE_S_EL1`, `INTR_TYPE_NS` & `INTR_TYPE_EL3`.
 The `flags` parameter is as described in Section 2.
 
 The function will return `0` upon a successful registration. It will return
@@ -410,16 +410,16 @@ requirements mentioned earlier.
     purpose, SP_EL1/Secure-EL0, LR, VFP and system registers. It can use
     `x0-x18` to enable its C runtime.
 
-2.  The TSPD implements a handler function for Secure-EL1 interrupts. It
+2.  The TSPD implements a handler function for Secure interrupts. It
     registers it with the EL3 runtime firmware using the
     `register_interrupt_type_handler()` API as follows
 
         /* Forward declaration */
-        interrupt_type_handler tspd_secure_el1_interrupt_handler;
+        interrupt_type_handler tspd_secure_interrupt_handler;
         int32_t rc, flags = 0;
         set_interrupt_rm_flag(flags, NON_SECURE);
-        rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
-                                         tspd_secure_el1_interrupt_handler,
+        rc = register_interrupt_type_handler(INTR_TYPE_EL3,
+                                         tspd_secure_interrupt_handler,
                                          flags);
         assert(rc == 0);
 
@@ -687,7 +687,7 @@ originally taken.
 
 ##### 2.3.2.3 Test secure payload dispatcher behavior
 The example TSPD service registers a handler for Secure-EL1 interrupts taken
-from the non-secure state. Its handler `tspd_secure_el1_interrupt_handler()`
+from the non-secure state. Its handler `tspd_secure_interrupt_handler()`
 takes the following actions upon being invoked.
 
 1.  It uses the `id` parameter to query the interrupt controller to ensure
