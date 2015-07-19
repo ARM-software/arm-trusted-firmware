@@ -116,6 +116,8 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 	mpidr = read_mpidr();
 	assert(handle == cm_get_context(NON_SECURE));
 
+	id = plat_ic_acknowledge_interrupt();
+
 	/* Save the non-secure context before entering the TSP */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
@@ -158,7 +160,8 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 	 * from ELR_EL3 as the secure context will not take effect until
 	 * el3_exit().
 	 */
-	SMC_RET2(&tsp_ctx->cpu_ctx, TSP_HANDLE_FIQ_AND_RETURN, read_elr_el3());
+	SMC_RET3(&tsp_ctx->cpu_ctx, TSP_HANDLE_FIQ_AND_RETURN,
+			read_elr_el3(), id);
 }
 
 #if TSPD_ROUTE_IRQ_TO_EL3

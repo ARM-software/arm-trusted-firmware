@@ -47,7 +47,9 @@
  * The 'elr_el3' parameter contains the address of the instruction in normal
  * world where this FIQ was generated.
  ******************************************************************************/
-void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
+const uint32_t tsp_update_sync_fiq_stats(uint32_t type,
+		uint64_t elr_el3,
+		const uint32_t interrupt_id)
 {
 	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id = platform_get_core_pos(mpidr);
@@ -66,6 +68,7 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
 		tsp_stats[linear_id].sync_fiq_ret_count);
 	spin_unlock(&console_lock);
 #endif
+	return interrupt_id;
 }
 
 /*******************************************************************************
@@ -73,39 +76,49 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
  * handling of FIQ interrupts. It returns 0 upon successfully handling a S-EL1
  * FIQ and treats all other FIQs as EL3 interrupts. It assumes that the GIC
  * architecture version in v2.0 and the secure physical timer interrupt is the
- * only S-EL1 interrupt that it needs to handle.
+ * only S-EL1 interrupt that it needs to handle. It distinguish the between
+ * interrupts already acknowledged in EL3 or those caught in S-EL1.
  ******************************************************************************/
-int32_t tsp_fiq_handler(void)
+int32_t tsp_fiq_handler(uint32_t interrupt_id)
 {
 	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr), id;
+	uint32_t linear_id = platform_get_core_pos(mpidr);
 
-	/*
-	 * Get the highest priority pending interrupt id and see if it is the
-	 * secure physical generic timer interrupt in which case, handle it.
-	 * Otherwise throw this interrupt at the EL3 firmware.
-	 */
-	id = plat_ic_get_pending_interrupt_id();
+	/* Check if the interrupt comes from S-EL1 or EL3  handler */
+	if (interrupt_id == TSP_SEL1_EXCEPTION) {
+		/*
+		 * Get the highest priority pending interrupt id and see if it
+		 * is the secure physical generic timer interrupt in which
+		 * case, handle it. Otherwise throw this interrupt at the EL3
+		 * firmware.
+		 */
+		interrupt_id = plat_ic_get_pending_interrupt_id();
 
-	/* TSP can only handle the secure physical timer interrupt */
-	if (id != TSP_IRQ_SEC_PHY_TIMER)
-		return TSP_EL3_FIQ;
+		/* TSP can only handle the secure physical timer interrupt */
+		if (interrupt_id != TSP_IRQ_SEC_PHY_TIMER)
+			return TSP_EL3_FIQ;
 
-	/*
-	 * Handle the interrupt. Also sanity check if it has been preempted by
-	 * another secure interrupt through an assertion.
-	 */
-	id = plat_ic_acknowledge_interrupt();
-	assert(id == TSP_IRQ_SEC_PHY_TIMER);
+		/*
+		 * Handle the interrupt. Also sanity check if it has been
+		 * preempted by another secure interrupt through an assertion.
+		 */
+		interrupt_id = plat_ic_acknowledge_interrupt();
+		assert(interrupt_id == TSP_IRQ_SEC_PHY_TIMER);
+	} else {
+		/* TSP can only handle the secure physical timer interrupt */
+		if (interrupt_id != TSP_IRQ_SEC_PHY_TIMER)
+			return TSP_EL3_FIQ;
+	}
+
 	tsp_generic_timer_handler();
-	plat_ic_end_of_interrupt(id);
+	plat_ic_end_of_interrupt(interrupt_id);
 
 	/* Update the statistics and print some messages */
 	tsp_stats[linear_id].fiq_count++;
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
 	VERBOSE("TSP: cpu 0x%lx handled fiq %d\n",
-	       mpidr, id);
+	       mpidr, interrupt_id);
 	VERBOSE("TSP: cpu 0x%lx: %d fiq requests\n",
 	     mpidr, tsp_stats[linear_id].fiq_count);
 	spin_unlock(&console_lock);
