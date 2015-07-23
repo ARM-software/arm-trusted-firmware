@@ -49,7 +49,35 @@
 
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
 
-int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
+int32_t tegra_soc_validate_power_state(unsigned int power_state)
+{
+	/* Sanity check the requested afflvl */
+	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
+		/*
+		 * It's possible to enter standby only on affinity level 0 i.e.
+		 * a cpu on Tegra. Ignore any other affinity level.
+		 */
+		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
+			return PSCI_E_INVALID_PARAMS;
+	}
+
+	/* Sanity check the requested state id */
+	switch (psci_get_pstate_id(power_state)) {
+	case PSTATE_ID_CORE_POWERDN:
+	case PSTATE_ID_CLUSTER_IDLE:
+	case PSTATE_ID_CLUSTER_POWERDN:
+	case PSTATE_ID_SOC_POWERDN:
+		break;
+
+	default:
+		ERROR("unsupported state id\n");
+		return PSCI_E_NOT_SUPPORTED;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
 {
 	/* There's nothing to be done for affinity level 1 */
 	if (afflvl == MPIDR_AFFLVL1)
@@ -90,7 +118,7 @@ int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
 	return PSCI_E_NOT_SUPPORTED;
 }
 
-int tegra_prepare_cpu_on_finish(unsigned long mpidr)
+int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
 {
 	/*
 	 * Check if we are exiting from SOC_POWERDN.
@@ -120,7 +148,7 @@ int tegra_prepare_cpu_on_finish(unsigned long mpidr)
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_prepare_cpu_on(unsigned long mpidr)
+int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 {
 	int cpu = mpidr & MPIDR_CPU_MASK;
 	uint32_t mask = CPU_CORE_RESET_MASK << cpu;
@@ -139,7 +167,7 @@ int tegra_prepare_cpu_on(unsigned long mpidr)
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_prepare_cpu_off(unsigned long mpidr)
+int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 {
 	tegra_fc_cpu_off(mpidr & MPIDR_CPU_MASK);
 	return PSCI_E_SUCCESS;

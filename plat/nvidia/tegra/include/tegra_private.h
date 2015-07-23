@@ -45,6 +45,9 @@ typedef struct plat_params_from_bl2 {
 	uintptr_t bl32_params;
 } plat_params_from_bl2_t;
 
+/* Declarations for plat_psci_handlers.c */
+int32_t tegra_soc_validate_power_state(unsigned int power_state);
+
 /* Declarations for plat_setup.c */
 const mmap_region_t *plat_get_mmio_map(void);
 uint64_t plat_get_syscnt_freq(void);
