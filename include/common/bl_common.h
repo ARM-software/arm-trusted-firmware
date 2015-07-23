@@ -234,7 +234,6 @@ CASSERT(sizeof(unsigned long) ==
  * Function & variable prototypes
  ******************************************************************************/
 unsigned long page_align(unsigned long, unsigned);
-void change_security_state(unsigned int);
 unsigned long image_size(unsigned int image_id);
 int load_image(meminfo_t *mem_layout,
 	       unsigned int image_id,
