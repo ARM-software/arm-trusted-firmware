@@ -34,5 +34,3 @@ SPD_SOURCES		:=	services/spd/tlkd/tlkd_common.c		\
 				services/spd/tlkd/tlkd_helpers.S	\
 				services/spd/tlkd/tlkd_main.c		\
 				services/spd/tlkd/tlkd_pm.c
-
-NEED_BL32		:=	yes
