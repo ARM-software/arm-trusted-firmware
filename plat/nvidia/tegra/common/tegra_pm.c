@@ -51,27 +51,27 @@ static int system_suspended;
  * The following platform setup functions are weakly defined. They
  * provide typical implementations that will be overridden by a SoC.
  */
-#pragma weak tegra_prepare_cpu_suspend
-#pragma weak tegra_prepare_cpu_on
-#pragma weak tegra_prepare_cpu_off
-#pragma weak tegra_prepare_cpu_on_finish
+#pragma weak tegra_soc_prepare_cpu_suspend
+#pragma weak tegra_soc_prepare_cpu_on
+#pragma weak tegra_soc_prepare_cpu_off
+#pragma weak tegra_soc_prepare_cpu_on_finish
 
-int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
+int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
 {
 	return PSCI_E_NOT_SUPPORTED;
 }
 
-int tegra_prepare_cpu_on(unsigned long mpidr)
+int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 {
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_prepare_cpu_off(unsigned long mpidr)
+int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 {
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_prepare_cpu_on_finish(unsigned long mpidr)
+int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
 {
 	return PSCI_E_SUCCESS;
 }
@@ -134,17 +134,7 @@ unsigned int tegra_get_sys_suspend_power_state(void)
  ******************************************************************************/
 int32_t tegra_validate_power_state(unsigned int power_state)
 {
-	/* Sanity check the requested state */
-	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
-		/*
-		 * It's possible to enter standby only on affinity level 0 i.e.
-		 * a cpu on Tegra. Ignore any other affinity level.
-		 */
-		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
-			return PSCI_E_INVALID_PARAMS;
-	}
-
-	return PSCI_E_SUCCESS;
+	return tegra_soc_validate_power_state(power_state);
 }
 
 /*******************************************************************************
@@ -171,7 +161,7 @@ int tegra_affinst_on(unsigned long mpidr,
 	sec_entry_point[cpu] = sec_entrypoint;
 	flush_dcache_range((uint64_t)&sec_entry_point[cpu], sizeof(uint64_t));
 
-	return tegra_prepare_cpu_on(mpidr);
+	return tegra_soc_prepare_cpu_on(mpidr);
 }
 
 /*******************************************************************************
@@ -194,7 +184,7 @@ void tegra_affinst_off(unsigned int afflvl, unsigned int state)
 	if (afflvl > MPIDR_AFFLVL0)
 		return;
 
-	tegra_prepare_cpu_off(read_mpidr());
+	tegra_soc_prepare_cpu_off(read_mpidr());
 }
 
 /*******************************************************************************
@@ -227,7 +217,7 @@ void tegra_affinst_suspend(unsigned long sec_entrypoint,
 	sec_entry_point[cpu] = sec_entrypoint;
 	flush_dcache_range((uint64_t)&sec_entry_point[cpu], sizeof(uint64_t));
 
-	tegra_prepare_cpu_suspend(id, afflvl);
+	tegra_soc_prepare_cpu_suspend(id, afflvl);
 
 	/* disable GICC */
 	tegra_gic_cpuif_deactivate();
@@ -280,7 +270,7 @@ void tegra_affinst_on_finish(unsigned int afflvl, unsigned int state)
 	/*
 	 * Reset hardware settings.
 	 */
-	tegra_prepare_cpu_on_finish(read_mpidr());
+	tegra_soc_prepare_cpu_on_finish(read_mpidr());
 }
 
 /*******************************************************************************
@@ -338,7 +328,7 @@ int platform_setup_pm(const plat_pm_ops_t **plat_ops)
 	/*
 	 * Reset hardware settings.
 	 */
-	tegra_prepare_cpu_on_finish(read_mpidr());
+	tegra_soc_prepare_cpu_on_finish(read_mpidr());
 
 	/*
 	 * Initialize PM ops struct

@@ -28,10 +28,19 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-SOC_DIR		:=	plat/nvidia/tegra/soc/${TARGET_SOC}
+TEGRA_BOOT_UART_BASE		:= 0x70006300
+$(eval $(call add_define,TEGRA_BOOT_UART_BASE))
 
-include plat/nvidia/tegra/common/tegra_common.mk
-include ${SOC_DIR}/platform_${TARGET_SOC}.mk
+TZDRAM_BASE			:= 0xF1C00000
+$(eval $(call add_define,TZDRAM_BASE))
 
-# modify BUILD_PLAT to point to SoC specific build directory
-BUILD_PLAT	:=	${BUILD_BASE}/${PLAT}/${TARGET_SOC}/${BUILD_TYPE}
+PLATFORM_CLUSTER_COUNT		:= 1
+$(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
+
+PLATFORM_MAX_CPUS_PER_CLUSTER	:= 2
+$(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
+
+BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
+				${SOC_DIR}/plat_psci_handlers.c		\
+				${SOC_DIR}/plat_setup.c			\
+				${SOC_DIR}/plat_secondary.c

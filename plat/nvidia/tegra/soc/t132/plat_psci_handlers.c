@@ -28,23 +28,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
+#include <denver.h>
 #include <debug.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
-#include <psci.h>
-#include <pmc.h>
 #include <flowctrl.h>
+#include <mmio.h>
+#include <platform_def.h>
+#include <pmc.h>
+#include <psci.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
 
 /*
  * Register used to clear CPU reset signals. Each CPU has two reset
- * signals: CPU reset (3:0) and Core reset (19:16).
+ * signals: CPU reset (3:0) and Core reset (19:16)
  */
-#define CPU_CMPLX_RESET_CLR		0x454
+#define CPU_CMPLX_RESET_CLR		0x344
 #define CPU_CORE_RESET_MASK		0x10001
 
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
@@ -62,88 +63,10 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state)
 	}
 
 	/* Sanity check the requested state id */
-	switch (psci_get_pstate_id(power_state)) {
-	case PSTATE_ID_CORE_POWERDN:
-	case PSTATE_ID_CLUSTER_IDLE:
-	case PSTATE_ID_CLUSTER_POWERDN:
-	case PSTATE_ID_SOC_POWERDN:
-		break;
-
-	default:
+	if (psci_get_pstate_id(power_state) != PLAT_SYS_SUSPEND_STATE_ID) {
 		ERROR("unsupported state id\n");
 		return PSCI_E_NOT_SUPPORTED;
 	}
-
-	return PSCI_E_SUCCESS;
-}
-
-int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
-{
-	/* There's nothing to be done for affinity level 1 */
-	if (afflvl == MPIDR_AFFLVL1)
-		return PSCI_E_SUCCESS;
-
-	switch (id) {
-	/* Prepare for cpu idle */
-	case PSTATE_ID_CORE_POWERDN:
-		tegra_fc_cpu_idle(read_mpidr());
-		return PSCI_E_SUCCESS;
-
-	/* Prepare for cluster idle */
-	case PSTATE_ID_CLUSTER_IDLE:
-		tegra_fc_cluster_idle(read_mpidr());
-		return PSCI_E_SUCCESS;
-
-	/* Prepare for cluster powerdn */
-	case PSTATE_ID_CLUSTER_POWERDN:
-		tegra_fc_cluster_powerdn(read_mpidr());
-		return PSCI_E_SUCCESS;
-
-	/* Prepare for system idle */
-	case PSTATE_ID_SOC_POWERDN:
-
-		/* Enter system suspend state */
-		tegra_pm_system_suspend_entry();
-
-		/* suspend the entire soc */
-		tegra_fc_soc_powerdn(read_mpidr());
-
-		return PSCI_E_SUCCESS;
-
-	default:
-		ERROR("Unknown state id (%d)\n", id);
-		break;
-	}
-
-	return PSCI_E_NOT_SUPPORTED;
-}
-
-int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
-{
-	/*
-	 * Check if we are exiting from SOC_POWERDN.
-	 */
-	if (tegra_system_suspended()) {
-
-		/*
-		 * Restore Boot and Power Management Processor (BPMP) reset
-		 * address and reset it.
-		 */
-		tegra_fc_reset_bpmp();
-
-		/*
-		 * System resume complete.
-		 */
-		tegra_pm_system_suspend_exit();
-	}
-
-	/*
-	 * T210 has a dedicated ARMv7 boot and power mgmt processor, BPMP. It's
-	 * used for power management and boot purposes. Inform the BPMP that
-	 * we have completed the cluster power up.
-	 */
-	if (psci_get_max_phys_off_afflvl() == MPIDR_AFFLVL1)
-		tegra_fc_lock_active_cluster();
 
 	return PSCI_E_SUCCESS;
 }
@@ -153,14 +76,19 @@ int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 	int cpu = mpidr & MPIDR_CPU_MASK;
 	uint32_t mask = CPU_CORE_RESET_MASK << cpu;
 
-	/* Deassert CPU reset signals */
-	mmio_write_32(TEGRA_CAR_RESET_BASE + CPU_CMPLX_RESET_CLR, mask);
-
-	/* Turn on CPU using flow controller or PMC */
 	if (cpu_powergate_mask[cpu] == 0) {
+
+		/* Deassert CPU reset signals */
+		mmio_write_32(TEGRA_CAR_RESET_BASE + CPU_CMPLX_RESET_CLR, mask);
+
+		/* Power on CPU using PMC */
 		tegra_pmc_cpu_on(cpu);
+
+		/* Fill in the CPU powergate mask */
 		cpu_powergate_mask[cpu] = 1;
+
 	} else {
+		/* Power on CPU using Flow Controller */
 		tegra_fc_cpu_on(cpu);
 	}
 
@@ -170,5 +98,26 @@ int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 {
 	tegra_fc_cpu_off(mpidr & MPIDR_CPU_MASK);
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
+{
+	/* Nothing to be done for lower affinity levels */
+	if (afflvl < MPIDR_AFFLVL2)
+		return PSCI_E_SUCCESS;
+
+	/* Enter system suspend state */
+	tegra_pm_system_suspend_entry();
+
+	/* Allow restarting CPU #1 using PMC on suspend exit */
+	cpu_powergate_mask[1] = 0;
+
+	/* Program FC to enter suspend state */
+	tegra_fc_cpu_idle(read_mpidr());
+
+	/* Suspend DCO operations */
+	write_actlr_el1(id);
+
 	return PSCI_E_SUCCESS;
 }

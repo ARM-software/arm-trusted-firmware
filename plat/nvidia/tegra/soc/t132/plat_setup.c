@@ -28,56 +28,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __TEGRA_PRIVATE_H__
-#define __TEGRA_PRIVATE_H__
-
 #include <xlat_tables.h>
-#include <platform_def.h>
+#include <tegra_def.h>
+
+/* sets of MMIO ranges setup */
+#define MMIO_RANGE_0_ADDR	0x50000000
+#define MMIO_RANGE_1_ADDR	0x60000000
+#define MMIO_RANGE_2_ADDR	0x70000000
+#define MMIO_RANGE_SIZE		0x200000
+
+/*
+ * Table of regions to map using the MMU.
+ */
+static const mmap_region_t tegra_mmap[] = {
+	MAP_REGION_FLAT(MMIO_RANGE_0_ADDR, MMIO_RANGE_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MMIO_RANGE_1_ADDR, MMIO_RANGE_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MMIO_RANGE_2_ADDR, MMIO_RANGE_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	{0}
+};
 
 /*******************************************************************************
- * Tegra DRAM memory base address
+ * Set up the pagetables as per the platform memory map & initialize the MMU
  ******************************************************************************/
-#define TEGRA_DRAM_BASE		0x80000000
-#define TEGRA_DRAM_END		0x27FFFFFFF
+const mmap_region_t *plat_get_mmio_map(void)
+{
+	/* MMIO space */
+	return tegra_mmap;
+}
 
-typedef struct plat_params_from_bl2 {
-	uint64_t tzdram_size;
-	uintptr_t bl32_params;
-} plat_params_from_bl2_t;
-
-/* Declarations for plat_psci_handlers.c */
-int32_t tegra_soc_validate_power_state(unsigned int power_state);
-
-/* Declarations for plat_setup.c */
-const mmap_region_t *plat_get_mmio_map(void);
-uint64_t plat_get_syscnt_freq(void);
-
-/* Declarations for plat_secondary.c */
-void plat_secondary_setup(void);
-int plat_lock_cpu_vectors(void);
-
-/* Declarations for tegra_gic.c */
-void tegra_gic_setup(void);
-void tegra_gic_cpuif_deactivate(void);
-
-/* Declarations for tegra_security.c */
-void tegra_security_setup(void);
-void tegra_security_setup_videomem(uintptr_t base, uint64_t size);
-
-/* Declarations for tegra_pm.c */
-void tegra_pm_system_suspend_entry(void);
-void tegra_pm_system_suspend_exit(void);
-int tegra_system_suspended(void);
-
-/* Declarations for tegraXXX_pm.c */
-int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl);
-int tegra_prepare_cpu_on_finish(unsigned long mpidr);
-
-/* Declarations for tegra_bl31_setup.c */
-plat_params_from_bl2_t *bl31_get_plat_params(void);
-int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
-
-/* Declarations for tegra_delay_timer.c */
-void tegra_delay_timer_init(void);
-
-#endif /* __TEGRA_PRIVATE_H__ */
+uint64_t plat_get_syscnt_freq(void)
+{
+	return 12000000;
+}
