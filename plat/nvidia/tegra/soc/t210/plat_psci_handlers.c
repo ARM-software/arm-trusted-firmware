@@ -120,10 +120,21 @@ int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
 
 int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
 {
+	uint32_t val;
+
 	/*
 	 * Check if we are exiting from SOC_POWERDN.
 	 */
 	if (tegra_system_suspended()) {
+
+		/*
+		 * Enable WRAP to INCR burst type conversions for
+		 * incoming requests on the AXI slave ports.
+		 */
+		val = mmio_read_32(TEGRA_MSELECT_BASE + MSELECT_CONFIG);
+		val &= ~DISABLE_UNSUP_TX_ERRORS;
+		val |= ENABLE_WRAP_TO_INCR_BURSTS;
+		mmio_write_32(TEGRA_MSELECT_BASE + MSELECT_CONFIG, val);
 
 		/*
 		 * Restore Boot and Power Management Processor (BPMP) reset
