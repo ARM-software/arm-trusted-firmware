@@ -68,6 +68,23 @@
 #define TEGRA_GICC_BASE			0x50042000
 
 /*******************************************************************************
+ * Tegra Memory Select Switch Controller constants
+ ******************************************************************************/
+#define TEGRA_MSELECT_BASE		0x50060000
+
+#define MSELECT_CONFIG			0x0
+#define ENABLE_WRAP_INCR_MASTER2_BIT	(1 << 29)
+#define ENABLE_WRAP_INCR_MASTER1_BIT	(1 << 28)
+#define ENABLE_WRAP_INCR_MASTER0_BIT	(1 << 27)
+#define UNSUPPORTED_TX_ERR_MASTER2_BIT	(1 << 25)
+#define UNSUPPORTED_TX_ERR_MASTER1_BIT	(1 << 24)
+#define DISABLE_UNSUP_TX_ERRORS		(UNSUPPORTED_TX_ERR_MASTER2_BIT | \
+					 UNSUPPORTED_TX_ERR_MASTER1_BIT)
+#define ENABLE_WRAP_TO_INCR_BURSTS	(ENABLE_WRAP_INCR_MASTER2_BIT | \
+					 ENABLE_WRAP_INCR_MASTER1_BIT | \
+					 ENABLE_WRAP_INCR_MASTER0_BIT)
+
+/*******************************************************************************
  * Tegra micro-seconds timer constants
  ******************************************************************************/
 #define TEGRA_TMRUS_BASE		0x60005010
