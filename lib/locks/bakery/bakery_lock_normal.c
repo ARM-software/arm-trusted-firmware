@@ -56,12 +56,29 @@
  * accesses regardless of status of address translation.
  */
 
-/* This macro assumes that the bakery_info array is located at the offset specified */
-#define get_my_bakery_info(offset, id)		\
-	(((bakery_info_t *) (((uint8_t *)_cpu_data()) + offset)) + id)
+#ifdef PLAT_PERCPU_BAKERY_LOCK_SIZE
+/*
+ * Verify that the platform defined value for the per-cpu space for bakery locks is
+ * a multiple of the cache line size, to prevent multiple CPUs writing to the same
+ * bakery lock cache line
+ *
+ * Using this value, if provided, rather than the linker generated value results in
+ * more efficient code
+ */
+CASSERT((PLAT_PERCPU_BAKERY_LOCK_SIZE & (CACHE_WRITEBACK_GRANULE - 1)) == 0, \
+	PLAT_PERCPU_BAKERY_LOCK_SIZE_not_cacheline_multiple);
+#define PERCPU_BAKERY_LOCK_SIZE (PLAT_PERCPU_BAKERY_LOCK_SIZE)
+#else
+/*
+ * Use the linker defined symbol which has evaluated the size reqiurement.
+ * This is not a efficient as using a platform defined constant
+ */
+extern void *__PERCPU_BAKERY_LOCK_SIZE__;
+#define PERCPU_BAKERY_LOCK_SIZE ((uintptr_t)&__PERCPU_BAKERY_LOCK_SIZE__)
+#endif
 
-#define get_bakery_info_by_index(offset, id, ix)	\
-	(((bakery_info_t *) (((uint8_t *)_cpu_data_by_index(ix)) + offset)) + id)
+#define get_bakery_info(cpu_ix, lock)	\
+	(bakery_info_t *)((uintptr_t)lock + cpu_ix * PERCPU_BAKERY_LOCK_SIZE)
 
 #define write_cache_op(addr, cached)	\
 				do {	\
@@ -73,7 +90,7 @@
 #define read_cache_op(addr, cached)	if (cached) \
 					    dccivac((uint64_t)addr)
 
-static unsigned int bakery_get_ticket(int id, unsigned int offset,
+static unsigned int bakery_get_ticket(bakery_lock_t *lock,
 						unsigned int me, int is_cached)
 {
 	unsigned int my_ticket, their_ticket;
@@ -84,7 +101,7 @@ static unsigned int bakery_get_ticket(int id, unsigned int offset,
 	 * Obtain a reference to the bakery information for this cpu and ensure
 	 * it is not NULL.
 	 */
-	my_bakery_info = get_my_bakery_info(offset, id);
+	my_bakery_info = get_bakery_info(me, lock);
 	assert(my_bakery_info);
 
 	/*
@@ -115,7 +132,7 @@ static unsigned int bakery_get_ticket(int id, unsigned int offset,
 		 * Get a reference to the other contender's bakery info and
 		 * ensure that a stale copy is not read.
 		 */
-		their_bakery_info = get_bakery_info_by_index(offset, id, they);
+		their_bakery_info = get_bakery_info(they, lock);
 		assert(their_bakery_info);
 
 		read_cache_op(their_bakery_info, is_cached);
@@ -141,7 +158,7 @@ static unsigned int bakery_get_ticket(int id, unsigned int offset,
 	return my_ticket;
 }
 
-void bakery_lock_get(unsigned int id, unsigned int offset)
+void bakery_lock_get(bakery_lock_t *lock)
 {
 	unsigned int they, me, is_cached;
 	unsigned int my_ticket, my_prio, their_ticket;
@@ -153,7 +170,7 @@ void bakery_lock_get(unsigned int id, unsigned int offset)
 	is_cached = read_sctlr_el3() & SCTLR_C_BIT;
 
 	/* Get a ticket */
-	my_ticket = bakery_get_ticket(id, offset, me, is_cached);
+	my_ticket = bakery_get_ticket(lock, me, is_cached);
 
 	/*
 	 * Now that we got our ticket, compute our priority value, then compare
@@ -168,7 +185,7 @@ void bakery_lock_get(unsigned int id, unsigned int offset)
 		 * Get a reference to the other contender's bakery info and
 		 * ensure that a stale copy is not read.
 		 */
-		their_bakery_info = get_bakery_info_by_index(offset, id, they);
+		their_bakery_info = get_bakery_info(they, lock);
 		assert(their_bakery_info);
 
 		/* Wait for the contender to get their ticket */
@@ -199,12 +216,12 @@ void bakery_lock_get(unsigned int id, unsigned int offset)
 	/* Lock acquired */
 }
 
-void bakery_lock_release(unsigned int id, unsigned int offset)
+void bakery_lock_release(bakery_lock_t *lock)
 {
 	bakery_info_t *my_bakery_info;
 	unsigned int is_cached = read_sctlr_el3() & SCTLR_C_BIT;
 
-	my_bakery_info = get_my_bakery_info(offset, id);
+	my_bakery_info = get_bakery_info(plat_my_core_pos(), lock);
 	assert(bakery_ticket_number(my_bakery_info->lock_data));
 
 	my_bakery_info->lock_data = 0;

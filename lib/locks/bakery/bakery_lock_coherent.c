@@ -63,16 +63,6 @@
 	assert(entry < BAKERY_LOCK_MAX_CPUS);		\
 } while (0)
 
-/* Initialize Bakery Lock to reset all ticket values */
-void bakery_lock_init(bakery_lock_t *bakery)
-{
-	assert(bakery);
-
-	/* All ticket values need to be 0 */
-	memset(bakery, 0, sizeof(*bakery));
-}
-
-
 /* Obtain a ticket for a given CPU */
 static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 {

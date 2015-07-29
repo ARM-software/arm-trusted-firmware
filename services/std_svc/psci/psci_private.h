@@ -42,23 +42,12 @@
  * The following helper macros abstract the interface to the Bakery
  * Lock API.
  */
-#if USE_COHERENT_MEM
-#define psci_lock_init(non_cpu_pd_node, idx)	\
-	bakery_lock_init(&(non_cpu_pd_node)[(idx)].lock)
-#define psci_lock_get(non_cpu_pd_node)		\
-	bakery_lock_get(&((non_cpu_pd_node)->lock))
-#define psci_lock_release(non_cpu_pd_node)	\
-	bakery_lock_release(&((non_cpu_pd_node)->lock))
-#else
 #define psci_lock_init(non_cpu_pd_node, idx)			\
 	((non_cpu_pd_node)[(idx)].lock_index = (idx))
 #define psci_lock_get(non_cpu_pd_node)				\
-	bakery_lock_get((non_cpu_pd_node)->lock_index, 		\
-			CPU_DATA_PSCI_LOCK_OFFSET)
+	bakery_lock_get(&psci_locks[(non_cpu_pd_node)->lock_index])
 #define psci_lock_release(non_cpu_pd_node)			\
-	bakery_lock_release((non_cpu_pd_node)->lock_index,	\
-			     CPU_DATA_PSCI_LOCK_OFFSET)
-#endif
+	bakery_lock_release(&psci_locks[(non_cpu_pd_node)->lock_index])
 
 /*
  * The PSCI capability which are provided by the generic code but does not
@@ -140,12 +129,9 @@ typedef struct non_cpu_pwr_domain_node {
 	plat_local_state_t local_state;
 
 	unsigned char level;
-#if USE_COHERENT_MEM
-	bakery_lock_t lock;
-#else
-	/* For indexing the bakery_info array in per CPU data */
+
+	/* For indexing the psci_lock array*/
 	unsigned char lock_index;
-#endif
 } non_cpu_pd_node_t;
 
 typedef struct cpu_pwr_domain_node {
@@ -173,6 +159,9 @@ extern const plat_psci_ops_t *psci_plat_pm_ops;
 extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 extern unsigned int psci_caps;
+
+/* One bakery lock is required for each non-cpu power domain */
+DECLARE_BAKERY_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
