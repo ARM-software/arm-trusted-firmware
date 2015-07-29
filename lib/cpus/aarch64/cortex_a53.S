@@ -59,11 +59,93 @@ func cortex_a53_disable_smp
 	ret
 endfunc cortex_a53_disable_smp
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A53 Errata #826319.
+	 * This applies only to revision <= r0p2 of Cortex A53.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5
+	 * --------------------------------------------------
+	 */
+func errata_a53_826319_wa
+	/*
+	 * Compare x0 against revision r0p2
+	 */
+	cmp	x0, #2
+	b.ls	apply_826319
+#if DEBUG
+	b	print_revision_warning
+#else
+	ret
+#endif
+apply_826319:
+	mrs	x1, L2ACTLR_EL1
+	bic	x1, x1, #L2ACTLR_ENABLE_UNIQUECLEAN
+	orr	x1, x1, #L2ACTLR_DISABLE_CLEAN_PUSH
+	msr	L2ACTLR_EL1, x1
+	ret
+endfunc errata_a53_826319_wa
+
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A53 Errata #836870.
+	 * This applies only to revision <= r0p3 of Cortex A53.
+	 * From r0p4 and onwards, this errata is enabled by
+	 * default.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5
+	 * --------------------------------------------------
+	 */
+func errata_a53_836870_wa
+	/*
+	 * Compare x0 against revision r0p3
+	 */
+	cmp	x0, #3
+	b.ls	apply_836870
+#if DEBUG
+	b	print_revision_warning
+#else
+	ret
+#endif
+apply_836870:
+	mrs	x1, CPUACTLR_EL1
+	orr	x1, x1, #CPUACTLR_DTAH
+	msr	CPUACTLR_EL1, x1
+	ret
+endfunc errata_a53_836870_wa
+
+	/* -------------------------------------------------
+	 * The CPU Ops reset function for Cortex-A53.
+	 * Clobbers: x0-x5, x15, x19, x30
+	 * -------------------------------------------------
+	 */
 func cortex_a53_reset_func
+	mov	x19, x30
+	mrs	x0, midr_el1
+
+	/*
+	 * Extract the variant[20:23] and revision[0:3] from x0
+	 * and pack it in x15[0:7] as variant[4:7] and revision[0:3].
+	 * First extract x0[16:23] to x15[0:7] and zero fill the rest.
+	 * Then extract x0[0:3] into x15[0:3] retaining other bits.
+	 */
+	ubfx	x15, x0, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), \
+			#(MIDR_REV_BITS + MIDR_VAR_BITS)
+	bfxil	x15, x0, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+
+#if ERRATA_A53_826319
+	mov	x0, x15
+	bl	errata_a53_826319_wa
+#endif
+
+#if ERRATA_A53_836870
+	mov	x0, x15
+	bl	errata_a53_836870_wa
+#endif
+
 	/* ---------------------------------------------
 	 * As a bare minimum enable the SMP bit if it is
 	 * not already set.
-	 * Clobbers : x0
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CPUECTLR_EL1
@@ -71,9 +153,9 @@ func cortex_a53_reset_func
 	b.ne	skip_smp_setup
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
-	isb
 skip_smp_setup:
-	ret
+	isb
+	ret	x19
 endfunc cortex_a53_reset_func
 
 func cortex_a53_core_pwr_dwn

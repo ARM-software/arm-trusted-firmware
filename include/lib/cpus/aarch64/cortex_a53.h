@@ -41,4 +41,19 @@
 
 #define CPUECTLR_SMP_BIT		(1 << 6)
 
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+
+#define CPUACTLR_DTAH			(1 << 24)
+
+/*******************************************************************************
+ * L2 Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
+
+#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
+#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
+
 #endif /* __CORTEX_A53_H__ */
