@@ -37,7 +37,7 @@
 	.globl	psci_do_pwrup_cache_maintenance
 
 /* -----------------------------------------------------------------------
- * void psci_do_pwrdown_cache_maintenance(uint32_t power level);
+ * void psci_do_pwrdown_cache_maintenance(unsigned int power level);
  *
  * This function performs cache maintenance for the specified power
  * level. The levels of cache affected are determined by the power
@@ -66,7 +66,7 @@ func psci_do_pwrdown_cache_maintenance
 	 * platform.
 	 * ---------------------------------------------
 	 */
-	cmp	x0, #PSCI_CPU_PWR_LVL
+	cmp	w0, #PSCI_CPU_PWR_LVL
 	b.eq	do_core_pwr_dwn
 	bl	prepare_cluster_pwr_dwn
 	b	do_stack_maintenance

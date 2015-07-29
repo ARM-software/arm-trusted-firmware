@@ -65,6 +65,10 @@
 #define PLAT_MAX_RET_STATE	1
 #define PLAT_MAX_OFF_STATE	2
 
+/*
+ * Macro to represent invalid affinity level within PSCI.
+ */
+#define PSCI_INVALID_DATA -1
 
 #define psci_get_pstate_afflvl(pstate)		psci_get_pstate_pwrlvl(pstate)
 
