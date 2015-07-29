@@ -73,29 +73,39 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
  * handling of FIQ interrupts. It returns 0 upon successfully handling a S-EL1
  * FIQ and treats all other FIQs as EL3 interrupts. It assumes that the GIC
  * architecture version in v2.0 and the secure physical timer interrupt is the
- * only S-EL1 interrupt that it needs to handle.
+ * only S-EL1 interrupt that it needs to handle. If FIQ trap in EL3 is enabled
+ * TSP doesn't acknowledge the interrupt because EL3 has previously done it.
  ******************************************************************************/
+#if TSPD_ROUTE_FIQ_TO_EL3
+int32_t tsp_fiq_handler(uint32_t id)
+#else
 int32_t tsp_fiq_handler(void)
+#endif
 {
 	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr), id;
+	uint32_t linear_id = platform_get_core_pos(mpidr);
 
+#if !TSPD_ROUTE_FIQ_TO_EL3
 	/*
 	 * Get the highest priority pending interrupt id and see if it is the
 	 * secure physical generic timer interrupt in which case, handle it.
 	 * Otherwise throw this interrupt at the EL3 firmware.
 	 */
-	id = plat_ic_get_pending_interrupt_id();
+	uint32_t id = plat_ic_get_pending_interrupt_id();
+#endif
 
 	/* TSP can only handle the secure physical timer interrupt */
 	if (id != TSP_IRQ_SEC_PHY_TIMER)
 		return TSP_EL3_FIQ;
 
+#if !TSPD_ROUTE_FIQ_TO_EL3
 	/*
 	 * Handle the interrupt. Also sanity check if it has been preempted by
 	 * another secure interrupt through an assertion.
 	 */
 	id = plat_ic_acknowledge_interrupt();
+#endif
+
 	assert(id == TSP_IRQ_SEC_PHY_TIMER);
 	tsp_generic_timer_handler();
 	plat_ic_end_of_interrupt(id);

@@ -210,6 +210,9 @@ typedef struct tsp_context {
 #if TSPD_ROUTE_IRQ_TO_EL3
 	sp_ctx_regs_t sp_ctx;
 #endif
+#if TSPD_ROUTE_FIQ_TO_EL3
+	sp_ctx_regs_t sp_ctx_2;
+#endif
 } tsp_context_t;
 
 /* Helper macros to store and retrieve tsp args from tsp_context */

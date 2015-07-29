@@ -141,6 +141,14 @@ static void tspd_cpu_on_finish_handler(uint64_t unused)
 	disable_intr_rm_local(INTR_TYPE_NS, SECURE);
 #endif
 
+#if TSPD_ROUTE_FIQ_TO_EL3
+	/*
+	 * Disable the Secure interrupt locally since it will be enabled
+	 * globally within cm_init_context.
+	 */
+	disable_intr_rm_local(INTR_TYPE_S_EL1, SECURE);
+#endif
+
 	/* Enter the TSP */
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
