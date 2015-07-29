@@ -49,13 +49,15 @@ static cpu_context_t psci_ns_context[PLATFORM_CORE_COUNT];
 /******************************************************************************
  * Define the psci capability variable.
  *****************************************************************************/
-uint32_t psci_caps;
+unsigned int psci_caps;
 
 /*******************************************************************************
  * Function which initializes the 'psci_non_cpu_pd_nodes' or the
  * 'psci_cpu_pd_nodes' corresponding to the power level.
  ******************************************************************************/
-static void psci_init_pwr_domain_node(int node_idx, int parent_idx, int level)
+static void psci_init_pwr_domain_node(unsigned int node_idx,
+					unsigned int parent_idx,
+					unsigned int level)
 {
 	if (level > PSCI_CPU_PWR_LVL) {
 		psci_non_cpu_pd_nodes[node_idx].level = level;
@@ -78,12 +80,12 @@ static void psci_init_pwr_domain_node(int node_idx, int parent_idx, int level)
 		svc_cpu_data->aff_info_state = AFF_STATE_OFF;
 
 		/* Invalidate the suspend level for the cpu */
-		svc_cpu_data->target_pwrlvl = PSCI_INVALID_DATA;
+		svc_cpu_data->target_pwrlvl = PSCI_INVALID_PWR_LVL;
 
 		/* Set the power state to OFF state */
 		svc_cpu_data->local_state = PLAT_MAX_OFF_STATE;
 
-		flush_dcache_range((uint64_t)svc_cpu_data,
+		flush_dcache_range((uintptr_t)svc_cpu_data,
 						 sizeof(*svc_cpu_data));
 
 		cm_set_context_by_index(node_idx,
@@ -103,9 +105,9 @@ static void psci_init_pwr_domain_node(int node_idx, int parent_idx, int level)
  *******************************************************************************/
 static void psci_update_pwrlvl_limits(void)
 {
-	int cpu_idx, j;
+	int j;
 	unsigned int nodes_idx[PLAT_MAX_PWR_LVL] = {0};
-	unsigned int temp_index[PLAT_MAX_PWR_LVL];
+	unsigned int temp_index[PLAT_MAX_PWR_LVL], cpu_idx;
 
 	for (cpu_idx = 0; cpu_idx < PLATFORM_CORE_COUNT; cpu_idx++) {
 		psci_get_parent_pwr_domain_nodes(cpu_idx,
@@ -182,7 +184,7 @@ static void populate_power_domain_tree(const unsigned char *topology)
 
 #if !USE_COHERENT_MEM
 	/* Flush the non CPU power domain data to memory */
-	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes,
+	flush_dcache_range((uintptr_t) &psci_non_cpu_pd_nodes,
 			   sizeof(psci_non_cpu_pd_nodes));
 #endif
 }
@@ -208,7 +210,7 @@ static void populate_power_domain_tree(const unsigned char *topology)
  * |   CPU 0   |   CPU 1   |   CPU 2   |   CPU 3  |
  * ------------------------------------------------
  ******************************************************************************/
-int32_t psci_setup(void)
+int psci_setup(void)
 {
 	const unsigned char *topology_tree;
 
@@ -230,11 +232,11 @@ int32_t psci_setup(void)
 	 * The psci_non_cpu_pd_nodes only needs flushing when it's not allocated in
 	 * coherent memory.
 	 */
-	flush_dcache_range((uint64_t) &psci_non_cpu_pd_nodes,
+	flush_dcache_range((uintptr_t) &psci_non_cpu_pd_nodes,
 			   sizeof(psci_non_cpu_pd_nodes));
 #endif
 
-	flush_dcache_range((uint64_t) &psci_cpu_pd_nodes,
+	flush_dcache_range((uintptr_t) &psci_cpu_pd_nodes,
 			   sizeof(psci_cpu_pd_nodes));
 
 	psci_init_req_local_pwr_states();

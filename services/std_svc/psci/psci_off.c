@@ -60,7 +60,7 @@ static void psci_set_power_off_state(psci_power_state_t *state_info)
  * interconnect level if the cpu is the last in the cluster and also the
  * program the power controller.
  ******************************************************************************/
-int psci_do_cpu_off(int end_pwrlvl)
+int psci_do_cpu_off(unsigned int end_pwrlvl)
 {
 	int rc, idx = platform_my_core_pos();
 	psci_power_state_t state_info;
