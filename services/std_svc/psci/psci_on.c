@@ -84,9 +84,9 @@ static void psci_set_aff_info_state_by_idx(unsigned int cpu_idx,
  * The state of all the relevant power domains are changed after calling the
  * platform handler as it can return error.
  ******************************************************************************/
-int psci_cpu_on_start(unsigned long target_cpu,
+int psci_cpu_on_start(u_register_t target_cpu,
 		      entry_point_info_t *ep,
-		      int end_pwrlvl)
+		      unsigned int end_pwrlvl)
 {
 	int rc;
 	unsigned int target_idx = plat_core_pos_by_mpidr(target_cpu);
@@ -130,7 +130,7 @@ int psci_cpu_on_start(unsigned long target_cpu,
 	 * of the target cpu to allow it to perform the necessary
 	 * steps to power on.
 	 */
-	rc = psci_plat_pm_ops->pwr_domain_on((u_register_t)target_cpu);
+	rc = psci_plat_pm_ops->pwr_domain_on(target_cpu);
 	assert(rc == PSCI_E_SUCCESS || rc == PSCI_E_INTERN_FAIL);
 
 	if (rc == PSCI_E_SUCCESS)

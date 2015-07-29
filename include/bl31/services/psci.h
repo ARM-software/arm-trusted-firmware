@@ -167,7 +167,7 @@
 #define PSCI_E_DISABLED		-8
 #define PSCI_E_INVALID_ADDRESS	-9
 
-#define PSCI_INVALID_MPIDR	~(0ULL)
+#define PSCI_INVALID_MPIDR	~((u_register_t)0)
 
 #ifndef __ASSEMBLY__
 
@@ -188,7 +188,7 @@ typedef enum {
 /*
  * Macro to represent invalid affinity level within PSCI.
  */
-#define PSCI_INVALID_DATA -1
+#define PSCI_INVALID_PWR_LVL	(PLAT_MAX_PWR_LVL + 1)
 
 /*
  * Type for representing the local power state at a particular level.
@@ -242,11 +242,13 @@ typedef struct psci_power_state {
 typedef struct psci_cpu_data {
 	/* State as seen by PSCI Affinity Info API */
 	aff_info_state_t aff_info_state;
+
 	/*
 	 * Highest power level which takes part in a power management
 	 * operation.
 	 */
-	int8_t target_pwrlvl;
+	unsigned char target_pwrlvl;
+
 	/* The local power state of this CPU */
 	plat_local_state_t local_state;
 #if !USE_COHERENT_MEM
@@ -270,7 +272,7 @@ typedef struct plat_psci_ops {
 	void (*system_reset)(void) __dead2;
 	int (*validate_power_state)(unsigned int power_state,
 				    psci_power_state_t *req_state);
-	int (*validate_ns_entrypoint)(unsigned long ns_entrypoint);
+	int (*validate_ns_entrypoint)(uintptr_t ns_entrypoint);
 	void (*get_sys_suspend_power_state)(
 				    psci_power_state_t *req_state);
 } plat_psci_ops_t;
@@ -297,17 +299,23 @@ typedef struct spd_pm_ops {
  * Function & Data prototypes
  ******************************************************************************/
 unsigned int psci_version(void);
-int psci_affinity_info(unsigned long, unsigned int);
-int psci_migrate(unsigned long);
+int psci_cpu_on(u_register_t target_cpu,
+		uintptr_t entrypoint,
+		u_register_t context_id);
+int psci_cpu_suspend(unsigned int power_state,
+		     uintptr_t entrypoint,
+		     u_register_t context_id);
+int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id);
+int psci_cpu_off(void);
+int psci_affinity_info(u_register_t target_affinity,
+		       unsigned int lowest_affinity_level);
+int psci_migrate(u_register_t target_cpu);
 int psci_migrate_info_type(void);
 long psci_migrate_info_up_cpu(void);
-int psci_cpu_on(unsigned long,
-		unsigned long,
-		unsigned long);
+int psci_features(unsigned int psci_fid);
 void __dead2 psci_power_down_wfi(void);
 void psci_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *);
-
 uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,
 			  uint64_t x2,
@@ -318,7 +326,7 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t flags);
 
 /* PSCI setup function */
-int32_t psci_setup(void);
+int psci_setup(void);
 
 #endif /*__ASSEMBLY__*/
 

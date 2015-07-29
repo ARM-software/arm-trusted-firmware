@@ -72,7 +72,7 @@ static void psci_suspend_to_standby_finisher(unsigned int cpu_idx,
  * This function does generic and platform specific suspend to power down
  * operations.
  ******************************************************************************/
-static void psci_suspend_to_pwrdown_start(int end_pwrlvl,
+static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 					  entry_point_info_t *ep,
 					  psci_power_state_t *state_info)
 {
@@ -127,7 +127,7 @@ static void psci_suspend_to_pwrdown_start(int end_pwrlvl,
  * not possible to undo any of the actions taken beyond that point.
  ******************************************************************************/
 void psci_cpu_suspend_start(entry_point_info_t *ep,
-			    int end_pwrlvl,
+			    unsigned int end_pwrlvl,
 			    psci_power_state_t *state_info,
 			    unsigned int is_power_down_state)
 {
@@ -212,8 +212,8 @@ exit:
 void psci_cpu_suspend_finish(unsigned int cpu_idx,
 			     psci_power_state_t *state_info)
 {
-	int32_t suspend_level;
-	uint64_t counter_freq;
+	unsigned long long counter_freq;
+	unsigned int suspend_level;
 
 	/* Ensure we have been woken up from a suspended state */
 	assert(psci_get_aff_info_state() == AFF_STATE_ON && is_local_state_off(\
@@ -246,12 +246,12 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend) {
 		suspend_level = psci_get_suspend_pwrlvl();
-		assert (suspend_level != PSCI_INVALID_DATA);
+		assert (suspend_level != PSCI_INVALID_PWR_LVL);
 		psci_spd_pm->svc_suspend_finish(suspend_level);
 	}
 
 	/* Invalidate the suspend level for the cpu */
-	psci_set_suspend_pwrlvl(PSCI_INVALID_DATA);
+	psci_set_suspend_pwrlvl(PSCI_INVALID_PWR_LVL);
 
 	/*
 	 * Generic management: Now we just need to retrieve the
