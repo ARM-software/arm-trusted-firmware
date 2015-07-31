@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,33 +27,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __PLAT_SIP_SVC_H__
+#define __PLAT_SIP_SVC_H__
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+#include <stdint.h>
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
+/* SMC function IDs for SiP Service queries */
+#define SIP_SVC_CALL_COUNT		0x8200ff00
+#define SIP_SVC_UID			0x8200ff01
+/*					0x8200ff02 is reserved */
+#define SIP_SVC_VERSION			0x8200ff03
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+/* Mediatek SiP Service Calls version numbers */
+#define MTK_SIP_SVC_VERSION_MAJOR	0x0
+#define MTK_SIP_SVC_VERSION_MINOR	0x1
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
+/* Number of Mediatek SiP Calls implemented */
+#define MTK_SIP_NUM_CALLS		1
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+/* Mediatek SiP Service Calls function IDs */
+#define MTK_SIP_SET_AUTHORIZED_SECURE_REG	0x82000001
 
-#define CPUACTLR_DTAH			(1 << 24)
+/* Mediatek SiP Calls error code */
+enum {
+	MTK_SIP_E_SUCCESS = 0,
+	MTK_SIP_E_INVALID_PARAM = -1
+};
 
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
+/*
+ * This function should be implemented in Mediatek SOC directory. It fullfills
+ * MTK_SIP_SET_AUTHORIZED_SECURE_REG SiP call by checking the sreg with the
+ * predefined secure register list, if a match was found, set val to sreg.
+ *
+ * Return MTK_SIP_E_SUCCESS on success, and MTK_SIP_E_INVALID_PARAM on failure.
+ */
+uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val);
 
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
-
-#endif /* __CORTEX_A53_H__ */
+#endif /* __PLAT_SIP_SVC_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,32 +28,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+#include <arch.h>
+#include <mcucfg.h>
+#include <mt_io.h>
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
+void disable_scu(unsigned long mpidr)
+{
+	if (mpidr & MPIDR_CLUSTER_MASK)
+		setbits_le32((uintptr_t)&mt8173_mcucfg->mp1_miscdbg,
+			MP1_ACINACTM);
+	else
+		setbits_le32((uintptr_t)&mt8173_mcucfg->mp0_axi_config,
+			MP0_ACINACTM);
+}
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
-
-#define CPUECTLR_SMP_BIT		(1 << 6)
-
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
-
-#define CPUACTLR_DTAH			(1 << 24)
-
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
-
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
-
-#endif /* __CORTEX_A53_H__ */
+void enable_scu(unsigned long mpidr)
+{
+	if (mpidr & MPIDR_CLUSTER_MASK)
+		clrbits_le32((uintptr_t)&mt8173_mcucfg->mp1_miscdbg,
+			MP1_ACINACTM);
+	else
+		clrbits_le32((uintptr_t)&mt8173_mcucfg->mp0_axi_config,
+			MP0_ACINACTM);
+}

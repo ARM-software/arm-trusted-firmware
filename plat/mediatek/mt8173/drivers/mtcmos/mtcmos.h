@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,33 +27,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __MTCMOS_H__
+#define __MTCMOS_H__
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+/*
+ * This function will turn off all the little core's power except cpu 0. The
+ * cores in cluster 0 are all powered when the system power on. The System
+ * Power Manager (SPM) will do nothing if it found the core's power was on
+ * during CPU_ON psci call.
+ */
+void mtcmos_little_cpu_off(void);
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
-
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
-
-#define CPUECTLR_SMP_BIT		(1 << 6)
-
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
-
-#define CPUACTLR_DTAH			(1 << 24)
-
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
-
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
-
-#endif /* __CORTEX_A53_H__ */
+#endif /* __MTCMOS_H__ */

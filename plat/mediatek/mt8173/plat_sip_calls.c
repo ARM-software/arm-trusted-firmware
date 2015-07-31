@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,33 +27,31 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <mmio.h>
+#include <mtk_sip_svc.h>
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+/* Authorized secure register list */
+enum {
+	SREG_HDMI_COLOR_EN = 0x14000904
+};
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
+static uint32_t authorized_sreg[] = {
+	SREG_HDMI_COLOR_EN
+};
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+#define authorized_sreg_cnt	\
+	(sizeof(authorized_sreg) / sizeof(authorized_sreg[0]))
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
+uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
+{
+	uint64_t i;
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+	for (i = 0; i < authorized_sreg_cnt; i++) {
+		if (authorized_sreg[i] == sreg) {
+			mmio_write_32(sreg, val);
+			return MTK_SIP_E_SUCCESS;
+		}
+	}
 
-#define CPUACTLR_DTAH			(1 << 24)
-
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
-
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
-
-#endif /* __CORTEX_A53_H__ */
+	return MTK_SIP_E_INVALID_PARAM;
+}

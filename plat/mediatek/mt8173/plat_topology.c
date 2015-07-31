@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,33 +27,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <arch.h>
+#include <psci.h>
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr)
+{
+	/* Report 1 (absent) instance at levels higher that the cluster level */
+	if (aff_lvl > MPIDR_AFFLVL1)
+		return 1;
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
+	if (aff_lvl == MPIDR_AFFLVL1)
+		return 2; /* We have two clusters */
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+	return mpidr & 0x100 ? 2 : 2; /* 2 cpus in cluster 1, 2 in cluster 0 */
+}
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
+unsigned int plat_get_aff_state(unsigned int aff_lvl, unsigned long mpidr)
+{
+	return aff_lvl <= MPIDR_AFFLVL2 ? PSCI_AFF_PRESENT : PSCI_AFF_ABSENT;
+}
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
-
-#define CPUACTLR_DTAH			(1 << 24)
-
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
-
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
-
-#endif /* __CORTEX_A53_H__ */
+int mt_setup_topology(void)
+{
+	/* [TODO] Make topology configurable via SCC */
+	return 0;
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,32 +28,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+#include <arch_helpers.h>
+#include <mcucfg.h>
+#include <mmio.h>
+#include <mt_cpuxgpt.h>
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
+uint64_t normal_time_base;
+uint64_t atf_time_base;
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+static void write_cpuxgpt(unsigned int reg_index, unsigned int value)
+{
+	mmio_write_32((uintptr_t)&mt8173_mcucfg->xgpt_idx, reg_index);
+	mmio_write_32((uintptr_t)&mt8173_mcucfg->xgpt_ctl, value);
+}
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
+static void cpuxgpt_set_init_cnt(unsigned int countH, unsigned int countL)
+{
+	write_cpuxgpt(INDEX_CNT_H_INIT, countH);
+	/* update count when countL programmed */
+	write_cpuxgpt(INDEX_CNT_L_INIT, countL);
+}
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+static uint64_t atf_sched_clock(void)
+{
+	uint64_t cval;
 
-#define CPUACTLR_DTAH			(1 << 24)
+	cval = (((read_cntpct_el0() - atf_time_base) * 1000) / 13) +
+	       normal_time_base;
+	return cval;
+}
 
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
+void generic_timer_backup(void)
+{
+	uint64_t cval;
 
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
+	cval = read_cntpct_el0();
+	cpuxgpt_set_init_cnt((uint32_t)(cval >> 32),
+			       (uint32_t)(cval & 0xffffffff));
+}
 
-#endif /* __CORTEX_A53_H__ */
+uint64_t get_expire_time_us(uint64_t timeout_us)
+{
+	return atf_sched_clock() + timeout_us;
+}
+
+int is_timer_expired(uint64_t expire_time_us)
+{
+	return atf_sched_clock() > expire_time_us;
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,33 +27,72 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <debug.h>
+#include <mt8173_def.h>
+#include <mt_cpuxgpt.h>
+#include <pmic_wrap_init.h>
+#include <rtc.h>
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+enum { RTC_BUSY_WAIT_TIMEOUT_US = 1000 * 1000 };
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
+static uint16_t RTC_Read(uint32_t addr)
+{
+	uint32_t rdata = 0;
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+	pwrap_read((uint32_t) addr, &rdata);
+	return (uint16_t)rdata;
+}
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
+static void RTC_Write(uint32_t addr, uint16_t data)
+{
+	pwrap_write((uint32_t) addr, (uint32_t) data);
+}
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+static inline int32_t rtc_busy_wait(void)
+{
+	uint64_t expire_time;
 
-#define CPUACTLR_DTAH			(1 << 24)
+	expire_time = get_expire_time_us(RTC_BUSY_WAIT_TIMEOUT_US);
 
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
+	while (RTC_Read(RTC_BBPU) & RTC_BBPU_CBUSY) {
+		/* Time > 1sec, time out and set recovery mode enable.*/
+		if (is_timer_expired(expire_time)) {
+			ERROR("[RTC] rtc cbusy time out!!!!!\n");
+			return 0;
+		}
+	}
 
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
+	return 1;
+}
 
-#endif /* __CORTEX_A53_H__ */
+static int32_t Write_trigger(void)
+{
+	RTC_Write(RTC_WRTGR, 1);
+	if (rtc_busy_wait())
+		return 1;
+	else
+		return 0;
+}
+
+static int32_t Writeif_unlock(void)
+{
+	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK1);
+	if (!Write_trigger())
+		return 0;
+	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK2);
+	if (!Write_trigger())
+		return 0;
+
+	return 1;
+}
+
+void rtc_bbpu_power_down(void)
+{
+	uint16_t bbpu;
+
+	/* pull PWRBB low */
+	bbpu = RTC_BBPU_KEY | RTC_BBPU_AUTO | RTC_BBPU_PWREN;
+	Writeif_unlock();
+	RTC_Write(RTC_BBPU, bbpu);
+	Write_trigger();
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,45 +28,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A57_H__
-#define __CORTEX_A57_H__
-
-/* Cortex-A57 midr for revision 0 */
-#define CORTEX_A57_MIDR 0x410FD070
+#ifndef __PLAT_PRIVATE_H__
+#define __PLAT_PRIVATE_H__
 
 /*******************************************************************************
- * CPU Extended Control register specific definitions.
+ * Function and variable prototypes
  ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+void plat_configure_mmu_el3(unsigned long total_base,
+			    unsigned long total_size,
+			    unsigned long,
+			    unsigned long,
+			    unsigned long,
+			    unsigned long);
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
-#define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
-#define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
-#define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
+void plat_cci_init(void);
+void plat_cci_enable(void);
+void plat_cci_disable(void);
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
+/* Declarations for plat_mt_gic.c */
+void plat_mt_gic_init(void);
 
-#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
-#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
+/* Declarations for plat_topology.c */
+int mt_setup_topology(void);
 
-/*******************************************************************************
- * L2 Control register specific definitions.
- ******************************************************************************/
-#define L2CTLR_EL1			S3_1_C11_C0_2	/* Instruction def. */
-
-#define L2CTLR_DATA_RAM_LATENCY_SHIFT	0
-#define L2CTLR_TAG_RAM_LATENCY_SHIFT	6
-
-#define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
-#define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
-
-#define L2CTLR_DATA_RAM_SETUP_SHIFT	5
-#define L2CTLR_TAG_RAM_SETUP_SHIFT	9
-
-#define L2_DATA_RAM_SETUP_1_CYCLES	0x1
-#define L2_TAG_RAM_SETUP_1_CYCLES	0x1
-
-#endif /* __CORTEX_A57_H__ */
+#endif /* __PLAT_PRIVATE_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,32 +28,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+#ifndef _MT_CPUXGPT_H_
+#define _MT_CPUXGPT_H_
 
-/* Cortex-A53 midr for revision 0 */
-#define CORTEX_A53_MIDR 0x410FD030
+#include <stdint.h>
 
-/*******************************************************************************
- * CPU Extended Control register specific definitions.
- ******************************************************************************/
-#define CPUECTLR_EL1			S3_1_C15_C2_1	/* Instruction def. */
+/* REG */
+#define INDEX_CNT_L_INIT    0x008
+#define INDEX_CNT_H_INIT    0x00C
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
+void generic_timer_backup(void);
+uint64_t get_expire_time_us(uint64_t timeout_us);
+int is_timer_expired(uint64_t expire_time_us);
 
-/*******************************************************************************
- * CPU Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
-
-#define CPUACTLR_DTAH			(1 << 24)
-
-/*******************************************************************************
- * L2 Auxiliary Control register specific definitions.
- ******************************************************************************/
-#define L2ACTLR_EL1			S3_1_C15_C0_0	/* Instruction def. */
-
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
-
-#endif /* __CORTEX_A53_H__ */
+#endif
