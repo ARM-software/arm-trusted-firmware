@@ -100,6 +100,7 @@
  * Give access to the CPUs and Virtio. Some devices
  * would normally use the default ID so allow that too.
  */
+#define PLAT_ARM_TZC_BASE		0x2a4a0000
 #define PLAT_ARM_TZC_FILTERS		REG_ATTR_FILTER_BIT(0)
 
 #define PLAT_ARM_TZC_NS_DEV_ACCESS	(				\

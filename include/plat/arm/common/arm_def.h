@@ -173,10 +173,6 @@
 
 #define ARM_CONSOLE_BAUDRATE		115200
 
-/* TZC related constants */
-#define ARM_TZC_BASE			0x2a4a0000
-
-
 /******************************************************************************
  * Required platform porting definitions common to all ARM standard platforms
  *****************************************************************************/
