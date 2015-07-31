@@ -59,6 +59,9 @@ Preparing the BL31 image to run on Tegra SoCs
 'CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=tegra \
 TARGET_SOC=<target-soc e.g. t210|t132> SPD=<dispatcher e.g. tlkd> all'
 
+Platforms wanting to use different TZDRAM_BASE, can add 'TZDRAM_BASE=<value>'
+to the build command line.
+
 Power Management
 ================
 The PSCI implementation expects each platform to expose the 'power state'
