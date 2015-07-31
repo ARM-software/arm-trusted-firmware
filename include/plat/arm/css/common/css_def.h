@@ -113,4 +113,7 @@
 #define PLAT_ARM_TZC_FILTERS		REG_ATTR_FILTER_BIT_ALL
 #define PLAT_ARM_TZC_BASE		0x2a4a0000
 
+/* System timer related constants */
+#define PLAT_ARM_NSTIMER_FRAME_ID	1
+
 #endif /* __CSS_DEF_H__ */
