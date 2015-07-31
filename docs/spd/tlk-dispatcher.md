@@ -10,12 +10,9 @@ In order to compile TLK-D, we need a BL32 image to be present. Since, TLKD
 just needs to compile, any BL32 image would do. To use TLK as the BL32, please
 refer to the "Build TLK" section.
 
-Once a BL32 is ready, TLKD can be included in the image using the following
-command:
+Once a BL32 is ready, TLKD can be included in the image by adding "SPD=tlkd"
+to the build command.
 
-CROSS_COMPILE=<path_to_linaro_chain>/bin/aarch64-none-elf- make NEED_BL1=0
-NEED_BL2=0 BL32=<path_to_BL32_image> PLAT=<platform> SPD=tlkd all
-_
 Trusted Little Kernel (TLK)
 ===========================
 TLK is a Trusted OS running as Secure EL1. It is a Free Open Source Software
@@ -58,3 +55,16 @@ Build TLK
 =========
 To build and execute TLK, follow the instructions from "Building a TLK Device"
 section from Tegra_BSP_for_Android_TLK_FOSS_Reference.pdf manual.
+
+Input parameters to TLK
+=======================
+TLK expects the TZDRAM size and a structure containing the boot arguments. BL2
+passes this information to the EL3 software as members of the bl32_ep_info
+struct, where bl32_ep_info is part of bl31_params_t (passed by BL2 in X0)
+
+Example:
+--------
+    bl32_ep_info->args.arg0 = TZDRAM size available for BL32
+    bl32_ep_info->args.arg1 = unused (used only on ARMv7)
+    bl32_ep_info->args.arg2 = pointer to boot args
+

@@ -42,7 +42,6 @@
 
 typedef struct plat_params_from_bl2 {
 	uint64_t tzdram_size;
-	uintptr_t bl32_params;
 } plat_params_from_bl2_t;
 
 /* Declarations for plat_psci_handlers.c */
