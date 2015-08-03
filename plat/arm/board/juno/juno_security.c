@@ -29,6 +29,7 @@
  */
 
 #include <mmio.h>
+#include <nic_400.h>
 #include <plat_arm.h>
 #include <soc_css.h>
 #include "juno_def.h"
@@ -48,12 +49,25 @@ static void init_mmu401(void)
 }
 
 /*******************************************************************************
+ * Program CSS-NIC400 to allow non-secure access to some CSS regions.
+ ******************************************************************************/
+static void css_init_nic400(void)
+{
+	/* Note: This is the NIC-400 device on the CSS */
+	mmio_write_32(PLAT_SOC_CSS_NIC400_BASE +
+		NIC400_ADDR_CTRL_SECURITY_REG(CSS_NIC400_SLAVE_BOOTSECURE),
+		~0);
+}
+
+/*******************************************************************************
  * Initialize the secure environment.
  ******************************************************************************/
 void plat_arm_security_setup(void)
 {
 	/* Initialize the TrustZone Controller */
 	arm_tzc_setup();
+	/* Do ARM CSS internal NIC setup */
+	css_init_nic400();
 	/* Do ARM CSS SoC security setup */
 	soc_css_security_setup();
 	/* Initialize the SMMU SSD tables*/
