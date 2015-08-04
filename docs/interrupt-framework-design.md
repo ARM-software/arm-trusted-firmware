@@ -629,11 +629,13 @@ for the following:
         When an interrupt is received by the handler, it could check its id
         to ensure it has been configured as a secure interrupt at the
         interrupt controller. A non-secure interrupt should never be handed
-        to the secure interrupt handler. If the routing model chosen is such
-        that Secure-EL1 interrupts are not routed to EL3 when execution is
-        in non-secure state, then a Secure-EL1 interrupt generated in the
-        secure state would be invalid. The handler could use the security
-        state flag to check this.
+        to the secure interrupt handler. A routing model could be chosen
+        where Secure-EL1 interrupts are routed to S-EL1 instead of EL3 when
+        execution is in secure state. If the handler receives a Secure-EL1
+        interrupt it should check which security state has the interrupt
+        originated from. A Secure-EL1 interrupt generated when execution is in
+        secure state would be invalid in this routing model. The handler could
+        use the security state flag to check this.
 
     The SPD service should use the platform API:
     `plat_ic_get_interrupt_type()` to determine the type of interrupt for the
@@ -770,7 +772,7 @@ in `tspd_smc_handler()` function upon receiving this SMC:
     assertion is raised otherwise.
 
 2.  Checks whether the TSP needs a resume i.e check if it was preempted. It
-    then saves the system register context for the secure state by calling
+    then saves the system register context for the non-secure state by calling
     `cm_el1_sysregs_context_save(NON_SECURE)`.
 
 3.  Restores the secure context by calling
