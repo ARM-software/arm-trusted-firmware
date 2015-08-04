@@ -39,10 +39,10 @@ OBJECTS := src/cert.o \
            src/ext.o \
            src/key.o \
            src/main.o \
-           src/tbb_cert.o \
-           src/tbb_ext.o \
-           src/tbb_key.o \
-           src/sha.o
+           src/sha.o \
+           src/tbbr/tbb_cert.o \
+           src/tbbr/tbb_ext.o \
+           src/tbbr/tbb_key.o
 
 CFLAGS := -Wall -std=c99
 

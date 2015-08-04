@@ -65,20 +65,20 @@ IMPLEMENT_ASN1_FUNCTIONS(HASH)
  *
  * Return: 0 = success, Otherwise: error
  */
-int ext_init(ext_t *tbb_ext)
+int ext_register(ext_t *exts)
 {
 	ext_t *ext;
 	X509V3_EXT_METHOD *m;
 	int i = 0, nid, ret;
 
-	while ((ext = &tbb_ext[i++]) && ext->oid) {
+	while ((ext = &exts[i++]) && ext->oid) {
 		nid = OBJ_create(ext->oid, ext->sn, ext->ln);
 		if (ext->alias) {
 			X509V3_EXT_add_alias(nid, ext->alias);
 		} else {
 			m = &ext->method;
 			memset(m, 0x0, sizeof(X509V3_EXT_METHOD));
-			switch (ext->type) {
+			switch (ext->asn1_type) {
 			case V_ASN1_INTEGER:
 				m->it = ASN1_ITEM_ref(ASN1_INTEGER);
 				m->i2s = (X509V3_EXT_I2S)i2s_ASN1_INTEGER;

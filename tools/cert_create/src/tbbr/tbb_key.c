@@ -28,28 +28,42 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TBB_KEY_H_
-#define TBB_KEY_H_
-
-#include "key.h"
+#include "tbbr/tbb_key.h"
 
 /*
- * Enumerate the keys that are used to establish the chain of trust
+ * Keys used to establish the chain of trust
+ *
+ * The order of the keys must follow the enumeration specified in tbb_key.h
  */
-enum {
-	ROT_KEY,
-	TRUSTED_WORLD_KEY,
-	NON_TRUSTED_WORLD_KEY,
-	BL30_KEY,
-	BL31_KEY,
-	BL32_KEY,
-	BL33_KEY,
-	NUM_KEYS
+static key_t tbb_keys[] = {
+	[ROT_KEY] = {
+		.id = ROT_KEY,
+		.desc = "Root Of Trust key"
+	},
+	[TRUSTED_WORLD_KEY] = {
+		.id = TRUSTED_WORLD_KEY,
+		.desc = "Trusted World key"
+	},
+	[NON_TRUSTED_WORLD_KEY] = {
+		.id = NON_TRUSTED_WORLD_KEY,
+		.desc = "Non Trusted World key"
+	},
+	[BL30_KEY] = {
+		.id = BL30_KEY,
+		.desc = "BL30 key"
+	},
+	[BL31_KEY] = {
+		.id = BL31_KEY,
+		.desc = "BL31 key"
+	},
+	[BL32_KEY] = {
+		.id = BL32_KEY,
+		.desc = "BL32 key"
+	},
+	[BL33_KEY] = {
+		.id = BL33_KEY,
+		.desc = "BL33 key"
+	}
 };
 
-/*
- * Array containing the key instances
- */
-extern key_t keys[];
-
-#endif /* TBB_KEY_H_ */
+REGISTER_KEYS(tbb_keys);

@@ -34,85 +34,113 @@
 #include <openssl/x509v3.h>
 #include "ext.h"
 #include "platform_oid.h"
+#include "tbbr/tbb_ext.h"
+#include "tbbr/tbb_key.h"
 
-ext_t tbb_ext[] = {
-	{
+/* TODO: get these values from the command line */
+#define TRUSTED_WORLD_NVCTR_VALUE	0
+#define NORMAL_WORLD_NVCTR_VALUE	0
+
+static ext_t tbb_ext[] = {
+	[TZ_FW_NVCOUNTER_EXT] = {
 		.oid = TZ_FW_NVCOUNTER_OID,
-		.sn = "TrustedNvCounter",
-		.ln = "Non-volatile trusted counter",
-		.type = V_ASN1_INTEGER
+		.sn = "TrustedWorldNVCounter",
+		.ln = "Trusted World Non-Volatile counter",
+		.asn1_type = V_ASN1_INTEGER,
+		.type = EXT_TYPE_NVCOUNTER,
+		.data.nvcounter = TRUSTED_WORLD_NVCTR_VALUE
 	},
-	{
+	[NTZ_FW_NVCOUNTER_EXT] = {
 		.oid = NTZ_FW_NVCOUNTER_OID,
-		.sn = "NonTrustedNvCounter",
-		.ln = "Non-volatile non-trusted counter",
-		.type = V_ASN1_INTEGER
+		.sn = "NormalWorldNVCounter",
+		.ln = "Normal World Non-Volatile counter",
+		.asn1_type = V_ASN1_INTEGER,
+		.type = EXT_TYPE_NVCOUNTER,
+		.data.nvcounter = NORMAL_WORLD_NVCTR_VALUE
 	},
-	{
+	[BL2_HASH_EXT] = {
 		.oid = BL2_HASH_OID,
 		.sn = "TrustedBootFirmwareHash",
 		.ln = "Trusted Boot Firmware (BL2) hash (SHA256)",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH
 	},
-	{
+	[TZ_WORLD_PK_EXT] = {
 		.oid = TZ_WORLD_PK_OID,
 		.sn = "TrustedWorldPublicKey",
 		.ln = "Trusted World Public Key",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_PKEY,
+		.data.key = TRUSTED_WORLD_KEY
 	},
-	{
+	[NTZ_WORLD_PK_EXT] = {
 		.oid = NTZ_WORLD_PK_OID,
 		.sn = "NonTrustedWorldPublicKey",
 		.ln = "Non-Trusted World Public Key",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_PKEY,
+		.data.key = NON_TRUSTED_WORLD_KEY
 	},
-	{
-		.oid = BL31_CONTENT_CERT_PK_OID,
-		.sn = "SoCFirmwareContentCertPK",
-		.ln = "SoC Firmware content certificate public key",
-		.type = V_ASN1_OCTET_STRING
-	},
-	{
-		.oid = BL31_HASH_OID,
-		.sn = "APROMPatchHash",
-		.ln = "AP ROM patch hash",
-		.type = V_ASN1_OCTET_STRING
-	},
-	{
+	[BL30_CONTENT_CERT_PK_EXT] = {
 		.oid = BL30_CONTENT_CERT_PK_OID,
 		.sn = "SCPFirmwareContentCertPK",
 		.ln = "SCP Firmware content certificate public key",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_PKEY,
+		.data.key = BL30_KEY
 	},
-	{
+	[BL30_HASH_EXT] = {
 		.oid = BL30_HASH_OID,
 		.sn = "SCPFirmwareHash",
 		.ln = "SCP Firmware (BL30) hash (SHA256)",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH
 	},
-	{
+	[BL31_CONTENT_CERT_PK_EXT] = {
+		.oid = BL31_CONTENT_CERT_PK_OID,
+		.sn = "SoCFirmwareContentCertPK",
+		.ln = "SoC Firmware content certificate public key",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_PKEY,
+		.data.key = BL31_KEY
+	},
+	[BL31_HASH_EXT] = {
+		.oid = BL31_HASH_OID,
+		.sn = "SoCAPFirmwareHash",
+		.ln = "SoC AP Firmware (BL31) hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH
+	},
+	[BL32_CONTENT_CERT_PK_EXT] = {
 		.oid = BL32_CONTENT_CERT_PK_OID,
 		.sn = "TrustedOSFirmwareContentCertPK",
 		.ln = "Trusted OS Firmware content certificate public key",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_PKEY,
+		.data.key = BL32_KEY
 	},
-	{
+	[BL32_HASH_EXT] = {
 		.oid = BL32_HASH_OID,
 		.sn = "TrustedOSHash",
 		.ln = "Trusted OS (BL32) hash (SHA256)",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH
 	},
-	{
+	[BL33_CONTENT_CERT_PK_EXT] = {
 		.oid = BL33_CONTENT_CERT_PK_OID,
 		.sn = "NonTrustedFirmwareContentCertPK",
 		.ln = "Non-Trusted Firmware content certificate public key",
-		.type = V_ASN1_OCTET_STRING
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_PKEY,
+		.data.key = BL33_KEY
 	},
-	{
+	[BL33_HASH_EXT] = {
 		.oid = BL33_HASH_OID,
 		.sn = "NonTrustedWorldBootloaderHash",
 		.ln = "Non-Trusted World (BL33) hash (SHA256)",
-		.type = V_ASN1_OCTET_STRING
-	},
-	{ 0, 0, 0, 0 }
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH
+	}
 };
+
+REGISTER_EXTENSIONS(tbb_ext);

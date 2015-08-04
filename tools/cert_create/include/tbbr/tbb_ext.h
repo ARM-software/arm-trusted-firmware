@@ -27,41 +27,26 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef TBB_EXT_H_
+#define TBB_EXT_H_
 
-#include "tbb_key.h"
+#include "ext.h"
 
-/*
- * Keys used to establish the chain of trust
- *
- * The order of the keys must follow the enumeration specified in tbb_key.h
- */
-key_t keys[NUM_KEYS] = {
-	{
-		.id = ROT_KEY,
-		.desc = "Root Of Trust key"
-	},
-	{
-		.id = TRUSTED_WORLD_KEY,
-		.desc = "Trusted World key"
-	},
-	{
-		.id = NON_TRUSTED_WORLD_KEY,
-		.desc = "Non Trusted World key"
-	},
-	{
-		.id = BL30_KEY,
-		.desc = "BL30 key"
-	},
-	{
-		.id = BL31_KEY,
-		.desc = "BL31 key"
-	},
-	{
-		.id = BL32_KEY,
-		.desc = "BL32 key"
-	},
-	{
-		.id = BL33_KEY,
-		.desc = "BL33 key"
-	}
+/* TBBR extensions */
+enum {
+	TZ_FW_NVCOUNTER_EXT,
+	NTZ_FW_NVCOUNTER_EXT,
+	BL2_HASH_EXT,
+	TZ_WORLD_PK_EXT,
+	NTZ_WORLD_PK_EXT,
+	BL31_CONTENT_CERT_PK_EXT,
+	BL31_HASH_EXT,
+	BL30_CONTENT_CERT_PK_EXT,
+	BL30_HASH_EXT,
+	BL32_CONTENT_CERT_PK_EXT,
+	BL32_HASH_EXT,
+	BL33_CONTENT_CERT_PK_EXT,
+	BL33_HASH_EXT
 };
+
+#endif /* TBB_EXT_H_ */

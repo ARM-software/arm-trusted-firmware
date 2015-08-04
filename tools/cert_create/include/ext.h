@@ -31,7 +31,15 @@
 #ifndef EXT_H_
 #define EXT_H_
 
+#include "key.h"
 #include <openssl/x509v3.h>
+
+/* Extension types supported */
+enum {
+	EXT_TYPE_NVCOUNTER,
+	EXT_TYPE_PKEY,
+	EXT_TYPE_HASH
+};
 
 /*
  * This structure contains the relevant information to create the extensions
@@ -42,11 +50,19 @@ typedef struct ext_s {
 	const char *oid;	/* OID of the extension */
 	const char *sn;		/* Short name */
 	const char *ln;		/* Long description */
-	int type;		/* OpenSSL ASN1 type of the extension data.
+	int asn1_type;		/* OpenSSL ASN1 type of the extension data.
 				 * Supported types are:
 				 *   - V_ASN1_INTEGER
 				 *   - V_ASN1_OCTET_STRING
 				 */
+	int type;
+	/* Extension data (depends on extension type) */
+	union {
+		const char *fn;	/* File with extension data */
+		int nvcounter;	/* Non volatile counter */
+		int key;	/* Public key */
+	} data;
+
 	int alias;		/* In case OpenSSL provides an standard
 				 * extension of the same type, add the new
 				 * extension as an alias of this one
@@ -62,10 +78,20 @@ enum {
 	EXT_CRIT = !EXT_NON_CRIT,
 };
 
-int ext_init(ext_t *tbb_ext);
+/* Exported API */
+int ext_register(ext_t *tbb_ext);
 X509_EXTENSION *ext_new_hash(int nid, int crit, const EVP_MD *md,
 		unsigned char *buf, size_t len);
 X509_EXTENSION *ext_new_nvcounter(int nid, int crit, int value);
 X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k);
+
+/* Macro to register the extensions used in the CoT */
+#define REGISTER_EXTENSIONS(_ext) \
+	ext_t *extensions = &_ext[0]; \
+	const unsigned int num_extensions = sizeof(_ext)/sizeof(_ext[0]);
+
+/* Exported variables */
+extern ext_t *extensions;
+extern const unsigned int num_extensions;
 
 #endif /* EXT_H_ */

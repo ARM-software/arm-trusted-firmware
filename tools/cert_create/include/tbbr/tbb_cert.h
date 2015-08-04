@@ -46,13 +46,7 @@ enum {
 	BL32_KEY_CERT,
 	BL32_CERT,
 	BL33_KEY_CERT,
-	BL33_CERT,
-	NUM_CERTIFICATES,
+	BL33_CERT
 };
-
-/*
- * Array containing the certificate instances
- */
-extern cert_t certs[NUM_CERTIFICATES];
 
 #endif /* TBB_CERT_H_ */
