@@ -55,7 +55,7 @@ typedef struct arm_config {
 /* If used, arm_config must be defined and populated in the platform port */
 extern arm_config_t arm_config;
 
-inline const arm_config_t *get_arm_config(void)
+static inline const arm_config_t *get_arm_config(void)
 {
 	return &arm_config;
 }
