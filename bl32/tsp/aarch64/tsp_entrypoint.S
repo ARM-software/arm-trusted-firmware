@@ -353,7 +353,7 @@ func	tsp_fiq_entry
 	 * fiq handler is an error.
 	 * ---------------------------------------------
 	 */
-	save_eret_context x2 x3
+	save_eret_context x3 x4
 	bl	tsp_update_sync_fiq_stats
 	bl	tsp_fiq_handler
 	cbnz	x0, tsp_fiq_entry_panic
