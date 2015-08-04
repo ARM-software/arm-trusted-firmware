@@ -85,7 +85,7 @@ extern uint64_t tegra_bl31_phys_base;
 
 static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
-	(uint64_t)TZDRAM_SIZE, (uintptr_t)NULL
+	.tzdram_size = (uint64_t)TZDRAM_SIZE
 };
 
 /*******************************************************************************
@@ -145,13 +145,10 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	bl32_image_ep_info = *from_bl2->bl32_ep_info;
 
 	/*
-	 * Parse platform specific parameters - TZDRAM aperture size and
-	 * pointer to BL32 params.
+	 * Parse platform specific parameters - TZDRAM aperture size
 	 */
-	if (plat_params) {
+	if (plat_params)
 		plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
-		plat_bl31_params_from_bl2.bl32_params = plat_params->bl32_params;
-	}
 }
 
 /*******************************************************************************
