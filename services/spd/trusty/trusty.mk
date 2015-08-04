@@ -14,3 +14,5 @@ SPD_SOURCES		+=	services/spd/trusty/generic-arm64-smcall.c
 endif
 
 NEED_BL32		:=	yes
+
+CTX_INCLUDE_FPREGS	:=	1
