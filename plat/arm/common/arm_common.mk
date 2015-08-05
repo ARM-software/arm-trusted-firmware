@@ -46,6 +46,23 @@ endif
 # Process flags
 $(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
 
+# For the original power-state parameter format, the State-ID can be encoded
+# according to the recommended encoding or zero. This flag determines which
+# State-ID encoding to be parsed.
+ARM_RECOM_STATE_ID_ENC := 0
+
+# If the PSCI_EXTENDED_STATE_ID is set, then the recommended state ID need to
+# be used. Else throw a build error.
+ifeq (${PSCI_EXTENDED_STATE_ID}, 1)
+  ifeq (${ARM_RECOM_STATE_ID_ENC}, 0)
+    $(error "Incompatible STATE_ID build option specified")
+  endif
+endif
+
+# Process ARM_RECOM_STATE_ID_ENC flag
+$(eval $(call assert_boolean,ARM_RECOM_STATE_ID_ENC))
+$(eval $(call add_define,ARM_RECOM_STATE_ID_ENC))
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64
@@ -83,7 +100,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/arm/common/arm_security.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/plat_gic.c				\
-				plat/common/aarch64/platform_mp_stack.S
+				plat/common/aarch64/platform_mp_stack.S		\
+				plat/common/aarch64/plat_psci_common.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 

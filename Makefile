@@ -66,6 +66,9 @@ ARM_CCI_PRODUCT_ID	:=	400
 ASM_ASSERTION		:=	${DEBUG}
 # Build option to choose whether Trusted firmware uses Coherent memory or not.
 USE_COHERENT_MEM	:=	1
+# Flag used to choose the power state format viz Extended State-ID or the Original
+# format.
+PSCI_EXTENDED_STATE_ID	:=	0
 # Default FIP file name
 FIP_NAME		:= fip.bin
 # By default, use the -pedantic option in the gcc command line
@@ -79,6 +82,8 @@ TRUSTED_BOARD_BOOT	:= 0
 # By default, consider that the platform's reset address is not programmable.
 # The platform Makefile is free to override this value.
 PROGRAMMABLE_RESET_ADDRESS	:= 0
+# Build flag to warn about usage of deprecated platform and framework APIs
+WARN_DEPRECATED	:= 0
 
 # Checkpatch ignores
 CHECK_IGNORE		=	--ignore COMPLEX_MACRO \
@@ -165,6 +170,16 @@ msg_start:
 	@echo "Building ${PLAT}"
 
 include ${PLAT_MAKEFILE_FULL}
+
+# If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
+ifndef ENABLE_PLAT_COMPAT
+ENABLE_PLAT_COMPAT := 1
+endif
+
+# Include the platform compatibility helpers for PSCI
+ifneq (${ENABLE_PLAT_COMPAT}, 0)
+include plat/compat/plat_compat.mk
+endif
 
 # Include the CPU specific operations makefile. By default all CPU errata
 # workarounds and CPU specifc optimisations are disabled. This can be
@@ -268,6 +283,10 @@ $(eval $(call add_define,LOG_LEVEL))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_COHERENT_MEM))
 
+# Process PSCI_EXTENDED_STATE_ID flag
+$(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
+$(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
+
 # Process Generate CoT flags
 $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,CREATE_KEYS))
@@ -280,6 +299,14 @@ $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 # Process PROGRAMMABLE_RESET_ADDRESS flag
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
+
+# Process ENABLE_PLAT_COMPAT flag
+$(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
+$(eval $(call add_define,ENABLE_PLAT_COMPAT))
+
+# Process WARN_DEPRECATED flag
+$(eval $(call assert_boolean,WARN_DEPRECATED))
+$(eval $(call add_define,WARN_DEPRECATED))
 
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\

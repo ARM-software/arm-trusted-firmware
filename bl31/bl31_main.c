@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -155,7 +155,7 @@ void bl31_prepare_next_image_entry(void)
 	INFO("BL3-1: Next image address = 0x%llx\n",
 		(unsigned long long) next_image_info->pc);
 	INFO("BL3-1: Next image spsr = 0x%x\n", next_image_info->spsr);
-	cm_init_context(read_mpidr_el1(), next_image_info);
+	cm_init_my_context(next_image_info);
 	cm_prepare_el3_exit(image_type);
 }
 

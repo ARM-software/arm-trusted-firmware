@@ -29,50 +29,35 @@
  */
 
 #include <arch.h>
+#include <assert.h>
+#include <platform.h>
 #include <psci.h>
-#include <plat_arm.h>
-#include <platform_def.h>
 
-#define get_arm_cluster_core_count(mpidr)\
-		(((mpidr) & 0x100) ? PLAT_ARM_CLUSTER1_CORE_COUNT :\
-				PLAT_ARM_CLUSTER0_CORE_COUNT)
-
-/* The power domain tree descriptor which need to be exported by ARM platforms */
-extern const unsigned char arm_power_domain_tree_desc[];
-
-
-/*******************************************************************************
- * This function returns the ARM default topology tree information.
- ******************************************************************************/
-const unsigned char *platform_get_power_domain_tree_desc(void)
+/*
+ * The PSCI generic code uses this API to let the platform participate in state
+ * coordination during a power management operation. It compares the platform
+ * specific local power states requested by each cpu for a given power domain
+ * and returns the coordinated target power state that the domain should
+ * enter. A platform assigns a number to a local power state. This default
+ * implementation assumes that the platform assigns these numbers in order of
+ * increasing depth of the power state i.e. for two power states X & Y, if X < Y
+ * then X represents a shallower power state than Y. As a result, the
+ * coordinated target local power state for a power domain will be the minimum
+ * of the requested local power states.
+ */
+plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
+					     const plat_local_state_t *states,
+					     unsigned int ncpu)
 {
-	return arm_power_domain_tree_desc;
-}
+	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
 
-/*******************************************************************************
- * This function validates an MPIDR by checking whether it falls within the
- * acceptable bounds. An error code (-1) is returned if an incorrect mpidr
- * is passed.
- ******************************************************************************/
-int arm_check_mpidr(u_register_t mpidr)
-{
-	unsigned int cluster_id, cpu_id;
+	assert(ncpu);
 
-	mpidr &= MPIDR_AFFINITY_MASK;
+	do {
+		temp = *states++;
+		if (temp < target)
+			target = temp;
+	} while (--ncpu);
 
-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
-		return -1;
-
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
-
-	if (cluster_id >= ARM_CLUSTER_COUNT)
-		return -1;
-
-	/* Validate cpu_id by checking whether it represents a CPU in
-	   one of the two clusters present on the platform. */
-	if (cpu_id >= get_arm_cluster_core_count(mpidr))
-		return -1;
-
-	return 0;
+	return target;
 }

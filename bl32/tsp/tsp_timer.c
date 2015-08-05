@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -92,7 +92,7 @@ void tsp_generic_timer_stop(void)
  ******************************************************************************/
 void tsp_generic_timer_save(void)
 {
-	uint32_t linear_id = platform_get_core_pos(read_mpidr());
+	uint32_t linear_id = platform_my_core_pos();
 
 	pcpu_timer_context[linear_id].cval = read_cntps_cval_el1();
 	pcpu_timer_context[linear_id].ctl = read_cntps_ctl_el1();
@@ -105,7 +105,7 @@ void tsp_generic_timer_save(void)
  ******************************************************************************/
 void tsp_generic_timer_restore(void)
 {
-	uint32_t linear_id = platform_get_core_pos(read_mpidr());
+	uint32_t linear_id = platform_my_core_pos();
 
 	write_cntps_cval_el1(pcpu_timer_context[linear_id].cval);
 	write_cntps_ctl_el1(pcpu_timer_context[linear_id].ctl);

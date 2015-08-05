@@ -27,7 +27,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include <assert.h>
+#include <platform.h>
 #include <xlat_tables.h>
 
 /*
@@ -47,3 +48,18 @@ void bl32_plat_enable_mmu(uint32_t flags)
 {
 	enable_mmu_el1(flags);
 }
+
+#if !ENABLE_PLAT_COMPAT
+/*
+ * Helper function for platform_get_pos() when platform compatibility is
+ * disabled. This is to enable SPDs using the older platform API to continue
+ * to work.
+ */
+unsigned int platform_core_pos_helper(unsigned long mpidr)
+{
+	int idx = platform_core_pos_by_mpidr(mpidr);
+	assert(idx >= 0);
+	return idx;
+}
+#endif
+
