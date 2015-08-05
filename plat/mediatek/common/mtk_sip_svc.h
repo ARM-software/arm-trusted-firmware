@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,67 +27,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef __MMIO_H__
-#define __MMIO_H__
+#ifndef __PLAT_SIP_SVC_H__
+#define __PLAT_SIP_SVC_H__
 
 #include <stdint.h>
 
-static inline void mmio_write_8(uintptr_t addr, uint8_t value)
-{
-	*(volatile uint8_t*)addr = value;
-}
+/* SMC function IDs for SiP Service queries */
+#define SIP_SVC_CALL_COUNT		0x8200ff00
+#define SIP_SVC_UID			0x8200ff01
+/*					0x8200ff02 is reserved */
+#define SIP_SVC_VERSION			0x8200ff03
 
-static inline uint8_t mmio_read_8(uintptr_t addr)
-{
-	return *(volatile uint8_t*)addr;
-}
+/* Mediatek SiP Service Calls version numbers */
+#define MTK_SIP_SVC_VERSION_MAJOR	0x0
+#define MTK_SIP_SVC_VERSION_MINOR	0x1
 
-static inline void mmio_write_16(uintptr_t addr, uint16_t value)
-{
-	*(volatile uint16_t*)addr = value;
-}
+/* Number of Mediatek SiP Calls implemented */
+#define MTK_SIP_NUM_CALLS		1
 
-static inline uint16_t mmio_read_16(uintptr_t addr)
-{
-	return *(volatile uint16_t*)addr;
-}
+/* Mediatek SiP Service Calls function IDs */
+#define MTK_SIP_SET_AUTHORIZED_SECURE_REG	0x82000001
 
-static inline void mmio_write_32(uintptr_t addr, uint32_t value)
-{
-	*(volatile uint32_t*)addr = value;
-}
+/* Mediatek SiP Calls error code */
+enum {
+	MTK_SIP_E_SUCCESS = 0,
+	MTK_SIP_E_INVALID_PARAM = -1
+};
 
-static inline uint32_t mmio_read_32(uintptr_t addr)
-{
-	return *(volatile uint32_t*)addr;
-}
+/*
+ * This function should be implemented in Mediatek SOC directory. It fullfills
+ * MTK_SIP_SET_AUTHORIZED_SECURE_REG SiP call by checking the sreg with the
+ * predefined secure register list, if a match was found, set val to sreg.
+ *
+ * Return MTK_SIP_E_SUCCESS on success, and MTK_SIP_E_INVALID_PARAM on failure.
+ */
+uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val);
 
-static inline void mmio_write_64(uintptr_t addr, uint64_t value)
-{
-	*(volatile uint64_t*)addr = value;
-}
-
-static inline uint64_t mmio_read_64(uintptr_t addr)
-{
-	return *(volatile uint64_t*)addr;
-}
-
-static inline void mmio_clrbits_32(uintptr_t addr, uint32_t clear)
-{
-	mmio_write_32(addr, mmio_read_32(addr) & ~clear);
-}
-
-static inline void mmio_setbits_32(uintptr_t addr, uint32_t set)
-{
-	mmio_write_32(addr, mmio_read_32(addr) | set);
-}
-
-static inline void mmio_clrsetbits_32(uintptr_t addr,
-				uint32_t clear,
-				uint32_t set)
-{
-	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
-}
-
-#endif /* __MMIO_H__ */
+#endif /* __PLAT_SIP_SVC_H__ */

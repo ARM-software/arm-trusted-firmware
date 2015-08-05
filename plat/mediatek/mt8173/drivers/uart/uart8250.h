@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,67 +27,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __UART8250_H__
+#define __UART8250_H__
 
-#ifndef __MMIO_H__
-#define __MMIO_H__
+/* UART register */
+#define UART_RBR		0x00	/* Receive buffer register */
+#define UART_DLL		0x00	/* Divisor latch lsb */
+#define UART_THR		0x00	/* Transmit holding register */
+#define UART_DLH		0x04	/* Divisor latch msb */
+#define UART_IER		0x04	/* Interrupt enable register */
+#define UART_FCR		0x08	/* FIFO control register */
+#define UART_LCR		0x0c	/* Line control register */
+#define UART_MCR		0x10	/* Modem control register */
+#define UART_LSR		0x14	/* Line status register */
+#define UART_HIGHSPEED		0x24	/* High speed UART */
 
-#include <stdint.h>
+/* FCR */
+#define UART_FCR_FIFO_EN	0x01	/* enable FIFO */
+#define UART_FCR_CLEAR_RCVR	0x02	/* clear the RCVR FIFO */
+#define UART_FCR_CLEAR_XMIT	0x04	/* clear the XMIT FIFO */
 
-static inline void mmio_write_8(uintptr_t addr, uint8_t value)
-{
-	*(volatile uint8_t*)addr = value;
-}
+/* LCR */
+#define UART_LCR_WLS_8		0x03	/* 8 bit character length */
+#define UART_LCR_DLAB		0x80	/* divisor latch access bit */
 
-static inline uint8_t mmio_read_8(uintptr_t addr)
-{
-	return *(volatile uint8_t*)addr;
-}
+/* MCR */
+#define UART_MCR_DTR		0x01
+#define UART_MCR_RTS		0x02
 
-static inline void mmio_write_16(uintptr_t addr, uint16_t value)
-{
-	*(volatile uint16_t*)addr = value;
-}
+/* LSR */
+#define UART_LSR_DR		0x01	/* Data ready */
+#define UART_LSR_THRE		0x20	/* Xmit holding register empty */
 
-static inline uint16_t mmio_read_16(uintptr_t addr)
-{
-	return *(volatile uint16_t*)addr;
-}
-
-static inline void mmio_write_32(uintptr_t addr, uint32_t value)
-{
-	*(volatile uint32_t*)addr = value;
-}
-
-static inline uint32_t mmio_read_32(uintptr_t addr)
-{
-	return *(volatile uint32_t*)addr;
-}
-
-static inline void mmio_write_64(uintptr_t addr, uint64_t value)
-{
-	*(volatile uint64_t*)addr = value;
-}
-
-static inline uint64_t mmio_read_64(uintptr_t addr)
-{
-	return *(volatile uint64_t*)addr;
-}
-
-static inline void mmio_clrbits_32(uintptr_t addr, uint32_t clear)
-{
-	mmio_write_32(addr, mmio_read_32(addr) & ~clear);
-}
-
-static inline void mmio_setbits_32(uintptr_t addr, uint32_t set)
-{
-	mmio_write_32(addr, mmio_read_32(addr) | set);
-}
-
-static inline void mmio_clrsetbits_32(uintptr_t addr,
-				uint32_t clear,
-				uint32_t set)
-{
-	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
-}
-
-#endif /* __MMIO_H__ */
+#endif	/* __UART8250_H__ */

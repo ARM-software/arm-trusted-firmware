@@ -40,6 +40,15 @@ $(eval $(call add_define,SKIP_A57_L1_FLUSH_PWR_DWN))
 # CPU Errata Build flags. These should be enabled by the
 # platform if the errata needs to be applied.
 
+# Flag to apply errata 826319 during reset. This errata applies only to
+# revision <= r0p2 of the Cortex A53 cpu.
+ERRATA_A53_826319	?=0
+
+# Flag to apply errata 836870 during reset. This errata applies only to
+# revision <= r0p3 of the Cortex A53 cpu. From r0p4 and onwards, this
+# errata is enabled by default.
+ERRATA_A53_836870	?=0
+
 # Flag to apply errata 806969 during reset. This errata applies only to
 # revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
@@ -47,6 +56,14 @@ ERRATA_A57_806969	?=0
 # Flag to apply errata 813420 during reset. This errata applies only to
 # revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_813420	?=0
+
+# Process ERRATA_A53_826319 flag
+$(eval $(call assert_boolean,ERRATA_A53_826319))
+$(eval $(call add_define,ERRATA_A53_826319))
+
+# Process ERRATA_A53_836870 flag
+$(eval $(call assert_boolean,ERRATA_A53_836870))
+$(eval $(call add_define,ERRATA_A53_836870))
 
 # Process ERRATA_A57_806969 flag
 $(eval $(call assert_boolean,ERRATA_A57_806969))
