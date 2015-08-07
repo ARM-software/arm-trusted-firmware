@@ -28,45 +28,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
+#include <arch.h>
 #include <platform_def.h>
 #include <psci.h>
 
+extern const unsigned char tegra_power_domain_tree_desc[];
+
 /*******************************************************************************
- * This function implements a part of the critical interface between the psci
- * generic layer and the platform to allow the former to detect the platform
- * topology. psci queries the platform to determine how many affinity instances
- * are present at a particular level for a given mpidr.
+ * This function returns the Tegra default topology tree information.
  ******************************************************************************/
-unsigned int plat_get_aff_count(unsigned int aff_lvl,
-				unsigned long mpidr)
+const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	switch (aff_lvl) {
-	case MPIDR_AFFLVL2:
-		/* Last supported affinity level */
-		return 1;
-
-	case MPIDR_AFFLVL1:
-		/* Return # of clusters */
-		return PLATFORM_CLUSTER_COUNT;
-
-	case MPIDR_AFFLVL0:
-		/* # of cpus per cluster */
-		return PLATFORM_MAX_CPUS_PER_CLUSTER;
-
-	default:
-		return PSCI_AFF_ABSENT;
-	}
+	return tegra_power_domain_tree_desc;
 }
 
 /*******************************************************************************
  * This function implements a part of the critical interface between the psci
- * generic layer and the platform to allow the former to detect the state of a
- * affinity instance in the platform topology. psci queries the platform to
- * determine whether an affinity instance is present or absent.
+ * generic layer and the platform that allows the former to query the platform
+ * to convert an MPIDR to a unique linear index. An error code (-1) is returned
+ * in case the MPIDR is invalid.
  ******************************************************************************/
-unsigned int plat_get_aff_state(unsigned int aff_lvl,
-				unsigned long mpidr)
+int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	return (aff_lvl <= MPIDR_AFFLVL2) ? PSCI_AFF_PRESENT : PSCI_AFF_ABSENT;
+	unsigned int cluster_id, cpu_id;
+
+	mpidr &= MPIDR_AFFINITY_MASK;
+
+	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
+		return -1;
+
+	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+
+	if (cluster_id >= PLATFORM_CLUSTER_COUNT)
+		return -1;
+
+	/*
+	 * Validate cpu_id by checking whether it represents a CPU in
+	 * one of the two clusters present on the platform.
+	 */
+	if (cpu_id >= PLATFORM_MAX_CPUS_PER_CLUSTER)
+		return -1;
+
+	return cpu_id;
 }

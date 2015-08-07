@@ -33,6 +33,7 @@
 
 #include <arch.h>
 #include <common_def.h>
+#include <tegra_def.h>
 
 /*******************************************************************************
  * Generic platform constants
@@ -47,11 +48,17 @@
 
 #define TEGRA_PRIMARY_CPU		0x0
 
-#define PLATFORM_MAX_AFFLVL		MPIDR_AFFLVL2
+#define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL2
 #define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER_COUNT * \
 					 PLATFORM_MAX_CPUS_PER_CLUSTER)
-#define PLATFORM_NUM_AFFS		(PLATFORM_CORE_COUNT + \
+#define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CORE_COUNT + \
 					 PLATFORM_CLUSTER_COUNT + 1)
+
+/*******************************************************************************
+ * Platform power states
+ ******************************************************************************/
+#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_OFF_STATE		(PLAT_SYS_SUSPEND_STATE_ID + 1)
 
 /*******************************************************************************
  * Platform console related constants

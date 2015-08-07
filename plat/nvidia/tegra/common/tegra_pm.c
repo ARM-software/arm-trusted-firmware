@@ -44,66 +44,54 @@
 #include <tegra_private.h>
 
 extern uint64_t tegra_bl31_phys_base;
-extern uint64_t sec_entry_point[PLATFORM_CORE_COUNT];
-static int system_suspended;
+extern uint64_t tegra_sec_entry_point;
 
 /*
  * The following platform setup functions are weakly defined. They
  * provide typical implementations that will be overridden by a SoC.
  */
-#pragma weak tegra_soc_prepare_cpu_suspend
-#pragma weak tegra_soc_prepare_cpu_on
-#pragma weak tegra_soc_prepare_cpu_off
-#pragma weak tegra_soc_prepare_cpu_on_finish
+#pragma weak tegra_soc_pwr_domain_suspend
+#pragma weak tegra_soc_pwr_domain_on
+#pragma weak tegra_soc_pwr_domain_off
+#pragma weak tegra_soc_pwr_domain_on_finish
 
-int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
+int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	return PSCI_E_NOT_SUPPORTED;
 }
 
-int tegra_soc_prepare_cpu_on(unsigned long mpidr)
+int tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_off(unsigned long mpidr)
+int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
+int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	return PSCI_E_SUCCESS;
 }
 
 /*******************************************************************************
- * Track system suspend entry.
- ******************************************************************************/
-void tegra_pm_system_suspend_entry(void)
+ * This handler is called by the PSCI implementation during the `SYSTEM_SUSPEND`
+ * call to get the `power_state` parameter. This allows the platform to encode
+ * the appropriate State-ID field within the `power_state` parameter which can
+ * be utilized in `affinst_suspend()` to suspend to system affinity level.
+******************************************************************************/
+void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
-	system_suspended = 1;
-}
-
-/*******************************************************************************
- * Track system suspend exit.
- ******************************************************************************/
-void tegra_pm_system_suspend_exit(void)
-{
-	system_suspended = 0;
-}
-
-/*******************************************************************************
- * Get the system suspend state.
- ******************************************************************************/
-int tegra_system_suspended(void)
-{
-	return system_suspended;
+	/* system suspend state id */
+	for (int i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 }
 
 /*******************************************************************************
  * Handler called when an affinity instance is about to enter standby.
  ******************************************************************************/
-void tegra_affinst_standby(unsigned int power_state)
+void tegra_cpu_standby(plat_local_state_t cpu_state)
 {
 	/*
 	 * Enter standby state
@@ -114,130 +102,43 @@ void tegra_affinst_standby(unsigned int power_state)
 }
 
 /*******************************************************************************
- * This handler is called by the PSCI implementation during the `SYSTEM_SUSPEND`
- * call to get the `power_state` parameter. This allows the platform to encode
- * the appropriate State-ID field within the `power_state` parameter which can
- * be utilized in `affinst_suspend()` to suspend to system affinity level.
-******************************************************************************/
-unsigned int tegra_get_sys_suspend_power_state(void)
-{
-	unsigned int power_state;
-
-	power_state = psci_make_powerstate(PLAT_SYS_SUSPEND_STATE_ID,
-			PSTATE_TYPE_POWERDOWN, MPIDR_AFFLVL2);
-
-	return power_state;
-}
-
-/*******************************************************************************
- * Handler called to check the validity of the power state parameter.
- ******************************************************************************/
-int32_t tegra_validate_power_state(unsigned int power_state)
-{
-	return tegra_soc_validate_power_state(power_state);
-}
-
-/*******************************************************************************
  * Handler called when an affinity instance is about to be turned on. The
  * level and mpidr determine the affinity instance.
  ******************************************************************************/
-int tegra_affinst_on(unsigned long mpidr,
-		   unsigned long sec_entrypoint,
-		   unsigned int afflvl,
-		   unsigned int state)
+int tegra_pwr_domain_on(u_register_t mpidr)
 {
-	int cpu = mpidr & MPIDR_CPU_MASK;
-
-	/*
-	 * Support individual CPU power on only.
-	 */
-	if (afflvl > MPIDR_AFFLVL0)
-		return PSCI_E_SUCCESS;
-
-	/*
-	 * Flush entrypoint variable to PoC since it will be
-	 * accessed after a reset with the caches turned off.
-	 */
-	sec_entry_point[cpu] = sec_entrypoint;
-	flush_dcache_range((uint64_t)&sec_entry_point[cpu], sizeof(uint64_t));
-
-	return tegra_soc_prepare_cpu_on(mpidr);
+	return tegra_soc_pwr_domain_on(mpidr);
 }
 
 /*******************************************************************************
- * Handler called when an affinity instance is about to be turned off. The
- * level determines the affinity instance. The 'state' arg. allows the
- * platform to decide whether the cluster is being turned off and take apt
- * actions.
- *
- * CAUTION: This function is called with coherent stacks so that caches can be
- * turned off, flushed and coherency disabled. There is no guarantee that caches
- * will remain turned on across calls to this function as each affinity level is
- * dealt with. So do not write & read global variables across calls. It will be
- * wise to do flush a write to the global to prevent unpredictable results.
+ * Handler called when a power domain is about to be turned off. The
+ * target_state encodes the power state that each level should transition to.
  ******************************************************************************/
-void tegra_affinst_off(unsigned int afflvl, unsigned int state)
+void tegra_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	/*
-	 * Support individual CPU power off only.
-	 */
-	if (afflvl > MPIDR_AFFLVL0)
-		return;
-
-	tegra_soc_prepare_cpu_off(read_mpidr());
+	tegra_soc_pwr_domain_off(target_state);
 }
 
 /*******************************************************************************
- * Handler called when an affinity instance is about to be suspended. The
- * level and mpidr determine the affinity instance. The 'state' arg. allows the
- * platform to decide whether the cluster is being turned off and take apt
- * actions.
- *
- * CAUTION: This function is called with coherent stacks so that caches can be
- * turned off, flushed and coherency disabled. There is no guarantee that caches
- * will remain turned on across calls to this function as each affinity level is
- * dealt with. So do not write & read global variables across calls. It will be
- * wise to flush a write to the global variable, to prevent unpredictable
- * results.
+ * Handler called when called when a power domain is about to be suspended. The
+ * target_state encodes the power state that each level should transition to.
  ******************************************************************************/
-void tegra_affinst_suspend(unsigned long sec_entrypoint,
-			unsigned int afflvl,
-			unsigned int state)
+void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	int id = psci_get_suspend_stateid();
-	int cpu = read_mpidr() & MPIDR_CPU_MASK;
-
-	if (afflvl > PLATFORM_MAX_AFFLVL)
-		return;
-
-	/*
-	 * Flush entrypoint variable to PoC since it will be
-	 * accessed after a reset with the caches turned off.
-	 */
-	sec_entry_point[cpu] = sec_entrypoint;
-	flush_dcache_range((uint64_t)&sec_entry_point[cpu], sizeof(uint64_t));
-
-	tegra_soc_prepare_cpu_suspend(id, afflvl);
+	tegra_soc_pwr_domain_suspend(target_state);
 
 	/* disable GICC */
 	tegra_gic_cpuif_deactivate();
 }
 
 /*******************************************************************************
- * Handler called when an affinity instance has just been powered on after
- * being turned off earlier. The level determines the affinity instance.
- * The 'state' arg. allows the platform to decide whether the cluster was
- * turned off prior to wakeup and do what's necessary to set it up.
+ * Handler called when a power domain has just been powered on after
+ * being turned off earlier. The target_state encodes the low power state that
+ * each level has woken up from.
  ******************************************************************************/
-void tegra_affinst_on_finish(unsigned int afflvl, unsigned int state)
+void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	plat_params_from_bl2_t *plat_params;
-
-	/*
-	 * Support individual CPU power on only.
-	 */
-	if (afflvl > MPIDR_AFFLVL0)
-		return;
 
 	/*
 	 * Initialize the GIC cpu and distributor interfaces
@@ -247,7 +148,8 @@ void tegra_affinst_on_finish(unsigned int afflvl, unsigned int state)
 	/*
 	 * Check if we are exiting from deep sleep.
 	 */
-	if (tegra_system_suspended()) {
+	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
+			PLAT_SYS_SUSPEND_STATE_ID) {
 
 		/*
 		 * Lock scratch registers which hold the CPU vectors.
@@ -270,18 +172,17 @@ void tegra_affinst_on_finish(unsigned int afflvl, unsigned int state)
 	/*
 	 * Reset hardware settings.
 	 */
-	tegra_soc_prepare_cpu_on_finish(read_mpidr());
+	tegra_soc_pwr_domain_on_finish(target_state);
 }
 
 /*******************************************************************************
- * Handler called when an affinity instance has just been powered on after
- * having been suspended earlier. The level and mpidr determine the affinity
- * instance.
+ * Handler called when a power domain has just been powered on after
+ * having been suspended earlier. The target_state encodes the low power state
+ * that each level has woken up from.
  ******************************************************************************/
-void tegra_affinst_suspend_finish(unsigned int afflvl, unsigned int state)
+void tegra_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
-	if (afflvl == MPIDR_AFFLVL0)
-		tegra_affinst_on_finish(afflvl, state);
+	tegra_pwr_domain_on_finish(target_state);
 }
 
 /*******************************************************************************
@@ -305,35 +206,76 @@ __dead2 void tegra_system_reset(void)
 }
 
 /*******************************************************************************
+ * Handler called to check the validity of the power state parameter.
+ ******************************************************************************/
+int32_t tegra_validate_power_state(unsigned int power_state,
+				   psci_power_state_t *req_state)
+{
+	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+
+	if ((pwr_lvl > PLAT_MAX_PWR_LVL) || !req_state)
+		return PSCI_E_INVALID_PARAMS;
+
+	return tegra_soc_validate_power_state(power_state, req_state);
+}
+
+/*******************************************************************************
+ * Platform handler called to check the validity of the non secure entrypoint.
+ ******************************************************************************/
+int tegra_validate_ns_entrypoint(uintptr_t entrypoint)
+{
+	/*
+	 * Check if the non secure entrypoint lies within the non
+	 * secure DRAM.
+	 */
+	if ((entrypoint >= TEGRA_DRAM_BASE) && (entrypoint <= TEGRA_DRAM_END))
+		return PSCI_E_SUCCESS;
+
+	return PSCI_E_INVALID_ADDRESS;
+}
+
+/*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
-static const plat_pm_ops_t tegra_plat_pm_ops = {
-	.affinst_standby	= tegra_affinst_standby,
-	.affinst_on		= tegra_affinst_on,
-	.affinst_off		= tegra_affinst_off,
-	.affinst_suspend	= tegra_affinst_suspend,
-	.affinst_on_finish	= tegra_affinst_on_finish,
-	.affinst_suspend_finish	= tegra_affinst_suspend_finish,
+static const plat_psci_ops_t tegra_plat_psci_ops = {
+	.cpu_standby		= tegra_cpu_standby,
+	.pwr_domain_on		= tegra_pwr_domain_on,
+	.pwr_domain_off		= tegra_pwr_domain_off,
+	.pwr_domain_suspend	= tegra_pwr_domain_suspend,
+	.pwr_domain_on_finish	= tegra_pwr_domain_on_finish,
+	.pwr_domain_suspend_finish	= tegra_pwr_domain_suspend_finish,
 	.system_off		= tegra_system_off,
 	.system_reset		= tegra_system_reset,
 	.validate_power_state	= tegra_validate_power_state,
-	.get_sys_suspend_power_state = tegra_get_sys_suspend_power_state
+	.validate_ns_entrypoint = tegra_validate_ns_entrypoint,
+	.get_sys_suspend_power_state	= tegra_get_sys_suspend_power_state,
 };
 
 /*******************************************************************************
- * Export the platform specific power ops & initialize the fvp power controller
+ * Export the platform specific power ops and initialize Power Controller
  ******************************************************************************/
-int platform_setup_pm(const plat_pm_ops_t **plat_ops)
+int plat_setup_psci_ops(uintptr_t sec_entrypoint,
+			const plat_psci_ops_t **psci_ops)
 {
+	psci_power_state_t target_state;
+
+	/*
+	 * Flush entrypoint variable to PoC since it will be
+	 * accessed after a reset with the caches turned off.
+	 */
+	tegra_sec_entry_point = sec_entrypoint;
+	flush_dcache_range((uint64_t)&tegra_sec_entry_point, sizeof(uint64_t));
+
 	/*
 	 * Reset hardware settings.
 	 */
-	tegra_soc_prepare_cpu_on_finish(read_mpidr());
+	target_state.pwr_domain_state[MPIDR_AFFLVL0] = PSCI_LOCAL_STATE_RUN;
+	tegra_soc_pwr_domain_on_finish(&target_state);
 
 	/*
-	 * Initialize PM ops struct
+	 * Initialize PSCI ops struct
 	 */
-	*plat_ops = &tegra_plat_pm_ops;
+	*psci_ops = &tegra_plat_psci_ops;
 
 	return 0;
 }
