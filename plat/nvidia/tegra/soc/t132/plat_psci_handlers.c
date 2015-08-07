@@ -50,28 +50,42 @@
 
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
 
-int32_t tegra_soc_validate_power_state(unsigned int power_state)
+int32_t tegra_soc_validate_power_state(unsigned int power_state,
+					psci_power_state_t *req_state)
 {
+	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+	int state_id = psci_get_pstate_id(power_state);
+
+	if (pwr_lvl > PLAT_MAX_PWR_LVL)
+		return PSCI_E_INVALID_PARAMS;
+
 	/* Sanity check the requested afflvl */
 	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
 		/*
 		 * It's possible to enter standby only on affinity level 0 i.e.
 		 * a cpu on Tegra. Ignore any other affinity level.
 		 */
-		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
+		if (pwr_lvl != MPIDR_AFFLVL0)
 			return PSCI_E_INVALID_PARAMS;
+
+		/* power domain in standby state */
+		req_state->pwr_domain_state[pwr_lvl] = PLAT_MAX_RET_STATE;
 	}
 
 	/* Sanity check the requested state id */
-	if (psci_get_pstate_id(power_state) != PLAT_SYS_SUSPEND_STATE_ID) {
+	if (state_id != PLAT_SYS_SUSPEND_STATE_ID) {
 		ERROR("unsupported state id\n");
-		return PSCI_E_NOT_SUPPORTED;
+		return PSCI_E_INVALID_PARAMS;
 	}
+
+	/* power domain in suspend state */
+	for (int i = 0; i <= pwr_lvl; i++)
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_on(unsigned long mpidr)
+int tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
 	int cpu = mpidr & MPIDR_CPU_MASK;
 	uint32_t mask = CPU_CORE_RESET_MASK << cpu;
@@ -95,18 +109,14 @@ int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_off(unsigned long mpidr)
+int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	tegra_fc_cpu_off(mpidr & MPIDR_CPU_MASK);
+	tegra_fc_cpu_off(read_mpidr() & MPIDR_CPU_MASK);
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
+int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	/* Nothing to be done for lower affinity levels */
-	if (afflvl < MPIDR_AFFLVL2)
-		return PSCI_E_SUCCESS;
-
 	/* Enter system suspend state */
 	tegra_pm_system_suspend_entry();
 
@@ -117,7 +127,7 @@ int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
 	tegra_fc_cpu_idle(read_mpidr());
 
 	/* Suspend DCO operations */
-	write_actlr_el1(id);
+	write_actlr_el1(PLAT_SYS_SUSPEND_STATE_ID);
 
 	return PSCI_E_SUCCESS;
 }
