@@ -100,6 +100,29 @@
 	.endm
 
 	/*
+	 * Theses macros are used to create function labels for deprecated
+	 * APIs. If WARN_DEPRECATED is non zero, the callers of these APIs
+	 * will fail to link and cause build failure.
+	 */
+#if WARN_DEPRECATED
+	.macro func_deprecated _name
+	func deprecated\_name
+	.endm
+
+	.macro endfunc_deprecated _name
+	endfunc deprecated\_name
+	.endm
+#else
+	.macro func_deprecated _name
+	func \_name
+	.endm
+
+	.macro endfunc_deprecated _name
+	endfunc \_name
+	.endm
+#endif
+
+	/*
 	 * This macro declares an array of 1 or more stacks, properly
 	 * aligned and in the requested section
 	 */
@@ -115,6 +138,7 @@
 	.space ((\_count) * (\_size)), 0
 	.endm
 
+#if ENABLE_PLAT_COMPAT
 	/*
 	 * This macro calculates the base address of an MP stack using the
 	 * platform_get_core_pos() index, the name of the stack storage and
@@ -125,6 +149,21 @@
 	 */
 	.macro get_mp_stack _name, _size
 	bl  platform_get_core_pos
+	ldr x2, =(\_name + \_size)
+	mov x1, #\_size
+	madd x0, x0, x1, x2
+	.endm
+#endif
+
+	/*
+	 * This macro calculates the base address of the current CPU's MP stack
+	 * using the platform_my_core_pos() index, the name of the stack storage
+	 * and the size of each stack
+	 * Out: X0 = physical address of stack base
+	 * Clobber: X30, X1, X2
+	 */
+	.macro get_my_mp_stack _name, _size
+	bl  platform_my_core_pos
 	ldr x2, =(\_name + \_size)
 	mov x1, #\_size
 	madd x0, x0, x1, x2

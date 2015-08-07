@@ -148,6 +148,35 @@ CASSERT(PLAT_PCPU_DATA_SIZE == sizeof(arm_cpu_data_t),
 
 #endif /* IMAGE_BL31 */
 
+#if ARM_RECOM_STATE_ID_ENC
+/*
+ * Macros used to parse state information from State-ID if it is using the
+ * recommended encoding for State-ID.
+ */
+#define ARM_LOCAL_PSTATE_WIDTH		4
+#define ARM_LOCAL_PSTATE_MASK		((1 << ARM_LOCAL_PSTATE_WIDTH) - 1)
+
+/* Macros to construct the composite power state */
+
+/* Make composite power state parameter till power level 0 */
+#if PSCI_EXTENDED_STATE_ID
+
+#define arm_make_pwrstate_lvl0(lvl0_state, pwr_lvl, type) \
+		(((lvl0_state) << PSTATE_ID_SHIFT) | ((type) << PSTATE_TYPE_SHIFT))
+#else
+#define arm_make_pwrstate_lvl0(lvl0_state, pwr_lvl, type) \
+		(((lvl0_state) << PSTATE_ID_SHIFT) | \
+		((pwr_lvl) << PSTATE_PWR_LVL_SHIFT) | \
+		((type) << PSTATE_TYPE_SHIFT))
+#endif /* __PSCI_EXTENDED_STATE_ID__ */
+
+/* Make composite power state parameter till power level 1 */
+#define arm_make_pwrstate_lvl1(lvl1_state, lvl0_state, pwr_lvl, type) \
+		(((lvl1_state) << ARM_LOCAL_PSTATE_WIDTH) | \
+		arm_make_pwrstate_lvl0(lvl0_state, pwr_lvl, type))
+
+#endif /* __ARM_RECOM_STATE_ID_ENC__ */
+
 
 /* CCI utility functions */
 void arm_cci_init(void);
@@ -159,8 +188,12 @@ void arm_io_setup(void);
 void arm_tzc_setup(void);
 
 /* PM utility functions */
-int32_t arm_do_affinst_actions(unsigned int afflvl, unsigned int state);
-int arm_validate_power_state(unsigned int power_state);
+int arm_validate_power_state(unsigned int power_state,
+			    psci_power_state_t *req_state);
+int arm_validate_ns_entrypoint(uintptr_t entrypoint);
+
+/* Topology utility function */
+int arm_check_mpidr(u_register_t mpidr);
 
 /* BL1 utility functions */
 void arm_bl1_early_platform_setup(void);
@@ -199,7 +232,7 @@ int plat_arm_get_alt_image_source(
 	unsigned int image_id,
 	uintptr_t *dev_handle,
 	uintptr_t *image_spec);
-void plat_arm_topology_setup(void);
+unsigned int plat_arm_calc_core_pos(u_register_t mpidr);
 
 
 #endif /* __PLAT_ARM_H__ */

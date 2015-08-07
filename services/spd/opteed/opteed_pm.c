@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,8 +51,7 @@ static void opteed_cpu_on_handler(uint64_t target_cpu)
 static int32_t opteed_cpu_off_handler(uint64_t unused)
 {
 	int32_t rc = 0;
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
 	assert(optee_vectors);
@@ -85,8 +84,7 @@ static int32_t opteed_cpu_off_handler(uint64_t unused)
 static void opteed_cpu_suspend_handler(uint64_t unused)
 {
 	int32_t rc = 0;
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
 	assert(optee_vectors);
@@ -116,8 +114,7 @@ static void opteed_cpu_suspend_handler(uint64_t unused)
 static void opteed_cpu_on_finish_handler(uint64_t unused)
 {
 	int32_t rc = 0;
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 	entry_point_info_t optee_on_entrypoint;
 
@@ -129,7 +126,7 @@ static void opteed_cpu_on_finish_handler(uint64_t unused)
 				optee_ctx);
 
 	/* Initialise this cpu's secure context */
-	cm_init_context(mpidr, &optee_on_entrypoint);
+	cm_init_my_context(&optee_on_entrypoint);
 
 	/* Enter OPTEE */
 	rc = opteed_synchronous_sp_entry(optee_ctx);
@@ -153,8 +150,7 @@ static void opteed_cpu_on_finish_handler(uint64_t unused)
 static void opteed_cpu_suspend_finish_handler(uint64_t suspend_level)
 {
 	int32_t rc = 0;
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
 	assert(optee_vectors);
@@ -193,8 +189,7 @@ static int32_t opteed_cpu_migrate_info(uint64_t *resident_cpu)
  ******************************************************************************/
 static void opteed_system_off(void)
 {
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
 	assert(optee_vectors);
@@ -214,8 +209,7 @@ static void opteed_system_off(void)
  ******************************************************************************/
 static void opteed_system_reset(void)
 {
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
 	assert(optee_vectors);
