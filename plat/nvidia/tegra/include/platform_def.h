@@ -47,11 +47,11 @@
 
 #define TEGRA_PRIMARY_CPU		0x0
 
-#define PLATFORM_MAX_AFFLVL		MPIDR_AFFLVL2
-#define PLATFORM_CORE_COUNT		PLATFORM_MAX_CPUS_PER_CLUSTER
-#define PLATFORM_NUM_AFFS		((PLATFORM_CLUSTER_COUNT * \
-					  PLATFORM_CORE_COUNT) + \
-					  PLATFORM_CLUSTER_COUNT + 1)
+#define PLATFORM_MAX_AFFLVL		MPIDR_AFFLVL1
+#define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER_COUNT * \
+					 PLATFORM_MAX_CPUS_PER_CLUSTER)
+#define PLATFORM_NUM_AFFS		(PLATFORM_CORE_COUNT + \
+					 PLATFORM_CLUSTER_COUNT)
 
 /*******************************************************************************
  * Platform console related constants
