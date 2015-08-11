@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,67 +27,31 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <mmio.h>
+#include <mtk_sip_svc.h>
 
-#ifndef __MMIO_H__
-#define __MMIO_H__
+/* Authorized secure register list */
+enum {
+	SREG_HDMI_COLOR_EN = 0x14000904
+};
 
-#include <stdint.h>
+static const uint32_t authorized_sreg[] = {
+	SREG_HDMI_COLOR_EN
+};
 
-static inline void mmio_write_8(uintptr_t addr, uint8_t value)
+#define authorized_sreg_cnt	\
+	(sizeof(authorized_sreg) / sizeof(authorized_sreg[0]))
+
+uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
 {
-	*(volatile uint8_t*)addr = value;
-}
+	uint64_t i;
 
-static inline uint8_t mmio_read_8(uintptr_t addr)
-{
-	return *(volatile uint8_t*)addr;
-}
+	for (i = 0; i < authorized_sreg_cnt; i++) {
+		if (authorized_sreg[i] == sreg) {
+			mmio_write_32(sreg, val);
+			return MTK_SIP_E_SUCCESS;
+		}
+	}
 
-static inline void mmio_write_16(uintptr_t addr, uint16_t value)
-{
-	*(volatile uint16_t*)addr = value;
+	return MTK_SIP_E_INVALID_PARAM;
 }
-
-static inline uint16_t mmio_read_16(uintptr_t addr)
-{
-	return *(volatile uint16_t*)addr;
-}
-
-static inline void mmio_write_32(uintptr_t addr, uint32_t value)
-{
-	*(volatile uint32_t*)addr = value;
-}
-
-static inline uint32_t mmio_read_32(uintptr_t addr)
-{
-	return *(volatile uint32_t*)addr;
-}
-
-static inline void mmio_write_64(uintptr_t addr, uint64_t value)
-{
-	*(volatile uint64_t*)addr = value;
-}
-
-static inline uint64_t mmio_read_64(uintptr_t addr)
-{
-	return *(volatile uint64_t*)addr;
-}
-
-static inline void mmio_clrbits_32(uintptr_t addr, uint32_t clear)
-{
-	mmio_write_32(addr, mmio_read_32(addr) & ~clear);
-}
-
-static inline void mmio_setbits_32(uintptr_t addr, uint32_t set)
-{
-	mmio_write_32(addr, mmio_read_32(addr) | set);
-}
-
-static inline void mmio_clrsetbits_32(uintptr_t addr,
-				uint32_t clear,
-				uint32_t set)
-{
-	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
-}
-
-#endif /* __MMIO_H__ */

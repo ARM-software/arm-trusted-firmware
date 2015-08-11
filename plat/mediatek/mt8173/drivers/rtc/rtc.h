@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,66 +28,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __MMIO_H__
-#define __MMIO_H__
+#ifndef __PLAT_DRIVER_RTC_H__
+#define __PLAT_DRIVER_RTC_H__
 
-#include <stdint.h>
+/* RTC registers */
+enum {
+	RTC_BBPU = 0xE000,
+	RTC_IRQ_STA = 0xE002,
+	RTC_IRQ_EN = 0xE004,
+	RTC_CII_EN = 0xE006
+};
 
-static inline void mmio_write_8(uintptr_t addr, uint8_t value)
-{
-	*(volatile uint8_t*)addr = value;
-}
+enum {
+	RTC_OSC32CON = 0xE026,
+	RTC_CON = 0xE03E,
+	RTC_WRTGR = 0xE03C
+};
 
-static inline uint8_t mmio_read_8(uintptr_t addr)
-{
-	return *(volatile uint8_t*)addr;
-}
+enum {
+	RTC_PDN1 = 0xE02C,
+	RTC_PDN2 = 0xE02E,
+	RTC_SPAR0 = 0xE030,
+	RTC_SPAR1 = 0xE032,
+	RTC_PROT = 0xE036,
+	RTC_DIFF = 0xE038,
+	RTC_CALI = 0xE03A
+};
 
-static inline void mmio_write_16(uintptr_t addr, uint16_t value)
-{
-	*(volatile uint16_t*)addr = value;
-}
+enum {
+	RTC_PROT_UNLOCK1 = 0x586A,
+	RTC_PROT_UNLOCK2 = 0x9136
+};
 
-static inline uint16_t mmio_read_16(uintptr_t addr)
-{
-	return *(volatile uint16_t*)addr;
-}
+enum {
+	RTC_BBPU_PWREN	= 1U << 0,
+	RTC_BBPU_BBPU	= 1U << 2,
+	RTC_BBPU_AUTO	= 1U << 3,
+	RTC_BBPU_CLRPKY	= 1U << 4,
+	RTC_BBPU_RELOAD	= 1U << 5,
+	RTC_BBPU_CBUSY	= 1U << 6
+};
 
-static inline void mmio_write_32(uintptr_t addr, uint32_t value)
-{
-	*(volatile uint32_t*)addr = value;
-}
+enum {
+	RTC_BBPU_KEY	= 0x43 << 8
+};
 
-static inline uint32_t mmio_read_32(uintptr_t addr)
-{
-	return *(volatile uint32_t*)addr;
-}
+void rtc_bbpu_power_down(void);
 
-static inline void mmio_write_64(uintptr_t addr, uint64_t value)
-{
-	*(volatile uint64_t*)addr = value;
-}
-
-static inline uint64_t mmio_read_64(uintptr_t addr)
-{
-	return *(volatile uint64_t*)addr;
-}
-
-static inline void mmio_clrbits_32(uintptr_t addr, uint32_t clear)
-{
-	mmio_write_32(addr, mmio_read_32(addr) & ~clear);
-}
-
-static inline void mmio_setbits_32(uintptr_t addr, uint32_t set)
-{
-	mmio_write_32(addr, mmio_read_32(addr) | set);
-}
-
-static inline void mmio_clrsetbits_32(uintptr_t addr,
-				uint32_t clear,
-				uint32_t set)
-{
-	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
-}
-
-#endif /* __MMIO_H__ */
+#endif /* __PLAT_DRIVER_RTC_H__ */

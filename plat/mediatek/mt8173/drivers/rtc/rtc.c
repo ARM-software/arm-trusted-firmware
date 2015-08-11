@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,67 +27,76 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <assert.h>
+#include <debug.h>
+#include <delay_timer.h>
+#include <mt8173_def.h>
+#include <pmic_wrap_init.h>
+#include <rtc.h>
 
-#ifndef __MMIO_H__
-#define __MMIO_H__
+/* RTC busy status polling interval and retry count */
+enum {
+	RTC_WRTGR_POLLING_DELAY_MS	= 10,
+	RTC_WRTGR_POLLING_CNT		= 100
+};
 
-#include <stdint.h>
-
-static inline void mmio_write_8(uintptr_t addr, uint8_t value)
+static uint16_t RTC_Read(uint32_t addr)
 {
-	*(volatile uint8_t*)addr = value;
+	uint32_t rdata = 0;
+
+	pwrap_read((uint32_t)addr, &rdata);
+	return (uint16_t)rdata;
 }
 
-static inline uint8_t mmio_read_8(uintptr_t addr)
+static void RTC_Write(uint32_t addr, uint16_t data)
 {
-	return *(volatile uint8_t*)addr;
+	pwrap_write((uint32_t)addr, (uint32_t)data);
 }
 
-static inline void mmio_write_16(uintptr_t addr, uint16_t value)
+static inline int32_t rtc_busy_wait(void)
 {
-	*(volatile uint16_t*)addr = value;
+	uint64_t retry = RTC_WRTGR_POLLING_CNT;
+
+	do {
+		mdelay(RTC_WRTGR_POLLING_DELAY_MS);
+		if (!(RTC_Read(RTC_BBPU) & RTC_BBPU_CBUSY))
+			return 1;
+		retry--;
+	} while (retry);
+
+	ERROR("[RTC] rtc cbusy time out!\n");
+	return 0;
 }
 
-static inline uint16_t mmio_read_16(uintptr_t addr)
+static int32_t Write_trigger(void)
 {
-	return *(volatile uint16_t*)addr;
+	RTC_Write(RTC_WRTGR, 1);
+	return rtc_busy_wait();
 }
 
-static inline void mmio_write_32(uintptr_t addr, uint32_t value)
+static int32_t Writeif_unlock(void)
 {
-	*(volatile uint32_t*)addr = value;
+	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK1);
+	if (!Write_trigger())
+		return 0;
+	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK2);
+	if (!Write_trigger())
+		return 0;
+
+	return 1;
 }
 
-static inline uint32_t mmio_read_32(uintptr_t addr)
+void rtc_bbpu_power_down(void)
 {
-	return *(volatile uint32_t*)addr;
-}
+	uint16_t bbpu;
 
-static inline void mmio_write_64(uintptr_t addr, uint64_t value)
-{
-	*(volatile uint64_t*)addr = value;
+	/* pull PWRBB low */
+	bbpu = RTC_BBPU_KEY | RTC_BBPU_AUTO | RTC_BBPU_PWREN;
+	if (Writeif_unlock()) {
+		RTC_Write(RTC_BBPU, bbpu);
+		if (!Write_trigger())
+			assert(1);
+	} else {
+		assert(1);
+	}
 }
-
-static inline uint64_t mmio_read_64(uintptr_t addr)
-{
-	return *(volatile uint64_t*)addr;
-}
-
-static inline void mmio_clrbits_32(uintptr_t addr, uint32_t clear)
-{
-	mmio_write_32(addr, mmio_read_32(addr) & ~clear);
-}
-
-static inline void mmio_setbits_32(uintptr_t addr, uint32_t set)
-{
-	mmio_write_32(addr, mmio_read_32(addr) | set);
-}
-
-static inline void mmio_clrsetbits_32(uintptr_t addr,
-				uint32_t clear,
-				uint32_t set)
-{
-	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
-}
-
-#endif /* __MMIO_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,67 +27,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <arch_helpers.h>
+#include <mcucfg.h>
+#include <mmio.h>
+#include <mt8173_def.h>
+#include <mt_cpuxgpt.h>
 
-#ifndef __MMIO_H__
-#define __MMIO_H__
-
-#include <stdint.h>
-
-static inline void mmio_write_8(uintptr_t addr, uint8_t value)
+static void write_cpuxgpt(unsigned int reg_index, unsigned int value)
 {
-	*(volatile uint8_t*)addr = value;
+	mmio_write_32((uintptr_t)&mt8173_mcucfg->xgpt_idx, reg_index);
+	mmio_write_32((uintptr_t)&mt8173_mcucfg->xgpt_ctl, value);
 }
 
-static inline uint8_t mmio_read_8(uintptr_t addr)
+static void cpuxgpt_set_init_cnt(unsigned int countH, unsigned int countL)
 {
-	return *(volatile uint8_t*)addr;
+	write_cpuxgpt(INDEX_CNT_H_INIT, countH);
+	/* update count when countL programmed */
+	write_cpuxgpt(INDEX_CNT_L_INIT, countL);
 }
 
-static inline void mmio_write_16(uintptr_t addr, uint16_t value)
+void generic_timer_backup(void)
 {
-	*(volatile uint16_t*)addr = value;
-}
+	uint64_t cval;
 
-static inline uint16_t mmio_read_16(uintptr_t addr)
-{
-	return *(volatile uint16_t*)addr;
+	cval = read_cntpct_el0();
+	cpuxgpt_set_init_cnt((uint32_t)(cval >> 32),
+			       (uint32_t)(cval & 0xffffffff));
 }
-
-static inline void mmio_write_32(uintptr_t addr, uint32_t value)
-{
-	*(volatile uint32_t*)addr = value;
-}
-
-static inline uint32_t mmio_read_32(uintptr_t addr)
-{
-	return *(volatile uint32_t*)addr;
-}
-
-static inline void mmio_write_64(uintptr_t addr, uint64_t value)
-{
-	*(volatile uint64_t*)addr = value;
-}
-
-static inline uint64_t mmio_read_64(uintptr_t addr)
-{
-	return *(volatile uint64_t*)addr;
-}
-
-static inline void mmio_clrbits_32(uintptr_t addr, uint32_t clear)
-{
-	mmio_write_32(addr, mmio_read_32(addr) & ~clear);
-}
-
-static inline void mmio_setbits_32(uintptr_t addr, uint32_t set)
-{
-	mmio_write_32(addr, mmio_read_32(addr) | set);
-}
-
-static inline void mmio_clrsetbits_32(uintptr_t addr,
-				uint32_t clear,
-				uint32_t set)
-{
-	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
-}
-
-#endif /* __MMIO_H__ */
