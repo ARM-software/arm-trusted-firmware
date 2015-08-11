@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,6 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 					    void *cookie)
 {
 	uint32_t linear_id;
-	uint64_t mpidr;
 	optee_context_t *optee_ctx;
 
 	/* Check the security state when the exception was generated */
@@ -92,14 +91,13 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 #endif
 
 	/* Sanity check the pointer to this cpu's context */
-	mpidr = read_mpidr();
 	assert(handle == cm_get_context(NON_SECURE));
 
 	/* Save the non-secure context before entering the OPTEE */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
 	/* Get a reference to this cpu's OPTEE context */
-	linear_id = platform_get_core_pos(mpidr);
+	linear_id = platform_my_core_pos();
 	optee_ctx = &opteed_sp_context[linear_id];
 	assert(&optee_ctx->cpu_ctx == cm_get_context(SECURE));
 
@@ -125,10 +123,9 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 int32_t opteed_setup(void)
 {
 	entry_point_info_t *optee_ep_info;
-	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id;
 
-	linear_id = platform_get_core_pos(mpidr);
+	linear_id = platform_my_core_pos();
 
 	/*
 	 * Get information about the Secure Payload (BL32) image. Its
@@ -182,8 +179,7 @@ int32_t opteed_setup(void)
  ******************************************************************************/
 static int32_t opteed_init(void)
 {
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 	entry_point_info_t *optee_entry_point;
 	uint64_t rc;
@@ -195,7 +191,7 @@ static int32_t opteed_init(void)
 	optee_entry_point = bl31_plat_get_next_image_ep_info(SECURE);
 	assert(optee_entry_point);
 
-	cm_init_context(mpidr, optee_entry_point);
+	cm_init_my_context(optee_entry_point);
 
 	/*
 	 * Arrange for an entry into OPTEE. It will be returned via
@@ -226,8 +222,7 @@ uint64_t opteed_smc_handler(uint32_t smc_fid,
 			 uint64_t flags)
 {
 	cpu_context_t *ns_cpu_context;
-	unsigned long mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = platform_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 	uint64_t rc;
 

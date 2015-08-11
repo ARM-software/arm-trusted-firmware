@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,42 +28,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
+ifeq (${PSCI_EXTENDED_STATE_ID}, 1)
+  $(error "PSCI Compatibility mode can be enabled only if \
+				 PSCI_EXTENDED_STATE_ID is not set")
+endif
 
 
-PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/aarch64/fvp_common.c
+PLAT_BL_COMMON_SOURCES	+=	plat/compat/aarch64/plat_helpers_compat.S
 
-BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
-				lib/cpus/aarch64/aem_generic.S			\
-				lib/cpus/aarch64/cortex_a53.S			\
-				lib/cpus/aarch64/cortex_a57.S			\
-				lib/semihosting/semihosting.c			\
-				lib/semihosting/aarch64/semihosting_call.S	\
-				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
-				plat/arm/board/fvp/fvp_bl1_setup.c		\
-				plat/arm/board/fvp/fvp_io_storage.c
-
-BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c		\
-				drivers/io/io_semihosting.c			\
-				drivers/delay_timer/delay_timer.c		\
-				lib/semihosting/semihosting.c			\
-				lib/semihosting/aarch64/semihosting_call.S	\
-				plat/arm/board/fvp/fvp_bl2_setup.c		\
-				plat/arm/board/fvp/fvp_io_storage.c		\
-				plat/arm/board/fvp/fvp_security.c
-
-BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
-				lib/cpus/aarch64/cortex_a53.S			\
-				lib/cpus/aarch64/cortex_a57.S			\
-				plat/arm/board/fvp/fvp_bl31_setup.c		\
-				plat/arm/board/fvp/fvp_pm.c			\
-				plat/arm/board/fvp/fvp_security.c		\
-				plat/arm/board/fvp/fvp_topology.c		\
-				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
-				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c
-
-# Disable the PSCI platform compatibility layer
-ENABLE_PLAT_COMPAT	:= 	0
-
-include plat/arm/board/common/board_common.mk
-include plat/arm/common/arm_common.mk
+BL31_SOURCES		+=	plat/common/aarch64/plat_psci_common.c	\
+				plat/compat/plat_pm_compat.c		\
+				plat/compat/plat_topology_compat.c

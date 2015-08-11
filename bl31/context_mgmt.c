@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -66,6 +66,32 @@ void cm_init(void)
 
 /*******************************************************************************
  * This function returns a pointer to the most recent 'cpu_context' structure
+ * for the CPU identified by `cpu_idx` that was set as the context for the
+ * specified security state. NULL is returned if no such structure has been
+ * specified.
+ ******************************************************************************/
+void *cm_get_context_by_index(unsigned int cpu_idx,
+				unsigned int security_state)
+{
+	assert(sec_state_is_valid(security_state));
+
+	return get_cpu_data_by_index(cpu_idx, cpu_context[security_state]);
+}
+
+/*******************************************************************************
+ * This function sets the pointer to the current 'cpu_context' structure for the
+ * specified security state for the CPU identified by CPU index.
+ ******************************************************************************/
+void cm_set_context_by_index(unsigned int cpu_idx, void *context,
+				unsigned int security_state)
+{
+	assert(sec_state_is_valid(security_state));
+
+	set_cpu_data_by_index(cpu_idx, cpu_context[security_state], context);
+}
+
+/*******************************************************************************
+ * This function returns a pointer to the most recent 'cpu_context' structure
  * for the CPU identified by MPIDR that was set as the context for the specified
  * security state. NULL is returned if no such structure has been specified.
  ******************************************************************************/
@@ -73,7 +99,7 @@ void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state)
 {
 	assert(sec_state_is_valid(security_state));
 
-	return get_cpu_data_by_mpidr(mpidr, cpu_context[security_state]);
+	return cm_get_context_by_index(platform_get_core_pos(mpidr), security_state);
 }
 
 /*******************************************************************************
@@ -84,7 +110,8 @@ void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_st
 {
 	assert(sec_state_is_valid(security_state));
 
-	set_cpu_data_by_mpidr(mpidr, cpu_context[security_state], context);
+	cm_set_context_by_index(platform_get_core_pos(mpidr),
+						 context, security_state);
 }
 
 /*******************************************************************************
@@ -114,7 +141,7 @@ static inline void cm_set_next_context(void *context)
 }
 
 /*******************************************************************************
- * The following function initializes a cpu_context for the current CPU for
+ * The following function initializes the cpu_context 'ctx' for
  * first use, and sets the initial entrypoint state as specified by the
  * entry_point_info structure.
  *
@@ -123,24 +150,23 @@ static inline void cm_set_next_context(void *context)
  * context and sets this as the next context to return to.
  *
  * The EE and ST attributes are used to configure the endianess and secure
- * timer availability for the new excution context.
+ * timer availability for the new execution context.
  *
  * To prepare the register state for entry call cm_prepare_el3_exit() and
  * el3_exit(). For Secure-EL1 cm_prepare_el3_exit() is equivalent to
  * cm_e1_sysreg_context_restore().
  ******************************************************************************/
-void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
+static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
-	uint32_t security_state;
-	cpu_context_t *ctx;
+	unsigned int security_state;
 	uint32_t scr_el3;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
 	unsigned long sctlr_elx;
 
-	security_state = GET_SECURITY_STATE(ep->h.attr);
-	ctx = cm_get_context_by_mpidr(mpidr, security_state);
 	assert(ctx);
+
+	security_state = GET_SECURITY_STATE(ep->h.attr);
 
 	/* Clear any residual register values from the context */
 	memset(ctx, 0, sizeof(*ctx));
@@ -207,6 +233,45 @@ void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
 	 */
 	gp_regs = get_gpregs_ctx(ctx);
 	memcpy(gp_regs, (void *)&ep->args, sizeof(aapcs64_params_t));
+}
+
+/*******************************************************************************
+ * The following function initializes the cpu_context for a CPU specified by
+ * its `cpu_idx` for first use, and sets the initial entrypoint state as
+ * specified by the entry_point_info structure.
+ ******************************************************************************/
+void cm_init_context_by_index(unsigned int cpu_idx,
+			      const entry_point_info_t *ep)
+{
+	cpu_context_t *ctx;
+	ctx = cm_get_context_by_index(cpu_idx, GET_SECURITY_STATE(ep->h.attr));
+	cm_init_context_common(ctx, ep);
+}
+
+/*******************************************************************************
+ * The following function initializes the cpu_context for the current CPU
+ * for first use, and sets the initial entrypoint state as specified by the
+ * entry_point_info structure.
+ ******************************************************************************/
+void cm_init_my_context(const entry_point_info_t *ep)
+{
+	cpu_context_t *ctx;
+	ctx = cm_get_context(GET_SECURITY_STATE(ep->h.attr));
+	cm_init_context_common(ctx, ep);
+}
+
+/*******************************************************************************
+ * The following function provides a compatibility function for SPDs using the
+ * existing cm library routines. This function is expected to be invoked for
+ * initializing the cpu_context for the CPU specified by MPIDR for first use.
+ ******************************************************************************/
+void cm_init_context(unsigned long mpidr, const entry_point_info_t *ep)
+{
+	if ((mpidr & MPIDR_AFFINITY_MASK) ==
+			(read_mpidr_el1() & MPIDR_AFFINITY_MASK))
+		cm_init_my_context(ep);
+	else
+		cm_init_context_by_index(platform_get_core_pos(mpidr), ep);
 }
 
 /*******************************************************************************

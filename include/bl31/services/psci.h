@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,16 +32,32 @@
 #define __PSCI_H__
 
 #include <bakery_lock.h>
-#include <platform_def.h>	/* for PLATFORM_NUM_AFFS */
+#include <platform_def.h>	/* for PLAT_NUM_PWR_DOMAINS */
+#if ENABLE_PLAT_COMPAT
+#include <psci_compat.h>
+#endif
 
 /*******************************************************************************
- * Number of affinity instances whose state this psci imp. can track
+ * Number of power domains whose state this psci imp. can track
  ******************************************************************************/
-#ifdef PLATFORM_NUM_AFFS
-#define PSCI_NUM_AFFS		PLATFORM_NUM_AFFS
+#ifdef PLAT_NUM_PWR_DOMAINS
+#define PSCI_NUM_PWR_DOMAINS	PLAT_NUM_PWR_DOMAINS
 #else
-#define PSCI_NUM_AFFS		(2 * PLATFORM_CORE_COUNT)
+#define PSCI_NUM_PWR_DOMAINS	(2 * PLATFORM_CORE_COUNT)
 #endif
+
+#define PSCI_NUM_NON_CPU_PWR_DOMAINS	(PSCI_NUM_PWR_DOMAINS - \
+					 PLATFORM_CORE_COUNT)
+
+/* This is the power level corresponding to a CPU */
+#define PSCI_CPU_PWR_LVL	0
+
+/*
+ * The maximum power level supported by PSCI. Since PSCI CPU_SUSPEND
+ * uses the old power_state parameter format which has 2 bits to specify the
+ * power level, this constant is defined to be 3.
+ */
+#define PSCI_MAX_PWR_LVL	3
 
 /*******************************************************************************
  * Defines for runtime services func ids
@@ -84,27 +100,35 @@
  * PSCI CPU_SUSPEND 'power_state' parameter specific defines
  ******************************************************************************/
 #define PSTATE_ID_SHIFT		0
-#define PSTATE_TYPE_SHIFT	16
-#define PSTATE_AFF_LVL_SHIFT	24
 
+#if PSCI_EXTENDED_STATE_ID
+#define PSTATE_VALID_MASK	0xB0000000
+#define PSTATE_TYPE_SHIFT	30
+#define PSTATE_ID_MASK		0xfffffff
+#else
+#define PSTATE_VALID_MASK	0xFCFE0000
+#define PSTATE_TYPE_SHIFT	16
+#define PSTATE_PWR_LVL_SHIFT	24
 #define PSTATE_ID_MASK		0xffff
-#define PSTATE_TYPE_MASK	0x1
-#define PSTATE_AFF_LVL_MASK	0x3
-#define PSTATE_VALID_MASK     0xFCFE0000
+#define PSTATE_PWR_LVL_MASK	0x3
+
+#define psci_get_pstate_pwrlvl(pstate)	(((pstate) >> PSTATE_PWR_LVL_SHIFT) & \
+					PSTATE_PWR_LVL_MASK)
+#define psci_make_powerstate(state_id, type, pwrlvl) \
+			(((state_id) & PSTATE_ID_MASK) << PSTATE_ID_SHIFT) |\
+			(((type) & PSTATE_TYPE_MASK) << PSTATE_TYPE_SHIFT) |\
+			(((pwrlvl) & PSTATE_PWR_LVL_MASK) << PSTATE_PWR_LVL_SHIFT)
+#endif /* __PSCI_EXTENDED_STATE_ID__ */
 
 #define PSTATE_TYPE_STANDBY	0x0
 #define PSTATE_TYPE_POWERDOWN	0x1
+#define PSTATE_TYPE_MASK	0x1
 
 #define psci_get_pstate_id(pstate)	(((pstate) >> PSTATE_ID_SHIFT) & \
 					PSTATE_ID_MASK)
 #define psci_get_pstate_type(pstate)	(((pstate) >> PSTATE_TYPE_SHIFT) & \
 					PSTATE_TYPE_MASK)
-#define psci_get_pstate_afflvl(pstate)	(((pstate) >> PSTATE_AFF_LVL_SHIFT) & \
-					PSTATE_AFF_LVL_MASK)
-#define psci_make_powerstate(state_id, type, afflvl) \
-			(((state_id) & PSTATE_ID_MASK) << PSTATE_ID_SHIFT) |\
-			(((type) & PSTATE_TYPE_MASK) << PSTATE_TYPE_SHIFT) |\
-			(((afflvl) & PSTATE_AFF_LVL_MASK) << PSTATE_AFF_LVL_SHIFT)
+#define psci_check_power_state(pstate)	((pstate) & PSTATE_VALID_MASK)
 
 /*******************************************************************************
  * PSCI CPU_FEATURES feature flag specific defines
@@ -113,6 +137,11 @@
 #define FF_PSTATE_SHIFT		1
 #define FF_PSTATE_ORIG		0
 #define FF_PSTATE_EXTENDED	1
+#if PSCI_EXTENDED_STATE_ID
+#define FF_PSTATE		FF_PSTATE_EXTENDED
+#else
+#define FF_PSTATE		FF_PSTATE_ORIG
+#endif
 
 /* Features flags for CPU SUSPEND OS Initiated mode support. Bits [0:0] */
 #define FF_MODE_SUPPORT_SHIFT		0
@@ -136,33 +165,74 @@
 #define PSCI_E_INTERN_FAIL	-6
 #define PSCI_E_NOT_PRESENT	-7
 #define PSCI_E_DISABLED		-8
+#define PSCI_E_INVALID_ADDRESS	-9
 
-/*******************************************************************************
- * PSCI affinity state related constants. An affinity instance could be present
- * or absent physically to cater for asymmetric topologies. If present then it
- * could in one of the 4 further defined states.
- ******************************************************************************/
-#define PSCI_STATE_SHIFT	1
-#define PSCI_STATE_MASK		0xff
-
-#define PSCI_AFF_ABSENT		0x0
-#define PSCI_AFF_PRESENT	0x1
-#define PSCI_STATE_ON		0x0
-#define PSCI_STATE_OFF		0x1
-#define PSCI_STATE_ON_PENDING	0x2
-#define PSCI_STATE_SUSPEND	0x3
-
-#define PSCI_INVALID_DATA -1
-
-#define get_phys_state(x)	(x != PSCI_STATE_ON ? \
-				 PSCI_STATE_OFF : PSCI_STATE_ON)
-
-#define psci_validate_power_state(pstate) (pstate & PSTATE_VALID_MASK)
-
+#define PSCI_INVALID_MPIDR	~((u_register_t)0)
 
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
+#include <types.h>
+
+/*
+ * These are the states reported by the PSCI_AFFINITY_INFO API for the specified
+ * CPU. The definitions of these states can be found in Section 5.7.1 in the
+ * PSCI specification (ARM DEN 0022C).
+ */
+typedef enum {
+	AFF_STATE_ON = 0,
+	AFF_STATE_OFF = 1,
+	AFF_STATE_ON_PENDING = 2
+} aff_info_state_t;
+
+/*
+ * Macro to represent invalid affinity level within PSCI.
+ */
+#define PSCI_INVALID_PWR_LVL	(PLAT_MAX_PWR_LVL + 1)
+
+/*
+ * Type for representing the local power state at a particular level.
+ */
+typedef uint8_t plat_local_state_t;
+
+/* The local state macro used to represent RUN state. */
+#define PSCI_LOCAL_STATE_RUN  	0
+
+/*
+ * Macro to test whether the plat_local_state is RUN state
+ */
+#define is_local_state_run(plat_local_state) \
+			((plat_local_state) == PSCI_LOCAL_STATE_RUN)
+
+/*
+ * Macro to test whether the plat_local_state is RETENTION state
+ */
+#define is_local_state_retn(plat_local_state) \
+			(((plat_local_state) > PSCI_LOCAL_STATE_RUN) && \
+			((plat_local_state) <= PLAT_MAX_RET_STATE))
+
+/*
+ * Macro to test whether the plat_local_state is OFF state
+ */
+#define is_local_state_off(plat_local_state) \
+			(((plat_local_state) > PLAT_MAX_RET_STATE) && \
+			((plat_local_state) <= PLAT_MAX_OFF_STATE))
+
+/*****************************************************************************
+ * This data structure defines the representation of the power state parameter
+ * for its exchange between the generic PSCI code and the platform port. For
+ * example, it is used by the platform port to specify the requested power
+ * states during a power management operation. It is used by the generic code to
+ * inform the platform about the target power states that each level should
+ * enter.
+ ****************************************************************************/
+typedef struct psci_power_state {
+	/*
+	 * The pwr_domain_state[] stores the local power state at each level
+	 * for the CPU.
+	 */
+	plat_local_state_t pwr_domain_state[PLAT_MAX_PWR_LVL + 1];
+} psci_power_state_t;
 
 /*******************************************************************************
  * Structure used to store per-cpu information relevant to the PSCI service.
@@ -170,11 +240,19 @@
  * this information will not reside on a cache line shared with another cpu.
  ******************************************************************************/
 typedef struct psci_cpu_data {
-	uint32_t power_state;
-	uint32_t max_phys_off_afflvl;	/* Highest affinity level in physically
-					   powered off state */
+	/* State as seen by PSCI Affinity Info API */
+	aff_info_state_t aff_info_state;
+
+	/*
+	 * Highest power level which takes part in a power management
+	 * operation.
+	 */
+	unsigned char target_pwrlvl;
+
+	/* The local power state of this CPU */
+	plat_local_state_t local_state;
 #if !USE_COHERENT_MEM
-	bakery_info_t pcpu_bakery_info[PSCI_NUM_AFFS];
+	bakery_info_t pcpu_bakery_info[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 #endif
 } psci_cpu_data_t;
 
@@ -182,25 +260,22 @@ typedef struct psci_cpu_data {
  * Structure populated by platform specific code to export routines which
  * perform common low level pm functions
  ******************************************************************************/
-typedef struct plat_pm_ops {
-	void (*affinst_standby)(unsigned int power_state);
-	int (*affinst_on)(unsigned long mpidr,
-			  unsigned long sec_entrypoint,
-			  unsigned int afflvl,
-			  unsigned int state);
-	void (*affinst_off)(unsigned int afflvl, unsigned int state);
-	void (*affinst_suspend)(unsigned long sec_entrypoint,
-			       unsigned int afflvl,
-			       unsigned int state);
-	void (*affinst_on_finish)(unsigned int afflvl, unsigned int state);
-	void (*affinst_suspend_finish)(unsigned int afflvl,
-				      unsigned int state);
+typedef struct plat_psci_ops {
+	void (*cpu_standby)(plat_local_state_t cpu_state);
+	int (*pwr_domain_on)(u_register_t mpidr);
+	void (*pwr_domain_off)(const psci_power_state_t *target_state);
+	void (*pwr_domain_suspend)(const psci_power_state_t *target_state);
+	void (*pwr_domain_on_finish)(const psci_power_state_t *target_state);
+	void (*pwr_domain_suspend_finish)(
+				const psci_power_state_t *target_state);
 	void (*system_off)(void) __dead2;
 	void (*system_reset)(void) __dead2;
-	int (*validate_power_state)(unsigned int power_state);
-	int (*validate_ns_entrypoint)(unsigned long ns_entrypoint);
-	unsigned int (*get_sys_suspend_power_state)(void);
-} plat_pm_ops_t;
+	int (*validate_power_state)(unsigned int power_state,
+				    psci_power_state_t *req_state);
+	int (*validate_ns_entrypoint)(uintptr_t ns_entrypoint);
+	void (*get_sys_suspend_power_state)(
+				    psci_power_state_t *req_state);
+} plat_psci_ops_t;
 
 /*******************************************************************************
  * Optional structure populated by the Secure Payload Dispatcher to be given a
@@ -224,22 +299,23 @@ typedef struct spd_pm_ops {
  * Function & Data prototypes
  ******************************************************************************/
 unsigned int psci_version(void);
-int psci_affinity_info(unsigned long, unsigned int);
-int psci_migrate(unsigned long);
+int psci_cpu_on(u_register_t target_cpu,
+		uintptr_t entrypoint,
+		unsigned long context_id);
+int psci_cpu_suspend(unsigned int power_state,
+		     uintptr_t entrypoint,
+		     unsigned long context_id);
+int psci_system_suspend(uintptr_t entrypoint, unsigned long context_id);
+int psci_cpu_off(void);
+int psci_affinity_info(u_register_t target_affinity,
+		       unsigned int lowest_affinity_level);
+int psci_migrate(u_register_t target_cpu);
 int psci_migrate_info_type(void);
 long psci_migrate_info_up_cpu(void);
-int psci_cpu_on(unsigned long,
-		unsigned long,
-		unsigned long);
+int psci_features(unsigned int psci_fid);
 void __dead2 psci_power_down_wfi(void);
-void psci_aff_on_finish_entry(void);
-void psci_aff_suspend_finish_entry(void);
+void psci_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *);
-int psci_get_suspend_stateid_by_mpidr(unsigned long);
-int psci_get_suspend_stateid(void);
-int psci_get_suspend_afflvl(void);
-uint32_t psci_get_max_phys_off_afflvl(void);
-
 uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,
 			  uint64_t x2,
@@ -250,10 +326,8 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 			  uint64_t flags);
 
 /* PSCI setup function */
-int32_t psci_setup(void);
-
+int psci_setup(void);
 
 #endif /*__ASSEMBLY__*/
-
 
 #endif /* __PSCI_H__ */

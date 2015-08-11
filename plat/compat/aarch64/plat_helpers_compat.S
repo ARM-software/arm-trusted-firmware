@@ -29,50 +29,43 @@
  */
 
 #include <arch.h>
-#include <psci.h>
-#include <plat_arm.h>
+#include <asm_macros.S>
+#include <assert_macros.S>
 #include <platform_def.h>
 
-#define get_arm_cluster_core_count(mpidr)\
-		(((mpidr) & 0x100) ? PLAT_ARM_CLUSTER1_CORE_COUNT :\
-				PLAT_ARM_CLUSTER0_CORE_COUNT)
+	.globl	platform_my_core_pos
+	.globl	platform_is_my_cpu_primary
+	.globl	platform_get_my_entrypoint
+	.weak	platform_get_core_pos
 
-/* The power domain tree descriptor which need to be exported by ARM platforms */
-extern const unsigned char arm_power_domain_tree_desc[];
+	/* -----------------------------------------------------
+	 *  Compatibility wrappers for new platform APIs.
+	 * -----------------------------------------------------
+	 */
+func platform_my_core_pos
+	mrs	x0, mpidr_el1
+	b	platform_get_core_pos
+endfunc platform_my_core_pos
 
+func platform_is_my_cpu_primary
+	mrs	x0, mpidr_el1
+	b	platform_is_primary_cpu
+endfunc platform_is_my_cpu_primary
 
-/*******************************************************************************
- * This function returns the ARM default topology tree information.
- ******************************************************************************/
-const unsigned char *platform_get_power_domain_tree_desc(void)
-{
-	return arm_power_domain_tree_desc;
-}
+func platform_get_my_entrypoint
+	mrs	x0, mpidr_el1
+	b	platform_get_entrypoint
+endfunc platform_get_my_entrypoint
 
-/*******************************************************************************
- * This function validates an MPIDR by checking whether it falls within the
- * acceptable bounds. An error code (-1) is returned if an incorrect mpidr
- * is passed.
- ******************************************************************************/
-int arm_check_mpidr(u_register_t mpidr)
-{
-	unsigned int cluster_id, cpu_id;
-
-	mpidr &= MPIDR_AFFINITY_MASK;
-
-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
-		return -1;
-
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
-
-	if (cluster_id >= ARM_CLUSTER_COUNT)
-		return -1;
-
-	/* Validate cpu_id by checking whether it represents a CPU in
-	   one of the two clusters present on the platform. */
-	if (cpu_id >= get_arm_cluster_core_count(mpidr))
-		return -1;
-
-	return 0;
-}
+	/* -----------------------------------------------------
+	 *  int platform_get_core_pos(int mpidr);
+	 *  With this function: CorePos = (ClusterId * 4) +
+	 *                                CoreId
+	 * -----------------------------------------------------
+	 */
+func platform_get_core_pos
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
+	ret
+endfunc platform_get_core_pos

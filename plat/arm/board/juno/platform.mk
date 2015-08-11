@@ -48,6 +48,9 @@ ERRATA_A57_813420	:=	1
 # power down sequence
 SKIP_A57_L1_FLUSH_PWR_DWN	:=	 1
 
+# Disable the PSCI platform compatibility layer
+ENABLE_PLAT_COMPAT	:= 	0
+
 include plat/arm/board/common/board_css.mk
 include plat/arm/common/arm_common.mk
 include plat/arm/soc/common/soc_css.mk
