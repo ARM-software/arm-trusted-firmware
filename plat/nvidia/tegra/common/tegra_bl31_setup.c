@@ -195,7 +195,7 @@ void bl31_plat_arch_setup(void)
 {
 	unsigned long bl31_base_pa = tegra_bl31_phys_base;
 	unsigned long total_base = bl31_base_pa;
-	unsigned long total_size = TZDRAM_END - BL31_RO_BASE;
+	unsigned long total_size = BL32_BASE - BL31_RO_BASE;
 	unsigned long ro_start = bl31_base_pa;
 	unsigned long ro_size = BL31_RO_LIMIT - BL31_RO_BASE;
 	const mmap_region_t *plat_mmio_map = NULL;
