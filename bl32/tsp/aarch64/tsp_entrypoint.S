@@ -336,9 +336,9 @@ endfunc tsp_cpu_suspend_entry
 	 */
 func	tsp_fiq_entry
 #if DEBUG
-	mov	x2, #(TSP_HANDLE_FIQ_AND_RETURN & ~0xffff)
-	movk	x2, #(TSP_HANDLE_FIQ_AND_RETURN &  0xffff)
-	cmp	x0, x2
+	mov	x3, #(TSP_HANDLE_FIQ_AND_RETURN & ~0xffff)
+	movk	x3, #(TSP_HANDLE_FIQ_AND_RETURN &  0xffff)
+	cmp	x0, x3
 	b.ne	tsp_fiq_entry_panic
 #endif
 	/*---------------------------------------------
@@ -353,8 +353,10 @@ func	tsp_fiq_entry
 	 * fiq handler is an error.
 	 * ---------------------------------------------
 	 */
-	save_eret_context x2 x3
+	save_eret_context x3 x4
+	str x2, [sp, #-0x10]!
 	bl	tsp_update_sync_fiq_stats
+	ldr x0, [sp], #0x10
 	bl	tsp_fiq_handler
 	cbnz	x0, tsp_fiq_entry_panic
 	restore_eret_context x2 x3

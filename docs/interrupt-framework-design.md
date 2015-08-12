@@ -410,16 +410,16 @@ requirements mentioned earlier.
     purpose, SP_EL1/Secure-EL0, LR, VFP and system registers. It can use
     `x0-x18` to enable its C runtime.
 
-2.  The TSPD implements a handler function for Secure-EL1 interrupts. It
+2.  The TSPD implements a handler function for Secure interrupts. It
     registers it with the EL3 runtime firmware using the
     `register_interrupt_type_handler()` API as follows
 
         /* Forward declaration */
-        interrupt_type_handler tspd_secure_el1_interrupt_handler;
+        interrupt_type_handler tspd_secure_interrupt_handler;
         int32_t rc, flags = 0;
         set_interrupt_rm_flag(flags, NON_SECURE);
         rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
-                                         tspd_secure_el1_interrupt_handler,
+                                         tspd_secure_interrupt_handler,
                                          flags);
         assert(rc == 0);
 
@@ -689,8 +689,47 @@ originally taken.
 
 ##### 2.3.2.3 Test secure payload dispatcher behavior
 The example TSPD service registers a handler for Secure-EL1 interrupts taken
-from the non-secure state. Its handler `tspd_secure_el1_interrupt_handler()`
-takes the following actions upon being invoked.
+from the non-secure state when TSPD_ROUTE_FIQ_TO_EL3 is set to 1. Its handler
+`tspd_secure_interrupt_handler()` takes the following actions upon being
+invoked.
+
+1.  It uses the `id` parameter to query the interrupt controller to ensure
+    that the interrupt is a Secure-EL1 interrupt. It asserts if this is not
+    the case.
+
+2.  It uses the security state provided in the `flags` parameter to ensure
+    that the secure interrupt originated from the non-secure state. It asserts
+    if this is not the case.
+
+3.  It acknowledges the interrupt.
+
+4.  It uses the security state provided in the `flags` parameter to check
+    that the secure interrupt originated from the non-secure state. If it's
+    the case, it saves the system register context for the non-secure state
+    by calling `cm_el1_sysregs_context_save(NON_SECURE);`.
+
+5.  It sets the `ELR_EL3` system register to `tsp_fiq_entry` and sets the
+    `SPSR_EL3.DAIF` bits in the secure CPU context. It sets `x0` to
+    `TSP_HANDLE_FIQ_AND_RETURN`. If the TSP was in the middle of handling a
+    standard SMC, then the `ELR_EL3` and `SPSR_EL3` registers in the secure CPU
+    context are saved first.
+
+6.  It uses the security state provided in the `flags` parameter to check
+    that the secure interrupt originated from the non-secure state. If it's
+    the case, it restores the system register context for the secure state by
+    calling `cm_el1_sysregs_context_restore(SECURE);` then it ensures that
+    the secure CPU context is used to program the next exception return from
+    EL3 by calling `cm_set_next_eret_context(SECURE);`.
+
+7.  It returns the per-cpu `cpu_context` to indicate that the interrupt can
+    now be handled by the SP. `x1` is written with the value of `elr_el3`
+    register for the non-secure state. `x2` is written with the interrupt id.
+    This information is used by the SP for debugging purposes.
+
+The example TSPD service registers a handler for Secure-EL1 interrupts taken
+from the non-secure state when TSPD_ROUTE_FIQ_TO_EL3 is set to 0. Its handler
+`tspd_secure_interrupt_handler()` takes the following actions upon being
+invoked.
 
 1.  It uses the `id` parameter to query the interrupt controller to ensure
     that the interrupt is a Secure-EL1 interrupt. It asserts if this is not
@@ -814,10 +853,10 @@ state.
 
 ##### 2.3.3.1 Test secure payload behavior
 The TSPD hands control of a Secure-EL1 interrupt to the TSP at the
-`tsp_fiq_entry()`.  The TSP handles the interrupt while ensuring that the
-handover agreement described in Section 2.2.2.1 is maintained. It updates some
-statistics by calling `tsp_update_sync_fiq_stats()`. It then calls
-`tsp_fiq_handler()` which.
+`tsp_fiq_entry()`  when TSPD_ROUTE_FIQ_TO_EL3 is set to 0. The TSP handles
+the interrupt while ensuring that the handover agreement described in Section
+2.2.2.1 is maintained. It updates some statistics by calling
+`tsp_update_sync_fiq_stats()`. It then calls `tsp_fiq_handler()` which.
 
 1.  Checks whether the interrupt is the secure physical timer interrupt. It
     uses the platform API `plat_ic_get_pending_interrupt_id()` to get the
@@ -838,6 +877,44 @@ The TSP handles interrupts under the asynchronous model as follows.
     function. The function has been described above.
 
 2.  Non-secure interrupts are handled by issuing an SMC64 with `TSP_PREEMPTED`
+    as the function identifier. Execution resumes at the instruction that
+    follows this SMC instruction when the TSPD hands control to the TSP in
+    response to an SMC with `TSP_FID_RESUME` as the function identifier from
+    the non-secure state (see section 2.3.2.1).
+
+The TSPD hands control of a Secure-EL1 interrupt to the TSP at the
+`tsp_fiq_entry()`  when TSPD_ROUTE_FIQ_TO_EL3 is set to 1. The TSP handles
+the interrupt while ensuring that the handover agreement described in Section
+2.2.2.1 is maintained. It updates some statistics by calling
+
+1.  Checks whether the interrupt is the secure physical timer interrupt. The
+    interrupt number is passed as argument.
+
+2.  Handles the interrupt by calling `tsp_generic_timer_handler()` to
+    reprogram the secure physical generic timer and calling the
+    `plat_ic_end_of_interrupt()` platform API to signal end of interrupt
+    processing.
+
+The TSP passes control back to the TSPD by issuing an SMC64 with
+`TSP_HANDLED_S_EL1_FIQ` as the function identifier.
+
+The TSP handles interrupts under the asynchronous model as follows.
+
+1.  Secure-EL1 interrupts are handled by calling the `tsp_fiq_handler()`
+    function which:
+
+    1.  Checks whether the interrupt is the secure physical timer
+        interrupt. It uses the platform API
+        `plat_ic_get_pending_interrupt_id()` to get the interrupt
+        number.
+
+    2.  Handles the interrupt by acknowledging it using the
+        `plat_ic_acknowledge_interrupt()` platform API, calling
+        `tsp_generic_timer_handler()` to reprogram the secure physical
+        generic timer and calling the `plat_ic_end_of_interrupt()`
+        platform API to signal end of interrupt processing.
+
+4.  Non-secure interrupts are handled by issuing an SMC64 with `TSP_PREEMPTED`
     as the function identifier. Execution resumes at the instruction that
     follows this SMC instruction when the TSPD hands control to the TSP in
     response to an SMC with `TSP_FID_RESUME` as the function identifier from

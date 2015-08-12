@@ -57,5 +57,12 @@ NEED_BL32		:=	yes
 # generated while the code is executing in S-EL1/0.
 TSPD_ROUTE_IRQ_TO_EL3	:=	0
 
+# Flag used to enable routing of secure interrupts to EL3 when they are
+# generated while the code is executing in EL2/1/0 or S-EL1/0.
+TSPD_ROUTE_FIQ_TO_EL3	:=	0
+
 $(eval $(call assert_boolean,TSPD_ROUTE_IRQ_TO_EL3))
 $(eval $(call add_define,TSPD_ROUTE_IRQ_TO_EL3))
+
+$(eval $(call assert_boolean,TSPD_ROUTE_FIQ_TO_EL3))
+$(eval $(call add_define,TSPD_ROUTE_FIQ_TO_EL3))
