@@ -44,7 +44,8 @@ BL2_SOURCES		+=	plat/arm/css/common/css_bl2_setup.c		\
 
 BL31_SOURCES		+=	plat/arm/css/common/css_mhu.c			\
 				plat/arm/css/common/css_pm.c			\
-				plat/arm/css/common/css_scpi.c
+				plat/arm/css/common/css_scpi.c			\
+				plat/arm/css/common/css_topology.c
 
 
 ifneq (${RESET_TO_BL31},0)

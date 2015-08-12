@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #ifndef __CM_H__
 #define __CM_H__
 
+#include <common_def.h>
 #include <cpu_data.h>
 #include <stdint.h>
 
@@ -43,13 +44,23 @@ struct entry_point_info;
  * Function & variable prototypes
  ******************************************************************************/
 void cm_init(void);
-void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state);
+void *cm_get_context_by_mpidr(uint64_t mpidr,
+			      uint32_t security_state) __warn_deprecated;
 static inline void *cm_get_context(uint32_t security_state);
 void cm_set_context_by_mpidr(uint64_t mpidr,
 			     void *context,
-			     uint32_t security_state);
+			     uint32_t security_state) __warn_deprecated;
+void *cm_get_context_by_index(unsigned int cpu_idx,
+			      unsigned int security_state);
+void cm_set_context_by_index(unsigned int cpu_idx,
+			     void *context,
+			     unsigned int security_state);
 static inline void cm_set_context(void *context, uint32_t security_state);
-void cm_init_context(uint64_t mpidr, const struct entry_point_info *ep);
+void cm_init_context(uint64_t mpidr,
+		     const struct entry_point_info *ep) __warn_deprecated;
+void cm_init_my_context(const struct entry_point_info *ep);
+void cm_init_context_by_index(unsigned int cpu_idx,
+			      const struct entry_point_info *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
