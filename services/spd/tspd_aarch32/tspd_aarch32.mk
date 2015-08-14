@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,8 @@ SPD_INCLUDES		:=	-Iinclude/bl32/tsp
 SPD_SOURCES		:=	services/spd/tspd_aarch32/tspd_aarch32_common.c		\
 				services/spd/tspd_aarch32/tspd_aarch32_helpers.S	\
 				services/spd/tspd_aarch32/tspd_aarch32_main.c		\
-				services/spd/tspd_aarch32/tspd_aarch32_pm.c
+				services/spd/tspd_aarch32/tspd_aarch32_pm.c \
+				services/spd/tspd_aarch32/tspd_aarch32_secure_timer.c
 
 # This dispatcher is paired with a Test Secure Payload source and we intend to
 # build the Test Secure Payload along with this dispatcher.
