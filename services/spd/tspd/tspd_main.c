@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -101,7 +101,6 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 					    void *cookie)
 {
 	uint32_t linear_id;
-	uint64_t mpidr;
 	tsp_context_t *tsp_ctx;
 
 	/* Check the security state when the exception was generated */
@@ -113,14 +112,13 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 #endif
 
 	/* Sanity check the pointer to this cpu's context */
-	mpidr = read_mpidr();
 	assert(handle == cm_get_context(NON_SECURE));
 
 	/* Save the non-secure context before entering the TSP */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
 	/* Get a reference to this cpu's TSP context */
-	linear_id = platform_get_core_pos(mpidr);
+	linear_id = plat_my_core_pos();
 	tsp_ctx = &tspd_sp_context[linear_id];
 	assert(&tsp_ctx->cpu_ctx == cm_get_context(SECURE));
 
@@ -197,10 +195,9 @@ static uint64_t tspd_ns_interrupt_handler(uint32_t id,
 int32_t tspd_setup(void)
 {
 	entry_point_info_t *tsp_ep_info;
-	uint64_t mpidr = read_mpidr();
 	uint32_t linear_id;
 
-	linear_id = platform_get_core_pos(mpidr);
+	linear_id = plat_my_core_pos();
 
 	/*
 	 * Get information about the Secure Payload (BL32) image. Its
@@ -256,8 +253,7 @@ int32_t tspd_setup(void)
  ******************************************************************************/
 int32_t tspd_init(void)
 {
-	uint64_t mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr);
+	uint32_t linear_id = plat_my_core_pos();
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 	entry_point_info_t *tsp_entry_point;
 	uint64_t rc;
@@ -269,7 +265,7 @@ int32_t tspd_init(void)
 	tsp_entry_point = bl31_plat_get_next_image_ep_info(SECURE);
 	assert(tsp_entry_point);
 
-	cm_init_context(mpidr, tsp_entry_point);
+	cm_init_my_context(tsp_entry_point);
 
 	/*
 	 * Arrange for an entry into the test secure payload. It will be
@@ -300,8 +296,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 uint64_t flags)
 {
 	cpu_context_t *ns_cpu_context;
-	unsigned long mpidr = read_mpidr();
-	uint32_t linear_id = platform_get_core_pos(mpidr), ns;
+	uint32_t linear_id = plat_my_core_pos(), ns;
 	tsp_context_t *tsp_ctx = &tspd_sp_context[linear_id];
 	uint64_t rc;
 #if TSP_INIT_ASYNC
@@ -453,7 +448,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 
 			/*
 			 * Disable the interrupt NS locally since it will be enabled globally
-			 * within cm_init_context.
+			 * within cm_init_my_context.
 			 */
 			disable_intr_rm_local(INTR_TYPE_NS, SECURE);
 #endif
@@ -471,7 +466,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		assert(NON_SECURE ==
 				GET_SECURITY_STATE(next_image_info->h.attr));
 
-		cm_init_context(read_mpidr_el1(), next_image_info);
+		cm_init_my_context(next_image_info);
 		cm_prepare_el3_exit(NON_SECURE);
 		SMC_RET0(cm_get_context(NON_SECURE));
 #else

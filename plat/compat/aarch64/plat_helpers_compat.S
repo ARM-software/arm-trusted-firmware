@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,42 +28,44 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
 #include <asm_macros.S>
-#include <cpu_data.h>
+#include <assert_macros.S>
+#include <platform_def.h>
 
-.globl	init_cpu_data_ptr
-.globl	_cpu_data_by_index
+	.globl	plat_my_core_pos
+	.globl	plat_is_my_cpu_primary
+	.globl	plat_get_my_entrypoint
+	.weak	platform_get_core_pos
 
-/* -----------------------------------------------------------------
- * void init_cpu_data_ptr(void)
- *
- * Initialise the TPIDR_EL3 register to refer to the cpu_data_t
- * for the calling CPU. This must be called before cm_get_cpu_data()
- *
- * This can be called without a valid stack. It assumes that
- * plat_my_core_pos() does not clobber register x10.
- * clobbers: x0, x1, x10
- * -----------------------------------------------------------------
- */
-func init_cpu_data_ptr
-	mov	x10, x30
-	bl	plat_my_core_pos
-	bl	_cpu_data_by_index
-	msr	tpidr_el3, x0
-	ret	x10
-endfunc init_cpu_data_ptr
+	/* -----------------------------------------------------
+	 *  Compatibility wrappers for new platform APIs.
+	 * -----------------------------------------------------
+	 */
+func plat_my_core_pos
+	mrs	x0, mpidr_el1
+	b	platform_get_core_pos
+endfunc plat_my_core_pos
 
-/* -----------------------------------------------------------------
- * cpu_data_t *_cpu_data_by_index(uint32_t cpu_index)
- *
- * Return the cpu_data structure for the CPU with given linear index
- *
- * This can be called without a valid stack.
- * clobbers: x0, x1
- * -----------------------------------------------------------------
- */
-func _cpu_data_by_index
-	adr	x1, percpu_data
-	add	x0, x1, x0, LSL #CPU_DATA_LOG2SIZE
+func plat_is_my_cpu_primary
+	mrs	x0, mpidr_el1
+	b	platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary
+
+func plat_get_my_entrypoint
+	mrs	x0, mpidr_el1
+	b	platform_get_entrypoint
+endfunc plat_get_my_entrypoint
+
+	/* -----------------------------------------------------
+	 *  int platform_get_core_pos(int mpidr);
+	 *  With this function: CorePos = (ClusterId * 4) +
+	 *                                CoreId
+	 * -----------------------------------------------------
+	 */
+func platform_get_core_pos
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
 	ret
-endfunc _cpu_data_by_index
+endfunc platform_get_core_pos

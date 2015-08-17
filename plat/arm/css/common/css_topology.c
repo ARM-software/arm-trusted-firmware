@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,42 +28,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
 #include <plat_arm.h>
-#include <platform_def.h>
-#include "drivers/pwrc/fvp_pwrc.h"
 
 /*
- * The FVP power domain tree does not have a single system level power domain
- * i.e. a single root node. The first entry in the power domain descriptor
- * specifies the number of power domains at the highest power level. For the FVP
- * this is 2 i.e. the number of cluster power domains.
+ * On ARM platforms, by default the cluster power level is treated as the
+ * highest. The first entry in the power domain descriptor specifies the
+ * number of cluster power domains i.e. 2.
  */
-#define FVP_PWR_DOMAINS_AT_MAX_PWR_LVL	ARM_CLUSTER_COUNT
+#define CSS_PWR_DOMAINS_AT_MAX_PWR_LVL	ARM_CLUSTER_COUNT
 
-/* The FVP power domain tree descriptor */
+/*
+ * The CSS power domain tree descriptor. The cluster power domains are
+ * arranged so that when the PSCI generic code creates the power domain tree,
+ * the indices of the CPU power domain nodes it allocates match the linear
+ * indices returned by plat_core_pos_by_mpidr() i.e.
+ * CLUSTER1 CPUs are allocated indices from 0 to 3 and the higher indices for
+ * CLUSTER0 CPUs.
+ */
 const unsigned char arm_power_domain_tree_desc[] = {
 	/* No of root nodes */
-	FVP_PWR_DOMAINS_AT_MAX_PWR_LVL,
+	CSS_PWR_DOMAINS_AT_MAX_PWR_LVL,
 	/* No of children for the first node */
-	PLAT_ARM_CLUSTER0_CORE_COUNT,
+	PLAT_ARM_CLUSTER1_CORE_COUNT,
 	/* No of children for the second node */
-	PLAT_ARM_CLUSTER1_CORE_COUNT
+	PLAT_ARM_CLUSTER0_CORE_COUNT
 };
 
-/*******************************************************************************
+
+/******************************************************************************
  * This function implements a part of the critical interface between the psci
  * generic layer and the platform that allows the former to query the platform
- * to convert an MPIDR to a unique linear index. An error code (-1) is returned
- * in case the MPIDR is invalid.
- ******************************************************************************/
+ * to convert an MPIDR to a unique linear index. An error code (-1) is
+ * returned in case the MPIDR is invalid.
+ *****************************************************************************/
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	if (arm_check_mpidr(mpidr) == -1)
-		return -1;
+	if (arm_check_mpidr(mpidr) == 0)
+		return plat_arm_calc_core_pos(mpidr);
 
-	if (fvp_pwrc_read_psysr(mpidr) == PSYSR_INVALID)
-		return -1;
-
-	return plat_arm_calc_core_pos(mpidr);
+	return -1;
 }

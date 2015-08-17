@@ -351,7 +351,26 @@ performed.
 
 *   `PROGRAMMABLE_RESET_ADDRESS`: This option indicates whether the reset
     vector address can be programmed or is fixed on the platform. It can take
-    either 0 (fixed) or 1 (programmable). Default is 0.
+    either 0 (fixed) or 1 (programmable). Default is 0. If the platform has a
+    programmable reset address, it is expected that a CPU will start executing
+    code directly at the right address, both on a cold and warm reset. In this
+    case, there is no need to identify the entrypoint on boot and this has
+    implication for `plat_get_my_entrypoint()` platform porting interface.
+    (see the [Porting Guide] for details)
+
+*   `PSCI_EXTENDED_STATE_ID`: As per PSCI1.0 Specification, there are 2 formats
+    possible for the PSCI power-state parameter viz original and extended
+    State-ID formats. This flag if set to 1, configures the generic PSCI layer
+    to use the extended format. The default value of this flag is 0, which
+    means by default the original power-state format is used by the PSCI
+    implementation. This flag should be specified by the platform makefile
+    and it governs the return value of PSCI_FEATURES API for CPU_SUSPEND
+    smc function id.
+
+*   `WARN_DEPRECATED`: This option decides whether to warn the usage of
+    deprecated platform APIs and context management helpers within Trusted
+    Firmware. It can take the value 1 (warn the use of deprecated APIs) or
+    0. The default is 0.
 
 #### ARM development platform specific build options
 
@@ -379,6 +398,14 @@ map is explained in the [Firmware Design].
         `arm_rotpk_rsa.der`, located in `plat/arm/board/common/rotpk`. To use
         this option, `arm_rotprivk_rsa.pem` must be specified as `ROT_KEY` when
         creating the certificates.
+
+*   `ARM_RECOM_STATE_ID_ENC`: The PSCI1.0 specification recommends an encoding
+    for the construction of composite state-ID in the power-state parameter.
+    The existing PSCI clients currently do not support this encoding of
+    State-ID yet. Hence this flag is used to configure whether to use the
+    recommended State-ID encoding or not. The default value of this flag is 0,
+    in which case the platform is configured to expect NULL in the State-ID
+    field of power-state parameter.
 
 #### ARM CSS platform specific build options
 
@@ -1070,4 +1097,5 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [Juno Software Guide]:         http://community.arm.com/docs/DOC-8396
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [mbedTLS Repository]:          https://github.com/ARMmbed/mbedtls.git
+[Porting Guide]:               ./porting-guide.md
 [Trusted Board Boot]:          trusted-board-boot.md

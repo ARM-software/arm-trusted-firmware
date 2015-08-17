@@ -8,7 +8,8 @@ Contents
 2.  [Common Modifications](#2--common-modifications)
     *   [Common mandatory modifications](#21-common-mandatory-modifications)
     *   [Handling reset](#22-handling-reset)
-    *   [Common optional modifications](#23-common-optional-modifications)
+    *   [Common mandatory modifications](#23-common-mandatory-modifications)
+    *   [Common optional modifications](#24-common-optional-modifications)
 3.  [Boot Loader stage specific modifications](#3--modifications-specific-to-a-boot-loader-stage)
     *   [Boot Loader stage 1 (BL1)](#31-boot-loader-stage-1-bl1)
     *   [Boot Loader stage 2 (BL2)](#32-boot-loader-stage-2-bl2)
@@ -24,6 +25,10 @@ Contents
 
 1.  Introduction
 ----------------
+
+Please note that this document has been updated for the new platform API
+as required by the PSCI v1.0 implementation. Please refer to the
+[Migration Guide] for the previous platform API.
 
 Porting the ARM Trusted Firmware to a new platform involves making some
 mandatory and optional modifications for both the cold and warm boot paths.
@@ -139,21 +144,39 @@ platform port to define additional platform porting constants in
     Defines the total number of CPUs implemented by the platform across all
     clusters in the system.
 
-*   **#define : PLATFORM_NUM_AFFS**
+*   **#define : PLAT_NUM_PWR_DOMAINS**
 
-    Defines the total number of nodes in the affinity heirarchy at all affinity
-    levels used by the platform.
+    Defines the total number of nodes in the power domain topology
+    tree at all the power domain levels used by the platform.
+    This macro is used by the PSCI implementation to allocate
+    data structures to represent power domain topology.
 
-*   **#define : PLATFORM_MAX_AFFLVL**
+*   **#define : PLAT_MAX_PWR_LVL**
 
-    Defines the maximum affinity level that the power management operations
-    should apply to. ARMv8-A has support for 4 affinity levels. It is likely
-    that hardware will implement fewer affinity levels. This macro allows the
-    PSCI implementation to consider only those affinity levels in the system
-    that the platform implements. For example, the Base AEM FVP implements two
-    clusters with a configurable number of CPUs. It reports the maximum
-    affinity level as 1, resulting in PSCI power control up to the cluster
-    level.
+    Defines the maximum power domain level that the power management operations
+    should apply to. More often, but not always, the power domain level
+    corresponds to affinity level. This macro allows the PSCI implementation
+    to know the highest power domain level that it should consider for power
+    management operations in the system that the platform implements. For
+    example, the Base AEM FVP implements two  clusters with a configurable
+    number of CPUs and it reports the maximum power domain level as 1.
+
+*   **#define : PLAT_MAX_OFF_STATE**
+
+    Defines the local power state corresponding to the deepest power down
+    possible at every power domain level in the platform. The local power
+    states for each level may be sparsely allocated between 0 and this value
+    with 0 being reserved for the RUN state. The PSCI implementation uses this
+    value to initialize the local power states of the power domain nodes and
+    to specify the requested power state for a PSCI_CPU_OFF call.
+
+*   **#define : PLAT_MAX_RET_STATE**
+
+    Defines the local power state corresponding to the deepest retention state
+    possible at every power domain level in the platform. This macro should be
+    a value less than PLAT_MAX_OFF_STATE and greater than 0. It is used by the
+    PSCI implementation to distuiguish between retention and power down local
+    power states within PSCI_CPU_SUSPEND call.
 
 *   **#define : BL1_RO_BASE**
 
@@ -408,21 +431,17 @@ The following functions need to be implemented by the platform port to enable
 reset vector code to perform the above tasks.
 
 
-### Function : platform_get_entrypoint() [mandatory]
+### Function : plat_get_my_entrypoint() [mandatory when PROGRAMMABLE_RESET_ADDRESS == 0]
 
-    Argument : unsigned long
-    Return   : unsigned int
+    Argument : void
+    Return   : unsigned long
 
-This function is called with the `SCTLR.M` and `SCTLR.C` bits disabled. The CPU
-is identified by its `MPIDR`, which is passed as the argument. The function is
-responsible for distinguishing between a warm and cold reset using platform-
-specific means. If it's a warm reset then it returns the entrypoint into the
-BL3-1 image that the CPU must jump to. If it's a cold reset then this function
-must return zero.
-
-This function is also responsible for implementing a platform-specific mechanism
-to handle the condition where the CPU has been warm reset but there is no
-entrypoint to jump to.
+This function is called with the called with the MMU and caches disabled
+(`SCTLR_EL3.M` = 0 and `SCTLR_EL3.C` = 0). The function is responsible for
+distinguishing between a warm and cold reset for the current CPU using
+platform-specific means. If it's a warm reset, then it returns the warm
+reset entrypoint point provided to `plat_setup_psci_ops()` during
+BL3-1 initialization. If it's a cold reset then this function must return zero.
 
 This function does not follow the Procedure Call Standard used by the
 Application Binary Interface for the ARM 64-bit architecture. The caller should
@@ -431,11 +450,16 @@ function.
 
 This function fulfills requirement 1 and 3 listed above.
 
+Note that for platforms that support programming the reset address, it is
+expected that a CPU will start executing code directly at the right address,
+both on a cold and warm reset. In this case, there is no need to identify the
+type of reset nor to query the warm reset entrypoint. Therefore, implementing
+this function is not required on such platforms.
+
 
 ### Function : plat_secondary_cold_boot_setup() [mandatory]
 
     Argument : void
-    Return   : void
 
 This function is called with the MMU and data caches disabled. It is responsible
 for placing the executing secondary CPU in a platform-specific state until the
@@ -449,15 +473,15 @@ requires them.
 This function fulfills requirement 2 above.
 
 
-### Function : platform_is_primary_cpu() [mandatory]
+### Function : plat_is_my_cpu_primary() [mandatory]
 
-    Argument : unsigned long
+    Argument : void
     Return   : unsigned int
 
-This function identifies a CPU by its `MPIDR`, which is passed as the argument,
-to determine whether this CPU is the primary CPU or a secondary CPU. A return
-value of zero indicates that the CPU is not the primary CPU, while a non-zero
-return value indicates that the CPU is the primary CPU.
+This function identifies whether the current CPU is the primary CPU or a
+secondary CPU. A return value of zero indicates that the CPU is not the
+primary CPU, while a non-zero return value indicates that the CPU is the
+primary CPU.
 
 
 ### Function : platform_mem_init() [mandatory]
@@ -467,9 +491,6 @@ return value indicates that the CPU is the primary CPU.
 
 This function is called before any access to data is made by the firmware, in
 order to carry out any essential memory initialization.
-
-The ARM FVP port uses this function to initialize the mailbox memory used for
-providing the warm-boot entry-point addresses.
 
 
 ### Function: plat_get_rotpk_info()
@@ -504,58 +525,75 @@ retrieved from the platform. The function also reports extra information related
 to the ROTPK in the flags parameter.
 
 
+2.3 Common mandatory modifications
+---------------------------------
 
-2.3 Common optional modifications
+The following functions are mandatory functions which need to be implemented
+by the platform port.
+
+### Function : plat_my_core_pos()
+
+    Argument : void
+    Return   : unsigned int
+
+This funtion returns the index of the calling CPU which is used as a
+CPU-specific linear index into blocks of memory (for example while allocating
+per-CPU stacks). This function will be invoked very early in the
+initialization sequence which mandates that this function should be
+implemented in assembly and should not rely on the avalability of a C
+runtime environment.
+
+This function plays a crucial role in the power domain topology framework in
+PSCI and details of this can be found in [Power Domain Topology Design].
+
+### Function : plat_core_pos_by_mpidr()
+
+    Argument : u_register_t
+    Return   : int
+
+This function validates the `MPIDR` of a CPU and converts it to an index,
+which can be used as a CPU-specific linear index into blocks of memory. In
+case the `MPIDR` is invalid, this function returns -1. This function will only
+be invoked by BL3-1 after the power domain topology is initialized and can
+utilize the C runtime environment. For further details about how ARM Trusted
+Firmware represents the power domain topology and how this relates to the
+linear CPU index, please refer [Power Domain Topology Design].
+
+
+
+2.4 Common optional modifications
 ---------------------------------
 
 The following are helper functions implemented by the firmware that perform
 common platform-specific tasks. A platform may choose to override these
 definitions.
 
+### Function : plat_set_my_stack()
 
-### Function : platform_get_core_pos()
-
-    Argument : unsigned long
-    Return   : int
-
-A platform may need to convert the `MPIDR` of a CPU to an absolute number, which
-can be used as a CPU-specific linear index into blocks of memory (for example
-while allocating per-CPU stacks). This routine contains a simple mechanism
-to perform this conversion, using the assumption that each cluster contains a
-maximum of 4 CPUs:
-
-    linear index = cpu_id + (cluster_id * 4)
-
-    cpu_id = 8-bit value in MPIDR at affinity level 0
-    cluster_id = 8-bit value in MPIDR at affinity level 1
-
-
-### Function : platform_set_stack()
-
-    Argument : unsigned long
+    Argument : void
     Return   : void
 
 This function sets the current stack pointer to the normal memory stack that
-has been allocated for the CPU specificed by MPIDR. For BL images that only
-require a stack for the primary CPU the parameter is ignored. The size of
-the stack allocated to each CPU is specified by the platform defined constant
-`PLATFORM_STACK_SIZE`.
+has been allocated for the current CPU. For BL images that only require a
+stack for the primary CPU, the UP version of the function is used. The size
+of the stack allocated to each CPU is specified by the platform defined
+constant `PLATFORM_STACK_SIZE`.
 
 Common implementations of this function for the UP and MP BL images are
 provided in [plat/common/aarch64/platform_up_stack.S] and
 [plat/common/aarch64/platform_mp_stack.S]
 
 
-### Function : platform_get_stack()
+### Function : plat_get_my_stack()
 
-    Argument : unsigned long
+    Argument : void
     Return   : unsigned long
 
 This function returns the base address of the normal memory stack that
-has been allocated for the CPU specificed by MPIDR. For BL images that only
-require a stack for the primary CPU the parameter is ignored. The size of
-the stack allocated to each CPU is specified by the platform defined constant
-`PLATFORM_STACK_SIZE`.
+has been allocated for the current CPU. For BL images that only require a
+stack for the primary CPU, the UP version of the function is used. The size
+of the stack allocated to each CPU is specified by the platform defined
+constant `PLATFORM_STACK_SIZE`.
 
 Common implementations of this function for the UP and MP BL images are
 provided in [plat/common/aarch64/platform_up_stack.S] and
@@ -1116,147 +1154,159 @@ modes table.
 ------------------------------------------------
 
 The ARM Trusted Firmware's implementation of the PSCI API is based around the
-concept of an _affinity instance_. Each _affinity instance_ can be uniquely
-identified in a system by a CPU ID (the processor `MPIDR` is used in the PSCI
-interface) and an _affinity level_. A processing element (for example, a
-CPU) is at level 0. If the CPUs in the system are described in a tree where the
-node above a CPU is a logical grouping of CPUs that share some state, then
-affinity level 1 is that group of CPUs (for example, a cluster), and affinity
-level 2 is a group of clusters (for example, the system). The implementation
-assumes that the affinity level 1 ID can be computed from the affinity level 0
-ID (for example, a unique cluster ID can be computed from the CPU ID). The
-current implementation computes this on the basis of the recommended use of
-`MPIDR` affinity fields in the ARM Architecture Reference Manual.
+concept of a _power domain_. A _power domain_ is a CPU or a logical group of
+CPUs which share some state on which power management operations can be
+performed as specified by [PSCI]. Each CPU in the system is assigned a cpu
+index which is a unique number between `0` and `PLATFORM_CORE_COUNT - 1`.
+The _power domains_ are arranged in a hierarchial tree structure and
+each _power domain_ can be identified in a system by the cpu index of any CPU
+that is part of that domain and a _power domain level_. A processing element
+(for example, a CPU) is at level 0. If the _power domain_ node above a CPU is
+a logical grouping of CPUs that share some state, then level 1 is that group
+of CPUs (for example, a cluster), and level 2 is a group of clusters
+(for example, the system). More details on the power domain topology and its
+organization can be found in [Power Domain Topology Design].
 
 BL3-1's platform initialization code exports a pointer to the platform-specific
 power management operations required for the PSCI implementation to function
-correctly. This information is populated in the `plat_pm_ops` structure. The
-PSCI implementation calls members of the `plat_pm_ops` structure for performing
-power management operations for each affinity instance. For example, the target
-CPU is specified by its `MPIDR` in a PSCI `CPU_ON` call. The `affinst_on()`
-handler (if present) is called for each affinity instance as the PSCI
-implementation powers up each affinity level implemented in the `MPIDR` (for
-example, CPU, cluster and system).
+correctly. This information is populated in the `plat_psci_ops` structure. The
+PSCI implementation calls members of the `plat_psci_ops` structure for performing
+power management operations on the power domains. For example, the target
+CPU is specified by its `MPIDR` in a PSCI `CPU_ON` call. The `pwr_domain_on()`
+handler (if present) is called for the CPU power domain.
+
+The `power-state` parameter of a PSCI `CPU_SUSPEND` call can be used to
+describe composite power states specific to a platform. The PSCI implementation
+defines a generic representation of the power-state parameter viz which is an
+array of local power states where each index corresponds to a power domain
+level. Each entry contains the local power state the power domain at that power
+level could enter. It depends on the `validate_power_state()` handler to
+convert the power-state parameter (possibly encoding a composite power state)
+passed in a PSCI `CPU_SUSPEND` call to this representation.
 
 The following functions must be implemented to initialize PSCI functionality in
 the ARM Trusted Firmware.
 
 
-### Function : plat_get_aff_count() [mandatory]
+### Function : plat_get_target_pwr_state() [optional]
 
-    Argument : unsigned int, unsigned long
-    Return   : unsigned int
+    Argument : unsigned int, const plat_local_state_t *, unsigned int
+    Return   : plat_local_state_t
 
-This function may execute with the MMU and data caches enabled if the platform
-port does the necessary initializations in `bl31_plat_arch_setup()`. It is only
-called by the primary CPU.
+The PSCI generic code uses this function to let the platform participate in
+state coordination during a power management operation. The function is passed
+a pointer to an array of platform specific local power state `states` (second
+argument) which contains the requested power state for each CPU at a particular
+power domain level `lvl` (first argument) within the power domain. The function
+is expected to traverse this array of upto `ncpus` (third argument) and return
+a coordinated target power state by the comparing all the requested power
+states. The target power state should not be deeper than any of the requested
+power states.
 
-This function is called by the PSCI initialization code to detect the system
-topology. Its purpose is to return the number of affinity instances implemented
-at a given `affinity level` (specified by the first argument) and a given
-`MPIDR` (specified by the second argument). For example, on a dual-cluster
-system where first cluster implements 2 CPUs and the second cluster implements 4
-CPUs, a call to this function with an `MPIDR` corresponding to the first cluster
-(`0x0`) and affinity level 0, would return 2. A call to this function with an
-`MPIDR` corresponding to the second cluster (`0x100`) and affinity level 0,
-would return 4.
-
-
-### Function : plat_get_aff_state() [mandatory]
-
-    Argument : unsigned int, unsigned long
-    Return   : unsigned int
-
-This function may execute with the MMU and data caches enabled if the platform
-port does the necessary initializations in `bl31_plat_arch_setup()`. It is only
-called by the primary CPU.
-
-This function is called by the PSCI initialization code. Its purpose is to
-return the state of an affinity instance. The affinity instance is determined by
-the affinity ID at a given `affinity level` (specified by the first argument)
-and an `MPIDR` (specified by the second argument). The state can be one of
-`PSCI_AFF_PRESENT` or `PSCI_AFF_ABSENT`. The latter state is used to cater for
-system topologies where certain affinity instances are unimplemented. For
-example, consider a platform that implements a single cluster with 4 CPUs and
-another CPU implemented directly on the interconnect with the cluster. The
-`MPIDR`s of the cluster would range from `0x0-0x3`. The `MPIDR` of the single
-CPU would be 0x100 to indicate that it does not belong to cluster 0. Cluster 1
-is missing but needs to be accounted for to reach this single CPU in the
-topology tree. Hence it is marked as `PSCI_AFF_ABSENT`.
+A weak definition of this API is provided by default wherein it assumes
+that the platform assigns a local state value in order of increasing depth
+of the power state i.e. for two power states X & Y, if X < Y
+then X represents a shallower power state than Y. As a result, the
+coordinated target local power state for a power domain will be the minimum
+of the requested local power state values.
 
 
-### Function : platform_setup_pm() [mandatory]
+### Function : plat_get_power_domain_tree_desc() [mandatory]
 
-    Argument : const plat_pm_ops **
+    Argument : void
+    Return   : const unsigned char *
+
+This function returns a pointer to the byte array containing the power domain
+topology tree description. The format and method to construct this array are
+described in [Power Domain Topology Design]. The BL3-1 PSCI initilization code
+requires this array to be described by the platform, either statically or
+dynamically, to initialize the power domain topology tree. In case the array
+is populated dynamically, then plat_core_pos_by_mpidr() and
+plat_my_core_pos() should also be implemented suitably so that the topology
+tree description matches the CPU indices returned by these APIs. These APIs
+together form the platform interface for the PSCI topology framework.
+
+
+## Function : plat_setup_psci_ops() [mandatory]
+
+    Argument : uintptr_t, const plat_psci_ops **
     Return   : int
 
 This function may execute with the MMU and data caches enabled if the platform
 port does the necessary initializations in `bl31_plat_arch_setup()`. It is only
 called by the primary CPU.
 
-This function is called by PSCI initialization code. Its purpose is to export
-handler routines for platform-specific power management actions by populating
-the passed pointer with a pointer to BL3-1's private `plat_pm_ops` structure.
+This function is called by PSCI initialization code. Its purpose is to let
+the platform layer know about the warm boot entrypoint through the
+`sec_entrypoint` (first argument) and to export handler routines for
+platform-specific psci power management actions by populating the passed
+pointer with a pointer to BL3-1's private `plat_psci_ops` structure.
 
 A description of each member of this structure is given below. Please refer to
 the ARM FVP specific implementation of these handlers in
-[plat/arm/board/fvp/fvp_pm.c] as an example. A platform port is expected to
-implement these handlers if the corresponding PSCI operation is to be supported
-and these handlers are expected to succeed if the return type is `void`.
+[plat/arm/board/fvp/fvp_pm.c] as an example. For each PSCI function that the
+platform wants to support, the associated operation or operations in this
+structure must be provided and implemented (Refer section 4 of
+[Firmware Design] for the PSCI API supported in Trusted Firmware). To disable
+a PSCI function in a platform port, the operation should be removed from this
+structure instead of providing an empty implementation.
 
-#### plat_pm_ops.affinst_standby()
+#### plat_psci_ops.cpu_standby()
 
-Perform the platform-specific setup to enter the standby state indicated by the
-passed argument. The generic code expects the handler to succeed.
+Perform the platform-specific actions to enter the standby state for a cpu
+indicated by the passed argument. This provides a fast path for CPU standby
+wherein overheads of PSCI state management and lock acquistion is avoided.
+For this handler to be invoked by the PSCI `CPU_SUSPEND` API implementation,
+the suspend state type specified in the `power-state` parameter should be
+STANDBY and the target power domain level specified should be the CPU. The
+handler should put the CPU into a low power retention state (usually by
+issuing a wfi instruction) and ensure that it can be woken up from that
+state by a normal interrupt. The generic code expects the handler to succeed.
 
-#### plat_pm_ops.affinst_on()
+#### plat_psci_ops.pwr_domain_on()
 
-Perform the platform specific setup to power on an affinity instance, specified
-by the `MPIDR` (first argument) and `affinity level` (third argument). The
-`state` (fourth argument) contains the current state of that affinity instance
-(ON or OFF). This is useful to determine whether any action must be taken. For
-example, while powering on a CPU, the cluster that contains this CPU might
-already be in the ON state. The platform decides what actions must be taken to
-transition from the current state to the target state (indicated by the power
-management operation). The generic code expects the platform to return
-E_SUCCESS on success or E_INTERN_FAIL for any failure.
+Perform the platform specific actions to power on a CPU, specified
+by the `MPIDR` (first argument). The generic code expects the platform to
+return PSCI_E_SUCCESS on success or PSCI_E_INTERN_FAIL for any failure.
 
-#### plat_pm_ops.affinst_off()
+#### plat_psci_ops.pwr_domain_off()
 
-Perform the platform specific setup to power off an affinity instance of the
-calling CPU. It is called by the PSCI `CPU_OFF` API implementation.
+Perform the platform specific actions to prepare to power off the calling CPU
+and its higher parent power domain levels as indicated by the `target_state`
+(first argument). It is called by the PSCI `CPU_OFF` API implementation.
 
-The `affinity level` (first argument) and `state` (second argument) have
-a similar meaning as described in the `affinst_on()` operation. They are
-used to identify the affinity instance on which the call is made and its
-current state. This gives the platform port an indication of the
-state transition it must make to perform the requested action. For example, if
-the calling CPU is the last powered on CPU in the cluster, after powering down
-affinity level 0 (CPU), the platform port should power down affinity level 1
-(the cluster) as well. The generic code expects the handler to succeed.
+The `target_state` encodes the platform coordinated target local power states
+for the CPU power domain and its parent power domain levels. The handler
+needs to perform power management operation corresponding to the local state
+at each power level.
 
-#### plat_pm_ops.affinst_suspend()
+For this handler, the local power state for the CPU power domain will be a
+power down state where as it could be either power down, retention or run state
+for the higher power domain levels depending on the result of state
+coordination. The generic code expects the handler to succeed.
 
-Perform the platform specific setup to power off an affinity instance of the
-calling CPU. It is called by the PSCI `CPU_SUSPEND` API and `SYSTEM_SUSPEND`
-API implementation
+#### plat_psci_ops.pwr_domain_suspend()
 
-The `affinity level` (second argument) and `state` (third argument) have a
-similar meaning as described in the `affinst_on()` operation. They are used to
-identify the affinity instance on which the call is made and its current state.
-This gives the platform port an indication of the state transition it must
-make to perform the requested action. For example, if the calling CPU is the
-last powered on CPU in the cluster, after powering down affinity level 0 (CPU),
-the platform port should power down affinity level 1 (the cluster) as well.
+Perform the platform specific actions to prepare to suspend the calling
+CPU and its higher parent power domain levels as indicated by the
+`target_state` (first argument). It is called by the PSCI `CPU_SUSPEND`
+API implementation.
 
-The difference between turning an affinity instance off versus suspending it
-is that in the former case, the affinity instance is expected to re-initialize
-its state when its next powered on (see `affinst_on_finish()`). In the latter
-case, the affinity instance is expected to save enough state so that it can
+The `target_state` has a similar meaning as described in
+the `pwr_domain_off()` operation. It encodes the platform coordinated
+target local power states for the CPU power domain and its parent
+power domain levels. The handler needs to perform power management operation
+corresponding to the local state at each power level. The generic code
+expects the handler to succeed.
+
+The difference between turning a power domain off versus suspending it
+is that in the former case, the power domain is expected to re-initialize
+its state when it is next powered on (see `pwr_domain_on_finish()`). In the
+latter case, the power domain is expected to save enough state so that it can
 resume execution by restoring this state when its powered on (see
-`affinst_suspend_finish()`).The generic code expects the handler to succeed.
+`pwr_domain_suspend_finish()`).
 
-#### plat_pm_ops.affinst_on_finish()
+#### plat_psci_ops.pwr_domain_on_finish()
 
 This function is called by the PSCI implementation after the calling CPU is
 powered on and released from reset in response to an earlier PSCI `CPU_ON` call.
@@ -1264,11 +1314,12 @@ It performs the platform-specific setup required to initialize enough state for
 this CPU to enter the normal world and also provide secure runtime firmware
 services.
 
-The `affinity level` (first argument) and `state` (second argument) have a
-similar meaning as described in the previous operations. The generic code
-expects the handler to succeed.
+The `target_state` (first argument) is the prior state of the power domains
+immediately before the CPU was turned on. It indicates which power domains
+above the CPU might require initialization due to having previously been in
+low power states. The generic code expects the handler to succeed.
 
-#### plat_pm_ops.affinst_suspend_finish()
+#### plat_psci_ops.pwr_domain_suspend_finish()
 
 This function is called by the PSCI implementation after the calling CPU is
 powered on and released from reset in response to an asynchronous wakeup
@@ -1277,40 +1328,36 @@ event, for example a timer interrupt that was programmed by the CPU during the
 setup required to restore the saved state for this CPU to resume execution
 in the normal world and also provide secure runtime firmware services.
 
-The `affinity level` (first argument) and `state` (second argument) have a
-similar meaning as described in the previous operations. The generic code
-expects the platform to succeed.
+The `target_state` (first argument) has a similar meaning as described in
+the `pwr_domain_on_finish()` operation. The generic code expects the platform
+to succeed.
 
-#### plat_pm_ops.validate_power_state()
+#### plat_psci_ops.validate_power_state()
 
 This function is called by the PSCI implementation during the `CPU_SUSPEND`
-call to validate the `power_state` parameter of the PSCI API. If the
-`power_state` is known to be invalid, the platform must return
-PSCI_E_INVALID_PARAMS as error, which is propagated back to the normal
-world PSCI client.
+call to validate the `power_state` parameter of the PSCI API and if valid,
+populate it in `req_state` (second argument) array as power domain level
+specific local states. If the `power_state` is invalid, the platform must
+return PSCI_E_INVALID_PARAMS as error, which is propagated back to the
+normal world PSCI client.
 
-#### plat_pm_ops.validate_ns_entrypoint()
+#### plat_psci_ops.validate_ns_entrypoint()
 
 This function is called by the PSCI implementation during the `CPU_SUSPEND`,
 `SYSTEM_SUSPEND` and `CPU_ON` calls to validate the non-secure `entry_point`
-parameter passed by the normal world. If the `entry_point` is known to be
-invalid, the platform must return PSCI_E_INVALID_PARAMS as error, which is
+parameter passed by the normal world. If the `entry_point` is invalid,
+the platform must return PSCI_E_INVALID_ADDRESS as error, which is
 propagated back to the normal world PSCI client.
 
-#### plat_pm_ops.get_sys_suspend_power_state()
+#### plat_psci_ops.get_sys_suspend_power_state()
 
 This function is called by the PSCI implementation during the `SYSTEM_SUSPEND`
-call to return the `power_state` parameter. This allows the platform to encode
-the appropriate State-ID field within the `power_state` parameter which can be
-utilized in `affinst_suspend()` to suspend to system affinity level. The
-`power_state` parameter should be in the same format as specified by the
-PSCI specification for the CPU_SUSPEND API.
+call to get the `req_state` parameter from platform which encodes the power
+domain level specific local states to suspend to system affinity level. The
+`req_state` will be utilized to do the PSCI state coordination and
+`pwr_domain_suspend()` will be invoked with the coordinated target state to
+enter system suspend.
 
-BL3-1 platform initialization code must also detect the system topology and
-the state of each affinity instance in the topology. This information is
-critical for the PSCI runtime service to function correctly. More details are
-provided in the description of the `plat_get_aff_count()` and
-`plat_get_aff_state()` functions above.
 
 3.4  Interrupt Management framework (in BL3-1)
 ----------------------------------------------
@@ -1478,6 +1525,12 @@ register x0.
 4.  Build flags
 ---------------
 
+*   **ENABLE_PLAT_COMPAT**
+    All the platforms ports conforming to this API specification should define
+    the build flag `ENABLE_PLAT_COMPAT` to 0 as the compatibility layer should
+    be disabled. For more details on compatibility layer, refer
+    [Migration Guide].
+
 There are some build flags which can be defined by the platform to control
 inclusion or exclusion of certain BL stages from the FIP image. These flags
 need to be defined in the platform makefile which will get included by the
@@ -1592,6 +1645,9 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [User Guide]:                         user-guide.md
 [FreeBSD]:                            http://www.freebsd.org
 [Firmware Design]:                    firmware-design.md
+[Power Domain Topology Design]:       psci-pd-tree.md
+[PSCI]:                               http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
+[Migration Guide]:                    platform-migration-guide.md
 
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S

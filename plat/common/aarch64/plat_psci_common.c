@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,42 +28,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <asm_macros.S>
-#include <cpu_data.h>
+#include <arch.h>
+#include <assert.h>
+#include <platform.h>
+#include <psci.h>
 
-.globl	init_cpu_data_ptr
-.globl	_cpu_data_by_index
-
-/* -----------------------------------------------------------------
- * void init_cpu_data_ptr(void)
- *
- * Initialise the TPIDR_EL3 register to refer to the cpu_data_t
- * for the calling CPU. This must be called before cm_get_cpu_data()
- *
- * This can be called without a valid stack. It assumes that
- * plat_my_core_pos() does not clobber register x10.
- * clobbers: x0, x1, x10
- * -----------------------------------------------------------------
+/*
+ * The PSCI generic code uses this API to let the platform participate in state
+ * coordination during a power management operation. It compares the platform
+ * specific local power states requested by each cpu for a given power domain
+ * and returns the coordinated target power state that the domain should
+ * enter. A platform assigns a number to a local power state. This default
+ * implementation assumes that the platform assigns these numbers in order of
+ * increasing depth of the power state i.e. for two power states X & Y, if X < Y
+ * then X represents a shallower power state than Y. As a result, the
+ * coordinated target local power state for a power domain will be the minimum
+ * of the requested local power states.
  */
-func init_cpu_data_ptr
-	mov	x10, x30
-	bl	plat_my_core_pos
-	bl	_cpu_data_by_index
-	msr	tpidr_el3, x0
-	ret	x10
-endfunc init_cpu_data_ptr
+plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
+					     const plat_local_state_t *states,
+					     unsigned int ncpu)
+{
+	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
 
-/* -----------------------------------------------------------------
- * cpu_data_t *_cpu_data_by_index(uint32_t cpu_index)
- *
- * Return the cpu_data structure for the CPU with given linear index
- *
- * This can be called without a valid stack.
- * clobbers: x0, x1
- * -----------------------------------------------------------------
- */
-func _cpu_data_by_index
-	adr	x1, percpu_data
-	add	x0, x1, x0, LSL #CPU_DATA_LOG2SIZE
-	ret
-endfunc _cpu_data_by_index
+	assert(ncpu);
+
+	do {
+		temp = *states++;
+		if (temp < target)
+			target = temp;
+	} while (--ncpu);
+
+	return target;
+}

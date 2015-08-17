@@ -128,7 +128,7 @@ void bakery_lock_get(bakery_lock_t *bakery)
 	unsigned int my_ticket, my_prio, their_ticket;
 	unsigned int their_bakery_data;
 
-	me = platform_get_core_pos(read_mpidr_el1());
+	me = plat_my_core_pos();
 
 	assert_bakery_entry_valid(me, bakery);
 
@@ -174,7 +174,7 @@ void bakery_lock_get(bakery_lock_t *bakery)
 /* Release the lock and signal contenders */
 void bakery_lock_release(bakery_lock_t *bakery)
 {
-	unsigned int me = platform_get_core_pos(read_mpidr_el1());
+	unsigned int me = plat_my_core_pos();
 
 	assert_bakery_entry_valid(me, bakery);
 	assert(bakery_ticket_number(bakery->lock_data[me]));

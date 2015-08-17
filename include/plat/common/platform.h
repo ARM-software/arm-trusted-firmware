@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,13 +31,14 @@
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 
+#include <psci.h>
 #include <stdint.h>
+#include <types.h>
 
 
 /*******************************************************************************
  * Forward declarations
  ******************************************************************************/
-struct plat_pm_ops;
 struct meminfo;
 struct image_info;
 struct entry_point_info;
@@ -59,6 +60,8 @@ int plat_get_image_source(unsigned int image_id,
 			uintptr_t *dev_handle,
 			uintptr_t *image_spec);
 unsigned long plat_get_ns_image_entrypoint(void);
+unsigned int plat_my_core_pos(void);
+int plat_core_pos_by_mpidr(u_register_t mpidr);
 
 /*******************************************************************************
  * Mandatory interrupt management functions
@@ -74,8 +77,7 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 /*******************************************************************************
  * Optional common functions (may be overridden)
  ******************************************************************************/
-unsigned int platform_get_core_pos(unsigned long mpidr);
-unsigned long platform_get_stack(unsigned long mpidr);
+unsigned long plat_get_my_stack(void);
 void plat_report_exception(unsigned long);
 int plat_crash_console_init(void);
 int plat_crash_console_putc(int c);
@@ -181,9 +183,16 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
 /*******************************************************************************
  * Mandatory PSCI functions (BL3-1)
  ******************************************************************************/
-int platform_setup_pm(const struct plat_pm_ops **);
-unsigned int plat_get_aff_count(unsigned int, unsigned long);
-unsigned int plat_get_aff_state(unsigned int, unsigned long);
+int plat_setup_psci_ops(uintptr_t sec_entrypoint,
+			const struct plat_psci_ops **);
+const unsigned char *plat_get_power_domain_tree_desc(void);
+
+/*******************************************************************************
+ * Optional PSCI functions (BL3-1).
+ ******************************************************************************/
+plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
+			const plat_local_state_t *states,
+			unsigned int ncpu);
 
 /*******************************************************************************
  * Optional BL3-1 functions (may be overridden)
@@ -201,4 +210,31 @@ void bl32_plat_enable_mmu(uint32_t flags);
 int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags);
 
+#if ENABLE_PLAT_COMPAT
+/*
+ * The below declarations are to enable compatibility for the platform ports
+ * using the old platform interface.
+ */
+
+/*******************************************************************************
+ * Optional common functions (may be overridden)
+ ******************************************************************************/
+unsigned int platform_get_core_pos(unsigned long mpidr);
+
+/*******************************************************************************
+ * Mandatory PSCI Compatibility functions (BL3-1)
+ ******************************************************************************/
+int platform_setup_pm(const plat_pm_ops_t **);
+
+unsigned int plat_get_aff_count(unsigned int, unsigned long);
+unsigned int plat_get_aff_state(unsigned int, unsigned long);
+#else
+/*
+ * The below function enable Trusted Firmware components like SPDs which
+ * haven't migrated to the new platform API to compile on platforms which
+ * have the compatibility layer disabled.
+ */
+unsigned int platform_get_core_pos(unsigned long mpidr) __warn_deprecated;
+
+#endif /* __ENABLE_PLAT_COMPAT__ */
 #endif /* __PLATFORM_H__ */

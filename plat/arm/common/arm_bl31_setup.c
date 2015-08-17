@@ -226,9 +226,6 @@ void arm_bl31_platform_setup(void)
 
 	/* Initialize power controller before setting up topology */
 	plat_arm_pwrc_setup();
-
-	/* Topologies are best known to the platform. */
-	plat_arm_topology_setup();
 }
 
 void bl31_platform_setup(void)
