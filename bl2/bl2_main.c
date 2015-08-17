@@ -238,8 +238,14 @@ void bl2_main(void)
 	}
 
 	e = load_bl32(bl2_to_bl31_params);
-	if (e)
-		WARN("Failed to load BL3-2 (%i)\n", e);
+	if (e) {
+		if (e == LOAD_AUTH_ERR) {
+			ERROR("Failed to authenticate BL3-2\n");
+			panic();
+		} else {
+			WARN("Failed to load BL3-2 (%i)\n", e);
+		}
+	}
 
 	e = load_bl33(bl2_to_bl31_params);
 	if (e) {
