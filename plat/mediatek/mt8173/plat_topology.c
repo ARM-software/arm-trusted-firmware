@@ -28,18 +28,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <arch.h>
+#include <platform_def.h>
 #include <psci.h>
 
 unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr)
 {
 	/* Report 1 (absent) instance at levels higher that the cluster level */
 	if (aff_lvl > MPIDR_AFFLVL1)
-		return 1;
+		return PLATFORM_SYSTEM_COUNT;
 
 	if (aff_lvl == MPIDR_AFFLVL1)
-		return 2; /* We have two clusters */
+		return PLATFORM_CLUSTER_COUNT;
 
-	return mpidr & 0x100 ? 2 : 2; /* 2 cpus in cluster 1, 2 in cluster 0 */
+	return mpidr & 0x100 ? PLATFORM_CLUSTER1_CORE_COUNT :
+			       PLATFORM_CLUSTER0_CORE_COUNT;
 }
 
 unsigned int plat_get_aff_state(unsigned int aff_lvl, unsigned long mpidr)
