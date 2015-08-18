@@ -1568,11 +1568,6 @@ inclusion or exclusion of certain BL stages from the FIP image. These flags
 need to be defined in the platform makefile which will get included by the
 build system.
 
-*   **NEED_BL30**
-    This flag if defined by the platform mandates that a BL3-0 binary should
-    be included in the FIP image. The path to the BL3-0 binary can be specified
-    by the `BL30` build option (see build options in the [User Guide]).
-
 *   **NEED_BL33**
     By default, this flag is defined `yes` by the build system and `BL33`
     build option should be supplied as a build option. The platform has the option
