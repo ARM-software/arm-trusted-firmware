@@ -31,98 +31,152 @@
 #
 # Trusted Firmware Version
 #
-VERSION_MAJOR		:= 1
-VERSION_MINOR		:= 1
+VERSION_MAJOR			:= 1
+VERSION_MINOR			:= 1
 
-#
+include build_macros.mk
+
+################################################################################
 # Default values for build configurations
-#
+################################################################################
 
 # Build verbosity
-V			:= 0
+V				:= 0
 # Debug build
-DEBUG			:= 0
+DEBUG				:= 0
 # Build platform
-DEFAULT_PLAT		:= fvp
-PLAT			:= ${DEFAULT_PLAT}
+DEFAULT_PLAT			:= fvp
+PLAT				:= ${DEFAULT_PLAT}
 # SPD choice
-SPD			:= none
+SPD				:= none
 # Base commit to perform code check on
-BASE_COMMIT		:= origin/master
+BASE_COMMIT			:= origin/master
 # NS timer register save and restore
-NS_TIMER_SWITCH		:= 0
+NS_TIMER_SWITCH			:= 0
 # By default, Bl1 acts as the reset handler, not BL31
-RESET_TO_BL31		:= 0
+RESET_TO_BL31			:= 0
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
 # Determine the version of ARM GIC architecture to use for interrupt management
 # in EL3. The platform port can change this value if needed.
-ARM_GIC_ARCH		:=	2
+ARM_GIC_ARCH			:= 2
 # Determine the version of ARM CCI product used in the platform. The platform
 # port can change this value if needed.
-ARM_CCI_PRODUCT_ID	:=	400
+ARM_CCI_PRODUCT_ID		:= 400
 # Flag used to indicate if ASM_ASSERTION should be enabled for the build.
 # This defaults to being present in DEBUG builds only.
-ASM_ASSERTION		:=	${DEBUG}
+ASM_ASSERTION			:= ${DEBUG}
 # Build option to choose whether Trusted firmware uses Coherent memory or not.
-USE_COHERENT_MEM	:=	1
+USE_COHERENT_MEM		:= 1
 # Flag used to choose the power state format viz Extended State-ID or the Original
 # format.
-PSCI_EXTENDED_STATE_ID	:=	0
+PSCI_EXTENDED_STATE_ID		:= 0
 # Default FIP file name
-FIP_NAME		:= fip.bin
+FIP_NAME			:= fip.bin
 # By default, use the -pedantic option in the gcc command line
-DISABLE_PEDANTIC	:= 0
+DISABLE_PEDANTIC		:= 0
 # Flags to generate the Chain of Trust
-GENERATE_COT		:= 0
-CREATE_KEYS		:= 1
-SAVE_KEYS		:= 0
+GENERATE_COT			:= 0
+CREATE_KEYS			:= 1
+SAVE_KEYS			:= 0
 # Flags to build TF with Trusted Boot support
-TRUSTED_BOARD_BOOT	:= 0
+TRUSTED_BOARD_BOOT		:= 0
 # By default, consider that the platform's reset address is not programmable.
 # The platform Makefile is free to override this value.
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 # Build flag to warn about usage of deprecated platform and framework APIs
-WARN_DEPRECATED	:= 0
+WARN_DEPRECATED			:= 0
 
-# Checkpatch ignores
-CHECK_IGNORE		=	--ignore COMPLEX_MACRO \
+
+################################################################################
+# Checkpatch script options
+################################################################################
+
+CHECK_IGNORE		:=	--ignore COMPLEX_MACRO \
 				--ignore GERRIT_CHANGE_ID \
 				--ignore GIT_COMMIT_ID
-
-CHECKPATCH_ARGS		=	--no-tree --no-signoff ${CHECK_IGNORE}
-CHECKCODE_ARGS		=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
+CHECKPATCH_ARGS		:=	--no-tree --no-signoff ${CHECK_IGNORE}
+CHECKCODE_ARGS		:=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 # Do not check the coding style on C library files
-CHECK_PATHS		=	$(shell ls -I include -I lib) \
+CHECK_PATHS		:=	$(shell ls -I include -I lib) \
 				$(addprefix include/,$(shell ls -I stdlib include)) \
 				$(addprefix lib/,$(shell ls -I stdlib lib))
 
+
+################################################################################
+# Process build options
+################################################################################
+
+# Verbose flag
 ifeq (${V},0)
-	Q=@
-	CHECKCODE_ARGS	+=	--no-summary --terse
+        Q=@
+        CHECKCODE_ARGS	+=	--no-summary --terse
 else
-	Q=
+        Q=
 endif
 export Q
 
+# Process Debug flag
+$(eval $(call add_define,DEBUG))
 ifneq (${DEBUG}, 0)
-	BUILD_TYPE	:=	debug
-	# Use LOG_LEVEL_INFO by default for debug builds
-	LOG_LEVEL	:=	40
+        BUILD_TYPE	:=	debug
+        CFLAGS		+= 	-g
+        ASFLAGS		+= 	-g -Wa,--gdwarf-2
+        # Use LOG_LEVEL_INFO by default for debug builds
+        LOG_LEVEL	:=	40
 else
-	BUILD_TYPE	:=	release
-	# Use LOG_LEVEL_NOTICE by default for release builds
-	LOG_LEVEL	:=	20
+        BUILD_TYPE	:=	release
+        $(eval $(call add_define,NDEBUG))
+        # Use LOG_LEVEL_NOTICE by default for release builds
+        LOG_LEVEL	:=	20
 endif
 
 # Default build string (git branch and commit)
 ifeq (${BUILD_STRING},)
-	BUILD_STRING	:=	$(shell git log -n 1 --pretty=format:"%h")
+        BUILD_STRING	:=	$(shell git log -n 1 --pretty=format:"%h")
 endif
-
 VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STRING}
 
-BL_COMMON_SOURCES	:=	common/bl_common.c			\
+# The cert_create tool cannot generate certificates individually, so we use the
+# target 'certificates' to create them all
+ifneq (${GENERATE_COT},0)
+        FIP_DEPS += certificates
+endif
+
+
+################################################################################
+# Toolchain
+################################################################################
+
+CC			:=	${CROSS_COMPILE}gcc
+CPP			:=	${CROSS_COMPILE}cpp
+AS			:=	${CROSS_COMPILE}gcc
+AR			:=	${CROSS_COMPILE}ar
+LD			:=	${CROSS_COMPILE}ld
+OC			:=	${CROSS_COMPILE}objcopy
+OD			:=	${CROSS_COMPILE}objdump
+NM			:=	${CROSS_COMPILE}nm
+PP			:=	${CROSS_COMPILE}gcc -E
+
+ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
+				-Werror -Wmissing-include-dirs			\
+				-mgeneral-regs-only -D__ASSEMBLY__		\
+				${DEFINES} ${INCLUDES}
+CFLAGS			+= 	-nostdinc -ffreestanding -Wall			\
+				-Werror -Wmissing-include-dirs			\
+				-mgeneral-regs-only -std=c99 -c -Os		\
+				${DEFINES} ${INCLUDES}
+CFLAGS			+=	-ffunction-sections -fdata-sections
+
+LDFLAGS			+=	--fatal-warnings -O1
+LDFLAGS			+=	--gc-sections
+
+
+################################################################################
+# Common sources and include directories
+################################################################################
+
+BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/tf_printf.c			\
 				common/aarch64/debug.S			\
 				lib/aarch64/cache_helpers.S		\
@@ -130,99 +184,6 @@ BL_COMMON_SOURCES	:=	common/bl_common.c			\
 				lib/aarch64/xlat_helpers.c		\
 				lib/stdlib/std.c			\
 				plat/common/aarch64/platform_helpers.S
-
-BUILD_BASE		:=	./build
-BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
-
-PLAT_MAKEFILE		:=	platform.mk
-# Generate the platforms list by recursively searching for all directories
-# under /plat containing a PLAT_MAKEFILE. Append each platform with a `|`
-# char and strip out the final '|'.
-PLATFORMS		:=	$(shell find plat/ -name '${PLAT_MAKEFILE}' -print0 |			\
-					sed -r 's%[^\x00]*\/([^/]*)\/${PLAT_MAKEFILE}\x00%\1|%g' |	\
-					sed -r 's/\|$$//')
-SPDS			:=	$(shell ls -I none services/spd)
-
-# Convenience function for adding build definitions
-# $(eval $(call add_define,FOO)) will have:
-# -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
-define add_define
-DEFINES			+=	-D$(1)$(if $(value $(1)),=$(value $(1)),)
-endef
-
-# Convenience function for verifying option has a boolean value
-# $(eval $(call assert_boolean,FOO)) will assert FOO is 0 or 1
-define assert_boolean
-$(and $(patsubst 0,,$(value $(1))),$(patsubst 1,,$(value $(1))),$(error $(1) must be boolean))
-endef
-
-ifeq (${PLAT},)
-  $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform")
-endif
-PLAT_MAKEFILE_FULL	:=	$(shell find plat/ -wholename '*/${PLAT}/${PLAT_MAKEFILE}')
-ifeq ($(PLAT_MAKEFILE_FULL),)
-  $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
-endif
-
-all: msg_start
-
-msg_start:
-	@echo "Building ${PLAT}"
-
-include ${PLAT_MAKEFILE_FULL}
-
-# If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
-ifndef ENABLE_PLAT_COMPAT
-ENABLE_PLAT_COMPAT := 1
-endif
-
-# Include the platform compatibility helpers for PSCI
-ifneq (${ENABLE_PLAT_COMPAT}, 0)
-include plat/compat/plat_compat.mk
-endif
-
-# Include the CPU specific operations makefile. By default all CPU errata
-# workarounds and CPU specifc optimisations are disabled. This can be
-# overridden by the platform.
-include lib/cpus/cpu-ops.mk
-
-ifdef BL1_SOURCES
-NEED_BL1 := yes
-include bl1/bl1.mk
-endif
-
-ifdef BL2_SOURCES
-NEED_BL2 := yes
-include bl2/bl2.mk
-# Using the ARM Trusted Firmware BL2 implies that a BL3-3 image also need to be supplied for the FIP.
-# This flag can be overridden by the platform.
-NEED_BL33 ?= yes
-endif
-
-ifdef BL31_SOURCES
-NEED_BL31 := yes
-include bl31/bl31.mk
-endif
-
-# Include SPD Makefile if one has been specified
-ifneq (${SPD},none)
-  # We expect to locate an spd.mk under the specified SPD directory
-  SPD_MAKE		:=	$(shell m="services/spd/${SPD}/${SPD}.mk"; [ -f "$$m" ] && echo "$$m")
-
-  ifeq (${SPD_MAKE},)
-    $(error Error: No services/spd/${SPD}/${SPD}.mk located)
-  endif
-  $(info Including ${SPD_MAKE})
-  include ${SPD_MAKE}
-
-  # If there's BL3-2 companion for the chosen SPD, and the SPD wants to build the
-  # BL3-2 from source, we expect that the SPD's Makefile would set NEED_BL32
-  # variable to "yes". In case the BL3-2 is a binary which needs to be included in
-  # fip, then the NEED_BL32 needs to be set and BL3-2 would need to point to the bin.
-endif
-
-.PHONY:			all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip certtool
-.SUFFIXES:
 
 INCLUDES		+=	-Iinclude/bl31			\
 				-Iinclude/bl31/services		\
@@ -241,135 +202,214 @@ INCLUDES		+=	-Iinclude/bl31			\
 				${PLAT_INCLUDES}		\
 				${SPD_INCLUDES}
 
-# Process DEBUG flag
-$(eval $(call assert_boolean,DEBUG))
-$(eval $(call add_define,DEBUG))
-ifeq (${DEBUG},0)
-  $(eval $(call add_define,NDEBUG))
-else
-CFLAGS			+= 	-g
-ASFLAGS			+= 	-g -Wa,--gdwarf-2
+
+################################################################################
+# Generic definitions
+################################################################################
+
+BUILD_BASE		:=	./build
+BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
+
+PLAT_MAKEFILE		:=	platform.mk
+# Generate the platforms list by recursively searching for all directories
+# under /plat containing a PLAT_MAKEFILE. Append each platform with a `|`
+# char and strip out the final '|'.
+PLATFORMS		:=	$(shell find plat/ -name '${PLAT_MAKEFILE}' -print0 |			\
+					sed -r 's%[^\x00]*\/([^/]*)\/${PLAT_MAKEFILE}\x00%\1|%g' |	\
+					sed -r 's/\|$$//')
+SPDS			:=	$(shell ls -I none services/spd)
+
+# Platforms providing their own TBB makefile may override this value
+INCLUDE_TBBR_MK		:=	1
+
+
+################################################################################
+# Include SPD Makefile if one has been specified
+################################################################################
+
+ifneq (${SPD},none)
+        # We expect to locate an spd.mk under the specified SPD directory
+        SPD_MAKE	:=	$(shell m="services/spd/${SPD}/${SPD}.mk"; [ -f "$$m" ] && echo "$$m")
+
+        ifeq (${SPD_MAKE},)
+                $(error Error: No services/spd/${SPD}/${SPD}.mk located)
+        endif
+        $(info Including ${SPD_MAKE})
+        include ${SPD_MAKE}
+
+        # If there's BL3-2 companion for the chosen SPD, and the SPD wants to build the
+        # BL3-2 from source, we expect that the SPD's Makefile would set NEED_BL32
+        # variable to "yes". In case the BL3-2 is a binary which needs to be included in
+        # fip, then the NEED_BL32 needs to be set and BL3-2 would need to point to the bin.
 endif
 
-# Process PLAT flag
-$(eval $(call add_define,PLAT_${PLAT}))
 
-# Process NS_TIMER_SWITCH flag
-$(eval $(call assert_boolean,NS_TIMER_SWITCH))
-$(eval $(call add_define,NS_TIMER_SWITCH))
+################################################################################
+# Include the platform specific Makefile after the SPD Makefile (the platform
+# makefile may use all previous definitions in this file)
+################################################################################
 
-# Process RESET_TO_BL31 flag
-$(eval $(call assert_boolean,RESET_TO_BL31))
-$(eval $(call add_define,RESET_TO_BL31))
+ifeq (${PLAT},)
+        $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform")
+endif
+PLAT_MAKEFILE_FULL	:=	$(shell find plat/ -wholename '*/${PLAT}/${PLAT_MAKEFILE}')
+ifeq ($(PLAT_MAKEFILE_FULL),)
+        $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
+endif
 
-# Process CTX_INCLUDE_FPREGS flag
-$(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
-$(eval $(call add_define,CTX_INCLUDE_FPREGS))
+include ${PLAT_MAKEFILE_FULL}
 
-# Process ARM_GIC_ARCH flag
-$(eval $(call add_define,ARM_GIC_ARCH))
-
-# Process ARM_CCI_PRODUCT_ID flag
-$(eval $(call add_define,ARM_CCI_PRODUCT_ID))
-
-# Process ASM_ASSERTION flag
-$(eval $(call assert_boolean,ASM_ASSERTION))
-$(eval $(call add_define,ASM_ASSERTION))
-
-# Process LOG_LEVEL flag
-$(eval $(call add_define,LOG_LEVEL))
-
-# Process USE_COHERENT_MEM flag
-$(eval $(call assert_boolean,USE_COHERENT_MEM))
-$(eval $(call add_define,USE_COHERENT_MEM))
-
-# Process PSCI_EXTENDED_STATE_ID flag
-$(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
-$(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
-
-# Process Generate CoT flags
-$(eval $(call assert_boolean,GENERATE_COT))
-$(eval $(call assert_boolean,CREATE_KEYS))
-$(eval $(call assert_boolean,SAVE_KEYS))
-
-# Process TRUSTED_BOARD_BOOT flag
-$(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
-$(eval $(call add_define,TRUSTED_BOARD_BOOT))
-
-# Process PROGRAMMABLE_RESET_ADDRESS flag
-$(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
-$(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
-
-# Process ENABLE_PLAT_COMPAT flag
-$(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
-$(eval $(call add_define,ENABLE_PLAT_COMPAT))
-
-# Process WARN_DEPRECATED flag
-$(eval $(call assert_boolean,WARN_DEPRECATED))
-$(eval $(call add_define,WARN_DEPRECATED))
-
-ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
-				-Werror -Wmissing-include-dirs			\
-				-mgeneral-regs-only -D__ASSEMBLY__		\
-				${DEFINES} ${INCLUDES}
-CFLAGS			+= 	-nostdinc -ffreestanding -Wall			\
-				-Werror -Wmissing-include-dirs			\
-				-mgeneral-regs-only -std=c99 -c -Os		\
-				${DEFINES} ${INCLUDES}
-CFLAGS			+=	-ffunction-sections -fdata-sections
-
-LDFLAGS			+=	--fatal-warnings -O1
-LDFLAGS			+=	--gc-sections
+# Include the CPU specific operations makefile. By default all CPU errata
+# workarounds and CPU specifc optimisations are disabled. This can be
+# overridden by the platform.
+include lib/cpus/cpu-ops.mk
 
 
-CC			:=	${CROSS_COMPILE}gcc
-CPP			:=	${CROSS_COMPILE}cpp
-AS			:=	${CROSS_COMPILE}gcc
-AR			:=	${CROSS_COMPILE}ar
-LD			:=	${CROSS_COMPILE}ld
-OC			:=	${CROSS_COMPILE}objcopy
-OD			:=	${CROSS_COMPILE}objdump
-NM			:=	${CROSS_COMPILE}nm
-PP			:=	${CROSS_COMPILE}gcc -E ${CFLAGS}
+################################################################################
+# Process platform overrideable behaviour
+################################################################################
 
-# Variables for use with Firmware Image Package
-FIPTOOLPATH		?=	tools/fip_create
-FIPTOOL			?=	${FIPTOOLPATH}/fip_create
-fiptool:		${FIPTOOL}
-fip:			${BUILD_PLAT}/${FIP_NAME}
+# Check if -pedantic option should be used
+ifeq (${DISABLE_PEDANTIC},0)
+        CFLAGS		+= 	-pedantic
+endif
+
+# Using the ARM Trusted Firmware BL2 implies that a BL3-3 image also need to be
+# supplied for the FIP and Certificate generation tools. This flag can be
+# overridden by the platform.
+ifdef BL2_SOURCES
+NEED_BL33		?=	yes
+endif
+
+# Process TBB related flags
+ifneq (${GENERATE_COT},0)
+        # Common cert_create options
+        ifneq (${CREATE_KEYS},0)
+                $(eval CRT_ARGS += -n)
+                ifneq (${SAVE_KEYS},0)
+                        $(eval CRT_ARGS += -k)
+                endif
+        endif
+        # Include TBBR makefile (unless the platform indicates otherwise)
+        ifeq (${INCLUDE_TBBR_MK},1)
+                include drivers/auth/tbbr/tbbr.mk
+        endif
+endif
+
+
+################################################################################
+# Auxiliary tools (fip_create, cert_create, etc)
+################################################################################
 
 # Variables for use with Certificate Generation Tool
 CRTTOOLPATH		?=	tools/cert_create
 CRTTOOL			?=	${CRTTOOLPATH}/cert_create
-certtool:		${CRTTOOL}
 
-# CoT generation tool default parameters
-TRUSTED_KEY_CERT	:=	${BUILD_PLAT}/trusted_key.crt
+# Variables for use with Firmware Image Package
+FIPTOOLPATH		?=	tools/fip_create
+FIPTOOL			?=	${FIPTOOLPATH}/fip_create
 
-# Pass the private keys to the CoT generation tool in the command line
-# If CREATE_KEYS is set, the '-n' option will be added, indicating the tool to create new keys
-ifneq (${GENERATE_COT},0)
-    $(eval CERTS := yes)
 
-    $(eval FIP_DEPS += certificates)
-    $(eval FIP_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
+################################################################################
+# Build options checks
+################################################################################
 
-    ifneq (${CREATE_KEYS},0)
-        $(eval CRT_ARGS += -n)
-        ifneq (${SAVE_KEYS},0)
-            $(eval CRT_ARGS += -k)
-        endif
-    endif
-    $(eval CRT_ARGS += $(if ${ROT_KEY}, --rot-key ${ROT_KEY}))
-    $(eval CRT_ARGS += $(if ${TRUSTED_WORLD_KEY}, --trusted-world-key ${TRUSTED_WORLD_KEY}))
-    $(eval CRT_ARGS += $(if ${NON_TRUSTED_WORLD_KEY}, --non-trusted-world-key ${NON_TRUSTED_WORLD_KEY}))
-    $(eval CRT_ARGS += --trusted-key-cert ${TRUSTED_KEY_CERT})
-    $(eval CRT_ARGS += $(if ${KEY_ALG}, --key-alg ${KEY_ALG}))
+$(eval $(call assert_boolean,DEBUG))
+$(eval $(call assert_boolean,NS_TIMER_SWITCH))
+$(eval $(call assert_boolean,RESET_TO_BL31))
+$(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
+$(eval $(call assert_boolean,ASM_ASSERTION))
+$(eval $(call assert_boolean,USE_COHERENT_MEM))
+$(eval $(call assert_boolean,DISABLE_PEDANTIC))
+$(eval $(call assert_boolean,GENERATE_COT))
+$(eval $(call assert_boolean,CREATE_KEYS))
+$(eval $(call assert_boolean,SAVE_KEYS))
+$(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
+$(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
+$(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
+$(eval $(call assert_boolean,WARN_DEPRECATED))
+
+
+################################################################################
+# Add definitions to the cpp preprocessor based on the current build options.
+# This is done after including the platform specific makefile to allow the
+# platform to overwrite the default options
+################################################################################
+
+$(eval $(call add_define,PLAT_${PLAT}))
+$(eval $(call add_define,NS_TIMER_SWITCH))
+$(eval $(call add_define,RESET_TO_BL31))
+$(eval $(call add_define,CTX_INCLUDE_FPREGS))
+$(eval $(call add_define,ARM_GIC_ARCH))
+$(eval $(call add_define,ARM_CCI_PRODUCT_ID))
+$(eval $(call add_define,ASM_ASSERTION))
+$(eval $(call add_define,LOG_LEVEL))
+$(eval $(call add_define,USE_COHERENT_MEM))
+$(eval $(call add_define,TRUSTED_BOARD_BOOT))
+$(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
+$(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
+$(eval $(call add_define,WARN_DEPRECATED))
+
+
+################################################################################
+# Include BL specific makefiles
+################################################################################
+
+ifdef BL1_SOURCES
+NEED_BL1 := yes
+include bl1/bl1.mk
 endif
 
-# Check if -pedantic option should be used
-ifeq (${DISABLE_PEDANTIC},0)
-    CFLAGS		+= 	-pedantic
+ifdef BL2_SOURCES
+NEED_BL2 := yes
+include bl2/bl2.mk
+endif
+
+ifdef BL31_SOURCES
+NEED_BL31 := yes
+include bl31/bl31.mk
+endif
+
+
+################################################################################
+# Build targets
+################################################################################
+
+# Default target
+.DEFAULT_GOAL := all
+
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip certtool
+.SUFFIXES:
+
+all: msg_start
+
+msg_start:
+	@echo "Building ${PLAT}"
+
+# Expand build macros for the different images
+ifeq (${NEED_BL1},yes)
+$(eval $(call MAKE_BL,1))
+endif
+
+ifeq (${NEED_BL2},yes)
+$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},in_fip)),\
+	$(eval $(call MAKE_BL,2,in_fip)))
+endif
+
+ifeq (${NEED_BL31},yes)
+BL31_SOURCES += ${SPD_SOURCES}
+$(if ${BL31}, $(eval $(call MAKE_TOOL_ARGS,31,${BL31},in_fip)),\
+	$(eval $(call MAKE_BL,31,in_fip)))
+endif
+
+ifeq (${NEED_BL32},yes)
+$(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},in_fip)),\
+	$(eval $(call MAKE_BL,32,in_fip)))
+endif
+
+# Add the BL33 image if required by the platform
+ifeq (${NEED_BL33},yes)
+$(eval $(call FIP_ADD_IMG,BL33,--bl33))
 endif
 
 locate-checkpatch:
@@ -382,282 +422,60 @@ endif
 endif
 
 clean:
-			@echo "  CLEAN"
-			${Q}rm -rf ${BUILD_PLAT}
-			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
-			${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	@echo "  CLEAN"
+	${Q}rm -rf ${BUILD_PLAT}
+	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 
 realclean distclean:
-			@echo "  REALCLEAN"
-			${Q}rm -rf ${BUILD_BASE}
-			${Q}rm -f ${CURDIR}/cscope.*
-			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
-			${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	@echo "  REALCLEAN"
+	${Q}rm -rf ${BUILD_BASE}
+	${Q}rm -f ${CURDIR}/cscope.*
+	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 
 checkcodebase:		locate-checkpatch
-			@echo "  CHECKING STYLE"
-			@if test -d .git ; then	\
-				git ls-files | grep -v stdlib | while read GIT_FILE ; do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ; done ;	\
-			 else			\
-				 find . -type f -not -iwholename "*.git*" -not -iwholename "*build*" -not -iwholename "*stdlib*" -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
-			 fi
+	@echo "  CHECKING STYLE"
+	@if test -d .git ; then	\
+		git ls-files | grep -v stdlib | while read GIT_FILE ; do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ; done ;	\
+	 else			\
+		 find . -type f -not -iwholename "*.git*" -not -iwholename "*build*" -not -iwholename "*stdlib*" -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
+	 fi
 
 checkpatch:		locate-checkpatch
-			@echo "  CHECKING STYLE"
-			${Q}git log -p ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
+	@echo "  CHECKING STYLE"
+	${Q}git log -p ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} ${CHECKPATCH_ARGS} - || true
+
+certtool: ${CRTTOOL}
 
 .PHONY: ${CRTTOOL}
 ${CRTTOOL}:
-			${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH}
-			@echo
-			@echo "Built $@ successfully"
-			@echo
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH}
+	@echo
+	@echo "Built $@ successfully"
+	@echo
+
+ifneq (${GENERATE_COT},0)
+certificates: ${CRT_DEPS} ${CRTTOOL}
+	${Q}${CRTTOOL} ${CRT_ARGS}
+	@echo
+	@echo "Built $@ successfully"
+	@echo "Certificates can be found in ${BUILD_PLAT}"
+	@echo
+endif
+
+${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
+	${Q}${FIPTOOL} --dump ${FIP_ARGS} $@
+	@echo
+	@echo "Built $@ successfully"
+	@echo
+
+fiptool: ${FIPTOOL}
+fip: ${BUILD_PLAT}/${FIP_NAME}
 
 .PHONY: ${FIPTOOL}
 ${FIPTOOL}:
-			${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH}
-
-define match_goals
-$(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))
-endef
-
-# List of rules that involve building things
-BUILD_TARGETS := all bl1 bl2 bl31 bl32 fip
-
-# Does the list of goals specified on the command line include a build target?
-ifneq ($(call match_goals,${BUILD_TARGETS}),)
-IS_ANYTHING_TO_BUILD := 1
-endif
-
-define MAKE_C
-
-$(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
-$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
-
-$(OBJ) : $(2)
-	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(CFLAGS) -DIMAGE_BL$(3) -c $$< -o $$@
-
-
-$(PREREQUISITES) : $(2)
-	@echo "  DEPS    $$@"
-	@mkdir -p $(1)
-	$$(Q)$$(CC) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
-
-ifdef IS_ANYTHING_TO_BUILD
--include $(PREREQUISITES)
-endif
-
-endef
-
-
-define MAKE_S
-
-$(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
-$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
-
-$(OBJ) : $(2)
-	@echo "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -DIMAGE_BL$(3) -c $$< -o $$@
-
-$(PREREQUISITES) : $(2)
-	@echo "  DEPS    $$@"
-	@mkdir -p $(1)
-	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(OBJ) -MF $$@ $$<
-
-ifdef IS_ANYTHING_TO_BUILD
--include $(PREREQUISITES)
-endif
-
-endef
-
-
-define MAKE_LD
-
-$(eval PREREQUISITES := $(1).d)
-
-$(1) : $(2)
-	@echo "  PP      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -P -E -D__LINKER__ -o $$@ $$<
-
-$(PREREQUISITES) : $(2)
-	@echo "  DEPS    $$@"
-	@mkdir -p $$(dir $$@)
-	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(1) -MF $$@ $$<
-
-ifdef IS_ANYTHING_TO_BUILD
--include $(PREREQUISITES)
-endif
-
-endef
-
-
-define MAKE_OBJS
-	$(eval C_OBJS := $(filter %.c,$(2)))
-	$(eval REMAIN := $(filter-out %.c,$(2)))
-	$(eval $(foreach obj,$(C_OBJS),$(call MAKE_C,$(1),$(obj),$(3))))
-
-	$(eval S_OBJS := $(filter %.S,$(REMAIN)))
-	$(eval REMAIN := $(filter-out %.S,$(REMAIN)))
-	$(eval $(foreach obj,$(S_OBJS),$(call MAKE_S,$(1),$(obj),$(3))))
-
-	$(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
-endef
-
-
-# NOTE: The line continuation '\' is required in the next define otherwise we
-# end up with a line-feed characer at the end of the last c filename.
-# Also bare this issue in mind if extending the list of supported filetypes.
-define SOURCES_TO_OBJS
-	$(notdir $(patsubst %.c,%.o,$(filter %.c,$(1)))) \
-	$(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
-endef
-
-
-# MAKE_TOOL_ARGS macro defines the command line arguments for the FIP and CRT
-# tools at each BL stage. Arguments:
-#   $(1) = BL stage (2, 30, 31, 32, 33)
-#   $(2) = Binary file
-#   $(3) = In FIP (false if empty)
-#   $(4) = Create certificates (false if empty)
-#   $(5) = Create key certificate (false if empty)
-#   $(6) = Private key (optional)
-define MAKE_TOOL_ARGS
-
-$(eval FIP_DEPS += $(if $3,$(2),))
-$(eval FIP_ARGS += $(if $3,--bl$(1) $(2),))
-$(eval FIP_ARGS += $(if $4,--bl$(1)-cert $(BUILD_PLAT)/bl$(1).crt))
-$(eval FIP_ARGS += $(if $4,$(if $5,--bl$(1)-key-cert $(BUILD_PLAT)/bl$(1)_key.crt)))
-
-$(eval CRT_DEPS += $(if $4,$(2),))
-$(eval CRT_ARGS += $(if $4,--bl$(1) $(2)))
-$(eval CRT_ARGS += $(if $4,$(if $6,--bl$(1)-key $(6))))
-$(eval CRT_ARGS += $(if $4,--bl$(1)-cert $(BUILD_PLAT)/bl$(1).crt))
-$(eval CRT_ARGS += $(if $4,$(if $5,--bl$(1)-key-cert $(BUILD_PLAT)/bl$(1)_key.crt)))
-
-endef
-
-
-# MAKE_BL macro defines the targets and options to build each BL image.
-# Arguments:
-#   $(1) = BL stage (2, 30, 31, 32, 33)
-#   $(2) = In FIP (false if empty)
-#   $(3) = Create certificates (false if empty)
-#   $(4) = Create key certificate (false if empty)
-#   $(5) = Private key (optional)
-define MAKE_BL
-	$(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
-	$(eval SOURCES    := $(BL$(1)_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
-	$(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
-	$(eval LINKERFILE := $(BUILD_DIR)/bl$(1).ld)
-	$(eval MAPFILE    := $(BUILD_DIR)/bl$(1).map)
-	$(eval ELF        := $(BUILD_DIR)/bl$(1).elf)
-	$(eval DUMP       := $(BUILD_DIR)/bl$(1).dump)
-	$(eval BIN        := $(BUILD_PLAT)/bl$(1).bin)
-
-	$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
-	$(eval $(call MAKE_LD,$(LINKERFILE),$(BL$(1)_LINKERFILE)))
-
-$(BUILD_DIR) :
-	$$(Q)mkdir -p "$$@"
-
-$(ELF) : $(OBJS) $(LINKERFILE)
-	@echo "  LD      $$@"
-	@echo 'const char build_message[] = "Built : "__TIME__", "__DATE__; \
-	       const char version_string[] = "${VERSION_STRING}";' | \
-		$$(CC) $$(CFLAGS) -xc - -o $(BUILD_DIR)/build_message.o
-	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
-					$(BUILD_DIR)/build_message.o $(OBJS)
-
-$(DUMP) : $(ELF)
-	@echo "  OD      $$@"
-	$${Q}$${OD} -dx $$< > $$@
-
-$(BIN) : $(ELF)
-	@echo "  BIN     $$@"
-	$$(Q)$$(OC) -O binary $$< $$@
-	@echo
-	@echo "Built $$@ successfully"
-	@echo
-
-.PHONY : bl$(1)
-bl$(1) : $(BUILD_DIR) $(BIN) $(DUMP)
-
-all : bl$(1)
-
-$(eval $(call MAKE_TOOL_ARGS,$(1),$(BIN),$(2),$(3),$(4),$(5)))
-
-endef
-
-
-ifeq (${NEED_BL1},yes)
-$(eval $(call MAKE_BL,1))
-endif
-
-ifeq (${NEED_BL2},yes)
-$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},in_fip,${CERTS})),\
-	$(eval $(call MAKE_BL,2,in_fip,${CERTS})))
-endif
-
-ifeq (${NEED_BL31},yes)
-BL31_SOURCES += ${SPD_SOURCES}
-$(if ${BL31}, $(eval $(call MAKE_TOOL_ARGS,31,${BL31},in_fip,${CERTS},${CERTS},${BL31_KEY})),\
-	$(eval $(call MAKE_BL,31,in_fip,${CERTS},${CERTS},${BL31_KEY})))
-endif
-
-ifeq (${NEED_BL32},yes)
-$(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},in_fip,${CERTS},${CERTS},${BL32_KEY})),\
-	$(eval $(call MAKE_BL,32,in_fip,${CERTS},${CERTS},${BL32_KEY})))
-endif
-
-ifeq (${NEED_BL30},yes)
-$(if ${BL30}, $(eval $(call MAKE_TOOL_ARGS,30,${BL30},in_fip,${CERTS},${CERTS},${BL30_KEY})))
-
-# If BL3-0 is needed by the platform then 'BL30' variable must be defined.
-check_bl30:
-	$(if ${BL30},,$(error "To build a FIP for platform ${PLAT}, please set BL30 to point to the SCP firmware"))
-else
-
-# If BL3-0 is not needed by the platform but the user still specified the path
-# to a BL3-0 image then warn him that it will be ignored.
-check_bl30:
-	$(if ${BL30},$(warning "BL3-0 is not supported on platform ${PLAT}, it will just be ignored"),)
-endif
-
-ifeq (${NEED_BL33},yes)
-$(if ${BL33}, $(eval $(call MAKE_TOOL_ARGS,33,${BL33},in_fip,${CERTS},${CERTS},${BL33_KEY})))
-
-# If BL3-3 is needed by the platform then 'BL33' variable must be defined.
-check_bl33:
-	$(if ${BL33},,$(error "To build a FIP, please set BL33 to point to the Normal World binary, eg: BL33=../uefi/FVP_AARCH64_EFI.fd"))
-else
-
-# If BL3-3 is not needed by the platform but the user still specified the path
-# to a BL3-3 image then warn him that it will be ignored.
-check_bl33:
-	$(if ${BL33},$(warning "BL3-3 is not supported on platform ${PLAT}, it will just be ignored"),)
-endif
-
-# Add the dependency on the certificates
-ifneq (${GENERATE_COT},0)
-    fip: certificates
-endif
-
-certificates: ${CRT_DEPS} ${CRTTOOL} check_bl30 check_bl33
-			${Q}${CRTTOOL} ${CRT_ARGS}
-			@echo
-			@echo "Built $@ successfully"
-			@echo "Certificates can be found in ${BUILD_PLAT}"
-			@echo
-
-${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL} check_bl30 check_bl33
-			${Q}${FIPTOOL} --dump \
-				${FIP_ARGS} \
-				$@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
-
+	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH}
 
 cscope:
 	@echo "  CSCOPE"
@@ -681,6 +499,7 @@ help:
 	@echo "  bl2            Build the BL2 binary"
 	@echo "  bl31           Build the BL3-1 binary"
 	@echo "  bl32           Build the BL3-2 binary"
+	@echo "  certificates   Build the certificates (requires 'GENERATE_COT=1')"
 	@echo "  fip            Build the Firmware Image Package (FIP)"
 	@echo "  checkcodebase  Check the coding style of the entire source tree"
 	@echo "  checkpatch     Check the coding style on changes in the current"
