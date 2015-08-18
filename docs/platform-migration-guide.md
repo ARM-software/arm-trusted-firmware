@@ -57,7 +57,7 @@ based affinity instances map directly to power domains. A power domain, as
 described in section 4.2 of [PSCI], could contain a core or a logical group
 of cores (a cluster) which share some state on which power management
 operations can be performed. The existing affinity instance based APIs
-`plat_get_aff_count()` and `plat_get_aff_count()` are deprecated. The new
+`plat_get_aff_count()` and `plat_get_aff_state()` are deprecated. The new
 platform interfaces that are introduced for this framework are:
 
 *   `plat_core_pos_by_mpidr()`
@@ -100,8 +100,8 @@ The state-ID field in the power-state parameter of a CPU_SUSPEND call can be
 used to describe the composite power states specific to a platform. The existing
 PSCI state coordination had the limitation that it operates on a run/off
 granularity of power states and it did not interpret the state-ID field. This
-was acceptable as the specification requirement in PSCI 0.2. The framework's
-approach to coordination only requires maintaining a reference
+was acceptable as the specification requirement in PSCI 0.2 and the framework's
+approach to coordination only required maintaining a reference
 count of the number of cores that have requested the cluster to remain powered.
 
 In the PSCI 1.0 specification, this approach is non optimal. If composite
@@ -173,7 +173,8 @@ handlers, the major differences are:
 
 The PSCI 1.0 implementation depends on the `validate_power_state` handler to
 convert the power-state parameter (possibly encoding a composite power state)
-passed in a PSCI `CPU_SUSPEND` to the `psci_power_state` format.
+passed in a PSCI `CPU_SUSPEND` to the `psci_power_state` format. This handler
+is now mandatory for PSCI `CPU_SUSPEND` support.
 
 The `plat_psci_ops` handlers, `pwr_domain_off` and `pwr_domain_suspend`, are
 passed the target local state for each affected power domain. The platform
@@ -209,7 +210,7 @@ layer and the platform layer.
 ![Image 1](diagrams/psci-suspend-sequence.png?raw=true)
 
 Refer [plat/arm/board/fvp/fvp_pm.c] for the implementation details of
-these handlers for the FVP. The commit b6df6ccbc88cc14592f5e603ef580d3cbf4733c3
+these handlers for the FVP. The commit 38dce70f51fb83b27958ba3e2ad15f5635cb1061
 demonstrates the migration of ARM reference platforms to the new platform API.
 
 
@@ -259,7 +260,7 @@ correspond directly to the power domain levels.
 
 The compatibility layer dynamically constructs the new topology
 description array by querying the platform using `plat_get_aff_count()`
-and `plat_get_aff_count()` APIs. The linear index returned by
+and `plat_get_aff_state()` APIs. The linear index returned by
 `platform_get_core_pos()` is used as the core index for the cores. The
 higher level (non-core) power domain nodes must know the cores contained
 within its domain. It does so by storing the core index of first core
