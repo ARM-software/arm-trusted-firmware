@@ -57,6 +57,23 @@
 	 */
 .macro	cpu_init_common
 
+#if ENABLE_PROCESSOR_RETENTION
+	/* ---------------------------
+	 * Enable processor retention
+	 * ---------------------------
+	*/
+	mrs	x0, L2ECTLR_EL1
+	bic	x0, x0, #L2_RETENTION_ENTRY_MASK
+	orr	x0, x0, #L2_RETENTION_ENTRY_512_TICKS
+	msr	L2ECTLR_EL1, x0
+
+	mrs	x0, CPUECTLR_EL1
+	bic	x0, x0, #CPU_RETENTION_ENTRY_MASK
+	orr	x0, x0, #CPU_RETENTION_ENTRY_512_TICKS
+	msr	CPUECTLR_EL1, x0
+	isb
+#endif
+
 #if ENABLE_NS_L2_CPUECTRL_RW_ACCESS
 	/* -------------------------------------------------------
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
