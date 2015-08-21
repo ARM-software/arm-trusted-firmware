@@ -202,6 +202,15 @@ typedef struct bl31_params {
 	image_info_t *bl33_image_info;
 } bl31_params_t;
 
+/*
+ * load_auth_image() return values
+ */
+enum {
+	LOAD_SUCCESS,		/* Load + authentication success */
+	LOAD_ERR,		/* Load error */
+	LOAD_AUTH_ERR		/* Authentication error */
+};
+
 
 /*
  * Compile time assertions related to the 'entry_point_info' structure to

@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <io_storage.h>
 #include <platform.h>
+#include <string.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
 {
@@ -331,7 +332,7 @@ int load_auth_image(meminfo_t *mem_layout,
 	if (rc == 0) {
 		rc = load_auth_image(mem_layout, parent_id, image_base,
 				     image_data, NULL);
-		if (rc != IO_SUCCESS) {
+		if (rc != LOAD_SUCCESS) {
 			return rc;
 		}
 	}
@@ -341,7 +342,7 @@ int load_auth_image(meminfo_t *mem_layout,
 	rc = load_image(mem_layout, image_id, image_base, image_data,
 			entry_point_info);
 	if (rc != IO_SUCCESS) {
-		return rc;
+		return LOAD_ERR;
 	}
 
 #if TRUSTED_BOARD_BOOT
@@ -350,7 +351,11 @@ int load_auth_image(meminfo_t *mem_layout,
 				 (void *)image_data->image_base,
 				 image_data->image_size);
 	if (rc != 0) {
-		return IO_FAIL;
+		memset((void *)image_data->image_base, 0x00,
+		       image_data->image_size);
+		flush_dcache_range(image_data->image_base,
+				   image_data->image_size);
+		return LOAD_AUTH_ERR;
 	}
 
 	/* After working with data, invalidate the data cache */
@@ -358,5 +363,5 @@ int load_auth_image(meminfo_t *mem_layout,
 			(size_t)image_data->image_size);
 #endif /* TRUSTED_BOARD_BOOT */
 
-	return IO_SUCCESS;
+	return LOAD_SUCCESS;
 }
