@@ -145,6 +145,33 @@ static ext_t tbb_ext[] = {
 		.ln = "Non-Trusted World (BL33) hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
+	},
+	[SCP_BL2U_HASH_EXT] = {
+		.oid = SCP_BL2U_HASH_OID,
+		.opt = "scp_bl2u",
+		.sn = "SCPFWUpdateConfig",
+		.ln = "SCP Firmware Update Config (SCP_BL2U) hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[BL2U_HASH_EXT] = {
+		.oid = BL2U_HASH_OID,
+		.opt = "bl2u",
+		.sn = "APFWUpdateConfig",
+		.ln = "AP Firmware Update Config (BL2U) hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[NS_BL2U_HASH_EXT] = {
+		.oid = NS_BL2U_HASH_OID,
+		.opt = "ns_bl2u",
+		.sn = "FWUpdaterHash",
+		.ln = "Firmware Updater (NS_BL2U) hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
 	}
 };
 

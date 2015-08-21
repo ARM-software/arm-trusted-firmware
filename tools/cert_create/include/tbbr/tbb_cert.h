@@ -46,7 +46,8 @@ enum {
 	BL32_KEY_CERT,
 	BL32_CERT,
 	BL33_KEY_CERT,
-	BL33_CERT
+	BL33_CERT,
+	FWU_CERT
 };
 
 #endif /* TBB_CERT_H_ */

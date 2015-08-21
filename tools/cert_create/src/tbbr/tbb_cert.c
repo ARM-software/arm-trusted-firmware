@@ -160,6 +160,20 @@ static cert_t tbb_certs[] = {
 			BL33_HASH_EXT
 		},
 		.num_ext = 1
+	},
+	[FWU_CERT] = {
+		.id = FWU_CERT,
+		.opt = "fwu-cert",
+		.fn = NULL,
+		.cn = "FWU Certificate",
+		.key = ROT_KEY,
+		.issuer = FWU_CERT,
+		.ext = {
+			SCP_BL2U_HASH_EXT,
+			BL2U_HASH_EXT,
+			NS_BL2U_HASH_EXT
+		},
+		.num_ext = 3
 	}
 };
 
