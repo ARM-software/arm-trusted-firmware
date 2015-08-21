@@ -48,77 +48,96 @@
 #define CPU_CORE_RESET_MASK		0x10001
 
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
+static unsigned int suspend_id;
 
-int32_t tegra_soc_validate_power_state(unsigned int power_state)
+int32_t tegra_soc_validate_power_state(unsigned int power_state,
+					psci_power_state_t *req_state)
 {
+	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+	int state_id = psci_get_pstate_id(power_state);
+
+	if (pwr_lvl > PLAT_MAX_PWR_LVL)
+		return PSCI_E_INVALID_PARAMS;
+
 	/* Sanity check the requested afflvl */
 	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
 		/*
 		 * It's possible to enter standby only on affinity level 0 i.e.
 		 * a cpu on Tegra. Ignore any other affinity level.
 		 */
-		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
+		if (pwr_lvl != MPIDR_AFFLVL0)
 			return PSCI_E_INVALID_PARAMS;
+
+		/* power domain in standby state */
+		req_state->pwr_domain_state[pwr_lvl] = PLAT_MAX_RET_STATE;
 	}
 
 	/* Sanity check the requested state id */
-	switch (psci_get_pstate_id(power_state)) {
+	switch (state_id) {
 	case PSTATE_ID_CORE_POWERDN:
 	case PSTATE_ID_CLUSTER_IDLE:
 	case PSTATE_ID_CLUSTER_POWERDN:
 	case PSTATE_ID_SOC_POWERDN:
+
+		/* store the suspend state-id */
+		suspend_id = state_id;
+		flush_dcache_range((uint64_t)&suspend_id, sizeof(suspend_id));
 		break;
 
 	default:
-		ERROR("unsupported state id\n");
-		return PSCI_E_NOT_SUPPORTED;
+		ERROR("%s: unsupported state id\n", __func__);
+		return PSCI_E_INVALID_PARAMS;
 	}
+
+	/* power domain in suspend state */
+	for (int i = 0; i <= pwr_lvl; i++)
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
+int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	/* There's nothing to be done for affinity level 1 */
-	if (afflvl == MPIDR_AFFLVL1)
-		return PSCI_E_SUCCESS;
+	u_register_t mpidr = read_mpidr();
 
-	switch (id) {
-	/* Prepare for cpu idle */
-	case PSTATE_ID_CORE_POWERDN:
-		tegra_fc_cpu_idle(read_mpidr());
-		return PSCI_E_SUCCESS;
-
-	/* Prepare for cluster idle */
-	case PSTATE_ID_CLUSTER_IDLE:
-		tegra_fc_cluster_idle(read_mpidr());
-		return PSCI_E_SUCCESS;
-
-	/* Prepare for cluster powerdn */
-	case PSTATE_ID_CLUSTER_POWERDN:
-		tegra_fc_cluster_powerdn(read_mpidr());
-		return PSCI_E_SUCCESS;
-
-	/* Prepare for system idle */
-	case PSTATE_ID_SOC_POWERDN:
+	/* SYSTEM SUSPEND */
+	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
+			PLAT_MAX_OFF_STATE) {
 
 		/* Enter system suspend state */
 		tegra_pm_system_suspend_entry();
 
 		/* suspend the entire soc */
-		tegra_fc_soc_powerdn(read_mpidr());
+		tegra_fc_soc_powerdn(mpidr);
 
+		return PSCI_E_SUCCESS;
+	}
+
+	switch (suspend_id) {
+	/* Prepare for cpu idle */
+	case PSTATE_ID_CORE_POWERDN:
+		tegra_fc_cpu_idle(mpidr);
+		return PSCI_E_SUCCESS;
+
+	/* Prepare for cluster idle */
+	case PSTATE_ID_CLUSTER_IDLE:
+		tegra_fc_cluster_idle(mpidr);
+		return PSCI_E_SUCCESS;
+
+	/* Prepare for cluster powerdn */
+	case PSTATE_ID_CLUSTER_POWERDN:
+		tegra_fc_cluster_powerdn(mpidr);
 		return PSCI_E_SUCCESS;
 
 	default:
-		ERROR("Unknown state id (%d)\n", id);
+		ERROR("%s: Unknown state id (%d)\n", __func__, suspend_id);
 		break;
 	}
 
 	return PSCI_E_NOT_SUPPORTED;
 }
 
-int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
+int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	uint32_t val;
 
@@ -153,13 +172,12 @@ int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
 	 * used for power management and boot purposes. Inform the BPMP that
 	 * we have completed the cluster power up.
 	 */
-	if (psci_get_max_phys_off_afflvl() == MPIDR_AFFLVL1)
-		tegra_fc_lock_active_cluster();
+	tegra_fc_lock_active_cluster();
 
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_on(unsigned long mpidr)
+int tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
 	int cpu = mpidr & MPIDR_CPU_MASK;
 	uint32_t mask = CPU_CORE_RESET_MASK << cpu;
@@ -178,8 +196,8 @@ int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_off(unsigned long mpidr)
+int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	tegra_fc_cpu_off(mpidr & MPIDR_CPU_MASK);
+	tegra_fc_cpu_off(read_mpidr() & MPIDR_CPU_MASK);
 	return PSCI_E_SUCCESS;
 }
