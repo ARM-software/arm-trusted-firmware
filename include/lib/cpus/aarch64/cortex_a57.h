@@ -44,6 +44,15 @@
 #define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
 #define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
 
+#define CPU_RETENTION_ENTRY_2_TICKS	0x1
+#define CPU_RETENTION_ENTRY_8_TICKS	0x2
+#define CPU_RETENTION_ENTRY_32_TICKS	0x3
+#define CPU_RETENTION_ENTRY_64_TICKS	0x4
+#define CPU_RETENTION_ENTRY_128_TICKS	0x5
+#define CPU_RETENTION_ENTRY_256_TICKS	0x6
+#define CPU_RETENTION_ENTRY_512_TICKS	0x7
+#define CPU_RETENTION_ENTRY_MASK	CPU_RETENTION_ENTRY_512_TICKS
+
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
@@ -62,5 +71,19 @@
 
 #define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
 #define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
+
+/*******************************************************************************
+ * L2 Extended Control register specific definitions.
+ ******************************************************************************/
+#define L2ECTLR_EL1			S3_1_C11_C0_3	/* Instruction def. */
+
+#define L2_RETENTION_ENTRY_2_TICKS	0x1
+#define L2_RETENTION_ENTRY_8_TICKS	0x2
+#define L2_RETENTION_ENTRY_32_TICKS	0x3
+#define L2_RETENTION_ENTRY_64_TICKS	0x4
+#define L2_RETENTION_ENTRY_128_TICKS	0x5
+#define L2_RETENTION_ENTRY_256_TICKS	0x6
+#define L2_RETENTION_ENTRY_512_TICKS	0x7
+#define L2_RETENTION_ENTRY_MASK		L2_RETENTION_ENTRY_512_TICKS
 
 #endif /* __CORTEX_A57_H__ */
