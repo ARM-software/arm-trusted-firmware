@@ -56,7 +56,6 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\
 				${COMMON_DIR}/drivers/memctrl/memctrl.c		\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\
-				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
 				${COMMON_DIR}/tegra_bl31_setup.c		\
 				${COMMON_DIR}/tegra_delay_timer.c		\
 				${COMMON_DIR}/tegra_gic.c			\

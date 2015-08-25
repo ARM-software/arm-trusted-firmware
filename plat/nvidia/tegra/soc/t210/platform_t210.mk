@@ -54,6 +54,7 @@ $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
+				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c
