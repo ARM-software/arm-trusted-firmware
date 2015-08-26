@@ -91,7 +91,7 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	 * error, it's expected to assert within
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend)
-		psci_spd_pm->svc_suspend(0);
+		psci_spd_pm->svc_suspend(end_pwrlvl);
 
 	/*
 	 * Store the re-entry information for the non-secure world.
