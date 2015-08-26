@@ -27,8 +27,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <arch_helpers.h>
 #include <bakery_lock.h>
 #include <debug.h>
+#include <delay_timer.h>
+#include <mmio.h>
+#include <mt8173_def.h>
 #include <spm.h>
 #include <spm_suspend.h>
 
@@ -49,6 +53,31 @@
 
 #define spm_is_wakesrc_invalid(wakesrc)	\
 	(!!((unsigned int)(wakesrc) & 0xc0003803))
+
+#define I2C1_BASE		(I2C_BASE + 0x1000)
+#define I2C1_DATA_PORT		(I2C1_BASE + 0x00)
+#define I2C1_SLAVE_ADDR		(I2C1_BASE + 0x04)
+#define I2C1_INTR_MASK		(I2C1_BASE + 0x08)
+#define I2C1_INTR_STAT		(I2C1_BASE + 0x0C)
+#define I2C1_CONTROL		(I2C1_BASE + 0x10)
+#define I2C1_TRANSFER_LEN	(I2C1_BASE + 0x14)
+#define I2C1_TIMING		(I2C1_BASE + 0x20)
+#define I2C1_START		(I2C1_BASE + 0x24)
+#define I2C_MASTER_WRITE	(0U)
+#define I2C_MASK_TRANSAC_COMP	(1U)
+#define I2C_START		(1U)
+#define I2C_ALLOW_ALL_INTR	(0xFF)
+
+#define ARMCA15PLL_CON0		(APMIXED_BASE + 0x200)
+#define ARMCA15PLL_CON1		(APMIXED_BASE + 0x204)
+#define ARMCA15PLL_PWR_CON0	(APMIXED_BASE + 0x20c)
+#define ARMCA15PLL_PWR_ON	(1U << 0)
+#define ARMCA15PLL_ISO_EN	(1U << 1)
+#define ARMCA15PLL_EN		(1U << 0)
+
+#define PERI_GLOBALCON_PDN0_SET	(0x10003008)
+#define PERI_GLOBALCON_PDN0_CLR	(0x10003010)
+#define	I2C1_PDN		(1U << 24)
 
 const unsigned int spm_flags =
 	SPM_DUALVCORE_PDN_DIS | SPM_PASR_DIS | SPM_DPD_DIS |
@@ -290,8 +319,48 @@ static enum wake_reason_t go_to_sleep_after_wfi(void)
 	return last_wr;
 }
 
+static void mt6311_control(unsigned int enable)
+{
+	unsigned int val;
+	unsigned int slave_addr = 0x6b;
+	unsigned int data_port = 0x8a;
+
+	/* i2c1 clock on */
+	mmio_write_32(PERI_GLOBALCON_PDN0_CLR, I2C1_PDN);
+	mmio_write_32(I2C1_TRANSFER_LEN, 2);
+	mmio_write_32(I2C1_TIMING, 1);
+	mmio_write_32(I2C1_SLAVE_ADDR, (slave_addr << 1) | I2C_MASTER_WRITE);
+	mmio_write_32(I2C1_INTR_MASK, I2C_ALLOW_ALL_INTR);
+	mmio_write_32(I2C1_DATA_PORT, data_port);
+	mmio_write_32(I2C1_DATA_PORT, enable);
+	mmio_write_32(I2C1_START, I2C_START);
+
+	while((val = mmio_read_32(I2C1_INTR_STAT) & I2C_MASK_TRANSAC_COMP) == 0)
+	        ;
+	mmio_write_32(I2C1_INTR_STAT, val);
+
+	/* i2c1 clock off */
+	mmio_setbits_32(PERI_GLOBALCON_PDN0_SET, I2C1_PDN);
+}
+
+void bigcore_pll_on(void)
+{
+	mmio_setbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_PWR_ON);
+	mmio_clrbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_ISO_EN);
+	mmio_setbits_32(ARMCA15PLL_CON0, ARMCA15PLL_EN);
+}
+
+void bigcore_pll_off(void)
+{
+	mmio_clrbits_32(ARMCA15PLL_CON0, ARMCA15PLL_EN);
+	mmio_setbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_ISO_EN);
+	mmio_clrbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_PWR_ON);
+}
+
 void spm_system_suspend(void)
 {
+	bigcore_pll_off();
+	mt6311_control(0);
 	spm_lock_get();
 	go_to_sleep_before_wfi(spm_flags);
 	set_suspend_ready();
@@ -305,4 +374,11 @@ void spm_system_suspend_finish(void)
 	INFO("spm_wake_reason=%d\n", spm_wake_reason);
 	clear_all_ready();
 	spm_lock_release();
+	mt6311_control(1);
+	/* Add 1ms delay for powering on mt6311 */
+	mdelay(1);
+
+	bigcore_pll_on();
+	/* Add 20us delay for turning on PLL*/
+	udelay(20);
 }

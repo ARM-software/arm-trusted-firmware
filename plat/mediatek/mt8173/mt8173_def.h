@@ -43,9 +43,11 @@
 #define RGU_BASE		(IO_PHYS + 0x7000)
 #define PMIC_WRAP_BASE		(IO_PHYS + 0xD000)
 #define MCUCFG_BASE		(IO_PHYS + 0x200000)
+#define APMIXED_BASE		(IO_PHYS + 0x209000)
 #define TRNG_base		(IO_PHYS + 0x20F000)
 #define MT_GIC_BASE		(IO_PHYS + 0x220000)
 #define PLAT_MT_CCI_BASE	(IO_PHYS + 0x390000)
+#define I2C_BASE		(IO_PHYS + 0x1007000)
 
 /* Aggregate of all devices in the first GB */
 #define MTK_DEV_RNG0_BASE	IO_PHYS
