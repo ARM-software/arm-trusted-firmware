@@ -76,6 +76,8 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 					  entry_point_info_t *ep,
 					  psci_power_state_t *state_info)
 {
+	unsigned int suspend_level;
+
 	/* Save PSCI target power level for the suspend finisher handler */
 	psci_set_suspend_pwrlvl(end_pwrlvl);
 
@@ -90,8 +92,11 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	 * Dispatcher to let it do any book-keeping. If the handler encounters an
 	 * error, it's expected to assert within
 	 */
-	if (psci_spd_pm && psci_spd_pm->svc_suspend)
-		psci_spd_pm->svc_suspend(0);
+	if (psci_spd_pm && psci_spd_pm->svc_suspend) {
+		suspend_level = psci_get_suspend_pwrlvl();
+		assert (suspend_level != PSCI_INVALID_PWR_LVL);
+		psci_spd_pm->svc_suspend(suspend_level);
+	}
 
 	/*
 	 * Store the re-entry information for the non-secure world.
