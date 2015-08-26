@@ -118,6 +118,7 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	uintptr_t vmem_end_old = video_mem_base + (video_mem_size << 20);
 	uintptr_t vmem_end_new = phys_base + size_in_bytes;
 	uint32_t regval;
+	uint64_t size;
 
 	/*
 	 * The GPU is the user of the Video Memory region. In order to
@@ -153,12 +154,18 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	INFO("Cleaning previous Video Memory Carveout\n");
 
 	disable_mmu_el3();
-	if (phys_base > vmem_end_old || video_mem_base > vmem_end_new)
+	if (phys_base > vmem_end_old || video_mem_base > vmem_end_new) {
 		zeromem16((void *)video_mem_base, video_mem_size << 20);
-	else if (video_mem_base < phys_base)
-		zeromem16((void *)video_mem_base, phys_base - video_mem_base);
-	else if (vmem_end_old > vmem_end_new)
-		zeromem16((void *)vmem_end_new, vmem_end_old - vmem_end_new);
+	} else {
+		if (video_mem_base < phys_base) {
+			size = phys_base - video_mem_base;
+			zeromem16((void *)video_mem_base, size);
+		}
+		if (vmem_end_old > vmem_end_new) {
+			size = vmem_end_old - vmem_end_new;
+			zeromem16((void *)vmem_end_new, size);
+		}
+	}
 	enable_mmu_el3(0);
 
 done:
