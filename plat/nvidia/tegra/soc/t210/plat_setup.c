@@ -32,6 +32,21 @@
 #include <tegra_def.h>
 #include <xlat_tables.h>
 
+/*******************************************************************************
+ * The Tegra power domain tree has a single system level power domain i.e. a
+ * single root node. The first entry in the power domain descriptor specifies
+ * the number of power domains at the highest power level.
+ *******************************************************************************
+ */
+const unsigned char tegra_power_domain_tree_desc[] = {
+	/* No of root nodes */
+	1,
+	/* No of clusters */
+	PLATFORM_CLUSTER_COUNT,
+	/* No of CPU cores */
+	PLATFORM_CLUSTER_COUNT * PLATFORM_MAX_CPUS_PER_CLUSTER,
+};
+
 /* sets of MMIO ranges setup */
 #define MMIO_RANGE_0_ADDR	0x50000000
 #define MMIO_RANGE_1_ADDR	0x60000000

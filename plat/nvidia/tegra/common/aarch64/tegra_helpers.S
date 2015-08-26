@@ -36,9 +36,9 @@
 #include <tegra_def.h>
 
 	/* Global functions */
-	.globl	platform_is_primary_cpu
-	.globl	platform_get_core_pos
-	.globl	platform_get_entrypoint
+	.globl	plat_is_my_cpu_primary
+	.globl	plat_my_core_pos
+	.globl	plat_get_my_entrypoint
 	.globl	plat_secondary_cold_boot_setup
 	.globl	platform_mem_init
 	.globl	plat_crash_console_init
@@ -47,7 +47,7 @@
 	.globl	plat_reset_handler
 
 	/* Global variables */
-	.globl	sec_entry_point
+	.globl	tegra_sec_entry_point
 	.globl	ns_image_entrypoint
 	.globl	tegra_bl31_phys_base
 
@@ -115,28 +115,45 @@
 .endm
 
 	/* -----------------------------------------------------
-	 * int platform_is_primary_cpu(int mpidr);
+	 * unsigned int plat_is_my_cpu_primary(void);
 	 *
 	 * This function checks if this is the Primary CPU
 	 * -----------------------------------------------------
 	 */
-func platform_is_primary_cpu
+func plat_is_my_cpu_primary
+	mrs	x0, mpidr_el1
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #TEGRA_PRIMARY_CPU
 	cset	x0, eq
 	ret
-endfunc platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary
 
 	/* -----------------------------------------------------
-	 * int platform_get_core_pos(int mpidr);
+	 * unsigned int plat_my_core_pos(void);
 	 *
 	 * With this function: CorePos = CoreId
 	 * -----------------------------------------------------
 	 */
-func platform_get_core_pos
+func plat_my_core_pos
+	mrs	x0, mpidr_el1
 	and	x0, x0, #MPIDR_CPU_MASK
 	ret
-endfunc platform_get_core_pos
+endfunc plat_my_core_pos
+
+	/* -----------------------------------------------------
+	 * unsigned long plat_get_my_entrypoint (void);
+	 *
+	 * Main job of this routine is to distinguish between
+	 * a cold and warm boot. If the tegra_sec_entry_point for
+	 * this CPU is present, then it's a warm boot.
+	 *
+	 * -----------------------------------------------------
+	 */
+func plat_get_my_entrypoint
+	adr	x1, tegra_sec_entry_point
+	ldr	x0, [x1]
+	ret
+endfunc plat_get_my_entrypoint
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -150,22 +167,6 @@ func plat_secondary_cold_boot_setup
 	mov	x0, #0
 	ret
 endfunc plat_secondary_cold_boot_setup
-
-	/* -----------------------------------------------------
-	 * void platform_get_entrypoint (unsigned int mpidr);
-	 *
-	 * Main job of this routine is to distinguish between
-	 * a cold and warm boot. If the sec_entry_point for
-	 * this CPU is present, then it's a warm boot.
-	 *
-	 * -----------------------------------------------------
-	 */
-func platform_get_entrypoint
-	and	x0, x0, #MPIDR_CPU_MASK
-	adr	x1, sec_entry_point
-	ldr	x0, [x1, x0, lsl #3]
-	ret
-endfunc platform_get_entrypoint
 
 	/* --------------------------------------------------------
 	 * void platform_mem_init (void);
@@ -336,8 +337,7 @@ restore_oslock:
 	 * Get secure world's entry point and jump to it
 	 * --------------------------------------------------
 	 */
-	mrs	x0, mpidr_el1
-	bl	platform_get_entrypoint
+	bl	plat_get_my_entrypoint
 	br	x0
 endfunc tegra_secure_entrypoint
 
@@ -345,13 +345,11 @@ endfunc tegra_secure_entrypoint
 	.align 3
 
 	/* --------------------------------------------------
-	 * Per-CPU Secure entry point - resume from suspend
+	 * CPU Secure entry point - resume from suspend
 	 * --------------------------------------------------
 	 */
-sec_entry_point:
-	.rept	PLATFORM_CORE_COUNT
+tegra_sec_entry_point:
 	.quad	0
-	.endr
 
 	/* --------------------------------------------------
 	 * NS world's cold boot entry point
