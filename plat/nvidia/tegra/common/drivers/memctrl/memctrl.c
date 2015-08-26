@@ -155,9 +155,9 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	disable_mmu_el3();
 	if (phys_base > vmem_end_old || video_mem_base > vmem_end_new)
 		zeromem16((void *)video_mem_base, video_mem_size << 20);
-	else if (video_mem_base < phys_base)
+	if (video_mem_base < phys_base)
 		zeromem16((void *)video_mem_base, phys_base - video_mem_base);
-	else if (vmem_end_old > vmem_end_new)
+	if (vmem_end_old > vmem_end_new)
 		zeromem16((void *)vmem_end_new, vmem_end_old - vmem_end_new);
 	enable_mmu_el3(0);
 
