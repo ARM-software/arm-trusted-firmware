@@ -98,9 +98,9 @@ static void tegra_fc_prepare_suspend(int cpu_id, uint32_t csr)
 }
 
 /*******************************************************************************
- * Suspend the current CPU
+ * Powerdn the current CPU
  ******************************************************************************/
-void tegra_fc_cpu_idle(uint32_t mpidr)
+void tegra_fc_cpu_powerdn(uint32_t mpidr)
 {
 	int cpu = mpidr & MPIDR_CPU_MASK;
 
