@@ -73,8 +73,8 @@ static inline void tegra_fc_write_32(uint32_t off, uint32_t val)
 	mmio_write_32(TEGRA_FLOWCTRL_BASE + off, val);
 }
 
-void tegra_fc_cpu_idle(uint32_t mpidr);
 void tegra_fc_cluster_idle(uint32_t midr);
+void tegra_fc_cpu_powerdn(uint32_t mpidr);
 void tegra_fc_cluster_powerdn(uint32_t midr);
 void tegra_fc_soc_powerdn(uint32_t midr);
 void tegra_fc_cpu_on(int cpu);
