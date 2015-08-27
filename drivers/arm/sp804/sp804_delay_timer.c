@@ -33,6 +33,7 @@
 #include <mmio.h>
 
 uintptr_t sp804_base_addr;
+static timer_ops_t sp804_ops;
 
 #define SP804_TIMER1_LOAD	(sp804_base_addr + 0x000)
 #define SP804_TIMER1_VALUE	(sp804_base_addr + 0x004)
@@ -60,13 +61,15 @@ uint32_t sp804_get_timer_value(void)
  * Initialize the 1st timer in the SP804 dual timer with a base
  * address and a timer ops
  ********************************************************************/
-void sp804_timer_ops_init(uintptr_t base_addr, const timer_ops_t *ops)
+void sp804_timer_init(uintptr_t base_addr, uint32_t clk_mult, uint32_t clk_div)
 {
 	assert(base_addr != 0);
-	assert(ops != 0 && ops->get_timer_value == sp804_get_timer_value);
 
 	sp804_base_addr = base_addr;
-	timer_init(ops);
+	sp804_ops.get_timer_value = sp804_get_timer_value;
+	sp804_ops.clk_mult = clk_mult;
+	sp804_ops.clk_div = clk_div;
+	timer_init(&sp804_ops);
 
 	/* disable timer1 */
 	mmio_write_32(SP804_TIMER1_CONTROL, 0);
