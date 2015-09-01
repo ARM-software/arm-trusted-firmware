@@ -79,6 +79,8 @@ CREATE_KEYS		:= 1
 SAVE_KEYS		:= 0
 # Flags to build TF with Trusted Boot support
 TRUSTED_BOARD_BOOT	:= 0
+# Flags to prevent PSCI to suspend the primary core
+TSP_AARCH32_MODE	:=	0
 # By default, consider that the platform's reset address is not programmable.
 # The platform Makefile is free to override this value.
 PROGRAMMABLE_RESET_ADDRESS	:= 0
@@ -295,6 +297,10 @@ $(eval $(call assert_boolean,SAVE_KEYS))
 # Process TRUSTED_BOARD_BOOT flag
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
+
+# Process TSP_AARCH32_MODE flag
+$(eval $(call assert_boolean,TSP_AARCH32_MODE))
+$(eval $(call add_define,TSP_AARCH32_MODE))
 
 # Process PROGRAMMABLE_RESET_ADDRESS flag
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))

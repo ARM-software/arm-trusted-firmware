@@ -287,6 +287,11 @@ performed.
     default model (when the value is 0) is to route non-secure interrupts
     to S-EL1 (TSP).
 
+*   `TSP_AARCH32_MODE`: Boolean flag to prevent PSCI to suspend the primary
+     core where the Secure payload is runnig. This flag is used with the TSP
+     AARCH32 example because the power management function are not yet
+     implemented.
+
 *   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
     Boot feature. When set to '1', BL1 and BL2 images include support to load
     and verify the certificates and images in a FIP. The default value is '0'.

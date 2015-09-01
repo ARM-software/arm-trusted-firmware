@@ -38,6 +38,13 @@
 #include <string.h>
 #include "psci_private.h"
 
+#if TSP_AARCH32_MODE
+#include <bl_common.h>
+#include <context_mgmt.h>
+
+extern unsigned int platform_is_primary_cpu (unsigned int mpid);
+#endif
+
 /*******************************************************************************
  * PSCI frontend api for servicing SMCs. Described in the PSCI spec.
  ******************************************************************************/
@@ -381,7 +388,15 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 
 		switch (smc_fid) {
 		case PSCI_CPU_SUSPEND_AARCH64:
+#if TSP_AARCH32_MODE
+			if (platform_is_primary_cpu(read_mpidr())) {
+					SMC_RET1(handle, SMC_UNK);
+			} else {
+				SMC_RET1(handle, psci_cpu_suspend(x1, x2, x3));
+			}
+#else
 			SMC_RET1(handle, psci_cpu_suspend(x1, x2, x3));
+#endif
 
 		case PSCI_CPU_ON_AARCH64:
 			SMC_RET1(handle, psci_cpu_on(x1, x2, x3));
