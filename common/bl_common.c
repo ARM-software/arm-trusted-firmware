@@ -59,19 +59,6 @@ static inline unsigned int is_page_aligned (unsigned long addr) {
 	return (addr & (page_size - 1)) == 0;
 }
 
-void change_security_state(unsigned int target_security_state)
-{
-	unsigned long scr = read_scr();
-
-	assert(sec_state_is_valid(target_security_state));
-	if (target_security_state == SECURE)
-		scr &= ~SCR_NS_BIT;
-	else
-		scr |= SCR_NS_BIT;
-
-	write_scr(scr);
-}
-
 /******************************************************************************
  * Determine whether the memory region delimited by 'addr' and 'size' is free,
  * given the extents of free memory.
