@@ -347,9 +347,9 @@ level implementation of the generic timer through the memory mapped interface.
     -   Disable the legacy interrupt bypass mechanism.
     -   Configure the priority mask register to allow interrupts of all
         priorities to be signaled to the CPU interface.
-    -   Mark SGIs 8-15, the secure physical timer interrupt (#29) and the
-        trusted watchdog interrupt (#56) as group0 (secure).
-    -   Target the trusted watchdog interrupt to CPU0.
+    -   Mark SGIs 8-15 and the other secure interrupts on the platform
+        as group0 (secure).
+    -   Target all secure SPIs to CPU0.
     -   Enable these group0 interrupts in the GIC distributor.
     -   Configure all other interrupts as group1 (non-secure).
     -   Enable signaling of group0 interrupts in the GIC distributor.
