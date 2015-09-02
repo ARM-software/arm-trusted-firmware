@@ -81,7 +81,7 @@ static int32_t opteed_cpu_off_handler(uint64_t unused)
  * This cpu is being suspended. S-EL1 state must have been saved in the
  * resident cpu (mpidr format) if it is a UP/UP migratable OPTEE.
  ******************************************************************************/
-static void opteed_cpu_suspend_handler(uint64_t unused)
+static void opteed_cpu_suspend_handler(uint64_t suspend_level)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
