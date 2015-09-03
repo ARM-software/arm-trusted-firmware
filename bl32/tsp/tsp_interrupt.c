@@ -31,38 +31,39 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
-#include <gic_v2.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <tsp.h>
 #include "tsp_private.h"
 
 /*******************************************************************************
- * This function updates the TSP statistics for FIQs handled synchronously i.e
- * the ones that have been handed over by the TSPD. It also keeps count of the
- * number of times control was passed back to the TSPD after handling an FIQ.
- * In the future it will be possible that the TSPD hands over an FIQ to the TSP
- * but does not expect it to return execution. This statistic will be useful to
- * distinguish between these two models of synchronous FIQ handling.
- * The 'elr_el3' parameter contains the address of the instruction in normal
- * world where this FIQ was generated.
+ * This function updates the TSP statistics for S-EL1 interrupts handled
+ * synchronously i.e the ones that have been handed over by the TSPD. It also
+ * keeps count of the number of times control was passed back to the TSPD
+ * after handling the interrupt. In the future it will be possible that the
+ * TSPD hands over an S-EL1 interrupt to the TSP but does not expect it to
+ * return execution. This statistic will be useful to distinguish between these
+ * two models of synchronous S-EL1 interrupt handling. The 'elr_el3' parameter
+ * contains the address of the instruction in normal world where this S-EL1
+ * interrupt was generated.
  ******************************************************************************/
-void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
+void tsp_update_sync_sel1_intr_stats(uint32_t type, uint64_t elr_el3)
 {
 	uint32_t linear_id = plat_my_core_pos();
 
-	tsp_stats[linear_id].sync_fiq_count++;
-	if (type == TSP_HANDLE_FIQ_AND_RETURN)
-		tsp_stats[linear_id].sync_fiq_ret_count++;
+	tsp_stats[linear_id].sync_sel1_intr_count++;
+	if (type == TSP_HANDLE_SEL1_INTR_AND_RETURN)
+		tsp_stats[linear_id].sync_sel1_intr_ret_count++;
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%lx sync fiq request from 0x%lx\n",
+	VERBOSE("TSP: cpu 0x%lx sync s-el1 interrupt request from 0x%lx\n",
 		read_mpidr(), elr_el3);
-	VERBOSE("TSP: cpu 0x%lx: %d sync fiq requests, %d sync fiq returns\n",
+	VERBOSE("TSP: cpu 0x%lx: %d sync s-el1 interrupt requests,"
+		" %d sync s-el1 interrupt returns\n",
 		read_mpidr(),
-		tsp_stats[linear_id].sync_fiq_count,
-		tsp_stats[linear_id].sync_fiq_ret_count);
+		tsp_stats[linear_id].sync_sel1_intr_count,
+		tsp_stats[linear_id].sync_sel1_intr_ret_count);
 	spin_unlock(&console_lock);
 #endif
 }
@@ -87,13 +88,13 @@ int32_t tsp_handle_preemption(void)
 }
 
 /*******************************************************************************
- * TSP FIQ handler called as a part of both synchronous and asynchronous
- * handling of FIQ interrupts. It returns 0 upon successfully handling a S-EL1
- * FIQ and treats all other FIQs as EL3 interrupts. It assumes that the GIC
- * architecture version in v2.0 and the secure physical timer interrupt is the
- * only S-EL1 interrupt that it needs to handle.
+ * TSP interrupt handler is called as a part of both synchronous and
+ * asynchronous handling of TSP interrupts. Currently the physical timer
+ * interrupt is the only S-EL1 interrupt that this handler expects. It returns
+ * 0 upon successfully handling the expected interrupt and all other
+ * interrupts are treated as normal world or EL3 interrupts.
  ******************************************************************************/
-int32_t tsp_fiq_handler(void)
+int32_t tsp_common_int_handler(void)
 {
 	uint32_t linear_id = plat_my_core_pos(), id;
 
@@ -123,13 +124,13 @@ int32_t tsp_fiq_handler(void)
 	plat_ic_end_of_interrupt(id);
 
 	/* Update the statistics and print some messages */
-	tsp_stats[linear_id].fiq_count++;
+	tsp_stats[linear_id].sel1_intr_count++;
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%lx handled fiq %d\n",
+	VERBOSE("TSP: cpu 0x%lx handled S-EL1 interrupt %d\n",
 	       read_mpidr(), id);
-	VERBOSE("TSP: cpu 0x%lx: %d fiq requests\n",
-	     read_mpidr(), tsp_stats[linear_id].fiq_count);
+	VERBOSE("TSP: cpu 0x%lx: %d S-EL1 requests\n",
+	     read_mpidr(), tsp_stats[linear_id].sel1_intr_count);
 	spin_unlock(&console_lock);
 #endif
 	return 0;

@@ -282,10 +282,13 @@ performed.
     (Coherent memory region is included) or 0 (Coherent memory region is
     excluded). Default is 1.
 
-*   `TSPD_ROUTE_IRQ_TO_EL3`: A non zero value enables the routing model
-    for non-secure interrupts in which they are routed to EL3 (TSPD). The
-    default model (when the value is 0) is to route non-secure interrupts
-    to S-EL1 (TSP).
+*   `TSP_NS_INTR_ASYNC_PREEMPT`: A non zero value enables the interrupt
+    routing model which routes non-secure interrupts asynchronously from TSP
+    to EL3 causing immediate preemption of TSP. The EL3 is responsible
+    for saving and restoring the TSP context in this routing model. The
+    default routing model (when the value is 0) is to route non-secure
+    interrupts to TSP allowing it to save its context and hand over
+    synchronously to EL3 via an SMC.
 
 *   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
     Boot feature. When set to '1', BL1 and BL2 images include support to load

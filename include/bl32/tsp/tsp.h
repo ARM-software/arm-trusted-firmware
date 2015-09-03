@@ -45,11 +45,12 @@
 #define TSP_SYSTEM_RESET_DONE	0xf2000009
 
 /*
- * Function identifiers to handle FIQs through the synchronous handling model.
- * If the TSP was previously interrupted then control has to be returned to
- * the TSPD after handling the interrupt else execution can remain in the TSP.
+ * Function identifiers to handle S-El1 interrupt through the synchronous
+ * handling model. If the TSP was previously interrupted then control has to
+ * be returned to the TSPD after handling the interrupt else execution can
+ * remain in the TSP.
  */
-#define TSP_HANDLED_S_EL1_FIQ		0xf2000006
+#define TSP_HANDLED_S_EL1_INTR		0xf2000006
 
 /* SMC function ID that TSP uses to request service from secure monitor */
 #define TSP_GET_ARGS		0xf2001000
@@ -62,7 +63,7 @@
 #define TSP_SUB		0x2001
 #define TSP_MUL		0x2002
 #define TSP_DIV		0x2003
-#define TSP_HANDLE_FIQ_AND_RETURN	0x2004
+#define TSP_HANDLE_SEL1_INTR_AND_RETURN	0x2004
 
 /*
  * Generate function IDs for TSP services to be used in SMC calls, by
@@ -114,7 +115,7 @@ typedef struct tsp_vectors {
 	tsp_vector_isn_t cpu_off_entry;
 	tsp_vector_isn_t cpu_resume_entry;
 	tsp_vector_isn_t cpu_suspend_entry;
-	tsp_vector_isn_t fiq_entry;
+	tsp_vector_isn_t sel1_intr_entry;
 	tsp_vector_isn_t system_off_entry;
 	tsp_vector_isn_t system_reset_entry;
 } tsp_vectors_t;

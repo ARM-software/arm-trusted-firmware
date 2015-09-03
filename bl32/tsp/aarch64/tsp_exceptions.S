@@ -70,6 +70,28 @@
 	add	sp, sp, SCRATCH_REG_SIZE
 	.endm
 
+	/* ----------------------------------------------------
+	 * Common TSP interrupt handling routine
+	 * ----------------------------------------------------
+	 */
+	.macro	handle_tsp_interrupt label
+	/* Enable the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
+	save_caller_regs_and_lr
+	bl	tsp_common_int_handler
+	cbz	x0, interrupt_exit_\label
+
+	/*
+	 * This interrupt was not targetted to S-EL1 so send it to
+	 * the monitor and wait for execution to resume.
+	 */
+	smc	#0
+interrupt_exit_\label:
+	restore_caller_regs_and_lr
+	eret
+	.endm
+
 	.globl	tsp_exceptions
 
 	/* -----------------------------------------------------
@@ -120,36 +142,12 @@ sync_exception_sp_elx:
 
 	.align	7
 irq_sp_elx:
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	save_caller_regs_and_lr
-	/* We just update some statistics in the handler */
-	bl	tsp_handle_preemption
-	/* Hand over control to the normal world to handle the IRQ */
-	smc	#0
-	/* The resume std smc starts from here */
-	restore_caller_regs_and_lr
-	eret
+	handle_tsp_interrupt irq_sp_elx
 	check_vector_size irq_sp_elx
 
 	.align	7
 fiq_sp_elx:
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	save_caller_regs_and_lr
-	bl	tsp_fiq_handler
-	cbz	x0, fiq_sp_elx_done
-
-	/*
-	 * This FIQ was not targetted to S-EL1 so send it to
-	 * the monitor and wait for execution to resume.
-	 */
-	smc	#0
-fiq_sp_elx_done:
-	restore_caller_regs_and_lr
-	eret
+	handle_tsp_interrupt fiq_sp_elx
 	check_vector_size fiq_sp_elx
 
 	.align	7
