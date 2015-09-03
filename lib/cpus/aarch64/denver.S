@@ -163,7 +163,27 @@ func denver_cpu_reg_dump
 	ret
 endfunc denver_cpu_reg_dump
 
-declare_cpu_ops denver, DENVER_1_0_MIDR, \
+declare_cpu_ops denver, DENVER_MIDR_PN0, \
+	denver_reset_func, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
+
+declare_cpu_ops denver, DENVER_MIDR_PN1, \
+	denver_reset_func, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
+
+declare_cpu_ops denver, DENVER_MIDR_PN2, \
+	denver_reset_func, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
+
+declare_cpu_ops denver, DENVER_MIDR_PN3, \
+	denver_reset_func, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
+
+declare_cpu_ops denver, DENVER_MIDR_PN4, \
 	denver_reset_func, \
 	denver_core_pwr_dwn, \
 	denver_cluster_pwr_dwn
