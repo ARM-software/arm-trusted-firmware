@@ -183,10 +183,10 @@ CASSERT(TSPD_SP_CTX_SIZE == sizeof(sp_ctx_regs_t),	\
 
 /*******************************************************************************
  * Structure which helps the SPD to maintain the per-cpu state of the SP.
- * 'saved_spsr_el3' - temporary copy to allow FIQ handling when the TSP has been
- *                    preempted.
- * 'saved_elr_el3'  - temporary copy to allow FIQ handling when the TSP has been
- *                    preempted.
+ * 'saved_spsr_el3' - temporary copy to allow S-EL1 interrupt handling when
+ *                    the TSP has been preempted.
+ * 'saved_elr_el3'  - temporary copy to allow S-EL1 interrupt handling when
+ *                    the TSP has been preempted.
  * 'state'          - collection of flags to track SP state e.g. on/off
  * 'mpidr'          - mpidr to associate a context with a cpu
  * 'c_rt_ctx'       - stack address to restore C runtime context from after
@@ -207,7 +207,7 @@ typedef struct tsp_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	uint64_t saved_tsp_args[TSP_NUM_ARGS];
-#if TSPD_ROUTE_IRQ_TO_EL3
+#if TSP_NS_INTR_ASYNC_PREEMPT
 	sp_ctx_regs_t sp_ctx;
 #endif
 } tsp_context_t;

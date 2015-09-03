@@ -399,12 +399,12 @@ requirements mentioned earlier.
 1.  It passes control to the Test Secure Payload to perform its
     initialisation. The TSP provides the address of the vector table
     `tsp_vectors` in the SP which also includes the handler for Secure-EL1
-    interrupts in the `fiq_entry` field. The TSPD passes control to the TSP at
+    interrupts in the `sel1_intr_entry` field. The TSPD passes control to the TSP at
     this address when it receives a Secure-EL1 interrupt.
 
     The handover agreement between the TSP and the TSPD requires that the TSPD
     masks all interrupts (`PSTATE.DAIF` bits) when it calls
-    `tsp_fiq_entry()`. The TSP has to preserve the callee saved general
+    `tsp_sel1_intr_entry()`. The TSP has to preserve the callee saved general
     purpose, SP_EL1/Secure-EL0, LR, VFP and system registers. It can use
     `x0-x18` to enable its C runtime.
 
@@ -514,7 +514,7 @@ runtime firmware is not aware of through its platform port.
 The routing model for Secure-EL1 and non-secure interrupts chosen by the TSP is
 described in Section 2.2.2. It is known to the TSPD service at build time.
 
-The TSP implements an entrypoint (`tsp_fiq_entry()`) for handling Secure-EL1
+The TSP implements an entrypoint (`tsp_sel1_intr_entry()`) for handling Secure-EL1
 interrupts taken in non-secure state and routed through the TSPD service
 (synchronous handling model). It passes the reference to this entrypoint via
 `tsp_vectors` to the TSPD service.
@@ -700,9 +700,9 @@ takes the following actions upon being invoked.
 3.  It saves the system register context for the non-secure state by calling
     `cm_el1_sysregs_context_save(NON_SECURE);`.
 
-4.  It sets the `ELR_EL3` system register to `tsp_fiq_entry` and sets the
+4.  It sets the `ELR_EL3` system register to `tsp_sel1_intr_entry` and sets the
     `SPSR_EL3.DAIF` bits in the secure CPU context. It sets `x0` to
-    `TSP_HANDLE_FIQ_AND_RETURN`. If the TSP was in the middle of handling a
+    `TSP_HANDLE_SEL1_INTR_AND_RETURN`. If the TSP was in the middle of handling a
     standard SMC, then the `ELR_EL3` and `SPSR_EL3` registers in the secure CPU
     context are saved first.
 
@@ -723,20 +723,20 @@ state.
 
 ![Image 1](diagrams/sec-int-handling.png?raw=true)
 
-The TSP issues an SMC with `TSP_HANDLED_S_EL1_FIQ` as the function identifier to
+The TSP issues an SMC with `TSP_HANDLED_S_EL1_INTR` as the function identifier to
 signal completion of interrupt handling.
 
 The TSP issues an SMC with `TSP_PREEMPTED` as the function identifier to signal
 generation of a non-secure interrupt in Secure-EL1.
 
 The TSPD service takes the following actions in `tspd_smc_handler()` function
-upon receiving an SMC with `TSP_HANDLED_S_EL1_FIQ` and `TSP_PREEMPTED` as the
+upon receiving an SMC with `TSP_HANDLED_S_EL1_INTR` and `TSP_PREEMPTED` as the
 function identifiers:
 
 1.  It ensures that the call originated from the secure state otherwise
     execution returns to the non-secure state with `SMC_UNK` in `x0`.
 
-2.  If the function identifier is `TSP_HANDLED_S_EL1_FIQ`, it restores the
+2.  If the function identifier is `TSP_HANDLED_S_EL1_INTR`, it restores the
     saved `ELR_EL3` and `SPSR_EL3` system registers back to the secure CPU
     context (see step 4 above) in case the TSP had been preempted by a non
     secure interrupt earlier.  It does not save the secure context since the
@@ -811,7 +811,7 @@ state.
 
 ##### 2.3.3.1 Test secure payload behavior
 The TSPD hands control of a Secure-EL1 interrupt to the TSP at the
-`tsp_fiq_entry()`.  The TSP handles the interrupt while ensuring that the
+`tsp_sel1_intr_entry()`.  The TSP handles the interrupt while ensuring that the
 handover agreement described in Section 2.2.2.1 is maintained. It updates some
 statistics by calling `tsp_update_sync_fiq_stats()`. It then calls
 `tsp_fiq_handler()` which.
@@ -827,7 +827,7 @@ statistics by calling `tsp_update_sync_fiq_stats()`. It then calls
     end of interrupt processing.
 
 The TSP passes control back to the TSPD by issuing an SMC64 with
-`TSP_HANDLED_S_EL1_FIQ` as the function identifier.
+`TSP_HANDLED_S_EL1_INTR` as the function identifier.
 
 The TSP handles interrupts under the asynchronous model as follows.
 
