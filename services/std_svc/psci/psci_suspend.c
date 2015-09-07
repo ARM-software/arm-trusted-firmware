@@ -76,6 +76,8 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 					  entry_point_info_t *ep,
 					  psci_power_state_t *state_info)
 {
+	unsigned int max_off_lvl = psci_find_max_off_lvl(state_info);
+
 	/* Save PSCI target power level for the suspend finisher handler */
 	psci_set_suspend_pwrlvl(end_pwrlvl);
 
@@ -91,7 +93,7 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	 * error, it's expected to assert within
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend)
-		psci_spd_pm->svc_suspend(0);
+		psci_spd_pm->svc_suspend(max_off_lvl);
 
 	/*
 	 * Store the re-entry information for the non-secure world.
@@ -105,7 +107,7 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	 * TODO : Introduce a mechanism to query the cache level to flush
 	 * and the cpu-ops power down to perform from the platform.
 	 */
-	psci_do_pwrdown_cache_maintenance(psci_find_max_off_lvl(state_info));
+	psci_do_pwrdown_cache_maintenance(max_off_lvl);
 }
 
 /*******************************************************************************
@@ -213,7 +215,7 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 			     psci_power_state_t *state_info)
 {
 	unsigned long long counter_freq;
-	unsigned int suspend_level;
+	unsigned int max_off_lvl;
 
 	/* Ensure we have been woken up from a suspended state */
 	assert(psci_get_aff_info_state() == AFF_STATE_ON && is_local_state_off(\
@@ -245,9 +247,9 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 	 * error, it's expected to assert within
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_suspend) {
-		suspend_level = psci_get_suspend_pwrlvl();
-		assert (suspend_level != PSCI_INVALID_PWR_LVL);
-		psci_spd_pm->svc_suspend_finish(suspend_level);
+		max_off_lvl = psci_find_max_off_lvl(state_info);
+		assert (max_off_lvl != PSCI_INVALID_PWR_LVL);
+		psci_spd_pm->svc_suspend_finish(max_off_lvl);
 	}
 
 	/* Invalidate the suspend level for the cpu */
