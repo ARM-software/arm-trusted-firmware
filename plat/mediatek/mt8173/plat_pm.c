@@ -46,6 +46,7 @@
 #include <psci.h>
 #include <rtc.h>
 #include <scu.h>
+#include <spm.h>
 #include <spm_hotplug.h>
 #include <spm_mcdi.h>
 #include <spm_suspend.h>
@@ -293,6 +294,8 @@ static int plat_affinst_on(unsigned long mpidr,
 	if (afflvl != MPIDR_AFFLVL0)
 		return rc;
 
+	set_core_in_on_pending(mpidr);
+
 	cpu_id = mpidr & MPIDR_CPU_MASK;
 	cluster_id = mpidr & MPIDR_CLUSTER_MASK;
 
@@ -370,6 +373,9 @@ static void plat_affinst_suspend(unsigned long sec_entrypoint,
 	if (plat_do_plat_actions(afflvl, state) == -EAGAIN)
 		return;
 
+	if (is_in_on_pending(mpidr) && afflvl == MPIDR_AFFLVL1)
+		afflvl = MPIDR_AFFLVL0;
+
 	cpu_id = mpidr & MPIDR_CPU_MASK;
 	cluster_id = mpidr & MPIDR_CLUSTER_MASK;
 
@@ -380,8 +386,8 @@ static void plat_affinst_suspend(unsigned long sec_entrypoint,
 
 	mmio_write_32(rv, sec_entrypoint);
 
-	if (afflvl == MPIDR_AFFLVL0)
-		spm_mcdi_prepare(mpidr);
+	if (afflvl < MPIDR_AFFLVL2)
+		spm_mcdi_prepare(mpidr, afflvl);
 
 	if (afflvl >= MPIDR_AFFLVL0)
 		mt_platform_save_context(mpidr);
@@ -390,12 +396,10 @@ static void plat_affinst_suspend(unsigned long sec_entrypoint,
 	if (afflvl >= MPIDR_AFFLVL1) {
 		/* Disable coherency if this cluster is to be turned off */
 		plat_cci_disable();
-		disable_scu(mpidr);
-
-		trace_power_flow(mpidr, CLUSTER_SUSPEND);
 	}
 
 	if (afflvl >= MPIDR_AFFLVL2) {
+		disable_scu(mpidr);
 		generic_timer_backup();
 		spm_system_suspend();
 		/* Prevent interrupts from spuriously waking up this cpu */
@@ -420,8 +424,6 @@ static void plat_affinst_on_finish(unsigned int afflvl, unsigned int state)
 
 	/* Perform the common cluster specific operations */
 	if (afflvl >= MPIDR_AFFLVL1) {
-		enable_scu(mpidr);
-
 		/* Enable coherency if this cluster was off */
 		plat_cci_enable();
 		trace_power_flow(mpidr, CLUSTER_UP);
@@ -430,6 +432,7 @@ static void plat_affinst_on_finish(unsigned int afflvl, unsigned int state)
 	/* Enable the gic cpu interface */
 	arm_gic_cpuif_setup();
 	arm_gic_pcpu_distif_setup();
+	clear_core_in_on_pending(mpidr);
 	trace_power_flow(mpidr, CPU_UP);
 }
 
@@ -451,22 +454,20 @@ static void plat_affinst_suspend_finish(unsigned int afflvl, unsigned int state)
 		arm_gic_setup();
 		arm_gic_cpuif_setup();
 		spm_system_suspend_finish();
+		enable_scu(mpidr);
 	}
 
 	/* Perform the common cluster specific operations */
 	if (afflvl >= MPIDR_AFFLVL1) {
-		enable_scu(mpidr);
-
 		/* Enable coherency if this cluster was off */
 		plat_cci_enable();
-		trace_power_flow(mpidr, CLUSTER_UP);
 	}
 
 	if (afflvl >= MPIDR_AFFLVL0)
 		mt_platform_restore_context(mpidr);
 
-	if (afflvl == MPIDR_AFFLVL0)
-		spm_mcdi_finish(mpidr);
+	if (afflvl < MPIDR_AFFLVL2)
+		spm_mcdi_finish(mpidr, afflvl);
 
 	arm_gic_pcpu_distif_setup();
 }

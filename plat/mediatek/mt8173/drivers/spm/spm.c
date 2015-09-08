@@ -27,10 +27,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <arch.h>
 #include <bakery_lock.h>
 #include <debug.h>
 #include <mmio.h>
 #include <mt8173_def.h>
+#include <platform.h>
 #include <spm.h>
 #include <spm_suspend.h>
 
@@ -57,6 +59,8 @@ static bakery_lock_t spm_lock __attribute__ ((section("tzfw_coherent_mem")));
 static int spm_hotplug_ready __attribute__ ((section("tzfw_coherent_mem")));
 static int spm_mcdi_ready __attribute__ ((section("tzfw_coherent_mem")));
 static int spm_suspend_ready __attribute__ ((section("tzfw_coherent_mem")));
+static int in_on_pending[PLATFORM_CLUSTER_COUNT * PLATFORM_MAX_CPUS_PER_CLUSTER]
+		__attribute__ ((section("tzfw_coherent_mem")));
 
 void spm_lock_init(void)
 {
@@ -114,6 +118,35 @@ void clear_all_ready(void)
 	spm_mcdi_ready = 0;
 	spm_hotplug_ready = 0;
 	spm_suspend_ready = 0;
+}
+
+void set_core_in_on_pending(unsigned long mpidr)
+{
+	spm_lock_get();
+	in_on_pending[platform_get_core_pos(mpidr)] = 1;
+	spm_lock_release();
+}
+
+void clear_core_in_on_pending(unsigned long mpidr)
+{
+	spm_lock_get();
+	in_on_pending[platform_get_core_pos(mpidr)] = 0;
+	spm_lock_release();
+}
+
+int is_in_on_pending(unsigned long mpidr)
+{
+	unsigned long cluster_id =
+		(mpidr & MPIDR_CLUSTER_MASK) >> MPIDR_AFFINITY_BITS;
+	int i;
+
+	for (i = PLATFORM_MAX_CPUS_PER_CLUSTER * cluster_id;
+	     i < PLATFORM_MAX_CPUS_PER_CLUSTER * (cluster_id + 1); i++) {
+		if (in_on_pending[i])
+			return 1;
+	}
+
+	return 0;
 }
 
 void spm_register_init(void)
