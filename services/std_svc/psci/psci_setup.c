@@ -181,12 +181,6 @@ static void populate_power_domain_tree(const unsigned char *topology)
 
 	/* Validate the sanity of array exported by the platform */
 	assert(j == PLATFORM_CORE_COUNT);
-
-#if !USE_COHERENT_MEM
-	/* Flush the non CPU power domain data to memory */
-	flush_dcache_range((uintptr_t) &psci_non_cpu_pd_nodes,
-			   sizeof(psci_non_cpu_pd_nodes));
-#endif
 }
 
 /*******************************************************************************

@@ -76,21 +76,24 @@ mapped page tables, and enable both the instruction and data caches for each BL
 stage. In ARM standard platforms, each BL stage configures the MMU in
 the platform-specific architecture setup function, `blX_plat_arch_setup()`.
 
-If the build option `USE_COHERENT_MEM` is enabled, each platform must allocate a
+If the build option `USE_COHERENT_MEM` is enabled, each platform can allocate a
 block of identity mapped secure memory with Device-nGnRE attributes aligned to
-page boundary (4K) for each BL stage. This memory is identified by the section
-name `tzfw_coherent_mem` so that its possible for the firmware to place
-variables in it using the following C code directive:
+page boundary (4K) for each BL stage. All sections which allocate coherent
+memory are grouped under `coherent_ram`. For ex: Bakery locks are placed in a
+section identified by name `bakery_lock` inside `coherent_ram` so that its
+possible for the firmware to place variables in it using the following C code
+directive:
 
-    __attribute__ ((section("tzfw_coherent_mem")))
+    __attribute__ ((section("bakery_lock")))
 
 Or alternatively the following assembler code directive:
 
-    .section tzfw_coherent_mem
+    .section bakery_lock
 
-The `tzfw_coherent_mem` section is used to allocate any data structures that are
-accessed both when a CPU is executing with its MMU and caches enabled, and when
-it's running with its MMU and caches disabled. Examples are given below.
+The `coherent_ram` section is a sum of all sections like `bakery_lock` which are
+used to allocate any data structures that are accessed both when a CPU is
+executing with its MMU and caches enabled, and when it's running with its MMU
+and caches disabled. Examples are given below.
 
 The following variables, functions and constants must be defined by the platform
 for the firmware to work correctly.
@@ -1149,6 +1152,12 @@ frequency for the CPU's generic timer.  This value will be programmed into the
 of the system counter, which is retrieved from the first entry in the frequency
 modes table.
 
+
+*   **#define : PLAT_PERCPU_BAKERY_LOCK_SIZE** [optional]
+
+    It is used if the bakery locks are using normal memory. It defines the memory
+   (in bytes) to be allocated for the bakery locks and needs to be a multiple of
+   cache line size.
 
 3.3 Power State Coordination Interface (in BL3-1)
 ------------------------------------------------
