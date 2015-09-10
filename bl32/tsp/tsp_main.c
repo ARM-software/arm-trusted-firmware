@@ -251,7 +251,7 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
  * cpu's architectural state has been restored after wakeup from an earlier psci
  * cpu_suspend request.
  ******************************************************************************/
-tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
+tsp_args_t *tsp_cpu_resume_main(uint64_t max_off_pwrlvl,
 			      uint64_t arg1,
 			      uint64_t arg2,
 			      uint64_t arg3,
@@ -272,8 +272,8 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t suspend_level,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%lx resumed. suspend level %ld\n",
-		read_mpidr(), suspend_level);
+	INFO("TSP: cpu 0x%lx resumed. maximum off power level %ld\n",
+	     read_mpidr(), max_off_pwrlvl);
 	INFO("TSP: cpu 0x%lx: %d smcs, %d erets %d cpu suspend requests\n",
 		read_mpidr(),
 		tsp_stats[linear_id].smc_count,
