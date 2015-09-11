@@ -56,6 +56,11 @@
  * External bakery lock interface.
  ****************************************************************************/
 #if USE_COHERENT_MEM
+/*
+ * Bakery locks are stored in coherent memory
+ *
+ * Each lock's data is contiguous and fully allocated by the compiler
+ */
 
 typedef struct bakery_lock {
 	/*
@@ -67,12 +72,15 @@ typedef struct bakery_lock {
 	volatile uint16_t lock_data[BAKERY_LOCK_MAX_CPUS];
 } bakery_lock_t;
 
-void bakery_lock_init(bakery_lock_t *bakery);
-void bakery_lock_get(bakery_lock_t *bakery);
-void bakery_lock_release(bakery_lock_t *bakery);
-int bakery_lock_try(bakery_lock_t *bakery);
-
 #else
+/*
+ * Bakery locks are stored in normal .bss memory
+ *
+ * Each lock's data is spread across multiple cache lines, one per CPU,
+ * but multiple locks can share the same cache line.
+ * The compiler will allocate enough memory for one CPU's bakery locks,
+ * the remaining cache lines are allocated by the linker script
+ */
 
 typedef struct bakery_info {
 	/*
@@ -84,9 +92,19 @@ typedef struct bakery_info {
 	volatile uint16_t lock_data;
 } bakery_info_t;
 
-void bakery_lock_get(unsigned int id, unsigned int offset);
-void bakery_lock_release(unsigned int id, unsigned int offset);
+typedef bakery_info_t bakery_lock_t;
 
 #endif /* __USE_COHERENT_MEM__ */
+
+inline void bakery_lock_init(bakery_lock_t *bakery) {}
+void bakery_lock_get(bakery_lock_t *bakery);
+void bakery_lock_release(bakery_lock_t *bakery);
+
+#define DEFINE_BAKERY_LOCK(_name) bakery_lock_t _name \
+			__attribute__ ((section("bakery_lock")))
+
+#define DECLARE_BAKERY_LOCK(_name) extern bakery_lock_t _name
+
+
 #endif /* __ASSEMBLY__ */
 #endif /* __BAKERY_LOCK_H__ */

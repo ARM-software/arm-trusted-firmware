@@ -251,9 +251,6 @@ typedef struct psci_cpu_data {
 
 	/* The local power state of this CPU */
 	plat_local_state_t local_state;
-#if !USE_COHERENT_MEM
-	bakery_info_t pcpu_bakery_info[PSCI_NUM_NON_CPU_PWR_DOMAINS];
-#endif
 } psci_cpu_data_t;
 
 /*******************************************************************************

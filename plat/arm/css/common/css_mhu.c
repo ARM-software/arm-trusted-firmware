@@ -105,7 +105,6 @@ void mhu_secure_message_end(unsigned int slot_id)
 void mhu_secure_init(void)
 {
 	arm_lock_init();
-
 	/*
 	 * The STAT register resets to zero. Ensure it is in the expected state,
 	 * as a stale or garbage value would make us think it's a message we've
