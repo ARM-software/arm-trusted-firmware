@@ -141,9 +141,6 @@ endfunc memcpy16
 
 /* ---------------------------------------------------------------------------
  * Disable the MMU at EL3
- * This is implemented in assembler to ensure that the data cache is cleaned
- * and invalidated after the MMU is disabled without any intervening cacheable
- * data accesses
  * ---------------------------------------------------------------------------
  */
 
@@ -154,8 +151,8 @@ do_disable_mmu:
 	bic	x0, x0, x1
 	msr	sctlr_el3, x0
 	isb				// ensure MMU is off
-	mov	x0, #DCCISW		// DCache clean and invalidate
-	b	dcsw_op_all
+	dsb	sy
+	ret
 endfunc disable_mmu_el3
 
 

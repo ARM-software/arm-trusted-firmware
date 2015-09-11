@@ -203,7 +203,4 @@ void psci_cpu_on_finish(unsigned int cpu_idx,
 	 * call to set this cpu on its way.
 	 */
 	cm_prepare_el3_exit(NON_SECURE);
-
-	/* Clean caches before re-entering normal world */
-	dcsw_op_louis(DCCSW);
 }

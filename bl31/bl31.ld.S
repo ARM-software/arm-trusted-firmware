@@ -81,6 +81,12 @@ SECTIONS
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
            "cpu_ops not defined for this platform.")
 
+    /*
+     * Define a linker symbol to mark start of the RW memory area for this
+     * image.
+     */
+    __RW_START__ = . ;
+
     .data . : {
         __DATA_START__ = .;
         *(.data*)
@@ -165,6 +171,11 @@ SECTIONS
     } >RAM
 #endif
 
+    /*
+     * Define a linker symbol to mark end of the RW memory area for this
+     * image.
+     */
+    __RW_END__ = .;
     __BL31_END__ = .;
 
     __BSS_SIZE__ = SIZEOF(.bss);

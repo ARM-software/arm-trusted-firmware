@@ -145,6 +145,7 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0w)
 
 void flush_dcache_range(uint64_t, uint64_t);
+void clean_dcache_range(uint64_t, uint64_t);
 void inv_dcache_range(uint64_t, uint64_t);
 void dcsw_op_louis(uint32_t);
 void dcsw_op_all(uint32_t);

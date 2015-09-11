@@ -87,9 +87,6 @@ void bl31_main(void)
 	INFO("BL3-1: Initializing runtime services\n");
 	runtime_svc_init();
 
-	/* Clean caches before re-entering normal world */
-	dcsw_op_all(DCCSW);
-
 	/*
 	 * All the cold boot actions on the primary cpu are done. We now need to
 	 * decide which is the next image (BL32 or BL33) and how to execute it.

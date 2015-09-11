@@ -214,6 +214,21 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
+#if IMAGE_BL31
+		/* -------------------------------------------------------------
+		 * Invalidate the RW memory used by the BL31 image. This
+		 * includes the data and NOBITS sections. This is done to
+		 * safeguard against possible corruption of this memory by
+		 * dirty cache lines in a system cache as a result of use by
+		 * an earlier boot loader stage.
+		 * -------------------------------------------------------------
+		 */
+		adr	x0, __RW_START__
+		adr	x1, __RW_END__
+		sub	x1, x1, x0
+		bl	inv_dcache_range
+#endif /* IMAGE_BL31 */
+
 		ldr	x0, =__BSS_START__
 		ldr	x1, =__BSS_SIZE__
 		bl	zeromem16
