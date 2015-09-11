@@ -82,7 +82,7 @@ static int32_t tspd_cpu_off_handler(uint64_t unused)
  * This cpu is being suspended. S-EL1 state must have been saved in the
  * resident cpu (mpidr format) if it is a UP/UP migratable TSP.
  ******************************************************************************/
-static void tspd_cpu_suspend_handler(uint64_t unused)
+static void tspd_cpu_suspend_handler(uint64_t max_off_pwrlvl)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
@@ -157,7 +157,7 @@ static void tspd_cpu_on_finish_handler(uint64_t unused)
  * completed the preceding suspend call. Use that context to program an entry
  * into the TSP to allow it to do any remaining book keeping
  ******************************************************************************/
-static void tspd_cpu_suspend_finish_handler(uint64_t suspend_level)
+static void tspd_cpu_suspend_finish_handler(uint64_t max_off_pwrlvl)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
@@ -166,10 +166,10 @@ static void tspd_cpu_suspend_finish_handler(uint64_t suspend_level)
 	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_SUSPEND);
 
-	/* Program the entry point, suspend_level and enter the SP */
+	/* Program the entry point, max_off_pwrlvl and enter the SP */
 	write_ctx_reg(get_gpregs_ctx(&tsp_ctx->cpu_ctx),
 		      CTX_GPREG_X0,
-		      suspend_level);
+		      max_off_pwrlvl);
 	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_resume_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
 
