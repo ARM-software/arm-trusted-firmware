@@ -206,14 +206,6 @@
  */
 #define CACHE_WRITEBACK_GRANULE		(1 << ARM_CACHE_WRITEBACK_SHIFT)
 
-#if !USE_COHERENT_MEM
-/*
- * Size of the per-cpu data in bytes that should be reserved in the generic
- * per-cpu data structure for the ARM platform port.
- */
-#define PLAT_PCPU_DATA_SIZE		2
-#endif
-
 
 /*******************************************************************************
  * BL1 specific defines.
@@ -299,6 +291,12 @@
  * ID of the secure physical generic timer interrupt used by the TSP.
  */
 #define TSP_IRQ_SEC_PHY_TIMER		ARM_IRQ_SEC_PHY_TIMER
+
+
+/*
+ * One cache line needed for bakery locks on ARM platforms
+ */
+#define PLAT_PERCPU_BAKERY_LOCK_SIZE		(1 * CACHE_WRITEBACK_GRANULE)
 
 
 #endif /* __ARM_DEF_H__ */

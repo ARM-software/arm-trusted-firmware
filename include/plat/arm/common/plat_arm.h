@@ -71,14 +71,11 @@ void arm_configure_mmu_el3(unsigned long total_base,
 );
 
 #if IMAGE_BL31
-#if USE_COHERENT_MEM
-
 /*
  * Use this macro to instantiate lock before it is used in below
  * arm_lock_xxx() macros
  */
-#define ARM_INSTANTIATE_LOCK	bakery_lock_t arm_lock	\
-	__attribute__ ((section("tzfw_coherent_mem")));
+#define ARM_INSTANTIATE_LOCK	DEFINE_BAKERY_LOCK(arm_lock);
 
 /*
  * These are wrapper macros to the Coherent Memory Bakery Lock API.
@@ -89,58 +86,9 @@ void arm_configure_mmu_el3(unsigned long total_base,
 
 #else
 
-/*******************************************************************************
- * Constants to specify how many bakery locks this platform implements. These
- * are used if the platform chooses not to use coherent memory for bakery lock
- * data structures.
- ******************************************************************************/
-#define ARM_MAX_BAKERIES	1
-#define ARM_PWRC_BAKERY_ID	0
-
-/* Empty definition */
-#define ARM_INSTANTIATE_LOCK
-
-/*******************************************************************************
- * Definition of structure which holds platform specific per-cpu data. Currently
- * it holds only the bakery lock information for each cpu.
- ******************************************************************************/
-typedef struct arm_cpu_data {
-	bakery_info_t pcpu_bakery_info[ARM_MAX_BAKERIES];
-} arm_cpu_data_t;
-
-/* Macro to define the offset of bakery_info_t in arm_cpu_data_t */
-#define ARM_CPU_DATA_LOCK_OFFSET	__builtin_offsetof\
-					    (arm_cpu_data_t, pcpu_bakery_info)
-
-
-/*******************************************************************************
- * Helper macros for bakery lock api when using the above arm_cpu_data_t for
- * bakery lock data structures. It assumes that the bakery_info is at the
- * beginning of the platform specific per-cpu data.
- ******************************************************************************/
-#define arm_lock_init()		/* No init required */
-#define arm_lock_get()		bakery_lock_get(ARM_PWRC_BAKERY_ID,	\
-					CPU_DATA_PLAT_PCPU_OFFSET +	\
-					ARM_CPU_DATA_LOCK_OFFSET)
-#define arm_lock_release()	bakery_lock_release(ARM_PWRC_BAKERY_ID,	\
-					CPU_DATA_PLAT_PCPU_OFFSET +	\
-					ARM_CPU_DATA_LOCK_OFFSET)
-
 /*
- * Ensure that the size of the platform specific per-cpu data structure and
- * the size of the memory allocated in generic per-cpu data for the platform
- * are the same.
+ * Empty macros for all other BL stages other than BL3-1
  */
-CASSERT(PLAT_PCPU_DATA_SIZE == sizeof(arm_cpu_data_t),
-	arm_pcpu_data_size_mismatch);
-
-#endif /* USE_COHERENT_MEM */
-
-#else
-
-/*
-* Dummy macros for all other BL stages other than BL3-1
-*/
 #define ARM_INSTANTIATE_LOCK
 #define arm_lock_init()
 #define arm_lock_get()
