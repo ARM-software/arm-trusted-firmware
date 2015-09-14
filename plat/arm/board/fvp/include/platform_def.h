@@ -85,6 +85,9 @@
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	3
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	4
 
+/* System timer related constants */
+#define PLAT_ARM_NSTIMER_FRAME_ID		1
+
 /* TrustZone controller related constants
  *
  * Currently only filters 0 and 2 are connected on Base FVP.
@@ -100,6 +103,7 @@
  * Give access to the CPUs and Virtio. Some devices
  * would normally use the default ID so allow that too.
  */
+#define PLAT_ARM_TZC_BASE		0x2a4a0000
 #define PLAT_ARM_TZC_FILTERS		REG_ATTR_FILTER_BIT(0)
 
 #define PLAT_ARM_TZC_NS_DEV_ACCESS	(				\

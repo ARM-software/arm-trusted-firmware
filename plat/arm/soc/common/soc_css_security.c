@@ -30,16 +30,9 @@
 
 #include <board_css_def.h>
 #include <mmio.h>
+#include <nic_400.h>
 #include <platform_def.h>
 #include <soc_css_def.h>
-
-/*
- * Address of slave 'n' security setting in the NIC-400 address region
- * control
- * TODO: Ideally this macro should be moved in a "nic-400.h" header file but
- * it would be the only thing in there so it's not worth it at the moment.
- */
-#define NIC400_ADDR_CTRL_SECURITY_REG(n)	(0x8 + (n) * 4)
 
 void soc_css_init_nic400(void)
 {
@@ -70,13 +63,6 @@ void soc_css_init_nic400(void)
 		NIC400_ADDR_CTRL_SECURITY_REG(SOC_CSS_NIC400_BOOTSEC_BRIDGE),
 		~SOC_CSS_NIC400_BOOTSEC_BRIDGE_UART1);
 
-	/*
-	 * Allow non-secure access to some CSS regions.
-	 * Note: This is the NIC-400 device on the CSS
-	 */
-	mmio_write_32(PLAT_SOC_CSS_NIC400_BASE +
-		NIC400_ADDR_CTRL_SECURITY_REG(CSS_NIC400_SLAVE_BOOTSECURE),
-		~0);
 }
 
 

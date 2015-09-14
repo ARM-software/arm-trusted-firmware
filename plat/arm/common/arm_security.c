@@ -47,7 +47,7 @@ void arm_tzc_setup(void)
 {
 	INFO("Configuring TrustZone Controller\n");
 
-	tzc_init(ARM_TZC_BASE);
+	tzc_init(PLAT_ARM_TZC_BASE);
 
 	/* Disable filters. */
 	tzc_disable_filters();
