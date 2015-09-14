@@ -28,6 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
+#include <arch_helpers.h>
+#include <debug.h>
+#include <mce.h>
 #include <psci.h>
 #include <tegra_private.h>
 
@@ -44,4 +48,48 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state)
 	}
 
 	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_cpu_on(unsigned long mpidr)
+{
+	int target_cpu = mpidr & MPIDR_CPU_MASK;
+	int target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
+			MPIDR_AFFINITY_BITS;
+
+	if (target_cluster > MPIDR_AFFLVL1) {
+		ERROR("%s: unsupported CPU (0x%lx)\n", __func__, mpidr);
+		return PSCI_E_NOT_PRESENT;
+	}
+
+	/* construct the target CPU # */
+	target_cpu |= (target_cluster << 2);
+
+	mce_command_handler(MCE_CMD_ONLINE_CORE, target_cpu, 0, 0);
+
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
+{
+	/*
+	 * Check if we are exiting from SOC_POWERDN.
+	 */
+	if (tegra_system_suspended()) {
+
+		/*
+		 * System resume complete.
+		 */
+		tegra_pm_system_suspend_exit();
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_cpu_off(unsigned long mpidr)
+{
+	/* Turn off wake_mask */
+	mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, 0, 0, 1);
+
+	/* Turn off CPU */
+	return mce_command_handler(MCE_CMD_ENTER_CSTATE, ~0, 0, 0);
 }
