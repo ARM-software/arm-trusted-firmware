@@ -48,6 +48,7 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
+				${COMMON_DIR}/drivers/memctrl/memctrl_v1.c	\
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_sip_calls.c		\
 				${SOC_DIR}/plat_setup.c			\
