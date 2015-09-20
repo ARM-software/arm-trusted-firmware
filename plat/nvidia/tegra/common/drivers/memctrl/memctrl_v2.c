@@ -1,0 +1,314 @@
+/*
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of ARM nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific
+ * prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include <arch_helpers.h>
+#include <assert.h>
+#include <debug.h>
+#include <mce.h>
+#include <memctrl.h>
+#include <memctrl_v2.h>
+#include <mmio.h>
+#include <string.h>
+#include <tegra_def.h>
+#include <xlat_tables.h>
+
+/* Video Memory base and size (live values) */
+static uint64_t video_mem_base;
+static uint64_t video_mem_size;
+
+/* array to hold stream_id override config register offsets */
+const static uint32_t streamid_overrides[] = {
+	MC_STREAMID_OVERRIDE_CFG_PTCR,
+	MC_STREAMID_OVERRIDE_CFG_AFIR,
+	MC_STREAMID_OVERRIDE_CFG_HDAR,
+	MC_STREAMID_OVERRIDE_CFG_HOST1XDMAR,
+	MC_STREAMID_OVERRIDE_CFG_NVENCSRD,
+	MC_STREAMID_OVERRIDE_CFG_SATAR,
+	MC_STREAMID_OVERRIDE_CFG_MPCORER,
+	MC_STREAMID_OVERRIDE_CFG_NVENCSWR,
+	MC_STREAMID_OVERRIDE_CFG_AFIW,
+	MC_STREAMID_OVERRIDE_CFG_SATAW,
+	MC_STREAMID_OVERRIDE_CFG_MPCOREW,
+	MC_STREAMID_OVERRIDE_CFG_SATAW,
+	MC_STREAMID_OVERRIDE_CFG_HDAW,
+	MC_STREAMID_OVERRIDE_CFG_ISPRA,
+	MC_STREAMID_OVERRIDE_CFG_ISPWA,
+	MC_STREAMID_OVERRIDE_CFG_ISPWB,
+	MC_STREAMID_OVERRIDE_CFG_XUSB_HOSTR,
+	MC_STREAMID_OVERRIDE_CFG_XUSB_HOSTW,
+	MC_STREAMID_OVERRIDE_CFG_XUSB_DEVR,
+	MC_STREAMID_OVERRIDE_CFG_XUSB_DEVW,
+	MC_STREAMID_OVERRIDE_CFG_TSECSRD,
+	MC_STREAMID_OVERRIDE_CFG_TSECSWR,
+	MC_STREAMID_OVERRIDE_CFG_GPUSRD,
+	MC_STREAMID_OVERRIDE_CFG_GPUSWR,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCRA,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCRAA,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCR,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCRAB,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCWA,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCWAA,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCW,
+	MC_STREAMID_OVERRIDE_CFG_SDMMCWAB,
+	MC_STREAMID_OVERRIDE_CFG_VICSRD,
+	MC_STREAMID_OVERRIDE_CFG_VICSWR,
+	MC_STREAMID_OVERRIDE_CFG_VIW,
+	MC_STREAMID_OVERRIDE_CFG_NVDECSRD,
+	MC_STREAMID_OVERRIDE_CFG_NVDECSWR,
+	MC_STREAMID_OVERRIDE_CFG_APER,
+	MC_STREAMID_OVERRIDE_CFG_APEW,
+	MC_STREAMID_OVERRIDE_CFG_NVJPGSRD,
+	MC_STREAMID_OVERRIDE_CFG_NVJPGSWR,
+	MC_STREAMID_OVERRIDE_CFG_SESRD,
+	MC_STREAMID_OVERRIDE_CFG_SESWR,
+	MC_STREAMID_OVERRIDE_CFG_ETRR,
+	MC_STREAMID_OVERRIDE_CFG_ETRW,
+	MC_STREAMID_OVERRIDE_CFG_TSECSRDB,
+	MC_STREAMID_OVERRIDE_CFG_TSECSWRB,
+	MC_STREAMID_OVERRIDE_CFG_GPUSRD2,
+	MC_STREAMID_OVERRIDE_CFG_GPUSWR2,
+	MC_STREAMID_OVERRIDE_CFG_AXISR,
+	MC_STREAMID_OVERRIDE_CFG_AXISW,
+	MC_STREAMID_OVERRIDE_CFG_EQOSR,
+	MC_STREAMID_OVERRIDE_CFG_EQOSW,
+	MC_STREAMID_OVERRIDE_CFG_UFSHCR,
+	MC_STREAMID_OVERRIDE_CFG_UFSHCW,
+	MC_STREAMID_OVERRIDE_CFG_NVDISPLAYR,
+	MC_STREAMID_OVERRIDE_CFG_BPMPR,
+	MC_STREAMID_OVERRIDE_CFG_BPMPW,
+	MC_STREAMID_OVERRIDE_CFG_BPMPDMAR,
+	MC_STREAMID_OVERRIDE_CFG_BPMPDMAW,
+	MC_STREAMID_OVERRIDE_CFG_AONR,
+	MC_STREAMID_OVERRIDE_CFG_AONW,
+	MC_STREAMID_OVERRIDE_CFG_AONDMAR,
+	MC_STREAMID_OVERRIDE_CFG_AONDMAW,
+	MC_STREAMID_OVERRIDE_CFG_SCER,
+	MC_STREAMID_OVERRIDE_CFG_SCEW,
+	MC_STREAMID_OVERRIDE_CFG_SCEDMAR,
+	MC_STREAMID_OVERRIDE_CFG_SCEDMAW,
+	MC_STREAMID_OVERRIDE_CFG_APEDMAR,
+	MC_STREAMID_OVERRIDE_CFG_APEDMAW,
+	MC_STREAMID_OVERRIDE_CFG_NVDISPLAYR1,
+	MC_STREAMID_OVERRIDE_CFG_VICSRD1,
+	MC_STREAMID_OVERRIDE_CFG_NVDECSRD1
+};
+
+/* array to hold the security configs for stream IDs */
+const static mc_streamid_security_cfg_t sec_cfgs[] = {
+	mc_make_sec_cfg(SCEW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AFIR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVDISPLAYR1, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(XUSB_DEVR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(VICSRD1, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVENCSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(TSECSRDB, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AXISW, SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(SDMMCWAB, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONDMAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(GPUSWR2, SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(SATAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(UFSHCW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AFIW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SDMMCR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEDMAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(UFSHCR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SDMMCWAA, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEDMAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SESWR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(MPCORER, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(PTCR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(ETRW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(GPUSRD, SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(VICSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEDMAR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(HDAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(ISPWA, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(EQOSW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(XUSB_HOSTW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(TSECSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SDMMCRAA, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APER, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(VIW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AXISR, SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(SDMMCW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(ISPRA, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVDECSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(XUSB_DEVW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVDECSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(MPCOREW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVDISPLAYR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVJPGSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVDECSRD1, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(TSECSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVJPGSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SDMMCWA, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCER, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(XUSB_HOSTR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(VICSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONDMAR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SDMMCRA, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(HOST1XDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(EQOSR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SATAR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(HDAR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SDMMCRAB, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(ETRR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEDMAR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SESRD, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVENCSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(GPUSWR, SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(TSECSWRB, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(ISPWB, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(GPUSRD2, SECURE, NO_OVERRIDE, DISABLE),
+};
+
+/*
+ * Init SMMU.
+ */
+void tegra_memctrl_setup(void)
+{
+	uint32_t val;
+	uint32_t num_overrides = sizeof(streamid_overrides) / sizeof(uint32_t);
+	uint32_t num_sec_cfgs = sizeof(sec_cfgs) / sizeof(mc_streamid_security_cfg_t);
+	int i;
+
+	INFO("Tegra Memory Controller (v2)\n");
+
+	/* Program the SMMU pagesize */
+	val = tegra_smmu_read_32(ARM_SMMU_GSR0_SECURE_ACR);
+	val |= ARM_SMMU_GSR0_PGSIZE_64K;
+	tegra_smmu_write_32(ARM_SMMU_GSR0_SECURE_ACR, val);
+
+	/* Program all the Stream ID overrides */
+	for (i = 0; i < num_overrides; i++)
+		tegra_mc_streamid_write_32(streamid_overrides[i],
+			MC_STREAM_ID_MAX);
+
+	/* Program the security config settings for all Stream IDs */
+	for (i = 0; i < num_sec_cfgs; i++) {
+		val = sec_cfgs[i].override_enable << 16 |
+		      sec_cfgs[i].override_client_inputs << 8 |
+		      sec_cfgs[i].override_client_ns_flag << 0;
+		tegra_mc_streamid_write_32(sec_cfgs[i].offset, val);
+	}
+
+	/*
+	 * All requests at boot time, and certain requests during
+	 * normal run time, are physically addressed and must bypass
+	 * the SMMU. The client hub logic implements a hardware bypass
+	 * path around the Translation Buffer Units (TBU). During
+	 * boot-time, the SMMU_BYPASS_CTRL register (which defaults to
+	 * TBU_BYPASS mode) will be used to steer all requests around
+	 * the uninitialized TBUs. During normal operation, this register
+	 * is locked into TBU_BYPASS_SID config, which routes requests
+	 * with special StreamID 0x7f on the bypass path and all others
+	 * through the selected TBU. This is done to disable SMMU Bypass
+	 * mode, as it could be used to circumvent SMMU security checks.
+	 */
+	tegra_mc_write_32(MC_SMMU_BYPASS_CONFIG,
+		MC_SMMU_BYPASS_CONFIG_SETTINGS);
+
+	/* video memory carveout region */
+	if (video_mem_base) {
+		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO,
+				  (uint32_t)video_mem_base);
+		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
+				  (uint32_t)(video_mem_base >> 32));
+		tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, video_mem_size);
+
+		/*
+		 * MCE propogates the VideoMem configuration values across the
+		 * CCPLEX.
+		 */
+		mce_update_gsc_videomem();
+	}
+}
+
+/*
+ * Secure the BL31 DRAM aperture.
+ *
+ * phys_base = physical base of TZDRAM aperture
+ * size_in_bytes = size of aperture in bytes
+ */
+void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes)
+{
+	/*
+	 * Setup the Memory controller to allow only secure accesses to
+	 * the TZDRAM carveout
+	 */
+	INFO("Configuring TrustZone DRAM Memory Carveout\n");
+
+	tegra_mc_write_32(MC_SECURITY_CFG0_0, (uint32_t)phys_base);
+	tegra_mc_write_32(MC_SECURITY_CFG3_0, (uint32_t)(phys_base >> 32));
+	tegra_mc_write_32(MC_SECURITY_CFG1_0, size_in_bytes >> 20);
+
+	/*
+	 * MCE propogates the security configuration values across the
+	 * CCPLEX.
+	 */
+	mce_update_gsc_tzdram();
+}
+
+/*
+ * Program the Video Memory carveout region
+ *
+ * phys_base = physical base of aperture
+ * size_in_bytes = size of aperture in bytes
+ */
+void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
+{
+	/*
+	 * Setup the Memory controller to restrict CPU accesses to the Video
+	 * Memory region
+	 */
+	INFO("Configuring Video Memory Carveout\n");
+
+	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO, (uint32_t)phys_base);
+	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
+			  (uint32_t)(phys_base >> 32));
+	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, size_in_bytes);
+
+	/* store new values */
+	video_mem_base = phys_base;
+	video_mem_size = size_in_bytes >> 20;
+
+	/*
+	 * MCE propogates the VideoMem configuration values across the
+	 * CCPLEX.
+	 */
+	mce_update_gsc_videomem();
+}
