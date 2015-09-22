@@ -152,11 +152,14 @@ endfunc platform_is_primary_cpu
 	/* -----------------------------------------------------
 	 * int platform_get_core_pos(int mpidr);
 	 *
-	 * With this function: CorePos = CoreId
+	 * With this function: CorePos = (ClusterId * 4) +
+	 *                                CoreId
 	 * -----------------------------------------------------
 	 */
 func platform_get_core_pos
-	and	x0, x0, #MPIDR_CPU_MASK
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
 	ret
 endfunc platform_get_core_pos
 
