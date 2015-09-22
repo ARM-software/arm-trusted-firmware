@@ -180,6 +180,20 @@ func plat_get_my_entrypoint
 endfunc plat_get_my_entrypoint
 
 	/* -----------------------------------------------------
+	 * int platform_get_core_pos(int mpidr);
+	 *
+	 * With this function: CorePos = (ClusterId * 4) +
+	 *                                CoreId
+	 * -----------------------------------------------------
+	 */
+func platform_get_core_pos
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
+	ret
+endfunc platform_get_core_pos
+
+	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
 	 *
 	 * This function performs any platform specific actions
