@@ -35,6 +35,22 @@
 #include <cortex_a53.h>
 #include <tegra_def.h>
 
+#define MIDR_PN_CORTEX_A57		0xD07
+
+/*******************************************************************************
+ * Implementation defined ACTLR_EL3 bit definitions
+ ******************************************************************************/
+#define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)
+#define ACTLR_EL3_L2ECTLR_BIT		(1 << 5)
+#define ACTLR_EL3_L2CTLR_BIT		(1 << 4)
+#define ACTLR_EL3_CPUECTLR_BIT		(1 << 1)
+#define ACTLR_EL3_CPUACTLR_BIT		(1 << 0)
+#define ACTLR_EL3_ENABLE_ALL_ACCESS	(ACTLR_EL3_L2ACTLR_BIT | \
+					 ACTLR_EL3_L2ECTLR_BIT | \
+					 ACTLR_EL3_L2CTLR_BIT | \
+					 ACTLR_EL3_CPUECTLR_BIT | \
+					 ACTLR_EL3_CPUACTLR_BIT)
+
 	/* Global functions */
 	.globl	plat_is_my_cpu_primary
 	.globl	plat_my_core_pos
@@ -57,7 +73,18 @@
 	 */
 .macro	cpu_init_common
 
-#if ENABLE_L2_DYNAMIC_RETENTION
+	/* ------------------------------------------------
+	 * We enable procesor retention and L2/CPUECTLR NS
+	 * access for A57 CPUs only.
+	 * ------------------------------------------------
+	 */
+	mrs	x0, midr_el1
+	mov	x1, #(MIDR_PN_MASK << MIDR_PN_SHIFT)
+	and	x0, x0, x1
+	lsr	x0, x0, #MIDR_PN_SHIFT
+	cmp	x0, #MIDR_PN_CORTEX_A57
+	b.ne	1f
+
 	/* ---------------------------
 	 * Enable processor retention
 	 * ---------------------------
@@ -68,18 +95,14 @@
 	orr	x0, x0, x1
 	msr	L2ECTLR_EL1, x0
 	isb
-#endif
 
-#if ENABLE_CPU_DYNAMIC_RETENTION
 	mrs	x0, CPUECTLR_EL1
 	mov	x1, #RETENTION_ENTRY_TICKS_512 << CPUECTLR_CPU_RET_CTRL_SHIFT
 	bic	x0, x0, #CPUECTLR_CPU_RET_CTRL_MASK
 	orr	x0, x0, x1
 	msr	CPUECTLR_EL1, x0
 	isb
-#endif
 
-#if ENABLE_NS_L2_CPUECTRL_RW_ACCESS
 	/* -------------------------------------------------------
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
 	 * -------------------------------------------------------
@@ -88,13 +111,12 @@
 	msr	actlr_el3, x0
 	msr	actlr_el2, x0
 	isb
-#endif
 
 	/* --------------------------------
 	 * Enable the cycle count register
 	 * --------------------------------
 	 */
-	mrs	x0, pmcr_el0
+1:	mrs	x0, pmcr_el0
 	ubfx	x0, x0, #11, #5		// read PMCR.N field
 	mov	x1, #1
 	lsl	x0, x1, x0
