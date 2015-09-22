@@ -37,6 +37,7 @@
 #include <cortex_a57.h>
 #include <cortex_a53.h>
 #include <debug.h>
+#include <denver.h>
 #include <errno.h>
 #include <memctrl.h>
 #include <mmio.h>
@@ -110,7 +111,9 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 {
 	plat_params_from_bl2_t *plat_params =
 		(plat_params_from_bl2_t *)plat_params_from_bl2;
-
+#if DEBUG
+	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+#endif
 	/*
 	 * Configure the UART port to be used as the console
 	 */
@@ -120,12 +123,18 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	/* Initialise crash console */
 	plat_crash_console_init();
 
+	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n", (impl == DENVER_IMPL) ?
+		"Denver" : "ARM", read_mpidr());
+
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	bl33_image_ep_info = *from_bl2->bl33_ep_info;
-	bl32_image_ep_info = *from_bl2->bl32_ep_info;
+	if (from_bl2->bl33_ep_info)
+		bl33_image_ep_info = *from_bl2->bl33_ep_info;
+
+	if (from_bl2->bl32_ep_info)
+		bl32_image_ep_info = *from_bl2->bl32_ep_info;
 
 	/*
 	 * Parse platform specific parameters - TZDRAM aperture size
@@ -168,6 +177,8 @@ void bl31_platform_setup(void)
 
 	/* Initialize the gic cpu and distributor interfaces */
 	tegra_gic_setup();
+
+	INFO("BL3-1: Tegra platform setup complete\n");
 }
 
 /*******************************************************************************
@@ -215,6 +226,8 @@ void bl31_plat_arch_setup(void)
 
 	/* enable the MMU */
 	enable_mmu_el3(0);
+
+	INFO("BL3-1: Tegra: MMU enabled\n");
 }
 
 /*******************************************************************************
