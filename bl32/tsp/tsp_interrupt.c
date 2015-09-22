@@ -67,6 +67,25 @@ void tsp_update_sync_fiq_stats(uint32_t type, uint64_t elr_el3)
 #endif
 }
 
+/******************************************************************************
+ * This function is invoked when a non S-EL1 interrupt is received and causes
+ * the preemption of TSP. This function returns TSP_PREEMPTED and results
+ * in the control being handed over to EL3 for handling the interrupt.
+ *****************************************************************************/
+int32_t tsp_handle_preemption(void)
+{
+	uint32_t linear_id = plat_my_core_pos();
+
+	tsp_stats[linear_id].preempt_intr_count++;
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	spin_lock(&console_lock);
+	VERBOSE("TSP: cpu 0x%lx: %d preempt interrupt requests\n",
+		read_mpidr(), tsp_stats[linear_id].preempt_intr_count);
+	spin_unlock(&console_lock);
+#endif
+	return TSP_PREEMPTED;
+}
+
 /*******************************************************************************
  * TSP FIQ handler called as a part of both synchronous and asynchronous
  * handling of FIQ interrupts. It returns 0 upon successfully handling a S-EL1
@@ -82,16 +101,21 @@ int32_t tsp_fiq_handler(void)
 	 * Get the highest priority pending interrupt id and see if it is the
 	 * secure physical generic timer interrupt in which case, handle it.
 	 * Otherwise throw this interrupt at the EL3 firmware.
+	 *
+	 * There is a small time window between reading the highest priority
+	 * pending interrupt and acknowledging it during which another
+	 * interrupt of higher priority could become the highest pending
+	 * interrupt. This is not expected to happen currently for TSP.
 	 */
 	id = plat_ic_get_pending_interrupt_id();
 
 	/* TSP can only handle the secure physical timer interrupt */
 	if (id != TSP_IRQ_SEC_PHY_TIMER)
-		return TSP_EL3_FIQ;
+		return tsp_handle_preemption();
 
 	/*
-	 * Handle the interrupt. Also sanity check if it has been preempted by
-	 * another secure interrupt through an assertion.
+	 * Acknowledge and handle the secure timer interrupt. Also sanity check
+	 * if it has been preempted by another interrupt through an assertion.
 	 */
 	id = plat_ic_acknowledge_interrupt();
 	assert(id == TSP_IRQ_SEC_PHY_TIMER);
@@ -109,19 +133,4 @@ int32_t tsp_fiq_handler(void)
 	spin_unlock(&console_lock);
 #endif
 	return 0;
-}
-
-int32_t tsp_irq_received(void)
-{
-	uint32_t linear_id = plat_my_core_pos();
-
-	tsp_stats[linear_id].irq_count++;
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%lx received irq\n", read_mpidr());
-	VERBOSE("TSP: cpu 0x%lx: %d irq requests\n",
-		read_mpidr(), tsp_stats[linear_id].irq_count);
-	spin_unlock(&console_lock);
-#endif
-	return TSP_PREEMPTED;
 }

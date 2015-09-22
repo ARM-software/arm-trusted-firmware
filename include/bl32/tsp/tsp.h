@@ -50,7 +50,6 @@
  * the TSPD after handling the interrupt else execution can remain in the TSP.
  */
 #define TSP_HANDLED_S_EL1_FIQ		0xf2000006
-#define TSP_EL3_FIQ			0xf2000007
 
 /* SMC function ID that TSP uses to request service from secure monitor */
 #define TSP_GET_ARGS		0xf2001000
