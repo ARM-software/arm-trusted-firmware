@@ -113,5 +113,22 @@ func bl31_entrypoint
 	 */
 	bl	bl31_main
 
+	/* -------------------------------------------------------------
+	 * Clean the .data & .bss sections to main memory. This ensures
+	 * that any global data which was initialised by the primary CPU
+	 * is visible to secondary CPUs before they enable their data
+	 * caches and participate in coherency.
+	 * -------------------------------------------------------------
+	 */
+	adr	x0, __DATA_START__
+	adr	x1, __DATA_END__
+	sub	x1, x1, x0
+	bl	clean_dcache_range
+
+	adr	x0, __BSS_START__
+	adr	x1, __BSS_END__
+	sub	x1, x1, x0
+	bl	clean_dcache_range
+
 	b	el3_exit
 endfunc bl31_entrypoint

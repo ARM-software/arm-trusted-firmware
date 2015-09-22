@@ -74,6 +74,7 @@ PLAT_BL_COMMON_SOURCES	+=	lib/aarch64/xlat_tables.c			\
 				plat/common/aarch64/plat_common.c
 
 BL1_SOURCES		+=	drivers/arm/cci/cci.c				\
+				drivers/arm/ccn/ccn.c				\
 				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
@@ -91,6 +92,7 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 				plat/common/aarch64/platform_up_stack.S
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
+				drivers/arm/ccn/ccn.c				\
 				drivers/arm/gic/arm_gic.c			\
 				drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\

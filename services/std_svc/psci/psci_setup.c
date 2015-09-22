@@ -221,18 +221,6 @@ int psci_setup(void)
 	psci_cpu_pd_nodes[plat_my_core_pos()].mpidr =
 		read_mpidr() & MPIDR_AFFINITY_MASK;
 
-#if !USE_COHERENT_MEM
-	/*
-	 * The psci_non_cpu_pd_nodes only needs flushing when it's not allocated in
-	 * coherent memory.
-	 */
-	flush_dcache_range((uintptr_t) &psci_non_cpu_pd_nodes,
-			   sizeof(psci_non_cpu_pd_nodes));
-#endif
-
-	flush_dcache_range((uintptr_t) &psci_cpu_pd_nodes,
-			   sizeof(psci_cpu_pd_nodes));
-
 	psci_init_req_local_pwr_states();
 
 	/*

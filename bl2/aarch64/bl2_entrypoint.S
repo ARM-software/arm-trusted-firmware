@@ -82,6 +82,20 @@ func bl2_entrypoint
 	b.ne	_panic
 
 	/* ---------------------------------------------
+	 * Invalidate the RW memory used by the BL2
+	 * image. This includes the data and NOBITS
+	 * sections. This is done to safeguard against
+	 * possible corruption of this memory by dirty
+	 * cache lines in a system cache as a result of
+	 * use by an earlier boot loader stage.
+	 * ---------------------------------------------
+	 */
+	adr	x0, __RW_START__
+	adr	x1, __RW_END__
+	sub	x1, x1, x0
+	bl	inv_dcache_range
+
+	/* ---------------------------------------------
 	 * Zero out NOBITS sections. There are 2 of them:
 	 *   - the .bss section;
 	 *   - the coherent memory section.
