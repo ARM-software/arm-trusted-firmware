@@ -125,7 +125,7 @@ irq_sp_elx:
 
 	save_caller_regs_and_lr
 	/* We just update some statistics in the handler */
-	bl	tsp_irq_received
+	bl	tsp_handle_preemption
 	/* Hand over control to the normal world to handle the IRQ */
 	smc	#0
 	/* The resume std smc starts from here */

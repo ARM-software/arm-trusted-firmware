@@ -55,9 +55,10 @@
 
 typedef struct work_statistics {
 	uint32_t fiq_count;		/* Number of FIQs on this cpu */
-	uint32_t irq_count;		/* Number of IRQs on this cpu */
 	uint32_t sync_fiq_count;	/* Number of sync. fiqs on this cpu */
 	uint32_t sync_fiq_ret_count;	/* Number of fiq returns on this cpu */
+	/* Number of non s-el1 interrupts on this cpu which preempted TSP */
+	uint32_t preempt_intr_count;
 	uint32_t smc_count;		/* Number of returns on this cpu */
 	uint32_t eret_count;		/* Number of entries on this cpu */
 	uint32_t cpu_on_count;		/* Number of cpu on requests */
