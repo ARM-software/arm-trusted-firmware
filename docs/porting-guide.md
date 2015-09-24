@@ -1153,11 +1153,23 @@ of the system counter, which is retrieved from the first entry in the frequency
 modes table.
 
 
-*   **#define : PLAT_PERCPU_BAKERY_LOCK_SIZE** [optional]
+### #define : PLAT_PERCPU_BAKERY_LOCK_SIZE [optional]
 
-    It is used if the bakery locks are using normal memory. It defines the memory
-   (in bytes) to be allocated for the bakery locks and needs to be a multiple of
-   cache line size.
+   When `USE_COHERENT_MEM = 0`, this constant defines the total memory (in
+   bytes) aligned to the cache line boundary that should be allocated per-cpu to
+   accommodate all the bakery locks.
+
+   If this constant is not defined when `USE_COHERENT_MEM = 0`, the linker
+   calculates the size of the `bakery_lock` input section, aligns it to the
+   nearest `CACHE_WRITEBACK_GRANULE`, multiplies it with `PLATFORM_CORE_COUNT`
+   and stores the result in a linker symbol. This constant prevents a platform
+   from relying on the linker and provide a more efficient mechanism for
+   accessing per-cpu bakery lock information.
+
+   If this constant is defined and its value is not equal to the value
+   calculated by the linker then a link time assertion is raised. A compile time
+   assertion is raised if the value of the constant is not aligned to the cache
+   line boundary.
 
 3.3 Power State Coordination Interface (in BL3-1)
 ------------------------------------------------
