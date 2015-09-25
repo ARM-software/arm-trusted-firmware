@@ -81,6 +81,7 @@ unsigned long plat_get_my_stack(void);
 void plat_report_exception(unsigned long);
 int plat_crash_console_init(void);
 int plat_crash_console_putc(int c);
+void plat_error_handler(int err) __dead2;
 
 /*******************************************************************************
  * Mandatory BL1 functions

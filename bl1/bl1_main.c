@@ -174,12 +174,8 @@ void bl1_main(void)
 			 &bl2_ep);
 
 	if (err) {
-		/*
-		 * TODO: print failure to load BL2 but also add a tzwdog timer
-		 * which will reset the system eventually.
-		 */
 		ERROR("Failed to load BL2 firmware.\n");
-		panic();
+		plat_error_handler(err);
 	}
 
 	/*
