@@ -43,6 +43,9 @@
 #define TLK_REGISTER_LOGBUF	TLK_TOS_STD_FID(0x1)
 #define TLK_REGISTER_REQBUF	TLK_TOS_STD_FID(0x2)
 #define TLK_RESUME_FID		TLK_TOS_STD_FID(0x100)
+#define TLK_SYSTEM_SUSPEND	TLK_TOS_STD_FID(0xE001)
+#define TLK_SYSTEM_RESUME	TLK_TOS_STD_FID(0xE002)
+#define TLK_SYSTEM_OFF		TLK_TOS_STD_FID(0xE003)
 
 /*
  * SMC function IDs that TLK uses to signal various forms of completions
@@ -52,6 +55,9 @@
 #define TLK_PREEMPTED		(0x32000002 | (1 << 31))
 #define TLK_ENTRY_DONE		(0x32000003 | (1 << 31))
 #define TLK_VA_TRANSLATE	(0x32000004 | (1 << 31))
+#define TLK_SUSPEND_DONE	(0x32000005 | (1 << 31))
+#define TLK_RESUME_DONE		(0x32000006 | (1 << 31))
+#define TLK_SYSTEM_OFF_DONE	(0x32000007 | (1 << 31))
 
 /*
  * Trusted Application specific function IDs
