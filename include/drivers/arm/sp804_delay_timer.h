@@ -34,14 +34,8 @@
 #include <delay_timer.h>
 #include <stdint.h>
 
-
 uint32_t sp804_get_timer_value(void);
 
-void sp804_timer_ops_init(uintptr_t base_addr, const timer_ops_t *ops);
-
-#define sp804_timer_init(base_addr, clk_mult, clk_div)			\
-	sp804_timer_ops_init((base_addr), &(const timer_ops_t)		\
-			{ sp804_get_timer_value, (clk_mult), (clk_div) })
-
+void sp804_timer_init(uintptr_t base_addr, uint32_t clk_mult, uint32_t clk_div);
 
 #endif /* __SP804_DELAY_TIMER_H__ */
