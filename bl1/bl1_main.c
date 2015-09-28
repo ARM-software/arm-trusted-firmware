@@ -57,6 +57,9 @@ static void __dead2 bl1_run_bl2(entry_point_info_t *bl2_ep)
 	write_spsr_el3(bl2_ep->spsr);
 	write_elr_el3(bl2_ep->pc);
 
+	NOTICE("BL1: Booting BL2\n");
+	print_entry_point_info(bl2_ep);
+
 	eret(bl2_ep->args.arg0,
 		bl2_ep->args.arg1,
 		bl2_ep->args.arg2,
@@ -190,13 +193,6 @@ void bl1_main(void)
 
 	bl1_plat_set_bl2_ep_info(&bl2_image_info, &bl2_ep);
 	bl2_ep.args.arg1 = (unsigned long)bl2_tzram_layout;
-	NOTICE("BL1: Booting BL2\n");
-	INFO("BL1: BL2 address = 0x%llx\n",
-		(unsigned long long) bl2_ep.pc);
-	INFO("BL1: BL2 spsr = 0x%x\n", bl2_ep.spsr);
-	VERBOSE("BL1: BL2 memory layout address = 0x%llx\n",
-		(unsigned long long) bl2_tzram_layout);
-
 	bl1_run_bl2(&bl2_ep);
 
 	return;
@@ -209,12 +205,5 @@ void bl1_main(void)
 void display_boot_progress(entry_point_info_t *bl31_ep_info)
 {
 	NOTICE("BL1: Booting BL3-1\n");
-	INFO("BL1: BL3-1 address = 0x%llx\n",
-		(unsigned long long)bl31_ep_info->pc);
-	INFO("BL1: BL3-1 spsr = 0x%llx\n",
-		(unsigned long long)bl31_ep_info->spsr);
-	INFO("BL1: BL3-1 params address = 0x%llx\n",
-		(unsigned long long)bl31_ep_info->args.arg0);
-	INFO("BL1: BL3-1 plat params address = 0x%llx\n",
-		(unsigned long long)bl31_ep_info->args.arg1);
+	print_entry_point_info(bl31_ep_info);
 }
