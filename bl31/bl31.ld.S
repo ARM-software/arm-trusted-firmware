@@ -124,7 +124,7 @@ SECTIONS
         __BAKERY_LOCK_START__ = .;
         *(bakery_lock)
         . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __PERCPU_BAKERY_LOCK_SIZE__ = . - __BAKERY_LOCK_START__;
+        __PERCPU_BAKERY_LOCK_SIZE__ = ABSOLUTE(. - __BAKERY_LOCK_START__);
         . = . + (__PERCPU_BAKERY_LOCK_SIZE__ * (PLATFORM_CORE_COUNT - 1));
         __BAKERY_LOCK_END__ = .;
 #ifdef PLAT_PERCPU_BAKERY_LOCK_SIZE
