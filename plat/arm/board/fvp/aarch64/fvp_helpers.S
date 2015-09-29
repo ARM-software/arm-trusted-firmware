@@ -140,7 +140,7 @@ warm_reset:
 	 * it here with SO attributes.
 	 * ---------------------------------------------------------------------
 	 */
-	mov_imm	x0, MBOX_BASE
+	mov_imm	x0, PLAT_ARM_TRUSTED_MAILBOX_BASE
 	ldr	x0, [x0]
 	cbz	x0, _panic
 	ret

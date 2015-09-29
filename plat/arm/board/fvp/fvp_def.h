@@ -134,12 +134,4 @@
 #define FVP_NSAID_HDLCD0		2
 #define FVP_NSAID_CLCD			7
 
-/*******************************************************************************
- *  Shared Data
- ******************************************************************************/
-
-/* Entrypoint mailboxes */
-#define MBOX_BASE			ARM_SHARED_RAM_BASE
-
-
 #endif /* __FVP_DEF_H__ */

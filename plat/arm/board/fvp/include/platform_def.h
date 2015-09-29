@@ -88,6 +88,10 @@
 /* System timer related constants */
 #define PLAT_ARM_NSTIMER_FRAME_ID		1
 
+/* Mailbox base address */
+#define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE
+
+
 /* TrustZone controller related constants
  *
  * Currently only filters 0 and 2 are connected on Base FVP.
