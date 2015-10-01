@@ -34,6 +34,7 @@
 #include <auth_mod.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <errno.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <stdint.h>
@@ -239,7 +240,7 @@ void bl2_main(void)
 
 	e = load_bl32(bl2_to_bl31_params);
 	if (e) {
-		if (e == LOAD_AUTH_ERR) {
+		if (e == -EAUTH) {
 			ERROR("Failed to authenticate BL3-2\n");
 			panic();
 		} else {
