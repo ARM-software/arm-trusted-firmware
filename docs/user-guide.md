@@ -9,9 +9,10 @@ Contents :
 4.  [Getting the Trusted Firmware source code](#4--getting-the-trusted-firmware-source-code)
 5.  [Building the Trusted Firmware](#5--building-the-trusted-firmware)
 6.  [Building the rest of the software stack](#6--building-the-rest-of-the-software-stack)
-7.  [Preparing the images to run on FVP](#7--preparing-the-images-to-run-on-fvp)
-8.  [Running the software on FVP](#8--running-the-software-on-fvp)
-9.  [Running the software on Juno](#9--running-the-software-on-juno)
+7.  [EL3 payloads alternative boot flow](#7--el3-payloads-alternative-boot-flow)
+8.  [Preparing the images to run on FVP](#8--preparing-the-images-to-run-on-fvp)
+9.  [Running the software on FVP](#9--running-the-software-on-fvp)
+10. [Running the software on Juno](#10--running-the-software-on-juno)
 
 
 1.  Introduction
@@ -378,6 +379,11 @@ performed.
     firmware images have been loaded in memory and the MMU as well as the caches
     are turned off. Refer to the "Debugging options" section for more details.
 
+*   `EL3_PAYLOAD_BASE`: This option enables booting an EL3 payload instead of
+    the normal boot flow. It must specify the entry point address of the EL3
+    payload. Please refer to the "Booting an EL3 payload" section for more
+    details.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
@@ -724,8 +730,48 @@ above. The EDK2 binary for use with the ARM Trusted Firmware can be found here:
     instructions in the "Building the Trusted Firmware" section.
 
 
-7.  Preparing the images to run on FVP
+7.  EL3 payloads alternative boot flow
 --------------------------------------
+
+On a pre-production system, the ability to execute arbitrary, bare-metal code at
+the highest exception level is required. It allows full, direct access to the
+hardware, for example to run silicon soak tests.
+
+Although it is possible to implement some baremetal secure firmware from
+scratch, this is a complex task on some platforms, depending on the level of
+configuration required to put the system in the expected state.
+
+Rather than booting a baremetal application, a possible compromise is to boot
+`EL3 payloads` through the Trusted Firmware instead. This is implemented as an
+alternative boot flow, where a modified BL2 boots an EL3 payload, instead of
+loading the other BL images and passing control to BL31. It reduces the
+complexity of developing EL3 baremetal code by:
+
+*   putting the system into a known architectural state;
+*   taking care of platform secure world initialization;
+*   loading the BL30 image if required by the platform.
+
+When booting an EL3 payload on ARM standard platforms, the configuration of the
+TrustZone controller is simplified such that only region 0 is enabled and is
+configured to permit secure access only. This gives full access to the whole
+DRAM to the EL3 payload.
+
+The system is left in the same state as when entering BL31 in the default boot
+flow. In particular:
+
+*   Running in EL3;
+*   Current state is AArch64;
+*   Little-endian data access;
+*   All exceptions disabled;
+*   MMU disabled;
+*   Caches disabled.
+
+
+8.  Preparing the images to run on FVP
+--------------------------------------
+
+Note: This section can be ignored when booting an EL3 payload, as no Flattened
+Device Tree or kernel image is needed in this case.
 
 ### Obtaining the Flattened Device Trees
 
@@ -774,7 +820,7 @@ Copy the kernel image file `linux/arch/arm64/boot/Image` to the directory from
 which the FVP is launched. Alternatively a symbolic link may be used.
 
 
-8.  Running the software on FVP
+9.  Running the software on FVP
 -------------------------------
 
 This version of the ARM Trusted Firmware has been tested on the following ARM
@@ -1073,9 +1119,41 @@ The `bp.variant` parameter corresponds to the build variant field of the
 `SYS_ID` register.  Setting this to `0x0` allows the ARM Trusted Firmware to
 detect the legacy VE memory map while configuring the GIC.
 
+### Booting an EL3 payload on FVP
 
-9.  Running the software on Juno
---------------------------------
+Booting an EL3 payload on FVP requires a couple of changes to the way the
+model is normally invoked.
+
+First of all, the EL3 payload image is not part of the FIP and is not loaded by
+the Trusted Firmware. Therefore, it must be loaded in memory some other way.
+There are 2 ways of doing that:
+
+1.  It can be loaded over JTAG at the appropriate time. The infinite loop
+    introduced in BL1 when compiling the Trusted Firmware with
+    `SPIN_ON_BL1_EXIT=1` stops execution at the right moment for a debugger to
+    take control of the target and load the payload.
+
+2.  It can be pre-loaded in the FVP memory using the following model parameter:
+
+        --data="<path-to-binary>"@<base-address-of-binary>
+
+    The base address provided to the FVP must match the `EL3_PAYLOAD_BASE`
+    address used when building the Trusted Firmware.
+
+Secondly, the EL3 payloads boot flow requires the CPUs mailbox to be cleared
+at reset for the secondary CPUs holding pen to work properly. Unfortunately,
+its reset value is undefined on FVP. One way to clear it is to create an
+8-byte file containing all zero bytes and pre-load it into the FVP memory at the
+mailbox address (i.e. `0x04000000`) using the same `--data` FVP parameter as
+described above.
+
+The following command creates such a file called `mailbox.dat`:
+
+    dd if=/dev/zero of=mailbox.dat bs=1 count=8
+
+
+10.  Running the software on Juno
+---------------------------------
 
 This version of the ARM Trusted Firmware has been tested on Juno r0 and Juno r1.
 
