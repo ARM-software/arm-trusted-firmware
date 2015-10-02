@@ -60,6 +60,7 @@
 	 * -----------------------------------------------------
 	 */
 func plat_secondary_cold_boot_setup
+#ifndef EL3_PAYLOAD_BASE
 	/* ---------------------------------------------
 	 * Power down this cpu.
 	 * TODO: Do we need to worry about powering the
@@ -93,6 +94,18 @@ func plat_secondary_cold_boot_setup
 	wfi
 cb_panic:
 	b	cb_panic
+#else
+	mov_imm	x0, PLAT_ARM_TRUSTED_MAILBOX_BASE
+
+	/* Wait until the entrypoint gets populated */
+poll_mailbox:
+	ldr	x1, [x0]
+	cbz	x1, 1f
+	br	x1
+1:
+	wfe
+	b	poll_mailbox
+#endif /* EL3_PAYLOAD_BASE */
 endfunc plat_secondary_cold_boot_setup
 
 	/* ---------------------------------------------------------------------

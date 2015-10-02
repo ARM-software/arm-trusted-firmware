@@ -468,9 +468,11 @@ for placing the executing secondary CPU in a platform-specific state until the
 primary CPU performs the necessary actions to bring it out of that state and
 allow entry into the OS. This function must not return.
 
-In the ARM FVP port, each secondary CPU powers itself off. The primary CPU is
-responsible for powering up the secondary CPU when normal world software
-requires them.
+In the ARM FVP port, when using the normal boot flow, each secondary CPU powers
+itself off. The primary CPU is responsible for powering up the secondary CPUs
+when normal world software requires them. When booting an EL3 payload instead,
+they stay powered on and are put in a holding pen until their mailbox gets
+populated.
 
 This function fulfills requirement 2 above.
 
