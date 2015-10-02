@@ -31,9 +31,9 @@
 #ifndef __CM_H__
 #define __CM_H__
 
+#include <arch.h>
+#include <bl_common.h>
 #include <common_def.h>
-#include <cpu_data.h>
-#include <stdint.h>
 
 /*******************************************************************************
  * Forward declarations
@@ -46,7 +46,6 @@ struct entry_point_info;
 void cm_init(void);
 void *cm_get_context_by_mpidr(uint64_t mpidr,
 			      uint32_t security_state) __warn_deprecated;
-static inline void *cm_get_context(uint32_t security_state);
 void cm_set_context_by_mpidr(uint64_t mpidr,
 			     void *context,
 			     uint32_t security_state) __warn_deprecated;
@@ -55,7 +54,9 @@ void *cm_get_context_by_index(unsigned int cpu_idx,
 void cm_set_context_by_index(unsigned int cpu_idx,
 			     void *context,
 			     unsigned int security_state);
-static inline void cm_set_context(void *context, uint32_t security_state);
+void *cm_get_context(uint32_t security_state);
+void cm_set_context(void *context, uint32_t security_state);
+inline void cm_set_next_context(void *context);
 void cm_init_context(uint64_t mpidr,
 		     const struct entry_point_info *ep) __warn_deprecated;
 void cm_init_my_context(const struct entry_point_info *ep);
@@ -76,27 +77,28 @@ uint32_t cm_get_scr_el3(uint32_t security_state);
 /* Inline definitions */
 
 /*******************************************************************************
- * This function returns a pointer to the most recent 'cpu_context' structure
- * for the calling CPU that was set as the context for the specified security
- * state. NULL is returned if no such structure has been specified.
+ * This function is used to program the context that's used for exception
+ * return. This initializes the SP_EL3 to a pointer to a 'cpu_context' set for
+ * the required security state
  ******************************************************************************/
-void *cm_get_context(uint32_t security_state)
+inline void cm_set_next_context(void *context)
 {
-	assert(security_state <= NON_SECURE);
+#if DEBUG
+	uint64_t sp_mode;
 
-	return get_cpu_data(cpu_context[security_state]);
+	/*
+	 * Check that this function is called with SP_EL0 as the stack
+	 * pointer
+	 */
+	__asm__ volatile("mrs	%0, SPSel\n"
+			 : "=r" (sp_mode));
+
+	assert(sp_mode == MODE_SP_EL0);
+#endif
+
+	__asm__ volatile("msr	spsel, #1\n"
+			 "mov	sp, %0\n"
+			 "msr	spsel, #0\n"
+			 : : "r" (context));
 }
-
-/*******************************************************************************
- * This function sets the pointer to the current 'cpu_context' structure for the
- * specified security state for the calling CPU
- ******************************************************************************/
-void cm_set_context(void *context, uint32_t security_state)
-{
-	assert(security_state <= NON_SECURE);
-
-	set_cpu_data(cpu_context[security_state], context);
-}
-
-
 #endif /* __CM_H__ */
