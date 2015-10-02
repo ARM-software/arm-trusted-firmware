@@ -28,6 +28,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+# This table is used in converting lower case to upper case.
+uppercase_table:=a,A b,B c,C d,D e,E f,F g,G h,H i,I j,J k,K l,L m,M n,N o,O p,P q,Q r,R s,S t,T u,U v,V w,W x,X y,Y z,Z
+
+# Internal macro used for converting lower case to upper case.
+#   $(1) = upper case table
+#   $(2) = String to convert
+define uppercase_internal
+$(if $(1),$$(subst $(firstword $(1)),$(call uppercase_internal,$(wordlist 2,$(words $(1)),$(1)),$(2))),$(2))
+endef
+
+# A macro for converting a string to upper case
+#   $(1) = String to convert
+define uppercase
+$(eval uppercase_result:=$(call uppercase_internal,$(uppercase_table),$(1)))$(uppercase_result)
+endef
+
 # Convenience function for adding build definitions
 # $(eval $(call add_define,FOO)) will have:
 # -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise
@@ -134,15 +150,16 @@ endif
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
 #   $(2) = source file (%.c)
-#   $(3) = BL stage (2, 30, 31, 32, 33)
+#   $(3) = BL stage (2, 2u, 30, 31, 32, 33)
 define MAKE_C
 
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
+$(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
 $(OBJ): $(2)
 	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(CFLAGS) -DIMAGE_BL$(3) -c $$< -o $$@
+	$$(Q)$$(CC) $$(CFLAGS) -D$(IMAGE) -c $$< -o $$@
 
 
 $(PREREQUISITES): $(2)
@@ -160,15 +177,16 @@ endef
 # MAKE_S builds an assembly source file and generates the dependency file
 #   $(1) = output directory
 #   $(2) = assembly file (%.S)
-#   $(3) = BL stage (2, 30, 31, 32, 33)
+#   $(3) = BL stage (2, 2u, 30, 31, 32, 33)
 define MAKE_S
 
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
+$(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
 $(OBJ): $(2)
 	@echo "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -DIMAGE_BL$(3) -c $$< -o $$@
+	$$(Q)$$(AS) $$(ASFLAGS) -D$(IMAGE) -c $$< -o $$@
 
 $(PREREQUISITES): $(2)
 	@echo "  DEPS    $$@"
@@ -243,20 +261,22 @@ endef
 
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
-#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(1) = BL stage (2, 2u, 30, 31, 32, 33)
 #   $(2) = In FIP (false if empty)
 define MAKE_BL
         $(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
-        $(eval SOURCES    := $(BL$(1)_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
+        $(eval BL_SOURCES := $(BL$(call uppercase,$(1))_SOURCES))
+        $(eval SOURCES    := $(BL_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
         $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
         $(eval LINKERFILE := $(call IMG_LINKERFILE,$(1)))
         $(eval MAPFILE    := $(call IMG_MAPFILE,$(1)))
         $(eval ELF        := $(call IMG_ELF,$(1)))
         $(eval DUMP       := $(call IMG_DUMP,$(1)))
         $(eval BIN        := $(call IMG_BIN,$(1)))
+        $(eval BL_LINKERFILE := $(BL$(call uppercase,$(1))_LINKERFILE))
 
         $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
-        $(eval $(call MAKE_LD,$(LINKERFILE),$(BL$(1)_LINKERFILE)))
+        $(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE)))
 
 $(BUILD_DIR):
 	$$(Q)mkdir -p "$$@"
