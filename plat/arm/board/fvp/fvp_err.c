@@ -27,53 +27,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_def.h>
-#include <plat_arm.h>
+
+#include <board_arm_def.h>
+#include <debug.h>
+#include <errno.h>
+#include <norflash.h>
+#include <stdint.h>
 
 /*
- * Table of regions for different BL stages to map using the MMU.
- * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
+ * FVP error handler
  */
-#if IMAGE_BL1
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL2
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
-	ARM_MAP_TSP_SEC_MEM,
-	{0}
-};
-#endif
-#if IMAGE_BL31
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL32
-const mmap_region_t plat_arm_mmap[] = {
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
+void plat_error_handler(int err)
+{
+	int ret;
 
-ARM_CASSERT_MMAP
+	switch (err) {
+	case -ENOENT:
+	case -EAUTH:
+		/* Image load or authentication error. Erase the ToC */
+		INFO("Erasing FIP ToC from flash...\n");
+		nor_unlock(PLAT_ARM_FIP_BASE);
+		ret = nor_word_program(PLAT_ARM_FIP_BASE, 0);
+		if (ret) {
+			ERROR("Cannot erase ToC\n");
+		} else {
+			INFO("Done\n");
+		}
+		break;
+	default:
+		/* Unexpected error */
+		break;
+	}
 
+	/* Loop until the watchdog resets the system */
+	for (;;)
+		;
+}

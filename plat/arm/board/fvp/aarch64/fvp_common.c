@@ -68,7 +68,7 @@ arm_config_t arm_config;
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0,
+	V2M_MAP_FLASH0_RW,
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
@@ -79,7 +79,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #if IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0,
+	V2M_MAP_FLASH0_RW,
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,

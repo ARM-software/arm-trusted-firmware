@@ -63,6 +63,15 @@ endif
 $(eval $(call assert_boolean,ARM_RECOM_STATE_ID_ENC))
 $(eval $(call add_define,ARM_RECOM_STATE_ID_ENC))
 
+# Process ARM_DISABLE_TRUSTED_WDOG flag
+# By default, Trusted Watchdog is always enabled unless SPIN_ON_BL1_EXIT is set
+ARM_DISABLE_TRUSTED_WDOG	:=	0
+ifeq (${SPIN_ON_BL1_EXIT}, 1)
+ARM_DISABLE_TRUSTED_WDOG	:=	1
+endif
+$(eval $(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG))
+$(eval $(call add_define,ARM_DISABLE_TRUSTED_WDOG))
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64
@@ -75,6 +84,7 @@ PLAT_BL_COMMON_SOURCES	+=	lib/aarch64/xlat_tables.c			\
 
 BL1_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/ccn/ccn.c				\
+				drivers/arm/sp805/sp805.c			\
 				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\

@@ -35,6 +35,7 @@
 #include <console.h>
 #include <platform_def.h>
 #include <plat_arm.h>
+#include <sp805.h>
 #include "../../../bl1/bl1_private.h"
 
 
@@ -73,6 +74,11 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 void arm_bl1_early_platform_setup(void)
 {
 	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
+
+#if !ARM_DISABLE_TRUSTED_WDOG
+	/* Enable watchdog */
+	sp805_start(ARM_SP805_TWDG_BASE, ARM_TWDG_LOAD_VAL);
+#endif
 
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
@@ -147,6 +153,11 @@ void bl1_platform_setup(void)
 
 void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
 {
+#if !ARM_DISABLE_TRUSTED_WDOG
+	/* Disable watchdog before leaving BL1 */
+	sp805_stop(ARM_SP805_TWDG_BASE);
+#endif
+
 #ifdef EL3_PAYLOAD_BASE
 	/*
 	 * Program the EL3 payload's entry point address into the CPUs mailbox
