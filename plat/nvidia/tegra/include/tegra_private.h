@@ -43,7 +43,10 @@
 #define TEGRA_DRAM_END		0x27FFFFFFF
 
 typedef struct plat_params_from_bl2 {
+	/* TZ memory size */
 	uint64_t tzdram_size;
+	/* TZ memory base */
+	uint64_t tzdram_base;
 } plat_params_from_bl2_t;
 
 /* Declarations for plat_psci_handlers.c */

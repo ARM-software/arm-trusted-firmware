@@ -130,17 +130,18 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	if (from_bl2->bl33_ep_info)
-		bl33_image_ep_info = *from_bl2->bl33_ep_info;
+	assert(from_bl2->bl33_ep_info);
+	bl33_image_ep_info = *from_bl2->bl33_ep_info;
 
 	if (from_bl2->bl32_ep_info)
 		bl32_image_ep_info = *from_bl2->bl32_ep_info;
 
 	/*
-	 * Parse platform specific parameters - TZDRAM aperture size
+	 * Parse platform specific parameters - TZDRAM aperture base and size
 	 */
-	if (plat_params)
-		plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
+	assert(plat_params);
+	plat_bl31_params_from_bl2.tzdram_base = plat_params->tzdram_base;
+	plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
 }
 
 /*******************************************************************************
@@ -168,7 +169,7 @@ void bl31_platform_setup(void)
 	/*
 	 * Do initial security configuration to allow DRAM/device access.
 	 */
-	tegra_memctrl_tzdram_setup(tegra_bl31_phys_base,
+	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
 			plat_bl31_params_from_bl2.tzdram_size);
 
 	/* Set the next EL to be AArch64 */
