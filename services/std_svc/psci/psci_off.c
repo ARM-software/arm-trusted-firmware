@@ -62,7 +62,7 @@ static void psci_set_power_off_state(psci_power_state_t *state_info)
  ******************************************************************************/
 int psci_do_cpu_off(unsigned int end_pwrlvl)
 {
-	int rc, idx = plat_my_core_pos();
+	int rc = PSCI_E_SUCCESS, idx = plat_my_core_pos();
 	psci_power_state_t state_info;
 
 	/*
@@ -121,22 +121,26 @@ exit:
 				      idx);
 
 	/*
-	 * Set the affinity info state to OFF. This writes directly to main
-	 * memory as caches are disabled, so cache maintenance is required
-	 * to ensure that later cached reads of aff_info_state return
-	 * AFF_STATE_OFF.
-	 */
-	flush_cpu_data(psci_svc_cpu_data.aff_info_state);
-	psci_set_aff_info_state(AFF_STATE_OFF);
-	inv_cpu_data(psci_svc_cpu_data.aff_info_state);
-
-	/*
 	 * Check if all actions needed to safely power down this cpu have
-	 * successfully completed. Enter a wfi loop which will allow the
-	 * power controller to physically power down this cpu.
+	 * successfully completed.
 	 */
-	if (rc == PSCI_E_SUCCESS)
+	if (rc == PSCI_E_SUCCESS) {
+		/*
+		 * Set the affinity info state to OFF. This writes directly to
+		 * main memory as caches are disabled, so cache maintenance is
+		 * required to ensure that later cached reads of aff_info_state
+		 * return AFF_STATE_OFF.
+		 */
+		flush_cpu_data(psci_svc_cpu_data.aff_info_state);
+		psci_set_aff_info_state(AFF_STATE_OFF);
+		inv_cpu_data(psci_svc_cpu_data.aff_info_state);
+
+		/*
+		 * Enter a wfi loop which will allow the power controller to
+		 * physically power down this cpu.
+		 */
 		psci_power_down_wfi();
+	}
 
 	return rc;
 }
