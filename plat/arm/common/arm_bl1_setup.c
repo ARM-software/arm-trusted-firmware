@@ -57,7 +57,6 @@
 #pragma weak bl1_plat_arch_setup
 #pragma weak bl1_platform_setup
 #pragma weak bl1_plat_sec_mem_layout
-#pragma weak bl1_plat_set_bl2_ep_info
 
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
@@ -168,17 +167,4 @@ void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
 	dsbsy();
 	sev();
 #endif
-}
-
-/*******************************************************************************
- * Before calling this function BL2 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL2 and set SPSR and security state.
- * On ARM standard platforms we only set the security state of the entrypoint
- ******************************************************************************/
-void bl1_plat_set_bl2_ep_info(image_info_t *bl2_image,
-				entry_point_info_t *bl2_ep)
-{
-	SET_SECURITY_STATE(bl2_ep->h.attr, SECURE);
-	bl2_ep->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 }

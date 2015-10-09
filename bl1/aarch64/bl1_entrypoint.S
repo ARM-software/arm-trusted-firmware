@@ -69,10 +69,14 @@ func bl1_entrypoint
 
 	/* --------------------------------------------------
 	 * Initialize platform and jump to our c-entry point
-	 * for this type of reset. Panic if it returns
+	 * for this type of reset.
 	 * --------------------------------------------------
 	 */
 	bl	bl1_main
-panic:
-	b	panic
+
+	/* --------------------------------------------------
+	 * Do the transition to next boot image.
+	 * --------------------------------------------------
+	 */
+	b	el3_exit
 endfunc bl1_entrypoint

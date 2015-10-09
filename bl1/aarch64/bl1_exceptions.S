@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <bl_common.h>
+#include <context.h>
 
 	.globl	bl1_exceptions
 
@@ -114,10 +115,12 @@ SynchronousExceptionA64:
 	/* Enable the SError interrupt */
 	msr	daifclr, #DAIF_ABT_BIT
 
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
 	/* Expect only SMC exceptions */
-	mrs	x19, esr_el3
-	ubfx	x20, x19, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x20, #EC_AARCH64_SMC
+	mrs	x30, esr_el3
+	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+	cmp	x30, #EC_AARCH64_SMC
 	b.ne	unexpected_sync_exception
 
 	b	smc_handler64
@@ -178,6 +181,14 @@ SErrorA32:
 
 
 func smc_handler64
+	/* ----------------------------------------------
+	 * Switch back to SP_EL0 for the C runtime stack.
+	 * ----------------------------------------------
+	 */
+	ldr	x30, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
+	msr	spsel, #0
+	mov	sp, x30
+
 	/* ---------------------------------------------------------------------
 	 * Only a single SMC exception from BL2 to ask BL1 to pass EL3 control
 	 * to BL31 is expected here. It expects:

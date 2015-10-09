@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,10 +59,40 @@
 #define ENTRY_POINT_INFO_PC_OFFSET	0x08
 #define ENTRY_POINT_INFO_ARGS_OFFSET	0x18
 
-#define PARAM_EP_SECURITY_MASK    0x1
+/* The following are used to set/get image attributes. */
+#define EXECUTABLE			(0x1)
+#define NON_EXECUTABLE			(0x0)
+#define PARAM_EP_EXECUTE_MASK		(0x1)
+#define PARAM_EP_EXECUTE_SHIFT		(0x1)
+#define PARAM_EP_SECURITY_MASK		(0x1)
+#define PARAM_EP_SECURITY_SHIFT		(0x0)
+
 #define GET_SECURITY_STATE(x) (x & PARAM_EP_SECURITY_MASK)
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
+
+#define GET_EXEC_STATE(x)    \
+    (((x) >> PARAM_EP_EXECUTE_SHIFT) & PARAM_EP_EXECUTE_MASK)
+
+#define SET_EXEC_STATE(x)    \
+    (((x) & PARAM_EP_EXECUTE_MASK) << PARAM_EP_EXECUTE_SHIFT)
+
+#define GET_SEC_STATE(x)    \
+    (((x) >> PARAM_EP_SECURITY_SHIFT) & PARAM_EP_SECURITY_MASK)
+
+#define SET_SEC_STATE(x)    \
+    (((x) & PARAM_EP_SECURITY_MASK) << PARAM_EP_SECURITY_SHIFT)
+
+/*
+ * The following are used for image state attributes.
+ * Image can only be in one of the following state.
+ */
+#define IMAGE_STATE_RESET			0
+#define IMAGE_STATE_COPIED			1
+#define IMAGE_STATE_COPYING			2
+#define IMAGE_STATE_AUTHENTICATED		3
+#define IMAGE_STATE_EXECUTED			4
+#define IMAGE_STATE_INTERRUPTED			5
 
 #define EP_EE_MASK	0x2
 #define EP_EE_LITTLE	0x0
@@ -81,6 +111,8 @@
 #define PARAM_BL31       0x03
 
 #define VERSION_1		0x01
+
+#define INVALID_IMAGE_ID		(0xFFFFFFFF)
 
 #define SET_PARAM_HEAD(_p, _type, _ver, _attr) do { \
 	(_p)->h.type = (uint8_t)(_type); \
@@ -196,7 +228,23 @@ typedef struct image_info {
 	param_header_t h;
 	uintptr_t image_base;   /* physical address of base of image */
 	uint32_t image_size;    /* bytes read from image file */
+	uint32_t copied_size;	/* image size copied in blocks */
 } image_info_t;
+
+/*****************************************************************************
+ * The image descriptor struct definition.
+ *****************************************************************************/
+typedef struct image_desc {
+	/* Contains unique image id for the image. */
+	unsigned int image_id;
+	image_info_t image_info;
+	entry_point_info_t ep_info;
+	/*
+	 * This member contains Image state information.
+	 * Refer IMAGE_STATE_XXX defined above.
+	 */
+	unsigned int state;
+} image_desc_t;
 
 /*******************************************************************************
  * This structure represents the superset of information that can be passed to

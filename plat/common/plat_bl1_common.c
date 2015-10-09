@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,24 +27,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <bl_common.h>
+#include <debug.h>
+#include <platform_def.h>
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
+/*
+ * The following platform functions are weakly defined. They
+ * are default implementations that allow BL1  compile in
+ * absence of real definitions. The Platforms may override
+ * with more complex definitions.
+ */
+#pragma weak bl1_plat_get_next_image_id
+#pragma weak bl1_plat_set_ep_info
+#pragma weak bl1_plat_get_image_desc
 
-/*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
- ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
 
-/******************************************
- * Function prototypes
- *****************************************/
-void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
+unsigned int bl1_plat_get_next_image_id(void)
+{
+	/* BL2 load will be done by default. */
+	return BL2_IMAGE_ID;
+}
 
-void bl1_prepare_next_image(unsigned int image_id);
-#endif /* __BL1_PRIVATE_H__ */
+void bl1_plat_set_ep_info(unsigned int image_id,
+		entry_point_info_t *ep_info)
+{
+
+}
+
+/*
+ * Following is the default definition that always
+ * returns BL2 image details.
+ */
+image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
+{
+	static image_desc_t bl2_img_desc = BL2_IMAGE_DESC;
+	return &bl2_img_desc;
+}

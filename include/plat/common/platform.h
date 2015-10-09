@@ -43,6 +43,7 @@ struct meminfo;
 struct image_info;
 struct entry_point_info;
 struct bl31_params;
+struct image_desc;
 
 /*******************************************************************************
  * plat_get_rotpk_info() flags
@@ -91,18 +92,18 @@ void bl1_plat_arch_setup(void);
 void bl1_platform_setup(void);
 struct meminfo *bl1_plat_sec_mem_layout(void);
 
-/*
- * This function allows the platform to change the entrypoint information for
- * BL2, after BL1 has loaded BL2 into memory but before BL2 is executed.
- */
-void bl1_plat_set_bl2_ep_info(struct image_info *image,
-			      struct entry_point_info *ep);
-
 /*******************************************************************************
  * Optional BL1 functions (may be overridden)
  ******************************************************************************/
 void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
 			     struct meminfo *bl2_mem_layout);
+/*
+ * The following functions are used for image loading process in BL1.
+ */
+void bl1_plat_set_ep_info(unsigned int image_id,
+		struct entry_point_info *ep_info);
+unsigned int bl1_plat_get_next_image_id(void);
+struct image_desc *bl1_plat_get_image_desc(unsigned int image_id);
 
 /*******************************************************************************
  * Mandatory BL2 functions
