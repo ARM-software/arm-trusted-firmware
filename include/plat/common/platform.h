@@ -92,18 +92,37 @@ void bl1_plat_arch_setup(void);
 void bl1_platform_setup(void);
 struct meminfo *bl1_plat_sec_mem_layout(void);
 
+/*
+ * The following function is mandatory when the
+ * firmware update feature is used.
+ */
+int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
+		unsigned int flags);
+
 /*******************************************************************************
  * Optional BL1 functions (may be overridden)
  ******************************************************************************/
 void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
 			     struct meminfo *bl2_mem_layout);
+
 /*
  * The following functions are used for image loading process in BL1.
  */
 void bl1_plat_set_ep_info(unsigned int image_id,
 		struct entry_point_info *ep_info);
+/*
+ * The following functions are mandatory when firmware update
+ * feature is used and optional otherwise.
+ */
 unsigned int bl1_plat_get_next_image_id(void);
 struct image_desc *bl1_plat_get_image_desc(unsigned int image_id);
+
+/*
+ * The following functions are used by firmware update
+ * feature and may optionally be overridden.
+ */
+__dead2 void bl1_plat_fwu_done(void *cookie, void *reserved);
+
 
 /*******************************************************************************
  * Mandatory BL2 functions

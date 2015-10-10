@@ -45,13 +45,6 @@
 #define TOP	0x1
 #define BOTTOM	!TOP
 
-/******************************************************************************
- * Corresponds to the function ID of the only SMC that the BL1 exception
- * handlers service. That's why the chosen value is the first function ID of
- * the ARM SMC64 range.
- *****************************************************************************/
-#define RUN_IMAGE	0xC0000000
-
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the
  * 'entry_point_info' structure at their correct offsets.

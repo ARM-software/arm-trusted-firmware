@@ -38,5 +38,8 @@ BL1_SOURCES		+=	bl1/bl1_main.c				\
 				lib/cpus/aarch64/cpu_helpers.S		\
 				plat/common/plat_bl1_common.c
 
+ifeq (${TRUSTED_BOARD_BOOT},1)
+BL1_SOURCES		+=	bl1/bl1_fwu.c
+endif
 
 BL1_LINKERFILE		:=	bl1/bl1.ld.S

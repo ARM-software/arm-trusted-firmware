@@ -195,7 +195,8 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				lib/stdlib/std.c			\
 				plat/common/aarch64/platform_helpers.S
 
-INCLUDES		+=	-Iinclude/bl31			\
+INCLUDES		+=	-Iinclude/bl1			\
+				-Iinclude/bl31			\
 				-Iinclude/bl31/services		\
 				-Iinclude/common		\
 				-Iinclude/drivers		\

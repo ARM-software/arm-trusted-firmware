@@ -32,11 +32,19 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <auth_mod.h>
+#include <bl1.h>
 #include <bl_common.h>
 #include <debug.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <smcc_helpers.h>
 #include "bl1_private.h"
+#include <uuid.h>
+
+/* BL1 Service UUID */
+DEFINE_SVC_UUID(bl1_svc_uid,
+	0xfd3967d4, 0x72cb, 0x4d9a, 0xb5, 0x75,
+	0x67, 0x15, 0xd6, 0xf4, 0xbb, 0x4a);
 
 
 static void bl1_load_bl2(void);
@@ -131,8 +139,14 @@ void bl1_main(void)
 	/* Get the image id of next image to load and run. */
 	image_id = bl1_plat_get_next_image_id();
 
+	/*
+	 * We currently interpret any image id other than
+	 * BL2_IMAGE_ID as the start of firmware update.
+	 */
 	if (image_id == BL2_IMAGE_ID)
 		bl1_load_bl2();
+	else
+		NOTICE("BL1-FWU: *******FWU Process Started*******\n");
 
 	bl1_prepare_next_image(image_id);
 }
@@ -213,3 +227,45 @@ void print_debug_loop_message(void)
 	NOTICE("BL1: Please connect the debugger to continue\n");
 }
 #endif
+
+/*******************************************************************************
+ * Top level handler for servicing BL1 SMCs.
+ ******************************************************************************/
+register_t bl1_smc_handler(unsigned int smc_fid,
+	register_t x1,
+	register_t x2,
+	register_t x3,
+	register_t x4,
+	void *cookie,
+	void *handle,
+	unsigned int flags)
+{
+
+#if TRUSTED_BOARD_BOOT
+	/*
+	 * Dispatch FWU calls to FWU SMC handler and return its return
+	 * value
+	 */
+	if (is_fwu_fid(smc_fid)) {
+		return bl1_fwu_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+			handle, flags);
+	}
+#endif
+
+	switch (smc_fid) {
+	case BL1_SMC_CALL_COUNT:
+		SMC_RET1(handle, BL1_NUM_SMC_CALLS);
+
+	case BL1_SMC_UID:
+		SMC_UUID_RET(handle, bl1_svc_uid);
+
+	case BL1_SMC_VERSION:
+		SMC_RET1(handle, BL1_SMC_MAJOR_VER | BL1_SMC_MINOR_VER);
+
+	default:
+		break;
+	}
+
+	WARN("Unimplemented BL1 SMC Call: 0x%x \n", smc_fid);
+	SMC_RET1(handle, SMC_UNK);
+}

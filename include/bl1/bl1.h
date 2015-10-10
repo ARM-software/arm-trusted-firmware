@@ -28,61 +28,71 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
-#include <assert.h>
+#ifndef __BL1_FWU_H__
+#define __BL1_FWU_H__
+
 #include <bl_common.h>
-#include <debug.h>
-#include <errno.h>
-#include <platform_def.h>
 
 /*
- * The following platform functions are weakly defined. They
- * are default implementations that allow BL1 to compile in
- * absence of real definitions. The Platforms may override
- * with more complex definitions.
+ * Defines for BL1 SMC function ids.
  */
-#pragma weak bl1_plat_get_next_image_id
-#pragma weak bl1_plat_set_ep_info
-#pragma weak bl1_plat_get_image_desc
-#pragma weak bl1_plat_fwu_done
-
-
-unsigned int bl1_plat_get_next_image_id(void)
-{
-	/* BL2 load will be done by default. */
-	return BL2_IMAGE_ID;
-}
-
-void bl1_plat_set_ep_info(unsigned int image_id,
-		entry_point_info_t *ep_info)
-{
-
-}
+#define BL1_SMC_CALL_COUNT		0x0
+#define BL1_SMC_UID			0x1
+/* SMC #0x2 reserved */
+#define BL1_SMC_VERSION			0x3
 
 /*
- * Following is the default definition that always
- * returns BL2 image details.
+ * Corresponds to the function ID of the SMC that
+ * the BL1 exception handler service to execute BL31.
  */
-image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
-{
-	static image_desc_t bl2_img_desc = BL2_IMAGE_DESC;
-	return &bl2_img_desc;
-}
-
-__dead2 void bl1_plat_fwu_done(void *cookie, void *rsvd_ptr)
-{
-	while (1)
-		wfi();
-}
+#define BL1_SMC_RUN_IMAGE		0x4
 
 /*
- * The Platforms must override with real definition.
+ * BL1 SMC version
  */
-#pragma weak bl1_plat_mem_check
+#define BL1_SMC_MAJOR_VER		0x0
+#define BL1_SMC_MINOR_VER		0x1
 
-int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
-		unsigned int flags)
-{
-	assert(0);
-	return -ENOMEM;
-}
+/*
+ * Defines for FWU SMC function ids.
+ */
+
+#define FWU_SMC_IMAGE_COPY		0x10
+#define FWU_SMC_IMAGE_AUTH		0x11
+#define FWU_SMC_IMAGE_EXECUTE		0x12
+#define FWU_SMC_IMAGE_RESUME		0x13
+#define FWU_SMC_SEC_IMAGE_DONE		0x14
+#define FWU_SMC_UPDATE_DONE		0x15
+
+/*
+ * Number of FWU calls (above) implemented
+ */
+#define FWU_NUM_SMC_CALLS		6
+
+#if TRUSTED_BOARD_BOOT
+# define BL1_NUM_SMC_CALLS		(FWU_NUM_SMC_CALLS + 4)
+#else
+# define BL1_NUM_SMC_CALLS		4
+#endif
+
+/*
+ * The macros below are used to identify FWU
+ * calls from the SMC function ID
+ */
+#define FWU_SMC_FID_START		FWU_SMC_IMAGE_COPY
+#define FWU_SMC_FID_END			FWU_SMC_UPDATE_DONE
+#define is_fwu_fid(_fid) \
+    ((_fid >= FWU_SMC_FID_START) && (_fid <= FWU_SMC_FID_END))
+
+#ifndef __ASSEMBLY__
+#include <cassert.h>
+
+/*
+ * Check if the total number of FWU SMC calls are as expected.
+ */
+CASSERT(FWU_NUM_SMC_CALLS == 	\
+		(FWU_SMC_FID_END - FWU_SMC_FID_START + 1),\
+		assert_FWU_NUM_SMC_CALLS_mismatch);
+
+#endif /* __ASSEMBLY__ */
+#endif /* __BL1_FWU_H__ */
