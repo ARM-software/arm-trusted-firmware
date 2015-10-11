@@ -82,6 +82,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	MAP_DEVICE2,
+#if TRUSTED_BOARD_BOOT
+	ARM_MAP_NS_DRAM1,
+#endif
 	{0}
 };
 #endif

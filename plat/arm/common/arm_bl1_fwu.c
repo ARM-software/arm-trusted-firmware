@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,41 +28,87 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
+#include <bl_common.h>
+#include <debug.h>
+#include <errno.h>
 #include <plat_arm.h>
-#include <tbbr_img_def.h>
-#include "fvp_private.h"
+#include <tbbr_img_desc.h>
 
 
-/*******************************************************************************
- * Perform any BL1 specific platform actions.
- ******************************************************************************/
-void bl1_early_platform_setup(void)
+/* Struct to keep track of usable memory */
+typedef struct bl1_mem_info{
+	uintptr_t mem_base;
+	unsigned int mem_size;
+} bl1_mem_info_t;
+
+bl1_mem_info_t fwu_addr_map_secure[] = {
+	{
+		.mem_base = ARM_SHARED_RAM_BASE,
+		.mem_size = ARM_SHARED_RAM_SIZE
+	},
+	{
+		.mem_size = 0
+	}
+};
+
+bl1_mem_info_t fwu_addr_map_non_secure[] = {
+	{
+		.mem_base = ARM_NS_DRAM1_BASE,
+		.mem_size = ARM_NS_DRAM1_SIZE
+	},
+	{
+		.mem_base = V2M_FLASH0_BASE,
+		.mem_size = V2M_FLASH0_SIZE
+	},
+	{
+		.mem_size = 0
+	}
+};
+
+int bl1_plat_mem_check(uintptr_t mem_base,
+		unsigned int mem_size,
+		unsigned int flags)
 {
-	arm_bl1_early_platform_setup();
+	unsigned int index = 0;
+	bl1_mem_info_t *mmap;
 
-	/* Initialize the platform config for future decision making */
-	fvp_config_setup();
+	assert(mem_base);
+	assert(mem_size);
 
 	/*
-	 * Initialize CCI for this cluster during cold boot.
-	 * No need for locks as no other CPU is active.
+	 * Check the given image source and size.
 	 */
-	fvp_cci_init();
-	/*
-	 * Enable CCI coherency for the primary CPU's cluster.
-	 */
-	fvp_cci_enable();
+	if (GET_SEC_STATE(flags) == SECURE)
+		mmap = fwu_addr_map_secure;
+	else
+		mmap = fwu_addr_map_non_secure;
+
+	while (mmap[index].mem_size) {
+		if ((mem_base >= mmap[index].mem_base) &&
+			((mem_base + mem_size)
+			<= (mmap[index].mem_base +
+			mmap[index].mem_size)))
+			return 0;
+
+		index++;
+	}
+
+	return -ENOMEM;
 }
 
 /*******************************************************************************
- * The following function checks if Firmware update is needed,
- * by checking if TOC in FIP image is valid or not.
+ * This function does linear search for image_id and returns image_desc.
  ******************************************************************************/
-unsigned int bl1_plat_get_next_image_id(void)
+image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
 {
-	if (!arm_io_is_toc_valid())
-		return NS_BL1U_IMAGE_ID;
+	unsigned int index = 0;
 
-	return BL2_IMAGE_ID;
+	while (bl1_tbbr_image_descs[index].image_id != INVALID_IMAGE_ID) {
+		if (bl1_tbbr_image_descs[index].image_id == image_id)
+			return &bl1_tbbr_image_descs[index];
+		index++;
+	}
+
+	return NULL;
 }
-

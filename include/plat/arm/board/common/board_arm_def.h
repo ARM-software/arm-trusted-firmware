@@ -65,10 +65,18 @@
  */
 #if IMAGE_BL1
 # if PLAT_fvp
-#  define PLAT_ARM_MMAP_ENTRIES		7
+#  if TRUSTED_BOARD_BOOT
+#   define PLAT_ARM_MMAP_ENTRIES	8
+#  else
+#   define PLAT_ARM_MMAP_ENTRIES	7
+#  endif	/* TRUSTED_BOARD_BOOT */
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		6
-# endif
+#  if TRUSTED_BOARD_BOOT
+#   define PLAT_ARM_MMAP_ENTRIES	7
+#  else
+#   define PLAT_ARM_MMAP_ENTRIES	6
+#  endif	/* TRUSTED_BOARD_BOOT */
+# endif		/* PLAT_ */
 #endif
 #if IMAGE_BL2
 # if PLAT_fvp
@@ -88,11 +96,15 @@
  * Platform specific page table and MMU setup constants
  */
 #if IMAGE_BL1
-# if PLAT_juno
-#  define MAX_XLAT_TABLES		2
+# if TRUSTED_BOARD_BOOT
+#  define MAX_XLAT_TABLES		4
 # else
-#  define MAX_XLAT_TABLES		3
-# endif /* PLAT_ */
+#  if PLAT_juno
+#   define MAX_XLAT_TABLES		2
+#  else
+#   define MAX_XLAT_TABLES		3
+#  endif /* PLAT_ */
+# endif	/* TRUSTED_BOARD_BOOT */
 #elif IMAGE_BL2
 # if PLAT_juno
 #  define MAX_XLAT_TABLES		3
