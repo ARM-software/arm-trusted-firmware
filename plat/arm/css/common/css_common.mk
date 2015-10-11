@@ -34,7 +34,7 @@ PLAT_INCLUDES		+=	-Iinclude/plat/arm/css/common			\
 
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/common/aarch64/css_helpers.S
 
-#BL1_SOURCES		+=
+BL1_SOURCES		+=	plat/arm/css/common/css_bl1_setup.c
 
 BL2_SOURCES		+=	plat/arm/css/common/css_bl2_setup.c		\
 				plat/arm/css/common/css_mhu.c			\

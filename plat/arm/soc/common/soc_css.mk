@@ -32,8 +32,7 @@ PLAT_INCLUDES		+=	-Iinclude/plat/arm/soc/common/
 
 #PLAT_BL_COMMON_SOURCES	+=
 
-
-#BL1_SOURCES		+=
+BL1_SOURCES		+=	plat/arm/soc/common/soc_css_security.c
 
 BL2_SOURCES		+=	plat/arm/soc/common/soc_css_security.c
 
