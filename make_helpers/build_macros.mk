@@ -98,7 +98,7 @@ define FIP_ADD_PAYLOAD
     $(eval $(if $(3),FIP_DEPS += $(3)))
 endef
 
-# CERT_ADD_CMD_OPT adds a new command line option to the cert_create invokation
+# CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
 #   $(1) = parameter filename
 #   $(2) = cert_create command line option for the specified parameter
 #   $(3) = input parameter (false if empty)
@@ -123,6 +123,38 @@ check_$(1):
 	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
 endef
 
+# FWU_FIP_ADD_PAYLOAD appends the command line arguments required by the FIP tool
+# to package a new FWU payload. Optionally, it  adds the dependency on this payload
+#   $(1) = payload filename (e.g. ns_bl2u.bin)
+#   $(2) = command line option for the specified payload (e.g. --ns_bl2u)
+#   $(3) = fip target dependency (optional) (e.g. ns_bl2u)
+define FWU_FIP_ADD_PAYLOAD
+    $(eval $(if $(3),FWU_FIP_DEPS += $(3)))
+    $(eval FWU_FIP_ARGS += $(2) $(1))
+endef
+
+# FWU_CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
+#   $(1) = parameter filename
+#   $(2) = cert_create command line option for the specified parameter
+#   $(3) = input parameter (false if empty)
+define FWU_CERT_ADD_CMD_OPT
+    $(eval $(if $(3),FWU_CRT_DEPS += $(1)))
+    $(eval FWU_CRT_ARGS += $(2) $(1))
+endef
+
+# FWU_FIP_ADD_IMG allows the platform to pack a binary image in the FWU FIP
+#   $(1) build option to specify the image filename (BL2U, NS_BL2U, etc)
+#   $(2) command line option for the fip_create tool (bl2u, ns_bl2u, etc)
+# Example:
+#   $(eval $(call FWU_FIP_ADD_IMG,BL2U,--bl2u))
+define FWU_FIP_ADD_IMG
+    FWU_CRT_DEPS += check_$(1)
+    FWU_FIP_DEPS += check_$(1)
+    $(call FWU_FIP_ADD_PAYLOAD,$(value $(1)),$(2))
+
+check_$(1):
+	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
+endef
 
 ################################################################################
 # Auxiliary macros to build TF images from sources

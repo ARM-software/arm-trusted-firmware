@@ -76,6 +76,8 @@ USE_COHERENT_MEM		:= 1
 PSCI_EXTENDED_STATE_ID		:= 0
 # Default FIP file name
 FIP_NAME			:= fip.bin
+# Default FWU_FIP file name
+FWU_FIP_NAME			:= fwu_fip.bin
 # By default, use the -pedantic option in the gcc command line
 DISABLE_PEDANTIC		:= 0
 # Flags to generate the Chain of Trust
@@ -150,6 +152,7 @@ VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STR
 # target 'certificates' to create them all
 ifneq (${GENERATE_COT},0)
         FIP_DEPS += certificates
+        FWU_FIP_DEPS += fwu_certificates
 endif
 
 
@@ -321,8 +324,10 @@ ifneq (${GENERATE_COT},0)
         # Common cert_create options
         ifneq (${CREATE_KEYS},0)
                 $(eval CRT_ARGS += -n)
+                $(eval FWU_CRT_ARGS += -n)
                 ifneq (${SAVE_KEYS},0)
                         $(eval CRT_ARGS += -k)
+                        $(eval FWU_CRT_ARGS += -k)
                 endif
         endif
         # Include TBBR makefile (unless the platform indicates otherwise)
@@ -429,7 +434,7 @@ endif
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip certtool
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip fwu_fip certtool
 .SUFFIXES:
 
 all: msg_start
@@ -536,8 +541,24 @@ ${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
 	@echo "Built $@ successfully"
 	@echo
 
+ifneq (${GENERATE_COT},0)
+fwu_certificates: ${FWU_CRT_DEPS} ${CRTTOOL}
+	${Q}${CRTTOOL} ${FWU_CRT_ARGS}
+	@echo
+	@echo "Built $@ successfully"
+	@echo "FWU certificates can be found in ${BUILD_PLAT}"
+	@echo
+endif
+
+${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL}
+	${Q}${FIPTOOL} --dump ${FWU_FIP_ARGS} $@
+	@echo
+	@echo "Built $@ successfully"
+	@echo
+
 fiptool: ${FIPTOOL}
 fip: ${BUILD_PLAT}/${FIP_NAME}
+fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 .PHONY: ${FIPTOOL}
 ${FIPTOOL}:
@@ -568,6 +589,7 @@ help:
 	@echo "  bl32           Build the BL3-2 binary"
 	@echo "  certificates   Build the certificates (requires 'GENERATE_COT=1')"
 	@echo "  fip            Build the Firmware Image Package (FIP)"
+	@echo "  fwu_fip        Build the FWU Firmware Image Package (FIP)"
 	@echo "  checkcodebase  Check the coding style of the entire source tree"
 	@echo "  checkpatch     Check the coding style on changes in the current"
 	@echo "                 branch against BASE_COMMIT (default origin/master)"

@@ -140,6 +140,8 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     BL2_SOURCES		+=	${AUTH_SOURCES}
 
+    $(eval $(call FWU_FIP_ADD_IMG,NS_BL2U,--ns_bl2u))
+
     MBEDTLS_KEY_ALG	:=	${KEY_ALG}
 
     # We expect to locate the *.mk files under the directories specified below

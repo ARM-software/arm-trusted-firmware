@@ -51,6 +51,9 @@ BL31_SOURCES		+=	plat/arm/css/common/css_mhu.c			\
 				plat/arm/css/common/css_scpi.c			\
 				plat/arm/css/common/css_topology.c
 
+ifneq (${TRUSTED_BOARD_BOOT},0)
+$(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp_bl2u))
+endif
 
 ifneq (${RESET_TO_BL31},0)
   $(error "Using BL3-1 as the reset vector is not supported on CSS platforms. \
