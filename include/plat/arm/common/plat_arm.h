@@ -140,10 +140,14 @@ void arm_io_setup(void);
 /* Security utility functions */
 void arm_tzc_setup(void);
 
+/* Systimer utility function */
+void arm_configure_sys_timer(void);
+
 /* PM utility functions */
 int arm_validate_power_state(unsigned int power_state,
 			    psci_power_state_t *req_state);
 int arm_validate_ns_entrypoint(uintptr_t entrypoint);
+void arm_system_pwr_domain_resume(void);
 
 /* Topology utility function */
 int arm_check_mpidr(u_register_t mpidr);

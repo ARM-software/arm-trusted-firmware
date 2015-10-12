@@ -32,6 +32,7 @@
 #include <cci.h>
 #include <mmio.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include <xlat_tables.h>
 
 
@@ -141,4 +142,20 @@ uint32_t arm_get_spsr_for_bl33_entry(void)
 void arm_cci_init(void)
 {
 	cci_init(PLAT_ARM_CCI_BASE, cci_map, ARRAY_SIZE(cci_map));
+}
+
+/*******************************************************************************
+ * Configures access to the system counter timer module.
+ ******************************************************************************/
+void arm_configure_sys_timer(void)
+{
+	unsigned int reg_val;
+
+	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
+	reg_val |= (1 << CNTACR_RFRQ_SHIFT) | (1 << CNTACR_RVOFF_SHIFT);
+	reg_val |= (1 << CNTACR_RWVT_SHIFT) | (1 << CNTACR_RWPT_SHIFT);
+	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTACR_BASE(PLAT_ARM_NSTIMER_FRAME_ID), reg_val);
+
+	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_ARM_NSTIMER_FRAME_ID));
+	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTNSAR, reg_val);
 }

@@ -30,7 +30,9 @@
 
 #include <arch_helpers.h>
 #include <arm_def.h>
+#include <arm_gic.h>
 #include <assert.h>
+#include <console.h>
 #include <errno.h>
 #include <plat_arm.h>
 #include <platform_def.h>
@@ -146,6 +148,26 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 		return PSCI_E_SUCCESS;
 
 	return PSCI_E_INVALID_ADDRESS;
+}
+
+/******************************************************************************
+ * Helper function to resume the platform from system suspend. Reinitialize
+ * the system components which are not in the Always ON power domain.
+ * TODO: Unify the platform setup when waking up from cold boot and system
+ * resume in arm_bl31_platform_setup().
+ *****************************************************************************/
+void arm_system_pwr_domain_resume(void)
+{
+	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
+						ARM_CONSOLE_BAUDRATE);
+
+	/* Assert system power domain is available on the platform */
+	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
+
+	arm_gic_setup();
+	plat_arm_security_setup();
+
+	arm_configure_sys_timer();
 }
 
 /*******************************************************************************

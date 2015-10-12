@@ -40,7 +40,6 @@
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform.h>
-#include <platform_def.h>
 
 
 /*
@@ -197,8 +196,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
  ******************************************************************************/
 void arm_bl31_platform_setup(void)
 {
-	unsigned int reg_val;
-
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_arm_gic_init();
 	arm_gic_setup();
@@ -217,13 +214,7 @@ void arm_bl31_platform_setup(void)
 			CNTCR_FCREQ(0) | CNTCR_EN);
 
 	/* Allow access to the System counter timer module */
-	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
-	reg_val |= (1 << CNTACR_RFRQ_SHIFT) | (1 << CNTACR_RVOFF_SHIFT);
-	reg_val |= (1 << CNTACR_RWVT_SHIFT) | (1 << CNTACR_RWPT_SHIFT);
-	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTACR_BASE(PLAT_ARM_NSTIMER_FRAME_ID), reg_val);
-
-	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_ARM_NSTIMER_FRAME_ID));
-	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTNSAR, reg_val);
+	arm_configure_sys_timer();
 
 	/* Initialize power controller before setting up topology */
 	plat_arm_pwrc_setup();

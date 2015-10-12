@@ -38,7 +38,9 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 BL2_SOURCES		+=	plat/arm/board/juno/juno_security.c	\
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
-				lib/cpus/aarch64/cortex_a57.S
+				lib/cpus/aarch64/cortex_a57.S		\
+				plat/arm/board/juno/juno_pm.c		\
+				plat/arm/board/juno/juno_security.c
 
 # Enable workarounds for selected Cortex-A57 erratas.
 ERRATA_A57_806969	:=	0
