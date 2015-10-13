@@ -1084,6 +1084,52 @@ Please refer to the [Juno Software Guide] to:
 *   Install and run the Juno binaries on the board
 *   Obtain any other Juno software information
 
+### Testing SYSTEM SUSPEND on Juno
+
+The SYSTEM SUSPEND is a PSCI API which can be used to implement system suspend
+to RAM. For more details refer to section 5.16 of [PSCI]. The [Linaro releases]
+contains the required SCP and motherboard firmware support for this feature on
+Juno. The mainline linux kernel does not yet have support for this feature on
+Juno but it is queued to be merged in v4.4. Till that becomes available, the
+feature can be tested by using a custom kernel built from the following repo:
+
+    git clone git://git.kernel.org/pub/scm/linux/kernel/git/lpieralisi/linux.git
+    cd linux
+    git checkout firmware/psci-1.0
+
+Configure the linux kernel:
+
+    export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
+    make ARCH=arm64 defconfig
+
+The feature is tested conveniently by using the RTC. Enable the RTC driver in
+menuconfig
+
+    make ARCH=arm64 menuconfig
+
+The PL031 RTC driver can be enabled at the following location in menuconfig
+
+    ARM AMBA PL031 RTC
+      |   Location:
+      |     -> Device Drivers
+      |       -> Real Time Clock
+
+Build the kernel
+
+    make ARCH=arm64 Image -j8
+
+Replace the kernel image in `SOFTWARE/` directory of Juno with the `Image` from
+arch/arm64/boot/ of the linux directory as explained in the
+[Juno Software Guide].
+
+Reset the board and wait for it to boot. At the shell prompt issue the
+following command:
+
+    echo +10 > /sys/class/rtc/rtc1/wakealarm
+    echo -n mem > /sys/power/state
+
+The Juno board should suspend to RAM and then wakeup after 10 seconds due to
+wakeup interrupt from RTC.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1098,4 +1144,5 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [mbedTLS Repository]:          https://github.com/ARMmbed/mbedtls.git
 [Porting Guide]:               ./porting-guide.md
+[PSCI]:                        http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [Trusted Board Boot]:          trusted-board-boot.md
