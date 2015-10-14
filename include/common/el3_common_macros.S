@@ -70,10 +70,12 @@
 	isb
 
 	/* ---------------------------------------------------------------------
-	 * Enable the SError interrupt now that the exception vectors have been
+	 * Enable the Abort interrupt now that the exception vectors have been
 	 * setup.
 	 * ---------------------------------------------------------------------
 	 */
+	mov	x0, #(SCR_RES1_BITS | SCR_EA_BIT)
+	msr	scr_el3, x0
 	msr	daifclr, #DAIF_ABT_BIT
 
 	/* ---------------------------------------------------------------------

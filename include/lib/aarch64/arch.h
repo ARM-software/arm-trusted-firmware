@@ -186,6 +186,11 @@
 #define HCR_IMO_BIT		(1 << 4)
 #define HCR_FMO_BIT		(1 << 3)
 
+/* ISR definitions */
+#define ISR_A_SHIFT		8
+#define ISR_I_SHIFT		7
+#define ISR_F_SHIFT		6
+
 /* CNTHCTL_EL2 definitions */
 #define EVNTEN_BIT		(1 << 2)
 #define EL1PCEN_BIT		(1 << 1)
