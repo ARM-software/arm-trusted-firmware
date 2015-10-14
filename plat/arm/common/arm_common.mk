@@ -106,6 +106,11 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 				plat/arm/common/arm_security.c			\
 				plat/common/aarch64/platform_up_stack.S
 
+BL2U_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
+				plat/arm/common/arm_bl2u_setup.c		\
+				plat/arm/common/arm_security.c			\
+				plat/common/aarch64/platform_up_stack.S
+
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/ccn/ccn.c				\
 				drivers/arm/tzc400/tzc400.c			\

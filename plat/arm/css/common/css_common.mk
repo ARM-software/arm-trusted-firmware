@@ -41,6 +41,11 @@ BL2_SOURCES		+=	plat/arm/css/common/css_bl2_setup.c		\
 				plat/arm/css/common/css_scp_bootloader.c	\
 				plat/arm/css/common/css_scpi.c
 
+BL2U_SOURCES		+=	plat/arm/css/common/css_bl2u_setup.c		\
+				plat/arm/css/common/css_mhu.c			\
+				plat/arm/css/common/css_scp_bootloader.c	\
+				plat/arm/css/common/css_scpi.c
+
 BL31_SOURCES		+=	plat/arm/css/common/css_mhu.c			\
 				plat/arm/css/common/css_pm.c			\
 				plat/arm/css/common/css_scpi.c			\

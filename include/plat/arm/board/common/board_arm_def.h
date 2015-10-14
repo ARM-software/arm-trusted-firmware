@@ -53,6 +53,8 @@
 # else
 #  define PLATFORM_STACK_SIZE 0x400
 # endif
+#elif IMAGE_BL2U
+# define PLATFORM_STACK_SIZE 0x200
 #elif IMAGE_BL31
 # define PLATFORM_STACK_SIZE 0x400
 #elif IMAGE_BL32
@@ -85,6 +87,13 @@
 #  define PLAT_ARM_MMAP_ENTRIES		8
 # endif
 #endif
+#if IMAGE_BL2U
+# if PLAT_fvp
+#  define PLAT_ARM_MMAP_ENTRIES		3
+# else
+#  define PLAT_ARM_MMAP_ENTRIES		4
+#endif
+#endif
 #if IMAGE_BL31
 #define PLAT_ARM_MMAP_ENTRIES		5
 #endif
@@ -106,6 +115,12 @@
 #  endif /* PLAT_ */
 # endif	/* TRUSTED_BOARD_BOOT */
 #elif IMAGE_BL2
+# if PLAT_juno
+#  define MAX_XLAT_TABLES		3
+# else
+#  define MAX_XLAT_TABLES		4
+# endif /* PLAT_ */
+#elif IMAGE_BL2U
 # if PLAT_juno
 #  define MAX_XLAT_TABLES		3
 # else

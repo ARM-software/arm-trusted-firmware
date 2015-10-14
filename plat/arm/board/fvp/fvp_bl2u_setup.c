@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,64 +27,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_def.h>
+
 #include <plat_arm.h>
+#include "fvp_def.h"
+#include "fvp_private.h"
 
-/*
- * Table of regions for different BL stages to map using the MMU.
- * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
- */
-#if IMAGE_BL1
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-#if TRUSTED_BOARD_BOOT
-	ARM_MAP_NS_DRAM1,
-#endif
-	{0}
-};
-#endif
-#if IMAGE_BL2
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
-	ARM_MAP_TSP_SEC_MEM,
-	{0}
-};
-#endif
-#if IMAGE_BL2U
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL31
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL32
-const mmap_region_t plat_arm_mmap[] = {
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
+void bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
+{
+	arm_bl2u_early_platform_setup(mem_layout, plat_info);
 
-ARM_CASSERT_MMAP
-
+	/* Initialize the platform config for future decision making */
+	fvp_config_setup();
+}

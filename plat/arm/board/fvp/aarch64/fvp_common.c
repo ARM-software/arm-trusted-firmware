@@ -101,6 +101,13 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 #endif
+#if IMAGE_BL2U
+const mmap_region_t plat_arm_mmap[] = {
+	MAP_DEVICE0,
+	V2M_MAP_IOFPGA,
+	{0}
+};
+#endif
 #if IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,

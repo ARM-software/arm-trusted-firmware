@@ -36,4 +36,6 @@ BL1_SOURCES		+=	plat/arm/soc/common/soc_css_security.c
 
 BL2_SOURCES		+=	plat/arm/soc/common/soc_css_security.c
 
+BL2U_SOURCES		+=	plat/arm/soc/common/soc_css_security.c
+
 BL31_SOURCES		+=	plat/arm/soc/common/soc_css_security.c

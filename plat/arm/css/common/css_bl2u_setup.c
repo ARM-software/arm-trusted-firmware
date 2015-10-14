@@ -27,64 +27,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_def.h>
+
+#include <bl_common.h>
+#include <debug.h>
 #include <plat_arm.h>
+#include "css_scp_bootloader.h"
 
-/*
- * Table of regions for different BL stages to map using the MMU.
- * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
- */
-#if IMAGE_BL1
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-#if TRUSTED_BOARD_BOOT
-	ARM_MAP_NS_DRAM1,
-#endif
-	{0}
-};
-#endif
-#if IMAGE_BL2
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
-	ARM_MAP_TSP_SEC_MEM,
-	{0}
-};
-#endif
-#if IMAGE_BL2U
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL31
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL32
-const mmap_region_t plat_arm_mmap[] = {
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
+/* Weak definition may be overridden in specific CSS based platform */
+#pragma weak bl2u_plat_handle_scp_bl2u
 
-ARM_CASSERT_MMAP
+/* Data structure which holds the SCP_BL2U image info for BL2U */
+static image_info_t scp_bl2u_image_info;
 
+/*******************************************************************************
+ * BL1 can pass platform dependent information to BL2U in x1.
+ * In case of ARM CSS platforms x1 contains SCP_BL2U image info.
+ * In case of ARM FVP platforms x1 is not used.
+ * In both cases, x0 contains the extents of the memory available to BL2U
+ ******************************************************************************/
+void bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
+{
+	if (!plat_info)
+		panic();
+
+	arm_bl2u_early_platform_setup(mem_layout, plat_info);
+
+	scp_bl2u_image_info = *(image_info_t *)plat_info;
+}
+
+/*******************************************************************************
+ * Transfer SCP_BL2U from Trusted RAM using the SCP Download protocol.
+ ******************************************************************************/
+int bl2u_plat_handle_scp_bl2u(void)
+{
+	int ret;
+
+	INFO("BL2U: Initiating SCP_BL2U transfer to SCP\n");
+
+	ret = scp_bootloader_transfer((void *)scp_bl2u_image_info.image_base,
+		scp_bl2u_image_info.image_size);
+
+	if (ret == 0)
+		INFO("BL2U: SCP_BL2U transferred to SCP\n");
+	else
+		ERROR("BL2U: SCP_BL2U transfer failure\n");
+
+	return ret;
+}
