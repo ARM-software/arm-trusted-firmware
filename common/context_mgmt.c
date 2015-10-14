@@ -100,7 +100,7 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	 */
 	scr_el3 = read_scr();
 	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
-			SCR_ST_BIT | SCR_HCE_BIT);
+		     SCR_ST_BIT | SCR_HCE_BIT);
 
 	if (security_state != SECURE)
 		scr_el3 |= SCR_NS_BIT;
@@ -110,6 +110,9 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 
 	if (EP_GET_ST(ep->h.attr))
 		scr_el3 |= SCR_ST_BIT;
+
+	/* Explicitly stop to trap aborts from lower exception levels. */
+	scr_el3 &= ~SCR_EA_BIT;
 
 #if IMAGE_BL31
 	/*

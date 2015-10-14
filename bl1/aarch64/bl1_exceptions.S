@@ -113,10 +113,13 @@ SErrorSPx:
 	 */
 	.align	7
 SynchronousExceptionA64:
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
+	/*
+	 * Assume that BL2 did not left a pending abort.
+	 * Use a function to get rid of the vector size overflow.
+	 */
+	enable_abort	x30
 
 	/* Expect only SMC exceptions */
 	mrs	x30, esr_el3

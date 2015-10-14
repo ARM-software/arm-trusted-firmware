@@ -123,6 +123,20 @@
 #endif
 
 	/*
+	 * Grab possible SError interrupts triggered by EL3 itself else they
+	 * will unexpectedly land in EL1.
+	 * If there was a pending Abort interrupt coming from lower exception
+	 * levels, it will be thrown here. ISR_EL1.A bit will denote it.
+	 * Maul one 64bit register.
+	 */
+	.macro enable_abort x0
+	msr	daifclr, #DAIF_ABT_BIT
+	mrs	\x0, scr_el3
+	orr	\x0, \x0, #SCR_EA_BIT
+	msr	scr_el3, \x0
+	.endm
+
+	/*
 	 * This macro declares an array of 1 or more stacks, properly
 	 * aligned and in the requested section
 	 */

@@ -43,9 +43,6 @@
 	 * -----------------------------------------------------
 	 */
 	.macro	handle_sync_exception
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mrs	x30, esr_el3
 	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
@@ -72,9 +69,6 @@
 	 * -----------------------------------------------------
 	 */
 	.macro	handle_interrupt_exception label
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	bl	save_gp_registers
 
@@ -85,6 +79,9 @@
 	mrs	x0, spsr_el3
 	mrs	x1, elr_el3
 	stp	x0, x1, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+
+	/* Enable the Abort interrupt */
+	enable_abort	x0
 
 	/* Switch to the runtime stack i.e. SP_EL0 */
 	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
@@ -412,6 +409,9 @@ smc_handler64:
 	bfi	x7, x18, #0, #1
 
 	mov	sp, x12
+
+	/* Enable the Abort interrupt */
+	enable_abort	x10
 
 	/* -----------------------------------------------------
 	 * Call the Secure Monitor Call handler and then drop

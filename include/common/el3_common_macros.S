@@ -70,11 +70,19 @@
 	isb
 
 	/* ---------------------------------------------------------------------
-	 * Enable the SError interrupt now that the exception vectors have been
-	 * setup.
+	 * Early set the RES1 bits in the SCR_EL3 so that it could be modified
+	 * safely afterwards.
 	 * ---------------------------------------------------------------------
 	 */
-	msr	daifclr, #DAIF_ABT_BIT
+	mov	x0, #SCR_RES1_BITS
+	msr	scr_el3, x0
+
+	/* ---------------------------------------------------------------------
+	 * Enable the Abort interrupt now that the exception vectors have been
+	 * setup.
+	 * ---------------------------------------------------------------------
+ 	 */
+	enable_abort	x0
 
 	/* ---------------------------------------------------------------------
 	 * The initial state of the Architectural feature trap register
