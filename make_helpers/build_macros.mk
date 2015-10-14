@@ -139,7 +139,7 @@ $(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))
 endef
 
 # List of rules that involve building things
-BUILD_TARGETS := all bl1 bl2 bl31 bl32 certificates fip
+BUILD_TARGETS := all bl1 bl2 bl2u bl31 bl32 certificates fip
 
 # Does the list of goals specified on the command line include a build target?
 ifneq ($(call match_goals,${BUILD_TARGETS}),)

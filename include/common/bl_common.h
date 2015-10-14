@@ -150,6 +150,8 @@ extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
 #if IMAGE_BL2
 extern unsigned long __BL2_END__;
+#elif IMAGE_BL2U
+extern unsigned long __BL2U_END__;
 #elif IMAGE_BL31
 extern unsigned long __BL31_END__;
 #elif IMAGE_BL32

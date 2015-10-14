@@ -193,6 +193,23 @@ void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
  ******************************************************************************/
 
 /*******************************************************************************
+ * Mandatory BL2U functions.
+ ******************************************************************************/
+void bl2u_early_platform_setup(struct meminfo *mem_layout,
+		void *plat_info);
+void bl2u_plat_arch_setup(void);
+void bl2u_platform_setup(void);
+
+/*******************************************************************************
+ * Conditionally mandatory BL2U functions for CSS platforms.
+ ******************************************************************************/
+/*
+ * This function is used to perform any platform-specific actions required to
+ * handle the BL2U_SCP firmware.
+ */
+int bl2u_plat_handle_scp_bl2u(void);
+
+/*******************************************************************************
  * Mandatory BL3-1 functions
  ******************************************************************************/
 void bl31_early_platform_setup(struct bl31_params *from_bl2,

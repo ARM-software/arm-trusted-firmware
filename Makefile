@@ -410,6 +410,11 @@ NEED_BL2 := yes
 include bl2/bl2.mk
 endif
 
+ifdef BL2U_SOURCES
+NEED_BL2U := yes
+include bl2u/bl2u.mk
+endif
+
 ifdef BL31_SOURCES
 # When booting an EL3 payload, there is no need to compile the BL31 image nor
 # put it in the FIP.
@@ -465,6 +470,12 @@ endif
 # Add the BL33 image if required by the platform
 ifeq (${NEED_BL33},yes)
 $(eval $(call FIP_ADD_IMG,BL33,--bl33))
+endif
+
+ifeq (${NEED_BL2U},yes)
+BL2U_PATH	:= $(if ${BL2U},${BL2U},$(call IMG_BIN,2u))
+$(if ${BL2U}, ,$(eval $(call MAKE_BL,2u)))
+$(eval $(call FWU_FIP_ADD_PAYLOAD,${BL2U_PATH},--bl2u))
 endif
 
 locate-checkpatch:
@@ -552,6 +563,7 @@ help:
 	@echo "  all            Build all individual bootloader binaries"
 	@echo "  bl1            Build the BL1 binary"
 	@echo "  bl2            Build the BL2 binary"
+	@echo "  bl2u           Build the BL2U binary"
 	@echo "  bl31           Build the BL3-1 binary"
 	@echo "  bl32           Build the BL3-2 binary"
 	@echo "  certificates   Build the certificates (requires 'GENERATE_COT=1')"

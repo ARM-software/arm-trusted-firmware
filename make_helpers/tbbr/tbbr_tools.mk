@@ -114,3 +114,9 @@ ifneq (${BL33},)
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl33.crt,--bl33-cert))
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl33_key.crt,--bl33-key-cert))
 endif
+
+# Add the BL2U image
+ifeq (${NEED_BL2U},yes)
+    $(if ${BL2U},$(eval $(call FWU_CERT_ADD_CMD_OPT,${BL2U},--bl2u)),\
+                 $(eval $(call FWU_CERT_ADD_CMD_OPT,$(call IMG_BIN,2u),--bl2u)))
+endif
