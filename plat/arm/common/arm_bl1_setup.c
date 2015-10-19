@@ -35,7 +35,7 @@
 #include <console.h>
 #include <platform_def.h>
 #include <plat_arm.h>
-#include "../../bl1/bl1_private.h"
+#include "../../../bl1/bl1_private.h"
 
 
 #if USE_COHERENT_MEM
