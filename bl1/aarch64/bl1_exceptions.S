@@ -115,51 +115,13 @@ SynchronousExceptionA64:
 	/* Enable the SError interrupt */
 	msr	daifclr, #DAIF_ABT_BIT
 
-	/* ------------------------------------------------
-	 * Only a single SMC exception from BL2 to ask
-	 * BL1 to pass EL3 control to BL31 is expected
-	 * here.
-	 * It expects X0 with RUN_IMAGE SMC function id
-	 * X1 with address of a entry_point_info_t structure
-	 * describing the BL3-1 entrypoint
-	 * ------------------------------------------------
-	 */
-	mov	x19, x0
-	mov	x20, x1
+	/* Expect only SMC exceptions */
+	mrs	x19, esr_el3
+	ubfx	x20, x19, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+	cmp	x20, #EC_AARCH64_SMC
+	b.ne	unexpected_sync_exception
 
-	mrs	x0, esr_el3
-	ubfx	x1, x0, #ESR_EC_SHIFT, #ESR_EC_LENGTH
-	cmp	x1, #EC_AARCH64_SMC
-	b.ne	panic
-
-	mov	x0, #RUN_IMAGE
-	cmp	x19, x0
-	b.ne	panic
-
-	mov	x0, x20
-	bl	display_boot_progress
-
-	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
-	msr	elr_el3, x0
-	msr	spsr_el3, x1
-	ubfx	x0, x1, #MODE_EL_SHIFT, #2
-	cmp	x0, #MODE_EL3
-	b.ne	panic
-
-	bl	disable_mmu_icache_el3
-	tlbi	alle3
-
-	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]
-	ldp	x4, x5, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x20)]
-	ldp	x2, x3, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x10)]
-	ldp	x0, x1, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x0)]
-	eret
-panic:
-	mov	x0, #SYNC_EXCEPTION_AARCH64
-	bl	plat_report_exception
-
-	wfi
-	b	panic
+	b	smc_handler64
 	check_vector_size SynchronousExceptionA64
 
 	.align	7
@@ -214,3 +176,46 @@ SErrorA32:
 	bl	plat_report_exception
 	b	SErrorA32
 	check_vector_size SErrorA32
+
+
+func smc_handler64
+	/* ---------------------------------------------------------------------
+	 * Only a single SMC exception from BL2 to ask BL1 to pass EL3 control
+	 * to BL31 is expected here. It expects:
+	 *   - X0 with RUN_IMAGE SMC function ID;
+	 *   - X1 with the address of a entry_point_info_t structure describing
+	 *     the BL31 entrypoint.
+	 * ---------------------------------------------------------------------
+	 */
+	mov	x19, x0
+	mov	x20, x1
+
+	mov	x0, #RUN_IMAGE
+	cmp	x19, x0
+	b.ne	unexpected_sync_exception
+
+	mov	x0, x20
+	bl	display_boot_progress
+
+	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
+	msr	elr_el3, x0
+	msr	spsr_el3, x1
+	ubfx	x0, x1, #MODE_EL_SHIFT, #2
+	cmp	x0, #MODE_EL3
+	b.ne	unexpected_sync_exception
+
+	bl	disable_mmu_icache_el3
+	tlbi	alle3
+
+	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]
+	ldp	x4, x5, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x20)]
+	ldp	x2, x3, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x10)]
+	ldp	x0, x1, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x0)]
+	eret
+endfunc smc_handler64
+
+unexpected_sync_exception:
+	mov	x0, #SYNC_EXCEPTION_AARCH64
+	bl	plat_report_exception
+	wfi
+	b	unexpected_sync_exception
