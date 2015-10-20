@@ -147,7 +147,9 @@
 #define TZC_REGION_ACCESS_RDWR(id)					\
 		(TZC_REGION_ACCESS_RD(id) | TZC_REGION_ACCESS_WR(id))
 
-#define TZC400_COMPONENT_ID	0xb105f00d
+/* Consist of part_number_1 and part_number_0 */
+#define TZC400_PERIPHERAL_ID	0x0460
+
 
 
 #ifndef __ASSEMBLY__
