@@ -37,6 +37,7 @@
 	.weak	plat_crash_console_putc
 	.weak	plat_reset_handler
 	.weak	plat_disable_acp
+	.weak	bl1_plat_prepare_exit
 
 #if !ENABLE_PLAT_COMPAT
 	.globl	platform_get_core_pos
@@ -111,3 +112,12 @@ endfunc plat_reset_handler
 func plat_disable_acp
 	ret
 endfunc plat_disable_acp
+
+	/* -----------------------------------------------------
+	 * void bl1_plat_prepare_exit(void);
+	 * Called before exiting BL1. Default: do nothing
+	 * -----------------------------------------------------
+	 */
+func bl1_plat_prepare_exit
+	ret
+endfunc bl1_plat_prepare_exit

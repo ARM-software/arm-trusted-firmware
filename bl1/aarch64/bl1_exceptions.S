@@ -207,6 +207,8 @@ func smc_handler64
 	bl	disable_mmu_icache_el3
 	tlbi	alle3
 
+	bl	bl1_plat_prepare_exit
+
 	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]
 	ldp	x4, x5, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x20)]
 	ldp	x2, x3, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x10)]
