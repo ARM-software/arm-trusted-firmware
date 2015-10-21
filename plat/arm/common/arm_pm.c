@@ -33,12 +33,15 @@
 #include <assert.h>
 #include <errno.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include <psci.h>
+
+/* Standard ARM platforms are expected to export plat_arm_psci_pm_ops */
+extern const plat_psci_ops_t plat_arm_psci_pm_ops;
 
 #if ARM_RECOM_STATE_ID_ENC
 extern unsigned int arm_pm_idle_states[];
 #endif /* __ARM_RECOM_STATE_ID_ENC__ */
-
 
 #if !ARM_RECOM_STATE_ID_ENC
 /*******************************************************************************
@@ -143,4 +146,43 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 		return PSCI_E_SUCCESS;
 
 	return PSCI_E_INVALID_ADDRESS;
+}
+
+/*******************************************************************************
+ * Private function to program the mailbox for a cpu before it is released
+ * from reset. This function assumes that the Trusted mail box base is within
+ * the ARM_SHARED_RAM region
+ ******************************************************************************/
+static void arm_program_trusted_mailbox(uintptr_t address)
+{
+	uintptr_t *mailbox = (void *) PLAT_ARM_TRUSTED_MAILBOX_BASE;
+
+	*mailbox = address;
+
+	/*
+	 * Ensure that the PLAT_ARM_TRUSTED_MAILBOX_BASE is within
+	 * ARM_SHARED_RAM region.
+	 */
+	assert((PLAT_ARM_TRUSTED_MAILBOX_BASE >= ARM_SHARED_RAM_BASE) &&
+		((PLAT_ARM_TRUSTED_MAILBOX_BASE + sizeof(*mailbox)) <= \
+				(ARM_SHARED_RAM_BASE + ARM_SHARED_RAM_SIZE)));
+
+	/* Flush data cache if the mail box shared RAM is cached */
+#if PLAT_ARM_SHARED_RAM_CACHED
+	flush_dcache_range((uintptr_t) mailbox, sizeof(*mailbox));
+#endif
+}
+
+/*******************************************************************************
+ * The ARM Standard platform definition of platform porting API
+ * `plat_setup_psci_ops`.
+ ******************************************************************************/
+int plat_setup_psci_ops(uintptr_t sec_entrypoint,
+				const plat_psci_ops_t **psci_ops)
+{
+	*psci_ops = &plat_arm_psci_pm_ops;
+
+	/* Setup mailbox with entry point. */
+	arm_program_trusted_mailbox(sec_entrypoint);
+	return 0;
 }

@@ -66,17 +66,6 @@ const unsigned int arm_pm_idle_states[] = {
 #endif
 
 /*******************************************************************************
- * Private FVP function to program the mailbox for a cpu before it is released
- * from reset.
- ******************************************************************************/
-static void fvp_program_mailbox(uintptr_t address)
-{
-	uintptr_t *mailbox = (void *) MBOX_BASE;
-	*mailbox = address;
-	flush_dcache_range((uintptr_t) mailbox, sizeof(*mailbox));
-}
-
-/*******************************************************************************
  * Function which implements the common FVP specific operations to power down a
  * cpu in response to a CPU_OFF or CPU_SUSPEND request.
  ******************************************************************************/
@@ -293,9 +282,10 @@ static void __dead2 fvp_system_reset(void)
 }
 
 /*******************************************************************************
- * Export the platform handlers to enable psci to invoke them
+ * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
+ * platform layer will take care of registering the handlers with PSCI.
  ******************************************************************************/
-static const plat_psci_ops_t fvp_plat_psci_ops = {
+const plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.cpu_standby = fvp_cpu_standby,
 	.pwr_domain_on = fvp_pwr_domain_on,
 	.pwr_domain_off = fvp_pwr_domain_off,
@@ -307,16 +297,3 @@ static const plat_psci_ops_t fvp_plat_psci_ops = {
 	.validate_power_state = arm_validate_power_state,
 	.validate_ns_entrypoint = arm_validate_ns_entrypoint
 };
-
-/*******************************************************************************
- * Export the platform specific psci ops & initialize the fvp power controller
- ******************************************************************************/
-int plat_setup_psci_ops(uintptr_t sec_entrypoint,
-				const plat_psci_ops_t **psci_ops)
-{
-	*psci_ops = &fvp_plat_psci_ops;
-
-	/* Program the jump address */
-	fvp_program_mailbox(sec_entrypoint);
-	return 0;
-}

@@ -39,8 +39,6 @@
  *************************************************************************/
 #define MHU_PAYLOAD_CACHED		0
 
-#define TRUSTED_MAILBOX_BASE		ARM_TRUSTED_SRAM_BASE
-
 #define NSROM_BASE			0x1f000000
 #define NSROM_SIZE			0x00001000
 
@@ -115,5 +113,9 @@
 
 /* System timer related constants */
 #define PLAT_ARM_NSTIMER_FRAME_ID	1
+
+/* Trusted mailbox base address common to all CSS */
+#define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE
+
 
 #endif /* __CSS_DEF_H__ */

@@ -28,19 +28,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <arm_gic.h>
 #include <cci.h>
-#include <css_def.h>
+#include <css_pm.h>
 #include <debug.h>
 #include <errno.h>
 #include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <psci.h>
 #include "css_scpi.h"
 
+/* Allow CSS platforms to override `plat_arm_psci_pm_ops` */
+#pragma weak plat_arm_psci_pm_ops
 
 #if ARM_RECOM_STATE_ID_ENC
 /*
@@ -62,17 +63,6 @@ const unsigned int arm_pm_idle_states[] = {
 	0,
 };
 #endif
-
-/*******************************************************************************
- * Private function to program the mailbox for a cpu before it is released
- * from reset.
- ******************************************************************************/
-static void css_program_mailbox(uintptr_t address)
-{
-	uintptr_t *mailbox = (void *) TRUSTED_MAILBOX_BASE;
-	*mailbox = address;
-	flush_dcache_range((uintptr_t) mailbox, sizeof(*mailbox));
-}
 
 /*******************************************************************************
  * Handler called when a power domain is about to be turned on. The
@@ -149,7 +139,7 @@ static void css_power_down_common(const psci_power_state_t *target_state)
  * Handler called when a power domain is about to be turned off. The
  * target_state encodes the power state that each level should transition to.
  ******************************************************************************/
-static void css_pwr_domain_off(const psci_power_state_t *target_state)
+void css_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	assert(target_state->pwr_domain_state[ARM_PWR_LVL0] ==
 						ARM_LOCAL_STATE_OFF);
@@ -161,7 +151,7 @@ static void css_pwr_domain_off(const psci_power_state_t *target_state)
  * Handler called when a power domain is about to be suspended. The
  * target_state encodes the power state that each level should transition to.
  ******************************************************************************/
-static void css_pwr_domain_suspend(const psci_power_state_t *target_state)
+void css_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	/*
 	 * Juno has retention only at cpu level. Just return
@@ -184,7 +174,7 @@ static void css_pwr_domain_suspend(const psci_power_state_t *target_state)
  * TODO: At the moment we reuse the on finisher and reinitialize the secure
  * context. Need to implement a separate suspend finisher.
  ******************************************************************************/
-static void css_pwr_domain_suspend_finish(
+void css_pwr_domain_suspend_finish(
 				const psci_power_state_t *target_state)
 {
 	/*
@@ -200,7 +190,7 @@ static void css_pwr_domain_suspend_finish(
 /*******************************************************************************
  * Handlers to shutdown/reboot the system
  ******************************************************************************/
-static void __dead2 css_system_off(void)
+void __dead2 css_system_off(void)
 {
 	uint32_t response;
 
@@ -216,7 +206,7 @@ static void __dead2 css_system_off(void)
 	panic();
 }
 
-static void __dead2 css_system_reset(void)
+void __dead2 css_system_reset(void)
 {
 	uint32_t response;
 
@@ -256,9 +246,10 @@ void css_cpu_standby(plat_local_state_t cpu_state)
 }
 
 /*******************************************************************************
- * Export the platform handlers to enable psci to invoke them
+ * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
+ * platform will take care of registering the handlers with PSCI.
  ******************************************************************************/
-static const plat_psci_ops_t css_ops = {
+const plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.pwr_domain_on		= css_pwr_domain_on,
 	.pwr_domain_on_finish	= css_pwr_domain_on_finish,
 	.pwr_domain_off		= css_pwr_domain_off,
@@ -270,16 +261,3 @@ static const plat_psci_ops_t css_ops = {
 	.validate_power_state	= arm_validate_power_state,
 	.validate_ns_entrypoint = arm_validate_ns_entrypoint
 };
-
-/*******************************************************************************
- * Export the platform specific psci ops.
- ******************************************************************************/
-int plat_setup_psci_ops(uintptr_t sec_entrypoint,
-				const plat_psci_ops_t **psci_ops)
-{
-	*psci_ops = &css_ops;
-
-	/* Setup mailbox with entry point. */
-	css_program_mailbox(sec_entrypoint);
-	return 0;
-}

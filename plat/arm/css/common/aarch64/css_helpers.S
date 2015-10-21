@@ -67,7 +67,7 @@ endfunc plat_secondary_cold_boot_setup
 	 * ---------------------------------------------------------------------
 	 */
 func plat_get_my_entrypoint
-	mov_imm	x0, TRUSTED_MAILBOX_BASE
+	mov_imm	x0, PLAT_ARM_TRUSTED_MAILBOX_BASE
 	ldr	x0, [x0]
 	ret
 endfunc plat_get_my_entrypoint
