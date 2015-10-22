@@ -112,6 +112,12 @@ endef
 # Auxiliary macros to build TF images from sources
 ################################################################################
 
+# If no goal is specified in the command line, .DEFAULT_GOAL is used.
+# .DEFAULT_GOAL is defined in the main Makefile before including this file.
+ifeq ($(MAKECMDGOALS),)
+MAKECMDGOALS := $(.DEFAULT_GOAL)
+endif
+
 define match_goals
 $(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))
 endef
