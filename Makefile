@@ -34,6 +34,9 @@
 VERSION_MAJOR			:= 1
 VERSION_MINOR			:= 1
 
+# Default goal is build all images
+.DEFAULT_GOAL			:= all
+
 include build_macros.mk
 
 ################################################################################
@@ -374,9 +377,6 @@ endif
 ################################################################################
 # Build targets
 ################################################################################
-
-# Default target
-.DEFAULT_GOAL := all
 
 .PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip certtool
 .SUFFIXES:
