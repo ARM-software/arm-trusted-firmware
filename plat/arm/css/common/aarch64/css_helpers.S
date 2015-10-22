@@ -34,7 +34,7 @@
 
 	.weak	plat_secondary_cold_boot_setup
 	.weak	plat_get_my_entrypoint
-	.globl	plat_arm_calc_core_pos
+	.globl	css_calc_core_pos_swap_cluster
 	.weak	plat_is_my_cpu_primary
 
 	/* -----------------------------------------------------
@@ -73,20 +73,20 @@ func plat_get_my_entrypoint
 endfunc plat_get_my_entrypoint
 
 	/* -----------------------------------------------------------
-	 * unsigned int plat_arm_calc_core_pos(uint64_t mpidr)
-	 * Function to calculate the core position by
+	 * unsigned int css_calc_core_pos_swap_cluster(uint64_t mpidr)
+	 * Utility function to calculate the core position by
 	 * swapping the cluster order. This is necessary in order to
 	 * match the format of the boot information passed by the SCP
 	 * and read in plat_is_my_cpu_primary below.
 	 * -----------------------------------------------------------
 	 */
-func plat_arm_calc_core_pos
+func css_calc_core_pos_swap_cluster
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
 	eor	x0, x0, #(1 << MPIDR_AFFINITY_BITS)  // swap cluster order
 	add	x0, x1, x0, LSR #6
 	ret
-endfunc plat_arm_calc_core_pos
+endfunc css_calc_core_pos_swap_cluster
 
 	/* -----------------------------------------------------
 	 * unsigned int plat_is_my_cpu_primary (void);
