@@ -36,6 +36,7 @@ BINARY		:= ${PROJECT}
 OPENSSL_DIR	:= /usr
 
 OBJECTS := src/cert.o \
+           src/cmd_opt.o \
            src/ext.o \
            src/key.o \
            src/main.o \

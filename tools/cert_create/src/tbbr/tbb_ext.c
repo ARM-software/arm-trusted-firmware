@@ -60,6 +60,7 @@ static ext_t tbb_ext[] = {
 	},
 	[BL2_HASH_EXT] = {
 		.oid = BL2_HASH_OID,
+		.opt = "bl2",
 		.sn = "TrustedBootFirmwareHash",
 		.ln = "Trusted Boot Firmware (BL2) hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
@@ -91,6 +92,7 @@ static ext_t tbb_ext[] = {
 	},
 	[BL30_HASH_EXT] = {
 		.oid = BL30_HASH_OID,
+		.opt = "bl30",
 		.sn = "SCPFirmwareHash",
 		.ln = "SCP Firmware (BL30) hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
@@ -106,6 +108,7 @@ static ext_t tbb_ext[] = {
 	},
 	[BL31_HASH_EXT] = {
 		.oid = BL31_HASH_OID,
+		.opt = "bl31",
 		.sn = "SoCAPFirmwareHash",
 		.ln = "SoC AP Firmware (BL31) hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
@@ -121,6 +124,7 @@ static ext_t tbb_ext[] = {
 	},
 	[BL32_HASH_EXT] = {
 		.oid = BL32_HASH_OID,
+		.opt = "bl32",
 		.sn = "TrustedOSHash",
 		.ln = "Trusted OS (BL32) hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
@@ -136,6 +140,7 @@ static ext_t tbb_ext[] = {
 	},
 	[BL33_HASH_EXT] = {
 		.oid = BL33_HASH_OID,
+		.opt = "bl33",
 		.sn = "NonTrustedWorldBootloaderHash",
 		.ln = "Non-Trusted World (BL33) hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,

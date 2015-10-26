@@ -38,6 +38,7 @@
 #include <openssl/pem.h>
 
 #include "cert.h"
+#include "cmd_opt.h"
 #include "debug.h"
 #include "key.h"
 #include "platform_oid.h"
@@ -189,4 +190,41 @@ int key_store(key_t *key)
 	}
 
 	return 0;
+}
+
+int key_init(void)
+{
+	key_t *key;
+	int rc = 0;
+	unsigned int i;
+
+	for (i = 0; i < num_keys; i++) {
+		key = &keys[i];
+		if (key->opt != NULL) {
+			rc = cmd_opt_add(key->opt, required_argument,
+					 CMD_OPT_KEY);
+			if (rc != 0) {
+				break;
+			}
+		}
+	}
+
+	return rc;
+}
+
+key_t *key_get_by_opt(const char *opt)
+{
+	key_t *key = NULL;
+	unsigned int i;
+
+	/* Sequential search. This is not a performance concern since the number
+	 * of keys is bounded and the code runs on a host machine */
+	for (i = 0; i < num_keys; i++) {
+		key = &keys[i];
+		if (0 == strcmp(key->opt, opt)) {
+			return key;
+		}
+	}
+
+	return NULL;
 }
