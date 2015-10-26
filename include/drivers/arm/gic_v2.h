@@ -31,6 +31,13 @@
 #ifndef __GIC_V2_H__
 #define __GIC_V2_H__
 
+/******************************************************************************
+ * THIS DRIVER IS DEPRECATED. For GICv2 systems, use the driver in gicv2.h
+ * and for GICv3 systems, use the driver in gicv3.h.
+ *****************************************************************************/
+#if ERROR_DEPRECATED
+#error " The legacy ARM GIC driver is deprecated."
+#endif
 
 #define GIC400_NUM_SPIS		480
 #define MAX_PPIS		14
