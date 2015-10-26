@@ -101,10 +101,10 @@
 
 	/*
 	 * Theses macros are used to create function labels for deprecated
-	 * APIs. If WARN_DEPRECATED is non zero, the callers of these APIs
+	 * APIs. If ERROR_DEPRECATED is non zero, the callers of these APIs
 	 * will fail to link and cause build failure.
 	 */
-#if WARN_DEPRECATED
+#if ERROR_DEPRECATED
 	.macro func_deprecated _name
 	func deprecated\_name
 	.endm
