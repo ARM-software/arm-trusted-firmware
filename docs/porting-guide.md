@@ -358,13 +358,12 @@ must also be defined:
 
     Defines the maximum number of registered IO devices. Attempting to register
     more devices than this value using `io_register_device()` will fail with
-    IO_RESOURCES_EXHAUSTED.
+    -ENOMEM.
 
 *   **#define : MAX_IO_HANDLES**
 
     Defines the maximum number of open IO handles. Attempting to open more IO
-    entities than this value using `io_open()` will fail with
-    IO_RESOURCES_EXHAUSTED.
+    entities than this value using `io_open()` will fail with -ENOMEM.
 
 If the platform needs to allocate data within the per-cpu data framework in
 BL3-1, it should define the following macro. Currently this is only required if

@@ -207,7 +207,7 @@ int load_image(meminfo_t *mem_layout,
 	uintptr_t image_spec;
 	size_t image_size;
 	size_t bytes_read;
-	int io_result = IO_FAIL;
+	int io_result;
 
 	assert(mem_layout != NULL);
 	assert(image_data != NULL);
@@ -215,7 +215,7 @@ int load_image(meminfo_t *mem_layout,
 
 	/* Obtain a reference to the image by querying the platform layer */
 	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
-	if (io_result != IO_SUCCESS) {
+	if (io_result != 0) {
 		WARN("Failed to obtain reference to image id=%u (%i)\n",
 			image_id, io_result);
 		return io_result;
@@ -223,7 +223,7 @@ int load_image(meminfo_t *mem_layout,
 
 	/* Attempt to access the image */
 	io_result = io_open(dev_handle, image_spec, &image_handle);
-	if (io_result != IO_SUCCESS) {
+	if (io_result != 0) {
 		WARN("Failed to access image id=%u (%i)\n",
 			image_id, io_result);
 		return io_result;
@@ -233,7 +233,7 @@ int load_image(meminfo_t *mem_layout,
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
-	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
+	if ((io_result != 0) || (image_size == 0)) {
 		WARN("Failed to determine the size of the image id=%u (%i)\n",
 			image_id, io_result);
 		goto exit;
@@ -252,7 +252,7 @@ int load_image(meminfo_t *mem_layout,
 	/* We have enough space so load the image now */
 	/* TODO: Consider whether to try to recover/retry a partially successful read */
 	io_result = io_read(image_handle, image_base, image_size, &bytes_read);
-	if ((io_result != IO_SUCCESS) || (bytes_read < image_size)) {
+	if ((io_result != 0) || (bytes_read < image_size)) {
 		WARN("Failed to load image id=%u (%i)\n", image_id, io_result);
 		goto exit;
 	}
@@ -319,7 +319,7 @@ int load_auth_image(meminfo_t *mem_layout,
 	if (rc == 0) {
 		rc = load_auth_image(mem_layout, parent_id, image_base,
 				     image_data, NULL);
-		if (rc != LOAD_SUCCESS) {
+		if (rc != 0) {
 			return rc;
 		}
 	}
@@ -328,8 +328,8 @@ int load_auth_image(meminfo_t *mem_layout,
 	/* Load the image */
 	rc = load_image(mem_layout, image_id, image_base, image_data,
 			entry_point_info);
-	if (rc != IO_SUCCESS) {
-		return LOAD_ERR;
+	if (rc != 0) {
+		return rc;
 	}
 
 #if TRUSTED_BOARD_BOOT
@@ -342,7 +342,7 @@ int load_auth_image(meminfo_t *mem_layout,
 		       image_data->image_size);
 		flush_dcache_range(image_data->image_base,
 				   image_data->image_size);
-		return LOAD_AUTH_ERR;
+		return -EAUTH;
 	}
 
 	/* After working with data, invalidate the data cache */
@@ -350,5 +350,5 @@ int load_auth_image(meminfo_t *mem_layout,
 			(size_t)image_data->image_size);
 #endif /* TRUSTED_BOARD_BOOT */
 
-	return LOAD_SUCCESS;
+	return 0;
 }
