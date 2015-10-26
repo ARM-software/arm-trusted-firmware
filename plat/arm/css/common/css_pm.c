@@ -41,6 +41,12 @@
 #include <platform_def.h>
 #include "css_scpi.h"
 
+/* Macros to read the CSS power domain state */
+#define CSS_CORE_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL0]
+#define CSS_CLUSTER_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL1]
+#define CSS_SYSTEM_PWR_STATE(state)	((PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) ?\
+				(state)->pwr_domain_state[ARM_PWR_LVL2] : 0)
+
 /* Allow CSS platforms to override `plat_arm_psci_pm_ops` */
 #pragma weak plat_arm_psci_pm_ops
 
@@ -93,50 +99,37 @@ int css_pwr_domain_on(u_register_t mpidr)
 	return PSCI_E_SUCCESS;
 }
 
-/*******************************************************************************
- * Handler called when a power level has just been powered on after
- * being turned off earlier. The target_state encodes the low power state that
- * each level has woken up from.
- ******************************************************************************/
-void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
+static void css_pwr_domain_on_finisher_common(
+		const psci_power_state_t *target_state)
 {
-	assert(target_state->pwr_domain_state[ARM_PWR_LVL0] ==
-						ARM_LOCAL_STATE_OFF);
-
-	if (PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) {
-		/*
-		 * Perform system initialization if woken up from system
-		 * suspend.
-		 */
-		if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
-							ARM_LOCAL_STATE_OFF)
-			arm_system_pwr_domain_resume();
-	}
+	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 
 	/*
 	 * Perform the common cluster specific operations i.e enable coherency
 	 * if this cluster was off.
 	 */
-	if (target_state->pwr_domain_state[ARM_PWR_LVL1] ==
-						ARM_LOCAL_STATE_OFF)
+	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
 		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+}
 
+/*******************************************************************************
+ * Handler called when a power level has just been powered on after
+ * being turned off earlier. The target_state encodes the low power state that
+ * each level has woken up from. This handler would never be invoked with
+ * the system power domain uninitialized as either the primary would have taken
+ * care of it as part of cold boot or the first core awakened from system
+ * suspend would have already initialized it.
+ ******************************************************************************/
+void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
+{
+	/* Assert that the system power domain need not be initialized */
+	assert(CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_RUN);
 
-	if (PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) {
-		/*
-		 * Skip GIC CPU interface and per-CPU Distributor interface
-		 * setups if woken up from system suspend as it is done as
-		 * part of css_system_pwr_domain_resume().
-		 */
-		if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
-							ARM_LOCAL_STATE_OFF)
-			return;
-	}
+	css_pwr_domain_on_finisher_common(target_state);
 
 	/* Enable the gic cpu interface */
 	arm_gic_cpuif_setup();
-
-	/* todo: Is this setup only needed after a cold boot? */
+	/* Program the gic per-cpu distributor interface */
 	arm_gic_pcpu_distif_setup();
 }
 
@@ -154,19 +147,12 @@ static void css_power_down_common(const psci_power_state_t *target_state)
 	/* Prevent interrupts from spuriously waking up this cpu */
 	arm_gic_cpuif_deactivate();
 
-	if (PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) {
-		/*
-		 * Check if power down at system power domain level is
-		 * requested.
-		 */
-		if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
-							ARM_LOCAL_STATE_OFF)
+	/* Check if power down at system power domain level is requested */
+	if (CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
 			system_state = scpi_power_retention;
-	}
 
 	/* Cluster is to be turned off, so disable coherency */
-	if (target_state->pwr_domain_state[ARM_PWR_LVL1] ==
-						ARM_LOCAL_STATE_OFF) {
+	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
 		cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
 		cluster_state = scpi_power_off;
 	}
@@ -187,9 +173,7 @@ static void css_power_down_common(const psci_power_state_t *target_state)
  ******************************************************************************/
 void css_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	assert(target_state->pwr_domain_state[ARM_PWR_LVL0] ==
-						ARM_LOCAL_STATE_OFF);
-
+	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 	css_power_down_common(target_state);
 }
 
@@ -200,16 +184,13 @@ void css_pwr_domain_off(const psci_power_state_t *target_state)
 void css_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	/*
-	 * Juno has retention only at cpu level. Just return
+	 * CSS currently supports retention only at cpu level. Just return
 	 * as nothing is to be done for retention.
 	 */
-	if (target_state->pwr_domain_state[ARM_PWR_LVL0] ==
-						ARM_LOCAL_STATE_RET)
+	if (CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_RET)
 		return;
 
-	assert(target_state->pwr_domain_state[ARM_PWR_LVL0] ==
-						ARM_LOCAL_STATE_OFF);
-
+	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 	css_power_down_common(target_state);
 }
 
@@ -223,14 +204,18 @@ void css_pwr_domain_suspend(const psci_power_state_t *target_state)
 void css_pwr_domain_suspend_finish(
 				const psci_power_state_t *target_state)
 {
-	/*
-	 * Return as nothing is to be done on waking up from retention.
-	 */
-	if (target_state->pwr_domain_state[ARM_PWR_LVL0] ==
-						ARM_LOCAL_STATE_RET)
+	/* Return as nothing is to be done on waking up from retention. */
+	if (CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_RET)
 		return;
 
-	css_pwr_domain_on_finish(target_state);
+	/* Perform system domain restore if woken up from system suspend */
+	if (CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
+		arm_system_pwr_domain_resume();
+	else
+		/* Enable the gic cpu interface */
+		arm_gic_cpuif_setup();
+
+	css_pwr_domain_on_finisher_common(target_state);
 }
 
 /*******************************************************************************
