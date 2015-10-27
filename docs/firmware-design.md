@@ -189,9 +189,21 @@ the CCI slave interface corresponding to the cluster that includes the
 primary CPU. BL1 also initializes a UART (PL011 console), which enables access
 to the `printf` family of functions in BL1.
 
+#### Firmware Update detection and execution
+
+After performing platform setup, BL1 common code calls
+`bl1_plat_get_next_image_id()` to determine if [Firmware Update] is required or
+to proceed with the normal boot process. If the platform code returns
+`BL2_IMAGE_ID` then the normal boot sequence is executed as described in the
+next section, else BL1 assumes that [Firmware Update] is required and execution
+passes to the first image in the [Firmware Update] process. In either case, BL1
+retrieves a descriptor of the next image by calling `bl1_plat_get_image_desc()`.
+The image descriptor contains an `entry_point_info_t` structure, which BL1
+uses to initialize the execution state of the next image.
+
 #### BL2 image load and execution
 
-BL1 execution continues as follows:
+In the normal boot flow, BL1 execution continues as follows:
 
 1.  BL1 determines the amount of free trusted SRAM memory available by
     calculating the extent of its own data section, which also resides in
@@ -1769,3 +1781,4 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [Porting Guide]:    ./porting-guide.md
 [INTRG]:            ./interrupt-framework-design.md
 [CPUBM]:            ./cpu-specific-build-macros.md.md
+[Firmware Update]:  ./firmware-update.md

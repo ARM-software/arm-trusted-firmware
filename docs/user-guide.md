@@ -208,6 +208,21 @@ performed.
 *   `FIP_NAME`: This is an optional build option which specifies the FIP
     filename for the `fip` target. Default is `fip.bin`.
 
+*   `FWU_FIP_NAME`: This is an optional build option which specifies the FWU
+    FIP filename for the `fwu_fip` target. Default is `fwu_fip.bin`.
+
+*   `BL2U`:  This is an optional build option which specifies the path to
+    BL2U image. In this case, the BL2U in the ARM Trusted Firmware will not
+    be built.
+
+*   `SCP_BL2U`: Path to SCP_BL2U image in the host file system. This image is
+    optional. It is only needed if the platform makefile specifies that it
+    is required in order to build the `fwu_fip` target.
+
+*   `NS_BL2U`: Path to NS_BL2U image in the host file system. This image is
+    optional. It is only needed if the platform makefile specifies that it
+    is required in order to build the `fwu_fip` target.
+
 *   `CROSS_COMPILE`: Prefix to toolchain binaries. Please refer to examples in
     this document for usage.
 
@@ -290,26 +305,29 @@ performed.
 
 *   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
     Boot feature. When set to '1', BL1 and BL2 images include support to load
-    and verify the certificates and images in a FIP. The default value is '0'.
-    Generation and inclusion of certificates in the FIP depends upon the value
-    of the `GENERATE_COT` option.
+    and verify the certificates and images in a FIP, and BL1 includes support
+    for the Firmware Update. The default value is '0'. Generation and inclusion
+    of certificates in the FIP and FWU_FIP depends upon the value of the
+    `GENERATE_COT` option.
 
 *   `GENERATE_COT`: Boolean flag used to build and execute the `cert_create`
     tool to create certificates as per the Chain of Trust described in
     [Trusted Board Boot].  The build system then calls the `fip_create` tool to
-    include the certificates in the FIP. Default value is '0'.
+    include the certificates in the FIP and FWU_FIP. Default value is '0'.
 
-    Specify `TRUSTED_BOARD_BOOT=1` and `GENERATE_COT=1` to include support for
-    the Trusted Board Boot Sequence in the BL1 and BL2 images and the FIP.
+    Specify both `TRUSTED_BOARD_BOOT=1` and `GENERATE_COT=1` to include support
+    for the Trusted Board Boot feature in the BL1 and BL2 images, to generate
+    the corresponding certificates, and to include those certificates in the
+    FIP and FWU_FIP.
 
     Note that if `TRUSTED_BOARD_BOOT=0` and `GENERATE_COT=1`, the BL1 and BL2
     images will not include support for Trusted Board Boot. The FIP will still
-    include the key and content certificates. This FIP can be used to verify the
+    include the corresponding certificates. This FIP can be used to verify the
     Chain of Trust on the host machine through other mechanisms.
 
     Note that if `TRUSTED_BOARD_BOOT=1` and `GENERATE_COT=0`, the BL1 and BL2
-    images will include support for Trusted Board Boot, but the FIP will not
-    include the key and content certificates, causing a boot failure.
+    images will include support for Trusted Board Boot, but the FIP and FWU_FIP
+    will not include the corresponding certificates, causing a boot failure.
 
 *   `CREATE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
     certificate generation tool to create new keys in case no valid keys are
@@ -617,11 +635,15 @@ The `cert_create` tool is automatically built with the `fip` target when
 `GENERATE_COT=1`.
 
 
-### Building a FIP image with support for Trusted Board Boot
+### Building FIP images with support for Trusted Board Boot
 
-The Trusted Board Boot feature is described in [Trusted Board Boot]. The
-following steps should be followed to build a FIP image with support for this
-feature.
+Trusted Board Boot primarily consists of the following two features:
+
+*   Image Authentication, described in [Trusted Board Boot], and
+*   Firmware Update, described in [Firmware Update]
+
+The following steps should be followed to build FIP and (optionally) FWU_FIP
+images with support for these features:
 
 1.  Fulfill the dependencies of the `mbedtls` cryptographic and image parser
     modules by checking out a recent version of the [mbed TLS Repository]. It
@@ -638,8 +660,8 @@ feature.
     license. Using mbed TLS source code will affect the licensing of
     Trusted Firmware binaries that are built using this library.
 
-2.  Ensure that the following command line variables are set while invoking
-    `make` to build Trusted Firmware:
+2.  To build the FIP image, ensure the following command line variables are set
+    while invoking `make` to build Trusted Firmware:
 
     *   `MBEDTLS_DIR=<path of the directory containing mbed TLS sources>`
     *   `TRUSTED_BOARD_BOOT=1`
@@ -675,6 +697,40 @@ feature.
     The result of this build will be the bl1.bin and the fip.bin binaries, with
     the difference that the FIP will include the certificates corresponding to
     the Chain of Trust described in the TBBR-client document. These certificates
+    can also be found in the output build directory.
+
+3.  The optional FWU_FIP contains any additional images to be loaded from
+    Non-Volatile storage during the [Firmware Update] process. To build the
+    FWU_FIP, any FWU images required by the platform must be specified on the
+    command line. On ARM development platforms like Juno, these are:
+
+    *   NS_BL2U. The AP non-secure Firmware Updater image.
+    *   SCP_BL2U. The SCP Firmware Update Configuration image.
+
+    Example of Juno command line for generating both `fwu` and `fwu_fip`
+    targets using RSA development:
+
+        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-       \
+        BL33=<path-to>/<bl33_image>                                     \
+        SCP_BL2=<path-to>/<scp_bl2_image>                               \
+        SCP_BL2U=<path-to>/<scp_bl2u_image>                             \
+        NS_BL2U=<path-to>/<ns_bl2u_image>                               \
+        MBEDTLS_DIR=<path of the directory containing mbed TLS sources> \
+        make PLAT=juno TRUSTED_BOARD_BOOT=1 GENERATE_COT=1              \
+        ARM_ROTPK_LOCATION=devel_rsa                                    \
+        ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
+        all fip fwu_fip
+
+    Note:   The BL2U image will be built by default and added to the FWU_FIP.
+            The user may override this by adding `BL2U=<path-to>/<bl2u_image>`
+            to the command line above.
+
+    Note:   Building and installing the non-secure and SCP FWU images (NS_BL1U,
+            NS_BL2U and SCP_BL2U) is outside the scope of this document.
+
+    The result of this build will be bl1.bin, fip.bin and fwu_fip.bin binaries.
+    Both the FIP and FWU_FIP will include the certificates corresponding to the
+    Chain of Trust described in the TBBR-client document. These certificates
     can also be found in the output build directory.
 
 
@@ -1308,3 +1364,4 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [mbed TLS Security Center]:    https://tls.mbed.org/security
 [PSCI]:                        http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [Trusted Board Boot]:          trusted-board-boot.md
+[Firmware Update]:             ./firmware-update.md
