@@ -1473,9 +1473,8 @@ of interrupt depends upon the id value as follows.
     Return   : uint32_t
 
 This API returns the id of the highest priority pending interrupt at the
-platform IC. The IMF passes the id returned by this API to the registered
-handler for the pending interrupt if the `IMF_READ_INTERRUPT_ID` build time flag
-is set. INTR_ID_UNAVAILABLE is returned when there is no interrupt pending.
+platform IC. INTR_ID_UNAVAILABLE is returned when there is no interrupt
+pending.
 
 ARM standard platforms read the _Highest Priority Pending Interrupt
 Register_ (`GICC_HPPIR`) to determine the id of the pending interrupt. The id

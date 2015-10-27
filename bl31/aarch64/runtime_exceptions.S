@@ -130,16 +130,6 @@
 	mov	x21, x0
 
 	mov	x0, #INTR_ID_UNAVAILABLE
-#if IMF_READ_INTERRUPT_ID
-	/*
-	 * Read the id of the highest priority pending interrupt. If
-	 * no interrupt is asserted then return to where we came from.
-	 */
-	mov	x19,  #INTR_ID_UNAVAILABLE
-	bl	plat_ic_get_pending_interrupt_id
-	cmp	x19, x0
-	b.eq	interrupt_exit_\label
-#endif
 
 	/* Set the current security state in the 'flags' parameter */
 	mrs	x2, scr_el3

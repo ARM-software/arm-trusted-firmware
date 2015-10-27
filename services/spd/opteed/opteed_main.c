@@ -85,11 +85,6 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	/* Check the security state when the exception was generated */
 	assert(get_interrupt_src_ss(flags) == NON_SECURE);
 
-#if IMF_READ_INTERRUPT_ID
-	/* Check the security status of the interrupt */
-	assert(plat_ic_get_interrupt_type(id) == INTR_TYPE_S_EL1);
-#endif
-
 	/* Sanity check the pointer to this cpu's context */
 	assert(handle == cm_get_context(NON_SECURE));
 
