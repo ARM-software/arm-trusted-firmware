@@ -35,6 +35,7 @@
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
+#include <xlat_tables.h>
 
 
 /*
