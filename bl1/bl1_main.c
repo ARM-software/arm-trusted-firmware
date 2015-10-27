@@ -199,10 +199,11 @@ void bl1_main(void)
 }
 
 /*******************************************************************************
- * Temporary function to print the fact that BL2 has done its job and BL31 is
- * about to be loaded. This is needed as long as printfs cannot be used
+ * Function called just before handing over to BL31 to inform the user about
+ * the boot progress. In debug mode, also print details about the BL31 image's
+ * execution context.
  ******************************************************************************/
-void display_boot_progress(entry_point_info_t *bl31_ep_info)
+void bl1_print_bl31_ep_info(const entry_point_info_t *bl31_ep_info)
 {
 	NOTICE("BL1: Booting BL3-1\n");
 	print_entry_point_info(bl31_ep_info);

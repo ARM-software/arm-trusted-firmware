@@ -195,7 +195,7 @@ func smc_handler64
 	b.ne	unexpected_sync_exception
 
 	mov	x0, x20
-	bl	display_boot_progress
+	bl	bl1_print_bl31_ep_info
 
 	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
 	msr	elr_el3, x0
