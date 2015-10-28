@@ -219,7 +219,7 @@ void bl2_main(void)
 	e = load_bl30();
 	if (e) {
 		ERROR("Failed to load BL3-0 (%i)\n", e);
-		panic();
+		plat_error_handler(e);
 	}
 
 	/* Perform platform setup in BL2 after loading BL3-0 */
@@ -235,14 +235,14 @@ void bl2_main(void)
 	e = load_bl31(bl2_to_bl31_params, bl31_ep_info);
 	if (e) {
 		ERROR("Failed to load BL3-1 (%i)\n", e);
-		panic();
+		plat_error_handler(e);
 	}
 
 	e = load_bl32(bl2_to_bl31_params);
 	if (e) {
 		if (e == -EAUTH) {
 			ERROR("Failed to authenticate BL3-2\n");
-			panic();
+			plat_error_handler(e);
 		} else {
 			WARN("Failed to load BL3-2 (%i)\n", e);
 		}
@@ -251,7 +251,7 @@ void bl2_main(void)
 	e = load_bl33(bl2_to_bl31_params);
 	if (e) {
 		ERROR("Failed to load BL3-3 (%i)\n", e);
-		panic();
+		plat_error_handler(e);
 	}
 
 	/* Flush the params to be passed to memory */
