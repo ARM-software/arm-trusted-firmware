@@ -37,7 +37,7 @@
 
 
 	.globl	plat_reset_handler
-
+	.globl	plat_arm_calc_core_pos
 
 	/* --------------------------------------------------------------------
 	 * void plat_reset_handler(void);
@@ -117,3 +117,12 @@ ret:
 	isb
 	ret
 endfunc plat_reset_handler
+
+	/* -----------------------------------------------------
+	 *  unsigned int plat_arm_calc_core_pos(uint64_t mpidr)
+	 *  Helper function to calculate the core position.
+	 * -----------------------------------------------------
+	 */
+func plat_arm_calc_core_pos
+	b	css_calc_core_pos_swap_cluster
+endfunc plat_arm_calc_core_pos
