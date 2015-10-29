@@ -71,6 +71,15 @@
 #define TEGRA_EVP_BASE			0x6000F000
 
 /*******************************************************************************
+ * Tegra UART controller base addresses
+ ******************************************************************************/
+#define TEGRA_UARTA_BASE		0x70006000
+#define TEGRA_UARTB_BASE		0x70006040
+#define TEGRA_UARTC_BASE		0x70006200
+#define TEGRA_UARTD_BASE		0x70006300
+#define TEGRA_UARTE_BASE		0x70006400
+
+/*******************************************************************************
  * Tegra Power Mgmt Controller constants
  ******************************************************************************/
 #define TEGRA_PMC_BASE			0x7000E400

@@ -66,6 +66,7 @@
 	.globl	tegra_sec_entry_point
 	.globl	ns_image_entrypoint
 	.globl	tegra_bl31_phys_base
+	.globl	tegra_console_base
 
 	/* ---------------------
 	 * Common CPU init code
@@ -226,7 +227,8 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, TEGRA_BOOT_UART_BASE
+	adr	x0, tegra_console_base
+	ldr	x0, [x0]
 	mov_imm	x1, TEGRA_BOOT_UART_CLK_IN_HZ
 	mov_imm	x2, TEGRA_CONSOLE_BAUDRATE
 	b	console_core_init
@@ -240,7 +242,8 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm	x1, TEGRA_BOOT_UART_BASE
+	adr	x1, tegra_console_base
+	ldr	x1, [x1]
 	b	console_core_putc
 endfunc plat_crash_console_putc
 
@@ -401,4 +404,11 @@ ns_image_entrypoint:
 	 * --------------------------------------------------
 	 */
 tegra_bl31_phys_base:
+	.quad	0
+
+	/* --------------------------------------------------
+	 * UART controller base for console init
+	 * --------------------------------------------------
+	 */
+tegra_console_base:
 	.quad	0

@@ -55,6 +55,7 @@ extern unsigned long __RO_END__;
 extern unsigned long __BL31_END__;
 
 extern uint64_t tegra_bl31_phys_base;
+extern uint64_t tegra_console_base;
 
 /*
  * The next 3 constants identify the extents of the code, RO data region and the
@@ -114,17 +115,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 #if DEBUG
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 #endif
-	/*
-	 * Configure the UART port to be used as the console
-	 */
-	console_init(TEGRA_BOOT_UART_BASE, TEGRA_BOOT_UART_CLK_IN_HZ,
-			TEGRA_CONSOLE_BAUDRATE);
-
-	/* Initialise crash console */
-	plat_crash_console_init();
-
-	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n", (impl == DENVER_IMPL) ?
-		"Denver" : "ARM", read_mpidr());
 
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
@@ -142,6 +132,27 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(plat_params);
 	plat_bl31_params_from_bl2.tzdram_base = plat_params->tzdram_base;
 	plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
+	plat_bl31_params_from_bl2.uart_id = plat_params->uart_id;
+
+	/*
+	 * Get the base address of the UART controller to be used for the
+	 * console
+	 */
+	assert(plat_params->uart_id);
+	tegra_console_base = plat_get_console_from_id(plat_params->uart_id);
+
+	/*
+	 * Configure the UART port to be used as the console
+	 */
+	assert(tegra_console_base);
+	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+		TEGRA_CONSOLE_BAUDRATE);
+
+	/* Initialise crash console */
+	plat_crash_console_init();
+
+	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n", (impl == DENVER_IMPL) ?
+		"Denver" : "ARM", read_mpidr());
 }
 
 /*******************************************************************************

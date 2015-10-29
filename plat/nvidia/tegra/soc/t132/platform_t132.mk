@@ -28,9 +28,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-TEGRA_BOOT_UART_BASE		:= 0x70006300
-$(eval $(call add_define,TEGRA_BOOT_UART_BASE))
-
 TZDRAM_BASE			:= 0xF5C00000
 $(eval $(call add_define,TZDRAM_BASE))
 
