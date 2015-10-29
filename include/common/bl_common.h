@@ -46,7 +46,6 @@
 #define BOTTOM	!TOP
 
 /******************************************************************************
- * Opcode passed in x0 to tell next EL that we want to run an image.
  * Corresponds to the function ID of the only SMC that the BL1 exception
  * handlers service. That's why the chosen value is the first function ID of
  * the ARM SMC64 range.

@@ -39,13 +39,12 @@
 
 func bl2_entrypoint
 	/*---------------------------------------------
-	 * Store the extents of the tzram available to
-	 * BL2 for future use. Use the opcode param to
-	 * allow implement other functions if needed.
+	 * Save from x1 the extents of the tzram
+	 * available to BL2 for future use.
+	 * x0 is not currently used.
 	 * ---------------------------------------------
-	 */
-	mov	x20, x0
-	mov	x21, x1
+ 	 */
+ 	mov	x20, x1
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
@@ -72,14 +71,6 @@ func bl2_entrypoint
 	orr	x0, x0, x1
 	msr	sctlr_el1, x0
 	isb
-
-	/* ---------------------------------------------
-	 * Check the opcodes out of paranoia.
-	 * ---------------------------------------------
-	 */
-	mov	x0, #RUN_IMAGE
-	cmp	x0, x20
-	b.ne	_panic
 
 	/* ---------------------------------------------
 	 * Invalidate the RW memory used by the BL2
@@ -126,7 +117,7 @@ func bl2_entrypoint
 	 * specific early arch. setup e.g. mmu setup
 	 * ---------------------------------------------
 	 */
-	mov	x0, x21
+	mov	x0, x20
 	bl	bl2_early_platform_setup
 	bl	bl2_plat_arch_setup
 

@@ -51,9 +51,6 @@ static void __dead2 bl1_run_bl2(entry_point_info_t *bl2_ep)
 
 	bl1_arch_next_el_setup();
 
-	/* Tell next EL what we want done */
-	bl2_ep->args.arg0 = RUN_IMAGE;
-
 	write_spsr_el3(bl2_ep->spsr);
 	write_elr_el3(bl2_ep->pc);
 
