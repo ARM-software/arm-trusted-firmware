@@ -124,6 +124,11 @@ void arm_configure_mmu_el3(unsigned long total_base,
 		(((lvl1_state) << ARM_LOCAL_PSTATE_WIDTH) | \
 		arm_make_pwrstate_lvl0(lvl0_state, pwr_lvl, type))
 
+/* Make composite power state parameter till power level 2 */
+#define arm_make_pwrstate_lvl2(lvl2_state, lvl1_state, lvl0_state, pwr_lvl, type) \
+		(((lvl2_state) << (ARM_LOCAL_PSTATE_WIDTH * 2)) | \
+		arm_make_pwrstate_lvl1(lvl1_state, lvl0_state, pwr_lvl, type))
+
 #endif /* __ARM_RECOM_STATE_ID_ENC__ */
 
 
@@ -136,10 +141,14 @@ void arm_io_setup(void);
 /* Security utility functions */
 void arm_tzc_setup(void);
 
+/* Systimer utility function */
+void arm_configure_sys_timer(void);
+
 /* PM utility functions */
 int arm_validate_power_state(unsigned int power_state,
 			    psci_power_state_t *req_state);
 int arm_validate_ns_entrypoint(uintptr_t entrypoint);
+void arm_system_pwr_domain_resume(void);
 
 /* Topology utility function */
 int arm_check_mpidr(u_register_t mpidr);

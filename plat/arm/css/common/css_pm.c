@@ -31,6 +31,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <arm_gic.h>
+#include <cassert.h>
 #include <cci.h>
 #include <css_pm.h>
 #include <debug.h>
@@ -51,18 +52,30 @@
  *  The table must be terminated by a NULL entry.
  */
 const unsigned int arm_pm_idle_states[] = {
-	/* State-id - 0x01 */
-	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RET,
-			ARM_PWR_LVL0, PSTATE_TYPE_STANDBY),
-	/* State-id - 0x02 */
-	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_OFF,
-			ARM_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
-	/* State-id - 0x22 */
-	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
-			ARM_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x001 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
+		ARM_LOCAL_STATE_RET, ARM_PWR_LVL0, PSTATE_TYPE_STANDBY),
+	/* State-id - 0x002 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_RUN,
+		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x022 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_RUN, ARM_LOCAL_STATE_OFF,
+		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
+#if PLAT_MAX_PWR_LVL > ARM_PWR_LVL1
+	/* State-id - 0x222 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
+		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL2, PSTATE_TYPE_POWERDOWN),
+#endif
 	0,
 };
-#endif
+#endif /* __ARM_RECOM_STATE_ID_ENC__ */
+
+/*
+ * All the power management helpers in this file assume at least cluster power
+ * level is supported.
+ */
+CASSERT(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL1,
+		assert_max_pwr_lvl_supported_mismatch);
 
 /*******************************************************************************
  * Handler called when a power domain is about to be turned on. The
@@ -90,6 +103,16 @@ void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	assert(target_state->pwr_domain_state[ARM_PWR_LVL0] ==
 						ARM_LOCAL_STATE_OFF);
 
+	if (PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) {
+		/*
+		 * Perform system initialization if woken up from system
+		 * suspend.
+		 */
+		if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
+							ARM_LOCAL_STATE_OFF)
+			arm_system_pwr_domain_resume();
+	}
+
 	/*
 	 * Perform the common cluster specific operations i.e enable coherency
 	 * if this cluster was off.
@@ -97,6 +120,18 @@ void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	if (target_state->pwr_domain_state[ARM_PWR_LVL1] ==
 						ARM_LOCAL_STATE_OFF)
 		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+
+
+	if (PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) {
+		/*
+		 * Skip GIC CPU interface and per-CPU Distributor interface
+		 * setups if woken up from system suspend as it is done as
+		 * part of css_system_pwr_domain_resume().
+		 */
+		if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
+							ARM_LOCAL_STATE_OFF)
+			return;
+	}
 
 	/* Enable the gic cpu interface */
 	arm_gic_cpuif_setup();
@@ -114,9 +149,20 @@ void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
 static void css_power_down_common(const psci_power_state_t *target_state)
 {
 	uint32_t cluster_state = scpi_power_on;
+	uint32_t system_state = scpi_power_on;
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 	arm_gic_cpuif_deactivate();
+
+	if (PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) {
+		/*
+		 * Check if power down at system power domain level is
+		 * requested.
+		 */
+		if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
+							ARM_LOCAL_STATE_OFF)
+			system_state = scpi_power_retention;
+	}
 
 	/* Cluster is to be turned off, so disable coherency */
 	if (target_state->pwr_domain_state[ARM_PWR_LVL1] ==
@@ -132,7 +178,7 @@ static void css_power_down_common(const psci_power_state_t *target_state)
 	scpi_set_css_power_state(read_mpidr_el1(),
 				 scpi_power_off,
 				 cluster_state,
-				 scpi_power_on);
+				 system_state);
 }
 
 /*******************************************************************************
@@ -243,6 +289,23 @@ void css_cpu_standby(plat_local_state_t cpu_state)
 	 * done by eret while el3_exit to save some execution cycles.
 	 */
 	write_scr_el3(scr);
+}
+
+/*******************************************************************************
+ * Handler called to return the 'req_state' for system suspend.
+ ******************************************************************************/
+void css_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	/*
+	 * System Suspend is supported only if the system power domain node
+	 * is implemented.
+	 */
+	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
+
+	for (i = ARM_PWR_LVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = ARM_LOCAL_STATE_OFF;
 }
 
 /*******************************************************************************

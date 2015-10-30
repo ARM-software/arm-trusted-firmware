@@ -44,5 +44,6 @@ void css_pwr_domain_suspend_finish(
 void __dead2 css_system_off(void);
 void __dead2 css_system_reset(void);
 void css_cpu_standby(plat_local_state_t cpu_state);
+void css_get_sys_suspend_power_state(psci_power_state_t *req_state);
 
 #endif /* __CSS_PM_H__ */
