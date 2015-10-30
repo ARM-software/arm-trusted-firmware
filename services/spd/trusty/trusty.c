@@ -28,7 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
+#include <arch_helpers.h>
+#include <assert.h> /* for context_mgmt.h */
 #include <bl_common.h>
 #include <bl31.h>
 #include <context_mgmt.h>
@@ -40,6 +41,9 @@
 
 #include "smcall.h"
 #include "sm_err.h"
+
+/* macro to check if Hypervisor is enabled in the HCR_EL2 register */
+#define HYP_ENABLE_FLAG		0x286001
 
 struct trusty_stack {
 	uint8_t space[PLATFORM_STACK_SIZE] __aligned(16);
@@ -65,17 +69,27 @@ struct args {
 	uint64_t	r1;
 	uint64_t	r2;
 	uint64_t	r3;
+	uint64_t	r4;
+	uint64_t	r5;
+	uint64_t	r6;
+	uint64_t	r7;
 };
 
 struct trusty_cpu_ctx trusty_cpu_ctx[PLATFORM_CORE_COUNT];
 
 struct args trusty_init_context_stack(void **sp, void *new_stack);
-struct args trusty_context_switch_helper(void **sp, uint64_t r0, uint64_t r1,
-					 uint64_t r2, uint64_t r3);
+struct args trusty_context_switch_helper(void **sp, void *smc_params);
 
 static struct trusty_cpu_ctx *get_trusty_ctx(void)
 {
 	return &trusty_cpu_ctx[plat_my_core_pos()];
+}
+
+static uint32_t is_hypervisor_mode(void)
+{
+	uint64_t hcr = read_hcr();
+
+	return !!(hcr & HYP_ENABLE_FLAG);
 }
 
 static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
@@ -83,13 +97,30 @@ static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
 {
 	struct args ret;
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
+	struct trusty_cpu_ctx *ctx_smc;
 
 	assert(ctx->saved_security_state != security_state);
+
+	ret.r7 = 0;
+	if (is_hypervisor_mode()) {
+		/* According to the ARM DEN0028A spec, VMID is stored in x7 */
+		ctx_smc = cm_get_context(NON_SECURE);
+		assert(ctx_smc);
+		ret.r7 = SMC_GET_GP(ctx_smc, CTX_GPREG_X7);
+	}
+	/* r4, r5, r6 reserved for future use. */
+	ret.r6 = 0;
+	ret.r5 = 0;
+	ret.r4 = 0;
+	ret.r3 = r3;
+	ret.r2 = r2;
+	ret.r1 = r1;
+	ret.r0 = r0;
 
 	cm_el1_sysregs_context_save(security_state);
 
 	ctx->saved_security_state = security_state;
-	ret = trusty_context_switch_helper(&ctx->saved_sp, r0, r1, r2, r3);
+	ret = trusty_context_switch_helper(&ctx->saved_sp, &ret);
 
 	assert(ctx->saved_security_state == !security_state);
 
@@ -204,7 +235,8 @@ static uint64_t trusty_smc_handler(uint32_t smc_fid,
 	if (is_caller_secure(flags)) {
 		if (smc_fid == SMC_SC_NS_RETURN) {
 			ret = trusty_context_switch(SECURE, x1, 0, 0, 0);
-			SMC_RET4(handle, ret.r0, ret.r1, ret.r2, ret.r3);
+			SMC_RET8(handle, ret.r0, ret.r1, ret.r2, ret.r3,
+				 ret.r4, ret.r5, ret.r6, ret.r7);
 		}
 		INFO("%s (0x%x, 0x%lx, 0x%lx, 0x%lx, 0x%lx, %p, %p, 0x%lx) \
 		     cpu %d, unknown smc\n",
@@ -231,6 +263,7 @@ static int32_t trusty_init(void)
 {
 	void el3_exit(void);
 	entry_point_info_t *ep_info;
+	struct args zero_args = {0};
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
 	uint32_t cpu = plat_my_core_pos();
 	int reg_width = GET_RW(read_ctx_reg(get_el3state_ctx(&ctx->cpu_ctx),
@@ -264,7 +297,7 @@ static int32_t trusty_init(void)
 	ctx->saved_security_state = ~0; /* initial saved state is invalid */
 	trusty_init_context_stack(&ctx->saved_sp, &ctx->secure_stack);
 
-	trusty_context_switch_helper(&ctx->saved_sp, 0, 0, 0, 0);
+	trusty_context_switch_helper(&ctx->saved_sp, &zero_args);
 
 	cm_el1_sysregs_context_restore(NON_SECURE);
 	cm_set_next_eret_context(NON_SECURE);

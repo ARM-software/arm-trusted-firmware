@@ -60,8 +60,20 @@ func trusty_context_switch_helper
 	pop	x21, x22
 	pop	x19, x20
 	pop	x8, xzr
-	stp	x1, x2, [x8]
-	stp	x3, x4, [x8, #16]
+
+        ldr     x2, [x1]
+        ldr     x3, [x1, #0x08]
+        ldr     x4, [x1, #0x10]
+        ldr     x5, [x1, #0x18]
+        ldr     x6, [x1, #0x20]
+        ldr     x7, [x1, #0x28]
+        ldr     x10, [x1, #0x30]
+        ldr     x11, [x1, #0x38]
+
+        stp     x2, x3, [x8]
+        stp     x4, x5, [x8, #16]
+        stp     x6, x7, [x8, #32]
+        stp     x10, x11, [x8, #48]
 
 	ret
 endfunc trusty_context_switch_helper
