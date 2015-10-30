@@ -359,6 +359,15 @@ performed.
     implication for `plat_get_my_entrypoint()` platform porting interface.
     (see the [Porting Guide] for details)
 
+*   `COLD_BOOT_SINGLE_CPU`: This option indicates whether the platform may
+    release several CPUs out of reset. It can take either 0 (several CPUs may be
+    brought up) or 1 (only one CPU will ever be brought up during cold reset).
+    Default is 0. If the platform always brings up a single CPU, there is no
+    need to distinguish between primary and secondary CPUs and the boot path can
+    be optimised. The `plat_is_my_cpu_primary()` and
+    `plat_secondary_cold_boot_setup()` platform porting interfaces do not need
+    to be implemented in this case.
+
 *   `PSCI_EXTENDED_STATE_ID`: As per PSCI1.0 Specification, there are 2 formats
     possible for the PSCI power-state parameter viz original and extended
     State-ID formats. This flag if set to 1, configures the generic PSCI layer

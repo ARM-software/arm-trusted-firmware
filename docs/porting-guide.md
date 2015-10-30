@@ -459,7 +459,7 @@ type of reset nor to query the warm reset entrypoint. Therefore, implementing
 this function is not required on such platforms.
 
 
-### Function : plat_secondary_cold_boot_setup() [mandatory]
+### Function : plat_secondary_cold_boot_setup() [mandatory when COLD_BOOT_SINGLE_CPU == 0]
 
     Argument : void
 
@@ -476,8 +476,12 @@ populated.
 
 This function fulfills requirement 2 above.
 
+Note that for platforms that can't release secondary CPUs out of reset, only the
+primary CPU will execute the cold boot code. Therefore, implementing this
+function is not required on such platforms.
 
-### Function : plat_is_my_cpu_primary() [mandatory]
+
+### Function : plat_is_my_cpu_primary() [mandatory when COLD_BOOT_SINGLE_CPU == 0]
 
     Argument : void
     Return   : unsigned int
@@ -486,6 +490,11 @@ This function identifies whether the current CPU is the primary CPU or a
 secondary CPU. A return value of zero indicates that the CPU is not the
 primary CPU, while a non-zero return value indicates that the CPU is the
 primary CPU.
+
+Note that for platforms that can't release secondary CPUs out of reset, only the
+primary CPU will execute the cold boot code. Therefore, there is no need to
+distinguish between primary and secondary CPUs and implementing this function is
+not required.
 
 
 ### Function : platform_mem_init() [mandatory]
