@@ -96,7 +96,7 @@ static int is_valid_seek_mode(io_seek_mode_t mode)
 static int dev_open(const io_dev_connector_t *dev_con, const uintptr_t dev_spec,
 		io_dev_info_t **dev_info)
 {
-	int result = IO_FAIL;
+	int result;
 	assert(dev_info != NULL);
 	assert(is_valid_dev_connector(dev_con));
 
@@ -116,10 +116,10 @@ static void set_handle(uintptr_t *handle, io_entity_t *entity)
 /* Locate an entity in the pool, specified by address */
 static int find_first_entity(const io_entity_t *entity, unsigned int *index_out)
 {
-	int result = IO_FAIL;
+	int result = -ENOENT;
 	for (int index = 0; index < MAX_IO_HANDLES; ++index) {
 		if (entity_map[index] == entity) {
-			result = IO_SUCCESS;
+			result = 0;
 			*index_out = index;
 			break;
 		}
@@ -131,17 +131,16 @@ static int find_first_entity(const io_entity_t *entity, unsigned int *index_out)
 /* Allocate an entity from the pool and return a pointer to it */
 static int allocate_entity(io_entity_t **entity)
 {
-	int result = IO_FAIL;
+	int result = -ENOMEM;
 	assert(entity != NULL);
 
 	if (entity_count < MAX_IO_HANDLES) {
 		unsigned int index = 0;
 		result = find_first_entity(NULL, &index);
-		assert(result == IO_SUCCESS);
+		assert(result == 0);
 		*entity = entity_map[index] = &entity_pool[index];
 		++entity_count;
-	} else
-		result = IO_RESOURCES_EXHAUSTED;
+	}
 
 	return result;
 }
@@ -150,12 +149,12 @@ static int allocate_entity(io_entity_t **entity)
 /* Release an entity back to the pool */
 static int free_entity(const io_entity_t *entity)
 {
-	int result = IO_FAIL;
+	int result;
 	unsigned int index = 0;
 	assert(entity != NULL);
 
 	result = find_first_entity(entity, &index);
-	if (result ==  IO_SUCCESS) {
+	if (result ==  0) {
 		entity_map[index] = NULL;
 		--entity_count;
 	}
@@ -169,15 +168,13 @@ static int free_entity(const io_entity_t *entity)
 /* Register a device driver */
 int io_register_device(const io_dev_info_t *dev_info)
 {
-	int result = IO_FAIL;
+	int result = -ENOMEM;
 	assert(dev_info != NULL);
 
 	if (dev_count < MAX_IO_DEVICES) {
 		devices[dev_count] = dev_info;
 		dev_count++;
-		result = IO_SUCCESS;
-	} else {
-		result = IO_RESOURCES_EXHAUSTED;
+		result = 0;
 	}
 
 	return result;
@@ -188,7 +185,7 @@ int io_register_device(const io_dev_info_t *dev_info)
 int io_dev_open(const io_dev_connector_t *dev_con, const uintptr_t dev_spec,
 		uintptr_t *handle)
 {
-	int result = IO_FAIL;
+	int result;
 	assert(handle != NULL);
 
 	result = dev_open(dev_con, dev_spec, (io_dev_info_t **)handle);
@@ -200,18 +197,17 @@ int io_dev_open(const io_dev_connector_t *dev_con, const uintptr_t dev_spec,
  * re-initialisation */
 int io_dev_init(uintptr_t dev_handle, const uintptr_t init_params)
 {
-	int result = IO_FAIL;
+	int result = 0;
 	assert(dev_handle != (uintptr_t)NULL);
 	assert(is_valid_dev(dev_handle));
 
 	io_dev_info_t *dev = (io_dev_info_t *)dev_handle;
 
+	/* Absence of registered function implies NOP here */
 	if (dev->funcs->dev_init != NULL) {
 		result = dev->funcs->dev_init(dev, init_params);
-	} else {
-		/* Absence of registered function implies NOP here */
-		result = IO_SUCCESS;
 	}
+
 	return result;
 }
 
@@ -221,17 +217,15 @@ int io_dev_init(uintptr_t dev_handle, const uintptr_t init_params)
 /* Close a connection to a device */
 int io_dev_close(uintptr_t dev_handle)
 {
-	int result = IO_FAIL;
+	int result = 0;
 	assert(dev_handle != (uintptr_t)NULL);
 	assert(is_valid_dev(dev_handle));
 
 	io_dev_info_t *dev = (io_dev_info_t *)dev_handle;
 
+	/* Absence of registered function implies NOP here */
 	if (dev->funcs->dev_close != NULL) {
 		result = dev->funcs->dev_close(dev);
-	} else {
-		/* Absence of registered function implies NOP here */
-		result = IO_SUCCESS;
 	}
 
 	return result;
@@ -244,7 +238,7 @@ int io_dev_close(uintptr_t dev_handle)
 /* Open an IO entity */
 int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle)
 {
-	int result = IO_FAIL;
+	int result;
 	assert((spec != (uintptr_t)NULL) && (handle != NULL));
 	assert(is_valid_dev(dev_handle));
 
@@ -253,11 +247,11 @@ int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle)
 
 	result = allocate_entity(&entity);
 
-	if (result == IO_SUCCESS) {
+	if (result == 0) {
 		assert(dev->funcs->open != NULL);
 		result = dev->funcs->open(dev, spec, entity);
 
-		if (result == IO_SUCCESS) {
+		if (result == 0) {
 			entity->dev_handle = dev;
 			set_handle(handle, entity);
 		} else
@@ -270,7 +264,7 @@ int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle)
 /* Seek to a specific position in an IO entity */
 int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset)
 {
-	int result = IO_FAIL;
+	int result = -ENODEV;
 	assert(is_valid_entity(handle) && is_valid_seek_mode(mode));
 
 	io_entity_t *entity = (io_entity_t *)handle;
@@ -279,8 +273,6 @@ int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset)
 
 	if (dev->funcs->seek != NULL)
 		result = dev->funcs->seek(entity, mode, offset);
-	else
-		result = IO_NOT_SUPPORTED;
 
 	return result;
 }
@@ -289,7 +281,7 @@ int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset)
 /* Determine the length of an IO entity */
 int io_size(uintptr_t handle, size_t *length)
 {
-	int result = IO_FAIL;
+	int result = -ENODEV;
 	assert(is_valid_entity(handle) && (length != NULL));
 
 	io_entity_t *entity = (io_entity_t *)handle;
@@ -298,8 +290,6 @@ int io_size(uintptr_t handle, size_t *length)
 
 	if (dev->funcs->size != NULL)
 		result = dev->funcs->size(entity, length);
-	else
-		result = IO_NOT_SUPPORTED;
 
 	return result;
 }
@@ -311,7 +301,7 @@ int io_read(uintptr_t handle,
 		size_t length,
 		size_t *length_read)
 {
-	int result = IO_FAIL;
+	int result = -ENODEV;
 	assert(is_valid_entity(handle) && (buffer != (uintptr_t)NULL));
 
 	io_entity_t *entity = (io_entity_t *)handle;
@@ -320,8 +310,6 @@ int io_read(uintptr_t handle,
 
 	if (dev->funcs->read != NULL)
 		result = dev->funcs->read(entity, buffer, length, length_read);
-	else
-		result = IO_NOT_SUPPORTED;
 
 	return result;
 }
@@ -333,7 +321,7 @@ int io_write(uintptr_t handle,
 		size_t length,
 		size_t *length_written)
 {
-	int result = IO_FAIL;
+	int result = -ENODEV;
 	assert(is_valid_entity(handle) && (buffer != (uintptr_t)NULL));
 
 	io_entity_t *entity = (io_entity_t *)handle;
@@ -343,8 +331,7 @@ int io_write(uintptr_t handle,
 	if (dev->funcs->write != NULL) {
 		result = dev->funcs->write(entity, buffer, length,
 				length_written);
-	} else
-		result = IO_NOT_SUPPORTED;
+	}
 
 	return result;
 }
@@ -353,19 +340,17 @@ int io_write(uintptr_t handle,
 /* Close an IO entity */
 int io_close(uintptr_t handle)
 {
-	int result = IO_FAIL;
+	int result = 0;
 	assert(is_valid_entity(handle));
 
 	io_entity_t *entity = (io_entity_t *)handle;
 
 	io_dev_info_t *dev = entity->dev_handle;
 
+	/* Absence of registered function implies NOP here */
 	if (dev->funcs->close != NULL)
 		result = dev->funcs->close(entity);
-	else {
-		/* Absence of registered function implies NOP here */
-		result = IO_SUCCESS;
-	}
+
 	/* Ignore improbable free_entity failure */
 	(void)free_entity(entity);
 

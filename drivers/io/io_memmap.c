@@ -101,7 +101,7 @@ static int memmap_dev_open(const uintptr_t dev_spec __attribute__((unused)),
 	assert(dev_info != NULL);
 	*dev_info = (io_dev_info_t *)&memmap_dev_info; /* cast away const */
 
-	return IO_SUCCESS;
+	return 0;
 }
 
 
@@ -111,7 +111,7 @@ static int memmap_dev_close(io_dev_info_t *dev_info)
 {
 	/* NOP */
 	/* TODO: Consider tracking open files and cleaning them up here */
-	return IO_SUCCESS;
+	return 0;
 }
 
 
@@ -120,7 +120,7 @@ static int memmap_dev_close(io_dev_info_t *dev_info)
 static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			     io_entity_t *entity)
 {
-	int result = IO_FAIL;
+	int result = -ENOMEM;
 	const io_block_spec_t *block_spec = (io_block_spec_t *)spec;
 
 	/* Since we need to track open state for seek() we only allow one open
@@ -136,10 +136,9 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		/* File cursor offset for seek and incremental reads etc. */
 		current_file.file_pos = 0;
 		entity->info = (uintptr_t)&current_file;
-		result = IO_SUCCESS;
+		result = 0;
 	} else {
 		WARN("A Memmap device is already active. Close first.\n");
-		result = IO_RESOURCES_EXHAUSTED;
 	}
 
 	return result;
@@ -149,7 +148,7 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 /* Seek to a particular file offset on the memmap device */
 static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 {
-	int result = IO_FAIL;
+	int result = -ENOENT;
 
 	/* We only support IO_SEEK_SET for the moment. */
 	if (mode == IO_SEEK_SET) {
@@ -157,9 +156,7 @@ static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 
 		/* TODO: can we do some basic limit checks on seek? */
 		((file_state_t *)entity->info)->file_pos = offset;
-		result = IO_SUCCESS;
-	} else {
-		result = IO_FAIL;
+		result = 0;
 	}
 
 	return result;
@@ -184,7 +181,7 @@ static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
 	/* advance the file 'cursor' for incremental reads */
 	fp->file_pos += length;
 
-	return IO_SUCCESS;
+	return 0;
 }
 
 
@@ -207,7 +204,7 @@ static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
 	/* advance the file 'cursor' for incremental writes */
 	fp->file_pos += length;
 
-	return IO_SUCCESS;
+	return 0;
 }
 
 
@@ -221,7 +218,7 @@ static int memmap_block_close(io_entity_t *entity)
 	/* This would be a mem free() if we had malloc.*/
 	memset((void *)&current_file, 0, sizeof(current_file));
 
-	return IO_SUCCESS;
+	return 0;
 }
 
 
@@ -230,11 +227,11 @@ static int memmap_block_close(io_entity_t *entity)
 /* Register the memmap driver with the IO abstraction */
 int register_io_dev_memmap(const io_dev_connector_t **dev_con)
 {
-	int result = IO_FAIL;
+	int result;
 	assert(dev_con != NULL);
 
 	result = io_register_device(&memmap_dev_info);
-	if (result == IO_SUCCESS)
+	if (result == 0)
 		*dev_con = &memmap_dev_connector;
 
 	return result;

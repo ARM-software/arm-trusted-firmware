@@ -151,11 +151,11 @@ unsigned long image_size(unsigned int image_id)
 	uintptr_t image_handle;
 	uintptr_t image_spec;
 	size_t image_size = 0;
-	int io_result = IO_FAIL;
+	int io_result;
 
 	/* Obtain a reference to the image by querying the platform layer */
 	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
-	if (io_result != IO_SUCCESS) {
+	if (io_result != 0) {
 		WARN("Failed to obtain reference to image id=%u (%i)\n",
 			image_id, io_result);
 		return 0;
@@ -163,7 +163,7 @@ unsigned long image_size(unsigned int image_id)
 
 	/* Attempt to access the image */
 	io_result = io_open(dev_handle, image_spec, &image_handle);
-	if (io_result != IO_SUCCESS) {
+	if (io_result != 0) {
 		WARN("Failed to access image id=%u (%i)\n",
 			image_id, io_result);
 		return 0;
@@ -171,7 +171,7 @@ unsigned long image_size(unsigned int image_id)
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
-	if ((io_result != IO_SUCCESS) || (image_size == 0)) {
+	if ((io_result != 0) || (image_size == 0)) {
 		WARN("Failed to determine the size of the image id=%u (%i)\n",
 			image_id, io_result);
 	}

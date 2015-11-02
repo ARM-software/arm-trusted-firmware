@@ -220,9 +220,9 @@ static int open_fip(const uintptr_t spec)
 
 	/* See if a Firmware Image Package is available */
 	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID);
-	if (result == IO_SUCCESS) {
+	if (result == 0) {
 		result = io_open(fip_dev_handle, spec, &local_image_handle);
-		if (result == IO_SUCCESS) {
+		if (result == 0) {
 			VERBOSE("Using FIP\n");
 			io_close(local_image_handle);
 		}
@@ -237,9 +237,9 @@ static int open_memmap(const uintptr_t spec)
 	uintptr_t local_image_handle;
 
 	result = io_dev_init(memmap_dev_handle, (uintptr_t)NULL);
-	if (result == IO_SUCCESS) {
+	if (result == 0) {
 		result = io_open(memmap_dev_handle, spec, &local_image_handle);
-		if (result == IO_SUCCESS) {
+		if (result == 0) {
 			VERBOSE("Using Memmap\n");
 			io_close(local_image_handle);
 		}
@@ -253,19 +253,19 @@ void arm_io_setup(void)
 	int io_result;
 
 	io_result = register_io_dev_fip(&fip_dev_con);
-	assert(io_result == IO_SUCCESS);
+	assert(io_result == 0);
 
 	io_result = register_io_dev_memmap(&memmap_dev_con);
-	assert(io_result == IO_SUCCESS);
+	assert(io_result == 0);
 
 	/* Open connections to devices and cache the handles */
 	io_result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
 				&fip_dev_handle);
-	assert(io_result == IO_SUCCESS);
+	assert(io_result == 0);
 
 	io_result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
 				&memmap_dev_handle);
-	assert(io_result == IO_SUCCESS);
+	assert(io_result == 0);
 
 	/* Ignore improbable errors in release builds */
 	(void)io_result;
@@ -282,7 +282,7 @@ int plat_arm_get_alt_image_source(
 	uintptr_t *image_spec __attribute__((unused)))
 {
 	/* By default do not try an alternative */
-	return IO_FAIL;
+	return -ENOENT;
 }
 
 /* Return an IO device handle and specification which can be used to access
@@ -290,14 +290,14 @@ int plat_arm_get_alt_image_source(
 int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 			  uintptr_t *image_spec)
 {
-	int result = IO_FAIL;
+	int result;
 	const struct plat_io_policy *policy;
 
 	assert(image_id < ARRAY_SIZE(policies));
 
 	policy = &policies[image_id];
 	result = policy->check(policy->image_spec);
-	if (result == IO_SUCCESS) {
+	if (result == 0) {
 		*image_spec = policy->image_spec;
 		*dev_handle = *(policy->dev_handle);
 	} else {

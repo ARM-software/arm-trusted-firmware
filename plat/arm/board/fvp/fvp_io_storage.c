@@ -114,14 +114,14 @@ static const io_file_spec_t sh_file_spec[] = {
 
 static int open_semihosting(const uintptr_t spec)
 {
-	int result = IO_FAIL;
+	int result;
 	uintptr_t local_image_handle;
 
 	/* See if the file exists on semi-hosting.*/
 	result = io_dev_init(sh_dev_handle, (uintptr_t)NULL);
-	if (result == IO_SUCCESS) {
+	if (result == 0) {
 		result = io_open(sh_dev_handle, spec, &local_image_handle);
-		if (result == IO_SUCCESS) {
+		if (result == 0) {
 			VERBOSE("Using Semi-hosting IO\n");
 			io_close(local_image_handle);
 		}
@@ -137,11 +137,11 @@ void plat_arm_io_setup(void)
 
 	/* Register the additional IO devices on this platform */
 	io_result = register_io_dev_sh(&sh_dev_con);
-	assert(io_result == IO_SUCCESS);
+	assert(io_result == 0);
 
 	/* Open connections to devices and cache the handles */
 	io_result = io_dev_open(sh_dev_con, (uintptr_t)NULL, &sh_dev_handle);
-	assert(io_result == IO_SUCCESS);
+	assert(io_result == 0);
 
 	/* Ignore improbable errors in release builds */
 	(void)io_result;
@@ -154,7 +154,7 @@ int plat_arm_get_alt_image_source(unsigned int image_id, uintptr_t *dev_handle,
 				  uintptr_t *image_spec)
 {
 	int result = open_semihosting((const uintptr_t)&sh_file_spec[image_id]);
-	if (result == IO_SUCCESS) {
+	if (result == 0) {
 		*dev_handle = sh_dev_handle;
 		*image_spec = (uintptr_t)&sh_file_spec[image_id];
 	}
