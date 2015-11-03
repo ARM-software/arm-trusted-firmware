@@ -37,7 +37,6 @@
 #include <stdint.h>
 #include <xlat_tables.h>
 
-
 /*
  * Extern declarations common to ARM standard platforms
  */
@@ -179,7 +178,11 @@ void arm_tsp_early_platform_setup(void);
 /*
  * Mandatory functions required in ARM standard platforms
  */
+void plat_arm_gic_driver_init(void);
 void plat_arm_gic_init(void);
+void plat_arm_gic_cpuif_enable(void);
+void plat_arm_gic_cpuif_disable(void);
+void plat_arm_gic_pcpu_init(void);
 void plat_arm_security_setup(void);
 void plat_arm_pwrc_setup(void);
 

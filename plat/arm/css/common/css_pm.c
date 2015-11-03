@@ -30,7 +30,6 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
-#include <arm_gic.h>
 #include <cassert.h>
 #include <cci.h>
 #include <css_pm.h>
@@ -127,10 +126,11 @@ void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 	css_pwr_domain_on_finisher_common(target_state);
 
+	/* Program the gic per-cpu distributor or re-distributor interface */
+	plat_arm_gic_pcpu_init();
+
 	/* Enable the gic cpu interface */
-	arm_gic_cpuif_setup();
-	/* Program the gic per-cpu distributor interface */
-	arm_gic_pcpu_distif_setup();
+	plat_arm_gic_cpuif_enable();
 }
 
 /*******************************************************************************
@@ -145,7 +145,7 @@ static void css_power_down_common(const psci_power_state_t *target_state)
 	uint32_t system_state = scpi_power_on;
 
 	/* Prevent interrupts from spuriously waking up this cpu */
-	arm_gic_cpuif_deactivate();
+	plat_arm_gic_cpuif_disable();
 
 	/* Check if power down at system power domain level is requested */
 	if (CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
@@ -213,7 +213,7 @@ void css_pwr_domain_suspend_finish(
 		arm_system_pwr_domain_resume();
 	else
 		/* Enable the gic cpu interface */
-		arm_gic_cpuif_setup();
+		plat_arm_gic_cpuif_enable();
 
 	css_pwr_domain_on_finisher_common(target_state);
 }
