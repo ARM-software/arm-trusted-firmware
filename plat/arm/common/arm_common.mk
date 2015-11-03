@@ -93,15 +93,11 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/ccn/ccn.c				\
-				drivers/arm/gic/arm_gic.c			\
-				drivers/arm/gic/gic_v2.c			\
-				drivers/arm/gic/gic_v3.c			\
 				drivers/arm/tzc400/tzc400.c			\
 				plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_security.c			\
 				plat/arm/common/arm_topology.c			\
-				plat/common/plat_gic.c				\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/common/aarch64/plat_psci_common.c
 
@@ -112,9 +108,9 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
-    				drivers/auth/crypto_mod.c			\
-    				drivers/auth/img_parser_mod.c			\
-    				drivers/auth/tbbr/tbbr_cot.c			\
+				drivers/auth/crypto_mod.c			\
+				drivers/auth/img_parser_mod.c			\
+				drivers/auth/tbbr/tbbr_cot.c			\
 
     BL1_SOURCES		+=	${AUTH_SOURCES}
     BL2_SOURCES		+=	${AUTH_SOURCES}

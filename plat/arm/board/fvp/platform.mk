@@ -28,6 +28,35 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+# Use the Legacy GICv3 driver on the FVP by default to maintain compatibility.
+FVP_USE_GIC_DRIVER	:= ARM_GICV3_LEGACY
+
+# The FVP platform depends on this macro to build with correct GIC driver.
+$(eval $(call add_define,FVP_USE_GIC_DRIVER))
+
+# Choose the GIC sources depending upon the how the FVP will be invoked
+ifeq (${FVP_USE_GIC_DRIVER}, ARM_GICV3)
+FVP_GIC_SOURCES		+=	drivers/arm/gic/common/gic_common.c	\
+				drivers/arm/gic/v3/gicv3_main.c		\
+				drivers/arm/gic/v3/gicv3_helpers.c	\
+				plat/common/plat_gicv3.c		\
+				plat/arm/common/arm_gicv3.c
+else ifeq (${FVP_USE_GIC_DRIVER}, ARM_GICV2)
+FVP_GIC_SOURCES		+=	drivers/arm/gic/common/gic_common.c	\
+				drivers/arm/gic/v2/gicv2_main.c		\
+				drivers/arm/gic/v2/gicv2_helpers.c	\
+				plat/common/plat_gicv2.c		\
+				plat/arm/common/arm_gicv2.c
+else ifeq (${FVP_USE_GIC_DRIVER}, ARM_GICV3_LEGACY)
+FVP_GIC_SOURCES		+=	drivers/arm/gic/arm_gic.c		\
+				drivers/arm/gic/gic_v2.c		\
+				drivers/arm/gic/gic_v3.c		\
+				plat/common/plat_gic.c			\
+				plat/arm/common/arm_gicv3_legacy.c
+else
+$(error "Incorrect GIC driver chosen on FVP port")
+endif
+
 PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
 
 
@@ -60,7 +89,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
 				plat/arm/board/fvp/fvp_security.c		\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
-				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c
+				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
+				${FVP_GIC_SOURCES}
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0

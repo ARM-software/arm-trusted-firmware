@@ -89,7 +89,7 @@ void tsp_early_platform_setup(void)
  ******************************************************************************/
 void tsp_platform_setup(void)
 {
-	plat_arm_gic_init();
+	plat_arm_gic_driver_init();
 }
 
 /*******************************************************************************

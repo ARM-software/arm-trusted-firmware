@@ -164,9 +164,13 @@ void arm_system_pwr_domain_resume(void)
 	/* Assert system power domain is available on the platform */
 	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
 
-	arm_gic_setup();
+	/*
+	 * TODO: On GICv3 systems, figure out whether the core that wakes up
+	 * first from system suspend need to initialize the re-distributor
+	 * interface of all the other suspended cores.
+	 */
+	plat_arm_gic_init();
 	plat_arm_security_setup();
-
 	arm_configure_sys_timer();
 }
 
