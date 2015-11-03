@@ -50,9 +50,9 @@
 #pragma weak plat_ic_end_of_interrupt
 #pragma weak plat_interrupt_type_to_line
 
-CASSERT((INTR_TYPE_S_EL1 == INT_TYPE_G1S) &&
-	(INTR_TYPE_NS == INT_TYPE_G1NS) &&
-	(INTR_TYPE_EL3 == INT_TYPE_G0), assert_interrupt_type_mismatch);
+CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
+	(INTR_TYPE_NS == INTR_GROUP1NS) &&
+	(INTR_TYPE_EL3 == INTR_GROUP0), assert_interrupt_type_mismatch);
 
 /*
  * This function returns the highest priority pending interrupt at

@@ -61,6 +61,16 @@
 #define CSS_IRQ_SEC_SYS_TIMER		91
 
 /*
+ * Define a list of Group 1 Secure interrupts as per GICv3 terminology. On a
+ * GICv2 system or mode, the interrupts will be treated as Group 0 interrupts.
+ */
+#define CSS_G1S_IRQS			CSS_IRQ_MHU,		\
+					CSS_IRQ_GPU_SMMU_0,	\
+					CSS_IRQ_TZC,		\
+					CSS_IRQ_TZ_WDOG,	\
+					CSS_IRQ_SEC_SYS_TIMER
+
+/*
  * SCP <=> AP boot configuration
  *
  * The SCP/AP boot configuration is a 32-bit word located at a known offset from

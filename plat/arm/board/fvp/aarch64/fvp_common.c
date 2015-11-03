@@ -30,13 +30,22 @@
 
 #include <arm_config.h>
 #include <arm_def.h>
-#include <arm_gic.h>
 #include <cci.h>
 #include <debug.h>
+#include <gicv2.h>
 #include <mmio.h>
 #include <plat_arm.h>
 #include <v2m_def.h>
 #include "../fvp_def.h"
+
+#if (FVP_USE_GIC_DRIVER == FVP_GICV2)
+extern gicv2_driver_data_t arm_gic_data;
+#endif
+
+/* Defines for GIC Driver build time selection */
+#define FVP_GICV2		1
+#define FVP_GICV3		2
+#define FVP_GICV3_LEGACY	3
 
 /*******************************************************************************
  * arm_config holds the characteristics of the differences between the three FVP
@@ -110,33 +119,6 @@ const mmap_region_t plat_arm_mmap[] = {
 ARM_CASSERT_MMAP
 
 
-#if IMAGE_BL31 || IMAGE_BL32
-/* Array of secure interrupts to be configured by the gic driver */
-const unsigned int irq_sec_array[] = {
-	ARM_IRQ_SEC_PHY_TIMER,
-	ARM_IRQ_SEC_SGI_0,
-	ARM_IRQ_SEC_SGI_1,
-	ARM_IRQ_SEC_SGI_2,
-	ARM_IRQ_SEC_SGI_3,
-	ARM_IRQ_SEC_SGI_4,
-	ARM_IRQ_SEC_SGI_5,
-	ARM_IRQ_SEC_SGI_6,
-	ARM_IRQ_SEC_SGI_7,
-	FVP_IRQ_TZ_WDOG,
-	FVP_IRQ_SEC_SYS_TIMER
-};
-
-void plat_arm_gic_init(void)
-{
-	arm_gic_init(arm_config.gicc_base,
-		arm_config.gicd_base,
-		BASE_GICR_BASE,
-		irq_sec_array,
-		ARRAY_SIZE(irq_sec_array));
-}
-
-#endif
-
 /*******************************************************************************
  * A single boot loader stack is expected to work on both the Foundation FVP
  * models and the two flavours of the Base FVP models (AEMv8 & Cortex). The
@@ -165,16 +147,28 @@ void fvp_config_setup(void)
 	 */
 	switch (bld) {
 	case BLD_GIC_VE_MMAP:
-		arm_config.gicd_base = VE_GICD_BASE;
-		arm_config.gicc_base = VE_GICC_BASE;
-		arm_config.gich_base = VE_GICH_BASE;
-		arm_config.gicv_base = VE_GICV_BASE;
+#if IMAGE_BL31 || IMAGE_BL32
+#if FVP_USE_GIC_DRIVER == FVP_GICV2
+		/*
+		 * If the FVP implements the VE compatible memory map, then the
+		 * GICv2 driver must be included in the build. Update the platform
+		 * data with the correct GICv2 base addresses before it is used
+		 * to initialise the driver.
+		 *
+		 * This update of platform data is temporary and will be removed
+		 * once VE memory map for FVP is no longer supported by Trusted
+		 * Firmware.
+		 */
+		arm_gic_data.gicd_base = VE_GICD_BASE;
+		arm_gic_data.gicc_base = VE_GICC_BASE;
+
+#else
+		ERROR("Only GICv2 driver supported for VE memory map\n");
+		panic();
+#endif /* __FVP_USE_GIC_DRIVER == FVP_GICV2__ */
+#endif /* __IMAGE_BL31 || IMAGE_BL32__ */
 		break;
 	case BLD_GIC_A53A57_MMAP:
-		arm_config.gicd_base = BASE_GICD_BASE;
-		arm_config.gicc_base = BASE_GICC_BASE;
-		arm_config.gich_base = BASE_GICH_BASE;
-		arm_config.gicv_base = BASE_GICV_BASE;
 		break;
 	default:
 		ERROR("Unsupported board build %x\n", bld);
@@ -187,8 +181,6 @@ void fvp_config_setup(void)
 	 */
 	switch (hbi) {
 	case HBI_FOUNDATION_FVP:
-		arm_config.max_aff0 = 4;
-		arm_config.max_aff1 = 1;
 		arm_config.flags = 0;
 
 		/*
@@ -206,8 +198,6 @@ void fvp_config_setup(void)
 		}
 		break;
 	case HBI_BASE_FVP:
-		arm_config.max_aff0 = 4;
-		arm_config.max_aff1 = 2;
 		arm_config.flags |= ARM_CONFIG_BASE_MMAP |
 			ARM_CONFIG_HAS_CCI | ARM_CONFIG_HAS_TZC;
 

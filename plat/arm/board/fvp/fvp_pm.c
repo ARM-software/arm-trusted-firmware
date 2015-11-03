@@ -30,7 +30,6 @@
 
 #include <arch_helpers.h>
 #include <arm_config.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <debug.h>
 #include <errno.h>
@@ -72,7 +71,7 @@ const unsigned int arm_pm_idle_states[] = {
 static void fvp_cpu_pwrdwn_common(void)
 {
 	/* Prevent interrupts from spuriously waking up this cpu */
-	arm_gic_cpuif_deactivate();
+	plat_arm_gic_cpuif_disable();
 
 	/* Program the power controller to power off this cpu. */
 	fvp_pwrc_write_ppoffr(read_mpidr_el1());
@@ -235,9 +234,10 @@ void fvp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	fvp_power_domain_on_finish_common(target_state);
 
 	/* Enable the gic cpu interface */
-	arm_gic_cpuif_setup();
-	/* Program the gic per-cpu distributor interface */
-	arm_gic_pcpu_distif_setup();
+	plat_arm_gic_pcpu_init();
+
+	/* Program the gic per-cpu distributor or re-distributor interface */
+	plat_arm_gic_cpuif_enable();
 }
 
 /*******************************************************************************
@@ -259,7 +259,7 @@ void fvp_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 	fvp_power_domain_on_finish_common(target_state);
 
 	/* Enable the gic cpu interface */
-	arm_gic_cpuif_setup();
+	plat_arm_gic_cpuif_enable();
 }
 
 /*******************************************************************************
