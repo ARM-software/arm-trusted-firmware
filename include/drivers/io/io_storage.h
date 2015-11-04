@@ -89,15 +89,6 @@ typedef struct io_block_spec {
 #define IO_MODE_RW	(1 << 1)
 
 
-/* Return codes reported by 'io_*' APIs.
- * IMPORTANT: these definitions are deprecated. Callers should use standard
- * errno definitions when checking the return value of io_* APIs. */
-#define IO_SUCCESS		(0)
-#define IO_FAIL			(-ENOENT)
-#define IO_NOT_SUPPORTED	(-ENODEV)
-#define IO_RESOURCES_EXHAUSTED	(-ENOMEM)
-
-
 /* Open a connection to a device */
 int io_dev_open(const struct io_dev_connector *dev_con,
 		const uintptr_t dev_spec,
