@@ -242,6 +242,8 @@ extern const char version_string[];
 void reserve_mem(uint64_t *free_base, size_t *free_size,
 		uint64_t addr, size_t size);
 
+void print_entry_point_info(const entry_point_info_t *ep_info);
+
 #endif /*__ASSEMBLY__*/
 
 #endif /* __BL_COMMON_H__ */

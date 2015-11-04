@@ -352,3 +352,27 @@ int load_auth_image(meminfo_t *mem_layout,
 
 	return 0;
 }
+
+/*******************************************************************************
+ * Print the content of an entry_point_info_t structure.
+ ******************************************************************************/
+void print_entry_point_info(const entry_point_info_t *ep_info)
+{
+	INFO("Entry point address = 0x%llx\n",
+		(unsigned long long) ep_info->pc);
+	INFO("SPSR = 0x%lx\n", (unsigned long) ep_info->spsr);
+
+#define PRINT_IMAGE_ARG(n)					\
+	VERBOSE("Argument #" #n " = 0x%llx\n",			\
+		(unsigned long long) ep_info->args.arg##n)
+
+	PRINT_IMAGE_ARG(0);
+	PRINT_IMAGE_ARG(1);
+	PRINT_IMAGE_ARG(2);
+	PRINT_IMAGE_ARG(3);
+	PRINT_IMAGE_ARG(4);
+	PRINT_IMAGE_ARG(5);
+	PRINT_IMAGE_ARG(6);
+	PRINT_IMAGE_ARG(7);
+#undef PRINT_IMAGE_ARG
+}
