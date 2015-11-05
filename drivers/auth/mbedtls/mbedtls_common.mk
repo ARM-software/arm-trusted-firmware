@@ -31,7 +31,7 @@
 ifneq (${MBEDTLS_COMMON_MK},1)
 MBEDTLS_COMMON_MK	:=	1
 
-# MBEDTLS_DIR must be set to the mbedTLS main directory (it must contain
+# MBEDTLS_DIR must be set to the mbed TLS main directory (it must contain
 # the 'include' and 'library' subdirectories).
 ifeq (${MBEDTLS_DIR},)
   $(error Error: MBEDTLS_DIR not set)
@@ -40,9 +40,9 @@ endif
 INCLUDES		+=	-I${MBEDTLS_DIR}/include		\
 				-Iinclude/drivers/auth/mbedtls
 
-# Specify mbedTLS configuration file
-POLARSSL_CONFIG_FILE	:=	"<mbedtls_config.h>"
-$(eval $(call add_define,POLARSSL_CONFIG_FILE))
+# Specify mbed TLS configuration file
+MBEDTLS_CONFIG_FILE	:=	"<mbedtls_config.h>"
+$(eval $(call add_define,MBEDTLS_CONFIG_FILE))
 
 MBEDTLS_COMMON_SOURCES	:=	drivers/auth/mbedtls/mbedtls_common.c	\
 				$(addprefix ${MBEDTLS_DIR}/library/,	\

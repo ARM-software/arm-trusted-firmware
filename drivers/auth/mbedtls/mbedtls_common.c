@@ -30,11 +30,11 @@
 
 #include <assert.h>
 
-/* mbedTLS headers */
-#include <polarssl/memory_buffer_alloc.h>
+/* mbed TLS headers */
+#include <mbedtls/memory_buffer_alloc.h>
 
 /*
- * mbedTLS heap
+ * mbed TLS heap
  */
 #if (MBEDTLS_KEY_ALG_ID == MBEDTLS_ECDSA)
 #define MBEDTLS_HEAP_SIZE		(14*1024)
@@ -44,22 +44,15 @@
 static unsigned char heap[MBEDTLS_HEAP_SIZE];
 
 /*
- * mbedTLS initialization function
- *
- * Return: 0 = success, Otherwise = error
+ * mbed TLS initialization function
  */
 void mbedtls_init(void)
 {
 	static int ready;
-	int rc;
 
 	if (!ready) {
-		/* Initialize the mbedTLS heap */
-		rc = memory_buffer_alloc_init(heap, MBEDTLS_HEAP_SIZE);
-		if (rc == 0) {
-			ready = 1;
-		} else {
-			assert(0);
-		}
+		/* Initialize the mbed TLS heap */
+		mbedtls_memory_buffer_alloc_init(heap, MBEDTLS_HEAP_SIZE);
+		ready = 1;
 	}
 }

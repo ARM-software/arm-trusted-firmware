@@ -603,22 +603,24 @@ following steps should be followed to build a FIP image with support for this
 feature.
 
 1.  Fulfill the dependencies of the `mbedtls` cryptographic and image parser
-    modules by checking out the tag `mbedtls-1.3.11` from the
-    [mbedTLS Repository].
+    modules by checking out a recent version of the [mbed TLS Repository]. It
+    is important to use a version that is compatible with TF and fixes any
+    known security vulnerabilities. See [mbed TLS Security Center] for more
+    information. This version of TF is tested with tag `mbedtls-2.2.0`.
 
-    The `drivers/auth/mbedtls/mbedtls_*.mk` files contain the list of mbedTLS
+    The `drivers/auth/mbedtls/mbedtls_*.mk` files contain the list of mbed TLS
     source files the modules depend upon.
     `include/drivers/auth/mbedtls/mbedtls_config.h` contains the configuration
-    options required to build the mbedTLS sources.
+    options required to build the mbed TLS sources.
 
-    Note that the mbedTLS library is licensed under the GNU GPL version 2
-    or later license. Using mbedTLS source code will affect the licensing of
+    Note that the mbed TLS library is licensed under the Apache version 2.0
+    license. Using mbed TLS source code will affect the licensing of
     Trusted Firmware binaries that are built using this library.
 
 2.  Ensure that the following command line variables are set while invoking
     `make` to build Trusted Firmware:
 
-    *   `MBEDTLS_DIR=<path of the directory containing mbedTLS sources>`
+    *   `MBEDTLS_DIR=<path of the directory containing mbed TLS sources>`
     *   `TRUSTED_BOARD_BOOT=1`
     *   `GENERATE_COT=1`
 
@@ -643,7 +645,7 @@ feature.
 
         CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-      \
         BL33=<path-to>/<bl33_image>                                     \
-        MBEDTLS_DIR=<path of the directory containing mbedTLS sources>  \
+        MBEDTLS_DIR=<path of the directory containing mbed TLS sources> \
         make PLAT=<platform> TRUSTED_BOARD_BOOT=1 GENERATE_COT=1        \
         ARM_ROTPK_LOCATION=devel_rsa                                    \
         ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
@@ -1257,6 +1259,7 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [ARM Connected Community]:     http://community.arm.com
 [Juno Software Guide]:         http://community.arm.com/docs/DOC-8396
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
-[mbedTLS Repository]:          https://github.com/ARMmbed/mbedtls.git
+[mbed TLS Repository]:         https://github.com/ARMmbed/mbedtls.git
+[mbed TLS Security Center]:    https://tls.mbed.org/security
 [PSCI]:                        http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [Trusted Board Boot]:          trusted-board-boot.md

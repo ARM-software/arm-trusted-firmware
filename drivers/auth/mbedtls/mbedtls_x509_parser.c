@@ -29,7 +29,7 @@
  */
 
 /*
- * X509 parser based on PolarSSL
+ * X509 parser based on mbed TLS
  *
  * This module implements functions to check the integrity of a X509v3
  * certificate ASN.1 structure and extract authentication parameters from the
@@ -43,25 +43,25 @@
 #include <stdint.h>
 #include <string.h>
 
-/* mbedTLS headers */
-#include <polarssl/asn1.h>
-#include <polarssl/oid.h>
-#include <polarssl/platform.h>
+/* mbed TLS headers */
+#include <mbedtls/asn1.h>
+#include <mbedtls/oid.h>
+#include <mbedtls/platform.h>
 
 /* Maximum OID string length ("a.b.c.d.e.f ...") */
 #define MAX_OID_STR_LEN			64
 
-#define LIB_NAME	"mbedTLS X509v3"
+#define LIB_NAME	"mbed TLS X509v3"
 
 /* Temporary variables to speed up the authentication parameters search. These
  * variables are assigned once during the integrity check and used any time an
  * authentication parameter is requested, so we do not have to parse the image
  * again */
-static asn1_buf tbs;
-static asn1_buf v3_ext;
-static asn1_buf pk;
-static asn1_buf sig_alg;
-static asn1_buf signature;
+static mbedtls_asn1_buf tbs;
+static mbedtls_asn1_buf v3_ext;
+static mbedtls_asn1_buf pk;
+static mbedtls_asn1_buf sig_alg;
+static mbedtls_asn1_buf signature;
 
 /*
  * Get X509v3 extension
@@ -78,7 +78,7 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 	unsigned char *p;
 	const unsigned char *end;
 	char oid_str[MAX_OID_STR_LEN];
-	asn1_buf extn_oid;
+	mbedtls_asn1_buf extn_oid;
 	int is_critical;
 
 	assert(oid != NULL);
@@ -86,32 +86,36 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 	p = v3_ext.p;
 	end = v3_ext.p + v3_ext.len;
 
-	asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+			     MBEDTLS_ASN1_SEQUENCE);
 
 	while (p < end) {
 		memset(&extn_oid, 0x0, sizeof(extn_oid));
 		is_critical = 0; /* DEFAULT FALSE */
 
-		asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+		mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				     MBEDTLS_ASN1_SEQUENCE);
 		end_ext_data = p + len;
 
 		/* Get extension ID */
 		extn_oid.tag = *p;
-		asn1_get_tag(&p, end, &extn_oid.len, ASN1_OID);
+		mbedtls_asn1_get_tag(&p, end, &extn_oid.len, MBEDTLS_ASN1_OID);
 		extn_oid.p = p;
 		p += extn_oid.len;
 
 		/* Get optional critical */
-		asn1_get_bool(&p, end_ext_data, &is_critical);
+		mbedtls_asn1_get_bool(&p, end_ext_data, &is_critical);
 
 		/* Extension data */
-		asn1_get_tag(&p, end_ext_data, &len, ASN1_OCTET_STRING);
+		mbedtls_asn1_get_tag(&p, end_ext_data, &len,
+				     MBEDTLS_ASN1_OCTET_STRING);
 		end_ext_octet = p + len;
 
 		/* Detect requested extension */
-		oid_len = oid_get_numeric_string(oid_str,
-				MAX_OID_STR_LEN, &extn_oid);
-		if (oid_len == POLARSSL_ERR_OID_BUF_TOO_SMALL) {
+		oid_len = mbedtls_oid_get_numeric_string(oid_str,
+							 MAX_OID_STR_LEN,
+							 &extn_oid);
+		if (oid_len == MBEDTLS_ERR_OID_BUF_TOO_SMALL) {
 			return IMG_PARSER_ERR;
 		}
 		if ((oid_len == strlen(oid_str)) && !strcmp(oid, oid_str)) {
@@ -137,7 +141,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	int ret, is_critical;
 	size_t len;
 	unsigned char *p, *end, *crt_end;
-	asn1_buf sig_alg1, sig_alg2;
+	mbedtls_asn1_buf sig_alg1, sig_alg2;
 
 	p = (unsigned char *)img;
 	len = img_len;
@@ -149,7 +153,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 *      signatureAlgorithm   AlgorithmIdentifier,
 	 *      signatureValue       BIT STRING  }
 	 */
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -163,7 +168,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * TBSCertificate  ::=  SEQUENCE  {
 	 */
 	tbs.p = p;
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -173,8 +179,9 @@ static int cert_parse(void *img, unsigned int img_len)
 	/*
 	 * Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
 	 */
-	ret = asn1_get_tag(&p, end, &len,
-			ASN1_CONTEXT_SPECIFIC | ASN1_CONSTRUCTED | 0);
+	ret = mbedtls_asn1_get_tag(&p, end, &len,
+				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
+				   MBEDTLS_ASN1_CONSTRUCTED | 0);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -183,7 +190,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	/*
 	 * CertificateSerialNumber  ::=  INTEGER
 	 */
-	ret = asn1_get_tag(&p, end, &len, ASN1_INTEGER);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_INTEGER);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -193,7 +200,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * signature            AlgorithmIdentifier
 	 */
 	sig_alg1.p = p;
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -206,7 +214,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	/*
 	 * issuer               Name
 	 */
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -218,7 +227,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 *      notAfter       Time }
 	 *
 	 */
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -227,7 +237,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	/*
 	 * subject              Name
 	 */
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -237,7 +248,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * SubjectPublicKeyInfo
 	 */
 	pk.p = p;
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -247,10 +259,11 @@ static int cert_parse(void *img, unsigned int img_len)
 	/*
 	 * issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
 	 */
-	ret = asn1_get_tag(&p, end, &len,
-			ASN1_CONTEXT_SPECIFIC | ASN1_CONSTRUCTED | 1);
+	ret = mbedtls_asn1_get_tag(&p, end, &len,
+				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
+				   MBEDTLS_ASN1_CONSTRUCTED | 1);
 	if (ret != 0) {
-		if (ret != POLARSSL_ERR_ASN1_UNEXPECTED_TAG) {
+		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
 	} else {
@@ -260,10 +273,11 @@ static int cert_parse(void *img, unsigned int img_len)
 	/*
 	 * subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
 	 */
-	ret = asn1_get_tag(&p, end, &len,
-			ASN1_CONTEXT_SPECIFIC | ASN1_CONSTRUCTED | 2);
+	ret = mbedtls_asn1_get_tag(&p, end, &len,
+				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
+				   MBEDTLS_ASN1_CONSTRUCTED | 2);
 	if (ret != 0) {
-		if (ret != POLARSSL_ERR_ASN1_UNEXPECTED_TAG) {
+		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
 	} else {
@@ -273,8 +287,9 @@ static int cert_parse(void *img, unsigned int img_len)
 	/*
 	 * extensions      [3]  EXPLICIT Extensions OPTIONAL
 	 */
-	ret = asn1_get_tag(&p, end, &len,
-			ASN1_CONTEXT_SPECIFIC | ASN1_CONSTRUCTED | 3);
+	ret = mbedtls_asn1_get_tag(&p, end, &len,
+				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
+				   MBEDTLS_ASN1_CONSTRUCTED | 3);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -283,7 +298,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
 	 */
 	v3_ext.p = p;
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -293,27 +309,29 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * Check extensions integrity
 	 */
 	while (p < end) {
-		ret = asn1_get_tag(&p, end, &len,
-				ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+		ret = mbedtls_asn1_get_tag(&p, end, &len,
+					   MBEDTLS_ASN1_CONSTRUCTED |
+					   MBEDTLS_ASN1_SEQUENCE);
 		if (ret != 0) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
 
 		/* Get extension ID */
-		ret = asn1_get_tag(&p, end, &len, ASN1_OID);
+		ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_OID);
 		if (ret != 0) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
 		p += len;
 
 		/* Get optional critical */
-		ret = asn1_get_bool(&p, end, &is_critical);
-		if ((ret != 0) && (ret != POLARSSL_ERR_ASN1_UNEXPECTED_TAG)) {
+		ret = mbedtls_asn1_get_bool(&p, end, &is_critical);
+		if ((ret != 0) && (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG)) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
 
 		/* Data should be octet string type */
-		ret = asn1_get_tag(&p, end, &len, ASN1_OCTET_STRING);
+		ret = mbedtls_asn1_get_tag(&p, end, &len,
+					   MBEDTLS_ASN1_OCTET_STRING);
 		if (ret != 0) {
 			return IMG_PARSER_ERR_FORMAT;
 		}
@@ -333,7 +351,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 *  signatureAlgorithm   AlgorithmIdentifier
 	 */
 	sig_alg2.p = p;
-	ret = asn1_get_tag(&p, end, &len, ASN1_CONSTRUCTED | ASN1_SEQUENCE);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
+				   MBEDTLS_ASN1_SEQUENCE);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
@@ -356,7 +375,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	 * signatureValue       BIT STRING
 	 */
 	signature.p = p;
-	ret = asn1_get_tag(&p, end, &len, ASN1_BIT_STRING);
+	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_BIT_STRING);
 	if (ret != 0) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
