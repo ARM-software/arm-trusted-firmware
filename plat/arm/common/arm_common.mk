@@ -72,6 +72,11 @@ endif
 $(eval $(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG))
 $(eval $(call add_define,ARM_DISABLE_TRUSTED_WDOG))
 
+# Process ARM_CONFIG_CNTACR
+ARM_CONFIG_CNTACR		:=	1
+$(eval $(call assert_boolean,ARM_CONFIG_CNTACR))
+$(eval $(call add_define,ARM_CONFIG_CNTACR))
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64
