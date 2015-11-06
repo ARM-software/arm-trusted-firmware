@@ -124,7 +124,8 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2 == NULL);
 	assert(plat_params_from_bl2 == NULL);
 
-	/* Populate entry point information for BL3-2 and BL3-3 */
+#ifdef BL32_BASE
+	/* Populate entry point information for BL3-2 */
 	SET_PARAM_HEAD(&bl32_image_ep_info,
 				PARAM_EP,
 				VERSION_1,
@@ -132,7 +133,9 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
 	bl32_image_ep_info.pc = BL32_BASE;
 	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+#endif /* BL32_BASE */
 
+	/* Populate entry point information for BL3-3 */
 	SET_PARAM_HEAD(&bl33_image_ep_info,
 				PARAM_EP,
 				VERSION_1,
@@ -161,10 +164,11 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 		ARM_BL31_PLAT_PARAM_VAL);
 
 	/*
-	 * Copy BL3-2 and BL3-3 entry point information.
+	 * Copy BL3-2 (if populated by BL2) and BL3-3 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	bl32_image_ep_info = *from_bl2->bl32_ep_info;
+	if (from_bl2->bl32_ep_info)
+		bl32_image_ep_info = *from_bl2->bl32_ep_info;
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
 #endif
 }
