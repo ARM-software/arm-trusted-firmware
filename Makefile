@@ -262,6 +262,16 @@ endif
 
 include ${PLAT_MAKEFILE_FULL}
 
+# If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
+ifndef ENABLE_PLAT_COMPAT
+ENABLE_PLAT_COMPAT := 1
+endif
+
+# Include the platform compatibility helpers for PSCI
+ifneq (${ENABLE_PLAT_COMPAT}, 0)
+include plat/compat/plat_compat.mk
+endif
+
 # Include the CPU specific operations makefile. By default all CPU errata
 # workarounds and CPU specifc optimisations are disabled. This can be
 # overridden by the platform.
@@ -331,6 +341,7 @@ $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
 $(eval $(call assert_boolean,WARN_DEPRECATED))
+$(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 
 
 ################################################################################
@@ -352,6 +363,7 @@ $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 $(eval $(call add_define,WARN_DEPRECATED))
+$(eval $(call add_define,ENABLE_PLAT_COMPAT))
 
 
 ################################################################################
