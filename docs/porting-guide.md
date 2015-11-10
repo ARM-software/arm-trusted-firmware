@@ -810,13 +810,14 @@ represents the entry point system state for BL2.
 
 ### Function : bl1_plat_prepare_exit() [optional]
 
-    Argument : void
+    Argument : entry_point_info_t *
     Return   : void
 
-This function is called prior to exiting BL1 in response to the `RUN_IMAGE_SMC`
+This function is called prior to exiting BL1 in response to the `RUN_IMAGE` SMC
 request raised by BL2. It should be used to perform platform specific clean up
-or bookkeeping operations before transferring control to the next image. This
-function runs with MMU disabled.
+or bookkeeping operations before transferring control to the next image. It
+receives the address of the `entry_point_info_t` structure passed from BL2.
+This function runs with MMU disabled.
 
 
 3.2 Boot Loader Stage 2 (BL2)

@@ -213,6 +213,7 @@ debug_loop:
 	b	debug_loop
 #endif
 
+	mov	x0, x20
 	bl	bl1_plat_prepare_exit
 
 	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]
