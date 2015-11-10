@@ -129,7 +129,12 @@ static void set_scr_el3_from_rm(uint32_t type,
 	flag = get_interrupt_rm_flag(interrupt_type_flags, security_state);
 	bit_pos = plat_interrupt_type_to_line(type, security_state);
 	intr_type_descs[type].scr_el3[security_state] = flag << bit_pos;
-	cm_write_scr_el3_bit(security_state, bit_pos, flag);
+
+	/* Update scr_el3 only if there is a context available. If not, it
+	 * will be updated later during context initialization which will obtain
+	 * the scr_el3 value to be used via get_scr_el3_from_routing_model() */
+	if (cm_get_context(security_state))
+		cm_write_scr_el3_bit(security_state, bit_pos, flag);
 }
 
 /*******************************************************************************
