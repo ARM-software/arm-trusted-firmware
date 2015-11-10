@@ -89,6 +89,9 @@ TRUSTED_BOARD_BOOT		:= 0
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
+# Flag to introduce an infinite loop in BL1 just before it exits into the next
+# image. This is meant to help debugging the post-BL2 phase.
+SPIN_ON_BL1_EXIT		:= 0
 
 
 ################################################################################
@@ -348,6 +351,7 @@ $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
 $(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
+$(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 
 
 ################################################################################
@@ -370,6 +374,7 @@ $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 $(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
+$(eval $(call add_define,SPIN_ON_BL1_EXIT))
 
 
 ################################################################################

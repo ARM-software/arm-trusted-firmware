@@ -207,6 +207,12 @@ func smc_handler64
 	bl	disable_mmu_icache_el3
 	tlbi	alle3
 
+#if SPIN_ON_BL1_EXIT
+	bl	print_debug_loop_message
+debug_loop:
+	b	debug_loop
+#endif
+
 	bl	bl1_plat_prepare_exit
 
 	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]

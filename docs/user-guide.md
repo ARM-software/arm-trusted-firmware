@@ -372,6 +372,12 @@ performed.
     Firmware as error. It can take the value 1 (flag the use of deprecated
     APIs as error) or 0. The default is 0.
 
+*   `SPIN_ON_BL1_EXIT`: This option introduces an infinite loop in BL1. It can
+    take either 0 (no loop) or 1 (add a loop). 0 is the default. This loop stops
+    execution in BL1 just before handing over to BL31. At this point, all
+    firmware images have been loaded in memory and the MMU as well as the caches
+    are turned off. Refer to the "Debugging options" section for more details.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
@@ -500,6 +506,25 @@ Extra debug options can be passed to the build system by setting `CFLAGS`:
     BL33=<path-to>/<bl33_image>                                \
     make PLAT=<platform> DEBUG=1 V=1 all fip
 
+It is also possible to introduce an infinite loop to help in debugging the
+post-BL2 phase of the Trusted Firmware. This can be done by rebuilding BL1 with
+the `SPIN_ON_BL1_EXIT=1` build flag. Refer to the "Summary of build options"
+section. In this case, the developer may take control of the target using a
+debugger when indicated by the console output. When using DS-5, the following
+commands can be used:
+
+    # Stop target execution
+    interrupt
+
+    #
+    # Prepare your debugging environment, e.g. set breakpoints
+    #
+
+    # Jump over the debug loop
+    set var $AARCH64::$Core::$PC = $AARCH64::$Core::$PC + 4
+
+    # Resume execution
+    continue
 
 ### Building the Test Secure Payload
 
