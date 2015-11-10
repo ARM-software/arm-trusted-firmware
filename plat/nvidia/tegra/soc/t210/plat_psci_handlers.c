@@ -31,6 +31,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
+#include <delay_timer.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -46,6 +47,11 @@
  */
 #define CPU_CMPLX_RESET_CLR		0x454
 #define CPU_CORE_RESET_MASK		0x10001
+
+/* Clock and Reset controller registers for system clock's settings */
+#define SCLK_RATE			0x30
+#define SCLK_BURST_POLICY		0x28
+#define SCLK_BURST_POLICY_DEFAULT	0x10000000
 
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
 
@@ -181,5 +187,21 @@ int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 {
 	tegra_fc_cpu_off(mpidr & MPIDR_CPU_MASK);
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_system_reset(void)
+{
+	/*
+	 * Set System Clock (SCLK) to POR default so that the clock source
+	 * for the PMC APB clock would not be changed due to system reset.
+	 */
+	mmio_write_32((uintptr_t)TEGRA_CAR_RESET_BASE + SCLK_BURST_POLICY,
+		       SCLK_BURST_POLICY_DEFAULT);
+	mmio_write_32((uintptr_t)TEGRA_CAR_RESET_BASE + SCLK_RATE, 0);
+
+	/* Wait 1 ms to make sure clock source/device logic is stabilized. */
+	mdelay(1);
+
 	return PSCI_E_SUCCESS;
 }
