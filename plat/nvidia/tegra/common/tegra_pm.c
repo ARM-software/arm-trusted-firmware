@@ -34,6 +34,7 @@
 #include <context.h>
 #include <context_mgmt.h>
 #include <debug.h>
+#include <delay_timer.h>
 #include <memctrl.h>
 #include <mmio.h>
 #include <platform.h>
@@ -47,6 +48,13 @@ extern uint64_t tegra_bl31_phys_base;
 extern uint64_t sec_entry_point[PLATFORM_CORE_COUNT];
 static int system_suspended;
 
+/* Clock and Reset controller registers for system clock's settings */
+#define SCLK_BURST_POLICY			0x28
+ #define SCLK_BURST_POLICY_DEFAULT		0x10000000
+
+#define SCLK_RATE				0x30
+ #define SCLK_RATE_DEFAULT		0
+
 /*
  * The following platform setup functions are weakly defined. They
  * provide typical implementations that will be overridden by a SoC.
@@ -55,6 +63,7 @@ static int system_suspended;
 #pragma weak tegra_soc_prepare_cpu_on
 #pragma weak tegra_soc_prepare_cpu_off
 #pragma weak tegra_soc_prepare_cpu_on_finish
+#pragma weak tegra_soc_prepare_system_reset
 
 int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
 {
@@ -73,6 +82,23 @@ int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 
 int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
 {
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_system_reset(void)
+{
+	/*
+	 * Set System Clock (SCLK) to POR default so that the clock source
+	 * for the PMC APB clock would not be changed due to system reset.
+	 */
+	mmio_write_32((uintptr_t)TEGRA_CAR_RESET_BASE + SCLK_BURST_POLICY,
+		       SCLK_BURST_POLICY_DEFAULT);
+	mmio_write_32((uintptr_t)TEGRA_CAR_RESET_BASE + SCLK_RATE,
+		       SCLK_RATE_DEFAULT);
+
+	/* Wait 1 ms to make sure clock source/device logic is stabilized. */
+	mdelay(1);
+
 	return PSCI_E_SUCCESS;
 }
 
@@ -298,6 +324,9 @@ __dead2 void tegra_system_off(void)
  ******************************************************************************/
 __dead2 void tegra_system_reset(void)
 {
+	/* per-SoC system reset handler */
+	tegra_soc_prepare_system_reset();
+
 	/*
 	 * Program the PMC in order to restart the system.
 	 */
