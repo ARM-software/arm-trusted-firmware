@@ -355,9 +355,9 @@ performed.
     either 0 (fixed) or 1 (programmable). Default is 0. If the platform has a
     programmable reset address, it is expected that a CPU will start executing
     code directly at the right address, both on a cold and warm reset. In this
-    case, there is no need to identify the entrypoint on boot and this has
-    implication for `plat_get_my_entrypoint()` platform porting interface.
-    (see the [Porting Guide] for details)
+    case, there is no need to identify the entrypoint on boot and the boot path
+    can be optimised. The `plat_get_my_entrypoint()` platform porting interface
+    does not need to be implemented in this case.
 
 *   `COLD_BOOT_SINGLE_CPU`: This option indicates whether the platform may
     release several CPUs out of reset. It can take either 0 (several CPUs may be
@@ -1255,6 +1255,5 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [Juno Software Guide]:         http://community.arm.com/docs/DOC-8396
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [mbedTLS Repository]:          https://github.com/ARMmbed/mbedtls.git
-[Porting Guide]:               ./porting-guide.md
 [PSCI]:                        http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [Trusted Board Boot]:          trusted-board-boot.md
