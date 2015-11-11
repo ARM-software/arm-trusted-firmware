@@ -55,6 +55,7 @@ static int system_suspended;
 #pragma weak tegra_soc_prepare_cpu_on
 #pragma weak tegra_soc_prepare_cpu_off
 #pragma weak tegra_soc_prepare_cpu_on_finish
+#pragma weak tegra_soc_prepare_system_reset
 
 int tegra_soc_prepare_cpu_suspend(unsigned int id, unsigned int afflvl)
 {
@@ -72,6 +73,11 @@ int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 }
 
 int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
+{
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_prepare_system_reset(void)
 {
 	return PSCI_E_SUCCESS;
 }
@@ -298,6 +304,9 @@ __dead2 void tegra_system_off(void)
  ******************************************************************************/
 __dead2 void tegra_system_reset(void)
 {
+	/* per-SoC system reset handler */
+	tegra_soc_prepare_system_reset();
+
 	/*
 	 * Program the PMC in order to restart the system.
 	 */
