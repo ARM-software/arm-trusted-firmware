@@ -102,6 +102,35 @@
 						CSS_DEVICE_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
+/* Platform ID address */
+#define SSC_VERSION_OFFSET			0x040
+
+#define SSC_VERSION_CONFIG_SHIFT		28
+#define SSC_VERSION_MAJOR_REV_SHIFT		24
+#define SSC_VERSION_MINOR_REV_SHIFT		20
+#define SSC_VERSION_DESIGNER_ID_SHIFT		12
+#define SSC_VERSION_PART_NUM_SHIFT		0x0
+#define SSC_VERSION_CONFIG_MASK			0xf
+#define SSC_VERSION_MAJOR_REV_MASK		0xf
+#define SSC_VERSION_MINOR_REV_MASK		0xf
+#define SSC_VERSION_DESIGNER_ID_MASK		0xff
+#define SSC_VERSION_PART_NUM_MASK		0xfff
+
+#ifndef __ASSEMBLY__
+
+/* SSC_VERSION related accessors */
+
+/* Returns the part number of the platform */
+#define GET_SSC_VERSION_PART_NUM(val)				\
+		(((val) >> SSC_VERSION_PART_NUM_SHIFT) &	\
+		SSC_VERSION_PART_NUM_MASK)
+
+/* Returns the configuration number of the platform */
+#define GET_SSC_VERSION_CONFIG(val)				\
+		(((val) >> SSC_VERSION_CONFIG_SHIFT) &		\
+		SSC_VERSION_CONFIG_MASK)
+
+#endif /* __ASSEMBLY__ */
 
 /*************************************************************************
  * Required platform porting definitions common to all

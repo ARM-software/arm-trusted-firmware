@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,6 +50,7 @@
 #define PSRAM_BASE			0x14000000
 #define PSRAM_SIZE			0x02000000
 
+#define JUNO_SSC_VER_PART_NUM		0x030
 
 /*******************************************************************************
  * TZC-400 related constants
