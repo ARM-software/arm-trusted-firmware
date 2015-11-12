@@ -97,7 +97,7 @@ $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl31_key.crt,--bl31-key-cert))
 # Add the BL32 CoT (key cert + img cert + image)
 ifeq (${NEED_BL32},yes)
     $(if ${BL32},$(eval $(call CERT_ADD_CMD_OPT,${BL32},--bl32,true)),\
-                 $(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,32),--bl32,true)))
+                 $(if ${BL32_SOURCES},$(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,32),--bl32,true))))
     $(if ${BL32_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL32_KEY},--bl32-key)))
     $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl32.crt,--bl32-cert))
     $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl32_key.crt,--bl32-key-cert))
