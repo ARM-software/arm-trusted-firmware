@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 #include <platform_def.h>
 #include <xlat_tables.h>
 
+extern const mmap_region_t plat_arm_mmap[];
 
 static const int cci_map[] = {
 	PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX,
@@ -43,6 +44,7 @@ static const int cci_map[] = {
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_get_ns_image_entrypoint
+#pragma weak plat_arm_get_mmap
 
 
 /*******************************************************************************
@@ -67,7 +69,7 @@ static const int cci_map[] = {
 		mmap_add_region(coh_start, coh_start,			\
 				coh_limit - coh_start,			\
 				MT_DEVICE | MT_RW | MT_SECURE);		\
-		mmap_add(plat_arm_mmap);				\
+		mmap_add(plat_arm_get_mmap());				\
 		init_xlat_tables();					\
 									\
 		enable_mmu_el##_el(0);					\
@@ -85,7 +87,7 @@ static const int cci_map[] = {
 		mmap_add_region(ro_start, ro_start,			\
 				ro_limit - ro_start,			\
 				MT_MEMORY | MT_RO | MT_SECURE);		\
-		mmap_add(plat_arm_mmap);				\
+		mmap_add(plat_arm_get_mmap());				\
 		init_xlat_tables();					\
 									\
 		enable_mmu_el##_el(0);					\
@@ -160,4 +162,12 @@ void arm_configure_sys_timer(void)
 
 	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_ARM_NSTIMER_FRAME_ID));
 	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTNSAR, reg_val);
+}
+
+/*******************************************************************************
+ * Returns ARM platform specific memory map regions.
+ ******************************************************************************/
+const mmap_region_t *plat_arm_get_mmap(void)
+{
+	return plat_arm_mmap;
 }
