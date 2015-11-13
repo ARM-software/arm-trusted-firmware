@@ -30,6 +30,7 @@
 #include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <board_params.h>
 #include <console.h>
 #include <debug.h>
 #include <mcucfg.h>
@@ -128,6 +129,12 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			       void *plat_params_from_bl2)
 {
+	struct bl31_plat_params *params;
+
+	/* [TODO] Boot time uart port, baudrate and/or uart clock should be
+	 * passed via bl31_plat_params because different board may have
+	 * different setting for uart. This also applies to the uart used in
+	 * crash console reporting mechanism. */
 	console_init(MT8173_UART0_BASE, MT8173_UART_CLOCK, MT8173_BAUDRATE);
 
 	VERBOSE("bl31_setup\n");
@@ -136,7 +143,10 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
 
-	assert(((unsigned long)plat_params_from_bl2) == MT_BL31_PLAT_PARAM_VAL);
+	params = (struct bl31_plat_params *)plat_params_from_bl2;
+	/* check magic number from earlier boot stage */
+	assert(params->bl31_magic == MT_BL31_PLAT_PARAM_VAL);
+	board_early_setup(params);
 
 	bl32_ep_info = *from_bl2->bl32_ep_info;
 	bl33_ep_info = *from_bl2->bl33_ep_info;
@@ -150,6 +160,8 @@ void bl31_platform_setup(void)
 	platform_setup_cpu();
 
 	plat_delay_timer_init();
+
+	board_setup();
 
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_mt_gic_init();

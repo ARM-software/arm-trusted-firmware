@@ -28,75 +28,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <assert.h>
+#include <board_gpio.h>
 #include <debug.h>
-#include <delay_timer.h>
-#include <mt8173_def.h>
-#include <pmic_wrap_init.h>
-#include <rtc.h>
+#include <gpio.h>
+#include <mt6391.h>
 
-/* RTC busy status polling interval and retry count */
-enum {
-	RTC_WRTGR_POLLING_DELAY_MS	= 10,
-	RTC_WRTGR_POLLING_CNT		= 100
-};
-
-static uint16_t RTC_Read(uint32_t addr)
+void fill_board_gpio(struct board_gpio_info *info, struct board_gpio *gpio)
 {
-	uint16_t rdata = 0;
-
-	pwrap_read((uint32_t)addr, &rdata);
-	return rdata;
+	switch (info->type) {
+	case GPIO_NONE:
+		return;
+	case GPIO_SOC:
+		gpio->output = &gpio_output;
+		gpio->set = &gpio_set;
+		gpio->get = &gpio_get;
+		break;
+#if MT6391
+	case GPIO_MT6391:
+		gpio->output = &mt6391_gpio_output;
+		gpio->set = &mt6391_gpio_set;
+		gpio->get = &mt6391_gpio_get;
+		break;
+#endif
+	default:
+		assert(1); /* shouldn't come to here */
+		return;
 }
 
-static void RTC_Write(uint32_t addr, uint16_t data)
-{
-	pwrap_write((uint32_t)addr, data);
-}
-
-static inline int32_t rtc_busy_wait(void)
-{
-	uint64_t retry = RTC_WRTGR_POLLING_CNT;
-
-	do {
-		mdelay(RTC_WRTGR_POLLING_DELAY_MS);
-		if (!(RTC_Read(RTC_BBPU) & RTC_BBPU_CBUSY))
-			return 1;
-		retry--;
-	} while (retry);
-
-	ERROR("[RTC] rtc cbusy time out!\n");
-	return 0;
-}
-
-static int32_t Write_trigger(void)
-{
-	RTC_Write(RTC_WRTGR, 1);
-	return rtc_busy_wait();
-}
-
-static int32_t Writeif_unlock(void)
-{
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK1);
-	if (!Write_trigger())
-		return 0;
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK2);
-	if (!Write_trigger())
-		return 0;
-
-	return 1;
-}
-
-void rtc_bbpu_power_down(void)
-{
-	uint16_t bbpu;
-
-	/* pull PWRBB low */
-	bbpu = RTC_BBPU_KEY | RTC_BBPU_AUTO | RTC_BBPU_PWREN;
-	if (Writeif_unlock()) {
-		RTC_Write(RTC_BBPU, bbpu);
-		if (!Write_trigger())
-			assert(1);
-	} else {
-		assert(1);
-	}
+	gpio->pin = info->pin;
+	gpio->polarity = info->polarity;
 }

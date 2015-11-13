@@ -27,76 +27,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <mt8173_def.h>
-#include <pmic_wrap_init.h>
-#include <rtc.h>
+#ifndef __PARAM_INIT_H__
+#define __PARAM_INIT_H__
 
-/* RTC busy status polling interval and retry count */
-enum {
-	RTC_WRTGR_POLLING_DELAY_MS	= 10,
-	RTC_WRTGR_POLLING_CNT		= 100
-};
+#include <stdint.h>
 
-static uint16_t RTC_Read(uint32_t addr)
-{
-	uint16_t rdata = 0;
+/* init param for cluster1 buck ctrl */
+void cluster1_buck_init(uint32_t sub_type, void *sub_param);
 
-	pwrap_read((uint32_t)addr, &rdata);
-	return rdata;
-}
+/* init param for system off */
+void sys_off_init(uint32_t sub_type, void *sub_param);
 
-static void RTC_Write(uint32_t addr, uint16_t data)
-{
-	pwrap_write((uint32_t)addr, data);
-}
-
-static inline int32_t rtc_busy_wait(void)
-{
-	uint64_t retry = RTC_WRTGR_POLLING_CNT;
-
-	do {
-		mdelay(RTC_WRTGR_POLLING_DELAY_MS);
-		if (!(RTC_Read(RTC_BBPU) & RTC_BBPU_CBUSY))
-			return 1;
-		retry--;
-	} while (retry);
-
-	ERROR("[RTC] rtc cbusy time out!\n");
-	return 0;
-}
-
-static int32_t Write_trigger(void)
-{
-	RTC_Write(RTC_WRTGR, 1);
-	return rtc_busy_wait();
-}
-
-static int32_t Writeif_unlock(void)
-{
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK1);
-	if (!Write_trigger())
-		return 0;
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK2);
-	if (!Write_trigger())
-		return 0;
-
-	return 1;
-}
-
-void rtc_bbpu_power_down(void)
-{
-	uint16_t bbpu;
-
-	/* pull PWRBB low */
-	bbpu = RTC_BBPU_KEY | RTC_BBPU_AUTO | RTC_BBPU_PWREN;
-	if (Writeif_unlock()) {
-		RTC_Write(RTC_BBPU, bbpu);
-		if (!Write_trigger())
-			assert(1);
-	} else {
-		assert(1);
-	}
-}
+#endif /* __PARAM_INIT_H__ */
