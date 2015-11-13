@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,32 +28,44 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __PLAT_PRIVATE_H__
-#define __PLAT_PRIVATE_H__
+#ifndef __GPIO_MT6391_H__
+#define __GPIO_MT6391_H__
 
-/*******************************************************************************
- * Function and variable prototypes
- ******************************************************************************/
-void plat_configure_mmu_el3(unsigned long total_base,
-			    unsigned long total_size,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long);
+#include <stdint.h>
 
-void plat_cci_init(void);
-void plat_cci_enable(void);
-void plat_cci_disable(void);
+/*
+ * PMIC GPIO REGISTER DEFINITION
+ */
+enum {
+	MT6391_GPIO_DIR_BASE = 0xC000,
+	MT6391_GPIO_PULLEN_BASE = 0xC020,
+	MT6391_GPIO_PULLSEL_BASE = 0xC040,
+	MT6391_GPIO_DOUT_BASE = 0xC080,
+	MT6391_GPIO_DIN_BASE = 0xC0A0,
+	MT6391_GPIO_MODE_BASE = 0xC0C0,
+};
 
-/* Declarations for plat_mt_gic.c */
-void plat_mt_gic_init(void);
+enum mt6391_pull_enable {
+	MT6391_GPIO_PULL_DISABLE = 0,
+	MT6391_GPIO_PULL_ENABLE = 1,
+};
 
-/* Declarations for plat_topology.c */
-int mt_setup_topology(void);
+enum mt6391_pull_select {
+	MT6391_GPIO_PULL_DOWN = 0,
+	MT6391_GPIO_PULL_UP = 1,
+};
 
-void plat_delay_timer_init(void);
+/*
+ * PMIC GPIO Exported Function
+ */
+int mt6391_gpio_get(uint32_t gpio);
+void mt6391_gpio_set(uint32_t gpio, int value);
+void mt6391_gpio_input_pulldown(uint32_t gpio);
+void mt6391_gpio_input_pullup(uint32_t gpio);
+void mt6391_gpio_input(uint32_t gpio);
+void mt6391_gpio_output(uint32_t gpio, int value);
+void mt6391_gpio_set_pull(uint32_t gpio, enum mt6391_pull_enable enable,
+			  enum mt6391_pull_select select);
+void mt6391_gpio_set_mode(uint32_t gpio, int mode);
 
-void params_early_setup(void *plat_params_from_bl2);
-void params_setup(void);
-
-#endif /* __PLAT_PRIVATE_H__ */
+#endif /* __GPIO_MT6391_H__ */

@@ -484,7 +484,6 @@ static void __dead2 plat_system_off(void)
 {
 	INFO("MTK System Off\n");
 
-	gpio_set(120, 0);
 	rtc_bbpu_power_down();
 
 	wfi();

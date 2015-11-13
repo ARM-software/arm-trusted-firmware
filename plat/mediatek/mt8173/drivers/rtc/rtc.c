@@ -42,15 +42,15 @@ enum {
 
 static uint16_t RTC_Read(uint32_t addr)
 {
-	uint32_t rdata = 0;
+	uint16_t rdata = 0;
 
 	pwrap_read((uint32_t)addr, &rdata);
-	return (uint16_t)rdata;
+	return rdata;
 }
 
 static void RTC_Write(uint32_t addr, uint16_t data)
 {
-	pwrap_write((uint32_t)addr, (uint32_t)data);
+	pwrap_write((uint32_t)addr, data);
 }
 
 static inline int32_t rtc_busy_wait(void)
@@ -95,8 +95,8 @@ void rtc_bbpu_power_down(void)
 	if (Writeif_unlock()) {
 		RTC_Write(RTC_BBPU, bbpu);
 		if (!Write_trigger())
-			assert(1);
+			assert(0);
 	} else {
-		assert(1);
+		assert(0);
 	}
 }

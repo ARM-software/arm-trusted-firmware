@@ -35,6 +35,7 @@
 #include <mcucfg.h>
 #include <mmio.h>
 #include <mtcmos.h>
+#include <plat_params.h>
 #include <plat_private.h>
 #include <platform.h>
 #include <spm.h>
@@ -128,6 +129,8 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			       void *plat_params_from_bl2)
 {
+	/* [TODO] UART port, baudrate and/or UART clock should be passed from
+	 * BL2 because different platform may have its own setting for UART. */
 	console_init(MT8173_UART0_BASE, MT8173_UART_CLOCK, MT8173_BAUDRATE);
 
 	VERBOSE("bl31_setup\n");
@@ -136,10 +139,10 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
 
-	assert(((unsigned long)plat_params_from_bl2) == MT_BL31_PLAT_PARAM_VAL);
-
 	bl32_ep_info = *from_bl2->bl32_ep_info;
 	bl33_ep_info = *from_bl2->bl33_ep_info;
+
+	params_early_setup(plat_params_from_bl2);
 }
 
 /*******************************************************************************
@@ -150,6 +153,8 @@ void bl31_platform_setup(void)
 	platform_setup_cpu();
 
 	plat_delay_timer_init();
+
+	params_setup();
 
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_mt_gic_init();

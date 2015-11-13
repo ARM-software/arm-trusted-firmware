@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,33 +27,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <assert.h>
+#include <debug.h>
+#include <gpio.h>
+#include <gpio_obj.h>
+#include <mt6391.h>
+#include <plat_params.h>
 
-#ifndef __PLAT_PRIVATE_H__
-#define __PLAT_PRIVATE_H__
+void get_gpio_obj(struct gpio_info *gpio, struct gpio_obj *obj)
+{
+	switch (gpio->type) {
+	case PARAM_GPIO_NONE:
+		return;
+	case PARAM_GPIO_SOC:
+		obj->output = &gpio_output;
+		obj->set = &gpio_set;
+		obj->get = &gpio_get;
+		break;
+	case PARAM_GPIO_MT6391:
+		obj->output = &mt6391_gpio_output;
+		obj->set = &mt6391_gpio_set;
+		obj->get = &mt6391_gpio_get;
+		break;
+	default:
+		assert(0); /* shouldn't come to here */
+		return;
+	}
 
-/*******************************************************************************
- * Function and variable prototypes
- ******************************************************************************/
-void plat_configure_mmu_el3(unsigned long total_base,
-			    unsigned long total_size,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long);
-
-void plat_cci_init(void);
-void plat_cci_enable(void);
-void plat_cci_disable(void);
-
-/* Declarations for plat_mt_gic.c */
-void plat_mt_gic_init(void);
-
-/* Declarations for plat_topology.c */
-int mt_setup_topology(void);
-
-void plat_delay_timer_init(void);
-
-void params_early_setup(void *plat_params_from_bl2);
-void params_setup(void);
-
-#endif /* __PLAT_PRIVATE_H__ */
+	obj->pin = gpio->index;
+	obj->polarity = gpio->polarity;
+}

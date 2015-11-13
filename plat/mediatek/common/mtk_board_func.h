@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,32 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __PLAT_PRIVATE_H__
-#define __PLAT_PRIVATE_H__
+#ifndef __MTK_BOARD_FUNC_H__
+#define __MTK_BOARD_FUNC_H__
 
-/*******************************************************************************
- * Function and variable prototypes
- ******************************************************************************/
-void plat_configure_mmu_el3(unsigned long total_base,
-			    unsigned long total_size,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long);
+struct plat_board_func {
+	void (*cluster1_buck_ctrl)(int enable);
+};
 
-void plat_cci_init(void);
-void plat_cci_enable(void);
-void plat_cci_disable(void);
+struct plat_board_func *get_board_func(void);
+void set_cluster1_buck_ctrl_callback(void (*buck_ctrl_func)(int enable));
 
-/* Declarations for plat_mt_gic.c */
-void plat_mt_gic_init(void);
-
-/* Declarations for plat_topology.c */
-int mt_setup_topology(void);
-
-void plat_delay_timer_init(void);
-
-void params_early_setup(void *plat_params_from_bl2);
-void params_setup(void);
-
-#endif /* __PLAT_PRIVATE_H__ */
+#endif /* __MTK_BOARD_FUNC_H__ */

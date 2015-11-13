@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,33 +27,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __MEMLAYOUT_H__
+#define __MEMLAYOUT_H__
 
-#ifndef __PLAT_PRIVATE_H__
-#define __PLAT_PRIVATE_H__
+#if (MEM_CONFIG == SRAM_192K)
+#include <configs/sram_192k.h>
+#else /* default platform memory layout */
+#include <configs/sram_192k.h>
+#endif
 
-/*******************************************************************************
- * Function and variable prototypes
- ******************************************************************************/
-void plat_configure_mmu_el3(unsigned long total_base,
-			    unsigned long total_size,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long,
-			    unsigned long);
-
-void plat_cci_init(void);
-void plat_cci_enable(void);
-void plat_cci_disable(void);
-
-/* Declarations for plat_mt_gic.c */
-void plat_mt_gic_init(void);
-
-/* Declarations for plat_topology.c */
-int mt_setup_topology(void);
-
-void plat_delay_timer_init(void);
-
-void params_early_setup(void *plat_params_from_bl2);
-void params_setup(void);
-
-#endif /* __PLAT_PRIVATE_H__ */
+#endif /* __MEMLAYOUT_H__ */

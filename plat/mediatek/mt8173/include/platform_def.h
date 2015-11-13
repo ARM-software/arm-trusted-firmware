@@ -31,6 +31,8 @@
 #ifndef __PLATFORM_DEF_H__
 #define __PLATFORM_DEF_H__
 
+#include <configs/memlayout.h>
+
 #define DEBUG_XLAT_TABLE 0
 
 /*******************************************************************************
@@ -69,61 +71,6 @@
 #define PLATFORM_NUM_AFFS		(PLATFORM_SYSTEM_COUNT +	\
 					 PLATFORM_CLUSTER_COUNT +	\
 					 PLATFORM_CORE_COUNT)
-
-/*******************************************************************************
- * Platform memory map related constants
- ******************************************************************************/
-/*
- * MT8173 SRAM memory layout
- * 0x100000 +-------------------+
- *          | shared mem (4KB)  |
- * 0x101000 +-------------------+
- *          |                   |
- *          |   BL3-1 (124KB)   |
- *          |                   |
- * 0x120000 +-------------------+
- *          |   DMA buf (4KB)   |
- * 0x121000 +-------------------+
- *          |  reserved (60KB)  |
- * 0x130000 +-------------------+
- */
-/* TF txet, ro, rw, xlat table, coherent memory ... etc.
- * Size: release: 128KB, debug: 128KB
- */
-#define TZRAM_BASE		(0x100000)
-#if DEBUG
-#define TZRAM_SIZE		(0x20000)
-#else
-#define TZRAM_SIZE		(0x20000)
-#endif
-
-/* DMA buffer: 4KB */
-/* The start address of this region should be aligned to page boundary(4KB) */
-#define DMA_BUF_BASE		(TZRAM_BASE + TZRAM_SIZE)
-#define DMA_BUF_SIZE		(0x1000)
-
-/* Reserved: 60KB */
-#define TZRAM2_BASE		(DMA_BUF_BASE + DMA_BUF_SIZE)
-#define TZRAM2_SIZE		(0xF000)
-
-/*******************************************************************************
- * BL31 specific defines.
- ******************************************************************************/
-/*
- * Put BL3-1 at the top of the Trusted SRAM (just below the shared memory, if
- * present). BL31_BASE is calculated using the current BL3-1 debug size plus a
- * little space for growth.
- */
-#define BL31_BASE		(TZRAM_BASE + 0x1000)
-#define BL31_LIMIT		(TZRAM_BASE + TZRAM_SIZE)
-#define TZRAM2_LIMIT		(TZRAM2_BASE + TZRAM2_SIZE)
-
-/*******************************************************************************
- * Platform specific page table and MMU setup constants
- ******************************************************************************/
-#define ADDR_SPACE_SIZE		(1ull << 32)
-#define MAX_XLAT_TABLES		4
-#define MAX_MMAP_REGIONS	16
 
 /*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is

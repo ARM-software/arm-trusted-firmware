@@ -28,14 +28,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __PLAT_DEF_H__
-#define __PLAT_DEF_H__
+#ifndef __MT8173_DEF_H__
+#define __MT8173_DEF_H__
+
+#if RESET_TO_BL31
+#error "MT8173 is incompatible with RESET_TO_BL31!"
+#endif
 
 #define MT8173_PRIMARY_CPU	0x0
 
-/* Special value used to verify platform parameters from BL2 to BL3-1 */
-#define MT_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
-
+/* Register base address */
 #define IO_PHYS			(0x10000000)
 #define INFRACFG_AO_BASE	(IO_PHYS + 0x1000)
 #define PERI_CON_BASE		(IO_PHYS + 0x3000)
@@ -115,4 +117,4 @@
 #define MT_IRQ_SEC_SGI_6	14
 #define MT_IRQ_SEC_SGI_7	15
 
-#endif /* __PLAT_DEF_H__ */
+#endif /* __MT8173_DEF_H__ */
