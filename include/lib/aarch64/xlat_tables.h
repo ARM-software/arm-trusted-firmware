@@ -53,8 +53,8 @@
 
 /*
  * Flags for building up memory mapping attributes.
- * These are organised so that a clear bit gives a more restrictive  mapping
- * that a set bit, that way a bitwise-and two sets of attributes will never give
+ * These are organised so that a clear bit gives a more restrictive mapping
+ * than a set bit, that way a bitwise-and two sets of attributes will never give
  * an attribute which has greater access rights that any of the original
  * attributes.
  */
@@ -66,7 +66,9 @@ typedef enum  {
 	MT_RW		= 1 << 1,
 
 	MT_SECURE	= 0 << 2,
-	MT_NS		= 1 << 2
+	MT_NS		= 1 << 2,
+
+	MT_MEMORY_NC	= 1 << 3
 } mmap_attr_t;
 
 /*
