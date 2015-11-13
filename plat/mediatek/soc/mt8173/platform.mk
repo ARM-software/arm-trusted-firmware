@@ -29,18 +29,18 @@
 #
 
 MTK_PLAT		:=	plat/mediatek
-MTK_PLAT_SOC		:=	${MTK_PLAT}/soc/${PLAT}
+PLAT_SOC_DIR		:=	plat/mediatek/soc/${PLAT}
 
 PLAT_INCLUDES		:=	-I${MTK_PLAT}/soc/common/			\
-				-I${MTK_PLAT_SOC}/drivers/gpio/			\
-				-I${MTK_PLAT_SOC}/drivers/i2c/			\
-				-I${MTK_PLAT_SOC}/drivers/mtcmos/		\
-				-I${MTK_PLAT_SOC}/drivers/pmic/			\
-				-I${MTK_PLAT_SOC}/drivers/rtc/			\
-				-I${MTK_PLAT_SOC}/drivers/spm/			\
-				-I${MTK_PLAT_SOC}/drivers/timer/		\
-				-I${MTK_PLAT_SOC}/drivers/uart/			\
-				-I${MTK_PLAT_SOC}/include/
+				-I${PLAT_SOC_DIR}/drivers/gpio/			\
+				-I${PLAT_SOC_DIR}/drivers/i2c/			\
+				-I${PLAT_SOC_DIR}/drivers/mtcmos/		\
+				-I${PLAT_SOC_DIR}/drivers/pmic/			\
+				-I${PLAT_SOC_DIR}/drivers/rtc/			\
+				-I${PLAT_SOC_DIR}/drivers/spm/			\
+				-I${PLAT_SOC_DIR}/drivers/timer/		\
+				-I${PLAT_SOC_DIR}/drivers/uart/			\
+				-I${PLAT_SOC_DIR}/include/
 
 PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/xlat_tables.c			\
 				plat/common/aarch64/plat_common.c		\
@@ -57,28 +57,32 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
+				${MTK_PLAT}/soc/common/mtk_board_func.c		\
 				${MTK_PLAT}/soc/common/mtk_sip_svc.c		\
-				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
-				${MTK_PLAT_SOC}/aarch64/platform_common.c	\
-				${MTK_PLAT_SOC}/bl31_plat_setup.c		\
-				${MTK_PLAT_SOC}/drivers/gpio/gpio.c		\
-				${MTK_PLAT_SOC}/drivers/i2c/i2c.c		\
-				${MTK_PLAT_SOC}/drivers/mtcmos/mtcmos.c		\
-				${MTK_PLAT_SOC}/drivers/pmic/pmic_wrap_init.c	\
-				${MTK_PLAT_SOC}/drivers/rtc/rtc.c		\
-				${MTK_PLAT_SOC}/drivers/spm/spm.c		\
-				${MTK_PLAT_SOC}/drivers/spm/spm_hotplug.c	\
-				${MTK_PLAT_SOC}/drivers/spm/spm_mcdi.c		\
-				${MTK_PLAT_SOC}/drivers/spm/spm_suspend.c	\
-				${MTK_PLAT_SOC}/drivers/timer/mt_cpuxgpt.c	\
-				${MTK_PLAT_SOC}/drivers/uart/8250_console.S	\
-				${MTK_PLAT_SOC}/plat_delay_timer.c		\
-				${MTK_PLAT_SOC}/plat_mt_gic.c			\
-				${MTK_PLAT_SOC}/plat_pm.c			\
-				${MTK_PLAT_SOC}/plat_sip_calls.c		\
-				${MTK_PLAT_SOC}/plat_topology.c			\
-				${MTK_PLAT_SOC}/power_tracer.c			\
-				${MTK_PLAT_SOC}/scu.c
+				${PLAT_SOC_DIR}/aarch64/plat_helpers.S		\
+				${PLAT_SOC_DIR}/aarch64/platform_common.c	\
+				${PLAT_SOC_DIR}/bl31_plat_setup.c		\
+				${PLAT_SOC_DIR}/drivers/gpio/gpio.c		\
+				${PLAT_SOC_DIR}/drivers/i2c/i2c.c		\
+				${PLAT_SOC_DIR}/drivers/mtcmos/mtcmos.c		\
+				${PLAT_SOC_DIR}/drivers/pmic/pmic_wrap_init.c	\
+				${PLAT_SOC_DIR}/drivers/rtc/rtc.c		\
+				${PLAT_SOC_DIR}/drivers/spm/spm.c		\
+				${PLAT_SOC_DIR}/drivers/spm/spm_hotplug.c	\
+				${PLAT_SOC_DIR}/drivers/spm/spm_mcdi.c		\
+				${PLAT_SOC_DIR}/drivers/spm/spm_suspend.c	\
+				${PLAT_SOC_DIR}/drivers/timer/mt_cpuxgpt.c	\
+				${PLAT_SOC_DIR}/drivers/uart/8250_console.S	\
+				${PLAT_SOC_DIR}/plat_delay_timer.c		\
+				${PLAT_SOC_DIR}/plat_mt_gic.c			\
+				${PLAT_SOC_DIR}/plat_pm.c			\
+				${PLAT_SOC_DIR}/plat_sip_calls.c		\
+				${PLAT_SOC_DIR}/plat_topology.c			\
+				${PLAT_SOC_DIR}/power_tracer.c			\
+				${PLAT_SOC_DIR}/scu.c
+
+# include common board
+include plat/mediatek/board/common/board_common.mk
 
 # Flag used by the MTK_platform port to determine the version of ARM GIC
 # architecture to use for interrupt management in EL3.

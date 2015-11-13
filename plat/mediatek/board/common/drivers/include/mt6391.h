@@ -27,76 +27,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <mt8173_def.h>
-#include <pmic_wrap_init.h>
-#include <rtc.h>
 
-/* RTC busy status polling interval and retry count */
+#ifndef __BOARD_DRIVER_EXT_GPIO_MT6391_H__
+#define __BOARD_DRIVER_EXT_GPIO_MT6391_H__
+
+#include <stdint.h>
+
+/*
+ * PMIC GPIO REGISTER DEFINITION
+ */
 enum {
-	RTC_WRTGR_POLLING_DELAY_MS	= 10,
-	RTC_WRTGR_POLLING_CNT		= 100
+	MT6391_GPIO_DIR_BASE = 0xC000,
+	MT6391_GPIO_PULLEN_BASE = 0xC020,
+	MT6391_GPIO_PULLSEL_BASE = 0xC040,
+	MT6391_GPIO_DOUT_BASE = 0xC080,
+	MT6391_GPIO_DIN_BASE = 0xC0A0,
+	MT6391_GPIO_MODE_BASE = 0xC0C0,
 };
 
-static uint16_t RTC_Read(uint32_t addr)
-{
-	uint16_t rdata = 0;
+enum mt6391_pull_enable {
+	MT6391_GPIO_PULL_DISABLE = 0,
+	MT6391_GPIO_PULL_ENABLE = 1,
+};
 
-	pwrap_read((uint32_t)addr, &rdata);
-	return rdata;
-}
+enum mt6391_pull_select {
+	MT6391_GPIO_PULL_DOWN = 0,
+	MT6391_GPIO_PULL_UP = 1,
+};
 
-static void RTC_Write(uint32_t addr, uint16_t data)
-{
-	pwrap_write((uint32_t)addr, data);
-}
+/*
+ * PMIC GPIO Exported Function
+ */
+int mt6391_gpio_get(uint32_t gpio);
+void mt6391_gpio_set(uint32_t gpio, int value);
+void mt6391_gpio_input_pulldown(uint32_t gpio);
+void mt6391_gpio_input_pullup(uint32_t gpio);
+void mt6391_gpio_input(uint32_t gpio);
+void mt6391_gpio_output(uint32_t gpio, int value);
+void mt6391_gpio_set_pull(uint32_t gpio, enum mt6391_pull_enable enable,
+			  enum mt6391_pull_select select);
+void mt6391_gpio_set_mode(uint32_t gpio, int mode);
 
-static inline int32_t rtc_busy_wait(void)
-{
-	uint64_t retry = RTC_WRTGR_POLLING_CNT;
-
-	do {
-		mdelay(RTC_WRTGR_POLLING_DELAY_MS);
-		if (!(RTC_Read(RTC_BBPU) & RTC_BBPU_CBUSY))
-			return 1;
-		retry--;
-	} while (retry);
-
-	ERROR("[RTC] rtc cbusy time out!\n");
-	return 0;
-}
-
-static int32_t Write_trigger(void)
-{
-	RTC_Write(RTC_WRTGR, 1);
-	return rtc_busy_wait();
-}
-
-static int32_t Writeif_unlock(void)
-{
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK1);
-	if (!Write_trigger())
-		return 0;
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK2);
-	if (!Write_trigger())
-		return 0;
-
-	return 1;
-}
-
-void rtc_bbpu_power_down(void)
-{
-	uint16_t bbpu;
-
-	/* pull PWRBB low */
-	bbpu = RTC_BBPU_KEY | RTC_BBPU_AUTO | RTC_BBPU_PWREN;
-	if (Writeif_unlock()) {
-		RTC_Write(RTC_BBPU, bbpu);
-		if (!Write_trigger())
-			assert(1);
-	} else {
-		assert(1);
-	}
-}
+#endif /* __BOARD_DRIVER_EXT_GPIO_MT6391_H__ */

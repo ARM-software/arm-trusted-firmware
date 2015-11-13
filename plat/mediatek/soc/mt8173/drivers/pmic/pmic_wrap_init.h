@@ -31,9 +31,12 @@
 #ifndef __PMIC_WRAP_INIT_H__
 #define __PMIC_WRAP_INIT_H__
 
+#include <mt8173_def.h>
+#include <stdint.h>
+
 /* external API */
-int32_t pwrap_read(uint32_t adr, uint32_t *rdata);
-int32_t pwrap_write(uint32_t adr, uint32_t wdata);
+int32_t pwrap_read(uint32_t adr, uint16_t *rdata);
+int32_t pwrap_write(uint32_t adr, uint16_t wdata);
 
 static struct mt8173_pmic_wrap_regs *const mt8173_pwrap =
 	(void *)PMIC_WRAP_BASE;

@@ -118,8 +118,8 @@ static inline uint32_t wait_for_state_ready(uint32_t timeout_us,
 
 static int32_t pwrap_wacs2(uint32_t write,
 		    uint32_t adr,
-		    uint32_t wdata,
-		    uint32_t *rdata,
+		    uint16_t wdata,
+		    uint16_t *rdata,
 		    uint32_t init_check)
 {
 	uint32_t reg_rdata = 0;
@@ -176,12 +176,12 @@ FAIL:
 
 /* external API for pmic_wrap user */
 
-int32_t pwrap_read(uint32_t adr, uint32_t *rdata)
+int32_t pwrap_read(uint32_t adr, uint16_t *rdata)
 {
 	return pwrap_wacs2(0, adr, 0, rdata, 1);
 }
 
-int32_t pwrap_write(uint32_t adr, uint32_t wdata)
+int32_t pwrap_write(uint32_t adr, uint16_t wdata)
 {
 	return pwrap_wacs2(1, adr, wdata, 0, 1);
 }

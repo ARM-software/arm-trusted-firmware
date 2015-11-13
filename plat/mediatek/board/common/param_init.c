@@ -28,75 +28,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <assert.h>
+#include <bl_common.h>
+#include <board_gpio.h>
+#include <da9212.h>
 #include <debug.h>
-#include <delay_timer.h>
-#include <mt8173_def.h>
-#include <pmic_wrap_init.h>
-#include <rtc.h>
+#include <mt6311.h>
+#include <mtk_board_func.h>
+#include <param_init.h>
 
-/* RTC busy status polling interval and retry count */
-enum {
-	RTC_WRTGR_POLLING_DELAY_MS	= 10,
-	RTC_WRTGR_POLLING_CNT		= 100
+static struct board_gpio power_notify;
+static struct {
+	const int device_id;
+	int (*init)(void *sub_param);
+	void (*ctrl)(int enable);
+} bucks[] = {
+#if DA9212
+	{ BUCK_DA9212, da9212_init, da9212_ctrl },
+#endif
+#if MT6311
+	{ BUCK_MT6311, mt6311_init, mt6311_ctrl },
+#endif
+	{ BUCK_DUMMY, NULL, NULL },
 };
 
-static uint16_t RTC_Read(uint32_t addr)
+void cluster1_buck_init(uint32_t sub_type, void *sub_param)
 {
-	uint16_t rdata = 0;
+	int i;
 
-	pwrap_read((uint32_t)addr, &rdata);
-	return rdata;
+	for (i = 0; i < ARRAY_SIZE(bucks); ++i)
+		if (bucks[i].device_id == sub_type)
+			if (!bucks[i].init(sub_param)) {
+				set_cluster1_buck_ctrl_callback(bucks[i].ctrl);
+				break;
+			}
 }
 
-static void RTC_Write(uint32_t addr, uint16_t data)
+static void notify_sys_off(void)
 {
-	pwrap_write((uint32_t)addr, data);
+	if (power_notify.output)
+		power_notify.output(power_notify.pin, power_notify.polarity);
 }
 
-static inline int32_t rtc_busy_wait(void)
+void sys_off_init(uint32_t sub_type, void *sub_param)
 {
-	uint64_t retry = RTC_WRTGR_POLLING_CNT;
+	struct sys_off_params *p = (struct sys_off_params *)sub_param;
 
-	do {
-		mdelay(RTC_WRTGR_POLLING_DELAY_MS);
-		if (!(RTC_Read(RTC_BBPU) & RTC_BBPU_CBUSY))
-			return 1;
-		retry--;
-	} while (retry);
-
-	ERROR("[RTC] rtc cbusy time out!\n");
-	return 0;
-}
-
-static int32_t Write_trigger(void)
-{
-	RTC_Write(RTC_WRTGR, 1);
-	return rtc_busy_wait();
-}
-
-static int32_t Writeif_unlock(void)
-{
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK1);
-	if (!Write_trigger())
-		return 0;
-	RTC_Write(RTC_PROT, RTC_PROT_UNLOCK2);
-	if (!Write_trigger())
-		return 0;
-
-	return 1;
-}
-
-void rtc_bbpu_power_down(void)
-{
-	uint16_t bbpu;
-
-	/* pull PWRBB low */
-	bbpu = RTC_BBPU_KEY | RTC_BBPU_AUTO | RTC_BBPU_PWREN;
-	if (Writeif_unlock()) {
-		RTC_Write(RTC_BBPU, bbpu);
-		if (!Write_trigger())
-			assert(1);
-	} else {
-		assert(1);
-	}
+	fill_board_gpio(&p->gpio_info, &power_notify);
+	set_sys_off_callback(&notify_sys_off);
 }
