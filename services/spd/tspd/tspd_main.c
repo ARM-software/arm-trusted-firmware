@@ -89,18 +89,22 @@ uint64_t tspd_handle_sp_preemption(void *handle)
 	assert(ns_cpu_context);
 
 	/*
-	 * Restore non-secure state. The secure system
-	 * register context will be saved when required.
+	 * To allow Secure EL1 interrupt handler to re-enter TSP while TSP
+	 * is preempted, the secure system register context which will get
+	 * overwritten must be additionally saved. This is currently done
+	 * by the TSPD S-EL1 interrupt handler.
+	 */
+
+	/*
+	 * Restore non-secure state.
 	 */
 	cm_el1_sysregs_context_restore(NON_SECURE);
 	cm_set_next_eret_context(NON_SECURE);
 
 	/*
-	 * We need to restore non secure context according to
-	 * the SEL1 context which got preempted and currently
-	 * TSP can only be preempted when a STD SMC is ongoing.
-	 * Return SMC_PREEMPTED in x0 and restore non secure
-	 * context.
+	 * The TSP was preempted during STD SMC execution.
+	 * Return back to the normal world with SMC_PREEMPTED as error
+	 * code in x0.
 	 */
 	SMC_RET1(ns_cpu_context, SMC_PREEMPTED);
 }
@@ -327,7 +331,8 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 
 	/*
 	 * This function ID is used only by the TSP to indicate that it has
-	 * finished handling a S-EL1 interrupt. Execution should resume
+	 * finished handling a S-EL1 interrupt or was preempted by a higher
+	 * priority pending EL3 interrupt. Execution should resume
 	 * in the normal world.
 	 */
 	case TSP_HANDLED_S_EL1_INTR:
