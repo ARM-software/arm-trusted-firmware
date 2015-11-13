@@ -29,10 +29,9 @@
 #
 
 MTK_PLAT		:=	plat/mediatek
-MTK_PLAT_SOC		:=	${MTK_PLAT}/${PLAT}
+MTK_PLAT_SOC		:=	${MTK_PLAT}/soc/${PLAT}
 
-PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
-				-I${MTK_PLAT_SOC}/				\
+PLAT_INCLUDES		:=	-I${MTK_PLAT}/soc/common/			\
 				-I${MTK_PLAT_SOC}/drivers/gpio/			\
 				-I${MTK_PLAT_SOC}/drivers/mtcmos/		\
 				-I${MTK_PLAT_SOC}/drivers/pmic/			\
@@ -57,7 +56,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
-				${MTK_PLAT}/common/mtk_sip_svc.c		\
+				${MTK_PLAT}/soc/common/mtk_sip_svc.c		\
 				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
 				${MTK_PLAT_SOC}/aarch64/platform_common.c	\
 				${MTK_PLAT_SOC}/bl31_plat_setup.c		\
