@@ -38,14 +38,17 @@
 
 #define IO_PHYS			(0x10000000)
 #define INFRACFG_AO_BASE	(IO_PHYS + 0x1000)
+#define PERI_CON_BASE		(IO_PHYS + 0x3000)
 #define GPIO_BASE		(IO_PHYS + 0x5000)
 #define SPM_BASE		(IO_PHYS + 0x6000)
 #define RGU_BASE		(IO_PHYS + 0x7000)
 #define PMIC_WRAP_BASE		(IO_PHYS + 0xD000)
 #define MCUCFG_BASE		(IO_PHYS + 0x200000)
-#define TRNG_base		(IO_PHYS + 0x20F000)
+#define TRNG_BASE		(IO_PHYS + 0x20F000)
 #define MT_GIC_BASE		(IO_PHYS + 0x220000)
 #define PLAT_MT_CCI_BASE	(IO_PHYS + 0x390000)
+#define I2C_DMA_BASE		(IO_PHYS + 0x1000080)
+#define I2C_BASE		(IO_PHYS + 0x1007000)
 
 /* Aggregate of all devices in the first GB */
 #define MTK_DEV_RNG0_BASE	IO_PHYS
