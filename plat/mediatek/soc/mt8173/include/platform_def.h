@@ -73,7 +73,23 @@
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/
-/* TF txet, ro, rw, internal SRAM, Size: release: 80KB, debug: 92KB */
+/*
+ * MT8173 SRAM memory layout
+ * 0x100000 +-------------------+
+ *          | shared mem (4KB)  |
+ * 0x101000 +-------------------+
+ *          |                   |
+ *          |   BL3-1 (124KB)   |
+ *          |                   |
+ * 0x120000 +-------------------+
+ *          |   DMA buf (4KB)   |
+ * 0x121000 +-------------------+
+ *          |  reserved (60KB)  |
+ * 0x130000 +-------------------+
+ */
+/* TF txet, ro, rw, xlat table, coherent memory ... etc.
+ * Size: release: 128KB, debug: 128KB
+ */
 #define TZRAM_BASE		(0x100000)
 #if DEBUG
 #define TZRAM_SIZE		(0x20000)
@@ -81,9 +97,14 @@
 #define TZRAM_SIZE		(0x20000)
 #endif
 
-/* xlat_table , coherence ram, 64KB */
-#define TZRAM2_BASE		(TZRAM_BASE + TZRAM_SIZE)
-#define TZRAM2_SIZE		(0x10000)
+/* DMA buffer: 4KB */
+/* The start address of this region should be aligned to page boundary(4KB) */
+#define DMA_BUF_BASE		(TZRAM_BASE + TZRAM_SIZE)
+#define DMA_BUF_SIZE		(0x1000)
+
+/* Reserved: 60KB */
+#define TZRAM2_BASE		(DMA_BUF_BASE + DMA_BUF_SIZE)
+#define TZRAM2_SIZE		(0xF000)
 
 /*******************************************************************************
  * BL31 specific defines.
