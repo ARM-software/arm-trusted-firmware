@@ -129,6 +129,9 @@
 #define SPM_SLEEP_CA15_WFI2_EN			(SPM_BASE + 0xf18)
 #define SPM_SLEEP_CA15_WFI3_EN			(SPM_BASE + 0xf1c)
 
+#define AP_PLL_CON3		0x1020900c
+#define AP_PLL_CON4		0x10209010
+
 #define SPM_PROJECT_CODE	0xb16
 
 #define SPM_REGWR_EN		(1U << 0)
