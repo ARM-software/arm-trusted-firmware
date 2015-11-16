@@ -36,17 +36,21 @@
 #define UARTRSR                   0x004
 #define UARTECR                   0x004
 #define UARTFR                    0x018
+#define UARTIMSC                  0x038
+#define UARTRIS                   0x03C
+#define UARTICR                   0x044
+
+/* PL011 registers (out of the SBSA specification) */
+#if !PL011_GENERIC_UART
 #define UARTILPR                  0x020
 #define UARTIBRD                  0x024
 #define UARTFBRD                  0x028
 #define UARTLCR_H                 0x02C
 #define UARTCR                    0x030
 #define UARTIFLS                  0x034
-#define UARTIMSC                  0x038
-#define UARTRIS                   0x03C
 #define UARTMIS                   0x040
-#define UARTICR                   0x044
 #define UARTDMACR                 0x048
+#endif /* !PL011_GENERIC_UART */
 
 /* Data status bits */
 #define UART_DATA_ERROR_MASK      0x0F00
@@ -69,6 +73,7 @@
 #define PL011_UARTFR_RXFE_BIT	4	/* Receive FIFO empty bit in UARTFR register */
 
 /* Control reg bits */
+#if !PL011_GENERIC_UART
 #define PL011_UARTCR_CTSEN        (1 << 15)	/* CTS hardware flow control enable */
 #define PL011_UARTCR_RTSEN        (1 << 14)	/* RTS hardware flow control enable */
 #define PL011_UARTCR_RTS          (1 << 11)	/* Request to send */
@@ -94,5 +99,7 @@
 #define PL011_UARTLCR_H_EPS       (1 << 2)	/* Even parity select */
 #define PL011_UARTLCR_H_PEN       (1 << 1)	/* Parity Enable */
 #define PL011_UARTLCR_H_BRK       (1 << 0)	/* Send break */
+
+#endif /* !PL011_GENERIC_UART */
 
 #endif	/* __PL011_H__ */

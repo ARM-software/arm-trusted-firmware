@@ -95,6 +95,8 @@ COLD_BOOT_SINGLE_CPU		:= 0
 # Flag to introduce an infinite loop in BL1 just before it exits into the next
 # image. This is meant to help debugging the post-BL2 phase.
 SPIN_ON_BL1_EXIT		:= 0
+# Build PL011 UART driver in minimal generic UART mode
+PL011_GENERIC_UART		:= 0
 
 
 ################################################################################
@@ -365,6 +367,7 @@ $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
 $(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
+$(eval $(call assert_boolean,PL011_GENERIC_UART))
 
 
 ################################################################################
@@ -393,6 +396,7 @@ $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 ifdef EL3_PAYLOAD_BASE
 $(eval $(call add_define,EL3_PAYLOAD_BASE))
 endif
+$(eval $(call add_define,PL011_GENERIC_UART))
 
 
 ################################################################################
