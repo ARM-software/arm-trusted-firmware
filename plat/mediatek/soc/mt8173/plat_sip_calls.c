@@ -29,6 +29,7 @@
  */
 #include <mmio.h>
 #include <mtk_sip_svc.h>
+#include <mtcmos.h>
 
 /* Authorized secure register list */
 enum {
@@ -54,4 +55,26 @@ uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
 	}
 
 	return MTK_SIP_E_INVALID_PARAM;
+}
+
+uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
+{
+	uint32_t ret;
+
+	ret = mtcmos_non_cpu_ctrl(1, val);
+	if (ret)
+		return MTK_SIP_E_INVALID_PARAM;
+	else
+		return MTK_SIP_E_SUCCESS;
+}
+
+uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
+{
+	uint32_t ret;
+
+	ret = mtcmos_non_cpu_ctrl(0, val);
+	if (ret)
+		return MTK_SIP_E_INVALID_PARAM;
+	else
+		return MTK_SIP_E_SUCCESS;
 }
