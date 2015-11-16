@@ -31,6 +31,7 @@
 #define __SPM_MCDI_H__
 
 void spm_mcdi_wakeup_all_cores(void);
+void spm_mcdi_prepare_for_mtcmos(void);
 void spm_mcdi_prepare_for_off_state(unsigned long mpidr, unsigned int afflvl);
 void spm_mcdi_finish_for_on_state(unsigned long mpidr, unsigned int afflvl);
 
