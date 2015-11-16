@@ -107,7 +107,10 @@ static void mt6311_hw_init(void)
 	val |= (mt6311_read(MT6311_EFUSE_DOUT_56_63, 0x1, 0x7) << 2);
 	val |= (mt6311_read(MT6311_EFUSE_DOUT_64_71, 0x1, 0x0) << 3);
 	mt6311_write(MT6311_VDVFS1_ANA_CON10, val, 0xf, 0);
-
+	/* I2C_CONFIG; pushpull setting, Opendrain is '0' */
+	mt6311_write(MT6311_TOP_INT_CON, 0x1, 0x1, 2);
+	/* RG_WDTRSTB_EN; CC, initial WDRSTB setting. */
+	mt6311_write(MT6311_TOP_RST_CON, 0x1, 0x1, 5);
 	/* initial INT function */
 	mt6311_write(MT6311_GPIO_MODE, 0x2, 0x7, 3);
 	mt6311_write(MT6311_STRUP_CON5, 0x0, 0x1, 0);
@@ -115,7 +118,7 @@ static void mt6311_hw_init(void)
 	mt6311_write(MT6311_STRUP_CON5, 0x0, 0x1, 2);
 	/* Vo max is 1.15V */
 	mt6311_write(MT6311_STRUP_ANA_CON1, 0x3, 0x3, 5);
-	mt6311_write(MT6311_BUCK_ALL_CON23, 0x0, 0x1, 0);
+	mt6311_write(MT6311_BUCK_ALL_CON23, 0x1, 0x1, 0);
 	mt6311_write(MT6311_STRUP_ANA_CON2, 0x3, 0x3, 0);
 	/* Suspend SW control from SPM, after Vosel_on */
 	mt6311_write(MT6311_VDVFS11_CON7, 0x0, 0x1, 0);
