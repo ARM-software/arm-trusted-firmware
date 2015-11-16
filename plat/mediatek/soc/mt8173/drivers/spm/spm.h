@@ -355,5 +355,8 @@ void spm_lock_init(void);
 void spm_lock_get(void);
 void spm_lock_release(void);
 void spm_boot_init(void);
+void set_core_in_on_pending(unsigned long mpidr);
+void clear_core_in_on_pending(unsigned long mpidr);
+int is_in_on_pending(unsigned long mpidr);
 
 #endif /* __SPM_H__ */
