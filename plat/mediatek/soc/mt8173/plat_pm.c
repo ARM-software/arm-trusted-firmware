@@ -41,6 +41,7 @@
 #include <mmio.h>
 #include <mt8173_def.h>
 #include <mt_cpuxgpt.h> /* generic_timer_backup() */
+#include <mtk_board_func.h>
 #include <plat_private.h>
 #include <power_tracer.h>
 #include <psci.h>
@@ -482,9 +483,12 @@ static unsigned int plat_get_sys_suspend_power_state(void)
  ******************************************************************************/
 static void __dead2 plat_system_off(void)
 {
+	const struct plat_board_func *board_fn = get_board_func();
+
 	INFO("MTK System Off\n");
 
-	gpio_set(120, 0);
+	if (board_fn->notify_sys_off)
+		board_fn->notify_sys_off();
 	rtc_bbpu_power_down();
 
 	wfi();
