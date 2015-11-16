@@ -40,7 +40,7 @@
  * This driver controls the cpu power in cpu hotplug flow.
  */
 
-#define PCM_HOTPLUG_VALID_MASK	0x00ff0000
+#define PCM_HOTPLUG_VALID_MASK	0x0000ff00
 #define PCM_HOTPLUG_VALID_SHIFT	0x8
 
 /**********************************************************
