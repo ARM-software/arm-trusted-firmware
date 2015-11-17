@@ -27,56 +27,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __PLAT_DRIVER_GPIO_H__
-#define __PLAT_DRIVER_GPIO_H__
-
-#include <stdint.h>
+#include <delay_timer.h>
+#include <mmio.h>
 #include <mt8173_def.h>
 
-struct val_regs {
-	uint16_t val;
-	uint16_t align1;
-	uint16_t set;
-	uint16_t align2;
-	uint16_t rst;
-	uint16_t align3[3];
-};
+#define I2C1_BASE		(I2C_BASE + 0x1000)
+#define I2C1_DATA_PORT		(I2C1_BASE + 0x00)
+#define I2C1_SLAVE_ADDR		(I2C1_BASE + 0x04)
+#define I2C1_INTR_MASK		(I2C1_BASE + 0x08)
+#define I2C1_INTR_STAT		(I2C1_BASE + 0x0C)
+#define I2C1_CONTROL		(I2C1_BASE + 0x10)
+#define I2C1_TRANSFER_LEN	(I2C1_BASE + 0x14)
+#define I2C1_TIMING		(I2C1_BASE + 0x20)
+#define I2C1_START		(I2C1_BASE + 0x24)
+#define I2C_MASTER_WRITE	(0U)
+#define I2C_MASK_TRANSAC_COMP	(1U)
+#define I2C_START		(1U)
+#define I2C_ALLOW_ALL_INTR	(0xFF)
 
-struct gpio_regs {
-	struct val_regs dir[9];
-	uint8_t rsv00[112];
-	struct val_regs pullen[9];
-	uint8_t rsv01[112];
-	struct val_regs pullsel[9];
-	uint8_t rsv02[112];
-	uint8_t rsv03[256];
-	struct val_regs dout[9];
-	uint8_t rsv04[112];
-	struct val_regs din[9];
-	uint8_t rsv05[112];
-	struct val_regs mode[27];
-	uint8_t rsv06[336];
-	struct val_regs ies[3];
-	struct val_regs smt[3];
-	uint8_t rsv07[160];
-	struct val_regs tdsel[8];
-	struct val_regs rdsel[6];
-	uint8_t rsv08[32];
-	struct val_regs drv_mode[10];
-	uint8_t rsv09[96];
-	struct val_regs msdc_rsv0[11];
-	struct val_regs msdc2_ctrl5;
-	struct val_regs msdc_rsv1[12];
-	uint8_t rsv10[64];
-	struct val_regs exmd_ctrl[1];
-	uint8_t rsv11[48];
-	struct val_regs kpad_ctrl[2];
-	struct val_regs hsic_ctrl[4];
-};
+#define PERI_GLOBALCON_PDN0_SET	(0x10003008)
+#define PERI_GLOBALCON_PDN0_CLR	(0x10003010)
+#define I2C1_PDN		(1U << 24)
 
-static struct gpio_regs *const mt8173_gpio = (void *)(GPIO_BASE);
+void mt6311_control(unsigned int enable)
+{
+	unsigned int val;
+	const unsigned int slave_addr = 0x6b;
+	const unsigned int data_port = 0x8a;
 
-void gpio_set(uint32_t gpio, int output);
-int gpio_get(uint32_t gpio);
+	/* i2c1 clock on */
+	mmio_write_32(PERI_GLOBALCON_PDN0_CLR, I2C1_PDN);
+	mmio_write_32(I2C1_TRANSFER_LEN, 2);
+	mmio_write_32(I2C1_TIMING, 1);
+	mmio_write_32(I2C1_SLAVE_ADDR, (slave_addr << 1) | I2C_MASTER_WRITE);
+	mmio_write_32(I2C1_INTR_MASK, I2C_ALLOW_ALL_INTR);
+	mmio_write_32(I2C1_DATA_PORT, data_port);
+	mmio_write_32(I2C1_DATA_PORT, enable);
+	mmio_write_32(I2C1_START, I2C_START);
 
-#endif /* __PLAT_DRIVER_GPIO_H__ */
+	while (!(val = mmio_read_32(I2C1_INTR_STAT) & I2C_MASK_TRANSAC_COMP))
+		;
+	mmio_write_32(I2C1_INTR_STAT, val);
+
+	/* i2c1 clock off */
+	mmio_setbits_32(PERI_GLOBALCON_PDN0_SET, I2C1_PDN);
+
+	/* Add 1ms delay for powering on mt6311 */
+	if (enable)
+		mdelay(1);
+}
