@@ -33,6 +33,7 @@
 #include <bl_common.h>
 #include <cortex_a53.h>
 #include <cortex_a57.h>
+#include <cortex_a72.h>
 #include <v2m_def.h>
 #include "../juno_def.h"
 
@@ -153,10 +154,31 @@ endfunc JUNO_HANDLER(1)
 	 * - Quad core Cortex-A53 processor cluster;
 	 * - Dual core Cortex-A72 processor cluster.
 	 *
-	 * This handler does nothing.
+	 * This handler does the following:
+	 * - Set the L2 Data RAM latency to 2 (i.e. 3 cycles) for Cortex-A72
+	 * - Set the L2 Tag RAM latency to 1 (i.e. 2 cycles) for Cortex-A72
+	 *
+	 * Note that:
+	 * - Defect #831273 doesn't affect Juno R2.
 	 * --------------------------------------------------------------------
 	 */
 func JUNO_HANDLER(2)
+	/* --------------------------------------------------------------------
+	 * Nothing to do on Cortex-A53.
+	 * --------------------------------------------------------------------
+	 */
+	jump_if_cpu_midr CORTEX_A72_MIDR, A72
+	ret
+
+A72:
+	/* --------------------------------------------------------------------
+	 * Cortex-A72 specific settings
+	 * --------------------------------------------------------------------
+	 */
+	mov	x0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+		      (L2_TAG_RAM_LATENCY_2_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT))
+	msr     L2CTLR_EL1, x0
+	isb
 	ret
 endfunc JUNO_HANDLER(2)
 
