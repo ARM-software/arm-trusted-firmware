@@ -241,10 +241,15 @@ ifneq (${SPD},none)
         $(info Including ${SPD_MAKE})
         include ${SPD_MAKE}
 
-        # If there's BL3-2 companion for the chosen SPD, and the SPD wants to build the
-        # BL3-2 from source, we expect that the SPD's Makefile would set NEED_BL32
-        # variable to "yes". In case the BL3-2 is a binary which needs to be included in
-        # fip, then the NEED_BL32 needs to be set and BL3-2 would need to point to the bin.
+        # If there's BL32 companion for the chosen SPD, we expect that the SPD's
+        # Makefile would set NEED_BL32 to "yes". In this case, the build system
+        # supports two mutually exclusive options:
+        # * BL32 is built from source: then BL32_SOURCES must contain the list
+        #   of source files to build BL32
+        # * BL32 is a prebuilt binary: then BL32 must point to the image file
+        #   that will be included in the FIP
+        # If both BL32_SOURCES and BL32 are defined, the binary takes precedence
+        # over the sources.
 endif
 
 
@@ -415,9 +420,13 @@ $(if ${BL31}, $(eval $(call MAKE_TOOL_ARGS,31,${BL31},in_fip)),\
 	$(eval $(call MAKE_BL,31,in_fip)))
 endif
 
+# If a BL32 image is needed but neither BL32 nor BL32_SOURCES is defined, the
+# build system will call FIP_ADD_IMG to print a warning message and abort the
+# process. Note that the dependency on BL32 applies to the FIP only.
 ifeq (${NEED_BL32},yes)
 $(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},in_fip)),\
-	$(eval $(call MAKE_BL,32,in_fip)))
+	$(if ${BL32_SOURCES}, $(eval $(call MAKE_BL,32,in_fip)),\
+		$(eval $(call FIP_ADD_IMG,BL32,--bl32))))
 endif
 
 # Add the BL33 image if required by the platform
