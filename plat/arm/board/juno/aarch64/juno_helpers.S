@@ -31,7 +31,9 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <bl_common.h>
+#include <cortex_a53.h>
 #include <cortex_a57.h>
+#include <cortex_a72.h>
 #include <v2m_def.h>
 #include "../juno_def.h"
 
@@ -39,52 +41,99 @@
 	.globl	plat_reset_handler
 	.globl	plat_arm_calc_core_pos
 
+#define JUNO_REVISION(rev)	REV_JUNO_R##rev
+#define JUNO_HANDLER(rev)	plat_reset_handler_juno_r##rev
+#define JUMP_TO_HANDLER_IF_JUNO_R(revision)	\
+	jump_to_handler JUNO_REVISION(revision), JUNO_HANDLER(revision)
+
 	/* --------------------------------------------------------------------
-	 * void plat_reset_handler(void);
+	 * Helper macro to jump to the given handler if the board revision
+	 * matches.
+	 * Expects the Juno board revision in x0.
+	 * --------------------------------------------------------------------
+	 */
+	.macro jump_to_handler _revision, _handler
+	cmp	x0, #\_revision
+	b.eq	\_handler
+	.endm
+
+	/* --------------------------------------------------------------------
+	 * Helper macro that reads the part number of the current CPU and jumps
+	 * to the given label if it matches the CPU MIDR provided.
 	 *
-	 * For Juno r0:
+	 * Clobbers x0.
+	 * --------------------------------------------------------------------
+	 */
+	.macro  jump_if_cpu_midr _cpu_midr, _label
+	mrs	x0, midr_el1
+	ubfx	x0, x0, MIDR_PN_SHIFT, #12
+	cmp     w0, #((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
+	b.eq	\_label
+	.endm
+
+	/* --------------------------------------------------------------------
+	 * Platform reset handler for Juno R0.
+	 *
+	 * Juno R0 has the following topology:
+	 * - Quad core Cortex-A53 processor cluster;
+	 * - Dual core Cortex-A57 processor cluster.
+	 *
+	 * This handler does the following:
 	 * - Implement workaround for defect id 831273 by enabling an event
 	 *   stream every 65536 cycles.
 	 * - Set the L2 Data RAM latency to 2 (i.e. 3 cycles) for Cortex-A57
 	 * - Set the L2 Tag RAM latency to 2 (i.e. 3 cycles) for Cortex-A57
+	 * --------------------------------------------------------------------
+	 */
+func JUNO_HANDLER(0)
+	/* --------------------------------------------------------------------
+	 * Enable the event stream every 65536 cycles
+	 * --------------------------------------------------------------------
+	 */
+	mov     x0, #(0xf << EVNTI_SHIFT)
+	orr     x0, x0, #EVNTEN_BIT
+	msr     CNTKCTL_EL1, x0
+
+	/* --------------------------------------------------------------------
+	 * Nothing else to do on Cortex-A53.
+	 * --------------------------------------------------------------------
+	 */
+	jump_if_cpu_midr CORTEX_A53_MIDR, 1f
+
+	/* --------------------------------------------------------------------
+	 * Cortex-A57 specific settings
+	 * --------------------------------------------------------------------
+	 */
+	mov	x0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+		      (L2_TAG_RAM_LATENCY_3_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT))
+	msr     L2CTLR_EL1, x0
+1:
+	isb
+	ret
+endfunc JUNO_HANDLER(0)
+
+	/* --------------------------------------------------------------------
+	 * Platform reset handler for Juno R1.
 	 *
-	 * For Juno r1:
+	 * Juno R1 has the following topology:
+	 * - Quad core Cortex-A53 processor cluster;
+	 * - Dual core Cortex-A57 processor cluster.
+	 *
+	 * This handler does the following:
 	 * - Set the L2 Data RAM latency to 2 (i.e. 3 cycles) for Cortex-A57
+	 *
 	 * Note that:
 	 * - The default value for the L2 Tag RAM latency for Cortex-A57 is
 	 *   suitable.
-	 * - Defect #831273 doesn't affect Juno r1.
+	 * - Defect #831273 doesn't affect Juno R1.
 	 * --------------------------------------------------------------------
 	 */
-func plat_reset_handler
+func JUNO_HANDLER(1)
 	/* --------------------------------------------------------------------
-	 * Determine whether this code is running on Juno r0 or Juno r1.
-	 * Keep this information in x2.
+	 * Nothing to do on Cortex-A53.
 	 * --------------------------------------------------------------------
 	 */
-	/* Read the V2M SYS_ID register */
-	mov_imm	x0, (V2M_SYSREGS_BASE + V2M_SYS_ID)
-	ldr	w1, [x0]
-	/* Extract board revision from the SYS_ID */
-	ubfx	x1, x1, #V2M_SYS_ID_REV_SHIFT, #4
-	/*
-	 * On Juno R0:  x2 := REV_JUNO_R0 - 1 = 0
-	 * On Juno R1:  x2 := REV_JUNO_R1 - 1 = 1
-	 */
-	sub	x2, x1, #1
-
-	/* --------------------------------------------------------------------
-	 * Determine whether this code is executed on a Cortex-A53 or on a
-	 * Cortex-A57 core.
-	 * --------------------------------------------------------------------
-	 */
-	mrs	x0, midr_el1
-	ubfx	x1, x0, MIDR_PN_SHIFT, #12
-	cmp     w1, #((CORTEX_A57_MIDR >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
-	b.eq	A57
-
-	/* Nothing needs to be done for the Cortex-A53 on Juno r1 */
-	cbz	x2, apply_831273
+	jump_if_cpu_midr CORTEX_A57_MIDR, A57
 	ret
 
 A57:
@@ -92,30 +141,69 @@ A57:
 	 * Cortex-A57 specific settings
 	 * --------------------------------------------------------------------
 	 */
-
-	/* Change the L2 Data RAM latency to 3 cycles */
-	mov	x0, #L2_DATA_RAM_LATENCY_3_CYCLES
-	cbnz	x2, apply_l2_ram_latencies
-	/* On Juno r0, also change the L2 Tag RAM latency to 3 cycles */
-	orr	x0, x0, #(L2_TAG_RAM_LATENCY_3_CYCLES << 		\
-				L2CTLR_TAG_RAM_LATENCY_SHIFT)
-apply_l2_ram_latencies:
+	mov	x0, #(L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT)
 	msr     L2CTLR_EL1, x0
-
-	/* Juno r1 doesn't suffer from defect #831273 */
-	cbnz	x2, ret
-
-apply_831273:
-	/* --------------------------------------------------------------------
-	 * On Juno r0, enable the event stream every 65536 cycles
-	 * --------------------------------------------------------------------
-	 */
-	mov     x0, #(0xf << EVNTI_SHIFT)
-	orr     x0, x0, #EVNTEN_BIT
-	msr     CNTKCTL_EL1, x0
-ret:
 	isb
 	ret
+endfunc JUNO_HANDLER(1)
+
+	/* --------------------------------------------------------------------
+	 * Platform reset handler for Juno R2.
+	 *
+	 * Juno R2 has the following topology:
+	 * - Quad core Cortex-A53 processor cluster;
+	 * - Dual core Cortex-A72 processor cluster.
+	 *
+	 * This handler does the following:
+	 * - Set the L2 Data RAM latency to 2 (i.e. 3 cycles) for Cortex-A72
+	 * - Set the L2 Tag RAM latency to 1 (i.e. 2 cycles) for Cortex-A72
+	 *
+	 * Note that:
+	 * - Defect #831273 doesn't affect Juno R2.
+	 * --------------------------------------------------------------------
+	 */
+func JUNO_HANDLER(2)
+	/* --------------------------------------------------------------------
+	 * Nothing to do on Cortex-A53.
+	 * --------------------------------------------------------------------
+	 */
+	jump_if_cpu_midr CORTEX_A72_MIDR, A72
+	ret
+
+A72:
+	/* --------------------------------------------------------------------
+	 * Cortex-A72 specific settings
+	 * --------------------------------------------------------------------
+	 */
+	mov	x0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+		      (L2_TAG_RAM_LATENCY_2_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT))
+	msr     L2CTLR_EL1, x0
+	isb
+	ret
+endfunc JUNO_HANDLER(2)
+
+	/* --------------------------------------------------------------------
+	 * void plat_reset_handler(void);
+	 *
+	 * Determine the Juno board revision and call the appropriate reset
+	 * handler.
+	 * --------------------------------------------------------------------
+	 */
+func plat_reset_handler
+	/* Read the V2M SYS_ID register */
+	mov_imm	x0, (V2M_SYSREGS_BASE + V2M_SYS_ID)
+	ldr	w1, [x0]
+	/* Extract board revision from the SYS_ID */
+	ubfx	x0, x1, #V2M_SYS_ID_REV_SHIFT, #4
+
+	JUMP_TO_HANDLER_IF_JUNO_R(0)
+	JUMP_TO_HANDLER_IF_JUNO_R(1)
+	JUMP_TO_HANDLER_IF_JUNO_R(2)
+
+	/* Board revision is not supported */
+not_supported:
+	b	not_supported
+
 endfunc plat_reset_handler
 
 	/* -----------------------------------------------------

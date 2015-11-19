@@ -39,6 +39,7 @@
 /* Board revisions */
 #define REV_JUNO_R0			0x1	/* Rev B */
 #define REV_JUNO_R1			0x2	/* Rev C */
+#define REV_JUNO_R2			0x3	/* Rev D */
 
 /* Bypass offset from start of NOR flash */
 #define BL1_ROM_BYPASS_OFFSET		0x03EC0000
