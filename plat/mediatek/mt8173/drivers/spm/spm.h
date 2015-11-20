@@ -216,6 +216,7 @@
 #define WAKE_SRC_USB_PDN	(1 << 15)
 #define WAKE_SRC_AFE		(1 << 20)
 #define WAKE_SRC_THERM		(1 << 21)
+#define WAKE_SRC_CIRQ		(1 << 22)
 #define WAKE_SRC_SYSPWREQ	(1 << 24)
 #define WAKE_SRC_SEJ		(1 << 27)
 #define WAKE_SRC_ALL_MD32	(1 << 28)
