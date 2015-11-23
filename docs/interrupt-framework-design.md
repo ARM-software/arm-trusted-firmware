@@ -4,14 +4,16 @@ ARM Trusted Firmware Interrupt Management Design guide
 Contents :
 
 1.  [Introduction](#1-introduction)
-    *   [Assumptions](#11-assumptions)
-    *   [Concepts](#12-concepts)
-        -   [Interrupt Types](#121-interrupt-types)
-        -   [Routing Model](#122-routing-model)
-        -   [Valid Routing Models](#123-valid-routing-models)
-            +   [Secure-EL1 Interrupts](#1231-secure-el1-interrupts)
-            +   [Non-secure Interrupts](#1232-non-secure-interrupts)
-        -   [Mapping of Interrupt Type to Signal](#124-mapping-of-interrupt-type-to-signal)
+    *   [Concepts](#11-concepts)
+        -   [Interrupt Types](#111-interrupt-types)
+        -   [Routing Model](#112-routing-model)
+        -   [Valid Routing Models](#113-valid-routing-models)
+            +   [Secure-EL1 Interrupts](#1131-secure-el1-interrupts)
+            +   [Non-secure Interrupts](#1132-non-secure-interrupts)
+            +   [EL3 interrupts](#1133-el3_interrupts)
+        -   [Mapping of Interrupt Type to Signal](#114-mapping-of-interrupt-type-to-signal)
+            +   [Effect of mapping of several interrupt types to one signal](#1141-effect-of-mapping-of-several-interrupt-types-to-one-signal)
+        -   [Assumptions in Interrupt Management Framework](#12-assumptions-in-interrupt-management-framework)
 
 2.  [Interrupt Management](#2-interrupt-management)
     *   [Software Components](#21-software-components)
@@ -28,9 +30,13 @@ Contents :
         -   [Secure Payload Dispatcher](#232-secure-payload-dispatcher)
             +   [Interrupt Entry](#2321-interrupt-entry)
             +   [Interrupt Exit](#2322-interrupt-exit)
-            +   [Test Secure Payload Dispatcher behavior](#2323-test-secure-payload-dispatcher-behavior)
+            +   [Test secure payload dispatcher Secure-EL1 interrupt handling](#2323-test-secure-payload-dispatcher-secure-el1-interrupt-handling)
+            +   [Test secure payload dispatcher non-secure interrupt handling](#2324-test-secure-payload-dispatcher-non-secure-interrupt-handling)
         -   [Secure Payload](#233-secure-payload)
             +   [Test Secure Payload behavior](#2331-test-secure-payload-behavior)
+
+3.  [Other considerations](#3-other-considerations)
+    *   [Implication of preempted SMC on Non-Secure Software](#31-implication-of-preempted-smc-on-non-secure-software)
 
 
 1. Introduction
@@ -63,19 +69,9 @@ objective is to implement the following two requirements.
     ensures that non-secure software is able to execute in tandem with the
     secure software without overriding it.
 
-### 1.1 Assumptions
-The framework makes the following assumptions to simplify its implementation.
+### 1.1 Concepts
 
-1.  All secure interrupts are handled in Secure-EL1. They can be delivered to
-    Secure-EL1 via EL3 but they cannot be handled in EL3. It will be possible
-    to extend the framework to handle secure interrupts in EL3 in the future.
-
-2.  Interrupt exceptions (`PSTATE.I` and `F` bits) are masked during execution
-    in EL3.
-
-### 1.2 Concepts
-
-#### 1.2.1 Interrupt types
+#### 1.1.1 Interrupt types
 The framework categorises an interrupt to be one of the following depending upon
 the exception level(s) it is handled in.
 
@@ -92,10 +88,7 @@ the exception level(s) it is handled in.
     depending upon the security state of the current execution context. It is
     always handled in EL3.
 
-In the current implementation of the framework, all secure interrupts are
-treated as Secure EL1 interrupts. It will be possible for EL3 software to
-configure a secure interrupt as an EL3 interrupt in future implementations.  The
-following constants define the various interrupt types in the framework
+The following constants define the various interrupt types in the framework
 implementation.
 
     #define INTR_TYPE_S_EL1      0
@@ -103,7 +96,7 @@ implementation.
     #define INTR_TYPE_NS         2
 
 
-#### 1.2.2 Routing model
+#### 1.1.2 Routing model
 A type of interrupt can be either generated as an FIQ or an IRQ. The target
 exception level of an interrupt type is configured through the FIQ and IRQ bits
 in the Secure Configuration Register at EL3 (`SCR_EL3.FIQ` and `SCR_EL3.IRQ`
@@ -122,13 +115,15 @@ routed to EL3. A routing model is applicable only when execution is not in EL3.
 The default routing model for an interrupt type is to route it to the FEL in
 either security state.
 
-#### 1.2.3 Valid routing models
+
+#### 1.1.3 Valid routing models
 The framework considers certain routing models for each type of interrupt to be
 incorrect as they conflict with the requirements mentioned in Section 1. The
 following sub-sections describe all the possible routing models and specify
-which ones are valid or invalid. Only the Secure-EL1 and Non-secure interrupt
-types are considered as EL3 interrupts are currently unsupported (See 1.1). The
-terminology used in the following sub-sections is explained below.
+which ones are valid or invalid. EL3 interrupts are currently supported only
+for GIC version 3.0 (ARM GICv3) and only the Secure-EL1 and Non-secure interrupt
+types are supported for GIC version 2.0 (ARM GICv2) (See 1.2). The terminology
+used in the following sub-sections is explained below.
 
 1.  __CSS__. Current Security State. `0` when secure and `1` when non-secure
 
@@ -136,7 +131,7 @@ terminology used in the following sub-sections is explained below.
     targeted to EL3.
 
 
-##### 1.2.3.1 Secure-EL1 interrupts
+##### 1.1.3.1 Secure-EL1 interrupts
 
 1.  __CSS=0, TEL3=0__. Interrupt is routed to the FEL when execution is in
     secure state. This is a valid routing model as secure software is in
@@ -156,13 +151,13 @@ terminology used in the following sub-sections is explained below.
     can handover the interrupt to Secure-EL1 for handling.
 
 
-##### 1.2.3.2 Non-secure interrupts
+##### 1.1.3.2 Non-secure interrupts
 
 1.  __CSS=0, TEL3=0__. Interrupt is routed to the FEL when execution is in
     secure state. This allows the secure software to trap non-secure
-    interrupts, perform its bookeeping and hand the interrupt to the
+    interrupts, perform its book-keeping and hand the interrupt to the
     non-secure software through EL3. This is a valid routing model as secure
-    software is in control of how its execution is pre-empted by non-secure
+    software is in control of how its execution is preempted by non-secure
     interrupts.
 
 2.  __CSS=0, TEL3=1__. Interrupt is routed to EL3 when execution is in secure
@@ -182,19 +177,70 @@ terminology used in the following sub-sections is explained below.
     non-secure software for handling.
 
 
-#### 1.2.4 Mapping of interrupt type to signal
+##### 1.1.3.3 EL3 interrupts
+
+1.  __CSS=0, TEL3=0__. Interrupt is routed to the FEL when execution is in
+    Secure-EL1/Secure-EL0. This is a valid routing model as secure software
+    in Secure-EL1/Secure-EL0 is in control of how its execution is preempted
+    by EL3 interrupt and can handover the interrupt to EL3 for handling.
+
+2.  __CSS=0, TEL3=1__. Interrupt is routed to EL3 when execution is in
+    Secure-EL1/Secure-EL0. This is a valid routing model as secure software
+    in EL3 can handle the interrupt.
+
+3.  __CSS=1, TEL3=0__. Interrupt is routed to the FEL when execution is in
+    non-secure state. This is an invalid routing model as a secure interrupt
+    is not visible to the secure software which violates the motivation behind
+    the ARM Security Extensions.
+
+4.  __CSS=1, TEL3=1__. Interrupt is routed to EL3 when execution is in
+    non-secure state. This is a valid routing model as secure software in EL3
+    can handle the interrupt.
+
+
+#### 1.1.4 Mapping of interrupt type to signal
 The framework is meant to work with any interrupt controller implemented by a
 platform. A interrupt controller could generate a type of interrupt as either an
-FIQ or IRQ signal to the CPU depending upon the current security state.The
+FIQ or IRQ signal to the CPU depending upon the current security state. The
 mapping between the type and signal is known only to the platform. The framework
 uses this information to determine whether the IRQ or the FIQ bit should be
 programmed in `SCR_EL3` while applying the routing model for a type of
 interrupt. The platform provides this information through the
 `plat_interrupt_type_to_line()` API (described in the [Porting
 Guide]). For example, on the FVP port when the platform uses an ARM GICv2
-interrupt controller, Secure-EL1 interrupts are signalled through the FIQ signal
-while Non-secure interrupts are signalled through the IRQ signal. This applies
+interrupt controller, Secure-EL1 interrupts are signaled through the FIQ signal
+while Non-secure interrupts are signaled through the IRQ signal. This applies
 when execution is in either security state.
+
+
+##### 1.1.4.1 Effect of mapping of several interrupt types to one signal
+It should be noted that if more than one interrupt type maps to a single
+interrupt signal, and if any one of the interrupt type sets __TEL3=1__ for a
+particular security state, then interrupt signal will be routed to EL3 when in
+that security state. This means that all the other interrupt types using the
+same interrupt signal will be forced to the same routing model. This should be
+borne in mind when choosing the routing model for an interrupt type.
+
+For example, in ARM GICv3, when the execution context is Secure-EL1/
+Secure-EL0, both the EL3 and the non secure interrupt types map to the FIQ
+signal. So if either one of the interrupt type sets the routing model so
+that __TEL3=1__ when __CSS=0__, the FIQ bit in `SCR_EL3` will be programmed to
+route the FIQ signal to EL3 when executing in Secure-EL1/Secure-EL0, thereby
+effectively routing the other interrupt type also to EL3.
+
+
+### 1.2 Assumptions in Interrupt Management Framework
+The framework makes the following assumptions to simplify its implementation.
+
+1.  Although the framework has support for 2 types of secure interrupts (EL3
+    and Secure-EL1 interrupt), only interrupt controller architectures
+    like ARM GICv3 has architectural support for EL3 interrupts in the form of
+    Group 0 interrupts. In ARM GICv2, all secure interrupts are assumed to be
+    handled in Secure-EL1. They can be delivered to Secure-EL1 via EL3 but they
+    cannot be handled in EL3.
+
+2.  Interrupt exceptions (`PSTATE.I` and `F` bits) are masked during execution
+    in EL3.
 
 
 2. Interrupt management
@@ -243,9 +289,11 @@ the non-secure interrupts and target them to the primary CPU. It should also
 export the interface described in the [Porting Guide] to enable
 handling of interrupts.
 
-In the remainder of this document, for the sake of simplicity it is assumed that
-the FIQ signal is used to generate Secure-EL1 interrupts and the IRQ signal is
-used to generate non-secure interrupts in either security state.
+In the remainder of this document, for the sake of simplicity a ARM GICv2 system
+is considered and it is assumed that the FIQ signal is used to generate Secure-EL1
+interrupts and the IRQ signal is used to generate non-secure interrupts in either
+security state. EL3 interrupts are not considered.
+
 
 ### 2.1 Software components
 Roles and responsibilities for interrupt management are sub-divided between the
@@ -256,16 +304,14 @@ briefly described below.
     Trusted Firmware.
 
 2.  Secure Payload Dispatcher (SPD) service. This service interfaces with the
-    Secure Payload (SP) software which runs in exception levels lower than EL3
-    i.e. Secure-EL1/Secure-EL0. It is responsible for switching execution
-    between software running in secure and non-secure states at exception
-    levels lower than EL3. A switch is triggered by a Secure Monitor Call from
-    either state. It uses the APIs exported by the Context management library
-    to implement this functionality. Switching execution between the two
-    security states is a requirement for interrupt management as well. This
-    results in a significant dependency on the SPD service. ARM Trusted
-    firmware implements an example Test Secure Payload Dispatcher (TSPD)
-    service.
+    Secure Payload (SP) software which runs in Secure-EL1/Secure-EL0 and is
+    responsible for switching execution between secure and non-secure states.
+    A switch is triggered by a Secure Monitor Call and it uses the APIs
+    exported by the Context management library to implement this functionality.
+    Switching execution between the two security states is a requirement for
+    interrupt management as well. This results in a significant dependency on
+    the SPD service. ARM Trusted firmware implements an example Test Secure
+    Payload Dispatcher (TSPD) service.
 
     An SPD service plugs into the EL3 runtime firmware and could be common to
     some ports of the ARM Trusted Firmware.
@@ -329,14 +375,13 @@ the type of interrupt.
 
 
 The `type` parameter can be one of the three interrupt types listed above i.e.
-`INTR_TYPE_S_EL1`, `INTR_TYPE_NS` & `INTR_TYPE_EL3` (currently unimplemented).
-The `flags` parameter is as described in Section 2.
+`INTR_TYPE_S_EL1`, `INTR_TYPE_NS` & `INTR_TYPE_EL3`. The `flags` parameter
+is as described in Section 2.
 
 The function will return `0` upon a successful registration. It will return
 `-EALREADY` in case a handler for the interrupt type has already been
 registered.  If the `type` is unrecognised or the `flags` or the `handler` are
-invalid it will return `-EINVAL`. It will return `-ENOTSUP` if the specified
-`type` is not supported by the framework i.e. `INTR_TYPE_EL3`.
+invalid it will return `-EINVAL`.
 
 Interrupt routing is governed by the configuration of the `SCR_EL3.FIQ/IRQ` bits
 prior to entry into a lower exception level in either security state. The
@@ -363,6 +408,7 @@ runtime firmware is responsible for programming the routing model. The SPD is
 responsible for ensuring that the routing model has been adhered to upon
 receiving an interrupt.
 
+
 #### 2.2.2 Secure payload dispatcher
 A SPD service is responsible for determining and maintaining the interrupt
 routing model supported by itself and the Secure Payload. It is also responsible
@@ -381,6 +427,7 @@ after receiving an interrupt from the EL3 runtime firmware. This information
 could either be provided to the SPD service at build time or by the SP at
 runtime.
 
+
 #### 2.2.2.1 Test secure payload dispatcher behavior
 The TSPD only handles Secure-EL1 interrupts and is provided with the following
 routing model at build time.
@@ -389,9 +436,16 @@ routing model at build time.
     state and are routed to the FEL when execution is in the secure state
     i.e __CSS=0, TEL3=0__ & __CSS=1, TEL3=1__ for Secure-EL1 interrupts
 
-*   The default routing model is used for non-secure interrupts i.e they are
-    routed to the FEL in either security state i.e __CSS=0, TEL3=0__ &
-    __CSS=1, TEL3=0__ for Non-secure interrupts
+*   When the build flag `TSP_NS_INTR_ASYNC_PREEMPT` is zero, the default routing
+    model is used for non-secure interrupts. They are routed to the FEL in
+    either security state i.e __CSS=0, TEL3=0__ & __CSS=1, TEL3=0__ for
+    Non-secure interrupts.
+
+*   When the build flag `TSP_NS_INTR_ASYNC_PREEMPT` is defined to 1, then the
+    non secure interrupts are routed to EL3 when execution is in secure state
+    i.e __CSS=0, TEL3=1__ for non-secure interrupts. This effectively preempts
+    Secure-EL1. The default routing model is used for non secure interrupts in
+    non-secure state. i.e __CSS=1, TEL3=0__.
 
 It performs the following actions in the `tspd_init()` function to fulfill the
 requirements mentioned earlier.
@@ -408,8 +462,8 @@ requirements mentioned earlier.
     purpose, SP_EL1/Secure-EL0, LR, VFP and system registers. It can use
     `x0-x18` to enable its C runtime.
 
-2.  The TSPD implements a handler function for Secure-EL1 interrupts. It
-    registers it with the EL3 runtime firmware using the
+2.  The TSPD implements a handler function for Secure-EL1 interrupts. This
+    function is registered with the EL3 runtime firmware using the
     `register_interrupt_type_handler()` API as follows
 
         /* Forward declaration */
@@ -419,7 +473,24 @@ requirements mentioned earlier.
         rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
                                          tspd_secure_el1_interrupt_handler,
                                          flags);
-        assert(rc == 0);
+        if (rc)
+            panic();
+
+3.  When the build flag `TSP_NS_INTR_ASYNC_PREEMPT` is defined to 1, the TSPD
+    implements a handler function for non-secure interrupts. This function is
+    registered  with the EL3 runtime firmware using the
+    `register_interrupt_type_handler()` API as follows
+
+        /* Forward declaration */
+        interrupt_type_handler tspd_ns_interrupt_handler;
+        int32_t rc, flags = 0;
+        set_interrupt_rm_flag(flags, SECURE);
+        rc = register_interrupt_type_handler(INTR_TYPE_NS,
+                                        tspd_ns_interrupt_handler,
+                                        flags);
+        if (rc)
+            panic();
+
 
 #### 2.2.3 Secure payload
 A Secure Payload must implement an interrupt handling framework at Secure-EL1
@@ -428,7 +499,7 @@ execution will alternate between the below cases.
 
 1.  In the code where IRQ, FIQ or both interrupts are enabled, if an interrupt
     type is targeted to the FEL, then it will be routed to the Secure-EL1
-    exception vector table. This is defined as the asynchronous model of
+    exception vector table. This is defined as the __asynchronous mode__ of
     handling interrupts. This mode applies to both Secure-EL1 and non-secure
     interrupts.
 
@@ -438,7 +509,7 @@ execution will alternate between the below cases.
     in the routing model where __CSS=1 and TEL3=0__. Secure-EL1 interrupts
     will be routed to EL3 (as per the routing model where __CSS=1 and
     TEL3=1__) where the SPD service will hand them to the SP. This is defined
-    as the synchronous mode of handling interrupts.
+    as the __synchronous mode__ of handling interrupts.
 
 The interrupt handling framework implemented by the SP should support one or
 both these interrupt handling models depending upon the chosen routing model.
@@ -449,18 +520,19 @@ the interrupt routing model is not known to the SPD service at compile time,
 then the SP should pass this information to the SPD service at runtime during
 its initialisation phase.
 
-As mentioned earlier, it is assumed that the FIQ signal is used to generate
-Secure-EL1 interrupts and the IRQ signal is used to generate non-secure
-interrupts in either security state.
+As mentioned earlier, a ARM GICv2 system is considered and it is assumed that
+the FIQ signal is used to generate Secure-EL1 interrupts and the IRQ signal
+is used to generate non-secure interrupts in either security state.
+
 
 ##### 2.2.3.1 Secure payload IHF design w.r.t secure-EL1 interrupts
 1.  __CSS=0, TEL3=0__. If `PSTATE.F=0`, Secure-EL1 interrupts will be
-    trigerred at one of the Secure-EL1 FIQ exception vectors. The Secure-EL1
+    triggered at one of the Secure-EL1 FIQ exception vectors. The Secure-EL1
     IHF should implement support for handling FIQ interrupts asynchronously.
 
     If `PSTATE.F=1` then Secure-EL1 interrupts will be handled as per the
     synchronous interrupt handling model. The SP could implement this scenario
-    by exporting a seperate entrypoint for Secure-EL1 interrupts to the SPD
+    by exporting a separate entrypoint for Secure-EL1 interrupts to the SPD
     service during the registration phase. The SPD service would also need to
     know the state of the system, general purpose and the `PSTATE` registers
     in which it should arrange to return execution to the SP. The SP should
@@ -471,21 +543,21 @@ interrupts in either security state.
     non-secure state. They should be handled through the synchronous interrupt
     handling model as described in 1. above.
 
-3.  __CSS=0, TEL3=1__. Secure interrupts are routed to EL3 when execution is in
-    secure state. They will not be visible to the SP. The `PSTATE.F` bit in
-    Secure-EL1/Secure-EL0 will not mask FIQs. The EL3 runtime firmware will
-    call the handler registered by the SPD service for Secure-EL1
-    interrupts. Secure-EL1 IHF should then handle all Secure-EL1 interrupt
-    through the synchronous interrupt handling model described in 1. above.
+3.  __CSS=0, TEL3=1__. Secure-EL1 interrupts are routed to EL3 when execution
+    is in secure state. They will not be visible to the SP. The `PSTATE.F` bit
+    in Secure-EL1/Secure-EL0 will not mask FIQs. The EL3 runtime firmware will
+    call the handler registered by the SPD service for Secure-EL1 interrupts.
+    Secure-EL1 IHF should then handle all Secure-EL1 interrupt through the
+    synchronous interrupt handling model described in 1. above.
 
 
 ##### 2.2.3.2 Secure payload IHF design w.r.t non-secure interrupts
 1.  __CSS=0, TEL3=0__. If `PSTATE.I=0`, non-secure interrupts will be
-    trigerred at one of the Secure-EL1 IRQ exception vectors . The Secure-EL1
+    triggered at one of the Secure-EL1 IRQ exception vectors . The Secure-EL1
     IHF should co-ordinate with the SPD service to transfer execution to the
     non-secure state where the interrupt should be handled e.g the SP could
     allocate a function identifier to issue a SMC64 or SMC32 to the SPD
-    service which indicates that the SP execution has been pre-empted by a
+    service which indicates that the SP execution has been preempted by a
     non-secure interrupt. If this function identifier is not known to the SPD
     service at compile time then the SP could provide it during the
     registration phase.
@@ -504,11 +576,11 @@ interrupts in either security state.
     non-secure state (EL1/EL2) and are not visible to the SP. This routing
     model does not affect the SP behavior.
 
-
 A Secure Payload must also ensure that all Secure-EL1 interrupts are correctly
 configured at the interrupt controller by the platform port of the EL3 runtime
 firmware. It should configure any additional Secure-EL1 interrupts which the EL3
 runtime firmware is not aware of through its platform port.
+
 
 #### 2.2.3.3 Test secure payload behavior
 The routing model for Secure-EL1 and non-secure interrupts chosen by the TSP is
@@ -533,6 +605,7 @@ interrupt management across all the software components listed in 2.1
 ### 2.3 Interrupt handling
 This section describes in detail the role of each software component (see
 Section 2.1) in handling an interrupt of a particular type.
+
 
 #### 2.3.1 EL3 runtime firmware
 The EL3 runtime firmware populates the IRQ and FIQ exception vectors referenced
@@ -560,8 +633,8 @@ responsible for:
     from the per-cpu `cpu_context` data structure in `SP_EL0` and
     executing the `msr spsel, #0` instruction.
 
-4.  Determining the type of interrupt. Secure-EL1 interrupts will be signalled
-    at the FIQ vector. Non-secure interrupts will be signalled at the IRQ
+4.  Determining the type of interrupt. Secure-EL1 interrupts will be signaled
+    at the FIQ vector. Non-secure interrupts will be signaled at the IRQ
     vector. The platform should implement the following API to determine the
     type of the pending interrupt.
 
@@ -604,46 +677,25 @@ for the following:
 
 1.  Validating the interrupt. This involves ensuring that the interrupt was
     generating according to the interrupt routing model specified by the SPD
-    service during registration. It should use the interrupt id and the
-    security state of the exception level (passed in the `flags` parameter of
-    the handler) where the interrupt was taken from to determine this. If the
-    interrupt is not recognised then the handler should treat it as an
-    irrecoverable error condition.
+    service during registration. It should use the security state of the
+    exception level (passed in the `flags` parameter of  the handler) where
+    the interrupt was taken from to determine this. If the  interrupt is not
+    recognised then the handler should treat it as an irrecoverable error
+    condition.
 
     A SPD service can register a handler for Secure-EL1 and/or Non-secure
-    interrupts. The following text describes further error scenarios keeping
-    this in mind:
+    interrupts. A non-secure interrupt should never be routed to EL3 from
+    from non-secure state. Also if a routing model is chosen where Secure-EL1
+    interrupts are routed to S-EL1 when execution is in Secure state, then a
+    S-EL1 interrupt should never be routed to EL3 from secure state. The handler
+    could use the security state flag to check this.
 
-    1.  __SPD service has registered a handler for Non-secure interrupts__:
-        When an interrupt is received by the handler, it could check its id
-        to ensure it has been configured as a non-secure interrupt at the
-        interrupt controller. A secure interrupt should never be handed to
-        the non-secure interrupt handler. A non-secure interrupt should
-        never be routed to EL3 when execution is in non-secure state. The
-        handler could check the security state flag to ensure this.
-
-    2.  __SPD service has registered a handler for Secure-EL1 interrupts__:
-        When an interrupt is received by the handler, it could check its id
-        to ensure it has been configured as a secure interrupt at the
-        interrupt controller. A non-secure interrupt should never be handed
-        to the secure interrupt handler. A routing model could be chosen
-        where Secure-EL1 interrupts are routed to S-EL1 instead of EL3 when
-        execution is in secure state. If the handler receives a Secure-EL1
-        interrupt it should check which security state has the interrupt
-        originated from. A Secure-EL1 interrupt generated when execution is in
-        secure state would be invalid in this routing model. The handler could
-        use the security state flag to check this.
-
-    The SPD service should use the platform API:
-    `plat_ic_get_interrupt_type()` to determine the type of interrupt for the
-    specified id.
-
-2.  Determining whether the security state of the exception level for handling
-    the interrupt is the same as the security state of the exception level
-    where the interrupt was generated. This depends upon the routing model and
-    type of the interrupt. The SPD should use this information to determine if
-    a context switch is required. The following two cases would require a
-    context switch from secure to non-secure or vice-versa.
+2.  Determining whether a context switch is required. This depends upon the
+    routing model and interrupt type. For non secure and S-EL1 interrupt,
+    if the security state of the execution context where the interrupt was
+    generated is not the same as the security state required for handling
+    the interrupt, a context switch is required. The following 2 cases
+    require a context switch from secure to non-secure or vice-versa:
 
     1.  A Secure-EL1 interrupt taken from the non-secure state should be
         routed to the Secure Payload.
@@ -661,21 +713,21 @@ for the following:
     per the synchronous interrupt handling model it implements. A Secure-EL1
     interrupt can be routed to EL3 while execution is in the SP. This implies
     that SP execution can be preempted while handling an interrupt by a
-    another higher priority Secure-EL1 interrupt (or a EL3 interrupt in the
-    future). The SPD service should manage secure interrupt priorities before
-    handing control to the SP to prevent this type of preemption which can
-    leave the system in an inconsistent state.
+    another higher priority Secure-EL1 interrupt or a EL3 interrupt. The SPD
+    service should be able to handle this preemption or manage secure interrupt
+    priorities before handing control to the SP.
 
 3.  Setting the return value of the handler to the per-cpu `cpu_context` if
     the interrupt has been successfully validated and ready to be handled at a
     lower exception level.
 
-The routing model allows non-secure interrupts to be taken to Secure-EL1 when in
-secure state. The SPD service and the SP should implement a mechanism for
-routing these interrupts to the last known exception level in the non-secure
-state. The former should save the SP context, restore the non-secure context and
-arrange for entry into the non-secure state so that the interrupt can be
-handled.
+The routing model allows non-secure interrupts to interrupt Secure-EL1 when in
+secure state if it has been configured to do so. The SPD service and the SP
+should implement a mechanism for routing these interrupts to the last known
+exception level in the non-secure state. The former should save the SP context,
+restore the non-secure context and arrange for entry into the non-secure state
+so that the interrupt can be handled.
+
 
 ##### 2.3.2.2 Interrupt exit
 When the Secure Payload has finished handling a Secure-EL1 interrupt, it could
@@ -684,35 +736,38 @@ should handle this secure monitor call so that execution resumes in the
 exception level and the security state from where the Secure-EL1 interrupt was
 originally taken.
 
-##### 2.3.2.3 Test secure payload dispatcher behavior
+
+##### 2.3.2.3 Test secure payload dispatcher Secure-EL1 interrupt handling
 The example TSPD service registers a handler for Secure-EL1 interrupts taken
-from the non-secure state. Its handler `tspd_secure_el1_interrupt_handler()`
-takes the following actions upon being invoked.
+from the non-secure state. During execution in S-EL1, the TSPD expects that the
+Secure-EL1 interrupts are handled in S-EL1 by TSP. Its handler
+`tspd_secure_el1_interrupt_handler()` expects only to be invoked for Secure-EL1
+originating from the non-secure state. It takes the following actions upon being
+invoked.
 
-1.  It uses the `id` parameter to query the interrupt controller to ensure
-    that the interrupt is a Secure-EL1 interrupt. It asserts if this is not
-    the case.
-
-2.  It uses the security state provided in the `flags` parameter to ensure
+1.  It uses the security state provided in the `flags` parameter to ensure
     that the secure interrupt originated from the non-secure state. It asserts
     if this is not the case.
 
-3.  It saves the system register context for the non-secure state by calling
+2.  It saves the system register context for the non-secure state by calling
     `cm_el1_sysregs_context_save(NON_SECURE);`.
 
-4.  It sets the `ELR_EL3` system register to `tsp_sel1_intr_entry` and sets the
+3.  It sets the `ELR_EL3` system register to `tsp_sel1_intr_entry` and sets the
     `SPSR_EL3.DAIF` bits in the secure CPU context. It sets `x0` to
-    `TSP_HANDLE_SEL1_INTR_AND_RETURN`. If the TSP was in the middle of handling a
-    standard SMC, then the `ELR_EL3` and `SPSR_EL3` registers in the secure CPU
-    context are saved first.
+    `TSP_HANDLE_SEL1_INTR_AND_RETURN`. If the TSP was preempted earlier by a non
+    secure interrupt during `standard` SMC processing, save the registers that
+    will be trashed, which is the `ELR_EL3` and `SPSR_EL3`, in order to be able
+    to re-enter TSP for Secure-EL1 interrupt processing. It does not need to
+    save any other secure context since the TSP is expected to preserve it
+    (see Section 2.2.2.1).
 
-5.  It restores the system register context for the secure state by calling
+4.  It restores the system register context for the secure state by calling
     `cm_el1_sysregs_context_restore(SECURE);`.
 
-6.  It ensures that the secure CPU context is used to program the next
+5.  It ensures that the secure CPU context is used to program the next
     exception return from EL3 by calling `cm_set_next_eret_context(SECURE);`.
 
-7.  It returns the per-cpu `cpu_context` to indicate that the interrupt can
+6.  It returns the per-cpu `cpu_context` to indicate that the interrupt can
     now be handled by the SP. `x1` is written with the value of `elr_el3`
     register for the non-secure state. This information is used by the SP for
     debugging purposes.
@@ -726,44 +781,83 @@ state.
 The TSP issues an SMC with `TSP_HANDLED_S_EL1_INTR` as the function identifier to
 signal completion of interrupt handling.
 
-The TSP issues an SMC with `TSP_PREEMPTED` as the function identifier to signal
-generation of a non-secure interrupt in Secure-EL1.
-
 The TSPD service takes the following actions in `tspd_smc_handler()` function
-upon receiving an SMC with `TSP_HANDLED_S_EL1_INTR` and `TSP_PREEMPTED` as the
-function identifiers:
+upon receiving an SMC with `TSP_HANDLED_S_EL1_INTR` as the function identifier:
 
 1.  It ensures that the call originated from the secure state otherwise
     execution returns to the non-secure state with `SMC_UNK` in `x0`.
 
-2.  If the function identifier is `TSP_HANDLED_S_EL1_INTR`, it restores the
-    saved `ELR_EL3` and `SPSR_EL3` system registers back to the secure CPU
-    context (see step 4 above) in case the TSP had been preempted by a non
-    secure interrupt earlier.  It does not save the secure context since the
-    TSP is expected to preserve it (see Section 2.2.2.1)
+2.  It restores the saved `ELR_EL3` and `SPSR_EL3` system registers back to
+    the secure CPU context (see step 3 above) in case the TSP had been preempted
+    by a non secure interrupt earlier.
 
-3.  If the function identifier is `TSP_PREEMPTED`, it saves the system
-    register context for the secure state by calling
-    `cm_el1_sysregs_context_save(SECURE)`.
+3.  It restores the system register context for the non-secure state by
+    calling `cm_el1_sysregs_context_restore(NON_SECURE)`.
 
-4.  It restores the system register context for the non-secure state by
-    calling `cm_el1_sysregs_context_restore(NON_SECURE)`. It sets `x0` to
-    `SMC_PREEMPTED` if the incoming function identifier is
-    `TSP_PREEMPTED`. The Normal World is expected to resume the TSP after the
-    non-secure interrupt handling by issuing an SMC with `TSP_FID_RESUME` as
-    the function identifier.
+4.  It ensures that the non-secure CPU context is used to program the next
+    exception return from EL3 by calling `cm_set_next_eret_context(NON_SECURE)`.
 
-5.  It ensures that the non-secure CPU context is used to program the next
-    exception return from EL3 by calling
-    `cm_set_next_eret_context(NON_SECURE)`.
-
-6.  `tspd_smc_handler()` returns a reference to the non-secure `cpu_context`
+5.  `tspd_smc_handler()` returns a reference to the non-secure `cpu_context`
     as the return value.
 
-As mentioned in 4. above, if a non-secure interrupt preempts the TSP execution
-then the non-secure software issues an SMC with `TSP_FID_RESUME` as the function
-identifier to resume TSP execution. The TSPD service takes the following actions
-in `tspd_smc_handler()` function upon receiving this SMC:
+
+##### 2.3.2.4 Test secure payload dispatcher non-secure interrupt handling
+The TSP in Secure-EL1 can be preempted by a non-secure interrupt during
+`standard` SMC processing or by a higher priority EL3 interrupt during
+Secure-EL1 interrupt processing. Currently only non-secure interrupts can
+cause preemption of TSP since there are no EL3 interrupts in the
+system.
+
+It should be noted that while TSP is preempted, the TSPD only allows entry into
+the TSP either for Secure-EL1 interrupt handling or for resuming the preempted
+`standard` SMC in response to the `TSP_FID_RESUME` SMC from the normal world.
+(See Section 3).
+
+The non-secure interrupt triggered in Secure-EL1 during `standard` SMC processing
+can be routed to either EL3 or Secure-EL1 and is controlled by build option
+`TSP_NS_INTR_ASYNC_PREEMPT` (see Section 2.2.2.1). If the build option is set,
+the TSPD will set the routing model for the non-secure interrupt to be routed to
+EL3 from secure state i.e. __TEL3=1, CSS=0__ and registers
+`tspd_ns_interrupt_handler()` as the non-secure interrupt handler. The
+`tspd_ns_interrupt_handler()` on being invoked ensures that the interrupt
+originated from the secure state and disables routing of non-secure interrupts
+from secure state to EL3. This is to prevent further preemption (by a non-secure
+interrupt) when TSP is reentered for handling Secure-EL1 interrupts that
+triggered while execution was in the normal world. The
+`tspd_ns_interrupt_handler()` then invokes `tspd_handle_sp_preemption()` for
+further handling.
+
+If the `TSP_NS_INTR_ASYNC_PREEMPT` build option is zero (default), the default
+routing model for non-secure interrupt in secure state is in effect
+i.e. __TEL3=0, CSS=0__. During `standard` SMC processing, the IRQ
+exceptions are unmasked i.e. `PSTATE.I=0`, and a non-secure interrupt will
+trigger at Secure-EL1 IRQ exception vector. The TSP saves the general purpose
+register context and issues an SMC with `TSP_PREEMPTED` as the function
+identifier to signal preemption of TSP. The TSPD SMC handler,
+`tspd_smc_handler()`, ensures that the SMC call originated from the
+secure state otherwise execution returns to the non-secure state with
+`SMC_UNK` in `x0`. It then invokes `tspd_handle_sp_preemption()` for
+further handling.
+
+The `tspd_handle_sp_preemption()` takes the following actions upon being
+invoked:
+
+1.  It saves the system register context for the secure state by calling
+    `cm_el1_sysregs_context_save(SECURE)`.
+
+2.  It restores the system register context for the non-secure state by
+    calling `cm_el1_sysregs_context_restore(NON_SECURE)`.
+
+3.  It ensures that the non-secure CPU context is used to program the next
+    exception return from EL3 by calling `cm_set_next_eret_context(NON_SECURE)`.
+
+4.  `SMC_PREEMPTED` is set in x0 and return to non secure state after
+    restoring non secure context.
+
+The Normal World is expected to resume the TSP after the `standard` SMC preemption
+by issuing an SMC with `TSP_FID_RESUME` as the function identifier (see section 3).
+The TSPD service takes the following actions in `tspd_smc_handler()` function
+upon receiving this SMC:
 
 1.  It ensures that the call originated from the non secure state. An
     assertion is raised otherwise.
@@ -782,7 +876,8 @@ in `tspd_smc_handler()` function upon receiving this SMC:
     return value.
 
 The figure below describes how the TSP/TSPD handle a non-secure interrupt when
-it is generated during execution in the TSP with `PSTATE.I` = 0.
+it is generated during execution in the TSP with `PSTATE.I` = 0 when the
+`TSP_NS_INTR_ASYNC_PREEMPT` build flag is 0.
 
 ![Image 2](diagrams/non-sec-int-handling.png?raw=true)
 
@@ -809,18 +904,22 @@ service to pass control back to the non-secure state in the last known exception
 level. This will allow the non-secure interrupt to be handled in the non-secure
 state.
 
+
 ##### 2.3.3.1 Test secure payload behavior
 The TSPD hands control of a Secure-EL1 interrupt to the TSP at the
 `tsp_sel1_intr_entry()`.  The TSP handles the interrupt while ensuring that the
 handover agreement described in Section 2.2.2.1 is maintained. It updates some
-statistics by calling `tsp_update_sync_fiq_stats()`. It then calls
-`tsp_fiq_handler()` which.
+statistics by calling `tsp_update_sync_sel1_intr_stats()`. It then calls
+`tsp_common_int_handler()` which.
 
 1.  Checks whether the interrupt is the secure physical timer interrupt. It
     uses the platform API `plat_ic_get_pending_interrupt_id()` to get the
-    interrupt number.
+    interrupt number. If it is not the secure physical timer interrupt, then
+    that means that a higher priority interrupt has preempted it. Invoke
+    `tsp_handle_preemption()` to handover control back to EL3 by issuing
+    an SMC with `TSP_PREEMPTED` as the function identifier.
 
-2.   Handles the interrupt by acknowledging it using the
+2.  Handles the secure timer interrupt interrupt by acknowledging it using the
     `plat_ic_acknowledge_interrupt()` platform API, calling
     `tsp_generic_timer_handler()` to reprogram the secure physical generic
     timer and calling the `plat_ic_end_of_interrupt()` platform API to signal
@@ -831,17 +930,62 @@ The TSP passes control back to the TSPD by issuing an SMC64 with
 
 The TSP handles interrupts under the asynchronous model as follows.
 
-1.  Secure-EL1 interrupts are handled by calling the `tsp_fiq_handler()`
+1.  Secure-EL1 interrupts are handled by calling the `tsp_common_int_handler()`
     function. The function has been described above.
 
-2.  Non-secure interrupts are handled by issuing an SMC64 with `TSP_PREEMPTED`
-    as the function identifier. Execution resumes at the instruction that
-    follows this SMC instruction when the TSPD hands control to the TSP in
-    response to an SMC with `TSP_FID_RESUME` as the function identifier from
-    the non-secure state (see section 2.3.2.1).
+2.  Non-secure interrupts are handled by by calling the `tsp_common_int_handler()`
+    function which ends up invoking `tsp_handle_preemption()` and issuing an
+    SMC64 with `TSP_PREEMPTED` as the function identifier. Execution resumes at
+    the instruction that follows this SMC instruction when the TSPD hands
+    control to the TSP in response to an SMC with `TSP_FID_RESUME` as the
+    function identifier from the non-secure state (see section 2.3.2.4).
+
+
+3. Other considerations
+-----------------------
+
+### 3.1 Implication of preempted SMC on Non-Secure Software
+A `standard` SMC call to Secure payload can be preempted by a non-secure
+interrupt and the execution can return to the non-secure world for handling
+the interrupt (For details on `standard` SMC refer [SMC calling convention]).
+In this case, the SMC call has not completed its execution and the execution
+must return back to the secure payload to resume the preempted SMC call.
+This can be achieved by issuing an SMC call which instructs to resume the
+preempted SMC.
+
+A `fast` SMC cannot be preempted and hence this case will not happen for
+a fast SMC call.
+
+In the Test Secure Payload implementation, `TSP_FID_RESUME` is designated
+as the resume SMC FID. It is important to note that `TSP_FID_RESUME` is a
+`standard` SMC which means it too can be be preempted. The typical non
+secure software sequence for issuing a `standard` SMC would look like this,
+assuming `P.STATE.I=0` in the non secure state :
+
+	int rc;
+	rc = smc(TSP_STD_SMC_FID, ...); 	/* Issue a Standard SMC call */
+        /* The pending non-secure interrupt is handled by the interrupt handler
+           and returns back here. */
+	while (rc == SMC_PREEMPTED) {		/* Check if the SMC call is preempted */
+	    rc = smc(TSP_FID_RESUME);		/* Issue resume SMC call */
+	}
+
+The `TSP_STD_SMC_FID` is any `standard` SMC function identifier and the smc()
+function invokes a SMC call with the required arguments. The pending non-secure
+interrupt causes an IRQ exception and the IRQ handler registered at the
+exception vector handles the non-secure interrupt and returns. The return value
+from the SMC call is tested for `SMC_PREEMPTED` to check whether it is
+preempted. If it is, then the resume SMC call `TSP_FID_RESUME` is issued. The
+return value of the SMC call is tested again to check if it is preempted.
+This is done in a loop till the SMC call succeeds or fails. If a `standard`
+SMC is preempted, until it is resumed using `TSP_FID_RESUME` SMC and
+completed, the current TSPD prevents any other SMC call from re-entering
+TSP by returning `SMC_UNK` error.
+
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved._
 
 [Porting Guide]:             ./porting-guide.md
+[SMC calling convention]:    http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"

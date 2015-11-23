@@ -13,6 +13,7 @@ Contents :
 8.  [Preparing the images to run on FVP](#8--preparing-the-images-to-run-on-fvp)
 9.  [Running the software on FVP](#9--running-the-software-on-fvp)
 10. [Running the software on Juno](#10--running-the-software-on-juno)
+11. [Changes required for booting Linux on FVP in GICv3 mode](#11--changes-required-for-booting-linux-on-fvp-in-gicv3-mode)
 
 
 1.  Introduction
@@ -62,8 +63,13 @@ normal world firmware, Linux kernel and device tree, file system as well as any
 additional micro-controller firmware required by the platform. This version of
 Trusted Firmware is tested with the [Linaro 15.10 Release][Linaro Release Notes].
 
-Note: Both the LSK kernel or the latest tracking kernel can be used along the
+Note 1: Both the LSK kernel or the latest tracking kernel can be used with the
 ARM Trusted Firmware, choose the one that best suits your needs.
+
+Note 2: Currently to run the latest tracking kernel on FVP with GICv3 driver,
+some modifications are required to UEFI. Refer
+[here](#11--changes-required-for-booting-linux-on-fvp-in-gicv3-mode)
+for more details.
 
 The Trusted Firmware source code can then be found in the `arm-tf/` directory.
 This is the full git repository cloned from Github. The revision checked out by
@@ -238,9 +244,10 @@ performed.
 *   `V`: Verbose build. If assigned anything other than 0, the build commands
     are printed. Default is 0.
 
-*   `ARM_GIC_ARCH`: Choice of ARM GIC architecture version used by the ARM GIC
-    driver for implementing the platform GIC API. This API is used
+*   `ARM_GIC_ARCH`: Choice of ARM GIC architecture version used by the ARM
+    Legacy GIC driver for implementing the platform GIC API. This API is used
     by the interrupt management framework. Default is 2 (that is, version 2.0).
+    This build option is deprecated.
 
 *   `ARM_CCI_PRODUCT_ID`: Choice of ARM CCI product used by the platform. This
     is used to determine the number of valid slave interfaces available in the
@@ -444,6 +451,16 @@ map is explained in the [Firmware Design].
     set to 1 then Trusted Firmware will detect if an earlier version is in use.
     Default is 1.
 
+#### ARM FVP platform specific build options
+
+*   `FVP_USE_GIC_DRIVER`   : Selects the GIC driver to be built. Options:
+    -    `FVP_GICV2`       : The GICv2 only driver is selected
+    -    `FVP_GICV3`       : The GICv3 only driver is selected (default option)
+    -    `FVP_GICV3_LEGACY`: The Legacy GICv3 driver is selected (deprecated).
+
+    Note that if the FVP is configured for legacy VE memory map, then ARM
+    Trusted Firmware must be compiled with GICv2 only driver using
+    `FVP_USE_GIC_DRIVER=FVP_GICV2` build option.
 
 ### Creating a Firmware Image Package
 
@@ -1096,8 +1113,9 @@ registers memory map (`0x1c010000`).
 
 This register can be configured as described in the following sections.
 
-NOTE: If the legacy VE GIC memory map is used, then the corresponding FDT and
-BL33 images should be used.
+NOTE: If the legacy VE GIC memory map is used, then Trusted Firmware must be
+compiled with the GICv2 only driver, and the corresponding FDT and BL33 images
+should be used.
 
 #### Configuring AEMv8 Foundation FVP GIC for legacy VE memory map
 
@@ -1255,6 +1273,23 @@ following command:
 The Juno board should suspend to RAM and then wakeup after 10 seconds due to
 wakeup interrupt from RTC.
 
+
+11.  Changes required for booting Linux on FVP in GICv3 mode
+------------------------------------------------------------
+
+In case the TF FVP port is built with the build option
+`FVP_USE_GIC_DRIVER=FVP_GICV3`, then the GICv3 hardware cannot be used in
+GICv2 legacy mode. The default build of UEFI for FVP in
+[latest tracking kernel][Linaro Release Notes] configures GICv3 in GICv2 legacy
+mode. This can be changed by setting the build flag
+`gArmTokenSpaceGuid.PcdArmGicV3WithV2Legacy` to FALSE in
+`uefi/edk2/ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc`.
+
+Recompile UEFI as mentioned [here][FVP Instructions].
+
+The GICv3 DTBs found in ARM Trusted Firmware source directory can be
+used to test the GICv3 kernel on the respective FVP models.
+
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
@@ -1266,6 +1301,7 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [ARM Platforms Portal]:        https://community.arm.com/groups/arm-development-platforms
 [Linaro SW Instructions]:      https://community.arm.com/docs/DOC-10803
 [Juno Instructions]:           https://community.arm.com/docs/DOC-10804
+[FVP Instructions]:            https://community.arm.com/docs/DOC-10831
 [Juno Getting Started Guide]:  http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [mbed TLS Repository]:         https://github.com/ARMmbed/mbedtls.git
