@@ -40,8 +40,13 @@
 
 /*******************************************************************************
  * Initialize the TrustZone Controller for ARM standard platforms.
- * Configure Region 0 with no access, Region 1 with secure access only, and
- * the remaining DRAM regions access from the given Non-Secure masters.
+ * Configure:
+ *   - Region 0 with no access;
+ *   - Region 1 with secure access only;
+ *   - the remaining DRAM regions access from the given Non-Secure masters.
+ *
+ * When booting an EL3 payload, this is simplified: we configure region 0 with
+ * secure access only and do not enable any other region.
  ******************************************************************************/
 void arm_tzc_setup(void)
 {
@@ -52,6 +57,7 @@ void arm_tzc_setup(void)
 	/* Disable filters. */
 	tzc_disable_filters();
 
+#ifndef EL3_PAYLOAD_BASE
 	/* Region 0 set to no access by default */
 	tzc_configure_region0(TZC_REGION_S_NONE, 0);
 
@@ -73,6 +79,10 @@ void arm_tzc_setup(void)
 			ARM_DRAM2_BASE, ARM_DRAM2_END,
 			TZC_REGION_S_NONE,
 			PLAT_ARM_TZC_NS_DEV_ACCESS);
+#else
+	/* Allow secure access only to DRAM for EL3 payloads. */
+	tzc_configure_region0(TZC_REGION_S_RDWR, 0);
+#endif /* EL3_PAYLOAD_BASE */
 
 	/*
 	 * Raise an exception if a NS device tries to access secure memory

@@ -1001,10 +1001,13 @@ structure in BL2 memory.
     Argument : image_info *, entry_point_info *
     Return   : void
 
-This function is called after loading BL3-1 image and it can be used to
-overwrite the entry point set by loader and also set the security state
-and SPSR which represents the entry point system state for BL3-1.
+In the normal boot flow, this function is called after loading BL3-1 image and
+it can be used to overwrite the entry point set by loader and also set the
+security state and SPSR which represents the entry point system state for BL3-1.
 
+When booting an EL3 payload instead, this function is called after populating
+its entry point address and can be used for the same purpose for the payload
+image. It receives a null pointer as its first argument in this case.
 
 ### Function : bl2_plat_set_bl32_ep_info() [mandatory]
 

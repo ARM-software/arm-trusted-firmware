@@ -29,7 +29,11 @@
  */
 
 #include <bl_common.h>
+#include <css_def.h>
 #include <debug.h>
+#include <mmio.h>
+#include <plat_arm.h>
+#include <string.h>
 #include "css_scp_bootloader.h"
 
 /* Weak definition may be overridden in specific CSS based platform */
@@ -55,3 +59,38 @@ int bl2_plat_handle_bl30(image_info_t *bl30_image_info)
 
 	return ret;
 }
+
+#ifdef EL3_PAYLOAD_BASE
+/*
+ * We need to override some of the platform functions when booting an EL3
+ * payload.
+ */
+
+static unsigned int scp_boot_config;
+
+void bl2_early_platform_setup(meminfo_t *mem_layout)
+{
+	arm_bl2_early_platform_setup(mem_layout);
+
+	/* Save SCP Boot config before it gets overwritten by BL30 loading */
+	scp_boot_config = mmio_read_32(SCP_BOOT_CFG_ADDR);
+	VERBOSE("BL2: Saved SCP Boot config = 0x%x\n", scp_boot_config);
+}
+
+void bl2_platform_setup(void)
+{
+	arm_bl2_platform_setup();
+
+	/*
+	 * Before releasing the AP cores out of reset, the SCP writes some data
+	 * at the beginning of the Trusted SRAM. It is is overwritten before
+	 * reaching this function. We need to restore this data, as if the
+	 * target had just come out of reset. This implies:
+	 *  - zeroing the first 128 bytes of Trusted SRAM;
+	 *  - restoring the SCP boot configuration.
+	 */
+	VERBOSE("BL2: Restoring SCP reset data in Trusted SRAM\n");
+	memset((void *) ARM_TRUSTED_SRAM_BASE, 0, 128);
+	mmio_write_32(SCP_BOOT_CFG_ADDR, scp_boot_config);
+}
+#endif /* EL3_PAYLOAD_BASE */

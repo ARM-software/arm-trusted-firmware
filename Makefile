@@ -235,6 +235,10 @@ INCLUDE_TBBR_MK		:=	1
 ################################################################################
 
 ifneq (${SPD},none)
+ifdef EL3_PAYLOAD_BASE
+        $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
+        $(warning "The SPD and its BL32 companion will be present but ignored.")
+endif
         # We expect to locate an spd.mk under the specified SPD directory
         SPD_MAKE	:=	$(shell m="services/spd/${SPD}/${SPD}.mk"; [ -f "$$m" ] && echo "$$m")
 
@@ -300,7 +304,12 @@ endif
 # supplied for the FIP and Certificate generation tools. This flag can be
 # overridden by the platform.
 ifdef BL2_SOURCES
+ifndef EL3_PAYLOAD_BASE
 NEED_BL33		?=	yes
+else
+# The BL33 image is not needed when booting an EL3 payload.
+NEED_BL33		:=	no
+endif
 endif
 
 # Process TBB related flags
@@ -375,6 +384,10 @@ $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 $(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
+# Define the EL3_PAYLOAD_BASE flag only if it is provided.
+ifdef EL3_PAYLOAD_BASE
+$(eval $(call add_define,EL3_PAYLOAD_BASE))
+endif
 
 
 ################################################################################
@@ -392,8 +405,12 @@ include bl2/bl2.mk
 endif
 
 ifdef BL31_SOURCES
+# When booting an EL3 payload, there is no need to compile the BL31 image nor
+# put it in the FIP.
+ifndef EL3_PAYLOAD_BASE
 NEED_BL31 := yes
 include bl31/bl31.mk
+endif
 endif
 
 

@@ -149,6 +149,7 @@ int arm_validate_power_state(unsigned int power_state,
 			    psci_power_state_t *req_state);
 int arm_validate_ns_entrypoint(uintptr_t entrypoint);
 void arm_system_pwr_domain_resume(void);
+void arm_program_trusted_mailbox(uintptr_t address);
 
 /* Topology utility function */
 int arm_check_mpidr(u_register_t mpidr);
