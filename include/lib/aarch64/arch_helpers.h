@@ -74,6 +74,14 @@ static inline void write_ ## _name(const uint64_t v)			\
 	_DEFINE_SYSREG_READ_FUNC(_name, _reg_name)	\
 	_DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)
 
+/* Define read function for renamed system register */
+#define DEFINE_RENAME_SYSREG_READ_FUNC(_name, _reg_name)	\
+	_DEFINE_SYSREG_READ_FUNC(_name, _reg_name)
+
+/* Define write function for renamed system register */
+#define DEFINE_RENAME_SYSREG_WRITE_FUNC(_name, _reg_name)	\
+	_DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)
+
 /* Define write function for special system registers */
 #define DEFINE_SYSREG_WRITE_CONST_FUNC(_name)		\
 	_DEFINE_SYSREG_WRITE_CONST_FUNC(_name, _name)
@@ -284,12 +292,18 @@ DEFINE_SYSREG_READ_FUNC(isr_el1)
 
 DEFINE_SYSREG_READ_FUNC(ctr_el0)
 
-/* GICv3 System Registers */
-
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el1, ICC_SRE_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el2, ICC_SRE_EL2)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el3, ICC_SRE_EL3)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_pmr_el1, ICC_PMR_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_igrpen1_el3, ICC_IGRPEN1_EL3)
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_igrpen0_el1, ICC_IGRPEN0_EL1)
+DEFINE_RENAME_SYSREG_READ_FUNC(icc_hppir0_el1, ICC_HPPIR0_EL1)
+DEFINE_RENAME_SYSREG_READ_FUNC(icc_hppir1_el1, ICC_HPPIR1_EL1)
+DEFINE_RENAME_SYSREG_READ_FUNC(icc_iar0_el1, ICC_IAR0_EL1)
+DEFINE_RENAME_SYSREG_READ_FUNC(icc_iar1_el1, ICC_IAR1_EL1)
+DEFINE_RENAME_SYSREG_WRITE_FUNC(icc_eoir0_el1, ICC_EOIR0_EL1)
+DEFINE_RENAME_SYSREG_WRITE_FUNC(icc_eoir1_el1, ICC_EOIR1_EL1)
 
 
 #define IS_IN_EL(x) \

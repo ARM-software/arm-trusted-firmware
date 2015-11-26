@@ -31,6 +31,7 @@
 #ifndef __ARM_GIC_H__
 #define __ARM_GIC_H__
 
+#include <common_def.h>
 #include <stdint.h>
 
 /*******************************************************************************
@@ -40,18 +41,18 @@ void arm_gic_init(uintptr_t gicc_base,
 		  uintptr_t gicd_base,
 		  uintptr_t gicr_base,
 		  const unsigned int *irq_sec_ptr,
-		  unsigned int num_irqs);
-void arm_gic_setup(void);
-void arm_gic_cpuif_deactivate(void);
-void arm_gic_cpuif_setup(void);
-void arm_gic_pcpu_distif_setup(void);
+		  unsigned int num_irqs) __warn_deprecated;
+void arm_gic_setup(void) __warn_deprecated;
+void arm_gic_cpuif_deactivate(void) __warn_deprecated;
+void arm_gic_cpuif_setup(void) __warn_deprecated;
+void arm_gic_pcpu_distif_setup(void) __warn_deprecated;
 
 uint32_t arm_gic_interrupt_type_to_line(uint32_t type,
-				uint32_t security_state);
-uint32_t arm_gic_get_pending_interrupt_type(void);
-uint32_t arm_gic_get_pending_interrupt_id(void);
-uint32_t arm_gic_acknowledge_interrupt(void);
-void arm_gic_end_of_interrupt(uint32_t id);
-uint32_t arm_gic_get_interrupt_type(uint32_t id);
+				uint32_t security_state) __warn_deprecated;
+uint32_t arm_gic_get_pending_interrupt_type(void) __warn_deprecated;
+uint32_t arm_gic_get_pending_interrupt_id(void) __warn_deprecated;
+uint32_t arm_gic_acknowledge_interrupt(void) __warn_deprecated;
+void arm_gic_end_of_interrupt(uint32_t id) __warn_deprecated;
+uint32_t arm_gic_get_interrupt_type(uint32_t id) __warn_deprecated;
 
 #endif /* __GIC_H__ */
