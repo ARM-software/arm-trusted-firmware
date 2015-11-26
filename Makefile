@@ -87,8 +87,8 @@ TRUSTED_BOARD_BOOT		:= 0
 # By default, consider that the platform's reset address is not programmable.
 # The platform Makefile is free to override this value.
 PROGRAMMABLE_RESET_ADDRESS	:= 0
-# Build flag to warn about usage of deprecated platform and framework APIs
-WARN_DEPRECATED			:= 0
+# Build flag to treat usage of deprecated platform and framework APIs as error.
+ERROR_DEPRECATED		:= 0
 
 
 ################################################################################
@@ -346,7 +346,7 @@ $(eval $(call assert_boolean,SAVE_KEYS))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
-$(eval $(call assert_boolean,WARN_DEPRECATED))
+$(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 
 
@@ -368,7 +368,7 @@ $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
-$(eval $(call add_define,WARN_DEPRECATED))
+$(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
 
 
@@ -403,6 +403,11 @@ all: msg_start
 
 msg_start:
 	@echo "Building ${PLAT}"
+
+# Check if deprecated declarations should be treated as error or not.
+ifeq (${ERROR_DEPRECATED},0)
+    CFLAGS		+= 	-Wno-error=deprecated-declarations
+endif
 
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)

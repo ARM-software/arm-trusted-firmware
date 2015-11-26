@@ -90,6 +90,14 @@ void cm_set_context_by_index(unsigned int cpu_idx, void *context,
 	set_cpu_data_by_index(cpu_idx, cpu_context[security_state], context);
 }
 
+#if !ERROR_DEPRECATED
+/*
+ * These context management helpers are deprecated but are maintained for use
+ * by SPDs which have not migrated to the new API. If ERROR_DEPRECATED
+ * is enabled, these are excluded from the build so as to force users to
+ * migrate to the new API.
+ */
+
 /*******************************************************************************
  * This function returns a pointer to the most recent 'cpu_context' structure
  * for the CPU identified by MPIDR that was set as the context for the specified
@@ -113,6 +121,21 @@ void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_st
 	cm_set_context_by_index(platform_get_core_pos(mpidr),
 						 context, security_state);
 }
+
+/*******************************************************************************
+ * The following function provides a compatibility function for SPDs using the
+ * existing cm library routines. This function is expected to be invoked for
+ * initializing the cpu_context for the CPU specified by MPIDR for first use.
+ ******************************************************************************/
+void cm_init_context(unsigned long mpidr, const entry_point_info_t *ep)
+{
+	if ((mpidr & MPIDR_AFFINITY_MASK) ==
+			(read_mpidr_el1() & MPIDR_AFFINITY_MASK))
+		cm_init_my_context(ep);
+	else
+		cm_init_context_by_index(platform_get_core_pos(mpidr), ep);
+}
+#endif
 
 /*******************************************************************************
  * This function is used to program the context that's used for exception
@@ -258,20 +281,6 @@ void cm_init_my_context(const entry_point_info_t *ep)
 	cpu_context_t *ctx;
 	ctx = cm_get_context(GET_SECURITY_STATE(ep->h.attr));
 	cm_init_context_common(ctx, ep);
-}
-
-/*******************************************************************************
- * The following function provides a compatibility function for SPDs using the
- * existing cm library routines. This function is expected to be invoked for
- * initializing the cpu_context for the CPU specified by MPIDR for first use.
- ******************************************************************************/
-void cm_init_context(unsigned long mpidr, const entry_point_info_t *ep)
-{
-	if ((mpidr & MPIDR_AFFINITY_MASK) ==
-			(read_mpidr_el1() & MPIDR_AFFINITY_MASK))
-		cm_init_my_context(ep);
-	else
-		cm_init_context_by_index(platform_get_core_pos(mpidr), ep);
 }
 
 /*******************************************************************************

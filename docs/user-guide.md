@@ -367,10 +367,10 @@ performed.
     and it governs the return value of PSCI_FEATURES API for CPU_SUSPEND
     smc function id.
 
-*   `WARN_DEPRECATED`: This option decides whether to warn the usage of
-    deprecated platform APIs and context management helpers within Trusted
-    Firmware. It can take the value 1 (warn the use of deprecated APIs) or
-    0. The default is 0.
+*   `ERROR_DEPRECATED`: This option decides whether to treat the usage of
+    deprecated platform APIs, helper functions or drivers within Trusted
+    Firmware as error. It can take the value 1 (flag the use of deprecated
+    APIs as error) or 0. The default is 0.
 
 #### ARM development platform specific build options
 
