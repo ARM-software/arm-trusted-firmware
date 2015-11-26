@@ -63,7 +63,7 @@ endfunc platform_is_primary_cpu
 	 * int plat_crash_console_init(void)
 	 * Function to initialize the crash console
 	 * without a C Runtime to print crash report.
-	 * Clobber list : x0, x1, x2
+	 * Clobber list : x0 - x4
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init

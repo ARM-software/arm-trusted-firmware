@@ -71,6 +71,7 @@
 
 #define PL011_UARTFR_TXFF_BIT	5	/* Transmit FIFO full bit in UARTFR register */
 #define PL011_UARTFR_RXFE_BIT	4	/* Receive FIFO empty bit in UARTFR register */
+#define PL011_UARTFR_BUSY_BIT	3	/* UART busy bit in UARTFR register */
 
 /* Control reg bits */
 #if !PL011_GENERIC_UART

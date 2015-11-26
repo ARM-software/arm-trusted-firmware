@@ -1860,7 +1860,7 @@ they can be invoked without a C Runtime stack.
     Return   : int
 
 This API is used by the crash reporting mechanism to initialize the crash
-console. It should only use the general purpose registers x0 to x2 to do the
+console. It must only use the general purpose registers x0 to x4 to do the
 initialization and returns 1 on success.
 
 ### Function : plat_crash_console_putc
@@ -1869,7 +1869,7 @@ initialization and returns 1 on success.
     Return   : int
 
 This API is used by the crash reporting mechanism to print a character on the
-designated crash console. It should only use general purpose registers x1 and
+designated crash console. It must only use general purpose registers x1 and
 x2 to do its work. The parameter and the return value are in general purpose
 register x0.
 
