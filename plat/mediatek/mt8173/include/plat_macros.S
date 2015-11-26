@@ -108,3 +108,14 @@ cci_iface_regs:
 	/* Store to the crash buf and print to console */
 	bl	str_in_crash_buf_print
 	.endm
+
+	/* ------------------------------------------------
+	 * The below macro prints out relevant platform
+	 * registers whenever an unhandled exception is
+	 * taken in BL3-1.
+	 * It's a stub here.
+	 * ------------------------------------------------
+	 */
+	.macro plat_print_misc_regs
+	nop
+	.endm

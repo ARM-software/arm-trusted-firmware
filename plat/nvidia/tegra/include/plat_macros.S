@@ -91,4 +91,14 @@ spacer:
 	nop
 .endm
 
+/* ------------------------------------------------
+ * The below macro prints out relevant platform
+ * registers whenever an unhandled exception is
+ * taken in BL3-1.
+ * It's a stub here.
+ * ------------------------------------------------
+ */
+.macro plat_print_misc_regs
+	nop
+.endm
 #endif /* __PLAT_MACROS_S__ */

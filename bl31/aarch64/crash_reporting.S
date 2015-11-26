@@ -352,6 +352,9 @@ func do_crash_reporting
 	/* Print the interconnect registers */
 	plat_print_interconnect_regs
 
+	/* Print the some platform registers */
+	plat_print_misc_regs
+
 	/* Done reporting */
 	b	crash_panic
 endfunc do_crash_reporting
