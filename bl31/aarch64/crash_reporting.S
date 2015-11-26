@@ -346,11 +346,8 @@ func do_crash_reporting
 	bl	do_cpu_reg_dump
 	bl	str_in_crash_buf_print
 
-	/* Print the gic registers */
-	plat_print_gic_regs
-
-	/* Print the interconnect registers */
-	plat_print_interconnect_regs
+	/* Print some platform registers */
+	plat_crash_print_regs
 
 	/* Done reporting */
 	bl	plat_panic_handler

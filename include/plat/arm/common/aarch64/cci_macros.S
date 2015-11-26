@@ -44,7 +44,7 @@ cci_iface_regs:
 	 * Clobbers: x0 - x9, sp
 	 * ------------------------------------------------
 	 */
-	.macro plat_print_interconnect_regs
+	.macro print_cci_regs
 	adr	x6, cci_iface_regs
 	/* Store in x7 the base address of the first interface */
 	mov_imm	x7, (PLAT_ARM_CCI_BASE + SLAVE_IFACE_OFFSET(	\

@@ -50,7 +50,7 @@ spacer:
  * taken in BL31.
  * ---------------------------------------------
  */
-.macro plat_print_gic_regs
+.macro plat_crash_print_regs
 	mov_imm	x16, TEGRA_GICC_BASE
 	cbz	x16, 1f
 	/* gicc base address is now in x16 */
@@ -79,16 +79,6 @@ spacer:
 	bl	asm_print_str
 	b	2b
 1:
-.endm
-
-/* ------------------------------------------------
- * The below required platform porting macro prints
- * out relevant interconnect registers whenever an
- * unhandled exception is taken in BL3-1.
-  * ------------------------------------------------
- */
-.macro plat_print_interconnect_regs
-	nop
 .endm
 
 #endif /* __PLAT_MACROS_S__ */
