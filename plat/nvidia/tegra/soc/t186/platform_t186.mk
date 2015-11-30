@@ -33,7 +33,7 @@ ENABLE_NS_L2_CPUECTRL_RW_ACCESS		:= 1
 $(eval $(call add_define,ENABLE_NS_L2_CPUECTRL_RW_ACCESS))
 
 # platform settings
-TZDRAM_BASE				:= 0xEA800000
+TZDRAM_BASE				:= 0x30000000
 $(eval $(call add_define,TZDRAM_BASE))
 
 PLATFORM_CLUSTER_COUNT			:= 2
