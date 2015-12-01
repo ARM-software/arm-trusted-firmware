@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <mmio.h>
 #include <plat_arm.h>
 #include <sp804_delay_timer.h>
 #include <v2m_def.h>
@@ -46,6 +47,10 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 void bl2_platform_setup(void)
 {
 	arm_bl2_platform_setup();
+
+	/* Enable the clock override for SP804 timer 0, which means that no
+	 * clock dividers are applied and the raw (35 MHz) clock will be used */
+	mmio_write_32(V2M_SP810_BASE, FVP_SP810_CTRL_TIM0_OV);
 
 	/* Initialize delay timer driver using SP804 dual timer 0 */
 	sp804_timer_init(V2M_SP804_TIMER0_BASE,
