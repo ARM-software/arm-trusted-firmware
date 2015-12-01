@@ -106,11 +106,6 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 	/* Check the security state when the exception was generated */
 	assert(get_interrupt_src_ss(flags) == NON_SECURE);
 
-#if IMF_READ_INTERRUPT_ID
-	/* Check the security status of the interrupt */
-	assert(plat_ic_get_interrupt_type(id) == INTR_TYPE_S_EL1);
-#endif
-
 	/* Sanity check the pointer to this cpu's context */
 	assert(handle == cm_get_context(NON_SECURE));
 
@@ -173,10 +168,6 @@ static uint64_t tspd_ns_interrupt_handler(uint32_t id,
 	/* Check the security state when the exception was generated */
 	assert(get_interrupt_src_ss(flags) == SECURE);
 
-#if IMF_READ_INTERRUPT_ID
-	/* Check the security status of the interrupt */
-	assert(plat_ic_get_interrupt_type(id) == INTR_TYPE_NS);
-#endif
 	/*
 	 * Disable the routing of NS interrupts from secure world to EL3 while
 	 * interrupted on this core.

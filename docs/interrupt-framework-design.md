@@ -293,11 +293,9 @@ This component declares the following prototype for a handler of an interrupt ty
 					     void *handle,
 					     void *cookie);
 
-The value of the `id` parameter depends upon the definition of the
-`IMF_READ_INTERRUPT_ID` build time flag. When the flag is defined, `id` contains
-the number of the highest priority pending interrupt of the type that this
-handler was registered for. When the flag is not defined `id` contains
-`INTR_ID_UNAVAILABLE`.
+The `id` is parameter is reserved and could be used in the future for passing
+the interrupt id of the highest pending interrupt only if there is a foolproof
+way of determining the id. Currently it contains `INTR_ID_UNAVAILABLE`.
 
 The `flags` parameter contains miscellaneous information as follows.
 
@@ -583,11 +581,10 @@ responsible for:
     irrecoverable error condition.
 
 6.  Calling the registered handler function for the interrupt type generated.
-    The firmware also determines the interrupt id if the IMF_READ_INTERRUPT_ID
-    build time flag is set. The id is set to `INTR_ID_UNAVAILABLE` if the flag
-    is not set. The id along with the current security state and a reference to
-    the `cpu_context_t` structure for the current security state are passed to
-    the handler function as its arguments.
+    The `id` parameter is set to `INTR_ID_UNAVAILABLE` currently. The id along
+    with the current security state and a reference to the `cpu_context_t`
+    structure for the current security state are passed to the handler function
+    as its arguments.
 
     The handler function returns a reference to the per-cpu `cpu_context_t`
     structure for the target security state.

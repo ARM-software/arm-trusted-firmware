@@ -60,13 +60,6 @@ endif
 
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
-# Flag used by the generic interrupt management framework to  determine if
-# upon the assertion of an interrupt, it should pass the interrupt id or not
-IMF_READ_INTERRUPT_ID	:=	0
-
-$(eval $(call assert_boolean,IMF_READ_INTERRUPT_ID))
-$(eval $(call add_define,IMF_READ_INTERRUPT_ID))
-
 # Flag used to inidicate if Crash reporting via console should be included
 # in BL3-1. This defaults to being present in DEBUG builds only
 ifndef CRASH_REPORTING

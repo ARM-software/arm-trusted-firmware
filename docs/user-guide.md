@@ -250,11 +250,6 @@ performed.
     is used to determine the number of valid slave interfaces available in the
     ARM CCI driver. Default is 400 (that is, CCI-400).
 
-*   `IMF_READ_INTERRUPT_ID`: Boolean flag used by the interrupt management
-    framework to enable passing of the interrupt id to its handler. The id is
-    read using a platform GIC API. `INTR_ID_UNAVAILABLE` is passed instead if
-    this option set to 0. Default is 0.
-
 *   `RESET_TO_BL31`: Enable BL3-1 entrypoint as the CPU reset vector instead
     of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
     entrypoint) or 1 (CPU reset to BL3-1 entrypoint).
