@@ -177,7 +177,7 @@ func tsp_vector_table
 	b	tsp_cpu_off_entry
 	b	tsp_cpu_resume_entry
 	b	tsp_cpu_suspend_entry
-	b	tsp_fiq_entry
+	b	tsp_sel1_intr_entry
 	b	tsp_system_off_entry
 	b	tsp_system_reset_entry
 endfunc tsp_vector_table
@@ -325,13 +325,15 @@ func tsp_cpu_suspend_entry
 	restore_args_call_smc
 endfunc tsp_cpu_suspend_entry
 
-	/*---------------------------------------------
+	/*-------------------------------------------------
 	 * This entrypoint is used by the TSPD to pass
-	 * control for handling a pending S-EL1 FIQ.
-	 * 'x0' contains a magic number which indicates
-	 * this. TSPD expects control to be handed back
-	 * at the end of FIQ processing. This is done
-	 * through an SMC. The handover agreement is:
+	 * control for `synchronously` handling a S-EL1
+	 * Interrupt which was triggered while executing
+	 * in normal world. 'x0' contains a magic number
+	 * which indicates this. TSPD expects control to
+	 * be handed back at the end of interrupt
+	 * processing. This is done through an SMC.
+	 * The handover agreement is:
 	 *
 	 * 1. PSTATE.DAIF are set upon entry. 'x1' has
 	 *    the ELR_EL3 from the non-secure state.
@@ -343,40 +345,54 @@ endfunc tsp_cpu_suspend_entry
 	 * 4. TSP can use 'x0-x18' to enable its C
 	 *    runtime.
 	 * 5. TSP returns to TSPD using an SMC with
-	 *    'x0' = TSP_HANDLED_S_EL1_FIQ
-	 * ---------------------------------------------
+	 *    'x0' = TSP_HANDLED_S_EL1_INTR
+	 * ------------------------------------------------
 	 */
-func	tsp_fiq_entry
+func	tsp_sel1_intr_entry
 #if DEBUG
-	mov	x2, #(TSP_HANDLE_FIQ_AND_RETURN & ~0xffff)
-	movk	x2, #(TSP_HANDLE_FIQ_AND_RETURN &  0xffff)
+	mov_imm	x2, TSP_HANDLE_SEL1_INTR_AND_RETURN
 	cmp	x0, x2
-	b.ne	tsp_fiq_entry_panic
+	b.ne	tsp_sel1_int_entry_panic
 #endif
-	/*---------------------------------------------
+	/*-------------------------------------------------
 	 * Save any previous context needed to perform
 	 * an exception return from S-EL1 e.g. context
-	 * from a previous IRQ. Update statistics and
-	 * handle the FIQ before returning to the TSPD.
+	 * from a previous Non secure Interrupt.
+	 * Update statistics and handle the S-EL1
+	 * interrupt before returning to the TSPD.
 	 * IRQ/FIQs are not enabled since that will
 	 * complicate the implementation. Execution
 	 * will be transferred back to the normal world
-	 * in any case. A non-zero return value from the
-	 * fiq handler is an error.
-	 * ---------------------------------------------
+	 * in any case. The handler can return 0
+	 * if the interrupt was handled or TSP_PREEMPTED
+	 * if the expected interrupt was preempted
+	 * by an interrupt that should be handled in EL3
+	 * e.g. Group 0 interrupt in GICv3. In both
+	 * the cases switch to EL3 using SMC with id
+	 * TSP_HANDLED_S_EL1_INTR. Any other return value
+	 * from the handler will result in panic.
+	 * ------------------------------------------------
 	 */
 	save_eret_context x2 x3
-	bl	tsp_update_sync_fiq_stats
-	bl	tsp_fiq_handler
-	cbnz	x0, tsp_fiq_entry_panic
+	bl	tsp_update_sync_sel1_intr_stats
+	bl	tsp_common_int_handler
+	/* Check if the S-EL1 interrupt has been handled */
+	cbnz	x0, tsp_sel1_intr_check_preemption
+	b	tsp_sel1_intr_return
+tsp_sel1_intr_check_preemption:
+	/* Check if the S-EL1 interrupt has been preempted */
+	mov_imm	x1, TSP_PREEMPTED
+	cmp	x0, x1
+	b.ne	tsp_sel1_int_entry_panic
+tsp_sel1_intr_return:
+	mov_imm	x0, TSP_HANDLED_S_EL1_INTR
 	restore_eret_context x2 x3
-	mov	x0, #(TSP_HANDLED_S_EL1_FIQ & ~0xffff)
-	movk	x0, #(TSP_HANDLED_S_EL1_FIQ &  0xffff)
 	smc	#0
 
-tsp_fiq_entry_panic:
-	b	tsp_fiq_entry_panic
-endfunc tsp_fiq_entry
+	/* Should never reach here */
+tsp_sel1_int_entry_panic:
+	b	tsp_sel1_int_entry_panic
+endfunc tsp_sel1_intr_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this

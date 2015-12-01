@@ -53,16 +53,14 @@
 	/* Check if VE mmap */
 	cmp	w16, #BLD_GIC_VE_MMAP
 	b.eq	use_ve_mmap
-	/* Check if Cortex-A53/A57 mmap */
-	cmp	w16, #BLD_GIC_A53A57_MMAP
-	b.ne	exit_print_gic_regs
+	/* Assume Base Cortex mmap */
 	mov_imm	x17, BASE_GICC_BASE
 	mov_imm	x16, BASE_GICD_BASE
-	b	print_gicc_regs
+	b	print_gic_regs
 use_ve_mmap:
 	mov_imm	x17, VE_GICC_BASE
 	mov_imm	x16, VE_GICD_BASE
-print_gicc_regs:
+print_gic_regs:
 	arm_print_gic_regs
 	.endm
 

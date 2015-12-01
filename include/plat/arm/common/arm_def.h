@@ -135,6 +135,22 @@
 #define ARM_IRQ_SEC_SGI_6		14
 #define ARM_IRQ_SEC_SGI_7		15
 
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
+ * terminology. On a GICv2 system or mode, the lists will be merged and treated
+ * as Group 0 interrupts.
+ */
+#define ARM_G1S_IRQS			ARM_IRQ_SEC_PHY_TIMER,		\
+					ARM_IRQ_SEC_SGI_1,		\
+					ARM_IRQ_SEC_SGI_2,		\
+					ARM_IRQ_SEC_SGI_3,		\
+					ARM_IRQ_SEC_SGI_4,		\
+					ARM_IRQ_SEC_SGI_5,		\
+					ARM_IRQ_SEC_SGI_7
+
+#define ARM_G0_IRQS			ARM_IRQ_SEC_SGI_0,		\
+					ARM_IRQ_SEC_SGI_6
+
 #define ARM_SHARED_RAM_ATTR		((PLAT_ARM_SHARED_RAM_CACHED ?	\
 						MT_MEMORY : MT_DEVICE)	\
 						| MT_RW | MT_SECURE)

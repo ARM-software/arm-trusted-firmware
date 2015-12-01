@@ -42,12 +42,6 @@ enum arm_config_flags {
 };
 
 typedef struct arm_config {
-	uintptr_t gicd_base;
-	uintptr_t gicc_base;
-	uintptr_t gich_base;
-	uintptr_t gicv_base;
-	unsigned int max_aff0;
-	unsigned int max_aff1;
 	unsigned long flags;
 } arm_config_t;
 
