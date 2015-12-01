@@ -81,6 +81,11 @@ BL1_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/arm/common/arm_bl1_setup.c			\
 				plat/arm/common/arm_io_storage.c		\
 				plat/common/aarch64/platform_up_stack.S
+ifdef EL3_PAYLOAD_BASE
+# Need the arm_program_trusted_mailbox() function to release secondary CPUs from
+# their holding pen
+BL1_SOURCES		+=	plat/arm/common/arm_pm.c
+endif
 
 BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 				drivers/io/io_fip.c				\

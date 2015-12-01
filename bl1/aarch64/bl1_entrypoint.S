@@ -51,7 +51,7 @@ func bl1_entrypoint
 	el3_entrypoint_common					\
 		_set_endian=1					\
 		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS	\
-		_secondary_cold_boot=1				\
+		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU	\
 		_init_memory=1					\
 		_init_c_runtime=1				\
 		_exception_vectors=bl1_exceptions

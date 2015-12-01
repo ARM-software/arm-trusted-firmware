@@ -89,6 +89,12 @@ TRUSTED_BOARD_BOOT		:= 0
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
+# By default, consider that the platform may release several CPUs out of reset.
+# The platform Makefile is free to override this value.
+COLD_BOOT_SINGLE_CPU		:= 0
+# Flag to introduce an infinite loop in BL1 just before it exits into the next
+# image. This is meant to help debugging the post-BL2 phase.
+SPIN_ON_BL1_EXIT		:= 0
 
 
 ################################################################################
@@ -232,6 +238,10 @@ INCLUDE_TBBR_MK		:=	1
 ################################################################################
 
 ifneq (${SPD},none)
+ifdef EL3_PAYLOAD_BASE
+        $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
+        $(warning "The SPD and its BL32 companion will be present but ignored.")
+endif
         # We expect to locate an spd.mk under the specified SPD directory
         SPD_MAKE	:=	$(shell m="services/spd/${SPD}/${SPD}.mk"; [ -f "$$m" ] && echo "$$m")
 
@@ -297,7 +307,12 @@ endif
 # supplied for the FIP and Certificate generation tools. This flag can be
 # overridden by the platform.
 ifdef BL2_SOURCES
+ifndef EL3_PAYLOAD_BASE
 NEED_BL33		?=	yes
+else
+# The BL33 image is not needed when booting an EL3 payload.
+NEED_BL33		:=	no
+endif
 endif
 
 # Process TBB related flags
@@ -345,9 +360,11 @@ $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,SAVE_KEYS))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
+$(eval $(call assert_boolean,COLD_BOOT_SINGLE_CPU))
 $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
 $(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
+$(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 
 
 ################################################################################
@@ -367,9 +384,15 @@ $(eval $(call add_define,LOG_LEVEL))
 $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
+$(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 $(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
+$(eval $(call add_define,SPIN_ON_BL1_EXIT))
+# Define the EL3_PAYLOAD_BASE flag only if it is provided.
+ifdef EL3_PAYLOAD_BASE
+$(eval $(call add_define,EL3_PAYLOAD_BASE))
+endif
 
 
 ################################################################################
@@ -387,8 +410,12 @@ include bl2/bl2.mk
 endif
 
 ifdef BL31_SOURCES
+# When booting an EL3 payload, there is no need to compile the BL31 image nor
+# put it in the FIP.
+ifndef EL3_PAYLOAD_BASE
 NEED_BL31 := yes
 include bl31/bl31.mk
+endif
 endif
 
 

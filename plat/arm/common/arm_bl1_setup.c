@@ -145,6 +145,20 @@ void bl1_platform_setup(void)
 	arm_bl1_platform_setup();
 }
 
+void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
+{
+#ifdef EL3_PAYLOAD_BASE
+	/*
+	 * Program the EL3 payload's entry point address into the CPUs mailbox
+	 * in order to release secondary CPUs from their holding pen and make
+	 * them jump there.
+	 */
+	arm_program_trusted_mailbox(ep_info->pc);
+	dsbsy();
+	sev();
+#endif
+}
+
 /*******************************************************************************
  * Before calling this function BL2 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change

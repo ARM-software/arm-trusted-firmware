@@ -83,6 +83,7 @@ static int load_bl30(void)
 	return e;
 }
 
+#ifndef EL3_PAYLOAD_BASE
 /*******************************************************************************
  * Load the BL3-1 image.
  * The bl2_to_bl31_params and bl31_ep_info params will be updated with the
@@ -190,6 +191,7 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 
 	return e;
 }
+#endif /* EL3_PAYLOAD_BASE */
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
@@ -232,6 +234,22 @@ void bl2_main(void)
 	bl2_to_bl31_params = bl2_plat_get_bl31_params();
 	bl31_ep_info = bl2_plat_get_bl31_ep_info();
 
+#ifdef EL3_PAYLOAD_BASE
+	/*
+	 * In the case of an EL3 payload, we don't need to load any further
+	 * images. Just update the BL31 entrypoint info structure to make BL1
+	 * jump to the EL3 payload.
+	 * The pointer to the memory the platform has set aside to pass
+	 * information to BL3-1 in the normal boot flow is reused here, even
+	 * though only a fraction of the information contained in the
+	 * bl31_params_t structure makes sense in the context of EL3 payloads.
+	 * This will be refined in the future.
+	 */
+	VERBOSE("BL2: Populating the entrypoint info for the EL3 payload\n");
+	bl31_ep_info->pc = EL3_PAYLOAD_BASE;
+	bl31_ep_info->args.arg0 = (unsigned long) bl2_to_bl31_params;
+	bl2_plat_set_bl31_ep_info(NULL, bl31_ep_info);
+#else
 	e = load_bl31(bl2_to_bl31_params, bl31_ep_info);
 	if (e) {
 		ERROR("Failed to load BL3-1 (%i)\n", e);
@@ -253,6 +271,7 @@ void bl2_main(void)
 		ERROR("Failed to load BL3-3 (%i)\n", e);
 		plat_error_handler(e);
 	}
+#endif /* EL3_PAYLOAD_BASE */
 
 	/* Flush the params to be passed to memory */
 	bl2_plat_flush_bl31_params();

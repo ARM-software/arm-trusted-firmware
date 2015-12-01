@@ -208,3 +208,11 @@ void bl1_print_bl31_ep_info(const entry_point_info_t *bl31_ep_info)
 	NOTICE("BL1: Booting BL3-1\n");
 	print_entry_point_info(bl31_ep_info);
 }
+
+#if SPIN_ON_BL1_EXIT
+void print_debug_loop_message(void)
+{
+	NOTICE("BL1: Debug loop, spinning forever\n");
+	NOTICE("BL1: Please connect the debugger to continue\n");
+}
+#endif

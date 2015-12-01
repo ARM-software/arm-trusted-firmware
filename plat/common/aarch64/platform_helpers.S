@@ -115,7 +115,7 @@ func plat_disable_acp
 endfunc plat_disable_acp
 
 	/* -----------------------------------------------------
-	 * void bl1_plat_prepare_exit(void);
+	 * void bl1_plat_prepare_exit(entry_point_info_t *ep_info);
 	 * Called before exiting BL1. Default: do nothing
 	 * -----------------------------------------------------
 	 */

@@ -459,7 +459,7 @@ type of reset nor to query the warm reset entrypoint. Therefore, implementing
 this function is not required on such platforms.
 
 
-### Function : plat_secondary_cold_boot_setup() [mandatory]
+### Function : plat_secondary_cold_boot_setup() [mandatory when COLD_BOOT_SINGLE_CPU == 0]
 
     Argument : void
 
@@ -468,14 +468,20 @@ for placing the executing secondary CPU in a platform-specific state until the
 primary CPU performs the necessary actions to bring it out of that state and
 allow entry into the OS. This function must not return.
 
-In the ARM FVP port, each secondary CPU powers itself off. The primary CPU is
-responsible for powering up the secondary CPU when normal world software
-requires them.
+In the ARM FVP port, when using the normal boot flow, each secondary CPU powers
+itself off. The primary CPU is responsible for powering up the secondary CPUs
+when normal world software requires them. When booting an EL3 payload instead,
+they stay powered on and are put in a holding pen until their mailbox gets
+populated.
 
 This function fulfills requirement 2 above.
 
+Note that for platforms that can't release secondary CPUs out of reset, only the
+primary CPU will execute the cold boot code. Therefore, implementing this
+function is not required on such platforms.
 
-### Function : plat_is_my_cpu_primary() [mandatory]
+
+### Function : plat_is_my_cpu_primary() [mandatory when COLD_BOOT_SINGLE_CPU == 0]
 
     Argument : void
     Return   : unsigned int
@@ -484,6 +490,11 @@ This function identifies whether the current CPU is the primary CPU or a
 secondary CPU. A return value of zero indicates that the CPU is not the
 primary CPU, while a non-zero return value indicates that the CPU is the
 primary CPU.
+
+Note that for platforms that can't release secondary CPUs out of reset, only the
+primary CPU will execute the cold boot code. Therefore, there is no need to
+distinguish between primary and secondary CPUs and implementing this function is
+not required.
 
 
 ### Function : platform_mem_init() [mandatory]
@@ -810,13 +821,14 @@ represents the entry point system state for BL2.
 
 ### Function : bl1_plat_prepare_exit() [optional]
 
-    Argument : void
+    Argument : entry_point_info_t *
     Return   : void
 
-This function is called prior to exiting BL1 in response to the `RUN_IMAGE_SMC`
+This function is called prior to exiting BL1 in response to the `RUN_IMAGE` SMC
 request raised by BL2. It should be used to perform platform specific clean up
-or bookkeeping operations before transferring control to the next image. This
-function runs with MMU disabled.
+or bookkeeping operations before transferring control to the next image. It
+receives the address of the `entry_point_info_t` structure passed from BL2.
+This function runs with MMU disabled.
 
 
 3.2 Boot Loader Stage 2 (BL2)
@@ -1000,10 +1012,13 @@ structure in BL2 memory.
     Argument : image_info *, entry_point_info *
     Return   : void
 
-This function is called after loading BL3-1 image and it can be used to
-overwrite the entry point set by loader and also set the security state
-and SPSR which represents the entry point system state for BL3-1.
+In the normal boot flow, this function is called after loading BL3-1 image and
+it can be used to overwrite the entry point set by loader and also set the
+security state and SPSR which represents the entry point system state for BL3-1.
 
+When booting an EL3 payload instead, this function is called after populating
+its entry point address and can be used for the same purpose for the payload
+image. It receives a null pointer as its first argument in this case.
 
 ### Function : bl2_plat_set_bl32_ep_info() [mandatory]
 
