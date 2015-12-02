@@ -118,14 +118,13 @@ static inline void tzc_write_region_id_access(uintptr_t base,
 		REGION_NUM_OFF(region), val);
 }
 
-static uint32_t tzc_read_component_id(uintptr_t base)
+static unsigned int tzc_read_peripheral_id(uintptr_t base)
 {
-	uint32_t id;
+	unsigned int id;
 
-	id = mmio_read_8(base + CID0_OFF);
-	id |= (mmio_read_8(base + CID1_OFF) << 8);
-	id |= (mmio_read_8(base + CID2_OFF) << 16);
-	id |= (mmio_read_8(base + CID3_OFF) << 24);
+	id = mmio_read_8(base + PID0_OFF);
+	/* Masks jep106_id_3_0 part in PID1 */
+	id |= ((mmio_read_8(base + PID1_OFF) & 0xF) << 8);
 
 	return id;
 }
@@ -166,17 +165,21 @@ static void tzc_set_gate_keeper(uintptr_t base, uint8_t filter, uint32_t val)
 
 void tzc_init(uintptr_t base)
 {
-	uint32_t tzc_id, tzc_build;
+	unsigned int tzc_id;
+	unsigned int tzc_build;
 
 	assert(base);
+
+	/* Assert if already initialised */
+	assert(!tzc.base);
+
 	tzc.base = base;
 
 	/*
-	 * We expect to see a tzc400. Check component ID. The TZC-400 TRM shows
-	 * component ID is expected to be "0xB105F00D".
+	 * We expect to see a tzc400. Check peripheral ID.
 	 */
-	tzc_id = tzc_read_component_id(tzc.base);
-	if (tzc_id != TZC400_COMPONENT_ID) {
+	tzc_id = tzc_read_peripheral_id(tzc.base);
+	if (tzc_id != TZC400_PERIPHERAL_ID) {
 		ERROR("TZC : Wrong device ID (0x%x).\n", tzc_id);
 		panic();
 	}
