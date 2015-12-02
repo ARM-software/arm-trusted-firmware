@@ -28,6 +28,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+# Report an error if the eval make function is not available.
+$(eval eval_available := T)
+ifneq (${eval_available},T)
+    $(error This makefile only works with a Make program that supports $$(eval))
+endif
+
 # Some utility macros for manipulating awkward (whitespace) characters.
 blank			:=
 space			:=${blank} ${blank}
