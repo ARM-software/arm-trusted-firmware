@@ -291,7 +291,7 @@ endef
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.
-# Also bare this issue in mind if extending the list of supported filetypes.
+# Also bear this issue in mind if extending the list of supported filetypes.
 define SOURCES_TO_OBJS
         $(notdir $(patsubst %.c,%.o,$(filter %.c,$(1)))) \
         $(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))

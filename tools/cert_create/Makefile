@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@ CFLAGS := -Wall -std=c99
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}unix.mk
+include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
 PLATFORM_ROOT		:=	../../plat/
 include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk

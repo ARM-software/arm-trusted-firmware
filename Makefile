@@ -39,7 +39,7 @@ VERSION_MINOR			:= 2
 
 MAKE_HELPERS_DIRECTORY := make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}unix.mk
+include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
 ################################################################################
 # Default values for build configurations
