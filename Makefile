@@ -39,6 +39,7 @@ VERSION_MINOR			:= 2
 
 MAKE_HELPERS_DIRECTORY := make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
+include ${MAKE_HELPERS_DIRECTORY}unix.mk
 
 ################################################################################
 # Default values for build configurations
@@ -535,14 +536,14 @@ endif
 
 clean:
 	@echo "  CLEAN"
-	${Q}rm -rf ${BUILD_PLAT}
+	$(call SHELL_REMOVE_DIR,${BUILD_PLAT})
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 
 realclean distclean:
 	@echo "  REALCLEAN"
-	${Q}rm -rf ${BUILD_BASE}
-	${Q}rm -f ${CURDIR}/cscope.*
+	$(call SHELL_REMOVE_DIR,${BUILD_BASE})
+	$(call SHELL_DELETE_ALL, ${CURDIR}/cscope.*)
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 
@@ -563,24 +564,24 @@ certtool: ${CRTTOOL}
 .PHONY: ${CRTTOOL}
 ${CRTTOOL}:
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH}
-	@echo
+	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
-	@echo
+	@${ECHO_BLANK_LINE}
 
 ifneq (${GENERATE_COT},0)
 certificates: ${CRT_DEPS} ${CRTTOOL}
 	${Q}${CRTTOOL} ${CRT_ARGS}
-	@echo
+	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@echo "Certificates can be found in ${BUILD_PLAT}"
-	@echo
+	@${ECHO_BLANK_LINE}
 endif
 
 ${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
 	${Q}${FIPTOOL} --dump ${FIP_ARGS} $@
-	@echo
+	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
-	@echo
+	@${ECHO_BLANK_LINE}
 
 ifneq (${GENERATE_COT},0)
 fwu_certificates: ${FWU_CRT_DEPS} ${CRTTOOL}

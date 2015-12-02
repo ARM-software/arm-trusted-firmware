@@ -49,6 +49,7 @@ CFLAGS := -Wall -std=c99
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
+include ${MAKE_HELPERS_DIRECTORY}unix.mk
 
 PLATFORM_ROOT		:=	../../plat/
 include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
@@ -77,7 +78,6 @@ LIB_DIR := -L ${OPENSSL_DIR}/lib
 LIB := -lssl -lcrypto
 
 CC := gcc
-RM := rm -rf
 
 .PHONY: all clean realclean
 
@@ -95,7 +95,8 @@ ${BINARY}: ${OBJECTS} Makefile
 	${Q}${CC} -c ${CFLAGS} ${INC_DIR} $< -o $@
 
 clean:
-	${Q}${RM} -f src/build_msg.o ${OBJECTS}
+	$(call SHELL_DELETE_ALL, src/build_msg.o ${OBJECTS})
 
 realclean: clean
-	${Q}${RM} -f ${BINARY}
+	$(call SHELL_DELETE, ${BINARY})
+
