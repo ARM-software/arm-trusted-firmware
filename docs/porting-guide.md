@@ -72,10 +72,20 @@ either mandatory or optional.
 
 2.1 Common mandatory modifications
 ----------------------------------
-A platform port must enable the Memory Management Unit (MMU) with identity
-mapped page tables, and enable both the instruction and data caches for each BL
-stage. In ARM standard platforms, each BL stage configures the MMU in
-the platform-specific architecture setup function, `blX_plat_arch_setup()`.
+
+A platform port must enable the Memory Management Unit (MMU) as well as the
+instruction and data caches for each BL stage. Setting up the translation
+tables is the responsibility of the platform port because memory maps differ
+across platforms. A memory translation library (see `lib/aarch64/xlat_helpers.c`
+and `lib/aarch64/xlat_tables.c`) is provided to help in this setup. Note that
+although this library supports non-identity mappings, this is intended only for
+re-mapping peripheral physical addresses and allows platforms with high I/O
+addresses to reduce their virtual address space. All other addresses
+corresponding to code and data must currently use an identity mapping.
+
+In ARM standard platforms, each BL stage configures the MMU in the
+platform-specific architecture setup function, `blX_plat_arch_setup()`, and uses
+an identity mapping for all addresses.
 
 If the build option `USE_COHERENT_MEM` is enabled, each platform can allocate a
 block of identity mapped secure memory with Device-nGnRE attributes aligned to
