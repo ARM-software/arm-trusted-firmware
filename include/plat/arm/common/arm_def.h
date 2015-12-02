@@ -175,6 +175,15 @@
 
 #define ARM_CONSOLE_BAUDRATE		115200
 
+/* Trusted Watchdog constants */
+#define ARM_SP805_TWDG_BASE		0x2a490000
+#define ARM_SP805_TWDG_CLK_HZ		32768
+/* The TBBR document specifies a watchdog timeout of 256 seconds. SP805
+ * asserts reset after two consecutive countdowns (2 x 128 = 256 sec) */
+#define ARM_TWDG_TIMEOUT_SEC		128
+#define ARM_TWDG_LOAD_VAL		(ARM_SP805_TWDG_CLK_HZ * 	\
+					 ARM_TWDG_TIMEOUT_SEC)
+
 /******************************************************************************
  * Required platform porting definitions common to all ARM standard platforms
  *****************************************************************************/

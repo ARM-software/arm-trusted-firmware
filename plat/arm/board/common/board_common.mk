@@ -28,14 +28,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PLAT_INCLUDES		+=	-Iinclude/plat/arm/board/common/
+PLAT_INCLUDES		+=	-Iinclude/plat/arm/board/common/			\
+				-Iinclude/plat/arm/board/common/drivers
 
 PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/pl011_console.S			\
 				plat/arm/board/common/aarch64/board_arm_helpers.S
 
-#BL1_SOURCES		+=
+BL1_SOURCES		+=	plat/arm/board/common/drivers/norflash/norflash.c
 
-#BL2_SOURCES		+=
+BL2_SOURCES		+=	plat/arm/board/common/drivers/norflash/norflash.c
 
 #BL31_SOURCES		+=
 

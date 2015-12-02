@@ -423,6 +423,14 @@ map is explained in the [Firmware Design].
     in which case the platform is configured to expect NULL in the State-ID
     field of power-state parameter.
 
+*   `ARM_DISABLE_TRUSTED_WDOG`: boolean option to disable the Trusted Watchdog.
+    By default, ARM platforms use a watchdog to trigger a system reset in case
+    an error is encountered during the boot process (for example, when an image
+    could not be loaded or authenticated). The watchdog is enabled in the early
+    platform setup hook at BL1 and disabled in the BL1 prepare exit hook. The
+    Trusted Watchdog may be disabled at build time for testing or development
+    purposes.
+
 #### ARM CSS platform specific build options
 
 *   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version

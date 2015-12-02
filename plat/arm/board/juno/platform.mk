@@ -34,9 +34,11 @@ PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/aarch64/juno_helpers.S
 
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
-				lib/cpus/aarch64/cortex_a72.S
+				lib/cpus/aarch64/cortex_a72.S		\
+				plat/arm/board/juno/juno_err.c
 
 BL2_SOURCES		+=	plat/arm/board/juno/juno_security.c	\
+				plat/arm/board/juno/juno_err.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\

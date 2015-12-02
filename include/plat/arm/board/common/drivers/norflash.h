@@ -27,53 +27,42 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_def.h>
-#include <plat_arm.h>
 
-/*
- * Table of regions for different BL stages to map using the MMU.
- * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
- */
-#if IMAGE_BL1
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL2
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
-	ARM_MAP_TSP_SEC_MEM,
-	{0}
-};
-#endif
-#if IMAGE_BL31
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL32
-const mmap_region_t plat_arm_mmap[] = {
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
+#ifndef __NORFLASH_H_
+#define __NORFLASH_H_
 
-ARM_CASSERT_MMAP
+#include <stdint.h>
+
+/* First bus cycle */
+#define NOR_CMD_READ_ARRAY		0xFF
+#define NOR_CMD_READ_ID_CODE		0x90
+#define NOR_CMD_READ_QUERY		0x98
+#define NOR_CMD_READ_STATUS_REG		0x70
+#define NOR_CMD_CLEAR_STATUS_REG	0x50
+#define NOR_CMD_WRITE_TO_BUFFER		0xE8
+#define NOR_CMD_WORD_PROGRAM		0x40
+#define NOR_CMD_BLOCK_ERASE		0x20
+#define NOR_CMD_LOCK_UNLOCK		0x60
+
+/* Second bus cycle */
+#define NOR_LOCK_BLOCK			0x01
+#define NOR_UNLOCK_BLOCK		0xD0
+
+/* Status register bits */
+#define NOR_DWS				(1 << 7)
+#define NOR_ESS				(1 << 6)
+#define NOR_ES				(1 << 5)
+#define NOR_PS				(1 << 4)
+#define NOR_VPPS			(1 << 3)
+#define NOR_PSS				(1 << 2)
+#define NOR_BLS				(1 << 1)
+#define NOR_BWS				(1 << 0)
+
+/* Public API */
+void nor_send_cmd(uintptr_t base_addr, unsigned long cmd);
+int nor_word_program(uintptr_t base_addr, unsigned long data);
+void nor_lock(uintptr_t base_addr);
+void nor_unlock(uintptr_t base_addr);
+
+#endif /* __NORFLASH_H_ */
 

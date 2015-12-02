@@ -27,53 +27,48 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_def.h>
-#include <plat_arm.h>
 
-/*
- * Table of regions for different BL stages to map using the MMU.
- * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
- */
-#if IMAGE_BL1
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL2
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
-	ARM_MAP_TSP_SEC_MEM,
-	{0}
-};
-#endif
-#if IMAGE_BL31
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL32
-const mmap_region_t plat_arm_mmap[] = {
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
+#include <mmio.h>
+#include <sp805.h>
+#include <stdint.h>
 
-ARM_CASSERT_MMAP
+/* Inline register access functions */
 
+static inline void sp805_write_wdog_load(uintptr_t base, unsigned long value)
+{
+	mmio_write_32(base + SP805_WDOG_LOAD_OFF, value);
+}
+
+static inline void sp805_write_wdog_ctrl(uintptr_t base, unsigned long value)
+{
+	mmio_write_32(base + SP805_WDOG_CTR_OFF, value);
+}
+
+static inline void sp805_write_wdog_lock(uintptr_t base, unsigned long value)
+{
+	mmio_write_32(base + SP805_WDOG_LOCK_OFF, value);
+}
+
+
+/* Public API implementation */
+
+void sp805_start(uintptr_t base, unsigned long ticks)
+{
+	sp805_write_wdog_load(base, ticks);
+	sp805_write_wdog_ctrl(base, SP805_CTR_RESEN | SP805_CTR_INTEN);
+	/* Lock registers access */
+	sp805_write_wdog_lock(base, 0);
+}
+
+void sp805_stop(uintptr_t base)
+{
+	sp805_write_wdog_lock(base, WDOG_UNLOCK_KEY);
+	sp805_write_wdog_ctrl(base, 0);
+}
+
+void sp805_refresh(uintptr_t base, unsigned long ticks)
+{
+	sp805_write_wdog_lock(base, WDOG_UNLOCK_KEY);
+	sp805_write_wdog_load(base, ticks);
+	sp805_write_wdog_lock(base, 0);
+}

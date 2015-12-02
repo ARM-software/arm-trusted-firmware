@@ -27,53 +27,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_def.h>
-#include <plat_arm.h>
 
-/*
- * Table of regions for different BL stages to map using the MMU.
- * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
- */
-#if IMAGE_BL1
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL2
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
-	ARM_MAP_TSP_SEC_MEM,
-	{0}
-};
-#endif
-#if IMAGE_BL31
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#if IMAGE_BL32
-const mmap_region_t plat_arm_mmap[] = {
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
+#ifndef __SP805_H__
+#define __SP805_H__
 
-ARM_CASSERT_MMAP
+/* SP805 register offset */
+#define SP805_WDOG_LOAD_OFF		0x000
+#define SP805_WDOG_CTR_OFF		0x008
+#define SP805_WDOG_LOCK_OFF		0xc00
 
+/* Magic word to unlock the wd registers */
+#define WDOG_UNLOCK_KEY			0x1ACCE551
+
+/* Register field definitions */
+#define SP805_CTR_RESEN			(1 << 1)
+#define SP805_CTR_INTEN			(1 << 0)
+
+#ifndef __ASSEMBLY__
+
+#include <stdint.h>
+
+/* Public high level API */
+
+void sp805_start(uintptr_t base, unsigned long ticks);
+void sp805_stop(uintptr_t base);
+void sp805_refresh(uintptr_t base, unsigned long ticks);
+
+#endif /* __ASSEMBLY__ */
+
+#endif /* __SP805_H__ */
