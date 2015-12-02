@@ -37,7 +37,8 @@ VERSION_MINOR			:= 2
 # Default goal is build all images
 .DEFAULT_GOAL			:= all
 
-include make_helpers/build_macros.mk
+MAKE_HELPERS_DIRECTORY := make_helpers/
+include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 
 ################################################################################
 # Default values for build configurations
@@ -111,9 +112,10 @@ CHECK_IGNORE		:=	--ignore COMPLEX_MACRO \
 CHECKPATCH_ARGS		:=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		:=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 # Do not check the coding style on C library files
-CHECK_PATHS		:=	$(shell ls -I include -I lib) \
-				$(addprefix include/,$(shell ls -I stdlib include)) \
-				$(addprefix lib/,$(shell ls -I stdlib lib))
+INCLUDE_DIRS_TO_CHECK	:=	$(sort $(filter-out include/stdlib, $(wildcard include/*)))
+LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out lib/stdlib, $(wildcard lib/*)))
+ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out lib include, $(wildcard *))))
+CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK} ${INCLUDE_DIRS_TO_CHECK} ${LIB_DIRS_TO_CHECK}
 
 
 ################################################################################
@@ -235,17 +237,12 @@ INCLUDES		+=	-Iinclude/bl1			\
 # Generic definitions
 ################################################################################
 
+include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
+
 BUILD_BASE		:=	./build
 BUILD_PLAT		:=	${BUILD_BASE}/${PLAT}/${BUILD_TYPE}
 
-PLAT_MAKEFILE		:=	platform.mk
-# Generate the platforms list by recursively searching for all directories
-# under /plat containing a PLAT_MAKEFILE. Append each platform with a `|`
-# char and strip out the final '|'.
-PLATFORMS		:=	$(shell find plat/ -name '${PLAT_MAKEFILE}' -print0 |			\
-					sed -r 's%[^\x00]*\/([^/]*)\/${PLAT_MAKEFILE}\x00%\1|%g' |	\
-					sed -r 's/\|$$//')
-SPDS			:=	$(shell ls -I none services/spd)
+SPDS			:=	$(sort $(filter-out none, $(patsubst services/spd/%,%,$(wildcard services/spd/*))))
 
 # Platforms providing their own TBB makefile may override this value
 INCLUDE_TBBR_MK		:=	1
@@ -261,7 +258,7 @@ ifdef EL3_PAYLOAD_BASE
         $(warning "The SPD and its BL32 companion will be present but ignored.")
 endif
         # We expect to locate an spd.mk under the specified SPD directory
-        SPD_MAKE	:=	$(shell m="services/spd/${SPD}/${SPD}.mk"; [ -f "$$m" ] && echo "$$m")
+        SPD_MAKE	:=	$(wildcard services/spd/${SPD}/${SPD}.mk)
 
         ifeq (${SPD_MAKE},)
                 $(error Error: No services/spd/${SPD}/${SPD}.mk located)
@@ -285,14 +282,6 @@ endif
 # Include the platform specific Makefile after the SPD Makefile (the platform
 # makefile may use all previous definitions in this file)
 ################################################################################
-
-ifeq (${PLAT},)
-        $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform")
-endif
-PLAT_MAKEFILE_FULL	:=	$(shell find plat/ -wholename '*/${PLAT}/${PLAT_MAKEFILE}')
-ifeq ($(PLAT_MAKEFILE_FULL),)
-        $(error "Error: Invalid platform. The following platforms are available: ${PLATFORMS}")
-endif
 
 include ${PLAT_MAKEFILE_FULL}
 
@@ -622,7 +611,7 @@ cscope:
 	${Q}cscope -b -q -k
 
 help:
-	@echo "usage: ${MAKE} PLAT=<${PLATFORMS}> [OPTIONS] [TARGET]"
+	@echo "usage: ${MAKE} PLAT=<${PLATFORM_LIST}> [OPTIONS] [TARGET]"
 	@echo ""
 	@echo "PLAT is used to specify which platform you wish to build."
 	@echo "If no platform is specified, PLAT defaults to: ${DEFAULT_PLAT}"

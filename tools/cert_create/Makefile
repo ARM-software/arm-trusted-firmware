@@ -47,15 +47,16 @@ OBJECTS := src/cert.o \
 
 CFLAGS := -Wall -std=c99
 
-# Check the platform
-ifeq (${PLAT},none)
-  $(error "Error: Unknown platform. Please use PLAT=<platform name> to specify the platform")
-endif
-PLAT_MAKEFILE		:=	platform.mk
-PLAT_INCLUDE	:=	$(shell find ../../plat/ -wholename '*/${PLAT}/${PLAT_MAKEFILE}' |	\
-				sed 's/${PLAT_MAKEFILE}/include/')
+MAKE_HELPERS_DIRECTORY := ../../make_helpers/
+include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
+
+PLATFORM_ROOT		:=	../../plat/
+include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
+
+PLAT_INCLUDE		:=	$(wildcard ${PLAT_DIR}include)
+
 ifeq ($(PLAT_INCLUDE),)
-  $(error "Error: Invalid platform '${PLAT}'")
+  $(error "Error: Invalid platform '${PLAT}' has no include directory.")
 endif
 
 ifeq (${DEBUG},1)
