@@ -37,7 +37,7 @@
  * This value is used by the PSCI implementation during the `SYSTEM_SUSPEND`
  * call as the `state-id` field in the 'power state' parameter.
  ******************************************************************************/
-#define PLAT_SYS_SUSPEND_STATE_ID	0xD
+#define PSTATE_ID_SOC_POWERDN	0xD
 
 /*******************************************************************************
  * GIC memory map

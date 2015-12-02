@@ -51,6 +51,7 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/ti/uart/16550_console.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
+				plat/common/aarch64/plat_psci_common.c		\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\
 				${COMMON_DIR}/drivers/memctrl/memctrl.c		\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\
