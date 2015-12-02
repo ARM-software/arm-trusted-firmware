@@ -32,39 +32,136 @@
 #define __BOARD_ARM_OID_H__
 
 /*
- * This is the list of the different extensions containing relevant information
- * to establish the chain of trust.
+ * The following is a list of OID values defined and reserved by ARM, which
+ * are used to define the extension fields of the certificate structure, as
+ * defined in the Trusted Board Boot Requirements (TBBR) specification,
+ * ARM DEN0006C-1.
  *
- * The OIDs shown here are just an example. Real OIDs should be obtained from
- * the ITU-T.
+ * Non-ARM platform owners that wish to align with the TBBR should define
+ * constants with the same name in their own platform port(s), using their
+ * own OIDs obtained from the ITU-T.
  */
 
-/* Non-volatile counter extensions */
-#define TZ_FW_NVCOUNTER_OID		"1.2.3.1"
-#define NTZ_FW_NVCOUNTER_OID		"1.2.3.2"
 
-/* BL2 extensions */
-#define BL2_HASH_OID			"1.2.3.3"
+/* TrustedFirmwareNVCounter - Non-volatile counter extension */
+#define TZ_FW_NVCOUNTER_OID			"1.3.6.1.4.1.4128.2100.1"
+/* NonTrustedFirmwareNVCounter - Non-volatile counter extension */
+#define NTZ_FW_NVCOUNTER_OID			"1.3.6.1.4.1.4128.2100.2"
 
-/* Trusted Key extensions */
-#define TZ_WORLD_PK_OID			"1.2.3.4"
-#define NTZ_WORLD_PK_OID		"1.2.3.5"
 
-/* BL3-1 extensions */
-#define BL31_CONTENT_CERT_PK_OID	"1.2.3.6"
-#define BL31_HASH_OID			"1.2.3.7"
+/*
+ * Non-Trusted Firmware Updater Certificate
+ */
 
-/* BL3-0 extensions */
-#define BL30_CONTENT_CERT_PK_OID	"1.2.3.8"
-#define BL30_HASH_OID			"1.2.3.9"
+/* APFirmwareUpdaterConfigHash - BL2U */
+#define BL2U_HASH_OID				"1.3.6.1.4.1.4128.2100.101"
+/* SCPFirmwareUpdaterConfigHash - SCP_BL2U */
+#define SCP_BL2U_HASH_OID			"1.3.6.1.4.1.4128.2100.102"
+/* FirmwareUpdaterHash - NS_BL2U */
+#define NS_BL2U_HASH_OID			"1.3.6.1.4.1.4128.2100.103"
+/* TrustedWatchdogRefreshTime */
+#define TRUSTED_WATCHDOG_TIME_OID		"1.3.6.1.4.1.4128.2100.104"
 
-/* BL3-2 extensions */
-#define BL32_CONTENT_CERT_PK_OID	"1.2.3.10"
-#define BL32_HASH_OID			"1.2.3.11"
 
-/* BL3-3 extensions */
-#define BL33_CONTENT_CERT_PK_OID	"1.2.3.12"
-#define BL33_HASH_OID			"1.2.3.13"
+/*
+ * Trusted Boot Firmware Certificate
+ */
 
+/* TrustedBootFirmwareHash - BL2 */
+#define BL2_HASH_OID				"1.3.6.1.4.1.4128.2100.201"
+
+
+/*
+ * Trusted Key Certificate
+ */
+
+/* PrimaryDebugCertificatePK */
+#define PRIMARY_DEBUG_PK_OID			"1.3.6.1.4.1.4128.2100.301"
+/* TrustedWorldPK */
+#define TZ_WORLD_PK_OID				"1.3.6.1.4.1.4128.2100.302"
+/* NonTrustedWorldPK */
+#define NTZ_WORLD_PK_OID			"1.3.6.1.4.1.4128.2100.303"
+
+
+/*
+ * Trusted Debug Certificate
+ */
+
+/* DebugScenario */
+#define TRUSTED_DEBUG_SCENARIO_OID		"1.3.6.1.4.1.4128.2100.401"
+/* SoC Specific */
+#define TRUSTED_DEBUG_SOC_SPEC_OID		"1.3.6.1.4.1.4128.2100.402"
+/* SecondaryDebugCertPK */
+#define SECONDARY_DEBUG_PK_OID			"1.3.6.1.4.1.4128.2100.403"
+
+
+/*
+ * SoC Firmware Key Certificate
+ */
+
+/* SoCFirmwareContentCertPK */
+#define BL31_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.501"
+
+
+/*
+ * SoC Firmware Content Certificate
+ */
+
+/* APRomPatchHash - BL1_PATCH */
+#define APROM_PATCH_HASH_OID			"1.3.6.1.4.1.4128.2100.601"
+/* SoCConfigHash */
+#define SOC_CONFIG_HASH_OID			"1.3.6.1.4.1.4128.2100.602"
+/* SoCAPFirmwareHash - BL31 */
+#define BL31_HASH_OID				"1.3.6.1.4.1.4128.2100.603"
+
+
+/*
+ * SCP Firmware Key Certificate
+ */
+
+/* SCPFirmwareContentCertPK */
+#define BL30_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.701"
+
+
+/*
+ * SCP Firmware Content Certificate
+ */
+
+/* SCPFirmwareHash - BL30 */
+#define BL30_HASH_OID				"1.3.6.1.4.1.4128.2100.801"
+/* SCPRomPatchHash - BL0_PATCH */
+#define SCP_ROM_PATCH_HASH_OID			"1.3.6.1.4.1.4128.2100.802"
+
+
+/*
+ * Trusted OS Firmware Key Certificate
+ */
+
+/* TrustedOSFirmwareContentCertPK */
+#define BL32_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.901"
+
+
+/*
+ * Trusted OS Firmware Content Certificate
+ */
+
+/* TrustedOSFirmwareHash - BL32 */
+#define BL32_HASH_OID				"1.3.6.1.4.1.4128.2100.1001"
+
+
+/*
+ * Non-Trusted Firmware Key Certificate
+ */
+
+/* NonTrustedFirmwareContentCertPK */
+#define BL33_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.1101"
+
+
+/*
+ * Non-Trusted Firmware Content Certificate
+ */
+
+/* NonTrustedWorldBootloaderHash - BL33 */
+#define BL33_HASH_OID				"1.3.6.1.4.1.4128.2100.1201"
 
 #endif /* __BOARD_ARM_OID_H__ */
