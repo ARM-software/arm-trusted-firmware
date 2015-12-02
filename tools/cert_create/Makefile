@@ -79,7 +79,7 @@ LIB := -lssl -lcrypto
 CC := gcc
 RM := rm -rf
 
-.PHONY: all clean
+.PHONY: all clean realclean
 
 all: clean ${BINARY}
 
