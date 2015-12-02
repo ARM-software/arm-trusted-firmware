@@ -14,3 +14,7 @@ tools/fip_create/fip_create
 tools/cert_create/src/*.o
 tools/cert_create/src/**/*.o
 tools/cert_create/cert_create
+
+# Ignore header files copied.
+tools/fip_create/firmware_image_package.h
+tools/fip_create/uuid.h
