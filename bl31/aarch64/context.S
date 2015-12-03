@@ -291,7 +291,7 @@ func fpregs_context_restore
 	ldr	x9, [x0, #CTX_FP_FPSR]
 	msr	fpsr, x9
 
-	str	x10, [x0, #CTX_FP_FPCR]
+	ldr	x10, [x0, #CTX_FP_FPCR]
 	msr	fpcr, x10
 
 	/*
