@@ -37,4 +37,7 @@ ifndef CYGWIN_MK
 
     include ${MAKE_HELPERS_DIRECTORY}unix.mk
 
+    # In cygwin executable files have the Windows .exe extension type.
+    BIN_EXT := .exe
+
 endif

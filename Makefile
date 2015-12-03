@@ -377,11 +377,11 @@ endif
 
 # Variables for use with Certificate Generation Tool
 CRTTOOLPATH		?=	tools/cert_create
-CRTTOOL			?=	${CRTTOOLPATH}/cert_create
+CRTTOOL			?=	${CRTTOOLPATH}/cert_create${BIN_EXT}
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fip_create
-FIPTOOL			?=	${FIPTOOLPATH}/fip_create
+FIPTOOL			?=	${FIPTOOLPATH}/fip_create${BIN_EXT}
 
 
 ################################################################################

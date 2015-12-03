@@ -38,9 +38,9 @@ ifndef WINDOWS_MK
     WINDOWS_MK := $(lastword $(MAKEFILE_LIST))
 
     ECHO_BLANK_LINE := @cmd /c echo.
-
     DIR_DELIM := $(strip \)
-    PATH_SEP := ;
+    BIN_EXT   := .exe
+    PATH_SEP  := ;
 
     # For some Windows native commands there is a problem with the directory delimiter.
     # Make uses / (slash) and the commands expect \ (backslash)

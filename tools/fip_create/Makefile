@@ -32,7 +32,7 @@ MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
-PROJECT := fip_create
+PROJECT := fip_create${BIN_EXT}
 OBJECTS := fip_create.o
 COPIED_H_FILES := uuid.h firmware_image_package.h
 

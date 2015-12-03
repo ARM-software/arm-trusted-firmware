@@ -32,7 +32,7 @@ PROJECT		:= cert_create
 PLAT		:= none
 V		:= 0
 DEBUG		:= 0
-BINARY		:= ${PROJECT}
+BINARY		:= ${PROJECT}${BIN_EXT}
 OPENSSL_DIR	:= /usr
 
 OBJECTS := src/cert.o \

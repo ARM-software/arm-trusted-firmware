@@ -37,5 +37,8 @@ ifndef MSYS_MK
 
     include ${MAKE_HELPERS_DIRECTORY}unix.mk
 
+    # In MSYS executable files have the Windows .exe extension type.
+    BIN_EXT := .exe
+
 endif
 
