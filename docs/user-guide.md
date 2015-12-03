@@ -42,6 +42,9 @@ The software has been tested on Ubuntu 14.04 LTS (64-bit). Packages used for
 building the software were installed from that distribution unless otherwise
 specified.
 
+The software has also been built on Windows 7 Enterprise SP1, using CMD.EXE,
+Cygwin, and Msys (MinGW) shells, using version 4.9.1 of the GNU toolchain.
+
 3.  Tools
 ---------
 

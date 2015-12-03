@@ -91,3 +91,19 @@ ${1} : ${2}
 
 endif
 
+# Because git is not available from CMD.EXE, we need to avoid
+# the BUILD_STRING generation which uses git.
+# For now we use "development build".
+# This can be overridden from the command line or environment.
+BUILD_STRING ?= development build
+
+# The DOS echo shell command does not strip ' characters from the command
+# parameters before printing. We therefore use an alternative method invoked
+# by defining the MAKE_BUILD_STRINGS macro.
+BUILT_TIME_DATE_STRING = const char build_message[] = "Built : "${BUILD_MESSAGE_TIMESTAMP};
+VERSION_STRING_MESSAGE = const char version_string[] = "${VERSION_STRING}";
+define MAKE_BUILD_STRINGS
+	@echo $$(BUILT_TIME_DATE_STRING) $$(VERSION_STRING_MESSAGE) | \
+		$$(CC) $$(CFLAGS) -x c - -o $1
+endef
+

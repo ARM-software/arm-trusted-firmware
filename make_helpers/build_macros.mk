@@ -346,9 +346,13 @@ $(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE)))
 
 $(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs
 	@echo "  LD      $$@"
+ifdef MAKE_BUILD_STRINGS
+	$(call MAKE_BUILD_STRINGS, $(BUILD_DIR)/build_message.o)
+else
 	@echo 'const char build_message[] = "Built : "$(BUILD_MESSAGE_TIMESTAMP); \
 	       const char version_string[] = "${VERSION_STRING}";' | \
 		$$(CC) $$(CFLAGS) -xc - -o $(BUILD_DIR)/build_message.o
+endif
 	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
 					$(BUILD_DIR)/build_message.o $(OBJS)
 
