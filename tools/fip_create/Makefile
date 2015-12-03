@@ -32,11 +32,11 @@ MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
-PROJECT = fip_create
-OBJECTS = fip_create.o
+PROJECT := fip_create
+OBJECTS := fip_create.o
 COPIED_H_FILES := uuid.h firmware_image_package.h
 
-CFLAGS = -Wall -Werror -pedantic -std=c99
+CFLAGS := -Wall -Werror -pedantic -std=c99
 ifeq (${DEBUG},1)
   CFLAGS += -g -O0 -DDEBUG
 else
@@ -44,7 +44,7 @@ else
 endif
 
 # Only include from local directory (see comment below).
-INCLUDE_PATHS = -I.
+INCLUDE_PATHS := -I.
 
 CC := gcc
 

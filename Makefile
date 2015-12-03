@@ -125,10 +125,10 @@ CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK} ${INCLUDE_DIRS_TO_CHECK} ${LIB_DIRS_TO_CHE
 
 # Verbose flag
 ifeq (${V},0)
-        Q=@
+        Q:=@
         CHECKCODE_ARGS	+=	--no-summary --terse
 else
-        Q=
+        Q:=
 endif
 export Q
 
