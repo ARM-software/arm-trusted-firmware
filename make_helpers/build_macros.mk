@@ -210,10 +210,8 @@ $(OBJ): $(2)
 	@echo "  CC      $$<"
 	$$(Q)$$(CC) $$(CFLAGS) -D$(IMAGE) -c $$< -o $$@
 
-
-$(PREREQUISITES): $(2)
+$(PREREQUISITES): $(2) | bl$(3)_dirs
 	@echo "  DEPS    $$@"
-	@mkdir -p $(1)
 	$$(Q)$$(CC) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
 
 ifdef IS_ANYTHING_TO_BUILD
@@ -237,9 +235,8 @@ $(OBJ): $(2)
 	@echo "  AS      $$<"
 	$$(Q)$$(AS) $$(ASFLAGS) -D$(IMAGE) -c $$< -o $$@
 
-$(PREREQUISITES): $(2)
+$(PREREQUISITES): $(2) | bl$(3)_dirs
 	@echo "  DEPS    $$@"
-	@mkdir -p $(1)
 	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(OBJ) -MF $$@ $$<
 
 ifdef IS_ANYTHING_TO_BUILD
@@ -260,9 +257,8 @@ $(1): $(2)
 	@echo "  PP      $$<"
 	$$(Q)$$(AS) $$(ASFLAGS) -P -E -D__LINKER__ -o $$@ $$<
 
-$(PREREQUISITES): $(2)
+$(PREREQUISITES): $(2) | $(dir ${1})
 	@echo "  DEPS    $$@"
-	@mkdir -p $$(dir $$@)
 	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(1) -MF $$@ $$<
 
 ifdef IS_ANYTHING_TO_BUILD
@@ -327,14 +323,28 @@ define MAKE_BL
         $(eval DUMP       := $(call IMG_DUMP,$(1)))
         $(eval BIN        := $(call IMG_BIN,$(1)))
         $(eval BL_LINKERFILE := $(BL$(call uppercase,$(1))_LINKERFILE))
+        # We use sort only to get a list of unique object directory names.
+        # ordering is not relevant but sort removes duplicates.
+        $(eval TEMP_OBJ_DIRS := $(sort $(BUILD_DIR)/ $(dir ${OBJS})))
+        # The $(dir ) function leaves a trailing / on the directory names
+        # We append a . then strip /. from each, to remove the trailing / characters
+        # This gives names suitable for use as make rule targets.
+        $(eval OBJ_DIRS   := $(subst /.,,$(addsuffix .,$(TEMP_OBJ_DIRS))))
 
-        $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
-        $(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE)))
+# Create generators for object directory structure
 
-$(BUILD_DIR):
-	$$(Q)mkdir -p "$$@"
+$(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},)))
 
-$(ELF): $(OBJS) $(LINKERFILE)
+.PHONY : bl${1}_dirs
+
+# We use order-only prerequisites to ensure that directories are created,
+# but do not cause re-builds every time a file is written.
+bl${1}_dirs: | ${OBJ_DIRS}
+
+$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
+$(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE)))
+
+$(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs
 	@echo "  LD      $$@"
 	@echo 'const char build_message[] = "Built : "$(BUILD_MESSAGE_TIMESTAMP); \
 	       const char version_string[] = "${VERSION_STRING}";' | \
@@ -354,7 +364,7 @@ $(BIN): $(ELF)
 	@echo
 
 .PHONY: bl$(1)
-bl$(1): $(BUILD_DIR) $(BIN) $(DUMP)
+bl$(1): $(BIN) $(DUMP)
 
 all: bl$(1)
 
