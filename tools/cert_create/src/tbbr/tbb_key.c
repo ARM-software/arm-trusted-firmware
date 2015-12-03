@@ -51,25 +51,25 @@ static key_t tbb_keys[] = {
 		.opt = "non-trusted-world-key",
 		.desc = "Non Trusted World key"
 	},
-	[BL30_KEY] = {
-		.id = BL30_KEY,
-		.opt = "bl30-key",
-		.desc = "BL30 key"
+	[SCP_FW_CONTENT_CERT_KEY] = {
+		.id = SCP_FW_CONTENT_CERT_KEY,
+		.opt = "scp-fw-key",
+		.desc = "SCP Firmware Content Certificate key"
 	},
-	[BL31_KEY] = {
-		.id = BL31_KEY,
-		.opt = "bl31-key",
-		.desc = "BL31 key"
+	[SOC_FW_CONTENT_CERT_KEY] = {
+		.id = SOC_FW_CONTENT_CERT_KEY,
+		.opt = "soc-fw-key",
+		.desc = "SoC Firmware Content Certificate key"
 	},
-	[BL32_KEY] = {
-		.id = BL32_KEY,
-		.opt = "bl32-key",
-		.desc = "BL32 key"
+	[TRUSTED_OS_FW_CONTENT_CERT_KEY] = {
+		.id = TRUSTED_OS_FW_CONTENT_CERT_KEY,
+		.opt = "tos-fw-key",
+		.desc = "Trusted OS Firmware Content Certificate key"
 	},
-	[BL33_KEY] = {
-		.id = BL33_KEY,
-		.opt = "bl33-key",
-		.desc = "BL33 key"
+	[NON_TRUSTED_FW_CONTENT_CERT_KEY] = {
+		.id = NON_TRUSTED_FW_CONTENT_CERT_KEY,
+		.opt = "nt-fw-key",
+		.desc = "Non Trusted Firmware Content Certificate key"
 	}
 };
 

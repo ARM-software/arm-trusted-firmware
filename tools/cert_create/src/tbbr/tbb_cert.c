@@ -40,15 +40,15 @@
  * field points to itself.
  */
 static cert_t tbb_certs[] = {
-	[BL2_CERT] = {
-		.id = BL2_CERT,
-		.opt = "bl2-cert",
+	[TRUSTED_BOOT_FW_CERT] = {
+		.id = TRUSTED_BOOT_FW_CERT,
+		.opt = "tb-fw-cert",
 		.fn = NULL,
-		.cn = "BL2 Certificate",
+		.cn = "Trusted Boot FW Certificate",
 		.key = ROT_KEY,
-		.issuer = BL2_CERT,
+		.issuer = TRUSTED_BOOT_FW_CERT,
 		.ext = {
-			BL2_HASH_EXT
+			TRUSTED_BOOT_FW_HASH_EXT
 		},
 		.num_ext = 1
 	},
@@ -60,104 +60,104 @@ static cert_t tbb_certs[] = {
 		.key = ROT_KEY,
 		.issuer = TRUSTED_KEY_CERT,
 		.ext = {
-			TZ_WORLD_PK_EXT,
-			NTZ_WORLD_PK_EXT
+			TRUSTED_WORLD_PK_EXT,
+			NON_TRUSTED_WORLD_PK_EXT
 		},
 		.num_ext = 2
 	},
-	[BL30_KEY_CERT] = {
-		.id = BL30_KEY_CERT,
-		.opt = "bl30-key-cert",
+	[SCP_FW_KEY_CERT] = {
+		.id = SCP_FW_KEY_CERT,
+		.opt = "scp-fw-key-cert",
 		.fn = NULL,
-		.cn = "BL3-0 Key Certificate",
+		.cn = "SCP Firmware Key Certificate",
 		.key = TRUSTED_WORLD_KEY,
-		.issuer = BL30_KEY_CERT,
+		.issuer = SCP_FW_KEY_CERT,
 		.ext = {
-			BL30_CONTENT_CERT_PK_EXT
+			SCP_FW_CONTENT_CERT_PK_EXT
 		},
 		.num_ext = 1
 	},
-	[BL30_CERT] = {
-		.id = BL30_CERT,
-		.opt = "bl30-cert",
+	[SCP_FW_CONTENT_CERT] = {
+		.id = SCP_FW_CONTENT_CERT,
+		.opt = "scp-fw-cert",
 		.fn = NULL,
-		.cn = "BL3-0 Content Certificate",
-		.key = BL30_KEY,
-		.issuer = BL30_CERT,
+		.cn = "SCP Firmware Content Certificate",
+		.key = SCP_FW_CONTENT_CERT_KEY,
+		.issuer = SCP_FW_CONTENT_CERT,
 		.ext = {
-			BL30_HASH_EXT
+			SCP_FW_HASH_EXT
 		},
 		.num_ext = 1
 	},
-	[BL31_KEY_CERT] = {
-		.id = BL31_KEY_CERT,
-		.opt = "bl31-key-cert",
+	[SOC_FW_KEY_CERT] = {
+		.id = SOC_FW_KEY_CERT,
+		.opt = "soc-fw-key-cert",
 		.fn = NULL,
-		.cn = "BL3-1 Key Certificate",
+		.cn = "SoC Firmware Key Certificate",
 		.key = TRUSTED_WORLD_KEY,
-		.issuer = BL31_KEY_CERT,
+		.issuer = SOC_FW_KEY_CERT,
 		.ext = {
-			BL31_CONTENT_CERT_PK_EXT
+			SOC_FW_CONTENT_CERT_PK_EXT
 		},
 		.num_ext = 1
 	},
-	[BL31_CERT] = {
-		.id = BL31_CERT,
-		.opt = "bl31-cert",
+	[SOC_FW_CONTENT_CERT] = {
+		.id = SOC_FW_CONTENT_CERT,
+		.opt = "soc-fw-cert",
 		.fn = NULL,
-		.cn = "BL3-1 Content Certificate",
-		.key = BL31_KEY,
-		.issuer = BL31_CERT,
+		.cn = "SoC Firmware Content Certificate",
+		.key = SOC_FW_CONTENT_CERT_KEY,
+		.issuer = SOC_FW_CONTENT_CERT,
 		.ext = {
-			BL31_HASH_EXT
+			SOC_AP_FW_HASH_EXT
 		},
 		.num_ext = 1
 	},
-	[BL32_KEY_CERT] = {
-		.id = BL32_KEY_CERT,
-		.opt = "bl32-key-cert",
+	[TRUSTED_OS_FW_KEY_CERT] = {
+		.id = TRUSTED_OS_FW_KEY_CERT,
+		.opt = "tos-fw-key-cert",
 		.fn = NULL,
-		.cn = "BL3-2 Key Certificate",
+		.cn = "Trusted OS Firmware Key Certificate",
 		.key = TRUSTED_WORLD_KEY,
-		.issuer = BL32_KEY_CERT,
+		.issuer = TRUSTED_OS_FW_KEY_CERT,
 		.ext = {
-			BL32_CONTENT_CERT_PK_EXT
+			TRUSTED_OS_FW_CONTENT_CERT_PK_EXT
 		},
 		.num_ext = 1
 	},
-	[BL32_CERT] = {
-		.id = BL32_CERT,
-		.opt = "bl32-cert",
+	[TRUSTED_OS_FW_CONTENT_CERT] = {
+		.id = TRUSTED_OS_FW_CONTENT_CERT,
+		.opt = "tos-fw-cert",
 		.fn = NULL,
-		.cn = "BL3-2 Content Certificate",
-		.key = BL32_KEY,
-		.issuer = BL32_CERT,
+		.cn = "Trusted OS Firmware Content Certificate",
+		.key = TRUSTED_OS_FW_CONTENT_CERT_KEY,
+		.issuer = TRUSTED_OS_FW_CONTENT_CERT,
 		.ext = {
-			BL32_HASH_EXT
+			TRUSTED_OS_FW_HASH_EXT
 		},
 		.num_ext = 1
 	},
-	[BL33_KEY_CERT] = {
-		.id = BL33_KEY_CERT,
-		.opt = "bl33-key-cert",
+	[NON_TRUSTED_FW_KEY_CERT] = {
+		.id = NON_TRUSTED_FW_KEY_CERT,
+		.opt = "nt-fw-key-cert",
 		.fn = NULL,
-		.cn = "BL3-3 Key Certificate",
+		.cn = "Non-Trusted Firmware Key Certificate",
 		.key = NON_TRUSTED_WORLD_KEY,
-		.issuer = BL33_KEY_CERT,
+		.issuer = NON_TRUSTED_FW_KEY_CERT,
 		.ext = {
-			BL33_CONTENT_CERT_PK_EXT
+			NON_TRUSTED_FW_CONTENT_CERT_PK_EXT
 		},
 		.num_ext = 1
 	},
-	[BL33_CERT] = {
-		.id = BL33_CERT,
-		.opt = "bl33-cert",
+	[NON_TRUSTED_FW_CONTENT_CERT] = {
+		.id = NON_TRUSTED_FW_CONTENT_CERT,
+		.opt = "nt-fw-cert",
 		.fn = NULL,
-		.cn = "BL3-3 Content Certificate",
-		.key = BL33_KEY,
-		.issuer = BL33_CERT,
+		.cn = "Non-Trusted Firmware Content Certificate",
+		.key = NON_TRUSTED_FW_CONTENT_CERT_KEY,
+		.issuer = NON_TRUSTED_FW_CONTENT_CERT,
 		.ext = {
-			BL33_HASH_EXT
+			NON_TRUSTED_WORLD_BOOTLOADER_HASH_EXT
 		},
 		.num_ext = 1
 	},
@@ -169,9 +169,9 @@ static cert_t tbb_certs[] = {
 		.key = ROT_KEY,
 		.issuer = FWU_CERT,
 		.ext = {
-			SCP_BL2U_HASH_EXT,
-			BL2U_HASH_EXT,
-			NS_BL2U_HASH_EXT
+			SCP_FWU_CFG_HASH_EXT,
+			AP_FWU_CFG_HASH_EXT,
+			FWU_HASH_EXT
 		},
 		.num_ext = 3
 	}

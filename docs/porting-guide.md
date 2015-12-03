@@ -247,7 +247,7 @@ mandatory:
 If Trusted Board Boot is enabled, the following certificate identifiers must
 also be defined:
 
-*   **#define : BL2_CERT_ID**
+*   **#define : TRUSTED_BOOT_FW_CERT_ID**
 
     BL2 content certificate identifier, used by BL1 to load the BL2 content
     certificate.
@@ -257,22 +257,22 @@ also be defined:
     Trusted key certificate identifier, used by BL2 to load the trusted key
     certificate.
 
-*   **#define : BL31_KEY_CERT_ID**
+*   **#define : SOC_FW_KEY_CERT_ID**
 
     BL3-1 key certificate identifier, used by BL2 to load the BL3-1 key
     certificate.
 
-*   **#define : BL31_CERT_ID**
+*   **#define : SOC_FW_CONTENT_CERT_ID**
 
     BL3-1 content certificate identifier, used by BL2 to load the BL3-1 content
     certificate.
 
-*   **#define : BL33_KEY_CERT_ID**
+*   **#define : NON_TRUSTED_FW_KEY_CERT_ID**
 
     BL3-3 key certificate identifier, used by BL2 to load the BL3-3 key
     certificate.
 
-*   **#define : BL33_CERT_ID**
+*   **#define : NON_TRUSTED_FW_CONTENT_CERT_ID**
 
     BL3-3 content certificate identifier, used by BL2 to load the BL3-3 content
     certificate.
@@ -285,12 +285,12 @@ also be defined:
     BL3-0 image identifier, used by BL2 to load BL3-0 into secure memory from
     platform storage before being transfered to the SCP.
 
-*   **#define : BL30_KEY_CERT_ID**
+*   **#define : SCP_FW_KEY_CERT_ID**
 
     BL3-0 key certificate identifier, used by BL2 to load the BL3-0 key
     certificate (mandatory when Trusted Board Boot is enabled).
 
-*   **#define : BL30_CERT_ID**
+*   **#define : SCP_FW_CONTENT_CERT_ID**
 
     BL3-0 content certificate identifier, used by BL2 to load the BL3-0 content
     certificate (mandatory when Trusted Board Boot is enabled).
@@ -302,12 +302,12 @@ also be defined:
 
     BL3-2 image identifier, used by BL2 to load BL3-2.
 
-*   **#define : BL32_KEY_CERT_ID**
+*   **#define : TRUSTED_OS_FW_KEY_CERT_ID**
 
     BL3-2 key certificate identifier, used by BL2 to load the BL3-2 key
     certificate (mandatory when Trusted Board Boot is enabled).
 
-*   **#define : BL32_CERT_ID**
+*   **#define : TRUSTED_OS_FW_CONTENT_CERT_ID**
 
     BL3-2 content certificate identifier, used by BL2 to load the BL3-2 content
     certificate (mandatory when Trusted Board Boot is enabled).

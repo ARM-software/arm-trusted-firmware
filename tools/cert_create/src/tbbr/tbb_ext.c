@@ -42,133 +42,133 @@
 #define NORMAL_WORLD_NVCTR_VALUE	0
 
 static ext_t tbb_ext[] = {
-	[TZ_FW_NVCOUNTER_EXT] = {
-		.oid = TZ_FW_NVCOUNTER_OID,
+	[TRUSTED_FW_NVCOUNTER_EXT] = {
+		.oid = TRUSTED_FW_NVCOUNTER_OID,
 		.sn = "TrustedWorldNVCounter",
 		.ln = "Trusted World Non-Volatile counter",
 		.asn1_type = V_ASN1_INTEGER,
 		.type = EXT_TYPE_NVCOUNTER,
 		.data.nvcounter = TRUSTED_WORLD_NVCTR_VALUE
 	},
-	[NTZ_FW_NVCOUNTER_EXT] = {
-		.oid = NTZ_FW_NVCOUNTER_OID,
+	[NON_TRUSTED_FW_NVCOUNTER_EXT] = {
+		.oid = NON_TRUSTED_FW_NVCOUNTER_OID,
 		.sn = "NormalWorldNVCounter",
 		.ln = "Normal World Non-Volatile counter",
 		.asn1_type = V_ASN1_INTEGER,
 		.type = EXT_TYPE_NVCOUNTER,
 		.data.nvcounter = NORMAL_WORLD_NVCTR_VALUE
 	},
-	[BL2_HASH_EXT] = {
-		.oid = BL2_HASH_OID,
-		.opt = "bl2",
+	[TRUSTED_BOOT_FW_HASH_EXT] = {
+		.oid = TRUSTED_BOOT_FW_HASH_OID,
+		.opt = "tb-fw",
 		.sn = "TrustedBootFirmwareHash",
-		.ln = "Trusted Boot Firmware (BL2) hash (SHA256)",
+		.ln = "Trusted Boot Firmware hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
 	},
-	[TZ_WORLD_PK_EXT] = {
-		.oid = TZ_WORLD_PK_OID,
+	[TRUSTED_WORLD_PK_EXT] = {
+		.oid = TRUSTED_WORLD_PK_OID,
 		.sn = "TrustedWorldPublicKey",
 		.ln = "Trusted World Public Key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
 		.data.key = TRUSTED_WORLD_KEY
 	},
-	[NTZ_WORLD_PK_EXT] = {
-		.oid = NTZ_WORLD_PK_OID,
+	[NON_TRUSTED_WORLD_PK_EXT] = {
+		.oid = NON_TRUSTED_WORLD_PK_OID,
 		.sn = "NonTrustedWorldPublicKey",
 		.ln = "Non-Trusted World Public Key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
 		.data.key = NON_TRUSTED_WORLD_KEY
 	},
-	[BL30_CONTENT_CERT_PK_EXT] = {
-		.oid = BL30_CONTENT_CERT_PK_OID,
+	[SCP_FW_CONTENT_CERT_PK_EXT] = {
+		.oid = SCP_FW_CONTENT_CERT_PK_OID,
 		.sn = "SCPFirmwareContentCertPK",
 		.ln = "SCP Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = BL30_KEY
+		.data.key = SCP_FW_CONTENT_CERT_KEY
 	},
-	[BL30_HASH_EXT] = {
-		.oid = BL30_HASH_OID,
-		.opt = "bl30",
+	[SCP_FW_HASH_EXT] = {
+		.oid = SCP_FW_HASH_OID,
+		.opt = "scp-fw",
 		.sn = "SCPFirmwareHash",
-		.ln = "SCP Firmware (BL30) hash (SHA256)",
+		.ln = "SCP Firmware hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
 	},
-	[BL31_CONTENT_CERT_PK_EXT] = {
-		.oid = BL31_CONTENT_CERT_PK_OID,
+	[SOC_FW_CONTENT_CERT_PK_EXT] = {
+		.oid = SOC_FW_CONTENT_CERT_PK_OID,
 		.sn = "SoCFirmwareContentCertPK",
 		.ln = "SoC Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = BL31_KEY
+		.data.key = SOC_FW_CONTENT_CERT_KEY
 	},
-	[BL31_HASH_EXT] = {
-		.oid = BL31_HASH_OID,
-		.opt = "bl31",
+	[SOC_AP_FW_HASH_EXT] = {
+		.oid = SOC_AP_FW_HASH_OID,
+		.opt = "soc-fw",
 		.sn = "SoCAPFirmwareHash",
-		.ln = "SoC AP Firmware (BL31) hash (SHA256)",
+		.ln = "SoC AP Firmware hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
 	},
-	[BL32_CONTENT_CERT_PK_EXT] = {
-		.oid = BL32_CONTENT_CERT_PK_OID,
+	[TRUSTED_OS_FW_CONTENT_CERT_PK_EXT] = {
+		.oid = TRUSTED_OS_FW_CONTENT_CERT_PK_OID,
 		.sn = "TrustedOSFirmwareContentCertPK",
 		.ln = "Trusted OS Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = BL32_KEY
+		.data.key = TRUSTED_OS_FW_CONTENT_CERT_KEY
 	},
-	[BL32_HASH_EXT] = {
-		.oid = BL32_HASH_OID,
-		.opt = "bl32",
+	[TRUSTED_OS_FW_HASH_EXT] = {
+		.oid = TRUSTED_OS_FW_HASH_OID,
+		.opt = "tos-fw",
 		.sn = "TrustedOSHash",
-		.ln = "Trusted OS (BL32) hash (SHA256)",
+		.ln = "Trusted OS hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
 	},
-	[BL33_CONTENT_CERT_PK_EXT] = {
-		.oid = BL33_CONTENT_CERT_PK_OID,
+	[NON_TRUSTED_FW_CONTENT_CERT_PK_EXT] = {
+		.oid = NON_TRUSTED_FW_CONTENT_CERT_PK_OID,
 		.sn = "NonTrustedFirmwareContentCertPK",
 		.ln = "Non-Trusted Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = BL33_KEY
+		.data.key = NON_TRUSTED_FW_CONTENT_CERT_KEY
 	},
-	[BL33_HASH_EXT] = {
-		.oid = BL33_HASH_OID,
-		.opt = "bl33",
+	[NON_TRUSTED_WORLD_BOOTLOADER_HASH_EXT] = {
+		.oid = NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID,
+		.opt = "nt-fw",
 		.sn = "NonTrustedWorldBootloaderHash",
-		.ln = "Non-Trusted World (BL33) hash (SHA256)",
+		.ln = "Non-Trusted World hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
 	},
-	[SCP_BL2U_HASH_EXT] = {
-		.oid = SCP_BL2U_HASH_OID,
-		.opt = "scp_bl2u",
+	[SCP_FWU_CFG_HASH_EXT] = {
+		.oid = SCP_FWU_CFG_HASH_OID,
+		.opt = "scp-fwu-cfg",
 		.sn = "SCPFWUpdateConfig",
-		.ln = "SCP Firmware Update Config (SCP_BL2U) hash (SHA256)",
+		.ln = "SCP Firmware Update Config hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH,
 		.optional = 1
 	},
-	[BL2U_HASH_EXT] = {
-		.oid = BL2U_HASH_OID,
-		.opt = "bl2u",
+	[AP_FWU_CFG_HASH_EXT] = {
+		.oid = AP_FWU_CFG_HASH_OID,
+		.opt = "ap-fwu-cfg",
 		.sn = "APFWUpdateConfig",
-		.ln = "AP Firmware Update Config (BL2U) hash (SHA256)",
+		.ln = "AP Firmware Update Config hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH,
 		.optional = 1
 	},
-	[NS_BL2U_HASH_EXT] = {
-		.oid = NS_BL2U_HASH_OID,
-		.opt = "ns_bl2u",
+	[FWU_HASH_EXT] = {
+		.oid = FWU_HASH_OID,
+		.opt = "fwu",
 		.sn = "FWUpdaterHash",
-		.ln = "Firmware Updater (NS_BL2U) hash (SHA256)",
+		.ln = "Firmware Updater hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH,
 		.optional = 1

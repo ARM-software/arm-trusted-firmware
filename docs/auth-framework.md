@@ -726,30 +726,30 @@ Four image descriptors form the BL3-1 Chain of Trust:
 	},
 	.authenticated_data = {
 		[0] = {
-			.type_desc = &tz_world_pk,
+			.type_desc = &trusted_world_pk,
 			.data = {
-				.ptr = (void *)plat_tz_world_pk_buf,
+				.ptr = (void *)trusted_world_pk_buf,
 				.len = (unsigned int)PK_DER_LEN
 			}
 		},
 		[1] = {
-			.type_desc = &ntz_world_pk,
+			.type_desc = &non_trusted_world_pk,
 			.data = {
-				.ptr = (void *)plat_ntz_world_pk_buf,
+				.ptr = (void *)non_trusted_world_pk_buf,
 				.len = (unsigned int)PK_DER_LEN
 			}
 		}
 	}
 },
-[BL31_KEY_CERT_ID] = {
-	.img_id = BL31_KEY_CERT_ID,
+[SOC_FW_KEY_CERT_ID] = {
+	.img_id = SOC_FW_KEY_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &cot_desc[TRUSTED_KEY_CERT_ID],
 	.img_auth_methods = {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
-				.pk = &tz_world_pk,
+				.pk = &trusted_world_pk,
 				.sig = &sig,
 				.alg = &sig_alg,
 				.data = &raw_data,
@@ -758,23 +758,23 @@ Four image descriptors form the BL3-1 Chain of Trust:
 	},
 	.authenticated_data = {
 		[0] = {
-			.type_desc = &bl31_content_pk,
+			.type_desc = &soc_fw_content_pk,
 			.data = {
-				.ptr = (void *)plat_content_pk,
+				.ptr = (void *)content_pk_buf,
 				.len = (unsigned int)PK_DER_LEN
 			}
 		}
 	}
 },
-[BL31_CERT_ID] = {
-	.img_id = BL31_CERT_ID,
+[SOC_FW_CONTENT_CERT_ID] = {
+	.img_id = SOC_FW_CONTENT_CERT_ID,
 	.img_type = IMG_CERT,
-	.parent = &cot_desc[BL31_KEY_CERT_ID],
+	.parent = &cot_desc[SOC_FW_KEY_CERT_ID],
 	.img_auth_methods = {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
-				.pk = &bl31_content_pk,
+				.pk = &soc_fw_content_pk,
 				.sig = &sig,
 				.alg = &sig_alg,
 				.data = &raw_data,
@@ -783,9 +783,9 @@ Four image descriptors form the BL3-1 Chain of Trust:
 	},
 	.authenticated_data = {
 		[0] = {
-			.type_desc = &bl31_hash,
+			.type_desc = &soc_fw_hash,
 			.data = {
-				.ptr = (void *)plat_bl31_hash_buf,
+				.ptr = (void *)soc_fw_hash_buf,
 				.len = (unsigned int)HASH_DER_LEN
 			}
 		}
@@ -794,13 +794,13 @@ Four image descriptors form the BL3-1 Chain of Trust:
 [BL31_IMAGE_ID] = {
 	.img_id = BL31_IMAGE_ID,
 	.img_type = IMG_RAW,
-	.parent = &cot_desc[BL31_CERT_ID],
+	.parent = &cot_desc[SOC_FW_CONTENT_CERT_ID],
 	.img_auth_methods = {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
 				.data = &raw_data,
-				.hash = &bl31_hash,
+				.hash = &soc_fw_hash,
 			}
 		}
 	}
@@ -835,7 +835,7 @@ is created in the `authenticated_data` array for that purpose. In that entry,
 the corresponding parameter descriptor must be specified along with the buffer
 address to store the parameter value. In this case, the `tz_world_pk` descriptor
 is used to extract the public key from an x509v3 extension with OID
-`TZ_WORLD_PK_OID`. The BL3-1 key certificate will use this descriptor as
+`TRUSTED_WORLD_PK_OID`. The BL3-1 key certificate will use this descriptor as
 parameter in the signature authentication method. The key is stored in the
 `plat_tz_world_pk_buf` buffer.
 

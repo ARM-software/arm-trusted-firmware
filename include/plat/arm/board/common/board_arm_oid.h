@@ -44,9 +44,9 @@
 
 
 /* TrustedFirmwareNVCounter - Non-volatile counter extension */
-#define TZ_FW_NVCOUNTER_OID			"1.3.6.1.4.1.4128.2100.1"
+#define TRUSTED_FW_NVCOUNTER_OID		"1.3.6.1.4.1.4128.2100.1"
 /* NonTrustedFirmwareNVCounter - Non-volatile counter extension */
-#define NTZ_FW_NVCOUNTER_OID			"1.3.6.1.4.1.4128.2100.2"
+#define NON_TRUSTED_FW_NVCOUNTER_OID		"1.3.6.1.4.1.4128.2100.2"
 
 
 /*
@@ -54,11 +54,11 @@
  */
 
 /* APFirmwareUpdaterConfigHash - BL2U */
-#define BL2U_HASH_OID				"1.3.6.1.4.1.4128.2100.101"
+#define AP_FWU_CFG_HASH_OID			"1.3.6.1.4.1.4128.2100.101"
 /* SCPFirmwareUpdaterConfigHash - SCP_BL2U */
-#define SCP_BL2U_HASH_OID			"1.3.6.1.4.1.4128.2100.102"
+#define SCP_FWU_CFG_HASH_OID			"1.3.6.1.4.1.4128.2100.102"
 /* FirmwareUpdaterHash - NS_BL2U */
-#define NS_BL2U_HASH_OID			"1.3.6.1.4.1.4128.2100.103"
+#define FWU_HASH_OID				"1.3.6.1.4.1.4128.2100.103"
 /* TrustedWatchdogRefreshTime */
 #define TRUSTED_WATCHDOG_TIME_OID		"1.3.6.1.4.1.4128.2100.104"
 
@@ -68,7 +68,7 @@
  */
 
 /* TrustedBootFirmwareHash - BL2 */
-#define BL2_HASH_OID				"1.3.6.1.4.1.4128.2100.201"
+#define TRUSTED_BOOT_FW_HASH_OID		"1.3.6.1.4.1.4128.2100.201"
 
 
 /*
@@ -78,9 +78,9 @@
 /* PrimaryDebugCertificatePK */
 #define PRIMARY_DEBUG_PK_OID			"1.3.6.1.4.1.4128.2100.301"
 /* TrustedWorldPK */
-#define TZ_WORLD_PK_OID				"1.3.6.1.4.1.4128.2100.302"
+#define TRUSTED_WORLD_PK_OID			"1.3.6.1.4.1.4128.2100.302"
 /* NonTrustedWorldPK */
-#define NTZ_WORLD_PK_OID			"1.3.6.1.4.1.4128.2100.303"
+#define NON_TRUSTED_WORLD_PK_OID		"1.3.6.1.4.1.4128.2100.303"
 
 
 /*
@@ -100,7 +100,7 @@
  */
 
 /* SoCFirmwareContentCertPK */
-#define BL31_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.501"
+#define SOC_FW_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.501"
 
 
 /*
@@ -112,7 +112,7 @@
 /* SoCConfigHash */
 #define SOC_CONFIG_HASH_OID			"1.3.6.1.4.1.4128.2100.602"
 /* SoCAPFirmwareHash - BL31 */
-#define BL31_HASH_OID				"1.3.6.1.4.1.4128.2100.603"
+#define SOC_AP_FW_HASH_OID			"1.3.6.1.4.1.4128.2100.603"
 
 
 /*
@@ -120,7 +120,7 @@
  */
 
 /* SCPFirmwareContentCertPK */
-#define BL30_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.701"
+#define SCP_FW_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.701"
 
 
 /*
@@ -128,7 +128,7 @@
  */
 
 /* SCPFirmwareHash - BL30 */
-#define BL30_HASH_OID				"1.3.6.1.4.1.4128.2100.801"
+#define SCP_FW_HASH_OID				"1.3.6.1.4.1.4128.2100.801"
 /* SCPRomPatchHash - BL0_PATCH */
 #define SCP_ROM_PATCH_HASH_OID			"1.3.6.1.4.1.4128.2100.802"
 
@@ -138,7 +138,7 @@
  */
 
 /* TrustedOSFirmwareContentCertPK */
-#define BL32_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.901"
+#define TRUSTED_OS_FW_CONTENT_CERT_PK_OID	"1.3.6.1.4.1.4128.2100.901"
 
 
 /*
@@ -146,7 +146,7 @@
  */
 
 /* TrustedOSFirmwareHash - BL32 */
-#define BL32_HASH_OID				"1.3.6.1.4.1.4128.2100.1001"
+#define TRUSTED_OS_FW_HASH_OID			"1.3.6.1.4.1.4128.2100.1001"
 
 
 /*
@@ -154,7 +154,7 @@
  */
 
 /* NonTrustedFirmwareContentCertPK */
-#define BL33_CONTENT_CERT_PK_OID		"1.3.6.1.4.1.4128.2100.1101"
+#define NON_TRUSTED_FW_CONTENT_CERT_PK_OID	"1.3.6.1.4.1.4128.2100.1101"
 
 
 /*
@@ -162,6 +162,6 @@
  */
 
 /* NonTrustedWorldBootloaderHash - BL33 */
-#define BL33_HASH_OID				"1.3.6.1.4.1.4128.2100.1201"
+#define NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID	"1.3.6.1.4.1.4128.2100.1201"
 
 #endif /* __BOARD_ARM_OID_H__ */
