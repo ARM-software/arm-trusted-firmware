@@ -144,13 +144,13 @@ void gicv3_distif_init(void)
 	gicv3_secure_spis_configure(driver_data->gicd_base,
 					driver_data->g1s_interrupt_num,
 					driver_data->g1s_interrupt_array,
-					INT_TYPE_G1S);
+					INTR_GROUP1S);
 
 	/* Configure the G0 SPIs */
 	gicv3_secure_spis_configure(driver_data->gicd_base,
 					driver_data->g0_interrupt_num,
 					driver_data->g0_interrupt_array,
-					INT_TYPE_G0);
+					INTR_GROUP0);
 
 	/* Enable the secure SPIs now that they have been configured */
 	gicd_set_ctlr(driver_data->gicd_base,
@@ -186,13 +186,13 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	gicv3_secure_ppi_sgi_configure(gicr_base,
 					   driver_data->g1s_interrupt_num,
 					   driver_data->g1s_interrupt_array,
-					   INT_TYPE_G1S);
+					   INTR_GROUP1S);
 
 	/* Configure the G0 SGIs/PPIs */
 	gicv3_secure_ppi_sgi_configure(gicr_base,
 					   driver_data->g0_interrupt_num,
 					   driver_data->g0_interrupt_array,
-					   INT_TYPE_G0);
+					   INTR_GROUP0);
 }
 
 /*******************************************************************************
@@ -332,9 +332,9 @@ unsigned int gicv3_get_pending_interrupt_type(void)
  * this interrupt has been configured under by the interrupt controller i.e.
  * group0 or group1 Secure / Non Secure. The return value can be one of the
  * following :
- *    INT_TYPE_G0  : The interrupt type is a Secure Group 0 interrupt
- *    INT_TYPE_G1S : The interrupt type is a Secure Group 1 secure interrupt
- *    INT_TYPE_G1NS: The interrupt type is a Secure Group 1 non secure
+ *    INTR_GROUP0  : The interrupt type is a Secure Group 0 interrupt
+ *    INTR_GROUP1S : The interrupt type is a Secure Group 1 secure interrupt
+ *    INTR_GROUP1NS: The interrupt type is a Secure Group 1 non secure
  *                   interrupt.
  ******************************************************************************/
 unsigned int gicv3_get_interrupt_type(unsigned int id,
@@ -352,7 +352,7 @@ unsigned int gicv3_get_interrupt_type(unsigned int id,
 
 	/* All LPI interrupts are Group 1 non secure */
 	if (id >= MIN_LPI_ID)
-		return INT_TYPE_G1NS;
+		return INTR_GROUP1NS;
 
 	if (id < MIN_SPI_ID) {
 		assert(driver_data->rdistif_base_addrs);
@@ -370,12 +370,12 @@ unsigned int gicv3_get_interrupt_type(unsigned int id,
 	 * interrupt
 	 */
 	if (igroup)
-		return INT_TYPE_G1NS;
+		return INTR_GROUP1NS;
 
 	/* If the GRPMOD bit is set, then it is a Group 1 Secure interrupt */
 	if (grpmodr)
-		return INT_TYPE_G1S;
+		return INTR_GROUP1S;
 
 	/* Else it is a Group 0 Secure interrupt */
-	return INT_TYPE_G0;
+	return INTR_GROUP0;
 }
