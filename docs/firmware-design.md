@@ -1194,6 +1194,72 @@ Additionally, if the platform memory layout implies some image overlaying like
 on FVP, BL31 and TSP need to know the limit address that their PROGBITS
 sections must not overstep. The platform code must provide those.
 
+Trusted Firmware provides a mechanism to verify at boot time that the memory
+to load a new image is free to prevent overwriting a previously loaded image.
+For this mechanism to work, the platform must specify the memory available in
+the system as regions, where each region consists of base address, total size
+and the free area within it (as defined in the `meminfo_t` structure). Trusted
+Firmware retrieves these memory regions by calling the corresponding platform
+API:
+
+*   `meminfo_t *bl1_plat_sec_mem_layout(void)`
+*   `meminfo_t *bl2_plat_sec_mem_layout(void)`
+*   `void bl2_plat_get_scp_bl2_meminfo(meminfo_t *scp_bl2_meminfo)`
+*   `void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)`
+*   `void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)`
+
+For example, in the case of BL1 loading BL2, `bl1_plat_sec_mem_layout()` will
+return the region defined by the platform where BL1 intends to load BL2. The
+`load_image()` function will check that the memory where BL2 will be loaded is
+within the specified region and marked as free.
+
+The actual number of regions and their base addresses and sizes is platform
+specific. The platform may return the same region or define a different one for
+each API. However, the overlap verification mechanism applies only to a single
+region. Hence, it is the platform responsibility to guarantee that different
+regions do not overlap, or that if they do, the overlapping images are not
+accessed at the same time. This could be used, for example, to load temporary
+images (e.g. certificates) or firmware images prior to being transfered to its
+corresponding processor (e.g. the SCP BL2 image).
+
+To reduce fragmentation and simplify the tracking of free memory, all the free
+memory within a region is always located in one single buffer defined by its
+base address and size. Trusted Firmware implements a top/bottom load approach:
+after a new image is loaded, it checks how much memory remains free above and
+below the image. The smallest area is marked as unavailable, while the larger
+area becomes the new free memory buffer. Platforms should take this behaviour
+into account when defining the base address for each of the images. For example,
+if an image is loaded near the middle of the region, small changes in image size
+could cause a flip between a top load and a bottom load, which may result in an
+unexpected memory layout.
+
+The following diagram is an example of an image loaded in the bottom part of
+the memory region. The region is initially free (nothing has been loaded yet):
+
+               Memory region
+               +----------+
+               |          |
+               |          |  <<<<<<<<<<<<<  Free
+               |          |
+               |----------|                 +------------+
+               |  image   |  <<<<<<<<<<<<<  |   image    |
+               |----------|                 +------------+
+               | xxxxxxxx |  <<<<<<<<<<<<<  Marked as unavailable
+               +----------+
+
+And the following diagram is an example of an image loaded in the top part:
+
+               Memory region
+               +----------+
+               | xxxxxxxx |  <<<<<<<<<<<<<  Marked as unavailable
+               |----------|                 +------------+
+               |  image   |  <<<<<<<<<<<<<  |   image    |
+               |----------|                 +------------+
+               |          |
+               |          |  <<<<<<<<<<<<<  Free
+               |          |
+               +----------+
+
 
 ####  Memory layout on ARM development platforms
 
@@ -1229,9 +1295,47 @@ The following list describes the memory layout on the ARM development platforms:
     *   Secure region of DRAM (top 16MB of DRAM configured by the TrustZone
         controller)
 
-When BL32 is loaded into Trusted SRAM, its NOBITS sections are allowed to
-overlay BL2. This memory layout is designed to give the BL32 image as much
-memory as possible when it is loaded into Trusted SRAM.
+    When BL32 is loaded into Trusted SRAM, its NOBITS sections are allowed to
+    overlay BL2. This memory layout is designed to give the BL32 image as much
+    memory as possible when it is loaded into Trusted SRAM.
+
+The memory regions for the overlap detection mechanism at boot time are
+defined as follows (shown per API):
+
+*   `meminfo_t *bl1_plat_sec_mem_layout(void)`
+
+    This region corresponds to the whole Trusted SRAM except for the shared
+    memory at the base. This region is initially free. At boot time, BL1 will
+    mark the BL1(rw) section within this region as occupied. The BL1(rw) section
+    is placed at the top of Trusted SRAM.
+
+*   `meminfo_t *bl2_plat_sec_mem_layout(void)`
+
+    This region corresponds to the whole Trusted SRAM as defined by
+    `bl1_plat_sec_mem_layout()`, but with the BL1(rw) section marked as
+    occupied. This memory region is used to check that BL2 and BL31 do not
+    overlap with each other. BL2_BASE and BL1_RW_BASE are carefully chosen so
+    that the memory for BL31 is top loaded above BL2.
+
+*   `void bl2_plat_get_scp_bl2_meminfo(meminfo_t *scp_bl2_meminfo)`
+
+    This region is an exact copy of the region defined by
+    `bl2_plat_sec_mem_layout()`. Being a disconnected copy means that all the
+    changes made to this region by the Trusted Firmware will not be propagated.
+    This approach is valid because the SCP BL2 image is loaded temporarily
+    while it is being transferred to the SCP, so this memory is reused
+    afterwards.
+
+*   `void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)`
+
+    This region depends on the location of the BL32 image. Currently, ARM
+    platforms support three different locations (detailed below): Trusted SRAM,
+    Trusted DRAM and the TZC-Secured DRAM.
+
+*   `void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)`
+
+    This region corresponds to the Non-Secure DDR-DRAM, excluding the
+    TZC-Secured area.
 
 The location of the BL32 image will result in different memory maps. This is
 illustrated for both FVP and Juno in the following diagrams, using the TSP as
