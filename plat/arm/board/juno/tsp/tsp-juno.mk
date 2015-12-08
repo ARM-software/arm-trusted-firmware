@@ -28,6 +28,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-BL32_SOURCES		+=	plat/arm/css/common/css_topology.c
+BL32_SOURCES		+=	plat/arm/css/common/css_topology.c	\
+				${JUNO_GIC_SOURCES}
 
 include plat/arm/common/tsp/arm_tsp.mk

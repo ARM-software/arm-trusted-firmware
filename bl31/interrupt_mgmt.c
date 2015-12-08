@@ -67,18 +67,15 @@ typedef struct intr_type_desc {
 static intr_type_desc_t intr_type_descs[MAX_INTR_TYPES];
 
 /*******************************************************************************
- * This function validates the interrupt type. EL3 interrupts are currently not
- * supported.
+ * This function validates the interrupt type.
  ******************************************************************************/
 static int32_t validate_interrupt_type(uint32_t type)
 {
-	if (type == INTR_TYPE_EL3)
-		return -ENOTSUP;
+	if (type == INTR_TYPE_S_EL1 || type == INTR_TYPE_NS ||
+			type == INTR_TYPE_EL3)
+		return 0;
 
-	if (type != INTR_TYPE_S_EL1 && type != INTR_TYPE_NS)
-		return -EINVAL;
-
-	return 0;
+	return -EINVAL;
 }
 
 /*******************************************************************************
@@ -94,6 +91,9 @@ static int32_t validate_routing_model(uint32_t type, uint32_t flags)
 
 	if (type == INTR_TYPE_NS)
 		return validate_ns_interrupt_rm(flags);
+
+	if (type == INTR_TYPE_EL3)
+		return validate_el3_interrupt_rm(flags);
 
 	return -EINVAL;
 }

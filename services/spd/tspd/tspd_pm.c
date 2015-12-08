@@ -130,7 +130,7 @@ static void tspd_cpu_on_finish_handler(uint64_t unused)
 	/* Initialise this cpu's secure context */
 	cm_init_my_context(&tsp_on_entrypoint);
 
-#if TSPD_ROUTE_IRQ_TO_EL3
+#if TSP_NS_INTR_ASYNC_PREEMPT
 	/*
 	 * Disable the NS interrupt locally since it will be enabled globally
 	 * within cm_init_my_context.

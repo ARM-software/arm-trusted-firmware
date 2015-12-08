@@ -63,6 +63,10 @@
 #define INTR_NS_VALID_RM0		0x0
 /* Routed to EL1/EL2 from NS and to EL3 from Secure */
 #define INTR_NS_VALID_RM1		0x1
+/* Routed to EL3 from NS. Taken to S-EL1 from Secure and handed over to EL3 */
+#define INTR_EL3_VALID_RM0		0x2
+/* Routed to EL3 from NS and Secure */
+#define INTR_EL3_VALID_RM1		0x3
 /* This is the default routing model */
 #define INTR_DEFAULT_RM		0x0
 
@@ -87,12 +91,16 @@
  * of interrupt. If the model does not match one of the valid masks
  * -EINVAL is returned.
  ******************************************************************************/
-#define validate_sel1_interrupt_rm(x)	(x == INTR_SEL1_VALID_RM0 ? 0 : \
-					 (x == INTR_SEL1_VALID_RM1 ? 0 :\
+#define validate_sel1_interrupt_rm(x)	((x) == INTR_SEL1_VALID_RM0 ? 0 : \
+					 ((x) == INTR_SEL1_VALID_RM1 ? 0 :\
 					  -EINVAL))
 
-#define validate_ns_interrupt_rm(x)	(x == INTR_NS_VALID_RM0 ? 0 : \
-					 (x == INTR_NS_VALID_RM1 ? 0 :\
+#define validate_ns_interrupt_rm(x)	((x) == INTR_NS_VALID_RM0 ? 0 : \
+					 ((x) == INTR_NS_VALID_RM1 ? 0 :\
+					  -EINVAL))
+
+#define validate_el3_interrupt_rm(x)	((x) == INTR_EL3_VALID_RM0 ? 0 : \
+					 ((x) == INTR_EL3_VALID_RM1 ? 0 :\
 					  -EINVAL))
 
 /*******************************************************************************
