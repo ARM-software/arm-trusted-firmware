@@ -77,7 +77,7 @@ void bl31_main(void)
 	/* Perform remaining generic architectural setup from EL3 */
 	bl31_arch_setup();
 
-	/* Perform platform setup in BL1 */
+	/* Perform platform setup in BL31 */
 	bl31_platform_setup();
 
 	/* Initialise helper libraries */
@@ -109,6 +109,12 @@ void bl31_main(void)
 	 * corresponding to the desired security state after the next ERET.
 	 */
 	bl31_prepare_next_image_entry();
+
+	/*
+	 * Perform any platform specific runtime setup prior to cold boot exit
+	 * from BL31
+	 */
+	bl31_plat_runtime_setup();
 }
 
 /*******************************************************************************
