@@ -312,7 +312,7 @@ void gicv3_secure_spis_configure(uintptr_t gicd_base,
 	unsigned int index, irq_num;
 	uint64_t gic_affinity_val;
 
-	assert((int_grp == INT_TYPE_G1S) || (int_grp == INT_TYPE_G0));
+	assert((int_grp == INTR_GROUP1S) || (int_grp == INTR_GROUP0));
 	/* If `num_ints` is not 0, ensure that `sec_intr_list` is not NULL */
 	assert(num_ints ? (uintptr_t)sec_intr_list : 1);
 
@@ -324,7 +324,7 @@ void gicv3_secure_spis_configure(uintptr_t gicd_base,
 			gicd_clr_igroupr(gicd_base, irq_num);
 
 			/* Configure this interrupt as G0 or a G1S interrupt */
-			if (int_grp == INT_TYPE_G1S)
+			if (int_grp == INTR_GROUP1S)
 				gicd_set_igrpmodr(gicd_base, irq_num);
 			else
 				gicd_clr_igrpmodr(gicd_base, irq_num);
@@ -386,7 +386,7 @@ void gicv3_secure_ppi_sgi_configure(uintptr_t gicr_base,
 {
 	unsigned int index, irq_num;
 
-	assert((int_grp == INT_TYPE_G1S) || (int_grp == INT_TYPE_G0));
+	assert((int_grp == INTR_GROUP1S) || (int_grp == INTR_GROUP0));
 	/* If `num_ints` is not 0, ensure that `sec_intr_list` is not NULL */
 	assert(num_ints ? (uintptr_t)sec_intr_list : 1);
 
@@ -398,7 +398,7 @@ void gicv3_secure_ppi_sgi_configure(uintptr_t gicr_base,
 			gicr_clr_igroupr0(gicr_base, irq_num);
 
 			/* Configure this interrupt as G0 or a G1S interrupt */
-			if (int_grp == INT_TYPE_G1S)
+			if (int_grp == INTR_GROUP1S)
 				gicr_set_igrpmodr0(gicr_base, irq_num);
 			else
 				gicr_clr_igrpmodr0(gicr_base, irq_num);

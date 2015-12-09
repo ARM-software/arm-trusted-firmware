@@ -94,17 +94,18 @@
  */
 
 /* GIC related constants (no GICR in GIC-400) */
-#define PLAT_CSS_GICD_BASE		0x2c010000
-#define PLAT_CSS_GICR_BASE		0x0
-#define PLAT_CSS_GICC_BASE		0x2c02f000
-#define PLAT_CSS_GICH_BASE		0x2c04f000
-#define PLAT_CSS_GICV_BASE		0x2c06f000
+#define PLAT_ARM_GICD_BASE		0x2c010000
+#define PLAT_ARM_GICC_BASE		0x2c02f000
+#define PLAT_ARM_GICH_BASE		0x2c04f000
+#define PLAT_ARM_GICV_BASE		0x2c06f000
 
-#define PLAT_CSS_IRQ_SEC_LIST		CSS_IRQ_MHU,			\
-					CSS_IRQ_GPU_SMMU_0,		\
-					CSS_IRQ_TZC,			\
-					CSS_IRQ_TZ_WDOG,		\
-					CSS_IRQ_SEC_SYS_TIMER,		\
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
+ * terminology. On a GICv2 system or mode, the lists will be merged and treated
+ * as Group 0 interrupts.
+ */
+#define PLAT_ARM_G1S_IRQS		CSS_G1S_IRQS,			\
+					ARM_G1S_IRQS,			\
 					JUNO_IRQ_DMA_SMMU,		\
 					JUNO_IRQ_HDLCD0_SMMU,		\
 					JUNO_IRQ_HDLCD1_SMMU,		\
@@ -113,6 +114,8 @@
 					JUNO_IRQ_SEC_I2C,		\
 					JUNO_IRQ_GPU_SMMU_1,		\
 					JUNO_IRQ_ETR_SMMU
+
+#define PLAT_ARM_G0_IRQS		ARM_G0_IRQS
 
 /*
  * Required ARM CSS SoC based platform porting definitions

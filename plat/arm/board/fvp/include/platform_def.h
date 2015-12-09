@@ -121,5 +121,24 @@
 		TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO)	|	\
 		TZC_REGION_ACCESS_RDWR(FVP_NSAID_VIRTIO_OLD))
 
+/*
+ * GIC related constants to cater for both GICv2 and GICv3 instances of an
+ * FVP. They could be overriden at runtime in case the FVP implements the legacy
+ * VE memory map.
+ */
+#define PLAT_ARM_GICD_BASE		BASE_GICD_BASE
+#define PLAT_ARM_GICR_BASE		BASE_GICR_BASE
+#define PLAT_ARM_GICC_BASE		BASE_GICC_BASE
+
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
+ * terminology. On a GICv2 system or mode, the lists will be merged and treated
+ * as Group 0 interrupts.
+ */
+#define PLAT_ARM_G1S_IRQS		ARM_G1S_IRQS,			\
+					FVP_IRQ_TZ_WDOG,		\
+					FVP_IRQ_SEC_SYS_TIMER
+
+#define PLAT_ARM_G0_IRQS		ARM_G0_IRQS
 
 #endif /* __PLATFORM_DEF_H__ */

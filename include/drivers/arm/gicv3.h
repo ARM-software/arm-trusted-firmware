@@ -35,9 +35,9 @@
  * GICv3 miscellaneous definitions
  ******************************************************************************/
 /* Interrupt group definitions */
-#define INT_TYPE_G1S		0
-#define INT_TYPE_G0		1
-#define INT_TYPE_G1NS		2
+#define INTR_GROUP1S		0
+#define INTR_GROUP0		1
+#define INTR_GROUP1NS		2
 
 /* Interrupt IDs reported by the HPPIR and IAR registers */
 #define PENDING_G1S_INTID	1020
