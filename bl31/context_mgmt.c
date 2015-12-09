@@ -330,6 +330,14 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			/* Set VPIDR, VMPIDR to match MIDR, MPIDR */
 			write_vpidr_el2(read_midr_el1());
 			write_vmpidr_el2(read_mpidr_el1());
+
+			/*
+			 * Reset VTTBR_EL2.
+			 * Needed because cache maintenance operations depend on
+			 * the VMID even when non-secure EL1&0 stage 2 address
+			 * translation are disabled.
+			 */
+			write_vttbr_el2(0);
 		}
 	}
 
