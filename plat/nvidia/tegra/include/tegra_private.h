@@ -33,6 +33,7 @@
 
 #include <arch.h>
 #include <platform_def.h>
+#include <psci.h>
 #include <xlat_tables.h>
 
 /*******************************************************************************
