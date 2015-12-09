@@ -223,9 +223,25 @@ void arm_bl31_platform_setup(void)
 	plat_arm_pwrc_setup();
 }
 
+/*******************************************************************************
+ * Perform any BL3-1 platform runtime setup prior to BL3-1 exit common to ARM
+ * standard platforms
+ ******************************************************************************/
+void arm_bl31_plat_runtime_setup(void)
+{
+	/* Initialize the runtime console */
+	console_init(PLAT_ARM_BL31_RUN_UART_BASE, PLAT_ARM_BL31_RUN_UART_CLK_IN_HZ,
+			ARM_CONSOLE_BAUDRATE);
+}
+
 void bl31_platform_setup(void)
 {
 	arm_bl31_platform_setup();
+}
+
+void bl31_plat_runtime_setup(void)
+{
+	arm_bl31_plat_runtime_setup();
 }
 
 /*******************************************************************************

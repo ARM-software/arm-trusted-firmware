@@ -28,16 +28,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <assert.h>
+#include <console.h>
 #include <platform.h>
 #include <xlat_tables.h>
 
 /*
- * The following 2 platform setup functions are weakly defined. They
+ * The following platform setup functions are weakly defined. They
  * provide typical implementations that may be re-used by multiple
  * platforms but may also be overridden by a platform if required.
  */
 #pragma weak bl31_plat_enable_mmu
 #pragma weak bl32_plat_enable_mmu
+#pragma weak bl31_plat_runtime_setup
 
 void bl31_plat_enable_mmu(uint32_t flags)
 {
@@ -47,6 +49,15 @@ void bl31_plat_enable_mmu(uint32_t flags)
 void bl32_plat_enable_mmu(uint32_t flags)
 {
 	enable_mmu_el1(flags);
+}
+
+void bl31_plat_runtime_setup(void)
+{
+	/*
+	 * Finish the use of console driver in BL31 so that any runtime logs
+	 * from BL31 will be suppressed.
+	 */
+	console_uninit();
 }
 
 #if !ENABLE_PLAT_COMPAT

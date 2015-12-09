@@ -158,7 +158,7 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
  *****************************************************************************/
 void arm_system_pwr_domain_resume(void)
 {
-	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
+	console_init(PLAT_ARM_BL31_RUN_UART_BASE, PLAT_ARM_BL31_RUN_UART_CLK_IN_HZ,
 						ARM_CONSOLE_BAUDRATE);
 
 	/* Assert system power domain is available on the platform */

@@ -175,6 +175,7 @@ void arm_bl2u_plat_arch_setup(void);
 void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 				void *plat_params_from_bl2);
 void arm_bl31_platform_setup(void);
+void arm_bl31_plat_runtime_setup(void);
 void arm_bl31_plat_arch_setup(void);
 
 /* TSP utility functions */

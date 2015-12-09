@@ -1172,6 +1172,21 @@ In ARM standard platforms, this function does the following:
 *   Detects the system topology.
 
 
+### Function : bl31_plat_runtime_setup() [optional]
+
+    Argument : void
+    Return   : void
+
+The purpose of this function is allow the platform to perform any BL31 runtime
+setup just prior to BL31 exit during cold boot. The default weak
+implementation of this function will invoke `console_uninit()` which will
+suppress any BL31 runtime logs.
+
+In ARM Standard platforms, this function will initialize the BL31 runtime
+console which will cause all further BL31 logs to be output to the
+runtime console.
+
+
 ### Function : bl31_get_next_image_info() [mandatory]
 
     Argument : unsigned int
