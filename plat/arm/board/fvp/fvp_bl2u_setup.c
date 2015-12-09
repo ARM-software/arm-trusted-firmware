@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
+#include <plat_arm.h>
+#include "fvp_def.h"
+#include "fvp_private.h"
 
-#include <types.h>
+void bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
+{
+	arm_bl2u_early_platform_setup(mem_layout, plat_info);
 
-/*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
- ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
-
-/******************************************
- * Function prototypes
- *****************************************/
-void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
-
-void bl1_prepare_next_image(unsigned int image_id);
-
-register_t bl1_fwu_smc_handler(unsigned int smc_fid,
-		register_t x1,
-		register_t x2,
-		register_t x3,
-		register_t x4,
-		void *cookie,
-		void *handle,
-		unsigned int flags);
-#endif /* __BL1_PRIVATE_H__ */
+	/* Initialize the platform config for future decision making */
+	fvp_config_setup();
+}

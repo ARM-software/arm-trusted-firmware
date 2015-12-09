@@ -310,6 +310,14 @@
 # error "Unsupported ARM_TSP_RAM_LOCATION_ID value"
 #endif
 
+/*******************************************************************************
+ * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.
+ ******************************************************************************/
+#define BL2U_BASE			BL2_BASE
+#define BL2U_LIMIT			BL31_BASE
+#define NS_BL2U_BASE			ARM_NS_DRAM1_BASE
+#define NS_BL1U_BASE			(V2M_FLASH0_BASE + 0x03EB8000)
+
 /*
  * ID of the secure physical generic timer interrupt used by the TSP.
  */

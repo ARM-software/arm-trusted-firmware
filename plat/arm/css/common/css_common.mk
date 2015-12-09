@@ -34,9 +34,14 @@ PLAT_INCLUDES		+=	-Iinclude/plat/arm/css/common			\
 
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/common/aarch64/css_helpers.S
 
-#BL1_SOURCES		+=
+BL1_SOURCES		+=	plat/arm/css/common/css_bl1_setup.c
 
 BL2_SOURCES		+=	plat/arm/css/common/css_bl2_setup.c		\
+				plat/arm/css/common/css_mhu.c			\
+				plat/arm/css/common/css_scp_bootloader.c	\
+				plat/arm/css/common/css_scpi.c
+
+BL2U_SOURCES		+=	plat/arm/css/common/css_bl2u_setup.c		\
 				plat/arm/css/common/css_mhu.c			\
 				plat/arm/css/common/css_scp_bootloader.c	\
 				plat/arm/css/common/css_scpi.c
@@ -46,6 +51,9 @@ BL31_SOURCES		+=	plat/arm/css/common/css_mhu.c			\
 				plat/arm/css/common/css_scpi.c			\
 				plat/arm/css/common/css_topology.c
 
+ifneq (${TRUSTED_BOARD_BOOT},0)
+$(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp_bl2u))
+endif
 
 ifneq (${RESET_TO_BL31},0)
   $(error "Using BL3-1 as the reset vector is not supported on CSS platforms. \

@@ -165,6 +165,12 @@ void arm_bl2_plat_arch_setup(void);
 uint32_t arm_get_spsr_for_bl32_entry(void);
 uint32_t arm_get_spsr_for_bl33_entry(void);
 
+/* BL2U utility functions */
+void arm_bl2u_early_platform_setup(struct meminfo *mem_layout,
+				void *plat_info);
+void arm_bl2u_platform_setup(void);
+void arm_bl2u_plat_arch_setup(void);
+
 /* BL3-1 utility functions */
 void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 				void *plat_params_from_bl2);
@@ -174,6 +180,8 @@ void arm_bl31_plat_arch_setup(void);
 /* TSP utility functions */
 void arm_tsp_early_platform_setup(void);
 
+/* FIP TOC validity check */
+int arm_io_is_toc_valid(void);
 
 /*
  * Mandatory functions required in ARM standard platforms

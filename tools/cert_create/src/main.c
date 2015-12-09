@@ -217,8 +217,11 @@ static void check_cmd_params(void)
 				}
 				break;
 			case EXT_TYPE_HASH:
-				/* Binary image must be specified */
-				if (ext->data.fn == NULL) {
+				/*
+				 * Binary image must be specified
+				 * unless it is explicitly made optional.
+				 */
+				if ((!ext->optional) && (ext->data.fn == NULL)) {
 					ERROR("Image for '%s' not specified\n",
 					      ext->ln);
 					exit(1);
@@ -410,12 +413,20 @@ int main(int argc, char *argv[])
 				break;
 			case EXT_TYPE_HASH:
 				if (ext->data.fn == NULL) {
-					break;
-				}
-				if (!sha_file(ext->data.fn, md)) {
-					ERROR("Cannot calculate hash of %s\n",
-						ext->data.fn);
-					exit(1);
+					if (ext->optional) {
+						/* Include a hash filled with zeros */
+						memset(md, 0x0, SHA256_DIGEST_LENGTH);
+					} else {
+						/* Do not include this hash in the certificate */
+						break;
+					}
+				} else {
+					/* Calculate the hash of the file */
+					if (!sha_file(ext->data.fn, md)) {
+						ERROR("Cannot calculate hash of %s\n",
+							ext->data.fn);
+						exit(1);
+					}
 				}
 				CHECK_NULL(cert_ext, ext_new_hash(ext_nid,
 						EXT_CRIT, md_info, md,

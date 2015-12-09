@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,61 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
+#include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
+#include <debug.h>
+#include <errno.h>
+#include <platform_def.h>
 
-#include <types.h>
+/*
+ * The following platform functions are weakly defined. They
+ * are default implementations that allow BL1 to compile in
+ * absence of real definitions. The Platforms may override
+ * with more complex definitions.
+ */
+#pragma weak bl1_plat_get_next_image_id
+#pragma weak bl1_plat_set_ep_info
+#pragma weak bl1_plat_get_image_desc
+#pragma weak bl1_plat_fwu_done
 
-/*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
- ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
 
-/******************************************
- * Function prototypes
- *****************************************/
-void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
+unsigned int bl1_plat_get_next_image_id(void)
+{
+	/* BL2 load will be done by default. */
+	return BL2_IMAGE_ID;
+}
 
-void bl1_prepare_next_image(unsigned int image_id);
+void bl1_plat_set_ep_info(unsigned int image_id,
+		entry_point_info_t *ep_info)
+{
 
-register_t bl1_fwu_smc_handler(unsigned int smc_fid,
-		register_t x1,
-		register_t x2,
-		register_t x3,
-		register_t x4,
-		void *cookie,
-		void *handle,
-		unsigned int flags);
-#endif /* __BL1_PRIVATE_H__ */
+}
+
+/*
+ * Following is the default definition that always
+ * returns BL2 image details.
+ */
+image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
+{
+	static image_desc_t bl2_img_desc = BL2_IMAGE_DESC;
+	return &bl2_img_desc;
+}
+
+__dead2 void bl1_plat_fwu_done(void *cookie, void *rsvd_ptr)
+{
+	while (1)
+		wfi();
+}
+
+/*
+ * The Platforms must override with real definition.
+ */
+#pragma weak bl1_plat_mem_check
+
+int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
+		unsigned int flags)
+{
+	assert(0);
+	return -ENOMEM;
+}

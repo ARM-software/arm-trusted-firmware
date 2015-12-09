@@ -72,6 +72,8 @@ typedef struct ext_s {
 	X509V3_EXT_METHOD method; /* This field may be used to define a custom
 				   * function to print the contents of the
 				   * extension */
+
+	int optional;	/* This field may be used optionally to exclude an image */
 } ext_t;
 
 enum {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,87 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
+#include <assert.h>
+#include <bl_common.h>
+#include <debug.h>
+#include <errno.h>
+#include <plat_arm.h>
+#include <tbbr_img_desc.h>
 
-#include <types.h>
+
+/* Struct to keep track of usable memory */
+typedef struct bl1_mem_info{
+	uintptr_t mem_base;
+	unsigned int mem_size;
+} bl1_mem_info_t;
+
+bl1_mem_info_t fwu_addr_map_secure[] = {
+	{
+		.mem_base = ARM_SHARED_RAM_BASE,
+		.mem_size = ARM_SHARED_RAM_SIZE
+	},
+	{
+		.mem_size = 0
+	}
+};
+
+bl1_mem_info_t fwu_addr_map_non_secure[] = {
+	{
+		.mem_base = ARM_NS_DRAM1_BASE,
+		.mem_size = ARM_NS_DRAM1_SIZE
+	},
+	{
+		.mem_base = V2M_FLASH0_BASE,
+		.mem_size = V2M_FLASH0_SIZE
+	},
+	{
+		.mem_size = 0
+	}
+};
+
+int bl1_plat_mem_check(uintptr_t mem_base,
+		unsigned int mem_size,
+		unsigned int flags)
+{
+	unsigned int index = 0;
+	bl1_mem_info_t *mmap;
+
+	assert(mem_base);
+	assert(mem_size);
+
+	/*
+	 * Check the given image source and size.
+	 */
+	if (GET_SEC_STATE(flags) == SECURE)
+		mmap = fwu_addr_map_secure;
+	else
+		mmap = fwu_addr_map_non_secure;
+
+	while (mmap[index].mem_size) {
+		if ((mem_base >= mmap[index].mem_base) &&
+			((mem_base + mem_size)
+			<= (mmap[index].mem_base +
+			mmap[index].mem_size)))
+			return 0;
+
+		index++;
+	}
+
+	return -ENOMEM;
+}
 
 /*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
+ * This function does linear search for image_id and returns image_desc.
  ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
+image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
+{
+	unsigned int index = 0;
 
-/******************************************
- * Function prototypes
- *****************************************/
-void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
+	while (bl1_tbbr_image_descs[index].image_id != INVALID_IMAGE_ID) {
+		if (bl1_tbbr_image_descs[index].image_id == image_id)
+			return &bl1_tbbr_image_descs[index];
+		index++;
+	}
 
-void bl1_prepare_next_image(unsigned int image_id);
-
-register_t bl1_fwu_smc_handler(unsigned int smc_fid,
-		register_t x1,
-		register_t x2,
-		register_t x3,
-		register_t x4,
-		void *cookie,
-		void *handle,
-		unsigned int flags);
-#endif /* __BL1_PRIVATE_H__ */
+	return NULL;
+}

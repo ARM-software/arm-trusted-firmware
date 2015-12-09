@@ -106,6 +106,11 @@ BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
 				plat/arm/common/arm_security.c			\
 				plat/common/aarch64/platform_up_stack.S
 
+BL2U_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
+				plat/arm/common/arm_bl2u_setup.c		\
+				plat/arm/common/arm_security.c			\
+				plat/common/aarch64/platform_up_stack.S
+
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/ccn/ccn.c				\
 				drivers/arm/tzc400/tzc400.c			\
@@ -127,8 +132,15 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 				drivers/auth/img_parser_mod.c			\
 				drivers/auth/tbbr/tbbr_cot.c			\
 
-    BL1_SOURCES		+=	${AUTH_SOURCES}
+    PLAT_INCLUDES	+=	-Iinclude/bl1/tbbr
+
+    BL1_SOURCES		+=	${AUTH_SOURCES}			\
+				bl1/tbbr/tbbr_img_desc.c	\
+				plat/arm/common/arm_bl1_fwu.c
+
     BL2_SOURCES		+=	${AUTH_SOURCES}
+
+    $(eval $(call FWU_FIP_ADD_IMG,NS_BL2U,--ns_bl2u))
 
     MBEDTLS_KEY_ALG	:=	${KEY_ALG}
 

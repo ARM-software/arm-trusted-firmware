@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
-
-#include <types.h>
+#include <arch.h>
+#include <arch_helpers.h>
+#include <assert.h>
+#include <auth_mod.h>
+#include <bl_common.h>
+#include <bl1.h>
+#include <debug.h>
+#include <platform.h>
+#include <platform_def.h>
+#include <stdint.h>
 
 /*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
+ * This function is responsible to:
+ * Load SCP_BL2U if platform has defined SCP_BL2U_BASE
+ * Perform platform setup.
+ * Go back to EL3.
  ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
+void bl2u_main(void)
+{
+	NOTICE("BL2U: %s\n", version_string);
+	NOTICE("BL2U: %s\n", build_message);
 
-/******************************************
- * Function prototypes
- *****************************************/
-void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
+#if SCP_BL2U_BASE
+	int rc;
+	/* Load the subsequent bootloader images */
+	rc = bl2u_plat_handle_scp_bl2u();
+	if (rc) {
+		ERROR("Failed to load SCP_BL2U (%i)\n", rc);
+		panic();
+	}
+#endif
 
-void bl1_prepare_next_image(unsigned int image_id);
+	/* Perform platform setup in BL2U after loading SCP_BL2U */
+	bl2u_platform_setup();
 
-register_t bl1_fwu_smc_handler(unsigned int smc_fid,
-		register_t x1,
-		register_t x2,
-		register_t x3,
-		register_t x4,
-		void *cookie,
-		void *handle,
-		unsigned int flags);
-#endif /* __BL1_PRIVATE_H__ */
+	/*
+	 * Indicate that BL2U is done and resume back to
+	 * normal world via an SMC to BL1.
+	 * x1 could be passed to Normal world,
+	 * so DO NOT pass any secret information.
+	 */
+	smc(FWU_SMC_SEC_IMAGE_DONE, 0, 0, 0, 0, 0, 0, 0);
+	wfi();
+}

@@ -32,43 +32,22 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <auth_mod.h>
+#include <bl1.h>
 #include <bl_common.h>
 #include <debug.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <smcc_helpers.h>
 #include "bl1_private.h"
+#include <uuid.h>
 
-/*******************************************************************************
- * Runs BL2 from the given entry point. It results in dropping the
- * exception level
- ******************************************************************************/
-static void __dead2 bl1_run_bl2(entry_point_info_t *bl2_ep)
-{
-	/* Check bl2 security state is expected as secure */
-	assert(GET_SECURITY_STATE(bl2_ep->h.attr) == SECURE);
-	/* Check NS Bit is also set as secure */
-	assert(!(read_scr_el3() & SCR_NS_BIT));
+/* BL1 Service UUID */
+DEFINE_SVC_UUID(bl1_svc_uid,
+	0xfd3967d4, 0x72cb, 0x4d9a, 0xb5, 0x75,
+	0x67, 0x15, 0xd6, 0xf4, 0xbb, 0x4a);
 
-	bl1_arch_next_el_setup();
 
-	/* Tell next EL what we want done */
-	bl2_ep->args.arg0 = RUN_IMAGE;
-
-	write_spsr_el3(bl2_ep->spsr);
-	write_elr_el3(bl2_ep->pc);
-
-	NOTICE("BL1: Booting BL2\n");
-	print_entry_point_info(bl2_ep);
-
-	eret(bl2_ep->args.arg0,
-		bl2_ep->args.arg1,
-		bl2_ep->args.arg2,
-		bl2_ep->args.arg3,
-		bl2_ep->args.arg4,
-		bl2_ep->args.arg5,
-		bl2_ep->args.arg6,
-		bl2_ep->args.arg7);
-}
+static void bl1_load_bl2(void);
 
 /*******************************************************************************
  * The next function has a weak definition. Platform specific code can override
@@ -91,7 +70,8 @@ void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 
 	/* Check that BL1's memory is lying outside of the free memory */
 	assert((BL1_RAM_LIMIT <= bl1_mem_layout->free_base) ||
-	       (BL1_RAM_BASE >= bl1_mem_layout->free_base + bl1_mem_layout->free_size));
+	       (BL1_RAM_BASE >= bl1_mem_layout->free_base +
+				bl1_mem_layout->free_size));
 
 	/* Remove BL1 RW data from the scope of memory visible to BL2 */
 	*bl2_mem_layout = *bl1_mem_layout;
@@ -105,13 +85,13 @@ void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 
 /*******************************************************************************
  * Function to perform late architectural and platform specific initialization.
- * It also locates and loads the BL2 raw binary image in the trusted DRAM. Only
- * called by the primary cpu after a cold boot.
- * TODO: Add support for alternative image load mechanism e.g using virtio/elf
- * loader etc.
-  ******************************************************************************/
+ * It also queries the platform to load and run next BL image. Only called
+ * by the primary cpu after a cold boot.
+ ******************************************************************************/
 void bl1_main(void)
 {
+	unsigned int image_id;
+
 	/* Announce our arrival */
 	NOTICE(FIRMWARE_WELCOME_STR);
 	NOTICE("BL1: %s\n", version_string);
@@ -119,11 +99,6 @@ void bl1_main(void)
 
 	INFO("BL1: RAM 0x%lx - 0x%lx\n", BL1_RAM_BASE, BL1_RAM_LIMIT);
 
-	image_info_t bl2_image_info = { {0} };
-	entry_point_info_t bl2_ep = { {0} };
-	meminfo_t *bl1_tzram_layout;
-	meminfo_t *bl2_tzram_layout = 0x0;
-	int err;
 
 #if DEBUG
 	unsigned long val;
@@ -153,28 +128,65 @@ void bl1_main(void)
 	/* Perform remaining generic architectural setup from EL3 */
 	bl1_arch_setup();
 
+#if TRUSTED_BOARD_BOOT
+	/* Initialize authentication module */
+	auth_mod_init();
+#endif /* TRUSTED_BOARD_BOOT */
+
 	/* Perform platform setup in BL1. */
 	bl1_platform_setup();
 
-	SET_PARAM_HEAD(&bl2_image_info, PARAM_IMAGE_BINARY, VERSION_1, 0);
-	SET_PARAM_HEAD(&bl2_ep, PARAM_EP, VERSION_1, 0);
+	/* Get the image id of next image to load and run. */
+	image_id = bl1_plat_get_next_image_id();
+
+	/*
+	 * We currently interpret any image id other than
+	 * BL2_IMAGE_ID as the start of firmware update.
+	 */
+	if (image_id == BL2_IMAGE_ID)
+		bl1_load_bl2();
+	else
+		NOTICE("BL1-FWU: *******FWU Process Started*******\n");
+
+	bl1_prepare_next_image(image_id);
+}
+
+/*******************************************************************************
+ * This function locates and loads the BL2 raw binary image in the trusted SRAM.
+ * Called by the primary cpu after a cold boot.
+ * TODO: Add support for alternative image load mechanism e.g using virtio/elf
+ * loader etc.
+ ******************************************************************************/
+void bl1_load_bl2(void)
+{
+	image_desc_t *image_desc;
+	image_info_t *image_info;
+	entry_point_info_t *ep_info;
+	meminfo_t *bl1_tzram_layout;
+	meminfo_t *bl2_tzram_layout;
+	int err;
+
+	/* Get the image descriptor */
+	image_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
+	assert(image_desc);
+
+	/* Get the image info */
+	image_info = &image_desc->image_info;
+
+	/* Get the entry point info */
+	ep_info = &image_desc->ep_info;
 
 	/* Find out how much free trusted ram remains after BL1 load */
 	bl1_tzram_layout = bl1_plat_sec_mem_layout();
 
 	INFO("BL1: Loading BL2\n");
 
-#if TRUSTED_BOARD_BOOT
-	/* Initialize authentication module */
-	auth_mod_init();
-#endif /* TRUSTED_BOARD_BOOT */
-
 	/* Load the BL2 image */
 	err = load_auth_image(bl1_tzram_layout,
 			 BL2_IMAGE_ID,
-			 BL2_BASE,
-			 &bl2_image_info,
-			 &bl2_ep);
+			 image_info->image_base,
+			 image_info,
+			 ep_info);
 
 	if (err) {
 		ERROR("Failed to load BL2 firmware.\n");
@@ -191,11 +203,10 @@ void bl1_main(void)
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;
 	bl1_init_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
 
-	bl1_plat_set_bl2_ep_info(&bl2_image_info, &bl2_ep);
-	bl2_ep.args.arg1 = (unsigned long)bl2_tzram_layout;
-	bl1_run_bl2(&bl2_ep);
-
-	return;
+	ep_info->args.arg1 = (unsigned long)bl2_tzram_layout;
+	NOTICE("BL1: Booting BL2\n");
+	VERBOSE("BL1: BL2 memory layout address = 0x%llx\n",
+		(unsigned long long) bl2_tzram_layout);
 }
 
 /*******************************************************************************
@@ -216,3 +227,45 @@ void print_debug_loop_message(void)
 	NOTICE("BL1: Please connect the debugger to continue\n");
 }
 #endif
+
+/*******************************************************************************
+ * Top level handler for servicing BL1 SMCs.
+ ******************************************************************************/
+register_t bl1_smc_handler(unsigned int smc_fid,
+	register_t x1,
+	register_t x2,
+	register_t x3,
+	register_t x4,
+	void *cookie,
+	void *handle,
+	unsigned int flags)
+{
+
+#if TRUSTED_BOARD_BOOT
+	/*
+	 * Dispatch FWU calls to FWU SMC handler and return its return
+	 * value
+	 */
+	if (is_fwu_fid(smc_fid)) {
+		return bl1_fwu_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+			handle, flags);
+	}
+#endif
+
+	switch (smc_fid) {
+	case BL1_SMC_CALL_COUNT:
+		SMC_RET1(handle, BL1_NUM_SMC_CALLS);
+
+	case BL1_SMC_UID:
+		SMC_UUID_RET(handle, bl1_svc_uid);
+
+	case BL1_SMC_VERSION:
+		SMC_RET1(handle, BL1_SMC_MAJOR_VER | BL1_SMC_MINOR_VER);
+
+	default:
+		break;
+	}
+
+	WARN("Unimplemented BL1 SMC Call: 0x%x \n", smc_fid);
+	SMC_RET1(handle, SMC_UNK);
+}

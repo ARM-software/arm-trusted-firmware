@@ -43,6 +43,7 @@ struct meminfo;
 struct image_info;
 struct entry_point_info;
 struct bl31_params;
+struct image_desc;
 
 /*******************************************************************************
  * plat_get_rotpk_info() flags
@@ -92,17 +93,36 @@ void bl1_platform_setup(void);
 struct meminfo *bl1_plat_sec_mem_layout(void);
 
 /*
- * This function allows the platform to change the entrypoint information for
- * BL2, after BL1 has loaded BL2 into memory but before BL2 is executed.
+ * The following function is mandatory when the
+ * firmware update feature is used.
  */
-void bl1_plat_set_bl2_ep_info(struct image_info *image,
-			      struct entry_point_info *ep);
+int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
+		unsigned int flags);
 
 /*******************************************************************************
  * Optional BL1 functions (may be overridden)
  ******************************************************************************/
 void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
 			     struct meminfo *bl2_mem_layout);
+
+/*
+ * The following functions are used for image loading process in BL1.
+ */
+void bl1_plat_set_ep_info(unsigned int image_id,
+		struct entry_point_info *ep_info);
+/*
+ * The following functions are mandatory when firmware update
+ * feature is used and optional otherwise.
+ */
+unsigned int bl1_plat_get_next_image_id(void);
+struct image_desc *bl1_plat_get_image_desc(unsigned int image_id);
+
+/*
+ * The following functions are used by firmware update
+ * feature and may optionally be overridden.
+ */
+__dead2 void bl1_plat_fwu_done(void *cookie, void *reserved);
+
 
 /*******************************************************************************
  * Mandatory BL2 functions
@@ -171,6 +191,23 @@ void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
 /*******************************************************************************
  * Optional BL2 functions (may be overridden)
  ******************************************************************************/
+
+/*******************************************************************************
+ * Mandatory BL2U functions.
+ ******************************************************************************/
+void bl2u_early_platform_setup(struct meminfo *mem_layout,
+		void *plat_info);
+void bl2u_plat_arch_setup(void);
+void bl2u_platform_setup(void);
+
+/*******************************************************************************
+ * Conditionally mandatory BL2U functions for CSS platforms.
+ ******************************************************************************/
+/*
+ * This function is used to perform any platform-specific actions required to
+ * handle the BL2U_SCP firmware.
+ */
+int bl2u_plat_handle_scp_bl2u(void);
 
 /*******************************************************************************
  * Mandatory BL3-1 functions

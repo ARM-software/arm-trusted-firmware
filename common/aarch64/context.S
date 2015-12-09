@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,17 @@
 #include <asm_macros.S>
 #include <context.h>
 
+	.global	el1_sysregs_context_save
+	.global	el1_sysregs_context_restore
+#if CTX_INCLUDE_FPREGS
+	.global	fpregs_context_save
+	.global	fpregs_context_restore
+#endif
+	.global	save_gp_registers
+	.global	restore_gp_registers_eret
+	.global	restore_gp_registers_callee_eret
+	.global	el3_exit
+
 /* -----------------------------------------------------
  * The following function strictly follows the AArch64
  * PCS to use x9-x17 (temporary caller-saved registers)
@@ -40,7 +51,6 @@
  * the register context will be saved.
  * -----------------------------------------------------
  */
-	.global el1_sysregs_context_save
 func el1_sysregs_context_save
 
 	mrs	x9, spsr_el1
@@ -127,7 +137,6 @@ endfunc el1_sysregs_context_save
  * from where the register context will be restored
  * -----------------------------------------------------
  */
-	.global el1_sysregs_context_restore
 func el1_sysregs_context_restore
 
 	ldp	x9, x10, [x0, #CTX_SPSR_EL1]
@@ -225,7 +234,6 @@ endfunc el1_sysregs_context_restore
  * -----------------------------------------------------
  */
 #if CTX_INCLUDE_FPREGS
-	.global fpregs_context_save
 func fpregs_context_save
 	stp	q0, q1, [x0, #CTX_FP_Q0]
 	stp	q2, q3, [x0, #CTX_FP_Q2]
@@ -269,7 +277,6 @@ endfunc fpregs_context_save
  * TODO: Revisit when VFP is used in secure world
  * -----------------------------------------------------
  */
-	.global fpregs_context_restore
 func fpregs_context_restore
 	ldp	q0, q1, [x0, #CTX_FP_Q0]
 	ldp	q2, q3, [x0, #CTX_FP_Q2]
@@ -303,3 +310,92 @@ func fpregs_context_restore
 	ret
 endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
+
+/* -----------------------------------------------------
+ * The following functions are used to save and restore
+ * all the general purpose registers. Ideally we would
+ * only save and restore the callee saved registers when
+ * a world switch occurs but that type of implementation
+ * is more complex. So currently we will always save and
+ * restore these registers on entry and exit of EL3.
+ * These are not macros to ensure their invocation fits
+ * within the 32 instructions per exception vector.
+ * clobbers: x18
+ * -----------------------------------------------------
+ */
+func save_gp_registers
+	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
+	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
+	stp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
+	stp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
+	stp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
+	stp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
+	stp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
+	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
+	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+	stp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
+	stp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
+	stp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
+	stp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
+	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
+	mrs	x18, sp_el0
+	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
+	ret
+endfunc save_gp_registers
+
+func restore_gp_registers_eret
+	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
+	b	restore_gp_registers_callee_eret
+endfunc restore_gp_registers_eret
+
+func restore_gp_registers_callee_eret
+	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
+	ldp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
+	ldp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
+	ldp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
+	ldp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
+	ldp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
+	ldp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+	ldp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
+	ldp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
+	ldp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
+	ldp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
+	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
+	ldp	 x30, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	msr	sp_el0, x17
+	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
+	eret
+endfunc	restore_gp_registers_callee_eret
+
+	/* -----------------------------------------------------
+	 * This routine assumes that the SP_EL3 is pointing to
+	 * a valid context structure from where the gp regs and
+	 * other special registers can be retrieved.
+	 * -----------------------------------------------------
+	 */
+func el3_exit
+	/* -----------------------------------------------------
+	 * Save the current SP_EL0 i.e. the EL3 runtime stack
+	 * which will be used for handling the next SMC. Then
+	 * switch to SP_EL3
+	 * -----------------------------------------------------
+	 */
+	mov	x17, sp
+	msr	spsel, #1
+	str	x17, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
+
+	/* -----------------------------------------------------
+	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
+	 * -----------------------------------------------------
+	 */
+	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	ldp	x16, x17, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+	msr	scr_el3, x18
+	msr	spsr_el3, x16
+	msr	elr_el3, x17
+
+	/* Restore saved general purpose registers and return */
+	b	restore_gp_registers_eret
+endfunc el3_exit

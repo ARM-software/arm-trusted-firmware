@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,18 +28,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-BL1_SOURCES		+=	bl1/bl1_main.c				\
-				bl1/aarch64/bl1_arch_setup.c		\
-				bl1/aarch64/bl1_entrypoint.S		\
-				bl1/aarch64/bl1_exceptions.S		\
-				bl1/bl1_context_mgmt.c			\
-				common/aarch64/context.S		\
-				common/context_mgmt.c			\
-				lib/cpus/aarch64/cpu_helpers.S		\
-				plat/common/plat_bl1_common.c
+BL2U_SOURCES		+=	bl2u/bl2u_main.c			\
+				bl2u/aarch64/bl2u_entrypoint.S		\
+				common/aarch64/early_exceptions.S
 
-ifeq (${TRUSTED_BOARD_BOOT},1)
-BL1_SOURCES		+=	bl1/bl1_fwu.c
-endif
-
-BL1_LINKERFILE		:=	bl1/bl1.ld.S
+BL2U_LINKERFILE		:=	bl2u/bl2u.ld.S

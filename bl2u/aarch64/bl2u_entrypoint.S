@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,18 +33,18 @@
 #include <bl_common.h>
 
 
-	.globl	bl2_entrypoint
+	.globl	bl2u_entrypoint
 
 
-
-func bl2_entrypoint
+func bl2u_entrypoint
 	/*---------------------------------------------
-	 * Save from x1 the extents of the tzram
-	 * available to BL2 for future use.
-	 * x0 is not currently used.
+	 * Store the extents of the tzram available to
+	 * BL2U and other platform specific information
+	 * for future use. x0 is currently not used.
 	 * ---------------------------------------------
- 	 */
- 	mov	x20, x1
+	 */
+	mov	x20, x1
+	mov	x21, x2
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
@@ -73,7 +73,7 @@ func bl2_entrypoint
 	isb
 
 	/* ---------------------------------------------
-	 * Invalidate the RW memory used by the BL2
+	 * Invalidate the RW memory used by the BL2U
 	 * image. This includes the data and NOBITS
 	 * sections. This is done to safeguard against
 	 * possible corruption of this memory by dirty
@@ -96,12 +96,6 @@ func bl2_entrypoint
 	ldr	x1, =__BSS_SIZE__
 	bl	zeromem16
 
-#if USE_COHERENT_MEM
-	ldr	x0, =__COHERENT_RAM_START__
-	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
-	bl	zeromem16
-#endif
-
 	/* --------------------------------------------
 	 * Allocate a stack whose memory will be marked
 	 * as Normal-IS-WBWA when the MMU is enabled.
@@ -118,14 +112,16 @@ func bl2_entrypoint
 	 * ---------------------------------------------
 	 */
 	mov	x0, x20
-	bl	bl2_early_platform_setup
-	bl	bl2_plat_arch_setup
+	mov	x1, x21
+	bl	bl2u_early_platform_setup
+	bl	bl2u_plat_arch_setup
 
 	/* ---------------------------------------------
-	 * Jump to main function.
+	 * Jump to bl2u_main function.
 	 * ---------------------------------------------
 	 */
-	bl	bl2_main
+	bl	bl2u_main
+
 _panic:
 	b	_panic
-endfunc bl2_entrypoint
+endfunc bl2u_entrypoint

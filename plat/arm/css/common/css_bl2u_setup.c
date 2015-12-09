@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
+#include <bl_common.h>
+#include <debug.h>
+#include <plat_arm.h>
+#include "css_scp_bootloader.h"
 
-#include <types.h>
+/* Weak definition may be overridden in specific CSS based platform */
+#pragma weak bl2u_plat_handle_scp_bl2u
+
+/* Data structure which holds the SCP_BL2U image info for BL2U */
+static image_info_t scp_bl2u_image_info;
 
 /*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
+ * BL1 can pass platform dependent information to BL2U in x1.
+ * In case of ARM CSS platforms x1 contains SCP_BL2U image info.
+ * In case of ARM FVP platforms x1 is not used.
+ * In both cases, x0 contains the extents of the memory available to BL2U
  ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
+void bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
+{
+	if (!plat_info)
+		panic();
 
-/******************************************
- * Function prototypes
- *****************************************/
-void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
+	arm_bl2u_early_platform_setup(mem_layout, plat_info);
 
-void bl1_prepare_next_image(unsigned int image_id);
+	scp_bl2u_image_info = *(image_info_t *)plat_info;
+}
 
-register_t bl1_fwu_smc_handler(unsigned int smc_fid,
-		register_t x1,
-		register_t x2,
-		register_t x3,
-		register_t x4,
-		void *cookie,
-		void *handle,
-		unsigned int flags);
-#endif /* __BL1_PRIVATE_H__ */
+/*******************************************************************************
+ * Transfer SCP_BL2U from Trusted RAM using the SCP Download protocol.
+ ******************************************************************************/
+int bl2u_plat_handle_scp_bl2u(void)
+{
+	int ret;
+
+	INFO("BL2U: Initiating SCP_BL2U transfer to SCP\n");
+
+	ret = scp_bootloader_transfer((void *)scp_bl2u_image_info.image_base,
+		scp_bl2u_image_info.image_size);
+
+	if (ret == 0)
+		INFO("BL2U: SCP_BL2U transferred to SCP\n");
+	else
+		ERROR("BL2U: SCP_BL2U transfer failure\n");
+
+	return ret;
+}

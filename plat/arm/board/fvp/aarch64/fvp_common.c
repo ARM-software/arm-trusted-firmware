@@ -82,6 +82,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	MAP_DEVICE2,
+#if TRUSTED_BOARD_BOOT
+	ARM_MAP_NS_DRAM1,
+#endif
 	{0}
 };
 #endif
@@ -95,6 +98,13 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE2,
 	ARM_MAP_NS_DRAM1,
 	ARM_MAP_TSP_SEC_MEM,
+	{0}
+};
+#endif
+#if IMAGE_BL2U
+const mmap_region_t plat_arm_mmap[] = {
+	MAP_DEVICE0,
+	V2M_MAP_IOFPGA,
 	{0}
 };
 #endif

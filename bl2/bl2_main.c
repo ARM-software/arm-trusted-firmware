@@ -32,6 +32,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <auth_mod.h>
+#include <bl1.h>
 #include <bl_common.h>
 #include <debug.h>
 #include <errno.h>
@@ -281,5 +282,5 @@ void bl2_main(void)
 	 * the BL3-2 (if present) and BL3-3 software images will be passed to
 	 * BL3-1 as an argument.
 	 */
-	smc(RUN_IMAGE, (unsigned long)bl31_ep_info, 0, 0, 0, 0, 0, 0);
+	smc(BL1_SMC_RUN_IMAGE, (unsigned long)bl31_ep_info, 0, 0, 0, 0, 0, 0);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,14 +45,6 @@
 #define TOP	0x1
 #define BOTTOM	!TOP
 
-/******************************************************************************
- * Opcode passed in x0 to tell next EL that we want to run an image.
- * Corresponds to the function ID of the only SMC that the BL1 exception
- * handlers service. That's why the chosen value is the first function ID of
- * the ARM SMC64 range.
- *****************************************************************************/
-#define RUN_IMAGE	0xC0000000
-
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the
  * 'entry_point_info' structure at their correct offsets.
@@ -60,10 +52,40 @@
 #define ENTRY_POINT_INFO_PC_OFFSET	0x08
 #define ENTRY_POINT_INFO_ARGS_OFFSET	0x18
 
-#define PARAM_EP_SECURITY_MASK    0x1
+/* The following are used to set/get image attributes. */
+#define EXECUTABLE			(0x1)
+#define NON_EXECUTABLE			(0x0)
+#define PARAM_EP_EXECUTE_MASK		(0x1)
+#define PARAM_EP_EXECUTE_SHIFT		(0x1)
+#define PARAM_EP_SECURITY_MASK		(0x1)
+#define PARAM_EP_SECURITY_SHIFT		(0x0)
+
 #define GET_SECURITY_STATE(x) (x & PARAM_EP_SECURITY_MASK)
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
+
+#define GET_EXEC_STATE(x)    \
+    (((x) >> PARAM_EP_EXECUTE_SHIFT) & PARAM_EP_EXECUTE_MASK)
+
+#define SET_EXEC_STATE(x)    \
+    (((x) & PARAM_EP_EXECUTE_MASK) << PARAM_EP_EXECUTE_SHIFT)
+
+#define GET_SEC_STATE(x)    \
+    (((x) >> PARAM_EP_SECURITY_SHIFT) & PARAM_EP_SECURITY_MASK)
+
+#define SET_SEC_STATE(x)    \
+    (((x) & PARAM_EP_SECURITY_MASK) << PARAM_EP_SECURITY_SHIFT)
+
+/*
+ * The following are used for image state attributes.
+ * Image can only be in one of the following state.
+ */
+#define IMAGE_STATE_RESET			0
+#define IMAGE_STATE_COPIED			1
+#define IMAGE_STATE_COPYING			2
+#define IMAGE_STATE_AUTHENTICATED		3
+#define IMAGE_STATE_EXECUTED			4
+#define IMAGE_STATE_INTERRUPTED			5
 
 #define EP_EE_MASK	0x2
 #define EP_EE_LITTLE	0x0
@@ -83,12 +105,34 @@
 
 #define VERSION_1		0x01
 
+#define INVALID_IMAGE_ID		(0xFFFFFFFF)
+
 #define SET_PARAM_HEAD(_p, _type, _ver, _attr) do { \
 	(_p)->h.type = (uint8_t)(_type); \
 	(_p)->h.version = (uint8_t)(_ver); \
 	(_p)->h.size = (uint16_t)sizeof(*_p); \
 	(_p)->h.attr = (uint32_t)(_attr) ; \
 	} while (0)
+
+/*******************************************************************************
+ * Constants to indicate type of exception to the common exception handler.
+ ******************************************************************************/
+#define SYNC_EXCEPTION_SP_EL0		0x0
+#define IRQ_SP_EL0			0x1
+#define FIQ_SP_EL0			0x2
+#define SERROR_SP_EL0			0x3
+#define SYNC_EXCEPTION_SP_ELX		0x4
+#define IRQ_SP_ELX			0x5
+#define FIQ_SP_ELX			0x6
+#define SERROR_SP_ELX			0x7
+#define SYNC_EXCEPTION_AARCH64		0x8
+#define IRQ_AARCH64			0x9
+#define FIQ_AARCH64			0xa
+#define SERROR_AARCH64			0xb
+#define SYNC_EXCEPTION_AARCH32		0xc
+#define IRQ_AARCH32			0xd
+#define FIQ_AARCH32			0xe
+#define SERROR_AARCH32			0xf
 
 #ifndef __ASSEMBLY__
 #include <cdefs.h> /* For __dead2 */
@@ -106,6 +150,8 @@ extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
 #if IMAGE_BL2
 extern unsigned long __BL2_END__;
+#elif IMAGE_BL2U
+extern unsigned long __BL2U_END__;
 #elif IMAGE_BL31
 extern unsigned long __BL31_END__;
 #elif IMAGE_BL32
@@ -177,7 +223,23 @@ typedef struct image_info {
 	param_header_t h;
 	uintptr_t image_base;   /* physical address of base of image */
 	uint32_t image_size;    /* bytes read from image file */
+	uint32_t copied_size;	/* image size copied in blocks */
 } image_info_t;
+
+/*****************************************************************************
+ * The image descriptor struct definition.
+ *****************************************************************************/
+typedef struct image_desc {
+	/* Contains unique image id for the image. */
+	unsigned int image_id;
+	image_info_t image_info;
+	entry_point_info_t ep_info;
+	/*
+	 * This member contains Image state information.
+	 * Refer IMAGE_STATE_XXX defined above.
+	 */
+	unsigned int state;
+} image_desc_t;
 
 /*******************************************************************************
  * This structure represents the superset of information that can be passed to

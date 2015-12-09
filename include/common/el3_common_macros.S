@@ -247,13 +247,11 @@
 #endif
 	.endif /* _init_c_runtime */
 
-#if IMAGE_BL31
 	/* ---------------------------------------------------------------------
 	 * Use SP_EL0 for the C runtime stack.
 	 * ---------------------------------------------------------------------
 	 */
 	msr	spsel, #0
-#endif /* IMAGE_BL31 */
 
 	/* ---------------------------------------------------------------------
 	 * Allocate a stack whose memory will be marked as Normal-IS-WBWA when

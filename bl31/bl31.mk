@@ -29,16 +29,17 @@
 #
 
 BL31_SOURCES		+=	bl31/bl31_main.c				\
-				bl31/context_mgmt.c				\
 				bl31/cpu_data_array.c				\
 				bl31/runtime_svc.c				\
 				bl31/interrupt_mgmt.c				\
 				bl31/aarch64/bl31_arch_setup.c			\
 				bl31/aarch64/bl31_entrypoint.S			\
-				bl31/aarch64/context.S				\
 				bl31/aarch64/cpu_data.S				\
 				bl31/aarch64/runtime_exceptions.S		\
 				bl31/aarch64/crash_reporting.S			\
+				bl31/bl31_context_mgmt.c			\
+				common/aarch64/context.S			\
+				common/context_mgmt.c				\
 				lib/cpus/aarch64/cpu_helpers.S			\
 				lib/locks/exclusive/spinlock.S			\
 				services/std_svc/std_svc_setup.c		\

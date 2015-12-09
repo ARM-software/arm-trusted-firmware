@@ -30,6 +30,9 @@
 #ifndef __COMMON_DEF_H__
 #define __COMMON_DEF_H__
 
+#include <bl_common.h>
+#include <platform_def.h>
+
 /******************************************************************************
  * Required platform porting definitions that are expected to be common to
  * all platforms
@@ -73,6 +76,15 @@
  * as the build flag ERROR_DEPRECATED is zero.
  */
 #define __warn_deprecated	__attribute__ ((deprecated))
+
+#define BL2_IMAGE_DESC {				\
+	.image_id = BL2_IMAGE_ID,			\
+	.image_info.h.version = VERSION_1,		\
+	.image_info.h.attr = SET_EXEC_STATE(EXECUTABLE),\
+	.image_info.image_base = BL2_BASE,		\
+	.ep_info.h.attr = SET_SEC_STATE(SECURE),	\
+	.ep_info.pc = BL2_BASE				\
+}
 
 #endif /* __COMMON_DEF_H__ */
 

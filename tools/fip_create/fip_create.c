@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -55,6 +55,14 @@ uuid_t uuid_null = {0};
 
 /* The images used depends on the platform. */
 static entry_lookup_list_t toc_entry_lookup_list[] = {
+	{ "SCP Firmware Updater Configuration FWU SCP_BL2U", UUID_TRUSTED_UPDATE_FIRMWARE_SCP_BL2U,
+	  "scp_bl2u", NULL, FLAG_FILENAME },
+	{ "AP Firmware Updater Configuration BL2U", UUID_TRUSTED_UPDATE_FIRMWARE_BL2U,
+	  "bl2u", NULL, FLAG_FILENAME },
+	{ "Firmware Updater NS_BL2U", UUID_TRUSTED_UPDATE_FIRMWARE_NS_BL2U,
+	  "ns_bl2u", NULL, FLAG_FILENAME },
+	{ "Non-Trusted Firmware Updater certificate", UUID_TRUSTED_FWU_CERT,
+	  "fwu-cert", NULL, FLAG_FILENAME},
 	{ "Trusted Boot Firmware BL2", UUID_TRUSTED_BOOT_FIRMWARE_BL2,
 	  "bl2", NULL, FLAG_FILENAME },
 	{ "SCP Firmware BL3-0", UUID_SCP_FIRMWARE_BL30,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,54 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
+#include <bl1.h>
+#include <bl_common.h>
+#include <platform_def.h>
 
-#include <types.h>
+image_desc_t bl1_tbbr_image_descs[] = {
+    {
+	    .image_id = FWU_CERT_ID,
+	    .image_info.h.attr = SET_EXEC_STATE(NON_EXECUTABLE),
+	    .image_info.image_base = BL2_BASE,
+	    .ep_info.h.attr = SET_SEC_STATE(SECURE),
+    },
+#if NS_BL1U_BASE
+    {
+	    .image_id = NS_BL1U_IMAGE_ID,
+	    .image_info.h.attr = SET_EXEC_STATE(EXECUTABLE),
+	    .image_info.image_base = NS_BL1U_BASE,
+	    .ep_info.h.attr = SET_SEC_STATE(NON_SECURE),
+	    .ep_info.pc = NS_BL1U_BASE,
+    },
+#endif
+#if SCP_BL2U_BASE
+    {
+	    .image_id = SCP_BL2U_IMAGE_ID,
+	    .image_info.h.attr = SET_EXEC_STATE(NON_EXECUTABLE),
+	    .image_info.image_base = SCP_BL2U_BASE,
+	    .ep_info.h.attr = SET_SEC_STATE(SECURE),
+    },
+#endif
+#if BL2U_BASE
+    {
+	    .image_id = BL2U_IMAGE_ID,
+	    .image_info.h.attr = SET_EXEC_STATE(EXECUTABLE),
+	    .image_info.image_base = BL2U_BASE,
+	    .ep_info.h.attr = SET_SEC_STATE(SECURE),
+	    .ep_info.pc = BL2U_BASE,
+    },
+#endif
+#if NS_BL2U_BASE
+    {
+	    .image_id = NS_BL2U_IMAGE_ID,
+	    .image_info.h.attr = SET_EXEC_STATE(NON_EXECUTABLE),
+	    .image_info.image_base = NS_BL2U_BASE,
+	    .ep_info.h.attr = SET_SEC_STATE(NON_SECURE),
+    },
+#endif
+	    BL2_IMAGE_DESC,
 
-/*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
- ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
-
-/******************************************
- * Function prototypes
- *****************************************/
-void bl1_arch_setup(void);
-void bl1_arch_next_el_setup(void);
-
-void bl1_prepare_next_image(unsigned int image_id);
-
-register_t bl1_fwu_smc_handler(unsigned int smc_fid,
-		register_t x1,
-		register_t x2,
-		register_t x3,
-		register_t x4,
-		void *cookie,
-		void *handle,
-		unsigned int flags);
-#endif /* __BL1_PRIVATE_H__ */
+    {
+	    .image_id = INVALID_IMAGE_ID,
+    }
+};

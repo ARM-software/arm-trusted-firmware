@@ -63,4 +63,19 @@
 #define BL32_CERT_ID			14
 #define BL33_CERT_ID			15
 
+/* Non-Trusted ROM Firmware NS_BL1U */
+#define NS_BL1U_IMAGE_ID		16
+
+/* Trusted FWU Certificate */
+#define FWU_CERT_ID			17
+
+/* Trusted FWU SCP Firmware SCP_BL2U */
+#define SCP_BL2U_IMAGE_ID		18
+
+/* Trusted FWU Boot Firmware BL2U */
+#define BL2U_IMAGE_ID			19
+
+/* Non-Trusted FWU Firmware NS_BL2U */
+#define NS_BL2U_IMAGE_ID		20
+
 #endif /* __TBBR_IMG_DEF_H__ */

@@ -50,6 +50,10 @@
 #define NSRAM_BASE			0x2e000000
 #define NSRAM_SIZE			0x00008000
 
+/* System Security Control Registers */
+#define SSC_REG_BASE			0x2a420000
+#define SSC_GPRETN			(SSC_REG_BASE + 0x030)
+
 /* The slave_bootsecure controls access to GPU, DMC and CS. */
 #define CSS_NIC400_SLAVE_BOOTSECURE	8
 
@@ -111,6 +115,8 @@
  * SCP, it is discarded and BL3-1 is loaded over the top.
  */
 #define BL30_BASE			BL31_BASE
+
+#define SCP_BL2U_BASE			BL31_BASE
 
 #define PLAT_ARM_SHARED_RAM_CACHED	MHU_PAYLOAD_CACHED
 

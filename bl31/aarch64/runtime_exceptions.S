@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,6 @@
 #include <runtime_svc.h>
 
 	.globl	runtime_exceptions
-	.globl	el3_exit
 
 	/* -----------------------------------------------------
 	 * Handle SMC exceptions separately from other sync.
@@ -426,38 +425,7 @@ smc_handler64:
 #endif
 	blr	x15
 
-	/* -----------------------------------------------------
-	 * This routine assumes that the SP_EL3 is pointing to
-	 * a valid context structure from where the gp regs and
-	 * other special registers can be retrieved.
-	 *
-	 * Keep it in the same section as smc_handler as this
-	 * function uses a fall-through to el3_exit
-	 * -----------------------------------------------------
-	 */
-el3_exit: ; .type el3_exit, %function
-	/* -----------------------------------------------------
-	 * Save the current SP_EL0 i.e. the EL3 runtime stack
-	 * which will be used for handling the next SMC. Then
-	 * switch to SP_EL3
-	 * -----------------------------------------------------
-	 */
-	mov	x17, sp
-	msr	spsel, #1
-	str	x17, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
-
-	/* -----------------------------------------------------
-	 * Restore SPSR_EL3, ELR_EL3 and SCR_EL3 prior to ERET
-	 * -----------------------------------------------------
-	 */
-	ldr	x18, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
-	ldp	x16, x17, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
-	msr	scr_el3, x18
-	msr	spsr_el3, x16
-	msr	elr_el3, x17
-
-	/* Restore saved general purpose registers and return */
-	b	restore_gp_registers_eret
+	b	el3_exit
 
 smc_unknown:
 	/*
@@ -479,51 +447,3 @@ rt_svc_fw_critical_error:
 	msr	spsel, #1 /* Switch to SP_ELx */
 	bl	report_unhandled_exception
 endfunc smc_handler
-
-	/* -----------------------------------------------------
-	 * The following functions are used to saved and restore
-	 * all the general pupose registers. Ideally we would
-	 * only save and restore the callee saved registers when
-	 * a world switch occurs but that type of implementation
-	 * is more complex. So currently we will always save and
-	 * restore these registers on entry and exit of EL3.
-	 * These are not macros to ensure their invocation fits
-	 * within the 32 instructions per exception vector.
-	 * -----------------------------------------------------
-	 */
-func save_gp_registers
-	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	stp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
-	stp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
-	stp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
-	stp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
-	stp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
-	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
-	save_x18_to_x29_sp_el0
-	ret
-endfunc save_gp_registers
-
-func restore_gp_registers_eret
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-
-restore_gp_registers_callee_eret:
-	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	ldp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
-	ldp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
-	ldp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
-	ldp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
-	ldp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
-	ldp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
-	ldp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
-	ldp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
-	ldp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
-	ldp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
-	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	ldp	x30, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	msr	sp_el0, x17
-	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
-	eret
-endfunc restore_gp_registers_eret

@@ -76,6 +76,8 @@ USE_COHERENT_MEM		:= 1
 PSCI_EXTENDED_STATE_ID		:= 0
 # Default FIP file name
 FIP_NAME			:= fip.bin
+# Default FWU_FIP file name
+FWU_FIP_NAME			:= fwu_fip.bin
 # By default, use the -pedantic option in the gcc command line
 DISABLE_PEDANTIC		:= 0
 # Flags to generate the Chain of Trust
@@ -150,6 +152,7 @@ VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STR
 # target 'certificates' to create them all
 ifneq (${GENERATE_COT},0)
         FIP_DEPS += certificates
+        FWU_FIP_DEPS += fwu_certificates
 endif
 
 
@@ -195,7 +198,8 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				lib/stdlib/std.c			\
 				plat/common/aarch64/platform_helpers.S
 
-INCLUDES		+=	-Iinclude/bl31			\
+INCLUDES		+=	-Iinclude/bl1			\
+				-Iinclude/bl31			\
 				-Iinclude/bl31/services		\
 				-Iinclude/common		\
 				-Iinclude/drivers		\
@@ -320,8 +324,10 @@ ifneq (${GENERATE_COT},0)
         # Common cert_create options
         ifneq (${CREATE_KEYS},0)
                 $(eval CRT_ARGS += -n)
+                $(eval FWU_CRT_ARGS += -n)
                 ifneq (${SAVE_KEYS},0)
                         $(eval CRT_ARGS += -k)
+                        $(eval FWU_CRT_ARGS += -k)
                 endif
         endif
         # Include TBBR makefile (unless the platform indicates otherwise)
@@ -409,6 +415,11 @@ NEED_BL2 := yes
 include bl2/bl2.mk
 endif
 
+ifdef BL2U_SOURCES
+NEED_BL2U := yes
+include bl2u/bl2u.mk
+endif
+
 ifdef BL31_SOURCES
 # When booting an EL3 payload, there is no need to compile the BL31 image nor
 # put it in the FIP.
@@ -423,7 +434,7 @@ endif
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip certtool
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip fwu_fip certtool
 .SUFFIXES:
 
 all: msg_start
@@ -464,6 +475,12 @@ endif
 # Add the BL33 image if required by the platform
 ifeq (${NEED_BL33},yes)
 $(eval $(call FIP_ADD_IMG,BL33,--bl33))
+endif
+
+ifeq (${NEED_BL2U},yes)
+BL2U_PATH	:= $(if ${BL2U},${BL2U},$(call IMG_BIN,2u))
+$(if ${BL2U}, ,$(eval $(call MAKE_BL,2u)))
+$(eval $(call FWU_FIP_ADD_PAYLOAD,${BL2U_PATH},--bl2u))
 endif
 
 locate-checkpatch:
@@ -524,8 +541,24 @@ ${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
 	@echo "Built $@ successfully"
 	@echo
 
+ifneq (${GENERATE_COT},0)
+fwu_certificates: ${FWU_CRT_DEPS} ${CRTTOOL}
+	${Q}${CRTTOOL} ${FWU_CRT_ARGS}
+	@echo
+	@echo "Built $@ successfully"
+	@echo "FWU certificates can be found in ${BUILD_PLAT}"
+	@echo
+endif
+
+${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL}
+	${Q}${FIPTOOL} --dump ${FWU_FIP_ARGS} $@
+	@echo
+	@echo "Built $@ successfully"
+	@echo
+
 fiptool: ${FIPTOOL}
 fip: ${BUILD_PLAT}/${FIP_NAME}
+fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 .PHONY: ${FIPTOOL}
 ${FIPTOOL}:
@@ -551,10 +584,12 @@ help:
 	@echo "  all            Build all individual bootloader binaries"
 	@echo "  bl1            Build the BL1 binary"
 	@echo "  bl2            Build the BL2 binary"
+	@echo "  bl2u           Build the BL2U binary"
 	@echo "  bl31           Build the BL3-1 binary"
 	@echo "  bl32           Build the BL3-2 binary"
 	@echo "  certificates   Build the certificates (requires 'GENERATE_COT=1')"
 	@echo "  fip            Build the Firmware Image Package (FIP)"
+	@echo "  fwu_fip        Build the FWU Firmware Image Package (FIP)"
 	@echo "  checkcodebase  Check the coding style of the entire source tree"
 	@echo "  checkpatch     Check the coding style on changes in the current"
 	@echo "                 branch against BASE_COMMIT (default origin/master)"

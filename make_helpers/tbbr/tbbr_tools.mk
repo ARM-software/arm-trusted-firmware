@@ -56,16 +56,22 @@
 
 # Certificate generation tool default parameters
 TRUSTED_KEY_CERT	:=	${BUILD_PLAT}/trusted_key.crt
+FWU_CERT		:=	${BUILD_PLAT}/fwu_cert.crt
 
 # Add Trusted Key certificate to the fip_create and cert_create command line options
 $(eval $(call FIP_ADD_PAYLOAD,${TRUSTED_KEY_CERT},--trusted-key-cert))
 $(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_KEY_CERT},--trusted-key-cert))
+
+# Add fwu certificate to the fip_create and cert_create command line options
+$(eval $(call FWU_FIP_ADD_PAYLOAD,${FWU_CERT},--fwu-cert))
+$(eval $(call FWU_CERT_ADD_CMD_OPT,${FWU_CERT},--fwu-cert))
 
 # Add the keys to the cert_create command line options (private keys are NOT
 # packed in the FIP). Developers can use their own keys by specifying the proper
 # build option in the command line when building the Trusted Firmware
 $(if ${KEY_ALG},$(eval $(call CERT_ADD_CMD_OPT,${KEY_ALG},--key-alg)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key)))
+$(if ${ROT_KEY},$(eval $(call FWU_CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key)))
 $(if ${TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_WORLD_KEY},--trusted-world-key)))
 $(if ${NON_TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${NON_TRUSTED_WORLD_KEY},--non-trusted-world-key)))
 
@@ -113,4 +119,18 @@ ifneq (${BL33},)
     $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl33_key.crt,--bl33-key-cert))
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl33.crt,--bl33-cert))
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl33_key.crt,--bl33-key-cert))
+endif
+
+# Add the BL2U image
+$(if ${BL2U},$(eval $(call FWU_CERT_ADD_CMD_OPT,${BL2U},--bl2u,true)),\
+     $(eval $(call FWU_CERT_ADD_CMD_OPT,$(call IMG_BIN,2u),--bl2u,true)))
+
+# Add the SCP_BL2U image
+ifneq (${SCP_BL2U},)
+    $(eval $(call FWU_CERT_ADD_CMD_OPT,${SCP_BL2U},--scp_bl2u,true))
+endif
+
+# Add the NS_BL2U image
+ifneq (${NS_BL2U},)
+    $(eval $(call FWU_CERT_ADD_CMD_OPT,${NS_BL2U},--ns_bl2u,true))
 endif

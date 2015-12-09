@@ -89,6 +89,12 @@ static auth_param_type_desc_t bl32_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, BL32_HASH_OID);
 static auth_param_type_desc_t bl33_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, BL33_HASH_OID);
+static auth_param_type_desc_t scp_bl2u_hash = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_HASH, SCP_BL2U_HASH_OID);
+static auth_param_type_desc_t bl2u_hash = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_HASH, BL2U_HASH_OID);
+static auth_param_type_desc_t ns_bl2u_hash = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_HASH, NS_BL2U_HASH_OID);
 
 /*
  * TBBR Chain of trust definition
@@ -435,6 +441,99 @@ static const auth_img_desc_t cot_desc[] = {
 				.param.hash = {
 					.data = &raw_data,
 					.hash = &bl33_hash,
+				}
+			}
+		}
+	},
+	/*
+	 * FWU auth descriptor.
+	 */
+	[FWU_CERT_ID] = {
+		.img_id = FWU_CERT_ID,
+		.img_type = IMG_CERT,
+		.parent = NULL,
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_SIG,
+				.param.sig = {
+					.pk = &subject_pk,
+					.sig = &sig,
+					.alg = &sig_alg,
+					.data = &raw_data,
+				}
+			}
+		},
+		.authenticated_data = {
+			[0] = {
+				.type_desc = &scp_bl2u_hash,
+				.data = {
+					.ptr = (void *)plat_bl30_hash_buf,
+					.len = (unsigned int)HASH_DER_LEN
+				}
+			},
+			[1] = {
+				.type_desc = &bl2u_hash,
+				.data = {
+					.ptr = (void *)plat_bl2_hash_buf,
+					.len = (unsigned int)HASH_DER_LEN
+				}
+			},
+			[2] = {
+				.type_desc = &ns_bl2u_hash,
+				.data = {
+					.ptr = (void *)plat_bl33_hash_buf,
+					.len = (unsigned int)HASH_DER_LEN
+				}
+			}
+		}
+	},
+	/*
+	 * SCP_BL2U
+	 */
+	[SCP_BL2U_IMAGE_ID] = {
+		.img_id = SCP_BL2U_IMAGE_ID,
+		.img_type = IMG_RAW,
+		.parent = &cot_desc[FWU_CERT_ID],
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_HASH,
+				.param.hash = {
+					.data = &raw_data,
+					.hash = &scp_bl2u_hash,
+				}
+			}
+		}
+	},
+	/*
+	 * BL2U
+	 */
+	[BL2U_IMAGE_ID] = {
+		.img_id = BL2U_IMAGE_ID,
+		.img_type = IMG_RAW,
+		.parent = &cot_desc[FWU_CERT_ID],
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_HASH,
+				.param.hash = {
+					.data = &raw_data,
+					.hash = &bl2u_hash,
+				}
+			}
+		}
+	},
+	/*
+	 * NS_BL2U
+	 */
+	[NS_BL2U_IMAGE_ID] = {
+		.img_id = NS_BL2U_IMAGE_ID,
+		.img_type = IMG_RAW,
+		.parent = &cot_desc[FWU_CERT_ID],
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_HASH,
+				.param.hash = {
+					.data = &raw_data,
+					.hash = &ns_bl2u_hash,
 				}
 			}
 		}
