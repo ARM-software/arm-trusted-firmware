@@ -38,7 +38,7 @@
  * The driver must be initialized with a structure that provides a
  * function pointer to return the timer value and a clock
  * multiplier/divider. The ratio of the multiplier and the divider is
- * the clock frequency in MHz.
+ * the clock period in microseconds.
  ********************************************************************/
 
 typedef struct timer_ops {
