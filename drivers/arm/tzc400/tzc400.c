@@ -170,9 +170,6 @@ void tzc_init(uintptr_t base)
 
 	assert(base);
 
-	/* Assert if already initialised */
-	assert(!tzc.base);
-
 	tzc.base = base;
 
 	/*
