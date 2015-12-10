@@ -391,6 +391,12 @@ performed.
     payload. Please refer to the "Booting an EL3 payload" section for more
     details.
 
+*   `PL011_GENERIC_UART`: Boolean option to indicate the PL011 driver that
+    the underlying hardware is not a full PL011 UART but a minimally compliant
+    generic UART, which is a subset of the PL011. The driver will not access
+    any register that is not part of the SBSA generic UART specification.
+    Default value is 0 (a full PL011 compliant UART is present).
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
