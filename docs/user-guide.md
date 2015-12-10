@@ -25,7 +25,7 @@ possible to use other software components, configurations and platforms but that
 is outside the scope of this document.
 
 This document should be used in conjunction with the [Firmware Design] and the
-[Linaro release notes][Linaro releases].
+[Instructions for using the Linaro software deliverables][Linaro SW Instructions].
 
 
 2.  Host machine requirements
@@ -43,17 +43,14 @@ specified.
 3.  Tools
 ---------
 
-In addition to the prerequisite tools listed on the
-[Linaro release notes][Linaro releases], the following tools are needed to use
-the ARM Trusted Firmware:
+In addition to the mandatory prerequisite tools listed in the [instructions for
+using the Linaro software deliverables][Linaro SW Instructions], the following
+optional tools may be needed:
 
-*   `device-tree-compiler` package for building the Flattened Device Tree (FDT)
-    source files (`.dts` files) provided with this software.
+*   `device-tree-compiler` package if you need to rebuild the Flattened Device
+    Tree (FDT) source files (`.dts` files) provided with this software.
 
-*   `libssl-dev` package to build the certificate generation tool when support
-    for Trusted Board Boot is needed.
-
-*   (Optional) For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.21.
+*   For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.22.
 
 
 4.  Getting the Trusted Firmware source code
@@ -62,10 +59,8 @@ the ARM Trusted Firmware:
 The Trusted Firmware source code can be obtained as part of the standard Linaro
 releases, which provide a full software stack, including the Trusted Firmware,
 normal world firmware, Linux kernel and device tree, file system as well as any
-additional micro-controller firmware required by the platform. Please follow the
-instructions on the [Linaro release notes][Linaro releases], section 2.2
-"Downloading the software sources" and section 2.3 "Downloading the filesystem
-binaries".
+additional micro-controller firmware required by the platform. This version of
+Trusted Firmware is tested with the [Linaro 15.10 Release][Linaro Release Notes].
 
 Note: Both the LSK kernel or the latest tracking kernel can be used along the
 ARM Trusted Firmware, choose the one that best suits your needs.
@@ -847,11 +842,11 @@ which the FVP is launched. Alternatively a symbolic link may be used.
 This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
-*   `Foundation_Platform` (Version 9.1, Build 9.1.33)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 6.2, Build 0.8.6202)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 6.2, Build 0.8.6202)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 6.2, Build 0.8.6202)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 6.2, Build 0.8.6202)
+*   `Foundation_Platform` (Version 9.4, Build 9.4.59)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.0, Build 0.8.7004)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.0, Build 0.8.7004)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.0, Build 0.8.7004)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.0, Build 0.8.7004)
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
 with the `--version` parameter.
@@ -861,12 +856,16 @@ The commands below would report an `unhandled argument` error in this case.
 
 NOTE: The Foundation FVP does not provide a debugger interface.
 
-Please refer to the FVP documentation for a detailed description of the model
-parameter options. A brief description of the important ones that affect the
-ARM Trusted Firmware and normal world software behavior is provided below.
-
 The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
 downloaded for free from [ARM's website][ARM FVP website].
+
+The Linaro release provides a script to run the software on FVP. However, it
+only supports a limited number of model parameter options. Therefore, it is
+recommended to launch the FVP manually for all use cases described below.
+
+Please refer to the FVP documentation for a detailed description of the model
+parameter options. A brief description of the important ones that affect the ARM
+Trusted Firmware and normal world software behavior is provided below.
 
 
 ### Running on the Foundation FVP with reset to BL1 entrypoint
@@ -1178,13 +1177,11 @@ The following command creates such a file called `mailbox.dat`:
 
 This version of the ARM Trusted Firmware has been tested on Juno r0 and Juno r1.
 
-To execute the versions of software components on Juno referred to in this
-document, the latest Juno board recovery image must be installed. If you
-have an earlier version installed or are unsure which version is installed,
-follow the recovery image update instructions in the [Juno Software Guide]
-on the [ARM Connected Community] website. The latest Juno board recovery image
-can be obtained from [Linaro releases], see section 2.7 "Using prebuilt
-binaries".
+To execute the software stack on Juno, the version of the Juno board recovery
+image indicated in the [Linaro Release Notes] must be installed. If you have an
+earlier version installed or are unsure which version is installed, please
+re-install the recovery image by following the [Instructions for using Linaro's
+deliverables on Juno][Juno Instructions].
 
 ### Preparing Trusted Firmware images
 
@@ -1199,23 +1196,24 @@ supplied using the `BL30` variable on the command line when building the
 FIP. Please refer to the section "Building the Trusted Firmware".
 
 After building Trusted Firmware, the files `bl1.bin` and `fip.bin` need copying
-to the `SOFTWARE/` directory as explained in the [Juno Software Guide].
+to the `SOFTWARE/` directory of the Juno SD card.
 
 ### Other Juno software information
 
-Please refer to the [Juno Software Guide] to:
-
-*   Install and run the Juno binaries on the board
-*   Obtain any other Juno software information
+Please visit the [ARM Platforms Portal] to get support and obtain any other Juno
+software information. Please also refer to the [Juno Getting Started Guide] to
+get more detailed information about the Juno ARM development platform and how to
+configure it.
 
 ### Testing SYSTEM SUSPEND on Juno
 
 The SYSTEM SUSPEND is a PSCI API which can be used to implement system suspend
-to RAM. For more details refer to section 5.16 of [PSCI]. The [Linaro releases]
-contains the required SCP and motherboard firmware support for this feature on
-Juno. The mainline linux kernel does not yet have support for this feature on
-Juno but it is queued to be merged in v4.4. Till that becomes available, the
-feature can be tested by using a custom kernel built from the following repo:
+to RAM. For more details refer to section 5.16 of [PSCI]. The [Linaro Release
+Notes] point to the required SCP and motherboard firmware binaries supporting
+this feature on Juno. The mainline linux kernel does not yet have support for
+this feature on Juno but it is queued to be merged in v4.4. Till that becomes
+available, the feature can be tested by using a custom kernel built from the
+following repository:
 
     git clone git://git.kernel.org/pub/scm/linux/kernel/git/lpieralisi/linux.git
     cd linux
@@ -1242,9 +1240,8 @@ Build the kernel
 
     make ARCH=arm64 Image -j8
 
-Replace the kernel image in `SOFTWARE/` directory of Juno with the `Image` from
-arch/arm64/boot/ of the linux directory as explained in the
-[Juno Software Guide].
+Replace the kernel image in the `SOFTWARE/` directory of the Juno SD card with
+the `Image` from `arch/arm64/boot/` of the linux directory.
 
 Reset the board and wait for it to boot. At the shell prompt issue the
 following command:
@@ -1261,10 +1258,12 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 
 [Firmware Design]:             firmware-design.md
-[Linaro releases]:             http://releases.linaro.org/15.06/members/arm/platforms
 [ARM FVP website]:             http://www.arm.com/fvp
-[ARM Connected Community]:     http://community.arm.com
-[Juno Software Guide]:         http://community.arm.com/docs/DOC-8396
+[Linaro Release Notes]:        https://community.arm.com/docs/DOC-10952#jive_content_id_Linaro_Release_1510
+[ARM Platforms Portal]:        https://community.arm.com/groups/arm-development-platforms
+[Linaro SW Instructions]:      https://community.arm.com/docs/DOC-10803
+[Juno Instructions]:           https://community.arm.com/docs/DOC-10804
+[Juno Getting Started Guide]:  http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [mbedTLS Repository]:          https://github.com/ARMmbed/mbedtls.git
 [PSCI]:                        http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
