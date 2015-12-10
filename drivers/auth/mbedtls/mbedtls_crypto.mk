@@ -62,10 +62,10 @@ else ifeq (${MBEDTLS_KEY_ALG},rsa)
     					)
     MBEDTLS_KEY_ALG_ID		:=	MBEDTLS_RSA
 else
-    $(error "MBEDTLS_KEY_ALG=${MBEDTLS_KEY_ALG} not supported on mbedTLS")
+    $(error "MBEDTLS_KEY_ALG=${MBEDTLS_KEY_ALG} not supported on mbed TLS")
 endif
 
-# mbedTLS libraries rely on this define to build correctly
+# mbed TLS libraries rely on this define to build correctly
 $(eval $(call add_define,MBEDTLS_KEY_ALG_ID))
 
 BL1_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}

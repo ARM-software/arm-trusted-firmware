@@ -381,7 +381,7 @@ platform.
     PKI certificates (authentication images). It is expected that open source
     libraries will be available which can be used to parse an image represented
     by this method. Such libraries can be used to write the corresponding IPL
-    e.g. the X.509 parsing library code in PolarSSL.
+    e.g. the X.509 parsing library code in mbed TLS.
 
 3.  Platform defined method: This method caters for platform specific
     proprietary standards to represent authentication or data images. For
@@ -867,7 +867,7 @@ extract the authentication parameters. The number and type of parser libraries
 depend on the images used in the CoT. Raw images do not need a library, so
 only an x509v3 library is required for the TBBR CoT.
 
-ARM platforms will use an x509v3 library based on mbedTLS. This library may be
+ARM platforms will use an x509v3 library based on mbed TLS. This library may be
 found in `drivers/auth/mbedtls/mbedtls_x509_parser.c`. It exports three
 functions:
 
@@ -885,15 +885,17 @@ an image of type `IMG_CERT`, it will call the corresponding function exported
 in this file.
 
 The build system must be updated to include the corresponding library and
-mbedTLS sources. ARM platforms use the `arm_common.mk` file to pull the sources.
+mbed TLS sources. ARM platforms use the `arm_common.mk` file to pull the
+sources.
 
 ### 4.3 The cryptographic library
 
 The cryptographic module relies on a library to perform the required operations,
 i.e. verify a hash or a digital signature. ARM platforms will use a library
-based on mbedTLS, which can be found in `drivers/auth/mbedtls/mbedtls_crypto.c`.
-This library is registered in the authentication framework using the macro
-`REGISTER_CRYPTO_LIB()` and exports three functions:
+based on mbed TLS, which can be found in
+`drivers/auth/mbedtls/mbedtls_crypto.c`. This library is registered in the
+authentication framework using the macro `REGISTER_CRYPTO_LIB()` and exports
+three functions:
 
 ```
 void init(void);
