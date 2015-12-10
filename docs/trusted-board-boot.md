@@ -66,7 +66,7 @@ The keys used to establish the CoT are:
 *   **Trusted world key**
 
     The private part is used to sign the key certificates corresponding to the
-    secure world images (BL3-0, BL3-1 and BL3-2). The public part is stored in
+    secure world images (SCP_BL2, BL3-1 and BL3-2). The public part is stored in
     one of the extension fields in the trusted world certificate.
 
 *   **Non-trusted world key**
@@ -77,15 +77,15 @@ The keys used to establish the CoT are:
 
 *   **BL3-X keys**
 
-    For each of BL3-0, BL3-1, BL3-2 and BL3-3, the private part is used to sign
-    the content certificate for the BL3-X image. The public part is stored in
-    one of the extension fields in the corresponding key certificate.
+    For each of SCP_BL2, BL3-1, BL3-2 and BL3-3, the private part is used to
+    sign the content certificate for the BL3-X image. The public part is stored
+    in one of the extension fields in the corresponding key certificate.
 
 The following images are included in the CoT:
 
 *   BL1
 *   BL2
-*   BL3-0 (optional)
+*   SCP_BL2 (optional)
 *   BL3-1
 *   BL3-3
 *   BL3-2 (optional)
@@ -103,14 +103,15 @@ The following certificates are used to authenticate the images.
     public part of the trusted world key and the public part of the non-trusted
     world key.
 
-*   **BL3-0 key certificate**
+*   **SCP_BL2 key certificate**
 
     It is self-signed with the trusted world key. It contains the public part of
-    the BL3-0 key.
+    the SCP_BL2 key.
 
-*   **BL3-0 content certificate**
+*   **SCP_BL2 content certificate**
 
-    It is self-signed with the BL3-0 key. It contains a hash of the BL3-0 image.
+    It is self-signed with the SCP_BL2 key. It contains a hash of the SCP_BL2
+    image.
 
 *   **BL3-1 key certificate**
 
@@ -139,8 +140,8 @@ The following certificates are used to authenticate the images.
 
     It is self-signed with the BL3-3 key. It contains a hash of the BL3-3 image.
 
-The BL3-0 and BL3-2 certificates are optional, but they must be present if the
-corresponding BL3-0 or BL3-2 images are present.
+The SCP_BL2 and BL3-2 certificates are optional, but they must be present if the
+corresponding SCP_BL2 or BL3-2 images are present.
 
 
 3.  Trusted Board Boot Sequence
@@ -167,9 +168,9 @@ if any of the steps fail.
     registers. If the comparison succeeds, BL2 reads and saves the trusted and
     non-trusted world public keys from the verified certificate.
 
-The next two steps are executed for each of the BL3-0, BL3-1 & BL3-2 images. The
-steps for the optional BL3-0 and BL3-2 images are skipped if these images are
-not present.
+The next two steps are executed for each of the SCP_BL2, BL3-1 & BL3-2 images.
+The steps for the optional SCP_BL2 and BL3-2 images are skipped if these images
+are not present.
 
 *   BL2 loads and verifies the BL3-x key certificate. The certificate signature
     is verified using the trusted world public key. If the signature

@@ -60,8 +60,8 @@ ifneq (${RESET_TO_BL31},0)
   Please set RESET_TO_BL31 to 0.")
 endif
 
-# Subsystems require a BL30 image
-$(eval $(call FIP_ADD_IMG,BL30,--bl30))
+# Subsystems require a SCP_BL2 image
+$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp_bl2))
 
 # Enable option to detect whether the SCP ROM firmware in use predates version
 # 1.7.0 and therefore, is incompatible.

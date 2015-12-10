@@ -248,16 +248,16 @@ BL2 also initializes a UART (PL011 console), which enables  access to the
 access to controlled components. The storage abstraction layer is initialized
 which is used to load further bootloader images.
 
-#### BL3-0 (System Control Processor Firmware) image load
+#### SCP_BL2 (System Control Processor Firmware) image load
 
 Some systems have a separate System Control Processor (SCP) for power, clock,
-reset and system control. BL2 loads the optional BL3-0 image from platform
+reset and system control. BL2 loads the optional SCP_BL2 image from platform
 storage into a platform-specific region of secure memory. The subsequent
-handling of BL3-0 is platform specific. For example, on the Juno ARM development
-platform port the image is transferred into SCP's internal memory using the Boot
-Over MHU (BOM) protocol after being loaded in the trusted SRAM memory. The SCP
-executes BL3-0 and signals to the Application Processor (AP) for BL2 execution
-to continue.
+handling of SCP_BL2 is platform specific. For example, on the Juno ARM
+development platform port the image is transferred into SCP's internal memory
+using the Boot Over MHU (BOM) protocol after being loaded in the trusted SRAM
+memory. The SCP executes SCP_BL2 and signals to the Application Processor (AP)
+for BL2 execution to continue.
 
 #### BL3-1 (EL3 Runtime Firmware) image load
 
@@ -1249,7 +1249,7 @@ The following list describes the memory layout on the ARM development platforms:
 
 *   BL2 is loaded below BL3-1.
 
-*   On Juno, BL3-0 is loaded temporarily into the BL3-1 memory region and
+*   On Juno, SCP_BL2 is loaded temporarily into the BL3-1 memory region and
     transfered to the SCP before being overwritten by BL3-1.
 
 *   BL3-2 can be loaded in one of the following locations:
@@ -1356,12 +1356,12 @@ layout of the other images in Trusted SRAM.
     0x0BEC0000 |----------|
                :          :
     0x08000000 +----------+                  BL3-1 is loaded
-                                             after BL3-0 has
+                                             after SCP_BL2 has
                Trusted SRAM                  been sent to SCP
     0x04040000 +----------+  loaded by BL2  ------------------
                | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
                |----------|  <<<<<<<<<<<<<  |----------------|
-               |  BL3-0   |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               | SCP_BL2  |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
                |----------|                 ------------------
                |   BL2    |  <<<<<<<<<<<<<  |  BL3-2 NOBITS  |
                |----------|  <<<<<<<<<<<<<  |----------------|
@@ -1390,12 +1390,12 @@ layout of the other images in Trusted SRAM.
     0x0BEC0000 |----------|
                :          :
     0x08000000 +----------+                  BL3-1 is loaded
-                                             after BL3-0 has
+                                             after SCP_BL2 has
                Trusted SRAM                  been sent to SCP
     0x04040000 +----------+  loaded by BL2  ------------------
                | BL1 (rw) |  <<<<<<<<<<<<<  |  BL3-1 NOBITS  |
                |----------|  <<<<<<<<<<<<<  |----------------|
-               |  BL3-0   |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
+               | SCP_BL2  |  <<<<<<<<<<<<<  | BL3-1 PROGBITS |
                |----------|                 ------------------
                |   BL2    |
                |----------|

@@ -82,7 +82,7 @@
  * primary, according to the shift and mask definitions below.
  *
  * Note that the value stored at this address is only valid at boot time, before
- * the BL3-0 image is transferred to SCP.
+ * the SCP_BL2 image is transferred to SCP.
  */
 #define SCP_BOOT_CFG_ADDR		(ARM_TRUSTED_SRAM_BASE + 0x80)
 #define PRIMARY_CPU_SHIFT		8
@@ -110,11 +110,11 @@
  ************************************************************************/
 
 /*
- * Load address of BL3-0 in CSS platform ports
- * BL3-0 is loaded to the same place as BL3-1.  Once BL3-0 is transferred to the
+ * Load address of SCP_BL2 in CSS platform ports
+ * SCP_BL2 is loaded to the same place as BL3-1.  Once SCP_BL2 is transferred to the
  * SCP, it is discarded and BL3-1 is loaded over the top.
  */
-#define BL30_BASE			BL31_BASE
+#define SCP_BL2_BASE			BL31_BASE
 
 #define SCP_BL2U_BASE			BL31_BASE
 

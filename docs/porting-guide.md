@@ -277,23 +277,23 @@ also be defined:
     BL3-3 content certificate identifier, used by BL2 to load the BL3-3 content
     certificate.
 
-If a BL3-0 image is supported by the platform, the following constants must
+If a SCP_BL2 image is supported by the platform, the following constants must
 also be defined:
 
-*   **#define : BL30_IMAGE_ID**
+*   **#define : SCP_BL2_IMAGE_ID**
 
-    BL3-0 image identifier, used by BL2 to load BL3-0 into secure memory from
-    platform storage before being transfered to the SCP.
+    SCP_BL2 image identifier, used by BL2 to load SCP_BL2 into secure memory
+    from platform storage before being transfered to the SCP.
 
 *   **#define : SCP_FW_KEY_CERT_ID**
 
-    BL3-0 key certificate identifier, used by BL2 to load the BL3-0 key
+    SCP_BL2 key certificate identifier, used by BL2 to load the SCP_BL2 key
     certificate (mandatory when Trusted Board Boot is enabled).
 
 *   **#define : SCP_FW_CONTENT_CERT_ID**
 
-    BL3-0 content certificate identifier, used by BL2 to load the BL3-0 content
-    certificate (mandatory when Trusted Board Boot is enabled).
+    SCP_BL2 content certificate identifier, used by BL2 to load the SCP_BL2
+    content certificate (mandatory when Trusted Board Boot is enabled).
 
 If a BL3-2 image is supported by the platform, the following constants must
 also be defined:
@@ -838,15 +838,15 @@ The BL2 stage is executed only by the primary CPU, which is determined in BL1
 using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
 `BL2_BASE`. BL2 executes in Secure EL1 and is responsible for:
 
-1.  (Optional) Loading the BL3-0 binary image (if present) from platform
-    provided non-volatile storage. To load the BL3-0 image, BL2 makes use of
-    the `meminfo` returned by the `bl2_plat_get_bl30_meminfo()` function.
-    The platform also defines the address in memory where BL3-0 is loaded
-    through the optional constant `BL30_BASE`. BL2 uses this information
-    to determine if there is enough memory to load the BL3-0 image.
-    Subsequent handling of the BL3-0 image is platform-specific and is
-    implemented in the `bl2_plat_handle_bl30()` function.
-    If `BL30_BASE` is not defined then this step is not performed.
+1.  (Optional) Loading the SCP_BL2 binary image (if present) from platform
+    provided non-volatile storage. To load the SCP_BL2 image, BL2 makes use of
+    the `meminfo` returned by the `bl2_plat_get_scp_bl2_meminfo()` function.
+    The platform also defines the address in memory where SCP_BL2 is loaded
+    through the optional constant `SCP_BL2_BASE`. BL2 uses this information
+    to determine if there is enough memory to load the SCP_BL2 image.
+    Subsequent handling of the SCP_BL2 image is platform-specific and is
+    implemented in the `bl2_plat_handle_scp_bl2()` function.
+    If `SCP_BL2_BASE` is not defined then this step is not performed.
 
 2.  Loading the BL3-1 binary image into secure RAM from non-volatile storage. To
     load the BL3-1 image, BL2 makes use of the `meminfo` structure passed to it
@@ -897,8 +897,8 @@ copied structure is made available to all BL2 code through the
 
 In ARM standard platforms, this function also initializes the storage
 abstraction layer used to load further bootloader images. It is necessary to do
-this early on platforms with a BL3-0 image, since the later `bl2_platform_setup`
-must be done after BL3-0 is loaded.
+this early on platforms with a SCP_BL2 image, since the later
+`bl2_platform_setup` must be done after SCP_BL2 is loaded.
 
 
 ### Function : bl2_plat_arch_setup() [mandatory]
@@ -945,24 +945,24 @@ populated with the extents of secure RAM available for BL2 to use. See
 `bl2_early_platform_setup()` above.
 
 
-### Function : bl2_plat_get_bl30_meminfo() [mandatory]
+### Function : bl2_plat_get_scp_bl2_meminfo() [mandatory]
 
     Argument : meminfo *
     Return   : void
 
 This function is used to get the memory limits where BL2 can load the
-BL3-0 image. The meminfo provided by this is used by load_image() to
-validate whether the BL3-0 image can be loaded within the given
+SCP_BL2 image. The meminfo provided by this is used by load_image() to
+validate whether the SCP_BL2 image can be loaded within the given
 memory from the given base.
 
 
-### Function : bl2_plat_handle_bl30() [mandatory]
+### Function : bl2_plat_handle_scp_bl2() [mandatory]
 
     Argument : image_info *
     Return   : int
 
-This function is called after loading BL3-0 image and it is used to perform any
-platform-specific actions required to handle the SCP firmware. Typically it
+This function is called after loading SCP_BL2 image and it is used to perform
+any platform-specific actions required to handle the SCP firmware. Typically it
 transfers the image into SCP memory using a platform-specific protocol and waits
 until SCP executes it and signals to the Application Processor (AP) for BL2
 execution to continue.

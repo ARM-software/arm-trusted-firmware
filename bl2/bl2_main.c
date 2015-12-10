@@ -41,45 +41,52 @@
 #include <stdint.h>
 #include "bl2_private.h"
 
+/*
+ * Check for platforms that use obsolete image terminology
+ */
+#ifdef BL30_BASE
+# error "BL30_BASE platform define no longer used - please use SCP_BL2_BASE"
+#endif
+
 /*******************************************************************************
- * Load the BL3-0 image if there's one.
- * If a platform does not want to attempt to load BL3-0 image it must leave
- * BL30_BASE undefined.
- * Return 0 on success or if there's no BL3-0 image to load, a negative error
+ * Load the SCP_BL2 image if there's one.
+ * If a platform does not want to attempt to load SCP_BL2 image it must leave
+ * SCP_BL2_BASE undefined.
+ * Return 0 on success or if there's no SCP_BL2 image to load, a negative error
  * code otherwise.
  ******************************************************************************/
-static int load_bl30(void)
+static int load_scp_bl2(void)
 {
 	int e = 0;
-#ifdef BL30_BASE
-	meminfo_t bl30_mem_info;
-	image_info_t bl30_image_info;
+#ifdef SCP_BL2_BASE
+	meminfo_t scp_bl2_mem_info;
+	image_info_t scp_bl2_image_info;
 
 	/*
-	 * It is up to the platform to specify where BL3-0 should be loaded if
+	 * It is up to the platform to specify where SCP_BL2 should be loaded if
 	 * it exists. It could create space in the secure sram or point to a
 	 * completely different memory.
 	 *
 	 * The entry point information is not relevant in this case as the AP
-	 * won't execute the BL3-0 image.
+	 * won't execute the SCP_BL2 image.
 	 */
-	INFO("BL2: Loading BL3-0\n");
-	bl2_plat_get_bl30_meminfo(&bl30_mem_info);
-	bl30_image_info.h.version = VERSION_1;
-	e = load_auth_image(&bl30_mem_info,
-			    BL30_IMAGE_ID,
-			    BL30_BASE,
-			    &bl30_image_info,
+	INFO("BL2: Loading SCP_BL2\n");
+	bl2_plat_get_scp_bl2_meminfo(&scp_bl2_mem_info);
+	scp_bl2_image_info.h.version = VERSION_1;
+	e = load_auth_image(&scp_bl2_mem_info,
+			    SCP_BL2_IMAGE_ID,
+			    SCP_BL2_BASE,
+			    &scp_bl2_image_info,
 			    NULL);
 
 	if (e == 0) {
-		/* The subsequent handling of BL3-0 is platform specific */
-		e = bl2_plat_handle_bl30(&bl30_image_info);
+		/* The subsequent handling of SCP_BL2 is platform specific */
+		e = bl2_plat_handle_scp_bl2(&scp_bl2_image_info);
 		if (e) {
-			ERROR("Failure in platform-specific handling of BL3-0 image.\n");
+			ERROR("Failure in platform-specific handling of SCP_BL2 image.\n");
 		}
 	}
-#endif /* BL30_BASE */
+#endif /* SCP_BL2_BASE */
 
 	return e;
 }
@@ -219,13 +226,13 @@ void bl2_main(void)
 	/*
 	 * Load the subsequent bootloader images
 	 */
-	e = load_bl30();
+	e = load_scp_bl2();
 	if (e) {
-		ERROR("Failed to load BL3-0 (%i)\n", e);
+		ERROR("Failed to load SCP_BL2 (%i)\n", e);
 		plat_error_handler(e);
 	}
 
-	/* Perform platform setup in BL2 after loading BL3-0 */
+	/* Perform platform setup in BL2 after loading SCP_BL2 */
 	bl2_platform_setup();
 
 	/*

@@ -37,8 +37,8 @@
 /* Trusted Boot Firmware BL2 */
 #define BL2_IMAGE_ID			1
 
-/* SCP Firmware BL3-0 */
-#define BL30_IMAGE_ID			2
+/* SCP Firmware SCP_BL2 */
+#define SCP_BL2_IMAGE_ID		2
 
 /* EL3 Runtime Firmware BL31 */
 #define BL31_IMAGE_ID			3

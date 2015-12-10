@@ -230,8 +230,8 @@ static const auth_img_desc_t cot_desc[] = {
 			}
 		}
 	},
-	[BL30_IMAGE_ID] = {
-		.img_id = BL30_IMAGE_ID,
+	[SCP_BL2_IMAGE_ID] = {
+		.img_id = SCP_BL2_IMAGE_ID,
 		.img_type = IMG_RAW,
 		.parent = &cot_desc[SCP_FW_CONTENT_CERT_ID],
 		.img_auth_methods = {

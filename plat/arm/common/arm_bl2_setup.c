@@ -90,7 +90,7 @@ static bl2_to_bl31_params_mem_t bl31_params_mem;
 #pragma weak bl2_plat_get_bl31_ep_info
 #pragma weak bl2_plat_flush_bl31_params
 #pragma weak bl2_plat_set_bl31_ep_info
-#pragma weak bl2_plat_get_bl30_meminfo
+#pragma weak bl2_plat_get_scp_bl2_meminfo
 #pragma weak bl2_plat_get_bl32_meminfo
 #pragma weak bl2_plat_set_bl32_ep_info
 #pragma weak bl2_plat_get_bl33_meminfo
@@ -235,12 +235,12 @@ void bl2_plat_arch_setup(void)
 }
 
 /*******************************************************************************
- * Populate the extents of memory available for loading BL3-0 (if used),
+ * Populate the extents of memory available for loading SCP_BL2 (if used),
  * i.e. anywhere in trusted RAM as long as it doesn't overwrite BL2.
  ******************************************************************************/
-void bl2_plat_get_bl30_meminfo(meminfo_t *bl30_meminfo)
+void bl2_plat_get_scp_bl2_meminfo(meminfo_t *scp_bl2_meminfo)
 {
-	*bl30_meminfo = bl2_tzram_layout;
+	*scp_bl2_meminfo = bl2_tzram_layout;
 }
 
 /*******************************************************************************

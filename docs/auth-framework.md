@@ -211,8 +211,9 @@ It is responsible for:
 3.  Tracking which images have been verified. In case an image is a part of
     multiple CoTs then it should be verified only once e.g. the Trusted World
     Key Certificate in the TBBR-Client spec. contains information to verify
-    BL3-0, BL3-1, BL3-2 each of which have a separate CoT. (This responsibility
-    has not been described in this document but should be trivial to implement).
+    SCP_BL2, BL3-1, BL3-2 each of which have a separate CoT. (This
+    responsibility has not been described in this document but should be
+    trivial to implement).
 
 4.  Reusing memory meant for a data image to verify authentication images e.g.
     in the CoT described in Diagram 2, each certificate can be loaded and
@@ -632,7 +633,7 @@ is, however, a minimum set of images that are mandatory in the Trusted Firmware
 and thus all CoTs must present:
 
 *   `BL2`
-*   `BL3-0` (platform specific)
+*   `SCP_BL2` (platform specific)
 *   `BL3-1`
 *   `BL3-2` (optional)
 *   `BL3-3`

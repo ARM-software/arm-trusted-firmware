@@ -127,9 +127,9 @@
  * SCP Firmware Content Certificate
  */
 
-/* SCPFirmwareHash - BL30 */
+/* SCPFirmwareHash - SCP_BL2 */
 #define SCP_FW_HASH_OID				"1.3.6.1.4.1.4128.2100.801"
-/* SCPRomPatchHash - BL0_PATCH */
+/* SCPRomPatchHash - SCP_BL1_PATCH */
 #define SCP_ROM_PATCH_HASH_OID			"1.3.6.1.4.1.4128.2100.802"
 
 

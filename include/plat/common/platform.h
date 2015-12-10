@@ -166,17 +166,17 @@ void bl2_plat_set_bl33_ep_info(struct image_info *image,
 void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
 
 /*******************************************************************************
- * Conditionally mandatory BL2 functions: must be implemented if BL3-0 image
+ * Conditionally mandatory BL2 functions: must be implemented if SCP_BL2 image
  * is supported
  ******************************************************************************/
-/* Gets the memory layout for BL3-0 */
-void bl2_plat_get_bl30_meminfo(struct meminfo *mem_info);
+/* Gets the memory layout for SCP_BL2 */
+void bl2_plat_get_scp_bl2_meminfo(struct meminfo *mem_info);
 
 /*
- * This function is called after loading BL3-0 image and it is used to perform
+ * This function is called after loading SCP_BL2 image and it is used to perform
  * any platform-specific actions required to handle the SCP firmware.
  */
-int bl2_plat_handle_bl30(struct image_info *bl30_image_info);
+int bl2_plat_handle_scp_bl2(struct image_info *scp_bl2_image_info);
 
 /*******************************************************************************
  * Conditionally mandatory BL2 functions: must be implemented if BL3-2 image

@@ -37,7 +37,7 @@
 #   BUILD_PLAT: output directory
 #   NEED_BL32: indicates whether BL3-2 is needed by the platform
 #   BL2: image filename (optional). Default is IMG_BIN(2) (see macro IMG_BIN)
-#   BL30: image filename (optional). Default is IMG_BIN(30)
+#   SCP_BL2: image filename (optional). Default is IMG_BIN(30)
 #   BL31: image filename (optional). Default is IMG_BIN(31)
 #   BL32: image filename (optional). Default is IMG_BIN(32)
 #   BL33: image filename (optional). Default is IMG_BIN(33)
@@ -48,7 +48,7 @@
 #   ROT_KEY
 #   TRUSTED_WORLD_KEY
 #   NON_TRUSTED_WORLD_KEY
-#   BL30_KEY
+#   SCP_BL2_KEY
 #   BL31_KEY
 #   BL32_KEY
 #   BL33_KEY
@@ -81,10 +81,10 @@ $(if ${BL2},$(eval $(call CERT_ADD_CMD_OPT,${BL2},--tb-fw,true)),\
 $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
 $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
 
-# Add the BL30 CoT (key cert + img cert + image)
-ifneq (${BL30},)
-    $(eval $(call CERT_ADD_CMD_OPT,${BL30},--scp-fw,true))
-    $(if ${BL30_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL30_KEY},--scp-fw-key)))
+# Add the SCP_BL2 CoT (key cert + img cert + image)
+ifneq (${SCP_BL2},)
+    $(eval $(call CERT_ADD_CMD_OPT,${SCP_BL2},--scp-fw,true))
+    $(if ${SCP_BL2_KEY},$(eval $(call CERT_ADD_CMD_OPT,${SCP_BL2_KEY},--scp-fw-key)))
     $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/scp_fw_content.crt,--scp-fw-cert))
     $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/scp_fw_key.crt,--scp-fw-key-cert))
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/scp_fw_content.crt,--scp-fw-cert))

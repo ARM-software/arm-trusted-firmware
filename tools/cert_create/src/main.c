@@ -86,7 +86,7 @@
 enum {
 	/* Image file names (inputs) */
 	BL2_ID = 0,
-	BL30_ID,
+	SCP_BL2_ID,
 	BL31_ID,
 	BL32_ID,
 	BL33_ID,
@@ -105,7 +105,7 @@ enum {
 	ROT_KEY_ID,
 	TRUSTED_WORLD_KEY_ID,
 	NON_TRUSTED_WORLD_KEY_ID,
-	BL30_KEY_ID,
+	SCP_BL2_KEY_ID,
 	BL31_KEY_ID,
 	BL32_KEY_ID,
 	BL33_KEY_ID,

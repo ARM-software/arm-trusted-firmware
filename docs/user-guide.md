@@ -139,11 +139,11 @@ Trusted Firmware source tree and follow these steps:
     For more information on FIPs, see the "Firmware Image Package" section in
     the [Firmware Design].
 
-2.  (Optional) Some platforms may require a BL3-0 image to boot. This image can
+2.  (Optional) Some platforms may require a SCP_BL2 image to boot. This image can
     be included in the FIP when building the Trusted Firmware by specifying the
-    `BL30` build option:
+    `SCP_BL2` build option:
 
-        BL30=<path-to>/<bl30_image>
+        SCP_BL2=<path-to>/<scp_bl2_image>
 
 3.  Output binary files `bl1.bin` and `fip.bin` are both required to boot the
     system. How these files are used is platform specific. Refer to the
@@ -180,8 +180,8 @@ performed.
 
 #### Common build options
 
-*   `BL30`: Path to BL3-0 image in the host file system. This image is optional.
-    If a BL3-0 image is present then this option must be passed for the `fip`
+*   `SCP_BL2`: Path to SCP_BL2 image in the host file system. This image is optional.
+    If a SCP_BL2 image is present then this option must be passed for the `fip`
     target.
 
 *   `BL33`: Path to BL3-3 image in the host file system. This is mandatory for
@@ -327,8 +327,8 @@ performed.
     specifies the file that contains the Non-Trusted World private key in PEM
     format. If `SAVE_KEYS=1`, this file name will be used to save the key.
 
-*   `BL30_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-0 private key in PEM format. If `SAVE_KEYS=1`,
+*   `SCP_BL2_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the SCP_BL2 private key in PEM format. If `SAVE_KEYS=1`,
     this file name will be used to save the key.
 
 *   `BL31_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
@@ -767,7 +767,7 @@ complexity of developing EL3 baremetal code by:
 
 *   putting the system into a known architectural state;
 *   taking care of platform secure world initialization;
-*   loading the BL30 image if required by the platform.
+*   loading the SCP_BL2 image if required by the platform.
 
 When booting an EL3 payload on ARM standard platforms, the configuration of the
 TrustZone controller is simplified such that only region 0 is enabled and is
@@ -1187,14 +1187,15 @@ deliverables on Juno][Juno Instructions].
 
 ### Preparing Trusted Firmware images
 
-The Juno platform requires a BL0 and a BL30 image to boot up. The BL0 image
-contains the ROM firmware that runs on the SCP (System Control Processor),
-whereas the BL30 image contains the SCP Runtime firmware. Both images are
-embedded within the Juno board recovery image, these are the files `bl0.bin`
-and `bl30.bin`.
+The Juno platform requires a SCP_BL1 and a SCP_BL2 image to boot up. The
+SCP_BL1 image contains the ROM firmware that runs on the SCP (System Control
+Processor), whereas the SCP_BL2 image contains the SCP Runtime firmware. Both
+images are embedded within the Juno board recovery image, these are the files
+`bl0.bin` and `bl30.bin`, respectively. Please note that these filenames still
+use the old terminology.
 
-The BL30 file must be part of the FIP image. Therefore, its path must be
-supplied using the `BL30` variable on the command line when building the
+The SCP_BL2 file must be part of the FIP image. Therefore, its path must be
+supplied using the `SCP_BL2` variable on the command line when building the
 FIP. Please refer to the section "Building the Trusted Firmware".
 
 After building Trusted Firmware, the files `bl1.bin` and `fip.bin` need copying
