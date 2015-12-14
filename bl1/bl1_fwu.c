@@ -298,7 +298,8 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		 * Image is in RESET state.
 		 * Check the parameters and authenticate the source image in place.
 		 */
-		if (bl1_plat_mem_check(image_src, image_size, flags)) {
+		if (bl1_plat_mem_check(image_src, image_size,	\
+					image_desc->ep_info.h.attr)) {
 			WARN("BL1-FWU: Authentication arguments source/size not mapped\n");
 			return -ENOMEM;
 		}
