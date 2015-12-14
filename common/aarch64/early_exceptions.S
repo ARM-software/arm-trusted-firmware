@@ -37,7 +37,7 @@
 
 	/* -----------------------------------------------------
 	 * Very simple stackless exception handlers used by BL2
-	 * and BL3-1 bootloader stages. BL3-1 uses them before
+	 * and BL31 bootloader stages. BL31 uses them before
 	 * stacks are setup. BL2 uses them throughout.
 	 * -----------------------------------------------------
 	 */

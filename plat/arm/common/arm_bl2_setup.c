@@ -64,7 +64,7 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
 /*******************************************************************************
  * This structure represents the superset of information that is passed to
- * BL3-1, e.g. while passing control to it from BL2, bl31_params
+ * BL31, e.g. while passing control to it from BL2, bl31_params
  * and other platform specific params
  ******************************************************************************/
 typedef struct bl2_to_bl31_params_mem {
@@ -90,7 +90,7 @@ static bl2_to_bl31_params_mem_t bl31_params_mem;
 #pragma weak bl2_plat_get_bl31_ep_info
 #pragma weak bl2_plat_flush_bl31_params
 #pragma weak bl2_plat_set_bl31_ep_info
-#pragma weak bl2_plat_get_bl30_meminfo
+#pragma weak bl2_plat_get_scp_bl2_meminfo
 #pragma weak bl2_plat_get_bl32_meminfo
 #pragma weak bl2_plat_set_bl32_ep_info
 #pragma weak bl2_plat_get_bl33_meminfo
@@ -117,7 +117,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 
 	/*
 	 * Initialise the memory for all the arguments that needs to
-	 * be passed to BL3-1
+	 * be passed to BL31
 	 */
 	memset(&bl31_params_mem, 0, sizeof(bl2_to_bl31_params_mem_t));
 
@@ -125,12 +125,12 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	bl2_to_bl31_params = &bl31_params_mem.bl31_params;
 	SET_PARAM_HEAD(bl2_to_bl31_params, PARAM_BL31, VERSION_1, 0);
 
-	/* Fill BL3-1 related information */
+	/* Fill BL31 related information */
 	bl2_to_bl31_params->bl31_image_info = &bl31_params_mem.bl31_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl31_image_info, PARAM_IMAGE_BINARY,
 		VERSION_1, 0);
 
-	/* Fill BL3-2 related information if it exists */
+	/* Fill BL32 related information if it exists */
 #if BL32_BASE
 	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, PARAM_EP,
@@ -140,12 +140,12 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 		VERSION_1, 0);
 #endif
 
-	/* Fill BL3-3 related information */
+	/* Fill BL33 related information */
 	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem.bl33_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_ep_info,
 		PARAM_EP, VERSION_1, 0);
 
-	/* BL3-3 expects to receive the primary CPU MPID (through x0) */
+	/* BL33 expects to receive the primary CPU MPID (through x0) */
 	bl2_to_bl31_params->bl33_ep_info->args.arg0 = 0xffff & read_mpidr();
 
 	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem.bl33_image_info;
@@ -235,18 +235,18 @@ void bl2_plat_arch_setup(void)
 }
 
 /*******************************************************************************
- * Populate the extents of memory available for loading BL3-0 (if used),
+ * Populate the extents of memory available for loading SCP_BL2 (if used),
  * i.e. anywhere in trusted RAM as long as it doesn't overwrite BL2.
  ******************************************************************************/
-void bl2_plat_get_bl30_meminfo(meminfo_t *bl30_meminfo)
+void bl2_plat_get_scp_bl2_meminfo(meminfo_t *scp_bl2_meminfo)
 {
-	*bl30_meminfo = bl2_tzram_layout;
+	*scp_bl2_meminfo = bl2_tzram_layout;
 }
 
 /*******************************************************************************
- * Before calling this function BL3-1 is loaded in memory and its entrypoint
+ * Before calling this function BL31 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL3-1 and set SPSR and security state.
+ * the entrypoint of BL31 and set SPSR and security state.
  * On ARM standard platforms we only set the security state of the entrypoint
  ******************************************************************************/
 void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
@@ -259,9 +259,9 @@ void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
 
 
 /*******************************************************************************
- * Before calling this function BL3-2 is loaded in memory and its entrypoint
+ * Before calling this function BL32 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL3-2 and set SPSR and security state.
+ * the entrypoint of BL32 and set SPSR and security state.
  * On ARM standard platforms we only set the security state of the entrypoint
  ******************************************************************************/
 void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
@@ -272,9 +272,9 @@ void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
 }
 
 /*******************************************************************************
- * Before calling this function BL3-3 is loaded in memory and its entrypoint
+ * Before calling this function BL33 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL3-3 and set SPSR and security state.
+ * the entrypoint of BL33 and set SPSR and security state.
  * On ARM standard platforms we only set the security state of the entrypoint
  ******************************************************************************/
 void bl2_plat_set_bl33_ep_info(image_info_t *image,

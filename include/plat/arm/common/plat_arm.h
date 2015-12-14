@@ -87,7 +87,7 @@ void arm_configure_mmu_el3(unsigned long total_base,
 #else
 
 /*
- * Empty macros for all other BL stages other than BL3-1
+ * Empty macros for all other BL stages other than BL31
  */
 #define ARM_INSTANTIATE_LOCK
 #define arm_lock_init()
@@ -171,7 +171,7 @@ void arm_bl2u_early_platform_setup(struct meminfo *mem_layout,
 void arm_bl2u_platform_setup(void);
 void arm_bl2u_plat_arch_setup(void);
 
-/* BL3-1 utility functions */
+/* BL31 utility functions */
 void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 				void *plat_params_from_bl2);
 void arm_bl31_platform_setup(void);

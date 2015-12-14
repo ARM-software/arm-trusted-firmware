@@ -309,7 +309,7 @@ ifeq (${DISABLE_PEDANTIC},0)
         CFLAGS		+= 	-pedantic
 endif
 
-# Using the ARM Trusted Firmware BL2 implies that a BL3-3 image also need to be
+# Using the ARM Trusted Firmware BL2 implies that a BL33 image also need to be
 # supplied for the FIP and Certificate generation tools. This flag can be
 # overridden by the platform.
 ifdef BL2_SOURCES
@@ -589,8 +589,8 @@ help:
 	@echo "  bl1            Build the BL1 binary"
 	@echo "  bl2            Build the BL2 binary"
 	@echo "  bl2u           Build the BL2U binary"
-	@echo "  bl31           Build the BL3-1 binary"
-	@echo "  bl32           Build the BL3-2 binary"
+	@echo "  bl31           Build the BL31 binary"
+	@echo "  bl32           Build the BL32 binary"
 	@echo "  certificates   Build the certificates (requires 'GENERATE_COT=1')"
 	@echo "  fip            Build the Firmware Image Package (FIP)"
 	@echo "  fwu_fip        Build the FWU Firmware Image Package (FIP)"

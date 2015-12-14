@@ -134,7 +134,7 @@ struct meminfo *bl2_plat_sec_mem_layout(void);
 
 /*
  * This function returns a pointer to the shared memory that the platform has
- * kept aside to pass trusted firmware related information that BL3-1
+ * kept aside to pass trusted firmware related information that BL31
  * could need
  */
 struct bl31_params *bl2_plat_get_bl31_params(void);
@@ -147,14 +147,14 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void);
 
 /*
  * This function flushes to main memory all the params that are
- * passed to BL3-1
+ * passed to BL31
  */
 void bl2_plat_flush_bl31_params(void);
 
 /*
  * The next 2 functions allow the platform to change the entrypoint information
- * for the mandatory 3rd level BL images, BL3-1 and BL3-3. This is done after
- * BL2 has loaded those images into memory but before BL3-1 is executed.
+ * for the mandatory 3rd level BL images, BL31 and BL33. This is done after
+ * BL2 has loaded those images into memory but before BL31 is executed.
  */
 void bl2_plat_set_bl31_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
@@ -162,30 +162,30 @@ void bl2_plat_set_bl31_ep_info(struct image_info *image,
 void bl2_plat_set_bl33_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
 
-/* Gets the memory layout for BL3-3 */
+/* Gets the memory layout for BL33 */
 void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
 
 /*******************************************************************************
- * Conditionally mandatory BL2 functions: must be implemented if BL3-0 image
+ * Conditionally mandatory BL2 functions: must be implemented if SCP_BL2 image
  * is supported
  ******************************************************************************/
-/* Gets the memory layout for BL3-0 */
-void bl2_plat_get_bl30_meminfo(struct meminfo *mem_info);
+/* Gets the memory layout for SCP_BL2 */
+void bl2_plat_get_scp_bl2_meminfo(struct meminfo *mem_info);
 
 /*
- * This function is called after loading BL3-0 image and it is used to perform
+ * This function is called after loading SCP_BL2 image and it is used to perform
  * any platform-specific actions required to handle the SCP firmware.
  */
-int bl2_plat_handle_bl30(struct image_info *bl30_image_info);
+int bl2_plat_handle_scp_bl2(struct image_info *scp_bl2_image_info);
 
 /*******************************************************************************
- * Conditionally mandatory BL2 functions: must be implemented if BL3-2 image
+ * Conditionally mandatory BL2 functions: must be implemented if BL32 image
  * is supported
  ******************************************************************************/
 void bl2_plat_set_bl32_ep_info(struct image_info *image,
 			       struct entry_point_info *ep);
 
-/* Gets the memory layout for BL3-2 */
+/* Gets the memory layout for BL32 */
 void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
 
 /*******************************************************************************
@@ -210,7 +210,7 @@ void bl2u_platform_setup(void);
 int bl2u_plat_handle_scp_bl2u(void);
 
 /*******************************************************************************
- * Mandatory BL3-1 functions
+ * Mandatory BL31 functions
  ******************************************************************************/
 void bl31_early_platform_setup(struct bl31_params *from_bl2,
 				void *plat_params_from_bl2);
@@ -220,26 +220,26 @@ void bl31_plat_runtime_setup(void);
 struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
 
 /*******************************************************************************
- * Mandatory PSCI functions (BL3-1)
+ * Mandatory PSCI functions (BL31)
  ******************************************************************************/
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const struct plat_psci_ops **);
 const unsigned char *plat_get_power_domain_tree_desc(void);
 
 /*******************************************************************************
- * Optional PSCI functions (BL3-1).
+ * Optional PSCI functions (BL31).
  ******************************************************************************/
 plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 			const plat_local_state_t *states,
 			unsigned int ncpu);
 
 /*******************************************************************************
- * Optional BL3-1 functions (may be overridden)
+ * Optional BL31 functions (may be overridden)
  ******************************************************************************/
 void bl31_plat_enable_mmu(uint32_t flags);
 
 /*******************************************************************************
- * Optional BL3-2 functions (may be overridden)
+ * Optional BL32 functions (may be overridden)
  ******************************************************************************/
 void bl32_plat_enable_mmu(uint32_t flags);
 
@@ -261,7 +261,7 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 unsigned int platform_get_core_pos(unsigned long mpidr);
 
 /*******************************************************************************
- * Mandatory PSCI Compatibility functions (BL3-1)
+ * Mandatory PSCI Compatibility functions (BL31)
  ******************************************************************************/
 int platform_setup_pm(const plat_pm_ops_t **);
 

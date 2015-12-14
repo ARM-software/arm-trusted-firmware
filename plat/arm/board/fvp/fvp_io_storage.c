@@ -44,14 +44,14 @@
 #define BL33_IMAGE_NAME			"bl33.bin"
 
 #if TRUSTED_BOARD_BOOT
-#define BL2_CERT_NAME			"bl2.crt"
+#define TRUSTED_BOOT_FW_CERT_NAME	"tb_fw.crt"
 #define TRUSTED_KEY_CERT_NAME		"trusted_key.crt"
-#define BL31_KEY_CERT_NAME		"bl31_key.crt"
-#define BL32_KEY_CERT_NAME		"bl32_key.crt"
-#define BL33_KEY_CERT_NAME		"bl33_key.crt"
-#define BL31_CERT_NAME			"bl31.crt"
-#define BL32_CERT_NAME			"bl32.crt"
-#define BL33_CERT_NAME			"bl33.crt"
+#define SOC_FW_KEY_CERT_NAME		"soc_fw_key.crt"
+#define TOS_FW_KEY_CERT_NAME		"tos_fw_key.crt"
+#define NT_FW_KEY_CERT_NAME		"nt_fw_key.crt"
+#define SOC_FW_CONTENT_CERT_NAME	"soc_fw_content.crt"
+#define TOS_FW_CONTENT_CERT_NAME	"tos_fw_content.crt"
+#define NT_FW_CONTENT_CERT_NAME		"nt_fw_content.crt"
 #endif /* TRUSTED_BOARD_BOOT */
 
 /* IO devices */
@@ -76,36 +76,36 @@ static const io_file_spec_t sh_file_spec[] = {
 		.mode = FOPEN_MODE_RB
 	},
 #if TRUSTED_BOARD_BOOT
-	[BL2_CERT_ID] = {
-		.path = BL2_CERT_NAME,
+	[TRUSTED_BOOT_FW_CERT_ID] = {
+		.path = TRUSTED_BOOT_FW_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
 	[TRUSTED_KEY_CERT_ID] = {
 		.path = TRUSTED_KEY_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
-	[BL31_KEY_CERT_ID] = {
-		.path = BL31_KEY_CERT_NAME,
+	[SOC_FW_KEY_CERT_ID] = {
+		.path = SOC_FW_KEY_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
-	[BL32_KEY_CERT_ID] = {
-		.path = BL32_KEY_CERT_NAME,
+	[TRUSTED_OS_FW_KEY_CERT_ID] = {
+		.path = TOS_FW_KEY_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
-	[BL33_KEY_CERT_ID] = {
-		.path = BL33_KEY_CERT_NAME,
+	[NON_TRUSTED_FW_KEY_CERT_ID] = {
+		.path = NT_FW_KEY_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
-	[BL31_CERT_ID] = {
-		.path = BL31_CERT_NAME,
+	[SOC_FW_CONTENT_CERT_ID] = {
+		.path = SOC_FW_CONTENT_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
-	[BL32_CERT_ID] = {
-		.path = BL32_CERT_NAME,
+	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {
+		.path = TOS_FW_CONTENT_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
-	[BL33_CERT_ID] = {
-		.path = BL33_CERT_NAME,
+	[NON_TRUSTED_FW_CONTENT_CERT_ID] = {
+		.path = NT_FW_CONTENT_CERT_NAME,
 		.mode = FOPEN_MODE_RB
 	},
 #endif /* TRUSTED_BOARD_BOOT */

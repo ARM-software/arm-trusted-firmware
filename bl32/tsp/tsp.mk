@@ -41,8 +41,8 @@ BL32_SOURCES		+=	bl32/tsp/tsp_main.c			\
 
 BL32_LINKERFILE		:=	bl32/tsp/tsp.ld.S
 
-# This flag determines if the TSPD initializes BL3-2 in tspd_init() (synchronous
-# method) or configures BL3-1 to pass control to BL3-2 instead of BL3-3
+# This flag determines if the TSPD initializes BL32 in tspd_init() (synchronous
+# method) or configures BL31 to pass control to BL32 instead of BL33
 # (asynchronous method).
 TSP_INIT_ASYNC         :=      0
 

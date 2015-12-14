@@ -41,7 +41,7 @@
  * Definitions common to all ARM standard platforms
  *****************************************************************************/
 
-/* Special value used to verify platform parameters from BL2 to BL3-1 */
+/* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		0x0f1e2d3c4b5a6978ULL
 
 #define ARM_CLUSTER_COUNT		2
@@ -257,7 +257,7 @@
  * BL2 specific defines.
  ******************************************************************************/
 /*
- * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
+ * Put BL2 just below BL31. BL2_BASE is calculated using the current BL2 debug
  * size plus a little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
@@ -268,11 +268,11 @@
 #define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************
- * BL3-1 specific defines.
+ * BL31 specific defines.
  ******************************************************************************/
 /*
- * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
- * current BL3-1 debug size plus a little space for growth.
+ * Put BL31 at the top of the Trusted SRAM. BL31_BASE is calculated using the
+ * current BL31 debug size plus a little space for growth.
  */
 #define BL31_BASE			(ARM_BL_RAM_BASE +		\
 						ARM_BL_RAM_SIZE -	\
@@ -281,7 +281,7 @@
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 
 /*******************************************************************************
- * BL3-2 specific defines.
+ * BL32 specific defines.
  ******************************************************************************/
 /*
  * On ARM standard platforms, the TSP can execute from Trusted SRAM,

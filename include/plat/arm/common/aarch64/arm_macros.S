@@ -57,7 +57,7 @@ spacer:
 	/* ---------------------------------------------
 	 * The below utility macro prints out relevant GIC
 	 * registers whenever an unhandled exception is
-	 * taken in BL3-1 on ARM standard platforms.
+	 * taken in BL31 on ARM standard platforms.
 	 * Expects: GICD base in x16, GICC base in x17
 	 * Clobbers: x0 - x10, sp
 	 * ---------------------------------------------
@@ -125,7 +125,7 @@ cci_iface_regs:
 	/* ------------------------------------------------
 	 * The below required platform porting macro prints
 	 * out relevant interconnect registers whenever an
-	 * unhandled exception is taken in BL3-1.
+	 * unhandled exception is taken in BL31.
 	 * Clobbers: x0 - x9, sp
 	 * ------------------------------------------------
 	 */

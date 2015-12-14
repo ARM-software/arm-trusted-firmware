@@ -67,7 +67,7 @@
 #define PLAT_ARM_SHARED_RAM_CACHED	1
 
 /*
- * Load address of BL3-3 for this platform port
+ * Load address of BL33 for this platform port
  */
 #define PLAT_ARM_NS_IMAGE_OFFSET	(ARM_DRAM1_BASE + 0x8000000)
 

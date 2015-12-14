@@ -62,7 +62,7 @@ endif
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to inidicate if Crash reporting via console should be included
-# in BL3-1. This defaults to being present in DEBUG builds only
+# in BL31. This defaults to being present in DEBUG builds only
 ifndef CRASH_REPORTING
 CRASH_REPORTING		:=	$(DEBUG)
 endif

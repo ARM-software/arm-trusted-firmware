@@ -43,7 +43,7 @@
 
 /*
  * The next 3 constants identify the extents of the code, RO data region and the
- * limit of the BL3-1 image.  These addresses are used by the MMU setup code and
+ * limit of the BL31 image.  These addresses are used by the MMU setup code and
  * therefore they must be page-aligned.  It is the responsibility of the linker
  * script to ensure that __RO_START__, __RO_END__ & __BL31_END__ linker symbols
  * refer to page-aligned addresses.
@@ -66,7 +66,7 @@
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
- * BL3-1 from BL2.
+ * BL31 from BL2.
  */
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
@@ -82,8 +82,8 @@ static entry_point_info_t bl33_image_ep_info;
 
 /*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for the
- * security state specified. BL3-3 corresponds to the non-secure image type
- * while BL3-2 corresponds to the secure image type. A NULL pointer is returned
+ * security state specified. BL33 corresponds to the non-secure image type
+ * while BL32 corresponds to the secure image type. A NULL pointer is returned
  * if the image does not exist.
  ******************************************************************************/
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
@@ -104,7 +104,7 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 }
 
 /*******************************************************************************
- * Perform any BL3-1 early platform setup common to ARM standard platforms.
+ * Perform any BL31 early platform setup common to ARM standard platforms.
  * Here is an opportunity to copy parameters passed by the calling EL (S-EL1
  * in BL2 & S-EL3 in BL1) before they are lost (potentially). This needs to be
  * done before the MMU is initialized so that the memory layout can be used
@@ -119,12 +119,12 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 			ARM_CONSOLE_BAUDRATE);
 
 #if RESET_TO_BL31
-	/* There are no parameters from BL2 if BL3-1 is a reset vector */
+	/* There are no parameters from BL2 if BL31 is a reset vector */
 	assert(from_bl2 == NULL);
 	assert(plat_params_from_bl2 == NULL);
 
 #ifdef BL32_BASE
-	/* Populate entry point information for BL3-2 */
+	/* Populate entry point information for BL32 */
 	SET_PARAM_HEAD(&bl32_image_ep_info,
 				PARAM_EP,
 				VERSION_1,
@@ -134,13 +134,13 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
 #endif /* BL32_BASE */
 
-	/* Populate entry point information for BL3-3 */
+	/* Populate entry point information for BL33 */
 	SET_PARAM_HEAD(&bl33_image_ep_info,
 				PARAM_EP,
 				VERSION_1,
 				0);
 	/*
-	 * Tell BL3-1 where the non-trusted software image
+	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
 	 */
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
@@ -156,14 +156,14 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->h.version >= VERSION_1);
 	/*
 	 * In debug builds, we pass a special value in 'plat_params_from_bl2'
-	 * to verify platform parameters from BL2 to BL3-1.
+	 * to verify platform parameters from BL2 to BL31.
 	 * In release builds, it's not used.
 	 */
 	assert(((unsigned long long)plat_params_from_bl2) ==
 		ARM_BL31_PLAT_PARAM_VAL);
 
 	/*
-	 * Copy BL3-2 (if populated by BL2) and BL3-3 entry point information.
+	 * Copy BL32 (if populated by BL2) and BL33 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
 	if (from_bl2->bl32_ep_info)
@@ -195,7 +195,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 }
 
 /*******************************************************************************
- * Perform any BL3-1 platform setup common to ARM standard platforms
+ * Perform any BL31 platform setup common to ARM standard platforms
  ******************************************************************************/
 void arm_bl31_platform_setup(void)
 {
@@ -224,7 +224,7 @@ void arm_bl31_platform_setup(void)
 }
 
 /*******************************************************************************
- * Perform any BL3-1 platform runtime setup prior to BL3-1 exit common to ARM
+ * Perform any BL31 platform runtime setup prior to BL31 exit common to ARM
  * standard platforms
  ******************************************************************************/
 void arm_bl31_plat_runtime_setup(void)

@@ -35,9 +35,9 @@
 # Expected environment:
 #
 #   BUILD_PLAT: output directory
-#   NEED_BL32: indicates whether BL3-2 is needed by the platform
+#   NEED_BL32: indicates whether BL32 is needed by the platform
 #   BL2: image filename (optional). Default is IMG_BIN(2) (see macro IMG_BIN)
-#   BL30: image filename (optional). Default is IMG_BIN(30)
+#   SCP_BL2: image filename (optional). Default is IMG_BIN(30)
 #   BL31: image filename (optional). Default is IMG_BIN(31)
 #   BL32: image filename (optional). Default is IMG_BIN(32)
 #   BL33: image filename (optional). Default is IMG_BIN(33)
@@ -48,7 +48,7 @@
 #   ROT_KEY
 #   TRUSTED_WORLD_KEY
 #   NON_TRUSTED_WORLD_KEY
-#   BL30_KEY
+#   SCP_BL2_KEY
 #   BL31_KEY
 #   BL32_KEY
 #   BL33_KEY
@@ -76,61 +76,61 @@ $(if ${TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_WORLD_KEY},--
 $(if ${NON_TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${NON_TRUSTED_WORLD_KEY},--non-trusted-world-key)))
 
 # Add the BL2 CoT (image cert + image)
-$(if ${BL2},$(eval $(call CERT_ADD_CMD_OPT,${BL2},--bl2,true)),\
-            $(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,2),--bl2,true)))
-$(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl2.crt,--bl2-cert))
-$(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl2.crt,--bl2-cert))
+$(if ${BL2},$(eval $(call CERT_ADD_CMD_OPT,${BL2},--tb-fw,true)),\
+            $(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,2),--tb-fw,true)))
+$(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
+$(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
 
-# Add the BL30 CoT (key cert + img cert + image)
-ifneq (${BL30},)
-    $(eval $(call CERT_ADD_CMD_OPT,${BL30},--bl30,true))
-    $(if ${BL30_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL30_KEY},--bl30-key)))
-    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl30.crt,--bl30-cert))
-    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl30_key.crt,--bl30-key-cert))
-    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl30.crt,--bl30-cert))
-    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl30_key.crt,--bl30-key-cert))
+# Add the SCP_BL2 CoT (key cert + img cert + image)
+ifneq (${SCP_BL2},)
+    $(eval $(call CERT_ADD_CMD_OPT,${SCP_BL2},--scp-fw,true))
+    $(if ${SCP_BL2_KEY},$(eval $(call CERT_ADD_CMD_OPT,${SCP_BL2_KEY},--scp-fw-key)))
+    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/scp_fw_content.crt,--scp-fw-cert))
+    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/scp_fw_key.crt,--scp-fw-key-cert))
+    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/scp_fw_content.crt,--scp-fw-cert))
+    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/scp_fw_key.crt,--scp-fw-key-cert))
 endif
 
 # Add the BL31 CoT (key cert + img cert + image)
-$(if ${BL31},$(eval $(call CERT_ADD_CMD_OPT,${BL31},--bl31,true)),\
-             $(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,31),--bl31,true)))
-$(if ${BL31_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL31_KEY},--bl31-key)))
-$(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl31.crt,--bl31-cert))
-$(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl31_key.crt,--bl31-key-cert))
-$(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl31.crt,--bl31-cert))
-$(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl31_key.crt,--bl31-key-cert))
+$(if ${BL31},$(eval $(call CERT_ADD_CMD_OPT,${BL31},--soc-fw,true)),\
+             $(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,31),--soc-fw,true)))
+$(if ${BL31_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL31_KEY},--soc-fw-key)))
+$(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/soc_fw_content.crt,--soc-fw-cert))
+$(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/soc_fw_key.crt,--soc-fw-key-cert))
+$(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/soc_fw_content.crt,--soc-fw-cert))
+$(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/soc_fw_key.crt,--soc-fw-key-cert))
 
 # Add the BL32 CoT (key cert + img cert + image)
 ifeq (${NEED_BL32},yes)
-    $(if ${BL32},$(eval $(call CERT_ADD_CMD_OPT,${BL32},--bl32,true)),\
-                 $(if ${BL32_SOURCES},$(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,32),--bl32,true))))
-    $(if ${BL32_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL32_KEY},--bl32-key)))
-    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl32.crt,--bl32-cert))
-    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl32_key.crt,--bl32-key-cert))
-    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl32.crt,--bl32-cert))
-    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl32_key.crt,--bl32-key-cert))
+    $(if ${BL32},$(eval $(call CERT_ADD_CMD_OPT,${BL32},--tos-fw,true)),\
+                 $(if ${BL32_SOURCES},$(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,32),--tos-fw,true))))
+    $(if ${BL32_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL32_KEY},--tos-fw-key)))
+    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/tos_fw_content.crt,--tos-fw-cert))
+    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/tos_fw_key.crt,--tos-fw-key-cert))
+    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/tos_fw_content.crt,--tos-fw-cert))
+    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/tos_fw_key.crt,--tos-fw-key-cert))
 endif
 
 # Add the BL33 CoT (key cert + img cert + image)
 ifneq (${BL33},)
-    $(eval $(call CERT_ADD_CMD_OPT,${BL33},--bl33,true))
-    $(if ${BL33_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL33_KEY},--bl33-key)))
-    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl33.crt,--bl33-cert))
-    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/bl33_key.crt,--bl33-key-cert))
-    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl33.crt,--bl33-cert))
-    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/bl33_key.crt,--bl33-key-cert))
+    $(eval $(call CERT_ADD_CMD_OPT,${BL33},--nt-fw,true))
+    $(if ${BL33_KEY},$(eval $(call CERT_ADD_CMD_OPT,${BL33_KEY},--nt-fw-key)))
+    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/nt_fw_content.crt,--nt-fw-cert))
+    $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/nt_fw_key.crt,--nt-fw-key-cert))
+    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/nt_fw_content.crt,--nt-fw-cert))
+    $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/nt_fw_key.crt,--nt-fw-key-cert))
 endif
 
 # Add the BL2U image
-$(if ${BL2U},$(eval $(call FWU_CERT_ADD_CMD_OPT,${BL2U},--bl2u,true)),\
-     $(eval $(call FWU_CERT_ADD_CMD_OPT,$(call IMG_BIN,2u),--bl2u,true)))
+$(if ${BL2U},$(eval $(call FWU_CERT_ADD_CMD_OPT,${BL2U},--ap-fwu-cfg,true)),\
+     $(eval $(call FWU_CERT_ADD_CMD_OPT,$(call IMG_BIN,2u),--ap-fwu-cfg,true)))
 
 # Add the SCP_BL2U image
 ifneq (${SCP_BL2U},)
-    $(eval $(call FWU_CERT_ADD_CMD_OPT,${SCP_BL2U},--scp_bl2u,true))
+    $(eval $(call FWU_CERT_ADD_CMD_OPT,${SCP_BL2U},--scp-fwu-cfg,true))
 endif
 
 # Add the NS_BL2U image
 ifneq (${NS_BL2U},)
-    $(eval $(call FWU_CERT_ADD_CMD_OPT,${NS_BL2U},--ns_bl2u,true))
+    $(eval $(call FWU_CERT_ADD_CMD_OPT,${NS_BL2U},--fwu,true))
 endif

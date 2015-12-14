@@ -94,7 +94,7 @@ SECTIONS
     } >RAM
 
 #ifdef BL31_PROGBITS_LIMIT
-    ASSERT(. <= BL31_PROGBITS_LIMIT, "BL3-1 progbits has exceeded its limit.")
+    ASSERT(. <= BL31_PROGBITS_LIMIT, "BL31 progbits has exceeded its limit.")
 #endif
 
     stacks (NOLOAD) : {
@@ -184,5 +184,5 @@ SECTIONS
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 #endif
 
-    ASSERT(. <= BL31_LIMIT, "BL3-1 image has exceeded its limit.")
+    ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
 }

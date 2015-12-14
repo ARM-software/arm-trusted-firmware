@@ -110,8 +110,8 @@ endef
 # FIP_ADD_IMG allows the platform to specify an image to be packed in the FIP
 # using a build option. It also adds a dependency on the image file, aborting
 # the build if the file does not exist.
-#   $(1) = build option to specify the image filename (BL30, BL33, etc)
-#   $(2) = command line option for the fip_create tool (bl30, bl33, etc)
+#   $(1) = build option to specify the image filename (SCP_BL2, BL33, etc)
+#   $(2) = command line option for the fip_create tool (scp_bl2, bl33, etc)
 # Example:
 #   $(eval $(call FIP_ADD_IMG,BL33,--bl33))
 define FIP_ADD_IMG

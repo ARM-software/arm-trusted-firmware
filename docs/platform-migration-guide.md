@@ -314,7 +314,7 @@ This function is called with the `SCTLR.M` and `SCTLR.C` bits disabled. The core
 is identified by its `MPIDR`, which is passed as the argument. The function is
 responsible for distinguishing between a warm and cold reset using platform-
 specific means. If it is a warm reset, it returns the entrypoint into the
-BL3-1 image that the core must jump to. If it is a cold reset, this function
+BL31 image that the core must jump to. If it is a cold reset, this function
 must return zero.
 
 This function is also responsible for implementing a platform-specific mechanism
@@ -387,7 +387,7 @@ provided in [plat/common/aarch64/platform_up_stack.S] and
 [plat/common/aarch64/platform_mp_stack.S]
 
 
-## Modifications for Power State Coordination Interface (in BL3-1)
+## Modifications for Power State Coordination Interface (in BL31)
 
 The following functions must be implemented to initialize PSCI functionality in
 the ARM Trusted Firmware.
@@ -448,7 +448,7 @@ called by the primary core.
 This function is called by PSCI initialization code. Its purpose is to export
 handler routines for platform-specific power management actions by populating
 the passed pointer with a pointer to the private `plat_pm_ops` structure of
-BL3-1.
+BL31.
 
 A description of each member of this structure is given below. A platform port
 is expected to implement these handlers if the corresponding PSCI operation

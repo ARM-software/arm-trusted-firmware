@@ -37,7 +37,7 @@
 	/* ---------------------------------------------
 	 * The below required platform porting macro
 	 * prints out relevant GIC registers whenever an
-	 * unhandled exception is taken in BL3-1.
+	 * unhandled exception is taken in BL31.
 	 * Clobbers: x0 - x10, x16, x17, sp
 	 * ---------------------------------------------
 	 */

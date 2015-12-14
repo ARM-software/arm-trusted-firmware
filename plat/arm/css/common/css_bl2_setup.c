@@ -37,25 +37,25 @@
 #include "css_scp_bootloader.h"
 
 /* Weak definition may be overridden in specific CSS based platform */
-#pragma weak bl2_plat_handle_bl30
+#pragma weak bl2_plat_handle_scp_bl2
 
 /*******************************************************************************
- * Transfer BL3-0 from Trusted RAM using the SCP Download protocol.
+ * Transfer SCP_BL2 from Trusted RAM using the SCP Download protocol.
  * Return 0 on success, -1 otherwise.
  ******************************************************************************/
-int bl2_plat_handle_bl30(image_info_t *bl30_image_info)
+int bl2_plat_handle_scp_bl2(image_info_t *scp_bl2_image_info)
 {
 	int ret;
 
-	INFO("BL2: Initiating BL3-0 transfer to SCP\n");
+	INFO("BL2: Initiating SCP_BL2 transfer to SCP\n");
 
-	ret = scp_bootloader_transfer((void *)bl30_image_info->image_base,
-		bl30_image_info->image_size);
+	ret = scp_bootloader_transfer((void *)scp_bl2_image_info->image_base,
+		scp_bl2_image_info->image_size);
 
 	if (ret == 0)
-		INFO("BL2: BL3-0 transferred to SCP\n");
+		INFO("BL2: SCP_BL2 transferred to SCP\n");
 	else
-		ERROR("BL2: BL3-0 transfer failure\n");
+		ERROR("BL2: SCP_BL2 transfer failure\n");
 
 	return ret;
 }
@@ -72,7 +72,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
 	arm_bl2_early_platform_setup(mem_layout);
 
-	/* Save SCP Boot config before it gets overwritten by BL30 loading */
+	/* Save SCP Boot config before it gets overwritten by SCP_BL2 loading */
 	scp_boot_config = mmio_read_32(SCP_BOOT_CFG_ADDR);
 	VERBOSE("BL2: Saved SCP Boot config = 0x%x\n", scp_boot_config);
 }
