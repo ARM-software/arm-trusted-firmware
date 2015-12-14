@@ -83,7 +83,7 @@ behind them. These aspects are key to verify a Chain of Trust.
 
 A CoT is basically a sequence of authentication images which usually starts with
 a root of trust and culminates in a single data image. The following diagram
-illustrates how this maps to a CoT for the BL3-1 image described in the
+illustrates how this maps to a CoT for the BL31 image described in the
 TBBR-Client specification.
 
 ```
@@ -97,8 +97,8 @@ TBBR-Client specification.
                            /              |
                           /               |
                          L                v
-    +------------------+      +-------------------+
-    | Trusted World    |------>| BL3-1 Key         |
+    +------------------+       +-------------------+
+    | Trusted World    |------>| BL31 Key          |
     | Public Key       |       | Certificate       |
     +------------------+       | (Auth Image)      |
                                +-------------------+
@@ -108,7 +108,7 @@ TBBR-Client specification.
                            /              |
                           /               v
     +------------------+ L     +-------------------+
-    | BL3-1 Content    |------>| BL3-1 Content     |
+    | BL31 Content     |------>| BL31 Content      |
     | Certificate PK   |       | Certificate       |
     +------------------+       | (Auth Image)      |
                                +-------------------+
@@ -118,7 +118,7 @@ TBBR-Client specification.
                            /              |
                           /               v
     +------------------+ L     +-------------------+
-    | BL3-1 Hash       |------>| BL3-1 Image       |
+    | BL31 Hash        |------>| BL31 Image        |
     |                  |       | (Data Image)      |
     +------------------+       |                   |
                                +-------------------+
@@ -211,15 +211,15 @@ It is responsible for:
 3.  Tracking which images have been verified. In case an image is a part of
     multiple CoTs then it should be verified only once e.g. the Trusted World
     Key Certificate in the TBBR-Client spec. contains information to verify
-    SCP_BL2, BL3-1, BL3-2 each of which have a separate CoT. (This
+    SCP_BL2, BL31, BL32 each of which have a separate CoT. (This
     responsibility has not been described in this document but should be
     trivial to implement).
 
 4.  Reusing memory meant for a data image to verify authentication images e.g.
     in the CoT described in Diagram 2, each certificate can be loaded and
-    verified in the memory reserved by the platform for the BL3-1 image. By the
-    time BL3-1 (the data image) is loaded, all information to authenticate it
-    will have been extracted from the parent image i.e. BL3-1 content
+    verified in the memory reserved by the platform for the BL31 image. By the
+    time BL31 (the data image) is loaded, all information to authenticate it
+    will have been extracted from the parent image i.e. BL31 content
     certificate. It is assumed that the size of an authentication image will
     never exceed the size of a data image. It should be possible to verify this
     at build time using asserts.
@@ -492,7 +492,7 @@ typedef struct auth_param_type_desc_s {
 
 `cookie` is used by the platform to specify additional information to the IPM
 which enables it to uniquely identify the parameter that should be extracted
-from an image. For example, the hash of a BL3-x image in its corresponding
+from an image. For example, the hash of a BL3x image in its corresponding
 content certificate is stored in an X509v3 custom extension field. An extension
 field can only be identified using an OID. In this case, the `cookie` could
 contain the pointer to the OID defined by the platform for the hash extension
@@ -634,9 +634,9 @@ and thus all CoTs must present:
 
 *   `BL2`
 *   `SCP_BL2` (platform specific)
-*   `BL3-1`
-*   `BL3-2` (optional)
-*   `BL3-3`
+*   `BL31`
+*   `BL32` (optional)
+*   `BL33`
 
 The TBBR specifies the additional certificates that must accompany these images
 for a proper authentication. Details about the TBBR CoT may be found in the
@@ -705,9 +705,9 @@ process, some of the buffers may be reused at different stages during the boot.
 Next in that file, the parameter descriptors are defined. These descriptors will
 be used to extract the parameter data from the corresponding image.
 
-#### 4.1.1 Example: the BL3-1 Chain of Trust
+#### 4.1.1 Example: the BL31 Chain of Trust
 
-Four image descriptors form the BL3-1 Chain of Trust:
+Four image descriptors form the BL31 Chain of Trust:
 
 ```
 [TRUSTED_KEY_CERT_ID] = {
@@ -836,27 +836,27 @@ is created in the `authenticated_data` array for that purpose. In that entry,
 the corresponding parameter descriptor must be specified along with the buffer
 address to store the parameter value. In this case, the `tz_world_pk` descriptor
 is used to extract the public key from an x509v3 extension with OID
-`TRUSTED_WORLD_PK_OID`. The BL3-1 key certificate will use this descriptor as
+`TRUSTED_WORLD_PK_OID`. The BL31 key certificate will use this descriptor as
 parameter in the signature authentication method. The key is stored in the
 `plat_tz_world_pk_buf` buffer.
 
-The **BL3-1 Key certificate** is authenticated by checking its digital signature
+The **BL31 Key certificate** is authenticated by checking its digital signature
 using the Trusted World public key obtained previously from the Trusted Key
 certificate. In the image descriptor, we specify a single authentication method
 by signature whose public key is the `tz_world_pk`. Once this certificate has
-been authenticated, we have to extract the BL3-1 public key, stored in the
+been authenticated, we have to extract the BL31 public key, stored in the
 extension specified by `bl31_content_pk`. This key will be copied to the
 `plat_content_pk` buffer.
 
-The **BL3-1 certificate** is authenticated by checking its digital signature
-using the BL3-1 public key obtained previously from the BL3-1 Key certificate.
+The **BL31 certificate** is authenticated by checking its digital signature
+using the BL31 public key obtained previously from the BL31 Key certificate.
 We specify the authentication method using `bl31_content_pk` as public key.
-After authentication, we need to extract the BL3-1 hash, stored in the extension
+After authentication, we need to extract the BL31 hash, stored in the extension
 specified by `bl31_hash`. This hash will be copied to the `plat_bl31_hash_buf`
 buffer.
 
-The **BL3-1 image** is authenticated by calculating its hash and matching it
-with the hash obtained from the BL3-1 certificate. The image descriptor contains
+The **BL31 image** is authenticated by calculating its hash and matching it
+with the hash obtained from the BL31 certificate. The image descriptor contains
 a single authentication method by hash. The parameters to the hash method are
 the reference hash, `bl31_hash`, and the data to be hashed. In this case, it is
 the whole image, so we specify `raw_data`.

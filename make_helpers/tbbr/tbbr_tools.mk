@@ -35,7 +35,7 @@
 # Expected environment:
 #
 #   BUILD_PLAT: output directory
-#   NEED_BL32: indicates whether BL3-2 is needed by the platform
+#   NEED_BL32: indicates whether BL32 is needed by the platform
 #   BL2: image filename (optional). Default is IMG_BIN(2) (see macro IMG_BIN)
 #   SCP_BL2: image filename (optional). Default is IMG_BIN(30)
 #   BL31: image filename (optional). Default is IMG_BIN(31)

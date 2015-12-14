@@ -56,7 +56,7 @@ $(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp_bl2u))
 endif
 
 ifneq (${RESET_TO_BL31},0)
-  $(error "Using BL3-1 as the reset vector is not supported on CSS platforms. \
+  $(error "Using BL31 as the reset vector is not supported on CSS platforms. \
   Please set RESET_TO_BL31 to 0.")
 endif
 

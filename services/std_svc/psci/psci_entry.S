@@ -48,7 +48,7 @@ func psci_entrypoint
 	 * On the warm boot path, most of the EL3 initialisations performed by
 	 * 'el3_entrypoint_common' must be skipped:
 	 *
-	 *  - Only when the platform bypasses the BL1/BL3-1 entrypoint by
+	 *  - Only when the platform bypasses the BL1/BL31 entrypoint by
 	 *    programming the reset address do we need to set the CPU endianness.
 	 *    In other cases, we assume this has been taken care by the
 	 *    entrypoint code.

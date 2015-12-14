@@ -104,7 +104,7 @@
 
 /* -----------------------------------------------------------------------------
  * This is the super set of actions that need to be performed during a cold boot
- * or a warm boot in EL3. This code is shared by BL1 and BL3-1.
+ * or a warm boot in EL3. This code is shared by BL1 and BL31.
  *
  * This macro will always perform reset handling, architectural initialisations
  * and stack setup. The rest of the actions are optional because they might not

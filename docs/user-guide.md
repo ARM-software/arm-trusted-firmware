@@ -99,7 +99,7 @@ as part of the Linaro release.
 To build the Trusted Firmware images, change to the root directory of the
 Trusted Firmware source tree and follow these steps:
 
-1.  Set the compiler path, specify a Non-trusted Firmware image (BL3-3) and
+1.  Set the compiler path, specify a Non-trusted Firmware image (BL33) and
     a valid platform, and then build:
 
         CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu- \
@@ -109,11 +109,11 @@ Trusted Firmware source tree and follow these steps:
     If `PLAT` is not specified, `fvp` is assumed by default. See the "Summary of
     build options" for more information on available build options.
 
-    The BL3-3 image corresponds to the software that is executed after switching
-    to the non-secure world. UEFI can be used as the BL3-3 image. Refer to the
+    The BL33 image corresponds to the software that is executed after switching
+    to the non-secure world. UEFI can be used as the BL33 image. Refer to the
     "Building the rest of the software stack" section below.
 
-    The TSP (Test Secure Payload), corresponding to the BL3-2 image, is not
+    The TSP (Test Secure Payload), corresponding to the BL32 image, is not
     compiled in by default. Refer to the "Building the Test Secure Payload"
     section below.
 
@@ -159,10 +159,10 @@ Trusted Firmware source tree and follow these steps:
 
         make realclean
 
-5.  (Optional) Path to binary for certain BL stages (BL2, BL3-1 and BL3-2) can be
+5.  (Optional) Path to binary for certain BL stages (BL2, BL31 and BL32) can be
     provided by specifying the BLx=<path-to>/<blx_image> where BLx is the BL stage.
     This will bypass the build of the BL component from source, but will include
-    the specified binary in the final FIP image. Please note that BL3-2 will be
+    the specified binary in the final FIP image. Please note that BL32 will be
     included in the build, only if the `SPD` build option is specified.
 
     For example, specifying BL2=<path-to>/<bl2_image> in the build option, will
@@ -184,7 +184,7 @@ performed.
     If a SCP_BL2 image is present then this option must be passed for the `fip`
     target.
 
-*   `BL33`: Path to BL3-3 image in the host file system. This is mandatory for
+*   `BL33`: Path to BL33 image in the host file system. This is mandatory for
     `fip` target in case the BL2 from ARM Trusted Firmware is used.
 
 *   `BL2`: This is an optional build option which specifies the path to BL2
@@ -192,11 +192,11 @@ performed.
     Firmware will not be built.
 
 *   `BL31`:  This is an optional build option which specifies the path to
-    BL3-1 image for the `fip` target. In this case, the BL3-1 in the ARM
+    BL31 image for the `fip` target. In this case, the BL31 in the ARM
     Trusted Firmware will not be built.
 
 *   `BL32`:  This is an optional build option which specifies the path to
-    BL3-2 image for the `fip` target. In this case, the BL3-2 in the ARM
+    BL32 image for the `fip` target. In this case, the BL32 in the ARM
     Trusted Firmware will not be built.
 
 *   `FIP_NAME`: This is an optional build option which specifies the FIP
@@ -246,14 +246,14 @@ performed.
     is used to determine the number of valid slave interfaces available in the
     ARM CCI driver. Default is 400 (that is, CCI-400).
 
-*   `RESET_TO_BL31`: Enable BL3-1 entrypoint as the CPU reset vector instead
+*   `RESET_TO_BL31`: Enable BL31 entrypoint as the CPU reset vector instead
     of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
-    entrypoint) or 1 (CPU reset to BL3-1 entrypoint).
+    entrypoint) or 1 (CPU reset to BL31 entrypoint).
     The default value is 0.
 
 *   `CRASH_REPORTING`: A non-zero value enables a console dump of processor
     register state when an unexpected exception occurs during execution of
-    BL3-1. This option defaults to the value of `DEBUG` - i.e. by default
+    BL31. This option defaults to the value of `DEBUG` - i.e. by default
     this is only enabled for a debug build of the firmware.
 
 *   `ASM_ASSERTION`: This flag determines whether the assertion checks within
@@ -261,10 +261,10 @@ performed.
     value of `DEBUG` - that is, by default this is only enabled for a debug
     build of the firmware.
 
-*   `TSP_INIT_ASYNC`: Choose BL3-2 initialization method as asynchronous or
-    synchronous, (see "Initializing a BL3-2 Image" section in [Firmware
-    Design]). It can take the value 0 (BL3-2 is initialized using
-    synchronous method) or 1 (BL3-2 is initialized using asynchronous method).
+*   `TSP_INIT_ASYNC`: Choose BL32 initialization method as asynchronous or
+    synchronous, (see "Initializing a BL32 Image" section in [Firmware
+    Design]). It can take the value 0 (BL32 is initialized using
+    synchronous method) or 1 (BL32 is initialized using asynchronous method).
     Default is 0.
 
 *   `USE_COHERENT_MEM`: This flag determines whether to include the coherent
@@ -332,15 +332,15 @@ performed.
     this file name will be used to save the key.
 
 *   `BL31_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-1 private key in PEM format. If `SAVE_KEYS=1`,
+    file that contains the BL31 private key in PEM format. If `SAVE_KEYS=1`,
     this file name will be used to save the key.
 
 *   `BL32_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-2 private key in PEM format. If `SAVE_KEYS=1`,
+    file that contains the BL32 private key in PEM format. If `SAVE_KEYS=1`,
     this file name will be used to save the key.
 
 *   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL3-3 private key in PEM format. If `SAVE_KEYS=1`,
+    file that contains the BL33 private key in PEM format. If `SAVE_KEYS=1`,
     this file name will be used to save the key.
 
 *   `PROGRAMMABLE_RESET_ADDRESS`: This option indicates whether the reset
@@ -459,7 +459,7 @@ It is recommended to remove the build artifacts before rebuilding:
 
     make -C tools/fip_create clean
 
-Create a Firmware package that contains existing BL2 and BL3-1 images:
+Create a Firmware package that contains existing BL2 and BL31 images:
 
     # fip_create --help to print usage information
     # fip_create <fip_name> <images to add> [--dump to show result]
@@ -470,7 +470,7 @@ Create a Firmware package that contains existing BL2 and BL3-1 images:
     ---------------------------
     - Trusted Boot Firmware BL2: offset=0x88, size=0x81E8
       file: 'build/<platform>/debug/bl2.bin'
-    - EL3 Runtime Firmware BL3-1: offset=0x8270, size=0xC218
+    - EL3 Runtime Firmware BL31: offset=0x8270, size=0xC218
       file: 'build/<platform>/debug/bl31.bin'
     ---------------------------
     Creating "fip.bin"
@@ -482,7 +482,7 @@ View the contents of an existing Firmware package:
      Firmware Image Package ToC:
     ---------------------------
     - Trusted Boot Firmware BL2: offset=0x88, size=0x81E8
-    - EL3 Runtime Firmware BL3-1: offset=0x8270, size=0xC218
+    - EL3 Runtime Firmware BL31: offset=0x8270, size=0xC218
     ---------------------------
 
 Existing package entries can be individially updated:
@@ -495,7 +495,7 @@ Existing package entries can be individially updated:
     ---------------------------
     - Trusted Boot Firmware BL2: offset=0x88, size=0x7240
       file: 'build/<platform>/release/bl2.bin'
-    - EL3 Runtime Firmware BL3-1: offset=0x72C8, size=0xC218
+    - EL3 Runtime Firmware BL31: offset=0x72C8, size=0xC218
     ---------------------------
     Updating "fip.bin"
 
@@ -550,13 +550,13 @@ commands can be used:
 
 ### Building the Test Secure Payload
 
-The TSP is coupled with a companion runtime service in the BL3-1 firmware,
-called the TSPD. Therefore, if you intend to use the TSP, the BL3-1 image
+The TSP is coupled with a companion runtime service in the BL31 firmware,
+called the TSPD. Therefore, if you intend to use the TSP, the BL31 image
 must be recompiled as well. For more information on SPs and SPDs, see the
 "Secure-EL1 Payloads and Dispatchers" section in the [Firmware Design].
 
 First clean the Trusted Firmware build directory to get rid of any previous
-BL3-1 binary. Then to build the TSP image and include it into the FIP use:
+BL31 binary. Then to build the TSP image and include it into the FIP use:
 
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu- \
     BL33=<path-to>/<bl33_image>                                \
@@ -566,19 +566,19 @@ An additional boot loader binary file is created in the `build` directory:
 
 *   `build/<platform>/<build-type>/bl32.bin`
 
-The FIP will now contain the additional BL3-2 image. Here is an example
-output from an FVP build in release mode including BL3-2 and using
-FVP_AARCH64_EFI.fd as BL3-3 image:
+The FIP will now contain the additional BL32 image. Here is an example
+output from an FVP build in release mode including BL32 and using
+FVP_AARCH64_EFI.fd as BL33 image:
 
     Firmware Image Package ToC:
     ---------------------------
     - Trusted Boot Firmware BL2: offset=0xD8, size=0x6000
       file: './build/fvp/release/bl2.bin'
-    - EL3 Runtime Firmware BL3-1: offset=0x60D8, size=0x9000
+    - EL3 Runtime Firmware BL31: offset=0x60D8, size=0x9000
       file: './build/fvp/release/bl31.bin'
-    - Secure Payload BL3-2 (Trusted OS): offset=0xF0D8, size=0x3000
+    - Secure Payload BL32 (Trusted OS): offset=0xF0D8, size=0x3000
       file: './build/fvp/release/bl32.bin'
-    - Non-Trusted Firmware BL3-3: offset=0x120D8, size=0x280000
+    - Non-Trusted Firmware BL33: offset=0x120D8, size=0x280000
       file: '../FVP_AARCH64_EFI.fd'
     ---------------------------
     Creating "build/fvp/release/fip.bin"
@@ -1002,7 +1002,7 @@ boot Linux with 8 CPUs using the ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
-### Running on the AEMv8 Base FVP with reset to BL3-1 entrypoint
+### Running on the AEMv8 Base FVP with reset to BL31 entrypoint
 
 Please read "Notes regarding Base FVP configuration options" section above for
 information about some of the options to run the software.
@@ -1032,7 +1032,7 @@ with 8 CPUs using the ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
-### Running on the Cortex-A57-A53 Base FVP with reset to BL3-1 entrypoint
+### Running on the Cortex-A57-A53 Base FVP with reset to BL31 entrypoint
 
 Please read "Notes regarding Base FVP configuration options" section above for
 information about some of the options to run the software.
@@ -1097,7 +1097,7 @@ registers memory map (`0x1c010000`).
 This register can be configured as described in the following sections.
 
 NOTE: If the legacy VE GIC memory map is used, then the corresponding FDT and
-BL3-3 images should be used.
+BL33 images should be used.
 
 #### Configuring AEMv8 Foundation FVP GIC for legacy VE memory map
 

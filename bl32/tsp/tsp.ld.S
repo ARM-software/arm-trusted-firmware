@@ -138,5 +138,5 @@ SECTIONS
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 #endif
 
-    ASSERT(. <= BL32_LIMIT, "BL3-2 image has exceeded its limit.")
+    ASSERT(. <= BL32_LIMIT, "BL32 image has exceeded its limit.")
 }

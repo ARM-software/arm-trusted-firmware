@@ -216,7 +216,7 @@ void bl1_load_bl2(void)
  ******************************************************************************/
 void bl1_print_bl31_ep_info(const entry_point_info_t *bl31_ep_info)
 {
-	NOTICE("BL1: Booting BL3-1\n");
+	NOTICE("BL1: Booting BL31\n");
 	print_entry_point_info(bl31_ep_info);
 }
 

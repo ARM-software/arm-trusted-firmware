@@ -109,7 +109,7 @@ uint32_t arm_get_spsr_for_bl32_entry(void)
 {
 	/*
 	 * The Secure Payload Dispatcher service is responsible for
-	 * setting the SPSR prior to entry into the BL3-2 image.
+	 * setting the SPSR prior to entry into the BL32 image.
 	 */
 	return 0;
 }

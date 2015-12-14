@@ -55,7 +55,7 @@
  * avoid subtle integer overflow errors due to implicit integer type promotion
  * when working with 32-bit values.
  *
- * The TSP linker script includes some of these definitions to define the BL3-2
+ * The TSP linker script includes some of these definitions to define the BL32
  * memory map, but the GNU LD does not support the 'ull' suffix, causing the
  * build process to fail. To solve this problem, the auxiliary macro MAKE_ULL(x)
  * will add the 'ull' suffix only when the macro __LINKER__  is not defined

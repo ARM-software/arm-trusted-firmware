@@ -19,7 +19,7 @@ Contents
 ----------------
 
 This document describes how to add a runtime service to the EL3 Runtime
-Firmware component of ARM Trusted Firmware (BL3-1).
+Firmware component of ARM Trusted Firmware (BL31).
 
 Software executing in the normal world and in the trusted world at exception
 levels lower than EL3 will request runtime services using the Secure Monitor
@@ -30,9 +30,9 @@ results are returned.
 
 SMC Functions are grouped together based on the implementor of the service, for
 example a subset of the Function IDs are designated as "OEM Calls" (see [SMCCC]
-for full details). The EL3 runtime services framework in BL3-1 enables the
+for full details). The EL3 runtime services framework in BL31 enables the
 independent implementation of services for each group, which are then compiled
-into the BL3-1 image. This simplifies the integration of common software from
+into the BL31 image. This simplifies the integration of common software from
 ARM to support [PSCI], Secure Monitor for a Trusted OS and SoC specific
 software. The common runtime services framework ensures that SMC Functions are
 dispatched to their respective service implementation - the [Firmware Design]
@@ -290,7 +290,7 @@ between the normal and secure worlds, deliver SMC Calls through to Secure-EL1
 and generally manage the Secure-EL1 Payload through CPU power-state transitions.
 
 TODO: Provide details of the additional work required to implement a SPD and
-the BL3-1 support for these services. Or a reference to the document that will
+the BL31 support for these services. Or a reference to the document that will
 provide this information....
 
 

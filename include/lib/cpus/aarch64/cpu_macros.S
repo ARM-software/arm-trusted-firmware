@@ -46,7 +46,7 @@ CPU_MIDR: /* cpu_ops midr */
 CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  8
 #endif
-#if IMAGE_BL31 /* The power down core and cluster is needed only in BL3-1 */
+#if IMAGE_BL31 /* The power down core and cluster is needed only in BL31 */
 CPU_PWR_DWN_CORE: /* cpu_ops core_pwr_dwn */
 	.space  8
 CPU_PWR_DWN_CLUSTER: /* cpu_ops cluster_pwr_dwn */

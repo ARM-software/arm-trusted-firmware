@@ -93,9 +93,9 @@ static int load_scp_bl2(void)
 
 #ifndef EL3_PAYLOAD_BASE
 /*******************************************************************************
- * Load the BL3-1 image.
+ * Load the BL31 image.
  * The bl2_to_bl31_params and bl31_ep_info params will be updated with the
- * relevant BL3-1 information.
+ * relevant BL31 information.
  * Return 0 on success, a negative error code otherwise.
  ******************************************************************************/
 static int load_bl31(bl31_params_t *bl2_to_bl31_params,
@@ -104,17 +104,17 @@ static int load_bl31(bl31_params_t *bl2_to_bl31_params,
 	meminfo_t *bl2_tzram_layout;
 	int e;
 
-	INFO("BL2: Loading BL3-1\n");
+	INFO("BL2: Loading BL31\n");
 	assert(bl2_to_bl31_params != NULL);
 	assert(bl31_ep_info != NULL);
 
 	/* Find out how much free trusted ram remains after BL2 load */
 	bl2_tzram_layout = bl2_plat_sec_mem_layout();
 
-	/* Set the X0 parameter to BL3-1 */
+	/* Set the X0 parameter to BL31 */
 	bl31_ep_info->args.arg0 = (unsigned long)bl2_to_bl31_params;
 
-	/* Load the BL3-1 image */
+	/* Load the BL31 image */
 	e = load_auth_image(bl2_tzram_layout,
 			    BL31_IMAGE_ID,
 			    BL31_BASE,
@@ -130,12 +130,12 @@ static int load_bl31(bl31_params_t *bl2_to_bl31_params,
 }
 
 /*******************************************************************************
- * Load the BL3-2 image if there's one.
- * The bl2_to_bl31_params param will be updated with the relevant BL3-2
+ * Load the BL32 image if there's one.
+ * The bl2_to_bl31_params param will be updated with the relevant BL32
  * information.
- * If a platform does not want to attempt to load BL3-2 image it must leave
+ * If a platform does not want to attempt to load BL32 image it must leave
  * BL32_BASE undefined.
- * Return 0 on success or if there's no BL3-2 image to load, a negative error
+ * Return 0 on success or if there's no BL32 image to load, a negative error
  * code otherwise.
  ******************************************************************************/
 static int load_bl32(bl31_params_t *bl2_to_bl31_params)
@@ -144,11 +144,11 @@ static int load_bl32(bl31_params_t *bl2_to_bl31_params)
 #ifdef BL32_BASE
 	meminfo_t bl32_mem_info;
 
-	INFO("BL2: Loading BL3-2\n");
+	INFO("BL2: Loading BL32\n");
 	assert(bl2_to_bl31_params != NULL);
 
 	/*
-	 * It is up to the platform to specify where BL3-2 should be loaded if
+	 * It is up to the platform to specify where BL32 should be loaded if
 	 * it exists. It could create space in the secure sram or point to a
 	 * completely different memory.
 	 */
@@ -170,8 +170,8 @@ static int load_bl32(bl31_params_t *bl2_to_bl31_params)
 }
 
 /*******************************************************************************
- * Load the BL3-3 image.
- * The bl2_to_bl31_params param will be updated with the relevant BL3-3
+ * Load the BL33 image.
+ * The bl2_to_bl31_params param will be updated with the relevant BL33
  * information.
  * Return 0 on success, a negative error code otherwise.
  ******************************************************************************/
@@ -180,12 +180,12 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 	meminfo_t bl33_mem_info;
 	int e;
 
-	INFO("BL2: Loading BL3-3\n");
+	INFO("BL2: Loading BL33\n");
 	assert(bl2_to_bl31_params != NULL);
 
 	bl2_plat_get_bl33_meminfo(&bl33_mem_info);
 
-	/* Load the BL3-3 image in non-secure memory provided by the platform */
+	/* Load the BL33 image in non-secure memory provided by the platform */
 	e = load_auth_image(&bl33_mem_info,
 			    BL33_IMAGE_ID,
 			    plat_get_ns_image_entrypoint(),
@@ -203,7 +203,7 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
- * BL3-1. The memory occupied by BL2 will be reclaimed by BL3-x stages. BL2 runs
+ * BL31. The memory occupied by BL2 will be reclaimed by BL3x stages. BL2 runs
  * entirely in S-EL1.
  ******************************************************************************/
 void bl2_main(void)
@@ -237,7 +237,7 @@ void bl2_main(void)
 
 	/*
 	 * Get a pointer to the memory the platform has set aside to pass
-	 * information to BL3-1.
+	 * information to BL31.
 	 */
 	bl2_to_bl31_params = bl2_plat_get_bl31_params();
 	bl31_ep_info = bl2_plat_get_bl31_ep_info();
@@ -248,7 +248,7 @@ void bl2_main(void)
 	 * images. Just update the BL31 entrypoint info structure to make BL1
 	 * jump to the EL3 payload.
 	 * The pointer to the memory the platform has set aside to pass
-	 * information to BL3-1 in the normal boot flow is reused here, even
+	 * information to BL31 in the normal boot flow is reused here, even
 	 * though only a fraction of the information contained in the
 	 * bl31_params_t structure makes sense in the context of EL3 payloads.
 	 * This will be refined in the future.
@@ -260,23 +260,23 @@ void bl2_main(void)
 #else
 	e = load_bl31(bl2_to_bl31_params, bl31_ep_info);
 	if (e) {
-		ERROR("Failed to load BL3-1 (%i)\n", e);
+		ERROR("Failed to load BL31 (%i)\n", e);
 		plat_error_handler(e);
 	}
 
 	e = load_bl32(bl2_to_bl31_params);
 	if (e) {
 		if (e == -EAUTH) {
-			ERROR("Failed to authenticate BL3-2\n");
+			ERROR("Failed to authenticate BL32\n");
 			plat_error_handler(e);
 		} else {
-			WARN("Failed to load BL3-2 (%i)\n", e);
+			WARN("Failed to load BL32 (%i)\n", e);
 		}
 	}
 
 	e = load_bl33(bl2_to_bl31_params);
 	if (e) {
-		ERROR("Failed to load BL3-3 (%i)\n", e);
+		ERROR("Failed to load BL33 (%i)\n", e);
 		plat_error_handler(e);
 	}
 #endif /* EL3_PAYLOAD_BASE */
@@ -285,9 +285,9 @@ void bl2_main(void)
 	bl2_plat_flush_bl31_params();
 
 	/*
-	 * Run BL3-1 via an SMC to BL1. Information on how to pass control to
-	 * the BL3-2 (if present) and BL3-3 software images will be passed to
-	 * BL3-1 as an argument.
+	 * Run BL31 via an SMC to BL1. Information on how to pass control to
+	 * the BL32 (if present) and BL33 software images will be passed to
+	 * BL31 as an argument.
 	 */
 	smc(BL1_SMC_RUN_IMAGE, (unsigned long)bl31_ep_info, 0, 0, 0, 0, 0, 0);
 }
