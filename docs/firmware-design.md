@@ -43,13 +43,16 @@ Firmware Interrupt Management Design guide][INTRG] [4].
 2.  Cold boot
 -------------
 
-The cold boot path starts when the platform is physically turned on. One of
-the CPUs released from reset is chosen as the primary CPU, and the remaining
-CPUs are considered secondary CPUs. The primary CPU is chosen through
-platform-specific means. The cold boot path is mainly executed by the primary
-CPU, other than essential CPU initialization executed by all CPUs. The
-secondary CPUs are kept in a safe platform-specific state until the primary
-CPU has performed enough initialization to boot them.
+The cold boot path starts when the platform is physically turned on. If
+`COLD_BOOT_SINGLE_CPU=0`, one of the CPUs released from reset is chosen as the
+primary CPU, and the remaining CPUs are considered secondary CPUs. The primary
+CPU is chosen through platform-specific means. The cold boot path is mainly
+executed by the primary CPU, other than essential CPU initialization executed by
+all CPUs. The secondary CPUs are kept in a safe platform-specific state until
+the primary CPU has performed enough initialization to boot them.
+
+Refer to the [Reset Design] for more information on the effect of the
+`COLD_BOOT_SINGLE_CPU` platform build option.
 
 The cold boot path in this implementation of the ARM Trusted Firmware is divided
 into five steps (in order of execution):
@@ -78,8 +81,6 @@ The sections below provide the following details:
 *   initialization and execution of the first three stages during cold boot
 *   specification of the BL31 entrypoint requirements for use by alternative
     Trusted Boot Firmware in place of the provided BL1 and BL2
-*   changes in BL31 behavior when using the `RESET_TO_BL31` option which
-    allows BL31 to run without BL1 and BL2
 
 
 ### BL1
@@ -104,6 +105,10 @@ entrypoint. In the case of a cold boot, the secondary CPUs are placed in a safe
 platform-specific state (see the `plat_secondary_cold_boot_setup()` function in
 the [Porting Guide]) while the primary CPU executes the remaining cold boot path
 as described in the following sections.
+
+This step only applies when `PROGRAMMABLE_RESET_ADDRESS=0`. Refer to the
+[Reset Design] for more information on the effect of the
+`PROGRAMMABLE_RESET_ADDRESS` platform build option.
 
 #### Architectural initialization
 
@@ -508,53 +513,6 @@ masked:
 The PSCI implementation will initialize the processor state and ensure that the
 platform power management code is then invoked as required to initialize all
 necessary system, cluster and CPU resources.
-
-
-### Using BL31 as the CPU reset vector
-
-On some platforms the runtime firmware (BL3x images) for the application
-processors are loaded by trusted firmware running on a secure system processor
-on the SoC, rather than by BL1 and BL2 running on the primary application
-processor. For this type of SoC it is desirable for the application processor
-to always reset to BL31 which eliminates the need for BL1 and BL2.
-
-ARM Trusted Firmware provides a build-time option `RESET_TO_BL31` that includes
-some additional logic in the BL31 entrypoint to support this use case.
-
-In this configuration, the platform's Trusted Boot Firmware must ensure that
-BL31 is loaded to its runtime address, which must match the CPU's RVBAR reset
-vector address, before the application processor is powered on. Additionally,
-platform software is responsible for loading the other BL3x images required and
-providing entry point information for them to BL31. Loading these images might
-be done by the Trusted Boot Firmware or by platform code in BL31.
-
-The ARM FVP port supports the `RESET_TO_BL31` configuration, in which case the
-`bl31.bin` image must be loaded to its run address in Trusted SRAM and all CPU
-reset vectors be changed from the default `0x0` to this run address. See the
-[User Guide] for details of running the FVP models in this way.
-
-This configuration requires some additions and changes in the BL31
-functionality:
-
-#### Determination of boot path
-
-In this configuration, BL31 uses the same reset framework and code as the one
-described for BL1 above. On a warm boot a CPU is directed to the PSCI
-implementation via a platform defined mechanism. On a cold boot, the platform
-must place any secondary CPUs into a safe state while the primary CPU executes
-a modified BL31 initialization, as described below.
-
-#### Platform initialization
-
-In this configuration, when the CPU resets to BL31 there are no parameters
-that can be passed in registers by previous boot stages. Instead, the platform
-code in BL31 needs to know, or be able to determine, the location of the BL32
-(if required) and BL33 images and provide this information in response to the
-`bl31_plat_get_next_image_ep_info()` function.
-
-As the first image to execute in this configuration BL31 must also ensure that
-any security initialisation, for example programming a TrustZone address space
-controller, is carried out during early platform initialisation.
 
 
 3.  EL3 runtime services framework
@@ -1767,5 +1725,6 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
 [User Guide]:       ./user-guide.md
 [Porting Guide]:    ./porting-guide.md
+[Reset Design]:     ./reset-design.md
 [INTRG]:            ./interrupt-framework-design.md
 [CPUBM]:            ./cpu-specific-build-macros.md.md
