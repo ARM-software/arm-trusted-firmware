@@ -121,7 +121,7 @@ struct image_desc *bl1_plat_get_image_desc(unsigned int image_id);
  * The following functions are used by firmware update
  * feature and may optionally be overridden.
  */
-__dead2 void bl1_plat_fwu_done(void *cookie, void *reserved);
+__dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved);
 
 
 /*******************************************************************************
