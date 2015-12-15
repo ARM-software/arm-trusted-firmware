@@ -194,6 +194,7 @@ int key_store(key_t *key)
 
 int key_init(void)
 {
+	cmd_opt_t cmd_opt;
 	key_t *key;
 	int rc = 0;
 	unsigned int i;
@@ -201,11 +202,12 @@ int key_init(void)
 	for (i = 0; i < num_keys; i++) {
 		key = &keys[i];
 		if (key->opt != NULL) {
-			rc = cmd_opt_add(key->opt, required_argument,
-					 CMD_OPT_KEY);
-			if (rc != 0) {
-				break;
-			}
+			cmd_opt.long_opt.name = key->opt;
+			cmd_opt.long_opt.has_arg = required_argument;
+			cmd_opt.long_opt.flag = NULL;
+			cmd_opt.long_opt.val = CMD_OPT_KEY;
+			cmd_opt.help_msg = key->help_msg;
+			cmd_opt_add(&cmd_opt);
 		}
 	}
 

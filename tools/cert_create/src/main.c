@@ -28,6 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
+#include <ctype.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,36 +83,7 @@
 #define VAL_DAYS			7300
 #define ID_TO_BIT_MASK(id)		(1 << id)
 #define NUM_ELEM(x)			((sizeof(x)) / (sizeof(x[0])))
-
-/* Files */
-enum {
-	/* Image file names (inputs) */
-	BL2_ID = 0,
-	SCP_BL2_ID,
-	BL31_ID,
-	BL32_ID,
-	BL33_ID,
-	/* Certificate file names (outputs) */
-	TRUSTED_BOOT_FW_CERT_ID,
-	TRUSTED_KEY_CERT_ID,
-	SCP_FW_KEY_CERT_ID,
-	SCP_FW_CONTENT_CERT_ID,
-	SOC_FW_KEY_CERT_ID,
-	SOC_FW_CONTENT_CERT_ID,
-	TRUSTED_OS_FW_KEY_CERT_ID,
-	TRUSTED_OS_FW_CONTENT_CERT_ID,
-	NON_TRUSTED_FW_KEY_CERT_ID,
-	NON_TRUSTED_FW_CONTENT_CERT_ID,
-	/* Key file names (input/output) */
-	ROT_KEY_ID,
-	TRUSTED_WORLD_KEY_ID,
-	NON_TRUSTED_WORLD_KEY_ID,
-	SCP_BL2_KEY_ID,
-	BL31_KEY_ID,
-	BL32_KEY_ID,
-	BL33_KEY_ID,
-	NUM_OPTS
-};
+#define HELP_OPT_MAX_LEN		128
 
 /* Global options */
 static int key_alg;
@@ -142,7 +115,14 @@ static const char *key_algs_str[] = {
 
 static void print_help(const char *cmd, const struct option *long_opt)
 {
-	int i = 0;
+	int rem, i = 0;
+	const struct option *opt;
+	char line[HELP_OPT_MAX_LEN];
+	char *p;
+
+	assert(cmd != NULL);
+	assert(long_opt != NULL);
+
 	printf("\n\n");
 	printf("The certificate generation tool loads the binary images and\n"
 	       "optionally the RSA keys, and outputs the key and content\n"
@@ -150,17 +130,27 @@ static void print_help(const char *cmd, const struct option *long_opt)
 	       "If keys are provided, they must be in PEM format.\n"
 	       "Certificates are generated in DER format.\n");
 	printf("\n");
-	printf("Usage:\n\n");
-	printf("    %s [-hknp] \\\n", cmd);
-	for (i = 0; i < NUM_OPTS; i++) {
-		printf("        --%s <file>  \\\n", long_opt[i].name);
+	printf("Usage:\n");
+	printf("\t%s [OPTIONS]\n\n", cmd);
+
+	printf("Available options:\n");
+	i = 0;
+	opt = long_opt;
+	while (opt->name) {
+		p = line;
+		rem = HELP_OPT_MAX_LEN;
+		if (isalpha(opt->val)) {
+			/* Short format */
+			sprintf(p, "-%c,", (char)opt->val);
+			p += 3;
+			rem -= 3;
+		}
+		snprintf(p, rem, "--%s %s", opt->name,
+			 (opt->has_arg == required_argument) ? "<arg>" : "");
+		printf("\t%-32s %s\n", line, cmd_opt_get_help_msg(i));
+		opt++;
+		i++;
 	}
-	printf("\n");
-	printf("-a    Key algorithm: rsa (default), ecdsa\n");
-	printf("-h    Print help and exit\n");
-	printf("-k    Save key pairs into files. Filenames must be provided\n");
-	printf("-n    Generate new key pairs if no key files are provided\n");
-	printf("-p    Print the certificates in the standard output\n");
 	printf("\n");
 
 	exit(0);
@@ -237,6 +227,30 @@ static void check_cmd_params(void)
 	}
 }
 
+/* Common command line options */
+static const cmd_opt_t common_cmd_opt[] = {
+	{
+		{ "help", no_argument, NULL, 'h' },
+		"Print this message and exit"
+	},
+	{
+		{ "key-alg", required_argument, NULL, 'a' },
+		"Key algorithm: 'rsa' (default), 'ecdsa'"
+	},
+	{
+		{ "save-keys", no_argument, NULL, 'k' },
+		"Save key pairs into files. Filenames must be provided"
+	},
+	{
+		{ "new-keys", no_argument, NULL, 'n' },
+		"Generate new key pairs if no key files are provided"
+	},
+	{
+		{ "print-cert", no_argument, NULL, 'p' },
+		"Print the certificates in the standard output"
+	}
+};
+
 int main(int argc, char *argv[])
 {
 	STACK_OF(X509_EXTENSION) * sk = NULL;
@@ -260,11 +274,9 @@ int main(int argc, char *argv[])
 	key_alg = KEY_ALG_RSA;
 
 	/* Add common command line options */
-	cmd_opt_add("key-alg", required_argument, 'a');
-	cmd_opt_add("help", no_argument, 'h');
-	cmd_opt_add("save-keys", no_argument, 'k');
-	cmd_opt_add("new-chain", no_argument, 'n');
-	cmd_opt_add("print-cert", no_argument, 'p');
+	for (i = 0; i < NUM_ELEM(common_cmd_opt); i++) {
+		cmd_opt_add(&common_cmd_opt[i]);
+	}
 
 	/* Initialize the certificates */
 	if (cert_init() != 0) {
@@ -289,7 +301,7 @@ int main(int argc, char *argv[])
 
 	while (1) {
 		/* getopt_long stores the option index here. */
-		c = getopt_long(argc, argv, "ahknp", cmd_opt, &opt_idx);
+		c = getopt_long(argc, argv, "a:hknp", cmd_opt, &opt_idx);
 
 		/* Detect the end of the options. */
 		if (c == -1) {
@@ -333,7 +345,7 @@ int main(int argc, char *argv[])
 			break;
 		case '?':
 		default:
-			printf("%s\n", optarg);
+			print_help(argv[0], cmd_opt);
 			exit(1);
 		}
 	}

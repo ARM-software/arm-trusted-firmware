@@ -42,9 +42,16 @@ enum {
 	CMD_OPT_EXT
 };
 
+/* Structure to define a command line option */
+typedef struct cmd_opt_s {
+	struct option long_opt;
+	const char *help_msg;
+} cmd_opt_t;
+
 /* Exported API*/
-int cmd_opt_add(const char *name, int has_arg, int val);
+void cmd_opt_add(const cmd_opt_t *cmd_opt);
 const struct option *cmd_opt_get_array(void);
 const char *cmd_opt_get_name(int idx);
+const char *cmd_opt_get_help_msg(int idx);
 
 #endif /* CMD_OPT_H_ */

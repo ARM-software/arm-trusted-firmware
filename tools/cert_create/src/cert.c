@@ -183,19 +183,21 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 
 int cert_init(void)
 {
+	cmd_opt_t cmd_opt;
 	cert_t *cert;
-	int rc = 0;
 	unsigned int i;
 
 	for (i = 0; i < num_certs; i++) {
 		cert = &certs[i];
-		rc = cmd_opt_add(cert->opt, required_argument, CMD_OPT_CERT);
-		if (rc != 0) {
-			break;
-		}
+		cmd_opt.long_opt.name = cert->opt;
+		cmd_opt.long_opt.has_arg = required_argument;
+		cmd_opt.long_opt.flag = NULL;
+		cmd_opt.long_opt.val = CMD_OPT_CERT;
+		cmd_opt.help_msg = cert->help_msg;
+		cmd_opt_add(&cmd_opt);
 	}
 
-	return rc;
+	return 0;
 }
 
 cert_t *cert_get_by_opt(const char *opt)
