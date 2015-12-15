@@ -58,8 +58,7 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 static int bl1_fwu_image_execute(unsigned int image_id,
 			void **handle,
 			unsigned int flags);
-static register_t bl1_fwu_image_resume(unsigned int image_id,
-			register_t image_param,
+static register_t bl1_fwu_image_resume(register_t image_param,
 			void **handle,
 			unsigned int flags);
 static int bl1_fwu_sec_image_done(void **handle,
@@ -95,7 +94,7 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 		SMC_RET1(handle, bl1_fwu_image_execute(x1, &handle, flags));
 
 	case FWU_SMC_IMAGE_RESUME:
-		SMC_RET1(handle, bl1_fwu_image_resume(x1, x2, &handle, flags));
+		SMC_RET1(handle, bl1_fwu_image_resume(x1, &handle, flags));
 
 	case FWU_SMC_SEC_IMAGE_DONE:
 		SMC_RET1(handle, bl1_fwu_sec_image_done(&handle, flags));
@@ -363,6 +362,7 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 
 	/*
 	 * Execution is NOT allowed if:
+	 * image_id is invalid OR
 	 * Caller is from Secure world OR
 	 * Image is Non-Secure OR
 	 * Image is Non-Executable OR
@@ -393,40 +393,41 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 }
 
 /*******************************************************************************
- * This function is responsible for resuming Secure/Non-Secure images.
+ * This function is responsible for resuming execution in the other security
+ * world
  ******************************************************************************/
-static register_t bl1_fwu_image_resume(unsigned int image_id,
-			register_t image_param,
+static register_t bl1_fwu_image_resume(register_t image_param,
 			void **handle,
 			unsigned int flags)
 {
 	image_desc_t *image_desc;
 	unsigned int resume_sec_state;
+	unsigned int caller_sec_state = GET_SEC_STATE(flags);
 
-	if (GET_SEC_STATE(flags) == SECURE) {
-		/* Get the image descriptor for last executed secure image id. */
-		image_desc = bl1_plat_get_image_desc(sec_exec_image_id);
-
-		if ((!image_desc) || (image_desc->state != IMAGE_STATE_EXECUTED)) {
-			WARN("BL1-FWU: Resume not allowed for secure image "
-				"due to invalid state\n");
+	/* Get the image descriptor for last executed secure image id. */
+	image_desc = bl1_plat_get_image_desc(sec_exec_image_id);
+	if (caller_sec_state == NON_SECURE) {
+		if (!image_desc) {
+			WARN("BL1-FWU: Resume not allowed due to no available"
+				"secure image\n");
 			return -EPERM;
 		}
+	} else {
+		/* image_desc must be valid for secure world callers */
+		assert(image_desc);
+	}
+
+	assert(GET_SEC_STATE(image_desc->ep_info.h.attr) == SECURE);
+	assert(GET_EXEC_STATE(image_desc->image_info.h.attr) == EXECUTABLE);
+
+	if (caller_sec_state == SECURE) {
+		assert(image_desc->state == IMAGE_STATE_EXECUTED);
 
 		/* Update the flags. */
 		image_desc->state = IMAGE_STATE_INTERRUPTED;
 		resume_sec_state = NON_SECURE;
 	} else {
-		/* Get the image descriptor for image id to be resumed. */
-		image_desc = bl1_plat_get_image_desc(image_id);
-
-		/* Make sure image is secure and was interrupted. */
-		if ((!image_desc) ||
-			(GET_SEC_STATE(image_desc->ep_info.h.attr) == NON_SECURE) ||
-			(image_desc->state != IMAGE_STATE_INTERRUPTED)) {
-			WARN("BL1-FWU: Resume not allowed for NS image/ invalid state\n");
-			return -EPERM;
-		}
+		assert(image_desc->state == IMAGE_STATE_INTERRUPTED);
 
 		/* Update the flags. */
 		image_desc->state = IMAGE_STATE_EXECUTED;
@@ -434,7 +435,7 @@ static register_t bl1_fwu_image_resume(unsigned int image_id,
 	}
 
 	/* Save the EL1 system registers of calling world. */
-	cm_el1_sysregs_context_save(GET_SEC_STATE(flags));
+	cm_el1_sysregs_context_save(caller_sec_state);
 
 	/* Restore the EL1 system registers of resuming world. */
 	cm_el1_sysregs_context_restore(resume_sec_state);
@@ -443,7 +444,7 @@ static register_t bl1_fwu_image_resume(unsigned int image_id,
 	cm_set_next_eret_context(resume_sec_state);
 
 	INFO("BL1-FWU: Resuming %s world context\n",
-		(resume_sec_state == SECURE) ? "Secure" : "Normal");
+		(resume_sec_state == SECURE) ? "secure" : "normal");
 
 	*handle = cm_get_context(resume_sec_state);
 	return image_param;
@@ -454,20 +455,22 @@ static register_t bl1_fwu_image_resume(unsigned int image_id,
  ******************************************************************************/
 static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 {
+	image_desc_t *image_desc;
 
-	/* Get the image descriptor for last executed secure image id. */
-	image_desc_t *image_desc = bl1_plat_get_image_desc(sec_exec_image_id);
-
-	/*
-	 * Make sure caller is from secure world
-	 * and the image is in EXECUTED state.
-	 */
-	if ((!image_desc) ||
-		(GET_SEC_STATE(flags) == NON_SECURE) ||
-		(image_desc->state != IMAGE_STATE_EXECUTED)) {
-		WARN("BL1-FWU: Done not allowed for NS caller/ invalid state\n");
+	/* Make sure caller is from the secure world */
+	if (GET_SEC_STATE(flags) == NON_SECURE) {
+		WARN("BL1-FWU: Image done not allowed from normal world\n");
 		return -EPERM;
 	}
+
+	/* Get the image descriptor for last executed secure image id */
+	image_desc = bl1_plat_get_image_desc(sec_exec_image_id);
+
+	/* image_desc must correspond to a valid secure executing image */
+	assert(image_desc);
+	assert(GET_SEC_STATE(image_desc->ep_info.h.attr) == SECURE);
+	assert(GET_EXEC_STATE(image_desc->image_info.h.attr) == EXECUTABLE);
+	assert(image_desc->state == IMAGE_STATE_EXECUTED);
 
 	/* Update the flags. */
 	image_desc->state = IMAGE_STATE_RESET;
