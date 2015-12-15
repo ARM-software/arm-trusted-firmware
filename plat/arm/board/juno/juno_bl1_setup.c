@@ -72,7 +72,7 @@ void bl1_plat_set_ep_info(unsigned int image_id,
 /*******************************************************************************
  * On Juno clear SYS_NVFLAGS and wait for watchdog reset.
  ******************************************************************************/
-__dead2 void bl1_plat_fwu_done(void *cookie, void *rsvd_ptr)
+__dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 {
 	unsigned int *nv_flags_clr = (unsigned int *)
 			(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGSCLR);

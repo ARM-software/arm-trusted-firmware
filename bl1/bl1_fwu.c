@@ -63,7 +63,7 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 			unsigned int flags);
 static int bl1_fwu_sec_image_done(void **handle,
 			unsigned int flags);
-__dead2 static void bl1_fwu_done(void *cookie, void *reserved);
+__dead2 static void bl1_fwu_done(void *client_cookie, void *reserved);
 
 /*
  * This keeps track of last executed secure image id.
@@ -100,7 +100,7 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 		SMC_RET1(handle, bl1_fwu_sec_image_done(&handle, flags));
 
 	case FWU_SMC_UPDATE_DONE:
-		bl1_fwu_done(cookie, NULL);
+		bl1_fwu_done((void *)x1, NULL);
 		/* We should never return from bl1_fwu_done() */
 
 	default:
@@ -495,13 +495,13 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
  * This function provides the opportunity for users to perform any
  * platform specific handling after the Firmware update is done.
  ******************************************************************************/
-__dead2 static void bl1_fwu_done(void *cookie, void *reserved)
+__dead2 static void bl1_fwu_done(void *client_cookie, void *reserved)
 {
 	NOTICE("BL1-FWU: *******FWU Process Completed*******\n");
 
 	/*
 	 * Call platform done function.
 	 */
-	bl1_plat_fwu_done(cookie, reserved);
+	bl1_plat_fwu_done(client_cookie, reserved);
 	assert(0);
 }

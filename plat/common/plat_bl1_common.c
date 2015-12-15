@@ -69,7 +69,7 @@ image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
 	return &bl2_img_desc;
 }
 
-__dead2 void bl1_plat_fwu_done(void *cookie, void *rsvd_ptr)
+__dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 {
 	while (1)
 		wfi();
