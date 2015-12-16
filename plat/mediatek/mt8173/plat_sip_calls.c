@@ -78,3 +78,8 @@ uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
 	else
 		return MTK_SIP_E_SUCCESS;
 }
+
+uint64_t mt_sip_pwr_mtcmos_support(void)
+{
+	return MTK_SIP_E_SUCCESS;
+}

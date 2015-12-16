@@ -63,6 +63,10 @@ static uint64_t mediatek_sip_handler(uint32_t smc_fid,
 		ret = mt_sip_pwr_off_mtcmos((uint32_t)x1);
 		SMC_RET1(handle, ret);
 
+	case MTK_SIP_PWR_MTCMOS_SUPPORT:
+		ret = mt_sip_pwr_mtcmos_support();
+		SMC_RET1(handle, ret);
+
 	default:
 		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 		break;

@@ -47,8 +47,9 @@
 
 /* Mediatek SiP Service Calls function IDs */
 #define MTK_SIP_SET_AUTHORIZED_SECURE_REG	0x82000001
-#define MTK_SIP_PWR_ON_MTCMOS	0x82000402
-#define MTK_SIP_PWR_OFF_MTCMOS	0x82000403
+#define MTK_SIP_PWR_ON_MTCMOS			0x82000402
+#define MTK_SIP_PWR_OFF_MTCMOS			0x82000403
+#define MTK_SIP_PWR_MTCMOS_SUPPORT		0x82000404
 
 /* Mediatek SiP Calls error code */
 enum {
@@ -66,5 +67,5 @@ enum {
 uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val);
 uint64_t mt_sip_pwr_on_mtcmos(uint32_t val);
 uint64_t mt_sip_pwr_off_mtcmos(uint32_t val);
-
+uint64_t mt_sip_pwr_mtcmos_support(void);
 #endif /* __PLAT_SIP_SVC_H__ */
