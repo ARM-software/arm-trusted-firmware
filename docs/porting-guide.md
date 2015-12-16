@@ -1451,9 +1451,12 @@ described in the [IMF Design Guide]
 A platform should export the following APIs to support the IMF. The following
 text briefly describes each api and its implementation in ARM standard
 platforms. The API implementation depends upon the type of interrupt controller
-present in the platform. ARM standard platforms implements an ARM Generic
-Interrupt Controller (ARM GIC) as per the version 2.0 of the
-[ARM GIC Architecture Specification].
+present in the platform. ARM standard platform layer supports both [ARM Generic
+Interrupt Controller version 2.0 (GICv2)][ARM GIC Architecture Specification 2.0]
+and [3.0 (GICv3)][ARM GIC Architecture Specification 3.0]. Juno builds the ARM
+Standard layer to use GICv2 and the FVP can be configured to use either GICv2 or
+GICv3 depending on the build flag `FVP_USE_GIC_DRIVER` (See FVP platform
+specific build options in [User Guide] for more details).
 
 ### Function : plat_interrupt_type_to_line() [mandatory]
 
@@ -1465,7 +1468,7 @@ interrupt line. The specific line that is signaled depends on how the interrupt
 controller (IC) reports different interrupt types from an execution context in
 either security state. The IMF uses this API to determine which interrupt line
 the platform IC uses to signal each type of interrupt supported by the framework
-from a given security state.
+from a given security state. This API must be invoked at EL3.
 
 The first parameter will be one of the `INTR_TYPE_*` values (see [IMF Design
 Guide]) indicating the target type of the interrupt, the second parameter is the
@@ -1473,8 +1476,19 @@ security state of the originating execution context. The return result is the
 bit position in the `SCR_EL3` register of the respective interrupt trap: IRQ=1,
 FIQ=2.
 
-ARM standard platforms configure the ARM GIC to signal S-EL1 interrupts
-as FIQs and Non-secure interrupts as IRQs from either security state.
+In the case of ARM standard platforms using GICv2, S-EL1 interrupts are
+configured as FIQs and Non-secure interrupts as IRQs from either security
+state.
+
+In the case of ARM standard platforms using GICv3, the interrupt line to be
+configured depends on the security state of the execution context when the
+interrupt is signalled and are as follows:
+*  The S-EL1 interrupts are signaled as IRQ in S-EL0/1 context and as FIQ in
+   NS-EL0/1/2 context.
+*  The Non secure interrupts are signaled as FIQ in S-EL0/1 context and as IRQ
+   in the NS-EL0/1/2 context.
+*  The EL3 interrupts are signaled as FIQ in both S-EL0/1 and NS-EL0/1/2
+   context.
 
 
 ### Function : plat_ic_get_pending_interrupt_type() [mandatory]
@@ -1486,15 +1500,26 @@ This API returns the type of the highest priority pending interrupt at the
 platform IC. The IMF uses the interrupt type to retrieve the corresponding
 handler function. `INTR_TYPE_INVAL` is returned when there is no interrupt
 pending. The valid interrupt types that can be returned are `INTR_TYPE_EL3`,
-`INTR_TYPE_S_EL1` and `INTR_TYPE_NS`.
+`INTR_TYPE_S_EL1` and `INTR_TYPE_NS`. This API must be invoked at EL3.
 
-ARM standard platforms read the _Highest Priority Pending Interrupt
-Register_ (`GICC_HPPIR`) to determine the id of the pending interrupt. The type
-of interrupt depends upon the id value as follows.
+In the case of ARM standard platforms using GICv2, the _Highest Priority
+Pending Interrupt Register_ (`GICC_HPPIR`) is read to determine the id of
+the pending interrupt. The type of interrupt depends upon the id value as
+follows.
 
 1. id < 1022 is reported as a S-EL1 interrupt
 2. id = 1022 is reported as a Non-secure interrupt.
 3. id = 1023 is reported as an invalid interrupt type.
+
+In the case of ARM standard platforms using GICv3, the system register
+`ICC_HPPIR0_EL1`, _Highest Priority Pending group 0 Interrupt Register_,
+is read to determine the id of the pending interrupt. The type of interrupt
+depends upon the id value as follows.
+
+1. id = `PENDING_G1S_INTID` (1020) is reported as a S-EL1 interrupt
+2. id = `PENDING_G1NS_INTID` (1021) is reported as a Non-secure interrupt.
+3. id = `GIC_SPURIOUS_INTERRUPT` (1023) is reported as an invalid interrupt type.
+4. All other interrupt id's are reported as EL3 interrupt.
 
 
 ### Function : plat_ic_get_pending_interrupt_id() [mandatory]
@@ -1506,17 +1531,35 @@ This API returns the id of the highest priority pending interrupt at the
 platform IC. INTR_ID_UNAVAILABLE is returned when there is no interrupt
 pending.
 
-ARM standard platforms read the _Highest Priority Pending Interrupt
-Register_ (`GICC_HPPIR`) to determine the id of the pending interrupt. The id
-that is returned by API depends upon the value of the id read from the interrupt
-controller as follows.
+In the case of ARM standard platforms using GICv2, the _Highest Priority
+Pending Interrupt Register_ (`GICC_HPPIR`) is read to determine the id of the
+pending interrupt. The id that is returned by API depends upon the value of
+the id read from the interrupt controller as follows.
 
 1. id < 1022. id is returned as is.
 2. id = 1022. The _Aliased Highest Priority Pending Interrupt Register_
-   (`GICC_AHPPIR`) is read to determine the id of the non-secure interrupt. This
-   id is returned by the API.
+   (`GICC_AHPPIR`) is read to determine the id of the non-secure interrupt.
+   This id is returned by the API.
 3. id = 1023. `INTR_ID_UNAVAILABLE` is returned.
 
+In the case of ARM standard platforms using GICv3, if the API is invoked from
+EL3, the system register `ICC_HPPIR0_EL1`, _Highest Priority Pending Interrupt
+group 0 Register_, is read to determine the id of the pending interrupt. The id
+that is returned by API depends upon the value of the id read from the
+interrupt controller as follows.
+
+1. id < `PENDING_G1S_INTID` (1020). id is returned as is.
+2. id = `PENDING_G1S_INTID` (1020) or `PENDING_G1NS_INTID` (1021). The system
+   register `ICC_HPPIR1_EL1`, _Highest Priority Pending Interrupt group 1
+   Register_ is read to determine the id of the group 1 interrupt. This id
+   is returned by the API as long as it is a valid interrupt id
+3. If the id is any of the special interrupt identifiers,
+   `INTR_ID_UNAVAILABLE` is returned.
+
+When the API invoked from S-EL1 for GICv3 systems, the id read from system
+register `ICC_HPPIR1_EL1`, _Highest Priority Pending group 1 Interrupt
+Register_, is returned if is not equal to GIC_SPURIOUS_INTERRUPT (1023) else
+`INTR_ID_UNAVAILABLE` is returned.
 
 ### Function : plat_ic_acknowledge_interrupt() [mandatory]
 
@@ -1527,11 +1570,19 @@ This API is used by the CPU to indicate to the platform IC that processing of
 the highest pending interrupt has begun. It should return the id of the
 interrupt which is being processed.
 
-This function in ARM standard platforms reads the _Interrupt Acknowledge
-Register_ (`GICC_IAR`). This changes the state of the highest priority pending
-interrupt from pending to active in the interrupt controller. It returns the
-value read from the `GICC_IAR`. This value is the id of the interrupt whose
-state has been changed.
+This function in ARM standard platforms using GICv2, reads the _Interrupt
+Acknowledge Register_ (`GICC_IAR`). This changes the state of the highest
+priority pending interrupt from pending to active in the interrupt controller.
+It returns the value read from the `GICC_IAR`. This value is the id of the
+interrupt whose state has been changed.
+
+In the case of ARM standard platforms using GICv3, if the API is invoked
+from EL3, the function reads the system register `ICC_IAR0_EL1`, _Interrupt
+Acknowledge Register group 0_. If the API is invoked from S-EL1, the function
+reads the system register `ICC_IAR1_EL1`, _Interrupt Acknowledge Register
+group 1_. The read changes the state of the highest pending interrupt from
+pending to active in the interrupt controller. The value read is returned
+and is the id of the interrupt whose state has been changed.
 
 The TSP uses this API to start processing of the secure physical timer
 interrupt.
@@ -1548,7 +1599,9 @@ finished. The id should be the same as the id returned by the
 `plat_ic_acknowledge_interrupt()` API.
 
 ARM standard platforms write the id to the _End of Interrupt Register_
-(`GICC_EOIR`). This deactivates the corresponding interrupt in the interrupt
+(`GICC_EOIR`) in case of GICv2, and to `ICC_EOIR0_EL1` or `ICC_EOIR1_EL1`
+system register in case of GICv3 depending on where the API is invoked from,
+EL3 or S-EL1. This deactivates the corresponding interrupt in the interrupt
 controller.
 
 The TSP uses this API to finish processing of the secure physical timer
@@ -1564,13 +1617,17 @@ This API returns the type of the interrupt id passed as the parameter.
 `INTR_TYPE_INVAL` is returned if the id is invalid. If the id is valid, a valid
 interrupt type (one of `INTR_TYPE_EL3`, `INTR_TYPE_S_EL1` and `INTR_TYPE_NS`) is
 returned depending upon how the interrupt has been configured by the platform
-IC.
+IC. This API must be invoked at EL3.
 
-This function in ARM standard platforms configures S-EL1 interrupts
-as Group0 interrupts and Non-secure interrupts as Group1 interrupts. It reads
-the group value corresponding to the interrupt id from the relevant _Interrupt
-Group Register_ (`GICD_IGROUPRn`). It uses the group value to determine the
-type of interrupt.
+ARM standard platforms using GICv2 configures S-EL1 interrupts as Group0 interrupts
+and Non-secure interrupts as Group1 interrupts. It reads the group value
+corresponding to the interrupt id from the relevant _Interrupt Group Register_
+(`GICD_IGROUPRn`). It uses the group value to determine the type of interrupt.
+
+In the case of ARM standard platforms using GICv3, both the _Interrupt Group
+Register_ (`GICD_IGROUPRn`) and _Interrupt Group Modifier Register_
+(`GICD_IGRPMODRn`) is read to figure out whether the interrupt is configured
+as Group 0 secure interrupt, Group 1 secure interrupt or Group 1 NS interrupt.
 
 
 3.5  Crash Reporting mechanism (in BL31)
@@ -1716,14 +1773,15 @@ amount of open resources per driver.
 _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 
-[ARM GIC Architecture Specification]: http://arminfo.emea.arm.com/help/topic/com.arm.doc.ihi0048b/IHI0048B_gic_architecture_specification.pdf
-[IMF Design Guide]:                   interrupt-framework-design.md
-[User Guide]:                         user-guide.md
-[FreeBSD]:                            http://www.freebsd.org
-[Firmware Design]:                    firmware-design.md
-[Power Domain Topology Design]:       psci-pd-tree.md
-[PSCI]:                               http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-[Migration Guide]:                    platform-migration-guide.md
+[ARM GIC Architecture Specification 2.0]: http://arminfo.emea.arm.com/help/topic/com.arm.doc.ihi0048b/IHI0048B_gic_architecture_specification.pdf
+[ARM GIC Architecture Specification 3.0]: http://arminfo.emea.arm.com/help/topic/com.arm.doc.ihi0069a/IHI0069A_gic_architecture_specification.pdf
+[IMF Design Guide]:                       interrupt-framework-design.md
+[User Guide]:                             user-guide.md
+[FreeBSD]:                                http://www.freebsd.org
+[Firmware Design]:                        firmware-design.md
+[Power Domain Topology Design]:           psci-pd-tree.md
+[PSCI]:                                   http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
+[Migration Guide]:                        platform-migration-guide.md
 
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S
