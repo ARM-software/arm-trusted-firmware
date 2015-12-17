@@ -967,13 +967,7 @@ sections.
     X and Y are the cluster and CPU numbers respectively, is used to set the
     reset vector for each core.
 
-8.  Changing the default value of `FVP_SHARED_DATA_LOCATION` will also require
-    changing the value of
-    `--data="<path-to><bl31-binary>"@<base-address-of-bl31>` and
-    `-C cluster<X>.cpu<X>.RVBAR=@<base-address-of-bl31>`, to the new value of
-    `BL31_BASE`.
-
-9.  Changing the default value of `ARM_TSP_RAM_LOCATION` will also require
+8.  Changing the default value of `ARM_TSP_RAM_LOCATION` will also require
     changing the value of
     `--data="<path-to><bl32-binary>"@<base-address-of-bl32>` to the new value of
     `BL32_BASE`.
