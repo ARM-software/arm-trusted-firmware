@@ -303,7 +303,7 @@ func fpregs_context_restore
 
 	/*
 	 * No explict ISB required here as ERET to
-	 * swtich to secure EL1 or non-secure world
+	 * switch to secure EL1 or non-secure world
 	 * covers it
 	 */
 

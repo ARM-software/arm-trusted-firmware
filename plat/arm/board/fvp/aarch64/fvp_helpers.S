@@ -139,7 +139,7 @@ endfunc plat_secondary_cold_boot_setup
 	 * For a warm boot, read the mailbox and return the address it contains.
 	 *
 	 * TODO: PSYSR is a common register and should be
-	 * 	accessed using locks. Since its not possible
+	 * 	accessed using locks. Since it is not possible
 	 * 	to use locks immediately after a cold reset
 	 * 	we are relying on the fact that after a cold
 	 * 	reset all cpus will read the same WK field

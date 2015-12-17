@@ -127,7 +127,7 @@ initialization and call handler functions.
         typedef uint64_t (*rt_svc_handle)(uint32_t smc_fid,
                                           uint64_t x1, uint64_t x2,
                                           uint64_t x3, uint64_t x4,
-                                          void *reserved,
+                                          void *cookie,
                                           void *handle,
                                           uint64_t flags);
 
@@ -296,7 +296,7 @@ provide this information....
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved._
 
 
 [Firmware Design]:  ./firmware-design.md
@@ -304,7 +304,7 @@ _Copyright (c) 2014, ARM Limited and Contributors. All rights reserved._
 [`services`]:               ../services
 [`services/std_svc/psci`]:  ../services/std_svc/psci
 [`std_svc_setup.c`]:        ../services/std_svc/std_svc_setup.c
-[`runtime_svc.h`]:          ../include/runtime_svc.h
+[`runtime_svc.h`]:          ../include/bl31/runtime_svc.h
 [`smcc_helpers.h`]:          ../include/common/smcc_helpers.h
 [PSCI]:                     http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [SMCCC]:                    http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"

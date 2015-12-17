@@ -359,7 +359,7 @@ func report_unhandled_exception
 report_unhandled_interrupt:
 	b	crash_panic
 endfunc report_unhandled_exception
-#endif	/* CRASH_REPORING */
+#endif	/* CRASH_REPORTING */
 
 
 func crash_panic

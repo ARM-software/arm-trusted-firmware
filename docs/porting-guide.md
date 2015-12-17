@@ -430,8 +430,8 @@ must also be defined:
 If the platform needs to allocate data within the per-cpu data framework in
 BL31, it should define the following macro. Currently this is only required if
 the platform decides not to use the coherent memory section by undefining the
-USE_COHERENT_MEM build flag. In this case, the framework allocates the required
-memory within the the per-cpu data to minimize wastage.
+`USE_COHERENT_MEM` build flag. In this case, the framework allocates the
+required memory within the the per-cpu data to minimize wastage.
 
 *   **#define : PLAT_PCPU_DATA_SIZE**
 
@@ -477,7 +477,7 @@ found in `plat/arm/board/<plat_name>/include/plat_macros.S`.
 
 BL1 by default implements the reset vector where execution starts from a cold
 or warm boot. BL31 can be optionally set as a reset vector using the
-RESET_TO_BL31 make variable.
+`RESET_TO_BL31` make variable.
 
 For each CPU, the reset vector code is responsible for the following tasks:
 
@@ -1437,7 +1437,7 @@ concept of a _power domain_. A _power domain_ is a CPU or a logical group of
 CPUs which share some state on which power management operations can be
 performed as specified by [PSCI]. Each CPU in the system is assigned a cpu
 index which is a unique number between `0` and `PLATFORM_CORE_COUNT - 1`.
-The _power domains_ are arranged in a hierarchial tree structure and
+The _power domains_ are arranged in a hierarchical tree structure and
 each _power domain_ can be identified in a system by the cpu index of any CPU
 that is part of that domain and a _power domain level_. A processing element
 (for example, a CPU) is at level 0. If the _power domain_ node above a CPU is
@@ -1725,7 +1725,7 @@ depends upon the id value as follows.
     Return   : uint32_t
 
 This API returns the id of the highest priority pending interrupt at the
-platform IC. INTR_ID_UNAVAILABLE is returned when there is no interrupt
+platform IC. `INTR_ID_UNAVAILABLE` is returned when there is no interrupt
 pending.
 
 In the case of ARM standard platforms using GICv2, the _Highest Priority

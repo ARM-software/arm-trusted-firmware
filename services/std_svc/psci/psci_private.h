@@ -206,10 +206,10 @@ int psci_cpu_on_start(unsigned long target_cpu,
 void psci_cpu_on_finish(unsigned int cpu_idx,
 			psci_power_state_t *state_info);
 
-/* Private exported functions from psci_cpu_off.c */
+/* Private exported functions from psci_off.c */
 int psci_do_cpu_off(unsigned int end_pwrlvl);
 
-/* Private exported functions from psci_pwrlvl_suspend.c */
+/* Private exported functions from psci_suspend.c */
 void psci_cpu_suspend_start(entry_point_info_t *ep,
 			unsigned int end_pwrlvl,
 			psci_power_state_t *state_info,
