@@ -18,10 +18,10 @@ the platform by authenticating all firmware images up to and including the
 normal world bootloader. It does this by establishing a Chain of Trust using
 Public-Key-Cryptography Standards (PKCS).
 
-This document describes the design of the ARM Trusted Firmware TBB
-implementation. The current implementation is a proof of concept; future
-versions will provide stronger architectural interfaces and implement the
-missing functionality required in a production TBB-enabled system.
+This document describes the design of ARM Trusted Firmware TBB, which is an
+implementation of the Trusted Board Boot Requirements (TBBR) specification,
+ARM DEN0006C-1. It should be used in conjunction with the [Firmware Update]
+design document, which implements a specific aspect of the TBBR.
 
 
 2.  Chain of Trust
@@ -248,3 +248,4 @@ _Copyright (c) 2015, ARM Limited and Contributors. All rights reserved._
 [X.690]:             http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
 [Auth Framework]:    auth-framework.md
 [User Guide]:        user-guide.md
+[Firmware Update]:   firmware-update.md

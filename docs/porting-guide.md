@@ -13,10 +13,11 @@ Contents
 3.  [Boot Loader stage specific modifications](#3--modifications-specific-to-a-boot-loader-stage)
     *   [Boot Loader stage 1 (BL1)](#31-boot-loader-stage-1-bl1)
     *   [Boot Loader stage 2 (BL2)](#32-boot-loader-stage-2-bl2)
-    *   [Boot Loader stage 3-1 (BL31)](#32-boot-loader-stage-3-1-bl3-1)
-    *   [PSCI implementation (in BL31)](#33-power-state-coordination-interface-in-bl3-1)
-    *   [Interrupt Management framework (in BL31)](#34--interrupt-management-framework-in-bl3-1)
-    *   [Crash Reporting mechanism (in BL31)](#35--crash-reporting-mechanism-in-bl3-1)
+    *   [FWU Boot Loader stage 2 (BL2U)](#33-fwu-boot-loader-stage-2-bl2u)
+    *   [Boot Loader stage 3-1 (BL31)](#34-boot-loader-stage-3-1-bl31)
+    *   [PSCI implementation (in BL31)](#35-power-state-coordination-interface-in-bl31)
+    *   [Interrupt Management framework (in BL31)](#36--interrupt-management-framework-in-bl31)
+    *   [Crash Reporting mechanism (in BL31)](#37--crash-reporting-mechanism-in-bl31)
 4.  [Build flags](#4--build-flags)
 5.  [C Library](#5--c-library)
 6.  [Storage abstraction layer](#6--storage-abstraction-layer)
@@ -276,6 +277,67 @@ also be defined:
 
     BL33 content certificate identifier, used by BL2 to load the BL33 content
     certificate.
+
+*   **#define : FWU_CERT_ID**
+
+    Firmware Update (FWU) certificate identifier, used by NS_BL1U to load the
+    FWU content certificate.
+
+
+If the AP Firmware Updater Configuration image, BL2U is used, the following
+must also be defined:
+
+*   **#define : BL2U_BASE**
+
+    Defines the base address in secure memory where BL1 copies the BL2U binary
+    image. Must be aligned on a page-size boundary.
+
+*   **#define : BL2U_LIMIT**
+
+    Defines the maximum address in secure memory that the BL2U image can occupy.
+
+*   **#define : BL2U_IMAGE_ID**
+
+    BL2U image identifier, used by BL1 to fetch an image descriptor
+    corresponding to BL2U.
+
+If the SCP Firmware Update Configuration Image, SCP_BL2U is used, the following
+must also be defined:
+
+*   **#define : SCP_BL2U_IMAGE_ID**
+
+    SCP_BL2U image identifier, used by BL1 to fetch an image descriptor
+    corresponding to SCP_BL2U.
+    NOTE: TF does not provide source code for this image.
+
+If the Non-Secure Firmware Updater ROM, NS_BL1U is used, the following must
+also be defined:
+
+*   **#define : NS_BL1U_BASE**
+
+    Defines the base address in non-secure ROM where NS_BL1U executes.
+    Must be aligned on a page-size boundary.
+    NOTE: TF does not provide source code for this image.
+
+*   **#define : NS_BL1U_IMAGE_ID**
+
+    NS_BL1U image identifier, used by BL1 to fetch an image descriptor
+    corresponding to NS_BL1U.
+
+If the Non-Secure Firmware Updater, NS_BL2U is used, the following must also
+be defined:
+
+*   **#define : NS_BL2U_BASE**
+
+    Defines the base address in non-secure memory where NS_BL2U executes.
+    Must be aligned on a page-size boundary.
+    NOTE: TF does not provide source code for this image.
+
+*   **#define : NS_BL2U_IMAGE_ID**
+
+    NS_BL2U image identifier, used by BL1 to fetch an image descriptor
+    corresponding to NS_BL2U.
+
 
 If a SCP_BL2 image is supported by the platform, the following constants must
 also be defined:
@@ -630,9 +692,9 @@ The default implementation doesn't do anything, to avoid making assumptions
 about the way the platform displays its status information.
 
 This function receives the exception type as its argument. Possible values for
-exceptions types are listed in the [include/runtime_svc.h] header file. Note
-that these constants are not related to any architectural exception code; they
-are just an ARM Trusted Firmware convention.
+exceptions types are listed in the [include/common/bl_common.h] header file.
+Note that these constants are not related to any architectural exception code;
+they are just an ARM Trusted Firmware convention.
 
 
 ### Function : plat_reset_handler()
@@ -698,10 +760,12 @@ warm boot. For each CPU, BL1 is responsible for the following tasks:
     only this CPU executes the remaining BL1 code, including loading and passing
     control to the BL2 stage.
 
-3.  Loading the BL2 image from non-volatile storage into secure memory at the
+3.  Identifying and starting the Firmware Update process (if required).
+
+4.  Loading the BL2 image from non-volatile storage into secure memory at the
     address specified by the platform defined constant `BL2_BASE`.
 
-4.  Populating a `meminfo` structure with the following information in memory,
+5.  Populating a `meminfo` structure with the following information in memory,
     accessible by BL2 immediately upon entry.
 
         meminfo.total_base = Base address of secure RAM visible to BL2
@@ -766,7 +830,7 @@ MMU and data cache have been enabled.
 In ARM standard platforms, this function initializes the storage abstraction
 layer used to load the next bootloader image.
 
-This function helps fulfill requirement 3 above.
+This function helps fulfill requirement 4 above.
 
 
 ### Function : bl1_plat_sec_mem_layout() [mandatory]
@@ -789,7 +853,7 @@ This information is used by BL1 to load the BL2 image in secure RAM. BL1 also
 populates a similar structure to tell BL2 the extents of memory available for
 its own use.
 
-This function helps fulfill requirement 3 above.
+This function helps fulfill requirements 4 and 5 above.
 
 
 ### Function : bl1_init_bl2_mem_layout() [optional]
@@ -809,26 +873,80 @@ in the **Memory layout on ARM development platforms** section in the
 [Firmware Design].
 
 
-### Function : bl1_plat_set_bl2_ep_info() [mandatory]
-
-    Argument : image_info *, entry_point_info *
-    Return   : void
-
-This function is called after loading BL2 image and it can be used to overwrite
-the entry point set by loader and also set the security state and SPSR which
-represents the entry point system state for BL2.
-
-
 ### Function : bl1_plat_prepare_exit() [optional]
 
     Argument : entry_point_info_t *
     Return   : void
 
-This function is called prior to exiting BL1 in response to the `RUN_IMAGE` SMC
-request raised by BL2. It should be used to perform platform specific clean up
-or bookkeeping operations before transferring control to the next image. It
-receives the address of the `entry_point_info_t` structure passed from BL2.
-This function runs with MMU disabled.
+This function is called prior to exiting BL1 in response to the
+`BL1_SMC_RUN_IMAGE` SMC request raised by BL2. It should be used to perform
+platform specific clean up or bookkeeping operations before transferring
+control to the next image. It receives the address of the `entry_point_info_t`
+structure passed from BL2. This function runs with MMU disabled.
+
+### Function : bl1_plat_set_ep_info() [optional]
+
+    Argument : unsigned int image_id, entry_point_info_t *ep_info
+    Return   : void
+
+This function allows platforms to override `ep_info` for the given `image_id`.
+
+The default implementation just returns.
+
+### Function : bl1_plat_get_next_image_id() [optional]
+
+    Argument : void
+    Return   : unsigned int
+
+This and the following function must be overridden to enable the FWU feature.
+
+BL1 calls this function after platform setup to identify the next image to be
+loaded and executed. If the platform returns `BL2_IMAGE_ID` then BL1 proceeds
+with the normal boot sequence, which loads and executes BL2. If the platform
+returns a different image id, BL1 assumes that Firmware Update is required.
+
+The default implementation always returns `BL2_IMAGE_ID`. The ARM development
+platforms override this function to detect if firmware update is required, and
+if so, return the first image in the firmware update process.
+
+### Function : bl1_plat_get_image_desc() [optional]
+
+    Argument : unsigned int image_id
+    Return   : image_desc_t *
+
+BL1 calls this function to get the image descriptor information `image_desc_t`
+for the provided `image_id` from the platform.
+
+The default implementation always returns a common BL2 image descriptor. ARM
+standard platforms return an image descriptor corresponding to BL2 or one of
+the firmware update images defined in the Trusted Board Boot Requirements
+specification.
+
+### Function : bl1_plat_fwu_done() [optional]
+
+    Argument : unsigned int image_id, uintptr_t image_src,
+               unsigned int image_size
+    Return   : void
+
+BL1 calls this function when the FWU process is complete. It must not return.
+The platform may override this function to take platform specific action, for
+example to initiate the normal boot flow.
+
+The default implementation spins forever.
+
+### Function : bl1_plat_mem_check() [mandatory]
+
+    Argument : uintptr_t mem_base, unsigned int mem_size,
+               unsigned int flags
+    Return   : void
+
+BL1 calls this function while handling FWU copy and authenticate SMCs. The
+platform must ensure that the provided `mem_base` and `mem_size` are mapped into
+BL1, and that this memory corresponds to either a secure or non-secure memory
+region as indicated by the security state of the `flags` argument.
+
+The default implementation of this function asserts therefore platforms must
+override it when using the FWU feature.
 
 
 3.2 Boot Loader Stage 2 (BL2)
@@ -1083,7 +1201,86 @@ entrypoint of that image, which BL31 uses to jump to it.
 BL2 is responsible for loading the normal world BL33 image (e.g. UEFI).
 
 
-3.2 Boot Loader Stage 3-1 (BL31)
+3.3 FWU Boot Loader Stage 2 (BL2U)
+----------------------------------
+
+The AP Firmware Updater Configuration, BL2U, is an optional part of the FWU
+process and is executed only by the primary CPU. BL1 passes control to BL2U at
+`BL2U_BASE`. BL2U executes in Secure-EL1 and is responsible for:
+
+1.  (Optional) Transfering the optional SCP_BL2U binary image from AP secure
+    memory to SCP RAM. BL2U uses the SCP_BL2U `image_info` passed by BL1.
+    `SCP_BL2U_BASE` defines the address in AP secure memory where SCP_BL2U
+    should be copied from. Subsequent handling of the SCP_BL2U image is
+    implemented by the platform specific `bl2u_plat_handle_scp_bl2u()` function.
+    If `SCP_BL2U_BASE` is not defined then this step is not performed.
+
+2.  Any platform specific setup required to perform the FWU process. For
+    example, ARM standard platforms initialize the TZC controller so that the
+    normal world can access DDR memory.
+
+The following functions must be implemented by the platform port to enable
+BL2U to perform the tasks mentioned above.
+
+### Function : bl2u_early_platform_setup() [mandatory]
+
+    Argument : meminfo *mem_info, void *plat_info
+    Return   : void
+
+This function executes with the MMU and data caches disabled. It is only
+called by the primary CPU. The arguments to this function is the address
+of the `meminfo` structure and platform specific info provided by BL1.
+
+The platform must copy the contents of the `mem_info` and `plat_info` into
+private storage as the original memory may be subsequently overwritten by BL2U.
+
+On ARM CSS platforms `plat_info` is interpreted as an `image_info_t` structure,
+to extract SCP_BL2U image information, which is then copied into a private
+variable.
+
+### Function : bl2u_plat_arch_setup() [mandatory]
+
+    Argument : void
+    Return   : void
+
+This function executes with the MMU and data caches disabled. It is only
+called by the primary CPU.
+
+The purpose of this function is to perform any architectural initialization
+that varies across platforms, for example enabling the MMU (since the memory
+map differs across platforms).
+
+### Function : bl2u_platform_setup() [mandatory]
+
+    Argument : void
+    Return   : void
+
+This function may execute with the MMU and data caches enabled if the platform
+port does the necessary initialization in `bl2u_plat_arch_setup()`. It is only
+called by the primary CPU.
+
+The purpose of this function is to perform any platform initialization
+specific to BL2U.
+
+In ARM standard platforms, this function performs security setup, including
+configuration of the TrustZone controller to allow non-secure masters access
+to most of DRAM. Part of DRAM is reserved for secure world use.
+
+### Function : bl2u_plat_handle_scp_bl2u() [optional]
+
+    Argument : void
+    Return   : int
+
+This function is used to perform any platform-specific actions required to
+handle the SCP firmware. Typically it transfers the image into SCP memory using
+a platform-specific protocol and waits until SCP executes it and signals to the
+Application Processor (AP) for BL2U execution to continue.
+
+This function returns 0 on success, a negative error code otherwise.
+This function is included if SCP_BL2U_BASE is defined.
+
+
+3.4 Boot Loader Stage 3-1 (BL31)
 ---------------------------------
 
 During cold boot, the BL31 stage is executed only by the primary CPU. This is
@@ -1232,7 +1429,7 @@ modes table.
    assertion is raised if the value of the constant is not aligned to the cache
    line boundary.
 
-3.3 Power State Coordination Interface (in BL31)
+3.5 Power State Coordination Interface (in BL31)
 ------------------------------------------------
 
 The ARM Trusted Firmware's implementation of the PSCI API is based around the
@@ -1441,7 +1638,7 @@ domain level specific local states to suspend to system affinity level. The
 enter system suspend.
 
 
-3.4  Interrupt Management framework (in BL31)
+3.6  Interrupt Management framework (in BL31)
 ----------------------------------------------
 BL31 implements an Interrupt Management Framework (IMF) to manage interrupts
 generated in either security state and targeted to EL1 or EL2 in the non-secure
@@ -1630,7 +1827,7 @@ Register_ (`GICD_IGROUPRn`) and _Interrupt Group Modifier Register_
 as Group 0 secure interrupt, Group 1 secure interrupt or Group 1 NS interrupt.
 
 
-3.5  Crash Reporting mechanism (in BL31)
+3.7  Crash Reporting mechanism (in BL31)
 ----------------------------------------------
 BL31 implements a crash reporting mechanism which prints the various registers
 of the CPU to enable quick crash analysis and debugging. It requires that a
@@ -1782,11 +1979,12 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [Power Domain Topology Design]:           psci-pd-tree.md
 [PSCI]:                                   http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 [Migration Guide]:                        platform-migration-guide.md
+[Firmware Update]:                        firmware-update.md
 
 [plat/common/aarch64/platform_mp_stack.S]: ../plat/common/aarch64/platform_mp_stack.S
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S
 [plat/arm/board/fvp/fvp_pm.c]:             ../plat/arm/board/fvp/fvp_pm.c
-[include/runtime_svc.h]:                   ../include/runtime_svc.h
+[include/common/bl_common.h]:              ../include/common/bl_common.h
 [include/plat/arm/common/arm_def.h]:       ../include/plat/arm/common/arm_def.h
 [include/plat/common/common_def.h]:        ../include/plat/common/common_def.h
 [include/plat/common/platform.h]:          ../include/plat/common/platform.h
