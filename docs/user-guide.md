@@ -57,46 +57,42 @@ optional tools may be needed:
 4.  Getting the Trusted Firmware source code
 --------------------------------------------
 
-The Trusted Firmware source code can be obtained as part of the standard Linaro
-releases, which provide a full software stack, including the Trusted Firmware,
-normal world firmware, Linux kernel and device tree, file system as well as any
-additional micro-controller firmware required by the platform. This version of
-Trusted Firmware is tested with the [Linaro 15.10 Release][Linaro Release Notes].
+The Trusted Firmware (TF) source code can be obtained as part of the standard
+Linaro releases, which provide a full software stack, including TF, normal
+world firmware, Linux kernel and device tree, file system as well as any
+additional micro-controller firmware required by the platform. This TF version
+is tested with the [Linaro 15.10 Release][Linaro Release Notes].
 
-Note 1: Both the LSK kernel or the latest tracking kernel can be used with the
-ARM Trusted Firmware, choose the one that best suits your needs.
+Note 1: Both the LSK kernel or the latest tracking kernel can be used with TF;
+choose the one that best suits your needs.
 
 Note 2: Currently to run the latest tracking kernel on FVP with GICv3 driver,
 some modifications are required to UEFI. Refer
 [here](#11--changes-required-for-booting-linux-on-fvp-in-gicv3-mode)
 for more details.
 
-The Trusted Firmware source code can then be found in the `arm-tf/` directory.
-This is the full git repository cloned from Github. The revision checked out by
-the `repo` tool is indicated by the manifest file. Depending on the manifest
-file you're using, this might not be the latest development version. To
-synchronize your copy of the repository and get the latest updates, use the
-following commands:
+The TF source code will then be in `arm-tf/`. This is the upstream git
+repository cloned from GitHub. The revision checked out by the `repo` tool is
+indicated by the manifest file. Depending on the manifest file you're using,
+this might not be the latest upstream version. To synchronize your copy of the
+repository and get the latest updates, use the following commands:
 
     # Change to the Trusted Firmware directory.
     cd arm-tf
 
-    # Download the latest code from Github.
+    # Download the latest code from GitHub.
     git fetch github
 
     # Update your working copy to the latest master.
     # This command will create a local branch master that tracks the remote
-    # branch master from Github.
+    # branch master from GitHub.
     git checkout --track github/master
 
 
-Alternatively, the Trusted Firmware source code can be fetched on its own
-from GitHub:
+Alternatively, the TF source code can be separately cloned from the upstream
+GitHub repository:
 
     git clone https://github.com/ARM-software/arm-trusted-firmware.git
-
-However, the rest of this document assumes that you got the Trusted Firmware
-as part of the Linaro release.
 
 
 5.  Building the Trusted Firmware
