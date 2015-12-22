@@ -57,46 +57,42 @@ optional tools may be needed:
 4.  Getting the Trusted Firmware source code
 --------------------------------------------
 
-The Trusted Firmware source code can be obtained as part of the standard Linaro
-releases, which provide a full software stack, including the Trusted Firmware,
-normal world firmware, Linux kernel and device tree, file system as well as any
-additional micro-controller firmware required by the platform. This version of
-Trusted Firmware is tested with the [Linaro 15.10 Release][Linaro Release Notes].
+The Trusted Firmware (TF) source code can be obtained as part of the standard
+Linaro releases, which provide a full software stack, including TF, normal
+world firmware, Linux kernel and device tree, file system as well as any
+additional micro-controller firmware required by the platform. This TF version
+is tested with the [Linaro 15.10 Release][Linaro Release Notes].
 
-Note 1: Both the LSK kernel or the latest tracking kernel can be used with the
-ARM Trusted Firmware, choose the one that best suits your needs.
+Note 1: Both the LSK kernel or the latest tracking kernel can be used with TF;
+choose the one that best suits your needs.
 
 Note 2: Currently to run the latest tracking kernel on FVP with GICv3 driver,
 some modifications are required to UEFI. Refer
 [here](#11--changes-required-for-booting-linux-on-fvp-in-gicv3-mode)
 for more details.
 
-The Trusted Firmware source code can then be found in the `arm-tf/` directory.
-This is the full git repository cloned from Github. The revision checked out by
-the `repo` tool is indicated by the manifest file. Depending on the manifest
-file you're using, this might not be the latest development version. To
-synchronize your copy of the repository and get the latest updates, use the
-following commands:
+The TF source code will then be in `arm-tf/`. This is the upstream git
+repository cloned from GitHub. The revision checked out by the `repo` tool is
+indicated by the manifest file. Depending on the manifest file you're using,
+this might not be the latest upstream version. To synchronize your copy of the
+repository and get the latest updates, use the following commands:
 
     # Change to the Trusted Firmware directory.
     cd arm-tf
 
-    # Download the latest code from Github.
+    # Download the latest code from GitHub.
     git fetch github
 
     # Update your working copy to the latest master.
     # This command will create a local branch master that tracks the remote
-    # branch master from Github.
+    # branch master from GitHub.
     git checkout --track github/master
 
 
-Alternatively, the Trusted Firmware source code can be fetched on its own
-from GitHub:
+Alternatively, the TF source code can be separately cloned from the upstream
+GitHub repository:
 
     git clone https://github.com/ARM-software/arm-trusted-firmware.git
-
-However, the rest of this document assumes that you got the Trusted Firmware
-as part of the Linaro release.
 
 
 5.  Building the Trusted Firmware
@@ -136,7 +132,7 @@ Trusted Firmware source tree and follow these steps:
     *   `build/<platform>/<build-type>/bl31.bin`
 
     where `<platform>` is the name of the chosen platform and `<build-type>` is
-    either `debug` or `release`. A Firmare Image Package (FIP) will be created
+    either `debug` or `release`. A Firmware Image Package (FIP) will be created
     as part of the build. It contains all boot loader images except for
     `bl1.bin`.
 
@@ -171,8 +167,8 @@ Trusted Firmware source tree and follow these steps:
     the specified binary in the final FIP image. Please note that BL32 will be
     included in the build, only if the `SPD` build option is specified.
 
-    For example, specifying BL2=<path-to>/<bl2_image> in the build option, will
-    skip compilation of BL2 source in trusted firmware, but include the BL2
+    For example, specifying `BL2=<path-to>/<bl2_image>` in the build option,
+    will skip compilation of BL2 source in trusted firmware, but include the BL2
     binary specified in the final FIP image.
 
 ### Summary of build options
@@ -403,8 +399,8 @@ performed.
 *   `SPIN_ON_BL1_EXIT`: This option introduces an infinite loop in BL1. It can
     take either 0 (no loop) or 1 (add a loop). 0 is the default. This loop stops
     execution in BL1 just before handing over to BL31. At this point, all
-    firmware images have been loaded in memory and the MMU as well as the caches
-    are turned off. Refer to the "Debugging options" section for more details.
+    firmware images have been loaded in memory, and the MMU and caches are
+    turned off. Refer to the "Debugging options" section for more details.
 
 *   `EL3_PAYLOAD_BASE`: This option enables booting an EL3 payload instead of
     the normal boot flow. It must specify the entry point address of the EL3
@@ -520,7 +516,7 @@ View the contents of an existing Firmware package:
     - EL3 Runtime Firmware BL31: offset=0x8270, size=0xC218
     ---------------------------
 
-Existing package entries can be individially updated:
+Existing package entries can be individually updated:
 
     # Change the BL2 from Debug to Release version
     ./tools/fip_create/fip_create fip.bin --dump \
@@ -603,7 +599,7 @@ An additional boot loader binary file is created in the `build` directory:
 
 The FIP will now contain the additional BL32 image. Here is an example
 output from an FVP build in release mode including BL32 and using
-FVP_AARCH64_EFI.fd as BL33 image:
+`FVP_AARCH64_EFI.fd` as BL33 image:
 
     Firmware Image Package ToC:
     ---------------------------

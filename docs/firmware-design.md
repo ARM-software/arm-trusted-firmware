@@ -99,8 +99,8 @@ The functionality implemented by this stage is as follows.
 
 Whenever a CPU is released from reset, BL1 needs to distinguish between a warm
 boot and a cold boot. This is done using platform-specific mechanisms (see the
-`platform_get_entrypoint()` function in the [Porting Guide]). In the case of a
-warm boot, a CPU is expected to continue execution from a seperate
+`plat_get_my_entrypoint()` function in the [Porting Guide]). In the case of a
+warm boot, a CPU is expected to continue execution from a separate
 entrypoint. In the case of a cold boot, the secondary CPUs are placed in a safe
 platform-specific state (see the `plat_secondary_cold_boot_setup()` function in
 the [Porting Guide]) while the primary CPU executes the remaining cold boot path
@@ -217,7 +217,7 @@ In the normal boot flow, BL1 execution continues as follows:
     there is not enough free trusted SRAM the following error message is
     printed:
 
-        "Failed to load boot loader stage 2 (BL2) firmware."
+        "Failed to load BL2 firmware."
 
     If the load is successful, BL1 updates the limits of the remaining free
     trusted SRAM. It also populates information about the amount of trusted
@@ -228,7 +228,7 @@ In the normal boot flow, BL1 execution continues as follows:
 2.  BL1 prints the following string from the primary CPU to indicate successful
     execution of the BL1 stage:
 
-        "Booting trusted firmware boot loader stage 1"
+        "Booting Trusted Firmware"
 
 3.  BL1 passes control to the BL2 image at Secure EL1, starting from its load
     address.
@@ -712,7 +712,7 @@ required support.
 | PSCI v1.0 API         |Supported| Comments                                  |
 |:----------------------|:--------|:------------------------------------------|
 |`PSCI_VERSION`         | Yes     | The version returned is 1.0               |
-|`CPU_SUSPEND`          | Yes*    | The original `power_state` format is used |
+|`CPU_SUSPEND`          | Yes*    |                                           |
 |`CPU_OFF`              | Yes*    |                                           |
 |`CPU_ON`               | Yes*    |                                           |
 |`AFFINITY_INFO`        | Yes     |                                           |
@@ -796,7 +796,7 @@ To do this the SPD has to register a BL32 initialization function during
 initialization of the SPD service. The BL32 initialization function has this
 prototype:
 
-    int32_t init();
+    int32_t init(void);
 
 and is registered using the `bl31_register_bl32_init()` function.
 
@@ -806,7 +806,7 @@ before returning through EL3 and running the non-trusted firmware (BL33):
 1.  In the BL32 setup function, use `bl31_set_next_image_type()` to
     request that the exit from `bl31_main()` is to the BL32 entrypoint in
     Secure-EL1. BL31 will exit to BL32 using the asynchronous method by
-    calling bl31_prepare_next_image_entry() and el3_exit().
+    calling `bl31_prepare_next_image_entry()` and `el3_exit()`.
 
     When the BL32 has completed initialization at Secure-EL1, it returns to
     BL31 by issuing an SMC, using a Function ID allocated to the SPD. On
@@ -816,7 +816,7 @@ before returning through EL3 and running the non-trusted firmware (BL33):
     the normal world firmware BL33. On return from the handler the framework
     will exit to EL2 and run BL33.
 
-2.  The BL32 setup function registers a initialization function using
+2.  The BL32 setup function registers an initialization function using
     `bl31_register_bl32_init()` which provides a SPD-defined mechanism to
     invoke a 'world-switch synchronous call' to Secure-EL1 to run the BL32
     entrypoint.
@@ -1501,7 +1501,7 @@ structure is allocated in the coherent memory region in the Trusted Firmware
 because it can be accessed by multple CPUs, either with caches enabled or
 disabled.
 
-typedef struct non_cpu_pwr_domain_node {
+    typedef struct non_cpu_pwr_domain_node {
         /*
          * Index of the first CPU power domain node level 0 which has this node
          * as its parent.
@@ -1527,7 +1527,7 @@ typedef struct non_cpu_pwr_domain_node {
 
         /* For indexing the psci_lock array*/
         unsigned char lock_index;
-} non_cpu_pd_node_t;
+    } non_cpu_pd_node_t;
 
 In order to move this data structure to normal memory, the use of each of its
 fields must be analyzed. Fields like `cpu_start_idx`, `ncpus`, `parent_node`
@@ -1659,7 +1659,7 @@ There is however a performance impact for bakery locks, due to:
 *   Multiple cache line reads for each lock operation, since the bakery locks
     for each CPU are distributed across different cache lines.
 
-The implementation has been optimized to mimimize this additional overhead.
+The implementation has been optimized to minimize this additional overhead.
 Measurements indicate that when bakery locks are allocated in Normal memory, the
 minimum latency of acquiring a lock is on an average 3-4 micro seconds whereas
 in Device memory the same is 2 micro seconds. The measurements were done on the

@@ -38,7 +38,7 @@
 #endif
 
 /*******************************************************************************
- * Number of power domains whose state this psci imp. can track
+ * Number of power domains whose state this PSCI implementation can track
  ******************************************************************************/
 #ifdef PLAT_NUM_PWR_DOMAINS
 #define PSCI_NUM_PWR_DOMAINS	PLAT_NUM_PWR_DOMAINS
@@ -60,7 +60,7 @@
 #define PSCI_MAX_PWR_LVL	3
 
 /*******************************************************************************
- * Defines for runtime services func ids
+ * Defines for runtime services function ids
  ******************************************************************************/
 #define PSCI_VERSION			0x84000000
 #define PSCI_CPU_SUSPEND_AARCH32	0x84000001
@@ -255,7 +255,7 @@ typedef struct psci_cpu_data {
 
 /*******************************************************************************
  * Structure populated by platform specific code to export routines which
- * perform common low level pm functions
+ * perform common low level power management functions
  ******************************************************************************/
 typedef struct plat_psci_ops {
 	void (*cpu_standby)(plat_local_state_t cpu_state);
@@ -276,7 +276,7 @@ typedef struct plat_psci_ops {
 
 /*******************************************************************************
  * Optional structure populated by the Secure Payload Dispatcher to be given a
- * chance to perform any bookkeeping before PSCI executes a power mgmt.
+ * chance to perform any bookkeeping before PSCI executes a power management
  * operation. It also allows PSCI to determine certain properties of the SP e.g.
  * migrate capability etc.
  ******************************************************************************/

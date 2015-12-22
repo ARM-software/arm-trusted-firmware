@@ -8,7 +8,8 @@ Individuals who want to contribute their own work must sign and return an
 Individual CLA. Companies that want to contribute must sign and return a
 Corporate CLA if their employees' intellectual property has been assigned to
 the employer. Copies of the CLAs are available from the [contributing page] of
-the ARM website.
+the ARM website. Please wait for ARM to confirm acceptance of your CLA before
+making contributions.
 
 For this project, ARM also requires the GitHub account name(s) associated with
 each individual contributor or the designated employees of corporate
@@ -76,7 +77,7 @@ Making Changes
 Submitting Changes
 ------------------
 
-*   Ensure we have your signed CLA.
+*   Ensure ARM has your signed CLA and has confirmed acceptance of it.
 *   Push your local changes to your fork of the repository.
 *   Submit a [pull request] to the [arm-trusted-firmware] `integration` branch.
     *   The changes in the [pull request] will then undergo further review and

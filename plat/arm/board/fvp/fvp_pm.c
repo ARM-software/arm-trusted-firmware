@@ -154,11 +154,9 @@ int fvp_pwr_domain_on(u_register_t mpidr)
 	unsigned int psysr;
 
 	/*
-	 * Ensure that we do not cancel an inflight power off request
-	 * for the target cpu. That would leave it in a zombie wfi.
-	 * Wait for it to power off, program the jump address for the
-	 * target cpu and then program the power controller to turn
-	 * that cpu on
+	 * Ensure that we do not cancel an inflight power off request for the
+	 * target cpu. That would leave it in a zombie wfi. Wait for it to power
+	 * off and then program the power controller to turn that CPU on.
 	 */
 	do {
 		psysr = fvp_pwrc_read_psysr(mpidr);

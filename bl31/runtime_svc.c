@@ -110,7 +110,7 @@ void runtime_svc_init(void)
 		}
 
 		/*
-		 * The runtime service may have seperate rt_svc_desc_t
+		 * The runtime service may have separate rt_svc_desc_t
 		 * for its fast smc and standard smc. Since the service itself
 		 * need to be initialized only once, only one of them will have
 		 * an initialisation routine defined. Call the initialisation

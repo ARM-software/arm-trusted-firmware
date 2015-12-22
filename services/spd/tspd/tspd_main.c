@@ -231,7 +231,7 @@ int32_t tspd_setup(void)
 		return 1;
 
 	/*
-	 * We could inspect the SP image and determine it's execution
+	 * We could inspect the SP image and determine its execution
 	 * state i.e whether AArch32 or AArch64. Assuming it's AArch64
 	 * for the time being.
 	 */
@@ -461,7 +461,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 #endif
 
 	/*
-	 * These function IDs is used only by the SP to indicate it has
+	 * These function IDs are used only by the SP to indicate it has
 	 * finished:
 	 * 1. turning itself on in response to an earlier psci
 	 *    cpu_on request
@@ -472,7 +472,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	case TSP_RESUME_DONE:
 
 	/*
-	 * These function IDs is used only by the SP to indicate it has
+	 * These function IDs are used only by the SP to indicate it has
 	 * finished:
 	 * 1. suspending itself after an earlier psci cpu_suspend
 	 *    request.

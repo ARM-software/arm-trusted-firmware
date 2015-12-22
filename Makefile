@@ -56,7 +56,7 @@ SPD				:= none
 BASE_COMMIT			:= origin/master
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0
-# By default, Bl1 acts as the reset handler, not BL31
+# By default, BL1 acts as the reset handler, not BL31
 RESET_TO_BL31			:= 0
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
@@ -295,7 +295,7 @@ include plat/compat/plat_compat.mk
 endif
 
 # Include the CPU specific operations makefile. By default all CPU errata
-# workarounds and CPU specifc optimisations are disabled. This can be
+# workarounds and CPU specific optimisations are disabled. This can be
 # overridden by the platform.
 include lib/cpus/cpu-ops.mk
 
@@ -309,7 +309,7 @@ ifeq (${DISABLE_PEDANTIC},0)
         CFLAGS		+= 	-pedantic
 endif
 
-# Using the ARM Trusted Firmware BL2 implies that a BL33 image also need to be
+# Using the ARM Trusted Firmware BL2 implies that a BL33 image also needs to be
 # supplied for the FIP and Certificate generation tools. This flag can be
 # overridden by the platform.
 ifdef BL2_SOURCES

@@ -359,7 +359,7 @@ for the security state specified in the `flags` parameter.
 
 Once the handler routine completes, execution will return to either the secure
 or non-secure state. The handler routine should return a pointer to
-`cpu_context` structure of the current CPU for the the target security state. It
+`cpu_context` structure of the current CPU for the target security state. It
 should treat all error conditions as critical errors and take appropriate action
 within its implementation e.g. use assertion failures.
 
