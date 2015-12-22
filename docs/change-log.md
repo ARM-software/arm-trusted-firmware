@@ -1,3 +1,158 @@
+ARM Trusted Firmware - version 1.2
+==================================
+
+New features
+------------
+
+*   The Trusted Board Boot implementation on ARM platforms now conforms to the
+    mandatory requirements of the TBBR specification.
+
+    In particular, the boot process is now guarded by a Trusted Watchdog, which
+    will reset the system in case of an authentication or loading error. On ARM
+    platforms, a secure instance of ARM SP805 is used as the Trusted Watchdog.
+
+    Also, a firmware update process has been implemented. It enables
+    authenticated firmware to update firmware images from external interfaces to
+    SoC Non-Volatile memories. This feature functions even when the current
+    firmware in the system is corrupt or missing; it therefore may be used as
+    a recovery mode.
+
+*   Improvements have been made to the Certificate Generation Tool
+    (`cert_create`) as follows.
+
+    *   Added support for the Firmware Update process by extending the Chain
+        of Trust definition in the tool to include the Firmware Update
+        certificate and the required extensions.
+
+    *   Introduced a new API that allows one to specify command line options in
+        the Chain of Trust description. This makes the declaration of the tool's
+        arguments more flexible and easier to extend.
+
+    *   The tool has been reworked to follow a data driven approach, which
+        makes it easier to maintain and extend.
+
+*   Extended the FIP tool (`fip_create`) to support the new set of images
+    involved in the Firmware Update process.
+
+*   Various memory footprint improvements. In particular:
+
+    *   The bakery lock structure for coherent memory has been optimised.
+
+    *   The mbed TLS SHA1 functions are not needed, as SHA256 is used to
+        generate the certificate signature. Therefore, they have been compiled
+        out, reducing the memory footprint of BL1 and BL2 by approximately
+        6 KB.
+
+    *   On ARM development platforms, each BL stage now individually defines
+        the number of regions that it needs to map in the MMU.
+
+*   Added the following new design documents:
+
+    *   [Authentication framework]
+    *   [Firmware Update]
+    *   [TF Reset Design]
+    *   [Power Domain Topology Design]
+
+*   Applied the new image terminology to the code base and documentation, as
+    described on the [TF wiki on GitHub][TF Image Terminology].
+
+*   The build system has been reworked to improve readability and facilitate
+    adding future extensions.
+
+*   On ARM standard platforms, BL31 uses the boot console during cold boot
+    but switches to the runtime console for any later logs at runtime. The TSP
+    uses the runtime console for all output.
+
+*   Implemented a basic NOR flash driver for ARM platforms. It programs the
+    device using CFI (Common Flash Interface) standard commands.
+
+*   Implemented support for booting EL3 payloads on ARM platforms, which
+    reduces the complexity of developing EL3 baremetal code by doing essential
+    baremetal initialization.
+
+*   Provided separate drivers for GICv3 and GICv2. These expect the entire
+    software stack to use either GICv2 or GICv3; hybrid GIC software systems
+    are no longer supported and the legacy ARM GIC driver has been deprecated.
+
+*   Added support for Juno r1 and r2. A single set of Juno TF binaries can run
+    on Juno r0, r1 and r2 boards. Note that this TF version depends on a Linaro
+    release that does *not* contain Juno r2 support.
+
+*   Added support for MediaTek mt8173 platform.
+
+*   Implemented a generic driver for ARM CCN IP.
+
+*   Major rework of the PSCI implementation.
+
+    *   Added framework to handle composite power states.
+
+    *   Decoupled the notions of affinity instances (which describes the
+        hierarchical arrangement of cores) and of power domain topology, instead
+        of assuming a one-to-one mapping.
+
+    *   Better alignment with version 1.0 of the PSCI specification.
+
+*   Added support for the SYSTEM_SUSPEND PSCI API on ARM platforms. When invoked
+    on the last running core on a supported platform, this puts the system
+    into a low power mode with memory retention.
+
+*   Unified the reset handling code as much as possible across BL stages.
+    Also introduced some build options to enable optimization of the reset path
+    on platforms that support it.
+
+*   Added a simple delay timer API, as well as an SP804 timer driver, which is
+    enabled on FVP.
+
+*   Added support for NVidia Tegra T210 and T132 SoCs.
+
+*   Reorganised ARM platforms ports to greatly improve code shareability and
+    facilitate the reuse of some of this code by other platforms.
+
+*   Added support for ARM Cortex-A72 processor in the CPU specific framework.
+
+*   Provided better error handling. Platform ports can now define their own
+    error handling, for example to perform platform specific bookkeeping or
+    post-error actions.
+
+*   Implemented a unified driver for ARM Cache Coherent Interconnects used for
+    both CCI-400 & CCI-500 IPs. ARM platforms ports have been migrated to this
+    common driver. The standalone CCI-400 driver has been deprecated.
+
+
+Issues resolved since last release
+----------------------------------
+
+*   The Trusted Board Boot implementation has been redesigned to provide greater
+    modularity and scalability. See the [Authentication Framework] document.
+    All missing mandatory features are now implemented.
+
+*   The FVP and Juno ports may now use the hash of the ROTPK stored in the
+    Trusted Key Storage registers to verify the ROTPK. Alternatively, a
+    development public key hash embedded in the BL1 and BL2 binaries might be
+    used instead. The location of the ROTPK is chosen at build-time using the
+    `ARM_ROTPK_LOCATION` build option.
+
+*   GICv3 is now fully supported and stable.
+
+
+Known issues
+------------
+
+*   The version of the AEMv8 Base FVP used in this release resets the model
+    instead of terminating its execution in response to a shutdown request using
+    the PSCI `SYSTEM_OFF` API. This issue will be fixed in a future version of
+    the model.
+
+*   While this version has low on-chip RAM requirements, there are further
+    RAM usage enhancements that could be made.
+
+*   The upstream documentation could be improved for structural consistency,
+    clarity and completeness. In particular, the design documentation is
+    incomplete for PSCI, the TSP(D) and the Juno platform.
+
+*   Building TF with compiler optimisations disabled (`-O0`) fails.
+
+
 ARM Trusted Firmware - version 1.1
 ==================================
 
@@ -707,4 +862,9 @@ releases of the ARM Trusted Firmware.
 
 _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
-[OP-TEE Dispatcher]:       ./optee-dispatcher.md
+[OP-TEE Dispatcher]:                  optee-dispatcher.md
+[Power Domain Topology Design]:       psci-pd-tree.md
+[TF Image Terminology]:               https://github.com/ARM-software/arm-trusted-firmware/wiki/Trusted-Firmware-Image-Terminology
+[Authentication Framework]:           auth-framework.md
+[Firmware Update]:                    firmware-update.md
+[TF Reset Design]:                    reset-design.md
