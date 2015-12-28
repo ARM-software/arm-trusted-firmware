@@ -47,7 +47,6 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 COMMON_DIR		:=	plat/nvidia/tegra/common
 
 BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
-				drivers/arm/gic/gic_v3.c			\
 				drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/ti/uart/aarch64/16550_console.S		\

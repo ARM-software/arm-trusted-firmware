@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <xlat_tables.h>
+#include <arch_helpers.h>
+#include <bl_common.h>
 #include <tegra_def.h>
+#include <tegra_private.h>
+#include <xlat_tables.h>
 
 /*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
@@ -105,4 +108,12 @@ uint32_t plat_get_console_from_id(int id)
 		return 0;
 
 	return tegra132_uart_addresses[id];
+}
+
+/*******************************************************************************
+ * Initialize the GIC and SGIs
+ ******************************************************************************/
+void plat_gic_setup(void)
+{
+	tegra_gic_setup(NULL, 0);
 }

@@ -185,6 +185,9 @@ void bl31_platform_setup(void)
 {
 	uint32_t tmp_reg;
 
+	/* Initialize the gic cpu and distributor interfaces */
+	plat_gic_setup();
+
 	/*
 	 * Initialize delay timer
 	 */
@@ -215,9 +218,6 @@ void bl31_platform_setup(void)
 	/* Set the next EL to be AArch64 */
 	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT;
 	write_scr(tmp_reg);
-
-	/* Initialize the gic cpu and distributor interfaces */
-	tegra_gic_setup();
 
 	INFO("BL3-1: Tegra platform setup complete\n");
 }

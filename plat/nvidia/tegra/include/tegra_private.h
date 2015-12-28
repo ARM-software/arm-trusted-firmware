@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,6 +42,9 @@
 #define TEGRA_DRAM_BASE		0x80000000
 #define TEGRA_DRAM_END		0x27FFFFFFF
 
+/*******************************************************************************
+ * Struct for parameters received from BL2
+ ******************************************************************************/
 typedef struct plat_params_from_bl2 {
 	/* TZ memory size */
 	uint64_t tzdram_size;
@@ -58,13 +61,14 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 /* Declarations for plat_setup.c */
 const mmap_region_t *plat_get_mmio_map(void);
 uint32_t plat_get_console_from_id(int id);
+void plat_gic_setup(void);
 
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);
 int plat_lock_cpu_vectors(void);
 
 /* Declarations for tegra_gic.c */
-void tegra_gic_setup(void);
+void tegra_gic_setup(const unsigned int *irq_sec_ptr, unsigned int num_irqs);
 void tegra_gic_cpuif_deactivate(void);
 
 /* Declarations for tegra_security.c */
