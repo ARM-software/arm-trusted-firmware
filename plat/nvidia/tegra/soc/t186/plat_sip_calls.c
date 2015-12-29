@@ -134,7 +134,6 @@ int plat_sip_handler(uint32_t smc_fid,
 		return 0;
 
 	default:
-		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 		break;
 	}
 

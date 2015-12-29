@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -64,6 +64,14 @@
 					 ACTLR_EL3_L2CTLR_BIT | \
 					 ACTLR_EL3_CPUECTLR_BIT | \
 					 ACTLR_EL3_CPUACTLR_BIT)
+
+/*******************************************************************************
+ * Secure IRQ definitions
+ ******************************************************************************/
+#define TEGRA186_TOP_WDT_IRQ		49
+#define TEGRA186_AON_WDT_IRQ		50
+
+#define TEGRA186_SEC_IRQ_TARGET_MASK	0xF3 /* 4 A57 - 2 Denver */
 
 /*******************************************************************************
  * Tegra Miscellanous register constants

@@ -28,8 +28,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <console.h>
+#include <context.h>
+#include <context_mgmt.h>
+#include <debug.h>
+#include <denver.h>
+#include <interrupt_mgmt.h>
+#include <platform.h>
 #include <tegra_def.h>
+#include <tegra_private.h>
 #include <xlat_tables.h>
 
 /*******************************************************************************
@@ -119,4 +129,34 @@ uint32_t plat_get_console_from_id(int id)
 		return 0;
 
 	return tegra186_uart_addresses[id];
+}
+
+/* Secure IRQs for Tegra186 */
+static const irq_sec_cfg_t tegra186_sec_irqs[] = {
+	{
+		TEGRA186_TOP_WDT_IRQ,
+		TEGRA186_SEC_IRQ_TARGET_MASK,
+		INTR_TYPE_EL3,
+	},
+	{
+		TEGRA186_AON_WDT_IRQ,
+		TEGRA186_SEC_IRQ_TARGET_MASK,
+		INTR_TYPE_EL3,
+	},
+};
+
+/*******************************************************************************
+ * Initialize the GIC and SGIs
+ ******************************************************************************/
+void plat_gic_setup(void)
+{
+	tegra_gic_setup(tegra186_sec_irqs,
+		sizeof(tegra186_sec_irqs) / sizeof(tegra186_sec_irqs[0]));
+
+	/*
+	 * Initialize the FIQ handler only if the platform supports any
+	 * FIQ interrupt sources.
+	 */
+	if (sizeof(tegra186_sec_irqs) > 0)
+		tegra_fiq_handler_setup();
 }
