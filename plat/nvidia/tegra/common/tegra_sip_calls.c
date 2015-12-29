@@ -42,6 +42,8 @@
  * Common Tegra SiP SMCs
  ******************************************************************************/
 #define TEGRA_SIP_NEW_VIDEOMEM_REGION		0x82000003
+#define TEGRA_SIP_FIQ_NS_ENTRYPOINT		0x82000005
+#define TEGRA_SIP_FIQ_NS_GET_CONTEXT		0x82000006
 
 /*******************************************************************************
  * SoC specific SiP handler
@@ -106,6 +108,41 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 		tegra_memctrl_videomem_setup(x1, x2);
 
 		SMC_RET1(handle, 0);
+		break;
+
+	/*
+	 * The NS world registers the address of its handler to be
+	 * used for processing the FIQ. This is normally used by the
+	 * NS FIQ debugger driver to detect system hangs by programming
+	 * a watchdog timer to fire a FIQ interrupt.
+	 */
+	case TEGRA_SIP_FIQ_NS_ENTRYPOINT:
+
+		if (!x1)
+			SMC_RET1(handle, SMC_UNK);
+
+		/*
+		 * TODO: Check if x1 contains a valid DRAM address
+		 */
+
+		/* store the NS world's entrypoint */
+		tegra_fiq_set_ns_entrypoint(x1);
+
+		SMC_RET1(handle, 0);
+		break;
+
+	/*
+	 * The NS world's FIQ handler issues this SMC to get the NS EL1/EL0
+	 * CPU context when the FIQ interrupt was triggered. This allows the
+	 * NS world to understand the CPU state when the watchdog interrupt
+	 * triggered.
+	 */
+	case TEGRA_SIP_FIQ_NS_GET_CONTEXT:
+
+		/* retrieve context registers when FIQ triggered */
+		tegra_fiq_get_intr_context();
+
+		SMC_RET0(handle);
 		break;
 
 	default:

@@ -55,6 +55,7 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\
 				${COMMON_DIR}/tegra_bl31_setup.c		\
 				${COMMON_DIR}/tegra_delay_timer.c		\
+				${COMMON_DIR}/tegra_fiq_glue.c			\
 				${COMMON_DIR}/tegra_gic.c			\
 				${COMMON_DIR}/tegra_pm.c			\
 				${COMMON_DIR}/tegra_sip_calls.c			\

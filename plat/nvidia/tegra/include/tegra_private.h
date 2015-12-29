@@ -54,6 +54,14 @@ typedef struct plat_params_from_bl2 {
 	int uart_id;
 } plat_params_from_bl2_t;
 
+/*******************************************************************************
+ * Per-CPU struct describing FIQ state to be stored
+ ******************************************************************************/
+typedef struct pcpu_fiq_state {
+	uint64_t elr_el3;
+	uint64_t spsr_el3;
+} pcpu_fiq_state_t;
+
 /* Declarations for plat_psci_handlers.c */
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		psci_power_state_t *req_state);
@@ -66,6 +74,11 @@ void plat_gic_setup(void);
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);
 int plat_lock_cpu_vectors(void);
+
+/* Declarations for tegra_fiq_glue.c */
+void tegra_fiq_handler_setup(void);
+int tegra_fiq_get_intr_context(void);
+void tegra_fiq_set_ns_entrypoint(uint64_t entrypoint);
 
 /* Declarations for tegra_gic.c */
 void tegra_gic_setup(const unsigned int *irq_sec_ptr, unsigned int num_irqs);
