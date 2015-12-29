@@ -31,6 +31,7 @@
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 
+#include <common_def.h>
 #include <psci.h>
 #include <stdint.h>
 #include <types.h>
