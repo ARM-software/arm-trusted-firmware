@@ -187,7 +187,7 @@ uint32_t wait_mtcmos_ack(uint32_t on, uint32_t mtcmos_sta, uint32_t spm_pwr_sta)
 			mmio_write_32(SPM_PCM_RESERVE2, 0);
 			return MTCMOS_CTRL_SUCCESS;
 		}
-		udelay(100);
+		udelay(10);
 		i++;
 		if (i > 10000) {
 			INFO("MTCMOS control failed(%d), SPM_PWR_STA(%d),\n"
