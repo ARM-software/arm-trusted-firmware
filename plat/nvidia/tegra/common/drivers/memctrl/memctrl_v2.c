@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -281,6 +281,49 @@ void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 * CCPLEX.
 	 */
 	mce_update_gsc_tzdram();
+}
+
+/*
+ * Secure the BL31 TZRAM aperture.
+ *
+ * phys_base = physical base of TZRAM aperture
+ * size_in_bytes = size of aperture in bytes
+ */
+void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
+{
+	uint64_t tzram_end = phys_base + size_in_bytes - 1;
+	uint32_t val;
+
+	/*
+	 * Check if the TZRAM is locked already.
+	 */
+	if (tegra_mc_read_32(MC_TZRAM_REG_CTRL) == DISABLE_TZRAM_ACCESS)
+		return;
+
+	/*
+	 * Setup the Memory controller to allow only secure accesses to
+	 * the TZRAM carveout
+	 */
+	INFO("Configuring TrustZone RAM (SysRAM) Memory Carveout\n");
+
+	/* Program the base and end values */
+	tegra_mc_write_32(MC_TZRAM_BASE, (uint32_t)phys_base);
+	tegra_mc_write_32(MC_TZRAM_END, (uint32_t)tzram_end);
+
+	/* Extract the high address bits from the base/end values */
+	val = (uint32_t)(phys_base >> 32) & TZRAM_ADDR_HI_BITS_MASK;
+	val |= (((uint32_t)(tzram_end >> 32) << TZRAM_END_HI_BITS_SHIFT) &
+		TZRAM_ADDR_HI_BITS_MASK);
+	tegra_mc_write_32(MC_TZRAM_HI_ADDR_BITS, val);
+
+	/* Disable further writes to the TZRAM setup registers */
+	tegra_mc_write_32(MC_TZRAM_REG_CTRL, DISABLE_TZRAM_ACCESS);
+
+	/*
+	 * MCE propogates the security configuration values across the
+	 * CCPLEX.
+	 */
+	mce_update_gsc_tzram();
 }
 
 /*

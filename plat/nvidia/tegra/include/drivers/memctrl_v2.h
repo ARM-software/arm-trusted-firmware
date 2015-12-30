@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -263,6 +263,17 @@ typedef struct mc_streamid_security_cfg {
 #define MC_VIDEO_PROTECT_BASE_HI		0x978
 #define MC_VIDEO_PROTECT_BASE_LO		0x648
 #define MC_VIDEO_PROTECT_SIZE_MB		0x64c
+
+/*******************************************************************************
+ * TZRAM carveout configuration registers
+ ******************************************************************************/
+#define MC_TZRAM_BASE				0x1850
+#define MC_TZRAM_END				0x1854
+#define MC_TZRAM_HI_ADDR_BITS			0x1588
+ #define TZRAM_ADDR_HI_BITS_MASK		0x3
+ #define TZRAM_END_HI_BITS_SHIFT		8
+#define MC_TZRAM_REG_CTRL			0x185c
+ #define DISABLE_TZRAM_ACCESS			1
 
 static inline uint32_t tegra_mc_read_32(uint32_t off)
 {
