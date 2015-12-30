@@ -107,6 +107,20 @@ void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	tegra_mc_write_32(MC_SECURITY_CFG1_0, size_in_bytes >> 20);
 }
 
+/*
+ * Secure the BL31 TZRAM aperture.
+ *
+ * phys_base = physical base of TZRAM aperture
+ * size_in_bytes = size of aperture in bytes
+ */
+void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
+{
+	/*
+	 * The v1 hardware controller does not have any registers
+	 * for setting up the on-chip TZRAM.
+	 */
+}
+
 static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 				 unsigned long long non_overlap_area_size)
 {

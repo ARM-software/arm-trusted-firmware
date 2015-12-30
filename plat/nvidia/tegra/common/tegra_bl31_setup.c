@@ -44,6 +44,7 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <stddef.h>
+#include <tegra_def.h>
 #include <tegra_private.h>
 
 /*******************************************************************************
@@ -182,6 +183,12 @@ void bl31_platform_setup(void)
 	 */
 	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
 			plat_bl31_params_from_bl2.tzdram_size);
+
+	/*
+	 * Set up the TZRAM memory aperture to allow only secure world
+	 * access
+	 */
+	tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
 
 	/* Set the next EL to be AArch64 */
 	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT;

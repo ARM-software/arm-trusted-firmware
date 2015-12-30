@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -88,5 +88,11 @@
  * Tegra Memory Controller constants
  ******************************************************************************/
 #define TEGRA_MC_BASE			0x70019000
+
+/*******************************************************************************
+ * Tegra TZRAM constants
+ ******************************************************************************/
+#define TEGRA_TZRAM_BASE		0x7C010000
+#define TEGRA_TZRAM_SIZE		0x10000
 
 #endif /* __TEGRA_DEF_H__ */
