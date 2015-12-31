@@ -79,6 +79,7 @@ func console_uninit
 	mov	x0, #0
 	adrp	x3, console_base
 	str	x0, [x3, :lo12:console_base]
+	ret
 endfunc console_uninit
 
 	/* ---------------------------------------------
