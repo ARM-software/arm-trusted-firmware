@@ -65,7 +65,7 @@ int auth_mod_verify_img(unsigned int img_id,
 #define REGISTER_COT(_cot) \
 	const auth_img_desc_t *const cot_desc_ptr = \
 			(const auth_img_desc_t *const)&_cot[0]; \
-	unsigned int auth_img_flags[sizeof(_cot)/sizeof(_cot[0])];
+	unsigned int auth_img_flags[sizeof(_cot)/sizeof(_cot[0])]
 
 #endif /* TRUSTED_BOARD_BOOT */
 

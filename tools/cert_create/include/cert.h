@@ -76,7 +76,7 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk);
 /* Macro to register the certificates used in the CoT */
 #define REGISTER_COT(_certs) \
 	cert_t *certs = &_certs[0]; \
-	const unsigned int num_certs = sizeof(_certs)/sizeof(_certs[0]);
+	const unsigned int num_certs = sizeof(_certs)/sizeof(_certs[0])
 
 /* Exported variables */
 extern cert_t *certs;
