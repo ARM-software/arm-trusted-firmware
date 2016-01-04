@@ -147,7 +147,7 @@ typedef enum rn_types {
 #define MN_HNI_NODEID_OFFSET	0x01C0
 #define MN_SN_NODEID_OFFSET	0x01D0
 #define MN_DDC_STAT_OFFSET	DOMAIN_CTRL_STAT_OFFSET
-#define MN_DDC_SET_OFF		DOMAIN_CTRL_SET_OFFSET
+#define MN_DDC_SET_OFFSET	DOMAIN_CTRL_SET_OFFSET
 #define MN_DDC_CLR_OFFSET	DOMAIN_CTRL_CLR_OFFSET
 #define MN_ID_OFFSET		REGION_ID_OFFSET
 
@@ -236,4 +236,21 @@ static inline unsigned int count_set_bits(uint64_t bitmap)
  */
 #define FOR_EACH_PRESENT_MASTER_INTERFACE(iface_id, bit_map)	\
 			FOR_EACH_BIT(iface_id, bit_map)
+
+/*
+ * Macro that returns the node id bit map for the Miscellaneous Node
+ */
+#define CCN_GET_MN_NODEID_MAP(periphbase)				\
+	(1 << get_node_id(ccn_reg_read(periphbase, MN_REGION_ID,	\
+						REGION_ID_OFFSET)))
+
+/*
+ * This macro returns the bitmap of Home nodes on the basis of the
+ * 'mn_hn_id_reg_offset' parameter from the Miscellaneous node's (MN)
+ * programmer's view. The MN has a register which carries the bitmap of present
+ * Home nodes of each type i.e. HN-Fs, HN-Is & HN-Ds.
+ */
+#define CCN_GET_HN_NODEID_MAP(periphbase, mn_hn_id_reg_offset)		\
+	ccn_reg_read(periphbase, MN_REGION_ID, mn_hn_id_reg_offset)
+
 #endif /* __CCN_PRIVATE_H__ */
