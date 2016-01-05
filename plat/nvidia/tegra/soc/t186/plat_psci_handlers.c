@@ -30,6 +30,10 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
+#include <context.h>
+#include <context_mgmt.h>
 #include <debug.h>
 #include <mce.h>
 #include <psci.h>
@@ -88,11 +92,22 @@ int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
 
 int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 {
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
+
+	assert(ctx);
+	assert(gp_regs);
+
 	/* Turn off wake_mask */
-	mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, 0, 0, 1);
+	write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
+	write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
+	write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+	mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, TEGRA_ARI_CLUSTER_CC7,
+		0, TEGRA_ARI_SYSTEM_SC7);
 
 	/* Turn off CPU */
-	return mce_command_handler(MCE_CMD_ENTER_CSTATE, ~0, 0, 0);
+	return mce_command_handler(MCE_CMD_ENTER_CSTATE, TEGRA_ARI_CORE_C7,
+			~0, 0);
 }
 
 __dead2 void tegra_soc_prepare_system_off(void)
