@@ -52,7 +52,7 @@ BL31_SOURCES		+=	plat/arm/css/common/css_mhu.c			\
 				plat/arm/css/common/css_topology.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
-$(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp_bl2u))
+$(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp-fwu-cfg))
 endif
 
 ifneq (${RESET_TO_BL31},0)
@@ -61,7 +61,7 @@ ifneq (${RESET_TO_BL31},0)
 endif
 
 # Subsystems require a SCP_BL2 image
-$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp_bl2))
+$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
 
 # Enable option to detect whether the SCP ROM firmware in use predates version
 # 1.7.0 and therefore, is incompatible.

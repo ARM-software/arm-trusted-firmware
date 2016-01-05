@@ -457,34 +457,34 @@ $(eval $(call MAKE_BL,1))
 endif
 
 ifeq (${NEED_BL2},yes)
-$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},in_fip)),\
-	$(eval $(call MAKE_BL,2,in_fip)))
+$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},tb-fw)),\
+	$(eval $(call MAKE_BL,2,tb-fw)))
 endif
 
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
-$(if ${BL31}, $(eval $(call MAKE_TOOL_ARGS,31,${BL31},in_fip)),\
-	$(eval $(call MAKE_BL,31,in_fip)))
+$(if ${BL31}, $(eval $(call MAKE_TOOL_ARGS,31,${BL31},soc-fw)),\
+	$(eval $(call MAKE_BL,31,soc-fw)))
 endif
 
 # If a BL32 image is needed but neither BL32 nor BL32_SOURCES is defined, the
 # build system will call FIP_ADD_IMG to print a warning message and abort the
 # process. Note that the dependency on BL32 applies to the FIP only.
 ifeq (${NEED_BL32},yes)
-$(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},in_fip)),\
-	$(if ${BL32_SOURCES}, $(eval $(call MAKE_BL,32,in_fip)),\
-		$(eval $(call FIP_ADD_IMG,BL32,--bl32))))
+$(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},tos-fw)),\
+	$(if ${BL32_SOURCES}, $(eval $(call MAKE_BL,32,tos-fw)),\
+		$(eval $(call FIP_ADD_IMG,BL32,--tos-fw))))
 endif
 
 # Add the BL33 image if required by the platform
 ifeq (${NEED_BL33},yes)
-$(eval $(call FIP_ADD_IMG,BL33,--bl33))
+$(eval $(call FIP_ADD_IMG,BL33,--nt-fw))
 endif
 
 ifeq (${NEED_BL2U},yes)
 BL2U_PATH	:= $(if ${BL2U},${BL2U},$(call IMG_BIN,2u))
 $(if ${BL2U}, ,$(eval $(call MAKE_BL,2u)))
-$(eval $(call FWU_FIP_ADD_PAYLOAD,${BL2U_PATH},--bl2u))
+$(eval $(call FWU_FIP_ADD_PAYLOAD,${BL2U_PATH},--ap-fwu-cfg))
 endif
 
 locate-checkpatch:
