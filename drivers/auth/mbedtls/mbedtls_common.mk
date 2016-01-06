@@ -55,6 +55,5 @@ MBEDTLS_COMMON_SOURCES	:=	drivers/auth/mbedtls/mbedtls_common.c	\
 
 BL1_SOURCES		+=	${MBEDTLS_COMMON_SOURCES}
 BL2_SOURCES		+=	${MBEDTLS_COMMON_SOURCES}
-DISABLE_PEDANTIC	:=	1
 
 endif

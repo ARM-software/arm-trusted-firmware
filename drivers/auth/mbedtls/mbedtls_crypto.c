@@ -174,7 +174,7 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 
 	/* Digest info should be an MBEDTLS_ASN1_SEQUENCE */
 	p = (unsigned char *)digest_info_ptr;
-	end = (unsigned char *)(digest_info_ptr + digest_info_len);
+	end = p + digest_info_len;
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				  MBEDTLS_ASN1_SEQUENCE);
 	if (rc != 0) {

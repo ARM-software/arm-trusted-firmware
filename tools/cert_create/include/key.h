@@ -79,7 +79,7 @@ int key_store(key_t *key);
 /* Macro to register the keys used in the CoT */
 #define REGISTER_KEYS(_keys) \
 	key_t *keys = &_keys[0]; \
-	const unsigned int num_keys = sizeof(_keys)/sizeof(_keys[0]);
+	const unsigned int num_keys = sizeof(_keys)/sizeof(_keys[0])
 
 /* Exported variables */
 extern key_t *keys;

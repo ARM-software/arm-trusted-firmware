@@ -92,7 +92,7 @@ X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k);
 /* Macro to register the extensions used in the CoT */
 #define REGISTER_EXTENSIONS(_ext) \
 	ext_t *extensions = &_ext[0]; \
-	const unsigned int num_extensions = sizeof(_ext)/sizeof(_ext[0]);
+	const unsigned int num_extensions = sizeof(_ext)/sizeof(_ext[0])
 
 /* Exported variables */
 extern ext_t *extensions;
