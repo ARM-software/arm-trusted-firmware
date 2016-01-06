@@ -495,7 +495,7 @@ Create a Firmware package that contains existing BL2 and BL31 images:
     # fip_create --help to print usage information
     # fip_create <fip_name> <images to add> [--dump to show result]
     ./tools/fip_create/fip_create fip.bin --dump \
-       --bl2 build/<platform>/debug/bl2.bin --bl31 build/<platform>/debug/bl31.bin
+       --tb-fw build/<platform>/debug/bl2.bin --soc-fw build/<platform>/debug/bl31.bin
 
      Firmware Image Package ToC:
     ---------------------------
@@ -520,7 +520,7 @@ Existing package entries can be individually updated:
 
     # Change the BL2 from Debug to Release version
     ./tools/fip_create/fip_create fip.bin --dump \
-      --bl2 build/<platform>/release/bl2.bin
+      --tb-fw build/<platform>/release/bl2.bin
 
     Firmware Image Package ToC:
     ---------------------------

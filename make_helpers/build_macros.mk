@@ -126,7 +126,7 @@ endef
 # FWU_FIP_ADD_PAYLOAD appends the command line arguments required by the FIP tool
 # to package a new FWU payload. Optionally, it  adds the dependency on this payload
 #   $(1) = payload filename (e.g. ns_bl2u.bin)
-#   $(2) = command line option for the specified payload (e.g. --ns_bl2u)
+#   $(2) = command line option for the specified payload (e.g. --fwu)
 #   $(3) = fip target dependency (optional) (e.g. ns_bl2u)
 define FWU_FIP_ADD_PAYLOAD
     $(eval $(if $(3),FWU_FIP_DEPS += $(3)))
@@ -285,16 +285,16 @@ endef
 # each BL image. Arguments:
 #   $(1) = BL stage (2, 30, 31, 32, 33)
 #   $(2) = Binary file
-#   $(3) = In FIP (false if empty)
+#   $(3) = FIP command line option (if empty, image will not be included in the FIP)
 define MAKE_TOOL_ARGS
-        $(if $(3),$(eval $(call FIP_ADD_PAYLOAD,$(2),--bl$(1),bl$(1))))
+        $(if $(3),$(eval $(call FIP_ADD_PAYLOAD,$(2),--$(3),bl$(1))))
 endef
 
 
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
 #   $(1) = BL stage (2, 2u, 30, 31, 32, 33)
-#   $(2) = In FIP (false if empty)
+#   $(2) = FIP command line option (if empty, image will not be included in the FIP)
 define MAKE_BL
         $(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
         $(eval BL_SOURCES := $(BL$(call uppercase,$(1))_SOURCES))
