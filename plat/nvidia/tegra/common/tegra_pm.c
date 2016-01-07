@@ -55,6 +55,7 @@ extern uint64_t tegra_sec_entry_point;
 #pragma weak tegra_soc_pwr_domain_off
 #pragma weak tegra_soc_pwr_domain_on_finish
 #pragma weak tegra_soc_prepare_system_reset
+#pragma weak tegra_soc_prepare_system_off
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
@@ -79,6 +80,12 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 int tegra_soc_prepare_system_reset(void)
 {
 	return PSCI_E_SUCCESS;
+}
+
+__dead2 void tegra_soc_prepare_system_off(void)
+{
+	ERROR("Tegra System Off: operation not handled.\n");
+	panic();
 }
 
 /*******************************************************************************
@@ -199,8 +206,9 @@ void tegra_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 __dead2 void tegra_system_off(void)
 {
-	ERROR("Tegra System Off: operation not handled.\n");
-	panic();
+	INFO("Powering down system...\n");
+
+	tegra_soc_prepare_system_off();
 }
 
 /*******************************************************************************
@@ -208,6 +216,8 @@ __dead2 void tegra_system_off(void)
  ******************************************************************************/
 __dead2 void tegra_system_reset(void)
 {
+	INFO("Restarting system...\n");
+
 	/* per-SoC system reset handler */
 	tegra_soc_prepare_system_reset();
 
