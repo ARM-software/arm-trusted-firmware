@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -64,6 +64,7 @@ PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/aarch64/fvp_common.c
 
 BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/cpus/aarch64/aem_generic.S			\
+				lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/semihosting/semihosting.c			\
@@ -87,6 +88,7 @@ BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				plat/arm/board/fvp/fvp_security.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
+				lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
