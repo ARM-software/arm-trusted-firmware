@@ -413,6 +413,22 @@ constant must also be defined:
     used, choose the smallest value needed to map the required virtual addresses
     for each BL stage.
 
+*   **#define : MAX_MMAP_REGIONS**
+
+    Defines the maximum number of regions that are allocated by the translation
+    table library code. A region consists of physical base address, virtual base
+    address, size and attributes (Device/Memory, RO/RW, Secure/Non-Secure), as
+    defined in the `mmap_region_t` structure. The platform defines the regions
+    that should be mapped. Then, the translation table library will create the
+    corresponding tables and descriptors at runtime. To minimize the amount of
+    runtime memory used, choose the smallest value needed to register the
+    required regions for each BL stage.
+
+*   **#define : ADDR_SPACE_SIZE**
+
+    Defines the total size of the address space in bytes. For example, for a 32
+    bit address space, this value should be `(1ull << 32)`.
+
 If the platform port uses the IO storage framework, the following constants
 must also be defined:
 
