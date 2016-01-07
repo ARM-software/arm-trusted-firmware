@@ -114,3 +114,10 @@ __dead2 void tegra_soc_prepare_system_off(void)
 {
 	mce_enter_ccplex_state(TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF);
 }
+
+int tegra_soc_prepare_system_reset(void)
+{
+	mce_enter_ccplex_state(TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_REBOOT);
+
+	return PSCI_E_SUCCESS;
+}
