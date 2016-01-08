@@ -8,7 +8,7 @@ Contents :
 3.  [EL3 runtime services framework](#3--el3-runtime-services-framework)
 4.  [Power State Coordination Interface](#4--power-state-coordination-interface)
 5.  [Secure-EL1 Payloads and Dispatchers](#5--secure-el1-payloads-and-dispatchers)
-6.  [Crash Reporting in BL31](#6--crash-reporting-in-bl3-1)
+6.  [Crash Reporting in BL31](#6--crash-reporting-in-bl31)
 7.  [Guidelines for Reset Handlers](#7--guidelines-for-reset-handlers)
 8.  [CPU specific operations framework](#8--cpu-specific-operations-framework)
 9.  [Memory layout of BL images](#9-memory-layout-of-bl-images)
@@ -1454,8 +1454,8 @@ The ARM development platforms' policy is to only allow loading of a known set of
 images. The platform policy can be modified to allow additional images.
 
 
-11. Use of coherent memory in Trusted Firmware
-----------------------------------------------
+11.  Use of coherent memory in Trusted Firmware
+-----------------------------------------------
 
 There might be loss of coherency when physical memory with mismatched
 shareability, cacheability and memory attributes is accessed by multiple CPUs

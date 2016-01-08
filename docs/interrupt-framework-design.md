@@ -10,7 +10,7 @@ Contents :
         -   [Valid Routing Models](#113-valid-routing-models)
             +   [Secure-EL1 Interrupts](#1131-secure-el1-interrupts)
             +   [Non-secure Interrupts](#1132-non-secure-interrupts)
-            +   [EL3 interrupts](#1133-el3_interrupts)
+            +   [EL3 interrupts](#1133-el3-interrupts)
         -   [Mapping of Interrupt Type to Signal](#114-mapping-of-interrupt-type-to-signal)
             +   [Effect of mapping of several interrupt types to one signal](#1141-effect-of-mapping-of-several-interrupt-types-to-one-signal)
         -   [Assumptions in Interrupt Management Framework](#12-assumptions-in-interrupt-management-framework)

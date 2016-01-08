@@ -3,11 +3,11 @@ ARM Trusted Firmware - Firmware Update Design Guide
 
 Contents :
 
-1.  [Introduction](#1-introduction)
-2.  [FWU Overview](#2-fwu-overview)
-3.  [Image Identification](#3-image-identification)
-4.  [FWU State Machine](#4-fwu-state-machine)
-5.  [SMC Interface](#5-smc-interface)
+1.  [Introduction](#1--introduction)
+2.  [FWU Overview](#2--fwu-overview)
+3.  [Image Identification](#3--image-identification)
+4.  [FWU State Machine](#4--fwu-state-machine)
+5.  [BL1 SMC Interface](#5--bl1-smc-interface)
 
 - - - - - - - - - - - - - - - - - -
 
@@ -35,8 +35,8 @@ FWU images, please refer to the "Non-Trusted Firmware Updater" requirements in
 the TBBR.
 
 
-2. FWU Overview
----------------
+2.  FWU Overview
+----------------
 
 The FWU boot flow is primarily mediated by BL1. Since BL1 executes in ROM, and
 it is usually desirable to minimize the amount of ROM code, the design allows
@@ -73,8 +73,8 @@ use all defined FWU images. Other platforms may use a subset of these.
 ![Flow Diagram](diagrams/fwu_flow.png?raw=true)
 
 
-3. Image Identification
------------------------
+3.  Image Identification
+------------------------
 
 Each FWU image and certificate is identified by a unique ID, defined by the
 platform, which BL1 uses to fetch an image descriptor (`image_desc_t`) via a
@@ -135,7 +135,7 @@ The following is a brief description of the supported states:
 
 
 5.  BL1 SMC Interface
------------------
+---------------------
 
 ### BL1_SMC_CALL_COUNT
 
