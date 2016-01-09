@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@
  * This value is used by the PSCI implementation during the `SYSTEM_SUSPEND`
  * call as the `state-id` field in the 'power state' parameter.
  ******************************************************************************/
-#define PLAT_SYS_SUSPEND_STATE_ID	0
+#define PSTATE_ID_SOC_POWERDN		1
 
 /*******************************************************************************
  * Implementation defined ACTLR_EL3 bit definitions

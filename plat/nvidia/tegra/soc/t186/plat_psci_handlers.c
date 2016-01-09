@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,22 +40,28 @@
 #include <t18x_ari.h>
 #include <tegra_private.h>
 
-int32_t tegra_soc_validate_power_state(unsigned int power_state)
+int32_t tegra_soc_validate_power_state(unsigned int power_state,
+					psci_power_state_t *req_state)
 {
+	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+
 	/* Sanity check the requested afflvl */
 	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
 		/*
 		 * It's possible to enter standby only on affinity level 0 i.e.
 		 * a cpu on Tegra. Ignore any other affinity level.
 		 */
-		if (psci_get_pstate_afflvl(power_state) != MPIDR_AFFLVL0)
+		if (pwr_lvl != MPIDR_AFFLVL0)
 			return PSCI_E_INVALID_PARAMS;
+
+		/* power domain in standby state */
+		req_state->pwr_domain_state[pwr_lvl] = PLAT_MAX_RET_STATE;
 	}
 
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_on(unsigned long mpidr)
+int tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
 	int target_cpu = mpidr & MPIDR_CPU_MASK;
 	int target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
@@ -74,23 +80,7 @@ int tegra_soc_prepare_cpu_on(unsigned long mpidr)
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_cpu_on_finish(unsigned long mpidr)
-{
-	/*
-	 * Check if we are exiting from SOC_POWERDN.
-	 */
-	if (tegra_system_suspended()) {
-
-		/*
-		 * System resume complete.
-		 */
-		tegra_pm_system_suspend_exit();
-	}
-
-	return PSCI_E_SUCCESS;
-}
-
-int tegra_soc_prepare_cpu_off(unsigned long mpidr)
+int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);

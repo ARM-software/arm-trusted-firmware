@@ -32,6 +32,23 @@
 #include <tegra_def.h>
 #include <xlat_tables.h>
 
+/*******************************************************************************
+ * The Tegra power domain tree has a single system level power domain i.e. a
+ * single root node. The first entry in the power domain descriptor specifies
+ * the number of power domains at the highest power level.
+ *******************************************************************************
+ */
+const unsigned char tegra_power_domain_tree_desc[] = {
+	/* No of root nodes */
+	1,
+	/* No of clusters */
+	PLATFORM_CLUSTER_COUNT,
+	/* No of CPU cores - cluster0 */
+	PLATFORM_MAX_CPUS_PER_CLUSTER,
+	/* No of CPU cores - cluster1 */
+	PLATFORM_MAX_CPUS_PER_CLUSTER
+};
+
 /*
  * Table of regions to map using the MMU.
  */
