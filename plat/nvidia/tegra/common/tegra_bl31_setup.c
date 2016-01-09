@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -191,6 +191,16 @@ void bl31_platform_setup(void)
 	tegra_gic_setup();
 
 	INFO("BL3-1: Tegra platform setup complete\n");
+}
+
+/*******************************************************************************
+ * Perform any BL3-1 platform runtime setup prior to BL3-1 cold boot exit
+ ******************************************************************************/
+void bl31_plat_runtime_setup(void)
+{
+	/* Initialize the runtime console */
+	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+		TEGRA_CONSOLE_BAUDRATE);
 }
 
 /*******************************************************************************
