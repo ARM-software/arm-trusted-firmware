@@ -1970,8 +1970,8 @@ amount of open resources per driver.
 _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 
 
-[ARM GIC Architecture Specification 2.0]: http://arminfo.emea.arm.com/help/topic/com.arm.doc.ihi0048b/IHI0048B_gic_architecture_specification.pdf
-[ARM GIC Architecture Specification 3.0]: http://arminfo.emea.arm.com/help/topic/com.arm.doc.ihi0069a/IHI0069A_gic_architecture_specification.pdf
+[ARM GIC Architecture Specification 2.0]: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
+[ARM GIC Architecture Specification 3.0]: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
 [IMF Design Guide]:                       interrupt-framework-design.md
 [User Guide]:                             user-guide.md
 [FreeBSD]:                                http://www.freebsd.org
