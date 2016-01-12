@@ -202,8 +202,9 @@ typedef struct param_header {
  * switching exception levels. The only two mechanisms to do so are
  * ERET & SMC. Security state is indicated using bit zero of header
  * attribute
- * NOTE: BL1 expects entrypoint followed by spsr while processing
- * SMC to jump to BL31 from the start of entry_point_info
+ * NOTE: BL1 expects entrypoint followed by spsr at an offset from the start
+ * of this structure defined by the macro `ENTRY_POINT_INFO_PC_OFFSET` while
+ * processing SMC to jump to BL31.
  *****************************************************************************/
 typedef struct entry_point_info {
 	param_header_t h;
@@ -232,13 +233,13 @@ typedef struct image_info {
 typedef struct image_desc {
 	/* Contains unique image id for the image. */
 	unsigned int image_id;
-	image_info_t image_info;
-	entry_point_info_t ep_info;
 	/*
 	 * This member contains Image state information.
 	 * Refer IMAGE_STATE_XXX defined above.
 	 */
 	unsigned int state;
+	image_info_t image_info;
+	entry_point_info_t ep_info;
 } image_desc_t;
 
 /*******************************************************************************
