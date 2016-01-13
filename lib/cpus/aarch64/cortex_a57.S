@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -153,6 +153,35 @@ skip_813420:
 	ret
 endfunc errata_a57_813420_wa
 
+	/* --------------------------------------------------------------------
+	 * Disable the over-read from the LDNP instruction.
+	 *
+	 * This applies to all revisions <= r1p2. The performance degradation
+	 * observed with LDNP/STNP has been fixed on r1p3 and onwards.
+	 *
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5, x30
+	 * ---------------------------------------------------------------------
+	 */
+func a57_disable_ldnp_overread
+	/*
+	 * Compare x0 against revision r1p2
+	 */
+	cmp	x0, #0x12
+	b.ls	disable_hint
+#if DEBUG
+	b	print_revision_warning
+#else
+	ret
+#endif
+disable_hint:
+	mrs	x1, CPUACTLR_EL1
+	orr	x1, x1, #CPUACTLR_DIS_OVERREAD
+	msr	CPUACTLR_EL1, x1
+	ret
+endfunc a57_disable_ldnp_overread
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
 	 * Clobbers: x0-x5, x15, x19, x30
@@ -179,6 +208,11 @@ func cortex_a57_reset_func
 #if ERRATA_A57_813420
 	mov	x0, x15
 	bl	errata_a57_813420_wa
+#endif
+
+#if A57_DISABLE_NON_TEMPORAL_HINT
+	mov	x0, x15
+	bl	a57_disable_ldnp_overread
 #endif
 
 	/* ---------------------------------------------

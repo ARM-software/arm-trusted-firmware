@@ -26,8 +26,8 @@ by ARM. The errata workarounds are implemented for a particular revision
 or a set of processor revisions. This is checked by reset handler at runtime.
 Each errata workaround is identified by its `ID` as specified in the processor's
 errata notice document. The format of the define used to enable/disable the
-errata is `ERRATA_<Processor name>_<ID>` where the `Processor name`
-is either `A57` for the `Cortex_A57` CPU or `A53` for `Cortex_A53` CPU.
+errata workaround is `ERRATA_<Processor name>_<ID>`, where the `Processor name`
+is for example `A57` for the `Cortex_A57` CPU.
 
 All workarounds are disabled by default. The platform is reponsible for
 enabling these workarounds according to its requirement by defining the
@@ -74,6 +74,19 @@ architecture that can be enabled by the platform as desired.
      sequence. Each Cortex-A57 based platform must make its own decision on
      whether to use the optimization.
 
+*    `A53_DISABLE_NON_TEMPORAL_HINT`: This flag disables the cache non-temporal
+     hint. The LDNP/STNP instructions as implemented on Cortex-A53 do not behave
+     in a way most programmers expect, and will most probably result in a
+     significant speed degradation to any code that employs them. The ARMv8-A
+     architecture (see ARM DDI 0487A.h, section D3.4.3) allows cores to ignore
+     the non-temporal hint and treat LDNP/STNP as LDP/STP instead. Enabling this
+     flag enforces this behaviour. This needs to be enabled only for revisions
+     <= r0p3 of the CPU and is enabled by default.
+
+*    `A57_DISABLE_NON_TEMPORAL_HINT`: This flag has the same behaviour as
+     `A53_DISABLE_NON_TEMPORAL_HINT` but for Cortex-A57. This needs to be
+     enabled only for revisions <= r1p2 of the CPU and is enabled by default.
+
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved._
