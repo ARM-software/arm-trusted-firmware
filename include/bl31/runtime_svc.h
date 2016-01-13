@@ -89,12 +89,12 @@ typedef struct rt_svc_desc {
 #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch) \
 	static const rt_svc_desc_t __svc_desc_ ## _name \
 		__attribute__ ((section("rt_svc_descs"), used)) = { \
-			_start, \
-			_end, \
-			_type, \
-			#_name, \
-			_setup, \
-			_smch }
+			.start_oen = _start, \
+			.end_oen = _end, \
+			.call_type = _type, \
+			.name = #_name, \
+			.init = _setup, \
+			.handle = _smch }
 
 /*
  * Compile time assertions related to the 'rt_svc_desc' structure to:
