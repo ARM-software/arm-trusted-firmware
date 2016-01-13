@@ -47,17 +47,12 @@
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
  * interrupts.
  *****************************************************************************/
-const unsigned int g0_interrupt_array[] = {
+static const unsigned int g0_interrupt_array[] = {
 	PLAT_ARM_G1S_IRQS,
 	PLAT_ARM_G0_IRQS
 };
 
-/*
- * Ideally `arm_gic_data` structure definition should be a `const` but it is
- * kept as modifiable for overwriting with different GICD and GICC base when
- * running on FVP with VE memory map.
- */
-gicv2_driver_data_t arm_gic_data = {
+static const gicv2_driver_data_t arm_gic_data = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicc_base = PLAT_ARM_GICC_BASE,
 	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
