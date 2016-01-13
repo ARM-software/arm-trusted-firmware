@@ -8,7 +8,7 @@ Contents :
 3.  [EL3 runtime services framework](#3--el3-runtime-services-framework)
 4.  [Power State Coordination Interface](#4--power-state-coordination-interface)
 5.  [Secure-EL1 Payloads and Dispatchers](#5--secure-el1-payloads-and-dispatchers)
-6.  [Crash Reporting in BL31](#6--crash-reporting-in-bl3-1)
+6.  [Crash Reporting in BL31](#6--crash-reporting-in-bl31)
 7.  [Guidelines for Reset Handlers](#7--guidelines-for-reset-handlers)
 8.  [CPU specific operations framework](#8--cpu-specific-operations-framework)
 9.  [Memory layout of BL images](#9-memory-layout-of-bl-images)
@@ -988,11 +988,11 @@ needs to be exported for each type of CPU in the platform. It is defined in
 `reset_func()`, `core_pwr_dwn()`, `cluster_pwr_dwn()` and `cpu_reg_dump()`.
 
 The CPU specific files in `lib/cpus` export a `cpu_ops` data structure with
-suitable handlers for that CPU.  For example, `lib/cpus/cortex_a53.S` exports
-the `cpu_ops` for Cortex-A53 CPU. According to the platform configuration,
-these CPU specific files must must be included in the build by the platform
-makefile. The generic CPU specific operations framework code exists in
-`lib/cpus/aarch64/cpu_helpers.S`.
+suitable handlers for that CPU.  For example, `lib/cpus/aarch64/cortex_a53.S`
+exports the `cpu_ops` for Cortex-A53 CPU. According to the platform
+configuration, these CPU specific files must be included in the build by
+the platform makefile. The generic CPU specific operations framework code exists
+in `lib/cpus/aarch64/cpu_helpers.S`.
 
 ### CPU specific Reset Handling
 
@@ -1020,12 +1020,12 @@ entry is stored in per-CPU data by `init_cpu_ops()` so that it can be quickly
 retrieved during power down sequences.
 
 The PSCI service, upon receiving a power down request, determines the highest
-affinity level at which to execute power down sequence for a particular CPU and
+power level at which to execute power down sequence for a particular CPU and
 invokes the corresponding 'prepare' power down handler in the CPU specific
-operations framework. For example, when a CPU executes a power down for affinity
+operations framework. For example, when a CPU executes a power down for power
 level 0, the `prepare_core_pwr_dwn()` retrieves the `cpu_ops` pointer from the
 per-CPU data and the corresponding `core_pwr_dwn()` is invoked. Similarly when
-a CPU executes power down at affinity level 1, the `prepare_cluster_pwr_dwn()`
+a CPU executes power down at power level 1, the `prepare_cluster_pwr_dwn()`
 retrieves the `cpu_ops` pointer and the corresponding `cluster_pwr_dwn()` is
 invoked.
 
@@ -1454,8 +1454,8 @@ The ARM development platforms' policy is to only allow loading of a known set of
 images. The platform policy can be modified to allow additional images.
 
 
-11. Use of coherent memory in Trusted Firmware
-----------------------------------------------
+11.  Use of coherent memory in Trusted Firmware
+-----------------------------------------------
 
 There might be loss of coherency when physical memory with mismatched
 shareability, cacheability and memory attributes is accessed by multiple CPUs
@@ -1739,5 +1739,5 @@ _Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
 [Porting Guide]:    ./porting-guide.md
 [Reset Design]:     ./reset-design.md
 [INTRG]:            ./interrupt-framework-design.md
-[CPUBM]:            ./cpu-specific-build-macros.md.md
+[CPUBM]:            ./cpu-specific-build-macros.md
 [Firmware Update]:  ./firmware-update.md
