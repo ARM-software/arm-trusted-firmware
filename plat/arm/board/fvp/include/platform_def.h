@@ -64,8 +64,6 @@
 
 #define PLAT_ARM_DRAM2_SIZE		MAKE_ULL(0x780000000)
 
-#define PLAT_ARM_SHARED_RAM_CACHED	1
-
 /*
  * Load address of BL33 for this platform port
  */
