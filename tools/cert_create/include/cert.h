@@ -57,6 +57,7 @@ struct cert_s {
 	const char *opt;	/* Command line option to pass filename */
 	const char *fn;		/* Filename to save the certificate */
 	const char *cn;		/* Subject CN (Company Name) */
+	const char *help_msg;	/* Help message */
 
 	/* These fields must be defined statically */
 	int key;		/* Key to be signed */

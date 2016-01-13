@@ -50,6 +50,7 @@ typedef struct ext_s {
 	const char *oid;	/* OID of the extension */
 	const char *sn;		/* Short name */
 	const char *ln;		/* Long description */
+	const char *help_msg;	/* Help message */
 	int asn1_type;		/* OpenSSL ASN1 type of the extension data.
 				 * Supported types are:
 				 *   - V_ASN1_INTEGER

@@ -64,6 +64,7 @@ enum {
 typedef struct key_s {
 	int id;			/* Key id */
 	const char *opt;	/* Command line option to specify a key */
+	const char *help_msg;	/* Help message */
 	const char *desc;	/* Key description (debug purposes) */
 	char *fn;		/* Filename to load/store the key */
 	EVP_PKEY *key;		/* Key container */

@@ -69,6 +69,7 @@ IMPLEMENT_ASN1_FUNCTIONS(HASH)
  */
 int ext_init(void)
 {
+	cmd_opt_t cmd_opt;
 	ext_t *ext;
 	X509V3_EXT_METHOD *m;
 	int nid, ret;
@@ -78,10 +79,12 @@ int ext_init(void)
 		ext = &extensions[i];
 		/* Register command line option */
 		if (ext->opt) {
-			if (cmd_opt_add(ext->opt, required_argument,
-					CMD_OPT_EXT)) {
-				return 1;
-			}
+			cmd_opt.long_opt.name = ext->opt;
+			cmd_opt.long_opt.has_arg = required_argument;
+			cmd_opt.long_opt.flag = NULL;
+			cmd_opt.long_opt.val = CMD_OPT_EXT;
+			cmd_opt.help_msg = ext->help_msg;
+			cmd_opt_add(&cmd_opt);
 		}
 		/* Register the extension OID in OpenSSL */
 		if (ext->oid == NULL) {
