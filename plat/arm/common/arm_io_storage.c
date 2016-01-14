@@ -277,9 +277,9 @@ void plat_arm_io_setup(void)
 }
 
 int plat_arm_get_alt_image_source(
-	unsigned int image_id __attribute__((unused)),
-	uintptr_t *dev_handle __attribute__((unused)),
-	uintptr_t *image_spec __attribute__((unused)))
+	unsigned int image_id __unused,
+	uintptr_t *dev_handle __unused,
+	uintptr_t *image_spec __unused)
 {
 	/* By default do not try an alternative */
 	return -ENOENT;

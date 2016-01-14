@@ -95,7 +95,7 @@ static const io_dev_info_t memmap_dev_info = {
 
 
 /* Open a connection to the memmap device */
-static int memmap_dev_open(const uintptr_t dev_spec __attribute__((unused)),
+static int memmap_dev_open(const uintptr_t dev_spec __unused,
 			   io_dev_info_t **dev_info)
 {
 	assert(dev_info != NULL);

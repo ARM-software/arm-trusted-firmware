@@ -88,7 +88,7 @@ typedef struct rt_svc_desc {
  */
 #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch) \
 	static const rt_svc_desc_t __svc_desc_ ## _name \
-		__attribute__ ((section("rt_svc_descs"), used)) = { \
+		__section("rt_svc_descs") __used = { \
 			.start_oen = _start, \
 			.end_oen = _end, \
 			.call_type = _type, \

@@ -58,7 +58,7 @@ static uint64_t l1_xlation_table[NUM_L1_ENTRIES]
 __aligned(NUM_L1_ENTRIES * sizeof(uint64_t));
 
 static uint64_t xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
-__aligned(XLAT_TABLE_SIZE) __attribute__((section("xlat_table")));
+__aligned(XLAT_TABLE_SIZE) __section("xlat_table");
 
 static unsigned next_xlat;
 static unsigned long max_pa;

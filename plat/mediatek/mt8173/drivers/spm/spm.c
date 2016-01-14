@@ -55,9 +55,9 @@ static int spm_dormant_sta = CPU_DORMANT_RESET;
 
 DEFINE_BAKERY_LOCK(spm_lock);
 
-static int spm_hotplug_ready __attribute__ ((section("tzfw_coherent_mem")));
-static int spm_mcdi_ready __attribute__ ((section("tzfw_coherent_mem")));
-static int spm_suspend_ready __attribute__ ((section("tzfw_coherent_mem")));
+static int spm_hotplug_ready __section("tzfw_coherent_mem");
+static int spm_mcdi_ready __section("tzfw_coherent_mem");
+static int spm_suspend_ready __section("tzfw_coherent_mem");
 
 void spm_lock_init(void)
 {

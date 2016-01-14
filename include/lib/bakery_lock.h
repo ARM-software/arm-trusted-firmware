@@ -100,8 +100,7 @@ inline void bakery_lock_init(bakery_lock_t *bakery) {}
 void bakery_lock_get(bakery_lock_t *bakery);
 void bakery_lock_release(bakery_lock_t *bakery);
 
-#define DEFINE_BAKERY_LOCK(_name) bakery_lock_t _name \
-			__attribute__ ((section("bakery_lock")))
+#define DEFINE_BAKERY_LOCK(_name) bakery_lock_t _name __section("bakery_lock")
 
 #define DECLARE_BAKERY_LOCK(_name) extern bakery_lock_t _name
 
