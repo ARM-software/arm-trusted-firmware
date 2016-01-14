@@ -62,11 +62,14 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/aarch64/fvp_common.c
 
-BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
-				lib/cpus/aarch64/aem_generic.S			\
+FVP_CPU_LIBS		:=	lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
+				lib/cpus/aarch64/cortex_a72.S
+
+BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
+				${FVP_CPU_LIBS}					\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
@@ -87,10 +90,7 @@ BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c		\
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				plat/arm/board/fvp/fvp_security.c
 
-BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S			\
-				lib/cpus/aarch64/cortex_a35.S			\
-				lib/cpus/aarch64/cortex_a53.S			\
-				lib/cpus/aarch64/cortex_a57.S			\
+BL31_SOURCES		+=	${FVP_CPU_LIBS}					\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_security.c		\
