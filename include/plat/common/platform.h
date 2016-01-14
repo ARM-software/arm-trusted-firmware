@@ -273,7 +273,7 @@ unsigned int plat_get_aff_state(unsigned int, unsigned long);
  * haven't migrated to the new platform API to compile on platforms which
  * have the compatibility layer disabled.
  */
-unsigned int platform_get_core_pos(unsigned long mpidr) __warn_deprecated;
+unsigned int platform_get_core_pos(unsigned long mpidr) __deprecated;
 
 #endif /* __ENABLE_PLAT_COMPAT__ */
 #endif /* __PLATFORM_H__ */

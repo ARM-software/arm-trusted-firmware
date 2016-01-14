@@ -70,13 +70,6 @@
   #define MAKE_ULL(x)			x
 #endif
 
-/*
- * Macros to wrap declarations of deprecated APIs within Trusted Firmware.
- * The callers of these APIs will continue to compile with a warning as long
- * as the build flag ERROR_DEPRECATED is zero.
- */
-#define __warn_deprecated	__attribute__ ((deprecated))
-
 #define BL2_IMAGE_DESC {				\
 	.image_id = BL2_IMAGE_ID,			\
 	.image_info.h.version = VERSION_1,		\
