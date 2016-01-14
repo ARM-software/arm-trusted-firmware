@@ -97,6 +97,13 @@
  ************************************************************************/
 
 /*
+ * The loading of SCP images(SCP_BL2 or SCP_BL2U) is done if there
+ * respective base addresses are defined (i.e SCP_BL2_BASE, SCP_BL2U_BASE).
+ * Hence, `CSS_LOAD_SCP_IMAGES` needs to be set to 1 if BL2 needs to load
+ * an SCP_BL2/SCP_BL2U image.
+ */
+#if CSS_LOAD_SCP_IMAGES
+/*
  * Load address of SCP_BL2 in CSS platform ports
  * SCP_BL2 is loaded to the same place as BL31.  Once SCP_BL2 is transferred to the
  * SCP, it is discarded and BL31 is loaded over the top.
@@ -104,6 +111,7 @@
 #define SCP_BL2_BASE			BL31_BASE
 
 #define SCP_BL2U_BASE			BL31_BASE
+#endif /* CSS_LOAD_SCP_IMAGES */
 
 #define PLAT_ARM_SHARED_RAM_CACHED	MHU_PAYLOAD_CACHED
 
