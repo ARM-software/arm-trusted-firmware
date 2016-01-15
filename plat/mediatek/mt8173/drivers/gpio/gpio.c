@@ -27,172 +27,163 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <assert.h>
 #include <debug.h>
 #include <gpio.h>
 #include <mmio.h>
-#include <mt8173_def.h>
-#include <pmic_wrap_init.h>
 
 enum {
+	MAX_8173_GPIO = 134,
 	MAX_GPIO_REG_BITS = 16,
+	MAX_GPIO_MODE_PER_REG = 5,
+	GPIO_MODE_BITS = 3,
 };
-
-struct mt_gpio_obj {
-	struct gpio_regs *reg;
-};
-
-static struct mt_gpio_obj gpio_dat = {
-	.reg = (struct gpio_regs *)(GPIO_BASE),
-};
-
-static struct mt_gpio_obj *gpio_obj = &gpio_dat;
-
-struct mt_gpioext_obj {
-	struct gpioext_regs *reg;
-};
-
-static struct mt_gpioext_obj gpioext_dat = {
-	.reg = (struct gpioext_regs *)(GPIOEXT_BASE),
-};
-
-static struct mt_gpioext_obj *gpioext_obj = &gpioext_dat;
-
-static inline struct mt_gpio_obj *mt_get_gpio_obj(void)
-{
-	return gpio_obj;
-}
-
-static inline struct mt_gpioext_obj *mt_get_gpioext_obj(void)
-{
-	return gpioext_obj;
-}
 
 enum {
-	GPIO_PRO_DIR = 0,
-	GPIO_PRO_DOUT,
-	GPIO_PRO_DIN,
-	GPIO_PRO_PULLEN,
-	GPIO_PRO_PULLSEL,
-	GPIO_PRO_MODE,
-	GPIO_PRO_MAX,
+	GPIO_DIRECTION_IN = 0,
+	GPIO_DIRECTION_OUT = 1,
 };
 
-static inline int32_t gpioext_write(uint16_t *addr, int64_t data)
+enum {
+	GPIO_MODE = 0,
+};
+
+static void pos_bit_calc(uint32_t pin, uint32_t *pos, uint32_t *bit)
 {
-	return pwrap_write((uint32_t)(uintptr_t)addr, data);
+	*pos = pin / MAX_GPIO_REG_BITS;
+	*bit = pin % MAX_GPIO_REG_BITS;
 }
 
-static inline int32_t gpioext_set_bits(uint32_t bit, uint16_t *reg)
+static void pos_bit_calc_for_mode(uint32_t pin, uint32_t *pos, uint32_t *bit)
 {
-	return gpioext_write(reg, bit);
+	*pos = pin / MAX_GPIO_MODE_PER_REG;
+	*bit = (pin % MAX_GPIO_MODE_PER_REG) * GPIO_MODE_BITS;
 }
 
-static int32_t mt_set_gpio_chip(uint32_t pin, uint32_t property, uint32_t val)
+static int gpio_set_dir(uint32_t pin, uint32_t dir)
 {
-	uint32_t pos = 0;
-	uint32_t bit = 0;
-	struct mt_gpio_obj *obj = mt_get_gpio_obj();
+	uint32_t pos;
+	uint32_t bit;
 	uint16_t *reg;
-	uint32_t data = 0;
 
-	if (!obj)
-		return -ERACCESS;
+	assert(pin <= MAX_8173_GPIO);
 
-	if (pin >= GPIO_EXTEND_START)
-		return -ERINVAL;
+	pos_bit_calc(pin, &pos, &bit);
 
-	if (property >= GPIO_PRO_MAX)
-		return -ERINVAL;
+	if (dir == GPIO_DIRECTION_IN)
+		reg = &mt8173_gpio->dir[pos].rst;
+	else
+		reg = &mt8173_gpio->dir[pos].set;
 
-	pos = pin / MAX_GPIO_REG_BITS;
-	bit = pin % MAX_GPIO_REG_BITS;
-	data = 1L << bit;
+	mmio_write_16((uintptr_t)reg, 1L << bit);
 
-	switch (property) {
-	case GPIO_PRO_DIR:
-		if (val == GPIO_DIR_IN)
-			reg = &obj->reg->dir[pos].rst;
-		else
-			reg = &obj->reg->dir[pos].set;
-		break;
-	case GPIO_PRO_DOUT:
-		if (val == GPIO_OUT_ZERO)
-			reg = &obj->reg->dout[pos].rst;
-		else
-			reg = &obj->reg->dout[pos].set;
-		break;
-	default:
-		return -ERINVAL;
-	}
-
-	mmio_write_16((uintptr_t)reg, data);
-
-	return RSUCCESS;
+	return 0;
 }
 
-static int32_t mt_set_gpio_ext(uint32_t pin, uint32_t property, uint32_t val)
+void gpio_set_pull(uint32_t pin, enum pull_enable enable,
+		   enum pull_select select)
 {
-	uint32_t pos = 0;
-	uint32_t bit = 0;
-	struct mt_gpioext_obj *obj = mt_get_gpioext_obj();
+	uint32_t pos;
+	uint32_t bit;
+	uint16_t *en_reg, *sel_reg;
+
+	assert(pin <= MAX_8173_GPIO);
+
+	pos_bit_calc(pin, &pos, &bit);
+
+	if (enable == GPIO_PULL_DISABLE) {
+		en_reg = &mt8173_gpio->pullen[pos].rst;
+	} else {
+	/* These pins' pulls can't be set through GPIO controller. */
+		assert(pin < 22 || pin > 27);
+		assert(pin < 47 || pin > 56);
+		assert(pin < 57 || pin > 68);
+		assert(pin < 73 || pin > 78);
+		assert(pin < 100 || pin > 105);
+		assert(pin < 119 || pin > 124);
+
+		en_reg = &mt8173_gpio->pullen[pos].set;
+		sel_reg = (select == GPIO_PULL_DOWN) ?
+			  (&mt8173_gpio->pullsel[pos].rst) :
+			  (&mt8173_gpio->pullsel[pos].set);
+		mmio_write_16((uintptr_t)sel_reg, 1L << bit);
+	}
+	mmio_write_16((uintptr_t)en_reg, 1L << bit);
+}
+
+int gpio_get(uint32_t pin)
+{
+	uint32_t pos;
+	uint32_t bit;
 	uint16_t *reg;
-	uint32_t data = 0;
-	int ret = 0;
+	int data;
 
-	if (!obj)
-		return -ERACCESS;
+	assert(pin <= MAX_8173_GPIO);
 
-	if (pin >= MAX_GPIO_PIN)
-		return -ERINVAL;
+	pos_bit_calc(pin, &pos, &bit);
 
-	if (property >= GPIO_PRO_MAX)
-		return -ERINVAL;
+	reg = &mt8173_gpio->din[pos].val;
+	data = mmio_read_32((uintptr_t)reg);
 
-	pin -= GPIO_EXTEND_START;
-	pos = pin / MAX_GPIO_REG_BITS;
-	bit = pin % MAX_GPIO_REG_BITS;
-
-	switch (property) {
-	case GPIO_PRO_DIR:
-		if (val == GPIO_DIR_IN)
-			reg = &obj->reg->dir[pos].rst;
-		else
-			reg = &obj->reg->dir[pos].set;
-		break;
-	case GPIO_PRO_DOUT:
-		if (val == GPIO_OUT_ZERO)
-			reg = &obj->reg->dout[pos].rst;
-		else
-			reg = &obj->reg->dout[pos].set;
-		break;
-	default:
-		return -ERINVAL;
-	}
-	data = (1L << bit);
-	ret = gpioext_set_bits(data, reg);
-
-	return ret ? -ERWRAPPER : RSUCCESS;
+	return (data & (1L << bit)) ? 1 : 0;
 }
 
-static void mt_gpio_pin_decrypt(uint32_t *cipher)
+void gpio_set(uint32_t pin, int output)
 {
-	if ((*cipher & (0x80000000)) == 0)
-		INFO("Pin %u decrypt warning!\n", *cipher);
-	*cipher &= ~(0x80000000);
+	uint32_t pos;
+	uint32_t bit;
+	uint16_t *reg;
+
+	assert(pin <= MAX_8173_GPIO);
+
+	pos_bit_calc(pin, &pos, &bit);
+
+	if (output == 0)
+		reg = &mt8173_gpio->dout[pos].rst;
+	else
+		reg = &mt8173_gpio->dout[pos].set;
+	mmio_write_16((uintptr_t)reg, 1L << bit);
 }
 
-int32_t mt_set_gpio_out(uint32_t pin, uint32_t output)
+void gpio_set_mode(uint32_t pin, int mode)
 {
-	uint32_t gp = GPIO_PRO_DOUT;
+	uint32_t pos;
+	uint32_t bit;
+	uint32_t mask = (1L << GPIO_MODE_BITS) - 1;
 
-	mt_gpio_pin_decrypt(&pin);
+	assert(pin <= MAX_8173_GPIO);
 
-	return (pin >= GPIO_EXTEND_START) ?
-		mt_set_gpio_ext(pin, gp, output) :
-		mt_set_gpio_chip(pin, gp, output);
+	pos_bit_calc_for_mode(pin, &pos, &bit);
+
+	mmio_clrsetbits_32((uintptr_t)&mt8173_gpio->mode[pos].val,
+			   mask << bit, mode << bit);
 }
 
-void gpio_set(uint32_t gpio, int32_t value)
+void gpio_input_pulldown(uint32_t gpio)
 {
-	mt_set_gpio_out(gpio, value);
+	gpio_set_pull(gpio, GPIO_PULL_ENABLE, GPIO_PULL_DOWN);
+	gpio_set_dir(gpio, GPIO_DIRECTION_IN);
+	gpio_set_mode(gpio, GPIO_MODE);
+}
+
+void gpio_input_pullup(uint32_t gpio)
+{
+	gpio_set_pull(gpio, GPIO_PULL_ENABLE, GPIO_PULL_UP);
+	gpio_set_dir(gpio, GPIO_DIRECTION_IN);
+	gpio_set_mode(gpio, GPIO_MODE);
+}
+
+void gpio_input(uint32_t gpio)
+{
+	gpio_set_pull(gpio, GPIO_PULL_DISABLE, GPIO_PULL_DOWN);
+	gpio_set_dir(gpio, GPIO_DIRECTION_IN);
+	gpio_set_mode(gpio, GPIO_MODE);
+}
+
+void gpio_output(uint32_t gpio, int value)
+{
+	gpio_set_pull(gpio, GPIO_PULL_DISABLE, GPIO_PULL_DOWN);
+	gpio_set(gpio, value);
+	gpio_set_dir(gpio, GPIO_DIRECTION_OUT);
+	gpio_set_mode(gpio, GPIO_MODE);
 }

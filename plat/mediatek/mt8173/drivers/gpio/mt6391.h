@@ -27,54 +27,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <mmio.h>
-#include <mtk_sip_svc.h>
-#include <mtcmos.h>
 
-/* Authorized secure register list */
+#ifndef __GPIO_MT6391_H__
+#define __GPIO_MT6391_H__
+
+#include <stdint.h>
+
+/*
+ * PMIC GPIO REGISTER DEFINITION
+ */
 enum {
-	SREG_HDMI_COLOR_EN = 0x14000904
+	MT6391_GPIO_DIR_BASE = 0xC000,
+	MT6391_GPIO_PULLEN_BASE = 0xC020,
+	MT6391_GPIO_PULLSEL_BASE = 0xC040,
+	MT6391_GPIO_DOUT_BASE = 0xC080,
+	MT6391_GPIO_DIN_BASE = 0xC0A0,
+	MT6391_GPIO_MODE_BASE = 0xC0C0,
 };
 
-static const uint32_t authorized_sreg[] = {
-	SREG_HDMI_COLOR_EN
+enum mt6391_pull_enable {
+	MT6391_GPIO_PULL_DISABLE = 0,
+	MT6391_GPIO_PULL_ENABLE = 1,
 };
 
-#define authorized_sreg_cnt	\
-	(sizeof(authorized_sreg) / sizeof(authorized_sreg[0]))
+enum mt6391_pull_select {
+	MT6391_GPIO_PULL_DOWN = 0,
+	MT6391_GPIO_PULL_UP = 1,
+};
 
-uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
-{
-	uint64_t i;
+/*
+ * PMIC GPIO Exported Function
+ */
+int mt6391_gpio_get(uint32_t gpio);
+void mt6391_gpio_set(uint32_t gpio, int value);
+void mt6391_gpio_input_pulldown(uint32_t gpio);
+void mt6391_gpio_input_pullup(uint32_t gpio);
+void mt6391_gpio_input(uint32_t gpio);
+void mt6391_gpio_output(uint32_t gpio, int value);
+void mt6391_gpio_set_pull(uint32_t gpio, enum mt6391_pull_enable enable,
+			  enum mt6391_pull_select select);
+void mt6391_gpio_set_mode(uint32_t gpio, int mode);
 
-	for (i = 0; i < authorized_sreg_cnt; i++) {
-		if (authorized_sreg[i] == sreg) {
-			mmio_write_32(sreg, val);
-			return MTK_SIP_E_SUCCESS;
-		}
-	}
-
-	return MTK_SIP_E_INVALID_PARAM;
-}
-
-uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
-{
-	uint32_t ret;
-
-	ret = mtcmos_non_cpu_ctrl(1, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
-}
-
-uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
-{
-	uint32_t ret;
-
-	ret = mtcmos_non_cpu_ctrl(0, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
-}
+#endif /* __GPIO_MT6391_H__ */

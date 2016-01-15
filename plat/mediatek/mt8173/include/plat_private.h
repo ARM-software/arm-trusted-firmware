@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,54 +27,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <mmio.h>
-#include <mtk_sip_svc.h>
-#include <mtcmos.h>
 
-/* Authorized secure register list */
-enum {
-	SREG_HDMI_COLOR_EN = 0x14000904
-};
+#ifndef __PLAT_PRIVATE_H__
+#define __PLAT_PRIVATE_H__
 
-static const uint32_t authorized_sreg[] = {
-	SREG_HDMI_COLOR_EN
-};
+/*******************************************************************************
+ * Function and variable prototypes
+ ******************************************************************************/
+void plat_configure_mmu_el3(unsigned long total_base,
+			    unsigned long total_size,
+			    unsigned long,
+			    unsigned long,
+			    unsigned long,
+			    unsigned long);
 
-#define authorized_sreg_cnt	\
-	(sizeof(authorized_sreg) / sizeof(authorized_sreg[0]))
+void plat_cci_init(void);
+void plat_cci_enable(void);
+void plat_cci_disable(void);
 
-uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
-{
-	uint64_t i;
+/* Declarations for plat_mt_gic.c */
+void plat_mt_gic_init(void);
 
-	for (i = 0; i < authorized_sreg_cnt; i++) {
-		if (authorized_sreg[i] == sreg) {
-			mmio_write_32(sreg, val);
-			return MTK_SIP_E_SUCCESS;
-		}
-	}
+/* Declarations for plat_topology.c */
+int mt_setup_topology(void);
 
-	return MTK_SIP_E_INVALID_PARAM;
-}
+void plat_delay_timer_init(void);
 
-uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
-{
-	uint32_t ret;
+void params_early_setup(void *plat_params_from_bl2);
+void params_setup(void);
 
-	ret = mtcmos_non_cpu_ctrl(1, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
-}
-
-uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
-{
-	uint32_t ret;
-
-	ret = mtcmos_non_cpu_ctrl(0, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
-}
+#endif /* __PLAT_PRIVATE_H__ */

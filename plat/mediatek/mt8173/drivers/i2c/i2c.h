@@ -27,54 +27,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <mmio.h>
-#include <mtk_sip_svc.h>
-#include <mtcmos.h>
+#ifndef __PLAT_DRIVER_I2C_H__
+#define __PLAT_DRIVER_I2C_H__
 
-/* Authorized secure register list */
-enum {
-	SREG_HDMI_COLOR_EN = 0x14000904
-};
+#include <stdint.h>
 
-static const uint32_t authorized_sreg[] = {
-	SREG_HDMI_COLOR_EN
-};
+/* Read a byte from i2c device */
+int i2c_readb(uint8_t bus, uint8_t addr, uint8_t reg, uint8_t *data);
 
-#define authorized_sreg_cnt	\
-	(sizeof(authorized_sreg) / sizeof(authorized_sreg[0]))
+/* Write a byte to i2c device */
+int i2c_writeb(uint8_t bus, uint8_t addr, uint8_t reg, uint8_t data);
 
-uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
-{
-	uint64_t i;
+/*
+ * Turn on or off the specified i2c bus and ap dma clock.
+ * Caller should ensure the i2c bus and ap dma clock can be turned off before
+ * invoking this function.
+ */
+void i2c_clock_ctrl(uint8_t bus, int enable);
 
-	for (i = 0; i < authorized_sreg_cnt; i++) {
-		if (authorized_sreg[i] == sreg) {
-			mmio_write_32(sreg, val);
-			return MTK_SIP_E_SUCCESS;
-		}
-	}
-
-	return MTK_SIP_E_INVALID_PARAM;
-}
-
-uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
-{
-	uint32_t ret;
-
-	ret = mtcmos_non_cpu_ctrl(1, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
-}
-
-uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
-{
-	uint32_t ret;
-
-	ret = mtcmos_non_cpu_ctrl(0, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
-}
+#endif /* __PLAT_DRIVER_I2C_H__ */

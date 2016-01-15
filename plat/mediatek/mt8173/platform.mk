@@ -32,8 +32,8 @@ MTK_PLAT		:=	plat/mediatek
 MTK_PLAT_SOC		:=	${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
-				-I${MTK_PLAT_SOC}/				\
 				-I${MTK_PLAT_SOC}/drivers/gpio/			\
+				-I${MTK_PLAT_SOC}/drivers/i2c/			\
 				-I${MTK_PLAT_SOC}/drivers/mtcmos/		\
 				-I${MTK_PLAT_SOC}/drivers/pmic/			\
 				-I${MTK_PLAT_SOC}/drivers/rtc/			\
@@ -57,11 +57,15 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
+				${MTK_PLAT}/common/mtk_board_func.c		\
 				${MTK_PLAT}/common/mtk_sip_svc.c		\
 				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
 				${MTK_PLAT_SOC}/aarch64/platform_common.c	\
 				${MTK_PLAT_SOC}/bl31_plat_setup.c		\
 				${MTK_PLAT_SOC}/drivers/gpio/gpio.c		\
+				${MTK_PLAT_SOC}/drivers/gpio/gpio_obj.c		\
+				${MTK_PLAT_SOC}/drivers/gpio/mt6391.c		\
+				${MTK_PLAT_SOC}/drivers/i2c/i2c.c		\
 				${MTK_PLAT_SOC}/drivers/mtcmos/mtcmos.c		\
 				${MTK_PLAT_SOC}/drivers/pmic/pmic_wrap_init.c	\
 				${MTK_PLAT_SOC}/drivers/rtc/rtc.c		\
@@ -71,6 +75,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				${MTK_PLAT_SOC}/drivers/spm/spm_suspend.c	\
 				${MTK_PLAT_SOC}/drivers/timer/mt_cpuxgpt.c	\
 				${MTK_PLAT_SOC}/drivers/uart/8250_console.S	\
+				${MTK_PLAT_SOC}/params_setup.c			\
 				${MTK_PLAT_SOC}/plat_delay_timer.c		\
 				${MTK_PLAT_SOC}/plat_mt_gic.c			\
 				${MTK_PLAT_SOC}/plat_pm.c			\
@@ -78,6 +83,26 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				${MTK_PLAT_SOC}/plat_topology.c			\
 				${MTK_PLAT_SOC}/power_tracer.c			\
 				${MTK_PLAT_SOC}/scu.c
+
+# External buck driver, enable it by MEDIATEK_DA9212=1 in build command.
+# Default is disabled.
+ifeq (${MEDIATEK_DA9212},1)
+$(eval $(call add_define,MEDIATEK_DA9212))
+BL31_SOURCES += ${MTK_PLAT_SOC}/drivers/pmic/da9212.c
+endif
+
+# External buck driver, enable it by MEDIATEK_MT6311=1 in build command.
+# Default is disabled.
+ifeq (${MEDIATEK_MT6311},1)
+$(eval $(call add_define,MEDIATEK_MT6311))
+BL31_SOURCES += ${MTK_PLAT_SOC}/drivers/pmic/mt6311.c
+endif
+
+# Specify memory config by MEDIATEK_MEM_CONFIG=SRAM_192K in build command.
+# SRAM_192K is the only and default option if not specify the config.
+ifneq (${MEDIATEK_MEM_CONFIG},)
+$(eval $(call add_define,MEDIATEK_MEM_CONFIG))
+endif
 
 # Flag used by the MTK_platform port to determine the version of ARM GIC
 # architecture to use for interrupt management in EL3.

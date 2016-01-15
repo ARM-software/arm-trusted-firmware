@@ -27,54 +27,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <mmio.h>
-#include <mtk_sip_svc.h>
-#include <mtcmos.h>
+#include <assert.h>
+#include <debug.h>
+#include <gpio.h>
+#include <gpio_obj.h>
+#include <mt6391.h>
+#include <plat_params.h>
 
-/* Authorized secure register list */
-enum {
-	SREG_HDMI_COLOR_EN = 0x14000904
-};
-
-static const uint32_t authorized_sreg[] = {
-	SREG_HDMI_COLOR_EN
-};
-
-#define authorized_sreg_cnt	\
-	(sizeof(authorized_sreg) / sizeof(authorized_sreg[0]))
-
-uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
+void get_gpio_obj(struct gpio_info *gpio, struct gpio_obj *obj)
 {
-	uint64_t i;
-
-	for (i = 0; i < authorized_sreg_cnt; i++) {
-		if (authorized_sreg[i] == sreg) {
-			mmio_write_32(sreg, val);
-			return MTK_SIP_E_SUCCESS;
-		}
+	switch (gpio->type) {
+	case PARAM_GPIO_NONE:
+		return;
+	case PARAM_GPIO_SOC:
+		obj->output = &gpio_output;
+		obj->set = &gpio_set;
+		obj->get = &gpio_get;
+		break;
+	case PARAM_GPIO_MT6391:
+		obj->output = &mt6391_gpio_output;
+		obj->set = &mt6391_gpio_set;
+		obj->get = &mt6391_gpio_get;
+		break;
+	default:
+		assert(0); /* shouldn't come to here */
+		return;
 	}
 
-	return MTK_SIP_E_INVALID_PARAM;
-}
-
-uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
-{
-	uint32_t ret;
-
-	ret = mtcmos_non_cpu_ctrl(1, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
-}
-
-uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
-{
-	uint32_t ret;
-
-	ret = mtcmos_non_cpu_ctrl(0, val);
-	if (ret)
-		return MTK_SIP_E_INVALID_PARAM;
-	else
-		return MTK_SIP_E_SUCCESS;
+	obj->pin = gpio->index;
+	obj->polarity = gpio->polarity;
 }

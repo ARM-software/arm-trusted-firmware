@@ -129,6 +129,9 @@
 #define SPM_SLEEP_CA15_WFI2_EN			(SPM_BASE + 0xf18)
 #define SPM_SLEEP_CA15_WFI3_EN			(SPM_BASE + 0xf1c)
 
+#define AP_PLL_CON3		0x1020900c
+#define AP_PLL_CON4		0x10209010
+
 #define SPM_PROJECT_CODE	0xb16
 
 #define SPM_REGWR_EN		(1U << 0)
@@ -213,6 +216,7 @@
 #define WAKE_SRC_USB_PDN	(1 << 15)
 #define WAKE_SRC_AFE		(1 << 20)
 #define WAKE_SRC_THERM		(1 << 21)
+#define WAKE_SRC_CIRQ		(1 << 22)
 #define WAKE_SRC_SYSPWREQ	(1 << 24)
 #define WAKE_SRC_SEJ		(1 << 27)
 #define WAKE_SRC_ALL_MD32	(1 << 28)
@@ -352,5 +356,8 @@ void spm_lock_init(void);
 void spm_lock_get(void);
 void spm_lock_release(void);
 void spm_boot_init(void);
+void set_core_in_on_pending(unsigned long mpidr);
+void clear_core_in_on_pending(unsigned long mpidr);
+int is_in_on_pending(unsigned long mpidr);
 
 #endif /* __SPM_H__ */
