@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -261,10 +261,6 @@ void gicd_set_icactiver(uintptr_t base, unsigned int id)
  */
 void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 {
-	unsigned int reg = base + GICD_IPRIORITYR + (id & ~3);
-	unsigned int shift = (id & 3) << 3;
-	unsigned int reg_val = mmio_read_32(reg);
-
 	/*
 	 * Enforce ARM recommendation to manage priority values such
 	 * that group1 interrupts always have a lower priority than
@@ -278,17 +274,12 @@ void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 		pri >= GIC_HIGHEST_SEC_PRIORITY &&
 			pri <= GIC_LOWEST_SEC_PRIORITY);
 
-	reg_val &= ~(GIC_PRI_MASK << shift);
-	reg_val |= (pri & GIC_PRI_MASK) << shift;
-	mmio_write_32(reg, reg_val);
+	mmio_write_8(base + GICD_IPRIORITYR + id, pri & GIC_PRI_MASK);
 }
 
 void gicd_set_itargetsr(uintptr_t base, unsigned int id, unsigned int target)
 {
-	unsigned byte_off = id & ((1 << ITARGETSR_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_itargetsr(base, id);
-
-	gicd_write_itargetsr(base, id, reg_val | (target << (byte_off << 3)));
+	mmio_write_8(base + GICD_ITARGETSR + id, target & GIC_TARGET_CPU_MASK);
 }
 
 /*******************************************************************************
