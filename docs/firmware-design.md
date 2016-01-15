@@ -1204,9 +1204,9 @@ The following list describes the memory layout on the ARM development platforms:
     Trusted SRAM. The amount of Trusted SRAM available to load the bootloader
     images is reduced by the size of the shared memory.
 
-    The shared memory is used to store the entrypoint mailboxes for each CPU.
-    On Juno, this is also used for the MHU payload when passing messages to and
-    from the SCP.
+    The shared memory is used to store the CPUs' entrypoint mailbox. On Juno,
+    this is also used for the MHU payload when passing messages to and from the
+    SCP.
 
 *   On FVP, BL1 is originally sitting in the Trusted ROM at address `0x0`. On
     Juno, BL1 resides in flash memory at address `0x0BEC0000`. BL1 read-write
