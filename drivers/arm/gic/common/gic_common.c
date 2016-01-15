@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -305,4 +305,9 @@ void gicd_set_icactiver(uintptr_t base, unsigned int id)
 	unsigned bit_num = id & ((1 << ICACTIVER_SHIFT) - 1);
 
 	gicd_write_icactiver(base, id, (1 << bit_num));
+}
+
+void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
+{
+	mmio_write_8(base + GICD_IPRIORITYR + id, pri & GIC_PRI_MASK);
 }

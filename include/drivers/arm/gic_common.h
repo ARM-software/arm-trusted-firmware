@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -167,6 +167,7 @@ void gicd_set_ispendr(uintptr_t base, unsigned int id);
 void gicd_set_icpendr(uintptr_t base, unsigned int id);
 void gicd_set_isactiver(uintptr_t base, unsigned int id);
 void gicd_set_icactiver(uintptr_t base, unsigned int id);
+void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri);
 
 
 #endif /* __ASSEMBLY__ */

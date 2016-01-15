@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -194,6 +194,15 @@ void gicr_set_isenabler0(uintptr_t base, unsigned int id)
 	gicr_write_isenabler0(base, (1 << bit_num));
 }
 
+/*
+ * Accessor to set the byte corresponding to interrupt ID
+ * in GIC Re-distributor IPRIORITYR.
+ */
+void gicr_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
+{
+	mmio_write_8(base + GICR_IPRIORITYR + id, pri & GIC_PRI_MASK);
+}
+
 /******************************************************************************
  * This function marks the core as awake in the re-distributor and
  * ensures that the interface is active.
@@ -330,7 +339,7 @@ void gicv3_secure_spis_configure(uintptr_t gicd_base,
 				gicd_clr_igrpmodr(gicd_base, irq_num);
 
 			/* Set the priority of this interrupt */
-			gicd_write_ipriorityr(gicd_base,
+			gicd_set_ipriorityr(gicd_base,
 					      irq_num,
 					      GIC_HIGHEST_SEC_PRIORITY);
 
@@ -404,7 +413,7 @@ void gicv3_secure_ppi_sgi_configure(uintptr_t gicr_base,
 				gicr_clr_igrpmodr0(gicr_base, irq_num);
 
 			/* Set the priority of this interrupt */
-			gicr_write_ipriorityr(gicr_base,
+			gicr_set_ipriorityr(gicr_base,
 					    irq_num,
 					    GIC_HIGHEST_SEC_PRIORITY);
 

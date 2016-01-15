@@ -163,7 +163,7 @@ void gicv2_secure_spis_configure(uintptr_t gicd_base,
 			gicd_clr_igroupr(gicd_base, irq_num);
 
 			/* Set the priority of this interrupt */
-			gicd_write_ipriorityr(gicd_base,
+			gicd_set_ipriorityr(gicd_base,
 					      irq_num,
 					      GIC_HIGHEST_SEC_PRIORITY);
 
@@ -210,7 +210,7 @@ void gicv2_secure_ppi_sgi_setup(uintptr_t gicd_base,
 			sec_ppi_sgi_mask |= 1U << irq_num;
 
 			/* Set the priority of this interrupt */
-			gicd_write_ipriorityr(gicd_base,
+			gicd_set_ipriorityr(gicd_base,
 					    irq_num,
 					    GIC_HIGHEST_SEC_PRIORITY);
 		}
