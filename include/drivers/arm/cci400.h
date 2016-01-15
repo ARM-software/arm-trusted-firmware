@@ -76,7 +76,6 @@
 
 #ifndef __ASSEMBLY__
 
-#include <common_def.h>
 #include <stdint.h>
 
 /* Function declarations */
@@ -92,10 +91,10 @@
  */
 void cci_init(uintptr_t cci_base,
 		int slave_iface3_cluster_ix,
-		int slave_iface4_cluster_ix) __warn_deprecated;
+		int slave_iface4_cluster_ix) __deprecated;
 
-void cci_enable_cluster_coherency(unsigned long mpidr) __warn_deprecated;
-void cci_disable_cluster_coherency(unsigned long mpidr) __warn_deprecated;
+void cci_enable_cluster_coherency(unsigned long mpidr) __deprecated;
+void cci_disable_cluster_coherency(unsigned long mpidr) __deprecated;
 
 #endif /* __ASSEMBLY__ */
 #endif /* __CCI_400_H__ */

@@ -91,7 +91,7 @@ static int sh_dev_open(const uintptr_t dev_spec __unused,
 
 
 /* Open a file on the semi-hosting device */
-static int sh_file_open(io_dev_info_t *dev_info __attribute__((unused)),
+static int sh_file_open(io_dev_info_t *dev_info __unused,
 		const uintptr_t spec, io_entity_t *entity)
 {
 	int result = -ENOENT;

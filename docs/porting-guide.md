@@ -85,7 +85,7 @@ section identified by name `bakery_lock` inside `coherent_ram` so that its
 possible for the firmware to place variables in it using the following C code
 directive:
 
-    __attribute__ ((section("bakery_lock")))
+    __section("bakery_lock")
 
 Or alternatively the following assembler code directive:
 

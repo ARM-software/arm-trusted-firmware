@@ -128,7 +128,7 @@ static const io_dev_info_t fip_dev_info = {
 
 
 /* Open a connection to the FIP device */
-static int fip_dev_open(const uintptr_t dev_spec __attribute__((unused)),
+static int fip_dev_open(const uintptr_t dev_spec __unused,
 			 io_dev_info_t **dev_info)
 {
 	assert(dev_info != NULL);

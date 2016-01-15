@@ -40,6 +40,6 @@
  * compiler warning.
  ******************************************************************************/
 #define CASSERT(cond, msg)	\
-	typedef char msg[(cond) ? 1 : -1] __attribute__((unused))
+	typedef char msg[(cond) ? 1 : -1] __unused
 
 #endif /* __CASSERT_H__ */

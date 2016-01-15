@@ -77,7 +77,7 @@ int img_parser_get_auth_param(img_type_t img_type,
 /* Macro to register an image parser library */
 #define REGISTER_IMG_PARSER_LIB(_type, _name, _init, _check_int, _get_param) \
 	static const img_parser_lib_desc_t __img_parser_lib_desc_##_type \
-	__attribute__ ((section(".img_parser_lib_descs"), used)) = { \
+	__section(".img_parser_lib_descs") __used = { \
 		.img_type = _type, \
 		.name = _name, \
 		.init = _init, \
