@@ -40,6 +40,15 @@
 #define PSTATE_ID_SOC_POWERDN	0xD
 
 /*******************************************************************************
+ * Platform power states (used by PSCI framework)
+ *
+ * - PLAT_MAX_RET_STATE should be less than lowest PSTATE_ID
+ * - PLAT_MAX_OFF_STATE should be greater than the highest PSTATE_ID
+ ******************************************************************************/
+#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_OFF_STATE		(PSTATE_ID_SOC_POWERDN + 1)
+
+/*******************************************************************************
  * GIC memory map
  ******************************************************************************/
 #define TEGRA_GICD_BASE			0x50041000
