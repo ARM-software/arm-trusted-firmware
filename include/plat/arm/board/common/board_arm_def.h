@@ -39,9 +39,7 @@
  */
 
 /* Size of cacheable stacks */
-#if DEBUG_XLAT_TABLE
-# define PLATFORM_STACK_SIZE 0x800
-#elif IMAGE_BL1
+#if IMAGE_BL1
 #if TRUSTED_BOARD_BOOT
 # define PLATFORM_STACK_SIZE 0x1000
 #else

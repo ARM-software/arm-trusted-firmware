@@ -33,17 +33,21 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <cassert.h>
+#include <debug.h>
 #include <platform_def.h>
 #include <string.h>
 #include <xlat_tables.h>
 
-
-#ifndef DEBUG_XLAT_TABLE
-#define DEBUG_XLAT_TABLE 0
-#endif
-
-#if DEBUG_XLAT_TABLE
-#define debug_print(...) printf(__VA_ARGS__)
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+#define LVL0_SPACER ""
+#define LVL1_SPACER "  "
+#define LVL2_SPACER "    "
+#define LVL3_SPACER "      "
+#define get_level_spacer(level)		\
+			(((level) == 0) ? LVL0_SPACER : \
+			(((level) == 1) ? LVL1_SPACER : \
+			(((level) == 2) ? LVL2_SPACER : LVL3_SPACER)))
+#define debug_print(...) tf_printf(__VA_ARGS__)
 #else
 #define debug_print(...) ((void)0)
 #endif
@@ -74,12 +78,12 @@ static mmap_region_t mmap[MAX_MMAP_REGIONS + 1];
 
 static void print_mmap(void)
 {
-#if DEBUG_XLAT_TABLE
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	debug_print("mmap:\n");
 	mmap_region_t *mm = mmap;
 	while (mm->size) {
-		debug_print(" %010lx %010lx %10lx %x\n", mm->base_va,
-					mm->base_pa, mm->size, mm->attr);
+		debug_print(" VA:0x%lx  PA:0x%lx  size:0x%lx  attr:0x%x\n",
+				mm->base_va, mm->base_pa, mm->size, mm->attr);
 		++mm;
 	};
 	debug_print("\n");
@@ -209,8 +213,8 @@ static mmap_region_t *init_xlation_table(mmap_region_t *mm,
 			continue;
 		}
 
-		debug_print("      %010lx %8lx " + 6 - 2 * level, base_va,
-				level_size);
+		debug_print("%s VA:0x%lx size:0x%x ", get_level_spacer(level),
+				base_va, level_size);
 
 		if (mm->base_va >= base_va + level_size) {
 			/* Next region is after area so nothing to map yet */
