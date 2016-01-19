@@ -34,10 +34,22 @@
 #include <platform_def.h>
 
 /*******************************************************************************
- * This value is used by the PSCI implementation during the `SYSTEM_SUSPEND`
- * call as the `state-id` field in the 'power state' parameter.
+ * These values are used by the PSCI implementation during the `CPU_SUSPEND`
+ * and `SYSTEM_SUSPEND` calls as the `state-id` field in the 'power state'
+ * parameter.
  ******************************************************************************/
-#define PSTATE_ID_SOC_POWERDN		1
+#define PSTATE_ID_CORE_IDLE		6
+#define PSTATE_ID_CORE_POWERDN		7
+#define PSTATE_ID_SOC_POWERDN		2
+
+/*******************************************************************************
+ * Platform power states (used by PSCI framework)
+ *
+ * - PLAT_MAX_RET_STATE should be less than lowest PSTATE_ID
+ * - PLAT_MAX_OFF_STATE should be greater than the highest PSTATE_ID
+ ******************************************************************************/
+#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_OFF_STATE		8
 
 /*******************************************************************************
  * Implementation defined ACTLR_EL3 bit definitions

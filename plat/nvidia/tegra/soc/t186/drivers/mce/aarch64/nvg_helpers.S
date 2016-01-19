@@ -39,7 +39,6 @@
 func nvg_set_request_data
 	msr	s3_0_c15_c1_2, x0
 	msr	s3_0_c15_c1_3, x1
-	isb
 	ret
 endfunc nvg_set_request_data
 

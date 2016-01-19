@@ -40,22 +40,70 @@
 #include <t18x_ari.h>
 #include <tegra_private.h>
 
+/* state id mask */
+#define TEGRA186_STATE_ID_MASK		0xF
+/* constants to get power state's wake time */
+#define TEGRA186_WAKE_TIME_MASK		0xFFFFFF
+#define TEGRA186_WAKE_TIME_SHIFT	4
+
+/* per cpu wake time value */
+static unsigned int wake_time[PLATFORM_CORE_COUNT];
+
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
 {
-	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+	int state_id = psci_get_pstate_id(power_state) & TEGRA186_STATE_ID_MASK;
+	int cpu = read_mpidr() & MPIDR_CPU_MASK;
 
-	/* Sanity check the requested afflvl */
-	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
+	/* get the wake time value */
+	wake_time[cpu] = (power_state & TEGRA186_WAKE_TIME_MASK) >>
+			  TEGRA186_WAKE_TIME_SHIFT;
+
+	/* Sanity check the requested state id */
+	switch (state_id) {
+	case PSTATE_ID_CORE_IDLE:
+	case PSTATE_ID_CORE_POWERDN:
 		/*
-		 * It's possible to enter standby only on affinity level 0 i.e.
-		 * a cpu on Tegra. Ignore any other affinity level.
+		 * Core powerdown request only for afflvl 0
 		 */
-		if (pwr_lvl != MPIDR_AFFLVL0)
-			return PSCI_E_INVALID_PARAMS;
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = state_id;
 
-		/* power domain in standby state */
-		req_state->pwr_domain_state[pwr_lvl] = PLAT_MAX_RET_STATE;
+		break;
+
+	default:
+		ERROR("%s: unsupported state id (%d)\n", __func__, state_id);
+		return PSCI_E_INVALID_PARAMS;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
+{
+	const plat_local_state_t *pwr_domain_state;
+	unsigned int stateid_afflvl0;
+	int cpu = read_mpidr() & MPIDR_CPU_MASK;
+
+	/* get the state ID */
+	pwr_domain_state = target_state->pwr_domain_state;
+	stateid_afflvl0 = pwr_domain_state[MPIDR_AFFLVL0] &
+		TEGRA186_STATE_ID_MASK;
+
+	if (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) {
+
+		/* Prepare for cpu idle */
+		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
+			TEGRA_ARI_CORE_C6, wake_time[cpu], 0);
+
+	} else if (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN) {
+
+		/* Prepare for cpu powerdn */
+		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
+			TEGRA_ARI_CORE_C7, wake_time[cpu], 0);
+
+	} else {
+		ERROR("%s: Unknown state id\n", __func__);
+		return PSCI_E_NOT_SUPPORTED;
 	}
 
 	return PSCI_E_SUCCESS;
