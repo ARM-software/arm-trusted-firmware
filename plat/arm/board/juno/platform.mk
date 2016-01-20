@@ -67,15 +67,18 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${JUNO_SECURITY_SOURCES}
 
 # Enable workarounds for selected Cortex-A57 erratas.
-ERRATA_A57_806969	:=	0
-ERRATA_A57_813420	:=	1
+ERRATA_A57_806969		:=	0
+ERRATA_A57_813420		:=	1
 
 # Enable option to skip L1 data cache flush during the Cortex-A57 cluster
 # power down sequence
 SKIP_A57_L1_FLUSH_PWR_DWN	:=	 1
 
 # Disable the PSCI platform compatibility layer
-ENABLE_PLAT_COMPAT	:= 	0
+ENABLE_PLAT_COMPAT		:= 	0
+
+# Enable memory map related constants optimisation
+ARM_BOARD_OPTIMISE_MMAP		:=	1
 
 include plat/arm/board/common/board_css.mk
 include plat/arm/common/arm_common.mk
