@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,6 @@
 /* Following covers CSS Peripherals excluding NSROM and NSRAM  */
 #define CSS_DEVICE_BASE			0x20000000
 #define CSS_DEVICE_SIZE			0x0e000000
-#define MHU_BASE			0x2b1f0000
 
 #define NSRAM_BASE			0x2e000000
 #define NSRAM_SIZE			0x00008000
@@ -125,10 +124,6 @@
 
 /* TZC related constants */
 #define PLAT_ARM_TZC_FILTERS		REG_ATTR_FILTER_BIT_ALL
-#define PLAT_ARM_TZC_BASE		0x2a4a0000
-
-/* System timer related constants */
-#define PLAT_ARM_NSTIMER_FRAME_ID	1
 
 /* Trusted mailbox base address common to all CSS */
 #define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE
