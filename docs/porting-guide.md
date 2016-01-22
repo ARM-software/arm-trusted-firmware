@@ -638,6 +638,35 @@ retrieved from the platform. The function also reports extra information related
 to the ROTPK in the flags parameter.
 
 
+### Function: plat_get_nv_ctr()
+
+    Argument : void *, unsigned int *
+    Return   : int
+
+This function is mandatory when Trusted Board Boot is enabled. It returns the
+non-volatile counter value stored in the platform in the second argument. The
+cookie in the first argument may be used to select the counter in case the
+platform provides more than one (for example, on platforms that use the default
+TBBR CoT, the cookie will correspond to the OID values defined in
+TRUSTED_FW_NVCOUNTER_OID or NON_TRUSTED_FW_NVCOUNTER_OID).
+
+The function returns 0 on success. Any other value means the counter value could
+not be retrieved from the platform.
+
+
+### Function: plat_set_nv_ctr()
+
+    Argument : void *, unsigned int
+    Return   : int
+
+This function is mandatory when Trusted Board Boot is enabled. It sets a new
+counter value in the platform. The cookie in the first argument may be used to
+select the counter (as explained in plat_get_nv_ctr()).
+
+The function returns 0 on success. Any other value means the counter value could
+not be updated.
+
+
 2.3 Common mandatory modifications
 ---------------------------------
 

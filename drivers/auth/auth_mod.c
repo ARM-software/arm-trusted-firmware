@@ -40,6 +40,9 @@
 #include <stdint.h>
 #include <string.h>
 
+/* ASN.1 tags */
+#define ASN1_INTEGER                 0x02
+
 #define return_if_error(rc) \
 	do { \
 		if (rc != 0) { \
@@ -227,6 +230,83 @@ static int auth_signature(const auth_method_param_sig_t *param,
 }
 
 /*
+ * Authenticate by Non-Volatile counter
+ *
+ * To protect the system against rollback, the platform includes a non-volatile
+ * counter whose value can only be increased. All certificates include a counter
+ * value that should not be lower than the value stored in the platform. If the
+ * value is larger, the counter in the platform must be updated to the new
+ * value.
+ *
+ * Return: 0 = success, Otherwise = error
+ */
+static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
+		      const auth_img_desc_t *img_desc,
+		      void *img, unsigned int img_len)
+{
+	char *p;
+	void *data_ptr = NULL;
+	unsigned int data_len, len, i;
+	unsigned int cert_nv_ctr, plat_nv_ctr;
+	int rc = 0;
+
+	/* Get the counter value from current image. The AM expects the IPM
+	 * to return the counter value as a DER encoded integer */
+	rc = img_parser_get_auth_param(img_desc->img_type, param->cert_nv_ctr,
+				       img, img_len, &data_ptr, &data_len);
+	return_if_error(rc);
+
+	/* Parse the DER encoded integer */
+	assert(data_ptr);
+	p = (char *)data_ptr;
+	if (*p != ASN1_INTEGER) {
+		/* Invalid ASN.1 integer */
+		return 1;
+	}
+	p++;
+
+	/* NV-counters are unsigned integers up to 32-bit */
+	len = (unsigned int)(*p & 0x7f);
+	if ((*p & 0x80) || (len > 4)) {
+		return 1;
+	}
+	p++;
+
+	/* Check the number is not negative */
+	if (*p & 0x80) {
+		return 1;
+	}
+
+	/* Convert to unsigned int. This code is for a little-endian CPU */
+	cert_nv_ctr = 0;
+	for (i = 0; i < len; i++) {
+		cert_nv_ctr = (cert_nv_ctr << 8) | *p++;
+	}
+
+	/* Get the counter from the platform */
+	rc = plat_get_nv_ctr(param->plat_nv_ctr->cookie, &plat_nv_ctr);
+	return_if_error(rc);
+
+	if (cert_nv_ctr < plat_nv_ctr) {
+		/* Invalid NV-counter */
+		return 1;
+	} else if (cert_nv_ctr > plat_nv_ctr) {
+		if (img_desc->parent == NULL) {
+			/* This certificate has been signed with the ROT key.
+			 * Update the platform counter value */
+			rc = plat_set_nv_ctr(param->plat_nv_ctr->cookie,
+					     cert_nv_ctr);
+			return_if_error(rc);
+		} else {
+			/* Secondary certificates cannot modify the counter */
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/*
  * Return the parent id in the output parameter '*parent_id'
  *
  * Return value:
@@ -308,6 +388,10 @@ int auth_mod_verify_img(unsigned int img_id,
 			break;
 		case AUTH_METHOD_SIG:
 			rc = auth_signature(&auth_method->param.sig,
+					img_desc, img_ptr, img_len);
+			break;
+		case AUTH_METHOD_NV_CTR:
+			rc = auth_nvctr(&auth_method->param.nv_ctr,
 					img_desc, img_ptr, img_len);
 			break;
 		default:

@@ -51,6 +51,11 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     endif
     $(eval $(call add_define,ARM_ROTPK_LOCATION_ID))
 
+    # Certificate NV-Counters. Use values corresponding to tied off values in
+    # ARM development platforms
+    TFW_NVCTR_VAL	?=	31
+    NTFW_NVCTR_VAL	?=	223
+
     BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
     BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
 endif

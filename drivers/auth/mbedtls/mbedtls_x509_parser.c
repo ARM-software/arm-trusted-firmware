@@ -405,6 +405,13 @@ static int check_integrity(void *img, unsigned int img_len)
 
 /*
  * Extract an authentication parameter from an X509v3 certificate
+ *
+ * This function returns a pointer to the extracted data and its length.
+ * Depending on the type of parameter, a pointer to the data stored in the
+ * certificate may be returned (i.e. an octet string containing a hash). Other
+ * data may need to be copied and formatted (i.e. integers). In the later case,
+ * a buffer of the correct type needs to be statically allocated, filled and
+ * returned.
  */
 static int get_auth_param(const auth_param_type_desc_t *type_desc,
 		void *img, unsigned int img_len,
@@ -422,6 +429,7 @@ static int get_auth_param(const auth_param_type_desc_t *type_desc,
 		*param_len = (unsigned int)tbs.len;
 		break;
 	case AUTH_PARAM_HASH:
+	case AUTH_PARAM_NV_CTR:
 		/* All these parameters are included as X509v3 extensions */
 		rc = get_ext(type_desc->cookie, param, param_len);
 		break;

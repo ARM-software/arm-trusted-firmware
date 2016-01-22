@@ -65,6 +65,13 @@
  */
 #define SOC_CSS_NIC400_APB4_BRIDGE	4
 
+/* Non-volatile counters */
+#define SOC_TRUSTED_NVCTR_BASE		0x7fe70000
+#define TFW_NVCTR_BASE			(SOC_TRUSTED_NVCTR_BASE + 0x0000)
+#define TFW_NVCTR_SIZE			4
+#define NTFW_CTR_BASE			(SOC_TRUSTED_NVCTR_BASE + 0x0004)
+#define NTFW_CTR_SIZE			4
+
 /* Keys */
 #define SOC_KEYS_BASE			0x7fe80000
 #define TZ_PUB_KEY_HASH_BASE		(SOC_KEYS_BASE + 0x0000)
