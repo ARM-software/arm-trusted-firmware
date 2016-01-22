@@ -35,10 +35,16 @@
 #include <openssl/x509v3.h>
 
 /* Extension types supported */
-enum {
+enum ext_type_e {
 	EXT_TYPE_NVCOUNTER,
 	EXT_TYPE_PKEY,
 	EXT_TYPE_HASH
+};
+
+/* NV-Counter types */
+enum nvctr_type_e {
+	NVCTR_TYPE_TFW,
+	NVCTR_TYPE_NTFW
 };
 
 /*
@@ -50,20 +56,21 @@ typedef struct ext_s {
 	const char *oid;	/* OID of the extension */
 	const char *sn;		/* Short name */
 	const char *ln;		/* Long description */
+	const char *opt;	/* Command line option to specify data */
 	const char *help_msg;	/* Help message */
+	const char *arg;	/* Argument passed from command line */
 	int asn1_type;		/* OpenSSL ASN1 type of the extension data.
 				 * Supported types are:
 				 *   - V_ASN1_INTEGER
 				 *   - V_ASN1_OCTET_STRING
 				 */
-	int type;
-	const char *opt;	/* Command line option to specify data */
-	/* Extension data (depends on extension type) */
+	int type;		/* See ext_type_e */
+
+	/* Extension attributes (depends on extension type) */
 	union {
-		const char *fn;	/* File with extension data */
-		int nvcounter;	/* Non volatile counter */
-		int key;	/* Public key */
-	} data;
+		int nvctr_type;	/* See nvctr_type_e */
+		int key;	/* Index into array of registered public keys */
+	} attr;
 
 	int alias;		/* In case OpenSSL provides an standard
 				 * extension of the same type, add the new
