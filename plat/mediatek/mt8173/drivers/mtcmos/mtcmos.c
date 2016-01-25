@@ -29,8 +29,11 @@
  */
 #include <mmio.h>
 #include <mt8173_def.h>
+#include <debug.h>
 #include <mtcmos.h>
 #include <spm.h>
+#include <spm_mcdi.h>
+#include <delay_timer.h>
 
 enum {
 	SRAM_ISOINT_B	= 1U << 6,
@@ -63,6 +66,55 @@ enum {
 	DIS_PWR_STA_MASK   = 0x1 << 3,
 	AUD_PWR_STA_MASK   = 0x1 << 24,
 };
+
+#define SPM_VDE_PWR_CON				0x0210
+#define SPM_MFG_PWR_CON				0x0214
+#define SPM_VEN_PWR_CON				0x0230
+#define SPM_ISP_PWR_CON				0x0238
+#define SPM_DIS_PWR_CON				0x023c
+#define SPM_VEN2_PWR_CON			0x0298
+#define SPM_AUDIO_PWR_CON			0x029c
+#define SPM_MFG_2D_PWR_CON			0x02c0
+#define SPM_MFG_ASYNC_PWR_CON			0x02c4
+#define SPM_USB_PWR_CON				0x02cc
+
+#define MTCMOS_CTRL_SUCCESS			0
+#define MTCMOS_CTRL_ERROR			-1
+
+#define MTCMOS_CTRL_EN				(0x1 << 18)
+
+#define VDE_PWR_ON				0
+#define VEN_PWR_ON				1
+#define ISP_PWR_ON				2
+#define DIS_PWR_ON				3
+#define VEN2_PWR_ON				4
+#define AUDIO_PWR_ON				5
+#define MFG_ASYNC_PWR_ON			6
+#define MFG_2D_PWR_ON				7
+#define MFG_PWR_ON				8
+#define USB_PWR_ON				9
+
+#define VDE_PWR_OFF				10
+#define VEN_PWR_OFF				11
+#define ISP_PWR_OFF				12
+#define DIS_PWR_OFF				13
+#define VEN2_PWR_OFF				14
+#define AUDIO_PWR_OFF				15
+#define MFG_ASYNC_PWR_OFF			16
+#define MFG_2D_PWR_OFF				17
+#define MFG_PWR_OFF				18
+#define USB_PWR_OFF				19
+
+#define VDE_PWR_CON_PWR_STA			7
+#define VEN_PWR_CON_PWR_STA			21
+#define ISP_PWR_CON_PWR_STA			5
+#define DIS_PWR_CON_PWR_STA			3
+#define VEN2_PWR_CON_PWR_STA			20
+#define AUDIO_PWR_CON_PWR_STA			24
+#define MFG_ASYNC_PWR_CON_PWR_STA		23
+#define MFG_2D_PWR_CON_PWR_STA			22
+#define MFG_PWR_CON_PWR_STA			4
+#define USB_PWR_CON_PWR_STA			25
 
 static void mtcmos_ctrl_little_off(unsigned int linear_id)
 {
@@ -119,4 +171,118 @@ void mtcmos_little_cpu_off(void)
 	mtcmos_ctrl_little_off(1);
 	mtcmos_ctrl_little_off(2);
 	mtcmos_ctrl_little_off(3);
+}
+
+uint32_t wait_mtcmos_ack(uint32_t on, uint32_t mtcmos_sta, uint32_t spm_pwr_sta)
+{
+	int i = 0;
+	uint32_t cmp, pwr_sta, pwr_sta_2nd;
+
+	while (1) {
+		cmp = (mmio_read_32(SPM_PCM_PASR_DPD_3) >> mtcmos_sta) & 1;
+		pwr_sta = (mmio_read_32(SPM_PWR_STATUS) >> spm_pwr_sta) & 1;
+		pwr_sta_2nd =
+			(mmio_read_32(SPM_PWR_STATUS_2ND) >> spm_pwr_sta) & 1;
+		if ((cmp == on) && (pwr_sta == on) && (pwr_sta_2nd == on)) {
+			mmio_write_32(SPM_PCM_RESERVE2, 0);
+			return MTCMOS_CTRL_SUCCESS;
+		}
+		udelay(10);
+		i++;
+		if (i > 10000) {
+			INFO("MTCMOS control failed(%d), SPM_PWR_STA(%d),\n"
+				"SPM_PCM_RESERVE=0x%x,SPM_PCM_RESERVE2=0x%x,\n"
+				"SPM_PWR_STATUS=0x%x,SPM_PWR_STATUS_2ND=0x%x\n"
+				"SPM_PCM_PASR_DPD_3 = 0x%x\n",
+				on, spm_pwr_sta, mmio_read_32(SPM_PCM_RESERVE),
+				mmio_read_32(SPM_PCM_RESERVE2),
+				mmio_read_32(SPM_PWR_STATUS),
+				mmio_read_32(SPM_PWR_STATUS_2ND),
+				mmio_read_32(SPM_PCM_PASR_DPD_3));
+			mmio_write_32(SPM_PCM_RESERVE2, 0);
+			return MTCMOS_CTRL_ERROR;
+		}
+	}
+}
+
+uint32_t mtcmos_non_cpu_ctrl(uint32_t on, uint32_t mtcmos_num)
+{
+	uint32_t ret = MTCMOS_CTRL_SUCCESS;
+	uint32_t power_on;
+	uint32_t power_off;
+	uint32_t power_status;
+
+	spm_lock_get();
+	spm_mcdi_prepare_for_mtcmos();
+	mmio_setbits_32(SPM_PCM_RESERVE, MTCMOS_CTRL_EN);
+
+	switch (mtcmos_num) {
+	case SPM_VDE_PWR_CON:
+		power_on = VDE_PWR_ON;
+		power_off = VDE_PWR_OFF;
+		power_status = VDE_PWR_CON_PWR_STA;
+		break;
+	case SPM_MFG_PWR_CON:
+		power_on = MFG_PWR_ON;
+		power_off = MFG_PWR_OFF;
+		power_status = MFG_PWR_CON_PWR_STA;
+		break;
+	case SPM_VEN_PWR_CON:
+		power_on = VEN_PWR_ON;
+		power_off = VEN_PWR_OFF;
+		power_status = VEN_PWR_CON_PWR_STA;
+		break;
+	case SPM_ISP_PWR_CON:
+		power_on = ISP_PWR_ON;
+		power_off = ISP_PWR_OFF;
+		power_status = ISP_PWR_CON_PWR_STA;
+		break;
+	case SPM_DIS_PWR_CON:
+		power_on = DIS_PWR_ON;
+		power_off = DIS_PWR_OFF;
+		power_status = DIS_PWR_CON_PWR_STA;
+		break;
+	case SPM_VEN2_PWR_CON:
+		power_on = VEN2_PWR_ON;
+		power_off = VEN2_PWR_OFF;
+		power_status = VEN2_PWR_CON_PWR_STA;
+		break;
+	case SPM_AUDIO_PWR_CON:
+		power_on = AUDIO_PWR_ON;
+		power_off = AUDIO_PWR_OFF;
+		power_status = AUDIO_PWR_CON_PWR_STA;
+		break;
+	case SPM_MFG_2D_PWR_CON:
+		power_on = MFG_2D_PWR_ON;
+		power_off = MFG_2D_PWR_OFF;
+		power_status = MFG_2D_PWR_CON_PWR_STA;
+		break;
+	case SPM_MFG_ASYNC_PWR_CON:
+		power_on = MFG_ASYNC_PWR_ON;
+		power_off = MFG_ASYNC_PWR_OFF;
+		power_status = MFG_ASYNC_PWR_CON_PWR_STA;
+		break;
+	case SPM_USB_PWR_CON:
+		power_on = USB_PWR_ON;
+		power_off = USB_PWR_OFF;
+		power_status = USB_PWR_CON_PWR_STA;
+		break;
+	default:
+		ret = MTCMOS_CTRL_ERROR;
+		INFO("No mapping MTCMOS(%d), ret = %d\n", mtcmos_num, ret);
+		break;
+	}
+
+	if (ret == MTCMOS_CTRL_SUCCESS) {
+		mmio_setbits_32(SPM_PCM_RESERVE2, on ?
+			(1 << power_on) : (1 << power_off));
+		ret = wait_mtcmos_ack(on, power_on, power_status);
+		VERBOSE("0x%x(%d), PWR_STATUS(0x%x), ret(%d)\n",
+			power_on, on, mmio_read_32(SPM_PWR_STATUS), ret);
+	}
+
+	mmio_clrbits_32(SPM_PCM_RESERVE, MTCMOS_CTRL_EN);
+	spm_lock_release();
+
+	return ret;
 }

@@ -37,5 +37,6 @@
  * during CPU_ON psci call.
  */
 void mtcmos_little_cpu_off(void);
+uint32_t mtcmos_non_cpu_ctrl(uint32_t on, uint32_t mtcmos_num);
 
 #endif /* __MTCMOS_H__ */

@@ -386,6 +386,8 @@ void spm_boot_init(void)
 {
 	/* Only CPU0 is online during boot, initialize cpu online reserve bit */
 	mmio_write_32(SPM_PCM_RESERVE, 0xFE);
+	mmio_clrbits_32(AP_PLL_CON3, 0xFFFFF);
+	mmio_clrbits_32(AP_PLL_CON4, 0xF);
 	spm_lock_init();
 	spm_register_init();
 }
