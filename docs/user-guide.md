@@ -456,6 +456,12 @@ map is explained in the [Firmware Design].
     Trusted Watchdog may be disabled at build time for testing or development
     purposes.
 
+*   `ARM_CONFIG_CNTACR`: boolean option to unlock access to the CNTBase<N>
+    frame registers by setting the CNTCTLBase.CNTACR<N> register bits. The
+    frame number <N> is defined by 'PLAT_ARM_NSTIMER_FRAME_ID', which should
+    match the frame used by the Non-Secure image (normally the Linux kernel).
+    Default is true (access to the frame is allowed).
+
 #### ARM CSS platform specific build options
 
 *   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version
