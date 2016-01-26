@@ -57,24 +57,6 @@ static int cpu_on_validate_state(aff_info_state_t aff_state)
 }
 
 /*******************************************************************************
- * This function sets the aff_info_state in the per-cpu data of the CPU
- * specified by cpu_idx
- ******************************************************************************/
-static void psci_set_aff_info_state_by_idx(unsigned int cpu_idx,
-					   aff_info_state_t aff_state)
-{
-
-	set_cpu_data_by_index(cpu_idx,
-			      psci_svc_cpu_data.aff_info_state,
-			      aff_state);
-
-	/*
-	 * Flush aff_info_state as it will be accessed with caches turned OFF.
-	 */
-	flush_cpu_data_by_index(cpu_idx, psci_svc_cpu_data.aff_info_state);
-}
-
-/*******************************************************************************
  * Generic handler which is called to physically power on a cpu identified by
  * its mpidr. It performs the generic, architectural, platform setup and state
  * management to power on the target cpu e.g. it will ensure that
@@ -90,6 +72,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 {
 	int rc;
 	unsigned int target_idx = plat_core_pos_by_mpidr(target_cpu);
+	aff_info_state_t target_aff_state;
 
 	/*
 	 * This function must only be called on platforms where the
@@ -119,8 +102,26 @@ int psci_cpu_on_start(u_register_t target_cpu,
 
 	/*
 	 * Set the Affinity info state of the target cpu to ON_PENDING.
+	 * Flush aff_info_state as it will be accessed with caches
+	 * turned OFF.
 	 */
 	psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_ON_PENDING);
+	flush_cpu_data_by_index(target_idx, psci_svc_cpu_data.aff_info_state);
+
+	/*
+	 * The cache line invalidation by the target CPU after setting the
+	 * state to OFF (see psci_do_cpu_off()), could cause the update to
+	 * aff_info_state to be invalidated. Retry the update if the target
+	 * CPU aff_info_state is not ON_PENDING.
+	 */
+	target_aff_state = psci_get_aff_info_state_by_idx(target_idx);
+	if (target_aff_state != AFF_STATE_ON_PENDING) {
+		assert(target_aff_state == AFF_STATE_OFF);
+		psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_ON_PENDING);
+		flush_cpu_data_by_index(target_idx, psci_svc_cpu_data.aff_info_state);
+
+		assert(psci_get_aff_info_state_by_idx(target_idx) == AFF_STATE_ON_PENDING);
+	}
 
 	/*
 	 * Perform generic, architecture and platform specific handling.
@@ -136,9 +137,11 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	if (rc == PSCI_E_SUCCESS)
 		/* Store the re-entry information for the non-secure world. */
 		cm_init_context_by_index(target_idx, ep);
-	else
+	else {
 		/* Restore the state on error. */
 		psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_OFF);
+		flush_cpu_data_by_index(target_idx, psci_svc_cpu_data.aff_info_state);
+	}
 
 exit:
 	psci_spin_unlock_cpu(target_idx);
