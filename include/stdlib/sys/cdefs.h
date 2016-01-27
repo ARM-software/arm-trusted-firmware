@@ -283,7 +283,7 @@
 
 #if __GNUC_PREREQ__(3, 1)
 #define	__noinline	__attribute__ ((__noinline__))
-#define	__deprecated	__attribute__ ((deprecated))
+#define	__deprecated	__attribute__ ((__deprecated__))
 #else
 #define	__noinline
 #define	__deprecated
