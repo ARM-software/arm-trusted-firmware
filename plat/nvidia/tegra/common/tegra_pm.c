@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -233,12 +233,7 @@ __dead2 void tegra_system_reset(void)
 int32_t tegra_validate_power_state(unsigned int power_state,
 				   psci_power_state_t *req_state)
 {
-	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
-
 	assert(req_state);
-
-	if (pwr_lvl > PLAT_MAX_PWR_LVL)
-		return PSCI_E_INVALID_PARAMS;
 
 	return tegra_soc_validate_power_state(power_state, req_state);
 }

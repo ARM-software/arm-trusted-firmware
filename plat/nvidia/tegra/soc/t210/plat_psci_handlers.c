@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -58,29 +58,7 @@ static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
 {
-	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
 	int state_id = psci_get_pstate_id(power_state);
-
-	if (pwr_lvl > PLAT_MAX_PWR_LVL) {
-		ERROR("%s: unsupported power_state (0x%x)\n", __func__,
-			power_state);
-		return PSCI_E_INVALID_PARAMS;
-	}
-
-	/* Sanity check the requested afflvl */
-	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
-		/*
-		 * It's possible to enter standby only on affinity level 0 i.e.
-		 * a cpu on Tegra. Ignore any other affinity level.
-		 */
-		if (pwr_lvl != MPIDR_AFFLVL0)
-			return PSCI_E_INVALID_PARAMS;
-
-		/* power domain in standby state */
-		req_state->pwr_domain_state[pwr_lvl] = PLAT_MAX_RET_STATE;
-
-		return PSCI_E_SUCCESS;
-	}
 
 	/* Sanity check the requested state id */
 	switch (state_id) {
@@ -88,9 +66,6 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		/*
 		 * Core powerdown request only for afflvl 0
 		 */
-		if (pwr_lvl != MPIDR_AFFLVL0)
-			goto error;
-
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = state_id & 0xff;
 
 		break;
@@ -100,9 +75,6 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		/*
 		 * Cluster powerdown/idle request only for afflvl 1
 		 */
-		if (pwr_lvl != MPIDR_AFFLVL1)
-			goto error;
-
 		req_state->pwr_domain_state[MPIDR_AFFLVL1] = state_id;
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
 
@@ -112,9 +84,6 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		/*
 		 * System powerdown request only for afflvl 2
 		 */
-		if (pwr_lvl != PLAT_MAX_PWR_LVL)
-			goto error;
-
 		for (int i = MPIDR_AFFLVL0; i < PLAT_MAX_PWR_LVL; i++)
 			req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 
@@ -129,10 +98,6 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 	}
 
 	return PSCI_E_SUCCESS;
-
-error:
-	ERROR("%s: unsupported state id (%d)\n", __func__, state_id);
-	return PSCI_E_INVALID_PARAMS;
 }
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)

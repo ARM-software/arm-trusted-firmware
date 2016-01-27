@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,9 @@
 #
 
 SOC_DIR			:=	plat/nvidia/tegra/soc/${TARGET_SOC}
+
+# Enable PSCI v1.0 extended state ID format
+PSCI_EXTENDED_STATE_ID	:=	1
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:=	0
