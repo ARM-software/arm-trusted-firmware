@@ -290,6 +290,11 @@ define MAKE_TOOL_ARGS
         $(if $(3),$(eval $(call FIP_ADD_PAYLOAD,$(2),--$(3),bl$(1))))
 endef
 
+# Allow overriding the timestamp, for example for reproducible builds, or to
+# synchronize timestamps across multiple projects.
+# The first quote of the default value ends a C string, the final one
+# starts an empty trailing string.
+BUILD_MESSAGE_TIMESTAMP?="__TIME__", "__DATE__"
 
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
@@ -315,7 +320,7 @@ $(BUILD_DIR):
 
 $(ELF): $(OBJS) $(LINKERFILE)
 	@echo "  LD      $$@"
-	@echo 'const char build_message[] = "Built : "__TIME__", "__DATE__; \
+	@echo 'const char build_message[] = "Built : $(BUILD_MESSAGE_TIMESTAMP)"; \
 	       const char version_string[] = "${VERSION_STRING}";' | \
 		$$(CC) $$(CFLAGS) -xc - -o $(BUILD_DIR)/build_message.o
 	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
