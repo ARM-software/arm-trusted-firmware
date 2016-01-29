@@ -151,16 +151,12 @@ func cortex_a53_reset_func
 #endif
 
 	/* ---------------------------------------------
-	 * As a bare minimum enable the SMP bit if it is
-	 * not already set.
+	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CPUECTLR_EL1
-	tst	x0, #CPUECTLR_SMP_BIT
-	b.ne	skip_smp_setup
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
-skip_smp_setup:
 	isb
 	ret	x19
 endfunc cortex_a53_reset_func
