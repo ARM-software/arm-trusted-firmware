@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,9 @@
 
 #include <arm_def.h>
 
-
+#ifndef FVP_CLUSTER_COUNT
+#define FVP_CLUSTER_COUNT		2
+#endif
 #define FVP_MAX_CPUS_PER_CLUSTER	4
 
 #define FVP_PRIMARY_CPU			0x0

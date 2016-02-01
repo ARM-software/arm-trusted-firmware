@@ -41,11 +41,15 @@
 #include <v2m_def.h>
 #include "../juno_def.h"
 
+/* Required platform porting definitions */
 /* Juno supports system power domain */
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL2
 #define PLAT_NUM_PWR_DOMAINS		(ARM_SYSTEM_COUNT + \
-					ARM_CLUSTER_COUNT + \
+					JUNO_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
+#define PLATFORM_CORE_COUNT		(JUNO_CLUSTER0_CORE_COUNT + \
+					JUNO_CLUSTER1_CORE_COUNT)
+
 /*
  * Other platform porting definitions are provided by included headers
  */
@@ -53,8 +57,7 @@
 /*
  * Required ARM standard platform porting definitions
  */
-#define PLAT_ARM_CLUSTER0_CORE_COUNT	2
-#define PLAT_ARM_CLUSTER1_CORE_COUNT	4
+#define PLAT_ARM_CLUSTER_COUNT		JUNO_CLUSTER_COUNT
 
 /* Use the bypass address */
 #define PLAT_ARM_TRUSTED_ROM_BASE	V2M_FLASH0_BASE + BL1_ROM_BYPASS_OFFSET

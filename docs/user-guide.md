@@ -486,6 +486,11 @@ map is explained in the [Firmware Design].
     Trusted Firmware must be compiled with GICv2 only driver using
     `FVP_USE_GIC_DRIVER=FVP_GICV2` build option.
 
+*   `FVP_CLUSTER_COUNT`    : Configures the cluster count to be used to
+     build the topology tree within Trusted Firmware. By default the
+     Trusted Firmware is configured for dual cluster topology and this option
+     can be used to override the default value.
+
 ### Creating a Firmware Image Package
 
 FIPs are automatically created as part of the build instructions described in

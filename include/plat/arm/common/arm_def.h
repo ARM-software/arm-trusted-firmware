@@ -44,7 +44,6 @@
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		0x0f1e2d3c4b5a6978ULL
 
-#define ARM_CLUSTER_COUNT		2
 #define ARM_SYSTEM_COUNT		1
 
 #define ARM_CACHE_WRITEBACK_SHIFT	6
@@ -217,10 +216,6 @@
  * higher than this is invalid.
  */
 #define PLAT_MAX_OFF_STATE		ARM_LOCAL_STATE_OFF
-
-
-#define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER0_CORE_COUNT + \
-					 PLAT_ARM_CLUSTER1_CORE_COUNT)
 
 /*
  * Some data must be aligned on the biggest cache line size in the platform.

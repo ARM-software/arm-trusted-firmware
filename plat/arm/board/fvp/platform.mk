@@ -34,6 +34,11 @@ FVP_USE_GIC_DRIVER	:= FVP_GICV3_LEGACY
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
+# If FVP_CLUSTER_COUNT has been defined, pass it into the build system.
+ifdef FVP_CLUSTER_COUNT
+$(eval $(call add_define,FVP_CLUSTER_COUNT))
+endif
+
 # Choose the GIC sources depending upon the how the FVP will be invoked
 ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
 FVP_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\

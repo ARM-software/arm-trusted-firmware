@@ -53,6 +53,13 @@
 #define JUNO_SSC_VER_PART_NUM		0x030
 
 /*******************************************************************************
+ * Juno topology related constants
+ ******************************************************************************/
+#define JUNO_CLUSTER_COUNT		2
+#define JUNO_CLUSTER0_CORE_COUNT	2
+#define JUNO_CLUSTER1_CORE_COUNT	4
+
+/*******************************************************************************
  * TZC-400 related constants
  ******************************************************************************/
 #define TZC400_NSAID_CCI400		0  /* Note: Same as default NSAID!! */

@@ -39,9 +39,10 @@
 #include "../fvp_def.h"
 
 /* Required platform porting definitions */
-#define PLAT_NUM_PWR_DOMAINS		(ARM_CLUSTER_COUNT + \
+#define PLAT_NUM_PWR_DOMAINS		(FVP_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
+#define PLATFORM_CORE_COUNT		(FVP_CLUSTER_COUNT * FVP_MAX_CPUS_PER_CLUSTER)
 
 /*
  * Other platform porting definitions are provided by included headers
@@ -50,8 +51,7 @@
 /*
  * Required ARM standard platform porting definitions
  */
-#define PLAT_ARM_CLUSTER0_CORE_COUNT	4
-#define PLAT_ARM_CLUSTER1_CORE_COUNT	4
+#define PLAT_ARM_CLUSTER_COUNT		FVP_CLUSTER_COUNT
 
 #define PLAT_ARM_TRUSTED_ROM_BASE	0x00000000
 #define PLAT_ARM_TRUSTED_ROM_SIZE	0x04000000	/* 64 MB */

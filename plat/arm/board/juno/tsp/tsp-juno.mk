@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-BL32_SOURCES		+=	plat/arm/css/common/css_topology.c	\
+BL32_SOURCES		+=	plat/arm/board/juno/juno_topology.c	\
+				plat/arm/css/common/css_topology.c	\
 				${JUNO_GIC_SOURCES}
 
 include plat/arm/common/tsp/arm_tsp.mk
