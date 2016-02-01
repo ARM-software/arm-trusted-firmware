@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <gic_common.h>
 #include <mmio.h>
+#include "gic_common_private.h"
 
 /*******************************************************************************
  * GIC Distributor interface accessors for reading entire registers
@@ -239,7 +240,10 @@ void gicd_write_nsacr(uintptr_t base, unsigned int id, unsigned int val)
 }
 
 /*******************************************************************************
- * GIC Distributor interface accessors for individual interrupt manipulation
+ * GIC Distributor functions for accessing the GIC registers
+ * corresponding to a single interrupt ID. These functions use bitwise
+ * operations or appropriate register accesses to modify or return
+ * the bit-field corresponding the single interrupt ID.
  ******************************************************************************/
 unsigned int gicd_get_igroupr(uintptr_t base, unsigned int id)
 {

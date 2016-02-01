@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <gic_common.h>
+#include "../common/gic_common_private.h"
 #include "gicv2_private.h"
 
 /*
