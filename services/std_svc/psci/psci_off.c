@@ -129,10 +129,13 @@ exit:
 		 * Set the affinity info state to OFF. This writes directly to
 		 * main memory as caches are disabled, so cache maintenance is
 		 * required to ensure that later cached reads of aff_info_state
-		 * return AFF_STATE_OFF.
+		 * return AFF_STATE_OFF.  A dsbish() ensures ordering of the
+		 * update to the affinity info state prior to cache line
+		 * invalidation.
 		 */
 		flush_cpu_data(psci_svc_cpu_data.aff_info_state);
 		psci_set_aff_info_state(AFF_STATE_OFF);
+		dsbish();
 		inv_cpu_data(psci_svc_cpu_data.aff_info_state);
 
 		/*
