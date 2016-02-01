@@ -96,6 +96,16 @@ static void platform_setup_cpu(void)
 	/* set LITTLE cores arm64 boot mode */
 	mmio_setbits_32((uintptr_t)&mt8173_mcucfg->mp0_rv_addr[0].rv_addr_hw,
 		MP0_CPUCFG_64BIT);
+
+	/* enable dcm control */
+	mmio_setbits_32((uintptr_t)&mt8173_mcucfg->bus_fabric_dcm_ctrl,
+		ADB400_GRP_DCM_EN | CCI400_GRP_DCM_EN | ADBCLK_GRP_DCM_EN |
+		EMICLK_GRP_DCM_EN | ACLK_GRP_DCM_EN | L2C_IDLE_DCM_EN |
+		INFRACLK_PSYS_DYNAMIC_CG_EN);
+	mmio_setbits_32((uintptr_t)&mt8173_mcucfg->l2c_sram_ctrl,
+		L2C_SRAM_DCM_EN);
+	mmio_setbits_32((uintptr_t)&mt8173_mcucfg->cci_clk_ctrl,
+		MCU_BUS_DCM_EN);
 }
 
 /*******************************************************************************

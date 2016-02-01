@@ -176,4 +176,70 @@ enum {
 	MP1_L2RSTDISABLE = 1 << MP1_L2RSTDISABLE_SHIFT
 };
 
+/* cci clock control related */
+enum {
+	MCU_BUS_DCM_EN	= 1 << 8
+};
+
+/* l2c sram control related */
+enum {
+	L2C_SRAM_DCM_EN = 1 << 0
+};
+
+/* bus fabric dcm control related */
+enum {
+	PSYS_ADB400_DCM_EN		= 1 << 29,
+	GPU_ADB400_DCM_EN		= 1 << 28,
+
+	EMI1_ADB400_DCM_EN		= 1 << 27,
+	EMI_ADB400_DCM_EN		= 1 << 26,
+	INFRA_ADB400_DCM_EN		= 1 << 25,
+	L2C_ADB400_DCM_EN		= 1 << 24,
+
+	MP0_ADB400_DCM_EN		= 1 << 23,
+	CCI400_CK_ONLY_DCM_EN		= 1 << 22,
+	L2C_IDLE_DCM_EN			= 1 << 21,
+
+	CA15U_ADB_DYNAMIC_CG_EN		= 1 << 19,
+	CA7L_ADB_DYNAMIC_CG_EN		= 1 << 18,
+	L2C_ADB_DYNAMIC_CG_EN		= 1 << 17,
+
+	EMICLK_EMI1_DYNAMIC_CG_EN	= 1 << 12,
+
+	INFRACLK_PSYS_DYNAMIC_CG_EN	= 1 << 11,
+	EMICLK_GPU_DYNAMIC_CG_EN	= 1 << 10,
+	EMICLK_EMI_DYNAMIC_CG_EN	= 1 << 8,
+
+	CCI400_SLV_RW_DCM_EN		= 1 << 7,
+	CCI400_SLV_DCM_EN		= 1 << 5,
+
+	ACLK_PSYS_DYNAMIC_CG_EN		= 1 << 3,
+	ACLK_GPU_DYNAMIC_CG_EN		= 1 << 2,
+	ACLK_EMI_DYNAMIC_CG_EN		= 1 << 1,
+	ACLK_INFRA_DYNAMIC_CG_EN	= 1 << 0,
+
+	/* adb400 related */
+	ADB400_GRP_DCM_EN = PSYS_ADB400_DCM_EN | GPU_ADB400_DCM_EN |
+			    EMI1_ADB400_DCM_EN | EMI_ADB400_DCM_EN |
+			    INFRA_ADB400_DCM_EN | L2C_ADB400_DCM_EN |
+			    MP0_ADB400_DCM_EN,
+
+	/* cci400 related */
+	CCI400_GRP_DCM_EN = CCI400_CK_ONLY_DCM_EN | CCI400_SLV_RW_DCM_EN |
+			    CCI400_SLV_DCM_EN,
+
+	/* adb clock related */
+	ADBCLK_GRP_DCM_EN = CA15U_ADB_DYNAMIC_CG_EN | CA7L_ADB_DYNAMIC_CG_EN |
+			    L2C_ADB_DYNAMIC_CG_EN,
+
+	/* emi clock related */
+	EMICLK_GRP_DCM_EN = EMICLK_EMI1_DYNAMIC_CG_EN |
+			    EMICLK_GPU_DYNAMIC_CG_EN |
+			    EMICLK_EMI_DYNAMIC_CG_EN,
+
+	/* bus clock related */
+	ACLK_GRP_DCM_EN = ACLK_PSYS_DYNAMIC_CG_EN | ACLK_GPU_DYNAMIC_CG_EN |
+			  ACLK_EMI_DYNAMIC_CG_EN | ACLK_INFRA_DYNAMIC_CG_EN,
+};
+
 #endif  /* __MCUCFG_H__ */
