@@ -859,6 +859,84 @@ flow. In particular:
 *   MMU disabled;
 *   Caches disabled.
 
+### Booting an EL3 payload
+
+The EL3 payload image is a standalone image and is not part of the FIP. It is
+not loaded by the Trusted Firmware. Therefore, there are 2 possible scenarios:
+
+*   The EL3 payload may reside in non-volatile memory (NVM) and execute in
+    place. In this case, booting it is just a matter of specifying the right
+    address in NVM through `EL3_PAYLOAD_BASE` when building the TF.
+
+*   The EL3 payload needs to be loaded in volatile memory (e.g. DRAM) at
+    run-time.
+
+To help in the latter scenario, the `SPIN_ON_BL1_EXIT=1` build option can be
+used. The infinite loop that it introduces in BL1 stops execution at the right
+moment for a debugger to take control of the target and load the payload (for
+example, over JTAG).
+
+It is expected that this loading method will work in most cases, as a debugger
+connection is usually available in a pre-production system. The user is free to
+use any other platform-specific mechanism to load the EL3 payload, though.
+
+#### Booting an EL3 payload on FVP
+
+The EL3 payloads boot flow requires the CPU's mailbox to be cleared at reset for
+the secondary CPUs holding pen to work properly. Unfortunately, its reset value
+is undefined on the FVP platform and the FVP platform code doesn't clear it.
+Therefore, one must modify the way the model is normally invoked in order to
+clear the mailbox at start-up.
+
+One way to do that is to create an 8-byte file containing all zero bytes using
+the following command:
+
+    dd if=/dev/zero of=mailbox.dat bs=1 count=8
+
+and pre-load it into the FVP memory at the mailbox address (i.e. `0x04000000`)
+using the following model parameters:
+
+    --data cluster0.cpu0=mailbox.dat@0x04000000   [Base FVPs]
+    --data=mailbox.dat@0x04000000                 [Foundation FVP]
+
+To provide the model with the EL3 payload image, the following methods may be
+used:
+
+1.  If the EL3 payload is able to execute in place, it may be programmed into
+    flash memory. On Base Cortex and AEM FVPs, the following model parameter
+    loads it at the base address of the NOR FLASH1 (the NOR FLASH0 is already
+    used for the FIP):
+
+        -C bp.flashloader1.fname="/path/to/el3-payload"
+
+    On Foundation FVP, there is no flash loader component and the EL3 payload
+    may be programmed anywhere in flash using method 3 below.
+
+2.  When using the `SPIN_ON_BL1_EXIT=1` loading method, the following DS-5
+    command may be used to load the EL3 payload ELF image over JTAG:
+
+        load /path/to/el3-payload.elf
+
+3.  The EL3 payload may be pre-loaded in volatile memory using the following
+    model parameters:
+
+        --data cluster0.cpu0="/path/to/el3-payload"@address  [Base FVPs]
+        --data="/path/to/el3-payload"@address                [Foundation FVP]
+
+    The address provided to the FVP must match the `EL3_PAYLOAD_BASE` address
+    used when building the Trusted Firmware.
+
+#### Booting an EL3 payload on Juno
+
+If the EL3 payload is able to execute in place, it may be programmed in flash
+memory by adding an entry in the `SITE1/HBI0262x/images.txt` configuration file
+on the Juno SD card (where `x` depends on the revision of the Juno board).
+Refer to the [Juno Getting Started Guide], section 2.3 "Flash memory
+programming" for more information.
+
+Alternatively, the same DS-5 command mentioned in the FVP section above can
+be used to load the EL3 payload's ELF file over JTAG on Juno.
+
 
 8.  Preparing the images to run on FVP
 --------------------------------------
@@ -1211,38 +1289,6 @@ The `bp.variant` parameter corresponds to the build variant field of the
 `SYS_ID` register.  Setting this to `0x0` allows the ARM Trusted Firmware to
 detect the legacy VE memory map while configuring the GIC.
 
-### Booting an EL3 payload on FVP
-
-Booting an EL3 payload on FVP requires a couple of changes to the way the
-model is normally invoked.
-
-First of all, the EL3 payload image is not part of the FIP and is not loaded by
-the Trusted Firmware. Therefore, it must be loaded in memory some other way.
-There are 2 ways of doing that:
-
-1.  It can be loaded over JTAG at the appropriate time. The infinite loop
-    introduced in BL1 when compiling the Trusted Firmware with
-    `SPIN_ON_BL1_EXIT=1` stops execution at the right moment for a debugger to
-    take control of the target and load the payload.
-
-2.  It can be pre-loaded in the FVP memory using the following model parameter:
-
-        --data="<path-to-binary>"@<base-address-of-binary>
-
-    The base address provided to the FVP must match the `EL3_PAYLOAD_BASE`
-    address used when building the Trusted Firmware.
-
-Secondly, the EL3 payloads boot flow requires the CPUs mailbox to be cleared
-at reset for the secondary CPUs holding pen to work properly. Unfortunately,
-its reset value is undefined on FVP. One way to clear it is to create an
-8-byte file containing all zero bytes and pre-load it into the FVP memory at the
-mailbox address (i.e. `0x04000000`) using the same `--data` FVP parameter as
-described above.
-
-The following command creates such a file called `mailbox.dat`:
-
-    dd if=/dev/zero of=mailbox.dat bs=1 count=8
-
 
 10.  Running the software on Juno
 ---------------------------------
@@ -1344,7 +1390,7 @@ used to test the GICv3 kernel on the respective FVP models.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 
 [Firmware Design]:             firmware-design.md
