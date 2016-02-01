@@ -78,6 +78,9 @@
 		get_cpu_data(psci_svc_cpu_data.aff_info_state)
 #define psci_get_aff_info_state_by_idx(idx) \
 		get_cpu_data_by_index(idx, psci_svc_cpu_data.aff_info_state)
+#define psci_set_aff_info_state_by_idx(idx, aff_state) \
+		set_cpu_data_by_index(idx, psci_svc_cpu_data.aff_info_state,\
+					aff_state)
 #define psci_get_suspend_pwrlvl() \
 		get_cpu_data(psci_svc_cpu_data.target_pwrlvl)
 #define psci_set_suspend_pwrlvl(target_lvl) \
