@@ -147,6 +147,8 @@ static unsigned long mmap_desc(unsigned attr, unsigned long addr_pa,
 		desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
 		if (attr & MT_RW)
 			desc |= UPPER_ATTRS(XN);
+		if (attr & MT_MEMORY_NC)
+			desc |= LOWER_ATTRS(ATTR_MEMORY_NC_INDEX | OSH);
 	} else {
 		desc |= LOWER_ATTRS(ATTR_DEVICE_INDEX | OSH);
 		desc |= UPPER_ATTRS(XN);
@@ -305,6 +307,8 @@ void init_xlat_tables(void)
 		mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);	\
 		mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,		\
 				ATTR_IWBWA_OWBWA_NTR_INDEX);		\
+		mair |= MAIR_ATTR_SET(ATTR_MEMORY_NC,			\
+				ATTR_MEMORY_NC_INDEX);			\
 		write_mair_el##_el(mair);				\
 									\
 		/* Invalidate TLBs at the current exception level */	\
