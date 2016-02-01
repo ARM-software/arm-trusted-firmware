@@ -31,7 +31,6 @@
 #ifndef __PLATFORM_DEF_H__
 #define __PLATFORM_DEF_H__
 
-#define DEBUG_XLAT_TABLE 0
 
 /*******************************************************************************
  * Platform binary types for linking
@@ -44,9 +43,7 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
-#if DEBUG_XLAT_TABLE
-#define PLATFORM_STACK_SIZE 0x800
-#elif IMAGE_BL1
+#if IMAGE_BL1
 #define PLATFORM_STACK_SIZE 0x440
 #elif IMAGE_BL2
 #define PLATFORM_STACK_SIZE 0x400
