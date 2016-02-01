@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,28 +53,12 @@
 #define ENTRY_POINT_INFO_ARGS_OFFSET	0x18
 
 /* The following are used to set/get image attributes. */
-#define EXECUTABLE			(0x1)
-#define NON_EXECUTABLE			(0x0)
-#define PARAM_EP_EXECUTE_MASK		(0x1)
-#define PARAM_EP_EXECUTE_SHIFT		(0x1)
 #define PARAM_EP_SECURITY_MASK		(0x1)
-#define PARAM_EP_SECURITY_SHIFT		(0x0)
 
 #define GET_SECURITY_STATE(x) (x & PARAM_EP_SECURITY_MASK)
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
 
-#define GET_EXEC_STATE(x)    \
-    (((x) >> PARAM_EP_EXECUTE_SHIFT) & PARAM_EP_EXECUTE_MASK)
-
-#define SET_EXEC_STATE(x)    \
-    (((x) & PARAM_EP_EXECUTE_MASK) << PARAM_EP_EXECUTE_SHIFT)
-
-#define GET_SEC_STATE(x)    \
-    (((x) >> PARAM_EP_SECURITY_SHIFT) & PARAM_EP_SECURITY_MASK)
-
-#define SET_SEC_STATE(x)    \
-    (((x) & PARAM_EP_SECURITY_MASK) << PARAM_EP_SECURITY_SHIFT)
 
 /*
  * The following are used for image state attributes.
@@ -99,11 +83,17 @@
 #define EP_GET_ST(x) (x & EP_ST_MASK)
 #define EP_SET_ST(x, ee) ((x) = ((x) & ~EP_ST_MASK) | (ee))
 
-#define PARAM_EP     0x01
-#define PARAM_IMAGE_BINARY  0x02
-#define PARAM_BL31       0x03
+#define EP_EXE_MASK	0x8
+#define NON_EXECUTABLE	0x0
+#define EXECUTABLE	0x8
+#define EP_GET_EXE(x) (x & EP_EXE_MASK)
+#define EP_SET_EXE(x, ee) ((x) = ((x) & ~EP_EXE_MASK) | (ee))
 
-#define VERSION_1		0x01
+#define PARAM_EP		0x01
+#define PARAM_IMAGE_BINARY	0x02
+#define PARAM_BL31		0x03
+
+#define VERSION_1	0x01
 
 #define INVALID_IMAGE_ID		(0xFFFFFFFF)
 
@@ -113,6 +103,14 @@
 	(_p)->h.size = (uint16_t)sizeof(*_p); \
 	(_p)->h.attr = (uint32_t)(_attr) ; \
 	} while (0)
+
+/* Following is used for populating structure members statically. */
+#define SET_STATIC_PARAM_HEAD(_p, _type, _ver, _p_type, _attr)	\
+	._p.h.type = (uint8_t)(_type), \
+	._p.h.version = (uint8_t)(_ver), \
+	._p.h.size = (uint16_t)sizeof(_p_type), \
+	._p.h.attr = (uint32_t)(_attr)
+
 
 /*******************************************************************************
  * Constants to indicate type of exception to the common exception handler.
@@ -224,7 +222,6 @@ typedef struct image_info {
 	param_header_t h;
 	uintptr_t image_base;   /* physical address of base of image */
 	uint32_t image_size;    /* bytes read from image file */
-	uint32_t copied_size;	/* image size copied in blocks */
 } image_info_t;
 
 /*****************************************************************************
@@ -238,6 +235,7 @@ typedef struct image_desc {
 	 * Refer IMAGE_STATE_XXX defined above.
 	 */
 	unsigned int state;
+	uint32_t copied_size;	/* image size copied in blocks */
 	image_info_t image_info;
 	entry_point_info_t ep_info;
 } image_desc_t;

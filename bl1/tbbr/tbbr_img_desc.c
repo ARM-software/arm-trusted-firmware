@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,42 +35,46 @@
 image_desc_t bl1_tbbr_image_descs[] = {
     {
 	    .image_id = FWU_CERT_ID,
-	    .image_info.h.attr = SET_EXEC_STATE(NON_EXECUTABLE),
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+		    VERSION_1, image_info_t, 0),
 	    .image_info.image_base = BL2_BASE,
-	    .ep_info.h.attr = SET_SEC_STATE(SECURE),
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+		    VERSION_1, entry_point_info_t, SECURE),
     },
 #if NS_BL1U_BASE
     {
 	    .image_id = NS_BL1U_IMAGE_ID,
-	    .image_info.h.attr = SET_EXEC_STATE(EXECUTABLE),
-	    .image_info.image_base = NS_BL1U_BASE,
-	    .ep_info.h.attr = SET_SEC_STATE(NON_SECURE),
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+		    VERSION_1, entry_point_info_t, NON_SECURE | EXECUTABLE),
 	    .ep_info.pc = NS_BL1U_BASE,
     },
 #endif
 #if SCP_BL2U_BASE
     {
 	    .image_id = SCP_BL2U_IMAGE_ID,
-	    .image_info.h.attr = SET_EXEC_STATE(NON_EXECUTABLE),
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+		    VERSION_1, image_info_t, 0),
 	    .image_info.image_base = SCP_BL2U_BASE,
-	    .ep_info.h.attr = SET_SEC_STATE(SECURE),
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+		    VERSION_1, entry_point_info_t, SECURE),
     },
 #endif
 #if BL2U_BASE
     {
 	    .image_id = BL2U_IMAGE_ID,
-	    .image_info.h.attr = SET_EXEC_STATE(EXECUTABLE),
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+		    VERSION_1, image_info_t, 0),
 	    .image_info.image_base = BL2U_BASE,
-	    .ep_info.h.attr = SET_SEC_STATE(SECURE),
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+		    VERSION_1, entry_point_info_t, SECURE | EXECUTABLE),
 	    .ep_info.pc = BL2U_BASE,
     },
 #endif
 #if NS_BL2U_BASE
     {
 	    .image_id = NS_BL2U_IMAGE_ID,
-	    .image_info.h.attr = SET_EXEC_STATE(NON_EXECUTABLE),
-	    .image_info.image_base = NS_BL2U_BASE,
-	    .ep_info.h.attr = SET_SEC_STATE(NON_SECURE),
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+		    VERSION_1, entry_point_info_t, NON_SECURE),
     },
 #endif
 	    BL2_IMAGE_DESC,

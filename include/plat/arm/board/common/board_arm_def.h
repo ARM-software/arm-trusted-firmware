@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -142,6 +142,9 @@
 
 #define PLAT_ARM_FIP_BASE		V2M_FLASH0_BASE
 #define PLAT_ARM_FIP_MAX_SIZE		V2M_FLASH0_SIZE
+
+#define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
+#define PLAT_ARM_NVM_SIZE		V2M_FLASH0_SIZE
 
 
 #endif /* __BOARD_ARM_DEF_H__ */

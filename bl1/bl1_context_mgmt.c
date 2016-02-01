@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,7 +74,7 @@ void bl1_prepare_next_image(unsigned int image_id)
 	next_bl_ep = &image_desc->ep_info;
 
 	/* Get the image security state. */
-	security_state = GET_SEC_STATE(next_bl_ep->h.attr);
+	security_state = GET_SECURITY_STATE(next_bl_ep->h.attr);
 
 	/* Setup the Secure/Non-Secure context if not done already. */
 	if (!cm_get_context(security_state))

@@ -299,7 +299,7 @@
 #define BL2U_BASE			BL2_BASE
 #define BL2U_LIMIT			BL31_BASE
 #define NS_BL2U_BASE			ARM_NS_DRAM1_BASE
-#define NS_BL1U_BASE			(V2M_FLASH0_BASE + 0x03EB8000)
+#define NS_BL1U_BASE			(PLAT_ARM_NVM_BASE + 0x03EB8000)
 
 /*
  * ID of the secure physical generic timer interrupt used by the TSP.

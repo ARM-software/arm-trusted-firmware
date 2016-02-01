@@ -129,8 +129,8 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     PLAT_INCLUDES	+=	-Iinclude/bl1/tbbr
 
-    BL1_SOURCES		+=	${AUTH_SOURCES}			\
-				bl1/tbbr/tbbr_img_desc.c	\
+    BL1_SOURCES		+=	${AUTH_SOURCES}					\
+				bl1/tbbr/tbbr_img_desc.c			\
 				plat/arm/common/arm_bl1_fwu.c
 
     BL2_SOURCES		+=	${AUTH_SOURCES}

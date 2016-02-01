@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -135,8 +135,8 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 	}
 
 	/* Only Normal world is allowed to copy a Secure image. */
-	if ((GET_SEC_STATE(flags) == SECURE) ||
-		(GET_SEC_STATE(image_desc->ep_info.h.attr) == NON_SECURE)) {
+	if ((GET_SECURITY_STATE(flags) == SECURE) ||
+	    (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == NON_SECURE)) {
 		WARN("BL1-FWU: Copy not allowed for Non-Secure "
 			 "image from Secure-world\n");
 		return -EPERM;
@@ -156,10 +156,10 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		 * If last block is more than expected then
 		 * clip the block to the required image size.
 		 */
-		if (image_desc->image_info.copied_size + block_size >
+		if (image_desc->copied_size + block_size >
 			 image_desc->image_info.image_size) {
 			block_size = image_desc->image_info.image_size -
-				image_desc->image_info.copied_size;
+				image_desc->copied_size;
 			WARN("BL1-FWU: Copy argument block_size > remaining image size."
 				" Clipping block_size\n");
 		}
@@ -173,13 +173,13 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		INFO("BL1-FWU: Continuing image copy in blocks\n");
 
 		/* Copy image for given block size. */
-		base_addr += image_desc->image_info.copied_size;
-		image_desc->image_info.copied_size += block_size;
+		base_addr += image_desc->copied_size;
+		image_desc->copied_size += block_size;
 		memcpy((void *)base_addr, (const void *)image_src, block_size);
 		flush_dcache_range(base_addr, block_size);
 
 		/* Update the state if last block. */
-		if (image_desc->image_info.copied_size ==
+		if (image_desc->copied_size ==
 				image_desc->image_info.image_size) {
 			image_desc->state = IMAGE_STATE_COPIED;
 			INFO("BL1-FWU: Image copy in blocks completed\n");
@@ -234,7 +234,7 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			INFO("BL1-FWU: Started image copy in blocks\n");
 		}
 
-		image_desc->image_info.copied_size = block_size;
+		image_desc->copied_size = block_size;
 	}
 
 	return 0;
@@ -257,14 +257,14 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 	if (!image_desc)
 		return -EPERM;
 
-	if (GET_SEC_STATE(flags) == SECURE) {
+	if (GET_SECURITY_STATE(flags) == SECURE) {
 		if (image_desc->state != IMAGE_STATE_RESET) {
 			WARN("BL1-FWU: Authentication from secure world "
 				"while in invalid state\n");
 			return -EPERM;
 		}
 	} else {
-		if (GET_SEC_STATE(image_desc->ep_info.h.attr) == SECURE) {
+		if (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE) {
 			if (image_desc->state != IMAGE_STATE_COPIED) {
 				WARN("BL1-FWU: Authentication of secure image "
 					"from non-secure world while not in copied state\n");
@@ -369,10 +369,10 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 	 * Image is NOT in AUTHENTICATED state.
 	 */
 	if ((!image_desc) ||
-		(GET_SEC_STATE(flags) == SECURE) ||
-		(GET_SEC_STATE(image_desc->ep_info.h.attr) == NON_SECURE) ||
-		(GET_EXEC_STATE(image_desc->image_info.h.attr) == NON_EXECUTABLE) ||
-		(image_desc->state != IMAGE_STATE_AUTHENTICATED)) {
+	    (GET_SECURITY_STATE(flags) == SECURE) ||
+	    (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == NON_SECURE) ||
+	    (EP_GET_EXE(image_desc->ep_info.h.attr) == NON_EXECUTABLE) ||
+	    (image_desc->state != IMAGE_STATE_AUTHENTICATED)) {
 		WARN("BL1-FWU: Execution not allowed due to invalid state/args\n");
 		return -EPERM;
 	}
@@ -402,7 +402,7 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 {
 	image_desc_t *image_desc;
 	unsigned int resume_sec_state;
-	unsigned int caller_sec_state = GET_SEC_STATE(flags);
+	unsigned int caller_sec_state = GET_SECURITY_STATE(flags);
 
 	/* Get the image descriptor for last executed secure image id. */
 	image_desc = bl1_plat_get_image_desc(sec_exec_image_id);
@@ -417,8 +417,8 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 		assert(image_desc);
 	}
 
-	assert(GET_SEC_STATE(image_desc->ep_info.h.attr) == SECURE);
-	assert(GET_EXEC_STATE(image_desc->image_info.h.attr) == EXECUTABLE);
+	assert(GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE);
+	assert(EP_GET_EXE(image_desc->ep_info.h.attr) == EXECUTABLE);
 
 	if (caller_sec_state == SECURE) {
 		assert(image_desc->state == IMAGE_STATE_EXECUTED);
@@ -458,7 +458,7 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 	image_desc_t *image_desc;
 
 	/* Make sure caller is from the secure world */
-	if (GET_SEC_STATE(flags) == NON_SECURE) {
+	if (GET_SECURITY_STATE(flags) == NON_SECURE) {
 		WARN("BL1-FWU: Image done not allowed from normal world\n");
 		return -EPERM;
 	}
@@ -468,8 +468,8 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 
 	/* image_desc must correspond to a valid secure executing image */
 	assert(image_desc);
-	assert(GET_SEC_STATE(image_desc->ep_info.h.attr) == SECURE);
-	assert(GET_EXEC_STATE(image_desc->image_info.h.attr) == EXECUTABLE);
+	assert(GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE);
+	assert(EP_GET_EXE(image_desc->ep_info.h.attr) == EXECUTABLE);
 	assert(image_desc->state == IMAGE_STATE_EXECUTED);
 
 	/* Update the flags. */
