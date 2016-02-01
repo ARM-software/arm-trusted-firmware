@@ -38,15 +38,31 @@ DEFINE_SVC_UUID(mtk_sip_svc_uid,
 		0xf7582ba4, 0x4262, 0x4d7d, 0x80, 0xe5,
 		0x8f, 0x95, 0x05, 0x00, 0x0f, 0x3d);
 
-/*
- * This function handles Mediatek defined SiP Calls */
+/* Weak definitions may be overridden in specific Mediatek platform */
+#pragma weak mediatek_plat_sip_handler
+
+uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
+				uint64_t x1,
+				uint64_t x2,
+				uint64_t x3,
+				uint64_t x4,
+				void *cookie,
+				void *handle,
+				uint64_t flags)
+{
+	ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
+	SMC_RET1(handle, SMC_UNK);
+}
+
+/* This function handles Mediatek defined SiP Calls */
 static uint64_t mediatek_sip_handler(uint32_t smc_fid,
 				     uint64_t x1,
 				     uint64_t x2,
 				     uint64_t x3,
 				     uint64_t x4,
 				     void *cookie,
-				     void *handle)
+				     void *handle,
+				     uint64_t flags)
 {
 	uint64_t ret;
 
@@ -56,11 +72,9 @@ static uint64_t mediatek_sip_handler(uint32_t smc_fid,
 		SMC_RET1(handle, ret);
 
 	default:
-		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
-		break;
+		return mediatek_plat_sip_handler(smc_fid, x1, x2, x3, x4,
+			cookie, handle, flags);
 	}
-
-	SMC_RET1(handle, SMC_UNK);
 }
 
 /*
@@ -98,7 +112,7 @@ uint64_t sip_smc_handler(uint32_t smc_fid,
 
 	default:
 		return mediatek_sip_handler(smc_fid, x1, x2, x3, x4,
-			cookie, handle);
+			cookie, handle, flags);
 	}
 }
 
