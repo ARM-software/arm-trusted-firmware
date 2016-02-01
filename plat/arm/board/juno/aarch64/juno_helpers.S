@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -201,8 +201,7 @@ func plat_reset_handler
 	JUMP_TO_HANDLER_IF_JUNO_R(2)
 
 	/* Board revision is not supported */
-not_supported:
-	b	not_supported
+	bl	plat_panic_handler
 
 endfunc plat_reset_handler
 

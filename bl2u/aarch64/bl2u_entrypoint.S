@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -122,6 +122,10 @@ func bl2u_entrypoint
 	 */
 	bl	bl2u_main
 
-_panic:
-	b	_panic
+	/* ---------------------------------------------
+	 * Should never reach this point.
+	 * ---------------------------------------------
+	 */
+	bl	plat_panic_handler
+
 endfunc bl2u_entrypoint

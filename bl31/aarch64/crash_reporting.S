@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -351,17 +351,17 @@ func do_crash_reporting
 	plat_print_interconnect_regs
 
 	/* Done reporting */
-	b	crash_panic
+	bl	plat_panic_handler
 endfunc do_crash_reporting
 
 #else	/* CRASH_REPORTING */
 func report_unhandled_exception
 report_unhandled_interrupt:
-	b	crash_panic
+	bl	plat_panic_handler
 endfunc report_unhandled_exception
 #endif	/* CRASH_REPORTING */
 
 
 func crash_panic
-	b	crash_panic
+	bl	plat_panic_handler
 endfunc crash_panic

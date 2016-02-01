@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,8 +43,8 @@ func bl2_entrypoint
 	 * available to BL2 for future use.
 	 * x0 is not currently used.
 	 * ---------------------------------------------
- 	 */
- 	mov	x20, x1
+	 */
+	mov	x20, x1
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
@@ -126,6 +126,11 @@ func bl2_entrypoint
 	 * ---------------------------------------------
 	 */
 	bl	bl2_main
-_panic:
-	b	_panic
+
+	/* ---------------------------------------------
+	 * Should never reach this point.
+	 * ---------------------------------------------
+	 */
+	bl	plat_panic_handler
+
 endfunc bl2_entrypoint
