@@ -103,8 +103,8 @@ void runtime_svc_init(void)
 		 */
 		rc = validate_rt_svc_desc(&rt_svc_descs[index]);
 		if (rc) {
-			ERROR("Invalid runtime service descriptor 0x%lx (%s)\n",
-					(uintptr_t) &rt_svc_descs[index],
+			ERROR("Invalid runtime service descriptor %p (%s)\n",
+					(void *) &rt_svc_descs[index],
 					rt_svc_descs[index].name);
 			goto error;
 		}

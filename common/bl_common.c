@@ -229,7 +229,8 @@ int load_image(meminfo_t *mem_layout,
 		return io_result;
 	}
 
-	INFO("Loading image id=%u at address 0x%lx\n", image_id, image_base);
+	INFO("Loading image id=%u at address %p\n", image_id,
+		(void *) image_base);
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
@@ -242,8 +243,8 @@ int load_image(meminfo_t *mem_layout,
 	/* Check that the memory where the image will be loaded is free */
 	if (!is_mem_free(mem_layout->free_base, mem_layout->free_size,
 			 image_base, image_size)) {
-		WARN("Failed to reserve memory: 0x%lx - 0x%lx\n",
-			image_base, image_base + image_size);
+		WARN("Failed to reserve memory: %p - %p\n", (void *) image_base,
+		     (void *) (image_base + image_size));
 		dump_load_info(image_base, image_size, mem_layout);
 		io_result = -ENOMEM;
 		goto exit;
@@ -268,8 +269,8 @@ int load_image(meminfo_t *mem_layout,
 		reserve_mem(&mem_layout->free_base, &mem_layout->free_size,
 				image_base, image_size);
 	} else {
-		INFO("Skip reserving memory: 0x%lx - 0x%lx\n",
-				image_base, image_base + image_size);
+		INFO("Skip reserving memory: %p - %p\n", (void *) image_base,
+		     (void *) (image_base + image_size));
 	}
 
 	image_data->image_base = image_base;
@@ -284,8 +285,8 @@ int load_image(meminfo_t *mem_layout,
 	 */
 	flush_dcache_range(image_base, image_size);
 
-	INFO("Image id=%u loaded: 0x%lx - 0x%lx\n", image_id, image_base,
-	     image_base + image_size);
+	INFO("Image id=%u loaded: %p - %p\n", image_id, (void *) image_base,
+	     (void *) (image_base + image_size));
 
 exit:
 	io_close(image_handle);
