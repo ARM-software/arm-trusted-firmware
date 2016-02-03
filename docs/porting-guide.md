@@ -466,6 +466,18 @@ memory layout implies some image overlaying like in ARM standard platforms.
 
     Defines the maximum address that the TSP's progbits sections can occupy.
 
+If the platform port uses the PL061 GPIO driver, the following constant may
+optionally be defined:
+
+*   **PLAT_PL061_MAX_GPIOS**
+    Maximum number of GPIOs required by the platform. This allows control how
+    much memory is allocated for PL061 GPIO controllers. The default value is
+    32.
+    [For example, define the build flag in platform.mk]:
+    PLAT_PL061_MAX_GPIOS    :=      160
+    $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))
+
+
 ### File : plat_macros.S [mandatory]
 
 Each platform must ensure a file of this name is in the system include path with
