@@ -1893,6 +1893,16 @@ build system.
     of excluding the BL33 image in the `fip` image by defining this flag to
     `no`.
 
+*   **PLAT_PL061_MAX_GPIOS**
+    By default, PL061 GPIO driver defines the build flag `PLAT_PL061_MAX_GPIOS`
+    to 32. It means that 4 PL061 GPIO controllers are configured. If more PL061
+    GPIO controllers are required on user platform, user should define it in
+    platform.mk instead.
+    [For example, define the build flag in platform.mk]:
+    PLAT_PL061_MAX_GPIOS    :=      160
+    $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))
+
+
 5.  C Library
 -------------
 
