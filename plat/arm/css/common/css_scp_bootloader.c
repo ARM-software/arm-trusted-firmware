@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -60,7 +60,7 @@ typedef struct {
  * Unlike the SCPI protocol, the boot protocol uses the same memory region
  * for both AP -> SCP and SCP -> AP transfers; define the address of this...
  */
-#define BOM_SHARED_MEM		SCP_COM_SHARED_MEM_BASE
+#define BOM_SHARED_MEM		PLAT_CSS_SCP_COM_SHARED_MEM_BASE
 #define BOM_CMD_HEADER		((bom_cmd_t *) BOM_SHARED_MEM)
 #define BOM_CMD_PAYLOAD		((void *) (BOM_SHARED_MEM + sizeof(bom_cmd_t)))
 

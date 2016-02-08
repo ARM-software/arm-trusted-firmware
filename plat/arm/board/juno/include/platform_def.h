@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -98,6 +98,20 @@
 #define PLAT_ARM_GICC_BASE		0x2c02f000
 #define PLAT_ARM_GICH_BASE		0x2c04f000
 #define PLAT_ARM_GICV_BASE		0x2c06f000
+
+/*
+ * Base address of the first memory region used for communication between AP
+ * and SCP. Used by the BOM and SCPI protocols.
+ *
+ * Note that this is located at the same address as SCP_BOOT_CFG_ADDR, which
+ * means the SCP/AP configuration data gets overwritten when the AP initiates
+ * communication with the SCP. The configuration data is expected to be a
+ * 32-bit word on all CSS platforms. On Juno, part of this configuration is
+ * which CPU is the primary, according to the shift and mask definitions below.
+ */
+#define PLAT_CSS_SCP_COM_SHARED_MEM_BASE	(ARM_TRUSTED_SRAM_BASE + 0x80)
+#define PLAT_CSS_PRIMARY_CPU_SHIFT		8
+#define PLAT_CSS_PRIMARY_CPU_BIT_WIDTH		4
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3

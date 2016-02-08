@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -78,25 +78,12 @@
  * SCP <=> AP boot configuration
  *
  * The SCP/AP boot configuration is a 32-bit word located at a known offset from
- * the start of the Trusted SRAM. Part of this configuration is which CPU is the
- * primary, according to the shift and mask definitions below.
+ * the start of the Trusted SRAM.
  *
  * Note that the value stored at this address is only valid at boot time, before
  * the SCP_BL2 image is transferred to SCP.
  */
-#define SCP_BOOT_CFG_ADDR		(ARM_TRUSTED_SRAM_BASE + 0x80)
-#define PRIMARY_CPU_SHIFT		8
-#define PRIMARY_CPU_BIT_WIDTH		4
-
-/*
- * Base address of the first memory region used for communication between AP
- * and SCP. Used by the BOM and SCPI protocols.
- *
- * Note that this is located at the same address as SCP_BOOT_CFG_ADDR, which
- * means the SCP/AP configuration data gets overwritten when the AP initiates
- * communication with the SCP.
- */
-#define SCP_COM_SHARED_MEM_BASE		(ARM_TRUSTED_SRAM_BASE + 0x80)
+#define SCP_BOOT_CFG_ADDR		PLAT_CSS_SCP_COM_SHARED_MEM_BASE
 
 #define CSS_MAP_DEVICE			MAP_REGION_FLAT(		\
 						CSS_DEVICE_BASE,	\

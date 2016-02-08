@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,8 +37,9 @@
 #include "css_mhu.h"
 #include "css_scpi.h"
 
-#define SCPI_SHARED_MEM_SCP_TO_AP	SCP_COM_SHARED_MEM_BASE
-#define SCPI_SHARED_MEM_AP_TO_SCP	(SCP_COM_SHARED_MEM_BASE + 0x100)
+#define SCPI_SHARED_MEM_SCP_TO_AP	PLAT_CSS_SCP_COM_SHARED_MEM_BASE
+#define SCPI_SHARED_MEM_AP_TO_SCP	(PLAT_CSS_SCP_COM_SHARED_MEM_BASE \
+								 + 0x100)
 
 #define SCPI_CMD_HEADER_AP_TO_SCP		\
 	((scpi_cmd_t *) SCPI_SHARED_MEM_AP_TO_SCP)
