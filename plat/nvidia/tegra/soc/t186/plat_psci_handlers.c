@@ -35,6 +35,7 @@
 #include <context.h>
 #include <context_mgmt.h>
 #include <debug.h>
+#include <denver.h>
 #include <mce.h>
 #include <psci.h>
 #include <t18x_ari.h>
@@ -46,7 +47,6 @@
 #define TEGRA186_WAKE_TIME_MASK		0xFFFFFF
 #define TEGRA186_WAKE_TIME_SHIFT	4
 
-/* per cpu wake time value */
 static unsigned int wake_time[PLATFORM_CORE_COUNT];
 
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
@@ -54,10 +54,13 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 {
 	int state_id = psci_get_pstate_id(power_state) & TEGRA186_STATE_ID_MASK;
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
+	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 
-	/* get the wake time value */
-	wake_time[cpu] = (power_state & TEGRA186_WAKE_TIME_MASK) >>
-			  TEGRA186_WAKE_TIME_SHIFT;
+	if (impl == DENVER_IMPL)
+		cpu |= 0x4;
+
+	wake_time[cpu] = (power_state  >> TEGRA186_WAKE_TIME_SHIFT) &
+			 TEGRA186_WAKE_TIME_MASK;
 
 	/* Sanity check the requested state id */
 	switch (state_id) {
@@ -83,6 +86,10 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	const plat_local_state_t *pwr_domain_state;
 	unsigned int stateid_afflvl0;
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
+	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+
+	if (impl == DENVER_IMPL)
+		cpu |= 0x4;
 
 	/* get the state ID */
 	pwr_domain_state = target_state->pwr_domain_state;
@@ -145,7 +152,7 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 
 	/* Turn off CPU */
 	return mce_command_handler(MCE_CMD_ENTER_CSTATE, TEGRA_ARI_CORE_C7,
-			~0, 0);
+			MCE_CORE_SLEEP_TIME_INFINITE, 0);
 }
 
 __dead2 void tegra_soc_prepare_system_off(void)
