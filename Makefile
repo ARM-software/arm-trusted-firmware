@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -294,9 +294,9 @@ ifneq (${ENABLE_PLAT_COMPAT}, 0)
 include plat/compat/plat_compat.mk
 endif
 
-# Include the CPU specific operations makefile. By default all CPU errata
-# workarounds and CPU specific optimisations are disabled. This can be
-# overridden by the platform.
+# Include the CPU specific operations makefile, which provides default
+# values for all CPU errata workarounds and CPU specific optimisations.
+# This can be overridden by the platform.
 include lib/cpus/cpu-ops.mk
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,8 +61,9 @@
  ******************************************************************************/
 #define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
 
-#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
-#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
+#define CPUACTLR_DIS_OVERREAD		(1 << 52)
+#define CPUACTLR_NO_ALLOC_WBWA		(1 << 49)
+#define CPUACTLR_DCC_AS_DCCI		(1 << 44)
 
 /*******************************************************************************
  * L2 Control register specific definitions.

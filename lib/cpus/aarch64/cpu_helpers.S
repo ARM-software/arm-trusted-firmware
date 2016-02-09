@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -205,16 +205,17 @@ error_exit:
 endfunc get_cpu_ops_ptr
 
 #if DEBUG
-	/*
-	 * This function prints a warning message to the crash console
-	 * if the CPU revision/part number does not match the errata
-	 * workaround enabled in the build.
-	 * Clobber: x30, x0 - x5
-	 */
 .section .rodata.rev_warn_str, "aS"
 rev_warn_str:
-	.asciz "Warning: Skipping Errata workaround for non matching CPU revision number.\n"
+	.asciz "Warning: Skipping CPU specific reset operation for non-matching CPU revision number.\n"
 
+	/*
+	 * This function prints the above warning message to the crash console.
+	 * It should be called when a CPU specific operation is enabled in the
+	 * build but doesn't apply to this CPU revision/part number.
+	 *
+	 * Clobber: x30, x0 - x5
+	 */
 	.globl	print_revision_warning
 func print_revision_warning
 	mov	x5, x30

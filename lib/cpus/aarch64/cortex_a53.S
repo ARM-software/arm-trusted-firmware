@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -86,33 +86,40 @@ apply_826319:
 	ret
 endfunc errata_a53_826319_wa
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A53 Errata #836870.
-	 * This applies only to revision <= r0p3 of Cortex A53.
-	 * From r0p4 and onwards, this errata is enabled by
-	 * default.
+	/* ---------------------------------------------------------------------
+	 * Disable the cache non-temporal hint.
+	 *
+	 * This ignores the Transient allocation hint in the MAIR and treats
+	 * allocations the same as non-transient allocation types. As a result,
+	 * the LDNP and STNP instructions in AArch64 behave the same as the
+	 * equivalent LDP and STP instructions.
+	 *
+	 * This is relevant only for revisions <= r0p3 of Cortex-A53.
+	 * From r0p4 and onwards, the bit to disable the hint is enabled by
+	 * default at reset.
+	 *
 	 * Inputs:
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
 	 * Clobbers : x0 - x5
-	 * --------------------------------------------------
+	 * ---------------------------------------------------------------------
 	 */
-func errata_a53_836870_wa
+func a53_disable_non_temporal_hint
 	/*
 	 * Compare x0 against revision r0p3
 	 */
 	cmp	x0, #3
-	b.ls	apply_836870
+	b.ls	disable_hint
 #if DEBUG
 	b	print_revision_warning
 #else
 	ret
 #endif
-apply_836870:
+disable_hint:
 	mrs	x1, CPUACTLR_EL1
 	orr	x1, x1, #CPUACTLR_DTAH
 	msr	CPUACTLR_EL1, x1
 	ret
-endfunc errata_a53_836870_wa
+endfunc a53_disable_non_temporal_hint
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A53.
@@ -138,22 +145,18 @@ func cortex_a53_reset_func
 	bl	errata_a53_826319_wa
 #endif
 
-#if ERRATA_A53_836870
+#if ERRATA_A53_836870 || A53_DISABLE_NON_TEMPORAL_HINT
 	mov	x0, x15
-	bl	errata_a53_836870_wa
+	bl	a53_disable_non_temporal_hint
 #endif
 
 	/* ---------------------------------------------
-	 * As a bare minimum enable the SMP bit if it is
-	 * not already set.
+	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CPUECTLR_EL1
-	tst	x0, #CPUECTLR_SMP_BIT
-	b.ne	skip_smp_setup
 	orr	x0, x0, #CPUECTLR_SMP_BIT
 	msr	CPUECTLR_EL1, x0
-skip_smp_setup:
 	isb
 	ret	x19
 endfunc cortex_a53_reset_func

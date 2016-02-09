@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,9 +32,25 @@
 # cluster is powered down.
 SKIP_A57_L1_FLUSH_PWR_DWN	?=0
 
+# Flag to disable the cache non-temporal hint.
+# It is enabled by default.
+A53_DISABLE_NON_TEMPORAL_HINT	?=1
+
+# Flag to disable the cache non-temporal hint.
+# It is enabled by default.
+A57_DISABLE_NON_TEMPORAL_HINT	?=1
+
 # Process SKIP_A57_L1_FLUSH_PWR_DWN flag
 $(eval $(call assert_boolean,SKIP_A57_L1_FLUSH_PWR_DWN))
 $(eval $(call add_define,SKIP_A57_L1_FLUSH_PWR_DWN))
+
+# Process A53_DISABLE_NON_TEMPORAL_HINT flag
+$(eval $(call assert_boolean,A53_DISABLE_NON_TEMPORAL_HINT))
+$(eval $(call add_define,A53_DISABLE_NON_TEMPORAL_HINT))
+
+# Process A57_DISABLE_NON_TEMPORAL_HINT flag
+$(eval $(call assert_boolean,A57_DISABLE_NON_TEMPORAL_HINT))
+$(eval $(call add_define,A57_DISABLE_NON_TEMPORAL_HINT))
 
 
 # CPU Errata Build flags. These should be enabled by the

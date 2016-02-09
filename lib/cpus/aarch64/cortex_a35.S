@@ -67,16 +67,12 @@ endfunc cortex_a35_disable_smp
 	 */
 func cortex_a35_reset_func
 	/* ---------------------------------------------
-	 * As a bare minimum enable the SMP bit if it is
-	 * not already set.
+	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CORTEX_A35_CPUECTLR_EL1
-	tst	x0, #CORTEX_A35_CPUECTLR_SMPEN_BIT
-	b.ne	skip_smp_setup
 	orr	x0, x0, #CORTEX_A35_CPUECTLR_SMPEN_BIT
 	msr	CORTEX_A35_CPUECTLR_EL1, x0
-skip_smp_setup:
 	isb
 	ret
 endfunc cortex_a35_reset_func
