@@ -268,7 +268,7 @@ static unsigned long long ccn_master_to_rn_id_map(unsigned long long master_map)
 /*******************************************************************************
  * This function executes the necessary operations to add or remove Request node
  * IDs specified in the 'rn_id_map' bitmap from the snoop/DVM domains specified
- * in the 'hn_id_map'. The 'region_id' specifies the ID of the first HN-F/HN-I
+ * in the 'hn_id_map'. The 'region_id' specifies the ID of the first HN-F/MN
  * on which the operation should be performed. 'op_reg_offset' specifies the
  * type of operation (add/remove). 'stat_reg_offset' specifies the register
  * which should be polled to determine if the operation has completed or not.
@@ -310,35 +310,6 @@ static void ccn_snoop_dvm_do_op(unsigned long long rn_id_map,
 }
 
 /*******************************************************************************
- * This function reads the bitmap of Home nodes on the basis of the
- * 'mn_hn_id_reg_offset' parameter from the Miscellaneous node's (MN)
- * programmer's view. The MN has a register which carries the bitmap of present
- * Home nodes of each type i.e. HN-Fs, HN-Is & HN-Ds. It calls
- * 'ccn_snoop_dvm_do_op()' with this information to perform the actual
- * operation.
- ******************************************************************************/
-static void ccn_snoop_dvm_domain_common(unsigned long long rn_id_map,
-					unsigned int hn_op_reg_offset,
-					unsigned int hn_stat_reg_offset,
-					unsigned int mn_hn_id_reg_offset,
-					unsigned int hn_region_id)
-{
-	unsigned long long mn_hn_id_map;
-
-	assert(ccn_plat_desc);
-	assert(ccn_plat_desc->periphbase);
-
-	mn_hn_id_map = ccn_reg_read(ccn_plat_desc->periphbase,
-				    MN_REGION_ID,
-				    mn_hn_id_reg_offset);
-	ccn_snoop_dvm_do_op(rn_id_map,
-			    mn_hn_id_map,
-			    hn_region_id,
-			    hn_op_reg_offset,
-			    hn_stat_reg_offset);
-}
-
-/*******************************************************************************
  * The following functions provide the boot and runtime API to the platform for
  * adding and removing master interfaces from the snoop/DVM domains. A bitmap of
  * master interfaces IDs is passed as a parameter. It is converted into a bitmap
@@ -357,17 +328,18 @@ void ccn_enter_snoop_dvm_domain(unsigned long long master_iface_map)
 	unsigned long long rn_id_map;
 
 	rn_id_map = ccn_master_to_rn_id_map(master_iface_map);
-	ccn_snoop_dvm_domain_common(rn_id_map,
-				    HNF_SDC_SET_OFFSET,
-				    HNF_SDC_STAT_OFFSET,
-				    MN_HNF_NODEID_OFFSET,
-				    HNF_REGION_ID_START);
+	ccn_snoop_dvm_do_op(rn_id_map,
+			    CCN_GET_HN_NODEID_MAP(ccn_plat_desc->periphbase,
+						  MN_HNF_NODEID_OFFSET),
+			    HNF_REGION_ID_START,
+			    HNF_SDC_SET_OFFSET,
+			    HNF_SDC_STAT_OFFSET);
 
-	ccn_snoop_dvm_domain_common(rn_id_map,
-				    MN_DDC_SET_OFF,
-				    MN_DDC_STAT_OFFSET,
-				    MN_HNI_NODEID_OFFSET,
-				    MN_REGION_ID);
+	ccn_snoop_dvm_do_op(rn_id_map,
+			    CCN_GET_MN_NODEID_MAP(ccn_plat_desc->periphbase),
+			    MN_REGION_ID,
+			    MN_DDC_SET_OFFSET,
+			    MN_DDC_STAT_OFFSET);
 }
 
 void ccn_exit_snoop_dvm_domain(unsigned long long master_iface_map)
@@ -375,17 +347,18 @@ void ccn_exit_snoop_dvm_domain(unsigned long long master_iface_map)
 	unsigned long long rn_id_map;
 
 	rn_id_map = ccn_master_to_rn_id_map(master_iface_map);
-	ccn_snoop_dvm_domain_common(rn_id_map,
-				    HNF_SDC_CLR_OFFSET,
-				    HNF_SDC_STAT_OFFSET,
-				    MN_HNF_NODEID_OFFSET,
-				    HNF_REGION_ID_START);
+	ccn_snoop_dvm_do_op(rn_id_map,
+			    CCN_GET_HN_NODEID_MAP(ccn_plat_desc->periphbase,
+						  MN_HNF_NODEID_OFFSET),
+			    HNF_REGION_ID_START,
+			    HNF_SDC_CLR_OFFSET,
+			    HNF_SDC_STAT_OFFSET);
 
-	ccn_snoop_dvm_domain_common(rn_id_map,
-				    MN_DDC_CLR_OFFSET,
-				    MN_DDC_STAT_OFFSET,
-				    MN_HNI_NODEID_OFFSET,
-				    MN_REGION_ID);
+	ccn_snoop_dvm_do_op(rn_id_map,
+			    CCN_GET_MN_NODEID_MAP(ccn_plat_desc->periphbase),
+			    MN_REGION_ID,
+			    MN_DDC_CLR_OFFSET,
+			    MN_DDC_STAT_OFFSET);
 }
 
 void ccn_enter_dvm_domain(unsigned long long master_iface_map)
@@ -393,11 +366,11 @@ void ccn_enter_dvm_domain(unsigned long long master_iface_map)
 	unsigned long long rn_id_map;
 
 	rn_id_map = ccn_master_to_rn_id_map(master_iface_map);
-	ccn_snoop_dvm_domain_common(rn_id_map,
-				    MN_DDC_SET_OFF,
-				    MN_DDC_STAT_OFFSET,
-				    MN_HNI_NODEID_OFFSET,
-				    MN_REGION_ID);
+	ccn_snoop_dvm_do_op(rn_id_map,
+			    CCN_GET_MN_NODEID_MAP(ccn_plat_desc->periphbase),
+			    MN_REGION_ID,
+			    MN_DDC_SET_OFFSET,
+			    MN_DDC_STAT_OFFSET);
 }
 
 void ccn_exit_dvm_domain(unsigned long long master_iface_map)
@@ -405,11 +378,11 @@ void ccn_exit_dvm_domain(unsigned long long master_iface_map)
 	unsigned long long rn_id_map;
 
 	rn_id_map = ccn_master_to_rn_id_map(master_iface_map);
-	ccn_snoop_dvm_domain_common(rn_id_map,
-				    MN_DDC_CLR_OFFSET,
-				    MN_DDC_STAT_OFFSET,
-				    MN_HNI_NODEID_OFFSET,
-				    MN_REGION_ID);
+	ccn_snoop_dvm_do_op(rn_id_map,
+			    CCN_GET_MN_NODEID_MAP(ccn_plat_desc->periphbase),
+			    MN_REGION_ID,
+			    MN_DDC_CLR_OFFSET,
+			    MN_DDC_STAT_OFFSET);
 }
 
 /*******************************************************************************
