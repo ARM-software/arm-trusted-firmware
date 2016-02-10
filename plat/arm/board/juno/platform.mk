@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,10 @@ JUNO_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				plat/common/plat_gicv2.c		\
 				plat/arm/common/arm_gicv2.c
 
+JUNO_SECURITY_SOURCES	:=	drivers/arm/tzc400/tzc400.c		\
+				plat/arm/board/juno/juno_security.c	\
+				plat/arm/common/arm_tzc400.c
+
 PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/aarch64/juno_helpers.S
@@ -44,17 +48,17 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				plat/arm/board/juno/juno_bl1_setup.c	\
 				plat/arm/board/juno/juno_err.c
 
-BL2_SOURCES		+=	plat/arm/board/juno/juno_security.c	\
-				plat/arm/board/juno/juno_err.c
+BL2_SOURCES		+=	plat/arm/board/juno/juno_err.c		\
+				${JUNO_SECURITY_SOURCES}
 
-BL2U_SOURCES		+=	plat/arm/board/juno/juno_security.c
+BL2U_SOURCES		+=	${JUNO_SECURITY_SOURCES}
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				plat/arm/board/juno/juno_pm.c		\
-				plat/arm/board/juno/juno_security.c	\
-				${JUNO_GIC_SOURCES}
+				${JUNO_GIC_SOURCES}			\
+				${JUNO_SECURITY_SOURCES}
 
 # Enable workarounds for selected Cortex-A57 erratas.
 ERRATA_A57_806969	:=	0
