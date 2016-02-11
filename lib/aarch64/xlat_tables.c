@@ -52,7 +52,17 @@
 #define debug_print(...) ((void)0)
 #endif
 
-CASSERT(ADDR_SPACE_SIZE > 0, assert_valid_addr_space_size);
+#define IS_POWER_OF_TWO(x)	(((x) & ((x) - 1)) == 0)
+
+/*
+ * The virtual address space size must be a power of two (as set in TCR.T0SZ).
+ * As we start the initial lookup at level 1, it must also be between 2 GB and
+ * 512 GB (with the virtual address size therefore 31 to 39 bits). See section
+ * D4.2.5 in the ARMv8-A Architecture Reference Manual (DDI 0487A.i) for more
+ * information.
+ */
+CASSERT(ADDR_SPACE_SIZE >= (1ull << 31) && ADDR_SPACE_SIZE <= (1ull << 39) &&
+	IS_POWER_OF_TWO(ADDR_SPACE_SIZE), assert_valid_addr_space_size);
 
 #define UNSET_DESC	~0ul
 
@@ -207,7 +217,10 @@ static mmap_region_t *init_xlation_table(mmap_region_t *mm,
 	do  {
 		unsigned long desc = UNSET_DESC;
 
-		if (mm->base_va + mm->size <= base_va) {
+		if (!mm->size) {
+			/* Done mapping regions; finish zeroing the table */
+			desc = INVALID_DESC;
+		} else if (mm->base_va + mm->size <= base_va) {
 			/* Area now after the region so skip it */
 			++mm;
 			continue;
@@ -245,7 +258,7 @@ static mmap_region_t *init_xlation_table(mmap_region_t *mm,
 
 		*table++ = desc;
 		base_va += level_size;
-	} while (mm->size && (base_va & level_index_mask));
+	} while ((base_va & level_index_mask) && (base_va < ADDR_SPACE_SIZE));
 
 	return mm;
 }
