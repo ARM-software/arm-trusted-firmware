@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -107,67 +107,4 @@
 	(GIC_HIGHEST_NS_PRIORITY << 16)	|	\
 	(GIC_HIGHEST_NS_PRIORITY << 24))
 
-#ifndef __ASSEMBLY__
-
-#include <mmio.h>
-#include <stdint.h>
-
-/*******************************************************************************
- * GIC Distributor interface register accessors that are common to GICv3 & GICv2
- ******************************************************************************/
-static inline unsigned int gicd_read_ctlr(uintptr_t base)
-{
-	return mmio_read_32(base + GICD_CTLR);
-}
-
-static inline unsigned int gicd_read_typer(uintptr_t base)
-{
-	return mmio_read_32(base + GICD_TYPER);
-}
-
-static inline unsigned int gicd_read_iidr(uintptr_t base)
-{
-	return mmio_read_32(base + GICD_IIDR);
-}
-
-static inline void gicd_write_ctlr(uintptr_t base, unsigned int val)
-{
-	mmio_write_32(base + GICD_CTLR, val);
-}
-
-/*******************************************************************************
- * GIC Distributor function prototypes
- ******************************************************************************/
-unsigned int gicd_read_igroupr(uintptr_t base, unsigned int id);
-unsigned int gicd_read_isenabler(uintptr_t base, unsigned int id);
-unsigned int gicd_read_icenabler(uintptr_t base, unsigned int id);
-unsigned int gicd_read_ispendr(uintptr_t base, unsigned int id);
-unsigned int gicd_read_icpendr(uintptr_t base, unsigned int id);
-unsigned int gicd_read_isactiver(uintptr_t base, unsigned int id);
-unsigned int gicd_read_icactiver(uintptr_t base, unsigned int id);
-unsigned int gicd_read_ipriorityr(uintptr_t base, unsigned int id);
-unsigned int gicd_read_icfgr(uintptr_t base, unsigned int id);
-unsigned int gicd_read_nsacr(uintptr_t base, unsigned int id);
-void gicd_write_igroupr(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_isenabler(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_icenabler(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_ispendr(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_icpendr(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_isactiver(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_icactiver(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_ipriorityr(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_icfgr(uintptr_t base, unsigned int id, unsigned int val);
-void gicd_write_nsacr(uintptr_t base, unsigned int id, unsigned int val);
-unsigned int gicd_get_igroupr(uintptr_t base, unsigned int id);
-void gicd_set_igroupr(uintptr_t base, unsigned int id);
-void gicd_clr_igroupr(uintptr_t base, unsigned int id);
-void gicd_set_isenabler(uintptr_t base, unsigned int id);
-void gicd_set_icenabler(uintptr_t base, unsigned int id);
-void gicd_set_ispendr(uintptr_t base, unsigned int id);
-void gicd_set_icpendr(uintptr_t base, unsigned int id);
-void gicd_set_isactiver(uintptr_t base, unsigned int id);
-void gicd_set_icactiver(uintptr_t base, unsigned int id);
-
-
-#endif /* __ASSEMBLY__ */
 #endif /* __GIC_COMMON_H__ */

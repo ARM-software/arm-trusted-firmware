@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <gic_common.h>
+#include "../common/gic_common_private.h"
 #include "gicv2_private.h"
 
 /*
@@ -101,10 +102,7 @@ void gicd_write_spendsgir(uintptr_t base, unsigned int id, unsigned int val)
  */
 void gicd_set_itargetsr(uintptr_t base, unsigned int id, unsigned int target)
 {
-	unsigned byte_off = id & ((1 << ITARGETSR_SHIFT) - 1);
-	unsigned int reg_val = gicd_read_itargetsr(base, id);
-
-	gicd_write_itargetsr(base, id, reg_val | (target << (byte_off << 3)));
+	mmio_write_8(base + GICD_ITARGETSR + id, target & GIC_TARGET_CPU_MASK);
 }
 
 /*******************************************************************************
@@ -166,7 +164,7 @@ void gicv2_secure_spis_configure(uintptr_t gicd_base,
 			gicd_clr_igroupr(gicd_base, irq_num);
 
 			/* Set the priority of this interrupt */
-			gicd_write_ipriorityr(gicd_base,
+			gicd_set_ipriorityr(gicd_base,
 					      irq_num,
 					      GIC_HIGHEST_SEC_PRIORITY);
 
@@ -213,7 +211,7 @@ void gicv2_secure_ppi_sgi_setup(uintptr_t gicd_base,
 			sec_ppi_sgi_mask |= 1U << irq_num;
 
 			/* Set the priority of this interrupt */
-			gicd_write_ipriorityr(gicd_base,
+			gicd_set_ipriorityr(gicd_base,
 					    irq_num,
 					    GIC_HIGHEST_SEC_PRIORITY);
 		}
