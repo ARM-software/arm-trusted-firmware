@@ -40,12 +40,15 @@
 
 /* Values returned by getopt() as part of the command line parsing */
 #define OPT_TOC_ENTRY 0
-#define OPT_DUMP 1
-#define OPT_HELP 2
+#define OPT_DUMP 'd'
+#define OPT_HELP 'h'
+#define OPT_STR "dh"
 
-file_info_t files[MAX_FILES];
-unsigned file_info_count = 0;
-uuid_t uuid_null = {0};
+static file_info_t files[MAX_FILES];
+static unsigned file_info_count;
+static uuid_t uuid_null = {0};
+static int do_dump;
+static int do_pack;
 
 /*
  * TODO: Add ability to specify and flag different file types.
@@ -118,12 +121,13 @@ static void print_usage(void)
 {
 	entry_lookup_list_t *entry = toc_entry_lookup_list;
 
-	printf("Usage: fip_create [options] FIP_FILENAME\n\n");
-	printf("\tThis tool is used to create a Firmware Image Package.\n\n");
+	printf("\nThis tool is used to create a Firmware Image Package.\n\n");
+	printf("Usage:\n");
+	printf("\tfip_create [options] FIP_FILENAME\n\n");
 	printf("Options:\n");
-	printf("\t--help: Print this help message and exit\n");
-	printf("\t--dump: Print contents of FIP\n\n");
-	printf("\tComponents that can be added/updated:\n");
+	printf("\t-h,--help: Print this help message and exit\n");
+	printf("\t-d,--dump: Print contents of FIP after update\n");
+	printf("Components that can be added/updated:\n");
 	for (; entry->command_line_name != NULL; entry++) {
 		printf("\t--%s%s\t\t%s",
 		       entry->command_line_name,
@@ -131,6 +135,7 @@ static void print_usage(void)
 		       entry->name);
 		printf("\n");
 	}
+	printf("\n");
 }
 
 
@@ -528,7 +533,7 @@ static char *get_filename(int argc, char **argv, struct option *options)
 	 */
 	optind = 1;
 	while (1) {
-		c = getopt_long(argc, argv, "", options, NULL);
+		c = getopt_long(argc, argv, OPT_STR, options, NULL);
 		if (c == -1)
 			break;
 
@@ -549,19 +554,17 @@ static char *get_filename(int argc, char **argv, struct option *options)
 
 
 /* Work through command-line options */
-static int parse_cmdline(int argc, char **argv, struct option *options,
-			 int *do_pack)
+static int parse_cmdline(int argc, char **argv, struct option *options)
 {
 	int c;
 	int status = 0;
 	int option_index = 0;
 	entry_lookup_list_t *lookup_entry;
-	int do_dump = 0;
 
 	/* restart parse to process all options. starts at 1. */
 	optind = 1;
 	while (1) {
-		c = getopt_long(argc, argv, "", options, &option_index);
+		c = getopt_long(argc, argv, OPT_STR, options, &option_index);
 		if (c == -1)
 			break;
 
@@ -578,7 +581,7 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 						return status;
 					} else {
 						/* Update package */
-						*do_pack = 1;
+						do_pack = 1;
 					}
 				}
 			}
@@ -586,7 +589,7 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 
 		case OPT_DUMP:
 			do_dump = 1;
-			continue;
+			break;
 
 		case OPT_HELP:
 			print_usage();
@@ -598,12 +601,6 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 		}
 	}
 
-
-	/* Do not dump toc if we have an error as it could hide the error */
-	if ((status == 0) && (do_dump)) {
-		dump_toc();
-	}
-
 	return status;
 
 }
@@ -613,7 +610,6 @@ int main(int argc, char **argv)
 	int i;
 	int status;
 	char *fip_filename;
-	int do_pack = 0;
 
 	/* Clear file list table. */
 	memset(files, 0, sizeof(files));
@@ -677,7 +673,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Work through provided program arguments and perform actions */
-	status = parse_cmdline(argc, argv, long_options, &do_pack);
+	status = parse_cmdline(argc, argv, long_options);
 	if (status != 0) {
 		return status;
 	};
@@ -697,6 +693,11 @@ int main(int argc, char **argv)
 			printf("Failed to create package (status = %d).\n",
 			       status);
 		}
+	}
+
+	/* Do not dump toc if we have an error as it could hide the error */
+	if ((status == 0) && (do_dump)) {
+		dump_toc();
 	}
 
 	return status;
