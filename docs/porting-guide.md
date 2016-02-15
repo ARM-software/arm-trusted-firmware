@@ -230,11 +230,6 @@ platform port to define additional platform porting constants in
 
     Defines the maximum address in secure RAM that the BL31 image can occupy.
 
-*   **#define : NS_IMAGE_OFFSET**
-
-    Defines the base address in non-secure DRAM where BL2 loads the BL33 binary
-    image. Must be aligned on a page-size boundary.
-
 For every image, the platform must define individual identifiers that will be
 used by BL1 or BL2 to load the corresponding image into memory from non-volatile
 storage. For the sake of performance, integer numbers will be used as
@@ -1012,10 +1007,10 @@ using the `platform_is_primary_cpu()` function. BL1 passed control to BL2 at
     structure in memory provided by the platform with information about how
     BL31 should pass control to the BL32 image.
 
-5.  Loading the normal world BL33 binary image into non-secure DRAM from
-    platform storage and arranging for BL31 to pass control to this image. This
-    address is determined using the `plat_get_ns_image_entrypoint()` function
-    described below.
+5.  (Optional) Loading the normal world BL33 binary image (if not loaded by
+    other means) into non-secure DRAM from platform storage and arranging for
+    BL31 to pass control to this image. This address is determined using the
+    `plat_get_ns_image_entrypoint()` function described below.
 
 6.  BL2 populates an `entry_point_info` structure in memory provided by the
     platform with information about how BL31 should pass control to the
@@ -1183,6 +1178,10 @@ This function is called after loading BL33 image and it can be used to
 overwrite the entry point set by loader and also set the security state
 and SPSR which represents the entry point system state for BL33.
 
+In the preloaded BL33 alternative boot flow, this function is called after
+populating its entry point address. It is passed a null pointer as its first
+argument in this case.
+
 
 ### Function : bl2_plat_get_bl32_meminfo() [mandatory]
 
@@ -1203,6 +1202,9 @@ This function is used to get the memory limits where BL2 can load the
 BL33 image. The meminfo provided by this is used by load_image() to
 validate whether the BL33 image can be loaded with in the given
 memory from the given base.
+
+This function isn't needed if either `BL33_BASE` or `EL3_PAYLOAD_BASE` build
+options are used.
 
 ### Function : bl2_plat_flush_bl31_params() [mandatory]
 
@@ -1225,6 +1227,9 @@ passed to a normal world BL image through BL31. This function returns the
 entrypoint of that image, which BL31 uses to jump to it.
 
 BL2 is responsible for loading the normal world BL33 image (e.g. UEFI).
+
+This function isn't needed if either `BL33_BASE` or `EL3_PAYLOAD_BASE` build
+options are used.
 
 
 3.3 FWU Boot Loader Stage 2 (BL2U)
@@ -1899,9 +1904,10 @@ build system.
 
 *   **NEED_BL33**
     By default, this flag is defined `yes` by the build system and `BL33`
-    build option should be supplied as a build option. The platform has the option
-    of excluding the BL33 image in the `fip` image by defining this flag to
-    `no`.
+    build option should be supplied as a build option. The platform has the
+    option of excluding the BL33 image in the `fip` image by defining this flag
+    to `no`. If any of the options `EL3_PAYLOAD_BASE` or `BL33_BASE` are used,
+    this flag will be set to `no` automatically.
 
 5.  C Library
 -------------

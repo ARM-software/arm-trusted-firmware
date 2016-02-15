@@ -169,6 +169,7 @@ static int load_bl32(bl31_params_t *bl2_to_bl31_params)
 	return e;
 }
 
+#ifndef BL33_BASE
 /*******************************************************************************
  * Load the BL33 image.
  * The bl2_to_bl31_params param will be updated with the relevant BL33
@@ -199,6 +200,8 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
 
 	return e;
 }
+#endif /* BL33_BASE */
+
 #endif /* EL3_PAYLOAD_BASE */
 
 /*******************************************************************************
@@ -253,7 +256,7 @@ void bl2_main(void)
 	 * bl31_params_t structure makes sense in the context of EL3 payloads.
 	 * This will be refined in the future.
 	 */
-	VERBOSE("BL2: Populating the entrypoint info for the EL3 payload\n");
+	INFO("BL2: Populating the entrypoint info for the EL3 payload\n");
 	bl31_ep_info->pc = EL3_PAYLOAD_BASE;
 	bl31_ep_info->args.arg0 = (unsigned long) bl2_to_bl31_params;
 	bl2_plat_set_bl31_ep_info(NULL, bl31_ep_info);
@@ -274,11 +277,22 @@ void bl2_main(void)
 		}
 	}
 
+#ifdef BL33_BASE
+	/*
+	 * In this case, don't load the BL33 image as it's already loaded in
+	 * memory. Update BL33 entrypoint information.
+	 */
+	INFO("BL2: Populating the entrypoint info for the preloaded BL33\n");
+	bl2_to_bl31_params->bl33_ep_info->pc = BL33_BASE;
+	bl2_plat_set_bl33_ep_info(NULL, bl2_to_bl31_params->bl33_ep_info);
+#else
 	e = load_bl33(bl2_to_bl31_params);
 	if (e) {
 		ERROR("Failed to load BL33 (%i)\n", e);
 		plat_error_handler(e);
 	}
+#endif /* BL33_BASE */
+
 #endif /* EL3_PAYLOAD_BASE */
 
 	/* Flush the params to be passed to memory */
