@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,14 +44,14 @@ void bl1_early_platform_setup(void)
 	fvp_config_setup();
 
 	/*
-	 * Initialize CCI for this cluster during cold boot.
+	 * Initialize Interconnect for this cluster during cold boot.
 	 * No need for locks as no other CPU is active.
 	 */
-	fvp_cci_init();
+	fvp_interconnect_init();
 	/*
-	 * Enable CCI coherency for the primary CPU's cluster.
+	 * Enable coherency in Interconnect for the primary CPU's cluster.
 	 */
-	fvp_cci_enable();
+	fvp_interconnect_enable();
 }
 
 /*******************************************************************************

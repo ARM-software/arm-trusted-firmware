@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,6 @@
 #ifndef __ARM_MACROS_S__
 #define __ARM_MACROS_S__
 
-#include <cci.h>
 #include <gic_common.h>
 #include <gicv2.h>
 #include <gicv3.h>
@@ -116,32 +115,5 @@ gicd_ispendr_loop:
 	b	gicd_ispendr_loop
 exit_print_gic_regs:
 	.endm
-
-
-.section .rodata.cci_reg_name, "aS"
-cci_iface_regs:
-	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
-
-	/* ------------------------------------------------
-	 * The below required platform porting macro prints
-	 * out relevant interconnect registers whenever an
-	 * unhandled exception is taken in BL31.
-	 * Clobbers: x0 - x9, sp
-	 * ------------------------------------------------
-	 */
-	.macro plat_print_interconnect_regs
-	adr	x6, cci_iface_regs
-	/* Store in x7 the base address of the first interface */
-	mov_imm	x7, (PLAT_ARM_CCI_BASE + SLAVE_IFACE_OFFSET(	\
-			PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX))
-	ldr	w8, [x7, #SNOOP_CTRL_REG]
-	/* Store in x7 the base address of the second interface */
-	mov_imm	x7, (PLAT_ARM_CCI_BASE + SLAVE_IFACE_OFFSET(	\
-			PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX))
-	ldr	w9, [x7, #SNOOP_CTRL_REG]
-	/* Store to the crash buf and print to console */
-	bl	str_in_crash_buf_print
-	.endm
-
 
 #endif /* __ARM_MACROS_S__ */

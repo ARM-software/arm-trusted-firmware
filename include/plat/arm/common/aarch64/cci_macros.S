@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,32 +27,35 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __ARM_CONFIG_H__
-#define __ARM_CONFIG_H__
+#ifndef __CCI_MACROS_S__
+#define __CCI_MACROS_S__
 
-#include <stdint.h>
+#include <cci.h>
+#include <platform_def.h>
 
-enum arm_config_flags {
-	/* Whether Base memory map is in use */
-	ARM_CONFIG_BASE_MMAP		= 0x1,
-	/* Whether interconnect should be enabled */
-	ARM_CONFIG_HAS_INTERCONNECT	= 0x2,
-	/* Whether TZC should be configured */
-	ARM_CONFIG_HAS_TZC		= 0x4
-};
+.section .rodata.cci_reg_name, "aS"
+cci_iface_regs:
+	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
 
-typedef struct arm_config {
-	unsigned long flags;
-} arm_config_t;
+	/* ------------------------------------------------
+	 * The below required platform porting macro prints
+	 * out relevant interconnect registers whenever an
+	 * unhandled exception is taken in BL31.
+	 * Clobbers: x0 - x9, sp
+	 * ------------------------------------------------
+	 */
+	.macro plat_print_interconnect_regs
+	adr	x6, cci_iface_regs
+	/* Store in x7 the base address of the first interface */
+	mov_imm	x7, (PLAT_ARM_CCI_BASE + SLAVE_IFACE_OFFSET(	\
+			PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX))
+	ldr	w8, [x7, #SNOOP_CTRL_REG]
+	/* Store in x7 the base address of the second interface */
+	mov_imm	x7, (PLAT_ARM_CCI_BASE + SLAVE_IFACE_OFFSET(	\
+			PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX))
+	ldr	w9, [x7, #SNOOP_CTRL_REG]
+	/* Store to the crash buf and print to console */
+	bl	str_in_crash_buf_print
+	.endm
 
-
-/* If used, arm_config must be defined and populated in the platform port */
-extern arm_config_t arm_config;
-
-static inline const arm_config_t *get_arm_config(void)
-{
-	return &arm_config;
-}
-
-
-#endif /* __ARM_CONFIG_H__ */
+#endif /* __CCI_MACROS_S__ */

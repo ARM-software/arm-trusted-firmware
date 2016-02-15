@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 #ifndef __PLAT_MACROS_S__
 #define __PLAT_MACROS_S__
 
+#include <cci_macros.S>
 #include <css_macros.S>
 
 /*

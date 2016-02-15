@@ -87,9 +87,7 @@ PLAT_BL_COMMON_SOURCES	+=	lib/aarch64/xlat_tables.c			\
 				plat/arm/common/aarch64/arm_helpers.S		\
 				plat/common/aarch64/plat_common.c
 
-BL1_SOURCES		+=	drivers/arm/cci/cci.c				\
-				drivers/arm/ccn/ccn.c				\
-				drivers/arm/sp805/sp805.c			\
+BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
@@ -112,9 +110,7 @@ BL2_SOURCES		+=	drivers/io/io_fip.c				\
 BL2U_SOURCES		+=	plat/arm/common/arm_bl2u_setup.c		\
 				plat/common/aarch64/platform_up_stack.S
 
-BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
-				drivers/arm/ccn/ccn.c				\
-				plat/arm/common/arm_bl31_setup.c		\
+BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/aarch64/platform_mp_stack.S		\

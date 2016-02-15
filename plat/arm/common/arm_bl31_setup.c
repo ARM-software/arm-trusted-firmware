@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@
 #include <arm_def.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <cci.h>
 #include <console.h>
 #include <debug.h>
 #include <mmio.h>
@@ -178,20 +177,20 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	arm_bl31_early_platform_setup(from_bl2, plat_params_from_bl2);
 
 	/*
-	 * Initialize CCI for this cluster during cold boot.
+	 * Initialize Interconnect for this cluster during cold boot.
 	 * No need for locks as no other CPU is active.
 	 */
-	arm_cci_init();
+	plat_arm_interconnect_init();
 
 	/*
-	 * Enable CCI coherency for the primary CPU's cluster.
+	 * Enable Interconnect coherency for the primary CPU's cluster.
 	 * Earlier bootloader stages might already do this (e.g. Trusted
 	 * Firmware's BL1 does it) but we can't assume so. There is no harm in
 	 * executing this code twice anyway.
 	 * Platform specific PSCI code will enable coherency for other
 	 * clusters.
 	 */
-	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
+	plat_arm_interconnect_enter_coherency();
 }
 
 /*******************************************************************************

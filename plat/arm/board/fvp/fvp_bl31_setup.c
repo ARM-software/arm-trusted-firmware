@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -41,17 +41,17 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	fvp_config_setup();
 
 	/*
-	 * Initialize CCI for this cluster during cold boot.
-	 * No need for locks as no other CPU is active.
+	 * Initialize the correct interconnect for this cluster during cold
+	 * boot. No need for locks as no other CPU is active.
 	 */
-	fvp_cci_init();
+	fvp_interconnect_init();
 
 	/*
-	 * Enable CCI coherency for the primary CPU's cluster.
+	 * Enable coherency in interconnect for the primary CPU's cluster.
 	 * Earlier bootloader stages might already do this (e.g. Trusted
 	 * Firmware's BL1 does it) but we can't assume so. There is no harm in
 	 * executing this code twice anyway.
 	 * FVP PSCI code will enable coherency for other clusters.
 	 */
-	fvp_cci_enable();
+	fvp_interconnect_enable();
 }

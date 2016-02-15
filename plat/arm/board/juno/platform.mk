@@ -34,9 +34,13 @@ JUNO_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				plat/common/plat_gicv2.c		\
 				plat/arm/common/arm_gicv2.c
 
+JUNO_INTERCONNECT_SOURCES	:=	drivers/arm/cci/cci.c		\
+					plat/arm/common/arm_cci.c
+
 JUNO_SECURITY_SOURCES	:=	drivers/arm/tzc400/tzc400.c		\
 				plat/arm/board/juno/juno_security.c	\
 				plat/arm/common/arm_tzc400.c
+
 
 PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
 
@@ -46,7 +50,8 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				plat/arm/board/juno/juno_bl1_setup.c	\
-				plat/arm/board/juno/juno_err.c
+				plat/arm/board/juno/juno_err.c		\
+				${JUNO_INTERCONNECT_SOURCES}
 
 BL2_SOURCES		+=	plat/arm/board/juno/juno_err.c		\
 				${JUNO_SECURITY_SOURCES}
@@ -58,6 +63,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				plat/arm/board/juno/juno_pm.c		\
 				${JUNO_GIC_SOURCES}			\
+				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 
 # Enable workarounds for selected Cortex-A57 erratas.

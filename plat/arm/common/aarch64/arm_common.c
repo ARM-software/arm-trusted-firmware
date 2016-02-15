@@ -29,18 +29,12 @@
  */
 #include <arch.h>
 #include <arch_helpers.h>
-#include <cci.h>
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform_def.h>
 #include <xlat_tables.h>
 
 extern const mmap_region_t plat_arm_mmap[];
-
-static const int cci_map[] = {
-	PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX,
-	PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX
-};
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_get_ns_image_entrypoint
@@ -138,12 +132,6 @@ uint32_t arm_get_spsr_for_bl33_entry(void)
 	 */
 	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	return spsr;
-}
-
-
-void arm_cci_init(void)
-{
-	cci_init(PLAT_ARM_CCI_BASE, cci_map, ARRAY_SIZE(cci_map));
 }
 
 /*******************************************************************************
