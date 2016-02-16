@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <bakery_lock.h>
 #include <css_def.h>
 #include <mmio.h>
+#include <platform_def.h>
 #include <plat_arm.h>
 #include "css_mhu.h"
 
@@ -66,24 +67,26 @@ void mhu_secure_message_start(unsigned int slot_id)
 	arm_lock_get();
 
 	/* Make sure any previous command has finished */
-	while (mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) & (1 << slot_id))
+	while (mmio_read_32(PLAT_CSS_MHU_BASE + CPU_INTR_S_STAT) &
+							(1 << slot_id))
 		;
 }
 
 void mhu_secure_message_send(unsigned int slot_id)
 {
 	assert(slot_id <= MHU_MAX_SLOT_ID);
-	assert(!(mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) & (1 << slot_id)));
+	assert(!(mmio_read_32(PLAT_CSS_MHU_BASE + CPU_INTR_S_STAT) &
+							(1 << slot_id)));
 
 	/* Send command to SCP */
-	mmio_write_32(MHU_BASE + CPU_INTR_S_SET, 1 << slot_id);
+	mmio_write_32(PLAT_CSS_MHU_BASE + CPU_INTR_S_SET, 1 << slot_id);
 }
 
 uint32_t mhu_secure_message_wait(void)
 {
 	/* Wait for response from SCP */
 	uint32_t response;
-	while (!(response = mmio_read_32(MHU_BASE + SCP_INTR_S_STAT)))
+	while (!(response = mmio_read_32(PLAT_CSS_MHU_BASE + SCP_INTR_S_STAT)))
 		;
 
 	return response;
@@ -97,7 +100,7 @@ void mhu_secure_message_end(unsigned int slot_id)
 	 * Clear any response we got by writing one in the relevant slot bit to
 	 * the CLEAR register
 	 */
-	mmio_write_32(MHU_BASE + SCP_INTR_S_CLEAR, 1 << slot_id);
+	mmio_write_32(PLAT_CSS_MHU_BASE + SCP_INTR_S_CLEAR, 1 << slot_id);
 
 	arm_lock_release();
 }
@@ -111,7 +114,7 @@ void mhu_secure_init(void)
 	 * as a stale or garbage value would make us think it's a message we've
 	 * already sent.
 	 */
-	assert(mmio_read_32(MHU_BASE + CPU_INTR_S_STAT) == 0);
+	assert(mmio_read_32(PLAT_CSS_MHU_BASE + CPU_INTR_S_STAT) == 0);
 }
 
 void plat_arm_pwrc_setup(void)

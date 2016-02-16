@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -239,44 +239,31 @@
 #define BL1_RO_LIMIT			(PLAT_ARM_TRUSTED_ROM_BASE	\
 					 + PLAT_ARM_TRUSTED_ROM_SIZE)
 /*
- * Put BL1 RW at the top of the Trusted SRAM. BL1_RW_BASE is calculated using
- * the current BL1 RW debug size plus a little space for growth.
+ * Put BL1 RW at the top of the Trusted SRAM.
  */
-#if TRUSTED_BOARD_BOOT
 #define BL1_RW_BASE			(ARM_BL_RAM_BASE +		\
 						ARM_BL_RAM_SIZE -	\
-						0x9000)
-#else
-#define BL1_RW_BASE			(ARM_BL_RAM_BASE +		\
-						ARM_BL_RAM_SIZE -	\
-						0x6000)
-#endif
+						PLAT_ARM_MAX_BL1_RW_SIZE)
 #define BL1_RW_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
 /*
- * Put BL2 just below BL31. BL2_BASE is calculated using the current BL2 debug
- * size plus a little space for growth.
+ * Put BL2 just below BL31.
  */
-#if TRUSTED_BOARD_BOOT
-#define BL2_BASE			(BL31_BASE - 0x1D000)
-#else
-#define BL2_BASE			(BL31_BASE - 0xC000)
-#endif
+#define BL2_BASE			(BL31_BASE - PLAT_ARM_MAX_BL2_SIZE)
 #define BL2_LIMIT			BL31_BASE
 
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
 /*
- * Put BL31 at the top of the Trusted SRAM. BL31_BASE is calculated using the
- * current BL31 debug size plus a little space for growth.
+ * Put BL31 at the top of the Trusted SRAM.
  */
 #define BL31_BASE			(ARM_BL_RAM_BASE +		\
 						ARM_BL_RAM_SIZE -	\
-						0x1D000)
+						PLAT_ARM_MAX_BL31_SIZE)
 #define BL31_PROGBITS_LIMIT		BL1_RW_BASE
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,11 +36,6 @@
 #include <cpu_data.h>
 #include <stdint.h>
 #include <xlat_tables.h>
-
-/*
- * Extern declarations common to ARM standard platforms
- */
-extern const mmap_region_t plat_arm_mmap[];
 
 #define ARM_CASSERT_MMAP						\
 	CASSERT((ARRAY_SIZE(plat_arm_mmap) + ARM_BL_REGIONS)		\
@@ -204,6 +199,6 @@ int plat_arm_get_alt_image_source(
 	uintptr_t *dev_handle,
 	uintptr_t *image_spec);
 unsigned int plat_arm_calc_core_pos(u_register_t mpidr);
-
+const mmap_region_t *plat_arm_get_mmap(void);
 
 #endif /* __PLAT_ARM_H__ */

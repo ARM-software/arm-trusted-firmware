@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,7 +76,11 @@
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	4
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	3
 
+/* System timer related constants */
+#define PLAT_ARM_NSTIMER_FRAME_ID		1
+
 /* TZC related constants */
+#define PLAT_ARM_TZC_BASE		0x2a4a0000
 #define PLAT_ARM_TZC_NS_DEV_ACCESS	(				\
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CCI400)	|	\
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_PCIE)	|	\
@@ -98,6 +102,9 @@
 #define PLAT_ARM_GICC_BASE		0x2c02f000
 #define PLAT_ARM_GICH_BASE		0x2c04f000
 #define PLAT_ARM_GICV_BASE		0x2c06f000
+
+/* MHU related constants */
+#define PLAT_CSS_MHU_BASE		0x2b1f0000
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
@@ -124,5 +131,30 @@
 /* CSS SoC NIC-400 Global Programmers View (GPV) */
 #define PLAT_SOC_CSS_NIC400_BASE	0x2a000000
 
+/*
+ * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
+ * plus a little space for growth.
+ */
+#if TRUSTED_BOARD_BOOT
+# define PLAT_ARM_MAX_BL1_RW_SIZE	0x9000
+#else
+# define PLAT_ARM_MAX_BL1_RW_SIZE	0x6000
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
+ * little space for growth.
+ */
+#if TRUSTED_BOARD_BOOT
+# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
+#else
+# define PLAT_ARM_MAX_BL2_SIZE		0xC000
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
+ * little space for growth.
+ */
+#define PLAT_ARM_MAX_BL31_SIZE		0x1D000
 
 #endif /* __PLATFORM_DEF_H__ */

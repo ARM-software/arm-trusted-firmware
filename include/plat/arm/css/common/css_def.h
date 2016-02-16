@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,6 @@
 /* Following covers CSS Peripherals excluding NSROM and NSRAM  */
 #define CSS_DEVICE_BASE			0x20000000
 #define CSS_DEVICE_SIZE			0x0e000000
-#define MHU_BASE			0x2b1f0000
 
 #define NSRAM_BASE			0x2e000000
 #define NSRAM_SIZE			0x00008000
@@ -103,6 +102,35 @@
 						CSS_DEVICE_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
+/* Platform ID address */
+#define SSC_VERSION_OFFSET			0x040
+
+#define SSC_VERSION_CONFIG_SHIFT		28
+#define SSC_VERSION_MAJOR_REV_SHIFT		24
+#define SSC_VERSION_MINOR_REV_SHIFT		20
+#define SSC_VERSION_DESIGNER_ID_SHIFT		12
+#define SSC_VERSION_PART_NUM_SHIFT		0x0
+#define SSC_VERSION_CONFIG_MASK			0xf
+#define SSC_VERSION_MAJOR_REV_MASK		0xf
+#define SSC_VERSION_MINOR_REV_MASK		0xf
+#define SSC_VERSION_DESIGNER_ID_MASK		0xff
+#define SSC_VERSION_PART_NUM_MASK		0xfff
+
+#ifndef __ASSEMBLY__
+
+/* SSC_VERSION related accessors */
+
+/* Returns the part number of the platform */
+#define GET_SSC_VERSION_PART_NUM(val)				\
+		(((val) >> SSC_VERSION_PART_NUM_SHIFT) &	\
+		SSC_VERSION_PART_NUM_MASK)
+
+/* Returns the configuration number of the platform */
+#define GET_SSC_VERSION_CONFIG(val)				\
+		(((val) >> SSC_VERSION_CONFIG_SHIFT) &		\
+		SSC_VERSION_CONFIG_MASK)
+
+#endif /* __ASSEMBLY__ */
 
 /*************************************************************************
  * Required platform porting definitions common to all
@@ -125,10 +153,6 @@
 
 /* TZC related constants */
 #define PLAT_ARM_TZC_FILTERS		REG_ATTR_FILTER_BIT_ALL
-#define PLAT_ARM_TZC_BASE		0x2a4a0000
-
-/* System timer related constants */
-#define PLAT_ARM_NSTIMER_FRAME_ID	1
 
 /* Trusted mailbox base address common to all CSS */
 #define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE
