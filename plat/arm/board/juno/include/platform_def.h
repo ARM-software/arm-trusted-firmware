@@ -107,6 +107,20 @@
 #define PLAT_CSS_MHU_BASE		0x2b1f0000
 
 /*
+ * Base address of the first memory region used for communication between AP
+ * and SCP. Used by the BOM and SCPI protocols.
+ *
+ * Note that this is located at the same address as SCP_BOOT_CFG_ADDR, which
+ * means the SCP/AP configuration data gets overwritten when the AP initiates
+ * communication with the SCP. The configuration data is expected to be a
+ * 32-bit word on all CSS platforms. On Juno, part of this configuration is
+ * which CPU is the primary, according to the shift and mask definitions below.
+ */
+#define PLAT_CSS_SCP_COM_SHARED_MEM_BASE	(ARM_TRUSTED_SRAM_BASE + 0x80)
+#define PLAT_CSS_PRIMARY_CPU_SHIFT		8
+#define PLAT_CSS_PRIMARY_CPU_BIT_WIDTH		4
+
+/*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.

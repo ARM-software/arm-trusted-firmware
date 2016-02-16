@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -117,7 +117,8 @@ func plat_is_my_cpu_primary
 	bl	plat_my_core_pos
 	ldr	x1, =SCP_BOOT_CFG_ADDR
 	ldr	x1, [x1]
-	ubfx	x1, x1, #PRIMARY_CPU_SHIFT, #PRIMARY_CPU_BIT_WIDTH
+	ubfx	x1, x1, #PLAT_CSS_PRIMARY_CPU_SHIFT, \
+			#PLAT_CSS_PRIMARY_CPU_BIT_WIDTH
 	cmp	x0, x1
 	cset	w0, eq
 	ret	x9

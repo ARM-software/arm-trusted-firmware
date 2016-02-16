@@ -471,6 +471,10 @@ map is explained in the [Firmware Design].
     set to 1 then Trusted Firmware will detect if an earlier version is in use.
     Default is 1.
 
+*   `CSS_LOAD_SCP_IMAGES`: Boolean flag, which when set, adds SCP_BL2 and
+    SCP_BL2U to the FIP and FWU_FIP respectively, and enables them to be loaded
+    during boot. Default is 1.
+
 #### ARM FVP platform specific build options
 
 *   `FVP_USE_GIC_DRIVER`   : Selects the GIC driver to be built. Options:

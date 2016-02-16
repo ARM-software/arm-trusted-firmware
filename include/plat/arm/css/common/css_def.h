@@ -77,25 +77,12 @@
  * SCP <=> AP boot configuration
  *
  * The SCP/AP boot configuration is a 32-bit word located at a known offset from
- * the start of the Trusted SRAM. Part of this configuration is which CPU is the
- * primary, according to the shift and mask definitions below.
+ * the start of the Trusted SRAM.
  *
  * Note that the value stored at this address is only valid at boot time, before
  * the SCP_BL2 image is transferred to SCP.
  */
-#define SCP_BOOT_CFG_ADDR		(ARM_TRUSTED_SRAM_BASE + 0x80)
-#define PRIMARY_CPU_SHIFT		8
-#define PRIMARY_CPU_BIT_WIDTH		4
-
-/*
- * Base address of the first memory region used for communication between AP
- * and SCP. Used by the BOM and SCPI protocols.
- *
- * Note that this is located at the same address as SCP_BOOT_CFG_ADDR, which
- * means the SCP/AP configuration data gets overwritten when the AP initiates
- * communication with the SCP.
- */
-#define SCP_COM_SHARED_MEM_BASE		(ARM_TRUSTED_SRAM_BASE + 0x80)
+#define SCP_BOOT_CFG_ADDR		PLAT_CSS_SCP_COM_SHARED_MEM_BASE
 
 #define CSS_MAP_DEVICE			MAP_REGION_FLAT(		\
 						CSS_DEVICE_BASE,	\
@@ -138,6 +125,13 @@
  ************************************************************************/
 
 /*
+ * The loading of SCP images(SCP_BL2 or SCP_BL2U) is done if there
+ * respective base addresses are defined (i.e SCP_BL2_BASE, SCP_BL2U_BASE).
+ * Hence, `CSS_LOAD_SCP_IMAGES` needs to be set to 1 if BL2 needs to load
+ * an SCP_BL2/SCP_BL2U image.
+ */
+#if CSS_LOAD_SCP_IMAGES
+/*
  * Load address of SCP_BL2 in CSS platform ports
  * SCP_BL2 is loaded to the same place as BL31.  Once SCP_BL2 is transferred to the
  * SCP, it is discarded and BL31 is loaded over the top.
@@ -145,6 +139,7 @@
 #define SCP_BL2_BASE			BL31_BASE
 
 #define SCP_BL2U_BASE			BL31_BASE
+#endif /* CSS_LOAD_SCP_IMAGES */
 
 #define PLAT_ARM_SHARED_RAM_CACHED	MHU_PAYLOAD_CACHED
 
