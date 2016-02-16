@@ -57,6 +57,10 @@ else
 $(error "Incorrect GIC driver chosen on FVP port")
 endif
 
+FVP_SECURITY_SOURCES	:=	drivers/arm/tzc400/tzc400.c		\
+				plat/arm/board/fvp/fvp_security.c	\
+				plat/arm/common/arm_tzc400.c
+
 PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
 
 
@@ -85,19 +89,19 @@ BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c		\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
-				plat/arm/board/fvp/fvp_security.c
+				${FVP_SECURITY_SOURCES}
 
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
-				plat/arm/board/fvp/fvp_security.c
+				${FVP_SECURITY_SOURCES}
 
 BL31_SOURCES		+=	${FVP_CPU_LIBS}					\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
-				plat/arm/board/fvp/fvp_security.c		\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
-				${FVP_GIC_SOURCES}
+				${FVP_GIC_SOURCES}				\
+				${FVP_SECURITY_SOURCES}
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0

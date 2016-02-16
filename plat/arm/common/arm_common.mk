@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -102,26 +102,20 @@ ifdef EL3_PAYLOAD_BASE
 BL1_SOURCES		+=	plat/arm/common/arm_pm.c
 endif
 
-BL2_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
-				drivers/io/io_fip.c				\
+BL2_SOURCES		+=	drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl2_setup.c			\
 				plat/arm/common/arm_io_storage.c		\
-				plat/arm/common/arm_security.c			\
 				plat/common/aarch64/platform_up_stack.S
 
-BL2U_SOURCES		+=	drivers/arm/tzc400/tzc400.c			\
-				plat/arm/common/arm_bl2u_setup.c		\
-				plat/arm/common/arm_security.c			\
+BL2U_SOURCES		+=	plat/arm/common/arm_bl2u_setup.c		\
 				plat/common/aarch64/platform_up_stack.S
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/ccn/ccn.c				\
-				drivers/arm/tzc400/tzc400.c			\
 				plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
-				plat/arm/common/arm_security.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/common/aarch64/plat_psci_common.c
