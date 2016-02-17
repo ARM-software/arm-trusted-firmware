@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -86,7 +86,7 @@ static void fvp_cluster_pwrdwn_common(void)
 	uint64_t mpidr = read_mpidr_el1();
 
 	/* Disable coherency if this cluster is to be turned off */
-	fvp_cci_disable();
+	fvp_interconnect_disable();
 
 	/* Program the power controller to turn the cluster off */
 	fvp_pwrc_write_pcoffr(mpidr);
@@ -117,7 +117,7 @@ static void fvp_power_domain_on_finish_common(const psci_power_state_t *target_s
 		fvp_pwrc_write_pponr(mpidr);
 
 		/* Enable coherency if this cluster was off */
-		fvp_cci_enable();
+		fvp_interconnect_enable();
 	}
 
 	/*

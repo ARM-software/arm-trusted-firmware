@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,9 +39,9 @@
 
 void fvp_config_setup(void);
 
-void fvp_cci_init(void);
-void fvp_cci_enable(void);
-void fvp_cci_disable(void);
+void fvp_interconnect_init(void);
+void fvp_interconnect_enable(void);
+void fvp_interconnect_disable(void);
 
 
 #endif /* __FVP_PRIVATE_H__ */

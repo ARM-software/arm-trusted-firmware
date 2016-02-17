@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <cassert.h>
-#include <cci.h>
 #include <css_pm.h>
 #include <debug.h>
 #include <errno.h>
@@ -108,7 +107,7 @@ static void css_pwr_domain_on_finisher_common(
 	 * if this cluster was off.
 	 */
 	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
-		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
+		plat_arm_interconnect_enter_coherency();
 }
 
 /*******************************************************************************
@@ -153,7 +152,7 @@ static void css_power_down_common(const psci_power_state_t *target_state)
 
 	/* Cluster is to be turned off, so disable coherency */
 	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
-		cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
+		plat_arm_interconnect_exit_coherency();
 		cluster_state = scpi_power_off;
 	}
 

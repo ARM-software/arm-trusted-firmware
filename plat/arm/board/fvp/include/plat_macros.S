@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #define __PLAT_MACROS_S__
 
 #include <arm_macros.S>
+#include <cci_macros.S>
 #include <v2m_def.h>
 #include "../fvp_def.h"
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,6 @@
 
 #include <arm_config.h>
 #include <arm_def.h>
-#include <cci.h>
 #include <debug.h>
 #include <gicv2.h>
 #include <mmio.h>
@@ -50,9 +49,9 @@ extern gicv2_driver_data_t arm_gic_data;
 /*******************************************************************************
  * arm_config holds the characteristics of the differences between the three FVP
  * platforms (Base, A53_A57 & Foundation). It will be populated during cold boot
- * at each boot stage by the primary before enabling the MMU (to allow cci
- * configuration) & used thereafter. Each BL will have its own copy to allow
- * independent operation.
+ * at each boot stage by the primary before enabling the MMU (to allow
+ * interconnect configuration) & used thereafter. Each BL will have its own copy
+ * to allow independent operation.
  ******************************************************************************/
 arm_config_t arm_config;
 
@@ -209,7 +208,7 @@ void fvp_config_setup(void)
 		break;
 	case HBI_BASE_FVP:
 		arm_config.flags |= ARM_CONFIG_BASE_MMAP |
-			ARM_CONFIG_HAS_CCI | ARM_CONFIG_HAS_TZC;
+			ARM_CONFIG_HAS_INTERCONNECT | ARM_CONFIG_HAS_TZC;
 
 		/*
 		 * Check for supported revisions
@@ -230,23 +229,20 @@ void fvp_config_setup(void)
 }
 
 
-void fvp_cci_init(void)
+void fvp_interconnect_init(void)
 {
-	/*
-	 * Initialize CCI-400 driver
-	 */
-	if (arm_config.flags & ARM_CONFIG_HAS_CCI)
-		arm_cci_init();
+	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT)
+		plat_arm_interconnect_init();
 }
 
-void fvp_cci_enable(void)
+void fvp_interconnect_enable(void)
 {
-	if (arm_config.flags & ARM_CONFIG_HAS_CCI)
-		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
+	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT)
+		plat_arm_interconnect_enter_coherency();
 }
 
-void fvp_cci_disable(void)
+void fvp_interconnect_disable(void)
 {
-	if (arm_config.flags & ARM_CONFIG_HAS_CCI)
-		cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
+	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT)
+		plat_arm_interconnect_exit_coherency();
 }

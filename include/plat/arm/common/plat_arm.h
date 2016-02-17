@@ -126,9 +126,6 @@ void arm_configure_mmu_el3(unsigned long total_base,
 #endif /* __ARM_RECOM_STATE_ID_ENC__ */
 
 
-/* CCI utility functions */
-void arm_cci_init(void);
-
 /* IO storage utility functions */
 void arm_io_setup(void);
 
@@ -189,6 +186,9 @@ void plat_arm_gic_cpuif_disable(void);
 void plat_arm_gic_pcpu_init(void);
 void plat_arm_security_setup(void);
 void plat_arm_pwrc_setup(void);
+void plat_arm_interconnect_init(void);
+void plat_arm_interconnect_enter_coherency(void);
+void plat_arm_interconnect_exit_coherency(void);
 
 /*
  * Optional functions required in ARM standard platforms

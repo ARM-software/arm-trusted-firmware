@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,6 @@
 #include <arch.h>
 #include <arm_def.h>
 #include <bl_common.h>
-#include <cci.h>
 #include <console.h>
 #include <platform_def.h>
 #include <plat_arm.h>
@@ -101,14 +100,14 @@ void bl1_early_platform_setup(void)
 	arm_bl1_early_platform_setup();
 
 	/*
-	 * Initialize CCI for this cluster during cold boot.
+	 * Initialize Interconnect for this cluster during cold boot.
 	 * No need for locks as no other CPU is active.
 	 */
-	arm_cci_init();
+	plat_arm_interconnect_init();
 	/*
-	 * Enable CCI coherency for the primary CPU's cluster.
+	 * Enable Interconnect coherency for the primary CPU's cluster.
 	 */
-	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
+	plat_arm_interconnect_enter_coherency();
 }
 
 /******************************************************************************
