@@ -199,6 +199,40 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(GPUSRD2, SECURE, NO_OVERRIDE, DISABLE),
 };
 
+const static mc_txn_override_cfg_t mc_override_cfgs[] = {
+	mc_make_txn_override_cfg(BPMPW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(EQOSW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(NVJPGSWR, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SDMMCWAA, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(MPCOREW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SCEDMAW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SDMMCW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(AXISW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(TSECSWR, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(GPUSWR, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(XUSB_HOSTW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(TSECSWRB, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(GPUSWR2, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(AONDMAW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(AONW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SESWR, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(BPMPDMAW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SDMMCWA, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(HDAW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(NVDECSWR, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(UFSHCW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SATAW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(ETRW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(VICSWR, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(NVENCSWR, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SDMMCWAB, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(ISPWB, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(APEW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(XUSB_DEVW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(AFIW, CGID_TAG_ADR),
+	mc_make_txn_override_cfg(SCEW, CGID_TAG_ADR),
+};
+
 /*
  * Init SMMU.
  */
@@ -207,6 +241,8 @@ void tegra_memctrl_setup(void)
 	uint32_t val;
 	uint32_t num_overrides = sizeof(streamid_overrides) / sizeof(uint32_t);
 	uint32_t num_sec_cfgs = sizeof(sec_cfgs) / sizeof(mc_streamid_security_cfg_t);
+	uint32_t num_txn_overrides = sizeof(mc_override_cfgs) / sizeof(mc_txn_override_cfg_t);
+	uint32_t tegra_rev;
 	int i;
 
 	INFO("Tegra Memory Controller (v2)\n");
@@ -244,6 +280,42 @@ void tegra_memctrl_setup(void)
 	 */
 	tegra_mc_write_32(MC_SMMU_BYPASS_CONFIG,
 		MC_SMMU_BYPASS_CONFIG_SETTINGS);
+
+	/*
+	 * Set the MC_TXN_OVERRIDE registers for write clients.
+	 */
+	tegra_rev = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) &
+			HARDWARE_MINOR_REVISION_MASK) >> HARDWARE_MINOR_REVISION_SHIFT;
+
+	if (tegra_rev == HARDWARE_REVISION_A01) {
+
+		/* GPU and NVENC settings for rev. A01 */
+		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
+		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR,
+			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
+
+		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2);
+		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2,
+			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
+
+		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR);
+		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR,
+			val | MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID);
+
+	} else {
+
+		/* settings for rev. A02 */
+		for (i = 0; i < num_txn_overrides; i++) {
+			val = tegra_mc_read_32(mc_override_cfgs[i].offset);
+			val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+			tegra_mc_write_32(mc_override_cfgs[i].offset,
+				val | mc_override_cfgs[i].cgid_tag);
+		}
+
+	}
 
 	/* video memory carveout region */
 	if (video_mem_base) {

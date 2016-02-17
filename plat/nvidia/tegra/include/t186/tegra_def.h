@@ -69,6 +69,10 @@
  * Tegra Miscellanous register constants
  ******************************************************************************/
 #define TEGRA_MISC_BASE			0x00100000
+#define  HARDWARE_REVISION_OFFSET	0x4
+#define  HARDWARE_MINOR_REVISION_MASK	0xf0000
+#define  HARDWARE_MINOR_REVISION_SHIFT	0x10
+#define  HARDWARE_REVISION_A01		1
 
 /*******************************************************************************
  * Tegra Memory Controller constants

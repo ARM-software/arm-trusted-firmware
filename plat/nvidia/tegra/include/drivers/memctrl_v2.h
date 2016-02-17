@@ -208,6 +208,107 @@
 						 MC_SMMU_CTRL_TBU_BYPASS_SPL_STREAMID)
 
 /*******************************************************************************
+ * Memory Controller transaction override config registers
+ ******************************************************************************/
+#define MC_TXN_OVERRIDE_CONFIG_HDAR		0x10a8
+#define MC_TXN_OVERRIDE_CONFIG_BPMPW		0x14a0
+#define MC_TXN_OVERRIDE_CONFIG_PTCR		0x1000
+#define MC_TXN_OVERRIDE_CONFIG_NVDISPLAYR	0x1490
+#define MC_TXN_OVERRIDE_CONFIG_EQOSW		0x1478
+#define MC_TXN_OVERRIDE_CONFIG_NVJPGSWR		0x13f8
+#define MC_TXN_OVERRIDE_CONFIG_ISPRA		0x1220
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCWAA		0x1328
+#define MC_TXN_OVERRIDE_CONFIG_VICSRD		0x1360
+#define MC_TXN_OVERRIDE_CONFIG_MPCOREW		0x11c8
+#define MC_TXN_OVERRIDE_CONFIG_GPUSRD		0x12c0
+#define MC_TXN_OVERRIDE_CONFIG_AXISR		0x1460
+#define MC_TXN_OVERRIDE_CONFIG_SCEDMAW		0x14f0
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCW		0x1330
+#define MC_TXN_OVERRIDE_CONFIG_EQOSR		0x1470
+#define MC_TXN_OVERRIDE_CONFIG_APEDMAR		0x14f8
+#define MC_TXN_OVERRIDE_CONFIG_NVENCSRD		0x10e0
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCRAB		0x1318
+#define MC_TXN_OVERRIDE_CONFIG_VICSRD1		0x1510
+#define MC_TXN_OVERRIDE_CONFIG_BPMPDMAR		0x14a8
+#define MC_TXN_OVERRIDE_CONFIG_VIW		0x1390
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCRAA		0x1308
+#define MC_TXN_OVERRIDE_CONFIG_AXISW		0x1468
+#define MC_TXN_OVERRIDE_CONFIG_XUSB_DEVR	0x1260
+#define MC_TXN_OVERRIDE_CONFIG_UFSHCR		0x1480
+#define MC_TXN_OVERRIDE_CONFIG_TSECSWR		0x12a8
+#define MC_TXN_OVERRIDE_CONFIG_GPUSWR		0x12c8
+#define MC_TXN_OVERRIDE_CONFIG_SATAR		0x10f8
+#define MC_TXN_OVERRIDE_CONFIG_XUSB_HOSTW	0x1258
+#define MC_TXN_OVERRIDE_CONFIG_TSECSWRB		0x1438
+#define MC_TXN_OVERRIDE_CONFIG_GPUSRD2		0x1440
+#define MC_TXN_OVERRIDE_CONFIG_SCEDMAR		0x14e8
+#define MC_TXN_OVERRIDE_CONFIG_GPUSWR2		0x1448
+#define MC_TXN_OVERRIDE_CONFIG_AONDMAW		0x14d0
+#define MC_TXN_OVERRIDE_CONFIG_APEDMAW		0x1500
+#define MC_TXN_OVERRIDE_CONFIG_AONW		0x14c0
+#define MC_TXN_OVERRIDE_CONFIG_HOST1XDMAR	0x10b0
+#define MC_TXN_OVERRIDE_CONFIG_ETRR		0x1420
+#define MC_TXN_OVERRIDE_CONFIG_SESWR		0x1408
+#define MC_TXN_OVERRIDE_CONFIG_NVJPGSRD		0x13f0
+#define MC_TXN_OVERRIDE_CONFIG_NVDECSRD		0x13c0
+#define MC_TXN_OVERRIDE_CONFIG_TSECSRDB		0x1430
+#define MC_TXN_OVERRIDE_CONFIG_BPMPDMAW		0x14b0
+#define MC_TXN_OVERRIDE_CONFIG_APER		0x13d0
+#define MC_TXN_OVERRIDE_CONFIG_NVDECSRD1	0x1518
+#define MC_TXN_OVERRIDE_CONFIG_XUSB_HOSTR	0x1250
+#define MC_TXN_OVERRIDE_CONFIG_ISPWA		0x1230
+#define MC_TXN_OVERRIDE_CONFIG_SESRD		0x1400
+#define MC_TXN_OVERRIDE_CONFIG_SCER		0x14d8
+#define MC_TXN_OVERRIDE_CONFIG_AONR		0x14b8
+#define MC_TXN_OVERRIDE_CONFIG_MPCORER		0x1138
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCWA		0x1320
+#define MC_TXN_OVERRIDE_CONFIG_HDAW		0x11a8
+#define MC_TXN_OVERRIDE_CONFIG_NVDECSWR		0x13c8
+#define MC_TXN_OVERRIDE_CONFIG_UFSHCW		0x1488
+#define MC_TXN_OVERRIDE_CONFIG_AONDMAR		0x14c8
+#define MC_TXN_OVERRIDE_CONFIG_SATAW		0x11e8
+#define MC_TXN_OVERRIDE_CONFIG_ETRW		0x1428
+#define MC_TXN_OVERRIDE_CONFIG_VICSWR		0x1368
+#define MC_TXN_OVERRIDE_CONFIG_NVENCSWR		0x1158
+#define MC_TXN_OVERRIDE_CONFIG_AFIR		0x1070
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCWAB		0x1338
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCRA		0x1300
+#define MC_TXN_OVERRIDE_CONFIG_NVDISPLAYR1	0x1508
+#define MC_TXN_OVERRIDE_CONFIG_ISPWB		0x1238
+#define MC_TXN_OVERRIDE_CONFIG_BPMPR		0x1498
+#define MC_TXN_OVERRIDE_CONFIG_APEW		0x13d8
+#define MC_TXN_OVERRIDE_CONFIG_SDMMCR		0x1310
+#define MC_TXN_OVERRIDE_CONFIG_XUSB_DEVW	0x1268
+#define MC_TXN_OVERRIDE_CONFIG_TSECSRD		0x12a0
+#define MC_TXN_OVERRIDE_CONFIG_AFIW		0x1188
+#define MC_TXN_OVERRIDE_CONFIG_SCEW		0x14e0
+
+/*******************************************************************************
+ * Non-SO_DEV transactions override values for CGID_TAG bitfield for the
+ * MC_TXN_OVERRIDE_CONFIG_{module} registers
+ ******************************************************************************/
+#define MC_TXN_OVERRIDE_CGID_TAG_DEFAULT	0
+#define MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID	1
+#define MC_TXN_OVERRIDE_CGID_TAG_ZERO		2
+#define MC_TXN_OVERRIDE_CGID_TAG_ADR		3
+#define MC_TXN_OVERRIDE_CGID_TAG_MASK		3
+
+/*******************************************************************************
+ * Structure to hold the transaction override settings to use to override
+ * client inputs
+ ******************************************************************************/
+typedef struct mc_txn_override_cfg {
+	uint32_t offset;
+	uint8_t cgid_tag;
+} mc_txn_override_cfg_t;
+
+#define mc_make_txn_override_cfg(off, val) \
+	{ \
+		.offset = MC_TXN_OVERRIDE_CONFIG_ ## off, \
+		.cgid_tag = MC_TXN_OVERRIDE_ ## val \
+	}
+
+/*******************************************************************************
  * Memory Controller SMMU Global Secure Aux. Configuration Register
  ******************************************************************************/
 #define ARM_SMMU_GSR0_SECURE_ACR		0x10
