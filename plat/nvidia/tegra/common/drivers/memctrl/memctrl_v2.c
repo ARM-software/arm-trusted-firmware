@@ -122,7 +122,7 @@ const static uint32_t streamid_overrides[] = {
 
 /* array to hold the security configs for stream IDs */
 const static mc_streamid_security_cfg_t sec_cfgs[] = {
-	mc_make_sec_cfg(SCEW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AFIR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVDISPLAYR1, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(XUSB_DEVR, NON_SECURE, OVERRIDE, ENABLE),
@@ -137,7 +137,7 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(UFSHCW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AFIW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SCEDMAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(UFSHCR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCWAA, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(APEDMAW, NON_SECURE, OVERRIDE, ENABLE),
@@ -148,7 +148,7 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(ETRW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSRD, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(VICSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SCEDMAR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(HDAW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPWA, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(EQOSW, NON_SECURE, OVERRIDE, ENABLE),
@@ -173,7 +173,7 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(TSECSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVJPGSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCWA, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SCER, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCER, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(XUSB_HOSTR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(VICSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AONDMAR, NON_SECURE, OVERRIDE, ENABLE),
