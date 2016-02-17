@@ -8,26 +8,39 @@ Contents :
 3.  [Tools](#3--tools)
 4.  [Getting the Trusted Firmware source code](#4--getting-the-trusted-firmware-source-code)
 5.  [Building the Trusted Firmware](#5--building-the-trusted-firmware)
-6.  [Building the rest of the software stack](#6--building-the-rest-of-the-software-stack)
+6.  [Building a FIP for Juno and FVP](#6--building-a-fip-for-juno-and-fvp)
 7.  [EL3 payloads alternative boot flow](#7--el3-payloads-alternative-boot-flow)
 8.  [Preloaded BL33 alternative boot flow](#8--preloaded-bl33-alternative-boot-flow)
-9.  [Preparing the images to run on FVP](#9--preparing-the-images-to-run-on-fvp)
-10. [Running the software on FVP](#10--running-the-software-on-fvp)
-11. [Running the software on Juno](#11--running-the-software-on-juno)
-12. [Changes required for booting Linux on FVP in GICv3 mode](#12--changes-required-for-booting-linux-on-fvp-in-gicv3-mode)
+9.  [Running the software on FVP](#9--running-the-software-on-fvp)
+10. [Running the software on Juno](#10--running-the-software-on-juno)
 
 
 1.  Introduction
 ----------------
 
-This document describes how to build ARM Trusted Firmware and run it with a
+This document describes how to build ARM Trusted Firmware (TF) and run it with a
 tested set of other software components using defined configurations on the Juno
 ARM development platform and ARM Fixed Virtual Platform (FVP) models. It is
 possible to use other software components, configurations and platforms but that
 is outside the scope of this document.
 
-This document should be used in conjunction with the [Firmware Design] and the
-[Instructions for using the Linaro software deliverables][Linaro SW Instructions].
+This document assumes that the reader has previous experience running a fully
+bootable Linux software stack on Juno or FVP using the prebuilt binaries and
+filesystems provided by [Linaro][Linaro Release Notes]. Further information may
+be found in the [Instructions for using the Linaro software deliverables][Linaro
+SW Instructions]. It also assumes that the user understands the role of the
+different software components required to boot a Linux system:
+
+*   Specific firmware images required by the platform (e.g. SCP firmware on Juno)
+*   Normal world bootloader (e.g. UEFI or U-Boot)
+*   Device tree
+*   Linux kernel image
+*   Root filesystem
+
+This document also assumes that the user is familiar with the FVP models and
+the different command line options available to launch the model.
+
+This document should be used in conjunction with the [Firmware Design].
 
 
 2.  Host machine requirements
@@ -48,53 +61,28 @@ Cygwin, and Msys (MinGW) shells, using version 4.9.1 of the GNU toolchain.
 3.  Tools
 ---------
 
-In addition to the mandatory prerequisite tools listed in the [instructions for
-using the Linaro software deliverables][Linaro SW Instructions], the following
-optional tools may be needed:
+Install the required packages to build Trusted Firmware with the following
+command:
+
+    sudo apt-get install build-essential gcc make git
+
+Download and install the AArch64 little-endian GCC cross compiler as indicated
+in the [Linaro instructions][Linaro SW Instructions].
+
+In addition, the following optional packages and tools may be needed:
 
 *   `device-tree-compiler` package if you need to rebuild the Flattened Device
     Tree (FDT) source files (`.dts` files) provided with this software.
 
-*   For debugging, ARM [Development Studio 5 (DS-5)][DS-5] v5.22.
+*   `libssl-dev` package if Trusted Board Boot is enabled in the build.
+
+*   For debugging, ARM [Development Studio 5 (DS-5)][DS-5].
 
 
 4.  Getting the Trusted Firmware source code
 --------------------------------------------
 
-The Trusted Firmware (TF) source code can be obtained as part of the standard
-Linaro releases, which provide a full software stack, including TF, normal
-world firmware, Linux kernel and device tree, file system as well as any
-additional micro-controller firmware required by the platform. This TF version
-is tested with the [Linaro 15.10 Release][Linaro Release Notes].
-
-Note 1: Both the LSK kernel or the latest tracking kernel can be used with TF;
-choose the one that best suits your needs.
-
-Note 2: Currently to run the latest tracking kernel on FVP with GICv3 driver,
-some modifications are required to UEFI. Refer
-[here](#11--changes-required-for-booting-linux-on-fvp-in-gicv3-mode)
-for more details.
-
-The TF source code will then be in `arm-tf/`. This is the upstream git
-repository cloned from GitHub. The revision checked out by the `repo` tool is
-indicated by the manifest file. Depending on the manifest file you're using,
-this might not be the latest upstream version. To synchronize your copy of the
-repository and get the latest updates, use the following commands:
-
-    # Change to the Trusted Firmware directory.
-    cd arm-tf
-
-    # Download the latest code from GitHub.
-    git fetch github
-
-    # Update your working copy to the latest master.
-    # This command will create a local branch master that tracks the remote
-    # branch master from GitHub.
-    git checkout --track github/master
-
-
-Alternatively, the TF source code can be separately cloned from the upstream
-GitHub repository:
+Download the Trusted Firmware source code from Github:
 
     git clone https://github.com/ARM-software/arm-trusted-firmware.git
 
@@ -102,60 +90,42 @@ GitHub repository:
 5.  Building the Trusted Firmware
 ---------------------------------
 
-To build the Trusted Firmware images, change to the root directory of the
-Trusted Firmware source tree and follow these steps:
+*   Before building Trusted Firmware, the environment variable `CROSS_COMPILE`
+    must point to the Linaro cross compiler:
 
-1.  Set the compiler path, specify a Non-trusted Firmware image (BL33) and
-    a valid platform, and then build:
+        export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
 
-        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu- \
-        BL33=<path-to>/<bl33_image>                                \
-        make PLAT=<platform> all fip
+*   Change to the root directory of the Trusted Firmware source tree and build:
 
-    If `PLAT` is not specified, `fvp` is assumed by default. See the "Summary of
-    build options" for more information on available build options.
+        make PLAT=<platform> all
 
-    The BL33 image corresponds to the software that is executed after switching
-    to the non-secure world. UEFI can be used as the BL33 image. Refer to the
-    "Building the rest of the software stack" section below.
+    Notes:
 
-    The TSP (Test Secure Payload), corresponding to the BL32 image, is not
-    compiled in by default. Refer to the "Building the Test Secure Payload"
-    section below.
+    *   If `PLAT` is not specified, `fvp` is assumed by default. See the
+        "Summary of build options" for more information on available build
+        options.
 
-    By default this produces a release version of the build. To produce a debug
-    version instead, refer to the "Debugging options" section below.
+    *   The TSP (Test Secure Payload), corresponding to the BL32 image, is not
+        compiled in by default. Refer to the "Building the Test Secure Payload"
+        section below.
 
-    The build process creates products in a `build` directory tree, building
-    the objects and binaries for each boot loader stage in separate
-    sub-directories.  The following boot loader binary files are created from
-    the corresponding ELF files:
+    *   By default this produces a release version of the build. To produce a
+        debug version instead, refer to the "Debugging options" section below.
 
-    *   `build/<platform>/<build-type>/bl1.bin`
-    *   `build/<platform>/<build-type>/bl2.bin`
-    *   `build/<platform>/<build-type>/bl31.bin`
+    *   The build process creates products in a `build` directory tree, building
+        the objects and binaries for each boot loader stage in separate
+        sub-directories.  The following boot loader binary files are created
+        from the corresponding ELF files:
 
-    where `<platform>` is the name of the chosen platform and `<build-type>` is
-    either `debug` or `release`. A Firmware Image Package (FIP) will be created
-    as part of the build. It contains all boot loader images except for
-    `bl1.bin`.
+        *   `build/<platform>/<build-type>/bl1.bin`
+        *   `build/<platform>/<build-type>/bl2.bin`
+        *   `build/<platform>/<build-type>/bl31.bin`
 
-    *   `build/<platform>/<build-type>/fip.bin`
+        where `<platform>` is the name of the chosen platform and `<build-type>`
+        is either `debug` or `release`. The actual number of images might differ
+        depending on the platform.
 
-    For more information on FIPs, see the "Firmware Image Package" section in
-    the [Firmware Design].
-
-2.  (Optional) Some platforms may require a SCP_BL2 image to boot. This image can
-    be included in the FIP when building the Trusted Firmware by specifying the
-    `SCP_BL2` build option:
-
-        SCP_BL2=<path-to>/<scp_bl2_image>
-
-3.  Output binary files `bl1.bin` and `fip.bin` are both required to boot the
-    system. How these files are used is platform specific. Refer to the
-    platform documentation on how to use the firmware images.
-
-4.  (Optional) Build products for a specific build variant can be removed using:
+*   Build products for a specific build variant can be removed using:
 
         make DEBUG=<D> PLAT=<platform> clean
 
@@ -164,16 +134,6 @@ Trusted Firmware source tree and follow these steps:
     The build tree can be removed completely using:
 
         make realclean
-
-5.  (Optional) Path to binary for certain BL stages (BL2, BL31 and BL32) can be
-    provided by specifying the BLx=<path-to>/<blx_image> where BLx is the BL stage.
-    This will bypass the build of the BL component from source, but will include
-    the specified binary in the final FIP image. Please note that BL32 will be
-    included in the build, only if the `SPD` build option is specified.
-
-    For example, specifying `BL2=<path-to>/<bl2_image>` in the build option,
-    will skip compilation of BL2 source in trusted firmware, but include the BL2
-    binary specified in the final FIP image.
 
 ### Summary of build options
 
@@ -222,9 +182,6 @@ performed.
 *   `NS_BL2U`: Path to NS_BL2U image in the host file system. This image is
     optional. It is only needed if the platform makefile specifies that it
     is required in order to build the `fwu_fip` target.
-
-*   `CROSS_COMPILE`: Prefix to toolchain binaries. Please refer to examples in
-    this document for usage.
 
 *   `DEBUG`: Chooses between a debug and release build. It can take either 0
     (release) or 1 (debug) as values. 0 is the default.
@@ -536,68 +493,12 @@ map is explained in the [Firmware Design].
      Trusted Firmware is configured for dual cluster topology and this option
      can be used to override the default value.
 
-### Creating a Firmware Image Package
-
-FIPs are automatically created as part of the build instructions described in
-the previous section. It is also possible to independently build the FIP
-creation tool and FIPs if required. To do this, follow these steps:
-
-Build the tool:
-
-    make -C tools/fip_create
-
-It is recommended to remove the build artifacts before rebuilding:
-
-    make -C tools/fip_create clean
-
-Create a Firmware package that contains existing BL2 and BL31 images:
-
-    # fip_create --help to print usage information
-    # fip_create <fip_name> <images to add> [--dump to show result]
-    ./tools/fip_create/fip_create fip.bin --dump \
-       --tb-fw build/<platform>/debug/bl2.bin --soc-fw build/<platform>/debug/bl31.bin
-
-     Firmware Image Package ToC:
-    ---------------------------
-    - Trusted Boot Firmware BL2: offset=0x88, size=0x81E8
-      file: 'build/<platform>/debug/bl2.bin'
-    - EL3 Runtime Firmware BL31: offset=0x8270, size=0xC218
-      file: 'build/<platform>/debug/bl31.bin'
-    ---------------------------
-    Creating "fip.bin"
-
-View the contents of an existing Firmware package:
-
-    ./tools/fip_create/fip_create fip.bin --dump
-
-     Firmware Image Package ToC:
-    ---------------------------
-    - Trusted Boot Firmware BL2: offset=0x88, size=0x81E8
-    - EL3 Runtime Firmware BL31: offset=0x8270, size=0xC218
-    ---------------------------
-
-Existing package entries can be individually updated:
-
-    # Change the BL2 from Debug to Release version
-    ./tools/fip_create/fip_create fip.bin --dump \
-      --tb-fw build/<platform>/release/bl2.bin
-
-    Firmware Image Package ToC:
-    ---------------------------
-    - Trusted Boot Firmware BL2: offset=0x88, size=0x7240
-      file: 'build/<platform>/release/bl2.bin'
-    - EL3 Runtime Firmware BL31: offset=0x72C8, size=0xC218
-    ---------------------------
-    Updating "fip.bin"
-
 
 ### Debugging options
 
 To compile a debug version and make the build more verbose use
 
-    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu- \
-    BL33=<path-to>/<bl33_image>                                \
-    make PLAT=<platform> DEBUG=1 V=1 all fip
+    make PLAT=<platform> DEBUG=1 V=1 all
 
 AArch64 GCC uses DWARF version 4 debugging symbols by default. Some tools (for
 example DS-5) might not support this and may need an older version of DWARF
@@ -615,9 +516,7 @@ platforms** section in the [Firmware Design]).
 Extra debug options can be passed to the build system by setting `CFLAGS`:
 
     CFLAGS='-O0 -gdwarf-2'                                     \
-    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu- \
-    BL33=<path-to>/<bl33_image>                                \
-    make PLAT=<platform> DEBUG=1 V=1 all fip
+    make PLAT=<platform> DEBUG=1 V=1 all
 
 It is also possible to introduce an infinite loop to help in debugging the
 post-BL2 phase of the Trusted Firmware. This can be done by rebuilding BL1 with
@@ -639,6 +538,7 @@ commands can be used:
     # Resume execution
     continue
 
+
 ### Building the Test Secure Payload
 
 The TSP is coupled with a companion runtime service in the BL31 firmware,
@@ -647,48 +547,101 @@ must be recompiled as well. For more information on SPs and SPDs, see the
 "Secure-EL1 Payloads and Dispatchers" section in the [Firmware Design].
 
 First clean the Trusted Firmware build directory to get rid of any previous
-BL31 binary. Then to build the TSP image and include it into the FIP use:
+BL31 binary. Then to build the TSP image use:
 
-    CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu- \
-    BL33=<path-to>/<bl33_image>                                \
-    make PLAT=<platform> SPD=tspd all fip
+    make PLAT=<platform> SPD=tspd all
 
 An additional boot loader binary file is created in the `build` directory:
 
-*   `build/<platform>/<build-type>/bl32.bin`
-
-The FIP will now contain the additional BL32 image. Here is an example
-output from an FVP build in release mode including BL32 and using
-`FVP_AARCH64_EFI.fd` as BL33 image:
-
-    Firmware Image Package ToC:
-    ---------------------------
-    - Trusted Boot Firmware BL2: offset=0xD8, size=0x6000
-      file: './build/fvp/release/bl2.bin'
-    - EL3 Runtime Firmware BL31: offset=0x60D8, size=0x9000
-      file: './build/fvp/release/bl31.bin'
-    - Secure Payload BL32 (Trusted OS): offset=0xF0D8, size=0x3000
-      file: './build/fvp/release/bl32.bin'
-    - Non-Trusted Firmware BL33: offset=0x120D8, size=0x280000
-      file: '../FVP_AARCH64_EFI.fd'
-    ---------------------------
-    Creating "build/fvp/release/fip.bin"
+    `build/<platform>/<build-type>/bl32.bin`
 
 
-### Building the Certificate Generation Tool
+### Checking source code style
 
-The `cert_create` tool can be built separately through the following commands:
+When making changes to the source for submission to the project, the source
+must be in compliance with the Linux style guide, and to assist with this check
+the project Makefile contains two targets, which both utilise the
+`checkpatch.pl` script that ships with the Linux source tree.
 
-    $ cd tools/cert_create
-    $ make PLAT=<platform> [DEBUG=1] [V=1]
+To check the entire source tree, you must first download a copy of
+`checkpatch.pl` (or the full Linux source), set the `CHECKPATCH` environment
+variable to point to the script and build the target checkcodebase:
 
-`DEBUG=1` builds the tool in debug mode. `V=1` makes the build process more
-verbose. The following command should be used to obtain help about the tool:
+    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkcodebase
 
-    $ ./cert_create -h
+To just check the style on the files that differ between your local branch and
+the remote master, use:
 
-The `cert_create` tool is automatically built with the `fip` target when
-`GENERATE_COT=1`.
+    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkpatch
+
+If you wish to check your patch against something other than the remote master,
+set the `BASE_COMMIT` variable to your desired branch. By default, `BASE_COMMIT`
+is set to `origin/master`.
+
+
+### Building and using the FIP tool
+
+Firmware Image Package (FIP) is a packaging format used by the Trusted Firmware
+project to package firmware images in a single binary. The number and type of
+images that should be packed in a FIP is platform specific and may include TF
+images and other firmware images required by the platform. For example, most
+platforms require a BL33 image which corresponds to the normal world bootloader
+(e.g. UEFI or U-Boot).
+
+The TF build system provides the make target `fip` to create a FIP file for the
+specified platform using the FIP creation tool included in the TF project. For
+example, to build a FIP file for FVP, packaging TF images and a BL33 image:
+
+    make PLAT=fvp BL33=<path/to/bl33.bin> fip
+
+The resulting FIP may be found in:
+
+    `build/fvp/<build-type>/fip.bin`
+
+For advanced operations on FIP files, it is also possible to independently build
+the tool and create or modify FIPs using this tool. To do this, follow these
+steps:
+
+It is recommended to remove old artifacts before building the tool:
+
+    make -C tools/fip_create clean
+
+Build the tool:
+
+    make [DEBUG=1] [V=1] fiptool
+
+The tool binary can be located in:
+
+    ./tools/fip_create/fip_create
+
+Invoking the tool with `--help` will print a help message with all available
+options.
+
+Example 1: create a new Firmware package `fip.bin` that contains BL2 and BL31:
+
+    ./tools/fip_create/fip_create \
+        --tb-fw build/<platform>/<build-type>/bl2.bin \
+        --soc-fw build/<platform>/<build-type>/bl31.bin \
+        fip.bin
+
+Example 2: view the contents of an existing Firmware package:
+
+    ./tools/fip_create/fip_create --dump <path-to>/fip.bin
+
+Example 3: update the entries of an existing Firmware package:
+
+    # Change the BL2 from Debug to Release version
+    ./tools/fip_create/fip_create \
+        --tb-fw build/<platform>/release/bl2.bin \
+        build/<platform>/debug/fip.bin
+
+Example 4: unpack all entries from an existing Firmware package:
+
+    # Images will be unpacked to the working directory
+    ./tools/fip_create/fip_create --unpack <path-to>/fip.bin
+
+More information about FIP can be found in the [Firmware Design document]
+[Firmware Design].
 
 
 ### Building FIP images with support for Trusted Board Boot
@@ -742,18 +695,17 @@ images with support for these features:
 
     Example of command line using RSA development keys:
 
-        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-      \
-        BL33=<path-to>/<bl33_image>                                     \
         MBEDTLS_DIR=<path of the directory containing mbed TLS sources> \
         make PLAT=<platform> TRUSTED_BOARD_BOOT=1 GENERATE_COT=1        \
         ARM_ROTPK_LOCATION=devel_rsa                                    \
         ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
+        BL33=<path-to>/<bl33_image>                                     \
         all fip
 
-    The result of this build will be the bl1.bin and the fip.bin binaries, with
-    the difference that the FIP will include the certificates corresponding to
-    the Chain of Trust described in the TBBR-client document. These certificates
-    can also be found in the output build directory.
+    The result of this build will be the bl1.bin and the fip.bin binaries. This
+    FIP will include the certificates corresponding to the Chain of Trust
+    described in the TBBR-client document. These certificates can also be found
+    in the output build directory.
 
 3.  The optional FWU_FIP contains any additional images to be loaded from
     Non-Volatile storage during the [Firmware Update] process. To build the
@@ -766,15 +718,14 @@ images with support for these features:
     Example of Juno command line for generating both `fwu` and `fwu_fip`
     targets using RSA development:
 
-        CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-       \
-        BL33=<path-to>/<bl33_image>                                     \
-        SCP_BL2=<path-to>/<scp_bl2_image>                               \
-        SCP_BL2U=<path-to>/<scp_bl2u_image>                             \
-        NS_BL2U=<path-to>/<ns_bl2u_image>                               \
         MBEDTLS_DIR=<path of the directory containing mbed TLS sources> \
         make PLAT=juno TRUSTED_BOARD_BOOT=1 GENERATE_COT=1              \
         ARM_ROTPK_LOCATION=devel_rsa                                    \
         ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
+        BL33=<path-to>/<bl33_image>                                     \
+        SCP_BL2=<path-to>/<scp_bl2_image>                               \
+        SCP_BL2U=<path-to>/<scp_bl2u_image>                             \
+        NS_BL2U=<path-to>/<ns_bl2u_image>                               \
         all fip fwu_fip
 
     Note:   The BL2U image will be built by default and added to the FWU_FIP.
@@ -790,91 +741,74 @@ images with support for these features:
     can also be found in the output build directory.
 
 
-### Checking source code style
+### Building the Certificate Generation Tool
 
-When making changes to the source for submission to the project, the source
-must be in compliance with the Linux style guide, and to assist with this check
-the project Makefile contains two targets, which both utilise the
-`checkpatch.pl` script that ships with the Linux source tree.
+The `cert_create` tool is built as part of the TF build process when the `fip`
+make target is specified and TBB is enabled (as described in the previous
+section), but it can also be built separately with the following command:
 
-To check the entire source tree, you must first download a copy of
-`checkpatch.pl` (or the full Linux source), set the `CHECKPATCH` environment
-variable to point to the script and build the target checkcodebase:
+    make PLAT=<platform> [DEBUG=1] [V=1] certtool
 
-    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkcodebase
+Specifying the platform is mandatory since the tool is platform specific.
+`DEBUG=1` builds the tool in debug mode. `V=1` makes the build process more
+verbose. The following command should be used to obtain help about the tool:
 
-To just check the style on the files that differ between your local branch and
-the remote master, use:
-
-    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkpatch
-
-If you wish to check your patch against something other than the remote master,
-set the `BASE_COMMIT` variable to your desired branch. By default, `BASE_COMMIT`
-is set to `origin/master`.
+    ./tools/cert_create/cert_create -h
 
 
-6.  Building the rest of the software stack
--------------------------------------------
+6.  Building a FIP for Juno and FVP
+-----------------------------------
 
-The Linaro release provides a set of scripts that automate the process of
-building all components of the software stack. However, the scripts only support
-a limited number of Trusted Firmware build options. Therefore, it is recommended
-to modify these scripts to build all components except Trusted Firmware, and
-build Trusted Firmware separately as described in the section "Building the
-Trusted Firmware" above.
+This section provides Juno and FVP specific instructions to build Trusted
+Firmware, obtain the additional required firmware, and pack it all together in
+a single FIP binary. It assumes that a [Linaro Release][Linaro Release Notes]
+has been installed.
 
-The instructions below are targeted at an OpenEmbedded filesystem.
+Note: follow the full instructions for one platform before switching to a
+different one. Mixing instructions for different platforms may result in
+corrupted binaries.
 
-1.  To exclude Trusted Firmware from the automated build process, edit the
-    variant file `build-scripts/variants/<platform>-oe`, where `<platform>`
-    is either `fvp` or `juno`. Add the following lines at the end of the file:
+1.  Clean the working directory
 
-        # Disable ARM Trusted Firmware build
-        ARM_TF_BUILD_ENABLED=0
+        make realclean
 
-2.  Launch the build script:
+2.  Obtain SCP_BL2 (Juno) and BL33 (all platforms)
 
-        CROSS_COMPILE=aarch64-linux-gnu- \
-        build-scripts/build-all.sh <platform>-oe
+    Use the fip_create tool to extract the SCP_BL2 and BL33 images from the FIP
+    package included in the Linaro release:
 
-### Preparing the Firmware Image Package
+        # Build the fip_create tool
+        make [DEBUG=1] [V=1] fiptool
 
-The EDK2 binary should be specified as `BL33` in the `make` command line when
-building the Trusted Firmware. See the "Building the Trusted Firmware" section
-above. The EDK2 binary for use with the ARM Trusted Firmware can be found here:
+        # Unpack firmware images from Linaro FIP
+        ./tools/fip_create/fip_create --unpack \
+             <path/to/linaro/release>/fip.bin
 
-    uefi/edk2/Build/ArmVExpress-FVP-AArch64-Minimal/DEBUG_GCC49/FV/FVP_AARCH64_EFI.fd   [for FVP]
-    uefi/edk2/Build/ArmJuno/DEBUG_GCC49/FV/BL33_AP_UEFI.fd                              [for Juno]
+    The unpack operation will result in a set of binary images extracted to the
+    working directory. The SCP_BL2 image corresponds to `scp-fw.bin` and BL33
+    corresponds to `nt-fw.bin`.
 
-### Building an alternative EDK2
+    Note: the fip_create tool will complain if the images to be unpacked already
+    exist in the current directory. If that is the case, either delete those
+    files or use the `--force` option to overwrite.
 
-*   By default, EDK2 is built in debug mode. To build a release version instead,
-    change the following line in the variant file:
+3.  Build TF images and create a new FIP
 
-        UEFI_BUILD_MODE=DEBUG
+        # Juno
+        make PLAT=juno SCP_BL2=scp-fw.bin BL33=nt-fw.bin all fip
 
-    into:
+        # FVP
+        make PLAT=fvp BL33=nt-fw.bin all fip
 
-        UEFI_BUILD_MODE=RELEASE
+The resulting BL1 and FIP images may be found in:
 
-*   On FVP, if legacy GICv2 locations are used, the EDK2 platform makefile must
-    be updated. This is required as EDK2 does not support probing for the GIC
-    location. To do this, first clean the EDK2 build directory:
+    # Juno
+    ./build/juno/release/bl1.bin
+    ./build/juno/release/fip.bin
 
-        build-scripts/build-uefi.sh fvp-oe clean
-
-    Then edit the following file:
-
-        uefi/edk2/ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.mak
-
-    and add the following build flag into the `EDK2_MACROS` variable:
-
-        -D ARM_FVP_LEGACY_GICV2_LOCATION=1
-
-    Then rebuild everything as described above in step 2.
-
-    Finally rebuild the Trusted Firmware to generate a new FIP using the
-    instructions in the "Building the Trusted Firmware" section.
+    # FVP
+    ./build/fvp/release/bl1.bin
+    ./build/fvp/release/fip.bin
 
 
 7.  EL3 payloads alternative boot flow
@@ -1006,7 +940,6 @@ used when compiling the Trusted Firmware. For example, the following command
 will create a FIP without a BL33 and prepare to jump to a BL33 image loaded at
 address 0x80000000:
 
-    CROSS_COMPILE=<path-to>/bin/aarch64-linux-gnu- \
     make PRELOADED_BL33_BASE=0x80000000 PLAT=fvp all fip
 
 #### Boot of a preloaded bootwrapped kernel image on Base FVP
@@ -1040,11 +973,33 @@ above in the EL3 payload boot flow section may be used to load the ELF file over
 JTAG on Juno.
 
 
-9.  Preparing the images to run on FVP
---------------------------------------
+9.  Running the software on FVP
+-------------------------------
 
-Note: This section can be ignored when booting an EL3 payload, as no Flattened
-Device Tree or kernel image is needed in this case.
+This version of the ARM Trusted Firmware has been tested on the following ARM
+FVPs (64-bit versions only).
+
+*   `Foundation_Platform` (Version 9.5, Build 9.5.40)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.2, Build 0.8.7202)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.2, Build 0.8.7202)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.2, Build 0.8.7202)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.2, Build 0.8.7202)
+
+NOTE: The build numbers quoted above are those reported by launching the FVP
+with the `--version` parameter. `Foundation_Platform` tarball for `--version`
+9.5.40 is labeled as version 9.5.41.
+
+NOTE: The software will not work on Version 1.0 of the Foundation FVP.
+The commands below would report an `unhandled argument` error in this case.
+
+NOTE: The Foundation FVP does not provide a debugger interface.
+
+The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
+downloaded for free from [ARM's website][ARM FVP website].
+
+Please refer to the FVP documentation for a detailed description of the model
+parameter options. A brief description of the important ones that affect the ARM
+Trusted Firmware and normal world software behavior is provided below.
 
 ### Obtaining the Flattened Device Trees
 
@@ -1084,48 +1039,6 @@ all FDTs are available from there.
     For use with Foundation FVP with Base memory map configuration and Linux
     GICv3 support.
 
-Copy the chosen FDT blob as `fdt.dtb` to the directory from which the FVP
-is launched. Alternatively a symbolic link may be used.
-
-### Preparing the kernel image
-
-Copy the kernel image file `linux/arch/arm64/boot/Image` to the directory from
-which the FVP is launched. Alternatively a symbolic link may be used.
-
-
-10.  Running the software on FVP
---------------------------------
-
-This version of the ARM Trusted Firmware has been tested on the following ARM
-FVPs (64-bit versions only).
-
-*   `Foundation_Platform` (Version 9.5, Build 9.5.40)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.2, Build 0.8.7202)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.2, Build 0.8.7202)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.2, Build 0.8.7202)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.2, Build 0.8.7202)
-
-NOTE: The build numbers quoted above are those reported by launching the FVP
-with the `--version` parameter. `Foundation_Platform` tarball for `--version`
-9.5.40 is labeled as version 9.5.41.
-
-NOTE: The software will not work on Version 1.0 of the Foundation FVP.
-The commands below would report an `unhandled argument` error in this case.
-
-NOTE: The Foundation FVP does not provide a debugger interface.
-
-The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
-downloaded for free from [ARM's website][ARM FVP website].
-
-The Linaro release provides a script to run the software on FVP. However, it
-only supports a limited number of model parameter options. Therefore, it is
-recommended to launch the FVP manually for all use cases described below.
-
-Please refer to the FVP documentation for a detailed description of the model
-parameter options. A brief description of the important ones that affect the ARM
-Trusted Firmware and normal world software behavior is provided below.
-
-
 ### Running on the Foundation FVP with reset to BL1 entrypoint
 
 The following `Foundation_Platform` parameters should be used to boot Linux with
@@ -1142,80 +1055,13 @@ The following `Foundation_Platform` parameters should be used to boot Linux with
     --data="<path-to>/<kernel-binary>"@0x80080000   \
     --block-device="<path-to>/<file-system-image>"
 
-1.  The `--data="<path-to-some-binary>"@0x...` parameters are used to load
-    binaries into memory.
+Notes:
 
-    *   BL1 is loaded at the start of the Trusted ROM.
-    *   The Firmware Image Package is loaded at the start of NOR FLASH0.
-    *   The Linux kernel image and device tree are loaded in DRAM.
-
-2.  The `--block-device` parameter is used to specify the path to the file
-    system image provided to Linux via VirtioBlock. Note that it must point to
-    the real file and that a symbolic link to this file cannot be used with the
-    FVP.
-
-The default use-case for the Foundation FVP is to enable the GICv3 device in
-the model but use the GICv2 FDT, in order for Linux to drive the GIC in GICv2
-emulation mode.
-
-### Notes regarding Base FVP configuration options
-
-Please refer to these notes in the subsequent "Running on the Base FVP"
-sections.
-
-1.  The `-C bp.flashloader0.fname` parameter is used to load a Firmware Image
-    Package at the start of NOR FLASH0 (see the "Building the Trusted Firmware"
-    section above).
-
-2.  Using `cache_state_modelled=1` makes booting very slow. The software will
-    still work (and run much faster) without this option but this will hide any
-    cache maintenance defects in the software.
-
-3.  The `-C bp.virtioblockdevice.image_path` parameter is used to specify the
-    path to the file system image provided to Linux via VirtioBlock. Note that
-    it must point to the real file and that a symbolic link to this file cannot
-    be used with the FVP. Ensure that the FVP doesn't output any error messages.
-    If the following error message is displayed:
-
-        ERROR: BlockDevice: Failed to open "<path-to>/<file-system-image>"!
-
-    then make sure the path to the file-system image in the model parameter is
-    correct and that read permission is correctly set on the file-system image
-    file.
-
-4.  Setting the `-C bp.secure_memory` parameter to `1` is only supported on
-    Base FVP versions 5.4 and newer. Setting this parameter to `0` is also
-    supported. The `-C bp.tzc_400.diagnostics=1` parameter is optional. It
-    instructs the FVP to provide some helpful information if a secure memory
-    violation occurs.
-
-5.  The `--data="<path-to-some-binary>"@<base-address-of-binary>` parameter is
-    used to load images into Base FVP memory. The base addresses used should
-    match the image base addresses used while linking the images. This parameter
-    is used to load the Linux kernel image and device tree into DRAM.
-
-6.  This and the following notes only apply when the firmware is built with
-    the `RESET_TO_BL31` option.
-
-    The `--data="<path-to><bl31|bl32|bl33-binary>"@<base-address-of-binary>`
-    parameter is needed to load the individual bootloader images in memory.
-    BL32 image is only needed if BL31 has been built to expect a Secure-EL1
-    Payload.
-
-7.  The `-C cluster<X>.cpu<Y>.RVBAR=@<base-address-of-bl31>` parameter, where
-    X and Y are the cluster and CPU numbers respectively, is used to set the
-    reset vector for each core.
-
-8.  Changing the default value of `ARM_TSP_RAM_LOCATION` will also require
-    changing the value of
-    `--data="<path-to><bl32-binary>"@<base-address-of-bl32>` to the new value of
-    `BL32_BASE`.
-
+*   BL1 is loaded at the start of the Trusted ROM.
+*   The Firmware Image Package is loaded at the start of NOR FLASH0.
+*   The Linux kernel image and device tree are loaded in DRAM.
 
 ### Running on the AEMv8 Base FVP with reset to BL1 entrypoint
-
-Please read "Notes regarding Base FVP configuration options" section above for
-information about some of the options to run the software.
 
 The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
 with 8 CPUs using the ARM Trusted Firmware.
@@ -1235,9 +1081,6 @@ with 8 CPUs using the ARM Trusted Firmware.
 
 ### Running on the Cortex-A57-A53 Base FVP with reset to BL1 entrypoint
 
-Please read "Notes regarding Base FVP configuration options" section above for
-information about some of the options to run the software.
-
 The following `FVP_Base_Cortex-A57x4-A53x4` model parameters should be used to
 boot Linux with 8 CPUs using the ARM Trusted Firmware.
 
@@ -1253,9 +1096,6 @@ boot Linux with 8 CPUs using the ARM Trusted Firmware.
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
 ### Running on the AEMv8 Base FVP with reset to BL31 entrypoint
-
-Please read "Notes regarding Base FVP configuration options" section above for
-information about some of the options to run the software.
 
 The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
 with 8 CPUs using the ARM Trusted Firmware.
@@ -1282,10 +1122,24 @@ with 8 CPUs using the ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
-### Running on the Cortex-A57-A53 Base FVP with reset to BL31 entrypoint
+Notes:
 
-Please read "Notes regarding Base FVP configuration options" section above for
-information about some of the options to run the software.
+*   Since a FIP is not loaded when using BL31 as reset entrypoint, the
+    `--data="<path-to><bl31|bl32|bl33-binary>"@<base-address-of-binary>`
+    parameter is needed to load the individual bootloader images in memory.
+    BL32 image is only needed if BL31 has been built to expect a Secure-EL1
+    Payload.
+
+*   The `-C cluster<X>.cpu<Y>.RVBAR=@<base-address-of-bl31>` parameter, where
+    X and Y are the cluster and CPU numbers respectively, is used to set the
+    reset vector for each core.
+
+*   Changing the default value of `ARM_TSP_RAM_LOCATION` will also require
+    changing the value of
+    `--data="<path-to><bl32-binary>"@<base-address-of-bl32>` to the new value of
+    `BL32_BASE`.
+
+### Running on the Cortex-A57-A53 Base FVP with reset to BL31 entrypoint
 
 The following `FVP_Base_Cortex-A57x4-A53x4` model parameters should be used to
 boot Linux with 8 CPUs using the ARM Trusted Firmware.
@@ -1393,7 +1247,7 @@ The `bp.variant` parameter corresponds to the build variant field of the
 detect the legacy VE memory map while configuring the GIC.
 
 
-11.  Running the software on Juno
+10.  Running the software on Juno
 ---------------------------------
 
 This version of the ARM Trusted Firmware has been tested on Juno r0 and Juno r1.
@@ -1405,17 +1259,6 @@ re-install the recovery image by following the [Instructions for using Linaro's
 deliverables on Juno][Juno Instructions].
 
 ### Preparing Trusted Firmware images
-
-The Juno platform requires a SCP_BL1 and a SCP_BL2 image to boot up. The
-SCP_BL1 image contains the ROM firmware that runs on the SCP (System Control
-Processor), whereas the SCP_BL2 image contains the SCP Runtime firmware. Both
-images are embedded within the Juno board recovery image, these are the files
-`bl0.bin` and `bl30.bin`, respectively. Please note that these filenames still
-use the old terminology.
-
-The SCP_BL2 file must be part of the FIP image. Therefore, its path must be
-supplied using the `SCP_BL2` variable on the command line when building the
-FIP. Please refer to the section "Building the Trusted Firmware".
 
 After building Trusted Firmware, the files `bl1.bin` and `fip.bin` need copying
 to the `SOFTWARE/` directory of the Juno SD card.
@@ -1430,66 +1273,15 @@ configure it.
 ### Testing SYSTEM SUSPEND on Juno
 
 The SYSTEM SUSPEND is a PSCI API which can be used to implement system suspend
-to RAM. For more details refer to section 5.16 of [PSCI]. The [Linaro Release
-Notes] point to the required SCP and motherboard firmware binaries supporting
-this feature on Juno. The mainline linux kernel does not yet have support for
-this feature on Juno but it is queued to be merged in v4.4. Till that becomes
-available, the feature can be tested by using a custom kernel built from the
-following repository:
+to RAM. For more details refer to section 5.16 of [PSCI]. To test system suspend
+on Juno, at the linux shell prompt, issue the following command:
 
-    git clone git://git.kernel.org/pub/scm/linux/kernel/git/lpieralisi/linux.git
-    cd linux
-    git checkout firmware/psci-1.0
-
-Configure the linux kernel:
-
-    export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
-    make ARCH=arm64 defconfig
-
-The feature is tested conveniently by using the RTC. Enable the RTC driver in
-menuconfig
-
-    make ARCH=arm64 menuconfig
-
-The PL031 RTC driver can be enabled at the following location in menuconfig
-
-    ARM AMBA PL031 RTC
-      |   Location:
-      |     -> Device Drivers
-      |       -> Real Time Clock
-
-Build the kernel
-
-    make ARCH=arm64 Image -j8
-
-Replace the kernel image in the `SOFTWARE/` directory of the Juno SD card with
-the `Image` from `arch/arm64/boot/` of the linux directory.
-
-Reset the board and wait for it to boot. At the shell prompt issue the
-following command:
-
-    echo +10 > /sys/class/rtc/rtc1/wakealarm
+    echo +10 > /sys/class/rtc/rtc0/wakealarm
     echo -n mem > /sys/power/state
 
 The Juno board should suspend to RAM and then wakeup after 10 seconds due to
 wakeup interrupt from RTC.
 
-
-12.  Changes required for booting Linux on FVP in GICv3 mode
-------------------------------------------------------------
-
-In case the TF FVP port is built with the build option
-`FVP_USE_GIC_DRIVER=FVP_GICV3`, then the GICv3 hardware cannot be used in
-GICv2 legacy mode. The default build of UEFI for FVP in
-[latest tracking kernel][Linaro Release Notes] configures GICv3 in GICv2 legacy
-mode. This can be changed by setting the build flag
-`gArmTokenSpaceGuid.PcdArmGicV3WithV2Legacy` to FALSE in
-`uefi/edk2/ArmPlatformPkg/ArmVExpressPkg/ArmVExpress-FVP-AArch64.dsc`.
-
-Recompile UEFI as mentioned [here][FVP Instructions].
-
-The GICv3 DTBs found in ARM Trusted Firmware source directory can be
-used to test the GICv3 kernel on the respective FVP models.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1498,7 +1290,7 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 [Firmware Design]:             firmware-design.md
 [ARM FVP website]:             http://www.arm.com/fvp
-[Linaro Release Notes]:        https://community.arm.com/docs/DOC-10952#jive_content_id_Linaro_Release_1510
+[Linaro Release Notes]:        https://community.arm.com/docs/DOC-10952#jive_content_id_Linaro_Release_1602
 [ARM Platforms Portal]:        https://community.arm.com/groups/arm-development-platforms
 [Linaro SW Instructions]:      https://community.arm.com/docs/DOC-10803
 [Juno Instructions]:           https://community.arm.com/docs/DOC-10804
