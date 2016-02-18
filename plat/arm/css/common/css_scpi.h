@@ -45,7 +45,7 @@ typedef struct {
 	uint32_t set		: 1;
 	/* Sender ID to match a reply. The value is sender specific. */
 	uint32_t sender		: 8;
-	/* Size of the payload in bytes (0 – 511) */
+	/* Size of the payload in bytes (0 - 511) */
 	uint32_t size		: 9;
 	uint32_t reserved	: 7;
 	/*
