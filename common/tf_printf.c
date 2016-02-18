@@ -68,6 +68,7 @@ static void string_print(const char *str)
  * %u - unsigned 32 bit decimal format
  * %ld and %lld - signed 64 bit decimal format
  * %lu and %llu - unsigned 64 bit decimal format
+ * %p - pointer format
  * Exits on all other formats.
  *******************************************************************/
 
@@ -106,6 +107,14 @@ loop:
 			case 's':
 				str = va_arg(args, char *);
 				string_print(str);
+				break;
+			case 'p':
+				unum = (uint64_t)va_arg(args, void *);
+
+				if (unum)
+					string_print("0x");
+
+				unsigned_num_print(unum, 16);
 				break;
 			case 'x':
 				if (bit64)
