@@ -85,8 +85,12 @@ architecture that can be enabled by the platform as desired.
 
 *    `A57_DISABLE_NON_TEMPORAL_HINT`: This flag has the same behaviour as
      `A53_DISABLE_NON_TEMPORAL_HINT` but for Cortex-A57. This needs to be
-     enabled only for revisions <= r1p2 of the CPU and is enabled by default.
+     enabled only for revisions <= r1p2 of the CPU and is enabled by default,
+     as recommended in section "4.7 Non-Temporal Loads/Stores" of the
+     [Cortex-A57 Software Optimization Guide][A57 SW Optimization Guide].
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 _Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved._
+
+[A57 SW Optimization Guide]: http://infocenter.arm.com/help/topic/com.arm.doc.uan0015b/Cortex_A57_Software_Optimization_Guide_external.pdf
