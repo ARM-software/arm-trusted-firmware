@@ -1020,14 +1020,15 @@ which the FVP is launched. Alternatively a symbolic link may be used.
 This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
-*   `Foundation_Platform` (Version 9.4, Build 9.4.59)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.0, Build 0.8.7004)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.0, Build 0.8.7004)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.0, Build 0.8.7004)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.0, Build 0.8.7004)
+*   `Foundation_Platform` (Version 9.5, Build 9.5.40)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.2, Build 0.8.7202)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.2, Build 0.8.7202)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.2, Build 0.8.7202)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.2, Build 0.8.7202)
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
-with the `--version` parameter.
+with the `--version` parameter. `Foundation_Platform` tarball for `--version`
+9.5.40 is labeled as version 9.5.41.
 
 NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 The commands below would report an `unhandled argument` error in this case.
