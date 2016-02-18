@@ -413,6 +413,25 @@ performed.
     any register that is not part of the SBSA generic UART specification.
     Default value is 0 (a full PL011 compliant UART is present).
 
+*   `CTX_INCLUDE_FPREGS`: Boolean option that, when set to 1, will cause the FP
+    registers to be included when saving and restoring the CPU context. Default
+    is 0.
+
+*   `DISABLE_PEDANTIC`: When set to 1 it will disable the -pedantic option in
+    the GCC command line. Default is 0.
+
+*   `BUILD_STRING`: Input string for VERSION_STRING, which allows the TF build
+    to be uniquely identified. Defaults to the current git commit id.
+
+*   `VERSION_STRING`: String used in the log output for each TF image. Defaults
+    to a string formed by concatenating the version number, build type and build
+    string.
+
+*   `BUILD_MESSAGE_TIMESTAMP`: String used to identify the time and date of the
+    compilation of each build. It must be set to a C string (including quotes
+    where applicable). Defaults to a string that contains the time and date of
+    the compilation.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
