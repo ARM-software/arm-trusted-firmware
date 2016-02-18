@@ -192,11 +192,6 @@ void arm_program_trusted_mailbox(uintptr_t address)
 	assert((PLAT_ARM_TRUSTED_MAILBOX_BASE >= ARM_SHARED_RAM_BASE) &&
 		((PLAT_ARM_TRUSTED_MAILBOX_BASE + sizeof(*mailbox)) <= \
 				(ARM_SHARED_RAM_BASE + ARM_SHARED_RAM_SIZE)));
-
-	/* Flush data cache if the mail box shared RAM is cached */
-#if PLAT_ARM_SHARED_RAM_CACHED
-	flush_dcache_range((uintptr_t) mailbox, sizeof(*mailbox));
-#endif
 }
 
 /*******************************************************************************

@@ -37,8 +37,6 @@
 /*************************************************************************
  * Definitions common to all ARM Compute SubSystems (CSS)
  *************************************************************************/
-#define MHU_PAYLOAD_CACHED		0
-
 #define NSROM_BASE			0x1f000000
 #define NSROM_SIZE			0x00001000
 
@@ -140,8 +138,6 @@
 
 #define SCP_BL2U_BASE			BL31_BASE
 #endif /* CSS_LOAD_SCP_IMAGES */
-
-#define PLAT_ARM_SHARED_RAM_CACHED	MHU_PAYLOAD_CACHED
 
 /* Load address of Non-Secure Image for CSS platform ports */
 #define PLAT_ARM_NS_IMAGE_OFFSET	0xE0000000

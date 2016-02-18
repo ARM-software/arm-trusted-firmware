@@ -56,10 +56,10 @@ static void scpi_secure_message_start(void)
 
 static void scpi_secure_message_send(size_t payload_size)
 {
-	/* Make sure payload can be seen by SCP */
-	if (MHU_PAYLOAD_CACHED)
-		flush_dcache_range(SCPI_SHARED_MEM_AP_TO_SCP,
-				   sizeof(scpi_cmd_t) + payload_size);
+	/* Ensure that any write to the SCPI payload area is seen by SCP before
+	 * we write to the MHU register. If these 2 writes were reordered by
+	 * the CPU then SCP would read stale payload data */
+	dmbst();
 
 	mhu_secure_message_send(SCPI_MHU_SLOT_ID);
 }
@@ -79,9 +79,10 @@ static void scpi_secure_message_receive(scpi_cmd_t *cmd)
 		panic();
 	}
 
-	/* Make sure we don't read stale data */
-	if (MHU_PAYLOAD_CACHED)
-		inv_dcache_range(SCPI_SHARED_MEM_SCP_TO_AP, sizeof(*cmd));
+	/* Ensure that any read to the SCPI payload area is done after reading
+	 * the MHU register. If these 2 reads were reordered then the CPU would
+	 * read invalid payload data */
+	dmbld();
 
 	memcpy(cmd, (void *) SCPI_SHARED_MEM_SCP_TO_AP, sizeof(*cmd));
 }
