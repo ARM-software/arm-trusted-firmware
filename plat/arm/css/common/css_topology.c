@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,33 +29,6 @@
  */
 
 #include <plat_arm.h>
-
-/*
- * On ARM CSS platforms, by default, the system power level is treated as the
- * highest. The first entry in the power domain descriptor specifies the
- * number of system power domains i.e. 1.
- */
-#define CSS_PWR_DOMAINS_AT_MAX_PWR_LVL	ARM_SYSTEM_COUNT
-
-/*
- * The CSS power domain tree descriptor for dual cluster CSS platforms.
- * The cluster power domains are arranged so that when the PSCI generic
- * code creates the power domain tree, the indices of the CPU power
- * domain nodes it allocates match the linear indices returned by
- * plat_core_pos_by_mpidr() i.e. CLUSTER1 CPUs are allocated indices
- * from 0 to 3 and the higher indices for CLUSTER0 CPUs.
- */
-const unsigned char arm_power_domain_tree_desc[] = {
-	/* No of root nodes */
-	CSS_PWR_DOMAINS_AT_MAX_PWR_LVL,
-	/* No of children for the root node */
-	ARM_CLUSTER_COUNT,
-	/* No of children for the first cluster node */
-	PLAT_ARM_CLUSTER1_CORE_COUNT,
-	/* No of children for the second cluster node */
-	PLAT_ARM_CLUSTER0_CORE_COUNT
-};
-
 
 /******************************************************************************
  * This function implements a part of the critical interface between the psci

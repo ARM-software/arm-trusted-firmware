@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,27 +29,47 @@
  */
 
 #include <arch.h>
+#include <cassert.h>
 #include <plat_arm.h>
 #include <platform_def.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 
-/*
- * The FVP power domain tree does not have a single system level power domain
- * i.e. a single root node. The first entry in the power domain descriptor
- * specifies the number of power domains at the highest power level. For the FVP
- * this is 2 i.e. the number of cluster power domains.
- */
-#define FVP_PWR_DOMAINS_AT_MAX_PWR_LVL	ARM_CLUSTER_COUNT
-
 /* The FVP power domain tree descriptor */
-const unsigned char arm_power_domain_tree_desc[] = {
-	/* No of root nodes */
-	FVP_PWR_DOMAINS_AT_MAX_PWR_LVL,
-	/* No of children for the first node */
-	PLAT_ARM_CLUSTER0_CORE_COUNT,
-	/* No of children for the second node */
-	PLAT_ARM_CLUSTER1_CORE_COUNT
-};
+unsigned char fvp_power_domain_tree_desc[FVP_CLUSTER_COUNT + 1];
+
+
+CASSERT(FVP_CLUSTER_COUNT && FVP_CLUSTER_COUNT <= 256, assert_invalid_fvp_cluster_count);
+
+/*******************************************************************************
+ * This function dynamically constructs the topology according to
+ * FVP_CLUSTER_COUNT and returns it.
+ ******************************************************************************/
+const unsigned char *plat_get_power_domain_tree_desc(void)
+{
+	int i;
+
+	/*
+	 * The FVP power domain tree does not have a single system level power domain
+	 * i.e. a single root node. The first entry in the power domain descriptor
+	 * specifies the number of power domains at the highest power level. For the FVP
+	 * this is the number of cluster power domains.
+	 */
+	fvp_power_domain_tree_desc[0] = FVP_CLUSTER_COUNT;
+
+	for (i = 0; i < FVP_CLUSTER_COUNT; i++)
+		fvp_power_domain_tree_desc[i + 1] = FVP_MAX_CPUS_PER_CLUSTER;
+
+	return fvp_power_domain_tree_desc;
+}
+
+/*******************************************************************************
+ * This function returns the core count within the cluster corresponding to
+ * `mpidr`.
+ ******************************************************************************/
+unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
+{
+	return FVP_MAX_CPUS_PER_CLUSTER;
+}
 
 /*******************************************************************************
  * This function implements a part of the critical interface between the psci

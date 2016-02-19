@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
+#include <arm_def.h>
 #include <plat_arm.h>
-#include <platform_def.h>
+#include "juno_def.h"
+
+/*
+ * On Juno, the system power level is the highest power level.
+ * The first entry in the power domain descriptor specifies the
+ * number of system power domains i.e. 1.
+ */
+#define JUNO_PWR_DOMAINS_AT_MAX_PWR_LVL	 ARM_SYSTEM_COUNT
+
+/*
+ * The Juno power domain tree descriptor. The cluster power domains
+ * are arranged so that when the PSCI generic code creates the power
+ * domain tree, the indices of the CPU power domain nodes it allocates
+ * match the linear indices returned by plat_core_pos_by_mpidr()
+ * i.e. CLUSTER1 CPUs are allocated indices from 0 to 3 and the higher
+ * indices for CLUSTER0 CPUs.
+ */
+const unsigned char juno_power_domain_tree_desc[] = {
+	/* No of root nodes */
+	JUNO_PWR_DOMAINS_AT_MAX_PWR_LVL,
+	/* No of children for the root node */
+	JUNO_CLUSTER_COUNT,
+	/* No of children for the first cluster node */
+	JUNO_CLUSTER1_CORE_COUNT,
+	/* No of children for the second cluster node */
+	JUNO_CLUSTER0_CORE_COUNT
+};
 
 /*******************************************************************************
- * This function validates an MPIDR by checking whether it falls within the
- * acceptable bounds. An error code (-1) is returned if an incorrect mpidr
- * is passed.
+ * This function returns the Juno topology tree information.
  ******************************************************************************/
-int arm_check_mpidr(u_register_t mpidr)
+const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	unsigned int cluster_id, cpu_id;
+	return juno_power_domain_tree_desc;
+}
 
-	mpidr &= MPIDR_AFFINITY_MASK;
-
-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
-		return -1;
-
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
-
-	if (cluster_id >= PLAT_ARM_CLUSTER_COUNT)
-		return -1;
-
-	/* Validate cpu_id by checking whether it represents a CPU in
-	   one of the two clusters present on the platform. */
-	if (cpu_id >= plat_arm_get_cluster_core_count(mpidr))
-		return -1;
-
-	return 0;
+/*******************************************************************************
+ * This function returns the core count within the cluster corresponding to
+ * `mpidr`.
+ ******************************************************************************/
+unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
+{
+	return (((mpidr) & 0x100) ? JUNO_CLUSTER1_CORE_COUNT :\
+				JUNO_CLUSTER0_CORE_COUNT);
 }

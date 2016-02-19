@@ -179,6 +179,7 @@ int arm_io_is_toc_valid(void);
 /*
  * Mandatory functions required in ARM standard platforms
  */
+unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr);
 void plat_arm_gic_driver_init(void);
 void plat_arm_gic_init(void);
 void plat_arm_gic_cpuif_enable(void);
