@@ -242,6 +242,13 @@ static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_st
 
 	/* enable coherency */
 	plat_arm_interconnect_enter_coherency();
+	/* APU was turned off */
+	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
+		plat_arm_gic_init();
+	} else {
+		gicv2_cpuif_enable();
+		gicv2_pcpu_distif_init();
+	}
 }
 
 /*******************************************************************************
