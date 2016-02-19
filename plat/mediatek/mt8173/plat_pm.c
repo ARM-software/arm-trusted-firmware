@@ -36,7 +36,6 @@
 #include <console.h>
 #include <debug.h>
 #include <errno.h>
-#include <gpio.h>
 #include <mcucfg.h>
 #include <mmio.h>
 #include <mt8173_def.h>
@@ -49,6 +48,7 @@
 #include <spm_hotplug.h>
 #include <spm_mcdi.h>
 #include <spm_suspend.h>
+#include "drivers/gpio/gpio.h"
 
 struct core_context {
 	unsigned long timer_data[8];

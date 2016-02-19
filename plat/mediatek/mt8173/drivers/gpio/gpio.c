@@ -28,10 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <debug.h>
-#include <gpio.h>
 #include <mmio.h>
 #include <mt8173_def.h>
 #include <pmic_wrap_init.h>
+#include "gpio.h"
 
 enum {
 	MAX_GPIO_REG_BITS = 16,
