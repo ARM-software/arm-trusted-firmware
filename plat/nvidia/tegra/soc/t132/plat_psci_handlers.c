@@ -110,6 +110,13 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	tegra_fc_cpu_off(read_mpidr() & MPIDR_CPU_MASK);
+
+	/* Disable DCO operations */
+	denver_disable_dco();
+
+	/* Power down the CPU */
+	write_actlr_el1(DENVER_CPU_STATE_POWER_DOWN);
+
 	return PSCI_E_SUCCESS;
 }
 
@@ -128,7 +135,10 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* Program FC to enter suspend state */
 	tegra_fc_cpu_powerdn(read_mpidr());
 
-	/* Suspend DCO operations */
+	/* Disable DCO operations */
+	denver_disable_dco();
+
+	/* Program the suspend state ID */
 	write_actlr_el1(target_state->pwr_domain_state[PLAT_MAX_PWR_LVL]);
 
 	return PSCI_E_SUCCESS;

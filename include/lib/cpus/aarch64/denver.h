@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,5 +43,12 @@
 
 /* CPU state ids - implementation defined */
 #define DENVER_CPU_STATE_POWER_DOWN	0x3
+
+#ifndef __ASSEMBLY__
+
+/* Disable Dynamic Code Optimisation */
+void denver_disable_dco(void);
+
+#endif
 
 #endif /* __DENVER_H__ */
