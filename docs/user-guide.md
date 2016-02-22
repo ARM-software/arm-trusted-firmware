@@ -481,6 +481,13 @@ map is explained in the [Firmware Design].
     match the frame used by the Non-Secure image (normally the Linux kernel).
     Default is true (access to the frame is allowed).
 
+*   `ARM_BOARD_OPTIMISE_MMAP`: Boolean option to enable or disable optimisation
+    of page table and MMU related macros `PLAT_ARM_MMAP_ENTRIES` and
+    `MAX_XLAT_TABLES`. By default this flag is 0, which means it uses the
+    default unoptimised values for these macros. ARM development platforms
+    that wish to optimise memory usage for page tables need to set this flag to 1
+    and must override the related macros.
+
 #### ARM CSS platform specific build options
 
 *   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version

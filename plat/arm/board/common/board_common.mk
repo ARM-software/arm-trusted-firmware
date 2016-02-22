@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -54,3 +54,10 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
     BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
 endif
+
+# This flag controls whether memory usage needs to be optimised
+ARM_BOARD_OPTIMISE_MMAP	?=	0
+
+# Process flags
+$(eval $(call assert_boolean,ARM_BOARD_OPTIMISE_MMAP))
+$(eval $(call add_define,ARM_BOARD_OPTIMISE_MMAP))
