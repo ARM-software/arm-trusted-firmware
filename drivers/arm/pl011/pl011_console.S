@@ -69,15 +69,6 @@ func console_core_init
 	mov	w4, #PL011_UARTCR_UARTEN
 	bic	w3, w3, w4
 	str	w3, [x0, #UARTCR]
-	/* Flush the transmit FIFO */
-	ldr	w3, [x0, #UARTLCR_H]
-	mov	w4, #PL011_UARTLCR_H_FEN
-	bic	w3, w3, w4
-	str	w3, [x0, #UARTLCR_H]
-	/* Wait for the end of Tx of current character */
-busy_loop:
-	ldr	w3, [x0, #UARTFR]
-	tbnz	w3, #PL011_UARTFR_BUSY_BIT, busy_loop
 	/* Program the baudrate */
 	/* Divisor =  (Uart clock * 4) / baudrate */
 	lsl	w1, w1, #2
