@@ -315,6 +315,12 @@ void init_xlat_tables(void)
 		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
 			TCR_RGN_INNER_WBA |				\
 			(64 - __builtin_ctzl(ADDR_SPACE_SIZE));		\
+		if (PAGE_SIZE == 4 * 1024)				\
+			tcr |= TCR_TG0_4K;				\
+		else if (PAGE_SIZE == 16 * 1024)			\
+			tcr |= TCR_TG0_16K;				\
+		else if (PAGE_SIZE == 64 * 1024)			\
+			tcr |= TCR_TG0_64K;				\
 		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
 									\

@@ -267,6 +267,10 @@
 #define TCR_SH_OUTER_SHAREABLE	(0x2 << 12)
 #define TCR_SH_INNER_SHAREABLE	(0x3 << 12)
 
+#define TCR_TG0_4K		(0x0 << 14)
+#define TCR_TG0_64K		(0x1 << 14)
+#define TCR_TG0_16K		(0x2 << 14)
+
 #define MODE_SP_SHIFT		0x0
 #define MODE_SP_MASK		0x1
 #define MODE_SP_EL0		0x0
@@ -355,25 +359,9 @@
 #define clr_cntp_ctl_imask(x)   (x &= ~(1 << CNTP_CTL_IMASK_SHIFT))
 
 /* Miscellaneous MMU related constants */
-#define NUM_2MB_IN_GB		(1 << 9)
-#define NUM_4K_IN_2MB		(1 << 9)
-#define NUM_GB_IN_4GB		(1 << 2)
-
-#define TWO_MB_SHIFT		21
-#define ONE_GB_SHIFT		30
-#define FOUR_KB_SHIFT		12
-
-#define ONE_GB_INDEX(x)		((x) >> ONE_GB_SHIFT)
-#define TWO_MB_INDEX(x)		((x) >> TWO_MB_SHIFT)
-#define FOUR_KB_INDEX(x)	((x) >> FOUR_KB_SHIFT)
-
 #define INVALID_DESC		0x0
 #define BLOCK_DESC		0x1
 #define TABLE_DESC		0x3
-
-#define FIRST_LEVEL_DESC_N	ONE_GB_SHIFT
-#define SECOND_LEVEL_DESC_N	TWO_MB_SHIFT
-#define THIRD_LEVEL_DESC_N	FOUR_KB_SHIFT
 
 #define LEVEL1			1
 #define LEVEL2			2
@@ -390,7 +378,7 @@
 #define OSH			(0x2 << 6)
 #define ISH			(0x3 << 6)
 
-#define PAGE_SIZE_SHIFT		FOUR_KB_SHIFT
+#define PAGE_SIZE_SHIFT		12 /* 4K */
 #define PAGE_SIZE		(1 << PAGE_SIZE_SHIFT)
 #define PAGE_SIZE_MASK		(PAGE_SIZE - 1)
 #define IS_PAGE_ALIGNED(addr)	(((addr) & PAGE_SIZE_MASK) == 0)
