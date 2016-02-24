@@ -135,7 +135,7 @@ static unsigned long mmap_desc(unsigned attr, unsigned long addr_pa,
 {
 	unsigned long desc = addr_pa;
 
-	desc |= level == 3 ? TABLE_DESC : BLOCK_DESC;
+	desc |= (level == MAX_XLAT_LEVEL) ? TABLE_DESC : BLOCK_DESC;
 
 	desc |= attr & MT_NS ? LOWER_ATTRS(NS) : 0;
 
@@ -193,10 +193,10 @@ static mmap_region_t *init_xlation_table(mmap_region_t *mm,
 {
 	unsigned level_size_shift = L1_XLAT_ADDRESS_SHIFT - (level - 1) *
 						XLAT_TABLE_ENTRIES_SHIFT;
-	unsigned level_size = 1 << level_size_shift;
+	unsigned long level_size = 1UL << level_size_shift;
 	unsigned long level_index_mask = XLAT_TABLE_ENTRIES_MASK << level_size_shift;
 
-	assert(level <= 3);
+	assert(level <= MAX_XLAT_LEVEL);
 
 	debug_print("New xlat table:\n");
 

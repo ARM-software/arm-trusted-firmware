@@ -363,9 +363,16 @@
 #define BLOCK_DESC		0x1
 #define TABLE_DESC		0x3
 
+#ifndef MAX_XLAT_LEVEL
+#define MAX_XLAT_LEVEL		3
+#endif
+
 #define LEVEL1			1
 #define LEVEL2			2
 #define LEVEL3			3
+#if MAX_XLAT_LEVEL == 4
+#define LEVEL4			4
+#endif
 
 #define XN			(1ull << 2)
 #define PXN			(1ull << 1)
@@ -391,11 +398,16 @@
 
 /* Values for number of entries in each MMU translation table */
 #define XLAT_TABLE_ENTRIES_SHIFT (XLAT_TABLE_SIZE_SHIFT - XLAT_ENTRY_SIZE_SHIFT)
-#define XLAT_TABLE_ENTRIES	(1 << XLAT_TABLE_ENTRIES_SHIFT)
+#define XLAT_TABLE_ENTRIES	(1UL << XLAT_TABLE_ENTRIES_SHIFT)
 #define XLAT_TABLE_ENTRIES_MASK	(XLAT_TABLE_ENTRIES - 1)
 
 /* Values to convert a memory address to an index into a translation table */
+#if MAX_XLAT_LEVEL == 4
+#define L4_XLAT_ADDRESS_SHIFT	PAGE_SIZE_SHIFT
+#define L3_XLAT_ADDRESS_SHIFT	(L4_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
+#else
 #define L3_XLAT_ADDRESS_SHIFT	PAGE_SIZE_SHIFT
+#endif
 #define L2_XLAT_ADDRESS_SHIFT	(L3_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
 #define L1_XLAT_ADDRESS_SHIFT	(L2_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
 

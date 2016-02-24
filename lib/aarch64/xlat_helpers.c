@@ -56,17 +56,27 @@ unsigned long create_block_desc(unsigned long desc,
 {
 	switch (level) {
 	case LEVEL1:
-		desc |= (addr << L1_XLAT_ADDRESS_SHIFT) | BLOCK_DESC;
+		desc |= (addr << L1_XLAT_ADDRESS_SHIFT);
 		break;
 	case LEVEL2:
-		desc |= (addr << L2_XLAT_ADDRESS_SHIFT) | BLOCK_DESC;
+		desc |= (addr << L2_XLAT_ADDRESS_SHIFT);
 		break;
 	case LEVEL3:
-		desc |= (addr << L3_XLAT_ADDRESS_SHIFT) | TABLE_DESC;
+		desc |= (addr << L3_XLAT_ADDRESS_SHIFT);
 		break;
+#if MAX_XLAT_LEVEL == 4
+	case LEVEL4:
+		desc |= (addr << L4_XLAT_ADDRESS_SHIFT);
+		break;
+#endif
 	default:
 		assert(0);
 	}
+
+	if (level == MAX_XLAT_LEVEL)
+		desc |= TABLE_DESC;
+	else
+		desc |= BLOCK_DESC;
 
 	return desc;
 }
