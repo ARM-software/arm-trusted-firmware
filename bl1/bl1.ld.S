@@ -42,7 +42,7 @@ MEMORY {
 SECTIONS
 {
     . = BL1_RO_BASE;
-    ASSERT(. == ALIGN(4096),
+    ASSERT(. == ALIGN(PAGE_SIZE),
            "BL1_RO_BASE address is not aligned on a page boundary.")
 
     ro . : {
@@ -79,7 +79,7 @@ SECTIONS
      * Its VMA must be page-aligned as it marks the first read/write page.
      */
     . = BL1_RW_BASE;
-    ASSERT(. == ALIGN(4096),
+    ASSERT(. == ALIGN(PAGE_SIZE),
            "BL1_RW_BASE address is not aligned on a page boundary.")
     .data . : ALIGN(16) {
         __DATA_RAM_START__ = .;
@@ -120,7 +120,7 @@ SECTIONS
      * are not mixed with normal data.  This is required to set up the correct
      * memory attributes for the coherent data page tables.
      */
-    coherent_ram (NOLOAD) : ALIGN(4096) {
+    coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
         __COHERENT_RAM_START__ = .;
         *(tzfw_coherent_mem)
         __COHERENT_RAM_END_UNALIGNED__ = .;
@@ -129,7 +129,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM
 #endif
