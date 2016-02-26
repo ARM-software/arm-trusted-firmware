@@ -139,6 +139,7 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
+	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 
 	assert(ctx);
 	assert(gp_regs);
@@ -149,6 +150,10 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 	write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
 	mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, TEGRA_ARI_CLUSTER_CC7,
 		0, TEGRA_ARI_SYSTEM_SC7);
+
+	/* Disable Denver's DCO operations */
+	if (impl == DENVER_IMPL)
+		denver_disable_dco();
 
 	/* Turn off CPU */
 	return mce_command_handler(MCE_CMD_ENTER_CSTATE, TEGRA_ARI_CORE_C7,
