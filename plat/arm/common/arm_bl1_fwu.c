@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,11 +33,12 @@
 #include <debug.h>
 #include <errno.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include <tbbr_img_desc.h>
 
 
 /* Struct to keep track of usable memory */
-typedef struct bl1_mem_info{
+typedef struct bl1_mem_info {
 	uintptr_t mem_base;
 	unsigned int mem_size;
 } bl1_mem_info_t;
@@ -58,8 +59,8 @@ bl1_mem_info_t fwu_addr_map_non_secure[] = {
 		.mem_size = ARM_NS_DRAM1_SIZE
 	},
 	{
-		.mem_base = V2M_FLASH0_BASE,
-		.mem_size = V2M_FLASH0_SIZE
+		.mem_base = PLAT_ARM_NVM_BASE,
+		.mem_size = PLAT_ARM_NVM_SIZE
 	},
 	{
 		.mem_size = 0
@@ -79,7 +80,7 @@ int bl1_plat_mem_check(uintptr_t mem_base,
 	/*
 	 * Check the given image source and size.
 	 */
-	if (GET_SEC_STATE(flags) == SECURE)
+	if (GET_SECURITY_STATE(flags) == SECURE)
 		mmap = fwu_addr_map_secure;
 	else
 		mmap = fwu_addr_map_non_secure;

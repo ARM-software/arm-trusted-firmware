@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -72,11 +72,12 @@
 
 #define BL2_IMAGE_DESC {				\
 	.image_id = BL2_IMAGE_ID,			\
-	.image_info.h.version = VERSION_1,		\
-	.image_info.h.attr = SET_EXEC_STATE(EXECUTABLE),\
+	SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,	\
+		VERSION_1, image_info_t, 0),		\
 	.image_info.image_base = BL2_BASE,		\
-	.ep_info.h.attr = SET_SEC_STATE(SECURE),	\
-	.ep_info.pc = BL2_BASE				\
+	SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,	\
+		VERSION_1, entry_point_info_t, SECURE | EXECUTABLE),\
+	.ep_info.pc = BL2_BASE,				\
 }
 
 #endif /* __COMMON_DEF_H__ */
