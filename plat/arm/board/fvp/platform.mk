@@ -65,7 +65,7 @@ endif
 FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/cci/cci.c		\
 					plat/arm/common/arm_cci.c
 
-FVP_SECURITY_SOURCES	:=	drivers/arm/tzc400/tzc400.c		\
+FVP_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
 				plat/arm/board/fvp/fvp_security.c	\
 				plat/arm/common/arm_tzc400.c
 

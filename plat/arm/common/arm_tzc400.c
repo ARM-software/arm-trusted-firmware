@@ -48,53 +48,53 @@
  * When booting an EL3 payload, this is simplified: we configure region 0 with
  * secure access only and do not enable any other region.
  ******************************************************************************/
-void arm_tzc_setup(void)
+void arm_tzc400_setup(void)
 {
 	INFO("Configuring TrustZone Controller\n");
 
-	tzc_init(PLAT_ARM_TZC_BASE);
+	tzc400_init(PLAT_ARM_TZC_BASE);
 
 	/* Disable filters. */
-	tzc_disable_filters();
+	tzc400_disable_filters();
 
 #ifndef EL3_PAYLOAD_BASE
 	/* Region 0 set to no access by default */
-	tzc_configure_region0(TZC_REGION_S_NONE, 0);
+	tzc400_configure_region0(TZC_REGION_S_NONE, 0);
 
 	/* Region 1 set to cover Secure part of DRAM */
-	tzc_configure_region(PLAT_ARM_TZC_FILTERS, 1,
+	tzc400_configure_region(PLAT_ARM_TZC_FILTERS, 1,
 			ARM_AP_TZC_DRAM1_BASE, ARM_AP_TZC_DRAM1_END,
 			TZC_REGION_S_RDWR,
 			0);
 
 	/* Region 2 set to cover Non-Secure access to 1st DRAM address range.
 	 * Apply the same configuration to given filters in the TZC. */
-	tzc_configure_region(PLAT_ARM_TZC_FILTERS, 2,
+	tzc400_configure_region(PLAT_ARM_TZC_FILTERS, 2,
 			ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_END,
 			TZC_REGION_S_NONE,
 			PLAT_ARM_TZC_NS_DEV_ACCESS);
 
 	/* Region 3 set to cover Non-Secure access to 2nd DRAM address range */
-	tzc_configure_region(PLAT_ARM_TZC_FILTERS, 3,
+	tzc400_configure_region(PLAT_ARM_TZC_FILTERS, 3,
 			ARM_DRAM2_BASE, ARM_DRAM2_END,
 			TZC_REGION_S_NONE,
 			PLAT_ARM_TZC_NS_DEV_ACCESS);
 #else
 	/* Allow secure access only to DRAM for EL3 payloads. */
-	tzc_configure_region0(TZC_REGION_S_RDWR, 0);
+	tzc400_configure_region0(TZC_REGION_S_RDWR, 0);
 #endif /* EL3_PAYLOAD_BASE */
 
 	/*
 	 * Raise an exception if a NS device tries to access secure memory
 	 * TODO: Add interrupt handling support.
 	 */
-	tzc_set_action(TZC_ACTION_ERR);
+	tzc400_set_action(TZC_ACTION_ERR);
 
 	/* Enable filters. */
-	tzc_enable_filters();
+	tzc400_enable_filters();
 }
 
 void plat_arm_security_setup(void)
 {
-	arm_tzc_setup();
+	arm_tzc400_setup();
 }

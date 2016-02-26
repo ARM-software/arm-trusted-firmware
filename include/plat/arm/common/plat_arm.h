@@ -130,7 +130,7 @@ void arm_configure_mmu_el3(unsigned long total_base,
 void arm_io_setup(void);
 
 /* Security utility functions */
-void arm_tzc_setup(void);
+void arm_tzc400_setup(void);
 
 /* Systimer utility function */
 void arm_configure_sys_timer(void);
