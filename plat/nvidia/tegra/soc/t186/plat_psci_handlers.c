@@ -41,6 +41,8 @@
 #include <t18x_ari.h>
 #include <tegra_private.h>
 
+extern void prepare_cpu_pwr_dwn(void);
+
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xF
 /* constants to get power state's wake time */
@@ -48,6 +50,9 @@
 #define TEGRA186_WAKE_TIME_SHIFT	4
 
 static unsigned int wake_time[PLATFORM_CORE_COUNT];
+
+/* System power down state */
+uint32_t tegra186_system_powerdn_state = TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF;
 
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
@@ -162,7 +167,53 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 
 __dead2 void tegra_soc_prepare_system_off(void)
 {
-	mce_enter_ccplex_state(TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF);
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
+	uint32_t val;
+
+	if (tegra186_system_powerdn_state == TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF) {
+
+		/* power off the entire system */
+		mce_enter_ccplex_state(tegra186_system_powerdn_state);
+
+	} else if (tegra186_system_powerdn_state == TEGRA_ARI_SYSTEM_SC8) {
+
+		/* loop until other CPUs power down */
+		do {
+			val = mce_command_handler(MCE_CMD_IS_SC7_ALLOWED,
+					TEGRA_ARI_CORE_C7,
+					MCE_CORE_SLEEP_TIME_INFINITE,
+					0);
+		} while (val == 0);
+
+		/* Prepare for quasi power down */
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, 1);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
+			TEGRA_ARI_CLUSTER_CC7, 0, TEGRA_ARI_SYSTEM_SC8);
+
+		/* Enter quasi power down state */
+		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
+			TEGRA_ARI_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
+
+		/* disable GICC */
+		tegra_gic_cpuif_deactivate();
+
+		/* power down core */
+		prepare_cpu_pwr_dwn();
+
+	} else {
+		ERROR("%s: unsupported power down state (%d)\n", __func__,
+			tegra186_system_powerdn_state);
+	}
+
+	wfi();
+
+	/* wait for the system to power down */
+	for (;;) {
+		;
+	}
 }
 
 int tegra_soc_prepare_system_reset(void)
