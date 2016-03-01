@@ -138,6 +138,7 @@ static unsigned long mmap_desc(unsigned attr, unsigned long addr_pa,
 					unsigned level)
 {
 	unsigned long desc = addr_pa;
+	int mem_type;
 
 	desc |= level == 3 ? TABLE_DESC : BLOCK_DESC;
 
@@ -147,16 +148,23 @@ static unsigned long mmap_desc(unsigned attr, unsigned long addr_pa,
 
 	desc |= LOWER_ATTRS(ACCESS_FLAG);
 
-	if (attr & MT_MEMORY) {
+	mem_type = MT_TYPE(attr);
+	if (mem_type == MT_MEMORY) {
 		desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
 		if (attr & MT_RW)
 			desc |= UPPER_ATTRS(XN);
+	} else if (mem_type == MT_NON_CACHEABLE) {
+		desc |= LOWER_ATTRS(ATTR_NON_CACHEABLE_INDEX | OSH);
+		if (attr & MT_RW)
+			desc |= UPPER_ATTRS(XN);
 	} else {
+		assert(mem_type == MT_DEVICE);
 		desc |= LOWER_ATTRS(ATTR_DEVICE_INDEX | OSH);
 		desc |= UPPER_ATTRS(XN);
 	}
 
-	debug_print(attr & MT_MEMORY ? "MEM" : "DEV");
+	debug_print((mem_type == MT_MEMORY) ? "MEM" :
+		((mem_type == MT_NON_CACHEABLE) ? "NC" : "DEV"));
 	debug_print(attr & MT_RW ? "-RW" : "-RO");
 	debug_print(attr & MT_NS ? "-NS" : "-S");
 
@@ -167,6 +175,7 @@ static int mmap_region_attr(mmap_region_t *mm, unsigned long base_va,
 					unsigned long size)
 {
 	int attr = mm->attr;
+	int old_mem_type, new_mem_type;
 
 	for (;;) {
 		++mm;
@@ -183,7 +192,20 @@ static int mmap_region_attr(mmap_region_t *mm, unsigned long base_va,
 		if ((mm->attr & attr) == attr)
 			continue; /* Region doesn't override attribs so skip */
 
+		/*
+		 * Update memory mapping attributes in 2 steps:
+		 * 1) Update access permissions and security state flags
+		 * 2) Update memory type.
+		 *
+		 * See xlat_tables.h for details about the attributes priority
+		 * system and the rules dictating whether attributes should be
+		 * updated.
+		 */
+		old_mem_type = MT_TYPE(attr);
+		new_mem_type = MT_TYPE(mm->attr);
 		attr &= mm->attr;
+		if (new_mem_type < old_mem_type)
+			attr = (attr & ~MT_TYPE_MASK) | new_mem_type;
 
 		if (mm->base_va > base_va ||
 			mm->base_va + mm->size < base_va + size)
@@ -309,6 +331,8 @@ void init_xlat_tables(void)
 		mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);	\
 		mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,		\
 				ATTR_IWBWA_OWBWA_NTR_INDEX);		\
+		mair |= MAIR_ATTR_SET(ATTR_NON_CACHEABLE,		\
+				ATTR_NON_CACHEABLE_INDEX);		\
 		write_mair_el##_el(mair);				\
 									\
 		/* Invalidate TLBs at the current exception level */	\
