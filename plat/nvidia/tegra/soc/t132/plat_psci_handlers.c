@@ -107,6 +107,16 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 	return PSCI_E_SUCCESS;
 }
 
+int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
+{
+	/*
+	 * Lock scratch registers which hold the CPU vectors
+	 */
+	tegra_pmc_lock_cpu_vectors();
+
+	return PSCI_E_SUCCESS;
+}
+
 int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	tegra_fc_cpu_off(read_mpidr() & MPIDR_CPU_MASK);

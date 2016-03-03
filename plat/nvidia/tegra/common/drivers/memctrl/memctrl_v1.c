@@ -90,6 +90,14 @@ void tegra_memctrl_setup(void)
 }
 
 /*
+ * Restore Memory Controller settings after "System Suspend"
+ */
+void tegra_memctrl_restore_settings(void)
+{
+	tegra_memctrl_setup();
+}
+
+/*
  * Secure the BL31 DRAM aperture.
  *
  * phys_base = physical base of TZDRAM aperture

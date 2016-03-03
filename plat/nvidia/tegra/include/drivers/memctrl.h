@@ -32,6 +32,7 @@
 #define __MEMCTRL_H__
 
 void tegra_memctrl_setup(void);
+void tegra_memctrl_restore_settings(void);
 void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes);
 void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes);
 void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes);

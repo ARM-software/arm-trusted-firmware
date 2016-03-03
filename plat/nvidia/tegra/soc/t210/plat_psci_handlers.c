@@ -155,6 +155,11 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 			PLAT_SYS_SUSPEND_STATE_ID) {
 
 		/*
+		 * Lock scratch registers which hold the CPU vectors
+		 */
+		tegra_pmc_lock_cpu_vectors();
+
+		/*
 		 * Enable WRAP to INCR burst type conversions for
 		 * incoming requests on the AXI slave ports.
 		 */

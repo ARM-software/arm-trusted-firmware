@@ -168,14 +168,10 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 			PSTATE_ID_SOC_POWERDN) {
 
 		/*
-		 * Lock scratch registers which hold the CPU vectors.
+		 * Restore Memory Controller settings as it loses state
+		 * during system suspend.
 		 */
-		tegra_pmc_lock_cpu_vectors();
-
-		/*
-		 * SMMU configuration.
-		 */
-		tegra_memctrl_setup();
+		tegra_memctrl_restore_settings();
 
 		/*
 		 * Security configuration to allow DRAM/device access.
