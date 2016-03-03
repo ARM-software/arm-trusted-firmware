@@ -35,6 +35,7 @@
 #include <memctrl.h>
 #include <memctrl_v2.h>
 #include <mmio.h>
+#include <smmu.h>
 #include <string.h>
 #include <tegra_def.h>
 #include <xlat_tables.h>
@@ -234,7 +235,7 @@ const static mc_txn_override_cfg_t mc_override_cfgs[] = {
 };
 
 /*
- * Init SMMU.
+ * Init Memory controller during boot.
  */
 void tegra_memctrl_setup(void)
 {
@@ -248,9 +249,7 @@ void tegra_memctrl_setup(void)
 	INFO("Tegra Memory Controller (v2)\n");
 
 	/* Program the SMMU pagesize */
-	val = tegra_smmu_read_32(ARM_SMMU_GSR0_SECURE_ACR);
-	val |= ARM_SMMU_GSR0_PGSIZE_64K;
-	tegra_smmu_write_32(ARM_SMMU_GSR0_SECURE_ACR, val);
+	tegra_smmu_init();
 
 	/* Program all the Stream ID overrides */
 	for (i = 0; i < num_overrides; i++)
@@ -316,7 +315,13 @@ void tegra_memctrl_setup(void)
 		}
 
 	}
+}
 
+/*
+ * Restore Memory Controller settings after "System Suspend"
+ */
+void tegra_memctrl_restore_settings(void)
+{
 	/* video memory carveout region */
 	if (video_mem_base) {
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO,

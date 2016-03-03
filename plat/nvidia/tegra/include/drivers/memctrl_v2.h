@@ -309,14 +309,6 @@ typedef struct mc_txn_override_cfg {
 	}
 
 /*******************************************************************************
- * Memory Controller SMMU Global Secure Aux. Configuration Register
- ******************************************************************************/
-#define ARM_SMMU_GSR0_SECURE_ACR		0x10
-#define ARM_SMMU_GSR0_PGSIZE_SHIFT		16
-#define ARM_SMMU_GSR0_PGSIZE_4K			(0 << ARM_SMMU_GSR0_PGSIZE_SHIFT)
-#define ARM_SMMU_GSR0_PGSIZE_64K		(1 << ARM_SMMU_GSR0_PGSIZE_SHIFT)
-
-/*******************************************************************************
  * Structure to hold the Stream ID to use to override client inputs
  ******************************************************************************/
 typedef struct mc_streamid_override_cfg {
@@ -394,16 +386,6 @@ static inline uint32_t tegra_mc_streamid_read_32(uint32_t off)
 static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
 {
 	mmio_write_32(TEGRA_MC_STREAMID_BASE + off, val);
-}
-
-static inline uint32_t tegra_smmu_read_32(uint32_t off)
-{
-	return mmio_read_32(TEGRA_SMMU_BASE + off);
-}
-
-static inline void tegra_smmu_write_32(uint32_t off, uint32_t val)
-{
-	mmio_write_32(TEGRA_SMMU_BASE + off, val);
 }
 
 #endif /* __MEMCTRLV2_H__ */
