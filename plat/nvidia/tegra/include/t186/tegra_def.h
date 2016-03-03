@@ -81,6 +81,7 @@
 #define  HARDWARE_MINOR_REVISION_MASK	0xf0000
 #define  HARDWARE_MINOR_REVISION_SHIFT	0x10
 #define  HARDWARE_REVISION_A01		1
+#define  MISCREG_PFCFG			0x200C
 
 /*******************************************************************************
  * Tegra Memory Controller constants
@@ -106,6 +107,16 @@
 #define TEGRA_GICC_BASE			0x03882000
 
 /*******************************************************************************
+ * Security Engine related constants
+ ******************************************************************************/
+#define TEGRA_SE0_BASE			0x03AC0000
+#define  SE_MUTEX_WATCHDOG_NS_LIMIT	0x6C
+#define TEGRA_PKA1_BASE			0x03AD0000
+#define  PKA_MUTEX_WATCHDOG_NS_LIMIT	0x8144
+#define TEGRA_RNG1_BASE			0x03AE0000
+#define  RNG_MUTEX_WATCHDOG_NS_LIMIT	0xFE0
+
+/*******************************************************************************
  * Tegra Clock and Reset Controller constants
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		0x05000000
@@ -124,6 +135,9 @@
  * Tegra scratch registers constants
  ******************************************************************************/
 #define TEGRA_SCRATCH_BASE		0x0C390000
+#define  SECURE_SCRATCH_RSV6		0x680
+#define  SECURE_SCRATCH_RSV11_LO	0x6A8
+#define  SECURE_SCRATCH_RSV11_HI	0x6AC
 
 /*******************************************************************************
  * Tegra Memory Mapped Control Register Access Bus constants

@@ -262,7 +262,6 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		/* update context to return SC7 status value */
 		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret);
 		write_ctx_reg(gp_regs, CTX_GPREG_X3, ret);
-		ret = 0;
 
 		break;
 

@@ -38,6 +38,7 @@
 #include <denver.h>
 #include <mce.h>
 #include <psci.h>
+#include <smmu.h>
 #include <t18x_ari.h>
 #include <tegra_private.h>
 
@@ -48,7 +49,10 @@ extern void prepare_cpu_pwr_dwn(void);
 /* constants to get power state's wake time */
 #define TEGRA186_WAKE_TIME_MASK		0xFFFFFF
 #define TEGRA186_WAKE_TIME_SHIFT	4
+/* context size to save during system suspend */
+#define TEGRA186_SE_CONTEXT_SIZE		3
 
+static uint32_t se_regs[TEGRA186_SE_CONTEXT_SIZE];
 static unsigned int wake_time[PLATFORM_CORE_COUNT];
 
 /* System power down state */
@@ -89,9 +93,15 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	const plat_local_state_t *pwr_domain_state;
-	unsigned int stateid_afflvl0;
+	unsigned int stateid_afflvl0, stateid_afflvl2;
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
+	uint32_t val;
+
+	assert(ctx);
+	assert(gp_regs);
 
 	if (impl == DENVER_IMPL)
 		cpu |= 0x4;
@@ -99,6 +109,8 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* get the state ID */
 	pwr_domain_state = target_state->pwr_domain_state;
 	stateid_afflvl0 = pwr_domain_state[MPIDR_AFFLVL0] &
+		TEGRA186_STATE_ID_MASK;
+	stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA186_STATE_ID_MASK;
 
 	if (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) {
@@ -112,6 +124,42 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		/* Prepare for cpu powerdn */
 		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
 			TEGRA_ARI_CORE_C7, wake_time[cpu], 0);
+
+	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
+
+		/* loop until SC7 is allowed */
+		do {
+			val = mce_command_handler(MCE_CMD_IS_SC7_ALLOWED,
+					TEGRA_ARI_CORE_C7,
+					MCE_CORE_SLEEP_TIME_INFINITE,
+					0);
+		} while (val == 0);
+
+		/* save SE registers */
+		se_regs[0] = mmio_read_32(TEGRA_SE0_BASE +
+				SE_MUTEX_WATCHDOG_NS_LIMIT);
+		se_regs[1] = mmio_read_32(TEGRA_RNG1_BASE +
+				RNG_MUTEX_WATCHDOG_NS_LIMIT);
+		se_regs[2] = mmio_read_32(TEGRA_PKA1_BASE +
+				PKA_MUTEX_WATCHDOG_NS_LIMIT);
+
+		/* save 'Secure Boot' Processor Feature Config Register */
+		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
+		mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV6, val);
+
+		/* save SMMU context */
+		tegra_smmu_save_context();
+
+		/* Prepare for system suspend */
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, 1);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
+			TEGRA_ARI_CLUSTER_CC7, 0, TEGRA_ARI_SYSTEM_SC7);
+
+		/* Enter system suspend state */
+		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
+			TEGRA_ARI_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
 
 	} else {
 		ERROR("%s: Unknown state id\n", __func__);
@@ -136,6 +184,29 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 	target_cpu |= (target_cluster << 2);
 
 	mce_command_handler(MCE_CMD_ONLINE_CORE, target_cpu, 0, 0);
+
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
+{
+	int state_id = target_state->pwr_domain_state[PLAT_MAX_PWR_LVL];
+
+	/*
+	 * Check if we are exiting from deep sleep and restore SE
+	 * context if we are.
+	 */
+	if (state_id == PSTATE_ID_SOC_POWERDN) {
+		mmio_write_32(TEGRA_SE0_BASE + SE_MUTEX_WATCHDOG_NS_LIMIT,
+			se_regs[0]);
+		mmio_write_32(TEGRA_RNG1_BASE + RNG_MUTEX_WATCHDOG_NS_LIMIT,
+			se_regs[1]);
+		mmio_write_32(TEGRA_PKA1_BASE + PKA_MUTEX_WATCHDOG_NS_LIMIT,
+			se_regs[2]);
+
+		/* Init SMMU */
+		tegra_smmu_init();
+	}
 
 	return PSCI_E_SUCCESS;
 }
