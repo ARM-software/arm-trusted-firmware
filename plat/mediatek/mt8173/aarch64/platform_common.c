@@ -44,7 +44,7 @@ static const int cci_map[] = {
 /* Table of regions to map using the MMU.  */
 const mmap_region_t plat_mmap[] = {
 	/* for TF text, RO, RW */
-	MAP_REGION_FLAT(TZRAM_BASE, TZRAM_SIZE + TZRAM2_SIZE,
+	MAP_REGION_FLAT(TZRAM_BASE, TZRAM_SIZE,
 			MT_MEMORY | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(MTK_DEV_RNG0_BASE, MTK_DEV_RNG0_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),

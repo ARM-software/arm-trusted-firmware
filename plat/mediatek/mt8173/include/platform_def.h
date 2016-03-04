@@ -70,7 +70,21 @@
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/
-/* TF txet, ro, rw, internal SRAM, Size: release: 80KB, debug: 92KB */
+/*
+ * MT8173 SRAM memory layout
+ * 0x100000 +-------------------+
+ *          | shared mem (4KB)  |
+ * 0x101000 +-------------------+
+ *          |                   |
+ *          |   BL3-1 (124KB)   |
+ *          |                   |
+ * 0x120000 +-------------------+
+ *          |  reserved (64KB)  |
+ * 0x130000 +-------------------+
+ */
+/* TF txet, ro, rw, xlat table, coherent memory ... etc.
+ * Size: release: 128KB, debug: 128KB
+ */
 #define TZRAM_BASE		(0x100000)
 #if DEBUG
 #define TZRAM_SIZE		(0x20000)
@@ -78,7 +92,7 @@
 #define TZRAM_SIZE		(0x20000)
 #endif
 
-/* xlat_table , coherence ram, 64KB */
+/* Reserved: 64KB */
 #define TZRAM2_BASE		(TZRAM_BASE + TZRAM_SIZE)
 #define TZRAM2_SIZE		(0x10000)
 
