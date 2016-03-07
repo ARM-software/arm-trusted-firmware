@@ -77,6 +77,11 @@ ARM_CONFIG_CNTACR		:=	1
 $(eval $(call assert_boolean,ARM_CONFIG_CNTACR))
 $(eval $(call add_define,ARM_CONFIG_CNTACR))
 
+# Process ARM_BL31_IN_DRAM flag
+ARM_BL31_IN_DRAM		:=	0
+$(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+$(eval $(call add_define,ARM_BL31_IN_DRAM))
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64

@@ -75,10 +75,10 @@
  */
 #if IMAGE_BL31 || IMAGE_BL32
 # define PLAT_ARM_MMAP_ENTRIES		6
-# define MAX_XLAT_TABLES		3
-#else
-# define PLAT_ARM_MMAP_ENTRIES		9
 # define MAX_XLAT_TABLES		4
+#else
+# define PLAT_ARM_MMAP_ENTRIES		10
+# define MAX_XLAT_TABLES		5
 #endif
 
 #endif /* ARM_BOARD_OPTIMISE_MMAP */

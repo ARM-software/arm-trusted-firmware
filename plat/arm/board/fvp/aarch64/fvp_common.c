@@ -97,6 +97,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE2,
 	ARM_MAP_NS_DRAM1,
 	ARM_MAP_TSP_SEC_MEM,
+#if ARM_BL31_IN_DRAM
+	ARM_MAP_BL31_SEC_DRAM,
+#endif
 	{0}
 };
 #endif

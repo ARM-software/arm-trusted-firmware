@@ -495,6 +495,12 @@ map is explained in the [Firmware Design].
     that wish to optimise memory usage for page tables need to set this flag to 1
     and must override the related macros.
 
+*   'ARM_BL31_IN_DRAM': Boolean option to select loading of BL31 in TZC secured
+    DRAM. By default, BL31 is in the secure SRAM. Set this flag to 1 to load
+    BL31 in TZC secured DRAM. If TSP is present, then setting this option also
+    sets the TSP location to DRAM and ignores the `ARM_TSP_RAM_LOCATION` build
+    flag.
+
 #### ARM CSS platform specific build options
 
 *   `CSS_DETECT_PRE_1_7_0_SCP`: Boolean flag to detect SCP version

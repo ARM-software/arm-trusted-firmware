@@ -165,6 +165,12 @@
 						TSP_SEC_MEM_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
 
+#if ARM_BL31_IN_DRAM
+#define ARM_MAP_BL31_SEC_DRAM		MAP_REGION_FLAT(		\
+						BL31_BASE,		\
+						PLAT_ARM_MAX_BL31_SIZE,	\
+						MT_MEMORY | MT_RW | MT_SECURE)
+#endif
 
 /*
  * The number of regions like RO(code), coherent and data required by
@@ -240,15 +246,32 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
+#if ARM_BL31_IN_DRAM
+/*
+ * BL31 is loaded in the DRAM.
+ * Put BL2 just below BL1.
+ */
+#define BL2_BASE			(BL1_RW_BASE - PLAT_ARM_MAX_BL2_SIZE)
+#define BL2_LIMIT			BL1_RW_BASE
+#else
 /*
  * Put BL2 just below BL31.
  */
 #define BL2_BASE			(BL31_BASE - PLAT_ARM_MAX_BL2_SIZE)
 #define BL2_LIMIT			BL31_BASE
+#endif
 
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
+#if ARM_BL31_IN_DRAM
+/*
+ * Put BL31 at the bottom of TZC secured DRAM
+ */
+#define BL31_BASE			ARM_AP_TZC_DRAM1_BASE
+#define BL31_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
+						PLAT_ARM_MAX_BL31_SIZE)
+#else
 /*
  * Put BL31 at the top of the Trusted SRAM.
  */
@@ -257,6 +280,7 @@
 						PLAT_ARM_MAX_BL31_SIZE)
 #define BL31_PROGBITS_LIMIT		BL1_RW_BASE
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+#endif
 
 /*******************************************************************************
  * BL32 specific defines.
@@ -266,7 +290,16 @@
  * Trusted DRAM (if available) or the DRAM region secured by the TrustZone
  * controller.
  */
-#if ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_SRAM_ID
+#if ARM_BL31_IN_DRAM
+# define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE +	\
+						PLAT_ARM_MAX_BL31_SIZE)
+# define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE -	\
+						PLAT_ARM_MAX_BL31_SIZE)
+# define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE +	\
+						PLAT_ARM_MAX_BL31_SIZE)
+# define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
+						ARM_AP_TZC_DRAM1_SIZE)
+#elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_SRAM_ID
 # define TSP_SEC_MEM_BASE		ARM_BL_RAM_BASE
 # define TSP_SEC_MEM_SIZE		ARM_BL_RAM_SIZE
 # define TSP_PROGBITS_LIMIT		BL2_BASE
@@ -292,7 +325,11 @@
  * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.
  ******************************************************************************/
 #define BL2U_BASE			BL2_BASE
+#if ARM_BL31_IN_DRAM
+#define BL2U_LIMIT			BL1_RW_BASE
+#else
 #define BL2U_LIMIT			BL31_BASE
+#endif
 #define NS_BL2U_BASE			ARM_NS_DRAM1_BASE
 #define NS_BL1U_BASE			(PLAT_ARM_NVM_BASE + 0x03EB8000)
 
