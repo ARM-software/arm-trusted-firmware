@@ -30,28 +30,8 @@
 
 #ifndef __PLAT_PRIVATE_H__
 #define __PLAT_PRIVATE_H__
-/*******************************************************************************
- * Function and variable prototypes
- ******************************************************************************/
-#define DEVINFO_SIZE 4
-#define LINUX_KERNEL_32 0
-
-typedef struct {
-	unsigned int atf_magic;
-	unsigned int tee_support;
-	unsigned int tee_entry;
-	unsigned int tee_boot_arg_addr;
-	unsigned int hwuid[4];     /* HW Unique id for t-base used */
-	unsigned int HRID[2];      /* HW random id for t-base used */
-	unsigned int atf_log_port;
-	unsigned int atf_log_baudrate;
-	unsigned int atf_log_buf_start;
-	unsigned int atf_log_buf_size;
-	unsigned int atf_irq_num;
-	unsigned int devinfo[DEVINFO_SIZE];
-	unsigned int atf_aee_debug_buf_start;
-	unsigned int atf_aee_debug_buf_size;
-} atf_arg_t, *atf_arg_t_ptr;
+#include <stdint.h>
+#include <xlat_tables.h>
 
 void plat_configure_mmu_el3(unsigned long total_base,
 					unsigned long total_size,
@@ -70,20 +50,8 @@ void plat_mt_gic_init(void);
 /* Declarations for plat_topology.c */
 int mt_setup_topology(void);
 
-/* Declarations for mt_cpuxgpt.c */
-void setup_syscnt(void);
-
-/* Declarations for bl31_plat_setup.c */
-void plat_delay_timer_init(void);
-uint32_t plat_get_spsr_for_bl32_entry(void);
-uint32_t plat_get_spsr_for_bl33_entry(void);
-void set_kernel_k32_64(uint64_t k32_64);
-void bl31_prepare_kernel_entry(uint64_t k32_64);
-void enable_ns_access_to_cpuectlr(void);
-
-/* Declarations for platform_commnon.c */
-extern uint64_t wdt_kernel_cb_addr;
-
-extern atf_arg_t gteearg;
+extern const int cci_map[];
+extern const mmap_region_t plat_mmap[];
+extern uint32_t cci_map_length;
 
 #endif /* __PLAT_PRIVATE_H__ */

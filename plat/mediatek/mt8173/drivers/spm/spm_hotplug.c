@@ -28,7 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <mmio.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 #include <platform.h>
 #include <spm.h>
 #include <spm_hotplug.h>

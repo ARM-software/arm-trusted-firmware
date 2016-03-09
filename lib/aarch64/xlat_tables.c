@@ -43,7 +43,7 @@
 #endif
 
 #if DEBUG_XLAT_TABLE
-#define debug_print(...) printf(__VA_ARGS__)
+#define debug_print(...) tf_printf(__VA_ARGS__)
 #else
 #define debug_print(...) ((void)0)
 #endif

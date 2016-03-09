@@ -39,7 +39,7 @@
 #include <gpio.h>
 #include <mcucfg.h>
 #include <mmio.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 #include <mt_cpuxgpt.h> /* generic_timer_backup() */
 #include <plat_private.h>
 #include <power_tracer.h>

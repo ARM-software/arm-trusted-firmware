@@ -30,28 +30,3 @@
 #include <mmio.h>
 #include <mtk_sip_svc.h>
 
-/* Authorized secure register list */
-enum {
-	SREG_HDMI_COLOR_EN = 0x14000904
-};
-
-static const uint32_t authorized_sreg[] = {
-	SREG_HDMI_COLOR_EN
-};
-
-#define authorized_sreg_cnt	\
-	(sizeof(authorized_sreg) / sizeof(authorized_sreg[0]))
-
-uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
-{
-	uint64_t i;
-
-	for (i = 0; i < authorized_sreg_cnt; i++) {
-		if (authorized_sreg[i] == sreg) {
-			mmio_write_32(sreg, val);
-			return MTK_SIP_E_SUCCESS;
-		}
-	}
-
-	return MTK_SIP_E_INVALID_PARAM;
-}

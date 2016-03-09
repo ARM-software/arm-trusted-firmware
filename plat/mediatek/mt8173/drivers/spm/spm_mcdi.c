@@ -30,9 +30,8 @@
 #include <arch.h>
 #include <debug.h>
 #include <mmio.h>
-#include <mt8173_def.h>
-#include <platform.h>
 #include <platform_def.h>
+#include <platform.h>
 #include <spm.h>
 #include <spm_hotplug.h>
 #include <spm_mcdi.h>

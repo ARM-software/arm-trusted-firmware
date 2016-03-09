@@ -42,6 +42,8 @@
 #define MTK_SIP_SVC_VERSION_MAJOR 0x0
 #define MTK_SIP_SVC_VERSION_MINOR 0x1
 
+#define SMC_AARCH64_BIT         0x40000000
+
 /* Number of Mediatek SiP Calls implemented */
 #define MTK_SIP_NUM_CALLS   1
 
@@ -50,14 +52,6 @@
 
 /* For MTK SMC from Secure OS */
 /* 0x82000000 - 0x820000FF & 0xC2000000 - 0xC20000FF */
-#define MTK_SIP_TBASE_HWUID_AARCH32         0x82000000
-#define MTK_SIP_LK_WDT_AARCH32              0x82000106
-#define MTK_SIP_LK_WDT_AARCH64              0xC2000106
-/* astone added for debug purpose */
-#define MTK_SIP_KERNEL_MSG_AARCH32          0x820002ff
-#define MTK_SIP_KERNEL_MSG_AARCH64          0xC20002ff
-#define MTK_SIP_KERNEL_WDT_AARCH32          0x82000204
-#define MTK_SIP_KERNEL_WDT_AARCH64          0xC2000204
 #define MTK_SIP_KERNEL_BOOT_AARCH32         0x82000200
 #define MTK_SIP_KERNEL_BOOT_AARCH64         0xC2000200
 /*
@@ -70,21 +64,6 @@
 #define SIP_SVC_E_INVALID_Range     -3
 #define SIP_SVC_E_PERMISSION_DENY   -4
 #define SIP_SVC_E_LOCK_FAIL         -5
-
-struct kernel_info {
-	uint64_t pc;
-	uint64_t r0;
-	uint64_t r1;
-	uint64_t r2;
-	uint64_t k32_64;
-};
-
-typedef struct mtk_bl_param {
-	uint64_t bootarg_loc;
-	uint64_t bootarg_size;
-	uint64_t bl33_start_addr;
-	uint64_t tee_info_addr;
-} mtk_bl_param_t;
 
 /* Mediatek SiP Calls error code */
 enum {
@@ -100,6 +79,5 @@ enum {
  * Return MTK_SIP_E_SUCCESS on success, and MTK_SIP_E_INVALID_PARAM on failure.
  */
 uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val);
-void save_kernel_info(uint64_t pc, uint64_t r0, uint64_t r1, uint64_t k32_64);
 
 #endif /* __PLAT_SIP_SVC_H__ */

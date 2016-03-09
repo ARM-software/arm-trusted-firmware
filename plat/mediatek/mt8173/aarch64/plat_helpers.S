@@ -29,7 +29,7 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
-#include <mt8173_def.h>
+#include <platform_def.h>
 
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_report_exception

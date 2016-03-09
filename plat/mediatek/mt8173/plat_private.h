@@ -30,6 +30,8 @@
 
 #ifndef __PLAT_PRIVATE_H__
 #define __PLAT_PRIVATE_H__
+#include <stdint.h>
+#include <xlat_tables.h>
 
 /*******************************************************************************
  * Function and variable prototypes
@@ -52,5 +54,8 @@ void plat_mt_gic_init(void);
 int mt_setup_topology(void);
 
 void plat_delay_timer_init(void);
+extern const int cci_map[];
+extern const mmap_region_t plat_mmap[];
+extern uint32_t cci_map_length;
 
 #endif /* __PLAT_PRIVATE_H__ */

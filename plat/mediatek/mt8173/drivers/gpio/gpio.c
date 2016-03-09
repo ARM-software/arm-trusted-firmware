@@ -30,7 +30,7 @@
 #include <debug.h>
 #include <gpio.h>
 #include <mmio.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 #include <pmic_wrap_init.h>
 
 enum {

@@ -43,8 +43,8 @@
 #include <plat_private.h>
 #include <power_tracer.h>
 #include <psci.h>
-#include <rtc.h>
 #include <scu.h>
+#include <platform_common.h>
 
 struct core_context {
 	unsigned long timer_data[8];
@@ -325,7 +325,7 @@ static void plat_affinst_off(unsigned int afflvl, unsigned int state)
 		return;
 
 	/* Prevent interrupts from spuriously waking up this cpu */
-	arm_gic_cpuif_deactivate();
+	plat_mt_gic_cpuif_disable();
 
 	trace_power_flow(mpidr, CPU_DOWN);
 
@@ -387,7 +387,7 @@ static void plat_affinst_suspend(unsigned long sec_entrypoint,
 	if (afflvl >= MPIDR_AFFLVL2) {
 		generic_timer_backup();
 		/* Prevent interrupts from spuriously waking up this cpu */
-		arm_gic_cpuif_deactivate();
+		plat_mt_gic_cpuif_disable();
 	}
 }
 
@@ -416,8 +416,8 @@ static void plat_affinst_on_finish(unsigned int afflvl, unsigned int state)
 	}
 
 	/* Enable the gic cpu interface */
-	arm_gic_cpuif_setup();
-	arm_gic_pcpu_distif_setup();
+	plat_mt_gic_cpuif_enable();
+	plat_mt_gic_pcpu_init();
 	trace_power_flow(mpidr, CPU_UP);
 }
 
@@ -436,8 +436,8 @@ static void plat_affinst_suspend_finish(unsigned int afflvl, unsigned int state)
 
 	if (afflvl >= MPIDR_AFFLVL2) {
 		/* Enable the gic cpu interface */
-		arm_gic_setup();
-		arm_gic_cpuif_setup();
+		plat_mt_gic_init();
+		plat_mt_gic_cpuif_enable();
 	}
 
 	/* Perform the common cluster specific operations */
@@ -452,7 +452,7 @@ static void plat_affinst_suspend_finish(unsigned int afflvl, unsigned int state)
 	if (afflvl >= MPIDR_AFFLVL0)
 		mt_platform_restore_context(mpidr);
 
-	arm_gic_pcpu_distif_setup();
+	plat_mt_gic_pcpu_init();
 }
 
 static unsigned int plat_get_sys_suspend_power_state(void)
@@ -467,9 +467,6 @@ static unsigned int plat_get_sys_suspend_power_state(void)
 static void __dead2 plat_system_off(void)
 {
 	INFO("MTK System Off\n");
-
-	rtc_bbpu_power_down();
-
 	wfi();
 	ERROR("MTK System Off: operation not handled.\n");
 	panic();

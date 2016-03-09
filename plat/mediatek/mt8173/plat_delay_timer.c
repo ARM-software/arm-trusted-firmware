@@ -29,7 +29,7 @@
  */
 #include <arch_helpers.h>
 #include <delay_timer.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 
 static uint32_t plat_get_timer_value(void)
 {

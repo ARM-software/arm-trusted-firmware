@@ -30,7 +30,7 @@
 #include <arch_helpers.h>
 #include <mcucfg.h>
 #include <mmio.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 #include <mt_cpuxgpt.h>
 
 static void write_cpuxgpt(unsigned int reg_index, unsigned int value)

@@ -30,7 +30,7 @@
 #ifndef __MCUCFG_H__
 #define __MCUCFG_H__
 
-#include <mt8173_def.h>
+#include <platform_def.h>
 #include <stdint.h>
 
 struct mt8173_mcucfg_regs {

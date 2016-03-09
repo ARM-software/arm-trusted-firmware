@@ -71,6 +71,27 @@ unsigned long __COHERENT_RAM_END__;
 static entry_point_info_t bl32_ep_info;
 static entry_point_info_t bl33_ep_info;
 
+
+const int cci_map[] = {
+	PLAT_MT_CCI_CLUSTER0_SL_IFACE_IX,
+	PLAT_MT_CCI_CLUSTER1_SL_IFACE_IX
+};
+uint32_t cci_map_length = ARRAY_SIZE(cci_map);
+
+/* Table of regions to map using the MMU.  */
+const mmap_region_t plat_mmap[] = {
+	/* for TF text, RO, RW */
+	MAP_REGION_FLAT(TZRAM_BASE, TZRAM_SIZE + TZRAM2_SIZE,
+			MT_MEMORY | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MTK_DEV_RNG0_BASE, MTK_DEV_RNG0_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MTK_DEV_RNG1_BASE, MTK_DEV_RNG1_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	{ 0 }
+
+};
+
+
 static void platform_setup_cpu(void)
 {
 	/* turn off all the little core's power except cpu 0 */

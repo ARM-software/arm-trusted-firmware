@@ -30,10 +30,10 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <runtime_svc.h>
 #include <debug.h>
 #include <oem_svc.h>
 #include <platform.h>
+#include <runtime_svc.h>
 #include <stdint.h>
 #include <uuid.h>
 
@@ -43,7 +43,7 @@ DEFINE_SVC_UUID(oem_svc_uid,
 		0x08, 0x00, 0x20, 0x0c, 0x9a, 0x66);
 
 
-/* Setup Standard Services */
+/* Setup OEM Services */
 static int32_t oem_svc_setup(void)
 {
 	/*
@@ -77,7 +77,7 @@ uint64_t oem_smc_handler(uint32_t smc_fid,
 }
 
 /*
- * Top-level Standard Service SMC handler. This handler will in turn dispatch
+ * Top-level OEM Service SMC handler. This handler will in turn dispatch
  * calls to related SMC handler
  */
 uint64_t oem_svc_smc_handler(uint32_t smc_fid,
@@ -100,8 +100,7 @@ uint64_t oem_svc_smc_handler(uint32_t smc_fid,
 	switch (smc_fid) {
 	case OEM_SVC_CALL_COUNT:
 		/*
-		 * Return the number of Standard Service Calls. PSCI is the only
-		 * standard service implemented; so return number of PSCI calls
+		 * Return the number of OEM Service Calls.
 		 */
 		SMC_RET1(handle, OEM_SVC_NUM_CALLS);
 
@@ -119,7 +118,7 @@ uint64_t oem_svc_smc_handler(uint32_t smc_fid,
 	}
 }
 
-/* Register Standard Service Calls as runtime service */
+/* Register OEM Service Calls as runtime service */
 DECLARE_RT_SVC(
 		oem_svc,
 		OEN_OEM_START,

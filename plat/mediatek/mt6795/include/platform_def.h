@@ -64,7 +64,7 @@
 #define MT6795_UART0_BASE (PERI_BASE + 0x2000)
 
 #define MT6795_BAUDRATE   (921600)
-#define MT6795_UART_CLOCK (10000000)
+#define MT6795_UART_CLOCK (26000000)
 
 /*******************************************************************************
  * System counter frequency related constants
@@ -137,7 +137,9 @@
 #define MT_IRQ_SEC_SGI_6  14
 #define MT_IRQ_SEC_SGI_7  15
 
-#define FIQ_SMP_CALL_SGI  13
+#define FIQ_SMP_CALL_SGI  MT_IRQ_SEC_SGI_5
+
+#define PLAT_ARM_G0_IRQS	FIQ_SMP_CALL_SGI
 
 #define DEBUG_XLAT_TABLE 0
 
@@ -192,14 +194,10 @@
 /* TF txet, ro, rw, internal SRAM, Size: release: 80KB, debug: 92KB */
 #define TZRAM_BASE        (0x110000)
 #if DEBUG
-#define TZRAM_SIZE        (0x22000)
+#define TZRAM_SIZE        (0x1C000)
 #else
-#define TZRAM_SIZE        (0x22000)
+#define TZRAM_SIZE        (0x1C000)
 #endif
-
-/* xlat_table , coherence ram, 64KB */
-#define TZRAM2_BASE       (TZRAM_BASE + TZRAM_SIZE)
-#define TZRAM2_SIZE       0x8000
 
 #define RAM_CONSOLE_BASE  0x0012D000
 #define RAM_CONSOLE_SIZE  0x00001000
@@ -214,7 +212,6 @@
 #define BL31_BASE           (TZRAM_BASE + 0x1000)
 #define BL31_LIMIT          (TZRAM_BASE + TZRAM_SIZE)
 #define BSS1_STACK_LIMIT    (TZRAM_BASE + TZRAM_SIZE)
-#define TZRAM2_LIMIT        (TZRAM2_BASE + TZRAM2_SIZE)
 #define BL31_TZRAM_SIZE     (TZRAM_SIZE - ATF_ARG_SIZE)
 
 /*******************************************************************************
@@ -254,7 +251,8 @@
 /*
  * Load address of BL3-3 for this platform port
  */
-#define PLAT_MTK_NS_IMAGE_OFFSET    (0x41E00000)
+#define LK_SIZE_LIMIT				(0x100000)
+#define PLAT_MTK_NS_IMAGE_OFFSET	(0x41E00000)
 /* 16KB */
 #define ATF_AEE_BUFFER_SIZE         (0x4000)
 #define PAGE_SIZE_2MB_MASK          (PAGE_SIZE_2MB - 1)

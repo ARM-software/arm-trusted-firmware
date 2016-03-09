@@ -30,7 +30,7 @@
 
 #include <cci.h>
 #include <gic_v2.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 
 .section .rodata.gic_reg_name, "aS"
 gicc_regs:

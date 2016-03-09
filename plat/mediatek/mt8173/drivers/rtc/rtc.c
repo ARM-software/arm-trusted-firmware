@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <delay_timer.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 #include <pmic_wrap_init.h>
 #include <rtc.h>
 

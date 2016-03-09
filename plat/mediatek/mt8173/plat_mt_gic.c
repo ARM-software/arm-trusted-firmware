@@ -29,7 +29,7 @@
  */
 #include <arm_gic.h>
 #include <bl_common.h>
-#include <mt8173_def.h>
+#include <platform_def.h>
 
 const unsigned int mt_irq_sec_array[] = {
 	MT_IRQ_SEC_SGI_0,

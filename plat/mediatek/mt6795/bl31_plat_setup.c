@@ -29,22 +29,20 @@
  */
 #include <arm_gic.h>
 #include <assert.h>
+#include <arch_helpers.h>
 #include <bl_common.h>
 #include <console.h>
+#include <context_mgmt.h>
 #include <debug.h>
 #include <mcucfg.h>
 #include <mmio.h>
-#include <plat_private.h>
-#include <platform.h>
-#include <arch_helpers.h>
 #include <mtk_sip_svc.h>
-#include <context_mgmt.h>
+#include <platform.h>
+#include <plat_private.h>
+#include <platform_common.h>
 #include <string.h>
-#if MTK_RAM_LOG
-#include <log.h>
-#endif
 #include <xlat_tables.h>
-
+#include <mt_cpuxgpt.h>
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
@@ -80,9 +78,26 @@ unsigned long __COHERENT_RAM_END__;
  */
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
-static struct kernel_info k_info;
+const int cci_map[] = {
+	PLAT_MT_CCI_CLUSTER0_SL_IFACE_IX,
+	PLAT_MT_CCI_CLUSTER1_SL_IFACE_IX
+};
+uint32_t cci_map_length = ARRAY_SIZE(cci_map);
 
-atf_arg_t gteearg;
+/* Table of regions to map using the MMU.  */
+const mmap_region_t plat_mmap[] = {
+	/* for TF text, RO, RW */
+	MAP_REGION_FLAT(MTK_DEV_RNG0_BASE, MTK_DEV_RNG0_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MTK_DEV_RNG1_BASE, MTK_DEV_RNG1_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(RAM_CONSOLE_BASE & ~(PAGE_SIZE_MASK), RAM_CONSOLE_SIZE,
+						MT_DEVICE | MT_RW | MT_NS),
+	MAP_REGION_FLAT(MT_GIC_BASE & ~(PAGE_SIZE_MASK), MCU_SYS_SIZE,
+						MT_DEVICE | MT_RW | MT_SECURE),
+	{ 0 }
+
+};
 
 static void platform_setup_cpu(void)
 {
@@ -139,31 +154,37 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 						 void *plat_params_from_bl2)
 {
-	mtk_bl_param_t *pmtk_bl_param_t = (mtk_bl_param_t *)from_bl2;
+	mtk_bl_param_t *pmtk_bl_param = (mtk_bl_param_t *)from_bl2;
 	atf_arg_t_ptr teearg;
+	unsigned long long normal_base;
+	unsigned long long atf_base;
 
+	assert(from_bl2 != NULL);
 	/*
 	 * Mediatek preloader(i.e, BL2) is in 32 bit state, high 32bits
 	 * of 64 bit GP registers are UNKNOWN if CPU warm reset from 32 bit
 	 * to 64 bit state. So we need to clear high 32bit,
 	 * which may be random value.
 	 */
-	pmtk_bl_param_t =
-	(mtk_bl_param_t *)((uint64_t)pmtk_bl_param_t & 0x00000000ffffffff);
+	pmtk_bl_param =
+	(mtk_bl_param_t *)((uint64_t)pmtk_bl_param & 0x00000000ffffffff);
 	plat_params_from_bl2 =
 	(void *)((uint64_t)plat_params_from_bl2 & 0x00000000ffffffff);
 
-	teearg  = (atf_arg_t_ptr)pmtk_bl_param_t->tee_info_addr;
+	teearg  = (atf_arg_t_ptr)pmtk_bl_param->tee_info_addr;
 
 	console_init(teearg->atf_log_port, MT6795_UART_CLOCK, MT6795_BAUDRATE);
 	memcpy((void *)&gteearg, (void *)teearg, sizeof(atf_arg_t));
 
-	/* init system counter in ATF */
-	setup_syscnt();
+	normal_base = 0;
+    /* in ATF boot time, tiemr for cntpct_el0 is not initialized
+     * so it will not count now.
+     */
+	atf_base = read_cntpct_el0();
+	sched_clock_init(normal_base, atf_base);
 
 	VERBOSE("bl31_setup\n");
 
-	assert(from_bl2 != NULL);
 	/* Populate entry point information for BL3-2 and BL3-3 */
 	SET_PARAM_HEAD(&bl32_image_ep_info,
 				PARAM_EP,
@@ -171,7 +192,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 				0);
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
 	bl32_image_ep_info.pc = BL32_BASE;
-	bl32_image_ep_info.spsr = plat_get_spsr_for_bl32_entry();
 
 	SET_PARAM_HEAD(&bl33_image_ep_info,
 				PARAM_EP,
@@ -182,35 +202,15 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * is located and the entry state information
 	 */
 	/* BL33_START_ADDRESS */
-	bl33_image_ep_info.pc = pmtk_bl_param_t->bl33_start_addr;
+	bl33_image_ep_info.pc = pmtk_bl_param->bl33_start_addr;
 	bl33_image_ep_info.spsr = plat_get_spsr_for_bl33_entry();
-	bl33_image_ep_info.args.arg4 =  pmtk_bl_param_t->bootarg_loc;
-	bl33_image_ep_info.args.arg5 =  pmtk_bl_param_t->bootarg_size;
+	bl33_image_ep_info.args.arg4 =  pmtk_bl_param->bootarg_loc;
+	bl33_image_ep_info.args.arg5 =  pmtk_bl_param->bootarg_size;
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 }
 /*******************************************************************************
  * Perform any BL3-1 platform setup code
  ******************************************************************************/
-
-const unsigned int mt_irq_sec_array[] = {
-	MT_IRQ_SEC_SGI_0,
-	MT_IRQ_SEC_SGI_1,
-	MT_IRQ_SEC_SGI_2,
-	MT_IRQ_SEC_SGI_3,
-	MT_IRQ_SEC_SGI_4,
-	MT_IRQ_SEC_SGI_5,
-	MT_IRQ_SEC_SGI_6,
-	MT_IRQ_SEC_SGI_7
-};
-
-void plat_mt_gic_init(void)
-{
-	arm_gic_init(BASE_GICC_BASE,
-		BASE_GICD_BASE,
-		BASE_GICR_BASE,
-		mt_irq_sec_array,
-		ARRAY_SIZE(mt_irq_sec_array));
-}
 
 void bl31_platform_setup(void)
 {
@@ -218,9 +218,9 @@ void bl31_platform_setup(void)
 
 	plat_delay_timer_init();
 
+	plat_mt_gic_driver_init();
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_mt_gic_init();
-	arm_gic_setup();
 
 	/* Topologies are best known to the platform. */
 	mt_setup_topology();
@@ -228,11 +228,10 @@ void bl31_platform_setup(void)
 /*******************************************************************************
  * Perform the very early platform specific architectural setup here. At the
  * moment this is only intializes the mmu in a quick and dirty way.
+ * Init MTK propiartary log buffer control field.
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {
-	atf_arg_t_ptr teearg = &gteearg;
-
 	/* Enable non-secure access to CCI-400 registers */
 	mmio_write_32(CCI400_BASE + CCI_SEC_ACCESS_OFFSET , 0x1);
 
@@ -240,52 +239,47 @@ void bl31_plat_arch_setup(void)
 	plat_cci_enable();
 
 	{
-		if (teearg->atf_log_buf_size != 0) {
+		if (gteearg.atf_log_buf_size != 0) {
 			INFO("mmap atf buffer : 0x%x, 0x%x\n\r",
-					teearg->atf_log_buf_start,
-					teearg->atf_log_buf_size);
+					gteearg.atf_log_buf_start,
+					gteearg.atf_log_buf_size);
 
 			mmap_add_region(
-				teearg->atf_log_buf_start &
+				gteearg.atf_log_buf_start &
 				~(PAGE_SIZE_2MB_MASK),
-				teearg->atf_log_buf_start &
+				gteearg.atf_log_buf_start &
 				~(PAGE_SIZE_2MB_MASK),
 				PAGE_SIZE_2MB,
 				MT_DEVICE | MT_RW | MT_NS);
 
 			INFO("mmap atf buffer (force 2MB aligned):0x%x, 0x%x\n",
-			(teearg->atf_log_buf_start & ~(PAGE_SIZE_2MB_MASK)),
+			(gteearg.atf_log_buf_start & ~(PAGE_SIZE_2MB_MASK)),
 			PAGE_SIZE_2MB);
 		}
 	}
-		/*
-		 * add TZRAM_BASE to memory map
-		 * then set RO and COHERENT to different attribute
-		 */
-		plat_configure_mmu_el3(
-			BL31_RO_BASE & ~(PAGE_SIZE_MASK),
-			((TZRAM_SIZE & ~(PAGE_SIZE_MASK)) + PAGE_SIZE),
-			(BL31_RO_BASE & ~(PAGE_SIZE_MASK)),
-			BL31_RO_LIMIT,
-			BL31_COHERENT_RAM_BASE,
-			BL31_COHERENT_RAM_LIMIT);
+	/*
+	 * add TZRAM_BASE to memory map
+	 * then set RO and COHERENT to different attribute
+	 */
+	plat_configure_mmu_el3(
+		(TZRAM_BASE & ~(PAGE_SIZE_MASK)),
+		(TZRAM_SIZE & ~(PAGE_SIZE_MASK)),
+		(BL31_RO_BASE & ~(PAGE_SIZE_MASK)),
+		BL31_RO_LIMIT,
+		BL31_COHERENT_RAM_BASE,
+		BL31_COHERENT_RAM_LIMIT);
 	/* Initialize for ATF log buffer */
-	if (teearg->atf_log_buf_size != 0) {
-			teearg->atf_aee_debug_buf_size = ATF_AEE_BUFFER_SIZE;
-			teearg->atf_aee_debug_buf_start =
-				teearg->atf_log_buf_start +
-				teearg->atf_log_buf_size - ATF_AEE_BUFFER_SIZE;
-#if MTK_RAM_LOG
-			mt_log_setup(teearg->atf_log_buf_start,
-				teearg->atf_log_buf_size,
-				teearg->atf_aee_debug_buf_size);
-#endif
+	if (gteearg.atf_log_buf_size != 0) {
+		gteearg.atf_aee_debug_buf_size = ATF_AEE_BUFFER_SIZE;
+		gteearg.atf_aee_debug_buf_start =
+			gteearg.atf_log_buf_start +
+			gteearg.atf_log_buf_size - ATF_AEE_BUFFER_SIZE;
 		INFO("ATF log service is registered (0x%x, aee:0x%x)\n",
-			teearg->atf_log_buf_start,
-			teearg->atf_aee_debug_buf_start);
+			gteearg.atf_log_buf_start,
+			gteearg.atf_aee_debug_buf_start);
 	} else{
-		teearg->atf_aee_debug_buf_size = 0;
-		teearg->atf_aee_debug_buf_start = 0;
+		gteearg.atf_aee_debug_buf_size = 0;
+		gteearg.atf_aee_debug_buf_start = 0;
 	}
 
 	/*
@@ -321,52 +315,7 @@ void enable_ns_access_to_cpuectlr(void)
 	write_actlr_el3(next_actlr);
 }
 
-void save_kernel_info(uint64_t pc,
-			uint64_t r0,
-			uint64_t r1,
-			uint64_t k32_64)
-{
-	k_info.k32_64 = k32_64;
-	k_info.pc = pc;
-
-	if (LINUX_KERNEL_32 ==  k32_64) {
-			/* for 32 bits kernel */
-			k_info.r0 = 0;
-			k_info.r1 = r0;   /* machtype */
-			k_info.r2 = r1;   /* tags */
-	} else {
-			/* for 64 bits kernel */
-			k_info.r0 = r0;
-			k_info.r1 = r1;
-	}
-}
-
-void set_kernel_k32_64(uint64_t k32_64)
-{
-	k_info.k32_64 = k32_64;
-}
-
-uint64_t get_kernel_info_pc(void)
-{
-	return k_info.pc;
-}
-
-uint64_t get_kernel_info_r0(void)
-{
-	return k_info.r0;
-}
-
-uint64_t get_kernel_info_r1(void)
-{
-	return k_info.r1;
-}
-uint64_t get_kernel_info_r2(void)
-{
-	return k_info.r2;
-}
-
-
-entry_point_info_t *bl31_plat_get_next_kernel64_ep_info(void)
+static entry_point_info_t *bl31_plat_get_next_kernel64_ep_info(void)
 {
 	entry_point_info_t *next_image_info;
 	unsigned long el_status;
@@ -412,7 +361,7 @@ entry_point_info_t *bl31_plat_get_next_kernel64_ep_info(void)
 		return NULL;
 }
 
-entry_point_info_t *bl31_plat_get_next_kernel32_ep_info(void)
+static entry_point_info_t *bl31_plat_get_next_kernel32_ep_info(void)
 {
 	entry_point_info_t *next_image_info;
 	unsigned int mode;

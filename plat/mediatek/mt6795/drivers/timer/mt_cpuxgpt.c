@@ -28,31 +28,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
+#include <stdint.h>
 #include <arch_helpers.h>
-#include <mcucfg.h>
 #include <mmio.h>
-#include <platform_def.h>
 #include <mt_cpuxgpt.h>
+#include <stdint.h>
+#include <platform.h>
 #include <debug.h>
-
 #define CPUXGPT_BASE	0x10200000
-#define INDEX_BASE	(CPUXGPT_BASE + 0x0674)
-#define CTL_BASE	(CPUXGPT_BASE + 0x0670)
+#define INDEX_BASE		(CPUXGPT_BASE+0x0674)
+#define CTL_BASE		(CPUXGPT_BASE+0x0670)
 
 uint64_t normal_time_base;
 uint64_t atf_time_base;
-
-/* TODO: handle mt6795_mcucfg */
-
-static unsigned int __read_cpuxgpt(unsigned int reg_index)
-{
-	unsigned int value = 0;
-
-	mmio_write_32(INDEX_BASE, reg_index);
-	value = mmio_read_32(CTL_BASE);
-	return value;
-}
 
 static void __write_cpuxgpt(unsigned int reg_index, unsigned int value)
 {
@@ -60,34 +48,20 @@ static void __write_cpuxgpt(unsigned int reg_index, unsigned int value)
 	mmio_write_32(CTL_BASE, value);
 }
 
-static void set_cpuxgpt_clk(unsigned int div)
+static void __cpuxgpt_set_init_cnt(unsigned int countH, unsigned int countL)
 {
-	unsigned int tmp = 0;
-
-	tmp = __read_cpuxgpt(INDEX_CTL_REG);
-	tmp &= CLK_DIV_MASK;
-	tmp |= div;
-	__write_cpuxgpt(INDEX_CTL_REG, tmp);
+	__write_cpuxgpt(INDEX_CNT_H_INIT, countH);
+	/* update count when countL programmed */
+	__write_cpuxgpt(INDEX_CNT_L_INIT, countL);
 }
 
-static void enable_cpuxgpt(void)
+void generic_timer_backup(void)
 {
-	unsigned int tmp = 0;
+	uint64_t cval;
 
-	tmp = __read_cpuxgpt(INDEX_CTL_REG);
-	tmp |= EN_CPUXGPT;
-	__write_cpuxgpt(INDEX_CTL_REG, tmp);
-
-	INFO("CPUxGPT reg(%x)\n", __read_cpuxgpt(INDEX_CTL_REG));
-}
-
-void setup_syscnt(void)
-{
-	/* set cpuxgpt as free run mode */
-	/* set cpuxgpt to 13Mhz clock */
-	set_cpuxgpt_clk(CLK_DIV2);
-	/* enable cpuxgpt */
-	enable_cpuxgpt();
+	cval = read_cntpct_el0();
+	__cpuxgpt_set_init_cnt((uint32_t)(cval >> 32),
+		(uint32_t)(cval & 0xffffffff));
 }
 
 void sched_clock_init(uint64_t normal_base, uint64_t atf_base)
@@ -100,30 +74,38 @@ uint64_t sched_clock(void)
 {
 	uint64_t cval;
 
-	cval = (((read_cntpct_el0() - atf_time_base) * 1000)
-		/ SYS_COUNTER_FREQ_IN_MHZ)
+	cval = (((read_cntpct_el0() - atf_time_base)*1000)/13)
 		+ normal_time_base;
 	return cval;
 }
 
-static void write_cpuxgpt(unsigned int reg_index, unsigned int value)
+/*
+  * Return: 0 - Trying to disable the CPUXGPT control bit,
+  * and not allowed to disable it.
+  * Return: 1 - reg_addr is not realted to disable the control bit.
+  */
+unsigned char check_cpuxgpt_write_permission(unsigned int reg_addr,
+	unsigned int reg_value)
 {
-	mmio_write_32((uintptr_t)&mt6795_mcucfg->xgpt_idx, reg_index);
-	mmio_write_32((uintptr_t)&mt6795_mcucfg->xgpt_ctl, value);
+	unsigned idx;
+	unsigned ctl_val;
+
+	if (reg_addr == CTL_BASE) {
+		idx = mmio_read_32(INDEX_BASE);
+
+		/* idx 0: CPUXGPT system control */
+		if (idx == 0) {
+			ctl_val = mmio_read_32(CTL_BASE);
+			if (ctl_val & 1) {
+				/*
+				 * if enable bit already set,
+				 * then bit 0 is not allow to set as 0
+				 */
+				if (!(reg_value & 1))
+					return 0;
+			}
+		}
+	}
+	return 1;
 }
 
-static void cpuxgpt_set_init_cnt(unsigned int countH, unsigned int countL)
-{
-	write_cpuxgpt(INDEX_CNT_H_INIT, countH);
-	/* update count when countL programmed */
-	write_cpuxgpt(INDEX_CNT_L_INIT, countL);
-}
-
-void generic_timer_backup(void)
-{
-	uint64_t cval;
-
-	cval = read_cntpct_el0();
-	cpuxgpt_set_init_cnt((uint32_t)(cval >> 32),
-			       (uint32_t)(cval & 0xffffffff));
-}

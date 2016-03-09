@@ -28,8 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <mmio.h>
-#include <mt8173_def.h>
 #include <mtcmos.h>
+#include <platform_def.h>
 #include <spm.h>
 
 enum {

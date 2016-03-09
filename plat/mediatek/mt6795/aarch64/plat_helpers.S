@@ -105,7 +105,7 @@ exit_putc:
 	 * -----------------------------------------------------
 	 */
 func plat_secondary_cold_boot_setup
-	/* MT6795 Oak does not do cold boot for secondary CPU */
+	/* MT6795 does not do cold boot for secondary CPU */
 cb_panic:
 	b	cb_panic
 endfunc plat_secondary_cold_boot_setup
@@ -125,15 +125,10 @@ endfunc platform_is_primary_cpu
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-#if !MTK_RAM_LOG
-	mov x9, x30
 	mov_imm	x0, MT6795_UART0_BASE
 	mov_imm	x1, MT6795_UART_CLOCK
 	mov_imm	x2, MT6795_BAUDRATE
-	bl	console_init
-	mov_imm	x0, MT6795_UART0_BASE
-	mov x30, x9
-#endif
+	b	console_init
 	ret
 endfunc plat_crash_console_init
 
@@ -145,12 +140,8 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-#if !MTK_RAM_LOG
 	mov_imm x1, MT6795_UART0_BASE
 	b	console_core_putc
-#else
-	crash_ram_log
-#endif
 	ret
 endfunc plat_crash_console_putc
 
@@ -162,7 +153,6 @@ endfunc plat_crash_console_putc
 	 * --------------------------------------------------------
 	 */
 func platform_mem_init
-	mov	x0, #0
 	ret
 endfunc platform_mem_init
 

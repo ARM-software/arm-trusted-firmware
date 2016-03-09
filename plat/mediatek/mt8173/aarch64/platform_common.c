@@ -32,7 +32,6 @@
 #include <bl_common.h>
 #include <cci.h>
 #include <debug.h>
-#include <mt8173_def.h>
 #include <platform_def.h>
 #include <xlat_tables.h>
 
