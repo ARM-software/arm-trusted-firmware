@@ -7,5 +7,7 @@ Linaro Limited
 
 NVIDIA Corporation
 
+Xilinx, Inc.
+
 Individuals
 -----------
