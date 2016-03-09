@@ -197,7 +197,19 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				lib/aarch64/cache_helpers.S		\
 				lib/aarch64/misc_helpers.S		\
 				lib/aarch64/xlat_helpers.c		\
-				lib/stdlib/std.c			\
+				lib/stdlib/abort.c			\
+				lib/stdlib/assert.c			\
+				lib/stdlib/exit.c			\
+				lib/stdlib/mem.c			\
+				lib/stdlib/printf.c			\
+				lib/stdlib/putchar.c			\
+				lib/stdlib/puts.c			\
+				lib/stdlib/sscanf.c			\
+				lib/stdlib/strchr.c			\
+				lib/stdlib/strcmp.c			\
+				lib/stdlib/strlen.c			\
+				lib/stdlib/strncmp.c			\
+				lib/stdlib/subr_prf.c			\
 				plat/common/aarch64/platform_helpers.S
 
 INCLUDES		+=	-Iinclude/bl1			\
