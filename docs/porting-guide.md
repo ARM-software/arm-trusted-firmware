@@ -654,7 +654,8 @@ CPU-specific linear index into blocks of memory (for example while allocating
 per-CPU stacks). This function will be invoked very early in the
 initialization sequence which mandates that this function should be
 implemented in assembly and should not rely on the avalability of a C
-runtime environment.
+runtime environment. This function can clobber x0 - x8 and must preserve
+x9 - x29.
 
 This function plays a crucial role in the power domain topology framework in
 PSCI and details of this can be found in [Power Domain Topology Design].
