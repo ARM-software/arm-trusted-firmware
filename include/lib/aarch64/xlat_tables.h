@@ -52,21 +52,41 @@
 #define MAP_REGION(pa, va, sz, attr) {(pa), (va), (sz), (attr)}
 
 /*
- * Flags for building up memory mapping attributes.
- * These are organised so that a clear bit gives a more restrictive  mapping
- * that a set bit, that way a bitwise-and two sets of attributes will never give
- * an attribute which has greater access rights that any of the original
- * attributes.
+ * Shifts and masks to access fields of an mmap_attr_t
+ */
+#define MT_TYPE_MASK	0x7
+#define MT_TYPE(_attr)	((_attr) & MT_TYPE_MASK)
+/* Access permissions (RO/RW) */
+#define MT_PERM_SHIFT	3
+/* Security state (SECURE/NS) */
+#define MT_SEC_SHIFT	4
+
+/*
+ * Memory mapping attributes
  */
 typedef enum  {
-	MT_DEVICE	= 0 << 0,
-	MT_MEMORY	= 1 << 0,
+	/*
+	 * Memory types supported.
+	 * These are organised so that, going down the list, the memory types
+	 * are getting weaker; conversely going up the list the memory types are
+	 * getting stronger.
+	 */
+	MT_DEVICE,
+	MT_NON_CACHEABLE,
+	MT_MEMORY,
+	/* Values up to 7 are reserved to add new memory types in the future */
 
-	MT_RO		= 0 << 1,
-	MT_RW		= 1 << 1,
+	/*
+	 * The following values are organised so that a clear bit gives a more
+	 * restrictive mapping than a set bit, that way a bitwise-and of two
+	 * sets of attributes will never give an attribute which has greater
+	 * access rights than any of the original attributes.
+	 */
+	MT_RO		= 0 << MT_PERM_SHIFT,
+	MT_RW		= 1 << MT_PERM_SHIFT,
 
-	MT_SECURE	= 0 << 2,
-	MT_NS		= 1 << 2
+	MT_SECURE	= 0 << MT_SEC_SHIFT,
+	MT_NS		= 1 << MT_SEC_SHIFT,
 } mmap_attr_t;
 
 /*
