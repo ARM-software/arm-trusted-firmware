@@ -408,6 +408,9 @@ performed.
 *   `HANDLE_EA_EL3_FIRST`: When defined External Aborts and SError Interrupts
     will be always trapped in EL3 i.e. in BL31 at runtime.
 
+*   `ENABLE_PMF`: Boolean option to enable support for optional Performance
+     Measurement Framework(PMF). Default is 0.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
