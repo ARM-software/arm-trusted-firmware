@@ -29,6 +29,9 @@
  */
 #include <bakery_lock.h>
 #include <debug.h>
+#include <delay_timer.h>
+#include <mmio.h>
+#include <mt8173_def.h>
 #include <spm.h>
 #include <spm_suspend.h>
 
@@ -37,8 +40,6 @@
  * system power for different power scenarios using different firmware.
  * This driver controls the system power in system suspend flow.
  */
-
-#define WAIT_UART_ACK_TIMES     80	/* 80 * 10us */
 
 #define WAKE_SRC_FOR_SUSPEND					\
 	(WAKE_SRC_KP | WAKE_SRC_EINT | WAKE_SRC_MD32 |		\
@@ -49,6 +50,13 @@
 
 #define spm_is_wakesrc_invalid(wakesrc)	\
 	(!!((unsigned int)(wakesrc) & 0xc0003803))
+
+#define ARMCA15PLL_CON0		(APMIXED_BASE + 0x200)
+#define ARMCA15PLL_CON1		(APMIXED_BASE + 0x204)
+#define ARMCA15PLL_PWR_CON0	(APMIXED_BASE + 0x20c)
+#define ARMCA15PLL_PWR_ON	(1U << 0)
+#define ARMCA15PLL_ISO_EN	(1U << 1)
+#define ARMCA15PLL_EN		(1U << 0)
 
 const unsigned int spm_flags =
 	SPM_DUALVCORE_PDN_DIS | SPM_PASR_DIS | SPM_DPD_DIS |
@@ -293,8 +301,23 @@ static enum wake_reason_t go_to_sleep_after_wfi(void)
 	return last_wr;
 }
 
+static void bigcore_pll_on(void)
+{
+	mmio_setbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_PWR_ON);
+	mmio_clrbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_ISO_EN);
+	mmio_setbits_32(ARMCA15PLL_CON0, ARMCA15PLL_EN);
+}
+
+static void bigcore_pll_off(void)
+{
+	mmio_clrbits_32(ARMCA15PLL_CON0, ARMCA15PLL_EN);
+	mmio_setbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_ISO_EN);
+	mmio_clrbits_32(ARMCA15PLL_PWR_CON0, ARMCA15PLL_PWR_ON);
+}
+
 void spm_system_suspend(void)
 {
+	bigcore_pll_off();
 	spm_lock_get();
 	go_to_sleep_before_wfi(spm_flags);
 	set_suspend_ready();
@@ -308,4 +331,7 @@ void spm_system_suspend_finish(void)
 	INFO("spm_wake_reason=%d\n", spm_wake_reason);
 	clear_all_ready();
 	spm_lock_release();
+	bigcore_pll_on();
+	/* Add 20us delay for turning on PLL*/
+	udelay(20);
 }

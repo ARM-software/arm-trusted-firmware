@@ -48,7 +48,6 @@
 #include <spm_hotplug.h>
 #include <spm_mcdi.h>
 #include <spm_suspend.h>
-#include "drivers/gpio/gpio.h"
 
 struct core_context {
 	unsigned long timer_data[8];
@@ -478,7 +477,6 @@ static void __dead2 plat_system_off(void)
 {
 	INFO("MTK System Off\n");
 
-	gpio_set(GPIO120, GPIO_OUT_ZERO);
 	rtc_bbpu_power_down();
 
 	wfi();

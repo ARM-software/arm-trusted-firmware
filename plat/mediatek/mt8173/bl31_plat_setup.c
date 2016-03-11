@@ -146,8 +146,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
 
-	assert(((unsigned long)plat_params_from_bl2) == MT_BL31_PLAT_PARAM_VAL);
-
 	bl32_ep_info = *from_bl2->bl32_ep_info;
 	bl33_ep_info = *from_bl2->bl33_ep_info;
 }
