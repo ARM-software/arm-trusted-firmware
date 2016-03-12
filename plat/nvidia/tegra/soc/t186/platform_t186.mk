@@ -32,6 +32,9 @@
 ENABLE_NS_L2_CPUECTRL_RW_ACCESS		:= 1
 $(eval $(call add_define,ENABLE_NS_L2_CPUECTRL_RW_ACCESS))
 
+ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 1
+$(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
+
 # platform settings
 TZDRAM_BASE				:= 0x30000000
 $(eval $(call add_define,TZDRAM_BASE))
@@ -42,10 +45,10 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
-MAX_XLAT_TABLES				:= 15
+MAX_XLAT_TABLES				:= 16
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 15
+MAX_MMAP_REGIONS			:= 16
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # platform files

@@ -65,6 +65,8 @@ const unsigned char tegra_power_domain_tree_desc[] = {
 static const mmap_region_t tegra_mmap[] = {
 	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x10000, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000, /* 128KB */
+			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x10000, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000, /* 64KB */
