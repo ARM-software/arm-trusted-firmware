@@ -45,6 +45,7 @@ typedef struct {
 	int		in_use;
 	uintptr_t	base;
 	size_t		file_pos;
+	size_t		size;
 } file_state_t;
 
 static file_state_t current_file = {0};
@@ -61,6 +62,7 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			     io_entity_t *entity);
 static int memmap_block_seek(io_entity_t *entity, int mode,
 			     ssize_t offset);
+static int memmap_block_len(io_entity_t *entity, size_t *length);
 static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
 			     size_t length, size_t *length_read);
 static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
@@ -78,7 +80,7 @@ static const io_dev_funcs_t memmap_dev_funcs = {
 	.type = device_type_memmap,
 	.open = memmap_block_open,
 	.seek = memmap_block_seek,
-	.size = NULL,
+	.size = memmap_block_len,
 	.read = memmap_block_read,
 	.write = memmap_block_write,
 	.close = memmap_block_close,
@@ -135,6 +137,7 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		current_file.base = block_spec->offset;
 		/* File cursor offset for seek and incremental reads etc. */
 		current_file.file_pos = 0;
+		current_file.size = block_spec->length;
 		entity->info = (uintptr_t)&current_file;
 		result = 0;
 	} else {
@@ -160,6 +163,18 @@ static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 	}
 
 	return result;
+}
+
+
+/* Return the size of a file on the memmap device */
+static int memmap_block_len(io_entity_t *entity, size_t *length)
+{
+	assert(entity != NULL);
+	assert(length != NULL);
+
+	*length = ((file_state_t *)entity->info)->size;
+
+	return 0;
 }
 
 
