@@ -783,6 +783,20 @@ Possible errors reported by the generic code are:
 
 The default implementation simply spins.
 
+### Function : plat_panic_handler()
+
+    Argument : void
+    Return   : void
+
+This API is called when the generic code encounters an unexpected error
+situation from which it cannot recover. This function must not return,
+and must be implemented in assembly because it may be called before the C
+environment is initialized.
+
+Note: The address from where it was called is stored in x30 (Link Register).
+
+The default implementation simply spins.
+
 
 3.  Modifications specific to a Boot Loader stage
 -------------------------------------------------

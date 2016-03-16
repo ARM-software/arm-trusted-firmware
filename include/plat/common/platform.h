@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -83,6 +83,7 @@ void plat_report_exception(unsigned long);
 int plat_crash_console_init(void);
 int plat_crash_console_putc(int c);
 void plat_error_handler(int err) __dead2;
+void plat_panic_handler(void) __dead2;
 
 /*******************************************************************************
  * Mandatory BL1 functions

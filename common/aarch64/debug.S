@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -120,7 +120,7 @@ endfunc asm_print_str
 /*
  * This function prints a hexadecimal number in x4.
  * In: x4 = the hexadecimal to print.
- * Clobber: x30, x0, x5, x1, x2, x3
+ * Clobber: x30, x0 - x3, x5
  */
 func asm_print_hex
 	mov	x3, x30
@@ -178,7 +178,7 @@ el3_panic:
 	mov	x6, x30
 	bl	plat_crash_console_init
 	/* Check if the console is initialized */
-	cbz	x0, _panic_loop
+	cbz	x0, _panic_handler
 	/* The console is initialized */
 	adr	x4, panic_msg
 	bl	asm_print_str
@@ -186,7 +186,10 @@ el3_panic:
 	/* The panic location is lr -4 */
 	sub	x4, x4, #4
 	bl	asm_print_hex
-_panic_loop:
-	b	_panic_loop
-endfunc do_panic
 
+_panic_handler:
+	/* Pass to plat_panic_handler the address from where el3_panic was
+	 * called, not the address of the call from el3_panic. */
+	mov	x30,x6
+	b	plat_panic_handler
+endfunc do_panic

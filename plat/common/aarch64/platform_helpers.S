@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,7 @@
 	.weak	plat_disable_acp
 	.weak	bl1_plat_prepare_exit
 	.weak	plat_error_handler
+	.weak	plat_panic_handler
 
 #if !ENABLE_PLAT_COMPAT
 	.globl	platform_get_core_pos
@@ -131,3 +132,12 @@ endfunc bl1_plat_prepare_exit
 func plat_error_handler
 	b	plat_error_handler
 endfunc plat_error_handler
+
+	/* -----------------------------------------------------
+	 * void plat_panic_handler(void) __dead2;
+	 * Endless loop by default.
+	 * -----------------------------------------------------
+	 */
+func plat_panic_handler
+	b	plat_panic_handler
+endfunc plat_panic_handler

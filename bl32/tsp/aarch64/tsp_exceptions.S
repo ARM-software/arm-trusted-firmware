@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -108,24 +108,23 @@ tsp_exceptions:
 	 * -----------------------------------------------------
 	 */
 sync_exception_sp_el0:
-	wfi
-	b	sync_exception_sp_el0
+	bl	plat_panic_handler
 	check_vector_size sync_exception_sp_el0
 
 	.align	7
 
 irq_sp_el0:
-	b	irq_sp_el0
+	bl	plat_panic_handler
 	check_vector_size irq_sp_el0
 
 	.align	7
 fiq_sp_el0:
-	b	fiq_sp_el0
+	bl	plat_panic_handler
 	check_vector_size fiq_sp_el0
 
 	.align	7
 serror_sp_el0:
-	b	serror_sp_el0
+	bl	plat_panic_handler
 	check_vector_size serror_sp_el0
 
 
@@ -136,8 +135,7 @@ serror_sp_el0:
 	 */
 	.align	7
 sync_exception_sp_elx:
-	wfi
-	b	sync_exception_sp_elx
+	bl	plat_panic_handler
 	check_vector_size sync_exception_sp_elx
 
 	.align	7
@@ -152,7 +150,7 @@ fiq_sp_elx:
 
 	.align	7
 serror_sp_elx:
-	b	serror_sp_elx
+	bl	plat_panic_handler
 	check_vector_size serror_sp_elx
 
 
@@ -163,23 +161,22 @@ serror_sp_elx:
 	 */
 	.align	7
 sync_exception_aarch64:
-	wfi
-	b	sync_exception_aarch64
+	bl	plat_panic_handler
 	check_vector_size sync_exception_aarch64
 
 	.align	7
 irq_aarch64:
-	b	irq_aarch64
+	bl	plat_panic_handler
 	check_vector_size irq_aarch64
 
 	.align	7
 fiq_aarch64:
-	b	fiq_aarch64
+	bl	plat_panic_handler
 	check_vector_size fiq_aarch64
 
 	.align	7
 serror_aarch64:
-	b	serror_aarch64
+	bl	plat_panic_handler
 	check_vector_size serror_aarch64
 
 
@@ -190,22 +187,21 @@ serror_aarch64:
 	 */
 	.align	7
 sync_exception_aarch32:
-	wfi
-	b	sync_exception_aarch32
+	bl	plat_panic_handler
 	check_vector_size sync_exception_aarch32
 
 	.align	7
 irq_aarch32:
-	b	irq_aarch32
+	bl	plat_panic_handler
 	check_vector_size irq_aarch32
 
 	.align	7
 fiq_aarch32:
-	b	fiq_aarch32
+	bl	plat_panic_handler
 	check_vector_size fiq_aarch32
 
 	.align	7
 serror_aarch32:
-	b	serror_aarch32
+	bl	plat_panic_handler
 	check_vector_size serror_aarch32
 	.align	7

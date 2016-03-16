@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -391,7 +391,7 @@ tsp_sel1_intr_return:
 
 	/* Should never reach here */
 tsp_sel1_int_entry_panic:
-	b	tsp_sel1_int_entry_panic
+	bl	plat_panic_handler
 endfunc tsp_sel1_intr_entry
 
 	/*---------------------------------------------
@@ -407,8 +407,9 @@ endfunc tsp_sel1_intr_entry
 func tsp_cpu_resume_entry
 	bl	tsp_cpu_resume_main
 	restore_args_call_smc
-tsp_cpu_resume_panic:
-	b	tsp_cpu_resume_panic
+
+	/* Should never reach here */
+	bl	plat_panic_handler
 endfunc tsp_cpu_resume_entry
 
 	/*---------------------------------------------
@@ -419,8 +420,9 @@ endfunc tsp_cpu_resume_entry
 func tsp_fast_smc_entry
 	bl	tsp_smc_handler
 	restore_args_call_smc
-tsp_fast_smc_entry_panic:
-	b	tsp_fast_smc_entry_panic
+
+	/* Should never reach here */
+	bl	plat_panic_handler
 endfunc tsp_fast_smc_entry
 
 	/*---------------------------------------------
@@ -435,6 +437,7 @@ func tsp_std_smc_entry
 	bl	tsp_smc_handler
 	msr	daifset, #DAIF_FIQ_BIT | DAIF_IRQ_BIT
 	restore_args_call_smc
-tsp_std_smc_entry_panic:
-	b	tsp_std_smc_entry_panic
+
+	/* Should never reach here */
+	bl	plat_panic_handler
 endfunc tsp_std_smc_entry
