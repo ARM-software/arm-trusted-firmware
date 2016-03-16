@@ -213,6 +213,8 @@ void psci_cpu_on_finish(unsigned int cpu_idx,
 int psci_do_cpu_off(unsigned int end_pwrlvl);
 
 /* Private exported functions from psci_suspend.c */
+void psci_system_suspend_start(entry_point_info_t *ep,
+			       psci_power_state_t *state_info);
 void psci_cpu_suspend_start(entry_point_info_t *ep,
 			unsigned int end_pwrlvl,
 			psci_power_state_t *state_info,

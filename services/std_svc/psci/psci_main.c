@@ -147,7 +147,6 @@ int psci_cpu_suspend(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 
-
 int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 {
 	int rc;
@@ -173,16 +172,14 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	assert(is_local_state_off(state_info.pwr_domain_state[PLAT_MAX_PWR_LVL]));
 
 	/*
-	 * Do what is needed to enter the system suspend state. This function
-	 * might return if the power down was abandoned for any reason, e.g.
-	 * arrival of an interrupt
+	 * Do what is needed to enter the system suspend state.
 	 */
-	psci_cpu_suspend_start(&ep,
-			    PLAT_MAX_PWR_LVL,
-			    &state_info,
-			    PSTATE_TYPE_POWERDOWN);
+	psci_system_suspend_start(&ep, &state_info);
 
-	return PSCI_E_SUCCESS;
+	/*
+	 * We should not return here upon exiting system suspend state.
+	 */
+	panic();
 }
 
 int psci_cpu_off(void)

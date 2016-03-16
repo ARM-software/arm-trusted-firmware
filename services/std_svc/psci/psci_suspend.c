@@ -111,6 +111,43 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 }
 
 /*******************************************************************************
+ * Top level handler which is called from the last standing CPU when the entire
+ * system wants to suspend its execution. It is assumed that along with
+ * suspending the current cpu power domain, power domains at higher levels until
+ * the target power level will be suspended as well. It coordinates with the
+ * platform to negotiate the target state for each of the power domain level
+ * till the target power domain level. It then performs generic, architectural,
+ * platform setup and state management required to suspend that power domain
+ * level and power domain levels below it.
+ *
+ * All the required parameter checks are performed at the beginning and after
+ * the state transition has been done, no further error is expected and it is
+ * not possible to undo any of the actions taken beyond that point.
+ ******************************************************************************/
+void psci_system_suspend_start(entry_point_info_t *ep,
+			       psci_power_state_t *state_info)
+{
+	/*
+	 * This function is passed the requested state info and
+	 * it returns the negotiated state info for each power level upto
+	 * the end level specified.
+	 */
+	psci_do_state_coordination(PLAT_MAX_PWR_LVL, state_info);
+
+	psci_suspend_to_pwrdown_start(PLAT_MAX_PWR_LVL, ep, state_info);
+
+	/*
+	 * Plat. management: Allow the platform to perform the
+	 * necessary actions to turn off this cpu e.g. set the
+	 * platform defined mailbox with the psci entrypoint,
+	 * program the power controller etc.
+	 */
+	psci_plat_pm_ops->pwr_domain_suspend(state_info);
+
+	psci_power_down_wfi();
+}
+
+/*******************************************************************************
  * Top level handler which is called when a cpu wants to suspend its execution.
  * It is assumed that along with suspending the cpu power domain, power domains
  * at higher levels until the target power level will be suspended as well. It
