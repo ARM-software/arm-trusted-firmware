@@ -627,6 +627,6 @@ static inline void tegra_smmu_write_32(uint32_t off, uint32_t val)
 }
 
 void tegra_smmu_init(void);
-void tegra_smmu_save_context(void);
+void tegra_smmu_save_context(uint64_t smmu_ctx_addr);
 
 #endif /*__SMMU_H */

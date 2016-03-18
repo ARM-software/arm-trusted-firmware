@@ -31,7 +31,6 @@
 #ifndef __MEMCTRLV2_H__
 #define __MEMCTRLV2_H__
 
-#include <mmio.h>
 #include <tegra_def.h>
 
 /*******************************************************************************
@@ -297,6 +296,8 @@
 #define MC_TXN_OVERRIDE_CGID_TAG_ADR		3
 #define MC_TXN_OVERRIDE_CGID_TAG_MASK		3
 
+#ifndef __ASSEMBLY__
+
 /*******************************************************************************
  * Structure to hold the transaction override settings to use to override
  * client inputs
@@ -346,6 +347,8 @@ typedef struct mc_streamid_security_cfg {
 			.override_client_inputs = CLIENT_INPUTS_ ## ovrrd, \
 			.override_enable = OVERRIDE_ ## access \
 		}
+
+#endif /* __ASSMEBLY__ */
 
 /*******************************************************************************
  * TZDRAM carveout configuration registers
@@ -545,6 +548,10 @@ typedef struct mc_streamid_security_cfg {
 #define  MC_SMMU_CLIENT_CONFIG5_APEDMAW_UNORDERED	(0 << 0)
 #define  MC_SMMU_CLIENT_CONFIG5_APEDMAW_MASK	(1 << 0)
 
+#ifndef __ASSEMBLY__
+
+#include <mmio.h>
+
 static inline uint32_t tegra_mc_read_32(uint32_t off)
 {
 	return mmio_read_32(TEGRA_MC_BASE + off);
@@ -601,5 +608,6 @@ static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
 			MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_CGID | \
 			MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_SO_DEV_CGID_SO_DEV_CLIENT); \
 	}
+#endif /* __ASSMEBLY__ */
 
 #endif /* __MEMCTRLV2_H__ */

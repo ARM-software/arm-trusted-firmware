@@ -31,7 +31,10 @@
 #include <assert.h>
 #include <debug.h>
 #include <memctrl_v2.h>
+#include <platform_def.h>
 #include <smmu.h>
+#include <string.h>
+#include <tegra_private.h>
 
 typedef struct smmu_regs {
 	uint32_t reg;
@@ -133,7 +136,7 @@ typedef struct smmu_regs {
 		.val = 0xFFFFFFFF, \
 	}
 
-static smmu_regs_t smmu_ctx_regs[] = {
+static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
 	_START_OF_TABLE_,
 	mc_make_sid_security_cfg(SCEW),
 	mc_make_sid_security_cfg(AFIR),
@@ -421,12 +424,15 @@ static smmu_regs_t smmu_ctx_regs[] = {
 };
 
 /*
- * Save SMMU settings before "System Suspend"
+ * Save SMMU settings before "System Suspend" to TZDRAM
  */
-void tegra_smmu_save_context(void)
+void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 {
 	uint32_t i;
 #if DEBUG
+	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	uint64_t tzdram_base = params_from_bl2->tzdram_base;
+	uint64_t tzdram_end = tzdram_base + params_from_bl2->tzdram_size;
 	uint32_t reg_id1, pgshift, cb_size;
 
 	/* sanity check SMMU settings c*/
@@ -438,6 +444,8 @@ void tegra_smmu_save_context(void)
 	assert(!((pgshift != PGSHIFT) || (cb_size != CB_SIZE)));
 #endif
 
+	assert((smmu_ctx_addr >= tzdram_base) && (smmu_ctx_addr <= tzdram_end));
+
 	/* index of _END_OF_TABLE_ */
 	smmu_ctx_regs[0].val = ARRAY_SIZE(smmu_ctx_regs) - 1;
 
@@ -445,11 +453,15 @@ void tegra_smmu_save_context(void)
 	for (i = 1; i < ARRAY_SIZE(smmu_ctx_regs) - 1; i++)
 		smmu_ctx_regs[i].val = mmio_read_32(smmu_ctx_regs[i].reg);
 
+	/* Save SMMU config settings */
+	memcpy16((void *)(uintptr_t)smmu_ctx_addr, (void *)smmu_ctx_regs,
+		 sizeof(smmu_ctx_regs));
+
 	/* save the SMMU table address */
 	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_LO,
-		(uint32_t)(unsigned long)smmu_ctx_regs);
+		(uint32_t)smmu_ctx_addr);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_HI,
-		(uint32_t)(((unsigned long)smmu_ctx_regs) >> 32));
+		(uint32_t)(smmu_ctx_addr >> 32));
 }
 
 /*

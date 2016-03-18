@@ -28,10 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch_helpers.h>
 #include <debug.h>
 #include <mce.h>
 #include <mmio.h>
+#include <string.h>
 #include <tegra_def.h>
+#include <tegra_private.h>
 
 #define MISCREG_CPU_RESET_VECTOR	0x2000
 #define MISCREG_AA64_RST_LOW		0x2004
@@ -42,7 +45,8 @@
 
 #define CPU_RESET_MODE_AA64		1
 
-extern void tegra_secure_entrypoint(void);
+extern uint64_t tegra_bl31_phys_base;
+extern uint64_t __tegra186_cpu_reset_handler_end;
 
 /*******************************************************************************
  * Setup secondary CPU vectors
@@ -50,12 +54,31 @@ extern void tegra_secure_entrypoint(void);
 void plat_secondary_setup(void)
 {
 	uint32_t addr_low, addr_high;
-	uint64_t reset_addr = (uint64_t)tegra_secure_entrypoint;
+	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	uint64_t cpu_reset_handler_base;
 
 	INFO("Setting up secondary CPU boot\n");
 
-	addr_low = (uint32_t)reset_addr | CPU_RESET_MODE_AA64;
-	addr_high = (uint32_t)((reset_addr >> 32) & 0x7ff);
+	if ((tegra_bl31_phys_base >= TEGRA_TZRAM_BASE) &&
+	    (tegra_bl31_phys_base <= (TEGRA_TZRAM_BASE + TEGRA_TZRAM_SIZE))) {
+
+		/*
+		 * The BL31 code resides in the TZSRAM which loses state
+		 * when we enter System Suspend. Copy the wakeup trampoline
+		 * code to TZDRAM to help us exit from System Suspend.
+		 */
+		cpu_reset_handler_base = params_from_bl2->tzdram_base;
+		memcpy16((void *)((uintptr_t)cpu_reset_handler_base),
+			 (void *)(uintptr_t)tegra186_cpu_reset_handler,
+			 (uintptr_t)&__tegra186_cpu_reset_handler_end -
+			 (uintptr_t)tegra186_cpu_reset_handler);
+
+	} else {
+		cpu_reset_handler_base = (uintptr_t)tegra_secure_entrypoint;
+	}
+
+	addr_low = (uint32_t)cpu_reset_handler_base | CPU_RESET_MODE_AA64;
+	addr_high = (uint32_t)((cpu_reset_handler_base >> 32) & 0x7ff);
 
 	/* write lower 32 bits first, then the upper 11 bits */
 	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_LOW, addr_low);

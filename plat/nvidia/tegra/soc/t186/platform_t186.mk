@@ -29,9 +29,6 @@
 #
 
 # platform configs
-ENABLE_NS_L2_CPUECTRL_RW_ACCESS		:= 1
-$(eval $(call add_define,ENABLE_NS_L2_CPUECTRL_RW_ACCESS))
-
 ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 1
 $(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
 
@@ -45,10 +42,10 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
-MAX_XLAT_TABLES				:= 16
+MAX_XLAT_TABLES				:= 20
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 16
+MAX_MMAP_REGIONS			:= 20
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # platform files
@@ -65,4 +62,5 @@ BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c		\
-				${SOC_DIR}/plat_sip_calls.c
+				${SOC_DIR}/plat_sip_calls.c		\
+				${SOC_DIR}/plat_trampoline.S

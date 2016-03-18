@@ -119,4 +119,7 @@ void plat_early_platform_setup(void);
 /* Declarations for tegra_delay_timer.c */
 void tegra_delay_timer_init(void);
 
+void tegra_secure_entrypoint(void);
+void tegra186_cpu_reset_handler(void);
+
 #endif /* __TEGRA_PRIVATE_H__ */

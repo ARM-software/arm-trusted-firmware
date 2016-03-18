@@ -39,10 +39,17 @@
 #include <mce.h>
 #include <psci.h>
 #include <smmu.h>
+#include <string.h>
 #include <t18x_ari.h>
 #include <tegra_private.h>
 
 extern void prepare_cpu_pwr_dwn(void);
+extern void tegra186_cpu_reset_handler(void);
+extern uint32_t __tegra186_cpu_reset_handler_data,
+		__tegra186_cpu_reset_handler_end;
+
+/* TZDRAM offset for saving SMMU context */
+#define TEGRA186_SMMU_CTX_OFFSET	16
 
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xF
@@ -50,7 +57,7 @@ extern void prepare_cpu_pwr_dwn(void);
 #define TEGRA186_WAKE_TIME_MASK		0xFFFFFF
 #define TEGRA186_WAKE_TIME_SHIFT	4
 /* context size to save during system suspend */
-#define TEGRA186_SE_CONTEXT_SIZE		3
+#define TEGRA186_SE_CONTEXT_SIZE	3
 
 static uint32_t se_regs[TEGRA186_SE_CONTEXT_SIZE];
 static unsigned int wake_time[PLATFORM_CORE_COUNT];
@@ -98,6 +105,8 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
+	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	uint64_t smmu_ctx_base;
 	uint32_t val;
 
 	assert(ctx);
@@ -147,8 +156,12 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
 		mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV6, val);
 
-		/* save SMMU context */
-		tegra_smmu_save_context();
+		/* save SMMU context to TZDRAM */
+		smmu_ctx_base = params_from_bl2->tzdram_base +
+			((uintptr_t)&__tegra186_cpu_reset_handler_data -
+			 (uintptr_t)tegra186_cpu_reset_handler) +
+			TEGRA186_SMMU_CTX_OFFSET;
+		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
 
 		/* Prepare for system suspend */
 		write_ctx_reg(gp_regs, CTX_GPREG_X4, 1);
@@ -157,13 +170,38 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
 			TEGRA_ARI_CLUSTER_CC7, 0, TEGRA_ARI_SYSTEM_SC7);
 
-		/* Enter system suspend state */
+		/* Instruct the MCE to enter system suspend state */
 		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
 			TEGRA_ARI_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
 
 	} else {
 		ERROR("%s: Unknown state id\n", __func__);
 		return PSCI_E_NOT_SUPPORTED;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
+{
+	const plat_local_state_t *pwr_domain_state =
+		target_state->pwr_domain_state;
+	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	unsigned int stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
+		TEGRA186_STATE_ID_MASK;
+	uint32_t val;
+
+	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
+		/*
+		 * The TZRAM loses power when we enter system suspend. To
+		 * allow graceful exit from system suspend, we need to copy
+		 * BL3-1 over to TZDRAM.
+		 */
+		val = params_from_bl2->tzdram_base +
+			((uintptr_t)&__tegra186_cpu_reset_handler_end -
+			 (uintptr_t)tegra186_cpu_reset_handler);
+		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
+			 (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
 	}
 
 	return PSCI_E_SUCCESS;
@@ -191,6 +229,8 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	int state_id = target_state->pwr_domain_state[PLAT_MAX_PWR_LVL];
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
 
 	/*
 	 * Check if we are exiting from deep sleep and restore SE
@@ -206,6 +246,17 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 		/* Init SMMU */
 		tegra_smmu_init();
+
+		/*
+		 * Reset power state info for the last core doing SC7 entry and exit,
+		 * we set deepest power state as CC7 and SC7 for SC7 entry which
+		 * may not be requested by non-secure SW which controls idle states.
+		 */
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
+			TEGRA_ARI_CLUSTER_CC7, 0, TEGRA_ARI_SYSTEM_SC1);
 	}
 
 	return PSCI_E_SUCCESS;
