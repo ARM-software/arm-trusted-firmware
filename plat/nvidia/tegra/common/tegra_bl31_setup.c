@@ -225,6 +225,7 @@ void bl31_plat_arch_setup(void)
 #if USE_COHERENT_MEM
 	unsigned long coh_start, coh_size;
 #endif
+	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 
 	/* add memory regions */
 	mmap_add_region(total_base, total_base,
@@ -233,6 +234,14 @@ void bl31_plat_arch_setup(void)
 	mmap_add_region(ro_start, ro_start,
 			ro_size,
 			MT_MEMORY | MT_RO | MT_SECURE);
+
+	/* map TZDRAM used by BL31 as coherent memory */
+	if (TEGRA_TZRAM_BASE == tegra_bl31_phys_base) {
+		mmap_add_region(params_from_bl2->tzdram_base,
+				params_from_bl2->tzdram_base,
+				BL31_SIZE,
+				MT_DEVICE | MT_RW | MT_SECURE);
+	}
 
 #if USE_COHERENT_MEM
 	coh_start = total_base + (BL_COHERENT_RAM_BASE - BL31_RO_BASE);
