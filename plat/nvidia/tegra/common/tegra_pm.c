@@ -54,6 +54,7 @@ extern uint64_t tegra_sec_entry_point;
 #pragma weak tegra_soc_pwr_domain_on
 #pragma weak tegra_soc_pwr_domain_off
 #pragma weak tegra_soc_pwr_domain_on_finish
+#pragma weak tegra_soc_pwr_domain_power_down_wfi
 #pragma weak tegra_soc_prepare_system_reset
 #pragma weak tegra_soc_prepare_system_off
 
@@ -73,6 +74,11 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 }
 
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
+{
+	return PSCI_E_SUCCESS;
+}
+
+int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 {
 	return PSCI_E_SUCCESS;
 }
@@ -136,7 +142,7 @@ void tegra_pwr_domain_off(const psci_power_state_t *target_state)
 }
 
 /*******************************************************************************
- * Handler called when called when a power domain is about to be suspended. The
+ * Handler called when a power domain is about to be suspended. The
  * target_state encodes the power state that each level should transition to.
  ******************************************************************************/
 void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -145,6 +151,24 @@ void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	/* disable GICC */
 	tegra_gic_cpuif_deactivate();
+}
+
+/*******************************************************************************
+ * Handler called at the end of the power domain suspend sequence. The
+ * target_state encodes the power state that each level should transition to.
+ ******************************************************************************/
+__dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
+					     *target_state)
+{
+	/* call the chip's power down handler */
+	tegra_soc_pwr_domain_power_down_wfi(target_state);
+
+	/* enter power down state */
+	wfi();
+
+	/* we can never reach here */
+	ERROR("%s: operation not handled.\n", __func__);
+	panic();
 }
 
 /*******************************************************************************
@@ -259,6 +283,7 @@ static const plat_psci_ops_t tegra_plat_psci_ops = {
 	.pwr_domain_suspend		= tegra_pwr_domain_suspend,
 	.pwr_domain_on_finish		= tegra_pwr_domain_on_finish,
 	.pwr_domain_suspend_finish	= tegra_pwr_domain_suspend_finish,
+	.pwr_domain_pwr_down_wfi	= tegra_pwr_domain_power_down_wfi,
 	.system_off			= tegra_system_off,
 	.system_reset			= tegra_system_reset,
 	.validate_power_state		= tegra_validate_power_state,
