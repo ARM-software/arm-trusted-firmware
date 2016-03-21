@@ -35,6 +35,7 @@
 #if IMAGE_BL31
 #include <cpu_data.h>
 #endif
+#include <debug.h>
 
  /* Reset fn is needed in BL at reset vector */
 #if IMAGE_BL1 || IMAGE_BL31
@@ -204,10 +205,10 @@ error_exit:
 	ret
 endfunc get_cpu_ops_ptr
 
-#if DEBUG
-.section .rodata.rev_warn_str, "aS"
-rev_warn_str:
-	.asciz "Warning: Skipping CPU specific reset operation for non-matching CPU revision number.\n"
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+.section .rodata.rev_verbose_str, "aS"
+rev_verbose_str:
+	.asciz "VERBOSE: Skipping CPU specific reset operation for non-matching CPU revision number.\n"
 
 	/*
 	 * This function prints the above warning message to the crash console.
@@ -224,7 +225,7 @@ func print_revision_warning
 	/* Check if the console is initialized */
 	cbz	x0, 1f
 	/* The console is initialized */
-	adr	x4, rev_warn_str
+	adr	x4, rev_verbose_str
 	bl	asm_print_str
 1:
 	ret	x5
