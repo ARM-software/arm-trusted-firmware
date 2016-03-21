@@ -36,6 +36,14 @@ PSCI_EXTENDED_STATE_ID	:=	1
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:=	0
 
+# Disable cache non-temporal hint for A57
+A57_DISABLE_NON_TEMPORAL_HINT		:= 0
+$(eval $(call add_define,A57_DISABLE_NON_TEMPORAL_HINT))
+
+# Disable cache non-temporal hint for A53
+A53_DISABLE_NON_TEMPORAL_HINT		:= 0
+$(eval $(call add_define,A53_DISABLE_NON_TEMPORAL_HINT))
+
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 
