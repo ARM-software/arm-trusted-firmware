@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,22 @@
 /***********************************************************
  * The tf_printf implementation for all BL stages
  ***********************************************************/
-static void unsigned_num_print(unsigned long int unum, unsigned int radix)
+
+#define get_num_va_args(args, lcount) \
+	(((lcount) > 1) ? va_arg(args, long long int) :	\
+	((lcount) ? va_arg(args, long int) : va_arg(args, int)))
+
+#define get_unum_va_args(args, lcount) \
+	(((lcount) > 1) ? va_arg(args, unsigned long long int) :	\
+	((lcount) ? va_arg(args, unsigned long int) : va_arg(args, unsigned int)))
+
+static void string_print(const char *str)
+{
+	while (*str)
+		putchar(*str++);
+}
+
+static void unsigned_num_print(unsigned long long int unum, unsigned int radix)
 {
 	/* Just need enough space to store 64 bit decimal integer */
 	unsigned char num_buf[20];
@@ -52,38 +67,34 @@ static void unsigned_num_print(unsigned long int unum, unsigned int radix)
 		putchar(num_buf[i]);
 }
 
-static void string_print(const char *str)
-{
-	while (*str)
-		putchar(*str++);
-}
-
 /*******************************************************************
  * Reduced format print for Trusted firmware.
- * The following formats are supported by this print
- * %x - 32 bit hexadecimal format
- * %llx and %lx -64 bit hexadecimal format
+ * The following type specifiers are supported by this print
+ * %x - hexadecimal format
  * %s - string format
- * %d or %i - signed 32 bit decimal format
- * %u - unsigned 32 bit decimal format
- * %ld and %lld - signed 64 bit decimal format
- * %lu and %llu - unsigned 64 bit decimal format
+ * %d or %i - signed decimal format
+ * %u - unsigned decimal format
  * %p - pointer format
- * %z - size_t format
- * Exits on all other formats.
+ *
+ * The following length specifiers are supported by this print
+ * %l - long int (64-bit on AArch64)
+ * %ll - long long int (64-bit on AArch64)
+ * %z - size_t sized integer formats (64 bit on AArch64)
+ *
+ * The print exits on all other formats specifiers other than valid
+ * combinations of the above specifiers.
  *******************************************************************/
-
 void tf_printf(const char *fmt, ...)
 {
 	va_list args;
-	int bit64;
-	int64_t num;
-	uint64_t unum;
+	int l_count;
+	long long int num;
+	unsigned long long int unum;
 	char *str;
 
 	va_start(args, fmt);
 	while (*fmt) {
-		bit64 = 0;
+		l_count = 0;
 
 		if (*fmt == '%') {
 			fmt++;
@@ -92,16 +103,12 @@ loop:
 			switch (*fmt) {
 			case 'i': /* Fall through to next one */
 			case 'd':
-				if (bit64)
-					num = va_arg(args, int64_t);
-				else
-					num = va_arg(args, int32_t);
-
+				num = get_num_va_args(args, l_count);
 				if (num < 0) {
 					putchar('-');
-					unum = (unsigned long int)-num;
+					unum = (unsigned long long int)-num;
 				} else
-					unum = (unsigned long int)num;
+					unum = (unsigned long long int)num;
 
 				unsigned_num_print(unum, 10);
 				break;
@@ -110,36 +117,28 @@ loop:
 				string_print(str);
 				break;
 			case 'p':
-				unum = (uint64_t)va_arg(args, void *);
-
+				unum = (uintptr_t)va_arg(args, void *);
 				if (unum)
 					string_print("0x");
 
 				unsigned_num_print(unum, 16);
 				break;
 			case 'x':
-				if (bit64)
-					unum = va_arg(args, uint64_t);
-				else
-					unum = va_arg(args, uint32_t);
-
+				unum = get_unum_va_args(args, l_count);
 				unsigned_num_print(unum, 16);
 				break;
 			case 'z':
 				if (sizeof(size_t) == 8)
-					bit64 = 1;
+					l_count = 2;
+
 				fmt++;
 				goto loop;
 			case 'l':
-				bit64 = 1;
+				l_count++;
 				fmt++;
 				goto loop;
 			case 'u':
-				if (bit64)
-					unum = va_arg(args, uint64_t);
-				else
-					unum = va_arg(args, uint32_t);
-
+				unum = get_unum_va_args(args, l_count);
 				unsigned_num_print(unum, 10);
 				break;
 			default:
