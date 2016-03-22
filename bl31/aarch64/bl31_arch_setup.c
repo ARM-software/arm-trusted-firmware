@@ -43,9 +43,6 @@
  ******************************************************************************/
 void bl31_arch_setup(void)
 {
-	/* Set the RES1 bits in the SCR_EL3 */
-	write_scr_el3(SCR_RES1_BITS);
-
 	/* Program the counter frequency */
 	write_cntfrq_el0(plat_get_syscnt_freq());
 

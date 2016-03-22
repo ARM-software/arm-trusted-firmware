@@ -439,6 +439,9 @@ performed.
     where applicable). Defaults to a string that contains the time and date of
     the compilation.
 
+*   `HANDLE_EA_EL3_FIRST`: When defined External Aborts and SError Interrupts
+    will be always trapped in EL3 i.e. in BL31 at runtime.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:

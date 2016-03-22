@@ -38,7 +38,7 @@
 void bl1_arch_setup(void)
 {
 	/* Set the next EL to be AArch64 */
-	write_scr_el3(SCR_RES1_BITS | SCR_RW_BIT);
+	write_scr_el3(read_scr_el3() | SCR_RW_BIT);
 }
 
 /*******************************************************************************

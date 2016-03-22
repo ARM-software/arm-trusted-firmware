@@ -70,8 +70,15 @@
 	isb
 
 	/* ---------------------------------------------------------------------
-	 * Enable the SError interrupt now that the exception vectors have been
-	 * setup.
+	 * Early set RES1 bits in SCR_EL3. Set EA bit as well to catch both
+	 * External Aborts and SError Interrupts in EL3.
+	 * ---------------------------------------------------------------------
+	 */
+	mov	x0, #(SCR_RES1_BITS | SCR_EA_BIT)
+	msr	scr_el3, x0
+	/* ---------------------------------------------------------------------
+	 * Enable External Aborts and SError Interrupts now that the exception
+	 * vectors have been setup.
 	 * ---------------------------------------------------------------------
 	 */
 	msr	daifclr, #DAIF_ABT_BIT
