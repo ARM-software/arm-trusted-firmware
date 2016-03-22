@@ -38,6 +38,7 @@
 #include <io_storage.h>
 #include <platform.h>
 #include <string.h>
+#include <xlat_tables.h>
 
 unsigned long page_align(unsigned long value, unsigned dir)
 {
