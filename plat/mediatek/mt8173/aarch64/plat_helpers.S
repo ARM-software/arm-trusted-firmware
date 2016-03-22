@@ -33,7 +33,8 @@
 
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_report_exception
-	.globl	platform_is_primary_cpu
+	.globl  plat_is_my_cpu_primary
+	.globl  plat_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
 
@@ -52,12 +53,28 @@ cb_panic:
 	b	cb_panic
 endfunc plat_secondary_cold_boot_setup
 
-func platform_is_primary_cpu
+func plat_is_my_cpu_primary
+	mrs	x0, mpidr_el1
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #MT8173_PRIMARY_CPU
 	cset	x0, eq
 	ret
-endfunc platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary
+
+	/* -----------------------------------------------------
+	 * unsigned int plat_my_core_pos(void);
+	 *
+	 * result: CorePos = CoreId + (ClusterId << 2)
+	 * -----------------------------------------------------
+	 */
+func plat_my_core_pos
+	mrs	x0, mpidr_el1
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
+	ret
+endfunc plat_my_core_pos
+
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)

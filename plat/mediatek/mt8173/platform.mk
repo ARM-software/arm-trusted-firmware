@@ -44,7 +44,8 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				plat/common/aarch64/plat_common.c		\
-				plat/common/plat_gic.c
+				plat/common/plat_gic.c				\
+				plat/common/aarch64/plat_psci_common.c
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/gic/arm_gic.c			\
@@ -91,5 +92,7 @@ ERRATA_A53_836870	:=	1
 
 # indicate the reset vector address can be programmed
 PROGRAMMABLE_RESET_ADDRESS	:=	1
+
+ENABLE_PLAT_COMPAT := 0
 
 $(eval $(call add_define,MTK_SIP_SET_AUTHORIZED_SECURE_REG_ENABLE))
