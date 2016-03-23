@@ -217,6 +217,8 @@ static void psci_set_req_local_pwr_state(unsigned int pwrlvl,
 					 plat_local_state_t req_pwr_state)
 {
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
+	assert(pwrlvl <= PSCI_MAX_PWR_LVL);
+
 	psci_req_local_pwr_states[pwrlvl - 1][cpu_idx] = req_pwr_state;
 }
 
