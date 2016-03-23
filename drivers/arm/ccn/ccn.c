@@ -254,6 +254,7 @@ static unsigned long long ccn_master_to_rn_id_map(unsigned long long master_map)
 	assert(ccn_plat_desc);
 
 	FOR_EACH_PRESENT_MASTER_INTERFACE(iface_id, master_map) {
+		assert(iface_id < ccn_plat_desc->num_masters);
 
 		/* Convert the master ID into the node ID */
 		node_id = ccn_plat_desc->master_to_rn_id_map[iface_id];
@@ -500,4 +501,16 @@ void ccn_program_sys_addrmap(unsigned int sn0_id,
 			      hnf_sam_ctrl_value);
 	}
 
+}
+
+/*******************************************************************************
+ * This function returns the part0 id from the peripheralID 0 register
+ * in CCN. This id can be used to distinguish the CCN variant present in the
+ * system.
+ ******************************************************************************/
+int ccn_get_part0_id(uintptr_t periphbase)
+{
+	assert(periphbase);
+	return (int)(mmio_read_64(periphbase
+			+ MN_PERIPH_ID_0_1_OFFSET) & 0xFF);
 }
