@@ -149,6 +149,7 @@ typedef enum rn_types {
 #define MN_DDC_STAT_OFFSET	DOMAIN_CTRL_STAT_OFFSET
 #define MN_DDC_SET_OFFSET	DOMAIN_CTRL_SET_OFFSET
 #define MN_DDC_CLR_OFFSET	DOMAIN_CTRL_CLR_OFFSET
+#define MN_PERIPH_ID_0_1_OFFSET	0xFE0
 #define MN_ID_OFFSET		REGION_ID_OFFSET
 
 /* HNF System Address Map register bit masks and shifts */
