@@ -1259,7 +1259,7 @@ later Bootloader stages with MMU off
 ### Function : plat_get_ns_image_entrypoint() [mandatory]
 
     Argument : void
-    Return   : unsigned long
+    Return   : uintptr_t
 
 As previously described, BL2 is responsible for arranging for control to be
 passed to a normal world BL image through BL31. This function returns the
