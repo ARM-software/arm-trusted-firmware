@@ -249,6 +249,7 @@ void bl32_plat_enable_mmu(uint32_t flags);
  ******************************************************************************/
 int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags);
+int plat_is_trusted_boot(void);
 
 #if ENABLE_PLAT_COMPAT
 /*

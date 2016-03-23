@@ -36,6 +36,7 @@
 
 /* Weak definition may be overridden in specific platform */
 #pragma weak plat_match_rotpk
+#pragma weak plat_is_trusted_boot
 
 /* SHA256 algorithm */
 #define SHA256_BYTES			32
@@ -148,3 +149,7 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 	return 0;
 }
 
+int plat_is_trusted_boot(void)
+{
+	return TRUSTED_BOARD_BOOT;
+}
