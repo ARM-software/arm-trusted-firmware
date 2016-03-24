@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,9 +28,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert.h>
-#include <cpu_data.h>
-#include <platform_def.h>
+#ifndef __STD_SVC_H__
+#define __STD_SVC_H__
 
-/* The per_cpu_ptr_cache_t space allocation */
-cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
+/* SMC function IDs for Standard Service queries */
+
+#define ARM_STD_SVC_CALL_COUNT		0x8400ff00
+#define ARM_STD_SVC_UID			0x8400ff01
+/*					0x8400ff02 is reserved */
+#define ARM_STD_SVC_VERSION		0x8400ff03
+
+/* ARM Standard Service Calls version numbers */
+#define STD_SVC_VERSION_MAJOR		0x0
+#define STD_SVC_VERSION_MINOR		0x1
+
+/* The macros below are used to identify PSCI calls from the SMC function ID */
+#define PSCI_FID_MASK			0xffe0u
+#define PSCI_FID_VALUE			0u
+#define is_psci_fid(_fid) \
+	(((_fid) & PSCI_FID_MASK) == PSCI_FID_VALUE)
+
+#endif /* __STD_SVC_H__ */

@@ -28,43 +28,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+include lib/psci/psci_lib.mk
+
 BL31_SOURCES		+=	bl31/bl31_main.c				\
-				bl31/cpu_data_array.c				\
-				bl31/runtime_svc.c				\
 				bl31/interrupt_mgmt.c				\
 				bl31/aarch64/bl31_arch_setup.c			\
 				bl31/aarch64/bl31_entrypoint.S			\
-				bl31/aarch64/cpu_data.S				\
 				bl31/aarch64/runtime_exceptions.S		\
 				bl31/aarch64/crash_reporting.S			\
 				bl31/bl31_context_mgmt.c			\
-				common/aarch64/context.S			\
-				common/context_mgmt.c				\
-				lib/cpus/aarch64/cpu_helpers.S			\
-				lib/locks/exclusive/spinlock.S			\
+				common/runtime_svc.c				\
 				services/std_svc/std_svc_setup.c		\
-				services/std_svc/psci/psci_off.c		\
-				services/std_svc/psci/psci_on.c			\
-				services/std_svc/psci/psci_suspend.c		\
-				services/std_svc/psci/psci_common.c		\
-				services/std_svc/psci/psci_entry.S		\
-				services/std_svc/psci/psci_helpers.S		\
-				services/std_svc/psci/psci_main.c		\
-				services/std_svc/psci/psci_setup.c		\
-				services/std_svc/psci/psci_system_off.c
-
-ifeq (${USE_COHERENT_MEM}, 1)
-BL31_SOURCES		+=	lib/locks/bakery/bakery_lock_coherent.c
-else
-BL31_SOURCES		+=	lib/locks/bakery/bakery_lock_normal.c
-endif
+				${PSCI_LIB_SOURCES}
 
 ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c
-endif
-
-ifeq (${ENABLE_PSCI_STAT}, 1)
-BL31_SOURCES		+=	services/std_svc/psci/psci_stat.c
 endif
 
 BL31_LINKERFILE		:=	bl31/bl31.ld.S

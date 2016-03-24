@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,18 +28,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-BL1_SOURCES		+=	bl1/bl1_main.c				\
-				bl1/aarch64/bl1_arch_setup.c		\
-				bl1/aarch64/bl1_entrypoint.S		\
-				bl1/aarch64/bl1_exceptions.S		\
-				bl1/bl1_context_mgmt.c			\
-				lib/cpus/aarch64/cpu_helpers.S		\
-				lib/el3_runtime/aarch64/context.S	\
-				lib/el3_runtime/aarch64/context_mgmt.c	\
-				plat/common/plat_bl1_common.c
+PSCI_LIB_SOURCES		:=	lib/el3_runtime/cpu_data_array.c	\
+				lib/el3_runtime/aarch64/context.S		\
+				lib/el3_runtime/aarch64/cpu_data.S		\
+				lib/el3_runtime/aarch64/context_mgmt.c		\
+				lib/cpus/aarch64/cpu_helpers.S			\
+				lib/locks/exclusive/spinlock.S			\
+				lib/psci/psci_off.c				\
+				lib/psci/psci_on.c				\
+				lib/psci/psci_suspend.c				\
+				lib/psci/psci_common.c				\
+				lib/psci/psci_main.c				\
+				lib/psci/psci_setup.c				\
+				lib/psci/psci_system_off.c			\
+				lib/psci/aarch64/psci_entry.S			\
+				lib/psci/aarch64/psci_helpers.S			\
 
-ifeq (${TRUSTED_BOARD_BOOT},1)
-BL1_SOURCES		+=	bl1/bl1_fwu.c
+ifeq (${USE_COHERENT_MEM}, 1)
+PSCI_LIB_SOURCES		+=	lib/locks/bakery/bakery_lock_coherent.c
+else
+PSCI_LIB_SOURCES		+=	lib/locks/bakery/bakery_lock_normal.c
 endif
 
-BL1_LINKERFILE		:=	bl1/bl1.ld.S
+ifeq (${ENABLE_PSCI_STAT}, 1)
+PSCI_LIB_SOURCES		+=	lib/psci/psci_stat.c
+endif

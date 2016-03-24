@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,24 +28,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __STD_SVC_H__
-#define __STD_SVC_H__
+#include <stddef.h>
+#include <arch_helpers.h>
+#include <assert.h>
+#include <debug.h>
+#include <platform.h>
+#include "psci_private.h"
 
-/* SMC function IDs for Standard Service queries */
+void psci_system_off(void)
+{
+	psci_print_power_domain_map();
 
-#define ARM_STD_SVC_CALL_COUNT		0x8400ff00
-#define ARM_STD_SVC_UID			0x8400ff01
-/*					0x8400ff02 is reserved */
-#define ARM_STD_SVC_VERSION		0x8400ff03
+	assert(psci_plat_pm_ops->system_off);
 
-/* ARM Standard Service Calls version numbers */
-#define STD_SVC_VERSION_MAJOR		0x0
-#define STD_SVC_VERSION_MINOR		0x1
+	/* Notify the Secure Payload Dispatcher */
+	if (psci_spd_pm && psci_spd_pm->svc_system_off) {
+		psci_spd_pm->svc_system_off();
+	}
 
-/* The macros below are used to identify PSCI calls from the SMC function ID */
-#define PSCI_FID_MASK			0xffe0u
-#define PSCI_FID_VALUE			0u
-#define is_psci_fid(_fid) \
-	(((_fid) & PSCI_FID_MASK) == PSCI_FID_VALUE)
+	/* Call the platform specific hook */
+	psci_plat_pm_ops->system_off();
 
-#endif /* __STD_SVC_H__ */
+	/* This function does not return. We should never get here */
+}
+
+void psci_system_reset(void)
+{
+	psci_print_power_domain_map();
+
+	assert(psci_plat_pm_ops->system_reset);
+
+	/* Notify the Secure Payload Dispatcher */
+	if (psci_spd_pm && psci_spd_pm->svc_system_reset) {
+		psci_spd_pm->svc_system_reset();
+	}
+
+	/* Call the platform specific hook */
+	psci_plat_pm_ops->system_reset();
+
+	/* This function does not return. We should never get here */
+}

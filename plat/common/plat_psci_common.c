@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,43 +28,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stddef.h>
-#include <arch_helpers.h>
+#include <arch.h>
 #include <assert.h>
-#include <debug.h>
 #include <platform.h>
-#include "psci_private.h"
+#include <psci.h>
 
-void psci_system_off(void)
+/*
+ * The PSCI generic code uses this API to let the platform participate in state
+ * coordination during a power management operation. It compares the platform
+ * specific local power states requested by each cpu for a given power domain
+ * and returns the coordinated target power state that the domain should
+ * enter. A platform assigns a number to a local power state. This default
+ * implementation assumes that the platform assigns these numbers in order of
+ * increasing depth of the power state i.e. for two power states X & Y, if X < Y
+ * then X represents a shallower power state than Y. As a result, the
+ * coordinated target local power state for a power domain will be the minimum
+ * of the requested local power states.
+ */
+plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
+					     const plat_local_state_t *states,
+					     unsigned int ncpu)
 {
-	psci_print_power_domain_map();
+	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
 
-	assert(psci_plat_pm_ops->system_off);
+	assert(ncpu);
 
-	/* Notify the Secure Payload Dispatcher */
-	if (psci_spd_pm && psci_spd_pm->svc_system_off) {
-		psci_spd_pm->svc_system_off();
-	}
+	do {
+		temp = *states++;
+		if (temp < target)
+			target = temp;
+	} while (--ncpu);
 
-	/* Call the platform specific hook */
-	psci_plat_pm_ops->system_off();
-
-	/* This function does not return. We should never get here */
-}
-
-void psci_system_reset(void)
-{
-	psci_print_power_domain_map();
-
-	assert(psci_plat_pm_ops->system_reset);
-
-	/* Notify the Secure Payload Dispatcher */
-	if (psci_spd_pm && psci_spd_pm->svc_system_reset) {
-		psci_spd_pm->svc_system_reset();
-	}
-
-	/* Call the platform specific hook */
-	psci_plat_pm_ops->system_reset();
-
-	/* This function does not return. We should never get here */
+	return target;
 }

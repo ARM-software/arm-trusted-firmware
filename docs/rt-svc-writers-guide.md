@@ -95,8 +95,7 @@ handler will be responsible for all SMC Functions within a given service type.
 
 ARM Trusted Firmware has a [`services`] directory in the source tree under which
 each owning entity can place the implementation of its runtime service.  The
-[PSCI] implementation is located here in the [`services/std_svc/psci`]
-directory.
+[PSCI] implementation is located here in the [`lib/psci`] directory.
 
 Runtime service sources will need to include the [`runtime_svc.h`] header file.
 
@@ -299,12 +298,11 @@ provide this information....
 _Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved._
 
 
-[Firmware Design]:  ./firmware-design.md
-
+[Firmware Design]:          ./firmware-design.md
 [`services`]:               ../services
-[`services/std_svc/psci`]:  ../services/std_svc/psci
+[`lib/psci`]:               ../lib/psci
 [`std_svc_setup.c`]:        ../services/std_svc/std_svc_setup.c
-[`runtime_svc.h`]:          ../include/bl31/runtime_svc.h
+[`runtime_svc.h`]:          ../include/common/runtime_svc.h
 [`smcc_helpers.h`]:          ../include/common/smcc_helpers.h
 [PSCI]:                     http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [SMCCC]:                    http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"

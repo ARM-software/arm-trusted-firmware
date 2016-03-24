@@ -32,7 +32,6 @@
 #define __CM_H__
 
 #include <arch.h>
-#include <bl_common.h>
 
 /*******************************************************************************
  * Forward declarations
