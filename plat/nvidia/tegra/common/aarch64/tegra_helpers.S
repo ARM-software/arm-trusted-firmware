@@ -254,6 +254,47 @@ endfunc plat_crash_console_putc
 	 */
 func plat_reset_handler
 
+	/* ----------------------------------------------------
+	 * Verify if we are running from BL31_BASE address
+	 * ----------------------------------------------------
+	 */
+	adr	x18, bl31_entrypoint
+	mov	x17, #BL31_BASE
+	cmp	x18, x17
+	b.eq	1f
+
+	/* ----------------------------------------------------
+	 * Copy the entire BL31 code to BL31_BASE if we are not
+	 * running from it already
+	 * ----------------------------------------------------
+	 */
+	mov	x0, x17
+	mov	x1, x18
+	mov	x2, #BL31_SIZE
+_loop16:
+	cmp	x2, #16
+	b.lt	_loop1
+	ldp	x3, x4, [x1], #16
+	stp	x3, x4, [x0], #16
+	sub	x2, x2, #16
+	b	_loop16
+	/* copy byte per byte */
+_loop1:
+	cbz	x2, _end
+	ldrb	w3, [x1], #1
+	strb	w3, [x0], #1
+	subs	x2, x2, #1
+	b.ne	_loop1
+
+	/* ----------------------------------------------------
+	 * Jump to BL31_BASE and start execution again
+	 * ----------------------------------------------------
+	 */
+_end:	mov	x0, x20
+	mov	x1, x21
+	br	x17
+1:
+
 	/* -----------------------------------
 	 * derive and save the phys_base addr
 	 * -----------------------------------

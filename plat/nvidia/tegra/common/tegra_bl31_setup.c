@@ -136,6 +136,14 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	plat_bl31_params_from_bl2.uart_id = plat_params->uart_id;
 
 	/*
+	 * It is very important that we run either from TZDRAM or TZSRAM base.
+	 * Add an explicit check here.
+	 */
+	if ((plat_bl31_params_from_bl2.tzdram_base != BL31_BASE) &&
+	    (TEGRA_TZRAM_BASE != BL31_BASE))
+		panic();
+
+	/*
 	 * Get the base address of the UART controller to be used for the
 	 * console
 	 */
