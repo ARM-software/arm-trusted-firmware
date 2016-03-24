@@ -496,6 +496,14 @@ map is explained in the [Firmware Design].
      for functions that wait for an arbitrary time length (udelay and mdelay).
      The default value is 0.
 
+*    `FVP_INTERCONNECT_DRIVER`: Selects the interconnect driver to be built. The
+     default interconnect driver depends on the value of `FVP_CLUSTER_COUNT` as
+     explained in the options below:
+     -    `FVP_CCI`           : The CCI driver is selected. This is the default
+                                if 0 < `FVP_CLUSTER_COUNT` <= 2.
+     -    `FVP_CCN`           : The CCN driver is selected. This is the default
+                                if `FVP_CLUSTER_COUNT` > 2.
+
 ### Debugging options
 
 To compile a debug version and make the build more verbose use
