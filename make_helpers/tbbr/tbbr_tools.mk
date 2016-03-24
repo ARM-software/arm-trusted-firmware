@@ -41,6 +41,7 @@
 #   BL31: image filename (optional). Default is IMG_BIN(31)
 #   BL32: image filename (optional). Default is IMG_BIN(32)
 #   BL33: image filename (optional). Default is IMG_BIN(33)
+#   PLAT_TOC_FLAGS: 16-bit plat specific flags in toc (optional). Default is 0
 #
 # Build options added by this file:
 #
@@ -134,3 +135,6 @@ endif
 ifneq (${NS_BL2U},)
     $(eval $(call FWU_CERT_ADD_CMD_OPT,${NS_BL2U},--fwu,true))
 endif
+
+# Add the toc_flags to the FIP header (optional)
+$(if $(PLAT_TOC_FLAGS),$(eval $(call FIP_ADD_PAYLOAD,$(PLAT_TOC_FLAGS),--plat-toc-flags)))

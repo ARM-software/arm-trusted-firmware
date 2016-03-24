@@ -42,6 +42,7 @@
 #define OPT_TOC_ENTRY 0
 #define OPT_DUMP 1
 #define OPT_HELP 2
+#define OPT_PLAT_TOC_FLAGS 3
 
 file_info_t files[MAX_FILES];
 unsigned file_info_count = 0;
@@ -121,6 +122,7 @@ static void print_usage(void)
 	printf("Usage: fip_create [options] FIP_FILENAME\n\n");
 	printf("\tThis tool is used to create a Firmware Image Package.\n\n");
 	printf("Options:\n");
+	printf("\t--plat-toc-flags <val>: 16-bit flag field in toc header\n");
 	printf("\t--help: Print this help message and exit\n");
 	printf("\t--dump: Print contents of FIP\n\n");
 	printf("\tComponents that can be added/updated:\n");
@@ -285,7 +287,7 @@ static int read_file_to_memory(void *memory, const file_info_t *info)
 
 
 /* Create the image package file */
-static int pack_images(const char *fip_filename)
+static int pack_images(const char *fip_filename, uint64_t toc_flags)
 {
 	int status;
 	uint8_t *fip_base_address;
@@ -324,7 +326,7 @@ static int pack_images(const char *fip_filename)
 	toc_header = (fip_toc_header_t *)fip_base_address;
 	toc_header->name = TOC_HEADER_NAME;
 	toc_header->serial_number = TOC_HEADER_SERIAL_NUMBER;
-	toc_header->flags = 0;
+	toc_header->flags = toc_flags;
 
 	toc_entry = (fip_toc_entry_t *)(fip_base_address +
 				      sizeof(fip_toc_header_t));
@@ -550,7 +552,7 @@ static char *get_filename(int argc, char **argv, struct option *options)
 
 /* Work through command-line options */
 static int parse_cmdline(int argc, char **argv, struct option *options,
-			 int *do_pack)
+			 int *do_pack, uint64_t *toc_flags)
 {
 	int c;
 	int status = 0;
@@ -584,6 +586,24 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 			}
 			break;
 
+		case OPT_PLAT_TOC_FLAGS:
+		{
+			long plat_toc_flags;
+
+			errno = 0;
+			plat_toc_flags = strtol(optarg, NULL, 0);
+			if ((plat_toc_flags > UINT16_MAX) || (plat_toc_flags < 0)) {
+				printf("plat_toc_flags max is 16 bits: %s\n", optarg);
+				return -1;
+			}
+			if (errno) {
+				printf("plat_toc_flags parsing error: %s\n", optarg);
+				return -1;
+			}
+			*toc_flags |= plat_toc_flags << 32;
+			break;
+		}
+
 		case OPT_DUMP:
 			do_dump = 1;
 			continue;
@@ -614,6 +634,7 @@ int main(int argc, char **argv)
 	int status;
 	char *fip_filename;
 	int do_pack = 0;
+	uint64_t toc_flags = 0;
 
 	/* Clear file list table. */
 	memset(files, 0, sizeof(files));
@@ -636,8 +657,14 @@ int main(int argc, char **argv)
 		long_options[i].val = OPT_TOC_ENTRY;
 	}
 
+	/* Add '--speed' option */
+	long_options[i].name = "plat-toc-flags";
+	long_options[i].has_arg = 1;
+	long_options[i].flag = 0;
+	long_options[i].val = OPT_PLAT_TOC_FLAGS;
+
 	/* Add '--dump' option */
-	long_options[i].name = "dump";
+	long_options[++i].name = "dump";
 	long_options[i].has_arg = 0;
 	long_options[i].flag = 0;
 	long_options[i].val = OPT_DUMP;
@@ -677,7 +704,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Work through provided program arguments and perform actions */
-	status = parse_cmdline(argc, argv, long_options, &do_pack);
+	status = parse_cmdline(argc, argv, long_options, &do_pack, &toc_flags);
 	if (status != 0) {
 		return status;
 	};
@@ -692,7 +719,7 @@ int main(int argc, char **argv)
 	 * required.
 	 */
 	if (do_pack) {
-		status = pack_images(fip_filename);
+		status = pack_images(fip_filename, toc_flags);
 		if (status != 0) {
 			printf("Failed to create package (status = %d).\n",
 			       status);
