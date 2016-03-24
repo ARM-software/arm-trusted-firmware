@@ -43,6 +43,9 @@ static const ccn_desc_t arm_ccn_desc = {
 	.master_to_rn_id_map = master_to_rn_id_map
 };
 
+CASSERT(PLAT_ARM_CLUSTER_COUNT == ARRAY_SIZE(master_to_rn_id_map),
+		assert_invalid_cluster_count_for_ccn_variant);
+
 /******************************************************************************
  * The following functions are defined as weak to allow a platform to override
  * the way ARM CCN driver is initialised and used.
