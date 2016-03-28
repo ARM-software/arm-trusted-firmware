@@ -144,7 +144,6 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(SCEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(UFSHCR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCWAA, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SESWR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(MPCORER, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(PTCR, NON_SECURE, OVERRIDE, ENABLE),
@@ -159,9 +158,7 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(XUSB_HOSTW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(TSECSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCRAA, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(VIW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AXISR, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SDMMCW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(BPMPDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
@@ -191,13 +188,23 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(SDMMCRAB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ETRR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AONR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SESRD, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVENCSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSWR, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(TSECSWRB, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPWB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSRD2, SECURE, NO_OVERRIDE, DISABLE),
+#if ENABLE_CHIP_VERIFICATION_HARNESS
+	mc_make_sec_cfg(APEDMAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APER, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEDMAR, NON_SECURE, OVERRIDE, ENABLE),
+#else
+	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+#endif
 };
 
 const static mc_txn_override_cfg_t mc_override_cfgs[] = {
