@@ -276,7 +276,7 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 	write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
 	write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
 	mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, TEGRA_ARI_CLUSTER_CC7,
-		0, TEGRA_ARI_SYSTEM_SC7);
+		0, 0);
 
 	/* Disable Denver's DCO operations */
 	if (impl == DENVER_IMPL)
