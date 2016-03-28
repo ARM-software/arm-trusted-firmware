@@ -80,6 +80,17 @@ static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
 extern uint64_t ns_image_entrypoint;
 
 /*******************************************************************************
+ * The following platform setup functions are weakly defined. They
+ * provide typical implementations that will be overridden by a SoC.
+ ******************************************************************************/
+#pragma weak plat_early_platform_setup
+
+void plat_early_platform_setup(void)
+{
+	; /* do nothing */
+}
+
+/*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for
  * security state specified. BL33 corresponds to the non-secure image type
  * while BL32 corresponds to the secure image type.
@@ -159,6 +170,9 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 
 	/* Initialise crash console */
 	plat_crash_console_init();
+
+	/* Early platform setup for Tegra SoCs */
+	plat_early_platform_setup();
 
 	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n", (impl == DENVER_IMPL) ?
 		"Denver" : "ARM", read_mpidr());

@@ -83,6 +83,7 @@ int tegra_prepare_cpu_on_finish(unsigned long mpidr);
 /* Declarations for tegra_bl31_setup.c */
 plat_params_from_bl2_t *bl31_get_plat_params(void);
 int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
+void plat_early_platform_setup(void);
 
 /* Declarations for tegra_delay_timer.c */
 void tegra_delay_timer_init(void);
