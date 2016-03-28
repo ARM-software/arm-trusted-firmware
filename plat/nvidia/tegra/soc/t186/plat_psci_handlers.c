@@ -56,6 +56,8 @@ extern uint32_t __tegra186_cpu_reset_handler_data,
 /* constants to get power state's wake time */
 #define TEGRA186_WAKE_TIME_MASK		0xFFFFFF
 #define TEGRA186_WAKE_TIME_SHIFT	4
+/* default core wake mask for CPU_SUSPEND */
+#define TEGRA186_CORE_WAKE_MASK		0x180c
 /* context size to save during system suspend */
 #define TEGRA186_SE_CONTEXT_SIZE	3
 
@@ -124,11 +126,23 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	if (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) {
 
+		/* Program default wake mask */
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, TEGRA186_CORE_WAKE_MASK);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, 0, 0, 0);
+
 		/* Prepare for cpu idle */
 		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
 			TEGRA_ARI_CORE_C6, wake_time[cpu], 0);
 
 	} else if (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN) {
+
+		/* Program default wake mask */
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, TEGRA186_CORE_WAKE_MASK);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, 0, 0, 0);
 
 		/* Prepare for cpu powerdn */
 		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
