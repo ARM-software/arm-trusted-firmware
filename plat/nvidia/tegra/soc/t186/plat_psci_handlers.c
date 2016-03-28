@@ -150,14 +150,6 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
-		/* loop until SC7 is allowed */
-		do {
-			val = mce_command_handler(MCE_CMD_IS_SC7_ALLOWED,
-					TEGRA_ARI_CORE_C7,
-					MCE_CORE_SLEEP_TIME_INFINITE,
-					0);
-		} while (val == 0);
-
 		/* save SE registers */
 		se_regs[0] = mmio_read_32(TEGRA_SE0_BASE +
 				SE_MUTEX_WATCHDOG_NS_LIMIT);
@@ -183,6 +175,14 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
 		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
 			TEGRA_ARI_CLUSTER_CC7, 0, TEGRA_ARI_SYSTEM_SC7);
+
+		/* Loop until system suspend is allowed */
+		do {
+			val = mce_command_handler(MCE_CMD_IS_SC7_ALLOWED,
+					TEGRA_ARI_CORE_C7,
+					MCE_CORE_SLEEP_TIME_INFINITE,
+					0);
+		} while (val == 0);
 
 		/* Instruct the MCE to enter system suspend state */
 		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
@@ -314,6 +314,13 @@ __dead2 void tegra_soc_prepare_system_off(void)
 
 	} else if (tegra186_system_powerdn_state == TEGRA_ARI_SYSTEM_SC8) {
 
+		/* Prepare for quasi power down */
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, 1);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
+			TEGRA_ARI_CLUSTER_CC7, 0, TEGRA_ARI_SYSTEM_SC8);
+
 		/* loop until other CPUs power down */
 		do {
 			val = mce_command_handler(MCE_CMD_IS_SC7_ALLOWED,
@@ -321,13 +328,6 @@ __dead2 void tegra_soc_prepare_system_off(void)
 					MCE_CORE_SLEEP_TIME_INFINITE,
 					0);
 		} while (val == 0);
-
-		/* Prepare for quasi power down */
-		write_ctx_reg(gp_regs, CTX_GPREG_X4, 1);
-		write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
-		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
-		(void)mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
-			TEGRA_ARI_CLUSTER_CC7, 0, TEGRA_ARI_SYSTEM_SC8);
 
 		/* Enter quasi power down state */
 		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
