@@ -322,6 +322,7 @@ int mce_update_gsc_videomem(void);
 int mce_update_gsc_tzdram(void);
 int mce_update_gsc_tzram(void);
 __dead2 void mce_enter_ccplex_state(uint32_t state_idx);
+void mce_verify_firmware_version(void);
 
 /* declarations for ARI/NVG handler functions */
 int ari_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time);

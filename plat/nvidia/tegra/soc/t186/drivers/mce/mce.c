@@ -447,3 +447,46 @@ __dead2 void mce_enter_ccplex_state(uint32_t state_idx)
 
 	panic();
 }
+
+/*******************************************************************************
+ * Handler to read the MCE firmware version and check if it is compatible
+ * with interface header the BL3-1 was compiled against
+ ******************************************************************************/
+void mce_verify_firmware_version(void)
+{
+	arch_mce_ops_t *ops;
+	uint32_t cpu_ari_base;
+	uint64_t version;
+	uint32_t major, minor;
+
+	/* get a pointer to the CPU's arch_mce_ops_t struct */
+	ops = mce_get_curr_cpu_ops();
+
+	/* get the CPU's ARI base address */
+	cpu_ari_base = mce_get_curr_cpu_ari_base();
+
+	/*
+	 * Read the MCE firmware version and extract the major and minor
+	 * version fields
+	 */
+	version = ops->call_enum_misc(cpu_ari_base, TEGRA_ARI_MISC_VERSION, 0);
+	major = (uint32_t)version;
+	minor = (uint32_t)(version >> 32);
+
+	INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
+		TEGRA_ARI_VERSION_MAJOR, TEGRA_ARI_VERSION_MINOR);
+
+	/*
+	 * Verify that the MCE firmware version and the interface header
+	 * match
+	 */
+	if (major != TEGRA_ARI_VERSION_MAJOR) {
+		ERROR("ARI major version mismatch\n");
+		panic();
+	}
+
+	if (minor < TEGRA_ARI_VERSION_MINOR) {
+		ERROR("ARI minor version mismatch\n");
+		panic();
+	}
+}

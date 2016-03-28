@@ -37,6 +37,7 @@
 #include <debug.h>
 #include <denver.h>
 #include <interrupt_mgmt.h>
+#include <mce.h>
 #include <platform.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
@@ -169,4 +170,12 @@ void plat_gic_setup(void)
 	 */
 	if (sizeof(tegra186_sec_irqs) > 0)
 		tegra_fiq_handler_setup();
+}
+
+/*******************************************************************************
+ * Handler for early platform setup
+ ******************************************************************************/
+void plat_early_platform_setup(void)
+{
+	mce_verify_firmware_version();
 }
