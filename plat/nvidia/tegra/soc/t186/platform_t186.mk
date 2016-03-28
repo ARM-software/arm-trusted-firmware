@@ -32,6 +32,9 @@
 ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 1
 $(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
 
+ENABLE_CHIP_VERIFICATION_HARNESS	:= 0
+$(eval $(call add_define,ENABLE_CHIP_VERIFICATION_HARNESS))
+
 # platform settings
 TZDRAM_BASE				:= 0x30000000
 $(eval $(call add_define,TZDRAM_BASE))

@@ -356,6 +356,24 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
+#if ENABLE_CHIP_VERIFICATION_HARNESS
+	case MCE_CMD_ENABLE_LATIC:
+		/*
+		 * This call is not for production use. The constant value,
+		 * 0xFFFF0000, is specific to allowing for enabling LATIC on
+		 * pre-production parts for the chip verification harness.
+		 *
+		 * Enabling LATIC allows S/W to read the MINI ISPs in the
+		 * CCPLEX. The ISMs are used for various measurements relevant
+		 * to particular locations in the Silicon. They are small
+		 * counters which can be polled to determine how fast a
+		 * particular location in the Silicon is.
+		 */
+		ops->enter_ccplex_state(mce_get_curr_cpu_ari_base(),
+			0xFFFF0000);
+
+		break;
+#endif
 	default:
 		ERROR("unknown MCE command (%d)\n", cmd);
 		return EINVAL;
