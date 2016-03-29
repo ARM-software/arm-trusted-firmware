@@ -313,6 +313,29 @@ include lib/cpus/cpu-ops.mk
 
 
 ################################################################################
+# Check incompatible options
+################################################################################
+
+ifdef EL3_PAYLOAD_BASE
+        ifdef BL33_BASE
+                $(warning "BL33_BASE and EL3_PAYLOAD_BASE are incompatible \
+                build options. EL3_PAYLOAD_BASE has priority.")
+        endif
+endif
+
+ifeq (${NEED_BL33},yes)
+        ifdef EL3_PAYLOAD_BASE
+                $(warning "BL33 image is not needed when option \
+                BL33_PAYLOAD_BASE is used and won't be added to the FIP file.")
+        endif
+        ifdef BL33_BASE
+                $(warning "BL33 image is not needed when option BL33_BASE is \
+                used and won't be added to the FIP file.")
+        endif
+endif
+
+
+################################################################################
 # Process platform overrideable behaviour
 ################################################################################
 
@@ -325,12 +348,19 @@ endif
 # supplied for the FIP and Certificate generation tools. This flag can be
 # overridden by the platform.
 ifdef BL2_SOURCES
-ifndef EL3_PAYLOAD_BASE
-NEED_BL33		?=	yes
-else
-# The BL33 image is not needed when booting an EL3 payload.
-NEED_BL33		:=	no
-endif
+        ifdef EL3_PAYLOAD_BASE
+                # If booting an EL3 payload there is no need for a BL33 image
+                # in the FIP file.
+                NEED_BL33		:=	no
+        else
+                ifdef BL33_BASE
+                        # If booting a BL33 preloaded image there is no need of
+                        # another one in the FIP file.
+                        NEED_BL33		:=	no
+                else
+                        NEED_BL33		?=	yes
+                endif
+        endif
 endif
 
 # Process TBB related flags
@@ -410,11 +440,17 @@ $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 $(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
+$(eval $(call add_define,PL011_GENERIC_UART))
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
-$(eval $(call add_define,EL3_PAYLOAD_BASE))
+        $(eval $(call add_define,EL3_PAYLOAD_BASE))
+else
+        # Define the BL33_BASE flag only if it is provided and EL3_PAYLOAD_BASE
+        # is not defined, as it has priority.
+        ifdef BL33_BASE
+                $(eval $(call add_define,BL33_BASE))
+        endif
 endif
-$(eval $(call add_define,PL011_GENERIC_UART))
 
 
 ################################################################################
