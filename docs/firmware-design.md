@@ -152,23 +152,21 @@ BL1 performs minimal architectural initialization as follows.
     CLCD window of the FVP.
 
     BL1 does not expect to receive any exceptions other than the SMC exception.
-    For the latter, BL1 installs a simple stub. The stub expects to receive
-    only a single type of SMC (determined by its function ID in the general
-    purpose register `X0`). This SMC is raised by BL2 to make BL1 pass control
-    to BL31 (loaded by BL2) at EL3. Any other SMC leads to an assertion
-    failure.
+    For the latter, BL1 installs a simple stub. The stub expects to receive a
+    limited set of SMC types (determined by their function IDs in the general
+    purpose register `X0`):
+    -   `BL1_SMC_RUN_IMAGE`: This SMC is raised by BL2 to make BL1 pass control
+        to BL31 (loaded by BL2) at EL3.
+    -   All SMCs listed in section "BL1 SMC Interface" in the [Firmware Update]
+        Design Guide.
+
+    Any other SMC leads to an assertion failure.
 
 *   CPU initialization
 
     BL1 calls the `reset_handler()` function which in turn calls the CPU
     specific reset handler function (see the section: "CPU specific operations
     framework").
-
-*   MMU setup
-
-    BL1 sets up EL3 memory translation by creating page tables to cover the
-    first 4GB of physical address space. This covers all the memories and
-    peripherals needed by BL1.
 
 *   Control register setup
     -   `SCTLR_EL3`. Instruction cache is enabled by setting the `SCTLR_EL3.I`
@@ -187,12 +185,19 @@ BL1 performs minimal architectural initialization as follows.
         and Advanced SIMD execution are configured to not trap to EL3 by
         clearing the `CPTR_EL3.TFP` bit.
 
+    -   `DAIF`. The SError interrupt is enabled by clearing the SError interrupt
+        mask bit.
+
 #### Platform initialization
 
-BL1 enables issuing of snoop and DVM (Distributed Virtual Memory) requests to
-the CCI slave interface corresponding to the cluster that includes the
-primary CPU. BL1 also initializes a UART (PL011 console), which enables access
-to the `printf` family of functions in BL1.
+On ARM platforms, BL1 performs the following platform initializations:
+
+*   Enable the Trusted Watchdog.
+*   Initialize the console.
+*   Configure the Interconnect to enable hardware coherency.
+*   Enable the MMU and map the memory it needs to access.
+*   Configure any required platform storage to load the next bootloader image
+    (BL2).
 
 #### Firmware Update detection and execution
 
@@ -210,7 +215,12 @@ uses to initialize the execution state of the next image.
 
 In the normal boot flow, BL1 execution continues as follows:
 
-1.  BL1 determines the amount of free trusted SRAM memory available by
+1.  BL1 prints the following string from the primary CPU to indicate successful
+    execution of the BL1 stage:
+
+        "Booting Trusted Firmware"
+
+2.  BL1 determines the amount of free trusted SRAM memory available by
     calculating the extent of its own data section, which also resides in
     trusted SRAM. BL1 loads a BL2 raw binary image from platform storage, at a
     platform-specific base address. If the BL2 image file is not present or if
@@ -224,11 +234,6 @@ In the normal boot flow, BL1 execution continues as follows:
     SRAM used by the BL2 image. The exact load location of the image is
     provided as a base address in the platform header. Further description of
     the memory layout can be found later in this document.
-
-2.  BL1 prints the following string from the primary CPU to indicate successful
-    execution of the BL1 stage:
-
-        "Booting Trusted Firmware"
 
 3.  BL1 passes control to the BL2 image at Secure EL1, starting from its load
     address.
@@ -247,23 +252,23 @@ in this document). The functionality implemented by BL2 is as follows.
 #### Architectural initialization
 
 BL2 performs minimal architectural initialization required for subsequent
-stages of the ARM Trusted Firmware and normal world software. It sets up
-Secure EL1 memory translation by creating page tables to address the first 4GB
-of the physical address space in a similar way to BL1. EL1 and EL0 are given
-access to Floating Point & Advanced SIMD registers by clearing the `CPACR.FPEN`
-bits.
+stages of the ARM Trusted Firmware and normal world software. EL1 and EL0 are
+given access to Floating Point & Advanced SIMD registers by clearing the
+`CPACR.FPEN` bits.
 
 #### Platform initialization
 
-BL2 copies the information regarding the trusted SRAM populated by BL1 using a
-platform-specific mechanism. It calculates the limits of DRAM (main memory)
-to determine whether there is enough space to load the BL33 image. A platform
-defined base address is used to specify the load address for the BL31 image.
-It also defines the extents of memory available for use by the BL32 image.
-BL2 also initializes a UART (PL011 console), which enables  access to the
-`printf` family of functions in BL2. Platform security is initialized to allow
-access to controlled components. The storage abstraction layer is initialized
-which is used to load further bootloader images.
+On ARM platforms, BL2 performs the following platform initializations:
+
+*   Initialize the console.
+*   Configure any required platform storage to allow loading further bootloader
+    images.
+*   Enable the MMU and map the memory it needs to access.
+*   Perform platform security setup to allow access to controlled components.
+*   Reserve some memory for passing information to the next bootloader image
+    (BL31) and populate it.
+*   Define the extents of memory available for loading each subsequent
+    bootloader image.
 
 #### SCP_BL2 (System Control Processor Firmware) image load
 
@@ -334,89 +339,75 @@ in this document). The functionality implemented by BL31 is as follows.
 Currently, BL31 performs a similar architectural initialization to BL1 as
 far as system register settings are concerned. Since BL1 code resides in ROM,
 architectural initialization in BL31 allows override of any previous
-initialization done by BL1. BL31 creates page tables to address the first
-4GB of physical address space and initializes the MMU accordingly. It initializes
-a buffer of frequently used pointers, called per-CPU pointer cache, in memory for
-faster access. Currently the per-CPU pointer cache contains only the pointer
-to crash stack. It then replaces the exception vectors populated by BL1 with its
-own. BL31 exception vectors implement more elaborate support for
-handling SMCs since this is the only mechanism to access the runtime services
-implemented by BL31 (PSCI for example). BL31 checks each SMC for validity as
-specified by the [SMC calling convention PDD][SMCCC] before passing control to
-the required SMC handler routine. BL31 programs the `CNTFRQ_EL0` register with
-the clock frequency of the system counter, which is provided by the platform.
+initialization done by BL1.
+
+BL31 initializes the per-CPU data framework, which provides a cache of
+frequently accessed per-CPU data optimised for fast, concurrent manipulation
+on different CPUs. This buffer includes pointers to per-CPU contexts, crash
+buffer, CPU reset and power down operations, PSCI data, platform data and so on.
+
+It then replaces the exception vectors populated by BL1 with its own. BL31
+exception vectors implement more elaborate support for handling SMCs since this
+is the only mechanism to access the runtime services implemented by BL31 (PSCI
+for example). BL31 checks each SMC for validity as specified by the
+[SMC calling convention PDD][SMCCC] before passing control to the required SMC
+handler routine.
+
+BL31 programs the `CNTFRQ_EL0` register with the clock frequency of the system
+counter, which is provided by the platform.
 
 #### Platform initialization
 
 BL31 performs detailed platform initialization, which enables normal world
-software to function correctly. It also retrieves entrypoint information for
-the BL33 image loaded by BL2 from the platform defined memory address populated
-by BL2. It enables issuing of snoop and DVM (Distributed Virtual Memory)
-requests to the CCI slave interface corresponding to the cluster that includes
-the primary CPU. BL31 also initializes a UART (PL011 console), which enables
-access to the `printf` family of functions in BL31.  It enables the system
-level implementation of the generic timer through the memory mapped interface.
+software to function correctly.
 
-* GICv2 initialization:
+On ARM platforms, this consists of the following:
 
-    -   Enable group0 interrupts in the GIC CPU interface.
-    -   Configure group0 interrupts to be asserted as FIQs.
-    -   Disable the legacy interrupt bypass mechanism.
-    -   Configure the priority mask register to allow interrupts of all
-        priorities to be signaled to the CPU interface.
-    -   Mark SGIs 8-15 and the other secure interrupts on the platform
-        as group0 (secure).
-    -   Target all secure SPIs to CPU0.
-    -   Enable these group0 interrupts in the GIC distributor.
-    -   Configure all other interrupts as group1 (non-secure).
-    -   Enable signaling of group0 interrupts in the GIC distributor.
+*   Initialize the console.
+*   Configure the Interconnect to enable hardware coherency.
+*   Enable the MMU and map the memory it needs to access.
+*   Initialize the generic interrupt controller.
+*   Initialize the power controller device.
+*   Detect the system topology.
 
-*   GICv3 initialization:
+#### Runtime services initialization
 
-    If a GICv3 implementation is available in the platform, BL31 initializes
-    the GICv3 in GICv2 emulation mode with settings as described for GICv2
-    above.
+BL31 is responsible for initializing the runtime services. One of them is PSCI.
 
-*   Power management initialization:
+As part of the PSCI initializations, BL31 detects the system topology. It also
+initializes the data structures that implement the state machine used to track
+the state of power domain nodes. The state can be one of `OFF`, `RUN` or
+`RETENTION`. All secondary CPUs are initially in the `OFF` state. The cluster
+that the primary CPU belongs to is `ON`; any other cluster is `OFF`. It also
+initializes the locks that protect them. BL31 accesses the state of a CPU or
+cluster immediately after reset and before the data cache is enabled in the
+warm boot path. It is not currently possible to use 'exclusive' based spinlocks,
+therefore BL31 uses locks based on Lamport's Bakery algorithm instead.
 
-    BL31 implements a state machine to track CPU and cluster state. The state
-    can be one of `OFF`, `ON_PENDING`, `SUSPEND` or `ON`. All secondary CPUs are
-    initially in the `OFF` state. The cluster that the primary CPU belongs to is
-    `ON`; any other cluster is `OFF`. BL31 initializes the data structures that
-    implement the state machine, including the locks that protect them. BL31
-    accesses the state of a CPU or cluster immediately after reset and before
-    the data cache is enabled in the warm boot path. It is not currently
-    possible to use 'exclusive' based spinlocks, therefore BL31 uses locks
-    based on Lamport's Bakery algorithm instead. BL31 allocates these locks in
-    device memory by default.
+The runtime service framework and its initialization is described in more
+detail in the "EL3 runtime services framework" section below.
 
-*   Runtime services initialization:
+Details about the status of the PSCI implementation are provided in the
+"Power State Coordination Interface" section below.
 
-    The runtime service framework and its initialization is described in the
-    "EL3 runtime services framework" section below.
+#### BL32 (Secure-EL1 Payload) image initialization
 
-    Details about the PSCI service are provided in the "Power State Coordination
-    Interface" section below.
+If a BL32 image is present then there must be a matching Secure-EL1 Payload
+Dispatcher (SPD) service (see later for details). During initialization
+that service must register a function to carry out initialization of BL32
+once the runtime services are fully initialized. BL31 invokes such a
+registered function to initialize BL32 before running BL33.
 
-*   BL32 (Secure-EL1 Payload) image initialization
+Details on BL32 initialization and the SPD's role are described in the
+"Secure-EL1 Payloads and Dispatchers" section below.
 
-    If a BL32 image is present then there must be a matching Secure-EL1 Payload
-    Dispatcher (SPD) service (see later for details). During initialization
-    that service  must register a function to carry out initialization of BL32
-    once the runtime services are fully initialized. BL31 invokes such a
-    registered function to initialize BL32 before running BL33.
+#### BL33 (Non-trusted Firmware) execution
 
-    Details on BL32 initialization and the SPD's role are described in the
-    "Secure-EL1 Payloads and Dispatchers" section below.
-
-*   BL33 (Non-trusted Firmware) execution
-
-    BL31 initializes the EL2 or EL1 processor context for normal-world cold
-    boot, ensuring that no secure state information finds its way into the
-    non-secure execution state. BL31 uses the entrypoint information provided
-    by BL2 to jump to the Non-trusted firmware image (BL33) at the highest
-    available Exception Level (EL2 if available, otherwise EL1).
-
+BL31 initializes the EL2 or EL1 processor context for normal-world cold
+boot, ensuring that no secure state information finds its way into the
+non-secure execution state. BL31 uses the entrypoint information provided
+by BL2 to jump to the Non-trusted firmware image (BL33) at the highest
+available Exception Level (EL2 if available, otherwise EL1).
 
 ### Using alternative Trusted Boot Firmware in place of BL1 and BL2
 
@@ -557,9 +548,6 @@ not all been instantiated in the current implementation.
     This service is for management of the entire system. The Power State
     Coordination Interface ([PSCI]) is the first set of standard service calls
     defined by ARM (see PSCI section later).
-
-    NOTE: Currently this service is called PSCI since there are no other
-    defined standard service calls.
 
 2.  Secure-EL1 Payload Dispatcher service
 
@@ -1833,7 +1821,7 @@ kernel at boot time. These can be found in the `fdts` directory.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 [ARM ARM]:          http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html "ARMv8-A Reference Manual (ARM DDI0487A.E)"
 [PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"

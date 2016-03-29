@@ -854,8 +854,16 @@ BL1 to perform the above tasks.
 This function executes with the MMU and data caches disabled. It is only called
 by the primary CPU.
 
-In ARM standard platforms, this function initializes the console and enables
-snoop requests into the primary CPU's cluster.
+On ARM standard platforms, this function:
+
+*   Enables a secure instance of SP805 to act as the Trusted Watchdog.
+
+*   Initializes a UART (PL011 console), which enables access to the `printf`
+    family of functions in BL1.
+
+*   Enables issuing of snoop and DVM (Distributed Virtual Memory) requests to
+    the CCI slave interface corresponding to the cluster that includes the
+    primary CPU.
 
 ### Function : bl1_plat_arch_setup() [mandatory]
 
@@ -1061,15 +1069,19 @@ This function executes with the MMU and data caches disabled. It is only called
 by the primary CPU. The arguments to this function is the address of the
 `meminfo` structure populated by BL1.
 
-The platform must copy the contents of the `meminfo` structure into a private
+The platform may copy the contents of the `meminfo` structure into a private
 variable as the original memory may be subsequently overwritten by BL2. The
 copied structure is made available to all BL2 code through the
 `bl2_plat_sec_mem_layout()` function.
 
-In ARM standard platforms, this function also initializes the storage
-abstraction layer used to load further bootloader images. It is necessary to do
-this early on platforms with a SCP_BL2 image, since the later
-`bl2_platform_setup` must be done after SCP_BL2 is loaded.
+On ARM standard platforms, this function also:
+
+*   Initializes a UART (PL011 console), which enables access to the `printf`
+    family of functions in BL2.
+
+*   Initializes the storage abstraction layer used to load further bootloader
+    images. It is necessary to do this early on platforms with a SCP_BL2 image,
+    since the later `bl2_platform_setup` must be done after SCP_BL2 is loaded.
 
 
 ### Function : bl2_plat_arch_setup() [mandatory]
@@ -1081,9 +1093,9 @@ This function executes with the MMU and data caches disabled. It is only called
 by the primary CPU.
 
 The purpose of this function is to perform any architectural initialization
-that varies across platforms, for example enabling the MMU (since the memory
-map differs across platforms).
+that varies across platforms.
 
+On ARM standard platforms, this function enables the MMU.
 
 ### Function : bl2_platform_setup() [mandatory]
 
@@ -1284,7 +1296,7 @@ This function executes with the MMU and data caches disabled. It is only
 called by the primary CPU. The arguments to this function is the address
 of the `meminfo` structure and platform specific info provided by BL1.
 
-The platform must copy the contents of the `mem_info` and `plat_info` into
+The platform may copy the contents of the `mem_info` and `plat_info` into
 private storage as the original memory may be subsequently overwritten by BL2U.
 
 On ARM CSS platforms `plat_info` is interpreted as an `image_info_t` structure,
@@ -1386,7 +1398,14 @@ to the platform data also needs to be saved.
 
 In ARM standard platforms, BL2 passes a pointer to a `bl31_params` structure
 in BL2 memory. BL31 copies the information in this pointer to internal data
-structures.
+structures. It also performs the following:
+
+*   Initialize a UART (PL011 console), which enables access to the `printf`
+    family of functions in BL31.
+
+*   Enable issuing of snoop and DVM (Distributed Virtual Memory) requests to the
+    CCI slave interface corresponding to the cluster that includes the primary
+    CPU.
 
 
 ### Function : bl31_plat_arch_setup() [mandatory]
@@ -1398,8 +1417,9 @@ This function executes with the MMU and data caches disabled. It is only called
 by the primary CPU.
 
 The purpose of this function is to perform any architectural initialization
-that varies across platforms, for example enabling the MMU (since the memory
-map differs across platforms).
+that varies across platforms.
+
+On ARM standard platforms, this function enables the MMU.
 
 
 ### Function : bl31_platform_setup() [mandatory]
@@ -1414,12 +1434,32 @@ called by the primary CPU.
 The purpose of this function is to complete platform initialization so that both
 BL31 runtime services and normal world software can function correctly.
 
-In ARM standard platforms, this function does the following:
-*   Initializes the generic interrupt controller.
-*   Enables system-level implementation of the generic timer counter.
-*   Grants access to the system counter timer module
-*   Initializes the power controller device
-*   Detects the system topology.
+On ARM standard platforms, this function does the following:
+
+*   Initialize the generic interrupt controller.
+
+    Depending on the GIC driver selected by the platform, the appropriate GICv2
+    or GICv3 initialization will be done, which mainly consists of:
+
+    - Enable secure interrupts in the GIC CPU interface.
+    - Disable the legacy interrupt bypass mechanism.
+    - Configure the priority mask register to allow interrupts of all priorities
+      to be signaled to the CPU interface.
+    - Mark SGIs 8-15 and the other secure interrupts on the platform as secure.
+    - Target all secure SPIs to CPU0.
+    - Enable these secure interrupts in the GIC distributor.
+    - Configure all other interrupts as non-secure.
+    - Enable signaling of secure interrupts in the GIC distributor.
+
+*   Enable system-level implementation of the generic timer counter through the
+    memory mapped interface.
+
+*   Grant access to the system counter timer module
+
+*   Initialize the power controller device.
+
+    In particular, initialise the locks that prevent concurrent accesses to the
+    power controller device.
 
 
 ### Function : bl31_plat_runtime_setup() [optional]
@@ -2020,7 +2060,7 @@ amount of open resources per driver.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 
 [ARM GIC Architecture Specification 2.0]: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
