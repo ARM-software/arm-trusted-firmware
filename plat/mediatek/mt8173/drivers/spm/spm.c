@@ -384,6 +384,10 @@ enum wake_reason_t spm_output_wake_reason(struct wake_status *wakesta)
 
 void spm_boot_init(void)
 {
+	/* set spm transaction to secure mode */
+	mmio_write_32(DEVAPC0_APC_CON, 0x0);
+	mmio_write_32(DEVAPC0_MAS_SEC_0, 0x200);
+
 	/* Only CPU0 is online during boot, initialize cpu online reserve bit */
 	mmio_write_32(SPM_PCM_RESERVE, 0xFE);
 	mmio_clrbits_32(AP_PLL_CON3, 0xFFFFF);
