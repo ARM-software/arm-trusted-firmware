@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,8 +31,6 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#include <stdio.h>
-
 /* The log output macros print output to the console. These macros produce
  * compiled log output only if the LOG_LEVEL defined in the makefile (or the
  * make command line) is greater or equal than the level required for that
@@ -49,6 +47,8 @@
 #define LOG_LEVEL_INFO			40
 #define LOG_LEVEL_VERBOSE		50
 
+#ifndef __ASSEMBLY__
+#include <stdio.h>
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
 # define NOTICE(...)	tf_printf("NOTICE:  " __VA_ARGS__)
@@ -86,4 +86,5 @@ void __dead2 do_panic(void);
 
 void tf_printf(const char *fmt, ...) __printflike(1, 2);
 
+#endif /* __ASSEMBLY__ */
 #endif /* __DEBUG_H__ */

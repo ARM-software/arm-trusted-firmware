@@ -32,6 +32,7 @@
 #include <bl_common.h>
 #include <cortex_a53.h>
 #include <cpu_macros.S>
+#include <debug.h>
 #include <plat_macros.S>
 
 	/* ---------------------------------------------
@@ -73,7 +74,7 @@ func errata_a53_826319_wa
 	 */
 	cmp	x0, #2
 	b.ls	apply_826319
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	b	print_revision_warning
 #else
 	ret
@@ -109,7 +110,7 @@ func a53_disable_non_temporal_hint
 	 */
 	cmp	x0, #3
 	b.ls	disable_hint
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	b	print_revision_warning
 #else
 	ret

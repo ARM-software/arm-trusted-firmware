@@ -33,6 +33,7 @@
 #include <bl_common.h>
 #include <cortex_a57.h>
 #include <cpu_macros.S>
+#include <debug.h>
 #include <plat_macros.S>
 
 	/* ---------------------------------------------
@@ -99,7 +100,7 @@ func errata_a57_806969_wa
 	 * Compare x0 against revision r0p0
 	 */
 	cbz	x0, apply_806969
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	b	print_revision_warning
 #else
 	ret
@@ -125,7 +126,7 @@ func errata_a57_813420_wa
 	 * Compare x0 against revision r0p0
 	 */
 	cbz	x0, apply_813420
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	b	print_revision_warning
 #else
 	ret
@@ -154,7 +155,7 @@ func a57_disable_ldnp_overread
 	 */
 	cmp	x0, #0x12
 	b.ls	disable_hint
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	b	print_revision_warning
 #else
 	ret
