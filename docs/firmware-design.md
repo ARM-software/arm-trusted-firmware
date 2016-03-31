@@ -174,8 +174,9 @@ BL1 performs minimal architectural initialization as follows.
         `SCTLR_EL3.A` and `SCTLR_EL3.SA` bits. Exception endianness is set to
         little-endian by clearing the `SCTLR_EL3.EE` bit.
 
-    -  `SCR_EL3`. The register width of the next lower exception level is set to
-        AArch64 by setting the `SCR.RW` bit.
+    -  `SCR_EL3`. The register width of the next lower exception level is set
+        to AArch64 by setting the `SCR.RW` bit. The `SCR.EA` bit is set to trap
+        both External Aborts and SError Interrupts in EL3.
 
     -   `CPTR_EL3`. Accesses to the `CPACR_EL1` register from EL1 or EL2, or the
         `CPTR_EL2` register from EL2 are configured to not trap to EL3 by

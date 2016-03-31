@@ -111,6 +111,11 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	if (EP_GET_ST(ep->h.attr))
 		scr_el3 |= SCR_ST_BIT;
 
+#ifndef HANDLE_EA_EL3_FIRST
+	/* Explicitly stop to trap aborts from lower exception levels. */
+	scr_el3 &= ~SCR_EA_BIT;
+#endif
+
 #if IMAGE_BL31
 	/*
 	 * IRQ/FIQ bits only need setting if interrupt routing
