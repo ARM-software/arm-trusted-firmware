@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -96,11 +96,27 @@ static bl2_to_bl31_params_mem_t bl31_params_mem;
 #pragma weak bl2_plat_get_bl33_meminfo
 #pragma weak bl2_plat_set_bl33_ep_info
 
+#if ARM_BL31_IN_DRAM
+meminfo_t *bl2_plat_sec_mem_layout(void)
+{
+	static meminfo_t bl2_dram_layout
+		__aligned(CACHE_WRITEBACK_GRANULE) = {
+		.total_base = BL31_BASE,
+		.total_size = (ARM_AP_TZC_DRAM1_BASE +
+				ARM_AP_TZC_DRAM1_SIZE) - BL31_BASE,
+		.free_base = BL31_BASE,
+		.free_size = (ARM_AP_TZC_DRAM1_BASE +
+				ARM_AP_TZC_DRAM1_SIZE) - BL31_BASE
+	};
 
+	return &bl2_dram_layout;
+}
+#else
 meminfo_t *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
 }
+#endif
 
 /*******************************************************************************
  * This function assigns a pointer to the memory that the platform has kept
