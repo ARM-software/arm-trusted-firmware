@@ -60,7 +60,7 @@ int plat_sip_handler(uint32_t smc_fid,
 }
 
 /*******************************************************************************
- * This function is responsible for handling all SiP calls from the NS world
+ * This function is responsible for handling all SiP calls
  ******************************************************************************/
 uint64_t tegra_sip_handler(uint32_t smc_fid,
 			   uint64_t x1,
@@ -71,13 +71,7 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 			   void *handle,
 			   uint64_t flags)
 {
-	uint32_t ns;
 	int err;
-
-	/* Determine which security state this SMC originated from */
-	ns = is_caller_non_secure(flags);
-	if (!ns)
-		SMC_RET1(handle, SMC_UNK);
 
 	/* Check if this is a SoC specific SiP */
 	err = plat_sip_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
