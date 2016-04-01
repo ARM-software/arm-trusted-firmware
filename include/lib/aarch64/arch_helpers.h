@@ -113,15 +113,6 @@ static inline void _op ## _type(uint64_t v)		\
 }
 
 /*******************************************************************************
- * Aarch64 translation tables manipulation helper prototypes
-******************************************************************************/
-uint64_t create_table_desc(uint64_t *next_table_ptr);
-uint64_t create_block_desc(uint64_t desc, uint64_t addr, uint32_t level);
-uint64_t create_device_block(uint64_t output_addr, uint32_t level, uint32_t ns);
-uint64_t create_romem_block(uint64_t output_addr, uint32_t level, uint32_t ns);
-uint64_t create_rwmem_block(uint64_t output_addr, uint32_t level, uint32_t ns);
-
-/*******************************************************************************
  * TLB maintenance accessor prototypes
  ******************************************************************************/
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle1)
