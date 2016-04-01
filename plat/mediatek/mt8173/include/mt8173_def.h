@@ -40,11 +40,13 @@
 /* Register base address */
 #define IO_PHYS			(0x10000000)
 #define INFRACFG_AO_BASE	(IO_PHYS + 0x1000)
+#define SRAMROM_SEC_BASE	(IO_PHYS + 0x1800)
 #define PERI_CON_BASE		(IO_PHYS + 0x3000)
 #define GPIO_BASE		(IO_PHYS + 0x5000)
 #define SPM_BASE		(IO_PHYS + 0x6000)
 #define RGU_BASE		(IO_PHYS + 0x7000)
 #define PMIC_WRAP_BASE		(IO_PHYS + 0xD000)
+#define DEVAPC0_BASE		(IO_PHYS + 0xE000)
 #define MCUCFG_BASE		(IO_PHYS + 0x200000)
 #define APMIXED_BASE		(IO_PHYS + 0x209000)
 #define TRNG_BASE		(IO_PHYS + 0x20F000)
@@ -56,6 +58,14 @@
 #define MTK_DEV_RNG0_SIZE	0x400000
 #define MTK_DEV_RNG1_BASE	(IO_PHYS + 0x1000000)
 #define MTK_DEV_RNG1_SIZE	0x4000000
+
+/* SRAMROM related registers */
+#define SRAMROM_SEC_CTRL	(SRAMROM_SEC_BASE + 0x4)
+#define SRAMROM_SEC_ADDR	(SRAMROM_SEC_BASE + 0x8)
+
+/* DEVAPC0 related registers */
+#define DEVAPC0_MAS_SEC_0	(DEVAPC0_BASE + 0x500)
+#define DEVAPC0_APC_CON		(DEVAPC0_BASE + 0xF00)
 
 /*******************************************************************************
  * UART related constants
