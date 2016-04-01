@@ -181,17 +181,17 @@ void mtcmos_little_cpu_off(void)
 	mtcmos_ctrl_little_off(3);
 }
 
-uint32_t wait_mtcmos_ack(uint32_t on, uint32_t mtcmos_sta, uint32_t spm_pwr_sta)
+uint32_t wait_mtcmos_ack(uint32_t on, uint32_t pwr_ctrl, uint32_t spm_pwr_sta)
 {
 	int i = 0;
 	uint32_t cmp, pwr_sta, pwr_sta_2nd;
 
 	while (1) {
-		cmp = (mmio_read_32(SPM_PCM_PASR_DPD_3) >> mtcmos_sta) & 1;
+		cmp = mmio_read_32(SPM_PCM_PASR_DPD_3) & pwr_ctrl;
 		pwr_sta = (mmio_read_32(SPM_PWR_STATUS) >> spm_pwr_sta) & 1;
 		pwr_sta_2nd =
 			(mmio_read_32(SPM_PWR_STATUS_2ND) >> spm_pwr_sta) & 1;
-		if ((cmp == on) && (pwr_sta == on) && (pwr_sta_2nd == on)) {
+		if (cmp && (pwr_sta == on) && (pwr_sta_2nd == on)) {
 			mmio_write_32(SPM_PCM_RESERVE2, 0);
 			return MTCMOS_CTRL_SUCCESS;
 		}
@@ -218,6 +218,7 @@ uint32_t mtcmos_non_cpu_ctrl(uint32_t on, uint32_t mtcmos_num)
 	uint32_t ret = MTCMOS_CTRL_SUCCESS;
 	uint32_t power_on;
 	uint32_t power_off;
+	uint32_t power_ctrl;
 	uint32_t power_status;
 
 	spm_lock_get();
@@ -280,13 +281,12 @@ uint32_t mtcmos_non_cpu_ctrl(uint32_t on, uint32_t mtcmos_num)
 		INFO("No mapping MTCMOS(%d), ret = %d\n", mtcmos_num, ret);
 		break;
 	}
-
 	if (ret == MTCMOS_CTRL_SUCCESS) {
-		mmio_setbits_32(SPM_PCM_RESERVE2, on ?
-			(1 << power_on) : (1 << power_off));
-		ret = wait_mtcmos_ack(on, power_on, power_status);
+		power_ctrl = on ? (1 << power_on) : (1 << power_off);
+		mmio_setbits_32(SPM_PCM_RESERVE2, power_ctrl);
+		ret = wait_mtcmos_ack(on, power_ctrl, power_status);
 		VERBOSE("0x%x(%d), PWR_STATUS(0x%x), ret(%d)\n",
-			power_on, on, mmio_read_32(SPM_PWR_STATUS), ret);
+			power_ctrl, on, mmio_read_32(SPM_PWR_STATUS), ret);
 	}
 
 	mmio_clrbits_32(SPM_PCM_RESERVE, MTCMOS_CTRL_EN);
