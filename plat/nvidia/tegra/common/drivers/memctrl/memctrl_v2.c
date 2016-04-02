@@ -495,7 +495,7 @@ void tegra_memctrl_setup(void)
 	uint32_t num_overrides = sizeof(streamid_overrides) / sizeof(uint32_t);
 	uint32_t num_sec_cfgs = sizeof(sec_cfgs) / sizeof(mc_streamid_security_cfg_t);
 	uint32_t num_txn_overrides = sizeof(mc_override_cfgs) / sizeof(mc_txn_override_cfg_t);
-	uint32_t tegra_rev;
+	uint32_t chip_minor, chip_major;
 	int i;
 
 	INFO("Tegra Memory Controller (v2)\n");
@@ -543,10 +543,12 @@ void tegra_memctrl_setup(void)
 	/*
 	 * Set the MC_TXN_OVERRIDE registers for write clients.
 	 */
-	tegra_rev = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) &
-			HARDWARE_MINOR_REVISION_MASK) >> HARDWARE_MINOR_REVISION_SHIFT;
+	chip_major = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
+			MAJOR_VERSION_SHIFT) & MAJOR_VERSION_MASK;
+	chip_minor = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
+			MINOR_VERSION_SHIFT) & MINOR_VERSION_MASK;
 
-	if (tegra_rev == HARDWARE_REVISION_A01) {
+	if ((chip_major == 0) || (chip_major > 0 && chip_minor == 1)) {
 
 		/* GPU and NVENC settings for rev. A01 */
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
