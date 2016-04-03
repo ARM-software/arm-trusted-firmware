@@ -307,8 +307,12 @@ int auth_mod_verify_img(unsigned int img_id,
 					img_desc, img_ptr, img_len);
 			break;
 		case AUTH_METHOD_SIG:
-			rc = auth_signature(&auth_method->param.sig,
-					img_desc, img_ptr, img_len);
+			if (plat_is_trusted_boot()) {
+				rc = auth_signature(&auth_method->param.sig,
+						img_desc, img_ptr, img_len);
+			} else {
+				rc = 0;
+			}
 			break;
 		default:
 			/* Unknown authentication method */
