@@ -93,7 +93,7 @@ DEFINE_CONFIGURE_MMU_EL(1)
 DEFINE_CONFIGURE_MMU_EL(3)
 
 
-unsigned long plat_get_ns_image_entrypoint(void)
+uintptr_t plat_get_ns_image_entrypoint(void)
 {
 	return PLAT_ARM_NS_IMAGE_OFFSET;
 }

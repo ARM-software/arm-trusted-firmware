@@ -60,7 +60,7 @@ uint64_t plat_get_syscnt_freq(void);
 int plat_get_image_source(unsigned int image_id,
 			uintptr_t *dev_handle,
 			uintptr_t *image_spec);
-unsigned long plat_get_ns_image_entrypoint(void);
+uintptr_t plat_get_ns_image_entrypoint(void);
 unsigned int plat_my_core_pos(void);
 int plat_core_pos_by_mpidr(u_register_t mpidr);
 
