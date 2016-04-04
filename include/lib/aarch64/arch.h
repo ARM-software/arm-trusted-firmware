@@ -272,6 +272,10 @@
 #define TCR_SH_OUTER_SHAREABLE	(0x2 << 12)
 #define TCR_SH_INNER_SHAREABLE	(0x3 << 12)
 
+#define TCR_TG0_4K		(0x0 << 14)
+#define TCR_TG0_64K		(0x1 << 14)
+#define TCR_TG0_16K		(0x2 << 14)
+
 #define MODE_SP_SHIFT		0x0
 #define MODE_SP_MASK		0x1
 #define MODE_SP_EL0		0x0
@@ -360,29 +364,20 @@
 #define clr_cntp_ctl_imask(x)   (x &= ~(1 << CNTP_CTL_IMASK_SHIFT))
 
 /* Miscellaneous MMU related constants */
-#define NUM_2MB_IN_GB		(1 << 9)
-#define NUM_4K_IN_2MB		(1 << 9)
-#define NUM_GB_IN_4GB		(1 << 2)
-
-#define TWO_MB_SHIFT		21
-#define ONE_GB_SHIFT		30
-#define FOUR_KB_SHIFT		12
-
-#define ONE_GB_INDEX(x)		((x) >> ONE_GB_SHIFT)
-#define TWO_MB_INDEX(x)		((x) >> TWO_MB_SHIFT)
-#define FOUR_KB_INDEX(x)	((x) >> FOUR_KB_SHIFT)
-
 #define INVALID_DESC		0x0
 #define BLOCK_DESC		0x1
 #define TABLE_DESC		0x3
 
-#define FIRST_LEVEL_DESC_N	ONE_GB_SHIFT
-#define SECOND_LEVEL_DESC_N	TWO_MB_SHIFT
-#define THIRD_LEVEL_DESC_N	FOUR_KB_SHIFT
+#ifndef MAX_XLAT_LEVEL
+#define MAX_XLAT_LEVEL		3
+#endif
 
 #define LEVEL1			1
 #define LEVEL2			2
 #define LEVEL3			3
+#if MAX_XLAT_LEVEL == 4
+#define LEVEL4			4
+#endif
 
 #define XN			(1ull << 2)
 #define PXN			(1ull << 1)
@@ -395,7 +390,7 @@
 #define OSH			(0x2 << 6)
 #define ISH			(0x3 << 6)
 
-#define PAGE_SIZE_SHIFT		FOUR_KB_SHIFT
+#define PAGE_SIZE_SHIFT		12 /* 4K */
 #define PAGE_SIZE		(1 << PAGE_SIZE_SHIFT)
 #define PAGE_SIZE_MASK		(PAGE_SIZE - 1)
 #define IS_PAGE_ALIGNED(addr)	(((addr) & PAGE_SIZE_MASK) == 0)
@@ -408,11 +403,16 @@
 
 /* Values for number of entries in each MMU translation table */
 #define XLAT_TABLE_ENTRIES_SHIFT (XLAT_TABLE_SIZE_SHIFT - XLAT_ENTRY_SIZE_SHIFT)
-#define XLAT_TABLE_ENTRIES	(1 << XLAT_TABLE_ENTRIES_SHIFT)
+#define XLAT_TABLE_ENTRIES	(1UL << XLAT_TABLE_ENTRIES_SHIFT)
 #define XLAT_TABLE_ENTRIES_MASK	(XLAT_TABLE_ENTRIES - 1)
 
 /* Values to convert a memory address to an index into a translation table */
+#if MAX_XLAT_LEVEL == 4
+#define L4_XLAT_ADDRESS_SHIFT	PAGE_SIZE_SHIFT
+#define L3_XLAT_ADDRESS_SHIFT	(L4_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
+#else
 #define L3_XLAT_ADDRESS_SHIFT	PAGE_SIZE_SHIFT
+#endif
 #define L2_XLAT_ADDRESS_SHIFT	(L3_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
 #define L1_XLAT_ADDRESS_SHIFT	(L2_XLAT_ADDRESS_SHIFT + XLAT_TABLE_ENTRIES_SHIFT)
 

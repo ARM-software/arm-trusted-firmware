@@ -41,22 +41,14 @@
 
 unsigned long page_align(unsigned long value, unsigned dir)
 {
-	unsigned long page_size = 1 << FOUR_KB_SHIFT;
-
 	/* Round up the limit to the next page boundary */
-	if (value & (page_size - 1)) {
-		value &= ~(page_size - 1);
+	if (value & PAGE_SIZE_MASK) {
+		value &= ~PAGE_SIZE_MASK;
 		if (dir == UP)
-			value += page_size;
+			value += PAGE_SIZE;
 	}
 
 	return value;
-}
-
-static inline unsigned int is_page_aligned (unsigned long addr) {
-	const unsigned long page_size = 1 << FOUR_KB_SHIFT;
-
-	return (addr & (page_size - 1)) == 0;
 }
 
 /******************************************************************************

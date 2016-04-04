@@ -39,9 +39,8 @@ unsigned long create_table_desc(unsigned long *next_table_ptr)
 {
 	unsigned long desc = (unsigned long) next_table_ptr;
 
-	/* Clear the last 12 bits */
-	desc >>= FOUR_KB_SHIFT;
-	desc <<= FOUR_KB_SHIFT;
+	/* Clear the page mask */
+	desc &= ~PAGE_SIZE_MASK;
 
 	desc |= TABLE_DESC;
 
@@ -57,17 +56,27 @@ unsigned long create_block_desc(unsigned long desc,
 {
 	switch (level) {
 	case LEVEL1:
-		desc |= (addr << FIRST_LEVEL_DESC_N) | BLOCK_DESC;
+		desc |= (addr << L1_XLAT_ADDRESS_SHIFT);
 		break;
 	case LEVEL2:
-		desc |= (addr << SECOND_LEVEL_DESC_N) | BLOCK_DESC;
+		desc |= (addr << L2_XLAT_ADDRESS_SHIFT);
 		break;
 	case LEVEL3:
-		desc |= (addr << THIRD_LEVEL_DESC_N) | TABLE_DESC;
+		desc |= (addr << L3_XLAT_ADDRESS_SHIFT);
 		break;
+#if MAX_XLAT_LEVEL == 4
+	case LEVEL4:
+		desc |= (addr << L4_XLAT_ADDRESS_SHIFT);
+		break;
+#endif
 	default:
 		assert(0);
 	}
+
+	if (level == MAX_XLAT_LEVEL)
+		desc |= TABLE_DESC;
+	else
+		desc |= BLOCK_DESC;
 
 	return desc;
 }
