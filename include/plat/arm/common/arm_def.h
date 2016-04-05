@@ -321,6 +321,10 @@
 # error "Unsupported ARM_TSP_RAM_LOCATION_ID value"
 #endif
 
+#ifdef SPD_none
+#undef BL32_BASE
+#endif /* SPD_none */
+
 /*******************************************************************************
  * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.
  ******************************************************************************/

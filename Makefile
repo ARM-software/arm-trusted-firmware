@@ -424,6 +424,7 @@ $(eval $(call assert_boolean,PL011_GENERIC_UART))
 ################################################################################
 
 $(eval $(call add_define,PLAT_${PLAT}))
+$(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,NS_TIMER_SWITCH))
 $(eval $(call add_define,RESET_TO_BL31))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))

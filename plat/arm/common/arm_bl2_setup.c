@@ -147,14 +147,14 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 		VERSION_1, 0);
 
 	/* Fill BL32 related information if it exists */
-#if BL32_BASE
+#ifdef BL32_BASE
 	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, PARAM_EP,
 		VERSION_1, 0);
 	bl2_to_bl31_params->bl32_image_info = &bl31_params_mem.bl32_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info, PARAM_IMAGE_BINARY,
 		VERSION_1, 0);
-#endif
+#endif /* BL32_BASE */
 
 	/* Fill BL33 related information */
 	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem.bl33_ep_info;
@@ -280,25 +280,12 @@ void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
  * the entrypoint of BL32 and set SPSR and security state.
  * On ARM standard platforms we only set the security state of the entrypoint
  ******************************************************************************/
+#ifdef BL32_BASE
 void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
 					entry_point_info_t *bl32_ep_info)
 {
 	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
 	bl32_ep_info->spsr = arm_get_spsr_for_bl32_entry();
-}
-
-/*******************************************************************************
- * Before calling this function BL33 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL33 and set SPSR and security state.
- * On ARM standard platforms we only set the security state of the entrypoint
- ******************************************************************************/
-void bl2_plat_set_bl33_ep_info(image_info_t *image,
-					entry_point_info_t *bl33_ep_info)
-{
-
-	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
-	bl33_ep_info->spsr = arm_get_spsr_for_bl33_entry();
 }
 
 /*******************************************************************************
@@ -316,7 +303,20 @@ void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
 	bl32_meminfo->free_size =
 			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
 }
+#endif /* BL32_BASE */
 
+/*******************************************************************************
+ * Before calling this function BL33 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL33 and set SPSR and security state.
+ * On ARM standard platforms we only set the security state of the entrypoint
+ ******************************************************************************/
+void bl2_plat_set_bl33_ep_info(image_info_t *image,
+					entry_point_info_t *bl33_ep_info)
+{
+	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
+	bl33_ep_info->spsr = arm_get_spsr_for_bl33_entry();
+}
 
 /*******************************************************************************
  * Populate the extents of memory available for loading BL33
