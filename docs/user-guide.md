@@ -408,11 +408,11 @@ performed.
     payload. Please refer to the "Booting an EL3 payload" section for more
     details.
 
-*   `BL33_BASE`: This option enables booting a preloaded BL33 image instead of
-    the normal boot flow. When defined, it must specify the entry point address
-    for the preloaded BL33 image. This option is incompatible with
+*   `PRELOADED_BL33_BASE`: This option enables booting a preloaded BL33 image
+    instead of the normal boot flow. When defined, it must specify the entry
+    point address for the preloaded BL33 image. This option is incompatible with
     `EL3_PAYLOAD_BASE`. If both are defined, `EL3_PAYLOAD_BASE` has priority
-    over `BL33_BASE`.
+    over `PRELOADED_BL33_BASE`.
 
 *   `PL011_GENERIC_UART`: Boolean option to indicate the PL011 driver that
     the underlying hardware is not a full PL011 UART but a minimally compliant
@@ -998,13 +998,13 @@ code and improve performance in a development environment. When secure world
 cold boot is complete, Trusted Firmware simply jumps to a BL33 base address
 provided at build time.
 
-For this option to be used, the `BL33_BASE` build option has to be used when
-compiling the Trusted Firmware. For example, the following command will create
-a FIP without a BL33 and prepare to jump to a BL33 image loaded at address
-0x80000000:
+For this option to be used, the `PRELOADED_BL33_BASE` build option has to be
+used when compiling the Trusted Firmware. For example, the following command
+will create a FIP without a BL33 and prepare to jump to a BL33 image loaded at
+address 0x80000000:
 
     CROSS_COMPILE=<path-to>/bin/aarch64-linux-gnu- \
-    make BL33_BASE=0x80000000 PLAT=fvp all fip
+    make PRELOADED_BL33_BASE=0x80000000 PLAT=fvp all fip
 
 #### Boot of a preloaded bootwrapped kernel image on Base FVP
 
@@ -1026,8 +1026,8 @@ following command:
 The `-a cluster0.cpu0=<bootwrapped-kernel.elf>` option loads the ELF file. It
 also sets the PC register to the ELF entry point address, which is not the
 desired behaviour, so the `--start cluster0.cpu0=0x0` option forces the PC back
-to 0x0 (the BL1 entry point address) on CPU #0. The `BL33_BASE` define used when
-compiling the FIP must match the ELF entry point.
+to 0x0 (the BL1 entry point address) on CPU #0. The `PRELOADED_BL33_BASE` define
+used when compiling the FIP must match the ELF entry point.
 
 #### Boot of a preloaded bootwrapped kernel image on Juno
 

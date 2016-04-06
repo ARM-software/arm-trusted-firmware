@@ -316,9 +316,9 @@ include lib/cpus/cpu-ops.mk
 ################################################################################
 
 ifdef EL3_PAYLOAD_BASE
-        ifdef BL33_BASE
-                $(warning "BL33_BASE and EL3_PAYLOAD_BASE are incompatible \
-                build options. EL3_PAYLOAD_BASE has priority.")
+        ifdef PRELOADED_BL33_BASE
+                $(warning "PRELOADED_BL33_BASE and EL3_PAYLOAD_BASE are \
+                incompatible build options. EL3_PAYLOAD_BASE has priority.")
         endif
 endif
 
@@ -327,9 +327,10 @@ ifeq (${NEED_BL33},yes)
                 $(warning "BL33 image is not needed when option \
                 BL33_PAYLOAD_BASE is used and won't be added to the FIP file.")
         endif
-        ifdef BL33_BASE
-                $(warning "BL33 image is not needed when option BL33_BASE is \
-                used and won't be added to the FIP file.")
+        ifdef PRELOADED_BL33_BASE
+                $(warning "BL33 image is not needed when option \
+                PRELOADED_BL33_BASE is used and won't be added to the FIP \
+                file.")
         endif
 endif
 
@@ -352,7 +353,7 @@ ifdef BL2_SOURCES
                 # in the FIP file.
                 NEED_BL33		:=	no
         else
-                ifdef BL33_BASE
+                ifdef PRELOADED_BL33_BASE
                         # If booting a BL33 preloaded image there is no need of
                         # another one in the FIP file.
                         NEED_BL33		:=	no
@@ -444,10 +445,10 @@ $(eval $(call add_define,PL011_GENERIC_UART))
 ifdef EL3_PAYLOAD_BASE
         $(eval $(call add_define,EL3_PAYLOAD_BASE))
 else
-        # Define the BL33_BASE flag only if it is provided and EL3_PAYLOAD_BASE
-        # is not defined, as it has priority.
-        ifdef BL33_BASE
-                $(eval $(call add_define,BL33_BASE))
+        # Define the PRELOADED_BL33_BASE flag only if it is provided and
+        # EL3_PAYLOAD_BASE is not defined, as it has priority.
+        ifdef PRELOADED_BL33_BASE
+                $(eval $(call add_define,PRELOADED_BL33_BASE))
         endif
 endif
 
