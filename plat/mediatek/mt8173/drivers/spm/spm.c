@@ -49,10 +49,6 @@
 
 #define SPM_SYSCLK_SETTLE       128	/* 3.9ms */
 
-#if DEBUG
-static int spm_dormant_sta = CPU_DORMANT_RESET;
-#endif
-
 DEFINE_BAKERY_LOCK(spm_lock);
 
 static int spm_hotplug_ready __section("tzfw_coherent_mem");
@@ -378,7 +374,6 @@ enum wake_reason_t spm_output_wake_reason(struct wake_status *wakesta)
 	     wakesta->raw_sta, wakesta->idle_sta, wakesta->event_reg,
 	     wakesta->isr);
 
-	INFO("dormant state = %d\n", spm_dormant_sta);
 	return wr;
 }
 
