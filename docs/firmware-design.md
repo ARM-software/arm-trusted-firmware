@@ -176,7 +176,9 @@ BL1 performs minimal architectural initialization as follows.
 
     -  `SCR_EL3`. The register width of the next lower exception level is set
         to AArch64 by setting the `SCR.RW` bit. The `SCR.EA` bit is set to trap
-        both External Aborts and SError Interrupts in EL3.
+        both External Aborts and SError Interrupts in EL3. The `SCR.SIF` bit is
+        also set to disable instruction fetches from Non-secure memory when in
+        secure state.
 
     -   `CPTR_EL3`. Accesses to the `CPACR_EL1` register from EL1 or EL2, or the
         `CPTR_EL2` register from EL2 are configured to not trap to EL3 by
