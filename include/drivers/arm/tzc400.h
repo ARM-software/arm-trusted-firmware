@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,178 +31,179 @@
 #ifndef __TZC400_H__
 #define __TZC400_H__
 
+#include <tzc_common.h>
 
-#define BUILD_CONFIG_OFF	0x000
-#define ACTION_OFF		0x004
-#define GATE_KEEPER_OFF		0x008
-#define SPECULATION_CTRL_OFF	0x00c
-#define INT_STATUS		0x010
-#define INT_CLEAR		0x014
+#define BUILD_CONFIG_OFF			0x000
+#define GATE_KEEPER_OFF				0x008
+#define SPECULATION_CTRL_OFF			0x00c
+#define INT_STATUS				0x010
+#define INT_CLEAR				0x014
 
-#define FAIL_ADDRESS_LOW_OFF	0x020
-#define FAIL_ADDRESS_HIGH_OFF	0x024
-#define FAIL_CONTROL_OFF	0x028
-#define FAIL_ID			0x02c
+#define FAIL_ADDRESS_LOW_OFF			0x020
+#define FAIL_ADDRESS_HIGH_OFF			0x024
+#define FAIL_CONTROL_OFF			0x028
+#define FAIL_ID					0x02c
 
-#define REGION_BASE_LOW_OFF	0x100
-#define REGION_BASE_HIGH_OFF	0x104
-#define REGION_TOP_LOW_OFF	0x108
-#define REGION_TOP_HIGH_OFF	0x10c
-#define REGION_ATTRIBUTES_OFF	0x110
-#define REGION_ID_ACCESS_OFF	0x114
-#define REGION_NUM_OFF(region)  (0x20 * region)
+/* ID registers not common across different varieties of TZC */
+#define PID5					0xFD4
+#define PID6					0xFD8
+#define PID7					0xFDC
 
-/* ID Registers */
-#define PID0_OFF		0xfe0
-#define PID1_OFF		0xfe4
-#define PID2_OFF		0xfe8
-#define PID3_OFF		0xfec
-#define PID4_OFF		0xfd0
-#define PID5_OFF		0xfd4
-#define PID6_OFF		0xfd8
-#define PID7_OFF		0xfdc
-#define CID0_OFF		0xff0
-#define CID1_OFF		0xff4
-#define CID2_OFF		0xff8
-#define CID3_OFF		0xffc
-
-#define BUILD_CONFIG_NF_SHIFT	24
-#define BUILD_CONFIG_NF_MASK	0x3
-#define BUILD_CONFIG_AW_SHIFT	8
-#define BUILD_CONFIG_AW_MASK	0x3f
-#define BUILD_CONFIG_NR_SHIFT	0
-#define BUILD_CONFIG_NR_MASK	0x1f
-
-/* Not describing the case where regions 1 to 8 overlap */
-#define ACTION_RV_SHIFT		0
-#define ACTION_RV_MASK		0x3
-#define  ACTION_RV_LOWOK	0x0
-#define  ACTION_RV_LOWERR	0x1
-#define  ACTION_RV_HIGHOK	0x2
-#define  ACTION_RV_HIGHERR	0x3
+#define BUILD_CONFIG_NF_SHIFT			24
+#define BUILD_CONFIG_NF_MASK			0x3
+#define BUILD_CONFIG_AW_SHIFT			8
+#define BUILD_CONFIG_AW_MASK			0x3f
+#define BUILD_CONFIG_NR_SHIFT			0
+#define BUILD_CONFIG_NR_MASK			0x1f
 
 /*
  * Number of gate keepers is implementation defined. But we know the max for
  * this device is 4. Get implementation details from BUILD_CONFIG.
  */
-#define GATE_KEEPER_OS_SHIFT	16
-#define GATE_KEEPER_OS_MASK	0xf
-#define GATE_KEEPER_OR_SHIFT	0
-#define GATE_KEEPER_OR_MASK	0xf
-#define GATE_KEEPER_FILTER_MASK	0x1
+#define GATE_KEEPER_OS_SHIFT			16
+#define GATE_KEEPER_OS_MASK			0xf
+#define GATE_KEEPER_OR_SHIFT			0
+#define GATE_KEEPER_OR_MASK			0xf
+#define GATE_KEEPER_FILTER_MASK			0x1
 
 /* Speculation is enabled by default. */
-#define SPECULATION_CTRL_WRITE_DISABLE	(1 << 1)
-#define SPECULATION_CTRL_READ_DISABLE	(1 << 0)
+#define SPECULATION_CTRL_WRITE_DISABLE		(1 << 1)
+#define SPECULATION_CTRL_READ_DISABLE		(1 << 0)
 
 /* Max number of filters allowed is 4. */
-#define INT_STATUS_OVERLAP_SHIFT	16
-#define INT_STATUS_OVERLAP_MASK		0xf
-#define INT_STATUS_OVERRUN_SHIFT	8
-#define INT_STATUS_OVERRUN_MASK		0xf
-#define INT_STATUS_STATUS_SHIFT		0
-#define INT_STATUS_STATUS_MASK		0xf
+#define INT_STATUS_OVERLAP_SHIFT		16
+#define INT_STATUS_OVERLAP_MASK			0xf
+#define INT_STATUS_OVERRUN_SHIFT		8
+#define INT_STATUS_OVERRUN_MASK			0xf
+#define INT_STATUS_STATUS_SHIFT			0
+#define INT_STATUS_STATUS_MASK			0xf
 
-#define INT_CLEAR_CLEAR_SHIFT		0
-#define INT_CLEAR_CLEAR_MASK		0xf
+#define INT_CLEAR_CLEAR_SHIFT			0
+#define INT_CLEAR_CLEAR_MASK			0xf
 
-#define FAIL_CONTROL_DIR_SHIFT		(1 << 24)
-#define  FAIL_CONTROL_DIR_READ		0x0
-#define  FAIL_CONTROL_DIR_WRITE		0x1
-#define FAIL_CONTROL_NS_SHIFT		(1 << 21)
-#define  FAIL_CONTROL_NS_SECURE		0x0
-#define  FAIL_CONTROL_NS_NONSECURE	0x1
-#define FAIL_CONTROL_PRIV_SHIFT		(1 << 20)
-#define  FAIL_CONTROL_PRIV_PRIV		0x0
-#define  FAIL_CONTROL_PRIV_UNPRIV	0x1
+#define FAIL_CONTROL_DIR_SHIFT			(1 << 24)
+#define FAIL_CONTROL_DIR_READ			0x0
+#define FAIL_CONTROL_DIR_WRITE			0x1
+#define FAIL_CONTROL_NS_SHIFT			(1 << 21)
+#define FAIL_CONTROL_NS_SECURE			0x0
+#define FAIL_CONTROL_NS_NONSECURE		0x1
+#define FAIL_CONTROL_PRIV_SHIFT			(1 << 20)
+#define FAIL_CONTROL_PRIV_PRIV			0x0
+#define FAIL_CONTROL_PRIV_UNPRIV		0x1
 
 /*
  * FAIL_ID_ID_MASK depends on AID_WIDTH which is platform specific.
  * Platform should provide the value on initialisation.
  */
-#define FAIL_ID_VNET_SHIFT		24
-#define FAIL_ID_VNET_MASK		0xf
-#define FAIL_ID_ID_SHIFT		0
+#define FAIL_ID_VNET_SHIFT			24
+#define FAIL_ID_VNET_MASK			0xf
+#define FAIL_ID_ID_SHIFT			0
 
-/* Used along with 'tzc_region_attributes_t' below */
-#define REG_ATTR_SEC_SHIFT		30
-#define REG_ATTR_F_EN_SHIFT		0
-#define REG_ATTR_F_EN_MASK		0xf
-#define REG_ATTR_FILTER_BIT(x)		((1 << x) << REG_ATTR_F_EN_SHIFT)
-#define REG_ATTR_FILTER_BIT_ALL		(REG_ATTR_F_EN_MASK << \
-					REG_ATTR_F_EN_SHIFT)
+#define TZC_400_PERIPHERAL_ID			0x460
 
-#define REGION_ID_ACCESS_NSAID_WR_EN_SHIFT	16
-#define REGION_ID_ACCESS_NSAID_RD_EN_SHIFT	0
-#define REGION_ID_ACCESS_NSAID_ID_MASK		0xf
+/* Filter enable bits in a TZC */
+#define TZC_400_REGION_ATTR_F_EN_MASK		0xf
+#define TZC_400_REGION_ATTR_FILTER_BIT(x)	((1 << x)		\
+					<< TZC_REGION_ATTR_F_EN_SHIFT)
+#define TZC_400_REGION_ATTR_FILTER_BIT_ALL				\
+				(TZC_400_REGION_ATTR_F_EN_MASK <<	\
+				TZC_REGION_ATTR_F_EN_SHIFT)
 
+/*
+ * Define some macros for backward compatibility with existing tzc400 clients.
+ */
+#if !ERROR_DEPRECATED
+#define REG_ATTR_FILTER_BIT(x)			((1 << x)		\
+					<< TZC_REGION_ATTR_F_EN_SHIFT)
+#define REG_ATTR_FILTER_BIT_ALL	(TZC_400_REGION_ATTR_F_EN_MASK <<	\
+					TZC_REGION_ATTR_F_EN_SHIFT)
+#endif /* __ERROR_DEPRECATED__ */
 
-/* Macros for setting Region ID access permissions based on NSAID */
-#define TZC_REGION_ACCESS_RD(id)					\
-		((1 << (id & REGION_ID_ACCESS_NSAID_ID_MASK)) <<	\
-		 REGION_ID_ACCESS_NSAID_RD_EN_SHIFT)
-#define TZC_REGION_ACCESS_WR(id)					\
-		((1 << (id & REGION_ID_ACCESS_NSAID_ID_MASK)) <<	\
-		 REGION_ID_ACCESS_NSAID_WR_EN_SHIFT)
-#define TZC_REGION_ACCESS_RDWR(id)					\
-		(TZC_REGION_ACCESS_RD(id) | TZC_REGION_ACCESS_WR(id))
-
-/* Consist of part_number_1 and part_number_0 */
-#define TZC400_PERIPHERAL_ID	0x0460
-
-
+/*
+ * All TZC region configuration registers are placed one after another. It
+ * depicts size of block of registers for programming each region.
+ */
+#define TZC_400_REGION_SIZE			0x20
+#define TZC_400_ACTION_OFF			0x4
 
 #ifndef __ASSEMBLY__
 
+#include <cdefs.h>
 #include <stdint.h>
 
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
+void tzc400_init(uintptr_t base);
+void tzc400_configure_region0(tzc_region_attributes_t sec_attr,
+			   unsigned int ns_device_access);
+void tzc400_configure_region(unsigned int filters,
+			  int region,
+			  uintptr_t region_base,
+			  uintptr_t region_top,
+			  tzc_region_attributes_t sec_attr,
+			  unsigned int ns_device_access);
+void tzc400_set_action(tzc_action_t action);
+void tzc400_enable_filters(void);
+void tzc400_disable_filters(void);
 
 /*
- * What type of action is expected when an access violation occurs.
- * The memory requested is zeroed. But we can also raise and event to
- * let the system know it happened.
- * We can raise an interrupt(INT) and/or cause an exception(ERR).
- *  TZC_ACTION_NONE    - No interrupt, no Exception
- *  TZC_ACTION_ERR     - No interrupt, raise exception -> sync external
- *                       data abort
- *  TZC_ACTION_INT     - Raise interrupt, no exception
- *  TZC_ACTION_ERR_INT - Raise interrupt, raise exception -> sync
- *                       external data abort
+ * Deprecated APIs
  */
-typedef enum {
-	TZC_ACTION_NONE = 0,
-	TZC_ACTION_ERR = 1,
-	TZC_ACTION_INT = 2,
-	TZC_ACTION_ERR_INT = (TZC_ACTION_ERR | TZC_ACTION_INT)
-} tzc_action_t;
-
-/*
- * Controls secure access to a region. If not enabled secure access is not
- * allowed to region.
- */
-typedef enum {
-	TZC_REGION_S_NONE = 0,
-	TZC_REGION_S_RD = 1,
-	TZC_REGION_S_WR = 2,
-	TZC_REGION_S_RDWR = (TZC_REGION_S_RD | TZC_REGION_S_WR)
-} tzc_region_attributes_t;
-
-
-void tzc_init(uintptr_t base);
-void tzc_configure_region0(tzc_region_attributes_t sec_attr,
-			uint32_t ns_device_access);
-void tzc_configure_region(uint32_t filters,
-			uint8_t region,
-			uint64_t region_base,
-			uint64_t region_top,
+static inline void tzc_init(uintptr_t base) __deprecated;
+static inline void tzc_configure_region0(
 			tzc_region_attributes_t sec_attr,
-			uint32_t ns_device_access);
-void tzc_enable_filters(void);
-void tzc_disable_filters(void);
-void tzc_set_action(tzc_action_t action);
+			unsigned int ns_device_access) __deprecated;
+static inline void tzc_configure_region(
+			  unsigned int filters,
+			  int region,
+			  uintptr_t region_base,
+			  uintptr_t region_top,
+			  tzc_region_attributes_t sec_attr,
+			  unsigned int ns_device_access) __deprecated;
+static inline void tzc_set_action(tzc_action_t action) __deprecated;
+static inline void tzc_enable_filters(void) __deprecated;
+static inline void tzc_disable_filters(void) __deprecated;
+
+static inline void tzc_init(uintptr_t base)
+{
+	tzc400_init(base);
+}
+
+static inline void tzc_configure_region0(
+			tzc_region_attributes_t sec_attr,
+			unsigned int ns_device_access)
+{
+	tzc400_configure_region0(sec_attr, ns_device_access);
+}
+
+static inline void tzc_configure_region(
+			  unsigned int filters,
+			  int region,
+			  uintptr_t region_base,
+			  uintptr_t region_top,
+			  tzc_region_attributes_t sec_attr,
+			  unsigned int ns_device_access)
+{
+	tzc400_configure_region(filters, region, region_base,
+			region_top, sec_attr, ns_device_access);
+}
+
+static inline void tzc_set_action(tzc_action_t action)
+{
+	tzc400_set_action(action);
+}
+
+
+static inline void tzc_enable_filters(void)
+{
+	tzc400_enable_filters();
+}
+
+static inline void tzc_disable_filters(void)
+{
+	tzc400_disable_filters();
+}
 
 #endif /* __ASSEMBLY__ */
 

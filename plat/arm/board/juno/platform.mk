@@ -37,7 +37,7 @@ JUNO_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 JUNO_INTERCONNECT_SOURCES	:=	drivers/arm/cci/cci.c		\
 					plat/arm/common/arm_cci.c
 
-JUNO_SECURITY_SOURCES	:=	drivers/arm/tzc400/tzc400.c		\
+JUNO_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
 				plat/arm/board/juno/juno_security.c	\
 				plat/arm/common/arm_tzc400.c
 

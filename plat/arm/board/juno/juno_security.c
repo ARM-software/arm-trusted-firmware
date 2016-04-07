@@ -65,7 +65,7 @@ static void css_init_nic400(void)
 void plat_arm_security_setup(void)
 {
 	/* Initialize the TrustZone Controller */
-	arm_tzc_setup();
+	arm_tzc400_setup();
 	/* Do ARM CSS internal NIC setup */
 	css_init_nic400();
 	/* Do ARM CSS SoC security setup */
