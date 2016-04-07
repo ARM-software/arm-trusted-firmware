@@ -44,19 +44,23 @@
 static ext_t tbb_ext[] = {
 	[TRUSTED_FW_NVCOUNTER_EXT] = {
 		.oid = TRUSTED_FW_NVCOUNTER_OID,
+		.opt = "tfw-nvctr",
+		.help_msg = "Trusted Firmware Non-Volatile counter value",
 		.sn = "TrustedWorldNVCounter",
 		.ln = "Trusted World Non-Volatile counter",
 		.asn1_type = V_ASN1_INTEGER,
 		.type = EXT_TYPE_NVCOUNTER,
-		.data.nvcounter = TRUSTED_WORLD_NVCTR_VALUE
+		.attr.nvctr_type = NVCTR_TYPE_TFW
 	},
 	[NON_TRUSTED_FW_NVCOUNTER_EXT] = {
 		.oid = NON_TRUSTED_FW_NVCOUNTER_OID,
+		.opt = "ntfw-nvctr",
+		.help_msg = "Non-Trusted Firmware Non-Volatile counter value",
 		.sn = "NormalWorldNVCounter",
-		.ln = "Normal World Non-Volatile counter",
+		.ln = "Non-Trusted Firmware Non-Volatile counter",
 		.asn1_type = V_ASN1_INTEGER,
 		.type = EXT_TYPE_NVCOUNTER,
-		.data.nvcounter = NORMAL_WORLD_NVCTR_VALUE
+		.attr.nvctr_type = NVCTR_TYPE_NTFW
 	},
 	[TRUSTED_BOOT_FW_HASH_EXT] = {
 		.oid = TRUSTED_BOOT_FW_HASH_OID,
@@ -73,7 +77,7 @@ static ext_t tbb_ext[] = {
 		.ln = "Trusted World Public Key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = TRUSTED_WORLD_KEY
+		.attr.key = TRUSTED_WORLD_KEY
 	},
 	[NON_TRUSTED_WORLD_PK_EXT] = {
 		.oid = NON_TRUSTED_WORLD_PK_OID,
@@ -81,7 +85,7 @@ static ext_t tbb_ext[] = {
 		.ln = "Non-Trusted World Public Key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = NON_TRUSTED_WORLD_KEY
+		.attr.key = NON_TRUSTED_WORLD_KEY
 	},
 	[SCP_FW_CONTENT_CERT_PK_EXT] = {
 		.oid = SCP_FW_CONTENT_CERT_PK_OID,
@@ -89,7 +93,7 @@ static ext_t tbb_ext[] = {
 		.ln = "SCP Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = SCP_FW_CONTENT_CERT_KEY
+		.attr.key = SCP_FW_CONTENT_CERT_KEY
 	},
 	[SCP_FW_HASH_EXT] = {
 		.oid = SCP_FW_HASH_OID,
@@ -106,7 +110,7 @@ static ext_t tbb_ext[] = {
 		.ln = "SoC Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = SOC_FW_CONTENT_CERT_KEY
+		.attr.key = SOC_FW_CONTENT_CERT_KEY
 	},
 	[SOC_AP_FW_HASH_EXT] = {
 		.oid = SOC_AP_FW_HASH_OID,
@@ -123,7 +127,7 @@ static ext_t tbb_ext[] = {
 		.ln = "Trusted OS Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = TRUSTED_OS_FW_CONTENT_CERT_KEY
+		.attr.key = TRUSTED_OS_FW_CONTENT_CERT_KEY
 	},
 	[TRUSTED_OS_FW_HASH_EXT] = {
 		.oid = TRUSTED_OS_FW_HASH_OID,
@@ -140,7 +144,7 @@ static ext_t tbb_ext[] = {
 		.ln = "Non-Trusted Firmware content certificate public key",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_PKEY,
-		.data.key = NON_TRUSTED_FW_CONTENT_CERT_KEY
+		.attr.key = NON_TRUSTED_FW_CONTENT_CERT_KEY
 	},
 	[NON_TRUSTED_WORLD_BOOTLOADER_HASH_EXT] = {
 		.oid = NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID,

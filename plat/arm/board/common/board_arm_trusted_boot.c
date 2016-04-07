@@ -31,11 +31,14 @@
 #include <arm_def.h>
 #include <assert.h>
 #include <platform.h>
+#include <platform_oid.h>
 #include <stdint.h>
 #include <string.h>
 
 /* Weak definition may be overridden in specific platform */
 #pragma weak plat_match_rotpk
+#pragma weak plat_get_nv_ctr
+#pragma weak plat_set_nv_ctr
 
 /* SHA256 algorithm */
 #define SHA256_BYTES			32
@@ -148,3 +151,43 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 	return 0;
 }
 
+/*
+ * Return the non-volatile counter value stored in the platform. The cookie
+ * will contain the OID of the counter in the certificate.
+ *
+ * Return: 0 = success, Otherwise = error
+ */
+int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
+{
+	const char *oid;
+	uint32_t *nv_ctr_addr;
+
+	assert(cookie != NULL);
+	assert(nv_ctr != NULL);
+
+	oid = (const char *)cookie;
+	if (strcmp(oid, TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		nv_ctr_addr = (uint32_t *)TFW_NVCTR_BASE;
+	} else if (strcmp(oid, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		nv_ctr_addr = (uint32_t *)NTFW_CTR_BASE;
+	} else {
+		return 1;
+	}
+
+	*nv_ctr = (unsigned int)(*nv_ctr_addr);
+
+	return 0;
+}
+
+/*
+ * Store a new non-volatile counter value. On Juno and FVP, the non-volatile
+ * counters are RO and cannot be modified. We expect the values in the
+ * certificates to always match the RO values so that this function is never
+ * called.
+ *
+ * Return: 0 = success, Otherwise = error
+ */
+int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
+{
+	return 1;
+}

@@ -46,6 +46,7 @@ typedef enum auth_param_type_enum {
 	AUTH_PARAM_SIG_ALG,		/* The image signature algorithm */
 	AUTH_PARAM_HASH,		/* A hash (including the algorithm) */
 	AUTH_PARAM_PUB_KEY,		/* A public key */
+	AUTH_PARAM_NV_CTR,		/* A non-volatile counter */
 } auth_param_type_t;
 
 /*
@@ -80,6 +81,7 @@ typedef enum auth_method_type_enum {
 	AUTH_METHOD_NONE = 0,
 	AUTH_METHOD_HASH,	/* Authenticate by hash matching */
 	AUTH_METHOD_SIG,	/* Authenticate by PK operation */
+	AUTH_METHOD_NV_CTR,	/* Authenticate by Non-Volatile Counter */
 	AUTH_METHOD_NUM 	/* Number of methods */
 } auth_method_type_t;
 
@@ -105,7 +107,8 @@ typedef struct auth_method_param_sig_s {
  * Parameters for authentication by NV counter
  */
 typedef struct auth_method_param_nv_ctr_s {
-	auth_param_type_desc_t *nv_ctr;	/* NV counter value */
+	auth_param_type_desc_t *cert_nv_ctr;	/* NV counter in certificate */
+	auth_param_type_desc_t *plat_nv_ctr;	/* NV counter in platform */
 } auth_method_param_nv_ctr_t;
 
 /*

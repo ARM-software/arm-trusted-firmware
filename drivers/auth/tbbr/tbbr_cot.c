@@ -56,6 +56,11 @@ static unsigned char content_pk_buf[PK_DER_LEN];
 /*
  * Parameter type descriptors
  */
+static auth_param_type_desc_t trusted_nv_ctr = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_NV_CTR, TRUSTED_FW_NVCOUNTER_OID);
+static auth_param_type_desc_t non_trusted_nv_ctr = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_NV_CTR, NON_TRUSTED_FW_NVCOUNTER_OID);
+
 static auth_param_type_desc_t subject_pk = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_PUB_KEY, 0);
 static auth_param_type_desc_t sig = AUTH_PARAM_TYPE_DESC(
@@ -116,6 +121,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.alg = &sig_alg,
 					.data = &raw_data,
 				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
+				}
 			}
 		},
 		.authenticated_data = {
@@ -158,6 +170,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.alg = &sig_alg,
 					.data = &raw_data,
 				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
+				}
 			}
 		},
 		.authenticated_data = {
@@ -193,6 +212,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.alg = &sig_alg,
 					.data = &raw_data,
 				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
+				}
 			}
 		},
 		.authenticated_data = {
@@ -217,6 +243,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.sig = &sig,
 					.alg = &sig_alg,
 					.data = &raw_data,
+				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
 				}
 			}
 		},
@@ -260,6 +293,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.alg = &sig_alg,
 					.data = &raw_data,
 				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
+				}
 			}
 		},
 		.authenticated_data = {
@@ -284,6 +324,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.sig = &sig,
 					.alg = &sig_alg,
 					.data = &raw_data,
+				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
 				}
 			}
 		},
@@ -327,6 +374,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.alg = &sig_alg,
 					.data = &raw_data,
 				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
+				}
 			}
 		},
 		.authenticated_data = {
@@ -351,6 +405,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.sig = &sig,
 					.alg = &sig_alg,
 					.data = &raw_data,
+				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &trusted_nv_ctr,
+					.plat_nv_ctr = &trusted_nv_ctr
 				}
 			}
 		},
@@ -394,6 +455,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.alg = &sig_alg,
 					.data = &raw_data,
 				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &non_trusted_nv_ctr,
+					.plat_nv_ctr = &non_trusted_nv_ctr
+				}
 			}
 		},
 		.authenticated_data = {
@@ -418,6 +486,13 @@ static const auth_img_desc_t cot_desc[] = {
 					.sig = &sig,
 					.alg = &sig_alg,
 					.data = &raw_data,
+				}
+			},
+			[1] = {
+				.type = AUTH_METHOD_NV_CTR,
+				.param.nv_ctr = {
+					.cert_nv_ctr = &non_trusted_nv_ctr,
+					.plat_nv_ctr = &non_trusted_nv_ctr
 				}
 			}
 		},

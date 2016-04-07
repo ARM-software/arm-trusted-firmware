@@ -49,9 +49,10 @@ static cert_t tbb_certs[] = {
 		.key = ROT_KEY,
 		.issuer = TRUSTED_BOOT_FW_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			TRUSTED_BOOT_FW_HASH_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[TRUSTED_KEY_CERT] = {
 		.id = TRUSTED_KEY_CERT,
@@ -62,10 +63,11 @@ static cert_t tbb_certs[] = {
 		.key = ROT_KEY,
 		.issuer = TRUSTED_KEY_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			TRUSTED_WORLD_PK_EXT,
 			NON_TRUSTED_WORLD_PK_EXT
 		},
-		.num_ext = 2
+		.num_ext = 3
 	},
 	[SCP_FW_KEY_CERT] = {
 		.id = SCP_FW_KEY_CERT,
@@ -76,9 +78,10 @@ static cert_t tbb_certs[] = {
 		.key = TRUSTED_WORLD_KEY,
 		.issuer = SCP_FW_KEY_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			SCP_FW_CONTENT_CERT_PK_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[SCP_FW_CONTENT_CERT] = {
 		.id = SCP_FW_CONTENT_CERT,
@@ -89,9 +92,10 @@ static cert_t tbb_certs[] = {
 		.key = SCP_FW_CONTENT_CERT_KEY,
 		.issuer = SCP_FW_CONTENT_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			SCP_FW_HASH_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[SOC_FW_KEY_CERT] = {
 		.id = SOC_FW_KEY_CERT,
@@ -102,9 +106,10 @@ static cert_t tbb_certs[] = {
 		.key = TRUSTED_WORLD_KEY,
 		.issuer = SOC_FW_KEY_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			SOC_FW_CONTENT_CERT_PK_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[SOC_FW_CONTENT_CERT] = {
 		.id = SOC_FW_CONTENT_CERT,
@@ -115,9 +120,10 @@ static cert_t tbb_certs[] = {
 		.key = SOC_FW_CONTENT_CERT_KEY,
 		.issuer = SOC_FW_CONTENT_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			SOC_AP_FW_HASH_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[TRUSTED_OS_FW_KEY_CERT] = {
 		.id = TRUSTED_OS_FW_KEY_CERT,
@@ -128,9 +134,10 @@ static cert_t tbb_certs[] = {
 		.key = TRUSTED_WORLD_KEY,
 		.issuer = TRUSTED_OS_FW_KEY_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			TRUSTED_OS_FW_CONTENT_CERT_PK_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[TRUSTED_OS_FW_CONTENT_CERT] = {
 		.id = TRUSTED_OS_FW_CONTENT_CERT,
@@ -141,9 +148,10 @@ static cert_t tbb_certs[] = {
 		.key = TRUSTED_OS_FW_CONTENT_CERT_KEY,
 		.issuer = TRUSTED_OS_FW_CONTENT_CERT,
 		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
 			TRUSTED_OS_FW_HASH_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[NON_TRUSTED_FW_KEY_CERT] = {
 		.id = NON_TRUSTED_FW_KEY_CERT,
@@ -154,9 +162,10 @@ static cert_t tbb_certs[] = {
 		.key = NON_TRUSTED_WORLD_KEY,
 		.issuer = NON_TRUSTED_FW_KEY_CERT,
 		.ext = {
+			NON_TRUSTED_FW_NVCOUNTER_EXT,
 			NON_TRUSTED_FW_CONTENT_CERT_PK_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[NON_TRUSTED_FW_CONTENT_CERT] = {
 		.id = NON_TRUSTED_FW_CONTENT_CERT,
@@ -167,9 +176,10 @@ static cert_t tbb_certs[] = {
 		.key = NON_TRUSTED_FW_CONTENT_CERT_KEY,
 		.issuer = NON_TRUSTED_FW_CONTENT_CERT,
 		.ext = {
+			NON_TRUSTED_FW_NVCOUNTER_EXT,
 			NON_TRUSTED_WORLD_BOOTLOADER_HASH_EXT
 		},
-		.num_ext = 1
+		.num_ext = 2
 	},
 	[FWU_CERT] = {
 		.id = FWU_CERT,

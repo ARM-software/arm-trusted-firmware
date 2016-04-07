@@ -58,6 +58,14 @@
 TRUSTED_KEY_CERT	:=	${BUILD_PLAT}/trusted_key.crt
 FWU_CERT		:=	${BUILD_PLAT}/fwu_cert.crt
 
+# Default non-volatile counter values (overridable by the platform)
+TFW_NVCTR_VAL		?=	0
+NTFW_NVCTR_VAL		?=	0
+
+# Pass the non-volatile counters to the cert_create tool
+$(eval $(call CERT_ADD_CMD_OPT,${TFW_NVCTR_VAL},--tfw-nvctr))
+$(eval $(call CERT_ADD_CMD_OPT,${NTFW_NVCTR_VAL},--ntfw-nvctr))
+
 # Add Trusted Key certificate to the fip_create and cert_create command line options
 $(eval $(call FIP_ADD_PAYLOAD,${TRUSTED_KEY_CERT},--trusted-key-cert))
 $(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_KEY_CERT},--trusted-key-cert))

@@ -196,9 +196,17 @@ static void check_cmd_params(void)
 		for (j = 0; j < cert->num_ext; j++) {
 			ext = &extensions[cert->ext[j]];
 			switch (ext->type) {
+			case EXT_TYPE_NVCOUNTER:
+				/* Counter value must be specified */
+				if ((!ext->optional) && (ext->arg == NULL)) {
+					ERROR("Value for '%s' not specified\n",
+					      ext->ln);
+					exit(1);
+				}
+				break;
 			case EXT_TYPE_PKEY:
 				/* Key filename must be specified */
-				key = &keys[ext->data.key];
+				key = &keys[ext->attr.key];
 				if (!new_keys && key->fn == NULL) {
 					ERROR("Key '%s' required by '%s' not "
 					      "specified\n", key->desc,
@@ -211,15 +219,15 @@ static void check_cmd_params(void)
 				 * Binary image must be specified
 				 * unless it is explicitly made optional.
 				 */
-				if ((!ext->optional) && (ext->data.fn == NULL)) {
+				if ((!ext->optional) && (ext->arg == NULL)) {
 					ERROR("Image for '%s' not specified\n",
 					      ext->ln);
 					exit(1);
 				}
 				break;
 			default:
-				ERROR("Unknown extension type in '%s'\n",
-				      ext->ln);
+				ERROR("Unknown extension type '%d' in '%s'\n",
+				      ext->type, ext->ln);
 				exit(1);
 				break;
 			}
@@ -259,7 +267,7 @@ int main(int argc, char *argv[])
 	key_t *key = NULL;
 	cert_t *cert = NULL;
 	FILE *file = NULL;
-	int i, j, ext_nid;
+	int i, j, ext_nid, nvctr;
 	int c, opt_idx = 0;
 	const struct option *cmd_opt;
 	const char *cur_opt;
@@ -331,7 +339,7 @@ int main(int argc, char *argv[])
 		case CMD_OPT_EXT:
 			cur_opt = cmd_opt_get_name(opt_idx);
 			ext = ext_get_by_opt(cur_opt);
-			ext->data.fn = strdup(optarg);
+			ext->arg = strdup(optarg);
 			break;
 		case CMD_OPT_KEY:
 			cur_opt = cmd_opt_get_name(opt_idx);
@@ -420,11 +428,12 @@ int main(int argc, char *argv[])
 			 */
 			switch (ext->type) {
 			case EXT_TYPE_NVCOUNTER:
+				nvctr = atoi(ext->arg);
 				CHECK_NULL(cert_ext, ext_new_nvcounter(ext_nid,
-						EXT_CRIT, ext->data.nvcounter));
+						EXT_CRIT, nvctr));
 				break;
 			case EXT_TYPE_HASH:
-				if (ext->data.fn == NULL) {
+				if (ext->arg == NULL) {
 					if (ext->optional) {
 						/* Include a hash filled with zeros */
 						memset(md, 0x0, SHA256_DIGEST_LENGTH);
@@ -434,9 +443,9 @@ int main(int argc, char *argv[])
 					}
 				} else {
 					/* Calculate the hash of the file */
-					if (!sha_file(ext->data.fn, md)) {
+					if (!sha_file(ext->arg, md)) {
 						ERROR("Cannot calculate hash of %s\n",
-							ext->data.fn);
+							ext->arg);
 						exit(1);
 					}
 				}
@@ -446,11 +455,11 @@ int main(int argc, char *argv[])
 				break;
 			case EXT_TYPE_PKEY:
 				CHECK_NULL(cert_ext, ext_new_key(ext_nid,
-					EXT_CRIT, keys[ext->data.key].key));
+					EXT_CRIT, keys[ext->attr.key].key));
 				break;
 			default:
-				ERROR("Unknown extension type in %s\n",
-						cert->cn);
+				ERROR("Unknown extension type '%d' in %s\n",
+						ext->type, cert->cn);
 				exit(1);
 			}
 
