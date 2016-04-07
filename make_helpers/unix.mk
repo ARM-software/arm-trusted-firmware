@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,57 +27,55 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+#
 
-MAKE_HELPERS_DIRECTORY := ../../make_helpers/
-include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
-include ${MAKE_HELPERS_DIRECTORY}build_env.mk
+# Trusted Firmware shell command definitions for a Unix style environment.
 
-PROJECT := fip_create${BIN_EXT}
-OBJECTS := fip_create.o
-COPIED_H_FILES := uuid.h firmware_image_package.h
+ifndef UNIX_MK
+    UNIX_MK := $(lastword $(MAKEFILE_LIST))
 
-CFLAGS := -Wall -Werror -pedantic -std=c99
-ifeq (${DEBUG},1)
-  CFLAGS += -g -O0 -DDEBUG
-else
-  CFLAGS += -O2
+    ECHO_BLANK_LINE := echo
+
+    DIR_DELIM := /
+    PATH_SEP := :
+
+    # These defines provide Unix style equivalents of the shell commands
+    # required by the Trusted Firmware build environment.
+
+    # ${1} is the file to be copied.
+    # ${2} is the destination file name.
+    define SHELL_COPY
+	${Q}cp -f  "${1}"  "${2}"
+    endef
+
+    # ${1} is the directory to be copied.
+    # ${2} is the destination directory path.
+    define SHELL_COPY_TREE
+	${Q}cp -rf  "${1}"  "${2}"
+    endef
+
+    # ${1} is the file to be deleted.
+    define SHELL_DELETE
+	-${Q}rm -f  "${1}"
+    endef
+
+    # ${1} is a space delimited list of files to be deleted.
+    # Note that we do not quote ${1}, as multiple parameters may be passed.
+    define SHELL_DELETE_ALL
+	-${Q}rm -rf  ${1}
+    endef
+
+    # ${1} is the directory to be generated.
+    # ${2} is optional, and allows a prerequisite to be specified.
+    define MAKE_PREREQ_DIR
+
+${1} : ${2}
+	${Q}mkdir -p  "${1}"
+
+    endef
+
+    define SHELL_REMOVE_DIR
+	-${Q}rm -rf  "${1}"
+    endef
+
 endif
-
-# Only include from local directory (see comment below).
-INCLUDE_PATHS := -I.
-
-CC := gcc
-
-.PHONY: all clean distclean
-
-all: ${PROJECT}
-
-${PROJECT}: ${OBJECTS} Makefile
-	@echo "  LD      $@"
-	${Q}${CC} ${OBJECTS} -o $@
-	@${ECHO_BLANK_LINE}
-	@echo "Built $@ successfully"
-	@${ECHO_BLANK_LINE}
-
-%.o: %.c %.h ${COPIED_H_FILES} Makefile
-	@echo "  CC      $<"
-	${Q}${CC} -c ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
-
-#
-# Copy required library headers to a local directory so they can be included
-# by this project without adding the library directories to the system include
-# path. This avoids conflicts with definitions in the compiler standard
-# include path.
-#
-uuid.h : ../../include/stdlib/sys/uuid.h
-	$(call SHELL_COPY,$<,$@)
-
-firmware_image_package.h : ../../include/common/firmware_image_package.h
-	$(call SHELL_COPY,$<,$@)
-
-clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})
-
-distclean: clean
-	$(call SHELL_DELETE_ALL, ${COPIED_H_FILES})
-

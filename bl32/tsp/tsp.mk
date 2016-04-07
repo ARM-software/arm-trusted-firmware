@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -52,8 +52,8 @@ $(eval $(call add_define,TSP_INIT_ASYNC))
 # Include the platform-specific TSP Makefile
 # If no platform-specific TSP Makefile exists, it means TSP is not supported
 # on this platform.
-TSP_PLAT_MAKEFILE := $(shell find plat/ -wholename '*/${PLAT}/tsp/tsp-${PLAT}.mk')
-ifeq (,$(wildcard ${TSP_PLAT_MAKEFILE}))
+TSP_PLAT_MAKEFILE := $(wildcard ${PLAT_DIR}/tsp/tsp-${PLAT}.mk)
+ifeq (,${TSP_PLAT_MAKEFILE})
   $(error TSP is not supported on platform ${PLAT})
 else
   include ${TSP_PLAT_MAKEFILE}
