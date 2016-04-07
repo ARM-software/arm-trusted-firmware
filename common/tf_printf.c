@@ -69,6 +69,7 @@ static void string_print(const char *str)
  * %ld and %lld - signed 64 bit decimal format
  * %lu and %llu - unsigned 64 bit decimal format
  * %p - pointer format
+ * %z - size_t format
  * Exits on all other formats.
  *******************************************************************/
 
@@ -124,6 +125,11 @@ loop:
 
 				unsigned_num_print(unum, 16);
 				break;
+			case 'z':
+				if (sizeof(size_t) == 8)
+					bit64 = 1;
+				fmt++;
+				goto loop;
 			case 'l':
 				bit64 = 1;
 				fmt++;
