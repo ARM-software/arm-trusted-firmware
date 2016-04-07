@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,12 +40,19 @@
 
 /* Values returned by getopt() as part of the command line parsing */
 #define OPT_TOC_ENTRY 0
-#define OPT_DUMP 1
-#define OPT_HELP 2
+#define OPT_DUMP 'd'
+#define OPT_HELP 'h'
+#define OPT_UNPACK 'u'
+#define OPT_FORCE 'f'
+#define OPT_STR "dfhu"
 
-file_info_t files[MAX_FILES];
-unsigned file_info_count = 0;
-uuid_t uuid_null = {0};
+static file_info_t files[MAX_FILES];
+static unsigned file_info_count;
+static uuid_t uuid_null = {0};
+static int do_dump;
+static int do_pack;
+static int do_unpack;
+static int do_force;
 
 /*
  * TODO: Add ability to specify and flag different file types.
@@ -118,12 +125,15 @@ static void print_usage(void)
 {
 	entry_lookup_list_t *entry = toc_entry_lookup_list;
 
-	printf("Usage: fip_create [options] FIP_FILENAME\n\n");
-	printf("\tThis tool is used to create a Firmware Image Package.\n\n");
+	printf("\nThis tool is used to create a Firmware Image Package.\n\n");
+	printf("Usage:\n");
+	printf("\tfip_create [options] FIP_FILENAME\n\n");
 	printf("Options:\n");
-	printf("\t--help: Print this help message and exit\n");
-	printf("\t--dump: Print contents of FIP\n\n");
-	printf("\tComponents that can be added/updated:\n");
+	printf("\t-h,--help: Print this help message and exit\n");
+	printf("\t-d,--dump: Print contents of FIP after update\n");
+	printf("\t-u,--unpack: Unpack images from an existing FIP\n");
+	printf("\t-f,--force: Overwrite existing files when unpacking images\n\n");
+	printf("Components that can be added/updated:\n");
 	for (; entry->command_line_name != NULL; entry++) {
 		printf("\t--%s%s\t\t%s",
 		       entry->command_line_name,
@@ -131,6 +141,7 @@ static void print_usage(void)
 		       entry->name);
 		printf("\n");
 	}
+	printf("\n");
 }
 
 
@@ -371,6 +382,109 @@ static int pack_images(const char *fip_filename)
 }
 
 
+/*
+ * Unpack all images from an existing FIP
+ *
+ * Images will be unpacked into the working directory using filenames as
+ * specified by the corresponding command line option plus the 'bin' extension.
+ * For example, the image specified by the --soc-fw option will be unpacked as
+ * 'soc-fw.bin'
+ */
+static int unpack_images(void)
+{
+	FILE *stream;
+	size_t bytes_written;
+	file_info_t *file_info;
+	char *filename[MAX_FILES];
+	int status, ret = 0;
+	unsigned int i, idx, num_img;
+	struct stat st;
+	size_t len;
+
+	/* Make the output filenames */
+	for (idx = 0; idx < file_info_count; idx++) {
+		filename[idx] = NULL;
+		file_info = &files[idx];
+		if (file_info->image_buffer == NULL) {
+			continue;
+		}
+		len = strlen(file_info->entry->command_line_name);
+		filename[idx] = malloc(len + 5); /* ".bin" + '\0' */
+		if (filename[idx] == NULL) {
+			printf("ERROR: out of memory\n");
+			for (i = 0; i < idx; i++) {
+				free(filename[i]);
+			}
+			return ENOMEM;
+		}
+		strcpy(filename[idx], file_info->entry->command_line_name);
+		strcat(filename[idx], ".bin");
+	}
+
+
+	/* Check if output files already exist in the filesystem. We perform
+	 * this check before any other action, so if any of the files
+	 * exists, nothing is unpacked. If force overwrite is enabled, we skip
+	 * this check */
+	if (!do_force) {
+		for (idx = 0; idx < file_info_count; idx++) {
+			file_info = &files[idx];
+			if (file_info->image_buffer == NULL) {
+				continue;
+			}
+			status = stat(filename[idx], &st);
+			if (!status) {
+				printf("File '%s' exists. Use --force to overwrite.\n",
+				       filename[idx]);
+				printf("Process aborted.\n");
+				ret = EEXIST;
+				goto unpack_images_free;
+			}
+		}
+	}
+
+	printf("Unpacking images...\n");
+
+	/* Write the images to files */
+	num_img = 0;
+	for (idx = 0; idx < file_info_count; idx++) {
+		file_info = &files[idx];
+		if (file_info->image_buffer == NULL) {
+			continue;
+		}
+		/* Unpack the image to a file */
+		stream = fopen(filename[idx], "w");
+		if (!stream) {
+			printf("ERROR: cannot open '%s' for writing\n",
+			       filename[idx]);
+			ret = EIO;
+			goto unpack_images_free;
+		}
+		bytes_written = fwrite(file_info->image_buffer, sizeof(uint8_t),
+				       file_info->size, stream);
+		fclose(stream);
+
+		if (bytes_written != file_info->size) {
+			printf("ERROR: Incorrect write for file \"%s\": Size=%u,"
+			       "Written=%lu bytes.\n", filename[idx], file_info->size,
+			       bytes_written);
+			ret = EIO;
+			goto unpack_images_free;
+		}
+		num_img++;
+	}
+
+	printf("Done. %u images unpacked\n", num_img);
+
+unpack_images_free:
+	for (idx = 0; idx < file_info_count; idx++) {
+		free(filename[idx]);
+	}
+
+	return ret;
+}
+
+
 static void dump_toc(void)
 {
 	unsigned int index = 0;
@@ -528,7 +642,7 @@ static char *get_filename(int argc, char **argv, struct option *options)
 	 */
 	optind = 1;
 	while (1) {
-		c = getopt_long(argc, argv, "", options, NULL);
+		c = getopt_long(argc, argv, OPT_STR, options, NULL);
 		if (c == -1)
 			break;
 
@@ -549,19 +663,17 @@ static char *get_filename(int argc, char **argv, struct option *options)
 
 
 /* Work through command-line options */
-static int parse_cmdline(int argc, char **argv, struct option *options,
-			 int *do_pack)
+static int parse_cmdline(int argc, char **argv, struct option *options)
 {
 	int c;
 	int status = 0;
 	int option_index = 0;
 	entry_lookup_list_t *lookup_entry;
-	int do_dump = 0;
 
 	/* restart parse to process all options. starts at 1. */
 	optind = 1;
 	while (1) {
-		c = getopt_long(argc, argv, "", options, &option_index);
+		c = getopt_long(argc, argv, OPT_STR, options, &option_index);
 		if (c == -1)
 			break;
 
@@ -578,7 +690,7 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 						return status;
 					} else {
 						/* Update package */
-						*do_pack = 1;
+						do_pack = 1;
 					}
 				}
 			}
@@ -586,22 +698,24 @@ static int parse_cmdline(int argc, char **argv, struct option *options,
 
 		case OPT_DUMP:
 			do_dump = 1;
-			continue;
+			break;
 
 		case OPT_HELP:
 			print_usage();
 			exit(0);
 
+		case OPT_UNPACK:
+			do_unpack = 1;
+			break;
+
+		case OPT_FORCE:
+			do_force = 1;
+			break;
+
 		default:
 			/* Unrecognised options are caught in get_filename() */
 			break;
 		}
-	}
-
-
-	/* Do not dump toc if we have an error as it could hide the error */
-	if ((status == 0) && (do_dump)) {
-		dump_toc();
 	}
 
 	return status;
@@ -613,17 +727,17 @@ int main(int argc, char **argv)
 	int i;
 	int status;
 	char *fip_filename;
-	int do_pack = 0;
+	struct stat st;
 
 	/* Clear file list table. */
 	memset(files, 0, sizeof(files));
 
 	/* Initialise for getopt_long().
 	 * Use image table as defined at top of file to get options.
-	 * Add 'dump' option, 'help' option and end marker.
+	 * Add common options and end marker.
 	 */
 	static struct option long_options[(sizeof(toc_entry_lookup_list)/
-					   sizeof(entry_lookup_list_t)) + 2];
+					   sizeof(entry_lookup_list_t)) + 4];
 
 	for (i = 0;
 	     /* -1 because we dont want to process end marker in toc table */
@@ -647,6 +761,18 @@ int main(int argc, char **argv)
 	long_options[i].has_arg = 0;
 	long_options[i].flag = 0;
 	long_options[i].val = OPT_HELP;
+
+	/* Add '--unpack' option */
+	long_options[++i].name = "unpack";
+	long_options[i].has_arg = 0;
+	long_options[i].flag = 0;
+	long_options[i].val = OPT_UNPACK;
+
+	/* Add '--force' option */
+	long_options[++i].name = "force";
+	long_options[i].has_arg = 0;
+	long_options[i].flag = 0;
+	long_options[i].val = OPT_FORCE;
 
 	/* Zero the last entry (required) */
 	long_options[++i].name = 0;
@@ -677,7 +803,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Work through provided program arguments and perform actions */
-	status = parse_cmdline(argc, argv, long_options, &do_pack);
+	status = parse_cmdline(argc, argv, long_options);
 	if (status != 0) {
 		return status;
 	};
@@ -688,15 +814,38 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	/* Processed all command line options. Create/update the package if
-	 * required.
-	 */
-	if (do_pack) {
+	/* Unpack images from FIP always takes precedence over packaging. In
+	 * the future, there will be different commands for each action and
+	 * only one will be specified in the command line */
+	if (do_unpack) {
+		status = stat(fip_filename, &st);
+		if (status != 0) {
+			printf("ERROR: cannot open %s\n", fip_filename);
+			return status;
+		}
+		/* Warning if user has specified images */
+		if (do_pack) {
+			printf("WARNING: Unpack option specified. Input images "
+			       "will be ignored.\n");
+		}
+		status = unpack_images();
+		if (status != 0) {
+			printf("ERROR: failed to unpack package (status = %d).\n",
+			       status);
+			return status;
+		}
+	} else if (do_pack) {
+		/* Create/update FIP */
 		status = pack_images(fip_filename);
 		if (status != 0) {
 			printf("Failed to create package (status = %d).\n",
 			       status);
 		}
+	}
+
+	/* Do not dump toc if we have an error as it could hide the error */
+	if ((status == 0) && (do_dump)) {
+		dump_toc();
 	}
 
 	return status;
