@@ -28,8 +28,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Use the Legacy GICv3 driver on the FVP by default to maintain compatibility.
-FVP_USE_GIC_DRIVER	:= FVP_GICV3_LEGACY
+# Use the GICv3 driver on the FVP by default
+FVP_USE_GIC_DRIVER	:= FVP_GICV3
 
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))

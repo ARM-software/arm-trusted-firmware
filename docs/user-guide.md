@@ -1013,22 +1013,22 @@ all FDTs are available from there.
 
 *   `fvp-base-gicv2-psci.dtb`
 
-    (Default) For use with both AEMv8 and Cortex-A57-A53 Base FVPs with
+    For use with both AEMv8 and Cortex-A57-A53 Base FVPs with
     Base memory map configuration.
 
 *   `fvp-base-gicv3-psci.dtb`
 
-    For use with both AEMv8 and Cortex-A57-A53 Base FVPs with Base memory map
-    configuration and Linux GICv3 support.
+    (Default) For use with both AEMv8 and Cortex-A57-A53 Base FVPs with Base
+    memory map configuration and Linux GICv3 support.
 
 *   `fvp-foundation-gicv2-psci.dtb`
 
-    (Default) For use with Foundation FVP with Base memory map configuration.
+    For use with Foundation FVP with Base memory map configuration.
 
 *   `fvp-foundation-gicv3-psci.dtb`
 
-    For use with Foundation FVP with Base memory map configuration and Linux
-    GICv3 support.
+    (Default) For use with Foundation FVP with Base memory map configuration
+    and Linux GICv3 support.
 
 ### Running on the Foundation FVP with reset to BL1 entrypoint
 
