@@ -254,7 +254,8 @@ void arm_bl31_plat_arch_setup(void)
 	arm_configure_mmu_el3(BL31_RO_BASE,
 			      (BL31_END - BL31_RO_BASE),
 			      BL31_RO_BASE,
-			      BL31_RO_LIMIT
+			      BL31_RO_LIMIT,
+			      MT_MEMORY
 #if USE_COHERENT_MEM
 			      , BL31_COHERENT_RAM_BASE,
 			      BL31_COHERENT_RAM_LIMIT

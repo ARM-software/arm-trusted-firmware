@@ -101,7 +101,8 @@ void tsp_plat_arch_setup(void)
 	arm_configure_mmu_el1(BL32_RO_BASE,
 			      (BL32_END - BL32_RO_BASE),
 			      BL32_RO_BASE,
-			      BL32_RO_LIMIT
+			      BL32_RO_LIMIT,
+			      MT_MEMORY
 #if USE_COHERENT_MEM
 			      , BL32_COHERENT_RAM_BASE,
 			      BL32_COHERENT_RAM_LIMIT
