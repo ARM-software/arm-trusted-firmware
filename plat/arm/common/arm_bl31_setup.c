@@ -142,7 +142,11 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
 	 */
+#ifdef PRELOADED_BL33_BASE
+	bl33_image_ep_info.pc = PRELOADED_BL33_BASE;
+#else
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
+#endif /* PRELOADED_BL33_BASE */
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 

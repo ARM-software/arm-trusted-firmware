@@ -1271,8 +1271,8 @@ BL33 image. The meminfo provided by this is used by load_image() to
 validate whether the BL33 image can be loaded with in the given
 memory from the given base.
 
-This function isn't needed if either `BL33_BASE` or `EL3_PAYLOAD_BASE` build
-options are used.
+This function isn't needed if either `PRELOADED_BL33_BASE` or `EL3_PAYLOAD_BASE`
+build options are used.
 
 ### Function : bl2_plat_flush_bl31_params() [mandatory]
 
@@ -1296,8 +1296,8 @@ entrypoint of that image, which BL31 uses to jump to it.
 
 BL2 is responsible for loading the normal world BL33 image (e.g. UEFI).
 
-This function isn't needed if either `BL33_BASE` or `EL3_PAYLOAD_BASE` build
-options are used.
+This function isn't needed if either `PRELOADED_BL33_BASE` or `EL3_PAYLOAD_BASE`
+build options are used.
 
 
 3.3 FWU Boot Loader Stage 2 (BL2U)
@@ -2002,8 +2002,8 @@ build system.
     By default, this flag is defined `yes` by the build system and `BL33`
     build option should be supplied as a build option. The platform has the
     option of excluding the BL33 image in the `fip` image by defining this flag
-    to `no`. If any of the options `EL3_PAYLOAD_BASE` or `BL33_BASE` are used,
-    this flag will be set to `no` automatically.
+    to `no`. If any of the options `EL3_PAYLOAD_BASE` or `PRELOADED_BL33_BASE`
+    are used, this flag will be set to `no` automatically.
 
 5.  C Library
 -------------
