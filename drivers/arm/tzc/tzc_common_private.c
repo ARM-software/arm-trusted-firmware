@@ -42,42 +42,42 @@
 
 #define DEFINE_TZC_COMMON_WRITE_REGION_BASE(fn_name, macro_name)	\
 	static inline void _tzc##fn_name##_write_region_base(		\
-						uintptr_t base,		\
-						int region_no,		\
-						uintptr_t region_base)	\
+					uintptr_t base,			\
+					int region_no,			\
+					unsigned long long region_base)	\
 	{								\
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
 				region_no) +				\
-				TZC_##macro_name##_REGION_BASE_LOW_0_OFFSET,	\
-			(unsigned int)region_base);			\
+			TZC_##macro_name##_REGION_BASE_LOW_0_OFFSET,	\
+			(uint32_t)region_base);				\
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
 				region_no) +				\
 			TZC_##macro_name##_REGION_BASE_HIGH_0_OFFSET,	\
-			(unsigned int)(region_base >> 32));		\
+			(uint32_t)(region_base >> 32));			\
 	}
 
 #define DEFINE_TZC_COMMON_WRITE_REGION_TOP(fn_name, macro_name)		\
 	static inline void _tzc##fn_name##_write_region_top(		\
-						uintptr_t base,		\
-						int region_no,		\
-						uintptr_t region_top)	\
+					uintptr_t base,			\
+					int region_no,			\
+					unsigned long long region_top)	\
 	{								\
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET				\
 				(TZC_##macro_name##_REGION_SIZE,	\
 				region_no) +				\
 			TZC_##macro_name##_REGION_TOP_LOW_0_OFFSET,	\
-			(unsigned int)region_top);			\
+			(uint32_t)region_top);			\
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
 				region_no) +				\
 			TZC_##macro_name##_REGION_TOP_HIGH_0_OFFSET,	\
-			(unsigned int)(region_top >> 32));		\
+			(uint32_t)(region_top >> 32));		\
 	}
 
 #define DEFINE_TZC_COMMON_WRITE_REGION_ATTRIBUTES(fn_name, macro_name)	\
@@ -146,8 +146,8 @@
 	void _tzc##fn_name##_configure_region(uintptr_t base,		\
 				unsigned int filters,			\
 				int region_no,				\
-				uintptr_t region_base,			\
-				uintptr_t region_top,			\
+				unsigned long long region_base,		\
+				unsigned long long region_top,		\
 				tzc_region_attributes_t sec_attr,	\
 				unsigned int nsaid_permissions)	\
 	{								\
@@ -155,8 +155,8 @@
 		VERBOSE("TrustZone : Configuring region "		\
 			"(TZC Interface Base: %p, region_no = %d)"	\
 			"...\n", (void *)base, region_no);		\
-		VERBOSE("TrustZone : ... base = %p, top = %p,"		\
-			"\n", (void *)region_base, (void *)region_top);\
+		VERBOSE("TrustZone : ... base = %llx, top = %llx,"	\
+			"\n", region_base, region_top);\
 		VERBOSE("TrustZone : ... sec_attr = 0x%x,"		\
 			" ns_devs = 0x%x)\n",				\
 			sec_attr, nsaid_permissions);			\
