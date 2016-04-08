@@ -47,7 +47,8 @@ RK_GIC_SOURCES          :=      drivers/arm/gic/common/gic_common.c     \
                                 plat/common/plat_gicv3.c                \
                                 ${RK_PLAT}/common/rockchip_gicv3.c
 
-PLAT_BL_COMMON_SOURCES  :=      lib/aarch64/xlat_tables.c                       \
+PLAT_BL_COMMON_SOURCES  :=	lib/xlat_tables/xlat_tables_common.c		\
+				lib/xlat_tables/aarch64/xlat_tables.c		\
                                 plat/common/aarch64/plat_common.c               \
 				plat/common/aarch64/plat_psci_common.c
 

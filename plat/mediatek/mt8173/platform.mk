@@ -40,7 +40,8 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				-I${MTK_PLAT_SOC}/drivers/uart/			\
 				-I${MTK_PLAT_SOC}/include/
 
-PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/xlat_tables.c			\
+PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
+				lib/xlat_tables/aarch64/xlat_tables.c		\
 				plat/common/aarch64/plat_common.c		\
 				plat/common/plat_gic.c
 
