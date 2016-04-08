@@ -115,7 +115,7 @@ CHECKCODE_ARGS		:=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 # Do not check the coding style on C library files
 INCLUDE_DIRS_TO_CHECK	:=	$(sort $(filter-out include/stdlib, $(wildcard include/*)))
 LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out lib/stdlib, $(wildcard lib/*)))
-ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out lib include, $(wildcard *))))
+ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out lib include, $(wildcard *)))
 CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK} ${INCLUDE_DIRS_TO_CHECK} ${LIB_DIRS_TO_CHECK}
 
 
