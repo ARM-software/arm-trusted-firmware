@@ -247,6 +247,18 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
 
 	/*
+	 * Reset power state info for CPUs when onlining, we set deepest power
+	 * when offlining a core but that may not be requested by non-secure
+	 * sw which controls idle states. It will re-init this info from
+	 * non-secure software when the core come online.
+	 */
+	write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
+	write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
+	write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+	mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, TEGRA_ARI_CLUSTER_CC1,
+		0, 0);
+
+	/*
 	 * Check if we are exiting from deep sleep and restore SE
 	 * context if we are.
 	 */
