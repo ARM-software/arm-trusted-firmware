@@ -27,13 +27,19 @@
 #ifndef __PMU_COM_H__
 #define __PMU_COM_H__
 
+/*
+ * Use this macro to instantiate lock before it is used in below
+ * rockchip_pd_lock_xxx() macros
+ */
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
+/*
+ * These are wrapper macros to the powe domain Bakery Lock API.
+ */
+#define rockchip_pd_lock_init() bakery_lock_init(&rockchip_pd_lock)
 #define rockchip_pd_lock_get() bakery_lock_get(&rockchip_pd_lock)
-
 #define rockchip_pd_lock_rls() bakery_lock_release(&rockchip_pd_lock)
 
-#define rockchip_pd_lock_init() bakery_lock_init(&rockchip_pd_lock)
 /*****************************************************************************
  * power domain on or off
  *****************************************************************************/

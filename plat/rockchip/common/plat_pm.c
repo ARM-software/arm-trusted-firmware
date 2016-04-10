@@ -52,7 +52,6 @@ static struct rockchip_pm_ops_cb *rockchip_ops;
 
 static void plat_rockchip_sys_pwr_domain_resume(void)
 {
-	plat_rockchip_gic_init();
 	if (rockchip_ops && rockchip_ops->sys_pwr_dm_resume)
 		rockchip_ops->sys_pwr_dm_resume();
 }
@@ -62,8 +61,6 @@ static void plat_rockchip_cores_pwr_domain_resume(void)
 	if (rockchip_ops && rockchip_ops->cores_pwr_dm_resume)
 		rockchip_ops->cores_pwr_dm_resume();
 
-	/* Enable the gic cpu interface */
-	plat_rockchip_gic_pcpu_init();
 	/* Program the gic per-cpu distributor or re-distributor interface */
 	plat_rockchip_gic_cpuif_enable();
 }
