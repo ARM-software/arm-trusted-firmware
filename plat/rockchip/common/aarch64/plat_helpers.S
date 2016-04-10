@@ -189,6 +189,7 @@ endfunc plat_crash_console_putc
 	 * cpus online or resume enterpoint
 	 * --------------------------------------------------------------------
 	 */
+	.align	16
 func platform_cpu_warmboot
 	mrs	x0, MPIDR_EL1
 	and	x1, x0, #MPIDR_CPU_MASK
@@ -206,12 +207,6 @@ func platform_cpu_warmboot
 	adr	x4, cpuson_flags
 	add	x4, x4, x0, lsl #2
 	ldr	w1, [x4]
-	/* --------------------------------------------------------------------
-	 * get per cpuup boot addr
-         * --------------------------------------------------------------------
-	 */
-	adr	x5, cpuson_entry_point
-	ldr	x2, [x5, x0, lsl #3]
 	/* --------------------------------------------------------------------
 	 * check cpuon reason
          * --------------------------------------------------------------------
@@ -231,8 +226,15 @@ wfe_loop:
 	wfe
 	b	wfe_loop
 boot_entry:
-	mov	w0, #0
-	str	w0, [x4]
+	mov	w1, #0
+	str	w1, [x4]
+	/* --------------------------------------------------------------------
+	 * get per cpuup boot addr
+	 * --------------------------------------------------------------------
+	 */
+	adr	x5, cpuson_entry_point
+	ldr	x2, [x5, x0, lsl #3]
+
 	br	x2
 endfunc platform_cpu_warmboot
 
@@ -248,5 +250,5 @@ cpuson_entry_point:
 	.endr
 cpuson_flags:
 	.rept	PLATFORM_CORE_COUNT
-	.quad	0
+	.word	0
 	.endr

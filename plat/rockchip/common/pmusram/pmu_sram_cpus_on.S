@@ -35,11 +35,6 @@
 func pmu_cpuson_entrypoint
 pmu_cpuson_entrypoint_start:
 	ldr	x5, psram_data
-	ldr	w0, [x5, #PSRAM_DT_SYS_MODE]
-	cmp	w0, #PMU_SYS_SLP_MODE
-	b.eq	check_wake_cpus
-	ldr	x6, warm_boot_func
-	br	x6
 check_wake_cpus:
 	mrs	x0, MPIDR_EL1
 	and	x1, x0, #MPIDR_CPU_MASK
@@ -74,8 +69,6 @@ sys_resume:
 	.align	3
 psram_data:
 	.quad	PSRAM_DT_BASE
-warm_boot_func:
-	.quad	platform_cpu_warmboot
 sys_wakeup_entry:
 	.quad	psci_entrypoint
 pmu_cpuson_entrypoint_end:

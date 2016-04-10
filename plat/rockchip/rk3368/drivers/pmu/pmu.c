@@ -43,6 +43,8 @@
 static struct psram_data_t *psram_sleep_cfg =
 	(struct psram_data_t *)PSRAM_DT_BASE;
 
+static uint32_t cpu_warm_boot_addr;
+
 void rk3368_flash_l2_b(void)
 {
 	uint32_t wait_cnt = 0;
@@ -353,7 +355,7 @@ static int cores_pwr_domain_on(unsigned long mpidr, uint64_t entrypoint)
 
 	/* Switch boot addr to pmusram */
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1 + cluster),
-		      (PMUSRAM_BASE >> CPU_BOOT_ADDR_ALIGN) |
+		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 	dsb();
 
@@ -368,19 +370,17 @@ static int cores_pwr_domain_on(unsigned long mpidr, uint64_t entrypoint)
 
 static int cores_pwr_domain_on_finish(void)
 {
-	uint32_t cpuon_id;
-
-	cpuon_id = plat_my_core_pos();
-	assert(cpuson_flags[cpuon_id] == 0);
-	cpuson_flags[cpuon_id] = 0x00;
-
 	return 0;
 }
 
 static int sys_pwr_domain_resume(void)
 {
-	psram_sleep_cfg->sys_mode = PMU_SYS_ON_MODE;
-
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
+		      (COLD_BOOT_BASE >> CPU_BOOT_ADDR_ALIGN) |
+		      CPU_BOOT_ADDR_WMASK);
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(2),
+		      (COLD_BOOT_BASE >> CPU_BOOT_ADDR_ALIGN) |
+		      CPU_BOOT_ADDR_WMASK);
 	pm_plls_resume();
 	pmu_scu_b_pwrup();
 
@@ -392,7 +392,6 @@ static int sys_pwr_domain_suspend(void)
 	nonboot_cpus_off();
 	pmu_set_sleep_mode();
 
-	psram_sleep_cfg->sys_mode = PMU_SYS_SLP_MODE;
 	psram_sleep_cfg->ddr_flag = 0;
 
 	return 0;
@@ -412,10 +411,11 @@ void plat_rockchip_pmu_init(void)
 
 	plat_setup_rockchip_pm_ops(&pm_ops);
 
+	/* register requires 32bits mode, switch it to 32 bits */
+	cpu_warm_boot_addr = (uint64_t)platform_cpu_warmboot;
+
 	for (cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu++)
 		cpuson_flags[cpu] = 0;
-
-	psram_sleep_cfg->sys_mode = PMU_SYS_ON_MODE;
 
 	psram_sleep_cfg->boot_mpidr = read_mpidr_el1() & 0xffff;
 

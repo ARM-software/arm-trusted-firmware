@@ -27,21 +27,14 @@
 #define __PMU_SRAM_H__
 
 /*****************************************************************************
- * cpu up status
- *****************************************************************************/
-#define PMU_SYS_SLP_MODE	0xa5
-#define PMU_SYS_ON_MODE		0x0
-
-/*****************************************************************************
  * define data offset in struct psram_data
  *****************************************************************************/
 #define PSRAM_DT_SP		0x0
 #define PSRAM_DT_DDR_FUNC	0x8
 #define PSRAM_DT_DDR_DATA	0x10
 #define PSRAM_DT_DDRFLAG	0x18
-#define PSRAM_DT_SYS_MODE	0x1c
-#define PSRAM_DT_MPIDR		0x20
-#define PSRAM_DT_END		0x24
+#define PSRAM_DT_MPIDR		0x1c
+#define PSRAM_DT_END		0x20
 /******************************************************************************
  * Allocate data region for struct psram_data_t in pmusram
  ******************************************************************************/
@@ -67,7 +60,6 @@ struct psram_data_t {
 	uint64_t ddr_func;
 	uint64_t ddr_data;
 	uint32_t ddr_flag;
-	uint32_t sys_mode;
 	uint32_t boot_mpidr;
 };
 
@@ -81,8 +73,6 @@ CASSERT(__builtin_offsetof(struct psram_data_t, ddr_data) == PSRAM_DT_DDR_DATA,
 	assert_psram_dt_ddr_data_offset_mistmatch);
 CASSERT(__builtin_offsetof(struct psram_data_t, ddr_flag) == PSRAM_DT_DDRFLAG,
 	assert_psram_dt_ddr_flag_offset_mistmatch);
-CASSERT(__builtin_offsetof(struct psram_data_t, sys_mode) == PSRAM_DT_SYS_MODE,
-	assert_psram_dt_sys_mode_offset_mistmatch);
 CASSERT(__builtin_offsetof(struct psram_data_t, boot_mpidr) == PSRAM_DT_MPIDR,
 	assert_psram_dt_mpidr_offset_mistmatch);
 void u32_align_cpy(uint32_t *dst, const uint32_t *src, size_t bytes);
