@@ -136,7 +136,7 @@ export Q
 $(eval $(call add_define,DEBUG))
 ifneq (${DEBUG}, 0)
         BUILD_TYPE	:=	debug
-        CFLAGS		+= 	-g
+        TF_CFLAGS	+= 	-g
         ASFLAGS		+= 	-g -Wa,--gdwarf-2
         # Use LOG_LEVEL_INFO by default for debug builds
         LOG_LEVEL	:=	40
@@ -179,12 +179,12 @@ ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
 				-mgeneral-regs-only -D__ASSEMBLY__		\
 				${DEFINES} ${INCLUDES}
-CFLAGS			+= 	-nostdinc -ffreestanding -Wall			\
+TF_CFLAGS		+= 	-nostdinc -ffreestanding -Wall			\
 				-Werror -Wmissing-include-dirs			\
 				-mgeneral-regs-only -mstrict-align		\
 				-std=c99 -c -Os					\
 				${DEFINES} ${INCLUDES}
-CFLAGS			+=	-ffunction-sections -fdata-sections
+TF_CFLAGS		+=	-ffunction-sections -fdata-sections
 
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
@@ -331,7 +331,7 @@ endif
 
 # Check if -pedantic option should be used
 ifeq (${DISABLE_PEDANTIC},0)
-        CFLAGS		+= 	-pedantic
+        TF_CFLAGS	+= 	-pedantic
 endif
 
 # Using the ARM Trusted Firmware BL2 implies that a BL33 image also needs to be
@@ -487,7 +487,7 @@ msg_start:
 
 # Check if deprecated declarations should be treated as error or not.
 ifeq (${ERROR_DEPRECATED},0)
-    CFLAGS		+= 	-Wno-error=deprecated-declarations
+    TF_CFLAGS		+= 	-Wno-error=deprecated-declarations
 endif
 
 # Expand build macros for the different images
