@@ -28,9 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <platform_def.h>
-#include <psci.h>
-
 static const unsigned char plat_power_domain_tree_desc[] = {1, 4};
 
 const unsigned char *plat_get_power_domain_tree_desc(void)

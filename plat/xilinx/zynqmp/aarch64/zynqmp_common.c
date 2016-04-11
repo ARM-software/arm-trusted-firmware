@@ -28,12 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
-#include <cci.h>
 #include <debug.h>
-#include <gicv2.h>
 #include <mmio.h>
-#include <plat_arm.h>
 #include <platform.h>
 #include <xlat_tables.h>
 #include "../zynqmp_private.h"
