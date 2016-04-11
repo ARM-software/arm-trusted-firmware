@@ -265,6 +265,18 @@ uint64_t opteed_smc_handler(uint32_t smc_fid,
 		cm_el1_sysregs_context_restore(SECURE);
 		cm_set_next_eret_context(SECURE);
 
+		write_ctx_reg(get_gpregs_ctx(&optee_ctx->cpu_ctx),
+			      CTX_GPREG_X4,
+			      read_ctx_reg(get_gpregs_ctx(handle),
+					   CTX_GPREG_X4));
+		write_ctx_reg(get_gpregs_ctx(&optee_ctx->cpu_ctx),
+			      CTX_GPREG_X5,
+			      read_ctx_reg(get_gpregs_ctx(handle),
+					   CTX_GPREG_X5));
+		write_ctx_reg(get_gpregs_ctx(&optee_ctx->cpu_ctx),
+			      CTX_GPREG_X6,
+			      read_ctx_reg(get_gpregs_ctx(handle),
+					   CTX_GPREG_X6));
 		/* Propagate hypervisor client ID */
 		write_ctx_reg(get_gpregs_ctx(&optee_ctx->cpu_ctx),
 			      CTX_GPREG_X7,
