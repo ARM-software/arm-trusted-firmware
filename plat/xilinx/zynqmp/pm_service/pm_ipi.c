@@ -66,8 +66,7 @@
 #define IPI_APU_ISR		(IPI_BASEADDR + 0X00000010)
 #define IPI_APU_IER		(IPI_BASEADDR + 0X00000018)
 #define IPI_APU_IDR		(IPI_BASEADDR + 0X0000001C)
-#define IPI_APU_ISR_PMU_0_MASK		0X00010000
-#define IPI_APU_IER_PMU_0_MASK		0X00010000
+#define IPI_APU_IXR_PMU_0_MASK		(1 << 16)
 
 #define IPI_TRIG_OFFSET		0
 #define IPI_OBS_OFFSET		4
@@ -75,7 +74,7 @@
 /* Power Management IPI interrupt number */
 #define PM_INT_NUM		0
 #define IPI_PMU_PM_INT_BASE	(IPI_PMU_0_TRIG + (PM_INT_NUM * 0x1000))
-#define IPI_PMU_PM_INT_MASK	(IPI_APU_ISR_PMU_0_MASK << PM_INT_NUM)
+#define IPI_PMU_PM_INT_MASK	(IPI_APU_IXR_PMU_0_MASK << PM_INT_NUM)
 #if (PM_INT_NUM < 0 || PM_INT_NUM > 3)
 	#error PM_INT_NUM value out of range
 #endif
