@@ -264,7 +264,7 @@ void plat_rockchip_pmusram_prepare(void)
 {
 	uint32_t *sram_dst, *sram_src;
 	size_t sram_size = 2;
-	uint32_t code_size, data_size;
+	uint32_t code_size;
 
 	/* pmu sram code and data prepare */
 	sram_dst = (uint32_t *)PMUSRAM_BASE;
@@ -282,10 +282,10 @@ void plat_rockchip_pmusram_prepare(void)
 
 	/* ddr data */
 	sram_dst += (code_size / 4);
-	data_size = ddr_get_resume_data_size();
 	psram_sleep_cfg->ddr_data = (uint64_t)sram_dst;
 
-	assert((uint64_t)(sram_dst + data_size / 4) < PSRAM_SP_BOTTOM);
+	assert((uint64_t)(sram_dst + ddr_get_resume_data_size() / 4)
+						 < PSRAM_SP_BOTTOM);
 	psram_sleep_cfg->sp = PSRAM_SP_TOP;
 }
 
