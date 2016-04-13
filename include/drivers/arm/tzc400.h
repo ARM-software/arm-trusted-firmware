@@ -139,8 +139,8 @@ void tzc400_configure_region0(tzc_region_attributes_t sec_attr,
 			   unsigned int ns_device_access);
 void tzc400_configure_region(unsigned int filters,
 			  int region,
-			  uintptr_t region_base,
-			  uintptr_t region_top,
+			  unsigned long long region_base,
+			  unsigned long long region_top,
 			  tzc_region_attributes_t sec_attr,
 			  unsigned int ns_device_access);
 void tzc400_set_action(tzc_action_t action);
@@ -157,8 +157,8 @@ static inline void tzc_configure_region0(
 static inline void tzc_configure_region(
 			  unsigned int filters,
 			  int region,
-			  uintptr_t region_base,
-			  uintptr_t region_top,
+			  unsigned long long region_base,
+			  unsigned long long region_top,
 			  tzc_region_attributes_t sec_attr,
 			  unsigned int ns_device_access) __deprecated;
 static inline void tzc_set_action(tzc_action_t action) __deprecated;
@@ -180,8 +180,8 @@ static inline void tzc_configure_region0(
 static inline void tzc_configure_region(
 			  unsigned int filters,
 			  int region,
-			  uintptr_t region_base,
-			  uintptr_t region_top,
+			  unsigned long long region_base,
+			  unsigned long long region_top,
 			  tzc_region_attributes_t sec_attr,
 			  unsigned int ns_device_access)
 {

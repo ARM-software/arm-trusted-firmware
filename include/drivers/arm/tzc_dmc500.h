@@ -160,8 +160,8 @@ void tzc_dmc500_driver_init(const tzc_dmc500_driver_data_t *plat_driver_data);
 void tzc_dmc500_configure_region0(tzc_region_attributes_t sec_attr,
 				unsigned int nsaid_permissions);
 void tzc_dmc500_configure_region(int region_no,
-				uintptr_t region_base,
-				uintptr_t region_top,
+				unsigned long long region_base,
+				unsigned long long region_top,
 				tzc_region_attributes_t sec_attr,
 				unsigned int nsaid_permissions);
 void tzc_dmc500_set_action(tzc_action_t action);

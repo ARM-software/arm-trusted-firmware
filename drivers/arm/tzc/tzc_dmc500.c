@@ -196,8 +196,8 @@ void tzc_dmc500_configure_region0(tzc_region_attributes_t sec_attr,
  * for this region (see comment for that function).
  */
 void tzc_dmc500_configure_region(int region_no,
-			uintptr_t region_base,
-			uintptr_t region_top,
+			unsigned long long region_base,
+			unsigned long long region_top,
 			tzc_region_attributes_t sec_attr,
 			unsigned int nsaid_permissions)
 {
