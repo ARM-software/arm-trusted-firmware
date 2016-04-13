@@ -185,6 +185,7 @@
 #define HCR_AMO_BIT		(1 << 5)
 #define HCR_IMO_BIT		(1 << 4)
 #define HCR_FMO_BIT		(1 << 3)
+#define HCR_VM_BIT		(1 << 0)
 
 /* ISR definitions */
 #define ISR_A_SHIFT		8

@@ -268,7 +268,7 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 	ctx = cm_get_context(security_state);
 	assert(ctx);
 
-	el1_sysregs_context_save(get_sysregs_ctx(ctx));
+	el1_sysregs_context_save(get_sysregs_ctx(ctx), security_state);
 }
 
 void cm_el1_sysregs_context_restore(uint32_t security_state)

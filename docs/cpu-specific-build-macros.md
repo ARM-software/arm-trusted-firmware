@@ -52,6 +52,9 @@ For Cortex-A53, following errata build flags are defined :
      CPU. This needs to be enabled only for revision <= r0p3 of the CPU. From
      r0p4 and onwards, this errata is enabled by default.
 
+*   `ERRATA_A53_843819`: This applies errata 843819 workaround to Cortex-A53
+     CPU. This needs to be enabled for all revisions of the CPU.
+
 For Cortex-A57, following errata build flags are defined :
 
 *   `ERRATA_A57_806969`: This applies errata 806969 workaround to Cortex-A57

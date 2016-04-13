@@ -65,6 +65,10 @@ ERRATA_A53_826319	?=0
 # errata is enabled by default.
 ERRATA_A53_836870	?=0
 
+# Flag to apply errata 843819. This errata applies to all revisions of
+# the Cortex A53 cpu.
+ERRATA_A53_843819	?=0
+
 # Flag to apply errata 806969 during reset. This errata applies only to
 # revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
@@ -80,6 +84,10 @@ $(eval $(call add_define,ERRATA_A53_826319))
 # Process ERRATA_A53_836870 flag
 $(eval $(call assert_boolean,ERRATA_A53_836870))
 $(eval $(call add_define,ERRATA_A53_836870))
+
+# Process ERRATA_A53_843819 flag
+$(eval $(call assert_boolean,ERRATA_A53_843819))
+$(eval $(call add_define,ERRATA_A53_843819))
 
 # Process ERRATA_A57_806969 flag
 $(eval $(call assert_boolean,ERRATA_A57_806969))

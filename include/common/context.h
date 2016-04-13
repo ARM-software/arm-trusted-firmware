@@ -128,10 +128,12 @@
 #define CTX_CNTV_CVAL_EL0	0xf8
 #define CTX_CNTKCTL_EL1		0x100
 #define CTX_FP_FPEXC32_EL2	0x108
-#define CTX_SYSREGS_END		0x110
+#define CTX_HCR_EL2		0x110
+#define CTX_SYSREGS_END		0x118
 #else
 #define CTX_FP_FPEXC32_EL2	0xe0
-#define CTX_SYSREGS_END		0xf0
+#define CTX_HCR_EL2		0xf0
+#define CTX_SYSREGS_END		0xf8
 #endif
 
 /*******************************************************************************
@@ -321,7 +323,7 @@ CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx), 
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-void el1_sysregs_context_save(el1_sys_regs_t *regs);
+void el1_sysregs_context_save(el1_sys_regs_t *regs, unsigned int secure);
 void el1_sysregs_context_restore(el1_sys_regs_t *regs);
 #if CTX_INCLUDE_FPREGS
 void fpregs_context_save(fp_regs_t *regs);
