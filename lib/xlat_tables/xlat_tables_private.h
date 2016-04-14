@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,11 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * This file is deprecated and is retained here only for compatibility.
- * The xlat_tables library can be found in `lib/xlat_tables` directory.
- */
-#if !ERROR_DEPRECATED
-#include "../xlat_tables/xlat_tables_common.c"
-#include "../xlat_tables/aarch64/xlat_tables.c"
-#endif
+#ifndef __XLAT_TABLES_PRIVATE_H__
+#define __XLAT_TABLES_PRIVATE_H__
+
+void print_mmap(void);
+void init_xlation_table(uintptr_t base_va, uint64_t *table,
+			int level, uintptr_t *max_va,
+			unsigned long long *max_pa);
+
+#endif /* __XLAT_TABLES_PRIVATE_H__ */

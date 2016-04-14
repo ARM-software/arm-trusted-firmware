@@ -87,7 +87,8 @@ PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common/aarch64
 
 
-PLAT_BL_COMMON_SOURCES	+=	lib/aarch64/xlat_tables.c			\
+PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
+				lib/xlat_tables/aarch64/xlat_tables.c		\
 				plat/arm/common/aarch64/arm_common.c		\
 				plat/arm/common/aarch64/arm_helpers.S		\
 				plat/common/aarch64/plat_common.c

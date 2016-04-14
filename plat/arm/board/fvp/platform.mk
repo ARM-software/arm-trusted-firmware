@@ -73,7 +73,7 @@ FVP_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
 PLAT_INCLUDES		:=	-Iplat/arm/board/fvp/include
 
 
-PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/aarch64/fvp_common.c
+PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/fvp_common.c
 
 FVP_CPU_LIBS		:=	lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a35.S			\
