@@ -167,6 +167,33 @@ disable_hint:
 	ret
 endfunc a57_disable_ldnp_overread
 
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #826974.
+	 * This applies only to revision <= r1p1 of Cortex A57.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5
+	 * ---------------------------------------------------
+	 */
+func errata_a57_826974_wa
+	/*
+	 * Compare x0 against revision r1p1
+	 */
+	cmp	x0, #0x11
+	b.ls	apply_826974
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	b	print_revision_warning
+#else
+	ret
+#endif
+apply_826974:
+	mrs	x1, CPUACTLR_EL1
+	orr	x1, x1, #CPUACTLR_DIS_LOAD_PASS_DMB
+	msr	CPUACTLR_EL1, x1
+	ret
+endfunc errata_a57_826974_wa
+
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
 	 * Clobbers: x0-x5, x15, x19, x30
@@ -198,6 +225,11 @@ func cortex_a57_reset_func
 #if A57_DISABLE_NON_TEMPORAL_HINT
 	mov	x0, x15
 	bl	a57_disable_ldnp_overread
+#endif
+
+#if ERRATA_A57_826974
+	mov	x0, x15
+	bl	errata_a57_826974_wa
 #endif
 
 	/* ---------------------------------------------
