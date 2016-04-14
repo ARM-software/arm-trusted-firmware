@@ -48,7 +48,8 @@
  * PCS to use x9-x17 (temporary caller-saved registers)
  * to save EL1 system register context. It assumes that
  * 'x0' is pointing to a 'el1_sys_regs' structure where
- * the register context will be saved.
+ * the register context will be saved and 'x1' indicates
+ * the security state of the registers to be stored.
  * -----------------------------------------------------
  */
 func el1_sysregs_context_save
@@ -125,6 +126,16 @@ func el1_sysregs_context_save
 
 	mrs	x15, fpexc32_el2
 	str	x15, [x0, #CTX_FP_FPEXC32_EL2]
+
+	mrs	x15, hcr_el2
+	str	x15, [x0, #CTX_HCR_EL2]
+#ifdef ERRATA_A53_843819
+	/* clear hcr_el2[vm] if coming from non-secure world */
+	cbnz	w1, 1f
+	bic	x15, x15, #HCR_VM_BIT
+	msr	hcr_el2, x15
+1:
+#endif
 
 	ret
 endfunc el1_sysregs_context_save
@@ -211,6 +222,9 @@ func el1_sysregs_context_restore
 
 	ldr	x15, [x0, #CTX_FP_FPEXC32_EL2]
 	msr	fpexc32_el2, x15
+
+	ldr	x15, [x0, #CTX_HCR_EL2]
+	msr	hcr_el2, x15
 
 	/* No explict ISB required here as ERET covers it */
 
