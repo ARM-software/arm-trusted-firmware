@@ -54,15 +54,19 @@ newline:
 spacer:
 	.asciz ":\t\t0x"
 
+.section .rodata.cci_reg_name, "aS"
+cci_iface_regs:
+	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
+
 	/* ---------------------------------------------
 	 * The below utility macro prints out relevant GIC
-	 * registers whenever an unhandled exception is
-	 * taken in BL31 on ARM standard platforms.
+	 * and CCI registers whenever an unhandled
+	 * exception is taken in BL31.
 	 * Expects: GICD base in x16, GICC base in x17
 	 * Clobbers: x0 - x10, sp
 	 * ---------------------------------------------
 	 */
-	.macro plat_print_gic_regs
+	.macro plat_crash_print_regs
 
 	mov_imm	x16, PLAT_RK_GICD_BASE
 	mov_imm	x17, PLAT_RK_GICC_BASE
@@ -119,20 +123,7 @@ gicd_ispendr_loop:
 	bl	asm_print_str
 	b	gicd_ispendr_loop
 exit_print_gic_regs:
-	.endm
 
-.section .rodata.cci_reg_name, "aS"
-cci_iface_regs:
-	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
-
-	/* ------------------------------------------------
-	 * The below macro prints out relevant interconnect
-	 * registers whenever an unhandled exception is
-	 * taken in BL3-1.
-	 * Clobbers: x0 - x9, sp
-	 * ------------------------------------------------
-	 */
-	.macro plat_print_interconnect_regs
 #if PLATFORM_CLUSTER_COUNT > 1
 	adr	x6, cci_iface_regs
 	/* Store in x7 the base address of the first interface */

@@ -43,14 +43,18 @@ newline:
 spacer:
 	.asciz ":\t\t0x"
 
+.section .rodata.cci_reg_name, "aS"
+cci_iface_regs:
+	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
+
 	/* ---------------------------------------------
-	 * The below macro prints out relevant GIC
-	 * registers whenever an unhandled exception is
-	 * taken in BL3-1.
+	 * The below macro prints out relevant GIC and
+	 * CCI registers whenever an unhandled exception
+	 * is taken in BL3-1.
 	 * Clobbers: x0 - x10, x16, x17, sp
 	 * ---------------------------------------------
 	 */
-	.macro plat_print_gic_regs
+	.macro plat_crash_print_regs
 	mov_imm x16, BASE_GICD_BASE
 	mov_imm x17, BASE_GICC_BASE
 	/* Load the gicc reg list to x6 */
@@ -82,20 +86,7 @@ gicd_ispendr_loop:
 	bl	asm_print_str
 	b	gicd_ispendr_loop
 exit_print_gic_regs:
-	.endm
 
-.section .rodata.cci_reg_name, "aS"
-cci_iface_regs:
-	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
-
-	/* ------------------------------------------------
-	 * The below macro prints out relevant interconnect
-	 * registers whenever an unhandled exception is
-	 * taken in BL3-1.
-	 * Clobbers: x0 - x9, sp
-	 * ------------------------------------------------
-	 */
-	.macro plat_print_interconnect_regs
 	adr	x6, cci_iface_regs
 	/* Store in x7 the base address of the first interface */
 	mov_imm	x7, (PLAT_MT_CCI_BASE + SLAVE_IFACE_OFFSET(	\

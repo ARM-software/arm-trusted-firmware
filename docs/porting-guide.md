@@ -489,20 +489,15 @@ Each platform must ensure a file of this name is in the system include path with
 the following macro defined. In the ARM development platforms, this file is
 found in `plat/arm/board/<plat_name>/include/plat_macros.S`.
 
-*   **Macro : plat_print_gic_regs**
+*   **Macro : plat_crash_print_regs**
 
-    This macro allows the crash reporting routine to print GIC registers
-    in case of an unhandled exception in BL31. This aids in debugging and
-    this macro can be defined to be empty in case GIC register reporting is
-    not desired.
-
-*   **Macro : plat_print_interconnect_regs**
-
-    This macro allows the crash reporting routine to print interconnect
+    This macro allows the crash reporting routine to print relevant platform
     registers in case of an unhandled exception in BL31. This aids in debugging
-    and this macro can be defined to be empty in case interconnect register
-    reporting is not desired. In ARM standard platforms, the CCI snoop
-    control registers are reported.
+    and this macro can be defined to be empty in case register reporting is not
+    desired.
+
+    For instance, GIC or interconnect registers may be helpful for
+    troubleshooting.
 
 
 2.2 Handling Reset

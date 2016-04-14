@@ -40,7 +40,7 @@
 	 * Clobbers: x0 - x10, x16, x17, sp
 	 * ---------------------------------------------
 	 */
-	.macro plat_print_gic_regs
+	.macro css_print_gic_regs
 	mov_imm	x16, PLAT_ARM_GICD_BASE
 	mov_imm	x17, PLAT_ARM_GICC_BASE
 	arm_print_gic_regs
