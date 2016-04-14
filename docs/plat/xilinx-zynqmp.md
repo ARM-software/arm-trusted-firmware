@@ -21,14 +21,10 @@ make ERROR_DEPRECATED=1 RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=zyn
 ```
 
 # ZynqMP platform specific build options
-*   `ZYNQMP_ATF_LOCATION`: Specifies the location of the bl31 binary. Options:
-    -   `tsram` : bl31 will be located in OCM (default)
-    -   `tdram` : bl31 will be located in DRAM (address: 0x30000000)
-
-*   `ZYNQMP_TSP_RAM_LOCATION`: Specifies the location of the bl32 binary and
-    secure payload dispatcher. Options:
-    -   `tsram` : bl32/spd will be located in OCM (default)
-    -   `tdram` : bl32/spd will be located in DRAM (address: 0x30000000)
+*   `ZYNQMP_ATF_MEM_BASE`: Specifies the base address of the bl31 binary.
+*   `ZYNQMP_ATF_MEM_SIZE`: Specifies the size of the memory region of the bl31 binary.
+*   `ZYNQMP_BL32_MEM_BASE`: Specifies the base address of the bl32 binary.
+*   `ZYNQMP_BL32_MEM_SIZE`: Specifies the size of the memory region of the bl32 binary.
 
 # Power Domain Tree
 The following power domain tree represents the power domain model used by the

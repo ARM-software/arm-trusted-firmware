@@ -43,19 +43,6 @@
 /*******************************************************************************
  * ZYNQMP memory map related constants
  ******************************************************************************/
-
-#define ZYNQMP_TRUSTED_SRAM_BASE	0xFFFC0000
-#define ZYNQMP_TRUSTED_SRAM_SIZE	0x00040000
-#define ZYNQMP_TRUSTED_SRAM_LIMIT	(ZYNQMP_TRUSTED_SRAM_BASE + \
-					 ZYNQMP_TRUSTED_SRAM_SIZE)
-
-
-/* Location of trusted dram on the base zynqmp */
-#define ZYNQMP_TRUSTED_DRAM_BASE	0x30000000 /* Can't overlap TZROM area */
-#define ZYNQMP_TRUSTED_DRAM_SIZE	0x10000000
-#define ZYNQMP_TRUSTED_DRAM_LIMIT	(ZYNQMP_TRUSTED_DRAM_BASE + \
-					 ZYNQMP_TRUSTED_DRAM_SIZE)
-
 /* Aggregate of all devices in the first GB */
 #define DEVICE0_BASE		0xFF000000
 #define DEVICE0_SIZE		0x00E00000
@@ -113,16 +100,6 @@
 #define PMU_GLOBAL_REQ_PWRUP_TRIG	(PMU_GLOBAL_BASE + 0x120)
 
 #define PMU_GLOBAL_CNTRL_FW_IS_PRESENT	(1 << 4)
-
-#define DRAM1_BASE		0x00000000ull
-#define DRAM1_SIZE		0x10000000ull
-#define DRAM1_END		(DRAM1_BASE + DRAM1_SIZE - 1)
-
-#define DRAM_BASE		DRAM1_BASE
-#define DRAM_SIZE		DRAM1_SIZE
-
-/* Load address of BL33 in the ZYNQMP port */
-#define PLAT_ARM_NS_IMAGE_OFFSET	(DRAM1_BASE + 0x8000000) /* DRAM + 128MB */
 
 /*******************************************************************************
  * CCI-400 related constants
