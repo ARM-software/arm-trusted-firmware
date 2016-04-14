@@ -53,24 +53,25 @@ $(eval $(call assert_boolean,A57_DISABLE_NON_TEMPORAL_HINT))
 $(eval $(call add_define,A57_DISABLE_NON_TEMPORAL_HINT))
 
 
-# CPU Errata Build flags. These should be enabled by the
-# platform if the errata needs to be applied.
+# CPU Errata Build flags.
+# These should be enabled by the platform if the erratum workaround needs to be
+# applied.
 
-# Flag to apply errata 826319 during reset. This errata applies only to
-# revision <= r0p2 of the Cortex A53 cpu.
+# Flag to apply erratum 826319 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
 ERRATA_A53_826319	?=0
 
-# Flag to apply errata 836870 during reset. This errata applies only to
-# revision <= r0p3 of the Cortex A53 cpu. From r0p4 and onwards, this
-# errata is enabled by default.
+# Flag to apply erratum 836870 workaround during reset. This erratum applies
+# only to revision <= r0p3 of the Cortex A53 cpu. From r0p4 and onwards, this
+# erratum workaround is enabled by default.
 ERRATA_A53_836870	?=0
 
-# Flag to apply errata 806969 during reset. This errata applies only to
-# revision r0p0 of the Cortex A57 cpu.
+# Flag to apply erratum 806969 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
 
-# Flag to apply errata 813420 during reset. This errata applies only to
-# revision r0p0 of the Cortex A57 cpu.
+# Flag to apply erratum 813420  workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_813420	?=0
 
 # Process ERRATA_A53_826319 flag
