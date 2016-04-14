@@ -194,6 +194,32 @@ apply_826974:
 endfunc errata_a57_826974_wa
 
 	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #826977.
+	 * This applies only to revision <= r1p1 of Cortex A57.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5
+	 * ---------------------------------------------------
+	 */
+func errata_a57_826977_wa
+	/*
+	 * Compare x0 against revision r1p1
+	 */
+	cmp	x0, #0x11
+	b.ls	apply_826977
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	b	print_revision_warning
+#else
+	ret
+#endif
+apply_826977:
+	mrs	x1, CPUACTLR_EL1
+	orr	x1, x1, #CPUACTLR_GRE_NGRE_AS_NGNRE
+	msr	CPUACTLR_EL1, x1
+	ret
+endfunc errata_a57_826977_wa
+
+	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A57 Errata #828024.
 	 * This applies only to revision <= r1p1 of Cortex A57.
 	 * Inputs:
@@ -287,6 +313,11 @@ func cortex_a57_reset_func
 #if ERRATA_A57_826974
 	mov	x0, x15
 	bl	errata_a57_826974_wa
+#endif
+
+#if ERRATA_A57_826977
+	mov	x0, x15
+	bl	errata_a57_826977_wa
 #endif
 
 #if ERRATA_A57_828024
