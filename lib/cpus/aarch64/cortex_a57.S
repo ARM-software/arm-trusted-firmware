@@ -225,6 +225,32 @@ apply_828024:
 	ret
 endfunc errata_a57_828024_wa
 
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #829520.
+	 * This applies only to revision <= r1p2 of Cortex A57.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Clobbers : x0 - x5
+	 * ---------------------------------------------------
+	 */
+func errata_a57_829520_wa
+	/*
+	 * Compare x0 against revision r1p2
+	 */
+	cmp	x0, #0x12
+	b.ls	apply_829520
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	b	print_revision_warning
+#else
+	ret
+#endif
+apply_829520:
+	mrs	x1, CPUACTLR_EL1
+	orr	x1, x1, #CPUACTLR_DIS_INDIRECT_PREDICTOR
+	msr	CPUACTLR_EL1, x1
+	ret
+endfunc errata_a57_829520_wa
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
 	 * Clobbers: x0-x5, x15, x19, x30
@@ -267,6 +293,12 @@ func cortex_a57_reset_func
 	mov	x0, x15
 	bl	errata_a57_828024_wa
 #endif
+
+#if ERRATA_A57_829520
+	mov	x0, x15
+	bl	errata_a57_829520_wa
+#endif
+
 	/* ---------------------------------------------
 	 * Enable the SMP bit.
 	 * ---------------------------------------------

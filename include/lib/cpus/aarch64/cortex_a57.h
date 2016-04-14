@@ -67,6 +67,7 @@
 #define CPUACTLR_DCC_AS_DCCI		(1 << 44)
 #define CPUACTLR_DIS_STREAMING		(3 << 27)
 #define CPUACTLR_DIS_L1_STREAMING	(3 << 25)
+#define CPUACTLR_DIS_INDIRECT_PREDICTOR	(1 << 4)
 
 /*******************************************************************************
  * L2 Control register specific definitions.
