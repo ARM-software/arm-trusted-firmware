@@ -34,7 +34,6 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <console.h>
-#include <debug.h>
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform.h>
@@ -76,7 +75,6 @@ static entry_point_info_t bl33_image_ep_info;
 #pragma weak bl31_platform_setup
 #pragma weak bl31_plat_arch_setup
 #pragma weak bl31_plat_get_next_image_ep_info
-#pragma weak plat_get_syscnt_freq
 
 
 /*******************************************************************************
@@ -267,18 +265,4 @@ void arm_bl31_plat_arch_setup(void)
 void bl31_plat_arch_setup(void)
 {
 	arm_bl31_plat_arch_setup();
-}
-
-uint64_t plat_get_syscnt_freq(void)
-{
-	uint64_t counter_base_frequency;
-
-	/* Read the frequency from Frequency modes table */
-	counter_base_frequency = mmio_read_32(ARM_SYS_CNTCTL_BASE + CNTFID_OFF);
-
-	/* The first entry of the frequency modes table must not be 0 */
-	if (counter_base_frequency == 0)
-		panic();
-
-	return counter_base_frequency;
 }

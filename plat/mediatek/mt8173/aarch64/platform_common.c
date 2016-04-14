@@ -84,7 +84,7 @@ const mmap_region_t plat_mmap[] = {
 /* Define EL3 variants of the function initialising the MMU */
 DEFINE_CONFIGURE_MMU_EL(3)
 
-uint64_t plat_get_syscnt_freq(void)
+unsigned long long plat_get_syscnt_freq(void)
 {
 	return SYS_COUNTER_FREQ_IN_TICKS;
 }
