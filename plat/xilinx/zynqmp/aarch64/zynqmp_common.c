@@ -271,13 +271,6 @@ int zynqmp_is_pmu_up(void)
 	return zynqmp_pmufw_present;
 }
 
-/*
- * A single boot loader stack is expected to work on both the Foundation ZYNQMP
- * models and the two flavours of the Base ZYNQMP models (AEMv8 & Cortex). The
- * SYS_ID register provides a mechanism for detecting the differences between
- * these platforms. This information is stored in a per-BL array to allow the
- * code to take the correct path.Per BL platform configuration.
- */
 void zynqmp_config_setup(void)
 {
 	zynqmp_discover_pmufw();
