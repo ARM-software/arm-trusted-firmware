@@ -61,6 +61,32 @@
 			(state)->pwr_domain_state[MTK_PWR_LVL2] : 0)
 #endif
 
+#if PSCI_EXTENDED_STATE_ID
+/*
+ *  The table storing the valid idle power states. Ensure that the
+ *  array entries are populated in ascending order of state-id to
+ *  enable us to use binary search during power state validation.
+ *  The table must be terminated by a NULL entry.
+ */
+const unsigned int mtk_pm_idle_states[] = {
+	/* State-id - 0x001 */
+	mtk_make_pwrstate_lvl2(MTK_LOCAL_STATE_RUN, MTK_LOCAL_STATE_RUN,
+		MTK_LOCAL_STATE_RET, MTK_PWR_LVL0, PSTATE_TYPE_STANDBY),
+	/* State-id - 0x002 */
+	mtk_make_pwrstate_lvl2(MTK_LOCAL_STATE_RUN, MTK_LOCAL_STATE_RUN,
+		MTK_LOCAL_STATE_OFF, MTK_PWR_LVL0, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x022 */
+	mtk_make_pwrstate_lvl2(MTK_LOCAL_STATE_RUN, MTK_LOCAL_STATE_OFF,
+		MTK_LOCAL_STATE_OFF, MTK_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
+#if PLAT_MAX_PWR_LVL > MTK_PWR_LVL1
+	/* State-id - 0x222 */
+	mtk_make_pwrstate_lvl2(MTK_LOCAL_STATE_OFF, MTK_LOCAL_STATE_OFF,
+		MTK_LOCAL_STATE_OFF, MTK_PWR_LVL2, PSTATE_TYPE_POWERDOWN),
+#endif
+	0,
+};
+#endif
+
 struct core_context {
 	unsigned long timer_data[8];
 	unsigned int count;
@@ -690,6 +716,7 @@ static void __dead2 plat_system_reset(void)
 }
 
 #if !ENABLE_PLAT_COMPAT
+#if !PSCI_EXTENDED_STATE_ID
 static int plat_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
 {
@@ -727,6 +754,42 @@ static int plat_validate_power_state(unsigned int power_state,
 
 	return PSCI_E_SUCCESS;
 }
+#else
+int plat_validate_power_state(unsigned int power_state,
+				psci_power_state_t *req_state)
+{
+	unsigned int state_id;
+	int i;
+
+	assert(req_state);
+
+	/*
+	 *  Currently we are using a linear search for finding the matching
+	 *  entry in the idle power state array. This can be made a binary
+	 *  search if the number of entries justify the additional complexity.
+	 */
+	for (i = 0; !!mtk_pm_idle_states[i]; i++) {
+		if (power_state == mtk_pm_idle_states[i])
+			break;
+	}
+
+	/* Return error if entry not found in the idle state array */
+	if (!mtk_pm_idle_states[i])
+		return PSCI_E_INVALID_PARAMS;
+
+	i = 0;
+	state_id = psci_get_pstate_id(power_state);
+
+	/* Parse the State ID and populate the state info parameter */
+	while (state_id) {
+		req_state->pwr_domain_state[i++] = state_id &
+						MTK_LOCAL_PSTATE_MASK;
+		state_id >>= MTK_LOCAL_PSTATE_WIDTH;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+#endif
 
 void mtk_system_pwr_domain_resume(void)
 {
