@@ -29,17 +29,18 @@
  */
 
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <bakery_lock.h>
 #include <cci.h>
 #include <console.h>
 #include <debug.h>
 #include <errno.h>
+#include <gicv2.h>
 #include <mcucfg.h>
 #include <mmio.h>
 #include <mt8173_def.h>
 #include <mt_cpuxgpt.h> /* generic_timer_backup() */
+#include <plat_arm.h>
 #include <plat_private.h>
 #include <power_tracer.h>
 #include <psci.h>
@@ -410,7 +411,7 @@ static void plat_affinst_off(unsigned int afflvl, unsigned int state)
 		return;
 
 	/* Prevent interrupts from spuriously waking up this cpu */
-	arm_gic_cpuif_deactivate();
+	gicv2_cpuif_disable();
 
 	spm_hotplug_off(mpidr);
 
@@ -429,7 +430,7 @@ static void plat_power_domain_off(const psci_power_state_t *state)
 	unsigned long mpidr = read_mpidr_el1();
 
 	/* Prevent interrupts from spuriously waking up this cpu */
-	arm_gic_cpuif_deactivate();
+	gicv2_cpuif_disable();
 
 	spm_hotplug_off(mpidr);
 
@@ -497,7 +498,7 @@ static void plat_affinst_suspend(unsigned long sec_entrypoint,
 		generic_timer_backup();
 		spm_system_suspend();
 		/* Prevent interrupts from spuriously waking up this cpu */
-		arm_gic_cpuif_deactivate();
+		gicv2_cpuif_disable();
 	}
 }
 #else
@@ -537,7 +538,7 @@ static void plat_power_domain_suspend(const psci_power_state_t *state)
 		generic_timer_backup();
 		spm_system_suspend();
 		/* Prevent interrupts from spuriously waking up this cpu */
-		arm_gic_cpuif_deactivate();
+		gicv2_cpuif_disable();
 	}
 }
 #endif
@@ -566,8 +567,8 @@ static void plat_affinst_on_finish(unsigned int afflvl, unsigned int state)
 	}
 
 	/* Enable the gic cpu interface */
-	arm_gic_cpuif_setup();
-	arm_gic_pcpu_distif_setup();
+	gicv2_cpuif_enable();
+	gicv2_pcpu_distif_init();
 	trace_power_flow(mpidr, CPU_UP);
 }
 #else
@@ -593,8 +594,8 @@ static void plat_power_domain_on_finish(const psci_power_state_t *state)
 		return;
 
 	/* Enable the gic cpu interface */
-	arm_gic_cpuif_setup();
-	arm_gic_pcpu_distif_setup();
+	gicv2_cpuif_enable();
+	gicv2_pcpu_distif_init();
 	trace_power_flow(mpidr, CPU_UP);
 }
 #endif
@@ -615,8 +616,7 @@ static void plat_affinst_suspend_finish(unsigned int afflvl, unsigned int state)
 
 	if (afflvl >= MPIDR_AFFLVL2) {
 		/* Enable the gic cpu interface */
-		arm_gic_setup();
-		arm_gic_cpuif_setup();
+		plat_arm_gic_init();
 		spm_system_suspend_finish();
 		enable_scu(mpidr);
 	}
@@ -633,7 +633,7 @@ static void plat_affinst_suspend_finish(unsigned int afflvl, unsigned int state)
 	if (afflvl < MPIDR_AFFLVL2)
 		spm_mcdi_finish_for_on_state(mpidr, afflvl);
 
-	arm_gic_pcpu_distif_setup();
+	gicv2_pcpu_distif_init();
 }
 #else
 static void plat_power_domain_suspend_finish(const psci_power_state_t *state)
@@ -645,8 +645,7 @@ static void plat_power_domain_suspend_finish(const psci_power_state_t *state)
 
 	if (MTK_SYSTEM_PWR_STATE(state) == MTK_LOCAL_STATE_OFF) {
 		/* Enable the gic cpu interface */
-		arm_gic_setup();
-		arm_gic_cpuif_setup();
+		plat_arm_gic_init();
 		spm_system_suspend_finish();
 		enable_scu(mpidr);
 	}
@@ -665,7 +664,7 @@ static void plat_power_domain_suspend_finish(const psci_power_state_t *state)
 			spm_mcdi_finish_for_on_state(mpidr, MTK_PWR_LVL1);
 	}
 
-	arm_gic_pcpu_distif_setup();
+	gicv2_pcpu_distif_init();
 }
 #endif
 
@@ -798,8 +797,7 @@ void mtk_system_pwr_domain_resume(void)
 	/* Assert system power domain is available on the platform */
 	assert(PLAT_MAX_PWR_LVL >= MTK_PWR_LVL2);
 
-	arm_gic_cpuif_setup();
-	arm_gic_pcpu_distif_setup();
+	plat_arm_gic_init();
 }
 #endif
 
