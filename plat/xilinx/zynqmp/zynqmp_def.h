@@ -63,6 +63,7 @@
 #define CRL_APB_BASE			0xFF5E0000
 #define CRL_APB_RPLL_CTRL		(CRL_APB_BASE + 0x30)
 #define CRL_APB_TIMESTAMP_REF_CTRL	(CRL_APB_BASE + 0x128)
+#define CRL_APB_BOOT_MODE_USER		(CRL_APB_BASE + 0x200)
 #define CRL_APB_RESET_CTRL		(CRL_APB_BASE + 0x218)
 
 #define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	(1 << 24)
@@ -70,6 +71,9 @@
 #define CRL_APB_RPLL_CTRL_BYPASS	(1 << 3)
 
 #define CRL_APB_RESET_CTRL_SOFT_RESET	(1 << 4)
+
+#define CRL_APB_BOOT_MODE_MASK		(0xf << 0)
+#define ZYNQMP_BOOTMODE_JTAG		0
 
 /* system counter registers and bitfields */
 #define IOU_SCNTRS_BASE			0xFF260000

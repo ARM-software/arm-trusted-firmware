@@ -271,6 +271,13 @@ int zynqmp_is_pmu_up(void)
 	return zynqmp_pmufw_present;
 }
 
+unsigned int zynqmp_get_bootmode(void)
+{
+	uint32_t r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
+
+	return r & CRL_APB_BOOT_MODE_MASK;
+}
+
 void zynqmp_config_setup(void)
 {
 	zynqmp_discover_pmufw();
