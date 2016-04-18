@@ -31,6 +31,8 @@
 #ifndef __PLATFORM_DEF_H__
 #define __PLATFORM_DEF_H__
 
+#include "mt8173_def.h"
+
 
 /*******************************************************************************
  * Platform binary types for linking
@@ -129,5 +131,20 @@
  ******************************************************************************/
 #define CACHE_WRITEBACK_SHIFT	6
 #define CACHE_WRITEBACK_GRANULE	(1 << CACHE_WRITEBACK_SHIFT)
+
+
+#define PLAT_ARM_GICD_BASE      BASE_GICD_BASE
+#define PLAT_ARM_GICC_BASE      BASE_GICC_BASE
+
+#define PLAT_ARM_G1S_IRQS       MT_IRQ_SEC_SGI_0,      \
+                                MT_IRQ_SEC_SGI_1,      \
+                                MT_IRQ_SEC_SGI_2,      \
+                                MT_IRQ_SEC_SGI_3,      \
+                                MT_IRQ_SEC_SGI_4,      \
+                                MT_IRQ_SEC_SGI_5,      \
+                                MT_IRQ_SEC_SGI_6,      \
+                                MT_IRQ_SEC_SGI_7
+
+#define PLAT_ARM_G0_IRQS
 
 #endif /* __PLATFORM_DEF_H__ */

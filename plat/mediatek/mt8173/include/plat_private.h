@@ -45,9 +45,6 @@ void plat_cci_init(void);
 void plat_cci_enable(void);
 void plat_cci_disable(void);
 
-/* Declarations for plat_mt_gic.c */
-void plat_mt_gic_init(void);
-
 /* Declarations for plat_topology.c */
 int mt_setup_topology(void);
 
