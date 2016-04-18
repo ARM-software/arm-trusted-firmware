@@ -104,6 +104,6 @@ BUILT_TIME_DATE_STRING = const char build_message[] = "Built : "${BUILD_MESSAGE_
 VERSION_STRING_MESSAGE = const char version_string[] = "${VERSION_STRING}";
 define MAKE_BUILD_STRINGS
 	@echo $$(BUILT_TIME_DATE_STRING) $$(VERSION_STRING_MESSAGE) | \
-		$$(CC) $$(CFLAGS) -x c - -o $1
+		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -x c - -o $1
 endef
 

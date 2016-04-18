@@ -208,11 +208,11 @@ $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
 $(OBJ): $(2)
 	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(CFLAGS) -D$(IMAGE) -c $$< -o $$@
+	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -D$(IMAGE) -c $$< -o $$@
 
 $(PREREQUISITES): $(2) | bl$(3)_dirs
 	@echo "  DEPS    $$@"
-	$$(Q)$$(CC) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
+	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
 
 ifdef IS_ANYTHING_TO_BUILD
 -include $(PREREQUISITES)
@@ -351,7 +351,7 @@ ifdef MAKE_BUILD_STRINGS
 else
 	@echo 'const char build_message[] = "Built : "$(BUILD_MESSAGE_TIMESTAMP); \
 	       const char version_string[] = "${VERSION_STRING}";' | \
-		$$(CC) $$(CFLAGS) -xc - -o $(BUILD_DIR)/build_message.o
+		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc - -o $(BUILD_DIR)/build_message.o
 endif
 	$$(Q)$$(LD) -o $$@ $$(LDFLAGS) -Map=$(MAPFILE) --script $(LINKERFILE) \
 					$(BUILD_DIR)/build_message.o $(OBJS)

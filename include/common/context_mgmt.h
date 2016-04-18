@@ -55,7 +55,6 @@ void cm_set_context_by_index(unsigned int cpu_idx,
 			     unsigned int security_state);
 void *cm_get_context(uint32_t security_state);
 void cm_set_context(void *context, uint32_t security_state);
-inline void cm_set_next_context(void *context);
 void cm_init_context(uint64_t mpidr,
 		     const struct entry_point_info *ep) __deprecated;
 void cm_init_my_context(const struct entry_point_info *ep);
@@ -80,7 +79,7 @@ uint32_t cm_get_scr_el3(uint32_t security_state);
  * return. This initializes the SP_EL3 to a pointer to a 'cpu_context' set for
  * the required security state
  ******************************************************************************/
-inline void cm_set_next_context(void *context)
+static inline void cm_set_next_context(void *context)
 {
 #if DEBUG
 	uint64_t sp_mode;
