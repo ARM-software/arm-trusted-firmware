@@ -101,7 +101,7 @@
 /*
  * Put BL3-1 at the top of the Trusted RAM
  */
-#define BL31_BASE		(TZRAM_BASE + 0x8000)
+#define BL31_BASE		(TZRAM_BASE + 0x10000)
 #define BL31_LIMIT	(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************

@@ -79,7 +79,7 @@
 #define RK3399_UART2_BASE	(0xff1a0000)
 #define RK3399_UART2_SIZE	SIZE_K(64)
 
-#define RK3399_BAUDRATE		(1500000)
+#define RK3399_BAUDRATE		(115200)
 #define RK3399_UART_CLOCK	(24000000)
 
 /******************************************************************************
