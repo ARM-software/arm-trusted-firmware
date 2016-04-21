@@ -90,6 +90,10 @@ ERRATA_A57_828024	?=0
 # only to revision <= r1p2 of the Cortex A57 cpu.
 ERRATA_A57_829520	?=0
 
+# Flag to apply erratum 833471 workaround during reset. This erratum applies
+# only to revision <= r1p2 of the Cortex A57 cpu.
+ERRATA_A57_833471	?=0
+
 # Process ERRATA_A53_826319 flag
 $(eval $(call assert_boolean,ERRATA_A53_826319))
 $(eval $(call add_define,ERRATA_A53_826319))
@@ -121,3 +125,7 @@ $(eval $(call add_define,ERRATA_A57_828024))
 # Process ERRATA_A57_829520 flag
 $(eval $(call assert_boolean,ERRATA_A57_829520))
 $(eval $(call add_define,ERRATA_A57_829520))
+
+# Process ERRATA_A57_833471 flag
+$(eval $(call assert_boolean,ERRATA_A57_833471))
+$(eval $(call add_define,ERRATA_A57_833471))
