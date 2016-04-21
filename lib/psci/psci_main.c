@@ -347,13 +347,47 @@ int psci_features(unsigned int psci_fid)
 	if (psci_fid == PSCI_CPU_SUSPEND_AARCH32 ||
 			psci_fid == PSCI_CPU_SUSPEND_AARCH64) {
 		/*
-		 * The trusted firmware does not support OS Initiated Mode.
+		 * The trusted firmware supports OS Initiated Mode.
 		 */
 		return (FF_PSTATE << FF_PSTATE_SHIFT) |
-			((!FF_SUPPORTS_OS_INIT_MODE) << FF_MODE_SUPPORT_SHIFT);
+			((FF_SUPPORTS_OS_INIT_MODE) << FF_MODE_SUPPORT_SHIFT);
 	}
 
 	/* Return 0 for all other fid's */
+	return PSCI_E_SUCCESS;
+}
+
+int psci_set_suspend_mode(unsigned int mode)
+{
+	unsigned int idx;
+
+	if (mode > 1)
+		return PSCI_E_INVALID_PARAMS;
+
+	for (idx = 0; idx < PLATFORM_CORE_COUNT; idx++) {
+		INFO("  CPU Node : MPID 0x%lx, parent_node %d,"
+						" State 0x%x\n",
+					psci_cpu_pd_nodes[idx].mpidr,
+					psci_cpu_pd_nodes[idx].parent_node,
+					psci_get_cpu_local_state_by_idx(idx));
+
+		if (psci_get_cpu_local_state_by_idx(idx) >
+					(PLAT_MAX_PWR_LVL + 1))
+			return PSCI_E_DENIED;
+	}
+
+	INFO("mode = 0x%x\n", mode);
+	switch (mode) {
+	case 0:
+		if (psci_suspend_mode == 1)
+			psci_suspend_mode = 0;
+		break;
+	case 1:
+		if (psci_suspend_mode == 0)
+			psci_suspend_mode = 1;
+		break;
+	}
+
 	return PSCI_E_SUCCESS;
 }
 
@@ -432,6 +466,9 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_STAT_COUNT_AARCH32:
 			return psci_stat_count(x1, x2);
 #endif
+
+		case PSCI_SET_SUSPEND_MODE:
+			return psci_set_suspend_mode(x1);
 
 		default:
 			break;

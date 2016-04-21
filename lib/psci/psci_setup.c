@@ -273,6 +273,8 @@ int psci_setup(const psci_lib_args_t *lib_args)
 	psci_caps |=  define_psci_cap(PSCI_STAT_COUNT_AARCH64);
 #endif
 
+	psci_caps |=  define_psci_cap(PSCI_SET_SUSPEND_MODE);
+
 	return 0;
 }
 
