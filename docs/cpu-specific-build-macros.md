@@ -22,14 +22,19 @@ for a specific CPU on a platform.
 ARM Trusted Firmware exports a series of build flags which control the
 errata workarounds that are applied to each CPU by the reset handler. The
 errata details can be found in the CPU specific errata documents published
-by ARM. The errata workarounds are implemented for a particular revision
-or a set of processor revisions. This is checked by reset handler at runtime.
-Each errata workaround is identified by its `ID` as specified in the processor's
+by ARM:
+
+*   [Cortex-A53 MPCore Software Developers Errata Notice][A53 Errata Notice]
+*   [Cortex-A57 MPCore Software Developers Errata Notice][A57 Errata Notice]
+
+The errata workarounds are implemented for a particular revision or a set of
+processor revisions. This is checked by the reset handler at runtime. Each
+errata workaround is identified by its `ID` as specified in the processor's
 errata notice document. The format of the define used to enable/disable the
 errata workaround is `ERRATA_<Processor name>_<ID>`, where the `Processor name`
 is for example `A57` for the `Cortex_A57` CPU.
 
-All workarounds are disabled by default. The platform is reponsible for
+All workarounds are disabled by default. The platform is responsible for
 enabling these workarounds according to its requirement by defining the
 errata workaround build flags in the platform specific makefile. In case
 these workarounds are enabled for the wrong CPU revision then the errata
@@ -109,3 +114,5 @@ architecture that can be enabled by the platform as desired.
 _Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved._
 
 [A57 SW Optimization Guide]: http://infocenter.arm.com/help/topic/com.arm.doc.uan0015b/Cortex_A57_Software_Optimization_Guide_external.pdf
+[A53 Errata Notice]:         http://infocenter.arm.com/help/topic/com.arm.doc.epm048406/index.html
+[A57 Errata Notice]:         http://infocenter.arm.com/help/topic/com.arm.doc.epm049219/cortex_a57_mpcore_software_developers_errata_notice.pdf
