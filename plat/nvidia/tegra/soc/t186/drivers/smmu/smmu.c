@@ -465,15 +465,42 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 		(uint32_t)(smmu_ctx_addr >> 32));
 }
 
+#define SMMU_NUM_CONTEXTS		64
+#define SMMU_CONTEXT_BANK_MAX_IDX	64
+
 /*
  * Init SMMU during boot or "System Suspend" exit
  */
 void tegra_smmu_init(void)
 {
-	uint32_t val;
+	uint32_t val, i, ctx_base;
 
-	/* Program the SMMU pagesize */
+	/* Program the SMMU pagesize and reset CACHE_LOCK bit */
 	val = tegra_smmu_read_32(SMMU_GSR0_SECURE_ACR);
 	val |= SMMU_GSR0_PGSIZE_64K;
+	val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
+	tegra_smmu_write_32(SMMU_GSR0_SECURE_ACR, val);
+
+	/* reset CACHE LOCK bit for NS Aux. Config. Register */
+	val = tegra_smmu_read_32(SMMU_GNSR_ACR);
+	val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
+	tegra_smmu_write_32(SMMU_GNSR_ACR, val);
+
+	/* disable TCU prefetch for all contexts */
+	ctx_base = (SMMU_GSR0_PGSIZE_64K * SMMU_NUM_CONTEXTS) + SMMU_CBn_ACTLR;
+	for (i = 0; i < SMMU_CONTEXT_BANK_MAX_IDX; i++) {
+		val = tegra_smmu_read_32(ctx_base + (SMMU_GSR0_PGSIZE_64K * i));
+		val &= ~SMMU_CBn_ACTLR_CPRE_BIT;
+		tegra_smmu_write_32(ctx_base + (SMMU_GSR0_PGSIZE_64K * i), val);
+	}
+
+	/* set CACHE LOCK bit for NS Aux. Config. Register */
+	val = tegra_smmu_read_32(SMMU_GNSR_ACR);
+	val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
+	tegra_smmu_write_32(SMMU_GNSR_ACR, val);
+
+	/* set CACHE LOCK bit for S Aux. Config. Register */
+	val = tegra_smmu_read_32(SMMU_GSR0_SECURE_ACR);
+	val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
 	tegra_smmu_write_32(SMMU_GSR0_SECURE_ACR, val);
 }

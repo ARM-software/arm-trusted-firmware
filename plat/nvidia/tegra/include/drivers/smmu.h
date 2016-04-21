@@ -599,9 +599,16 @@
  * SMMU Global Secure Aux. Configuration Register
  ******************************************************************************/
 #define SMMU_GSR0_SECURE_ACR			0x10
+#define SMMU_GNSR_ACR				(SMMU_GSR0_SECURE_ACR + 0x400)
 #define SMMU_GSR0_PGSIZE_SHIFT			16
 #define SMMU_GSR0_PGSIZE_4K			(0 << SMMU_GSR0_PGSIZE_SHIFT)
 #define SMMU_GSR0_PGSIZE_64K			(1 << SMMU_GSR0_PGSIZE_SHIFT)
+#define SMMU_ACR_CACHE_LOCK_ENABLE_BIT		(1 << 26)
+
+/*******************************************************************************
+ * SMMU Global Aux. Control Register
+ ******************************************************************************/
+#define SMMU_CBn_ACTLR_CPRE_BIT			(1 << 1)
 
 /*******************************************************************************
  * SMMU configuration constants
