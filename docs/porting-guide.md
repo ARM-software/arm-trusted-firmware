@@ -448,6 +448,14 @@ must also be defined:
     Defines the maximum number of open IO handles. Attempting to open more IO
     entities than this value using `io_open()` will fail with -ENOMEM.
 
+*   **#define : MAX_IO_BLOCK_DEVICES**
+
+    Defines the maximum number of registered IO block devices. Attempting to
+    register more devices this value using `io_dev_open()` will fail
+    with -ENOMEM. MAX_IO_BLOCK_DEVICES should be less than MAX_IO_DEVICES.
+    With this macro, multiple block devices could be supported at the same
+    time.
+
 If the platform needs to allocate data within the per-cpu data framework in
 BL31, it should define the following macro. Currently this is only required if
 the platform decides not to use the coherent memory section by undefining the
