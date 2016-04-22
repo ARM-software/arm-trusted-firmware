@@ -88,8 +88,8 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 {
 	mmap_region_t *mm = mmap;
 	mmap_region_t *mm_last = mm + ARRAY_SIZE(mmap) - 1;
-	unsigned long long pa_end = base_pa + size - 1;
-	uintptr_t va_end = base_va + size - 1;
+	unsigned long long end_pa = base_pa + size - 1;
+	uintptr_t end_va = base_va + size - 1;
 
 	assert(IS_PAGE_ALIGNED(base_pa));
 	assert(IS_PAGE_ALIGNED(base_va));
@@ -98,8 +98,72 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 	if (!size)
 		return;
 
+	assert(base_pa < end_pa); /* Check for overflows */
+	assert(base_va < end_va);
+
+#if DEBUG
+
+	/* Check for PAs and VAs overlaps with all other regions */
+	for (mm = mmap; mm->size; ++mm) {
+
+		uintptr_t mm_end_va = mm->base_va + mm->size - 1;
+
+		/*
+		 * Check if one of the regions is completely inside the other
+		 * one.
+		 */
+		int fully_overlapped_va =
+			((base_va >= mm->base_va) && (end_va <= mm_end_va)) ||
+			((mm->base_va >= base_va) && (mm_end_va <= end_va));
+
+		/*
+		 * Full VA overlaps are only allowed if both regions are
+		 * identity mapped (zero offset) or have the same VA to PA
+		 * offset. Also, make sure that it's not the exact same area.
+		 */
+		if (fully_overlapped_va) {
+			assert((mm->base_va - mm->base_pa) ==
+			       (base_va - base_pa));
+			assert((base_va != mm->base_va) || (size != mm->size));
+		} else {
+			/*
+			 * If the regions do not have fully overlapping VAs,
+			 * then they must have fully separated VAs and PAs.
+			 * Partial overlaps are not allowed
+			 */
+
+			unsigned long long mm_end_pa =
+						     mm->base_pa + mm->size - 1;
+
+			int separated_pa =
+				(end_pa < mm->base_pa) || (base_pa > mm_end_pa);
+			int separated_va =
+				(end_va < mm->base_va) || (base_va > mm_end_va);
+
+			assert(separated_va && separated_pa);
+		}
+	}
+
+	mm = mmap; /* Restore pointer to the start of the array */
+
+#endif /* DEBUG */
+
 	/* Find correct place in mmap to insert new region */
 	while (mm->base_va < base_va && mm->size)
+		++mm;
+
+	/*
+	 * If a section is contained inside another one with the same base
+	 * address, it must be placed after the one it is contained in:
+	 *
+	 * 1st |-----------------------|
+	 * 2nd |------------|
+	 * 3rd |------|
+	 *
+	 * This is required for mmap_region_attr() to get the attributes of the
+	 * small region correctly.
+	 */
+	while ((mm->base_va == base_va) && (mm->size > size))
 		++mm;
 
 	/* Make room for new region by moving other regions up by one place */
@@ -113,10 +177,10 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 	mm->size = size;
 	mm->attr = attr;
 
-	if (pa_end > xlat_max_pa)
-		xlat_max_pa = pa_end;
-	if (va_end > xlat_max_va)
-		xlat_max_va = va_end;
+	if (end_pa > xlat_max_pa)
+		xlat_max_pa = end_pa;
+	if (end_va > xlat_max_va)
+		xlat_max_va = end_va;
 }
 
 void mmap_add(const mmap_region_t *mm)
@@ -164,14 +228,33 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 	return desc;
 }
 
+/*
+ * Returns attributes of area at `base_va` with size `size`. It returns the
+ * attributes of the innermost region that contains it. If there are partial
+ * overlaps, it returns -1, as a smaller size is needed.
+ */
 static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
 					size_t size)
 {
-	int attr = mm->attr;
-	int old_mem_type, new_mem_type;
+	/* Don't assume that the area is contained in the first region */
+	int attr = -1;
 
-	for (;;) {
-		++mm;
+	/*
+	 * Get attributes from last (innermost) region that contains the
+	 * requested area. Don't stop as soon as one region doesn't contain it
+	 * because there may be other internal regions that contain this area:
+	 *
+	 * |-----------------------------1-----------------------------|
+	 * |----2----|     |-------3-------|    |----5----|
+	 *                   |--4--|
+	 *
+	 *                   |---| <- Area we want the attributes of.
+	 *
+	 * In this example, the area is contained in regions 1, 3 and 4 but not
+	 * in region 2. The loop shouldn't stop at region 2 as inner regions
+	 * have priority over outer regions, it should stop at region 5.
+	 */
+	for (;; ++mm) {
 
 		if (!mm->size)
 			return attr; /* Reached end of list */
@@ -182,27 +265,14 @@ static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
 		if (mm->base_va + mm->size <= base_va)
 			continue; /* Next region has already been overtaken */
 
-		if ((mm->attr & attr) == attr)
+		if (mm->attr == attr)
 			continue; /* Region doesn't override attribs so skip */
-
-		/*
-		 * Update memory mapping attributes in 2 steps:
-		 * 1) Update access permissions and security state flags
-		 * 2) Update memory type.
-		 *
-		 * See xlat_tables.h for details about the attributes priority
-		 * system and the rules dictating whether attributes should be
-		 * updated.
-		 */
-		old_mem_type = MT_TYPE(attr);
-		new_mem_type = MT_TYPE(mm->attr);
-		attr &= mm->attr;
-		if (new_mem_type < old_mem_type)
-			attr = (attr & ~MT_TYPE_MASK) | new_mem_type;
 
 		if (mm->base_va > base_va ||
 			mm->base_va + mm->size < base_va + size)
 			return -1; /* Region doesn't fully cover our area */
+
+		attr = mm->attr;
 	}
 }
 
@@ -228,7 +298,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			/* Done mapping regions; finish zeroing the table */
 			desc = INVALID_DESC;
 		} else if (mm->base_va + mm->size <= base_va) {
-			/* Area now after the region so skip it */
+			/* This area is after the region so get next region */
 			++mm;
 			continue;
 		}
@@ -237,24 +307,27 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 				(void *)base_va, level_size);
 
 		if (mm->base_va >= base_va + level_size) {
-			/* Next region is after area so nothing to map yet */
+			/* Next region is after this area. Nothing to map yet */
 			desc = INVALID_DESC;
-		} else if (mm->base_va <= base_va && mm->base_va + mm->size >=
-				base_va + level_size) {
-			/* Next region covers all of area */
+		} else {
+			/*
+			 * Try to get attributes of this area. It will fail if
+			 * there are partially overlapping regions. On success,
+			 * it will return the innermost region's attributes.
+			 */
 			int attr = mmap_region_attr(mm, base_va, level_size);
-			if (attr >= 0)
+			if (attr >= 0) {
 				desc = mmap_desc(attr,
 					base_va - mm->base_va + mm->base_pa,
 					level);
+			}
 		}
-		/* else Next region only partially covers area, so need */
 
 		if (desc == UNSET_DESC) {
 			/* Area not covered by a region so need finer table */
 			uint64_t *new_table = xlat_tables[next_xlat++];
 			assert(next_xlat <= MAX_XLAT_TABLES);
-			desc = TABLE_DESC | (unsigned long)new_table;
+			desc = TABLE_DESC | (uint64_t)new_table;
 
 			/* Recurse to fill in new table */
 			mm = init_xlation_table_inner(mm, base_va,
