@@ -284,8 +284,9 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 	unsigned level_size_shift = L1_XLAT_ADDRESS_SHIFT - (level - 1) *
 						XLAT_TABLE_ENTRIES_SHIFT;
 	unsigned level_size = 1 << level_size_shift;
-	unsigned long long level_index_mask = XLAT_TABLE_ENTRIES_MASK <<
-							level_size_shift;
+	unsigned long long level_index_mask =
+		((unsigned long long) XLAT_TABLE_ENTRIES_MASK)
+		<< level_size_shift;
 
 	assert(level > 0 && level <= 3);
 
