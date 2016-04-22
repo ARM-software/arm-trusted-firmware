@@ -61,9 +61,15 @@
  ******************************************************************************/
 #define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
 
+#define CPUACTLR_DIS_LOAD_PASS_DMB	(1 << 59)
+#define CPUACTLR_GRE_NGRE_AS_NGNRE	(1 << 54)
 #define CPUACTLR_DIS_OVERREAD		(1 << 52)
 #define CPUACTLR_NO_ALLOC_WBWA		(1 << 49)
 #define CPUACTLR_DCC_AS_DCCI		(1 << 44)
+#define CPUACTLR_FORCE_FPSCR_FLUSH	(1 << 38)
+#define CPUACTLR_DIS_STREAMING		(3 << 27)
+#define CPUACTLR_DIS_L1_STREAMING	(3 << 25)
+#define CPUACTLR_DIS_INDIRECT_PREDICTOR	(1 << 4)
 
 /*******************************************************************************
  * L2 Control register specific definitions.
