@@ -47,7 +47,6 @@ int psci_cpu_on(u_register_t target_cpu,
 
 {
 	int rc;
-	unsigned int end_pwrlvl;
 	entry_point_info_t ep;
 
 	/* Determine if the cpu exists of not */
@@ -64,11 +63,7 @@ int psci_cpu_on(u_register_t target_cpu,
 	 * To turn this cpu on, specify which power
 	 * levels need to be turned on
 	 */
-	end_pwrlvl = PLAT_MAX_PWR_LVL;
-	rc = psci_cpu_on_start(target_cpu,
-			    &ep,
-			    end_pwrlvl);
-	return rc;
+	return psci_cpu_on_start(target_cpu, &ep);
 }
 
 unsigned int psci_version(void)
