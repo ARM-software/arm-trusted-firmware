@@ -52,7 +52,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 
 /* Declarations for plat_setup.c */
 const mmap_region_t *plat_get_mmio_map(void);
-uint64_t plat_get_syscnt_freq(void);
+unsigned long long plat_get_syscnt_freq(void);
 
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);

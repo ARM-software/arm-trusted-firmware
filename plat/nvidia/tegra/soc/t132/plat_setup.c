@@ -74,7 +74,7 @@ const mmap_region_t *plat_get_mmio_map(void)
 	return tegra_mmap;
 }
 
-uint64_t plat_get_syscnt_freq(void)
+unsigned long long plat_get_syscnt_freq(void)
 {
 	return 12000000;
 }
