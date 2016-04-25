@@ -811,7 +811,7 @@ int main(int argc, char **argv)
 	if (fip_filename == NULL) {
 		printf("ERROR: Missing FIP filename\n");
 		print_usage();
-		return 0;
+		return EINVAL;
 	}
 
 	/* Unpack images from FIP always takes precedence over packaging. In
