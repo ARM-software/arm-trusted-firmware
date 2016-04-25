@@ -67,12 +67,15 @@ static int cpu_on_validate_state(aff_info_state_t aff_state)
  * platform handler as it can return error.
  ******************************************************************************/
 int psci_cpu_on_start(u_register_t target_cpu,
-		      entry_point_info_t *ep,
-		      unsigned int end_pwrlvl)
+		      entry_point_info_t *ep)
 {
 	int rc;
 	unsigned int target_idx = plat_core_pos_by_mpidr(target_cpu);
 	aff_info_state_t target_aff_state;
+
+	/* Calling function must supply valid input arguments */
+	assert((int) target_idx >= 0);
+	assert(ep != NULL);
 
 	/*
 	 * This function must only be called on platforms where the

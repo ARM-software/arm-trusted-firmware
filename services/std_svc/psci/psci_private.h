@@ -203,8 +203,7 @@ int psci_spd_migrate_info(u_register_t *mpidr);
 
 /* Private exported functions from psci_on.c */
 int psci_cpu_on_start(unsigned long target_cpu,
-		      entry_point_info_t *ep,
-		      unsigned int end_pwrlvl);
+		      entry_point_info_t *ep);
 
 void psci_cpu_on_finish(unsigned int cpu_idx,
 			psci_power_state_t *state_info);
