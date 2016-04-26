@@ -163,6 +163,7 @@ const mmap_region_t *plat_arm_get_mmap(void)
 	return plat_arm_mmap;
 }
 
+#ifdef ARM_SYS_CNTCTL_BASE
 unsigned long long plat_get_syscnt_freq(void)
 {
 	unsigned long long counter_base_frequency;
@@ -176,3 +177,4 @@ unsigned long long plat_get_syscnt_freq(void)
 
 	return counter_base_frequency;
 }
+#endif /* ARM_SYS_CNTCTL_BASE */
