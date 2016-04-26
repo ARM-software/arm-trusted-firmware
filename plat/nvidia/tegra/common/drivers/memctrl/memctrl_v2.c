@@ -392,8 +392,8 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 
 	/* Extract the high address bits from the base/end values */
 	val = (uint32_t)(phys_base >> 32) & TZRAM_ADDR_HI_BITS_MASK;
-	val |= (((uint32_t)(tzram_end >> 32) << TZRAM_END_HI_BITS_SHIFT) &
-		TZRAM_ADDR_HI_BITS_MASK);
+	val |= (((uint32_t)(tzram_end >> 32) & TZRAM_ADDR_HI_BITS_MASK) <<
+		TZRAM_END_HI_BITS_SHIFT);
 	tegra_mc_write_32(MC_TZRAM_HI_ADDR_BITS, val);
 
 	/* Disable further writes to the TZRAM setup registers */
