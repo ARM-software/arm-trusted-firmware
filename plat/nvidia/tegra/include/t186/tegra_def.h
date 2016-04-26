@@ -31,8 +31,6 @@
 #ifndef __TEGRA_DEF_H__
 #define __TEGRA_DEF_H__
 
-#include <platform_def.h>
-
 /*******************************************************************************
  * These values are used by the PSCI implementation during the `CPU_SUSPEND`
  * and `SYSTEM_SUSPEND` calls as the `state-id` field in the 'power state'

@@ -29,6 +29,7 @@
  */
 
 #include <assert.h>
+#include <bl_common.h>
 #include <debug.h>
 #include <memctrl_v2.h>
 #include <platform_def.h>

@@ -30,6 +30,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <common_def.h>
 #include <memctrl_v2.h>
 #include <tegra_def.h>
 

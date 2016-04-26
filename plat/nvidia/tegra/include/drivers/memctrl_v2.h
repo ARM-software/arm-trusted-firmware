@@ -298,6 +298,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <sys/types.h>
+
 /*******************************************************************************
  * Structure to hold the transaction override settings to use to override
  * client inputs
