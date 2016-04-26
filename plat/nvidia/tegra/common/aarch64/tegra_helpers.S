@@ -33,6 +33,7 @@
 #include <cpu_macros.S>
 #include <cortex_a57.h>
 #include <cortex_a53.h>
+#include <platform_def.h>
 #include <tegra_def.h>
 
 #define MIDR_PN_CORTEX_A57		0xD07
