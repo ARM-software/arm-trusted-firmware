@@ -1715,6 +1715,22 @@ latter case, the power domain is expected to save enough state so that it can
 resume execution by restoring this state when its powered on (see
 `pwr_domain_suspend_finish()`).
 
+#### plat_psci_ops.pwr_domain_pwr_down_wfi()
+
+This is an optional function and, if implemented, is expected to perform
+platform specific actions including the `wfi` invocation which allows the
+CPU to powerdown. Since this function is invoked outside the PSCI locks,
+the actions performed in this hook must be local to the CPU or the platform
+must ensure that races between multiple CPUs cannot occur.
+
+The `target_state` has a similar meaning as described in the `pwr_domain_off()`
+operation and it encodes the platform coordinated target local power states for
+the CPU power domain and its parent power domain levels. This function must
+not return back to the caller.
+
+If this function is not implemented by the platform, PSCI generic
+implementation invokes `psci_power_down_wfi()` for power down.
+
 #### plat_psci_ops.pwr_domain_on_finish()
 
 This function is called by the PSCI implementation after the calling CPU is

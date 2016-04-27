@@ -189,8 +189,13 @@ exit:
 	if (skip_wfi)
 		return;
 
-	if (is_power_down_state)
-		psci_power_down_wfi();
+	if (is_power_down_state) {
+		/* The function calls below must not return */
+		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi)
+			psci_plat_pm_ops->pwr_domain_pwr_down_wfi(state_info);
+		else
+			psci_power_down_wfi();
+	}
 
 	/*
 	 * We will reach here if only retention/standby states have been
