@@ -55,6 +55,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
+				${MTK_PLAT}/common/mtk_plat_common.c		\
 				${MTK_PLAT}/common/mtk_sip_svc.c		\
 				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
 				${MTK_PLAT_SOC}/aarch64/platform_common.c	\
@@ -87,3 +88,5 @@ ERRATA_A53_836870	:=	1
 
 # indicate the reset vector address can be programmed
 PROGRAMMABLE_RESET_ADDRESS	:=	1
+
+$(eval $(call add_define,MTK_SIP_SET_AUTHORIZED_SECURE_REG_ENABLE))
