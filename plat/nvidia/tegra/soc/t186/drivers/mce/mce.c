@@ -61,7 +61,8 @@ static arch_mce_ops_t nvg_mce_ops = {
 	.roc_clean_cache = ari_roc_clean_cache,
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
-	.enter_ccplex_state = ari_enter_ccplex_state
+	.enter_ccplex_state = ari_enter_ccplex_state,
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
 };
 
 /* ARI functions handlers */
@@ -82,7 +83,8 @@ static arch_mce_ops_t ari_mce_ops = {
 	.roc_clean_cache = ari_roc_clean_cache,
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
-	.enter_ccplex_state = ari_enter_ccplex_state
+	.enter_ccplex_state = ari_enter_ccplex_state,
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
 };
 
 typedef struct mce_config {
@@ -173,6 +175,7 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 	uint64_t ret64 = 0, arg3, arg4, arg5;
 	int ret = 0;
 	mca_cmd_t mca_cmd;
+	uncore_perfmon_req_t req;
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
 
@@ -374,6 +377,15 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 #endif
+
+	case MCE_CMD_UNCORE_PERFMON_REQ:
+		memcpy(&req, &arg0, sizeof(arg0));
+		ret = ops->read_write_uncore_perfmon(cpu_ari_base, req, &arg1);
+
+		/* update context to return data */
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, arg1);
+		break;
+
 	default:
 		ERROR("unknown MCE command (%d)\n", cmd);
 		return EINVAL;

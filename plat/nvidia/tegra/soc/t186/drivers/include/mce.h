@@ -95,6 +95,7 @@ typedef enum mce_cmd {
 	MCE_CMD_ROC_FLUSH_CACHE,
 	MCE_CMD_ROC_CLEAN_CACHE,
 	MCE_CMD_ENABLE_LATIC,
+	MCE_CMD_UNCORE_PERFMON_REQ,
 	MCE_CMD_IS_CCX_ALLOWED = 0xFE,
 	MCE_CMD_MAX = 0xFF,
 } mce_cmd_t;
@@ -200,6 +201,54 @@ typedef union mca_arg {
 	} arg;
 	uint64_t data;
 } mca_arg_t;
+
+/*******************************************************************************
+ * Uncore PERFMON ARI struct
+ ******************************************************************************/
+typedef union uncore_perfmon_req {
+	struct perfmon_command {
+		/*
+		 * Commands: 0 = READ, 1 = WRITE
+		 */
+		uint64_t cmd:8;
+		/*
+		 * The unit group: L2=0, L3=1, ROC=2, MC=3, IOB=4
+		 */
+		uint64_t grp:4;
+		/*
+		 * Unit selector: Selects the unit instance, with 0 = Unit
+		 * = (number of units in group) - 1.
+		 */
+		uint64_t unit:4;
+		/*
+		 * Selects the uncore perfmon register to access
+		 */
+		uint64_t reg:8;
+		/*
+		 * Counter number. Selects which counter to use for
+		 * registers NV_PMEVCNTR and NV_PMEVTYPER.
+		 */
+		uint64_t counter:8;
+	} perfmon_command;
+	struct perfmon_status {
+		/*
+		 * Resulting command status
+		 */
+		uint64_t val:8;
+		uint64_t unused:24;
+	} perfmon_status;
+	uint64_t data;
+} uncore_perfmon_req_t;
+
+#define UNCORE_PERFMON_CMD_READ			0
+#define UNCORE_PERFMON_CMD_WRITE		1
+
+#define UNCORE_PERFMON_CMD_MASK			0xFF
+#define UNCORE_PERFMON_UNIT_GRP_MASK		0xF
+#define UNCORE_PERFMON_SELECTOR_MASK		0xF
+#define UNCORE_PERFMON_REG_MASK			0xFF
+#define UNCORE_PERFMON_CTR_MASK			0xFF
+#define UNCORE_PERFMON_RESP_STATUS_MASK		0xFF
 
 /*******************************************************************************
  * Structure populated by arch specific code to export routines which perform
@@ -331,6 +380,12 @@ typedef struct arch_mce_ops {
 	 * reset the entire system
 	 */
 	void (*enter_ccplex_state)(uint32_t ari_base, uint32_t state_idx);
+	/*
+	 * This ARI request reads/writes data from/to Uncore PERFMON
+	 * registers
+	 */
+	int (*read_write_uncore_perfmon)(uint32_t ari_base,
+			uncore_perfmon_req_t req, uint64_t *data);
 } arch_mce_ops_t;
 
 int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
@@ -363,6 +418,8 @@ int ari_roc_clean_cache(uint32_t ari_base);
 uint64_t ari_read_write_mca(uint32_t ari_base, mca_cmd_t cmd, uint64_t *data);
 int ari_update_ccplex_gsc(uint32_t ari_base, uint32_t gsc_idx);
 void ari_enter_ccplex_state(uint32_t ari_base, uint32_t state_idx);
+int ari_read_write_uncore_perfmon(uint32_t ari_base,
+		uncore_perfmon_req_t req, uint64_t *data);
 
 int nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int nvg_update_cstate_info(uint32_t ari_base, uint32_t cluster, uint32_t ccplex,
