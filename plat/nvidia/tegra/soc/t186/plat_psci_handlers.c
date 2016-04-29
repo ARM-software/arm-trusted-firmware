@@ -242,27 +242,33 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
-	int state_id = target_state->pwr_domain_state[PLAT_MAX_PWR_LVL];
+	int stateid_afflvl2 = target_state->pwr_domain_state[PLAT_MAX_PWR_LVL];
+	int stateid_afflvl0 = target_state->pwr_domain_state[MPIDR_AFFLVL0];
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
 
 	/*
-	 * Reset power state info for CPUs when onlining, we set deepest power
-	 * when offlining a core but that may not be requested by non-secure
-	 * sw which controls idle states. It will re-init this info from
-	 * non-secure software when the core come online.
+	 * Reset power state info for CPUs when onlining, we set
+	 * deepest power when offlining a core but that may not be
+	 * requested by non-secure sw which controls idle states. It
+	 * will re-init this info from non-secure software when the
+	 * core come online.
 	 */
-	write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
-	write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
-	write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
-	mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO, TEGRA_ARI_CLUSTER_CC1,
-		0, 0);
+	if (stateid_afflvl0 == PLAT_MAX_OFF_STATE) {
+
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, 1);
+		mce_command_handler(MCE_CMD_UPDATE_CSTATE_INFO,
+			TEGRA_ARI_CLUSTER_CC1, 0, 0);
+	}
 
 	/*
 	 * Check if we are exiting from deep sleep and restore SE
 	 * context if we are.
 	 */
-	if (state_id == PSTATE_ID_SOC_POWERDN) {
+	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
+
 		mmio_write_32(TEGRA_SE0_BASE + SE_MUTEX_WATCHDOG_NS_LIMIT,
 			se_regs[0]);
 		mmio_write_32(TEGRA_RNG1_BASE + RNG_MUTEX_WATCHDOG_NS_LIMIT,
