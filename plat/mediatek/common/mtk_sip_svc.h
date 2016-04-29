@@ -43,13 +43,16 @@
 #define MTK_SIP_SVC_VERSION_MINOR	0x1
 
 /* Number of Mediatek SiP Calls implemented */
-#define MTK_SIP_NUM_CALLS		4
+#define MTK_SIP_NUM_CALLS		7
 
 /* Mediatek SiP Service Calls function IDs */
 #define MTK_SIP_SET_AUTHORIZED_SECURE_REG	0x82000001
 #define MTK_SIP_PWR_ON_MTCMOS			0x82000402
 #define MTK_SIP_PWR_OFF_MTCMOS			0x82000403
 #define MTK_SIP_PWR_MTCMOS_SUPPORT		0x82000404
+#define MTK_SIP_SET_HDCP_KEY_NUM		0xc2000405
+#define MTK_SIP_CLR_HDCP_KEY			0xc2000406
+#define MTK_SIP_SET_HDCP_KEY_EX			0xc2000407
 
 /* Mediatek SiP Calls error code */
 enum {
@@ -68,4 +71,7 @@ uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val);
 uint64_t mt_sip_pwr_on_mtcmos(uint32_t val);
 uint64_t mt_sip_pwr_off_mtcmos(uint32_t val);
 uint64_t mt_sip_pwr_mtcmos_support(void);
+uint64_t crypt_set_hdcp_key_ex(uint64_t x1, uint64_t x2, uint64_t x3);
+uint64_t crypt_set_hdcp_key_num(uint32_t num);
+uint64_t crypt_clear_hdcp_key(void);
 #endif /* __PLAT_SIP_SVC_H__ */
