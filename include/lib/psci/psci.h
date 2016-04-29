@@ -97,6 +97,12 @@
 #define PSCI_NUM_CALLS			18
 #endif
 
+/* The macros below are used to identify PSCI calls from the SMC function ID */
+#define PSCI_FID_MASK			0xffe0u
+#define PSCI_FID_VALUE			0u
+#define is_psci_fid(_fid) \
+	(((_fid) & PSCI_FID_MASK) == PSCI_FID_VALUE)
+
 /*******************************************************************************
  * PSCI Migrate and friends
  ******************************************************************************/
@@ -326,9 +332,23 @@ int psci_migrate_info_type(void);
 long psci_migrate_info_up_cpu(void);
 int psci_features(unsigned int psci_fid);
 void __dead2 psci_power_down_wfi(void);
-void psci_entrypoint(void);
-void psci_register_spd_pm_hook(const spd_pm_ops_t *);
-uintptr_t psci_smc_handler(uint32_t smc_fid,
+void psci_arch_setup(void);
+
+/*
+ * The below API is deprecated. This is now replaced by bl31_warmboot_entry in
+ * AArch64.
+ */
+void psci_entrypoint(void) __deprecated;
+
+/*******************************************************************************
+ * Forward declarations
+ ******************************************************************************/
+struct entry_point_info;
+
+/******************************************************************************
+ * PSCI Library Interfaces
+ *****************************************************************************/
+u_register_t psci_smc_handler(uint32_t smc_fid,
 			  u_register_t x1,
 			  u_register_t x2,
 			  u_register_t x3,
@@ -336,9 +356,9 @@ uintptr_t psci_smc_handler(uint32_t smc_fid,
 			  void *cookie,
 			  void *handle,
 			  u_register_t flags);
-
-/* PSCI setup function */
-int psci_setup(void);
+int psci_setup(uintptr_t mailbox_ep);
+void psci_warmboot_entrypoint(void);
+void psci_register_spd_pm_hook(const spd_pm_ops_t *pm);
 
 #endif /*__ASSEMBLY__*/
 

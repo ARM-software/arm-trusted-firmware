@@ -42,10 +42,4 @@
 #define STD_SVC_VERSION_MAJOR		0x0
 #define STD_SVC_VERSION_MINOR		0x1
 
-/* The macros below are used to identify PSCI calls from the SMC function ID */
-#define PSCI_FID_MASK			0xffe0u
-#define PSCI_FID_VALUE			0u
-#define is_psci_fid(_fid) \
-	(((_fid) & PSCI_FID_MASK) == PSCI_FID_VALUE)
-
 #endif /* __STD_SVC_H__ */

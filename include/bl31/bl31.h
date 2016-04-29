@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,11 +36,11 @@
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-void bl31_arch_setup(void);
 void bl31_next_el_arch_setup(uint32_t security_state);
 void bl31_set_next_image_type(uint32_t type);
 uint32_t bl31_get_next_image_type(void);
 void bl31_prepare_next_image_entry(void);
 void bl31_register_bl32_init(int32_t (*)(void));
+void bl31_warm_entrypoint(void);
 
 #endif /* __BL31_H__ */

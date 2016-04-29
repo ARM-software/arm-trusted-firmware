@@ -184,15 +184,17 @@ static void populate_power_domain_tree(const unsigned char *topology)
 }
 
 /*******************************************************************************
- * This function initializes the power domain topology tree by querying the
- * platform. The power domain nodes higher than the CPU are populated in the
- * array psci_non_cpu_pd_nodes[] and the CPU power domains are populated in
- * psci_cpu_pd_nodes[]. The platform exports its static topology map through the
+ * This function does the architectural setup and takes the warm boot
+ * entry-point `mailbox_ep` as an argument. The function also initializes the
+ * power domain topology tree by querying the platform. The power domain nodes
+ * higher than the CPU are populated in the array psci_non_cpu_pd_nodes[] and
+ * the CPU power domains are populated in psci_cpu_pd_nodes[]. The platform
+ * exports its static topology map through the
  * populate_power_domain_topology_tree() API. The algorithm populates the
  * psci_non_cpu_pd_nodes and psci_cpu_pd_nodes iteratively by using this
- * topology map.  On a platform that implements two clusters of 2 cpus each, and
- * supporting 3 domain levels, the populated psci_non_cpu_pd_nodes would look
- * like this:
+ * topology map.  On a platform that implements two clusters of 2 cpus each,
+ * and supporting 3 domain levels, the populated psci_non_cpu_pd_nodes would
+ * look like this:
  *
  * ---------------------------------------------------
  * | system node | cluster 0 node  | cluster 1 node  |
@@ -204,9 +206,12 @@ static void populate_power_domain_tree(const unsigned char *topology)
  * |   CPU 0   |   CPU 1   |   CPU 2   |   CPU 3  |
  * ------------------------------------------------
  ******************************************************************************/
-int psci_setup(void)
+int psci_setup(uintptr_t mailbox_ep)
 {
 	const unsigned char *topology_tree;
+
+	/* Do the Architectural initialization */
+	psci_arch_setup();
 
 	/* Query the topology map from the platform */
 	topology_tree = plat_get_power_domain_tree_desc();
@@ -229,8 +234,8 @@ int psci_setup(void)
 	 */
 	psci_set_pwr_domains_to_run(PLAT_MAX_PWR_LVL);
 
-	plat_setup_psci_ops((uintptr_t)psci_entrypoint,
-					&psci_plat_pm_ops);
+	assert(mailbox_ep);
+	plat_setup_psci_ops(mailbox_ep, &psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
 	/* Initialize the psci capability */
@@ -258,4 +263,18 @@ int psci_setup(void)
 #endif
 
 	return 0;
+}
+
+/*******************************************************************************
+ * This duplicates what the primary cpu did after a cold boot in BL1. The same
+ * needs to be done when a cpu is hotplugged in. This function could also over-
+ * ride any EL3 setup done by BL1 as this code resides in rw memory.
+ ******************************************************************************/
+void psci_arch_setup(void)
+{
+	/* Program the counter frequency */
+	write_cntfrq_el0(plat_get_syscnt_freq2());
+
+	/* Initialize the cpu_ops pointer. */
+	init_cpu_ops();
 }

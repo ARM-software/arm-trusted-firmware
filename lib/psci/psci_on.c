@@ -32,11 +32,9 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <bl31.h>
 #include <debug.h>
 #include <context_mgmt.h>
 #include <platform.h>
-#include <runtime_svc.h>
 #include <stddef.h>
 #include "psci_private.h"
 
@@ -177,7 +175,7 @@ void psci_cpu_on_finish(unsigned int cpu_idx,
 	 * on have completed. Perform enough arch.initialization
 	 * to run in the non-secure address space.
 	 */
-	bl31_arch_setup();
+	psci_arch_setup();
 
 	/*
 	 * Lock the CPU spin lock to make sure that the context initialization

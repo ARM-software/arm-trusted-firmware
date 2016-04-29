@@ -31,6 +31,7 @@
 #include <debug.h>
 #include <psci.h>
 #include <runtime_svc.h>
+#include <smcc_helpers.h>
 #include <std_svc.h>
 #include <stdint.h>
 #include <uuid.h>
@@ -39,16 +40,6 @@
 DEFINE_SVC_UUID(arm_svc_uid,
 		0x108d905b, 0xf863, 0x47e8, 0xae, 0x2d,
 		0xc0, 0xfb, 0x56, 0x41, 0xf6, 0xe2);
-
-/* Setup Standard Services */
-static int32_t std_svc_setup(void)
-{
-	/*
-	 * PSCI is the only specification implemented as a Standard Service.
-	 * Invoke PSCI setup from here
-	 */
-	return psci_setup();
-}
 
 /*
  * Top-level Standard Service SMC handler. This handler will in turn dispatch
@@ -68,8 +59,9 @@ uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	 * value
 	 */
 	if (is_psci_fid(smc_fid)) {
-		return psci_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
-				handle, flags);
+		SMC_RET1(handle,
+			psci_smc_handler(smc_fid, x1, x2, x3, x4,
+					cookie, handle, flags));
 	}
 
 	switch (smc_fid) {
@@ -101,6 +93,6 @@ DECLARE_RT_SVC(
 		OEN_STD_START,
 		OEN_STD_END,
 		SMC_TYPE_FAST,
-		std_svc_setup,
+		NULL,
 		std_svc_smc_handler
 );

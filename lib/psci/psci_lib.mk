@@ -28,21 +28,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PSCI_LIB_SOURCES		:=	lib/el3_runtime/cpu_data_array.c	\
-				lib/el3_runtime/aarch64/context.S		\
-				lib/el3_runtime/aarch64/cpu_data.S		\
-				lib/el3_runtime/aarch64/context_mgmt.c		\
-				lib/cpus/aarch64/cpu_helpers.S			\
-				lib/locks/exclusive/spinlock.S			\
-				lib/psci/psci_off.c				\
-				lib/psci/psci_on.c				\
-				lib/psci/psci_suspend.c				\
-				lib/psci/psci_common.c				\
-				lib/psci/psci_main.c				\
-				lib/psci/psci_setup.c				\
-				lib/psci/psci_system_off.c			\
-				lib/psci/aarch64/psci_entry.S			\
-				lib/psci/aarch64/psci_helpers.S			\
+PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
+				lib/el3_runtime/aarch64/context.S	\
+				lib/el3_runtime/aarch64/cpu_data.S	\
+				lib/el3_runtime/aarch64/context_mgmt.c	\
+				lib/cpus/aarch64/cpu_helpers.S		\
+				lib/locks/exclusive/spinlock.S		\
+				lib/psci/psci_off.c			\
+				lib/psci/psci_on.c			\
+				lib/psci/psci_suspend.c			\
+				lib/psci/psci_common.c			\
+				lib/psci/psci_main.c			\
+				lib/psci/psci_setup.c			\
+				lib/psci/psci_system_off.c		\
+				lib/psci/aarch64/psci_helpers.S
 
 ifeq (${USE_COHERENT_MEM}, 1)
 PSCI_LIB_SOURCES		+=	lib/locks/bakery/bakery_lock_coherent.c

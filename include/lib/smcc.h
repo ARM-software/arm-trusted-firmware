@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __SMCC_HELPERS_H__
-#define __SMCC_HELPERS_H__
+#ifndef __SMCC_H__
+#define __SMCC_H__
 
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention
@@ -83,7 +83,6 @@
 #ifndef __ASSEMBLY__
 
 #include <cassert.h>
-#include <context.h>
 #include <stdint.h>
 
 /* Various flags passed to SMC handlers */
@@ -92,45 +91,6 @@
 
 #define is_caller_non_secure(_f)	(!!(_f & SMC_FROM_NON_SECURE))
 #define is_caller_secure(_f)		(!(is_caller_non_secure(_f)))
-
-/* Convenience macros to return from SMC handler */
-#define SMC_RET0(_h)	{ \
-	return (uint64_t) (_h);		\
-}
-#define SMC_RET1(_h, _x0)	{ \
-	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X0, (_x0)); \
-	SMC_RET0(_h);						\
-}
-#define SMC_RET2(_h, _x0, _x1)	{ \
-	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X1, (_x1)); \
-	SMC_RET1(_h, (_x0)); \
-}
-#define SMC_RET3(_h, _x0, _x1, _x2)	{ \
-	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X2, (_x2)); \
-	SMC_RET2(_h, (_x0), (_x1)); \
-}
-#define SMC_RET4(_h, _x0, _x1, _x2, _x3)	{ \
-	write_ctx_reg(get_gpregs_ctx(_h), CTX_GPREG_X3, (_x3)); \
-	SMC_RET3(_h, (_x0), (_x1), (_x2)); \
-}
-
-/*
- * Convenience macros to access general purpose registers using handle provided
- * to SMC handler. These takes the offset values defined in context.h
- */
-#define SMC_GET_GP(_h, _g) \
-	read_ctx_reg(get_gpregs_ctx(_h), (_g))
-#define SMC_SET_GP(_h, _g, _v) \
-	write_ctx_reg(get_gpregs_ctx(_h), (_g), (_v))
-
-/*
- * Convenience macros to access EL3 context registers using handle provided to
- * SMC handler. These takes the offset values defined in context.h
- */
-#define SMC_GET_EL3(_h, _e) \
-	read_ctx_reg(get_el3state_ctx(_h), (_e))
-#define SMC_SET_EL3(_h, _e, _v) \
-	write_ctx_reg(get_el3state_ctx(_h), (_e), (_v))
 
 /* The macro below is used to identify a Standard Service SMC call */
 #define is_std_svc_call(_fid)		((((_fid) >> FUNCID_OEN_SHIFT) & \
@@ -154,12 +114,5 @@
 		{ _n0, _n1, _n2, _n3, _n4, _n5 } \
 	}
 
-/* Return a UUID in the SMC return registers */
-#define SMC_UUID_RET(_h, _uuid) \
-	SMC_RET4(handle, ((const uint32_t *) &(_uuid))[0], \
-			 ((const uint32_t *) &(_uuid))[1], \
-			 ((const uint32_t *) &(_uuid))[2], \
-			 ((const uint32_t *) &(_uuid))[3])
-
 #endif /*__ASSEMBLY__*/
-#endif /* __SMCC_HELPERS_H__ */
+#endif /* __SMCC_H__ */

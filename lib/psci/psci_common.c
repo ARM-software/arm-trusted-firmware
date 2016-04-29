@@ -683,7 +683,7 @@ int psci_validate_entry_point(entry_point_info_t *ep,
  * code to enable the gic cpu interface and for a cluster it will enable
  * coherency at the interconnect level in addition to gic cpu interface.
  ******************************************************************************/
-void psci_power_up_finish(void)
+void psci_warmboot_entrypoint(void)
 {
 	unsigned int end_pwrlvl, cpu_idx = plat_my_core_pos();
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };

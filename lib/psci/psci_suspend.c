@@ -37,7 +37,6 @@
 #include <cpu_data.h>
 #include <debug.h>
 #include <platform.h>
-#include <runtime_svc.h>
 #include <stddef.h>
 #include "psci_private.h"
 

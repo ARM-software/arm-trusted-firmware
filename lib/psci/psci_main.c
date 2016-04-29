@@ -33,8 +33,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <platform.h>
-#include <runtime_svc.h>
-#include <std_svc.h>
+#include <smcc.h>
 #include <string.h>
 #include "psci_private.h"
 
@@ -327,7 +326,7 @@ int psci_features(unsigned int psci_fid)
 /*******************************************************************************
  * PSCI top level handler for servicing SMCs.
  ******************************************************************************/
-uintptr_t psci_smc_handler(uint32_t smc_fid,
+u_register_t psci_smc_handler(uint32_t smc_fid,
 			  u_register_t x1,
 			  u_register_t x2,
 			  u_register_t x3,
@@ -337,11 +336,11 @@ uintptr_t psci_smc_handler(uint32_t smc_fid,
 			  u_register_t flags)
 {
 	if (is_caller_secure(flags))
-		SMC_RET1(handle, SMC_UNK);
+		return SMC_UNK;
 
 	/* Check the fid against the capabilities */
 	if (!(psci_caps & define_psci_cap(smc_fid)))
-		SMC_RET1(handle, SMC_UNK);
+		return SMC_UNK;
 
 	if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
 		/* 32-bit PSCI function, clear top parameter bits */
@@ -352,31 +351,31 @@ uintptr_t psci_smc_handler(uint32_t smc_fid,
 
 		switch (smc_fid) {
 		case PSCI_VERSION:
-			SMC_RET1(handle, psci_version());
+			return psci_version();
 
 		case PSCI_CPU_OFF:
-			SMC_RET1(handle, psci_cpu_off());
+			return psci_cpu_off();
 
 		case PSCI_CPU_SUSPEND_AARCH32:
-			SMC_RET1(handle, psci_cpu_suspend(x1, x2, x3));
+			return psci_cpu_suspend(x1, x2, x3);
 
 		case PSCI_CPU_ON_AARCH32:
-			SMC_RET1(handle, psci_cpu_on(x1, x2, x3));
+			return psci_cpu_on(x1, x2, x3);
 
 		case PSCI_AFFINITY_INFO_AARCH32:
-			SMC_RET1(handle, psci_affinity_info(x1, x2));
+			return psci_affinity_info(x1, x2);
 
 		case PSCI_MIG_AARCH32:
-			SMC_RET1(handle, psci_migrate(x1));
+			return psci_migrate(x1);
 
 		case PSCI_MIG_INFO_TYPE:
-			SMC_RET1(handle, psci_migrate_info_type());
+			return psci_migrate_info_type();
 
 		case PSCI_MIG_INFO_UP_CPU_AARCH32:
-			SMC_RET1(handle, psci_migrate_info_up_cpu());
+			return psci_migrate_info_up_cpu();
 
 		case PSCI_SYSTEM_SUSPEND_AARCH32:
-			SMC_RET1(handle, psci_system_suspend(x1, x2));
+			return psci_system_suspend(x1, x2);
 
 		case PSCI_SYSTEM_OFF:
 			psci_system_off();
@@ -387,14 +386,14 @@ uintptr_t psci_smc_handler(uint32_t smc_fid,
 			/* We should never return from psci_system_reset() */
 
 		case PSCI_FEATURES:
-			SMC_RET1(handle, psci_features(x1));
+			return psci_features(x1);
 
 #if ENABLE_PSCI_STAT
 		case PSCI_STAT_RESIDENCY_AARCH32:
-			SMC_RET1(handle, psci_stat_residency(x1, x2));
+			return psci_stat_residency(x1, x2);
 
 		case PSCI_STAT_COUNT_AARCH32:
-			SMC_RET1(handle, psci_stat_count(x1, x2));
+			return psci_stat_count(x1, x2);
 #endif
 
 		default:
@@ -405,29 +404,29 @@ uintptr_t psci_smc_handler(uint32_t smc_fid,
 
 		switch (smc_fid) {
 		case PSCI_CPU_SUSPEND_AARCH64:
-			SMC_RET1(handle, psci_cpu_suspend(x1, x2, x3));
+			return psci_cpu_suspend(x1, x2, x3);
 
 		case PSCI_CPU_ON_AARCH64:
-			SMC_RET1(handle, psci_cpu_on(x1, x2, x3));
+			return psci_cpu_on(x1, x2, x3);
 
 		case PSCI_AFFINITY_INFO_AARCH64:
-			SMC_RET1(handle, psci_affinity_info(x1, x2));
+			return psci_affinity_info(x1, x2);
 
 		case PSCI_MIG_AARCH64:
-			SMC_RET1(handle, psci_migrate(x1));
+			return psci_migrate(x1);
 
 		case PSCI_MIG_INFO_UP_CPU_AARCH64:
-			SMC_RET1(handle, psci_migrate_info_up_cpu());
+			return psci_migrate_info_up_cpu();
 
 		case PSCI_SYSTEM_SUSPEND_AARCH64:
-			SMC_RET1(handle, psci_system_suspend(x1, x2));
+			return psci_system_suspend(x1, x2);
 
 #if ENABLE_PSCI_STAT
 		case PSCI_STAT_RESIDENCY_AARCH64:
-			SMC_RET1(handle, psci_stat_residency(x1, x2));
+			return psci_stat_residency(x1, x2);
 
 		case PSCI_STAT_COUNT_AARCH64:
-			SMC_RET1(handle, psci_stat_count(x1, x2));
+			return psci_stat_count(x1, x2);
 #endif
 
 		default:
@@ -436,5 +435,5 @@ uintptr_t psci_smc_handler(uint32_t smc_fid,
 	}
 
 	WARN("Unimplemented PSCI Call: 0x%x \n", smc_fid);
-	SMC_RET1(handle, SMC_UNK);
+	return SMC_UNK;
 }

@@ -35,6 +35,10 @@
 
 	.globl	psci_do_pwrdown_cache_maintenance
 	.globl	psci_do_pwrup_cache_maintenance
+	.globl	psci_power_down_wfi
+#if !ERROR_DEPRECATED
+	.globl psci_entrypoint
+#endif
 
 /* -----------------------------------------------------------------------
  * void psci_do_pwrdown_cache_maintenance(unsigned int power level);
@@ -152,3 +156,25 @@ func psci_do_pwrup_cache_maintenance
 	ldp	x29, x30, [sp], #16
 	ret
 endfunc psci_do_pwrup_cache_maintenance
+
+/* -----------------------------------------------------------------------
+ * void psci_power_down_wfi(void);
+ * This function is called to indicate to the power controller that it
+ * is safe to power down this cpu. It should not exit the wfi and will
+ * be released from reset upon power up.
+ * -----------------------------------------------------------------------
+ */
+func psci_power_down_wfi
+	dsb	sy		// ensure write buffer empty
+	wfi
+	bl	plat_panic_handler
+endfunc psci_power_down_wfi
+
+/* -----------------------------------------------------------------------
+ * void psci_entrypoint(void);
+ * The deprecated entry point for PSCI on warm boot for AArch64.
+ * -----------------------------------------------------------------------
+ */
+func_deprecated psci_entrypoint
+	b	bl31_warm_entrypoint
+endfunc_deprecated psci_entrypoint
