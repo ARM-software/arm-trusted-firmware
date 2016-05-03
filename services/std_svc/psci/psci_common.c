@@ -817,7 +817,7 @@ void psci_print_power_domain_map(void)
 	plat_local_state_type_t state_type;
 
 	/* This array maps to the PSCI_STATE_X definitions in psci.h */
-	static const char *psci_state_type_str[] = {
+	static const char * const psci_state_type_str[] = {
 		"ON",
 		"RETENTION",
 		"OFF",
