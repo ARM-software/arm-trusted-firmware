@@ -123,10 +123,10 @@ void init_cpu_ops(void);
 #define get_cpu_data_by_index(_ix, _m)	   _cpu_data_by_index(_ix)->_m
 #define set_cpu_data_by_index(_ix, _m, _v) _cpu_data_by_index(_ix)->_m = _v
 
-#define flush_cpu_data(_m)	   flush_dcache_range((uintptr_t) 	  \
+#define flush_cpu_data(_m)	   flush_dcache_range((uintptr_t)	  \
 						      &(_cpu_data()->_m), \
 						      sizeof(_cpu_data()->_m))
-#define inv_cpu_data(_m)	   inv_dcache_range((uintptr_t) 	  \
+#define inv_cpu_data(_m)	   inv_dcache_range((uintptr_t)	  	  \
 						      &(_cpu_data()->_m), \
 						      sizeof(_cpu_data()->_m))
 #define flush_cpu_data_by_index(_ix, _m)	\

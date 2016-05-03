@@ -94,7 +94,7 @@ int psci_cpu_suspend(unsigned int power_state,
 	is_power_down_state = psci_get_pstate_type(power_state);
 
 	/* Sanity check the requested suspend levels */
-	assert (psci_validate_suspend_req(&state_info, is_power_down_state)
+	assert(psci_validate_suspend_req(&state_info, is_power_down_state)
 			== PSCI_E_SUCCESS);
 
 	target_pwrlvl = psci_find_target_suspend_lvl(&state_info);
@@ -217,7 +217,7 @@ int psci_cpu_off(void)
 	 * The only error cpu_off can return is E_DENIED. So check if that's
 	 * indeed the case.
 	 */
-	assert (rc == PSCI_E_DENIED);
+	assert(rc == PSCI_E_DENIED);
 
 	return rc;
 }

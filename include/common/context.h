@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -298,35 +298,35 @@ CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx), 
  */
 #define set_aapcs_args0(ctx, x0)				do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X0, x0);	\
-	} while (0);
+	} while (0)
 #define set_aapcs_args1(ctx, x0, x1)				do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X1, x1);	\
 		set_aapcs_args0(ctx, x0);				\
-	} while (0);
+	} while (0)
 #define set_aapcs_args2(ctx, x0, x1, x2)			do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X2, x2);	\
 		set_aapcs_args1(ctx, x0, x1);				\
-	} while (0);
+	} while (0)
 #define set_aapcs_args3(ctx, x0, x1, x2, x3)			do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X3, x3);	\
 		set_aapcs_args2(ctx, x0, x1, x2);			\
-	} while (0);
+	} while (0)
 #define set_aapcs_args4(ctx, x0, x1, x2, x3, x4)		do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X4, x4);	\
 		set_aapcs_args3(ctx, x0, x1, x2, x3);			\
-	} while (0);
+	} while (0)
 #define set_aapcs_args5(ctx, x0, x1, x2, x3, x4, x5)		do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X5, x5);	\
 		set_aapcs_args4(ctx, x0, x1, x2, x3, x4);		\
-	} while (0);
+	} while (0)
 #define set_aapcs_args6(ctx, x0, x1, x2, x3, x4, x5, x6)	do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X6, x6);	\
 		set_aapcs_args5(ctx, x0, x1, x2, x3, x4, x5);		\
-	} while (0);
+	} while (0)
 #define set_aapcs_args7(ctx, x0, x1, x2, x3, x4, x5, x6, x7)	do {	\
 		write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X7, x7);	\
 		set_aapcs_args6(ctx, x0, x1, x2, x3, x4, x5, x6);	\
-	} while (0);
+	} while (0)
 
 /*******************************************************************************
  * Function prototypes
