@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,6 @@ endif
 
 PLAT_BL_COMMON_SOURCES	+=	plat/compat/aarch64/plat_helpers_compat.S
 
-BL31_SOURCES		+=	plat/common/aarch64/plat_psci_common.c	\
+BL31_SOURCES		+=	plat/common/plat_psci_common.c		\
 				plat/compat/plat_pm_compat.c		\
 				plat/compat/plat_topology_compat.c

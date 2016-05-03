@@ -80,7 +80,7 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
-				plat/common/aarch64/plat_psci_common.c		\
+				plat/common/plat_psci_common.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\

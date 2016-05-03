@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -52,7 +52,7 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/ti/uart/16550_console.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
-				plat/common/aarch64/plat_psci_common.c		\
+				plat/common/plat_psci_common.c			\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\
 				${COMMON_DIR}/drivers/memctrl/memctrl.c		\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\

@@ -128,7 +128,7 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
-				plat/common/aarch64/plat_psci_common.c
+				plat/common/plat_psci_common.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
