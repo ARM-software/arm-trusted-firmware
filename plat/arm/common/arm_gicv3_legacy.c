@@ -48,7 +48,7 @@
  * In the GICv3 Legacy mode, the Group 1 secure interrupts are treated as Group
  * 0 interrupts.
  */
-const unsigned int irq_sec_array[] = {
+static const unsigned int irq_sec_array[] = {
 	PLAT_ARM_G0_IRQS,
 	PLAT_ARM_G1S_IRQS
 };

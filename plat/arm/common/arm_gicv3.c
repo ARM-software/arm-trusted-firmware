@@ -45,15 +45,15 @@
 #pragma weak plat_arm_gic_pcpu_init
 
 /* The GICv3 driver only needs to be initialized in EL3 */
-uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
+static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
 /* Array of Group1 secure interrupts to be configured by the gic driver */
-const unsigned int g1s_interrupt_array[] = {
+static const unsigned int g1s_interrupt_array[] = {
 	PLAT_ARM_G1S_IRQS
 };
 
 /* Array of Group0 interrupts to be configured by the gic driver */
-const unsigned int g0_interrupt_array[] = {
+static const unsigned int g0_interrupt_array[] = {
 	PLAT_ARM_G0_IRQS
 };
 

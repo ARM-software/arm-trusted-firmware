@@ -482,11 +482,10 @@ map is explained in the [Firmware Design].
 *   `FVP_USE_GIC_DRIVER`   : Selects the GIC driver to be built. Options:
     -    `FVP_GICV2`       : The GICv2 only driver is selected
     -    `FVP_GICV3`       : The GICv3 only driver is selected (default option)
-    -    `FVP_GICV3_LEGACY`: The Legacy GICv3 driver is selected (deprecated).
-
-    Note that if the FVP is configured for legacy VE memory map, then ARM
-    Trusted Firmware must be compiled with GICv2 only driver using
-    `FVP_USE_GIC_DRIVER=FVP_GICV2` build option.
+    -    `FVP_GICV3_LEGACY`: The Legacy GICv3 driver is selected (deprecated)
+          Note: If Trusted Firmware is compiled with this option on FVPs with
+          GICv3 hardware, then it configures the hardware to run in GICv2
+          emulation mode
 
 *   `FVP_CLUSTER_COUNT`    : Configures the cluster count to be used to
      build the topology tree within Trusted Firmware. By default the
@@ -1014,30 +1013,22 @@ all FDTs are available from there.
 
 *   `fvp-base-gicv2-psci.dtb`
 
-    (Default) For use with both AEMv8 and Cortex-A57-A53 Base FVPs with
+    For use with both AEMv8 and Cortex-A57-A53 Base FVPs with
     Base memory map configuration.
-
-*   `fvp-base-gicv2legacy-psci.dtb`
-
-    For use with AEMv8 Base FVP with legacy VE GIC memory map configuration.
 
 *   `fvp-base-gicv3-psci.dtb`
 
-    For use with both AEMv8 and Cortex-A57-A53 Base FVPs with Base memory map
-    configuration and Linux GICv3 support.
+    (Default) For use with both AEMv8 and Cortex-A57-A53 Base FVPs with Base
+    memory map configuration and Linux GICv3 support.
 
 *   `fvp-foundation-gicv2-psci.dtb`
 
-    (Default) For use with Foundation FVP with Base memory map configuration.
-
-*   `fvp-foundation-gicv2legacy-psci.dtb`
-
-    For use with Foundation FVP with legacy VE GIC memory map configuration.
+    For use with Foundation FVP with Base memory map configuration.
 
 *   `fvp-foundation-gicv3-psci.dtb`
 
-    For use with Foundation FVP with Base memory map configuration and Linux
-    GICv3 support.
+    (Default) For use with Foundation FVP with Base memory map configuration
+    and Linux GICv3 support.
 
 ### Running on the Foundation FVP with reset to BL1 entrypoint
 
@@ -1056,10 +1047,13 @@ The following `Foundation_Platform` parameters should be used to boot Linux with
     --block-device="<path-to>/<file-system-image>"
 
 Notes:
-
 *   BL1 is loaded at the start of the Trusted ROM.
 *   The Firmware Image Package is loaded at the start of NOR FLASH0.
 *   The Linux kernel image and device tree are loaded in DRAM.
+*   The default use-case for the Foundation FVP is to use the `--gicv3` option
+    and enable the GICv3 device in the model. Note that without this option,
+    the Foundation FVP defaults to legacy (Versatile Express) memory map which
+    is not supported by ARM Trusted Firmware.
 
 ### Running on the AEMv8 Base FVP with reset to BL1 entrypoint
 
@@ -1163,88 +1157,6 @@ boot Linux with 8 CPUs using the ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
-
-### Configuring the GICv2 memory map
-
-The Base FVP models support GICv2 with the default model parameters at the
-following addresses. The Foundation FVP also supports these addresses when
-configured for GICv3 in GICv2 emulation mode.
-
-    GICv2 Distributor Interface     0x2f000000
-    GICv2 CPU Interface             0x2c000000
-    GICv2 Virtual CPU Interface     0x2c010000
-    GICv2 Hypervisor Interface      0x2c02f000
-
-The AEMv8 Base FVP can be configured to support GICv2 at addresses
-corresponding to the legacy (Versatile Express) memory map as follows. These are
-the default addresses when using the Foundation FVP in GICv2 mode.
-
-    GICv2 Distributor Interface     0x2c001000
-    GICv2 CPU Interface             0x2c002000
-    GICv2 Virtual CPU Interface     0x2c004000
-    GICv2 Hypervisor Interface      0x2c006000
-
-The choice of memory map is reflected in the build variant field (bits[15:12])
-in the `SYS_ID` register (Offset `0x0`) in the Versatile Express System
-registers memory map (`0x1c010000`).
-
-*   `SYS_ID.Build[15:12]`
-
-    `0x1` corresponds to the presence of the Base GIC memory map. This is the
-    default value on the Base FVPs.
-
-*   `SYS_ID.Build[15:12]`
-
-    `0x0` corresponds to the presence of the Legacy VE GIC memory map. This is
-    the default value on the Foundation FVP.
-
-This register can be configured as described in the following sections.
-
-NOTE: If the legacy VE GIC memory map is used, then Trusted Firmware must be
-compiled with the GICv2 only driver, and the corresponding FDT and BL33 images
-should be used.
-
-#### Configuring AEMv8 Foundation FVP GIC for legacy VE memory map
-
-The following parameters configure the Foundation FVP to use GICv2 with the
-legacy VE memory map:
-
-    <path-to>/Foundation_Platform             \
-    --cores=4                                 \
-    --secure-memory                           \
-    --visualization                           \
-    --no-gicv3                                \
-    --data="<path-to>/<bl1-binary>"@0x0       \
-    --data="<path-to>/<FIP-binary>"@0x8000000 \
-    --block-device="<path-to>/<file-system-image>"
-
-Explicit configuration of the `SYS_ID` register is not required.
-
-#### Configuring AEMv8 Base FVP GIC for legacy VE memory map
-
-The following parameters configure the AEMv8 Base FVP to use GICv2 with the
-legacy VE memory map. They must added to the parameters described in the
-"Running on the AEMv8 Base FVP" section above:
-
-    -C cluster0.gic.GICD-offset=0x1000                  \
-    -C cluster0.gic.GICC-offset=0x2000                  \
-    -C cluster0.gic.GICH-offset=0x4000                  \
-    -C cluster0.gic.GICH-other-CPU-offset=0x5000        \
-    -C cluster0.gic.GICV-offset=0x6000                  \
-    -C cluster0.gic.PERIPH-size=0x8000                  \
-    -C cluster1.gic.GICD-offset=0x1000                  \
-    -C cluster1.gic.GICC-offset=0x2000                  \
-    -C cluster1.gic.GICH-offset=0x4000                  \
-    -C cluster1.gic.GICH-other-CPU-offset=0x5000        \
-    -C cluster1.gic.GICV-offset=0x6000                  \
-    -C cluster1.gic.PERIPH-size=0x8000                  \
-    -C gic_distributor.GICD-alias=0x2c001000            \
-    -C gicv3.gicv2-only=1                               \
-    -C bp.variant=0x0
-
-The `bp.variant` parameter corresponds to the build variant field of the
-`SYS_ID` register.  Setting this to `0x0` allows the ARM Trusted Firmware to
-detect the legacy VE memory map while configuring the GIC.
 
 
 10.  Running the software on Juno
