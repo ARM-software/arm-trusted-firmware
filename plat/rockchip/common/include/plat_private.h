@@ -77,7 +77,7 @@ struct rockchip_pm_ops_cb {
 #endif
 
 #ifndef BITS_WITH_WMASK
-#define BITS_WITH_WMASK(msk, bits, shift)\
+#define BITS_WITH_WMASK(bits, msk, shift)\
 	(BITS_SHIFT(bits, shift) | BITS_SHIFT(msk, (shift + REG_MSK_SHIFT)))
 #endif
 
@@ -107,6 +107,8 @@ void plat_rockchip_pmusram_prepare(void);
 void plat_rockchip_pmu_init(void);
 void plat_rockchip_soc_init(void);
 void plat_setup_rockchip_pm_ops(struct rockchip_pm_ops_cb *ops);
+
+void platform_cpu_warmboot(void);
 
 extern const unsigned char rockchip_power_domain_tree_desc[];
 

@@ -52,14 +52,16 @@
 #define NO_PLL_BYPASS			(0x00)
 #define NO_PLL_PWRDN			(0x00)
 
-#define PLL_SLOW_MODE			BITS_WITH_WMASK(PLL_MODE_MSK,\
-						SLOW_MODE, PLL_MODE_SHIFT)
-#define PLL_BYPASS_MODE			BITS_WITH_WMASK(PLL_BYPASS_MSK,\
-						PLL_BYPASS, PLL_BYPASS_SHIFT)
-#define PLL_NO_BYPASS_MODE		BITS_WITH_WMASK(PLL_BYPASS_MSK,\
-						NO_PLL_BYPASS, PLL_BYPASS_SHIFT)
-#define PLL_NOMAL_MODE			BITS_WITH_WMASK(PLL_MODE_MSK,\
-						NORMAL_MODE, PLL_MODE_SHIFT)
+#define PLL_SLOW_MODE		BITS_WITH_WMASK(SLOW_MODE,\
+						PLL_MODE_MSK, PLL_MODE_SHIFT)
+#define PLL_BYPASS_MODE		BITS_WITH_WMASK(PLL_BYPASS,\
+						PLL_BYPASS_MSK,\
+						PLL_BYPASS_SHIFT)
+#define PLL_NO_BYPASS_MODE	BITS_WITH_WMASK(NO_PLL_BYPASS,\
+						PLL_BYPASS_MSK,\
+						PLL_BYPASS_SHIFT)
+#define PLL_NOMAL_MODE		BITS_WITH_WMASK(NORMAL_MODE,\
+						PLL_MODE_MSK, PLL_MODE_SHIFT)
 
 #define PLL_CON_COUNT			0x06
 #define CRU_CLKSEL_COUNT		0x108
@@ -99,6 +101,9 @@ struct deepsleep_data_s {
 	uint32_t pmucru_clksel_con[PMUCRU_CLKSEL_CONUT];
 	uint32_t cru_clksel_con[CRU_CLKSEL_COUNT];
 };
+
+#define CYCL_24M_CNT_US(us)	(24 * us)
+#define CYCL_24M_CNT_MS(ms)	(ms * CYCL_24M_CNT_US(1000))
 
 /**************************************************
  * secure timer
@@ -155,6 +160,13 @@ struct deepsleep_data_s {
 #define CRU_PMU_SGRF_RST_HOLD		BIT_WITH_WMSK(6)
 /* reset hold release*/
 #define CRU_PMU_SGRF_RST_RLS		WMSK_BIT(6)
+
+#define CRU_PMU_WDTRST_MSK		(0x1 << 4)
+#define CRU_PMU_WDTRST_EN		0x0
+
+#define CRU_PMU_FIRST_SFTRST_MSK	(0x3 << 2)
+#define CRU_PMU_FIRST_SFTRST_EN		0x0
+
 /**************************************************
  * sgrf reg, offset
  **************************************************/

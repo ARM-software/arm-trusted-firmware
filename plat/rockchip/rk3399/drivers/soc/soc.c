@@ -55,6 +55,9 @@ const mmap_region_t plat_rk_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(RK3399_UART2_BASE, RK3399_UART2_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(PMUGRF_BASE, PMUGRF_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+
 	{ 0 }
 };
 
@@ -313,12 +316,13 @@ void soc_global_soft_reset_init(void)
 {
 	mmio_write_32(PMUCRU_BASE + CRU_PMU_RSTHOLD_CON(1),
 		      CRU_PMU_SGRF_RST_RLS);
+
+	mmio_clrbits_32(CRU_BASE + CRU_GLB_RST_CON,
+			CRU_PMU_WDTRST_MSK | CRU_PMU_FIRST_SFTRST_MSK);
 }
 
 void  __dead2 soc_global_soft_reset(void)
 {
-	uint32_t temp_val;
-
 	set_pll_slow_mode(VPLL_ID);
 	set_pll_slow_mode(NPLL_ID);
 	set_pll_slow_mode(GPLL_ID);
@@ -326,9 +330,9 @@ void  __dead2 soc_global_soft_reset(void)
 	set_pll_slow_mode(PPLL_ID);
 	set_pll_slow_mode(ABPLL_ID);
 	set_pll_slow_mode(ALPLL_ID);
-	temp_val = mmio_read_32(CRU_BASE + CRU_GLB_RST_CON) |
-		   PMU_RST_BY_FIRST_SFT;
-	mmio_write_32(CRU_BASE + CRU_GLB_RST_CON, temp_val);
+
+	dsb();
+
 	mmio_write_32(CRU_BASE + CRU_GLB_SRST_FST, GLB_SRST_FST_CFG_VAL);
 
 	/*
