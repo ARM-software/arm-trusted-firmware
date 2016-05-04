@@ -67,6 +67,18 @@ static uint64_t mediatek_sip_handler(uint32_t smc_fid,
 		ret = mt_sip_pwr_mtcmos_support();
 		SMC_RET1(handle, ret);
 
+	case MTK_SIP_SET_HDCP_KEY_EX:
+		ret = crypt_set_hdcp_key_ex(x1, x2, x3);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_SET_HDCP_KEY_NUM:
+		ret = crypt_set_hdcp_key_num((uint32_t)x1);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_CLR_HDCP_KEY:
+		ret = crypt_clear_hdcp_key();
+		SMC_RET1(handle, ret);
+
 	default:
 		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 		break;
