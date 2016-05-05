@@ -79,9 +79,13 @@
  * Macro to convert a GICR_TYPER affinity value into a MPIDR value. Bits[31:24]
  * are zeroes.
  */
+#ifdef AARCH32
+#define mpidr_from_gicr_typer(typer_val)	(((typer_val) >> 32) & 0xffffff)
+#else
 #define mpidr_from_gicr_typer(typer_val)				 \
-	((((typer_val >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) | \
-	 ((typer_val >> 32) & 0xffffff))
+	(((((typer_val) >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) | \
+	 (((typer_val) >> 32) & 0xffffff))
+#endif
 
 /*******************************************************************************
  * Private GICv3 function prototypes for accessing entire registers.
