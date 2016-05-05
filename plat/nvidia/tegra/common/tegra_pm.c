@@ -318,3 +318,24 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 
 	return 0;
 }
+
+/*******************************************************************************
+ * Platform handler to calculate the proper target power level at the
+ * specified affinity level
+ ******************************************************************************/
+plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
+					     const plat_local_state_t *states,
+					     unsigned int ncpu)
+{
+	plat_local_state_t target = PLAT_MAX_RET_STATE, temp;
+
+	assert(ncpu);
+
+	do {
+		temp = *states++;
+		if ((temp > target) && (temp != PLAT_MAX_OFF_STATE))
+			target = temp;
+	} while (--ncpu);
+
+	return target;
+}
