@@ -52,6 +52,34 @@ static rt_svc_desc_t *rt_svc_descs;
 					/ sizeof(rt_svc_desc_t))
 
 /*******************************************************************************
+ * Function to invoke the registered `handle` corresponding to the smc_fid.
+ ******************************************************************************/
+uintptr_t handle_runtime_svc(uint32_t smc_fid,
+			     void *cookie,
+			     void *handle,
+			     unsigned int flags)
+{
+	u_register_t x1, x2, x3, x4;
+	int index, idx;
+	const rt_svc_desc_t *rt_svc_descs;
+
+	assert(handle);
+	idx = get_unique_oen_from_smc_fid(smc_fid);
+	assert(idx >= 0 && idx < MAX_RT_SVCS);
+
+	index = rt_svc_descs_indices[idx];
+	if (index < 0 || index >= RT_SVC_DECS_NUM)
+		SMC_RET1(handle, SMC_UNK);
+
+	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
+
+	get_smc_params_from_ctx(handle, x1, x2, x3, x4);
+
+	return rt_svc_descs[index].handle(smc_fid, x1, x2, x3, x4, cookie,
+						handle, flags);
+}
+
+/*******************************************************************************
  * Simple routine to sanity check a runtime service descriptor before using it
  ******************************************************************************/
 static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)

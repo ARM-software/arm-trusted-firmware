@@ -43,10 +43,17 @@
  * Constants to allow the assembler access a runtime service
  * descriptor
  */
+#ifdef AARCH32
+#define RT_SVC_SIZE_LOG2	4
+#define RT_SVC_DESC_INIT	8
+#define RT_SVC_DESC_HANDLE	12
+#else
 #define RT_SVC_SIZE_LOG2	5
-#define SIZEOF_RT_SVC_DESC	(1 << RT_SVC_SIZE_LOG2)
 #define RT_SVC_DESC_INIT	16
 #define RT_SVC_DESC_HANDLE	24
+#endif /* AARCH32 */
+#define SIZEOF_RT_SVC_DESC	(1 << RT_SVC_SIZE_LOG2)
+
 
 /*
  * The function identifier has 6 bits for the owning entity number and
@@ -123,10 +130,22 @@ CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
 					((call_type & FUNCID_TYPE_MASK) \
 					 << FUNCID_OEN_WIDTH))
 
+/*
+ * This macro generates the unique owning entity number from the SMC Function
+ * ID.  This unique oen is used to access an entry in the
+ * 'rt_svc_descs_indices' array to invoke the corresponding runtime service
+ * handler during SMC handling.
+ */
+#define get_unique_oen_from_smc_fid(fid)		\
+	get_unique_oen(((fid) >> FUNCID_OEN_SHIFT),	\
+			((fid) >> FUNCID_TYPE_SHIFT))
+
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
 void runtime_svc_init(void);
+uintptr_t handle_runtime_svc(uint32_t smc_fid, void *cookie, void *handle,
+						unsigned int flags);
 extern uintptr_t __RT_SVC_DESCS_START__;
 extern uintptr_t __RT_SVC_DESCS_END__;
 void init_crash_reporting(void);
