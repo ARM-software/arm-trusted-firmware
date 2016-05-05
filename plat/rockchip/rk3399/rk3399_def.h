@@ -89,7 +89,6 @@
  * System counter frequency related constants
  ******************************************************************************/
 #define SYS_COUNTER_FREQ_IN_TICKS	24000000
-#define SYS_COUNTER_FREQ_IN_MHZ		24
 
 /* Base rockchip_platform compatible GIC memory map */
 #define BASE_GICD_BASE		(GIC500_BASE)
