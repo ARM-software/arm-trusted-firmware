@@ -349,6 +349,7 @@ static int cores_pwr_domain_on(unsigned long mpidr, uint64_t entrypoint)
 	cpus_id_power_domain(cluster, cpu, pmu_pd_off, CKECK_WFEI_MSK);
 
 	cpuon_id = (cluster * PLATFORM_CLUSTER0_CORE_COUNT) + cpu;
+	assert(cpuon_id < PLATFORM_CORE_COUNT);
 	assert(cpuson_flags[cpuon_id] == 0);
 	cpuson_flags[cpuon_id] = PMU_CPU_HOTPLUG;
 	cpuson_entry_point[cpuon_id] = entrypoint;
