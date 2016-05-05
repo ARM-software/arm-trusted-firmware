@@ -45,7 +45,7 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 # Default values for build configurations
 ################################################################################
 
-# The Target build architecture.
+# The Target build architecture. Supported values are: aarch64, aarch32.
 ARCH				:= aarch64
 # Build verbosity
 V				:= 0
@@ -56,6 +56,8 @@ DEFAULT_PLAT			:= fvp
 PLAT				:= ${DEFAULT_PLAT}
 # SPD choice
 SPD				:= none
+# The AArch32 Secure Payload to be built as BL32 image
+AARCH32_SP			:= none
 # Base commit to perform code check on
 BASE_COMMIT			:= origin/master
 # NS timer register save and restore
@@ -200,14 +202,20 @@ OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
 
+ASFLAGS_aarch64		=	-mgeneral-regs-only
+TF_CFLAGS_aarch64	=	-mgeneral-regs-only -mstrict-align
+
+ASFLAGS_aarch32		=	-march=armv8-a
+TF_CFLAGS_aarch32	=	-march=armv8-a
+
 ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				-Werror -Wmissing-include-dirs			\
-				-mgeneral-regs-only -D__ASSEMBLY__		\
+				-D__ASSEMBLY__ $(ASFLAGS_$(ARCH))		\
 				${DEFINES} ${INCLUDES}
 TF_CFLAGS		+= 	-nostdinc -ffreestanding -Wall			\
 				-Werror -Wmissing-include-dirs			\
-				-mgeneral-regs-only -mstrict-align		\
 				-std=c99 -c -Os					\
+				$(TF_CFLAGS_$(ARCH))				\
 				${DEFINES} ${INCLUDES}
 TF_CFLAGS		+=	-ffunction-sections -fdata-sections
 
@@ -222,26 +230,26 @@ include lib/stdlib/stdlib.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/tf_printf.c			\
-				common/aarch64/debug.S			\
-				lib/aarch64/cache_helpers.S		\
-				lib/aarch64/misc_helpers.S		\
-				plat/common/aarch64/platform_helpers.S	\
+				common/${ARCH}/debug.S			\
+				lib/${ARCH}/cache_helpers.S		\
+				lib/${ARCH}/misc_helpers.S		\
+				plat/common/${ARCH}/platform_helpers.S	\
 				${STDLIB_SRCS}
 
 INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/bl31				\
 				-Iinclude/common			\
-				-Iinclude/common/aarch64		\
+				-Iinclude/common/${ARCH}		\
 				-Iinclude/drivers			\
 				-Iinclude/drivers/arm			\
 				-Iinclude/drivers/auth			\
 				-Iinclude/drivers/io			\
 				-Iinclude/drivers/ti/uart		\
 				-Iinclude/lib				\
-				-Iinclude/lib/aarch64			\
-				-Iinclude/lib/cpus/aarch64		\
+				-Iinclude/lib/${ARCH}			\
+				-Iinclude/lib/cpus/${ARCH}		\
 				-Iinclude/lib/el3_runtime		\
-				-Iinclude/lib/el3_runtime/aarch64	\
+				-Iinclude/lib/el3_runtime/${ARCH}	\
 				-Iinclude/lib/psci			\
 				-Iinclude/plat/common			\
 				-Iinclude/services			\
@@ -269,6 +277,9 @@ INCLUDE_TBBR_MK		:=	1
 ################################################################################
 
 ifneq (${SPD},none)
+ifeq (${ARCH},aarch32)
+	$(error "Error: SPD is incompatible with AArch32.")
+endif
 ifdef EL3_PAYLOAD_BASE
         $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
         $(warning "The SPD and its BL32 companion will be present but ignored.")
@@ -301,6 +312,8 @@ endif
 
 include ${PLAT_MAKEFILE_FULL}
 
+# Platform compatibility is not supported in AArch32
+ifneq (${ARCH},aarch32)
 # If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
 ifndef ENABLE_PLAT_COMPAT
 ENABLE_PLAT_COMPAT := 1
@@ -309,6 +322,7 @@ endif
 # Include the platform compatibility helpers for PSCI
 ifneq (${ENABLE_PLAT_COMPAT}, 0)
 include plat/compat/plat_compat.mk
+endif
 endif
 
 # Include the CPU specific operations makefile, which provides default
@@ -480,7 +494,8 @@ endif
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
-
+# BL31 is not needed and BL1, BL2 & BL2U are not currently supported in AArch32
+ifneq (${ARCH},aarch32)
 ifdef BL1_SOURCES
 NEED_BL1 := yes
 include bl1/bl1.mk
@@ -504,7 +519,27 @@ NEED_BL31 := yes
 include bl31/bl31.mk
 endif
 endif
+endif
 
+ifeq (${ARCH},aarch32)
+NEED_BL32 := yes
+
+################################################################################
+# Build `AARCH32_SP` as BL32 image for AArch32
+################################################################################
+ifneq (${AARCH32_SP},none)
+# We expect to locate an sp.mk under the specified AARCH32_SP directory
+AARCH32_SP_MAKE	:=	$(wildcard bl32/${AARCH32_SP}/${AARCH32_SP}.mk)
+
+ifeq (${AARCH32_SP_MAKE},)
+  $(error Error: No bl32/${AARCH32_SP}/${AARCH32_SP}.mk located)
+endif
+
+$(info Including ${AARCH32_SP_MAKE})
+include ${AARCH32_SP_MAKE}
+endif
+
+endif
 
 ################################################################################
 # Build targets
@@ -673,7 +708,8 @@ help:
 	@echo "  bl2            Build the BL2 binary"
 	@echo "  bl2u           Build the BL2U binary"
 	@echo "  bl31           Build the BL31 binary"
-	@echo "  bl32           Build the BL32 binary"
+	@echo "  bl32           Build the BL32 binary. If ARCH=aarch32, then "
+	@echo "                 this builds secure payload specified by AARCH32_SP"
 	@echo "  certificates   Build the certificates (requires 'GENERATE_COT=1')"
 	@echo "  fip            Build the Firmware Image Package (FIP)"
 	@echo "  fwu_fip        Build the FWU Firmware Image Package (FIP)"

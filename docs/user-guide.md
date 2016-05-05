@@ -208,10 +208,20 @@ performed.
     platform name must be subdirectory of any depth under `plat/`, and must
     contain a platform makefile named `platform.mk`.
 
+*   `ARCH` : Choose the target build architecture for ARM Trusted Firmware.
+    It can take either `aarch64` or `aarch32` as values. By default, it is
+    defined to `aarch64`.
+
 *   `SPD`: Choose a Secure Payload Dispatcher component to be built into the
-    Trusted Firmware. The value should be the path to the directory containing
-    the SPD source, relative to `services/spd/`; the directory is expected to
+    Trusted Firmware. This build option is only valid if `ARCH=aarch64`. The
+    value should be the path to the directory containing the SPD source,
+    relative to `services/spd/`; the directory is expected to
     contain a makefile called `<spd-value>.mk`.
+
+*   `AARCH32_SP` : Choose the AArch32 Secure Payload component to be built as
+    as the BL32 image when `ARCH=aarch32`. The value should be the path to the
+    directory containing the SP source, relative to the `bl32/`; the directory
+    is expected to contain a makefile called `<aarch32_sp-value>.mk`.
 
 *   `V`: Verbose build. If assigned anything other than 0, the build commands
     are printed. Default is 0.
