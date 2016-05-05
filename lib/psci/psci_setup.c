@@ -278,3 +278,15 @@ void psci_arch_setup(void)
 	/* Initialize the cpu_ops pointer. */
 	init_cpu_ops();
 }
+
+/******************************************************************************
+ * PSCI Library interface to initialize the cpu context for the next non
+ * secure image during cold boot. The relevant registers in the cpu context
+ * need to be retrieved and programmed on return from this interface.
+ *****************************************************************************/
+void psci_prepare_next_non_secure_ctx(entry_point_info_t *next_image_info)
+{
+	assert(GET_SECURITY_STATE(next_image_info->h.attr) == NON_SECURE);
+	cm_init_my_context(next_image_info);
+	cm_prepare_el3_exit(NON_SECURE);
+}

@@ -29,11 +29,10 @@
 #
 
 PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
-				lib/el3_runtime/aarch64/context.S	\
-				lib/el3_runtime/aarch64/cpu_data.S	\
-				lib/el3_runtime/aarch64/context_mgmt.c	\
-				lib/cpus/aarch64/cpu_helpers.S		\
-				lib/locks/exclusive/aarch64/spinlock.S	\
+				lib/el3_runtime/${ARCH}/cpu_data.S	\
+				lib/el3_runtime/${ARCH}/context_mgmt.c	\
+				lib/cpus/${ARCH}/cpu_helpers.S		\
+				lib/locks/exclusive/${ARCH}/spinlock.S	\
 				lib/psci/psci_off.c			\
 				lib/psci/psci_on.c			\
 				lib/psci/psci_suspend.c			\
@@ -41,7 +40,11 @@ PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
 				lib/psci/psci_main.c			\
 				lib/psci/psci_setup.c			\
 				lib/psci/psci_system_off.c		\
-				lib/psci/aarch64/psci_helpers.S
+				lib/psci/${ARCH}/psci_helpers.S
+
+ifeq (${ARCH}, aarch64)
+PSCI_LIB_SOURCES	+=	lib/el3_runtime/aarch64/context.S
+endif
 
 ifeq (${USE_COHERENT_MEM}, 1)
 PSCI_LIB_SOURCES		+=	lib/locks/bakery/bakery_lock_coherent.c

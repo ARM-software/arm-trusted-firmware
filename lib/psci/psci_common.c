@@ -592,6 +592,53 @@ int psci_validate_mpidr(u_register_t mpidr)
  * This function determines the full entrypoint information for the requested
  * PSCI entrypoint on power on/resume and returns it.
  ******************************************************************************/
+#ifdef AARCH32
+static int psci_get_ns_ep_info(entry_point_info_t *ep,
+			       uintptr_t entrypoint,
+			       u_register_t context_id)
+{
+	u_register_t ep_attr;
+	unsigned int aif, ee, mode;
+	u_register_t scr = read_scr();
+	u_register_t ns_sctlr, sctlr;
+
+	/* Switch to non secure state */
+	write_scr(scr | SCR_NS_BIT);
+	isb();
+	ns_sctlr = read_sctlr();
+
+	sctlr = scr & SCR_HCE_BIT ? read_hsctlr() : ns_sctlr;
+
+	/* Return to original state */
+	write_scr(scr);
+	isb();
+	ee = 0;
+
+	ep_attr = NON_SECURE | EP_ST_DISABLE;
+	if (sctlr & SCTLR_EE_BIT) {
+		ep_attr |= EP_EE_BIG;
+		ee = 1;
+	}
+	SET_PARAM_HEAD(ep, PARAM_EP, VERSION_1, ep_attr);
+
+	ep->pc = entrypoint;
+	memset(&ep->args, 0, sizeof(ep->args));
+	ep->args.arg0 = context_id;
+
+	mode = scr & SCR_HCE_BIT ? MODE32_hyp : MODE32_svc;
+
+	/*
+	 * TODO: Choose async. exception bits if HYP mode is not
+	 * implemented according to the values of SCR.{AW, FW} bits
+	 */
+	aif = SPSR_ABT_BIT | SPSR_IRQ_BIT | SPSR_FIQ_BIT;
+
+	ep->spsr = SPSR_MODE32(mode, entrypoint & 0x1, ee, aif);
+
+	return PSCI_E_SUCCESS;
+}
+
+#else
 static int psci_get_ns_ep_info(entry_point_info_t *ep,
 			       uintptr_t entrypoint,
 			       u_register_t context_id)
@@ -646,6 +693,7 @@ static int psci_get_ns_ep_info(entry_point_info_t *ep,
 
 	return PSCI_E_SUCCESS;
 }
+#endif
 
 /*******************************************************************************
  * This function validates the entrypoint with the platform layer if the
