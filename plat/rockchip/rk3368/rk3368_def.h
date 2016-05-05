@@ -89,7 +89,6 @@
  * System counter frequency related constants
  ******************************************************************************/
 #define SYS_COUNTER_FREQ_IN_TICKS	24000000
-#define SYS_COUNTER_FREQ_IN_MHZ		24
 
 /******************************************************************************
  * GIC-400 & interrupt handling related constants
