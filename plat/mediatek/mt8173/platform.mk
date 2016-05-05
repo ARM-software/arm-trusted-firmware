@@ -52,6 +52,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/gic/gic_v3.c			\
 				drivers/console/console.S			\
 				drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
@@ -72,7 +73,6 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				${MTK_PLAT_SOC}/drivers/spm/spm_suspend.c	\
 				${MTK_PLAT_SOC}/drivers/timer/mt_cpuxgpt.c	\
 				${MTK_PLAT_SOC}/drivers/uart/8250_console.S	\
-				${MTK_PLAT_SOC}/plat_delay_timer.c		\
 				${MTK_PLAT_SOC}/plat_mt_gic.c			\
 				${MTK_PLAT_SOC}/plat_pm.c			\
 				${MTK_PLAT_SOC}/plat_sip_calls.c		\
