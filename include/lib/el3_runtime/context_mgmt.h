@@ -42,11 +42,6 @@ struct entry_point_info;
  * Function & variable prototypes
  ******************************************************************************/
 void cm_init(void);
-void *cm_get_context_by_mpidr(uint64_t mpidr,
-			      uint32_t security_state) __deprecated;
-void cm_set_context_by_mpidr(uint64_t mpidr,
-			     void *context,
-			     uint32_t security_state) __deprecated;
 void *cm_get_context_by_index(unsigned int cpu_idx,
 			      unsigned int security_state);
 void cm_set_context_by_index(unsigned int cpu_idx,
@@ -54,12 +49,12 @@ void cm_set_context_by_index(unsigned int cpu_idx,
 			     unsigned int security_state);
 void *cm_get_context(uint32_t security_state);
 void cm_set_context(void *context, uint32_t security_state);
-void cm_init_context(uint64_t mpidr,
-		     const struct entry_point_info *ep) __deprecated;
 void cm_init_my_context(const struct entry_point_info *ep);
 void cm_init_context_by_index(unsigned int cpu_idx,
 			      const struct entry_point_info *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
+
+#ifndef AARCH32
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
 void cm_set_elr_el3(uint32_t security_state, uintptr_t entrypoint);
@@ -70,6 +65,16 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 			  uint32_t value);
 void cm_set_next_eret_context(uint32_t security_state);
 uint32_t cm_get_scr_el3(uint32_t security_state);
+
+
+void cm_init_context(uint64_t mpidr,
+		     const struct entry_point_info *ep) __deprecated;
+
+void *cm_get_context_by_mpidr(uint64_t mpidr,
+			      uint32_t security_state) __deprecated;
+void cm_set_context_by_mpidr(uint64_t mpidr,
+			     void *context,
+			     uint32_t security_state) __deprecated;
 
 /* Inline definitions */
 
@@ -98,4 +103,5 @@ static inline void cm_set_next_context(void *context)
 			 "msr	spsel, #0\n"
 			 : : "r" (context));
 }
+#endif /* AARCH32 */
 #endif /* __CM_H__ */

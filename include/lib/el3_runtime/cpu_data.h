@@ -31,16 +31,28 @@
 #ifndef __CPU_DATA_H__
 #define __CPU_DATA_H__
 
+#ifdef AARCH32
+
+#if CRASH_REPORTING
+#error "Crash reporting is not supported in AArch32"
+#endif
+#define CPU_DATA_CPU_OPS_PTR		0x0
+
+#else /* AARCH32 */
+
 /* Offsets for the cpu_data structure */
 #define CPU_DATA_CRASH_BUF_OFFSET	0x18
+/* need enough space in crash buffer to save 8 registers */
+#define CPU_DATA_CRASH_BUF_SIZE		64
+#define CPU_DATA_CPU_OPS_PTR		0x10
+
+#endif /* AARCH32 */
+
 #if CRASH_REPORTING
 #define CPU_DATA_LOG2SIZE		7
 #else
 #define CPU_DATA_LOG2SIZE		6
 #endif
-/* need enough space in crash buffer to save 8 registers */
-#define CPU_DATA_CRASH_BUF_SIZE		64
-#define CPU_DATA_CPU_OPS_PTR		0x10
 
 #ifndef __ASSEMBLY__
 
@@ -77,7 +89,9 @@
  * used for this.
  ******************************************************************************/
 typedef struct cpu_data {
+#ifndef AARCH32
 	void *cpu_context[2];
+#endif
 	uintptr_t cpu_ops_ptr;
 #if CRASH_REPORTING
 	u_register_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
@@ -104,12 +118,15 @@ CASSERT(CPU_DATA_CPU_OPS_PTR == __builtin_offsetof
 
 struct cpu_data *_cpu_data_by_index(uint32_t cpu_index);
 
+#ifndef AARCH32
 /* Return the cpu_data structure for the current CPU. */
 static inline struct cpu_data *_cpu_data(void)
 {
 	return (cpu_data_t *)read_tpidr_el3();
 }
-
+#else
+struct cpu_data *_cpu_data(void);
+#endif
 
 /**************************************************************************
  * APIs for initialising and accessing per-cpu data
