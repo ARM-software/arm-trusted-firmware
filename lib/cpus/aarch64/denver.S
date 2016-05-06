@@ -59,7 +59,6 @@ func denver_enable_dco
 	mov	x1, #1
 	lsl	x1, x1, x0
 	msr	s3_0_c15_c0_2, x1
-	isb
 	ret
 endfunc denver_enable_dco
 
