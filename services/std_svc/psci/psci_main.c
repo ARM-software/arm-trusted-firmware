@@ -110,10 +110,31 @@ int psci_cpu_suspend(unsigned int power_state,
 		 */
 		cpu_pd_state = state_info.pwr_domain_state[PSCI_CPU_PWR_LVL];
 		psci_set_cpu_local_state(cpu_pd_state);
+
+#if ENABLE_PSCI_STAT
+		/*
+		 * Capture time-stamp before CPU standby
+		 * No cache maintenance is needed as caches
+		 * are ON through out the CPU standby operation.
+		 */
+		PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
+			PMF_NO_CACHE_MAINT);
+#endif
+
 		psci_plat_pm_ops->cpu_standby(cpu_pd_state);
 
 		/* Upon exit from standby, set the state back to RUN. */
 		psci_set_cpu_local_state(PSCI_LOCAL_STATE_RUN);
+
+#if ENABLE_PSCI_STAT
+		/* Capture time-stamp after CPU standby */
+		PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
+			PMF_NO_CACHE_MAINT);
+
+		/* Update PSCI stats */
+		psci_stats_update_pwr_up(PSCI_CPU_PWR_LVL, &state_info,
+			PMF_NO_CACHE_MAINT);
+#endif
 
 		return PSCI_E_SUCCESS;
 	}
@@ -368,6 +389,14 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_FEATURES:
 			SMC_RET1(handle, psci_features(x1));
 
+#if ENABLE_PSCI_STAT
+		case PSCI_STAT_RESIDENCY_AARCH32:
+			SMC_RET1(handle, psci_stat_residency(x1, x2));
+
+		case PSCI_STAT_COUNT_AARCH32:
+			SMC_RET1(handle, psci_stat_count(x1, x2));
+#endif
+
 		default:
 			break;
 		}
@@ -392,6 +421,14 @@ uint64_t psci_smc_handler(uint32_t smc_fid,
 
 		case PSCI_SYSTEM_SUSPEND_AARCH64:
 			SMC_RET1(handle, psci_system_suspend(x1, x2));
+
+#if ENABLE_PSCI_STAT
+		case PSCI_STAT_RESIDENCY_AARCH64:
+			SMC_RET1(handle, psci_stat_residency(x1, x2));
+
+		case PSCI_STAT_COUNT_AARCH64:
+			SMC_RET1(handle, psci_stat_count(x1, x2));
+#endif
 
 		default:
 			break;

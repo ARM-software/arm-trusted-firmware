@@ -63,6 +63,10 @@ ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
+ifeq (${ENABLE_PSCI_STAT}, 1)
+BL31_SOURCES		+=	services/std_svc/psci/psci_stat.c
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
