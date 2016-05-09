@@ -308,7 +308,20 @@ int zynqmp_validate_power_state(unsigned int power_state,
 {
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
-	/* FIXME: populate req_state */
+	int pstate = psci_get_pstate_type(power_state);
+
+	assert(req_state);
+
+	/* Sanity check the requested state */
+	if (pstate == PSTATE_TYPE_STANDBY)
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
+	else
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
+
+	/* We expect the 'state id' to be zero */
+	if (psci_get_pstate_id(power_state))
+		return PSCI_E_INVALID_PARAMS;
+
 	return PSCI_E_SUCCESS;
 }
 
