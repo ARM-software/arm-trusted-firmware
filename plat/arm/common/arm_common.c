@@ -114,7 +114,11 @@ void arm_setup_page_tables(uintptr_t total_base,
 
 uintptr_t plat_get_ns_image_entrypoint(void)
 {
+#ifdef PRELOADED_BL33_BASE
+	return PRELOADED_BL33_BASE;
+#else
 	return PLAT_ARM_NS_IMAGE_OFFSET;
+#endif
 }
 
 /*******************************************************************************
