@@ -45,6 +45,8 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 # Default values for build configurations
 ################################################################################
 
+# The Target build architecture.
+ARCH				:= aarch64
 # Build verbosity
 V				:= 0
 # Debug build
@@ -467,6 +469,12 @@ else
         ifdef PRELOADED_BL33_BASE
                 $(eval $(call add_define,PRELOADED_BL33_BASE))
         endif
+endif
+# Define the AARCH32/AARCH64 flag based on the ARCH flag
+ifeq (${ARCH},aarch32)
+        $(eval $(call add_define,AARCH32))
+else
+        $(eval $(call add_define,AARCH64))
 endif
 
 ################################################################################
