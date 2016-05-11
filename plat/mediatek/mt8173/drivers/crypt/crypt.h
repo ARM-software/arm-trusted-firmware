@@ -27,20 +27,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __CRYPT_H__
+#define __CRYPT_H__
 
-#ifndef __PLAT_SIP_CALLS_H__
-#define __PLAT_SIP_CALLS_H__
+#include <stdint.h>
 
-/*******************************************************************************
- * Plat SiP function constants
- ******************************************************************************/
-#define MTK_PLAT_SIP_NUM_CALLS	6
+/* crypt function prototype */
+uint64_t crypt_set_hdcp_key_ex(uint64_t x1, uint64_t x2, uint64_t x3);
+uint64_t crypt_set_hdcp_key_num(uint32_t num);
+uint64_t crypt_clear_hdcp_key(void);
 
-#define MTK_SIP_PWR_ON_MTCMOS			0x82000402
-#define MTK_SIP_PWR_OFF_MTCMOS			0x82000403
-#define MTK_SIP_PWR_MTCMOS_SUPPORT		0x82000404
-#define MTK_SIP_SET_HDCP_KEY_NUM		0x82000405
-#define MTK_SIP_CLR_HDCP_KEY			0x82000406
-#define MTK_SIP_SET_HDCP_KEY_EX			0x82000407
-
-#endif /* __PLAT_SIP_CALLS_H__ */
+#endif /* __CRYPT_H__ */
