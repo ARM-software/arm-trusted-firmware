@@ -132,11 +132,13 @@ void plat_rockchip_pmusram_prepare(void)
 
 static inline uint32_t get_cpus_pwr_domain_cfg_info(uint32_t cpu_id)
 {
+	assert(cpu_id < PLATFORM_CORE_COUNT);
 	return core_pm_cfg_info[cpu_id];
 }
 
 static inline void set_cpus_pwr_domain_cfg_info(uint32_t cpu_id, uint32_t value)
 {
+	assert(cpu_id < PLATFORM_CORE_COUNT);
 	core_pm_cfg_info[cpu_id] = value;
 #if !USE_COHERENT_MEM
 	flush_dcache_range((uintptr_t)&core_pm_cfg_info[cpu_id],
@@ -234,6 +236,7 @@ static int cores_pwr_domain_on(unsigned long mpidr, uint64_t entrypoint)
 {
 	uint32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 
+	assert(cpu_id < PLATFORM_CORE_COUNT);
 	assert(cpuson_flags[cpu_id] == 0);
 	cpuson_flags[cpu_id] = PMU_CPU_HOTPLUG;
 	cpuson_entry_point[cpu_id] = entrypoint;
@@ -257,6 +260,7 @@ static int cores_pwr_domain_suspend(void)
 {
 	uint32_t cpu_id = plat_my_core_pos();
 
+	assert(cpu_id < PLATFORM_CORE_COUNT);
 	assert(cpuson_flags[cpu_id] == 0);
 	cpuson_flags[cpu_id] = PMU_CPU_AUTO_PWRDN;
 	cpuson_entry_point[cpu_id] = (uintptr_t)psci_entrypoint;
