@@ -33,6 +33,7 @@
 #include <mmio.h>
 #include <mtk_plat_common.h>
 #include <mtk_sip_svc.h>
+#include <plat_sip_calls.h>
 #include <runtime_svc.h>
 #include <uuid.h>
 
@@ -117,7 +118,8 @@ uint64_t sip_smc_handler(uint32_t smc_fid,
 	switch (smc_fid) {
 	case SIP_SVC_CALL_COUNT:
 		/* Return the number of Mediatek SiP Service Calls. */
-		SMC_RET1(handle, MTK_SIP_NUM_CALLS);
+		SMC_RET1(handle,
+			 MTK_COMMON_SIP_NUM_CALLS + MTK_PLAT_SIP_NUM_CALLS);
 
 	case SIP_SVC_UID:
 		/* Return UID to the caller */
