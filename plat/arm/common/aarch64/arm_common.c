@@ -29,6 +29,7 @@
  */
 #include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <debug.h>
 #include <mmio.h>
 #include <plat_arm.h>
@@ -52,40 +53,56 @@ extern const mmap_region_t plat_arm_mmap[];
 				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
 				   unsigned long ro_limit,		\
+				   unsigned int mem_type,		\
 				   unsigned long coh_start,		\
 				   unsigned long coh_limit)		\
 	{								\
+		unsigned int type = MT_TYPE(mem_type);			\
+									\
 		mmap_add_region(total_base, total_base,			\
 				total_size,				\
-				MT_MEMORY | MT_RW | MT_SECURE);		\
+				type | MT_RW | MT_SECURE);		\
 		mmap_add_region(ro_start, ro_start,			\
 				ro_limit - ro_start,			\
-				MT_MEMORY | MT_RO | MT_SECURE);		\
+				type | MT_RO | MT_SECURE);		\
 		mmap_add_region(coh_start, coh_start,			\
 				coh_limit - coh_start,			\
 				MT_DEVICE | MT_RW | MT_SECURE);		\
 		mmap_add(plat_arm_get_mmap());				\
 		init_xlat_tables();					\
 									\
-		enable_mmu_el##_el(0);					\
+		if (type == MT_MEMORY) {				\
+			enable_mmu_el##_el(TCR_MT_DEFAULT);		\
+		} else {						\
+			assert(type == MT_NON_CACHEABLE);		\
+			enable_mmu_el##_el(TCR_MT_NON_CACHEABLE);	\
+		}							\
 	}
 #else
 #define DEFINE_CONFIGURE_MMU_EL(_el)					\
 	void arm_configure_mmu_el##_el(unsigned long total_base,	\
 				   unsigned long total_size,		\
 				   unsigned long ro_start,		\
-				   unsigned long ro_limit)		\
+				   unsigned long ro_limit,		\
+				   unsigned int mem_type)		\
 	{								\
+		unsigned int type = MT_TYPE(mem_type);			\
+									\
 		mmap_add_region(total_base, total_base,			\
 				total_size,				\
-				MT_MEMORY | MT_RW | MT_SECURE);		\
+				type | MT_RW | MT_SECURE);		\
 		mmap_add_region(ro_start, ro_start,			\
 				ro_limit - ro_start,			\
-				MT_MEMORY | MT_RO | MT_SECURE);		\
+				type | MT_RO | MT_SECURE);		\
 		mmap_add(plat_arm_get_mmap());				\
 		init_xlat_tables();					\
 									\
-		enable_mmu_el##_el(0);					\
+		if (type == MT_MEMORY) {				\
+			enable_mmu_el##_el(TCR_MT_DEFAULT);		\
+		} else {						\
+			assert(type == MT_NON_CACHEABLE);		\
+			enable_mmu_el##_el(TCR_MT_NON_CACHEABLE);	\
+		}							\
 	}
 #endif
 

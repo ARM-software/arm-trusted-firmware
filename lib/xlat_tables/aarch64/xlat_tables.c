@@ -126,10 +126,20 @@ void init_xlat_tables(void)
 		_tlbi_fct();						\
 									\
 		/* Set TCR bits as well. */				\
-		/* Inner & outer WBWA & shareable + T0SZ = 32 */	\
-		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
-			TCR_RGN_INNER_WBA |				\
-			(64 - __builtin_ctzl(ADDR_SPACE_SIZE));		\
+		/* T0SZ = 32 */						\
+		if (TCR_MT(flags) == TCR_MT_DEFAULT) {			\
+			/* Inner & outer WBWA & shareable */		\
+			tcr = TCR_SH_INNER_SHAREABLE |			\
+				TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA |	\
+				(64 - __builtin_ctzl(ADDR_SPACE_SIZE));	\
+		} else {						\
+			/* Inner & outer non-cacheable non-shareable */	\
+			assert(TCR_MT(flags) == TCR_MT_NON_CACHEABLE);	\
+			tcr = TCR_SH_NON_SHAREABLE |			\
+				TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC |	\
+				(64 - __builtin_ctzl(ADDR_SPACE_SIZE));	\
+		}							\
+									\
 		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
 									\

@@ -121,7 +121,8 @@ void arm_bl1_plat_arch_setup(void)
 	arm_configure_mmu_el3(bl1_tzram_layout.total_base,
 			      bl1_tzram_layout.total_size,
 			      BL1_RO_BASE,
-			      BL1_RO_LIMIT
+			      BL1_RO_LIMIT,
+			      MT_MEMORY
 #if USE_COHERENT_MEM
 			      , BL1_COHERENT_RAM_BASE,
 			      BL1_COHERENT_RAM_LIMIT

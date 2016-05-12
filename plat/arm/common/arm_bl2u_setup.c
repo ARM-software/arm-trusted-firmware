@@ -105,7 +105,8 @@ void arm_bl2u_plat_arch_setup(void)
 	arm_configure_mmu_el1(BL2U_RO_LIMIT,
 			      BL31_LIMIT,
 			      BL2U_RO_BASE,
-			      BL2U_RO_LIMIT
+			      BL2U_RO_LIMIT,
+			      MT_MEMORY
 #if USE_COHERENT_MEM
 			      ,
 			      BL2U_COHERENT_RAM_BASE,

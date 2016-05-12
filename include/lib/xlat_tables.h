@@ -110,6 +110,11 @@
  * enabling the MMU.
  */
 #define DISABLE_DCACHE		(1 << 0)
+#define TCR_MT_SHIFT		1
+#define TCR_MT_MASK		(0x7 << TCR_MT_SHIFT)
+#define TCR_MT(_flags)		((_flags) & TCR_MT_MASK)
+#define TCR_MT_DEFAULT		(0 << TCR_MT_SHIFT)
+#define TCR_MT_NON_CACHEABLE	(1 << TCR_MT_SHIFT)
 
 #ifndef __ASSEMBLY__
 #include <stddef.h>
