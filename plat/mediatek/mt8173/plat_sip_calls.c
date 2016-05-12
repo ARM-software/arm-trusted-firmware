@@ -27,9 +27,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <debug.h>
 #include <mmio.h>
 #include <mtk_sip_svc.h>
 #include <mtcmos.h>
+#include <plat_sip_calls.h>
+#include <runtime_svc.h>
 
 /* Authorized secure register list */
 enum {
@@ -57,7 +60,7 @@ uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val)
 	return MTK_SIP_E_INVALID_PARAM;
 }
 
-uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
+static uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
 {
 	uint32_t ret;
 
@@ -68,7 +71,7 @@ uint64_t mt_sip_pwr_on_mtcmos(uint32_t val)
 		return MTK_SIP_E_SUCCESS;
 }
 
-uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
+static uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
 {
 	uint32_t ret;
 
@@ -79,7 +82,39 @@ uint64_t mt_sip_pwr_off_mtcmos(uint32_t val)
 		return MTK_SIP_E_SUCCESS;
 }
 
-uint64_t mt_sip_pwr_mtcmos_support(void)
+static uint64_t mt_sip_pwr_mtcmos_support(void)
 {
 	return MTK_SIP_E_SUCCESS;
+}
+
+uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
+				   uint64_t x1,
+				   uint64_t x2,
+				   uint64_t x3,
+				   uint64_t x4,
+				   void *cookie,
+				   void *handle,
+				   uint64_t flags)
+{
+	uint64_t ret;
+
+	switch (smc_fid) {
+	case MTK_SIP_PWR_ON_MTCMOS:
+		ret = mt_sip_pwr_on_mtcmos((uint32_t)x1);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_PWR_OFF_MTCMOS:
+		ret = mt_sip_pwr_off_mtcmos((uint32_t)x1);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_PWR_MTCMOS_SUPPORT:
+		ret = mt_sip_pwr_mtcmos_support();
+		SMC_RET1(handle, ret);
+
+	default:
+		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
+		break;
+	}
+
+	SMC_RET1(handle, SMC_UNK);
 }
