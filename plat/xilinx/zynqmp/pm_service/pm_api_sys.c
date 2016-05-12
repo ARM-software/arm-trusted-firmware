@@ -395,17 +395,25 @@ enum pm_ret_status pm_register_notifier(enum pm_node_id nid,
 }
 
 /**
- * pm_get_op_characteristic() - PM call to get a particular operating
- *				characteristic of a node
- * @nid	Node ID
- * @type	Operating characterstic type to be returned
+ * pm_get_op_characteristic() - PM call to request operating characteristics
+ *				of a node
+ * @nid		Node id of the slave
+ * @type	Type of the operating characteristic
+ *		(power, temperature and latency)
+ * @result	Returns the operating characteristic for the requested node,
+ *		specified by the type
  *
  * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_get_op_characteristic(enum pm_node_id nid,
-					    enum pm_opchar_type type)
+					    enum pm_opchar_type type,
+					    uint32_t *result)
 {
-	return PM_RET_ERROR_NOTSUPPORTED;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_GET_OP_CHARACTERISTIC, nid, type);
+	return pm_ipi_send_sync(primary_proc, payload, result);
 }
 
 /* Direct-Control API functions */

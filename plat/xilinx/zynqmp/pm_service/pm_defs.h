@@ -171,8 +171,8 @@ enum pm_ram_state {
 
 enum pm_opchar_type {
 	PM_OPCHAR_TYPE_POWER = 1,
-	PM_OPCHAR_TYPE_ENERGY,
 	PM_OPCHAR_TYPE_TEMP,
+	PM_OPCHAR_TYPE_LATENCY,
 };
 
 /**
