@@ -87,6 +87,8 @@
 #define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
 #define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
 
+#define L2_ECC_PARITY_PROTECTION_BIT	(1 << 21)
+
 /*******************************************************************************
  * L2 Extended Control register specific definitions.
  ******************************************************************************/

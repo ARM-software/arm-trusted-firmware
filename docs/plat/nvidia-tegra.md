@@ -84,3 +84,10 @@ The PSCI implementation expects each platform to expose the 'power state'
 parameter to be used during the 'SYSTEM SUSPEND' call. The state-id field
 is implementation defined on Tegra SoCs and is preferably defined by
 tegra_def.h.
+
+Tegra configs
+=============
+
+* 'tegra_enable_l2_ecc_parity_prot': This flag enables the L2 ECC and Parity
+   Protection bit, for ARM Cortex-A57 CPUs, during CPU boot. This flag will
+   be enabled by Tegrs SoCs during 'Cluster power up' or 'System Suspend' exit.

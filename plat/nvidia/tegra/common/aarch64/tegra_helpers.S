@@ -68,6 +68,7 @@
 	.globl	ns_image_entrypoint
 	.globl	tegra_bl31_phys_base
 	.globl	tegra_console_base
+	.globl	tegra_enable_l2_ecc_parity_prot
 
 	/* ---------------------
 	 * Common CPU init code
@@ -76,8 +77,8 @@
 .macro	cpu_init_common
 
 	/* ------------------------------------------------
-	 * We enable procesor retention and L2/CPUECTLR NS
-	 * access for A57 CPUs only.
+	 * We enable procesor retention, L2/CPUECTLR NS
+	 * access and ECC/Parity protection for A57 CPUs
 	 * ------------------------------------------------
 	 */
 	mrs	x0, midr_el1
@@ -90,7 +91,7 @@
 	/* ---------------------------
 	 * Enable processor retention
 	 * ---------------------------
-	*/
+	 */
 	mrs	x0, L2ECTLR_EL1
 	mov	x1, #RETENTION_ENTRY_TICKS_512 << L2ECTLR_RET_CTRL_SHIFT
 	bic	x0, x0, #L2ECTLR_RET_CTRL_MASK
@@ -108,10 +109,24 @@
 	/* -------------------------------------------------------
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
 	 * -------------------------------------------------------
-	*/
+	 */
 	mov	x0, #ACTLR_EL3_ENABLE_ALL_ACCESS
 	msr	actlr_el3, x0
 	msr	actlr_el2, x0
+	isb
+
+	/* -------------------------------------------------------
+	 * Enable L2 ECC and Parity Protection
+	 * -------------------------------------------------------
+	 */
+	adr	x0, tegra_enable_l2_ecc_parity_prot
+	ldr	x0, [x0]
+	cbz	x0, 1f
+	mrs	x0, L2CTLR_EL1
+	and	x1, x0, #L2_ECC_PARITY_PROTECTION_BIT
+	cbnz	x1, 1f
+	orr	x0, x0, #L2_ECC_PARITY_PROTECTION_BIT
+	msr	L2CTLR_EL1, x0
 	isb
 
 	/* --------------------------------
@@ -453,4 +468,11 @@ tegra_bl31_phys_base:
 	 * --------------------------------------------------
 	 */
 tegra_console_base:
+	.quad	0
+
+	/* --------------------------------------------------
+	 * Enable L2 ECC and Parity Protection
+	 * --------------------------------------------------
+	 */
+tegra_enable_l2_ecc_parity_prot:
 	.quad	0
