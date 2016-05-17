@@ -492,6 +492,9 @@ map is explained in the [Firmware Design].
      Trusted Firmware is configured for dual cluster topology and this option
      can be used to override the default value.
 
+*   `FVP_USE_SP804_TIMER`  : Use the SP804 timer instead of the Generic Timer
+     for functions that wait for an arbitrary time length (udelay and mdelay).
+     The default value is 0.
 
 ### Debugging options
 
