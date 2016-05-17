@@ -30,6 +30,11 @@
 
 # Use the GICv3 driver on the FVP by default
 FVP_USE_GIC_DRIVER	:= FVP_GICV3
+# Use the SP804 timer instead of the generic one
+FVP_USE_SP804_TIMER	:= 0
+
+$(eval $(call assert_boolean,FVP_USE_SP804_TIMER))
+$(eval $(call add_define,FVP_USE_SP804_TIMER))
 
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
@@ -92,8 +97,7 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				${FVP_INTERCONNECT_SOURCES}
 
 
-BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c		\
-				drivers/io/io_semihosting.c			\
+BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 				drivers/delay_timer/delay_timer.c		\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/aarch64/semihosting_call.S	\
@@ -101,6 +105,12 @@ BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
 				${FVP_SECURITY_SOURCES}
+
+ifeq (${FVP_USE_SP804_TIMER},1)
+BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
+else
+BL2_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
+endif
 
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
