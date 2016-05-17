@@ -62,6 +62,9 @@ NS_TIMER_SWITCH			:= 0
 RESET_TO_BL31			:= 0
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
+# Build flag to include AArch32 registers in cpu context save and restore
+# during world switch. This flag must be set to 0 for AArch64-only platforms.
+CTX_INCLUDE_AARCH32_REGS	:= 1
 # Determine the version of ARM GIC architecture to use for interrupt management
 # in EL3. The platform port can change this value if needed.
 ARM_GIC_ARCH			:= 2
@@ -392,6 +395,7 @@ $(eval $(call assert_boolean,DEBUG))
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,RESET_TO_BL31))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
+$(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,ASM_ASSERTION))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call assert_boolean,DISABLE_PEDANTIC))
@@ -419,6 +423,7 @@ $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,NS_TIMER_SWITCH))
 $(eval $(call add_define,RESET_TO_BL31))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
+$(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,ARM_GIC_ARCH))
 $(eval $(call add_define,ARM_CCI_PRODUCT_ID))
 $(eval $(call add_define,ASM_ASSERTION))

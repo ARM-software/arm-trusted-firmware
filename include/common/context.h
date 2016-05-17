@@ -91,48 +91,58 @@
 #define CTX_SYSREGS_OFFSET	(CTX_EL3STATE_OFFSET + CTX_EL3STATE_END)
 #define CTX_SPSR_EL1		0x0
 #define CTX_ELR_EL1		0x8
-#define CTX_SPSR_ABT		0x10
-#define CTX_SPSR_UND		0x18
-#define CTX_SPSR_IRQ		0x20
-#define CTX_SPSR_FIQ		0x28
-#define CTX_SCTLR_EL1		0x30
-#define CTX_ACTLR_EL1		0x38
-#define CTX_CPACR_EL1		0x40
-#define CTX_CSSELR_EL1		0x48
-#define CTX_SP_EL1		0x50
-#define CTX_ESR_EL1		0x58
-#define CTX_TTBR0_EL1		0x60
-#define CTX_TTBR1_EL1		0x68
-#define CTX_MAIR_EL1		0x70
-#define CTX_AMAIR_EL1		0x78
-#define CTX_TCR_EL1		0x80
-#define CTX_TPIDR_EL1		0x88
-#define CTX_TPIDR_EL0		0x90
-#define CTX_TPIDRRO_EL0		0x98
-#define CTX_DACR32_EL2		0xa0
-#define CTX_IFSR32_EL2		0xa8
-#define CTX_PAR_EL1		0xb0
-#define CTX_FAR_EL1		0xb8
-#define CTX_AFSR0_EL1		0xc0
-#define CTX_AFSR1_EL1		0xc8
-#define CTX_CONTEXTIDR_EL1	0xd0
-#define CTX_VBAR_EL1		0xd8
+#define CTX_SCTLR_EL1		0x10
+#define CTX_ACTLR_EL1		0x18
+#define CTX_CPACR_EL1		0x20
+#define CTX_CSSELR_EL1		0x28
+#define CTX_SP_EL1		0x30
+#define CTX_ESR_EL1		0x38
+#define CTX_TTBR0_EL1		0x40
+#define CTX_TTBR1_EL1		0x48
+#define CTX_MAIR_EL1		0x50
+#define CTX_AMAIR_EL1		0x58
+#define CTX_TCR_EL1		0x60
+#define CTX_TPIDR_EL1		0x68
+#define CTX_TPIDR_EL0		0x70
+#define CTX_TPIDRRO_EL0		0x78
+#define CTX_PAR_EL1		0x80
+#define CTX_FAR_EL1		0x88
+#define CTX_AFSR0_EL1		0x90
+#define CTX_AFSR1_EL1		0x98
+#define CTX_CONTEXTIDR_EL1	0xa0
+#define CTX_VBAR_EL1		0xa8
+
+/*
+ * If the platform is AArch64-only, there is no need to save and restore these
+ * AArch32 registers.
+ */
+#if CTX_INCLUDE_AARCH32_REGS
+#define CTX_SPSR_ABT		0xb0
+#define CTX_SPSR_UND		0xb8
+#define CTX_SPSR_IRQ		0xc0
+#define CTX_SPSR_FIQ		0xc8
+#define CTX_DACR32_EL2		0xd0
+#define CTX_IFSR32_EL2		0xd8
+#define CTX_FP_FPEXC32_EL2	0xe0
+#define CTX_TIMER_SYSREGS_OFF		0xf0 /* Align to the next 16 byte boundary */
+#else
+#define CTX_TIMER_SYSREGS_OFF		0xb0
+#endif /* __CTX_INCLUDE_AARCH32_REGS__ */
+
 /*
  * If the timer registers aren't saved and restored, we don't have to reserve
  * space for them in the context
  */
 #if NS_TIMER_SWITCH
-#define CTX_CNTP_CTL_EL0	0xe0
-#define CTX_CNTP_CVAL_EL0	0xe8
-#define CTX_CNTV_CTL_EL0	0xf0
-#define CTX_CNTV_CVAL_EL0	0xf8
-#define CTX_CNTKCTL_EL1		0x100
-#define CTX_FP_FPEXC32_EL2	0x108
-#define CTX_SYSREGS_END		0x110
+#define CTX_CNTP_CTL_EL0	(CTX_TIMER_SYSREGS_OFF + 0x0)
+#define CTX_CNTP_CVAL_EL0	(CTX_TIMER_SYSREGS_OFF + 0x8)
+#define CTX_CNTV_CTL_EL0	(CTX_TIMER_SYSREGS_OFF + 0x10)
+#define CTX_CNTV_CVAL_EL0	(CTX_TIMER_SYSREGS_OFF + 0x18)
+#define CTX_CNTKCTL_EL1		(CTX_TIMER_SYSREGS_OFF + 0x20)
+#define CTX_SYSREGS_END		(CTX_TIMER_SYSREGS_OFF + 0x30) /* Align to the next 16 byte boundary */
 #else
-#define CTX_FP_FPEXC32_EL2	0xe0
-#define CTX_SYSREGS_END		0xf0
-#endif
+#define CTX_SYSREGS_END		CTX_TIMER_SYSREGS_OFF
+#endif /* __NS_TIMER_SWITCH__ */
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'fp_regs'

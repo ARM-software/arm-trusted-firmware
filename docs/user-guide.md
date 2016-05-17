@@ -380,6 +380,12 @@ performed.
     any register that is not part of the SBSA generic UART specification.
     Default value is 0 (a full PL011 compliant UART is present).
 
+*   `CTX_INCLUDE_AARCH32_REGS` : Boolean option that, when set to 1, will cause
+    the AArch32 system registers to be included when saving and restoring the
+    CPU context. The option must be set to 0 for AArch64-only platforms (that
+    is on hardware that does not implement AArch32, or at least not at EL1 and
+    higher ELs). Default value is 1.
+
 *   `CTX_INCLUDE_FPREGS`: Boolean option that, when set to 1, will cause the FP
     registers to be included when saving and restoring the CPU context. Default
     is 0.
