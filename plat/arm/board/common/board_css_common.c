@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,9 +31,9 @@
 #include <plat_arm.h>
 
 /*
- * Table of regions for different BL stages to map using the MMU.
- * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
+ * Table of memory regions for different BL stages to map using the MMU.
+ * This doesn't include Trusted SRAM as arm_setup_page_tables() already
+ * takes care of mapping it.
  */
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
