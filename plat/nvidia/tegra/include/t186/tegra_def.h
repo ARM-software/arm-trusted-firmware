@@ -106,6 +106,13 @@
 #define TEGRA_UARTG_BASE		0x0C290000
 
 /*******************************************************************************
+ * Tegra Fuse Controller related constants
+ ******************************************************************************/
+#define TEGRA_FUSE_BASE			0x03820000
+#define  OPT_SUBREVISION		0x248
+#define  SUBREVISION_MASK		0xFF
+
+/*******************************************************************************
  * GICv2 & interrupt handling related constants
  ******************************************************************************/
 #define TEGRA_GICD_BASE			0x03881000
