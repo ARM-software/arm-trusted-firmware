@@ -1529,10 +1529,10 @@ state. This function must return a pointer to the `entry_point_info` structure
 (that was copied during `bl31_early_platform_setup()`) if the image exists. It
 should return NULL otherwise.
 
-### Function : plat_get_syscnt_freq() [mandatory]
+### Function : plat_get_syscnt_freq2() [mandatory]
 
     Argument : void
-    Return   : uint64_t
+    Return   : unsigned int
 
 This function is used by the architecture setup code to retrieve the counter
 frequency for the CPU's generic timer.  This value will be programmed into the
