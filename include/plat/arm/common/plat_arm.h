@@ -45,17 +45,7 @@
 /*
  * Utility functions common to ARM standard platforms
  */
-
-void arm_configure_mmu_el1(unsigned long total_base,
-			unsigned long total_size,
-			unsigned long ro_start,
-			unsigned long ro_limit
-#if USE_COHERENT_MEM
-			, unsigned long coh_start,
-			unsigned long coh_limit
-#endif
-);
-void arm_configure_mmu_el3(unsigned long total_base,
+void arm_setup_page_tables(unsigned long total_base,
 			unsigned long total_size,
 			unsigned long ro_start,
 			unsigned long ro_limit
