@@ -29,6 +29,7 @@
  */
 #include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <debug.h>
 #include <mmio.h>
 #include <plat_arm.h>
@@ -40,7 +41,14 @@ extern const mmap_region_t plat_arm_mmap[];
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_get_ns_image_entrypoint
 #pragma weak plat_arm_get_mmap
+
+/* Conditionally provide a weak definition of plat_get_syscnt_freq2 to avoid
+ * conflicts with the definition in plat/common. */
+#if ERROR_DEPRECATED
+#pragma weak plat_get_syscnt_freq2
+#else
 #pragma weak plat_get_syscnt_freq
+#endif
 
 /*******************************************************************************
  * Macro generating the code for the function setting up the pagetables as per
@@ -164,9 +172,16 @@ const mmap_region_t *plat_arm_get_mmap(void)
 }
 
 #ifdef ARM_SYS_CNTCTL_BASE
+
+#if ERROR_DEPRECATED
+unsigned int plat_get_syscnt_freq2(void)
+{
+	unsigned int counter_base_frequency
+#else
 unsigned long long plat_get_syscnt_freq(void)
 {
 	unsigned long long counter_base_frequency;
+#endif /* ERROR_DEPRECATED */
 
 	/* Read the frequency from Frequency modes table */
 	counter_base_frequency = mmio_read_32(ARM_SYS_CNTCTL_BASE + CNTFID_OFF);
@@ -177,4 +192,5 @@ unsigned long long plat_get_syscnt_freq(void)
 
 	return counter_base_frequency;
 }
+
 #endif /* ARM_SYS_CNTCTL_BASE */
