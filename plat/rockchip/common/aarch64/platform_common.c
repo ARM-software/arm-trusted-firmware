@@ -75,7 +75,7 @@ static const int cci_map[] = {
 /* Define EL3 variants of the function initialising the MMU */
 DEFINE_CONFIGURE_MMU_EL(3)
 
-unsigned long long plat_get_syscnt_freq(void)
+unsigned int plat_get_syscnt_freq2(void)
 {
 	return SYS_COUNTER_FREQ_IN_TICKS;
 }
