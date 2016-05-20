@@ -33,6 +33,7 @@
  * for getting information about and changing state of the APU.
  */
 
+#include <bakery_lock.h>
 #include <gicv2.h>
 #include <bl_common.h>
 #include <mmio.h>
@@ -47,6 +48,7 @@
 #define OCM_BANK_3	(OCM_BANK_2 + 0x10000)
 
 #define UNDEFINED_CPUID		(~0)
+DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
 /* Declaration of linker defined symbol */
 extern unsigned long __BL31_END__;
@@ -162,8 +164,12 @@ const struct pm_proc *primary_proc = &pm_procs_all[0];
  */
 void pm_client_suspend(const struct pm_proc *proc)
 {
+	bakery_lock_get(&pm_client_secure_lock);
+
 	/* Set powerdown request */
 	mmio_write_32(APU_PWRCTL, mmio_read_32(APU_PWRCTL) | proc->pwrdn_mask);
+
+	bakery_lock_release(&pm_client_secure_lock);
 }
 
 
@@ -177,9 +183,14 @@ void pm_client_abort_suspend(void)
 {
 	/* Enable interrupts at processor level (for current cpu) */
 	gicv2_cpuif_enable();
+
+	bakery_lock_get(&pm_client_secure_lock);
+
 	/* Clear powerdown request */
 	mmio_write_32(APU_PWRCTL,
 		 mmio_read_32(APU_PWRCTL) & ~primary_proc->pwrdn_mask);
+
+	bakery_lock_release(&pm_client_secure_lock);
 }
 
 /**
@@ -195,8 +206,12 @@ void pm_client_wakeup(const struct pm_proc *proc)
 	if (cpuid == UNDEFINED_CPUID)
 		return;
 
+	bakery_lock_get(&pm_client_secure_lock);
+
 	/* clear powerdown bit for affected cpu */
 	uint32_t val = mmio_read_32(APU_PWRCTL);
 	val &= ~(proc->pwrdn_mask);
 	mmio_write_32(APU_PWRCTL, val);
+
+	bakery_lock_release(&pm_client_secure_lock);
 }
