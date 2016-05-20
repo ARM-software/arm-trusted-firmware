@@ -111,6 +111,7 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				plat/arm/board/fvp/fvp_bl1_setup.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
+				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_CPU_LIBS}					\
 				${FVP_INTERCONNECT_SOURCES}
 
@@ -122,6 +123,7 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
+				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_SECURITY_SOURCES}
 
 ifeq (${FVP_USE_SP804_TIMER},1)

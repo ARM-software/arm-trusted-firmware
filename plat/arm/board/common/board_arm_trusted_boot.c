@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -180,10 +180,10 @@ int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
 }
 
 /*
- * Store a new non-volatile counter value. On Juno and FVP, the non-volatile
- * counters are RO and cannot be modified. We expect the values in the
- * certificates to always match the RO values so that this function is never
- * called.
+ * Store a new non-volatile counter value. By default on ARM development
+ * platforms, the non-volatile counters are RO and cannot be modified. We expect
+ * the values in the certificates to always match the RO values so that this
+ * function is never called.
  *
  * Return: 0 = success, Otherwise = error
  */
