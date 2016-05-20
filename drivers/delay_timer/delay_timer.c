@@ -48,19 +48,22 @@ void udelay(uint32_t usec)
 		(ops->clk_div != 0) &&
 		(ops->get_timer_value != 0));
 
-	uint32_t start, cnt, delta, delta_us;
+	uint32_t start, delta, total_delta;
 
-	/* counter is decreasing */
+	assert(usec < UINT32_MAX / ops->clk_div);
+
 	start = ops->get_timer_value();
+
+	total_delta = (usec * ops->clk_div) / ops->clk_mult;
+
 	do {
-		cnt = ops->get_timer_value();
-		if (cnt > start) {
-			delta = UINT32_MAX - cnt;
-			delta += start;
-		} else
-			delta = start - cnt;
-		delta_us = (delta * ops->clk_mult) / ops->clk_div;
-	} while (delta_us < usec);
+		/*
+		 * If the timer value wraps around, the subtraction will
+		 * overflow and it will still give the correct result.
+		 */
+		delta = start - ops->get_timer_value(); /* Decreasing counter */
+
+	} while (delta < total_delta);
 }
 
 /***********************************************************

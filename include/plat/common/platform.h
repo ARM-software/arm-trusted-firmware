@@ -56,7 +56,9 @@ struct image_desc;
 /*******************************************************************************
  * Mandatory common functions
  ******************************************************************************/
-unsigned long long plat_get_syscnt_freq(void);
+unsigned long long plat_get_syscnt_freq(void) __deprecated;
+unsigned int plat_get_syscnt_freq2(void);
+
 int plat_get_image_source(unsigned int image_id,
 			uintptr_t *dev_handle,
 			uintptr_t *image_spec);

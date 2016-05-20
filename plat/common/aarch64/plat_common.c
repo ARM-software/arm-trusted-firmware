@@ -40,6 +40,9 @@
 #pragma weak bl31_plat_enable_mmu
 #pragma weak bl32_plat_enable_mmu
 #pragma weak bl31_plat_runtime_setup
+#if !ERROR_DEPRECATED
+#pragma weak plat_get_syscnt_freq2
+#endif /* ERROR_DEPRECATED */
 
 void bl31_plat_enable_mmu(uint32_t flags)
 {
@@ -74,3 +77,14 @@ unsigned int platform_core_pos_helper(unsigned long mpidr)
 }
 #endif
 
+
+#if !ERROR_DEPRECATED
+unsigned int plat_get_syscnt_freq2(void)
+{
+	unsigned long long freq = plat_get_syscnt_freq();
+
+	assert(freq >> 32 == 0);
+
+	return (unsigned int)freq;
+}
+#endif /* ERROR_DEPRECATED */
