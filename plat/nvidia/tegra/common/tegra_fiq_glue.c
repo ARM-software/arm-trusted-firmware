@@ -116,7 +116,7 @@ void tegra_fiq_handler_setup(void)
 	 */
 	flags = 0;
 	set_interrupt_rm_flag(flags, NON_SECURE);
-	rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
 				tegra_fiq_interrupt_handler,
 				flags);
 	if (rc)
