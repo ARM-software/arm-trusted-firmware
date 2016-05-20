@@ -80,7 +80,7 @@ const mmap_region_t *plat_get_mmio_map(void)
 /*******************************************************************************
  * Handler to get the System Counter Frequency
  ******************************************************************************/
-unsigned long long plat_get_syscnt_freq(void)
+unsigned int plat_get_syscnt_freq2(void)
 {
 	return 19200000;
 }

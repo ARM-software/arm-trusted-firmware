@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,24 +28,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <arch_helpers.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <bl31.h>
-#include <cpu_data.h>
-#include <platform.h>
+#ifndef __GENERIC_DELAY_TIMER_H__
+#define __GENERIC_DELAY_TIMER_H__
 
-/*******************************************************************************
- * This duplicates what the primary cpu did after a cold boot in BL1. The same
- * needs to be done when a cpu is hotplugged in. This function could also over-
- * ride any EL3 setup done by BL1 as this code resides in rw memory.
- ******************************************************************************/
-void bl31_arch_setup(void)
-{
-	/* Program the counter frequency */
-	write_cntfrq_el0(plat_get_syscnt_freq2());
+#include <stdint.h>
 
-	/* Initialize the cpu_ops pointer. */
-	init_cpu_ops();
-}
+void generic_delay_timer_init_args(uint32_t mult, uint32_t div);
+
+void generic_delay_timer_init(void);
+
+#endif /* __GENERIC_DELAY_TIMER_H__ */
