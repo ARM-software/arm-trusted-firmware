@@ -84,10 +84,22 @@ extern uint64_t ns_image_entrypoint;
  * provide typical implementations that will be overridden by a SoC.
  ******************************************************************************/
 #pragma weak plat_early_platform_setup
+#pragma weak plat_get_bl31_params
+#pragma weak plat_get_bl31_plat_params
 
 void plat_early_platform_setup(void)
 {
 	; /* do nothing */
+}
+
+bl31_params_t *plat_get_bl31_params(void)
+{
+	return NULL;
+}
+
+plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
+{
+	return NULL;
 }
 
 /*******************************************************************************
@@ -130,9 +142,21 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 #endif
 
 	/*
+	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
+	 * there's no argument to relay from a previous bootloader. Platforms
+	 * might use custom ways to get arguments, so provide handlers which
+	 * they can override.
+	 */
+	if (from_bl2 == NULL)
+		from_bl2 = plat_get_bl31_params();
+	if (plat_params == NULL)
+		plat_params = plat_get_bl31_plat_params();
+
+	/*
 	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
+	assert(from_bl2);
 	assert(from_bl2->bl33_ep_info);
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
 

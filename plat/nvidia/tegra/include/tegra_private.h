@@ -82,6 +82,8 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 const mmap_region_t *plat_get_mmio_map(void);
 uint32_t plat_get_console_from_id(int id);
 void plat_gic_setup(void);
+bl31_params_t *plat_get_bl31_params(void);
+plat_params_from_bl2_t *plat_get_bl31_plat_params(void);
 
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);
