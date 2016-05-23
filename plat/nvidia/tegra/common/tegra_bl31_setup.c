@@ -44,8 +44,11 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <stddef.h>
+#include <string.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
+
+extern void zeromem16(void *mem, unsigned int length);
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -140,6 +143,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 #if DEBUG
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 #endif
+	image_info_t bl32_img_info = { {0} };
+	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -201,6 +206,42 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 */
 	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
 			plat_bl31_params_from_bl2.tzdram_size);
+
+	/*
+	 * The previous bootloader might not have placed the BL32 image
+	 * inside the TZDRAM. We check the BL32 image info to find out
+	 * the base/PC values and relocate the image if necessary.
+	 */
+	if (from_bl2->bl32_image_info) {
+
+		bl32_img_info = *from_bl2->bl32_image_info;
+
+		/* Relocate BL32 if it resides outside of the TZDRAM */
+		tzdram_start = plat_bl31_params_from_bl2.tzdram_base;
+		tzdram_end = plat_bl31_params_from_bl2.tzdram_base +
+				plat_bl31_params_from_bl2.tzdram_size;
+		bl32_start = bl32_img_info.image_base;
+		bl32_end = bl32_img_info.image_base + bl32_img_info.image_size;
+
+		assert(tzdram_end > tzdram_start);
+		assert(bl32_end > bl32_start);
+		assert(bl32_image_ep_info.pc > tzdram_start);
+		assert(bl32_image_ep_info.pc < tzdram_end);
+
+		/* relocate BL32 */
+		if (bl32_start >= tzdram_end || bl32_end <= tzdram_start) {
+
+			INFO("Relocate BL32 to TZDRAM\n");
+
+			memcpy16((void *)(uintptr_t)bl32_image_ep_info.pc,
+				 (void *)(uintptr_t)bl32_start,
+				 bl32_img_info.image_size);
+
+			/* clean up non-secure intermediate buffer */
+			zeromem16((void *)(uintptr_t)bl32_start,
+				bl32_img_info.image_size);
+		}
+	}
 
 	/* Early platform setup for Tegra SoCs */
 	plat_early_platform_setup();
