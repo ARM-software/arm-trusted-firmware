@@ -403,6 +403,32 @@ void __dead2 soc_soft_reset(void)
 	;
 }
 
+void __dead2 soc_system_off(void)
+{
+	struct gpio_info *poweroff_gpio;
+
+	poweroff_gpio = (struct gpio_info *)plat_get_rockchip_gpio_poweroff();
+
+	if (poweroff_gpio) {
+
+		/*
+		 * if use tsadc over temp pin(GPIO1A6) as shutdown gpio,
+		 * need to set this pin iomux back to gpio function
+		 */
+		if (poweroff_gpio->index == TSADC_INT_PIN) {
+			mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO1A_IOMUX,
+				      GPIO1A6_IOMUX);
+		}
+		gpio_set_direction(poweroff_gpio->index, GPIO_DIR_OUT);
+		gpio_set_value(poweroff_gpio->index, poweroff_gpio->polarity);
+	} else {
+		WARN("Do nothing when system off\n");
+	}
+
+	while (1)
+	;
+}
+
 static struct rockchip_pm_ops_cb pm_ops = {
 	.cores_pwr_dm_on = cores_pwr_domain_on,
 	.cores_pwr_dm_off = cores_pwr_domain_off,
@@ -412,6 +438,7 @@ static struct rockchip_pm_ops_cb pm_ops = {
 	.sys_pwr_dm_suspend = sys_pwr_domain_suspend,
 	.sys_pwr_dm_resume = sys_pwr_domain_resume,
 	.sys_gbl_soft_reset = soc_soft_reset,
+	.system_off = soc_system_off,
 };
 
 void plat_rockchip_pmu_init(void)
