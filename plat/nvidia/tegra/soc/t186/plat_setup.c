@@ -30,6 +30,7 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <bl31.h>
 #include <bl_common.h>
 #include <console.h>
 #include <context.h>
@@ -225,4 +226,28 @@ void plat_gic_setup(void)
 	 */
 	if (sizeof(tegra186_sec_irqs) > 0)
 		tegra_fiq_handler_setup();
+}
+
+/*******************************************************************************
+ * Return pointer to the BL31 params from previous bootloader
+ ******************************************************************************/
+bl31_params_t *plat_get_bl31_params(void)
+{
+	uint32_t val;
+
+	val = mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV53_LO);
+
+	return (bl31_params_t *)(uintptr_t)val;
+}
+
+/*******************************************************************************
+ * Return pointer to the BL31 platform params from previous bootloader
+ ******************************************************************************/
+plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
+{
+	uint32_t val;
+
+	val = mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV53_HI);
+
+	return (plat_params_from_bl2_t *)(uintptr_t)val;
 }

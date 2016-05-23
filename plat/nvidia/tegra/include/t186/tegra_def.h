@@ -150,6 +150,8 @@
 #define  SECURE_SCRATCH_RSV6		0x680
 #define  SECURE_SCRATCH_RSV11_LO	0x6A8
 #define  SECURE_SCRATCH_RSV11_HI	0x6AC
+#define  SECURE_SCRATCH_RSV53_LO	0x7F8
+#define  SECURE_SCRATCH_RSV53_HI	0x7FC
 
 /*******************************************************************************
  * Tegra Memory Mapped Control Register Access Bus constants
