@@ -57,6 +57,7 @@ BL31_SOURCES            +=      ${RK_GIC_SOURCES}                               
                                 drivers/console/console.S                       \
                                 drivers/ti/uart/16550_console.S                 \
                                 drivers/delay_timer/delay_timer.c               \
+				drivers/gpio/gpio.c				\
                                 lib/cpus/aarch64/cortex_a53.S                   \
                                 lib/cpus/aarch64/cortex_a72.S                   \
                                 plat/common/aarch64/platform_mp_stack.S         \
@@ -67,7 +68,8 @@ BL31_SOURCES            +=      ${RK_GIC_SOURCES}                               
                                 ${RK_PLAT_COMMON}/plat_delay_timer.c            \
                                 ${RK_PLAT_COMMON}/plat_pm.c                     \
                                 ${RK_PLAT_COMMON}/plat_topology.c               \
-                                ${RK_PLAT_COMMON}/aarch64/platform_common.c        \
+                                ${RK_PLAT_COMMON}/aarch64/platform_common.c	\
+                                ${RK_PLAT_SOC}/drivers/gpio/rk3399_gpio.c	\
                                 ${RK_PLAT_SOC}/drivers/pmu/pmu.c                \
                                 ${RK_PLAT_SOC}/drivers/soc/soc.c
 
