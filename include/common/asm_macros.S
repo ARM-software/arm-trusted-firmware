@@ -69,20 +69,26 @@
 	/*
 	 * Declare the exception vector table, enforcing it is aligned on a
 	 * 2KB boundary, as required by the ARMv8 architecture.
+	 * Use zero bytes as the fill value to be stored in the padding bytes
+	 * so that it inserts illegal AArch64 instructions. This increases
+	 * security, robustness and potentially facilitates debugging.
 	 */
 	.macro vector_base  label
 	.section .vectors, "ax"
-	.align 11
+	.align 11, 0
 	\label:
 	.endm
 
 	/*
 	 * Create an entry in the exception vector table, enforcing it is
 	 * aligned on a 128-byte boundary, as required by the ARMv8 architecture.
+	 * Use zero bytes as the fill value to be stored in the padding bytes
+	 * so that it inserts illegal AArch64 instructions. This increases
+	 * security, robustness and potentially facilitates debugging.
 	 */
 	.macro vector_entry  label
 	.section .vectors, "ax"
-	.align 7
+	.align 7, 0
 	\label:
 	.endm
 
