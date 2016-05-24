@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
+#include <generic_delay_timer.h>
 #include <mcucfg.h>
 #include <mmio.h>
 #include <mtcmos.h>
@@ -167,7 +168,7 @@ void bl31_platform_setup(void)
 	platform_setup_cpu();
 	platform_setup_sram();
 
-	plat_delay_timer_init();
+	generic_delay_timer_init();
 
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_mt_gic_init();

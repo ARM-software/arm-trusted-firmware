@@ -51,6 +51,4 @@ void plat_mt_gic_init(void);
 /* Declarations for plat_topology.c */
 int mt_setup_topology(void);
 
-void plat_delay_timer_init(void);
-
 #endif /* __PLAT_PRIVATE_H__ */

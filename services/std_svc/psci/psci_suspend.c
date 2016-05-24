@@ -214,7 +214,7 @@ exit:
 void psci_cpu_suspend_finish(unsigned int cpu_idx,
 			     psci_power_state_t *state_info)
 {
-	unsigned long long counter_freq;
+	unsigned int counter_freq;
 	unsigned int max_off_lvl;
 
 	/* Ensure we have been woken up from a suspended state */
@@ -238,7 +238,7 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 	psci_do_pwrup_cache_maintenance();
 
 	/* Re-init the cntfrq_el0 register */
-	counter_freq = plat_get_syscnt_freq();
+	counter_freq = plat_get_syscnt_freq2();
 	write_cntfrq_el0(counter_freq);
 
 	/*
