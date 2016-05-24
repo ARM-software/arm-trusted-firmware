@@ -26,81 +26,66 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- *
- * GPIO -- General Purpose Input/Output
- *
- * Defines a simple and generic interface to access GPIO device.
- *
  */
 
+#include <arm_gic.h>
 #include <assert.h>
-#include <errno.h>
+#include <bl_common.h>
+#include <console.h>
+#include <debug.h>
+#include <mmio.h>
+#include <platform.h>
+#include <plat_params.h>
+#include <plat_private.h>
+#include <string.h>
 #include <gpio.h>
 
-/*
- * The gpio implementation
- */
-static const gpio_ops_t *ops;
+static struct bl31_plat_param *bl31_params_head;
+static struct bl31_gpio_param param_reset;
+static struct bl31_gpio_param param_poweroff;
+static struct gpio_info *rst_gpio = NULL;
+static struct gpio_info *poweroff_gpio = NULL;
 
-int gpio_get_direction(int gpio)
+void *plat_get_rockchip_gpio_reset(void)
 {
-	assert(ops);
-	assert(ops->get_direction != 0);
-	assert(gpio >= 0);
-
-	return ops->get_direction(gpio);
+	return rst_gpio;
 }
 
-void gpio_set_direction(int gpio, int direction)
+void *plat_get_rockchip_gpio_poweroff(void)
 {
-	assert(ops);
-	assert(ops->set_direction != 0);
-	assert((direction == GPIO_DIR_OUT) || (direction == GPIO_DIR_IN));
-	assert(gpio >= 0);
-
-	ops->set_direction(gpio, direction);
+	return poweroff_gpio;
 }
 
-int gpio_get_value(int gpio)
+void params_early_setup(void *plat_param_from_bl2)
 {
-	assert(ops);
-	assert(ops->get_value != 0);
-	assert(gpio >= 0);
+	struct bl31_plat_param *param;
+	struct bl31_plat_param *bl2_param;
+	struct bl31_gpio_param *gpio_param;
 
-	return ops->get_value(gpio);
-}
-
-void gpio_set_value(int gpio, int value)
-{
-	assert(ops);
-	assert(ops->set_value != 0);
-	assert((value == GPIO_LEVEL_LOW) || (value == GPIO_LEVEL_HIGH));
-	assert(gpio >= 0);
-
-	ops->set_value(gpio, value);
-}
-
-void gpio_set_pull(int gpio, int pull)
-{
-	assert(ops);
-	assert(ops->set_pull != 0);
-	assert((pull == PULLNONE) || (pull == PULLUP) || (pull == PULLDOWN));
-	assert(gpio >= 0);
-
-	ops->set_pull(gpio, pull);
-}
-
-/*
- * Initialize the gpio. The fields in the provided gpio
- * ops pointer must be valid.
- */
-void gpio_init(const gpio_ops_t *ops_ptr)
-{
-	assert(ops_ptr != 0  &&
-	       (ops_ptr->get_direction != 0) &&
-	       (ops_ptr->set_direction != 0) &&
-	       (ops_ptr->get_value != 0) &&
-	       (ops_ptr->set_value != 0));
-
-	ops = ops_ptr;
+	/* keep plat parameters for later processing if need */
+	bl2_param = (struct bl31_plat_param *)plat_param_from_bl2;
+	while (bl2_param) {
+		switch (bl2_param->type) {
+		case PARAM_RESET:
+			param = (struct bl31_plat_param *)&param_reset;
+			memcpy((void *)param, (void *)bl2_param,
+				sizeof(struct bl31_gpio_param));
+			gpio_param = (struct bl31_gpio_param *)param;
+			rst_gpio = &gpio_param->gpio;
+			break;
+		case PARAM_POWEROFF:
+			param = (struct bl31_plat_param *)&param_poweroff;
+			memcpy((void *)param, (void *)bl2_param,
+				sizeof(struct bl31_gpio_param));
+			gpio_param = (struct bl31_gpio_param *)param;
+			poweroff_gpio = &gpio_param->gpio;
+			break;
+		default:
+			NOTICE("not expected type found\n");
+			return; /* don't continue if unexpected type found */
+		}
+		param->next = bl31_params_head;
+		bl31_params_head = param;
+		bl2_param = bl2_param->next;
+	}
 }

@@ -57,7 +57,18 @@ const mmap_region_t plat_rk_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(PMUGRF_BASE, PMUGRF_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
-
+	MAP_REGION_FLAT(GPIO0_BASE, GPIO0_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(GPIO1_BASE, GPIO1_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(GPIO2_BASE, GPIO2_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(GPIO3_BASE, GPIO3_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(GPIO4_BASE, GPIO4_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(GRF_BASE, GRF_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
 	{ 0 }
 };
 
@@ -349,4 +360,5 @@ void plat_rockchip_soc_init(void)
 	dma_secure_cfg(0);
 	sgrf_init();
 	soc_global_soft_reset_init();
+	plat_rockchip_gpio_init();
 }

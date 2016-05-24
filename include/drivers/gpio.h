@@ -37,17 +37,25 @@
 #define GPIO_LEVEL_LOW		0
 #define GPIO_LEVEL_HIGH		1
 
+enum {
+	PULLNONE = 0,
+	PULLUP,
+	PULLDOWN
+};
+
 typedef struct gpio_ops {
 	int (*get_direction)(int gpio);
 	void (*set_direction)(int gpio, int direction);
 	int (*get_value)(int gpio);
 	void (*set_value)(int gpio, int value);
+	void (*set_pull)(int gpio, int pull);
 } gpio_ops_t;
 
 int gpio_get_direction(int gpio);
 void gpio_set_direction(int gpio, int direction);
 int gpio_get_value(int gpio);
 void gpio_set_value(int gpio, int value);
+void gpio_set_pull(int gpio, int pull);
 void gpio_init(const gpio_ops_t *ops);
 
 #endif	/* __GPIO_H__ */
