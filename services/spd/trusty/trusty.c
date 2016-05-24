@@ -45,6 +45,9 @@
 /* macro to check if Hypervisor is enabled in the HCR_EL2 register */
 #define HYP_ENABLE_FLAG		0x286001
 
+/* length of Trusty's input parameters (in bytes) */
+#define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
+
 struct trusty_stack {
 	uint8_t space[PLATFORM_STACK_SIZE] __aligned(16);
 };
@@ -413,6 +416,14 @@ static int32_t trusty_setup(void)
 					    DAIF_FIQ_BIT |
 					    DAIF_IRQ_BIT |
 					    DAIF_ABT_BIT);
+
+	/*
+	 * arg0 = TZDRAM aperture available for BL32
+	 * arg1 = BL32 boot params
+	 * arg2 = BL32 boot params length
+	 */
+	ep_info->args.arg1 = ep_info->args.arg2;
+	ep_info->args.arg2 = TRUSTY_PARAMS_LEN_BYTES;
 
 	bl31_register_bl32_init(trusty_init);
 
