@@ -631,10 +631,19 @@ In case the function returns a hash of the key:
         digest            OCTET STRING
     }
 
-The function returns 0 on success. Any other value means the ROTPK could not be
-retrieved from the platform. The function also reports extra information related
-to the ROTPK in the flags parameter.
+The function returns 0 on success. Any other value is treated as error by the
+Trusted Board Boot. The function also reports extra information related
+to the ROTPK in the flags parameter:
 
+    ROTPK_IS_HASH      : Indicates that the ROTPK returned by the platform is a
+                         hash.
+    ROTPK_NOT_DEPLOYED : This allows the platform to skip certificate ROTPK
+                         verification while the platform ROTPK is not deployed.
+                         When this flag is set, the function does not need to
+                         return a platform ROTPK, and the authentication
+                         framework uses the ROTPK in the certificate without
+                         verifying it against the platform value. This flag
+                         must not be used in a deployed production environment.
 
 ### Function: plat_get_nv_ctr()
 

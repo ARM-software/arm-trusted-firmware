@@ -199,8 +199,9 @@ static int auth_signature(const auth_method_param_sig_t *param,
 	}
 	return_if_error(rc);
 
-	/* If the PK is a hash of the key, retrieve the key from the image */
-	if (flags & ROTPK_IS_HASH) {
+	if (flags & (ROTPK_IS_HASH | ROTPK_NOT_DEPLOYED)) {
+		/* If the PK is a hash of the key or if the ROTPK is not
+		   deployed on the platform, retrieve the key from the image */
 		pk_hash_ptr = pk_ptr;
 		pk_hash_len = pk_len;
 		rc = img_parser_get_auth_param(img_desc->img_type,
@@ -215,9 +216,14 @@ static int auth_signature(const auth_method_param_sig_t *param,
 						 pk_ptr, pk_len);
 		return_if_error(rc);
 
-		/* Ask the crypto-module to verify the key hash */
-		rc = crypto_mod_verify_hash(pk_ptr, pk_len,
-					    pk_hash_ptr, pk_hash_len);
+		if (flags & ROTPK_NOT_DEPLOYED) {
+			NOTICE("ROTPK is not deployed on platform. "
+				"Skipping ROTPK verification.\n");
+		} else {
+			/* Ask the crypto-module to verify the key hash */
+			rc = crypto_mod_verify_hash(pk_ptr, pk_len,
+				    pk_hash_ptr, pk_hash_len);
+		}
 	} else {
 		/* Ask the crypto module to verify the signature */
 		rc = crypto_mod_verify_signature(data_ptr, data_len,
