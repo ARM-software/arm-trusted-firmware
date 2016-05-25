@@ -80,6 +80,26 @@ void gpio_set_value(int gpio, int value)
 	ops->set_value(gpio, value);
 }
 
+void gpio_set_pull(int gpio, int pull)
+{
+	assert(ops);
+	assert(ops->set_pull != 0);
+	assert((pull == GPIO_PULL_NONE) || (pull == GPIO_PULL_UP) ||
+	       (pull == GPIO_PULL_DOWN));
+	assert(gpio >= 0);
+
+	ops->set_pull(gpio, pull);
+}
+
+int gpio_get_pull(int gpio)
+{
+	assert(ops);
+	assert(ops->get_pull != 0);
+	assert(gpio >= 0);
+
+	return ops->get_pull(gpio);
+}
+
 /*
  * Initialize the gpio. The fields in the provided gpio
  * ops pointer must be valid.
