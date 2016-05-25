@@ -112,7 +112,7 @@ define IMG_BIN
     ${BUILD_PLAT}/bl$(1).bin
 endef
 
-# FIP_ADD_PAYLOAD appends the command line arguments required by the FIP tool
+# FIP_ADD_PAYLOAD appends the command line arguments required by fiptool
 # to package a new payload. Optionally, it adds the dependency on this payload
 #   $(1) = payload filename (i.e. bl31.bin)
 #   $(2) = command line option for the specified payload (i.e. --bl31)
@@ -135,7 +135,7 @@ endef
 # using a build option. It also adds a dependency on the image file, aborting
 # the build if the file does not exist.
 #   $(1) = build option to specify the image filename (SCP_BL2, BL33, etc)
-#   $(2) = command line option for the fip_create tool (scp_bl2, bl33, etc)
+#   $(2) = command line option for fiptool (scp_bl2, bl33, etc)
 # Example:
 #   $(eval $(call FIP_ADD_IMG,BL33,--bl33))
 define FIP_ADD_IMG
@@ -147,7 +147,7 @@ check_$(1):
 	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
 endef
 
-# FWU_FIP_ADD_PAYLOAD appends the command line arguments required by the FIP tool
+# FWU_FIP_ADD_PAYLOAD appends the command line arguments required by fiptool
 # to package a new FWU payload. Optionally, it  adds the dependency on this payload
 #   $(1) = payload filename (e.g. ns_bl2u.bin)
 #   $(2) = command line option for the specified payload (e.g. --fwu)
@@ -168,7 +168,7 @@ endef
 
 # FWU_FIP_ADD_IMG allows the platform to pack a binary image in the FWU FIP
 #   $(1) build option to specify the image filename (BL2U, NS_BL2U, etc)
-#   $(2) command line option for the fip_create tool (bl2u, ns_bl2u, etc)
+#   $(2) command line option for fiptool (bl2u, ns_bl2u, etc)
 # Example:
 #   $(eval $(call FWU_FIP_ADD_IMG,BL2U,--bl2u))
 define FWU_FIP_ADD_IMG
@@ -301,7 +301,7 @@ define SOURCES_TO_OBJS
 endef
 
 
-# MAKE_TOOL_ARGS macro defines the command line arguments for the FIP tool for
+# MAKE_TOOL_ARGS macro defines the command line arguments for fiptool for
 # each BL image. Arguments:
 #   $(1) = BL stage (2, 30, 31, 32, 33)
 #   $(2) = Binary file

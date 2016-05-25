@@ -382,7 +382,7 @@ ENABLE_PMF			:= 1
 endif
 
 ################################################################################
-# Auxiliary tools (fip_create, cert_create, etc)
+# Auxiliary tools (fiptool, cert_create, etc)
 ################################################################################
 
 # Variables for use with Certificate Generation Tool
@@ -390,8 +390,8 @@ CRTTOOLPATH		?=	tools/cert_create
 CRTTOOL			?=	${CRTTOOLPATH}/cert_create${BIN_EXT}
 
 # Variables for use with Firmware Image Package
-FIPTOOLPATH		?=	tools/fip_create
-FIPTOOL			?=	${FIPTOOLPATH}/fip_create${BIN_EXT}
+FIPTOOLPATH		?=	tools/fiptool
+FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
 
 
 ################################################################################
@@ -603,7 +603,8 @@ certificates: ${CRT_DEPS} ${CRTTOOL}
 endif
 
 ${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
-	${Q}${FIPTOOL} --dump ${FIP_ARGS} $@
+	${Q}${FIPTOOL} create ${FIP_ARGS} $@
+	${Q}${FIPTOOL} info $@
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
@@ -618,7 +619,8 @@ fwu_certificates: ${FWU_CRT_DEPS} ${CRTTOOL}
 endif
 
 ${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL}
-	${Q}${FIPTOOL} --dump ${FWU_FIP_ARGS} $@
+	${Q}${FIPTOOL} create ${FWU_FIP_ARGS} $@
+	${Q}${FIPTOOL} info $@
 	@echo
 	@echo "Built $@ successfully"
 	@echo
@@ -629,7 +631,7 @@ fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 .PHONY: ${FIPTOOL}
 ${FIPTOOL}:
-	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH}
+	${Q}${MAKE} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" --no-print-directory -C ${FIPTOOLPATH}
 
 cscope:
 	@echo "  CSCOPE"

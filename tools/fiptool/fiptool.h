@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,33 +28,42 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __FIP_CREATE_H__
-#define __FIP_CREATE_H__
+#ifndef __FIPTOOL_H__
+#define __FIPTOOL_H__
 
+#include <stddef.h>
 #include <stdint.h>
-#include <uuid.h>
 
-#define MAX_FILES			20
+#include "uuid.h"
 
-/* TODO: Update this number as required */
-#define TOC_HEADER_SERIAL_NUMBER	0x12345678
+#define NELEM(x) (sizeof (x) / sizeof *(x))
 
-#define FLAG_FILENAME			(1 << 0)
+/* TODO: Do not hardcode, use realloc() */
+#define MAX_IMAGES 32
 
-typedef struct entry_lookup_list {
-	const char		*name;
-	uuid_t			 name_uuid;
-	const char		*command_line_name;
-	struct file_info	*info;
-	unsigned int		 flags;
-} entry_lookup_list_t;
+enum {
+	DO_PACK   = 1,
+	DO_UNPACK = 2,
+	DO_REMOVE = 3
+};
 
-typedef struct file_info {
-	uuid_t			 name_uuid;
-	const char		*filename;
-	unsigned int		 size;
-	void			*image_buffer;
-	entry_lookup_list_t	*entry;
-} file_info_t;
+enum {
+	LOG_DBG,
+	LOG_WARN,
+	LOG_ERR
+};
 
-#endif /* __FIP_CREATE_H__ */
+typedef struct image {
+	uuid_t            uuid;
+	size_t            size;
+	void             *buffer;
+	struct toc_entry *toc_entry;
+} image_t;
+
+typedef struct cmd {
+	char             *name;
+	int             (*handler)(int, char **);
+	void            (*usage)(void);
+} cmd_t;
+
+#endif /* __FIPTOOL_H__ */
