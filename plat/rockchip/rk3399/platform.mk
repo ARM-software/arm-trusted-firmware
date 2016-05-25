@@ -64,6 +64,7 @@ BL31_SOURCES            +=      ${RK_GIC_SOURCES}                               
                                 plat/common/aarch64/platform_mp_stack.S         \
                                 ${RK_PLAT_COMMON}/aarch64/plat_helpers.S        \
                                 ${RK_PLAT_COMMON}/bl31_plat_setup.c             \
+                                ${RK_PLAT_COMMON}/params_setup.c                \
                                 ${RK_PLAT_COMMON}/pmusram/pmu_sram_cpus_on.S	\
 				${RK_PLAT_COMMON}/pmusram/pmu_sram.c		\
                                 ${RK_PLAT_COMMON}/plat_pm.c                     \
