@@ -253,6 +253,16 @@ static void __dead2 rockchip_system_reset(void)
 }
 
 /*******************************************************************************
+ * RockChip handlers to power off the system
+ ******************************************************************************/
+static void __dead2 rockchip_system_poweroff(void)
+{
+	assert(rockchip_ops && rockchip_ops->system_off);
+
+	rockchip_ops->system_off();
+}
+
+/*******************************************************************************
  * Export the platform handlers via plat_rockchip_psci_pm_ops. The rockchip
  * standard
  * platform layer will take care of registering the handlers with PSCI.
@@ -265,6 +275,7 @@ const plat_psci_ops_t plat_rockchip_psci_pm_ops = {
 	.pwr_domain_on_finish = rockchip_pwr_domain_on_finish,
 	.pwr_domain_suspend_finish = rockchip_pwr_domain_suspend_finish,
 	.system_reset = rockchip_system_reset,
+	.system_off = rockchip_system_poweroff,
 	.validate_power_state = rockchip_validate_power_state,
 	.get_sys_suspend_power_state = rockchip_get_sys_suspend_power_state
 };
