@@ -34,9 +34,11 @@
 #include <debug.h>
 #include <delay_timer.h>
 #include <errno.h>
+#include <gpio.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <plat_params.h>
 #include <plat_private.h>
 #include <rk3399_def.h>
 #include <pmu_sram.h>
@@ -384,6 +386,23 @@ static int sys_pwr_domain_resume(void)
 	return 0;
 }
 
+void __dead2 soc_soft_reset(void)
+{
+	struct gpio_info *rst_gpio;
+
+	rst_gpio = (struct gpio_info *)plat_get_rockchip_gpio_reset();
+
+	if (rst_gpio) {
+		gpio_set_direction(rst_gpio->index, GPIO_DIR_OUT);
+		gpio_set_value(rst_gpio->index, rst_gpio->polarity);
+	} else {
+		soc_global_soft_reset();
+	}
+
+	while (1)
+		;
+}
+
 static struct rockchip_pm_ops_cb pm_ops = {
 	.cores_pwr_dm_on = cores_pwr_domain_on,
 	.cores_pwr_dm_off = cores_pwr_domain_off,
@@ -392,7 +411,7 @@ static struct rockchip_pm_ops_cb pm_ops = {
 	.cores_pwr_dm_resume = cores_pwr_domain_resume,
 	.sys_pwr_dm_suspend = sys_pwr_domain_suspend,
 	.sys_pwr_dm_resume = sys_pwr_domain_resume,
-	.sys_gbl_soft_reset = soc_global_soft_reset,
+	.sys_gbl_soft_reset = soc_soft_reset,
 };
 
 void plat_rockchip_pmu_init(void)
