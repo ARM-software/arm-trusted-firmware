@@ -110,6 +110,8 @@ void plat_setup_rockchip_pm_ops(struct rockchip_pm_ops_cb *ops);
 
 void platform_cpu_warmboot(void);
 
+void plat_rockchip_gpio_init(void);
+
 extern const unsigned char rockchip_power_domain_tree_desc[];
 
 extern void *pmu_cpuson_entrypoint_start;

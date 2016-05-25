@@ -72,6 +72,8 @@
 #define REG_SIZE			0x04
 #define REG_SOC_WMSK			0xffff0000
 
+#define CLK_GATE_MASK			0x01
+
 enum plls_id {
 	ALPLL_ID = 0,
 	ABPLL_ID,
@@ -152,6 +154,11 @@ struct deepsleep_data_s {
 #define CRU_GLB_SRST_FST	0x0500
 #define CRU_GLB_SRST_SND	0x0504
 
+#define CRU_CLKGATE_CON(n)	(0x300 + n * 4)
+#define PCLK_GPIO2_GATE_SHIFT	3
+#define PCLK_GPIO3_GATE_SHIFT	4
+#define PCLK_GPIO4_GATE_SHIFT	5
+
 /**************************************************
  * pmu cru reg, offset
  **************************************************/
@@ -166,6 +173,10 @@ struct deepsleep_data_s {
 
 #define CRU_PMU_FIRST_SFTRST_MSK	(0x3 << 2)
 #define CRU_PMU_FIRST_SFTRST_EN		0x0
+
+#define CRU_PMU_CLKGATE_CON(n)		(0x100 + n * 4)
+#define PCLK_GPIO0_GATE_SHIFT		3
+#define PCLK_GPIO1_GATE_SHIFT		4
 
 /**************************************************
  * sgrf reg, offset

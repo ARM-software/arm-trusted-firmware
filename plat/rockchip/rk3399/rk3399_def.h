@@ -64,6 +64,24 @@
 #define PMUGRF_BASE		0xff320000
 #define PMUGRF_SIZE		SIZE_K(64)
 
+#define GPIO0_BASE		0xff720000
+#define GPIO0_SIZE		SIZE_K(64)
+
+#define GPIO1_BASE		0xff730000
+#define GPIO1_SIZE		SIZE_K(64)
+
+#define GPIO2_BASE		0xff780000
+#define GPIO2_SIZE		SIZE_K(32)
+
+#define GPIO3_BASE		0xff788000
+#define GPIO3_SIZE		SIZE_K(32)
+
+#define GPIO4_BASE		0xff790000
+#define GPIO4_SIZE		SIZE_K(32)
+
+#define GRF_BASE		0xff770000
+#define GRF_SIZE		SIZE_K(64)
+
 /*
  * include i2c pmu/audio, pwm0-3 rkpwm0-3 uart_dbg,mailbox scr
  * 0xff650000 -0xff6c0000
