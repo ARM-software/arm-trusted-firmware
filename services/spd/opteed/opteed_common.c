@@ -74,7 +74,6 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 						      DAIF_FIQ_BIT |
 							DAIF_IRQ_BIT |
 							DAIF_ABT_BIT);
-	memset(&optee_entry_point->args, 0, sizeof(optee_entry_point->args));
 	optee_entry_point->args.arg0 = paged_part;
 	optee_entry_point->args.arg1 = mem_limit;
 }

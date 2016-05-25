@@ -116,6 +116,10 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, PARAM_EP,
 		VERSION_1, 0);
+
+	/* BL3-2 expects to receive DTB address in x2 */
+	bl2_to_bl31_params->bl32_ep_info->args.arg2 = PLAT_QEMU_DT_BASE;
+
 	bl2_to_bl31_params->bl32_image_info = &bl31_params_mem.bl32_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info, PARAM_IMAGE_BINARY,
 		VERSION_1, 0);
