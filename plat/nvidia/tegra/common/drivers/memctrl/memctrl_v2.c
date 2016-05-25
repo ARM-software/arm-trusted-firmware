@@ -641,33 +641,55 @@ void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes)
  */
 void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 {
-	uint64_t tzram_end = phys_base + size_in_bytes - 1;
+	uint32_t index;
+	uint32_t total_128kb_blocks = size_in_bytes >> 17;
+	uint32_t residual_4kb_blocks = (size_in_bytes & 0x1FFFF) >> 12;
 	uint32_t val;
 
 	/*
-	 * Check if the TZRAM is locked already.
+	 * Reset the access configuration registers to restrict access
+	 * to the TZRAM aperture
 	 */
-	if (tegra_mc_read_32(MC_TZRAM_REG_CTRL) == DISABLE_TZRAM_ACCESS)
-		return;
+	for (index = MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG0;
+	     index <= MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS5;
+	     index += 4)
+		tegra_mc_write_32(index, 0);
 
 	/*
-	 * Setup the Memory controller to allow only secure accesses to
-	 * the TZRAM carveout
+	 * Allow CPU read/write access to the aperture
 	 */
-	INFO("Configuring TrustZone RAM (SysRAM) Memory Carveout\n");
+	tegra_mc_write_32(MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG1,
+		TZRAM_CARVEOUT_CPU_WRITE_ACCESS_BIT |
+		TZRAM_CARVEOUT_CPU_READ_ACCESS_BIT);
 
-	/* Program the base and end values */
-	tegra_mc_write_32(MC_TZRAM_BASE, (uint32_t)phys_base);
-	tegra_mc_write_32(MC_TZRAM_END, (uint32_t)tzram_end);
+	/*
+	 * Set the TZRAM base. TZRAM base must be 4k aligned, at least.
+	 */
+	assert(!(phys_base & 0xFFF));
+	tegra_mc_write_32(MC_TZRAM_BASE_LO, (uint32_t)phys_base);
+	tegra_mc_write_32(MC_TZRAM_BASE_HI,
+		(uint32_t)(phys_base >> 32) & TZRAM_BASE_HI_MASK);
 
-	/* Extract the high address bits from the base/end values */
-	val = (uint32_t)(phys_base >> 32) & TZRAM_ADDR_HI_BITS_MASK;
-	val |= (((uint32_t)(tzram_end >> 32) & TZRAM_ADDR_HI_BITS_MASK) <<
-		TZRAM_END_HI_BITS_SHIFT);
-	tegra_mc_write_32(MC_TZRAM_HI_ADDR_BITS, val);
+	/*
+	 * Set the TZRAM size
+	 *
+	 * total size = (number of 128KB blocks) + (number of remaining 4KB
+	 * blocks)
+	 *
+	 */
+	val = (residual_4kb_blocks << TZRAM_SIZE_RANGE_4KB_SHIFT) |
+	      total_128kb_blocks;
+	tegra_mc_write_32(MC_TZRAM_SIZE, val);
 
-	/* Disable further writes to the TZRAM setup registers */
-	tegra_mc_write_32(MC_TZRAM_REG_CTRL, DISABLE_TZRAM_ACCESS);
+	/*
+	 * Lock the configuration settings by disabling TZ-only lock
+	 * and locking the configuration against any future changes
+	 * at all.
+	 */
+	val = tegra_mc_read_32(MC_TZRAM_CARVEOUT_CFG);
+	val &= ~TZRAM_ENABLE_TZ_LOCK_BIT;
+	val |= TZRAM_LOCK_CFG_SETTINGS_BIT;
+	tegra_mc_write_32(MC_TZRAM_CARVEOUT_CFG, val);
 
 	/*
 	 * MCE propogates the security configuration values across the

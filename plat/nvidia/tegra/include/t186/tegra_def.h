@@ -165,6 +165,6 @@
  * Tegra TZRAM constants
  ******************************************************************************/
 #define TEGRA_TZRAM_BASE		0x30000000
-#define TEGRA_TZRAM_SIZE		0x50000
+#define TEGRA_TZRAM_SIZE		0x40000
 
 #endif /* __TEGRA_DEF_H__ */
