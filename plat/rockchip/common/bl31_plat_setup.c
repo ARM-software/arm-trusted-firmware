@@ -120,6 +120,9 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Copy the code into pmusram.
 	 */
 	plat_rockchip_pmusram_prepare();
+
+	/* there may have some board sepcific message need to initialize */
+	params_early_setup(plat_params_from_bl2);
 }
 
 /*******************************************************************************

@@ -810,6 +810,8 @@ enum pmu_core_pwr_st {
 
 #define PMUGRF_GPIO1A_IOMUX	0x10
 #define AP_PWROFF		0x0a
+#define GPIO1A6_IOMUX		BITS_WITH_WMASK(0, 3, 12)
+#define TSADC_INT_PIN		38
 #define CORES_PM_DISABLE	0x0
 
 #define PD_CTR_LOOP		500
