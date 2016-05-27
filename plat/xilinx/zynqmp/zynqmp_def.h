@@ -140,7 +140,7 @@
  * UART related constants
  ******************************************************************************/
 #define ZYNQMP_UART0_BASE		0xFF000000
-#define ZYNQMP_UART1_BASE		0xFF001000
+#define ZYNQMP_UART1_BASE		0xFF010000
 
 #if ZYNQMP_CONSOLE_IS(cadence)
 # define ZYNQMP_UART_BASE	ZYNQMP_UART0_BASE
