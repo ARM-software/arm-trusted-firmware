@@ -106,7 +106,6 @@ endfunc psci_entrypoint
 func psci_power_down_wfi
 	dsb	sy		// ensure write buffer empty
 	wfi
-wfi_spill:
-	b	wfi_spill
+	bl	plat_panic_handler
 endfunc psci_power_down_wfi
 

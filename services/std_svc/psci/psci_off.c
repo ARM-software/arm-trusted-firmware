@@ -138,11 +138,16 @@ exit:
 		dsbish();
 		inv_cpu_data(psci_svc_cpu_data.aff_info_state);
 
-		/*
-		 * Enter a wfi loop which will allow the power controller to
-		 * physically power down this cpu.
-		 */
-		psci_power_down_wfi();
+		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi) {
+			/* This function must not return */
+			psci_plat_pm_ops->pwr_domain_pwr_down_wfi(&state_info);
+		} else {
+			/*
+			 * Enter a wfi loop which will allow the power
+			 * controller to physically power down this cpu.
+			 */
+			psci_power_down_wfi();
+		}
 	}
 
 	return rc;
