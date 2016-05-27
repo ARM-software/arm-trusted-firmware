@@ -148,7 +148,7 @@ int32_t opteed_setup(void)
 	 * state i.e whether AArch32 or AArch64. Assuming it's AArch32
 	 * for the time being.
 	 */
-	opteed_rw = OPTEE_AARCH32;
+	opteed_rw = OPTEE_AARCH64;
 	opteed_init_optee_ep_state(optee_ep_info,
 				opteed_rw,
 				optee_ep_info->pc,
