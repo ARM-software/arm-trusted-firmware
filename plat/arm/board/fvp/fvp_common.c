@@ -30,6 +30,7 @@
 
 #include <arm_config.h>
 #include <arm_def.h>
+#include <ccn.h>
 #include <debug.h>
 #include <gicv2.h>
 #include <mmio.h>
@@ -213,8 +214,16 @@ void fvp_config_setup(void)
 
 void fvp_interconnect_init(void)
 {
-	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT)
+	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT) {
+#if FVP_INTERCONNECT_DRIVER == FVP_CCN
+		if (ccn_get_part0_id(PLAT_ARM_CCN_BASE) != CCN_502_PART0_ID) {
+			ERROR("Unrecognized CCN variant detected. Only CCN-502"
+					" is supported");
+			panic();
+		}
+#endif
 		plat_arm_interconnect_init();
+	}
 }
 
 void fvp_interconnect_enable(void)

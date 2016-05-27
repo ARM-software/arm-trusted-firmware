@@ -90,6 +90,10 @@
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	3
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	4
 
+/* CCN related constants. Only CCN 502 is currently supported */
+#define PLAT_ARM_CCN_BASE		0x2e000000
+#define PLAT_ARM_CLUSTER_TO_CCN_ID_MAP	1, 5, 7, 11
+
 /* System timer related constants */
 #define PLAT_ARM_NSTIMER_FRAME_ID		1
 

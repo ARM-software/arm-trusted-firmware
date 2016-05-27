@@ -64,7 +64,9 @@ use_ve_mmap:
 	mov_imm	x16, VE_GICD_BASE
 print_gic_regs:
 	arm_print_gic_regs
+#if FVP_INTERCONNECT_DRIVER == FVP_CCI
 	print_cci_regs
+#endif
 	.endm
 
 #endif /* __PLAT_MACROS_S__ */

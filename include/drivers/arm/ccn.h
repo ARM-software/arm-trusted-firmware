@@ -51,6 +51,13 @@
 #define CCN_L3_RUN_MODE_HAM	0x2	/* HNF_PM_HALF */
 #define CCN_L3_RUN_MODE_FAM	0x3	/* HNF_PM_FULL */
 
+/* part 0 IDs for various CCN variants */
+#define CCN_502_PART0_ID	0x30
+#define CCN_504_PART0_ID	0x26
+#define CCN_505_PART0_ID	0x27
+#define CCN_508_PART0_ID	0x28
+#define CCN_512_PART0_ID	0x29
+
 /*
  * The following macro takes the value returned from a read of a HN-F P-state
  * status register and returns the retention state value.
@@ -107,6 +114,7 @@ void ccn_program_sys_addrmap(unsigned int sn0_id,
 		 unsigned int top_addr_bit1,
 		 unsigned char three_sn_en);
 unsigned int ccn_get_l3_run_mode(void);
+int ccn_get_part0_id(uintptr_t periphbase);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __CCN_H__ */

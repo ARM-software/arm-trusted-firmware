@@ -39,10 +39,21 @@ $(eval $(call add_define,FVP_USE_SP804_TIMER))
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
-# If FVP_CLUSTER_COUNT has been defined, pass it into the build system.
-ifdef FVP_CLUSTER_COUNT
+# Define default FVP_CLUSTER_COUNT to 2 and pass it into the build system.
+FVP_CLUSTER_COUNT	:= 2
 $(eval $(call add_define,FVP_CLUSTER_COUNT))
+
+# Sanity check the cluster count and if FVP_CLUSTER_COUNT <= 2,
+# choose the CCI driver , else the CCN driver
+ifeq ($(FVP_CLUSTER_COUNT), 0)
+$(error "Incorrect cluster count specified for FVP port")
+else ifeq ($(FVP_CLUSTER_COUNT),$(filter $(FVP_CLUSTER_COUNT),1 2))
+FVP_INTERCONNECT_DRIVER := FVP_CCI
+else
+FVP_INTERCONNECT_DRIVER := FVP_CCN
 endif
+
+$(eval $(call add_define,FVP_INTERCONNECT_DRIVER))
 
 # Choose the GIC sources depending upon the how the FVP will be invoked
 ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
@@ -67,8 +78,15 @@ else
 $(error "Incorrect GIC driver chosen on FVP port")
 endif
 
+ifeq (${FVP_INTERCONNECT_DRIVER}, FVP_CCI)
 FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/cci/cci.c		\
 					plat/arm/common/arm_cci.c
+else ifeq (${FVP_INTERCONNECT_DRIVER}, FVP_CCN)
+FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/ccn/ccn.c		\
+					plat/arm/common/arm_ccn.c
+else
+$(error "Incorrect CCN driver chosen on FVP port")
+endif
 
 FVP_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
 				plat/arm/board/fvp/fvp_security.c	\
