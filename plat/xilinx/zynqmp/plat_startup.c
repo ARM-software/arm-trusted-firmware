@@ -114,7 +114,7 @@ static int get_fsbl_el(const struct xfsbl_partition *partition)
 {
 	uint64_t flags = partition->flags & FSBL_FLAGS_EL_MASK;
 
-	return flags >> FSBL_FLAGS_EL_SHIFT;;
+	return flags >> FSBL_FLAGS_EL_SHIFT;
 }
 
 /**
