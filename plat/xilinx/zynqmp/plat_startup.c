@@ -39,7 +39,7 @@
  * Parameter		bitfield	encoding
  * -----------------------------------------------------------------------------
  * Exec State		0		0 -> Aarch64, 1-> Aarch32
- * endianess		1		0 -> LE, 1 -> BE
+ * endianness		1		0 -> LE, 1 -> BE
  * secure (TZ)		2		0 -> Non secure, 1 -> secure
  * EL			3:4		00 -> EL0, 01 -> EL1, 10 -> EL2, 11 -> EL3
  * CPU#			5:6		00 -> A53_0, 01 -> A53_1, 10 -> A53_2, 11 -> A53_3
@@ -134,7 +134,7 @@ static int get_fsbl_ss(const struct xfsbl_partition *partition)
 /**
  * @partition: Pointer to partition struct
  *
- * Get the target endianess for @partition.
+ * Get the target endianness for @partition.
  *
  * Return: SPSR_E_LITTLE or SPSR_E_BIG
  */
@@ -211,7 +211,7 @@ void fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
 	for (size_t i = 0; i < ATFHandoffParams->num_entries; i++) {
 		entry_point_info_t *image;
 		int target_estate, target_secure;
-		int target_cpu, target_endianess, target_el;
+		int target_cpu, target_endianness, target_el;
 
 		VERBOSE("BL31: %zd: entry:0x%lx, flags:0x%lx\n", i,
 			ATFHandoffParams->partition[i].entry_point,
@@ -239,14 +239,14 @@ void fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
 		}
 
 		target_estate = get_fsbl_estate(&ATFHandoffParams->partition[i]);
-		target_endianess = get_fsbl_endian(&ATFHandoffParams->partition[i]);
+		target_endianness = get_fsbl_endian(&ATFHandoffParams->partition[i]);
 
 		if (target_secure == FSBL_FLAGS_SECURE) {
 			image = bl32;
 
 			if (target_estate == FSBL_FLAGS_ESTATE_A32)
 				bl32->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
-							 target_endianess,
+							 target_endianness,
 							 DISABLE_ALL_EXCEPTIONS);
 			else
 				bl32->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
@@ -261,7 +261,7 @@ void fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
 					target_el = MODE32_sys;
 
 				bl33->spsr = SPSR_MODE32(target_el, SPSR_T_ARM,
-							 target_endianess,
+							 target_endianness,
 							 DISABLE_ALL_EXCEPTIONS);
 			} else {
 				if (target_el == FSBL_FLAGS_EL2)
@@ -280,7 +280,7 @@ void fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
 			target_el);
 		image->pc = ATFHandoffParams->partition[i].entry_point;
 
-		if (target_endianess == SPSR_E_BIG)
+		if (target_endianness == SPSR_E_BIG)
 			EP_SET_EE(image->h.attr, EP_EE_BIG);
 		else
 			EP_SET_EE(image->h.attr, EP_EE_LITTLE);
