@@ -150,12 +150,6 @@ typedef enum  {
 	MT_MEMORY,
 	/* Values up to 7 are reserved to add new memory types in the future */
 
-	/*
-	 * The following values are organised so that a clear bit gives a more
-	 * restrictive mapping than a set bit, that way a bitwise-and of two
-	 * sets of attributes will never give an attribute which has greater
-	 * access rights than any of the original attributes.
-	 */
 	MT_RO		= 0 << MT_PERM_SHIFT,
 	MT_RW		= 1 << MT_PERM_SHIFT,
 
