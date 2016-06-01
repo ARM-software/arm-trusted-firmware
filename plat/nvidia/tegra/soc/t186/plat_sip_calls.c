@@ -114,32 +114,6 @@ int plat_sip_handler(uint32_t smc_fid,
 
 		return 0;
 
-	case TEGRA_SIP_NEW_VIDEOMEM_REGION:
-		/* clean up the high bits */
-		x1 = (uint32_t)x1;
-		x2 = (uint32_t)x2;
-
-		/*
-		 * Check if Video Memory overlaps TZDRAM (contains bl31/bl32)
-		 * or falls outside of the valid DRAM range
-		 */
-		mce_ret = bl31_check_ns_address(x1, x2);
-		if (mce_ret)
-			return -ENOTSUP;
-
-		/*
-		 * Check if Video Memory is aligned to 1MB.
-		 */
-		if ((x1 & 0xFFFFF) || (x2 & 0xFFFFF)) {
-			ERROR("Unaligned Video Memory base address!\n");
-			return -ENOTSUP;
-		}
-
-		/* new video memory carveout settings */
-		tegra_memctrl_videomem_setup(x1, x2);
-
-		return 0;
-
 	case TEGRA_SIP_SYSTEM_SHUTDOWN_STATE:
 
 		/* clean up the high bits */
