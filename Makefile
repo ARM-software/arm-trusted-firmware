@@ -114,12 +114,14 @@ CHECKPATCH_ARGS		:=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		:=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
 # Do not check the coding style on imported library files or documentation files
 INC_LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					include/lib/libfdt		\
 					include/lib/stdlib,		\
 					$(wildcard include/lib/*)))
 INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib,			\
 					$(wildcard include/*)))
 LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					lib/libfdt			\
 					lib/stdlib,			\
 					$(wildcard lib/*)))
 ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
@@ -552,11 +554,20 @@ realclean distclean:
 
 checkcodebase:		locate-checkpatch
 	@echo "  CHECKING STYLE"
-	@if test -d .git ; then	\
-		git ls-files | grep -v stdlib | while read GIT_FILE ; do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ; done ;	\
-	 else			\
-		 find . -type f -not -iwholename "*.git*" -not -iwholename "*build*" -not -iwholename "*stdlib*" -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
-	 fi
+	@if test -d .git ; then						\
+		git ls-files | grep -E -v libfdt\|stdlib\|docs\|\.md |	\
+		while read GIT_FILE ;					\
+		do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ;	\
+		done ;							\
+	else								\
+		 find . -type f -not -iwholename "*.git*"		\
+		 -not -iwholename "*build*"				\
+		 -not -iwholename "*libfdt*"				\
+		 -not -iwholename "*stdlib*"				\
+		 -not -iwholename "*docs*"				\
+		 -not -iwholename "*.md"				\
+		 -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
+	fi
 
 checkpatch:		locate-checkpatch
 	@echo "  CHECKING STYLE"
