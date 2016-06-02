@@ -112,11 +112,26 @@ CHECK_IGNORE		:=	--ignore COMPLEX_MACRO \
 				--ignore GIT_COMMIT_ID
 CHECKPATCH_ARGS		:=	--no-tree --no-signoff ${CHECK_IGNORE}
 CHECKCODE_ARGS		:=	--no-patch --no-tree --no-signoff ${CHECK_IGNORE}
-# Do not check the coding style on C library files or documentation files
-INCLUDE_DIRS_TO_CHECK	:=	$(sort $(filter-out include/stdlib, $(wildcard include/*)))
-LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out lib/stdlib, $(wildcard lib/*)))
-ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out lib include docs %.md, $(wildcard *)))
-CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK} ${INCLUDE_DIRS_TO_CHECK} ${LIB_DIRS_TO_CHECK}
+# Do not check the coding style on imported library files or documentation files
+INC_LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					include/lib/stdlib,		\
+					$(wildcard include/lib/*)))
+INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					include/lib,			\
+					$(wildcard include/*)))
+LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					lib/stdlib,			\
+					$(wildcard lib/*)))
+ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					lib				\
+					include				\
+					docs				\
+					%.md,				\
+					$(wildcard *)))
+CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK}			\
+				${INC_DIRS_TO_CHECK}			\
+				${INC_LIB_DIRS_TO_CHECK}		\
+				${LIB_DIRS_TO_CHECK}
 
 
 ################################################################################
@@ -193,26 +208,15 @@ LDFLAGS			+=	--gc-sections
 ################################################################################
 # Common sources and include directories
 ################################################################################
+include lib/stdlib/stdlib.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/tf_printf.c			\
 				common/aarch64/debug.S			\
 				lib/aarch64/cache_helpers.S		\
 				lib/aarch64/misc_helpers.S		\
-				lib/stdlib/abort.c			\
-				lib/stdlib/assert.c			\
-				lib/stdlib/exit.c			\
-				lib/stdlib/mem.c			\
-				lib/stdlib/printf.c			\
-				lib/stdlib/putchar.c			\
-				lib/stdlib/puts.c			\
-				lib/stdlib/sscanf.c			\
-				lib/stdlib/strchr.c			\
-				lib/stdlib/strcmp.c			\
-				lib/stdlib/strlen.c			\
-				lib/stdlib/strncmp.c			\
-				lib/stdlib/subr_prf.c			\
-				plat/common/aarch64/platform_helpers.S
+				plat/common/aarch64/platform_helpers.S	\
+				${STDLIB_SRCS}
 
 INCLUDES		+=	-Iinclude/bl1			\
 				-Iinclude/bl31			\
@@ -227,8 +231,6 @@ INCLUDES		+=	-Iinclude/bl1			\
 				-Iinclude/lib/aarch64		\
 				-Iinclude/lib/cpus/aarch64	\
 				-Iinclude/plat/common		\
-				-Iinclude/stdlib		\
-				-Iinclude/stdlib/sys		\
 				${PLAT_INCLUDES}		\
 				${SPD_INCLUDES}
 

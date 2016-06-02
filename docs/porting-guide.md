@@ -2035,12 +2035,12 @@ library only contains those C library definitions required by the local
 implementation. If more functionality is required, the needed library functions
 will need to be added to the local implementation.
 
-Versions of [FreeBSD] headers can be found in `include/stdlib`. Some of these
-headers have been cut down in order to simplify the implementation. In order to
-minimize changes to the header files, the [FreeBSD] layout has been maintained.
-The generic C library definitions can be found in `include/stdlib` with more
-system and machine specific declarations in `include/stdlib/sys` and
-`include/stdlib/machine`.
+Versions of [FreeBSD] headers can be found in `include/lib/stdlib`. Some of
+these headers have been cut down in order to simplify the implementation. In
+order to minimize changes to the header files, the [FreeBSD] layout has been
+maintained. The generic C library definitions can be found in
+`include/lib/stdlib` with more system and machine specific declarations in
+`include/lib/stdlib/sys` and `include/lib/stdlib/machine`.
 
 The local C library implementations can be found in `lib/stdlib`. In order to
 extend the C library these files may need to be modified. It is recommended to
