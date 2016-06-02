@@ -51,6 +51,11 @@
  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+ * Portions copyright (c) 2016, ARM Limited and Contributors.
+ * All rights reserved.
+ */
+
 #include <libfdt_env.h>
 #include <fdt.h>
 
@@ -186,16 +191,16 @@ int fdt_next_subnode(const void *fdt, int offset);
 		struct fdt_header *fdth = (struct fdt_header*)fdt; \
 		fdth->name = cpu_to_fdt32(val); \
 	}
-__fdt_set_hdr(magic);
-__fdt_set_hdr(totalsize);
-__fdt_set_hdr(off_dt_struct);
-__fdt_set_hdr(off_dt_strings);
-__fdt_set_hdr(off_mem_rsvmap);
-__fdt_set_hdr(version);
-__fdt_set_hdr(last_comp_version);
-__fdt_set_hdr(boot_cpuid_phys);
-__fdt_set_hdr(size_dt_strings);
-__fdt_set_hdr(size_dt_struct);
+__fdt_set_hdr(magic)
+__fdt_set_hdr(totalsize)
+__fdt_set_hdr(off_dt_struct)
+__fdt_set_hdr(off_dt_strings)
+__fdt_set_hdr(off_mem_rsvmap)
+__fdt_set_hdr(version)
+__fdt_set_hdr(last_comp_version)
+__fdt_set_hdr(boot_cpuid_phys)
+__fdt_set_hdr(size_dt_strings)
+__fdt_set_hdr(size_dt_struct)
 #undef __fdt_set_hdr
 
 /**
