@@ -176,7 +176,7 @@ const mmap_region_t *plat_arm_get_mmap(void)
 #if ERROR_DEPRECATED
 unsigned int plat_get_syscnt_freq2(void)
 {
-	unsigned int counter_base_frequency
+	unsigned int counter_base_frequency;
 #else
 unsigned long long plat_get_syscnt_freq(void)
 {
