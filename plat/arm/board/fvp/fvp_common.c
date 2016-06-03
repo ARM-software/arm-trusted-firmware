@@ -62,7 +62,7 @@ arm_config_t arm_config;
 
 #define MAP_DEVICE2	MAP_REGION_FLAT(DEVICE2_BASE,			\
 					DEVICE2_SIZE,			\
-					MT_DEVICE | MT_RO | MT_SECURE)
+					MT_DEVICE | MT_RW | MT_SECURE)
 
 
 /*
