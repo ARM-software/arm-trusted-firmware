@@ -57,14 +57,6 @@ func el1_sysregs_context_save
 	mrs	x10, elr_el1
 	stp	x9, x10, [x0, #CTX_SPSR_EL1]
 
-	mrs	x11, spsr_abt
-	mrs	x12, spsr_und
-	stp	x11, x12, [x0, #CTX_SPSR_ABT]
-
-	mrs	x13, spsr_irq
-	mrs	x14, spsr_fiq
-	stp	x13, x14, [x0, #CTX_SPSR_IRQ]
-
 	mrs	x15, sctlr_el1
 	mrs	x16, actlr_el1
 	stp	x15, x16, [x0, #CTX_SCTLR_EL1]
@@ -93,10 +85,6 @@ func el1_sysregs_context_save
 	mrs	x10, tpidrro_el0
 	stp	x9, x10, [x0, #CTX_TPIDR_EL0]
 
-	mrs	x11, dacr32_el2
-	mrs	x12, ifsr32_el2
-	stp	x11, x12, [x0, #CTX_DACR32_EL2]
-
 	mrs	x13, par_el1
 	mrs	x14, far_el1
 	stp	x13, x14, [x0, #CTX_PAR_EL1]
@@ -108,6 +96,24 @@ func el1_sysregs_context_save
 	mrs	x17, contextidr_el1
 	mrs	x9, vbar_el1
 	stp	x17, x9, [x0, #CTX_CONTEXTIDR_EL1]
+
+	/* Save AArch32 system registers if the build has instructed so */
+#if CTX_INCLUDE_AARCH32_REGS
+	mrs	x11, spsr_abt
+	mrs	x12, spsr_und
+	stp	x11, x12, [x0, #CTX_SPSR_ABT]
+
+	mrs	x13, spsr_irq
+	mrs	x14, spsr_fiq
+	stp	x13, x14, [x0, #CTX_SPSR_IRQ]
+
+	mrs	x15, dacr32_el2
+	mrs	x16, ifsr32_el2
+	stp	x15, x16, [x0, #CTX_DACR32_EL2]
+
+	mrs	x17, fpexc32_el2
+	str	x17, [x0, #CTX_FP_FPEXC32_EL2]
+#endif
 
 	/* Save NS timer registers if the build has instructed so */
 #if NS_TIMER_SWITCH
@@ -122,9 +128,6 @@ func el1_sysregs_context_save
 	mrs	x14, cntkctl_el1
 	str	x14, [x0, #CTX_CNTKCTL_EL1]
 #endif
-
-	mrs	x15, fpexc32_el2
-	str	x15, [x0, #CTX_FP_FPEXC32_EL2]
 
 	ret
 endfunc el1_sysregs_context_save
@@ -142,14 +145,6 @@ func el1_sysregs_context_restore
 	ldp	x9, x10, [x0, #CTX_SPSR_EL1]
 	msr	spsr_el1, x9
 	msr	elr_el1, x10
-
-	ldp	x11, x12, [x0, #CTX_SPSR_ABT]
-	msr	spsr_abt, x11
-	msr	spsr_und, x12
-
-	ldp	x13, x14, [x0, #CTX_SPSR_IRQ]
-	msr	spsr_irq, x13
-	msr	spsr_fiq, x14
 
 	ldp	x15, x16, [x0, #CTX_SCTLR_EL1]
 	msr	sctlr_el1, x15
@@ -179,10 +174,6 @@ func el1_sysregs_context_restore
 	msr	tpidr_el0, x9
 	msr	tpidrro_el0, x10
 
-	ldp	x11, x12, [x0, #CTX_DACR32_EL2]
-	msr	dacr32_el2, x11
-	msr	ifsr32_el2, x12
-
 	ldp	x13, x14, [x0, #CTX_PAR_EL1]
 	msr	par_el1, x13
 	msr	far_el1, x14
@@ -195,6 +186,23 @@ func el1_sysregs_context_restore
 	msr	contextidr_el1, x17
 	msr	vbar_el1, x9
 
+	/* Restore AArch32 system registers if the build has instructed so */
+#if CTX_INCLUDE_AARCH32_REGS
+	ldp	x11, x12, [x0, #CTX_SPSR_ABT]
+	msr	spsr_abt, x11
+	msr	spsr_und, x12
+
+	ldp	x13, x14, [x0, #CTX_SPSR_IRQ]
+	msr	spsr_irq, x13
+	msr	spsr_fiq, x14
+
+	ldp	x15, x16, [x0, #CTX_DACR32_EL2]
+	msr	dacr32_el2, x15
+	msr	ifsr32_el2, x16
+
+	ldr	x17, [x0, #CTX_FP_FPEXC32_EL2]
+	msr	fpexc32_el2, x17
+#endif
 	/* Restore NS timer registers if the build has instructed so */
 #if NS_TIMER_SWITCH
 	ldp	x10, x11, [x0, #CTX_CNTP_CTL_EL0]
@@ -209,11 +217,7 @@ func el1_sysregs_context_restore
 	msr	cntkctl_el1, x14
 #endif
 
-	ldr	x15, [x0, #CTX_FP_FPEXC32_EL2]
-	msr	fpexc32_el2, x15
-
 	/* No explict ISB required here as ERET covers it */
-
 	ret
 endfunc el1_sysregs_context_restore
 

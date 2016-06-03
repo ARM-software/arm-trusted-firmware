@@ -32,6 +32,7 @@
 #include <assert.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <debug.h>
 #include <platform.h>
 
 /*
@@ -65,6 +66,19 @@ void bl1_prepare_next_image(unsigned int image_id)
 	unsigned int security_state;
 	image_desc_t *image_desc;
 	entry_point_info_t *next_bl_ep;
+
+#if CTX_INCLUDE_AARCH32_REGS
+	/*
+	 * Ensure that the build flag to save AArch32 system registers in CPU
+	 * context is not set for AArch64-only platforms.
+	 */
+	if (((read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL1_SHIFT)
+			& ID_AA64PFR0_ELX_MASK) == 0x1) {
+		ERROR("EL1 supports AArch64-only. Please set build flag "
+				"CTX_INCLUDE_AARCH32_REGS = 0");
+		panic();
+	}
+#endif
 
 	/* Get the image descriptor. */
 	image_desc = bl1_plat_get_image_desc(image_id);
