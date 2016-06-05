@@ -171,6 +171,12 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	/* Initialise crash console */
 	plat_crash_console_init();
 
+	/*
+	 * Do initial security configuration to allow DRAM/device access.
+	 */
+	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
+			plat_bl31_params_from_bl2.tzdram_size);
+
 	/* Early platform setup for Tegra SoCs */
 	plat_early_platform_setup();
 
@@ -202,12 +208,6 @@ void bl31_platform_setup(void)
 	 * Initial Memory Controller configuration.
 	 */
 	tegra_memctrl_setup();
-
-	/*
-	 * Do initial security configuration to allow DRAM/device access.
-	 */
-	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
-			plat_bl31_params_from_bl2.tzdram_size);
 
 	/*
 	 * Set up the TZRAM memory aperture to allow only secure world
