@@ -100,7 +100,8 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	if (type == NON_SECURE)
 		return &bl33_image_ep_info;
 
-	if (type == SECURE)
+	/* return BL32 entry point info if it is valid */
+	if (type == SECURE && bl32_image_ep_info.pc)
 		return &bl32_image_ep_info;
 
 	return NULL;
