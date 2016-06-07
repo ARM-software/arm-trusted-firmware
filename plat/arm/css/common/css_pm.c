@@ -262,8 +262,14 @@ void css_cpu_standby(plat_local_state_t cpu_state)
 	assert(cpu_state == ARM_LOCAL_STATE_RET);
 
 	scr = read_scr_el3();
-	/* Enable PhysicalIRQ bit for NS world to wake the CPU */
-	write_scr_el3(scr | SCR_IRQ_BIT);
+	/*
+	 * Enable the Non secure interrupt to wake the CPU.
+	 * In GICv3 affinity routing mode, the non secure group1 interrupts use
+	 * the PhysicalFIQ at EL3 whereas in GICv2, it uses the PhysicalIRQ.
+	 * Enabling both the bits works for both GICv2 mode and GICv3 affinity
+	 * routing mode.
+	 */
+	write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);
 	isb();
 	dsb();
 	wfi();
