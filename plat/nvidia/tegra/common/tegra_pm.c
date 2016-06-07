@@ -57,6 +57,7 @@ extern uint64_t tegra_sec_entry_point;
 #pragma weak tegra_soc_pwr_domain_power_down_wfi
 #pragma weak tegra_soc_prepare_system_reset
 #pragma weak tegra_soc_prepare_system_off
+#pragma weak tegra_soc_get_target_pwr_state
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
@@ -94,6 +95,23 @@ __dead2 void tegra_soc_prepare_system_off(void)
 	panic();
 }
 
+plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
+					     const plat_local_state_t *states,
+					     unsigned int ncpu)
+{
+	plat_local_state_t target = PLAT_MAX_RET_STATE, temp;
+
+	assert(ncpu);
+
+	do {
+		temp = *states++;
+		if ((temp > target) && (temp != PLAT_MAX_OFF_STATE))
+			target = temp;
+	} while (--ncpu);
+
+	return target;
+}
+
 /*******************************************************************************
  * This handler is called by the PSCI implementation during the `SYSTEM_SUSPEND`
  * call to get the `power_state` parameter. This allows the platform to encode
@@ -102,12 +120,9 @@ __dead2 void tegra_soc_prepare_system_off(void)
 ******************************************************************************/
 void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
-	/* lower affinities use PLAT_MAX_OFF_STATE */
-	for (int i = MPIDR_AFFLVL0; i < PLAT_MAX_PWR_LVL; i++)
-		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
-
-	/* max affinity uses system suspend state id */
-	req_state->pwr_domain_state[PLAT_MAX_PWR_LVL] = PSTATE_ID_SOC_POWERDN;
+	/* all affinities use system suspend state id */
+	for (int i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = PSTATE_ID_SOC_POWERDN;
 }
 
 /*******************************************************************************
@@ -333,15 +348,5 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 					     const plat_local_state_t *states,
 					     unsigned int ncpu)
 {
-	plat_local_state_t target = PLAT_MAX_RET_STATE, temp;
-
-	assert(ncpu);
-
-	do {
-		temp = *states++;
-		if ((temp > target) && (temp != PLAT_MAX_OFF_STATE))
-			target = temp;
-	} while (--ncpu);
-
-	return target;
+	return tegra_soc_get_target_pwr_state(lvl, states, ncpu);
 }
