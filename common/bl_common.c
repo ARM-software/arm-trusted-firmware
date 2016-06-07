@@ -189,12 +189,20 @@ unsigned long image_size(unsigned int image_id)
 }
 
 /*******************************************************************************
- * Generic function to load an image at a specific address given a name and
- * extents of free memory. It updates the memory layout if the load is
- * successful, as well as the image information and the entry point information.
- * The caller might pass a NULL pointer for the entry point if it is not
- * interested in this information, e.g. because the image just needs to be
- * loaded in memory but won't ever be executed.
+ * Generic function to load an image at a specific address given an image ID and
+ * extents of free memory.
+ *
+ * If the load is successful then the image information is updated.
+ *
+ * If the entry_point_info argument is not NULL then this function also updates:
+ * - the memory layout to mark the memory as reserved;
+ * - the entry point information.
+ *
+ * The caller might pass a NULL pointer for the entry point if they are not
+ * interested in this information. This is typically the case for non-executable
+ * images (e.g. certificates) and executable images that won't ever be executed
+ * on the application processor (e.g. additional microcontroller firmware).
+ *
  * Returns 0 on success, a negative error code otherwise.
  ******************************************************************************/
 int load_image(meminfo_t *mem_layout,
@@ -259,6 +267,9 @@ int load_image(meminfo_t *mem_layout,
 		goto exit;
 	}
 
+	image_data->image_base = image_base;
+	image_data->image_size = image_size;
+
 	/*
 	 * Update the memory usage info.
 	 * This is done after the actual loading so that it is not updated when
@@ -269,20 +280,16 @@ int load_image(meminfo_t *mem_layout,
 	if (entry_point_info != NULL) {
 		reserve_mem(&mem_layout->free_base, &mem_layout->free_size,
 				image_base, image_size);
+		entry_point_info->pc = image_base;
 	} else {
 		INFO("Skip reserving memory: %p - %p\n", (void *) image_base,
 		     (void *) (image_base + image_size));
 	}
 
-	image_data->image_base = image_base;
-	image_data->image_size = image_size;
-
-	if (entry_point_info != NULL)
-		entry_point_info->pc = image_base;
-
 	/*
 	 * File has been successfully loaded.
-	 * Flush the image in TZRAM so that the next EL can see it.
+	 * Flush the image in Trusted SRAM so that the next exception level can
+	 * see it.
 	 */
 	flush_dcache_range(image_base, image_size);
 
