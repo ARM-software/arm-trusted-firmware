@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -57,6 +57,11 @@ extern const spd_pm_ops_t tlkd_pm_ops;
  * Per-cpu Secure Payload state
  ******************************************************************************/
 tlk_context_t tlk_ctx;
+
+/*******************************************************************************
+ * CPU number on which TLK booted up
+ ******************************************************************************/
+static int boot_cpu;
 
 /* TLK UID: RFC-4122 compliant UUID (version-5, sha-1) */
 DEFINE_SVC_UUID(tlk_uuid,
@@ -133,6 +138,12 @@ int32_t tlkd_init(void)
 	cm_init_my_context(tlk_entry_point);
 
 	/*
+	 * TLK runs only on a single CPU. Store the value of the boot
+	 * CPU for sanity checking later.
+	 */
+	boot_cpu = plat_my_core_pos();
+
+	/*
 	 * Arrange for an entry into the test secure payload.
 	 */
 	return tlkd_synchronous_sp_entry(&tlk_ctx);
@@ -163,8 +174,8 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	/* Passing a NULL context is a critical programming error */
 	assert(handle);
 
-	/* These SMCs are only supported by CPU0 */
-	if ((read_mpidr() & MPIDR_CPU_MASK) != 0)
+	/* These SMCs are only supported by a single CPU */
+	if (boot_cpu != plat_my_core_pos())
 		SMC_RET1(handle, SMC_UNK);
 
 	/* Determine which security state this SMC originated from */
