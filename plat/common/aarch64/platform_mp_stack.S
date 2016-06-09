@@ -193,4 +193,5 @@ endfunc plat_set_my_stack
 	 * -----------------------------------------------------
 	 */
 declare_stack platform_normal_stacks, tzfw_normal_stacks, \
-		PLATFORM_STACK_SIZE, PLATFORM_CORE_COUNT
+		PLATFORM_STACK_SIZE, PLATFORM_CORE_COUNT, \
+		CACHE_WRITEBACK_GRANULE
