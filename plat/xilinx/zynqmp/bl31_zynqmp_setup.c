@@ -96,7 +96,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			       void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(ZYNQMP_UART0_BASE, zynqmp_get_uart_clk(),
+	console_init(ZYNQMP_UART_BASE, zynqmp_get_uart_clk(),
 		     ZYNQMP_UART_BAUDRATE);
 
 	/* Initialize the platform config for future decision making */
