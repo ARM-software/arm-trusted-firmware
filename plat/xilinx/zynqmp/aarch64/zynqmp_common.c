@@ -28,12 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch_helpers.h>
-#include <cci.h>
 #include <debug.h>
-#include <gicv2.h>
 #include <mmio.h>
-#include <plat_arm.h>
 #include <platform.h>
 #include <xlat_tables.h>
 #include "../zynqmp_private.h"
@@ -187,11 +183,9 @@ static char *zynqmp_print_silicon_idcode(void)
 
 	tmp = id;
 	tmp &= ZYNQMP_CSU_IDCODE_XILINX_ID_MASK |
-	       ZYNQMP_CSU_IDCODE_FAMILY_MASK |
-	       ZYNQMP_CSU_IDCODE_REVISION_MASK;
+	       ZYNQMP_CSU_IDCODE_FAMILY_MASK;
 	maskid = ZYNQMP_CSU_IDCODE_XILINX_ID << ZYNQMP_CSU_IDCODE_XILINX_ID_SHIFT |
-		 ZYNQMP_CSU_IDCODE_FAMILY << ZYNQMP_CSU_IDCODE_FAMILY_SHIFT |
-		 ZYNQMP_CSU_IDCODE_REVISION << ZYNQMP_CSU_IDCODE_REVISION_SHIFT;
+		 ZYNQMP_CSU_IDCODE_FAMILY << ZYNQMP_CSU_IDCODE_FAMILY_SHIFT;
 	if (tmp != maskid) {
 		ERROR("Incorrect XILINX IDCODE 0x%x, maskid 0x%x\n", id, maskid);
 		return "UNKN";
@@ -275,13 +269,13 @@ int zynqmp_is_pmu_up(void)
 	return zynqmp_pmufw_present;
 }
 
-/*
- * A single boot loader stack is expected to work on both the Foundation ZYNQMP
- * models and the two flavours of the Base ZYNQMP models (AEMv8 & Cortex). The
- * SYS_ID register provides a mechanism for detecting the differences between
- * these platforms. This information is stored in a per-BL array to allow the
- * code to take the correct path.Per BL platform configuration.
- */
+unsigned int zynqmp_get_bootmode(void)
+{
+	uint32_t r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
+
+	return r & CRL_APB_BOOT_MODE_MASK;
+}
+
 void zynqmp_config_setup(void)
 {
 	zynqmp_discover_pmufw();

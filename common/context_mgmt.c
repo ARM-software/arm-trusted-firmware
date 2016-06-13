@@ -126,7 +126,7 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 
 	/*
 	 * Set up SCTLR_ELx for the target exception level:
-	 * EE bit is taken from the entrpoint attributes
+	 * EE bit is taken from the entrypoint attributes
 	 * M, C and I bits must be zero (as required by PSCI specification)
 	 *
 	 * The target exception level is based on the spsr mode requested.

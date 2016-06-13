@@ -91,7 +91,8 @@ enum pm_ret_status pm_register_notifier(enum pm_node_id nid,
 					unsigned int wake,
 					unsigned int enable);
 enum pm_ret_status pm_get_op_characteristic(enum pm_node_id nid,
-					    enum pm_opchar_type type);
+					    enum pm_opchar_type type,
+					    uint32_t *result);
 enum pm_ret_status pm_acknowledge_cb(enum pm_node_id nid,
 				     enum pm_ret_status status,
 				     unsigned int oppoint);

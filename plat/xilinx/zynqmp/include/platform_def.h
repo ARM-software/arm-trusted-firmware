@@ -50,64 +50,62 @@
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
-
-#define ZYNQMP_BL31_SIZE	0x1b000
 /*
  * Put BL31 at the top of the Trusted SRAM (just below the shared memory, if
  * present). BL31_BASE is calculated using the current BL31 debug size plus a
  * little space for growth.
  */
-#if ZYNQMP_ATF_LOCATION_ID == ZYNQMP_IN_TRUSTED_SRAM
-# define BL31_BASE			(ZYNQMP_TRUSTED_SRAM_LIMIT - \
-					 ZYNQMP_BL31_SIZE)
-# define BL31_PROGBITS_LIMIT		(ZYNQMP_TRUSTED_SRAM_LIMIT - 0x6000)
-# define BL31_LIMIT			ZYNQMP_TRUSTED_SRAM_LIMIT
-#elif ZYNQMP_ATF_LOCATION_ID == ZYNQMP_IN_TRUSTED_DRAM
-# define BL31_BASE			(ZYNQMP_TRUSTED_DRAM_LIMIT - \
-					 ZYNQMP_BL31_SIZE)
-# define BL31_PROGBITS_LIMIT		(ZYNQMP_TRUSTED_DRAM_LIMIT - 0x6000)
-# define BL31_LIMIT			(ZYNQMP_TRUSTED_DRAM_BASE + \
-					ZYNQMP_TRUSTED_DRAM_SIZE)
+#ifndef ZYNQMP_ATF_MEM_BASE
+# define BL31_BASE			0xfffe5000
+# define BL31_PROGBITS_LIMIT		0xffffa000
+# define BL31_LIMIT			0xffffffff
 #else
-# error "Unsupported ZYNQMP_ATF_LOCATION_ID value"
+# define BL31_BASE			(ZYNQMP_ATF_MEM_BASE)
+# define BL31_LIMIT			(ZYNQMP_ATF_MEM_BASE + ZYNQMP_ATF_MEM_SIZE - 1)
+# ifdef ZYNQMP_ATF_MEM_PROGBITS_SIZE
+#  define BL31_PROGBITS_LIMIT		(ZYNQMP_ATF_MEM_BASE + ZYNQMP_ATF_MEM_PROGBITS_SIZE - 1)
+# endif
 #endif
 
 /*******************************************************************************
  * BL32 specific defines.
  ******************************************************************************/
-/*
- * On ZYNQMP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
- */
-#if ZYNQMP_TSP_RAM_LOCATION_ID == ZYNQMP_IN_TRUSTED_SRAM
-# define TSP_SEC_MEM_BASE		ZYNQMP_TRUSTED_SRAM_BASE
-# define TSP_SEC_MEM_SIZE		ZYNQMP_TRUSTED_SRAM_SIZE
-# define TSP_PROGBITS_LIMIT		(ZYNQMP_TRUSTED_SRAM_LIMIT - \
-					 ZYNQMP_BL31_SIZE)
-# define BL32_BASE			ZYNQMP_TRUSTED_SRAM_BASE
-# define BL32_LIMIT			(ZYNQMP_TRUSTED_SRAM_LIMIT - \
-					 ZYNQMP_BL31_SIZE)
-#elif ZYNQMP_TSP_RAM_LOCATION_ID == ZYNQMP_IN_TRUSTED_DRAM
-# define TSP_SEC_MEM_BASE		ZYNQMP_TRUSTED_DRAM_BASE
-# define TSP_SEC_MEM_SIZE		(ZYNQMP_TRUSTED_DRAM_LIMIT - \
-					 ZYNQMP_BL31_SIZE)
-# define BL32_BASE			ZYNQMP_TRUSTED_DRAM_BASE
-# define BL32_LIMIT			(ZYNQMP_TRUSTED_DRAM_LIMIT - \
-					 ZYNQMP_BL31_SIZE)
+#ifndef ZYNQMP_BL32_MEM_BASE
+# define BL32_BASE			0x60000000
+# define BL32_LIMIT			0x7fffffff
 #else
-# error "Unsupported ZYNQMP_TSP_RAM_LOCATION_ID value"
+# define BL32_BASE			(ZYNQMP_BL32_MEM_BASE)
+# define BL32_LIMIT			(ZYNQMP_BL32_MEM_BASE + ZYNQMP_BL32_MEM_SIZE - 1)
 #endif
 
-/*
- * ID of the secure physical generic timer interrupt used by the TSP.
- */
+/*******************************************************************************
+ * BL33 specific defines.
+ ******************************************************************************/
+#ifndef PRELOADED_BL33_BASE
+# define PLAT_ARM_NS_IMAGE_OFFSET	0x8000000
+#else
+# define PLAT_ARM_NS_IMAGE_OFFSET	PRELOADED_BL33_BASE
+#endif
+
+/*******************************************************************************
+ * TSP  specific defines.
+ ******************************************************************************/
+#define TSP_SEC_MEM_BASE		BL32_BASE
+#define TSP_SEC_MEM_SIZE		(BL32_LIMIT - BL32_BASE + 1)
+
+/* ID of the secure physical generic timer interrupt used by the TSP */
 #define TSP_IRQ_SEC_PHY_TIMER		ARM_IRQ_SEC_PHY_TIMER
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define ADDR_SPACE_SIZE			(1ull << 32)
-#define MAX_XLAT_TABLES			5
-#define MAX_MMAP_REGIONS		7
+#define MAX_MMAP_REGIONS		6
+#if IMAGE_BL32
+# define MAX_XLAT_TABLES		5
+#else
+# define MAX_XLAT_TABLES		4
+#endif
 
 #define CACHE_WRITEBACK_SHIFT   6
 #define CACHE_WRITEBACK_GRANULE (1 << CACHE_WRITEBACK_SHIFT)
