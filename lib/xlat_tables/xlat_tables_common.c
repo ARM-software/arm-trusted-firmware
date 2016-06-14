@@ -234,8 +234,11 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 		 * which makes any writable memory region to be treated as
 		 * execute-never, regardless of the value of the XN bit in the
 		 * translation table.
+		 *
+		 * For read-only memory, rely on the MT_EXECUTE/MT_EXECUTE_NEVER
+		 * attribute to figure out the value of the XN bit.
 		 */
-		if (attr & MT_RW)
+		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER))
 			desc |= UPPER_ATTRS(XN);
 
 		if (mem_type == MT_MEMORY) {
@@ -250,7 +253,7 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 		((mem_type == MT_NON_CACHEABLE) ? "NC" : "DEV"));
 	debug_print(attr & MT_RW ? "-RW" : "-RO");
 	debug_print(attr & MT_NS ? "-NS" : "-S");
-
+	debug_print(attr & MT_EXECUTE_NEVER ? "-XN" : "-EXEC");
 	return desc;
 }
 
