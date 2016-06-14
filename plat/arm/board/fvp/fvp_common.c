@@ -69,6 +69,9 @@ arm_config_t arm_config;
  * Table of memory regions for various BL stages to map using the MMU.
  * This doesn't include Trusted SRAM as arm_setup_page_tables() already
  * takes care of mapping it.
+ *
+ * The flash needs to be mapped as writable in order to erase the FIP's Table of
+ * Contents in case of unrecoverable error (see plat_error_handler()).
  */
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
