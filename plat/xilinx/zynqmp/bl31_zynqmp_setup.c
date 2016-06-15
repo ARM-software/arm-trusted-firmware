@@ -113,25 +113,25 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * present.
 	 */
 
-	/* Populate entry point information for BL32 and BL33 */
+	/* Populate common information for BL32 and BL33 */
 	SET_PARAM_HEAD(&bl32_image_ep_info, PARAM_EP, VERSION_1, 0);
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
-	bl32_image_ep_info.pc = BL32_BASE;
-	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
-
-	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
-
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
-
-	/*
-	 * Tell BL31 where the non-trusted software image
-	 * is located and the entry state information
-	 */
-	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-	bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
-					  DISABLE_ALL_EXCEPTIONS);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
+	if (zynqmp_get_bootmode() == ZYNQMP_BOOTMODE_JTAG) {
+		/* use build time defaults in JTAG boot mode */
+		bl32_image_ep_info.pc = BL32_BASE;
+		bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+		bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
+		bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
+						  DISABLE_ALL_EXCEPTIONS);
+	} else {
+		/* use parameters from FSBL */
+		fsbl_atf_handover(&bl32_image_ep_info, &bl33_image_ep_info);
+	}
+
+	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
 	NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 }
 

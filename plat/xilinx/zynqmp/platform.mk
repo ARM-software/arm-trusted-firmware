@@ -31,29 +31,27 @@ PROGRAMMABLE_RESET_ADDRESS := 1
 PSCI_EXTENDED_STATE_ID := 1
 A53_DISABLE_NON_TEMPORAL_HINT := 0
 
-ZYNQMP_ATF_LOCATION	?=	tsram
-ifeq (${ZYNQMP_ATF_LOCATION}, tsram)
-  ZYNQMP_ATF_LOCATION_ID := ZYNQMP_IN_TRUSTED_SRAM
-else ifeq (${ZYNQMP_ATF_LOCATION}, tdram)
-  ZYNQMP_ATF_LOCATION_ID := ZYNQMP_IN_TRUSTED_DRAM
-else
-  $(error "Unsupported ZYNQMP_ATF_LOCATION value")
+ifdef ZYNQMP_ATF_MEM_BASE
+    $(eval $(call add_define,ZYNQMP_ATF_MEM_BASE))
+
+    ifndef ZYNQMP_ATF_MEM_SIZE
+        $(error "ZYNQMP_ATF_BASE defined without ZYNQMP_ATF_SIZE")
+    endif
+    $(eval $(call add_define,ZYNQMP_ATF_MEM_SIZE))
+
+    ifdef ZYNQMP_ATF_MEM_PROGBITS_SIZE
+        $(eval $(call add_define,ZYNQMP_ATF_MEM_PROGBITS_SIZE))
+    endif
 endif
 
-# On ZYNQMP, the TSP can execute either from Trusted SRAM or Trusted DRAM.
-# Trusted SRAM is the default.
-ZYNQMP_TSP_RAM_LOCATION	?=	tsram
-ifeq (${ZYNQMP_TSP_RAM_LOCATION}, tsram)
-  ZYNQMP_TSP_RAM_LOCATION_ID := ZYNQMP_IN_TRUSTED_SRAM
-else ifeq (${ZYNQMP_TSP_RAM_LOCATION}, tdram)
-  ZYNQMP_TSP_RAM_LOCATION_ID := ZYNQMP_IN_TRUSTED_DRAM
-else
-  $(error "Unsupported ZYNQMP_TSP_RAM_LOCATION value")
-endif
+ifdef ZYNQMP_BL32_MEM_BASE
+    $(eval $(call add_define,ZYNQMP_BL32_MEM_BASE))
 
-# Process flags
-$(eval $(call add_define,ZYNQMP_ATF_LOCATION_ID))
-$(eval $(call add_define,ZYNQMP_TSP_RAM_LOCATION_ID))
+    ifndef ZYNQMP_BL32_MEM_SIZE
+        $(error "ZYNQMP_BL32_BASE defined without ZYNQMP_BL32_SIZE")
+    endif
+    $(eval $(call add_define,ZYNQMP_BL32_MEM_SIZE))
+endif
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iinclude/plat/arm/common/aarch64/		\
@@ -84,6 +82,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\
 				plat/xilinx/zynqmp/plat_zynqmp.c		\
+				plat/xilinx/zynqmp/plat_startup.c		\
 				plat/xilinx/zynqmp/plat_topology.c		\
 				plat/xilinx/zynqmp/sip_svc_setup.c		\
 				plat/xilinx/zynqmp/pm_service/pm_svc_main.c	\

@@ -32,9 +32,7 @@
 #include <console.h>
 #include <debug.h>
 #include <platform_tsp.h>
-#include <xlat_tables.h>
 #include <plat_arm.h>
-#include "../zynqmp_def.h"
 #include "../zynqmp_private.h"
 
 /*

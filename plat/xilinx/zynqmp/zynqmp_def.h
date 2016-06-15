@@ -43,24 +43,11 @@
 /*******************************************************************************
  * ZYNQMP memory map related constants
  ******************************************************************************/
-
-#define ZYNQMP_TRUSTED_SRAM_BASE	0xFFFC0000
-#define ZYNQMP_TRUSTED_SRAM_SIZE	0x00040000
-#define ZYNQMP_TRUSTED_SRAM_LIMIT	(ZYNQMP_TRUSTED_SRAM_BASE + \
-					 ZYNQMP_TRUSTED_SRAM_SIZE)
-
-
-/* Location of trusted dram on the base zynqmp */
-#define ZYNQMP_TRUSTED_DRAM_BASE	0x30000000 /* Can't overlap TZROM area */
-#define ZYNQMP_TRUSTED_DRAM_SIZE	0x10000000
-#define ZYNQMP_TRUSTED_DRAM_LIMIT	(ZYNQMP_TRUSTED_DRAM_BASE + \
-					 ZYNQMP_TRUSTED_DRAM_SIZE)
-
 /* Aggregate of all devices in the first GB */
 #define DEVICE0_BASE		0xFF000000
 #define DEVICE0_SIZE		0x00E00000
 #define DEVICE1_BASE		0xF9000000
-#define DEVICE1_SIZE		0x01000000
+#define DEVICE1_SIZE		0x00800000
 
 /* For cpu reset APU space here too 0xFE5F1000 CRF_APB*/
 #define CRF_APB_BASE		0xFD1A0000
@@ -76,6 +63,7 @@
 #define CRL_APB_BASE			0xFF5E0000
 #define CRL_APB_RPLL_CTRL		(CRL_APB_BASE + 0x30)
 #define CRL_APB_TIMESTAMP_REF_CTRL	(CRL_APB_BASE + 0x128)
+#define CRL_APB_BOOT_MODE_USER		(CRL_APB_BASE + 0x200)
 #define CRL_APB_RESET_CTRL		(CRL_APB_BASE + 0x218)
 
 #define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	(1 << 24)
@@ -83,6 +71,9 @@
 #define CRL_APB_RPLL_CTRL_BYPASS	(1 << 3)
 
 #define CRL_APB_RESET_CTRL_SOFT_RESET	(1 << 4)
+
+#define CRL_APB_BOOT_MODE_MASK		(0xf << 0)
+#define ZYNQMP_BOOTMODE_JTAG		0
 
 /* system counter registers and bitfields */
 #define IOU_SCNTRS_BASE			0xFF260000
@@ -107,22 +98,13 @@
 /* PMU registers and bitfields */
 #define PMU_GLOBAL_BASE			0xFFD80000
 #define PMU_GLOBAL_CNTRL		(PMU_GLOBAL_BASE + 0)
+#define PMU_GLOBAL_GEN_STORAGE6		(PMU_GLOBAL_BASE + 0x48)
 #define PMU_GLOBAL_REQ_PWRUP_STATUS	(PMU_GLOBAL_BASE + 0x110)
 #define PMU_GLOBAL_REQ_PWRUP_EN		(PMU_GLOBAL_BASE + 0x118)
 #define PMU_GLOBAL_REQ_PWRUP_DIS	(PMU_GLOBAL_BASE + 0x11c)
 #define PMU_GLOBAL_REQ_PWRUP_TRIG	(PMU_GLOBAL_BASE + 0x120)
 
 #define PMU_GLOBAL_CNTRL_FW_IS_PRESENT	(1 << 4)
-
-#define DRAM1_BASE		0x00000000ull
-#define DRAM1_SIZE		0x10000000ull
-#define DRAM1_END		(DRAM1_BASE + DRAM1_SIZE - 1)
-
-#define DRAM_BASE		DRAM1_BASE
-#define DRAM_SIZE		DRAM1_SIZE
-
-/* Load address of BL33 in the ZYNQMP port */
-#define PLAT_ARM_NS_IMAGE_OFFSET	(DRAM1_BASE + 0x8000000) /* DRAM + 128MB */
 
 /*******************************************************************************
  * CCI-400 related constants

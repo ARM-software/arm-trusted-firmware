@@ -142,6 +142,7 @@ enum pm_node_id {
 	NODE_RPLL,
 	NODE_IOPLL,
 	NODE_DDR,
+	NODE_IPI_APU,
 };
 
 enum pm_request_ack {
@@ -171,8 +172,8 @@ enum pm_ram_state {
 
 enum pm_opchar_type {
 	PM_OPCHAR_TYPE_POWER = 1,
-	PM_OPCHAR_TYPE_ENERGY,
 	PM_OPCHAR_TYPE_TEMP,
+	PM_OPCHAR_TYPE_LATENCY,
 };
 
 /**

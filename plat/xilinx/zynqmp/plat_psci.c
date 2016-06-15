@@ -104,7 +104,7 @@ static int zynqmp_pwr_domain_on(u_register_t mpidr)
 	proc = pm_get_proc(cpu_id);
 
 	/* Send request to PMU to wake up selected APU CPU core */
-	pm_req_wakeup(proc->node_id, 1, zynqmp_sec_entry, REQ_ACK_NO);
+	pm_req_wakeup(proc->node_id, 1, zynqmp_sec_entry, REQ_ACK_BLOCKING);
 
 	return PSCI_E_SUCCESS;
 }

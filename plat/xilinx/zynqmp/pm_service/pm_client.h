@@ -40,11 +40,6 @@
 #include "pm_common.h"
 
 /* Functions to be implemented by each PU */
-enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
-			       uint32_t payload[PAYLOAD_ARG_CNT]);
-enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
-				    uint32_t payload[PAYLOAD_ARG_CNT],
-				    uint32_t *val);
 void pm_client_suspend(const struct pm_proc *proc);
 void pm_client_abort_suspend(void);
 void pm_client_wakeup(const struct pm_proc *proc);
