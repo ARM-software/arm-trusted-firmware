@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,8 +35,11 @@
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
+ * in Trusted ROM and RAM
  ******************************************************************************/
+extern uint64_t __BL1_ROM_END__;
+#define BL1_ROM_END (uint64_t)(&__BL1_ROM_END__)
+
 extern uint64_t __BL1_RAM_START__;
 extern uint64_t __BL1_RAM_END__;
 #define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)

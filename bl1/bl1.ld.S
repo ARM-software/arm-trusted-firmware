@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -139,12 +139,14 @@ SECTIONS
 
     __DATA_ROM_START__ = LOADADDR(.data);
     __DATA_SIZE__ = SIZEOF(.data);
+
     /*
      * The .data section is the last PROGBITS section so its end marks the end
-     * of the read-only part of BL1's binary.
+     * of BL1's actual content in Trusted ROM.
      */
-    ASSERT(__DATA_ROM_START__ + __DATA_SIZE__ <= BL1_RO_LIMIT,
-           "BL1's RO section has exceeded its limit.")
+    __BL1_ROM_END__ =  __DATA_ROM_START__ + __DATA_SIZE__;
+    ASSERT(__BL1_ROM_END__ <= BL1_RO_LIMIT,
+           "BL1's ROM content has exceeded its limit.")
 
     __BSS_SIZE__ = SIZEOF(.bss);
 
