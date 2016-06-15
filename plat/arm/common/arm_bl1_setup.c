@@ -35,6 +35,8 @@
 #include <platform_def.h>
 #include <plat_arm.h>
 #include <sp805.h>
+#include <utils.h>
+#include <xlat_tables.h>
 #include "../../../bl1/bl1_private.h"
 
 
@@ -118,10 +120,16 @@ void bl1_early_platform_setup(void)
  *****************************************************************************/
 void arm_bl1_plat_arch_setup(void)
 {
+	/*
+	 * BL1_ROM_END is not necessarily aligned on a page boundary as it
+	 * just points to the end of BL1's actual content in Trusted ROM.
+	 * Therefore it needs to be rounded up to the next page size in order to
+	 * map the whole last page of it with the right memory attributes.
+	 */
 	arm_setup_page_tables(bl1_tzram_layout.total_base,
 			      bl1_tzram_layout.total_size,
 			      BL1_RO_BASE,
-			      BL1_RO_LIMIT
+			      round_up(BL1_ROM_END, PAGE_SIZE)
 #if USE_COHERENT_MEM
 			      , BL1_COHERENT_RAM_BASE,
 			      BL1_COHERENT_RAM_LIMIT
