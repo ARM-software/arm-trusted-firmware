@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -596,10 +596,10 @@ static int psci_get_ns_ep_info(entry_point_info_t *ep,
 			       uintptr_t entrypoint,
 			       u_register_t context_id)
 {
-	unsigned long ep_attr, sctlr;
+	u_register_t ep_attr, sctlr;
 	unsigned int daif, ee, mode;
-	unsigned long ns_scr_el3 = read_scr_el3();
-	unsigned long ns_sctlr_el1 = read_sctlr_el1();
+	u_register_t ns_scr_el3 = read_scr_el3();
+	u_register_t ns_sctlr_el1 = read_sctlr_el1();
 
 	sctlr = ns_scr_el3 & SCR_HCE_BIT ? read_sctlr_el2() : ns_sctlr_el1;
 	ee = 0;
@@ -839,9 +839,9 @@ void psci_print_power_domain_map(void)
 	for (idx = 0; idx < PLATFORM_CORE_COUNT; idx++) {
 		state = psci_get_cpu_local_state_by_idx(idx);
 		state_type = find_local_state_type(state);
-		INFO("  CPU Node : MPID 0x%lx, parent_node %d,"
+		INFO("  CPU Node : MPID 0x%llx, parent_node %d,"
 				" State %s (0x%x)\n",
-				psci_cpu_pd_nodes[idx].mpidr,
+				(unsigned long long)psci_cpu_pd_nodes[idx].mpidr,
 				psci_cpu_pd_nodes[idx].parent_node,
 				psci_state_type_str[state_type],
 				psci_get_cpu_local_state_by_idx(idx));

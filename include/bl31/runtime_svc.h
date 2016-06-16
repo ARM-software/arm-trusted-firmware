@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -66,14 +66,14 @@ typedef int32_t (*rt_svc_init_t)(void);
  * can be accessed using the handle pointer. The cookie parameter is reserved
  * for future use
  */
-typedef uint64_t (*rt_svc_handle_t)(uint32_t smc_fid,
-				  uint64_t x1,
-				  uint64_t x2,
-				  uint64_t x3,
-				  uint64_t x4,
+typedef uintptr_t (*rt_svc_handle_t)(uint32_t smc_fid,
+				  u_register_t x1,
+				  u_register_t x2,
+				  u_register_t x3,
+				  u_register_t x4,
 				  void *cookie,
 				  void *handle,
-				  uint64_t flags);
+				  u_register_t flags);
 typedef struct rt_svc_desc {
 	uint8_t start_oen;
 	uint8_t end_oen;
@@ -127,8 +127,8 @@ CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
  * Function & variable prototypes
  ******************************************************************************/
 void runtime_svc_init(void);
-extern uint64_t __RT_SVC_DESCS_START__;
-extern uint64_t __RT_SVC_DESCS_END__;
+extern uintptr_t __RT_SVC_DESCS_START__;
+extern uintptr_t __RT_SVC_DESCS_END__;
 void init_crash_reporting(void);
 
 #endif /*__ASSEMBLY__*/

@@ -48,7 +48,6 @@
 CASSERT(ADDR_SPACE_SIZE >= (1ull << 31) && ADDR_SPACE_SIZE <= (1ull << 39) &&
 	IS_POWER_OF_TWO(ADDR_SPACE_SIZE), assert_valid_addr_space_size);
 
-#define UNSET_DESC	~0ul
 #define NUM_L1_ENTRIES (ADDR_SPACE_SIZE >> L1_XLAT_ADDRESS_SHIFT)
 
 static uint64_t l1_xlation_table[NUM_L1_ENTRIES]

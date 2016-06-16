@@ -124,12 +124,12 @@ initialization and call handler functions.
 
 *   `_smch` is the SMC handler function with the `rt_svc_handle` signature:
 
-        typedef uint64_t (*rt_svc_handle)(uint32_t smc_fid,
-                                          uint64_t x1, uint64_t x2,
-                                          uint64_t x3, uint64_t x4,
+        typedef uintptr_t (*rt_svc_handle_t)(uint32_t smc_fid,
+                                          u_register_t x1, u_register_t x2,
+                                          u_register_t x3, u_register_t x4,
                                           void *cookie,
                                           void *handle,
-                                          uint64_t flags);
+                                          u_register_t flags);
 
 Details of the requirements and behavior of the two callbacks is provided in
 the following sections.
@@ -189,12 +189,12 @@ SMC calls for a service are forwarded by the framework to the service's SMC
 handler function (`_smch` in the service declaration). This function must have
 the following signature:
 
-    typedef uint64_t (*rt_svc_handle)(uint32_t smc_fid,
-                                      uint64_t x1, uint64_t x2,
-                                      uint64_t x3, uint64_t x4,
-                                      void *reserved,
-                                      void *handle,
-                                      uint64_t flags);
+    typedef uintptr_t (*rt_svc_handle_t)(uint32_t smc_fid,
+                                       u_register_t x1, u_register_t x2,
+                                       u_register_t x3, u_register_t x4,
+                                       void *cookie,
+                                       void *handle,
+                                       u_register_t flags);
 
 The handler is responsible for:
 

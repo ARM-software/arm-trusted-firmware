@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -285,7 +285,7 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
  * This function populates ELR_EL3 member of 'cpu_context' pertaining to the
  * given security state with the given entrypoint
  ******************************************************************************/
-void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint)
+void cm_set_elr_el3(uint32_t security_state, uintptr_t entrypoint)
 {
 	cpu_context_t *ctx;
 	el3_state_t *state;
@@ -303,7 +303,7 @@ void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint)
  * pertaining to the given security state
  ******************************************************************************/
 void cm_set_elr_spsr_el3(uint32_t security_state,
-			 uint64_t entrypoint, uint32_t spsr)
+			uintptr_t entrypoint, uint32_t spsr)
 {
 	cpu_context_t *ctx;
 	el3_state_t *state;

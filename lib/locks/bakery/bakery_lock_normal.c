@@ -82,13 +82,13 @@ extern void *__PERCPU_BAKERY_LOCK_SIZE__;
 
 #define write_cache_op(addr, cached)	\
 				do {	\
-					(cached ? dccvac((uint64_t)addr) :\
-						dcivac((uint64_t)addr));\
+					(cached ? dccvac((uintptr_t)addr) :\
+						dcivac((uintptr_t)addr));\
 						dsbish();\
 				} while (0)
 
 #define read_cache_op(addr, cached)	if (cached) \
-					    dccivac((uint64_t)addr)
+					    dccivac((uintptr_t)addr)
 
 static unsigned int bakery_get_ticket(bakery_lock_t *lock,
 						unsigned int me, int is_cached)

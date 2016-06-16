@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,14 +54,14 @@ static int32_t std_svc_setup(void)
  * Top-level Standard Service SMC handler. This handler will in turn dispatch
  * calls to PSCI SMC handler
  */
-uint64_t std_svc_smc_handler(uint32_t smc_fid,
-			     uint64_t x1,
-			     uint64_t x2,
-			     uint64_t x3,
-			     uint64_t x4,
+uintptr_t std_svc_smc_handler(uint32_t smc_fid,
+			     u_register_t x1,
+			     u_register_t x2,
+			     u_register_t x3,
+			     u_register_t x4,
 			     void *cookie,
 			     void *handle,
-			     uint64_t flags)
+			     u_register_t flags)
 {
 	/*
 	 * Dispatch PSCI calls to PSCI SMC handler and return its return

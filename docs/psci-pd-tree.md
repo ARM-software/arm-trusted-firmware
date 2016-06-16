@@ -203,7 +203,7 @@ typedef struct non_cpu_pwr_domain_node {
 } non_cpu_pd_node_t;
 
 typedef struct cpu_pwr_domain_node {
-    unsigned long mpidr;
+    u_register_t mpidr;
 
     /* Index of the parent power domain node */
     unsigned int parent_node;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
 #include <debug.h>
 #include <errno.h>
 #include <runtime_svc.h>
@@ -42,10 +43,13 @@
  * 'rt_svc_descs_indices' array. This gives the index of the descriptor in the
  * 'rt_svc_descs' array which contains the SMC handler.
  ******************************************************************************/
-#define RT_SVC_DESCS_START	((uint64_t) (&__RT_SVC_DESCS_START__))
-#define RT_SVC_DESCS_END	((uint64_t) (&__RT_SVC_DESCS_END__))
+#define RT_SVC_DESCS_START	((uintptr_t) (&__RT_SVC_DESCS_START__))
+#define RT_SVC_DESCS_END	((uintptr_t) (&__RT_SVC_DESCS_END__))
 uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
 static rt_svc_desc_t *rt_svc_descs;
+
+#define RT_SVC_DECS_NUM		((RT_SVC_DESCS_END - RT_SVC_DESCS_START)\
+					/ sizeof(rt_svc_desc_t))
 
 /*******************************************************************************
  * Simple routine to sanity check a runtime service descriptor before using it
@@ -80,21 +84,20 @@ static int32_t validate_rt_svc_desc(rt_svc_desc_t *desc)
  ******************************************************************************/
 void runtime_svc_init(void)
 {
-	int32_t rc = 0;
-	uint32_t index, start_idx, end_idx;
-	uint64_t rt_svc_descs_num;
+	int rc = 0, index, start_idx, end_idx;
+
+	/* Assert the number of descriptors detected are less than maximum indices */
+	assert((RT_SVC_DECS_NUM >= 0) && (RT_SVC_DECS_NUM < MAX_RT_SVCS));
 
 	/* If no runtime services are implemented then simply bail out */
-	rt_svc_descs_num = RT_SVC_DESCS_END - RT_SVC_DESCS_START;
-	rt_svc_descs_num /= sizeof(rt_svc_desc_t);
-	if (rt_svc_descs_num == 0)
+	if (RT_SVC_DECS_NUM == 0)
 		return;
 
 	/* Initialise internal variables to invalid state */
 	memset(rt_svc_descs_indices, -1, sizeof(rt_svc_descs_indices));
 
 	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
-	for (index = 0; index < rt_svc_descs_num; index++) {
+	for (index = 0; index < RT_SVC_DECS_NUM; index++) {
 
 		/*
 		 * An invalid descriptor is an error condition since it is

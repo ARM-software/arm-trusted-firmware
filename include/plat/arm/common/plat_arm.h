@@ -45,13 +45,13 @@
 /*
  * Utility functions common to ARM standard platforms
  */
-void arm_setup_page_tables(unsigned long total_base,
-			unsigned long total_size,
-			unsigned long ro_start,
-			unsigned long ro_limit
+void arm_setup_page_tables(uintptr_t total_base,
+			size_t total_size,
+			uintptr_t ro_start,
+			uintptr_t ro_limit
 #if USE_COHERENT_MEM
-			, unsigned long coh_start,
-			unsigned long coh_limit
+			, uintptr_t coh_start,
+			uintptr_t coh_limit
 #endif
 );
 

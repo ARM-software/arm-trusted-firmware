@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -159,7 +159,7 @@ func_deprecated platform_set_stack
 endfunc_deprecated platform_set_stack
 
 	/* -----------------------------------------------------
-	 * unsigned long plat_get_my_stack ()
+	 * uintptr_t plat_get_my_stack ()
 	 *
 	 * For the current CPU, this function returns the stack
 	 * pointer for a stack allocated in device memory.

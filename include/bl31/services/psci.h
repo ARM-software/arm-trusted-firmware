@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -296,13 +296,13 @@ typedef struct plat_psci_ops {
  * migrate capability etc.
  ******************************************************************************/
 typedef struct spd_pm_ops {
-	void (*svc_on)(uint64_t target_cpu);
-	int32_t (*svc_off)(uint64_t __unused);
-	void (*svc_suspend)(uint64_t max_off_pwrlvl);
-	void (*svc_on_finish)(uint64_t __unused);
-	void (*svc_suspend_finish)(uint64_t max_off_pwrlvl);
-	int32_t (*svc_migrate)(uint64_t from_cpu, uint64_t to_cpu);
-	int32_t (*svc_migrate_info)(uint64_t *resident_cpu);
+	void (*svc_on)(u_register_t target_cpu);
+	int32_t (*svc_off)(u_register_t __unused);
+	void (*svc_suspend)(u_register_t max_off_pwrlvl);
+	void (*svc_on_finish)(u_register_t __unused);
+	void (*svc_suspend_finish)(u_register_t max_off_pwrlvl);
+	int32_t (*svc_migrate)(u_register_t from_cpu, u_register_t to_cpu);
+	int32_t (*svc_migrate_info)(u_register_t *resident_cpu);
 	void (*svc_system_off)(void);
 	void (*svc_system_reset)(void);
 } spd_pm_ops_t;
@@ -328,14 +328,14 @@ int psci_features(unsigned int psci_fid);
 void __dead2 psci_power_down_wfi(void);
 void psci_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *);
-uint64_t psci_smc_handler(uint32_t smc_fid,
-			  uint64_t x1,
-			  uint64_t x2,
-			  uint64_t x3,
-			  uint64_t x4,
+uintptr_t psci_smc_handler(uint32_t smc_fid,
+			  u_register_t x1,
+			  u_register_t x2,
+			  u_register_t x3,
+			  u_register_t x4,
 			  void *cookie,
 			  void *handle,
-			  uint64_t flags);
+			  u_register_t flags);
 
 /* PSCI setup function */
 int psci_setup(void);
