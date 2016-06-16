@@ -56,12 +56,12 @@ static tsp_args_t tsp_smc_args[PLATFORM_CORE_COUNT];
 work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
- * The BL32 memory footprint starts with an RO sections and ends
- * with the linker symbol __BL32_END__. Use it to find the memory size
+ * The TSP memory footprint starts at address BL32_BASE and ends with the
+ * linker symbol __BL32_END__. Use these addresses to compute the TSP image
+ * size.
  ******************************************************************************/
-#define BL32_TOTAL_BASE (unsigned long)(&__RO_START__)
-
 #define BL32_TOTAL_LIMIT (unsigned long)(&__BL32_END__)
+#define BL32_TOTAL_SIZE (BL32_TOTAL_LIMIT - (unsigned long) BL32_BASE)
 
 static tsp_args_t *set_smc_args(uint64_t arg0,
 			     uint64_t arg1,
@@ -102,9 +102,8 @@ uint64_t tsp_main(void)
 {
 	NOTICE("TSP: %s\n", version_string);
 	NOTICE("TSP: %s\n", build_message);
-	INFO("TSP: Total memory base : 0x%lx\n", BL32_TOTAL_BASE);
-	INFO("TSP: Total memory size : 0x%lx bytes\n",
-			 BL32_TOTAL_LIMIT - BL32_TOTAL_BASE);
+	INFO("TSP: Total memory base : 0x%lx\n", (unsigned long) BL32_BASE);
+	INFO("TSP: Total memory size : 0x%lx bytes\n", BL32_TOTAL_SIZE);
 
 	uint32_t linear_id = plat_my_core_pos();
 
