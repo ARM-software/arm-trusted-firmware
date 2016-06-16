@@ -30,6 +30,11 @@
  * $FreeBSD$
  */
 
+/*
+ * Portions copyright (c) 2016, ARM Limited and Contributors.
+ * All rights reserved.
+ */
+
 #ifndef	_MACHINE__STDINT_H_
 #define	_MACHINE__STDINT_H_
 
@@ -38,12 +43,12 @@
 #define	INT8_C(c)		(c)
 #define	INT16_C(c)		(c)
 #define	INT32_C(c)		(c)
-#define	INT64_C(c)		(c ## L)
+#define	INT64_C(c)		(c ## LL)
 
 #define	UINT8_C(c)		(c)
 #define	UINT16_C(c)		(c)
 #define	UINT32_C(c)		(c ## U)
-#define	UINT64_C(c)		(c ## UL)
+#define	UINT64_C(c)		(c ## ULL)
 
 #define	INTMAX_C(c)		INT64_C(c)
 #define	UINTMAX_C(c)		UINT64_C(c)
@@ -60,19 +65,19 @@
 #define	INT8_MIN	(-0x7f-1)
 #define	INT16_MIN	(-0x7fff-1)
 #define	INT32_MIN	(-0x7fffffff-1)
-#define	INT64_MIN	(-0x7fffffffffffffffL-1)
+#define	INT64_MIN	(-0x7fffffffffffffffLL-1)
 
 /* Maximum values of exact-width signed integer types. */
 #define	INT8_MAX	0x7f
 #define	INT16_MAX	0x7fff
 #define	INT32_MAX	0x7fffffff
-#define	INT64_MAX	0x7fffffffffffffffL
+#define	INT64_MAX	0x7fffffffffffffffLL
 
 /* Maximum values of exact-width unsigned integer types. */
 #define	UINT8_MAX	0xff
 #define	UINT16_MAX	0xffff
 #define	UINT32_MAX	0xffffffffU
-#define	UINT64_MAX	0xffffffffffffffffUL
+#define	UINT64_MAX	0xffffffffffffffffULL
 
 /*
  * ISO/IEC 9899:1999

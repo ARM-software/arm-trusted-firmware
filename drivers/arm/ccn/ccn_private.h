@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -104,7 +104,7 @@ typedef enum rn_types {
 #define WAIT_FOR_DOMAIN_CTRL_OP_COMPLETION(region_id, stat_reg_offset,		\
 					   op_reg_offset, rn_id_map)		\
 	{									\
-		uint64_t status_reg;						\
+		unsigned long long status_reg;						\
 		do {								\
 			status_reg = ccn_reg_read((ccn_plat_desc->periphbase),	\
 						  (region_id),			\
@@ -208,7 +208,7 @@ typedef enum rn_types {
 /*
  * Helper function to return number of set bits in bitmap
  */
-static inline unsigned int count_set_bits(uint64_t bitmap)
+static inline unsigned int count_set_bits(unsigned long long bitmap)
 {
 	unsigned int count = 0;
 

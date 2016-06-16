@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -214,7 +214,7 @@ unsigned int psci_is_last_on_cpu(void);
 int psci_spd_migrate_info(u_register_t *mpidr);
 
 /* Private exported functions from psci_on.c */
-int psci_cpu_on_start(unsigned long target_cpu,
+int psci_cpu_on_start(u_register_t target_cpu,
 		      entry_point_info_t *ep);
 
 void psci_cpu_on_finish(unsigned int cpu_idx,

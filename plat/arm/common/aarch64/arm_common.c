@@ -59,16 +59,16 @@ extern const mmap_region_t plat_arm_mmap[];
  * - Read-only data section;
  * - Coherent memory region, if applicable.
  */
-void arm_setup_page_tables(unsigned long total_base,
-			   unsigned long total_size,
-			   unsigned long code_start,
-			   unsigned long code_limit,
-			   unsigned long rodata_start,
-			   unsigned long rodata_limit
+void arm_setup_page_tables(uintptr_t total_base,
+			   size_t total_size,
+			   uintptr_t code_start,
+			   uintptr_t code_limit,
+			   uintptr_t rodata_start,
+			   uintptr_t rodata_limit
 #if USE_COHERENT_MEM
 			   ,
-			   unsigned long coh_start,
-			   unsigned long coh_limit
+			   uintptr_t coh_start,
+			   uintptr_t coh_limit
 #endif
 			   )
 {

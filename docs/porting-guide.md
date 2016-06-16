@@ -545,7 +545,7 @@ reset vector code to perform the above tasks.
 ### Function : plat_get_my_entrypoint() [mandatory when PROGRAMMABLE_RESET_ADDRESS == 0]
 
     Argument : void
-    Return   : unsigned long
+    Return   : uintptr_t
 
 This function is called with the called with the MMU and caches disabled
 (`SCTLR_EL3.M` = 0 and `SCTLR_EL3.C` = 0). The function is responsible for
@@ -748,7 +748,7 @@ provided in [plat/common/aarch64/platform_up_stack.S] and
 ### Function : plat_get_my_stack()
 
     Argument : void
-    Return   : unsigned long
+    Return   : uintptr_t
 
 This function returns the base address of the normal memory stack that
 has been allocated for the current CPU. For BL images that only require a
@@ -966,7 +966,7 @@ This function helps fulfill requirements 4 and 5 above.
 
 ### Function : bl1_init_bl2_mem_layout() [optional]
 
-    Argument : meminfo *, meminfo *, unsigned int, unsigned long
+    Argument : meminfo *, meminfo *
     Return   : void
 
 BL1 needs to tell the next stage the amount of secure RAM available

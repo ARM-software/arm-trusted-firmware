@@ -70,7 +70,7 @@ poll_mailbox:
 endfunc plat_secondary_cold_boot_setup
 
 	/* ---------------------------------------------------------------------
-	 * unsigned long plat_get_my_entrypoint (void);
+	 * uintptr_t plat_get_my_entrypoint (void);
 	 *
 	 * Main job of this routine is to distinguish between a cold and a warm
 	 * boot. On CSS platforms, this distinction is based on the contents of
@@ -90,7 +90,7 @@ func plat_get_my_entrypoint
 endfunc plat_get_my_entrypoint
 
 	/* -----------------------------------------------------------
-	 * unsigned int css_calc_core_pos_swap_cluster(uint64_t mpidr)
+	 * unsigned int css_calc_core_pos_swap_cluster(u_register_t mpidr)
 	 * Utility function to calculate the core position by
 	 * swapping the cluster order. This is necessary in order to
 	 * match the format of the boot information passed by the SCP

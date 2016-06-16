@@ -38,7 +38,7 @@
 #include <plat_arm.h>
 #include <platform.h>
 
-#define BL31_END (unsigned long)(&__BL31_END__)
+#define BL31_END (uintptr_t)(&__BL31_END__)
 
 #if USE_COHERENT_MEM
 /*
@@ -48,8 +48,8 @@
  * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
  * refer to page-aligned addresses.
  */
-#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#define BL31_COHERENT_RAM_BASE (uintptr_t)(&__COHERENT_RAM_START__)
+#define BL31_COHERENT_RAM_LIMIT (uintptr_t)(&__COHERENT_RAM_END__)
 #endif
 
 /*

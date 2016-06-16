@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -170,6 +170,7 @@
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
+#include <types.h>
 
 #define gicv3_is_intr_id_special_identifier(id)	\
 	(((id) >= PENDING_G1S_INTID) && ((id) <= GIC_SPURIOUS_INTERRUPT))
@@ -234,7 +235,7 @@
  *    a hash function. Otherwise, the "Processor Number" field will be used to
  *    access the array elements.
  ******************************************************************************/
-typedef unsigned int (*mpidr_hash_fn)(unsigned long mpidr);
+typedef unsigned int (*mpidr_hash_fn)(u_register_t mpidr);
 
 typedef struct gicv3_driver_data {
 	uintptr_t gicd_base;

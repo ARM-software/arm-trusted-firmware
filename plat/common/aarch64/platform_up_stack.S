@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@
 	.globl	platform_get_stack
 
 	/* -----------------------------------------------------
-	 * unsigned long plat_get_my_stack ()
+	 * uintptr_t plat_get_my_stack ()
 	 *
 	 * For cold-boot BL images, only the primary CPU needs a
 	 * stack. This function returns the stack pointer for a

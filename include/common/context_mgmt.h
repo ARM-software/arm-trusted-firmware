@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,9 +63,9 @@ void cm_init_context_by_index(unsigned int cpu_idx,
 void cm_prepare_el3_exit(uint32_t security_state);
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
-void cm_set_elr_el3(uint32_t security_state, uint64_t entrypoint);
+void cm_set_elr_el3(uint32_t security_state, uintptr_t entrypoint);
 void cm_set_elr_spsr_el3(uint32_t security_state,
-			 uint64_t entrypoint, uint32_t spsr);
+			uintptr_t entrypoint, uint32_t spsr);
 void cm_write_scr_el3_bit(uint32_t security_state,
 			  uint32_t bit_pos,
 			  uint32_t value);
