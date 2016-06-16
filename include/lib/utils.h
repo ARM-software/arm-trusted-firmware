@@ -38,4 +38,21 @@
 #define IS_POWER_OF_TWO(x)			\
 	(((x) & ((x) - 1)) == 0)
 
+/*
+ * The round_up() macro rounds up a value to the given boundary in a
+ * type-agnostic yet type-safe manner. The boundary must be a power of two.
+ * In other words, it computes the smallest multiple of boundary which is
+ * greater than or equal to value.
+ *
+ * round_down() is similar but rounds the value down instead.
+ */
+#define round_boundary(value, boundary)		\
+	((__typeof__(value))((boundary) - 1))
+
+#define round_up(value, boundary)		\
+	((((value) - 1) | round_boundary(value, boundary)) + 1)
+
+#define round_down(value, boundary)		\
+	((value) & ~round_boundary(value, boundary))
+
 #endif /* __UTILS_H__ */
