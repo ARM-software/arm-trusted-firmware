@@ -76,22 +76,30 @@ void arm_setup_page_tables(unsigned long total_base,
 	 * Map the Trusted SRAM with appropriate memory attributes.
 	 * Subsequent mappings will adjust the attributes for specific regions.
 	 */
+	VERBOSE("Trusted SRAM seen by this BL image: %p - %p\n",
+		(void *) total_base, (void *) (total_base + total_size));
 	mmap_add_region(total_base, total_base,
 			total_size,
 			MT_MEMORY | MT_RW | MT_SECURE);
 
 	/* Re-map the code section */
+	VERBOSE("Code region: %p - %p\n",
+		(void *) code_start, (void *) code_limit);
 	mmap_add_region(code_start, code_start,
 			code_limit - code_start,
 			MT_CODE | MT_SECURE);
 
 	/* Re-map the read-only data section */
+	VERBOSE("Read-only data region: %p - %p\n",
+		(void *) rodata_start, (void *) rodata_limit);
 	mmap_add_region(rodata_start, rodata_start,
 			rodata_limit - rodata_start,
 			MT_RO_DATA | MT_SECURE);
 
 #if USE_COHERENT_MEM
 	/* Re-map the coherent memory region */
+	VERBOSE("Coherent region: %p - %p\n",
+		(void *) coh_start, (void *) coh_limit);
 	mmap_add_region(coh_start, coh_start,
 			coh_limit - coh_start,
 			MT_DEVICE | MT_RW | MT_SECURE);
