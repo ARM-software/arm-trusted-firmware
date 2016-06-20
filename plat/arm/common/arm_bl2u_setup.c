@@ -102,7 +102,7 @@ void bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
  ******************************************************************************/
 void arm_bl2u_plat_arch_setup(void)
 {
-	arm_setup_page_tables(BL2U_RO_LIMIT,
+	arm_setup_page_tables(BL2U_BASE,
 			      BL31_LIMIT,
 			      BL2U_RO_BASE,
 			      BL2U_RO_LIMIT
