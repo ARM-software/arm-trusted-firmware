@@ -69,6 +69,8 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				${RK_PLAT_COMMON}/plat_pm.c			\
 				${RK_PLAT_COMMON}/plat_topology.c		\
 				${RK_PLAT_COMMON}/aarch64/platform_common.c	\
+				${RK_PLAT_COMMON}/rockchip_sip_svc.c		\
+				${RK_PLAT_SOC}/plat_sip_calls.c			\
 				${RK_PLAT_SOC}/drivers/pmu/pmu.c		\
 				${RK_PLAT_SOC}/drivers/soc/soc.c		\
 				${RK_PLAT_SOC}/drivers/ddr/ddr_rk3368.c		\
