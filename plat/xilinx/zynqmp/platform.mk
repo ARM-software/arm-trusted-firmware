@@ -64,6 +64,8 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
+				drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
 				drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v2/gicv2_main.c			\
 				drivers/arm/gic/v2/gicv2_helpers.c		\

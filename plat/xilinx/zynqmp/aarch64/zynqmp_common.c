@@ -29,6 +29,7 @@
  */
 
 #include <debug.h>
+#include <generic_delay_timer.h>
 #include <mmio.h>
 #include <platform.h>
 #include <xlat_tables.h>
@@ -289,6 +290,8 @@ void zynqmp_config_setup(void)
 	/* Program freq register in System counter and enable system counter. */
 	mmio_write_32(IOU_SCNTRS_BASEFREQ, zynqmp_get_system_timer_freq());
 	mmio_write_32(IOU_SCNTRS_CONTROL, IOU_SCNTRS_CONTROL_EN);
+
+	generic_delay_timer_init();
 }
 
 unsigned int plat_get_syscnt_freq2(void)
