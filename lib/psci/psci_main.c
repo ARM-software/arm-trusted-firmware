@@ -97,6 +97,10 @@ int psci_cpu_suspend(unsigned int power_state,
 			== PSCI_E_SUCCESS);
 
 	target_pwrlvl = psci_find_target_suspend_lvl(&state_info);
+	if (target_pwrlvl == PSCI_INVALID_PWR_LVL) {
+		ERROR("Invalid target power level for suspend operation\n");
+		panic();
+	}
 
 	/* Fast path for CPU standby.*/
 	if (is_cpu_standby_req(is_power_down_state, target_pwrlvl)) {
