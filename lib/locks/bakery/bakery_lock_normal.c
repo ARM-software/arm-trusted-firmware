@@ -87,8 +87,12 @@ extern void *__PERCPU_BAKERY_LOCK_SIZE__;
 						dsbish();\
 				} while (0)
 
-#define read_cache_op(addr, cached)	if (cached) \
-					    dccivac((uint64_t)addr)
+#define read_cache_op(addr, cached)	\
+	do {	\
+		if (cached)\
+			dccivac((uint64_t)addr);\
+		dmbish();\
+	} while (0)
 
 static unsigned int bakery_get_ticket(bakery_lock_t *lock,
 						unsigned int me, int is_cached)
@@ -151,6 +155,7 @@ static unsigned int bakery_get_ticket(bakery_lock_t *lock,
 	 * finish calculating our ticket value that we're done
 	 */
 	++my_ticket;
+	dmbish();
 	my_bakery_info->lock_data = make_bakery_data(CHOSEN_TICKET, my_ticket);
 
 	write_cache_op(my_bakery_info, is_cached);
