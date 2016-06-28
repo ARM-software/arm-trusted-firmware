@@ -54,7 +54,7 @@ static rt_svc_desc_t *rt_svc_descs;
 /*******************************************************************************
  * Simple routine to sanity check a runtime service descriptor before using it
  ******************************************************************************/
-static int32_t validate_rt_svc_desc(rt_svc_desc_t *desc)
+static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)
 {
 	if (desc == NULL)
 		return -EINVAL;
@@ -98,18 +98,18 @@ void runtime_svc_init(void)
 
 	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
 	for (index = 0; index < RT_SVC_DECS_NUM; index++) {
+		rt_svc_desc_t *service = &rt_svc_descs[index];
 
 		/*
 		 * An invalid descriptor is an error condition since it is
 		 * difficult to predict the system behaviour in the absence
 		 * of this service.
 		 */
-		rc = validate_rt_svc_desc(&rt_svc_descs[index]);
+		rc = validate_rt_svc_desc(service);
 		if (rc) {
 			ERROR("Invalid runtime service descriptor %p (%s)\n",
-					(void *) &rt_svc_descs[index],
-					rt_svc_descs[index].name);
-			goto error;
+				(void *) service, service->name);
+			panic();
 		}
 
 		/*
@@ -119,11 +119,11 @@ void runtime_svc_init(void)
 		 * an initialisation routine defined. Call the initialisation
 		 * routine for this runtime service, if it is defined.
 		 */
-		if (rt_svc_descs[index].init) {
-			rc = rt_svc_descs[index].init();
+		if (service->init) {
+			rc = service->init();
 			if (rc) {
 				ERROR("Error initializing runtime service %s\n",
-						rt_svc_descs[index].name);
+						service->name);
 				continue;
 			}
 		}
@@ -135,15 +135,10 @@ void runtime_svc_init(void)
 		 * entity range.
 		 */
 		start_idx = get_unique_oen(rt_svc_descs[index].start_oen,
-				rt_svc_descs[index].call_type);
+				service->call_type);
 		end_idx = get_unique_oen(rt_svc_descs[index].end_oen,
-				rt_svc_descs[index].call_type);
-
+				service->call_type);
 		for (; start_idx <= end_idx; start_idx++)
 			rt_svc_descs_indices[start_idx] = index;
 	}
-
-	return;
-error:
-	panic();
 }
