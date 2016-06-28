@@ -45,17 +45,25 @@
  * from standby/retention states at multiple power levels.
  ******************************************************************************/
 static void psci_suspend_to_standby_finisher(unsigned int cpu_idx,
-					     psci_power_state_t *state_info,
 					     unsigned int end_pwrlvl)
 {
+	psci_power_state_t state_info;
+
 	psci_acquire_pwr_domain_locks(end_pwrlvl,
 				cpu_idx);
+
+	/*
+	 * Find out which retention states this CPU has exited from until the
+	 * 'end_pwrlvl'. The exit retention state could be deeper than the entry
+	 * state as a result of state coordination amongst other CPUs post wfi.
+	 */
+	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
 
 	/*
 	 * Plat. management: Allow the platform to do operations
 	 * on waking up from retention.
 	 */
-	psci_plat_pm_ops->pwr_domain_suspend_finish(state_info);
+	psci_plat_pm_ops->pwr_domain_suspend_finish(&state_info);
 
 	/*
 	 * Set the requested and target state of this CPU and all the higher
@@ -222,7 +230,7 @@ exit:
 	 * After we wake up from context retaining suspend, call the
 	 * context retaining suspend finisher.
 	 */
-	psci_suspend_to_standby_finisher(idx, state_info, end_pwrlvl);
+	psci_suspend_to_standby_finisher(idx, end_pwrlvl);
 }
 
 /*******************************************************************************
