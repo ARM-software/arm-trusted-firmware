@@ -191,6 +191,7 @@
 
 /* NASCR definitions */
 #define NSASEDIS_BIT		(1 << 15)
+#define NSTRCDIS_BIT		(1 << 20)
 #define NASCR_CP11_BIT		(1 << 11)
 #define NASCR_CP10_BIT		(1 << 10)
 

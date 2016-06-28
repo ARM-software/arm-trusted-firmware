@@ -776,11 +776,15 @@ called in the following circumstances:
 The default implementation doesn't do anything, to avoid making assumptions
 about the way the platform displays its status information.
 
-This function receives the exception type as its argument. Possible values for
-exceptions types are listed in the [include/common/bl_common.h] header file.
-Note that these constants are not related to any architectural exception code;
-they are just an ARM Trusted Firmware convention.
+For AArch64, this function receives the exception type as its argument.
+Possible values for exceptions types are listed in the
+[include/common/bl_common.h] header file. Note that these constants are not
+related to any architectural exception code; they are just an ARM Trusted
+Firmware convention.
 
+For AArch32, this function receives the exception mode as its argument.
+Possible values for exception modes are listed in the
+[include/lib/aarch32/arch.h] header file.
 
 ### Function : plat_reset_handler()
 
@@ -2234,6 +2238,7 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 [plat/common/aarch64/platform_up_stack.S]: ../plat/common/aarch64/platform_up_stack.S
 [plat/arm/board/fvp/fvp_pm.c]:             ../plat/arm/board/fvp/fvp_pm.c
 [include/common/bl_common.h]:              ../include/common/bl_common.h
+[include/lib/aarch32/arch.h]:              ../include/lib/aarch32/arch.h
 [include/plat/arm/common/arm_def.h]:       ../include/plat/arm/common/arm_def.h
 [include/plat/common/common_def.h]:        ../include/plat/common/common_def.h
 [include/plat/common/platform.h]:          ../include/plat/common/platform.h
