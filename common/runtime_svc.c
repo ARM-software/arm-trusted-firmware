@@ -107,8 +107,8 @@ void runtime_svc_init(void)
 		 */
 		rc = validate_rt_svc_desc(service);
 		if (rc) {
-			ERROR("Invalid runtime service descriptor %p (%s)\n",
-				(void *) service, service->name);
+			ERROR("Invalid runtime service descriptor %p\n",
+				(void *) service);
 			panic();
 		}
 
@@ -136,8 +136,10 @@ void runtime_svc_init(void)
 		 */
 		start_idx = get_unique_oen(rt_svc_descs[index].start_oen,
 				service->call_type);
+		assert(start_idx < MAX_RT_SVCS);
 		end_idx = get_unique_oen(rt_svc_descs[index].end_oen,
 				service->call_type);
+		assert(end_idx < MAX_RT_SVCS);
 		for (; start_idx <= end_idx; start_idx++)
 			rt_svc_descs_indices[start_idx] = index;
 	}
