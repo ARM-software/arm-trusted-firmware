@@ -107,15 +107,20 @@ void bl1_main(void)
 	NOTICE("BL1: %s\n", version_string);
 	NOTICE("BL1: %s\n", build_message);
 
-	INFO("BL1: RAM 0x%lx - 0x%lx\n", BL1_RAM_BASE, BL1_RAM_LIMIT);
+	INFO("BL1: RAM %p - %p\n", (void *)BL1_RAM_BASE,
+					(void *)BL1_RAM_LIMIT);
 
 
 #if DEBUG
-	unsigned long val;
+	u_register_t val;
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
 	 */
+#ifdef AARCH32
+	val = read_sctlr();
+#else
 	val = read_sctlr_el3();
+#endif
 	assert(val & SCTLR_M_BIT);
 	assert(val & SCTLR_C_BIT);
 	assert(val & SCTLR_I_BIT);
@@ -223,21 +228,25 @@ void bl1_load_bl2(void)
 
 	bl1_init_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
 
-	ep_info->args.arg1 = (unsigned long)bl2_tzram_layout;
+	ep_info->args.arg1 = (uintptr_t)bl2_tzram_layout;
 	NOTICE("BL1: Booting BL2\n");
-	VERBOSE("BL1: BL2 memory layout address = 0x%llx\n",
-		(unsigned long long) bl2_tzram_layout);
+	VERBOSE("BL1: BL2 memory layout address = %p\n",
+		(void *) bl2_tzram_layout);
 }
 
 /*******************************************************************************
- * Function called just before handing over to BL31 to inform the user about
- * the boot progress. In debug mode, also print details about the BL31 image's
- * execution context.
+ * Function called just before handing over to the next BL to inform the user
+ * about the boot progress. In debug mode, also print details about the BL
+ * image's execution context.
  ******************************************************************************/
-void bl1_print_bl31_ep_info(const entry_point_info_t *bl31_ep_info)
+void bl1_print_next_bl_ep_info(const entry_point_info_t *bl_ep_info)
 {
+#ifdef AARCH32
+	NOTICE("BL1: Booting BL32\n");
+#else
 	NOTICE("BL1: Booting BL31\n");
-	print_entry_point_info(bl31_ep_info);
+#endif /* AARCH32 */
+	print_entry_point_info(bl_ep_info);
 }
 
 #if SPIN_ON_BL1_EXIT
