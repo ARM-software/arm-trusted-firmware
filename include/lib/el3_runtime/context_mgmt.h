@@ -103,5 +103,9 @@ static inline void cm_set_next_context(void *context)
 			 "msr	spsel, #0\n"
 			 : : "r" (context));
 }
+
+#else
+void *cm_get_next_context(void);
 #endif /* AARCH32 */
+
 #endif /* __CM_H__ */

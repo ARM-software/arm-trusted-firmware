@@ -192,15 +192,15 @@ func smc_handler64
 	mov	sp, x30
 
 	/* ---------------------------------------------------------------------
-	 * Pass EL3 control to BL31.
+	 * Pass EL3 control to next BL image.
 	 * Here it expects X1 with the address of a entry_point_info_t
-	 * structure describing the BL31 entrypoint.
+	 * structure describing the next BL image entrypoint.
 	 * ---------------------------------------------------------------------
 	 */
 	mov	x20, x1
 
 	mov	x0, x20
-	bl	bl1_print_bl31_ep_info
+	bl	bl1_print_next_bl_ep_info
 
 	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
 	msr	elr_el3, x0
