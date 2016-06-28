@@ -188,6 +188,10 @@ ifneq (${GENERATE_COT},0)
         FWU_FIP_DEPS += fwu_certificates
 endif
 
+# For AArch32, enable new version of image loading.
+ifeq (${ARCH},aarch32)
+        LOAD_IMAGE_V2	:=	1
+endif
 
 ################################################################################
 # Toolchain
@@ -363,6 +367,14 @@ ifeq (${LOAD_IMAGE_V2},1)
                 for LOAD_IMAGE_V2=1")
         endif
 endif
+
+# For AArch32, LOAD_IMAGE_V2 must be enabled.
+ifeq (${ARCH},aarch32)
+    ifeq (${LOAD_IMAGE_V2}, 0)
+        $(error "For AArch32, LOAD_IMAGE_V2 must be enabled.")
+    endif
+endif
+
 
 ################################################################################
 # Process platform overrideable behaviour

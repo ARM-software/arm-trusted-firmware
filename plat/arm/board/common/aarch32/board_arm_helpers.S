@@ -27,62 +27,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include <arch.h>
 #include <asm_macros.S>
+#include <bl_common.h>
+#include <v2m_def.h>
 
-	.weak	plat_my_core_pos
-	.weak	plat_reset_handler
-	.weak	plat_disable_acp
-	.weak	platform_mem_init
-	.weak	plat_panic_handler
+	.globl  plat_report_exception
 
-	/* -----------------------------------------------------
-	 *  int plat_my_core_pos(void);
-	 *  With this function: CorePos	= (ClusterId * 4) +
-	 *				  CoreId
-	 * -----------------------------------------------------
+
+	/* -------------------------------------------------------
+	 * void plat_report_exception(unsigned int type)
+	 * Function to report an unhandled exception
+	 * with platform-specific means.
+	 * On FVP platform, it updates the LEDs
+	 * to indicate where we are.
+	 * SYS_LED[0]   - 0x0
+	 * SYS_LED[2:1] - 0x0
+	 * SYS_LED[7:3] - Exception Mode.
+	 * Clobbers: r0-r1
+	 * -------------------------------------------------------
 	 */
-func plat_my_core_pos
-	ldcopr	r0, MPIDR
-	and	r1, r0, #MPIDR_CPU_MASK
-	and	r0, r0, #MPIDR_CLUSTER_MASK
-	add	r0, r1, r0, LSR #6
+func plat_report_exception
+	lsl	r0, r0, #V2M_SYS_LED_EC_SHIFT
+	ldr	r1, =V2M_SYSREGS_BASE
+	add	r1, r1, #V2M_SYS_LED
+	str	r0, [r1]
 	bx	lr
-endfunc	plat_my_core_pos
-
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
-	 */
-func plat_reset_handler
-	bx	lr
-endfunc plat_reset_handler
-
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
-	 */
-func plat_disable_acp
-	bx	lr
-endfunc plat_disable_acp
-
-	/* ---------------------------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * ---------------------------------------------------------------------
-	 */
-func platform_mem_init
-	bx	lr
-endfunc platform_mem_init
-
-	/* -----------------------------------------------------
-	 * void plat_panic_handler(void) __dead2;
-	 * Endless loop by default.
-	 * -----------------------------------------------------
-	 */
-func plat_panic_handler
-	b	plat_panic_handler
-endfunc plat_panic_handler
+endfunc plat_report_exception

@@ -86,7 +86,7 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
  * Optional common functions (may be overridden)
  ******************************************************************************/
 uintptr_t plat_get_my_stack(void);
-void plat_report_exception(unsigned long);
+void plat_report_exception(unsigned int exception_type);
 int plat_crash_console_init(void);
 int plat_crash_console_putc(int c);
 void plat_error_handler(int err) __dead2;
