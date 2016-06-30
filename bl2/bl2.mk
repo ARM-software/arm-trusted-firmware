@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,10 +29,13 @@
 #
 
 BL2_SOURCES		+=	bl2/bl2_main.c				\
-				bl2/aarch64/bl2_entrypoint.S		\
-				bl2/aarch64/bl2_arch_setup.c		\
-				common/aarch64/early_exceptions.S	\
-				lib/locks/exclusive/aarch64/spinlock.S
+				bl2/${ARCH}/bl2_entrypoint.S		\
+				bl2/${ARCH}/bl2_arch_setup.c		\
+				lib/locks/exclusive/${ARCH}/spinlock.S
+
+ifeq (${ARCH},aarch64)
+BL2_SOURCES		+=	common/aarch64/early_exceptions.S
+endif
 
 ifeq (${LOAD_IMAGE_V2},1)
 BL2_SOURCES		+=	bl2/bl2_image_load_v2.c
