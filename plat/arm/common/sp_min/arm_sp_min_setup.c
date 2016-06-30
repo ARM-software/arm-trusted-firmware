@@ -30,6 +30,7 @@
 
 #include <assert.h>
 #include <console.h>
+#include <debug.h>
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform.h>
@@ -58,10 +59,6 @@ static entry_point_info_t bl33_image_ep_info;
 #pragma weak sp_min_platform_setup
 #pragma weak sp_min_plat_arch_setup
 
-#ifndef RESET_TO_SP_MIN
-#error (" RESET_TO_SP_MIN flag is expected to be set.")
-#endif
-
 
 /*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for the
@@ -86,14 +83,19 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 }
 
 /*******************************************************************************
- * Perform early platform setup. We expect SP_MIN is the first boot loader
- * image and RESET_TO_SP_MIN build option to be set.
+ * Perform early platform setup.
  ******************************************************************************/
-void arm_sp_min_early_platform_setup(void)
+void arm_sp_min_early_platform_setup(void *from_bl2,
+		void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
 				ARM_CONSOLE_BAUDRATE);
+
+#if RESET_TO_SP_MIN
+	/* There are no parameters from BL2 if SP_MIN is a reset vector */
+	assert(from_bl2 == NULL);
+	assert(plat_params_from_bl2 == NULL);
 
 	/* Populate entry point information for BL33 */
 	SET_PARAM_HEAD(&bl33_image_ep_info,
@@ -104,18 +106,46 @@ void arm_sp_min_early_platform_setup(void)
 	 * Tell SP_MIN where the non-trusted software image
 	 * is located and the entry state information
 	 */
-#ifdef PRELOADED_BL33_BASE
-	bl33_image_ep_info.pc = PRELOADED_BL33_BASE;
-#else
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-#endif
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
+
+#else /* RESET_TO_SP_MIN */
+
+	/*
+	 * Check params passed from BL2 should not be NULL,
+	 */
+	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+	assert(params_from_bl2 != NULL);
+	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
+	assert(params_from_bl2->h.version >= VERSION_2);
+
+	bl_params_node_t *bl_params = params_from_bl2->head;
+
+	/*
+	 * Copy BL33 entry point information.
+	 * They are stored in Secure RAM, in BL2's address space.
+	 */
+	while (bl_params) {
+		if (bl_params->image_id == BL33_IMAGE_ID) {
+			bl33_image_ep_info = *bl_params->ep_info;
+			break;
+		}
+
+		bl_params = bl_params->next_params_info;
+	}
+
+	if (bl33_image_ep_info.pc == 0)
+		panic();
+
+#endif /* RESET_TO_SP_MIN */
+
 }
 
-void sp_min_early_platform_setup(void)
+void sp_min_early_platform_setup(void *from_bl2,
+		void *plat_params_from_bl2)
 {
-	arm_sp_min_early_platform_setup();
+	arm_sp_min_early_platform_setup(from_bl2, plat_params_from_bl2);
 
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.
@@ -146,10 +176,10 @@ void sp_min_platform_setup(void)
 	/*
 	 * Do initial security configuration to allow DRAM/device access
 	 * (if earlier BL has not already done so).
-	 * TODO: If RESET_TO_SP_MIN is not set, the security setup needs
-	 * to be skipped.
 	 */
+#if RESET_TO_SP_MIN
 	plat_arm_security_setup();
+#endif
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(ARM_SYS_CNTCTL_BASE + CNTCR_OFF,
