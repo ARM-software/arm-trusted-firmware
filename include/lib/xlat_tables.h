@@ -188,9 +188,14 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 				size_t size, unsigned int attr);
 void mmap_add(const mmap_region_t *mm);
 
+#ifdef AARCH32
+/* AArch32 specific translation table API */
+void enable_mmu_secure(uint32_t flags);
+#else
 /* AArch64 specific translation table APIs */
 void enable_mmu_el1(unsigned int flags);
 void enable_mmu_el3(unsigned int flags);
+#endif /* AARCH32 */
 
 #endif /*__ASSEMBLY__*/
 #endif /* __XLAT_TABLES_H__ */
