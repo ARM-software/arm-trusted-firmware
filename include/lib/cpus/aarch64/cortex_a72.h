@@ -45,6 +45,11 @@
 #define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
 
 /*******************************************************************************
+ * CPU Memory Error Syndrome register specific definitions.
+ ******************************************************************************/
+#define CPUMERRSR_EL1			S3_1_C15_C2_2	/* Instruction def. */
+
+/*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
 #define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
@@ -64,5 +69,10 @@
 #define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
 #define L2_TAG_RAM_LATENCY_2_CYCLES	0x1
 #define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
+
+/*******************************************************************************
+ * L2 Memory Error Syndrome register specific definitions.
+ ******************************************************************************/
+#define L2MERRSR_EL1			S3_1_C15_C2_3	/* Instruction def. */
 
 #endif /* __CORTEX_A72_H__ */

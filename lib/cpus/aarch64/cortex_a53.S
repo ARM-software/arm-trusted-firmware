@@ -234,11 +234,13 @@ endfunc cortex_a53_cluster_pwr_dwn
 	 */
 .section .rodata.cortex_a53_regs, "aS"
 cortex_a53_regs:  /* The ascii list of register names to be reported */
-	.asciz	"cpuectlr_el1", ""
+	.asciz	"cpuectlr_el1", "cpumerrsr_el1", "l2merrsr_el1", ""
 
 func cortex_a53_cpu_reg_dump
 	adr	x6, cortex_a53_regs
 	mrs	x8, CPUECTLR_EL1
+	mrs	x9, CPUMERRSR_EL1
+	mrs	x10, L2MERRSR_EL1
 	ret
 endfunc cortex_a53_cpu_reg_dump
 
