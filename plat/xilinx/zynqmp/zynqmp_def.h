@@ -201,4 +201,8 @@
 
 #define ZYNQMP_CSU_VERSION_OFFSET	0x44
 
+/* Access control register defines */
+#define ACTLR_EL3_L2ACTLR_BIT	(1 << 6)
+#define ACTLR_EL3_CPUACTLR_BIT	(1 << 0)
+
 #endif /* __ZYNQMP_DEF_H__ */

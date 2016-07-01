@@ -118,11 +118,31 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	NOTICE("BL31: Non secure code at 0x%lx\n", bl33_image_ep_info.pc);
 }
 
+/* Enable the test setup */
+#ifndef ZYNQMP_TESTING
+static void zynqmp_testing_setup(void) { }
+#else
+static void zynqmp_testing_setup(void)
+{
+	uint32_t actlr_el3, actlr_el2;
+
+	/* Enable CPU ACTLR AND L2ACTLR RW access from non-secure world */
+	actlr_el3 = read_actlr_el3();
+	actlr_el2 = read_actlr_el2();
+
+	actlr_el3 |= ACTLR_EL3_L2ACTLR_BIT | ACTLR_EL3_CPUACTLR_BIT;
+	actlr_el2 |= ACTLR_EL3_L2ACTLR_BIT | ACTLR_EL3_CPUACTLR_BIT;
+	write_actlr_el3(actlr_el3);
+	write_actlr_el2(actlr_el2);
+}
+#endif
+
 void bl31_platform_setup(void)
 {
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_arm_gic_driver_init();
 	plat_arm_gic_init();
+	zynqmp_testing_setup();
 }
 
 void bl31_plat_runtime_setup(void)
