@@ -128,7 +128,7 @@ BL2_SOURCES		+=	drivers/io/io_fip.c				\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl2_setup.c			\
 				plat/arm/common/arm_io_storage.c		\
-				plat/common/aarch64/platform_up_stack.S
+				plat/common/${ARCH}/platform_up_stack.S
 ifeq (${LOAD_IMAGE_V2},1)
 BL2_SOURCES		+=	plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c\
 				plat/arm/common/arm_image_load.c		\
