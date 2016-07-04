@@ -113,8 +113,8 @@ endif
 
 BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/semihosting/semihosting.c			\
-				lib/semihosting/aarch64/semihosting_call.S	\
-				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
+				lib/semihosting/${ARCH}/semihosting_call.S	\
+				plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_bl1_setup.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\

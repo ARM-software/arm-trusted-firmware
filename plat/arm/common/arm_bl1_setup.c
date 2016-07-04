@@ -132,7 +132,11 @@ void arm_bl1_plat_arch_setup(void)
 			      BL1_COHERENT_RAM_LIMIT
 #endif
 			     );
+#ifdef AARCH32
+	enable_mmu_secure(0);
+#else
 	enable_mmu_el3(0);
+#endif /* AARCH32 */
 }
 
 void bl1_plat_arch_setup(void)

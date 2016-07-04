@@ -116,7 +116,7 @@ BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl1_setup.c			\
 				plat/arm/common/arm_io_storage.c		\
-				plat/common/aarch64/platform_up_stack.S
+				plat/common/${ARCH}/platform_up_stack.S
 ifdef EL3_PAYLOAD_BASE
 # Need the arm_program_trusted_mailbox() function to release secondary CPUs from
 # their holding pen
