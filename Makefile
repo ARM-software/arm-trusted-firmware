@@ -517,13 +517,13 @@ endif
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
-# BL31 is not needed and BL1, BL2 & BL2U are not currently supported in AArch32
-ifneq (${ARCH},aarch32)
 ifdef BL1_SOURCES
 NEED_BL1 := yes
 include bl1/bl1.mk
 endif
 
+# For AArch32, BL31 is not applicable, and BL2 & BL2U are not supported at present.
+ifneq (${ARCH},aarch32)
 ifdef BL2_SOURCES
 NEED_BL2 := yes
 include bl2/bl2.mk
