@@ -104,7 +104,10 @@ COLD_BOOT_SINGLE_CPU		:= 0
 SPIN_ON_BL1_EXIT		:= 0
 # Build PL011 UART driver in minimal generic UART mode
 PL011_GENERIC_UART		:= 0
-
+# Flag to enable Performance Measurement Framework
+ENABLE_PMF			:= 0
+# Flag to enable PSCI STATs functionality
+ENABLE_PSCI_STAT	:= 0
 
 ################################################################################
 # Checkpatch script options
@@ -373,6 +376,10 @@ ifneq (${GENERATE_COT},0)
         endif
 endif
 
+# Make sure PMF is enabled if PSCI STAT is enabled.
+ifeq (${ENABLE_PSCI_STAT},1)
+ENABLE_PMF			:= 1
+endif
 
 ################################################################################
 # Auxiliary tools (fip_create, cert_create, etc)
@@ -410,6 +417,8 @@ $(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
+$(eval $(call assert_boolean,ENABLE_PMF))
+$(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 
 
 ################################################################################
@@ -437,6 +446,8 @@ $(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,PL011_GENERIC_UART))
+$(eval $(call add_define,ENABLE_PMF))
+$(eval $(call add_define,ENABLE_PSCI_STAT))
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
         $(eval $(call add_define,EL3_PAYLOAD_BASE))
@@ -447,7 +458,6 @@ else
                 $(eval $(call add_define,PRELOADED_BL33_BASE))
         endif
 endif
-
 
 ################################################################################
 # Include BL specific makefiles

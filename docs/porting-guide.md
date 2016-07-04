@@ -189,8 +189,19 @@ platform port to define additional platform porting constants in
     Defines the local power state corresponding to the deepest retention state
     possible at every power domain level in the platform. This macro should be
     a value less than PLAT_MAX_OFF_STATE and greater than 0. It is used by the
-    PSCI implementation to distuiguish between retention and power down local
+    PSCI implementation to distinguish between retention and power down local
     power states within PSCI_CPU_SUSPEND call.
+
+*   **#define : PLAT_MAX_PWR_LVL_STATES**
+
+    Defines the maximum number of local power states per power domain level
+    that the platform supports. The default value of this macro is 2 since
+    most platforms just support a maximum of two local power states at each
+    power domain level (power-down and retention). If the platform needs to
+    account for more local power states, then it must redefine this macro.
+
+    Currently, this macro is used by the Generic PSCI implementation to size
+    the array used for PSCI_STAT_COUNT/RESIDENCY accounting.
 
 *   **#define : BL1_RO_BASE**
 
@@ -1792,6 +1803,34 @@ domain level specific local states to suspend to system affinity level. The
 `pwr_domain_suspend()` will be invoked with the coordinated target state to
 enter system suspend.
 
+#### plat_psci_ops.get_pwr_lvl_state_idx()
+
+This is an optional function and, if implemented, is invoked by the PSCI
+implementation to convert the `local_state` (first argument) at a specified
+`pwr_lvl` (second argument) to an index between 0 and
+`PLAT_MAX_PWR_LVL_STATES` - 1. This function is only needed if the platform
+supports more than two local power states at each power domain level, that is
+`PLAT_MAX_PWR_LVL_STATES` is greater than 2, and needs to account for these
+local power states.
+
+#### plat_psci_ops.translate_power_state_by_mpidr()
+
+This is an optional function and, if implemented, verifies the `power_state`
+(second argument) parameter of the PSCI API corresponding to a target power
+domain. The target power domain is identified by using both `MPIDR` (first
+argument) and the power domain level encoded in `power_state`. The power domain
+level specific local states are to be extracted from `power_state` and be
+populated in the `output_state` (third argument) array.  The functionality
+is similar to the `validate_power_state` function described above and is
+envisaged to be used in case the validity of `power_state` depend on the
+targeted power domain. If the `power_state` is invalid for the targeted power
+domain, the platform must return PSCI_E_INVALID_PARAMS as error. If this
+function is not implemented, then the generic implementation relies on
+`validate_power_state` function to translate the `power_state`.
+
+This function can also be used in case the platform wants to support local
+power state encoding for `power_state` parameter of PSCI_STAT_COUNT/RESIDENCY
+APIs as described in Section 5.18 of [PSCI].
 
 3.6  Interrupt Management framework (in BL31)
 ----------------------------------------------

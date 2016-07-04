@@ -718,8 +718,8 @@ required support.
 |`CPU_HW_STATE`         | No      |                                           |
 |`SYSTEM_SUSPEND`       | Yes*    |                                           |
 |`PSCI_SET_SUSPEND_MODE`| No      |                                           |
-|`PSCI_STAT_RESIDENCY`  | No      |                                           |
-|`PSCI_STAT_COUNT`      | No      |                                           |
+|`PSCI_STAT_RESIDENCY`  | Yes*    |                                           |
+|`PSCI_STAT_COUNT`      | Yes*    |                                           |
 
 *Note : These PSCI APIs require platform power management hooks to be
 registered with the generic PSCI code to be supported.

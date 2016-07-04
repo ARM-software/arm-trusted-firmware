@@ -82,6 +82,9 @@ ARM_BL31_IN_DRAM		:=	0
 $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
 
+# Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
+ENABLE_PSCI_STAT = 1
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64

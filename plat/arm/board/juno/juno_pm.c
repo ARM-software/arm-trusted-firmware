@@ -59,6 +59,19 @@ static int juno_validate_power_state(unsigned int power_state,
 	return rc;
 }
 
+/*
+ * Custom `translate_power_state_by_mpidr` handler for Juno. Unlike in the
+ * `juno_validate_power_state`, we do not down-grade the system power
+ * domain level request in `power_state` as it will be used to query the
+ * PSCI_STAT_COUNT/RESIDENCY at the system power domain level.
+ */
+static int juno_translate_power_state_by_mpidr(u_register_t mpidr,
+		unsigned int power_state,
+		psci_power_state_t *output_state)
+{
+	return arm_validate_power_state(power_state, output_state);
+}
+
 /*******************************************************************************
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform will take care of registering the handlers with PSCI.
@@ -74,5 +87,6 @@ const plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.system_reset			= css_system_reset,
 	.validate_power_state		= juno_validate_power_state,
 	.validate_ns_entrypoint		= arm_validate_ns_entrypoint,
-	.get_sys_suspend_power_state	= css_get_sys_suspend_power_state
+	.get_sys_suspend_power_state	= css_get_sys_suspend_power_state,
+	.translate_power_state_by_mpidr = juno_translate_power_state_by_mpidr
 };

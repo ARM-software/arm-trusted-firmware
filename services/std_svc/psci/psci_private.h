@@ -35,6 +35,7 @@
 #include <bakery_lock.h>
 #include <bl_common.h>
 #include <cpu_data.h>
+#include <pmf.h>
 #include <psci.h>
 #include <spinlock.h>
 
@@ -67,7 +68,9 @@
 			define_psci_cap(PSCI_AFFINITY_INFO_AARCH64) |	\
 			define_psci_cap(PSCI_MIG_AARCH64) |		\
 			define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64) |	\
-			define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64))
+			define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64) |	\
+			define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64) |	\
+			define_psci_cap(PSCI_STAT_COUNT_AARCH64))
 
 /*
  * Helper macros to get/set the fields of PSCI per-cpu data.
@@ -101,6 +104,15 @@
 /* Helper macro to identify a CPU standby request in PSCI Suspend call */
 #define is_cpu_standby_req(is_power_down_state, retn_lvl) \
 		(((!(is_power_down_state)) && ((retn_lvl) == 0)) ? 1 : 0)
+
+/* Following are used as ID's to capture time-stamp */
+#define PSCI_STAT_ID_ENTER_LOW_PWR		0
+#define PSCI_STAT_ID_EXIT_LOW_PWR		1
+#define PSCI_STAT_TOTAL_IDS			2
+
+/* Declare PMF service functions for PSCI */
+PMF_DECLARE_CAPTURE_TIMESTAMP(psci_svc)
+PMF_DECLARE_GET_TIMESTAMP(psci_svc)
 
 /*******************************************************************************
  * The following two data structures implement the power domain tree. The tree
@@ -227,5 +239,16 @@ void psci_do_pwrup_cache_maintenance(void);
 /* Private exported functions from psci_system_off.c */
 void __dead2 psci_system_off(void);
 void __dead2 psci_system_reset(void);
+
+/* Private exported functions from psci_stat.c */
+void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
+			const psci_power_state_t *state_info);
+void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
+			const psci_power_state_t *state_info,
+			unsigned int flags);
+u_register_t psci_stat_residency(u_register_t target_cpu,
+			unsigned int power_state);
+u_register_t psci_stat_count(u_register_t target_cpu,
+			unsigned int power_state);
 
 #endif /* __PSCI_PRIVATE_H__ */

@@ -252,5 +252,10 @@ int psci_setup(void)
 	if (psci_plat_pm_ops->system_reset)
 		psci_caps |=  define_psci_cap(PSCI_SYSTEM_RESET);
 
+#if ENABLE_PSCI_STAT
+	psci_caps |=  define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64);
+	psci_caps |=  define_psci_cap(PSCI_STAT_COUNT_AARCH64);
+#endif
+
 	return 0;
 }
