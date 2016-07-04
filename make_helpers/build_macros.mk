@@ -68,6 +68,13 @@ define add_define
     DEFINES			+=	-D$(1)$(if $(value $(1)),=$(value $(1)),)
 endef
 
+# Convenience function for adding build definitions
+# $(eval $(call add_define_val,FOO,BAR)) will have:
+# -DFOO=BAR
+define add_define_val
+    DEFINES			+=	-D$(1)=$(2)
+endef
+
 # Convenience function for verifying option has a boolean value
 # $(eval $(call assert_boolean,FOO)) will assert FOO is 0 or 1
 define assert_boolean

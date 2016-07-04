@@ -33,6 +33,13 @@
 
 #include <common_def.h>
 
+#define ZYNQMP_CONSOLE_ID_cadence	1
+#define ZYNQMP_CONSOLE_ID_cadence0	1
+#define ZYNQMP_CONSOLE_ID_cadence1	2
+#define ZYNQMP_CONSOLE_ID_dcc		3
+
+#define ZYNQMP_CONSOLE_IS(con)	(ZYNQMP_CONSOLE_ID_ ## con == ZYNQMP_CONSOLE)
+
 /* Firmware Image Package */
 #define ZYNQMP_PRIMARY_CPU		0
 
@@ -141,7 +148,15 @@
 #define ZYNQMP_UART0_BASE		0xFF000000
 #define ZYNQMP_UART1_BASE		0xFF001000
 
-#define PLAT_ARM_CRASH_UART_BASE	ZYNQMP_UART0_BASE
+#if ZYNQMP_CONSOLE_IS(cadence)
+# define ZYNQMP_UART_BASE	ZYNQMP_UART0_BASE
+#elif ZYNQMP_CONSOLE_IS(cadence1)
+# define ZYNQMP_UART_BASE	ZYNQMP_UART1_BASE
+#else
+# error "invalid ZYNQMP_CONSOLE"
+#endif
+
+#define PLAT_ARM_CRASH_UART_BASE	ZYNQMP_UART_BASE
 /* impossible to call C routine how it is done now - hardcode any value */
 #define	PLAT_ARM_CRASH_UART_CLK_IN_HZ	100000000 /* FIXME */
 
