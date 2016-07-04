@@ -246,7 +246,12 @@ void arm_bl2_plat_arch_setup(void)
 			      BL2_COHERENT_RAM_LIMIT
 #endif
 			      );
+
+#ifdef AARCH32
+	enable_mmu_secure(0);
+#else
 	enable_mmu_el1(0);
+#endif
 }
 
 void bl2_plat_arch_setup(void)
@@ -266,9 +271,11 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	assert(bl_mem_params);
 
 	switch (image_id) {
+#ifdef AARCH64
 	case BL32_IMAGE_ID:
 		bl_mem_params->ep_info.spsr = arm_get_spsr_for_bl32_entry();
 		break;
+#endif
 
 	case BL33_IMAGE_ID:
 		/* BL33 expects to receive the primary CPU MPID (through r0) */
