@@ -137,8 +137,7 @@
 #include <cassert.h>
 #include <stdint.h>
 #include <stddef.h>
-
-#define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
+#include <utils.h> /* To retain compatibility */
 
 /*
  * Declarations of linker defined symbols to help determine memory layout of

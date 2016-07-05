@@ -31,10 +31,10 @@
 #define __PLAT_ARM_H__
 
 #include <bakery_lock.h>
-#include <bl_common.h>
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
+#include <utils.h>
 #include <xlat_tables.h>
 
 #define ARM_CASSERT_MMAP						\

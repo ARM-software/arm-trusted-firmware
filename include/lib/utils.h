@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,27 +27,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_gic.h>
-#include <bl_common.h>
-#include <mt8173_def.h>
-#include <utils.h>
 
-const unsigned int mt_irq_sec_array[] = {
-	MT_IRQ_SEC_SGI_0,
-	MT_IRQ_SEC_SGI_1,
-	MT_IRQ_SEC_SGI_2,
-	MT_IRQ_SEC_SGI_3,
-	MT_IRQ_SEC_SGI_4,
-	MT_IRQ_SEC_SGI_5,
-	MT_IRQ_SEC_SGI_6,
-	MT_IRQ_SEC_SGI_7
-};
+#ifndef __UTILS_H__
+#define __UTILS_H__
 
-void plat_mt_gic_init(void)
-{
-	arm_gic_init(BASE_GICC_BASE,
-		BASE_GICD_BASE,
-		BASE_GICR_BASE,
-		mt_irq_sec_array,
-		ARRAY_SIZE(mt_irq_sec_array));
-}
+/* Compute the number of elements in the given array */
+#define ARRAY_SIZE(a)				\
+	(sizeof(a) / sizeof((a)[0]))
+
+#define IS_POWER_OF_TWO(x)			\
+	(((x) & ((x) - 1)) == 0)
+
+#endif /* __UTILS_H__ */

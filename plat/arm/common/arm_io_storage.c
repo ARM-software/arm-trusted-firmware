@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <assert.h>
-#include <bl_common.h>		/* For ARRAY_SIZE */
 #include <debug.h>
 #include <firmware_image_package.h>
 #include <io_driver.h>
@@ -37,6 +36,7 @@
 #include <io_storage.h>
 #include <platform_def.h>
 #include <string.h>
+#include <utils.h>
 
 /* IO devices */
 static const io_dev_connector_t *fip_dev_con;

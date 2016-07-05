@@ -37,6 +37,7 @@
 #include <xlat_tables.h>
 #include <platform_def.h>
 #include <plat_private.h>
+#include <utils.h>
 
 #ifdef PLAT_RK_CCI_BASE
 static const int cci_map[] = {
