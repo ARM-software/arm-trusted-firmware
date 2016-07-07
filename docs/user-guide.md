@@ -416,6 +416,12 @@ performed.
      Enabling this option enables the `ENABLE_PMF` build option as well.
      The PMF is used for collecting the statistics.
 
+*   `SEPARATE_CODE_AND_RODATA`: Whether code and read-only data should be
+    isolated on separate memory pages. This is a trade-off between security and
+    memory usage. See "Isolating code and read-only data on separate memory
+    pages" section in [Firmware Design]. This flag is disabled by default and
+    affects all BL images.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
