@@ -35,16 +35,6 @@
 #include <platform_tsp.h>
 #include <plat_arm.h>
 
-
-/*
- * The next 3 constants identify the extents of the code & RO data region and
- * the limit of the BL32 image. These addresses are used by the MMU setup code
- * and therefore they must be page-aligned.  It is the responsibility of the
- * linker script to ensure that __RO_START__, __RO_END__ & & __BL32_END__
- * linker symbols refer to page-aligned addresses.
- */
-#define BL32_RO_BASE (unsigned long)(&__RO_START__)
-#define BL32_RO_LIMIT (unsigned long)(&__RO_END__)
 #define BL32_END (unsigned long)(&__BL32_END__)
 
 #if USE_COHERENT_MEM
@@ -98,10 +88,12 @@ void tsp_platform_setup(void)
  ******************************************************************************/
 void tsp_plat_arch_setup(void)
 {
-	arm_setup_page_tables(BL32_RO_BASE,
-			      (BL32_END - BL32_RO_BASE),
-			      BL32_RO_BASE,
-			      BL32_RO_LIMIT
+	arm_setup_page_tables(BL32_BASE,
+			      (BL32_END - BL32_BASE),
+			      BL_CODE_BASE,
+			      BL_CODE_LIMIT,
+			      BL_RO_DATA_BASE,
+			      BL_RO_DATA_LIMIT
 #if USE_COHERENT_MEM
 			      , BL32_COHERENT_RAM_BASE,
 			      BL32_COHERENT_RAM_LIMIT

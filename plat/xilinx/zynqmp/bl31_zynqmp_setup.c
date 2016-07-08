@@ -158,6 +158,8 @@ void bl31_plat_arch_setup(void)
 			      BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE,
 			      BL31_RO_BASE,
 			      BL31_RO_LIMIT,
+			      0,
+			      0,
 			      BL31_COHERENT_RAM_BASE,
 			      BL31_COHERENT_RAM_LIMIT);
 	enable_mmu_el3(0);

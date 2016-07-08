@@ -93,7 +93,9 @@ void tsp_plat_arch_setup(void)
 	arm_setup_page_tables(BL32_RO_BASE,
 			      (BL32_END - BL32_RO_BASE),
 			      BL32_RO_BASE,
-			      BL32_RO_LIMIT
+			      BL32_RO_LIMIT,
+			      0,
+			      0
 #if USE_COHERENT_MEM
 			      , BL32_COHERENT_RAM_BASE,
 			      BL32_COHERENT_RAM_LIMIT

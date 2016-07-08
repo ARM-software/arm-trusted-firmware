@@ -47,8 +47,10 @@
  */
 void arm_setup_page_tables(unsigned long total_base,
 			unsigned long total_size,
-			unsigned long ro_start,
-			unsigned long ro_limit
+			unsigned long code_start,
+			unsigned long code_limit,
+			unsigned long rodata_start,
+			unsigned long rodata_limit
 #if USE_COHERENT_MEM
 			, unsigned long coh_start,
 			unsigned long coh_limit

@@ -55,13 +55,16 @@ extern const mmap_region_t plat_arm_mmap[];
  * The extents of the generic memory regions are specified by the function
  * arguments and consist of:
  * - Trusted SRAM seen by the BL image;
- * - Read-only section (code and read-only data);
+ * - Code section;
+ * - Read-only data section;
  * - Coherent memory region, if applicable.
  */
 void arm_setup_page_tables(unsigned long total_base,
 			   unsigned long total_size,
-			   unsigned long ro_start,
-			   unsigned long ro_limit
+			   unsigned long code_start,
+			   unsigned long code_limit,
+			   unsigned long rodata_start,
+			   unsigned long rodata_limit
 #if USE_COHERENT_MEM
 			   ,
 			   unsigned long coh_start,
@@ -76,16 +79,24 @@ void arm_setup_page_tables(unsigned long total_base,
 	mmap_add_region(total_base, total_base,
 			total_size,
 			MT_MEMORY | MT_RW | MT_SECURE);
-	/* Re-map the read-only section */
-	mmap_add_region(ro_start, ro_start,
-			ro_limit - ro_start,
-			MT_MEMORY | MT_RO | MT_SECURE);
+
+	/* Re-map the code section */
+	mmap_add_region(code_start, code_start,
+			code_limit - code_start,
+			MT_CODE | MT_SECURE);
+
+	/* Re-map the read-only data section */
+	mmap_add_region(rodata_start, rodata_start,
+			rodata_limit - rodata_start,
+			MT_RO_DATA | MT_SECURE);
+
 #if USE_COHERENT_MEM
 	/* Re-map the coherent memory region */
 	mmap_add_region(coh_start, coh_start,
 			coh_limit - coh_start,
 			MT_DEVICE | MT_RW | MT_SECURE);
 #endif
+
 	/* Now (re-)map the platform-specific memory regions */
 	mmap_add(plat_arm_get_mmap());
 

@@ -85,6 +85,11 @@ $(eval $(call add_define,ARM_BL31_IN_DRAM))
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
 ENABLE_PSCI_STAT = 1
 
+# On ARM platforms, separate the code and read-only data sections to allow
+# mapping the former as executable and the latter as execute-never.
+SEPARATE_CODE_AND_RODATA	:=	1
+
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64
