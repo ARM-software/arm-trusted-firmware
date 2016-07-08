@@ -428,9 +428,11 @@ int main(int argc, char *argv[])
 			 */
 			switch (ext->type) {
 			case EXT_TYPE_NVCOUNTER:
-				nvctr = atoi(ext->arg);
-				CHECK_NULL(cert_ext, ext_new_nvcounter(ext_nid,
+				if (ext->arg) {
+					nvctr = atoi(ext->arg);
+					CHECK_NULL(cert_ext, ext_new_nvcounter(ext_nid,
 						EXT_CRIT, nvctr));
+				}
 				break;
 			case EXT_TYPE_HASH:
 				if (ext->arg == NULL) {
