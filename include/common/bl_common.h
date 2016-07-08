@@ -143,8 +143,16 @@
  * Declarations of linker defined symbols to help determine memory layout of
  * BL images
  */
+#if SEPARATE_CODE_AND_RODATA
+extern unsigned long __TEXT_START__;
+extern unsigned long __TEXT_END__;
+extern unsigned long __RODATA_START__;
+extern unsigned long __RODATA_END__;
+#else
 extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
+#endif
+
 #if IMAGE_BL2
 extern unsigned long __BL2_END__;
 #elif IMAGE_BL2U

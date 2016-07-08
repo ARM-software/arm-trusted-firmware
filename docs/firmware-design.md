@@ -1115,7 +1115,9 @@ All BL images share the following requirements:
 *   The BSS section must be zero-initialised before executing any C code.
 *   The coherent memory section (if enabled) must be zero-initialised as well.
 *   The MMU setup code needs to know the extents of the coherent and read-only
-    memory regions to set the right memory attributes.
+    memory regions to set the right memory attributes. When
+    `SEPARATE_CODE_AND_RODATA=1`, it needs to know more specifically how the
+    read-only memory region is divided between code and data.
 
 The following linker symbols are defined for this purpose:
 
@@ -1126,6 +1128,10 @@ The following linker symbols are defined for this purpose:
 *   `__COHERENT_RAM_UNALIGNED_SIZE__`
 *   `__RO_START__`
 *   `__RO_END__`
+*   `__TEXT_START__`
+*   `__TEXT_END__`
+*   `__RODATA_START__`
+*   `__RODATA_END__`
 
 #### BL1's linker symbols
 

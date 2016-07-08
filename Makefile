@@ -108,6 +108,10 @@ PL011_GENERIC_UART		:= 0
 ENABLE_PMF			:= 0
 # Flag to enable PSCI STATs functionality
 ENABLE_PSCI_STAT	:= 0
+# Whether code and read-only data should be put on separate memory pages.
+# The platform Makefile is free to override this value.
+SEPARATE_CODE_AND_RODATA	:= 0
+
 
 ################################################################################
 # Checkpatch script options
@@ -419,6 +423,7 @@ $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
+$(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 
 
 ################################################################################
@@ -448,6 +453,7 @@ $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,PL011_GENERIC_UART))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
+$(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
         $(eval $(call add_define,EL3_PAYLOAD_BASE))

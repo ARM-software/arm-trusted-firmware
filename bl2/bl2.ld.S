@@ -45,6 +45,30 @@ SECTIONS
     ASSERT(. == ALIGN(4096),
            "BL2_BASE address is not aligned on a page boundary.")
 
+#if SEPARATE_CODE_AND_RODATA
+    .text . : {
+        __TEXT_START__ = .;
+        *bl2_entrypoint.o(.text*)
+        *(.text*)
+        *(.vectors)
+        . = NEXT(4096);
+        __TEXT_END__ = .;
+     } >RAM
+
+    .rodata . : {
+        __RODATA_START__ = .;
+        *(.rodata*)
+
+        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
+        . = ALIGN(8);
+        __PARSER_LIB_DESCS_START__ = .;
+        KEEP(*(.img_parser_lib_descs))
+        __PARSER_LIB_DESCS_END__ = .;
+
+        . = NEXT(4096);
+        __RODATA_END__ = .;
+    } >RAM
+#else
     ro . : {
         __RO_START__ = .;
         *bl2_entrypoint.o(.text*)
@@ -67,6 +91,7 @@ SECTIONS
         . = NEXT(4096);
         __RO_END__ = .;
     } >RAM
+#endif
 
     /*
      * Define a linker symbol to mark start of the RW memory area for this
