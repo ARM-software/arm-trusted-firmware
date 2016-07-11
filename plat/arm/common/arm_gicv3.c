@@ -77,7 +77,7 @@ void plat_arm_gic_driver_init(void)
 	 * can use GIC system registers to manage interrupts and does
 	 * not need GIC interface base addresses to be configured.
 	 */
-#if IMAGE_BL31
+#if (AARCH32 && IMAGE_BL32) || (IMAGE_BL31 && !AARCH32)
 	gicv3_driver_init(&arm_gic_data);
 #endif
 }

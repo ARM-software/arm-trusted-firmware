@@ -28,23 +28,30 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# On ARM standard platorms, the TSP can execute from Trusted SRAM, Trusted
-# DRAM (if available) or the TZC secured area of DRAM.
-# Trusted SRAM is the default.
+ifeq (${ARCH}, aarch64)
+  # On ARM standard platorms, the TSP can execute from Trusted SRAM, Trusted
+  # DRAM (if available) or the TZC secured area of DRAM.
+  # Trusted SRAM is the default.
 
-ARM_TSP_RAM_LOCATION	:=	tsram
-ifeq (${ARM_TSP_RAM_LOCATION}, tsram)
-  ARM_TSP_RAM_LOCATION_ID = ARM_TRUSTED_SRAM_ID
-else ifeq (${ARM_TSP_RAM_LOCATION}, tdram)
-  ARM_TSP_RAM_LOCATION_ID = ARM_TRUSTED_DRAM_ID
-else ifeq (${ARM_TSP_RAM_LOCATION}, dram)
-  ARM_TSP_RAM_LOCATION_ID = ARM_DRAM_ID
-else
-  $(error "Unsupported ARM_TSP_RAM_LOCATION value")
+  ARM_TSP_RAM_LOCATION	:=	tsram
+  ifeq (${ARM_TSP_RAM_LOCATION}, tsram)
+    ARM_TSP_RAM_LOCATION_ID = ARM_TRUSTED_SRAM_ID
+  else ifeq (${ARM_TSP_RAM_LOCATION}, tdram)
+    ARM_TSP_RAM_LOCATION_ID = ARM_TRUSTED_DRAM_ID
+  else ifeq (${ARM_TSP_RAM_LOCATION}, dram)
+    ARM_TSP_RAM_LOCATION_ID = ARM_DRAM_ID
+  else
+    $(error "Unsupported ARM_TSP_RAM_LOCATION value")
+  endif
+
+  # Process flags
+  $(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
+
+  # Process ARM_BL31_IN_DRAM flag
+  ARM_BL31_IN_DRAM		:=	0
+  $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+  $(eval $(call add_define,ARM_BL31_IN_DRAM))
 endif
-
-# Process flags
-$(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
 
 # For the original power-state parameter format, the State-ID can be encoded
 # according to the recommended encoding or zero. This flag determines which
@@ -83,7 +90,7 @@ $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
 $(eval $(call add_define,ARM_BL31_IN_DRAM))
 
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
-ENABLE_PSCI_STAT = 1
+ENABLE_PSCI_STAT		:=	1
 
 # On ARM platforms, separate the code and read-only data sections to allow
 # mapping the former as executable and the latter as execute-never.
@@ -91,15 +98,17 @@ SEPARATE_CODE_AND_RODATA	:=	1
 
 
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
-				-Iinclude/plat/arm/common			\
-				-Iinclude/plat/arm/common/aarch64
+				-Iinclude/plat/arm/common
 
+ifeq (${ARCH}, aarch64)
+PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/aarch64
+endif
 
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/aarch64/xlat_tables.c		\
-				plat/arm/common/aarch64/arm_helpers.S		\
+				lib/xlat_tables/${ARCH}/xlat_tables.c		\
+				plat/arm/common/${ARCH}/arm_helpers.S		\
 				plat/arm/common/arm_common.c			\
-				plat/common/aarch64/plat_common.c
+				plat/common/${ARCH}/plat_common.c
 
 BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_fip.c				\
