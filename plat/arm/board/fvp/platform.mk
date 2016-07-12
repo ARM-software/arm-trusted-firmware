@@ -109,6 +109,8 @@ FVP_CPU_LIBS		+=	lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				lib/cpus/aarch64/cortex_a73.S
+else
+FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
 endif
 
 BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
