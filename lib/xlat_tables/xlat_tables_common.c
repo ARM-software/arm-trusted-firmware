@@ -289,17 +289,17 @@ static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
 		if (!mm->size)
 			return attr; /* Reached end of list */
 
-		if (mm->base_va >= base_va + size)
+		if (mm->base_va > base_va + size - 1)
 			return attr; /* Next region is after area so end */
 
-		if (mm->base_va + mm->size <= base_va)
+		if (mm->base_va + mm->size - 1 < base_va)
 			continue; /* Next region has already been overtaken */
 
 		if (mm->attr == attr)
 			continue; /* Region doesn't override attribs so skip */
 
 		if (mm->base_va > base_va ||
-			mm->base_va + mm->size < base_va + size)
+			mm->base_va + mm->size - 1 < base_va + size - 1)
 			return -1; /* Region doesn't fully cover our area */
 
 		attr = mm->attr;
@@ -328,7 +328,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 		if (!mm->size) {
 			/* Done mapping regions; finish zeroing the table */
 			desc = INVALID_DESC;
-		} else if (mm->base_va + mm->size <= base_va) {
+		} else if (mm->base_va + mm->size - 1 < base_va) {
 			/* This area is after the region so get next region */
 			++mm;
 			continue;
@@ -337,7 +337,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 		debug_print("%s VA:%p size:0x%x ", get_level_spacer(level),
 				(void *)base_va, level_size);
 
-		if (mm->base_va >= base_va + level_size) {
+		if (mm->base_va > base_va + level_size - 1) {
 			/* Next region is after this area. Nothing to map yet */
 			desc = INVALID_DESC;
 		} else {
@@ -369,7 +369,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 
 		*table++ = desc;
 		base_va += level_size;
-	} while ((base_va & level_index_mask) && (base_va < ADDR_SPACE_SIZE));
+	} while ((base_va & level_index_mask) && (base_va - 1 < ADDR_SPACE_SIZE - 1));
 
 	return mm;
 }
