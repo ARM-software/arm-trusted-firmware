@@ -50,57 +50,48 @@ extern const mmap_region_t plat_arm_mmap[];
 #pragma weak plat_get_syscnt_freq
 #endif
 
-/*******************************************************************************
- * Macro generating the code for the function setting up the pagetables as per
- * the platform memory map & initialize the mmu, for the given exception level
- ******************************************************************************/
+/*
+ * Set up the page tables for the generic and platform-specific memory regions.
+ * The extents of the generic memory regions are specified by the function
+ * arguments and consist of:
+ * - Trusted SRAM seen by the BL image;
+ * - Read-only section (code and read-only data);
+ * - Coherent memory region, if applicable.
+ */
+void arm_setup_page_tables(uintptr_t total_base,
+			   size_t total_size,
+			   uintptr_t ro_start,
+			   uintptr_t ro_limit
 #if USE_COHERENT_MEM
-#define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void arm_configure_mmu_el##_el(unsigned long total_base,	\
-				   unsigned long total_size,		\
-				   unsigned long ro_start,		\
-				   unsigned long ro_limit,		\
-				   unsigned long coh_start,		\
-				   unsigned long coh_limit)		\
-	{								\
-		mmap_add_region(total_base, total_base,			\
-				total_size,				\
-				MT_MEMORY | MT_RW | MT_SECURE);		\
-		mmap_add_region(ro_start, ro_start,			\
-				ro_limit - ro_start,			\
-				MT_MEMORY | MT_RO | MT_SECURE);		\
-		mmap_add_region(coh_start, coh_start,			\
-				coh_limit - coh_start,			\
-				MT_DEVICE | MT_RW | MT_SECURE);		\
-		mmap_add(plat_arm_get_mmap());				\
-		init_xlat_tables();					\
-									\
-		enable_mmu_el##_el(0);					\
-	}
-#else
-#define DEFINE_CONFIGURE_MMU_EL(_el)					\
-	void arm_configure_mmu_el##_el(unsigned long total_base,	\
-				   unsigned long total_size,		\
-				   unsigned long ro_start,		\
-				   unsigned long ro_limit)		\
-	{								\
-		mmap_add_region(total_base, total_base,			\
-				total_size,				\
-				MT_MEMORY | MT_RW | MT_SECURE);		\
-		mmap_add_region(ro_start, ro_start,			\
-				ro_limit - ro_start,			\
-				MT_MEMORY | MT_RO | MT_SECURE);		\
-		mmap_add(plat_arm_get_mmap());				\
-		init_xlat_tables();					\
-									\
-		enable_mmu_el##_el(0);					\
-	}
+			   ,
+			   uintptr_t coh_start,
+			   uintptr_t coh_limit
 #endif
+			   )
+{
+	/*
+	 * Map the Trusted SRAM with appropriate memory attributes.
+	 * Subsequent mappings will adjust the attributes for specific regions.
+	 */
+	mmap_add_region(total_base, total_base,
+			total_size,
+			MT_MEMORY | MT_RW | MT_SECURE);
+	/* Re-map the read-only section */
+	mmap_add_region(ro_start, ro_start,
+			ro_limit - ro_start,
+			MT_MEMORY | MT_RO | MT_SECURE);
+#if USE_COHERENT_MEM
+	/* Re-map the coherent memory region */
+	mmap_add_region(coh_start, coh_start,
+			coh_limit - coh_start,
+			MT_DEVICE | MT_RW | MT_SECURE);
+#endif
+	/* Now (re-)map the platform-specific memory regions */
+	mmap_add(plat_arm_get_mmap());
 
-/* Define EL1 and EL3 variants of the function initialising the MMU */
-DEFINE_CONFIGURE_MMU_EL(1)
-DEFINE_CONFIGURE_MMU_EL(3)
-
+	/* Create the page tables to reflect the above mappings */
+	init_xlat_tables();
+}
 
 uintptr_t plat_get_ns_image_entrypoint(void)
 {

@@ -147,18 +147,18 @@ void bl31_plat_runtime_setup(void)
 }
 
 /*
- * Perform the very early platform specific architectural setup here. At the
- * moment this is only intializes the MMU in a quick and dirty way.
+ * Perform the very early platform specific architectural setup here.
  */
 void bl31_plat_arch_setup(void)
 {
 	plat_arm_interconnect_init();
 	plat_arm_interconnect_enter_coherency();
 
-	arm_configure_mmu_el3(BL31_RO_BASE,
+	arm_setup_page_tables(BL31_RO_BASE,
 			      BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE,
 			      BL31_RO_BASE,
 			      BL31_RO_LIMIT,
 			      BL31_COHERENT_RAM_BASE,
 			      BL31_COHERENT_RAM_LIMIT);
+	enable_mmu_el3(0);
 }

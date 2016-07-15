@@ -46,9 +46,9 @@
  * script to ensure that __RO_START__, __RO_END__ & __BL31_END__ linker symbols
  * refer to page-aligned addresses.
  */
-#define BL31_RO_BASE (unsigned long)(&__RO_START__)
-#define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
-#define BL31_END (unsigned long)(&__BL31_END__)
+#define BL31_RO_BASE (uintptr_t)(&__RO_START__)
+#define BL31_RO_LIMIT (uintptr_t)(&__RO_END__)
+#define BL31_END (uintptr_t)(&__BL31_END__)
 
 #if USE_COHERENT_MEM
 /*
@@ -58,8 +58,8 @@
  * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
  * refer to page-aligned addresses.
  */
-#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#define BL31_COHERENT_RAM_BASE (uintptr_t)(&__COHERENT_RAM_START__)
+#define BL31_COHERENT_RAM_LIMIT (uintptr_t)(&__COHERENT_RAM_END__)
 #endif
 
 /*
@@ -246,12 +246,14 @@ void bl31_plat_runtime_setup(void)
 }
 
 /*******************************************************************************
- * Perform the very early platform specific architectural setup here. At the
- * moment this is only intializes the mmu in a quick and dirty way.
+ * Perform the very early platform specific architectural setup shared between
+ * ARM standard platforms. This only does basic initialization. Later
+ * architectural setup (bl31_arch_setup()) does not do anything platform
+ * specific.
  ******************************************************************************/
 void arm_bl31_plat_arch_setup(void)
 {
-	arm_configure_mmu_el3(BL31_RO_BASE,
+	arm_setup_page_tables(BL31_RO_BASE,
 			      (BL31_END - BL31_RO_BASE),
 			      BL31_RO_BASE,
 			      BL31_RO_LIMIT
@@ -260,6 +262,7 @@ void arm_bl31_plat_arch_setup(void)
 			      BL31_COHERENT_RAM_LIMIT
 #endif
 			      );
+	enable_mmu_el3(0);
 }
 
 void bl31_plat_arch_setup(void)

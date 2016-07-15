@@ -118,7 +118,7 @@ void bl1_early_platform_setup(void)
  *****************************************************************************/
 void arm_bl1_plat_arch_setup(void)
 {
-	arm_configure_mmu_el3(bl1_tzram_layout.total_base,
+	arm_setup_page_tables(bl1_tzram_layout.total_base,
 			      bl1_tzram_layout.total_size,
 			      BL1_RO_BASE,
 			      BL1_RO_LIMIT
@@ -127,6 +127,7 @@ void arm_bl1_plat_arch_setup(void)
 			      BL1_COHERENT_RAM_LIMIT
 #endif
 			     );
+	enable_mmu_el3(0);
 }
 
 void bl1_plat_arch_setup(void)

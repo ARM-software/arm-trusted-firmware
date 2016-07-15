@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -94,7 +94,7 @@ int psci_cpu_suspend(unsigned int power_state,
 	is_power_down_state = psci_get_pstate_type(power_state);
 
 	/* Sanity check the requested suspend levels */
-	assert (psci_validate_suspend_req(&state_info, is_power_down_state)
+	assert(psci_validate_suspend_req(&state_info, is_power_down_state)
 			== PSCI_E_SUCCESS);
 
 	target_pwrlvl = psci_find_target_suspend_lvl(&state_info);
@@ -217,7 +217,7 @@ int psci_cpu_off(void)
 	 * The only error cpu_off can return is E_DENIED. So check if that's
 	 * indeed the case.
 	 */
-	assert (rc == PSCI_E_DENIED);
+	assert(rc == PSCI_E_DENIED);
 
 	return rc;
 }
@@ -327,14 +327,14 @@ int psci_features(unsigned int psci_fid)
 /*******************************************************************************
  * PSCI top level handler for servicing SMCs.
  ******************************************************************************/
-uint64_t psci_smc_handler(uint32_t smc_fid,
-			  uint64_t x1,
-			  uint64_t x2,
-			  uint64_t x3,
-			  uint64_t x4,
+uintptr_t psci_smc_handler(uint32_t smc_fid,
+			  u_register_t x1,
+			  u_register_t x2,
+			  u_register_t x3,
+			  u_register_t x4,
 			  void *cookie,
 			  void *handle,
-			  uint64_t flags)
+			  u_register_t flags)
 {
 	if (is_caller_secure(flags))
 		SMC_RET1(handle, SMC_UNK);

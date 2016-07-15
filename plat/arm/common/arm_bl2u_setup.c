@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -102,7 +102,7 @@ void bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
  ******************************************************************************/
 void arm_bl2u_plat_arch_setup(void)
 {
-	arm_configure_mmu_el1(BL2U_RO_LIMIT,
+	arm_setup_page_tables(BL2U_RO_LIMIT,
 			      BL31_LIMIT,
 			      BL2U_RO_BASE,
 			      BL2U_RO_LIMIT
@@ -112,6 +112,7 @@ void arm_bl2u_plat_arch_setup(void)
 			      BL2U_COHERENT_RAM_LIMIT
 #endif
 		);
+	enable_mmu_el1(0);
 }
 
 void bl2u_plat_arch_setup(void)

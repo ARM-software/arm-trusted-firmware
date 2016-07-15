@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -64,13 +64,13 @@
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-void fvp_pwrc_write_pcoffr(unsigned long);
-void fvp_pwrc_write_ppoffr(unsigned long);
-void fvp_pwrc_write_pponr(unsigned long);
-void fvp_pwrc_set_wen(unsigned long);
-void fvp_pwrc_clr_wen(unsigned long);
-unsigned int fvp_pwrc_read_psysr(unsigned long);
-unsigned int fvp_pwrc_get_cpu_wkr(unsigned long);
+void fvp_pwrc_write_pcoffr(u_register_t);
+void fvp_pwrc_write_ppoffr(u_register_t);
+void fvp_pwrc_write_pponr(u_register_t);
+void fvp_pwrc_set_wen(u_register_t);
+void fvp_pwrc_clr_wen(u_register_t);
+unsigned int fvp_pwrc_read_psysr(u_register_t);
+unsigned int fvp_pwrc_get_cpu_wkr(u_register_t);
 
 #endif /*__ASSEMBLY__*/
 

@@ -66,9 +66,9 @@ arm_config_t arm_config;
 
 
 /*
- * Table of regions for various BL stages to map using the MMU.
- * This doesn't include TZRAM as the 'mem_layout' argument passed to
- * arm_configure_mmu_elx() will give the available subset of that,
+ * Table of memory regions for various BL stages to map using the MMU.
+ * This doesn't include Trusted SRAM as arm_setup_page_tables() already
+ * takes care of mapping it.
  */
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {

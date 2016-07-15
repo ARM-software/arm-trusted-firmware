@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -98,7 +98,7 @@ void tsp_platform_setup(void)
  ******************************************************************************/
 void tsp_plat_arch_setup(void)
 {
-	arm_configure_mmu_el1(BL32_RO_BASE,
+	arm_setup_page_tables(BL32_RO_BASE,
 			      (BL32_END - BL32_RO_BASE),
 			      BL32_RO_BASE,
 			      BL32_RO_LIMIT
@@ -107,4 +107,5 @@ void tsp_plat_arch_setup(void)
 			      BL32_COHERENT_RAM_LIMIT
 #endif
 			      );
+	enable_mmu_el1(0);
 }

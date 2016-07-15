@@ -119,18 +119,18 @@
  * to SMC handler. These takes the offset values defined in context.h
  */
 #define SMC_GET_GP(_h, _g) \
-	read_ctx_reg(get_gpregs_ctx(_h), (_g));
+	read_ctx_reg(get_gpregs_ctx(_h), (_g))
 #define SMC_SET_GP(_h, _g, _v) \
-	write_ctx_reg(get_gpregs_ctx(_h), (_g), (_v));
+	write_ctx_reg(get_gpregs_ctx(_h), (_g), (_v))
 
 /*
  * Convenience macros to access EL3 context registers using handle provided to
  * SMC handler. These takes the offset values defined in context.h
  */
 #define SMC_GET_EL3(_h, _e) \
-	read_ctx_reg(get_el3state_ctx(_h), (_e));
+	read_ctx_reg(get_el3state_ctx(_h), (_e))
 #define SMC_SET_EL3(_h, _e, _v) \
-	write_ctx_reg(get_el3state_ctx(_h), (_e), (_v));
+	write_ctx_reg(get_el3state_ctx(_h), (_e), (_v))
 
 /* The macro below is used to identify a Standard Service SMC call */
 #define is_std_svc_call(_fid)		((((_fid) >> FUNCID_OEN_SHIFT) & \

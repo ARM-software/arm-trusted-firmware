@@ -234,7 +234,7 @@ void bl2_platform_setup(void)
  ******************************************************************************/
 void arm_bl2_plat_arch_setup(void)
 {
-	arm_configure_mmu_el1(bl2_tzram_layout.total_base,
+	arm_setup_page_tables(bl2_tzram_layout.total_base,
 			      bl2_tzram_layout.total_size,
 			      BL2_RO_BASE,
 			      BL2_RO_LIMIT
@@ -243,6 +243,7 @@ void arm_bl2_plat_arch_setup(void)
 			      BL2_COHERENT_RAM_LIMIT
 #endif
 			      );
+	enable_mmu_el1(0);
 }
 
 void bl2_plat_arch_setup(void)

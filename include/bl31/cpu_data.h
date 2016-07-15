@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -78,9 +78,9 @@
  ******************************************************************************/
 typedef struct cpu_data {
 	void *cpu_context[2];
-	uint64_t cpu_ops_ptr;
+	uintptr_t cpu_ops_ptr;
 #if CRASH_REPORTING
-	uint64_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
+	u_register_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
 #endif
 	struct psci_cpu_data psci_svc_cpu_data;
 #if PLAT_PCPU_DATA_SIZE
@@ -123,14 +123,14 @@ void init_cpu_ops(void);
 #define get_cpu_data_by_index(_ix, _m)	   _cpu_data_by_index(_ix)->_m
 #define set_cpu_data_by_index(_ix, _m, _v) _cpu_data_by_index(_ix)->_m = _v
 
-#define flush_cpu_data(_m)	   flush_dcache_range((uint64_t) 	  \
+#define flush_cpu_data(_m)	   flush_dcache_range((uintptr_t)	  \
 						      &(_cpu_data()->_m), \
 						      sizeof(_cpu_data()->_m))
-#define inv_cpu_data(_m)	   inv_dcache_range((uint64_t) 	  \
+#define inv_cpu_data(_m)	   inv_dcache_range((uintptr_t)	  	  \
 						      &(_cpu_data()->_m), \
 						      sizeof(_cpu_data()->_m))
 #define flush_cpu_data_by_index(_ix, _m)	\
-				   flush_dcache_range((uint64_t)	  \
+				   flush_dcache_range((uintptr_t)	  \
 					 &(_cpu_data_by_index(_ix)->_m),  \
 					 sizeof(_cpu_data_by_index(_ix)->_m))
 

@@ -250,7 +250,7 @@ void gicv3_rdistif_base_addrs_probe(uintptr_t *rdistif_base_addrs,
 					uintptr_t gicr_base,
 					mpidr_hash_fn mpidr_to_core_pos)
 {
-	unsigned long mpidr;
+	u_register_t mpidr;
 	unsigned int proc_num;
 	unsigned long long typer_val;
 	uintptr_t rdistif_base = gicr_base;
@@ -320,7 +320,7 @@ void gicv3_secure_spis_configure(uintptr_t gicd_base,
 				     unsigned int int_grp)
 {
 	unsigned int index, irq_num;
-	uint64_t gic_affinity_val;
+	unsigned long long gic_affinity_val;
 
 	assert((int_grp == INTR_GROUP1S) || (int_grp == INTR_GROUP0));
 	/* If `num_ints` is not 0, ensure that `sec_intr_list` is not NULL */

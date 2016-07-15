@@ -127,7 +127,7 @@ poll_mailbox:
 endfunc plat_secondary_cold_boot_setup
 
 	/* ---------------------------------------------------------------------
-	 * unsigned long plat_get_my_entrypoint (void);
+	 * uintptr_t plat_get_my_entrypoint (void);
 	 *
 	 * Main job of this routine is to distinguish between a cold and warm
 	 * boot. On FVP, this information can be queried from the power
