@@ -57,6 +57,11 @@
 #define CPUECTLR_FPU_RET_CTRL_MASK	(0x7 << CPUECTLR_FPU_RET_CTRL_SHIFT)
 
 /*******************************************************************************
+ * CPU Memory Error Syndrome register specific definitions.
+ ******************************************************************************/
+#define CPUMERRSR_EL1			S3_1_C15_C2_2	/* Instruction def. */
+
+/*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
 #define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
@@ -78,5 +83,10 @@
 
 #define L2ECTLR_RET_CTRL_SHIFT		0
 #define L2ECTLR_RET_CTRL_MASK		(0x7 << L2ECTLR_RET_CTRL_SHIFT)
+
+/*******************************************************************************
+ * L2 Memory Error Syndrome register specific definitions.
+ ******************************************************************************/
+#define L2MERRSR_EL1			S3_1_C15_C2_3	/* Instruction def. */
 
 #endif /* __CORTEX_A53_H__ */

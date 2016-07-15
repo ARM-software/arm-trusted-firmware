@@ -41,4 +41,9 @@
 
 #define CORTEX_A73_CPUECTLR_SMP_BIT	(1 << 6)
 
+/*******************************************************************************
+ * L2 Memory Error Syndrome register specific definitions.
+ ******************************************************************************/
+#define CORTEX_A73_L2MERRSR_EL1		S3_1_C15_C2_3   /* Instruction def. */
+
 #endif /* __CORTEX_A73_H__ */
