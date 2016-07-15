@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -205,10 +205,14 @@ void arm_gic_pcpu_distif_setup(void)
 
 	assert(g_irq_sec_ptr);
 	sec_ppi_sgi_mask = 0;
+
+	/* Ensure all SGIs and PPIs are Group0 to begin with */
+	gicd_write_igroupr(g_gicd_base, 0, 0);
+
 	for (index = 0; index < g_num_irqs; index++) {
 		irq_num = g_irq_sec_ptr[index];
 		if (irq_num < MIN_SPI_ID) {
-			/* We have an SGI or a PPI. They are Group0 at reset */
+			/* We have an SGI or a PPI */
 			sec_ppi_sgi_mask |= 1U << irq_num;
 			gicd_set_ipriorityr(g_gicd_base, irq_num,
 				GIC_HIGHEST_SEC_PRIORITY);
