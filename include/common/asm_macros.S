@@ -148,17 +148,33 @@
 #endif
 
 	/*
+	 * Helper assembler macro to count trailing zeros. The output is
+	 * populated in the `TZ_COUNT` symbol.
+	 */
+	.macro count_tz _value, _tz_count
+	.if \_value
+	  count_tz "(\_value >> 1)", "(\_tz_count + 1)"
+	.else
+	  .equ TZ_COUNT, (\_tz_count - 1)
+	.endif
+	.endm
+
+	/*
 	 * This macro declares an array of 1 or more stacks, properly
 	 * aligned and in the requested section
 	 */
-#define STACK_ALIGN	6
+#define DEFAULT_STACK_ALIGN	(1 << 6)   /* In case the caller doesnt provide alignment */
 
-	.macro declare_stack _name, _section, _size, _count
-	.if ((\_size & ((1 << STACK_ALIGN) - 1)) <> 0)
+	.macro declare_stack _name, _section, _size, _count, _align=DEFAULT_STACK_ALIGN
+	count_tz \_align, 0
+	.if (\_align - (1 << TZ_COUNT))
+	  .error "Incorrect stack alignment specified (Must be a power of 2)."
+	.endif
+	.if ((\_size & ((1 << TZ_COUNT) - 1)) <> 0)
 	  .error "Stack size not correctly aligned"
 	.endif
 	.section    \_section, "aw", %nobits
-	.align STACK_ALIGN
+	.align TZ_COUNT
 	\_name:
 	.space ((\_count) * (\_size)), 0
 	.endm

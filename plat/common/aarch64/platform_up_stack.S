@@ -99,4 +99,4 @@ endfunc_deprecated platform_set_stack
 	 * -----------------------------------------------------
 	 */
 declare_stack platform_normal_stacks, tzfw_normal_stacks, \
-		PLATFORM_STACK_SIZE, 1
+		PLATFORM_STACK_SIZE, 1, CACHE_WRITEBACK_GRANULE
