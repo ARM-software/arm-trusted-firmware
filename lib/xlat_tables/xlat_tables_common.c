@@ -31,11 +31,11 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
 #include <cassert.h>
 #include <debug.h>
 #include <platform_def.h>
 #include <string.h>
+#include <utils.h>
 #include <xlat_tables.h>
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
@@ -194,37 +194,66 @@ void mmap_add(const mmap_region_t *mm)
 static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 							int level)
 {
-	uint64_t desc = addr_pa;
+	uint64_t desc;
 	int mem_type;
 
-	desc |= level == 3 ? TABLE_DESC : BLOCK_DESC;
-
-	desc |= attr & MT_NS ? LOWER_ATTRS(NS) : 0;
-
-	desc |= attr & MT_RW ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
-
+	desc = addr_pa;
+	desc |= (level == 3) ? TABLE_DESC : BLOCK_DESC;
+	desc |= (attr & MT_NS) ? LOWER_ATTRS(NS) : 0;
+	desc |= (attr & MT_RW) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
 	desc |= LOWER_ATTRS(ACCESS_FLAG);
 
+	/*
+	 * Deduce shareability domain and executability of the memory region
+	 * from the memory type.
+	 *
+	 * Data accesses to device memory and non-cacheable normal memory are
+	 * coherent for all observers in the system, and correspondingly are
+	 * always treated as being Outer Shareable. Therefore, for these 2 types
+	 * of memory, it is not strictly needed to set the shareability field
+	 * in the translation tables.
+	 */
 	mem_type = MT_TYPE(attr);
-	if (mem_type == MT_MEMORY) {
-		desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
-		if (attr & MT_RW)
-			desc |= UPPER_ATTRS(XN);
-	} else if (mem_type == MT_NON_CACHEABLE) {
-		desc |= LOWER_ATTRS(ATTR_NON_CACHEABLE_INDEX | OSH);
-		if (attr & MT_RW)
-			desc |= UPPER_ATTRS(XN);
-	} else {
-		assert(mem_type == MT_DEVICE);
+	if (mem_type == MT_DEVICE) {
 		desc |= LOWER_ATTRS(ATTR_DEVICE_INDEX | OSH);
+		/*
+		 * Always map device memory as execute-never.
+		 * This is to avoid the possibility of a speculative instruction
+		 * fetch, which could be an issue if this memory region
+		 * corresponds to a read-sensitive peripheral.
+		 */
 		desc |= UPPER_ATTRS(XN);
+	} else { /* Normal memory */
+		/*
+		 * Always map read-write normal memory as execute-never.
+		 * (Trusted Firmware doesn't self-modify its code, therefore
+		 * R/W memory is reserved for data storage, which must not be
+		 * executable.)
+		 * Note that setting the XN bit here is for consistency only.
+		 * The enable_mmu_elx() function sets the SCTLR_EL3.WXN bit,
+		 * which makes any writable memory region to be treated as
+		 * execute-never, regardless of the value of the XN bit in the
+		 * translation table.
+		 *
+		 * For read-only memory, rely on the MT_EXECUTE/MT_EXECUTE_NEVER
+		 * attribute to figure out the value of the XN bit.
+		 */
+		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER))
+			desc |= UPPER_ATTRS(XN);
+
+		if (mem_type == MT_MEMORY) {
+			desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
+		} else {
+			assert(mem_type == MT_NON_CACHEABLE);
+			desc |= LOWER_ATTRS(ATTR_NON_CACHEABLE_INDEX | OSH);
+		}
 	}
 
 	debug_print((mem_type == MT_MEMORY) ? "MEM" :
 		((mem_type == MT_NON_CACHEABLE) ? "NC" : "DEV"));
 	debug_print(attr & MT_RW ? "-RW" : "-RO");
 	debug_print(attr & MT_NS ? "-NS" : "-S");
-
+	debug_print(attr & MT_EXECUTE_NEVER ? "-XN" : "-EXEC");
 	return desc;
 }
 

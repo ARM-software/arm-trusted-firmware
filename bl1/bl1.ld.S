@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,43 @@ SECTIONS
     ASSERT(. == ALIGN(4096),
            "BL1_RO_BASE address is not aligned on a page boundary.")
 
+#if SEPARATE_CODE_AND_RODATA
+    .text . : {
+        __TEXT_START__ = .;
+        *bl1_entrypoint.o(.text*)
+        *(.text*)
+        *(.vectors)
+        . = NEXT(4096);
+        __TEXT_END__ = .;
+     } >ROM
+
+    .rodata . : {
+        __RODATA_START__ = .;
+        *(.rodata*)
+
+        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
+        . = ALIGN(8);
+        __PARSER_LIB_DESCS_START__ = .;
+        KEEP(*(.img_parser_lib_descs))
+        __PARSER_LIB_DESCS_END__ = .;
+
+        /*
+         * Ensure 8-byte alignment for cpu_ops so that its fields are also
+         * aligned. Also ensure cpu_ops inclusion.
+         */
+        . = ALIGN(8);
+        __CPU_OPS_START__ = .;
+        KEEP(*(cpu_ops))
+        __CPU_OPS_END__ = .;
+
+        /*
+         * No need to pad out the .rodata section to a page boundary. Next is
+         * the .data section, which can mapped in ROM with the same memory
+         * attributes as the .rodata section.
+         */
+        __RODATA_END__ = .;
+    } >ROM
+#else
     ro . : {
         __RO_START__ = .;
         *bl1_entrypoint.o(.text*)
@@ -69,6 +106,7 @@ SECTIONS
         *(.vectors)
         __RO_END__ = .;
     } >ROM
+#endif
 
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
            "cpu_ops not defined for this platform.")
@@ -139,12 +177,14 @@ SECTIONS
 
     __DATA_ROM_START__ = LOADADDR(.data);
     __DATA_SIZE__ = SIZEOF(.data);
+
     /*
      * The .data section is the last PROGBITS section so its end marks the end
-     * of the read-only part of BL1's binary.
+     * of BL1's actual content in Trusted ROM.
      */
-    ASSERT(__DATA_ROM_START__ + __DATA_SIZE__ <= BL1_RO_LIMIT,
-           "BL1's RO section has exceeded its limit.")
+    __BL1_ROM_END__ =  __DATA_ROM_START__ + __DATA_SIZE__;
+    ASSERT(__BL1_ROM_END__ <= BL1_RO_LIMIT,
+           "BL1's ROM content has exceeded its limit.")
 
     __BSS_SIZE__ = SIZEOF(.bss);
 

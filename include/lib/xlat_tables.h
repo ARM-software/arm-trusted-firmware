@@ -134,6 +134,8 @@
 #define MT_PERM_SHIFT	3
 /* Security state (SECURE/NS) */
 #define MT_SEC_SHIFT	4
+/* Access permissions for instruction execution (EXECUTE/EXECUTE_NEVER) */
+#define MT_EXECUTE_SHIFT	5
 
 /*
  * Memory mapping attributes
@@ -155,7 +157,20 @@ typedef enum  {
 
 	MT_SECURE	= 0 << MT_SEC_SHIFT,
 	MT_NS		= 1 << MT_SEC_SHIFT,
+
+	/*
+	 * Access permissions for instruction execution are only relevant for
+	 * normal read-only memory, i.e. MT_MEMORY | MT_RO. They are ignored
+	 * (and potentially overridden) otherwise:
+	 *  - Device memory is always marked as execute-never.
+	 *  - Read-write normal memory is always marked as execute-never.
+	 */
+	MT_EXECUTE		= 0 << MT_EXECUTE_SHIFT,
+	MT_EXECUTE_NEVER	= 1 << MT_EXECUTE_SHIFT,
 } mmap_attr_t;
+
+#define MT_CODE		(MT_MEMORY | MT_RO | MT_EXECUTE)
+#define MT_RO_DATA	(MT_MEMORY | MT_RO | MT_EXECUTE_NEVER)
 
 /*
  * Structure for specifying a single region of memory.

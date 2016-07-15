@@ -1052,10 +1052,10 @@ Each bootloader image can be divided in 2 parts:
 All PROGBITS sections are grouped together at the beginning of the image,
 followed by all NOBITS sections. This is true for all Trusted Firmware images
 and it is governed by the linker scripts. This ensures that the raw binary
-images are as small as possible. If a NOBITS section would sneak in between
-PROGBITS sections then the resulting binary file would contain a bunch of zero
-bytes at the location of this NOBITS section, making the image unnecessarily
-bigger. Smaller images allow faster loading from the FIP to the main memory.
+images are as small as possible. If a NOBITS section was inserted in between
+PROGBITS sections then the resulting binary file would contain zero bytes in
+place of this NOBITS section, making the image unnecessarily bigger. Smaller
+images allow faster loading from the FIP to the main memory.
 
 ### Linker scripts and symbols
 
@@ -1110,47 +1110,48 @@ layout as they are easy to spot in the link map files.
 
 #### Common linker symbols
 
-Early setup code needs to know the extents of the BSS section to zero-initialise
-it before executing any C code. The following linker symbols are defined for
-this purpose:
+All BL images share the following requirements:
 
-* `__BSS_START__` This address must be aligned on a 16-byte boundary.
-* `__BSS_SIZE__`
+*   The BSS section must be zero-initialised before executing any C code.
+*   The coherent memory section (if enabled) must be zero-initialised as well.
+*   The MMU setup code needs to know the extents of the coherent and read-only
+    memory regions to set the right memory attributes. When
+    `SEPARATE_CODE_AND_RODATA=1`, it needs to know more specifically how the
+    read-only memory region is divided between code and data.
 
-Similarly, the coherent memory section (if enabled) must be zero-initialised.
-Also, the MMU setup code needs to know the extents of this section to set the
-right memory attributes for it. The following linker symbols are defined for
-this purpose:
+The following linker symbols are defined for this purpose:
 
-* `__COHERENT_RAM_START__` This address must be aligned on a page-size boundary.
-* `__COHERENT_RAM_END__` This address must be aligned on a page-size boundary.
-* `__COHERENT_RAM_UNALIGNED_SIZE__`
+*   `__BSS_START__`          Must be aligned on a 16-byte boundary.
+*   `__BSS_SIZE__`
+*   `__COHERENT_RAM_START__` Must be aligned on a page-size boundary.
+*   `__COHERENT_RAM_END__`   Must be aligned on a page-size boundary.
+*   `__COHERENT_RAM_UNALIGNED_SIZE__`
+*   `__RO_START__`
+*   `__RO_END__`
+*   `__TEXT_START__`
+*   `__TEXT_END__`
+*   `__RODATA_START__`
+*   `__RODATA_END__`
 
 #### BL1's linker symbols
 
-BL1's early setup code needs to know the extents of the .data section to
-relocate it from ROM to RAM before executing any C code. The following linker
-symbols are defined for this purpose:
+BL1 being the ROM image, it has additional requirements. BL1 resides in ROM and
+it is entirely executed in place but it needs some read-write memory for its
+mutable data. Its `.data` section (i.e. its allocated read-write data) must be
+relocated from ROM to RAM before executing any C code.
 
-* `__DATA_ROM_START__` This address must be aligned on a 16-byte boundary.
-* `__DATA_RAM_START__` This address must be aligned on a 16-byte boundary.
-* `__DATA_SIZE__`
+The following additional linker symbols are defined for BL1:
 
-BL1's platform setup code needs to know the extents of its read-write data
-region to figure out its memory layout. The following linker symbols are defined
-for this purpose:
+*   `__BL1_ROM_END__`    End address of BL1's ROM contents, covering its code
+                         and `.data` section in ROM.
+*   `__DATA_ROM_START__` Start address of the `.data` section in ROM. Must be
+                         aligned on a 16-byte boundary.
+*   `__DATA_RAM_START__` Address in RAM where the `.data` section should be
+                         copied over. Must be aligned on a 16-byte boundary.
+*   `__DATA_SIZE__`      Size of the `.data` section (in ROM or RAM).
+*   `__BL1_RAM_START__`  Start address of BL1 read-write data.
+*   `__BL1_RAM_END__`    End address of BL1 read-write data.
 
-* `__BL1_RAM_START__` This is the start address of BL1 RW data.
-* `__BL1_RAM_END__` This is the end address of BL1 RW data.
-
-#### BL2's, BL31's and TSP's linker symbols
-
-BL2, BL31 and TSP need to know the extents of their read-only section to set
-the right memory attributes for this memory region in their MMU setup code. The
-following linker symbols are defined for this purpose:
-
-* `__RO_START__`
-* `__RO_END__`
 
 ### How to choose the right base addresses for each bootloader stage image
 

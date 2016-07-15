@@ -46,6 +46,47 @@ SECTIONS
     ASSERT(. == ALIGN(4096),
            "BL31_BASE address is not aligned on a page boundary.")
 
+#if SEPARATE_CODE_AND_RODATA
+    .text . : {
+        __TEXT_START__ = .;
+        *bl31_entrypoint.o(.text*)
+        *(.text*)
+        *(.vectors)
+        . = NEXT(4096);
+        __TEXT_END__ = .;
+    } >RAM
+
+    .rodata . : {
+        __RODATA_START__ = .;
+        *(.rodata*)
+
+        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
+        . = ALIGN(8);
+        __RT_SVC_DESCS_START__ = .;
+        KEEP(*(rt_svc_descs))
+        __RT_SVC_DESCS_END__ = .;
+
+#if ENABLE_PMF
+        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
+        . = ALIGN(8);
+        __PMF_SVC_DESCS_START__ = .;
+        KEEP(*(pmf_svc_descs))
+        __PMF_SVC_DESCS_END__ = .;
+#endif /* ENABLE_PMF */
+
+        /*
+         * Ensure 8-byte alignment for cpu_ops so that its fields are also
+         * aligned. Also ensure cpu_ops inclusion.
+         */
+        . = ALIGN(8);
+        __CPU_OPS_START__ = .;
+        KEEP(*(cpu_ops))
+        __CPU_OPS_END__ = .;
+
+        . = NEXT(4096);
+        __RODATA_END__ = .;
+    } >RAM
+#else
     ro . : {
         __RO_START__ = .;
         *bl31_entrypoint.o(.text*)
@@ -85,6 +126,7 @@ SECTIONS
         . = NEXT(4096);
         __RO_END__ = .;
     } >RAM
+#endif
 
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
            "cpu_ops not defined for this platform.")

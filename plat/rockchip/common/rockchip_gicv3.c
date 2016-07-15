@@ -32,6 +32,7 @@
 #include <gicv3.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <utils.h>
 
 /******************************************************************************
  * The following functions are defined as weak to allow a platform to override

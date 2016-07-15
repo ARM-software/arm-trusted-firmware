@@ -137,15 +137,22 @@
 #include <cassert.h>
 #include <stdint.h>
 #include <stddef.h>
-
-#define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
+#include <utils.h> /* To retain compatibility */
 
 /*
  * Declarations of linker defined symbols to help determine memory layout of
  * BL images
  */
+#if SEPARATE_CODE_AND_RODATA
+extern unsigned long __TEXT_START__;
+extern unsigned long __TEXT_END__;
+extern unsigned long __RODATA_START__;
+extern unsigned long __RODATA_END__;
+#else
 extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
+#endif
+
 #if IMAGE_BL2
 extern unsigned long __BL2_END__;
 #elif IMAGE_BL2U

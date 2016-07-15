@@ -33,10 +33,9 @@
 #include <assert.h>
 #include <cassert.h>
 #include <platform_def.h>
+#include <utils.h>
 #include <xlat_tables.h>
 #include "../xlat_tables_private.h"
-
-#define IS_POWER_OF_TWO(x)	(((x) & ((x) - 1)) == 0)
 
 /*
  * The virtual address space size must be a power of two (as set in TCR.T0SZ).

@@ -32,6 +32,7 @@
 #include <cci.h>
 #include <plat_arm.h>
 #include <platform_def.h>
+#include <utils.h>
 
 static const int cci_map[] = {
 	PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX,

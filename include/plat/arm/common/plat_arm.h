@@ -31,10 +31,10 @@
 #define __PLAT_ARM_H__
 
 #include <bakery_lock.h>
-#include <bl_common.h>
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
+#include <utils.h>
 #include <xlat_tables.h>
 
 #define ARM_CASSERT_MMAP						\
@@ -45,20 +45,12 @@
 /*
  * Utility functions common to ARM standard platforms
  */
-
-void arm_configure_mmu_el1(unsigned long total_base,
+void arm_setup_page_tables(unsigned long total_base,
 			unsigned long total_size,
-			unsigned long ro_start,
-			unsigned long ro_limit
-#if USE_COHERENT_MEM
-			, unsigned long coh_start,
-			unsigned long coh_limit
-#endif
-);
-void arm_configure_mmu_el3(unsigned long total_base,
-			unsigned long total_size,
-			unsigned long ro_start,
-			unsigned long ro_limit
+			unsigned long code_start,
+			unsigned long code_limit,
+			unsigned long rodata_start,
+			unsigned long rodata_limit
 #if USE_COHERENT_MEM
 			, unsigned long coh_start,
 			unsigned long coh_limit

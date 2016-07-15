@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -119,13 +119,26 @@
 #define V2M_SP810_CTRL_TIM2_SEL		(1 << 19)
 #define V2M_SP810_CTRL_TIM3_SEL		(1 << 21)
 
+/*
+ * The flash can be mapped either as read-only or read-write.
+ *
+ * If it is read-write then it should also be mapped as device memory because
+ * NOR flash programming involves sending a fixed, ordered sequence of commands.
+ *
+ * If it is read-only then it should also be mapped as:
+ * - Normal memory, because reading from NOR flash is transparent, it is like
+ *   reading from RAM.
+ * - Non-executable by default. If some parts of the flash need to be executable
+ *   then platform code is responsible for re-mapping the appropriate portion
+ *   of it as executable.
+ */
 #define V2M_MAP_FLASH0_RW		MAP_REGION_FLAT(V2M_FLASH0_BASE,\
 						V2M_FLASH0_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
 #define V2M_MAP_FLASH0_RO		MAP_REGION_FLAT(V2M_FLASH0_BASE,\
 						V2M_FLASH0_SIZE,	\
-						MT_MEMORY | MT_RO | MT_SECURE)
+						MT_RO_DATA | MT_SECURE)
 
 #define V2M_MAP_IOFPGA			MAP_REGION_FLAT(V2M_IOFPGA_BASE,\
 						V2M_IOFPGA_SIZE,		\

@@ -80,5 +80,44 @@
 	.ep_info.pc = BL2_BASE,				\
 }
 
-#endif /* __COMMON_DEF_H__ */
+/*
+ * The following constants identify the extents of the code & read-only data
+ * regions. These addresses are used by the MMU setup code and therefore they
+ * must be page-aligned.
+ *
+ * When the code and read-only data are mapped as a single atomic section
+ * (i.e. when SEPARATE_CODE_AND_RODATA=0) then we treat the whole section as
+ * code by specifying the read-only data section as empty.
+ *
+ * BL1 is different than the other images in the sense that its read-write data
+ * originally lives in Trusted ROM and needs to be relocated in Trusted SRAM at
+ * run-time. Therefore, the read-write data in ROM can be mapped with the same
+ * memory attributes as the read-only data region. For this reason, BL1 uses
+ * different macros.
+ *
+ * Note that BL1_ROM_END is not necessarily aligned on a page boundary as it
+ * just points to the end of BL1's actual content in Trusted ROM. Therefore it
+ * needs to be rounded up to the next page size in order to map the whole last
+ * page of it with the right memory attributes.
+ */
+#if SEPARATE_CODE_AND_RODATA
+#define BL_CODE_BASE		(unsigned long)(&__TEXT_START__)
+#define BL_CODE_LIMIT		(unsigned long)(&__TEXT_END__)
+#define BL_RO_DATA_BASE		(unsigned long)(&__RODATA_START__)
+#define BL_RO_DATA_LIMIT	(unsigned long)(&__RODATA_END__)
 
+#define BL1_CODE_LIMIT		BL_CODE_LIMIT
+#define BL1_RO_DATA_BASE	(unsigned long)(&__RODATA_START__)
+#define BL1_RO_DATA_LIMIT	round_up(BL1_ROM_END, PAGE_SIZE)
+#else
+#define BL_CODE_BASE		(unsigned long)(&__RO_START__)
+#define BL_CODE_LIMIT		(unsigned long)(&__RO_END__)
+#define BL_RO_DATA_BASE		0
+#define BL_RO_DATA_LIMIT	0
+
+#define BL1_CODE_LIMIT		round_up(BL1_ROM_END, PAGE_SIZE)
+#define BL1_RO_DATA_BASE	0
+#define BL1_RO_DATA_LIMIT	0
+#endif /* SEPARATE_CODE_AND_RODATA */
+
+#endif /* __COMMON_DEF_H__ */
