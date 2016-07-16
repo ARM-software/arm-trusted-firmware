@@ -40,6 +40,8 @@
 #include <ddr_rk3368.h>
 #include <pmu_com.h>
 
+DEFINE_BAKERY_LOCK(rockchip_pd_lock);
+
 static struct psram_data_t *psram_sleep_cfg =
 	(struct psram_data_t *)PSRAM_DT_BASE;
 

@@ -46,6 +46,8 @@
 #include <pmu.h>
 #include <pmu_com.h>
 
+DEFINE_BAKERY_LOCK(rockchip_pd_lock);
+
 static struct psram_data_t *psram_sleep_cfg =
 	(struct psram_data_t *)PSRAM_DT_BASE;
 
@@ -67,6 +69,320 @@ __attribute__ ((section("tzfw_coherent_mem")))
 #endif
 ;/* coheront */
 
+static void pmu_bus_idle_req(uint32_t bus, uint32_t state)
+{
+	uint32_t bus_id = BIT(bus);
+	uint32_t bus_req;
+	uint32_t wait_cnt = 0;
+	uint32_t bus_state, bus_ack;
+
+	if (state)
+		bus_req = BIT(bus);
+	else
+		bus_req = 0;
+
+	mmio_clrsetbits_32(PMU_BASE + PMU_BUS_IDLE_REQ, bus_id, bus_req);
+
+	do {
+		bus_state = mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ST) & bus_id;
+		bus_ack = mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ACK) & bus_id;
+		wait_cnt++;
+	} while ((bus_state != bus_req || bus_ack != bus_req) &&
+		 (wait_cnt < MAX_WAIT_COUNT));
+
+	if (bus_state != bus_req || bus_ack != bus_req) {
+		INFO("%s:st=%x(%x)\n", __func__,
+		     mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ST),
+		     bus_state);
+		INFO("%s:st=%x(%x)\n", __func__,
+		     mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ACK),
+		     bus_ack);
+	}
+
+}
+
+struct pmu_slpdata_s pmu_slpdata;
+
+static void qos_save(void)
+{
+	if (pmu_power_domain_st(PD_GPU) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.gpu_qos, GPU);
+	if (pmu_power_domain_st(PD_ISP0) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.isp0_m0_qos, ISP0_M0);
+		RESTORE_QOS(pmu_slpdata.isp0_m1_qos, ISP0_M1);
+	}
+	if (pmu_power_domain_st(PD_ISP1) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.isp1_m0_qos, ISP1_M0);
+		RESTORE_QOS(pmu_slpdata.isp1_m1_qos, ISP1_M1);
+	}
+	if (pmu_power_domain_st(PD_VO) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.vop_big_r, VOP_BIG_R);
+		RESTORE_QOS(pmu_slpdata.vop_big_w, VOP_BIG_W);
+		RESTORE_QOS(pmu_slpdata.vop_little, VOP_LITTLE);
+	}
+	if (pmu_power_domain_st(PD_HDCP) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.hdcp_qos, HDCP);
+	if (pmu_power_domain_st(PD_GMAC) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.gmac_qos, GMAC);
+	if (pmu_power_domain_st(PD_CCI) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.cci_m0_qos, CCI_M0);
+		RESTORE_QOS(pmu_slpdata.cci_m1_qos, CCI_M1);
+	}
+	if (pmu_power_domain_st(PD_SD) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.sdmmc_qos, SDMMC);
+	if (pmu_power_domain_st(PD_EMMC) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.emmc_qos, EMMC);
+	if (pmu_power_domain_st(PD_SDIOAUDIO) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.sdio_qos, SDIO);
+	if (pmu_power_domain_st(PD_GIC) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.gic_qos, GIC);
+	if (pmu_power_domain_st(PD_RGA) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.rga_r_qos, RGA_R);
+		RESTORE_QOS(pmu_slpdata.rga_w_qos, RGA_W);
+	}
+	if (pmu_power_domain_st(PD_IEP) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.iep_qos, IEP);
+	if (pmu_power_domain_st(PD_USB3) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.usb_otg0_qos, USB_OTG0);
+		RESTORE_QOS(pmu_slpdata.usb_otg1_qos, USB_OTG1);
+	}
+	if (pmu_power_domain_st(PD_PERIHP) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.usb_host0_qos, USB_HOST0);
+		RESTORE_QOS(pmu_slpdata.usb_host1_qos, USB_HOST1);
+		RESTORE_QOS(pmu_slpdata.perihp_nsp_qos, PERIHP_NSP);
+	}
+	if (pmu_power_domain_st(PD_PERILP) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.dmac0_qos, DMAC0);
+		RESTORE_QOS(pmu_slpdata.dmac1_qos, DMAC1);
+		RESTORE_QOS(pmu_slpdata.dcf_qos, DCF);
+		RESTORE_QOS(pmu_slpdata.crypto0_qos, CRYPTO0);
+		RESTORE_QOS(pmu_slpdata.crypto1_qos, CRYPTO1);
+		RESTORE_QOS(pmu_slpdata.perilp_nsp_qos, PERILP_NSP);
+		RESTORE_QOS(pmu_slpdata.perilpslv_nsp_qos, PERILPSLV_NSP);
+		RESTORE_QOS(pmu_slpdata.peri_cm1_qos, PERI_CM1);
+	}
+	if (pmu_power_domain_st(PD_VDU) == pmu_pd_on)
+		RESTORE_QOS(pmu_slpdata.video_m0_qos, VIDEO_M0);
+	if (pmu_power_domain_st(PD_VCODEC) == pmu_pd_on) {
+		RESTORE_QOS(pmu_slpdata.video_m1_r_qos, VIDEO_M1_R);
+		RESTORE_QOS(pmu_slpdata.video_m1_w_qos, VIDEO_M1_W);
+	}
+}
+
+static void qos_restore(void)
+{
+	if (pmu_power_domain_st(PD_GPU) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.gpu_qos, GPU);
+	if (pmu_power_domain_st(PD_ISP0) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.isp0_m0_qos, ISP0_M0);
+		SAVE_QOS(pmu_slpdata.isp0_m1_qos, ISP0_M1);
+	}
+	if (pmu_power_domain_st(PD_ISP1) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.isp1_m0_qos, ISP1_M0);
+		SAVE_QOS(pmu_slpdata.isp1_m1_qos, ISP1_M1);
+	}
+	if (pmu_power_domain_st(PD_VO) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.vop_big_r, VOP_BIG_R);
+		SAVE_QOS(pmu_slpdata.vop_big_w, VOP_BIG_W);
+		SAVE_QOS(pmu_slpdata.vop_little, VOP_LITTLE);
+	}
+	if (pmu_power_domain_st(PD_HDCP) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.hdcp_qos, HDCP);
+	if (pmu_power_domain_st(PD_GMAC) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.gmac_qos, GMAC);
+	if (pmu_power_domain_st(PD_CCI) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.cci_m0_qos, CCI_M0);
+		SAVE_QOS(pmu_slpdata.cci_m1_qos, CCI_M1);
+	}
+	if (pmu_power_domain_st(PD_SD) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.sdmmc_qos, SDMMC);
+	if (pmu_power_domain_st(PD_EMMC) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.emmc_qos, EMMC);
+	if (pmu_power_domain_st(PD_SDIOAUDIO) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.sdio_qos, SDIO);
+	if (pmu_power_domain_st(PD_GIC) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.gic_qos, GIC);
+	if (pmu_power_domain_st(PD_RGA) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.rga_r_qos, RGA_R);
+		SAVE_QOS(pmu_slpdata.rga_w_qos, RGA_W);
+	}
+	if (pmu_power_domain_st(PD_IEP) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.iep_qos, IEP);
+	if (pmu_power_domain_st(PD_USB3) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.usb_otg0_qos, USB_OTG0);
+		SAVE_QOS(pmu_slpdata.usb_otg1_qos, USB_OTG1);
+	}
+	if (pmu_power_domain_st(PD_PERIHP) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.usb_host0_qos, USB_HOST0);
+		SAVE_QOS(pmu_slpdata.usb_host1_qos, USB_HOST1);
+		SAVE_QOS(pmu_slpdata.perihp_nsp_qos, PERIHP_NSP);
+	}
+	if (pmu_power_domain_st(PD_PERILP) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.dmac0_qos, DMAC0);
+		SAVE_QOS(pmu_slpdata.dmac1_qos, DMAC1);
+		SAVE_QOS(pmu_slpdata.dcf_qos, DCF);
+		SAVE_QOS(pmu_slpdata.crypto0_qos, CRYPTO0);
+		SAVE_QOS(pmu_slpdata.crypto1_qos, CRYPTO1);
+		SAVE_QOS(pmu_slpdata.perilp_nsp_qos, PERILP_NSP);
+		SAVE_QOS(pmu_slpdata.perilpslv_nsp_qos, PERILPSLV_NSP);
+		SAVE_QOS(pmu_slpdata.peri_cm1_qos, PERI_CM1);
+	}
+	if (pmu_power_domain_st(PD_VDU) == pmu_pd_on)
+		SAVE_QOS(pmu_slpdata.video_m0_qos, VIDEO_M0);
+	if (pmu_power_domain_st(PD_VCODEC) == pmu_pd_on) {
+		SAVE_QOS(pmu_slpdata.video_m1_r_qos, VIDEO_M1_R);
+		SAVE_QOS(pmu_slpdata.video_m1_w_qos, VIDEO_M1_W);
+	}
+}
+
+static int pmu_set_power_domain(uint32_t pd_id, uint32_t pd_state)
+{
+	uint32_t state;
+
+	if (pmu_power_domain_st(pd_id) == pd_state)
+		goto out;
+
+	if (pd_state == pmu_pd_on)
+		pmu_power_domain_ctr(pd_id, pd_state);
+
+	state = (pd_state == pmu_pd_off) ? BUS_IDLE : BUS_ACTIVE;
+
+	switch (pd_id) {
+	case PD_GPU:
+		pmu_bus_idle_req(BUS_ID_GPU, state);
+		break;
+	case PD_VIO:
+		pmu_bus_idle_req(BUS_ID_VIO, state);
+		break;
+	case PD_ISP0:
+		pmu_bus_idle_req(BUS_ID_ISP0, state);
+		break;
+	case PD_ISP1:
+		pmu_bus_idle_req(BUS_ID_ISP1, state);
+		break;
+	case PD_VO:
+		pmu_bus_idle_req(BUS_ID_VOPB, state);
+		pmu_bus_idle_req(BUS_ID_VOPL, state);
+		break;
+	case PD_HDCP:
+		pmu_bus_idle_req(BUS_ID_HDCP, state);
+		break;
+	case PD_TCPD0:
+		break;
+	case PD_TCPD1:
+		break;
+	case PD_GMAC:
+		pmu_bus_idle_req(BUS_ID_GMAC, state);
+		break;
+	case PD_CCI:
+		pmu_bus_idle_req(BUS_ID_CCIM0, state);
+		pmu_bus_idle_req(BUS_ID_CCIM1, state);
+		break;
+	case PD_SD:
+		pmu_bus_idle_req(BUS_ID_SD, state);
+		break;
+	case PD_EMMC:
+		pmu_bus_idle_req(BUS_ID_EMMC, state);
+		break;
+	case PD_EDP:
+		pmu_bus_idle_req(BUS_ID_EDP, state);
+		break;
+	case PD_SDIOAUDIO:
+		pmu_bus_idle_req(BUS_ID_SDIOAUDIO, state);
+		break;
+	case PD_GIC:
+		pmu_bus_idle_req(BUS_ID_GIC, state);
+		break;
+	case PD_RGA:
+		pmu_bus_idle_req(BUS_ID_RGA, state);
+		break;
+	case PD_VCODEC:
+		pmu_bus_idle_req(BUS_ID_VCODEC, state);
+		break;
+	case PD_VDU:
+		pmu_bus_idle_req(BUS_ID_VDU, state);
+		break;
+	case PD_IEP:
+		pmu_bus_idle_req(BUS_ID_IEP, state);
+		break;
+	case PD_USB3:
+		pmu_bus_idle_req(BUS_ID_USB3, state);
+		break;
+	case PD_PERIHP:
+		pmu_bus_idle_req(BUS_ID_PERIHP, state);
+		break;
+	default:
+		break;
+	}
+
+	if (pd_state == pmu_pd_off)
+		pmu_power_domain_ctr(pd_id, pd_state);
+
+out:
+	return 0;
+}
+
+static uint32_t pmu_powerdomain_state;
+
+static void pmu_power_domains_suspend(void)
+{
+	clk_gate_con_save();
+	clk_gate_con_disable();
+	qos_save();
+	pmu_powerdomain_state = mmio_read_32(PMU_BASE + PMU_PWRDN_ST);
+	pmu_set_power_domain(PD_GPU, pmu_pd_off);
+	pmu_set_power_domain(PD_TCPD0, pmu_pd_off);
+	pmu_set_power_domain(PD_TCPD1, pmu_pd_off);
+	pmu_set_power_domain(PD_VO, pmu_pd_off);
+	pmu_set_power_domain(PD_ISP0, pmu_pd_off);
+	pmu_set_power_domain(PD_ISP1, pmu_pd_off);
+	pmu_set_power_domain(PD_HDCP, pmu_pd_off);
+	pmu_set_power_domain(PD_SDIOAUDIO, pmu_pd_off);
+	pmu_set_power_domain(PD_GMAC, pmu_pd_off);
+	pmu_set_power_domain(PD_EDP, pmu_pd_off);
+	pmu_set_power_domain(PD_IEP, pmu_pd_off);
+	pmu_set_power_domain(PD_RGA, pmu_pd_off);
+	pmu_set_power_domain(PD_VCODEC, pmu_pd_off);
+	pmu_set_power_domain(PD_VDU, pmu_pd_off);
+	clk_gate_con_restore();
+}
+
+static void pmu_power_domains_resume(void)
+{
+	clk_gate_con_save();
+	clk_gate_con_disable();
+	if (!(pmu_powerdomain_state & BIT(PD_VDU)))
+		pmu_set_power_domain(PD_VDU, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_VCODEC)))
+		pmu_set_power_domain(PD_VCODEC, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_RGA)))
+		pmu_set_power_domain(PD_RGA, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_IEP)))
+		pmu_set_power_domain(PD_IEP, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_EDP)))
+		pmu_set_power_domain(PD_EDP, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_GMAC)))
+		pmu_set_power_domain(PD_GMAC, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_SDIOAUDIO)))
+		pmu_set_power_domain(PD_SDIOAUDIO, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_HDCP)))
+		pmu_set_power_domain(PD_HDCP, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_ISP1)))
+		pmu_set_power_domain(PD_ISP1, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_ISP0)))
+		pmu_set_power_domain(PD_ISP0, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_VO)))
+		pmu_set_power_domain(PD_VO, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_TCPD1)))
+		pmu_set_power_domain(PD_TCPD1, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_TCPD0)))
+		pmu_set_power_domain(PD_TCPD0, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_GPU)))
+		pmu_set_power_domain(PD_GPU, pmu_pd_on);
+	qos_restore();
+	clk_gate_con_restore();
+}
+
 void rk3399_flash_l2_b(void)
 {
 	uint32_t wait_cnt = 0;
@@ -77,7 +393,7 @@ void rk3399_flash_l2_b(void)
 	while (!(mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST) &
 		 BIT(L2_FLUSHDONE_CLUSTER_B))) {
 		wait_cnt++;
-		if (!(wait_cnt % MAX_WAIT_CONUT))
+		if (wait_cnt >= MAX_WAIT_COUNT)
 			WARN("%s:reg %x,wait\n", __func__,
 			     mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST));
 	}
@@ -103,7 +419,7 @@ static void pmu_scu_b_pwrdn(void)
 	while (!(mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST) &
 		 BIT(STANDBY_BY_WFIL2_CLUSTER_B))) {
 		wait_cnt++;
-		if (!(wait_cnt % MAX_WAIT_CONUT))
+		if (wait_cnt >= MAX_WAIT_COUNT)
 			ERROR("%s:wait cluster-b l2(%x)\n", __func__,
 			      mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST));
 	}
@@ -220,6 +536,78 @@ static int cpus_power_domain_off(uint32_t cpu_id, uint32_t pd_cfg)
 	return 0;
 }
 
+static inline void clst_pwr_domain_suspend(plat_local_state_t lvl_state)
+{
+	uint32_t cpu_id = plat_my_core_pos();
+	uint32_t pll_id, clst_st_msk, clst_st_chk_msk, pmu_st;
+
+	assert(cpu_id < PLATFORM_CORE_COUNT);
+
+	if (lvl_state == PLAT_MAX_RET_STATE  ||
+	    lvl_state == PLAT_MAX_OFF_STATE) {
+		if (cpu_id < PLATFORM_CLUSTER0_CORE_COUNT) {
+			pll_id = ALPLL_ID;
+			clst_st_msk = CLST_L_CPUS_MSK;
+		} else {
+			pll_id = ABPLL_ID;
+			clst_st_msk = CLST_B_CPUS_MSK <<
+				       PLATFORM_CLUSTER0_CORE_COUNT;
+		}
+
+		clst_st_chk_msk = clst_st_msk & ~(BIT(cpu_id));
+
+		pmu_st = mmio_read_32(PMU_BASE + PMU_PWRDN_ST);
+
+		pmu_st &= clst_st_msk;
+
+		if (pmu_st == clst_st_chk_msk) {
+			mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 3),
+				      PLL_SLOW_MODE);
+
+			clst_warmboot_data[pll_id] = PMU_CLST_RET;
+
+			pmu_st = mmio_read_32(PMU_BASE + PMU_PWRDN_ST);
+			pmu_st &= clst_st_msk;
+			if (pmu_st == clst_st_chk_msk)
+				return;
+			/*
+			 * it is mean that others cpu is up again,
+			 * we must resume the cfg at once.
+			 */
+			mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 3),
+				      PLL_NOMAL_MODE);
+			clst_warmboot_data[pll_id] = 0;
+		}
+	}
+}
+
+static int clst_pwr_domain_resume(plat_local_state_t lvl_state)
+{
+	uint32_t cpu_id = plat_my_core_pos();
+	uint32_t pll_id, pll_st;
+
+	assert(cpu_id < PLATFORM_CORE_COUNT);
+
+	if (lvl_state == PLAT_MAX_RET_STATE ||
+	    lvl_state == PLAT_MAX_OFF_STATE) {
+		if (cpu_id < PLATFORM_CLUSTER0_CORE_COUNT)
+			pll_id = ALPLL_ID;
+		else
+			pll_id = ABPLL_ID;
+
+		pll_st = mmio_read_32(CRU_BASE + CRU_PLL_CON(pll_id, 3)) >>
+				 PLL_MODE_SHIFT;
+
+		if (pll_st != NORMAL_MODE) {
+			WARN("%s: clst (%d) is in error mode (%d)\n",
+			     __func__, pll_id, pll_st);
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 static void nonboot_cpus_off(void)
 {
 	uint32_t boot_cpu, cpu;
@@ -258,6 +646,19 @@ static int cores_pwr_domain_off(void)
 	return 0;
 }
 
+static int hlvl_pwr_domain_off(uint32_t lvl, plat_local_state_t lvl_state)
+{
+	switch (lvl) {
+	case MPIDR_AFFLVL1:
+		clst_pwr_domain_suspend(lvl_state);
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
 static int cores_pwr_domain_suspend(void)
 {
 	uint32_t cpu_id = plat_my_core_pos();
@@ -265,10 +666,23 @@ static int cores_pwr_domain_suspend(void)
 	assert(cpu_id < PLATFORM_CORE_COUNT);
 	assert(cpuson_flags[cpu_id] == 0);
 	cpuson_flags[cpu_id] = PMU_CPU_AUTO_PWRDN;
-	cpuson_entry_point[cpu_id] = (uintptr_t)psci_entrypoint;
+	cpuson_entry_point[cpu_id] = plat_get_sec_entrypoint();
 	dsb();
 
 	cpus_power_domain_off(cpu_id, core_pwr_wfi_int);
+
+	return 0;
+}
+
+static int hlvl_pwr_domain_suspend(uint32_t lvl, plat_local_state_t lvl_state)
+{
+	switch (lvl) {
+	case MPIDR_AFFLVL1:
+		clst_pwr_domain_suspend(lvl_state);
+		break;
+	default:
+		break;
+	}
 
 	return 0;
 }
@@ -277,8 +691,21 @@ static int cores_pwr_domain_on_finish(void)
 {
 	uint32_t cpu_id = plat_my_core_pos();
 
-	/* Disable core_pm */
-	mmio_write_32(PMU_BASE + PMU_CORE_PM_CON(cpu_id), CORES_PM_DISABLE);
+	mmio_write_32(PMU_BASE + PMU_CORE_PM_CON(cpu_id),
+		      CORES_PM_DISABLE);
+	return 0;
+}
+
+static int hlvl_pwr_domain_on_finish(uint32_t lvl,
+				     plat_local_state_t lvl_state)
+{
+	switch (lvl) {
+	case MPIDR_AFFLVL1:
+		clst_pwr_domain_resume(lvl_state);
+		break;
+	default:
+		break;
+	}
 
 	return 0;
 }
@@ -293,10 +720,23 @@ static int cores_pwr_domain_resume(void)
 	return 0;
 }
 
+static int hlvl_pwr_domain_resume(uint32_t lvl, plat_local_state_t lvl_state)
+{
+	switch (lvl) {
+	case MPIDR_AFFLVL1:
+		clst_pwr_domain_resume(lvl_state);
+	default:
+		break;
+	}
+
+	return 0;
+}
+
 static void sys_slp_config(void)
 {
 	uint32_t slp_mode_cfg = 0;
 
+	mmio_write_32(GRF_BASE + GRF_SOC_CON4, CCI_FORCE_WAKEUP);
 	mmio_write_32(PMU_BASE + PMU_CCI500_CON,
 		      BIT_WITH_WMSK(PMU_CLR_PREQ_CCI500_HW) |
 		      BIT_WITH_WMSK(PMU_CLR_QREQ_CCI500_HW) |
@@ -315,25 +755,77 @@ static void sys_slp_config(void)
 		       BIT(PMU_CPU0_PD_EN) |
 		       BIT(PMU_L2_FLUSH_EN) |
 		       BIT(PMU_L2_IDLE_EN) |
-		       BIT(PMU_SCU_PD_EN);
+		       BIT(PMU_SCU_PD_EN) |
+		       BIT(PMU_CCI_PD_EN) |
+		       BIT(PMU_CLK_CORE_SRC_GATE_EN) |
+		       BIT(PMU_PERILP_PD_EN) |
+		       BIT(PMU_CLK_PERILP_SRC_GATE_EN) |
+		       BIT(PMU_ALIVE_USE_LF) |
+		       BIT(PMU_SREF0_ENTER_EN) |
+		       BIT(PMU_SREF1_ENTER_EN) |
+		       BIT(PMU_DDRC0_GATING_EN) |
+		       BIT(PMU_DDRC1_GATING_EN) |
+		       BIT(PMU_DDRIO0_RET_EN) |
+		       BIT(PMU_DDRIO1_RET_EN) |
+		       BIT(PMU_DDRIO_RET_HW_DE_REQ) |
+		       BIT(PMU_PLL_PD_EN) |
+		       BIT(PMU_CLK_CENTER_SRC_GATE_EN) |
+		       BIT(PMU_OSC_DIS) |
+		       BIT(PMU_PMU_USE_LF);
 
-	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, PMU_CLUSTER_L_WKUP_EN);
-	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, PMU_CLUSTER_B_WKUP_EN);
-	mmio_clrbits_32(PMU_BASE + PMU_WKUP_CFG4, PMU_GPIO_WKUP_EN);
-
+	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_CLUSTER_L_WKUP_EN));
+	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_CLUSTER_B_WKUP_EN));
+	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_GPIO_WKUP_EN));
 	mmio_write_32(PMU_BASE + PMU_PWRMODE_CON, slp_mode_cfg);
 
-	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_24M_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_24M_CNT_MS(2));
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_24M_CNT_MS(2));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_24M_CNT_MS(2));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_24M_CNT_MS(2));
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_PLLRST_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_32K_CNT_MS(5));
+	mmio_clrbits_32(PMU_BASE + PMU_SFT_CON, BIT(PMU_24M_EN_CFG));
+
+	mmio_write_32(PMU_BASE + PMU_PLL_CON, PLL_PD_HW);
+	mmio_write_32(PMUGRF_BASE + PMUGRF_SOC_CON0, EXTERNAL_32K);
+	mmio_write_32(PMUGRF_BASE, IOMUX_CLK_32K); /*32k iomux*/
+}
+
+static void set_hw_idle(uint32_t hw_idle)
+{
+	mmio_setbits_32(PMU_BASE + PMU_BUS_CLR, hw_idle);
+}
+
+static void clr_hw_idle(uint32_t hw_idle)
+{
+	mmio_clrbits_32(PMU_BASE + PMU_BUS_CLR, hw_idle);
 }
 
 static int sys_pwr_domain_suspend(void)
 {
+	uint32_t wait_cnt = 0;
+	uint32_t status = 0;
+
+	pmu_power_domains_suspend();
+	set_hw_idle(BIT(PMU_CLR_CENTER1) |
+		    BIT(PMU_CLR_ALIVE) |
+		    BIT(PMU_CLR_MSCH0) |
+		    BIT(PMU_CLR_MSCH1) |
+		    BIT(PMU_CLR_CCIM0) |
+		    BIT(PMU_CLR_CCIM1) |
+		    BIT(PMU_CLR_CENTER) |
+		    BIT(PMU_CLR_PERILP) |
+		    BIT(PMU_CLR_PMU) |
+		    BIT(PMU_CLR_PERILPM0) |
+		    BIT(PMU_CLR_GIC));
+
 	sys_slp_config();
-	plls_suspend();
 	pmu_sgrf_rst_hld();
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
@@ -347,42 +839,83 @@ static int sys_pwr_domain_suspend(void)
 		      BIT_WITH_WMSK(PMU_PWRDWN_REQ_CORE_B_SW) |
 		      BIT_WITH_WMSK(PMU_PWRDWN_REQ_GIC2_CORE_B_SW));
 	dsb();
+	status = BIT(PMU_PWRDWN_REQ_CORE_B_2GIC_SW_ST) |
+		BIT(PMU_PWRDWN_REQ_CORE_B_SW_ST) |
+		BIT(PMU_PWRDWN_REQ_GIC2_CORE_B_SW_ST);
+	while ((mmio_read_32(PMU_BASE +
+	       PMU_ADB400_ST) & status) != status) {
+		wait_cnt++;
+		if (wait_cnt >= MAX_WAIT_COUNT) {
+			ERROR("%s:wait cluster-b l2(%x)\n", __func__,
+			      mmio_read_32(PMU_BASE + PMU_ADB400_ST));
+			panic();
+		}
+	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
+
+	/* TODO: Wait SoC to cut off the logic_center, switch the gpio mode */
+	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX, GPIO0A6_IOMUX_GPIO);
 
 	return 0;
 }
 
 static int sys_pwr_domain_resume(void)
 {
+	uint32_t wait_cnt = 0;
+	uint32_t status = 0;
+
+	/* TODO: switch the pwm mode */
+	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX, GPIO0A6_IOMUX_PWM);
+
 	pmu_sgrf_rst_hld();
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 
-	plls_resume();
-
 	mmio_write_32(PMU_BASE + PMU_CCI500_CON,
 		      WMSK_BIT(PMU_CLR_PREQ_CCI500_HW) |
 		      WMSK_BIT(PMU_CLR_QREQ_CCI500_HW) |
 		      WMSK_BIT(PMU_QGATING_CCI500_CFG));
-
-	mmio_write_32(PMU_BASE + PMU_ADB400_CON,
-		      WMSK_BIT(PMU_CLR_CORE_L_HW) |
-		      WMSK_BIT(PMU_CLR_CORE_L_2GIC_HW) |
-		      WMSK_BIT(PMU_CLR_GIC2_CORE_L_HW));
-
+	dsb();
 	mmio_clrbits_32(PMU_BASE + PMU_PWRDN_CON,
 			BIT(PMU_SCU_B_PWRDWN_EN));
 
 	mmio_write_32(PMU_BASE + PMU_ADB400_CON,
 		      WMSK_BIT(PMU_PWRDWN_REQ_CORE_B_2GIC_SW) |
 		      WMSK_BIT(PMU_PWRDWN_REQ_CORE_B_SW) |
-		      WMSK_BIT(PMU_PWRDWN_REQ_GIC2_CORE_B_SW));
+		      WMSK_BIT(PMU_PWRDWN_REQ_GIC2_CORE_B_SW) |
+		      WMSK_BIT(PMU_CLR_CORE_L_HW) |
+		      WMSK_BIT(PMU_CLR_CORE_L_2GIC_HW) |
+		      WMSK_BIT(PMU_CLR_GIC2_CORE_L_HW));
+
+	status = BIT(PMU_PWRDWN_REQ_CORE_B_2GIC_SW_ST) |
+		BIT(PMU_PWRDWN_REQ_CORE_B_SW_ST) |
+		BIT(PMU_PWRDWN_REQ_GIC2_CORE_B_SW_ST);
+
+	while ((mmio_read_32(PMU_BASE +
+	   PMU_ADB400_ST) & status)) {
+		wait_cnt++;
+		if (wait_cnt >= MAX_WAIT_COUNT) {
+			ERROR("%s:wait cluster-b l2(%x)\n", __func__,
+			      mmio_read_32(PMU_BASE + PMU_ADB400_ST));
+			panic();
+		}
+	}
 
 	pmu_scu_b_pwrup();
 
-	plat_rockchip_gic_cpuif_enable();
+	pmu_power_domains_resume();
+	clr_hw_idle(BIT(PMU_CLR_CENTER1) |
+				BIT(PMU_CLR_ALIVE) |
+				BIT(PMU_CLR_MSCH0) |
+				BIT(PMU_CLR_MSCH1) |
+				BIT(PMU_CLR_CCIM0) |
+				BIT(PMU_CLR_CCIM1) |
+				BIT(PMU_CLR_CENTER) |
+				BIT(PMU_CLR_PERILP) |
+				BIT(PMU_CLR_PMU) |
+				BIT(PMU_CLR_GIC));
 	return 0;
 }
 
@@ -434,6 +967,10 @@ static struct rockchip_pm_ops_cb pm_ops = {
 	.cores_pwr_dm_on_finish = cores_pwr_domain_on_finish,
 	.cores_pwr_dm_suspend = cores_pwr_domain_suspend,
 	.cores_pwr_dm_resume = cores_pwr_domain_resume,
+	.hlvl_pwr_dm_suspend = hlvl_pwr_domain_suspend,
+	.hlvl_pwr_dm_resume = hlvl_pwr_domain_resume,
+	.hlvl_pwr_dm_off = hlvl_pwr_domain_off,
+	.hlvl_pwr_dm_on_finish = hlvl_pwr_domain_on_finish,
 	.sys_pwr_dm_suspend = sys_pwr_domain_suspend,
 	.sys_pwr_dm_resume = sys_pwr_domain_resume,
 	.sys_gbl_soft_reset = soc_soft_reset,
@@ -453,15 +990,19 @@ void plat_rockchip_pmu_init(void)
 	for (cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu++)
 		cpuson_flags[cpu] = 0;
 
+	for (cpu = 0; cpu < PLATFORM_CLUSTER_COUNT; cpu++)
+		clst_warmboot_data[cpu] = 0;
+
 	psram_sleep_cfg->ddr_func = 0x00;
 	psram_sleep_cfg->ddr_data = 0x00;
 	psram_sleep_cfg->ddr_flag = 0x00;
 	psram_sleep_cfg->boot_mpidr = read_mpidr_el1() & 0xffff;
 
-	/* cpu boot from pmusram */
+	/* config cpu's warm boot address */
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
+	mmio_write_32(PMU_BASE + PMU_NOC_AUTO_ENA, NOC_AUTO_ENABLE);
 
 	nonboot_cpus_off();
 

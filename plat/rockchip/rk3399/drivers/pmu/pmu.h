@@ -808,14 +808,137 @@ enum pmu_core_pwr_st {
 #define PMU_NOC_AUTO_ENA	0xd8
 #define PMU_PWRDN_CON1		0xdc
 
+#define PMUGRF_GPIO0A_IOMUX	0x00
 #define PMUGRF_GPIO1A_IOMUX	0x10
 #define AP_PWROFF		0x0a
+#define GPIO0A6_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 12)
+#define GPIO0A6_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 12)
 #define GPIO1A6_IOMUX		BITS_WITH_WMASK(0, 3, 12)
 #define TSADC_INT_PIN		38
 #define CORES_PM_DISABLE	0x0
+#define CPU_AXI_QOS_ID_COREID		0x00
+#define CPU_AXI_QOS_REVISIONID		0x04
+#define CPU_AXI_QOS_PRIORITY		0x08
+#define CPU_AXI_QOS_MODE		0x0c
+#define CPU_AXI_QOS_BANDWIDTH		0x10
+#define CPU_AXI_QOS_SATURATION		0x14
+#define CPU_AXI_QOS_EXTCONTROL		0x18
+#define CPU_AXI_QOS_NUM_REGS		0x07
+
+#define CPU_AXI_CCI_M0_QOS_BASE		0xffa50000
+#define CPU_AXI_CCI_M1_QOS_BASE		0xffad8000
+#define CPU_AXI_DMAC0_QOS_BASE		0xffa64200
+#define CPU_AXI_DMAC1_QOS_BASE		0xffa64280
+#define CPU_AXI_DCF_QOS_BASE		0xffa64180
+#define CPU_AXI_CRYPTO0_QOS_BASE	0xffa64100
+#define CPU_AXI_CRYPTO1_QOS_BASE	0xffa64080
+#define CPU_AXI_PMU_CM0_QOS_BASE	0xffa68000
+#define CPU_AXI_PERI_CM1_QOS_BASE	0xffa64300
+#define CPU_AXI_GIC_QOS_BASE		0xffa78000
+#define CPU_AXI_SDIO_QOS_BASE		0xffa76000
+#define CPU_AXI_SDMMC_QOS_BASE		0xffa74000
+#define CPU_AXI_EMMC_QOS_BASE		0xffa58000
+#define CPU_AXI_GMAC_QOS_BASE		0xffa5c000
+#define CPU_AXI_USB_OTG0_QOS_BASE	0xffa70000
+#define CPU_AXI_USB_OTG1_QOS_BASE	0xffa70080
+#define CPU_AXI_USB_HOST0_QOS_BASE	0xffa60100
+#define CPU_AXI_USB_HOST1_QOS_BASE	0xffa60180
+#define CPU_AXI_GPU_QOS_BASE		0xffae0000
+#define CPU_AXI_VIDEO_M0_QOS_BASE	0xffab8000
+#define CPU_AXI_VIDEO_M1_R_QOS_BASE	0xffac0000
+#define CPU_AXI_VIDEO_M1_W_QOS_BASE	0xffac0080
+#define CPU_AXI_RGA_R_QOS_BASE		0xffab0000
+#define CPU_AXI_RGA_W_QOS_BASE		0xffab0080
+#define CPU_AXI_IEP_QOS_BASE		0xffa98000
+#define CPU_AXI_VOP_BIG_R_QOS_BASE	0xffac8000
+#define CPU_AXI_VOP_BIG_W_QOS_BASE	0xffac8080
+#define CPU_AXI_VOP_LITTLE_QOS_BASE	0xffad0000
+#define CPU_AXI_ISP0_M0_QOS_BASE	0xffaa0000
+#define CPU_AXI_ISP0_M1_QOS_BASE	0xffaa0080
+#define CPU_AXI_ISP1_M0_QOS_BASE	0xffaa8000
+#define CPU_AXI_ISP1_M1_QOS_BASE	0xffaa8080
+#define CPU_AXI_HDCP_QOS_BASE		0xffa90000
+#define CPU_AXI_PERIHP_NSP_QOS_BASE	0xffad8080
+#define CPU_AXI_PERILP_NSP_QOS_BASE	0xffad8180
+#define CPU_AXI_PERILPSLV_NSP_QOS_BASE	0xffad8100
 
 #define PD_CTR_LOOP		500
 #define CHK_CPU_LOOP		500
-#define MAX_WAIT_CONUT		1000
+#define MAX_WAIT_COUNT		1000
 
+#define	GRF_SOC_CON4		0x0e210
+#define PMUGRF_SOC_CON0		0x0180
+
+#define CCI_FORCE_WAKEUP	WMSK_BIT(8)
+#define EXTERNAL_32K		WMSK_BIT(0)
+
+#define PLL_PD_HW		0xff
+#define IOMUX_CLK_32K		0x00030002
+#define NOC_AUTO_ENABLE		0x3fffffff
+
+#define SAVE_QOS(array, NAME) \
+	RK3399_CPU_AXI_SAVE_QOS(array, CPU_AXI_##NAME##_QOS_BASE)
+#define RESTORE_QOS(array, NAME) \
+	RK3399_CPU_AXI_RESTORE_QOS(array, CPU_AXI_##NAME##_QOS_BASE)
+
+#define RK3399_CPU_AXI_SAVE_QOS(array, base) do { \
+	array[0] = mmio_read_32(base + CPU_AXI_QOS_ID_COREID); \
+	array[1] = mmio_read_32(base + CPU_AXI_QOS_REVISIONID); \
+	array[2] = mmio_read_32(base + CPU_AXI_QOS_PRIORITY); \
+	array[3] = mmio_read_32(base + CPU_AXI_QOS_MODE); \
+	array[4] = mmio_read_32(base + CPU_AXI_QOS_BANDWIDTH); \
+	array[5] = mmio_read_32(base + CPU_AXI_QOS_SATURATION); \
+	array[6] = mmio_read_32(base + CPU_AXI_QOS_EXTCONTROL); \
+} while (0)
+
+#define RK3399_CPU_AXI_RESTORE_QOS(array, base) do { \
+	mmio_write_32(base + CPU_AXI_QOS_ID_COREID, array[0]); \
+	mmio_write_32(base + CPU_AXI_QOS_REVISIONID, array[1]); \
+	mmio_write_32(base + CPU_AXI_QOS_PRIORITY, array[2]); \
+	mmio_write_32(base + CPU_AXI_QOS_MODE, array[3]); \
+	mmio_write_32(base + CPU_AXI_QOS_BANDWIDTH, array[4]); \
+	mmio_write_32(base + CPU_AXI_QOS_SATURATION, array[5]); \
+	mmio_write_32(base + CPU_AXI_QOS_EXTCONTROL, array[6]); \
+} while (0)
+
+struct pmu_slpdata_s {
+	uint32_t cci_m0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t cci_m1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t dmac0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t dmac1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t dcf_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t crypto0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t crypto1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t pmu_cm0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t peri_cm1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t gic_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t sdmmc_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t gmac_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t emmc_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t usb_otg0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t usb_otg1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t usb_host0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t usb_host1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t gpu_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t video_m0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t video_m1_r_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t video_m1_w_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t rga_r_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t rga_w_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t vop_big_r[CPU_AXI_QOS_NUM_REGS];
+	uint32_t vop_big_w[CPU_AXI_QOS_NUM_REGS];
+	uint32_t vop_little[CPU_AXI_QOS_NUM_REGS];
+	uint32_t iep_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t isp1_m0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t isp1_m1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t isp0_m0_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t isp0_m1_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t hdcp_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t perihp_nsp_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t perilp_nsp_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t perilpslv_nsp_qos[CPU_AXI_QOS_NUM_REGS];
+	uint32_t sdio_qos[CPU_AXI_QOS_NUM_REGS];
+};
+
+extern uint32_t clst_warmboot_data[PLATFORM_CLUSTER_COUNT];
 #endif /* __PMU_H__ */

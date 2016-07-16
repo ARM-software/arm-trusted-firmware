@@ -31,7 +31,7 @@
  * Use this macro to instantiate lock before it is used in below
  * rockchip_pd_lock_xxx() macros
  */
-DEFINE_BAKERY_LOCK(rockchip_pd_lock);
+DECLARE_BAKERY_LOCK(rockchip_pd_lock);
 
 /*
  * These are wrapper macros to the powe domain Bakery Lock API.

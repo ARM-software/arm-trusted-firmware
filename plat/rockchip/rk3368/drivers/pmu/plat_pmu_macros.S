@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -10,10 +10,6 @@
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- *
- * Neither the name of ARM nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific
- * prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -29,29 +25,13 @@
  */
 
 #include <arch.h>
+#include <asm_macros.S>
 #include <platform_def.h>
-#include <plat_private.h>
-#include <psci.h>
 
-/*******************************************************************************
- * This function returns the RockChip default topology tree information.
- ******************************************************************************/
-const unsigned char *plat_get_power_domain_tree_desc(void)
-{
-	return rockchip_power_domain_tree_desc;
-}
+.macro	func_rockchip_clst_warmboot
+	/* Nothing to do for rk3368 */
+.endm
 
-int plat_core_pos_by_mpidr(u_register_t mpidr)
-{
-	unsigned int cluster_id, cpu_id;
-
-	cpu_id = mpidr & MPIDR_AFFLVL_MASK;
-	cluster_id = mpidr & MPIDR_CLUSTER_MASK;
-
-	cpu_id += (cluster_id >> PLAT_RK_CLST_TO_CPUID_SHIFT);
-
-	if (cpu_id >= PLATFORM_CORE_COUNT)
-		return -1;
-
-	return cpu_id;
-}
+.macro rockchip_clst_warmboot_data
+	/* Nothing to do for rk3368 */
+.endm
