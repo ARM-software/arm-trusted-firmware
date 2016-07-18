@@ -35,6 +35,7 @@
 #include <mmio.h>
 #include <stdint.h>
 #include <xlat_tables.h>
+#include <psci.h>
 
 /******************************************************************************
  * For rockchip socs pm ops
@@ -45,6 +46,12 @@ struct rockchip_pm_ops_cb {
 	int (*cores_pwr_dm_on_finish)(void);
 	int (*cores_pwr_dm_suspend)(void);
 	int (*cores_pwr_dm_resume)(void);
+	/* hlvl is used for clusters or system level */
+	int (*hlvl_pwr_dm_suspend)(uint32_t lvl, plat_local_state_t lvl_state);
+	int (*hlvl_pwr_dm_resume)(uint32_t lvl, plat_local_state_t lvl_state);
+	int (*hlvl_pwr_dm_off)(uint32_t lvl, plat_local_state_t lvl_state);
+	int (*hlvl_pwr_dm_on_finish)(uint32_t lvl,
+				     plat_local_state_t lvl_state);
 	int (*sys_pwr_dm_suspend)(void);
 	int (*sys_pwr_dm_resume)(void);
 	void (*sys_gbl_soft_reset)(void) __dead2;
@@ -109,6 +116,7 @@ void plat_rockchip_pmusram_prepare(void);
 void plat_rockchip_pmu_init(void);
 void plat_rockchip_soc_init(void);
 void plat_setup_rockchip_pm_ops(struct rockchip_pm_ops_cb *ops);
+uintptr_t plat_get_sec_entrypoint(void);
 
 void platform_cpu_warmboot(void);
 
@@ -126,10 +134,12 @@ extern uint32_t cpuson_flags[PLATFORM_CORE_COUNT];
 extern const mmap_region_t plat_rk_mmap[];
 #endif /* __ASSEMBLY__ */
 
-/* only Cortex-A53 */
-#define RK_PLAT_CFG0	0
-
-/* include Cortex-A72 */
-#define RK_PLAT_CFG1	1
+/******************************************************************************
+ * cpu up status
+ * The bits of macro value is not more than 12 bits for cmp instruction!
+ ******************************************************************************/
+#define PMU_CPU_HOTPLUG		0xf00
+#define PMU_CPU_AUTO_PWRDN	0xf0
+#define PMU_CLST_RET	0xa5
 
 #endif /* __PLAT_PRIVATE_H__ */

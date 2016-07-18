@@ -34,12 +34,8 @@
 #define GLB_SRST_FST_CFG_VAL	0xfdb9
 #define GLB_SRST_SND_CFG_VAL	0xeca8
 
-#define PMUCRU_PPLL_CON_OFFSET		0x000
-#define PMUCRU_PPLL_CON_BASE_ADDR	(PMUCRU_BASE + PMUCRU_PPLL_CON_OFFSET)
-#define PMUCRU_PPLL_CON_CONUT		0x06
-
-#define PMUCRU_PPLL_CON(num)		(PMUCRU_PPLL_CON_BASE_ADDR + num * 4)
-#define CRU_PLL_CON(pll_id, num)	(CRU_BASE + pll_id  * 0x20 + num * 4)
+#define PMUCRU_PPLL_CON(n)		((n) * 4)
+#define CRU_PLL_CON(pll_id, n)	((pll_id)  * 0x20 + (n) * 4)
 #define PLL_MODE_MSK			0x03
 #define PLL_MODE_SHIFT			0x08
 #define PLL_BYPASS_MSK			0x01
@@ -52,27 +48,29 @@
 #define NO_PLL_BYPASS			(0x00)
 #define NO_PLL_PWRDN			(0x00)
 
-#define PLL_SLOW_MODE		BITS_WITH_WMASK(SLOW_MODE,\
+#define PLL_SLOW_MODE			BITS_WITH_WMASK(SLOW_MODE,\
 						PLL_MODE_MSK, PLL_MODE_SHIFT)
-#define PLL_BYPASS_MODE		BITS_WITH_WMASK(PLL_BYPASS,\
-						PLL_BYPASS_MSK,\
-						PLL_BYPASS_SHIFT)
-#define PLL_NO_BYPASS_MODE	BITS_WITH_WMASK(NO_PLL_BYPASS,\
-						PLL_BYPASS_MSK,\
-						PLL_BYPASS_SHIFT)
-#define PLL_NOMAL_MODE		BITS_WITH_WMASK(NORMAL_MODE,\
+
+#define PLL_NOMAL_MODE			BITS_WITH_WMASK(NORMAL_MODE,\
 						PLL_MODE_MSK, PLL_MODE_SHIFT)
+
+#define PLL_BYPASS_MODE			BIT_WITH_WMSK(PLL_BYPASS_SHIFT)
+#define PLL_NO_BYPASS_MODE		WMSK_BIT(PLL_BYPASS_SHIFT)
 
 #define PLL_CON_COUNT			0x06
 #define CRU_CLKSEL_COUNT		0x108
-#define CRU_CLKSEL_OFFSET		0x300
+#define CRU_CLKSEL_CON(n)		(0x80 + (n) * 4)
 
 #define PMUCRU_CLKSEL_CONUT		0x06
 #define PMUCRU_CLKSEL_OFFSET		0x080
 #define REG_SIZE			0x04
 #define REG_SOC_WMSK			0xffff0000
-
 #define CLK_GATE_MASK			0x01
+
+#define PMUCRU_GATE_COUNT	0x03
+#define CRU_GATE_COUNT		0x23
+#define PMUCRU_GATE_CON(n)	(0x100 + (n) * 4)
+#define CRU_GATE_CON(n)	(0x300 + (n) * 4)
 
 enum plls_id {
 	ALPLL_ID = 0,
@@ -85,6 +83,9 @@ enum plls_id {
 	PPLL_ID,
 	END_PLL_ID,
 };
+
+#define CLST_L_CPUS_MSK (0xf)
+#define CLST_B_CPUS_MSK (0x3)
 
 enum pll_work_mode {
 	SLOW_MODE = 0x00,
@@ -102,10 +103,13 @@ struct deepsleep_data_s {
 	uint32_t plls_con[END_PLL_ID][PLL_CON_COUNT];
 	uint32_t pmucru_clksel_con[PMUCRU_CLKSEL_CONUT];
 	uint32_t cru_clksel_con[CRU_CLKSEL_COUNT];
+	uint32_t cru_gate_con[CRU_GATE_COUNT];
+	uint32_t pmucru_gate_con[PMUCRU_GATE_COUNT];
 };
 
 #define CYCL_24M_CNT_US(us)	(24 * us)
 #define CYCL_24M_CNT_MS(ms)	(ms * CYCL_24M_CNT_US(1000))
+#define CYCL_32K_CNT_MS(ms)	(ms * 32)
 
 /**************************************************
  * secure timer
@@ -261,5 +265,7 @@ static inline void pmu_sgrf_rst_hld(void)
 void __dead2 soc_global_soft_reset(void);
 void plls_resume(void);
 void plls_suspend(void);
-
+void clk_gate_con_save(void);
+void clk_gate_con_disable(void);
+void clk_gate_con_restore(void);
 #endif /* __SOC_H__ */

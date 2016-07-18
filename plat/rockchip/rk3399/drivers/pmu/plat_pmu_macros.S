@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -10,10 +10,6 @@
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- *
- * Neither the name of ARM nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific
- * prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -29,29 +25,43 @@
  */
 
 #include <arch.h>
+#include <asm_macros.S>
 #include <platform_def.h>
-#include <plat_private.h>
-#include <psci.h>
 
-/*******************************************************************************
- * This function returns the RockChip default topology tree information.
- ******************************************************************************/
-const unsigned char *plat_get_power_domain_tree_desc(void)
-{
-	return rockchip_power_domain_tree_desc;
-}
+	.globl	clst_warmboot_data
 
-int plat_core_pos_by_mpidr(u_register_t mpidr)
-{
-	unsigned int cluster_id, cpu_id;
+#define PLL_MODE_SHIFT	(0x8)
+#define PLL_NORMAL_MODE	((0x3 << (PLL_MODE_SHIFT + 16)) | \
+						 (0x1 << PLL_MODE_SHIFT))
+#define MPIDR_CLST_L_BITS 0x0
+	/*
+	 * For different socs, if we want to speed up warmboot,
+	 * we need to config some regs here.
+	 * If scu was suspend, we must resume related clk
+	 * from slow (24M) mode to normal mode first.
+	 * X0: MPIDR_EL1 & MPIDR_CLUSTER_MASK
+	 */
+.macro	func_rockchip_clst_warmboot
+	adr	x4, clst_warmboot_data
+	lsr	x5, x0, #6
+	ldr	w3, [x4, x5]
+	str	wzr, [x4, x5]
+	cmp	w3, #PMU_CLST_RET
+	b.ne	clst_warmboot_end
+	ldr	w6, =(PLL_NORMAL_MODE)
+	/*
+	 * core_l offset is CRU_BASE + 0xc,
+	 * core_b offset is CRU_BASE + 0x2c
+	 */
+	ldr	x7, =(CRU_BASE + 0xc)
+	lsr	x2, x0, #3
+	str	w6, [x7, x2]
+clst_warmboot_end:
+.endm
 
-	cpu_id = mpidr & MPIDR_AFFLVL_MASK;
-	cluster_id = mpidr & MPIDR_CLUSTER_MASK;
-
-	cpu_id += (cluster_id >> PLAT_RK_CLST_TO_CPUID_SHIFT);
-
-	if (cpu_id >= PLATFORM_CORE_COUNT)
-		return -1;
-
-	return cpu_id;
-}
+.macro rockchip_clst_warmboot_data
+clst_warmboot_data:
+	.rept	PLATFORM_CLUSTER_COUNT
+	.word	0
+	.endr
+.endm

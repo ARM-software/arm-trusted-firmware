@@ -50,21 +50,6 @@ static uintptr_t rockchip_sec_entrypoint;
 
 static struct rockchip_pm_ops_cb *rockchip_ops;
 
-static void plat_rockchip_sys_pwr_domain_resume(void)
-{
-	if (rockchip_ops && rockchip_ops->sys_pwr_dm_resume)
-		rockchip_ops->sys_pwr_dm_resume();
-}
-
-static void plat_rockchip_cores_pwr_domain_resume(void)
-{
-	if (rockchip_ops && rockchip_ops->cores_pwr_dm_resume)
-		rockchip_ops->cores_pwr_dm_resume();
-
-	/* Program the gic per-cpu distributor or re-distributor interface */
-	plat_rockchip_gic_cpuif_enable();
-}
-
 /*******************************************************************************
  * Rockchip standard platform handler called to check the validity of the power
  * state parameter.
@@ -96,6 +81,10 @@ int rockchip_validate_power_state(unsigned int power_state,
 		for (i = MPIDR_AFFLVL0; i <= pwr_lvl; i++)
 			req_state->pwr_domain_state[i] =
 					PLAT_MAX_OFF_STATE;
+
+		for (i = (pwr_lvl + 1); i <= PLAT_MAX_PWR_LVL; i++)
+			req_state->pwr_domain_state[i] =
+					PLAT_MAX_RET_STATE;
 	}
 
 	/* We expect the 'state id' to be zero */
@@ -154,14 +143,28 @@ int rockchip_pwr_domain_on(u_register_t mpidr)
  ******************************************************************************/
 void rockchip_pwr_domain_off(const psci_power_state_t *target_state)
 {
+	uint32_t lvl;
+	plat_local_state_t lvl_state;
+
 	assert(RK_CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE);
 
 	plat_rockchip_gic_cpuif_disable();
 
 	if (RK_CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
 		plat_cci_disable();
-	if (rockchip_ops && rockchip_ops->cores_pwr_dm_off)
-		rockchip_ops->cores_pwr_dm_off();
+
+	if (!rockchip_ops || !rockchip_ops->cores_pwr_dm_off)
+		return;
+
+	rockchip_ops->cores_pwr_dm_off();
+
+	if (!rockchip_ops->hlvl_pwr_dm_off)
+		return;
+
+	for (lvl = MPIDR_AFFLVL1; lvl <= PLAT_MAX_PWR_LVL; lvl++) {
+		lvl_state = target_state->pwr_domain_state[lvl];
+		rockchip_ops->hlvl_pwr_dm_off(lvl, lvl_state);
+	}
 }
 
 /*******************************************************************************
@@ -170,17 +173,19 @@ void rockchip_pwr_domain_off(const psci_power_state_t *target_state)
  ******************************************************************************/
 void rockchip_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	if (RK_CORE_PWR_STATE(target_state) == PLAT_MAX_RET_STATE)
+	uint32_t lvl;
+	plat_local_state_t lvl_state;
+
+	if (RK_CORE_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE)
 		return;
 
-	assert(RK_CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE);
-
-	if (RK_SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
-		if (rockchip_ops && rockchip_ops->sys_pwr_dm_suspend)
+	if (rockchip_ops) {
+		if (RK_SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE &&
+		    rockchip_ops->sys_pwr_dm_suspend) {
 			rockchip_ops->sys_pwr_dm_suspend();
-	} else {
-		if (rockchip_ops && rockchip_ops->cores_pwr_dm_suspend)
+		} else if (rockchip_ops->cores_pwr_dm_suspend) {
 			rockchip_ops->cores_pwr_dm_suspend();
+		}
 	}
 
 	/* Prevent interrupts from spuriously waking up this cpu */
@@ -189,6 +194,14 @@ void rockchip_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* Perform the common cluster specific operations */
 	if (RK_CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
 		plat_cci_disable();
+
+	if (!rockchip_ops || !rockchip_ops->hlvl_pwr_dm_suspend)
+		return;
+
+	for (lvl = MPIDR_AFFLVL1; lvl <= PLAT_MAX_PWR_LVL; lvl++) {
+		lvl_state = target_state->pwr_domain_state[lvl];
+		rockchip_ops->hlvl_pwr_dm_suspend(lvl, lvl_state);
+	}
 }
 
 /*******************************************************************************
@@ -198,10 +211,24 @@ void rockchip_pwr_domain_suspend(const psci_power_state_t *target_state)
  ******************************************************************************/
 void rockchip_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+	uint32_t lvl;
+	plat_local_state_t lvl_state;
+
 	assert(RK_CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE);
 
-	if (rockchip_ops && rockchip_ops->cores_pwr_dm_on_finish)
+	if (!rockchip_ops)
+		goto comm_finish;
+
+	if (rockchip_ops->hlvl_pwr_dm_on_finish) {
+		for (lvl = MPIDR_AFFLVL1; lvl <= PLAT_MAX_PWR_LVL; lvl++) {
+			lvl_state = target_state->pwr_domain_state[lvl];
+			rockchip_ops->hlvl_pwr_dm_on_finish(lvl, lvl_state);
+		}
+	}
+
+	if (rockchip_ops->cores_pwr_dm_on_finish)
 		rockchip_ops->cores_pwr_dm_on_finish();
+comm_finish:
 
 	/* Perform the common cluster specific operations */
 	if (RK_CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
@@ -225,15 +252,37 @@ void rockchip_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 void rockchip_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
+	uint32_t lvl;
+	plat_local_state_t lvl_state;
+
 	/* Nothing to be done on waking up from retention from CPU level */
-	if (RK_CORE_PWR_STATE(target_state) == PLAT_MAX_RET_STATE)
+	if (RK_CORE_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE)
 		return;
 
 	/* Perform system domain restore if woken up from system suspend */
-	if (RK_SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
-		plat_rockchip_sys_pwr_domain_resume();
-	else
-		plat_rockchip_cores_pwr_domain_resume();
+	if (!rockchip_ops)
+		goto comm_finish;
+
+	if (rockchip_ops->hlvl_pwr_dm_resume) {
+		for (lvl = MPIDR_AFFLVL1; lvl <= PLAT_MAX_PWR_LVL; lvl++) {
+			lvl_state = target_state->pwr_domain_state[lvl];
+			rockchip_ops->hlvl_pwr_dm_resume(lvl, lvl_state);
+		}
+	}
+
+	if (RK_SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE &&
+	    rockchip_ops->sys_pwr_dm_resume) {
+		rockchip_ops->sys_pwr_dm_resume();
+	} else if (rockchip_ops->cores_pwr_dm_resume) {
+		rockchip_ops->cores_pwr_dm_resume();
+	}
+
+comm_finish:
+	/*
+	 * Program the gic per-cpu distributor
+	 * or re-distributor interface
+	 */
+	plat_rockchip_gic_cpuif_enable();
 
 	/* Perform the common cluster specific operations */
 	if (RK_CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
@@ -286,6 +335,12 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	*psci_ops = &plat_rockchip_psci_pm_ops;
 	rockchip_sec_entrypoint = sec_entrypoint;
 	return 0;
+}
+
+uintptr_t plat_get_sec_entrypoint(void)
+{
+	assert(rockchip_sec_entrypoint);
+	return rockchip_sec_entrypoint;
 }
 
 void plat_setup_rockchip_pm_ops(struct rockchip_pm_ops_cb *ops)
