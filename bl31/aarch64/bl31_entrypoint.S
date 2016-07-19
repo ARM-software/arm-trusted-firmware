@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <bl_common.h>
 #include <el3_common_macros.S>
+#include <platform_def.h>
 
 	.globl	bl31_entrypoint
 
@@ -42,6 +43,39 @@
 	 */
 
 func bl31_entrypoint
+#ifdef BL31_ENABLE_RELOCATION
+	/*
+	 * Below code snippet is used for relocating BL3-1.
+	 *
+	 *The BL3-1 relocation ensures that BL3-1 only runs from compiled
+	 *execution address. If previous boot-loader stage loads BL3-1 to
+	 *an address different from compiled execution address then BL3-1
+	 *relocation will copy BL3-1 to desired execution address and continue
+	 *from there.
+	 */
+
+	adr	x10, bl31_entrypoint
+	ldr	x11, __reloc_start
+	ldr	x12, __reloc_end
+	cmp	x10, x11
+	b.eq	_reloc_done
+1:	ldp	x13, x14, [x10], #16
+	stp	x13, x14, [x11], #16
+	cmp	x11, x12
+	b.lt	1b
+
+	ldr	x10, __reloc_done
+	br	x10
+	.align 3
+__reloc_start:
+	.dword BL31_BASE
+__reloc_end:
+	.dword __BL31_END__
+__reloc_done:
+	.dword _reloc_done
+_reloc_done:
+#endif
+
 #if !RESET_TO_BL31
 	/* ---------------------------------------------------------------
 	 * Preceding bootloader has populated x0 with a pointer to a
