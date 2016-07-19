@@ -475,3 +475,22 @@ int ari_read_write_uncore_perfmon(uint32_t ari_base,
 
 	return (int)req.perfmon_status.val;
 }
+
+void ari_misc_ccplex(uint32_t ari_base, uint32_t index, uint32_t value)
+{
+	/*
+	 * This invokes the ARI_MISC_CCPLEX commands. This can be
+	 * used to enable/disable coresight clock gating.
+	 */
+
+	if ((index > TEGRA_ARI_MISC_CCPLEX_CORESIGHT_CG_CTRL) ||
+		((index == TEGRA_ARI_MISC_CCPLEX_CORESIGHT_CG_CTRL) &&
+		(value > 1))) {
+		ERROR("%s: invalid parameters \n", __func__);
+		return;
+	}
+
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+	(void)ari_request_wait(ari_base, 0, TEGRA_ARI_MISC_CCPLEX, index, value);
+}

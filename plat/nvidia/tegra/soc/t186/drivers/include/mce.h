@@ -79,23 +79,24 @@ typedef enum mce_core_id {
  ******************************************************************************/
 typedef enum mce_cmd {
 	MCE_CMD_ENTER_CSTATE = 0,
-	MCE_CMD_UPDATE_CSTATE_INFO,
-	MCE_CMD_UPDATE_CROSSOVER_TIME,
-	MCE_CMD_READ_CSTATE_STATS,
-	MCE_CMD_WRITE_CSTATE_STATS,
-	MCE_CMD_IS_SC7_ALLOWED,
-	MCE_CMD_ONLINE_CORE,
-	MCE_CMD_CC3_CTRL,
-	MCE_CMD_ECHO_DATA,
-	MCE_CMD_READ_VERSIONS,
-	MCE_CMD_ENUM_FEATURES,
-	MCE_CMD_ROC_FLUSH_CACHE_TRBITS,
-	MCE_CMD_ENUM_READ_MCA,
-	MCE_CMD_ENUM_WRITE_MCA,
-	MCE_CMD_ROC_FLUSH_CACHE,
-	MCE_CMD_ROC_CLEAN_CACHE,
-	MCE_CMD_ENABLE_LATIC,
-	MCE_CMD_UNCORE_PERFMON_REQ,
+	MCE_CMD_UPDATE_CSTATE_INFO = 1,
+	MCE_CMD_UPDATE_CROSSOVER_TIME = 2,
+	MCE_CMD_READ_CSTATE_STATS = 3,
+	MCE_CMD_WRITE_CSTATE_STATS = 4,
+	MCE_CMD_IS_SC7_ALLOWED = 5,
+	MCE_CMD_ONLINE_CORE = 6,
+	MCE_CMD_CC3_CTRL = 7,
+	MCE_CMD_ECHO_DATA = 8,
+	MCE_CMD_READ_VERSIONS = 9,
+	MCE_CMD_ENUM_FEATURES = 10,
+	MCE_CMD_ROC_FLUSH_CACHE_TRBITS = 11,
+	MCE_CMD_ENUM_READ_MCA = 12,
+	MCE_CMD_ENUM_WRITE_MCA = 13,
+	MCE_CMD_ROC_FLUSH_CACHE = 14,
+	MCE_CMD_ROC_CLEAN_CACHE = 15,
+	MCE_CMD_ENABLE_LATIC = 16,
+	MCE_CMD_UNCORE_PERFMON_REQ = 17,
+	MCE_CMD_MISC_CCPLEX = 18,
 	MCE_CMD_IS_CCX_ALLOWED = 0xFE,
 	MCE_CMD_MAX = 0xFF,
 } mce_cmd_t;
@@ -386,6 +387,12 @@ typedef struct arch_mce_ops {
 	 */
 	int (*read_write_uncore_perfmon)(uint32_t ari_base,
 			uncore_perfmon_req_t req, uint64_t *data);
+	/*
+	 * This ARI implements ARI_MISC_CCPLEX commands. This can be
+	 * used to enable/disable coresight clock gating.
+	 */
+	void (*misc_ccplex)(uint32_t ari_base, uint32_t index,
+			uint32_t value);
 } arch_mce_ops_t;
 
 int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
@@ -420,6 +427,7 @@ int ari_update_ccplex_gsc(uint32_t ari_base, uint32_t gsc_idx);
 void ari_enter_ccplex_state(uint32_t ari_base, uint32_t state_idx);
 int ari_read_write_uncore_perfmon(uint32_t ari_base,
 		uncore_perfmon_req_t req, uint64_t *data);
+void ari_misc_ccplex(uint32_t ari_base, uint32_t index, uint32_t value);
 
 int nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int nvg_update_cstate_info(uint32_t ari_base, uint32_t cluster, uint32_t ccplex,

@@ -63,7 +63,8 @@ static arch_mce_ops_t nvg_mce_ops = {
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
 	.enter_ccplex_state = ari_enter_ccplex_state,
-	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon,
+	.misc_ccplex = ari_misc_ccplex
 };
 
 /* ARI functions handlers */
@@ -85,7 +86,8 @@ static arch_mce_ops_t ari_mce_ops = {
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
 	.enter_ccplex_state = ari_enter_ccplex_state,
-	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon,
+	.misc_ccplex = ari_misc_ccplex
 };
 
 typedef struct mce_config {
@@ -383,6 +385,11 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 
 		/* update context to return data */
 		write_ctx_reg(gp_regs, CTX_GPREG_X1, arg1);
+		break;
+
+	case MCE_CMD_MISC_CCPLEX:
+		ops->misc_ccplex(cpu_ari_base, arg0, arg1);
+
 		break;
 
 	default:
