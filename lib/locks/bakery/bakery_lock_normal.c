@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,8 +87,12 @@ extern void *__PERCPU_BAKERY_LOCK_SIZE__;
 						dsbish();\
 				} while (0)
 
-#define read_cache_op(addr, cached)	if (cached) \
-					    dccivac((uint64_t)addr)
+#define read_cache_op(addr, cached)	\
+	do {	\
+		if (cached)\
+			dccivac((uint64_t)addr);\
+		dmbish();\
+	} while (0)
 
 static unsigned int bakery_get_ticket(bakery_lock_t *lock,
 						unsigned int me, int is_cached)
@@ -151,6 +155,7 @@ static unsigned int bakery_get_ticket(bakery_lock_t *lock,
 	 * finish calculating our ticket value that we're done
 	 */
 	++my_ticket;
+	dmbish();
 	my_bakery_info->lock_data = make_bakery_data(CHOSEN_TICKET, my_ticket);
 
 	write_cache_op(my_bakery_info, is_cached);
@@ -222,6 +227,7 @@ void bakery_lock_release(bakery_lock_t *lock)
 	unsigned int is_cached = read_sctlr_el3() & SCTLR_C_BIT;
 
 	my_bakery_info = get_bakery_info(plat_my_core_pos(), lock);
+	read_cache_op(my_bakery_info, is_cached);
 	assert(bakery_ticket_number(my_bakery_info->lock_data));
 
 	my_bakery_info->lock_data = 0;
