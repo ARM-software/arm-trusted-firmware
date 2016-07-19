@@ -42,6 +42,7 @@
 #include <sys/errno.h>
 #include <t18x_ari.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 
 /* NVG functions handlers */
 static arch_mce_ops_t nvg_mce_ops = {
@@ -482,7 +483,13 @@ void mce_verify_firmware_version(void)
 	arch_mce_ops_t *ops;
 	uint32_t cpu_ari_base;
 	uint64_t version;
-	uint32_t major, minor, chip_minor, chip_major;
+	uint32_t major, minor;
+
+	/*
+	 * MCE firmware is not running on simulation platforms.
+	 */
+	if (tegra_platform_is_emulation())
+		return;
 
 	/* get a pointer to the CPU's arch_mce_ops_t struct */
 	ops = mce_get_curr_cpu_ops();
@@ -500,17 +507,6 @@ void mce_verify_firmware_version(void)
 
 	INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
 		TEGRA_ARI_VERSION_MAJOR, TEGRA_ARI_VERSION_MINOR);
-
-	/*
-	 * MCE firmware is not running on simulation platforms. Simulation
-	 * platforms are identified by v0.3 from the Tegra Chip ID value.
-	 */
-	chip_major = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
-			MAJOR_VERSION_SHIFT) & MAJOR_VERSION_MASK;
-	chip_minor = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
-			MINOR_VERSION_SHIFT) & MINOR_VERSION_MASK;
-	if ((chip_major == 0) && (chip_minor == 3))
-		return;
 
 	/*
 	 * Verify that the MCE firmware version and the interface header
