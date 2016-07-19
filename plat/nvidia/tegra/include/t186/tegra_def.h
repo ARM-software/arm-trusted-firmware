@@ -76,10 +76,6 @@
  ******************************************************************************/
 #define TEGRA_MISC_BASE			0x00100000
 #define  HARDWARE_REVISION_OFFSET	0x4
-#define  MAJOR_VERSION_SHIFT		0x4
-#define  MAJOR_VERSION_MASK		0xF
-#define  MINOR_VERSION_SHIFT		0x10
-#define  MINOR_VERSION_MASK		0xF
 
 #define  MISCREG_PFCFG			0x200C
 

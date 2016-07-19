@@ -42,6 +42,7 @@
 #include <mce.h>
 #include <platform.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 #include <tegra_private.h>
 #include <xlat_tables.h>
 
@@ -162,7 +163,7 @@ uint32_t plat_get_console_from_id(int id)
 void plat_early_platform_setup(void)
 {
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
-	uint32_t chip_minor, chip_major, chip_subrev, val;
+	uint32_t chip_subrev, val;
 
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
@@ -174,17 +175,13 @@ void plat_early_platform_setup(void)
 	if (impl != DENVER_IMPL) {
 
 		/* get the major, minor and sub-version values */
-		chip_major = (mmio_read_32(TEGRA_MISC_BASE +
-			      HARDWARE_REVISION_OFFSET) >>
-			      MAJOR_VERSION_SHIFT) & MAJOR_VERSION_MASK;
-		chip_minor = (mmio_read_32(TEGRA_MISC_BASE +
-			      HARDWARE_REVISION_OFFSET) >>
-			      MINOR_VERSION_SHIFT) & MINOR_VERSION_MASK;
 		chip_subrev = mmio_read_32(TEGRA_FUSE_BASE + OPT_SUBREVISION) &
 			      SUBREVISION_MASK;
 
 		/* prepare chip version number */
-		val = (chip_major << 12) | (chip_minor << 8) | chip_subrev;
+		val = (tegra_get_chipid_major() << 12) |
+		      (tegra_get_chipid_minor() << 8) |
+		       chip_subrev;
 
 		/* enable L2 ECC for Tegra186 A02P and beyond */
 		if (val >= TEGRA186_VER_A02P) {
