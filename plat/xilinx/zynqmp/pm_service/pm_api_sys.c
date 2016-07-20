@@ -76,7 +76,7 @@
  * pm_self_suspend() - PM call for processor to suspend itself
  * @nid		Node id of the processor or subsystem
  * @latency	Requested maximum wakeup latency (not supported)
- * @state	Requested state (not supported)
+ * @state	Requested state
  * @address	Resume address
  *
  * This is a blocking call, it will return only once PMU has responded.

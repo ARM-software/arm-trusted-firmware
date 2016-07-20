@@ -43,16 +43,10 @@
 #include "pm_ipi.h"
 #include "../zynqmp_def.h"
 
-#define OCM_BANK_0	0xFFFC0000
-#define OCM_BANK_1	(OCM_BANK_0 + 0x10000)
-#define OCM_BANK_2	(OCM_BANK_1 + 0x10000)
-#define OCM_BANK_3	(OCM_BANK_2 + 0x10000)
-
 #define UNDEFINED_CPUID		(~0)
+
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
-/* Declaration of linker defined symbol */
-extern unsigned long __BL31_END__;
 extern const struct pm_ipi apu_ipi;
 
 /* Order in pm_procs_all array must match cpu ids */
@@ -78,38 +72,6 @@ static const struct pm_proc const pm_procs_all[] = {
 		.ipi = &apu_ipi,
 	},
 };
-
-/**
- * set_ocm_retention() - Configure OCM memory banks for retention
- *
- * APU specific requirements for suspend action:
- * OCM has to enter retention state in order to preserve saved
- * context after suspend request. OCM banks are determined by
- * __BL31_END__ linker symbol.
- *
- * Return:	Returns status, either success or error+reason
- */
-enum pm_ret_status set_ocm_retention(void)
-{
-	enum pm_ret_status ret;
-
-	/* OCM_BANK_0 will always be occupied */
-	ret = pm_set_requirement(NODE_OCM_BANK_0, PM_CAP_CONTEXT, 0,
-				 REQ_ACK_NO);
-
-	/* Check for other OCM banks  */
-	if ((unsigned long)&__BL31_END__ >= OCM_BANK_1)
-		ret = pm_set_requirement(NODE_OCM_BANK_1, PM_CAP_CONTEXT, 0,
-					 REQ_ACK_NO);
-	if ((unsigned long)&__BL31_END__ >= OCM_BANK_2)
-		ret = pm_set_requirement(NODE_OCM_BANK_2, PM_CAP_CONTEXT, 0,
-					 REQ_ACK_NO);
-	if ((unsigned long)&__BL31_END__ >= OCM_BANK_3)
-		ret = pm_set_requirement(NODE_OCM_BANK_3, PM_CAP_CONTEXT, 0,
-					 REQ_ACK_NO);
-
-	return ret;
-}
 
 /**
  * pm_get_proc() - returns pointer to the proc structure

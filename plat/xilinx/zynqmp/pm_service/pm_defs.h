@@ -53,6 +53,10 @@
 #define MAX_LATENCY	(~0U)
 #define MAX_QOS		100U
 
+/* State arguments of the self suspend */
+#define PM_STATE_CPU_IDLE		0x0U
+#define PM_STATE_SUSPEND_TO_RAM		0xFU
+
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
