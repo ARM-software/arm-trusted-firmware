@@ -38,6 +38,8 @@
 #define IS_POWER_OF_TWO(x)			\
 	(((x) & ((x) - 1)) == 0)
 
+#define SIZE_FROM_LOG2_WORDS(n)		(4 << (n))
+
 /*
  * The round_up() macro rounds up a value to the given boundary in a
  * type-agnostic yet type-safe manner. The boundary must be a power of two.

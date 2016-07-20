@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -334,8 +334,6 @@
 #define CTR_IMINLINE_MASK	0xf
 
 #define MAX_CACHE_LINE_SIZE	0x800 /* 2KB */
-#define SIZE_FROM_LOG2_WORDS(n)	(4 << (n))
-
 
 /* Physical timer control register bit fields shifts and masks */
 #define CNTP_CTL_ENABLE_SHIFT   0

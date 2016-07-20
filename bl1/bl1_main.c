@@ -38,6 +38,7 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <smcc_helpers.h>
+#include <utils.h>
 #include "bl1_private.h"
 #include <uuid.h>
 
