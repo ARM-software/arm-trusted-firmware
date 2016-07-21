@@ -39,72 +39,82 @@
 #define SIZE_K(n)	((n) * 1024)
 #define SIZE_M(n)	((n) * 1024 * 1024)
 
-#define CCI500_BASE		0xffb00000
-#define CCI500_SIZE		SIZE_M(1)
+/* Register base address and size */
+#define MMIO_BASE		0xfe000000
 
-#define GIC500_BASE		0xfee00000
+#define GIC500_BASE		(MMIO_BASE + 0xe00000)
 #define GIC500_SIZE		SIZE_M(2)
 
-#define STIME_BASE		0xff860000
-#define STIME_SIZE		SIZE_K(64)
+#define PMU_BASE		(MMIO_BASE + 0x1310000)
+#define PMU_SIZE		SIZE_K(64)
 
-#define CRUS_BASE		0xff750000
-#define CRUS_SIZE			SIZE_K(128)
+#define PMUGRF_BASE		(MMIO_BASE + 0x1320000)
+#define PMUGRF_SIZE		SIZE_K(64)
 
-#define SGRF_BASE		0xff330000
-#define SGRF_SIZE			SIZE_K(64)
+#define SGRF_BASE		(MMIO_BASE + 0x1330000)
+#define SGRF_SIZE		SIZE_K(64)
 
-#define PMU_BASE			0xff310000
-#define PMU_SIZE			SIZE_K(64)
-
-#define PMUSRAM_BASE		0xff3b0000
+#define PMUSRAM_BASE		(MMIO_BASE + 0x13b0000)
 #define PMUSRAM_SIZE		SIZE_K(64)
 #define PMUSRAM_RSIZE		SIZE_K(8)
 
-#define PMUGRF_BASE		0xff320000
-#define PMUGRF_SIZE		SIZE_K(64)
+#define PWM_BASE		(MMIO_BASE + 0x1420000)
+#define PWM_SIZE		SIZE_K(64)
 
-#define GPIO0_BASE		0xff720000
+#define GPIO0_BASE		(MMIO_BASE + 0x1720000)
 #define GPIO0_SIZE		SIZE_K(64)
 
-#define GPIO1_BASE		0xff730000
+#define GPIO1_BASE		(MMIO_BASE + 0x1730000)
 #define GPIO1_SIZE		SIZE_K(64)
 
-#define GPIO2_BASE		0xff780000
-#define GPIO2_SIZE		SIZE_K(32)
+#define CRUS_BASE		(MMIO_BASE + 0x1750000)
+#define CRUS_SIZE		SIZE_K(128)
 
-#define GPIO3_BASE		0xff788000
-#define GPIO3_SIZE		SIZE_K(32)
-
-#define GPIO4_BASE		0xff790000
-#define GPIO4_SIZE		SIZE_K(32)
-
-#define GRF_BASE		0xff770000
+#define GRF_BASE		(MMIO_BASE + 0x1770000)
 #define GRF_SIZE		SIZE_K(64)
 
-#define SERVICE_NOC_0_BASE	0xffa50000
+#define GPIO2_BASE		(MMIO_BASE + 0x1780000)
+#define GPIO2_SIZE		SIZE_K(32)
+
+#define GPIO3_BASE		(MMIO_BASE + 0x1788000)
+#define GPIO3_SIZE		SIZE_K(32)
+
+#define GPIO4_BASE		(MMIO_BASE + 0x1790000)
+#define GPIO4_SIZE		SIZE_K(32)
+
+#define STIME_BASE		(MMIO_BASE + 0x1860000)
+#define STIME_SIZE		SIZE_K(64)
+
+#define SERVICE_NOC_0_BASE	(MMIO_BASE + 0x1a50000)
 #define NOC_0_SIZE		SIZE_K(192)
 
-#define SERVICE_NOC_1_BASE	0xffa84000
+#define SERVICE_NOC_1_BASE	(MMIO_BASE + 0x1a84000)
 #define NOC_1_SIZE		SIZE_K(16)
 
-#define SERVICE_NOC_2_BASE	0xffa8c000
+#define SERVICE_NOC_2_BASE	(MMIO_BASE + 0x1a8c000)
 #define NOC_2_SIZE		SIZE_K(16)
 
-#define SERVICE_NOC_3_BASE	0xffa90000
+#define SERVICE_NOC_3_BASE	(MMIO_BASE + 0x1a90000)
 #define NOC_3_SIZE		SIZE_K(448)
+
+#define CCI500_BASE		(MMIO_BASE + 0x1b00000)
+#define CCI500_SIZE		SIZE_M(1)
+
+/* Aggregate of all devices in the first GB */
+#define RK3399_DEV_RNG0_BASE	MMIO_BASE
+#define RK3399_DEV_RNG0_SIZE	0x1d00000
 
 /*
  * include i2c pmu/audio, pwm0-3 rkpwm0-3 uart_dbg,mailbox scr
  * 0xff650000 -0xff6c0000
  */
-#define PD_BUS0_BASE		0xff650000
-#define PD_BUS0_SIZE		0x70000
+#define PD_BUS0_BASE		(MMIO_BASE + 0x1650000)
+#define PD_BUS0_SIZE		SIZE_K(448)
 
-#define PMUCRU_BASE		0xff750000
-#define CRU_BASE			0xff760000
+#define PMUCRU_BASE		(MMIO_BASE + 0x1750000)
+#define CRU_BASE		(MMIO_BASE + 0x1760000)
 
-#define COLD_BOOT_BASE		0xffff0000
+#define COLD_BOOT_BASE		(MMIO_BASE + 0x1ff0000)
 
 /**************************************************************************
  * UART related constants
@@ -150,5 +160,15 @@
  */
 #define RK3399_G1S_IRQS			ARM_IRQ_SEC_PHY_TIMER
 #define RK3399_G0_IRQS			ARM_IRQ_SEC_SGI_6
+
+#define PWM0_IOMUX_PWM_EN		(1 << 0)
+#define PWM1_IOMUX_PWM_EN		(1 << 1)
+#define PWM2_IOMUX_PWM_EN		(1 << 2)
+#define PWM3_IOMUX_PWM_EN		(1 << 3)
+
+#define PWM_CNT(n)			0x0000 + 0x10 * n
+#define PWM_PERIOD_HPR(n)		0x0004 + 0x10 * n
+#define PWM_DUTY_LPR(n)			0x0008 + 0x10 * n
+#define PWM_CTRL(n)			0x000c + 0x10 * n
 
 #endif /* __PLAT_DEF_H__ */

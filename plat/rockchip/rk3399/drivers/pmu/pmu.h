@@ -810,10 +810,20 @@ enum pmu_core_pwr_st {
 
 #define PMUGRF_GPIO0A_IOMUX	0x00
 #define PMUGRF_GPIO1A_IOMUX	0x10
+#define PMUGRF_GPIO1C_IOMUX	0x18
+
 #define AP_PWROFF		0x0a
+
 #define GPIO0A6_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 12)
 #define GPIO0A6_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 12)
+#define GPIO1C3_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 6)
+#define GPIO1C3_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 6)
+#define GPIO4C2_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 4)
+#define GPIO4C2_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 4)
+#define GPIO4C6_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 12)
+#define GPIO4C6_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 12)
 #define GPIO1A6_IOMUX		BITS_WITH_WMASK(0, 3, 12)
+
 #define TSADC_INT_PIN		38
 #define CORES_PM_DISABLE	0x0
 #define CPU_AXI_QOS_ID_COREID		0x00
@@ -867,6 +877,8 @@ enum pmu_core_pwr_st {
 #define MAX_WAIT_COUNT		1000
 
 #define	GRF_SOC_CON4		0x0e210
+#define GRF_GPIO4C_IOMUX	0x0e028
+
 #define PMUGRF_SOC_CON0		0x0180
 
 #define CCI_FORCE_WAKEUP	WMSK_BIT(8)
@@ -900,6 +912,15 @@ enum pmu_core_pwr_st {
 	mmio_write_32(base + CPU_AXI_QOS_SATURATION, array[5]); \
 	mmio_write_32(base + CPU_AXI_QOS_EXTCONTROL, array[6]); \
 } while (0)
+
+/* there are 4 PWMs on rk3399 */
+struct pwm_data_s {
+	uint32_t iomux_bitmask;
+	uint64_t cnt[4];
+	uint64_t duty[4];
+	uint64_t period[4];
+	uint64_t ctrl[4];
+};
 
 struct pmu_slpdata_s {
 	uint32_t cci_m0_qos[CPU_AXI_QOS_NUM_REGS];

@@ -747,9 +747,6 @@ static void sys_slp_config(void)
 		      BIT_WITH_WMSK(PMU_CLR_CORE_L_2GIC_HW) |
 		      BIT_WITH_WMSK(PMU_CLR_GIC2_CORE_L_HW));
 
-	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO1A_IOMUX,
-		      BIT_WITH_WMSK(AP_PWROFF));
-
 	slp_mode_cfg = BIT(PMU_PWR_MODE_EN) |
 		       BIT(PMU_POWER_OFF_REQ_CFG) |
 		       BIT(PMU_CPU0_PD_EN) |
@@ -778,18 +775,18 @@ static void sys_slp_config(void)
 	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_GPIO_WKUP_EN));
 	mmio_write_32(PMU_BASE + PMU_PWRMODE_CON, slp_mode_cfg);
 
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_PLLRST_CNT, CYCL_32K_CNT_MS(5));
-	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_32K_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_PLLRST_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_24M_CNT_MS(3));
 	mmio_clrbits_32(PMU_BASE + PMU_SFT_CON, BIT(PMU_24M_EN_CFG));
 
 	mmio_write_32(PMU_BASE + PMU_PLL_CON, PLL_PD_HW);
@@ -805,6 +802,72 @@ static void set_hw_idle(uint32_t hw_idle)
 static void clr_hw_idle(uint32_t hw_idle)
 {
 	mmio_clrbits_32(PMU_BASE + PMU_BUS_CLR, hw_idle);
+}
+
+struct pwm_data_s pwm_data;
+
+/*
+ * Save the PWMs data.
+ */
+static void save_pwms(void)
+{
+	uint32_t i;
+
+	pwm_data.iomux_bitmask = 0;
+
+	/* Save all IOMUXes */
+	if (mmio_read_32(GRF_BASE + GRF_GPIO4C_IOMUX) & GPIO4C2_IOMUX_PWM)
+		pwm_data.iomux_bitmask |= PWM0_IOMUX_PWM_EN;
+	if (mmio_read_32(GRF_BASE + GRF_GPIO4C_IOMUX) & GPIO4C6_IOMUX_PWM)
+		pwm_data.iomux_bitmask |= PWM1_IOMUX_PWM_EN;
+	if (mmio_read_32(PMUGRF_BASE + PMUGRF_GPIO1C_IOMUX) &
+			 GPIO1C3_IOMUX_PWM)
+		pwm_data.iomux_bitmask |= PWM2_IOMUX_PWM_EN;
+	if (mmio_read_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX) &
+			 GPIO0A6_IOMUX_PWM)
+		pwm_data.iomux_bitmask |= PWM3_IOMUX_PWM_EN;
+
+	for (i = 0; i < 4; i++) {
+		/* Save cnt, period, duty and ctrl for PWM i */
+		pwm_data.cnt[i] = mmio_read_32(PWM_BASE + PWM_CNT(i));
+		pwm_data.duty[i] = mmio_read_32(PWM_BASE + PWM_PERIOD_HPR(i));
+		pwm_data.period[i] = mmio_read_32(PWM_BASE + PWM_DUTY_LPR(i));
+		pwm_data.ctrl[i] = mmio_read_32(PWM_BASE + PWM_CTRL(i));
+	}
+
+	/* PWMs all IOMUXes switch to the gpio mode */
+	mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C2_IOMUX_GPIO);
+	mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C6_IOMUX_GPIO);
+	mmio_write_32(PMUGRF_BASE  + PMUGRF_GPIO1C_IOMUX, GPIO1C3_IOMUX_GPIO);
+	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX, GPIO0A6_IOMUX_GPIO);
+}
+
+/*
+ * Restore the PWMs data.
+ */
+static void restore_pwms(void)
+{
+	uint32_t i;
+
+	/* Restore all IOMUXes */
+	if (pwm_data.iomux_bitmask & PWM3_IOMUX_PWM_EN)
+		mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX,
+			      GPIO0A6_IOMUX_PWM);
+	if (pwm_data.iomux_bitmask & PWM2_IOMUX_PWM_EN)
+		mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO1C_IOMUX,
+			      GPIO1C3_IOMUX_PWM);
+	if (pwm_data.iomux_bitmask & PWM1_IOMUX_PWM_EN)
+		mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C6_IOMUX_PWM);
+	if (pwm_data.iomux_bitmask & PWM0_IOMUX_PWM_EN)
+		mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C2_IOMUX_PWM);
+
+	for (i = 0; i < 4; i++) {
+		/* Restore ctrl, duty, period and cnt for PWM i */
+		mmio_write_32(PWM_BASE + PWM_CTRL(i), pwm_data.ctrl[i]);
+		mmio_write_32(PWM_BASE + PWM_DUTY_LPR(i), pwm_data.period[i]);
+		mmio_write_32(PWM_BASE + PWM_PERIOD_HPR(i), pwm_data.duty[i]);
+		mmio_write_32(PWM_BASE + PWM_CNT(i), pwm_data.cnt[i]);
+	}
 }
 
 static int sys_pwr_domain_suspend(void)
@@ -853,8 +916,7 @@ static int sys_pwr_domain_suspend(void)
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
-	/* TODO: Wait SoC to cut off the logic_center, switch the gpio mode */
-	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX, GPIO0A6_IOMUX_GPIO);
+	save_pwms();
 
 	return 0;
 }
@@ -864,8 +926,7 @@ static int sys_pwr_domain_resume(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
-	/* TODO: switch the pwm mode */
-	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX, GPIO0A6_IOMUX_PWM);
+	restore_pwms();
 
 	pmu_sgrf_rst_hld();
 
