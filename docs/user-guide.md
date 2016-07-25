@@ -465,12 +465,13 @@ map is explained in the [Firmware Design].
     match the frame used by the Non-Secure image (normally the Linux kernel).
     Default is true (access to the frame is allowed).
 
-*   `ARM_BOARD_OPTIMISE_MMAP`: Boolean option to enable or disable optimisation
-    of page table and MMU related macros `PLAT_ARM_MMAP_ENTRIES` and
-    `MAX_XLAT_TABLES`. By default this flag is 0, which means it uses the
-    default unoptimised values for these macros. ARM development platforms
-    that wish to optimise memory usage for page tables need to set this flag to 1
-    and must override the related macros.
+*   `ARM_BOARD_OPTIMISE_MEM`: Boolean option to enable or disable optimisation
+    of the memory reserved for each image. This affects the maximum size of each
+    BL image as well as the number of allocated memory regions and translation
+    tables. By default this flag is 0, which means it uses the default
+    unoptimised values for these macros. ARM development platforms that wish to
+    optimise memory usage need to set this flag to 1 and must override the
+    related macros.
 
 *   'ARM_BL31_IN_DRAM': Boolean option to select loading of BL31 in TZC secured
     DRAM. By default, BL31 is in the secure SRAM. Set this flag to 1 to load
