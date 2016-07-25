@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,9 +31,10 @@
 #include <arch.h>
 #include <bl_common.h>
 #include <el3_common_macros.S>
+#include <xlat_tables.h>
 
 	.globl	bl31_entrypoint
-
+	.globl	bl31_warm_entrypoint
 
 	/* -----------------------------------------------------
 	 * bl31_entrypoint() is the cold boot entrypoint,
@@ -132,3 +133,60 @@ func bl31_entrypoint
 
 	b	el3_exit
 endfunc bl31_entrypoint
+
+	/* --------------------------------------------------------------------
+	 * This CPU has been physically powered up. It is either resuming from
+	 * suspend or has simply been turned on. In both cases, call the BL31
+	 * warmboot entrypoint
+	 * --------------------------------------------------------------------
+	 */
+func bl31_warm_entrypoint
+	/*
+	 * On the warm boot path, most of the EL3 initialisations performed by
+	 * 'el3_entrypoint_common' must be skipped:
+	 *
+	 *  - Only when the platform bypasses the BL1/BL31 entrypoint by
+	 *    programming the reset address do we need to set the CPU endianness.
+	 *    In other cases, we assume this has been taken care by the
+	 *    entrypoint code.
+	 *
+	 *  - No need to determine the type of boot, we know it is a warm boot.
+	 *
+	 *  - Do not try to distinguish between primary and secondary CPUs, this
+	 *    notion only exists for a cold boot.
+	 *
+	 *  - No need to initialise the memory or the C runtime environment,
+	 *    it has been done once and for all on the cold boot path.
+	 */
+	el3_entrypoint_common					\
+		_set_endian=PROGRAMMABLE_RESET_ADDRESS		\
+		_warm_boot_mailbox=0				\
+		_secondary_cold_boot=0				\
+		_init_memory=0					\
+		_init_c_runtime=0				\
+		_exception_vectors=runtime_exceptions
+
+	/* --------------------------------------------
+	 * Enable the MMU with the DCache disabled. It
+	 * is safe to use stacks allocated in normal
+	 * memory as a result. All memory accesses are
+	 * marked nGnRnE when the MMU is disabled. So
+	 * all the stack writes will make it to memory.
+	 * All memory accesses are marked Non-cacheable
+	 * when the MMU is enabled but D$ is disabled.
+	 * So used stack memory is guaranteed to be
+	 * visible immediately after the MMU is enabled
+	 * Enabling the DCache at the same time as the
+	 * MMU can lead to speculatively fetched and
+	 * possibly stale stack memory being read from
+	 * other caches. This can lead to coherency
+	 * issues.
+	 * --------------------------------------------
+	 */
+	mov	x0, #DISABLE_DCACHE
+	bl	bl31_plat_enable_mmu
+
+	bl	psci_warmboot_entrypoint
+
+	b	el3_exit
+endfunc bl31_warm_entrypoint

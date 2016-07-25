@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,36 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
-#include <assert.h>
-#include <platform.h>
-#include <psci.h>
-
-/*
- * The PSCI generic code uses this API to let the platform participate in state
- * coordination during a power management operation. It compares the platform
- * specific local power states requested by each cpu for a given power domain
- * and returns the coordinated target power state that the domain should
- * enter. A platform assigns a number to a local power state. This default
- * implementation assumes that the platform assigns these numbers in order of
- * increasing depth of the power state i.e. for two power states X & Y, if X < Y
- * then X represents a shallower power state than Y. As a result, the
- * coordinated target local power state for a power domain will be the minimum
- * of the requested local power states.
- */
-plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
-					     const plat_local_state_t *states,
-					     unsigned int ncpu)
-{
-	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
-
-	assert(ncpu);
-
-	do {
-		temp = *states++;
-		if (temp < target)
-			target = temp;
-	} while (--ncpu);
-
-	return target;
-}
+#if !ERROR_DEPRECATED
+#include "../plat_psci_common.c"
+#endif

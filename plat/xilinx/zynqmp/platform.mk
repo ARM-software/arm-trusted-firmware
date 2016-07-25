@@ -69,9 +69,9 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				drivers/arm/gic/v2/gicv2_helpers.c		\
 				drivers/cadence/uart/cdns_console.S		\
 				drivers/console/console.S			\
-				plat/arm/common/aarch64/arm_common.c		\
 				plat/arm/common/aarch64/arm_helpers.S		\
 				plat/arm/common/arm_cci.c			\
+				plat/arm/common/arm_common.c			\
 				plat/arm/common/arm_gicv2.c			\
 				plat/common/plat_gicv2.c			\
 				plat/common/aarch64/plat_common.c		\
@@ -81,7 +81,7 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
-				plat/common/aarch64/plat_psci_common.c		\
+				plat/common/plat_psci_common.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\

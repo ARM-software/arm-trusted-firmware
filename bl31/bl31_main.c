@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,6 +59,12 @@ static uint32_t next_image_type = NON_SECURE;
 void bl31_lib_init(void)
 {
 	cm_init();
+
+	/*
+	 * Initialize the PSCI library here. This also does EL3 architectural
+	 * setup.
+	 */
+	psci_setup((uintptr_t)bl31_warm_entrypoint);
 }
 
 /*******************************************************************************
@@ -73,9 +79,6 @@ void bl31_main(void)
 {
 	NOTICE("BL31: %s\n", version_string);
 	NOTICE("BL31: %s\n", build_message);
-
-	/* Perform remaining generic architectural setup from EL3 */
-	bl31_arch_setup();
 
 	/* Perform platform setup in BL31 */
 	bl31_platform_setup();

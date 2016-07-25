@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -41,12 +41,12 @@
  */
 ARM_INSTANTIATE_LOCK
 
-unsigned int fvp_pwrc_get_cpu_wkr(unsigned long mpidr)
+unsigned int fvp_pwrc_get_cpu_wkr(u_register_t mpidr)
 {
 	return PSYSR_WK(fvp_pwrc_read_psysr(mpidr));
 }
 
-unsigned int fvp_pwrc_read_psysr(unsigned long mpidr)
+unsigned int fvp_pwrc_read_psysr(u_register_t mpidr)
 {
 	unsigned int rc;
 	arm_lock_get();
@@ -56,21 +56,21 @@ unsigned int fvp_pwrc_read_psysr(unsigned long mpidr)
 	return rc;
 }
 
-void fvp_pwrc_write_pponr(unsigned long mpidr)
+void fvp_pwrc_write_pponr(u_register_t mpidr)
 {
 	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PPONR_OFF, (unsigned int) mpidr);
 	arm_lock_release();
 }
 
-void fvp_pwrc_write_ppoffr(unsigned long mpidr)
+void fvp_pwrc_write_ppoffr(u_register_t mpidr)
 {
 	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PPOFFR_OFF, (unsigned int) mpidr);
 	arm_lock_release();
 }
 
-void fvp_pwrc_set_wen(unsigned long mpidr)
+void fvp_pwrc_set_wen(u_register_t mpidr)
 {
 	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
@@ -78,7 +78,7 @@ void fvp_pwrc_set_wen(unsigned long mpidr)
 	arm_lock_release();
 }
 
-void fvp_pwrc_clr_wen(unsigned long mpidr)
+void fvp_pwrc_clr_wen(u_register_t mpidr)
 {
 	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
@@ -86,7 +86,7 @@ void fvp_pwrc_clr_wen(unsigned long mpidr)
 	arm_lock_release();
 }
 
-void fvp_pwrc_write_pcoffr(unsigned long mpidr)
+void fvp_pwrc_write_pcoffr(u_register_t mpidr)
 {
 	arm_lock_get();
 	mmio_write_32(PWRC_BASE + PCOFFR_OFF, (unsigned int) mpidr);

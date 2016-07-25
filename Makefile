@@ -226,20 +226,24 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/aarch64/platform_helpers.S	\
 				${STDLIB_SRCS}
 
-INCLUDES		+=	-Iinclude/bl1			\
-				-Iinclude/bl31			\
-				-Iinclude/bl31/services		\
-				-Iinclude/common		\
-				-Iinclude/drivers		\
-				-Iinclude/drivers/arm		\
-				-Iinclude/drivers/auth		\
-				-Iinclude/drivers/io		\
-				-Iinclude/drivers/ti/uart	\
-				-Iinclude/lib			\
-				-Iinclude/lib/aarch64		\
-				-Iinclude/lib/cpus/aarch64	\
-				-Iinclude/plat/common		\
-				${PLAT_INCLUDES}		\
+INCLUDES		+=	-Iinclude/bl1				\
+				-Iinclude/bl31				\
+				-Iinclude/common			\
+				-Iinclude/common/aarch64		\
+				-Iinclude/drivers			\
+				-Iinclude/drivers/arm			\
+				-Iinclude/drivers/auth			\
+				-Iinclude/drivers/io			\
+				-Iinclude/drivers/ti/uart		\
+				-Iinclude/lib				\
+				-Iinclude/lib/aarch64			\
+				-Iinclude/lib/cpus/aarch64		\
+				-Iinclude/lib/el3_runtime		\
+				-Iinclude/lib/el3_runtime/aarch64	\
+				-Iinclude/lib/psci			\
+				-Iinclude/plat/common			\
+				-Iinclude/services			\
+				${PLAT_INCLUDES}			\
 				${SPD_INCLUDES}
 
 

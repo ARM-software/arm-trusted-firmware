@@ -38,7 +38,7 @@
 #include <plat_arm.h>
 #include <platform.h>
 
-#define BL31_END (unsigned long)(&__BL31_END__)
+#define BL31_END (uintptr_t)(&__BL31_END__)
 
 #if USE_COHERENT_MEM
 /*
@@ -48,8 +48,8 @@
  * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
  * refer to page-aligned addresses.
  */
-#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
+#define BL31_COHERENT_RAM_BASE (uintptr_t)(&__COHERENT_RAM_START__)
+#define BL31_COHERENT_RAM_LIMIT (uintptr_t)(&__COHERENT_RAM_END__)
 #endif
 
 /*
@@ -130,11 +130,8 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
 	 */
-#ifdef PRELOADED_BL33_BASE
-	bl33_image_ep_info.pc = PRELOADED_BL33_BASE;
-#else
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-#endif /* PRELOADED_BL33_BASE */
+
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 

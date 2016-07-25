@@ -1779,10 +1779,11 @@ following categories (present as directories in the source code):
     the platform.
 *   **Common code.** This is platform and architecture agnostic code.
 *   **Library code.** This code comprises of functionality commonly used by all
-    other code.
+    other code. The PSCI implementation and other EL3 runtime frameworks reside
+    as Library components.
 *   **Stage specific.** Code specific to a boot stage.
 *   **Drivers.**
-*   **Services.** EL3 runtime services, e.g. PSCI or SPD. Specific SPD services
+*   **Services.** EL3 runtime services (eg: SPD). Specific SPD services
     reside in the `services/spd` directory (e.g. `services/spd/tspd`).
 
 Each boot loader stage uses code from one or more of the above mentioned

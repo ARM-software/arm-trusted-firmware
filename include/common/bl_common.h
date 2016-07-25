@@ -137,6 +137,7 @@
 #include <cassert.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <types.h>
 #include <utils.h> /* To retain compatibility */
 
 /*
@@ -144,28 +145,28 @@
  * BL images
  */
 #if SEPARATE_CODE_AND_RODATA
-extern unsigned long __TEXT_START__;
-extern unsigned long __TEXT_END__;
-extern unsigned long __RODATA_START__;
-extern unsigned long __RODATA_END__;
+extern uintptr_t __TEXT_START__;
+extern uintptr_t __TEXT_END__;
+extern uintptr_t __RODATA_START__;
+extern uintptr_t __RODATA_END__;
 #else
-extern unsigned long __RO_START__;
-extern unsigned long __RO_END__;
+extern uintptr_t __RO_START__;
+extern uintptr_t __RO_END__;
 #endif
 
 #if IMAGE_BL2
-extern unsigned long __BL2_END__;
+extern uintptr_t __BL2_END__;
 #elif IMAGE_BL2U
-extern unsigned long __BL2U_END__;
+extern uintptr_t __BL2U_END__;
 #elif IMAGE_BL31
-extern unsigned long __BL31_END__;
+extern uintptr_t __BL31_END__;
 #elif IMAGE_BL32
-extern unsigned long __BL32_END__;
+extern uintptr_t __BL32_END__;
 #endif /* IMAGE_BLX */
 
 #if USE_COHERENT_MEM
-extern unsigned long __COHERENT_RAM_START__;
-extern unsigned long __COHERENT_RAM_END__;
+extern uintptr_t __COHERENT_RAM_START__;
+extern uintptr_t __COHERENT_RAM_END__;
 #endif
 
 
@@ -174,21 +175,21 @@ extern unsigned long __COHERENT_RAM_END__;
  * memory is available for its use and how much is already used.
  ******************************************************************************/
 typedef struct meminfo {
-	uint64_t total_base;
+	uintptr_t total_base;
 	size_t total_size;
-	uint64_t free_base;
+	uintptr_t free_base;
 	size_t free_size;
 } meminfo_t;
 
 typedef struct aapcs64_params {
-	unsigned long arg0;
-	unsigned long arg1;
-	unsigned long arg2;
-	unsigned long arg3;
-	unsigned long arg4;
-	unsigned long arg5;
-	unsigned long arg6;
-	unsigned long arg7;
+	u_register_t arg0;
+	u_register_t arg1;
+	u_register_t arg2;
+	u_register_t arg3;
+	u_register_t arg4;
+	u_register_t arg5;
+	u_register_t arg6;
+	u_register_t arg7;
 } aapcs64_params_t;
 
 /***************************************************************************
@@ -284,7 +285,7 @@ CASSERT(ENTRY_POINT_INFO_ARGS_OFFSET == \
 		__builtin_offsetof(entry_point_info_t, args), \
 		assert_BL31_args_offset_mismatch);
 
-CASSERT(sizeof(unsigned long) ==
+CASSERT(sizeof(uintptr_t) ==
 		__builtin_offsetof(entry_point_info_t, spsr) - \
 		__builtin_offsetof(entry_point_info_t, pc), \
 		assert_entrypoint_and_spsr_should_be_adjacent);
@@ -292,8 +293,8 @@ CASSERT(sizeof(unsigned long) ==
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-unsigned long page_align(unsigned long, unsigned);
-unsigned long image_size(unsigned int image_id);
+uintptr_t page_align(uintptr_t, unsigned);
+size_t image_size(unsigned int image_id);
 int load_image(meminfo_t *mem_layout,
 	       unsigned int image_id,
 	       uintptr_t image_base,
@@ -307,8 +308,8 @@ int load_auth_image(meminfo_t *mem_layout,
 extern const char build_message[];
 extern const char version_string[];
 
-void reserve_mem(uint64_t *free_base, size_t *free_size,
-		uint64_t addr, size_t size);
+void reserve_mem(uintptr_t *free_base, size_t *free_size,
+		uintptr_t addr, size_t size);
 
 void print_entry_point_info(const entry_point_info_t *ep_info);
 

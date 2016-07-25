@@ -97,8 +97,8 @@ PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
-				plat/arm/common/aarch64/arm_common.c		\
 				plat/arm/common/aarch64/arm_helpers.S		\
+				plat/arm/common/arm_common.c			\
 				plat/common/aarch64/plat_common.c
 
 BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
@@ -128,7 +128,7 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_topology.c			\
 				plat/common/aarch64/platform_mp_stack.S		\
-				plat/common/aarch64/plat_psci_common.c
+				plat/common/plat_psci_common.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 

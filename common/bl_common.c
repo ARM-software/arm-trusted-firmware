@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,24 +40,20 @@
 #include <string.h>
 #include <xlat_tables.h>
 
-unsigned long page_align(unsigned long value, unsigned dir)
+uintptr_t page_align(uintptr_t value, unsigned dir)
 {
-	unsigned long page_size = 1 << FOUR_KB_SHIFT;
-
 	/* Round up the limit to the next page boundary */
-	if (value & (page_size - 1)) {
-		value &= ~(page_size - 1);
+	if (value & (PAGE_SIZE - 1)) {
+		value &= ~(PAGE_SIZE - 1);
 		if (dir == UP)
-			value += page_size;
+			value += PAGE_SIZE;
 	}
 
 	return value;
 }
 
-static inline unsigned int is_page_aligned (unsigned long addr) {
-	const unsigned long page_size = 1 << FOUR_KB_SHIFT;
-
-	return (addr & (page_size - 1)) == 0;
+static inline unsigned int is_page_aligned (uintptr_t addr) {
+	return (addr & (PAGE_SIZE - 1)) == 0;
 }
 
 /******************************************************************************
@@ -65,8 +61,8 @@ static inline unsigned int is_page_aligned (unsigned long addr) {
  * given the extents of free memory.
  * Return 1 if it is free, 0 otherwise.
  *****************************************************************************/
-static int is_mem_free(uint64_t free_base, size_t free_size,
-		       uint64_t addr, size_t size)
+static int is_mem_free(uintptr_t free_base, size_t free_size,
+		uintptr_t addr, size_t size)
 {
 	return (addr >= free_base) && (addr + size <= free_base + free_size);
 }
@@ -77,9 +73,9 @@ static int is_mem_free(uint64_t free_base, size_t free_size,
  * size of the smallest chunk of free memory surrounding the sub-region in
  * 'small_chunk_size'.
  *****************************************************************************/
-static unsigned int choose_mem_pos(uint64_t mem_start, uint64_t mem_end,
-				   uint64_t submem_start, uint64_t submem_end,
-				   size_t *small_chunk_size)
+static unsigned int choose_mem_pos(uintptr_t mem_start, uintptr_t mem_end,
+				  uintptr_t submem_start, uintptr_t submem_end,
+				  size_t *small_chunk_size)
 {
 	size_t top_chunk_size, bottom_chunk_size;
 
@@ -106,8 +102,8 @@ static unsigned int choose_mem_pos(uint64_t mem_start, uint64_t mem_end,
  * reflect the memory usage.
  * The caller must ensure the memory to reserve is free.
  *****************************************************************************/
-void reserve_mem(uint64_t *free_base, size_t *free_size,
-		 uint64_t addr, size_t size)
+void reserve_mem(uintptr_t *free_base, size_t *free_size,
+		 uintptr_t addr, size_t size)
 {
 	size_t discard_size;
 	size_t reserved_size;
@@ -127,26 +123,26 @@ void reserve_mem(uint64_t *free_base, size_t *free_size,
 	if (pos == BOTTOM)
 		*free_base = addr + size;
 
-	VERBOSE("Reserved 0x%lx bytes (discarded 0x%lx bytes %s)\n",
+	VERBOSE("Reserved 0x%zx bytes (discarded 0x%zx bytes %s)\n",
 	     reserved_size, discard_size,
 	     pos == TOP ? "above" : "below");
 }
 
-static void dump_load_info(unsigned long image_load_addr,
-			   unsigned long image_size,
+static void dump_load_info(uintptr_t image_load_addr,
+			   size_t image_size,
 			   const meminfo_t *mem_layout)
 {
-	INFO("Trying to load image at address 0x%lx, size = 0x%lx\n",
-		image_load_addr, image_size);
+	INFO("Trying to load image at address %p, size = 0x%zx\n",
+		(void *)image_load_addr, image_size);
 	INFO("Current memory layout:\n");
-	INFO("  total region = [0x%lx, 0x%lx]\n", mem_layout->total_base,
-			mem_layout->total_base + mem_layout->total_size);
-	INFO("  free region = [0x%lx, 0x%lx]\n", mem_layout->free_base,
-			mem_layout->free_base + mem_layout->free_size);
+	INFO("  total region = [%p, %p]\n", (void *)mem_layout->total_base,
+		(void *)(mem_layout->total_base + mem_layout->total_size));
+	INFO("  free region = [%p, %p]\n", (void *)mem_layout->free_base,
+		(void *)(mem_layout->free_base + mem_layout->free_size));
 }
 
 /* Generic function to return the size of an image */
-unsigned long image_size(unsigned int image_id)
+size_t image_size(unsigned int image_id)
 {
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
@@ -367,9 +363,8 @@ int load_auth_image(meminfo_t *mem_layout,
  ******************************************************************************/
 void print_entry_point_info(const entry_point_info_t *ep_info)
 {
-	INFO("Entry point address = 0x%llx\n",
-		(unsigned long long) ep_info->pc);
-	INFO("SPSR = 0x%lx\n", (unsigned long) ep_info->spsr);
+	INFO("Entry point address = %p\n", (void *)ep_info->pc);
+	INFO("SPSR = 0x%x\n", ep_info->spsr);
 
 #define PRINT_IMAGE_ARG(n)					\
 	VERBOSE("Argument #" #n " = 0x%llx\n",			\

@@ -35,6 +35,7 @@
 #include <debug.h>
 #include <platform_def.h>
 #include <string.h>
+#include <types.h>
 #include <utils.h>
 #include <xlat_tables.h>
 
@@ -52,7 +53,7 @@
 #define debug_print(...) ((void)0)
 #endif
 
-#define UNSET_DESC	~0ul
+#define UNSET_DESC	~0ull
 
 static uint64_t xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
 			__aligned(XLAT_TABLE_SIZE) __section("xlat_table");
@@ -313,9 +314,9 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 	unsigned level_size_shift = L1_XLAT_ADDRESS_SHIFT - (level - 1) *
 						XLAT_TABLE_ENTRIES_SHIFT;
 	unsigned level_size = 1 << level_size_shift;
-	unsigned long long level_index_mask =
-		((unsigned long long) XLAT_TABLE_ENTRIES_MASK)
-		<< level_size_shift;
+	u_register_t level_index_mask =
+		(u_register_t)(((u_register_t) XLAT_TABLE_ENTRIES_MASK)
+		<< level_size_shift);
 
 	assert(level > 0 && level <= 3);
 
@@ -357,7 +358,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			/* Area not covered by a region so need finer table */
 			uint64_t *new_table = xlat_tables[next_xlat++];
 			assert(next_xlat <= MAX_XLAT_TABLES);
-			desc = TABLE_DESC | (uint64_t)new_table;
+			desc = TABLE_DESC | (uintptr_t)new_table;
 
 			/* Recurse to fill in new table */
 			mm = init_xlation_table_inner(mm, base_va,

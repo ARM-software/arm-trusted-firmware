@@ -206,7 +206,7 @@ func plat_reset_handler
 endfunc plat_reset_handler
 
 	/* -----------------------------------------------------
-	 *  unsigned int plat_arm_calc_core_pos(uint64_t mpidr)
+	 *  unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
 	 *  Helper function to calculate the core position.
 	 * -----------------------------------------------------
 	 */
