@@ -141,6 +141,7 @@ static inline unsigned int gicd_read_pidr2(uintptr_t base)
 
 static inline unsigned long long gicd_read_irouter(uintptr_t base, unsigned int id)
 {
+	assert(id >= MIN_SPI_ID);
 	return mmio_read_64(base + GICD_IROUTER + (id << 3));
 }
 
@@ -148,6 +149,7 @@ static inline void gicd_write_irouter(uintptr_t base,
 				      unsigned int id,
 				      unsigned long long affinity)
 {
+	assert(id >= MIN_SPI_ID);
 	mmio_write_64(base + GICD_IROUTER + (id << 3), affinity);
 }
 
