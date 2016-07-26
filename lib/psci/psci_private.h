@@ -192,6 +192,8 @@ int psci_validate_power_state(unsigned int power_state,
 void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info);
 int psci_validate_mpidr(u_register_t mpidr);
 void psci_init_req_local_pwr_states(void);
+void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
+				      psci_power_state_t *target_state);
 int psci_validate_entry_point(entry_point_info_t *ep,
 			uintptr_t entrypoint, u_register_t context_id);
 void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,

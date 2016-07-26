@@ -252,8 +252,8 @@ static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
  * function will be called after a cpu is powered on to find the local state
  * each power domain has emerged from.
  *****************************************************************************/
-static void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
-					     psci_power_state_t *target_state)
+void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
+				      psci_power_state_t *target_state)
 {
 	unsigned int parent_idx, lvl;
 	plat_local_state_t *pd_state = target_state->pwr_domain_state;
