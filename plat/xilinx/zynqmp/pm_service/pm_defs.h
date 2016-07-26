@@ -148,6 +148,10 @@ enum pm_node_id {
 	NODE_DDR,
 	NODE_IPI_APU,
 	NODE_IPI_RPU_0,
+	NODE_GPU,
+	NODE_PCIE,
+	NODE_PCAP,
+	NODE_RTC,
 };
 
 enum pm_request_ack {
