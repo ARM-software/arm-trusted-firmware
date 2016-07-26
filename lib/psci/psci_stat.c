@@ -259,8 +259,10 @@ int psci_get_stat(u_register_t target_cpu, unsigned int power_state,
 
 	/* Find the highest power level */
 	pwrlvl = psci_find_target_suspend_lvl(&state_info);
-	if (pwrlvl == PSCI_INVALID_PWR_LVL)
-		return PSCI_E_INVALID_PARAMS;
+	if (pwrlvl == PSCI_INVALID_PWR_LVL) {
+		ERROR("Invalid target power level for PSCI statistics operation\n");
+		panic();
+	}
 
 	/* Get the index into the stats array */
 	local_state = state_info.pwr_domain_state[pwrlvl];

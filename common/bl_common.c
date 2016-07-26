@@ -38,6 +38,7 @@
 #include <io_storage.h>
 #include <platform.h>
 #include <string.h>
+#include <utils.h>
 #include <xlat_tables.h>
 
 uintptr_t page_align(uintptr_t value, unsigned dir)
@@ -59,12 +60,44 @@ static inline unsigned int is_page_aligned (uintptr_t addr) {
 /******************************************************************************
  * Determine whether the memory region delimited by 'addr' and 'size' is free,
  * given the extents of free memory.
- * Return 1 if it is free, 0 otherwise.
+ * Return 1 if it is free, 0 if it is not free or if the input values are
+ * invalid.
  *****************************************************************************/
 static int is_mem_free(uintptr_t free_base, size_t free_size,
 		uintptr_t addr, size_t size)
 {
-	return (addr >= free_base) && (addr + size <= free_base + free_size);
+	uintptr_t free_end, requested_end;
+
+	/*
+	 * Handle corner cases first.
+	 *
+	 * The order of the 2 tests is important, because if there's no space
+	 * left (i.e. free_size == 0) but we don't ask for any memory
+	 * (i.e. size == 0) then we should report that the memory is free.
+	 */
+	if (size == 0)
+		return 1;	/* A zero-byte region is always free */
+	if (free_size == 0)
+		return 0;
+
+	/*
+	 * Check that the end addresses don't overflow.
+	 * If they do, consider that this memory region is not free, as this
+	 * is an invalid scenario.
+	 */
+	if (check_uptr_overflow(free_base, free_size - 1))
+		return 0;
+	free_end = free_base + (free_size - 1);
+
+	if (check_uptr_overflow(addr, size - 1))
+		return 0;
+	requested_end = addr + (size - 1);
+
+	/*
+	 * Finally, check that the requested memory region lies within the free
+	 * region.
+	 */
+	return (addr >= free_base) && (requested_end <= free_end);
 }
 
 /******************************************************************************
@@ -100,7 +133,8 @@ static unsigned int choose_mem_pos(uintptr_t mem_start, uintptr_t mem_end,
  * Reserve the memory region delimited by 'addr' and 'size'. The extents of free
  * memory are passed in 'free_base' and 'free_size' and they will be updated to
  * reflect the memory usage.
- * The caller must ensure the memory to reserve is free.
+ * The caller must ensure the memory to reserve is free and that the addresses
+ * and sizes passed in arguments are sane.
  *****************************************************************************/
 void reserve_mem(uintptr_t *free_base, size_t *free_size,
 		 uintptr_t addr, size_t size)
@@ -113,8 +147,13 @@ void reserve_mem(uintptr_t *free_base, size_t *free_size,
 	assert(free_size != NULL);
 	assert(is_mem_free(*free_base, *free_size, addr, size));
 
-	pos = choose_mem_pos(*free_base, *free_base + *free_size,
-			     addr, addr + size,
+	if (size == 0) {
+		WARN("Nothing to allocate, requested size is zero\n");
+		return;
+	}
+
+	pos = choose_mem_pos(*free_base, *free_base + (*free_size - 1),
+			     addr, addr + (size - 1),
 			     &discard_size);
 
 	reserved_size = size + discard_size;
@@ -135,10 +174,10 @@ static void dump_load_info(uintptr_t image_load_addr,
 	INFO("Trying to load image at address %p, size = 0x%zx\n",
 		(void *)image_load_addr, image_size);
 	INFO("Current memory layout:\n");
-	INFO("  total region = [%p, %p]\n", (void *)mem_layout->total_base,
-		(void *)(mem_layout->total_base + mem_layout->total_size));
-	INFO("  free region = [%p, %p]\n", (void *)mem_layout->free_base,
-		(void *)(mem_layout->free_base + mem_layout->free_size));
+	INFO("  total region = [base = %p, size = 0x%zx]\n",
+		(void *) mem_layout->total_base, mem_layout->total_size);
+	INFO("  free region = [base = %p, size = 0x%zx]\n",
+		(void *) mem_layout->free_base, mem_layout->free_size);
 }
 
 /* Generic function to return the size of an image */
@@ -248,8 +287,8 @@ int load_image(meminfo_t *mem_layout,
 	/* Check that the memory where the image will be loaded is free */
 	if (!is_mem_free(mem_layout->free_base, mem_layout->free_size,
 			 image_base, image_size)) {
-		WARN("Failed to reserve memory: %p - %p\n", (void *) image_base,
-		     (void *) (image_base + image_size));
+		WARN("Failed to reserve region [base = %p, size = 0x%zx]\n",
+		     (void *) image_base, image_size);
 		dump_load_info(image_base, image_size, mem_layout);
 		io_result = -ENOMEM;
 		goto exit;
@@ -278,8 +317,8 @@ int load_image(meminfo_t *mem_layout,
 				image_base, image_size);
 		entry_point_info->pc = image_base;
 	} else {
-		INFO("Skip reserving memory: %p - %p\n", (void *) image_base,
-		     (void *) (image_base + image_size));
+		INFO("Skip reserving region [base = %p, size = 0x%zx]\n",
+		     (void *) image_base, image_size);
 	}
 
 	/*
@@ -289,8 +328,8 @@ int load_image(meminfo_t *mem_layout,
 	 */
 	flush_dcache_range(image_base, image_size);
 
-	INFO("Image id=%u loaded: %p - %p\n", image_id, (void *) image_base,
-	     (void *) (image_base + image_size));
+	INFO("Image id=%u loaded at address %p, size = 0x%zx\n", image_id,
+		(void *) image_base, image_size);
 
 exit:
 	io_close(image_handle);

@@ -55,4 +55,11 @@
 #define round_down(value, boundary)		\
 	((value) & ~round_boundary(value, boundary))
 
+/*
+ * Evaluates to 1 if (ptr + inc) overflows, 0 otherwise.
+ * Both arguments must be unsigned pointer values (i.e. uintptr_t).
+ */
+#define check_uptr_overflow(ptr, inc)		\
+	(((ptr) > UINTPTR_MAX - (inc)) ? 1 : 0)
+
 #endif /* __UTILS_H__ */
