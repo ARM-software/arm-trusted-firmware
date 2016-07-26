@@ -152,6 +152,7 @@ enum pm_node_id {
 	NODE_PCIE,
 	NODE_PCAP,
 	NODE_RTC,
+	NODE_MAX
 };
 
 enum pm_request_ack {
