@@ -307,13 +307,11 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 
 	case MCE_CMD_ENUM_FEATURES:
-		ret = ops->call_enum_misc(cpu_ari_base,
+		ret64 = ops->call_enum_misc(cpu_ari_base,
 				TEGRA_ARI_MISC_FEATURE_LEAF_0, arg0);
 
 		/* update context to return features value */
 		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-
-		ret = 0;
 
 		break;
 
