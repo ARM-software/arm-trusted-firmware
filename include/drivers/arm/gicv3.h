@@ -55,7 +55,11 @@
 #define GICD_SETSPI_SR		0x50
 #define GICD_CLRSPI_SR		0x50
 #define GICD_IGRPMODR		0xd00
-#define GICD_IROUTER		0x6100
+/*
+ * GICD_IROUTER<n> register is at 0x6000 + 8n, where n is the interrupt id and
+ * n >= 32, making the effective offset as 0x6100.
+ */
+#define GICD_IROUTER		0x6000
 #define GICD_PIDR2_GICV3	0xffe8
 
 #define IGRPMODR_SHIFT		5
