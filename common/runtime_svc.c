@@ -87,7 +87,8 @@ void runtime_svc_init(void)
 	int rc = 0, index, start_idx, end_idx;
 
 	/* Assert the number of descriptors detected are less than maximum indices */
-	assert((RT_SVC_DECS_NUM >= 0) && (RT_SVC_DECS_NUM < MAX_RT_SVCS));
+	assert((RT_SVC_DESCS_END >= RT_SVC_DESCS_START) &&
+			(RT_SVC_DECS_NUM < MAX_RT_SVCS));
 
 	/* If no runtime services are implemented then simply bail out */
 	if (RT_SVC_DECS_NUM == 0)
