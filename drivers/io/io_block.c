@@ -198,6 +198,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	io_block_ops_t *ops;
 	size_t aligned_length, skip, count, left, padding, block_size;
 	int lba;
+	int buffer_not_aligned;
 
 	assert(entity->info != (uintptr_t)NULL);
 	cur = (block_dev_state_t *)entity->info;
@@ -208,6 +209,17 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	       (length > 0) &&
 	       (ops->read != 0));
 
+	if ((buffer & (block_size - 1)) != 0) {
+		/*
+		 * buffer isn't aligned with block size.
+		 * Block device always relies on DMA operation.
+		 * It's better to make the buffer as block size aligned.
+		 */
+		buffer_not_aligned = 1;
+	} else {
+		buffer_not_aligned = 0;
+	}
+
 	skip = cur->file_pos % block_size;
 	aligned_length = ((skip + length) + (block_size - 1)) &
 			 ~(block_size - 1);
@@ -216,8 +228,13 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	do {
 		lba = (cur->file_pos + cur->base) / block_size;
 		if (left >= buf->length) {
-			/* Since left is larger, it's impossible to padding. */
-			if (skip) {
+			/*
+			 * Since left is larger, it's impossible to padding.
+			 *
+			 * If buffer isn't aligned, we need to use aligned
+			 * buffer instead.
+			 */
+			if (skip || buffer_not_aligned) {
 				/*
 				 * The beginning address (file_pos) isn't
 				 * aligned with block size, we need to use
@@ -231,10 +248,11 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 			}
 			assert(count == buf->length);
 			cur->file_pos += count - skip;
-			if (skip) {
+			if (skip || buffer_not_aligned) {
 				/*
-				 * Since it's not aligned with block size,
-				 * block buffer is used to store data.
+				 * Since there's not aligned block size caused
+				 * by skip or not aligned buffer, block buffer
+				 * is used to store data.
 				 */
 				memcpy((void *)buffer,
 				       (void *)(buf->offset + skip),
@@ -242,13 +260,16 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 			}
 			left = left - (count - skip);
 		} else {
-			if (skip || padding) {
+			if (skip || padding || buffer_not_aligned) {
 				/*
 				 * The beginning address (file_pos) isn't
 				 * aligned with block size, we have to read
 				 * full block by block buffer instead.
 				 * The size isn't aligned with block size.
 				 * Use block buffer to avoid overflow.
+				 *
+				 * If buffer isn't aligned, use block buffer
+				 * to avoid DMA error.
 				 */
 				count = ops->read(lba, buf->offset, left);
 			} else
@@ -256,10 +277,10 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 			assert(count == left);
 			left = left - (skip + padding);
 			cur->file_pos += left;
-			if (skip || padding) {
+			if (skip || padding || buffer_not_aligned) {
 				/*
-				 * Since it's not aligned with block size,
-				 * block buffer is used to store data.
+				 * Since there's not aligned block size or
+				 * buffer, block buffer is used to store data.
 				 */
 				memcpy((void *)buffer,
 				       (void *)(buf->offset + skip),
@@ -283,6 +304,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 	io_block_ops_t *ops;
 	size_t aligned_length, skip, count, left, padding, block_size;
 	int lba;
+	int buffer_not_aligned;
 
 	assert(entity->info != (uintptr_t)NULL);
 	cur = (block_dev_state_t *)entity->info;
@@ -294,6 +316,17 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 	       (ops->read != 0) &&
 	       (ops->write != 0));
 
+	if ((buffer & (block_size - 1)) != 0) {
+		/*
+		 * buffer isn't aligned with block size.
+		 * Block device always relies on DMA operation.
+		 * It's better to make the buffer as block size aligned.
+		 */
+		buffer_not_aligned = 1;
+	} else {
+		buffer_not_aligned = 0;
+	}
+
 	skip = cur->file_pos % block_size;
 	aligned_length = ((skip + length) + (block_size - 1)) &
 			 ~(block_size - 1);
@@ -303,12 +336,12 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 		lba = (cur->file_pos + cur->base) / block_size;
 		if (left >= buf->length) {
 			/* Since left is larger, it's impossible to padding. */
-			if (skip) {
+			if (skip || buffer_not_aligned) {
 				/*
 				 * The beginning address (file_pos) isn't
-				 * aligned with block size, we need to use
-				 * block buffer to write block. Since block
-				 * device is always relied on DMA operation.
+				 * aligned with block size or buffer isn't
+				 * aligned, we need to use block buffer to
+				 * write block.
 				 */
 				count = ops->read(lba, buf->offset,
 						  buf->length);
@@ -324,7 +357,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 			cur->file_pos += count - skip;
 			left = left - (count - skip);
 		} else {
-			if (skip || padding) {
+			if (skip || padding || buffer_not_aligned) {
 				/*
 				 * The beginning address (file_pos) isn't
 				 * aligned with block size, we need to avoid
@@ -332,6 +365,9 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 				 * skipping the beginning is the only way.
 				 * The size isn't aligned with block size.
 				 * Use block buffer to avoid overflow.
+				 *
+				 * If buffer isn't aligned, use block buffer
+				 * to avoid DMA error.
 				 */
 				count = ops->read(lba, buf->offset, left);
 				assert(count == left);
