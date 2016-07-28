@@ -70,7 +70,9 @@ sys_resume:
 psram_data:
 	.quad	PSRAM_DT_BASE
 sys_wakeup_entry:
+#if !ERROR_DEPRECATED
 	.quad	psci_entrypoint
+#endif
 pmu_cpuson_entrypoint_end:
 	.word	0
 endfunc pmu_cpuson_entrypoint
