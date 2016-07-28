@@ -129,6 +129,9 @@ int ari_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 		return EINVAL;
 	}
 
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	/* Enter the cstate, to be woken up after wake_time (TSC ticks) */
 	return ari_request_wait(ari_base, ARI_EVT_MASK_STANDBYWFI_BIT,
 		TEGRA_ARI_ENTER_CSTATE, state, wake_time);
@@ -139,6 +142,9 @@ int ari_update_cstate_info(uint32_t ari_base, uint32_t cluster, uint32_t ccplex,
 	uint8_t update_wake_mask)
 {
 	uint32_t val = 0;
+
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
 
 	/* update CLUSTER_CSTATE? */
 	if (cluster)
@@ -172,6 +178,9 @@ int ari_update_crossover_time(uint32_t ari_base, uint32_t type, uint32_t time)
 	    (type > TEGRA_ARI_CROSSOVER_CCP3_SC1))
 		return EINVAL;
 
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	/* update crossover threshold time */
 	return ari_request_wait(ari_base, 0, TEGRA_ARI_UPDATE_CROSSOVER,
 			type, time);
@@ -185,6 +194,9 @@ uint64_t ari_read_cstate_stats(uint32_t ari_base, uint32_t state)
 	if (state == 0)
 		return EINVAL;
 
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	ret = ari_request_wait(ari_base, 0, TEGRA_ARI_CSTATE_STATS, state, 0);
 	if (ret != 0)
 		return EINVAL;
@@ -194,6 +206,9 @@ uint64_t ari_read_cstate_stats(uint32_t ari_base, uint32_t state)
 
 int ari_write_cstate_stats(uint32_t ari_base, uint32_t state, uint32_t stats)
 {
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	/* write the cstate stats */
 	return ari_request_wait(ari_base, 0, TEGRA_ARI_WRITE_CSTATE_STATS, state,
 			stats);
@@ -226,6 +241,9 @@ int ari_is_ccx_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 {
 	int ret;
 
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	ret = ari_request_wait(ari_base, 0, TEGRA_ARI_IS_CCX_ALLOWED, state & 0x7,
 			wake_time);
 	if (ret) {
@@ -247,6 +265,9 @@ int ari_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 		ERROR("%s: unknown cstate (%d)\n", __func__, state);
 		return EINVAL;
 	}
+
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
 
 	ret = ari_request_wait(ari_base, 0, TEGRA_ARI_IS_SC7_ALLOWED, state,
 			wake_time);
@@ -283,12 +304,18 @@ int ari_online_core(uint32_t ari_base, uint32_t core)
 		return EINVAL;
 	}
 
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	return ari_request_wait(ari_base, 0, TEGRA_ARI_ONLINE_CORE, core, 0);
 }
 
 int ari_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t enable)
 {
 	int val;
+
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
 
 	/*
 	 * If the enable bit is cleared, Auto-CC3 will be disabled by setting
@@ -309,6 +336,9 @@ int ari_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t enable
 
 int ari_reset_vector_update(uint32_t ari_base, uint32_t lo, uint32_t hi)
 {
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	/*
 	 * Need to program the CPU reset vector one time during cold boot
 	 * and SC7 exit
@@ -320,18 +350,27 @@ int ari_reset_vector_update(uint32_t ari_base, uint32_t lo, uint32_t hi)
 
 int ari_roc_flush_cache_trbits(uint32_t ari_base)
 {
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	return ari_request_wait(ari_base, 0, TEGRA_ARI_ROC_FLUSH_CACHE_TRBITS,
 			0, 0);
 }
 
 int ari_roc_flush_cache(uint32_t ari_base)
 {
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	return ari_request_wait(ari_base, 0, TEGRA_ARI_ROC_FLUSH_CACHE_ONLY,
 			0, 0);
 }
 
 int ari_roc_clean_cache(uint32_t ari_base)
 {
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	return ari_request_wait(ari_base, 0, TEGRA_ARI_ROC_CLEAN_CACHE_ONLY,
 			0, 0);
 }
@@ -372,6 +411,9 @@ int ari_update_ccplex_gsc(uint32_t ari_base, uint32_t gsc_idx)
 	if (gsc_idx > TEGRA_ARI_GSC_VPR_IDX)
 		return EINVAL;
 
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	/*
 	 * The MCE code will read the GSC carveout value, corrseponding to
 	 * the ID, from the MC registers and update the internal GSC registers
@@ -384,6 +426,9 @@ int ari_update_ccplex_gsc(uint32_t ari_base, uint32_t gsc_idx)
 
 void ari_enter_ccplex_state(uint32_t ari_base, uint32_t state_idx)
 {
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
+
 	/*
 	 * The MCE will shutdown or restart the entire system
 	 */
@@ -395,6 +440,9 @@ int ari_read_write_uncore_perfmon(uint32_t ari_base,
 {
 	int ret;
 	uint32_t val;
+
+	/* clean the previous response state */
+	ari_clobber_response(ari_base);
 
 	/* sanity check input parameters */
 	if (req.perfmon_command.cmd == UNCORE_PERFMON_CMD_READ && !data) {
