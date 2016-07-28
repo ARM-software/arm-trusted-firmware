@@ -61,10 +61,10 @@
 
 /*
  * The constants below are not optimised for memory usage. Platforms that wish
- * to optimise these constants should set `ARM_BOARD_OPTIMISE_MMAP` to 1 and
+ * to optimise these constants should set `ARM_BOARD_OPTIMISE_MEM` to 1 and
  * provide there own values.
  */
-#if !ARM_BOARD_OPTIMISE_MMAP
+#if !ARM_BOARD_OPTIMISE_MEM
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
@@ -81,7 +81,29 @@
 # define MAX_XLAT_TABLES		5
 #endif
 
-#endif /* ARM_BOARD_OPTIMISE_MMAP */
+/*
+ * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
+ * plus a little space for growth.
+ */
+#define PLAT_ARM_MAX_BL1_RW_SIZE	0xA000
+
+/*
+ * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
+ * little space for growth.
+ */
+#if TRUSTED_BOARD_BOOT
+# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
+#else
+# define PLAT_ARM_MAX_BL2_SIZE		0xF000
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
+ * little space for growth.
+ */
+#define PLAT_ARM_MAX_BL31_SIZE		0x1D000
+
+#endif /* ARM_BOARD_OPTIMISE_MEM */
 
 #define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4

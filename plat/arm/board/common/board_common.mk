@@ -61,8 +61,8 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 endif
 
 # This flag controls whether memory usage needs to be optimised
-ARM_BOARD_OPTIMISE_MMAP	?=	0
+ARM_BOARD_OPTIMISE_MEM	?=	0
 
 # Process flags
-$(eval $(call assert_boolean,ARM_BOARD_OPTIMISE_MMAP))
-$(eval $(call add_define,ARM_BOARD_OPTIMISE_MMAP))
+$(eval $(call assert_boolean,ARM_BOARD_OPTIMISE_MEM))
+$(eval $(call add_define,ARM_BOARD_OPTIMISE_MEM))

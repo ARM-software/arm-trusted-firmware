@@ -79,7 +79,7 @@ SKIP_A57_L1_FLUSH_PWR_DWN	:=	 1
 ENABLE_PLAT_COMPAT		:= 	0
 
 # Enable memory map related constants optimisation
-ARM_BOARD_OPTIMISE_MMAP		:=	1
+ARM_BOARD_OPTIMISE_MEM		:=	1
 
 include plat/arm/board/common/board_css.mk
 include plat/arm/common/arm_common.mk

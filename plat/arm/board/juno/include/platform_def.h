@@ -74,10 +74,10 @@
 #endif /* TRUSTED_BOARD_BOOT */
 
 /*
- * If ARM_BOARD_OPTIMISE_MMAP=0 then Juno uses the default, unoptimised values
+ * If ARM_BOARD_OPTIMISE_MEM=0 then Juno uses the default, unoptimised values
  * defined for ARM development platforms.
  */
-#if ARM_BOARD_OPTIMISE_MMAP
+#if ARM_BOARD_OPTIMISE_MEM
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
@@ -107,7 +107,33 @@
 # define MAX_XLAT_TABLES		3
 #endif
 
-#endif /* ARM_BOARD_OPTIMISE_MMAP */
+/*
+ * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
+ * plus a little space for growth.
+ */
+#if TRUSTED_BOARD_BOOT
+# define PLAT_ARM_MAX_BL1_RW_SIZE	0x9000
+#else
+# define PLAT_ARM_MAX_BL1_RW_SIZE	0x6000
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
+ * little space for growth.
+ */
+#if TRUSTED_BOARD_BOOT
+# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
+#else
+# define PLAT_ARM_MAX_BL2_SIZE		0xC000
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
+ * little space for growth.
+ */
+#define PLAT_ARM_MAX_BL31_SIZE		0x1D000
+
+#endif /* ARM_BOARD_OPTIMISE_MEM */
 
 /* CCI related constants */
 #define PLAT_ARM_CCI_BASE		0x2c090000
@@ -182,31 +208,5 @@
 
 /* CSS SoC NIC-400 Global Programmers View (GPV) */
 #define PLAT_SOC_CSS_NIC400_BASE	0x2a000000
-
-/*
- * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
- * plus a little space for growth.
- */
-#if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL1_RW_SIZE	0x9000
-#else
-# define PLAT_ARM_MAX_BL1_RW_SIZE	0x6000
-#endif
-
-/*
- * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
- * little space for growth.
- */
-#if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
-#else
-# define PLAT_ARM_MAX_BL2_SIZE		0xC000
-#endif
-
-/*
- * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
- * little space for growth.
- */
-#define PLAT_ARM_MAX_BL31_SIZE		0x1D000
 
 #endif /* __PLATFORM_DEF_H__ */
