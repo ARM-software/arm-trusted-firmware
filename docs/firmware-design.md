@@ -14,8 +14,9 @@ Contents :
 9.  [Memory layout of BL images](#9-memory-layout-of-bl-images)
 10. [Firmware Image Package (FIP)](#10--firmware-image-package-fip)
 11. [Use of coherent memory in Trusted Firmware](#11--use-of-coherent-memory-in-trusted-firmware)
-12. [Code Structure](#12--code-structure)
-13. [References](#13--references)
+12. [Isolating code and read-only data on separate memory pages](#12--isolating-code-and-read-only-data-on-separate-memory-pages)
+13. [Code Structure](#13--code-structure)
+14. [References](#14--references)
 
 
 1.  Introduction
@@ -1768,7 +1769,86 @@ whether coherent memory should be used. If a platform disables
 optionally define macro `PLAT_PERCPU_BAKERY_LOCK_SIZE`  (see the [Porting
 Guide]). Refer to the reference platform code for examples.
 
-12.  Code Structure
+
+12.  Isolating code and read-only data on separate memory pages
+---------------------------------------------------------------
+
+In the ARMv8 VMSA, translation table entries include fields that define the
+properties of the target memory region, such as its access permissions. The
+smallest unit of memory that can be addressed by a translation table entry is
+a memory page. Therefore, if software needs to set different permissions on two
+memory regions then it needs to map them using different memory pages.
+
+The default memory layout for each BL image is as follows:
+
+       |        ...        |
+       +-------------------+
+       |  Read-write data  |
+       +-------------------+ Page boundary
+       |     <Padding>     |
+       +-------------------+
+       | Exception vectors |
+       +-------------------+ 2 KB boundary
+       |     <Padding>     |
+       +-------------------+
+       |  Read-only data   |
+       +-------------------+
+       |       Code        |
+       +-------------------+ BLx_BASE
+
+Note: The 2KB alignment for the exception vectors is an architectural
+requirement.
+
+The read-write data start on a new memory page so that they can be mapped with
+read-write permissions, whereas the code and read-only data below are configured
+as read-only.
+
+However, the read-only data are not aligned on a page boundary. They are
+contiguous to the code. Therefore, the end of the code section and the beginning
+of the read-only data one might share a memory page. This forces both to be
+mapped with the same memory attributes. As the code needs to be executable, this
+means that the read-only data stored on the same memory page as the code are
+executable as well. This could potentially be exploited as part of a security
+attack.
+
+TF provides the build flag `SEPARATE_CODE_AND_RODATA` to isolate the code and
+read-only data on separate memory pages. This in turn allows independent control
+of the access permissions for the code and read-only data. In this case,
+platform code gets a finer-grained view of the image layout and can
+appropriately map the code region as executable and the read-only data as
+execute-never.
+
+This has an impact on memory footprint, as padding bytes need to be introduced
+between the code and read-only data to ensure the segragation of the two. To
+limit the memory cost, this flag also changes the memory layout such that the
+code and exception vectors are now contiguous, like so:
+
+       |        ...        |
+       +-------------------+
+       |  Read-write data  |
+       +-------------------+ Page boundary
+       |     <Padding>     |
+       +-------------------+
+       |  Read-only data   |
+       +-------------------+ Page boundary
+       |     <Padding>     |
+       +-------------------+
+       | Exception vectors |
+       +-------------------+ 2 KB boundary
+       |     <Padding>     |
+       +-------------------+
+       |       Code        |
+       +-------------------+ BLx_BASE
+
+With this more condensed memory layout, the separation of read-only data will
+add zero or one page to the memory footprint of each BL image. Each platform
+should consider the trade-off between memory footprint and security.
+
+This build flag is disabled by default, minimising memory footprint. On ARM
+platforms, it is enabled.
+
+
+13.  Code Structure
 -------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -1812,7 +1892,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-13.  References
+14.  References
 ---------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
