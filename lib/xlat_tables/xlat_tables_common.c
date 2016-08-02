@@ -199,7 +199,11 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 	int mem_type;
 
 	desc = addr_pa;
-	desc |= (level == 3) ? TABLE_DESC : BLOCK_DESC;
+	/*
+	 * There are different translation table descriptors for level 3 and the
+	 * rest.
+	 */
+	desc |= (level == XLAT_TABLE_LEVEL_MAX) ? PAGE_DESC : BLOCK_DESC;
 	desc |= (attr & MT_NS) ? LOWER_ATTRS(NS) : 0;
 	desc |= (attr & MT_RW) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
 	desc |= LOWER_ATTRS(ACCESS_FLAG);
@@ -311,14 +315,13 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 					uint64_t *table,
 					int level)
 {
-	unsigned level_size_shift = L1_XLAT_ADDRESS_SHIFT - (level - 1) *
-						XLAT_TABLE_ENTRIES_SHIFT;
-	unsigned level_size = 1 << level_size_shift;
-	u_register_t level_index_mask =
-		(u_register_t)(((u_register_t) XLAT_TABLE_ENTRIES_MASK)
-		<< level_size_shift);
+	assert(level >= XLAT_TABLE_LEVEL_MIN && level <= XLAT_TABLE_LEVEL_MAX);
 
-	assert(level > 0 && level <= 3);
+	unsigned int level_size_shift =
+		       L0_XLAT_ADDRESS_SHIFT - level * XLAT_TABLE_ENTRIES_SHIFT;
+	u_register_t level_size = (u_register_t)1 << level_size_shift;
+	u_register_t level_index_mask =
+		((u_register_t)XLAT_TABLE_ENTRIES_MASK) << level_size_shift;
 
 	debug_print("New xlat table:\n");
 
@@ -334,8 +337,8 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			continue;
 		}
 
-		debug_print("%s VA:%p size:0x%x ", get_level_spacer(level),
-				(void *)base_va, level_size);
+		debug_print("%s VA:%p size:0x%llx ", get_level_spacer(level),
+			(void *)base_va, (unsigned long long)level_size);
 
 		if (mm->base_va > base_va + level_size - 1) {
 			/* Next region is after this area. Nothing to map yet */

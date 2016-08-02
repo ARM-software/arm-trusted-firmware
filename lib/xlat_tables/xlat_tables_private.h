@@ -31,6 +31,12 @@
 #ifndef __XLAT_TABLES_PRIVATE_H__
 #define __XLAT_TABLES_PRIVATE_H__
 
+#include <cassert.h>
+#include <utils.h>
+
+/* The virtual address space size must be a power of two. */
+CASSERT(IS_POWER_OF_TWO(ADDR_SPACE_SIZE), assert_valid_addr_space_size);
+
 void print_mmap(void);
 void init_xlation_table(uintptr_t base_va, uint64_t *table,
 			int level, uintptr_t *max_va,

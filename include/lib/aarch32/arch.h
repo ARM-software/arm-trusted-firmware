@@ -254,6 +254,8 @@
 
 #define TTBCR_T1SZ_SHIFT	16
 #define TTBCR_T1SZ_MASK		(0x7)
+#define TTBCR_TxSZ_MIN		0
+#define TTBCR_TxSZ_MAX		7
 
 #define TTBCR_SH0_NON_SHAREABLE		(0x0 << 12)
 #define TTBCR_SH0_OUTER_SHAREABLE	(0x2 << 12)

@@ -38,19 +38,55 @@
 #include "../xlat_tables_private.h"
 
 /*
- * The virtual address space size must be a power of two (as set in TCR.T0SZ).
- * As we start the initial lookup at level 1, it must also be between 2 GB and
- * 512 GB (with the virtual address size therefore 31 to 39 bits). See section
- * D4.2.5 in the ARMv8-A Architecture Reference Manual (DDI 0487A.i) for more
- * information.
+ * Each platform can define the size of the virtual address space, which is
+ * defined in ADDR_SPACE_SIZE. TCR.TxSZ is calculated as 64 minus the width of
+ * said address space. The value of TCR.TxSZ must be in the range 16 to 39 [1],
+ * which means that the virtual address space width must be in the range 48 to
+ * 25 bits.
+ *
+ * Here we calculate the initial lookup level from the value of ADDR_SPACE_SIZE.
+ * For a 4 KB page size, level 0 supports virtual address spaces of widths 48 to
+ * 40 bits, level 1 from 39 to 31, and level 2 from 30 to 25. Wider or narrower
+ * address spaces are not supported. As a result, level 3 cannot be used as
+ * initial lookup level with 4 KB granularity. [2]
+ *
+ * For example, for a 35-bit address space (i.e. ADDR_SPACE_SIZE == 1 << 35),
+ * TCR.TxSZ will be programmed to (64 - 35) = 29. According to Table D4-11 in
+ * the ARM ARM, the initial lookup level for such an address space is 1.
+ *
+ * See the ARMv8-A Architecture Reference Manual (DDI 0487A.j) for more
+ * information:
+ * [1] Page 1730: 'Input address size', 'For all translation stages'.
+ * [2] Section D4.2.5
  */
-CASSERT(ADDR_SPACE_SIZE >= (1ull << 31) && ADDR_SPACE_SIZE <= (1ull << 39) &&
-	IS_POWER_OF_TWO(ADDR_SPACE_SIZE), assert_valid_addr_space_size);
 
-#define NUM_L1_ENTRIES (ADDR_SPACE_SIZE >> L1_XLAT_ADDRESS_SHIFT)
+#if ADDR_SPACE_SIZE > (1ULL << (64 - TCR_TxSZ_MIN))
 
-static uint64_t l1_xlation_table[NUM_L1_ENTRIES]
-		__aligned(NUM_L1_ENTRIES * sizeof(uint64_t));
+# error "ADDR_SPACE_SIZE is too big."
+
+#elif ADDR_SPACE_SIZE > (1ULL << L0_XLAT_ADDRESS_SHIFT)
+
+# define XLAT_TABLE_LEVEL_BASE	0
+# define NUM_BASE_LEVEL_ENTRIES	(ADDR_SPACE_SIZE >> L0_XLAT_ADDRESS_SHIFT)
+
+#elif ADDR_SPACE_SIZE > (1 << L1_XLAT_ADDRESS_SHIFT)
+
+# define XLAT_TABLE_LEVEL_BASE	1
+# define NUM_BASE_LEVEL_ENTRIES	(ADDR_SPACE_SIZE >> L1_XLAT_ADDRESS_SHIFT)
+
+#elif ADDR_SPACE_SIZE >= (1 << (64 - TCR_TxSZ_MAX))
+
+# define XLAT_TABLE_LEVEL_BASE	2
+# define NUM_BASE_LEVEL_ENTRIES	(ADDR_SPACE_SIZE >> L2_XLAT_ADDRESS_SHIFT)
+
+#else
+
+# error "ADDR_SPACE_SIZE is too small."
+
+#endif
+
+static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
+		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
 
 static unsigned long long tcr_ps_bits;
 
@@ -88,7 +124,8 @@ void init_xlat_tables(void)
 	unsigned long long max_pa;
 	uintptr_t max_va;
 	print_mmap();
-	init_xlation_table(0, l1_xlation_table, 1, &max_va, &max_pa);
+	init_xlation_table(0, base_xlation_table, XLAT_TABLE_LEVEL_BASE,
+			   &max_va, &max_pa);
 	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
 	assert(max_va < ADDR_SPACE_SIZE);
 }
@@ -124,7 +161,8 @@ void init_xlat_tables(void)
 		_tlbi_fct();						\
 									\
 		/* Set TCR bits as well. */				\
-		/* Inner & outer WBWA & shareable + T0SZ = 32 */	\
+		/* Inner & outer WBWA & shareable. */			\
+		/* Set T0SZ to (64 - width of virtual address space) */	\
 		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
 			TCR_RGN_INNER_WBA |				\
 			(64 - __builtin_ctzl(ADDR_SPACE_SIZE));		\
@@ -132,7 +170,7 @@ void init_xlat_tables(void)
 		write_tcr_el##_el(tcr);					\
 									\
 		/* Set TTBR bits as well */				\
-		ttbr = (uint64_t) l1_xlation_table;			\
+		ttbr = (uint64_t) base_xlation_table;			\
 		write_ttbr0_el##_el(ttbr);				\
 									\
 		/* Ensure all translation table writes have drained */	\

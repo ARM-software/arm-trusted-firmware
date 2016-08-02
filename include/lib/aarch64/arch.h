@@ -243,6 +243,9 @@
 #define TCR_EL1_IPS_SHIFT	32
 #define TCR_EL3_PS_SHIFT	16
 
+#define TCR_TxSZ_MIN		16
+#define TCR_TxSZ_MAX		39
+
 /* (internal) physical address size bits in EL3/EL1 */
 #define TCR_PS_BITS_4GB		(0x0)
 #define TCR_PS_BITS_64GB	(0x1)
