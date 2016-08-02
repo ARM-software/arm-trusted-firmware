@@ -418,5 +418,6 @@ void dw_mmc_init(dw_mmc_params_t *params)
 		(params->bus_width == EMMC_BUS_WIDTH_8)));
 
 	memcpy(&dw_params, params, sizeof(dw_mmc_params_t));
-	emmc_init(&dw_mmc_ops, params->clk_rate, params->bus_width);
+	emmc_init(&dw_mmc_ops, params->clk_rate, params->bus_width,
+		  params->flags);
 }

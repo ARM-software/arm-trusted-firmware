@@ -37,6 +37,7 @@ typedef struct dw_mmc_params {
 	size_t		desc_size;
 	int		clk_rate;
 	int		bus_width;
+	unsigned int	flags;
 } dw_mmc_params_t;
 
 void dw_mmc_init(dw_mmc_params_t *params);
