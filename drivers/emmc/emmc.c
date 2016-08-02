@@ -40,6 +40,12 @@
 static const emmc_ops_t *ops;
 static unsigned int emmc_ocr_value;
 static emmc_csd_t emmc_csd;
+static unsigned int emmc_flags;
+
+static int is_cmd23_enabled(void)
+{
+	return (!!(emmc_flags & EMMC_FLAG_CMD23));
+}
 
 static int emmc_device_state(void)
 {
@@ -174,11 +180,23 @@ size_t emmc_read_blocks(int lba, uintptr_t buf, size_t size)
 	ret = ops->prepare(lba, buf, size);
 	assert(ret == 0);
 
-	memset(&cmd, 0, sizeof(emmc_cmd_t));
-	if (size > EMMC_BLOCK_SIZE)
+	if (is_cmd23_enabled()) {
+		memset(&cmd, 0, sizeof(emmc_cmd_t));
+		/* set block count */
+		cmd.cmd_idx = EMMC_CMD23;
+		cmd.cmd_arg = size / EMMC_BLOCK_SIZE;
+		cmd.resp_type = EMMC_RESPONSE_R1;
+		ret = ops->send_cmd(&cmd);
+		assert(ret == 0);
+
+		memset(&cmd, 0, sizeof(emmc_cmd_t));
 		cmd.cmd_idx = EMMC_CMD18;
-	else
-		cmd.cmd_idx = EMMC_CMD17;
+	} else {
+		if (size > EMMC_BLOCK_SIZE)
+			cmd.cmd_idx = EMMC_CMD18;
+		else
+			cmd.cmd_idx = EMMC_CMD17;
+	}
 	if ((emmc_ocr_value & OCR_ACCESS_MODE_MASK) == OCR_BYTE_MODE)
 		cmd.cmd_arg = lba * EMMC_BLOCK_SIZE;
 	else
@@ -193,11 +211,13 @@ size_t emmc_read_blocks(int lba, uintptr_t buf, size_t size)
 	/* wait buffer empty */
 	emmc_device_state();
 
-	if (size > EMMC_BLOCK_SIZE) {
-		memset(&cmd, 0, sizeof(emmc_cmd_t));
-		cmd.cmd_idx = EMMC_CMD12;
-		ret = ops->send_cmd(&cmd);
-		assert(ret == 0);
+	if (is_cmd23_enabled() == 0) {
+		if (size > EMMC_BLOCK_SIZE) {
+			memset(&cmd, 0, sizeof(emmc_cmd_t));
+			cmd.cmd_idx = EMMC_CMD12;
+			ret = ops->send_cmd(&cmd);
+			assert(ret == 0);
+		}
 	}
 	/* Ignore improbable errors in release builds */
 	(void)ret;
@@ -218,11 +238,24 @@ size_t emmc_write_blocks(int lba, const uintptr_t buf, size_t size)
 	ret = ops->prepare(lba, buf, size);
 	assert(ret == 0);
 
-	memset(&cmd, 0, sizeof(emmc_cmd_t));
-	if (size > EMMC_BLOCK_SIZE)
+	if (is_cmd23_enabled()) {
+		/* set block count */
+		memset(&cmd, 0, sizeof(emmc_cmd_t));
+		cmd.cmd_idx = EMMC_CMD23;
+		cmd.cmd_arg = size / EMMC_BLOCK_SIZE;
+		cmd.resp_type = EMMC_RESPONSE_R1;
+		ret = ops->send_cmd(&cmd);
+		assert(ret == 0);
+
+		memset(&cmd, 0, sizeof(emmc_cmd_t));
 		cmd.cmd_idx = EMMC_CMD25;
-	else
-		cmd.cmd_idx = EMMC_CMD24;
+	} else {
+		memset(&cmd, 0, sizeof(emmc_cmd_t));
+		if (size > EMMC_BLOCK_SIZE)
+			cmd.cmd_idx = EMMC_CMD25;
+		else
+			cmd.cmd_idx = EMMC_CMD24;
+	}
 	if ((emmc_ocr_value & OCR_ACCESS_MODE_MASK) == OCR_BYTE_MODE)
 		cmd.cmd_arg = lba * EMMC_BLOCK_SIZE;
 	else
@@ -237,11 +270,13 @@ size_t emmc_write_blocks(int lba, const uintptr_t buf, size_t size)
 	/* wait buffer empty */
 	emmc_device_state();
 
-	if (size > EMMC_BLOCK_SIZE) {
-		memset(&cmd, 0, sizeof(emmc_cmd_t));
-		cmd.cmd_idx = EMMC_CMD12;
-		ret = ops->send_cmd(&cmd);
-		assert(ret == 0);
+	if (is_cmd23_enabled() == 0) {
+		if (size > EMMC_BLOCK_SIZE) {
+			memset(&cmd, 0, sizeof(emmc_cmd_t));
+			cmd.cmd_idx = EMMC_CMD12;
+			ret = ops->send_cmd(&cmd);
+			assert(ret == 0);
+		}
 	}
 	/* Ignore improbable errors in release builds */
 	(void)ret;
@@ -328,7 +363,8 @@ size_t emmc_rpmb_erase_blocks(int lba, size_t size)
 	return size_erased;
 }
 
-void emmc_init(const emmc_ops_t *ops_ptr, int clk, int width)
+void emmc_init(const emmc_ops_t *ops_ptr, int clk, int width,
+	       unsigned int flags)
 {
 	assert((ops_ptr != 0) &&
 	       (ops_ptr->init != 0) &&
@@ -342,6 +378,7 @@ void emmc_init(const emmc_ops_t *ops_ptr, int clk, int width)
 		(width == EMMC_BUS_WIDTH_4) ||
 		(width == EMMC_BUS_WIDTH_8)));
 	ops = ops_ptr;
+	emmc_flags = flags;
 
 	emmc_enumerate(clk, width);
 }
