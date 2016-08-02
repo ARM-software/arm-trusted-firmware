@@ -33,6 +33,7 @@
 #include <bl_common.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <console.h>
 #include <debug.h>
 #include <memctrl.h>
 #include <mmio.h>
@@ -45,6 +46,7 @@
 
 extern uint64_t tegra_bl31_phys_base;
 extern uint64_t tegra_sec_entry_point;
+extern uint64_t tegra_console_base;
 
 /*
  * The following platform setup functions are weakly defined. They
@@ -164,6 +166,11 @@ void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	tegra_soc_pwr_domain_suspend(target_state);
 
+	/* Disable console if we are entering deep sleep. */
+	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
+			PSTATE_ID_SOC_POWERDN)
+		console_uninit();
+
 	/* disable GICC */
 	tegra_gic_cpuif_deactivate();
 }
@@ -205,6 +212,10 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 */
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
 			PSTATE_ID_SOC_POWERDN) {
+
+		/* Initialize the runtime console */
+		console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+			TEGRA_CONSOLE_BAUDRATE);
 
 		/*
 		 * Restore Memory Controller settings as it loses state

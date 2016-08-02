@@ -293,9 +293,7 @@ void bl31_platform_setup(void)
  ******************************************************************************/
 void bl31_plat_runtime_setup(void)
 {
-	/* Initialize the runtime console */
-	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-		TEGRA_CONSOLE_BAUDRATE);
+	; /* do nothing */
 }
 
 /*******************************************************************************
