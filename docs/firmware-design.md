@@ -728,6 +728,11 @@ registered with the generic PSCI code to be supported.
 **Note : These PSCI APIs require appropriate Secure Payload Dispatcher
 hooks to be registered with the generic PSCI code to be supported.
 
+The PSCI implementation in ARM Trusted Firmware is a library which can be
+integrated with AArch64 or AArch32 EL3 Runtime Software for ARMv8-A systems.
+A guide to integrating PSCI library with AArch32 EL3 Runtime Software
+can be found [here][PSCI Lib guide].
+
 
 5.  Secure-EL1 Payloads and Dispatchers
 ---------------------------------------
@@ -1923,3 +1928,4 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 [INTRG]:            ./interrupt-framework-design.md
 [CPUBM]:            ./cpu-specific-build-macros.md
 [Firmware Update]:  ./firmware-update.md
+[PSCI Lib guide]:   ./psci-lib-integration-guide.md
