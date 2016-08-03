@@ -78,6 +78,8 @@
 #define PSCI_SYSTEM_OFF			0x84000008
 #define PSCI_SYSTEM_RESET		0x84000009
 #define PSCI_FEATURES			0x8400000A
+#define PSCI_NODE_HW_STATE_AARCH32	0x8400000d
+#define PSCI_NODE_HW_STATE_AARCH64	0xc400000d
 #define PSCI_SYSTEM_SUSPEND_AARCH32	0x8400000E
 #define PSCI_SYSTEM_SUSPEND_AARCH64	0xc400000E
 #define PSCI_STAT_RESIDENCY_AARCH32	0x84000010
@@ -200,6 +202,17 @@ typedef enum {
 } aff_info_state_t;
 
 /*
+ * These are the power states reported by PSCI_NODE_HW_STATE API for the
+ * specified CPU. The definitions of these states can be found in Section 5.15.3
+ * of PSCI specification (ARM DEN 0022C).
+ */
+typedef enum {
+	HW_ON = 0,
+	HW_OFF = 1,
+	HW_STANDBY = 2
+} node_hw_state_t;
+
+/*
  * Macro to represent invalid affinity level within PSCI.
  */
 #define PSCI_INVALID_PWR_LVL	(PLAT_MAX_PWR_LVL + 1)
@@ -293,6 +306,7 @@ typedef struct plat_psci_ops {
 	int (*translate_power_state_by_mpidr)(u_register_t mpidr,
 				    unsigned int power_state,
 				    psci_power_state_t *output_state);
+	int (*get_node_hw_state)(u_register_t mpidr, unsigned int power_level);
 } plat_psci_ops_t;
 
 /*******************************************************************************
@@ -330,6 +344,8 @@ int psci_affinity_info(u_register_t target_affinity,
 int psci_migrate(u_register_t target_cpu);
 int psci_migrate_info_type(void);
 long psci_migrate_info_up_cpu(void);
+int psci_node_hw_state(u_register_t target_cpu,
+		       unsigned int power_level);
 int psci_features(unsigned int psci_fid);
 void __dead2 psci_power_down_wfi(void);
 void psci_arch_setup(void);

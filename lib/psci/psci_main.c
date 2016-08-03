@@ -295,6 +295,31 @@ long psci_migrate_info_up_cpu(void)
 	return resident_cpu_mpidr;
 }
 
+int psci_node_hw_state(u_register_t target_cpu,
+		       unsigned int power_level)
+{
+	int rc;
+
+	/* Validate target_cpu */
+	rc = psci_validate_mpidr(target_cpu);
+	if (rc != PSCI_E_SUCCESS)
+		return PSCI_E_INVALID_PARAMS;
+
+	/* Validate power_level against PLAT_MAX_PWR_LVL */
+	if (power_level > PLAT_MAX_PWR_LVL)
+		return PSCI_E_INVALID_PARAMS;
+
+	/*
+	 * Dispatch this call to platform to query power controller, and pass on
+	 * to the caller what it returns
+	 */
+	assert(psci_plat_pm_ops->get_node_hw_state);
+	rc = psci_plat_pm_ops->get_node_hw_state(target_cpu, power_level);
+	assert((rc >= HW_ON && rc <= HW_STANDBY) || rc == PSCI_E_NOT_SUPPORTED
+			|| rc == PSCI_E_INVALID_PARAMS);
+	return rc;
+}
+
 int psci_features(unsigned int psci_fid)
 {
 	unsigned int local_caps = psci_caps;
@@ -378,6 +403,9 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_MIG_INFO_UP_CPU_AARCH32:
 			return psci_migrate_info_up_cpu();
 
+		case PSCI_NODE_HW_STATE_AARCH32:
+			return psci_node_hw_state(x1, x2);
+
 		case PSCI_SYSTEM_SUSPEND_AARCH32:
 			return psci_system_suspend(x1, x2);
 
@@ -421,6 +449,9 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 
 		case PSCI_MIG_INFO_UP_CPU_AARCH64:
 			return psci_migrate_info_up_cpu();
+
+		case PSCI_NODE_HW_STATE_AARCH64:
+			return psci_node_hw_state(x1, x2);
 
 		case PSCI_SYSTEM_SUSPEND_AARCH64:
 			return psci_system_suspend(x1, x2);

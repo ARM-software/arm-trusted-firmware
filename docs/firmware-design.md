@@ -716,7 +716,7 @@ required support.
 |`PSCI_FEATURES`        | Yes     |                                           |
 |`CPU_FREEZE`           | No      |                                           |
 |`CPU_DEFAULT_SUSPEND`  | No      |                                           |
-|`CPU_HW_STATE`         | No      |                                           |
+|`NODE_HW_STATE`        | Yes*    |                                           |
 |`SYSTEM_SUSPEND`       | Yes*    |                                           |
 |`PSCI_SET_SUSPEND_MODE`| No      |                                           |
 |`PSCI_STAT_RESIDENCY`  | Yes*    |                                           |

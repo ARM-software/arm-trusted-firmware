@@ -256,6 +256,8 @@ int psci_setup(uintptr_t mailbox_ep)
 		psci_caps |=  define_psci_cap(PSCI_SYSTEM_OFF);
 	if (psci_plat_pm_ops->system_reset)
 		psci_caps |=  define_psci_cap(PSCI_SYSTEM_RESET);
+	if (psci_plat_pm_ops->get_node_hw_state)
+		psci_caps |= define_psci_cap(PSCI_NODE_HW_STATE_AARCH64);
 
 #if ENABLE_PSCI_STAT
 	psci_caps |=  define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64);
