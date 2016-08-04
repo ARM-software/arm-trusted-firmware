@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -88,5 +88,6 @@ const plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.validate_power_state		= juno_validate_power_state,
 	.validate_ns_entrypoint		= arm_validate_ns_entrypoint,
 	.get_sys_suspend_power_state	= css_get_sys_suspend_power_state,
-	.translate_power_state_by_mpidr = juno_translate_power_state_by_mpidr
+	.translate_power_state_by_mpidr = juno_translate_power_state_by_mpidr,
+	.get_node_hw_state		= css_node_hw_state
 };
