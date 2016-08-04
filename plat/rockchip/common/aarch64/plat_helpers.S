@@ -67,7 +67,7 @@ handler_a72:
 	 * Set the L2 Data RAM latency for Cortex-A72.
 	 * Set the L2 Tag RAM latency to for Cortex-A72.
 	 */
-	mov x0, #((2 << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+	mov x0, #((5 << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
 			 (0x1 << 5))
 	msr	L2CTLR_EL1, x0
 	isb
