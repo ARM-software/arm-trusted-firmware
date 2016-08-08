@@ -899,8 +899,6 @@ static int sys_pwr_domain_resume(void)
 	enable_dvfs_plls();
 	plls_resume_finish();
 
-	pmu_sgrf_rst_hld();
-
 	sys_slp_unconfig();
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
@@ -937,6 +935,7 @@ static int sys_pwr_domain_resume(void)
 		}
 	}
 
+	pmu_sgrf_rst_hld_release();
 	pmu_scu_b_pwrup();
 
 	pmu_power_domains_resume();
