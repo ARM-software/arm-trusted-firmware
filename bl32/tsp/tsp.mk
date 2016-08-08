@@ -37,7 +37,7 @@ BL32_SOURCES		+=	bl32/tsp/tsp_main.c			\
 				bl32/tsp/tsp_interrupt.c		\
 				bl32/tsp/tsp_timer.c			\
 				common/aarch64/early_exceptions.S	\
-				lib/locks/exclusive/spinlock.S
+				lib/locks/exclusive/aarch64/spinlock.S
 
 BL32_LINKERFILE		:=	bl32/tsp/tsp.ld.S
 

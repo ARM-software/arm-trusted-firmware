@@ -33,7 +33,7 @@ PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
 				lib/el3_runtime/aarch64/cpu_data.S	\
 				lib/el3_runtime/aarch64/context_mgmt.c	\
 				lib/cpus/aarch64/cpu_helpers.S		\
-				lib/locks/exclusive/spinlock.S		\
+				lib/locks/exclusive/aarch64/spinlock.S	\
 				lib/psci/psci_off.c			\
 				lib/psci/psci_on.c			\
 				lib/psci/psci_suspend.c			\
