@@ -42,18 +42,14 @@
 /* CPU reset handler routine */
 func tegra186_cpu_reset_handler
 	/*
-	 * The Memory Controller loses state during System Suspend. We
-	 * use this information to decide if the reset handler is running
-	 * after a System Suspend. Resume from system suspend requires
-	 * restoring the entire state from TZDRAM to TZRAM.
+	 * The TZRAM loses state during System Suspend. We use this
+	 * information to decide if the reset handler is running after a
+	 * System Suspend. Resume from system suspend requires restoring
+	 * the entire state from TZDRAM to TZRAM.
 	 */
-	mov	x1, #TEGRA_MC_BASE
-	ldr	w0, [x1, #MC_SECURITY_CFG3_0]
-	lsl	x0, x0, #32
-	ldr	w0, [x1, #MC_SECURITY_CFG0_0]
-	adr	x1, tegra186_cpu_reset_handler
-	cmp	x0, x1
-	beq	boot_cpu
+	mov	x0, #BL31_BASE
+	ldr	x0, [x0]
+	cbnz	x0, boot_cpu
 
 	/* resume from system suspend */
 	mov	x0, #BL31_BASE
