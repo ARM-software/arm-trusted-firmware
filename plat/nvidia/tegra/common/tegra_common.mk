@@ -48,9 +48,9 @@ COMMON_DIR		:=	plat/nvidia/tegra/common
 
 BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\
-				drivers/console/console.S			\
+				drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
-				drivers/ti/uart/16550_console.S			\
+				drivers/ti/uart/aarch64/16550_console.S		\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/common/plat_psci_common.c			\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\

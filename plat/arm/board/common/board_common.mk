@@ -31,7 +31,7 @@
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/board/common/			\
 				-Iinclude/plat/arm/board/common/drivers
 
-PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/pl011_console.S			\
+PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/aarch64/pl011_console.S		\
 				plat/arm/board/common/aarch64/board_arm_helpers.S
 
 BL1_SOURCES		+=	plat/arm/board/common/drivers/norflash/norflash.c

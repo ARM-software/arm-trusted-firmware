@@ -50,7 +50,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/arm/gic/arm_gic.c			\
 				drivers/arm/gic/gic_v2.c			\
 				drivers/arm/gic/gic_v3.c			\
-				drivers/console/console.S			\
+				drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				lib/cpus/aarch64/aem_generic.S			\
