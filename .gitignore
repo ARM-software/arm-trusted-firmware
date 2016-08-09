@@ -10,13 +10,14 @@ build/
 
 # Ignore build products from tools
 tools/**/*.o
-tools/fip_create/fip_create
-tools/fip_create/fip_create.exe
+tools/fip_create/
+tools/fiptool/fiptool
+tools/fiptool/fiptool.exe
 tools/cert_create/src/*.o
 tools/cert_create/src/**/*.o
 tools/cert_create/cert_create
 tools/cert_create/cert_create.exe
 
 # Ignore header files copied.
-tools/fip_create/firmware_image_package.h
-tools/fip_create/uuid.h
+tools/fiptool/firmware_image_package.h
+tools/fiptool/uuid.h

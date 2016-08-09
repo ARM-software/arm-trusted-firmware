@@ -269,7 +269,7 @@ performed.
 
 *   `GENERATE_COT`: Boolean flag used to build and execute the `cert_create`
     tool to create certificates as per the Chain of Trust described in
-    [Trusted Board Boot].  The build system then calls the `fip_create` tool to
+    [Trusted Board Boot].  The build system then calls `fiptool` to
     include the certificates in the FIP and FWU_FIP. Default value is '0'.
 
     Specify both `TRUSTED_BOARD_BOOT=1` and `GENERATE_COT=1` to include support
@@ -635,7 +635,7 @@ steps:
 
 It is recommended to remove old artifacts before building the tool:
 
-    make -C tools/fip_create clean
+    make -C tools/fiptool clean
 
 Build the tool:
 
@@ -643,37 +643,58 @@ Build the tool:
 
 The tool binary can be located in:
 
-    ./tools/fip_create/fip_create
+    ./tools/fiptool/fiptool
 
 Invoking the tool with `--help` will print a help message with all available
 options.
 
 Example 1: create a new Firmware package `fip.bin` that contains BL2 and BL31:
 
-    ./tools/fip_create/fip_create \
+    ./tools/fiptool/fiptool create \
         --tb-fw build/<platform>/<build-type>/bl2.bin \
         --soc-fw build/<platform>/<build-type>/bl31.bin \
         fip.bin
 
 Example 2: view the contents of an existing Firmware package:
 
-    ./tools/fip_create/fip_create --dump <path-to>/fip.bin
+    ./tools/fiptool/fiptool info <path-to>/fip.bin
 
 Example 3: update the entries of an existing Firmware package:
 
     # Change the BL2 from Debug to Release version
-    ./tools/fip_create/fip_create \
+    ./tools/fiptool/fiptool update \
         --tb-fw build/<platform>/release/bl2.bin \
         build/<platform>/debug/fip.bin
 
 Example 4: unpack all entries from an existing Firmware package:
 
     # Images will be unpacked to the working directory
-    ./tools/fip_create/fip_create --unpack <path-to>/fip.bin
+    ./tools/fiptool/fiptool unpack <path-to>/fip.bin
+
+Example 5: remove an entry from an existing Firmware package:
+
+    ./tools/fiptool/fiptool remove \
+        --tb-fw build/<platform>/debug/fip.bin
+
+Note that if the destination FIP file exists, the create, update and
+remove operations will automatically overwrite it.
+
+The unpack operation will fail if the images already exist at the
+destination.  In that case, use -f or --force to continue.
 
 More information about FIP can be found in the [Firmware Design document]
 [Firmware Design].
 
+#### Migrating from fip_create to fiptool
+
+The previous version of fiptool was called fip_create.  A compatibility script
+that emulates the basic functionality of the previous fip_create is provided.
+However, users are strongly encouraged to migrate to fiptool.
+
+*   To create a new FIP file, replace "fip_create" with "fiptool create".
+*   To update a FIP file, replace "fip_create" with "fiptool update".
+*   To dump the contents of a FIP file, replace "fip_create --dump"
+    with "fiptool info".
 
 ### Building FIP images with support for Trusted Board Boot
 
@@ -805,21 +826,21 @@ corrupted binaries.
 
 2.  Obtain SCP_BL2 (Juno) and BL33 (all platforms)
 
-    Use the fip_create tool to extract the SCP_BL2 and BL33 images from the FIP
+    Use the fiptool to extract the SCP_BL2 and BL33 images from the FIP
     package included in the Linaro release:
 
-        # Build the fip_create tool
+        # Build the fiptool
         make [DEBUG=1] [V=1] fiptool
 
         # Unpack firmware images from Linaro FIP
-        ./tools/fip_create/fip_create --unpack \
+        ./tools/fiptool/fiptool unpack \
              <path/to/linaro/release>/fip.bin
 
     The unpack operation will result in a set of binary images extracted to the
     working directory. The SCP_BL2 image corresponds to `scp-fw.bin` and BL33
     corresponds to `nt-fw.bin`.
 
-    Note: the fip_create tool will complain if the images to be unpacked already
+    Note: the fiptool will complain if the images to be unpacked already
     exist in the current directory. If that is the case, either delete those
     files or use the `--force` option to overwrite.
 

@@ -1513,11 +1513,16 @@ The ToC header and entry formats are described in the header file
 ARM Trusted firmware.
 
 The ToC header has the following fields:
+
     `name`: The name of the ToC. This is currently used to validate the header.
     `serial_number`: A non-zero number provided by the creation tool
-    `flags`: Flags associated with this data. None are yet defined.
+    `flags`: Flags associated with this data.
+        Bits 0-13: Reserved
+        Bits 32-47: Platform defined
+        Bits 48-63: Reserved
 
 A ToC entry has the following fields:
+
     `uuid`: All files are referred to by a pre-defined Universally Unique
         IDentifier [UUID] . The UUIDs are defined in
         `include/firmware_image_package`. The platform translates the requested
@@ -1534,7 +1539,7 @@ that can be loaded by the ARM Trusted Firmware from platform storage. The tool
 currently only supports packing bootloader images. Additional image definitions
 can be added to the tool as required.
 
-The tool can be found in `tools/fip_create`.
+The tool can be found in `tools/fiptool`.
 
 ### Loading from a Firmware Image Package (FIP)
 
