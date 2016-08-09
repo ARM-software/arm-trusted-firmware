@@ -777,6 +777,36 @@ static void sys_slp_config(void)
 	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_GPIO_WKUP_EN));
 	mmio_write_32(PMU_BASE + PMU_PWRMODE_CON, slp_mode_cfg);
 
+	/*
+	 * About to switch PMU counters to 32K; switch all timings to 32K
+	 * for simplicity even if we don't plan on using them.
+	 */
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_PLLRST_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_32K_CNT_MS(3));
+
+	mmio_clrbits_32(PMU_BASE + PMU_SFT_CON, BIT(PMU_24M_EN_CFG));
+
+	mmio_write_32(PMU_BASE + PMU_PLL_CON, PLL_PD_HW);
+	mmio_write_32(PMUGRF_BASE + PMUGRF_SOC_CON0, EXTERNAL_32K);
+	mmio_write_32(PMUGRF_BASE, IOMUX_CLK_32K); /* 32k iomux */
+}
+
+static void sys_slp_unconfig(void)
+{
+	/*
+	 * About to switch PMU counters to 24M; switch all timings to 24M
+	 * for simplicity even if we don't plan on using them.
+	 */
 	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_24M_CNT_MS(3));
@@ -784,16 +814,13 @@ static void sys_slp_config(void)
 	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_32K_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_PLLRST_CNT, CYCL_24M_CNT_MS(3));
 	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_24M_CNT_MS(3));
-	mmio_clrbits_32(PMU_BASE + PMU_SFT_CON, BIT(PMU_24M_EN_CFG));
 
-	mmio_write_32(PMU_BASE + PMU_PLL_CON, PLL_PD_HW);
-	mmio_write_32(PMUGRF_BASE + PMUGRF_SOC_CON0, EXTERNAL_32K);
-	mmio_write_32(PMUGRF_BASE, IOMUX_CLK_32K); /*32k iomux*/
+	mmio_setbits_32(PMU_BASE + PMU_SFT_CON, BIT(PMU_24M_EN_CFG));
 }
 
 static void set_hw_idle(uint32_t hw_idle)
@@ -873,6 +900,8 @@ static int sys_pwr_domain_resume(void)
 	plls_resume_finish();
 
 	pmu_sgrf_rst_hld();
+
+	sys_slp_unconfig();
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
