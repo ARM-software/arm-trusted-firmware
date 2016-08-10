@@ -68,8 +68,8 @@ ${PROJECT}: ${OBJECTS} Makefile
 	@${ECHO_BLANK_LINE}
 
 fip_create: fip_create.sh
-	mkdir -p ../fip_create
-	install -m 755 fip_create.sh ../fip_create/fip_create
+	${Q}mkdir -p ../fip_create
+	${Q}install -m 755 fip_create.sh ../fip_create/fip_create
 
 %.o: %.c %.h ${COPIED_H_FILES} Makefile
 	@echo "  CC      $<"
