@@ -45,6 +45,8 @@
 #include <soc.h>
 #include <pmu.h>
 #include <pmu_com.h>
+#include <pwm.h>
+#include <soc.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
@@ -804,72 +806,6 @@ static void clr_hw_idle(uint32_t hw_idle)
 	mmio_clrbits_32(PMU_BASE + PMU_BUS_CLR, hw_idle);
 }
 
-struct pwm_data_s pwm_data;
-
-/*
- * Save the PWMs data.
- */
-static void save_pwms(void)
-{
-	uint32_t i;
-
-	pwm_data.iomux_bitmask = 0;
-
-	/* Save all IOMUXes */
-	if (mmio_read_32(GRF_BASE + GRF_GPIO4C_IOMUX) & GPIO4C2_IOMUX_PWM)
-		pwm_data.iomux_bitmask |= PWM0_IOMUX_PWM_EN;
-	if (mmio_read_32(GRF_BASE + GRF_GPIO4C_IOMUX) & GPIO4C6_IOMUX_PWM)
-		pwm_data.iomux_bitmask |= PWM1_IOMUX_PWM_EN;
-	if (mmio_read_32(PMUGRF_BASE + PMUGRF_GPIO1C_IOMUX) &
-			 GPIO1C3_IOMUX_PWM)
-		pwm_data.iomux_bitmask |= PWM2_IOMUX_PWM_EN;
-	if (mmio_read_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX) &
-			 GPIO0A6_IOMUX_PWM)
-		pwm_data.iomux_bitmask |= PWM3_IOMUX_PWM_EN;
-
-	for (i = 0; i < 4; i++) {
-		/* Save cnt, period, duty and ctrl for PWM i */
-		pwm_data.cnt[i] = mmio_read_32(PWM_BASE + PWM_CNT(i));
-		pwm_data.duty[i] = mmio_read_32(PWM_BASE + PWM_PERIOD_HPR(i));
-		pwm_data.period[i] = mmio_read_32(PWM_BASE + PWM_DUTY_LPR(i));
-		pwm_data.ctrl[i] = mmio_read_32(PWM_BASE + PWM_CTRL(i));
-	}
-
-	/* PWMs all IOMUXes switch to the gpio mode */
-	mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C2_IOMUX_GPIO);
-	mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C6_IOMUX_GPIO);
-	mmio_write_32(PMUGRF_BASE  + PMUGRF_GPIO1C_IOMUX, GPIO1C3_IOMUX_GPIO);
-	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX, GPIO0A6_IOMUX_GPIO);
-}
-
-/*
- * Restore the PWMs data.
- */
-static void restore_pwms(void)
-{
-	uint32_t i;
-
-	/* Restore all IOMUXes */
-	if (pwm_data.iomux_bitmask & PWM3_IOMUX_PWM_EN)
-		mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_IOMUX,
-			      GPIO0A6_IOMUX_PWM);
-	if (pwm_data.iomux_bitmask & PWM2_IOMUX_PWM_EN)
-		mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO1C_IOMUX,
-			      GPIO1C3_IOMUX_PWM);
-	if (pwm_data.iomux_bitmask & PWM1_IOMUX_PWM_EN)
-		mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C6_IOMUX_PWM);
-	if (pwm_data.iomux_bitmask & PWM0_IOMUX_PWM_EN)
-		mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX, GPIO4C2_IOMUX_PWM);
-
-	for (i = 0; i < 4; i++) {
-		/* Restore ctrl, duty, period and cnt for PWM i */
-		mmio_write_32(PWM_BASE + PWM_CTRL(i), pwm_data.ctrl[i]);
-		mmio_write_32(PWM_BASE + PWM_DUTY_LPR(i), pwm_data.period[i]);
-		mmio_write_32(PWM_BASE + PWM_PERIOD_HPR(i), pwm_data.duty[i]);
-		mmio_write_32(PWM_BASE + PWM_CNT(i), pwm_data.cnt[i]);
-	}
-}
-
 static int sys_pwr_domain_suspend(void)
 {
 	uint32_t wait_cnt = 0;
@@ -916,7 +852,10 @@ static int sys_pwr_domain_suspend(void)
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
-	save_pwms();
+	plls_suspend_prepare();
+	disable_dvfs_plls();
+	disable_pwms();
+	disable_nodvfs_plls();
 
 	return 0;
 }
@@ -926,7 +865,12 @@ static int sys_pwr_domain_resume(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
-	restore_pwms();
+	enable_nodvfs_plls();
+	enable_pwms();
+	/* PWM regulators take time to come up; give 300us to be safe. */
+	udelay(300);
+	enable_dvfs_plls();
+	plls_resume_finish();
 
 	pmu_sgrf_rst_hld();
 

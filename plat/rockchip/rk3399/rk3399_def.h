@@ -161,14 +161,4 @@
 #define RK3399_G1S_IRQS			ARM_IRQ_SEC_PHY_TIMER
 #define RK3399_G0_IRQS			ARM_IRQ_SEC_SGI_6
 
-#define PWM0_IOMUX_PWM_EN		(1 << 0)
-#define PWM1_IOMUX_PWM_EN		(1 << 1)
-#define PWM2_IOMUX_PWM_EN		(1 << 2)
-#define PWM3_IOMUX_PWM_EN		(1 << 3)
-
-#define PWM_CNT(n)			0x0000 + 0x10 * n
-#define PWM_PERIOD_HPR(n)		0x0004 + 0x10 * n
-#define PWM_DUTY_LPR(n)			0x0008 + 0x10 * n
-#define PWM_CTRL(n)			0x000c + 0x10 * n
-
 #endif /* __PLAT_DEF_H__ */
