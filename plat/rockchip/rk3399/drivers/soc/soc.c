@@ -236,7 +236,22 @@ static void _pll_suspend(uint32_t pll_id)
 	set_pll_bypass(pll_id);
 }
 
-void plls_suspend(void)
+void disable_dvfs_plls(void)
+{
+	_pll_suspend(CPLL_ID);
+	_pll_suspend(NPLL_ID);
+	_pll_suspend(VPLL_ID);
+	_pll_suspend(GPLL_ID);
+	_pll_suspend(ABPLL_ID);
+	_pll_suspend(ALPLL_ID);
+}
+
+void disable_nodvfs_plls(void)
+{
+	_pll_suspend(PPLL_ID);
+}
+
+void plls_suspend_prepare(void)
 {
 	uint32_t i, pll_id;
 
@@ -251,14 +266,6 @@ void plls_suspend(void)
 		slp_data.pmucru_clksel_con[i] =
 			mmio_read_32(PMUCRU_BASE +
 				     PMUCRU_CLKSEL_OFFSET + i * REG_SIZE);
-
-	_pll_suspend(CPLL_ID);
-	_pll_suspend(NPLL_ID);
-	_pll_suspend(VPLL_ID);
-	_pll_suspend(PPLL_ID);
-	_pll_suspend(GPLL_ID);
-	_pll_suspend(ABPLL_ID);
-	_pll_suspend(ALPLL_ID);
 }
 
 void clk_gate_con_save(void)
@@ -308,7 +315,13 @@ static void set_plls_nobypass(uint32_t pll_id)
 			      PLL_NO_BYPASS_MODE);
 }
 
-static void plls_resume_prepare(void)
+static void _pll_resume(uint32_t pll_id)
+{
+	set_plls_nobypass(pll_id);
+	set_pll_normal_mode(pll_id);
+}
+
+void plls_resume_finish(void)
 {
 	int i;
 
@@ -321,15 +334,19 @@ static void plls_resume_prepare(void)
 			      REG_SOC_WMSK | slp_data.pmucru_clksel_con[i]);
 }
 
-void plls_resume(void)
+void enable_dvfs_plls(void)
 {
-	int pll_id;
+	_pll_resume(ALPLL_ID);
+	_pll_resume(ABPLL_ID);
+	_pll_resume(GPLL_ID);
+	_pll_resume(VPLL_ID);
+	_pll_resume(NPLL_ID);
+	_pll_resume(CPLL_ID);
+}
 
-	plls_resume_prepare();
-	for (pll_id = ALPLL_ID; pll_id < END_PLL_ID; pll_id++) {
-		set_plls_nobypass(pll_id);
-		set_pll_normal_mode(pll_id);
-	}
+void enable_nodvfs_plls(void)
+{
+	_pll_resume(PPLL_ID);
 }
 
 void soc_global_soft_reset_init(void)

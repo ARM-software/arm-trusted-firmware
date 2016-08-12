@@ -240,6 +240,22 @@ struct deepsleep_data_s {
 #define CPU_BOOT_ADDR_WMASK	0xffff0000
 #define CPU_BOOT_ADDR_ALIGN	16
 
+#define GRF_IOMUX_2BIT_MASK     0x3
+#define GRF_IOMUX_GPIO          0x0
+
+#define GRF_GPIO4C2_IOMUX_SHIFT         4
+#define GRF_GPIO4C2_IOMUX_PWM           0x1
+#define GRF_GPIO4C6_IOMUX_SHIFT         12
+#define GRF_GPIO4C6_IOMUX_PWM           0x1
+
+#define PWM_CNT(n)			(0x0000 + 0x10 * (n))
+#define PWM_PERIOD_HPR(n)		(0x0004 + 0x10 * (n))
+#define PWM_DUTY_LPR(n)			(0x0008 + 0x10 * (n))
+#define PWM_CTRL(n)			(0x000c + 0x10 * (n))
+
+#define PWM_DISABLE			(0 << 0)
+#define PWM_ENABLE			(1 << 0)
+
 /*
  * When system reset in running state, we want the cpus to be reboot
  * from maskrom (system reboot),
@@ -263,8 +279,12 @@ static inline void pmu_sgrf_rst_hld(void)
 
 /* funciton*/
 void __dead2 soc_global_soft_reset(void);
-void plls_resume(void);
-void plls_suspend(void);
+void plls_suspend_prepare(void);
+void disable_dvfs_plls(void);
+void disable_nodvfs_plls(void);
+void plls_resume_finish(void);
+void enable_dvfs_plls(void);
+void enable_nodvfs_plls(void);
 void clk_gate_con_save(void);
 void clk_gate_con_disable(void);
 void clk_gate_con_restore(void);

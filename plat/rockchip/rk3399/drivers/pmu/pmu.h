@@ -812,16 +812,13 @@ enum pmu_core_pwr_st {
 #define PMUGRF_GPIO1A_IOMUX	0x10
 #define PMUGRF_GPIO1C_IOMUX	0x18
 
+#define PMUGRF_GPIO0A6_IOMUX_SHIFT      12
+#define PMUGRF_GPIO0A6_IOMUX_PWM        0x1
+#define PMUGRF_GPIO1C3_IOMUX_SHIFT      6
+#define PMUGRF_GPIO1C3_IOMUX_PWM        0x1
+
 #define AP_PWROFF		0x0a
 
-#define GPIO0A6_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 12)
-#define GPIO0A6_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 12)
-#define GPIO1C3_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 6)
-#define GPIO1C3_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 6)
-#define GPIO4C2_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 4)
-#define GPIO4C2_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 4)
-#define GPIO4C6_IOMUX_GPIO	BITS_WITH_WMASK(0, 3, 12)
-#define GPIO4C6_IOMUX_PWM	BITS_WITH_WMASK(1, 3, 12)
 #define GPIO1A6_IOMUX		BITS_WITH_WMASK(0, 3, 12)
 
 #define TSADC_INT_PIN		38
@@ -912,15 +909,6 @@ enum pmu_core_pwr_st {
 	mmio_write_32(base + CPU_AXI_QOS_SATURATION, array[5]); \
 	mmio_write_32(base + CPU_AXI_QOS_EXTCONTROL, array[6]); \
 } while (0)
-
-/* there are 4 PWMs on rk3399 */
-struct pwm_data_s {
-	uint32_t iomux_bitmask;
-	uint64_t cnt[4];
-	uint64_t duty[4];
-	uint64_t period[4];
-	uint64_t ctrl[4];
-};
 
 struct pmu_slpdata_s {
 	uint32_t cci_m0_qos[CPU_AXI_QOS_NUM_REGS];
