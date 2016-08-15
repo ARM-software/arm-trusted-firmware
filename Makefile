@@ -250,6 +250,7 @@ INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/lib/cpus/${ARCH}		\
 				-Iinclude/lib/el3_runtime		\
 				-Iinclude/lib/el3_runtime/${ARCH}	\
+				-Iinclude/lib/pmf			\
 				-Iinclude/lib/psci			\
 				-Iinclude/plat/common			\
 				-Iinclude/services			\
