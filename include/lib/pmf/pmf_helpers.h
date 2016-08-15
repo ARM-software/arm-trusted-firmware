@@ -69,8 +69,8 @@ typedef struct pmf_svc_desc {
 /*
  * Convenience macro to allocate memory for a PMF service.
  */
-#define PMF_ALLOCATE_TIMESTAMP_MEMORY(_name, _total_id)			\
-	static unsigned long long pmf_ts_mem_ ## _name[_total_id]	\
+#define PMF_ALLOCATE_TIMESTAMP_MEMORY(_name, _total_id)		\
+	unsigned long long pmf_ts_mem_ ## _name[_total_id]	\
 	__section("pmf_timestamp_array") __used;
 
 /*
