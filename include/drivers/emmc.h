@@ -49,6 +49,7 @@
 #define EMMC_CMD13			13
 #define EMMC_CMD17			17
 #define EMMC_CMD18			18
+#define EMMC_CMD23			23
 #define EMMC_CMD24			24
 #define EMMC_CMD25			25
 #define EMMC_CMD35			35
@@ -110,6 +111,8 @@
 #define EMMC_STATE_DIS			8
 #define EMMC_STATE_BTST			9
 #define EMMC_STATE_SLP			10
+
+#define EMMC_FLAG_CMD23			(1 << 0)
 
 typedef struct emmc_cmd {
 	unsigned int	cmd_idx;
@@ -177,6 +180,7 @@ size_t emmc_erase_blocks(int lba, size_t size);
 size_t emmc_rpmb_read_blocks(int lba, uintptr_t buf, size_t size);
 size_t emmc_rpmb_write_blocks(int lba, const uintptr_t buf, size_t size);
 size_t emmc_rpmb_erase_blocks(int lba, size_t size);
-void emmc_init(const emmc_ops_t *ops, int clk, int bus_width);
+void emmc_init(const emmc_ops_t *ops, int clk, int bus_width,
+	       unsigned int flags);
 
 #endif	/* __EMMC_H__ */
