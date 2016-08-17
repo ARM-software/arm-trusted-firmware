@@ -280,9 +280,10 @@ void gicv3_cpuif_disable(unsigned int proc_num)
 	write_icc_igrpen0_el1(read_icc_igrpen0_el1() &
 			      ~IGRPEN1_EL1_ENABLE_G0_BIT);
 
-	/* Disable Group1 Secure interrupts */
+	/* Disable Group1 Secure and Non-Secure interrupts */
 	write_icc_igrpen1_el3(read_icc_igrpen1_el3() &
-			      ~IGRPEN1_EL3_ENABLE_G1S_BIT);
+			      ~(IGRPEN1_EL3_ENABLE_G1NS_BIT |
+			      IGRPEN1_EL3_ENABLE_G1S_BIT));
 
 	/* Synchronise accesses to group enable registers */
 	isb();
