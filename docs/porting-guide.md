@@ -501,6 +501,17 @@ optionally be defined:
     PLAT_PL061_MAX_GPIOS    :=      160
     $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))
 
+If the platform port uses the partition driver, the following constant may
+optionally be defined:
+
+*   **PLAT_PARTITION_MAX_ENTRIES**
+    Maximum number of partition entries required by the platform. This allows
+    control how much memory is allocated for partition entries. The default
+    value is 128.
+    [For example, define the build flag in platform.mk]:
+    PLAT_PARTITION_MAX_ENTRIES	:=	12
+    $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
+
 
 ### File : plat_macros.S [mandatory]
 
