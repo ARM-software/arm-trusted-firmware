@@ -321,12 +321,16 @@ int load_image(meminfo_t *mem_layout,
 		     (void *) image_base, image_size);
 	}
 
+#if !TRUSTED_BOARD_BOOT
 	/*
 	 * File has been successfully loaded.
-	 * Flush the image in Trusted SRAM so that the next exception level can
-	 * see it.
+	 * Flush the image to main memory so that it can be executed later by
+	 * any CPU, regardless of cache and MMU state.
+	 * When TBB is enabled the image is flushed later, after image
+	 * authentication.
 	 */
 	flush_dcache_range(image_base, image_size);
+#endif /* TRUSTED_BOARD_BOOT */
 
 	INFO("Image id=%u loaded at address %p, size = 0x%zx\n", image_id,
 		(void *) image_base, image_size);
@@ -388,10 +392,12 @@ int load_auth_image(meminfo_t *mem_layout,
 				   image_data->image_size);
 		return -EAUTH;
 	}
-
-	/* After working with data, invalidate the data cache */
-	inv_dcache_range(image_data->image_base,
-			(size_t)image_data->image_size);
+	/*
+	 * File has been successfully loaded and authenticated.
+	 * Flush the image to main memory so that it can be executed later by
+	 * any CPU, regardless of cache and MMU state.
+	 */
+	flush_dcache_range(image_data->image_base, image_data->image_size);
 #endif /* TRUSTED_BOARD_BOOT */
 
 	return 0;
