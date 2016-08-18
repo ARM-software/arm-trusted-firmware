@@ -55,7 +55,7 @@ extern uint32_t __tegra186_cpu_reset_handler_data,
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xF
 /* constants to get power state's wake time */
-#define TEGRA186_WAKE_TIME_MASK		0xFFFFFF
+#define TEGRA186_WAKE_TIME_MASK		0x0FFFFFF0
 #define TEGRA186_WAKE_TIME_SHIFT	4
 /* default core wake mask for CPU_SUSPEND */
 #define TEGRA186_CORE_WAKE_MASK		0x180c
@@ -76,9 +76,9 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 	int state_id = psci_get_pstate_id(power_state) & TEGRA186_STATE_ID_MASK;
 	int cpu = plat_my_core_pos();
 
-	/* save the core wake time (us) */
-	percpu_data[cpu].wake_time = (power_state >> TEGRA186_WAKE_TIME_SHIFT) &
-			 TEGRA186_WAKE_TIME_MASK;
+	/* save the core wake time (in TSC ticks)*/
+	percpu_data[cpu].wake_time = (power_state & TEGRA186_WAKE_TIME_MASK)
+			<< TEGRA186_WAKE_TIME_SHIFT;
 
 	/*
 	 * Clean percpu_data[cpu] to DRAM. This needs to be done to ensure that
