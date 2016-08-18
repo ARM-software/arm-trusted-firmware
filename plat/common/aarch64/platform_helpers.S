@@ -130,6 +130,7 @@ endfunc bl1_plat_prepare_exit
 	 * -----------------------------------------------------
 	 */
 func plat_error_handler
+	wfi
 	b	plat_error_handler
 endfunc plat_error_handler
 
@@ -139,5 +140,6 @@ endfunc plat_error_handler
 	 * -----------------------------------------------------
 	 */
 func plat_panic_handler
+	wfi
 	b	plat_panic_handler
 endfunc plat_panic_handler
