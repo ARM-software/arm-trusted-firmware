@@ -47,6 +47,7 @@
 #include <pmu_com.h>
 #include <pwm.h>
 #include <soc.h>
+#include <bl31.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
@@ -756,8 +757,9 @@ static int hlvl_pwr_domain_resume(uint32_t lvl, plat_local_state_t lvl_state)
  *
  * Also note that these counters can run off the 32 kHz clock or the 24 MHz
  * clock.  While the 24 MHz clock can give us more precision, it's not always
- * available (like when we turn the oscillator off at sleep time).  Current
- * understanding is that counts work like this:
+ * available (like when we turn the oscillator off at sleep time). The
+ * pmu_use_lf (lf: low freq) is available in power mode.  Current understanding
+ * is that counts work like this:
  *    IF (pmu_use_lf == 0) || (power_mode_en == 0)
  *      use the 24M OSC for counts
  *    ELSE
@@ -920,6 +922,10 @@ static int sys_pwr_domain_suspend(void)
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
+	/*
+	 * Disabling PLLs/PWM/DVFS is approaching WFI which is
+	 * the last steps in suspend.
+	 */
 	plls_suspend_prepare();
 	disable_dvfs_plls();
 	disable_pwms();
@@ -939,6 +945,17 @@ static int sys_pwr_domain_resume(void)
 	udelay(300);
 	enable_dvfs_plls();
 	plls_resume_finish();
+
+	/*
+	 * The wakeup status is not cleared by itself, we need to clear it
+	 * manually. Otherwise we will alway query some interrupt next time.
+	 *
+	 * NOTE: If the kernel needs to query this, we might want to stash it
+	 * somewhere.
+	 */
+	mmio_write_32(PMU_BASE + PMU_WAKEUP_STATUS, 0xffffffff);
+
+	mmio_write_32(PMU_BASE + PMU_WKUP_CFG4, 0x00);
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
@@ -1032,6 +1049,42 @@ void __dead2 soc_system_off(void)
 	while (1)
 		;
 }
+static void __dead2 sys_pwr_down_wfi(const psci_power_state_t *target_state)
+{
+	uint32_t wakeup_status;
+
+	/*
+	 * Check wakeup status and abort suspend early if we see a wakeup
+	 * event.
+	 *
+	 * NOTE: technically I we're supposed to just execute a wfi here and
+	 * we'll either execute a normal suspend/resume or the wfi will be
+	 * treated as a no-op if a wake event was present and caused an abort
+	 * of the suspend/resume.  For some reason that's not happening and if
+	 * we execute the wfi while a wake event is pending then the whole
+	 * system wedges.
+	 *
+	 * Until the above is solved this extra check prevents system wedges in
+	 * most cases but there is still a small race condition between checking
+	 * PMU_WAKEUP_STATUS and executing wfi.  If a wake event happens in
+	 * there then we will die.
+	 */
+	wakeup_status = mmio_read_32(PMU_BASE + PMU_WAKEUP_STATUS);
+	if (wakeup_status) {
+		WARN("early wake, will not enter power mode.\n");
+
+		mmio_write_32(PMU_BASE + PMU_PWRMODE_CON, 0);
+
+		disable_mmu_icache_el3();
+		bl31_warm_entrypoint();
+
+		while (1)
+			;
+	} else {
+		/* Enter WFI */
+		psci_power_down_wfi();
+	}
+}
 
 static struct rockchip_pm_ops_cb pm_ops = {
 	.cores_pwr_dm_on = cores_pwr_domain_on,
@@ -1047,6 +1100,7 @@ static struct rockchip_pm_ops_cb pm_ops = {
 	.sys_pwr_dm_resume = sys_pwr_domain_resume,
 	.sys_gbl_soft_reset = soc_soft_reset,
 	.system_off = soc_system_off,
+	.sys_pwr_down_wfi = sys_pwr_down_wfi,
 };
 
 void plat_rockchip_pmu_init(void)
