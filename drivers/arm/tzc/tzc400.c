@@ -206,7 +206,7 @@ void tzc400_configure_region(unsigned int filters,
 	 * Do address range check based on TZC configuration. A 64bit address is
 	 * the max and expected case.
 	 */
-	assert(((region_top <= (UINT64_MAX >> (64 - tzc400.addr_width))) &&
+	assert(((region_top <= _tzc_get_max_top_addr(tzc400.addr_width)) &&
 		(region_base < region_top)));
 
 	/* region_base and (region_top + 1) must be 4KB aligned */

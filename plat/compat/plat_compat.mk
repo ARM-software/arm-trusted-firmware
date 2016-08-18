@@ -33,6 +33,9 @@ ifeq (${PSCI_EXTENDED_STATE_ID}, 1)
 				 PSCI_EXTENDED_STATE_ID is not set")
 endif
 
+ifneq (${ARCH}, aarch64)
+  $(error "PSCI Compatibility mode is only supported for AArch64 platforms")
+endif
 
 PLAT_BL_COMMON_SOURCES	+=	plat/compat/aarch64/plat_helpers_compat.S
 

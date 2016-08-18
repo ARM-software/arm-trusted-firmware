@@ -28,6 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch.h>
+#include <arch_helpers.h>
 #include <mmio.h>
 #include <tzc_common.h>
 
@@ -199,4 +201,35 @@ static unsigned int _tzc_read_peripheral_id(uintptr_t base)
 
 	return id;
 }
+
+#ifdef AARCH32
+static unsigned long long _tzc_get_max_top_addr(int addr_width)
+{
+	/*
+	 * Assume at least 32 bit wide address and initialize the max.
+	 * This function doesn't use 64-bit integer arithmetic to avoid
+	 * having to implement additional compiler library functions.
+	 */
+	unsigned long long addr_mask = 0xFFFFFFFF;
+	uint32_t *addr_ptr = (uint32_t *)&addr_mask;
+
+	assert(addr_width >= 32);
+
+	/* This logic works only on little - endian platforms */
+	assert((read_sctlr() & SCTLR_EE_BIT) == 0);
+
+	/*
+	 * If required address width is greater than 32, populate the higher
+	 * 32 bits of the 64 bit field with the max address.
+	 */
+	if (addr_width > 32)
+		*(addr_ptr + 1) = ((1 << (addr_width - 32)) - 1);
+
+	return addr_mask;
+}
+#else
+#define _tzc_get_max_top_addr(addr_width)\
+	(UINT64_MAX >> (64 - (addr_width)))
+#endif /* AARCH32 */
+
 #endif

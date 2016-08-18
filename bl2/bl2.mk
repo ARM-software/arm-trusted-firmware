@@ -32,6 +32,6 @@ BL2_SOURCES		+=	bl2/bl2_main.c				\
 				bl2/aarch64/bl2_entrypoint.S		\
 				bl2/aarch64/bl2_arch_setup.c		\
 				common/aarch64/early_exceptions.S	\
-				lib/locks/exclusive/spinlock.S
+				lib/locks/exclusive/aarch64/spinlock.S
 
 BL2_LINKERFILE		:=	bl2/bl2.ld.S

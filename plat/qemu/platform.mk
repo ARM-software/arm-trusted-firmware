@@ -37,7 +37,7 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/		\
 
 
 PLAT_BL_COMMON_SOURCES	:=	plat/qemu/qemu_common.c			\
-				drivers/arm/pl011/pl011_console.S	\
+				drivers/arm/pl011/aarch64/pl011_console.S \
 				lib/xlat_tables/xlat_tables_common.c	\
 				lib/xlat_tables/aarch64/xlat_tables.c
 

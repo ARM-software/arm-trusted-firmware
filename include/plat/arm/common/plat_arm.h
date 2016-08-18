@@ -167,6 +167,9 @@ void arm_bl31_plat_arch_setup(void);
 /* TSP utility functions */
 void arm_tsp_early_platform_setup(void);
 
+/* SP_MIN utility functions */
+void arm_sp_min_early_platform_setup(void);
+
 /* FIP TOC validity check */
 int arm_io_is_toc_valid(void);
 

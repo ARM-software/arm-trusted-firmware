@@ -359,6 +359,8 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 int psci_setup(uintptr_t mailbox_ep);
 void psci_warmboot_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *pm);
+void psci_prepare_next_non_secure_ctx(
+			  struct entry_point_info *next_image_info);
 
 #endif /*__ASSEMBLY__*/
 

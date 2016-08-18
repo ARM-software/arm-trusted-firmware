@@ -50,7 +50,11 @@
  * 'entry_point_info' structure at their correct offsets.
  ******************************************************************************/
 #define ENTRY_POINT_INFO_PC_OFFSET	0x08
+#ifdef AARCH32
+#define ENTRY_POINT_INFO_ARGS_OFFSET	0x10
+#else
 #define ENTRY_POINT_INFO_ARGS_OFFSET	0x18
+#endif
 
 /* The following are used to set/get image attributes. */
 #define PARAM_EP_SECURITY_MASK		(0x1)
@@ -192,6 +196,13 @@ typedef struct aapcs64_params {
 	u_register_t arg7;
 } aapcs64_params_t;
 
+typedef struct aapcs32_params {
+	u_register_t arg0;
+	u_register_t arg1;
+	u_register_t arg2;
+	u_register_t arg3;
+} aapcs32_params_t;
+
 /***************************************************************************
  * This structure provides version information and the size of the
  * structure, attributes for the structure it represents
@@ -216,7 +227,11 @@ typedef struct entry_point_info {
 	param_header_t h;
 	uintptr_t pc;
 	uint32_t spsr;
+#ifdef AARCH32
+	aapcs32_params_t args;
+#else
 	aapcs64_params_t args;
+#endif
 } entry_point_info_t;
 
 /*****************************************************************************

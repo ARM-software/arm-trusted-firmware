@@ -134,6 +134,7 @@ uint32_t arm_get_spsr_for_bl32_entry(void)
 /*******************************************************************************
  * Gets SPSR for BL33 entry
  ******************************************************************************/
+#ifndef AARCH32
 uint32_t arm_get_spsr_for_bl33_entry(void)
 {
 	unsigned long el_status;
@@ -154,6 +155,28 @@ uint32_t arm_get_spsr_for_bl33_entry(void)
 	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 	return spsr;
 }
+#else
+/*******************************************************************************
+ * Gets SPSR for BL33 entry
+ ******************************************************************************/
+uint32_t arm_get_spsr_for_bl33_entry(void)
+{
+	unsigned int hyp_status, mode, spsr;
+
+	hyp_status = GET_VIRT_EXT(read_id_pfr1());
+
+	mode = (hyp_status) ? MODE32_hyp : MODE32_svc;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	spsr = SPSR_MODE32(mode, plat_get_ns_image_entrypoint() & 0x1,
+			SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
+	return spsr;
+}
+#endif /* AARCH32 */
 
 /*******************************************************************************
  * Configures access to the system counter timer module.

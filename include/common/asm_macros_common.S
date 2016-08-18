@@ -30,8 +30,6 @@
 #ifndef __ASM_MACROS_COMMON_S__
 #define __ASM_MACROS_COMMON_S__
 
-#include <arch.h>
-
 	/*
 	 * This macro is used to create a function label and place the
 	 * code into a separate text section based on the function name

@@ -82,5 +82,17 @@
 			 ((const uint32_t *) &(_uuid))[2],	\
 			 ((const uint32_t *) &(_uuid))[3])
 
+/*
+ * Helper macro to retrieve the SMC parameters from cpu_context_t.
+ */
+#define get_smc_params_from_ctx(_hdl, _x1, _x2, _x3, _x4)	\
+	do {							\
+		const gp_regs_t *regs = get_gpregs_ctx(_hdl);	\
+		_x1 = read_ctx_reg(regs, CTX_GPREG_X1);		\
+		_x2 = read_ctx_reg(regs, CTX_GPREG_X2);		\
+		_x3 = read_ctx_reg(regs, CTX_GPREG_X3);		\
+		_x4 = read_ctx_reg(regs, CTX_GPREG_X4);		\
+	} while (0)
+
 #endif /*__ASSEMBLY__*/
 #endif /* __SMCC_HELPERS_H__ */

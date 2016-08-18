@@ -55,8 +55,8 @@ PLAT_BL_COMMON_SOURCES  :=	lib/xlat_tables/xlat_tables_common.c		\
 
 BL31_SOURCES            +=      ${RK_GIC_SOURCES}                               \
                                 drivers/arm/cci/cci.c                           \
-                                drivers/console/console.S                       \
-                                drivers/ti/uart/16550_console.S                 \
+                                drivers/console/aarch64/console.S		\
+                                drivers/ti/uart/aarch64/16550_console.S		\
                                 drivers/delay_timer/delay_timer.c               \
                                 drivers/delay_timer/generic_delay_timer.c	\
 				drivers/gpio/gpio.c				\
