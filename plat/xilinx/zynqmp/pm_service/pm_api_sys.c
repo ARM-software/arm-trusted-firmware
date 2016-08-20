@@ -497,3 +497,47 @@ enum pm_ret_status pm_mmio_read(uintptr_t address, unsigned int *value)
 	PM_PACK_PAYLOAD2(payload, PM_MMIO_READ, address);
 	return pm_ipi_send_sync(primary_proc, payload, value);
 }
+
+/**
+ * pm_fpga_load() - Load the bitstream into the PL.
+ *
+ * This function provides access to the xilfpga library to load
+ * the Bit-stream into PL.
+ *
+ * address_low: lower 32-bit Linear memory space address
+ *
+ * address_high: higher 32-bit Linear memory space address
+ *
+ * size:	Number of 32bit words
+ *
+ * @return      Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_fpga_load(uint32_t address_low,
+				uint32_t address_high,
+				uint32_t size,
+				uint32_t flags)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_FPGA_LOAD, address_high, address_low,
+						size, flags);
+	return pm_ipi_send(primary_proc, payload);
+}
+
+/**
+ * pm_fpga_get_status() - Read value from fpga status register
+ * @value       Value to read
+ *
+ * This function provides access to the xilfpga library to get
+ * the fpga status
+ * @return      Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_fpga_get_status(unsigned int *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD1(payload, PM_FPGA_GET_STATUS);
+	return pm_ipi_send_sync(primary_proc, payload, value);
+}
