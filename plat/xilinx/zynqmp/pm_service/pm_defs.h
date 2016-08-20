@@ -86,6 +86,7 @@ enum pm_api_id {
 	PM_RESET_GET_STATUS,
 	PM_MMIO_WRITE,
 	PM_MMIO_READ,
+	PM_INIT,
 	PM_API_MAX
 };
 
