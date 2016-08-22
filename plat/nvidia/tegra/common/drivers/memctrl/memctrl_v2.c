@@ -195,17 +195,10 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(TSECSWRB, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPWB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSRD2, SECURE, NO_OVERRIDE, DISABLE),
-#if ENABLE_CHIP_VERIFICATION_HARNESS
-	mc_make_sec_cfg(APEDMAW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APER, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEDMAR, NON_SECURE, OVERRIDE, ENABLE),
-#else
 	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
-#endif
 };
 
 const static mc_txn_override_cfg_t mc_override_cfgs[] = {
