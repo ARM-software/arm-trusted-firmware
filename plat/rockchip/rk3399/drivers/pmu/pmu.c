@@ -855,8 +855,6 @@ static void sys_slp_config(void)
 		       BIT(PMU_OSC_DIS) |
 		       BIT(PMU_PMU_USE_LF);
 
-	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_CLUSTER_L_WKUP_EN));
-	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_CLUSTER_B_WKUP_EN));
 	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_GPIO_WKUP_EN));
 	mmio_write_32(PMU_BASE + PMU_PWRMODE_CON, slp_mode_cfg);
 
