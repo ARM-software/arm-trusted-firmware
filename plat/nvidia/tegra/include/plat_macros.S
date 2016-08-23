@@ -52,7 +52,7 @@ spacer:
  */
 .macro plat_crash_print_regs
 	mov_imm	x16, TEGRA_GICC_BASE
-	cbz	x16, 1f
+
 	/* gicc base address is now in x16 */
 	adr	x6, gicc_regs	/* Load the gicc reg list to x6 */
 	/* Load the gicc regs to gp regs used by str_in_crash_buf_print */
@@ -63,6 +63,7 @@ spacer:
 	bl	str_in_crash_buf_print
 
 	/* Print the GICD_ISPENDR regs */
+	mov_imm	x16, TEGRA_GICD_BASE
 	add	x7, x16, #GICD_ISPENDR
 	adr	x4, gicd_pend_reg
 	bl	asm_print_str
