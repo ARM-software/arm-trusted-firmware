@@ -734,6 +734,89 @@ static int hlvl_pwr_domain_resume(uint32_t lvl, plat_local_state_t lvl_state)
 	return 0;
 }
 
+/**
+ * init_pmu_counts - Init timing counts in the PMU register area
+ *
+ * At various points when we power up or down parts of the system we need
+ * a delay to wait for power / clocks to become stable.  The PMU has counters
+ * to help software do the delay properly.  Basically, it works like this:
+ * - Software sets up counter values
+ * - When software turns on something in the PMU, the counter kicks off
+ * - The hardware sets a bit automatically when the counter has finished and
+ *   software knows that the initialization is done.
+ *
+ * It's software's job to setup these counters.  The hardware power on default
+ * for these settings is conservative, setting everything to 0x5dc0
+ * (750 ms in 32 kHz counts or 1 ms in 24 MHz counts).
+ *
+ * Note that some of these counters are only really used at suspend/resume
+ * time (for instance, that's the only time we turn off/on the oscillator) and
+ * others are used during normal runtime (like turning on/off a CPU or GPU) but
+ * it doesn't hurt to init everything at boot.
+ *
+ * Also note that these counters can run off the 32 kHz clock or the 24 MHz
+ * clock.  While the 24 MHz clock can give us more precision, it's not always
+ * available (like when we turn the oscillator off at sleep time).  Current
+ * understanding is that counts work like this:
+ *    IF (pmu_use_lf == 0) || (power_mode_en == 0)
+ *      use the 24M OSC for counts
+ *    ELSE
+ *      use the 32K OSC for counts
+ *
+ * Notes:
+ * - There is a separate bit for the PMU called PMU_24M_EN_CFG.  At the moment
+ *   we always keep that 0.  This apparently choose between using the PLL as
+ *   the source for the PMU vs. the 24M clock.  If we ever set it to 1 we
+ *   should consider how it affects these counts (if at all).
+ * - The power_mode_en is documented to auto-clear automatically when we leave
+ *   "power mode".  That's why most clocks are on 24M.  Only timings used when
+ *   in "power mode" are 32k.
+ * - In some cases the kernel may override these counts.
+ *
+ * The PMU_STABLE_CNT / PMU_OSC_CNT / PMU_PLLLOCK_CNT are important CNTs
+ * in power mode, we need to ensure that they are available.
+ */
+static void init_pmu_counts(void)
+{
+	/* COUNTS FOR INSIDE POWER MODE */
+
+	/*
+	 * From limited testing, need PMU stable >= 2ms, but go overkill
+	 * and choose 30 ms to match testing on past SoCs.  Also let
+	 * OSC have 30 ms for stabilization.
+	 */
+	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_32K_CNT_MS(30));
+	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_32K_CNT_MS(30));
+
+	/* Unclear what these should be; try 3 ms */
+	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_32K_CNT_MS(3));
+
+	/* Unclear what this should be, but set the default explicitly */
+	mmio_write_32(PMU_BASE + PMU_TIMEOUT_CNT, 0x5dc0);
+
+	/* COUNTS FOR OUTSIDE POWER MODE */
+
+	/* Put something sorta conservative here until we know better */
+	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_24M_CNT_MS(3));
+	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_24M_CNT_MS(1));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_24M_CNT_MS(1));
+	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_24M_CNT_MS(1));
+
+	/*
+	 * Set CPU/GPU to 1 us.
+	 *
+	 * NOTE: Even though ATF doesn't configure the GPU we'll still setup
+	 * counts here.  After all ATF controls all these other bits and also
+	 * chooses which clock these counters use.
+	 */
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_24M_CNT_US(1));
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_24M_CNT_US(1));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_24M_CNT_US(1));
+	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_24M_CNT_US(1));
+	mmio_write_32(PMU_BASE + PMU_GPU_PWRDN_CNT, CYCL_24M_CNT_US(1));
+	mmio_write_32(PMU_BASE + PMU_GPU_PWRUP_CNT, CYCL_24M_CNT_US(1));
+}
+
 static void sys_slp_config(void)
 {
 	uint32_t slp_mode_cfg = 0;
@@ -777,50 +860,10 @@ static void sys_slp_config(void)
 	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_GPIO_WKUP_EN));
 	mmio_write_32(PMU_BASE + PMU_PWRMODE_CON, slp_mode_cfg);
 
-	/*
-	 * About to switch PMU counters to 32K; switch all timings to 32K
-	 * for simplicity even if we don't plan on using them.
-	 */
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_PLLRST_CNT, CYCL_32K_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_32K_CNT_MS(3));
-
-	mmio_clrbits_32(PMU_BASE + PMU_SFT_CON, BIT(PMU_24M_EN_CFG));
 
 	mmio_write_32(PMU_BASE + PMU_PLL_CON, PLL_PD_HW);
 	mmio_write_32(PMUGRF_BASE + PMUGRF_SOC_CON0, EXTERNAL_32K);
 	mmio_write_32(PMUGRF_BASE, IOMUX_CLK_32K); /* 32k iomux */
-}
-
-static void sys_slp_unconfig(void)
-{
-	/*
-	 * About to switch PMU counters to 24M; switch all timings to 24M
-	 * for simplicity even if we don't plan on using them.
-	 */
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_CENTER_PWRDN_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_WAKEUP_RST_CLR_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_OSC_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_DDRIO_PWRON_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_PLLLOCK_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_PLLRST_CNT, CYCL_24M_CNT_MS(3));
-	mmio_write_32(PMU_BASE + PMU_STABLE_CNT, CYCL_24M_CNT_MS(3));
-
-	mmio_setbits_32(PMU_BASE + PMU_SFT_CON, BIT(PMU_24M_EN_CFG));
 }
 
 static void set_hw_idle(uint32_t hw_idle)
@@ -898,8 +941,6 @@ static int sys_pwr_domain_resume(void)
 	udelay(300);
 	enable_dvfs_plls();
 	plls_resume_finish();
-
-	sys_slp_unconfig();
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
@@ -1036,6 +1077,8 @@ void plat_rockchip_pmu_init(void)
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 	mmio_write_32(PMU_BASE + PMU_NOC_AUTO_ENA, NOC_AUTO_ENABLE);
+
+	init_pmu_counts();
 
 	nonboot_cpus_off();
 
