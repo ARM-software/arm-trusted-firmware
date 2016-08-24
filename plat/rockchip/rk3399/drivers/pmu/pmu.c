@@ -1078,6 +1078,12 @@ void plat_rockchip_pmu_init(void)
 		      CPU_BOOT_ADDR_WMASK);
 	mmio_write_32(PMU_BASE + PMU_NOC_AUTO_ENA, NOC_AUTO_ENABLE);
 
+	/*
+	 * Enable Schmitt trigger for better 32 kHz input signal, which is
+	 * important for suspend/resume reliability among other things.
+	 */
+	mmio_write_32(PMUGRF_BASE + PMUGRF_GPIO0A_SMT, GPIO0A0_SMT_ENABLE);
+
 	init_pmu_counts();
 
 	nonboot_cpus_off();

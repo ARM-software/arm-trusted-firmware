@@ -819,6 +819,7 @@ enum pmu_core_pwr_st {
 
 #define AP_PWROFF		0x0a
 
+#define GPIO0A0_SMT_ENABLE	BITS_WITH_WMASK(1, 3, 0)
 #define GPIO1A6_IOMUX		BITS_WITH_WMASK(0, 3, 12)
 
 #define TSADC_INT_PIN		38
@@ -876,6 +877,7 @@ enum pmu_core_pwr_st {
 #define	GRF_SOC_CON4		0x0e210
 #define GRF_GPIO4C_IOMUX	0x0e028
 
+#define PMUGRF_GPIO0A_SMT	0x0120
 #define PMUGRF_SOC_CON0		0x0180
 
 #define CCI_FORCE_WAKEUP	WMSK_BIT(8)
