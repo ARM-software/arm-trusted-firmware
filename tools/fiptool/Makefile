@@ -44,6 +44,7 @@ ifeq (${DEBUG},1)
 else
   CFLAGS += -O2
 endif
+LDLIBS := -lcrypto
 
 ifeq (${V},0)
   Q := @
@@ -62,7 +63,7 @@ all: ${PROJECT} fip_create
 
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  LD      $@"
-	${Q}${CC} ${OBJECTS} -o $@
+	${Q}${CC} ${OBJECTS} -o $@ ${LDLIBS}
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
