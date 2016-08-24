@@ -39,6 +39,7 @@ void zynqmp_config_setup(void);
 unsigned int zynqmp_get_uart_clk(void);
 int zynqmp_is_pmu_up(void);
 unsigned int zynqmp_get_bootmode(void);
+unsigned int zynqmp_get_silicon_id(void);
 
 /* For FSBL handover */
 void fsbl_atf_handover(entry_point_info_t *bl32_image_ep_info,

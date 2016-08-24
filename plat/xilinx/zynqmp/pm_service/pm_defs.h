@@ -89,6 +89,7 @@ enum pm_api_id {
 	PM_INIT,
 	PM_FPGA_LOAD,
 	PM_FPGA_GET_STATUS,
+	PM_GET_CHIPID,
 	PM_API_MAX
 };
 
