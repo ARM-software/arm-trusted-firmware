@@ -48,6 +48,12 @@
 #define NO_PLL_BYPASS			(0x00)
 #define NO_PLL_PWRDN			(0x00)
 
+#define FBDIV(n)		((0xfff << 16) | n)
+#define POSTDIV2(n)		((0x7 << (12 + 16)) | (n << 12))
+#define POSTDIV1(n)		((0x7 << (8 + 16)) | (n << 8))
+#define REFDIV(n)		((0x3F << 16) | n)
+#define PLL_LOCK(n)		((n >> 31) & 0x1)
+
 #define PLL_SLOW_MODE			BITS_WITH_WMASK(SLOW_MODE,\
 						PLL_MODE_MSK, PLL_MODE_SHIFT)
 
@@ -106,6 +112,31 @@ struct deepsleep_data_s {
 	uint32_t cru_gate_con[CRU_GATE_COUNT];
 	uint32_t pmucru_gate_con[PMUCRU_GATE_COUNT];
 };
+
+/**************************************************
+ * pmugrf reg, offset
+ **************************************************/
+#define PMUGRF_OSREG(n)		(0x300 + (n) * 4)
+
+/**************************************************
+ * DCF reg, offset
+ **************************************************/
+#define DCF_DCF_CTRL		0x0
+#define DCF_DCF_ADDR		0x8
+#define DCF_DCF_ISR		0xc
+#define DCF_DCF_TOSET		0x14
+#define DCF_DCF_TOCMD		0x18
+#define DCF_DCF_CMD_CFG		0x1c
+
+/* DCF_DCF_ISR */
+#define DCF_TIMEOUT		(1 << 2)
+#define DCF_ERR			(1 << 1)
+#define	DCF_DONE		(1 << 0)
+
+/* DCF_DCF_CTRL */
+#define DCF_VOP_HW_EN		(1 << 2)
+#define DCF_STOP		(1 << 1)
+#define DCF_START		(1 << 0)
 
 #define CYCL_24M_CNT_US(us)	(24 * us)
 #define CYCL_24M_CNT_MS(ms)	(ms * CYCL_24M_CNT_US(1000))
@@ -255,6 +286,12 @@ struct deepsleep_data_s {
 
 #define PWM_DISABLE			(0 << 0)
 #define PWM_ENABLE			(1 << 0)
+
+/* grf reg offset */
+#define GRF_DDRC0_CON0		0xe380
+#define GRF_DDRC0_CON1		0xe384
+#define GRF_DDRC1_CON0		0xe388
+#define GRF_DDRC1_CON1		0xe38c
 
 /*
  * When system reset in running state, we want the cpus to be reboot
