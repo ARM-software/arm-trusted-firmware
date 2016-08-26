@@ -587,7 +587,7 @@ static void create_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptfool create [--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("fiptool create [--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
 	    "occupying bits 32-47 in 64-bit ToC header.\n");
 	fputc('\n', stderr);
@@ -672,7 +672,7 @@ static void update_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptfool update [--out FIP_FILENAME] "
+	printf("fiptool update [--out FIP_FILENAME] "
 	    "[--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
