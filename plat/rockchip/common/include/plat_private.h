@@ -56,6 +56,7 @@ struct rockchip_pm_ops_cb {
 	int (*sys_pwr_dm_resume)(void);
 	void (*sys_gbl_soft_reset)(void) __dead2;
 	void (*system_off)(void) __dead2;
+	void (*sys_pwr_down_wfi)(const psci_power_state_t *state_info) __dead2;
 };
 
 /******************************************************************************
