@@ -419,9 +419,11 @@ void print_entry_point_info(const entry_point_info_t *ep_info)
 	PRINT_IMAGE_ARG(1);
 	PRINT_IMAGE_ARG(2);
 	PRINT_IMAGE_ARG(3);
+#ifndef AARCH32
 	PRINT_IMAGE_ARG(4);
 	PRINT_IMAGE_ARG(5);
 	PRINT_IMAGE_ARG(6);
 	PRINT_IMAGE_ARG(7);
+#endif
 #undef PRINT_IMAGE_ARG
 }
