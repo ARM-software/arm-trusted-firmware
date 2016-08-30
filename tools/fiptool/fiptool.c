@@ -187,13 +187,26 @@ static void free_images(void)
 	}
 }
 
-static toc_entry_t *get_entry_lookup_from_uuid(const uuid_t *uuid)
+static toc_entry_t *lookup_entry_from_uuid(uuid_t *uuid)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		if (memcmp(&toc_entry->uuid, uuid, sizeof(uuid_t)) == 0)
 			return toc_entry;
+	return NULL;
+}
+
+static image_t *lookup_image_from_uuid(uuid_t *uuid)
+{
+	image_t *image;
+	int i;
+
+	for (i = 0; i < nr_images; i++) {
+		image = images[i];
+		if (memcmp(&image->uuid, uuid, sizeof(uuid_t)) == 0)
+			return image;
+	}
 	return NULL;
 }
 
@@ -268,16 +281,6 @@ static int parse_fip(char *filename, fip_toc_header_t *toc_header_out)
 		    toc_entry->size);
 		image->size = toc_entry->size;
 
-		image->toc_entry = get_entry_lookup_from_uuid(&toc_entry->uuid);
-		if (image->toc_entry == NULL) {
-			add_image(image);
-			toc_entry++;
-			continue;
-		}
-
-		assert(image->toc_entry->image == NULL);
-		/* Link backpointer from lookup entry. */
-		image->toc_entry->image = image;
 		add_image(image);
 
 		toc_entry++;
@@ -290,11 +293,13 @@ static int parse_fip(char *filename, fip_toc_header_t *toc_header_out)
 	return 0;
 }
 
-static image_t *read_image_from_file(toc_entry_t *toc_entry, char *filename)
+static image_t *read_image_from_file(uuid_t *uuid, char *filename)
 {
 	struct stat st;
 	image_t *image;
 	FILE *fp;
+
+	assert(uuid != NULL);
 
 	fp = fopen(filename, "r");
 	if (fp == NULL)
@@ -307,7 +312,7 @@ static image_t *read_image_from_file(toc_entry_t *toc_entry, char *filename)
 	if (image == NULL)
 		log_err("malloc");
 
-	memcpy(&image->uuid, &toc_entry->uuid, sizeof(uuid_t));
+	memcpy(&image->uuid, uuid, sizeof(uuid_t));
 
 	image->buffer = malloc(st.st_size);
 	if (image->buffer == NULL)
@@ -315,7 +320,6 @@ static image_t *read_image_from_file(toc_entry_t *toc_entry, char *filename)
 	if (fread(image->buffer, 1, st.st_size, fp) != st.st_size)
 		log_errx("Failed to read %s", filename);
 	image->size = st.st_size;
-	image->toc_entry = toc_entry;
 
 	fclose(fp);
 	return image;
@@ -391,18 +395,21 @@ static int info_cmd(int argc, char *argv[])
 	    (sizeof(fip_toc_entry_t) * (nr_images + 1));
 
 	for (i = 0; i < nr_images; i++) {
+		toc_entry_t *toc_entry;
+
 		image = images[i];
-		if (image->toc_entry != NULL)
-			printf("%s: ", image->toc_entry->name);
+		toc_entry = lookup_entry_from_uuid(&image->uuid);
+		if (toc_entry != NULL)
+			printf("%s: ", toc_entry->name);
 		else
 			printf("Unknown entry: ");
 		image_size = image->size;
 		printf("offset=0x%llX, size=0x%llX",
 		    (unsigned long long)image_offset,
 		    (unsigned long long)image_size);
-		if (image->toc_entry != NULL)
+		if (toc_entry != NULL)
 			printf(", cmdline=\"--%s\"",
-			    image->toc_entry->cmdline_name);
+			    toc_entry->cmdline_name);
 		if (verbose) {
 			unsigned char md[SHA256_DIGEST_LENGTH];
 
@@ -505,7 +512,7 @@ static int pack_images(char *filename, uint64_t toc_flags)
 static void update_fip(void)
 {
 	toc_entry_t *toc_entry;
-	image_t *image;
+	image_t *new_image, *old_image;
 
 	/* Add or replace images in the FIP file. */
 	for (toc_entry = toc_entries;
@@ -514,21 +521,21 @@ static void update_fip(void)
 		if (toc_entry->action != DO_PACK)
 			continue;
 
-		image = read_image_from_file(toc_entry, toc_entry->action_arg);
-		if (toc_entry->image != NULL) {
+		new_image = read_image_from_file(&toc_entry->uuid,
+		    toc_entry->action_arg);
+		old_image = lookup_image_from_uuid(&toc_entry->uuid);
+		if (old_image != NULL) {
 			if (verbose)
 				log_dbgx("Replacing image %s.bin with %s",
 				    toc_entry->cmdline_name,
 				    toc_entry->action_arg);
-			replace_image(toc_entry->image, image);
+			replace_image(old_image, new_image);
 		} else {
 			if (verbose)
 				log_dbgx("Adding image %s",
 				    toc_entry->action_arg);
-			add_image(image);
+			add_image(new_image);
 		}
-		/* Link backpointer from lookup entry. */
-		toc_entry->image = image;
 
 		free(toc_entry->action_arg);
 		toc_entry->action_arg = NULL;
@@ -758,23 +765,13 @@ static int unpack_cmd(int argc, char *argv[])
 		if (chdir(outdir) == -1)
 			log_err("chdir %s", outdir);
 
-	/* Mark all images to be unpacked. */
-	if (unpack_all) {
-		for (toc_entry = toc_entries;
-		     toc_entry->cmdline_name != NULL;
-		     toc_entry++) {
-			if (toc_entry->image != NULL) {
-				toc_entry->action = DO_UNPACK;
-				toc_entry->action_arg = NULL;
-			}
-		}
-	}
-
 	/* Unpack all specified images. */
 	for (toc_entry = toc_entries;
 	     toc_entry->cmdline_name != NULL;
 	     toc_entry++) {
-		if (toc_entry->action != DO_UNPACK)
+		image_t *image;
+
+		if (!unpack_all && toc_entry->action != DO_UNPACK)
 			continue;
 
 		/* Build filename. */
@@ -785,9 +782,11 @@ static int unpack_cmd(int argc, char *argv[])
 			snprintf(file, sizeof(file), "%s",
 			    toc_entry->action_arg);
 
-		if (toc_entry->image == NULL) {
-			log_warnx("Requested image %s is not in %s",
-			    file, argv[0]);
+		image = lookup_image_from_uuid(&toc_entry->uuid);
+		if (image == NULL) {
+			if (!unpack_all)
+				log_warnx("Requested image %s is not in %s",
+				    file, argv[0]);
 			free(toc_entry->action_arg);
 			toc_entry->action_arg = NULL;
 			continue;
@@ -796,7 +795,7 @@ static int unpack_cmd(int argc, char *argv[])
 		if (access(file, F_OK) != 0 || fflag) {
 			if (verbose)
 				log_dbgx("Unpacking %s", file);
-			write_image_to_file(toc_entry->image, file);
+			write_image_to_file(image, file);
 		} else {
 			log_warnx("File %s already exists, use --force to overwrite it",
 			    file);
@@ -885,13 +884,16 @@ static int remove_cmd(int argc, char *argv[])
 	for (toc_entry = toc_entries;
 	     toc_entry->cmdline_name != NULL;
 	     toc_entry++) {
+		image_t *image;
+
 		if (toc_entry->action != DO_REMOVE)
 			continue;
-		if (toc_entry->image != NULL) {
+		image = lookup_image_from_uuid(&toc_entry->uuid);
+		if (image != NULL) {
 			if (verbose)
 				log_dbgx("Removing %s.bin",
 				    toc_entry->cmdline_name);
-			remove_image(toc_entry->image);
+			remove_image(image);
 		} else {
 			log_warnx("Requested image %s.bin is not in %s",
 			    toc_entry->cmdline_name, argv[0]);

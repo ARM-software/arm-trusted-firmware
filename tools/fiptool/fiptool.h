@@ -57,7 +57,6 @@ typedef struct image {
 	uuid_t            uuid;
 	size_t            size;
 	void             *buffer;
-	struct toc_entry *toc_entry;
 } image_t;
 
 typedef struct cmd {
