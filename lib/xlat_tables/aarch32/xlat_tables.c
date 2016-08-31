@@ -38,25 +38,57 @@
 #include "../xlat_tables_private.h"
 
 /*
- * The virtual address space size must be a power of two. As we start the initial
- * lookup at level 1, it must also be between 2 GB and 4 GB. See section
- * G4.6.5 in the ARMv8-A Architecture Reference Manual (DDI 0487A.j) for more
- * information.
+ * Each platform can define the size of the virtual address space, which is
+ * defined in ADDR_SPACE_SIZE. TTBCR.TxSZ is calculated as 32 minus the width
+ * of said address space. The value of TTBCR.TxSZ must be in the range 0 to
+ * 7 [1], which means that the virtual address space width must be in the range
+ * 32 to 25 bits.
+ *
+ * Here we calculate the initial lookup level from the value of ADDR_SPACE_SIZE.
+ * For a 4 KB page size, level 1 supports virtual address spaces of widths 32
+ * to 31 bits, and level 2 from 30 to 25. Wider or narrower address spaces are
+ * not supported. As a result, level 3 cannot be used as initial lookup level
+ * with 4 KB granularity [1].
+ *
+ * For example, for a 31-bit address space (i.e. ADDR_SPACE_SIZE == 1 << 31),
+ * TTBCR.TxSZ will be programmed to (32 - 31) = 1. According to Table G4-5 in
+ * the ARM ARM, the initial lookup level for such an address space is 1.
+ *
+ * See the ARMv8-A Architecture Reference Manual (DDI 0487A.j) for more
+ * information:
+ * [1] Section G4.6.5
  */
-CASSERT(ADDR_SPACE_SIZE >= (1ull << 31) && ADDR_SPACE_SIZE <= (1ull << 32) &&
-	IS_POWER_OF_TWO(ADDR_SPACE_SIZE), assert_valid_addr_space_size);
 
-#define NUM_L1_ENTRIES (ADDR_SPACE_SIZE >> L1_XLAT_ADDRESS_SHIFT)
+#if ADDR_SPACE_SIZE > (1ULL << (32 - TTBCR_TxSZ_MIN))
 
-static uint64_t l1_xlation_table[NUM_L1_ENTRIES]
-		__aligned(NUM_L1_ENTRIES * sizeof(uint64_t));
+# error "ADDR_SPACE_SIZE is too big."
+
+#elif ADDR_SPACE_SIZE > (1 << L1_XLAT_ADDRESS_SHIFT)
+
+# define XLAT_TABLE_LEVEL_BASE	1
+# define NUM_BASE_LEVEL_ENTRIES	(ADDR_SPACE_SIZE >> L1_XLAT_ADDRESS_SHIFT)
+
+#elif ADDR_SPACE_SIZE >= (1 << (32 - TTBCR_TxSZ_MAX))
+
+# define XLAT_TABLE_LEVEL_BASE	2
+# define NUM_BASE_LEVEL_ENTRIES	(ADDR_SPACE_SIZE >> L2_XLAT_ADDRESS_SHIFT)
+
+#else
+
+# error "ADDR_SPACE_SIZE is too small."
+
+#endif
+
+static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
+		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
 
 void init_xlat_tables(void)
 {
 	unsigned long long max_pa;
 	uintptr_t max_va;
 	print_mmap();
-	init_xlation_table(0, l1_xlation_table, 1, &max_va, &max_pa);
+	init_xlation_table(0, base_xlation_table, XLAT_TABLE_LEVEL_BASE,
+						&max_va, &max_pa);
 	assert(max_va < ADDR_SPACE_SIZE);
 }
 
@@ -95,7 +127,7 @@ void enable_mmu_secure(unsigned int flags)
 	write_ttbcr(ttbcr);
 
 	/* Set TTBR0 bits as well */
-	ttbr0 = (uintptr_t) l1_xlation_table;
+	ttbr0 = (uintptr_t) base_xlation_table;
 	write64_ttbr0(ttbr0);
 	write64_ttbr1(0);
 
