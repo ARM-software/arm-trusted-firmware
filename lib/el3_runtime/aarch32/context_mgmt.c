@@ -86,6 +86,8 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	/* Clear any residual register values from the context */
 	memset(ctx, 0, sizeof(*ctx));
 
+	reg_ctx = get_regs_ctx(ctx);
+
 	/*
 	 * Base the context SCR on the current value, adjust for entry point
 	 * specific requirements
@@ -120,8 +122,6 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 
 	if (GET_M32(ep->spsr) == MODE32_hyp)
 		scr |= SCR_HCE_BIT;
-
-	reg_ctx = get_regs_ctx(ctx);
 
 	write_ctx_reg(reg_ctx, CTX_SCR, scr);
 	write_ctx_reg(reg_ctx, CTX_LR, ep->pc);
