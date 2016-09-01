@@ -101,13 +101,13 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 					     const plat_local_state_t *states,
 					     unsigned int ncpu)
 {
-	plat_local_state_t target = PLAT_MAX_RET_STATE, temp;
+	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
 
 	assert(ncpu);
 
 	do {
 		temp = *states++;
-		if ((temp > target) && (temp != PLAT_MAX_OFF_STATE))
+		if ((temp < target))
 			target = temp;
 	} while (--ncpu);
 
