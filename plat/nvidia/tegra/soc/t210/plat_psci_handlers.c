@@ -76,7 +76,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		 * Cluster powerdown/idle request only for afflvl 1
 		 */
 		req_state->pwr_domain_state[MPIDR_AFFLVL1] = state_id;
-		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = state_id;
 
 		break;
 
