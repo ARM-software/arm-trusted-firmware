@@ -546,8 +546,7 @@ static inline void clst_pwr_domain_suspend(plat_local_state_t lvl_state)
 
 	assert(cpu_id < PLATFORM_CORE_COUNT);
 
-	if (lvl_state == PLAT_MAX_RET_STATE  ||
-	    lvl_state == PLAT_MAX_OFF_STATE) {
+	if (lvl_state == PLAT_MAX_OFF_STATE) {
 		if (cpu_id < PLATFORM_CLUSTER0_CORE_COUNT) {
 			pll_id = ALPLL_ID;
 			clst_st_msk = CLST_L_CPUS_MSK;
@@ -591,8 +590,7 @@ static int clst_pwr_domain_resume(plat_local_state_t lvl_state)
 
 	assert(cpu_id < PLATFORM_CORE_COUNT);
 
-	if (lvl_state == PLAT_MAX_RET_STATE ||
-	    lvl_state == PLAT_MAX_OFF_STATE) {
+	if (lvl_state == PLAT_MAX_OFF_STATE) {
 		if (cpu_id < PLATFORM_CLUSTER0_CORE_COUNT)
 			pll_id = ALPLL_ID;
 		else
