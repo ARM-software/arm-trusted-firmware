@@ -152,7 +152,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_SYSTEM_SHUTDOWN:
-		ret = pm_system_shutdown(pm_arg[0]);
+		ret = pm_system_shutdown(pm_arg[0], pm_arg[1]);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_REQ_NODE:

@@ -225,4 +225,15 @@ enum pm_boot_status {
 	PM_BOOT_ERROR,
 };
 
+enum pm_shutdown_type {
+	PMF_SHUTDOWN_TYPE_SHUTDOWN,
+	PMF_SHUTDOWN_TYPE_RESET,
+};
+
+enum pm_shutdown_subtype {
+	PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM,
+	PMF_SHUTDOWN_SUBTYPE_PS_ONLY,
+	PMF_SHUTDOWN_SUBTYPE_SYSTEM,
+};
+
 #endif /* _PM_DEFS_H_ */

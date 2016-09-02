@@ -243,11 +243,11 @@ enum pm_ret_status pm_set_wakeup_source(enum pm_node_id target,
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_system_shutdown(unsigned int restart)
+enum pm_ret_status pm_system_shutdown(unsigned int type, unsigned int subtype)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
-	PM_PACK_PAYLOAD2(payload, PM_SYSTEM_SHUTDOWN, restart);
+	PM_PACK_PAYLOAD3(payload, PM_SYSTEM_SHUTDOWN, type, subtype);
 	return pm_ipi_send(primary_proc, payload);
 }
 
