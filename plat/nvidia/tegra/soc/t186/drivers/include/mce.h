@@ -338,9 +338,7 @@ typedef struct arch_mce_ops {
 	 * This ARI request allows updating the reset vector register for
 	 * D15 and A57 CPUs.
 	 */
-	int (*update_reset_vector)(uint32_t ari_base,
-				   uint32_t addr_low,
-				   uint32_t addr_high);
+	int (*update_reset_vector)(uint32_t ari_base);
 	/*
 	 * This ARI request instructs the ROC to flush A57 data caches in
 	 * order to maintain coherency with the Denver cluster.
@@ -397,7 +395,7 @@ typedef struct arch_mce_ops {
 
 int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		uint64_t arg2);
-int mce_update_reset_vector(uint32_t addr_lo, uint32_t addr_hi);
+int mce_update_reset_vector(void);
 int mce_update_gsc_videomem(void);
 int mce_update_gsc_tzdram(void);
 int mce_update_gsc_tzram(void);
@@ -418,7 +416,7 @@ int ari_is_ccx_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int ari_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int ari_online_core(uint32_t ari_base, uint32_t core);
 int ari_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t enable);
-int ari_reset_vector_update(uint32_t ari_base, uint32_t lo, uint32_t hi);
+int ari_reset_vector_update(uint32_t ari_base);
 int ari_roc_flush_cache_trbits(uint32_t ari_base);
 int ari_roc_flush_cache(uint32_t ari_base);
 int ari_roc_clean_cache(uint32_t ari_base);

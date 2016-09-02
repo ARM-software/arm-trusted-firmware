@@ -403,11 +403,11 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 /*******************************************************************************
  * Handler to update the reset vector for CPUs
  ******************************************************************************/
-int mce_update_reset_vector(uint32_t addr_lo, uint32_t addr_hi)
+int mce_update_reset_vector(void)
 {
 	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
 
-	ops->update_reset_vector(mce_get_curr_cpu_ari_base(), addr_lo, addr_hi);
+	ops->update_reset_vector(mce_get_curr_cpu_ari_base());
 
 	return 0;
 }

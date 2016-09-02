@@ -334,7 +334,7 @@ int ari_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t enable
 	return ari_request_wait(ari_base, 0, TEGRA_ARI_CC3_CTRL, val, 0);
 }
 
-int ari_reset_vector_update(uint32_t ari_base, uint32_t lo, uint32_t hi)
+int ari_reset_vector_update(uint32_t ari_base)
 {
 	/* clean the previous response state */
 	ari_clobber_response(ari_base);
@@ -343,7 +343,7 @@ int ari_reset_vector_update(uint32_t ari_base, uint32_t lo, uint32_t hi)
 	 * Need to program the CPU reset vector one time during cold boot
 	 * and SC7 exit
 	 */
-	ari_request_wait(ari_base, 0, TEGRA_ARI_COPY_MISCREG_AA64_RST, lo, hi);
+	ari_request_wait(ari_base, 0, TEGRA_ARI_COPY_MISCREG_AA64_RST, 0, 0);
 
 	return 0;
 }
