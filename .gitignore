@@ -2,6 +2,7 @@
 cscope.*
 *.swp
 *.patch
+*~
 .project
 .cproject
 
