@@ -476,7 +476,7 @@ enum pm_ret_status pm_mmio_write(uintptr_t address,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, PM_MMIO_WRITE, address, mask, value);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL);
 }
 
 /**
