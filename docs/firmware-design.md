@@ -15,8 +15,9 @@ Contents :
 10. [Firmware Image Package (FIP)](#10--firmware-image-package-fip)
 11. [Use of coherent memory in Trusted Firmware](#11--use-of-coherent-memory-in-trusted-firmware)
 12. [Isolating code and read-only data on separate memory pages](#12--isolating-code-and-read-only-data-on-separate-memory-pages)
-13. [Code Structure](#13--code-structure)
-14. [References](#14--references)
+13. [Performance Measurement Framework](#13--performance-measurement-framework)
+14. [Code Structure](#14--code-structure)
+15. [References](#15--references)
 
 
 1.  Introduction
@@ -1858,7 +1859,128 @@ This build flag is disabled by default, minimising memory footprint. On ARM
 platforms, it is enabled.
 
 
-13.  Code Structure
+13.  Performance Measurement Framework
+--------------------------------------
+
+The Performance Measurement Framework (PMF) facilitates collection of
+timestamps by registered services and provides interfaces to retrieve
+them from within the ARM Trusted Firmware.  A platform can choose to
+expose appropriate SMCs to retrieve these collected timestamps.
+
+By default, the global physical counter is used for the timestamp
+value and is read via `CNTPCT_EL0`.  The framework allows to retrieve
+timestamps captured by other CPUs.
+
+### Timestamp identifier format
+
+A PMF timestamp is uniquely identified across the system via the
+timestamp ID or `tid`. The `tid` is composed as follows:
+
+    Bits 0-7: The local timestamp identifier.
+    Bits 8-9: Reserved.
+    Bits 10-15: The service identifier.
+    Bits 16-31: Reserved.
+
+1.  The service identifier. Each PMF service is identified by a
+    service name and a service identifier.  Both the service name and
+    identifier are unique within the system as a whole.
+
+2.  The local timestamp identifier. This identifier is unique within a given
+    service.
+
+### Registering a PMF service
+
+To register a PMF service, the `PMF_REGISTER_SERVICE()` macro from `pmf.h`
+is used. The arguments required are the service name, the service ID,
+the total number of local timestamps to be captured and a set of flags.
+
+The `flags` field can be specified as a bitwise-OR of the following values:
+
+    PMF_STORE_ENABLE: The timestamp is stored in memory for later retrieval.
+    PMF_DUMP_ENABLE: The timestamp is dumped on the serial console.
+
+The `PMF_REGISTER_SERVICE()` reserves memory to store captured
+timestamps in a PMF specific linker section at build time.
+Additionally, it defines necessary functions to capture and
+retrieve a particular timestamp for the given service at runtime.
+
+The macro `PMF_REGISTER_SERVICE()` only enables capturing PMF
+timestamps from within ARM Trusted Firmware. In order to retrieve
+timestamps from outside of ARM Trusted Firmware, the
+`PMF_REGISTER_SERVICE_SMC()` macro must be used instead. This macro
+accepts the same set of arguments as the `PMF_REGISTER_SERVICE()`
+macro but additionally supports retrieving timestamps using SMCs.
+
+### Capturing a timestamp
+
+PMF timestamps are stored in a per-service timestamp region. On a
+system with multiple CPUs, each timestamp is captured and stored
+in a per-CPU cache line aligned memory region.
+
+Having registered the service, the `PMF_CAPTURE_TIMESTAMP()` macro can be
+used to capture a timestamp at the location where it is used.  The macro
+takes the service name, a local timestamp identifier and a flag as arguments.
+
+The `flags` field argument can be zero, or `PMF_CACHE_MAINT` which
+instructs PMF to do cache maintenance following the capture.  Cache
+maintenance is required if any of the service's timestamps are captured
+with data cache disabled.
+
+To capture a timestamp in assembly code, the caller should use
+`pmf_calc_timestamp_addr` macro (defined in `pmf_asm_macros.S`) to
+calculate the address of where the timestamp would be stored. The
+caller should then read `CNTPCT_EL0` register to obtain the timestamp
+and store it at the determined address for later retrieval.
+
+### Retrieving a timestamp
+
+From within ARM Trusted Firmware, timestamps for individual CPUs can
+be retrieved using either `PMF_GET_TIMESTAMP_BY_MPIDR()` or
+`PMF_GET_TIMESTAMP_BY_INDEX()` macros. These macros accept the CPU's MPIDR
+value, or its ordinal position, respectively.
+
+From outside ARM Trusted Firmware, timestamps for individual CPUs can be
+retrieved by calling into `pmf_smc_handler()`.
+
+    Interface : pmf_smc_handler()
+    Argument  : unsigned int smc_fid, u_register_t x1,
+                u_register_t x2, u_register_t x3,
+                u_register_t x4, void *cookie,
+                void *handle, u_register_t flags
+    Return    : uintptr_t
+
+    smc_fid: Holds the SMC identifier which is either `PMF_SMC_GET_TIMESTAMP_32`
+        when the caller of the SMC is running in AArch32 mode
+        or `PMF_SMC_GET_TIMESTAMP_64` when the caller is running in AArch64 mode.
+    x1: Timestamp identifier.
+    x2: The `mpidr` of the CPU for which the timestamp has to be retrieved.
+        This can be the `mpidr` of a different core to the one initiating
+        the SMC.  In that case, service specific cache maintenance may be
+        required to ensure the updated copy of the timestamp is returned.
+    x3: A flags value that is either 0 or `PMF_CACHE_MAINT`.  If
+        `PMF_CACHE_MAINT` is passed, then the PMF code will perform a
+        cache invalidate before reading the timestamp.  This ensures
+        an updated copy is returned.
+
+The remaining arguments, `x4`, `cookie`, `handle` and `flags` are unused
+in this implementation.
+
+### PMF code structure
+
+1.  `pmf_main.c` consists of core functions that implement service registration,
+    initialization, storing, dumping and retrieving timestamps.
+
+2.  `pmf_smc.c` contains the SMC handling for registered PMF services.
+
+3.  `pmf.h` contains the public interface to Performance Measurement Framework.
+
+4.  `pmf_asm_macros.S` consists of macros to facilitate capturing timestamps in
+    assembly code.
+
+5.  `pmf_helpers.h` is an internal header used by `pmf.h`.
+
+
+14.  Code Structure
 -------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -1902,7 +2024,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-14.  References
+15.  References
 ---------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
