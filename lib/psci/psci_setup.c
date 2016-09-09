@@ -238,6 +238,13 @@ int psci_setup(uintptr_t mailbox_ep)
 	plat_setup_psci_ops(mailbox_ep, &psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
+	/*
+	 * Flush `psci_plat_pm_ops` as it will be accessed by secondary CPUs
+	 * during warm boot before data cache is enabled.
+	 */
+	flush_dcache_range((uintptr_t)&psci_plat_pm_ops,
+					sizeof(psci_plat_pm_ops));
+
 	/* Initialize the psci capability */
 	psci_caps = PSCI_GENERIC_CAP;
 
