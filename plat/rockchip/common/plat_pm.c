@@ -283,9 +283,10 @@ void rockchip_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 		rockchip_ops->cores_pwr_dm_resume();
 	/*
 	 * Program the gic per-cpu distributor or re-distributor interface.
-	 * For sys power domain operation, resuming of the gic needs to operate in
-	 * rockchip_ops->sys_pwr_dm_resume, according to the sys power mode implements.
-	*/
+	 * For sys power domain operation, resuming of the gic needs to operate
+	 * in rockchip_ops->sys_pwr_dm_resume, according to the sys power mode
+	 * implements.
+	 */
 	plat_rockchip_gic_cpuif_enable();
 
 comm_finish:
