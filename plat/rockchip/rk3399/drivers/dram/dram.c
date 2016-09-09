@@ -2147,13 +2147,17 @@ static int to_get_clk_index(unsigned int mhz)
 {
 	int pll_cnt, i;
 
-	pll_cnt = sizeof(dpll_rates_table) / sizeof(struct pll_div);
+	pll_cnt = ARRAY_SIZE(dpll_rates_table);
 
 	/* Assumming rate_table is in descending order */
 	for (i = 0; i < pll_cnt; i++) {
 		if (mhz >= dpll_rates_table[i].mhz)
 			break;
 	}
+
+	/* if mhz lower than lowest frequency in table, use lowest frequency */
+	if (i == pll_cnt)
+		i = pll_cnt - 1;
 
 	return i;
 }
@@ -2174,7 +2178,7 @@ uint32_t rkclk_prepare_pll_timing(unsigned int mhz)
 	return (24 * fbdiv) / refdiv / postdiv1 / postdiv2;
 }
 
-uint64_t ddr_get_rate(void)
+uint32_t ddr_get_rate(void)
 {
 	uint32_t refdiv, postdiv1, fbdiv, postdiv2;
 
@@ -2464,7 +2468,6 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 	 * target freq.
 	 */
 	dram_get_parameter(&rk3399_dram_status.timing_config, &dram_timing);
-
 	gen_rk3399_ctl_params(&rk3399_dram_status.timing_config,
 			      &dram_timing, index);
 	gen_rk3399_pi_params(&rk3399_dram_status.timing_config,
@@ -2494,7 +2497,7 @@ void print_dram_status_info(void)
 		tf_printf("%u\n", p[i]);
 }
 
-uint64_t ddr_set_rate(uint64_t hz)
+uint32_t ddr_set_rate(uint32_t hz)
 {
 	uint32_t low_power, index;
 	uint32_t mhz = hz / (1000 * 1000);
@@ -2503,13 +2506,13 @@ uint64_t ddr_set_rate(uint64_t hz)
 	    rk3399_dram_status.index_freq[rk3399_dram_status.current_index])
 		goto out;
 
+	index = to_get_clk_index(mhz);
+	mhz = dpll_rates_table[index].mhz;
+
 	low_power = exit_low_power();
 	index = prepare_ddr_timing(mhz);
-	if (index > 1) {
-		/* set timing error, quit */
-		mhz = 0;
+	if (index > 1)
 		goto out;
-	}
 
 	dcf_start(mhz, index);
 	wait_dcf_done();
@@ -2526,7 +2529,7 @@ out:
 	return mhz;
 }
 
-uint64_t ddr_round_rate(uint64_t hz)
+uint32_t ddr_round_rate(uint32_t hz)
 {
 	int index;
 	uint32_t mhz = hz / (1000 * 1000);
@@ -2536,7 +2539,7 @@ uint64_t ddr_round_rate(uint64_t hz)
 	return dpll_rates_table[index].mhz * 1000 * 1000;
 }
 
-uint64_t dts_timing_receive(uint64_t timing, uint64_t index)
+uint32_t dts_timing_receive(uint32_t timing, uint32_t index)
 {
 	uint32_t *p = (uint32_t *) &dts_parameter;
 	static uint32_t receive_nums;
