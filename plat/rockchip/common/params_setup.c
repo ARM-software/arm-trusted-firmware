@@ -40,25 +40,32 @@
 #include <plat_private.h>
 #include <string.h>
 
-static struct bl31_plat_param *bl31_params_head;
-static struct bl31_gpio_param param_reset;
-static struct bl31_gpio_param param_poweroff;
+static struct gpio_info param_reset;
+static struct gpio_info param_poweroff;
 static struct gpio_info *rst_gpio;
 static struct gpio_info *poweroff_gpio;
+static struct gpio_info suspend_gpio[10];
+uint32_t suspend_gpio_cnt;
 
-void *plat_get_rockchip_gpio_reset(void)
+struct gpio_info *plat_get_rockchip_gpio_reset(void)
 {
 	return rst_gpio;
 }
 
-void *plat_get_rockchip_gpio_poweroff(void)
+struct gpio_info *plat_get_rockchip_gpio_poweroff(void)
 {
 	return poweroff_gpio;
 }
 
+struct gpio_info *plat_get_rockchip_suspend_gpio(uint32_t *count)
+{
+	*count = suspend_gpio_cnt;
+
+	return &suspend_gpio[0];
+}
+
 void params_early_setup(void *plat_param_from_bl2)
 {
-	struct bl31_plat_param *param;
 	struct bl31_plat_param *bl2_param;
 	struct bl31_gpio_param *gpio_param;
 
@@ -67,25 +74,33 @@ void params_early_setup(void *plat_param_from_bl2)
 	while (bl2_param) {
 		switch (bl2_param->type) {
 		case PARAM_RESET:
-			param = (struct bl31_plat_param *)&param_reset;
-			memcpy((void *)param, (void *)bl2_param,
-				sizeof(struct bl31_gpio_param));
-			gpio_param = (struct bl31_gpio_param *)param;
-			rst_gpio = &gpio_param->gpio;
+			gpio_param = (struct bl31_gpio_param *)bl2_param;
+			memcpy(&param_reset, &gpio_param->gpio,
+			       sizeof(struct gpio_info));
+			rst_gpio = &param_reset;
 			break;
 		case PARAM_POWEROFF:
-			param = (struct bl31_plat_param *)&param_poweroff;
-			memcpy((void *)param, (void *)bl2_param,
-				sizeof(struct bl31_gpio_param));
-			gpio_param = (struct bl31_gpio_param *)param;
-			poweroff_gpio = &gpio_param->gpio;
+			gpio_param = (struct bl31_gpio_param *)bl2_param;
+			memcpy(&param_poweroff, &gpio_param->gpio,
+				sizeof(struct gpio_info));
+			poweroff_gpio = &param_poweroff;
+			break;
+		case PARAM_SUSPEND_GPIO:
+			if (suspend_gpio_cnt >= ARRAY_SIZE(suspend_gpio)) {
+				ERROR("exceed support suspend gpio number\n");
+				break;
+			}
+			gpio_param = (struct bl31_gpio_param *)bl2_param;
+			memcpy(&suspend_gpio[suspend_gpio_cnt],
+			       &gpio_param->gpio,
+			       sizeof(struct gpio_info));
+			suspend_gpio_cnt++;
 			break;
 		default:
-			NOTICE("not expected type found\n");
-			return; /* don't continue if unexpected type found */
+			ERROR("not expected type found %ld\n",
+			      bl2_param->type);
+			break;
 		}
-		param->next = bl31_params_head;
-		bl31_params_head = param;
 		bl2_param = bl2_param->next;
 	}
 }

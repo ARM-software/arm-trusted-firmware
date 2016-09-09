@@ -874,6 +874,37 @@ static void clr_hw_idle(uint32_t hw_idle)
 	mmio_clrbits_32(PMU_BASE + PMU_BUS_CLR, hw_idle);
 }
 
+static void suspend_gpio(void)
+{
+	struct gpio_info *suspend_gpio;
+	uint32_t count;
+	int i;
+
+	suspend_gpio = plat_get_rockchip_suspend_gpio(&count);
+
+	for (i = 0; i < count; i++) {
+		gpio_set_value(suspend_gpio[i].index, suspend_gpio[i].polarity);
+		gpio_set_direction(suspend_gpio[i].index, GPIO_DIR_OUT);
+		udelay(1);
+	}
+}
+
+static void resume_gpio(void)
+{
+	struct gpio_info *suspend_gpio;
+	uint32_t count;
+	int i;
+
+	suspend_gpio = plat_get_rockchip_suspend_gpio(&count);
+
+	for (i = count - 1; i >= 0; i--) {
+		gpio_set_value(suspend_gpio[i].index,
+			       !suspend_gpio[i].polarity);
+		gpio_set_direction(suspend_gpio[i].index, GPIO_DIR_OUT);
+		udelay(1);
+	}
+}
+
 static int sys_pwr_domain_suspend(void)
 {
 	uint32_t wait_cnt = 0;
@@ -928,6 +959,7 @@ static int sys_pwr_domain_suspend(void)
 	disable_dvfs_plls();
 	disable_pwms();
 	disable_nodvfs_plls();
+	suspend_gpio();
 
 	return 0;
 }
@@ -937,6 +969,8 @@ static int sys_pwr_domain_resume(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
+
+	resume_gpio();
 	enable_nodvfs_plls();
 	enable_pwms();
 	/* PWM regulators take time to come up; give 300us to be safe. */
@@ -1010,7 +1044,7 @@ void __dead2 soc_soft_reset(void)
 {
 	struct gpio_info *rst_gpio;
 
-	rst_gpio = (struct gpio_info *)plat_get_rockchip_gpio_reset();
+	rst_gpio = plat_get_rockchip_gpio_reset();
 
 	if (rst_gpio) {
 		gpio_set_direction(rst_gpio->index, GPIO_DIR_OUT);
@@ -1027,7 +1061,7 @@ void __dead2 soc_system_off(void)
 {
 	struct gpio_info *poweroff_gpio;
 
-	poweroff_gpio = (struct gpio_info *)plat_get_rockchip_gpio_poweroff();
+	poweroff_gpio = plat_get_rockchip_gpio_poweroff();
 
 	if (poweroff_gpio) {
 		/*
