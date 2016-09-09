@@ -42,10 +42,12 @@
 
 static struct gpio_info param_reset;
 static struct gpio_info param_poweroff;
+static struct bl31_apio_param param_apio;
 static struct gpio_info *rst_gpio;
 static struct gpio_info *poweroff_gpio;
 static struct gpio_info suspend_gpio[10];
 uint32_t suspend_gpio_cnt;
+static struct apio_info *suspend_apio;
 
 struct gpio_info *plat_get_rockchip_gpio_reset(void)
 {
@@ -62,6 +64,11 @@ struct gpio_info *plat_get_rockchip_suspend_gpio(uint32_t *count)
 	*count = suspend_gpio_cnt;
 
 	return &suspend_gpio[0];
+}
+
+struct apio_info *plat_get_rockchip_suspend_apio(void)
+{
+	return suspend_apio;
 }
 
 void params_early_setup(void *plat_param_from_bl2)
@@ -95,6 +102,11 @@ void params_early_setup(void *plat_param_from_bl2)
 			       &gpio_param->gpio,
 			       sizeof(struct gpio_info));
 			suspend_gpio_cnt++;
+			break;
+		case PARAM_SUSPEND_APIO:
+			memcpy(&param_apio, bl2_param,
+			       sizeof(struct bl31_apio_param));
+			suspend_apio = &param_apio.apio;
 			break;
 		default:
 			ERROR("not expected type found %ld\n",
