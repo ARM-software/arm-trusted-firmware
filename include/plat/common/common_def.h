@@ -70,6 +70,18 @@
   #define MAKE_ULL(x)			x
 #endif
 
+#if LOAD_IMAGE_V2
+#define BL2_IMAGE_DESC {				\
+	.image_id = BL2_IMAGE_ID,			\
+	SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,	\
+		VERSION_2, image_info_t, 0),		\
+	.image_info.image_base = BL2_BASE,		\
+	.image_info.image_max_size = BL2_LIMIT - BL2_BASE,\
+	SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,	\
+		VERSION_2, entry_point_info_t, SECURE | EXECUTABLE),\
+	.ep_info.pc = BL2_BASE,				\
+}
+#else /* LOAD_IMAGE_V2 */
 #define BL2_IMAGE_DESC {				\
 	.image_id = BL2_IMAGE_ID,			\
 	SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,	\
@@ -79,6 +91,7 @@
 		VERSION_1, entry_point_info_t, SECURE | EXECUTABLE),\
 	.ep_info.pc = BL2_BASE,				\
 }
+#endif /* LOAD_IMAGE_V2 */
 
 /*
  * The following constants identify the extents of the code & read-only data

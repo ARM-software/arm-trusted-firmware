@@ -34,4 +34,10 @@ BL2_SOURCES		+=	bl2/bl2_main.c				\
 				common/aarch64/early_exceptions.S	\
 				lib/locks/exclusive/aarch64/spinlock.S
 
+ifeq (${LOAD_IMAGE_V2},1)
+BL2_SOURCES		+=	bl2/bl2_image_load_v2.c
+else
+BL2_SOURCES		+=	bl2/bl2_image_load.c
+endif
+
 BL2_LINKERFILE		:=	bl2/bl2.ld.S
