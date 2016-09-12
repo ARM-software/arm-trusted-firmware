@@ -721,7 +721,6 @@ Firmware represents the power domain topology and how this relates to the
 linear CPU index, please refer [Power Domain Topology Design].
 
 
-
 2.4 Common optional modifications
 ---------------------------------
 
@@ -841,9 +840,36 @@ and must be implemented in assembly because it may be called before the C
 environment is initialized.
 
 Note: The address from where it was called is stored in x30 (Link Register).
-
 The default implementation simply spins.
 
+
+### Function : plat_get_bl_image_load_info()
+
+    Argument : void
+    Return   : bl_load_info_t *
+
+This function returns pointer to the list of images that the platform has
+populated to load. This function is currently invoked in BL2 to load the
+BL3xx images, when LOAD_IMAGE_V2 is enabled.
+
+### Function : plat_get_next_bl_params()
+
+    Argument : void
+    Return   : bl_params_t *
+
+This function returns a pointer to the shared memory that the platform has
+kept aside to pass trusted firmware related information that next BL image
+needs. This function is currently invoked in BL2 to pass this information to
+the next BL image, when LOAD_IMAGE_V2 is enabled.
+
+### Function : plat_flush_next_bl_params()
+
+    Argument : void
+    Return   : void
+
+This function flushes to main memory all the image params that are passed to
+next image. This function is currently invoked in BL2 to flush this information
+to the next BL image, when LOAD_IMAGE_V2 is enabled.
 
 3.  Modifications specific to a Boot Loader stage
 -------------------------------------------------
@@ -1174,6 +1200,20 @@ The purpose of this function is to return a pointer to a `meminfo` structure
 populated with the extents of secure RAM available for BL2 to use. See
 `bl2_early_platform_setup()` above.
 
+
+Following function is required only when LOAD_IMAGE_V2 is enabled.
+
+### Function : bl2_plat_handle_post_image_load() [mandatory]
+
+    Argument : unsigned int
+    Return   : int
+
+This function can be used by the platforms to update/use image information
+for given `image_id`. This function is currently invoked in BL2 to handle
+BL image specific information based on the `image_id` passed, when
+LOAD_IMAGE_V2 is enabled.
+
+Following functions are required only when LOAD_IMAGE_V2 is disabled.
 
 ### Function : bl2_plat_get_scp_bl2_meminfo() [mandatory]
 
