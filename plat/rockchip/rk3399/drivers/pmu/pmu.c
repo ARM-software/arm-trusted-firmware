@@ -874,6 +874,190 @@ static void clr_hw_idle(uint32_t hw_idle)
 	mmio_clrbits_32(PMU_BASE + PMU_BUS_CLR, hw_idle);
 }
 
+static uint32_t iomux_status[12];
+static uint32_t pull_mode_status[12];
+static uint32_t gpio_direction[3];
+static uint32_t gpio_2_4_clk_gate;
+
+static void suspend_apio(void)
+{
+	struct apio_info *suspend_apio;
+	int i;
+
+	suspend_apio = plat_get_rockchip_suspend_apio();
+
+	if (!suspend_apio)
+		return;
+
+	/* save gpio2 ~ gpio4 iomux and pull mode */
+	for (i = 0; i < 12; i++) {
+		iomux_status[i] = mmio_read_32(GRF_BASE +
+				GRF_GPIO2A_IOMUX + i * 4);
+		pull_mode_status[i] = mmio_read_32(GRF_BASE +
+				GRF_GPIO2A_P + i * 4);
+	}
+
+	/* store gpio2 ~ gpio4 clock gate state */
+	gpio_2_4_clk_gate = (mmio_read_32(CRU_BASE + CRU_CLKGATE_CON(31)) >>
+				PCLK_GPIO2_GATE_SHIFT) & 0x07;
+
+	/* enable gpio2 ~ gpio4 clock gate */
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+		      BITS_WITH_WMASK(0, 0x07, PCLK_GPIO2_GATE_SHIFT));
+
+	/* save gpio2 ~ gpio4 direction */
+	gpio_direction[0] = mmio_read_32(GPIO2_BASE + 0x04);
+	gpio_direction[1] = mmio_read_32(GPIO3_BASE + 0x04);
+	gpio_direction[2] = mmio_read_32(GPIO4_BASE + 0x04);
+
+	/* apio1 charge gpio3a0 ~ gpio3c7 */
+	if (suspend_apio->apio1) {
+
+		/* set gpio3a0 ~ gpio3c7 iomux to gpio */
+		mmio_write_32(GRF_BASE + GRF_GPIO3A_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+		mmio_write_32(GRF_BASE + GRF_GPIO3B_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+		mmio_write_32(GRF_BASE + GRF_GPIO3C_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+
+		/* set gpio3a0 ~ gpio3c7 pull mode to pull none */
+		mmio_write_32(GRF_BASE + GRF_GPIO3A_P, REG_SOC_WMSK | 0);
+		mmio_write_32(GRF_BASE + GRF_GPIO3B_P, REG_SOC_WMSK | 0);
+		mmio_write_32(GRF_BASE + GRF_GPIO3C_P, REG_SOC_WMSK | 0);
+
+		/* set gpio3a0 ~ gpio3c7 to input */
+		mmio_clrbits_32(GPIO3_BASE + 0x04, 0x00ffffff);
+	}
+
+	/* apio2 charge gpio2a0 ~ gpio2b4 */
+	if (suspend_apio->apio2) {
+
+		/* set gpio2a0 ~ gpio2b4 iomux to gpio */
+		mmio_write_32(GRF_BASE + GRF_GPIO2A_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+		mmio_write_32(GRF_BASE + GRF_GPIO2B_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+
+		/* set gpio2a0 ~ gpio2b4 pull mode to pull none */
+		mmio_write_32(GRF_BASE + GRF_GPIO2A_P, REG_SOC_WMSK | 0);
+		mmio_write_32(GRF_BASE + GRF_GPIO2B_P, REG_SOC_WMSK | 0);
+
+		/* set gpio2a0 ~ gpio2b4 to input */
+		mmio_clrbits_32(GPIO2_BASE + 0x04, 0x00001fff);
+	}
+
+	/* apio3 charge gpio2c0 ~ gpio2d4*/
+	if (suspend_apio->apio3) {
+
+		/* set gpio2a0 ~ gpio2b4 iomux to gpio */
+		mmio_write_32(GRF_BASE + GRF_GPIO2C_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+		mmio_write_32(GRF_BASE + GRF_GPIO2D_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+
+		/* set gpio2c0 ~ gpio2d4 pull mode to pull none */
+		mmio_write_32(GRF_BASE + GRF_GPIO2C_P, REG_SOC_WMSK | 0);
+		mmio_write_32(GRF_BASE + GRF_GPIO2D_P, REG_SOC_WMSK | 0);
+
+		/* set gpio2c0 ~ gpio2d4 to input */
+		mmio_clrbits_32(GPIO2_BASE + 0x04, 0x1fff0000);
+	}
+
+	/* apio4 charge gpio4c0 ~ gpio4c7, gpio4d0 ~ gpio4d6 */
+	if (suspend_apio->apio4) {
+
+		/* set gpio4c0 ~ gpio4d6 iomux to gpio */
+		mmio_write_32(GRF_BASE + GRF_GPIO4C_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+		mmio_write_32(GRF_BASE + GRF_GPIO4D_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+
+		/* set gpio4c0 ~ gpio4d6 pull mode to pull none */
+		mmio_write_32(GRF_BASE + GRF_GPIO4C_P, REG_SOC_WMSK | 0);
+		mmio_write_32(GRF_BASE + GRF_GPIO4D_P, REG_SOC_WMSK | 0);
+
+		/* set gpio4c0 ~ gpio4d6 to input */
+		mmio_clrbits_32(GPIO4_BASE + 0x04, 0x7fff0000);
+	}
+
+	/* apio5 charge gpio3d0 ~ gpio3d7, gpio4a0 ~ gpio4a7*/
+	if (suspend_apio->apio5) {
+		/* set gpio3d0 ~ gpio4a7 iomux to gpio */
+		mmio_write_32(GRF_BASE + GRF_GPIO3D_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+		mmio_write_32(GRF_BASE + GRF_GPIO4A_IOMUX,
+			      REG_SOC_WMSK | GRF_IOMUX_GPIO);
+
+		/* set gpio3d0 ~ gpio4a7 pull mode to pull none */
+		mmio_write_32(GRF_BASE + GRF_GPIO3D_P, REG_SOC_WMSK | 0);
+		mmio_write_32(GRF_BASE + GRF_GPIO4A_P, REG_SOC_WMSK | 0);
+
+		/* set gpio4c0 ~ gpio4d6 to input */
+		mmio_clrbits_32(GPIO3_BASE + 0x04, 0xff000000);
+		mmio_clrbits_32(GPIO4_BASE + 0x04, 0x000000ff);
+	}
+}
+
+static void resume_apio(void)
+{
+	struct apio_info *suspend_apio;
+	int i;
+
+	suspend_apio = plat_get_rockchip_suspend_apio();
+
+	if (!suspend_apio)
+		return;
+
+	for (i = 0; i < 12; i++) {
+		mmio_write_32(GRF_BASE + GRF_GPIO2A_P + i * 4,
+			      REG_SOC_WMSK | pull_mode_status[i]);
+		mmio_write_32(GRF_BASE + GRF_GPIO2A_IOMUX + i * 4,
+			      REG_SOC_WMSK | iomux_status[i]);
+	}
+
+	/* set gpio2 ~ gpio4 direction back to store value */
+	mmio_write_32(GPIO2_BASE + 0x04, gpio_direction[0]);
+	mmio_write_32(GPIO3_BASE + 0x04, gpio_direction[1]);
+	mmio_write_32(GPIO4_BASE + 0x04, gpio_direction[2]);
+
+	/* set gpio2 ~ gpio4 clock gate back to store value */
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+		      BITS_WITH_WMASK(gpio_2_4_clk_gate, 0x07,
+				      PCLK_GPIO2_GATE_SHIFT));
+}
+
+static void suspend_gpio(void)
+{
+	struct gpio_info *suspend_gpio;
+	uint32_t count;
+	int i;
+
+	suspend_gpio = plat_get_rockchip_suspend_gpio(&count);
+
+	for (i = 0; i < count; i++) {
+		gpio_set_value(suspend_gpio[i].index, suspend_gpio[i].polarity);
+		gpio_set_direction(suspend_gpio[i].index, GPIO_DIR_OUT);
+		udelay(1);
+	}
+}
+
+static void resume_gpio(void)
+{
+	struct gpio_info *suspend_gpio;
+	uint32_t count;
+	int i;
+
+	suspend_gpio = plat_get_rockchip_suspend_gpio(&count);
+
+	for (i = count - 1; i >= 0; i--) {
+		gpio_set_value(suspend_gpio[i].index,
+			       !suspend_gpio[i].polarity);
+		gpio_set_direction(suspend_gpio[i].index, GPIO_DIR_OUT);
+		udelay(1);
+	}
+}
+
 static int sys_pwr_domain_suspend(void)
 {
 	uint32_t wait_cnt = 0;
@@ -919,7 +1103,6 @@ static int sys_pwr_domain_suspend(void)
 		}
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
-
 	/*
 	 * Disabling PLLs/PWM/DVFS is approaching WFI which is
 	 * the last steps in suspend.
@@ -928,6 +1111,8 @@ static int sys_pwr_domain_suspend(void)
 	disable_dvfs_plls();
 	disable_pwms();
 	disable_nodvfs_plls();
+	suspend_apio();
+	suspend_gpio();
 
 	return 0;
 }
@@ -937,6 +1122,8 @@ static int sys_pwr_domain_resume(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
+	resume_apio();
+	resume_gpio();
 	enable_nodvfs_plls();
 	enable_pwms();
 	/* PWM regulators take time to come up; give 300us to be safe. */
@@ -952,7 +1139,6 @@ static int sys_pwr_domain_resume(void)
 	 * somewhere.
 	 */
 	mmio_write_32(PMU_BASE + PMU_WAKEUP_STATUS, 0xffffffff);
-
 	mmio_write_32(PMU_BASE + PMU_WKUP_CFG4, 0x00);
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
@@ -1010,7 +1196,7 @@ void __dead2 soc_soft_reset(void)
 {
 	struct gpio_info *rst_gpio;
 
-	rst_gpio = (struct gpio_info *)plat_get_rockchip_gpio_reset();
+	rst_gpio = plat_get_rockchip_gpio_reset();
 
 	if (rst_gpio) {
 		gpio_set_direction(rst_gpio->index, GPIO_DIR_OUT);
@@ -1027,7 +1213,7 @@ void __dead2 soc_system_off(void)
 {
 	struct gpio_info *poweroff_gpio;
 
-	poweroff_gpio = (struct gpio_info *)plat_get_rockchip_gpio_poweroff();
+	poweroff_gpio = plat_get_rockchip_gpio_poweroff();
 
 	if (poweroff_gpio) {
 		/*

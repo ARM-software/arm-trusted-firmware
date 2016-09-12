@@ -52,48 +52,105 @@ uint32_t gpio_port[] = {
 
 #define PMU_GPIO_PORT0	0
 #define PMU_GPIO_PORT1	1
+#define GPIO_PORT2	2
+#define GPIO_PORT3	3
+#define GPIO_PORT4	4
 
 #define PMU_GRF_GPIO0A_P	0x40
 #define GRF_GPIO2A_P		0xe040
 #define GPIO_P_MASK		0x03
 
-/*
- * gpio clock disabled when not operate
- * so need to enable gpio clock before operate gpio
- * after setting, need to disable gpio clock
- * gate 1: disable clock; 0: enable clock
- */
-static void gpio_clk(int gpio, uint32_t gate)
+#define GET_GPIO_PORT(pin)	(pin / 32)
+#define GET_GPIO_NUM(pin)	(pin % 32)
+#define GET_GPIO_BANK(pin)	((pin % 32) / 8)
+#define GET_GPIO_ID(pin)	((pin % 32) % 8)
+
+/* returns old clock state, enables clock, in order to do GPIO access */
+static int gpio_get_clock(uint32_t gpio_number)
 {
-	uint32_t port = gpio / 32;
+	uint32_t port = GET_GPIO_PORT(gpio_number);
+	uint32_t clock_state = 0;
 
 	assert(port < 5);
 
 	switch (port) {
-	case 0:
+	case PMU_GPIO_PORT0:
+		clock_state = (mmio_read_32(PMUCRU_BASE +
+					    CRU_PMU_CLKGATE_CON(1)) >>
+					    PCLK_GPIO0_GATE_SHIFT) & 0x01;
 		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
-			      BITS_WITH_WMASK(gate, CLK_GATE_MASK,
+			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
 					      PCLK_GPIO0_GATE_SHIFT));
 		break;
-	case 1:
+	case PMU_GPIO_PORT1:
+		clock_state = (mmio_read_32(PMUCRU_BASE +
+					    CRU_PMU_CLKGATE_CON(1)) >>
+					    PCLK_GPIO1_GATE_SHIFT) & 0x01;
 		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
-			      BITS_WITH_WMASK(gate, CLK_GATE_MASK,
+			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
 					      PCLK_GPIO1_GATE_SHIFT));
 		break;
-	case 2:
+	case GPIO_PORT2:
+		clock_state = (mmio_read_32(CRU_BASE +
+					    CRU_CLKGATE_CON(31)) >>
+					    PCLK_GPIO2_GATE_SHIFT) & 0x01;
 		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(gate, CLK_GATE_MASK,
+			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
 					      PCLK_GPIO2_GATE_SHIFT));
 		break;
-	case 3:
+	case GPIO_PORT3:
+		clock_state = (mmio_read_32(CRU_BASE +
+					    CRU_CLKGATE_CON(31)) >>
+					    PCLK_GPIO3_GATE_SHIFT) & 0x01;
 		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(gate, CLK_GATE_MASK,
+			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
+					      PCLK_GPIO3_GATE_SHIFT));
+		break;
+	case GPIO_PORT4:
+		clock_state = (mmio_read_32(CRU_BASE +
+					    CRU_CLKGATE_CON(31)) >>
+					    PCLK_GPIO4_GATE_SHIFT) & 0x01;
+		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+			      BITS_WITH_WMASK(0, CLK_GATE_MASK,
+					      PCLK_GPIO4_GATE_SHIFT));
+		break;
+	default:
+		break;
+	}
+
+	return clock_state;
+}
+
+/* restores old state of gpio clock */
+void gpio_put_clock(uint32_t gpio_number, uint32_t clock_state)
+{
+	uint32_t port = GET_GPIO_PORT(gpio_number);
+
+	switch (port) {
+	case PMU_GPIO_PORT0:
+		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
+			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
+					      PCLK_GPIO0_GATE_SHIFT));
+		break;
+	case PMU_GPIO_PORT1:
+		mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKGATE_CON(1),
+			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
+					      PCLK_GPIO1_GATE_SHIFT));
+		break;
+	case GPIO_PORT2:
+		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
+					      PCLK_GPIO2_GATE_SHIFT));
+		break;
+	case GPIO_PORT3:
+		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
 					      PCLK_GPIO3_GATE_SHIFT));
 
 		break;
-	case 4:
+	case GPIO_PORT4:
 		mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
-			      BITS_WITH_WMASK(gate, CLK_GATE_MASK,
+			      BITS_WITH_WMASK(clock_state, CLK_GATE_MASK,
 					      PCLK_GPIO4_GATE_SHIFT));
 		break;
 	default:
@@ -101,16 +158,27 @@ static void gpio_clk(int gpio, uint32_t gate)
 	}
 }
 
-static void set_pull(int gpio, int pull)
+static int get_pull(int gpio)
 {
-	uint32_t port = gpio / 32;
-	uint32_t num = gpio % 32;
-	uint32_t bank = num / 8;
-	uint32_t id = num % 8;
+	uint32_t port = GET_GPIO_PORT(gpio);
+	uint32_t bank = GET_GPIO_BANK(gpio);
+	uint32_t id = GET_GPIO_ID(gpio);
+	uint32_t val, clock_state;
 
-	assert((port < 5) && (num < 32));
+	assert((port < 5) && (bank < 4));
 
-	gpio_clk(gpio, 0);
+	clock_state = gpio_get_clock(gpio);
+
+	if (port == PMU_GPIO_PORT0 || port == PMU_GPIO_PORT1) {
+		val = mmio_read_32(PMUGRF_BASE + PMU_GRF_GPIO0A_P +
+				   port * 16 + bank * 4);
+		val = (val >> (id * 2)) & GPIO_P_MASK;
+	} else {
+		val = mmio_read_32(GRF_BASE + GRF_GPIO2A_P +
+				   (port - 2) * 16 + bank * 4);
+		val = (val >> (id * 2)) & GPIO_P_MASK;
+	}
+	gpio_put_clock(gpio, clock_state);
 
 	/*
 	 * in gpio0a, gpio0b, gpio2c, gpio2d,
@@ -120,7 +188,38 @@ static void set_pull(int gpio, int pull)
 	 * 11: pull up
 	 * different with other gpio, so need to correct it
 	 */
-	if (((port == 0) && (bank < 2)) || ((port == 2) && (bank > 2))) {
+	if (((port == 0) && (bank < 2)) || ((port == 2) && (bank > 1))) {
+		if (val == 3)
+			val = GPIO_PULL_UP;
+		else if (val == 1)
+			val = GPIO_PULL_DOWN;
+		else
+			val = 0;
+	}
+
+	return val;
+}
+
+static void set_pull(int gpio, int pull)
+{
+	uint32_t port = GET_GPIO_PORT(gpio);
+	uint32_t bank = GET_GPIO_BANK(gpio);
+	uint32_t id = GET_GPIO_ID(gpio);
+	uint32_t clock_state;
+
+	assert((port < 5) && (bank < 4));
+
+	clock_state = gpio_get_clock(gpio);
+
+	/*
+	 * in gpio0a, gpio0b, gpio2c, gpio2d,
+	 * 00: Z
+	 * 01: pull down
+	 * 10: Z
+	 * 11: pull up
+	 * different with other gpio, so need to correct it
+	 */
+	if (((port == 0) && (bank < 2)) || ((port == 2) && (bank > 1))) {
 		if (pull == GPIO_PULL_UP)
 			pull = 3;
 		else if (pull == GPIO_PULL_DOWN)
@@ -138,17 +237,18 @@ static void set_pull(int gpio, int pull)
 			      (port - 2) * 16 + bank * 4,
 			      BITS_WITH_WMASK(pull, GPIO_P_MASK, id * 2));
 	}
-	gpio_clk(gpio, 1);
+	gpio_put_clock(gpio, clock_state);
 }
 
 static void set_direction(int gpio, int direction)
 {
-	uint32_t port = gpio / 32;
-	uint32_t num = gpio % 32;
+	uint32_t port = GET_GPIO_PORT(gpio);
+	uint32_t num = GET_GPIO_NUM(gpio);
+	uint32_t clock_state;
 
 	assert((port < 5) && (num < 32));
 
-	gpio_clk(gpio, 0);
+	clock_state = gpio_get_clock(gpio);
 
 	/*
 	 * in gpio.h
@@ -158,18 +258,18 @@ static void set_direction(int gpio, int direction)
 	 * so need to revert direction value
 	 */
 	mmio_setbits_32(gpio_port[port] + SWPORTA_DDR, !direction << num);
-	gpio_clk(gpio, 1);
+	gpio_put_clock(gpio, clock_state);
 }
 
 static int get_direction(int gpio)
 {
-	uint32_t port = gpio / 32;
-	uint32_t num = gpio % 32;
-	int direction;
+	uint32_t port = GET_GPIO_PORT(gpio);
+	uint32_t num = GET_GPIO_NUM(gpio);
+	int direction, clock_state;
 
 	assert((port < 5) && (num < 32));
 
-	gpio_clk(gpio, 0);
+	clock_state = gpio_get_clock(gpio);
 
 	/*
 	 * in gpio.h
@@ -180,37 +280,38 @@ static int get_direction(int gpio)
 	 */
 	direction = !((mmio_read_32(gpio_port[port] +
 				    SWPORTA_DDR) >> num) & 0x1);
-	gpio_clk(gpio, 1);
+	gpio_put_clock(gpio, clock_state);
 
 	return direction;
 }
 
 static int get_value(int gpio)
 {
-	uint32_t port = gpio / 32;
-	uint32_t num = gpio % 32;
-	int value;
+	uint32_t port = GET_GPIO_PORT(gpio);
+	uint32_t num = GET_GPIO_NUM(gpio);
+	int value, clock_state;
 
 	assert((port < 5) && (num < 32));
 
-	gpio_clk(gpio, 0);
+	clock_state = gpio_get_clock(gpio);
 	value = (mmio_read_32(gpio_port[port] + EXT_PORTA) >> num) & 0x1;
-	gpio_clk(gpio, 1);
+	gpio_put_clock(gpio, clock_state);
 
 	return value;
 }
 
 static void set_value(int gpio, int value)
 {
-	uint32_t port = gpio / 32;
-	uint32_t num = gpio % 32;
+	uint32_t port = GET_GPIO_PORT(gpio);
+	uint32_t num = GET_GPIO_NUM(gpio);
+	uint32_t clock_state;
 
 	assert((port < 5) && (num < 32));
 
-	gpio_clk(gpio, 0);
+	clock_state = gpio_get_clock(gpio);
 	mmio_clrsetbits_32(gpio_port[port] + SWPORTA_DR, 1 << num,
 							 !!value << num);
-	gpio_clk(gpio, 0);
+	gpio_put_clock(gpio, clock_state);
 }
 
 const gpio_ops_t rk3399_gpio_ops = {
@@ -219,6 +320,7 @@ const gpio_ops_t rk3399_gpio_ops = {
 	.get_value = get_value,
 	.set_value = set_value,
 	.set_pull = set_pull,
+	.get_pull = get_pull,
 };
 
 void plat_rockchip_gpio_init(void)

@@ -875,7 +875,32 @@ enum pmu_core_pwr_st {
 #define MAX_WAIT_COUNT		1000
 
 #define	GRF_SOC_CON4		0x0e210
-#define GRF_GPIO4C_IOMUX	0x0e028
+
+#define GRF_GPIO2A_IOMUX	0xe000
+#define GRF_GPIO2B_IOMUX	0xe004
+#define GRF_GPIO2C_IOMUX	0xe008
+#define GRF_GPIO2D_IOMUX	0xe00c
+#define GRF_GPIO3A_IOMUX	0xe010
+#define GRF_GPIO3B_IOMUX	0xe014
+#define GRF_GPIO3C_IOMUX	0xe018
+#define GRF_GPIO3D_IOMUX	0xe01c
+#define GRF_GPIO4A_IOMUX	0xe020
+#define GRF_GPIO4B_IOMUX	0xe024
+#define GRF_GPIO4C_IOMUX	0xe028
+#define GRF_GPIO4D_IOMUX	0xe02c
+
+#define GRF_GPIO2A_P		0xe040
+#define GRF_GPIO2B_P		0xe044
+#define GRF_GPIO2C_P		0xe048
+#define GRF_GPIO2D_P		0xe04C
+#define GRF_GPIO3A_P		0xe050
+#define GRF_GPIO3B_P		0xe054
+#define GRF_GPIO3C_P		0xe058
+#define GRF_GPIO3D_P		0xe05C
+#define GRF_GPIO4A_P		0xe060
+#define GRF_GPIO4B_P		0xe064
+#define GRF_GPIO4C_P		0xe068
+#define GRF_GPIO4D_P		0xe06C
 
 #define PMUGRF_GPIO0A_SMT	0x0120
 #define PMUGRF_SOC_CON0		0x0180

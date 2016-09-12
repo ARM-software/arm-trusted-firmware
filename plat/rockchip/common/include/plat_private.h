@@ -121,8 +121,10 @@ uintptr_t plat_get_sec_entrypoint(void);
 
 void platform_cpu_warmboot(void);
 
-void *plat_get_rockchip_gpio_reset(void);
-void *plat_get_rockchip_gpio_poweroff(void);
+struct gpio_info *plat_get_rockchip_gpio_reset(void);
+struct gpio_info *plat_get_rockchip_gpio_poweroff(void);
+struct gpio_info *plat_get_rockchip_suspend_gpio(uint32_t *count);
+struct apio_info *plat_get_rockchip_suspend_apio(void);
 void plat_rockchip_gpio_init(void);
 
 extern const unsigned char rockchip_power_domain_tree_desc[];
