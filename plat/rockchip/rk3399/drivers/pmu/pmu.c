@@ -1189,6 +1189,9 @@ static int sys_pwr_domain_resume(void)
 				BIT(PMU_CLR_PERILP) |
 				BIT(PMU_CLR_PMU) |
 				BIT(PMU_CLR_GIC));
+
+	plat_rockchip_gic_cpuif_enable();
+
 	return 0;
 }
 
