@@ -37,13 +37,21 @@
 #include "css_scp_bootloader.h"
 
 /* Weak definition may be overridden in specific CSS based platform */
+#if LOAD_IMAGE_V2
+#pragma weak plat_arm_bl2_handle_scp_bl2
+#else
 #pragma weak bl2_plat_handle_scp_bl2
+#endif
 
 /*******************************************************************************
  * Transfer SCP_BL2 from Trusted RAM using the SCP Download protocol.
  * Return 0 on success, -1 otherwise.
  ******************************************************************************/
+#if LOAD_IMAGE_V2
+int plat_arm_bl2_handle_scp_bl2(image_info_t *scp_bl2_image_info)
+#else
 int bl2_plat_handle_scp_bl2(image_info_t *scp_bl2_image_info)
+#endif
 {
 	int ret;
 

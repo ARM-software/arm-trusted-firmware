@@ -73,7 +73,6 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
  ******************************************************************************/
 void arm_bl1_early_platform_setup(void)
 {
-	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
 
 #if !ARM_DISABLE_TRUSTED_WDOG
 	/* Enable watchdog */
@@ -88,13 +87,15 @@ void arm_bl1_early_platform_setup(void)
 	bl1_tzram_layout.total_base = ARM_BL_RAM_BASE;
 	bl1_tzram_layout.total_size = ARM_BL_RAM_SIZE;
 
+#if !LOAD_IMAGE_V2
 	/* Calculate how much RAM BL1 is using and how much remains free */
 	bl1_tzram_layout.free_base = ARM_BL_RAM_BASE;
 	bl1_tzram_layout.free_size = ARM_BL_RAM_SIZE;
 	reserve_mem(&bl1_tzram_layout.free_base,
 		    &bl1_tzram_layout.free_size,
 		    BL1_RAM_BASE,
-		    bl1_size);
+		    BL1_RAM_LIMIT - BL1_RAM_BASE);
+#endif /* LOAD_IMAGE_V2 */
 }
 
 void bl1_early_platform_setup(void)
