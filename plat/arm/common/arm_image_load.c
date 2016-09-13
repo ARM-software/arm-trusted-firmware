@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <plat_arm.h>
-#include "fvp_private.h"
+#include <arm_def.h>
+#include <bl_common.h>
+#include <desc_image_load.h>
+#include <platform.h>
 
-#if LOAD_IMAGE_V2
-void bl31_early_platform_setup(void *from_bl2,
-				void *plat_params_from_bl2)
-#else
-void bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2)
-#endif
+
+#pragma weak plat_flush_next_bl_params
+#pragma weak plat_get_bl_image_load_info
+#pragma weak plat_get_next_bl_params
+
+
+/*******************************************************************************
+ * This function flushes the data structures so that they are visible
+ * in memory for the next BL image.
+ ******************************************************************************/
+void plat_flush_next_bl_params(void)
 {
-	arm_bl31_early_platform_setup(from_bl2, plat_params_from_bl2);
+	flush_bl_params_desc();
+}
 
-	/* Initialize the platform config for future decision making */
-	fvp_config_setup();
+/*******************************************************************************
+ * This function returns the list of loadable images.
+ ******************************************************************************/
+bl_load_info_t *plat_get_bl_image_load_info(void)
+{
+	return get_bl_load_info_from_mem_params_desc();
+}
 
-	/*
-	 * Initialize the correct interconnect for this cluster during cold
-	 * boot. No need for locks as no other CPU is active.
-	 */
-	fvp_interconnect_init();
-
-	/*
-	 * Enable coherency in interconnect for the primary CPU's cluster.
-	 * Earlier bootloader stages might already do this (e.g. Trusted
-	 * Firmware's BL1 does it) but we can't assume so. There is no harm in
-	 * executing this code twice anyway.
-	 * FVP PSCI code will enable coherency for other clusters.
-	 */
-	fvp_interconnect_enable();
+/*******************************************************************************
+ * This function returns the list of executable images.
+ ******************************************************************************/
+bl_params_t *plat_get_next_bl_params(void)
+{
+	return get_next_bl_params_from_mem_params_desc();
 }
