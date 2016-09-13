@@ -32,6 +32,7 @@
 #define __PSCI_H__
 
 #include <bakery_lock.h>
+#include <bl_common.h>
 #include <platform_def.h>	/* for PLAT_NUM_PWR_DOMAINS */
 #if ENABLE_PLAT_COMPAT
 #include <psci_compat.h>
@@ -356,10 +357,45 @@ void psci_arch_setup(void);
  */
 void psci_entrypoint(void) __deprecated;
 
-/*******************************************************************************
- * Forward declarations
- ******************************************************************************/
-struct entry_point_info;
+/*
+ * Function prototype for the warmboot entrypoint function which will be
+ * programmed in the mailbox by the platform.
+ */
+typedef void (*mailbox_entrypoint_t)(void);
+
+/******************************************************************************
+ * Structure to pass PSCI Library arguments.
+ *****************************************************************************/
+typedef struct psci_lib_args {
+	/* The version information of PSCI Library Interface */
+	param_header_t		h;
+	/* The warm boot entrypoint function */
+	mailbox_entrypoint_t	mailbox_ep;
+} psci_lib_args_t;
+
+/* Helper macro to set the psci_lib_args_t structure at runtime */
+#define SET_PSCI_LIB_ARGS_V1(_p, _entry)	do {			\
+	SET_PARAM_HEAD(_p, PARAM_PSCI_LIB_ARGS, VERSION_1, 0);		\
+	(_p)->mailbox_ep = (_entry);					\
+	} while (0)
+
+/* Helper macro to define the psci_lib_args_t statically */
+#define DEFINE_STATIC_PSCI_LIB_ARGS_V1(_name, _entry)		\
+	static const psci_lib_args_t (_name) = {		\
+		.h.type = (uint8_t)PARAM_PSCI_LIB_ARGS,		\
+		.h.version = (uint8_t)VERSION_1,		\
+		.h.size = (uint16_t)sizeof(_name),		\
+		.h.attr = 0,					\
+		.mailbox_ep = (_entry)				\
+	}
+
+/* Helper macro to verify the pointer to psci_lib_args_t structure */
+#define VERIFY_PSCI_LIB_ARGS_V1(_p)	((_p)			\
+		&& ((_p)->h.type == PARAM_PSCI_LIB_ARGS)	\
+		&& ((_p)->h.version == VERSION_1)		\
+		&& ((_p)->h.size == sizeof(*(_p)))		\
+		&& ((_p)->h.attr == 0)				\
+		&& ((_p)->mailbox_ep))
 
 /******************************************************************************
  * PSCI Library Interfaces
@@ -372,11 +408,11 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 			  void *cookie,
 			  void *handle,
 			  u_register_t flags);
-int psci_setup(uintptr_t mailbox_ep);
+int psci_setup(const psci_lib_args_t *lib_args);
 void psci_warmboot_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *pm);
 void psci_prepare_next_non_secure_ctx(
-			  struct entry_point_info *next_image_info);
+			  entry_point_info_t *next_image_info);
 
 #endif /*__ASSEMBLY__*/
 

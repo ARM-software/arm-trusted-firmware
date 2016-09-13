@@ -206,9 +206,11 @@ static void populate_power_domain_tree(const unsigned char *topology)
  * |   CPU 0   |   CPU 1   |   CPU 2   |   CPU 3  |
  * ------------------------------------------------
  ******************************************************************************/
-int psci_setup(uintptr_t mailbox_ep)
+int psci_setup(const psci_lib_args_t *lib_args)
 {
 	const unsigned char *topology_tree;
+
+	assert(VERIFY_PSCI_LIB_ARGS_V1(lib_args));
 
 	/* Do the Architectural initialization */
 	psci_arch_setup();
@@ -234,8 +236,7 @@ int psci_setup(uintptr_t mailbox_ep)
 	 */
 	psci_set_pwr_domains_to_run(PLAT_MAX_PWR_LVL);
 
-	assert(mailbox_ep);
-	plat_setup_psci_ops(mailbox_ep, &psci_plat_pm_ops);
+	plat_setup_psci_ops((uintptr_t)lib_args->mailbox_ep, &psci_plat_pm_ops);
 	assert(psci_plat_pm_ops);
 
 	/*

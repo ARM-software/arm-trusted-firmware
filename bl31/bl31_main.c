@@ -58,13 +58,16 @@ static uint32_t next_image_type = NON_SECURE;
  ******************************************************************************/
 void bl31_lib_init(void)
 {
+	/* Setup the arguments for PSCI Library */
+	DEFINE_STATIC_PSCI_LIB_ARGS_V1(psci_args, bl31_warm_entrypoint);
+
 	cm_init();
 
 	/*
 	 * Initialize the PSCI library here. This also does EL3 architectural
 	 * setup.
 	 */
-	psci_setup((uintptr_t)bl31_warm_entrypoint);
+	psci_setup(&psci_args);
 }
 
 /*******************************************************************************

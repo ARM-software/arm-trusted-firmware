@@ -156,14 +156,20 @@ static void sp_min_prepare_next_image_entry(void)
  *****************************************************************************/
 void sp_min_main(void)
 {
-	/* Perform platform setup in TSP MIN */
+	/* Setup the arguments for PSCI Library */
+	DEFINE_STATIC_PSCI_LIB_ARGS_V1(psci_args, sp_min_warm_entrypoint);
+
+	NOTICE("SP_MIN: %s\n", version_string);
+	NOTICE("SP_MIN: %s\n", build_message);
+
+	/* Perform the SP_MIN platform setup */
 	sp_min_platform_setup();
 
 	/*
 	 * Initialize the PSCI library and perform the remaining generic
 	 * architectural setup from PSCI.
 	 */
-	psci_setup((uintptr_t)sp_min_warm_entrypoint);
+	psci_setup(&psci_args);
 
 	/*
 	 * Initialize the runtime services e.g. psci
