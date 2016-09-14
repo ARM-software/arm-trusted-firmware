@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -31,54 +31,53 @@
 MTK_PLAT		:=	plat/mediatek
 MTK_PLAT_SOC		:=	${MTK_PLAT}/${PLAT}
 
-PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
-				-I${MTK_PLAT}/common/drivers/uart/		\
-				-I${MTK_PLAT_SOC}/drivers/crypt/		\
-				-I${MTK_PLAT_SOC}/drivers/mtcmos/		\
-				-I${MTK_PLAT_SOC}/drivers/pmic/			\
-				-I${MTK_PLAT_SOC}/drivers/rtc/			\
-				-I${MTK_PLAT_SOC}/drivers/spm/			\
-				-I${MTK_PLAT_SOC}/drivers/timer/		\
-				-I${MTK_PLAT_SOC}/include/
+# Add OEM customized codes
+OEMS				:= true
+MTK_SIP_KERNEL_BOOT_ENABLE := 1
 
-PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/aarch64/xlat_tables.c		\
+
+ifneq (${OEMS},none)
+  OEMS_INCLUDES		:= -I${MTK_PLAT}/common/custom/
+  OEMS_SOURCES		:=	${MTK_PLAT}/common/custom/oem_svc.c
+endif
+
+PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
+				-I${MTK_PLAT}/common/drivers/uart			\
+				-I${MTK_PLAT_SOC}/				\
+				-I${MTK_PLAT_SOC}/drivers/timer/			\
+				-I${MTK_PLAT_SOC}/include/					\
+				-Iinclude/plat/arm/common/					\
+				-Iinclude/common/tbbr/					\
+				${OEMS_INCLUDES}
+
+PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/xlat_tables.c			\
 				plat/common/aarch64/plat_common.c		\
 				plat/common/plat_gic.c
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
-				drivers/arm/gic/arm_gic.c			\
-				drivers/arm/gic/gic_v2.c			\
-				drivers/arm/gic/gic_v3.c			\
-				drivers/console/aarch64/console.S		\
-				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
-				lib/cpus/aarch64/aem_generic.S			\
+				drivers/arm/gic/common/gic_common.c		\
+				drivers/arm/gic/v2/gicv2_main.c			\
+				drivers/arm/gic/v2/gicv2_helpers.c		\
+				plat/common/plat_gicv2.c			\
+				drivers/console/console.S			\
+				drivers/delay_timer/delay_timer.c		\
 				lib/cpus/aarch64/cortex_a53.S			\
-				lib/cpus/aarch64/cortex_a57.S			\
-				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/aarch64/platform_mp_stack.S		\
-				${MTK_PLAT}/common/drivers/uart/8250_console.S	\
-				${MTK_PLAT}/common/mtk_plat_common.c		\
-				${MTK_PLAT}/common/mtk_sip_svc.c		\
-				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
-				${MTK_PLAT_SOC}/aarch64/platform_common.c	\
 				${MTK_PLAT_SOC}/bl31_plat_setup.c		\
-				${MTK_PLAT_SOC}/drivers/crypt/crypt.c		\
-				${MTK_PLAT_SOC}/drivers/mtcmos/mtcmos.c		\
-				${MTK_PLAT_SOC}/drivers/pmic/pmic_wrap_init.c	\
-				${MTK_PLAT_SOC}/drivers/rtc/rtc.c		\
-				${MTK_PLAT_SOC}/drivers/spm/spm.c		\
-				${MTK_PLAT_SOC}/drivers/spm/spm_hotplug.c	\
-				${MTK_PLAT_SOC}/drivers/spm/spm_mcdi.c		\
-				${MTK_PLAT_SOC}/drivers/spm/spm_suspend.c	\
-				${MTK_PLAT_SOC}/drivers/timer/mt_cpuxgpt.c	\
 				${MTK_PLAT_SOC}/plat_mt_gic.c			\
+				${MTK_PLAT}/common/mtk_sip_svc.c		\
+				${MTK_PLAT}/common/mtk_plat_common.c		\
+				${MTK_PLAT}/common/drivers/uart/8250_console.S		\
+				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
+				${MTK_PLAT_SOC}/drivers/timer/mt_cpuxgpt.c	\
+				${MTK_PLAT_SOC}/plat_sip_svc.c	\
+				${MTK_PLAT_SOC}/plat_delay_timer.c		\
 				${MTK_PLAT_SOC}/plat_pm.c			\
-				${MTK_PLAT_SOC}/plat_sip_calls.c		\
 				${MTK_PLAT_SOC}/plat_topology.c			\
 				${MTK_PLAT_SOC}/power_tracer.c			\
-				${MTK_PLAT_SOC}/scu.c
+				${MTK_PLAT_SOC}/scu.c		\
+				${OEMS_SOURCES}
 
 # Flag used by the MTK_platform port to determine the version of ARM GIC
 # architecture to use for interrupt management in EL3.
@@ -92,4 +91,5 @@ ERRATA_A53_836870	:=	1
 # indicate the reset vector address can be programmed
 PROGRAMMABLE_RESET_ADDRESS	:=	1
 
-$(eval $(call add_define,MTK_SIP_SET_AUTHORIZED_SECURE_REG_ENABLE))
+$(eval $(call add_define,MTK_SIP_KERNEL_BOOT_ENABLE))
+
