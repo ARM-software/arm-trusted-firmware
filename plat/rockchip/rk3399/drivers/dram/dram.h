@@ -321,9 +321,9 @@ struct drv_odt_lp_config {
 #define DDR_RESTORE_SP(save_sp)   ddr_save_sp(save_sp)
 
 void ddr_init(void);
-uint64_t ddr_set_rate(uint64_t hz);
-uint64_t ddr_round_rate(uint64_t hz);
-uint64_t ddr_get_rate(void);
+uint32_t ddr_set_rate(uint32_t hz);
+uint32_t ddr_round_rate(uint32_t hz);
+uint32_t ddr_get_rate(void);
 void clr_dcf_irq(void);
-uint64_t dts_timing_receive(uint64_t timing, uint64_t index);
+uint32_t dts_timing_receive(uint32_t timing, uint32_t index);
 #endif
