@@ -89,23 +89,50 @@ Download the Trusted Firmware source code from Github:
 ---------------------------------
 
 *   Before building Trusted Firmware, the environment variable `CROSS_COMPILE`
-    must point to the Linaro cross compiler:
+    must point to the Linaro cross compiler.
+
+    For AArch64:
 
         export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
 
-*   Change to the root directory of the Trusted Firmware source tree and build:
+    For AArch32:
+
+        export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
+
+*   Change to the root directory of the Trusted Firmware source tree and build.
+
+    For AArch64:
 
         make PLAT=<platform> all
 
-    Notes:
+    For AArch32:
+
+        make PLAT=<platform> ARCH=aarch32 AARCH32_SP=sp_min all
+
+
+   Notes:
 
     *   If `PLAT` is not specified, `fvp` is assumed by default. See the
         "Summary of build options" for more information on available build
         options.
 
-    *   The TSP (Test Secure Payload), corresponding to the BL32 image, is not
-        compiled in by default. Refer to the "Building the Test Secure Payload"
-        section below.
+    *   (AArch32 only) Currently only `PLAT=fvp` is supported. Please note that
+        AArch32 support for Normal world boot loader (BL33), like U-boot or
+        UEFI, on FVP is not available upstream. Hence custom solutions are
+        required to allow Linux boot on FVP. The build instructions below
+        assume such a custom boot loader (BL33) is available.
+
+    *   (AArch32 only) `AARCH32_SP` is the AArch32 EL3 Runtime Software and it
+        corresponds to the BL32 image. A minimal `AARCH32_SP`, sp_min, is
+        provided by ARM Trusted Firmware to demonstrate how PSCI Library can
+        be integrated with an AArch32 EL3 Runtime Software. Some AArch32 EL3
+        Runtime Software may include other runtime services, for example
+        Trusted OS services. A guide to integrate PSCI library with AArch32
+        EL3 Runtime Software can be found [here][PSCI Lib Integration].
+
+    *   (AArch64 only) The TSP (Test Secure Payload), corresponding to the BL32
+        image, is not compiled in by default. Refer to the "Building the Test
+        Secure Payload" section below.
 
     *   By default this produces a release version of the build. To produce a
         debug version instead, refer to the "Debugging options" section below.
@@ -117,7 +144,8 @@ Download the Trusted Firmware source code from Github:
 
         *   `build/<platform>/<build-type>/bl1.bin`
         *   `build/<platform>/<build-type>/bl2.bin`
-        *   `build/<platform>/<build-type>/bl31.bin`
+        *   `build/<platform>/<build-type>/bl31.bin` (AArch64 only)
+        *   `build/<platform>/<build-type>/bl32.bin` (mandatory for AArch32)
 
         where `<platform>` is the name of the chosen platform and `<build-type>`
         is either `debug` or `release`. The actual number of images might differ
@@ -237,6 +265,12 @@ performed.
     of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
     entrypoint) or 1 (CPU reset to BL31 entrypoint).
     The default value is 0.
+
+*   `RESET_TO_SP_MIN`: SP_MIN is the minimal AArch32 Secure Payload provided in
+    ARM Trusted Firmware. This flag configures SP_MIN entrypoint as the CPU
+    reset vector instead of the BL1 entrypoint.  It can take the value 0 (CPU
+    reset to BL1 entrypoint) or 1 (CPU reset to SP_MIN entrypoint). The default
+    value is 0.
 
 *   `CRASH_REPORTING`: A non-zero value enables a console dump of processor
     register state when an unexpected exception occurs during execution of
@@ -599,7 +633,6 @@ BL31 binary. Then to build the TSP image use:
 An additional boot loader binary file is created in the `build` directory:
 
     `build/<platform>/<build-type>/bl32.bin`
-
 
 ### Checking source code style
 
@@ -1042,14 +1075,20 @@ JTAG on Juno.
 9.  Running the software on FVP
 -------------------------------
 
-This version of the ARM Trusted Firmware has been tested on the following ARM
-FVPs (64-bit versions only).
+The AArch64 build of this version of ARM Trusted Firmware has been tested on
+the following ARM FVPs (64-bit host machine only).
 
 *   `Foundation_Platform` (Version 10.1, Build 10.1.32)
 *   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
 *   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.7, Build 0.8.7701)
 *   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.7, Build 0.8.7701)
 *   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.7, Build 0.8.7701)
+
+The AArch32 build of this version of ARM Trusted Firmware has been tested on
+the following ARM FVPs (64-bit host machine only).
+
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
+*   `FVP_Base_Cortex-A32x4` (Version 10.1, Build 10.1.32)
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
 with the `--version` parameter.
@@ -1082,10 +1121,20 @@ all FDTs are available from there.
     For use with both AEMv8 and Cortex-A57-A53 Base FVPs with
     Base memory map configuration.
 
+*   `fvp-base-gicv2-psci-aarch32.dtb`
+
+    For use with AEMv8 and Cortex-A32 Base FVPs running Linux in AArch32 state
+    with Base memory map configuration.
+
 *   `fvp-base-gicv3-psci.dtb`
 
     (Default) For use with both AEMv8 and Cortex-A57-A53 Base FVPs with Base
     memory map configuration and Linux GICv3 support.
+
+*   `fvp-base-gicv3-psci-aarch32.dtb`
+
+    For use with AEMv8 and Cortex-A32 Base FVPs running Linux in AArch32 state
+    with Base memory map configuration and Linux GICv3 support.
 
 *   `fvp-foundation-gicv2-psci.dtb`
 
@@ -1099,7 +1148,7 @@ all FDTs are available from there.
 ### Running on the Foundation FVP with reset to BL1 entrypoint
 
 The following `Foundation_Platform` parameters should be used to boot Linux with
-4 CPUs using the ARM Trusted Firmware.
+4 CPUs using the AArch64 build of ARM Trusted Firmware.
 
     <path-to>/Foundation_Platform                   \
     --cores=4                                       \
@@ -1124,7 +1173,7 @@ Notes:
 ### Running on the AEMv8 Base FVP with reset to BL1 entrypoint
 
 The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
-with 8 CPUs using the ARM Trusted Firmware.
+with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
 
     <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
     -C pctl.startup=0.0.0.0                                     \
@@ -1139,12 +1188,54 @@ with 8 CPUs using the ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
+### Running on the AEMv8 Base FVP (AArch32) with reset to BL1 entrypoint
+
+The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
+with 8 CPUs using the AArch32 build of ARM Trusted Firmware.
+
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
+    -C pctl.startup=0.0.0.0                                     \
+    -C bp.secure_memory=1                                       \
+    -C bp.tzc_400.diagnostics=1                                 \
+    -C cluster0.NUM_CORES=4                                     \
+    -C cluster1.NUM_CORES=4                                     \
+    -C cache_state_modelled=1                                   \
+    -C cluster0.cpu0.CONFIG64=0                                 \
+    -C cluster0.cpu1.CONFIG64=0                                 \
+    -C cluster0.cpu2.CONFIG64=0                                 \
+    -C cluster0.cpu3.CONFIG64=0                                 \
+    -C cluster1.cpu0.CONFIG64=0                                 \
+    -C cluster1.cpu1.CONFIG64=0                                 \
+    -C cluster1.cpu2.CONFIG64=0                                 \
+    -C cluster1.cpu3.CONFIG64=0                                 \
+    -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
+    -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
+    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+
 ### Running on the Cortex-A57-A53 Base FVP with reset to BL1 entrypoint
 
 The following `FVP_Base_Cortex-A57x4-A53x4` model parameters should be used to
-boot Linux with 8 CPUs using the ARM Trusted Firmware.
+boot Linux with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
 
     <path-to>/FVP_Base_Cortex-A57x4-A53x4                       \
+    -C pctl.startup=0.0.0.0                                     \
+    -C bp.secure_memory=1                                       \
+    -C bp.tzc_400.diagnostics=1                                 \
+    -C cache_state_modelled=1                                   \
+    -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
+    -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
+    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+
+### Running on the Cortex-A32 Base FVP (AArch32) with reset to BL1 entrypoint
+
+The following `FVP_Base_Cortex-A32x4` model parameters should be used to
+boot Linux with 4 CPUs using the AArch32 build of ARM Trusted Firmware.
+
+    <path-to>/FVP_Base_Cortex-A32x4                             \
     -C pctl.startup=0.0.0.0                                     \
     -C bp.secure_memory=1                                       \
     -C bp.tzc_400.diagnostics=1                                 \
@@ -1158,7 +1249,7 @@ boot Linux with 8 CPUs using the ARM Trusted Firmware.
 ### Running on the AEMv8 Base FVP with reset to BL31 entrypoint
 
 The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
-with 8 CPUs using the ARM Trusted Firmware.
+with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
 
     <path-to>/FVP_Base_AEMv8A-AEMv8A                             \
     -C pctl.startup=0.0.0.0                                      \
@@ -1199,10 +1290,47 @@ Notes:
     `--data="<path-to><bl32-binary>"@<base-address-of-bl32>` to the new value of
     `BL32_BASE`.
 
+### Running on the AEMv8 Base FVP (AArch32) with reset to SP_MIN entrypoint
+
+The following `FVP_Base_AEMv8A-AEMv8A` parameters should be used to boot Linux
+with 8 CPUs using the AArch32 build of ARM Trusted Firmware.
+
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                             \
+    -C pctl.startup=0.0.0.0                                      \
+    -C bp.secure_memory=1                                        \
+    -C bp.tzc_400.diagnostics=1                                  \
+    -C cluster0.NUM_CORES=4                                      \
+    -C cluster1.NUM_CORES=4                                      \
+    -C cache_state_modelled=1                                    \
+    -C cluster0.cpu0.CONFIG64=0                                  \
+    -C cluster0.cpu1.CONFIG64=0                                  \
+    -C cluster0.cpu2.CONFIG64=0                                  \
+    -C cluster0.cpu3.CONFIG64=0                                  \
+    -C cluster1.cpu0.CONFIG64=0                                  \
+    -C cluster1.cpu1.CONFIG64=0                                  \
+    -C cluster1.cpu2.CONFIG64=0                                  \
+    -C cluster1.cpu3.CONFIG64=0                                  \
+    -C cluster0.cpu0.RVBAR=0x04001000                            \
+    -C cluster0.cpu1.RVBAR=0x04001000                            \
+    -C cluster0.cpu2.RVBAR=0x04001000                            \
+    -C cluster0.cpu3.RVBAR=0x04001000                            \
+    -C cluster1.cpu0.RVBAR=0x04001000                            \
+    -C cluster1.cpu1.RVBAR=0x04001000                            \
+    -C cluster1.cpu2.RVBAR=0x04001000                            \
+    -C cluster1.cpu3.RVBAR=0x04001000                            \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000    \
+    --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000            \
+    --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
+    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+
+Note: The load address of `<bl32-binary>` depends on the value `BL32_BASE`.
+It should match the address programmed into the RVBAR register as well.
+
 ### Running on the Cortex-A57-A53 Base FVP with reset to BL31 entrypoint
 
 The following `FVP_Base_Cortex-A57x4-A53x4` model parameters should be used to
-boot Linux with 8 CPUs using the ARM Trusted Firmware.
+boot Linux with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
 
     <path-to>/FVP_Base_Cortex-A57x4-A53x4                        \
     -C pctl.startup=0.0.0.0                                      \
@@ -1224,6 +1352,25 @@ boot Linux with 8 CPUs using the ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
     -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
+### Running on the Cortex-A32 Base FVP (AArch32) with reset to SP_MIN entrypoint
+
+The following `FVP_Base_Cortex-A32x4` model parameters should be used to
+boot Linux with 4 CPUs using the AArch32 build of ARM Trusted Firmware.
+
+    <path-to>/FVP_Base_Cortex-A32x4                             \
+    -C pctl.startup=0.0.0.0                                     \
+    -C bp.secure_memory=1                                       \
+    -C bp.tzc_400.diagnostics=1                                 \
+    -C cache_state_modelled=1                                   \
+    -C cluster0.cpu0.RVBARADDR=0x04001000                       \
+    -C cluster0.cpu1.RVBARADDR=0x04001000                       \
+    -C cluster0.cpu2.RVBARADDR=0x04001000                       \
+    -C cluster0.cpu3.RVBARADDR=0x04001000                       \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000   \
+    --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000   \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
+    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
 
 10.  Running the software on Juno
 ---------------------------------
@@ -1280,3 +1427,4 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 [PSCI]:                        http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
 [Trusted Board Boot]:          trusted-board-boot.md
 [Firmware Update]:             ./firmware-update.md
+[PSCI Lib Integration]:        ./psci-lib-integration-guide.md
