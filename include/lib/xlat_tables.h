@@ -32,12 +32,26 @@
 #define __XLAT_TABLES_H__
 
 /* Miscellaneous MMU related constants */
+#define NUM_2MB_IN_GB		(1 << 9)
+#define NUM_4K_IN_2MB		(1 << 9)
+#define NUM_GB_IN_4GB		(1 << 2)
+
+#define TWO_MB_SHIFT		21
+#define ONE_GB_SHIFT		30
 #define FOUR_KB_SHIFT		12
+
+#define ONE_GB_INDEX(x)		((x) >> ONE_GB_SHIFT)
+#define TWO_MB_INDEX(x)		((x) >> TWO_MB_SHIFT)
+#define FOUR_KB_INDEX(x)	((x) >> FOUR_KB_SHIFT)
 
 #define INVALID_DESC		0x0
 #define BLOCK_DESC		0x1 /* Table levels 0-2 */
 #define TABLE_DESC		0x3 /* Table levels 0-2 */
 #define PAGE_DESC		0x3 /* Table level 3 */
+
+#define FIRST_LEVEL_DESC_N	ONE_GB_SHIFT
+#define SECOND_LEVEL_DESC_N	TWO_MB_SHIFT
+#define THIRD_LEVEL_DESC_N	FOUR_KB_SHIFT
 
 #define XN			(1ull << 2)
 #define PXN			(1ull << 1)
