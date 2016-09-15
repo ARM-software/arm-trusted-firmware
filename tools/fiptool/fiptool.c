@@ -363,7 +363,7 @@ static int info_cmd(int argc, char *argv[])
 	int i;
 
 	if (argc != 2)
-		usage();
+		info_usage();
 	argc--, argv++;
 
 	parse_fip(argv[0], &toc_header);
@@ -405,6 +405,7 @@ static int info_cmd(int argc, char *argv[])
 static void info_usage(void)
 {
 	printf("fiptool info FIP_FILENAME\n");
+	exit(1);
 }
 
 static int pack_images(char *filename, uint64_t toc_flags)
@@ -538,7 +539,7 @@ static int create_cmd(int argc, char *argv[])
 	int i;
 
 	if (argc < 2)
-		usage();
+		create_usage();
 
 	i = fill_common_opts(opts, required_argument);
 	add_opt(opts, i, "plat-toc-flags", required_argument,
@@ -567,14 +568,14 @@ static int create_cmd(int argc, char *argv[])
 			parse_plat_toc_flags(optarg, &toc_flags);
 			break;
 		default:
-			usage();
+			create_usage();
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
 	if (argc == 0)
-		usage();
+		create_usage();
 
 	update_fip();
 
@@ -595,6 +596,7 @@ static void create_usage(void)
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
+	exit(1);
 }
 
 static int update_cmd(int argc, char *argv[])
@@ -607,7 +609,7 @@ static int update_cmd(int argc, char *argv[])
 	int i;
 
 	if (argc < 2)
-		usage();
+		update_usage();
 
 	i = fill_common_opts(opts, required_argument);
 	add_opt(opts, i, "out", required_argument, 'o');
@@ -642,14 +644,14 @@ static int update_cmd(int argc, char *argv[])
 			snprintf(outfile, sizeof(outfile), "%s", optarg);
 			break;
 		default:
-			usage();
+			update_usage();
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
 	if (argc == 0)
-		usage();
+		update_usage();
 
 	if (outfile[0] == '\0')
 		snprintf(outfile, sizeof(outfile), "%s", argv[0]);
@@ -682,6 +684,7 @@ static void update_usage(void)
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
+	exit(1);
 }
 
 static int unpack_cmd(int argc, char *argv[])
@@ -694,7 +697,7 @@ static int unpack_cmd(int argc, char *argv[])
 	int i;
 
 	if (argc < 2)
-		usage();
+		unpack_usage();
 
 	i = fill_common_opts(opts, required_argument);
 	add_opt(opts, i, "force", no_argument, 'f');
@@ -724,14 +727,14 @@ static int unpack_cmd(int argc, char *argv[])
 			snprintf(outdir, sizeof(outdir), "%s", optarg);
 			break;
 		default:
-			usage();
+			unpack_usage();
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
 	if (argc == 0)
-		usage();
+		unpack_usage();
 
 	parse_fip(argv[0], NULL);
 
@@ -806,6 +809,7 @@ static void unpack_usage(void)
 		    toc_entry->name);
 	fputc('\n', stderr);
 	printf("If no options are provided, all images will be unpacked.\n");
+	exit(1);
 }
 
 static int remove_cmd(int argc, char *argv[])
@@ -818,7 +822,7 @@ static int remove_cmd(int argc, char *argv[])
 	int i;
 
 	if (argc < 2)
-		usage();
+		remove_usage();
 
 	i = fill_common_opts(opts, no_argument);
 	add_opt(opts, i, "force", no_argument, 'f');
@@ -844,14 +848,14 @@ static int remove_cmd(int argc, char *argv[])
 			snprintf(outfile, sizeof(outfile), "%s", optarg);
 			break;
 		default:
-			usage();
+			remove_usage();
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
 	if (argc == 0)
-		usage();
+		remove_usage();
 
 	if (outfile[0] != '\0' && access(outfile, F_OK) == 0 && !fflag)
 		log_errx("File %s already exists, use --force to overwrite it",
@@ -896,6 +900,7 @@ static void remove_usage(void)
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
+	exit(1);
 }
 
 static int version_cmd(int argc, char *argv[])
@@ -912,6 +917,7 @@ static int version_cmd(int argc, char *argv[])
 static void version_usage(void)
 {
 	printf("fiptool version\n");
+	exit(1);
 }
 
 static int help_cmd(int argc, char *argv[])
@@ -924,10 +930,8 @@ static int help_cmd(int argc, char *argv[])
 
 	for (i = 0; i < NELEM(cmds); i++) {
 		if (strcmp(cmds[i].name, argv[0]) == 0 &&
-		    cmds[i].usage != NULL) {
+		    cmds[i].usage != NULL)
 			cmds[i].usage();
-			break;
-		}
 	}
 	if (i == NELEM(cmds))
 		printf("No help for subcommand '%s'\n", argv[0]);
