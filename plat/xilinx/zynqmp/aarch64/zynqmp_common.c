@@ -49,11 +49,14 @@ const mmap_region_t plat_arm_mmap[] = {
 
 static unsigned int zynqmp_get_silicon_ver(void)
 {
-	unsigned int ver;
+	static unsigned int ver;
 
-	ver = mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_VERSION_OFFSET);
-	ver &= ZYNQMP_SILICON_VER_MASK;
-	ver >>= ZYNQMP_SILICON_VER_SHIFT;
+	if (!ver) {
+		ver = mmio_read_32(ZYNQMP_CSU_BASEADDR +
+				   ZYNQMP_CSU_VERSION_OFFSET);
+		ver &= ZYNQMP_SILICON_VER_MASK;
+		ver >>= ZYNQMP_SILICON_VER_SHIFT;
+	}
 
 	return ver;
 }
