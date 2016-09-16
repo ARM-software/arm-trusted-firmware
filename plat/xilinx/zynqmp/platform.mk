@@ -31,6 +31,7 @@ PROGRAMMABLE_RESET_ADDRESS := 1
 PSCI_EXTENDED_STATE_ID := 1
 A53_DISABLE_NON_TEMPORAL_HINT := 0
 SEPARATE_CODE_AND_RODATA := 1
+RESET_TO_BL31 := 1
 
 ifdef ZYNQMP_ATF_MEM_BASE
     $(eval $(call add_define,ZYNQMP_ATF_MEM_BASE))
@@ -64,6 +65,8 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
+				drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
 				drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v2/gicv2_main.c			\
 				drivers/arm/gic/v2/gicv2_helpers.c		\

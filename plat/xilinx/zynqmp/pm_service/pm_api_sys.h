@@ -109,4 +109,10 @@ enum pm_ret_status pm_mmio_write(uintptr_t address,
 				 unsigned int mask,
 				 unsigned int value);
 enum pm_ret_status pm_mmio_read(uintptr_t address, unsigned int *value);
+enum pm_ret_status pm_fpga_load(uint32_t address_high,
+				uint32_t address_low,
+				uint32_t size,
+				uint32_t flags);
+enum pm_ret_status pm_fpga_get_status(unsigned int *value);
+
 #endif /* _PM_API_SYS_H_ */

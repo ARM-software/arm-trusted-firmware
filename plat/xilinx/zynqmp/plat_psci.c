@@ -147,7 +147,7 @@ static void zynqmp_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, 0, 0);
+	pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0);
 }
 
 static void zynqmp_nopmu_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -179,6 +179,7 @@ static void zynqmp_nopmu_pwr_domain_suspend(const psci_power_state_t *target_sta
 
 static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
+	unsigned int state;
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
@@ -186,15 +187,14 @@ static void zynqmp_pwr_domain_suspend(const psci_power_state_t *target_state)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 
+	state = target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE ?
+		PM_STATE_SUSPEND_TO_RAM : PM_STATE_CPU_IDLE;
+
 	/* Send request to PMU to suspend this core */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, 0, zynqmp_sec_entry);
+	pm_self_suspend(proc->node_id, MAX_LATENCY, state, zynqmp_sec_entry);
 
 	/* APU is to be turned off */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
-		/* Power down L2 cache */
-		pm_set_requirement(NODE_L2, 0, 0, REQ_ACK_NO);
-		/* Send request for OCM retention state */
-		set_ocm_retention();
 		/* disable coherency */
 		plat_arm_interconnect_exit_coherency();
 	}
@@ -242,6 +242,13 @@ static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_st
 
 	/* enable coherency */
 	plat_arm_interconnect_enter_coherency();
+	/* APU was turned off */
+	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
+		plat_arm_gic_init();
+	} else {
+		gicv2_cpuif_enable();
+		gicv2_pcpu_distif_init();
+	}
 }
 
 /*******************************************************************************
@@ -308,7 +315,20 @@ int zynqmp_validate_power_state(unsigned int power_state,
 {
 	VERBOSE("%s: power_state: 0x%x\n", __func__, power_state);
 
-	/* FIXME: populate req_state */
+	int pstate = psci_get_pstate_type(power_state);
+
+	assert(req_state);
+
+	/* Sanity check the requested state */
+	if (pstate == PSTATE_TYPE_STANDBY)
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
+	else
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_OFF_STATE;
+
+	/* We expect the 'state id' to be zero */
+	if (psci_get_pstate_id(power_state))
+		return PSCI_E_INVALID_PARAMS;
+
 	return PSCI_E_SUCCESS;
 }
 

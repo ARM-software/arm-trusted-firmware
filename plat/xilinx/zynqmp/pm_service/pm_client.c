@@ -33,26 +33,25 @@
  * for getting information about and changing state of the APU.
  */
 
+#include <assert.h>
 #include <bakery_lock.h>
 #include <gicv2.h>
+#include <gic_common.h>
 #include <bl_common.h>
 #include <mmio.h>
+#include <string.h>
 #include <utils.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
 #include "../zynqmp_def.h"
 
-#define OCM_BANK_0	0xFFFC0000
-#define OCM_BANK_1	(OCM_BANK_0 + 0x10000)
-#define OCM_BANK_2	(OCM_BANK_1 + 0x10000)
-#define OCM_BANK_3	(OCM_BANK_2 + 0x10000)
-
+#define IRQ_MAX		84
+#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5) + 1)
 #define UNDEFINED_CPUID		(~0)
+
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
-/* Declaration of linker defined symbol */
-extern unsigned long __BL31_END__;
 extern const struct pm_ipi apu_ipi;
 
 /* Order in pm_procs_all array must match cpu ids */
@@ -79,36 +78,146 @@ static const struct pm_proc const pm_procs_all[] = {
 	},
 };
 
+/* Interrupt to PM node ID map */
+static enum pm_node_id irq_node_map[IRQ_MAX + 1] = {
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,	/* 3 */
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,	/* 7 */
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,	/* 11 */
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_NAND,
+	NODE_QSPI,	/* 15 */
+	NODE_GPIO,
+	NODE_I2C_0,
+	NODE_I2C_1,
+	NODE_SPI_0,	/* 19 */
+	NODE_SPI_1,
+	NODE_UART_0,
+	NODE_UART_1,
+	NODE_CAN_0,	/* 23 */
+	NODE_CAN_1,
+	NODE_UNKNOWN,
+	NODE_RTC,
+	NODE_RTC,	/* 27 */
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,	/* 31 */
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,	/* 35, NODE_IPI_APU */
+	NODE_TTC_0,
+	NODE_TTC_0,
+	NODE_TTC_0,
+	NODE_TTC_1,	/* 39 */
+	NODE_TTC_1,
+	NODE_TTC_1,
+	NODE_TTC_2,
+	NODE_TTC_2,	/* 43 */
+	NODE_TTC_2,
+	NODE_TTC_3,
+	NODE_TTC_3,
+	NODE_TTC_3,	/* 47 */
+	NODE_SD_0,
+	NODE_SD_1,
+	NODE_SD_0,
+	NODE_SD_1,	/* 51 */
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,
+	NODE_UNKNOWN,	/* 55 */
+	NODE_UNKNOWN,
+	NODE_ETH_0,
+	NODE_ETH_0,
+	NODE_ETH_1,	/* 59 */
+	NODE_ETH_1,
+	NODE_ETH_2,
+	NODE_ETH_2,
+	NODE_ETH_3,	/* 63 */
+	NODE_ETH_3,
+	NODE_USB_0,
+	NODE_USB_0,
+	NODE_USB_0,	/* 67 */
+	NODE_USB_0,
+	NODE_USB_0,
+	NODE_USB_1,
+	NODE_USB_1,	/* 71 */
+	NODE_USB_1,
+	NODE_USB_1,
+	NODE_USB_1,
+	NODE_USB_0,	/* 75 */
+	NODE_USB_0,
+	NODE_ADMA,
+	NODE_ADMA,
+	NODE_ADMA,	/* 79 */
+	NODE_ADMA,
+	NODE_ADMA,
+	NODE_ADMA,
+	NODE_ADMA,	/* 83 */
+	NODE_ADMA,
+};
+
 /**
- * set_ocm_retention() - Configure OCM memory banks for retention
+ * irq_to_pm_node - Get PM node ID corresponding to the interrupt number
+ * @irq:	Interrupt number
  *
- * APU specific requirements for suspend action:
- * OCM has to enter retention state in order to preserve saved
- * context after suspend request. OCM banks are determined by
- * __BL31_END__ linker symbol.
- *
- * Return:	Returns status, either success or error+reason
+ * Return:	PM node ID corresponding to the specified interrupt
  */
-enum pm_ret_status set_ocm_retention(void)
+static enum pm_node_id irq_to_pm_node(unsigned int irq)
 {
-	enum pm_ret_status ret;
+	assert(irq <= IRQ_MAX);
+	return irq_node_map[irq];
+}
 
-	/* OCM_BANK_0 will always be occupied */
-	ret = pm_set_requirement(NODE_OCM_BANK_0, PM_CAP_CONTEXT, 0,
-				 REQ_ACK_NO);
+/**
+ * pm_client_set_wakeup_sources - Set all slaves with enabled interrupts as wake
+ *				sources in the PMU firmware
+ */
+static void pm_client_set_wakeup_sources(void)
+{
+	uint32_t reg_num;
+	uint8_t pm_wakeup_nodes_set[NODE_MAX];
+	uintptr_t isenabler1 = BASE_GICD_BASE + GICD_ISENABLER + 4;
 
-	/* Check for other OCM banks  */
-	if ((unsigned long)&__BL31_END__ >= OCM_BANK_1)
-		ret = pm_set_requirement(NODE_OCM_BANK_1, PM_CAP_CONTEXT, 0,
-					 REQ_ACK_NO);
-	if ((unsigned long)&__BL31_END__ >= OCM_BANK_2)
-		ret = pm_set_requirement(NODE_OCM_BANK_2, PM_CAP_CONTEXT, 0,
-					 REQ_ACK_NO);
-	if ((unsigned long)&__BL31_END__ >= OCM_BANK_3)
-		ret = pm_set_requirement(NODE_OCM_BANK_3, PM_CAP_CONTEXT, 0,
-					 REQ_ACK_NO);
+	memset(&pm_wakeup_nodes_set, 0, sizeof(pm_wakeup_nodes_set));
 
-	return ret;
+	for (reg_num = 0; reg_num < NUM_GICD_ISENABLER; reg_num++) {
+		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
+		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
+
+		if (!reg)
+			continue;
+
+		while (reg) {
+			enum pm_node_id node;
+			uint32_t idx, ret, irq, lowest_set = reg & (-reg);
+
+			idx = __builtin_ctz(lowest_set);
+			irq = base_irq + idx;
+
+			if (irq > IRQ_MAX)
+				break;
+
+			node = irq_to_pm_node(irq);
+			reg &= ~lowest_set;
+
+			if ((node != NODE_UNKNOWN) &&
+			    (!pm_wakeup_nodes_set[node])) {
+				ret = pm_set_wakeup_source(NODE_APU, node, 1);
+				pm_wakeup_nodes_set[node] = !ret;
+			}
+		}
+	}
 }
 
 /**
@@ -162,10 +271,14 @@ const struct pm_proc *primary_proc = &pm_procs_all[0];
  *
  * This function should contain any PU-specific actions
  * required prior to sending suspend request to PMU
+ * Actions taken depend on the state system is suspending to.
  */
-void pm_client_suspend(const struct pm_proc *proc)
+void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
 {
 	bakery_lock_get(&pm_client_secure_lock);
+
+	if (state == PM_STATE_SUSPEND_TO_RAM)
+		pm_client_set_wakeup_sources();
 
 	/* Set powerdown request */
 	mmio_write_32(APU_PWRCTL, mmio_read_32(APU_PWRCTL) | proc->pwrdn_mask);

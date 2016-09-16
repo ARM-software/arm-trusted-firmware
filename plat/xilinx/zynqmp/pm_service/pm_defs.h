@@ -53,6 +53,10 @@
 #define MAX_LATENCY	(~0U)
 #define MAX_QOS		100U
 
+/* State arguments of the self suspend */
+#define PM_STATE_CPU_IDLE		0x0U
+#define PM_STATE_SUSPEND_TO_RAM		0xFU
+
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
@@ -82,6 +86,10 @@ enum pm_api_id {
 	PM_RESET_GET_STATUS,
 	PM_MMIO_WRITE,
 	PM_MMIO_READ,
+	PM_INIT,
+	PM_FPGA_LOAD,
+	PM_FPGA_GET_STATUS,
+	PM_GET_CHIPID,
 	PM_API_MAX
 };
 
@@ -143,6 +151,12 @@ enum pm_node_id {
 	NODE_IOPLL,
 	NODE_DDR,
 	NODE_IPI_APU,
+	NODE_IPI_RPU_0,
+	NODE_GPU,
+	NODE_PCIE,
+	NODE_PCAP,
+	NODE_RTC,
+	NODE_MAX
 };
 
 enum pm_request_ack {
