@@ -69,11 +69,8 @@
 /* CRL registers and bitfields */
 #define CRL_APB_BASE			0xFF5E0000
 #define CRL_APB_RPLL_CTRL		(CRL_APB_BASE + 0x30)
-#define CRL_APB_TIMESTAMP_REF_CTRL	(CRL_APB_BASE + 0x128)
 #define CRL_APB_BOOT_MODE_USER		(CRL_APB_BASE + 0x200)
 #define CRL_APB_RESET_CTRL		(CRL_APB_BASE + 0x218)
-
-#define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	(1 << 24)
 
 #define CRL_APB_RPLL_CTRL_BYPASS	(1 << 3)
 
@@ -84,10 +81,7 @@
 
 /* system counter registers and bitfields */
 #define IOU_SCNTRS_BASE			0xFF260000
-#define IOU_SCNTRS_CONTROL		(IOU_SCNTRS_BASE + 0)
 #define IOU_SCNTRS_BASEFREQ		(IOU_SCNTRS_BASE + 0x20)
-
-#define IOU_SCNTRS_CONTROL_EN		(1 << 0)
 
 /* APU registers and bitfields */
 #define APU_BASE		0xFD5C0000
