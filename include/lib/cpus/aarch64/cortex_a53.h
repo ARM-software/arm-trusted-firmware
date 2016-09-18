@@ -66,6 +66,10 @@
  ******************************************************************************/
 #define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
 
+#define CPUACTLR_RADIS_SHIFT		27
+#define CPUACTLR_RADIS			(3 << CPUACTLR_RADIS_SHIFT)
+#define CPUACTLR_L1RADIS_SHIFT		25
+#define CPUACTLR_L1RADIS		(3 << CPUACTLR_L1RADIS_SHIFT)
 #define CPUACTLR_DTAH			(1 << 24)
 
 /*******************************************************************************
