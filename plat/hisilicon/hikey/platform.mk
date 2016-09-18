@@ -40,6 +40,7 @@ $(eval $(call add_define,CONSOLE_BASE))
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
 $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))
 $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
+$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
 
 ENABLE_PLAT_COMPAT	:=	0
 
@@ -89,3 +90,18 @@ BL2U_SOURCES		+=	drivers/arm/pl061/pl061_gpio.c		\
 				plat/hisilicon/hikey/hikey_ddr.c	\
 				plat/hisilicon/hikey/hikey_io_storage.c	\
 				plat/hisilicon/hikey/hikey_fastboot.c
+
+BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c	\
+				drivers/delay_timer/delay_timer.c	\
+				drivers/io/io_block.c			\
+				drivers/io/io_fip.c			\
+				drivers/io/io_storage.c			\
+				drivers/emmc/emmc.c			\
+				drivers/synopsys/emmc/dw_mmc.c		\
+				plat/common/aarch64/platform_up_stack.S	\
+				plat/hisilicon/hikey/aarch64/hikey_helpers.S \
+				plat/hisilicon/hikey/hikey_bl2_setup.c	\
+				plat/hisilicon/hikey/hikey_ddr.c	\
+				plat/hisilicon/hikey/hikey_io_storage.c	\
+				plat/hisilicon/hikey/hisi_dvfs.c	\
+				plat/hisilicon/hikey/hisi_mcu.c
