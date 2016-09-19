@@ -299,6 +299,43 @@ void css_get_sys_suspend_power_state(psci_power_state_t *req_state)
 }
 
 /*******************************************************************************
+ * Handler to query CPU/cluster power states from SCP
+ ******************************************************************************/
+int css_node_hw_state(u_register_t mpidr, unsigned int power_level)
+{
+	int rc, element;
+	unsigned int cpu_state, cluster_state;
+
+	/*
+	 * The format of 'power_level' is implementation-defined, but 0 must
+	 * mean a CPU. We also allow 1 to denote the cluster
+	 */
+	if (power_level != ARM_PWR_LVL0 && power_level != ARM_PWR_LVL1)
+		return PSCI_E_INVALID_PARAMS;
+
+	/* Query SCP */
+	rc = scpi_get_css_power_state(mpidr, &cpu_state, &cluster_state);
+	if (rc != 0)
+		return PSCI_E_INVALID_PARAMS;
+
+	/* Map power states of CPU and cluster to expected PSCI return codes */
+	if (power_level == ARM_PWR_LVL0) {
+		/*
+		 * The CPU state returned by SCP is an 8-bit bit mask
+		 * corresponding to each CPU in the cluster
+		 */
+		element = mpidr & MPIDR_AFFLVL_MASK;
+		return CSS_CPU_PWR_STATE(cpu_state, element) ==
+			CSS_CPU_PWR_STATE_ON ? HW_ON : HW_OFF;
+	} else {
+		assert(cluster_state == CSS_CLUSTER_PWR_STATE_ON ||
+				cluster_state == CSS_CLUSTER_PWR_STATE_OFF);
+		return cluster_state == CSS_CLUSTER_PWR_STATE_ON ? HW_ON :
+			HW_OFF;
+	}
+}
+
+/*******************************************************************************
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform will take care of registering the handlers with PSCI.
  ******************************************************************************/
@@ -312,5 +349,6 @@ const plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.system_off		= css_system_off,
 	.system_reset		= css_system_reset,
 	.validate_power_state	= arm_validate_power_state,
-	.validate_ns_entrypoint = arm_validate_ns_entrypoint
+	.validate_ns_entrypoint = arm_validate_ns_entrypoint,
+	.get_node_hw_state	= css_node_hw_state
 };

@@ -287,6 +287,42 @@ static void __dead2 fvp_system_reset(void)
 	panic();
 }
 
+static int fvp_node_hw_state(u_register_t target_cpu,
+			     unsigned int power_level)
+{
+	unsigned int psysr;
+	int ret;
+
+	/*
+	 * The format of 'power_level' is implementation-defined, but 0 must
+	 * mean a CPU. We also allow 1 to denote the cluster
+	 */
+	if (power_level != ARM_PWR_LVL0 && power_level != ARM_PWR_LVL1)
+		return PSCI_E_INVALID_PARAMS;
+
+	/*
+	 * Read the status of the given MPDIR from FVP power controller. The
+	 * power controller only gives us on/off status, so map that to expected
+	 * return values of the PSCI call
+	 */
+	psysr = fvp_pwrc_read_psysr(target_cpu);
+	if (psysr == PSYSR_INVALID)
+		return PSCI_E_INVALID_PARAMS;
+
+	switch (power_level) {
+	case ARM_PWR_LVL0:
+		ret = (psysr & PSYSR_AFF_L0) ? HW_ON : HW_OFF;
+		break;
+	case ARM_PWR_LVL1:
+		ret = (psysr & PSYSR_AFF_L1) ? HW_ON : HW_OFF;
+		break;
+	default:
+		assert(0);
+	}
+
+	return ret;
+}
+
 /*******************************************************************************
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform layer will take care of registering the handlers with PSCI.
@@ -301,5 +337,6 @@ const plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.system_off = fvp_system_off,
 	.system_reset = fvp_system_reset,
 	.validate_power_state = arm_validate_power_state,
-	.validate_ns_entrypoint = arm_validate_ns_entrypoint
+	.validate_ns_entrypoint = arm_validate_ns_entrypoint,
+	.get_node_hw_state = fvp_node_hw_state
 };

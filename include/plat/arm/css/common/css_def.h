@@ -148,5 +148,15 @@
 /* Trusted mailbox base address common to all CSS */
 #define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE
 
+/*
+ * Parsing of CPU and Cluster states, as returned by 'Get CSS Power State' SCP
+ * command
+ */
+#define CSS_CLUSTER_PWR_STATE_ON	0
+#define CSS_CLUSTER_PWR_STATE_OFF	3
+
+#define CSS_CPU_PWR_STATE_ON		1
+#define CSS_CPU_PWR_STATE_OFF		0
+#define CSS_CPU_PWR_STATE(state, n)	(((state) >> (n)) & 1)
 
 #endif /* __CSS_DEF_H__ */

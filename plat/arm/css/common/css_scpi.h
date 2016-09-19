@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -81,8 +81,33 @@ typedef uint32_t scpi_status_t;
 typedef enum {
 	SCPI_CMD_SCP_READY = 0x01,
 	SCPI_CMD_SET_CSS_POWER_STATE = 0x03,
+	SCPI_CMD_GET_CSS_POWER_STATE = 0x04,
 	SCPI_CMD_SYS_POWER_STATE = 0x05
 } scpi_command_t;
+
+/*
+ * Macros to parse SCP response to GET_CSS_POWER_STATE command
+ *
+ *   [3:0] : cluster ID
+ *   [7:4] : cluster state: 0 = on; 3 = off; rest are reserved
+ *   [15:8]: on/off state for individual CPUs in the cluster
+ *
+ * Payload is in little-endian
+ */
+#define CLUSTER_ID(_resp)		((_resp) & 0xf)
+#define CLUSTER_POWER_STATE(_resp)	(((_resp) >> 4) & 0xf)
+
+/* Result is a bit mask of CPU on/off states in the cluster */
+#define CPU_POWER_STATE(_resp)		(((_resp) >> 8) & 0xff)
+
+/*
+ * For GET_CSS_POWER_STATE, SCP returns the power states of every cluster. The
+ * size of response depends on the number of clusters in the system. The
+ * SCP-to-AP payload contains 2 bytes per cluster. Make sure the response is
+ * large enough to contain power states of a given cluster
+ */
+#define CHECK_RESPONSE(_resp, _clus) \
+	(_resp.size >= (((_clus) + 1) * 2))
 
 typedef enum {
 	scpi_power_on = 0,
@@ -101,6 +126,8 @@ extern void scpi_set_css_power_state(unsigned mpidr,
 					scpi_power_state_t cpu_state,
 					scpi_power_state_t cluster_state,
 					scpi_power_state_t css_state);
+int scpi_get_css_power_state(unsigned int mpidr, unsigned int *cpu_state_p,
+		unsigned int *cluster_state_p);
 uint32_t scpi_sys_power_state(scpi_system_state_t system_state);
 
 

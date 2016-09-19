@@ -1832,6 +1832,20 @@ This function can also be used in case the platform wants to support local
 power state encoding for `power_state` parameter of PSCI_STAT_COUNT/RESIDENCY
 APIs as described in Section 5.18 of [PSCI].
 
+#### plat_psci_ops.get_node_hw_state()
+
+This is an optional function. If implemented this function is intended to return
+the power state of a node (identified by the first parameter, the `MPIDR`) in
+the power domain topology (identified by the second parameter, `power_level`),
+as retrieved from a power controller or equivalent component on the platform.
+Upon successful completion, the implementation must map and return the final
+status among `HW_ON`, `HW_OFF` or `HW_STANDBY`. Upon encountering failures, it
+must return either `PSCI_E_INVALID_PARAMS` or `PSCI_E_NOT_SUPPORTED` as
+appropriate.
+
+Implementations are not expected to handle `power_levels` greater than
+`PLAT_MAX_PWR_LVL`.
+
 3.6  Interrupt Management framework (in BL31)
 ----------------------------------------------
 BL31 implements an Interrupt Management Framework (IMF) to manage interrupts

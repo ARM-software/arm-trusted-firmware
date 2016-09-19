@@ -68,6 +68,7 @@
 			define_psci_cap(PSCI_AFFINITY_INFO_AARCH64) |	\
 			define_psci_cap(PSCI_MIG_AARCH64) |		\
 			define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64) |	\
+			define_psci_cap(PSCI_NODE_HW_STATE_AARCH64) |	\
 			define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64) |	\
 			define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64) |	\
 			define_psci_cap(PSCI_STAT_COUNT_AARCH64))
