@@ -71,7 +71,9 @@ typedef struct pmf_svc_desc {
  */
 #define PMF_ALLOCATE_TIMESTAMP_MEMORY(_name, _total_id)		\
 	unsigned long long pmf_ts_mem_ ## _name[_total_id]	\
-	__section("pmf_timestamp_array") __used;
+	__aligned(CACHE_WRITEBACK_GRANULE)			\
+	__section("pmf_timestamp_array")			\
+	__used;
 
 /*
  * Convenience macro to validate tid index for the given TS array.
