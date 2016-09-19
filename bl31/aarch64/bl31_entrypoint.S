@@ -31,6 +31,8 @@
 #include <arch.h>
 #include <bl_common.h>
 #include <el3_common_macros.S>
+#include <pmf_asm_macros.S>
+#include <runtime_instr.h>
 #include <xlat_tables.h>
 
 	.globl	bl31_entrypoint
@@ -141,6 +143,18 @@ endfunc bl31_entrypoint
 	 * --------------------------------------------------------------------
 	 */
 func bl31_warm_entrypoint
+#if ENABLE_RUNTIME_INSTRUMENTATION
+
+	/*
+	 * This timestamp update happens with cache off.  The next
+	 * timestamp collection will need to do cache maintenance prior
+	 * to timestamp update.
+	 */
+	pmf_calc_timestamp_addr rt_instr_svc RT_INSTR_EXIT_HW_LOW_PWR
+	mrs	x1, cntpct_el0
+	str	x1, [x0]
+#endif
+
 	/*
 	 * On the warm boot path, most of the EL3 initialisations performed by
 	 * 'el3_entrypoint_common' must be skipped:
@@ -188,5 +202,23 @@ func bl31_warm_entrypoint
 
 	bl	psci_warmboot_entrypoint
 
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	pmf_calc_timestamp_addr rt_instr_svc RT_INSTR_EXIT_PSCI
+	mov	x19, x0
+
+	/*
+	 * Invalidate before updating timestamp to ensure previous timestamp
+	 * updates on the same cache line with caches disabled are properly
+	 * seen by the same core. Without the cache invalidate, the core might
+	 * write into a stale cache line.
+	 */
+	mov	x1, #PMF_TS_SIZE
+	mov	x20, x30
+	bl	inv_dcache_range
+	mov	x30, x20
+
+	mrs	x0, cntpct_el0
+	str	x0, [x19]
+#endif
 	b	el3_exit
 endfunc bl31_warm_entrypoint

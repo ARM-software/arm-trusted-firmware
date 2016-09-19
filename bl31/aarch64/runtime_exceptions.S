@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <context.h>
+#include <cpu_data.h>
 #include <interrupt_mgmt.h>
 #include <platform_def.h>
 #include <runtime_svc.h>
@@ -47,6 +48,21 @@
 	msr	daifclr, #DAIF_ABT_BIT
 
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+
+	/*
+	 * Read the timestamp value and store it in per-cpu data.
+	 * The value will be extracted from per-cpu data by the
+	 * C level SMC handler and saved to the PMF timestamp region.
+	 */
+	mrs	x30, cntpct_el0
+	str	x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
+	mrs	x29, tpidr_el3
+	str	x30, [x29, #CPU_DATA_PMF_TS0_OFFSET]
+	ldr	x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X29]
+#endif
+
 	mrs	x30, esr_el3
 	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
 

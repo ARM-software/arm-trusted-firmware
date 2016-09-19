@@ -37,6 +37,8 @@
 #include <cpu_data.h>
 #include <debug.h>
 #include <platform.h>
+#include <pmf.h>
+#include <runtime_instr.h>
 #include <stddef.h>
 #include "psci_private.h"
 
@@ -212,6 +214,19 @@ exit:
 		return;
 
 	if (is_power_down_state) {
+#if ENABLE_RUNTIME_INSTRUMENTATION
+
+		/*
+		 * Update the timestamp with cache off.  We assume this
+		 * timestamp can only be read from the current CPU and the
+		 * timestamp cache line will be flushed before return to
+		 * normal world on wakeup.
+		 */
+		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		    RT_INSTR_ENTER_HW_LOW_PWR,
+		    PMF_NO_CACHE_MAINT);
+#endif
+
 		/* The function calls below must not return */
 		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi)
 			psci_plat_pm_ops->pwr_domain_pwr_down_wfi(state_info);
@@ -219,12 +234,24 @@ exit:
 			psci_power_down_wfi();
 	}
 
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+	    RT_INSTR_ENTER_HW_LOW_PWR,
+	    PMF_NO_CACHE_MAINT);
+#endif
+
 	/*
 	 * We will reach here if only retention/standby states have been
 	 * requested at multiple power levels. This means that the cpu
 	 * context will be preserved.
 	 */
 	wfi();
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+	    RT_INSTR_EXIT_HW_LOW_PWR,
+	    PMF_NO_CACHE_MAINT);
+#endif
 
 	/*
 	 * After we wake up from context retaining suspend, call the

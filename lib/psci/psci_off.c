@@ -33,6 +33,8 @@
 #include <assert.h>
 #include <debug.h>
 #include <platform.h>
+#include <pmf.h>
+#include <runtime_instr.h>
 #include <string.h>
 #include "psci_private.h"
 
@@ -152,6 +154,19 @@ exit:
 		psci_set_aff_info_state(AFF_STATE_OFF);
 		dsbish();
 		inv_cpu_data(psci_svc_cpu_data.aff_info_state);
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+
+		/*
+		 * Update the timestamp with cache off.  We assume this
+		 * timestamp can only be read from the current CPU and the
+		 * timestamp cache line will be flushed before return to
+		 * normal world on wakeup.
+		 */
+		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		    RT_INSTR_ENTER_HW_LOW_PWR,
+		    PMF_NO_CACHE_MAINT);
+#endif
 
 		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi) {
 			/* This function must not return */

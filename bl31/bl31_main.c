@@ -36,8 +36,15 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <platform.h>
+#include <pmf.h>
+#include <runtime_instr.h>
 #include <runtime_svc.h>
 #include <string.h>
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+PMF_REGISTER_SERVICE_SMC(rt_instr_svc, PMF_RT_INSTR_SVC_ID,
+	RT_INSTR_TOTAL_IDS, PMF_STORE_ENABLE)
+#endif
 
 /*******************************************************************************
  * This function pointer is used to initialise the BL32 image. It's initialized

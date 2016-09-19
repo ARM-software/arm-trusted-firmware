@@ -75,6 +75,7 @@
 
 /* Following are the supported PMF service IDs */
 #define PMF_PSCI_STAT_SVC_ID	0
+#define PMF_RT_INSTR_SVC_ID	1
 
 #if ENABLE_PMF
 /*
