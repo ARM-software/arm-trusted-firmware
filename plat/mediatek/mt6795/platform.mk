@@ -71,7 +71,6 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				${MTK_PLAT}/common/drivers/uart/8250_console.S		\
 				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
 				${MTK_PLAT_SOC}/drivers/timer/mt_cpuxgpt.c	\
-				${MTK_PLAT_SOC}/plat_sip_svc.c	\
 				${MTK_PLAT_SOC}/plat_delay_timer.c		\
 				${MTK_PLAT_SOC}/plat_pm.c			\
 				${MTK_PLAT_SOC}/plat_topology.c			\
