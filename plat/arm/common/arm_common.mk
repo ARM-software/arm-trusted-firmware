@@ -144,6 +144,11 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/common/aarch64/platform_mp_stack.S		\
 				plat/common/plat_psci_common.c
 
+ifeq (${ENABLE_PMF}, 1)
+BL31_SOURCES		+=	plat/arm/common/arm_sip_svc.c			\
+				lib/pmf/pmf_smc.c
+endif
+
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # By default, ARM platforms use RSA keys
