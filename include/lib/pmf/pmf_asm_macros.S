@@ -34,12 +34,11 @@
 #define PMF_TS_SIZE	8
 
 	/*
-	 * This macro calculates the offset into the memory
-	 * region where the per-cpu timestamp value is stored
-	 * for the given service name and timestamp id.
+	 * This macro calculates the address of the per-cpu timestamp
+	 * for the given service name and local timestamp id.
 	 * Clobbers: x0 - x9
 	 */
-	.macro pmf_calc_timestamp_offset _name _tid
+	.macro pmf_calc_timestamp_addr _name _tid
 	mov	x9, x30
 	bl	plat_my_core_pos
 	mov	x30, x9
