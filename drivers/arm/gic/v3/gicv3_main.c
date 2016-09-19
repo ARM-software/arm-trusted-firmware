@@ -120,10 +120,12 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
  ******************************************************************************/
 void gicv3_distif_init(void)
 {
+	unsigned int bitmap = 0;
+
 	assert(driver_data);
 	assert(driver_data->gicd_base);
-	assert(driver_data->g1s_interrupt_array);
-	assert(driver_data->g0_interrupt_array);
+	assert(driver_data->g1s_interrupt_array ||
+	       driver_data->g0_interrupt_array);
 
 	assert(IS_IN_EL3());
 
@@ -146,21 +148,25 @@ void gicv3_distif_init(void)
 	gicv3_spis_configure_defaults(driver_data->gicd_base);
 
 	/* Configure the G1S SPIs */
-	gicv3_secure_spis_configure(driver_data->gicd_base,
+	if (driver_data->g1s_interrupt_array) {
+		gicv3_secure_spis_configure(driver_data->gicd_base,
 					driver_data->g1s_interrupt_num,
 					driver_data->g1s_interrupt_array,
 					INTR_GROUP1S);
+		bitmap |= CTLR_ENABLE_G1S_BIT;
+	}
 
 	/* Configure the G0 SPIs */
-	gicv3_secure_spis_configure(driver_data->gicd_base,
+	if (driver_data->g0_interrupt_array) {
+		gicv3_secure_spis_configure(driver_data->gicd_base,
 					driver_data->g0_interrupt_num,
 					driver_data->g0_interrupt_array,
 					INTR_GROUP0);
+		bitmap |= CTLR_ENABLE_G0_BIT;
+	}
 
 	/* Enable the secure SPIs now that they have been configured */
-	gicd_set_ctlr(driver_data->gicd_base,
-		      CTLR_ENABLE_G1S_BIT | CTLR_ENABLE_G0_BIT,
-		      RWP_TRUE);
+	gicd_set_ctlr(driver_data->gicd_base, bitmap, RWP_TRUE);
 }
 
 /*******************************************************************************
@@ -177,8 +183,8 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	assert(driver_data->rdistif_base_addrs);
 	assert(driver_data->gicd_base);
 	assert(gicd_read_ctlr(driver_data->gicd_base) & CTLR_ARE_S_BIT);
-	assert(driver_data->g1s_interrupt_array);
-	assert(driver_data->g0_interrupt_array);
+	assert(driver_data->g1s_interrupt_array ||
+	       driver_data->g0_interrupt_array);
 
 	assert(IS_IN_EL3());
 
@@ -188,16 +194,20 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	gicv3_ppi_sgi_configure_defaults(gicr_base);
 
 	/* Configure the G1S SGIs/PPIs */
-	gicv3_secure_ppi_sgi_configure(gicr_base,
-					   driver_data->g1s_interrupt_num,
-					   driver_data->g1s_interrupt_array,
-					   INTR_GROUP1S);
+	if (driver_data->g1s_interrupt_array) {
+		gicv3_secure_ppi_sgi_configure(gicr_base,
+					driver_data->g1s_interrupt_num,
+					driver_data->g1s_interrupt_array,
+					INTR_GROUP1S);
+	}
 
 	/* Configure the G0 SGIs/PPIs */
-	gicv3_secure_ppi_sgi_configure(gicr_base,
-					   driver_data->g0_interrupt_num,
-					   driver_data->g0_interrupt_array,
-					   INTR_GROUP0);
+	if (driver_data->g0_interrupt_array) {
+		gicv3_secure_ppi_sgi_configure(gicr_base,
+					driver_data->g0_interrupt_num,
+					driver_data->g0_interrupt_array,
+					INTR_GROUP0);
+	}
 }
 
 /*******************************************************************************
