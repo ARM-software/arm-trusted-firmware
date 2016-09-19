@@ -42,6 +42,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <openssl/sha.h>
+
 #include "fiptool.h"
 #include "firmware_image_package.h"
 #include "tbbr_config.h"
@@ -354,6 +356,14 @@ static void add_opt(struct option *opts, int idx, char *name,
 	opts[idx].val = val;
 }
 
+static void md_print(unsigned char *md, size_t len)
+{
+	size_t i;
+
+	for (i = 0; i < len; i++)
+		printf("%02x", md[i]);
+}
+
 static int info_cmd(int argc, char *argv[])
 {
 	image_t *image;
@@ -391,10 +401,16 @@ static int info_cmd(int argc, char *argv[])
 		    (unsigned long long)image_offset,
 		    (unsigned long long)image_size);
 		if (image->toc_entry != NULL)
-			printf(", cmdline=\"--%s\"\n",
+			printf(", cmdline=\"--%s\"",
 			    image->toc_entry->cmdline_name);
-		else
-			putchar('\n');
+		if (verbose) {
+			unsigned char md[SHA256_DIGEST_LENGTH];
+
+			SHA256(image->buffer, image_size, md);
+			printf(", sha256=");
+			md_print(md, sizeof(md));
+		}
+		putchar('\n');
 		image_offset += image_size;
 	}
 

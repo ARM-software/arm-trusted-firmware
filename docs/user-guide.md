@@ -64,7 +64,7 @@ Cygwin, and Msys (MinGW) shells, using version 4.9.1 of the GNU toolchain.
 Install the required packages to build Trusted Firmware with the following
 command:
 
-    sudo apt-get install build-essential gcc make git
+    sudo apt-get install build-essential gcc make git libssl-dev
 
 Download and install the AArch64 little-endian GCC cross compiler as indicated
 in the [Linaro instructions][Linaro SW Instructions].
@@ -73,8 +73,6 @@ In addition, the following optional packages and tools may be needed:
 
 *   `device-tree-compiler` package if you need to rebuild the Flattened Device
     Tree (FDT) source files (`.dts` files) provided with this software.
-
-*   `libssl-dev` package if Trusted Board Boot is enabled in the build.
 
 *   For debugging, ARM [Development Studio 5 (DS-5)][DS-5].
 
