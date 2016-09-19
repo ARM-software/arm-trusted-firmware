@@ -53,21 +53,27 @@ static int32_t (*bl32_init)(void);
  ******************************************************************************/
 static uint32_t next_image_type = NON_SECURE;
 
+/*
+ * Implement the ARM Standard Service function to get arguments for a
+ * particular service.
+ */
+uintptr_t get_arm_std_svc_args(unsigned int svc_mask)
+{
+	/* Setup the arguments for PSCI Library */
+	DEFINE_STATIC_PSCI_LIB_ARGS_V1(psci_args, bl31_warm_entrypoint);
+
+	/* PSCI is the only ARM Standard Service implemented */
+	assert(svc_mask == PSCI_FID_MASK);
+
+	return (uintptr_t)&psci_args;
+}
+
 /*******************************************************************************
  * Simple function to initialise all BL31 helper libraries.
  ******************************************************************************/
 void bl31_lib_init(void)
 {
-	/* Setup the arguments for PSCI Library */
-	DEFINE_STATIC_PSCI_LIB_ARGS_V1(psci_args, bl31_warm_entrypoint);
-
 	cm_init();
-
-	/*
-	 * Initialize the PSCI library here. This also does EL3 architectural
-	 * setup.
-	 */
-	psci_setup(&psci_args);
 }
 
 /*******************************************************************************
@@ -89,7 +95,7 @@ void bl31_main(void)
 	/* Initialise helper libraries */
 	bl31_lib_init();
 
-	/* Initialize the runtime services e.g. psci */
+	/* Initialize the runtime services e.g. psci. */
 	INFO("BL31: Initializing runtime services\n");
 	runtime_svc_init();
 

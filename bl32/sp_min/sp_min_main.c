@@ -151,30 +151,33 @@ static void sp_min_prepare_next_image_entry(void)
 }
 
 /******************************************************************************
+ * Implement the ARM Standard Service function to get arguments for a
+ * particular service.
+ *****************************************************************************/
+uintptr_t get_arm_std_svc_args(unsigned int svc_mask)
+{
+	/* Setup the arguments for PSCI Library */
+	DEFINE_STATIC_PSCI_LIB_ARGS_V1(psci_args, sp_min_warm_entrypoint);
+
+	/* PSCI is the only ARM Standard Service implemented */
+	assert(svc_mask == PSCI_FID_MASK);
+
+	return (uintptr_t)&psci_args;
+}
+
+/******************************************************************************
  * The SP_MIN main function. Do the platform and PSCI Library setup. Also
  * initialize the runtime service framework.
  *****************************************************************************/
 void sp_min_main(void)
 {
-	/* Setup the arguments for PSCI Library */
-	DEFINE_STATIC_PSCI_LIB_ARGS_V1(psci_args, sp_min_warm_entrypoint);
-
 	NOTICE("SP_MIN: %s\n", version_string);
 	NOTICE("SP_MIN: %s\n", build_message);
 
 	/* Perform the SP_MIN platform setup */
 	sp_min_platform_setup();
 
-	/*
-	 * Initialize the PSCI library and perform the remaining generic
-	 * architectural setup from PSCI.
-	 */
-	psci_setup(&psci_args);
-
-	/*
-	 * Initialize the runtime services e.g. psci
-	 * This is where the monitor mode will be initialized
-	 */
+	/* Initialize the runtime services e.g. psci */
 	INFO("SP_MIN: Initializing runtime services\n");
 	runtime_svc_init();
 
