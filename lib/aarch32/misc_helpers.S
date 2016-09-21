@@ -32,7 +32,21 @@
 #include <asm_macros.S>
 #include <assert_macros.S>
 
+	.globl	smc
 	.globl	zeromem
+	.globl	disable_mmu_icache_secure
+	.globl	disable_mmu_secure
+
+func smc
+	/*
+	 * For AArch32 only r0-r3 will be in the registers;
+	 * rest r4-r6 will be pushed on to the stack. So here, we'll
+	 * have to load them from the stack to registers r4-r6 explicitly.
+	 * Clobbers: r4-r6
+	 */
+	ldm	sp, {r4, r5, r6}
+	smc	#0
+endfunc smc
 
 /* -----------------------------------------------------------------------
  * void zeromem(void *mem, unsigned int length);
@@ -58,3 +72,25 @@ z_loop:
 z_end:
 	bx	lr
 endfunc zeromem
+
+/* ---------------------------------------------------------------------------
+ * Disable the MMU in Secure State
+ * ---------------------------------------------------------------------------
+ */
+
+func disable_mmu_secure
+	mov	r1, #(SCTLR_M_BIT | SCTLR_C_BIT)
+do_disable_mmu:
+	ldcopr	r0, SCTLR
+	bic	r0, r0, r1
+	stcopr	r0, SCTLR
+	isb				// ensure MMU is off
+	dsb	sy
+	bx	lr
+endfunc disable_mmu_secure
+
+
+func disable_mmu_icache_secure
+	ldr	r1, =(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
+	b	do_disable_mmu
+endfunc disable_mmu_icache_secure

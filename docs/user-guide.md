@@ -430,6 +430,12 @@ performed.
     pages" section in [Firmware Design]. This flag is disabled by default and
     affects all BL images.
 
+*   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
+    image loading, which provides more flexibility and scalability around what
+    images are loaded and executed during boot. Default is 0.
+    Note: `TRUSTED_BOARD_BOOT` is currently not supported when `LOAD_IMAGE_V2`
+    is enabled.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:

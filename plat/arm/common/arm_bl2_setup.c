@@ -30,10 +30,13 @@
 
 #include <arch_helpers.h>
 #include <arm_def.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <console.h>
-#include <platform_def.h>
+#include <debug.h>
+#include <desc_image_load.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include <string.h>
 
 #if USE_COHERENT_MEM
@@ -51,6 +54,17 @@
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
+/* Weak definitions may be overridden in specific ARM standard platform */
+#pragma weak bl2_early_platform_setup
+#pragma weak bl2_platform_setup
+#pragma weak bl2_plat_arch_setup
+#pragma weak bl2_plat_sec_mem_layout
+
+#if LOAD_IMAGE_V2
+
+#pragma weak bl2_plat_handle_post_image_load
+
+#else /* LOAD_IMAGE_V2 */
 
 /*******************************************************************************
  * This structure represents the superset of information that is passed to
@@ -72,10 +86,6 @@ static bl2_to_bl31_params_mem_t bl31_params_mem;
 
 
 /* Weak definitions may be overridden in specific ARM standard platform */
-#pragma weak bl2_early_platform_setup
-#pragma weak bl2_platform_setup
-#pragma weak bl2_plat_arch_setup
-#pragma weak bl2_plat_sec_mem_layout
 #pragma weak bl2_plat_get_bl31_params
 #pragma weak bl2_plat_get_bl31_ep_info
 #pragma weak bl2_plat_flush_bl31_params
@@ -106,7 +116,7 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
 }
-#endif
+#endif /* ARM_BL31_IN_DRAM */
 
 /*******************************************************************************
  * This function assigns a pointer to the memory that the platform has kept
@@ -180,6 +190,7 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 
 	return &bl31_params_mem.bl31_ep_info;
 }
+#endif /* LOAD_IMAGE_V2 */
 
 /*******************************************************************************
  * BL1 has passed the extents of the trusted SRAM that should be visible to BL2
@@ -235,13 +246,58 @@ void arm_bl2_plat_arch_setup(void)
 			      BL2_COHERENT_RAM_LIMIT
 #endif
 			      );
+
+#ifdef AARCH32
+	enable_mmu_secure(0);
+#else
 	enable_mmu_el1(0);
+#endif
 }
 
 void bl2_plat_arch_setup(void)
 {
 	arm_bl2_plat_arch_setup();
 }
+
+#if LOAD_IMAGE_V2
+/*******************************************************************************
+ * This function can be used by the platforms to update/use image
+ * information for given `image_id`.
+ ******************************************************************************/
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	int err = 0;
+	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+	assert(bl_mem_params);
+
+	switch (image_id) {
+#ifdef AARCH64
+	case BL32_IMAGE_ID:
+		bl_mem_params->ep_info.spsr = arm_get_spsr_for_bl32_entry();
+		break;
+#endif
+
+	case BL33_IMAGE_ID:
+		/* BL33 expects to receive the primary CPU MPID (through r0) */
+		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
+		bl_mem_params->ep_info.spsr = arm_get_spsr_for_bl33_entry();
+		break;
+
+#ifdef SCP_BL2_BASE
+	case SCP_BL2_IMAGE_ID:
+		/* The subsequent handling of SCP_BL2 is platform specific */
+		err = plat_arm_bl2_handle_scp_bl2(&bl_mem_params->image_info);
+		if (err) {
+			WARN("Failure in platform-specific handling of SCP_BL2 image.\n");
+		}
+		break;
+#endif
+	}
+
+	return err;
+}
+
+#else /* LOAD_IMAGE_V2 */
 
 /*******************************************************************************
  * Populate the extents of memory available for loading SCP_BL2 (if used),
@@ -321,3 +377,5 @@ void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 	bl33_meminfo->free_base = ARM_NS_DRAM1_BASE;
 	bl33_meminfo->free_size = ARM_NS_DRAM1_SIZE;
 }
+
+#endif /* LOAD_IMAGE_V2 */

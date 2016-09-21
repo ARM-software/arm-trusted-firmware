@@ -164,8 +164,13 @@ void arm_bl2u_platform_setup(void);
 void arm_bl2u_plat_arch_setup(void);
 
 /* BL31 utility functions */
-void arm_bl31_early_platform_setup(struct bl31_params *from_bl2,
+#if LOAD_IMAGE_V2
+void arm_bl31_early_platform_setup(void *from_bl2,
 				void *plat_params_from_bl2);
+#else
+void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
+				void *plat_params_from_bl2);
+#endif /* LOAD_IMAGE_V2 */
 void arm_bl31_platform_setup(void);
 void arm_bl31_plat_runtime_setup(void);
 void arm_bl31_plat_arch_setup(void);
@@ -174,7 +179,8 @@ void arm_bl31_plat_arch_setup(void);
 void arm_tsp_early_platform_setup(void);
 
 /* SP_MIN utility functions */
-void arm_sp_min_early_platform_setup(void);
+void arm_sp_min_early_platform_setup(void *from_bl2,
+		void *plat_params_from_bl2);
 
 /* FIP TOC validity check */
 int arm_io_is_toc_valid(void);
@@ -193,6 +199,14 @@ void plat_arm_pwrc_setup(void);
 void plat_arm_interconnect_init(void);
 void plat_arm_interconnect_enter_coherency(void);
 void plat_arm_interconnect_exit_coherency(void);
+
+#if LOAD_IMAGE_V2
+/*
+ * This function is called after loading SCP_BL2 image and it is used to perform
+ * any platform-specific actions required to handle the SCP firmware.
+ */
+int plat_arm_bl2_handle_scp_bl2(image_info_t *scp_bl2_image_info);
+#endif
 
 /*
  * Optional functions required in ARM standard platforms

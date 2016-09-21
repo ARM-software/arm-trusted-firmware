@@ -58,6 +58,6 @@ else
   include ${SP_MIN_PLAT_MAKEFILE}
 endif
 
-RESET_TO_SP_MIN	:= 1
+RESET_TO_SP_MIN	:= 0
 $(eval $(call add_define,RESET_TO_SP_MIN))
 $(eval $(call assert_boolean,RESET_TO_SP_MIN))

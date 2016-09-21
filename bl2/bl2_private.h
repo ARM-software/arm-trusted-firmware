@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,8 +32,14 @@
 #define __BL2_PRIVATE_H__
 
 /******************************************
+ * Forward declarations
+ *****************************************/
+struct entry_point_info;
+
+/******************************************
  * Function prototypes
  *****************************************/
 void bl2_arch_setup(void);
+struct entry_point_info *bl2_load_images(void);
 
 #endif /* __BL2_PRIVATE_H__ */

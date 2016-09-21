@@ -31,9 +31,10 @@
 #include <plat_arm.h>
 #include "../fvp_private.h"
 
-void sp_min_early_platform_setup(void)
+void sp_min_early_platform_setup(void *from_bl2,
+		void *plat_params_from_bl2)
 {
-	arm_sp_min_early_platform_setup();
+	arm_sp_min_early_platform_setup(from_bl2, plat_params_from_bl2);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

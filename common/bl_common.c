@@ -53,10 +53,7 @@ uintptr_t page_align(uintptr_t value, unsigned dir)
 	return value;
 }
 
-static inline unsigned int is_page_aligned (uintptr_t addr) {
-	return (addr & (PAGE_SIZE - 1)) == 0;
-}
-
+#if !LOAD_IMAGE_V2
 /******************************************************************************
  * Determine whether the memory region delimited by 'addr' and 'size' is free,
  * given the extents of free memory.
@@ -179,6 +176,7 @@ static void dump_load_info(uintptr_t image_load_addr,
 	INFO("  free region = [base = %p, size = 0x%zx]\n",
 		(void *) mem_layout->free_base, mem_layout->free_size);
 }
+#endif /* LOAD_IMAGE_V2 */
 
 /* Generic function to return the size of an image */
 size_t image_size(unsigned int image_id)
@@ -223,6 +221,156 @@ size_t image_size(unsigned int image_id)
 	return image_size;
 }
 
+#if LOAD_IMAGE_V2
+
+/*******************************************************************************
+ * Generic function to load an image at a specific address given
+ * an image ID and extents of free memory.
+ *
+ * If the load is successful then the image information is updated.
+ *
+ * Returns 0 on success, a negative error code otherwise.
+ ******************************************************************************/
+int load_image(unsigned int image_id, image_info_t *image_data)
+{
+	uintptr_t dev_handle;
+	uintptr_t image_handle;
+	uintptr_t image_spec;
+	uintptr_t image_base;
+	size_t image_size;
+	size_t bytes_read;
+	int io_result;
+
+	assert(image_data != NULL);
+	assert(image_data->h.version >= VERSION_2);
+
+	image_base = image_data->image_base;
+
+	/* Obtain a reference to the image by querying the platform layer */
+	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
+	if (io_result != 0) {
+		WARN("Failed to obtain reference to image id=%u (%i)\n",
+			image_id, io_result);
+		return io_result;
+	}
+
+	/* Attempt to access the image */
+	io_result = io_open(dev_handle, image_spec, &image_handle);
+	if (io_result != 0) {
+		WARN("Failed to access image id=%u (%i)\n",
+			image_id, io_result);
+		return io_result;
+	}
+
+	INFO("Loading image id=%u at address %p\n", image_id,
+		(void *) image_base);
+
+	/* Find the size of the image */
+	io_result = io_size(image_handle, &image_size);
+	if ((io_result != 0) || (image_size == 0)) {
+		WARN("Failed to determine the size of the image id=%u (%i)\n",
+			image_id, io_result);
+		goto exit;
+	}
+
+	/* Check that the image size to load is within limit */
+	if (image_size > image_data->image_max_size) {
+		WARN("Image id=%u size out of bounds\n", image_id);
+		io_result = -EFBIG;
+		goto exit;
+	}
+
+	image_data->image_size = image_size;
+
+	/* We have enough space so load the image now */
+	/* TODO: Consider whether to try to recover/retry a partially successful read */
+	io_result = io_read(image_handle, image_base, image_size, &bytes_read);
+	if ((io_result != 0) || (bytes_read < image_size)) {
+		WARN("Failed to load image id=%u (%i)\n", image_id, io_result);
+		goto exit;
+	}
+
+#if !TRUSTED_BOARD_BOOT
+	/*
+	 * File has been successfully loaded.
+	 * Flush the image to main memory so that it can be executed later by
+	 * any CPU, regardless of cache and MMU state.
+	 * When TBB is enabled the image is flushed later, after image
+	 * authentication.
+	 */
+	flush_dcache_range(image_base, image_size);
+#endif /* TRUSTED_BOARD_BOOT */
+
+	INFO("Image id=%u loaded: %p - %p\n", image_id, (void *) image_base,
+	     (void *) (image_base + image_size));
+
+exit:
+	io_close(image_handle);
+	/* Ignore improbable/unrecoverable error in 'close' */
+
+	/* TODO: Consider maintaining open device connection from this bootloader stage */
+	io_dev_close(dev_handle);
+	/* Ignore improbable/unrecoverable error in 'dev_close' */
+
+	return io_result;
+}
+
+/*******************************************************************************
+ * Generic function to load and authenticate an image. The image is actually
+ * loaded by calling the 'load_image()' function. Therefore, it returns the
+ * same error codes if the loading operation failed, or -EAUTH if the
+ * authentication failed. In addition, this function uses recursion to
+ * authenticate the parent images up to the root of trust.
+ ******************************************************************************/
+int load_auth_image(unsigned int image_id, image_info_t *image_data)
+{
+	int rc;
+
+#if TRUSTED_BOARD_BOOT
+	unsigned int parent_id;
+
+	/* Use recursion to authenticate parent images */
+	rc = auth_mod_get_parent_id(image_id, &parent_id);
+	if (rc == 0) {
+		rc = load_auth_image(parent_id, image_data);
+		if (rc != 0) {
+			return rc;
+		}
+	}
+#endif /* TRUSTED_BOARD_BOOT */
+
+	/* Load the image */
+	rc = load_image(image_id, image_data);
+	if (rc != 0) {
+		return rc;
+	}
+
+#if TRUSTED_BOARD_BOOT
+	/* Authenticate it */
+	rc = auth_mod_verify_img(image_id,
+				 (void *)image_data->image_base,
+				 image_data->image_size);
+	if (rc != 0) {
+		memset((void *)image_data->image_base, 0x00,
+		       image_data->image_size);
+		flush_dcache_range(image_data->image_base,
+				   image_data->image_size);
+		return -EAUTH;
+	}
+
+	/*
+	 * File has been successfully loaded and authenticated.
+	 * Flush the image to main memory so that it can be executed later by
+	 * any CPU, regardless of cache and MMU state.
+	 */
+	flush_dcache_range(image_data->image_base, image_data->image_size);
+#endif /* TRUSTED_BOARD_BOOT */
+
+	return 0;
+}
+
+#else /* LOAD_IMAGE_V2 */
+
 /*******************************************************************************
  * Generic function to load an image at a specific address given an image ID and
  * extents of free memory.
@@ -255,7 +403,7 @@ int load_image(meminfo_t *mem_layout,
 
 	assert(mem_layout != NULL);
 	assert(image_data != NULL);
-	assert(image_data->h.version >= VERSION_1);
+	assert(image_data->h.version == VERSION_1);
 
 	/* Obtain a reference to the image by querying the platform layer */
 	io_result = plat_get_image_source(image_id, &dev_handle, &image_spec);
@@ -348,8 +496,10 @@ exit:
 
 /*******************************************************************************
  * Generic function to load and authenticate an image. The image is actually
- * loaded by calling the 'load_image()' function. In addition, this function
- * uses recursion to authenticate the parent images up to the root of trust.
+ * loaded by calling the 'load_image()' function. Therefore, it returns the
+ * same error codes if the loading operation failed, or -EAUTH if the
+ * authentication failed. In addition, this function uses recursion to
+ * authenticate the parent images up to the root of trust.
  ******************************************************************************/
 int load_auth_image(meminfo_t *mem_layout,
 		    unsigned int image_id,
@@ -402,6 +552,8 @@ int load_auth_image(meminfo_t *mem_layout,
 
 	return 0;
 }
+
+#endif /* LOAD_IMAGE_V2 */
 
 /*******************************************************************************
  * Print the content of an entry_point_info_t structure.

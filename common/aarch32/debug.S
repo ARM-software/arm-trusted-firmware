@@ -32,6 +32,7 @@
 #include <asm_macros.S>
 
 	.globl	do_panic
+	.globl	report_exception
 
 	/***********************************************************
 	 * The common implementation of do_panic for all BL stages
@@ -40,3 +41,14 @@ func do_panic
 	b	plat_panic_handler
 endfunc do_panic
 
+	/***********************************************************
+	 * This function is called from the vector table for
+	 * unhandled exceptions. It reads the current mode and
+	 * passes it to platform.
+	 ***********************************************************/
+func report_exception
+	mrs	r0, cpsr
+	and	r0, #MODE32_MASK
+	bl	plat_report_exception
+	bl	plat_panic_handler
+endfunc report_exception

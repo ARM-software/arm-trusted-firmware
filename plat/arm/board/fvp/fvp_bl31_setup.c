@@ -31,9 +31,13 @@
 #include <plat_arm.h>
 #include "fvp_private.h"
 
-
+#if LOAD_IMAGE_V2
+void bl31_early_platform_setup(void *from_bl2,
+				void *plat_params_from_bl2)
+#else
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 				void *plat_params_from_bl2)
+#endif
 {
 	arm_bl31_early_platform_setup(from_bl2, plat_params_from_bl2);
 

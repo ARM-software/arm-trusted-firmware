@@ -34,8 +34,21 @@
 #include "../drivers/pwrc/fvp_pwrc.h"
 #include "../fvp_def.h"
 
+	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_get_my_entrypoint
 	.globl	plat_is_my_cpu_primary
+
+	/* --------------------------------------------------------------------
+	 * void plat_secondary_cold_boot_setup (void);
+	 *
+	 * For AArch32, cold-booting secondary CPUs is not yet
+	 * implemented and they panic.
+	 * --------------------------------------------------------------------
+	 */
+func plat_secondary_cold_boot_setup
+cb_panic:
+	b	cb_panic
+endfunc plat_secondary_cold_boot_setup
 
 	/* ---------------------------------------------------------------------
 	 * unsigned long plat_get_my_entrypoint (void);

@@ -37,13 +37,13 @@
  * Declarations of linker defined symbols which will tell us where BL1 lives
  * in Trusted ROM and RAM
  ******************************************************************************/
-extern uint64_t __BL1_ROM_END__;
-#define BL1_ROM_END (uint64_t)(&__BL1_ROM_END__)
+extern uintptr_t __BL1_ROM_END__;
+#define BL1_ROM_END (uintptr_t)(&__BL1_ROM_END__)
 
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
+extern uintptr_t __BL1_RAM_START__;
+extern uintptr_t __BL1_RAM_END__;
+#define BL1_RAM_BASE (uintptr_t)(&__BL1_RAM_START__)
+#define BL1_RAM_LIMIT (uintptr_t)(&__BL1_RAM_END__)
 
 /******************************************
  * Function prototypes

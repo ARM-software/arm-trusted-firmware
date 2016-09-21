@@ -115,7 +115,8 @@ ENABLE_PSCI_STAT	:= 0
 # Whether code and read-only data should be put on separate memory pages.
 # The platform Makefile is free to override this value.
 SEPARATE_CODE_AND_RODATA	:= 0
-
+# Flag to enable new version of image loading
+LOAD_IMAGE_V2		:= 0
 
 ################################################################################
 # Checkpatch script options
@@ -187,6 +188,10 @@ ifneq (${GENERATE_COT},0)
         FWU_FIP_DEPS += fwu_certificates
 endif
 
+# For AArch32, enable new version of image loading.
+ifeq (${ARCH},aarch32)
+        LOAD_IMAGE_V2	:=	1
+endif
 
 ################################################################################
 # Toolchain
@@ -355,6 +360,21 @@ ifeq (${NEED_BL33},yes)
         endif
 endif
 
+# TRUSTED_BOARD_BOOT is currently not supported when LOAD_IMAGE_V2 is enabled.
+ifeq (${LOAD_IMAGE_V2},1)
+        ifeq (${TRUSTED_BOARD_BOOT},1)
+                $(error "TRUSTED_BOARD_BOOT is currently not supported	\
+                for LOAD_IMAGE_V2=1")
+        endif
+endif
+
+# For AArch32, LOAD_IMAGE_V2 must be enabled.
+ifeq (${ARCH},aarch32)
+    ifeq (${LOAD_IMAGE_V2}, 0)
+        $(error "For AArch32, LOAD_IMAGE_V2 must be enabled.")
+    endif
+endif
+
 
 ################################################################################
 # Process platform overrideable behaviour
@@ -445,6 +465,7 @@ $(eval $(call assert_boolean,PL011_GENERIC_UART))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
+$(eval $(call assert_boolean,LOAD_IMAGE_V2))
 
 
 ################################################################################
@@ -475,6 +496,7 @@ $(eval $(call add_define,PL011_GENERIC_UART))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
+$(eval $(call add_define,LOAD_IMAGE_V2))
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
         $(eval $(call add_define,EL3_PAYLOAD_BASE))
@@ -495,8 +517,6 @@ endif
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
-# BL31 is not needed and BL1, BL2 & BL2U are not currently supported in AArch32
-ifneq (${ARCH},aarch32)
 ifdef BL1_SOURCES
 NEED_BL1 := yes
 include bl1/bl1.mk
@@ -507,6 +527,8 @@ NEED_BL2 := yes
 include bl2/bl2.mk
 endif
 
+# For AArch32, BL31 is not applicable, and BL2U is not supported at present.
+ifneq (${ARCH},aarch32)
 ifdef BL2U_SOURCES
 NEED_BL2U := yes
 include bl2u/bl2u.mk
