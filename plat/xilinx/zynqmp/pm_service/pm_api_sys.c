@@ -101,7 +101,7 @@ enum pm_ret_status pm_self_suspend(enum pm_node_id nid,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD6(payload, PM_SELF_SUSPEND, proc->node_id, latency,
 			 state, address, (address >> 32));
-	return pm_ipi_send_sync(proc, payload, NULL);
+	return pm_ipi_send_sync(proc, payload, NULL, 0);
 }
 
 /**
@@ -123,7 +123,7 @@ enum pm_ret_status pm_req_suspend(enum pm_node_id target,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, PM_REQ_SUSPEND, target, ack, latency, state);
 	if (ack == REQ_ACK_BLOCKING)
-		return pm_ipi_send_sync(primary_proc, payload, NULL);
+		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	else
 		return pm_ipi_send(primary_proc, payload);
 }
@@ -165,7 +165,7 @@ enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 			 encoded_address >> 32, ack);
 
 	if (ack == REQ_ACK_BLOCKING)
-		return pm_ipi_send_sync(primary_proc, payload, NULL);
+		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	else
 		return pm_ipi_send(primary_proc, payload);
 }
@@ -187,7 +187,7 @@ enum pm_ret_status pm_force_powerdown(enum pm_node_id target,
 	PM_PACK_PAYLOAD3(payload, PM_FORCE_POWERDOWN, target, ack);
 
 	if (ack == REQ_ACK_BLOCKING)
-		return pm_ipi_send_sync(primary_proc, payload, NULL);
+		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	else
 		return pm_ipi_send(primary_proc, payload);
 }
@@ -272,7 +272,7 @@ enum pm_ret_status pm_req_node(enum pm_node_id nid,
 	PM_PACK_PAYLOAD5(payload, PM_REQ_NODE, nid, capabilities, qos, ack);
 
 	if (ack == REQ_ACK_BLOCKING)
-		return pm_ipi_send_sync(primary_proc, payload, NULL);
+		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	else
 		return pm_ipi_send(primary_proc, payload);
 }
@@ -299,7 +299,7 @@ enum pm_ret_status pm_set_requirement(enum pm_node_id nid,
 			 ack);
 
 	if (ack == REQ_ACK_BLOCKING)
-		return pm_ipi_send_sync(primary_proc, payload, NULL);
+		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 	else
 		return pm_ipi_send(primary_proc, payload);
 }
@@ -348,7 +348,7 @@ enum pm_ret_status pm_get_api_version(unsigned int *version)
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD1(payload, PM_GET_API_VERSION);
-	return pm_ipi_send_sync(primary_proc, payload, version);
+	return pm_ipi_send_sync(primary_proc, payload, version, 1);
 }
 
 /**
@@ -418,7 +418,7 @@ enum pm_ret_status pm_get_op_characteristic(enum pm_node_id nid,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_GET_OP_CHARACTERISTIC, nid, type);
-	return pm_ipi_send_sync(primary_proc, payload, result);
+	return pm_ipi_send_sync(primary_proc, payload, result, 1);
 }
 
 /* Direct-Control API functions */
@@ -454,7 +454,7 @@ enum pm_ret_status pm_reset_get_status(unsigned int reset,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, PM_RESET_GET_STATUS, reset);
-	return pm_ipi_send_sync(primary_proc, payload, reset_status);
+	return pm_ipi_send_sync(primary_proc, payload, reset_status, 1);
 }
 
 /**
@@ -476,7 +476,7 @@ enum pm_ret_status pm_mmio_write(uintptr_t address,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, PM_MMIO_WRITE, address, mask, value);
-	return pm_ipi_send_sync(primary_proc, payload, NULL);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -495,7 +495,7 @@ enum pm_ret_status pm_mmio_read(uintptr_t address, unsigned int *value)
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, PM_MMIO_READ, address);
-	return pm_ipi_send_sync(primary_proc, payload, value);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }
 
 /**
@@ -539,5 +539,5 @@ enum pm_ret_status pm_fpga_get_status(unsigned int *value)
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD1(payload, PM_FPGA_GET_STATUS);
-	return pm_ipi_send_sync(primary_proc, payload, value);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }

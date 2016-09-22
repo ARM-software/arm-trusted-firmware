@@ -188,13 +188,15 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 /**
  * pm_ipi_buff_read() - Reads IPI response after PMU has handled interrupt
  * @proc	Pointer to the processor who is waiting and reading response
- * @value	Used to return value from 2nd IPI buffer element (optional)
+ * @value	Used to return value from IPI buffer element (optional)
+ * @count	Number of values to return in @value
  *
  * @return	Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
-					   unsigned int *value)
+					   unsigned int *value, size_t count)
 {
+	size_t i;
 	uintptr_t buffer_base = proc->ipi->buffer_base +
 				IPI_BUFFER_TARGET_PMU_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
@@ -208,8 +210,10 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 	 * buf-2: unused
 	 * buf-3: unused
 	 */
-	if (value != NULL)
-		*value = mmio_read_32(buffer_base + PAYLOAD_ARG_SIZE);
+	for (i = 1; i <= count; i++) {
+		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
+		value++;
+	}
 
 	return mmio_read_32(buffer_base);
 }
@@ -218,7 +222,8 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
  * pm_ipi_send_sync() - Sends IPI request to the PMU
  * @proc	Pointer to the processor who is initiating request
  * @payload	API id and call arguments to be written in IPI buffer
- * @value	Used to return value from 2nd IPI buffer element (optional)
+ * @value	Used to return value from IPI buffer element (optional)
+ * @count	Number of values to return in @value
  *
  * Send an IPI request to the power controller and wait for it to be handled.
  *
@@ -227,7 +232,7 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
  */
 enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 				    uint32_t payload[PAYLOAD_ARG_CNT],
-				    unsigned int *value)
+				    unsigned int *value, size_t count)
 {
 	enum pm_ret_status ret;
 
@@ -237,7 +242,7 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 	if (ret != PM_RET_SUCCESS)
 		goto unlock;
 
-	ret = pm_ipi_buff_read(proc, value);
+	ret = pm_ipi_buff_read(proc, value, count);
 
 unlock:
 	bakery_lock_release(&pm_secure_lock);
