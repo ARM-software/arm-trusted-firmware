@@ -27,54 +27,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __CPU_MACROS_S__
-#define __CPU_MACROS_S__
+#ifndef __DESC_IMAGE_LOAD_H__
+#define __DESC_IMAGE_LOAD_H__
 
-#include <arch.h>
+#include <bl_common.h>
 
-#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
-				(MIDR_PN_MASK << MIDR_PN_SHIFT)
+#if LOAD_IMAGE_V2
+/* Following structure is used to store BL ep/image info. */
+typedef struct bl_mem_params_node {
+	unsigned int image_id;
+	image_info_t image_info;
+	entry_point_info_t ep_info;
+	unsigned int next_handoff_image_id;
+	bl_load_info_node_t load_node_mem;
+	bl_params_node_t params_node_mem;
+} bl_mem_params_node_t;
 
-	/*
-	 * Define the offsets to the fields in cpu_ops structure.
-	 */
-	.struct 0
-CPU_MIDR: /* cpu_ops midr */
-	.space  4
-/* Reset fn is needed during reset */
-#if IMAGE_BL1 || IMAGE_BL32
-CPU_RESET_FUNC: /* cpu_ops reset_func */
-	.space  4
-#endif
-#if IMAGE_BL32 /* The power down core and cluster is needed only in BL32 */
-CPU_PWR_DWN_CORE: /* cpu_ops core_pwr_dwn */
-	.space  4
-CPU_PWR_DWN_CLUSTER: /* cpu_ops cluster_pwr_dwn */
-	.space  4
-#endif
-CPU_OPS_SIZE = .
+/*
+ * Macro to register list of BL image descriptors,
+ * defined as an array of bl_mem_params_node_t.
+ */
+#define REGISTER_BL_IMAGE_DESCS(_img_desc)				\
+	bl_mem_params_node_t *bl_mem_params_desc_ptr = &_img_desc[0];	\
+	unsigned int bl_mem_params_desc_num = ARRAY_SIZE(_img_desc);
 
-	/*
-	 * Convenience macro to declare cpu_ops structure.
-	 * Make sure the structure fields are as per the offsets
-	 * defined above.
-	 */
-	.macro declare_cpu_ops _name:req, _midr:req, _noresetfunc = 0
-	.section cpu_ops, "a"
-	.align 2
-	.type cpu_ops_\_name, %object
-	.word \_midr
-#if IMAGE_BL1 || IMAGE_BL32
-	.if \_noresetfunc
-	.word 0
-	.else
-	.word \_name\()_reset_func
-	.endif
-#endif
-#if IMAGE_BL32
-	.word \_name\()_core_pwr_dwn
-	.word \_name\()_cluster_pwr_dwn
-#endif
-	.endm
+/* BL image loading utility functions */
+void flush_bl_params_desc(void);
+int get_bl_params_node_index(unsigned int image_id);
+bl_mem_params_node_t *get_bl_mem_params_node(unsigned int image_id);
+bl_load_info_t *get_bl_load_info_from_mem_params_desc(void);
+bl_params_t *get_next_bl_params_from_mem_params_desc(void);
 
-#endif /* __CPU_MACROS_S__ */
+
+#endif /* LOAD_IMAGE_V2 */
+#endif /* __DESC_IMAGE_LOAD_H__ */

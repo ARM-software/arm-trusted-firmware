@@ -30,59 +30,67 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <bl1.h>
+#include <bl_common.h>
 
-	.weak	plat_my_core_pos
-	.weak	plat_reset_handler
-	.weak	plat_disable_acp
-	.weak	platform_mem_init
-	.weak	plat_panic_handler
+	.globl	bl1_aarch32_smc_handler
 
-	/* -----------------------------------------------------
-	 *  int plat_my_core_pos(void);
-	 *  With this function: CorePos	= (ClusterId * 4) +
-	 *				  CoreId
-	 * -----------------------------------------------------
+
+func bl1_aarch32_smc_handler
+	/* ------------------------------------------------
+	 * SMC in BL1 is handled assuming that the MMU is
+	 * turned off by BL2.
+	 * ------------------------------------------------
 	 */
-func plat_my_core_pos
-	ldcopr	r0, MPIDR
-	and	r1, r0, #MPIDR_CPU_MASK
-	and	r0, r0, #MPIDR_CLUSTER_MASK
-	add	r0, r1, r0, LSR #6
-	bx	lr
-endfunc	plat_my_core_pos
 
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
+	/* ----------------------------------------------
+	 * Only RUN_IMAGE SMC is supported.
+	 * ----------------------------------------------
 	 */
-func plat_reset_handler
-	bx	lr
-endfunc plat_reset_handler
+	mov	r8, #BL1_SMC_RUN_IMAGE
+	cmp	r8, r0
+	blne	report_exception
 
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
+	/* ------------------------------------------------
+	 * Make sure only Secure world reaches here.
+	 * ------------------------------------------------
 	 */
-func plat_disable_acp
-	bx	lr
-endfunc plat_disable_acp
+	ldcopr  r8, SCR
+	tst	r8, #SCR_NS_BIT
+	blne	report_exception
 
 	/* ---------------------------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
+	 * Pass control to next secure image.
+	 * Here it expects r1 to contain the address of a entry_point_info_t
+	 * structure describing the BL entrypoint.
 	 * ---------------------------------------------------------------------
 	 */
-func platform_mem_init
-	bx	lr
-endfunc platform_mem_init
+	mov	r8, r1
+	mov	r0, r1
+	bl	bl1_print_next_bl_ep_info
 
-	/* -----------------------------------------------------
-	 * void plat_panic_handler(void) __dead2;
-	 * Endless loop by default.
-	 * -----------------------------------------------------
+#if SPIN_ON_BL1_EXIT
+	bl	print_debug_loop_message
+debug_loop:
+	b	debug_loop
+#endif
+
+	mov	r0, r8
+	bl	bl1_plat_prepare_exit
+
+	stcopr	r0, TLBIALL
+	dsb	sy
+	isb
+
+	/*
+	 * Extract PC and SPSR based on struct `entry_point_info_t`
+	 * and load it in LR and SPSR registers respectively.
 	 */
-func plat_panic_handler
-	b	plat_panic_handler
-endfunc plat_panic_handler
+	ldr	lr, [r8, #ENTRY_POINT_INFO_PC_OFFSET]
+	ldr	r1, [r8, #(ENTRY_POINT_INFO_PC_OFFSET + 4)]
+	msr	spsr, r1
+
+	add	r8, r8, #ENTRY_POINT_INFO_ARGS_OFFSET
+	ldm	r8, {r0, r1, r2, r3}
+	eret
+endfunc bl1_aarch32_smc_handler

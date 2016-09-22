@@ -50,6 +50,7 @@ SECTIONS
         __TEXT_START__ = .;
         *entrypoint.o(.text*)
         *(.text*)
+        *(.vectors)
         . = NEXT(4096);
         __TEXT_END__ = .;
     } >RAM
@@ -98,6 +99,7 @@ SECTIONS
         KEEP(*(cpu_ops))
         __CPU_OPS_END__ = .;
 
+        *(.vectors)
         __RO_END_UNALIGNED__ = .;
 
         /*

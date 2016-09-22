@@ -187,6 +187,9 @@ void flush_dcache_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);
 void inv_dcache_range(uintptr_t addr, size_t size);
 
+void disable_mmu_secure(void);
+void disable_mmu_icache_secure(void);
+
 DEFINE_SYSOP_FUNC(wfi)
 DEFINE_SYSOP_FUNC(wfe)
 DEFINE_SYSOP_FUNC(sev)
@@ -195,6 +198,9 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
 DEFINE_SYSOP_FUNC(isb)
+
+void __dead2 smc(uint32_t r0, uint32_t r1, uint32_t r2, uint32_t r3,
+		 uint32_t r4, uint32_t r5, uint32_t r6, uint32_t r7);
 
 DEFINE_SYSREG_RW_FUNCS(spsr)
 DEFINE_SYSREG_RW_FUNCS(cpsr)
@@ -288,5 +294,7 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 #define read_isr_el1()		read_isr()
 
 #define read_cntpct_el0()	read64_cntpct()
+
+#define read_ctr_el0()		read_ctr()
 
 #endif /* __ARCH_HELPERS_H__ */

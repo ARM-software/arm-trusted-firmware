@@ -29,14 +29,18 @@
 #
 
 BL1_SOURCES		+=	bl1/bl1_main.c				\
-				bl1/aarch64/bl1_arch_setup.c		\
-				bl1/aarch64/bl1_entrypoint.S		\
-				bl1/aarch64/bl1_exceptions.S		\
-				bl1/bl1_context_mgmt.c			\
-				lib/cpus/aarch64/cpu_helpers.S		\
-				lib/el3_runtime/aarch64/context.S	\
-				lib/el3_runtime/aarch64/context_mgmt.c	\
+				bl1/${ARCH}/bl1_arch_setup.c		\
+				bl1/${ARCH}/bl1_context_mgmt.c		\
+				bl1/${ARCH}/bl1_entrypoint.S		\
+				bl1/${ARCH}/bl1_exceptions.S		\
+				lib/cpus/${ARCH}/cpu_helpers.S		\
+				lib/el3_runtime/${ARCH}/context_mgmt.c	\
 				plat/common/plat_bl1_common.c
+
+
+ifeq (${ARCH},aarch64)
+BL1_SOURCES		+=	lib/el3_runtime/aarch64/context.S
+endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)
 BL1_SOURCES		+=	bl1/bl1_fwu.c

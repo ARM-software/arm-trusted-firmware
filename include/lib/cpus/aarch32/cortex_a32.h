@@ -27,54 +27,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __CPU_MACROS_S__
-#define __CPU_MACROS_S__
 
-#include <arch.h>
+#ifndef __CORTEX_A32_H__
+#define __CORTEX_A32_H__
 
-#define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
-				(MIDR_PN_MASK << MIDR_PN_SHIFT)
+/* Cortex-A32 Main ID register for revision 0 */
+#define CORTEX_A32_MIDR				0x410FD010
 
-	/*
-	 * Define the offsets to the fields in cpu_ops structure.
-	 */
-	.struct 0
-CPU_MIDR: /* cpu_ops midr */
-	.space  4
-/* Reset fn is needed during reset */
-#if IMAGE_BL1 || IMAGE_BL32
-CPU_RESET_FUNC: /* cpu_ops reset_func */
-	.space  4
-#endif
-#if IMAGE_BL32 /* The power down core and cluster is needed only in BL32 */
-CPU_PWR_DWN_CORE: /* cpu_ops core_pwr_dwn */
-	.space  4
-CPU_PWR_DWN_CLUSTER: /* cpu_ops cluster_pwr_dwn */
-	.space  4
-#endif
-CPU_OPS_SIZE = .
+/*******************************************************************************
+ * CPU Extended Control register specific definitions.
+ * CPUECTLR_EL1 is an implementation-specific register.
+ ******************************************************************************/
+#define CORTEX_A32_CPUECTLR_EL1			p15, 1, c15
+#define CORTEX_A32_CPUECTLR_SMPEN_BIT		(1 << 6)
 
-	/*
-	 * Convenience macro to declare cpu_ops structure.
-	 * Make sure the structure fields are as per the offsets
-	 * defined above.
-	 */
-	.macro declare_cpu_ops _name:req, _midr:req, _noresetfunc = 0
-	.section cpu_ops, "a"
-	.align 2
-	.type cpu_ops_\_name, %object
-	.word \_midr
-#if IMAGE_BL1 || IMAGE_BL32
-	.if \_noresetfunc
-	.word 0
-	.else
-	.word \_name\()_reset_func
-	.endif
-#endif
-#if IMAGE_BL32
-	.word \_name\()_core_pwr_dwn
-	.word \_name\()_cluster_pwr_dwn
-#endif
-	.endm
-
-#endif /* __CPU_MACROS_S__ */
+#endif /* __CORTEX_A32_H__ */

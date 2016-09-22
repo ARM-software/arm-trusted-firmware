@@ -34,6 +34,7 @@
 #include <cpu_data.h>
 #include <cpu_macros.S>
 
+#if IMAGE_BL1 || IMAGE_BL32
 	/*
 	 * The reset handler common to all platforms.  After a matching
 	 * cpu_ops structure entry is found, the correponding reset_handler
@@ -65,6 +66,9 @@ func reset_handler
 	bx	lr
 endfunc reset_handler
 
+#endif /* IMAGE_BL1 || IMAGE_BL32 */
+
+#if IMAGE_BL32 /* The power down core and cluster is needed only in  BL32 */
 	/*
 	 * The prepare core power down function for all platforms.  After
 	 * the cpu_ops pointer is retrieved from cpu_data, the corresponding
@@ -131,6 +135,8 @@ func init_cpu_ops
 1:
 	pop	{r4 - r6, pc}
 endfunc init_cpu_ops
+
+#endif /* IMAGE_BL32 */
 
 	/*
 	 * The below function returns the cpu_ops structure matching the

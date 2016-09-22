@@ -93,11 +93,22 @@
 #define EP_GET_EXE(x) (x & EP_EXE_MASK)
 #define EP_SET_EXE(x, ee) ((x) = ((x) & ~EP_EXE_MASK) | (ee))
 
+#define EP_FIRST_EXE_MASK	0x10
+#define EP_FIRST_EXE		0x10
+#define EP_GET_FIRST_EXE(x) ((x) & EP_FIRST_EXE_MASK)
+#define EP_SET_FIRST_EXE(x, ee) ((x) = ((x) & ~EP_FIRST_EXE_MASK) | (ee))
+
 #define PARAM_EP		0x01
 #define PARAM_IMAGE_BINARY	0x02
 #define PARAM_BL31		0x03
+#define PARAM_BL_LOAD_INFO	0x04
+#define PARAM_BL_PARAMS		0x05
+
+#define IMAGE_ATTRIB_SKIP_LOADING	0x02
+#define IMAGE_ATTRIB_PLAT_SETUP		0x04
 
 #define VERSION_1	0x01
+#define VERSION_2	0x02
 
 #define INVALID_IMAGE_ID		(0xFFFFFFFF)
 
@@ -181,8 +192,10 @@ extern uintptr_t __COHERENT_RAM_END__;
 typedef struct meminfo {
 	uintptr_t total_base;
 	size_t total_size;
+#if !LOAD_IMAGE_V2
 	uintptr_t free_base;
 	size_t free_size;
+#endif
 } meminfo_t;
 
 typedef struct aapcs64_params {
@@ -245,6 +258,9 @@ typedef struct image_info {
 	param_header_t h;
 	uintptr_t image_base;   /* physical address of base of image */
 	uint32_t image_size;    /* bytes read from image file */
+#if LOAD_IMAGE_V2
+	uint32_t image_max_size;
+#endif
 } image_info_t;
 
 /*****************************************************************************
@@ -262,6 +278,39 @@ typedef struct image_desc {
 	image_info_t image_info;
 	entry_point_info_t ep_info;
 } image_desc_t;
+
+#if LOAD_IMAGE_V2
+/* BL image node in the BL image loading sequence */
+typedef struct bl_load_info_node {
+	unsigned int image_id;
+	image_info_t *image_info;
+	struct bl_load_info_node *next_load_info;
+} bl_load_info_node_t;
+
+/* BL image head node in the BL image loading sequence */
+typedef struct bl_load_info {
+	param_header_t h;
+	bl_load_info_node_t *head;
+} bl_load_info_t;
+
+/* BL image node in the BL image execution sequence */
+typedef struct bl_params_node {
+	unsigned int image_id;
+	image_info_t *image_info;
+	entry_point_info_t *ep_info;
+	struct bl_params_node *next_params_info;
+} bl_params_node_t;
+
+/*
+ * BL image head node in the BL image execution sequence
+ * It is also used to pass information to next BL image.
+ */
+typedef struct bl_params {
+	param_header_t h;
+	bl_params_node_t *head;
+} bl_params_t;
+
+#else /* LOAD_IMAGE_V2 */
 
 /*******************************************************************************
  * This structure represents the superset of information that can be passed to
@@ -286,6 +335,7 @@ typedef struct bl31_params {
 	image_info_t *bl33_image_info;
 } bl31_params_t;
 
+#endif /* LOAD_IMAGE_V2 */
 
 /*
  * Compile time assertions related to the 'entry_point_info' structure to
@@ -308,23 +358,33 @@ CASSERT(sizeof(uintptr_t) ==
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-uintptr_t page_align(uintptr_t, unsigned);
 size_t image_size(unsigned int image_id);
+
+#if LOAD_IMAGE_V2
+
+int load_image(unsigned int image_id, image_info_t *image_data);
+int load_auth_image(unsigned int image_id, image_info_t *image_data);
+
+#else
+
+uintptr_t page_align(uintptr_t, unsigned);
 int load_image(meminfo_t *mem_layout,
 	       unsigned int image_id,
 	       uintptr_t image_base,
 	       image_info_t *image_data,
 	       entry_point_info_t *entry_point_info);
 int load_auth_image(meminfo_t *mem_layout,
-		    unsigned int image_name,
+		    unsigned int image_id,
 		    uintptr_t image_base,
 		    image_info_t *image_data,
 		    entry_point_info_t *entry_point_info);
-extern const char build_message[];
-extern const char version_string[];
-
 void reserve_mem(uintptr_t *free_base, size_t *free_size,
 		uintptr_t addr, size_t size);
+
+#endif /* LOAD_IMAGE_V2 */
+
+extern const char build_message[];
+extern const char version_string[];
 
 void print_entry_point_info(const entry_point_info_t *ep_info);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -64,11 +64,19 @@ static void bl1_load_bl2(void);
 void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 			     meminfo_t *bl2_mem_layout)
 {
-	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
 
 	assert(bl1_mem_layout != NULL);
 	assert(bl2_mem_layout != NULL);
 
+#if LOAD_IMAGE_V2
+	/*
+	 * Remove BL1 RW data from the scope of memory visible to BL2.
+	 * This is assuming BL1 RW data is at the top of bl1_mem_layout.
+	 */
+	assert(BL1_RW_BASE > bl1_mem_layout->total_base);
+	bl2_mem_layout->total_base = bl1_mem_layout->total_base;
+	bl2_mem_layout->total_size = BL1_RW_BASE - bl1_mem_layout->total_base;
+#else
 	/* Check that BL1's memory is lying outside of the free memory */
 	assert((BL1_RAM_LIMIT <= bl1_mem_layout->free_base) ||
 	       (BL1_RAM_BASE >= bl1_mem_layout->free_base +
@@ -79,7 +87,8 @@ void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 	reserve_mem(&bl2_mem_layout->total_base,
 		    &bl2_mem_layout->total_size,
 		    BL1_RAM_BASE,
-		    bl1_size);
+		    BL1_RAM_LIMIT - BL1_RAM_BASE);
+#endif /* LOAD_IMAGE_V2 */
 
 	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
 }
@@ -98,15 +107,20 @@ void bl1_main(void)
 	NOTICE("BL1: %s\n", version_string);
 	NOTICE("BL1: %s\n", build_message);
 
-	INFO("BL1: RAM 0x%lx - 0x%lx\n", BL1_RAM_BASE, BL1_RAM_LIMIT);
+	INFO("BL1: RAM %p - %p\n", (void *)BL1_RAM_BASE,
+					(void *)BL1_RAM_LIMIT);
 
 
 #if DEBUG
-	unsigned long val;
+	u_register_t val;
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
 	 */
+#ifdef AARCH32
+	val = read_sctlr();
+#else
 	val = read_sctlr_el3();
+#endif
 	assert(val & SCTLR_M_BIT);
 	assert(val & SCTLR_C_BIT);
 	assert(val & SCTLR_I_BIT);
@@ -182,12 +196,17 @@ void bl1_load_bl2(void)
 
 	INFO("BL1: Loading BL2\n");
 
+#if LOAD_IMAGE_V2
+	err = load_auth_image(BL2_IMAGE_ID, image_info);
+#else
 	/* Load the BL2 image */
 	err = load_auth_image(bl1_tzram_layout,
 			 BL2_IMAGE_ID,
 			 image_info->image_base,
 			 image_info,
 			 ep_info);
+
+#endif /* LOAD_IMAGE_V2 */
 
 	if (err) {
 		ERROR("Failed to load BL2 firmware.\n");
@@ -201,24 +220,33 @@ void bl1_load_bl2(void)
 	 * to BL2. BL2 will read the memory layout before using its
 	 * memory for other purposes.
 	 */
+#if LOAD_IMAGE_V2
+	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->total_base;
+#else
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;
+#endif /* LOAD_IMAGE_V2 */
+
 	bl1_init_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
 
-	ep_info->args.arg1 = (unsigned long)bl2_tzram_layout;
+	ep_info->args.arg1 = (uintptr_t)bl2_tzram_layout;
 	NOTICE("BL1: Booting BL2\n");
-	VERBOSE("BL1: BL2 memory layout address = 0x%llx\n",
-		(unsigned long long) bl2_tzram_layout);
+	VERBOSE("BL1: BL2 memory layout address = %p\n",
+		(void *) bl2_tzram_layout);
 }
 
 /*******************************************************************************
- * Function called just before handing over to BL31 to inform the user about
- * the boot progress. In debug mode, also print details about the BL31 image's
- * execution context.
+ * Function called just before handing over to the next BL to inform the user
+ * about the boot progress. In debug mode, also print details about the BL
+ * image's execution context.
  ******************************************************************************/
-void bl1_print_bl31_ep_info(const entry_point_info_t *bl31_ep_info)
+void bl1_print_next_bl_ep_info(const entry_point_info_t *bl_ep_info)
 {
+#ifdef AARCH32
+	NOTICE("BL1: Booting BL32\n");
+#else
 	NOTICE("BL1: Booting BL31\n");
-	print_entry_point_info(bl31_ep_info);
+#endif /* AARCH32 */
+	print_entry_point_info(bl_ep_info);
 }
 
 #if SPIN_ON_BL1_EXIT

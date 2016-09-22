@@ -28,61 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arch.h>
 #include <asm_macros.S>
 
-	.weak	plat_my_core_pos
-	.weak	plat_reset_handler
-	.weak	plat_disable_acp
-	.weak	platform_mem_init
-	.weak	plat_panic_handler
+	.globl	semihosting_call
 
-	/* -----------------------------------------------------
-	 *  int plat_my_core_pos(void);
-	 *  With this function: CorePos	= (ClusterId * 4) +
-	 *				  CoreId
-	 * -----------------------------------------------------
-	 */
-func plat_my_core_pos
-	ldcopr	r0, MPIDR
-	and	r1, r0, #MPIDR_CPU_MASK
-	and	r0, r0, #MPIDR_CLUSTER_MASK
-	add	r0, r1, r0, LSR #6
+func semihosting_call
+	svc	#0x123456
 	bx	lr
-endfunc	plat_my_core_pos
-
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
-	 */
-func plat_reset_handler
-	bx	lr
-endfunc plat_reset_handler
-
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
-	 */
-func plat_disable_acp
-	bx	lr
-endfunc plat_disable_acp
-
-	/* ---------------------------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * ---------------------------------------------------------------------
-	 */
-func platform_mem_init
-	bx	lr
-endfunc platform_mem_init
-
-	/* -----------------------------------------------------
-	 * void plat_panic_handler(void) __dead2;
-	 * Endless loop by default.
-	 * -----------------------------------------------------
-	 */
-func plat_panic_handler
-	b	plat_panic_handler
-endfunc plat_panic_handler
+endfunc semihosting_call

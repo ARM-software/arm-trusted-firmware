@@ -70,6 +70,16 @@
 	.endm
 
 	/*
+	 * Declare the exception vector table, enforcing it is aligned on a
+	 * 32 byte boundary.
+	 */
+	.macro vector_base  label
+	.section .vectors, "ax"
+	.align 5
+	\label:
+	.endm
+
+	/*
 	 * This macro calculates the base address of the current CPU's multi
 	 * processor(MP) stack using the plat_my_core_pos() index, the name of
 	 * the stack storage and the size of each stack.
