@@ -242,7 +242,13 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	}
 
 	case PM_GET_CHIPID:
-		SMC_RET1(handle, zynqmp_get_silicon_id());
+	{
+		uint32_t result[2];
+
+		ret = pm_get_chipid(result);
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
+			 result[1]);
+	}
 
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);

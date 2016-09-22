@@ -541,3 +541,19 @@ enum pm_ret_status pm_fpga_get_status(unsigned int *value)
 	PM_PACK_PAYLOAD1(payload, PM_FPGA_GET_STATUS);
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }
+
+/**
+ * pm_get_chipid() - Read silicon ID registers
+ * @value       Buffer for return values. Must be large enough
+ *		to hold 8 bytes.
+ *
+ * @return      Returns silicon ID registers
+ */
+enum pm_ret_status pm_get_chipid(uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD1(payload, PM_GET_CHIPID);
+	return pm_ipi_send_sync(primary_proc, payload, value, 2);
+}

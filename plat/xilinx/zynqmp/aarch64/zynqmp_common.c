@@ -77,18 +77,6 @@ unsigned int zynqmp_get_uart_clk(void)
 	return 100000000;
 }
 
-unsigned int zynqmp_get_silicon_id(void)
-{
-	uint32_t id;
-
-	id = mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
-
-	id &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK | ZYNQMP_CSU_IDCODE_SVD_MASK;
-	id >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
-
-	return id;
-}
-
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
 static const struct {
 	unsigned int id;
@@ -139,6 +127,18 @@ static const struct {
 		.name = "17EG",
 	},
 };
+
+static unsigned int zynqmp_get_silicon_id(void)
+{
+	uint32_t id;
+
+	id = mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
+
+	id &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK | ZYNQMP_CSU_IDCODE_SVD_MASK;
+	id >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+
+	return id;
+}
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
