@@ -17,9 +17,12 @@ to the benefit of all developers working with ARMv8-A TrustZone technology.
 License
 -------
 
-The software is provided under a BSD 3-Clause [license]. Certain source files
-are derived from FreeBSD code: the original license is included in these
-source files.
+The software is provided under a BSD-3-Clause [license]. Contributions to this 
+project are accepted under the same license with sign-off under the 
+[Developer Certificate of Origin (DCO)][DCO]
+
+Certain source files are derived from FreeBSD code: the original license is 
+included in these source files.
 
 
 This Release
