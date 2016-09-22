@@ -28,6 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
 #include <debug.h>
 #include <psci.h>
 #include <runtime_svc.h>
@@ -40,6 +41,21 @@
 DEFINE_SVC_UUID(arm_svc_uid,
 		0x108d905b, 0xf863, 0x47e8, 0xae, 0x2d,
 		0xc0, 0xfb, 0x56, 0x41, 0xf6, 0xe2);
+
+/* Setup Standard Services */
+static int32_t std_svc_setup(void)
+{
+	uintptr_t svc_arg;
+
+	svc_arg = get_arm_std_svc_args(PSCI_FID_MASK);
+	assert(svc_arg);
+
+	/*
+	 * PSCI is the only specification implemented as a Standard Service.
+	 * The `psci_setup()` also does EL3 architectural setup.
+	 */
+	return psci_setup((const psci_lib_args_t *)svc_arg);
+}
 
 /*
  * Top-level Standard Service SMC handler. This handler will in turn dispatch
@@ -93,6 +109,6 @@ DECLARE_RT_SVC(
 		OEN_STD_START,
 		OEN_STD_END,
 		SMC_TYPE_FAST,
-		NULL,
+		std_svc_setup,
 		std_svc_smc_handler
 );
