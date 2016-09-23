@@ -261,9 +261,15 @@
 #define  SECURE_SCRATCH_RSV55_HI	0x80C
 
 /*******************************************************************************
- * Tegra Memory Mapped Control Register Access Bus constants
+ * Tegra Memory Mapped Control Register Access constants
  ******************************************************************************/
 #define TEGRA_MMCRAB_BASE		0x0E000000
+
+/*******************************************************************************
+ * Tegra Memory Mapped Activity Monitor Register Access constants
+ ******************************************************************************/
+#define TEGRA_ARM_ACTMON_CTR_BASE	0x0E060000
+#define TEGRA_DENVER_ACTMON_CTR_BASE	0x0E070000
 
 /*******************************************************************************
  * Tegra SMMU Controller constants

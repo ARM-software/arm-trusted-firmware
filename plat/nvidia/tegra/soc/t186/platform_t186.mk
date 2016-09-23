@@ -57,10 +57,10 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
-MAX_XLAT_TABLES				:= 20
+MAX_XLAT_TABLES				:= 24
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 20
+MAX_MMAP_REGIONS			:= 24
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # platform files
