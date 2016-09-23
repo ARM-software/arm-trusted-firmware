@@ -142,7 +142,7 @@ void bl1_prepare_next_image(unsigned int image_id)
 			SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
 	} else {
 		/* Use HYP mode if supported else use SVC. */
-		if (GET_VIRT_EXT(read_id_pfr1()) == MODE32_hyp) {
+		if (GET_VIRT_EXT(read_id_pfr1())) {
 			next_bl_ep->spsr = SPSR_MODE32(MODE32_hyp, SPSR_T_ARM,
 				SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
 		} else {
