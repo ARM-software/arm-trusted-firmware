@@ -189,6 +189,7 @@ void fvp_config_setup(void)
 		case REV_FOUNDATION_FVP_V2_0:
 		case REV_FOUNDATION_FVP_V2_1:
 		case REV_FOUNDATION_FVP_v9_1:
+		case REV_FOUNDATION_FVP_v9_6:
 			break;
 		default:
 			WARN("Unrecognized Foundation FVP revision %x\n", rev);
