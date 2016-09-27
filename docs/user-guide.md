@@ -27,9 +27,9 @@ is outside the scope of this document.
 This document assumes that the reader has previous experience running a fully
 bootable Linux software stack on Juno or FVP using the prebuilt binaries and
 filesystems provided by [Linaro][Linaro Release Notes]. Further information may
-be found in the [Instructions for using the Linaro software deliverables][Linaro
-SW Instructions]. It also assumes that the user understands the role of the
-different software components required to boot a Linux system:
+be found in the [Instructions for using the Linaro software deliverables]
+[Linaro SW Instructions]. It also assumes that the user understands the role of
+the different software components required to boot a Linux system:
 
 *   Specific firmware images required by the platform (e.g. SCP firmware on Juno)
 *   Normal world bootloader (e.g. UEFI or U-Boot)
@@ -724,7 +724,7 @@ images with support for these features:
     modules by checking out a recent version of the [mbed TLS Repository]. It
     is important to use a version that is compatible with TF and fixes any
     known security vulnerabilities. See [mbed TLS Security Center] for more
-    information. This version of TF is tested with tag `mbedtls-2.2.0`.
+    information. This version of TF is tested with tag `mbedtls-2.2.1`.
 
     The `drivers/auth/mbedtls/mbedtls_*.mk` files contain the list of mbed TLS
     source files the modules depend upon.
@@ -1045,15 +1045,14 @@ JTAG on Juno.
 This version of the ARM Trusted Firmware has been tested on the following ARM
 FVPs (64-bit versions only).
 
-*   `Foundation_Platform` (Version 9.5, Build 9.5.40)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.6, Build 0.8.7605)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.6, Build 0.8.7605)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.6, Build 0.8.7605)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.6, Build 0.8.7605)
+*   `Foundation_Platform` (Version 10.1, Build 10.1.32)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.7, Build 0.8.7701)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.7, Build 0.8.7701)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.7, Build 0.8.7701)
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
-with the `--version` parameter. `Foundation_Platform` tarball for `--version`
-9.5.40 is labeled as version 9.5.41.
+with the `--version` parameter.
 
 NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 The commands below would report an `unhandled argument` error in this case.
@@ -1269,7 +1268,7 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 [Firmware Design]:             firmware-design.md
 [ARM FVP website]:             http://www.arm.com/fvp
-[Linaro Release Notes]:        https://community.arm.com/docs/DOC-10952#jive_content_id_Linaro_Release_1602
+[Linaro Release Notes]:        https://community.arm.com/docs/DOC-10952#jive_content_id_Linaro_Release_1606
 [ARM Platforms Portal]:        https://community.arm.com/groups/arm-development-platforms
 [Linaro SW Instructions]:      https://community.arm.com/docs/DOC-10803
 [Juno Instructions]:           https://community.arm.com/docs/DOC-10804
