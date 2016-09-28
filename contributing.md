@@ -1,26 +1,6 @@
 Contributing to ARM Trusted Firmware
 ====================================
 
-Before you start contributing to this project you must sign the ARM
-Contributor License Agreement (CLA).
-
-Individuals who want to contribute their own work must sign and return an
-Individual CLA. Companies that want to contribute must sign and return a
-Corporate CLA if their employees' intellectual property has been assigned to
-the employer. Copies of the CLAs are available from the [contributing page] of
-the ARM website. Please wait for ARM to confirm acceptance of your CLA before
-making contributions.
-
-For this project, ARM also requires the GitHub account name(s) associated with
-each individual contributor or the designated employees of corporate
-contributors. Only contributions originating from these accounts will be
-considered covered by the CLA. To avoid delay, you should provide the Github
-account name(s) at the same time as the signed CLA.
-
-ARM reserves the right to not accept a contribution. This may be for technical,
-commercial or legal reasons.
-
-
 Getting Started
 ---------------
 
@@ -77,7 +57,12 @@ Making Changes
 Submitting Changes
 ------------------
 
-*   Ensure ARM has your signed CLA and has confirmed acceptance of it.
+*   Ensure that each commit in the series has at least one `Signed-off-by:`
+    line, using your real name and email address. The names in the
+    `Signed-off-by:` and `Author:` lines must match. If anyone else contributes
+    to the commit, they must also add their own `Signed-off-by:` line.
+    By adding this line the contributor certifies the contribution is made under
+    the terms of the [Developer Certificate of Origin (DCO)][DCO].
 *   Push your local changes to your fork of the repository.
 *   Submit a [pull request] to the [arm-trusted-firmware] `integration` branch.
     *   The changes in the [pull request] will then undergo further review and
@@ -101,7 +86,7 @@ Submitting Changes
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 
 [User Guide]:                           ./docs/user-guide.md
@@ -109,8 +94,8 @@ _Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved._
 [Porting Guide]:                        ./docs/porting-guide.md
 [Firmware Design]:                      ./docs/firmware-design.md
 [Acknowledgements]:                     ./acknowledgements.md "Contributor acknowledgements"
+[DCO]:                                  ./dco.txt
 
-[contributing page]:            http://www.arm.com/community/open-source-contributing.php
 [GitHub account]:               https://github.com/signup/free
 [Fork]:                         https://help.github.com/articles/fork-a-repo
 [issue tracking repository]:    https://github.com/ARM-software/tf-issues
