@@ -261,7 +261,7 @@
 		ldr	r0, =__DATA_RAM_START__
 		ldr	r1, =__DATA_ROM_START__
 		ldr	r2, =__DATA_SIZE__
-		bl	memcpy
+		bl	memcpy4
 #endif
 	.endif /* _init_c_runtime */
 
