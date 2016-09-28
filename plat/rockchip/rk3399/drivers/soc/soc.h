@@ -65,7 +65,7 @@
 
 #define PLL_CON_COUNT			0x06
 #define CRU_CLKSEL_COUNT		0x108
-#define CRU_CLKSEL_CON(n)		(0x80 + (n) * 4)
+#define CRU_CLKSEL_CON(n)		(0x100 + (n) * 4)
 
 #define PMUCRU_CLKSEL_CONUT		0x06
 #define PMUCRU_CLKSEL_OFFSET		0x080
