@@ -108,7 +108,7 @@
 
 /* SCTLR definitions */
 #define SCTLR_RES1	((1 << 23) | (1 << 22) | (1 << 11) | (1 << 4) | \
-			(1 << 3) | SCTLR_CP15BEN_BIT | SCTLR_NTWI_BIT | SCTLR_NTWE_BIT)
+			(1 << 3))
 #define SCTLR_M_BIT		(1 << 0)
 #define SCTLR_A_BIT		(1 << 1)
 #define SCTLR_C_BIT		(1 << 2)
@@ -128,7 +128,7 @@
 /* HSCTLR definitions */
 #define HSCTLR_RES1 	((1 << 29) | (1 << 28) | (1 << 23) | (1 << 22)	\
 			| (1 << 18) | (1 << 16) | (1 << 11) | (1 << 4)	\
-			| (1 << 3) | HSCTLR_CP15BEN_BIT)
+			| (1 << 3))
 #define HSCTLR_M_BIT		(1 << 0)
 #define HSCTLR_A_BIT		(1 << 1)
 #define HSCTLR_C_BIT		(1 << 2)

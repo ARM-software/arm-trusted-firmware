@@ -116,7 +116,12 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	 */
 	if (security_state != SECURE) {
 		sctlr = EP_GET_EE(ep->h.attr) ? SCTLR_EE_BIT : 0;
-		sctlr |= SCTLR_RES1;
+		/*
+		 * In addition to SCTLR_RES1, set the CP15_BEN, nTWI & nTWE
+		 * bits that architecturally reset to 1.
+		 */
+		sctlr |= SCTLR_RES1 | SCTLR_CP15BEN_BIT |
+				SCTLR_NTWI_BIT | SCTLR_NTWE_BIT;
 		write_ctx_reg(reg_ctx, CTX_NS_SCTLR, sctlr);
 	}
 
