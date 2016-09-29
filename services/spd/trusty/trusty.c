@@ -237,6 +237,18 @@ static uint64_t trusty_smc_handler(uint32_t smc_fid,
 {
 	struct args ret;
 	uint32_t vmid = 0;
+	entry_point_info_t *ep_info = bl31_plat_get_next_image_ep_info(SECURE);
+
+	/*
+	 * Return success for SET_ROT_PARAMS if Trusty is not present, as
+	 * Verified Boot is not even supported and returning success here
+	 * would not compromise the boot process.
+	 */
+	if (!ep_info && (smc_fid == SMC_SC_SET_ROT_PARAMS)) {
+		SMC_RET1(handle, 0);
+	} else if (!ep_info) {
+		SMC_RET1(handle, SMC_UNK);
+	}
 
 	if (is_caller_secure(flags)) {
 		if (smc_fid == SMC_SC_NS_RETURN) {
