@@ -42,6 +42,8 @@
 #include "pm_ipi.h"
 #include "../zynqmp_private.h"
 
+#define PM_GET_CALLBACK_DATA	0xa01
+
 /* 0 - UP, !0 - DOWN */
 static int32_t pm_down = !0;
 
@@ -255,6 +257,16 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_get_chipid(result);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
 			 result[1]);
+	}
+
+	case PM_GET_CALLBACK_DATA:
+	{
+		uint32_t result[4];
+
+		pm_get_callbackdata(result, sizeof(result));
+		SMC_RET2(handle,
+			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
+			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
 	}
 
 	default:

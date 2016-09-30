@@ -56,6 +56,8 @@
 #define IPI_BUFFER_TARGET_PL_3_OFFSET	0x180U
 #define IPI_BUFFER_TARGET_PMU_OFFSET	0x1C0U
 
+#define IPI_BUFFER_MAX_WORDS	8
+
 #define IPI_BUFFER_REQ_OFFSET	0x0U
 #define IPI_BUFFER_RESP_OFFSET	0x20U
 
@@ -218,6 +220,29 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 }
 
 /**
+ * pm_ipi_buff_read_callb() - Reads IPI response after PMU has handled interrupt
+ * @value	Used to return value from IPI buffer element (optional)
+ * @count	Number of values to return in @value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+void pm_ipi_buff_read_callb(unsigned int *value, size_t count)
+{
+	size_t i;
+	uintptr_t buffer_base = IPI_BUFFER_PMU_BASE +
+				IPI_BUFFER_TARGET_APU_OFFSET +
+				IPI_BUFFER_REQ_OFFSET;
+
+	if (count > IPI_BUFFER_MAX_WORDS)
+		count = IPI_BUFFER_MAX_WORDS;
+
+	for (i = 0; i <= count; i++) {
+		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
+		value++;
+	}
+}
+
+/**
  * pm_ipi_send_sync() - Sends IPI request to the PMU
  * @proc	Pointer to the processor who is initiating request
  * @payload	API id and call arguments to be written in IPI buffer
@@ -257,4 +282,9 @@ void pm_ipi_irq_enable(void)
 void pm_ipi_irq_disable(void)
 {
 	mmio_write_32(IPI_APU_IDR, IPI_APU_IXR_PMU_0_MASK);
+}
+
+void pm_ipi_irq_clear(void)
+{
+	mmio_write_32(IPI_APU_ISR, IPI_APU_IXR_PMU_0_MASK);
 }
