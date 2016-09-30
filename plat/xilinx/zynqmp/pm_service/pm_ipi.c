@@ -248,3 +248,13 @@ unlock:
 
 	return ret;
 }
+
+void pm_ipi_irq_enable(void)
+{
+	mmio_write_32(IPI_APU_IER, IPI_APU_IXR_PMU_0_MASK);
+}
+
+void pm_ipi_irq_disable(void)
+{
+	mmio_write_32(IPI_APU_IDR, IPI_APU_IXR_PMU_0_MASK);
+}

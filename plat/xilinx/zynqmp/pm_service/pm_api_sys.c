@@ -396,7 +396,7 @@ enum pm_ret_status pm_register_notifier(enum pm_node_id nid,
 	PM_PACK_PAYLOAD5(payload, PM_REGISTER_NOTIFIER,
 			 nid, event, wake, enable);
 
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**

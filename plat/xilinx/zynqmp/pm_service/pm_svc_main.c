@@ -173,11 +173,19 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_GET_API_VERSION:
 		/* Check is PM API version already verified */
-		if (pm_ctx.api_version == PM_VERSION)
+		if (pm_ctx.api_version == PM_VERSION) {
 			SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
 				 ((uint64_t)PM_VERSION << 32));
+		}
 
 		ret = pm_get_api_version(&pm_ctx.api_version);
+		/*
+		 * Enable IPI IRQ
+		 * assume the rich OS is OK to handle callback IRQs now.
+		 * Even if we were wrong, it would not enable the IRQ in
+		 * the GIC.
+		 */
+		pm_ipi_irq_enable();
 		SMC_RET1(handle, (uint64_t)ret |
 			 ((uint64_t)pm_ctx.api_version << 32));
 
