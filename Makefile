@@ -32,7 +32,7 @@
 # Trusted Firmware Version
 #
 VERSION_MAJOR			:= 1
-VERSION_MINOR			:= 2
+VERSION_MINOR			:= 3
 
 # Default goal is build all images
 .DEFAULT_GOAL			:= all
