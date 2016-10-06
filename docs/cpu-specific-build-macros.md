@@ -60,6 +60,13 @@ For Cortex-A53, following errata build flags are defined :
      CPU. This needs to be enabled only for revision <= r0p3 of the CPU. From
      r0p4 and onwards, this errata is enabled by default in hardware.
 
+*   `ERRATA_A53_855873`: This applies errata 855873 workaround to Cortex-A53
+     CPUs. Though the erratum is present in every revision of the CPU,
+     this workaround is only applied to CPUs from r0p3 onwards, which feature
+     a chicken bit in CPUACTLR_EL1 to enable a hardware workaround.
+     Earlier revisions of the CPU have other errata which require the same
+     workaround in software, so they should be covered anyway.
+
 For Cortex-A57, following errata build flags are defined :
 
 *   `ERRATA_A57_806969`: This applies errata 806969 workaround to Cortex-A57

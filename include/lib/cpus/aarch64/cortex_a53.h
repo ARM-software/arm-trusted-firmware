@@ -67,6 +67,7 @@
 #define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
 
 #define CPUACTLR_DTAH			(1 << 24)
+#define CPUACTLR_ENDCCASCI		(1 << 44)
 
 /*******************************************************************************
  * L2 Auxiliary Control register specific definitions.

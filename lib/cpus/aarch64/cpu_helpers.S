@@ -234,6 +234,20 @@ func cpu_rev_var_ls
 	ret
 endfunc cpu_rev_var_ls
 
+/*
+ * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
+ * application purposes. If the revision-variant is higher than or same as a
+ * given value, indicates that errata applies; otherwise not.
+ */
+	.globl	cpu_rev_var_hs
+func cpu_rev_var_hs
+	mov	x2, #ERRATA_APPLIES
+	mov	x3, #ERRATA_NOT_APPLIES
+	cmp	x0, x1
+	csel	x0, x2, x3, hs
+	ret
+endfunc cpu_rev_var_hs
+
 #if REPORT_ERRATA
 /*
  * void print_errata_status(void);
