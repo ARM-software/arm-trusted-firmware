@@ -743,7 +743,7 @@ help:
 	@echo "  cscope         Generate cscope index"
 	@echo "  distclean      Remove all build artifacts for all platforms"
 	@echo "  certtool       Build the Certificate generation tool"
-	@echo "  fiptool        Build the Firmware Image Package(FIP) creation tool"
+	@echo "  fiptool        Build the Firmware Image Package (FIP) creation tool"
 	@echo ""
 	@echo "Note: most build targets require PLAT to be set to a specific platform."
 	@echo ""
