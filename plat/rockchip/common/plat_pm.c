@@ -317,18 +317,6 @@ static void __dead2 rockchip_system_poweroff(void)
 	rockchip_ops->system_off();
 }
 
-static void
-__dead2 rockchip_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
-{
-	if ((RK_CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) &&
-		(rockchip_ops)) {
-		if (RK_SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE &&
-		    rockchip_ops->sys_pwr_down_wfi)
-			rockchip_ops->sys_pwr_down_wfi(target_state);
-	}
-	psci_power_down_wfi();
-}
-
 /*******************************************************************************
  * Export the platform handlers via plat_rockchip_psci_pm_ops. The rockchip
  * standard
@@ -341,7 +329,6 @@ const plat_psci_ops_t plat_rockchip_psci_pm_ops = {
 	.pwr_domain_suspend = rockchip_pwr_domain_suspend,
 	.pwr_domain_on_finish = rockchip_pwr_domain_on_finish,
 	.pwr_domain_suspend_finish = rockchip_pwr_domain_suspend_finish,
-	.pwr_domain_pwr_down_wfi = rockchip_pwr_domain_pwr_down_wfi,
 	.system_reset = rockchip_system_reset,
 	.system_off = rockchip_system_poweroff,
 	.validate_power_state = rockchip_validate_power_state,

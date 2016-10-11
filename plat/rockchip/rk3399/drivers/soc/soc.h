@@ -293,6 +293,18 @@ struct deepsleep_data_s {
 #define GRF_DDRC1_CON0		0xe388
 #define GRF_DDRC1_CON1		0xe38c
 
+#define PMUCRU_CLKSEL_CON0	0x0080
+#define PMUCRU_CLKGATE_CON2	0x0108
+#define PMUCRU_SOFTRST_CON0	0x0110
+#define PMUCRU_GATEDIS_CON0 0x0130
+
+#define SGRF_SOC_CON6     0x0e018
+#define SGRF_PERILP_CON0	0x08100
+#define SGRF_PERILP_CON(n)	(SGRF_PERILP_CON0 + (n) * 4)
+#define SGRF_PMU_CON0	0x0c100
+#define SGRF_PMU_CON(n)   (SGRF_PMU_CON0 + (n) * 4)
+#define PMUCRU_SOFTRST_CON(n)   (PMUCRU_SOFTRST_CON0 + (n) * 4)
+
 /*
  * When system reset in running state, we want the cpus to be reboot
  * from maskrom (system reboot),
