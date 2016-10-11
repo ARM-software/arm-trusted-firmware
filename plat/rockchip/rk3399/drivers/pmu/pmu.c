@@ -436,7 +436,7 @@ static void pmu_scu_b_pwrup(void)
 void plat_rockchip_pmusram_prepare(void)
 {
 	uint32_t *sram_dst, *sram_src;
-	size_t sram_size = 2;
+	size_t sram_size;
 
 	/*
 	 * pmu sram code and data prepare

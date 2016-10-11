@@ -115,10 +115,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	bl32_ep_info = *from_bl2->bl32_ep_info;
 	bl33_ep_info = *from_bl2->bl33_ep_info;
 
-	/*
-	 * The code for resuming cpu from suspend must be excuted in pmusram.
-	 * Copy the code into pmusram.
-	 */
 	plat_rockchip_pmusram_prepare();
 
 	/* there may have some board sepcific message need to initialize */

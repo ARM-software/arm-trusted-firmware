@@ -82,3 +82,5 @@ BL31_SOURCES            +=      ${RK_GIC_SOURCES}                               
 				${RK_PLAT_SOC}/drivers/dram/dram_spec_timing.c
 
 ENABLE_PLAT_COMPAT      :=      0
+
+$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
