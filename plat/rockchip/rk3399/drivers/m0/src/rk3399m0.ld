@@ -27,50 +27,20 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __ROCKCHIP_PLAT_LD_S__
-#define __ROCKCHIP_PLAT_LD_S__
 
-MEMORY {
-    SRAM (rwx): ORIGIN = SRAM_BASE, LENGTH = SRAM_SIZE
+OUTPUT_FORMAT("elf32-littlearm")
+
+SECTIONS {
+	.m0_bin 0 : {
+		KEEP(*(.isr_vector))
+		ASSERT(. == 0xc0, "ISR vector has the wrong size.");
+		*(.text*)
+		*(.rodata*)
+		*(.data*)
+		*(.bss*)
+		. = ALIGN(8);
+		*(.co_stack*)
+	}
+
+	/DISCARD/ : { *(.comment) *(.note*) }
 }
-
-SECTIONS
-{
-	. = SRAM_BASE;
-	ASSERT(. == ALIGN(4096),
-		"SRAM_BASE address is not aligned on a page boundary.")
-
-	/*
-	 * The SRAM space allocation for RK3399
-	 * ----------------
-	 * | m0 code bin
-	 * ----------------
-	 * | sram text
-	 * ----------------
-	 * | sram data
-	 * ----------------
-	 */
-	.incbin_sram : ALIGN(4096) {
-		__sram_incbin_start = .;
-		*(.sram.incbin)
-		. = ALIGN(4096);
-		__sram_incbin_end = .;
-	} >SRAM
-
-	.text_sram : ALIGN(4096) {
-		__bl31_sram_text_start = .;
-		*(.sram.text)
-		*(.sram.rodata)
-		. = ALIGN(4096);
-		__bl31_sram_text_end = .;
-	} >SRAM
-
-	.data_sram : ALIGN(4096) {
-		__bl31_sram_data_start = .;
-		*(.sram.data)
-		. = ALIGN(4096);
-		__bl31_sram_data_end = .;
-	} >SRAM
-}
-
-#endif /* __ROCKCHIP_PLAT_LD_S__ */

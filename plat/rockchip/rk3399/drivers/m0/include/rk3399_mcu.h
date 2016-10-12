@@ -27,50 +27,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __ROCKCHIP_PLAT_LD_S__
-#define __ROCKCHIP_PLAT_LD_S__
 
-MEMORY {
-    SRAM (rwx): ORIGIN = SRAM_BASE, LENGTH = SRAM_SIZE
-}
+#ifndef __RK3399_MCU_H__
+#define __RK3399_MCU_H__
 
-SECTIONS
-{
-	. = SRAM_BASE;
-	ASSERT(. == ALIGN(4096),
-		"SRAM_BASE address is not aligned on a page boundary.")
+#define readl(c)	({unsigned int __v =	\
+				(*(volatile unsigned int *)(c)); __v; })
+#define writel(v, c)	((*(volatile unsigned int *) (c)) = (v))
 
-	/*
-	 * The SRAM space allocation for RK3399
-	 * ----------------
-	 * | m0 code bin
-	 * ----------------
-	 * | sram text
-	 * ----------------
-	 * | sram data
-	 * ----------------
-	 */
-	.incbin_sram : ALIGN(4096) {
-		__sram_incbin_start = .;
-		*(.sram.incbin)
-		. = ALIGN(4096);
-		__sram_incbin_end = .;
-	} >SRAM
+#define MCU_BASE	0x40000000
+#define PMU_BASE	(MCU_BASE + 0x07310000)
 
-	.text_sram : ALIGN(4096) {
-		__bl31_sram_text_start = .;
-		*(.sram.text)
-		*(.sram.rodata)
-		. = ALIGN(4096);
-		__bl31_sram_text_end = .;
-	} >SRAM
-
-	.data_sram : ALIGN(4096) {
-		__bl31_sram_data_start = .;
-		*(.sram.data)
-		. = ALIGN(4096);
-		__bl31_sram_data_end = .;
-	} >SRAM
-}
-
-#endif /* __ROCKCHIP_PLAT_LD_S__ */
+#endif /* __RK3399_MCU_H__ */
