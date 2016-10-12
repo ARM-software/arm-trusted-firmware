@@ -8,7 +8,7 @@ Contents
 2.  [Common Modifications](#2--common-modifications)
     *   [Common mandatory modifications](#21-common-mandatory-modifications)
     *   [Handling reset](#22-handling-reset)
-    *   [Common mandatory modifications](#23-common-mandatory-modifications)
+    *   [Common mandatory function modifications](#23-common-mandatory-function-modifications)
     *   [Common optional modifications](#24-common-optional-modifications)
 3.  [Boot Loader stage specific modifications](#3--modifications-specific-to-a-boot-loader-stage)
     *   [Boot Loader stage 1 (BL1)](#31-boot-loader-stage-1-bl1)
@@ -685,7 +685,7 @@ The function returns 0 on success. Any other value means the counter value could
 not be updated.
 
 
-2.3 Common mandatory modifications
+2.3 Common mandatory function modifications
 ---------------------------------
 
 The following functions are mandatory functions which need to be implemented
