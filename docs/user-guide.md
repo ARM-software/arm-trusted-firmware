@@ -1067,9 +1067,9 @@ used when compiling the FIP must match the ELF entry point.
 #### Boot of a preloaded bootwrapped kernel image on Juno
 
 The procedure to obtain and compile the boot wrapper is very similar to the case
-of the FVP. Once compiled, the `SPIN_ON_BL1_EXIT=1` loading method explained
-above in the EL3 payload boot flow section may be used to load the ELF file over
-JTAG on Juno.
+of the FVP. The execution must be stopped at the end of bl2_main(), and the
+loading method explained above in the EL3 payload boot flow section may be used
+to load the ELF file over JTAG on Juno.
 
 
 9.  Running the software on FVP
