@@ -116,11 +116,7 @@ Download the Trusted Firmware source code from Github:
         "Summary of build options" for more information on available build
         options.
 
-    *   (AArch32 only) Currently only `PLAT=fvp` is supported. Please note that
-        AArch32 support for Normal world boot loader (BL33), like U-boot or
-        UEFI, on FVP is not available upstream. Hence custom solutions are
-        required to allow Linux boot on FVP. The build instructions below
-        assume such a custom boot loader (BL33) is available.
+    *   (AArch32 only) Currently only `PLAT=fvp` is supported.
 
     *   (AArch32 only) `AARCH32_SP` is the AArch32 EL3 Runtime Software and it
         corresponds to the BL32 image. A minimal `AARCH32_SP`, sp_min, is
@@ -632,7 +628,7 @@ BL31 binary. Then to build the TSP image use:
 
 An additional boot loader binary file is created in the `build` directory:
 
-    `build/<platform>/<build-type>/bl32.bin`
+    build/<platform>/<build-type>/bl32.bin
 
 ### Checking source code style
 
@@ -667,14 +663,26 @@ platforms require a BL33 image which corresponds to the normal world bootloader
 (e.g. UEFI or U-Boot).
 
 The TF build system provides the make target `fip` to create a FIP file for the
-specified platform using the FIP creation tool included in the TF project. For
-example, to build a FIP file for FVP, packaging TF images and a BL33 image:
+specified platform using the FIP creation tool included in the TF project.
+Examples below show how to build a FIP file for FVP, packaging TF images and a
+BL33 image.
+
+For AArch64:
 
     make PLAT=fvp BL33=<path/to/bl33.bin> fip
 
+For AArch32:
+
+    make PLAT=fvp ARCH=aarch32 AARCH32_SP=sp_min BL33=<path/to/bl33.bin> fip
+
+Note that AArch32 support for Normal world boot loader (BL33), like U-boot or
+UEFI, on FVP is not available upstream. Hence custom solutions are required to
+allow Linux boot on FVP. These instructions assume such a custom boot loader
+(BL33) is available.
+
 The resulting FIP may be found in:
 
-    `build/fvp/<build-type>/fip.bin`
+    build/fvp/<build-type>/fip.bin
 
 For advanced operations on FIP files, it is also possible to independently build
 the tool and create or modify FIPs using this tool. To do this, follow these
@@ -863,6 +871,9 @@ Firmware, obtain the additional required firmware, and pack it all together in
 a single FIP binary. It assumes that a [Linaro Release][Linaro Release Notes]
 has been installed.
 
+Note currently [Linaro Release][Linaro Release Notes] only includes pre-built
+binaries for AArch64. For AArch32, pre-built binaries are not available.
+
 Note: follow the full instructions for one platform before switching to a
 different one. Mixing instructions for different platforms may result in
 corrupted binaries.
@@ -891,13 +902,19 @@ corrupted binaries.
     exist in the current directory. If that is the case, either delete those
     files or use the `--force` option to overwrite.
 
+    Note for AArch32, the instructions below assume that nt-fw.bin is a custom
+    Normal world boot loader that supports AArch32.
+
 3.  Build TF images and create a new FIP
 
         # Juno
         make PLAT=juno SCP_BL2=scp-fw.bin BL33=nt-fw.bin all fip
 
-        # FVP
+        # FVP AArch64
         make PLAT=fvp BL33=nt-fw.bin all fip
+
+        # FVP AArch32
+        make PLAT=fvp ARCH=aarch32 AARCH32_SP=sp_min BL33=nt-fw.bin all fip
 
 The resulting BL1 and FIP images may be found in:
 
