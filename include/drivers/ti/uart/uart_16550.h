@@ -23,6 +23,8 @@
 #define UARTMSR			0x18
 #define UARTSPR			0x1c
 #define UARTCSR			0x20
+/* Some instances have MDR1 defined as well */
+#define UARTMDR1		0x20
 #define UARTRXFIFOCFG		0x24
 #define UARTMIE			0x28
 #define UARTVNDR		0x2c

@@ -66,6 +66,10 @@ func console_16550_core_init
 	/* no interrupt */
 	mov	w3, #0
 	str	w3, [x0, #UARTIER]
+#ifdef TI_16550_MDR_QUIRK
+	/* UART must be enabled on some platforms via the MDR register */
+	str	w3, [x0, #UARTMDR1]
+#endif /* TI_16550_MDR_QUIRK */
 	/* enable fifo, DMA */
 	mov	w3, #(UARTFCR_FIFOEN | UARTFCR_DMAEN)
 	str	w3, [x0, #UARTFCR]
