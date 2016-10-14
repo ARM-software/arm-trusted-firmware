@@ -325,9 +325,16 @@ void plls_resume_finish(void)
 {
 	int i;
 
-	for (i = 0; i < CRU_CLKSEL_COUNT; i++)
-		mmio_write_32((CRU_BASE + CRU_CLKSEL_CON(i)),
-			      REG_SOC_WMSK | slp_data.cru_clksel_con[i]);
+	for (i = 0; i < CRU_CLKSEL_COUNT; i++) {
+		/* CRU_CLKSEL_CON96~107 the high 16-bit isb't write_mask */
+		if (i > 95)
+			mmio_write_32((CRU_BASE + CRU_CLKSEL_CON(i)),
+				      slp_data.cru_clksel_con[i]);
+		else
+			mmio_write_32((CRU_BASE + CRU_CLKSEL_CON(i)),
+				      REG_SOC_WMSK |
+				      slp_data.cru_clksel_con[i]);
+	}
 	for (i = 0; i < PMUCRU_CLKSEL_CONUT; i++)
 		mmio_write_32((PMUCRU_BASE +
 			      PMUCRU_CLKSEL_OFFSET + i * REG_SIZE),
