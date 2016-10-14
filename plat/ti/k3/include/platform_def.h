@@ -122,4 +122,25 @@
 #define CACHE_WRITEBACK_SHIFT		6
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
+/* Platform default console definitions */
+#ifndef K3_USART_BASE_ADDRESS
+#define K3_USART_BASE_ADDRESS 0x02800000
+#endif
+
+/* USART has a default size for address space */
+#define K3_USART_SIZE 0x1000
+
+#ifndef K3_USART_CLK_SPEED
+#define K3_USART_CLK_SPEED 48000000
+#endif
+
+#ifndef K3_USART_BAUD
+#define K3_USART_BAUD 115200
+#endif
+
+/* Crash console defaults */
+#define CRASH_CONSOLE_BASE K3_USART_BASE_ADDRESS
+#define CRASH_CONSOLE_CLK K3_USART_CLK_SPEED
+#define CRASH_CONSOLE_BAUD_RATE K3_USART_BAUD
+
 #endif /* __PLATFORM_DEF_H__ */

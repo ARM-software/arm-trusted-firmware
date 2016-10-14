@@ -25,6 +25,10 @@ ERRATA_A53_836870	:=	1
 ERRATA_A53_843419	:=	1
 ERRATA_A53_855873	:=	1
 
+MULTI_CONSOLE_API	:=	1
+TI_16550_MDR_QUIRK	:=	1
+$(eval $(call add_define,TI_16550_MDR_QUIRK))
+
 # Libraries
 include lib/xlat_tables_v2/xlat_tables.mk
 
@@ -33,10 +37,16 @@ PLAT_INCLUDES		+=	\
 				-Iinclude/plat/arm/common/		\
 				-Iinclude/plat/arm/common/aarch64/	\
 
+K3_CONSOLE_SOURCES	+=	\
+				drivers/console/aarch64/console.S	\
+				drivers/ti/uart/aarch64/16550_console.S	\
+				${PLAT_PATH}/common/k3_console.c	\
+
 PLAT_BL_COMMON_SOURCES	+=	\
 				plat/arm/common/arm_common.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				${XLAT_TABLES_LIB_SRCS}			\
+				${K3_CONSOLE_SOURCES}			\
 
 BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_bl31_setup.c	\

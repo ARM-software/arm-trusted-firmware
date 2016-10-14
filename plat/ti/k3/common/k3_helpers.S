@@ -92,3 +92,31 @@ func plat_my_core_pos
 out:
 	ret
 endfunc plat_my_core_pos
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_init(void)
+	 * Function to initialize the crash console
+	 * without a C Runtime to print crash report.
+	 * Clobber list : x0 - x4
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_init
+	mov_imm	x0, CRASH_CONSOLE_BASE
+	mov_imm	x1, CRASH_CONSOLE_CLK
+	mov_imm	x2, CRASH_CONSOLE_BAUD_RATE
+	mov w3, #0x0
+	b	console_core_init
+
+endfunc plat_crash_console_init
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_putc(void)
+	 * Function to print a character on the crash
+	 * console without a C Runtime.
+	 * Clobber list : x1, x2
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_putc
+	mov_imm	x1, CRASH_CONSOLE_BASE
+	b	console_core_putc
+endfunc plat_crash_console_putc

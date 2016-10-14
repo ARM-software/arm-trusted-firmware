@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <k3_console.h>
 #include <plat_arm.h>
 #include <platform_def.h>
 #include <string.h>
@@ -16,6 +17,7 @@
 /* Table of regions to map using the MMU */
 const mmap_region_t plat_arm_mmap[] = {
 	MAP_REGION_FLAT(SHARED_RAM_BASE, SHARED_RAM_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(K3_USART_BASE_ADDRESS, K3_USART_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	{ /* sentinel */ }
 };
 
@@ -54,6 +56,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	/* There are no parameters from BL2 if BL31 is a reset vector */
 	assert(from_bl2 == NULL);
 	assert(plat_params_from_bl2 == NULL);
+
+	bl31_console_setup();
 
 #ifdef BL32_BASE
 	/* Populate entry point information for BL32 */
