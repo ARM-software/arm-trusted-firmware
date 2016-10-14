@@ -49,6 +49,10 @@ K3_GIC_SOURCES		+=	\
 				plat/common/plat_gicv3.c		\
 				${PLAT_PATH}/common/k3_gicv3.c		\
 
+K3_PSCI_SOURCES		+=	\
+				plat/common/plat_psci_common.c		\
+				${PLAT_PATH}/common/k3_psci.c		\
+
 PLAT_BL_COMMON_SOURCES	+=	\
 				plat/arm/common/arm_common.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
@@ -60,3 +64,4 @@ BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_helpers.S	\
 				${PLAT_PATH}/common/k3_topology.c	\
 				${K3_GIC_SOURCES}			\
+				${K3_PSCI_SOURCES}			\
