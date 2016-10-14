@@ -12,12 +12,15 @@
 #include <k3_console.h>
 #include <plat_arm.h>
 #include <platform_def.h>
+#include <k3_gicv3.h>
 #include <string.h>
 
 /* Table of regions to map using the MMU */
 const mmap_region_t plat_arm_mmap[] = {
 	MAP_REGION_FLAT(SHARED_RAM_BASE, SHARED_RAM_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(K3_USART_BASE_ADDRESS, K3_USART_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(K3_GICD_BASE, K3_GICD_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(K3_GICR_BASE, K3_GICR_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	{ /* sentinel */ }
 };
 
@@ -107,7 +110,8 @@ void bl31_plat_arch_setup(void)
 
 void bl31_platform_setup(void)
 {
-	/* TODO: Initialize the GIC CPU and distributor interfaces */
+	k3_gic_driver_init(K3_GICD_BASE, K3_GICR_BASE);
+	k3_gic_init();
 }
 
 void platform_mem_init(void)

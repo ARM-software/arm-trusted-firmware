@@ -42,6 +42,13 @@ K3_CONSOLE_SOURCES	+=	\
 				drivers/ti/uart/aarch64/16550_console.S	\
 				${PLAT_PATH}/common/k3_console.c	\
 
+K3_GIC_SOURCES		+=	\
+				drivers/arm/gic/common/gic_common.c	\
+				drivers/arm/gic/v3/gicv3_main.c		\
+				drivers/arm/gic/v3/gicv3_helpers.c	\
+				plat/common/plat_gicv3.c		\
+				${PLAT_PATH}/common/k3_gicv3.c		\
+
 PLAT_BL_COMMON_SOURCES	+=	\
 				plat/arm/common/arm_common.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
@@ -52,3 +59,4 @@ BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_bl31_setup.c	\
 				${PLAT_PATH}/common/k3_helpers.S	\
 				${PLAT_PATH}/common/k3_topology.c	\
+				${K3_GIC_SOURCES}			\
