@@ -9,8 +9,15 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <plat_arm.h>
 #include <platform_def.h>
 #include <string.h>
+
+/* Table of regions to map using the MMU */
+const mmap_region_t plat_arm_mmap[] = {
+	MAP_REGION_FLAT(SHARED_RAM_BASE, SHARED_RAM_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	{ /* sentinel */ }
+};
 
 /*
  * Placeholder variables for maintaining information about the next image(s)
@@ -85,7 +92,13 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-	/* TODO: Initialize the MMU tables */
+	arm_setup_page_tables(BL31_BASE,
+			      BL31_END - BL31_BASE,
+			      BL_CODE_BASE,
+			      BL_CODE_END,
+			      BL_RO_DATA_BASE,
+			      BL_RO_DATA_END);
+	enable_mmu_el3(0);
 }
 
 void bl31_platform_setup(void)

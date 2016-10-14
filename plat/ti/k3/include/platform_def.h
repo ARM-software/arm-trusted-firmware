@@ -88,6 +88,33 @@
 #define BL31_PROGBITS_LIMIT		BL31_LIMIT
 
 /*
+ * Defines the maximum number of translation tables that are allocated by the
+ * translation table library code. To minimize the amount of runtime memory
+ * used, choose the smallest value needed to map the required virtual addresses
+ * for each BL stage.
+ */
+#define MAX_XLAT_TABLES		8
+
+/*
+ * Defines the maximum number of regions that are allocated by the translation
+ * table library code. A region consists of physical base address, virtual base
+ * address, size and attributes (Device/Memory, RO/RW, Secure/Non-Secure), as
+ * defined in the `mmap_region_t` structure. The platform defines the regions
+ * that should be mapped. Then, the translation table library will create the
+ * corresponding tables and descriptors at runtime. To minimize the amount of
+ * runtime memory used, choose the smallest value needed to register the
+ * required regions for each BL stage.
+ */
+#define MAX_MMAP_REGIONS	8
+
+/*
+ * Defines the total size of the address space in bytes. For example, for a 32
+ * bit address space, this value should be `(1ull << 32)`.
+ */
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
+
+/*
  * Some data must be aligned on the biggest cache line size in the platform.
  * This is known only to the platform as it might have a combination of
  * integrated and external caches.

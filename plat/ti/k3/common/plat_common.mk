@@ -25,13 +25,18 @@ ERRATA_A53_836870	:=	1
 ERRATA_A53_843419	:=	1
 ERRATA_A53_855873	:=	1
 
+# Libraries
+include lib/xlat_tables_v2/xlat_tables.mk
+
 PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/include			\
 				-Iinclude/plat/arm/common/		\
 				-Iinclude/plat/arm/common/aarch64/	\
 
 PLAT_BL_COMMON_SOURCES	+=	\
+				plat/arm/common/arm_common.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
+				${XLAT_TABLES_LIB_SRCS}			\
 
 BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_bl31_setup.c	\
