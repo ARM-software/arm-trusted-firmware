@@ -115,6 +115,11 @@ void platform_mem_init(void)
 	/* Do nothing for now... */
 }
 
+unsigned int plat_get_syscnt_freq2(void)
+{
+	return SYS_COUNTER_FREQ_IN_TICKS;
+}
+
 /*
  * Empty function to prevent the console from being uninitialized after BL33 is
  * started and allow us to see messages from BL31.
