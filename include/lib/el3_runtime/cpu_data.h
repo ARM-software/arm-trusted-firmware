@@ -50,8 +50,18 @@
 
 #if CRASH_REPORTING
 #define CPU_DATA_LOG2SIZE		7
+#define CPU_DATA_CRASH_BUF_END		(CPU_DATA_CRASH_BUF_OFFSET + \
+						CPU_DATA_CRASH_BUF_SIZE)
 #else
 #define CPU_DATA_LOG2SIZE		6
+#define CPU_DATA_CRASH_BUF_END		CPU_DATA_CRASH_BUF_OFFSET
+#endif
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+/* Temporary space to store PMF timestamps from assembly code */
+#define CPU_DATA_PMF_TS_COUNT		1
+#define CPU_DATA_PMF_TS0_OFFSET		CPU_DATA_CRASH_BUF_END
+#define CPU_DATA_PMF_TS0_IDX		0
 #endif
 
 #ifndef __ASSEMBLY__
@@ -96,6 +106,9 @@ typedef struct cpu_data {
 #if CRASH_REPORTING
 	u_register_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
 #endif
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	uint64_t cpu_data_pmf_ts[CPU_DATA_PMF_TS_COUNT];
+#endif
 	struct psci_cpu_data psci_svc_cpu_data;
 #if PLAT_PCPU_DATA_SIZE
 	uint8_t platform_cpu_data[PLAT_PCPU_DATA_SIZE];
@@ -115,6 +128,12 @@ CASSERT((1 << CPU_DATA_LOG2SIZE) == sizeof(cpu_data_t),
 CASSERT(CPU_DATA_CPU_OPS_PTR == __builtin_offsetof
 		(cpu_data_t, cpu_ops_ptr),
 		assert_cpu_data_cpu_ops_ptr_offset_mismatch);
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+CASSERT(CPU_DATA_PMF_TS0_OFFSET == __builtin_offsetof
+		(cpu_data_t, cpu_data_pmf_ts[0]),
+		assert_cpu_data_pmf_ts0_offset_mismatch);
+#endif
 
 struct cpu_data *_cpu_data_by_index(uint32_t cpu_index);
 

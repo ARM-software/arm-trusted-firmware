@@ -33,6 +33,8 @@
 #include <assert.h>
 #include <debug.h>
 #include <platform.h>
+#include <pmf.h>
+#include <runtime_instr.h>
 #include <smcc.h>
 #include <string.h>
 #include "psci_private.h"
@@ -124,10 +126,22 @@ int psci_cpu_suspend(unsigned int power_state,
 			PMF_NO_CACHE_MAINT);
 #endif
 
+#if ENABLE_RUNTIME_INSTRUMENTATION
+		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		    RT_INSTR_ENTER_HW_LOW_PWR,
+		    PMF_NO_CACHE_MAINT);
+#endif
+
 		psci_plat_pm_ops->cpu_standby(cpu_pd_state);
 
 		/* Upon exit from standby, set the state back to RUN. */
 		psci_set_cpu_local_state(PSCI_LOCAL_STATE_RUN);
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		    RT_INSTR_EXIT_HW_LOW_PWR,
+		    PMF_NO_CACHE_MAINT);
+#endif
 
 #if ENABLE_PSCI_STAT
 		/* Capture time-stamp after CPU standby */

@@ -117,6 +117,12 @@ ENABLE_PSCI_STAT	:= 0
 SEPARATE_CODE_AND_RODATA	:= 0
 # Flag to enable new version of image loading
 LOAD_IMAGE_V2		:= 0
+# Flag to enable runtime instrumentation using PMF
+ENABLE_RUNTIME_INSTRUMENTATION	:= 0
+
+ifeq (${ENABLE_RUNTIME_INSTRUMENTATION}, 1)
+ENABLE_PMF			:= 1
+endif
 
 ################################################################################
 # Checkpatch script options
@@ -466,6 +472,7 @@ $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 $(eval $(call assert_boolean,LOAD_IMAGE_V2))
+$(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
 
 
 ################################################################################
@@ -497,6 +504,7 @@ $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
 $(eval $(call add_define,LOAD_IMAGE_V2))
+$(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
         $(eval $(call add_define,EL3_PAYLOAD_BASE))

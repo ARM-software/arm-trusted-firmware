@@ -29,8 +29,11 @@
  */
 
 #include <assert.h>
+#include <cpu_data.h>
 #include <debug.h>
+#include <pmf.h>
 #include <psci.h>
+#include <runtime_instr.h>
 #include <runtime_svc.h>
 #include <smcc_helpers.h>
 #include <std_svc.h>
@@ -75,9 +78,25 @@ uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	 * value
 	 */
 	if (is_psci_fid(smc_fid)) {
-		SMC_RET1(handle,
-			psci_smc_handler(smc_fid, x1, x2, x3, x4,
-					cookie, handle, flags));
+		uint64_t ret;
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+		PMF_WRITE_TIMESTAMP(rt_instr_svc,
+		    RT_INSTR_ENTER_PSCI,
+		    PMF_NO_CACHE_MAINT,
+		    get_cpu_data(cpu_data_pmf_ts[CPU_DATA_PMF_TS0_IDX]));
+#endif
+
+		ret = psci_smc_handler(smc_fid, x1, x2, x3, x4,
+		    cookie, handle, flags);
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+		PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		    RT_INSTR_EXIT_PSCI,
+		    PMF_NO_CACHE_MAINT);
+#endif
+
+		SMC_RET1(handle, ret);
 	}
 
 	switch (smc_fid) {

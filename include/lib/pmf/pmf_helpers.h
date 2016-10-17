@@ -33,6 +33,7 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <bl_common.h>
 #include <platform.h>
 #include <pmf.h>
 #include <stdint.h>
