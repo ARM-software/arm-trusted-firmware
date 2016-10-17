@@ -143,8 +143,19 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	sctlr_elx = EP_GET_EE(ep->h.attr) ? SCTLR_EE_BIT : 0;
 	if (GET_RW(ep->spsr) == MODE_RW_64)
 		sctlr_elx |= SCTLR_EL1_RES1;
-	else
+	else {
 		sctlr_elx |= SCTLR_AARCH32_EL1_RES1;
+		/*
+		 * If lower non-secure EL is AArch32, enable the CP15BEN, nTWI
+		 * & nTWI bits. This aligns with SCTLR initialization on
+		 * systems with an AArch32 EL3, where these bits
+		 * architecturally reset to 1.
+		 */
+		if (security_state != SECURE)
+			sctlr_elx |= SCTLR_CP15BEN_BIT | SCTLR_NTWI_BIT
+						| SCTLR_NTWE_BIT;
+	}
+
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
 
 	if ((GET_RW(ep->spsr) == MODE_RW_64
