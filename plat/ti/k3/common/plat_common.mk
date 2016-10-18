@@ -35,3 +35,4 @@ PLAT_BL_COMMON_SOURCES	+=	\
 
 BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_bl31_setup.c	\
+				${PLAT_PATH}/common/k3_helpers.S	\
