@@ -212,6 +212,7 @@ OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
+DTC			?=	dtc
 
 ASFLAGS_aarch64		=	-mgeneral-regs-only
 TF_CFLAGS_aarch64	=	-mgeneral-regs-only -mstrict-align
@@ -229,7 +230,7 @@ TF_CFLAGS		+= 	-nostdinc -ffreestanding -Wall			\
 				$(TF_CFLAGS_$(ARCH))				\
 				${DEFINES} ${INCLUDES}
 TF_CFLAGS		+=	-ffunction-sections -fdata-sections
-
+DTC_FLAGS		+=	-I dts -O dtb
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
 
