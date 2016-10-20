@@ -28,63 +28,63 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-RK_PLAT         :=      plat/rockchip
-RK_PLAT_SOC     :=      ${RK_PLAT}/${PLAT}
-RK_PLAT_COMMON  :=      ${RK_PLAT}/common
+RK_PLAT		:=	plat/rockchip
+RK_PLAT_SOC	:=	${RK_PLAT}/${PLAT}
+RK_PLAT_COMMON	:=	${RK_PLAT}/common
 
-PLAT_INCLUDES           :=	-I${RK_PLAT_COMMON}/				\
-                                -I${RK_PLAT_COMMON}/include/			\
-                                -I${RK_PLAT_COMMON}/pmusram			\
-                                -I${RK_PLAT_COMMON}/drivers/pmu/			\
-				-I${RK_PLAT_SOC}/				\
-                                -I${RK_PLAT_SOC}/drivers/pmu/                   \
-				-I${RK_PLAT_SOC}/drivers/pwm/			\
-                                -I${RK_PLAT_SOC}/drivers/soc/                   \
-                                -I${RK_PLAT_SOC}/drivers/dram/			\
-                                -I${RK_PLAT_SOC}/include/                       \
+PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/			\
+				-I${RK_PLAT_COMMON}/include/		\
+				-I${RK_PLAT_COMMON}/pmusram		\
+				-I${RK_PLAT_COMMON}/drivers/pmu/	\
+				-I${RK_PLAT_SOC}/			\
+				-I${RK_PLAT_SOC}/drivers/pmu/		\
+				-I${RK_PLAT_SOC}/drivers/pwm/		\
+				-I${RK_PLAT_SOC}/drivers/soc/		\
+				-I${RK_PLAT_SOC}/drivers/dram/		\
+				-I${RK_PLAT_SOC}/include/		\
 
-RK_GIC_SOURCES          :=      drivers/arm/gic/common/gic_common.c     \
-                                drivers/arm/gic/v3/gicv3_main.c         \
-                                drivers/arm/gic/v3/gicv3_helpers.c      \
-                                plat/common/plat_gicv3.c                \
-                                ${RK_PLAT}/common/rockchip_gicv3.c
+RK_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
+				drivers/arm/gic/v3/gicv3_main.c		\
+				drivers/arm/gic/v3/gicv3_helpers.c	\
+				plat/common/plat_gicv3.c		\
+				${RK_PLAT}/common/rockchip_gicv3.c
 
-PLAT_BL_COMMON_SOURCES  :=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/aarch64/xlat_tables.c		\
-                                plat/common/aarch64/plat_common.c               \
+PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c	\
+				lib/xlat_tables/aarch64/xlat_tables.c	\
+				plat/common/aarch64/plat_common.c	\
 				plat/common/plat_psci_common.c
 
-BL31_SOURCES            +=      ${RK_GIC_SOURCES}                               \
-                                drivers/arm/cci/cci.c                           \
-                                drivers/console/aarch64/console.S		\
-                                drivers/ti/uart/aarch64/16550_console.S		\
-                                drivers/delay_timer/delay_timer.c               \
-                                drivers/delay_timer/generic_delay_timer.c	\
-				drivers/gpio/gpio.c				\
-                                lib/cpus/aarch64/cortex_a53.S                   \
-                                lib/cpus/aarch64/cortex_a72.S                   \
-                                plat/common/aarch64/platform_mp_stack.S         \
-                                ${RK_PLAT_COMMON}/aarch64/plat_helpers.S        \
-                                ${RK_PLAT_COMMON}/bl31_plat_setup.c             \
-                                ${RK_PLAT_COMMON}/params_setup.c                \
-                                ${RK_PLAT_COMMON}/pmusram/pmu_sram_cpus_on.S	\
-				${RK_PLAT_COMMON}/pmusram/pmu_sram.c		\
-                                ${RK_PLAT_COMMON}/plat_pm.c                     \
-                                ${RK_PLAT_COMMON}/plat_topology.c               \
-                                ${RK_PLAT_COMMON}/aarch64/platform_common.c        \
-				${RK_PLAT_COMMON}/rockchip_sip_svc.c		\
-				${RK_PLAT_SOC}/plat_sip_calls.c			\
-				${RK_PLAT_SOC}/drivers/gpio/rk3399_gpio.c	\
-                                ${RK_PLAT_SOC}/drivers/pmu/pmu.c                \
-                                ${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c             \
-				${RK_PLAT_SOC}/drivers/pwm/pwm.c	\
-                                ${RK_PLAT_SOC}/drivers/soc/soc.c		\
-				${RK_PLAT_SOC}/drivers/dram/dfs.c		\
-                                ${RK_PLAT_SOC}/drivers/dram/suspend.c           \
-				${RK_PLAT_SOC}/drivers/dram/dram.c		\
-				${RK_PLAT_SOC}/drivers/dram/dram_spec_timing.c
+BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
+			drivers/arm/cci/cci.c				\
+			drivers/console/aarch64/console.S		\
+			drivers/ti/uart/aarch64/16550_console.S		\
+			drivers/delay_timer/delay_timer.c		\
+			drivers/delay_timer/generic_delay_timer.c	\
+			drivers/gpio/gpio.c				\
+			lib/cpus/aarch64/cortex_a53.S			\
+			lib/cpus/aarch64/cortex_a72.S			\
+			plat/common/aarch64/platform_mp_stack.S		\
+			${RK_PLAT_COMMON}/aarch64/plat_helpers.S	\
+			${RK_PLAT_COMMON}/bl31_plat_setup.c		\
+			${RK_PLAT_COMMON}/params_setup.c		\
+			${RK_PLAT_COMMON}/pmusram/pmu_sram_cpus_on.S	\
+			${RK_PLAT_COMMON}/pmusram/pmu_sram.c		\
+			${RK_PLAT_COMMON}/plat_pm.c			\
+			${RK_PLAT_COMMON}/plat_topology.c		\
+			${RK_PLAT_COMMON}/aarch64/platform_common.c	\
+			${RK_PLAT_COMMON}/rockchip_sip_svc.c		\
+			${RK_PLAT_SOC}/plat_sip_calls.c			\
+			${RK_PLAT_SOC}/drivers/gpio/rk3399_gpio.c	\
+			${RK_PLAT_SOC}/drivers/pmu/pmu.c		\
+			${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c		\
+			${RK_PLAT_SOC}/drivers/pwm/pwm.c		\
+			${RK_PLAT_SOC}/drivers/soc/soc.c		\
+			${RK_PLAT_SOC}/drivers/dram/dfs.c		\
+			${RK_PLAT_SOC}/drivers/dram/dram.c		\
+			${RK_PLAT_SOC}/drivers/dram/dram_spec_timing.c	\
+			${RK_PLAT_SOC}/drivers/dram/suspend.c
 
-ENABLE_PLAT_COMPAT      :=      0
+ENABLE_PLAT_COMPAT	:=	0
 
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
