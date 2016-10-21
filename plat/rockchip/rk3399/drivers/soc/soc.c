@@ -31,10 +31,11 @@
 #include <arch_helpers.h>
 #include <debug.h>
 #include <delay_timer.h>
+#include <dfs.h>
+#include <dram.h>
 #include <mmio.h>
 #include <platform_def.h>
 #include <plat_private.h>
-#include <dram.h>
 #include <rk3399_def.h>
 #include <rk3399m0.h>
 #include <soc.h>
@@ -478,4 +479,5 @@ void plat_rockchip_soc_init(void)
 	plat_rockchip_gpio_init();
 	soc_m0_init();
 	dram_init();
+	dram_dfs_init();
 }

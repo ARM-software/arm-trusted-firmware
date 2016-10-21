@@ -84,102 +84,27 @@ struct rk3399_dram_status {
 };
 
 static struct rk3399_dram_status rk3399_dram_status;
-static struct ddr_dts_config_timing dts_parameter = {
-	.available = 0
-};
 
 static struct rk3399_sdram_default_config ddr3_default_config = {
 	.bl = 8,
 	.ap = 0,
-	.dramds = 40,
-	.dramodt = 120,
 	.burst_ref_cnt = 1,
 	.zqcsi = 0
-};
-
-static struct drv_odt_lp_config ddr3_drv_odt_default_config = {
-	.ddr3_speed_bin = DDR3_DEFAULT,
-	.pd_idle = 0,
-	.sr_idle = 0,
-	.sr_mc_gate_idle = 0,
-	.srpd_lite_idle = 0,
-	.standby_idle = 0,
-
-	.ddr3_dll_dis_freq = 300,
-	.phy_dll_dis_freq = 125,
-	.odt_dis_freq = 933,
-
-	.dram_side_drv = 40,
-	.dram_side_dq_odt = 120,
-	.dram_side_ca_odt = 120,
-
-	.phy_side_ca_drv = 40,
-	.phy_side_ck_cs_drv = 40,
-	.phy_side_dq_drv = 40,
-	.phy_side_odt = 240,
 };
 
 static struct rk3399_sdram_default_config lpddr3_default_config = {
 	.bl = 8,
 	.ap = 0,
-	.dramds = 34,
-	.dramodt = 240,
 	.burst_ref_cnt = 1,
 	.zqcsi = 0
-};
-
-static struct drv_odt_lp_config lpddr3_drv_odt_default_config = {
-	.ddr3_speed_bin = DDR3_DEFAULT,
-	.pd_idle = 0,
-	.sr_idle = 0,
-	.sr_mc_gate_idle = 0,
-	.srpd_lite_idle = 0,
-	.standby_idle = 0,
-
-	.ddr3_dll_dis_freq = 300,
-	.phy_dll_dis_freq = 125,
-	.odt_dis_freq = 666,
-
-	.dram_side_drv = 40,
-	.dram_side_dq_odt = 120,
-	.dram_side_ca_odt = 120,
-
-	.phy_side_ca_drv = 40,
-	.phy_side_ck_cs_drv = 40,
-	.phy_side_dq_drv = 40,
-	.phy_side_odt = 240,
 };
 
 static struct rk3399_sdram_default_config lpddr4_default_config = {
 	.bl = 16,
 	.ap = 0,
-	.dramds = 40,
-	.dramodt = 240,
 	.caodt = 240,
 	.burst_ref_cnt = 1,
 	.zqcsi = 0
-};
-
-static struct drv_odt_lp_config lpddr4_drv_odt_default_config = {
-	.ddr3_speed_bin = DDR3_DEFAULT,
-	.pd_idle = 0,
-	.sr_idle = 0,
-	.sr_mc_gate_idle = 0,
-	.srpd_lite_idle = 0,
-	.standby_idle = 0,
-
-	.ddr3_dll_dis_freq = 300,
-	.phy_dll_dis_freq = 125,
-	.odt_dis_freq = 933,
-
-	.dram_side_drv = 60,
-	.dram_side_dq_odt = 40,
-	.dram_side_ca_odt = 40,
-
-	.phy_side_ca_drv = 40,
-	.phy_side_ck_cs_drv = 80,
-	.phy_side_dq_drv = 80,
-	.phy_side_odt = 60,
 };
 
 uint32_t dcf_code[] = {
@@ -222,176 +147,79 @@ static uint32_t get_cs_die_capability(struct rk3399_sdram_params *sdram_config,
 	return (cs_cap / die);
 }
 
-static void drv_odt_lp_cfg_init(uint32_t dram_type,
-				struct ddr_dts_config_timing *dts_timing,
+static void get_dram_drv_odt_val(uint32_t dram_type,
 				struct drv_odt_lp_config *drv_config)
 {
-	if ((dts_timing) && (dts_timing->available)) {
-		drv_config->ddr3_speed_bin = dts_timing->ddr3_speed_bin;
-		drv_config->pd_idle = dts_timing->pd_idle;
-		drv_config->sr_idle = dts_timing->sr_idle;
-		drv_config->sr_mc_gate_idle = dts_timing->sr_mc_gate_idle;
-		drv_config->srpd_lite_idle = dts_timing->srpd_lite_idle;
-		drv_config->standby_idle = dts_timing->standby_idle;
-		drv_config->ddr3_dll_dis_freq = dts_timing->ddr3_dll_dis_freq;
-		drv_config->phy_dll_dis_freq = dts_timing->phy_dll_dis_freq;
-	}
+	uint32_t tmp;
+	uint32_t mr1_val, mr3_val, mr11_val;
 
 	switch (dram_type) {
 	case DDR3:
-		if ((dts_timing) && (dts_timing->available)) {
-			drv_config->odt_dis_freq =
-			    dts_timing->ddr3_odt_dis_freq;
-			drv_config->dram_side_drv = dts_timing->ddr3_drv;
-			drv_config->dram_side_dq_odt = dts_timing->ddr3_odt;
-			drv_config->phy_side_ca_drv =
-			    dts_timing->phy_ddr3_ca_drv;
-			drv_config->phy_side_ck_cs_drv =
-			    dts_timing->phy_ddr3_ca_drv;
-			drv_config->phy_side_dq_drv =
-			    dts_timing->phy_ddr3_dq_drv;
-			drv_config->phy_side_odt = dts_timing->phy_ddr3_odt;
-		} else {
-			memcpy(drv_config, &ddr3_drv_odt_default_config,
-			       sizeof(struct drv_odt_lp_config));
-		}
+		mr1_val = (mmio_read_32(CTL_REG(0, 133)) >> 16) & 0xffff;
+		tmp = ((mr1_val >> 1) & 1) | ((mr1_val >> 4) & 1);
+		if (tmp)
+			drv_config->dram_side_drv = 34;
+		else
+			drv_config->dram_side_drv = 40;
+		tmp = ((mr1_val >> 2) & 1) | ((mr1_val >> 5) & 1) |
+		      ((mr1_val >> 7) & 1);
+		if (tmp == 0)
+			drv_config->dram_side_dq_odt = 0;
+		else if (tmp == 1)
+			drv_config->dram_side_dq_odt = 60;
+		else if (tmp == 3)
+			drv_config->dram_side_dq_odt = 40;
+		else
+			drv_config->dram_side_dq_odt = 120;
 		break;
 	case LPDDR3:
-		if ((dts_timing) && (dts_timing->available)) {
-			drv_config->odt_dis_freq =
-			    dts_timing->lpddr3_odt_dis_freq;
-			drv_config->dram_side_drv = dts_timing->lpddr3_drv;
-			drv_config->dram_side_dq_odt = dts_timing->lpddr3_odt;
-			drv_config->phy_side_ca_drv =
-			    dts_timing->phy_lpddr3_ca_drv;
-			drv_config->phy_side_ck_cs_drv =
-			    dts_timing->phy_lpddr3_ca_drv;
-			drv_config->phy_side_dq_drv =
-			    dts_timing->phy_lpddr3_dq_drv;
-			drv_config->phy_side_odt = dts_timing->phy_lpddr3_odt;
+		mr3_val = mmio_read_32(CTL_REG(0, 138)) & 0xf;
+		mr11_val = (mmio_read_32(CTL_REG(0, 139)) >> 24) & 0x3;
+		if (mr3_val == 0xb)
+			drv_config->dram_side_drv = 3448;
+		else if (mr3_val == 0xa)
+			drv_config->dram_side_drv = 4048;
+		else if (mr3_val == 0x9)
+			drv_config->dram_side_drv = 3440;
+		else if (mr3_val == 0x4)
+			drv_config->dram_side_drv = 60;
+		else if (mr3_val == 0x3)
+			drv_config->dram_side_drv = 48;
+		else if (mr3_val == 0x2)
+			drv_config->dram_side_drv = 40;
+		else
+			drv_config->dram_side_drv = 34;
 
-		} else {
-			memcpy(drv_config, &lpddr3_drv_odt_default_config,
-			       sizeof(struct drv_odt_lp_config));
-		}
+		if (mr11_val == 1)
+			drv_config->dram_side_dq_odt = 60;
+		else if (mr11_val == 2)
+			drv_config->dram_side_dq_odt = 120;
+		else if (mr11_val == 0)
+			drv_config->dram_side_dq_odt = 0;
+		else
+			drv_config->dram_side_dq_odt = 240;
 		break;
 	case LPDDR4:
 	default:
-		if ((dts_timing) && (dts_timing->available)) {
-			drv_config->odt_dis_freq =
-			    dts_timing->lpddr4_odt_dis_freq;
-			drv_config->dram_side_drv = dts_timing->lpddr4_drv;
-			drv_config->dram_side_dq_odt =
-			    dts_timing->lpddr4_dq_odt;
-			drv_config->dram_side_ca_odt =
-			    dts_timing->lpddr4_ca_odt;
-			drv_config->phy_side_ca_drv =
-			    dts_timing->phy_lpddr4_ca_drv;
-			drv_config->phy_side_ck_cs_drv =
-			    dts_timing->phy_lpddr4_ck_cs_drv;
-			drv_config->phy_side_dq_drv =
-			    dts_timing->phy_lpddr4_dq_drv;
-			drv_config->phy_side_odt = dts_timing->phy_lpddr4_odt;
-		} else {
-			memcpy(drv_config, &lpddr4_drv_odt_default_config,
-			       sizeof(struct drv_odt_lp_config));
-		}
-		break;
-	}
+		mr3_val = (mmio_read_32(CTL_REG(0, 138)) >> 3) & 0x7;
+		mr11_val = (mmio_read_32(CTL_REG(0, 139)) >> 24) & 0xff;
 
-	switch (drv_config->phy_side_ca_drv) {
-	case 240:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_34_3;
-		break;
-	};
+		if ((mr3_val == 0) || (mr3_val == 7))
+			drv_config->dram_side_drv = 40;
+		else
+			drv_config->dram_side_drv = 240 / mr3_val;
 
-	switch (drv_config->phy_side_ck_cs_drv) {
-	case 240:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_34_3;
-		break;
-	}
+		tmp = mr11_val & 0x7;
+		if ((tmp == 7) || (tmp == 0))
+			drv_config->dram_side_dq_odt = 0;
+		else
+			drv_config->dram_side_dq_odt = 240 / tmp;
 
-	switch (drv_config->phy_side_dq_drv) {
-	case 240:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_34_3;
-		break;
-	}
-
-	switch (drv_config->phy_side_odt) {
-	case 240:
-		drv_config->phy_side_odt = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_odt = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_odt = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_odt = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_odt = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_odt = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_odt = PHY_DRV_ODT_34_3;
+		tmp = (mr11_val >> 4) & 0x7;
+		if ((tmp == 7) || (tmp == 0))
+			drv_config->dram_side_ca_odt = 0;
+		else
+			drv_config->dram_side_ca_odt = 240 / tmp;
 		break;
 	}
 }
@@ -403,8 +231,7 @@ static void sdram_timing_cfg_init(struct timing_related_config *ptiming_config,
 	uint32_t i, j;
 
 	for (i = 0; i < sdram_params->num_channels; i++) {
-		ptiming_config->dram_info[i].speed_rate =
-		    drv_config->ddr3_speed_bin;
+		ptiming_config->dram_info[i].speed_rate = DDR3_DEFAULT;
 		ptiming_config->dram_info[i].cs_cnt = sdram_params->ch[i].rank;
 		for (j = 0; j < sdram_params->ch[i].rank; j++) {
 			ptiming_config->dram_info[i].per_die_capability[j] =
@@ -1652,59 +1479,6 @@ static void gen_rk3399_set_odt(uint32_t odt_en)
 	}
 }
 
-static void gen_rk3399_set_ds_odt(struct timing_related_config *timing_config,
-				  struct drv_odt_lp_config *drv_config)
-{
-	uint32_t i, drv_odt_val;
-
-	for (i = 0; i < timing_config->ch_cnt; i++) {
-		if (timing_config->dram_type == LPDDR4)
-			drv_odt_val = drv_config->phy_side_odt |
-				      (PHY_DRV_ODT_Hi_Z << 4) |
-				      (drv_config->phy_side_dq_drv << 8) |
-				      (drv_config->phy_side_dq_drv << 12);
-		else if (timing_config->dram_type == LPDDR3)
-			drv_odt_val = PHY_DRV_ODT_Hi_Z |
-				      (drv_config->phy_side_odt << 4) |
-				      (drv_config->phy_side_dq_drv << 8) |
-				      (drv_config->phy_side_dq_drv << 12);
-		else
-			drv_odt_val = drv_config->phy_side_odt |
-				      (drv_config->phy_side_odt << 4) |
-				      (drv_config->phy_side_dq_drv << 8) |
-				      (drv_config->phy_side_dq_drv << 12);
-
-		/* DQ drv odt set */
-		mmio_clrsetbits_32(PHY_REG(i, 6), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 134), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 262), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 390), 0xffffff, drv_odt_val);
-		/* DQS drv odt set */
-		mmio_clrsetbits_32(PHY_REG(i, 7), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 135), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 263), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 391), 0xffffff, drv_odt_val);
-
-		gen_rk3399_set_odt(timing_config->odt);
-
-		/* CA drv set */
-		drv_odt_val = drv_config->phy_side_ca_drv |
-			      (drv_config->phy_side_ca_drv << 4);
-		mmio_clrsetbits_32(PHY_REG(i, 544), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 672), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 800), 0xff, drv_odt_val);
-
-		mmio_clrsetbits_32(PHY_REG(i, 928), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 937), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 935), 0xff, drv_odt_val);
-
-		drv_odt_val = drv_config->phy_side_ck_cs_drv |
-			      (drv_config->phy_side_ck_cs_drv << 4);
-		mmio_clrsetbits_32(PHY_REG(i, 929), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 939), 0xff, drv_odt_val);
-	}
-}
-
 static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 				  struct drv_odt_lp_config *drv_config,
 				  struct dram_timing_t *pdram_timing,
@@ -2076,14 +1850,6 @@ static void enable_dcf(uint32_t dcf_addr)
 	mmio_setbits_32(DCF_BASE + DCF_DCF_CTRL, DCF_START);
 }
 
-void dcf_code_init(void)
-{
-	memcpy((void *)DCF_START_ADDR, (void *)dcf_code, sizeof(dcf_code));
-	/* set dcf master secure */
-	mmio_write_32(SGRF_BASE + 0xe01c, ((0x3 << 0) << 16) | (0 << 0));
-	mmio_write_32(DCF_BASE + DCF_DCF_TOSET, 0x80000000);
-}
-
 static void dcf_start(uint32_t freq, uint32_t index)
 {
 	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
@@ -2104,37 +1870,21 @@ static void dcf_start(uint32_t freq, uint32_t index)
 	enable_dcf(DCF_START_ADDR);
 }
 
-static void dram_low_power_config(struct drv_odt_lp_config *lp_config)
+static void dram_low_power_config(void)
 {
-	uint32_t tmp, tmp1, i;
+	uint32_t tmp, i;
 	uint32_t ch_cnt = rk3399_dram_status.timing_config.ch_cnt;
 	uint32_t dram_type = rk3399_dram_status.timing_config.dram_type;
-	uint32_t *low_power = &rk3399_dram_status.low_power_stat;
-
-	if (dram_type == LPDDR4)
-		tmp = (lp_config->srpd_lite_idle << 16) |
-		      lp_config->pd_idle;
-	else
-		tmp = lp_config->pd_idle;
 
 	if (dram_type == DDR3)
-		tmp1 = (2 << 16) | (0x7 << 8) | 7;
+		tmp = (2 << 16) | (0x7 << 8);
 	else
-		tmp1 = (3 << 16) | (0x7 << 8) | 7;
+		tmp = (3 << 16) | (0x7 << 8);
 
-	*low_power = 0;
-
-	for (i = 0; i < ch_cnt; i++) {
-		mmio_write_32(CTL_REG(i, 102), tmp);
-		mmio_clrsetbits_32(CTL_REG(i, 103), 0xffff,
-				   (lp_config->sr_mc_gate_idle << 8) |
-				   lp_config->sr_idle);
-		mmio_clrsetbits_32(CTL_REG(i, 101), 0x70f0f, tmp1);
-		*low_power |= (7 << (8 * i));
-	}
+	for (i = 0; i < ch_cnt; i++)
+		mmio_clrsetbits_32(CTL_REG(i, 101), 0x70f0f, tmp);
 
 	/* standby idle */
-	mmio_write_32(CIC_BASE + CIC_IDLE_TH, lp_config->standby_idle);
 	mmio_write_32(CIC_BASE + CIC_CG_WAIT_TH, 0x640008);
 
 	if (ch_cnt == 2) {
@@ -2142,36 +1892,22 @@ static void dram_low_power_config(struct drv_odt_lp_config *lp_config)
 			      (((0x1<<4) | (0x1<<5) | (0x1<<6) |
 				(0x1<<7)) << 16) |
 			      ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
-		if (lp_config->standby_idle) {
-			tmp = 0x002a002a;
-			*low_power |= (1 << 11);
-		} else
-			tmp = 0;
-		mmio_write_32(CIC_BASE + CIC_CTRL1, tmp);
+		mmio_write_32(CIC_BASE + CIC_CTRL1, 0x002a0028);
 	}
 
 	mmio_write_32(GRF_BASE + GRF_DDRC0_CON1,
 		      (((0x1<<4) | (0x1<<5) | (0x1<<6) | (0x1<<7)) << 16) |
 		      ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
-	if (lp_config->standby_idle) {
-		tmp = 0x00150015;
-		*low_power |= (1 << 3);
-	} else
-		tmp = 0;
-	mmio_write_32(CIC_BASE + CIC_CTRL1, tmp);
+	mmio_write_32(CIC_BASE + CIC_CTRL1, 0x00150014);
 }
 
-
-static void dram_related_init(struct ddr_dts_config_timing *dts_timing)
+void dram_dfs_init(void)
 {
 	uint32_t trefi0, trefi1;
-	uint32_t i;
-
-	dcf_code_init();
 
 	/* get sdram config for os reg */
-	drv_odt_lp_cfg_init(sdram_config.dramtype, dts_timing,
-			    &rk3399_dram_status.drv_odt_lp_cfg);
+	get_dram_drv_odt_val(sdram_config.dramtype,
+			     &rk3399_dram_status.drv_odt_lp_cfg);
 	sdram_timing_cfg_init(&rk3399_dram_status.timing_config,
 			      &sdram_config,
 			      &rk3399_dram_status.drv_odt_lp_cfg);
@@ -2189,28 +1925,63 @@ static void dram_related_init(struct ddr_dts_config_timing *dts_timing)
 	}
 	rk3399_dram_status.index_freq[(rk3399_dram_status.current_index + 1)
 				      & 0x1] = 0;
+	dram_low_power_config();
+}
 
-	/* disable all training by ctl and pi */
-	for (i = 0; i < rk3399_dram_status.timing_config.ch_cnt; i++) {
-		mmio_clrbits_32(CTL_REG(i, 70), (1 << 24) |
-				(1 << 16) | (1 << 8) | 1);
-		mmio_clrbits_32(CTL_REG(i, 71), 1);
+/*
+ * arg0: bit0-7: sr_idle; bit8-15:sr_mc_gate_idle; bit16-31: standby idle
+ * arg1: bit0-11: pd_idle; bit 16-27: srpd_lite_idle
+ * arg2: bit0: if odt en
+ */
+uint32_t dram_set_odt_pd(uint32_t arg0, uint32_t arg1, uint32_t arg2)
+{
+	struct drv_odt_lp_config *lp_cfg = &rk3399_dram_status.drv_odt_lp_cfg;
+	uint32_t *low_power = &rk3399_dram_status.low_power_stat;
+	uint32_t dram_type, ch_count, pd_tmp, sr_tmp, i;
 
-		mmio_clrbits_32(PI_REG(i, 60), 0x3 << 8);
-		mmio_clrbits_32(PI_REG(i, 80), (0x3 << 24) | (0x3 << 16));
-		mmio_clrbits_32(PI_REG(i, 100), 0x3 << 8);
-		mmio_clrbits_32(PI_REG(i, 124), 0x3 << 16);
+	dram_type = rk3399_dram_status.timing_config.dram_type;
+	ch_count = rk3399_dram_status.timing_config.ch_cnt;
+
+	lp_cfg->sr_idle = arg0 & 0xff;
+	lp_cfg->sr_mc_gate_idle = (arg0 >> 8) & 0xff;
+	lp_cfg->standby_idle = (arg0 >> 16) & 0xffff;
+	lp_cfg->pd_idle = arg1 & 0xfff;
+	lp_cfg->srpd_lite_idle = (arg1 >> 16) & 0xfff;
+
+	rk3399_dram_status.timing_config.odt = arg2 & 0x1;
+
+	exit_low_power();
+
+	*low_power = 0;
+
+	/* pd_idle en */
+	if (lp_cfg->pd_idle)
+		*low_power |= ((1 << 0) | (1 << 8));
+	/* sr_idle en srpd_lite_idle */
+	if (lp_cfg->sr_idle | lp_cfg->srpd_lite_idle)
+		*low_power |= ((1 << 1) | (1 << 9));
+	/* sr_mc_gate_idle */
+	if (lp_cfg->sr_mc_gate_idle)
+		*low_power |= ((1 << 2) | (1 << 10));
+	/* standbyidle */
+	if (lp_cfg->standby_idle) {
+		if (rk3399_dram_status.timing_config.ch_cnt == 2)
+			*low_power |= ((1 << 3) | (1 << 11));
+		else
+			*low_power |= (1 << 3);
 	}
 
-	/* init drv odt */
-	if (rk3399_dram_status.index_freq[rk3399_dram_status.current_index] <
-		rk3399_dram_status.drv_odt_lp_cfg.odt_dis_freq)
-		rk3399_dram_status.timing_config.odt = 0;
-	else
-		rk3399_dram_status.timing_config.odt = 1;
-	gen_rk3399_set_ds_odt(&rk3399_dram_status.timing_config,
-			&rk3399_dram_status.drv_odt_lp_cfg);
-	dram_low_power_config(&rk3399_dram_status.drv_odt_lp_cfg);
+	pd_tmp = arg1;
+	if (dram_type != LPDDR4)
+		pd_tmp = arg1 & 0xfff;
+	sr_tmp = arg0 & 0xffff;
+	for (i = 0; i < ch_count; i++) {
+		mmio_write_32(CTL_REG(i, 102), pd_tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 103), 0xffff, sr_tmp);
+	}
+	mmio_write_32(CIC_BASE + CIC_IDLE_TH, (arg0 >> 16) & 0xffff);
+
+	return 0;
 }
 
 static uint32_t prepare_ddr_timing(uint32_t mhz)
@@ -2220,16 +1991,13 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 
 	rk3399_dram_status.timing_config.freq = mhz;
 
-	if (mhz < rk3399_dram_status.drv_odt_lp_cfg.ddr3_dll_dis_freq)
+	if (mhz < 300)
 		rk3399_dram_status.timing_config.dllbp = 1;
 	else
 		rk3399_dram_status.timing_config.dllbp = 0;
-	if (mhz < rk3399_dram_status.drv_odt_lp_cfg.odt_dis_freq) {
-		rk3399_dram_status.timing_config.odt = 0;
-	} else {
-		rk3399_dram_status.timing_config.odt = 1;
+
+	if (rk3399_dram_status.timing_config.odt == 1)
 		gen_rk3399_set_odt(1);
-	}
 
 	index = (rk3399_dram_status.current_index + 1) & 0x1;
 	if (rk3399_dram_status.index_freq[index] == mhz)
@@ -2248,7 +2016,6 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 			      &rk3399_dram_status.drv_odt_lp_cfg,
 			      &dram_timing, index);
 	rk3399_dram_status.index_freq[index] = mhz;
-
 
 out:
 	return index;
@@ -2281,7 +2048,6 @@ uint32_t ddr_set_rate(uint32_t hz)
 	index = to_get_clk_index(mhz);
 	mhz = dpll_rates_table[index].mhz;
 
-	low_power = exit_low_power();
 	index = prepare_ddr_timing(mhz);
 	if (index > 1)
 		goto out;
@@ -2292,10 +2058,7 @@ uint32_t ddr_set_rate(uint32_t hz)
 		gen_rk3399_set_odt(0);
 
 	rk3399_dram_status.current_index = index;
-
-	if (mhz < dts_parameter.auto_pd_dis_freq)
-		low_power |= rk3399_dram_status.low_power_stat;
-
+	low_power = rk3399_dram_status.low_power_stat;
 	resume_low_power(low_power);
 out:
 	return mhz;
@@ -2309,31 +2072,4 @@ uint32_t ddr_round_rate(uint32_t hz)
 	index = to_get_clk_index(mhz);
 
 	return dpll_rates_table[index].mhz * 1000 * 1000;
-}
-
-uint32_t dts_timing_receive(uint32_t timing, uint32_t index)
-{
-	uint32_t *p = (uint32_t *) &dts_parameter;
-	static uint32_t receive_nums;
-
-	if (index < (sizeof(dts_parameter) / sizeof(uint32_t) - 1)) {
-		p[index] = (uint32_t)timing;
-		receive_nums++;
-	} else {
-		dts_parameter.available = 0;
-		return -1;
-	}
-
-	/* receive all parameter */
-	if (receive_nums  == (sizeof(dts_parameter) / sizeof(uint32_t) - 1)) {
-		dts_parameter.available = 1;
-		receive_nums = 0;
-	}
-
-	return index;
-}
-
-void ddr_dfs_init(void)
-{
-	dram_related_init(&dts_parameter);
 }
