@@ -40,25 +40,17 @@
 
 #include <delay_timer.h>
 
-#define CTL_TRAINING	(1)
-#define PI_TRAINING		(!CTL_TRAINING)
-
-#define EN_READ_GATE_TRAINING	(1)
-#define EN_CA_TRAINING		(0)
-#define EN_WRITE_LEVELING	(0)
-#define EN_READ_LEVELING	(0)
-#define EN_WDQ_LEVELING	(0)
-
 #define ENPER_CS_TRAINING_FREQ	(933)
+#define PHY_DLL_BYPASS_FREQ	(260)
 
 struct pll_div {
-	unsigned int mhz;
-	unsigned int refdiv;
-	unsigned int fbdiv;
-	unsigned int postdiv1;
-	unsigned int postdiv2;
-	unsigned int frac;
-	unsigned int freq;
+	uint32_t mhz;
+	uint32_t refdiv;
+	uint32_t fbdiv;
+	uint32_t postdiv1;
+	uint32_t postdiv2;
+	uint32_t frac;
+	uint32_t freq;
 };
 
 static const struct pll_div dpll_rates_table[] = {
@@ -84,6 +76,7 @@ struct rk3399_dram_status {
 };
 
 static struct rk3399_dram_status rk3399_dram_status;
+static uint32_t wrdqs_delay_val[2][2][4];
 
 static struct rk3399_sdram_default_config ddr3_default_config = {
 	.bl = 8,
@@ -1028,6 +1021,21 @@ static void gen_rk3399_ctl_params_f1(struct timing_related_config
 	}
 }
 
+static void gen_rk3399_enable_training(uint32_t ch_cnt, uint32_t nmhz)
+{
+		uint32_t i, tmp;
+
+		if (nmhz <= PHY_DLL_BYPASS_FREQ)
+			tmp = 0;
+		else
+			tmp = 1;
+
+		for (i = 0; i < ch_cnt; i++) {
+			mmio_clrsetbits_32(CTL_REG(i, 305), 1 << 16, tmp << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 71), 1, tmp);
+		}
+}
+
 static void gen_rk3399_ctl_params(struct timing_related_config *timing_config,
 				  struct dram_timing_t *pdram_timing,
 				  uint32_t fn)
@@ -1036,35 +1044,6 @@ static void gen_rk3399_ctl_params(struct timing_related_config *timing_config,
 		gen_rk3399_ctl_params_f0(timing_config, pdram_timing);
 	else
 		gen_rk3399_ctl_params_f1(timing_config, pdram_timing);
-
-#if CTL_TRAINING
-	uint32_t i, tmp0, tmp1;
-
-	tmp0 = tmp1 = 0;
-#if EN_READ_GATE_TRAINING
-	tmp1 = 1;
-#endif
-
-#if EN_CA_TRAINING
-	tmp0 |= (1 << 8);
-#endif
-
-#if EN_WRITE_LEVELING
-	tmp0 |= (1 << 16);
-#endif
-
-#if EN_READ_LEVELING
-	tmp0 |= (1 << 24);
-#endif
-	for (i = 0; i < timing_config->ch_cnt; i++) {
-		if (tmp0 | tmp1)
-			mmio_setbits_32(CTL_REG(i, 305), 1 << 16);
-		if (tmp0)
-			mmio_setbits_32(CTL_REG(i, 70), tmp0);
-		if (tmp1)
-			mmio_setbits_32(CTL_REG(i, 71), tmp1);
-	}
-#endif
 }
 
 static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
@@ -1432,32 +1411,6 @@ static void gen_rk3399_pi_params(struct timing_related_config *timing_config,
 		gen_rk3399_pi_params_f0(timing_config, pdram_timing);
 	else
 		gen_rk3399_pi_params_f1(timing_config, pdram_timing);
-
-#if PI_TRAINING
-	uint32_t i;
-
-	for (i = 0; i < timing_config->ch_cnt; i++) {
-#if EN_READ_GATE_TRAINING
-		mmio_clrsetbits_32(PI_REG(i, 80), 3 << 24, 2 << 24);
-#endif
-
-#if EN_CA_TRAINING
-		mmio_clrsetbits_32(PI_REG(i, 100), 3 << 8, 2 << 8);
-#endif
-
-#if EN_WRITE_LEVELING
-		mmio_clrsetbits_32(PI_REG(i, 60), 3 << 8, 2 << 8);
-#endif
-
-#if EN_READ_LEVELING
-		mmio_clrsetbits_32(PI_REG(i, 80), 3 << 16, 2 << 16);
-#endif
-
-#if EN_WDQ_LEVELING
-		mmio_clrsetbits_32(PI_REG(i, 124), 3 << 16, 2 << 16);
-#endif
-	}
-#endif
 }
 
 static void gen_rk3399_set_odt(uint32_t odt_en)
@@ -1477,6 +1430,94 @@ static void gen_rk3399_set_odt(uint32_t odt_en)
 		mmio_clrsetbits_32(PHY_REG(i, 262), 0x7 << 24, drv_odt_val);
 		mmio_clrsetbits_32(PHY_REG(i, 390), 0x7 << 24, drv_odt_val);
 	}
+}
+
+static void gen_rk3399_phy_dll_bypass(uint32_t mhz, uint32_t ch,
+		uint32_t index, uint32_t dram_type)
+{
+	uint32_t sw_master_mode = 0;
+	uint32_t rddqs_gate_delay, rddqs_latency, total_delay;
+	uint32_t i;
+
+	if (dram_type == DDR3)
+		total_delay = PI_PAD_DELAY_PS_VALUE;
+	else if (dram_type == LPDDR3)
+		total_delay = PI_PAD_DELAY_PS_VALUE + 2500;
+	else
+		total_delay = PI_PAD_DELAY_PS_VALUE + 1500;
+	/* total_delay + 0.55tck */
+	total_delay +=  (55 * 10000)/mhz;
+	rddqs_latency = total_delay * mhz / 1000000;
+	total_delay -= rddqs_latency * 1000000 / mhz;
+	rddqs_gate_delay = total_delay * 0x200 * mhz / 1000000;
+	if (mhz <= PHY_DLL_BYPASS_FREQ) {
+		sw_master_mode = 0xc;
+		mmio_setbits_32(PHY_REG(ch, 514), 1);
+		mmio_setbits_32(PHY_REG(ch, 642), 1);
+		mmio_setbits_32(PHY_REG(ch, 770), 1);
+
+		/* setting bypass mode slave delay */
+		for (i = 0; i < 4; i++) {
+			/* wr dq delay = -180deg + (0x60 / 4) * 20ps */
+			mmio_clrsetbits_32(PHY_REG(ch, 1 + 128 * i), 0x7ff << 8,
+					   0x4a0 << 8);
+			/* rd dqs/dq delay = (0x60 / 4) * 20ps */
+			mmio_clrsetbits_32(PHY_REG(ch, 11 + 128 * i), 0x3ff,
+					   0xa0);
+			/* rd rddqs_gate delay */
+			mmio_clrsetbits_32(PHY_REG(ch, 2 + 128 * i), 0x3ff,
+					   rddqs_gate_delay);
+			mmio_clrsetbits_32(PHY_REG(ch, 78 + 128 * i), 0xf,
+					   rddqs_latency);
+		}
+		for (i = 0; i < 3; i++)
+			/* adr delay */
+			mmio_clrsetbits_32(PHY_REG(ch, 513 + 128 * i),
+					   0x7ff << 16, 0x80 << 16);
+
+		if ((mmio_read_32(PHY_REG(ch, 86)) & 0xc00) == 0) {
+			/*
+			 * old status is normal mode,
+			 * and saving the wrdqs slave delay
+			 */
+			for (i = 0; i < 4; i++) {
+				/* save and clear wr dqs slave delay */
+				wrdqs_delay_val[ch][index][i] = 0x3ff &
+					(mmio_read_32(PHY_REG(ch, 63 + i * 128))
+					>> 16);
+				mmio_clrsetbits_32(PHY_REG(ch, 63 + i * 128),
+						   0x03ff << 16, 0 << 16);
+				/*
+				 * in normal mode the cmd may delay 1cycle by
+				 * wrlvl and in bypass mode making dqs also
+				 * delay 1cycle.
+				 */
+				mmio_clrsetbits_32(PHY_REG(ch, 78 + i * 128),
+						   0x07 << 8, 0x1 << 8);
+			}
+		}
+	} else if (mmio_read_32(PHY_REG(ch, 86)) & 0xc00) {
+		/* old status is bypass mode and restore wrlvl resume */
+		for (i = 0; i < 4; i++) {
+			mmio_clrsetbits_32(PHY_REG(ch, 63 + i * 128),
+					   0x03ff << 16,
+					   (wrdqs_delay_val[ch][index][i] &
+					    0x3ff) << 16);
+			/* resume phy_write_path_lat_add */
+			mmio_clrbits_32(PHY_REG(ch, 78 + i * 128), 0x07 << 8);
+		}
+	}
+
+	/* phy_sw_master_mode_X PHY_86/214/342/470 4bits offset_8 */
+	mmio_clrsetbits_32(PHY_REG(ch, 86), 0xf << 8, sw_master_mode << 8);
+	mmio_clrsetbits_32(PHY_REG(ch, 214), 0xf << 8, sw_master_mode << 8);
+	mmio_clrsetbits_32(PHY_REG(ch, 342), 0xf << 8, sw_master_mode << 8);
+	mmio_clrsetbits_32(PHY_REG(ch, 470), 0xf << 8, sw_master_mode << 8);
+
+	/* phy_adrctl_sw_master_mode PHY_547/675/803 4bits offset_16 */
+	mmio_clrsetbits_32(PHY_REG(ch, 547), 0xf << 16, sw_master_mode << 16);
+	mmio_clrsetbits_32(PHY_REG(ch, 675), 0xf << 16, sw_master_mode << 16);
+	mmio_clrsetbits_32(PHY_REG(ch, 803), 0xf << 16, sw_master_mode << 16);
 }
 
 static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
@@ -1586,12 +1627,6 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		gate_delay_ps = delay_frac_ps + 1000 - (trpre_min_ps / 2);
 		gate_delay_frac_ps = gate_delay_ps % 1000;
 		tmp = gate_delay_frac_ps * 0x200 / 1000;
-		/* PHY_RDDQS_GATE_BYPASS_SLAVE_DELAY */
-		/* DENALI_PHY_2/130/258/386 10bits offset_0 */
-		mmio_clrsetbits_32(PHY_REG(i, 2), 0x2ff, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 130), 0x2ff, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 258), 0x2ff, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 386), 0x2ff, tmp);
 		/* PHY_RDDQS_GATE_SLAVE_DELAY */
 		/* DENALI_PHY_77/205/333/461 10bits offset_16 */
 		mmio_clrsetbits_32(PHY_REG(i, 77), 0x2ff << 16, tmp << 16);
@@ -1606,12 +1641,6 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PHY_REG(i, 138), 0xf, tmp);
 		mmio_clrsetbits_32(PHY_REG(i, 266), 0xf, tmp);
 		mmio_clrsetbits_32(PHY_REG(i, 394), 0xf, tmp);
-		/* PHY_RDDQS_LATENCY_ADJUST */
-		/* DENALI_PHY_78/206/334/462 4bits offset_0 */
-		mmio_clrsetbits_32(PHY_REG(i, 78), 0xf, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 206), 0xf, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 334), 0xf, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 462), 0xf, tmp);
 		/* PHY_GTLVL_LAT_ADJ_START */
 		/* DENALI_PHY_80/208/336/464 4bits offset_16 */
 		tmp = delay_frac_ps / 1000;
@@ -1696,6 +1725,8 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 			mmio_setbits_32(PHY_REG(i, 340), 0x1 << 16);
 			mmio_setbits_32(PHY_REG(i, 468), 0x1 << 16);
 		}
+		gen_rk3399_phy_dll_bypass(pdram_timing->mhz, i, fn,
+					  timing_config->dram_type);
 	}
 }
 
@@ -2018,6 +2049,8 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 	rk3399_dram_status.index_freq[index] = mhz;
 
 out:
+	gen_rk3399_enable_training(rk3399_dram_status.timing_config.ch_cnt,
+				   mhz);
 	return index;
 }
 
