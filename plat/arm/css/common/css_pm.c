@@ -37,13 +37,7 @@
 #include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
-#include "css_scpi.h"
-
-/* Macros to read the CSS power domain state */
-#define CSS_CORE_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL0]
-#define CSS_CLUSTER_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL1]
-#define CSS_SYSTEM_PWR_STATE(state)	((PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) ?\
-				(state)->pwr_domain_state[ARM_PWR_LVL2] : 0)
+#include "../drivers/scp/css_scp.h"
 
 /* Allow CSS platforms to override `plat_arm_psci_pm_ops` */
 #pragma weak plat_arm_psci_pm_ops
@@ -87,12 +81,7 @@ CASSERT(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL1,
  ******************************************************************************/
 int css_pwr_domain_on(u_register_t mpidr)
 {
-	/*
-	 * SCP takes care of powering up parent power domains so we
-	 * only need to care about level 0
-	 */
-	scpi_set_css_power_state(mpidr, scpi_power_on, scpi_power_on,
-				 scpi_power_on);
+	css_scp_on(mpidr);
 
 	return PSCI_E_SUCCESS;
 }
@@ -140,30 +129,12 @@ void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 static void css_power_down_common(const psci_power_state_t *target_state)
 {
-	uint32_t cluster_state = scpi_power_on;
-	uint32_t system_state = scpi_power_on;
-
 	/* Prevent interrupts from spuriously waking up this cpu */
 	plat_arm_gic_cpuif_disable();
 
-	/* Check if power down at system power domain level is requested */
-	if (CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
-			system_state = scpi_power_retention;
-
 	/* Cluster is to be turned off, so disable coherency */
-	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
+	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
 		plat_arm_interconnect_exit_coherency();
-		cluster_state = scpi_power_off;
-	}
-
-	/*
-	 * Ask the SCP to power down the appropriate components depending upon
-	 * their state.
-	 */
-	scpi_set_css_power_state(read_mpidr_el1(),
-				 scpi_power_off,
-				 cluster_state,
-				 system_state);
 }
 
 /*******************************************************************************
@@ -174,6 +145,7 @@ void css_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 	css_power_down_common(target_state);
+	css_scp_off(target_state);
 }
 
 /*******************************************************************************
@@ -191,6 +163,7 @@ void css_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 	css_power_down_common(target_state);
+	css_scp_suspend(target_state);
 }
 
 /*******************************************************************************
@@ -222,34 +195,12 @@ void css_pwr_domain_suspend_finish(
  ******************************************************************************/
 void __dead2 css_system_off(void)
 {
-	uint32_t response;
-
-	/* Send the power down request to the SCP */
-	response = scpi_sys_power_state(scpi_system_shutdown);
-
-	if (response != SCP_OK) {
-		ERROR("CSS System Off: SCP error %u.\n", response);
-		panic();
-	}
-	wfi();
-	ERROR("CSS System Off: operation not handled.\n");
-	panic();
+	css_scp_sys_shutdown();
 }
 
 void __dead2 css_system_reset(void)
 {
-	uint32_t response;
-
-	/* Send the system reset request to the SCP */
-	response = scpi_sys_power_state(scpi_system_reboot);
-
-	if (response != SCP_OK) {
-		ERROR("CSS System Reset: SCP error %u.\n", response);
-		panic();
-	}
-	wfi();
-	ERROR("CSS System Reset: operation not handled.\n");
-	panic();
+	css_scp_sys_reboot();
 }
 
 /*******************************************************************************
@@ -303,36 +254,7 @@ void css_get_sys_suspend_power_state(psci_power_state_t *req_state)
  ******************************************************************************/
 int css_node_hw_state(u_register_t mpidr, unsigned int power_level)
 {
-	int rc, element;
-	unsigned int cpu_state, cluster_state;
-
-	/*
-	 * The format of 'power_level' is implementation-defined, but 0 must
-	 * mean a CPU. We also allow 1 to denote the cluster
-	 */
-	if (power_level != ARM_PWR_LVL0 && power_level != ARM_PWR_LVL1)
-		return PSCI_E_INVALID_PARAMS;
-
-	/* Query SCP */
-	rc = scpi_get_css_power_state(mpidr, &cpu_state, &cluster_state);
-	if (rc != 0)
-		return PSCI_E_INVALID_PARAMS;
-
-	/* Map power states of CPU and cluster to expected PSCI return codes */
-	if (power_level == ARM_PWR_LVL0) {
-		/*
-		 * The CPU state returned by SCP is an 8-bit bit mask
-		 * corresponding to each CPU in the cluster
-		 */
-		element = mpidr & MPIDR_AFFLVL_MASK;
-		return CSS_CPU_PWR_STATE(cpu_state, element) ==
-			CSS_CPU_PWR_STATE_ON ? HW_ON : HW_OFF;
-	} else {
-		assert(cluster_state == CSS_CLUSTER_PWR_STATE_ON ||
-				cluster_state == CSS_CLUSTER_PWR_STATE_OFF);
-		return cluster_state == CSS_CLUSTER_PWR_STATE_ON ? HW_ON :
-			HW_OFF;
-	}
+	return css_scp_get_power_state(mpidr, power_level);
 }
 
 /*******************************************************************************

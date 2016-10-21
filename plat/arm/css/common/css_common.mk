@@ -41,18 +41,18 @@ PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/common/aarch64/css_helpers.S
 BL1_SOURCES		+=	plat/arm/css/common/css_bl1_setup.c
 
 BL2_SOURCES		+=	plat/arm/css/common/css_bl2_setup.c		\
-				plat/arm/css/common/css_mhu.c			\
-				plat/arm/css/common/css_scpi.c
+				plat/arm/css/drivers/scpi/css_mhu.c		\
+				plat/arm/css/drivers/scpi/css_scpi.c
 
 BL2U_SOURCES		+=	plat/arm/css/common/css_bl2u_setup.c		\
-				plat/arm/css/common/css_mhu.c			\
-				plat/arm/css/common/css_scpi.c
+				plat/arm/css/drivers/scpi/css_mhu.c		\
+				plat/arm/css/drivers/scpi/css_scpi.c
 
-BL31_SOURCES		+=	plat/arm/css/common/css_mhu.c			\
-				plat/arm/css/common/css_pm.c			\
-				plat/arm/css/common/css_scpi.c			\
-				plat/arm/css/common/css_topology.c
-
+BL31_SOURCES		+=	plat/arm/css/common/css_pm.c			\
+				plat/arm/css/common/css_topology.c		\
+				plat/arm/css/drivers/scp/css_pm_scpi.c		\
+				plat/arm/css/drivers/scpi/css_mhu.c		\
+				plat/arm/css/drivers/scpi/css_scpi.c
 
 ifneq (${RESET_TO_BL31},0)
   $(error "Using BL31 as the reset vector is not supported on CSS platforms. \

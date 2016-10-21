@@ -34,9 +34,9 @@
 #include <debug.h>
 #include <platform.h>
 #include <stdint.h>
-#include "css_mhu.h"
+#include "../drivers/scpi/css_mhu.h"
+#include "../drivers/scpi/css_scpi.h"
 #include "css_scp_bootloader.h"
-#include "css_scpi.h"
 
 /* ID of the MHU slot used for the BOM protocol */
 #define BOM_MHU_SLOT_ID		0
