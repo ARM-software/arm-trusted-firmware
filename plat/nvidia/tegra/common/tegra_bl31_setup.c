@@ -205,6 +205,11 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	}
 
 	/*
+	 * Initialize delay timer
+	 */
+	tegra_delay_timer_init();
+
+	/*
 	 * Do initial security configuration to allow DRAM/device access.
 	 */
 	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
@@ -262,11 +267,6 @@ void bl31_platform_setup(void)
 
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_gic_setup();
-
-	/*
-	 * Initialize delay timer
-	 */
-	tegra_delay_timer_init();
 
 	/*
 	 * Setup secondary CPU POR infrastructure.
