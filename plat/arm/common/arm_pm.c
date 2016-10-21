@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,8 +38,11 @@
 #include <platform_def.h>
 #include <psci.h>
 
+/* Allow ARM Standard platforms to override this function */
+#pragma weak plat_arm_psci_override_pm_ops
+
 /* Standard ARM platforms are expected to export plat_arm_psci_pm_ops */
-extern const plat_psci_ops_t plat_arm_psci_pm_ops;
+extern plat_psci_ops_t plat_arm_psci_pm_ops;
 
 #if ARM_RECOM_STATE_ID_ENC
 extern unsigned int arm_pm_idle_states[];
@@ -151,6 +154,14 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 }
 
 /******************************************************************************
+ * Default definition on ARM standard platforms to override the plat_psci_ops.
+ *****************************************************************************/
+const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
+{
+	return ops;
+}
+
+/******************************************************************************
  * Helper function to resume the platform from system suspend. Reinitialize
  * the system components which are not in the Always ON power domain.
  * TODO: Unify the platform setup when waking up from cold boot and system
@@ -201,7 +212,7 @@ void arm_program_trusted_mailbox(uintptr_t address)
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 				const plat_psci_ops_t **psci_ops)
 {
-	*psci_ops = &plat_arm_psci_pm_ops;
+	*psci_ops = plat_arm_psci_override_pm_ops(&plat_arm_psci_pm_ops);
 
 	/* Setup mailbox with entry point. */
 	arm_program_trusted_mailbox(sec_entrypoint);
