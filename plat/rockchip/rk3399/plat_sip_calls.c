@@ -44,13 +44,12 @@
 #define DRAM_GET_RATE		0x05
 #define DRAM_CLR_IRQ		0x06
 #define DRAM_SET_PARAM		0x07
+#define DRAM_SET_ODT_PD		0x08
 
-uint32_t ddr_smc_handler(uint64_t arg0, uint64_t arg1, uint64_t id)
+uint32_t ddr_smc_handler(uint64_t arg0, uint64_t arg1,
+			 uint64_t id, uint64_t arg2)
 {
 	switch (id) {
-	case DRAM_INIT:
-		ddr_dfs_init();
-		break;
 	case DRAM_SET_RATE:
 		return ddr_set_rate((uint32_t)arg0);
 	case DRAM_ROUND_RATE:
@@ -60,8 +59,8 @@ uint32_t ddr_smc_handler(uint64_t arg0, uint64_t arg1, uint64_t id)
 	case DRAM_CLR_IRQ:
 		clr_dcf_irq();
 		break;
-	case DRAM_SET_PARAM:
-		dts_timing_receive((uint32_t)arg0, (uint32_t)arg1);
+	case DRAM_SET_ODT_PD:
+		dram_set_odt_pd(arg0, arg1, arg2);
 		break;
 	default:
 		break;
@@ -81,7 +80,7 @@ uint64_t rockchip_plat_sip_handler(uint32_t smc_fid,
 {
 	switch (smc_fid) {
 	case RK_SIP_DDR_CFG:
-		SMC_RET1(handle, ddr_smc_handler(x1, x2, x3));
+		SMC_RET1(handle, ddr_smc_handler(x1, x2, x3, x4));
 	default:
 		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 		SMC_RET1(handle, SMC_UNK);
