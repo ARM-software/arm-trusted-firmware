@@ -31,9 +31,9 @@
 #ifndef __RK3399_MCU_H__
 #define __RK3399_MCU_H__
 
-#define readl(c)	({unsigned int __v =	\
-				(*(volatile unsigned int *)(c)); __v; })
-#define writel(v, c)	((*(volatile unsigned int *) (c)) = (v))
+#define mmio_read_32(c)	({unsigned int __v = \
+				(*(volatile unsigned int *)(c)); __v;})
+#define mmio_write_32(c, v)	((*(volatile unsigned int *)(c)) = (v))
 
 #define MCU_BASE	0x40000000
 #define PMU_BASE	(MCU_BASE + 0x07310000)

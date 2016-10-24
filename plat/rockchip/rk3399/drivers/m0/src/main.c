@@ -43,11 +43,11 @@ static void system_wakeup(void)
 	unsigned int mode_con;
 
 	while (1) {
-		status_value = readl(PMU_BASE + PMU_POWER_ST);
+		status_value = mmio_read_32(PMU_BASE + PMU_POWER_ST);
 		if (status_value) {
-			mode_con = readl(PMU_BASE + PMU_PWRMODE_CON);
-			writel(mode_con & (~0x01),
-			       PMU_BASE + PMU_PWRMODE_CON);
+			mode_con = mmio_read_32(PMU_BASE + PMU_PWRMODE_CON);
+			mmio_write_32(PMU_BASE + PMU_PWRMODE_CON,
+				      mode_con & (~0x01));
 			return;
 		}
 	}
@@ -59,10 +59,10 @@ int main(void)
 
 	system_wakeup();
 
-	reg_src = readl(M0_SCR);
+	reg_src = mmio_read_32(M0_SCR);
 
 	/* m0 enter deep sleep mode */
-	writel(reg_src | SCR_SLEEPDEEP_SHIFT, M0_SCR);
+	mmio_write_32(M0_SCR, reg_src | SCR_SLEEPDEEP_SHIFT);
 
 	for (;;)
 		__asm volatile("wfi");
