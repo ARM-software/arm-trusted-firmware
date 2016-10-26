@@ -47,8 +47,8 @@
 #include <pmu_com.h>
 #include <pwm.h>
 #include <bl31.h>
-#include <rk3399m0.h>
 #include <suspend.h>
+#include <m0_ctl.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
@@ -1065,36 +1065,10 @@ static void resume_gpio(void)
 	}
 }
 
-static void m0_clock_init(void)
+static void m0_configure_suspend(void)
 {
-	/* enable clocks for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
-		      BITS_WITH_WMASK(0x0, 0x2f, 0));
-
-	/* switch the parent to xin24M and div == 1 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKSEL_CON0,
-		      BIT_WITH_WMSK(15) | BITS_WITH_WMASK(0x0, 0x1f, 8));
-
-	/* start M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_SOFTRST_CON0,
-		      BITS_WITH_WMASK(0x0, 0x24, 0));
-
-	/* gating disable for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, BIT_WITH_WMSK(1));
-}
-
-static void m0_reset(void)
-{
-	/* stop M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_SOFTRST_CON0,
-		      BITS_WITH_WMASK(0x24, 0x24, 0));
-
-	/* recover gating bit for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, WMSK_BIT(1));
-
-	/* disable clocks for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
-		      BITS_WITH_WMASK(0x2f, 0x2f, 0));
+	/* set PARAM to M0_FUNC_SUSPEND */
+	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_SUSPEND);
 }
 
 static int sys_pwr_domain_suspend(void)
@@ -1117,7 +1091,8 @@ static int sys_pwr_domain_suspend(void)
 
 	sys_slp_config();
 
-	m0_clock_init();
+	m0_configure_suspend();
+	m0_start();
 
 	pmu_sgrf_rst_hld();
 
@@ -1242,7 +1217,7 @@ static int sys_pwr_domain_resume(void)
 
 	plat_rockchip_gic_cpuif_enable();
 
-	m0_reset();
+	m0_stop();
 
 	return 0;
 }

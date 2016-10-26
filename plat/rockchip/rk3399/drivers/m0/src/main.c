@@ -28,44 +28,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <m0_param.h>
 #include "rk3399_mcu.h"
 
-#define PMU_PWRMODE_CON		0x20
-#define PMU_POWER_ST		0x78
-
-#define M0_SCR			0xe000ed10  /* System Control Register (SCR) */
-
-#define SCR_SLEEPDEEP_SHIFT	(1 << 2)
-
-static void system_wakeup(void)
+__attribute__((noreturn)) void main(void)
 {
-	unsigned int status_value;
-	unsigned int mode_con;
-
-	while (1) {
-		status_value = mmio_read_32(PMU_BASE + PMU_POWER_ST);
-		if (status_value) {
-			mode_con = mmio_read_32(PMU_BASE + PMU_PWRMODE_CON);
-			mmio_write_32(PMU_BASE + PMU_PWRMODE_CON,
-				      mode_con & (~0x01));
-			return;
-		}
+	switch (mmio_read_32(PARAM_ADDR + PARAM_M0_FUNC)) {
+	case M0_FUNC_SUSPEND:
+		handle_suspend();
+		break;
+	case M0_FUNC_DRAM:
+		handle_dram();
+		break;
+	default:
+		break;
 	}
-}
 
-int main(void)
-{
-	unsigned int reg_src;
-
-	system_wakeup();
-
-	reg_src = mmio_read_32(M0_SCR);
-
-	/* m0 enter deep sleep mode */
-	mmio_write_32(M0_SCR, reg_src | SCR_SLEEPDEEP_SHIFT);
+	mmio_write_32(PARAM_ADDR + PARAM_M0_DONE, M0_DONE_FLAG);
 
 	for (;;)
-		__asm volatile("wfi");
-
-	return 0;
+		__asm__ volatile ("wfi");
 }

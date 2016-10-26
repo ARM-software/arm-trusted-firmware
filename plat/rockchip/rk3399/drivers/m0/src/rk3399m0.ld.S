@@ -28,13 +28,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __RK3399M0_H__
-#define __RK3399M0_H__
+#include <m0_param.h>
 
-/* pmu_fw.c */
-extern char rk3399m0_bin[];
-extern char rk3399m0_bin_end[];
+OUTPUT_FORMAT("elf32-littlearm")
 
-#define M0_BINCODE_BASE ((uintptr_t)rk3399m0_bin)
+SECTIONS {
+	.m0_bin 0 : {
+		KEEP(*(.isr_vector))
+		ASSERT(. == 0xc0, "ISR vector has the wrong size.");
+		ASSERT(. == PARAM_ADDR, "M0 params should go right behind ISR table.");
+		. += PARAM_M0_SIZE;
+		*(.text*)
+		*(.rodata*)
+		*(.data*)
+		*(.bss*)
+		. = ALIGN(8);
+		*(.co_stack*)
+	}
 
-#endif /* __RK3399M0_H__ */
+	/DISCARD/ : { *(.comment) *(.note*) }
+}
