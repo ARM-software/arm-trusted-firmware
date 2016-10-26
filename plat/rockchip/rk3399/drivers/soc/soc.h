@@ -245,6 +245,8 @@ struct deepsleep_data_s {
 #define SGRF_PMU_SLV_CON1_CFG		(SGRF_SLV_S_WMSK | \
 					SGRF_PMUSRAM_S)
 /* ddr region */
+#define SGRF_DDR_RGN_DPLL_CLK	BIT_WITH_WMSK(15) /* DDR PLL output clock */
+#define SGRF_DDR_RGN_RTC_CLK	BIT_WITH_WMSK(14) /* 32K clock for DDR PLL */
 #define SGRF_DDR_RGN_BYPS	BIT_WITH_WMSK(9) /* All of ddr rgn  is ns */
 
 /* The MST access the ddr rgn n with secure attribution */
