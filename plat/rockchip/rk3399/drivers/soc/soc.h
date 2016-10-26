@@ -108,6 +108,16 @@ enum glb_sft_reset {
 	PMU_RST_NOT_BY_SFT = BIT(3),
 };
 
+struct pll_div {
+	uint32_t mhz;
+	uint32_t refdiv;
+	uint32_t fbdiv;
+	uint32_t postdiv1;
+	uint32_t postdiv2;
+	uint32_t frac;
+	uint32_t freq;
+};
+
 struct deepsleep_data_s {
 	uint32_t plls_con[END_PLL_ID][PLL_CON_COUNT];
 	uint32_t pmucru_clksel_con[PMUCRU_CLKSEL_CONUT];
@@ -312,6 +322,8 @@ struct deepsleep_data_s {
 #define GRF_DDRC0_CON1		0xe384
 #define GRF_DDRC1_CON0		0xe388
 #define GRF_DDRC1_CON1		0xe38c
+#define GRF_SOC_CON_BASE	0xe200
+#define GRF_SOC_CON(n)		(GRF_SOC_CON_BASE + (n) * 4)
 
 #define PMUCRU_CLKSEL_CON0	0x0080
 #define PMUCRU_CLKGATE_CON2	0x0108

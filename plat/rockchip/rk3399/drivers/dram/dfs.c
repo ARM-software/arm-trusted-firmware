@@ -28,8 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch_helpers.h>
 #include <debug.h>
 #include <mmio.h>
+#include <m0_ctl.h>
 #include <plat_private.h>
 #include "dfs.h"
 #include "dram.h"
@@ -43,20 +45,10 @@
 #define ENPER_CS_TRAINING_FREQ	(933)
 #define PHY_DLL_BYPASS_FREQ	(260)
 
-struct pll_div {
-	uint32_t mhz;
-	uint32_t refdiv;
-	uint32_t fbdiv;
-	uint32_t postdiv1;
-	uint32_t postdiv2;
-	uint32_t frac;
-	uint32_t freq;
-};
-
 static const struct pll_div dpll_rates_table[] = {
 
 	/* _mhz, _refdiv, _fbdiv, _postdiv1, _postdiv2 */
-	{.mhz = 933, .refdiv = 3, .fbdiv = 350, .postdiv1 = 3, .postdiv2 = 1},
+	{.mhz = 928, .refdiv = 1, .fbdiv = 116, .postdiv1 = 3, .postdiv2 = 1},
 	{.mhz = 800, .refdiv = 1, .fbdiv = 100, .postdiv1 = 3, .postdiv2 = 1},
 	{.mhz = 732, .refdiv = 1, .fbdiv = 61, .postdiv1 = 2, .postdiv2 = 1},
 	{.mhz = 666, .refdiv = 1, .fbdiv = 111, .postdiv1 = 4, .postdiv2 = 1},
@@ -99,24 +91,6 @@ static struct rk3399_sdram_default_config lpddr4_default_config = {
 	.burst_ref_cnt = 1,
 	.zqcsi = 0
 };
-
-uint32_t dcf_code[] = {
-#include "dcf_code.inc"
-};
-
-#define DCF_START_ADDR	(SRAM_BASE + 0x1400)
-#define DCF_PARAM_ADDR	(SRAM_BASE + 0x1000)
-
-/* DCF_PAMET */
-#define PARAM_DRAM_FREQ		(0)
-#define PARAM_DPLL_CON0		(4)
-#define PARAM_DPLL_CON1		(8)
-#define PARAM_DPLL_CON2		(0xc)
-#define PARAM_DPLL_CON3		(0x10)
-#define PARAM_DPLL_CON4		(0x14)
-#define PARAM_DPLL_CON5		(0x18)
-/* equal to fn<<4 */
-#define PARAM_FREQ_SELECT	(0x1c)
 
 static uint32_t get_cs_die_capability(struct rk3399_sdram_params *sdram_config,
 		uint8_t channel, uint8_t cs)
@@ -1749,22 +1723,6 @@ static int to_get_clk_index(unsigned int mhz)
 	return i;
 }
 
-uint32_t rkclk_prepare_pll_timing(unsigned int mhz)
-{
-	unsigned int refdiv, postdiv1, fbdiv, postdiv2;
-	int index;
-
-	index = to_get_clk_index(mhz);
-	refdiv = dpll_rates_table[index].refdiv;
-	fbdiv = dpll_rates_table[index].fbdiv;
-	postdiv1 = dpll_rates_table[index].postdiv1;
-	postdiv2 = dpll_rates_table[index].postdiv2;
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON0, FBDIV(fbdiv));
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON1,
-		      POSTDIV2(postdiv2) | POSTDIV1(postdiv1) | REFDIV(refdiv));
-	return (24 * fbdiv) / refdiv / postdiv1 / postdiv2;
-}
-
 uint32_t ddr_get_rate(void)
 {
 	uint32_t refdiv, postdiv1, fbdiv, postdiv2;
@@ -1856,51 +1814,6 @@ void resume_low_power(uint32_t low_power)
 	}
 }
 
-static void wait_dcf_done(void)
-{
-	while ((mmio_read_32(DCF_BASE + DCF_DCF_ISR) & (DCF_DONE)) == 0)
-		continue;
-}
-
-void clr_dcf_irq(void)
-{
-	/* clear dcf irq status */
-	mmio_write_32(DCF_BASE + DCF_DCF_ISR, DCF_TIMEOUT | DCF_ERR | DCF_DONE);
-}
-
-static void enable_dcf(uint32_t dcf_addr)
-{
-	/* config DCF start addr */
-	mmio_write_32(DCF_BASE + DCF_DCF_ADDR, dcf_addr);
-	/* wait dcf done */
-	while (mmio_read_32(DCF_BASE + DCF_DCF_CTRL) & 1)
-		continue;
-	/* clear dcf irq status */
-	mmio_write_32(DCF_BASE + DCF_DCF_ISR, DCF_TIMEOUT | DCF_ERR | DCF_DONE);
-	/* DCF start */
-	mmio_setbits_32(DCF_BASE + DCF_DCF_CTRL, DCF_START);
-}
-
-static void dcf_start(uint32_t freq, uint32_t index)
-{
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-		      (0x1 << (1 + 16)) | (1 << 1));
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(11),
-		      (0x1 << (0 + 16)) | (1 << 0));
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_FREQ_SELECT, index << 4);
-
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_DRAM_FREQ, freq);
-
-	rkclk_prepare_pll_timing(freq);
-	udelay(10);
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-		      (0x1 << (1 + 16)) | (0 << 1));
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(11),
-		      (0x1 << (0 + 16)) | (0 << 0));
-	udelay(10);
-	enable_dcf(DCF_START_ADDR);
-}
-
 static void dram_low_power_config(void)
 {
 	uint32_t tmp, i;
@@ -1956,6 +1869,20 @@ void dram_dfs_init(void)
 	}
 	rk3399_dram_status.index_freq[(rk3399_dram_status.current_index + 1)
 				      & 0x1] = 0;
+	/*
+	 * following register decide if NOC stall the access request
+	 * or return error when NOC being idled. when doing ddr frequency
+	 * scaling in M0 or DCF, we need to make sure noc stall the access
+	 * request, if return error cpu may data abort when ddr frequency
+	 * changing. it don't need to set this register every times,
+	 * so we init this register in function dram_dfs_init().
+	 */
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(0), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(1), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(2), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(3), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(4), 0x70007000);
+
 	dram_low_power_config();
 }
 
@@ -2015,6 +1942,21 @@ uint32_t dram_set_odt_pd(uint32_t arg0, uint32_t arg1, uint32_t arg2)
 	return 0;
 }
 
+static void m0_configure_ddr(struct pll_div pll_div, uint32_t ddr_index)
+{
+	/* set PARAM to M0_FUNC_DRAM */
+	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_DRAM);
+
+	mmio_write_32(M0_PARAM_ADDR + PARAM_DPLL_CON0, FBDIV(pll_div.fbdiv));
+	mmio_write_32(M0_PARAM_ADDR + PARAM_DPLL_CON1,
+		      POSTDIV2(pll_div.postdiv2) | POSTDIV1(pll_div.postdiv1) |
+		      REFDIV(pll_div.refdiv));
+
+	mmio_write_32(M0_PARAM_ADDR + PARAM_DRAM_FREQ, pll_div.mhz);
+
+	mmio_write_32(M0_PARAM_ADDR + PARAM_FREQ_SELECT, ddr_index << 4);
+}
+
 static uint32_t prepare_ddr_timing(uint32_t mhz)
 {
 	uint32_t index;
@@ -2071,7 +2013,7 @@ void print_dram_status_info(void)
 
 uint32_t ddr_set_rate(uint32_t hz)
 {
-	uint32_t low_power, index;
+	uint32_t low_power, index, ddr_index;
 	uint32_t mhz = hz / (1000 * 1000);
 
 	if (mhz ==
@@ -2081,16 +2023,19 @@ uint32_t ddr_set_rate(uint32_t hz)
 	index = to_get_clk_index(mhz);
 	mhz = dpll_rates_table[index].mhz;
 
-	index = prepare_ddr_timing(mhz);
-	if (index > 1)
+	ddr_index = prepare_ddr_timing(mhz);
+	if (ddr_index > 1)
 		goto out;
 
-	dcf_start(mhz, index);
-	wait_dcf_done();
+	m0_configure_ddr(dpll_rates_table[index], ddr_index);
+	m0_start();
+	m0_wait_done();
+	m0_stop();
+
 	if (rk3399_dram_status.timing_config.odt == 0)
 		gen_rk3399_set_odt(0);
 
-	rk3399_dram_status.current_index = index;
+	rk3399_dram_status.current_index = ddr_index;
 	low_power = rk3399_dram_status.low_power_stat;
 	resume_low_power(low_power);
 out:

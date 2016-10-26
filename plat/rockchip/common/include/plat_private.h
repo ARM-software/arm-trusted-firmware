@@ -44,6 +44,7 @@
 
 extern uint32_t __bl31_sram_text_start, __bl31_sram_text_end;
 extern uint32_t __bl31_sram_data_start, __bl31_sram_data_end;
+extern uint32_t __sram_incbin_start, __sram_incbin_end;
 
 /******************************************************************************
  * For rockchip socs pm ops
