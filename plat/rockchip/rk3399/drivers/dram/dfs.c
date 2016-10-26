@@ -75,18 +75,6 @@ static const struct pll_div dpll_rates_table[] = {
 	{.mhz = 200, .refdiv = 1, .fbdiv = 50, .postdiv1 = 3, .postdiv2 = 2},
 };
 
-static struct rk3399_ddr_pctl_regs *const rk3399_ddr_pctl[2] = {
-	(void *)DDRC0_BASE, (void *)DDRC1_BASE
-};
-
-static struct rk3399_ddr_pi_regs *const rk3399_ddr_pi[2] = {
-	(void *)DDRC0_PI_BASE, (void *)DDRC1_PI_BASE
-};
-
-static struct rk3399_ddr_publ_regs *const rk3399_ddr_publ[2] = {
-	(void *)DDRC0_PHY_BASE, (void *)DDRC1_PHY_BASE
-};
-
 struct rk3399_dram_status {
 	uint32_t current_index;
 	uint32_t index_freq[2];
@@ -197,20 +185,6 @@ static struct drv_odt_lp_config lpddr4_drv_odt_default_config = {
 uint32_t dcf_code[] = {
 #include "dcf_code.inc"
 };
-
-
-#define write_32(addr, value)\
-	mmio_write_32((uintptr_t)(addr), (uint32_t)(value))
-
-#define read_32(addr) \
-		mmio_read_32((uintptr_t)(addr))
-#define clrbits_32(addr, clear)\
-		mmio_clrbits_32((uintptr_t)(addr), (uint32_t)(clear))
-#define setbits_32(addr, set)\
-	mmio_setbits_32((uintptr_t)(addr), (uint32_t)(set))
-#define clrsetbits_32(addr, clear, set)\
-	mmio_clrsetbits_32((uintptr_t)(addr), (uint32_t)(clear),\
-					(uint32_t)(set))
 
 #define DCF_START_ADDR	(SRAM_BASE + 0x1400)
 #define DCF_PARAM_ADDR	(SRAM_BASE + 0x1000)
@@ -737,186 +711,171 @@ static void gen_rk3399_ctl_params_f0(struct timing_related_config
 				999) / 1000;
 			tmp += pdram_timing->txsnr + (pdram_timing->tmrd * 3) +
 			    pdram_timing->tmod + pdram_timing->tzqinit;
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[5], tmp);
+			mmio_write_32(CTL_REG(i, 5), tmp);
 
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[22],
-				      0xffff, pdram_timing->tdllk);
+			mmio_clrsetbits_32(CTL_REG(i, 22), 0xffff,
+					   pdram_timing->tdllk);
 
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[32],
-				 (pdram_timing->tmod << 8) |
-				 pdram_timing->tmrd);
+			mmio_write_32(CTL_REG(i, 32),
+				      (pdram_timing->tmod << 8) |
+				       pdram_timing->tmrd);
 
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[59],
-				      0xffff << 16,
-				      (pdram_timing->txsr -
-				       pdram_timing->trcd) << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 59), 0xffff << 16,
+					   (pdram_timing->txsr -
+					    pdram_timing->trcd) << 16);
 		} else if (timing_config->dram_type == LPDDR4) {
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[5],
-				 pdram_timing->tinit1 + pdram_timing->tinit3);
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[32],
-				 (pdram_timing->tmrd << 8) |
-				 pdram_timing->tmrd);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[59],
-				      0xffff << 16, pdram_timing->txsr << 16);
+			mmio_write_32(CTL_REG(i, 5), pdram_timing->tinit1 +
+						     pdram_timing->tinit3);
+			mmio_write_32(CTL_REG(i, 32),
+				      (pdram_timing->tmrd << 8) |
+				      pdram_timing->tmrd);
+			mmio_clrsetbits_32(CTL_REG(i, 59), 0xffff << 16,
+					   pdram_timing->txsr << 16);
 		} else {
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[5],
-				 pdram_timing->tinit1);
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[7],
-				 pdram_timing->tinit4);
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[32],
-				 (pdram_timing->tmrd << 8) |
-				 pdram_timing->tmrd);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[59],
-				      0xffff << 16, pdram_timing->txsr << 16);
+			mmio_write_32(CTL_REG(i, 5), pdram_timing->tinit1);
+			mmio_write_32(CTL_REG(i, 7), pdram_timing->tinit4);
+			mmio_write_32(CTL_REG(i, 32),
+				      (pdram_timing->tmrd << 8) |
+				      pdram_timing->tmrd);
+			mmio_clrsetbits_32(CTL_REG(i, 59), 0xffff << 16,
+					   pdram_timing->txsr << 16);
 		}
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[6],
-			 pdram_timing->tinit3);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[8],
-			 pdram_timing->tinit5);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[23], (0x7f << 16),
-			      ((pdram_timing->cl * 2) << 16));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[23], (0x1f << 24),
-			      (pdram_timing->cwl << 24));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[24], 0x3f,
-			      pdram_timing->al);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[26], 0xffff << 16,
-			      (pdram_timing->trc << 24) |
-			      (pdram_timing->trrd << 16));
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[27],
-			 (pdram_timing->tfaw << 24) |
-			 (pdram_timing->trppb << 16) |
-			 (pdram_timing->twtr << 8) | pdram_timing->tras_min);
+		mmio_write_32(CTL_REG(i, 6), pdram_timing->tinit3);
+		mmio_write_32(CTL_REG(i, 8), pdram_timing->tinit5);
+		mmio_clrsetbits_32(CTL_REG(i, 23), (0x7f << 16),
+				   ((pdram_timing->cl * 2) << 16));
+		mmio_clrsetbits_32(CTL_REG(i, 23), (0x1f << 24),
+				   (pdram_timing->cwl << 24));
+		mmio_clrsetbits_32(CTL_REG(i, 24), 0x3f, pdram_timing->al);
+		mmio_clrsetbits_32(CTL_REG(i, 26), 0xffff << 16,
+				   (pdram_timing->trc << 24) |
+				   (pdram_timing->trrd << 16));
+		mmio_write_32(CTL_REG(i, 27),
+			      (pdram_timing->tfaw << 24) |
+			      (pdram_timing->trppb << 16) |
+			      (pdram_timing->twtr << 8) |
+			      pdram_timing->tras_min);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[31], 0xff << 24,
-			      max(4, pdram_timing->trtp) << 24);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[33],
-			 (pdram_timing->tcke << 24) | pdram_timing->tras_max);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[34], 0xff,
-			      max(1, pdram_timing->tckesr));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[39],
-			      (0x3f << 16) | (0xff << 8),
-			      (pdram_timing->twr << 16) |
-			      (pdram_timing->trcd << 8));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[42], 0x1f << 16,
-			      pdram_timing->tmrz << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 31), 0xff << 24,
+				   max(4, pdram_timing->trtp) << 24);
+		mmio_write_32(CTL_REG(i, 33), (pdram_timing->tcke << 24) |
+					      pdram_timing->tras_max);
+		mmio_clrsetbits_32(CTL_REG(i, 34), 0xff,
+				   max(1, pdram_timing->tckesr));
+		mmio_clrsetbits_32(CTL_REG(i, 39),
+				   (0x3f << 16) | (0xff << 8),
+				   (pdram_timing->twr << 16) |
+				   (pdram_timing->trcd << 8));
+		mmio_clrsetbits_32(CTL_REG(i, 42), 0x1f << 16,
+				   pdram_timing->tmrz << 16);
 		tmp = pdram_timing->tdal ? pdram_timing->tdal :
-		       (pdram_timing->twr + pdram_timing->trp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[44], 0xff, tmp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[45], 0xff,
-			      pdram_timing->trp);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[48],
-			 ((pdram_timing->trefi - 8) << 16) |
-			 pdram_timing->trfc);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[52], 0xffff,
-			      pdram_timing->txp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[53], 0xffff << 16,
-			      pdram_timing->txpdll << 16);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[55], 0xf << 24,
-			      pdram_timing->tcscke << 24);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[55], 0xff,
-			      pdram_timing->tmrri);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[56],
-			 (pdram_timing->tzqcke << 24) |
-			 (pdram_timing->tmrwckel << 16) |
-			 (pdram_timing->tckehcs << 8) | pdram_timing->tckelcs);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[60], 0xffff,
-			      pdram_timing->txsnr);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[62], 0xffff << 16,
-			      (pdram_timing->tckehcmd << 24) |
-			      (pdram_timing->tckelcmd << 16));
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[63],
-			 (pdram_timing->tckelpd << 24) |
-			 (pdram_timing->tescke << 16) |
-			 (pdram_timing->tsr << 8) | pdram_timing->tckckel);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[64], 0xfff,
-			      (pdram_timing->tcmdcke << 8) |
-			      pdram_timing->tcsckeh);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[92],
-			      (0xffff << 8),
-			      (pdram_timing->tcksrx << 16) |
-			      (pdram_timing->tcksre << 8));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[108], (0x1 << 24),
-			      (timing_config->dllbp << 24));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[122],
-			      (0x3FF << 16),
-			      (pdram_timing->tvrcg_enable << 16));
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[123],
-			 (pdram_timing->tfc_long << 16) |
-			 pdram_timing->tvrcg_disable);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[124],
-			 (pdram_timing->tvref_long << 16) |
-			 (pdram_timing->tckfspx << 8) |
-			 pdram_timing->tckfspe);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[133],
-			 (pdram_timing->mr[1] << 16) | pdram_timing->mr[0]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[134], 0xffff,
-			      pdram_timing->mr[2]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[138], 0xffff,
-			      pdram_timing->mr[3]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[139], 0xff << 24,
-			      pdram_timing->mr11 << 24);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[147],
-			 (pdram_timing->mr[1] << 16) | pdram_timing->mr[0]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[148], 0xffff,
-			      pdram_timing->mr[2]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[152], 0xffff,
-			      pdram_timing->mr[3]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[153], 0xff << 24,
-			      pdram_timing->mr11 << 24);
+		      (pdram_timing->twr + pdram_timing->trp);
+		mmio_clrsetbits_32(CTL_REG(i, 44), 0xff, tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 45), 0xff, pdram_timing->trp);
+		mmio_write_32(CTL_REG(i, 48),
+			      ((pdram_timing->trefi - 8) << 16) |
+			      pdram_timing->trfc);
+		mmio_clrsetbits_32(CTL_REG(i, 52), 0xffff, pdram_timing->txp);
+		mmio_clrsetbits_32(CTL_REG(i, 53), 0xffff << 16,
+				   pdram_timing->txpdll << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 55), 0xf << 24,
+				   pdram_timing->tcscke << 24);
+		mmio_clrsetbits_32(CTL_REG(i, 55), 0xff, pdram_timing->tmrri);
+		mmio_write_32(CTL_REG(i, 56),
+			      (pdram_timing->tzqcke << 24) |
+			      (pdram_timing->tmrwckel << 16) |
+			      (pdram_timing->tckehcs << 8) |
+			      pdram_timing->tckelcs);
+		mmio_clrsetbits_32(CTL_REG(i, 60), 0xffff, pdram_timing->txsnr);
+		mmio_clrsetbits_32(CTL_REG(i, 62), 0xffff << 16,
+				   (pdram_timing->tckehcmd << 24) |
+				   (pdram_timing->tckelcmd << 16));
+		mmio_write_32(CTL_REG(i, 63),
+			      (pdram_timing->tckelpd << 24) |
+			      (pdram_timing->tescke << 16) |
+			      (pdram_timing->tsr << 8) |
+			      pdram_timing->tckckel);
+		mmio_clrsetbits_32(CTL_REG(i, 64), 0xfff,
+				   (pdram_timing->tcmdcke << 8) |
+				   pdram_timing->tcsckeh);
+		mmio_clrsetbits_32(CTL_REG(i, 92), 0xffff << 8,
+				   (pdram_timing->tcksrx << 16) |
+				   (pdram_timing->tcksre << 8));
+		mmio_clrsetbits_32(CTL_REG(i, 108), 0x1 << 24,
+				   (timing_config->dllbp << 24));
+		mmio_clrsetbits_32(CTL_REG(i, 122), 0x3ff << 16,
+				   (pdram_timing->tvrcg_enable << 16));
+		mmio_write_32(CTL_REG(i, 123), (pdram_timing->tfc_long << 16) |
+					       pdram_timing->tvrcg_disable);
+		mmio_write_32(CTL_REG(i, 124),
+			      (pdram_timing->tvref_long << 16) |
+			      (pdram_timing->tckfspx << 8) |
+			      pdram_timing->tckfspe);
+		mmio_write_32(CTL_REG(i, 133), (pdram_timing->mr[1] << 16) |
+					       pdram_timing->mr[0]);
+		mmio_clrsetbits_32(CTL_REG(i, 134), 0xffff,
+				   pdram_timing->mr[2]);
+		mmio_clrsetbits_32(CTL_REG(i, 138), 0xffff,
+				   pdram_timing->mr[3]);
+		mmio_clrsetbits_32(CTL_REG(i, 139), 0xff << 24,
+				   pdram_timing->mr11 << 24);
+		mmio_write_32(CTL_REG(i, 147),
+			      (pdram_timing->mr[1] << 16) |
+			      pdram_timing->mr[0]);
+		mmio_clrsetbits_32(CTL_REG(i, 148), 0xffff,
+				   pdram_timing->mr[2]);
+		mmio_clrsetbits_32(CTL_REG(i, 152), 0xffff,
+				   pdram_timing->mr[3]);
+		mmio_clrsetbits_32(CTL_REG(i, 153), 0xff << 24,
+				   pdram_timing->mr11 << 24);
 		if (timing_config->dram_type == LPDDR4) {
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[140],
-				      0xffff << 16, pdram_timing->mr12 << 16);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[142],
-				      0xffff << 16, pdram_timing->mr14 << 16);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[145],
-				      0xffff << 16, pdram_timing->mr22 << 16);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[154],
-				      0xffff << 16, pdram_timing->mr12 << 16);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[156],
-				      0xffff << 16, pdram_timing->mr14 << 16);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[159],
-				      0xffff << 16, pdram_timing->mr22 << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 140), 0xffff << 16,
+					   pdram_timing->mr12 << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 142), 0xffff << 16,
+					   pdram_timing->mr14 << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 145), 0xffff << 16,
+					   pdram_timing->mr22 << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 154), 0xffff << 16,
+					   pdram_timing->mr12 << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 156), 0xffff << 16,
+					   pdram_timing->mr14 << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 159), 0xffff << 16,
+					   pdram_timing->mr22 << 16);
 		}
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[179], 0xfff << 8,
-			      pdram_timing->tzqinit << 8);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[180],
-			 (pdram_timing->tzqcs << 16) |
-			 (pdram_timing->tzqinit / 2));
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[181],
-			 (pdram_timing->tzqlat << 16) | pdram_timing->tzqcal);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[212], 0xff << 8,
-			      pdram_timing->todton << 8);
+		mmio_clrsetbits_32(CTL_REG(i, 179), 0xfff << 8,
+				   pdram_timing->tzqinit << 8);
+		mmio_write_32(CTL_REG(i, 180), (pdram_timing->tzqcs << 16) |
+					       (pdram_timing->tzqinit / 2));
+		mmio_write_32(CTL_REG(i, 181), (pdram_timing->tzqlat << 16) |
+					       pdram_timing->tzqcal);
+		mmio_clrsetbits_32(CTL_REG(i, 212), 0xff << 8,
+				   pdram_timing->todton << 8);
 
 		if (timing_config->odt) {
-			setbits_32(&rk3399_ddr_pctl[i]->denali_ctl[213],
-				   1 << 16);
+			mmio_setbits_32(CTL_REG(i, 213), 1 << 16);
 			if (timing_config->freq < 400)
 				tmp = 4 << 24;
 			else
 				tmp = 8 << 24;
 		} else {
-			clrbits_32(&rk3399_ddr_pctl[i]->denali_ctl[213],
-				   1 << 16);
+			mmio_clrbits_32(CTL_REG(i, 213), 1 << 16);
 			tmp = 2 << 24;
 		}
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[216],
-			      0x1f << 24, tmp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[221],
-			      (0x3 << 16) | (0xf << 8),
-			      (pdram_timing->tdqsck << 16) |
-			      (pdram_timing->tdqsck_max << 8));
+		mmio_clrsetbits_32(CTL_REG(i, 216), 0x1f << 24, tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 221), (0x3 << 16) | (0xf << 8),
+				   (pdram_timing->tdqsck << 16) |
+				   (pdram_timing->tdqsck_max << 8));
 		tmp =
 		    (get_wrlat_adj(timing_config->dram_type, pdram_timing->cwl)
 		     << 8) | get_rdlat_adj(timing_config->dram_type,
 					   pdram_timing->cl);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[284], 0xffff,
-			      tmp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[82], 0xffff << 16,
-			      (4 * pdram_timing->trefi) << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 284), 0xffff, tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 82), 0xffff << 16,
+				   (4 * pdram_timing->trefi) << 16);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[83], 0xffff,
-			      (2 * pdram_timing->trefi) & 0xffff);
+		mmio_clrsetbits_32(CTL_REG(i, 83), 0xffff,
+				   (2 * pdram_timing->trefi) & 0xffff);
 
 		if ((timing_config->dram_type == LPDDR3) ||
 		    (timing_config->dram_type == LPDDR4)) {
@@ -926,12 +885,12 @@ static void gen_rk3399_ctl_params_f0(struct timing_related_config
 		} else {
 			tmp = 0;
 		}
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[214], 0x3f << 16,
-			      (tmp & 0x3f) << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 214), 0x3f << 16,
+				   (tmp & 0x3f) << 16);
 
 		if ((timing_config->dram_type == LPDDR3) ||
 		    (timing_config->dram_type == LPDDR4)) {
-			/* min_rl_preamble= cl+TDQSCK_MIN-1 */
+			/* min_rl_preamble = cl+TDQSCK_MIN -1 */
 			tmp = pdram_timing->cl +
 			    get_pi_todtoff_min(pdram_timing, timing_config) - 1;
 			/* todtoff_max */
@@ -940,61 +899,54 @@ static void gen_rk3399_ctl_params_f0(struct timing_related_config
 		} else {
 			tmp = pdram_timing->cl - pdram_timing->cwl;
 		}
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[215], 0x3f << 8,
-			      (tmp & 0x3f) << 8);
+		mmio_clrsetbits_32(CTL_REG(i, 215), 0x3f << 8,
+				   (tmp & 0x3f) << 8);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[275], 0xff << 16,
-			      (get_pi_tdfi_phy_rdlat
-			       (pdram_timing, timing_config)
-			       & 0xff) << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 275), 0xff << 16,
+				   (get_pi_tdfi_phy_rdlat(pdram_timing,
+							  timing_config) &
+				    0xff) << 16);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[277], 0xffff,
-			      (2 * pdram_timing->trefi) & 0xffff);
+		mmio_clrsetbits_32(CTL_REG(i, 277), 0xffff,
+				   (2 * pdram_timing->trefi) & 0xffff);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[282], 0xffff,
-			      (2 * pdram_timing->trefi) & 0xffff);
+		mmio_clrsetbits_32(CTL_REG(i, 282), 0xffff,
+				   (2 * pdram_timing->trefi) & 0xffff);
 
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[283],
-			 20 * pdram_timing->trefi);
+		mmio_write_32(CTL_REG(i, 283), 20 * pdram_timing->trefi);
 
 		/* CTL_308 TDFI_CALVL_CAPTURE_F0:RW:16:10 */
 		tmp1 = 20000 / (1000000 / pdram_timing->mhz) + 1;
 		if ((20000 % (1000000 / pdram_timing->mhz)) != 0)
 			tmp1++;
 		tmp = (tmp1 >> 1) + (tmp1 % 2) + 5;
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[308], 0x3ff << 16,
-				tmp << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 308), 0x3ff << 16, tmp << 16);
 
 		/* CTL_308 TDFI_CALVL_CC_F0:RW:0:10 */
 		tmp = tmp + 18;
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[308], 0x3ff,
-				tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 308), 0x3ff, tmp);
 
 		/* CTL_314 TDFI_WRCSLAT_F0:RW:8:8 */
 		tmp1 = get_pi_wrlat_adj(pdram_timing, timing_config);
 		if (timing_config->freq <= ENPER_CS_TRAINING_FREQ) {
-			if (tmp1 < 5) {
-				if (tmp1 == 0)
-					tmp = 0;
-				else
-					tmp = tmp1 - 1;
-			} else {
+			if (tmp1 == 0)
+				tmp = 0;
+			else if (tmp1 < 5)
+				tmp = tmp1 - 1;
+			else
 				tmp = tmp1 - 5;
-			}
 		} else {
 			tmp = tmp1 - 2;
 		}
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[314], 0xff << 8,
-				tmp << 8);
+		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 8, tmp << 8);
 
 		/* CTL_314 TDFI_RDCSLAT_F0:RW:0:8 */
 		if ((timing_config->freq <= ENPER_CS_TRAINING_FREQ) &&
-			(pdram_timing->cl >= 5))
+		    (pdram_timing->cl >= 5))
 			tmp = pdram_timing->cl - 5;
 		else
 			tmp = pdram_timing->cl - 2;
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[314], 0xff,
-				tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff, tmp);
 	}
 }
 
@@ -1008,192 +960,171 @@ static void gen_rk3399_ctl_params_f1(struct timing_related_config
 	for (i = 0; i < timing_config->ch_cnt; i++) {
 		if (timing_config->dram_type == DDR3) {
 			tmp =
-			    ((700000 + 10) * timing_config->freq +
-			      999) / 1000;
-			tmp +=
-			    pdram_timing->txsnr + (pdram_timing->tmrd * 3) +
-			    pdram_timing->tmod + pdram_timing->tzqinit;
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[9], tmp);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[22],
-				      0xffff << 16, pdram_timing->tdllk << 16);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[34],
-				      0xffffff00,
-				      (pdram_timing->tmod << 24) |
-				      (pdram_timing->tmrd << 16) |
-				      (pdram_timing->trtp << 8));
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[60],
-				      0xffff << 16,
-				      (pdram_timing->txsr -
-				       pdram_timing->trcd) << 16);
+			    ((700000 + 10) * timing_config->freq + 999) / 1000;
+			tmp += pdram_timing->txsnr + (pdram_timing->tmrd * 3) +
+			       pdram_timing->tmod + pdram_timing->tzqinit;
+			mmio_write_32(CTL_REG(i, 9), tmp);
+			mmio_clrsetbits_32(CTL_REG(i, 22), 0xffff << 16,
+					   pdram_timing->tdllk << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 34), 0xffffff00,
+					   (pdram_timing->tmod << 24) |
+					   (pdram_timing->tmrd << 16) |
+					   (pdram_timing->trtp << 8));
+			mmio_clrsetbits_32(CTL_REG(i, 60), 0xffff << 16,
+					   (pdram_timing->txsr -
+					    pdram_timing->trcd) << 16);
 		} else if (timing_config->dram_type == LPDDR4) {
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[9],
-				 pdram_timing->tinit1 + pdram_timing->tinit3);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[34],
-				      0xffffff00,
-				      (pdram_timing->tmrd << 24) |
-				      (pdram_timing->tmrd << 16) |
-				      (pdram_timing->trtp << 8));
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[60],
-				      0xffff << 16, pdram_timing->txsr << 16);
+			mmio_write_32(CTL_REG(i, 9), pdram_timing->tinit1 +
+						     pdram_timing->tinit3);
+			mmio_clrsetbits_32(CTL_REG(i, 34), 0xffffff00,
+					   (pdram_timing->tmrd << 24) |
+					   (pdram_timing->tmrd << 16) |
+					   (pdram_timing->trtp << 8));
+			mmio_clrsetbits_32(CTL_REG(i, 60), 0xffff << 16,
+					   pdram_timing->txsr << 16);
 		} else {
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[9],
-				 pdram_timing->tinit1);
-			write_32(&rk3399_ddr_pctl[i]->denali_ctl[11],
-				 pdram_timing->tinit4);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[34],
-				      0xffffff00,
-				      (pdram_timing->tmrd << 24) |
-				      (pdram_timing->tmrd << 16) |
-				      (pdram_timing->trtp << 8));
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[60],
-				      0xffff << 16, pdram_timing->txsr << 16);
+			mmio_write_32(CTL_REG(i, 9), pdram_timing->tinit1);
+			mmio_write_32(CTL_REG(i, 11), pdram_timing->tinit4);
+			mmio_clrsetbits_32(CTL_REG(i, 34), 0xffffff00,
+					   (pdram_timing->tmrd << 24) |
+					   (pdram_timing->tmrd << 16) |
+					   (pdram_timing->trtp << 8));
+			mmio_clrsetbits_32(CTL_REG(i, 60), 0xffff << 16,
+					   pdram_timing->txsr << 16);
 		}
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[10],
-			 pdram_timing->tinit3);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[12],
-			 pdram_timing->tinit5);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[24], (0x7f << 8),
-			      ((pdram_timing->cl * 2) << 8));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[24], (0x1f << 16),
-			      (pdram_timing->cwl << 16));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[24], 0x3f << 24,
-			      pdram_timing->al << 24);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[28], 0xffffff00,
-			      (pdram_timing->tras_min << 24) |
-			      (pdram_timing->trc << 16) |
-			      (pdram_timing->trrd << 8));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[29], 0xffffff,
-			      (pdram_timing->tfaw << 16) |
-			      (pdram_timing->trppb << 8) | pdram_timing->twtr);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[35],
-			 (pdram_timing->tcke << 24) | pdram_timing->tras_max);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[36], 0xff,
-			      max(1, pdram_timing->tckesr));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[39],
-			      (0xff << 24), (pdram_timing->trcd << 24));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[40],
-			      0x3f, pdram_timing->twr);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[42], 0x1f << 24,
-			      pdram_timing->tmrz << 24);
+		mmio_write_32(CTL_REG(i, 10), pdram_timing->tinit3);
+		mmio_write_32(CTL_REG(i, 12), pdram_timing->tinit5);
+		mmio_clrsetbits_32(CTL_REG(i, 24), (0x7f << 8),
+				   ((pdram_timing->cl * 2) << 8));
+		mmio_clrsetbits_32(CTL_REG(i, 24), (0x1f << 16),
+				   (pdram_timing->cwl << 16));
+		mmio_clrsetbits_32(CTL_REG(i, 24), 0x3f << 24,
+				   pdram_timing->al << 24);
+		mmio_clrsetbits_32(CTL_REG(i, 28), 0xffffff00,
+				   (pdram_timing->tras_min << 24) |
+				   (pdram_timing->trc << 16) |
+				   (pdram_timing->trrd << 8));
+		mmio_clrsetbits_32(CTL_REG(i, 29), 0xffffff,
+				   (pdram_timing->tfaw << 16) |
+				   (pdram_timing->trppb << 8) |
+				   pdram_timing->twtr);
+		mmio_write_32(CTL_REG(i, 35), (pdram_timing->tcke << 24) |
+					      pdram_timing->tras_max);
+		mmio_clrsetbits_32(CTL_REG(i, 36), 0xff,
+				   max(1, pdram_timing->tckesr));
+		mmio_clrsetbits_32(CTL_REG(i, 39), (0xff << 24),
+				   (pdram_timing->trcd << 24));
+		mmio_clrsetbits_32(CTL_REG(i, 40), 0x3f, pdram_timing->twr);
+		mmio_clrsetbits_32(CTL_REG(i, 42), 0x1f << 24,
+				   pdram_timing->tmrz << 24);
 		tmp = pdram_timing->tdal ? pdram_timing->tdal :
-		       (pdram_timing->twr + pdram_timing->trp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[44], 0xff << 8,
-			      tmp << 8);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[45], 0xff << 8,
-			      pdram_timing->trp << 8);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[49],
-			 ((pdram_timing->trefi - 8) << 16) |
-			 pdram_timing->trfc);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[52], 0xffff << 16,
-			      pdram_timing->txp << 16);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[54], 0xffff,
-			      pdram_timing->txpdll);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[55], 0xff << 8,
-			      pdram_timing->tmrri << 8);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[57],
-			 (pdram_timing->tmrwckel << 24) |
-			 (pdram_timing->tckehcs << 16) |
-			 (pdram_timing->tckelcs << 8) | pdram_timing->tcscke);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[58], 0xf,
-			      pdram_timing->tzqcke);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[61], 0xffff,
-			      pdram_timing->txsnr);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[64], 0xffff << 16,
-			      (pdram_timing->tckehcmd << 24) |
-			      (pdram_timing->tckelcmd << 16));
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[65],
-			 (pdram_timing->tckelpd << 24) |
-			 (pdram_timing->tescke << 16) |
-			 (pdram_timing->tsr << 8) | pdram_timing->tckckel);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[66], 0xfff,
-			      (pdram_timing->tcmdcke << 8) |
-			      pdram_timing->tcsckeh);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[92], (0xff << 24),
-			      (pdram_timing->tcksre << 24));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[93], 0xff,
-			      pdram_timing->tcksrx);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[108], (0x1 << 25),
-			      (timing_config->dllbp << 25));
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[125],
-			 (pdram_timing->tvrcg_disable << 16) |
-			 pdram_timing->tvrcg_enable);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[126],
-			 (pdram_timing->tckfspx << 24) |
-			 (pdram_timing->tckfspe << 16) |
-			 pdram_timing->tfc_long);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[127], 0xffff,
-			      pdram_timing->tvref_long);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[134],
-			      0xffff << 16, pdram_timing->mr[0] << 16);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[135],
-			 (pdram_timing->mr[2] << 16) | pdram_timing->mr[1]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[138],
-			      0xffff << 16, pdram_timing->mr[3] << 16);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[140], 0xff,
-			      pdram_timing->mr11);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[148],
-			      0xffff << 16, pdram_timing->mr[0] << 16);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[149],
-			 (pdram_timing->mr[2] << 16) | pdram_timing->mr[1]);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[152],
-			      0xffff << 16, pdram_timing->mr[3] << 16);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[154], 0xff,
-			      pdram_timing->mr11);
+		      (pdram_timing->twr + pdram_timing->trp);
+		mmio_clrsetbits_32(CTL_REG(i, 44), 0xff << 8, tmp << 8);
+		mmio_clrsetbits_32(CTL_REG(i, 45), 0xff << 8,
+				   pdram_timing->trp << 8);
+		mmio_write_32(CTL_REG(i, 49),
+			      ((pdram_timing->trefi - 8) << 16) |
+			      pdram_timing->trfc);
+		mmio_clrsetbits_32(CTL_REG(i, 52), 0xffff << 16,
+				   pdram_timing->txp << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 54), 0xffff,
+				   pdram_timing->txpdll);
+		mmio_clrsetbits_32(CTL_REG(i, 55), 0xff << 8,
+				   pdram_timing->tmrri << 8);
+		mmio_write_32(CTL_REG(i, 57), (pdram_timing->tmrwckel << 24) |
+					      (pdram_timing->tckehcs << 16) |
+					      (pdram_timing->tckelcs << 8) |
+					      pdram_timing->tcscke);
+		mmio_clrsetbits_32(CTL_REG(i, 58), 0xf, pdram_timing->tzqcke);
+		mmio_clrsetbits_32(CTL_REG(i, 61), 0xffff, pdram_timing->txsnr);
+		mmio_clrsetbits_32(CTL_REG(i, 64), 0xffff << 16,
+				   (pdram_timing->tckehcmd << 24) |
+				   (pdram_timing->tckelcmd << 16));
+		mmio_write_32(CTL_REG(i, 65), (pdram_timing->tckelpd << 24) |
+					      (pdram_timing->tescke << 16) |
+					      (pdram_timing->tsr << 8) |
+					      pdram_timing->tckckel);
+		mmio_clrsetbits_32(CTL_REG(i, 66), 0xfff,
+				   (pdram_timing->tcmdcke << 8) |
+				   pdram_timing->tcsckeh);
+		mmio_clrsetbits_32(CTL_REG(i, 92), (0xff << 24),
+				   (pdram_timing->tcksre << 24));
+		mmio_clrsetbits_32(CTL_REG(i, 93), 0xff,
+				   pdram_timing->tcksrx);
+		mmio_clrsetbits_32(CTL_REG(i, 108), (0x1 << 25),
+				   (timing_config->dllbp << 25));
+		mmio_write_32(CTL_REG(i, 125),
+			      (pdram_timing->tvrcg_disable << 16) |
+			      pdram_timing->tvrcg_enable);
+		mmio_write_32(CTL_REG(i, 126), (pdram_timing->tckfspx << 24) |
+					       (pdram_timing->tckfspe << 16) |
+					       pdram_timing->tfc_long);
+		mmio_clrsetbits_32(CTL_REG(i, 127), 0xffff,
+				   pdram_timing->tvref_long);
+		mmio_clrsetbits_32(CTL_REG(i, 134), 0xffff << 16,
+				   pdram_timing->mr[0] << 16);
+		mmio_write_32(CTL_REG(i, 135), (pdram_timing->mr[2] << 16) |
+					       pdram_timing->mr[1]);
+		mmio_clrsetbits_32(CTL_REG(i, 138), 0xffff << 16,
+				   pdram_timing->mr[3] << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 140), 0xff, pdram_timing->mr11);
+		mmio_clrsetbits_32(CTL_REG(i, 148), 0xffff << 16,
+				   pdram_timing->mr[0] << 16);
+		mmio_write_32(CTL_REG(i, 149), (pdram_timing->mr[2] << 16) |
+					       pdram_timing->mr[1]);
+		mmio_clrsetbits_32(CTL_REG(i, 152), 0xffff << 16,
+				   pdram_timing->mr[3] << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 154), 0xff, pdram_timing->mr11);
 		if (timing_config->dram_type == LPDDR4) {
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[141],
-				      0xffff, pdram_timing->mr12);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[143],
-				      0xffff, pdram_timing->mr14);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[146],
-				      0xffff, pdram_timing->mr22);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[155],
-				      0xffff, pdram_timing->mr12);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[157],
-				      0xffff, pdram_timing->mr14);
-			clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[160],
-				      0xffff, pdram_timing->mr22);
+			mmio_clrsetbits_32(CTL_REG(i, 141), 0xffff,
+					   pdram_timing->mr12);
+			mmio_clrsetbits_32(CTL_REG(i, 143), 0xffff,
+					   pdram_timing->mr14);
+			mmio_clrsetbits_32(CTL_REG(i, 146), 0xffff,
+					   pdram_timing->mr22);
+			mmio_clrsetbits_32(CTL_REG(i, 155), 0xffff,
+					   pdram_timing->mr12);
+			mmio_clrsetbits_32(CTL_REG(i, 157), 0xffff,
+					   pdram_timing->mr14);
+			mmio_clrsetbits_32(CTL_REG(i, 160), 0xffff,
+					   pdram_timing->mr22);
 		}
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[182],
-			 ((pdram_timing->tzqinit / 2) << 16) |
-			 pdram_timing->tzqinit);
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[183],
-			 (pdram_timing->tzqcal << 16) | pdram_timing->tzqcs);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[184], 0x3f,
-			      pdram_timing->tzqlat);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[188], 0xfff,
-			      pdram_timing->tzqreset);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[212], 0xff << 16,
-			      pdram_timing->todton << 16);
+		mmio_write_32(CTL_REG(i, 182),
+			      ((pdram_timing->tzqinit / 2) << 16) |
+			      pdram_timing->tzqinit);
+		mmio_write_32(CTL_REG(i, 183), (pdram_timing->tzqcal << 16) |
+					       pdram_timing->tzqcs);
+		mmio_clrsetbits_32(CTL_REG(i, 184), 0x3f, pdram_timing->tzqlat);
+		mmio_clrsetbits_32(CTL_REG(i, 188), 0xfff,
+				   pdram_timing->tzqreset);
+		mmio_clrsetbits_32(CTL_REG(i, 212), 0xff << 16,
+				   pdram_timing->todton << 16);
 
 		if (timing_config->odt) {
-			setbits_32(&rk3399_ddr_pctl[i]->denali_ctl[213],
-				   (1 << 24));
+			mmio_setbits_32(CTL_REG(i, 213), (1 << 24));
 			if (timing_config->freq < 400)
 				tmp = 4 << 24;
 			else
 				tmp = 8 << 24;
 		} else {
-			clrbits_32(&rk3399_ddr_pctl[i]->denali_ctl[213],
-				   (1 << 24));
+			mmio_clrbits_32(CTL_REG(i, 213), (1 << 24));
 			tmp = 2 << 24;
 		}
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[217], 0x1f << 24,
-			      tmp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[221], 0xf << 24,
-			      (pdram_timing->tdqsck_max << 24));
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[222], 0x3,
-			      pdram_timing->tdqsck);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[291], 0xffff,
-			      (get_wrlat_adj(timing_config->dram_type,
-					     pdram_timing->cwl) << 8) |
-			      get_rdlat_adj(timing_config->dram_type,
-					    pdram_timing->cl));
+		mmio_clrsetbits_32(CTL_REG(i, 217), 0x1f << 24, tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 221), 0xf << 24,
+				   (pdram_timing->tdqsck_max << 24));
+		mmio_clrsetbits_32(CTL_REG(i, 222), 0x3, pdram_timing->tdqsck);
+		mmio_clrsetbits_32(CTL_REG(i, 291), 0xffff,
+				   (get_wrlat_adj(timing_config->dram_type,
+						  pdram_timing->cwl) << 8) |
+				   get_rdlat_adj(timing_config->dram_type,
+						 pdram_timing->cl));
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[84], 0xffff,
-			      (4 * pdram_timing->trefi) & 0xffff);
+		mmio_clrsetbits_32(CTL_REG(i, 84), 0xffff,
+				   (4 * pdram_timing->trefi) & 0xffff);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[84], 0xffff << 16,
-			      ((2 * pdram_timing->trefi) & 0xffff) << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 84), 0xffff << 16,
+				   ((2 * pdram_timing->trefi) & 0xffff) << 16);
 
 		if ((timing_config->dram_type == LPDDR3) ||
 		    (timing_config->dram_type == LPDDR4)) {
@@ -1203,77 +1134,70 @@ static void gen_rk3399_ctl_params_f1(struct timing_related_config
 		} else {
 			tmp = 0;
 		}
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[214], 0x3f << 24,
-			      (tmp & 0x3f) << 24);
+		mmio_clrsetbits_32(CTL_REG(i, 214), 0x3f << 24,
+				   (tmp & 0x3f) << 24);
 
 		if ((timing_config->dram_type == LPDDR3) ||
 		    (timing_config->dram_type == LPDDR4)) {
-			/* min_rl_preamble= cl+TDQSCK_MIN-1 */
+			/* min_rl_preamble = cl + TDQSCK_MIN - 1 */
 			tmp = pdram_timing->cl +
-			    get_pi_todtoff_min(pdram_timing, timing_config) - 1;
+			      get_pi_todtoff_min(pdram_timing, timing_config);
+			tmp--;
 			/* todtoff_max */
 			tmp1 = get_pi_todtoff_max(pdram_timing, timing_config);
 			tmp = (tmp > tmp1) ? (tmp - tmp1) : 0;
 		} else {
 			tmp = pdram_timing->cl - pdram_timing->cwl;
 		}
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[215], 0x3f << 16,
-			      (tmp & 0x3f) << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 215), 0x3f << 16,
+				   (tmp & 0x3f) << 16);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[275], 0xff << 24,
-			      (get_pi_tdfi_phy_rdlat
-			       (pdram_timing, timing_config)
-			       & 0xff) << 24);
+		mmio_clrsetbits_32(CTL_REG(i, 275), 0xff << 24,
+				   (get_pi_tdfi_phy_rdlat(pdram_timing,
+							  timing_config) &
+				    0xff) << 24);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[284],
-			      0xffff << 16,
-			      ((2 * pdram_timing->trefi) & 0xffff) << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 284), 0xffff << 16,
+				   ((2 * pdram_timing->trefi) & 0xffff) << 16);
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[289], 0xffff,
-			      (2 * pdram_timing->trefi) & 0xffff);
+		mmio_clrsetbits_32(CTL_REG(i, 289), 0xffff,
+				   (2 * pdram_timing->trefi) & 0xffff);
 
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[290],
-			 20 * pdram_timing->trefi);
+		mmio_write_32(CTL_REG(i, 290), 20 * pdram_timing->trefi);
 
 		/* CTL_309 TDFI_CALVL_CAPTURE_F1:RW:16:10 */
 		tmp1 = 20000 / (1000000 / pdram_timing->mhz) + 1;
 		if ((20000 % (1000000 / pdram_timing->mhz)) != 0)
 			tmp1++;
 		tmp = (tmp1 >> 1) + (tmp1 % 2) + 5;
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[309], 0x3ff << 16,
-				tmp << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 309), 0x3ff << 16, tmp << 16);
 
 		/* CTL_309 TDFI_CALVL_CC_F1:RW:0:10 */
 		tmp = tmp + 18;
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[309], 0x3ff,
-				tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 309), 0x3ff, tmp);
 
 		/* CTL_314 TDFI_WRCSLAT_F1:RW:24:8 */
 		tmp1 = get_pi_wrlat_adj(pdram_timing, timing_config);
 		if (timing_config->freq <= ENPER_CS_TRAINING_FREQ) {
-			if (tmp1 < 5) {
-				if (tmp1 == 0)
-					tmp = 0;
-				else
-					tmp = tmp1 - 1;
-			} else {
+			if (tmp1 == 0)
+				tmp = 0;
+			else if (tmp1 < 5)
+				tmp = tmp1 - 1;
+			else
 				tmp = tmp1 - 5;
-			}
 		} else {
 			tmp = tmp1 - 2;
 		}
 
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[314], 0xff << 24,
-				tmp << 24);
+		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 24, tmp << 24);
 
 		/* CTL_314 TDFI_RDCSLAT_F1:RW:16:8 */
 		if ((timing_config->freq <= ENPER_CS_TRAINING_FREQ) &&
-			(pdram_timing->cl >= 5))
+		    (pdram_timing->cl >= 5))
 			tmp = pdram_timing->cl - 5;
 		else
 			tmp = pdram_timing->cl - 2;
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[314], 0xff << 16,
-				tmp << 16);
+		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 16, tmp << 16);
 	}
 }
 
@@ -1307,12 +1231,11 @@ static void gen_rk3399_ctl_params(struct timing_related_config *timing_config,
 #endif
 	for (i = 0; i < timing_config->ch_cnt; i++) {
 		if (tmp0 | tmp1)
-			setbits_32(&rk3399_ddr_pctl[i]->denali_ctl[305],
-				   1 << 16);
+			mmio_setbits_32(CTL_REG(i, 305), 1 << 16);
 		if (tmp0)
-			setbits_32(&rk3399_ddr_pctl[i]->denali_ctl[70], tmp0);
+			mmio_setbits_32(CTL_REG(i, 70), tmp0);
 		if (tmp1)
-			setbits_32(&rk3399_ddr_pctl[i]->denali_ctl[71], tmp1);
+			mmio_setbits_32(CTL_REG(i, 71), tmp1);
 	}
 #endif
 }
@@ -1326,13 +1249,12 @@ static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
 	for (i = 0; i < timing_config->ch_cnt; i++) {
 		/* PI_02 PI_TDFI_PHYMSTR_MAX_F0:RW:0:32 */
 		tmp = 4 * pdram_timing->trefi;
-		write_32(&rk3399_ddr_pi[i]->denali_pi[2], tmp);
+		mmio_write_32(PI_REG(i, 2), tmp);
 		/* PI_03 PI_TDFI_PHYMSTR_RESP_F0:RW:0:16 */
 		tmp = 2 * pdram_timing->trefi;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[3], 0xffff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 3), 0xffff, tmp);
 		/* PI_07 PI_TDFI_PHYUPD_RESP_F0:RW:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[7], 0xffff << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 7), 0xffff << 16, tmp << 16);
 
 		/* PI_42 PI_TDELAY_RDWR_2_BUS_IDLE_F0:RW:0:8 */
 		if (timing_config->dram_type == LPDDR4)
@@ -1340,34 +1262,31 @@ static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
 		else
 			tmp = 0;
 		tmp = (pdram_timing->bl / 2) + 4 +
-		    (get_pi_rdlat_adj(pdram_timing) - 2) + tmp +
-		    get_pi_tdfi_phy_rdlat(pdram_timing, timing_config);
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[42], 0xff, tmp);
+		      (get_pi_rdlat_adj(pdram_timing) - 2) + tmp +
+		      get_pi_tdfi_phy_rdlat(pdram_timing, timing_config);
+		mmio_clrsetbits_32(PI_REG(i, 42), 0xff, tmp);
 		/* PI_43 PI_WRLAT_F0:RW:0:5 */
 		if (timing_config->dram_type == LPDDR3) {
 			tmp = get_pi_wrlat(pdram_timing, timing_config);
-			clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[43], 0x1f,
-				      tmp);
+			mmio_clrsetbits_32(PI_REG(i, 43), 0x1f, tmp);
 		}
 		/* PI_43 PI_ADDITIVE_LAT_F0:RW:8:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[43], 0x3f << 8,
-			      PI_ADD_LATENCY << 8);
+		mmio_clrsetbits_32(PI_REG(i, 43), 0x3f << 8,
+				   PI_ADD_LATENCY << 8);
 
 		/* PI_43 PI_CASLAT_LIN_F0:RW:16:7 */
-		tmp = pdram_timing->cl * 2;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[43], 0x7f << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 43), 0x7f << 16,
+				   (pdram_timing->cl * 2) << 16);
 		/* PI_46 PI_TREF_F0:RW:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[46], 0xffff << 16,
-			      pdram_timing->trefi << 16);
+		mmio_clrsetbits_32(PI_REG(i, 46), 0xffff << 16,
+				   pdram_timing->trefi << 16);
 		/* PI_46 PI_TRFC_F0:RW:0:10 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[46], 0x3ff,
-			      pdram_timing->trfc);
+		mmio_clrsetbits_32(PI_REG(i, 46), 0x3ff, pdram_timing->trfc);
 		/* PI_66 PI_TODTL_2CMD_F0:RW:24:8 */
 		if (timing_config->dram_type == LPDDR3) {
 			tmp = get_pi_todtoff_max(pdram_timing, timing_config);
-			clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[66],
-				      0xff << 24, tmp << 24);
+			mmio_clrsetbits_32(PI_REG(i, 66), 0xff << 24,
+					   tmp << 24);
 		}
 		/* PI_72 PI_WR_TO_ODTH_F0:RW:16:6 */
 		if ((timing_config->dram_type == LPDDR3) ||
@@ -1381,14 +1300,14 @@ static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
 		} else if (timing_config->dram_type == DDR3) {
 			tmp = 0;
 		}
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[72], 0x3f << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 72), 0x3f << 16, tmp << 16);
 		/* PI_73 PI_RD_TO_ODTH_F0:RW:8:6 */
 		if ((timing_config->dram_type == LPDDR3) ||
 		    (timing_config->dram_type == LPDDR4)) {
-			/* min_rl_preamble= cl+TDQSCK_MIN-1 */
-			tmp1 = pdram_timing->cl +
-			    get_pi_todtoff_min(pdram_timing, timing_config) - 1;
+			/* min_rl_preamble = cl + TDQSCK_MIN - 1 */
+			tmp1 = pdram_timing->cl;
+			tmp1 += get_pi_todtoff_min(pdram_timing, timing_config);
+			tmp1--;
 			/* todtoff_max */
 			tmp2 = get_pi_todtoff_max(pdram_timing, timing_config);
 			if (tmp1 > tmp2)
@@ -1398,49 +1317,40 @@ static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
 		} else if (timing_config->dram_type == DDR3) {
 			tmp = pdram_timing->cl - pdram_timing->cwl;
 		}
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[73], 0x3f << 8,
-			      tmp << 8);
+		mmio_clrsetbits_32(PI_REG(i, 73), 0x3f << 8, tmp << 8);
 		/* PI_89 PI_RDLAT_ADJ_F0:RW:16:8 */
 		tmp = get_pi_rdlat_adj(pdram_timing);
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[89], 0xff << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 89), 0xff << 16, tmp << 16);
 		/* PI_90 PI_WRLAT_ADJ_F0:RW:16:8 */
 		tmp = get_pi_wrlat_adj(pdram_timing, timing_config);
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[90], 0xff << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 90), 0xff << 16, tmp << 16);
 		/* PI_91 PI_TDFI_WRCSLAT_F0:RW:16:8 */
 		tmp1 = tmp;
-		if (tmp1 < 5) {
-			if (tmp1 == 0)
-				tmp = 0;
-			else
-				tmp = tmp1 - 1;
-		} else {
+		if (tmp1 == 0)
+			tmp = 0;
+		else if (tmp1 < 5)
+			tmp = tmp1 - 1;
+		else
 			tmp = tmp1 - 5;
-		}
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[91], 0xff << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 91), 0xff << 16, tmp << 16);
 		/* PI_95 PI_TDFI_CALVL_CAPTURE_F0:RW:16:10 */
 		tmp1 = 20000 / (1000000 / pdram_timing->mhz) + 1;
 		if ((20000 % (1000000 / pdram_timing->mhz)) != 0)
 			tmp1++;
 		tmp = (tmp1 >> 1) + (tmp1 % 2) + 5;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[95], 0x3ff << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 95), 0x3ff << 16, tmp << 16);
 		/* PI_95 PI_TDFI_CALVL_CC_F0:RW:0:10 */
-		tmp = tmp + 18;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[95], 0x3ff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 95), 0x3ff, tmp + 18);
 		/* PI_102 PI_TMRZ_F0:RW:8:5 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[102], 0x1f << 8,
-			      pdram_timing->tmrz << 8);
+		mmio_clrsetbits_32(PI_REG(i, 102), 0x1f << 8,
+				   pdram_timing->tmrz << 8);
 		/* PI_111 PI_TDFI_CALVL_STROBE_F0:RW:8:4 */
 		tmp1 = 2 * 1000 / (1000000 / pdram_timing->mhz);
 		if ((2 * 1000 % (1000000 / pdram_timing->mhz)) != 0)
 			tmp1++;
 		/* pi_tdfi_calvl_strobe=tds_train+5 */
 		tmp = tmp1 + 5;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[111], 0xf << 8,
-			      tmp << 8);
+		mmio_clrsetbits_32(PI_REG(i, 111), 0xf << 8, tmp << 8);
 		/* PI_116 PI_TCKEHDQS_F0:RW:16:6 */
 		tmp = 10000 / (1000000 / pdram_timing->mhz);
 		if ((10000 % (1000000 / pdram_timing->mhz)) != 0)
@@ -1449,70 +1359,61 @@ static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
 			tmp = tmp + 1;
 		else
 			tmp = tmp + 8;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[116], 0x3f << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 116), 0x3f << 16, tmp << 16);
 		/* PI_125 PI_MR1_DATA_F0_0:RW+:8:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[125], 0xffff << 8,
-			      pdram_timing->mr[1] << 8);
+		mmio_clrsetbits_32(PI_REG(i, 125), 0xffff << 8,
+				   pdram_timing->mr[1] << 8);
 		/* PI_133 PI_MR1_DATA_F0_1:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[133], 0xffff,
-			      pdram_timing->mr[1]);
+		mmio_clrsetbits_32(PI_REG(i, 133), 0xffff, pdram_timing->mr[1]);
 		/* PI_140 PI_MR1_DATA_F0_2:RW+:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[140], 0xffff << 16,
-			      pdram_timing->mr[1] << 16);
+		mmio_clrsetbits_32(PI_REG(i, 140), 0xffff << 16,
+				   pdram_timing->mr[1] << 16);
 		/* PI_148 PI_MR1_DATA_F0_3:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[148], 0xffff,
-			      pdram_timing->mr[1]);
+		mmio_clrsetbits_32(PI_REG(i, 148), 0xffff, pdram_timing->mr[1]);
 		/* PI_126 PI_MR2_DATA_F0_0:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[126], 0xffff,
-			      pdram_timing->mr[2]);
+		mmio_clrsetbits_32(PI_REG(i, 126), 0xffff, pdram_timing->mr[2]);
 		/* PI_133 PI_MR2_DATA_F0_1:RW+:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[133], 0xffff << 16,
-			      pdram_timing->mr[2] << 16);
+		mmio_clrsetbits_32(PI_REG(i, 133), 0xffff << 16,
+				   pdram_timing->mr[2] << 16);
 		/* PI_141 PI_MR2_DATA_F0_2:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[141], 0xffff,
-			      pdram_timing->mr[2]);
+		mmio_clrsetbits_32(PI_REG(i, 141), 0xffff, pdram_timing->mr[2]);
 		/* PI_148 PI_MR2_DATA_F0_3:RW+:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[148], 0xffff << 16,
-			      pdram_timing->mr[2] << 16);
+		mmio_clrsetbits_32(PI_REG(i, 148), 0xffff << 16,
+				   pdram_timing->mr[2] << 16);
 		/* PI_156 PI_TFC_F0:RW:0:10 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[156], 0x3ff,
-			      pdram_timing->trfc);
+		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff, pdram_timing->trfc);
 		/* PI_158 PI_TWR_F0:RW:24:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[158], 0x3f << 24,
-			      pdram_timing->twr << 24);
+		mmio_clrsetbits_32(PI_REG(i, 158), 0x3f << 24,
+				   pdram_timing->twr << 24);
 		/* PI_158 PI_TWTR_F0:RW:16:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[158], 0x3f << 16,
-			      pdram_timing->twtr << 16);
+		mmio_clrsetbits_32(PI_REG(i, 158), 0x3f << 16,
+				   pdram_timing->twtr << 16);
 		/* PI_158 PI_TRCD_F0:RW:8:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[158], 0xff << 8,
-			      pdram_timing->trcd << 8);
+		mmio_clrsetbits_32(PI_REG(i, 158), 0xff << 8,
+				   pdram_timing->trcd << 8);
 		/* PI_158 PI_TRP_F0:RW:0:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[158], 0xff,
-			      pdram_timing->trp);
+		mmio_clrsetbits_32(PI_REG(i, 158), 0xff, pdram_timing->trp);
 		/* PI_157 PI_TRTP_F0:RW:24:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[157], 0xff << 24,
-			      pdram_timing->trtp << 24);
+		mmio_clrsetbits_32(PI_REG(i, 157), 0xff << 24,
+				   pdram_timing->trtp << 24);
 		/* PI_159 PI_TRAS_MIN_F0:RW:24:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[159], 0xff << 24,
-			      pdram_timing->tras_min << 24);
+		mmio_clrsetbits_32(PI_REG(i, 159), 0xff << 24,
+				   pdram_timing->tras_min << 24);
 		/* PI_159 PI_TRAS_MAX_F0:RW:0:17 */
 		tmp = pdram_timing->tras_max * 99 / 100;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[159], 0x1ffff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 159), 0x1ffff, tmp);
 		/* PI_160 PI_TMRD_F0:RW:16:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[160], 0x3f << 16,
-			      pdram_timing->tmrd << 16);
+		mmio_clrsetbits_32(PI_REG(i, 160), 0x3f << 16,
+				   pdram_timing->tmrd << 16);
 		/*PI_160 PI_TDQSCK_MAX_F0:RW:0:4 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[160], 0xf,
-			      pdram_timing->tdqsck_max);
+		mmio_clrsetbits_32(PI_REG(i, 160), 0xf,
+				   pdram_timing->tdqsck_max);
 		/* PI_187 PI_TDFI_CTRLUPD_MAX_F0:RW:8:16 */
-		tmp = 2 * pdram_timing->trefi;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[187], 0xffff << 8,
-			      tmp << 8);
+		mmio_clrsetbits_32(PI_REG(i, 187), 0xffff << 8,
+				   (2 * pdram_timing->trefi) << 8);
 		/* PI_188 PI_TDFI_CTRLUPD_INTERVAL_F0:RW:0:32 */
-		tmp = 20 * pdram_timing->trefi;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[188], 0xffffffff,
-			      tmp);
+		mmio_clrsetbits_32(PI_REG(i, 188), 0xffffffff,
+				   20 * pdram_timing->trefi);
 	}
 }
 
@@ -1525,12 +1426,12 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 	for (i = 0; i < timing_config->ch_cnt; i++) {
 		/* PI_04 PI_TDFI_PHYMSTR_MAX_F1:RW:0:32 */
 		tmp = 4 * pdram_timing->trefi;
-		write_32(&rk3399_ddr_pi[i]->denali_pi[4], tmp);
+		mmio_write_32(PI_REG(i, 4), tmp);
 		/* PI_05 PI_TDFI_PHYMSTR_RESP_F1:RW:0:16 */
 		tmp = 2 * pdram_timing->trefi;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[5], 0xffff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 5), 0xffff, tmp);
 		/* PI_12 PI_TDFI_PHYUPD_RESP_F1:RW:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[12], 0xffff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 12), 0xffff, tmp);
 
 		/* PI_42 PI_TDELAY_RDWR_2_BUS_IDLE_F1:RW:8:8 */
 		if (timing_config->dram_type == LPDDR4)
@@ -1538,38 +1439,33 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 		else
 			tmp = 0;
 		tmp = (pdram_timing->bl / 2) + 4 +
-		    (get_pi_rdlat_adj(pdram_timing) - 2) + tmp +
-		    get_pi_tdfi_phy_rdlat(pdram_timing, timing_config);
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[42], 0xff << 8,
-			      tmp << 8);
+		      (get_pi_rdlat_adj(pdram_timing) - 2) + tmp +
+		      get_pi_tdfi_phy_rdlat(pdram_timing, timing_config);
+		mmio_clrsetbits_32(PI_REG(i, 42), 0xff << 8, tmp << 8);
 		/* PI_43 PI_WRLAT_F1:RW:24:5 */
 		if (timing_config->dram_type == LPDDR3) {
 			tmp = get_pi_wrlat(pdram_timing, timing_config);
-			clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[43],
-				      0x1f << 24, tmp << 24);
+			mmio_clrsetbits_32(PI_REG(i, 43), 0x1f << 24,
+					   tmp << 24);
 		}
 		/* PI_44 PI_ADDITIVE_LAT_F1:RW:0:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[44], 0x3f,
-			      PI_ADD_LATENCY);
+		mmio_clrsetbits_32(PI_REG(i, 44), 0x3f, PI_ADD_LATENCY);
 		/* PI_44 PI_CASLAT_LIN_F1:RW:8:7:=0x18 */
-		tmp = pdram_timing->cl * 2;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[44], 0x7f << 8,
-			      tmp << 8);
+		mmio_clrsetbits_32(PI_REG(i, 44), 0x7f << 8,
+				   pdram_timing->cl * 2);
 		/* PI_47 PI_TREF_F1:RW:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[47], 0xffff << 16,
-			      pdram_timing->trefi << 16);
+		mmio_clrsetbits_32(PI_REG(i, 47), 0xffff << 16,
+				   pdram_timing->trefi << 16);
 		/* PI_47 PI_TRFC_F1:RW:0:10 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[47], 0x3ff,
-			      pdram_timing->trfc);
+		mmio_clrsetbits_32(PI_REG(i, 47), 0x3ff, pdram_timing->trfc);
 		/* PI_67 PI_TODTL_2CMD_F1:RW:8:8 */
 		if (timing_config->dram_type == LPDDR3) {
 			tmp = get_pi_todtoff_max(pdram_timing, timing_config);
-			clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[67],
-				      0xff << 8, tmp << 8);
+			mmio_clrsetbits_32(PI_REG(i, 67), 0xff << 8, tmp << 8);
 		}
 		/* PI_72 PI_WR_TO_ODTH_F1:RW:24:6 */
-		if ((timing_config->dram_type == LPDDR3)
-		    || (timing_config->dram_type == LPDDR4)) {
+		if ((timing_config->dram_type == LPDDR3) ||
+		    (timing_config->dram_type == LPDDR4)) {
 			tmp1 = get_pi_wrlat(pdram_timing, timing_config);
 			tmp2 = get_pi_todtoff_max(pdram_timing, timing_config);
 			if (tmp1 > tmp2)
@@ -1579,61 +1475,51 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 		} else if (timing_config->dram_type == DDR3) {
 			tmp = 0;
 		}
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[72], 0x3f << 24,
-			      tmp << 24);
+		mmio_clrsetbits_32(PI_REG(i, 72), 0x3f << 24, tmp << 24);
 		/* PI_73 PI_RD_TO_ODTH_F1:RW:16:6 */
-		if ((timing_config->dram_type == LPDDR3)
-		    || (timing_config->dram_type == LPDDR4)) {
-			/* min_rl_preamble= cl+TDQSCK_MIN-1 */
-			tmp1 =
-			    pdram_timing->cl + get_pi_todtoff_min(pdram_timing,
-								  timing_config)
-			    - 1;
+		if ((timing_config->dram_type == LPDDR3) ||
+		    (timing_config->dram_type == LPDDR4)) {
+			/* min_rl_preamble = cl + TDQSCK_MIN - 1 */
+			tmp1 = pdram_timing->cl +
+			       get_pi_todtoff_min(pdram_timing, timing_config);
+			tmp1--;
 			/* todtoff_max */
 			tmp2 = get_pi_todtoff_max(pdram_timing, timing_config);
 			if (tmp1 > tmp2)
 				tmp = tmp1 - tmp2;
 			else
 				tmp = 0;
-		} else if (timing_config->dram_type == DDR3) {
+		} else if (timing_config->dram_type == DDR3)
 			tmp = pdram_timing->cl - pdram_timing->cwl;
-		}
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[73], 0x3f << 16,
-			      tmp << 16);
+
+		mmio_clrsetbits_32(PI_REG(i, 73), 0x3f << 16, tmp << 16);
 		/*P I_89 PI_RDLAT_ADJ_F1:RW:24:8 */
 		tmp = get_pi_rdlat_adj(pdram_timing);
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[89], 0xff << 24,
-			      tmp << 24);
+		mmio_clrsetbits_32(PI_REG(i, 89), 0xff << 24, tmp << 24);
 		/* PI_90 PI_WRLAT_ADJ_F1:RW:24:8 */
 		tmp = get_pi_wrlat_adj(pdram_timing, timing_config);
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[90], 0xff << 24,
-			      tmp << 24);
+		mmio_clrsetbits_32(PI_REG(i, 90), 0xff << 24, tmp << 24);
 		/* PI_91 PI_TDFI_WRCSLAT_F1:RW:24:8 */
 		tmp1 = tmp;
-		if (tmp1 < 5) {
-			if (tmp1 == 0)
-				tmp = 0;
-			else
-				tmp = tmp1 - 1;
-		} else {
+		if (tmp1 == 0)
+			tmp = 0;
+		else if (tmp1 < 5)
+			tmp = tmp1 - 1;
+		else
 			tmp = tmp1 - 5;
-		}
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[91], 0xff << 24,
-			      tmp << 24);
+		mmio_clrsetbits_32(PI_REG(i, 91), 0xff << 24, tmp << 24);
 		/*PI_96 PI_TDFI_CALVL_CAPTURE_F1:RW:16:10 */
 		/* tadr=20ns */
 		tmp1 = 20000 / (1000000 / pdram_timing->mhz) + 1;
 		if ((20000 % (1000000 / pdram_timing->mhz)) != 0)
 			tmp1++;
 		tmp = (tmp1 >> 1) + (tmp1 % 2) + 5;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[96], 0x3ff << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 96), 0x3ff << 16, tmp << 16);
 		/* PI_96 PI_TDFI_CALVL_CC_F1:RW:0:10 */
 		tmp = tmp + 18;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[96], 0x3ff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 96), 0x3ff, tmp);
 		/*PI_103 PI_TMRZ_F1:RW:0:5 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[103], 0x1f,
-			      pdram_timing->tmrz);
+		mmio_clrsetbits_32(PI_REG(i, 103), 0x1f, pdram_timing->tmrz);
 		/*PI_111 PI_TDFI_CALVL_STROBE_F1:RW:16:4 */
 		/* tds_train=ceil(2/ns) */
 		tmp1 = 2 * 1000 / (1000000 / pdram_timing->mhz);
@@ -1641,8 +1527,8 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 			tmp1++;
 		/* pi_tdfi_calvl_strobe=tds_train+5 */
 		tmp = tmp1 + 5;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[111], 0xf << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 111), 0xf << 16,
+				   tmp << 16);
 		/* PI_116 PI_TCKEHDQS_F1:RW:24:6 */
 		tmp = 10000 / (1000000 / pdram_timing->mhz);
 		if ((10000 % (1000000 / pdram_timing->mhz)) != 0)
@@ -1651,69 +1537,63 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 			tmp = tmp + 1;
 		else
 			tmp = tmp + 8;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[116], 0x3f << 24,
-			      tmp << 24);
+		mmio_clrsetbits_32(PI_REG(i, 116), 0x3f << 24,
+				   tmp << 24);
 		/* PI_128 PI_MR1_DATA_F1_0:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[128], 0xffff,
-			      pdram_timing->mr[1]);
+		mmio_clrsetbits_32(PI_REG(i, 128), 0xffff, pdram_timing->mr[1]);
 		/* PI_135 PI_MR1_DATA_F1_1:RW+:8:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[135], 0xffff << 8,
-			      pdram_timing->mr[1] << 8);
+		mmio_clrsetbits_32(PI_REG(i, 135), 0xffff << 8,
+				   pdram_timing->mr[1] << 8);
 		/* PI_143 PI_MR1_DATA_F1_2:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[143], 0xffff,
-			      pdram_timing->mr[1]);
+		mmio_clrsetbits_32(PI_REG(i, 143), 0xffff, pdram_timing->mr[1]);
 		/* PI_150 PI_MR1_DATA_F1_3:RW+:8:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[150], 0xffff << 8,
-			      pdram_timing->mr[1] << 8);
+		mmio_clrsetbits_32(PI_REG(i, 150), 0xffff << 8,
+				   pdram_timing->mr[1] << 8);
 		/* PI_128 PI_MR2_DATA_F1_0:RW+:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[128], 0xffff << 16,
-			      pdram_timing->mr[2] << 16);
+		mmio_clrsetbits_32(PI_REG(i, 128), 0xffff << 16,
+				   pdram_timing->mr[2] << 16);
 		/* PI_136 PI_MR2_DATA_F1_1:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[136], 0xffff,
-			      pdram_timing->mr[2]);
+		mmio_clrsetbits_32(PI_REG(i, 136), 0xffff, pdram_timing->mr[2]);
 		/* PI_143 PI_MR2_DATA_F1_2:RW+:16:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[143], 0xffff << 16,
-			      pdram_timing->mr[2] << 16);
+		mmio_clrsetbits_32(PI_REG(i, 143), 0xffff << 16,
+				   pdram_timing->mr[2] << 16);
 		/* PI_151 PI_MR2_DATA_F1_3:RW+:0:16 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[151], 0xffff,
-			      pdram_timing->mr[2]);
+		mmio_clrsetbits_32(PI_REG(i, 151), 0xffff, pdram_timing->mr[2]);
 		/* PI_156 PI_TFC_F1:RW:16:10 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[156], 0x3ff << 16,
-			      pdram_timing->trfc << 16);
+		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff << 16,
+				   pdram_timing->trfc << 16);
 		/* PI_162 PI_TWR_F1:RW:8:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[162], 0x3f << 8,
-			      pdram_timing->twr << 8);
+		mmio_clrsetbits_32(PI_REG(i, 162), 0x3f << 8,
+				   pdram_timing->twr << 8);
 		/* PI_162 PI_TWTR_F1:RW:0:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[162], 0x3f,
-			      pdram_timing->twtr);
+		mmio_clrsetbits_32(PI_REG(i, 162), 0x3f, pdram_timing->twtr);
 		/* PI_161 PI_TRCD_F1:RW:24:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[161], 0xff << 24,
-			      pdram_timing->trcd << 24);
+		mmio_clrsetbits_32(PI_REG(i, 161), 0xff << 24,
+				   pdram_timing->trcd << 24);
 		/* PI_161 PI_TRP_F1:RW:16:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[161], 0xff << 16,
-			      pdram_timing->trp << 16);
+		mmio_clrsetbits_32(PI_REG(i, 161), 0xff << 16,
+				   pdram_timing->trp << 16);
 		/* PI_161 PI_TRTP_F1:RW:8:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[161], 0xff << 8,
-			      pdram_timing->trtp << 8);
+		mmio_clrsetbits_32(PI_REG(i, 161), 0xff << 8,
+				   pdram_timing->trtp << 8);
 		/* PI_163 PI_TRAS_MIN_F1:RW:24:8 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[163], 0xff << 24,
-			      pdram_timing->tras_min << 24);
+		mmio_clrsetbits_32(PI_REG(i, 163), 0xff << 24,
+				   pdram_timing->tras_min << 24);
 		/* PI_163 PI_TRAS_MAX_F1:RW:0:17 */
-		tmp = pdram_timing->tras_max * 99 / 100;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[163], 0x1ffff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 163), 0x1ffff,
+				   pdram_timing->tras_max * 99 / 100);
 		/* PI_164 PI_TMRD_F1:RW:16:6 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[164], 0x3f << 16,
-			      pdram_timing->tmrd << 16);
+		mmio_clrsetbits_32(PI_REG(i, 164), 0x3f << 16,
+				   pdram_timing->tmrd << 16);
 		/* PI_164 PI_TDQSCK_MAX_F1:RW:0:4 */
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[164], 0xf,
-			      pdram_timing->tdqsck_max);
+		mmio_clrsetbits_32(PI_REG(i, 164), 0xf,
+				   pdram_timing->tdqsck_max);
 		/* PI_189 PI_TDFI_CTRLUPD_MAX_F1:RW:0:16 */
-		tmp = 2 * pdram_timing->trefi;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[189], 0xffff, tmp);
+		mmio_clrsetbits_32(PI_REG(i, 189), 0xffff,
+				   2 * pdram_timing->trefi);
 		/* PI_190 PI_TDFI_CTRLUPD_INTERVAL_F1:RW:0:32 */
-		tmp = 20 * pdram_timing->trefi;
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[190], 0xffffffff,
-			      tmp);
+		mmio_clrsetbits_32(PI_REG(i, 190), 0xffffffff,
+				   20 * pdram_timing->trefi);
 	}
 }
 
@@ -1727,34 +1607,29 @@ static void gen_rk3399_pi_params(struct timing_related_config *timing_config,
 		gen_rk3399_pi_params_f1(timing_config, pdram_timing);
 
 #if PI_TRAINING
-		uint32_t i;
+	uint32_t i;
 
-		for (i = 0; i < timing_config->ch_cnt; i++) {
+	for (i = 0; i < timing_config->ch_cnt; i++) {
 #if EN_READ_GATE_TRAINING
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[80], 3 << 24,
-			      2 << 24);
+		mmio_clrsetbits_32(PI_REG(i, 80), 3 << 24, 2 << 24);
 #endif
 
 #if EN_CA_TRAINING
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[100], 3 << 8,
-			      2 << 8);
+		mmio_clrsetbits_32(PI_REG(i, 100), 3 << 8, 2 << 8);
 #endif
 
 #if EN_WRITE_LEVELING
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[60], 3 << 8,
-			      2 << 8);
+		mmio_clrsetbits_32(PI_REG(i, 60), 3 << 8, 2 << 8);
 #endif
 
 #if EN_READ_LEVELING
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[80], 3 << 16,
-			      2 << 16);
+		mmio_clrsetbits_32(PI_REG(i, 80), 3 << 16, 2 << 16);
 #endif
 
 #if EN_WDQ_LEVELING
-		clrsetbits_32(&rk3399_ddr_pi[i]->denali_pi[124], 3 << 16,
-			      2 << 16);
+		mmio_clrsetbits_32(PI_REG(i, 124), 3 << 16, 2 << 16);
 #endif
-		}
+	}
 #endif
 }
 
@@ -1765,23 +1640,15 @@ static void gen_rk3399_set_odt(uint32_t odt_en)
 
 	for (i = 0; i < rk3399_dram_status.timing_config.ch_cnt; i++) {
 		drv_odt_val = (odt_en | (0 << 1) | (0 << 2)) << 16;
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[5],
-				  0x7 << 16, drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[133],
-				  0x7 << 16, drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[261],
-				  0x7 << 16, drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[389],
-				  0x7 << 16, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 5), 0x7 << 16, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 133), 0x7 << 16, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 261), 0x7 << 16, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 389), 0x7 << 16, drv_odt_val);
 		drv_odt_val = (odt_en | (0 << 1) | (0 << 2)) << 24;
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[6],
-				  0x7 << 24, drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[134],
-				  0x7 << 24, drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[262],
-				  0x7 << 24, drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[390],
-				  0x7 << 24, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 6), 0x7 << 24, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 134), 0x7 << 24, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 262), 0x7 << 24, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 390), 0x7 << 24, drv_odt_val);
 	}
 }
 
@@ -1793,64 +1660,48 @@ static void gen_rk3399_set_ds_odt(struct timing_related_config *timing_config,
 	for (i = 0; i < timing_config->ch_cnt; i++) {
 		if (timing_config->dram_type == LPDDR4)
 			drv_odt_val = drv_config->phy_side_odt |
-				(PHY_DRV_ODT_Hi_Z << 4) |
-				(drv_config->phy_side_dq_drv << 8) |
-				(drv_config->phy_side_dq_drv << 12);
+				      (PHY_DRV_ODT_Hi_Z << 4) |
+				      (drv_config->phy_side_dq_drv << 8) |
+				      (drv_config->phy_side_dq_drv << 12);
 		else if (timing_config->dram_type == LPDDR3)
 			drv_odt_val = PHY_DRV_ODT_Hi_Z |
-				(drv_config->phy_side_odt << 4) |
-				(drv_config->phy_side_dq_drv << 8) |
-				(drv_config->phy_side_dq_drv << 12);
+				      (drv_config->phy_side_odt << 4) |
+				      (drv_config->phy_side_dq_drv << 8) |
+				      (drv_config->phy_side_dq_drv << 12);
 		else
 			drv_odt_val = drv_config->phy_side_odt |
-				(drv_config->phy_side_odt << 4) |
-				(drv_config->phy_side_dq_drv << 8) |
-				(drv_config->phy_side_dq_drv << 12);
+				      (drv_config->phy_side_odt << 4) |
+				      (drv_config->phy_side_dq_drv << 8) |
+				      (drv_config->phy_side_dq_drv << 12);
 
 		/* DQ drv odt set */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[6], 0xffffff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[134], 0xffffff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[262], 0xffffff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[390], 0xffffff,
-				  drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 6), 0xffffff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 134), 0xffffff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 262), 0xffffff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 390), 0xffffff, drv_odt_val);
 		/* DQS drv odt set */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[7], 0xffffff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[135], 0xffffff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[263], 0xffffff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[391], 0xffffff,
-				  drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 7), 0xffffff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 135), 0xffffff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 263), 0xffffff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 391), 0xffffff, drv_odt_val);
 
 		gen_rk3399_set_odt(timing_config->odt);
 
 		/* CA drv set */
 		drv_odt_val = drv_config->phy_side_ca_drv |
-			(drv_config->phy_side_ca_drv << 4);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[544], 0xff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[672], 0xff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[800], 0xff,
-				  drv_odt_val);
+			      (drv_config->phy_side_ca_drv << 4);
+		mmio_clrsetbits_32(PHY_REG(i, 544), 0xff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 672), 0xff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 800), 0xff, drv_odt_val);
 
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[928], 0xff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[937], 0xff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[935], 0xff,
-				  drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 928), 0xff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 937), 0xff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 935), 0xff, drv_odt_val);
 
 		drv_odt_val = drv_config->phy_side_ck_cs_drv |
-			(drv_config->phy_side_ck_cs_drv << 4);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[929], 0xff,
-				  drv_odt_val);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[939], 0xff,
-				  drv_odt_val);
+			      (drv_config->phy_side_ck_cs_drv << 4);
+		mmio_clrsetbits_32(PHY_REG(i, 929), 0xff, drv_odt_val);
+		mmio_clrsetbits_32(PHY_REG(i, 939), 0xff, drv_odt_val);
 	}
 }
 
@@ -1871,29 +1722,24 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		ie_enable = PI_IE_ENABLE_VALUE;
 		tsel_enable = PI_TSEL_ENABLE_VALUE;
 
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[896],
-			      (0x3 << 8) | 1, fn << 8);
+		mmio_clrsetbits_32(PHY_REG(i, 896), (0x3 << 8) | 1, fn << 8);
 
 		/* PHY_LOW_FREQ_SEL */
 		/* DENALI_PHY_913 1bit offset_0 */
 		if (timing_config->freq > 400)
-			clrbits_32(&rk3399_ddr_publ[i]->denali_phy[913], 1);
+			mmio_clrbits_32(PHY_REG(i, 913), 1);
 		else
-			setbits_32(&rk3399_ddr_publ[i]->denali_phy[913], 1);
+			mmio_setbits_32(PHY_REG(i, 913), 1);
 
 		/* PHY_RPTR_UPDATE_x */
 		/* DENALI_PHY_87/215/343/471 4bit offset_16 */
 		tmp = 2500 / (1000000 / pdram_timing->mhz) + 3;
 		if ((2500 % (1000000 / pdram_timing->mhz)) != 0)
 			tmp++;
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[87], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[215], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[343], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[471], 0xf << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 87), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 215), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 343), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 471), 0xf << 16, tmp << 16);
 
 		/* PHY_PLL_CTRL */
 		/* DENALI_PHY_911 13bits offset_0 */
@@ -1908,10 +1754,8 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		else
 			tmp = 0;
 		tmp = (1 << 12) | (tmp << 9) | (2 << 7) | (1 << 1);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[911], 0x1fff,
-			      tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[919], 0x1fff,
-			      tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 911), 0x1fff, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 919), 0x1fff, tmp);
 
 		/* PHY_PLL_CTRL_CA */
 		/* DENALI_PHY_911 13bits offset_16 */
@@ -1926,10 +1770,8 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		else
 			tmp = 0;
 		tmp = (tmp << 9) | (2 << 7) | (1 << 5) | (1 << 1);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[911],
-			      0x1fff << 16, tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[919],
-			      0x1fff << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 911), 0x1fff << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 919), 0x1fff << 16, tmp << 16);
 
 		/* PHY_TCKSRE_WAIT */
 		/* DENALI_PHY_922 4bits offset_24 */
@@ -1941,17 +1783,15 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 			tmp = 4;
 		else
 			tmp = 5;
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[922], 0xf << 24,
-			      tmp << 24);
+		mmio_clrsetbits_32(PHY_REG(i, 922), 0xf << 24, tmp << 24);
 		/* PHY_CAL_CLK_SELECT_0:RW8:3 */
 		div = pdram_timing->mhz / (2 * 20);
 		for (j = 2, tmp = 1; j <= 128; j <<= 1, tmp++) {
 			if (div < j)
 				break;
 		}
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[947], 0x7 << 8,
-			      tmp << 8);
-		setbits_32(&rk3399_ddr_publ[i]->denali_phy[927], (1 << 22));
+		mmio_clrsetbits_32(PHY_REG(i, 947), 0x7 << 8, tmp << 8);
+		mmio_setbits_32(PHY_REG(i, 927), (1 << 22));
 
 		if (timing_config->dram_type == DDR3) {
 			mem_delay_ps = 0;
@@ -1967,53 +1807,44 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 			return;
 		}
 		total_delay_ps = mem_delay_ps + pad_delay_ps;
-		delay_frac_ps =
-		    1000 * total_delay_ps / (1000000 / pdram_timing->mhz);
+		delay_frac_ps = 1000 * total_delay_ps /
+				(1000000 / pdram_timing->mhz);
 		gate_delay_ps = delay_frac_ps + 1000 - (trpre_min_ps / 2);
-		gate_delay_frac_ps =
-		    gate_delay_ps - gate_delay_ps / 1000 * 1000;
+		gate_delay_frac_ps = gate_delay_ps % 1000;
 		tmp = gate_delay_frac_ps * 0x200 / 1000;
 		/* PHY_RDDQS_GATE_BYPASS_SLAVE_DELAY */
 		/* DENALI_PHY_2/130/258/386 10bits offset_0 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[2], 0x2ff, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[130], 0x2ff, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[258], 0x2ff, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[386], 0x2ff, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 2), 0x2ff, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 130), 0x2ff, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 258), 0x2ff, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 386), 0x2ff, tmp);
 		/* PHY_RDDQS_GATE_SLAVE_DELAY */
 		/* DENALI_PHY_77/205/333/461 10bits offset_16 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[77], 0x2ff << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[205], 0x2ff << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[333], 0x2ff << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[461], 0x2ff << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 77), 0x2ff << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 205), 0x2ff << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 333), 0x2ff << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 461), 0x2ff << 16, tmp << 16);
 
 		tmp = gate_delay_ps / 1000;
 		/* PHY_LP4_BOOT_RDDQS_LATENCY_ADJUST */
 		/* DENALI_PHY_10/138/266/394 4bit offset_0 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[10], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[138], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[266], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[394], 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 10), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 138), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 266), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 394), 0xf, tmp);
 		/* PHY_RDDQS_LATENCY_ADJUST */
 		/* DENALI_PHY_78/206/334/462 4bits offset_0 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[78], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[206], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[334], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[462], 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 78), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 206), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 334), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 462), 0xf, tmp);
 		/* PHY_GTLVL_LAT_ADJ_START */
 		/* DENALI_PHY_80/208/336/464 4bits offset_16 */
 		tmp = delay_frac_ps / 1000;
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[80], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[208], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[336], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[464], 0xf << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 80), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 208), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 336), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 464), 0xf << 16, tmp << 16);
 
 		cas_lat = pdram_timing->cl + PI_ADD_LATENCY;
 		rddata_en_ie_dly = ie_enable / (1000000 / pdram_timing->mhz);
@@ -2032,30 +1863,24 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 			hs_offset = 2;
 		else
 			hs_offset = 1;
-		if (rddata_en_ie_dly > (cas_lat - 1 - hs_offset)) {
+		if (rddata_en_ie_dly > (cas_lat - 1 - hs_offset))
 			tmp = 0;
-		} else {
-			if ((delta == 2) || (delta == 1))
-				tmp = rddata_en_ie_dly - 0 - extra_adder;
-			else
-				tmp = extra_adder;
-		}
+		else if ((delta == 2) || (delta == 1))
+			tmp = rddata_en_ie_dly - 0 - extra_adder;
+		else
+			tmp = extra_adder;
 		/* PHY_LP4_BOOT_RDDATA_EN_TSEL_DLY */
 		/* DENALI_PHY_9/137/265/393 4bit offset_16 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[9], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[137], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[265], 0xf << 16,
-			      tmp << 16);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[393], 0xf << 16,
-			      tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 9), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 137), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 265), 0xf << 16, tmp << 16);
+		mmio_clrsetbits_32(PHY_REG(i, 393), 0xf << 16, tmp << 16);
 		/* PHY_RDDATA_EN_TSEL_DLY */
 		/* DENALI_PHY_86/214/342/470 4bit offset_0 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[86], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[214], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[342], 0xf, tmp);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[470], 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 86), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 214), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 342), 0xf, tmp);
+		mmio_clrsetbits_32(PHY_REG(i, 470), 0xf, tmp);
 
 		if (tsel_adder > rddata_en_ie_dly)
 			extra_adder = tsel_adder - rddata_en_ie_dly;
@@ -2067,27 +1892,18 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 			tmp = rddata_en_ie_dly - 0 + extra_adder;
 		/* PHY_LP4_BOOT_RDDATA_EN_DLY */
 		/* DENALI_PHY_9/137/265/393 4bit offset_8 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[9], 0xf << 8,
-			      tmp << 8);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[137], 0xf << 8,
-			      tmp << 8);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[265], 0xf << 8,
-			      tmp << 8);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[393], 0xf << 8,
-			      tmp << 8);
+		mmio_clrsetbits_32(PHY_REG(i, 9), 0xf << 8, tmp << 8);
+		mmio_clrsetbits_32(PHY_REG(i, 137), 0xf << 8, tmp << 8);
+		mmio_clrsetbits_32(PHY_REG(i, 265), 0xf << 8, tmp << 8);
+		mmio_clrsetbits_32(PHY_REG(i, 393), 0xf << 8, tmp << 8);
 		/* PHY_RDDATA_EN_DLY */
 		/* DENALI_PHY_85/213/341/469 4bit offset_24 */
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[85], 0xf << 24,
-			      tmp << 24);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[213], 0xf << 24,
-			      tmp << 24);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[341], 0xf << 24,
-			      tmp << 24);
-		clrsetbits_32(&rk3399_ddr_publ[i]->denali_phy[469], 0xf << 24,
-			      tmp << 24);
+		mmio_clrsetbits_32(PHY_REG(i, 85), 0xf << 24, tmp << 24);
+		mmio_clrsetbits_32(PHY_REG(i, 213), 0xf << 24, tmp << 24);
+		mmio_clrsetbits_32(PHY_REG(i, 341), 0xf << 24, tmp << 24);
+		mmio_clrsetbits_32(PHY_REG(i, 469), 0xf << 24, tmp << 24);
 
 		if (pdram_timing->mhz <= ENPER_CS_TRAINING_FREQ) {
-
 			/*
 			 * Note:Per-CS Training is not compatible at speeds
 			 * under 533 MHz. If the PHY is running at a speed
@@ -2096,23 +1912,15 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 			 */
 
 			/*DENALI_PHY_84/212/340/468 1bit offset_16 */
-			clrbits_32(&rk3399_ddr_publ[i]->denali_phy[84],
-				   0x1 << 16);
-			clrbits_32(&rk3399_ddr_publ[i]->denali_phy[212],
-				   0x1 << 16);
-			clrbits_32(&rk3399_ddr_publ[i]->denali_phy[340],
-				   0x1 << 16);
-			clrbits_32(&rk3399_ddr_publ[i]->denali_phy[468],
-				   0x1 << 16);
+			mmio_clrbits_32(PHY_REG(i, 84), 0x1 << 16);
+			mmio_clrbits_32(PHY_REG(i, 212), 0x1 << 16);
+			mmio_clrbits_32(PHY_REG(i, 340), 0x1 << 16);
+			mmio_clrbits_32(PHY_REG(i, 468), 0x1 << 16);
 		} else {
-			setbits_32(&rk3399_ddr_publ[i]->denali_phy[84],
-				   0x1 << 16);
-			setbits_32(&rk3399_ddr_publ[i]->denali_phy[212],
-				   0x1 << 16);
-			setbits_32(&rk3399_ddr_publ[i]->denali_phy[340],
-				   0x1 << 16);
-			setbits_32(&rk3399_ddr_publ[i]->denali_phy[468],
-				   0x1 << 16);
+			mmio_setbits_32(PHY_REG(i, 84), 0x1 << 16);
+			mmio_setbits_32(PHY_REG(i, 212), 0x1 << 16);
+			mmio_setbits_32(PHY_REG(i, 340), 0x1 << 16);
+			mmio_setbits_32(PHY_REG(i, 468), 0x1 << 16);
 		}
 	}
 }
@@ -2146,9 +1954,9 @@ uint32_t rkclk_prepare_pll_timing(unsigned int mhz)
 	fbdiv = dpll_rates_table[index].fbdiv;
 	postdiv1 = dpll_rates_table[index].postdiv1;
 	postdiv2 = dpll_rates_table[index].postdiv2;
-	write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON0, FBDIV(fbdiv));
-	write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON1, POSTDIV2(postdiv2) |
-		 POSTDIV1(postdiv1) | REFDIV(refdiv));
+	mmio_write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON0, FBDIV(fbdiv));
+	mmio_write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON1,
+		      POSTDIV2(postdiv2) | POSTDIV1(postdiv1) | REFDIV(refdiv));
 	return (24 * fbdiv) / refdiv / postdiv1 / postdiv2;
 }
 
@@ -2181,40 +1989,37 @@ uint32_t ddr_get_rate(void)
  */
 uint32_t exit_low_power(void)
 {
-	struct rk3399_ddr_pctl_regs *ddr_pctl_regs;
 	uint32_t low_power = 0;
 	uint32_t channel_mask;
-	uint32_t channel;
-	uint32_t tmp;
+	uint32_t tmp, i;
 
-	channel_mask = (read_32(PMUGRF_BASE + PMUGRF_OSREG(2)) >> 28) & 0x3;
-	for (channel = 0; channel < 2; channel++) {
-		ddr_pctl_regs = rk3399_ddr_pctl[channel];
-		if (!(channel_mask & (1 << channel)))
+	channel_mask = (mmio_read_32(PMUGRF_BASE + PMUGRF_OSREG(2)) >> 28) &
+			0x3;
+	for (i = 0; i < 2; i++) {
+		if (!(channel_mask & (1 << i)))
 			continue;
 
 		/* exit stdby mode */
-		write_32(CIC_BASE + CIC_CTRL1,
-			 (1 << (channel + 16)) | (0 << channel));
+		mmio_write_32(CIC_BASE + CIC_CTRL1,
+			      (1 << (i + 16)) | (0 << i));
 		/* exit external self-refresh */
-		tmp = channel ? 12 : 8;
-		low_power |= ((read_32(PMU_BASE + PMU_SFT_CON) >> tmp) & 0x1)
-		    << (4 + 8 * channel);
-		clrbits_32(PMU_BASE + PMU_SFT_CON, 1 << tmp);
-		while (!(read_32(PMU_BASE + PMU_DDR_SREF_ST) &
-				(1 << channel)))
+		tmp = i ? 12 : 8;
+		low_power |= ((mmio_read_32(PMU_BASE + PMU_SFT_CON) >> tmp) &
+			      0x1) << (4 + 8 * i);
+		mmio_clrbits_32(PMU_BASE + PMU_SFT_CON, 1 << tmp);
+		while (!(mmio_read_32(PMU_BASE + PMU_DDR_SREF_ST) & (1 << i)))
 			;
 		/* exit auto low-power */
-		clrbits_32(&ddr_pctl_regs->denali_ctl[101], 0x7);
+		mmio_clrbits_32(CTL_REG(i, 101), 0x7);
 		/* lp_cmd to exit */
-		if (((read_32(&ddr_pctl_regs->denali_ctl[100]) >> 24) &
-			      0x7f) != 0x40) {
-			while (read_32(&ddr_pctl_regs->denali_ctl[200]) & 0x1)
+		if (((mmio_read_32(CTL_REG(i, 100)) >> 24) & 0x7f) !=
+		    0x40) {
+			while (mmio_read_32(CTL_REG(i, 200)) & 0x1)
 				;
-			clrsetbits_32(&ddr_pctl_regs->denali_ctl[93],
-				      0xff << 24, 0x69 << 24);
-			while (((read_32(&ddr_pctl_regs->denali_ctl[100]) >>
-					  24) & 0x7f) != 0x40)
+			mmio_clrsetbits_32(CTL_REG(i, 93), 0xff << 24,
+					   0x69 << 24);
+			while (((mmio_read_32(CTL_REG(i, 100)) >> 24) & 0x7f) !=
+			       0x40)
 				;
 		}
 	}
@@ -2223,35 +2028,32 @@ uint32_t exit_low_power(void)
 
 void resume_low_power(uint32_t low_power)
 {
-	struct rk3399_ddr_pctl_regs *ddr_pctl_regs;
 	uint32_t channel_mask;
-	uint32_t channel;
-	uint32_t tmp;
-	uint32_t val;
+	uint32_t tmp, i, val;
 
-	channel_mask = (read_32(PMUGRF_BASE + PMUGRF_OSREG(2)) >> 28) & 0x3;
-	for (channel = 0; channel < 2; channel++) {
-		ddr_pctl_regs = rk3399_ddr_pctl[channel];
-		if (!(channel_mask & (1 << channel)))
+	channel_mask = (mmio_read_32(PMUGRF_BASE + PMUGRF_OSREG(2)) >> 28) &
+		       0x3;
+	for (i = 0; i < 2; i++) {
+		if (!(channel_mask & (1 << i)))
 			continue;
 
 		/* resume external self-refresh */
-		tmp = channel ? 12 : 8;
-		val = (low_power >> (4 + 8 * channel)) & 0x1;
-		setbits_32(PMU_BASE + PMU_SFT_CON, val << tmp);
+		tmp = i ? 12 : 8;
+		val = (low_power >> (4 + 8 * i)) & 0x1;
+		mmio_setbits_32(PMU_BASE + PMU_SFT_CON, val << tmp);
 		/* resume auto low-power */
-		val = (low_power >> (8 * channel)) & 0x7;
-		setbits_32(&ddr_pctl_regs->denali_ctl[101], val);
+		val = (low_power >> (8 * i)) & 0x7;
+		mmio_setbits_32(CTL_REG(i, 101), val);
 		/* resume stdby mode */
-		val = (low_power >> (3 + 8 * channel)) & 0x1;
-		write_32(CIC_BASE + CIC_CTRL1,
-			 (1 << (channel + 16)) | (val << channel));
+		val = (low_power >> (3 + 8 * i)) & 0x1;
+		mmio_write_32(CIC_BASE + CIC_CTRL1,
+			      (1 << (i + 16)) | (val << i));
 	}
 }
 
 static void wait_dcf_done(void)
 {
-	while ((read_32(DCF_BASE + DCF_DCF_ISR) & (DCF_DONE)) == 0)
+	while ((mmio_read_32(DCF_BASE + DCF_DCF_ISR) & (DCF_DONE)) == 0)
 		continue;
 }
 
@@ -2264,36 +2066,40 @@ void clr_dcf_irq(void)
 static void enable_dcf(uint32_t dcf_addr)
 {
 	/* config DCF start addr */
-	write_32(DCF_BASE + DCF_DCF_ADDR, dcf_addr);
+	mmio_write_32(DCF_BASE + DCF_DCF_ADDR, dcf_addr);
 	/* wait dcf done */
-	while (read_32(DCF_BASE + DCF_DCF_CTRL) & 1)
+	while (mmio_read_32(DCF_BASE + DCF_DCF_CTRL) & 1)
 		continue;
 	/* clear dcf irq status */
-	write_32(DCF_BASE + DCF_DCF_ISR, DCF_TIMEOUT | DCF_ERR | DCF_DONE);
+	mmio_write_32(DCF_BASE + DCF_DCF_ISR, DCF_TIMEOUT | DCF_ERR | DCF_DONE);
 	/* DCF start */
-	setbits_32(DCF_BASE + DCF_DCF_CTRL, DCF_START);
+	mmio_setbits_32(DCF_BASE + DCF_DCF_CTRL, DCF_START);
 }
 
 void dcf_code_init(void)
 {
 	memcpy((void *)DCF_START_ADDR, (void *)dcf_code, sizeof(dcf_code));
 	/* set dcf master secure */
-	write_32(SGRF_BASE + 0xe01c, ((0x3 << 0) << 16) | (0 << 0));
-	write_32(DCF_BASE + DCF_DCF_TOSET, 0x80000000);
+	mmio_write_32(SGRF_BASE + 0xe01c, ((0x3 << 0) << 16) | (0 << 0));
+	mmio_write_32(DCF_BASE + DCF_DCF_TOSET, 0x80000000);
 }
 
 static void dcf_start(uint32_t freq, uint32_t index)
 {
-	write_32(CRU_BASE + CRU_SOFTRST_CON(10), (0x1 << (1 + 16)) | (1 << 1));
-	write_32(CRU_BASE + CRU_SOFTRST_CON(11), (0x1 << (0 + 16)) | (1 << 0));
-	write_32(DCF_PARAM_ADDR + PARAM_FREQ_SELECT, index << 4);
+	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
+		      (0x1 << (1 + 16)) | (1 << 1));
+	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(11),
+		      (0x1 << (0 + 16)) | (1 << 0));
+	mmio_write_32(DCF_PARAM_ADDR + PARAM_FREQ_SELECT, index << 4);
 
-	write_32(DCF_PARAM_ADDR + PARAM_DRAM_FREQ, freq);
+	mmio_write_32(DCF_PARAM_ADDR + PARAM_DRAM_FREQ, freq);
 
 	rkclk_prepare_pll_timing(freq);
 	udelay(10);
-	write_32(CRU_BASE + CRU_SOFTRST_CON(10), (0x1 << (1 + 16)) | (0 << 1));
-	write_32(CRU_BASE + CRU_SOFTRST_CON(11), (0x1 << (0 + 16)) | (0 << 0));
+	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
+		      (0x1 << (1 + 16)) | (0 << 1));
+	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(11),
+		      (0x1 << (0 + 16)) | (0 << 0));
 	udelay(10);
 	enable_dcf(DCF_START_ADDR);
 }
@@ -2319,42 +2125,40 @@ static void dram_low_power_config(struct drv_odt_lp_config *lp_config)
 	*low_power = 0;
 
 	for (i = 0; i < ch_cnt; i++) {
-		write_32(&rk3399_ddr_pctl[i]->denali_ctl[102], tmp);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[103], 0xffff,
-			      (lp_config->sr_mc_gate_idle << 8) |
-			      lp_config->sr_idle);
-		clrsetbits_32(&rk3399_ddr_pctl[i]->denali_ctl[101],
-			      0x70f0f, tmp1);
+		mmio_write_32(CTL_REG(i, 102), tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 103), 0xffff,
+				   (lp_config->sr_mc_gate_idle << 8) |
+				   lp_config->sr_idle);
+		mmio_clrsetbits_32(CTL_REG(i, 101), 0x70f0f, tmp1);
 		*low_power |= (7 << (8 * i));
 	}
 
 	/* standby idle */
-	write_32(CIC_BASE + CIC_IDLE_TH, lp_config->standby_idle);
-	write_32(CIC_BASE + CIC_CG_WAIT_TH, 0x640008);
+	mmio_write_32(CIC_BASE + CIC_IDLE_TH, lp_config->standby_idle);
+	mmio_write_32(CIC_BASE + CIC_CG_WAIT_TH, 0x640008);
 
 	if (ch_cnt == 2) {
-		write_32(GRF_BASE + GRF_DDRC1_CON1,
-			 (((0x1<<4) | (0x1<<5) | (0x1<<6) | (0x1<<7)) << 16) |
-			 ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
+		mmio_write_32(GRF_BASE + GRF_DDRC1_CON1,
+			      (((0x1<<4) | (0x1<<5) | (0x1<<6) |
+				(0x1<<7)) << 16) |
+			      ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
 		if (lp_config->standby_idle) {
 			tmp = 0x002a002a;
 			*low_power |= (1 << 11);
-		} else {
+		} else
 			tmp = 0;
-		}
-		write_32(CIC_BASE + CIC_CTRL1, tmp);
+		mmio_write_32(CIC_BASE + CIC_CTRL1, tmp);
 	}
 
-	write_32(GRF_BASE + GRF_DDRC0_CON1,
-		 (((0x1<<4) | (0x1<<5) | (0x1<<6) | (0x1<<7)) << 16) |
-		 ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
+	mmio_write_32(GRF_BASE + GRF_DDRC0_CON1,
+		      (((0x1<<4) | (0x1<<5) | (0x1<<6) | (0x1<<7)) << 16) |
+		      ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
 	if (lp_config->standby_idle) {
 		tmp = 0x00150015;
 		*low_power |= (1 << 3);
-	} else {
+	} else
 		tmp = 0;
-	}
-	write_32(CIC_BASE + CIC_CTRL1, tmp);
+	mmio_write_32(CIC_BASE + CIC_CTRL1, tmp);
 }
 
 
@@ -2372,16 +2176,13 @@ static void dram_related_init(struct ddr_dts_config_timing *dts_timing)
 			      &sdram_config,
 			      &rk3399_dram_status.drv_odt_lp_cfg);
 
-	trefi0 = ((read_32(&rk3399_ddr_pctl[0]->denali_ctl[48]) >>
-		   16) & 0xffff) + 8;
-	trefi1 = ((read_32(&rk3399_ddr_pctl[0]->denali_ctl[49]) >>
-		   16) & 0xffff) + 8;
+	trefi0 = ((mmio_read_32(CTL_REG(0, 48)) >> 16) & 0xffff) + 8;
+	trefi1 = ((mmio_read_32(CTL_REG(0, 49)) >> 16) & 0xffff) + 8;
 
 	rk3399_dram_status.index_freq[0] = trefi0 * 10 / 39;
 	rk3399_dram_status.index_freq[1] = trefi1 * 10 / 39;
 	rk3399_dram_status.current_index =
-	    (read_32(&rk3399_ddr_pctl[0]->denali_ctl[111])
-	     >> 16) & 0x3;
+		(mmio_read_32(CTL_REG(0, 111)) >> 16) & 0x3;
 	if (rk3399_dram_status.timing_config.dram_type == DDR3) {
 		rk3399_dram_status.index_freq[0] /= 2;
 		rk3399_dram_status.index_freq[1] /= 2;
@@ -2391,15 +2192,14 @@ static void dram_related_init(struct ddr_dts_config_timing *dts_timing)
 
 	/* disable all training by ctl and pi */
 	for (i = 0; i < rk3399_dram_status.timing_config.ch_cnt; i++) {
-		clrbits_32(&rk3399_ddr_pctl[i]->denali_ctl[70], (1 << 24) |
+		mmio_clrbits_32(CTL_REG(i, 70), (1 << 24) |
 				(1 << 16) | (1 << 8) | 1);
-		clrbits_32(&rk3399_ddr_pctl[i]->denali_ctl[71], 1);
+		mmio_clrbits_32(CTL_REG(i, 71), 1);
 
-		clrbits_32(&rk3399_ddr_pi[i]->denali_pi[60], 0x3 << 8);
-		clrbits_32(&rk3399_ddr_pi[i]->denali_pi[80], (0x3 << 24) |
-				(0x3 << 16));
-		clrbits_32(&rk3399_ddr_pi[i]->denali_pi[100], 0x3 << 8);
-		clrbits_32(&rk3399_ddr_pi[i]->denali_pi[124], 0x3 << 16);
+		mmio_clrbits_32(PI_REG(i, 60), 0x3 << 8);
+		mmio_clrbits_32(PI_REG(i, 80), (0x3 << 24) | (0x3 << 16));
+		mmio_clrbits_32(PI_REG(i, 100), 0x3 << 8);
+		mmio_clrbits_32(PI_REG(i, 124), 0x3 << 16);
 	}
 
 	/* init drv odt */
