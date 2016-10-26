@@ -348,10 +348,8 @@ static inline void pmu_sgrf_rst_hld(void)
 void __dead2 soc_global_soft_reset(void);
 void secure_watchdog_disable();
 void secure_watchdog_restore();
-void plls_suspend_prepare(void);
 void disable_dvfs_plls(void);
 void disable_nodvfs_plls(void);
-void plls_resume_finish(void);
 void enable_dvfs_plls(void);
 void enable_nodvfs_plls(void);
 void prepare_abpll_for_ddrctrl(void);
