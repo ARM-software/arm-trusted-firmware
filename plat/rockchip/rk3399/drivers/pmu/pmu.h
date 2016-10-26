@@ -32,6 +32,7 @@
 #define __PMU_H__
 
 #include <pmu_regs.h>
+#include <soc.h>
 
 /* Allocate sp reginon in pmusram */
 #define PSRAM_SP_SIZE		0x80
@@ -843,4 +844,7 @@ struct pmu_slpdata_s {
 };
 
 extern uint32_t clst_warmboot_data[PLATFORM_CLUSTER_COUNT];
+
+extern void sram_func_set_ddrctl_pll(uint32_t pll_src);
+
 #endif /* __PMU_H__ */

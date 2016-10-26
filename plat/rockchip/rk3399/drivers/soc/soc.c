@@ -43,6 +43,8 @@
 const mmap_region_t plat_rk_mmap[] = {
 	MAP_REGION_FLAT(RK3399_DEV_RNG0_BASE, RK3399_DEV_RNG0_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(PMUSRAM_BASE, PMUSRAM_SIZE,
+			MT_MEMORY | MT_RW | MT_SECURE),
 
 	{ 0 }
 };
@@ -238,19 +240,103 @@ static void _pll_suspend(uint32_t pll_id)
 	set_pll_bypass(pll_id);
 }
 
+/**
+ * disable_dvfs_plls - To suspend the specific PLLs
+ *
+ * When we close the center logic, the DPLL will be closed,
+ * so we need to keep the ABPLL and switch to it to supply
+ * clock for DDR during suspend, then we should not close
+ * the ABPLL and exclude ABPLL_ID.
+ */
 void disable_dvfs_plls(void)
 {
 	_pll_suspend(CPLL_ID);
 	_pll_suspend(NPLL_ID);
 	_pll_suspend(VPLL_ID);
 	_pll_suspend(GPLL_ID);
-	_pll_suspend(ABPLL_ID);
 	_pll_suspend(ALPLL_ID);
 }
 
+/**
+ * disable_nodvfs_plls - To suspend the PPLL
+ */
 void disable_nodvfs_plls(void)
 {
 	_pll_suspend(PPLL_ID);
+}
+
+/**
+ * restore_pll - Copy PLL settings from memory to a PLL.
+ *
+ * This will copy PLL settings from an array in memory to the memory mapped
+ * registers for a PLL.
+ *
+ * Note that: above the PLL exclude PPLL.
+ *
+ * pll_id: One of the values from enum plls_id
+ * src: Pointer to the array of values to restore from
+ */
+static void restore_pll(int pll_id, uint32_t *src)
+{
+	/* Nice to have PLL off while configuring */
+	mmio_write_32((CRU_BASE + CRU_PLL_CON(pll_id, 3)), PLL_SLOW_MODE);
+
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 0), src[0] | REG_SOC_WMSK);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 1), src[1] | REG_SOC_WMSK);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 2), src[2]);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 4), src[4] | REG_SOC_WMSK);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 5), src[5] | REG_SOC_WMSK);
+
+	/* Do PLL_CON3 since that will enable things */
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 3), src[3] | REG_SOC_WMSK);
+
+	/* Wait for PLL lock done */
+	while ((mmio_read_32(CRU_BASE + CRU_PLL_CON(pll_id, 2)) &
+		0x80000000) == 0x0)
+		;
+}
+
+/**
+ * save_pll - Copy PLL settings a PLL to memory
+ *
+ * This will copy PLL settings from the memory mapped registers for a PLL to
+ * an array in memory.
+ *
+ * Note that: above the PLL exclude PPLL.
+ *
+ * pll_id: One of the values from enum plls_id
+ * src: Pointer to the array of values to save to.
+ */
+static void save_pll(uint32_t *dst, int pll_id)
+{
+	int i;
+
+	for (i = 0; i < PLL_CON_COUNT; i++)
+		dst[i] = mmio_read_32(CRU_BASE + CRU_PLL_CON(pll_id, i));
+}
+
+/**
+ * prepare_abpll_for_ddrctrl - Copy DPLL settings to ABPLL
+ *
+ * This will copy DPLL settings from the memory mapped registers for a PLL to
+ * an array in memory.
+ */
+void prepare_abpll_for_ddrctrl(void)
+{
+	save_pll(slp_data.plls_con[ABPLL_ID], ABPLL_ID);
+	save_pll(slp_data.plls_con[DPLL_ID], DPLL_ID);
+
+	restore_pll(ABPLL_ID, slp_data.plls_con[DPLL_ID]);
+}
+
+void restore_abpll(void)
+{
+	restore_pll(ABPLL_ID, slp_data.plls_con[ABPLL_ID]);
+}
+
+void restore_dpll(void)
+{
+	restore_pll(DPLL_ID, slp_data.plls_con[DPLL_ID]);
 }
 
 void plls_suspend_prepare(void)
@@ -343,16 +429,25 @@ void plls_resume_finish(void)
 			      REG_SOC_WMSK | slp_data.pmucru_clksel_con[i]);
 }
 
+/**
+ * enable_dvfs_plls - To resume the specific PLLs
+ *
+ * Please see the comment at the disable_dvfs_plls()
+ * we don't suspend the ABPLL, so don't need resume
+ * it too.
+ */
 void enable_dvfs_plls(void)
 {
 	_pll_resume(ALPLL_ID);
-	_pll_resume(ABPLL_ID);
 	_pll_resume(GPLL_ID);
 	_pll_resume(VPLL_ID);
 	_pll_resume(NPLL_ID);
 	_pll_resume(CPLL_ID);
 }
 
+/**
+ * enable_nodvfs_plls - To resume the PPLL
+ */
 void enable_nodvfs_plls(void)
 {
 	_pll_resume(PPLL_ID);

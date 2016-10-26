@@ -336,7 +336,11 @@ void disable_nodvfs_plls(void);
 void plls_resume_finish(void);
 void enable_dvfs_plls(void);
 void enable_nodvfs_plls(void);
+void prepare_abpll_for_ddrctrl(void);
+void restore_abpll(void);
+void restore_dpll(void);
 void clk_gate_con_save(void);
 void clk_gate_con_disable(void);
 void clk_gate_con_restore(void);
+void sgrf_init(void);
 #endif /* __SOC_H__ */

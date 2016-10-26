@@ -46,9 +46,9 @@
 #include <pmu.h>
 #include <pmu_com.h>
 #include <pwm.h>
-#include <soc.h>
 #include <bl31.h>
 #include <rk3399m0.h>
+#include <suspend.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
@@ -102,7 +102,6 @@ static void pmu_bus_idle_req(uint32_t bus, uint32_t state)
 		     mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ACK),
 		     bus_ack);
 	}
-
 }
 
 struct pmu_slpdata_s pmu_slpdata;
@@ -818,9 +817,18 @@ static void init_pmu_counts(void)
 	mmio_write_32(PMU_BASE + PMU_GPU_PWRUP_CNT, CYCL_24M_CNT_US(1));
 }
 
+static uint32_t clk_ddrc_save;
+
 static void sys_slp_config(void)
 {
 	uint32_t slp_mode_cfg = 0;
+
+	/* keep enabling clk_ddrc_bpll_src_en gate for DDRC */
+	clk_ddrc_save = mmio_read_32(CRU_BASE + CRU_CLKGATE_CON(3));
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3), WMSK_BIT(1));
+
+	prepare_abpll_for_ddrctrl();
+	sram_func_set_ddrctl_pll(ABPLL_ID);
 
 	mmio_write_32(GRF_BASE + GRF_SOC_CON4, CCI_FORCE_WAKEUP);
 	mmio_write_32(PMU_BASE + PMU_CCI500_CON,
@@ -849,6 +857,7 @@ static void sys_slp_config(void)
 		       BIT(PMU_DDRIO0_RET_EN) |
 		       BIT(PMU_DDRIO1_RET_EN) |
 		       BIT(PMU_DDRIO_RET_HW_DE_REQ) |
+		       BIT(PMU_CENTER_PD_EN) |
 		       BIT(PMU_PLL_PD_EN) |
 		       BIT(PMU_CLK_CENTER_SRC_GATE_EN) |
 		       BIT(PMU_OSC_DIS) |
@@ -856,7 +865,6 @@ static void sys_slp_config(void)
 
 	mmio_setbits_32(PMU_BASE + PMU_WKUP_CFG4, BIT(PMU_GPIO_WKUP_EN));
 	mmio_write_32(PMU_BASE + PMU_PWRMODE_CON, slp_mode_cfg);
-
 
 	mmio_write_32(PMU_BASE + PMU_PLL_CON, PLL_PD_HW);
 	mmio_write_32(PMUGRF_BASE + PMUGRF_SOC_CON0, EXTERNAL_32K);
@@ -1094,6 +1102,9 @@ static int sys_pwr_domain_suspend(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
+	dmc_save();
+	pmu_scu_b_pwrdn();
+
 	pmu_power_domains_suspend();
 	set_hw_idle(BIT(PMU_CLR_CENTER1) |
 		    BIT(PMU_CLR_ALIVE) |
@@ -1114,8 +1125,6 @@ static int sys_pwr_domain_suspend(void)
 		      (PMUSRAM_BASE >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 
-	pmu_scu_b_pwrdn();
-
 	mmio_write_32(PMU_BASE + PMU_ADB400_CON,
 		      BIT_WITH_WMSK(PMU_PWRDWN_REQ_CORE_B_2GIC_SW) |
 		      BIT_WITH_WMSK(PMU_PWRDWN_REQ_CORE_B_SW) |
@@ -1134,6 +1143,7 @@ static int sys_pwr_domain_suspend(void)
 		}
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
+
 	/*
 	 * Disabling PLLs/PWM/DVFS is approaching WFI which is
 	 * the last steps in suspend.
@@ -1162,6 +1172,10 @@ static int sys_pwr_domain_resume(void)
 	udelay(300);
 	enable_dvfs_plls();
 	plls_resume_finish();
+
+	/* restore clk_ddrc_bpll_src_en gate */
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),
+		      BITS_WITH_WMASK(clk_ddrc_save, 0xff, 0));
 
 	/*
 	 * The wakeup status is not cleared by itself, we need to clear it
@@ -1209,8 +1223,12 @@ static int sys_pwr_domain_resume(void)
 
 	pmu_sgrf_rst_hld_release();
 	pmu_scu_b_pwrup();
-
 	pmu_power_domains_resume();
+
+	restore_dpll();
+	sram_func_set_ddrctl_pll(DPLL_ID);
+	restore_abpll();
+
 	clr_hw_idle(BIT(PMU_CLR_CENTER1) |
 				BIT(PMU_CLR_ALIVE) |
 				BIT(PMU_CLR_MSCH0) |
@@ -1301,9 +1319,10 @@ void plat_rockchip_pmu_init(void)
 	for (cpu = 0; cpu < PLATFORM_CLUSTER_COUNT; cpu++)
 		clst_warmboot_data[cpu] = 0;
 
-	psram_sleep_cfg->ddr_func = 0x00;
-	psram_sleep_cfg->ddr_data = 0x00;
-	psram_sleep_cfg->ddr_flag = 0x00;
+	psram_sleep_cfg->ddr_func = (uint64_t)dmc_restore;
+	psram_sleep_cfg->ddr_data = (uint64_t)&sdram_config;
+	psram_sleep_cfg->ddr_flag = 0x01;
+
 	psram_sleep_cfg->boot_mpidr = read_mpidr_el1() & 0xffff;
 
 	/* config cpu's warm boot address */
