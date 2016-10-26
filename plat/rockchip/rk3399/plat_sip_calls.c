@@ -29,7 +29,7 @@
 #include <plat_sip_calls.h>
 #include <rockchip_sip_svc.h>
 #include <runtime_svc.h>
-#include <dram.h>
+#include <dfs.h>
 
 #define RK_SIP_DDR_CFG		0x82000008
 #define DRAM_INIT		0x00
@@ -45,7 +45,7 @@ uint32_t ddr_smc_handler(uint64_t arg0, uint64_t arg1, uint64_t id)
 {
 	switch (id) {
 	case DRAM_INIT:
-		ddr_init();
+		ddr_dfs_init();
 		break;
 	case DRAM_SET_RATE:
 		return ddr_set_rate((uint32_t)arg0);

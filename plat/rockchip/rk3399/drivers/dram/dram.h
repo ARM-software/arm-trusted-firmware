@@ -28,49 +28,131 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __SOC_ROCKCHIP_RK3399_SDRAM_H__
-#define __SOC_ROCKCHIP_RK3399_SDRAM_H__
+#ifndef __SOC_ROCKCHIP_RK3399_DRAM_H__
+#define __SOC_ROCKCHIP_RK3399_DRAM_H__
+#include <plat_private.h>
+#include <stdint.h>
 
-struct rk3399_ddr_cic_regs {
-	uint32_t cic_ctrl0;
-	uint32_t cic_ctrl1;
-	uint32_t cic_idle_th;
-	uint32_t cic_cg_wait_th;
-	uint32_t cic_status0;
-	uint32_t cic_status1;
-	uint32_t cic_ctrl2;
-	uint32_t cic_ctrl3;
-	uint32_t cic_ctrl4;
-};
+#define CTL_BASE(ch)		(0xffa80000 + (ch) * 0x8000)
+#define CTL_REG(ch, n)		(CTL_BASE(ch) + (n) * 0x4)
+
+#define PI_OFFSET		0x800
+#define PI_BASE(ch)		(CTL_BASE(ch) + PI_OFFSET)
+#define PI_REG(ch, n)		(PI_BASE(ch) + (n) * 0x4)
+
+#define PHY_OFFSET		0x2000
+#define PHY_BASE(ch)		(CTL_BASE(ch) + PHY_OFFSET)
+#define PHY_REG(ch, n)		(PHY_BASE(ch) + (n) * 0x4)
+
+#define MSCH_BASE(ch)		(0xffa84000 + (ch) * 0x8000)
+#define MSCH_ID_COREID		0x0
+#define MSCH_ID_REVISIONID	0x4
+#define MSCH_DEVICECONF		0x8
+#define MSCH_DEVICESIZE		0xc
+#define MSCH_DDRTIMINGA0	0x10
+#define MSCH_DDRTIMINGB0	0x14
+#define MSCH_DDRTIMINGC0	0x18
+#define MSCH_DEVTODEV0		0x1c
+#define MSCH_DDRMODE		0x110
+#define MSCH_AGINGX0		0x1000
+
+#define CIC_CTRL0	0x0
+#define CIC_CTRL1	0x4
+#define CIC_IDLE_TH	0x8
+#define CIC_CG_WAIT_TH	0xc
+#define CIC_STATUS0	0x10
+#define CIC_STATUS1	0x14
+#define CIC_CTRL2	0x18
+#define CIC_CTRL3	0x1c
+#define CIC_CTRL4	0x20
 
 /* DENALI_CTL_00 */
-#define START		(1)
+#define START			1
 
 /* DENALI_CTL_68 */
 #define PWRUP_SREFRESH_EXIT	(1 << 16)
 
 /* DENALI_CTL_274 */
-#define MEM_RST_VALID	(1)
+#define MEM_RST_VALID		1
+
+#define PHY_DRV_ODT_Hi_Z	0x0
+#define PHY_DRV_ODT_240		0x1
+#define PHY_DRV_ODT_120		0x8
+#define PHY_DRV_ODT_80		0x9
+#define PHY_DRV_ODT_60		0xc
+#define PHY_DRV_ODT_48		0xd
+#define PHY_DRV_ODT_40		0xe
+#define PHY_DRV_ODT_34_3	0xf
+
+/*
+ * sys_reg bitfield struct
+ * [31] row_3_4_ch1
+ * [30] row_3_4_ch0
+ * [29:28] chinfo
+ * [27] rank_ch1
+ * [26:25] col_ch1
+ * [24] bk_ch1
+ * [23:22] cs0_row_ch1
+ * [21:20] cs1_row_ch1
+ * [19:18] bw_ch1
+ * [17:16] dbw_ch1;
+ * [15:13] ddrtype
+ * [12] channelnum
+ * [11] rank_ch0
+ * [10:9] col_ch0
+ * [8] bk_ch0
+ * [7:6] cs0_row_ch0
+ * [5:4] cs1_row_ch0
+ * [3:2] bw_ch0
+ * [1:0] dbw_ch0
+ */
+#define SYS_REG_ENC_ROW_3_4(n, ch)	((n) << (30 + (ch)))
+#define SYS_REG_DEC_ROW_3_4(n, ch)	(((n) >> (30 + (ch))) & 0x1)
+#define SYS_REG_ENC_CHINFO(ch)		(1 << (28 + (ch)))
+#define SYS_REG_DEC_CHINFO(n, ch)	(((n) >> (28 + (ch))) & 0x1)
+#define SYS_REG_ENC_DDRTYPE(n)		((n) << 13)
+#define SYS_REG_DEC_DDRTYPE(n)		(((n) >> 13) & 0x7)
+#define SYS_REG_ENC_NUM_CH(n)		(((n) - 1) << 12)
+#define SYS_REG_DEC_NUM_CH(n)		(1 + (((n) >> 12) & 0x1))
+#define SYS_REG_ENC_RANK(n, ch)		(((n) - 1) << (11 + (ch) * 16))
+#define SYS_REG_DEC_RANK(n, ch)		(1 + (((n) >> (11 + (ch) * 16)) & 0x1))
+#define SYS_REG_ENC_COL(n, ch)		(((n) - 9) << (9 + (ch) * 16))
+#define SYS_REG_DEC_COL(n, ch)		(9 + (((n) >> (9 + (ch) * 16)) & 0x3))
+#define SYS_REG_ENC_BK(n, ch)		(((n) == 3 ? 0 : 1) << (8 + (ch) * 16))
+#define SYS_REG_DEC_BK(n, ch)		(3 - (((n) >> (8 + (ch) * 16)) & 0x1))
+#define SYS_REG_ENC_CS0_ROW(n, ch)	(((n) - 13) << (6 + (ch) * 16))
+#define SYS_REG_DEC_CS0_ROW(n, ch)	(13 + (((n) >> (6 + (ch) * 16)) & 0x3))
+#define SYS_REG_ENC_CS1_ROW(n, ch)	(((n) - 13) << (4 + (ch) * 16))
+#define SYS_REG_DEC_CS1_ROW(n, ch)	(13 + (((n) >> (4 + (ch) * 16)) & 0x3))
+#define SYS_REG_ENC_BW(n, ch)		((2 >> (n)) << (2 + (ch) * 16))
+#define SYS_REG_DEC_BW(n, ch)		(2 >> (((n) >> (2 + (ch) * 16)) & 0x3))
+#define SYS_REG_ENC_DBW(n, ch)		((2 >> (n)) << (0 + (ch) * 16))
+#define SYS_REG_DEC_DBW(n, ch)		(2 >> (((n) >> (0 + (ch) * 16)) & 0x3))
+#define DDR_STRIDE(n)		mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(4), \
+					      (0x1f<<(10+16))|((n)<<10))
+
+#define CTL_REG_NUM		332
+#define PHY_REG_NUM		959
+#define PI_REG_NUM		200
+
+enum {
+	DDR3 = 3,
+	LPDDR2 = 5,
+	LPDDR3 = 6,
+	LPDDR4 = 7,
+	UNUSED = 0xff
+};
 
 struct rk3399_ddr_pctl_regs {
-	uint32_t denali_ctl[332];
+	uint32_t denali_ctl[CTL_REG_NUM];
 };
 
 struct rk3399_ddr_publ_regs {
-	uint32_t denali_phy[959];
+	uint32_t denali_phy[PHY_REG_NUM];
 };
 
-#define PHY_DRV_ODT_Hi_Z	(0x0)
-#define PHY_DRV_ODT_240		(0x1)
-#define PHY_DRV_ODT_120		(0x8)
-#define PHY_DRV_ODT_80		(0x9)
-#define PHY_DRV_ODT_60		(0xc)
-#define PHY_DRV_ODT_48		(0xd)
-#define PHY_DRV_ODT_40		(0xe)
-#define PHY_DRV_ODT_34_3	(0xf)
-
 struct rk3399_ddr_pi_regs {
-	uint32_t denali_pi[200];
+	uint32_t denali_pi[PI_REG_NUM];
 };
 union noc_ddrtiminga0 {
 	uint32_t d32;
@@ -138,21 +220,6 @@ union noc_ddrmode {
 	} b;
 };
 
-struct rk3399_msch_regs {
-	uint32_t coreid;
-	uint32_t revisionid;
-	uint32_t ddrconf;
-	uint32_t ddrsize;
-	union noc_ddrtiminga0 ddrtiminga0;
-	union noc_ddrtimingb0 ddrtimingb0;
-	union noc_ddrtimingc0 ddrtimingc0;
-	union noc_devtodev0 devtodev0;
-	uint32_t reserved0[(0x110-0x20)/4];
-	union noc_ddrmode ddrmode;
-	uint32_t reserved1[(0x1000-0x114)/4];
-	uint32_t agingx0;
-};
-
 struct rk3399_msch_timings {
 	union noc_ddrtiminga0 ddrtiminga0;
 	union noc_ddrtimingb0 ddrtimingb0;
@@ -161,7 +228,7 @@ struct rk3399_msch_timings {
 	union noc_ddrmode ddrmode;
 	uint32_t agingx0;
 };
-#if 1
+
 struct rk3399_sdram_channel {
 	unsigned char rank;
 	/* col = 0, means this channel is invalid */
@@ -193,137 +260,9 @@ struct rk3399_sdram_params {
 	struct rk3399_ddr_pi_regs pi_regs;
 	struct rk3399_ddr_publ_regs phy_regs;
 };
-#endif
-struct rk3399_sdram_channel_config {
-	uint32_t bus_width;
-	uint32_t cs_cnt;
-	uint32_t cs0_row;
-	uint32_t cs1_row;
-	uint32_t bank;
-	uint32_t col;
-	uint32_t each_die_bus_width;
-	uint32_t each_die_6gb_or_12gb;
-};
 
-struct rk3399_sdram_config {
-	struct rk3399_sdram_channel_config ch[2];
-	uint32_t dramtype;
-	uint32_t channal_num;
-};
+extern __sramdata struct rk3399_sdram_params sdram_config;
 
-struct rk3399_sdram_default_config {
-	unsigned char bl;
-	/* 1:auto precharge, 0:never auto precharge */
-	unsigned char ap;
-	/* dram driver strength */
-	unsigned char dramds;
-	/* dram ODT, if odt=0, this parameter invalid */
-	unsigned char dramodt;
-	/* ca ODT, if odt=0, this parameter invalid
-	 * only used by LPDDR4
-	 */
-	unsigned char caodt;
-	unsigned char burst_ref_cnt;
-	/* zqcs period, unit(s) */
-	unsigned char zqcsi;
-};
+void dram_init(void);
 
-struct  ddr_dts_config_timing {
-	unsigned int ddr3_speed_bin;
-	unsigned int pd_idle;
-	unsigned int sr_idle;
-	unsigned int sr_mc_gate_idle;
-	unsigned int srpd_lite_idle;
-	unsigned int standby_idle;
-	unsigned int auto_pd_dis_freq;
-	unsigned int ddr3_dll_dis_freq;
-	unsigned int phy_dll_dis_freq;
-	unsigned int ddr3_odt_dis_freq;
-	unsigned int ddr3_drv;
-	unsigned int ddr3_odt;
-	unsigned int phy_ddr3_ca_drv;
-	unsigned int phy_ddr3_dq_drv;
-	unsigned int phy_ddr3_odt;
-	unsigned int lpddr3_odt_dis_freq;
-	unsigned int lpddr3_drv;
-	unsigned int lpddr3_odt;
-	unsigned int phy_lpddr3_ca_drv;
-	unsigned int phy_lpddr3_dq_drv;
-	unsigned int phy_lpddr3_odt;
-	unsigned int lpddr4_odt_dis_freq;
-	unsigned int lpddr4_drv;
-	unsigned int lpddr4_dq_odt;
-	unsigned int lpddr4_ca_odt;
-	unsigned int phy_lpddr4_ca_drv;
-	unsigned int phy_lpddr4_ck_cs_drv;
-	unsigned int phy_lpddr4_dq_drv;
-	unsigned int phy_lpddr4_odt;
-	uint32_t available;
-};
-
-struct drv_odt_lp_config {
-	uint32_t ddr3_speed_bin;
-	uint32_t pd_idle;
-	uint32_t sr_idle;
-	uint32_t sr_mc_gate_idle;
-	uint32_t srpd_lite_idle;
-	uint32_t standby_idle;
-
-	uint32_t ddr3_dll_dis_freq;/* for ddr3 only */
-	uint32_t phy_dll_dis_freq;
-	uint32_t odt_dis_freq;
-
-	uint32_t dram_side_drv;
-	uint32_t dram_side_dq_odt;
-	uint32_t dram_side_ca_odt;
-
-	uint32_t phy_side_ca_drv;
-	uint32_t phy_side_ck_cs_drv;
-	uint32_t phy_side_dq_drv;
-	uint32_t phy_side_odt;
-};
-
-#define KHz (1000)
-#define MHz (1000*KHz)
-#define GHz (1000*MHz)
-
-#define PI_CA_TRAINING	(1 << 0)
-#define PI_WRITE_LEVELING	(1 << 1)
-#define PI_READ_GATE_TRAINING	(1 << 2)
-#define PI_READ_LEVELING	(1 << 3)
-#define PI_WDQ_LEVELING	(1 << 4)
-#define PI_FULL_TARINING	(0xff)
-
-#define READ_CH_CNT(val)			(1+((val>>12)&0x1))
-#define READ_CH_INFO(val)			((val>>28)&0x3)
-/* row_3_4:0=normal, 1=6Gb or 12Gb */
-#define READ_CH_ROW_INFO(val, ch)	((val>>(30+(ch)))&0x1)
-
-#define READ_DRAMTYPE_INFO(val)		((val>>13)&0x7)
-#define READ_CS_INFO(val, ch)		((((val)>>(11+(ch)*16))&0x1)+1)
-#define READ_BW_INFO(val, ch)		(2>>(((val)>>(2+(ch)*16))&0x3))
-#define READ_COL_INFO(val, ch)		(9+(((val)>>(9+(ch)*16))&0x3))
-#define READ_BK_INFO(val, ch)		(3-(((val)>>(8+(ch)*16))&0x1))
-#define READ_CS0_ROW_INFO(val, ch)	(13+(((val)>>(6+(ch)*16))&0x3))
-#define READ_CS1_ROW_INFO(val, ch)	(13+(((val)>>(4+(ch)*16))&0x3))
-#define READ_DIE_BW_INFO(val, ch)	(2>>((val>>((ch)*16))&0x3))
-
-#define __sramdata __attribute__((section(".sram.data")))
-#define __sramconst __attribute__((section(".sram.rodata")))
-#define __sramlocalfunc __attribute__((section(".sram.text")))
-#define __sramfunc __attribute__((section(".sram.text"))) \
-					__attribute__((noinline))
-
-
-#define DDR_SAVE_SP(save_sp)   (save_sp = ddr_save_sp(((uint32_t)\
-				(SRAM_CODE_BASE + 0x2000) & (~7))))
-
-#define DDR_RESTORE_SP(save_sp)   ddr_save_sp(save_sp)
-
-void ddr_init(void);
-uint32_t ddr_set_rate(uint32_t hz);
-uint32_t ddr_round_rate(uint32_t hz);
-uint32_t ddr_get_rate(void);
-void clr_dcf_irq(void);
-uint32_t dts_timing_receive(uint32_t timing, uint32_t index);
 #endif

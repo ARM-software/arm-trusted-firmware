@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <dram.h>
 #include "dram_spec_timing.h"
 
 static const uint8_t ddr3_cl_cwl[][7] = {
