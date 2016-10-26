@@ -105,7 +105,7 @@ The AArch64 build of this release has been tested on variants r0, r1 and r2
 of the [Juno ARM Development Platform] [Juno] with [Linaro Release 16.06].
 
 The AArch64 build of this release has been tested on the following ARM
-[FVP]s (64-bit host machine only):
+[FVP]s (64-bit host machine only, with [Linaro Release 16.06]):
 
 *   `Foundation_Platform` (Version 10.1, Build 10.1.32)
 *   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
@@ -114,7 +114,7 @@ The AArch64 build of this release has been tested on the following ARM
 *   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.7, Build 0.8.7701)
 
 The AArch32 build of this release has been tested on the following ARM
-[FVP]s (64-bit host machine only):
+[FVP]s (64-bit host machine only, with [Linaro Release 16.06]):
 
 *   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
 *   `FVP_Base_Cortex-A32x4` (Version 10.1, Build 10.1.32)
