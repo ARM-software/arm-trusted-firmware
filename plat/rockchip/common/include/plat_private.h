@@ -37,6 +37,14 @@
 #include <xlat_tables.h>
 #include <psci.h>
 
+#define __sramdata __attribute__((section(".sram.data")))
+#define __sramconst __attribute__((section(".sram.rodata")))
+#define __sramfunc __attribute__((section(".sram.text")))	\
+			__attribute__((noinline))
+
+extern uint32_t __bl31_sram_text_start, __bl31_sram_text_end;
+extern uint32_t __bl31_sram_data_start, __bl31_sram_data_end;
+
 /******************************************************************************
  * For rockchip socs pm ops
  ******************************************************************************/
@@ -135,6 +143,10 @@ extern uint64_t cpuson_entry_point[PLATFORM_CORE_COUNT];
 extern uint32_t cpuson_flags[PLATFORM_CORE_COUNT];
 
 extern const mmap_region_t plat_rk_mmap[];
+
+void rockchip_plat_sram_mmu_el3(void);
+void plat_rockchip_mem_prepare(void);
+
 #endif /* __ASSEMBLY__ */
 
 /******************************************************************************

@@ -11,6 +11,10 @@
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  *
+ * Neither the name of ARM nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific
+ * prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -24,48 +28,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <console.h>
-#include <debug.h>
-#include <platform.h>
-#include <plat_private.h>
+#ifndef __RK3399_MCU_H__
+#define __RK3399_MCU_H__
 
-/*****************************************************************************
- * sram only surpport 32-bits access
- ******************************************************************************/
-void u32_align_cpy(uint32_t *dst, const uint32_t *src, size_t bytes)
-{
-	uint32_t i;
+#define readl(c)	({unsigned int __v =	\
+				(*(volatile unsigned int *)(c)); __v; })
+#define writel(v, c)	((*(volatile unsigned int *) (c)) = (v))
 
-	for (i = 0; i < bytes; i++)
-		dst[i] = src[i];
-}
+#define MCU_BASE	0x40000000
+#define PMU_BASE	(MCU_BASE + 0x07310000)
 
-void rockchip_plat_sram_mmu_el3(void)
-{
-#ifdef PLAT_EXTRA_LD_SCRIPT
-	size_t sram_size;
-
-	/* sram.text size */
-	sram_size = (char *)&__bl31_sram_text_end -
-		    (char *)&__bl31_sram_text_start;
-	mmap_add_region((unsigned long)&__bl31_sram_text_start,
-			(unsigned long)&__bl31_sram_text_start,
-			sram_size, MT_MEMORY | MT_RO | MT_SECURE);
-
-	/* sram.data size */
-	sram_size = (char *)&__bl31_sram_data_end -
-		    (char *)&__bl31_sram_data_start;
-	mmap_add_region((unsigned long)&__bl31_sram_data_start,
-			(unsigned long)&__bl31_sram_data_start,
-			sram_size, MT_MEMORY | MT_RW | MT_SECURE);
-#else
-	/* TODO: Support other SoCs, Just support RK3399 now */
-	return;
-#endif
-}
-
-void plat_rockchip_mem_prepare(void)
-{
-	/* The code for resuming cpu from suspend must be excuted in pmusram */
-	plat_rockchip_pmusram_prepare();
-}
+#endif /* __RK3399_MCU_H__ */

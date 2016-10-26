@@ -11,6 +11,10 @@
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  *
+ * Neither the name of ARM nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific
+ * prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -24,48 +28,44 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <console.h>
-#include <debug.h>
-#include <platform.h>
-#include <plat_private.h>
+#include "rk3399_mcu.h"
 
-/*****************************************************************************
- * sram only surpport 32-bits access
- ******************************************************************************/
-void u32_align_cpy(uint32_t *dst, const uint32_t *src, size_t bytes)
+#define PMU_PWRMODE_CON		0x20
+#define PMU_POWER_ST		0x78
+
+#define M0_SCR			0xe000ed10  /* System Control Register (SCR) */
+
+#define SCR_SLEEPDEEP_SHIFT	(1 << 2)
+
+static void system_wakeup(void)
 {
-	uint32_t i;
+	unsigned int status_value;
+	unsigned int mode_con;
 
-	for (i = 0; i < bytes; i++)
-		dst[i] = src[i];
+	while (1) {
+		status_value = readl(PMU_BASE + PMU_POWER_ST);
+		if (status_value) {
+			mode_con = readl(PMU_BASE + PMU_PWRMODE_CON);
+			writel(mode_con & (~0x01),
+			       PMU_BASE + PMU_PWRMODE_CON);
+			return;
+		}
+	}
 }
 
-void rockchip_plat_sram_mmu_el3(void)
+int main(void)
 {
-#ifdef PLAT_EXTRA_LD_SCRIPT
-	size_t sram_size;
+	unsigned int reg_src;
 
-	/* sram.text size */
-	sram_size = (char *)&__bl31_sram_text_end -
-		    (char *)&__bl31_sram_text_start;
-	mmap_add_region((unsigned long)&__bl31_sram_text_start,
-			(unsigned long)&__bl31_sram_text_start,
-			sram_size, MT_MEMORY | MT_RO | MT_SECURE);
+	system_wakeup();
 
-	/* sram.data size */
-	sram_size = (char *)&__bl31_sram_data_end -
-		    (char *)&__bl31_sram_data_start;
-	mmap_add_region((unsigned long)&__bl31_sram_data_start,
-			(unsigned long)&__bl31_sram_data_start,
-			sram_size, MT_MEMORY | MT_RW | MT_SECURE);
-#else
-	/* TODO: Support other SoCs, Just support RK3399 now */
-	return;
-#endif
-}
+	reg_src = readl(M0_SCR);
 
-void plat_rockchip_mem_prepare(void)
-{
-	/* The code for resuming cpu from suspend must be excuted in pmusram */
-	plat_rockchip_pmusram_prepare();
+	/* m0 enter deep sleep mode */
+	writel(reg_src | SCR_SLEEPDEEP_SHIFT, M0_SCR);
+
+	for (;;)
+		__asm volatile("wfi");
+
+	return 0;
 }

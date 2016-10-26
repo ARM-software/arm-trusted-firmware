@@ -11,6 +11,10 @@
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  *
+ * Neither the name of ARM nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific
+ * prior written permission.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -23,49 +27,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __ROCKCHIP_PLAT_LD_S__
+#define __ROCKCHIP_PLAT_LD_S__
 
-#include <console.h>
-#include <debug.h>
-#include <platform.h>
-#include <plat_private.h>
-
-/*****************************************************************************
- * sram only surpport 32-bits access
- ******************************************************************************/
-void u32_align_cpy(uint32_t *dst, const uint32_t *src, size_t bytes)
-{
-	uint32_t i;
-
-	for (i = 0; i < bytes; i++)
-		dst[i] = src[i];
+MEMORY {
+    SRAM (rwx): ORIGIN = SRAM_BASE, LENGTH = SRAM_SIZE
 }
 
-void rockchip_plat_sram_mmu_el3(void)
+SECTIONS
 {
-#ifdef PLAT_EXTRA_LD_SCRIPT
-	size_t sram_size;
+	. = SRAM_BASE;
+	ASSERT(. == ALIGN(4096),
+		"SRAM_BASE address is not aligned on a page boundary.")
 
-	/* sram.text size */
-	sram_size = (char *)&__bl31_sram_text_end -
-		    (char *)&__bl31_sram_text_start;
-	mmap_add_region((unsigned long)&__bl31_sram_text_start,
-			(unsigned long)&__bl31_sram_text_start,
-			sram_size, MT_MEMORY | MT_RO | MT_SECURE);
+	/*
+	 * The SRAM space allocation for RK3399
+	 * ----------------
+	 * | m0 code bin
+	 * ----------------
+	 * | sram text
+	 * ----------------
+	 * | sram data
+	 * ----------------
+	 */
+	.incbin_sram : ALIGN(4096) {
+		__sram_incbin_start = .;
+		*(.sram.incbin)
+		. = ALIGN(4096);
+		__sram_incbin_end = .;
+	} >SRAM
 
-	/* sram.data size */
-	sram_size = (char *)&__bl31_sram_data_end -
-		    (char *)&__bl31_sram_data_start;
-	mmap_add_region((unsigned long)&__bl31_sram_data_start,
-			(unsigned long)&__bl31_sram_data_start,
-			sram_size, MT_MEMORY | MT_RW | MT_SECURE);
-#else
-	/* TODO: Support other SoCs, Just support RK3399 now */
-	return;
-#endif
+	.text_sram : ALIGN(4096) {
+		__bl31_sram_text_start = .;
+		*(.sram.text)
+		*(.sram.rodata)
+		. = ALIGN(4096);
+		__bl31_sram_text_end = .;
+	} >SRAM
+
+	.data_sram : ALIGN(4096) {
+		__bl31_sram_data_start = .;
+		*(.sram.data)
+		. = ALIGN(4096);
+		__bl31_sram_data_end = .;
+	} >SRAM
 }
 
-void plat_rockchip_mem_prepare(void)
-{
-	/* The code for resuming cpu from suspend must be excuted in pmusram */
-	plat_rockchip_pmusram_prepare();
-}
+#endif /* __ROCKCHIP_PLAT_LD_S__ */

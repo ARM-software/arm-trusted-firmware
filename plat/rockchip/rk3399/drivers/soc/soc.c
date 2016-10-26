@@ -35,6 +35,7 @@
 #include <platform_def.h>
 #include <plat_private.h>
 #include <rk3399_def.h>
+#include <rk3399m0.h>
 #include <soc.h>
 
 /* Table of regions to map using the MMU.  */
@@ -387,6 +388,20 @@ void  __dead2 soc_global_soft_reset(void)
 		;
 }
 
+static void soc_m0_init(void)
+{
+	/* secure config for pmu M0 */
+	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(0), WMSK_BIT(7));
+
+	/* set the execute address for M0 */
+	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(3),
+		      BITS_WITH_WMASK((M0_BINCODE_BASE >> 12) & 0xffff,
+				      0xffff, 0));
+	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(7),
+		      BITS_WITH_WMASK((M0_BINCODE_BASE >> 28) & 0xf,
+				      0xf, 0));
+}
+
 void plat_rockchip_soc_init(void)
 {
 	secure_timer_init();
@@ -394,4 +409,5 @@ void plat_rockchip_soc_init(void)
 	sgrf_init();
 	soc_global_soft_reset_init();
 	plat_rockchip_gpio_init();
+	soc_m0_init();
 }

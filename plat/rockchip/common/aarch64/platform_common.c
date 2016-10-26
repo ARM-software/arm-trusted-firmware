@@ -68,6 +68,7 @@ static const int cci_map[] = {
 				coh_limit - coh_start,			\
 				MT_DEVICE | MT_RW | MT_SECURE);		\
 		mmap_add(plat_rk_mmap);					\
+		rockchip_plat_sram_mmu_el##_el();			\
 		init_xlat_tables();					\
 									\
 		enable_mmu_el ## _el(0);				\

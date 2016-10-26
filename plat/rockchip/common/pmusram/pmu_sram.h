@@ -45,16 +45,6 @@
 
 #ifndef __ASSEMBLY__
 
-/*
- * The struct is used in pmu_cpus_on.S which
- * gets the data of the struct by the following index
- * #define PSRAM_DT_SP		0x0
- * #define PSRAM_DT_DDR_FUNC	0x8
- * #define PSRAM_DT_DDR_DATA	0x10
- * #define PSRAM_DT_DDRFLAG	0x18
- * #define PSRAM_DT_SYS_MODE	0x1c
- * #define PSRAM_DT_MPIDR	0x20
- */
 struct psram_data_t {
 	uint64_t sp;
 	uint64_t ddr_func;
@@ -76,6 +66,7 @@ CASSERT(__builtin_offsetof(struct psram_data_t, ddr_flag) == PSRAM_DT_DDRFLAG,
 CASSERT(__builtin_offsetof(struct psram_data_t, boot_mpidr) == PSRAM_DT_MPIDR,
 	assert_psram_dt_mpidr_offset_mistmatch);
 void u32_align_cpy(uint32_t *dst, const uint32_t *src, size_t bytes);
+
 #endif  /* __ASSEMBLY__ */
 
 #endif
