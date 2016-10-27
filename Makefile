@@ -666,7 +666,7 @@ checkcodebase:		locate-checkpatch
 
 checkpatch:		locate-checkpatch
 	@echo "  CHECKING STYLE"
-	${Q}git log -p ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} - || true
+	${Q}git format-patch --stdout ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} - || true
 
 certtool: ${CRTTOOL}
 
