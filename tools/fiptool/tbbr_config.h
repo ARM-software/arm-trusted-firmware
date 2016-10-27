@@ -42,7 +42,6 @@ typedef struct toc_entry {
 	const char   *name;
 	uuid_t        uuid;
 	const char   *cmdline_name;
-	struct image *image;
 	int           action;
 	char         *action_arg;
 } toc_entry_t;

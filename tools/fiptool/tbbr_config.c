@@ -35,49 +35,155 @@
 
 /* The images used depends on the platform. */
 toc_entry_t toc_entries[] = {
-	{ "SCP Firmware Updater Configuration FWU SCP_BL2U", UUID_TRUSTED_UPDATE_FIRMWARE_SCP_BL2U,
-	  "scp-fwu-cfg", NULL, 0, NULL },
-	{ "AP Firmware Updater Configuration BL2U", UUID_TRUSTED_UPDATE_FIRMWARE_BL2U,
-	  "ap-fwu-cfg", NULL, 0, NULL },
-	{ "Firmware Updater NS_BL2U", UUID_TRUSTED_UPDATE_FIRMWARE_NS_BL2U,
-	  "fwu", NULL, 0, NULL },
-	{ "Non-Trusted Firmware Updater certificate", UUID_TRUSTED_FWU_CERT,
-	  "fwu-cert", NULL, 0, NULL },
-	{ "Trusted Boot Firmware BL2", UUID_TRUSTED_BOOT_FIRMWARE_BL2,
-	  "tb-fw", NULL, 0, NULL },
-	{ "SCP Firmware SCP_BL2", UUID_SCP_FIRMWARE_SCP_BL2,
-	  "scp-fw", NULL, 0, NULL },
-	{ "EL3 Runtime Firmware BL31", UUID_EL3_RUNTIME_FIRMWARE_BL31,
-	  "soc-fw", NULL, 0, NULL },
-	{ "Secure Payload BL32 (Trusted OS)", UUID_SECURE_PAYLOAD_BL32,
-	  "tos-fw", NULL, 0, NULL },
-	{ "Non-Trusted Firmware BL33", UUID_NON_TRUSTED_FIRMWARE_BL33,
-	  "nt-fw", NULL, 0, NULL },
+	{
+		.name = "SCP Firmware Updater Configuration FWU SCP_BL2U",
+		.uuid = UUID_TRUSTED_UPDATE_FIRMWARE_SCP_BL2U,
+		.cmdline_name = "scp-fwu-cfg",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "AP Firmware Updater Configuration BL2U",
+		.uuid = UUID_TRUSTED_UPDATE_FIRMWARE_BL2U,
+		.cmdline_name = "ap-fwu-cfg",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Firmware Updater NS_BL2U",
+		.uuid = UUID_TRUSTED_UPDATE_FIRMWARE_NS_BL2U,
+		.cmdline_name = "fwu",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Non-Trusted Firmware Updater certificate",
+		.uuid = UUID_TRUSTED_FWU_CERT,
+		.cmdline_name = "fwu-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Trusted Boot Firmware BL2",
+		.uuid = UUID_TRUSTED_BOOT_FIRMWARE_BL2,
+		.cmdline_name = "tb-fw",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "SCP Firmware SCP_BL2",
+		.uuid = UUID_SCP_FIRMWARE_SCP_BL2,
+		.cmdline_name = "scp-fw",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "EL3 Runtime Firmware BL31",
+		.uuid = UUID_EL3_RUNTIME_FIRMWARE_BL31,
+		.cmdline_name = "soc-fw",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Secure Payload BL32 (Trusted OS)",
+		.uuid = UUID_SECURE_PAYLOAD_BL32,
+		.cmdline_name = "tos-fw",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Non-Trusted Firmware BL33",
+		.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
+		.cmdline_name = "nt-fw",
+		.action = 0,
+		.action_arg = NULL
+	},
 	/* Key Certificates */
-	{ "Root Of Trust key certificate", UUID_ROT_KEY_CERT,
-	  "rot-cert", NULL, 0, NULL },
-	{ "Trusted key certificate", UUID_TRUSTED_KEY_CERT,
-	  "trusted-key-cert", NULL, 0, NULL },
-	{ "SCP Firmware key certificate", UUID_SCP_FW_KEY_CERT,
-	  "scp-fw-key-cert", NULL, 0, NULL },
-	{ "SoC Firmware key certificate", UUID_SOC_FW_KEY_CERT,
-	  "soc-fw-key-cert", NULL, 0, NULL },
-	{ "Trusted OS Firmware key certificate", UUID_TRUSTED_OS_FW_KEY_CERT,
-	  "tos-fw-key-cert", NULL, 0, NULL },
-	{ "Non-Trusted Firmware key certificate", UUID_NON_TRUSTED_FW_KEY_CERT,
-	  "nt-fw-key-cert", NULL, 0, NULL },
+	{
+		.name = "Root Of Trust key certificate",
+		.uuid = UUID_ROT_KEY_CERT,
+		.cmdline_name = "rot-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Trusted key certificate",
+		.uuid = UUID_TRUSTED_KEY_CERT,
+		.cmdline_name = "trusted-key-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "SCP Firmware key certificate",
+		.uuid = UUID_SCP_FW_KEY_CERT,
+		.cmdline_name = "scp-fw-key-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "SoC Firmware key certificate",
+		.uuid = UUID_SOC_FW_KEY_CERT,
+		.cmdline_name = "soc-fw-key-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Trusted OS Firmware key certificate",
+		.uuid = UUID_TRUSTED_OS_FW_KEY_CERT,
+		.cmdline_name = "tos-fw-key-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Non-Trusted Firmware key certificate",
+		.uuid = UUID_NON_TRUSTED_FW_KEY_CERT,
+		.cmdline_name = "nt-fw-key-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
 	/* Content certificates */
-	{ "Trusted Boot Firmware BL2 certificate", UUID_TRUSTED_BOOT_FW_CERT,
-	  "tb-fw-cert", NULL, 0, NULL },
-	{ "SCP Firmware content certificate", UUID_SCP_FW_CONTENT_CERT,
-	  "scp-fw-cert", NULL, 0, NULL },
-	{ "SoC Firmware content certificate", UUID_SOC_FW_CONTENT_CERT,
-	  "soc-fw-cert", NULL, 0, NULL },
-	{ "Trusted OS Firmware content certificate", UUID_TRUSTED_OS_FW_CONTENT_CERT,
-	  "tos-fw-cert", NULL, 0, NULL },
-	{ "Non-Trusted Firmware content certificate", UUID_NON_TRUSTED_FW_CONTENT_CERT,
-	  "nt-fw-cert", NULL, 0, NULL },
-	{ NULL, { 0 }, NULL, NULL, 0, NULL }
+	{
+		.name = "Trusted Boot Firmware BL2 certificate",
+		.uuid = UUID_TRUSTED_BOOT_FW_CERT,
+		.cmdline_name = "tb-fw-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "SCP Firmware content certificate",
+		.uuid = UUID_SCP_FW_CONTENT_CERT,
+		.cmdline_name = "scp-fw-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "SoC Firmware content certificate",
+		.uuid = UUID_SOC_FW_CONTENT_CERT,
+		.cmdline_name = "soc-fw-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Trusted OS Firmware content certificate",
+		.uuid = UUID_TRUSTED_OS_FW_CONTENT_CERT,
+		.cmdline_name = "tos-fw-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = "Non-Trusted Firmware content certificate",
+		.uuid = UUID_NON_TRUSTED_FW_CONTENT_CERT,
+		.cmdline_name = "nt-fw-cert",
+		.action = 0,
+		.action_arg = NULL
+	},
+	{
+		.name = NULL,
+		.uuid = { 0 },
+		.cmdline_name = NULL,
+		.action = 0,
+		.action_arg = NULL
+	}
 };
 
 size_t toc_entries_len = sizeof(toc_entries) / sizeof(toc_entries[0]);
