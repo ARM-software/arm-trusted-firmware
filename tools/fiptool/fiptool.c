@@ -985,6 +985,8 @@ int main(int argc, char *argv[])
 	    strcmp(argv[0], "--verbose") == 0) {
 		verbose = 1;
 		argc--, argv++;
+		if (argc < 1)
+			usage();
 	}
 
 	for (i = 0; i < NELEM(cmds); i++) {
