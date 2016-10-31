@@ -77,6 +77,13 @@
 	 */
 	mov	x0, #(SCR_RES1_BITS | SCR_EA_BIT | SCR_SIF_BIT)
 	msr	scr_el3, x0
+
+	/* ---------------------------------------------------------------------
+	 * Reset registers that may have architecturally unknown reset values
+	 * ---------------------------------------------------------------------
+	 */
+	msr	mdcr_el3, xzr
+
 	/* ---------------------------------------------------------------------
 	 * Enable External Aborts and SError Interrupts now that the exception
 	 * vectors have been setup.

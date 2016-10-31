@@ -200,7 +200,10 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			isb();
 		} else if (read_id_pfr1() &
 			(ID_PFR1_VIRTEXT_MASK << ID_PFR1_VIRTEXT_SHIFT)) {
-			/* Set the NS bit to access HCR, HCPTR, CNTHCTL, VPIDR, VMPIDR */
+			/*
+			 * Set the NS bit to access NS copies of certain banked
+			 * registers
+			 */
 			write_scr(read_scr() | SCR_NS_BIT);
 			isb();
 
@@ -231,6 +234,15 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * translation are disabled.
 			 */
 			write64_vttbr(0);
+
+			/*
+			 * Avoid unexpected debug traps in case where HDCR
+			 * is not completely reset by the hardware - set
+			 * HDCR.HPMN to PMCR.N and zero the remaining bits.
+			 * The HDCR.HPMN and PMCR.N fields are the same size
+			 * (5 bits) and HPMN is at offset zero within HDCR.
+			 */
+			write_hdcr((read_pmcr() & PMCR_N_BITS) >> PMCR_N_SHIFT);
 			isb();
 
 			write_scr(read_scr() & ~SCR_NS_BIT);
