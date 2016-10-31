@@ -81,9 +81,14 @@ uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 		uint64_t ret;
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
+
+		/*
+		 * Flush cache line so that even if CPU power down happens
+		 * the timestamp update is reflected in memory.
+		 */
 		PMF_WRITE_TIMESTAMP(rt_instr_svc,
 		    RT_INSTR_ENTER_PSCI,
-		    PMF_NO_CACHE_MAINT,
+		    PMF_CACHE_MAINT,
 		    get_cpu_data(cpu_data_pmf_ts[CPU_DATA_PMF_TS0_IDX]));
 #endif
 
