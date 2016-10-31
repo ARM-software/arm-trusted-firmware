@@ -98,7 +98,7 @@ endfunc plat_crash_console_putc
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
-	 * each platform. This function should preserve x10.
+	 * each platform. This function should preserve x19 - x29.
 	 * -----------------------------------------------------
 	 */
 func plat_reset_handler

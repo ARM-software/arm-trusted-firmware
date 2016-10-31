@@ -558,7 +558,7 @@ reset vector code to perform the above tasks.
     Argument : void
     Return   : uintptr_t
 
-This function is called with the called with the MMU and caches disabled
+This function is called with the MMU and caches disabled
 (`SCTLR_EL3.M` = 0 and `SCTLR_EL3.C` = 0). The function is responsible for
 distinguishing between a warm and cold reset for the current CPU using
 platform-specific means. If it's a warm reset, then it returns the warm
