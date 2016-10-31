@@ -1834,6 +1834,18 @@ The `target_state` (first argument) has a similar meaning as described in
 the `pwr_domain_on_finish()` operation. The generic code expects the platform
 to succeed.
 
+#### plat_psci_ops.system_off()
+
+This function is called by PSCI implementation in response to a `SYSTEM_OFF`
+call. It performs the platform-specific system poweroff sequence after
+notifying the Secure Payload Dispatcher.
+
+#### plat_psci_ops.system_reset()
+
+This function is called by PSCI implementation in response to a `SYSTEM_RESET`
+call. It performs the platform-specific system reset sequence after
+notifying the Secure Payload Dispatcher.
+
 #### plat_psci_ops.validate_power_state()
 
 This function is called by the PSCI implementation during the `CPU_SUSPEND`
