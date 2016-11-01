@@ -39,15 +39,10 @@ PLAT_M0		?= rk3399m0
 
 ifeq (${V},0)
 	Q=@
-	CHECKCODE_ARGS	+= --no-summary --terse
 else
 	Q=
 endif
 export Q
-
-# All PHONY definition
-.PHONY: all clean distclean ${ARCH}
-all: ${ARCH}
 
 .SUFFIXES:
 
@@ -86,14 +81,12 @@ define SOURCES_TO_OBJS
 	$(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
 endef
 
-BUILD_DIR		:= ${BUILD_PLAT}/obj
-BIN_DIR 		:= ${BUILD_PLAT}/bin
 SOURCES 		:= $(C_SOURCES)
-OBJS 			:= $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES)))
+OBJS 			:= $(addprefix $(BUILD)/,$(call SOURCES_TO_OBJS,$(SOURCES)))
 LINKERFILE		:= src/rk3399m0.ld
-MAPFILE			:= $(BIN_DIR)/$(PLAT_M0).map
-ELF 			:= $(BIN_DIR)/$(PLAT_M0).elf
-BIN 			:= $(BIN_DIR)/$(PLAT_M0).bin
+MAPFILE			:= $(BUILD)/$(PLAT_M0).map
+ELF 			:= $(BUILD)/$(PLAT_M0).elf
+BIN 			:= $(BUILD)/$(PLAT_M0).bin
 
 # Function definition related compilation
 define MAKE_C
@@ -124,11 +117,8 @@ define MAKE_OBJS
 	$(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
 endef
 
-$(BIN_DIR) :
-	$(Q)mkdir -p "$@"
-
-$(BUILD_DIR) : $(BIN_DIR)
-	$(Q)mkdir -p "$@"
+.PHONY: all
+all: $(BIN)
 
 $(ELF) : $(OBJS) $(LINKERFILE)
 	@echo "  LD      $@"
@@ -139,18 +129,4 @@ $(BIN) : $(ELF)
 	@echo "  BIN     $@"
 	$(Q)$(OC) -O binary $< $@
 
-.PHONY : ${ARCH}
-${ARCH} : $(BUILD_DIR) $(BIN)
-
-$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
-
-# Other common compilation entries
-clean:
-	@echo "  CLEAN"
-	${Q}rm -rf ${BUILD_BASE}/${PLAT_M0}
-	${Q}rm -rf ${VER_BIN_DIR}/$(PLAT_M0)*
-
-distclean:
-	@echo "  DISTCLEAN"
-	${Q}rm -rf ${BUILD_BASE}/${PLAT_M0}
-	${Q}rm -rf ${VER_BIN_DIR}/$(PLAT_M0)*
+$(eval $(call MAKE_OBJS,$(BUILD),$(SOURCES),$(1)))
