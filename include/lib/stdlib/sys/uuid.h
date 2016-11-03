@@ -37,6 +37,9 @@
 /* Length of a node address (an IEEE 802 address). */
 #define	_UUID_NODE_LEN		6
 
+/* Length of UUID string including dashes. */
+#define _UUID_STR_LEN		36
+
 /*
  * See also:
  *      http://www.opengroup.org/dce/info/draft-leach-uuids-guids-01.txt
