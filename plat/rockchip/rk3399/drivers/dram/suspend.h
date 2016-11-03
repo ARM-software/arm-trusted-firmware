@@ -28,49 +28,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef __SOC_ROCKCHIP_RK3399_SUSPEND_H__
+#define __SOC_ROCKCHIP_RK3399_SUSPEND_H__
 #include <dram.h>
-#include <plat_private.h>
-#include <soc.h>
-#include <rk3399_def.h>
 
-__sramdata struct rk3399_sdram_params sdram_config;
+#define KHz (1000)
+#define MHz (1000 * KHz)
+#define GHz (1000 * MHz)
 
-void dram_init(void)
-{
-	uint32_t os_reg2_val, i;
+#define PI_CA_TRAINING		(1 << 0)
+#define PI_WRITE_LEVELING	(1 << 1)
+#define PI_READ_GATE_TRAINING	(1 << 2)
+#define PI_READ_LEVELING	(1 << 3)
+#define PI_WDQ_LEVELING		(1 << 4)
+#define PI_FULL_TRAINING	(0xff)
 
-	os_reg2_val = mmio_read_32(PMUGRF_BASE + PMUGRF_OSREG(2));
-	sdram_config.dramtype = SYS_REG_DEC_DDRTYPE(os_reg2_val);
-	sdram_config.num_channels = SYS_REG_DEC_NUM_CH(os_reg2_val);
-	sdram_config.stride = (mmio_read_32(SGRF_BASE + SGRF_SOC_CON3_7(4)) >>
-				10) & 0x1f;
+void dmc_save(void);
+__sramfunc void dmc_restore(void);
+__sramfunc void sram_regcpy(uintptr_t dst, uintptr_t src, uint32_t num);
 
-	for (i = 0; i < 2; i++) {
-		struct rk3399_sdram_channel *ch = &sdram_config.ch[i];
-		struct rk3399_msch_timings *noc = &ch->noc_timings;
-
-		if (!(SYS_REG_DEC_CHINFO(os_reg2_val, i)))
-			continue;
-
-		ch->rank = SYS_REG_DEC_RANK(os_reg2_val, i);
-		ch->col = SYS_REG_DEC_COL(os_reg2_val, i);
-		ch->bk = SYS_REG_DEC_BK(os_reg2_val, i);
-		ch->bw = SYS_REG_DEC_BW(os_reg2_val, i);
-		ch->dbw = SYS_REG_DEC_DBW(os_reg2_val, i);
-		ch->row_3_4 = SYS_REG_DEC_ROW_3_4(os_reg2_val, i);
-		ch->cs0_row = SYS_REG_DEC_CS0_ROW(os_reg2_val, i);
-		ch->cs1_row = SYS_REG_DEC_CS1_ROW(os_reg2_val, i);
-		ch->ddrconfig = mmio_read_32(MSCH_BASE(i) + MSCH_DEVICECONF);
-
-		noc->ddrtiminga0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DDRTIMINGA0);
-		noc->ddrtimingb0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DDRTIMINGB0);
-		noc->ddrtimingc0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DDRTIMINGC0);
-		noc->devtodev0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DEVTODEV0);
-		noc->ddrmode.d32 = mmio_read_32(MSCH_BASE(i) + MSCH_DDRMODE);
-		noc->agingx0 = mmio_read_32(MSCH_BASE(i) + MSCH_AGINGX0);
-	}
-}
+#endif /* __DRAM_H__ */

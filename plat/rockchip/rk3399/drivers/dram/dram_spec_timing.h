@@ -32,14 +32,6 @@
 #define _DRAM_SPEC_TIMING_HEAD_
 #include <stdint.h>
 
-enum {
-	DDR3 = 3,
-	LPDDR2 = 5,
-	LPDDR3 = 6,
-	LPDDR4 = 7,
-	UNUSED = 0xFF
-};
-
 enum ddr3_speed_rate {
 	/* 5-5-5 */
 	DDR3_800D = 0,

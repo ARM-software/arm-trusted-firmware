@@ -79,6 +79,8 @@ BL31_SOURCES            +=      ${RK_GIC_SOURCES}                               
                                 ${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c             \
 				${RK_PLAT_SOC}/drivers/pwm/pwm.c	\
                                 ${RK_PLAT_SOC}/drivers/soc/soc.c		\
+				${RK_PLAT_SOC}/drivers/dram/dfs.c		\
+                                ${RK_PLAT_SOC}/drivers/dram/suspend.c           \
 				${RK_PLAT_SOC}/drivers/dram/dram.c		\
 				${RK_PLAT_SOC}/drivers/dram/dram_spec_timing.c
 
