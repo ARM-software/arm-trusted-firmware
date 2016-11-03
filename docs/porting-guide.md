@@ -1087,12 +1087,14 @@ The default implementation spins forever.
 
     Argument : uintptr_t mem_base, unsigned int mem_size,
                unsigned int flags
-    Return   : void
+    Return   : int
 
 BL1 calls this function while handling FWU copy and authenticate SMCs. The
 platform must ensure that the provided `mem_base` and `mem_size` are mapped into
 BL1, and that this memory corresponds to either a secure or non-secure memory
 region as indicated by the security state of the `flags` argument.
+
+This function must return 0 on success, a non-null error code otherwise.
 
 The default implementation of this function asserts therefore platforms must
 override it when using the FWU feature.
