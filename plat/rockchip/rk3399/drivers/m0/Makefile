@@ -91,10 +91,11 @@ BIN 			:= $(BUILD)/$(PLAT_M0).bin
 # Function definition related compilation
 define MAKE_C
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
+-include $(patsubst %.o,%.d,$(OBJ))
 
 $(OBJ) : $(2)
 	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(CFLAGS) $$(INCLUDES) -c $$< -o $$@
+	$$(Q)$$(CC) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
 endef
 
 define MAKE_S
