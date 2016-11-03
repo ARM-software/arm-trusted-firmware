@@ -466,6 +466,12 @@ performed.
     Note: `TRUSTED_BOARD_BOOT` is currently not supported when `LOAD_IMAGE_V2`
     is enabled.
 
+*   `ENABLE_RUNTIME_INSTRUMENTATION`: Boolean option to enable runtime
+    instrumentation which injects timestamp collection points into
+    Trusted Firmware to allow runtime performance to be measured.
+    Currently, only PSCI is instrumented. Enabling this option enables
+    the `ENABLE_PMF` build option as well. Default is 0.
+
 #### ARM development platform specific build options
 
 *   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
