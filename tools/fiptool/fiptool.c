@@ -131,6 +131,26 @@ static void log_errx(const char *msg, ...)
 	exit(1);
 }
 
+static char *xstrdup(const char *s, const char *msg)
+{
+	char *d;
+
+	d = strdup(s);
+	if (d == NULL)
+		log_errx("strdup: ", msg);
+	return d;
+}
+
+static void *xmalloc(size_t size, const char *msg)
+{
+	void *d;
+
+	d = malloc(size);
+	if (d == NULL)
+		log_errx("malloc: ", msg);
+	return d;
+}
+
 static void add_image(image_t *image)
 {
 	if (nr_images + 1 > MAX_IMAGES)
@@ -227,10 +247,7 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 	if (fstat(fileno(fp), &st) == -1)
 		log_err("fstat %s", filename);
 
-	buf = malloc(st.st_size);
-	if (buf == NULL)
-		log_err("malloc");
-
+	buf = xmalloc(st.st_size, "failed to load file into memory");
 	if (fread(buf, 1, st.st_size, fp) != st.st_size)
 		log_errx("Failed to read %s", filename);
 	bufend = buf + st.st_size;
@@ -261,16 +278,11 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 		 * Build a new image out of the ToC entry and add it to the
 		 * table of images.
 		 */
-		image = malloc(sizeof(*image));
-		if (image == NULL)
-			log_err("malloc");
-
+		image = xmalloc(sizeof(*image),
+		    "failed to allocate memory for image");
 		memcpy(&image->uuid, &toc_entry->uuid, sizeof(uuid_t));
-
-		image->buffer = malloc(toc_entry->size);
-		if (image->buffer == NULL)
-			log_err("malloc");
-
+		image->buffer = xmalloc(toc_entry->size,
+		    "failed to allocate image buffer, is FIP file corrupted?");
 		/* Overflow checks before memory copy. */
 		if (toc_entry->size > (uint64_t)-1 - toc_entry->offset_address)
 			log_errx("FIP %s is corrupted", filename);
@@ -308,15 +320,9 @@ static image_t *read_image_from_file(const uuid_t *uuid, const char *filename)
 	if (fstat(fileno(fp), &st) == -1)
 		log_errx("fstat %s", filename);
 
-	image = malloc(sizeof(*image));
-	if (image == NULL)
-		log_err("malloc");
-
+	image = xmalloc(sizeof(*image), "failed to allocate memory for image");
 	memcpy(&image->uuid, uuid, sizeof(uuid_t));
-
-	image->buffer = malloc(st.st_size);
-	if (image->buffer == NULL)
-		log_err("malloc");
+	image->buffer = xmalloc(st.st_size, "failed to allocate image buffer");
 	if (fread(image->buffer, 1, st.st_size, fp) != st.st_size)
 		log_errx("Failed to read %s", filename);
 	image->size = st.st_size;
@@ -582,9 +588,8 @@ static int create_cmd(int argc, char *argv[])
 
 			toc_entry = &toc_entries[opt_index];
 			toc_entry->action = DO_PACK;
-			toc_entry->action_arg = strdup(optarg);
-			if (toc_entry->action_arg == NULL)
-				log_err("strdup");
+			toc_entry->action_arg = xstrdup(optarg,
+			    "failed to allocate memory for argument");
 			break;
 		}
 		case OPT_PLAT_TOC_FLAGS:
@@ -653,9 +658,8 @@ static int update_cmd(int argc, char *argv[])
 
 			toc_entry = &toc_entries[opt_index];
 			toc_entry->action = DO_PACK;
-			toc_entry->action_arg = strdup(optarg);
-			if (toc_entry->action_arg == NULL)
-				log_err("strdup");
+			toc_entry->action_arg = xstrdup(optarg,
+			    "failed to allocate memory for argument");
 			break;
 		}
 		case OPT_PLAT_TOC_FLAGS: {
@@ -739,9 +743,8 @@ static int unpack_cmd(int argc, char *argv[])
 			unpack_all = 0;
 			toc_entry = &toc_entries[opt_index];
 			toc_entry->action = DO_UNPACK;
-			toc_entry->action_arg = strdup(optarg);
-			if (toc_entry->action_arg == NULL)
-				log_err("strdup");
+			toc_entry->action_arg = xstrdup(optarg,
+			    "failed to allocate memory for argument");
 			break;
 		case 'f':
 			fflag = 1;
