@@ -82,7 +82,7 @@ static size_t nr_images;
 static uuid_t uuid_null = { 0 };
 static int verbose;
 
-static void vlog(int prio, char *msg, va_list ap)
+static void vlog(int prio, const char *msg, va_list ap)
 {
 	char *prefix[] = { "DEBUG", "WARN", "ERROR" };
 
@@ -91,7 +91,7 @@ static void vlog(int prio, char *msg, va_list ap)
 	fputc('\n', stderr);
 }
 
-static void log_dbgx(char *msg, ...)
+static void log_dbgx(const char *msg, ...)
 {
 	va_list ap;
 
@@ -100,7 +100,7 @@ static void log_dbgx(char *msg, ...)
 	va_end(ap);
 }
 
-static void log_warnx(char *msg, ...)
+static void log_warnx(const char *msg, ...)
 {
 	va_list ap;
 
@@ -109,7 +109,7 @@ static void log_warnx(char *msg, ...)
 	va_end(ap);
 }
 
-static void log_err(char *msg, ...)
+static void log_err(const char *msg, ...)
 {
 	char buf[512];
 	va_list ap;
@@ -121,7 +121,7 @@ static void log_err(char *msg, ...)
 	exit(1);
 }
 
-static void log_errx(char *msg, ...)
+static void log_errx(const char *msg, ...)
 {
 	va_list ap;
 
@@ -210,7 +210,7 @@ static image_t *lookup_image_from_uuid(uuid_t *uuid)
 	return NULL;
 }
 
-static int parse_fip(char *filename, fip_toc_header_t *toc_header_out)
+static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 {
 	struct stat st;
 	FILE *fp;
@@ -293,7 +293,7 @@ static int parse_fip(char *filename, fip_toc_header_t *toc_header_out)
 	return 0;
 }
 
-static image_t *read_image_from_file(uuid_t *uuid, char *filename)
+static image_t *read_image_from_file(const uuid_t *uuid, const char *filename)
 {
 	struct stat st;
 	image_t *image;
@@ -325,7 +325,7 @@ static image_t *read_image_from_file(uuid_t *uuid, char *filename)
 	return image;
 }
 
-static int write_image_to_file(image_t *image, char *filename)
+static int write_image_to_file(const image_t *image, const char *filename)
 {
 	FILE *fp;
 
@@ -572,7 +572,7 @@ static int create_cmd(int argc, char *argv[])
 	while (1) {
 		int c, opt_index;
 
-		c = getopt_long(argc, argv, "o:", opts, &opt_index);
+		c = getopt_long(argc, argv, "", opts, &opt_index);
 		if (c == -1)
 			break;
 
