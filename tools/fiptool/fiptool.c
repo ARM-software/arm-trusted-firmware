@@ -977,17 +977,36 @@ int main(int argc, char *argv[])
 {
 	int i, ret = 0;
 
-	if (argc < 2)
-		usage();
-	argc--, argv++;
+	while (1) {
+		int c, opt_index = 0;
+		static struct option opts[] = {
+			{ "verbose", no_argument, NULL, 'v' },
+			{ NULL, no_argument, NULL, 0 }
+		};
 
-	if (strcmp(argv[0], "-v") == 0 ||
-	    strcmp(argv[0], "--verbose") == 0) {
-		verbose = 1;
-		argc--, argv++;
-		if (argc < 1)
+		/*
+		 * Set POSIX mode so getopt stops at the first non-option
+		 * which is the subcommand.
+		 */
+		c = getopt_long(argc, argv, "+v", opts, &opt_index);
+		if (c == -1)
+			break;
+
+		switch (c) {
+		case 'v':
+			verbose = 1;
+			break;
+		default:
 			usage();
+		}
 	}
+	argc -= optind;
+	argv += optind;
+	/* Reset optind for subsequent getopt processing. */
+	optind = 0;
+
+	if (argc == 0)
+		usage();
 
 	for (i = 0; i < NELEM(cmds); i++) {
 		if (strcmp(cmds[i].name, argv[0]) == 0) {
