@@ -214,8 +214,10 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 			PSTATE_ID_SOC_POWERDN) {
 
 		/* Initialize the runtime console */
-		console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-			TEGRA_CONSOLE_BAUDRATE);
+		if (tegra_console_base != (uint64_t)0) {
+			console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+				TEGRA_CONSOLE_BAUDRATE);
+		}
 
 		/*
 		 * Restore Memory Controller settings as it loses state

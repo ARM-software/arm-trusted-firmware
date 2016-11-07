@@ -188,18 +188,18 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Get the base address of the UART controller to be used for the
 	 * console
 	 */
-	assert(plat_params->uart_id);
 	tegra_console_base = plat_get_console_from_id(plat_params->uart_id);
 
-	/*
-	 * Configure the UART port to be used as the console
-	 */
-	assert(tegra_console_base);
-	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-		TEGRA_CONSOLE_BAUDRATE);
+	if (tegra_console_base != (uint64_t)0) {
+		/*
+		 * Configure the UART port to be used as the console
+		 */
+		console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+			TEGRA_CONSOLE_BAUDRATE);
 
-	/* Initialise crash console */
-	plat_crash_console_init();
+		/* Initialise crash console */
+		plat_crash_console_init();
+	}
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access.
