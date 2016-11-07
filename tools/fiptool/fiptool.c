@@ -570,7 +570,7 @@ static int create_cmd(int argc, char *argv[])
 	add_opt(opts, ++i, NULL, 0, 0);
 
 	while (1) {
-		int c, opt_index;
+		int c, opt_index = 0;
 
 		c = getopt_long(argc, argv, "", opts, &opt_index);
 		if (c == -1)
@@ -641,7 +641,7 @@ static int update_cmd(int argc, char *argv[])
 	add_opt(opts, ++i, NULL, 0, 0);
 
 	while (1) {
-		int c, opt_index;
+		int c, opt_index = 0;
 
 		c = getopt_long(argc, argv, "o:", opts, &opt_index);
 		if (c == -1)
@@ -728,7 +728,7 @@ static int unpack_cmd(int argc, char *argv[])
 	add_opt(opts, ++i, NULL, 0, 0);
 
 	while (1) {
-		int c, opt_index;
+		int c, opt_index = 0;
 
 		c = getopt_long(argc, argv, "fo:", opts, &opt_index);
 		if (c == -1)
@@ -845,7 +845,7 @@ static int remove_cmd(int argc, char *argv[])
 	add_opt(opts, ++i, NULL, 0, 0);
 
 	while (1) {
-		int c, opt_index;
+		int c, opt_index = 0;
 
 		c = getopt_long(argc, argv, "fo:", opts, &opt_index);
 		if (c == -1)
