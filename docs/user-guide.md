@@ -380,7 +380,8 @@ performed.
     means by default the original power-state format is used by the PSCI
     implementation. This flag should be specified by the platform makefile
     and it governs the return value of PSCI_FEATURES API for CPU_SUSPEND
-    smc function id.
+    smc function id. When this option is enabled on ARM platforms, the
+    option `ARM_RECOM_STATE_ID_ENC` needs to be set to 1 as well.
 
 *   `RESET_TO_BL31`: Enable BL31 entrypoint as the CPU reset vector instead
     of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
