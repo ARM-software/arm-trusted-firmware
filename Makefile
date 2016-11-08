@@ -42,87 +42,15 @@ include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
 ################################################################################
-# Default values for build configurations
+# Default values for build configurations, and their dependencies
 ################################################################################
 
-# The Target build architecture. Supported values are: aarch64, aarch32.
-ARCH				:= aarch64
-# Build verbosity
-V				:= 0
-# Debug build
-DEBUG				:= 0
-# Build platform
-DEFAULT_PLAT			:= fvp
-PLAT				:= ${DEFAULT_PLAT}
-# SPD choice
-SPD				:= none
-# The AArch32 Secure Payload to be built as BL32 image
-AARCH32_SP			:= none
-# Base commit to perform code check on
-BASE_COMMIT			:= origin/master
-# NS timer register save and restore
-NS_TIMER_SWITCH			:= 0
-# By default, BL1 acts as the reset handler, not BL31
-RESET_TO_BL31			:= 0
-# Include FP registers in cpu context
-CTX_INCLUDE_FPREGS		:= 0
-# Build flag to include AArch32 registers in cpu context save and restore
-# during world switch. This flag must be set to 0 for AArch64-only platforms.
-CTX_INCLUDE_AARCH32_REGS	:= 1
-# Determine the version of ARM GIC architecture to use for interrupt management
-# in EL3. The platform port can change this value if needed.
-ARM_GIC_ARCH			:= 2
-# Determine the version of ARM CCI product used in the platform. The platform
-# port can change this value if needed.
-ARM_CCI_PRODUCT_ID		:= 400
-# Flag used to indicate if ASM_ASSERTION should be enabled for the build.
-# This defaults to being present in DEBUG builds only.
-ASM_ASSERTION			:= ${DEBUG}
-# Build option to choose whether Trusted firmware uses Coherent memory or not.
-USE_COHERENT_MEM		:= 1
-# Flag used to choose the power state format viz Extended State-ID or the Original
-# format.
-PSCI_EXTENDED_STATE_ID		:= 0
-# Default FIP file name
-FIP_NAME			:= fip.bin
-# Default FWU_FIP file name
-FWU_FIP_NAME			:= fwu_fip.bin
-# By default, use the -pedantic option in the gcc command line
-DISABLE_PEDANTIC		:= 0
-# Flags to generate the Chain of Trust
-GENERATE_COT			:= 0
-CREATE_KEYS			:= 1
-SAVE_KEYS			:= 0
-# Flags to build TF with Trusted Boot support
-TRUSTED_BOARD_BOOT		:= 0
-# By default, consider that the platform's reset address is not programmable.
-# The platform Makefile is free to override this value.
-PROGRAMMABLE_RESET_ADDRESS	:= 0
-# Build flag to treat usage of deprecated platform and framework APIs as error.
-ERROR_DEPRECATED		:= 0
-# By default, consider that the platform may release several CPUs out of reset.
-# The platform Makefile is free to override this value.
-COLD_BOOT_SINGLE_CPU		:= 0
-# Flag to introduce an infinite loop in BL1 just before it exits into the next
-# image. This is meant to help debugging the post-BL2 phase.
-SPIN_ON_BL1_EXIT		:= 0
-# Build PL011 UART driver in minimal generic UART mode
-PL011_GENERIC_UART		:= 0
-# Flag to enable Performance Measurement Framework
-ENABLE_PMF			:= 0
-# Flag to enable PSCI STATs functionality
-ENABLE_PSCI_STAT	:= 0
-# Whether code and read-only data should be put on separate memory pages.
-# The platform Makefile is free to override this value.
-SEPARATE_CODE_AND_RODATA	:= 0
-# Flag to enable new version of image loading
-LOAD_IMAGE_V2		:= 0
-# Flag to enable runtime instrumentation using PMF
-ENABLE_RUNTIME_INSTRUMENTATION	:= 0
+include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 
-ifeq (${ENABLE_RUNTIME_INSTRUMENTATION}, 1)
-ENABLE_PMF			:= 1
-endif
+# ASM_ASSERTION enabled for DEBUG builds only
+ASM_ASSERTION			:= ${DEBUG}
+ENABLE_PMF			:= ${ENABLE_RUNTIME_INSTRUMENTATION}
+PLAT				:= ${DEFAULT_PLAT}
 
 ################################################################################
 # Checkpatch script options
@@ -449,31 +377,30 @@ FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
 # Build options checks
 ################################################################################
 
-$(eval $(call assert_boolean,DEBUG))
-$(eval $(call assert_boolean,NS_TIMER_SWITCH))
-$(eval $(call assert_boolean,RESET_TO_BL31))
-$(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
-$(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,ASM_ASSERTION))
-$(eval $(call assert_boolean,USE_COHERENT_MEM))
-$(eval $(call assert_boolean,DISABLE_PEDANTIC))
-$(eval $(call assert_boolean,GENERATE_COT))
-$(eval $(call assert_boolean,CREATE_KEYS))
-$(eval $(call assert_boolean,SAVE_KEYS))
-$(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
-$(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call assert_boolean,COLD_BOOT_SINGLE_CPU))
-$(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
-$(eval $(call assert_boolean,ERROR_DEPRECATED))
+$(eval $(call assert_boolean,CREATE_KEYS))
+$(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
+$(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
+$(eval $(call assert_boolean,DEBUG))
+$(eval $(call assert_boolean,DISABLE_PEDANTIC))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
-$(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
-$(eval $(call assert_boolean,PL011_GENERIC_UART))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
-$(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
-$(eval $(call assert_boolean,LOAD_IMAGE_V2))
 $(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
-
+$(eval $(call assert_boolean,ERROR_DEPRECATED))
+$(eval $(call assert_boolean,GENERATE_COT))
+$(eval $(call assert_boolean,LOAD_IMAGE_V2))
+$(eval $(call assert_boolean,NS_TIMER_SWITCH))
+$(eval $(call assert_boolean,PL011_GENERIC_UART))
+$(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
+$(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
+$(eval $(call assert_boolean,RESET_TO_BL31))
+$(eval $(call assert_boolean,SAVE_KEYS))
+$(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
+$(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
+$(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
+$(eval $(call assert_boolean,USE_COHERENT_MEM))
 
 ################################################################################
 # Add definitions to the cpp preprocessor based on the current build options.
@@ -481,30 +408,31 @@ $(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
 # platform to overwrite the default options
 ################################################################################
 
-$(eval $(call add_define,PLAT_${PLAT}))
-$(eval $(call add_define,SPD_${SPD}))
-$(eval $(call add_define,NS_TIMER_SWITCH))
-$(eval $(call add_define,RESET_TO_BL31))
-$(eval $(call add_define,CTX_INCLUDE_FPREGS))
-$(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
-$(eval $(call add_define,ARM_GIC_ARCH))
 $(eval $(call add_define,ARM_CCI_PRODUCT_ID))
+$(eval $(call add_define,ARM_GIC_ARCH))
 $(eval $(call add_define,ASM_ASSERTION))
-$(eval $(call add_define,LOG_LEVEL))
-$(eval $(call add_define,USE_COHERENT_MEM))
-$(eval $(call add_define,TRUSTED_BOARD_BOOT))
-$(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
-$(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
-$(eval $(call add_define,ERROR_DEPRECATED))
+$(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
+$(eval $(call add_define,CTX_INCLUDE_FPREGS))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
-$(eval $(call add_define,SPIN_ON_BL1_EXIT))
-$(eval $(call add_define,PL011_GENERIC_UART))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
-$(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
-$(eval $(call add_define,LOAD_IMAGE_V2))
 $(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))
+$(eval $(call add_define,ERROR_DEPRECATED))
+$(eval $(call add_define,LOAD_IMAGE_V2))
+$(eval $(call add_define,LOG_LEVEL))
+$(eval $(call add_define,NS_TIMER_SWITCH))
+$(eval $(call add_define,PL011_GENERIC_UART))
+$(eval $(call add_define,PLAT_${PLAT}))
+$(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
+$(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
+$(eval $(call add_define,RESET_TO_BL31))
+$(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
+$(eval $(call add_define,SPD_${SPD}))
+$(eval $(call add_define,SPIN_ON_BL1_EXIT))
+$(eval $(call add_define,TRUSTED_BOARD_BOOT))
+$(eval $(call add_define,USE_COHERENT_MEM))
+
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
         $(eval $(call add_define,EL3_PAYLOAD_BASE))

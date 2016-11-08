@@ -168,142 +168,131 @@ performed.
 
 #### Common build options
 
-*   `SCP_BL2`: Path to SCP_BL2 image in the host file system. This image is optional.
-    If a SCP_BL2 image is present then this option must be passed for the `fip`
-    target.
-
-*   `BL33`: Path to BL33 image in the host file system. This is mandatory for
-    `fip` target in case the BL2 from ARM Trusted Firmware is used.
-
-*   `BL2`: This is an optional build option which specifies the path to BL2
-    image for the `fip` target. In this case, the BL2 in the ARM Trusted
-    Firmware will not be built.
-
-*   `BL31`:  This is an optional build option which specifies the path to
-    BL31 image for the `fip` target. In this case, the BL31 in the ARM
-    Trusted Firmware will not be built.
-
-*   `BL32`:  This is an optional build option which specifies the path to
-    BL32 image for the `fip` target. In this case, the BL32 in the ARM
-    Trusted Firmware will not be built.
-
-*   `FIP_NAME`: This is an optional build option which specifies the FIP
-    filename for the `fip` target. Default is `fip.bin`.
-
-*   `FWU_FIP_NAME`: This is an optional build option which specifies the FWU
-    FIP filename for the `fwu_fip` target. Default is `fwu_fip.bin`.
-
-*   `BL2U`:  This is an optional build option which specifies the path to
-    BL2U image. In this case, the BL2U in the ARM Trusted Firmware will not
-    be built.
-
-*   `SCP_BL2U`: Path to SCP_BL2U image in the host file system. This image is
-    optional. It is only needed if the platform makefile specifies that it
-    is required in order to build the `fwu_fip` target.
-
-*   `NS_BL2U`: Path to NS_BL2U image in the host file system. This image is
-    optional. It is only needed if the platform makefile specifies that it
-    is required in order to build the `fwu_fip` target.
-
-*   `DEBUG`: Chooses between a debug and release build. It can take either 0
-    (release) or 1 (debug) as values. 0 is the default.
-
-*   `LOG_LEVEL`: Chooses the log level, which controls the amount of console log
-    output compiled into the build. This should be one of the following:
-
-        0  (LOG_LEVEL_NONE)
-        10 (LOG_LEVEL_NOTICE)
-        20 (LOG_LEVEL_ERROR)
-        30 (LOG_LEVEL_WARNING)
-        40 (LOG_LEVEL_INFO)
-        50 (LOG_LEVEL_VERBOSE)
-
-    All log output up to and including the log level is compiled into the build.
-    The default value is 40 in debug builds and 20 in release builds.
-
-*   `NS_TIMER_SWITCH`: Enable save and restore for non-secure timer register
-    contents upon world switch. It can take either 0 (don't save and restore) or
-    1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
-    wants the timer registers to be saved and restored.
-
-*   `PLAT`: Choose a platform to build ARM Trusted Firmware for. The chosen
-    platform name must be subdirectory of any depth under `plat/`, and must
-    contain a platform makefile named `platform.mk`.
-
-*   `ARCH` : Choose the target build architecture for ARM Trusted Firmware.
-    It can take either `aarch64` or `aarch32` as values. By default, it is
-    defined to `aarch64`.
-
-*   `SPD`: Choose a Secure Payload Dispatcher component to be built into the
-    Trusted Firmware. This build option is only valid if `ARCH=aarch64`. The
-    value should be the path to the directory containing the SPD source,
-    relative to `services/spd/`; the directory is expected to
-    contain a makefile called `<spd-value>.mk`.
-
 *   `AARCH32_SP` : Choose the AArch32 Secure Payload component to be built as
     as the BL32 image when `ARCH=aarch32`. The value should be the path to the
     directory containing the SP source, relative to the `bl32/`; the directory
     is expected to contain a makefile called `<aarch32_sp-value>.mk`.
 
-*   `V`: Verbose build. If assigned anything other than 0, the build commands
-    are printed. Default is 0.
+*   `ARCH` : Choose the target build architecture for ARM Trusted Firmware.
+    It can take either `aarch64` or `aarch32` as values. By default, it is
+    defined to `aarch64`.
+
+*   `ARM_CCI_PRODUCT_ID`: Choice of ARM CCI product used by the platform. This
+    is used to determine the number of valid slave interfaces available in the
+    ARM CCI driver. Default is 400 (that is, CCI-400).
 
 *   `ARM_GIC_ARCH`: Choice of ARM GIC architecture version used by the ARM
     Legacy GIC driver for implementing the platform GIC API. This API is used
     by the interrupt management framework. Default is 2 (that is, version 2.0).
     This build option is deprecated.
 
-*   `ARM_CCI_PRODUCT_ID`: Choice of ARM CCI product used by the platform. This
-    is used to determine the number of valid slave interfaces available in the
-    ARM CCI driver. Default is 400 (that is, CCI-400).
+*   `ASM_ASSERTION`: This flag determines whether the assertion checks within
+    assembly source files are enabled or not. This option defaults to the
+    value of `DEBUG` - that is, by default this is only enabled for a debug
+    build of the firmware.
 
-*   `RESET_TO_BL31`: Enable BL31 entrypoint as the CPU reset vector instead
-    of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
-    entrypoint) or 1 (CPU reset to BL31 entrypoint).
-    The default value is 0.
+*   `BL2`: This is an optional build option which specifies the path to BL2
+    image for the `fip` target. In this case, the BL2 in the ARM Trusted
+    Firmware will not be built.
 
-*   `RESET_TO_SP_MIN`: SP_MIN is the minimal AArch32 Secure Payload provided in
-    ARM Trusted Firmware. This flag configures SP_MIN entrypoint as the CPU
-    reset vector instead of the BL1 entrypoint.  It can take the value 0 (CPU
-    reset to BL1 entrypoint) or 1 (CPU reset to SP_MIN entrypoint). The default
-    value is 0.
+*   `BL2U`:  This is an optional build option which specifies the path to
+    BL2U image. In this case, the BL2U in the ARM Trusted Firmware will not
+    be built.
+
+*   `BL31`:  This is an optional build option which specifies the path to
+    BL31 image for the `fip` target. In this case, the BL31 in the ARM
+    Trusted Firmware will not be built.
+
+*   `BL31_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the BL31 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
+
+*   `BL32`:  This is an optional build option which specifies the path to
+    BL32 image for the `fip` target. In this case, the BL32 in the ARM
+    Trusted Firmware will not be built.
+
+*   `BL32_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the BL32 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
+
+*   `BL33`: Path to BL33 image in the host file system. This is mandatory for
+    `fip` target in case the BL2 from ARM Trusted Firmware is used.
+
+*   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the BL33 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
+
+*   `BUILD_MESSAGE_TIMESTAMP`: String used to identify the time and date of the
+    compilation of each build. It must be set to a C string (including quotes
+    where applicable). Defaults to a string that contains the time and date of
+    the compilation.
+
+*   `BUILD_STRING`: Input string for VERSION_STRING, which allows the TF build
+    to be uniquely identified. Defaults to the current git commit id.
+
+*   `COLD_BOOT_SINGLE_CPU`: This option indicates whether the platform may
+    release several CPUs out of reset. It can take either 0 (several CPUs may be
+    brought up) or 1 (only one CPU will ever be brought up during cold reset).
+    Default is 0. If the platform always brings up a single CPU, there is no
+    need to distinguish between primary and secondary CPUs and the boot path can
+    be optimised. The `plat_is_my_cpu_primary()` and
+    `plat_secondary_cold_boot_setup()` platform porting interfaces do not need
+    to be implemented in this case.
 
 *   `CRASH_REPORTING`: A non-zero value enables a console dump of processor
     register state when an unexpected exception occurs during execution of
     BL31. This option defaults to the value of `DEBUG` - i.e. by default
     this is only enabled for a debug build of the firmware.
 
-*   `ASM_ASSERTION`: This flag determines whether the assertion checks within
-    assembly source files are enabled or not. This option defaults to the
-    value of `DEBUG` - that is, by default this is only enabled for a debug
-    build of the firmware.
+*   `CREATE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
+    certificate generation tool to create new keys in case no valid keys are
+    present or specified. Allowed options are '0' or '1'. Default is '1'.
 
-*   `TSP_INIT_ASYNC`: Choose BL32 initialization method as asynchronous or
-    synchronous, (see "Initializing a BL32 Image" section in [Firmware
-    Design]). It can take the value 0 (BL32 is initialized using
-    synchronous method) or 1 (BL32 is initialized using asynchronous method).
-    Default is 0.
+*   `CTX_INCLUDE_AARCH32_REGS` : Boolean option that, when set to 1, will cause
+    the AArch32 system registers to be included when saving and restoring the
+    CPU context. The option must be set to 0 for AArch64-only platforms (that
+    is on hardware that does not implement AArch32, or at least not at EL1 and
+    higher ELs). Default value is 1.
 
-*   `USE_COHERENT_MEM`: This flag determines whether to include the coherent
-    memory region in the BL memory map or not (see "Use of Coherent memory in
-    Trusted Firmware" section in [Firmware Design]). It can take the value 1
-    (Coherent memory region is included) or 0 (Coherent memory region is
-    excluded). Default is 1.
+*   `CTX_INCLUDE_FPREGS`: Boolean option that, when set to 1, will cause the FP
+    registers to be included when saving and restoring the CPU context. Default
+    is 0.
 
-*   `TSP_NS_INTR_ASYNC_PREEMPT`: A non zero value enables the interrupt
-    routing model which routes non-secure interrupts asynchronously from TSP
-    to EL3 causing immediate preemption of TSP. The EL3 is responsible
-    for saving and restoring the TSP context in this routing model. The
-    default routing model (when the value is 0) is to route non-secure
-    interrupts to TSP allowing it to save its context and hand over
-    synchronously to EL3 via an SMC.
+*   `DEBUG`: Chooses between a debug and release build. It can take either 0
+    (release) or 1 (debug) as values. 0 is the default.
 
-*   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
-    Boot feature. When set to '1', BL1 and BL2 images include support to load
-    and verify the certificates and images in a FIP, and BL1 includes support
-    for the Firmware Update. The default value is '0'. Generation and inclusion
-    of certificates in the FIP and FWU_FIP depends upon the value of the
-    `GENERATE_COT` option.
+*   `DISABLE_PEDANTIC`: When set to 1 it will disable the -pedantic option in
+    the GCC command line. Default is 0.
+
+*   `EL3_PAYLOAD_BASE`: This option enables booting an EL3 payload instead of
+    the normal boot flow. It must specify the entry point address of the EL3
+    payload. Please refer to the "Booting an EL3 payload" section for more
+    details.
+
+*   `ENABLE_PMF`: Boolean option to enable support for optional Performance
+     Measurement Framework(PMF). Default is 0.
+
+*   `ENABLE_PSCI_STAT`: Boolean option to enable support for optional PSCI
+     functions `PSCI_STAT_RESIDENCY` and `PSCI_STAT_COUNT`. Default is 0.
+     Enabling this option enables the `ENABLE_PMF` build option as well.
+     The PMF is used for collecting the statistics.
+
+*   `ENABLE_RUNTIME_INSTRUMENTATION`: Boolean option to enable runtime
+    instrumentation which injects timestamp collection points into
+    Trusted Firmware to allow runtime performance to be measured.
+    Currently, only PSCI is instrumented. Enabling this option enables
+    the `ENABLE_PMF` build option as well. Default is 0.
+
+*   `ERROR_DEPRECATED`: This option decides whether to treat the usage of
+    deprecated platform APIs, helper functions or drivers within Trusted
+    Firmware as error. It can take the value 1 (flag the use of deprecated
+    APIs as error) or 0. The default is 0.
+
+*   `FIP_NAME`: This is an optional build option which specifies the FIP
+    filename for the `fip` target. Default is `fip.bin`.
+
+*   `FWU_FIP_NAME`: This is an optional build option which specifies the FWU
+    FIP filename for the `fwu_fip` target. Default is `fwu_fip.bin`.
 
 *   `GENERATE_COT`: Boolean flag used to build and execute the `cert_create`
     tool to create certificates as per the Chain of Trust described in
@@ -324,44 +313,56 @@ performed.
     images will include support for Trusted Board Boot, but the FIP and FWU_FIP
     will not include the corresponding certificates, causing a boot failure.
 
-*   `CREATE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
-    certificate generation tool to create new keys in case no valid keys are
-    present or specified. Allowed options are '0' or '1'. Default is '1'.
+*   `HANDLE_EA_EL3_FIRST`: When defined External Aborts and SError Interrupts
+    will be always trapped in EL3 i.e. in BL31 at runtime.
 
-*   `SAVE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
-    certificate generation tool to save the keys used to establish the Chain of
-    Trust. Allowed options are '0' or '1'. Default is '0' (do not save).
+*   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
+    image loading, which provides more flexibility and scalability around what
+    images are loaded and executed during boot. Default is 0.
+    Note: `TRUSTED_BOARD_BOOT` is currently not supported when `LOAD_IMAGE_V2`
+    is enabled.
 
-    Note: This option depends on 'CREATE_KEYS' to be enabled. If the keys
-    already exist in disk, they will be overwritten without further notice.
+*   `LOG_LEVEL`: Chooses the log level, which controls the amount of console log
+    output compiled into the build. This should be one of the following:
 
-*   `ROT_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the ROT private key in PEM format. If `SAVE_KEYS=1`, this
-    file name will be used to save the key.
+        0  (LOG_LEVEL_NONE)
+        10 (LOG_LEVEL_NOTICE)
+        20 (LOG_LEVEL_ERROR)
+        30 (LOG_LEVEL_WARNING)
+        40 (LOG_LEVEL_INFO)
+        50 (LOG_LEVEL_VERBOSE)
 
-*   `TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
-    specifies the file that contains the Trusted World private key in PEM
-    format. If `SAVE_KEYS=1`, this file name will be used to save the key.
+    All log output up to and including the log level is compiled into the build.
+    The default value is 40 in debug builds and 20 in release builds.
 
 *   `NON_TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
     specifies the file that contains the Non-Trusted World private key in PEM
     format. If `SAVE_KEYS=1`, this file name will be used to save the key.
 
-*   `SCP_BL2_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the SCP_BL2 private key in PEM format. If `SAVE_KEYS=1`,
-    this file name will be used to save the key.
+*   `NS_BL2U`: Path to NS_BL2U image in the host file system. This image is
+    optional. It is only needed if the platform makefile specifies that it
+    is required in order to build the `fwu_fip` target.
 
-*   `BL31_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL31 private key in PEM format. If `SAVE_KEYS=1`,
-    this file name will be used to save the key.
+*   `NS_TIMER_SWITCH`: Enable save and restore for non-secure timer register
+    contents upon world switch. It can take either 0 (don't save and restore) or
+    1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
+    wants the timer registers to be saved and restored.
 
-*   `BL32_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL32 private key in PEM format. If `SAVE_KEYS=1`,
-    this file name will be used to save the key.
+*   `PL011_GENERIC_UART`: Boolean option to indicate the PL011 driver that
+    the underlying hardware is not a full PL011 UART but a minimally compliant
+    generic UART, which is a subset of the PL011. The driver will not access
+    any register that is not part of the SBSA generic UART specification.
+    Default value is 0 (a full PL011 compliant UART is present).
 
-*   `BL33_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
-    file that contains the BL33 private key in PEM format. If `SAVE_KEYS=1`,
-    this file name will be used to save the key.
+*   `PLAT`: Choose a platform to build ARM Trusted Firmware for. The chosen
+    platform name must be subdirectory of any depth under `plat/`, and must
+    contain a platform makefile named `platform.mk`.
+
+*   `PRELOADED_BL33_BASE`: This option enables booting a preloaded BL33 image
+    instead of the normal boot flow. When defined, it must specify the entry
+    point address for the preloaded BL33 image. This option is incompatible with
+    `EL3_PAYLOAD_BASE`. If both are defined, `EL3_PAYLOAD_BASE` has priority
+    over `PRELOADED_BL33_BASE`.
 
 *   `PROGRAMMABLE_RESET_ADDRESS`: This option indicates whether the reset
     vector address can be programmed or is fixed on the platform. It can take
@@ -372,15 +373,6 @@ performed.
     can be optimised. The `plat_get_my_entrypoint()` platform porting interface
     does not need to be implemented in this case.
 
-*   `COLD_BOOT_SINGLE_CPU`: This option indicates whether the platform may
-    release several CPUs out of reset. It can take either 0 (several CPUs may be
-    brought up) or 1 (only one CPU will ever be brought up during cold reset).
-    Default is 0. If the platform always brings up a single CPU, there is no
-    need to distinguish between primary and secondary CPUs and the boot path can
-    be optimised. The `plat_is_my_cpu_primary()` and
-    `plat_secondary_cold_boot_setup()` platform porting interfaces do not need
-    to be implemented in this case.
-
 *   `PSCI_EXTENDED_STATE_ID`: As per PSCI1.0 Specification, there are 2 formats
     possible for the PSCI power-state parameter viz original and extended
     State-ID formats. This flag if set to 1, configures the generic PSCI layer
@@ -390,69 +382,36 @@ performed.
     and it governs the return value of PSCI_FEATURES API for CPU_SUSPEND
     smc function id.
 
-*   `ERROR_DEPRECATED`: This option decides whether to treat the usage of
-    deprecated platform APIs, helper functions or drivers within Trusted
-    Firmware as error. It can take the value 1 (flag the use of deprecated
-    APIs as error) or 0. The default is 0.
+*   `RESET_TO_BL31`: Enable BL31 entrypoint as the CPU reset vector instead
+    of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
+    entrypoint) or 1 (CPU reset to BL31 entrypoint).
+    The default value is 0.
 
-*   `SPIN_ON_BL1_EXIT`: This option introduces an infinite loop in BL1. It can
-    take either 0 (no loop) or 1 (add a loop). 0 is the default. This loop stops
-    execution in BL1 just before handing over to BL31. At this point, all
-    firmware images have been loaded in memory, and the MMU and caches are
-    turned off. Refer to the "Debugging options" section for more details.
+*   `RESET_TO_SP_MIN`: SP_MIN is the minimal AArch32 Secure Payload provided in
+    ARM Trusted Firmware. This flag configures SP_MIN entrypoint as the CPU
+    reset vector instead of the BL1 entrypoint.  It can take the value 0 (CPU
+    reset to BL1 entrypoint) or 1 (CPU reset to SP_MIN entrypoint). The default
+    value is 0.
 
-*   `EL3_PAYLOAD_BASE`: This option enables booting an EL3 payload instead of
-    the normal boot flow. It must specify the entry point address of the EL3
-    payload. Please refer to the "Booting an EL3 payload" section for more
-    details.
+*   `ROT_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the ROT private key in PEM format. If `SAVE_KEYS=1`, this
+    file name will be used to save the key.
 
-*   `PRELOADED_BL33_BASE`: This option enables booting a preloaded BL33 image
-    instead of the normal boot flow. When defined, it must specify the entry
-    point address for the preloaded BL33 image. This option is incompatible with
-    `EL3_PAYLOAD_BASE`. If both are defined, `EL3_PAYLOAD_BASE` has priority
-    over `PRELOADED_BL33_BASE`.
+*   `SAVE_KEYS`: This option is used when `GENERATE_COT=1`. It tells the
+    certificate generation tool to save the keys used to establish the Chain of
+    Trust. Allowed options are '0' or '1'. Default is '0' (do not save).
 
-*   `PL011_GENERIC_UART`: Boolean option to indicate the PL011 driver that
-    the underlying hardware is not a full PL011 UART but a minimally compliant
-    generic UART, which is a subset of the PL011. The driver will not access
-    any register that is not part of the SBSA generic UART specification.
-    Default value is 0 (a full PL011 compliant UART is present).
+*   `SCP_BL2`: Path to SCP_BL2 image in the host file system. This image is optional.
+    If a SCP_BL2 image is present then this option must be passed for the `fip`
+    target.
 
-*   `CTX_INCLUDE_AARCH32_REGS` : Boolean option that, when set to 1, will cause
-    the AArch32 system registers to be included when saving and restoring the
-    CPU context. The option must be set to 0 for AArch64-only platforms (that
-    is on hardware that does not implement AArch32, or at least not at EL1 and
-    higher ELs). Default value is 1.
+*   `SCP_BL2_KEY`: This option is used when `GENERATE_COT=1`. It specifies the
+    file that contains the SCP_BL2 private key in PEM format. If `SAVE_KEYS=1`,
+    this file name will be used to save the key.
 
-*   `CTX_INCLUDE_FPREGS`: Boolean option that, when set to 1, will cause the FP
-    registers to be included when saving and restoring the CPU context. Default
-    is 0.
-
-*   `DISABLE_PEDANTIC`: When set to 1 it will disable the -pedantic option in
-    the GCC command line. Default is 0.
-
-*   `BUILD_STRING`: Input string for VERSION_STRING, which allows the TF build
-    to be uniquely identified. Defaults to the current git commit id.
-
-*   `VERSION_STRING`: String used in the log output for each TF image. Defaults
-    to a string formed by concatenating the version number, build type and build
-    string.
-
-*   `BUILD_MESSAGE_TIMESTAMP`: String used to identify the time and date of the
-    compilation of each build. It must be set to a C string (including quotes
-    where applicable). Defaults to a string that contains the time and date of
-    the compilation.
-
-*   `HANDLE_EA_EL3_FIRST`: When defined External Aborts and SError Interrupts
-    will be always trapped in EL3 i.e. in BL31 at runtime.
-
-*   `ENABLE_PMF`: Boolean option to enable support for optional Performance
-     Measurement Framework(PMF). Default is 0.
-
-*   `ENABLE_PSCI_STAT`: Boolean option to enable support for optional PSCI
-     functions `PSCI_STAT_RESIDENCY` and `PSCI_STAT_COUNT`. Default is 0.
-     Enabling this option enables the `ENABLE_PMF` build option as well.
-     The PMF is used for collecting the statistics.
+*   `SCP_BL2U`: Path to SCP_BL2U image in the host file system. This image is
+    optional. It is only needed if the platform makefile specifies that it
+    is required in order to build the `fwu_fip` target.
 
 *   `SEPARATE_CODE_AND_RODATA`: Whether code and read-only data should be
     isolated on separate memory pages. This is a trade-off between security and
@@ -460,27 +419,96 @@ performed.
     pages" section in [Firmware Design]. This flag is disabled by default and
     affects all BL images.
 
-*   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
-    image loading, which provides more flexibility and scalability around what
-    images are loaded and executed during boot. Default is 0.
-    Note: `TRUSTED_BOARD_BOOT` is currently not supported when `LOAD_IMAGE_V2`
-    is enabled.
+*   `SPD`: Choose a Secure Payload Dispatcher component to be built into the
+    Trusted Firmware. This build option is only valid if `ARCH=aarch64`. The
+    value should be the path to the directory containing the SPD source,
+    relative to `services/spd/`; the directory is expected to
+    contain a makefile called `<spd-value>.mk`.
 
-*   `ENABLE_RUNTIME_INSTRUMENTATION`: Boolean option to enable runtime
-    instrumentation which injects timestamp collection points into
-    Trusted Firmware to allow runtime performance to be measured.
-    Currently, only PSCI is instrumented. Enabling this option enables
-    the `ENABLE_PMF` build option as well. Default is 0.
+*   `SPIN_ON_BL1_EXIT`: This option introduces an infinite loop in BL1. It can
+    take either 0 (no loop) or 1 (add a loop). 0 is the default. This loop stops
+    execution in BL1 just before handing over to BL31. At this point, all
+    firmware images have been loaded in memory, and the MMU and caches are
+    turned off. Refer to the "Debugging options" section for more details.
+
+*   `TRUSTED_BOARD_BOOT`: Boolean flag to include support for the Trusted Board
+    Boot feature. When set to '1', BL1 and BL2 images include support to load
+    and verify the certificates and images in a FIP, and BL1 includes support
+    for the Firmware Update. The default value is '0'. Generation and inclusion
+    of certificates in the FIP and FWU_FIP depends upon the value of the
+    `GENERATE_COT` option.
+
+    Note: This option depends on 'CREATE_KEYS' to be enabled. If the keys
+    already exist in disk, they will be overwritten without further notice.
+
+*   `TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
+    specifies the file that contains the Trusted World private key in PEM
+    format. If `SAVE_KEYS=1`, this file name will be used to save the key.
+
+*   `TSP_INIT_ASYNC`: Choose BL32 initialization method as asynchronous or
+    synchronous, (see "Initializing a BL32 Image" section in [Firmware
+    Design]). It can take the value 0 (BL32 is initialized using
+    synchronous method) or 1 (BL32 is initialized using asynchronous method).
+    Default is 0.
+
+*   `TSP_NS_INTR_ASYNC_PREEMPT`: A non zero value enables the interrupt
+    routing model which routes non-secure interrupts asynchronously from TSP
+    to EL3 causing immediate preemption of TSP. The EL3 is responsible
+    for saving and restoring the TSP context in this routing model. The
+    default routing model (when the value is 0) is to route non-secure
+    interrupts to TSP allowing it to save its context and hand over
+    synchronously to EL3 via an SMC.
+
+*   `USE_COHERENT_MEM`: This flag determines whether to include the coherent
+    memory region in the BL memory map or not (see "Use of Coherent memory in
+    Trusted Firmware" section in [Firmware Design]). It can take the value 1
+    (Coherent memory region is included) or 0 (Coherent memory region is
+    excluded). Default is 1.
+
+*   `V`: Verbose build. If assigned anything other than 0, the build commands
+    are printed. Default is 0.
+
+*   `VERSION_STRING`: String used in the log output for each TF image. Defaults
+    to a string formed by concatenating the version number, build type and build
+    string.
 
 #### ARM development platform specific build options
 
-*   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
-    -   `tsram` : Trusted SRAM (default option)
-    -   `tdram` : Trusted DRAM (if available)
-    -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
+*   'ARM_BL31_IN_DRAM': Boolean option to select loading of BL31 in TZC secured
+    DRAM. By default, BL31 is in the secure SRAM. Set this flag to 1 to load
+    BL31 in TZC secured DRAM. If TSP is present, then setting this option also
+    sets the TSP location to DRAM and ignores the `ARM_TSP_RAM_LOCATION` build
+    flag.
 
-For a better understanding of these options, the ARM development platform memory
-map is explained in the [Firmware Design].
+*   `ARM_BOARD_OPTIMISE_MEM`: Boolean option to enable or disable optimisation
+    of the memory reserved for each image. This affects the maximum size of each
+    BL image as well as the number of allocated memory regions and translation
+    tables. By default this flag is 0, which means it uses the default
+    unoptimised values for these macros. ARM development platforms that wish to
+    optimise memory usage need to set this flag to 1 and must override the
+    related macros.
+
+*   `ARM_CONFIG_CNTACR`: boolean option to unlock access to the CNTBase<N>
+    frame registers by setting the CNTCTLBase.CNTACR<N> register bits. The
+    frame number <N> is defined by 'PLAT_ARM_NSTIMER_FRAME_ID', which should
+    match the frame used by the Non-Secure image (normally the Linux kernel).
+    Default is true (access to the frame is allowed).
+
+*   `ARM_DISABLE_TRUSTED_WDOG`: boolean option to disable the Trusted Watchdog.
+    By default, ARM platforms use a watchdog to trigger a system reset in case
+    an error is encountered during the boot process (for example, when an image
+    could not be loaded or authenticated). The watchdog is enabled in the early
+    platform setup hook at BL1 and disabled in the BL1 prepare exit hook. The
+    Trusted Watchdog may be disabled at build time for testing or development
+    purposes.
+
+*   `ARM_RECOM_STATE_ID_ENC`: The PSCI1.0 specification recommends an encoding
+    for the construction of composite state-ID in the power-state parameter.
+    The existing PSCI clients currently do not support this encoding of
+    State-ID yet. Hence this flag is used to configure whether to use the
+    recommended State-ID encoding or not. The default value of this flag is 0,
+    in which case the platform is configured to expect NULL in the State-ID
+    field of power-state parameter.
 
 *   `ARM_ROTPK_LOCATION`: used when `TRUSTED_BOARD_BOOT=1`. It specifies the
     location of the ROTPK hash returned by the function `plat_get_rotpk_info()`
@@ -499,41 +527,13 @@ map is explained in the [Firmware Design].
         this option, `arm_rotprivk_rsa.pem` must be specified as `ROT_KEY` when
         creating the certificates.
 
-*   `ARM_RECOM_STATE_ID_ENC`: The PSCI1.0 specification recommends an encoding
-    for the construction of composite state-ID in the power-state parameter.
-    The existing PSCI clients currently do not support this encoding of
-    State-ID yet. Hence this flag is used to configure whether to use the
-    recommended State-ID encoding or not. The default value of this flag is 0,
-    in which case the platform is configured to expect NULL in the State-ID
-    field of power-state parameter.
+*   `ARM_TSP_RAM_LOCATION`: location of the TSP binary. Options:
+    -   `tsram` : Trusted SRAM (default option)
+    -   `tdram` : Trusted DRAM (if available)
+    -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
 
-*   `ARM_DISABLE_TRUSTED_WDOG`: boolean option to disable the Trusted Watchdog.
-    By default, ARM platforms use a watchdog to trigger a system reset in case
-    an error is encountered during the boot process (for example, when an image
-    could not be loaded or authenticated). The watchdog is enabled in the early
-    platform setup hook at BL1 and disabled in the BL1 prepare exit hook. The
-    Trusted Watchdog may be disabled at build time for testing or development
-    purposes.
-
-*   `ARM_CONFIG_CNTACR`: boolean option to unlock access to the CNTBase<N>
-    frame registers by setting the CNTCTLBase.CNTACR<N> register bits. The
-    frame number <N> is defined by 'PLAT_ARM_NSTIMER_FRAME_ID', which should
-    match the frame used by the Non-Secure image (normally the Linux kernel).
-    Default is true (access to the frame is allowed).
-
-*   `ARM_BOARD_OPTIMISE_MEM`: Boolean option to enable or disable optimisation
-    of the memory reserved for each image. This affects the maximum size of each
-    BL image as well as the number of allocated memory regions and translation
-    tables. By default this flag is 0, which means it uses the default
-    unoptimised values for these macros. ARM development platforms that wish to
-    optimise memory usage need to set this flag to 1 and must override the
-    related macros.
-
-*   'ARM_BL31_IN_DRAM': Boolean option to select loading of BL31 in TZC secured
-    DRAM. By default, BL31 is in the secure SRAM. Set this flag to 1 to load
-    BL31 in TZC secured DRAM. If TSP is present, then setting this option also
-    sets the TSP location to DRAM and ignores the `ARM_TSP_RAM_LOCATION` build
-    flag.
+For a better understanding of these options, the ARM development platform memory
+map is explained in the [Firmware Design].
 
 #### ARM CSS platform specific build options
 
@@ -550,6 +550,19 @@ map is explained in the [Firmware Design].
 
 #### ARM FVP platform specific build options
 
+*   `FVP_CLUSTER_COUNT`    : Configures the cluster count to be used to
+     build the topology tree within Trusted Firmware. By default the
+     Trusted Firmware is configured for dual cluster topology and this option
+     can be used to override the default value.
+
+*   `FVP_INTERCONNECT_DRIVER`: Selects the interconnect driver to be built. The
+    default interconnect driver depends on the value of `FVP_CLUSTER_COUNT` as
+    explained in the options below:
+     -    `FVP_CCI`           : The CCI driver is selected. This is the default
+                                if 0 < `FVP_CLUSTER_COUNT` <= 2.
+     -    `FVP_CCN`           : The CCN driver is selected. This is the default
+                                if `FVP_CLUSTER_COUNT` > 2.
+
 *   `FVP_USE_GIC_DRIVER`   : Selects the GIC driver to be built. Options:
     -    `FVP_GICV2`       : The GICv2 only driver is selected
     -    `FVP_GICV3`       : The GICv3 only driver is selected (default option)
@@ -558,22 +571,9 @@ map is explained in the [Firmware Design].
           GICv3 hardware, then it configures the hardware to run in GICv2
           emulation mode
 
-*   `FVP_CLUSTER_COUNT`    : Configures the cluster count to be used to
-     build the topology tree within Trusted Firmware. By default the
-     Trusted Firmware is configured for dual cluster topology and this option
-     can be used to override the default value.
-
 *   `FVP_USE_SP804_TIMER`  : Use the SP804 timer instead of the Generic Timer
      for functions that wait for an arbitrary time length (udelay and mdelay).
      The default value is 0.
-
-*    `FVP_INTERCONNECT_DRIVER`: Selects the interconnect driver to be built. The
-     default interconnect driver depends on the value of `FVP_CLUSTER_COUNT` as
-     explained in the options below:
-     -    `FVP_CCI`           : The CCI driver is selected. This is the default
-                                if 0 < `FVP_CLUSTER_COUNT` <= 2.
-     -    `FVP_CCN`           : The CCN driver is selected. This is the default
-                                if `FVP_CLUSTER_COUNT` > 2.
 
 ### Debugging options
 
