@@ -28,10 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pmu_regs.h>
 #include "rk3399_mcu.h"
-
-#define PMU_PWRMODE_CON		0x20
-#define PMU_POWER_ST		0x78
 
 #define M0_SCR			0xe000ed10  /* System Control Register (SCR) */
 

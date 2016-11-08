@@ -28,29 +28,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __M0_PARAM_H__
-#define __M0_PARAM_H__
+#ifndef __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
+#define __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
 
-#ifndef __LINKER__
-enum {
-	M0_FUNC_SUSPEND = 0,
-	M0_FUNC_DRAM	= 1,
-};
-#endif /* __LINKER__ */
+/* CRU */
+#define CRU_DPLL_CON0		0x40
+#define CRU_DPLL_CON1		0x44
+#define CRU_DPLL_CON2		0x48
+#define CRU_DPLL_CON3		0x4c
+#define CRU_DPLL_CON4		0x50
+#define CRU_DPLL_CON5		0x54
 
-#define PARAM_ADDR		0xc0
+/* CRU_PLL_CON3 */
+#define PLL_SLOW_MODE		0
+#define PLL_NORMAL_MODE		1
+#define PLL_MODE(n)		((0x3 << (8 + 16)) | ((n) << 8))
+#define PLL_POWER_DOWN(n)	((0x1 << (0 + 16)) | ((n) << 0))
 
-#define PARAM_M0_FUNC		0x00
-#define PARAM_DRAM_FREQ		0x04
-#define PARAM_DPLL_CON0		0x08
-#define PARAM_DPLL_CON1		0x0c
-#define PARAM_DPLL_CON2		0x10
-#define PARAM_DPLL_CON3		0x14
-#define PARAM_DPLL_CON4		0x18
-#define PARAM_DPLL_CON5		0x1c
-#define PARAM_FREQ_SELECT	0x20
-#define PARAM_M0_DONE		0x24
-#define PARAM_M0_SIZE		0x28
-#define M0_DONE_FLAG		0xf59ec39a
+/* PMU CRU */
+#define PMU_CRU_GATEDIS_CON0	0x130
 
-#endif /*__M0_PARAM_H__*/
+#endif /* __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__ */

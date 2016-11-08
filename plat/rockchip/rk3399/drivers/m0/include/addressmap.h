@@ -28,29 +28,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __M0_PARAM_H__
-#define __M0_PARAM_H__
+#ifndef __ROCKCHIP_RK3399_M0_INCLUDE_SHARED_ADDRESSMAP_H__
+#define __ROCKCHIP_RK3399_M0_INCLUDE_SHARED_ADDRESSMAP_H__
 
-#ifndef __LINKER__
-enum {
-	M0_FUNC_SUSPEND = 0,
-	M0_FUNC_DRAM	= 1,
-};
-#endif /* __LINKER__ */
+#include <addressmap_shared.h>
 
-#define PARAM_ADDR		0xc0
+/* Registers base address for M0 */
+#define MMIO_BASE			0x40000000
 
-#define PARAM_M0_FUNC		0x00
-#define PARAM_DRAM_FREQ		0x04
-#define PARAM_DPLL_CON0		0x08
-#define PARAM_DPLL_CON1		0x0c
-#define PARAM_DPLL_CON2		0x10
-#define PARAM_DPLL_CON3		0x14
-#define PARAM_DPLL_CON4		0x18
-#define PARAM_DPLL_CON5		0x1c
-#define PARAM_FREQ_SELECT	0x20
-#define PARAM_M0_DONE		0x24
-#define PARAM_M0_SIZE		0x28
-#define M0_DONE_FLAG		0xf59ec39a
-
-#endif /*__M0_PARAM_H__*/
+#endif /* __ROCKCHIP_RK3399_M0_INCLUDE_SHARED_ADDRESSMAP_H__ */

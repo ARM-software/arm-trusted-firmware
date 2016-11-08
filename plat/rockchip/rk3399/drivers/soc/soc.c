@@ -43,7 +43,7 @@
 
 /* Table of regions to map using the MMU.  */
 const mmap_region_t plat_rk_mmap[] = {
-	MAP_REGION_FLAT(RK3399_DEV_RNG0_BASE, RK3399_DEV_RNG0_SIZE,
+	MAP_REGION_FLAT(DEV_RNG0_BASE, DEV_RNG0_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(PMUSRAM_BASE, PMUSRAM_SIZE,
 			MT_MEMORY | MT_RW | MT_SECURE),
