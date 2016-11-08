@@ -49,6 +49,7 @@
 #include <bl31.h>
 #include <suspend.h>
 #include <m0_ctl.h>
+#include <dfs.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
@@ -1076,6 +1077,7 @@ static int sys_pwr_domain_suspend(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
+	ddr_prepare_for_sys_suspend();
 	dmc_save();
 	pmu_scu_b_pwrdn();
 
@@ -1218,6 +1220,8 @@ static int sys_pwr_domain_resume(void)
 	plat_rockchip_gic_cpuif_enable();
 
 	m0_stop();
+
+	ddr_prepare_for_sys_resume();
 
 	return 0;
 }

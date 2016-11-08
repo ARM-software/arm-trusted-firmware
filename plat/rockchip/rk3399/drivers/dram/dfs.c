@@ -61,12 +61,20 @@ static const struct pll_div dpll_rates_table[] = {
 struct rk3399_dram_status {
 	uint32_t current_index;
 	uint32_t index_freq[2];
+	uint32_t boot_freq;
 	uint32_t low_power_stat;
 	struct timing_related_config timing_config;
 	struct drv_odt_lp_config drv_odt_lp_cfg;
 };
 
+struct rk3399_saved_status {
+	uint32_t freq;
+	uint32_t low_power_stat;
+	uint32_t odt;
+};
+
 static struct rk3399_dram_status rk3399_dram_status;
+static struct rk3399_saved_status rk3399_suspend_status;
 static uint32_t wrdqs_delay_val[2][2][4];
 
 static struct rk3399_sdram_default_config ddr3_default_config = {
@@ -225,6 +233,7 @@ static void sdram_timing_cfg_init(struct timing_related_config *ptiming_config,
 	ptiming_config->dramds = drv_config->dram_side_drv;
 	ptiming_config->dramodt = drv_config->dram_side_dq_odt;
 	ptiming_config->caodt = drv_config->dram_side_ca_odt;
+	ptiming_config->odt = (mmio_read_32(PHY_REG(0, 5)) >> 16) & 0x1;
 }
 
 struct lat_adj_pair {
@@ -1846,7 +1855,7 @@ static void dram_low_power_config(void)
 
 void dram_dfs_init(void)
 {
-	uint32_t trefi0, trefi1;
+	uint32_t trefi0, trefi1, boot_freq;
 
 	/* get sdram config for os reg */
 	get_dram_drv_odt_val(sdram_config.dramtype,
@@ -1866,8 +1875,15 @@ void dram_dfs_init(void)
 		rk3399_dram_status.index_freq[0] /= 2;
 		rk3399_dram_status.index_freq[1] /= 2;
 	}
-	rk3399_dram_status.index_freq[(rk3399_dram_status.current_index + 1)
-				      & 0x1] = 0;
+	boot_freq =
+		rk3399_dram_status.index_freq[rk3399_dram_status.current_index];
+	boot_freq = dpll_rates_table[to_get_clk_index(boot_freq)].mhz;
+	rk3399_dram_status.boot_freq = boot_freq;
+	rk3399_dram_status.index_freq[rk3399_dram_status.current_index] =
+		boot_freq;
+	rk3399_dram_status.index_freq[(rk3399_dram_status.current_index + 1) &
+				      0x1] = 0;
+	rk3399_dram_status.low_power_stat = 0;
 	/*
 	 * following register decide if NOC stall the access request
 	 * or return error when NOC being idled. when doing ddr frequency
@@ -1881,6 +1897,10 @@ void dram_dfs_init(void)
 	mmio_write_32(GRF_BASE + GRF_SOC_CON(2), 0xffffffff);
 	mmio_write_32(GRF_BASE + GRF_SOC_CON(3), 0xffffffff);
 	mmio_write_32(GRF_BASE + GRF_SOC_CON(4), 0x70007000);
+
+	/* Disable multicast */
+	mmio_clrbits_32(PHY_REG(0, 896), 1);
+	mmio_clrbits_32(PHY_REG(1, 896), 1);
 
 	dram_low_power_config();
 }
@@ -1973,7 +1993,7 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 
 	index = (rk3399_dram_status.current_index + 1) & 0x1;
 	if (rk3399_dram_status.index_freq[index] == mhz)
-		goto out;
+		return index;
 
 	/*
 	 * checking if having available gate traiing timing for
@@ -1989,9 +2009,6 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 			      &dram_timing, index);
 	rk3399_dram_status.index_freq[index] = mhz;
 
-out:
-	gen_rk3399_enable_training(rk3399_dram_status.timing_config.ch_cnt,
-				   mhz);
 	return index;
 }
 
@@ -2023,6 +2040,8 @@ uint32_t ddr_set_rate(uint32_t hz)
 	mhz = dpll_rates_table[index].mhz;
 
 	ddr_index = prepare_ddr_timing(mhz);
+	gen_rk3399_enable_training(rk3399_dram_status.timing_config.ch_cnt,
+				   mhz);
 	if (ddr_index > 1)
 		goto out;
 
@@ -2049,4 +2068,58 @@ uint32_t ddr_round_rate(uint32_t hz)
 	index = to_get_clk_index(mhz);
 
 	return dpll_rates_table[index].mhz * 1000 * 1000;
+}
+
+void ddr_prepare_for_sys_suspend(void)
+{
+	uint32_t mhz =
+		rk3399_dram_status.index_freq[rk3399_dram_status.current_index];
+
+	/*
+	 * If we're not currently at the boot (assumed highest) frequency, we
+	 * need to change frequencies to configure out current index.
+	 */
+	rk3399_suspend_status.freq = mhz;
+	exit_low_power();
+	rk3399_suspend_status.low_power_stat =
+		rk3399_dram_status.low_power_stat;
+	rk3399_suspend_status.odt = rk3399_dram_status.timing_config.odt;
+	rk3399_dram_status.low_power_stat = 0;
+	rk3399_dram_status.timing_config.odt = 1;
+	if (mhz != rk3399_dram_status.boot_freq)
+		ddr_set_rate(rk3399_dram_status.boot_freq * 1000 * 1000);
+
+	/*
+	 * This will configure the other index to be the same frequency as the
+	 * current one. We retrain both indices on resume, so both have to be
+	 * setup for the same frequency.
+	 */
+	prepare_ddr_timing(rk3399_dram_status.boot_freq);
+}
+
+void ddr_prepare_for_sys_resume(void)
+{
+	/* Disable multicast */
+	mmio_clrbits_32(PHY_REG(0, 896), 1);
+	mmio_clrbits_32(PHY_REG(1, 896), 1);
+
+	/* The suspend code changes the current index, so reset it now. */
+	rk3399_dram_status.current_index =
+		(mmio_read_32(CTL_REG(0, 111)) >> 16) & 0x3;
+	rk3399_dram_status.low_power_stat =
+		rk3399_suspend_status.low_power_stat;
+	rk3399_dram_status.timing_config.odt = rk3399_suspend_status.odt;
+
+	/*
+	 * Set the saved frequency from suspend if it's different than the
+	 * current frequency.
+	 */
+	if (rk3399_suspend_status.freq !=
+	    rk3399_dram_status.index_freq[rk3399_dram_status.current_index]) {
+		ddr_set_rate(rk3399_suspend_status.freq * 1000 * 1000);
+		return;
+	}
+
+	gen_rk3399_set_odt(rk3399_dram_status.timing_config.odt);
+	resume_low_power(rk3399_dram_status.low_power_stat);
 }
