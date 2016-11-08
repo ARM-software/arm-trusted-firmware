@@ -1144,11 +1144,12 @@ static int sys_pwr_domain_suspend(void)
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
+	secure_watchdog_disable();
+
 	/*
 	 * Disabling PLLs/PWM/DVFS is approaching WFI which is
 	 * the last steps in suspend.
 	 */
-	plls_suspend_prepare();
 	disable_dvfs_plls();
 	disable_pwms();
 	disable_nodvfs_plls();
@@ -1171,7 +1172,8 @@ static int sys_pwr_domain_resume(void)
 	/* PWM regulators take time to come up; give 300us to be safe. */
 	udelay(300);
 	enable_dvfs_plls();
-	plls_resume_finish();
+
+	secure_watchdog_restore();
 
 	/* restore clk_ddrc_bpll_src_en gate */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),

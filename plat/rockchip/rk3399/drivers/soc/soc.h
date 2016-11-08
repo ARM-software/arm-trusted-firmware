@@ -73,6 +73,7 @@
 #define REG_SOC_WMSK			0xffff0000
 #define CLK_GATE_MASK			0x01
 
+#define SGRF_SOC_COUNT		0x17
 #define PMUCRU_GATE_COUNT	0x03
 #define CRU_GATE_COUNT		0x23
 #define PMUCRU_GATE_CON(n)	(0x100 + (n) * 4)
@@ -111,6 +112,7 @@ struct deepsleep_data_s {
 	uint32_t cru_clksel_con[CRU_CLKSEL_COUNT];
 	uint32_t cru_gate_con[CRU_GATE_COUNT];
 	uint32_t pmucru_gate_con[PMUCRU_GATE_COUNT];
+	uint32_t sgrf_con[SGRF_SOC_COUNT];
 };
 
 /**************************************************
@@ -171,6 +173,20 @@ struct deepsleep_data_s {
 
 #define TIMER_FMODE		(0x0 << 1)
 #define TIMER_RMODE		(0x1 << 1)
+
+/**************************************************
+ * secure WDT
+ **************************************************/
+#define WDT_CM0_EN		0x0
+#define WDT_CM0_DIS		0x1
+#define WDT_CA53_EN		0x0
+#define WDT_CA53_DIS		0x1
+
+#define PCLK_WDT_CA53_GATE_SHIFT	8
+#define PCLK_WDT_CM0_GATE_SHIFT		10
+
+#define WDT_CA53_1BIT_MASK	0x1
+#define WDT_CM0_1BIT_MASK	0x1
 
 /**************************************************
  * cru reg, offset
@@ -330,10 +346,10 @@ static inline void pmu_sgrf_rst_hld(void)
 
 /* funciton*/
 void __dead2 soc_global_soft_reset(void);
-void plls_suspend_prepare(void);
+void secure_watchdog_disable();
+void secure_watchdog_restore();
 void disable_dvfs_plls(void);
 void disable_nodvfs_plls(void);
-void plls_resume_finish(void);
 void enable_dvfs_plls(void);
 void enable_nodvfs_plls(void);
 void prepare_abpll_for_ddrctrl(void);

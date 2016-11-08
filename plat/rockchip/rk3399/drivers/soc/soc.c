@@ -192,18 +192,26 @@ static void dma_secure_cfg(uint32_t secure)
 /* pll suspend */
 struct deepsleep_data_s slp_data;
 
-static void pll_suspend_prepare(uint32_t pll_id)
+void secure_watchdog_disable(void)
 {
-	int i;
+	slp_data.sgrf_con[3] = mmio_read_32(SGRF_BASE + SGRF_SOC_CON3_7(3));
 
-	if (pll_id == PPLL_ID)
-		for (i = 0; i < PLL_CON_COUNT; i++)
-			slp_data.plls_con[pll_id][i] =
-				mmio_read_32(PMUCRU_BASE + PMUCRU_PPLL_CON(i));
-	else
-		for (i = 0; i < PLL_CON_COUNT; i++)
-			slp_data.plls_con[pll_id][i] =
-				mmio_read_32(CRU_BASE + CRU_PLL_CON(pll_id, i));
+	/* disable CA53 wdt pclk */
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(3),
+		      BITS_WITH_WMASK(WDT_CA53_DIS, WDT_CA53_1BIT_MASK,
+				      PCLK_WDT_CA53_GATE_SHIFT));
+	/* disable CM0 wdt pclk */
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(3),
+		      BITS_WITH_WMASK(WDT_CM0_DIS, WDT_CM0_1BIT_MASK,
+				      PCLK_WDT_CM0_GATE_SHIFT));
+}
+
+void secure_watchdog_restore(void)
+{
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(3),
+		      slp_data.sgrf_con[3] |
+		      WMSK_BIT(PCLK_WDT_CA53_GATE_SHIFT) |
+		      WMSK_BIT(PCLK_WDT_CM0_GATE_SHIFT));
 }
 
 static void set_pll_slow_mode(uint32_t pll_id)
@@ -339,23 +347,6 @@ void restore_dpll(void)
 	restore_pll(DPLL_ID, slp_data.plls_con[DPLL_ID]);
 }
 
-void plls_suspend_prepare(void)
-{
-	uint32_t i, pll_id;
-
-	for (pll_id = ALPLL_ID; pll_id < END_PLL_ID; pll_id++)
-		pll_suspend_prepare(pll_id);
-
-	for (i = 0; i < CRU_CLKSEL_COUNT; i++)
-		slp_data.cru_clksel_con[i] =
-			mmio_read_32(CRU_BASE + CRU_CLKSEL_CON(i));
-
-	for (i = 0; i < PMUCRU_CLKSEL_CONUT; i++)
-		slp_data.pmucru_clksel_con[i] =
-			mmio_read_32(PMUCRU_BASE +
-				     PMUCRU_CLKSEL_OFFSET + i * REG_SIZE);
-}
-
 void clk_gate_con_save(void)
 {
 	uint32_t i = 0;
@@ -407,26 +398,6 @@ static void _pll_resume(uint32_t pll_id)
 {
 	set_plls_nobypass(pll_id);
 	set_pll_normal_mode(pll_id);
-}
-
-void plls_resume_finish(void)
-{
-	int i;
-
-	for (i = 0; i < CRU_CLKSEL_COUNT; i++) {
-		/* CRU_CLKSEL_CON96~107 the high 16-bit isb't write_mask */
-		if (i > 95)
-			mmio_write_32((CRU_BASE + CRU_CLKSEL_CON(i)),
-				      slp_data.cru_clksel_con[i]);
-		else
-			mmio_write_32((CRU_BASE + CRU_CLKSEL_CON(i)),
-				      REG_SOC_WMSK |
-				      slp_data.cru_clksel_con[i]);
-	}
-	for (i = 0; i < PMUCRU_CLKSEL_CONUT; i++)
-		mmio_write_32((PMUCRU_BASE +
-			      PMUCRU_CLKSEL_OFFSET + i * REG_SIZE),
-			      REG_SOC_WMSK | slp_data.pmucru_clksel_con[i]);
 }
 
 /**
