@@ -361,6 +361,9 @@ CASSERT(sizeof(uintptr_t) ==
  ******************************************************************************/
 size_t image_size(unsigned int image_id);
 
+int is_mem_free(uintptr_t free_base, size_t free_size,
+		uintptr_t addr, size_t size);
+
 #if LOAD_IMAGE_V2
 
 int load_image(unsigned int image_id, image_info_t *image_data);

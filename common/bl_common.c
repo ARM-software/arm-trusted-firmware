@@ -53,14 +53,13 @@ uintptr_t page_align(uintptr_t value, unsigned dir)
 	return value;
 }
 
-#if !LOAD_IMAGE_V2
 /******************************************************************************
  * Determine whether the memory region delimited by 'addr' and 'size' is free,
  * given the extents of free memory.
  * Return 1 if it is free, 0 if it is not free or if the input values are
  * invalid.
  *****************************************************************************/
-static int is_mem_free(uintptr_t free_base, size_t free_size,
+int is_mem_free(uintptr_t free_base, size_t free_size,
 		uintptr_t addr, size_t size)
 {
 	uintptr_t free_end, requested_end;
@@ -97,6 +96,7 @@ static int is_mem_free(uintptr_t free_base, size_t free_size,
 	return (addr >= free_base) && (requested_end <= free_end);
 }
 
+#if !LOAD_IMAGE_V2
 /******************************************************************************
  * Inside a given memory region, determine whether a sub-region of memory is
  * closer from the top or the bottom of the encompassing region. Return the
