@@ -109,7 +109,13 @@
 	msr	spsr_und, r9
 	msr	sp_und, r10
 	msr	lr_und, r11
-	msr	spsr, r12
+	/*
+	 * Use the `_fsxc` suffix explicitly to instruct the assembler
+	 * to update all the 32 bits of SPSR. Else, by default, the
+	 * assembler assumes `_fc` suffix which only modifies
+	 * f->[31:24] and c->[7:0] bits of SPSR.
+	 */
+	msr	spsr_fsxc, r12
 
 	/* Restore the rest of the general purpose registers */
 	ldm	r0, {r0-r12}
