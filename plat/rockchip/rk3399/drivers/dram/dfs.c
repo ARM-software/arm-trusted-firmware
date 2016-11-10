@@ -42,7 +42,8 @@
 
 #include <delay_timer.h>
 
-#define ENPER_CS_TRAINING_FREQ	(933)
+#define ENPER_CS_TRAINING_FREQ	(666)
+#define TDFI_LAT_THRESHOLD_FREQ	(928)
 #define PHY_DLL_BYPASS_FREQ	(260)
 
 static const struct pll_div dpll_rates_table[] = {
@@ -731,7 +732,7 @@ static void gen_rk3399_ctl_params_f0(struct timing_related_config
 
 		/* CTL_314 TDFI_WRCSLAT_F0:RW:8:8 */
 		tmp1 = get_pi_wrlat_adj(pdram_timing, timing_config);
-		if (timing_config->freq <= ENPER_CS_TRAINING_FREQ) {
+		if (timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) {
 			if (tmp1 == 0)
 				tmp = 0;
 			else if (tmp1 < 5)
@@ -744,7 +745,7 @@ static void gen_rk3399_ctl_params_f0(struct timing_related_config
 		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 8, tmp << 8);
 
 		/* CTL_314 TDFI_RDCSLAT_F0:RW:0:8 */
-		if ((timing_config->freq <= ENPER_CS_TRAINING_FREQ) &&
+		if ((timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) &&
 		    (pdram_timing->cl >= 5))
 			tmp = pdram_timing->cl - 5;
 		else
@@ -981,7 +982,7 @@ static void gen_rk3399_ctl_params_f1(struct timing_related_config
 
 		/* CTL_314 TDFI_WRCSLAT_F1:RW:24:8 */
 		tmp1 = get_pi_wrlat_adj(pdram_timing, timing_config);
-		if (timing_config->freq <= ENPER_CS_TRAINING_FREQ) {
+		if (timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) {
 			if (tmp1 == 0)
 				tmp = 0;
 			else if (tmp1 < 5)
@@ -995,7 +996,7 @@ static void gen_rk3399_ctl_params_f1(struct timing_related_config
 		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 24, tmp << 24);
 
 		/* CTL_314 TDFI_RDCSLAT_F1:RW:16:8 */
-		if ((timing_config->freq <= ENPER_CS_TRAINING_FREQ) &&
+		if ((timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) &&
 		    (pdram_timing->cl >= 5))
 			tmp = pdram_timing->cl - 5;
 		else
