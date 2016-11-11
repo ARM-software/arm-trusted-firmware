@@ -31,9 +31,9 @@
 #include <assert.h>
 #include <debug.h>
 #include <io_storage.h>
-#include <gpt.h>
-#include <mbr.h>
-#include <partition.h>
+#include <partition/gpt.h>
+#include <partition/mbr.h>
+#include <partition/partition.h>
 #include <platform.h>
 #include <string.h>
 

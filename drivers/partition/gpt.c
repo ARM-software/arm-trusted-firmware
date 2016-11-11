@@ -31,7 +31,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <errno.h>
-#include <gpt.h>
+#include <partition/gpt.h>
 #include <string.h>
 
 static int unicode_to_ascii(unsigned short *str_in, unsigned char *str_out)

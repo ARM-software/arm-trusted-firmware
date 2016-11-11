@@ -31,7 +31,7 @@
 #ifndef __GPT_H__
 #define __GPT_H__
 
-#include <partition.h>
+#include <partition/partition.h>
 
 #define PARTITION_TYPE_GPT		0xee
 #define GPT_HEADER_OFFSET		PARTITION_BLOCK_SIZE
