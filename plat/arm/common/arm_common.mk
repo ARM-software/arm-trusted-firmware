@@ -97,6 +97,8 @@ ENABLE_PSCI_STAT		:=	1
 # mapping the former as executable and the latter as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
 
+# Enable new version of image loading on ARM platforms
+LOAD_IMAGE_V2			:=	1
 
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common

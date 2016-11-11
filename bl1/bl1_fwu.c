@@ -121,7 +121,6 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			unsigned int flags)
 {
 	uintptr_t base_addr;
-	meminfo_t *mem_layout;
 
 	/* Get the image descriptor. */
 	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
@@ -208,15 +207,22 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			WARN("BL1-FWU: Copy arguments source/size not mapped\n");
 			return -ENOMEM;
 		}
-
+#if LOAD_IMAGE_V2
+		/* Check that the image size to load is within limit */
+		if (image_size > image_desc->image_info.image_max_size) {
+			WARN("BL1-FWU: Image size out of bounds\n");
+			return -ENOMEM;
+		}
+#else
 		/* Find out how much free trusted ram remains after BL1 load */
-		mem_layout = bl1_plat_sec_mem_layout();
+		meminfo_t *mem_layout = bl1_plat_sec_mem_layout();
 		if ((image_desc->image_info.image_base < mem_layout->free_base) ||
 			 (image_desc->image_info.image_base + image_size >
 			  mem_layout->free_base + mem_layout->free_size)) {
 			WARN("BL1-FWU: Memory not available to copy\n");
 			return -ENOMEM;
 		}
+#endif
 
 		/* Update the image size. */
 		image_desc->image_info.image_size = image_size;

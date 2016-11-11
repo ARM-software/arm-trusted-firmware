@@ -191,6 +191,12 @@
 #define PLAT_CSS_MAX_SCP_BL2_SIZE	0x1D000
 
 /*
+ * PLAT_CSS_MAX_SCP_BL2U_SIZE is calculated using the current
+ * SCP_BL2U size plus a little space for growth.
+ */
+#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x1D000
+
+/*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.

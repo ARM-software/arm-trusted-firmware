@@ -122,10 +122,6 @@ ifneq (${GENERATE_COT},0)
         FWU_FIP_DEPS += fwu_certificates
 endif
 
-# For AArch32, enable new version of image loading.
-ifeq (${ARCH},aarch32)
-        LOAD_IMAGE_V2	:=	1
-endif
 
 ################################################################################
 # Toolchain
@@ -294,18 +290,14 @@ ifeq (${NEED_BL33},yes)
         endif
 endif
 
-# TRUSTED_BOARD_BOOT is currently not supported when LOAD_IMAGE_V2 is enabled.
-ifeq (${LOAD_IMAGE_V2},1)
-        ifeq (${TRUSTED_BOARD_BOOT},1)
-                $(error "TRUSTED_BOARD_BOOT is currently not supported	\
-                for LOAD_IMAGE_V2=1")
-        endif
-endif
-
-# For AArch32, LOAD_IMAGE_V2 must be enabled.
 ifeq (${ARCH},aarch32)
+    # For AArch32, LOAD_IMAGE_V2 must be enabled.
     ifeq (${LOAD_IMAGE_V2}, 0)
         $(error "For AArch32, LOAD_IMAGE_V2 must be enabled.")
+    endif
+    # TRUSTED_BOARD_BOOT is currently not supported for AArch32.
+    ifeq (${TRUSTED_BOARD_BOOT},1)
+        $(error "TRUSTED_BOARD_BOOT is currently not supported for AArch32")
     endif
 endif
 

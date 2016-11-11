@@ -135,8 +135,10 @@
  * SCP, it is discarded and BL31 is loaded over the top.
  */
 #define SCP_BL2_BASE			BL31_BASE
+#define SCP_BL2_LIMIT			(SCP_BL2_BASE + PLAT_CSS_MAX_SCP_BL2_SIZE)
 
 #define SCP_BL2U_BASE			BL31_BASE
+#define SCP_BL2U_LIMIT			(SCP_BL2U_BASE + PLAT_CSS_MAX_SCP_BL2U_SIZE)
 #endif /* CSS_LOAD_SCP_IMAGES */
 
 /* Load address of Non-Secure Image for CSS platform ports */
