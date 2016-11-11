@@ -206,21 +206,31 @@ for BL1 to pass execution control to BL31.
         if (image_id is non-secure image) return -EPERM
         if (image_id state is not (RESET or COPYING)) return -EPERM
         if (secure world caller) return -EPERM
+        if (image_addr + block_size overflows) return -ENOMEM
+        if (image destination address + image_size overflows) return -ENOMEM
         if (source block is in secure memory) return -ENOMEM
         if (source block is not mapped into BL1) return -ENOMEM
         if (image_size > free secure memory) return -ENOMEM
 
-This SMC copies the secure image indicated by `image_id` into secure memory. The
-image may be copied in a single block or multiple blocks. In either case, the
-total size of the image must be provided in `image_size` when invoking this SMC
-the first time for each image. The `image_addr` and `block_size` specify the
-source memory block to copy from. If `block_size` >= the size of the remaining
-image to copy, then BL1 completes the copy operation and sets the image state
-to COPIED. If there is still more to copy, BL1 sets the image state to COPYING.
+This SMC copies the secure image indicated by `image_id` from non-secure memory
+to secure memory for later authentication. The image may be copied in a single
+block or multiple blocks. In either case, the total size of the image must be
+provided in `image_size` when invoking this SMC for the first time for each
+image; it is ignored in subsequent calls (if any) for the same image.
+
+The `image_addr` and `block_size` specify the source memory block to copy from.
+The destination address is provided by the platform code.
+
+If `block_size` is greater than the amount of remaining bytes to copy for this
+image then the former is truncated to the latter. The copy operation is then
+considered as complete and the FWU state machine transitions to the "COPIED"
+state. If there is still more to copy, the FWU state machine stays in or
+transitions to the COPYING state (depending on the previous state).
+
 When using multiple blocks, the source blocks do not necessarily need to be in
 contiguous memory.
 
-BL1 returns from exception to the normal world caller.
+Once the SMC is handled, BL1 returns from exception to the normal world caller.
 
 
 ### FWU_SMC_IMAGE_AUTH
@@ -347,7 +357,7 @@ a `void *`. The SMC does not return.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2015, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved._
 
 
 [Porting Guide]:        ./porting-guide.md
