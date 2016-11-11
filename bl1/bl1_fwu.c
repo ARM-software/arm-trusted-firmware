@@ -41,6 +41,7 @@
 #include <platform_def.h>
 #include <smcc_helpers.h>
 #include <string.h>
+#include <utils.h>
 #include "bl1_private.h"
 
 /*
@@ -151,7 +152,8 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		return -EPERM;
 	}
 
-	if ((!image_src) || (!block_size)) {
+	if ((!image_src) || (!block_size) ||
+	    check_uptr_overflow(image_src, block_size - 1)) {
 		WARN("BL1-FWU: Copy not allowed due to invalid image source"
 			" or block size\n");
 		return -ENOMEM;
@@ -192,11 +194,14 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			return -ENOMEM;
 		}
 #else
-		/* Find out how much free trusted ram remains after BL1 load */
+		/*
+		 * Check the image will fit into the free trusted RAM after BL1
+		 * load.
+		 */
 		const meminfo_t *mem_layout = bl1_plat_sec_mem_layout();
-		if ((image_desc->image_info.image_base < mem_layout->free_base) ||
-			 (image_desc->image_info.image_base + image_size >
-			  mem_layout->free_base + mem_layout->free_size)) {
+		if (!is_mem_free(mem_layout->free_base, mem_layout->free_size,
+					image_desc->image_info.image_base,
+					image_size)) {
 			WARN("BL1-FWU: Copy not allowed due to insufficient"
 			     " resources.\n");
 			return -ENOMEM;
@@ -290,7 +295,8 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		base_addr = image_desc->image_info.image_base;
 		total_size = image_desc->image_info.image_size;
 	} else {
-		if ((!image_src) || (!image_size)) {
+		if ((!image_src) || (!image_size) ||
+		    check_uptr_overflow(image_src, image_size - 1)) {
 			WARN("BL1-FWU: Auth not allowed due to invalid"
 				" image source/size\n");
 			return -ENOMEM;

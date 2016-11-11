@@ -35,7 +35,7 @@
 #include <plat_arm.h>
 #include <platform_def.h>
 #include <tbbr_img_desc.h>
-
+#include <utils.h>
 
 /* Struct to keep track of usable memory */
 typedef struct bl1_mem_info {
@@ -76,6 +76,12 @@ int bl1_plat_mem_check(uintptr_t mem_base,
 
 	assert(mem_base);
 	assert(mem_size);
+	/*
+	 * The caller of this function is responsible for checking upfront that
+	 * the end address doesn't overflow. We double-check this in debug
+	 * builds.
+	 */
+	assert(!check_uptr_overflow(mem_base, mem_size - 1));
 
 	/*
 	 * Check the given image source and size.
