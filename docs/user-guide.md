@@ -625,6 +625,10 @@ map is explained in the [Firmware Design].
     SCP_BL2U to the FIP and FWU_FIP respectively, and enables them to be loaded
     during boot. Default is 1.
 
+*   `CSS_USE_SCMI_DRIVER`: Boolean flag which selects SCMI driver instead of
+    SCPI driver for communicating with the SCP during power management operations.
+    If this option is set to 1, then SCMI driver will be used. Default is 0.
+
 #### ARM FVP platform specific build options
 
 *   `FVP_CLUSTER_COUNT`    : Configures the cluster count to be used to

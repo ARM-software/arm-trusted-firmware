@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,6 +46,17 @@
 					CSS_IRQ_TZC,		\
 					CSS_IRQ_TZ_WDOG,	\
 					CSS_IRQ_SEC_SYS_TIMER
+
+/*
+ * The lower Non-secure MHU channel is being used for SCMI for ARM Trusted
+ * Firmware.
+ * TODO: Move SCMI to Secure channel once the migration to SCMI in SCP is
+ * complete.
+ */
+#define MHU_CPU_INTR_L_SET_OFFSET	0x108
+#define MHU_CPU_INTR_H_SET_OFFSET	0x128
+#define CSS_SCMI_PAYLOAD_BASE		(NSRAM_BASE + 0x500)
+#define CSS_SCMI_MHU_DB_REG_OFF		MHU_CPU_INTR_L_SET_OFFSET
 
 /*
  * SCP <=> AP boot configuration
