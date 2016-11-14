@@ -51,3 +51,10 @@ unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
 	return (((mpidr) & 0x100) ? JUNO_CLUSTER1_CORE_COUNT :\
 				JUNO_CLUSTER0_CORE_COUNT);
 }
+
+/*
+ * The array mapping platform core position (implemented by plat_my_core_pos())
+ * to the SCMI power domain ID implemented by SCP.
+ */
+const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[PLATFORM_CORE_COUNT] = {
+			2, 3, 4, 5, 0, 1 };
