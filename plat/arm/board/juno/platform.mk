@@ -48,8 +48,14 @@ endif
 
 PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
 
-PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/aarch64/juno_helpers.S
+PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S
 
+# Flag to enable support for AArch32 state on JUNO
+JUNO_AARCH32_EL3_RUNTIME	:=	0
+$(eval $(call assert_boolean,JUNO_AARCH32_EL3_RUNTIME))
+$(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
+
+ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
@@ -59,6 +65,7 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${JUNO_SECURITY_SOURCES}
 
 BL2_SOURCES		+=	plat/arm/board/juno/juno_err.c		\
+				plat/arm/board/juno/juno_bl2_setup.c	\
 				${JUNO_SECURITY_SOURCES}
 
 BL2U_SOURCES		+=	${JUNO_SECURITY_SOURCES}
@@ -71,6 +78,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${JUNO_GIC_SOURCES}			\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
+endif
 
 # Enable workarounds for selected Cortex-A53 and A57 errata.
 ERRATA_A53_855873		:=	1

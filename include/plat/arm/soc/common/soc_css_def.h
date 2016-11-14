@@ -96,9 +96,16 @@
 /*
  * Required platform porting definitions common to all ARM CSS SoCs
  */
-
+#if JUNO_AARCH32_EL3_RUNTIME
+/*
+ * Following change is required to initialize TZC
+ * for enabling access to the HI_VECTOR (0xFFFF0000)
+ * location needed for JUNO AARCH32 support.
+ */
+#define PLAT_ARM_SCP_TZC_DRAM1_SIZE	ULL(0x8000)
+#else
 /* 2MB used for SCP DDR retraining */
 #define PLAT_ARM_SCP_TZC_DRAM1_SIZE	ULL(0x00200000)
-
+#endif
 
 #endif /* __SOC_CSS_DEF_H__ */

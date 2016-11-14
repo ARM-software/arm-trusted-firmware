@@ -249,11 +249,7 @@ void bl2_plat_arch_setup(void)
 }
 
 #if LOAD_IMAGE_V2
-/*******************************************************************************
- * This function can be used by the platforms to update/use image
- * information for given `image_id`.
- ******************************************************************************/
-int bl2_plat_handle_post_image_load(unsigned int image_id)
+int arm_bl2_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
@@ -284,6 +280,15 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	}
 
 	return err;
+}
+
+/*******************************************************************************
+ * This function can be used by the platforms to update/use image
+ * information for given `image_id`.
+ ******************************************************************************/
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return arm_bl2_handle_post_image_load(image_id);
 }
 
 #else /* LOAD_IMAGE_V2 */

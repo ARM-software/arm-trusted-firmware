@@ -261,6 +261,16 @@
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
 
+/*
+ * RMR_EL3 definitions
+ */
+#define RMR_EL3_RR_BIT		(1 << 1)
+#define RMR_EL3_AA64_BIT	(1 << 0)
+
+/*
+ * HI-VECTOR address for AArch32 state
+ */
+#define HI_VECTOR_BASE	(0xFFFF0000)
 
 /*
  * TCR defintions

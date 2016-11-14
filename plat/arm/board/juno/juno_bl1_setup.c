@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,10 +32,14 @@
 #include <errno.h>
 #include <platform.h>
 #include <plat_arm.h>
+#include <sp805.h>
 #include <tbbr_img_def.h>
 #include <v2m_def.h>
 
 #define RESET_REASON_WDOG_RESET		(0x2)
+
+void juno_reset_to_aarch32_state(void);
+
 
 /*******************************************************************************
  * The following function checks if Firmware update is needed,
@@ -85,3 +89,15 @@ __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 	while (1)
 		wfi();
 }
+
+#if JUNO_AARCH32_EL3_RUNTIME
+void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
+{
+#if !ARM_DISABLE_TRUSTED_WDOG
+	/* Disable watchdog before leaving BL1 */
+	sp805_stop(ARM_SP805_TWDG_BASE);
+#endif
+
+	juno_reset_to_aarch32_state();
+}
+#endif /* JUNO_AARCH32_EL3_RUNTIME */
