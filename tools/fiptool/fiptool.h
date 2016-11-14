@@ -38,10 +38,8 @@
 
 #define NELEM(x) (sizeof (x) / sizeof *(x))
 
-/* TODO: Do not hardcode, use realloc() */
-#define MAX_IMAGES 32
-
 enum {
+	DO_UNSPEC = 0,
 	DO_PACK   = 1,
 	DO_UNPACK = 2,
 	DO_REMOVE = 3
@@ -53,16 +51,26 @@ enum {
 	LOG_ERR
 };
 
+typedef struct image_desc {
+	uuid_t             uuid;
+	char              *name;
+	char              *cmdline_name;
+	int                action;
+	char              *action_arg;
+	struct image_desc *next;
+} image_desc_t;
+
 typedef struct image {
-	uuid_t            uuid;
-	size_t            size;
-	void             *buffer;
+	uuid_t             uuid;
+	size_t             size;
+	void              *buffer;
+	struct image      *next;
 } image_t;
 
 typedef struct cmd {
-	char             *name;
-	int             (*handler)(int, char **);
-	void            (*usage)(void);
+	char              *name;
+	int              (*handler)(int, char **);
+	void             (*usage)(void);
 } cmd_t;
 
 #endif /* __FIPTOOL_H__ */

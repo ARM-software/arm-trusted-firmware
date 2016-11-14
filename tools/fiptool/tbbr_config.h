@@ -39,11 +39,9 @@
 #define TOC_HEADER_SERIAL_NUMBER 0x12345678
 
 typedef struct toc_entry {
-	const char   *name;
+	char         *name;
 	uuid_t        uuid;
-	const char   *cmdline_name;
-	int           action;
-	char         *action_arg;
+	char         *cmdline_name;
 } toc_entry_t;
 
 extern toc_entry_t toc_entries[];
