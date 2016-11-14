@@ -394,6 +394,7 @@
 #define HCR		p15, 4, c1, c1, 0
 #define HCPTR		p15, 4, c1, c1, 2
 #define CNTHCTL		p15, 4, c14, c1, 0
+#define CNTKCTL		p15, 0, c14, c1, 0
 #define VPIDR		p15, 4, c0, c0, 0
 #define VMPIDR		p15, 4, c0, c0, 5
 #define ISR		p15, 0, c12, c1, 0

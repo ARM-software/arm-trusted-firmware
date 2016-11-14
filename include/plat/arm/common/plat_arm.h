@@ -81,7 +81,7 @@ void arm_setup_page_tables(uintptr_t total_base,
 #else
 
 /*
- * Empty macros for all other BL stages other than BL31
+ * Empty macros for all other BL stages other than BL31 and BL32
  */
 #define ARM_INSTANTIATE_LOCK
 #define arm_lock_init()
