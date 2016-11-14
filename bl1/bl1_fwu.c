@@ -121,6 +121,7 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			unsigned int flags)
 {
 	uintptr_t dest_addr;
+	unsigned int remaining;
 
 	/* Get the image descriptor. */
 	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
@@ -156,39 +157,9 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		return -ENOMEM;
 	}
 
-	/* Get the image base address. */
-	dest_addr = image_desc->image_info.image_base;
-
 	if (image_desc->state == IMAGE_STATE_COPYING) {
 		image_size = image_desc->image_info.image_size;
-		/*
-		 * If the given block size is more than the total image size
-		 * then clip the former to the latter.
-		 */
-		if (image_desc->copied_size + block_size > image_size) {
-		       WARN("BL1-FWU: Block size is too big, clipping it.\n");
-		       block_size = image_size - image_desc->copied_size;
-		}
-
-		/* Make sure the source image is mapped in memory. */
-		if (bl1_plat_mem_check(image_src, block_size, flags)) {
-			WARN("BL1-FWU: Source image to copy is not mapped.\n");
-			return -ENOMEM;
-		}
-
 		INFO("BL1-FWU: Continuing image copy in blocks\n");
-
-		/* Copy image for given block size. */
-		dest_addr += image_desc->copied_size;
-		image_desc->copied_size += block_size;
-		memcpy((void *)dest_addr, (const void *)image_src, block_size);
-		flush_dcache_range(dest_addr, block_size);
-
-		/* Update the state if last block. */
-		if (image_desc->copied_size == image_size) {
-			image_desc->state = IMAGE_STATE_COPIED;
-			INFO("BL1-FWU: Image copy in blocks completed\n");
-		}
 	} else { /* image_desc->state == IMAGE_STATE_RESET */
 		INFO("BL1-FWU: Initial call to copy an image\n");
 
@@ -202,20 +173,6 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			return -ENOMEM;
 		}
 
-		/*
-		 * If the given block size is more than the total image size
-		 * then clip the former to the latter.
-		 */
-		if (block_size > image_size) {
-			WARN("BL1-FWU: Block size is too big, clipping it.\n");
-			block_size = image_size;
-		}
-
-		/* Make sure the source image is mapped in memory. */
-		if (bl1_plat_mem_check(image_src, block_size, flags)) {
-			WARN("BL1-FWU: Copy arguments source/size not mapped\n");
-			return -ENOMEM;
-		}
 #if LOAD_IMAGE_V2
 		/* Check that the image size to load is within limit */
 		if (image_size > image_desc->image_info.image_max_size) {
@@ -237,22 +194,40 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		/* Save the given image size. */
 		image_desc->image_info.image_size = image_size;
 
-		/* Copy the block of data. */
-		memcpy((void *)dest_addr, (const void *)image_src, block_size);
-		flush_dcache_range(dest_addr, block_size);
-
-		/* Update the state of the FWU state machine. */
-		if (block_size == image_size) {
-			image_desc->state = IMAGE_STATE_COPIED;
-			INFO("BL1-FWU: Image is copied successfully\n");
-		} else {
-			image_desc->state = IMAGE_STATE_COPYING;
-			INFO("BL1-FWU: Started image copy in blocks\n");
-		}
-
-		image_desc->copied_size = block_size;
+		/*
+		 * copied_size must be explicitly initialized here because the
+		 * FWU code doesn't necessarily do it when it resets the state
+		 * machine.
+		 */
+		image_desc->copied_size = 0;
 	}
 
+	/*
+	 * If the given block size is more than the total image size
+	 * then clip the former to the latter.
+	 */
+	remaining = image_size - image_desc->copied_size;
+	if (block_size > remaining) {
+		WARN("BL1-FWU: Block size is too big, clipping it.\n");
+		block_size = remaining;
+	}
+
+	/* Make sure the source image is mapped in memory. */
+	if (bl1_plat_mem_check(image_src, block_size, flags)) {
+		WARN("BL1-FWU: Source image is not mapped.\n");
+		return -ENOMEM;
+	}
+
+	/* Everything looks sane. Go ahead and copy the block of data. */
+	dest_addr = image_desc->image_info.image_base + image_desc->copied_size;
+	memcpy((void *) dest_addr, (const void *) image_src, block_size);
+	flush_dcache_range(dest_addr, block_size);
+
+	image_desc->copied_size += block_size;
+	image_desc->state = (block_size == remaining) ?
+		IMAGE_STATE_COPIED : IMAGE_STATE_COPYING;
+
+	INFO("BL1-FWU: Copy operation successful.\n");
 	return 0;
 }
 
