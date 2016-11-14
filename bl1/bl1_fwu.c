@@ -158,7 +158,19 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 	}
 
 	if (image_desc->state == IMAGE_STATE_COPYING) {
+		/*
+		 * There must have been at least 1 copy operation for this image
+		 * previously.
+		 */
+		assert(image_desc->copied_size != 0);
+		/*
+		 * The image size must have been recorded in the 1st copy
+		 * operation.
+		 */
 		image_size = image_desc->image_info.image_size;
+		assert(image_size != 0);
+		assert(image_desc->copied_size < image_size);
+
 		INFO("BL1-FWU: Continuing image copy in blocks\n");
 	} else { /* image_desc->state == IMAGE_STATE_RESET */
 		INFO("BL1-FWU: Initial call to copy an image\n");
