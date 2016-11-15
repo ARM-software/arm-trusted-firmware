@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_get_my_entrypoint
 	.globl	plat_is_my_cpu_primary
+	.globl	plat_arm_calc_core_pos
 
 	/* --------------------------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -95,10 +96,43 @@ endfunc plat_get_my_entrypoint
 	 */
 func plat_is_my_cpu_primary
 	ldcopr	r0, MPIDR
-	ldr	r1, =(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
+	ldr	r1, =MPIDR_AFFINITY_MASK
 	and	r0, r1
 	cmp	r0, #FVP_PRIMARY_CPU
 	moveq	r0, #1
 	movne	r0, #0
 	bx	lr
 endfunc plat_is_my_cpu_primary
+
+	/* -----------------------------------------------------
+	 * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
+	 *
+	 * Function to calculate the core position on FVP.
+	 *
+	 * (ClusterId * FVP_MAX_CPUS_PER_CLUSTER) +
+	 * (CPUId * FVP_MAX_PE_PER_CPU) +
+	 * ThreadId
+	 * -----------------------------------------------------
+	 */
+func plat_arm_calc_core_pos
+	mov	r3, r0
+
+	/*
+	 * Check for MT bit in MPIDR. If not set, shift MPIDR to left to make it
+	 * look as if in a multi-threaded implementation
+	 */
+	tst	r0, #MPIDR_MT_MASK
+	lsleq	r3, r0, #MPIDR_AFFINITY_BITS
+
+	/* Extract individual affinity fields from MPIDR */
+	mov	r2, #FVP_MAX_PE_PER_CPU
+	ubfx	r0, r3, #MPIDR_AFF0_SHIFT, #MPIDR_AFFINITY_BITS
+	ubfx	r1, r3, #MPIDR_AFF1_SHIFT, #MPIDR_AFFINITY_BITS
+	mla	r0, r1, r2, r0
+
+	mov	r1, #FVP_MAX_CPUS_PER_CLUSTER
+	ubfx	r2, r3, #MPIDR_AFF2_SHIFT, #MPIDR_AFFINITY_BITS
+	mla	r0, r1, r2, r0
+
+	bx	lr
+endfunc plat_arm_calc_core_pos

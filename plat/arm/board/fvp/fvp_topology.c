@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
+#include <arm_config.h>
 #include <cassert.h>
 #include <plat_arm.h>
 #include <platform_def.h>
@@ -55,11 +56,18 @@ unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
  ******************************************************************************/
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	if (arm_check_mpidr(mpidr) == -1)
-		return -1;
-
 	if (fvp_pwrc_read_psysr(mpidr) == PSYSR_INVALID)
 		return -1;
 
+	/*
+	 * Core position calculation for FVP platform depends on the MT bit in
+	 * MPIDR. This function cannot assume that the supplied MPIDR has the MT
+	 * bit set even if the implementation has. For example, PSCI clients
+	 * might supply MPIDR values without the MT bit set. Therefore, we
+	 * inject the current PE's MT bit so as to get the calculation correct.
+	 * This of course assumes that none or all CPUs on the platform has MT
+	 * bit set.
+	 */
+	mpidr |= (read_mpidr_el1() & MPIDR_MT_MASK);
 	return plat_arm_calc_core_pos(mpidr);
 }

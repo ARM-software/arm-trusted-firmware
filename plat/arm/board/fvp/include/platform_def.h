@@ -16,10 +16,13 @@
 #include "../fvp_def.h"
 
 /* Required platform porting definitions */
+#define PLATFORM_CORE_COUNT \
+	(FVP_CLUSTER_COUNT * FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU)
+
 #define PLAT_NUM_PWR_DOMAINS		(FVP_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
+
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
-#define PLATFORM_CORE_COUNT		(FVP_CLUSTER_COUNT * FVP_MAX_CPUS_PER_CLUSTER)
 
 /*
  * Other platform porting definitions are provided by included headers
