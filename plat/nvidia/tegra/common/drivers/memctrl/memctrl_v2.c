@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -677,13 +677,6 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	     index <= MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS5;
 	     index += 4)
 		tegra_mc_write_32(index, 0);
-
-	/*
-	 * Allow CPU read/write access to the aperture
-	 */
-	tegra_mc_write_32(MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG1,
-		TZRAM_CARVEOUT_CPU_WRITE_ACCESS_BIT |
-		TZRAM_CARVEOUT_CPU_READ_ACCESS_BIT);
 
 	/*
 	 * Set the TZRAM base. TZRAM base must be 4k aligned, at least.
