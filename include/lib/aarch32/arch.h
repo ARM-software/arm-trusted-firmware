@@ -318,6 +318,11 @@
 
 #define MAX_CACHE_LINE_SIZE	0x800 /* 2KB */
 
+/* PMCR definitions */
+#define PMCR_N_SHIFT		11
+#define PMCR_N_MASK		0x1f
+#define PMCR_N_BITS		(PMCR_N_MASK << PMCR_N_SHIFT)
+
 /*******************************************************************************
  * Definitions of register offsets and fields in the CNTCTLBase Frame of the
  * system level implementation of the Generic Timer.
@@ -374,6 +379,11 @@
 #define CLIDR		p15, 1, c0, c0, 1
 #define CSSELR		p15, 2, c0, c0, 0
 #define CCSIDR		p15, 1, c0, c0, 0
+
+/* Debug register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
+#define HDCR		p15, 4, c1, c1, 1
+#define SDCR		p15, 0, c1, c3, 1
+#define PMCR		p15, 0, c9, c12, 0
 
 /* GICv3 CPU Interface system register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
 #define ICC_IAR1	p15, 0, c12, c12, 0

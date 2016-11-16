@@ -259,6 +259,16 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * translation are disabled.
 			 */
 			write_vttbr_el2(0);
+			/*
+			 * Avoid unexpected debug traps in case where MDCR_EL2
+			 * is not completely reset by the hardware - set
+			 * MDCR_EL2.HPMN to PMCR_EL0.N and zero the remaining
+			 * bits.
+			 * MDCR_EL2.HPMN and PMCR_EL0.N fields are the same size
+			 * (5 bits) and HPMN is at offset zero within MDCR_EL2.
+			 */
+			write_mdcr_el2((read_pmcr_el0() & PMCR_EL0_N_BITS)
+					>> PMCR_EL0_N_SHIFT);
 		}
 	}
 

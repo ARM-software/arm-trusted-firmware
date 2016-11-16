@@ -411,4 +411,9 @@
 #define CNTACR_RWVT_SHIFT	0x4
 #define CNTACR_RWPT_SHIFT	0x5
 
+/* PMCR_EL0 definitions */
+#define PMCR_EL0_N_SHIFT	11
+#define PMCR_EL0_N_MASK		0x1f
+#define PMCR_EL0_N_BITS		(PMCR_EL0_N_MASK << PMCR_EL0_N_SHIFT)
+
 #endif /* __ARCH_H__ */
