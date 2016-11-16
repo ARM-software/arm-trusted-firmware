@@ -96,7 +96,6 @@ const struct pm_ipi apu_ipi = {
  *		Any other return value will cause the framework to ignore
  *		the service
  *
- * Enable interrupts at registered entrance in IPI peripheral
  * Called from pm_setup initialization function
  */
 int pm_ipi_init(void)

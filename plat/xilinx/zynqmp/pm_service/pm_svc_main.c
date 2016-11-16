@@ -68,7 +68,6 @@ static struct {
  *
  * Called from sip_svc_setup initialization function with the
  * rt_svc_init signature.
- *
  */
 int pm_setup(void)
 {

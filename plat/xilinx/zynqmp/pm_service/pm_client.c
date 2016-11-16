@@ -40,7 +40,6 @@
 #include <bl_common.h>
 #include <mmio.h>
 #include <string.h>
-#include <utils.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
