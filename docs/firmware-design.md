@@ -1077,7 +1077,7 @@ reset handling functions.
 
 Details for implementing a CPU specific reset handler can be found in
 Section 8. Details for implementing a platform specific reset handler can be
-found in the [Porting Guide](see the `plat_reset_handler()` function).
+found in the [Porting Guide] (see the `plat_reset_handler()` function).
 
 When adding functionality to a reset handler, keep in mind that if a different
 reset handling behavior is required between the first and the subsequent
