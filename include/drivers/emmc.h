@@ -131,21 +131,21 @@ typedef struct emmc_ops {
 } emmc_ops_t;
 
 typedef struct emmc_csd {
-	unsigned char		not_used:		1;
-	unsigned char		crc:			7;
-	unsigned char		ecc:			2;
-	unsigned char		file_format:		2;
-	unsigned char		tmp_write_protect:	1;
-	unsigned char		perm_write_protect:	1;
-	unsigned char		copy:			1;
-	unsigned char		file_format_grp:	1;
+	unsigned int 	    not_used:		1;
+	unsigned int   	    crc:			7;
+	unsigned int   	    ecc:			2;
+	unsigned int   	    file_format:		2;
+	unsigned int   	    tmp_write_protect:	1;
+	unsigned int   	    perm_write_protect:	1;
+	unsigned int   	    copy:			1;
+	unsigned int   	    file_format_grp:	1;
 
-	unsigned short		reserved_1:		5;
-	unsigned short		write_bl_partial:	1;
-	unsigned short		write_bl_len:		4;
-	unsigned short		r2w_factor:		3;
-	unsigned short		default_ecc:		2;
-	unsigned short		wp_grp_enable:		1;
+	unsigned int 		reserved_1:		5;
+	unsigned int 		write_bl_partial:	1;
+	unsigned int 		write_bl_len:		4;
+	unsigned int 		r2w_factor:		3;
+	unsigned int 		default_ecc:		2;
+	unsigned int 		wp_grp_enable:		1;
 
 	unsigned int		wp_grp_size:		5;
 	unsigned int		erase_grp_mult:		5;
