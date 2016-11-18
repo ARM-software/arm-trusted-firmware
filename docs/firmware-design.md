@@ -1127,7 +1127,8 @@ can be found in the [cpu-specific-build-macros.md][CPUBM] file.
 The CPU specific operations framework depends on the `cpu_ops` structure which
 needs to be exported for each type of CPU in the platform. It is defined in
 `include/lib/cpus/aarch64/cpu_macros.S` and has the following fields : `midr`,
-`reset_func()`, `core_pwr_dwn()`, `cluster_pwr_dwn()` and `cpu_reg_dump()`.
+`reset_func()`, `cpu_pwr_down_ops` (array of power down functions) and
+`cpu_reg_dump()`.
 
 The CPU specific files in `lib/cpus` export a `cpu_ops` data structure with
 suitable handlers for that CPU.  For example, `lib/cpus/aarch64/cortex_a53.S`
@@ -1161,15 +1162,15 @@ During the BL31 initialization sequence, the pointer to the matching `cpu_ops`
 entry is stored in per-CPU data by `init_cpu_ops()` so that it can be quickly
 retrieved during power down sequences.
 
-The PSCI service, upon receiving a power down request, determines the highest
-power level at which to execute power down sequence for a particular CPU and
-invokes the corresponding 'prepare' power down handler in the CPU specific
-operations framework. For example, when a CPU executes a power down for power
-level 0, the `prepare_core_pwr_dwn()` retrieves the `cpu_ops` pointer from the
-per-CPU data and the corresponding `core_pwr_dwn()` is invoked. Similarly when
-a CPU executes power down at power level 1, the `prepare_cluster_pwr_dwn()`
-retrieves the `cpu_ops` pointer and the corresponding `cluster_pwr_dwn()` is
-invoked.
+Various CPU drivers register handlers to perform power down at certain power
+levels for that specific CPU. The PSCI service, upon receiving a power down
+request, determines the highest power level at which to execute power down
+sequence for a particular CPU. It uses the `prepare_cpu_pwr_dwn()` function to
+pick the right power down handler for the requested level. The function
+retrieves `cpu_ops` pointer member of per-CPU data, and from that, further
+retrieves `cpu_pwr_down_ops` array, and indexes into the required level. If the
+requested power level is higher than what a CPU driver supports, the handler
+registered for highest level is invoked.
 
 At runtime the platform hooks for power down are invoked by the PSCI service to
 perform platform specific operations during a power down sequence, for example

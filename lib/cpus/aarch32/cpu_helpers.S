@@ -70,50 +70,39 @@ endfunc reset_handler
 
 #if IMAGE_BL32 /* The power down core and cluster is needed only in  BL32 */
 	/*
-	 * The prepare core power down function for all platforms.  After
-	 * the cpu_ops pointer is retrieved from cpu_data, the corresponding
-	 * pwr_dwn_core in the cpu_ops is invoked. Follows AAPCS.
+	 * void prepare_cpu_pwr_dwn(unsigned int power_level)
+	 *
+	 * Prepare CPU power down function for all platforms. The function takes
+	 * a domain level to be powered down as its parameter. After the cpu_ops
+	 * pointer is retrieved from cpu_data, the handler for requested power
+	 * level is called.
 	 */
-	.globl	prepare_core_pwr_dwn
-func prepare_core_pwr_dwn
-	/* r12 is pushed to meet the 8 byte stack alignment requirement */
-	push	{r12, lr}
-	bl	_cpu_data
-	pop	{r12, lr}
-
-	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
-#if ASM_ASSERTION
-	cmp	r1, #0
-	ASM_ASSERT(ne)
-#endif
-
-	/* Get the cpu_ops core_pwr_dwn handler */
-	ldr	r0, [r1, #CPU_PWR_DWN_CORE]
-	bx	r0
-endfunc prepare_core_pwr_dwn
-
+	.globl	prepare_cpu_pwr_dwn
+func prepare_cpu_pwr_dwn
 	/*
-	 * The prepare cluster power down function for all platforms.  After
-	 * the cpu_ops pointer is retrieved from cpu_data, the corresponding
-	 * pwr_dwn_cluster in the cpu_ops is invoked. Follows AAPCS.
+	 * If the given power level exceeds CPU_MAX_PWR_DWN_OPS, we call the
+	 * power down handler for the last power level
 	 */
-	.globl	prepare_cluster_pwr_dwn
-func prepare_cluster_pwr_dwn
-	/* r12 is pushed to meet the 8 byte stack alignment requirement */
-	push	{r12, lr}
-	bl	_cpu_data
-	pop	{r12, lr}
+	mov	r2, #(CPU_MAX_PWR_DWN_OPS - 1)
+	cmp	r0, r2
+	movhi	r0, r2
 
-	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
+	push	{r0, lr}
+	bl	_cpu_data
+	pop	{r2, lr}
+
+	ldr	r0, [r0, #CPU_DATA_CPU_OPS_PTR]
 #if ASM_ASSERTION
-	cmp	r1, #0
+	cmp	r0, #0
 	ASM_ASSERT(ne)
 #endif
 
-	/* Get the cpu_ops cluster_pwr_dwn handler */
-	ldr	r0, [r1, #CPU_PWR_DWN_CLUSTER]
-	bx	r0
-endfunc prepare_cluster_pwr_dwn
+	/* Get the appropriate power down handler */
+	mov	r1, #CPU_PWR_DWN_OPS
+	add	r1, r1, r2, lsl #2
+	ldr	r1, [r0, r1]
+	bx	r1
+endfunc prepare_cpu_pwr_dwn
 
 	/*
 	 * Initializes the cpu_ops_ptr if not already initialized

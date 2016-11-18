@@ -35,6 +35,15 @@
 #define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
 				(MIDR_PN_MASK << MIDR_PN_SHIFT)
 
+/* The number of CPU operations allowed */
+#define CPU_MAX_PWR_DWN_OPS		2
+
+/* Special constant to specify that CPU has no reset function */
+#define CPU_NO_RESET_FUNC		0
+
+/* Word size for 32-bit CPUs */
+#define CPU_WORD_SIZE			4
+
 	/*
 	 * Define the offsets to the fields in cpu_ops structure.
 	 */
@@ -47,33 +56,86 @@ CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  4
 #endif
 #if IMAGE_BL32 /* The power down core and cluster is needed only in BL32 */
-CPU_PWR_DWN_CORE: /* cpu_ops core_pwr_dwn */
-	.space  4
-CPU_PWR_DWN_CLUSTER: /* cpu_ops cluster_pwr_dwn */
-	.space  4
+CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
+	.space  (4 * CPU_MAX_PWR_DWN_OPS)
 #endif
 CPU_OPS_SIZE = .
 
 	/*
-	 * Convenience macro to declare cpu_ops structure.
-	 * Make sure the structure fields are as per the offsets
-	 * defined above.
+	 * Write given expressions as words
+	 *
+	 * _count:
+	 *	Write at least _count words. If the given number of expressions
+	 *	is less than _count, repeat the last expression to fill _count
+	 *	words in total
+	 * _rest:
+	 *	Optional list of expressions. _this is for parameter extraction
+	 *	only, and has no significance to the caller
+	 *
+	 * Invoked as:
+	 *	fill_constants 2, foo, bar, blah, ...
 	 */
-	.macro declare_cpu_ops _name:req, _midr:req, _noresetfunc = 0
+	.macro fill_constants _count:req, _this, _rest:vararg
+	  .ifgt \_count
+	    /* Write the current expression */
+	    .ifb \_this
+	      .error "Nothing to fill"
+	    .endif
+	    .word \_this
+
+	    /* Invoke recursively for remaining expressions */
+	    .ifnb \_rest
+	      fill_constants \_count-1, \_rest
+	    .else
+	      fill_constants \_count-1, \_this
+	    .endif
+	  .endif
+	.endm
+
+	/*
+	 * Declare CPU operations
+	 *
+	 * _name:
+	 *	Name of the CPU for which operations are being specified
+	 * _midr:
+	 *	Numeric value expected to read from CPU's MIDR
+	 * _resetfunc:
+	 *	Reset function for the CPU. If there's no CPU reset function,
+	 *	specify CPU_NO_RESET_FUNC
+	 * _power_down_ops:
+	 *	Comma-separated list of functions to perform power-down
+	 *	operatios on the CPU. At least one, and up to
+	 *	CPU_MAX_PWR_DWN_OPS number of functions may be specified.
+	 *	Starting at power level 0, these functions shall handle power
+	 *	down at subsequent power levels. If there aren't exactly
+	 *	CPU_MAX_PWR_DWN_OPS functions, the last specified one will be
+	 *	used to handle power down at subsequent levels
+	 */
+	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
+		_power_down_ops:vararg
 	.section cpu_ops, "a"
 	.align 2
 	.type cpu_ops_\_name, %object
 	.word \_midr
 #if IMAGE_BL1 || IMAGE_BL32
-	.if \_noresetfunc
-	.word 0
-	.else
-	.word \_name\()_reset_func
-	.endif
+	.word \_resetfunc
 #endif
 #if IMAGE_BL32
-	.word \_name\()_core_pwr_dwn
-	.word \_name\()_cluster_pwr_dwn
+1:
+	/* Insert list of functions */
+	fill_constants CPU_MAX_PWR_DWN_OPS, \_power_down_ops
+2:
+	/*
+	 * Error if no or more than CPU_MAX_PWR_DWN_OPS were specified in the
+	 * list
+	 */
+	.ifeq 2b - 1b
+	  .error "At least one power down function must be specified"
+	.else
+	  .iflt 2b - 1b - (CPU_MAX_PWR_DWN_OPS * CPU_WORD_SIZE)
+	    .error "More than CPU_MAX_PWR_DWN_OPS functions specified"
+	  .endif
+	.endif
 #endif
 	.endm
 
