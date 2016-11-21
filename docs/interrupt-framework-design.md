@@ -335,9 +335,9 @@ during the registration of a handler for an interrupt type.
 This component declares the following prototype for a handler of an interrupt type.
 
         typedef uint64_t (*interrupt_type_handler_t)(uint32_t id,
-					     uint32_t flags,
-					     void *handle,
-					     void *cookie);
+                                                     uint32_t flags,
+                                                     void *handle,
+                                                     void *cookie);
 
 The `id` is parameter is reserved and could be used in the future for passing
 the interrupt id of the highest pending interrupt only if there is a foolproof
@@ -358,10 +358,16 @@ The `handle` parameter points to the `cpu_context` structure of the current CPU
 for the security state specified in the `flags` parameter.
 
 Once the handler routine completes, execution will return to either the secure
-or non-secure state. The handler routine should return a pointer to
-`cpu_context` structure of the current CPU for the target security state. It
-should treat all error conditions as critical errors and take appropriate action
-within its implementation e.g. use assertion failures.
+or non-secure state. The handler routine must return a pointer to
+`cpu_context` structure of the current CPU for the target security state. On
+AArch64, this return value is currently ignored by the caller as the
+appropriate `cpu_context` to be used is expected to be set by the handler
+via the context management library APIs.
+A portable interrupt handler implementation must set the target context both in
+the structure pointed to by the returned pointer and via the context management
+library APIs. The handler should treat all error conditions as critical errors
+and take appropriate action within its implementation e.g. use assertion
+failures.
 
 The runtime firmware provides the following API for registering a handler for a
 particular type of interrupt. A Secure Payload Dispatcher service should use
@@ -370,8 +376,8 @@ interrupts. This API also requires the caller to specify the routing model for
 the type of interrupt.
 
     int32_t register_interrupt_type_handler(uint32_t type,
-					interrupt_type_handler handler,
-					uint64_t flags);
+                                            interrupt_type_handler handler,
+                                            uint64_t flags);
 
 
 The `type` parameter can be one of the three interrupt types listed above i.e.
@@ -962,13 +968,13 @@ as the resume SMC FID. It is important to note that `TSP_FID_RESUME` is a
 secure software sequence for issuing a `standard` SMC would look like this,
 assuming `P.STATE.I=0` in the non secure state :
 
-	int rc;
-	rc = smc(TSP_STD_SMC_FID, ...); 	/* Issue a Standard SMC call */
-        /* The pending non-secure interrupt is handled by the interrupt handler
-           and returns back here. */
-	while (rc == SMC_PREEMPTED) {		/* Check if the SMC call is preempted */
-	    rc = smc(TSP_FID_RESUME);		/* Issue resume SMC call */
-	}
+    int rc;
+    rc = smc(TSP_STD_SMC_FID, ...);     /* Issue a Standard SMC call */
+    /* The pending non-secure interrupt is handled by the interrupt handler
+       and returns back here. */
+    while (rc == SMC_PREEMPTED) {       /* Check if the SMC call is preempted */
+        rc = smc(TSP_FID_RESUME);       /* Issue resume SMC call */
+    }
 
 The `TSP_STD_SMC_FID` is any `standard` SMC function identifier and the smc()
 function invokes a SMC call with the required arguments. The pending non-secure
