@@ -311,9 +311,15 @@
  * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.
  ******************************************************************************/
 #define BL2U_BASE			BL2_BASE
-#if ARM_BL31_IN_DRAM
+#if ARM_BL31_IN_DRAM || defined(AARCH32)
+/*
+ * For AArch32 BL31 is not applicable.
+ * For AArch64 BL31 is loaded in the DRAM.
+ * BL2U extends up to BL1.
+ */
 #define BL2U_LIMIT			BL1_RW_BASE
 #else
+/* BL2U extends up to BL31. */
 #define BL2U_LIMIT			BL31_BASE
 #endif
 #define NS_BL2U_BASE			ARM_NS_DRAM1_BASE

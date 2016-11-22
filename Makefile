@@ -396,13 +396,13 @@ NEED_BL2 := yes
 include bl2/bl2.mk
 endif
 
-# For AArch32, BL31 is not applicable, and BL2U is not supported at present.
-ifneq (${ARCH},aarch32)
 ifdef BL2U_SOURCES
 NEED_BL2U := yes
 include bl2u/bl2u.mk
 endif
 
+# For AArch32, BL31 is not currently supported.
+ifneq (${ARCH},aarch32)
 ifdef BL31_SOURCES
 # When booting an EL3 payload, there is no need to compile the BL31 image nor
 # put it in the FIP.

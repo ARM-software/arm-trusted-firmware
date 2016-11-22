@@ -42,6 +42,15 @@ void bl2u_main(void)
 
 	console_flush();
 
+#ifdef AARCH32
+	/*
+	 * For AArch32 state BL1 and BL2U share the MMU setup.
+	 * Given that BL2U does not map BL1 regions, MMU needs
+	 * to be disabled in order to go back to BL1.
+	 */
+	disable_mmu_icache_secure();
+#endif /* AARCH32 */
+
 	/*
 	 * Indicate that BL2U is done and resume back to
 	 * normal world via an SMC to BL1.
