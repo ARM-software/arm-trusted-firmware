@@ -58,11 +58,12 @@ endif
 # State-ID encoding to be parsed.
 ARM_RECOM_STATE_ID_ENC := 0
 
-# If the PSCI_EXTENDED_STATE_ID is set, then the recommended state ID need to
-# be used. Else throw a build error.
+# If the PSCI_EXTENDED_STATE_ID is set, then ARM_RECOM_STATE_ID_ENC need to
+# be set. Else throw a build error.
 ifeq (${PSCI_EXTENDED_STATE_ID}, 1)
   ifeq (${ARM_RECOM_STATE_ID_ENC}, 0)
-    $(error "Incompatible STATE_ID build option specified")
+    $(error Build option ARM_RECOM_STATE_ID_ENC needs to be set if \
+            PSCI_EXTENDED_STATE_ID is set for ARM platforms)
   endif
 endif
 
