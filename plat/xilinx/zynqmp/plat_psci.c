@@ -270,7 +270,8 @@ static void __dead2 zynqmp_system_off(void)
 	plat_arm_interconnect_exit_coherency();
 
 	/* Send the power down request to the PMU */
-	pm_system_shutdown(0);
+	pm_system_shutdown(PMF_SHUTDOWN_TYPE_SHUTDOWN,
+			   PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM);
 
 	while (1)
 		wfi();
@@ -304,7 +305,8 @@ static void __dead2 zynqmp_system_reset(void)
 	plat_arm_interconnect_exit_coherency();
 
 	/* Send the system reset request to the PMU */
-	pm_system_shutdown(1);
+	pm_system_shutdown(PMF_SHUTDOWN_TYPE_RESET,
+			   PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM);
 
 	while (1)
 		wfi();

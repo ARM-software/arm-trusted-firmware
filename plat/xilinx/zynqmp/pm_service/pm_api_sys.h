@@ -61,7 +61,7 @@ enum pm_ret_status pm_set_wakeup_source(enum pm_node_id target,
 					enum pm_node_id wkup_node,
 					unsigned int enable);
 
-enum pm_ret_status pm_system_shutdown(unsigned int restart);
+enum pm_ret_status pm_system_shutdown(unsigned int type, unsigned int subtype);
 
 enum pm_ret_status pm_init_suspend_cb(enum pm_suspend_reason reason,
 				      unsigned int latency,
@@ -114,5 +114,8 @@ enum pm_ret_status pm_fpga_load(uint32_t address_high,
 				uint32_t size,
 				uint32_t flags);
 enum pm_ret_status pm_fpga_get_status(unsigned int *value);
+
+enum pm_ret_status pm_get_chipid(uint32_t *value);
+void pm_get_callbackdata(uint32_t *data, size_t count);
 
 #endif /* _PM_API_SYS_H_ */

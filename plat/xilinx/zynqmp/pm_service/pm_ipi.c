@@ -56,6 +56,8 @@
 #define IPI_BUFFER_TARGET_PL_3_OFFSET	0x180U
 #define IPI_BUFFER_TARGET_PMU_OFFSET	0x1C0U
 
+#define IPI_BUFFER_MAX_WORDS	8
+
 #define IPI_BUFFER_REQ_OFFSET	0x0U
 #define IPI_BUFFER_RESP_OFFSET	0x20U
 
@@ -96,7 +98,6 @@ const struct pm_ipi apu_ipi = {
  *		Any other return value will cause the framework to ignore
  *		the service
  *
- * Enable interrupts at registered entrance in IPI peripheral
  * Called from pm_setup initialization function
  */
 int pm_ipi_init(void)
@@ -188,13 +189,15 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 /**
  * pm_ipi_buff_read() - Reads IPI response after PMU has handled interrupt
  * @proc	Pointer to the processor who is waiting and reading response
- * @value	Used to return value from 2nd IPI buffer element (optional)
+ * @value	Used to return value from IPI buffer element (optional)
+ * @count	Number of values to return in @value
  *
  * @return	Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
-					   unsigned int *value)
+					   unsigned int *value, size_t count)
 {
+	size_t i;
 	uintptr_t buffer_base = proc->ipi->buffer_base +
 				IPI_BUFFER_TARGET_PMU_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
@@ -208,17 +211,43 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 	 * buf-2: unused
 	 * buf-3: unused
 	 */
-	if (value != NULL)
-		*value = mmio_read_32(buffer_base + PAYLOAD_ARG_SIZE);
+	for (i = 1; i <= count; i++) {
+		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
+		value++;
+	}
 
 	return mmio_read_32(buffer_base);
+}
+
+/**
+ * pm_ipi_buff_read_callb() - Reads IPI response after PMU has handled interrupt
+ * @value	Used to return value from IPI buffer element (optional)
+ * @count	Number of values to return in @value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+void pm_ipi_buff_read_callb(unsigned int *value, size_t count)
+{
+	size_t i;
+	uintptr_t buffer_base = IPI_BUFFER_PMU_BASE +
+				IPI_BUFFER_TARGET_APU_OFFSET +
+				IPI_BUFFER_REQ_OFFSET;
+
+	if (count > IPI_BUFFER_MAX_WORDS)
+		count = IPI_BUFFER_MAX_WORDS;
+
+	for (i = 0; i <= count; i++) {
+		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
+		value++;
+	}
 }
 
 /**
  * pm_ipi_send_sync() - Sends IPI request to the PMU
  * @proc	Pointer to the processor who is initiating request
  * @payload	API id and call arguments to be written in IPI buffer
- * @value	Used to return value from 2nd IPI buffer element (optional)
+ * @value	Used to return value from IPI buffer element (optional)
+ * @count	Number of values to return in @value
  *
  * Send an IPI request to the power controller and wait for it to be handled.
  *
@@ -227,7 +256,7 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
  */
 enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 				    uint32_t payload[PAYLOAD_ARG_CNT],
-				    unsigned int *value)
+				    unsigned int *value, size_t count)
 {
 	enum pm_ret_status ret;
 
@@ -237,10 +266,25 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 	if (ret != PM_RET_SUCCESS)
 		goto unlock;
 
-	ret = pm_ipi_buff_read(proc, value);
+	ret = pm_ipi_buff_read(proc, value, count);
 
 unlock:
 	bakery_lock_release(&pm_secure_lock);
 
 	return ret;
+}
+
+void pm_ipi_irq_enable(void)
+{
+	mmio_write_32(IPI_APU_IER, IPI_APU_IXR_PMU_0_MASK);
+}
+
+void pm_ipi_irq_disable(void)
+{
+	mmio_write_32(IPI_APU_IDR, IPI_APU_IXR_PMU_0_MASK);
+}
+
+void pm_ipi_irq_clear(void)
+{
+	mmio_write_32(IPI_APU_ISR, IPI_APU_IXR_PMU_0_MASK);
 }
