@@ -229,7 +229,7 @@ static uint64_t trusty_smc_handler(uint32_t smc_fid,
 
 static int32_t trusty_init(void)
 {
-	void el3_exit();
+	void el3_exit(void);
 	entry_point_info_t *ep_info;
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
 	uint32_t cpu = plat_my_core_pos();
@@ -270,24 +270,22 @@ static int32_t trusty_init(void)
 static void trusty_cpu_suspend(void)
 {
 	struct args ret;
-	unsigned int linear_id = plat_my_core_pos();
 
 	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_SUSPEND, 0, 0, 0);
 	if (ret.r0 != 0) {
 		INFO("%s: cpu %d, SMC_FC_CPU_SUSPEND returned unexpected value, %ld\n",
-		     __func__, linear_id, ret.r0);
+		     __func__, plat_my_core_pos(), ret.r0);
 	}
 }
 
 static void trusty_cpu_resume(void)
 {
 	struct args ret;
-	unsigned int linear_id = plat_my_core_pos();
 
 	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_RESUME, 0, 0, 0);
 	if (ret.r0 != 0) {
 		INFO("%s: cpu %d, SMC_FC_CPU_RESUME returned unexpected value, %ld\n",
-		     __func__, linear_id, ret.r0);
+		     __func__, plat_my_core_pos(), ret.r0);
 	}
 }
 
