@@ -12,6 +12,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
+#include <cortex_a57.h>
 #include <denver.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/psci/psci.h>
@@ -282,6 +283,22 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	int stateid_afflvl2 = target_state->pwr_domain_state[PLAT_MAX_PWR_LVL];
 	int stateid_afflvl0 = target_state->pwr_domain_state[MPIDR_AFFLVL0];
 	mce_cstate_info_t cstate_info = { 0 };
+	uint64_t impl, val;
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+
+	impl = (read_midr() >> MIDR_IMPL_SHIFT) & (uint64_t)MIDR_IMPL_MASK;
+
+	/*
+	 * Enable ECC and Parity Protection for Cortex-A57 CPUs (Tegra186
+	 * A02p and beyond).
+	 */
+	if ((plat_params->l2_ecc_parity_prot_dis != 1) &&
+	    (impl != (uint64_t)DENVER_IMPL)) {
+
+		val = read_l2ctlr_el1();
+		val |= (uint64_t)CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
+		write_l2ctlr_el1(val);
+	}
 
 	/*
 	 * Reset power state info for CPUs when onlining, we set

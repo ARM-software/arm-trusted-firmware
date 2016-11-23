@@ -45,7 +45,6 @@
 	.globl	ns_image_entrypoint
 	.globl	tegra_bl31_phys_base
 	.globl	tegra_console_base
-	.globl	tegra_enable_l2_ecc_parity_prot
 
 	/* ---------------------
 	 * Common CPU init code
@@ -90,20 +89,6 @@
 	mov	x0, #ACTLR_EL3_ENABLE_ALL_ACCESS
 	msr	actlr_el3, x0
 	msr	actlr_el2, x0
-	isb
-
-	/* -------------------------------------------------------
-	 * Enable L2 ECC and Parity Protection
-	 * -------------------------------------------------------
-	 */
-	adr	x0, tegra_enable_l2_ecc_parity_prot
-	ldr	x0, [x0]
-	cbz	x0, 1f
-	mrs	x0, CORTEX_A57_L2CTLR_EL1
-	and	x1, x0, #CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT
-	cbnz	x1, 1f
-	orr	x0, x0, #CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT
-	msr	CORTEX_A57_L2CTLR_EL1, x0
 	isb
 
 	/* --------------------------------
@@ -459,11 +444,4 @@ tegra_bl31_phys_base:
 	 * --------------------------------------------------
 	 */
 tegra_console_base:
-	.quad	0
-
-	/* --------------------------------------------------
-	 * Enable L2 ECC and Parity Protection
-	 * --------------------------------------------------
-	 */
-tegra_enable_l2_ecc_parity_prot:
 	.quad	0

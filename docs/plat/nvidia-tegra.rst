@@ -80,6 +80,8 @@ uint64\_t tzdram\_size;
 uint64\_t tzdram\_base;
 /* UART port ID \*/
 int uart\_id;
+/* L2 ECC parity protection disable flag \*/
+int l2\_ecc\_parity\_prot\_dis;
 } plat\_params\_from\_bl2\_t;
 
 Power Management

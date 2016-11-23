@@ -27,9 +27,6 @@
 #include <tegra_platform.h>
 #include <tegra_private.h>
 
-DEFINE_RENAME_SYSREG_RW_FUNCS(l2ctlr_el1, CORTEX_A57_L2CTLR_EL1)
-extern uint64_t tegra_enable_l2_ecc_parity_prot;
-
 /*******************************************************************************
  * Tegra186 CPU numbers in cluster #0
  *******************************************************************************
@@ -152,48 +149,29 @@ uint32_t plat_get_console_from_id(int id)
 	return tegra186_uart_addresses[id];
 }
 
-/* represent chip-version as concatenation of major (15:12), minor (11:8) and subrev (7:0) */
-#define TEGRA186_VER_A02P	0x1201
-
 /*******************************************************************************
  * Handler for early platform setup
  ******************************************************************************/
 void plat_early_platform_setup(void)
 {
-	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
-	uint32_t chip_subrev, val;
+	uint64_t impl, val;
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 
+	impl = (read_midr() >> MIDR_IMPL_SHIFT) & (uint64_t)MIDR_IMPL_MASK;
+
 	/*
-	 * Enable ECC and Parity Protection for Cortex-A57 CPUs
-	 * for Tegra A02p SKUs
+	 * Enable ECC and Parity Protection for Cortex-A57 CPUs (Tegra186
+	 * A02p and beyond).
 	 */
-	if (impl != DENVER_IMPL) {
+	if ((plat_params->l2_ecc_parity_prot_dis != 1) &&
+	    (impl != (uint64_t)DENVER_IMPL)) {
 
-		/* get the major, minor and sub-version values */
-		chip_subrev = mmio_read_32(TEGRA_FUSE_BASE + OPT_SUBREVISION) &
-			      SUBREVISION_MASK;
-
-		/* prepare chip version number */
-		val = (tegra_get_chipid_major() << 12) |
-		      (tegra_get_chipid_minor() << 8) |
-		       chip_subrev;
-
-		/* enable L2 ECC for Tegra186 A02P and beyond */
-		if (val >= TEGRA186_VER_A02P) {
-
-			val = read_l2ctlr_el1();
-			val |= CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
-			write_l2ctlr_el1(val);
-
-			/*
-			 * Set the flag to enable ECC/Parity Protection
-			 * when we exit System Suspend or Cluster Powerdn
-			 */
-			tegra_enable_l2_ecc_parity_prot = 1;
-		}
+		val = read_l2ctlr_el1();
+		val |= (uint64_t)CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
+		write_l2ctlr_el1(val);
 	}
 }
 

@@ -32,7 +32,14 @@ typedef struct plat_params_from_bl2 {
 	uint64_t tzdram_base;
 	/* UART port ID */
 	int uart_id;
+	/* L2 ECC parity protection disable flag */
+	int l2_ecc_parity_prot_dis;
 } plat_params_from_bl2_t;
+
+/*******************************************************************************
+ * Helper function to access l2ctlr_el1 register on Cortex-A57 CPUs
+ ******************************************************************************/
+DEFINE_RENAME_SYSREG_RW_FUNCS(l2ctlr_el1, CORTEX_A57_L2CTLR_EL1)
 
 /*******************************************************************************
  * Struct describing parameters passed to bl31
