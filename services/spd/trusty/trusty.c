@@ -229,7 +229,7 @@ static uint64_t trusty_smc_handler(uint32_t smc_fid,
 
 static int32_t trusty_init(void)
 {
-	void el3_exit();
+	void el3_exit(void);
 	entry_point_info_t *ep_info;
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
 	uint32_t cpu = plat_my_core_pos();
