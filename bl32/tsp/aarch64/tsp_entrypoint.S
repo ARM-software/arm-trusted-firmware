@@ -180,6 +180,7 @@ func tsp_vector_table
 	b	tsp_sel1_intr_entry
 	b	tsp_system_off_entry
 	b	tsp_system_reset_entry
+	b	tsp_abort_std_smc_entry
 endfunc tsp_vector_table
 
 	/*---------------------------------------------
@@ -441,3 +442,30 @@ func tsp_std_smc_entry
 	/* Should never reach here */
 	no_ret	plat_panic_handler
 endfunc tsp_std_smc_entry
+
+	/*---------------------------------------------------------------------
+	 * This entrypoint is used by the TSPD to abort a pre-empted Standard
+	 * SMC. It could be on behalf of non-secure world or because a CPU
+	 * suspend/CPU off request needs to abort the preempted SMC.
+	 * --------------------------------------------------------------------
+	 */
+func tsp_abort_std_smc_entry
+
+	/*
+	 * Exceptions masking is already done by the TSPD when entering this
+	 * hook so there is no need to do it here.
+	 */
+
+	/* Reset the stack used by the pre-empted SMC */
+	bl	plat_set_my_stack
+
+	/*
+	 * Allow some cleanup such as releasing locks.
+	 */
+	bl	tsp_abort_smc_handler
+
+	restore_args_call_smc
+
+	/* Should never reach here */
+	bl	plat_panic_handler
+endfunc tsp_abort_std_smc_entry

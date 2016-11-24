@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -58,6 +58,12 @@ static int32_t tspd_cpu_off_handler(uint64_t unused)
 	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
+	/*
+	 * Abort any preempted SMC request before overwriting the SECURE
+	 * context.
+	 */
+	tspd_abort_preempted_smc(tsp_ctx);
+
 	/* Program the entry point and enter the TSP */
 	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_off_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
@@ -75,7 +81,7 @@ static int32_t tspd_cpu_off_handler(uint64_t unused)
 	 */
 	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_OFF);
 
-	 return 0;
+	return 0;
 }
 
 /*******************************************************************************
@@ -91,6 +97,12 @@ static void tspd_cpu_suspend_handler(uint64_t max_off_pwrlvl)
 	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
+	/*
+	 * Abort any preempted SMC request before overwriting the SECURE
+	 * context.
+	 */
+	tspd_abort_preempted_smc(tsp_ctx);
+
 	/* Program the entry point and enter the TSP */
 	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->cpu_suspend_entry);
 	rc = tspd_synchronous_sp_entry(tsp_ctx);
@@ -99,7 +111,7 @@ static void tspd_cpu_suspend_handler(uint64_t max_off_pwrlvl)
 	 * Read the response from the TSP. A non-zero return means that
 	 * something went wrong while communicating with the TSP.
 	 */
-	if (rc != 0)
+	if (rc)
 		panic();
 
 	/* Update its context to reflect the state the TSP is in */
@@ -108,7 +120,7 @@ static void tspd_cpu_suspend_handler(uint64_t max_off_pwrlvl)
 
 /*******************************************************************************
  * This cpu has been turned on. Enter the TSP to initialise S-EL1 and other bits
- * before passing control back to the Secure Monitor. Entry in S-El1 is done
+ * before passing control back to the Secure Monitor. Entry in S-EL1 is done
  * after initialising minimal architectural state that guarantees safe
  * execution.
  ******************************************************************************/
@@ -205,6 +217,12 @@ static void tspd_system_off(void)
 	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
+	/*
+	 * Abort any preempted SMC request before overwriting the SECURE
+	 * context.
+	 */
+	tspd_abort_preempted_smc(tsp_ctx);
+
 	/* Program the entry point */
 	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->system_off_entry);
 
@@ -225,11 +243,19 @@ static void tspd_system_reset(void)
 	assert(tsp_vectors);
 	assert(get_tsp_pstate(tsp_ctx->state) == TSP_PSTATE_ON);
 
+	/*
+	 * Abort any preempted SMC request before overwriting the SECURE
+	 * context.
+	 */
+	tspd_abort_preempted_smc(tsp_ctx);
+
 	/* Program the entry point */
 	cm_set_elr_el3(SECURE, (uint64_t) &tsp_vectors->system_reset_entry);
 
-	/* Enter the TSP. We do not care about the return value because we
-	 * must continue the reset anyway */
+	/*
+	 * Enter the TSP. We do not care about the return value because we
+	 * must continue the reset anyway
+	 */
 	tspd_synchronous_sp_entry(tsp_ctx);
 }
 

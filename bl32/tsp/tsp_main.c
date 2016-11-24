@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -416,3 +416,20 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 			    0, 0, 0, 0);
 }
 
+/*******************************************************************************
+ * TSP smc abort handler. This function is called when aborting a preemtped
+ * standard SMC request. It should cleanup all resources owned by the SMC
+ * handler such as locks or dynamically allocated memory so following SMC
+ * request are executed in a clean environment.
+ ******************************************************************************/
+tsp_args_t *tsp_abort_smc_handler(uint64_t func,
+				  uint64_t arg1,
+				  uint64_t arg2,
+				  uint64_t arg3,
+				  uint64_t arg4,
+				  uint64_t arg5,
+				  uint64_t arg6,
+				  uint64_t arg7)
+{
+	return set_smc_args(TSP_ABORT_DONE, 0, 0, 0, 0, 0, 0, 0);
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -459,6 +459,11 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 */
 		tspd_synchronous_sp_exit(tsp_ctx, x1);
 #endif
+	/*
+	 * This function ID is used only by the SP to indicate it has finished
+	 * aborting a preempted Standard SMC request.
+	 */
+	case TSP_ABORT_DONE:
 
 	/*
 	 * These function IDs are used only by the SP to indicate it has
@@ -594,6 +599,26 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 
 			SMC_RET3(ns_cpu_context, x1, x2, x3);
 		}
+
+		break;
+	/*
+	 * Request from the non-secure world to abort a preempted Standard SMC
+	 * call.
+	 */
+	case TSP_FID_ABORT:
+		/* ABORT should only be invoked by normal world */
+		if (!ns) {
+			assert(0);
+			break;
+		}
+
+		/* Abort the preempted SMC request */
+		if (!tspd_abort_preempted_smc(tsp_ctx))
+			/*
+			 * If there was no preempted SMC to abort, return
+			 * SMC_UNK.
+			 */
+			SMC_RET1(handle, SMC_UNK);
 
 		break;
 
