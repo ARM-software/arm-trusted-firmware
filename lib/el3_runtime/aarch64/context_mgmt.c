@@ -269,6 +269,18 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 */
 			write_mdcr_el2((read_pmcr_el0() & PMCR_EL0_N_BITS)
 					>> PMCR_EL0_N_SHIFT);
+			/*
+			 * Avoid unexpected traps of non-secure access to
+			 * certain system registers at EL1 or lower where
+			 * HSTR_EL2 is not completely reset to zero by the
+			 * hardware - zero the entire register.
+			 */
+			write_hstr_el2(0);
+			/*
+			 * Reset CNTHP_CTL_EL2 to disable the EL2 physical timer
+			 * and therefore prevent timer interrupts.
+			 */
+			write_cnthp_ctl_el2(0);
 		}
 	}
 

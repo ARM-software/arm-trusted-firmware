@@ -67,14 +67,6 @@
 	orr	r0, r0, #SCR_SIF_BIT
 	stcopr	r0, SCR
 
-	/* -----------------------------------------------------------------
-	 * Reset those registers that may have architecturally unknown reset
-	 * values
-	 * -----------------------------------------------------------------
-	 */
-	mov	r0, #0
-	stcopr	r0, SDCR
-
 	/* -----------------------------------------------------
 	 * Enable the Asynchronous data abort now that the
 	 * exception vectors have been setup.
