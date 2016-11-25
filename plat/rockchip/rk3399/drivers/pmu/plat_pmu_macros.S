@@ -32,9 +32,11 @@
 	.globl	clst_warmboot_data
 
 	.macro sram_func _name
+	.cfi_sections .debug_frame
 	.section .sram.text, "ax"
 	.type \_name, %function
 	.func \_name
+	.cfi_startproc
 	\_name:
 	.endm
 
