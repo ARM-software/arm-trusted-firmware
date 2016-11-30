@@ -236,7 +236,12 @@ static int32_t trusty_init(void)
 	int reg_width = GET_RW(read_ctx_reg(get_el3state_ctx(&ctx->cpu_ctx),
 			       CTX_SPSR_EL3));
 
+	/*
+	 * Get information about the Trusty image. Its absence is a critical
+	 * failure.
+	 */
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
+	assert(ep_info);
 
 	cm_el1_sysregs_context_save(NON_SECURE);
 
