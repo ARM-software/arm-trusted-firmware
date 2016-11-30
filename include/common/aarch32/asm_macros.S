@@ -102,4 +102,26 @@
 	ldr r0, =(\_name + \_size)
 	.endm
 
+	/*
+	 * Macro to mark instances where we're jumping to a function and don't
+	 * expect a return. To provide the function being jumped to with
+	 * additional information, we use 'bl' instruction to jump rather than
+	 * 'b'.
+         *
+	 * Debuggers infer the location of a call from where LR points to, which
+	 * is usually the instruction after 'bl'. If this macro expansion
+	 * happens to be the last location in a function, that'll cause the LR
+	 * to point a location beyond the function, thereby misleading debugger
+	 * back trace. We therefore insert a 'nop' after the function call for
+	 * debug builds, unless 'skip_nop' parameter is non-zero.
+	 */
+	.macro no_ret _func:req, skip_nop=0
+	bl	\_func
+#if DEBUG
+	.ifeq \skip_nop
+	nop
+	.endif
+#endif
+	.endm
+
 #endif /* __ASM_MACROS_S__ */

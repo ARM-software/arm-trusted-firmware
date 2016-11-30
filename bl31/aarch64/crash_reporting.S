@@ -350,17 +350,17 @@ func do_crash_reporting
 	plat_crash_print_regs
 
 	/* Done reporting */
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc do_crash_reporting
 
 #else	/* CRASH_REPORTING */
 func report_unhandled_exception
 report_unhandled_interrupt:
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc report_unhandled_exception
 #endif	/* CRASH_REPORTING */
 
 
 func crash_panic
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc crash_panic

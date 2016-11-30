@@ -140,6 +140,6 @@ func bl2_entrypoint
 	 * Should never reach this point.
 	 * ---------------------------------------------
 	 */
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 
 endfunc bl2_entrypoint

@@ -212,7 +212,7 @@
 		/* This is a cold boot on a secondary CPU */
 		bl	plat_secondary_cold_boot_setup
 		/* plat_secondary_cold_boot_setup() is not supposed to return */
-		bl	plat_panic_handler
+		no_ret	plat_panic_handler
 
 	do_primary_cold_boot:
 	.endif /* _secondary_cold_boot */

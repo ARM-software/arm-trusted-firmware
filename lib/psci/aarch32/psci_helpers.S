@@ -176,5 +176,5 @@ endfunc do_stack_maintenance
 func psci_power_down_wfi
 	dsb	sy		// ensure write buffer empty
 	wfi
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc psci_power_down_wfi

@@ -61,7 +61,7 @@ func plat_secondary_cold_boot_setup
 	 */
 	dsb	sy
 1:
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc plat_secondary_cold_boot_setup
 
 func plat_is_my_cpu_primary

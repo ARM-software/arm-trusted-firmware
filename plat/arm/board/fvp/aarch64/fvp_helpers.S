@@ -111,7 +111,7 @@ secondary_cold_boot_wait:
 	 */
 	dsb	sy
 	wfi
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 #else
 	mov_imm	x0, PLAT_ARM_TRUSTED_MAILBOX_BASE
 
@@ -182,7 +182,7 @@ warm_reset:
 	 * ---------------------------------------------------------------------
 	 */
 _panic_handler:
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc plat_get_my_entrypoint
 
 	/* -----------------------------------------------------
