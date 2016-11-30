@@ -28,38 +28,70 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __RK3399_MCU_H__
-#define __RK3399_MCU_H__
+#include <m0_param.h>
+#include "rk3399_mcu.h"
 
-typedef unsigned int uint32_t;
+/* use 24MHz SysTick */
+#define US_TO_CYCLE(US)	(US * 24)
 
-#define mmio_read_32(c)	({unsigned int __v = \
-				(*(volatile unsigned int *)(c)); __v; })
-#define mmio_write_32(c, v)	((*(volatile unsigned int *)(c)) = (v))
+#define SYST_CST	0xe000e010
+/* enable counter */
+#define ENABLE		(1 << 0)
+/* count down to 0 does not cause SysTick exception to pend */
+#define TICKINT		(1 << 1)
+/* core clock used for SysTick */
+#define CLKSOURCE	(1 << 2)
 
-#define mmio_clrbits_32(addr, clear) \
-		mmio_write_32(addr, (mmio_read_32(addr) & ~(clear)))
-#define mmio_setbits_32(addr, set) \
-		mmio_write_32(addr, (mmio_read_32(addr)) | (set))
-#define mmio_clrsetbits_32(addr, clear, set) \
-		mmio_write_32(addr, (mmio_read_32(addr) & ~(clear)) | (set))
+#define COUNTFLAG	(1 << 16)
+#define SYST_RVR	0xe000e014
+#define MAX_VALUE	0xffffff
+#define MAX_USECS	(MAX_VALUE / US_TO_CYCLE(1))
+#define SYST_CVR	0xe000e018
+#define SYST_CALIB	0xe000e01c
 
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
+unsigned int remaining_usecs;
 
-#define MCU_BASE			0x40000000
-#define PMU_BASE			(MCU_BASE + 0x07310000)
-#define CRU_BASE_ADDR			0x47760000
-#define GRF_BASE_ADDR			0x47770000
-#define PMU_CRU_BASE_ADDR		0x47750000
-#define VOP_LITE_BASE_ADDR		0x478F0000
-#define VOP_BIG_BASE_ADDR		0x47900000
-#define CIC_BASE_ADDR			0x47620000
+static inline void stopwatch_set_usecs(void)
+{
+	unsigned int cycle;
+	unsigned int usecs = MIN(MAX_USECS, remaining_usecs);
 
-void handle_suspend(void);
-void handle_dram(void);
-void stopwatch_init_usecs_expire(unsigned int usecs);
-int stopwatch_expired(void);
-void stopwatch_reset(void);
+	remaining_usecs -= usecs;
+	cycle = US_TO_CYCLE(usecs);
+	mmio_write_32(SYST_RVR, cycle);
+	mmio_write_32(SYST_CVR, 0);
 
-#endif /* __RK3399_MCU_H__ */
+	mmio_write_32(SYST_CST, ENABLE | TICKINT | CLKSOURCE);
+}
+
+void stopwatch_init_usecs_expire(unsigned int usecs)
+{
+	/*
+	 * Enter an inifite loop if the stopwatch is in use. This will allow the
+	 * state to be analyzed with a debugger.
+	 */
+	if (mmio_read_32(SYST_CST) & ENABLE)
+		while (1);
+
+	remaining_usecs = usecs;
+	stopwatch_set_usecs();
+}
+
+int stopwatch_expired(void)
+{
+	int val = mmio_read_32(SYST_CST);
+	if ((val & COUNTFLAG) || !(val & ENABLE)) {
+		if (!remaining_usecs)
+			return 1;
+
+		stopwatch_set_usecs();
+	}
+
+	return 0;
+}
+
+void stopwatch_reset(void)
+{
+	mmio_clrbits_32(SYST_CST, ENABLE);
+	remaining_usecs = 0;
+}
