@@ -86,11 +86,16 @@
 /* VOP */
 #define VOP_SYS_CTRL		0x8
 #define VOP_SYS_CTRL1		0xc
+#define VOP_WIN0_CTRL0		0x30
 #define	VOP_INTR_CLEAR0		0x284
 #define VOP_INTR_RAW_STATUS0	0x28c
 
 /* VOP_SYS_CTRL */
+#define VOP_DMA_STOP_EN		(1 << 21)
 #define VOP_STANDBY_EN		(1 << 22)
+
+/* VOP_WIN0_CTRL0 */
+#define WB_ENABLE		(1 << 0)
 
 /* VOP_INTR_CLEAR0 */
 #define	INT_CLR_DMA_FINISH	(1 << 15)
@@ -107,65 +112,72 @@
 #define CIC_CTRL1		0x4
 #define CIC_STATUS0		0x10
 
-struct ddr_freq_param {
-	uint32_t vop_big_en;
-	uint32_t vop_lit_en;
-	uint32_t dclk0_div;
-	uint32_t dclk1_div;
-};
-
-static struct ddr_freq_param rk3399_ddr_arg;
-
-static void get_vop_status(void)
+static inline int check_dma_status(uint32_t vop_addr, uint32_t *clr_dma_flag)
 {
-	rk3399_ddr_arg.vop_big_en = 0;
-	rk3399_ddr_arg.vop_lit_en = 0;
-
-	if ((mmio_read_32(PMU_BASE + PMU_PWRDN_ST) & PD_VOP_PWR_STAT) == 0) {
-		/* get vop0 status */
-		if ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE10_CON) &
-				  (DCLK_VOP0_SRC_EN | ACLK_VOP0_PRE_SRC_EN |
-				   HCLK_VOP0_PRE_EN)) == 0)
-			if ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE28_CON) &
-					 (HCLK_VOP0_EN | ACLK_VOP0_EN)) == 0)
-				if ((mmio_read_32(VOP_BIG_BASE_ADDR +
-						  VOP_SYS_CTRL) &
-						  VOP_STANDBY_EN) == 0)
-					rk3399_ddr_arg.vop_big_en = 1;
-
-		/* get vop1 satus */
-		if ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE10_CON) &
-				  (DCLK_VOP1_SRC_EN | ACLK_VOP1_PRE_SRC_EN |
-				   HCLK_VOP1_PRE_EN)) == 0)
-			if ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE28_CON) &
-					  (HCLK_VOP1_EN | ACLK_VOP1_EN)) == 0)
-				if ((mmio_read_32(VOP_LITE_BASE_ADDR +
-						  VOP_SYS_CTRL) &
-						  VOP_STANDBY_EN) == 0)
-					rk3399_ddr_arg.vop_lit_en = 1;
+	if (*clr_dma_flag) {
+		mmio_write_32(vop_addr + VOP_INTR_CLEAR0, 0x80008000);
+		*clr_dma_flag = 0;
 	}
+
+	if ((mmio_read_32(vop_addr + VOP_SYS_CTRL) &
+	     (VOP_STANDBY_EN | VOP_DMA_STOP_EN)) ||
+	    !(mmio_read_32(vop_addr + VOP_WIN0_CTRL0) & WB_ENABLE) ||
+	    (mmio_read_32(vop_addr + VOP_INTR_RAW_STATUS0) &
+	    INT_RAW_STATUS_DMA_FINISH))
+		return 1;
+
+	return 0;
 }
 
-static void wait_vop_dma_finish(void)
+static int wait_vop_dma_finish(void)
 {
-	uint32_t vop_adr;
+	uint32_t clr_dma_flag = 1;
+	uint32_t ret = 0;
 
-	get_vop_status();
+	stopwatch_init_usecs_expire(60000);
+	while (((mmio_read_32(PMU_BASE + PMU_PWRDN_ST) &
+		PD_VOP_PWR_STAT) == 0)) {
+		/*
+		 * VOPL case:
+		 * CRU_CLKGATE10_CON(bit10): ACLK_VOP1_PRE_SRC_EN
+		 * CRU_CLKGATE10_CON(bit11): HCLK_VOP1_PRE_EN
+		 * CRU_CLKGATE10_CON(bit13): DCLK_VOP1_SRC_EN
+		 * CRU_CLKGATE28_CON(bit7): ACLK_VOP1_EN
+		 * CRU_CLKGATE28_CON(bit6): HCLK_VOP1_EN
+		 *
+		 * VOPB case:
+		 * CRU_CLKGATE10_CON(bit8): ACLK_VOP0_PRE_SRC_EN
+		 * CRU_CLKGATE10_CON(bit9): HCLK_VOP0_PRE_EN
+		 * CRU_CLKGATE10_CON(bit12): DCLK_VOP0_SRC_EN
+		 * CRU_CLKGATE28_CON(bit3): ACLK_VOP0_EN
+		 * CRU_CLKGATE28_CON(bit2): HCLK_VOP0_EN
+		 */
+		if (((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE10_CON) &
+		      0x2c00) == 0) &&
+		    ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE28_CON) &
+		      0xc0) == 0)) {
+			if (check_dma_status(VOP_LITE_BASE_ADDR, &clr_dma_flag))
+				return;
+		} else if (((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE10_CON) &
+			     0x1300) == 0) &&
+			   ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE28_CON) &
+			     0x0c) == 0)) {
+			if (check_dma_status(VOP_BIG_BASE_ADDR, &clr_dma_flag))
+				return;
+		} else {
+			/* No VOPs are enabled, so don't wait. */
+			return;
+		}
 
-	if (rk3399_ddr_arg.vop_big_en)
-		vop_adr = VOP_BIG_BASE_ADDR;
-	else if (rk3399_ddr_arg.vop_lit_en)
-		vop_adr = VOP_LITE_BASE_ADDR;
-	else
-		return;
+		if (stopwatch_expired()) {
+			ret = 1;
+			goto out;
+		}
+	}
 
-	/* clean dma finish irq and wait for it */
-	mmio_write_32(vop_adr + VOP_INTR_CLEAR0,
-		      INT_CLR_DMA_FINISH | (INT_CLR_DMA_FINISH << 16));
-
-	while ((mmio_read_32(vop_adr + VOP_INTR_RAW_STATUS0) &
-		INT_RAW_STATUS_DMA_FINISH) == 0)
-		;
+out:
+	stopwatch_reset();
+	return ret;
 }
 
 static void idle_port(void)
@@ -207,6 +219,7 @@ static void ddr_set_pll(void)
 void handle_dram(void)
 {
 	wait_vop_dma_finish();
+
 	idle_port();
 
 	mmio_write_32(CIC_BASE_ADDR + CIC_CTRL0,
