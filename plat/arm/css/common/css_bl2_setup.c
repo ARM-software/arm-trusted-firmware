@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -98,7 +98,7 @@ void bl2_platform_setup(void)
 	 *  - restoring the SCP boot configuration.
 	 */
 	VERBOSE("BL2: Restoring SCP reset data in Trusted SRAM\n");
-	memset((void *) ARM_TRUSTED_SRAM_BASE, 0, 128);
+	zero_normalmem((void *)ARM_TRUSTED_SRAM_BASE, 128);
 	mmio_write_32(SCP_BOOT_CFG_ADDR, scp_boot_config);
 }
 #endif /* EL3_PAYLOAD_BASE */

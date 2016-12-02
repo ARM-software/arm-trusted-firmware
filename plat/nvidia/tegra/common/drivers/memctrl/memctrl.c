@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,8 +36,6 @@
 #include <string.h>
 #include <tegra_def.h>
 #include <xlat_tables.h>
-
-extern void zeromem16(void *mem, unsigned int length);
 
 #define TEGRA_GPU_RESET_REG_OFFSET	0x28c
 #define  GPU_RESET_BIT			(1 << 24)
@@ -114,13 +112,13 @@ static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 	 * Perform cache maintenance to ensure that the non-overlapping area is
 	 * zeroed out. The first invalidation of this range ensures that
 	 * possible evictions of dirty cache lines do not interfere with the
-	 * 'zeromem16' operation. Other CPUs could speculatively prefetch the
+	 * 'zeromem' operation. Other CPUs could speculatively prefetch the
 	 * main memory contents of this area between the first invalidation and
-	 * the 'zeromem16' operation. The second invalidation ensures that any
+	 * the 'zeromem' operation. The second invalidation ensures that any
 	 * such cache lines are removed as well.
 	 */
 	inv_dcache_range(non_overlap_area_start, non_overlap_area_size);
-	zeromem16((void *)non_overlap_area_start, non_overlap_area_size);
+	zeromem((void *)non_overlap_area_start, non_overlap_area_size);
 	inv_dcache_range(non_overlap_area_start, non_overlap_area_size);
 }
 

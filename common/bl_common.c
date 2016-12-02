@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -347,7 +347,7 @@ static int load_auth_image_internal(unsigned int image_id,
 				 image_data->image_size);
 	if (rc != 0) {
 		/* Authentication error, zero memory and flush it right away. */
-		memset((void *)image_data->image_base, 0x00,
+		zero_normalmem((void *)image_data->image_base,
 		       image_data->image_size);
 		flush_dcache_range(image_data->image_base,
 				   image_data->image_size);
@@ -543,7 +543,7 @@ static int load_auth_image_internal(meminfo_t *mem_layout,
 				 image_data->image_size);
 	if (rc != 0) {
 		/* Authentication error, zero memory and flush it right away. */
-		memset((void *)image_data->image_base, 0x00,
+		zero_normalmem((void *)image_data->image_base,
 		       image_data->image_size);
 		flush_dcache_range(image_data->image_base,
 				   image_data->image_size);

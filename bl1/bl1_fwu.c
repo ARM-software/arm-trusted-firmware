@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -335,7 +335,7 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		 */
 		if (image_desc->state == IMAGE_STATE_COPIED) {
 			/* Clear the memory.*/
-			memset((void *)base_addr, 0, total_size);
+			zero_normalmem((void *)base_addr, total_size);
 			flush_dcache_range(base_addr, total_size);
 
 			/* Indicate that image can be copied again*/
