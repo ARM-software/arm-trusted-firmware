@@ -123,7 +123,7 @@ func memcpy16
 /* copy 16 bytes at a time */
 m_loop16:
 	cmp	x2, #16
-	b.lt	m_loop1
+	b.lo	m_loop1
 	ldp	x3, x4, [x1], #16
 	stp	x3, x4, [x0], #16
 	sub	x2, x2, #16
