@@ -168,8 +168,11 @@ func handle_smc
 	mov	r2, r0				/* handle */
 	ldcopr	r0, SCR
 
-	/* Save SCR in stack */
-	push	{r0}
+	/*
+	 * Save SCR in stack. r1 is pushed to meet the 8 byte
+	 * stack alignment requirement.
+	 */
+	push	{r0, r1}
 	and	r3, r0, #SCR_NS_BIT		/* flags */
 
 	/* Switch to Secure Mode*/
@@ -191,7 +194,7 @@ func handle_smc
 	/* r0 points to smc context */
 
 	/* Restore SCR from stack */
-	pop	{r1}
+	pop	{r1, r2}
 	stcopr	r1, SCR
 	isb
 

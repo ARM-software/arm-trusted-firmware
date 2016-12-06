@@ -93,7 +93,8 @@ endfunc psci_do_pwrdown_cache_maintenance
  * -----------------------------------------------------------------------
  */
 func psci_do_pwrup_cache_maintenance
-	push	{lr}
+	/* r12 is pushed to meet the 8 byte stack alignment requirement */
+	push	{r12, lr}
 
 	/* ---------------------------------------------
 	 * Ensure any inflight stack writes have made it
@@ -123,7 +124,7 @@ func psci_do_pwrup_cache_maintenance
 	stcopr	r0, SCTLR
 	isb
 
-	pop	{pc}
+	pop	{r12, pc}
 endfunc psci_do_pwrup_cache_maintenance
 
 	/* ---------------------------------------------

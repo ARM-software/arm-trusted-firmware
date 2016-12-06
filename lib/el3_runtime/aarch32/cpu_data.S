@@ -41,9 +41,10 @@
  * -----------------------------------------------------------------
  */
 func _cpu_data
-	push	{lr}
+	/* r12 is pushed to meet the 8 byte stack alignment requirement */
+	push	{r12, lr}
 	bl	plat_my_core_pos
-	pop	{lr}
+	pop	{r12, lr}
 	b	_cpu_data_by_index
 endfunc _cpu_data
 
