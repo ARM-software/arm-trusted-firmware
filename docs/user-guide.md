@@ -1102,7 +1102,7 @@ to load the ELF file over JTAG on Juno.
 The AArch64 build of this version of ARM Trusted Firmware has been tested on
 the following ARM FVPs (64-bit host machine only).
 
-*   `Foundation_Platform` (Version 10.1, Build 10.1.32)
+*   `Foundation_Platform` (Version 10.2, Build 10.2.20)
 *   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
 *   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.7, Build 0.8.7701)
 *   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.7, Build 0.8.7701)
