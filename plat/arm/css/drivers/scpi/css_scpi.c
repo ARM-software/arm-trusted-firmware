@@ -63,9 +63,11 @@ static void scpi_secure_message_start(void)
 
 static void scpi_secure_message_send(size_t payload_size)
 {
-	/* Ensure that any write to the SCPI payload area is seen by SCP before
+	/*
+	 * Ensure that any write to the SCPI payload area is seen by SCP before
 	 * we write to the MHU register. If these 2 writes were reordered by
-	 * the CPU then SCP would read stale payload data */
+	 * the CPU then SCP would read stale payload data
+	 */
 	dmbst();
 
 	mhu_secure_message_send(SCPI_MHU_SLOT_ID);
@@ -86,9 +88,11 @@ static void scpi_secure_message_receive(scpi_cmd_t *cmd)
 		panic();
 	}
 
-	/* Ensure that any read to the SCPI payload area is done after reading
+	/*
+	 * Ensure that any read to the SCPI payload area is done after reading
 	 * the MHU register. If these 2 reads were reordered then the CPU would
-	 * read invalid payload data */
+	 * read invalid payload data
+	 */
 	dmbld();
 
 	memcpy(cmd, (void *) SCPI_SHARED_MEM_SCP_TO_AP, sizeof(*cmd));
@@ -137,8 +141,9 @@ int scpi_wait_ready(void)
 	return status == SCP_OK ? 0 : -1;
 }
 
-void scpi_set_css_power_state(unsigned mpidr, scpi_power_state_t cpu_state,
-		scpi_power_state_t cluster_state, scpi_power_state_t css_state)
+void scpi_set_css_power_state(unsigned int mpidr,
+		scpi_power_state_t cpu_state, scpi_power_state_t cluster_state,
+		scpi_power_state_t css_state)
 {
 	scpi_cmd_t *cmd;
 	uint32_t state = 0;

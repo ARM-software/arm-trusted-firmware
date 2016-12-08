@@ -76,7 +76,7 @@ static int juno_translate_power_state_by_mpidr(u_register_t mpidr,
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform will take care of registering the handlers with PSCI.
  ******************************************************************************/
-const plat_psci_ops_t plat_arm_psci_pm_ops = {
+plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.pwr_domain_on			= css_pwr_domain_on,
 	.pwr_domain_on_finish		= css_pwr_domain_on_finish,
 	.pwr_domain_off			= css_pwr_domain_off,

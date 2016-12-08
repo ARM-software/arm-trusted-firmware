@@ -122,7 +122,7 @@ typedef enum {
 } scpi_system_state_t;
 
 extern int scpi_wait_ready(void);
-extern void scpi_set_css_power_state(unsigned mpidr,
+extern void scpi_set_css_power_state(unsigned int mpidr,
 					scpi_power_state_t cpu_state,
 					scpi_power_state_t cluster_state,
 					scpi_power_state_t css_state);

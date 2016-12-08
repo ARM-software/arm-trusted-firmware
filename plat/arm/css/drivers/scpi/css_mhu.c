@@ -33,8 +33,8 @@
 #include <bakery_lock.h>
 #include <css_def.h>
 #include <mmio.h>
-#include <platform_def.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include "css_mhu.h"
 
 /* SCP MHU secure channel registers */

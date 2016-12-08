@@ -327,7 +327,7 @@ static int fvp_node_hw_state(u_register_t target_cpu,
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform layer will take care of registering the handlers with PSCI.
  ******************************************************************************/
-const plat_psci_ops_t plat_arm_psci_pm_ops = {
+plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.cpu_standby = fvp_cpu_standby,
 	.pwr_domain_on = fvp_pwr_domain_on,
 	.pwr_domain_off = fvp_pwr_domain_off,
