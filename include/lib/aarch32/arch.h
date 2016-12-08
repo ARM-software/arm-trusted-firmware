@@ -382,8 +382,8 @@
 
 /* Debug register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
 #define HDCR		p15, 4, c1, c1, 1
-#define SDCR		p15, 0, c1, c3, 1
 #define PMCR		p15, 0, c9, c12, 0
+#define CNTHP_CTL	p15, 4, c14, c2, 1
 
 /* GICv3 CPU Interface system register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
 #define ICC_IAR1	p15, 0, c12, c12, 0

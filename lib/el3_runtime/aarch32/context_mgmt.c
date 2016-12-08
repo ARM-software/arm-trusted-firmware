@@ -243,6 +243,12 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * (5 bits) and HPMN is at offset zero within HDCR.
 			 */
 			write_hdcr((read_pmcr() & PMCR_N_BITS) >> PMCR_N_SHIFT);
+
+			/*
+			 * Reset CNTHP_CTL to disable the EL2 physical timer and
+			 * therefore prevent timer interrupts.
+			 */
+			write_cnthp_ctl(0);
 			isb();
 
 			write_scr(read_scr() & ~SCR_NS_BIT);
