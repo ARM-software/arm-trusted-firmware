@@ -198,6 +198,9 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
 	uint64_t desc;
 	int mem_type;
 
+	/* Make sure that the granularity is fine enough to map this address. */
+	assert((addr_pa & XLAT_BLOCK_MASK(level)) == 0);
+
 	desc = addr_pa;
 	/*
 	 * There are different translation table descriptors for level 3 and the
