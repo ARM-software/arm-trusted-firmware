@@ -439,7 +439,7 @@ performed.
     of certificates in the FIP and FWU_FIP depends upon the value of the
     `GENERATE_COT` option.
 
-    Note: This option depends on 'CREATE_KEYS' to be enabled. If the keys
+    Note: This option depends on `CREATE_KEYS` to be enabled. If the keys
     already exist in disk, they will be overwritten without further notice.
 
 *   `TRUSTED_WORLD_KEY`: This option is used when `GENERATE_COT=1`. It
@@ -475,7 +475,7 @@ performed.
 
 #### ARM development platform specific build options
 
-*   'ARM_BL31_IN_DRAM': Boolean option to select loading of BL31 in TZC secured
+*   `ARM_BL31_IN_DRAM`: Boolean option to select loading of BL31 in TZC secured
     DRAM. By default, BL31 is in the secure SRAM. Set this flag to 1 to load
     BL31 in TZC secured DRAM. If TSP is present, then setting this option also
     sets the TSP location to DRAM and ignores the `ARM_TSP_RAM_LOCATION` build
@@ -491,7 +491,7 @@ performed.
 
 *   `ARM_CONFIG_CNTACR`: boolean option to unlock access to the CNTBase<N>
     frame registers by setting the CNTCTLBase.CNTACR<N> register bits. The
-    frame number <N> is defined by 'PLAT_ARM_NSTIMER_FRAME_ID', which should
+    frame number <N> is defined by `PLAT_ARM_NSTIMER_FRAME_ID`, which should
     match the frame used by the Non-Secure image (normally the Linux kernel).
     Default is true (access to the frame is allowed).
 
