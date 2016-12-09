@@ -97,3 +97,17 @@ void plat_arm_gic_pcpu_init(void)
 {
 	gicv2_pcpu_distif_init();
 }
+
+/******************************************************************************
+ * Stubs for Redistributor power management. Although GICv2 doesn't have
+ * Redistributor interface, these are provided for the sake of uniform GIC API
+ *****************************************************************************/
+void plat_arm_gic_redistif_on(void)
+{
+	return;
+}
+
+void plat_arm_gic_redistif_off(void)
+{
+	return;
+}

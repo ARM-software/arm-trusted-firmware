@@ -43,6 +43,8 @@
 #pragma weak plat_arm_gic_cpuif_enable
 #pragma weak plat_arm_gic_cpuif_disable
 #pragma weak plat_arm_gic_pcpu_init
+#pragma weak plat_arm_gic_redistif_on
+#pragma weak plat_arm_gic_redistif_off
 
 /* The GICv3 driver only needs to be initialized in EL3 */
 static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
@@ -114,4 +116,17 @@ void plat_arm_gic_cpuif_disable(void)
 void plat_arm_gic_pcpu_init(void)
 {
 	gicv3_rdistif_init(plat_my_core_pos());
+}
+
+/******************************************************************************
+ * ARM common helpers to power GIC redistributor interface
+ *****************************************************************************/
+void plat_arm_gic_redistif_on(void)
+{
+	gicv3_rdistif_on(plat_my_core_pos());
+}
+
+void plat_arm_gic_redistif_off(void)
+{
+	gicv3_rdistif_off(plat_my_core_pos());
 }
