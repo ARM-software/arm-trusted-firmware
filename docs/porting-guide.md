@@ -690,10 +690,30 @@ not be retrieved from the platform.
 
 This function is mandatory when Trusted Board Boot is enabled. It sets a new
 counter value in the platform. The cookie in the first argument may be used to
-select the counter (as explained in plat_get_nv_ctr()).
+select the counter (as explained in plat_get_nv_ctr()). The second argument is
+the updated counter value to be written to the NV counter.
 
 The function returns 0 on success. Any other value means the counter value could
 not be updated.
+
+
+### Function: plat_set_nv_ctr2()
+
+    Argument : void *, const auth_img_desc_t *, unsigned int
+    Return   : int
+
+This function is optional when Trusted Board Boot is enabled. If this
+interface is defined, then `plat_set_nv_ctr()` need not be defined. The
+first argument passed is a cookie and is typically used to
+differentiate between a Non Trusted NV Counter and a Trusted NV
+Counter. The second argument is a pointer to an authentication image
+descriptor and may be used to decide if the counter is allowed to be
+updated or not. The third argument is the updated counter value to
+be written to the NV counter.
+
+The function returns 0 on success. Any other value means the counter value
+either could not be updated or the authentication image descriptor indicates
+that it is not allowed to be updated.
 
 
 2.3 Common mandatory function modifications

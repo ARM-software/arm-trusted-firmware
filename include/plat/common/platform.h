@@ -39,6 +39,7 @@
 /*******************************************************************************
  * Forward declarations
  ******************************************************************************/
+struct auth_img_desc_s;
 struct meminfo;
 struct image_info;
 struct entry_point_info;
@@ -274,6 +275,8 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags);
 int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr);
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr);
+int plat_set_nv_ctr2(void *cookie, const struct auth_img_desc_s *img_desc,
+		unsigned int nv_ctr);
 
 #if LOAD_IMAGE_V2
 /*******************************************************************************
