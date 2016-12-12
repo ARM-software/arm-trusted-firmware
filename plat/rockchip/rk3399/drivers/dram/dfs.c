@@ -1960,6 +1960,7 @@ static void m0_configure_ddr(struct pll_div pll_div, uint32_t ddr_index)
 	mmio_write_32(M0_PARAM_ADDR + PARAM_DRAM_FREQ, pll_div.mhz);
 
 	mmio_write_32(M0_PARAM_ADDR + PARAM_FREQ_SELECT, ddr_index << 4);
+	dmbst();
 }
 
 static uint32_t prepare_ddr_timing(uint32_t mhz)
@@ -2031,6 +2032,10 @@ uint32_t ddr_set_rate(uint32_t hz)
 	if (ddr_index > 1)
 		goto out;
 
+	/*
+	 * Make sure the clock is enabled. The M0 clocks should be on all of the
+	 * time during S0.
+	 */
 	m0_configure_ddr(dpll_rates_table[index], ddr_index);
 	m0_start();
 	m0_wait_done();

@@ -44,5 +44,4 @@ extern void m0_init(void);
 extern void m0_start(void);
 extern void m0_stop(void);
 extern void m0_wait_done(void);
-
 #endif /* __M0_CTL_H__ */

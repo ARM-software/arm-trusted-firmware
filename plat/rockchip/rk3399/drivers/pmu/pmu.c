@@ -1218,7 +1218,6 @@ static int sys_pwr_domain_resume(void)
 				BIT(PMU_CLR_GIC));
 
 	plat_rockchip_gic_cpuif_enable();
-
 	m0_stop();
 
 	ddr_prepare_for_sys_resume();
