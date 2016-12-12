@@ -201,7 +201,7 @@ func plat_reset_handler
 	JUMP_TO_HANDLER_IF_JUNO_R(2)
 
 	/* Board revision is not supported */
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 
 endfunc plat_reset_handler
 

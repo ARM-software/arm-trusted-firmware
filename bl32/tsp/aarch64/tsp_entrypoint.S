@@ -391,7 +391,7 @@ tsp_sel1_intr_return:
 
 	/* Should never reach here */
 tsp_sel1_int_entry_panic:
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc tsp_sel1_intr_entry
 
 	/*---------------------------------------------
@@ -409,7 +409,7 @@ func tsp_cpu_resume_entry
 	restore_args_call_smc
 
 	/* Should never reach here */
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc tsp_cpu_resume_entry
 
 	/*---------------------------------------------
@@ -422,7 +422,7 @@ func tsp_fast_smc_entry
 	restore_args_call_smc
 
 	/* Should never reach here */
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc tsp_fast_smc_entry
 
 	/*---------------------------------------------
@@ -439,5 +439,5 @@ func tsp_std_smc_entry
 	restore_args_call_smc
 
 	/* Should never reach here */
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc tsp_std_smc_entry

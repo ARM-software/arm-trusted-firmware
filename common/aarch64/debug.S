@@ -191,5 +191,5 @@ _panic_handler:
 	/* Pass to plat_panic_handler the address from where el3_panic was
 	 * called, not the address of the call from el3_panic. */
 	mov	x30,x6
-	b	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc do_panic

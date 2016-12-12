@@ -38,7 +38,7 @@
 	 * The common implementation of do_panic for all BL stages
 	 ***********************************************************/
 func do_panic
-	b	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc do_panic
 
 	/***********************************************************
@@ -50,5 +50,5 @@ func report_exception
 	mrs	r0, cpsr
 	and	r0, #MODE32_MASK
 	bl	plat_report_exception
-	bl	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc report_exception
