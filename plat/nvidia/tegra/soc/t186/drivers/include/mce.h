@@ -35,46 +35,6 @@
 #include <tegra_def.h>
 
 /*******************************************************************************
- * MCE apertures used by the ARI interface
- *
- * Aperture 0 - Cpu0 (ARM Cortex A-57)
- * Aperture 1 - Cpu1 (ARM Cortex A-57)
- * Aperture 2 - Cpu2 (ARM Cortex A-57)
- * Aperture 3 - Cpu3 (ARM Cortex A-57)
- * Aperture 4 - Cpu4 (Denver15)
- * Aperture 5 - Cpu5 (Denver15)
- ******************************************************************************/
-#define MCE_ARI_APERTURE_0_OFFSET	0x0
-#define MCE_ARI_APERTURE_1_OFFSET	0x10000
-#define MCE_ARI_APERTURE_2_OFFSET	0x20000
-#define MCE_ARI_APERTURE_3_OFFSET	0x30000
-#define MCE_ARI_APERTURE_4_OFFSET	0x40000
-#define MCE_ARI_APERTURE_5_OFFSET	0x50000
-#define MCE_ARI_APERTURE_OFFSET_MAX	MCE_APERTURE_5_OFFSET
-
-/* number of apertures */
-#define MCE_ARI_APERTURES_MAX		6
-
-/* each ARI aperture is 64KB */
-#define MCE_ARI_APERTURE_SIZE		0x10000
-
-/*******************************************************************************
- * CPU core ids - used by the MCE_ONLINE_CORE ARI
- ******************************************************************************/
-typedef enum mce_core_id {
-	MCE_CORE_ID_DENVER_15_0,
-	MCE_CORE_ID_DENVER_15_1,
-	/* 2 and 3 are reserved */
-	MCE_CORE_ID_A57_0 = 4,
-	MCE_CORE_ID_A57_1,
-	MCE_CORE_ID_A57_2,
-	MCE_CORE_ID_A57_3,
-	MCE_CORE_ID_MAX
-} mce_core_id_t;
-
-#define MCE_CORE_ID_MASK			0x7
-
-/*******************************************************************************
  * MCE commands
  ******************************************************************************/
 typedef enum mce_cmd {
