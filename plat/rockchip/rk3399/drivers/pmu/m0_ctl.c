@@ -53,7 +53,7 @@ void m0_init(void)
 				      0xf, 0));
 
 	/* gating disable for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, BIT_WITH_WMSK(1));
+	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, BIT_WITH_WMSK(0));
 
 	/*
 	 * To switch the parent to xin24M and div == 1,
@@ -65,21 +65,28 @@ void m0_init(void)
 	 */
 	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKSEL_CON0,
 		      BIT_WITH_WMSK(15) | BITS_WITH_WMASK(0x0, 0x1f, 8));
+
+	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2, WMSK_BIT(5));
 }
 
 void m0_start(void)
 {
+	/* enable clocks for M0 */
+	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
+		      BITS_WITH_WMASK(0x0, 0xf, 0));
+
 	/* clean the PARAM_M0_DONE flag, mean that M0 will start working */
 	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_DONE, 0);
 	dmbst();
 
-	/* enable clocks for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
-		      BITS_WITH_WMASK(0x0, 0x2f, 0));
+	mmio_write_32(PMUCRU_BASE + PMUCRU_SOFTRST_CON0,
+		      BITS_WITH_WMASK(0x0, 0x4, 0));
 
+	udelay(5);
 	/* start M0 */
 	mmio_write_32(PMUCRU_BASE + PMUCRU_SOFTRST_CON0,
-		      BITS_WITH_WMASK(0x0, 0x24, 0));
+		      BITS_WITH_WMASK(0x0, 0x20, 0));
+	dmbst();
 }
 
 void m0_stop(void)
@@ -90,17 +97,24 @@ void m0_stop(void)
 
 	/* disable clocks for M0 */
 	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
-		      BITS_WITH_WMASK(0x2f, 0x2f, 0));
+		      BITS_WITH_WMASK(0xf, 0xf, 0));
 }
 
 void m0_wait_done(void)
 {
-	while (mmio_read_32(M0_PARAM_ADDR + PARAM_M0_DONE) != M0_DONE_FLAG) {
+	do {
 		/*
 		 * Don't starve the M0 for access to SRAM, so delay before
 		 * reading the PARAM_M0_DONE value again.
 		 */
 		udelay(5);
 		dsb();
-	}
+	} while (mmio_read_32(M0_PARAM_ADDR + PARAM_M0_DONE) != M0_DONE_FLAG);
+
+	/*
+	 * Let the M0 settle into WFI before we leave. This is so we don't reset
+	 * the M0 in a bad spot which can cause problems with the M0.
+	 */
+	udelay(10);
+	dsb();
 }
