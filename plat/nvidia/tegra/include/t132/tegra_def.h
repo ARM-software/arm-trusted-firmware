@@ -104,6 +104,16 @@
  ******************************************************************************/
 #define TEGRA_MC_BASE			0x70019000
 
+/* TZDRAM carveout configuration registers */
+#define MC_SECURITY_CFG0_0		0x70
+#define MC_SECURITY_CFG1_0		0x74
+#define MC_SECURITY_CFG3_0		0x9BC
+
+/* Video Memory carveout configuration registers */
+#define MC_VIDEO_PROTECT_BASE_HI	0x978
+#define MC_VIDEO_PROTECT_BASE_LO	0x648
+#define MC_VIDEO_PROTECT_SIZE_MB	0x64c
+
 /*******************************************************************************
  * Tegra TZRAM constants
  ******************************************************************************/

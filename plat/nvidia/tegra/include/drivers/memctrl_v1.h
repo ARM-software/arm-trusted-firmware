@@ -60,14 +60,6 @@
 #define MC_SMMU_TRANSLATION_ENABLE_4_0		0xb98
 #define  MC_SMMU_TRANSLATION_ENABLE		(~0)
 
-/* TZDRAM carveout configuration registers */
-#define MC_SECURITY_CFG0_0			0x70
-#define MC_SECURITY_CFG1_0			0x74
-
-/* Video Memory carveout configuration registers */
-#define MC_VIDEO_PROTECT_BASE			0x648
-#define MC_VIDEO_PROTECT_SIZE_MB		0x64c
-
 static inline uint32_t tegra_mc_read_32(uint32_t off)
 {
 	return mmio_read_32(TEGRA_MC_BASE + off);
