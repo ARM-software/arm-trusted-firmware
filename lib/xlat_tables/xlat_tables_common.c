@@ -32,12 +32,14 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <cassert.h>
+#include <common_def.h>
 #include <debug.h>
 #include <platform_def.h>
 #include <string.h>
 #include <types.h>
 #include <utils.h>
 #include <xlat_tables.h>
+#include "xlat_tables_private.h"
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 #define LVL0_SPACER ""
@@ -101,6 +103,11 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 
 	assert(base_pa < end_pa); /* Check for overflows */
 	assert(base_va < end_va);
+
+	assert((base_va + (uintptr_t)size - (uintptr_t)1) <=
+					(PLAT_VIRT_ADDR_SPACE_SIZE - 1));
+	assert((base_pa + (unsigned long long)size - 1ULL) <=
+					(PLAT_PHY_ADDR_SPACE_SIZE - 1));
 
 #if DEBUG
 
@@ -375,7 +382,8 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 
 		*table++ = desc;
 		base_va += level_size;
-	} while ((base_va & level_index_mask) && (base_va - 1 < ADDR_SPACE_SIZE - 1));
+	} while ((base_va & level_index_mask) &&
+		 (base_va - 1 < PLAT_VIRT_ADDR_SPACE_SIZE - 1));
 
 	return mm;
 }
