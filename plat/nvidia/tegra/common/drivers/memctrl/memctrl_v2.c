@@ -51,14 +51,16 @@ static uint64_t video_mem_size_mb;
 /* array to hold stream_id override config register offsets */
 const static uint32_t streamid_overrides[] = {
 	MC_STREAMID_OVERRIDE_CFG_PTCR,
+#if ENABLE_AFI_DEVICE
 	MC_STREAMID_OVERRIDE_CFG_AFIR,
+	MC_STREAMID_OVERRIDE_CFG_AFIW,
+#endif
 	MC_STREAMID_OVERRIDE_CFG_HDAR,
 	MC_STREAMID_OVERRIDE_CFG_HOST1XDMAR,
 	MC_STREAMID_OVERRIDE_CFG_NVENCSRD,
 	MC_STREAMID_OVERRIDE_CFG_SATAR,
 	MC_STREAMID_OVERRIDE_CFG_MPCORER,
 	MC_STREAMID_OVERRIDE_CFG_NVENCSWR,
-	MC_STREAMID_OVERRIDE_CFG_AFIW,
 	MC_STREAMID_OVERRIDE_CFG_SATAW,
 	MC_STREAMID_OVERRIDE_CFG_MPCOREW,
 	MC_STREAMID_OVERRIDE_CFG_SATAW,
@@ -128,7 +130,10 @@ const static uint32_t streamid_overrides[] = {
 /* array to hold the security configs for stream IDs */
 const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(SCEW, NON_SECURE, NO_OVERRIDE, ENABLE),
+#if ENABLE_AFI_DEVICE
 	mc_make_sec_cfg(AFIR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AFIW, NON_SECURE, OVERRIDE, ENABLE),
+#endif
 	mc_make_sec_cfg(NVDISPLAYR1, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(XUSB_DEVR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(VICSRD1, NON_SECURE, NO_OVERRIDE, ENABLE),
@@ -140,7 +145,6 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(GPUSWR2, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SATAW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(UFSHCW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(AFIW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SCEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(UFSHCR, NON_SECURE, OVERRIDE, ENABLE),
@@ -231,7 +235,9 @@ const static mc_txn_override_cfg_t mc_override_cfgs[] = {
 	mc_make_txn_override_cfg(ISPWB, CGID_TAG_ADR),
 	mc_make_txn_override_cfg(APEW, CGID_TAG_ADR),
 	mc_make_txn_override_cfg(XUSB_DEVW, CGID_TAG_ADR),
+#if ENABLE_AFI_DEVICE
 	mc_make_txn_override_cfg(AFIW, CGID_TAG_ADR),
+#endif
 	mc_make_txn_override_cfg(SCEW, CGID_TAG_ADR),
 };
 
@@ -248,8 +254,10 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	val = tegra_mc_read_32(MC_CLIENT_HOTRESET_CTRL0);
 	assert(val == MC_CLIENT_HOTRESET_CTRL0_RESET_VAL);
 
-	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_AFI_FLUSH_ENB |
-		  MC_CLIENT_HOTRESET_CTRL0_HDA_FLUSH_ENB |
+	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_HDA_FLUSH_ENB |
+#if ENABLE_AFI_DEVICE
+		  MC_CLIENT_HOTRESET_CTRL0_AFI_FLUSH_ENB |
+#endif
 		  MC_CLIENT_HOTRESET_CTRL0_SATA_FLUSH_ENB |
 		  MC_CLIENT_HOTRESET_CTRL0_XUSB_HOST_FLUSH_ENB |
 		  MC_CLIENT_HOTRESET_CTRL0_XUSB_DEV_FLUSH_ENB;
@@ -296,7 +304,9 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	 * of control on overriding the memory type. So, remove TSA's
 	 * memtype override.
 	 */
+#if ENABLE_AFI_DEVICE
 	mc_set_tsa_passthrough(AFIW);
+#endif
 	mc_set_tsa_passthrough(HDAW);
 	mc_set_tsa_passthrough(SATAW);
 	mc_set_tsa_passthrough(XUSB_HOSTW);
@@ -321,15 +331,19 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	 * whose AXI IDs we know and trust.
 	 */
 
+#if ENABLE_AFI_DEVICE
 	/* Match AFIW */
 	mc_set_forced_coherent_so_dev_cfg(AFIR);
+#endif
 
 	/*
 	 * See bug 200131110 comment #35 - there are no normal requests
 	 * and AWID for SO/DEV requests is hardcoded in RTL for a
 	 * particular PCIE controller
 	 */
+#if ENABLE_AFI_DEVICE
 	mc_set_forced_coherent_so_dev_cfg(AFIW);
+#endif
 	mc_set_forced_coherent_cfg(HDAR);
 	mc_set_forced_coherent_cfg(HDAW);
 	mc_set_forced_coherent_cfg(SATAR);
@@ -374,7 +388,9 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	 * boot and strongly ordered MSS clients
 	 */
 	val = MC_PCFIFO_CLIENT_CONFIG1_RESET_VAL &
+#if ENABLE_AFI_DEVICE
 		mc_set_pcfifo_unordered_boot_so_mss(1, AFIW) &
+#endif
 		mc_set_pcfifo_unordered_boot_so_mss(1, HDAW) &
 		mc_set_pcfifo_unordered_boot_so_mss(1, SATAW);
 	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG1, val);
@@ -411,7 +427,9 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	 * for boot and strongly ordered MSS clients
 	 */
 	val = MC_SMMU_CLIENT_CONFIG1_RESET_VAL &
+#if ENABLE_AFI_DEVICE
 		mc_set_smmu_unordered_boot_so_mss(1, AFIW) &
+#endif
 		mc_set_smmu_unordered_boot_so_mss(1, HDAW) &
 		mc_set_smmu_unordered_boot_so_mss(1, SATAW);
 	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG1, val);

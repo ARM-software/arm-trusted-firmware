@@ -29,6 +29,9 @@
 #
 
 # platform configs
+ENABLE_AFI_DEVICE			:= 1
+$(eval $(call add_define,ENABLE_AFI_DEVICE))
+
 ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 1
 $(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
 
