@@ -353,7 +353,8 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 		if (mm->base_va > base_va + level_size - 1) {
 			/* Next region is after this area. Nothing to map yet */
 			desc = INVALID_DESC;
-		} else {
+		/* Make sure that the current level allows block descriptors */
+		} else if (level >= XLAT_BLOCK_LEVEL_MIN) {
 			/*
 			 * Try to get attributes of this area. It will fail if
 			 * there are partially overlapping regions. On success,
