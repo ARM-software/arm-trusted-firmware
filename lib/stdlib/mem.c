@@ -48,10 +48,10 @@ void *memset(void *dst, int val, size_t count)
  */
 int memcmp(const void *s1, const void *s2, size_t len)
 {
-	const char *s = s1;
-	const char *d = s2;
-	char dc;
-	char sc;
+	const unsigned char *s = s1;
+	const unsigned char *d = s2;
+	unsigned char sc;
+	unsigned char dc;
 
 	while (len--) {
 		sc = *s++;
