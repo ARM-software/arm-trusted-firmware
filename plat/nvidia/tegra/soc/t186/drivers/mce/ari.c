@@ -33,7 +33,7 @@
 #include <debug.h>
 #include <denver.h>
 #include <mmio.h>
-#include <mce.h>
+#include <mce_private.h>
 #include <sys/errno.h>
 #include <t18x_ari.h>
 
