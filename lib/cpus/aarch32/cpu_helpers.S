@@ -76,9 +76,10 @@ endfunc reset_handler
 	 */
 	.globl	prepare_core_pwr_dwn
 func prepare_core_pwr_dwn
-	push	{lr}
+	/* r12 is pushed to meet the 8 byte stack alignment requirement */
+	push	{r12, lr}
 	bl	_cpu_data
-	pop	{lr}
+	pop	{r12, lr}
 
 	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
 #if ASM_ASSERTION
@@ -98,9 +99,10 @@ endfunc prepare_core_pwr_dwn
 	 */
 	.globl	prepare_cluster_pwr_dwn
 func prepare_cluster_pwr_dwn
-	push	{lr}
+	/* r12 is pushed to meet the 8 byte stack alignment requirement */
+	push	{r12, lr}
 	bl	_cpu_data
-	pop	{lr}
+	pop	{r12, lr}
 
 	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
 #if ASM_ASSERTION

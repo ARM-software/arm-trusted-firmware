@@ -38,22 +38,22 @@
  * contains the pointer to the `smc_context_t`.
  */
 	.macro smcc_save_gp_mode_regs
-	push	{r0-r3, lr}
+	push	{r0-r4, lr}
 
 	ldcopr	r0, SCR
 	and	r0, r0, #SCR_NS_BIT
 	bl	smc_get_ctx
 
-	/* Save r4 - r12 in the SMC context */
-	add	r1, r0, #SMC_CTX_GPREG_R4
-	stm	r1!, {r4-r12}
+	/* Save r5 - r12 in the SMC context */
+	add	r1, r0, #SMC_CTX_GPREG_R5
+	stm	r1!, {r5-r12}
 
 	/*
-	 * Pop r0 - r3, lr to r4 - r7, lr from stack and then save
+	 * Pop r0 - r4, lr to r4 - r8, lr from stack and then save
 	 * it to SMC context.
 	 */
-	pop	{r4-r7, lr}
-	stm	r0, {r4-r7}
+	pop	{r4-r8, lr}
+	stm	r0, {r4-r8}
 
 	/* Save the banked registers including the current SPSR and LR */
 	mrs	r4, sp_usr

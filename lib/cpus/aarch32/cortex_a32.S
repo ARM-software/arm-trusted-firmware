@@ -72,7 +72,8 @@ endfunc cortex_a32_reset_func
 	 * ----------------------------------------------------
 	 */
 func cortex_a32_core_pwr_dwn
-	push	{lr}
+	/* r12 is pushed to meet the 8 byte stack alignment requirement */
+	push	{r12, lr}
 
 	/* Assert if cache is enabled */
 #if ASM_ASSERTION
@@ -92,7 +93,7 @@ func cortex_a32_core_pwr_dwn
 	 * Come out of intra cluster coherency
 	 * ---------------------------------------------
 	 */
-	pop	{lr}
+	pop	{r12, lr}
 	b	cortex_a32_disable_smp
 endfunc cortex_a32_core_pwr_dwn
 
@@ -102,7 +103,8 @@ endfunc cortex_a32_core_pwr_dwn
 	 * -------------------------------------------------------
 	 */
 func cortex_a32_cluster_pwr_dwn
-	push	{lr}
+	/* r12 is pushed to meet the 8 byte stack alignment requirement */
+	push	{r12, lr}
 
 	/* Assert if cache is enabled */
 #if ASM_ASSERTION
@@ -135,7 +137,7 @@ func cortex_a32_cluster_pwr_dwn
 	 * Come out of intra cluster coherency
 	 * ---------------------------------------------
 	 */
-	pop	{lr}
+	pop	{r12, lr}
 	b	cortex_a32_disable_smp
 endfunc cortex_a32_cluster_pwr_dwn
 

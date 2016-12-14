@@ -39,6 +39,7 @@
 #define SMC_CTX_GPREG_R2	0x8
 #define SMC_CTX_GPREG_R3	0xC
 #define SMC_CTX_GPREG_R4	0x10
+#define SMC_CTX_GPREG_R5	0x14
 #define SMC_CTX_SP_USR		0x34
 #define SMC_CTX_SPSR_MON	0x78
 #define SMC_CTX_LR_MON		0x7C
