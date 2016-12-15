@@ -1545,15 +1545,7 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		/* DENALI_PHY_911 13bits offset_0 */
 		/* PHY_LP4_BOOT_PLL_CTRL */
 		/* DENALI_PHY_919 13bits offset_0 */
-		if (pdram_timing->mhz <= 150)
-			tmp = 3;
-		else if (pdram_timing->mhz <= 300)
-			tmp = 2;
-		else if (pdram_timing->mhz <= 600)
-			tmp = 1;
-		else
-			tmp = 0;
-		tmp = (1 << 12) | (tmp << 9) | (2 << 7) | (1 << 1);
+		tmp = (1 << 12) | (2 << 7) | (1 << 1);
 		mmio_clrsetbits_32(PHY_REG(i, 911), 0x1fff, tmp);
 		mmio_clrsetbits_32(PHY_REG(i, 919), 0x1fff, tmp);
 
@@ -1561,15 +1553,7 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		/* DENALI_PHY_911 13bits offset_16 */
 		/* PHY_LP4_BOOT_PLL_CTRL_CA */
 		/* DENALI_PHY_919 13bits offset_16 */
-		if (pdram_timing->mhz <= 150)
-			tmp = 3;
-		else if (pdram_timing->mhz <= 300)
-			tmp = 2;
-		else if (pdram_timing->mhz <= 600)
-			tmp = 1;
-		else
-			tmp = 0;
-		tmp = (tmp << 9) | (2 << 7) | (1 << 5) | (1 << 1);
+		tmp = (2 << 7) | (1 << 5) | (1 << 1);
 		mmio_clrsetbits_32(PHY_REG(i, 911), 0x1fff << 16, tmp << 16);
 		mmio_clrsetbits_32(PHY_REG(i, 919), 0x1fff << 16, tmp << 16);
 
