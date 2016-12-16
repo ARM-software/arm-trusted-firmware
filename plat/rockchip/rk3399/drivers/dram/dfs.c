@@ -1017,6 +1017,7 @@ static void gen_rk3399_enable_training(uint32_t ch_cnt, uint32_t nmhz)
 		for (i = 0; i < ch_cnt; i++) {
 			mmio_clrsetbits_32(CTL_REG(i, 305), 1 << 16, tmp << 16);
 			mmio_clrsetbits_32(CTL_REG(i, 71), 1, tmp);
+			mmio_clrsetbits_32(CTL_REG(i, 70), 1 << 8, 1 << 8);
 		}
 }
 
