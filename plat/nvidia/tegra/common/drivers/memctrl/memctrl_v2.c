@@ -511,8 +511,10 @@ void tegra_memctrl_setup(void)
 
 	INFO("Tegra Memory Controller (v2)\n");
 
+#if ENABLE_SMMU_DEVICE
 	/* Program the SMMU pagesize */
 	tegra_smmu_init();
+#endif
 
 	/* Program all the Stream ID overrides */
 	for (i = 0; i < num_overrides; i++)

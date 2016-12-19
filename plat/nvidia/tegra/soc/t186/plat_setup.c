@@ -104,8 +104,10 @@ static const mmap_region_t tegra_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_ARM_ACTMON_CTR_BASE, 0x20000, /* 128KB - ARM/Denver */
 			MT_DEVICE | MT_RW | MT_SECURE),
+#if ENABLE_SMMU_DEVICE
 	MAP_REGION_FLAT(TEGRA_SMMU_BASE, 0x1000000, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
+#endif
 	{0}
 };
 
