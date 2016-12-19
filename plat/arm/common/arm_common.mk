@@ -167,9 +167,11 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     BL1_SOURCES		+=	${AUTH_SOURCES}					\
 				bl1/tbbr/tbbr_img_desc.c			\
-				plat/arm/common/arm_bl1_fwu.c
+				plat/arm/common/arm_bl1_fwu.c			\
+				plat/common/tbbr/plat_tbbr.c
 
-    BL2_SOURCES		+=	${AUTH_SOURCES}
+    BL2_SOURCES		+=	${AUTH_SOURCES}					\
+				plat/common/tbbr/plat_tbbr.c
 
     $(eval $(call FWU_FIP_ADD_IMG,NS_BL2U,--fwu))
 
