@@ -94,3 +94,17 @@ void plat_arm_gic_pcpu_init(void)
 {
 	arm_gic_pcpu_distif_setup();
 }
+
+/******************************************************************************
+ * Stubs for Redistributor power management. Although legacy configuration isn't
+ * supported, these are provided for the sake of uniform GIC API
+ *****************************************************************************/
+void plat_arm_gic_redistif_on(void)
+{
+	return;
+}
+
+void plat_arm_gic_redistif_off(void)
+{
+	return;
+}

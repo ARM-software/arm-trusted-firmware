@@ -259,6 +259,8 @@ typedef struct gicv3_driver_data {
 void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data);
 void gicv3_distif_init(void);
 void gicv3_rdistif_init(unsigned int proc_num);
+void gicv3_rdistif_on(unsigned int proc_num);
+void gicv3_rdistif_off(unsigned int proc_num);
 void gicv3_cpuif_enable(unsigned int proc_num);
 void gicv3_cpuif_disable(unsigned int proc_num);
 unsigned int gicv3_get_pending_interrupt_type(void);

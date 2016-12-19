@@ -55,13 +55,18 @@ endif
 
 $(eval $(call add_define,FVP_INTERCONNECT_DRIVER))
 
-# Choose the GIC sources depending upon the how the FVP will be invoked
-ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
-FVP_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
+FVP_GICV3_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v3/gicv3_main.c		\
 				drivers/arm/gic/v3/gicv3_helpers.c	\
 				plat/common/plat_gicv3.c		\
 				plat/arm/common/arm_gicv3.c
+
+# Choose the GIC sources depending upon the how the FVP will be invoked
+ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
+FVP_GIC_SOURCES		:=	${FVP_GICV3_SOURCES}
+else ifeq (${FVP_USE_GIC_DRIVER},FVP_GIC600)
+FVP_GIC_SOURCES		:=	${FVP_GICV3_SOURCES}			\
+				drivers/arm/gic/v3/gic600.c
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
 FVP_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\

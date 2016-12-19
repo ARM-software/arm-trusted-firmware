@@ -31,9 +31,11 @@
 #ifndef __GICV3_PRIVATE_H__
 #define __GICV3_PRIVATE_H__
 
+#include <gic_common.h>
 #include <gicv3.h>
 #include <mmio.h>
 #include <stdint.h>
+#include "../common/gic_common_private.h"
 
 /*******************************************************************************
  * GICv3 private macro definitions
