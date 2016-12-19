@@ -27,12 +27,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-ENABLE_PLAT_COMPAT := 0
-PROGRAMMABLE_RESET_ADDRESS := 1
+override ENABLE_PLAT_COMPAT := 0
+override PROGRAMMABLE_RESET_ADDRESS := 1
 PSCI_EXTENDED_STATE_ID := 1
 A53_DISABLE_NON_TEMPORAL_HINT := 0
 SEPARATE_CODE_AND_RODATA := 1
-RESET_TO_BL31 := 1
+override RESET_TO_BL31 := 1
 
 ifdef ZYNQMP_ATF_MEM_BASE
     $(eval $(call add_define,ZYNQMP_ATF_MEM_BASE))
@@ -97,7 +97,3 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/pm_service/pm_api_sys.c	\
 				plat/xilinx/zynqmp/pm_service/pm_ipi.c		\
 				plat/xilinx/zynqmp/pm_service/pm_client.c
-
-ifneq (${RESET_TO_BL31},1)
-  $(error "Using BL31 as the reset vector is only one option supported on ZynqMP. Please set RESET_TO_BL31 to 1.")
-endif
