@@ -196,6 +196,7 @@ void __dead2 smc(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
  ******************************************************************************/
 DEFINE_SYSREG_READ_FUNC(midr_el1)
 DEFINE_SYSREG_READ_FUNC(mpidr_el1)
+DEFINE_SYSREG_READ_FUNC(id_aa64mmfr0_el1)
 
 DEFINE_SYSREG_RW_FUNCS(scr_el3)
 DEFINE_SYSREG_RW_FUNCS(hcr_el2)

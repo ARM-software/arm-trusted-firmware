@@ -205,7 +205,8 @@
  * Required platform porting definitions common to all ARM standard platforms
  *****************************************************************************/
 
-#define ADDR_SPACE_SIZE			(1ull << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE			(1ull << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE			(1ull << 32)
 
 /*
  * This macro defines the deepest retention state possible. A higher state
