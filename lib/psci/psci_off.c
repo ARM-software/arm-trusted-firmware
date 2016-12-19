@@ -107,11 +107,28 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	psci_stats_update_pwr_down(end_pwrlvl, &state_info);
 #endif
 
+#if ENABLE_RUNTIME_INSTRUMENTATION
+
+	/*
+	 * Flush cache line so that even if CPU power down happens
+	 * the timestamp update is reflected in memory.
+	 */
+	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		RT_INSTR_ENTER_CFLUSH,
+		PMF_CACHE_MAINT);
+#endif
+
 	/*
 	 * Arch. management. Perform the necessary steps to flush all
 	 * cpu caches.
 	 */
 	psci_do_pwrdown_cache_maintenance(psci_find_max_off_lvl(&state_info));
+
+#if ENABLE_RUNTIME_INSTRUMENTATION
+	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
+		RT_INSTR_EXIT_CFLUSH,
+		PMF_NO_CACHE_MAINT);
+#endif
 
 	/*
 	 * Plat. management: Perform platform specific actions to turn this
