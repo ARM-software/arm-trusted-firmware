@@ -38,6 +38,9 @@ image_desc_t bl1_tbbr_image_descs[] = {
 	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
 		    VERSION_1, image_info_t, 0),
 	    .image_info.image_base = BL2_BASE,
+#if LOAD_IMAGE_V2
+	    .image_info.image_max_size = BL2_LIMIT - BL2_BASE,
+#endif
 	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
 		    VERSION_1, entry_point_info_t, SECURE),
     },
@@ -55,6 +58,9 @@ image_desc_t bl1_tbbr_image_descs[] = {
 	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
 		    VERSION_1, image_info_t, 0),
 	    .image_info.image_base = SCP_BL2U_BASE,
+#if LOAD_IMAGE_V2
+	    .image_info.image_max_size = SCP_BL2U_LIMIT - SCP_BL2U_BASE,
+#endif
 	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
 		    VERSION_1, entry_point_info_t, SECURE),
     },
@@ -65,6 +71,9 @@ image_desc_t bl1_tbbr_image_descs[] = {
 	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 		    VERSION_1, image_info_t, 0),
 	    .image_info.image_base = BL2U_BASE,
+#if LOAD_IMAGE_V2
+	    .image_info.image_max_size = BL2U_LIMIT - BL2U_BASE,
+#endif
 	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
 		    VERSION_1, entry_point_info_t, SECURE | EXECUTABLE),
 	    .ep_info.pc = BL2U_BASE,
