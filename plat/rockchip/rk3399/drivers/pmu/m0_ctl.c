@@ -53,7 +53,8 @@ void m0_init(void)
 				      0xf, 0));
 
 	/* gating disable for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, BIT_WITH_WMSK(0));
+	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0,
+		      BITS_WITH_WMASK(0x3, 0x3, 0));
 
 	/*
 	 * To switch the parent to xin24M and div == 1,
