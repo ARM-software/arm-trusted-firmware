@@ -41,6 +41,7 @@
 #include <platform_def.h>
 #include <smcc_helpers.h>
 #include <string.h>
+#include <utils.h>
 #include "bl1_private.h"
 
 /*
@@ -120,93 +121,72 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			unsigned int image_size,
 			unsigned int flags)
 {
-	uintptr_t base_addr;
+	uintptr_t dest_addr;
+	unsigned int remaining;
 
 	/* Get the image descriptor. */
 	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
-
-	/* Check if we are in correct state. */
-	if ((!image_desc) ||
-		((image_desc->state != IMAGE_STATE_RESET) &&
-		 (image_desc->state != IMAGE_STATE_COPYING))) {
-		WARN("BL1-FWU: Copy not allowed due to invalid state\n");
+	if (!image_desc) {
+		WARN("BL1-FWU: Invalid image ID %u\n", image_id);
 		return -EPERM;
 	}
 
-	/* Only Normal world is allowed to copy a Secure image. */
-	if ((GET_SECURITY_STATE(flags) == SECURE) ||
-	    (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == NON_SECURE)) {
-		WARN("BL1-FWU: Copy not allowed for Non-Secure "
-			 "image from Secure-world\n");
+	/*
+	 * The request must originate from a non-secure caller and target a
+	 * secure image. Any other scenario is invalid.
+	 */
+	if (GET_SECURITY_STATE(flags) == SECURE) {
+		WARN("BL1-FWU: Copy not allowed from secure world.\n");
+		return -EPERM;
+	}
+	if (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == NON_SECURE) {
+		WARN("BL1-FWU: Copy not allowed for non-secure images.\n");
 		return -EPERM;
 	}
 
-	if ((!image_src) || (!block_size)) {
+	/* Check whether the FWU state machine is in the correct state. */
+	if ((image_desc->state != IMAGE_STATE_RESET) &&
+	    (image_desc->state != IMAGE_STATE_COPYING)) {
+		WARN("BL1-FWU: Copy not allowed at this point of the FWU"
+			" process.\n");
+		return -EPERM;
+	}
+
+	if ((!image_src) || (!block_size) ||
+	    check_uptr_overflow(image_src, block_size - 1)) {
 		WARN("BL1-FWU: Copy not allowed due to invalid image source"
 			" or block size\n");
 		return -ENOMEM;
 	}
 
-	/* Get the image base address. */
-	base_addr = image_desc->image_info.image_base;
-
 	if (image_desc->state == IMAGE_STATE_COPYING) {
 		/*
-		 * If last block is more than expected then
-		 * clip the block to the required image size.
+		 * There must have been at least 1 copy operation for this image
+		 * previously.
 		 */
-		if (image_desc->copied_size + block_size >
-			 image_desc->image_info.image_size) {
-			block_size = image_desc->image_info.image_size -
-				image_desc->copied_size;
-			WARN("BL1-FWU: Copy argument block_size > remaining image size."
-				" Clipping block_size\n");
-		}
-
-		/* Make sure the image src/size is mapped. */
-		if (bl1_plat_mem_check(image_src, block_size, flags)) {
-			WARN("BL1-FWU: Copy arguments source/size not mapped\n");
-			return -ENOMEM;
-		}
+		assert(image_desc->copied_size != 0);
+		/*
+		 * The image size must have been recorded in the 1st copy
+		 * operation.
+		 */
+		image_size = image_desc->image_info.image_size;
+		assert(image_size != 0);
+		assert(image_desc->copied_size < image_size);
 
 		INFO("BL1-FWU: Continuing image copy in blocks\n");
-
-		/* Copy image for given block size. */
-		base_addr += image_desc->copied_size;
-		image_desc->copied_size += block_size;
-		memcpy((void *)base_addr, (const void *)image_src, block_size);
-		flush_dcache_range(base_addr, block_size);
-
-		/* Update the state if last block. */
-		if (image_desc->copied_size ==
-				image_desc->image_info.image_size) {
-			image_desc->state = IMAGE_STATE_COPIED;
-			INFO("BL1-FWU: Image copy in blocks completed\n");
-		}
-	} else {
-		/* This means image is in RESET state and ready to be copied. */
-		INFO("BL1-FWU: Fresh call to copy an image\n");
-
-		if (!image_size) {
-			WARN("BL1-FWU: Copy not allowed due to invalid image size\n");
-			return -ENOMEM;
-		}
+	} else { /* image_desc->state == IMAGE_STATE_RESET */
+		INFO("BL1-FWU: Initial call to copy an image\n");
 
 		/*
-		 * If block size is more than total size then
-		 * assume block size as the total image size.
+		 * image_size is relevant only for the 1st copy request, it is
+		 * then ignored for subsequent calls for this image.
 		 */
-		if (block_size > image_size) {
-			block_size = image_size;
-			WARN("BL1-FWU: Copy argument block_size > image size."
-				" Clipping block_size\n");
-		}
-
-		/* Make sure the image src/size is mapped. */
-		if (bl1_plat_mem_check(image_src, block_size, flags)) {
-			WARN("BL1-FWU: Copy arguments source/size not mapped\n");
+		if (!image_size) {
+			WARN("BL1-FWU: Copy not allowed due to invalid image"
+				" size\n");
 			return -ENOMEM;
 		}
+
 #if LOAD_IMAGE_V2
 		/* Check that the image size to load is within limit */
 		if (image_size > image_desc->image_info.image_max_size) {
@@ -214,35 +194,57 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			return -ENOMEM;
 		}
 #else
-		/* Find out how much free trusted ram remains after BL1 load */
-		meminfo_t *mem_layout = bl1_plat_sec_mem_layout();
-		if ((image_desc->image_info.image_base < mem_layout->free_base) ||
-			 (image_desc->image_info.image_base + image_size >
-			  mem_layout->free_base + mem_layout->free_size)) {
-			WARN("BL1-FWU: Memory not available to copy\n");
+		/*
+		 * Check the image will fit into the free trusted RAM after BL1
+		 * load.
+		 */
+		const meminfo_t *mem_layout = bl1_plat_sec_mem_layout();
+		if (!is_mem_free(mem_layout->free_base, mem_layout->free_size,
+					image_desc->image_info.image_base,
+					image_size)) {
+			WARN("BL1-FWU: Copy not allowed due to insufficient"
+			     " resources.\n");
 			return -ENOMEM;
 		}
 #endif
 
-		/* Update the image size. */
+		/* Save the given image size. */
 		image_desc->image_info.image_size = image_size;
 
-		/* Copy image for given size. */
-		memcpy((void *)base_addr, (const void *)image_src, block_size);
-		flush_dcache_range(base_addr, block_size);
-
-		/* Update the state. */
-		if (block_size == image_size) {
-			image_desc->state = IMAGE_STATE_COPIED;
-			INFO("BL1-FWU: Image is copied successfully\n");
-		} else {
-			image_desc->state = IMAGE_STATE_COPYING;
-			INFO("BL1-FWU: Started image copy in blocks\n");
-		}
-
-		image_desc->copied_size = block_size;
+		/*
+		 * copied_size must be explicitly initialized here because the
+		 * FWU code doesn't necessarily do it when it resets the state
+		 * machine.
+		 */
+		image_desc->copied_size = 0;
 	}
 
+	/*
+	 * If the given block size is more than the total image size
+	 * then clip the former to the latter.
+	 */
+	remaining = image_size - image_desc->copied_size;
+	if (block_size > remaining) {
+		WARN("BL1-FWU: Block size is too big, clipping it.\n");
+		block_size = remaining;
+	}
+
+	/* Make sure the source image is mapped in memory. */
+	if (bl1_plat_mem_check(image_src, block_size, flags)) {
+		WARN("BL1-FWU: Source image is not mapped.\n");
+		return -ENOMEM;
+	}
+
+	/* Everything looks sane. Go ahead and copy the block of data. */
+	dest_addr = image_desc->image_info.image_base + image_desc->copied_size;
+	memcpy((void *) dest_addr, (const void *) image_src, block_size);
+	flush_dcache_range(dest_addr, block_size);
+
+	image_desc->copied_size += block_size;
+	image_desc->state = (block_size == remaining) ?
+		IMAGE_STATE_COPIED : IMAGE_STATE_COPYING;
+
+	INFO("BL1-FWU: Copy operation successful.\n");
 	return 0;
 }
 
@@ -293,7 +295,8 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		base_addr = image_desc->image_info.image_base;
 		total_size = image_desc->image_info.image_size;
 	} else {
-		if ((!image_src) || (!image_size)) {
+		if ((!image_src) || (!image_size) ||
+		    check_uptr_overflow(image_src, image_size - 1)) {
 			WARN("BL1-FWU: Auth not allowed due to invalid"
 				" image source/size\n");
 			return -ENOMEM;

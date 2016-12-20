@@ -1121,10 +1121,15 @@ The default implementation spins forever.
                unsigned int flags
     Return   : int
 
-BL1 calls this function while handling FWU copy and authenticate SMCs. The
-platform must ensure that the provided `mem_base` and `mem_size` are mapped into
-BL1, and that this memory corresponds to either a secure or non-secure memory
-region as indicated by the security state of the `flags` argument.
+BL1 calls this function while handling FWU related SMCs, more specifically when
+copying or authenticating an image. Its responsibility is to ensure that the
+region of memory identified by `mem_base` and `mem_size` is mapped in BL1, and
+that this memory corresponds to either a secure or non-secure memory region as
+indicated by the security state of the `flags` argument.
+
+This function can safely assume that the value resulting from the addition of
+`mem_base` and `mem_size` fits into a `uintptr_t` type variable and does not
+overflow.
 
 This function must return 0 on success, a non-null error code otherwise.
 
