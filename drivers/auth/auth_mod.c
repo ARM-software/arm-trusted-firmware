@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,6 +49,8 @@
 			return rc; \
 		} \
 	} while (0)
+
+#pragma weak plat_set_nv_ctr2
 
 /* Pointer to CoT */
 extern const auth_img_desc_t *const cot_desc_ptr;
@@ -297,19 +299,18 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 		/* Invalid NV-counter */
 		return 1;
 	} else if (cert_nv_ctr > plat_nv_ctr) {
-		if (img_desc->parent == NULL) {
-			/* This certificate has been signed with the ROT key.
-			 * Update the platform counter value */
-			rc = plat_set_nv_ctr(param->plat_nv_ctr->cookie,
-					     cert_nv_ctr);
-			return_if_error(rc);
-		} else {
-			/* Secondary certificates cannot modify the counter */
-			return 1;
-		}
+		rc = plat_set_nv_ctr2(param->plat_nv_ctr->cookie,
+			img_desc, cert_nv_ctr);
+		return_if_error(rc);
 	}
 
 	return 0;
+}
+
+int plat_set_nv_ctr2(void *cookie, const auth_img_desc_t *img_desc __unused,
+		unsigned int nv_ctr)
+{
+	return plat_set_nv_ctr(cookie, nv_ctr);
 }
 
 /*
