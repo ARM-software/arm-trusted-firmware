@@ -90,7 +90,11 @@ endfunc aem_generic_cpu_reg_dump
 
 
 /* cpu_ops for Base AEM FVP */
-declare_cpu_ops aem_generic, BASE_AEM_MIDR, 1
+declare_cpu_ops aem_generic, BASE_AEM_MIDR, CPU_NO_RESET_FUNC, \
+	aem_generic_core_pwr_dwn, \
+	aem_generic_cluster_pwr_dwn
 
 /* cpu_ops for Foundation FVP */
-declare_cpu_ops aem_generic, FOUNDATION_AEM_MIDR, 1
+declare_cpu_ops aem_generic, FOUNDATION_AEM_MIDR, CPU_NO_RESET_FUNC, \
+	aem_generic_core_pwr_dwn, \
+	aem_generic_cluster_pwr_dwn

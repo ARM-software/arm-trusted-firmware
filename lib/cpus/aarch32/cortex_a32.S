@@ -141,4 +141,7 @@ func cortex_a32_cluster_pwr_dwn
 	b	cortex_a32_disable_smp
 endfunc cortex_a32_cluster_pwr_dwn
 
-declare_cpu_ops cortex_a32, CORTEX_A32_MIDR
+declare_cpu_ops cortex_a32, CORTEX_A32_MIDR, \
+	cortex_a32_reset_func, \
+	cortex_a32_core_pwr_dwn, \
+	cortex_a32_cluster_pwr_dwn

@@ -74,31 +74,23 @@ endfunc reset_handler
 
 #if IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*
-	 * The prepare core power down function for all platforms.  After
-	 * the cpu_ops pointer is retrieved from cpu_data, the corresponding
-	 * pwr_dwn_core in the cpu_ops is invoked.
+	 * void prepare_cpu_pwr_dwn(unsigned int power_level)
+	 *
+	 * Prepare CPU power down function for all platforms. The function takes
+	 * a domain level to be powered down as its parameter. After the cpu_ops
+	 * pointer is retrieved from cpu_data, the handler for requested power
+	 * level is called.
 	 */
-	.globl	prepare_core_pwr_dwn
-func prepare_core_pwr_dwn
-	mrs	x1, tpidr_el3
-	ldr	x0, [x1, #CPU_DATA_CPU_OPS_PTR]
-#if ASM_ASSERTION
-	cmp	x0, #0
-	ASM_ASSERT(ne)
-#endif
-
-	/* Get the cpu_ops core_pwr_dwn handler */
-	ldr	x1, [x0, #CPU_PWR_DWN_CORE]
-	br	x1
-endfunc prepare_core_pwr_dwn
-
+	.globl	prepare_cpu_pwr_dwn
+func prepare_cpu_pwr_dwn
 	/*
-	 * The prepare cluster power down function for all platforms.  After
-	 * the cpu_ops pointer is retrieved from cpu_data, the corresponding
-	 * pwr_dwn_cluster in the cpu_ops is invoked.
+	 * If the given power level exceeds CPU_MAX_PWR_DWN_OPS, we call the
+	 * power down handler for the last power level
 	 */
-	.globl	prepare_cluster_pwr_dwn
-func prepare_cluster_pwr_dwn
+	mov_imm	x2, (CPU_MAX_PWR_DWN_OPS - 1)
+	cmp	x0, x2
+	csel	x2, x2, x0, hi
+
 	mrs	x1, tpidr_el3
 	ldr	x0, [x1, #CPU_DATA_CPU_OPS_PTR]
 #if ASM_ASSERTION
@@ -106,10 +98,12 @@ func prepare_cluster_pwr_dwn
 	ASM_ASSERT(ne)
 #endif
 
-	/* Get the cpu_ops cluster_pwr_dwn handler */
-	ldr	x1, [x0, #CPU_PWR_DWN_CLUSTER]
+	/* Get the appropriate power down handler */
+	mov	x1, #CPU_PWR_DWN_OPS
+	add	x1, x1, x2, lsl #3
+	ldr	x1, [x0, x1]
 	br	x1
-endfunc prepare_cluster_pwr_dwn
+endfunc prepare_cpu_pwr_dwn
 
 
 	/*

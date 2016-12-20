@@ -157,4 +157,7 @@ func cortex_a35_cpu_reg_dump
 	ret
 endfunc cortex_a35_cpu_reg_dump
 
-declare_cpu_ops cortex_a35, CORTEX_A35_MIDR
+declare_cpu_ops cortex_a35, CORTEX_A35_MIDR, \
+	cortex_a35_reset_func, \
+	cortex_a35_core_pwr_dwn, \
+	cortex_a35_cluster_pwr_dwn

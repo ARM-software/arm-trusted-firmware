@@ -488,4 +488,7 @@ func cortex_a57_cpu_reg_dump
 endfunc cortex_a57_cpu_reg_dump
 
 
-declare_cpu_ops cortex_a57, CORTEX_A57_MIDR
+declare_cpu_ops cortex_a57, CORTEX_A57_MIDR, \
+	cortex_a57_reset_func, \
+	cortex_a57_core_pwr_dwn, \
+	cortex_a57_cluster_pwr_dwn

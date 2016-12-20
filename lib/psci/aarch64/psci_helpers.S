@@ -59,24 +59,11 @@ func psci_do_pwrdown_cache_maintenance
 	stp     x19, x20, [sp,#-16]!
 
 	/* ---------------------------------------------
-	 * Determine to how many levels of cache will be
-	 * subject to cache maintenance. Power level
-	 * 0 implies that only the cpu is being powered
-	 * down. Only the L1 data cache needs to be
-	 * flushed to the PoU in this case. For a higher
-	 * power level we are assuming that a flush
-	 * of L1 data and L2 unified cache is enough.
-	 * This information should be provided by the
-	 * platform.
+	 * Invoke CPU-specific power down operations for
+	 * the appropriate level
 	 * ---------------------------------------------
 	 */
-	cmp	w0, #PSCI_CPU_PWR_LVL
-	b.eq	do_core_pwr_dwn
-	bl	prepare_cluster_pwr_dwn
-	b	do_stack_maintenance
-
-do_core_pwr_dwn:
-	bl	prepare_core_pwr_dwn
+	bl	prepare_cpu_pwr_dwn
 
 	/* ---------------------------------------------
 	 * Do stack maintenance by flushing the used
@@ -84,7 +71,6 @@ do_core_pwr_dwn:
 	 * remainder.
 	 * ---------------------------------------------
 	 */
-do_stack_maintenance:
 	bl	plat_get_my_stack
 
 	/* ---------------------------------------------
