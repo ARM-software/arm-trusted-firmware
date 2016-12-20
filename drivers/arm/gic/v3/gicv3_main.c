@@ -40,6 +40,13 @@
 static const gicv3_driver_data_t *driver_data;
 static unsigned int gicv2_compat;
 
+/*
+ * Redistributor power operations are weakly bound so that they can be
+ * overridden
+ */
+#pragma weak gicv3_rdistif_off
+#pragma weak gicv3_rdistif_on
+
 /*******************************************************************************
  * This function initialises the ARM GICv3 driver in EL3 with provided platform
  * inputs.
@@ -188,6 +195,9 @@ void gicv3_rdistif_init(unsigned int proc_num)
 
 	assert(IS_IN_EL3());
 
+	/* Power on redistributor */
+	gicv3_rdistif_on(proc_num);
+
 	gicr_base = driver_data->rdistif_base_addrs[proc_num];
 
 	/* Set the default attribute of all SGIs and PPIs */
@@ -208,6 +218,19 @@ void gicv3_rdistif_init(unsigned int proc_num)
 					driver_data->g0_interrupt_array,
 					INTR_GROUP0);
 	}
+}
+
+/*******************************************************************************
+ * Functions to perform power operations on GIC Redistributor
+ ******************************************************************************/
+void gicv3_rdistif_off(unsigned int proc_num)
+{
+	return;
+}
+
+void gicv3_rdistif_on(unsigned int proc_num)
+{
+	return;
 }
 
 /*******************************************************************************

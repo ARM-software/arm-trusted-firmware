@@ -66,19 +66,6 @@ const unsigned int arm_pm_idle_states[] = {
 
 /*******************************************************************************
  * Function which implements the common FVP specific operations to power down a
- * cpu in response to a CPU_OFF or CPU_SUSPEND request.
- ******************************************************************************/
-static void fvp_cpu_pwrdwn_common(void)
-{
-	/* Prevent interrupts from spuriously waking up this cpu */
-	plat_arm_gic_cpuif_disable();
-
-	/* Program the power controller to power off this cpu. */
-	fvp_pwrc_write_ppoffr(read_mpidr_el1());
-}
-
-/*******************************************************************************
- * Function which implements the common FVP specific operations to power down a
  * cluster in response to a CPU_OFF or CPU_SUSPEND request.
  ******************************************************************************/
 static void fvp_cluster_pwrdwn_common(void)
@@ -180,7 +167,15 @@ void fvp_pwr_domain_off(const psci_power_state_t *target_state)
 	 * suspended. Perform at least the cpu specific actions followed
 	 * by the cluster specific operations if applicable.
 	 */
-	fvp_cpu_pwrdwn_common();
+
+	/* Prevent interrupts from spuriously waking up this cpu */
+	plat_arm_gic_cpuif_disable();
+
+	/* Turn redistributor off */
+	plat_arm_gic_redistif_off();
+
+	/* Program the power controller to power off this cpu. */
+	fvp_pwrc_write_ppoffr(read_mpidr_el1());
 
 	if (target_state->pwr_domain_state[ARM_PWR_LVL1] ==
 					ARM_LOCAL_STATE_OFF)
@@ -213,8 +208,17 @@ void fvp_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* Program the power controller to enable wakeup interrupts. */
 	fvp_pwrc_set_wen(mpidr);
 
-	/* Perform the common cpu specific operations */
-	fvp_cpu_pwrdwn_common();
+	/* Prevent interrupts from spuriously waking up this cpu */
+	plat_arm_gic_cpuif_disable();
+
+	/*
+	 * The Redistributor is not powered off as it can potentially prevent
+	 * wake up events reaching the CPUIF and/or might lead to losing
+	 * register context.
+	 */
+
+	/* Program the power controller to power off this cpu. */
+	fvp_pwrc_write_ppoffr(read_mpidr_el1());
 
 	/* Perform the common cluster specific operations */
 	if (target_state->pwr_domain_state[ARM_PWR_LVL1] ==
