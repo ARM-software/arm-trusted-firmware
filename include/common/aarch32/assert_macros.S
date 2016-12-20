@@ -43,8 +43,8 @@
 .endif ;\
 	b##_cc	300f ;\
 	ldr	r0, =.L_assert_filename ;\
-	mov	r1, #__LINE__ ;\
-	b	. ;\
+	ldr	r1, =__LINE__ ;\
+	b	asm_assert;\
 300:
 
 #endif /* __ASSERT_MACROS_S__ */

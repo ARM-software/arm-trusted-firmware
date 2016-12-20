@@ -31,6 +31,8 @@
 #include <platform_def.h>
 
 	.weak	plat_arm_calc_core_pos
+	.weak	plat_crash_console_init
+	.weak	plat_crash_console_putc
 	.weak	plat_my_core_pos
 
 	/* -----------------------------------------------------
@@ -57,3 +59,29 @@ func plat_arm_calc_core_pos
 	add	r0, r1, r0, LSR #6
 	bx	lr
 endfunc plat_arm_calc_core_pos
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_init(void)
+	 * Function to initialize the crash console
+	 * without a C Runtime to print crash report.
+	 * Clobber list : r0 - r3
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_init
+	ldr	r0, =PLAT_ARM_CRASH_UART_BASE
+	ldr	r1, =PLAT_ARM_CRASH_UART_CLK_IN_HZ
+	ldr	r2, =ARM_CONSOLE_BAUDRATE
+	b	console_core_init
+endfunc plat_crash_console_init
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_putc(int c)
+	 * Function to print a character on the crash
+	 * console without a C Runtime.
+	 * Clobber list : r1 - r2
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_putc
+	ldr	r1, =PLAT_ARM_CRASH_UART_BASE
+	b	console_core_putc
+endfunc plat_crash_console_putc
