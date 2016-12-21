@@ -141,7 +141,7 @@ static char *xstrdup(const char *s, const char *msg)
 
 	d = strdup(s);
 	if (d == NULL)
-		log_errx("strdup: ", msg);
+		log_errx("strdup: %s", msg);
 	return d;
 }
 
@@ -151,7 +151,7 @@ static void *xmalloc(size_t size, const char *msg)
 
 	d = malloc(size);
 	if (d == NULL)
-		log_errx("malloc: ", msg);
+		log_errx("malloc: %s", msg);
 	return d;
 }
 
