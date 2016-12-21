@@ -66,21 +66,20 @@
 #define TSP_HANDLE_SEL1_INTR_AND_RETURN	0x2004
 
 /*
- * Generate function IDs for TSP services to be used in SMC calls, by
- * appropriately setting bit 31 to differentiate standard and fast SMC calls
- */
-#define TSP_STD_FID(fid)	((fid) | 0x72000000 | (0 << 31))
-#define TSP_FAST_FID(fid)	((fid) | 0x72000000 | (1 << 31))
-
-/* SMC function ID to request a previously preempted std smc */
-#define TSP_FID_RESUME		TSP_STD_FID(0x3000)
-
-/*
  * Identify a TSP service from function ID filtering the last 16 bits from the
  * SMC function ID
  */
 #define TSP_BARE_FID(fid)	((fid) & 0xffff)
 
+/*
+ * Generate function IDs for TSP services to be used in SMC calls, by
+ * appropriately setting bit 31 to differentiate standard and fast SMC calls
+ */
+#define TSP_STD_FID(fid)	((TSP_BARE_FID(fid) | 0x72000000))
+#define TSP_FAST_FID(fid)	((TSP_BARE_FID(fid) | 0x72000000) | (1u << 31))
+
+/* SMC function ID to request a previously preempted std smc */
+#define TSP_FID_RESUME		TSP_STD_FID(0x3000)
 /*
  * Total number of function IDs implemented for services offered to NS clients.
  * The function IDs are defined above
