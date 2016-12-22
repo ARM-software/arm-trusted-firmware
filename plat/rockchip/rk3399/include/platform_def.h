@@ -32,6 +32,7 @@
 #define __PLATFORM_DEF_H__
 
 #include <arch.h>
+#include <bl31_param.h>
 #include <common_def.h>
 #include <rk3399_def.h>
 
@@ -87,22 +88,6 @@
  * higher than this is invalid.
  */
 #define PLAT_MAX_OFF_STATE		2
-
-/*******************************************************************************
- * Platform memory map related constants
- ******************************************************************************/
-/* TF text, ro, rw, Size: 1MB */
-#define TZRAM_BASE		(0x0)
-#define TZRAM_SIZE		(0x100000)
-
-/*******************************************************************************
- * BL31 specific defines.
- ******************************************************************************/
-/*
- * Put BL3-1 at the top of the Trusted RAM
- */
-#define BL31_BASE		(TZRAM_BASE + 0x1000)
-#define BL31_LIMIT	(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
