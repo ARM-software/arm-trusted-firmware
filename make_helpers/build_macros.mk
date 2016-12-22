@@ -262,11 +262,11 @@ $(eval PREREQUISITES := $(1).d)
 
 $(1): $(2)
 	@echo "  PP      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -P -E -D__LINKER__ -o $$@ $$<
+	$$(Q)$$(CPP) $$(CPPFLAGS) -P -D__ASSEMBLY__ -D__LINKER__ -o $$@ $$<
 
 $(PREREQUISITES): $(2) | $(dir ${1})
 	@echo "  DEPS    $$@"
-	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(1) -MF $$@ $$<
+	$$(Q)$$(CPP) $$(CPPFLAGS) -D__ASSEMBLY__ -M -MT $(1) -MF $$@ $$<
 
 ifdef IS_ANYTHING_TO_BUILD
 -include $(PREREQUISITES)

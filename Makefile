@@ -143,16 +143,14 @@ TF_CFLAGS_aarch64	=	-mgeneral-regs-only -mstrict-align
 ASFLAGS_aarch32		=	-march=armv8-a
 TF_CFLAGS_aarch32	=	-march=armv8-a
 
-ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
-				-Werror -Wmissing-include-dirs			\
-				-D__ASSEMBLY__ $(ASFLAGS_$(ARCH))		\
-				${DEFINES} ${INCLUDES}
-TF_CFLAGS		+= 	-nostdinc -ffreestanding -Wall			\
-				-Werror -Wmissing-include-dirs			\
-				-std=c99 -Os					\
-				$(TF_CFLAGS_$(ARCH))				\
-				${DEFINES} ${INCLUDES}
-TF_CFLAGS		+=	-ffunction-sections -fdata-sections
+CPPFLAGS		=	${DEFINES} ${INCLUDES} -nostdinc		\
+				-Wmissing-include-dirs -Werror
+ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
+				-D__ASSEMBLY__ -ffreestanding 			\
+				-Wa,--fatal-warnings
+TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
+				-ffreestanding -Wall -std=c99 -Os		\
+				-ffunction-sections -fdata-sections
 
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
