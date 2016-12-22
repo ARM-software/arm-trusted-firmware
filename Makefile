@@ -149,7 +149,7 @@ ASFLAGS			+= 	-nostdinc -ffreestanding -Wa,--fatal-warnings	\
 				${DEFINES} ${INCLUDES}
 TF_CFLAGS		+= 	-nostdinc -ffreestanding -Wall			\
 				-Werror -Wmissing-include-dirs			\
-				-std=c99 -c -Os					\
+				-std=c99 -Os					\
 				$(TF_CFLAGS_$(ARCH))				\
 				${DEFINES} ${INCLUDES}
 TF_CFLAGS		+=	-ffunction-sections -fdata-sections
