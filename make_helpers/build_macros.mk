@@ -184,24 +184,7 @@ endef
 # Auxiliary macros to build TF images from sources
 ################################################################################
 
-# If no goal is specified in the command line, .DEFAULT_GOAL is used.
-# .DEFAULT_GOAL is defined in the main Makefile before including this file.
-ifeq ($(MAKECMDGOALS),)
-MAKECMDGOALS := $(.DEFAULT_GOAL)
-endif
-
-define match_goals
-$(strip $(foreach goal,$(1),$(filter $(goal),$(MAKECMDGOALS))))
-endef
-
-# List of rules that involve building things
-BUILD_TARGETS := all bl1 bl2 bl2u bl31 bl32 certificates fip
-
-# Does the list of goals specified on the command line include a build target?
-ifneq ($(call match_goals,${BUILD_TARGETS}),)
-IS_ANYTHING_TO_BUILD := 1
-endif
-
+MAKE_DEP = -Wp,-MD,$(DEP) -MT $$@
 
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
@@ -210,20 +193,14 @@ endif
 define MAKE_C
 
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
-$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
+$(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
-$(OBJ): $(2)
+$(OBJ): $(2) | bl$(3)_dirs
 	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -D$(IMAGE) -c $$< -o $$@
+	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
-$(PREREQUISITES): $(2) | bl$(3)_dirs
-	@echo "  DEPS    $$@"
-	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -M -MT $(OBJ) -MF $$@ $$<
-
-ifdef IS_ANYTHING_TO_BUILD
--include $(PREREQUISITES)
-endif
+-include $(DEP)
 
 endef
 
@@ -235,20 +212,14 @@ endef
 define MAKE_S
 
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
-$(eval PREREQUISITES := $(patsubst %.o,%.d,$(OBJ)))
+$(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
-$(OBJ): $(2)
+$(OBJ): $(2) | bl$(3)_dirs
 	@echo "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -D$(IMAGE) -c $$< -o $$@
+	$$(Q)$$(AS) $$(ASFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
-$(PREREQUISITES): $(2) | bl$(3)_dirs
-	@echo "  DEPS    $$@"
-	$$(Q)$$(AS) $$(ASFLAGS) -M -MT $(OBJ) -MF $$@ $$<
-
-ifdef IS_ANYTHING_TO_BUILD
--include $(PREREQUISITES)
-endif
+-include $(DEP)
 
 endef
 
@@ -258,19 +229,13 @@ endef
 #   $(2) = input template
 define MAKE_LD
 
-$(eval PREREQUISITES := $(1).d)
+$(eval DEP := $(1).d)
 
-$(1): $(2)
+$(1): $(2) | $(dir ${1})
 	@echo "  PP      $$<"
-	$$(Q)$$(CPP) $$(CPPFLAGS) -P -D__ASSEMBLY__ -D__LINKER__ -o $$@ $$<
+	$$(Q)$$(CPP) $$(CPPFLAGS) -P -D__ASSEMBLY__ -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
-$(PREREQUISITES): $(2) | $(dir ${1})
-	@echo "  DEPS    $$@"
-	$$(Q)$$(CPP) $$(CPPFLAGS) -D__ASSEMBLY__ -M -MT $(1) -MF $$@ $$<
-
-ifdef IS_ANYTHING_TO_BUILD
--include $(PREREQUISITES)
-endif
+-include $(DEP)
 
 endef
 
