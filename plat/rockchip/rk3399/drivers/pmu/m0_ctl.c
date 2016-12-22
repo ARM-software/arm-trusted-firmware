@@ -31,6 +31,7 @@
 #include <m0_ctl.h>
 #include <delay_timer.h>
 #include <plat_private.h>
+#include <secure.h>
 #include <soc.h>
 #include <arch_helpers.h>
 #include <assert.h>
@@ -42,7 +43,7 @@ void m0_init(void)
 {
 	/* secure config for M0 */
 	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(0), WMSK_BIT(7));
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON6, WMSK_BIT(12));
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(6), WMSK_BIT(12));
 
 	/* set the execute address for M0 */
 	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(3),

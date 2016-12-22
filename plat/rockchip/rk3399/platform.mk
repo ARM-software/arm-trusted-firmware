@@ -39,6 +39,7 @@ PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/			\
 				-I${RK_PLAT_SOC}/			\
 				-I${RK_PLAT_SOC}/drivers/pmu/		\
 				-I${RK_PLAT_SOC}/drivers/pwm/		\
+				-I${RK_PLAT_SOC}/drivers/secure/	\
 				-I${RK_PLAT_SOC}/drivers/soc/		\
 				-I${RK_PLAT_SOC}/drivers/dram/		\
 				-I${RK_PLAT_SOC}/include/		\
@@ -80,6 +81,7 @@ BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
 			${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c		\
 			${RK_PLAT_SOC}/drivers/pmu/m0_ctl.c		\
 			${RK_PLAT_SOC}/drivers/pwm/pwm.c		\
+			${RK_PLAT_SOC}/drivers/secure/secure.c		\
 			${RK_PLAT_SOC}/drivers/soc/soc.c		\
 			${RK_PLAT_SOC}/drivers/dram/dfs.c		\
 			${RK_PLAT_SOC}/drivers/dram/dram.c		\

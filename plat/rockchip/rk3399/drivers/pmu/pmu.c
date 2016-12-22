@@ -42,6 +42,7 @@
 #include <plat_private.h>
 #include <rk3399_def.h>
 #include <pmu_sram.h>
+#include <secure.h>
 #include <soc.h>
 #include <pmu.h>
 #include <pmu_com.h>
@@ -1098,7 +1099,7 @@ static int sys_pwr_domain_suspend(void)
 
 	pmu_sgrf_rst_hld();
 
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      (PMUSRAM_BASE >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 
@@ -1150,7 +1151,7 @@ static int sys_pwr_domain_resume(void)
 	udelay(300);
 	enable_dvfs_plls();
 
-	secure_watchdog_restore();
+	secure_watchdog_enable();
 
 	/* restore clk_ddrc_bpll_src_en gate */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),
@@ -1166,7 +1167,7 @@ static int sys_pwr_domain_resume(void)
 	mmio_write_32(PMU_BASE + PMU_WAKEUP_STATUS, 0xffffffff);
 	mmio_write_32(PMU_BASE + PMU_WKUP_CFG4, 0x00);
 
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 
@@ -1306,7 +1307,7 @@ void plat_rockchip_pmu_init(void)
 	psram_sleep_cfg->boot_mpidr = read_mpidr_el1() & 0xffff;
 
 	/* config cpu's warm boot address */
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 	mmio_write_32(PMU_BASE + PMU_NOC_AUTO_ENA, NOC_AUTO_ENABLE);

@@ -34,6 +34,7 @@
 #include <dram.h>
 #include <pmu_regs.h>
 #include <rk3399_def.h>
+#include <secure.h>
 #include <soc.h>
 #include <suspend.h>
 
