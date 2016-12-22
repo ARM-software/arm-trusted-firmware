@@ -184,7 +184,7 @@ endef
 # Auxiliary macros to build TF images from sources
 ################################################################################
 
-MAKE_DEP = -Wp,-MD,$(DEP) -MT $$@
+MAKE_DEP = -Wp,-MD,$(DEP) -MT $$@ -MP
 
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
