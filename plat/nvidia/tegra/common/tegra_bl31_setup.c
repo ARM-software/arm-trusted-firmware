@@ -354,6 +354,12 @@ void bl31_plat_arch_setup(void)
 			MT_DEVICE | MT_RW | MT_SECURE);
 #endif
 
+	/* map on-chip free running uS timer */
+	mmap_add_region(page_align((uint64_t)TEGRA_TMRUS_BASE, 0),
+			page_align((uint64_t)TEGRA_TMRUS_BASE, 0),
+			(uint64_t)TEGRA_TMRUS_SIZE,
+			MT_DEVICE | MT_RO | MT_SECURE);
+
 	/* add MMIO space */
 	plat_mmio_map = plat_get_mmio_map();
 	if (plat_mmio_map)
