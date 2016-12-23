@@ -197,7 +197,7 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	unsigned int stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA186_STATE_ID_MASK;
-	uint32_t val;
+	uint64_t val;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 		/*
