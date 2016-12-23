@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,9 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <context_mgmt.h>
+#include <debug.h>
 #include <string.h>
+#include <tsp.h>
 #include "tspd_private.h"
 
 /*******************************************************************************
@@ -129,3 +131,31 @@ void tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret)
 	/* Should never reach here */
 	assert(0);
 }
+
+/*******************************************************************************
+ * This function takes an SP context pointer and abort any preempted SMC
+ * request.
+ * Return 1 if there was a preempted SMC request, 0 otherwise.
+ ******************************************************************************/
+int tspd_abort_preempted_smc(tsp_context_t *tsp_ctx)
+{
+	if (!get_std_smc_active_flag(tsp_ctx->state))
+		return 0;
+
+	/* Abort any preempted SMC request */
+	clr_std_smc_active_flag(tsp_ctx->state);
+
+	/*
+	 * Arrange for an entry into the test secure payload. It will
+	 * be returned via TSP_ABORT_DONE case in tspd_smc_handler.
+	 */
+	cm_set_elr_el3(SECURE,
+		       (uint64_t) &tsp_vectors->abort_std_smc_entry);
+	uint64_t rc = tspd_synchronous_sp_entry(tsp_ctx);
+
+	if (rc != 0)
+		panic();
+
+	return 1;
+}
+

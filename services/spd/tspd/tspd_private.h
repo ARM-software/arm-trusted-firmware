@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -242,6 +242,7 @@ void tspd_init_tsp_ep_state(struct entry_point_info *tsp_ep,
 				uint32_t rw,
 				uint64_t pc,
 				tsp_context_t *tsp_ctx);
+int tspd_abort_preempted_smc(tsp_context_t *tsp_ctx);
 
 extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
 extern struct tsp_vectors *tsp_vectors;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,7 @@
 #define TSP_SUSPEND_DONE	0xf2000003
 #define TSP_RESUME_DONE		0xf2000004
 #define TSP_PREEMPTED		0xf2000005
+#define TSP_ABORT_DONE		0xf2000007
 #define TSP_SYSTEM_OFF_DONE	0xf2000008
 #define TSP_SYSTEM_RESET_DONE	0xf2000009
 
@@ -81,10 +82,17 @@
 /* SMC function ID to request a previously preempted std smc */
 #define TSP_FID_RESUME		TSP_STD_FID(0x3000)
 /*
+ * SMC function ID to request abortion of a previously preempted std smc. A
+ * fast SMC is used so that the TSP abort handler does not have to be
+ * reentrant.
+ */
+#define TSP_FID_ABORT		TSP_FAST_FID(0x3001)
+
+/*
  * Total number of function IDs implemented for services offered to NS clients.
  * The function IDs are defined above
  */
-#define TSP_NUM_FID		0x4
+#define TSP_NUM_FID		0x5
 
 /* TSP implementation version numbers */
 #define TSP_VERSION_MAJOR	0x0 /* Major version */
@@ -117,6 +125,7 @@ typedef struct tsp_vectors {
 	tsp_vector_isn_t sel1_intr_entry;
 	tsp_vector_isn_t system_off_entry;
 	tsp_vector_isn_t system_reset_entry;
+	tsp_vector_isn_t abort_std_smc_entry;
 } tsp_vectors_t;
 
 
