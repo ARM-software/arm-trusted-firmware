@@ -50,6 +50,7 @@
 
 #define OPT_TOC_ENTRY 0
 #define OPT_PLAT_TOC_FLAGS 1
+#define OPT_ALIGN 2
 
 static image_desc_t *lookup_image_desc_from_uuid(const uuid_t *uuid);
 static image_t *lookup_image_from_uuid(const uuid_t *uuid);
@@ -581,7 +582,8 @@ static void info_usage(void)
 	exit(1);
 }
 
-static int pack_images(const char *filename, uint64_t toc_flags)
+static int pack_images(const char *filename, uint64_t toc_flags,
+    unsigned long align)
 {
 	FILE *fp;
 	image_t *image;
@@ -612,6 +614,7 @@ static int pack_images(const char *filename, uint64_t toc_flags)
 	entry_offset = buf_size;
 	for (image = image_head; image != NULL; image = image->next) {
 		memcpy(&toc_entry->uuid, &image->uuid, sizeof(uuid_t));
+		entry_offset = (entry_offset + align - 1) & ~(align - 1);
 		toc_entry->offset_address = entry_offset;
 		toc_entry->size = image->size;
 		toc_entry->flags = 0;
@@ -640,9 +643,16 @@ static int pack_images(const char *filename, uint64_t toc_flags)
 	if (verbose)
 		log_dbgx("Payload size: %zu bytes", payload_size);
 
-	for (image = image_head; image != NULL; image = image->next)
+	entry_offset = buf_size;
+	for (image = image_head; image != NULL; image = image->next) {
+		entry_offset = (entry_offset + align - 1) & ~(align - 1);
+		if (fseek(fp, entry_offset, SEEK_SET))
+			log_errx("Failed to set file position");
+
 		if (fwrite(image->buffer, 1, image->size, fp) != image->size)
 			log_errx("Failed to write image to %s", filename);
+		entry_offset += image->size;
+	}
 
 	fclose(fp);
 	return 0;
@@ -714,19 +724,39 @@ static void parse_blob_opt(char *arg, uuid_t *uuid, char *filename, size_t len)
 	}
 }
 
+static int is_power_of_2(unsigned long x)
+{
+	return x && !(x & (x - 1));
+}
+
+static unsigned long get_image_align(char *arg)
+{
+	char *endptr;
+	unsigned long align;
+
+	errno = 0;
+	align = strtoul(arg, &endptr, 10);
+	if (*endptr != '\0' || !is_power_of_2(align) || errno != 0)
+		log_errx("Invalid alignment: %s", arg);
+
+	return align;
+}
+
 static int create_cmd(int argc, char *argv[])
 {
 	struct option *opts = NULL;
 	size_t nr_opts = 0;
 	unsigned long long toc_flags = 0;
+	unsigned long align = 1;
 
 	if (argc < 2)
 		create_usage();
 
 	opts = fill_common_opts(opts, &nr_opts, required_argument);
+	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
+	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, "plat-toc-flags", required_argument,
 	    OPT_PLAT_TOC_FLAGS);
-	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, NULL, 0, 0);
 
 	while (1) {
@@ -746,6 +776,9 @@ static int create_cmd(int argc, char *argv[])
 		}
 		case OPT_PLAT_TOC_FLAGS:
 			parse_plat_toc_flags(optarg, &toc_flags);
+			break;
+		case OPT_ALIGN:
+			align = get_image_align(optarg);
 			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1];
@@ -782,7 +815,7 @@ static int create_cmd(int argc, char *argv[])
 
 	update_fip();
 
-	pack_images(argv[0], toc_flags);
+	pack_images(argv[0], toc_flags, align);
 	free_images();
 	return 0;
 }
@@ -791,8 +824,9 @@ static void create_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool create [--blob uuid=...,file=...] "
+	printf("fiptool create [--align <value>] [--blob uuid=...,file=...] "
 	    "[--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID "
 	    "pointed to by file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
@@ -812,12 +846,14 @@ static int update_cmd(int argc, char *argv[])
 	char outfile[PATH_MAX] = { 0 };
 	fip_toc_header_t toc_header = { 0 };
 	unsigned long long toc_flags = 0;
+	unsigned long align = 1;
 	int pflag = 0;
 
 	if (argc < 2)
 		update_usage();
 
 	opts = fill_common_opts(opts, &nr_opts, required_argument);
+	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, "out", required_argument, 'o');
 	opts = add_opt(opts, &nr_opts, "plat-toc-flags", required_argument,
@@ -842,6 +878,9 @@ static int update_cmd(int argc, char *argv[])
 		case OPT_PLAT_TOC_FLAGS:
 			parse_plat_toc_flags(optarg, &toc_flags);
 			pflag = 1;
+			break;
+		case OPT_ALIGN:
+			align = get_image_align(optarg);
 			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1];
@@ -891,7 +930,7 @@ static int update_cmd(int argc, char *argv[])
 
 	update_fip();
 
-	pack_images(outfile, toc_flags);
+	pack_images(outfile, toc_flags, align);
 	free_images();
 	return 0;
 }
@@ -900,8 +939,9 @@ static void update_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool update [--blob uuid=...,file=...] [--out FIP_FILENAME] "
-	    "[--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("fiptool update [--align <value>] [--blob uuid=...,file=...] "
+	    "[--out FIP_FILENAME] [--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...,file=...\tAdd or update an image "
 	    "with the given UUID pointed to by file.\n");
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
@@ -1061,12 +1101,14 @@ static int remove_cmd(int argc, char *argv[])
 	char outfile[PATH_MAX] = { 0 };
 	fip_toc_header_t toc_header;
 	image_desc_t *desc;
+	unsigned long align = 1;
 	int fflag = 0;
 
 	if (argc < 2)
 		remove_usage();
 
 	opts = fill_common_opts(opts, &nr_opts, no_argument);
+	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, "force", no_argument, 'f');
 	opts = add_opt(opts, &nr_opts, "out", required_argument, 'o');
@@ -1087,6 +1129,9 @@ static int remove_cmd(int argc, char *argv[])
 			set_image_desc_action(desc, DO_REMOVE, NULL);
 			break;
 		}
+		case OPT_ALIGN:
+			align = get_image_align(optarg);
+			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1], filename[PATH_MAX];
 			uuid_t uuid = { 0 };
@@ -1151,7 +1196,7 @@ static int remove_cmd(int argc, char *argv[])
 		}
 	}
 
-	pack_images(outfile, toc_header.flags);
+	pack_images(outfile, toc_header.flags, align);
 	free_images();
 	return 0;
 }
@@ -1160,8 +1205,9 @@ static void remove_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool remove [--blob uuid=...] [--force] "
+	printf("fiptool remove [--align <value>] [--blob uuid=...] [--force] "
 	    "[--out FIP_FILENAME] [opts] FIP_FILENAME\n");
+	printf("  --align <value>\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...\tRemove an image with the given UUID.\n");
 	printf("  --force\t\tIf the output FIP file already exists, use --force to "
 	    "overwrite it.\n");

@@ -89,6 +89,9 @@ ENABLE_RUNTIME_INSTRUMENTATION	:= 0
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
 
+# Byte alignment that each component in FIP is aligned to
+FIP_ALIGN			:= 0
+
 # Default FIP file name
 FIP_NAME			:= fip.bin
 
