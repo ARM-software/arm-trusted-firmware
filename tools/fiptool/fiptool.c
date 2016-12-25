@@ -882,7 +882,7 @@ static int update_cmd(int argc, char *argv[])
 	if (outfile[0] == '\0')
 		snprintf(outfile, sizeof(outfile), "%s", argv[0]);
 
-	if (access(outfile, F_OK) == 0)
+	if (access(argv[0], F_OK) == 0)
 		parse_fip(argv[0], &toc_header);
 
 	if (pflag)
