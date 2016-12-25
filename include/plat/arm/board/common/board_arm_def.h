@@ -39,23 +39,23 @@
  */
 
 /* Size of cacheable stacks */
-#if IMAGE_BL1
+#if defined(IMAGE_BL1)
 #if TRUSTED_BOARD_BOOT
 # define PLATFORM_STACK_SIZE 0x1000
 #else
 # define PLATFORM_STACK_SIZE 0x440
 #endif
-#elif IMAGE_BL2
+#elif defined(IMAGE_BL2)
 # if TRUSTED_BOARD_BOOT
 #  define PLATFORM_STACK_SIZE 0x1000
 # else
 #  define PLATFORM_STACK_SIZE 0x400
 # endif
-#elif IMAGE_BL2U
+#elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE 0x200
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 # define PLATFORM_STACK_SIZE 0x400
-#elif IMAGE_BL32
+#elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE 0x440
 #endif
 
@@ -73,7 +73,7 @@
  * Optimisation is less important for the other, transient boot images so a
  * common, maximum value is used across these images.
  */
-#if IMAGE_BL31 || IMAGE_BL32
+#if defined(IMAGE_BL31) || defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		6
 # define MAX_XLAT_TABLES		4
 #else

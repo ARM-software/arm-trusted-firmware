@@ -51,15 +51,15 @@
 CPU_MIDR: /* cpu_ops midr */
 	.space  8
 /* Reset fn is needed in BL at reset vector */
-#if IMAGE_BL1 || IMAGE_BL31
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
 CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  8
 #endif
-#if IMAGE_BL31 /* The power down core and cluster is needed only in BL31 */
+#ifdef IMAGE_BL31 /* The power down core and cluster is needed only in BL31 */
 CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
 	.space  (8 * CPU_MAX_PWR_DWN_OPS)
 #endif
-#if (IMAGE_BL31 && CRASH_REPORTING)
+#if defined(IMAGE_BL31) && CRASH_REPORTING
 CPU_REG_DUMP: /* cpu specific register dump for crash reporting */
 	.space  8
 #endif
@@ -121,10 +121,10 @@ CPU_OPS_SIZE = .
 	.align 3
 	.type cpu_ops_\_name, %object
 	.quad \_midr
-#if IMAGE_BL1 || IMAGE_BL31
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
 	.quad \_resetfunc
 #endif
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 1:
 	/* Insert list of functions */
 	fill_constants CPU_MAX_PWR_DWN_OPS, \_power_down_ops
@@ -141,7 +141,7 @@ CPU_OPS_SIZE = .
 	  .endif
 	.endif
 #endif
-#if (IMAGE_BL31 && CRASH_REPORTING)
+#if defined(IMAGE_BL31) && CRASH_REPORTING
 	.quad \_name\()_cpu_reg_dump
 #endif
 	.endm

@@ -68,7 +68,7 @@
  * This doesn't include TZRAM as the 'mem_layout' argument passed to
  * arm_configure_mmu_elx() will give the available subset of that,
  */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 static const mmap_region_t plat_qemu_mmap[] = {
 	MAP_FLASH0,
 	MAP_SHARED_RAM,
@@ -82,7 +82,7 @@ static const mmap_region_t plat_qemu_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 static const mmap_region_t plat_qemu_mmap[] = {
 	MAP_FLASH0,
 	MAP_SHARED_RAM,
@@ -98,7 +98,7 @@ static const mmap_region_t plat_qemu_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 static const mmap_region_t plat_qemu_mmap[] = {
 	MAP_SHARED_RAM,
 	MAP_DEVICE0,

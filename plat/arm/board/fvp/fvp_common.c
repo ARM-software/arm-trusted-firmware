@@ -73,7 +73,7 @@ arm_config_t arm_config;
  * The flash needs to be mapped as writable in order to erase the FIP's Table of
  * Contents in case of unrecoverable error (see plat_error_handler()).
  */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_FLASH0_RW,
@@ -87,7 +87,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_FLASH0_RW,
@@ -103,14 +103,14 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL2U
+#ifdef IMAGE_BL2U
 const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	V2M_MAP_IOFPGA,
 	{0}
 };
 #endif
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
@@ -119,7 +119,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	{0}
 };
 #endif
-#if IMAGE_BL32
+#ifdef IMAGE_BL32
 const mmap_region_t plat_arm_mmap[] = {
 #ifdef AARCH32
 	ARM_MAP_SHARED_RAM,

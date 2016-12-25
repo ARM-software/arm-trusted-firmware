@@ -64,7 +64,7 @@ void arm_setup_page_tables(uintptr_t total_base,
 #endif
 );
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 /*
  * Use this macro to instantiate lock before it is used in below
  * arm_lock_xxx() macros

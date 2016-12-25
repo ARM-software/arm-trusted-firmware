@@ -82,27 +82,27 @@
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
  */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 # define PLAT_ARM_MMAP_ENTRIES		7
 # define MAX_XLAT_TABLES		4
 #endif
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 # define PLAT_ARM_MMAP_ENTRIES		8
 # define MAX_XLAT_TABLES		3
 #endif
 
-#if IMAGE_BL2U
+#ifdef IMAGE_BL2U
 # define PLAT_ARM_MMAP_ENTRIES		4
 # define MAX_XLAT_TABLES		3
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 # define PLAT_ARM_MMAP_ENTRIES		5
 # define MAX_XLAT_TABLES		2
 #endif
 
-#if IMAGE_BL32
+#ifdef IMAGE_BL32
 # define PLAT_ARM_MMAP_ENTRIES		4
 # define MAX_XLAT_TABLES		3
 #endif
