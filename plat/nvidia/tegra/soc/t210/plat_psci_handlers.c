@@ -111,8 +111,10 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
-		assert(stateid_afflvl0 == PLAT_MAX_OFF_STATE);
-		assert(stateid_afflvl1 == PLAT_MAX_OFF_STATE);
+		assert((stateid_afflvl0 == PLAT_MAX_OFF_STATE) ||
+		       (stateid_afflvl0 == PSTATE_ID_SOC_POWERDN));
+		assert((stateid_afflvl1 == PLAT_MAX_OFF_STATE) ||
+		       (stateid_afflvl1 == PSTATE_ID_SOC_POWERDN));
 
 		/* suspend the entire soc */
 		tegra_fc_soc_powerdn(mpidr);
