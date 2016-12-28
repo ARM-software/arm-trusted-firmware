@@ -37,6 +37,11 @@ VERSION_MINOR			:= 3
 # Default goal is build all images
 .DEFAULT_GOAL			:= all
 
+# Avoid any implicit propagation of command line variable definitions to
+# sub-Makefiles, like CFLAGS that we reserved for the firmware images'
+# usage. Other command line options like "-s" are still propagated as usual.
+MAKEOVERRIDES =
+
 MAKE_HELPERS_DIRECTORY := make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
