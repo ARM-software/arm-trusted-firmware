@@ -39,18 +39,6 @@
 #include <platform_def.h>
 #include <string.h>
 
-#if USE_COHERENT_MEM
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
- * page-aligned addresses.
- */
-#define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-#endif
-
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
@@ -242,8 +230,8 @@ void arm_bl2_plat_arch_setup(void)
 			      BL_RO_DATA_BASE,
 			      BL_RO_DATA_END
 #if USE_COHERENT_MEM
-			      , BL2_COHERENT_RAM_BASE,
-			      BL2_COHERENT_RAM_LIMIT
+			      , BL_COHERENT_RAM_BASE,
+			      BL_COHERENT_RAM_END
 #endif
 			      );
 

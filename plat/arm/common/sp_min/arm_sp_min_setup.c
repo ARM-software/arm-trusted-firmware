@@ -39,19 +39,6 @@
 
 #define BL32_END (uintptr_t)(&__BL32_END__)
 
-#if USE_COHERENT_MEM
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
- * page-aligned addresses.
- */
-#define BL32_COHERENT_RAM_BASE (uintptr_t)(&__COHERENT_RAM_START__)
-#define BL32_COHERENT_RAM_LIMIT (uintptr_t)(&__COHERENT_RAM_END__)
-#endif
-
-
 static entry_point_info_t bl33_image_ep_info;
 
 /* Weak definitions may be overridden in specific ARM standard platform */
@@ -206,8 +193,8 @@ void sp_min_plat_arch_setup(void)
 			      BL_RO_DATA_BASE,
 			      BL_RO_DATA_END
 #if USE_COHERENT_MEM
-			      , BL32_COHERENT_RAM_BASE,
-			      BL32_COHERENT_RAM_LIMIT
+			      , BL_COHERENT_RAM_BASE,
+			      BL_COHERENT_RAM_END
 #endif
 			      );
 

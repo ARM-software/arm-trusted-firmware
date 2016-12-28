@@ -53,11 +53,6 @@ extern unsigned long __RO_START__;
 extern unsigned long __RO_END__;
 extern unsigned long __BL31_END__;
 
-#if USE_COHERENT_MEM
-extern unsigned long __COHERENT_RAM_START__;
-extern unsigned long __COHERENT_RAM_END__;
-#endif
-
 extern uint64_t tegra_bl31_phys_base;
 
 /*
@@ -70,18 +65,6 @@ extern uint64_t tegra_bl31_phys_base;
 #define BL31_RO_BASE (unsigned long)(&__RO_START__)
 #define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
 #define BL31_END (unsigned long)(&__BL31_END__)
-
-#if USE_COHERENT_MEM
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
- * refer to page-aligned addresses.
- */
-#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-#endif
 
 static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
@@ -212,8 +195,8 @@ void bl31_plat_arch_setup(void)
 			MT_MEMORY | MT_RO | MT_SECURE);
 
 #if USE_COHERENT_MEM
-	coh_start = total_base + (BL31_COHERENT_RAM_BASE - BL31_RO_BASE);
-	coh_size = BL31_COHERENT_RAM_LIMIT - BL31_COHERENT_RAM_BASE;
+	coh_start = total_base + (BL_COHERENT_RAM_BASE - BL31_RO_BASE);
+	coh_size = BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE;
 
 	mmap_add_region(coh_start, coh_start,
 			coh_size,

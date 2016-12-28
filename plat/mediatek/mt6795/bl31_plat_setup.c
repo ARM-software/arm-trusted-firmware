@@ -32,6 +32,7 @@
 #include <arch_helpers.h>
 #include <bl_common.h>
 #include <cci.h>
+#include <common_def.h>
 #include <console.h>
 #include <context_mgmt.h>
 #include <debug.h>
@@ -52,9 +53,6 @@
 unsigned long __RO_START__;
 unsigned long __RO_END__;
 
-unsigned long __COHERENT_RAM_START__;
-unsigned long __COHERENT_RAM_END__;
-
 /*
  * The next 2 constants identify the extents of the code & RO data region.
  * These addresses are used by the MMU setup code and therefore they must be
@@ -63,16 +61,6 @@ unsigned long __COHERENT_RAM_END__;
  */
 #define BL31_RO_BASE (unsigned long)(&__RO_START__)
 #define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
-
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
- * refer to page-aligned addresses.
- */
-#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
@@ -323,8 +311,8 @@ void bl31_plat_arch_setup(void)
 		(TZRAM_SIZE & ~(PAGE_SIZE_MASK)),
 		(BL31_RO_BASE & ~(PAGE_SIZE_MASK)),
 		BL31_RO_LIMIT,
-		BL31_COHERENT_RAM_BASE,
-		BL31_COHERENT_RAM_LIMIT);
+		BL_COHERENT_RAM_BASE,
+		BL_COHERENT_RAM_END);
 	/* Initialize for ATF log buffer */
 	if (gteearg.atf_log_buf_size != 0) {
 		gteearg.atf_aee_debug_buf_size = ATF_AEE_BUFFER_SIZE;

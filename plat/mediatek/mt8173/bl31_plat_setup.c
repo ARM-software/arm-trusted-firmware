@@ -30,6 +30,7 @@
 #include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <common_def.h>
 #include <console.h>
 #include <debug.h>
 #include <generic_delay_timer.h>
@@ -47,9 +48,6 @@
 unsigned long __RO_START__;
 unsigned long __RO_END__;
 
-unsigned long __COHERENT_RAM_START__;
-unsigned long __COHERENT_RAM_END__;
-
 /*
  * The next 3 constants identify the extents of the code, RO data region and the
  * limit of the BL31 image.  These addresses are used by the MMU setup code and
@@ -60,16 +58,6 @@ unsigned long __COHERENT_RAM_END__;
 #define BL31_RO_BASE (unsigned long)(&__RO_START__)
 #define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
 #define BL31_END (unsigned long)(&__BL31_END__)
-
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
- * refer to page-aligned addresses.
- */
-#define BL31_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 static entry_point_info_t bl32_ep_info;
 static entry_point_info_t bl33_ep_info;
@@ -191,10 +179,10 @@ void bl31_plat_arch_setup(void)
 	plat_cci_enable();
 
 	plat_configure_mmu_el3(BL31_RO_BASE,
-			       (BL31_COHERENT_RAM_LIMIT - BL31_RO_BASE),
+			       BL_COHERENT_RAM_END - BL31_RO_BASE,
 			       BL31_RO_BASE,
 			       BL31_RO_LIMIT,
-			       BL31_COHERENT_RAM_BASE,
-			       BL31_COHERENT_RAM_LIMIT);
+			       BL_COHERENT_RAM_BASE,
+			       BL_COHERENT_RAM_END);
 }
 

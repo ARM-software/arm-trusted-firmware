@@ -137,4 +137,14 @@
 #define BL1_RO_DATA_END		0
 #endif /* SEPARATE_CODE_AND_RODATA */
 
+/*
+ * The next 2 constants identify the extents of the coherent memory region.
+ * These addresses are used by the MMU setup code and therefore they must be
+ * page-aligned.  It is the responsibility of the linker script to ensure that
+ * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
+ * page-aligned addresses.
+ */
+#define BL_COHERENT_RAM_BASE	(unsigned long)(&__COHERENT_RAM_START__)
+#define BL_COHERENT_RAM_END	(unsigned long)(&__COHERENT_RAM_END__)
+
 #endif /* __COMMON_DEF_H__ */
