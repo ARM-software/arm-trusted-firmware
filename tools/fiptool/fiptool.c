@@ -172,6 +172,20 @@ static image_desc_t *new_image_desc(const uuid_t *uuid,
 	return desc;
 }
 
+static void set_image_desc_action(image_desc_t *desc, int action,
+    const char *arg)
+{
+	assert(desc != NULL);
+
+	if (desc->action_arg != DO_UNSPEC)
+		free(desc->action_arg);
+	desc->action = action;
+	desc->action_arg = NULL;
+	if (arg != NULL)
+		desc->action_arg = xstrdup(arg,
+		    "failed to allocate memory for argument");
+}
+
 static void free_image_desc(image_desc_t *desc)
 {
 	free(desc->name);
@@ -712,12 +726,7 @@ static int create_cmd(int argc, char *argv[])
 			image_desc_t *desc;
 
 			desc = lookup_image_desc_from_opt(opts[opt_index].name);
-			assert(desc != NULL);
-			if (desc->action != DO_UNSPEC)
-				free(desc->action_arg);
-			desc->action = DO_PACK;
-			desc->action_arg = xstrdup(optarg,
-			    "failed to allocate memory for argument");
+			set_image_desc_action(desc, DO_PACK, optarg);
 			break;
 		}
 		case OPT_PLAT_TOC_FLAGS:
@@ -737,20 +746,12 @@ static int create_cmd(int argc, char *argv[])
 				create_usage();
 
 			desc = lookup_image_desc_from_uuid(&uuid);
-			if (desc != NULL) {
-				if (desc->action != DO_UNSPEC)
-					free(desc->action_arg);
-				desc->action = DO_PACK;
-				desc->action_arg = xstrdup(filename,
-				    "failed to allocate memory for argument");
-			} else {
+			if (desc == NULL) {
 				uuid_to_str(name, sizeof(name), &uuid);
 				desc = new_image_desc(&uuid, name, "blob");
-				desc->action = DO_PACK;
-				desc->action_arg = xstrdup(filename,
-				    "failed to allocate memory for argument");
 				add_image_desc(desc);
 			}
+			set_image_desc_action(desc, DO_PACK, filename);
 			break;
 		}
 		default:
@@ -820,12 +821,7 @@ static int update_cmd(int argc, char *argv[])
 			image_desc_t *desc;
 
 			desc = lookup_image_desc_from_opt(opts[opt_index].name);
-			assert(desc != NULL);
-			if (desc->action != DO_UNSPEC)
-				free(desc->action_arg);
-			desc->action = DO_PACK;
-			desc->action_arg = xstrdup(optarg,
-			    "failed to allocate memory for argument");
+			set_image_desc_action(desc, DO_PACK, optarg);
 			break;
 		}
 		case OPT_PLAT_TOC_FLAGS:
@@ -846,20 +842,12 @@ static int update_cmd(int argc, char *argv[])
 				update_usage();
 
 			desc = lookup_image_desc_from_uuid(&uuid);
-			if (desc != NULL) {
-				if (desc->action != DO_UNSPEC)
-					free(desc->action_arg);
-				desc->action = DO_PACK;
-				desc->action_arg = xstrdup(filename,
-				    "failed to allocate memory for argument");
-			} else {
+			if (desc == NULL) {
 				uuid_to_str(name, sizeof(name), &uuid);
 				desc = new_image_desc(&uuid, name, "blob");
-				desc->action = DO_PACK;
-				desc->action_arg = xstrdup(filename,
-				    "failed to allocate memory for argument");
 				add_image_desc(desc);
 			}
+			set_image_desc_action(desc, DO_PACK, filename);
 			break;
 		}
 		case 'o':
@@ -942,12 +930,7 @@ static int unpack_cmd(int argc, char *argv[])
 			image_desc_t *desc;
 
 			desc = lookup_image_desc_from_opt(opts[opt_index].name);
-			assert(desc != NULL);
-			if (desc->action != DO_UNSPEC)
-				free(desc->action_arg);
-			desc->action = DO_UNPACK;
-			desc->action_arg = xstrdup(optarg,
-			    "failed to allocate memory for argument");
+			set_image_desc_action(desc, DO_UNPACK, optarg);
 			unpack_all = 0;
 			break;
 		}
@@ -965,20 +948,12 @@ static int unpack_cmd(int argc, char *argv[])
 				unpack_usage();
 
 			desc = lookup_image_desc_from_uuid(&uuid);
-			if (desc != NULL) {
-				if (desc->action != DO_UNSPEC)
-					free(desc->action_arg);
-				desc->action = DO_UNPACK;
-				desc->action_arg = xstrdup(filename,
-				    "failed to allocate memory for argument");
-			} else {
+			if (desc == NULL) {
 				uuid_to_str(name, sizeof(name), &uuid);
 				desc = new_image_desc(&uuid, name, "blob");
-				desc->action = DO_UNPACK;
-				desc->action_arg = xstrdup(filename,
-				    "failed to allocate memory for argument");
 				add_image_desc(desc);
 			}
+			set_image_desc_action(desc, DO_UNPACK, filename);
 			unpack_all = 0;
 			break;
 		}
@@ -1094,9 +1069,7 @@ static int remove_cmd(int argc, char *argv[])
 			image_desc_t *desc;
 
 			desc = lookup_image_desc_from_opt(opts[opt_index].name);
-			assert(desc != NULL);
-			desc->action = DO_REMOVE;
-			desc->action_arg = NULL;
+			set_image_desc_action(desc, DO_REMOVE, NULL);
 			break;
 		}
 		case 'b': {
@@ -1111,16 +1084,12 @@ static int remove_cmd(int argc, char *argv[])
 				remove_usage();
 
 			desc = lookup_image_desc_from_uuid(&uuid);
-			if (desc != NULL) {
-				desc->action = DO_REMOVE;
-				desc->action_arg = NULL;
-			} else {
+			if (desc == NULL) {
 				uuid_to_str(name, sizeof(name), &uuid);
 				desc = new_image_desc(&uuid, name, "blob");
-				desc->action = DO_REMOVE;
-				desc->action_arg = NULL;
 				add_image_desc(desc);
 			}
+			set_image_desc_action(desc, DO_REMOVE, NULL);
 			break;
 		}
 		case 'f':
