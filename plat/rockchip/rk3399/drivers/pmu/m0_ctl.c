@@ -52,9 +52,8 @@ void m0_init(void)
 		      BITS_WITH_WMASK((M0_BINCODE_BASE >> 28) & 0xf,
 				      0xf, 0));
 
-	/* gating disable for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0,
-		      BITS_WITH_WMASK(0x3, 0x3, 0));
+	/* document is wrong, PMU_CRU_GATEDIS_CON0 do not need set MASK BIT */
+	mmio_setbits_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, 0x02);
 
 	/*
 	 * To switch the parent to xin24M and div == 1,
