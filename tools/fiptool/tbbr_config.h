@@ -45,6 +45,5 @@ typedef struct toc_entry {
 } toc_entry_t;
 
 extern toc_entry_t toc_entries[];
-extern size_t toc_entries_len;
 
 #endif /* __TBBR_CONFIG_H__ */

@@ -145,5 +145,3 @@ toc_entry_t toc_entries[] = {
 		.cmdline_name = NULL,
 	}
 };
-
-size_t toc_entries_len = sizeof(toc_entries) / sizeof(toc_entries[0]);
