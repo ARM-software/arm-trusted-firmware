@@ -112,6 +112,8 @@
 #define CIC_CTRL1		0x4
 #define CIC_STATUS0		0x10
 
+uint32_t gatedis_con0;
+
 static inline int check_dma_status(uint32_t vop_addr, uint32_t *clr_dma_flag)
 {
 	if (*clr_dma_flag) {
@@ -182,6 +184,7 @@ out:
 
 static void idle_port(void)
 {
+	gatedis_con0 = mmio_read_32(PMU_CRU_BASE_ADDR + PMU_CRU_GATEDIS_CON0);
 	mmio_write_32(PMU_CRU_BASE_ADDR + PMU_CRU_GATEDIS_CON0, 0x3fffffff);
 	mmio_setbits_32(PMU_BASE + PMU_BUS_IDLE_REQ,
 			IDLE_REQ_MSCH0 | IDLE_REQ_MSCH1);
@@ -197,6 +200,9 @@ static void deidle_port(void)
 	while (mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ST) &
 	       (IDLE_MSCH1 | IDLE_MSCH0))
 		continue;
+
+	/* document is wrong, PMU_CRU_GATEDIS_CON0 do not need set MASK BIT */
+	mmio_write_32(PMU_CRU_BASE_ADDR + PMU_CRU_GATEDIS_CON0, gatedis_con0);
 }
 
 static void ddr_set_pll(void)
