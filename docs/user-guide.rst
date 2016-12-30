@@ -1085,18 +1085,6 @@ destination. In that case, use -f or --force to continue.
 
 More information about FIP can be found in the `Firmware Design`_ document.
 
-Migrating from fip\_create to fiptool
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The previous version of fiptool was called fip\_create. A compatibility script
-that emulates the basic functionality of the previous fip\_create is provided.
-However, users are strongly encouraged to migrate to fiptool.
-
--  To create a new FIP file, replace "fip\_create" with "fiptool create".
--  To update a FIP file, replace "fip\_create" with "fiptool update".
--  To dump the contents of a FIP file, replace "fip\_create --dump"
-   with "fiptool info".
-
 Building FIP images with support for Trusted Board Boot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
