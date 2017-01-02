@@ -624,17 +624,109 @@
 #define PGSHIFT					16
 #define CB_SIZE					0x800000
 
-static inline uint32_t tegra_smmu_read_32(uint32_t off)
-{
-	return mmio_read_32(TEGRA_SMMU_BASE + off);
-}
+typedef struct smmu_regs {
+	uint32_t reg;
+	uint32_t val;
+} smmu_regs_t;
 
-static inline void tegra_smmu_write_32(uint32_t off, uint32_t val)
-{
-	mmio_write_32(TEGRA_SMMU_BASE + off, val);
-}
+#define mc_make_sid_override_cfg(name) \
+	{ \
+		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_OVERRIDE_CFG_ ## name, \
+		.val = 0x00000000, \
+	}
+
+#define mc_make_sid_security_cfg(name) \
+	{ \
+		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_OVERRIDE_TO_SECURITY_CFG(MC_STREAMID_OVERRIDE_CFG_ ## name), \
+		.val = 0x00000000, \
+	}
+
+#define smmu_make_gnsr0_sec_cfg(name) \
+	{ \
+		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_ ## name, \
+		.val = 0x00000000, \
+	}
+
+/*
+ * On ARM-SMMU, conditional offset to access secure aliases of non-secure registers
+ * is 0x400. So, add it to register address
+ */
+#define smmu_make_gnsr0_nsec_cfg(name) \
+	{ \
+		.reg = TEGRA_SMMU_BASE + 0x400 + SMMU_GNSR0_ ## name, \
+		.val = 0x00000000, \
+	}
+
+#define smmu_make_gnsr0_smr_cfg(n) \
+	{ \
+		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_SMR ## n, \
+		.val = 0x00000000, \
+	}
+
+#define smmu_make_gnsr0_s2cr_cfg(n) \
+	{ \
+		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_S2CR ## n, \
+		.val = 0x00000000, \
+	}
+
+#define smmu_make_gnsr1_cbar_cfg(n) \
+	{ \
+		.reg = TEGRA_SMMU_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBAR ## n, \
+		.val = 0x00000000, \
+	}
+
+#define smmu_make_gnsr1_cba2r_cfg(n) \
+	{ \
+		.reg = TEGRA_SMMU_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBA2R ## n, \
+		.val = 0x00000000, \
+	}
+
+#define make_smmu_cb_cfg(name, n) \
+	{ \
+		.reg = TEGRA_SMMU_BASE + (CB_SIZE >> 1) + (n * (1 << PGSHIFT)) \
+			+ SMMU_CBn_ ## name, \
+		.val = 0x00000000, \
+	}
+
+#define smmu_make_smrg_group(n)	\
+	smmu_make_gnsr0_smr_cfg(n),	\
+	smmu_make_gnsr0_s2cr_cfg(n),	\
+	smmu_make_gnsr1_cbar_cfg(n),	\
+	smmu_make_gnsr1_cba2r_cfg(n)	/* don't put "," here. */
+
+#define smmu_make_cb_group(n)		\
+	make_smmu_cb_cfg(SCTLR, n),	\
+	make_smmu_cb_cfg(TCR2, n),	\
+	make_smmu_cb_cfg(TTBR0_LO, n),	\
+	make_smmu_cb_cfg(TTBR0_HI, n),	\
+	make_smmu_cb_cfg(TCR, n),	\
+	make_smmu_cb_cfg(PRRR_MAIR0, n),\
+	make_smmu_cb_cfg(FSR, n),	\
+	make_smmu_cb_cfg(FAR_LO, n),	\
+	make_smmu_cb_cfg(FAR_HI, n),	\
+	make_smmu_cb_cfg(FSYNR0, n)	/* don't put "," here. */
+
+#define smmu_bypass_cfg \
+	{ \
+		.reg = TEGRA_MC_BASE + MC_SMMU_BYPASS_CONFIG, \
+		.val = 0x00000000, \
+	}
+
+#define _START_OF_TABLE_ \
+	{ \
+		.reg = 0xCAFE05C7, \
+		.val = 0x00000000, \
+	}
+
+#define _END_OF_TABLE_ \
+	{ \
+		.reg = 0xFFFFFFFF, \
+		.val = 0xFFFFFFFF, \
+	}
+
 
 void tegra_smmu_init(void);
 void tegra_smmu_save_context(uint64_t smmu_ctx_addr);
+smmu_regs_t *plat_get_smmu_ctx(void);
 
 #endif /*__SMMU_H */
