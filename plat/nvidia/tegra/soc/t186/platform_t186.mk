@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -77,8 +77,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${SOC_DIR}/drivers/mce/ari.c		\
 				${SOC_DIR}/drivers/mce/nvg.c		\
 				${SOC_DIR}/drivers/mce/aarch64/nvg_helpers.S \
+				${SOC_DIR}/plat_memctrl.c		\
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c		\
 				${SOC_DIR}/plat_sip_calls.c		\
 				${SOC_DIR}/plat_trampoline.S
+
