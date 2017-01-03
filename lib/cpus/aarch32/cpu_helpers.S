@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -172,3 +172,86 @@ func get_cpu_ops_ptr
 error_exit:
 	bx	lr
 endfunc get_cpu_ops_ptr
+
+/*
+ * Extract CPU revision and variant, and combine them into a single numeric for
+ * easier comparison.
+ */
+	.globl	cpu_get_rev_var
+func cpu_get_rev_var
+	ldcopr	r1, MIDR
+
+	/*
+	 * Extract the variant[23:20] and revision[3:0] from r1 and pack it in
+	 * r0[0:7] as variant[7:4] and revision[3:0]:
+	 *
+	 * First extract r1[23:16] to r0[7:0] and zero fill the rest. Then
+	 * extract r1[3:0] into r0[3:0] retaining other bits.
+	 */
+	ubfx	r0, r1, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
+	bfi	r0, r1, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+	bx	lr
+endfunc cpu_get_rev_var
+
+/*
+ * Compare the CPU's revision-variant (r0) with a given value (r1), for errata
+ * application purposes. If the revision-variant is less than or same as a given
+ * value, indicates that errata applies; otherwise not.
+ */
+	.globl	cpu_rev_var_ls
+func cpu_rev_var_ls
+	cmp	r0, r1
+	movls	r0, #ERRATA_APPLIES
+	movhi	r0, #ERRATA_NOT_APPLIES
+	bx	lr
+endfunc cpu_rev_var_ls
+
+#if REPORT_ERRATA
+/*
+ * void print_errata_status(void);
+ *
+ * Function to print errata status for CPUs of its class. Must be called only:
+ *
+ *   - with MMU and data caches are enabled;
+ *   - after cpu_ops have been initialized in per-CPU data.
+ */
+	.globl print_errata_status
+func print_errata_status
+	push	{r4, lr}
+#ifdef IMAGE_BL1
+	/*
+	 * BL1 doesn't have per-CPU data. So retrieve the CPU operations
+	 * directly.
+	 */
+	bl	get_cpu_ops_ptr
+	ldr	r0, [r0, #CPU_ERRATA_FUNC]
+	cmp	r0, #0
+	blxne	r0
+#else
+	/*
+	 * Retrieve pointer to cpu_ops, and further, the errata printing
+	 * function. If it's non-NULL, jump to the function in turn.
+	 */
+	bl	_cpu_data
+	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
+	ldr	r0, [r1, #CPU_ERRATA_FUNC]
+	cmp	r0, #0
+	beq	1f
+
+	mov	r4, r0
+
+	/*
+	 * Load pointers to errata lock and printed flag. Call
+	 * errata_needs_reporting to check whether this CPU needs to report
+	 * errata status pertaining to its class.
+	 */
+	ldr	r0, [r1, #CPU_ERRATA_LOCK]
+	ldr	r1, [r1, #CPU_ERRATA_PRINTED]
+	bl	errata_needs_reporting
+	cmp	r0, #0
+	blxne	r4
+1:
+#endif
+	pop	{r4, pc}
+endfunc print_errata_status
+#endif

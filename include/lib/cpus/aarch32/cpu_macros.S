@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #define __CPU_MACROS_S__
 
 #include <arch.h>
+#include <errata_report.h>
 
 #define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
 				(MIDR_PN_MASK << MIDR_PN_SHIFT)
@@ -43,6 +44,16 @@
 
 /* Word size for 32-bit CPUs */
 #define CPU_WORD_SIZE			4
+
+/*
+ * Whether errata status needs reporting. Errata status is printed in debug
+ * builds for both BL1 and BL32 images.
+ */
+#if (defined(IMAGE_BL1) || defined(IMAGE_BL32)) && DEBUG
+# define REPORT_ERRATA	1
+#else
+# define REPORT_ERRATA	0
+#endif
 
 	/*
 	 * Define the offsets to the fields in cpu_ops structure.
@@ -59,6 +70,22 @@ CPU_RESET_FUNC: /* cpu_ops reset_func */
 CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
 	.space  (4 * CPU_MAX_PWR_DWN_OPS)
 #endif
+
+/*
+ * Fields required to print errata status. Only in BL32 that the printing
+ * require mutual exclusion and printed flag.
+ */
+#if REPORT_ERRATA
+CPU_ERRATA_FUNC: /* CPU errata status printing function */
+	.space  4
+#ifdef IMAGE_BL32
+CPU_ERRATA_LOCK:
+	.space	4
+CPU_ERRATA_PRINTED:
+	.space	4
+#endif
+#endif
+
 CPU_OPS_SIZE = .
 
 	/*
@@ -137,6 +164,79 @@ CPU_OPS_SIZE = .
 	  .endif
 	.endif
 #endif
+
+#if REPORT_ERRATA
+	.ifndef \_name\()_cpu_str
+	  /*
+	   * Place errata reported flag, and the spinlock to arbitrate access to
+	   * it in the data section.
+	   */
+	  .pushsection .data
+	  define_asm_spinlock \_name\()_errata_lock
+	  \_name\()_errata_reported:
+	  .word	0
+	  .popsection
+
+	  /* Place CPU string in rodata */
+	  .pushsection .rodata
+	  \_name\()_cpu_str:
+	  .asciz "\_name"
+	  .popsection
+	.endif
+
+	/*
+	 * Weakly-bound, optional errata status printing function for CPUs of
+	 * this class.
+	 */
+	.weak \_name\()_errata_report
+	.word \_name\()_errata_report
+
+#ifdef IMAGE_BL32
+	/* Pointers to errata lock and reported flag */
+	.word \_name\()_errata_lock
+	.word \_name\()_errata_reported
+#endif
+#endif
 	.endm
+
+#if REPORT_ERRATA
+	/*
+	 * Print status of a CPU errata
+	 *
+	 * _chosen:
+	 *	Identifier indicating whether or not a CPU errata has been
+	 *	compiled in.
+	 * _cpu:
+	 *	Name of the CPU
+	 * _id:
+	 *	Errata identifier
+	 * _rev_var:
+	 *	Register containing the combined value CPU revision and variant
+	 *	- typically the return value of cpu_get_rev_var
+	 */
+	.macro report_errata _chosen, _cpu, _id, _rev_var=r4
+	/* Stash a string with errata ID */
+	.pushsection .rodata
+	\_cpu\()_errata_\_id\()_str:
+	.asciz	"\_id"
+	.popsection
+
+	/* Check whether errata applies */
+	mov	r0, \_rev_var
+	bl	check_errata_\_id
+
+	.ifeq \_chosen
+	/*
+	 * Errata workaround has not been compiled in. If the errata would have
+	 * applied had it been compiled in, print its status as missing.
+	 */
+	cmp	r0, #0
+	movne	r0, #ERRATA_MISSING
+	.endif
+	ldr	r1, =\_cpu\()_cpu_str
+	ldr	r2, =\_cpu\()_errata_\_id\()_str
+	bl	errata_print_msg
+	.endm
+#endif
 
 #endif /* __CPU_MACROS_S__ */

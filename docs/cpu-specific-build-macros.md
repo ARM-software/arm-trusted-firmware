@@ -34,6 +34,9 @@ errata notice document. The format of the define used to enable/disable the
 errata workaround is `ERRATA_<Processor name>_<ID>`, where the `Processor name`
 is for example `A57` for the `Cortex_A57` CPU.
 
+Refer to the section _CPU errata status reporting_ in [Firmware Design
+guide][Firmware Design] for information on to write errata workaround functions.
+
 All workarounds are disabled by default. The platform is responsible for
 enabling these workarounds according to its requirement by defining the
 errata workaround build flags in the platform specific makefile. In case
@@ -116,3 +119,4 @@ _Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved._
 [A57 SW Optimization Guide]: http://infocenter.arm.com/help/topic/com.arm.doc.uan0015b/Cortex_A57_Software_Optimization_Guide_external.pdf
 [A53 Errata Notice]:         http://infocenter.arm.com/help/topic/com.arm.doc.epm048406/index.html
 [A57 Errata Notice]:         http://infocenter.arm.com/help/topic/com.arm.doc.epm049219/cortex_a57_mpcore_software_developers_errata_notice.pdf
+[Firmware Design]:           firmware-design.md

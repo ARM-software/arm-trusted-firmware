@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 #include <bl1.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <errata_report.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <smcc_helpers.h>
@@ -110,6 +111,7 @@ void bl1_main(void)
 	INFO("BL1: RAM %p - %p\n", (void *)BL1_RAM_BASE,
 					(void *)BL1_RAM_LIMIT);
 
+	print_errata_status();
 
 #if DEBUG
 	u_register_t val;

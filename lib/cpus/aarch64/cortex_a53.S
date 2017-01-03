@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,11 @@
 #include <debug.h>
 #include <plat_macros.S>
 
+#if A53_DISABLE_NON_TEMPORAL_HINT
+#undef ERRATA_A53_836870
+#define ERRATA_A53_836870	1
+#endif
+
 	/* ---------------------------------------------
 	 * Disable L1 data cache and unified L2 cache
 	 * ---------------------------------------------
@@ -65,27 +70,28 @@ endfunc cortex_a53_disable_smp
 	 * This applies only to revision <= r0p2 of Cortex A53.
 	 * Inputs:
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Clobbers : x0 - x5
+	 * Shall clobber: x0-x17
 	 * --------------------------------------------------
 	 */
 func errata_a53_826319_wa
 	/*
 	 * Compare x0 against revision r0p2
 	 */
-	cmp	x0, #2
-	b.ls	apply_826319
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-	b	print_revision_warning
-#else
-	ret
-#endif
-apply_826319:
+	mov	x17, x30
+	bl	check_errata_826319
+	cbz	x0, 1f
 	mrs	x1, L2ACTLR_EL1
 	bic	x1, x1, #L2ACTLR_ENABLE_UNIQUECLEAN
 	orr	x1, x1, #L2ACTLR_DISABLE_CLEAN_PUSH
 	msr	L2ACTLR_EL1, x1
-	ret
+1:
+	ret	x17
 endfunc errata_a53_826319_wa
+
+func check_errata_826319
+	mov	x1, #0x02
+	b	cpu_rev_var_ls
+endfunc check_errata_826319
 
 	/* ---------------------------------------------------------------------
 	 * Disable the cache non-temporal hint.
@@ -101,53 +107,46 @@ endfunc errata_a53_826319_wa
 	 *
 	 * Inputs:
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Clobbers : x0 - x5
+	 * Shall clobber: x0-x17
 	 * ---------------------------------------------------------------------
 	 */
 func a53_disable_non_temporal_hint
 	/*
 	 * Compare x0 against revision r0p3
 	 */
-	cmp	x0, #3
-	b.ls	disable_hint
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-	b	print_revision_warning
-#else
-	ret
-#endif
-disable_hint:
+	mov	x17, x30
+	bl	check_errata_disable_non_temporal_hint
+	cbz	x0, 1f
 	mrs	x1, CPUACTLR_EL1
 	orr	x1, x1, #CPUACTLR_DTAH
 	msr	CPUACTLR_EL1, x1
-	ret
+1:
+	ret	x17
 endfunc a53_disable_non_temporal_hint
+
+func check_errata_disable_non_temporal_hint
+	mov	x1, #0x03
+	b	cpu_rev_var_ls
+endfunc check_errata_disable_non_temporal_hint
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A53.
-	 * Clobbers: x0-x5, x15, x19, x30
+	 * Shall clobber: x0-x19
 	 * -------------------------------------------------
 	 */
 func cortex_a53_reset_func
 	mov	x19, x30
-	mrs	x0, midr_el1
+	bl	cpu_get_rev_var
+	mov	x18, x0
 
-	/*
-	 * Extract the variant[20:23] and revision[0:3] from x0
-	 * and pack it in x15[0:7] as variant[4:7] and revision[0:3].
-	 * First extract x0[16:23] to x15[0:7] and zero fill the rest.
-	 * Then extract x0[0:3] into x15[0:3] retaining other bits.
-	 */
-	ubfx	x15, x0, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), \
-			#(MIDR_REV_BITS + MIDR_VAR_BITS)
-	bfxil	x15, x0, #MIDR_REV_SHIFT, #MIDR_REV_BITS
 
 #if ERRATA_A53_826319
-	mov	x0, x15
+	mov	x0, x18
 	bl	errata_a53_826319_wa
 #endif
 
-#if ERRATA_A53_836870 || A53_DISABLE_NON_TEMPORAL_HINT
-	mov	x0, x15
+#if ERRATA_A53_836870
+	mov	x0, x18
 	bl	a53_disable_non_temporal_hint
 #endif
 
@@ -222,6 +221,28 @@ func cortex_a53_cluster_pwr_dwn
 	mov	x30, x18
 	b	cortex_a53_disable_smp
 endfunc cortex_a53_cluster_pwr_dwn
+
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex A53. Must follow AAPCS.
+ */
+func cortex_a53_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata ERRATA_A53_826319, cortex_a53, 826319
+	report_errata ERRATA_A53_836870, cortex_a53, disable_non_temporal_hint
+
+	ldp	x8, x30, [sp], #16
+	ret
+endfunc cortex_a53_errata_report
+#endif
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a53 specific
