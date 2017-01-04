@@ -59,7 +59,7 @@ ASFLAGS			:= -g -Wa,--gdwarf-2
 ASFLAGS			+= -mcpu=$(ARCH) -mthumb -Wall -ffunction-sections -O3
 CFLAGS			+= -mcpu=$(ARCH) -mthumb -Wall -ffunction-sections -O3
 
-LDFLAGS			:= -mcpu=$(ARCH) -mthumb -g -nostartfiles -O3
+LDFLAGS			:= -mcpu=$(ARCH) -mthumb -g -nostartfiles -nostdlib -O3
 LDFLAGS			+= -Wl,--gc-sections -Wl,--build-id=none
 
 # Cross tool
