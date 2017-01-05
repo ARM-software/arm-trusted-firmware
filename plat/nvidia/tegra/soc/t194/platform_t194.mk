@@ -55,6 +55,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c	\
 				${COMMON_DIR}/drivers/smmu/smmu.c	\
 				${SOC_DIR}/drivers/mce/mce.c		\
+				${SOC_DIR}/drivers/mce/nvg.c		\
+				${SOC_DIR}/drivers/mce/aarch64/nvg_helpers.S \
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c		\

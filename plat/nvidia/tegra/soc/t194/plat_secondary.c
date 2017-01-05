@@ -59,7 +59,4 @@ void plat_secondary_setup(void)
 			addr_low);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV1_HI,
 			addr_high);
-
-	/* update reset vector address to the CCPLEX */
-	mce_update_reset_vector();
 }

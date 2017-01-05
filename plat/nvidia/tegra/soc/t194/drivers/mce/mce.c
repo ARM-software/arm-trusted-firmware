@@ -15,21 +15,21 @@
 #include <mce.h>
 #include <mce_private.h>
 #include <mmio.h>
+#include <platform_def.h>
 #include <string.h>
 #include <errno.h>
+#include <t194_nvg.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 
 /*******************************************************************************
  * Common handler for all MCE commands
  ******************************************************************************/
-int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
+int32_t mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 			uint64_t arg2)
 {
 	uint64_t ret64 = 0, arg3, arg4, arg5;
-	int ret = 0;
-	mca_cmd_t mca_cmd;
-	uncore_perfmon_req_t req;
+	int32_t ret = 0;
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
 
@@ -38,7 +38,11 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 
 	switch (cmd) {
 	case MCE_CMD_ENTER_CSTATE:
-		/* NVG */
+		ret = nvg_enter_cstate((uint32_t)arg0, (uint32_t)arg1);
+		if (ret < 0) {
+			ERROR("%s: enter_cstate failed(%d)\n", __func__, ret);
+		}
+
 		break;
 
 	case MCE_CMD_UPDATE_CSTATE_INFO:
@@ -46,214 +50,147 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		 * get the parameters required for the update cstate info
 		 * command
 		 */
-		arg3 = read_ctx_reg(gp_regs, CTX_GPREG_X4);
-		arg4 = read_ctx_reg(gp_regs, CTX_GPREG_X5);
-		arg5 = read_ctx_reg(gp_regs, CTX_GPREG_X6);
+		arg3 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X4));
+		arg4 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X5));
+		arg5 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X6));
 
-		/* NVG */
+		/* arg0 cluster
+		 * arg1 ccplex
+		 * arg2 system
+		 * arg3 sys_state_force => T19x not support
+		 * arg4 wake_mask
+		 * arg5 update_wake_mask
+		 */
+		nvg_update_cstate_info((uint32_t)arg0, (uint32_t)arg1,
+				(uint32_t)arg2, (uint32_t)arg4, (uint8_t)arg5);
 
-		write_ctx_reg(gp_regs, CTX_GPREG_X4, arg3);
-		write_ctx_reg(gp_regs, CTX_GPREG_X5, arg4);
-		write_ctx_reg(gp_regs, CTX_GPREG_X6, arg5);
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X4), (arg3));
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X5), (arg4));
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X6), (arg5));
 
 		break;
 
 	case MCE_CMD_UPDATE_CROSSOVER_TIME:
-		/* NVG */
+		ret = nvg_update_crossover_time((uint32_t)arg0, (uint32_t)arg1);
+		if (ret < 0) {
+			ERROR("%s: update_crossover_time failed(%d)\n",
+				__func__, ret);
+		}
 
 		break;
 
 	case MCE_CMD_READ_CSTATE_STATS:
-		/* NVG */
+		ret64 = nvg_get_cstate_stat_query_value();
 
 		/* update context to return cstate stats value */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, ret64);
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), (ret64));
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X2), (ret64));
 
 		break;
 
 	case MCE_CMD_WRITE_CSTATE_STATS:
-		/* NVG */
-
-		break;
-
-	case MCE_CMD_IS_CCX_ALLOWED:
-		/* NVG */
-
-		/* update context to return CCx status value */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret);
+		ret = nvg_set_cstate_stat_query_value(arg0);
 
 		break;
 
 	case MCE_CMD_IS_SC7_ALLOWED:
-		/* NVG */
+		ret = nvg_is_sc7_allowed();
+		if (ret < 0) {
+			ERROR("%s: is_sc7_allowed failed(%d)\n", __func__, ret);
+			break;
+		}
 
 		/* update context to return SC7 status value */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret);
-		write_ctx_reg(gp_regs, CTX_GPREG_X3, ret);
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), ((uint64_t)ret));
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X3), ((uint64_t)ret));
 
 		break;
 
 	case MCE_CMD_ONLINE_CORE:
-		/* NVG */
+		ret = nvg_online_core((uint32_t)arg0);
+		if (ret < 0) {
+			ERROR("%s: online_core failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
 	case MCE_CMD_CC3_CTRL:
-		/* NVG */
-
-		break;
-
-	case MCE_CMD_ECHO_DATA:
-		/* issue NVG to echo data */
-
-		/* update context to return if echo'd data matched source */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64 == arg0);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, ret64 == arg0);
+		ret = nvg_cc3_ctrl((uint32_t)arg0, (uint8_t)arg2);
+		if (ret < 0) {
+			ERROR("%s: cc3_ctrl failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
 	case MCE_CMD_READ_VERSIONS:
 		/* get the MCE firmware version */
+		ret64 = nvg_get_version();
 
 		/*
 		 * version = minor(63:32) | major(31:0). Update context
 		 * to return major and minor version number.
 		 */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, (uint32_t)ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, (uint32_t)(ret64 >> 32));
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), (ret64 & (uint64_t)0xFFFF));
+		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X2), (ret64 >> 32));
 
-		break;
-
-	case MCE_CMD_ENUM_FEATURES:
 		break;
 
 	case MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
-		/* NVG */
+		ret = nvg_roc_clean_cache_trbits();
+		if (ret < 0) {
+			ERROR("%s: flush cache_trbits failed(%d)\n", __func__,
+				ret);
+		}
 
 		break;
 
 	case MCE_CMD_ROC_FLUSH_CACHE:
-		/* NVG */
+		ret = nvg_roc_flush_cache();
+		if (ret < 0) {
+			ERROR("%s: flush cache failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
 	case MCE_CMD_ROC_CLEAN_CACHE:
-		/* NVG */
-
-		break;
-
-	case MCE_CMD_ENUM_READ_MCA:
-		memcpy(&mca_cmd, &arg0, sizeof(arg0));
-
-		/* NVG */
-
-		/* update context to return MCA data/error */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, arg1);
-		write_ctx_reg(gp_regs, CTX_GPREG_X3, ret64);
-
-		break;
-
-	case MCE_CMD_ENUM_WRITE_MCA:
-		memcpy(&mca_cmd, &arg0, sizeof(arg0));
-
-		/* NVG */
-
-		/* update context to return MCA error */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X3, ret64);
-
-		break;
-
-	case MCE_CMD_ENABLE_LATIC:
-		/*
-		 * This call is not for production use. The constant value,
-		 * 0xFFFF0000, is specific to allowing for enabling LATIC on
-		 * pre-production parts for the chip verification harness.
-		 *
-		 * Enabling LATIC allows S/W to read the MINI ISPs in the
-		 * CCPLEX. The ISMs are used for various measurements relevant
-		 * to particular locations in the Silicon. They are small
-		 * counters which can be polled to determine how fast a
-		 * particular location in the Silicon is.
-		 */
-		/* NVG */
-
-		break;
-
-	case MCE_CMD_UNCORE_PERFMON_REQ:
-		memcpy(&req, &arg0, sizeof(arg0));
-		/* NVG */
-
-		/* update context to return data */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, arg1);
-		break;
-
-	case MCE_CMD_MISC_CCPLEX:
-		/* NVG */
+		ret = nvg_roc_clean_cache();
+		if (ret < 0) {
+			ERROR("%s: clean cache failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
 	default:
 		ERROR("unknown MCE command (%lld)\n", cmd);
-		return EINVAL;
+		ret = EINVAL;
+		break;
 	}
 
 	return ret;
 }
 
 /*******************************************************************************
- * Handler to update the reset vector for CPUs
- ******************************************************************************/
-int mce_update_reset_vector(void)
-{
-	return 0;
-}
-
-static int mce_update_ccplex_gsc(/* GSC ID */)
-{
-	return 0;
-}
-
-/*******************************************************************************
  * Handler to update carveout values for Video Memory Carveout region
  ******************************************************************************/
-int mce_update_gsc_videomem(void)
+int32_t mce_update_gsc_videomem(void)
 {
-	return mce_update_ccplex_gsc();
+	return nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_GSC_VPR_IDX);
 }
 
 /*******************************************************************************
  * Handler to update carveout values for TZDRAM aperture
  ******************************************************************************/
-int mce_update_gsc_tzdram(void)
+int32_t mce_update_gsc_tzdram(void)
 {
-	return mce_update_ccplex_gsc();
+	return nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_GSC_TZ_DRAM_IDX);
 }
 
 /*******************************************************************************
  * Handler to update carveout values for TZ SysRAM aperture
  ******************************************************************************/
-int mce_update_gsc_tzram(void)
+int32_t mce_update_gsc_tzram(void)
 {
-	return mce_update_ccplex_gsc();
-}
-
-/*******************************************************************************
- * Handler to shutdown/reset the entire system
- ******************************************************************************/
-__dead2 void mce_enter_ccplex_state(uint32_t state_idx)
-{
-	/* sanity check state value */
-
-	/* enter ccplex power state */
-
-	/* wait till the CCPLEX powers down */
-	for (;;)
-		;
-
-	panic();
+	return nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_GSC_TZRAM);
 }
 
 /*******************************************************************************
@@ -262,7 +199,8 @@ __dead2 void mce_enter_ccplex_state(uint32_t state_idx)
 void mce_update_cstate_info(mce_cstate_info_t *cstate)
 {
 	/* issue the UPDATE_CSTATE_INFO request */
-	/* NVG */
+	nvg_update_cstate_info(cstate->cluster, cstate->ccplex, cstate->system,
+		cstate->wake_mask, cstate->update_wake_mask);
 }
 
 /*******************************************************************************
@@ -277,18 +215,18 @@ void mce_verify_firmware_version(void)
 	/*
 	 * MCE firmware is not running on simulation platforms.
 	 */
-	if (tegra_platform_is_linsim() || tegra_platform_is_virt_dev_kit())
+	if ((tegra_platform_is_linsim() == 1U) ||
+			(tegra_platform_is_virt_dev_kit() == 1U)) {
 		return;
-
-	/* get a pointer to the CPU's arch_mce_ops_t struct */
+	}
 
 	/*
 	 * Read the MCE firmware version and extract the major and minor
 	 * version fields
 	 */
-	version = 0;
-	major = (uint32_t)version;
-	minor = (uint32_t)(version >> 32);
+	version = nvg_get_version();
+	minor = (uint32_t)version;
+	major = (uint32_t)(version >> 32);
 
 	INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
 		0, 0);
@@ -297,12 +235,12 @@ void mce_verify_firmware_version(void)
 	 * Verify that the MCE firmware version and the interface header
 	 * match
 	 */
-	if (major != 0) {
+	if (major != (uint32_t)TEGRA_NVG_VERSION_MAJOR) {
 		ERROR("MCE major version mismatch\n");
 		panic();
 	}
 
-	if (minor < 0) {
+	if (minor < (uint32_t)TEGRA_NVG_VERSION_MINOR) {
 		ERROR("MCE minor version mismatch\n");
 		panic();
 	}
