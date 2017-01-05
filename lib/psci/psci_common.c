@@ -79,7 +79,8 @@ __section("tzfw_coherent_mem")
 #endif
 ;
 
-DEFINE_BAKERY_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
+/* Lock for PSCI state coordination */
+DEFINE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
 
 cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 
@@ -992,3 +993,33 @@ int psci_get_suspend_afflvl(void)
 }
 
 #endif
+
+/*******************************************************************************
+ * Initiate power down sequence, by calling power down operations registered for
+ * this CPU.
+ ******************************************************************************/
+void psci_do_pwrdown_sequence(unsigned int power_level)
+{
+#if HW_ASSISTED_COHERENCY
+	/*
+	 * With hardware-assisted coherency, the CPU drivers only initiate the
+	 * power down sequence, without performing cache-maintenance operations
+	 * in software. Data caches and MMU remain enabled both before and after
+	 * this call.
+	 */
+	prepare_cpu_pwr_dwn(power_level);
+#else
+	/*
+	 * Without hardware-assisted coherency, the CPU drivers disable data
+	 * caches and MMU, then perform cache-maintenance operations in
+	 * software.
+	 *
+	 * We ought to call prepare_cpu_pwr_dwn() to initiate power down
+	 * sequence. We currently have data caches and MMU enabled, but the
+	 * function will return with data caches and MMU disabled. We must
+	 * ensure that the stack memory is flushed out to memory before we start
+	 * popping from it again.
+	 */
+	psci_do_pwrdown_cache_maintenance(power_level);
+#endif
+}

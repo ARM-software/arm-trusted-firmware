@@ -119,10 +119,9 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 #endif
 
 	/*
-	 * Arch. management. Perform the necessary steps to flush all
-	 * cpu caches.
+	 * Arch. management. Initiate power down sequence.
 	 */
-	psci_do_pwrdown_cache_maintenance(psci_find_max_off_lvl(&state_info));
+	psci_do_pwrdown_sequence(psci_find_max_off_lvl(&state_info));
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
