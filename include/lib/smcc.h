@@ -57,7 +57,7 @@
 #define SMC_64				1
 #define SMC_32				0
 #define SMC_UNK				0xffffffff
-#define SMC_TYPE_FAST			1
+#define SMC_TYPE_FAST			1U
 #define SMC_TYPE_STD			0
 #define SMC_PREEMPTED		0xfffffffe
 /*******************************************************************************
