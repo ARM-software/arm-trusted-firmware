@@ -91,10 +91,10 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	psci_set_suspend_pwrlvl(end_pwrlvl);
 
 	/*
-	 * Flush the target power level as it will be accessed on power up with
+	 * Flush the target power level as it might be accessed on power up with
 	 * Data cache disabled.
 	 */
-	flush_cpu_data(psci_svc_cpu_data.target_pwrlvl);
+	psci_flush_cpu_data(psci_svc_cpu_data.target_pwrlvl);
 
 	/*
 	 * Call the cpu suspend handler registered by the Secure Payload

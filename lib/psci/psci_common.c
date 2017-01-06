@@ -247,6 +247,50 @@ static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
 	return &psci_req_local_pwr_states[pwrlvl - 1][cpu_idx];
 }
 
+/*
+ * psci_non_cpu_pd_nodes can be placed either in normal memory or coherent
+ * memory.
+ *
+ * With !USE_COHERENT_MEM, psci_non_cpu_pd_nodes is placed in normal memory,
+ * it's accessed by both cached and non-cached participants. To serve the common
+ * minimum, perform a cache flush before read and after write so that non-cached
+ * participants operate on latest data in main memory.
+ *
+ * When USE_COHERENT_MEM is used, psci_non_cpu_pd_nodes is placed in coherent
+ * memory. With HW_ASSISTED_COHERENCY, all PSCI participants are cache-coherent.
+ * In both cases, no cache operations are required.
+ */
+
+/*
+ * Retrieve local state of non-CPU power domain node from a non-cached CPU,
+ * after any required cache maintenance operation.
+ */
+static plat_local_state_t get_non_cpu_pd_node_local_state(
+		unsigned int parent_idx)
+{
+#if !USE_COHERENT_MEM || !HW_ASSISTED_COHERENCY
+	flush_dcache_range(
+			(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
+			sizeof(psci_non_cpu_pd_nodes[parent_idx]));
+#endif
+	return psci_non_cpu_pd_nodes[parent_idx].local_state;
+}
+
+/*
+ * Update local state of non-CPU power domain node from a cached CPU; perform
+ * any required cache maintenance operation afterwards.
+ */
+static void set_non_cpu_pd_node_local_state(unsigned int parent_idx,
+		plat_local_state_t state)
+{
+	psci_non_cpu_pd_nodes[parent_idx].local_state = state;
+#if !USE_COHERENT_MEM || !HW_ASSISTED_COHERENCY
+	flush_dcache_range(
+			(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
+			sizeof(psci_non_cpu_pd_nodes[parent_idx]));
+#endif
+}
+
 /******************************************************************************
  * Helper function to return the current local power state of each power domain
  * from the current cpu power domain to its ancestor at the 'end_pwrlvl'. This
@@ -264,18 +308,7 @@ void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
 
 	/* Copy the local power state from node to state_info */
 	for (lvl = PSCI_CPU_PWR_LVL + 1; lvl <= end_pwrlvl; lvl++) {
-#if !USE_COHERENT_MEM
-		/*
-		 * If using normal memory for psci_non_cpu_pd_nodes, we need
-		 * to flush before reading the local power state as another
-		 * cpu in the same power domain could have updated it and this
-		 * code runs before caches are enabled.
-		 */
-		flush_dcache_range(
-				(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
-				sizeof(psci_non_cpu_pd_nodes[parent_idx]));
-#endif
-		pd_state[lvl] =	psci_non_cpu_pd_nodes[parent_idx].local_state;
+		pd_state[lvl] = get_non_cpu_pd_node_local_state(parent_idx);
 		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
 
@@ -299,21 +332,16 @@ static void psci_set_target_local_pwr_states(unsigned int end_pwrlvl,
 	psci_set_cpu_local_state(pd_state[PSCI_CPU_PWR_LVL]);
 
 	/*
-	 * Need to flush as local_state will be accessed with Data Cache
+	 * Need to flush as local_state might be accessed with Data Cache
 	 * disabled during power on
 	 */
-	flush_cpu_data(psci_svc_cpu_data.local_state);
+	psci_flush_cpu_data(psci_svc_cpu_data.local_state);
 
 	parent_idx = psci_cpu_pd_nodes[plat_my_core_pos()].parent_node;
 
 	/* Copy the local_state from state_info */
 	for (lvl = 1; lvl <= end_pwrlvl; lvl++) {
-		psci_non_cpu_pd_nodes[parent_idx].local_state =	pd_state[lvl];
-#if !USE_COHERENT_MEM
-		flush_dcache_range(
-				(uintptr_t)&psci_non_cpu_pd_nodes[parent_idx],
-				sizeof(psci_non_cpu_pd_nodes[parent_idx]));
-#endif
+		set_non_cpu_pd_node_local_state(parent_idx, pd_state[lvl]);
 		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
 }
@@ -347,13 +375,8 @@ void psci_set_pwr_domains_to_run(unsigned int end_pwrlvl)
 
 	/* Reset the local_state to RUN for the non cpu power domains. */
 	for (lvl = PSCI_CPU_PWR_LVL + 1; lvl <= end_pwrlvl; lvl++) {
-		psci_non_cpu_pd_nodes[parent_idx].local_state =
-				PSCI_LOCAL_STATE_RUN;
-#if !USE_COHERENT_MEM
-		flush_dcache_range(
-				(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
-				sizeof(psci_non_cpu_pd_nodes[parent_idx]));
-#endif
+		set_non_cpu_pd_node_local_state(parent_idx,
+				PSCI_LOCAL_STATE_RUN);
 		psci_set_req_local_pwr_state(lvl,
 					     cpu_idx,
 					     PSCI_LOCAL_STATE_RUN);
@@ -364,7 +387,7 @@ void psci_set_pwr_domains_to_run(unsigned int end_pwrlvl)
 	psci_set_aff_info_state(AFF_STATE_ON);
 
 	psci_set_cpu_local_state(PSCI_LOCAL_STATE_RUN);
-	flush_cpu_data(psci_svc_cpu_data);
+	psci_flush_cpu_data(psci_svc_cpu_data);
 }
 
 /******************************************************************************

@@ -38,6 +38,29 @@
 #include <psci.h>
 #include <spinlock.h>
 
+#if HW_ASSISTED_COHERENCY
+/*
+ * On systems with hardware-assisted coherency, make PSCI cache operations NOP,
+ * as PSCI participants are cache-coherent, and there's no need for explicit
+ * cache maintenance operations or barriers to coordinate their state.
+ */
+#define psci_flush_dcache_range(addr, size)
+#define psci_flush_cpu_data(member)
+#define psci_inv_cpu_data(member)
+
+#define psci_dsbish()
+#else
+/*
+ * If not all PSCI participants are cache-coherent, perform cache maintenance
+ * and issue barriers wherever required to coordinate state.
+ */
+#define psci_flush_dcache_range(addr, size)	flush_dcache_range(addr, size)
+#define psci_flush_cpu_data(member)		flush_cpu_data(member)
+#define psci_inv_cpu_data(member)		inv_cpu_data(member)
+
+#define psci_dsbish()				dsbish()
+#endif
+
 /*
  * The following helper macros abstract the interface to the Bakery
  * Lock API.

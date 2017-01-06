@@ -86,7 +86,7 @@ static void psci_init_pwr_domain_node(unsigned int node_idx,
 		/* Set the power state to OFF state */
 		svc_cpu_data->local_state = PLAT_MAX_OFF_STATE;
 
-		flush_dcache_range((uintptr_t)svc_cpu_data,
+		psci_flush_dcache_range((uintptr_t)svc_cpu_data,
 						 sizeof(*svc_cpu_data));
 
 		cm_set_context_by_index(node_idx,
@@ -242,9 +242,9 @@ int psci_setup(const psci_lib_args_t *lib_args)
 
 	/*
 	 * Flush `psci_plat_pm_ops` as it will be accessed by secondary CPUs
-	 * during warm boot before data cache is enabled.
+	 * during warm boot, possibly before data cache is enabled.
 	 */
-	flush_dcache_range((uintptr_t)&psci_plat_pm_ops,
+	psci_flush_dcache_range((uintptr_t)&psci_plat_pm_ops,
 					sizeof(psci_plat_pm_ops));
 
 	/* Initialize the psci capability */
