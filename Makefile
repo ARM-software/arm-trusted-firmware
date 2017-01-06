@@ -305,6 +305,11 @@ ifeq (${ARCH},aarch32)
     endif
 endif
 
+# When building for systems with hardware-assisted coherency, there's no need to
+# use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
+ifeq ($(HW_ASSISTED_COHERENCY)-$(USE_COHERENT_MEM),1-1)
+$(error USE_COHERENT_MEM cannot be enabled with HW_ASSISTED_COHERENCY)
+endif
 
 ################################################################################
 # Process platform overrideable behaviour
