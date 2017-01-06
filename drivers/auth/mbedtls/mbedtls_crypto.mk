@@ -31,7 +31,7 @@
 include drivers/auth/mbedtls/mbedtls_common.mk
 
 # The platform may define the variable 'MBEDTLS_KEY_ALG' to select the key
-# algorithm to use. Default algorithm is ECDSA.
+# algorithm to use. Default algorithm is RSA.
 ifeq (${MBEDTLS_KEY_ALG},)
     MBEDTLS_KEY_ALG		:=	rsa
 endif
