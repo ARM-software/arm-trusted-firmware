@@ -45,8 +45,6 @@
 #define IDLE_MSCH1		(1 << 19)
 #define IDLE_MSCH0		(1 << 18)
 
-#define PD_VOP_PWR_STAT		(1 << 20)
-
 /* CRU */
 #define CRU_DPLL_CON0		0x40
 #define CRU_DPLL_CON1		0x44
@@ -60,20 +58,6 @@
 #define CRU_CLKGATE10_CON	0x328
 #define CRU_CLKGATE28_CON	0x370
 
-/* CRU_CLKGATE10_CON */
-#define ACLK_VOP0_PRE_SRC_EN	(1 << 8)
-#define HCLK_VOP0_PRE_EN	(1 << 9)
-#define ACLK_VOP1_PRE_SRC_EN	(1 << 10)
-#define HCLK_VOP1_PRE_EN	(1 << 11)
-#define DCLK_VOP0_SRC_EN	(1 << 12)
-#define DCLK_VOP1_SRC_EN	(1 << 13)
-
-/* CRU_CLKGATE28_CON */
-#define HCLK_VOP0_EN		(1 << 2)
-#define ACLK_VOP0_EN		(1 << 3)
-#define HCLK_VOP1_EN		(1 << 6)
-#define ACLK_VOP1_EN		(1 << 7)
-
 /* CRU_PLL_CON3 */
 #define PLL_SLOW_MODE		0
 #define PLL_NORMAL_MODE		1
@@ -83,104 +67,12 @@
 /* PMU CRU */
 #define PMU_CRU_GATEDIS_CON0	0x130
 
-/* VOP */
-#define VOP_SYS_CTRL		0x8
-#define VOP_SYS_CTRL1		0xc
-#define VOP_WIN0_CTRL0		0x30
-#define	VOP_INTR_CLEAR0		0x284
-#define VOP_INTR_RAW_STATUS0	0x28c
-
-/* VOP_SYS_CTRL */
-#define VOP_DMA_STOP_EN		(1 << 21)
-#define VOP_STANDBY_EN		(1 << 22)
-
-/* VOP_WIN0_CTRL0 */
-#define WB_ENABLE		(1 << 0)
-
-/* VOP_INTR_CLEAR0 */
-#define	INT_CLR_DMA_FINISH	(1 << 15)
-#define INT_CLR_LINE_FLAG1	(1 << 4)
-#define INT_CLR_LINE_FLAG0	(1 << 3)
-
-/* VOP_INTR_RAW_STATUS0 */
-#define	INT_RAW_STATUS_DMA_FINISH	(1 << 15)
-#define INT_RAW_STATUS_LINE_FLAG1	(1 << 4)
-#define INT_RAW_STATUS_LINE_FLAG0	(1 << 3)
-
 /* CIC */
 #define CIC_CTRL0		0
 #define CIC_CTRL1		0x4
 #define CIC_STATUS0		0x10
 
 uint32_t gatedis_con0 = 0;
-
-static inline int check_dma_status(uint32_t vop_addr, uint32_t *clr_dma_flag)
-{
-	if (*clr_dma_flag) {
-		mmio_write_32(vop_addr + VOP_INTR_CLEAR0, 0x80008000);
-		*clr_dma_flag = 0;
-	}
-
-	if ((mmio_read_32(vop_addr + VOP_SYS_CTRL) &
-	     (VOP_STANDBY_EN | VOP_DMA_STOP_EN)) ||
-	    !(mmio_read_32(vop_addr + VOP_WIN0_CTRL0) & WB_ENABLE) ||
-	    (mmio_read_32(vop_addr + VOP_INTR_RAW_STATUS0) &
-	    INT_RAW_STATUS_DMA_FINISH))
-		return 1;
-
-	return 0;
-}
-
-static int wait_vop_dma_finish(void)
-{
-	uint32_t clr_dma_flag = 1;
-	uint32_t ret = 0;
-
-	stopwatch_init_usecs_expire(60000);
-	while (((mmio_read_32(PMU_BASE + PMU_PWRDN_ST) &
-		PD_VOP_PWR_STAT) == 0)) {
-		/*
-		 * VOPL case:
-		 * CRU_CLKGATE10_CON(bit10): ACLK_VOP1_PRE_SRC_EN
-		 * CRU_CLKGATE10_CON(bit11): HCLK_VOP1_PRE_EN
-		 * CRU_CLKGATE10_CON(bit13): DCLK_VOP1_SRC_EN
-		 * CRU_CLKGATE28_CON(bit7): ACLK_VOP1_EN
-		 * CRU_CLKGATE28_CON(bit6): HCLK_VOP1_EN
-		 *
-		 * VOPB case:
-		 * CRU_CLKGATE10_CON(bit8): ACLK_VOP0_PRE_SRC_EN
-		 * CRU_CLKGATE10_CON(bit9): HCLK_VOP0_PRE_EN
-		 * CRU_CLKGATE10_CON(bit12): DCLK_VOP0_SRC_EN
-		 * CRU_CLKGATE28_CON(bit3): ACLK_VOP0_EN
-		 * CRU_CLKGATE28_CON(bit2): HCLK_VOP0_EN
-		 */
-		if (((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE10_CON) &
-		      0x2c00) == 0) &&
-		    ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE28_CON) &
-		      0xc0) == 0)) {
-			if (check_dma_status(VOP_LITE_BASE_ADDR, &clr_dma_flag))
-				return;
-		} else if (((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE10_CON) &
-			     0x1300) == 0) &&
-			   ((mmio_read_32(CRU_BASE_ADDR + CRU_CLKGATE28_CON) &
-			     0x0c) == 0)) {
-			if (check_dma_status(VOP_BIG_BASE_ADDR, &clr_dma_flag))
-				return;
-		} else {
-			/* No VOPs are enabled, so don't wait. */
-			return;
-		}
-
-		if (stopwatch_expired()) {
-			ret = 1;
-			goto out;
-		}
-	}
-
-out:
-	stopwatch_reset();
-	return ret;
-}
 
 static void idle_port(void)
 {
@@ -224,8 +116,6 @@ static void ddr_set_pll(void)
 
 void handle_dram(void)
 {
-	wait_vop_dma_finish();
-
 	idle_port();
 
 	mmio_write_32(CIC_BASE_ADDR + CIC_CTRL0,
