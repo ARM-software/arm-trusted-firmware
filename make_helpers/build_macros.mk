@@ -202,6 +202,23 @@ ifneq ($(call match_goals,${BUILD_TARGETS}),)
 IS_ANYTHING_TO_BUILD := 1
 endif
 
+# MAKE_DTB builds a dtb from a dts source file and generates the dependency file
+#   $(1) = output directory
+#   $(2) = source file (%.dts)
+#   $(3) = BL stage (2, 2u, 30, 31, 32, 33)
+define MAKE_DTB
+
+$(eval OBJ := $(1)/$(patsubst %.dts,%.dtb,$(notdir $(2))))
+$(eval PREREQUISITES := $(patsubst %.dtb,%.d,$(OBJ)))
+
+$(OBJ) $(PREREQUISITES): $(2) | bl$(3)_dirs
+	@echo "  DTC     $(OBJ)"
+	$$(Q)$$(DTC) $$(DTC_FLAGS) -d $(PREREQUISITES) -o $(OBJ) $$<
+
+ifdef IS_ANYTHING_TO_BUILD
+-include $(PREREQUISITES)
+endif
+endef
 
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
@@ -288,6 +305,10 @@ define MAKE_OBJS
         $(eval REMAIN := $(filter-out %.S,$(REMAIN)))
         $(eval $(foreach obj,$(S_OBJS),$(call MAKE_S,$(1),$(obj),$(3))))
 
+        $(eval DTB_OBJS := $(filter %.dts,$(REMAIN)))
+        $(eval REMAIN := $(filter-out %.dts,$(REMAIN)))
+        $(eval $(foreach obj,$(DTB_OBJS),$(call MAKE_DTB,$(1),$(obj),$(3))))
+
         $(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
 endef
 
@@ -298,6 +319,10 @@ endef
 define SOURCES_TO_OBJS
         $(notdir $(patsubst %.c,%.o,$(filter %.c,$(1)))) \
         $(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
+endef
+
+define SOURCES_TO_DTBS
+        $(notdir $(patsubst %.dts,%.dtb,$(filter %.dts,$(1))))
 endef
 
 
@@ -324,6 +349,7 @@ define MAKE_BL
         $(eval BL_SOURCES := $(BL$(call uppercase,$(1))_SOURCES))
         $(eval SOURCES    := $(BL_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
         $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
+        $(eval DTBS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_DTBS,$(SOURCES))))
         $(eval LINKERFILE := $(call IMG_LINKERFILE,$(1)))
         $(eval MAPFILE    := $(call IMG_MAPFILE,$(1)))
         $(eval ELF        := $(call IMG_ELF,$(1)))
@@ -375,7 +401,7 @@ $(BIN): $(ELF)
 	@echo
 
 .PHONY: bl$(1)
-bl$(1): $(BIN) $(DUMP)
+bl$(1): $(BIN) $(DUMP) $(DTBS)
 
 all: bl$(1)
 
