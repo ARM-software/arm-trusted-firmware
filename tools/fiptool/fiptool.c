@@ -1253,7 +1253,7 @@ static int help_cmd(int argc, char *argv[])
 
 static void usage(void)
 {
-	printf("usage: [--verbose] fiptool <command> [<args>]\n");
+	printf("usage: fiptool [--verbose] <command> [<args>]\n");
 	printf("Global options supported:\n");
 	printf("  --verbose\tEnable verbose output for all commands.\n");
 	fputc('\n', stderr);
