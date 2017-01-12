@@ -227,11 +227,12 @@ endef
 # MAKE_LD generate the linker script using the C preprocessor
 #   $(1) = output linker script
 #   $(2) = input template
+#   $(3) = BL stage (2, 2u, 30, 31, 32, 33)
 define MAKE_LD
 
 $(eval DEP := $(1).d)
 
-$(1): $(2) | $(dir ${1})
+$(1): $(2) | bl$(3)_dirs
 	@echo "  PP      $$<"
 	$$(Q)$$(CPP) $$(CPPFLAGS) -P -D__ASSEMBLY__ -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
@@ -297,7 +298,7 @@ define MAKE_BL
         $(eval BL_LINKERFILE := $(BL$(call uppercase,$(1))_LINKERFILE))
         # We use sort only to get a list of unique object directory names.
         # ordering is not relevant but sort removes duplicates.
-        $(eval TEMP_OBJ_DIRS := $(sort $(BUILD_DIR)/ $(dir ${OBJS})))
+        $(eval TEMP_OBJ_DIRS := $(sort $(BUILD_DIR)/ $(dir ${OBJS} ${LINKERFILE})))
         # The $(dir ) function leaves a trailing / on the directory names
         # We append a . then strip /. from each, to remove the trailing / characters
         # This gives names suitable for use as make rule targets.
@@ -314,7 +315,7 @@ $(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},)))
 bl${1}_dirs: | ${OBJ_DIRS}
 
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
-$(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE)))
+$(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE),$(1)))
 
 $(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs
 	@echo "  LD      $$@"
