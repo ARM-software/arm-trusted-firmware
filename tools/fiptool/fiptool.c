@@ -285,7 +285,7 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 	fip_toc_entry_t *toc_entry;
 	int terminated = 0;
 
-	fp = fopen(filename, "r");
+	fp = fopen(filename, "rb");
 	if (fp == NULL)
 		log_err("fopen %s", filename);
 
@@ -376,7 +376,7 @@ static image_t *read_image_from_file(const uuid_t *uuid, const char *filename)
 
 	assert(uuid != NULL);
 
-	fp = fopen(filename, "r");
+	fp = fopen(filename, "rb");
 	if (fp == NULL)
 		log_err("fopen %s", filename);
 
@@ -398,7 +398,7 @@ static int write_image_to_file(const image_t *image, const char *filename)
 {
 	FILE *fp;
 
-	fp = fopen(filename, "w");
+	fp = fopen(filename, "wb");
 	if (fp == NULL)
 		log_err("fopen");
 	xfwrite(image->buffer, image->toc_e.size, fp, filename);
@@ -534,7 +534,7 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 	toc_entry->offset_address = entry_offset;
 
 	/* Generate the FIP file. */
-	fp = fopen(filename, "w");
+	fp = fopen(filename, "wb");
 	if (fp == NULL)
 		log_err("fopen %s", filename);
 
