@@ -88,6 +88,7 @@
 #define UARTLSR_FERR		(1 << 3)	/* Framing Error */
 #define UARTLSR_PERR		(1 << 3)	/* Parity Error */
 #define UARTLSR_OVRF		(1 << 2)	/* Rx Overrun Error */
-#define UARTLSR_RDR		(1 << 2)	/* Rx Data Ready */
+#define UARTLSR_RDR_BIT		(0)		/* Rx Data Ready Bit */
+#define UARTLSR_RDR		(1 << UARTLSR_RDR_BIT)	/* Rx Data Ready */
 
 #endif	/* __UART_16550_H__ */

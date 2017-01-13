@@ -146,7 +146,7 @@ endfunc console_core_putc
 func console_core_getc
 	/* Check if the receive FIFO is empty */
 1:	ldr	w1, [x0, #UARTLSR]
-	tbz	w1, #UARTLSR_RDR, 1b
+	tbz	w1, #UARTLSR_RDR_BIT, 1b
 	ldr	w0, [x0, #UARTRX]
 	ret
 getc_error:
