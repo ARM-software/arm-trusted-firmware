@@ -155,12 +155,17 @@ static void *xmalloc(size_t size, const char *msg)
 	return d;
 }
 
+static void *xzalloc(size_t size, const char *msg)
+{
+	return memset(xmalloc(size, msg), 0, size);
+}
+
 static image_desc_t *new_image_desc(const uuid_t *uuid,
     const char *name, const char *cmdline_name)
 {
 	image_desc_t *desc;
 
-	desc = xmalloc(sizeof(*desc),
+	desc = xzalloc(sizeof(*desc),
 	    "failed to allocate memory for image descriptor");
 	memcpy(&desc->uuid, uuid, sizeof(uuid_t));
 	desc->name = xstrdup(name,
@@ -168,7 +173,6 @@ static image_desc_t *new_image_desc(const uuid_t *uuid,
 	desc->cmdline_name = xstrdup(cmdline_name,
 	    "failed to allocate memory for image command line name");
 	desc->action = DO_UNSPEC;
-	desc->action_arg = NULL;
 	return desc;
 }
 
