@@ -802,8 +802,9 @@ static void create_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool create [--blob uuid=...,file=...] "
-	    "[--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("fiptool create [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
 	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID "
 	    "pointed to by file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
@@ -911,8 +912,9 @@ static void update_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool update [--blob uuid=...,file=...] [--out FIP_FILENAME] "
-	    "[--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("fiptool update [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
 	printf("  --blob uuid=...,file=...\tAdd or update an image "
 	    "with the given UUID pointed to by file.\n");
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
@@ -1048,8 +1050,9 @@ static void unpack_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool unpack [--blob uuid=...,file=...] [--force] "
-	    "[--out <path>] [opts] FIP_FILENAME\n");
+	printf("fiptool unpack [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
 	printf("  --blob uuid=...,file=...\tUnpack an image with the given UUID "
 	    "to file.\n");
 	printf("  --force\t\t\tIf the output file already exists, use --force to "
@@ -1171,8 +1174,9 @@ static void remove_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool remove [--blob uuid=...] [--force] "
-	    "[--out FIP_FILENAME] [opts] FIP_FILENAME\n");
+	printf("fiptool remove [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
 	printf("  --blob uuid=...\tRemove an image with the given UUID.\n");
 	printf("  --force\t\tIf the output FIP file already exists, use --force to "
 	    "overwrite it.\n");
