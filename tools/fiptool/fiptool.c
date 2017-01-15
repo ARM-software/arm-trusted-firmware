@@ -554,12 +554,10 @@ static int info_cmd(int argc, char *argv[])
 		assert(desc != NULL);
 		printf("%s: ", desc->name);
 		image_size = image->size;
-		printf("offset=0x%llX, size=0x%llX",
-		    (unsigned long long)image_offset,
-		    (unsigned long long)image_size);
-		if (desc != NULL)
-			printf(", cmdline=\"--%s\"",
-			    desc->cmdline_name);
+		printf("offset=0x%llX, size=0x%llX, cmdline=\"--%s\"",
+		       (unsigned long long)image_offset,
+		       (unsigned long long)image_size,
+		       desc->cmdline_name);
 		if (verbose) {
 			unsigned char md[SHA256_DIGEST_LENGTH];
 
