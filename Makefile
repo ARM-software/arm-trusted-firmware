@@ -397,6 +397,9 @@ $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 
+$(eval $(call assert_numeric,ARM_ARCH_MAJOR))
+$(eval $(call assert_numeric,ARM_ARCH_MINOR))
+
 ################################################################################
 # Add definitions to the cpp preprocessor based on the current build options.
 # This is done after including the platform specific makefile to allow the
@@ -404,6 +407,8 @@ $(eval $(call assert_boolean,USE_COHERENT_MEM))
 ################################################################################
 
 $(eval $(call add_define,ARM_CCI_PRODUCT_ID))
+$(eval $(call add_define,ARM_ARCH_MAJOR))
+$(eval $(call add_define,ARM_ARCH_MINOR))
 $(eval $(call add_define,ARM_GIC_ARCH))
 $(eval $(call add_define,ASM_ASSERTION))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))

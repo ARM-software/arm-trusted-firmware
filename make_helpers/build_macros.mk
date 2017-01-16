@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -79,6 +79,16 @@ endef
 # $(eval $(call assert_boolean,FOO)) will assert FOO is 0 or 1
 define assert_boolean
     $(and $(patsubst 0,,$(value $(1))),$(patsubst 1,,$(value $(1))),$(error $(1) must be boolean))
+endef
+
+0-9 := 0 1 2 3 4 5 6 7 8 9
+
+# Function to verify that a given option $(1) contains a numeric value
+define assert_numeric
+$(if $($(1)),,$(error $(1) must not be empty))
+$(eval __numeric := $($(1)))
+$(foreach d,$(0-9),$(eval __numeric := $(subst $(d),,$(__numeric))))
+$(if $(__numeric),$(error $(1) must be numeric))
 endef
 
 # IMG_LINKERFILE defines the linker script corresponding to a BL stage

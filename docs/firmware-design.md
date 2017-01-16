@@ -16,8 +16,9 @@ Contents :
 11. [Use of coherent memory in Trusted Firmware](#11--use-of-coherent-memory-in-trusted-firmware)
 12. [Isolating code and read-only data on separate memory pages](#12--isolating-code-and-read-only-data-on-separate-memory-pages)
 13. [Performance Measurement Framework](#13--performance-measurement-framework)
-14. [Code Structure](#14--code-structure)
-15. [References](#15--references)
+14. [ARMv8 Architecture Extensions](#14--armv8-architecture-extensions)
+15. [Code Structure](#15--code-structure)
+16. [References](#16--references)
 
 
 1.  Introduction
@@ -2208,7 +2209,39 @@ in this implementation.
 5.  `pmf_helpers.h` is an internal header used by `pmf.h`.
 
 
-14.  Code Structure
+14.  ARMv8 Architecture Extensions
+----------------------------------
+
+ARM Trusted Firmware makes use of ARMv8 Architecture Extensions where
+applicable. This section lists the usage of Architecture Extensions, and build
+flags controlling them.
+
+In general, and unless individually mentioned, the build options
+`ARM_ARCH_MAJOR` and `ARM_ARCH_MINOR` selects the Architecture Extension to
+target when building ARM Trusted Firmware. Subsequent ARM Architecture
+Extensions are backward compatible with previous versions.
+
+The build system only requires that `ARM_ARCH_MAJOR` and `ARM_ARCH_MINOR` have a
+valid numeric value. These build options only control whether or not
+Architecture Extension-specific code is included in the build. Otherwise, ARM
+Trusted Firmware targets the base ARMv8.0 architecture; i.e. as if
+`ARM_ARCH_MAJOR` == 8 and `ARM_ARCH_MINOR` == 0, which are also their respective
+default values.
+
+See also the _Summary of build options_ in [User Guide].
+
+For details on the Architecture Extension and available features, please refer
+to the respective Architecture Extension Supplement.
+
+### ARMv8.1
+
+This Architecture Extension is targeted when `ARM_ARCH_MAJOR` >= 8, or when
+`ARM_ARCH_MAJOR` == 8 and `ARM_ARCH_MINOR` >= 1.
+
+*  The Compare and Swap instruction is used to implement spinlocks. Otherwise,
+   the load-/store-exclusive instruction pair is used.
+
+15.  Code Structure
 -------------------
 
 Trusted Firmware code is logically divided between the three boot loader
@@ -2252,7 +2285,7 @@ FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the `fdts` directory.
 
 
-15.  References
+16.  References
 ---------------
 
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available

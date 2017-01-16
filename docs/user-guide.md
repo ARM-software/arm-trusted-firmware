@@ -181,6 +181,14 @@ performed.
     is used to determine the number of valid slave interfaces available in the
     ARM CCI driver. Default is 400 (that is, CCI-400).
 
+*   `ARM_ARCH_MAJOR`: The major version of ARM Architecture to target when
+    compiling ARM Trusted Firmware. Its value must be numeric, and defaults to
+    8. See also, _ARMv8 Architecture Extensions_ in [Firmware Design].
+
+*   `ARM_ARCH_MINOR`: The minor version of ARM Architecture to target when
+    compiling ARM Trusted Firmware. Its value must be a numeric, and defaults
+    to 0. See also, _ARMv8 Architecture Extensions_ in [Firmware Design].
+
 *   `ARM_GIC_ARCH`: Choice of ARM GIC architecture version used by the ARM
     Legacy GIC driver for implementing the platform GIC API. This API is used
     by the interrupt management framework. Default is 2 (that is, version 2.0).
