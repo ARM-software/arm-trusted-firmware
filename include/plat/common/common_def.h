@@ -119,22 +119,22 @@
  */
 #if SEPARATE_CODE_AND_RODATA
 #define BL_CODE_BASE		(unsigned long)(&__TEXT_START__)
-#define BL_CODE_LIMIT		(unsigned long)(&__TEXT_END__)
+#define BL_CODE_END		(unsigned long)(&__TEXT_END__)
 #define BL_RO_DATA_BASE		(unsigned long)(&__RODATA_START__)
-#define BL_RO_DATA_LIMIT	(unsigned long)(&__RODATA_END__)
+#define BL_RO_DATA_END		(unsigned long)(&__RODATA_END__)
 
-#define BL1_CODE_LIMIT		BL_CODE_LIMIT
+#define BL1_CODE_END		BL_CODE_END
 #define BL1_RO_DATA_BASE	(unsigned long)(&__RODATA_START__)
-#define BL1_RO_DATA_LIMIT	round_up(BL1_ROM_END, PAGE_SIZE)
+#define BL1_RO_DATA_END		round_up(BL1_ROM_END, PAGE_SIZE)
 #else
 #define BL_CODE_BASE		(unsigned long)(&__RO_START__)
-#define BL_CODE_LIMIT		(unsigned long)(&__RO_END__)
+#define BL_CODE_END		(unsigned long)(&__RO_END__)
 #define BL_RO_DATA_BASE		0
-#define BL_RO_DATA_LIMIT	0
+#define BL_RO_DATA_END		0
 
-#define BL1_CODE_LIMIT		round_up(BL1_ROM_END, PAGE_SIZE)
+#define BL1_CODE_END		round_up(BL1_ROM_END, PAGE_SIZE)
 #define BL1_RO_DATA_BASE	0
-#define BL1_RO_DATA_LIMIT	0
+#define BL1_RO_DATA_END		0
 #endif /* SEPARATE_CODE_AND_RODATA */
 
 #endif /* __COMMON_DEF_H__ */

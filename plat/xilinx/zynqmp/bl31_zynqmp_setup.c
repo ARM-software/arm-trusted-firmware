@@ -160,9 +160,9 @@ void bl31_plat_arch_setup(void)
 	arm_setup_page_tables(BL31_BASE,
 			      BL31_END - BL31_BASE,
 			      BL_CODE_BASE,
-			      BL_CODE_LIMIT,
+			      BL_CODE_END,
 			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_LIMIT,
+			      BL_RO_DATA_END,
 			      BL31_COHERENT_RAM_BASE,
 			      BL31_COHERENT_RAM_LIMIT);
 	enable_mmu_el3(0);

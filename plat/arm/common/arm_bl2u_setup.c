@@ -95,9 +95,9 @@ void arm_bl2u_plat_arch_setup(void)
 	arm_setup_page_tables(BL2U_BASE,
 			      BL31_LIMIT,
 			      BL_CODE_BASE,
-			      BL_CODE_LIMIT,
+			      BL_CODE_END,
 			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_LIMIT
+			      BL_RO_DATA_END
 #if USE_COHERENT_MEM
 			      ,
 			      BL2U_COHERENT_RAM_BASE,

@@ -124,9 +124,9 @@ void arm_bl1_plat_arch_setup(void)
 	arm_setup_page_tables(bl1_tzram_layout.total_base,
 			      bl1_tzram_layout.total_size,
 			      BL_CODE_BASE,
-			      BL1_CODE_LIMIT,
+			      BL1_CODE_END,
 			      BL1_RO_DATA_BASE,
-			      BL1_RO_DATA_LIMIT
+			      BL1_RO_DATA_END
 #if USE_COHERENT_MEM
 			      , BL1_COHERENT_RAM_BASE,
 			      BL1_COHERENT_RAM_LIMIT
