@@ -39,6 +39,7 @@
 #include <gpio.h>
 #include <mmio.h>
 #include <pl061_gpio.h>
+#include <utils.h>
 
 #if !PLAT_PL061_MAX_GPIOS
 # define PLAT_PL061_MAX_GPIOS	32
@@ -52,7 +53,6 @@ CASSERT(PLAT_PL061_MAX_GPIOS > 0, assert_plat_pl061_max_gpios);
 #define PL061_GPIO_DIR		0x400
 
 #define GPIOS_PER_PL061		8
-#define BIT(nr)			(1UL << (nr))
 
 static int pl061_get_direction(int gpio);
 static void pl061_set_direction(int gpio, int direction);

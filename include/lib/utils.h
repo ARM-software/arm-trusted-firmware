@@ -40,6 +40,8 @@
 
 #define SIZE_FROM_LOG2_WORDS(n)		(4 << (n))
 
+#define BIT(nr)				(1UL << (nr))
+
 /*
  * The round_up() macro rounds up a value to the given boundary in a
  * type-agnostic yet type-safe manner. The boundary must be a power of two.

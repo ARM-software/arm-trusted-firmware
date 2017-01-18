@@ -75,10 +75,6 @@ struct rockchip_pm_ops_cb {
  ******************************************************************************/
 #define REG_MSK_SHIFT	16
 
-#ifndef BIT
-#define BIT(nr)			(1 << (nr))
-#endif
-
 #ifndef WMSK_BIT
 #define WMSK_BIT(nr)		BIT((nr) + REG_MSK_SHIFT)
 #endif

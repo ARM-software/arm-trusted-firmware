@@ -31,6 +31,8 @@
 #ifndef __SOC_H__
 #define __SOC_H__
 
+#include <utils.h>
+
 #define GLB_SRST_FST_CFG_VAL	0xfdb9
 #define GLB_SRST_SND_CFG_VAL	0xeca8
 
