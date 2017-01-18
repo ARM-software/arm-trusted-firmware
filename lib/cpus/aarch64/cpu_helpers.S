@@ -31,10 +31,10 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#include <cpu_macros.S>
 #if IMAGE_BL31
 #include <cpu_data.h>
 #endif
+#include <cpu_macros.S>
 #include <debug.h>
 
  /* Reset fn is needed in BL at reset vector */
