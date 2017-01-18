@@ -232,7 +232,7 @@ static const unsigned int mcdi_binary[] = {
 static const struct pcm_desc mcdi_pcm = {
 	.version = "pcm_mcdi_mt8173_20160401_v1",
 	.base = mcdi_binary,
-	.size = 1019,
+	.size = 1001,
 	.sess = 2,
 	.replace = 0,
 };
