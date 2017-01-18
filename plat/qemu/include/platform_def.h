@@ -175,7 +175,6 @@
 #else
 # error "Unsupported BL32_RAM_LOCATION_ID value"
 #endif
-#define BL32_SIZE			(BL32_LIMIT - BL32_BASE)
 
 #define NS_IMAGE_OFFSET			0x60000000
 

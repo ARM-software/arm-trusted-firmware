@@ -46,16 +46,6 @@
 #define BL2_RO_BASE (unsigned long)(&__RO_START__)
 #define BL2_RO_LIMIT (unsigned long)(&__RO_END__)
 
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
- * page-aligned addresses.
- */
-#define BL2_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-
 /*******************************************************************************
  * This structure represents the superset of information that is passed to
  * BL3-1, e.g. while passing control to it from BL2, bl31_params
@@ -216,7 +206,7 @@ void bl2_plat_arch_setup(void)
 	qemu_configure_mmu_el1(bl2_tzram_layout.total_base,
 			      bl2_tzram_layout.total_size,
 			      BL2_RO_BASE, BL2_RO_LIMIT,
-			      BL2_COHERENT_RAM_BASE, BL2_COHERENT_RAM_LIMIT);
+			      BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
 }
 
 /*******************************************************************************

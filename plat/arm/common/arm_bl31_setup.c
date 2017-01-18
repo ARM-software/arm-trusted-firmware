@@ -41,18 +41,6 @@
 
 #define BL31_END (uintptr_t)(&__BL31_END__)
 
-#if USE_COHERENT_MEM
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols
- * refer to page-aligned addresses.
- */
-#define BL31_COHERENT_RAM_BASE (uintptr_t)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT (uintptr_t)(&__COHERENT_RAM_END__)
-#endif
-
 /*
  * Placeholder variables for copying the arguments that have been passed to
  * BL31 from BL2.
@@ -288,12 +276,12 @@ void arm_bl31_plat_arch_setup(void)
 	arm_setup_page_tables(BL31_BASE,
 			      BL31_END - BL31_BASE,
 			      BL_CODE_BASE,
-			      BL_CODE_LIMIT,
+			      BL_CODE_END,
 			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_LIMIT
+			      BL_RO_DATA_END
 #if USE_COHERENT_MEM
-			      , BL31_COHERENT_RAM_BASE,
-			      BL31_COHERENT_RAM_LIMIT
+			      , BL_COHERENT_RAM_BASE,
+			      BL_COHERENT_RAM_END
 #endif
 			      );
 	enable_mmu_el3(0);

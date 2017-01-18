@@ -36,18 +36,6 @@
 #include <platform_def.h>
 #include "qemu_private.h"
 
-
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
- * page-aligned addresses.
- */
-#define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-
-
 /*******************************************************************************
  * Declarations of linker defined symbols which will tell us where BL1 lives
  * in Trusted RAM
@@ -98,7 +86,7 @@ void bl1_plat_arch_setup(void)
 	qemu_configure_mmu_el3(bl1_tzram_layout.total_base,
 				bl1_tzram_layout.total_size,
 				BL1_RO_BASE, BL1_RO_LIMIT,
-				BL1_COHERENT_RAM_BASE, BL1_COHERENT_RAM_LIMIT);
+				BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
 }
 
 void bl1_platform_setup(void)
