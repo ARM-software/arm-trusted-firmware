@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -98,7 +98,7 @@
  */
 
 /* 2MB used for SCP DDR retraining */
-#define PLAT_ARM_SCP_TZC_DRAM1_SIZE	MAKE_ULL(0x00200000)
+#define PLAT_ARM_SCP_TZC_DRAM1_SIZE	ULL(0x00200000)
 
 
 #endif /* __SOC_CSS_DEF_H__ */

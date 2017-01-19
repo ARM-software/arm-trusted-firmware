@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -60,9 +60,9 @@
 #define PLAT_ARM_TRUSTED_DRAM_SIZE	0x02000000	/* 32 MB */
 
 /* No SCP in FVP */
-#define PLAT_ARM_SCP_TZC_DRAM1_SIZE	MAKE_ULL(0x0)
+#define PLAT_ARM_SCP_TZC_DRAM1_SIZE	ULL(0x0)
 
-#define PLAT_ARM_DRAM2_SIZE		MAKE_ULL(0x780000000)
+#define PLAT_ARM_DRAM2_SIZE		ULL(0x780000000)
 
 /*
  * Load address of BL33 for this platform port

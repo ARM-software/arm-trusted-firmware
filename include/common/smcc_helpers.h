@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,8 @@
 #ifndef __SMCC_HELPERS_H__
 #define __SMCC_HELPERS_H__
 
+#include <utils.h>
+
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention
  ******************************************************************************/
@@ -57,7 +59,7 @@
 #define SMC_64				1
 #define SMC_32				0
 #define SMC_UNK				0xffffffff
-#define SMC_TYPE_FAST			1
+#define SMC_TYPE_FAST			ULL(1)
 #define SMC_TYPE_STD			0
 #define SMC_PREEMPTED		0xfffffffe
 /*******************************************************************************

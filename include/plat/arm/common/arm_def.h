@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -89,7 +89,7 @@
  *   - SCP TZC DRAM: If present, DRAM reserved for SCP use
  *   - AP TZC DRAM: The remaining TZC secured DRAM reserved for AP use
  */
-#define ARM_TZC_DRAM1_SIZE		MAKE_ULL(0x01000000)
+#define ARM_TZC_DRAM1_SIZE		ULL(0x01000000)
 
 #define ARM_SCP_TZC_DRAM1_BASE		(ARM_DRAM1_BASE +		\
 					 ARM_DRAM1_SIZE -		\
@@ -113,12 +113,12 @@
 #define ARM_NS_DRAM1_END		(ARM_NS_DRAM1_BASE +		\
 					 ARM_NS_DRAM1_SIZE - 1)
 
-#define ARM_DRAM1_BASE			MAKE_ULL(0x80000000)
-#define ARM_DRAM1_SIZE			MAKE_ULL(0x80000000)
+#define ARM_DRAM1_BASE			ULL(0x80000000)
+#define ARM_DRAM1_SIZE			ULL(0x80000000)
 #define ARM_DRAM1_END			(ARM_DRAM1_BASE +		\
 					 ARM_DRAM1_SIZE - 1)
 
-#define ARM_DRAM2_BASE			MAKE_ULL(0x880000000)
+#define ARM_DRAM2_BASE			ULL(0x880000000)
 #define ARM_DRAM2_SIZE			PLAT_ARM_DRAM2_SIZE
 #define ARM_DRAM2_END			(ARM_DRAM2_BASE +		\
 					 ARM_DRAM2_SIZE - 1)
