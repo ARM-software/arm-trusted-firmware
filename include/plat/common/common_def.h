@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,26 +53,6 @@
  * Generic platform constants
  */
 #define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
-
-/*
- * Some of the platform porting definitions use the 'ull' suffix in order to
- * avoid subtle integer overflow errors due to implicit integer type promotion
- * when working with 32-bit values.
- *
- * The TSP linker script includes some of these definitions to define the BL32
- * memory map, but the GNU LD does not support the 'ull' suffix, causing the
- * build process to fail. To solve this problem, the auxiliary macro MAKE_ULL(x)
- * will add the 'ull' suffix only when the macro __LINKER__  is not defined
- * (__LINKER__ is defined in the command line to preprocess the linker script).
- * Constants in the linker script will not have the 'ull' suffix, but this is
- * not a problem since the linker evaluates all constant expressions to 64 bit
- * (assuming the target architecture is 64 bit).
- */
-#ifndef __LINKER__
-  #define MAKE_ULL(x)			x##ull
-#else
-  #define MAKE_ULL(x)			x
-#endif
 
 #if LOAD_IMAGE_V2
 #define BL2_IMAGE_DESC {				\
