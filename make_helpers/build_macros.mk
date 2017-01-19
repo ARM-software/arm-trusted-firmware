@@ -300,9 +300,8 @@ define MAKE_BL
         # ordering is not relevant but sort removes duplicates.
         $(eval TEMP_OBJ_DIRS := $(sort $(BUILD_DIR)/ $(dir ${OBJS} ${LINKERFILE})))
         # The $(dir ) function leaves a trailing / on the directory names
-        # We append a . then strip /. from each, to remove the trailing / characters
-        # This gives names suitable for use as make rule targets.
-        $(eval OBJ_DIRS   := $(subst /.,,$(addsuffix .,$(TEMP_OBJ_DIRS))))
+        # Rip off the / to match directory names with make rule targets.
+        $(eval OBJ_DIRS   := $(patsubst %/,%,$(TEMP_OBJ_DIRS)))
 
 # Create generators for object directory structure
 
