@@ -126,4 +126,17 @@
 #define MT_IRQ_SEC_SGI_6	14
 #define MT_IRQ_SEC_SGI_7	15
 
+/*
+ *  Macros for local power states in MTK platforms encoded by State-ID field
+ *  within the power-state parameter.
+ */
+/* Local power state for power domains in Run state. */
+#define MTK_LOCAL_STATE_RUN     0
+/* Local power state for retention. Valid only for CPU power domains */
+#define MTK_LOCAL_STATE_RET     1
+/* Local power state for OFF/power-down. Valid for CPU and cluster power
+ * domains
+ */
+#define MTK_LOCAL_STATE_OFF     2
+
 #endif /* __MT8173_DEF_H__ */

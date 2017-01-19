@@ -162,8 +162,10 @@ void bl31_platform_setup(void)
 	plat_mt_gic_init();
 	arm_gic_setup();
 
+#if ENABLE_PLAT_COMPAT
 	/* Topologies are best known to the platform. */
 	mt_setup_topology();
+#endif
 
 	/* Initialize spm at boot time */
 	spm_boot_init();
