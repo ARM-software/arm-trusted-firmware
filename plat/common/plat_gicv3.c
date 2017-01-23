@@ -36,7 +36,7 @@
 #include <interrupt_mgmt.h>
 #include <platform.h>
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 
 /*
  * The following platform GIC functions are weakly defined. They
@@ -180,7 +180,7 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 	}
 }
 #endif
-#if IMAGE_BL32
+#ifdef IMAGE_BL32
 
 #pragma weak plat_ic_get_pending_interrupt_id
 #pragma weak plat_ic_acknowledge_interrupt

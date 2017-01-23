@@ -31,14 +31,14 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 #include <cpu_data.h>
 #endif
 #include <cpu_macros.S>
 #include <debug.h>
 
  /* Reset fn is needed in BL at reset vector */
-#if IMAGE_BL1 || IMAGE_BL31
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
 	/*
 	 * The reset handler common to all platforms.  After a matching
 	 * cpu_ops structure entry is found, the correponding reset_handler
@@ -72,7 +72,7 @@ endfunc reset_handler
 
 #endif /* IMAGE_BL1 || IMAGE_BL31 */
 
-#if IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
+#ifdef IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*
 	 * void prepare_cpu_pwr_dwn(unsigned int power_level)
 	 *
@@ -130,7 +130,7 @@ func init_cpu_ops
 endfunc init_cpu_ops
 #endif /* IMAGE_BL31 */
 
-#if IMAGE_BL31 && CRASH_REPORTING
+#if defined(IMAGE_BL31) && CRASH_REPORTING
 	/*
 	 * The cpu specific registers which need to be reported in a crash
 	 * are reported via cpu_ops cpu_reg_dump function. After a matching

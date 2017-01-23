@@ -51,11 +51,11 @@
 CPU_MIDR: /* cpu_ops midr */
 	.space  4
 /* Reset fn is needed during reset */
-#if IMAGE_BL1 || IMAGE_BL32
+#if defined(IMAGE_BL1) || defined(IMAGE_BL32)
 CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  4
 #endif
-#if IMAGE_BL32 /* The power down core and cluster is needed only in BL32 */
+#ifdef IMAGE_BL32 /* The power down core and cluster is needed only in BL32 */
 CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
 	.space  (4 * CPU_MAX_PWR_DWN_OPS)
 #endif
@@ -117,10 +117,10 @@ CPU_OPS_SIZE = .
 	.align 2
 	.type cpu_ops_\_name, %object
 	.word \_midr
-#if IMAGE_BL1 || IMAGE_BL32
+#if defined(IMAGE_BL1) || defined(IMAGE_BL32)
 	.word \_resetfunc
 #endif
-#if IMAGE_BL32
+#ifdef IMAGE_BL32
 1:
 	/* Insert list of functions */
 	fill_constants CPU_MAX_PWR_DWN_OPS, \_power_down_ops

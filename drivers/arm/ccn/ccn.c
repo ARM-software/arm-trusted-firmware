@@ -38,7 +38,7 @@
 #include "ccn_private.h"
 
 static const ccn_desc_t *ccn_plat_desc;
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 DEFINE_BAKERY_LOCK(ccn_lock);
 #endif
 
@@ -285,7 +285,7 @@ static void ccn_snoop_dvm_do_op(unsigned long long rn_id_map,
 	assert(ccn_plat_desc);
 	assert(ccn_plat_desc->periphbase);
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	bakery_lock_get(&ccn_lock);
 #endif
 	start_region_id = region_id;
@@ -305,7 +305,7 @@ static void ccn_snoop_dvm_do_op(unsigned long long rn_id_map,
 						   rn_id_map);
 	}
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	bakery_lock_release(&ccn_lock);
 #endif
 }

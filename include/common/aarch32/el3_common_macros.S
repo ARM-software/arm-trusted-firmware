@@ -228,7 +228,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
-#if IMAGE_BL32
+#ifdef IMAGE_BL32
 		/* -----------------------------------------------------------------
 		 * Invalidate the RW memory used by the BL32 (SP_MIN) image. This
 		 * includes the data and NOBITS sections. This is done to
@@ -253,7 +253,7 @@
 		bl	zeromem
 #endif
 
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 		/* -----------------------------------------------------
 		 * Copy data from ROM to RAM.
 		 * -----------------------------------------------------

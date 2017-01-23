@@ -40,7 +40,7 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 #define PLATFORM_STACK_SIZE 0x400
 #endif
 

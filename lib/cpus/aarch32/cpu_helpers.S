@@ -34,7 +34,7 @@
 #include <cpu_data.h>
 #include <cpu_macros.S>
 
-#if IMAGE_BL1 || IMAGE_BL32
+#if defined(IMAGE_BL1) || defined(IMAGE_BL32)
 	/*
 	 * The reset handler common to all platforms.  After a matching
 	 * cpu_ops structure entry is found, the correponding reset_handler
@@ -68,7 +68,7 @@ endfunc reset_handler
 
 #endif /* IMAGE_BL1 || IMAGE_BL32 */
 
-#if IMAGE_BL32 /* The power down core and cluster is needed only in  BL32 */
+#ifdef IMAGE_BL32 /* The power down core and cluster is needed only in  BL32 */
 	/*
 	 * void prepare_cpu_pwr_dwn(unsigned int power_level)
 	 *

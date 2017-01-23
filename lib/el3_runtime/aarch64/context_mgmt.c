@@ -116,7 +116,7 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	scr_el3 &= ~SCR_EA_BIT;
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/*
 	 * IRQ/FIQ bits only need setting if interrupt routing
 	 * model has been set up for BL31.

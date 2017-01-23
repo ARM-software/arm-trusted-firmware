@@ -82,7 +82,7 @@ void plat_rockchip_gic_driver_init(void)
 	 * can use GIC system registers to manage interrupts and does
 	 * not need GIC interface base addresses to be configured.
 	 */
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	gicv3_driver_init(&rockchip_gic_data);
 #endif
 }

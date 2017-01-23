@@ -170,13 +170,13 @@ extern uintptr_t __RO_START__;
 extern uintptr_t __RO_END__;
 #endif
 
-#if IMAGE_BL2
+#if defined(IMAGE_BL2)
 extern uintptr_t __BL2_END__;
-#elif IMAGE_BL2U
+#elif defined(IMAGE_BL2U)
 extern uintptr_t __BL2U_END__;
-#elif IMAGE_BL31
+#elif defined(IMAGE_BL31)
 extern uintptr_t __BL31_END__;
-#elif IMAGE_BL32
+#elif defined(IMAGE_BL32)
 extern uintptr_t __BL32_END__;
 #endif /* IMAGE_BLX */
 

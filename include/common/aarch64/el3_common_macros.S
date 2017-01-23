@@ -49,7 +49,7 @@
 	msr	sctlr_el3, x0
 	isb
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 	/* ---------------------------------------------------------------------
 	 * Initialise the per-cpu cache pointer to the CPU.
 	 * This is done early to enable crash reporting to have access to crash
@@ -235,7 +235,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 		/* -------------------------------------------------------------
 		 * Invalidate the RW memory used by the BL31 image. This
 		 * includes the data and NOBITS sections. This is done to
@@ -260,7 +260,7 @@
 		bl	zeromem16
 #endif
 
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 		ldr	x0, =__DATA_RAM_START__
 		ldr	x1, =__DATA_ROM_START__
 		ldr	x2, =__DATA_SIZE__
