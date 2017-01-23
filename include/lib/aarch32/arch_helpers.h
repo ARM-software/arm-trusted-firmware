@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 
 #include <arch.h>	/* for additional register definitions */
 #include <stdint.h>
-#include <types.h>
+#include <sys/types.h>
 
 /**********************************************************************
  * Macros which create inline functions to read or write CPU system
@@ -186,6 +186,9 @@ static inline void _op ## _type(u_register_t v)				\
 void flush_dcache_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);
 void inv_dcache_range(uintptr_t addr, size_t size);
+
+void dcsw_op_louis(u_register_t op_type);
+void dcsw_op_all(u_register_t op_type);
 
 void disable_mmu_secure(void);
 void disable_mmu_icache_secure(void);

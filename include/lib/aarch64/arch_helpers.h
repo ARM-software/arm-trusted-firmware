@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@
 #include <arch.h>	/* for additional register definitions */
 #include <cdefs.h>	/* For __dead2 */
 #include <stdint.h>
+#include <sys/types.h>
 
 /**********************************************************************
  * Macros which create inline functions to read or write CPU system
@@ -143,11 +144,12 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e1w)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0w)
 
-void flush_dcache_range(uint64_t, uint64_t);
-void clean_dcache_range(uint64_t, uint64_t);
-void inv_dcache_range(uint64_t, uint64_t);
-void dcsw_op_louis(uint32_t);
-void dcsw_op_all(uint32_t);
+void flush_dcache_range(uintptr_t addr, size_t size);
+void clean_dcache_range(uintptr_t addr, size_t size);
+void inv_dcache_range(uintptr_t addr, size_t size);
+
+void dcsw_op_louis(u_register_t op_type);
+void dcsw_op_all(u_register_t op_type);
 
 void disable_mmu_el3(void);
 void disable_mmu_icache_el3(void);
