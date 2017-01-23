@@ -606,11 +606,10 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	 * call.
 	 */
 	case TSP_FID_ABORT:
-		/* ABORT should only be invoked by normal world */
-		if (!ns) {
-			assert(0);
-			break;
-		}
+		/*
+		 * ABORT can be invoked by both normal and secure world to
+		 * allow easy handling of runtime error in the TSP.
+		 */
 
 		/* Abort the preempted SMC request */
 		if (!tspd_abort_preempted_smc(tsp_ctx))
