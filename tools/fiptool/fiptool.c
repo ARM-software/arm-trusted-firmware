@@ -155,12 +155,17 @@ static void *xmalloc(size_t size, const char *msg)
 	return d;
 }
 
+static void *xzalloc(size_t size, const char *msg)
+{
+	return memset(xmalloc(size, msg), 0, size);
+}
+
 static image_desc_t *new_image_desc(const uuid_t *uuid,
     const char *name, const char *cmdline_name)
 {
 	image_desc_t *desc;
 
-	desc = xmalloc(sizeof(*desc),
+	desc = xzalloc(sizeof(*desc),
 	    "failed to allocate memory for image descriptor");
 	memcpy(&desc->uuid, uuid, sizeof(uuid_t));
 	desc->name = xstrdup(name,
@@ -168,7 +173,6 @@ static image_desc_t *new_image_desc(const uuid_t *uuid,
 	desc->cmdline_name = xstrdup(cmdline_name,
 	    "failed to allocate memory for image command line name");
 	desc->action = DO_UNSPEC;
-	desc->action_arg = NULL;
 	return desc;
 }
 
@@ -196,9 +200,14 @@ static void free_image_desc(image_desc_t *desc)
 
 static void add_image_desc(image_desc_t *desc)
 {
+	image_desc_t **p = &image_desc_head;
+
 	assert(lookup_image_desc_from_uuid(&desc->uuid) == NULL);
-	desc->next = image_desc_head;
-	image_desc_head = desc;
+
+	while (*p)
+		p = &(*p)->next;
+
+	*p = desc;
 	nr_image_descs++;
 }
 
@@ -233,9 +242,15 @@ static void fill_image_descs(void)
 
 static void add_image(image_t *image)
 {
+	image_t **p = &image_head;
+
 	assert(lookup_image_from_uuid(&image->uuid) == NULL);
-	image->next = image_head;
-	image_head = image;
+
+	while (*p)
+		p = &(*p)->next;
+
+	*p = image;
+
 	nr_images++;
 }
 
@@ -393,7 +408,7 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 		 * Build a new image out of the ToC entry and add it to the
 		 * table of images.
 		 */
-		image = xmalloc(sizeof(*image),
+		image = xzalloc(sizeof(*image),
 		    "failed to allocate memory for image");
 		memcpy(&image->uuid, &toc_entry->uuid, sizeof(uuid_t));
 		image->buffer = xmalloc(toc_entry->size,
@@ -450,7 +465,7 @@ static image_t *read_image_from_file(const uuid_t *uuid, const char *filename)
 	if (fstat(fileno(fp), &st) == -1)
 		log_errx("fstat %s", filename);
 
-	image = xmalloc(sizeof(*image), "failed to allocate memory for image");
+	image = xzalloc(sizeof(*image), "failed to allocate memory for image");
 	memcpy(&image->uuid, uuid, sizeof(uuid_t));
 	image->buffer = xmalloc(st.st_size, "failed to allocate image buffer");
 	if (fread(image->buffer, 1, st.st_size, fp) != st.st_size)
