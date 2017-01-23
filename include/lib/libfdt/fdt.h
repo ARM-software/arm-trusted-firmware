@@ -53,7 +53,7 @@
  */
 
 /*
- * Portions copyright (c) 2016, ARM Limited and Contributors.
+ * Portions copyright (c) 2016-2017, ARM Limited and Contributors.
  * All rights reserved.
  */
 
