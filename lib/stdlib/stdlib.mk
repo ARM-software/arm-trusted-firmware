@@ -42,7 +42,8 @@ STDLIB_SRCS	:=	$(addprefix lib/stdlib/,	\
 			strlen.c			\
 			strncmp.c			\
 			strnlen.c			\
-			subr_prf.c)
+			subr_prf.c			\
+			timingsafe_bcmp.c)
 
 INCLUDES	+=	-Iinclude/lib/stdlib		\
 			-Iinclude/lib/stdlib/sys

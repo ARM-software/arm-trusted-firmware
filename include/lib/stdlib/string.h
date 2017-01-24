@@ -61,6 +61,7 @@ size_t	 strlen(const char *) __pure;
 int	 strncmp(const char *, const char *, size_t) __pure;
 size_t	 strnlen(const char *, size_t) __pure;
 int	 strcasecmp(const char *, const char *);
+int	 timingsafe_bcmp(const void *, const void *, size_t);
 
 __END_DECLS
 
