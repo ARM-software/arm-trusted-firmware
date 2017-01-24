@@ -39,7 +39,7 @@ extern uint32_t __tegra186_cpu_reset_handler_data,
 #define TEGRA186_WAKE_TIME_MASK		0x0FFFFFF0
 #define TEGRA186_WAKE_TIME_SHIFT	4
 /* default core wake mask for CPU_SUSPEND */
-#define TEGRA186_CORE_WAKE_MASK		0x180c
+#define TEGRA194_CORE_WAKE_MASK		0x180c
 /* context size to save during system suspend */
 #define TEGRA186_SE_CONTEXT_SIZE	3
 
@@ -97,6 +97,7 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 #endif
 	uint32_t val;
 	mce_cstate_info_t cstate_info = { 0 };
+	int cpu = plat_my_core_pos();
 
 	/* get the state ID */
 	pwr_domain_state = target_state->pwr_domain_state;
@@ -109,6 +110,10 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	    (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
 
 		/* Enter CPU idle/powerdown */
+		val = (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ?
+			TEGRA_NVG_CORE_C6 : TEGRA_NVG_CORE_C7;
+		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE, val,
+				percpu_data[cpu].wake_time, 0);
 
 	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
@@ -173,6 +178,7 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 	plat_local_state_t target = *states;
 	int cluster_powerdn = 1;
 	int core_pos = read_mpidr() & MPIDR_CPU_MASK;
+	mce_cstate_info_t cstate_info = { 0 };
 
 	/* get the current core's power state */
 	target = *(states + core_pos);
@@ -181,8 +187,9 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 	if (lvl == MPIDR_AFFLVL1 && target == PSTATE_ID_CORE_POWERDN) {
 
 		/* Program default wake mask */
-
-		/* Check if CCx state is allowed. */
+		cstate_info.wake_mask = TEGRA194_CORE_WAKE_MASK;
+		cstate_info.update_wake_mask = 1;
+		mce_update_cstate_info(&cstate_info);
 	}
 
 	/* CPU off */
