@@ -414,4 +414,29 @@ static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
 	_END_OF_TABLE_,
 };
 
+static inline uint32_t tegra_smmu_read_32(uint32_t smmu_id, uint32_t off)
+{
+	if (smmu_id == 0)
+		return mmio_read_32(TEGRA_SMMU0_BASE + off);
+	else if (smmu_id == 1)
+		return mmio_read_32(TEGRA_SMMU1_BASE + off);
+	else if (smmu_id == 2)
+		return mmio_read_32(TEGRA_SMMU2_BASE + off);
+	else
+		panic();
+}
+
+static inline void tegra_smmu_write_32(uint32_t smmu_id,
+			uint32_t off, uint32_t val)
+{
+	if (smmu_id == 0)
+		mmio_write_32(TEGRA_SMMU0_BASE + off, val);
+	else if (smmu_id == 1)
+		mmio_write_32(TEGRA_SMMU1_BASE + off, val);
+	else if (smmu_id == 2)
+		mmio_write_32(TEGRA_SMMU2_BASE + off, val);
+	else
+		panic();
+}
+
 #endif //__SMMU_PLAT_CONFIG_H

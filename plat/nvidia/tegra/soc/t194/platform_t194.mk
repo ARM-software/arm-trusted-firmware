@@ -23,6 +23,9 @@ $(eval $(call add_define,ENABLE_CHIP_VERIFICATION_HARNESS))
 ENABLE_SMMU_DEVICE			:= 0
 $(eval $(call add_define,ENABLE_SMMU_DEVICE))
 
+NUM_SMMU_DEVICES			:= 3
+$(eval $(call add_define,NUM_SMMU_DEVICES))
+
 RESET_TO_BL31				:= 1
 
 PROGRAMMABLE_RESET_ADDRESS		:= 1
