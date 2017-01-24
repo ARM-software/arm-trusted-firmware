@@ -36,6 +36,52 @@
 #include <string.h>
 #include <tegra_private.h>
 
+/* SMMU IDs currently supported by the driver */
+enum {
+	TEGRA_SMMU0,
+	TEGRA_SMMU1,
+	TEGRA_SMMU2
+};
+
+static uint32_t tegra_smmu_read_32(uint32_t smmu_id, uint32_t off)
+{
+#if defined(TEGRA_SMMU0_BASE)
+	if (smmu_id == TEGRA_SMMU0)
+		return mmio_read_32(TEGRA_SMMU0_BASE + off);
+#endif
+
+#if defined(TEGRA_SMMU1_BASE)
+	if (smmu_id == TEGRA_SMMU1)
+		return mmio_read_32(TEGRA_SMMU1_BASE + off);
+#endif
+
+#if defined(TEGRA_SMMU2_BASE)
+	if (smmu_id == TEGRA_SMMU2)
+		return mmio_read_32(TEGRA_SMMU2_BASE + off);
+#endif
+
+	return 0;
+}
+
+static void tegra_smmu_write_32(uint32_t smmu_id,
+			uint32_t off, uint32_t val)
+{
+#if defined(TEGRA_SMMU0_BASE)
+	if (smmu_id == TEGRA_SMMU0)
+		mmio_write_32(TEGRA_SMMU0_BASE + off, val);
+#endif
+
+#if defined(TEGRA_SMMU1_BASE)
+	if (smmu_id == TEGRA_SMMU1)
+		mmio_write_32(TEGRA_SMMU1_BASE + off, val);
+#endif
+
+#if defined(TEGRA_SMMU2_BASE)
+	if (smmu_id == TEGRA_SMMU2)
+		mmio_write_32(TEGRA_SMMU2_BASE + off, val);
+#endif
+}
+
 /*
  * Save SMMU settings before "System Suspend" to TZDRAM
  */
@@ -50,7 +96,7 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 	uint32_t reg_id1, pgshift, cb_size;
 
 	/* sanity check SMMU settings c*/
-	reg_id1 = mmio_read_32((TEGRA_SMMU_BASE + SMMU_GNSR0_IDR1));
+	reg_id1 = mmio_read_32((TEGRA_SMMU0_BASE + SMMU_GNSR0_IDR1));
 	pgshift = (reg_id1 & ID1_PAGESIZE) ? 16 : 12;
 	cb_size = (2 << pgshift) * \
 	(1 << (((reg_id1 >> ID1_NUMPAGENDXB_SHIFT) & ID1_NUMPAGENDXB_MASK) + 1));
@@ -87,34 +133,39 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
  */
 void tegra_smmu_init(void)
 {
-	uint32_t val, i, ctx_base;
+	uint32_t val, cb_idx, smmu_id, ctx_base;
 
-	/* Program the SMMU pagesize and reset CACHE_LOCK bit */
-	val = tegra_smmu_read_32(SMMU_GSR0_SECURE_ACR);
-	val |= SMMU_GSR0_PGSIZE_64K;
-	val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GSR0_SECURE_ACR, val);
+	for (smmu_id = 0; smmu_id < NUM_SMMU_DEVICES; smmu_id++) {
+		/* Program the SMMU pagesize and reset CACHE_LOCK bit */
+		val = tegra_smmu_read_32(smmu_id, SMMU_GSR0_SECURE_ACR);
+		val |= SMMU_GSR0_PGSIZE_64K;
+		val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
+		tegra_smmu_write_32(smmu_id, SMMU_GSR0_SECURE_ACR, val);
 
-	/* reset CACHE LOCK bit for NS Aux. Config. Register */
-	val = tegra_smmu_read_32(SMMU_GNSR_ACR);
-	val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GNSR_ACR, val);
+		/* reset CACHE LOCK bit for NS Aux. Config. Register */
+		val = tegra_smmu_read_32(smmu_id, SMMU_GNSR_ACR);
+		val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
+		tegra_smmu_write_32(smmu_id, SMMU_GNSR_ACR, val);
 
-	/* disable TCU prefetch for all contexts */
-	ctx_base = (SMMU_GSR0_PGSIZE_64K * SMMU_NUM_CONTEXTS) + SMMU_CBn_ACTLR;
-	for (i = 0; i < SMMU_CONTEXT_BANK_MAX_IDX; i++) {
-		val = tegra_smmu_read_32(ctx_base + (SMMU_GSR0_PGSIZE_64K * i));
-		val &= ~SMMU_CBn_ACTLR_CPRE_BIT;
-		tegra_smmu_write_32(ctx_base + (SMMU_GSR0_PGSIZE_64K * i), val);
+		/* disable TCU prefetch for all contexts */
+		ctx_base = (SMMU_GSR0_PGSIZE_64K * SMMU_NUM_CONTEXTS)
+				+ SMMU_CBn_ACTLR;
+		for (cb_idx = 0; cb_idx < SMMU_CONTEXT_BANK_MAX_IDX; cb_idx++) {
+			val = tegra_smmu_read_32(smmu_id,
+				ctx_base + (SMMU_GSR0_PGSIZE_64K * cb_idx));
+			val &= ~SMMU_CBn_ACTLR_CPRE_BIT;
+			tegra_smmu_write_32(smmu_id, ctx_base +
+				(SMMU_GSR0_PGSIZE_64K * cb_idx), val);
+		}
+
+		/* set CACHE LOCK bit for NS Aux. Config. Register */
+		val = tegra_smmu_read_32(smmu_id, SMMU_GNSR_ACR);
+		val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
+		tegra_smmu_write_32(smmu_id, SMMU_GNSR_ACR, val);
+
+		/* set CACHE LOCK bit for S Aux. Config. Register */
+		val = tegra_smmu_read_32(smmu_id, SMMU_GSR0_SECURE_ACR);
+		val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
+		tegra_smmu_write_32(smmu_id, SMMU_GSR0_SECURE_ACR, val);
 	}
-
-	/* set CACHE LOCK bit for NS Aux. Config. Register */
-	val = tegra_smmu_read_32(SMMU_GNSR_ACR);
-	val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GNSR_ACR, val);
-
-	/* set CACHE LOCK bit for S Aux. Config. Register */
-	val = tegra_smmu_read_32(SMMU_GSR0_SECURE_ACR);
-	val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GSR0_SECURE_ACR, val);
 }

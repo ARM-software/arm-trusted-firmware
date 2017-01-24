@@ -643,7 +643,7 @@ typedef struct smmu_regs {
 
 #define smmu_make_gnsr0_sec_cfg(name) \
 	{ \
-		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_ ## name, \
+		.reg = TEGRA_SMMU0_BASE + SMMU_GNSR0_ ## name, \
 		.val = 0x00000000, \
 	}
 
@@ -653,37 +653,37 @@ typedef struct smmu_regs {
  */
 #define smmu_make_gnsr0_nsec_cfg(name) \
 	{ \
-		.reg = TEGRA_SMMU_BASE + 0x400 + SMMU_GNSR0_ ## name, \
+		.reg = TEGRA_SMMU0_BASE + 0x400 + SMMU_GNSR0_ ## name, \
 		.val = 0x00000000, \
 	}
 
 #define smmu_make_gnsr0_smr_cfg(n) \
 	{ \
-		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_SMR ## n, \
+		.reg = TEGRA_SMMU0_BASE + SMMU_GNSR0_SMR ## n, \
 		.val = 0x00000000, \
 	}
 
 #define smmu_make_gnsr0_s2cr_cfg(n) \
 	{ \
-		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_S2CR ## n, \
+		.reg = TEGRA_SMMU0_BASE + SMMU_GNSR0_S2CR ## n, \
 		.val = 0x00000000, \
 	}
 
 #define smmu_make_gnsr1_cbar_cfg(n) \
 	{ \
-		.reg = TEGRA_SMMU_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBAR ## n, \
+		.reg = TEGRA_SMMU0_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBAR ## n, \
 		.val = 0x00000000, \
 	}
 
 #define smmu_make_gnsr1_cba2r_cfg(n) \
 	{ \
-		.reg = TEGRA_SMMU_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBA2R ## n, \
+		.reg = TEGRA_SMMU0_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBA2R ## n, \
 		.val = 0x00000000, \
 	}
 
 #define make_smmu_cb_cfg(name, n) \
 	{ \
-		.reg = TEGRA_SMMU_BASE + (CB_SIZE >> 1) + (n * (1 << PGSHIFT)) \
+		.reg = TEGRA_SMMU0_BASE + (CB_SIZE >> 1) + (n * (1 << PGSHIFT)) \
 			+ SMMU_CBn_ ## name, \
 		.val = 0x00000000, \
 	}
