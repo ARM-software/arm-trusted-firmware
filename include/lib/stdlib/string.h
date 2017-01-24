@@ -31,7 +31,7 @@
  */
 
 /*
- * Portions copyright (c) 2013-2014, ARM Limited and Contributors.
+ * Portions copyright (c) 2013-2017, ARM Limited and Contributors.
  * All rights reserved.
  */
 
@@ -59,6 +59,7 @@ char	*strchr(const char *, int) __pure;
 int	 strcmp(const char *, const char *) __pure;
 size_t	 strlen(const char *) __pure;
 int	 strncmp(const char *, const char *, size_t) __pure;
+size_t	 strnlen(const char *, size_t) __pure;
 int	 strcasecmp(const char *, const char *);
 
 __END_DECLS
