@@ -381,13 +381,12 @@ void bl31_plat_arch_setup(void)
  ******************************************************************************/
 int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 {
-	uint64_t end = base + size_in_bytes - 1;
+	uint64_t end = base + size_in_bytes;
 
 	/*
 	 * Check if the NS DRAM address is valid
 	 */
-	if ((base < TEGRA_DRAM_BASE) || (end > TEGRA_DRAM_END) ||
-	    (base >= end)) {
+	if ((base < TEGRA_DRAM_BASE) || (end > TEGRA_DRAM_END)) {
 		ERROR("NS address is out-of-bounds!\n");
 		return -EFAULT;
 	}
