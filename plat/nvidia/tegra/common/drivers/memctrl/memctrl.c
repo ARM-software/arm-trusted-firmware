@@ -35,6 +35,7 @@
 #include <memctrl.h>
 #include <string.h>
 #include <tegra_def.h>
+#include <utils.h>
 #include <xlat_tables.h>
 
 #define TEGRA_GPU_RESET_REG_OFFSET	0x28c

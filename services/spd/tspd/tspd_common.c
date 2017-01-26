@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 #include <debug.h>
 #include <string.h>
 #include <tsp.h>
+#include <utils.h>
 #include "tspd_private.h"
 
 /*******************************************************************************
@@ -78,7 +79,7 @@ void tspd_init_tsp_ep_state(struct entry_point_info *tsp_entry_point,
 	tsp_entry_point->spsr = SPSR_64(MODE_EL1,
 					MODE_SP_ELX,
 					DISABLE_ALL_EXCEPTIONS);
-	memset(&tsp_entry_point->args, 0, sizeof(tsp_entry_point->args));
+	zeromem(&tsp_entry_point->args, sizeof(tsp_entry_point->args));
 }
 
 /*******************************************************************************

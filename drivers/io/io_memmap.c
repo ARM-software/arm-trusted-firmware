@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <io_driver.h>
 #include <io_storage.h>
 #include <string.h>
+#include <utils.h>
 
 /* As we need to be able to keep state for seek, only one file can be open
  * at a time. Make this a structure and point to the entity->info. When we
@@ -231,7 +232,7 @@ static int memmap_block_close(io_entity_t *entity)
 	entity->info = 0;
 
 	/* This would be a mem free() if we had malloc.*/
-	memset((void *)&current_file, 0, sizeof(current_file));
+	zeromem((void *)&current_file, sizeof(current_file));
 
 	return 0;
 }

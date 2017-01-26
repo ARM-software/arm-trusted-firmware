@@ -43,6 +43,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <utils.h>
 
 /* mbed TLS headers */
 #include <mbedtls/asn1.h>
@@ -71,7 +72,7 @@ static void clear_temp_vars(void)
 {
 #define ZERO_AND_CLEAN(x)					\
 	do {							\
-		memset(&x, 0, sizeof(x));			\
+		zeromem(&x, sizeof(x));				\
 		clean_dcache_range((uintptr_t)&x, sizeof(x));	\
 	} while (0);
 
@@ -111,7 +112,7 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 			     MBEDTLS_ASN1_SEQUENCE);
 
 	while (p < end) {
-		memset(&extn_oid, 0x0, sizeof(extn_oid));
+		zeromem(&extn_oid, sizeof(extn_oid));
 		is_critical = 0; /* DEFAULT FALSE */
 
 		mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <gpt.h>
 #include <string.h>
+#include <utils.h>
 
 static int unicode_to_ascii(unsigned short *str_in, unsigned char *str_out)
 {
@@ -65,7 +66,7 @@ int parse_gpt_entry(gpt_entry_t *gpt_entry, partition_entry_t *entry)
 		return -EINVAL;
 	}
 
-	memset(entry, 0, sizeof(partition_entry_t));
+	zeromem(entry, sizeof(partition_entry_t));
 	result = unicode_to_ascii(gpt_entry->name, (uint8_t *)entry->name);
 	if (result != 0) {
 		return result;

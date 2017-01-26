@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <types.h>
+#include <utils.h>
 #include "sp_min_private.h"
 
 /* Pointers to per-core cpu contexts */
@@ -203,7 +204,7 @@ void sp_min_warm_boot(void)
 	smc_set_next_ctx(NON_SECURE);
 
 	next_smc_ctx = smc_get_next_ctx();
-	memset(next_smc_ctx, 0, sizeof(smc_ctx_t));
+	zeromem(next_smc_ctx, sizeof(smc_ctx_t));
 
 	copy_cpu_ctx_to_smc_stx(get_regs_ctx(cm_get_context(NON_SECURE)),
 			next_smc_ctx);

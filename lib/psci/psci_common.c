@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <string.h>
+#include <utils.h>
 #include "psci_private.h"
 
 /*
@@ -622,7 +623,7 @@ static int psci_get_ns_ep_info(entry_point_info_t *ep,
 	SET_PARAM_HEAD(ep, PARAM_EP, VERSION_1, ep_attr);
 
 	ep->pc = entrypoint;
-	memset(&ep->args, 0, sizeof(ep->args));
+	zeromem(&ep->args, sizeof(ep->args));
 	ep->args.arg0 = context_id;
 
 	mode = scr & SCR_HCE_BIT ? MODE32_hyp : MODE32_svc;
@@ -659,7 +660,7 @@ static int psci_get_ns_ep_info(entry_point_info_t *ep,
 	SET_PARAM_HEAD(ep, PARAM_EP, VERSION_1, ep_attr);
 
 	ep->pc = entrypoint;
-	memset(&ep->args, 0, sizeof(ep->args));
+	zeromem(&ep->args, sizeof(ep->args));
 	ep->args.arg0 = context_id;
 
 	/*
@@ -957,7 +958,7 @@ unsigned int psci_get_max_phys_off_afflvl(void)
 {
 	psci_power_state_t state_info;
 
-	memset(&state_info, 0, sizeof(state_info));
+	zeromem(&state_info, sizeof(state_info));
 	psci_get_target_local_pwr_states(PLAT_MAX_PWR_LVL, &state_info);
 
 	return psci_find_target_suspend_lvl(&state_info);

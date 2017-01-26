@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@
 #include <plat_arm.h>
 #include <platform_def.h>
 #include <string.h>
+#include <utils.h>
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
@@ -123,7 +124,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	 * Initialise the memory for all the arguments that needs to
 	 * be passed to BL31
 	 */
-	memset(&bl31_params_mem, 0, sizeof(bl2_to_bl31_params_mem_t));
+	zeromem(&bl31_params_mem, sizeof(bl2_to_bl31_params_mem_t));
 
 	/* Assign memory for TF related information */
 	bl2_to_bl31_params = &bl31_params_mem.bl31_params;

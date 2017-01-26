@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@
 #include <platform_def.h>
 #include "qemu_private.h"
 #include <string.h>
-
+#include <utils.h>
 
 /*
  * The next 2 constants identify the extents of the code & RO data region.
@@ -91,7 +91,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	 * Initialise the memory for all the arguments that needs to
 	 * be passed to BL3-1
 	 */
-	memset(&bl31_params_mem, 0, sizeof(bl2_to_bl31_params_mem_t));
+	zeromem(&bl31_params_mem, sizeof(bl2_to_bl31_params_mem_t));
 
 	/* Assign memory for TF related information */
 	bl2_to_bl31_params = &bl31_params_mem.bl31_params;
