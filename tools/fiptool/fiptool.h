@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "firmware_image_package.h"
 #include "uuid.h"
 
 #define NELEM(x) (sizeof (x) / sizeof *(x))
@@ -61,10 +62,9 @@ typedef struct image_desc {
 } image_desc_t;
 
 typedef struct image {
-	uuid_t             uuid;
-	size_t             size;
-	void              *buffer;
-	struct image      *next;
+	struct fip_toc_entry toc_e;
+	void                *buffer;
+	struct image        *next;
 } image_t;
 
 typedef struct cmd {
