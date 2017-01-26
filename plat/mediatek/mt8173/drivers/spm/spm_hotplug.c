@@ -27,6 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <arch.h>
 #include <mmio.h>
 #include <mt8173_def.h>
 #include <platform.h>
@@ -258,7 +259,9 @@ void spm_hotplug_on(unsigned long mpidr)
 {
 	unsigned long linear_id;
 
-	linear_id = platform_get_core_pos(mpidr);
+	linear_id = ((mpidr & MPIDR_CLUSTER_MASK) >> 6) |
+			(mpidr & MPIDR_CPU_MASK);
+
 	spm_lock_get();
 	if (is_hotplug_ready() == 0) {
 		spm_mcdi_wakeup_all_cores();
@@ -277,7 +280,9 @@ void spm_hotplug_off(unsigned long mpidr)
 {
 	unsigned long linear_id;
 
-	linear_id = platform_get_core_pos(mpidr);
+	linear_id = ((mpidr & MPIDR_CLUSTER_MASK) >> 6) |
+			(mpidr & MPIDR_CPU_MASK);
+
 	spm_lock_get();
 	if (is_hotplug_ready() == 0) {
 		spm_mcdi_wakeup_all_cores();

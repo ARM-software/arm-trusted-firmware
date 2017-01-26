@@ -511,7 +511,10 @@ void spm_mcdi_prepare_for_off_state(unsigned long mpidr, unsigned int afflvl)
 
 void spm_mcdi_finish_for_on_state(unsigned long mpidr, unsigned int afflvl)
 {
-	unsigned long linear_id = platform_get_core_pos(mpidr);
+	unsigned long linear_id;
+
+	linear_id = ((mpidr & MPIDR_CLUSTER_MASK) >> 6) |
+			(mpidr & MPIDR_CPU_MASK);
 
 	spm_lock_get();
 	spm_mcdi_clear_cputop_pwrctrl_for_cluster_on(mpidr);
