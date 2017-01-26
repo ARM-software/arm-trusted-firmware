@@ -423,6 +423,7 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 		memcpy(image->buffer, buf + toc_entry->offset_address,
 		    toc_entry->size);
 		image->size = toc_entry->size;
+		image->offset = toc_entry->offset_address;
 
 		/* If this is an unknown image, create a descriptor for it. */
 		desc = lookup_image_desc_from_uuid(&image->uuid);
@@ -526,8 +527,6 @@ static void md_print(const unsigned char *md, size_t len)
 static int info_cmd(int argc, char *argv[])
 {
 	image_t *image;
-	uint64_t image_offset;
-	uint64_t image_size;
 	fip_toc_header_t toc_header;
 
 	if (argc != 2)
@@ -545,31 +544,26 @@ static int info_cmd(int argc, char *argv[])
 		    (unsigned long long)toc_header.flags);
 	}
 
-	image_offset = sizeof(fip_toc_header_t) +
-	    (sizeof(fip_toc_entry_t) * (nr_images + 1));
-
 	for (image = image_head; image != NULL; image = image->next) {
 		image_desc_t *desc;
 
 		desc = lookup_image_desc_from_uuid(&image->uuid);
 		assert(desc != NULL);
 		printf("%s: ", desc->name);
-		image_size = image->size;
 		printf("offset=0x%llX, size=0x%llX",
-		    (unsigned long long)image_offset,
-		    (unsigned long long)image_size);
+		    (unsigned long long)image->offset,
+		    (unsigned long long)image->size);
 		if (desc != NULL)
 			printf(", cmdline=\"--%s\"",
 			    desc->cmdline_name);
 		if (verbose) {
 			unsigned char md[SHA256_DIGEST_LENGTH];
 
-			SHA256(image->buffer, image_size, md);
+			SHA256(image->buffer, image->size, md);
 			printf(", sha256=");
 			md_print(md, sizeof(md));
 		}
 		putchar('\n');
-		image_offset += image_size;
 	}
 
 	free_images();
