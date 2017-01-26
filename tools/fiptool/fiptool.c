@@ -160,6 +160,12 @@ static void *xzalloc(size_t size, const char *msg)
 	return memset(xmalloc(size, msg), 0, size);
 }
 
+static void xfwrite(void *buf, size_t size, FILE *fp, const char *filename)
+{
+	if (fwrite(buf, 1, size, fp) != size)
+		log_errx("Failed to write %s", filename);
+}
+
 static image_desc_t *new_image_desc(const uuid_t *uuid,
     const char *name, const char *cmdline_name)
 {
@@ -497,8 +503,7 @@ static int write_image_to_file(const image_t *image, const char *filename)
 	fp = fopen(filename, "w");
 	if (fp == NULL)
 		log_err("fopen");
-	if (fwrite(image->buffer, 1, image->size, fp) != image->size)
-		log_errx("Failed to write %s", filename);
+	xfwrite(image->buffer, image->size, fp, filename);
 	fclose(fp);
 	return 0;
 }
@@ -645,16 +650,14 @@ static int pack_images(const char *filename, uint64_t toc_flags)
 	if (verbose)
 		log_dbgx("Metadata size: %zu bytes", buf_size);
 
-	if (fwrite(buf, 1, buf_size, fp) != buf_size)
-		log_errx("Failed to write image to %s", filename);
+	xfwrite(buf, buf_size, fp, filename);
 	free(buf);
 
 	if (verbose)
 		log_dbgx("Payload size: %zu bytes", payload_size);
 
 	for (image = image_head; image != NULL; image = image->next)
-		if (fwrite(image->buffer, 1, image->size, fp) != image->size)
-			log_errx("Failed to write image to %s", filename);
+		xfwrite(image->buffer, image->size, fp, filename);
 
 	fclose(fp);
 	return 0;
