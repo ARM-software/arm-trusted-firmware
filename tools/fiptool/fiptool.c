@@ -276,20 +276,20 @@ static void free_image(image_t *image)
 
 static void remove_image(image_t *image)
 {
-	image_t *tmp = image_head, *prev;
+	image_t *tmp, **p = &image_head;
 
-	if (tmp == image) {
-		image_head = tmp->next;
-		free_image(tmp);
-	} else {
-		while (tmp != NULL && tmp != image) {
-			prev = tmp;
-			tmp = tmp->next;
-		}
-		assert(tmp != NULL);
-		prev->next = tmp->next;
-		free_image(tmp);
+	while (*p) {
+		if (*p == image)
+			break;
+		p = &(*p)->next;
 	}
+
+	assert(*p != NULL);
+
+	tmp = *p;
+	*p = tmp->next;
+	free_image(tmp);
+
 	nr_images--;
 }
 
