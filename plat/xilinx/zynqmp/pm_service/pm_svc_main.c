@@ -176,8 +176,13 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_NODE_STATUS:
-		ret = pm_get_node_status(pm_arg[0]);
-		SMC_RET1(handle, (uint64_t)ret);
+	{
+		uint32_t buff[3];
+
+		ret = pm_get_node_status(pm_arg[0], buff);
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)buff[0] << 32),
+			 (uint64_t)buff[1] | ((uint64_t)buff[2] << 32));
+	}
 
 	case PM_GET_OP_CHARACTERISTIC:
 	{

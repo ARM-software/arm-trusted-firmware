@@ -342,18 +342,22 @@ enum pm_ret_status pm_set_configuration(unsigned int phys_addr)
 }
 
 /**
- * pm_get_node_status() - PM call to request a node's current power state
- * @nid		Node id of the slave
+ * pm_get_node_status() - PM call to request a node's current status
+ * @nid		Node id
+ * @ret_buff	Buffer for the return values:
+ *		[0] - Current power state of the node
+ *		[1] - Current requirements for the node (slave nodes only)
+ *		[2] - Current usage status for the node (slave nodes only)
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_get_node_status(enum pm_node_id nid)
+enum pm_ret_status pm_get_node_status(enum pm_node_id nid,
+				      uint32_t *ret_buff)
 {
-	/* TODO: Add power state argument!! */
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	PM_PACK_PAYLOAD2(payload, PM_GET_NODE_STATUS, nid);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, ret_buff, 3);
 }
 
 /**
