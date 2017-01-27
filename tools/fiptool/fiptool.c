@@ -202,11 +202,10 @@ static void add_image_desc(image_desc_t *desc)
 {
 	image_desc_t **p = &image_desc_head;
 
-	assert(lookup_image_desc_from_uuid(&desc->uuid) == NULL);
-
 	while (*p)
 		p = &(*p)->next;
 
+	assert(*p == NULL);
 	*p = desc;
 	nr_image_descs++;
 }
@@ -244,11 +243,10 @@ static void add_image(image_t *image)
 {
 	image_t **p = &image_head;
 
-	assert(lookup_image_from_uuid(&image->uuid) == NULL);
-
 	while (*p)
 		p = &(*p)->next;
 
+	assert(*p == NULL);
 	*p = image;
 
 	nr_images++;
