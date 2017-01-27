@@ -254,6 +254,22 @@ static void add_image(image_t *image)
 	nr_images++;
 }
 
+static void replace_image(image_t *image)
+{
+	image_t **p = &image_head;
+
+	while (*p) {
+		if (!memcmp(&(*p)->uuid, &image->uuid, sizeof(image->uuid)))
+			break;
+		p = &(*p)->next;
+	}
+
+	assert(*p != NULL);
+
+	image->next = (*p)->next;
+	*p = image;
+}
+
 static void free_image(image_t *image)
 {
 	free(image->buffer);
@@ -673,8 +689,7 @@ static void update_fip(void)
 				    desc->cmdline_name,
 				    desc->action_arg);
 			}
-			remove_image(old_image);
-			add_image(new_image);
+			replace_image(new_image);
 		} else {
 			if (verbose)
 				log_dbgx("Adding image %s",
