@@ -126,4 +126,49 @@
 #define MT_IRQ_SEC_SGI_6	14
 #define MT_IRQ_SEC_SGI_7	15
 
+/*
+ *  Macros for local power states in MTK platforms encoded by State-ID field
+ *  within the power-state parameter.
+ */
+/* Local power state for power domains in Run state. */
+#define MTK_LOCAL_STATE_RUN     0
+/* Local power state for retention. Valid only for CPU power domains */
+#define MTK_LOCAL_STATE_RET     1
+/* Local power state for OFF/power-down. Valid for CPU and cluster power
+   domains */
+#define MTK_LOCAL_STATE_OFF     2
+
+#if PSCI_EXTENDED_STATE_ID
+/*
+ * Macros used to parse state information from State-ID if it is using the
+ * recommended encoding for State-ID.
+ */
+#define MTK_LOCAL_PSTATE_WIDTH		4
+#define MTK_LOCAL_PSTATE_MASK		((1 << MTK_LOCAL_PSTATE_WIDTH) - 1)
+
+/* Macros to construct the composite power state */
+
+/* Make composite power state parameter till power level 0 */
+
+#define mtk_make_pwrstate_lvl0(lvl0_state, pwr_lvl, type) \
+		(((lvl0_state) << PSTATE_ID_SHIFT) | ((type) << PSTATE_TYPE_SHIFT))
+#else
+#define mtk_make_pwrstate_lvl0(lvl0_state, pwr_lvl, type) \
+		(((lvl0_state) << PSTATE_ID_SHIFT) | \
+		((pwr_lvl) << PSTATE_PWR_LVL_SHIFT) | \
+		((type) << PSTATE_TYPE_SHIFT))
+
+#endif /* __PSCI_EXTENDED_STATE_ID__ */
+
+/* Make composite power state parameter till power level 1 */
+#define mtk_make_pwrstate_lvl1(lvl1_state, lvl0_state, pwr_lvl, type) \
+		(((lvl1_state) << MTK_LOCAL_PSTATE_WIDTH) | \
+		mtk_make_pwrstate_lvl0(lvl0_state, pwr_lvl, type))
+
+/* Make composite power state parameter till power level 2 */
+#define mtk_make_pwrstate_lvl2(lvl2_state, lvl1_state, lvl0_state, pwr_lvl, type) \
+		(((lvl2_state) << (MTK_LOCAL_PSTATE_WIDTH * 2)) | \
+		mtk_make_pwrstate_lvl1(lvl1_state, lvl0_state, pwr_lvl, type))
+
+
 #endif /* __MT8173_DEF_H__ */
