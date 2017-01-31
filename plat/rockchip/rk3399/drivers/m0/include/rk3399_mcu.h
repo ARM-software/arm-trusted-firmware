@@ -46,6 +46,9 @@ typedef unsigned int uint32_t;
 #define mmio_clrsetbits_32(addr, clear, set) \
 		mmio_write_32(addr, (mmio_read_32(addr) & ~(clear)) | (set))
 
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+
 void handle_suspend(void);
 void handle_dram(void);
 void stopwatch_init_usecs_expire(unsigned int usecs);
