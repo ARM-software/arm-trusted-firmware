@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -65,5 +65,19 @@
  */
 #define check_uptr_overflow(ptr, inc)		\
 	(((ptr) > UINTPTR_MAX - (inc)) ? 1 : 0)
+
+/*
+ * For those constants to be shared between C and other sources, apply a 'ull'
+ * suffix to the argument only in C, to avoid undefined or unintended behaviour.
+ *
+ * The GNU assembler and linker do not support the 'ull' suffix (it causes the
+ * build process to fail) therefore the suffix is omitted when used in linker
+ * scripts and assembler files.
+*/
+#if defined(__LINKER__) || defined(__ASSEMBLY__)
+# define ULL(_x)	(_x)
+#else
+# define ULL(_x)	(_x##ull)
+#endif
 
 #endif /* __UTILS_H__ */

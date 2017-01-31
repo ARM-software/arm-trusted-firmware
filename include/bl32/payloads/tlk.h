@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,8 @@
 #ifndef __TLK_H__
 #define __TLK_H__
 
+#include <utils.h>
+
 /*
  * Generate function IDs for the Trusted OS/Apps
  */
@@ -51,13 +53,13 @@
  * SMC function IDs that TLK uses to signal various forms of completions
  * to the secure payload dispatcher.
  */
-#define TLK_REQUEST_DONE	(0x32000001 | (1 << 31))
-#define TLK_PREEMPTED		(0x32000002 | (1 << 31))
-#define TLK_ENTRY_DONE		(0x32000003 | (1 << 31))
-#define TLK_VA_TRANSLATE	(0x32000004 | (1 << 31))
-#define TLK_SUSPEND_DONE	(0x32000005 | (1 << 31))
-#define TLK_RESUME_DONE		(0x32000006 | (1 << 31))
-#define TLK_SYSTEM_OFF_DONE	(0x32000007 | (1 << 31))
+#define TLK_REQUEST_DONE	(0x32000001 | (ULL(1) << 31))
+#define TLK_PREEMPTED		(0x32000002 | (ULL(1) << 31))
+#define TLK_ENTRY_DONE		(0x32000003 | (ULL(1) << 31))
+#define TLK_VA_TRANSLATE	(0x32000004 | (ULL(1) << 31))
+#define TLK_SUSPEND_DONE	(0x32000005 | (ULL(1) << 31))
+#define TLK_RESUME_DONE		(0x32000006 | (ULL(1) << 31))
+#define TLK_SYSTEM_OFF_DONE	(0x32000007 | (ULL(1) << 31))
 
 /*
  * Trusted Application specific function IDs

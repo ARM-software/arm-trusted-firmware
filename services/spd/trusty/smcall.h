@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,11 +40,12 @@
 #define SMC_ENTITY(smc_nr)	(((smc_nr) & 0x3F000000) >> 24)
 #define SMC_FUNCTION(smc_nr)	((smc_nr) & 0x0000FFFF)
 
-#define SMC_NR(entity, fn, fastcall, smc64) ((((fastcall) & 0x1) << 31) | \
-					     (((smc64) & 0x1) << 30) | \
-					     (((entity) & 0x3F) << 24) | \
-					     ((fn) & 0xFFFF) \
-					    )
+#define SMC_NR(entity, fn, fastcall, smc64)			\
+		(((((unsigned int) (fastcall)) & 0x1) << 31) |	\
+		(((smc64) & 0x1) << 30) |			\
+		(((entity) & 0x3F) << 24) |			\
+		((fn) & 0xFFFF)					\
+		)
 
 #define SMC_FASTCALL_NR(entity, fn)	SMC_NR((entity), (fn), 1, 0)
 #define SMC_STDCALL_NR(entity, fn)	SMC_NR((entity), (fn), 0, 0)

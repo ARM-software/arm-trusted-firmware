@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -68,7 +68,7 @@
  * development platforms
  */
 
-#define PLAT_ARM_DRAM2_SIZE			MAKE_ULL(0x180000000)
+#define PLAT_ARM_DRAM2_SIZE			ULL(0x180000000)
 
 /* UART related constants */
 #define PLAT_ARM_BOOT_UART_BASE			SOC_CSS_UART0_BASE
