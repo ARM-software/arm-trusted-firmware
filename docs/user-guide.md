@@ -1120,7 +1120,9 @@ with the `--version` parameter.
 NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 The commands below would report an `unhandled argument` error in this case.
 
-NOTE: The Foundation FVP does not provide a debugger interface.
+NOTE: FVPs can be launched with `--cadi-server` option such that a
+CADI-compliant debugger (for example, ARM DS-5) can connect to and control its
+execution.
 
 The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
 downloaded for free from [ARM's website][ARM FVP website].
@@ -1438,7 +1440,7 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 
 [Firmware Design]:             firmware-design.md
-[ARM FVP website]:             http://www.arm.com/fvp
+[ARM FVP website]:             https://developer.arm.com/products/system-design/fixed-virtual-platforms
 [Linaro Release Notes]:        https://community.arm.com/docs/DOC-10952#jive_content_id_Linaro_Release_1606
 [ARM Platforms Portal]:        https://community.arm.com/groups/arm-development-platforms
 [Linaro SW Instructions]:      https://community.arm.com/docs/DOC-10803
