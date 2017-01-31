@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,6 @@
 #include <bakery_lock.h>
 #include <bl_common.h>
 #include <cpu_data.h>
-#include <pmf.h>
 #include <psci.h>
 #include <spinlock.h>
 
@@ -105,15 +104,6 @@
 /* Helper macro to identify a CPU standby request in PSCI Suspend call */
 #define is_cpu_standby_req(is_power_down_state, retn_lvl) \
 		(((!(is_power_down_state)) && ((retn_lvl) == 0)) ? 1 : 0)
-
-/* Following are used as ID's to capture time-stamp */
-#define PSCI_STAT_ID_ENTER_LOW_PWR		0
-#define PSCI_STAT_ID_EXIT_LOW_PWR		1
-#define PSCI_STAT_TOTAL_IDS			2
-
-/* Declare PMF service functions for PSCI */
-PMF_DECLARE_CAPTURE_TIMESTAMP(psci_svc)
-PMF_DECLARE_GET_TIMESTAMP(psci_svc)
 
 /*******************************************************************************
  * The following two data structures implement the power domain tree. The tree
@@ -246,8 +236,7 @@ void __dead2 psci_system_reset(void);
 void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info);
 void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
-			const psci_power_state_t *state_info,
-			unsigned int flags);
+			const psci_power_state_t *state_info);
 u_register_t psci_stat_residency(u_register_t target_cpu,
 			unsigned int power_state);
 u_register_t psci_stat_count(u_register_t target_cpu,

@@ -274,8 +274,9 @@ performed.
 
 *   `ENABLE_PSCI_STAT`: Boolean option to enable support for optional PSCI
      functions `PSCI_STAT_RESIDENCY` and `PSCI_STAT_COUNT`. Default is 0.
-     Enabling this option enables the `ENABLE_PMF` build option as well.
-     The PMF is used for collecting the statistics.
+     In the absence of an alternate stat collection backend, `ENABLE_PMF` must
+     be enabled. If `ENABLE_PMF` is set, the residency statistics are tracked in
+     software.
 
 *   `ENABLE_RUNTIME_INSTRUMENTATION`: Boolean option to enable runtime
     instrumentation which injects timestamp collection points into

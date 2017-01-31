@@ -346,11 +346,6 @@ ifneq (${GENERATE_COT},0)
         endif
 endif
 
-# Make sure PMF is enabled if PSCI STAT is enabled.
-ifeq (${ENABLE_PSCI_STAT},1)
-ENABLE_PMF			:= 1
-endif
-
 ifneq (${FIP_ALIGN},0)
 FIP_ARGS += --align ${FIP_ALIGN}
 endif

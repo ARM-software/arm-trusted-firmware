@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,124 @@
 #include <arch.h>
 #include <assert.h>
 #include <platform.h>
+#include <pmf.h>
 #include <psci.h>
+
+#if ENABLE_PSCI_STAT && ENABLE_PMF
+#pragma weak plat_psci_stat_accounting_start
+#pragma weak plat_psci_stat_accounting_stop
+#pragma weak plat_psci_stat_get_residency
+
+/* Ticks elapsed in one second by a signal of 1 MHz */
+#define MHZ_TICKS_PER_SEC 1000000
+
+/* Following are used as ID's to capture time-stamp */
+#define PSCI_STAT_ID_ENTER_LOW_PWR		0
+#define PSCI_STAT_ID_EXIT_LOW_PWR		1
+#define PSCI_STAT_TOTAL_IDS			2
+
+PMF_REGISTER_SERVICE(psci_svc, PMF_PSCI_STAT_SVC_ID, PSCI_STAT_TOTAL_IDS,
+	PMF_STORE_ENABLE)
+
+/*
+ * This function calculates the stats residency in microseconds,
+ * taking in account the wrap around condition.
+ */
+static u_register_t calc_stat_residency(unsigned long long pwrupts,
+	unsigned long long pwrdnts)
+{
+	/* The divisor to use to convert raw timestamp into microseconds. */
+	u_register_t residency_div;
+	u_register_t res;
+
+	/*
+	 * Calculate divisor so that it can be directly used to
+	 * convert time-stamp into microseconds.
+	 */
+	residency_div = read_cntfrq_el0() / MHZ_TICKS_PER_SEC;
+	assert(residency_div);
+
+	if (pwrupts < pwrdnts)
+		res = UINT64_MAX - pwrdnts + pwrupts;
+	else
+		res = pwrupts - pwrdnts;
+
+	return res / residency_div;
+}
+
+/*
+ * Capture timestamp before entering a low power state.
+ * No cache maintenance is required when capturing the timestamp.
+ * Cache maintenance may be needed when reading these timestamps.
+ */
+void plat_psci_stat_accounting_start(
+	__unused const psci_power_state_t *state_info)
+{
+	assert(state_info);
+	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
+		PMF_NO_CACHE_MAINT);
+}
+
+/*
+ * Capture timestamp after exiting a low power state.
+ * No cache maintenance is required when capturing the timestamp.
+ * Cache maintenance may be needed when reading these timestamps.
+ */
+void plat_psci_stat_accounting_stop(
+	__unused const psci_power_state_t *state_info)
+{
+	assert(state_info);
+	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
+		PMF_NO_CACHE_MAINT);
+}
+
+/*
+ * Calculate the residency for the given level and power state
+ * information.
+ */
+u_register_t plat_psci_stat_get_residency(unsigned int lvl,
+	const psci_power_state_t *state_info,
+	int last_cpu_idx)
+{
+	plat_local_state_t state;
+	unsigned long long pwrup_ts = 0, pwrdn_ts = 0;
+	unsigned int pmf_flags;
+
+	assert(lvl >= PSCI_CPU_PWR_LVL && lvl <= PLAT_MAX_PWR_LVL);
+	assert(state_info);
+	assert(last_cpu_idx >= 0 && last_cpu_idx <= PLATFORM_CORE_COUNT);
+
+	if (lvl == PSCI_CPU_PWR_LVL)
+		assert(last_cpu_idx == plat_my_core_pos());
+
+	/*
+	 * If power down is requested, then timestamp capture will
+	 * be with caches OFF.  Hence we have to do cache maintenance
+	 * when reading the timestamp.
+	 */
+	state = state_info->pwr_domain_state[PSCI_CPU_PWR_LVL];
+	if (is_local_state_off(state)) {
+		pmf_flags = PMF_CACHE_MAINT;
+	} else {
+		assert(is_local_state_retn(state));
+		pmf_flags = PMF_NO_CACHE_MAINT;
+	}
+
+	PMF_GET_TIMESTAMP_BY_INDEX(psci_svc,
+		PSCI_STAT_ID_ENTER_LOW_PWR,
+		last_cpu_idx,
+		pmf_flags,
+		pwrdn_ts);
+
+	PMF_GET_TIMESTAMP_BY_INDEX(psci_svc,
+		PSCI_STAT_ID_EXIT_LOW_PWR,
+		plat_my_core_pos(),
+		pmf_flags,
+		pwrup_ts);
+
+	return calc_stat_residency(pwrup_ts, pwrdn_ts);
+}
+#endif /* ENABLE_PSCI_STAT && ENABLE_PMF */
 
 /*
  * The PSCI generic code uses this API to let the platform participate in state

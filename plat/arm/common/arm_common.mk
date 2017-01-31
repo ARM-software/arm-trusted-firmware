@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -92,6 +92,7 @@ $(eval $(call add_define,ARM_BL31_IN_DRAM))
 
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
 ENABLE_PSCI_STAT		:=	1
+ENABLE_PMF			:=	1
 
 # On ARM platforms, separate the code and read-only data sections to allow
 # mapping the former as executable and the latter as execute-never.

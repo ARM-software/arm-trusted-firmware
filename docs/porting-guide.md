@@ -1707,9 +1707,55 @@ level could enter. It depends on the `validate_power_state()` handler to
 convert the power-state parameter (possibly encoding a composite power state)
 passed in a PSCI `CPU_SUSPEND` call to this representation.
 
-The following functions must be implemented to initialize PSCI functionality in
-the ARM Trusted Firmware.
+The following functions form part of platform port of PSCI functionality.
 
+
+### Function : plat_psci_stat_accounting_start() [optional]
+
+    Argument : const psci_power_state_t *
+    Return   : void
+
+This is an optional hook that platforms can implement for residency statistics
+accounting before entering a low power state.  The `pwr_domain_state` field of
+`state_info` (first argument) can be inspected if stat accounting is done
+differently at CPU level versus higher levels.  As an example, if the element at
+index 0 (CPU power level) in the `pwr_domain_state` array indicates a power down
+state, special hardware logic may be programmed in order to keep track of the
+residency statistics.  For higher levels (array indices > 0), the residency
+statistics could be tracked in software using PMF.  If `ENABLE_PMF` is set, the
+default implementation will use PMF to capture timestamps.
+
+### Function : plat_psci_stat_accounting_stop() [optional]
+
+    Argument : const psci_power_state_t *
+    Return   : void
+
+This is an optional hook that platforms can implement for residency statistics
+accounting after exiting from a low power state.  The `pwr_domain_state` field
+of `state_info` (first argument) can be inspected if stat accounting is done
+differently at CPU level versus higher levels.  As an example, if the element at
+index 0 (CPU power level) in the `pwr_domain_state` array indicates a power down
+state, special hardware logic may be programmed in order to keep track of the
+residency statistics.  For higher levels (array indices > 0), the residency
+statistics could be tracked in software using PMF.  If `ENABLE_PMF` is set, the
+default implementation will use PMF to capture timestamps.
+
+### Function : plat_psci_stat_get_residency() [optional]
+
+    Argument : unsigned int, const psci_power_state_t *, int
+    Return   : u_register_t
+
+This is an optional interface that is is invoked after resuming from a low power
+state and provides the time spent resident in that low power state by the power
+domain at a particular power domain level.  When a CPU wakes up from suspend,
+all its parent power domain levels are also woken up.  The generic PSCI code
+invokes this function for each parent power domain that is resumed and it
+identified by the `lvl` (first argument) parameter.  The `state_info` (second
+argument) describes the low power state that the power domain has resumed from.
+The current CPU is the first CPU in the power domain to resume from the low
+power state and the `last_cpu_idx` (third parameter) is the index of the last
+CPU in the power domain to suspend and may be needed to calculate the residency
+for that power domain.
 
 ### Function : plat_get_target_pwr_state() [optional]
 

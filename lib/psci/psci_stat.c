@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,9 +38,6 @@
 #define PLAT_MAX_PWR_LVL_STATES 2
 #endif
 
-/* Ticks elapsed in one second by a signal of 1 MHz */
-#define MHZ_TICKS_PER_SEC 1000000
-
 /* Following structure is used for PSCI STAT */
 typedef struct psci_stat {
 	u_register_t residency;
@@ -61,27 +58,6 @@ static psci_stat_t psci_cpu_stat[PLATFORM_CORE_COUNT]
 				[PLAT_MAX_PWR_LVL_STATES];
 static psci_stat_t psci_non_cpu_stat[PSCI_NUM_NON_CPU_PWR_DOMAINS]
 				[PLAT_MAX_PWR_LVL_STATES];
-
-/* Register PMF PSCI service */
-PMF_REGISTER_SERVICE(psci_svc, PMF_PSCI_STAT_SVC_ID,
-	 PSCI_STAT_TOTAL_IDS, PMF_STORE_ENABLE)
-
-/* The divisor to use to convert raw timestamp into microseconds */
-u_register_t residency_div;
-
-/*
- * This macro calculates the stats residency in microseconds,
- * taking in account the wrap around condition.
- */
-#define calc_stat_residency(_pwrupts, _pwrdnts, _res)		\
-	do {							\
-		if (_pwrupts < _pwrdnts)			\
-			_res = UINT64_MAX - _pwrdnts + _pwrupts;\
-		else						\
-			_res = _pwrupts - _pwrdnts;		\
-		/* Convert timestamp into microseconds */	\
-		_res = _res/residency_div;			\
-	} while (0)
 
 /*
  * This functions returns the index into the `psci_stat_t` array given the
@@ -150,44 +126,23 @@ void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
  * It is called with caches enabled and locks acquired(for NON-CPU domain)
  ******************************************************************************/
 void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
-			const psci_power_state_t *state_info,
-			unsigned int flags)
+			const psci_power_state_t *state_info)
 {
 	int parent_idx, cpu_idx = plat_my_core_pos();
 	int lvl, stat_idx;
 	plat_local_state_t local_state;
-	unsigned long long pwrup_ts = 0, pwrdn_ts = 0;
 	u_register_t residency;
 
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
 	assert(state_info);
 
-	/* Initialize the residency divisor if not already initialized */
-	if (!residency_div) {
-		/* Pre-calculate divisor so that it can be directly used to
-		   convert time-stamp into microseconds */
-		residency_div = read_cntfrq_el0() / MHZ_TICKS_PER_SEC;
-		assert(residency_div);
-	}
-
-	/* Get power down time-stamp for current CPU */
-	PMF_GET_TIMESTAMP_BY_INDEX(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
-			cpu_idx, flags, pwrdn_ts);
-
-	/* In the case of 1st power on just return */
-	if (!pwrdn_ts)
-		return;
-
-	/* Get power up time-stamp for current CPU */
-	PMF_GET_TIMESTAMP_BY_INDEX(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
-			cpu_idx, flags, pwrup_ts);
-
 	/* Get the index into the stats array */
 	local_state = state_info->pwr_domain_state[PSCI_CPU_PWR_LVL];
 	stat_idx = get_stat_idx(local_state, PSCI_CPU_PWR_LVL);
 
-	/* Calculate stats residency */
-	calc_stat_residency(pwrup_ts, pwrdn_ts, residency);
+	/* Call into platform interface to calculate residency. */
+	residency = plat_psci_stat_get_residency(PSCI_CPU_PWR_LVL,
+	    state_info, cpu_idx);
 
 	/* Update CPU stats. */
 	psci_cpu_stat[cpu_idx][stat_idx].residency += residency;
@@ -207,19 +162,15 @@ void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
 
 		assert(last_cpu_in_non_cpu_pd[parent_idx] != -1);
 
-		/* Get power down time-stamp for last CPU */
-		PMF_GET_TIMESTAMP_BY_INDEX(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
-				last_cpu_in_non_cpu_pd[parent_idx],
-				flags, pwrdn_ts);
+		/* Call into platform interface to calculate residency. */
+		residency = plat_psci_stat_get_residency(lvl, state_info,
+		    last_cpu_in_non_cpu_pd[parent_idx]);
 
 		/* Initialize back to reset value */
 		last_cpu_in_non_cpu_pd[parent_idx] = -1;
 
 		/* Get the index into the stats array */
 		stat_idx = get_stat_idx(local_state, lvl);
-
-		/* Calculate stats residency */
-		calc_stat_residency(pwrup_ts, pwrdn_ts, residency);
 
 		/* Update non cpu stats */
 		psci_non_cpu_stat[parent_idx][stat_idx].residency += residency;
