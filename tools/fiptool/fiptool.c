@@ -50,6 +50,7 @@
 
 #define OPT_TOC_ENTRY 0
 #define OPT_PLAT_TOC_FLAGS 1
+#define OPT_ALIGN 2
 
 static image_desc_t *lookup_image_desc_from_uuid(const uuid_t *uuid);
 static image_t *lookup_image_from_uuid(const uuid_t *uuid);
@@ -160,6 +161,12 @@ static void *xzalloc(size_t size, const char *msg)
 	return memset(xmalloc(size, msg), 0, size);
 }
 
+static void xfwrite(void *buf, size_t size, FILE *fp, const char *filename)
+{
+	if (fwrite(buf, 1, size, fp) != size)
+		log_errx("Failed to write %s", filename);
+}
+
 static image_desc_t *new_image_desc(const uuid_t *uuid,
     const char *name, const char *cmdline_name)
 {
@@ -202,11 +209,10 @@ static void add_image_desc(image_desc_t *desc)
 {
 	image_desc_t **p = &image_desc_head;
 
-	assert(lookup_image_desc_from_uuid(&desc->uuid) == NULL);
-
 	while (*p)
 		p = &(*p)->next;
 
+	assert(*p == NULL);
 	*p = desc;
 	nr_image_descs++;
 }
@@ -244,14 +250,30 @@ static void add_image(image_t *image)
 {
 	image_t **p = &image_head;
 
-	assert(lookup_image_from_uuid(&image->uuid) == NULL);
-
 	while (*p)
 		p = &(*p)->next;
 
+	assert(*p == NULL);
 	*p = image;
 
 	nr_images++;
+}
+
+static void replace_image(image_t *image)
+{
+	image_t **p = &image_head;
+
+	while (*p) {
+		if (!memcmp(&(*p)->toc_e.uuid, &image->toc_e.uuid,
+			    sizeof(image->toc_e.uuid)))
+			break;
+		p = &(*p)->next;
+	}
+
+	assert(*p != NULL);
+
+	image->next = (*p)->next;
+	*p = image;
 }
 
 static void free_image(image_t *image)
@@ -262,20 +284,20 @@ static void free_image(image_t *image)
 
 static void remove_image(image_t *image)
 {
-	image_t *tmp = image_head, *prev;
+	image_t *tmp, **p = &image_head;
 
-	if (tmp == image) {
-		image_head = tmp->next;
-		free_image(tmp);
-	} else {
-		while (tmp != NULL && tmp != image) {
-			prev = tmp;
-			tmp = tmp->next;
-		}
-		assert(tmp != NULL);
-		prev->next = tmp->next;
-		free_image(tmp);
+	while (*p) {
+		if (*p == image)
+			break;
+		p = &(*p)->next;
 	}
+
+	assert(*p != NULL);
+
+	tmp = *p;
+	*p = tmp->next;
+	free_image(tmp);
+
 	nr_images--;
 }
 
@@ -317,7 +339,7 @@ static image_t *lookup_image_from_uuid(const uuid_t *uuid)
 	image_t *image;
 
 	for (image = image_head; image != NULL; image = image->next)
-		if (memcmp(&image->uuid, uuid, sizeof(uuid_t)) == 0)
+		if (!memcmp(&image->toc_e.uuid, uuid, sizeof(*uuid)))
 			return image;
 	return NULL;
 }
@@ -410,7 +432,7 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 		 */
 		image = xzalloc(sizeof(*image),
 		    "failed to allocate memory for image");
-		memcpy(&image->uuid, &toc_entry->uuid, sizeof(uuid_t));
+		image->toc_e = *toc_entry;
 		image->buffer = xmalloc(toc_entry->size,
 		    "failed to allocate image buffer, is FIP file corrupted?");
 		/* Overflow checks before memory copy. */
@@ -421,17 +443,16 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 
 		memcpy(image->buffer, buf + toc_entry->offset_address,
 		    toc_entry->size);
-		image->size = toc_entry->size;
 
 		/* If this is an unknown image, create a descriptor for it. */
-		desc = lookup_image_desc_from_uuid(&image->uuid);
+		desc = lookup_image_desc_from_uuid(&toc_entry->uuid);
 		if (desc == NULL) {
 			char name[_UUID_STR_LEN + 1], filename[PATH_MAX];
 
-			uuid_to_str(name, sizeof(name), &image->uuid);
+			uuid_to_str(name, sizeof(name), &toc_entry->uuid);
 			snprintf(filename, sizeof(filename), "%s%s",
 			    name, ".bin");
-			desc = new_image_desc(&image->uuid, name, "blob");
+			desc = new_image_desc(&toc_entry->uuid, name, "blob");
 			desc->action = DO_UNPACK;
 			desc->action_arg = xstrdup(filename,
 			    "failed to allocate memory for blob filename");
@@ -466,11 +487,11 @@ static image_t *read_image_from_file(const uuid_t *uuid, const char *filename)
 		log_errx("fstat %s", filename);
 
 	image = xzalloc(sizeof(*image), "failed to allocate memory for image");
-	memcpy(&image->uuid, uuid, sizeof(uuid_t));
+	image->toc_e.uuid = *uuid;
 	image->buffer = xmalloc(st.st_size, "failed to allocate image buffer");
 	if (fread(image->buffer, 1, st.st_size, fp) != st.st_size)
 		log_errx("Failed to read %s", filename);
-	image->size = st.st_size;
+	image->toc_e.size = st.st_size;
 
 	fclose(fp);
 	return image;
@@ -483,8 +504,7 @@ static int write_image_to_file(const image_t *image, const char *filename)
 	fp = fopen(filename, "w");
 	if (fp == NULL)
 		log_err("fopen");
-	if (fwrite(image->buffer, 1, image->size, fp) != image->size)
-		log_errx("Failed to write %s", filename);
+	xfwrite(image->buffer, image->toc_e.size, fp, filename);
 	fclose(fp);
 	return 0;
 }
@@ -525,8 +545,6 @@ static void md_print(const unsigned char *md, size_t len)
 static int info_cmd(int argc, char *argv[])
 {
 	image_t *image;
-	uint64_t image_offset;
-	uint64_t image_size;
 	fip_toc_header_t toc_header;
 
 	if (argc != 2)
@@ -544,31 +562,24 @@ static int info_cmd(int argc, char *argv[])
 		    (unsigned long long)toc_header.flags);
 	}
 
-	image_offset = sizeof(fip_toc_header_t) +
-	    (sizeof(fip_toc_entry_t) * (nr_images + 1));
-
 	for (image = image_head; image != NULL; image = image->next) {
 		image_desc_t *desc;
 
-		desc = lookup_image_desc_from_uuid(&image->uuid);
+		desc = lookup_image_desc_from_uuid(&image->toc_e.uuid);
 		assert(desc != NULL);
-		printf("%s: ", desc->name);
-		image_size = image->size;
-		printf("offset=0x%llX, size=0x%llX",
-		    (unsigned long long)image_offset,
-		    (unsigned long long)image_size);
-		if (desc != NULL)
-			printf(", cmdline=\"--%s\"",
-			    desc->cmdline_name);
+		printf("%s: offset=0x%llX, size=0x%llX, cmdline=\"--%s\"",
+		       desc->name,
+		       (unsigned long long)image->toc_e.offset_address,
+		       (unsigned long long)image->toc_e.size,
+		       desc->cmdline_name);
 		if (verbose) {
 			unsigned char md[SHA256_DIGEST_LENGTH];
 
-			SHA256(image->buffer, image_size, md);
+			SHA256(image->buffer, image->toc_e.size, md);
 			printf(", sha256=");
 			md_print(md, sizeof(md));
 		}
 		putchar('\n');
-		image_offset += image_size;
 	}
 
 	free_images();
@@ -581,19 +592,14 @@ static void info_usage(void)
 	exit(1);
 }
 
-static int pack_images(const char *filename, uint64_t toc_flags)
+static int pack_images(const char *filename, uint64_t toc_flags, unsigned long align)
 {
 	FILE *fp;
 	image_t *image;
 	fip_toc_header_t *toc_header;
 	fip_toc_entry_t *toc_entry;
 	char *buf;
-	uint64_t entry_offset, buf_size, payload_size;
-
-	/* Calculate total payload size and allocate scratch buffer. */
-	payload_size = 0;
-	for (image = image_head; image != NULL; image = image->next)
-		payload_size += image->size;
+	uint64_t entry_offset, buf_size, payload_size = 0;
 
 	buf_size = sizeof(fip_toc_header_t) +
 	    sizeof(fip_toc_entry_t) * (nr_images + 1);
@@ -611,19 +617,16 @@ static int pack_images(const char *filename, uint64_t toc_flags)
 
 	entry_offset = buf_size;
 	for (image = image_head; image != NULL; image = image->next) {
-		memcpy(&toc_entry->uuid, &image->uuid, sizeof(uuid_t));
-		toc_entry->offset_address = entry_offset;
-		toc_entry->size = image->size;
-		toc_entry->flags = 0;
-		entry_offset += toc_entry->size;
-		toc_entry++;
+		payload_size += image->toc_e.size;
+		entry_offset = (entry_offset + align - 1) & ~(align - 1);
+		image->toc_e.offset_address = entry_offset;
+		*toc_entry++ = image->toc_e;
+		entry_offset += image->toc_e.size;
 	}
 
 	/* Append a null uuid entry to mark the end of ToC entries. */
-	memcpy(&toc_entry->uuid, &uuid_null, sizeof(uuid_t));
+	memset(toc_entry, 0, sizeof(*toc_entry));
 	toc_entry->offset_address = entry_offset;
-	toc_entry->size = 0;
-	toc_entry->flags = 0;
 
 	/* Generate the FIP file. */
 	fp = fopen(filename, "w");
@@ -633,16 +636,18 @@ static int pack_images(const char *filename, uint64_t toc_flags)
 	if (verbose)
 		log_dbgx("Metadata size: %zu bytes", buf_size);
 
-	if (fwrite(buf, 1, buf_size, fp) != buf_size)
-		log_errx("Failed to write image to %s", filename);
+	xfwrite(buf, buf_size, fp, filename);
 	free(buf);
 
 	if (verbose)
 		log_dbgx("Payload size: %zu bytes", payload_size);
 
-	for (image = image_head; image != NULL; image = image->next)
-		if (fwrite(image->buffer, 1, image->size, fp) != image->size)
-			log_errx("Failed to write image to %s", filename);
+	for (image = image_head; image != NULL; image = image->next) {
+		if (fseek(fp, image->toc_e.offset_address, SEEK_SET))
+			log_errx("Failed to set file position");
+
+		xfwrite(image->buffer, image->toc_e.size, fp, filename);
+	}
 
 	fclose(fp);
 	return 0;
@@ -675,8 +680,7 @@ static void update_fip(void)
 				    desc->cmdline_name,
 				    desc->action_arg);
 			}
-			remove_image(old_image);
-			add_image(new_image);
+			replace_image(new_image);
 		} else {
 			if (verbose)
 				log_dbgx("Adding image %s",
@@ -699,6 +703,24 @@ static void parse_plat_toc_flags(const char *arg, unsigned long long *toc_flags)
 	*toc_flags |= flags << 32;
 }
 
+static int is_power_of_2(unsigned long x)
+{
+	return x && !(x & (x - 1));
+}
+
+static unsigned long get_image_align(char *arg)
+{
+	char *endptr;
+	unsigned long align;
+
+	errno = 0;
+	align = strtoul(arg, &endptr, 10);
+	if (*endptr != '\0' || !is_power_of_2(align) || errno != 0)
+		log_errx("Invalid alignment: %s", arg);
+
+	return align;
+}
+
 static void parse_blob_opt(char *arg, uuid_t *uuid, char *filename, size_t len)
 {
 	char *p;
@@ -719,6 +741,7 @@ static int create_cmd(int argc, char *argv[])
 	struct option *opts = NULL;
 	size_t nr_opts = 0;
 	unsigned long long toc_flags = 0;
+	unsigned long align = 1;
 
 	if (argc < 2)
 		create_usage();
@@ -726,6 +749,7 @@ static int create_cmd(int argc, char *argv[])
 	opts = fill_common_opts(opts, &nr_opts, required_argument);
 	opts = add_opt(opts, &nr_opts, "plat-toc-flags", required_argument,
 	    OPT_PLAT_TOC_FLAGS);
+	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, NULL, 0, 0);
 
@@ -746,6 +770,9 @@ static int create_cmd(int argc, char *argv[])
 		}
 		case OPT_PLAT_TOC_FLAGS:
 			parse_plat_toc_flags(optarg, &toc_flags);
+			break;
+		case OPT_ALIGN:
+			align = get_image_align(optarg);
 			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1];
@@ -782,7 +809,7 @@ static int create_cmd(int argc, char *argv[])
 
 	update_fip();
 
-	pack_images(argv[0], toc_flags);
+	pack_images(argv[0], toc_flags, align);
 	free_images();
 	return 0;
 }
@@ -791,8 +818,10 @@ static void create_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool create [--blob uuid=...,file=...] "
-	    "[--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("fiptool create [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
+	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID "
 	    "pointed to by file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
@@ -812,12 +841,14 @@ static int update_cmd(int argc, char *argv[])
 	char outfile[PATH_MAX] = { 0 };
 	fip_toc_header_t toc_header = { 0 };
 	unsigned long long toc_flags = 0;
+	unsigned long align = 1;
 	int pflag = 0;
 
 	if (argc < 2)
 		update_usage();
 
 	opts = fill_common_opts(opts, &nr_opts, required_argument);
+	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, "out", required_argument, 'o');
 	opts = add_opt(opts, &nr_opts, "plat-toc-flags", required_argument,
@@ -865,6 +896,9 @@ static int update_cmd(int argc, char *argv[])
 			set_image_desc_action(desc, DO_PACK, filename);
 			break;
 		}
+		case OPT_ALIGN:
+			align = get_image_align(optarg);
+			break;
 		case 'o':
 			snprintf(outfile, sizeof(outfile), "%s", optarg);
 			break;
@@ -882,7 +916,7 @@ static int update_cmd(int argc, char *argv[])
 	if (outfile[0] == '\0')
 		snprintf(outfile, sizeof(outfile), "%s", argv[0]);
 
-	if (access(outfile, F_OK) == 0)
+	if (access(argv[0], F_OK) == 0)
 		parse_fip(argv[0], &toc_header);
 
 	if (pflag)
@@ -891,7 +925,7 @@ static int update_cmd(int argc, char *argv[])
 
 	update_fip();
 
-	pack_images(outfile, toc_flags);
+	pack_images(outfile, toc_flags, align);
 	free_images();
 	return 0;
 }
@@ -900,8 +934,10 @@ static void update_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool update [--blob uuid=...,file=...] [--out FIP_FILENAME] "
-	    "[--plat-toc-flags <value>] [opts] FIP_FILENAME\n");
+	printf("fiptool update [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
+	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...,file=...\tAdd or update an image "
 	    "with the given UUID pointed to by file.\n");
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
@@ -1037,8 +1073,9 @@ static void unpack_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool unpack [--blob uuid=...,file=...] [--force] "
-	    "[--out <path>] [opts] FIP_FILENAME\n");
+	printf("fiptool unpack [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
 	printf("  --blob uuid=...,file=...\tUnpack an image with the given UUID "
 	    "to file.\n");
 	printf("  --force\t\t\tIf the output file already exists, use --force to "
@@ -1061,12 +1098,14 @@ static int remove_cmd(int argc, char *argv[])
 	char outfile[PATH_MAX] = { 0 };
 	fip_toc_header_t toc_header;
 	image_desc_t *desc;
+	unsigned long align = 1;
 	int fflag = 0;
 
 	if (argc < 2)
 		remove_usage();
 
 	opts = fill_common_opts(opts, &nr_opts, no_argument);
+	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, "force", no_argument, 'f');
 	opts = add_opt(opts, &nr_opts, "out", required_argument, 'o');
@@ -1087,6 +1126,9 @@ static int remove_cmd(int argc, char *argv[])
 			set_image_desc_action(desc, DO_REMOVE, NULL);
 			break;
 		}
+		case OPT_ALIGN:
+			align = get_image_align(optarg);
+			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1], filename[PATH_MAX];
 			uuid_t uuid = { 0 };
@@ -1151,7 +1193,7 @@ static int remove_cmd(int argc, char *argv[])
 		}
 	}
 
-	pack_images(outfile, toc_header.flags);
+	pack_images(outfile, toc_header.flags, align);
 	free_images();
 	return 0;
 }
@@ -1160,8 +1202,10 @@ static void remove_usage(void)
 {
 	toc_entry_t *toc_entry = toc_entries;
 
-	printf("fiptool remove [--blob uuid=...] [--force] "
-	    "[--out FIP_FILENAME] [opts] FIP_FILENAME\n");
+	printf("fiptool remove [opts] FIP_FILENAME\n");
+	printf("\n");
+	printf("Options:\n");
+	printf("  --align <value>\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...\tRemove an image with the given UUID.\n");
 	printf("  --force\t\tIf the output FIP file already exists, use --force to "
 	    "overwrite it.\n");
@@ -1211,7 +1255,7 @@ static int help_cmd(int argc, char *argv[])
 
 static void usage(void)
 {
-	printf("usage: [--verbose] fiptool <command> [<args>]\n");
+	printf("usage: fiptool [--verbose] <command> [<args>]\n");
 	printf("Global options supported:\n");
 	printf("  --verbose\tEnable verbose output for all commands.\n");
 	fputc('\n', stderr);
