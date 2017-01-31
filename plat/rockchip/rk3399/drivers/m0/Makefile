@@ -57,25 +57,18 @@ C_SOURCES		:= src/startup.c \
 			   src/stopwatch.c
 
 # Flags definition
-CFLAGS			:= -g
-ASFLAGS			:= -g -Wa,--gdwarf-2
-
-ASFLAGS			+= -mcpu=$(ARCH) -mthumb -Wall -ffunction-sections -O3
-CFLAGS			+= -mcpu=$(ARCH) -mthumb -Wall -ffunction-sections -O3
-
-LDFLAGS			:= -mcpu=$(ARCH) -mthumb -g -nostartfiles -nostdlib -O3
-LDFLAGS			+= -Wl,--gc-sections -Wl,--build-id=none
+COMMON_FLAGS		:= -g -mcpu=$(ARCH) -mthumb -Wall -O3 -nostdlib -mfloat-abi=soft
+CFLAGS			:= -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-common
+ASFLAGS			:= -Wa,--gdwarf-2
+LDFLAGS			:= -Wl,--gc-sections -Wl,--build-id=none
 
 # Cross tool
 CC			:= ${M0_CROSS_COMPILE}gcc
 CPP			:= ${M0_CROSS_COMPILE}cpp
-AS			:= ${M0_CROSS_COMPILE}gcc
 AR			:= ${M0_CROSS_COMPILE}ar
-LD			:= ${M0_CROSS_COMPILE}ld
 OC			:= ${M0_CROSS_COMPILE}objcopy
 OD			:= ${M0_CROSS_COMPILE}objdump
 NM			:= ${M0_CROSS_COMPILE}nm
-PP			:= ${M0_CROSS_COMPILE}gcc -E ${CFLAGS}
 
 # NOTE: The line continuation '\' is required in the next define otherwise we
 # end up with a line-feed characer at the end of the last c filename.
@@ -100,7 +93,7 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
 	@echo "  CC      $$<"
-	$$(Q)$$(CC) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
+	$$(Q)$$(CC) $$(COMMON_FLAGS) $$(CFLAGS) $$(INCLUDES) -MMD -MT $$@ -c $$< -o $$@
 endef
 
 define MAKE_S
@@ -108,7 +101,7 @@ $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 
 $(OBJ) : $(2)
 	@echo "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -c $$< -o $$@
+	$$(Q)$$(CC) -x assembler-with-cpp $$(COMMON_FLAGS) $$(ASFLAGS) -c $$< -o $$@
 endef
 
 define MAKE_OBJS
@@ -126,13 +119,12 @@ endef
 .DEFAULT_GOAL := $(BIN)
 
 $(LINKERFILE): $(LINKERFILE_SRC)
-	$(CC) $(CFLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
+	$(CC) $(COMMON_FLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
 -include $(LINKERFILE).d
 
 $(ELF) : $(OBJS) $(LINKERFILE)
 	@echo "  LD      $@"
-	$(Q)$(CC) -o $@ $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) \
-		$(OBJS)
+	$(Q)$(CC) -o $@ $(COMMON_FLAGS) $(LDFLAGS) -Wl,-Map=$(MAPFILE) -Wl,-T$(LINKERFILE) $(OBJS)
 
 $(BIN) : $(ELF)
 	@echo "  BIN     $@"
