@@ -60,7 +60,7 @@ int plat_set_nv_ctr2(void *cookie, const auth_img_desc_t *img_desc,
 	 * has been signed with the ROT key. Non Trusted NV counter
 	 * updates are unconditional.
 	 */
-	if (!trusted_nv_ctr || (trusted_nv_ctr && img_desc->parent == NULL))
+	if (!trusted_nv_ctr || img_desc->parent == NULL)
 		return plat_set_nv_ctr(cookie, nv_ctr);
 
 	/*
