@@ -251,12 +251,21 @@ exit:
 	    PMF_NO_CACHE_MAINT);
 #endif
 
+#if ENABLE_PSCI_STAT
+	plat_psci_stat_accounting_start(state_info);
+#endif
+
 	/*
 	 * We will reach here if only retention/standby states have been
 	 * requested at multiple power levels. This means that the cpu
 	 * context will be preserved.
 	 */
 	wfi();
+
+#if ENABLE_PSCI_STAT
+	plat_psci_stat_accounting_stop(state_info);
+	psci_stats_update_pwr_up(end_pwrlvl, state_info);
+#endif
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
