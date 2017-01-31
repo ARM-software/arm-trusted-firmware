@@ -1087,7 +1087,7 @@ already been performed and act as appropriate. Possible courses of actions are,
 e.g. skip the action the second time, or undo/redo it.
 
 8.  CPU specific operations framework
------------------------------
+-------------------------------------
 
 Certain aspects of the ARMv8 architecture are implementation defined,
 that is, certain behaviours are not architecturally defined, but must be defined
@@ -1102,6 +1102,8 @@ behaviour. The categories are:
 
 3.  Processor specific register dumping as a part of crash reporting.
 
+4.  Errata status reporting.
+
 Each of the above categories fulfils a different requirement.
 
 1.  allows any processor specific initialization before the caches and MMU
@@ -1114,6 +1116,9 @@ Each of the above categories fulfils a different requirement.
 3.  allows a processor to provide additional information to the developer
     in the event of a crash, for example Cortex-A53 has registers which
     can expose the data cache contents.
+
+4.  allows a processor to define a function that inspects and reports the status
+    of all errata workarounds on that processor.
 
 Please note that only 2. is mandated by the TRM.
 
@@ -1185,6 +1190,70 @@ reporting framework calls `do_cpu_reg_dump` which retrieves the matching
 be reported and a pointer to the ASCII list of register names in a format
 expected by the crash reporting framework.
 
+### CPU errata status reporting
+
+Errata workarounds for CPUs supported in ARM Trusted Firmware are applied during
+both cold and warm boots, shortly after reset. Individual Errata workarounds are
+enabled as build options. Some errata workarounds have potential run-time
+implications; therefore some are enabled by default, others not. Platform ports
+shall override build options to enable or disable errata as appropriate. The CPU
+drivers take care of applying errata workarounds that are enabled and applicable
+to a given CPU. Refer to the section titled _CPU Errata Workarounds_ in [CPUBM]
+for more information.
+
+Functions in CPU drivers that apply errata workaround must follow the
+conventions listed below.
+
+The errata workaround must be authored as two separate functions:
+
+* One that checks for errata. This function must determine whether that errata
+  applies to the current CPU. Typically this involves matching the current
+  CPUs revision and variant against a value that's known to be affected by the
+  errata. If the function determines that the errata applies to this CPU, it
+  must return `ERRATA_APPLIES`; otherwise, it must return
+  `ERRATA_NOT_APPLIES`.  The utility functions `cpu_get_rev_var` and
+  `cpu_rev_var_ls` functions may come in handy for this purpose.
+
+  For an errata identified as `E`, the check function must be named
+  `check_errata_E`.
+
+  This function will be invoked at different times, both from assembly and from
+  C run time. Therefore it must follow AAPCS, and must not use stack.
+
+* Another one that applies the errata workaround. This function would call the
+  check function described above, and applies errata workaround if required.
+
+CPU drivers that apply errata workaround can optionally implement an assembly
+function that report the status of errata workarounds pertaining to that CPU.
+For a driver that registers the CPU, for example, `cpux` via. `declare_cpu_ops`
+macro, the errata reporting function, if it exists, must be named
+`cpux_errata_report`. This function will always be called with MMU enabled; it
+must follow AAPCS and may use stack.
+
+In a debug build of ARM Trusted Firmware, on a CPU that comes out of reset, both
+BL1 and the run time firmware (BL31 in AArch64, and BL32 in AArch32) will invoke
+errata status reporting function, if one exists, for that type of CPU.
+
+To report the status of each errata workaround, the function shall use the
+assembler macro `report_errata`, passing it:
+
+* The build option that enables the errata;
+
+* The name of the CPU: this must be the same identifier that CPU driver
+  registered itself with, using `declare_cpu_ops`;
+
+* And the errata identifier: the identifier must match what's used in the
+  errata's check function described above.
+
+The errata status reporting function will be called once per CPU type/errata
+combination during the software's active life time.
+
+It's expected that whenever an errata workaround is submitted to ARM Trusted
+Firmware, the errata reporting function is appropriately extended to report its
+status as well.
+
+Reporting the status of errata workaround is for informational purpose only; it
+has no functional significance.
 
 9. Memory layout of BL images
 -----------------------------

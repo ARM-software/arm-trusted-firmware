@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@
 #include <bl_common.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <errata_report.h>
 #include <platform.h>
 #include <stddef.h>
 #include "psci_private.h"
@@ -287,6 +288,9 @@ void psci_arch_setup(void)
 
 	/* Initialize the cpu_ops pointer. */
 	init_cpu_ops();
+
+	/* Having initialized cpu_ops, we can now print errata status */
+	print_errata_status();
 }
 
 /******************************************************************************

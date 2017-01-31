@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,8 +39,10 @@
 #define MIDR_IMPL_SHIFT		0x18
 #define MIDR_VAR_SHIFT		20
 #define MIDR_VAR_BITS		4
+#define MIDR_VAR_MASK		0xf
 #define MIDR_REV_SHIFT		0
 #define MIDR_REV_BITS		4
+#define MIDR_REV_MASK		0xf
 #define MIDR_PN_MASK		0xfff
 #define MIDR_PN_SHIFT		0x4
 

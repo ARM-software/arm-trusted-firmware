@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,26 +28,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __SPINLOCK_H__
-#define __SPINLOCK_H__
+#ifndef __ERRATA_H__
+#define __ERRATA_H__
 
 #ifndef __ASSEMBLY__
 
-#include <types.h>
+#include <arch.h>
+#include <arch_helpers.h>
+#include <spinlock.h>
+#include <utils.h>
 
-typedef struct spinlock {
-	volatile uint32_t lock;
-} spinlock_t;
-
-void spin_lock(spinlock_t *lock);
-void spin_unlock(spinlock_t *lock);
-
+#if DEBUG
+void print_errata_status(void);
 #else
-
-/* Spin lock definitions for use in assembly */
-#define SPINLOCK_ASM_ALIGN	2
-#define SPINLOCK_ASM_SIZE	4
-
+static inline void print_errata_status(void) {}
 #endif
 
-#endif /* __SPINLOCK_H__ */
+#endif /* __ASSEMBLY__ */
+
+/* Errata status */
+#define ERRATA_NOT_APPLIES	0
+#define ERRATA_APPLIES		1
+#define ERRATA_MISSING		2
+
+#endif /* __ERRATA_H__ */
+

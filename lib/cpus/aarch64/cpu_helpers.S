@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@
 #endif
 #include <cpu_macros.S>
 #include <debug.h>
+#include <errata_report.h>
 
  /* Reset fn is needed in BL at reset vector */
 #if defined(IMAGE_BL1) || defined(IMAGE_BL31)
@@ -199,30 +200,94 @@ error_exit:
 	ret
 endfunc get_cpu_ops_ptr
 
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-.section .rodata.rev_verbose_str, "aS"
-rev_verbose_str:
-	.asciz "VERBOSE: Skipping CPU specific reset operation for non-matching CPU revision number.\n"
+/*
+ * Extract CPU revision and variant, and combine them into a single numeric for
+ * easier comparison.
+ */
+	.globl	cpu_get_rev_var
+func cpu_get_rev_var
+	mrs	x1, midr_el1
 
 	/*
-	 * This function prints the above warning message to the crash console.
-	 * It should be called when a CPU specific operation is enabled in the
-	 * build but doesn't apply to this CPU revision/part number.
+	 * Extract the variant[23:20] and revision[3:0] from MIDR, and pack them
+	 * as variant[7:4] and revision[3:0] of x0.
 	 *
-	 * Clobber: x30, x0 - x5
+	 * First extract x1[23:16] to x0[7:0] and zero fill the rest. Then
+	 * extract x1[3:0] into x0[3:0] retaining other bits.
 	 */
-	.globl	print_revision_warning
-func print_revision_warning
-	mov	x5, x30
-	/* Ensure the console is initialized */
-	bl	plat_crash_console_init
-	/* Check if the console is initialized */
-	cbz	x0, 1f
-	/* The console is initialized */
-	adr	x4, rev_verbose_str
-	bl	asm_print_str
-1:
-	ret	x5
-endfunc print_revision_warning
-#endif
+	ubfx	x0, x1, #(MIDR_VAR_SHIFT - MIDR_REV_BITS), #(MIDR_REV_BITS + MIDR_VAR_BITS)
+	bfxil	x0, x1, #MIDR_REV_SHIFT, #MIDR_REV_BITS
+	ret
+endfunc cpu_get_rev_var
 
+/*
+ * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
+ * application purposes. If the revision-variant is less than or same as a given
+ * value, indicates that errata applies; otherwise not.
+ */
+	.globl	cpu_rev_var_ls
+func cpu_rev_var_ls
+	mov	x2, #ERRATA_APPLIES
+	mov	x3, #ERRATA_NOT_APPLIES
+	cmp	x0, x1
+	csel	x0, x2, x3, ls
+	ret
+endfunc cpu_rev_var_ls
+
+#if REPORT_ERRATA
+/*
+ * void print_errata_status(void);
+ *
+ * Function to print errata status for CPUs of its class. Must be called only:
+ *
+ *   - with MMU and data caches are enabled;
+ *   - after cpu_ops have been initialized in per-CPU data.
+ */
+	.globl print_errata_status
+func print_errata_status
+#ifdef IMAGE_BL1
+	/*
+	 * BL1 doesn't have per-CPU data. So retrieve the CPU operations
+	 * directly.
+	 */
+	stp	xzr, x30, [sp, #-16]!
+	bl	get_cpu_ops_ptr
+	ldp	xzr, x30, [sp], #16
+	ldr	x1, [x0, #CPU_ERRATA_FUNC]
+	cbnz	x1, .Lprint
+#else
+	/*
+	 * Retrieve pointer to cpu_ops from per-CPU data, and further, the
+	 * errata printing function. If it's non-NULL, jump to the function in
+	 * turn.
+	 */
+	mrs	x0, tpidr_el3
+	ldr	x1, [x0, #CPU_DATA_CPU_OPS_PTR]
+	ldr	x0, [x1, #CPU_ERRATA_FUNC]
+	cbz	x0, .Lnoprint
+
+	/*
+	 * Printing errata status requires atomically testing the printed flag.
+	 */
+	stp	x8, x30, [sp, #-16]!
+	mov	x8, x0
+
+	/*
+	 * Load pointers to errata lock and printed flag. Call
+	 * errata_needs_reporting to check whether this CPU needs to report
+	 * errata status pertaining to its class.
+	 */
+	ldr	x0, [x1, #CPU_ERRATA_LOCK]
+	ldr	x1, [x1, #CPU_ERRATA_PRINTED]
+	bl	errata_needs_reporting
+	mov	x1, x8
+	ldp	x8, x30, [sp], #16
+	cbnz	x0, .Lprint
+#endif
+.Lnoprint:
+	ret
+.Lprint:
+	/* Jump to errata reporting function for this CPU */
+	br	x1
+endfunc print_errata_status
+#endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 
 #include <arch.h>
 #include <asm_macros_common.S>
+#include <spinlock.h>
 
 #define WORD_SIZE	4
 
@@ -122,6 +123,15 @@
 	nop
 	.endif
 #endif
+	.endm
+
+	/*
+	 * Reserve space for a spin lock in assembly file.
+	 */
+	.macro define_asm_spinlock _name:req
+	.align	SPINLOCK_ASM_ALIGN
+	\_name:
+	.space	SPINLOCK_ASM_SIZE
 	.endm
 
 #endif /* __ASM_MACROS_S__ */
