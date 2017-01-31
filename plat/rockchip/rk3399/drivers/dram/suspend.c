@@ -611,6 +611,7 @@ static __sramfunc int pctl_start(uint32_t channel_mask,
 		struct rk3399_sdram_params *sdram_params)
 {
 	uint32_t count;
+	uint32_t byte;
 
 	mmio_setbits_32(CTL_REG(0, 68), PWRUP_SREFRESH_EXIT);
 	mmio_setbits_32(CTL_REG(1, 68), PWRUP_SREFRESH_EXIT);
@@ -642,6 +643,12 @@ static __sramfunc int pctl_start(uint32_t channel_mask,
 		}
 
 		mmio_clrbits_32(CTL_REG(0, 68), PWRUP_SREFRESH_EXIT);
+
+		/* Restore the PHY_RX_CAL_DQS value */
+		for (byte = 0; byte < 4; byte++)
+			mmio_clrsetbits_32(PHY_REG(0, 57 + 128 * byte),
+					   0xfff << 16,
+					   sdram_params->rx_cal_dqs[0][byte]);
 	}
 	if (channel_mask & (1 << 1)) {
 		count = 0;
@@ -655,6 +662,12 @@ static __sramfunc int pctl_start(uint32_t channel_mask,
 		}
 
 		mmio_clrbits_32(CTL_REG(1, 68), PWRUP_SREFRESH_EXIT);
+
+		/* Restore the PHY_RX_CAL_DQS value */
+		for (byte = 0; byte < 4; byte++)
+			mmio_clrsetbits_32(PHY_REG(1, 57 + 128 * byte),
+					   0xfff << 16,
+					   sdram_params->rx_cal_dqs[1][byte]);
 	}
 
 	return 0;
@@ -667,7 +680,7 @@ void dmc_save(void)
 	uint32_t *params_pi;
 	uint32_t *params_phy;
 	uint32_t refdiv, postdiv2, postdiv1, fbdiv;
-	uint32_t tmp;
+	uint32_t tmp, ch, byte;
 
 	params_ctl = sdram_params->pctl_regs.denali_ctl;
 	params_pi = sdram_params->pi_regs.denali_pi;
@@ -706,6 +719,12 @@ void dmc_save(void)
 	sram_regcpy((uintptr_t)&params_phy[640], PHY_REG(0, 640), 38);
 	sram_regcpy((uintptr_t)&params_phy[768], PHY_REG(0, 768), 38);
 	sram_regcpy((uintptr_t)&params_phy[896], PHY_REG(0, 896), 63);
+
+	for (ch = 0; ch < sdram_params->num_channels; ch++) {
+		for (byte = 0; byte < 4; byte++)
+			sdram_params->rx_cal_dqs[ch][byte] = (0xfff << 16) &
+				mmio_read_32(PHY_REG(ch, 57 + byte * 128));
+	}
 
 	/* set DENALI_PHY_957_DATA.PHY_DLL_RST_EN = 0x1 */
 	params_phy[957] &= ~(0x3 << 24);

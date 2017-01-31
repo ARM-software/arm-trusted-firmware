@@ -159,6 +159,7 @@ struct rk3399_sdram_params {
 	struct rk3399_ddr_pctl_regs pctl_regs;
 	struct rk3399_ddr_pi_regs pi_regs;
 	struct rk3399_ddr_publ_regs phy_regs;
+	uint32_t rx_cal_dqs[2][4];
 };
 
 extern __sramdata struct rk3399_sdram_params sdram_config;
