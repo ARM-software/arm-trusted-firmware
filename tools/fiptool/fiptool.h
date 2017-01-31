@@ -63,6 +63,8 @@ typedef struct image_desc {
 typedef struct image {
 	uuid_t             uuid;
 	size_t             size;
+	/* offset of this image in FIP (only useful for info command) */
+	size_t             offset;
 	void              *buffer;
 	struct image      *next;
 } image_t;
