@@ -37,13 +37,13 @@
 /*
  * Constants used for/by PMF services.
  */
-#define PMF_ARM_TIF_IMPL_ID	(0x41000000)
+#define PMF_ARM_TIF_IMPL_ID	0x41
 #define PMF_TID_SHIFT		0
 #define PMF_TID_MASK		(0xFF << PMF_TID_SHIFT)
 #define PMF_SVC_ID_SHIFT	10
 #define PMF_SVC_ID_MASK		(0x3F << PMF_SVC_ID_SHIFT)
 #define PMF_IMPL_ID_SHIFT	24
-#define PMF_IMPL_ID_MASK	(0xFF << PMF_IMPL_ID_SHIFT)
+#define PMF_IMPL_ID_MASK	(0xFFU << PMF_IMPL_ID_SHIFT)
 
 /*
  * Flags passed to PMF_REGISTER_SERVICE
