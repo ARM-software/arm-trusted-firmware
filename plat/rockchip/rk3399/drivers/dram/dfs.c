@@ -1980,8 +1980,6 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 		gen_rk3399_set_odt(1);
 
 	index = (rk3399_dram_status.current_index + 1) & 0x1;
-	if (rk3399_dram_status.index_freq[index] == mhz)
-		return index;
 
 	/*
 	 * checking if having available gate traiing timing for
