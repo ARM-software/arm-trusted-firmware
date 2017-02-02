@@ -1575,7 +1575,6 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 				break;
 		}
 		mmio_clrsetbits_32(PHY_REG(i, 947), 0x7 << 8, tmp << 8);
-		mmio_setbits_32(PHY_REG(i, 927), (1 << 22));
 
 		if (timing_config->dram_type == DDR3) {
 			mem_delay_ps = 0;
