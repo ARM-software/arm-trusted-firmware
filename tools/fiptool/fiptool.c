@@ -826,7 +826,7 @@ static void create_usage(void)
 	    "pointed to by file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
 	    "occupying bits 32-47 in 64-bit ToC header.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Specific images are packed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
@@ -943,7 +943,7 @@ static void update_usage(void)
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
 	    "occupying bits 32-47 in 64-bit ToC header.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Specific images are packed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
@@ -1081,12 +1081,12 @@ static void unpack_usage(void)
 	printf("  --force\t\t\tIf the output file already exists, use --force to "
 	    "overwrite it.\n");
 	printf("  --out path\t\t\tSet the output directory path.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Specific images are unpacked with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
-	fputc('\n', stderr);
+	printf("\n");
 	printf("If no options are provided, all images will be unpacked.\n");
 	exit(1);
 }
@@ -1210,7 +1210,7 @@ static void remove_usage(void)
 	printf("  --force\t\tIf the output FIP file already exists, use --force to "
 	    "overwrite it.\n");
 	printf("  --out FIP_FILENAME\tSet an alternative output FIP file.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Specific images are removed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s\t%s\n", toc_entry->cmdline_name,
@@ -1258,7 +1258,7 @@ static void usage(void)
 	printf("usage: fiptool [--verbose] <command> [<args>]\n");
 	printf("Global options supported:\n");
 	printf("  --verbose\tEnable verbose output for all commands.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Commands supported:\n");
 	printf("  info\t\tList images contained in FIP.\n");
 	printf("  create\tCreate a new FIP with the given images.\n");
