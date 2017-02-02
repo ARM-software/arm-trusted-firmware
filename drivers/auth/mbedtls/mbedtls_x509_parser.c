@@ -137,9 +137,9 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 		oid_len = mbedtls_oid_get_numeric_string(oid_str,
 							 MAX_OID_STR_LEN,
 							 &extn_oid);
-		if (oid_len == MBEDTLS_ERR_OID_BUF_TOO_SMALL) {
+		if (oid_len == MBEDTLS_ERR_OID_BUF_TOO_SMALL)
 			return IMG_PARSER_ERR;
-		}
+
 		if ((oid_len == strlen(oid_str)) && !strcmp(oid, oid_str)) {
 			*ext = (void *)p;
 			*ext_len = (unsigned int)len;
@@ -182,13 +182,12 @@ static int cert_parse(void *img, unsigned int img_len)
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 
-	if (len > (size_t)(end - p)) {
+	if (len > (size_t)(end - p))
 		return IMG_PARSER_ERR_FORMAT;
-	}
+
 	crt_end = p + len;
 
 	/*
@@ -197,9 +196,9 @@ static int cert_parse(void *img, unsigned int img_len)
 	tbs.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
+
 	end = p + len;
 	tbs.len = end - tbs.p;
 
@@ -209,18 +208,16 @@ static int cert_parse(void *img, unsigned int img_len)
 	ret = mbedtls_asn1_get_tag(&p, end, &len,
 				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
 				   MBEDTLS_ASN1_CONSTRUCTED | 0);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	p += len;
 
 	/*
 	 * CertificateSerialNumber  ::=  INTEGER
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_INTEGER);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	p += len;
 
 	/*
@@ -229,12 +226,11 @@ static int cert_parse(void *img, unsigned int img_len)
 	sig_alg1.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
-	if ((end - p) < 1) {
+	if (end - p < 1)
 		return IMG_PARSER_ERR_FORMAT;
-	}
+
 	sig_alg1.len = (p + len) - sig_alg1.p;
 	p += len;
 
@@ -243,9 +239,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	p += len;
 
 	/*
@@ -256,9 +251,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	p += len;
 
 	/*
@@ -266,9 +260,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	 */
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	p += len;
 
 	/*
@@ -277,9 +270,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	pk.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	pk.len = (p + len) - pk.p;
 	p += len;
 
@@ -290,9 +282,8 @@ static int cert_parse(void *img, unsigned int img_len)
 				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
 				   MBEDTLS_ASN1_CONSTRUCTED | 1);
 	if (ret != 0) {
-		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
+		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG)
 			return IMG_PARSER_ERR_FORMAT;
-		}
 	} else {
 		p += len;
 	}
@@ -304,9 +295,8 @@ static int cert_parse(void *img, unsigned int img_len)
 				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
 				   MBEDTLS_ASN1_CONSTRUCTED | 2);
 	if (ret != 0) {
-		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG) {
+		if (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG)
 			return IMG_PARSER_ERR_FORMAT;
-		}
 	} else {
 		p += len;
 	}
@@ -317,9 +307,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	ret = mbedtls_asn1_get_tag(&p, end, &len,
 				   MBEDTLS_ASN1_CONTEXT_SPECIFIC |
 				   MBEDTLS_ASN1_CONSTRUCTED | 3);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 
 	/*
 	 * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
@@ -327,9 +316,8 @@ static int cert_parse(void *img, unsigned int img_len)
 	v3_ext.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	v3_ext.len = (p + len) - v3_ext.p;
 
 	/*
@@ -339,35 +327,30 @@ static int cert_parse(void *img, unsigned int img_len)
 		ret = mbedtls_asn1_get_tag(&p, end, &len,
 					   MBEDTLS_ASN1_CONSTRUCTED |
 					   MBEDTLS_ASN1_SEQUENCE);
-		if (ret != 0) {
+		if (ret != 0)
 			return IMG_PARSER_ERR_FORMAT;
-		}
 
 		/* Get extension ID */
 		ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_OID);
-		if (ret != 0) {
+		if (ret != 0)
 			return IMG_PARSER_ERR_FORMAT;
-		}
 		p += len;
 
 		/* Get optional critical */
 		ret = mbedtls_asn1_get_bool(&p, end, &is_critical);
-		if ((ret != 0) && (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG)) {
+		if ((ret != 0) && (ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG))
 			return IMG_PARSER_ERR_FORMAT;
-		}
 
 		/* Data should be octet string type */
 		ret = mbedtls_asn1_get_tag(&p, end, &len,
 					   MBEDTLS_ASN1_OCTET_STRING);
-		if (ret != 0) {
+		if (ret != 0)
 			return IMG_PARSER_ERR_FORMAT;
-		}
 		p += len;
 	}
 
-	if (p != end) {
+	if (p != end)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 
 	end = crt_end;
 
@@ -380,22 +363,18 @@ static int cert_parse(void *img, unsigned int img_len)
 	sig_alg2.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				   MBEDTLS_ASN1_SEQUENCE);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
-	if ((end - p) < 1) {
+	if (end - p < 1)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	sig_alg2.len = (p + len) - sig_alg2.p;
 	p += len;
 
 	/* Compare both signature algorithms */
-	if (sig_alg1.len != sig_alg2.len) {
+	if (sig_alg1.len != sig_alg2.len)
 		return IMG_PARSER_ERR_FORMAT;
-	}
-	if (0 != memcmp(sig_alg1.p, sig_alg2.p, sig_alg1.len)) {
+	if (0 != memcmp(sig_alg1.p, sig_alg2.p, sig_alg1.len))
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	memcpy(&sig_alg, &sig_alg1, sizeof(sig_alg));
 
 	/*
@@ -403,20 +382,17 @@ static int cert_parse(void *img, unsigned int img_len)
 	 */
 	signature.p = p;
 	ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_BIT_STRING);
-	if (ret != 0) {
+	if (ret != 0)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 	signature.len = (p + len) - signature.p;
 	p += len;
 
 	/* Check certificate length */
-	if (p != end) {
+	if (p != end)
 		return IMG_PARSER_ERR_FORMAT;
-	}
 
 	return IMG_PARSER_OK;
 }
-
 
 /* Exported functions */
 
