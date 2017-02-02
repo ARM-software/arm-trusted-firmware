@@ -209,8 +209,7 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 	hash = p;
 
 	/* Calculate the hash of the data */
-	p = (unsigned char *)data_ptr;
-	rc = mbedtls_md(md_info, p, data_len, data_hash);
+	rc = mbedtls_md(md_info, data_ptr, data_len, data_hash);
 	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
 	}
