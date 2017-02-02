@@ -822,10 +822,8 @@ static void create_usage(void)
 	printf("\n");
 	printf("Options:\n");
 	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
-	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID "
-	    "pointed to by file.\n");
-	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
-	    "occupying bits 32-47 in 64-bit ToC header.\n");
+	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID pointed to by file.\n");
+	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field occupying bits 32-47 in 64-bit ToC header.\n");
 	printf("\n");
 	printf("Specific images are packed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
@@ -938,11 +936,9 @@ static void update_usage(void)
 	printf("\n");
 	printf("Options:\n");
 	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
-	printf("  --blob uuid=...,file=...\tAdd or update an image "
-	    "with the given UUID pointed to by file.\n");
+	printf("  --blob uuid=...,file=...\tAdd or update an image with the given UUID pointed to by file.\n");
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
-	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
-	    "occupying bits 32-47 in 64-bit ToC header.\n");
+	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field occupying bits 32-47 in 64-bit ToC header.\n");
 	printf("\n");
 	printf("Specific images are packed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
@@ -1076,10 +1072,8 @@ static void unpack_usage(void)
 	printf("fiptool unpack [opts] FIP_FILENAME\n");
 	printf("\n");
 	printf("Options:\n");
-	printf("  --blob uuid=...,file=...\tUnpack an image with the given UUID "
-	    "to file.\n");
-	printf("  --force\t\t\tIf the output file already exists, use --force to "
-	    "overwrite it.\n");
+	printf("  --blob uuid=...,file=...\tUnpack an image with the given UUID to file.\n");
+	printf("  --force\t\t\tIf the output file already exists, use --force to overwrite it.\n");
 	printf("  --out path\t\t\tSet the output directory path.\n");
 	printf("\n");
 	printf("Specific images are unpacked with the following options:\n");
@@ -1207,8 +1201,7 @@ static void remove_usage(void)
 	printf("Options:\n");
 	printf("  --align <value>\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...\tRemove an image with the given UUID.\n");
-	printf("  --force\t\tIf the output FIP file already exists, use --force to "
-	    "overwrite it.\n");
+	printf("  --force\t\tIf the output FIP file already exists, use --force to overwrite it.\n");
 	printf("  --out FIP_FILENAME\tSet an alternative output FIP file.\n");
 	printf("\n");
 	printf("Specific images are removed with the following options:\n");
