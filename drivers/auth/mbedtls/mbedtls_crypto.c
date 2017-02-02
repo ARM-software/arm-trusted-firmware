@@ -86,7 +86,6 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	mbedtls_pk_type_t pk_alg;
 	mbedtls_pk_context pk;
 	int rc;
-	void *sig_opts = NULL;
 	const mbedtls_md_info_t *md_info;
 	unsigned char *p, *end;
 	unsigned char hash[MBEDTLS_MD_MAX_SIZE];
@@ -139,7 +138,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	}
 
 	/* Verify the signature */
-	rc = mbedtls_pk_verify_ext(pk_alg, sig_opts, &pk, md_alg, hash,
+	rc = mbedtls_pk_verify_ext(pk_alg, NULL, &pk, md_alg, hash,
 			mbedtls_md_get_size(md_info),
 			signature.p, signature.len);
 	if (rc != 0) {
