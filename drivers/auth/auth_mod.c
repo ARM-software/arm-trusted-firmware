@@ -45,9 +45,8 @@
 
 #define return_if_error(rc) \
 	do { \
-		if (rc != 0) { \
+		if (rc != 0) \
 			return rc; \
-		} \
 	} while (0)
 
 #pragma weak plat_set_nv_ctr2
@@ -59,9 +58,9 @@ extern unsigned int auth_img_flags[];
 static int cmp_auth_param_type_desc(const auth_param_type_desc_t *a,
 		const auth_param_type_desc_t *b)
 {
-	if ((a->type == b->type) && (a->cookie == b->cookie)) {
+	if ((a->type == b->type) && (a->cookie == b->cookie))
 		return 0;
-	}
+
 	return 1;
 }
 
@@ -118,7 +117,7 @@ static int auth_hash(const auth_method_param_hash_t *param,
 {
 	void *data_ptr, *hash_der_ptr;
 	unsigned int data_len, hash_der_len;
-	int rc = 0;
+	int rc;
 
 	/* Get the hash from the parent image. This hash will be DER encoded
 	 * and contain the hash algorithm */
@@ -132,10 +131,8 @@ static int auth_hash(const auth_method_param_hash_t *param,
 	return_if_error(rc);
 
 	/* Ask the crypto module to verify this hash */
-	rc = crypto_mod_verify_hash(data_ptr, data_len,
-				    hash_der_ptr, hash_der_len);
-
-	return rc;
+	return crypto_mod_verify_hash(data_ptr, data_len,
+				      hash_der_ptr, hash_der_len);
 }
 
 /*
@@ -172,7 +169,7 @@ static int auth_signature(const auth_method_param_sig_t *param,
 	void *data_ptr, *pk_ptr, *pk_hash_ptr, *sig_ptr, *sig_alg_ptr;
 	unsigned int data_len, pk_len, pk_hash_len, sig_len, sig_alg_len;
 	unsigned int flags = 0;
-	int rc = 0;
+	int rc;
 
 	/* Get the data to be signed from current image */
 	rc = img_parser_get_auth_param(img_desc->img_type, param->data,
@@ -192,13 +189,12 @@ static int auth_signature(const auth_method_param_sig_t *param,
 	/* Get the public key from the parent. If there is no parent (NULL),
 	 * the certificate has been signed with the ROTPK, so we have to get
 	 * the PK from the platform */
-	if (img_desc->parent) {
+	if (img_desc->parent)
 		rc = auth_get_param(param->pk, img_desc->parent,
 				&pk_ptr, &pk_len);
-	} else {
+	else
 		rc = plat_get_rotpk_info(param->pk->cookie, &pk_ptr, &pk_len,
 				&flags);
-	}
 	return_if_error(rc);
 
 	if (flags & (ROTPK_IS_HASH | ROTPK_NOT_DEPLOYED)) {
@@ -218,14 +214,13 @@ static int auth_signature(const auth_method_param_sig_t *param,
 						 pk_ptr, pk_len);
 		return_if_error(rc);
 
-		if (flags & ROTPK_NOT_DEPLOYED) {
+		if (flags & ROTPK_NOT_DEPLOYED)
 			NOTICE("ROTPK is not deployed on platform. "
 				"Skipping ROTPK verification.\n");
-		} else {
+		else
 			/* Ask the crypto-module to verify the key hash */
 			rc = crypto_mod_verify_hash(pk_ptr, pk_len,
 				    pk_hash_ptr, pk_hash_len);
-		}
 	} else {
 		/* Ask the crypto module to verify the signature */
 		rc = crypto_mod_verify_signature(data_ptr, data_len,
@@ -253,10 +248,10 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 		      void *img, unsigned int img_len)
 {
 	char *p;
-	void *data_ptr = NULL;
+	void *data_ptr;
 	unsigned int data_len, len, i;
 	unsigned int cert_nv_ctr, plat_nv_ctr;
-	int rc = 0;
+	int rc;
 
 	/* Get the counter value from current image. The AM expects the IPM
 	 * to return the counter value as a DER encoded integer */
@@ -267,38 +262,32 @@ static int auth_nvctr(const auth_method_param_nv_ctr_t *param,
 	/* Parse the DER encoded integer */
 	assert(data_ptr);
 	p = (char *)data_ptr;
-	if (*p != ASN1_INTEGER) {
-		/* Invalid ASN.1 integer */
+	if (*p != ASN1_INTEGER)		/* Invalid ASN.1 integer */
 		return 1;
-	}
 	p++;
 
 	/* NV-counters are unsigned integers up to 32-bit */
 	len = (unsigned int)(*p & 0x7f);
-	if ((*p & 0x80) || (len > 4)) {
+	if ((*p & 0x80) || (len > 4))
 		return 1;
-	}
 	p++;
 
 	/* Check the number is not negative */
-	if (*p & 0x80) {
+	if (*p & 0x80)
 		return 1;
-	}
 
 	/* Convert to unsigned int. This code is for a little-endian CPU */
 	cert_nv_ctr = 0;
-	for (i = 0; i < len; i++) {
+	for (i = 0; i < len; i++)
 		cert_nv_ctr = (cert_nv_ctr << 8) | *p++;
-	}
 
 	/* Get the counter from the platform */
 	rc = plat_get_nv_ctr(param->plat_nv_ctr->cookie, &plat_nv_ctr);
 	return_if_error(rc);
 
-	if (cert_nv_ctr < plat_nv_ctr) {
-		/* Invalid NV-counter */
+	if (cert_nv_ctr < plat_nv_ctr)		/* Invalid NV-counter */
 		return 1;
-	} else if (cert_nv_ctr > plat_nv_ctr) {
+	if (cert_nv_ctr > plat_nv_ctr) {
 		rc = plat_set_nv_ctr2(param->plat_nv_ctr->cookie,
 			img_desc, cert_nv_ctr);
 		return_if_error(rc);
@@ -423,9 +412,8 @@ int auth_mod_verify_img(unsigned int img_id,
 		return_if_error(rc);
 
 		/* Check parameter size */
-		if (param_len > img_desc->authenticated_data[i].data.len) {
+		if (param_len > img_desc->authenticated_data[i].data.len)
 			return 1;
-		}
 
 		/* Copy the parameter for later use */
 		memcpy((void *)img_desc->authenticated_data[i].data.ptr,
