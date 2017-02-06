@@ -49,7 +49,7 @@
 /*
  * Create a new key container
  */
-static int key_new(key_t *key)
+int key_new(key_t *key)
 {
 	/* Create key pair container */
 	key->key = EVP_PKEY_new();
@@ -123,11 +123,6 @@ int key_create(key_t *key, int type)
 		return 0;
 	}
 
-	/* Create OpenSSL key container */
-	if (!key_new(key)) {
-		return 0;
-	}
-
 	if (key_create_fn[type]) {
 		return key_create_fn[type](key);
 	}
@@ -139,12 +134,6 @@ int key_load(key_t *key, unsigned int *err_code)
 {
 	FILE *fp = NULL;
 	EVP_PKEY *k = NULL;
-
-	/* Create OpenSSL key container */
-	if (!key_new(key)) {
-		*err_code = KEY_ERR_MALLOC;
-		return 0;
-	}
 
 	if (key->fn) {
 		/* Load key from file */

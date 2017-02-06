@@ -367,6 +367,11 @@ int main(int argc, char *argv[])
 
 	/* Load private keys from files (or generate new ones) */
 	for (i = 0 ; i < num_keys ; i++) {
+		if (!key_new(&keys[i])) {
+			ERROR("Failed to allocate key container\n");
+			exit(1);
+		}
+
 		/* First try to load the key from disk */
 		if (key_load(&keys[i], &err_code)) {
 			/* Key loaded successfully */
@@ -374,11 +379,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* Key not loaded. Check the error code */
-		if (err_code == KEY_ERR_MALLOC) {
-			/* Cannot allocate memory. Abort. */
-			ERROR("Malloc error while loading '%s'\n", keys[i].fn);
-			exit(1);
-		} else if (err_code == KEY_ERR_LOAD) {
+		if (err_code == KEY_ERR_LOAD) {
 			/* File exists, but it does not contain a valid private
 			 * key. Abort. */
 			ERROR("Error loading '%s'\n", keys[i].fn);

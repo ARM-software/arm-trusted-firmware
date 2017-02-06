@@ -73,6 +73,7 @@ typedef struct key_s {
 /* Exported API */
 int key_init(void);
 key_t *key_get_by_opt(const char *opt);
+int key_new(key_t *key);
 int key_create(key_t *key, int type);
 int key_load(key_t *key, unsigned int *err_code);
 int key_store(key_t *key);
