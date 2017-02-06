@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 	.globl	console_uninit
 	.globl	console_putc
 	.globl	console_getc
+	.globl	console_flush
 
 	/*
 	 *  The console base is in the data section and not in .bss
@@ -112,3 +113,18 @@ func console_getc
 	ldr	r0, [r1]
 	b	console_core_getc
 endfunc console_getc
+
+	/* ---------------------------------------------
+	 * int console_flush(void)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output. It returns 0
+	 * upon successful completion, otherwise it
+	 * returns -1.
+	 * Clobber list : r0, r1
+	 * ---------------------------------------------
+	 */
+func console_flush
+	ldr	r1, =console_base
+	ldr	r0, [r1]
+	b	console_core_flush
+endfunc console_flush

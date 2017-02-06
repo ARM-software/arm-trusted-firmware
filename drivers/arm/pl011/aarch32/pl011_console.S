@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@
 	.globl	console_core_init
 	.globl	console_core_putc
 	.globl	console_core_getc
+	.globl	console_core_flush
 
 
 	/* -----------------------------------------------
@@ -158,3 +159,29 @@ getc_error:
 	mov	r0, #-1
 	bx	lr
 endfunc console_core_getc
+
+	/* ---------------------------------------------
+	 * int console_core_flush(uintptr_t base_addr)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * In : r0 - console base address
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : r0, r1
+	 * ---------------------------------------------
+	 */
+func console_core_flush
+	cmp	r0, #0
+	beq	flush_error
+
+1:
+	/* Loop while the transmit FIFO is busy */
+	ldr	r1, [r0, #UARTFR]
+	tst	r1, #PL011_UARTFR_BUSY
+	bne	1b
+
+	mov	r0, #0
+	bx	lr
+flush_error:
+	mov	r0, #-1
+	bx	lr
+endfunc console_core_flush
