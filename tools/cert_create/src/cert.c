@@ -103,10 +103,10 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 	cert_t *issuer_cert = &certs[cert->issuer];
 	EVP_PKEY *ikey = keys[issuer_cert->key].key;
 	X509 *issuer = issuer_cert->x;
-	X509 *x = NULL;
-	X509_EXTENSION *ex = NULL;
-	X509_NAME *name = NULL;
-	ASN1_INTEGER *sno = NULL;
+	X509 *x;
+	X509_EXTENSION *ex;
+	X509_NAME *name;
+	ASN1_INTEGER *sno;
 	int i, num;
 
 	/* Create the certificate structure */
@@ -202,7 +202,7 @@ int cert_init(void)
 
 cert_t *cert_get_by_opt(const char *opt)
 {
-	cert_t *cert = NULL;
+	cert_t *cert;
 	unsigned int i;
 
 	for (i = 0; i < num_certs; i++) {

@@ -134,7 +134,6 @@ static void print_help(const char *cmd, const struct option *long_opt)
 	printf("\t%s [OPTIONS]\n\n", cmd);
 
 	printf("Available options:\n");
-	i = 0;
 	opt = long_opt;
 	while (opt->name) {
 		p = line;
@@ -261,12 +260,12 @@ static const cmd_opt_t common_cmd_opt[] = {
 
 int main(int argc, char *argv[])
 {
-	STACK_OF(X509_EXTENSION) * sk = NULL;
-	X509_EXTENSION *cert_ext = NULL;
-	ext_t *ext = NULL;
-	key_t *key = NULL;
-	cert_t *cert = NULL;
-	FILE *file = NULL;
+	STACK_OF(X509_EXTENSION) * sk;
+	X509_EXTENSION *cert_ext;
+	ext_t *ext;
+	key_t *key;
+	cert_t *cert;
+	FILE *file;
 	int i, j, ext_nid, nvctr;
 	int c, opt_idx = 0;
 	const struct option *cmd_opt;

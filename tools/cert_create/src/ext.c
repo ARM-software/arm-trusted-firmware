@@ -181,13 +181,13 @@ X509_EXTENSION *ext_new(int nid, int crit, unsigned char *data, int len)
 X509_EXTENSION *ext_new_hash(int nid, int crit, const EVP_MD *md,
 		unsigned char *buf, size_t len)
 {
-	X509_EXTENSION *ex = NULL;
-	ASN1_OCTET_STRING *octet = NULL;
-	HASH *hash = NULL;
-	ASN1_OBJECT *algorithm = NULL;
-	X509_ALGOR *x509_algor = NULL;
+	X509_EXTENSION *ex;
+	ASN1_OCTET_STRING *octet;
+	HASH *hash;
+	ASN1_OBJECT *algorithm;
+	X509_ALGOR *x509_algor;
 	unsigned char *p = NULL;
-	int sz = -1;
+	int sz;
 
 	/* OBJECT_IDENTIFIER with hash algorithm */
 	algorithm = OBJ_nid2obj(md->type);
@@ -254,10 +254,10 @@ X509_EXTENSION *ext_new_hash(int nid, int crit, const EVP_MD *md,
  */
 X509_EXTENSION *ext_new_nvcounter(int nid, int crit, int value)
 {
-	X509_EXTENSION *ex = NULL;
-	ASN1_INTEGER *counter = NULL;
+	X509_EXTENSION *ex;
+	ASN1_INTEGER *counter;
 	unsigned char *p = NULL;
-	int sz = -1;
+	int sz;
 
 	/* Encode counter */
 	counter = ASN1_INTEGER_new();
@@ -291,9 +291,9 @@ X509_EXTENSION *ext_new_nvcounter(int nid, int crit, int value)
  */
 X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k)
 {
-	X509_EXTENSION *ex = NULL;
-	unsigned char *p = NULL;
-	int sz = -1;
+	X509_EXTENSION *ex;
+	unsigned char *p;
+	int sz;
 
 	/* Encode key */
 	BIO *mem = BIO_new(BIO_s_mem());
@@ -315,7 +315,7 @@ X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k)
 
 ext_t *ext_get_by_opt(const char *opt)
 {
-	ext_t *ext = NULL;
+	ext_t *ext;
 	unsigned int i;
 
 	/* Sequential search. This is not a performance concern since the number
