@@ -262,8 +262,7 @@ X509_EXTENSION *ext_new_nvcounter(int nid, int crit, int value)
 	/* Encode counter */
 	counter = ASN1_INTEGER_new();
 	ASN1_INTEGER_set(counter, value);
-	sz = i2d_ASN1_INTEGER(counter, NULL);
-	i2d_ASN1_INTEGER(counter, &p);
+	sz = i2d_ASN1_INTEGER(counter, &p);
 
 	/* Create the extension */
 	ex = ext_new(nid, crit, p, sz);
