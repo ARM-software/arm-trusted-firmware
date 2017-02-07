@@ -130,10 +130,7 @@ enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint64_t encoded_address;
-	const struct pm_proc *proc = pm_get_proc_by_node(target);
 
-	/* invoke APU-specific code for waking up another APU core */
-	pm_client_wakeup(proc);
 
 	/* encode set Address into 1st bit of address */
 	encoded_address = address;
