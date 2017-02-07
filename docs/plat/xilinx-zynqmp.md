@@ -12,12 +12,12 @@ BL33 is the non-secure world software (U-Boot, Linux etc).
 
 To build:
 ```bash
-make ERROR_DEPRECATED=1 RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp bl31
+make ERROR_DEPRECATED=1 CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp bl31
 ```
 
 To build bl32 TSP you have to rebuild bl31 too:
 ```bash
-make ERROR_DEPRECATED=1 RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp SPD=tspd bl31 bl32
+make ERROR_DEPRECATED=1 CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp SPD=tspd bl31 bl32
 ```
 
 # ZynqMP platform specific build options
