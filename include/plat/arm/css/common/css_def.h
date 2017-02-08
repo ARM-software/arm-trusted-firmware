@@ -101,6 +101,13 @@
 #define SSC_VERSION_DESIGNER_ID_MASK		0xff
 #define SSC_VERSION_PART_NUM_MASK		0xfff
 
+/* SSC debug configuration registers */
+#define SSC_DBGCFG_SET		0x14
+#define SSC_DBGCFG_CLR		0x18
+
+#define SPIDEN_INT_CLR_SHIFT	6
+#define SPIDEN_SEL_SET_SHIFT	7
+
 #ifndef __ASSEMBLY__
 
 /* SSC_VERSION related accessors */

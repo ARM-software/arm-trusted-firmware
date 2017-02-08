@@ -60,16 +60,34 @@ static void css_init_nic400(void)
 }
 
 /*******************************************************************************
+ * Initialize debug configuration.
+ ******************************************************************************/
+static void init_debug_cfg(void)
+{
+#if !DEBUG
+	/* Set internal drive selection for SPIDEN. */
+	mmio_write_32(SSC_REG_BASE + SSC_DBGCFG_SET,
+		1U << SPIDEN_SEL_SET_SHIFT);
+
+	/* Drive SPIDEN LOW to disable invasive debug of secure state. */
+	mmio_write_32(SSC_REG_BASE + SSC_DBGCFG_CLR,
+		1U << SPIDEN_INT_CLR_SHIFT);
+#endif
+}
+
+/*******************************************************************************
  * Initialize the secure environment.
  ******************************************************************************/
 void plat_arm_security_setup(void)
 {
+	/* Initialize debug configuration */
+	init_debug_cfg();
 	/* Initialize the TrustZone Controller */
 	arm_tzc400_setup();
 	/* Do ARM CSS internal NIC setup */
 	css_init_nic400();
 	/* Do ARM CSS SoC security setup */
 	soc_css_security_setup();
-	/* Initialize the SMMU SSD tables*/
+	/* Initialize the SMMU SSD tables */
 	init_mmu401();
 }
