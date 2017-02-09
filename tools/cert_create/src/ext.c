@@ -257,7 +257,7 @@ X509_EXTENSION *ext_new_nvcounter(int nid, int crit, int value)
 	X509_EXTENSION *ex = NULL;
 	ASN1_INTEGER *counter = NULL;
 	unsigned char *p = NULL;
-	int sz = -1;
+	int sz;
 
 	/* Encode counter */
 	counter = ASN1_INTEGER_new();
