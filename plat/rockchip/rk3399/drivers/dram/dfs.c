@@ -1021,6 +1021,17 @@ static void gen_rk3399_enable_training(uint32_t ch_cnt, uint32_t nmhz)
 		}
 }
 
+static void gen_rk3399_disable_training(uint32_t ch_cnt)
+{
+	uint32_t i;
+
+	for (i = 0; i < ch_cnt; i++) {
+		mmio_clrbits_32(CTL_REG(i, 305), 1 << 16);
+		mmio_clrbits_32(CTL_REG(i, 71), 1);
+		mmio_clrbits_32(CTL_REG(i, 70), 1 << 8);
+	}
+}
+
 static void gen_rk3399_ctl_params(struct timing_related_config *timing_config,
 				  struct dram_timing_t *pdram_timing,
 				  uint32_t fn)
@@ -2019,7 +2030,7 @@ uint32_t ddr_set_rate(uint32_t hz)
 
 	if (mhz ==
 	    rk3399_dram_status.index_freq[rk3399_dram_status.current_index])
-		goto out;
+		return mhz;
 
 	index = to_get_clk_index(mhz);
 	mhz = dpll_rates_table[index].mhz;
@@ -2046,6 +2057,7 @@ uint32_t ddr_set_rate(uint32_t hz)
 	low_power = rk3399_dram_status.low_power_stat;
 	resume_low_power(low_power);
 out:
+	gen_rk3399_disable_training(rk3399_dram_status.timing_config.ch_cnt);
 	return mhz;
 }
 
