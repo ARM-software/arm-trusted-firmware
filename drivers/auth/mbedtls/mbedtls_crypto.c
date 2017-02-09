@@ -217,7 +217,7 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 	}
 
 	/* Compare values */
-	rc = timingsafe_bcmp(data_hash, hash, mbedtls_md_get_size(md_info));
+	rc = memcmp(data_hash, hash, mbedtls_md_get_size(md_info));
 	if (rc != 0) {
 		return CRYPTO_ERR_HASH;
 	}

@@ -392,7 +392,7 @@ static int cert_parse(void *img, unsigned int img_len)
 	if (sig_alg1.len != sig_alg2.len) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
-	if (0 != timingsafe_bcmp(sig_alg1.p, sig_alg2.p, sig_alg1.len)) {
+	if (0 != memcmp(sig_alg1.p, sig_alg2.p, sig_alg1.len)) {
 		return IMG_PARSER_ERR_FORMAT;
 	}
 	memcpy(&sig_alg, &sig_alg1, sizeof(sig_alg));
