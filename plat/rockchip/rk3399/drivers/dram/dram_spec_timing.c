@@ -666,6 +666,9 @@ static void lpddr2_get_parameter(struct timing_related_config *timing_config,
 #define LPDDR3_TADR	(20) /* ns */
 #define LPDDR3_TMRZ	(3) /* ns */
 
+/* FSP */
+#define LPDDR3_TFC_LONG	(250) /* ns */
+
 /*
  * Description: depend on input parameter "timing_config",
  *		and calculate all lpddr3
@@ -879,6 +882,9 @@ static void lpddr3_get_parameter(struct timing_related_config *timing_config,
 	pdram_timing->tadr = (LPDDR3_TADR * nmhz + 999) / 1000;
 	pdram_timing->tmrz = (LPDDR3_TMRZ * nmhz + 999) / 1000;
 	pdram_timing->tcacd = pdram_timing->tadr + 2;
+
+	/* FSP */
+	pdram_timing->tfc_long = (LPDDR3_TFC_LONG * nmhz + 999) / 1000;
 }
 
 #define LPDDR4_TINIT1	(200000) /* 200us */

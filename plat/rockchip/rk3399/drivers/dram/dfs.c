@@ -1183,7 +1183,8 @@ static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PI_REG(i, 148), 0xffff << 16,
 				   pdram_timing->mr[2] << 16);
 		/* PI_156 PI_TFC_F0:RW:0:10 */
-		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff, pdram_timing->trfc);
+		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff,
+				   pdram_timing->tfc_long);
 		/* PI_158 PI_TWR_F0:RW:24:6 */
 		mmio_clrsetbits_32(PI_REG(i, 158), 0x3f << 24,
 				   pdram_timing->twr << 24);
@@ -1363,7 +1364,7 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PI_REG(i, 151), 0xffff, pdram_timing->mr[2]);
 		/* PI_156 PI_TFC_F1:RW:16:10 */
 		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff << 16,
-				   pdram_timing->trfc << 16);
+				   pdram_timing->tfc_long << 16);
 		/* PI_162 PI_TWR_F1:RW:8:6 */
 		mmio_clrsetbits_32(PI_REG(i, 162), 0x3f << 8,
 				   pdram_timing->twr << 8);
