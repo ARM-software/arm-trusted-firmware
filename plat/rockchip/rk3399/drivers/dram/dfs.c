@@ -1254,7 +1254,7 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PI_REG(i, 44), 0x3f, PI_ADD_LATENCY);
 		/* PI_44 PI_CASLAT_LIN_F1:RW:8:7:=0x18 */
 		mmio_clrsetbits_32(PI_REG(i, 44), 0x7f << 8,
-				   pdram_timing->cl * 2);
+				   (pdram_timing->cl * 2) << 8);
 		/* PI_47 PI_TREF_F1:RW:16:16 */
 		mmio_clrsetbits_32(PI_REG(i, 47), 0xffff << 16,
 				   pdram_timing->trefi << 16);
