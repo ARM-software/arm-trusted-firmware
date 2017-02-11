@@ -52,8 +52,6 @@
 #define OPT_PLAT_TOC_FLAGS 1
 #define OPT_ALIGN 2
 
-static image_desc_t *lookup_image_desc_from_uuid(const uuid_t *uuid);
-static image_t *lookup_image_from_uuid(const uuid_t *uuid);
 static int info_cmd(int argc, char *argv[]);
 static void info_usage(void);
 static int create_cmd(int argc, char *argv[]);
