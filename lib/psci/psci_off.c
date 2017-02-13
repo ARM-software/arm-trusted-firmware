@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -137,13 +137,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	psci_plat_pm_ops->pwr_domain_off(&state_info);
 
 #if ENABLE_PSCI_STAT
-	/*
-	 * Capture time-stamp while entering low power state.
-	 * No cache maintenance needed because caches are off
-	 * and writes are direct to main memory.
-	 */
-	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
-		PMF_NO_CACHE_MAINT);
+	plat_psci_stat_accounting_start(&state_info);
 #endif
 
 exit:

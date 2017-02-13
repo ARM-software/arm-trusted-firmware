@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -117,13 +117,7 @@ int psci_cpu_suspend(unsigned int power_state,
 		psci_set_cpu_local_state(cpu_pd_state);
 
 #if ENABLE_PSCI_STAT
-		/*
-		 * Capture time-stamp before CPU standby
-		 * No cache maintenance is needed as caches
-		 * are ON through out the CPU standby operation.
-		 */
-		PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
-			PMF_NO_CACHE_MAINT);
+		plat_psci_stat_accounting_start(&state_info);
 #endif
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
@@ -144,13 +138,10 @@ int psci_cpu_suspend(unsigned int power_state,
 #endif
 
 #if ENABLE_PSCI_STAT
-		/* Capture time-stamp after CPU standby */
-		PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
-			PMF_NO_CACHE_MAINT);
+		plat_psci_stat_accounting_stop(&state_info);
 
 		/* Update PSCI stats */
-		psci_stats_update_pwr_up(PSCI_CPU_PWR_LVL, &state_info,
-			PMF_NO_CACHE_MAINT);
+		psci_stats_update_pwr_up(PSCI_CPU_PWR_LVL, &state_info);
 #endif
 
 		return PSCI_E_SUCCESS;

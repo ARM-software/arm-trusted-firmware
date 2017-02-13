@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -211,13 +211,7 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 	psci_plat_pm_ops->pwr_domain_suspend(state_info);
 
 #if ENABLE_PSCI_STAT
-	/*
-	 * Capture time-stamp while entering low power state.
-	 * No cache maintenance needed because caches are off
-	 * and writes are direct to main memory.
-	 */
-	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
-		PMF_NO_CACHE_MAINT);
+	plat_psci_stat_accounting_start(state_info);
 #endif
 
 exit:
@@ -257,12 +251,21 @@ exit:
 	    PMF_NO_CACHE_MAINT);
 #endif
 
+#if ENABLE_PSCI_STAT
+	plat_psci_stat_accounting_start(state_info);
+#endif
+
 	/*
 	 * We will reach here if only retention/standby states have been
 	 * requested at multiple power levels. This means that the cpu
 	 * context will be preserved.
 	 */
 	wfi();
+
+#if ENABLE_PSCI_STAT
+	plat_psci_stat_accounting_stop(state_info);
+	psci_stats_update_pwr_up(end_pwrlvl, state_info);
+#endif
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,

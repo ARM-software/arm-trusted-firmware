@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -760,13 +760,7 @@ void psci_warmboot_entrypoint(void)
 				      cpu_idx);
 
 #if ENABLE_PSCI_STAT
-	/*
-	 * Capture power up time-stamp.
-	 * No cache maintenance is required as caches are off
-	 * and writes are direct to the main memory.
-	 */
-	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
-		PMF_NO_CACHE_MAINT);
+	plat_psci_stat_accounting_stop(&state_info);
 #endif
 
 	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
@@ -801,7 +795,7 @@ void psci_warmboot_entrypoint(void)
 	 * Since caches are now enabled, it's necessary to do cache
 	 * maintenance before reading that same data.
 	 */
-	psci_stats_update_pwr_up(end_pwrlvl, &state_info, PMF_CACHE_MAINT);
+	psci_stats_update_pwr_up(end_pwrlvl, &state_info);
 #endif
 
 	/*
