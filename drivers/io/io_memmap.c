@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -118,12 +118,13 @@ static int memmap_dev_close(io_dev_info_t *dev_info)
 
 
 /* Open a file on the memmap device */
-/* TODO: Can we do any sensible limit checks on requested memory */
 static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			     io_entity_t *entity)
 {
 	int result = -ENOMEM;
 	const io_block_spec_t *block_spec = (io_block_spec_t *)spec;
+
+	assert(block_spec->length >= 0);
 
 	/* Since we need to track open state for seek() we only allow one open
 	 * spec at a time. When we have dynamic memory we can malloc and set
@@ -152,13 +153,19 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 {
 	int result = -ENOENT;
+	file_state_t *fp;
 
 	/* We only support IO_SEEK_SET for the moment. */
 	if (mode == IO_SEEK_SET) {
 		assert(entity != NULL);
 
-		/* TODO: can we do some basic limit checks on seek? */
-		((file_state_t *)entity->info)->file_pos = offset;
+		fp = (file_state_t *) entity->info;
+
+		/* Assert that new file position is valid */
+		assert((offset >= 0) && (offset < fp->size));
+
+		/* Reset file position */
+		fp->file_pos = offset;
 		result = 0;
 	}
 
@@ -183,18 +190,24 @@ static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
 			     size_t length, size_t *length_read)
 {
 	file_state_t *fp;
+	size_t pos_after;
 
 	assert(entity != NULL);
 	assert(buffer != (uintptr_t)NULL);
 	assert(length_read != NULL);
 
-	fp = (file_state_t *)entity->info;
+	fp = (file_state_t *) entity->info;
+
+	/* Assert that file position is valid for this read operation */
+	pos_after = fp->file_pos + length;
+	assert((pos_after >= fp->file_pos) && (pos_after <= fp->size));
 
 	memcpy((void *)buffer, (void *)(fp->base + fp->file_pos), length);
 
 	*length_read = length;
-	/* advance the file 'cursor' for incremental reads */
-	fp->file_pos += length;
+
+	/* Set file position after read */
+	fp->file_pos = pos_after;
 
 	return 0;
 }
@@ -205,19 +218,24 @@ static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
 			      size_t length, size_t *length_written)
 {
 	file_state_t *fp;
+	size_t pos_after;
 
 	assert(entity != NULL);
 	assert(buffer != (uintptr_t)NULL);
 	assert(length_written != NULL);
 
-	fp = (file_state_t *)entity->info;
+	fp = (file_state_t *) entity->info;
+
+	/* Assert that file position is valid for this write operation */
+	pos_after = fp->file_pos + length;
+	assert((pos_after >= fp->file_pos) && (pos_after <= fp->size));
 
 	memcpy((void *)(fp->base + fp->file_pos), (void *)buffer, length);
 
 	*length_written = length;
 
-	/* advance the file 'cursor' for incremental writes */
-	fp->file_pos += length;
+	/* Set file position after write */
+	fp->file_pos = pos_after;
 
 	return 0;
 }
