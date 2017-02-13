@@ -52,8 +52,6 @@
 #define OPT_PLAT_TOC_FLAGS 1
 #define OPT_ALIGN 2
 
-static image_desc_t *lookup_image_desc_from_uuid(const uuid_t *uuid);
-static image_t *lookup_image_from_uuid(const uuid_t *uuid);
 static int info_cmd(int argc, char *argv[]);
 static void info_usage(void);
 static int create_cmd(int argc, char *argv[]);
@@ -822,11 +820,9 @@ static void create_usage(void)
 	printf("\n");
 	printf("Options:\n");
 	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
-	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID "
-	    "pointed to by file.\n");
-	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
-	    "occupying bits 32-47 in 64-bit ToC header.\n");
-	fputc('\n', stderr);
+	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID pointed to by file.\n");
+	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field occupying bits 32-47 in 64-bit ToC header.\n");
+	printf("\n");
 	printf("Specific images are packed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
@@ -938,12 +934,10 @@ static void update_usage(void)
 	printf("\n");
 	printf("Options:\n");
 	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
-	printf("  --blob uuid=...,file=...\tAdd or update an image "
-	    "with the given UUID pointed to by file.\n");
+	printf("  --blob uuid=...,file=...\tAdd or update an image with the given UUID pointed to by file.\n");
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
-	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field "
-	    "occupying bits 32-47 in 64-bit ToC header.\n");
-	fputc('\n', stderr);
+	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field occupying bits 32-47 in 64-bit ToC header.\n");
+	printf("\n");
 	printf("Specific images are packed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
@@ -1076,17 +1070,15 @@ static void unpack_usage(void)
 	printf("fiptool unpack [opts] FIP_FILENAME\n");
 	printf("\n");
 	printf("Options:\n");
-	printf("  --blob uuid=...,file=...\tUnpack an image with the given UUID "
-	    "to file.\n");
-	printf("  --force\t\t\tIf the output file already exists, use --force to "
-	    "overwrite it.\n");
+	printf("  --blob uuid=...,file=...\tUnpack an image with the given UUID to file.\n");
+	printf("  --force\t\t\tIf the output file already exists, use --force to overwrite it.\n");
 	printf("  --out path\t\t\tSet the output directory path.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Specific images are unpacked with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
-	fputc('\n', stderr);
+	printf("\n");
 	printf("If no options are provided, all images will be unpacked.\n");
 	exit(1);
 }
@@ -1207,10 +1199,9 @@ static void remove_usage(void)
 	printf("Options:\n");
 	printf("  --align <value>\tEach image is aligned to <value> (default: 1).\n");
 	printf("  --blob uuid=...\tRemove an image with the given UUID.\n");
-	printf("  --force\t\tIf the output FIP file already exists, use --force to "
-	    "overwrite it.\n");
+	printf("  --force\t\tIf the output FIP file already exists, use --force to overwrite it.\n");
 	printf("  --out FIP_FILENAME\tSet an alternative output FIP file.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Specific images are removed with the following options:\n");
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s\t%s\n", toc_entry->cmdline_name,
@@ -1258,7 +1249,7 @@ static void usage(void)
 	printf("usage: fiptool [--verbose] <command> [<args>]\n");
 	printf("Global options supported:\n");
 	printf("  --verbose\tEnable verbose output for all commands.\n");
-	fputc('\n', stderr);
+	printf("\n");
 	printf("Commands supported:\n");
 	printf("  info\t\tList images contained in FIP.\n");
 	printf("  create\tCreate a new FIP with the given images.\n");
