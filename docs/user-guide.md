@@ -1099,19 +1099,19 @@ to load the ELF file over JTAG on Juno.
 9.  Running the software on FVP
 -------------------------------
 
-The AArch64 build of this version of ARM Trusted Firmware has been tested on
-the following ARM FVPs (64-bit host machine only).
+The latest version of the AArch64 build of ARM Trusted Firmware has been tested
+on the following ARM FVPs (64-bit host machine only).
 
 *   `Foundation_Platform` (Version 10.2, Build 10.2.20)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 7.7, Build 0.8.7701)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 7.7, Build 0.8.7701)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 7.7, Build 0.8.7701)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 8.2, Build 0.8.8202)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 8.2, Build 0.8.8202)
+*   `FVP_Base_Cortex-A57x1-A53x1` (Version 8.2, Build 0.8.8202)
+*   `FVP_Base_Cortex-A57x2-A53x4` (Version 8.2, Build 0.8.8202)
 
-The AArch32 build of this version of ARM Trusted Firmware has been tested on
-the following ARM FVPs (64-bit host machine only).
+The latest version of the AArch32 build of ARM Trusted Firmware has been tested
+on the following ARM FVPs (64-bit host machine only).
 
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 7.7, Build 0.8.7701)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 8.2, Build 0.8.8202)
 *   `FVP_Base_Cortex-A32x4` (Version 10.1, Build 10.1.32)
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
@@ -1436,12 +1436,12 @@ wakeup interrupt from RTC.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved._
 
 
 [Firmware Design]:             firmware-design.md
 [ARM FVP website]:             https://developer.arm.com/products/system-design/fixed-virtual-platforms
-[Linaro Release Notes]:        https://community.arm.com/docs/DOC-10952#jive_content_id_Linaro_Release_1606
+[Linaro Release Notes]:        https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
 [ARM Platforms Portal]:        https://community.arm.com/groups/arm-development-platforms
 [Linaro SW Instructions]:      https://community.arm.com/docs/DOC-10803
 [Juno Instructions]:           https://community.arm.com/docs/DOC-10804
