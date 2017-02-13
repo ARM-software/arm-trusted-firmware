@@ -596,10 +596,9 @@ NOTE: Using `-O0` could cause output images to be larger and base addresses
 might need to be recalculated (see the **Memory layout on ARM development
 platforms** section in the [Firmware Design]).
 
-Extra debug options can be passed to the build system by setting `CFLAGS`:
+Extra debug options can be passed to the build system via `TF_EXTRA_CFLAGS`:
 
-    CFLAGS='-O0 -gdwarf-2'                                     \
-    make PLAT=<platform> DEBUG=1 V=1 all
+    make PLAT=<platform> TF_EXTRA_CFLAGS='-O0 -gdwarf-2' DEBUG=1 V=1 all
 
 It is also possible to introduce an infinite loop to help in debugging the
 post-BL2 phase of the Trusted Firmware. This can be done by rebuilding BL1 with
