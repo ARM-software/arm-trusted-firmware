@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,9 @@
 #ifndef __CM_H__
 #define __CM_H__
 
+#ifndef AARCH32
 #include <arch.h>
+#endif
 
 /*******************************************************************************
  * Forward declarations
