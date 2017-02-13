@@ -563,11 +563,14 @@ static void xlat_desc_print(uint64_t desc)
 }
 
 static const char * const level_spacers[] = {
-	"",
-	"  ",
-	"    ",
-	"      "
+	"[LV0] ",
+	"  [LV1] ",
+	"    [LV2] ",
+	"      [LV3] "
 };
+
+static const char *invalid_descriptors_ommited =
+		"%s(%d invalid descriptors omitted)\n";
 
 /*
  * Recursive function that reads the translation tables passed as an argument
@@ -585,17 +588,35 @@ static void xlat_tables_print_internal(const uintptr_t table_base_va,
 
 	size_t level_size = XLAT_BLOCK_SIZE(level);
 
+	/*
+	 * Keep track of how many invalid descriptors are counted in a row.
+	 * Whenever multiple invalid descriptors are found, only the first one
+	 * is printed, and a line is added to inform about how many descriptors
+	 * have been omitted.
+	 */
+	int invalid_row_count = 0;
+
 	while (table_idx < table_entries) {
 
 		desc = table_base[table_idx];
 
 		if ((desc & DESC_MASK) == INVALID_DESC) {
 
-			tf_printf("%sVA:%p size:0x%zx\n",
-				  level_spacers[level],
-				  (void *)table_idx_va, level_size);
+			if (invalid_row_count == 0) {
+				tf_printf("%sVA:%p size:0x%zx\n",
+					  level_spacers[level],
+					  (void *)table_idx_va, level_size);
+			}
+			invalid_row_count++;
 
 		} else {
+
+			if (invalid_row_count > 1) {
+				tf_printf(invalid_descriptors_ommited,
+					  level_spacers[level],
+					  invalid_row_count - 1);
+			}
+			invalid_row_count = 0;
 
 			/*
 			 * Check if this is a table or a block. Tables are only
@@ -632,6 +653,11 @@ static void xlat_tables_print_internal(const uintptr_t table_base_va,
 
 		table_idx++;
 		table_idx_va += level_size;
+	}
+
+	if (invalid_row_count > 1) {
+		tf_printf(invalid_descriptors_ommited,
+			  level_spacers[level], invalid_row_count - 1);
 	}
 }
 
