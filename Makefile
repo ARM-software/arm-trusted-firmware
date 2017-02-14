@@ -373,6 +373,55 @@ CRTTOOL			?=	${CRTTOOLPATH}/cert_create${BIN_EXT}
 FIPTOOLPATH		?=	tools/fiptool
 FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
 
+################################################################################
+# Include BL specific makefiles
+################################################################################
+ifdef BL1_SOURCES
+NEED_BL1 := yes
+include bl1/bl1.mk
+endif
+
+ifdef BL2_SOURCES
+NEED_BL2 := yes
+include bl2/bl2.mk
+endif
+
+# For AArch32, BL31 is not applicable, and BL2U is not supported at present.
+ifneq (${ARCH},aarch32)
+ifdef BL2U_SOURCES
+NEED_BL2U := yes
+include bl2u/bl2u.mk
+endif
+
+ifdef BL31_SOURCES
+# When booting an EL3 payload, there is no need to compile the BL31 image nor
+# put it in the FIP.
+ifndef EL3_PAYLOAD_BASE
+NEED_BL31 := yes
+include bl31/bl31.mk
+endif
+endif
+endif
+
+ifeq (${ARCH},aarch32)
+NEED_BL32 := yes
+
+################################################################################
+# Build `AARCH32_SP` as BL32 image for AArch32
+################################################################################
+ifneq (${AARCH32_SP},none)
+# We expect to locate an sp.mk under the specified AARCH32_SP directory
+AARCH32_SP_MAKE	:=	$(wildcard bl32/${AARCH32_SP}/${AARCH32_SP}.mk)
+
+ifeq (${AARCH32_SP_MAKE},)
+  $(error Error: No bl32/${AARCH32_SP}/${AARCH32_SP}.mk located)
+endif
+
+$(info Including ${AARCH32_SP_MAKE})
+include ${AARCH32_SP_MAKE}
+endif
+
+endif
 
 ################################################################################
 # Build options checks
@@ -456,56 +505,6 @@ ifeq (${ARCH},aarch32)
         $(eval $(call add_define,AARCH32))
 else
         $(eval $(call add_define,AARCH64))
-endif
-
-################################################################################
-# Include BL specific makefiles
-################################################################################
-ifdef BL1_SOURCES
-NEED_BL1 := yes
-include bl1/bl1.mk
-endif
-
-ifdef BL2_SOURCES
-NEED_BL2 := yes
-include bl2/bl2.mk
-endif
-
-# For AArch32, BL31 is not applicable, and BL2U is not supported at present.
-ifneq (${ARCH},aarch32)
-ifdef BL2U_SOURCES
-NEED_BL2U := yes
-include bl2u/bl2u.mk
-endif
-
-ifdef BL31_SOURCES
-# When booting an EL3 payload, there is no need to compile the BL31 image nor
-# put it in the FIP.
-ifndef EL3_PAYLOAD_BASE
-NEED_BL31 := yes
-include bl31/bl31.mk
-endif
-endif
-endif
-
-ifeq (${ARCH},aarch32)
-NEED_BL32 := yes
-
-################################################################################
-# Build `AARCH32_SP` as BL32 image for AArch32
-################################################################################
-ifneq (${AARCH32_SP},none)
-# We expect to locate an sp.mk under the specified AARCH32_SP directory
-AARCH32_SP_MAKE	:=	$(wildcard bl32/${AARCH32_SP}/${AARCH32_SP}.mk)
-
-ifeq (${AARCH32_SP_MAKE},)
-  $(error Error: No bl32/${AARCH32_SP}/${AARCH32_SP}.mk located)
-endif
-
-$(info Including ${AARCH32_SP_MAKE})
-include ${AARCH32_SP_MAKE}
-endif
-
 endif
 
 ################################################################################
