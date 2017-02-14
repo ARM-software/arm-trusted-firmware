@@ -49,7 +49,7 @@
 /*
  * Create a new key container
  */
-static int key_new(key_t *key)
+int key_new(key_t *key)
 {
 	/* Create key pair container */
 	key->key = EVP_PKEY_new();
@@ -62,7 +62,7 @@ static int key_new(key_t *key)
 
 static int key_create_rsa(key_t *key)
 {
-	RSA *rsa = NULL;
+	RSA *rsa;
 
 	rsa = RSA_generate_key(RSA_KEY_BITS, RSA_F4, NULL, NULL);
 	if (rsa == NULL) {
@@ -83,7 +83,7 @@ err:
 #ifndef OPENSSL_NO_EC
 static int key_create_ecdsa(key_t *key)
 {
-	EC_KEY *ec = NULL;
+	EC_KEY *ec;
 
 	ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
 	if (ec == NULL) {
@@ -123,11 +123,6 @@ int key_create(key_t *key, int type)
 		return 0;
 	}
 
-	/* Create OpenSSL key container */
-	if (!key_new(key)) {
-		return 0;
-	}
-
 	if (key_create_fn[type]) {
 		return key_create_fn[type](key);
 	}
@@ -137,14 +132,8 @@ int key_create(key_t *key, int type)
 
 int key_load(key_t *key, unsigned int *err_code)
 {
-	FILE *fp = NULL;
-	EVP_PKEY *k = NULL;
-
-	/* Create OpenSSL key container */
-	if (!key_new(key)) {
-		*err_code = KEY_ERR_MALLOC;
-		return 0;
-	}
+	FILE *fp;
+	EVP_PKEY *k;
 
 	if (key->fn) {
 		/* Load key from file */
@@ -173,7 +162,7 @@ int key_load(key_t *key, unsigned int *err_code)
 
 int key_store(key_t *key)
 {
-	FILE *fp = NULL;
+	FILE *fp;
 
 	if (key->fn) {
 		fp = fopen(key->fn, "w");
@@ -196,7 +185,6 @@ int key_init(void)
 {
 	cmd_opt_t cmd_opt;
 	key_t *key;
-	int rc = 0;
 	unsigned int i;
 
 	for (i = 0; i < num_keys; i++) {
@@ -211,12 +199,12 @@ int key_init(void)
 		}
 	}
 
-	return rc;
+	return 0;
 }
 
 key_t *key_get_by_opt(const char *opt)
 {
-	key_t *key = NULL;
+	key_t *key;
 	unsigned int i;
 
 	/* Sequential search. This is not a performance concern since the number

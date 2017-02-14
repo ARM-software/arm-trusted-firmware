@@ -134,7 +134,6 @@ static void print_help(const char *cmd, const struct option *long_opt)
 	printf("\t%s [OPTIONS]\n\n", cmd);
 
 	printf("Available options:\n");
-	i = 0;
 	opt = long_opt;
 	while (opt->name) {
 		p = line;
@@ -261,12 +260,12 @@ static const cmd_opt_t common_cmd_opt[] = {
 
 int main(int argc, char *argv[])
 {
-	STACK_OF(X509_EXTENSION) * sk = NULL;
-	X509_EXTENSION *cert_ext = NULL;
-	ext_t *ext = NULL;
-	key_t *key = NULL;
-	cert_t *cert = NULL;
-	FILE *file = NULL;
+	STACK_OF(X509_EXTENSION) * sk;
+	X509_EXTENSION *cert_ext;
+	ext_t *ext;
+	key_t *key;
+	cert_t *cert;
+	FILE *file;
 	int i, j, ext_nid, nvctr;
 	int c, opt_idx = 0;
 	const struct option *cmd_opt;
@@ -367,6 +366,11 @@ int main(int argc, char *argv[])
 
 	/* Load private keys from files (or generate new ones) */
 	for (i = 0 ; i < num_keys ; i++) {
+		if (!key_new(&keys[i])) {
+			ERROR("Failed to allocate key container\n");
+			exit(1);
+		}
+
 		/* First try to load the key from disk */
 		if (key_load(&keys[i], &err_code)) {
 			/* Key loaded successfully */
@@ -374,11 +378,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* Key not loaded. Check the error code */
-		if (err_code == KEY_ERR_MALLOC) {
-			/* Cannot allocate memory. Abort. */
-			ERROR("Malloc error while loading '%s'\n", keys[i].fn);
-			exit(1);
-		} else if (err_code == KEY_ERR_LOAD) {
+		if (err_code == KEY_ERR_LOAD) {
 			/* File exists, but it does not contain a valid private
 			 * key. Abort. */
 			ERROR("Error loading '%s'\n", keys[i].fn);
