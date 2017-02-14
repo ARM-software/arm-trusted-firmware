@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,8 +32,8 @@
 #include <asm_macros.S>
 #include <platform_def.h>
 
-	.globl	plat_get_my_stack
-	.globl	plat_set_my_stack
+	.weak	plat_get_my_stack
+	.weak	plat_set_my_stack
 
 	/* -----------------------------------------------------
 	 * uintptr_t plat_get_my_stack (u_register_t mpidr)
