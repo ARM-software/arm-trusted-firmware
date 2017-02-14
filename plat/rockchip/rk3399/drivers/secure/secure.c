@@ -163,7 +163,7 @@ void secure_sgrf_init(void)
 	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(3),
 		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
 	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(4),
-		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
+		      SGRF_SLV_S_WMSK | SGRF_INTSRAM_S);
 }
 
 void secure_sgrf_ddr_rgn_init(void)

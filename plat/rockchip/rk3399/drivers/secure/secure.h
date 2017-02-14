@@ -62,6 +62,8 @@
 
 #define SGRF_PMUSRAM_S			BIT(8)
 
+#define SGRF_INTSRAM_S			BIT(13)
+
 /* ddr region */
 #define SGRF_DDR_RGN_0_16_WMSK		0x0fff  /* DDR RGN 0~16 size mask */
 
