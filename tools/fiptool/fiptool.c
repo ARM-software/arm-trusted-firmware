@@ -80,8 +80,6 @@ static cmd_t cmds[] = {
 
 static image_desc_t *image_desc_head;
 static size_t nr_image_descs;
-static image_t *image_head;
-static size_t nr_images;
 static uuid_t uuid_null = { 0 };
 static int verbose;
 
@@ -200,6 +198,7 @@ static void free_image_desc(image_desc_t *desc)
 	free(desc->name);
 	free(desc->cmdline_name);
 	free(desc->action_arg);
+	free(desc->image);
 	free(desc);
 }
 
@@ -244,74 +243,6 @@ static void fill_image_descs(void)
 	}
 }
 
-static void add_image(image_t *image)
-{
-	image_t **p = &image_head;
-
-	while (*p)
-		p = &(*p)->next;
-
-	assert(*p == NULL);
-	*p = image;
-
-	nr_images++;
-}
-
-static void replace_image(image_t *image)
-{
-	image_t **p = &image_head;
-
-	while (*p) {
-		if (!memcmp(&(*p)->toc_e.uuid, &image->toc_e.uuid,
-			    sizeof(image->toc_e.uuid)))
-			break;
-		p = &(*p)->next;
-	}
-
-	assert(*p != NULL);
-
-	image->next = (*p)->next;
-	*p = image;
-}
-
-static void free_image(image_t *image)
-{
-	free(image->buffer);
-	free(image);
-}
-
-static void remove_image(image_t *image)
-{
-	image_t *tmp, **p = &image_head;
-
-	while (*p) {
-		if (*p == image)
-			break;
-		p = &(*p)->next;
-	}
-
-	assert(*p != NULL);
-
-	tmp = *p;
-	*p = tmp->next;
-	free_image(tmp);
-
-	nr_images--;
-}
-
-static void free_images(void)
-{
-	image_t *image = image_head, *tmp;
-
-	while (image != NULL) {
-		tmp = image->next;
-		free_image(image);
-		image = tmp;
-		nr_images--;
-	}
-	assert(nr_images == 0);
-}
-
 static image_desc_t *lookup_image_desc_from_uuid(const uuid_t *uuid)
 {
 	image_desc_t *desc;
@@ -329,16 +260,6 @@ static image_desc_t *lookup_image_desc_from_opt(const char *opt)
 	for (desc = image_desc_head; desc != NULL; desc = desc->next)
 		if (strcmp(desc->cmdline_name, opt) == 0)
 			return desc;
-	return NULL;
-}
-
-static image_t *lookup_image_from_uuid(const uuid_t *uuid)
-{
-	image_t *image;
-
-	for (image = image_head; image != NULL; image = image->next)
-		if (!memcmp(&image->toc_e.uuid, uuid, sizeof(*uuid)))
-			return image;
 	return NULL;
 }
 
@@ -457,7 +378,8 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 			add_image_desc(desc);
 		}
 
-		add_image(image);
+		assert(desc->image == NULL);
+		desc->image = image;
 
 		toc_entry++;
 	}
@@ -542,7 +464,7 @@ static void md_print(const unsigned char *md, size_t len)
 
 static int info_cmd(int argc, char *argv[])
 {
-	image_t *image;
+	image_desc_t *desc;
 	fip_toc_header_t toc_header;
 
 	if (argc != 2)
@@ -560,11 +482,11 @@ static int info_cmd(int argc, char *argv[])
 		    (unsigned long long)toc_header.flags);
 	}
 
-	for (image = image_head; image != NULL; image = image->next) {
-		image_desc_t *desc;
+	for (desc = image_desc_head; desc != NULL; desc = desc->next) {
+		image_t *image = desc->image;
 
-		desc = lookup_image_desc_from_uuid(&image->toc_e.uuid);
-		assert(desc != NULL);
+		if (image == NULL)
+			continue;
 		printf("%s: offset=0x%llX, size=0x%llX, cmdline=\"--%s\"",
 		       desc->name,
 		       (unsigned long long)image->toc_e.offset_address,
@@ -580,7 +502,6 @@ static int info_cmd(int argc, char *argv[])
 		putchar('\n');
 	}
 
-	free_images();
 	return 0;
 }
 
@@ -593,11 +514,16 @@ static void info_usage(void)
 static int pack_images(const char *filename, uint64_t toc_flags, unsigned long align)
 {
 	FILE *fp;
-	image_t *image;
+	image_desc_t *desc;
 	fip_toc_header_t *toc_header;
 	fip_toc_entry_t *toc_entry;
 	char *buf;
 	uint64_t entry_offset, buf_size, payload_size = 0;
+	size_t nr_images = 0;
+
+	for (desc = image_desc_head; desc != NULL; desc = desc->next)
+		if (desc->image != NULL)
+			nr_images++;
 
 	buf_size = sizeof(fip_toc_header_t) +
 	    sizeof(fip_toc_entry_t) * (nr_images + 1);
@@ -614,7 +540,11 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 	toc_entry = (fip_toc_entry_t *)(toc_header + 1);
 
 	entry_offset = buf_size;
-	for (image = image_head; image != NULL; image = image->next) {
+	for (desc = image_desc_head; desc != NULL; desc = desc->next) {
+		image_t *image = desc->image;
+
+		if (image == NULL)
+			continue;
 		payload_size += image->toc_e.size;
 		entry_offset = (entry_offset + align - 1) & ~(align - 1);
 		image->toc_e.offset_address = entry_offset;
@@ -640,7 +570,11 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 	if (verbose)
 		log_dbgx("Payload size: %zu bytes", payload_size);
 
-	for (image = image_head; image != NULL; image = image->next) {
+	for (desc = image_desc_head; desc != NULL; desc = desc->next) {
+		image_t *image = desc->image;
+
+		if (image == NULL)
+			continue;
 		if (fseek(fp, image->toc_e.offset_address, SEEK_SET))
 			log_errx("Failed to set file position");
 
@@ -664,26 +598,26 @@ static void update_fip(void)
 
 	/* Add or replace images in the FIP file. */
 	for (desc = image_desc_head; desc != NULL; desc = desc->next) {
-		image_t *new_image, *old_image;
+		image_t *image;
 
 		if (desc->action != DO_PACK)
 			continue;
 
-		new_image = read_image_from_file(&desc->uuid,
+		image = read_image_from_file(&desc->uuid,
 		    desc->action_arg);
-		old_image = lookup_image_from_uuid(&desc->uuid);
-		if (old_image != NULL) {
+		if (desc->image != NULL) {
 			if (verbose) {
 				log_dbgx("Replacing %s with %s",
 				    desc->cmdline_name,
 				    desc->action_arg);
 			}
-			replace_image(new_image);
+			free(desc->image);
+			desc->image = image;
 		} else {
 			if (verbose)
 				log_dbgx("Adding image %s",
 				    desc->action_arg);
-			add_image(new_image);
+			desc->image = image;
 		}
 	}
 }
@@ -808,7 +742,6 @@ static int create_cmd(int argc, char *argv[])
 	update_fip();
 
 	pack_images(argv[0], toc_flags, align);
-	free_images();
 	return 0;
 }
 
@@ -922,7 +855,6 @@ static int update_cmd(int argc, char *argv[])
 	update_fip();
 
 	pack_images(outfile, toc_flags, align);
-	free_images();
 	return 0;
 }
 
@@ -1028,7 +960,7 @@ static int unpack_cmd(int argc, char *argv[])
 	/* Unpack all specified images. */
 	for (desc = image_desc_head; desc != NULL; desc = desc->next) {
 		char file[PATH_MAX];
-		image_t *image;
+		image_t *image = desc->image;
 
 		if (!unpack_all && desc->action != DO_UNPACK)
 			continue;
@@ -1041,7 +973,6 @@ static int unpack_cmd(int argc, char *argv[])
 			snprintf(file, sizeof(file), "%s",
 			    desc->action_arg);
 
-		image = lookup_image_from_uuid(&desc->uuid);
 		if (image == NULL) {
 			if (!unpack_all)
 				log_warnx("%s does not exist in %s",
@@ -1059,7 +990,6 @@ static int unpack_cmd(int argc, char *argv[])
 		}
 	}
 
-	free_images();
 	return 0;
 }
 
@@ -1168,17 +1098,15 @@ static int remove_cmd(int argc, char *argv[])
 	parse_fip(argv[0], &toc_header);
 
 	for (desc = image_desc_head; desc != NULL; desc = desc->next) {
-		image_t *image;
-
 		if (desc->action != DO_REMOVE)
 			continue;
 
-		image = lookup_image_from_uuid(&desc->uuid);
-		if (image != NULL) {
+		if (desc->image != NULL) {
 			if (verbose)
 				log_dbgx("Removing %s",
 				    desc->cmdline_name);
-			remove_image(image);
+			free(desc->image);
+			desc->image = NULL;
 		} else {
 			log_warnx("%s does not exist in %s",
 			    desc->cmdline_name, argv[0]);
@@ -1186,7 +1114,6 @@ static int remove_cmd(int argc, char *argv[])
 	}
 
 	pack_images(outfile, toc_header.flags, align);
-	free_images();
 	return 0;
 }
 
