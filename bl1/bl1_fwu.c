@@ -47,6 +47,8 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved);
  */
 static unsigned int sec_exec_image_id = INVALID_IMAGE_ID;
 
+void cm_set_next_context(void *cpu_context);
+
 /*******************************************************************************
  * Top level handler for servicing FWU SMCs.
  ******************************************************************************/
@@ -364,8 +366,10 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 
 	INFO("BL1-FWU: Executing Secure image\n");
 
+#ifdef AARCH64
 	/* Save NS-EL1 system registers. */
 	cm_el1_sysregs_context_save(NON_SECURE);
+#endif
 
 	/* Prepare the image for execution. */
 	bl1_prepare_next_image(image_id);
@@ -373,7 +377,11 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 	/* Update the secure image id. */
 	sec_exec_image_id = image_id;
 
+#ifdef AARCH64
 	*handle = cm_get_context(SECURE);
+#else
+	*handle = smc_get_ctx(SECURE);
+#endif
 	return 0;
 }
 
@@ -419,6 +427,10 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 		resume_sec_state = SECURE;
 	}
 
+	INFO("BL1-FWU: Resuming %s world context\n",
+		(resume_sec_state == SECURE) ? "secure" : "normal");
+
+#ifdef AARCH64
 	/* Save the EL1 system registers of calling world. */
 	cm_el1_sysregs_context_save(caller_sec_state);
 
@@ -428,10 +440,16 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 	/* Update the next context. */
 	cm_set_next_eret_context(resume_sec_state);
 
-	INFO("BL1-FWU: Resuming %s world context\n",
-		(resume_sec_state == SECURE) ? "secure" : "normal");
-
 	*handle = cm_get_context(resume_sec_state);
+#else
+	/* Update the next context. */
+	cm_set_next_context(cm_get_context(resume_sec_state));
+
+	/* Prepare the smc context for the next BL image. */
+	smc_set_next_ctx(resume_sec_state);
+
+	*handle = smc_get_ctx(resume_sec_state);
+#endif
 	return image_param;
 }
 
@@ -461,6 +479,8 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 	image_desc->state = IMAGE_STATE_RESET;
 	sec_exec_image_id = INVALID_IMAGE_ID;
 
+	INFO("BL1-FWU: Resuming Normal world context\n");
+#ifdef AARCH64
 	/*
 	 * Secure world is done so no need to save the context.
 	 * Just restore the Non-Secure context.
@@ -470,9 +490,16 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 	/* Update the next context. */
 	cm_set_next_eret_context(NON_SECURE);
 
-	INFO("BL1-FWU: Resuming Normal world context\n");
-
 	*handle = cm_get_context(NON_SECURE);
+#else
+	/* Update the next context. */
+	cm_set_next_context(cm_get_context(NON_SECURE));
+
+	/* Prepare the smc context for the next BL image. */
+	smc_set_next_ctx(NON_SECURE);
+
+	*handle = smc_get_ctx(NON_SECURE);
+#endif
 	return 0;
 }
 

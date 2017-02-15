@@ -224,9 +224,10 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#if ARM_BL31_IN_DRAM
+#if ARM_BL31_IN_DRAM || defined(AARCH32)
 /*
- * BL31 is loaded in the DRAM.
+ * For AArch32 BL31 is not applicable.
+ * For AArch64 BL31 is loaded in the DRAM.
  * Put BL2 just below BL1.
  */
 #define BL2_BASE			(BL1_RW_BASE - PLAT_ARM_MAX_BL2_SIZE)

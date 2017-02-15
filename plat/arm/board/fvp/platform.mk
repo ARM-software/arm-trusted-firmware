@@ -137,5 +137,9 @@ ifneq (${ENABLE_STACK_PROTECTOR},0)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_stack_protector.c
 endif
 
+ifeq (${ARCH},aarch32)
+    NEED_BL32 := yes
+endif
+
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk

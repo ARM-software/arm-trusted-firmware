@@ -75,6 +75,7 @@ ifneq (${SCP_BL2},)
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/scp_fw_key.crt,--scp-fw-key-cert))
 endif
 
+ifeq (${ARCH},aarch64)
 # Add the BL31 CoT (key cert + img cert + image)
 $(if ${BL31},$(eval $(call CERT_ADD_CMD_OPT,${BL31},--soc-fw,true)),\
              $(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,31),--soc-fw,true)))
@@ -83,6 +84,7 @@ $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/soc_fw_content.crt,--soc-fw-cert))
 $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/soc_fw_key.crt,--soc-fw-key-cert))
 $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/soc_fw_content.crt,--soc-fw-cert))
 $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/soc_fw_key.crt,--soc-fw-key-cert))
+endif
 
 # Add the BL32 CoT (key cert + img cert + image)
 ifeq (${NEED_BL32},yes)
