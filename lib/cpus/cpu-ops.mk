@@ -63,7 +63,7 @@ ERRATA_A53_826319	?=0
 
 # Flag to apply erratum 836870 workaround during reset. This erratum applies
 # only to revision <= r0p3 of the Cortex A53 cpu. From r0p4 and onwards, this
-# erratum workaround is enabled by default.
+# erratum workaround is enabled by default in hardware.
 ERRATA_A53_836870	?=0
 
 # Flag to apply erratum 806969 workaround during reset. This erratum applies
