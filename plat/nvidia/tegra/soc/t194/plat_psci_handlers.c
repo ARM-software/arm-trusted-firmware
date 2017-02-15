@@ -18,6 +18,7 @@
 #include <smmu.h>
 #include <string.h>
 #include <tegra_private.h>
+#include <t194_nvg.h>
 
 extern void prepare_core_pwr_dwn(void);
 
@@ -93,6 +94,7 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint64_t smmu_ctx_base;
 #endif
 	uint32_t val;
+	mce_cstate_info_t cstate_info = { 0 };
 
 	/* get the state ID */
 	pwr_domain_state = target_state->pwr_domain_state;
@@ -131,7 +133,24 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		tegra_smmu_save_context(0);
 #endif
 
-		/* Instruct the MCE to enter system suspend state */
+                /* Prepare for system suspend */
+                cstate_info.cluster = TEGRA_NVG_CLUSTER_CC6;
+                cstate_info.system = TEGRA_NVG_SYSTEM_SC7;
+                cstate_info.system_state_force = 1;
+                cstate_info.update_wake_mask = 1;
+                mce_update_cstate_info(&cstate_info);
+
+		do {
+			val = mce_command_handler(
+					MCE_CMD_IS_SC7_ALLOWED,
+					TEGRA_NVG_CORE_C7,
+					MCE_CORE_SLEEP_TIME_INFINITE,
+					0);
+		} while (val == 0);
+
+                /* Instruct the MCE to enter system suspend state */
+                (void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
+                        TEGRA_NVG_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
 	}
 
 	return PSCI_E_SUCCESS;
