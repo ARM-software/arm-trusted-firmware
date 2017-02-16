@@ -211,7 +211,8 @@
 #define MDCR_DEF_VAL		(MDCR_SDD_BIT | MDCR_SPD32(MDCR_SPD32_DISABLE))
 
 /* HCR definitions */
-#define HCR_RW_BIT		(1ull << 31)
+#define HCR_RW_SHIFT		31
+#define HCR_RW_BIT		(1ull << HCR_RW_SHIFT)
 #define HCR_AMO_BIT		(1 << 5)
 #define HCR_IMO_BIT		(1 << 4)
 #define HCR_FMO_BIT		(1 << 3)

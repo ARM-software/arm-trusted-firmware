@@ -33,6 +33,8 @@
 
 #ifndef AARCH32
 #include <arch.h>
+#include <assert.h>
+#include <stdint.h>
 #endif
 
 /*******************************************************************************
