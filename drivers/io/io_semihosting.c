@@ -95,7 +95,7 @@ static int sh_file_open(io_dev_info_t *dev_info __unused,
 		const uintptr_t spec, io_entity_t *entity)
 {
 	int result = -ENOENT;
-	long sh_result = -1;
+	long sh_result;
 	const io_file_spec_t *file_spec = (const io_file_spec_t *)spec;
 
 	assert(file_spec != NULL);
@@ -151,7 +151,7 @@ static int sh_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		size_t *length_read)
 {
 	int result = -ENOENT;
-	long sh_result = -1;
+	long sh_result;
 	size_t bytes = length;
 	long file_handle;
 
@@ -176,7 +176,7 @@ static int sh_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 static int sh_file_write(io_entity_t *entity, const uintptr_t buffer,
 		size_t length, size_t *length_written)
 {
-	long sh_result = -1;
+	long sh_result;
 	long file_handle;
 	size_t bytes = length;
 
@@ -197,7 +197,7 @@ static int sh_file_write(io_entity_t *entity, const uintptr_t buffer,
 /* Close a file on the semi-hosting device */
 static int sh_file_close(io_entity_t *entity)
 {
-	long sh_result = -1;
+	long sh_result;
 	long file_handle;
 
 	assert(entity != NULL);
