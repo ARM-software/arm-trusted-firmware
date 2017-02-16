@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <bl31.h>
+#include <console.h>
 #include <context_mgmt.h>
 #include <debug.h>
 #include <platform.h>
@@ -128,6 +129,8 @@ void bl31_main(void)
 	 * corresponding to the desired security state after the next ERET.
 	 */
 	bl31_prepare_next_image_entry();
+
+	console_flush();
 
 	/*
 	 * Perform any platform specific runtime setup prior to cold boot exit
