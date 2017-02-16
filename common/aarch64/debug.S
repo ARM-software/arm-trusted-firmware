@@ -98,7 +98,7 @@ func asm_assert
 	asm_print_line_dec
 	bl	plat_crash_console_flush
 _assert_loop:
-	b	_assert_loop
+	no_ret	plat_panic_handler
 endfunc asm_assert
 #endif
 

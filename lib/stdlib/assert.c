@@ -42,5 +42,5 @@ void __assert (const char *function, const char *file, unsigned int line,
 
 	console_flush();
 
-	while(1);
+	plat_panic_handler();
 }

@@ -75,7 +75,7 @@ func do_panic
 
 1:
 	mov	lr, r6
-	b	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc do_panic
 
 	/***********************************************************
