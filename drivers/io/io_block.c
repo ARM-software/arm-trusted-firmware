@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@
 #include <io_storage.h>
 #include <platform_def.h>
 #include <string.h>
+#include <utils.h>
 
 typedef struct {
 	io_block_dev_spec_t	*dev_spec;
@@ -135,8 +136,8 @@ static int free_dev_info(io_dev_info_t *dev_info)
 	result = find_first_block_state(state->dev_spec, &index);
 	if (result ==  0) {
 		/* free if device info is valid */
-		memset(state, 0, sizeof(block_dev_state_t));
-		memset(dev_info, 0, sizeof(io_dev_info_t));
+		zeromem(state, sizeof(block_dev_state_t));
+		zeromem(dev_info, sizeof(io_dev_info_t));
 		--block_dev_count;
 	}
 

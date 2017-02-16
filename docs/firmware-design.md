@@ -1342,7 +1342,7 @@ All BL images share the following requirements:
 
 The following linker symbols are defined for this purpose:
 
-*   `__BSS_START__`          Must be aligned on a 16-byte boundary.
+*   `__BSS_START__`
 *   `__BSS_SIZE__`
 *   `__COHERENT_RAM_START__` Must be aligned on a page-size boundary.
 *   `__COHERENT_RAM_END__`   Must be aligned on a page-size boundary.

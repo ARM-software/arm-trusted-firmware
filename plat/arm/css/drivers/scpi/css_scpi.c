@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <string.h>
+#include <utils.h>
 #include "css_mhu.h"
 #include "css_scpi.h"
 
@@ -204,7 +205,8 @@ int scpi_get_css_power_state(unsigned int mpidr, unsigned int *cpu_state_p,
 	scpi_secure_message_start();
 
 	/* Populate request headers */
-	cmd = memset(SCPI_CMD_HEADER_AP_TO_SCP, 0, sizeof(*cmd));
+	zeromem(SCPI_CMD_HEADER_AP_TO_SCP, sizeof(*cmd));
+	cmd = SCPI_CMD_HEADER_AP_TO_SCP;
 	cmd->id = SCPI_CMD_GET_CSS_POWER_STATE;
 
 	/*

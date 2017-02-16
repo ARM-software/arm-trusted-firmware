@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -113,7 +113,8 @@ SECTIONS
 
     /*
      * The .bss section gets initialised to 0 at runtime.
-     * Its base address must be 16-byte aligned.
+     * Its base address should be 16-byte aligned for better performance of the
+     * zero-initialization code.
      */
     .bss (NOLOAD) : ALIGN(16) {
         __BSS_START__ = .;

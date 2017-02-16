@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <dram.h>
+#include <utils.h>
 #include "dram_spec_timing.h"
 
 static const uint8_t ddr3_cl_cwl[][7] = {
@@ -228,7 +229,7 @@ static void ddr3_get_parameter(struct timing_related_config *timing_config,
 	uint32_t ddr_capability_per_die = get_max_die_capability(timing_config);
 	uint32_t tmp;
 
-	memset((void *)pdram_timing, 0, sizeof(struct dram_timing_t));
+	zeromem((void *)pdram_timing, sizeof(struct dram_timing_t));
 	pdram_timing->mhz = nmhz;
 	pdram_timing->al = 0;
 	pdram_timing->bl = timing_config->bl;
@@ -441,7 +442,7 @@ static void lpddr2_get_parameter(struct timing_related_config *timing_config,
 	uint32_t ddr_capability_per_die = get_max_die_capability(timing_config);
 	uint32_t tmp, trp_tmp, trppb_tmp, tras_tmp, twr_tmp, bl_tmp;
 
-	memset((void *)pdram_timing, 0, sizeof(struct dram_timing_t));
+	zeromem((void *)pdram_timing, sizeof(struct dram_timing_t));
 	pdram_timing->mhz = nmhz;
 	pdram_timing->al = 0;
 	pdram_timing->bl = timing_config->bl;
@@ -678,7 +679,7 @@ static void lpddr3_get_parameter(struct timing_related_config *timing_config,
 	uint32_t ddr_capability_per_die = get_max_die_capability(timing_config);
 	uint32_t tmp, trp_tmp, trppb_tmp, tras_tmp, twr_tmp, bl_tmp;
 
-	memset((void *)pdram_timing, 0, sizeof(struct dram_timing_t));
+	zeromem((void *)pdram_timing, sizeof(struct dram_timing_t));
 	pdram_timing->mhz = nmhz;
 	pdram_timing->al = 0;
 	pdram_timing->bl = timing_config->bl;
@@ -968,7 +969,7 @@ static void lpddr4_get_parameter(struct timing_related_config *timing_config,
 	uint32_t ddr_capability_per_die = get_max_die_capability(timing_config);
 	uint32_t tmp, trp_tmp, trppb_tmp, tras_tmp;
 
-	memset((void *)pdram_timing, 0, sizeof(struct dram_timing_t));
+	zeromem((void *)pdram_timing, sizeof(struct dram_timing_t));
 	pdram_timing->mhz = nmhz;
 	pdram_timing->al = 0;
 	pdram_timing->bl = timing_config->bl;

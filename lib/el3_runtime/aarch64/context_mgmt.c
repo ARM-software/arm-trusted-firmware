@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,7 @@
 #include <platform_def.h>
 #include <smcc_helpers.h>
 #include <string.h>
+#include <utils.h>
 
 
 /*******************************************************************************
@@ -91,7 +92,7 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	security_state = GET_SECURITY_STATE(ep->h.attr);
 
 	/* Clear any residual register values from the context */
-	memset(ctx, 0, sizeof(*ctx));
+	zeromem(ctx, sizeof(*ctx));
 
 	/*
 	 * Base the context SCR on the current value, adjust for entry point

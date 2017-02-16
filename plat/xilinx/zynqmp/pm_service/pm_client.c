@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@
 #include <bl_common.h>
 #include <mmio.h>
 #include <string.h>
+#include <utils.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
@@ -188,7 +189,7 @@ static void pm_client_set_wakeup_sources(void)
 	uint8_t pm_wakeup_nodes_set[NODE_MAX];
 	uintptr_t isenabler1 = BASE_GICD_BASE + GICD_ISENABLER + 4;
 
-	memset(&pm_wakeup_nodes_set, 0, sizeof(pm_wakeup_nodes_set));
+	zeromem(&pm_wakeup_nodes_set, sizeof(pm_wakeup_nodes_set));
 
 	for (reg_num = 0; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;

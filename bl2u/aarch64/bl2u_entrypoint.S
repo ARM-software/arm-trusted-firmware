@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -94,7 +94,7 @@ func bl2u_entrypoint
 	 */
 	ldr	x0, =__BSS_START__
 	ldr	x1, =__BSS_SIZE__
-	bl	zeromem16
+	bl	zeromem
 
 	/* --------------------------------------------
 	 * Allocate a stack whose memory will be marked

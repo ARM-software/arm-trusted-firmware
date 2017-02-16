@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <bl_common.h>
 #include <context_mgmt.h>
 #include <string.h>
+#include <utils.h>
 #include "opteed_private.h"
 
 /*******************************************************************************
@@ -73,7 +74,7 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 						      DAIF_FIQ_BIT |
 							DAIF_IRQ_BIT |
 							DAIF_ABT_BIT);
-	memset(&optee_entry_point->args, 0, sizeof(optee_entry_point->args));
+	zeromem(&optee_entry_point->args, sizeof(optee_entry_point->args));
 }
 
 /*******************************************************************************

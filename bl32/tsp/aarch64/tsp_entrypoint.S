@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -120,12 +120,12 @@ func tsp_entrypoint
 	 */
 	ldr	x0, =__BSS_START__
 	ldr	x1, =__BSS_SIZE__
-	bl	zeromem16
+	bl	zeromem
 
 #if USE_COHERENT_MEM
 	ldr	x0, =__COHERENT_RAM_START__
 	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
-	bl	zeromem16
+	bl	zeromem
 #endif
 
 	/* --------------------------------------------

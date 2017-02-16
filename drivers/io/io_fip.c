@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@
 #include <platform_def.h>
 #include <stdint.h>
 #include <string.h>
+#include <utils.h>
 #include <uuid.h>
 
 /* Useful for printing UUIDs when debugging.*/
@@ -351,7 +352,7 @@ static int fip_file_close(io_entity_t *entity)
 	 * If we had malloc() we would free() here.
 	 */
 	if (current_file.entry.offset_address != 0) {
-		memset(&current_file, 0, sizeof(current_file));
+		zeromem(&current_file, sizeof(current_file));
 	}
 
 	/* Clear the Entity info. */
