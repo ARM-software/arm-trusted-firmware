@@ -37,6 +37,9 @@ the different software components required to boot a Linux system:
 *   Linux kernel image
 *   Root filesystem
 
+Note: the ARM TF v1.3 release was tested with Linaro Release 16.06, and the
+latest version of ARM TF is tested with Linaro Release 16.12.
+
 This document also assumes that the user is familiar with the FVP models and
 the different command line options available to launch the model.
 
@@ -879,8 +882,8 @@ Firmware, obtain the additional required firmware, and pack it all together in
 a single FIP binary. It assumes that a [Linaro Release][Linaro Release Notes]
 has been installed.
 
-Note currently [Linaro Release][Linaro Release Notes] only includes pre-built
-binaries for AArch64. For AArch32, pre-built binaries are not available.
+Note: Linaro Release 16.06 only includes pre-built binaries for AArch64. For
+AArch32, pre-built binaries are only available from Linaro Release 16.12.
 
 Note: follow the full instructions for one platform before switching to a
 different one. Mixing instructions for different platforms may result in
@@ -1131,6 +1134,9 @@ downloaded for free from [ARM's website][ARM FVP website].
 Please refer to the FVP documentation for a detailed description of the model
 parameter options. A brief description of the important ones that affect the ARM
 Trusted Firmware and normal world software behavior is provided below.
+
+Note the instructions in the following sections assume that Linaro Release 16.06
+is being used.
 
 ### Obtaining the Flattened Device Trees
 
