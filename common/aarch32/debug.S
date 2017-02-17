@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -70,6 +70,9 @@ func do_panic
 	/* Print new line */
 	ldr	r4, =panic_end
 	bl	asm_print_str
+
+	bl	plat_crash_console_flush
+
 1:
 	mov	lr, r6
 	b	plat_panic_handler
@@ -140,6 +143,9 @@ dec_print_loop:
 	udiv	r5, r5, r6			/* Reduce divisor */
 	cmp	r5, #0
 	bne	dec_print_loop
+
+	bl	plat_crash_console_flush
+
 1:
 	no_ret	plat_panic_handler
 endfunc asm_assert
