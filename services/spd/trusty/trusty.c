@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,6 +50,7 @@
 
 struct trusty_stack {
 	uint8_t space[PLATFORM_STACK_SIZE] __aligned(16);
+	uint32_t end;
 };
 
 struct trusty_cpu_ctx {
@@ -326,7 +327,7 @@ static int32_t trusty_init(void)
 	cm_set_next_eret_context(SECURE);
 
 	ctx->saved_security_state = ~0; /* initial saved state is invalid */
-	trusty_init_context_stack(&ctx->saved_sp, &ctx->secure_stack);
+	trusty_init_context_stack(&ctx->saved_sp, &ctx->secure_stack.end);
 
 	trusty_context_switch_helper(&ctx->saved_sp, &zero_args);
 
