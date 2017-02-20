@@ -39,7 +39,7 @@
 #include <platform.h>
 #include <string.h>
 #include <utils.h>
-#include <xlat_tables.h>
+#include <xlat_tables_defs.h>
 
 uintptr_t page_align(uintptr_t value, unsigned dir)
 {
