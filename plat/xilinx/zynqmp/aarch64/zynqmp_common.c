@@ -10,6 +10,7 @@
 #include <platform.h>
 #include <xlat_tables.h>
 #include "../zynqmp_private.h"
+#include "pm_api_sys.h"
 
 /*
  * Table of regions to map using the MMU.
@@ -241,7 +242,12 @@ int zynqmp_is_pmu_up(void)
 
 unsigned int zynqmp_get_bootmode(void)
 {
-	uint32_t r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
+	uint32_t r;
+
+	if (zynqmp_is_pmu_up())
+		pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r);
+	else
+		r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
 
 	return r & CRL_APB_BOOT_MODE_MASK;
 }
