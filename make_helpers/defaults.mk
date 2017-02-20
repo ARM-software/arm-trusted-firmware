@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,10 @@ ARCH				:= aarch64
 # Determine the version of ARM CCI product used in the platform. The platform
 # port can change this value if needed.
 ARM_CCI_PRODUCT_ID		:= 400
+
+# ARM Architecture major and minor versions: 8.0 by default.
+ARM_ARCH_MAJOR			:= 8
+ARM_ARCH_MINOR			:= 0
 
 # Determine the version of ARM GIC architecture to use for interrupt management
 # in EL3. The platform port can change this value if needed.
