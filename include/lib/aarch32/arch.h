@@ -125,6 +125,14 @@
 #define SCTLR_AFE_BIT		(1 << 29)
 #define SCTLR_TE_BIT		(1 << 30)
 
+/* SDCR definitions */
+#define SDCR_SPD(x)		((x) << 14)
+#define SDCR_SPD_LEGACY		0x0
+#define SDCR_SPD_DISABLE	0x2
+#define SDCR_SPD_ENABLE		0x3
+
+#define SDCR_DEF_VAL		SDCR_SPD(SDCR_SPD_DISABLE)
+
 /* HSCTLR definitions */
 #define HSCTLR_RES1 	((1 << 29) | (1 << 28) | (1 << 23) | (1 << 22)	\
 			| (1 << 18) | (1 << 16) | (1 << 11) | (1 << 4)	\
@@ -345,6 +353,7 @@
 /* System register defines The format is: coproc, opt1, CRn, CRm, opt2 */
 #define SCR		p15, 0, c1, c1, 0
 #define SCTLR		p15, 0, c1, c0, 0
+#define SDCR		p15, 0, c1, c3, 1
 #define MPIDR		p15, 0, c0, c0, 5
 #define MIDR		p15, 0, c0, c0, 0
 #define VBAR		p15, 0, c12, c0, 0

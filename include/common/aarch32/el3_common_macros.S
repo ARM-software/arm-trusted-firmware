@@ -98,6 +98,11 @@
 	orr	r0, r0, #FPEXC_EN_BIT
 	vmsr	FPEXC, r0
 	isb
+
+	/* Disable secure self-hosted invasive debug. */
+	ldr	r0, =SDCR_DEF_VAL
+	stcopr	r0, SDCR
+
 	.endm
 
 /* -----------------------------------------------------------------------------

@@ -195,6 +195,15 @@
 #define SCR_NS_BIT		(1 << 0)
 #define SCR_VALID_BIT_MASK	0x2f8f
 
+/* MDCR definitions */
+#define MDCR_SPD32(x)		((x) << 14)
+#define MDCR_SPD32_LEGACY	0x0
+#define MDCR_SPD32_DISABLE	0x2
+#define MDCR_SPD32_ENABLE	0x3
+#define MDCR_SDD_BIT		(1 << 16)
+
+#define MDCR_DEF_VAL		(MDCR_SDD_BIT | MDCR_SPD32(MDCR_SPD32_DISABLE))
+
 /* HCR definitions */
 #define HCR_RW_BIT		(1ull << 31)
 #define HCR_AMO_BIT		(1 << 5)

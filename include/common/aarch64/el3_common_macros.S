@@ -79,10 +79,11 @@
 	msr	scr_el3, x0
 
 	/* ---------------------------------------------------------------------
-	 * Reset registers that may have architecturally unknown reset values
+	 * Disable secure self-hosted invasive debug.
 	 * ---------------------------------------------------------------------
 	 */
-	msr	mdcr_el3, xzr
+	mov_imm	x0, MDCR_DEF_VAL
+	msr	mdcr_el3, x0
 
 	/* ---------------------------------------------------------------------
 	 * Enable External Aborts and SError Interrupts now that the exception
