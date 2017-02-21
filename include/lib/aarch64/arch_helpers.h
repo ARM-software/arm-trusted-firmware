@@ -352,6 +352,14 @@ DEFINE_RENAME_SYSREG_WRITE_FUNC(icc_eoir1_el1, ICC_EOIR1_EL1)
 #define IS_IN_EL1() IS_IN_EL(1)
 #define IS_IN_EL3() IS_IN_EL(3)
 
+/*
+ * Check if an EL is implemented from AA64PFR0 register fields. 'el' argument
+ * must be one of 1, 2 or 3.
+ */
+#define EL_IMPLEMENTED(el) \
+	((read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL##el##_SHIFT) \
+		& ID_AA64PFR0_ELX_MASK)
+
 /* Previously defined accesor functions with incomplete register names  */
 
 #define read_current_el()	read_CurrentEl()

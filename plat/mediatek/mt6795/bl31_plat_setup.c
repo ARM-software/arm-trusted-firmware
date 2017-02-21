@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -360,20 +360,15 @@ void enable_ns_access_to_cpuectlr(void)
 static entry_point_info_t *bl31_plat_get_next_kernel64_ep_info(void)
 {
 	entry_point_info_t *next_image_info;
-	unsigned long el_status;
 	unsigned int mode;
 
-	el_status = 0;
 	mode = 0;
 
 	/* Kernel image is always non-secured */
 	next_image_info = &bl33_image_ep_info;
 
 	/* Figure out what mode we enter the non-secure world in */
-	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
-	el_status &= ID_AA64PFR0_ELX_MASK;
-
-	if (el_status) {
+	if (EL_IMPLEMENTED(2)) {
 		INFO("Kernel_EL2\n");
 		mode = MODE_EL2;
 	} else{
