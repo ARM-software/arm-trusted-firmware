@@ -52,71 +52,10 @@ typedef struct {
 static file_state_t current_file = {0};
 
 /* Identify the device type as memmap */
-io_type_t device_type_memmap(void)
+static io_type_t device_type_memmap(void)
 {
 	return IO_TYPE_MEMMAP;
 }
-
-/* Memmap device functions */
-static int memmap_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info);
-static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
-			     io_entity_t *entity);
-static int memmap_block_seek(io_entity_t *entity, int mode,
-			     ssize_t offset);
-static int memmap_block_len(io_entity_t *entity, size_t *length);
-static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
-			     size_t length, size_t *length_read);
-static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
-			      size_t length, size_t *length_written);
-static int memmap_block_close(io_entity_t *entity);
-static int memmap_dev_close(io_dev_info_t *dev_info);
-
-
-static const io_dev_connector_t memmap_dev_connector = {
-	.dev_open = memmap_dev_open
-};
-
-
-static const io_dev_funcs_t memmap_dev_funcs = {
-	.type = device_type_memmap,
-	.open = memmap_block_open,
-	.seek = memmap_block_seek,
-	.size = memmap_block_len,
-	.read = memmap_block_read,
-	.write = memmap_block_write,
-	.close = memmap_block_close,
-	.dev_init = NULL,
-	.dev_close = memmap_dev_close,
-};
-
-
-/* No state associated with this device so structure can be const */
-static const io_dev_info_t memmap_dev_info = {
-	.funcs = &memmap_dev_funcs,
-	.info = (uintptr_t)NULL
-};
-
-
-/* Open a connection to the memmap device */
-static int memmap_dev_open(const uintptr_t dev_spec __unused,
-			   io_dev_info_t **dev_info)
-{
-	assert(dev_info != NULL);
-	*dev_info = (io_dev_info_t *)&memmap_dev_info; /* cast away const */
-
-	return 0;
-}
-
-
-
-/* Close a connection to the memmap device */
-static int memmap_dev_close(io_dev_info_t *dev_info)
-{
-	/* NOP */
-	/* TODO: Consider tracking open files and cleaning them up here */
-	return 0;
-}
-
 
 /* Open a file on the memmap device */
 static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
@@ -149,7 +88,6 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	return result;
 }
 
-
 /* Seek to a particular file offset on the memmap device */
 static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 {
@@ -173,7 +111,6 @@ static int memmap_block_seek(io_entity_t *entity, int mode, ssize_t offset)
 	return result;
 }
 
-
 /* Return the size of a file on the memmap device */
 static int memmap_block_len(io_entity_t *entity, size_t *length)
 {
@@ -184,7 +121,6 @@ static int memmap_block_len(io_entity_t *entity, size_t *length)
 
 	return 0;
 }
-
 
 /* Read data from a file on the memmap device */
 static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
@@ -213,7 +149,6 @@ static int memmap_block_read(io_entity_t *entity, uintptr_t buffer,
 	return 0;
 }
 
-
 /* Write data to a file on the memmap device */
 static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
 			      size_t length, size_t *length_written)
@@ -241,7 +176,6 @@ static int memmap_block_write(io_entity_t *entity, const uintptr_t buffer,
 	return 0;
 }
 
-
 /* Close a file on the memmap device */
 static int memmap_block_close(io_entity_t *entity)
 {
@@ -255,6 +189,45 @@ static int memmap_block_close(io_entity_t *entity)
 	return 0;
 }
 
+/* Close a connection to the memmap device */
+static int memmap_dev_close(io_dev_info_t *dev_info)
+{
+	/* NOP */
+	/* TODO: Consider tracking open files and cleaning them up here */
+	return 0;
+}
+
+static const io_dev_funcs_t memmap_dev_funcs = {
+	.type = device_type_memmap,
+	.open = memmap_block_open,
+	.seek = memmap_block_seek,
+	.size = memmap_block_len,
+	.read = memmap_block_read,
+	.write = memmap_block_write,
+	.close = memmap_block_close,
+	.dev_init = NULL,
+	.dev_close = memmap_dev_close,
+};
+
+/* No state associated with this device so structure can be const */
+static const io_dev_info_t memmap_dev_info = {
+	.funcs = &memmap_dev_funcs,
+	.info = (uintptr_t)NULL
+};
+
+/* Open a connection to the memmap device */
+static int memmap_dev_open(const uintptr_t dev_spec __unused,
+			   io_dev_info_t **dev_info)
+{
+	assert(dev_info != NULL);
+	*dev_info = (io_dev_info_t *)&memmap_dev_info; /* cast away const */
+
+	return 0;
+}
+
+static const io_dev_connector_t memmap_dev_connector = {
+	.dev_open = memmap_dev_open
+};
 
 /* Exported functions */
 
