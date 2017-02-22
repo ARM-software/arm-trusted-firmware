@@ -331,8 +331,8 @@ performed.
 *   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
     image loading, which provides more flexibility and scalability around what
     images are loaded and executed during boot. Default is 0.
-    Note: `TRUSTED_BOARD_BOOT` is currently not supported when `LOAD_IMAGE_V2`
-    is enabled.
+    Note: `TRUSTED_BOARD_BOOT` is currently only supported for AArch64 when
+    `LOAD_IMAGE_V2` is enabled.
 
 *   `LOG_LEVEL`: Chooses the log level, which controls the amount of console log
     output compiled into the build. This should be one of the following:
