@@ -397,38 +397,19 @@ static const spd_pm_ops_t trusty_pm = {
 static int32_t trusty_setup(void)
 {
 	entry_point_info_t *ep_info;
-	uint32_t instr;
 	uint32_t flags;
 	int ret;
-	int aarch32 = 0;
 
+	/* Get trusty's entry point info */
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	if (!ep_info) {
 		INFO("Trusty image missing.\n");
 		return -1;
 	}
 
-	instr = *(uint32_t *)ep_info->pc;
-
-	if (instr >> 24 == 0xea) {
-		INFO("trusty: Found 32 bit image\n");
-		aarch32 = 1;
-	} else if (instr >> 8 == 0xd53810) {
-		INFO("trusty: Found 64 bit image\n");
-	} else {
-		INFO("trusty: Found unknown image, 0x%x\n", instr);
-	}
-
+	/* Trusty runs in AARCH64 mode */
 	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
-	if (!aarch32)
-		ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
-					DISABLE_ALL_EXCEPTIONS);
-	else
-		ep_info->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
-					    SPSR_E_LITTLE,
-					    DAIF_FIQ_BIT |
-					    DAIF_IRQ_BIT |
-					    DAIF_ABT_BIT);
+	ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
 	/*
 	 * arg0 = TZDRAM aperture available for BL32
@@ -438,10 +419,13 @@ static int32_t trusty_setup(void)
 	ep_info->args.arg1 = ep_info->args.arg2;
 	ep_info->args.arg2 = TRUSTY_PARAMS_LEN_BYTES;
 
+	/* register init handler */
 	bl31_register_bl32_init(trusty_init);
 
+	/* register power management hooks */
 	psci_register_spd_pm_hook(&trusty_pm);
 
+	/* register interrupt handler */
 	flags = 0;
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	ret = register_interrupt_type_handler(INTR_TYPE_S_EL1,
