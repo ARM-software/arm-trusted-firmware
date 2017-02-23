@@ -28,9 +28,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-TEGRA_BOOT_UART_BASE		:= 0x70006300
-$(eval $(call add_define,TEGRA_BOOT_UART_BASE))
-
 TZDRAM_BASE			:= 0xF5C00000
 $(eval $(call add_define,TZDRAM_BASE))
 
@@ -40,7 +37,16 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER	:= 2
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
+MAX_XLAT_TABLES			:= 3
+$(eval $(call add_define,MAX_XLAT_TABLES))
+
+MAX_MMAP_REGIONS		:= 8
+$(eval $(call add_define,MAX_MMAP_REGIONS))
+
 BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
+				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
+				${COMMON_DIR}/drivers/memctrl/memctrl_v1.c	\
 				${SOC_DIR}/plat_psci_handlers.c		\
+				${SOC_DIR}/plat_sip_calls.c		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c

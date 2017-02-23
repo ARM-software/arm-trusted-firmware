@@ -174,7 +174,7 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		 * Security configuration to allow DRAM/device access.
 		 */
 		plat_params = bl31_get_plat_params();
-		tegra_memctrl_tzdram_setup(tegra_bl31_phys_base,
+		tegra_memctrl_tzdram_setup(plat_params->tzdram_base,
 			plat_params->tzdram_size);
 	}
 

@@ -62,6 +62,22 @@ TARGET_SOC=<target-soc e.g. t210|t132> SPD=<dispatcher e.g. tlkd> bl31'
 Platforms wanting to use different TZDRAM_BASE, can add 'TZDRAM_BASE=<value>'
 to the build command line.
 
+The Tegra platform code expects a pointer to the following platform specific
+structure via 'x1' register from the BL2 layer which is used by the
+bl31_early_platform_setup() handler to extract the TZDRAM carveout base and
+size for loading the Trusted OS and the UART port ID to be used. The Tegra
+memory controller driver programs this base/size in order to restrict NS
+accesses.
+
+typedef struct plat_params_from_bl2 {
+	/* TZ memory size */
+	uint64_t tzdram_size;
+	/* TZ memory base */
+	uint64_t tzdram_base;
+	/* UART port ID */
+	int uart_id;
+} plat_params_from_bl2_t;
+
 Power Management
 ================
 The PSCI implementation expects each platform to expose the 'power state'

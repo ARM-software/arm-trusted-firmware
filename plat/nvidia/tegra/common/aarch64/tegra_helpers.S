@@ -35,6 +35,22 @@
 #include <cortex_a53.h>
 #include <tegra_def.h>
 
+#define MIDR_PN_CORTEX_A57		0xD07
+
+/*******************************************************************************
+ * Implementation defined ACTLR_EL3 bit definitions
+ ******************************************************************************/
+#define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)
+#define ACTLR_EL3_L2ECTLR_BIT		(1 << 5)
+#define ACTLR_EL3_L2CTLR_BIT		(1 << 4)
+#define ACTLR_EL3_CPUECTLR_BIT		(1 << 1)
+#define ACTLR_EL3_CPUACTLR_BIT		(1 << 0)
+#define ACTLR_EL3_ENABLE_ALL_ACCESS	(ACTLR_EL3_L2ACTLR_BIT | \
+					 ACTLR_EL3_L2ECTLR_BIT | \
+					 ACTLR_EL3_L2CTLR_BIT | \
+					 ACTLR_EL3_CPUECTLR_BIT | \
+					 ACTLR_EL3_CPUACTLR_BIT)
+
 	/* Global functions */
 	.globl	plat_is_my_cpu_primary
 	.globl	plat_my_core_pos
@@ -50,6 +66,7 @@
 	.globl	tegra_sec_entry_point
 	.globl	ns_image_entrypoint
 	.globl	tegra_bl31_phys_base
+	.globl	tegra_console_base
 
 	/* ---------------------
 	 * Common CPU init code
@@ -57,7 +74,18 @@
 	 */
 .macro	cpu_init_common
 
-#if ENABLE_L2_DYNAMIC_RETENTION
+	/* ------------------------------------------------
+	 * We enable procesor retention and L2/CPUECTLR NS
+	 * access for A57 CPUs only.
+	 * ------------------------------------------------
+	 */
+	mrs	x0, midr_el1
+	mov	x1, #(MIDR_PN_MASK << MIDR_PN_SHIFT)
+	and	x0, x0, x1
+	lsr	x0, x0, #MIDR_PN_SHIFT
+	cmp	x0, #MIDR_PN_CORTEX_A57
+	b.ne	1f
+
 	/* ---------------------------
 	 * Enable processor retention
 	 * ---------------------------
@@ -68,18 +96,14 @@
 	orr	x0, x0, x1
 	msr	L2ECTLR_EL1, x0
 	isb
-#endif
 
-#if ENABLE_CPU_DYNAMIC_RETENTION
 	mrs	x0, CPUECTLR_EL1
 	mov	x1, #RETENTION_ENTRY_TICKS_512 << CPUECTLR_CPU_RET_CTRL_SHIFT
 	bic	x0, x0, #CPUECTLR_CPU_RET_CTRL_MASK
 	orr	x0, x0, x1
 	msr	CPUECTLR_EL1, x0
 	isb
-#endif
 
-#if ENABLE_NS_L2_CPUECTRL_RW_ACCESS
 	/* -------------------------------------------------------
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
 	 * -------------------------------------------------------
@@ -88,13 +112,12 @@
 	msr	actlr_el3, x0
 	msr	actlr_el2, x0
 	isb
-#endif
 
 	/* --------------------------------
 	 * Enable the cycle count register
 	 * --------------------------------
 	 */
-	mrs	x0, pmcr_el0
+1:	mrs	x0, pmcr_el0
 	ubfx	x0, x0, #11, #5		// read PMCR.N field
 	mov	x1, #1
 	lsl	x0, x1, x0
@@ -158,6 +181,20 @@ func plat_get_my_entrypoint
 endfunc plat_get_my_entrypoint
 
 	/* -----------------------------------------------------
+	 * int platform_get_core_pos(int mpidr);
+	 *
+	 * With this function: CorePos = (ClusterId * 4) +
+	 *                                CoreId
+	 * -----------------------------------------------------
+	 */
+func platform_get_core_pos
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
+	ret
+endfunc platform_get_core_pos
+
+	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
 	 *
 	 * This function performs any platform specific actions
@@ -190,7 +227,8 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, TEGRA_BOOT_UART_BASE
+	adr	x0, tegra_console_base
+	ldr	x0, [x0]
 	mov_imm	x1, TEGRA_BOOT_UART_CLK_IN_HZ
 	mov_imm	x2, TEGRA_CONSOLE_BAUDRATE
 	b	console_core_init
@@ -204,7 +242,8 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm	x1, TEGRA_BOOT_UART_BASE
+	adr	x1, tegra_console_base
+	ldr	x1, [x1]
 	b	console_core_putc
 endfunc plat_crash_console_putc
 
@@ -365,4 +404,11 @@ ns_image_entrypoint:
 	 * --------------------------------------------------
 	 */
 tegra_bl31_phys_base:
+	.quad	0
+
+	/* --------------------------------------------------
+	 * UART controller base for console init
+	 * --------------------------------------------------
+	 */
+tegra_console_base:
 	.quad	0

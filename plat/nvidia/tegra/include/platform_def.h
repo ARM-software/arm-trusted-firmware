@@ -84,8 +84,6 @@
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define ADDR_SPACE_SIZE			(1ull << 32)
-#define MAX_XLAT_TABLES			3
-#define MAX_MMAP_REGIONS		8
 
 /*******************************************************************************
  * Some data must be aligned on the biggest cache line size in the platform.

@@ -31,8 +31,9 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
-#include <mmio.h>
 #include <memctrl.h>
+#include <memctrl_v1.h>
+#include <mmio.h>
 #include <string.h>
 #include <tegra_def.h>
 #include <utils.h>
@@ -54,7 +55,7 @@ void tegra_memctrl_setup(void)
 	 * Setup the Memory controller to allow only secure accesses to
 	 * the TZDRAM carveout
 	 */
-	INFO("Configuring SMMU\n");
+	INFO("Tegra Memory Controller (v1)\n");
 
 	/* allow translations for all MC engines */
 	tegra_mc_write_32(MC_SMMU_TRANSLATION_ENABLE_0_0,

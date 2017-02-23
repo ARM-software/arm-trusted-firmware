@@ -28,23 +28,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-TEGRA_BOOT_UART_BASE 			:= 0x70006000
-$(eval $(call add_define,TEGRA_BOOT_UART_BASE))
-
 TZDRAM_BASE				:= 0xFDC00000
 $(eval $(call add_define,TZDRAM_BASE))
 
 ERRATA_TEGRA_INVALIDATE_BTB_AT_BOOT	:= 1
 $(eval $(call add_define,ERRATA_TEGRA_INVALIDATE_BTB_AT_BOOT))
-
-ENABLE_NS_L2_CPUECTRL_RW_ACCESS		:= 1
-$(eval $(call add_define,ENABLE_NS_L2_CPUECTRL_RW_ACCESS))
-
-ENABLE_L2_DYNAMIC_RETENTION		:= 1
-$(eval $(call add_define,ENABLE_L2_DYNAMIC_RETENTION))
-
-ENABLE_CPU_DYNAMIC_RETENTION		:= 1
-$(eval $(call add_define,ENABLE_CPU_DYNAMIC_RETENTION))
 
 PLATFORM_CLUSTER_COUNT			:= 2
 $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
@@ -52,9 +40,18 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
+MAX_XLAT_TABLES				:= 3
+$(eval $(call add_define,MAX_XLAT_TABLES))
+
+MAX_MMAP_REGIONS			:= 8
+$(eval $(call add_define,MAX_MMAP_REGIONS))
+
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
+				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
+				${COMMON_DIR}/drivers/memctrl/memctrl_v1.c	\
 				${SOC_DIR}/plat_psci_handlers.c		\
+				${SOC_DIR}/plat_sip_calls.c		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c
 

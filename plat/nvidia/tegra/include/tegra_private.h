@@ -43,7 +43,12 @@
 #define TEGRA_DRAM_END		0x27FFFFFFF
 
 typedef struct plat_params_from_bl2 {
+	/* TZ memory size */
 	uint64_t tzdram_size;
+	/* TZ memory base */
+	uint64_t tzdram_base;
+	/* UART port ID */
+	int uart_id;
 } plat_params_from_bl2_t;
 
 /* Declarations for plat_psci_handlers.c */
@@ -52,6 +57,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 
 /* Declarations for plat_setup.c */
 const mmap_region_t *plat_get_mmio_map(void);
+uint32_t plat_get_console_from_id(int id);
 
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);

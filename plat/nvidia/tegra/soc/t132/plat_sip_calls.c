@@ -43,7 +43,7 @@
 #define SCR_RW_BITPOS		__builtin_ctz(SCR_RW_BIT)
 
 /*******************************************************************************
- * Tegra SiP SMCs
+ * Tegra132 SiP SMCs
  ******************************************************************************/
 #define TEGRA_SIP_NEW_VIDEOMEM_REGION		0x82000003
 #define TEGRA_SIP_AARCH_SWITCH			0x82000004
@@ -58,7 +58,7 @@
 /*******************************************************************************
  * This function is responsible for handling all SiP calls from the NS world
  ******************************************************************************/
-uint64_t tegra_sip_handler(uint32_t smc_fid,
+uint64_t tegra132_sip_handler(uint32_t smc_fid,
 			   uint64_t x1,
 			   uint64_t x2,
 			   uint64_t x3,
@@ -138,11 +138,11 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 
 /* Define a runtime service descriptor for fast SMC calls */
 DECLARE_RT_SVC(
-	tegra_sip_fast,
+	tegra132_sip_fast,
 
 	OEN_SIP_START,
 	OEN_SIP_END,
 	SMC_TYPE_FAST,
 	NULL,
-	tegra_sip_handler
+	tegra132_sip_handler
 );

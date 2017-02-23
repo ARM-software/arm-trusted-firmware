@@ -48,20 +48,6 @@
 #define PLAT_SYS_SUSPEND_STATE_ID	PSTATE_ID_SOC_POWERDN
 
 /*******************************************************************************
- * Implementation defined ACTLR_EL3 bit definitions
- ******************************************************************************/
-#define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)
-#define ACTLR_EL3_L2ECTLR_BIT		(1 << 5)
-#define ACTLR_EL3_L2CTLR_BIT		(1 << 4)
-#define ACTLR_EL3_CPUECTLR_BIT		(1 << 1)
-#define ACTLR_EL3_CPUACTLR_BIT		(1 << 0)
-#define ACTLR_EL3_ENABLE_ALL_ACCESS	(ACTLR_EL3_L2ACTLR_BIT | \
-					 ACTLR_EL3_L2ECTLR_BIT | \
-					 ACTLR_EL3_L2CTLR_BIT | \
-					 ACTLR_EL3_CPUECTLR_BIT | \
-					 ACTLR_EL3_CPUACTLR_BIT)
-
-/*******************************************************************************
  * GIC memory map
  ******************************************************************************/
 #define TEGRA_GICD_BASE			0x50041000
@@ -108,6 +94,15 @@
  * Tegra Exception Vectors constants
  ******************************************************************************/
 #define TEGRA_EVP_BASE			0x6000F000
+
+/*******************************************************************************
+ * Tegra UART controller base addresses
+ ******************************************************************************/
+#define TEGRA_UARTA_BASE		0x70006000
+#define TEGRA_UARTB_BASE		0x70006040
+#define TEGRA_UARTC_BASE		0x70006200
+#define TEGRA_UARTD_BASE		0x70006300
+#define TEGRA_UARTE_BASE		0x70006400
 
 /*******************************************************************************
  * Tegra Power Mgmt Controller constants

@@ -37,6 +37,7 @@
 #include <cortex_a57.h>
 #include <cortex_a53.h>
 #include <debug.h>
+#include <denver.h>
 #include <errno.h>
 #include <memctrl.h>
 #include <mmio.h>
@@ -54,6 +55,7 @@ extern unsigned long __RO_END__;
 extern unsigned long __BL31_END__;
 
 extern uint64_t tegra_bl31_phys_base;
+extern uint64_t tegra_console_base;
 
 /*
  * The next 3 constants identify the extents of the code, RO data region and the
@@ -110,28 +112,47 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 {
 	plat_params_from_bl2_t *plat_params =
 		(plat_params_from_bl2_t *)plat_params_from_bl2;
-
-	/*
-	 * Configure the UART port to be used as the console
-	 */
-	console_init(TEGRA_BOOT_UART_BASE, TEGRA_BOOT_UART_CLK_IN_HZ,
-			TEGRA_CONSOLE_BAUDRATE);
-
-	/* Initialise crash console */
-	plat_crash_console_init();
+#if DEBUG
+	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+#endif
 
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
+	assert(from_bl2->bl33_ep_info);
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
-	bl32_image_ep_info = *from_bl2->bl32_ep_info;
+
+	if (from_bl2->bl32_ep_info)
+		bl32_image_ep_info = *from_bl2->bl32_ep_info;
 
 	/*
-	 * Parse platform specific parameters - TZDRAM aperture size
+	 * Parse platform specific parameters - TZDRAM aperture base and size
 	 */
-	if (plat_params)
-		plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
+	assert(plat_params);
+	plat_bl31_params_from_bl2.tzdram_base = plat_params->tzdram_base;
+	plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
+	plat_bl31_params_from_bl2.uart_id = plat_params->uart_id;
+
+	/*
+	 * Get the base address of the UART controller to be used for the
+	 * console
+	 */
+	assert(plat_params->uart_id);
+	tegra_console_base = plat_get_console_from_id(plat_params->uart_id);
+
+	/*
+	 * Configure the UART port to be used as the console
+	 */
+	assert(tegra_console_base);
+	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+		TEGRA_CONSOLE_BAUDRATE);
+
+	/* Initialise crash console */
+	plat_crash_console_init();
+
+	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n", (impl == DENVER_IMPL) ?
+		"Denver" : "ARM", read_mpidr());
 }
 
 /*******************************************************************************
@@ -159,7 +180,7 @@ void bl31_platform_setup(void)
 	/*
 	 * Do initial security configuration to allow DRAM/device access.
 	 */
-	tegra_memctrl_tzdram_setup(tegra_bl31_phys_base,
+	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
 			plat_bl31_params_from_bl2.tzdram_size);
 
 	/* Set the next EL to be AArch64 */
@@ -168,6 +189,8 @@ void bl31_platform_setup(void)
 
 	/* Initialize the gic cpu and distributor interfaces */
 	tegra_gic_setup();
+
+	INFO("BL3-1: Tegra platform setup complete\n");
 }
 
 /*******************************************************************************
@@ -215,6 +238,8 @@ void bl31_plat_arch_setup(void)
 
 	/* enable the MMU */
 	enable_mmu_el3(0);
+
+	INFO("BL3-1: Tegra: MMU enabled\n");
 }
 
 /*******************************************************************************

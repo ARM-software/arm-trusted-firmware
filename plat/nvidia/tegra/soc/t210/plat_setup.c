@@ -84,3 +84,31 @@ unsigned int plat_get_syscnt_freq2(void)
 {
 	return 19200000;
 }
+
+/*******************************************************************************
+ * Maximum supported UART controllers
+ ******************************************************************************/
+#define TEGRA210_MAX_UART_PORTS		5
+
+/*******************************************************************************
+ * This variable holds the UART port base addresses
+ ******************************************************************************/
+static uint32_t tegra210_uart_addresses[TEGRA210_MAX_UART_PORTS + 1] = {
+	0,	/* undefined - treated as an error case */
+	TEGRA_UARTA_BASE,
+	TEGRA_UARTB_BASE,
+	TEGRA_UARTC_BASE,
+	TEGRA_UARTD_BASE,
+	TEGRA_UARTE_BASE,
+};
+
+/*******************************************************************************
+ * Retrieve the UART controller base to be used as the console
+ ******************************************************************************/
+uint32_t plat_get_console_from_id(int id)
+{
+	if (id > TEGRA210_MAX_UART_PORTS)
+		return 0;
+
+	return tegra210_uart_addresses[id];
+}
