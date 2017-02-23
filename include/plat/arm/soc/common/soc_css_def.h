@@ -32,7 +32,6 @@
 #define __SOC_CSS_DEF_H__
 
 #include <common_def.h>
-#include <xlat_tables.h>
 
 
 /*
