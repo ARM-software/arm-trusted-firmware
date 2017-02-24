@@ -571,14 +571,15 @@ static __sramfunc void pctl_cfg(uint32_t ch,
 	sram_regcpy(PHY_REG(ch, 768), (uintptr_t)&params_phy[768], 38);
 }
 
-static __sramfunc int dram_switch_to_phy_index1(
+static __sramfunc int dram_switch_to_next_index(
 		struct rk3399_sdram_params *sdram_params)
 {
 	uint32_t ch, ch_count;
+	uint32_t fn = ((mmio_read_32(CTL_REG(0, 111)) >> 16) + 1) & 0x1;
 
 	mmio_write_32(CIC_BASE + CIC_CTRL0,
 		      (((0x3 << 4) | (1 << 2) | 1) << 16) |
-		      (1 << 4) | (1 << 2) | 1);
+		      (fn << 4) | (1 << 2) | 1);
 	while (!(mmio_read_32(CIC_BASE + CIC_STATUS0) & (1 << 2)))
 		;
 
@@ -591,7 +592,7 @@ static __sramfunc int dram_switch_to_phy_index1(
 	/* LPDDR4 f2 cann't do training, all training will fail */
 	for (ch = 0; ch < ch_count; ch++) {
 		mmio_clrsetbits_32(PHY_REG(ch, 896), (0x3 << 8) | 1,
-				   1 << 8);
+				   fn << 8);
 
 		/* data_training failed */
 		if (data_training(ch, sdram_params, PI_FULL_TRAINING))
@@ -754,5 +755,5 @@ retry:
 	dram_all_config(sdram_params);
 
 	/* Switch to index 1 and prepare for DDR frequency switch. */
-	dram_switch_to_phy_index1(sdram_params);
+	dram_switch_to_next_index(sdram_params);
 }
