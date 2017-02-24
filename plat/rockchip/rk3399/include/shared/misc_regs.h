@@ -28,28 +28,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __RK3399_MCU_H__
-#define __RK3399_MCU_H__
+#ifndef __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
+#define __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
 
-#include <addressmap.h>
+/* CRU */
+#define CRU_DPLL_CON0		0x40
+#define CRU_DPLL_CON1		0x44
+#define CRU_DPLL_CON2		0x48
+#define CRU_DPLL_CON3		0x4c
+#define CRU_DPLL_CON4		0x50
+#define CRU_DPLL_CON5		0x54
 
-typedef unsigned int uint32_t;
+/* CRU_PLL_CON3 */
+#define PLL_SLOW_MODE		0
+#define PLL_NORMAL_MODE		1
+#define PLL_MODE(n)		((0x3 << (8 + 16)) | ((n) << 8))
+#define PLL_POWER_DOWN(n)	((0x1 << (0 + 16)) | ((n) << 0))
 
-#define mmio_read_32(c)	({unsigned int __v = \
-				(*(volatile unsigned int *)(c)); __v; })
-#define mmio_write_32(c, v)	((*(volatile unsigned int *)(c)) = (v))
+/* PMU CRU */
+#define PMU_CRU_GATEDIS_CON0	0x130
 
-#define mmio_clrbits_32(addr, clear) \
-		mmio_write_32(addr, (mmio_read_32(addr) & ~(clear)))
-#define mmio_setbits_32(addr, set) \
-		mmio_write_32(addr, (mmio_read_32(addr)) | (set))
-#define mmio_clrsetbits_32(addr, clear, set) \
-		mmio_write_32(addr, (mmio_read_32(addr) & ~(clear)) | (set))
-
-void handle_suspend(void);
-void handle_dram(void);
-void stopwatch_init_usecs_expire(unsigned int usecs);
-int stopwatch_expired(void);
-void stopwatch_reset(void);
-
-#endif /* __RK3399_MCU_H__ */
+#endif /* __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__ */

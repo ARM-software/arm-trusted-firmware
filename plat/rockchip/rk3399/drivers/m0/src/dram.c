@@ -28,106 +28,71 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <dram_regs.h>
 #include <m0_param.h>
+#include <pmu_bits.h>
+#include <pmu_regs.h>
+#include "misc_regs.h"
 #include "rk3399_mcu.h"
 
-/* PMU */
-#define PMU_PWRDN_ST		0x18
-#define PMU_BUS_IDLE_REQ	0x60
-#define PMU_BUS_IDLE_ST		0x64
-#define PMU_NOC_AUTO_ENA	0xd8
-
-/* PMU_BUS_IDLE_REQ */
-#define IDLE_REQ_MSCH1		(1 << 19)
-#define IDLE_REQ_MSCH0		(1 << 18)
-
-/* #define PMU_BUS_IDLE_ST */
-#define IDLE_MSCH1		(1 << 19)
-#define IDLE_MSCH0		(1 << 18)
-
-/* CRU */
-#define CRU_DPLL_CON0		0x40
-#define CRU_DPLL_CON1		0x44
-#define CRU_DPLL_CON2		0x48
-#define CRU_DPLL_CON3		0x4c
-#define CRU_DPLL_CON4		0x50
-#define CRU_DPLL_CON5		0x54
-
-#define CRU_DPLL_CON2		0x48
-#define CRU_DPLL_CON3		0x4c
-#define CRU_CLKGATE10_CON	0x328
-#define CRU_CLKGATE28_CON	0x370
-
-/* CRU_PLL_CON3 */
-#define PLL_SLOW_MODE		0
-#define PLL_NORMAL_MODE		1
-#define PLL_MODE(n)		((0x3 << (8 + 16)) | ((n) << 8))
-#define PLL_POWER_DOWN(n)	((0x1 << (0 + 16)) | ((n) << 0))
-
-/* PMU CRU */
-#define PMU_CRU_GATEDIS_CON0	0x130
-
-/* CIC */
-#define CIC_CTRL0		0
-#define CIC_CTRL1		0x4
-#define CIC_STATUS0		0x10
-
-uint32_t gatedis_con0;
+static uint32_t gatedis_con0;
 
 static void idle_port(void)
 {
-	gatedis_con0 = mmio_read_32(PMU_CRU_BASE_ADDR + PMU_CRU_GATEDIS_CON0);
-	mmio_write_32(PMU_CRU_BASE_ADDR + PMU_CRU_GATEDIS_CON0, 0x3fffffff);
+	gatedis_con0 = mmio_read_32(PMUCRU_BASE + PMU_CRU_GATEDIS_CON0);
+	mmio_write_32(PMUCRU_BASE + PMU_CRU_GATEDIS_CON0, 0x3fffffff);
+
 	mmio_setbits_32(PMU_BASE + PMU_BUS_IDLE_REQ,
-			IDLE_REQ_MSCH0 | IDLE_REQ_MSCH1);
+			(1 << PMU_IDLE_REQ_MSCH0) | (1 << PMU_IDLE_REQ_MSCH1));
 	while ((mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ST) &
-		(IDLE_MSCH1 | IDLE_MSCH0)) != (IDLE_MSCH1 | IDLE_MSCH0))
+		((1 << PMU_IDLE_ST_MSCH1) | (1 << PMU_IDLE_ST_MSCH0))) !=
+		((1 << PMU_IDLE_ST_MSCH1) | (1 << PMU_IDLE_ST_MSCH0)))
 		continue;
 }
 
 static void deidle_port(void)
 {
 	mmio_clrbits_32(PMU_BASE + PMU_BUS_IDLE_REQ,
-			IDLE_REQ_MSCH0 | IDLE_REQ_MSCH1);
+			(1 << PMU_IDLE_REQ_MSCH0) | (1 << PMU_IDLE_REQ_MSCH1));
 	while (mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ST) &
-	       (IDLE_MSCH1 | IDLE_MSCH0))
+	       ((1 << PMU_IDLE_ST_MSCH1) | (1 << PMU_IDLE_ST_MSCH0)))
 		continue;
 
 	/* document is wrong, PMU_CRU_GATEDIS_CON0 do not need set MASK BIT */
-	mmio_write_32(PMU_CRU_BASE_ADDR + PMU_CRU_GATEDIS_CON0, gatedis_con0);
+	mmio_write_32(PMUCRU_BASE + PMU_CRU_GATEDIS_CON0, gatedis_con0);
 }
 
 static void ddr_set_pll(void)
 {
-	mmio_write_32(CRU_BASE_ADDR + CRU_DPLL_CON3, PLL_MODE(PLL_SLOW_MODE));
+	mmio_write_32(CRU_BASE + CRU_DPLL_CON3, PLL_MODE(PLL_SLOW_MODE));
 
-	mmio_write_32(CRU_BASE_ADDR + CRU_DPLL_CON3, PLL_POWER_DOWN(1));
-	mmio_write_32(CRU_BASE_ADDR + CRU_DPLL_CON0,
+	mmio_write_32(CRU_BASE + CRU_DPLL_CON3, PLL_POWER_DOWN(1));
+	mmio_write_32(CRU_BASE + CRU_DPLL_CON0,
 		      mmio_read_32(PARAM_ADDR + PARAM_DPLL_CON0));
-	mmio_write_32(CRU_BASE_ADDR + CRU_DPLL_CON1,
+	mmio_write_32(CRU_BASE + CRU_DPLL_CON1,
 		      mmio_read_32(PARAM_ADDR + PARAM_DPLL_CON1));
-	mmio_write_32(CRU_BASE_ADDR + CRU_DPLL_CON3, PLL_POWER_DOWN(0));
+	mmio_write_32(CRU_BASE + CRU_DPLL_CON3, PLL_POWER_DOWN(0));
 
-	while ((mmio_read_32(CRU_BASE_ADDR + CRU_DPLL_CON2) & (1u << 31)) == 0)
+	while ((mmio_read_32(CRU_BASE + CRU_DPLL_CON2) & (1u << 31)) == 0)
 		continue;
 
-	mmio_write_32(CRU_BASE_ADDR + CRU_DPLL_CON3, PLL_MODE(PLL_NORMAL_MODE));
+	mmio_write_32(CRU_BASE + CRU_DPLL_CON3, PLL_MODE(PLL_NORMAL_MODE));
 }
 
 void handle_dram(void)
 {
 	idle_port();
 
-	mmio_write_32(CIC_BASE_ADDR + CIC_CTRL0,
+	mmio_write_32(CIC_BASE + CIC_CTRL0,
 		      (((0x3 << 4) | (1 << 2) | 1) << 16) |
 		      (1 << 2) | 1 |
 		      mmio_read_32(PARAM_ADDR + PARAM_FREQ_SELECT));
-	while ((mmio_read_32(CIC_BASE_ADDR + CIC_STATUS0) & (1 << 2)) == 0)
+	while ((mmio_read_32(CIC_BASE + CIC_STATUS0) & (1 << 2)) == 0)
 		continue;
 
 	ddr_set_pll();
-	mmio_write_32(CIC_BASE_ADDR + CIC_CTRL0, 0x20002);
-	while ((mmio_read_32(CIC_BASE_ADDR + CIC_STATUS0) & (1 << 0)) == 0)
+	mmio_write_32(CIC_BASE + CIC_CTRL0, 0x20002);
+	while ((mmio_read_32(CIC_BASE + CIC_STATUS0) & (1 << 0)) == 0)
 		continue;
 
 	deidle_port();

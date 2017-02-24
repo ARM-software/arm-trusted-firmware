@@ -28,28 +28,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __RK3399_MCU_H__
-#define __RK3399_MCU_H__
+#ifndef __ROCKCHIP_RK3399_INCLUDE_ADDRESSMAP_H__
+#define __ROCKCHIP_RK3399_INCLUDE_ADDRESSMAP_H__
 
-#include <addressmap.h>
+#include <addressmap_shared.h>
 
-typedef unsigned int uint32_t;
+/* Registers base address */
+#define MMIO_BASE		0xF8000000
 
-#define mmio_read_32(c)	({unsigned int __v = \
-				(*(volatile unsigned int *)(c)); __v; })
-#define mmio_write_32(c, v)	((*(volatile unsigned int *)(c)) = (v))
+/* Aggregate of all devices in the first GB */
+#define DEV_RNG0_BASE		MMIO_BASE
+#define DEV_RNG0_SIZE		SIZE_M(125)
 
-#define mmio_clrbits_32(addr, clear) \
-		mmio_write_32(addr, (mmio_read_32(addr) & ~(clear)))
-#define mmio_setbits_32(addr, set) \
-		mmio_write_32(addr, (mmio_read_32(addr)) | (set))
-#define mmio_clrsetbits_32(addr, clear, set) \
-		mmio_write_32(addr, (mmio_read_32(addr) & ~(clear)) | (set))
-
-void handle_suspend(void);
-void handle_dram(void);
-void stopwatch_init_usecs_expire(unsigned int usecs);
-int stopwatch_expired(void);
-void stopwatch_reset(void);
-
-#endif /* __RK3399_MCU_H__ */
+#endif /* __ROCKCHIP_RK3399_INCLUDE_ADDRESSMAP_H__ */
