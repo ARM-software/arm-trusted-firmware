@@ -115,6 +115,21 @@ func check_errata_806969
 endfunc check_errata_806969
 
 	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #813419.
+	 * This applies only to revision r0p0 of Cortex A57.
+	 * ---------------------------------------------------
+	 */
+func check_errata_813419
+	/*
+	 * Even though this is only needed for revision r0p0, it
+	 * is always applied due to limitations of the current
+	 * errata framework.
+	 */
+	mov	x0, #ERRATA_APPLIES
+	ret
+endfunc check_errata_813419
+
+	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A57 Errata #813420.
 	 * This applies only to revision r0p0 of Cortex A57.
 	 * Inputs:
@@ -482,6 +497,7 @@ func cortex_a57_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A57_806969, cortex_a57, 806969
+	report_errata ERRATA_A57_813419, cortex_a57, 813419
 	report_errata ERRATA_A57_813420, cortex_a57, 813420
 	report_errata A57_DISABLE_NON_TEMPORAL_HINT, cortex_a57, \
 		disable_ldnp_overread

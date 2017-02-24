@@ -217,7 +217,7 @@ void init_xlat_tables_arch(unsigned long long max_pa)
 		/* into memory, the TLB invalidation is complete, */	\
 		/* and translation register writes are committed */	\
 		/* before enabling the MMU */				\
-		dsb();							\
+		dsbish();						\
 		isb();							\
 									\
 		sctlr = read_sctlr_el##_el();				\

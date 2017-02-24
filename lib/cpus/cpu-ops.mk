@@ -70,6 +70,10 @@ ERRATA_A53_836870	?=0
 # only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
 
+# Flag to apply erratum 813419 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
+ERRATA_A57_813419	?=0
+
 # Flag to apply erratum 813420  workaround during reset. This erratum applies
 # only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_813420	?=0
@@ -105,6 +109,10 @@ $(eval $(call add_define,ERRATA_A53_836870))
 # Process ERRATA_A57_806969 flag
 $(eval $(call assert_boolean,ERRATA_A57_806969))
 $(eval $(call add_define,ERRATA_A57_806969))
+
+# Process ERRATA_A57_813419 flag
+$(eval $(call assert_boolean,ERRATA_A57_813419))
+$(eval $(call add_define,ERRATA_A57_813419))
 
 # Process ERRATA_A57_813420 flag
 $(eval $(call assert_boolean,ERRATA_A57_813420))
