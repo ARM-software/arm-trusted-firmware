@@ -47,45 +47,11 @@ typedef struct {
 
 #define is_power_of_2(x)	((x != 0) && ((x & (x - 1)) == 0))
 
-io_type_t device_type_block(void);
-
-static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
-		      io_entity_t *entity);
-static int block_seek(io_entity_t *entity, int mode, ssize_t offset);
-static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
-		      size_t *length_read);
-static int block_write(io_entity_t *entity, const uintptr_t buffer,
-		       size_t length, size_t *length_written);
-static int block_close(io_entity_t *entity);
-static int block_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info);
-static int block_dev_close(io_dev_info_t *dev_info);
-
-static const io_dev_connector_t block_dev_connector = {
-	.dev_open	= block_dev_open
-};
-
-static const io_dev_funcs_t block_dev_funcs = {
-	.type		= device_type_block,
-	.open		= block_open,
-	.seek		= block_seek,
-	.size		= NULL,
-	.read		= block_read,
-	.write		= block_write,
-	.close		= block_close,
-	.dev_init	= NULL,
-	.dev_close	= block_dev_close,
-};
-
 static block_dev_state_t state_pool[MAX_IO_BLOCK_DEVICES];
 static io_dev_info_t dev_info_pool[MAX_IO_BLOCK_DEVICES];
 
 /* Track number of allocated block state */
 static unsigned int block_dev_count;
-
-io_type_t device_type_block(void)
-{
-	return IO_TYPE_BLOCK;
-}
 
 /* Locate a block state in the pool, specified by address */
 static int find_first_block_state(const io_block_dev_spec_t *dev_spec,
@@ -102,27 +68,6 @@ static int find_first_block_state(const io_block_dev_spec_t *dev_spec,
 	}
 	return result;
 }
-
-/* Allocate a device info from the pool and return a pointer to it */
-static int allocate_dev_info(io_dev_info_t **dev_info)
-{
-	int result = -ENOMEM;
-	assert(dev_info != NULL);
-
-	if (block_dev_count < MAX_IO_BLOCK_DEVICES) {
-		unsigned int index = 0;
-		result = find_first_block_state(NULL, &index);
-		assert(result == 0);
-		/* initialize dev_info */
-		dev_info_pool[index].funcs = &block_dev_funcs;
-		dev_info_pool[index].info = (uintptr_t)&state_pool[index];
-		*dev_info = &dev_info_pool[index];
-		++block_dev_count;
-	}
-
-	return result;
-}
-
 
 /* Release a device info to the pool */
 static int free_dev_info(io_dev_info_t *dev_info)
@@ -142,6 +87,11 @@ static int free_dev_info(io_dev_info_t *dev_info)
 	}
 
 	return result;
+}
+
+static io_type_t device_type_block(void)
+{
+	return IO_TYPE_BLOCK;
 }
 
 static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
@@ -395,6 +345,43 @@ static int block_close(io_entity_t *entity)
 	return 0;
 }
 
+static int block_dev_close(io_dev_info_t *dev_info)
+{
+	return free_dev_info(dev_info);
+}
+
+static const io_dev_funcs_t block_dev_funcs = {
+	.type		= device_type_block,
+	.open		= block_open,
+	.seek		= block_seek,
+	.size		= NULL,
+	.read		= block_read,
+	.write		= block_write,
+	.close		= block_close,
+	.dev_init	= NULL,
+	.dev_close	= block_dev_close,
+};
+
+/* Allocate a device info from the pool and return a pointer to it */
+static int allocate_dev_info(io_dev_info_t **dev_info)
+{
+	int result = -ENOMEM;
+	assert(dev_info != NULL);
+
+	if (block_dev_count < MAX_IO_BLOCK_DEVICES) {
+		unsigned int index = 0;
+		result = find_first_block_state(NULL, &index);
+		assert(result == 0);
+		/* initialize dev_info */
+		dev_info_pool[index].funcs = &block_dev_funcs;
+		dev_info_pool[index].info = (uintptr_t)&state_pool[index];
+		*dev_info = &dev_info_pool[index];
+		++block_dev_count;
+	}
+
+	return result;
+}
+
 static int block_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info)
 {
 	block_dev_state_t *cur;
@@ -424,10 +411,9 @@ static int block_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info)
 	return 0;
 }
 
-static int block_dev_close(io_dev_info_t *dev_info)
-{
-	return free_dev_info(dev_info);
-}
+static const io_dev_connector_t block_dev_connector = {
+	.dev_open	= block_dev_open
+};
 
 /* Exported functions */
 
