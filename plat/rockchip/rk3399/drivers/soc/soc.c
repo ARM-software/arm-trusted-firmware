@@ -29,6 +29,7 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <dfs.h>
@@ -101,10 +102,6 @@ void sgrf_init(void)
 		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
 	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(4),
 		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
-
-	/* security config for ddr memery */
-	mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(16),
-		      SGRF_DDR_RGN_BYPS);
 }
 
 static void dma_secure_cfg(uint32_t secure)
@@ -213,6 +210,77 @@ void secure_watchdog_restore(void)
 		      slp_data.sgrf_con[3] |
 		      WMSK_BIT(PCLK_WDT_CA53_GATE_SHIFT) |
 		      WMSK_BIT(PCLK_WDT_CM0_GATE_SHIFT));
+}
+
+static void sgrf_ddr_rgn_global_bypass(uint32_t bypass)
+{
+	if (bypass)
+		/* set bypass (non-secure regions) for whole ddr regions */
+		mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(16),
+			      SGRF_DDR_RGN_BYPS);
+	else
+		/* cancel bypass for whole ddr regions */
+		mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(16),
+			      SGRF_DDR_RGN_NO_BYPS);
+}
+
+/**
+ * There are 8 + 1 regions for DDR secure control:
+ * DDR_RGN_0 ~ DDR_RGN_7: Per DDR_RGNs grain size is 1MB
+ * DDR_RGN_X - the memories of exclude DDR_RGN_0 ~ DDR_RGN_7
+ *
+ * DDR_RGN_0 - start address of the RGN0
+ * DDR_RGN_8 - end address of the RGN0
+ * DDR_RGN_1 - start address of the RGN1
+ * DDR_RGN_9 - end address of the RGN1
+ * ...
+ * DDR_RGN_7 - start address of the RGN7
+ * DDR_RGN_15 - end address of the RGN7
+ * DDR_RGN_16 - bit 0 ~ 7 is bitmap for RGN0~7 secure,0: disable, 1: enable
+ *              bit 8 is setting for RGNx, the rest of the memory and region
+ *                which excludes RGN0~7, 0: disable, 1: enable
+ *              bit 9, the global secure configuration via bypass, 0: disable
+ *                bypass, 1: enable bypass
+ *
+ * @rgn - the DDR regions 0 ~ 7 which are can be configured.
+ * The @st_mb and @ed_mb indicate the start and end addresses for which to set
+ * the security, and the unit is megabyte. When the st_mb == 0, ed_mb == 0, the
+ * address range 0x0 ~ 0xfffff is secure.
+ *
+ * For example, if we would like to set the range [0, 32MB) is security via
+ * DDR_RGN0, then rgn == 0, st_mb == 0, ed_mb == 31.
+ */
+static void sgrf_ddr_rgn_config(uint32_t rgn,
+				uintptr_t st, uintptr_t ed)
+{
+	uintptr_t st_mb, ed_mb;
+
+	assert(rgn <= 7);
+	assert(st < ed);
+
+	/* check aligned 1MB */
+	assert(st % SIZE_M(1) == 0);
+	assert(ed % SIZE_M(1) == 0);
+
+	st_mb = st / SIZE_M(1);
+	ed_mb = ed / SIZE_M(1);
+
+	/* set ddr region addr start */
+	mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(rgn),
+		      BITS_WITH_WMASK(st_mb, SGRF_DDR_RGN_0_16_WMSK, 0));
+
+	/* set ddr region addr end */
+	mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(rgn + 8),
+		      BITS_WITH_WMASK((ed_mb - 1), SGRF_DDR_RGN_0_16_WMSK, 0));
+
+	mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(16),
+		      BIT_WITH_WMSK(rgn));
+}
+
+static void secure_sgrf_ddr_rgn_init(void)
+{
+	sgrf_ddr_rgn_config(0, TZRAM_BASE, TZRAM_SIZE);
+	sgrf_ddr_rgn_global_bypass(0);
 }
 
 static void set_pll_slow_mode(uint32_t pll_id)
@@ -461,6 +529,7 @@ void plat_rockchip_soc_init(void)
 	secure_timer_init();
 	dma_secure_cfg(0);
 	sgrf_init();
+	secure_sgrf_ddr_rgn_init();
 	soc_global_soft_reset_init();
 	plat_rockchip_gpio_init();
 	m0_init();
