@@ -30,6 +30,7 @@
 
 #include <dram.h>
 #include <plat_private.h>
+#include <secure.h>
 #include <soc.h>
 #include <rk3399_def.h>
 

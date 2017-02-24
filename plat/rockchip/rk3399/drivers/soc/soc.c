@@ -39,6 +39,7 @@
 #include <platform_def.h>
 #include <plat_private.h>
 #include <rk3399_def.h>
+#include <secure.h>
 #include <soc.h>
 
 /* Table of regions to map using the MMU.  */
@@ -63,225 +64,8 @@ const unsigned char rockchip_power_domain_tree_desc[] = {
 	PLATFORM_CLUSTER1_CORE_COUNT
 };
 
-void secure_timer_init(void)
-{
-	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_END_COUNT0, 0xffffffff);
-	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_END_COUNT1, 0xffffffff);
-
-	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_INIT_COUNT0, 0x0);
-	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_INIT_COUNT0, 0x0);
-
-	/* auto reload & enable the timer */
-	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_CONTROL_REG,
-		      TIMER_EN | TIMER_FMODE);
-}
-
-void sgrf_init(void)
-{
-	/* security config for master */
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(5),
-		      SGRF_SOC_CON_WMSK | SGRF_SOC_ALLMST_NS);
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(6),
-		      SGRF_SOC_CON_WMSK | SGRF_SOC_ALLMST_NS);
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(7),
-		      SGRF_SOC_CON_WMSK | SGRF_SOC_ALLMST_NS);
-
-	/* security config for slave */
-	mmio_write_32(SGRF_BASE + SGRF_PMU_SLV_CON0_1(0),
-		      SGRF_PMU_SLV_S_CFGED |
-		      SGRF_PMU_SLV_CRYPTO1_NS);
-	mmio_write_32(SGRF_BASE + SGRF_PMU_SLV_CON0_1(1),
-		      SGRF_PMU_SLV_CON1_CFG);
-	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(0),
-		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
-	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(1),
-		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
-	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(2),
-		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
-	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(3),
-		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
-	mmio_write_32(SGRF_BASE + SGRF_SLV_SECURE_CON0_4(4),
-		      SGRF_SLV_S_WMSK | SGRF_SLV_S_ALL_NS);
-}
-
-static void dma_secure_cfg(uint32_t secure)
-{
-	if (secure) {
-		/* rgn0 secure for dmac0 and dmac1 */
-		mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON20_34(22),
-			      SGRF_L_MST_S_DDR_RGN(0) | /* dmac0 */
-			      SGRF_H_MST_S_DDR_RGN(0) /* dmac1 */
-			      );
-
-		/* set dmac0 boot, under secure state */
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(8),
-			      SGRF_DMAC_CFG_S);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(9),
-			      SGRF_DMAC_CFG_S);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(10),
-			      SGRF_DMAC_CFG_S);
-
-		/* dmac0 soft reset */
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC0_RST);
-		udelay(5);
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC0_RST_RLS);
-
-		/* set dmac1 boot, under secure state */
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(11),
-			      SGRF_DMAC_CFG_S);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(12),
-			      SGRF_DMAC_CFG_S);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(13),
-			      SGRF_DMAC_CFG_S);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(14),
-			      SGRF_DMAC_CFG_S);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(15),
-			      SGRF_DMAC_CFG_S);
-
-		/* dmac1 soft reset */
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC1_RST);
-		udelay(5);
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC1_RST_RLS);
-	} else {
-		/* rgn non-secure for dmac0 and dmac1 */
-		mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON20_34(22),
-			      DMAC1_RGN_NS | DMAC0_RGN_NS);
-
-		/* set dmac0 boot, under non-secure state */
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(8),
-			      DMAC0_BOOT_CFG_NS);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(9),
-			      DMAC0_BOOT_PERIPH_NS);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(10),
-			      DMAC0_BOOT_ADDR_NS);
-
-		/* dmac0 soft reset */
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC0_RST);
-		udelay(5);
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC0_RST_RLS);
-
-		/* set dmac1 boot, under non-secure state */
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(11),
-			      DMAC1_BOOT_CFG_NS);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(12),
-			      DMAC1_BOOT_PERIPH_L_NS);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(13),
-			      DMAC1_BOOT_ADDR_NS);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(14),
-			      DMAC1_BOOT_PERIPH_H_NS);
-		mmio_write_32(SGRF_BASE + SGRF_SOC_CON8_15(15),
-			      DMAC1_BOOT_IRQ_NS);
-
-		/* dmac1 soft reset */
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC1_RST);
-		udelay(5);
-		mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-			      CRU_DMAC1_RST_RLS);
-	}
-}
-
-/* pll suspend */
-struct deepsleep_data_s slp_data;
-
-void secure_watchdog_disable(void)
-{
-	slp_data.sgrf_con[3] = mmio_read_32(SGRF_BASE + SGRF_SOC_CON3_7(3));
-
-	/* disable CA53 wdt pclk */
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(3),
-		      BITS_WITH_WMASK(WDT_CA53_DIS, WDT_CA53_1BIT_MASK,
-				      PCLK_WDT_CA53_GATE_SHIFT));
-	/* disable CM0 wdt pclk */
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(3),
-		      BITS_WITH_WMASK(WDT_CM0_DIS, WDT_CM0_1BIT_MASK,
-				      PCLK_WDT_CM0_GATE_SHIFT));
-}
-
-void secure_watchdog_restore(void)
-{
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(3),
-		      slp_data.sgrf_con[3] |
-		      WMSK_BIT(PCLK_WDT_CA53_GATE_SHIFT) |
-		      WMSK_BIT(PCLK_WDT_CM0_GATE_SHIFT));
-}
-
-static void sgrf_ddr_rgn_global_bypass(uint32_t bypass)
-{
-	if (bypass)
-		/* set bypass (non-secure regions) for whole ddr regions */
-		mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(16),
-			      SGRF_DDR_RGN_BYPS);
-	else
-		/* cancel bypass for whole ddr regions */
-		mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(16),
-			      SGRF_DDR_RGN_NO_BYPS);
-}
-
-/**
- * There are 8 + 1 regions for DDR secure control:
- * DDR_RGN_0 ~ DDR_RGN_7: Per DDR_RGNs grain size is 1MB
- * DDR_RGN_X - the memories of exclude DDR_RGN_0 ~ DDR_RGN_7
- *
- * DDR_RGN_0 - start address of the RGN0
- * DDR_RGN_8 - end address of the RGN0
- * DDR_RGN_1 - start address of the RGN1
- * DDR_RGN_9 - end address of the RGN1
- * ...
- * DDR_RGN_7 - start address of the RGN7
- * DDR_RGN_15 - end address of the RGN7
- * DDR_RGN_16 - bit 0 ~ 7 is bitmap for RGN0~7 secure,0: disable, 1: enable
- *              bit 8 is setting for RGNx, the rest of the memory and region
- *                which excludes RGN0~7, 0: disable, 1: enable
- *              bit 9, the global secure configuration via bypass, 0: disable
- *                bypass, 1: enable bypass
- *
- * @rgn - the DDR regions 0 ~ 7 which are can be configured.
- * The @st_mb and @ed_mb indicate the start and end addresses for which to set
- * the security, and the unit is megabyte. When the st_mb == 0, ed_mb == 0, the
- * address range 0x0 ~ 0xfffff is secure.
- *
- * For example, if we would like to set the range [0, 32MB) is security via
- * DDR_RGN0, then rgn == 0, st_mb == 0, ed_mb == 31.
- */
-static void sgrf_ddr_rgn_config(uint32_t rgn,
-				uintptr_t st, uintptr_t ed)
-{
-	uintptr_t st_mb, ed_mb;
-
-	assert(rgn <= 7);
-	assert(st < ed);
-
-	/* check aligned 1MB */
-	assert(st % SIZE_M(1) == 0);
-	assert(ed % SIZE_M(1) == 0);
-
-	st_mb = st / SIZE_M(1);
-	ed_mb = ed / SIZE_M(1);
-
-	/* set ddr region addr start */
-	mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(rgn),
-		      BITS_WITH_WMASK(st_mb, SGRF_DDR_RGN_0_16_WMSK, 0));
-
-	/* set ddr region addr end */
-	mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(rgn + 8),
-		      BITS_WITH_WMASK((ed_mb - 1), SGRF_DDR_RGN_0_16_WMSK, 0));
-
-	mmio_write_32(SGRF_BASE + SGRF_DDRRGN_CON0_16(16),
-		      BIT_WITH_WMSK(rgn));
-}
-
-static void secure_sgrf_ddr_rgn_init(void)
-{
-	sgrf_ddr_rgn_config(0, TZRAM_BASE, TZRAM_SIZE);
-	sgrf_ddr_rgn_global_bypass(0);
-}
+/* sleep data for pll suspend */
+static struct deepsleep_data_s slp_data;
 
 static void set_pll_slow_mode(uint32_t pll_id)
 {
@@ -502,7 +286,7 @@ void soc_global_soft_reset_init(void)
 			CRU_PMU_WDTRST_MSK | CRU_PMU_FIRST_SFTRST_MSK);
 }
 
-void  __dead2 soc_global_soft_reset(void)
+void __dead2 soc_global_soft_reset(void)
 {
 	set_pll_slow_mode(VPLL_ID);
 	set_pll_slow_mode(NPLL_ID);
@@ -527,8 +311,7 @@ void  __dead2 soc_global_soft_reset(void)
 void plat_rockchip_soc_init(void)
 {
 	secure_timer_init();
-	dma_secure_cfg(0);
-	sgrf_init();
+	secure_sgrf_init();
 	secure_sgrf_ddr_rgn_init();
 	soc_global_soft_reset_init();
 	plat_rockchip_gpio_init();
