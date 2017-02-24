@@ -31,6 +31,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
+#include <delay_timer.h>
 #include <mmio.h>
 #include <m0_ctl.h>
 #include <plat_private.h>
@@ -70,6 +71,7 @@ void m0_start(void)
 {
 	/* clean the PARAM_M0_DONE flag, mean that M0 will start working */
 	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_DONE, 0);
+	dmbst();
 
 	/* enable clocks for M0 */
 	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
@@ -93,6 +95,12 @@ void m0_stop(void)
 
 void m0_wait_done(void)
 {
-	while (mmio_read_32(M0_PARAM_ADDR + PARAM_M0_DONE) != M0_DONE_FLAG)
+	while (mmio_read_32(M0_PARAM_ADDR + PARAM_M0_DONE) != M0_DONE_FLAG) {
+		/*
+		 * Don't starve the M0 for access to SRAM, so delay before
+		 * reading the PARAM_M0_DONE value again.
+		 */
+		udelay(5);
 		dsb();
+	}
 }
