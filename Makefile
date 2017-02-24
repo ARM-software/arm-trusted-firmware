@@ -246,6 +246,12 @@ endif
         # over the sources.
 endif
 
+################################################################################
+# Include libraries' Makefile that are used in all BL
+################################################################################
+
+include lib/stack_protector/stack_protector.mk
+
 
 ################################################################################
 # Include the platform specific Makefile after the SPD Makefile (the platform

@@ -920,6 +920,20 @@ kept aside to pass trusted firmware related information that next BL image
 needs. This function is currently invoked in BL2 to pass this information to
 the next BL image, when LOAD_IMAGE_V2 is enabled.
 
+### Function : plat_get_stack_protector_canary()
+    Argument : void
+    Return   : u_register_t
+
+This function returns a random value that is used to initialize the canary used
+when the stack protector is enabled with ENABLE_STACK_PROTECTOR. A predictable
+value will weaken the protection as the attacker could easily write the right
+value as part of the attack most of the time. Therefore, it should return a
+true random number.
+
+Note: For the protection to be effective, the global data need to be placed at
+a lower address than the stack bases. Failure to do so would allow an attacker
+to overwrite the canary as part of the stack buffer overflow attack.
+
 ### Function : plat_flush_next_bl_params()
 
     Argument : void

@@ -301,6 +301,14 @@ performed.
     Currently, only PSCI is instrumented. Enabling this option enables
     the `ENABLE_PMF` build option as well. Default is 0.
 
+*   `ENABLE_STACK_PROTECTOR`: String option to enable the stack protection
+    checks in GCC. Allowed values are "all", "strong" and "0" (default).
+    "strong" is the recommended stack protection level if this feature is
+    desired. 0 disables the stack protection. For all values other than 0, the
+    `plat_get_stack_protector_canary()` platform hook needs to be implemented.
+    The value is passed as the last component of the option
+    `-fstack-protector-$ENABLE_STACK_PROTECTOR`.
+
 *   `ERROR_DEPRECATED`: This option decides whether to treat the usage of
     deprecated platform APIs, helper functions or drivers within Trusted
     Firmware as error. It can take the value 1 (flag the use of deprecated

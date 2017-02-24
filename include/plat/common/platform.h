@@ -72,6 +72,16 @@ uintptr_t plat_get_ns_image_entrypoint(void);
 unsigned int plat_my_core_pos(void);
 int plat_core_pos_by_mpidr(u_register_t mpidr);
 
+#if STACK_PROTECTOR_ENABLED
+/*
+ * Return a new value to be used for the stack protection's canary.
+ *
+ * Ideally, this value is a random number that is impossible to predict by an
+ * attacker.
+ */
+u_register_t plat_get_stack_protector_canary(void);
+#endif /* STACK_PROTECTOR_ENABLED */
+
 /*******************************************************************************
  * Mandatory interrupt management functions
  ******************************************************************************/
@@ -326,7 +336,7 @@ int platform_setup_pm(const plat_pm_ops_t **);
 
 unsigned int plat_get_aff_count(unsigned int, unsigned long);
 unsigned int plat_get_aff_state(unsigned int, unsigned long);
-#else
+#else /* __ENABLE_PLAT_COMPAT__ */
 /*
  * The below function enable Trusted Firmware components like SPDs which
  * haven't migrated to the new platform API to compile on platforms which
@@ -335,4 +345,6 @@ unsigned int plat_get_aff_state(unsigned int, unsigned long);
 unsigned int platform_get_core_pos(unsigned long mpidr) __deprecated;
 
 #endif /* __ENABLE_PLAT_COMPAT__ */
+
 #endif /* __PLATFORM_H__ */
+

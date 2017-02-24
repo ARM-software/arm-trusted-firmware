@@ -139,6 +139,15 @@ func tsp_entrypoint
 	bl	plat_set_my_stack
 
 	/* ---------------------------------------------
+	 * Initialize the stack protector canary before
+	 * any C code is called.
+	 * ---------------------------------------------
+	 */
+#if STACK_PROTECTOR_ENABLED
+	bl	update_stack_protector_canary
+#endif
+
+	/* ---------------------------------------------
 	 * Perform early platform setup & platform
 	 * specific early arch. setup e.g. mmu setup
 	 * ---------------------------------------------

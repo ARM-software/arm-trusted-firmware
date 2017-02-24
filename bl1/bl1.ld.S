@@ -111,14 +111,20 @@ SECTIONS
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
            "cpu_ops not defined for this platform.")
 
+    . = BL1_RW_BASE;
+    ASSERT(BL1_RW_BASE == ALIGN(4096),
+           "BL1_RW_BASE address is not aligned on a page boundary.")
+
     /*
      * The .data section gets copied from ROM to RAM at runtime.
-     * Its LMA must be 16-byte aligned.
+     * Its LMA should be 16-byte aligned to allow efficient copying of 16-bytes
+     * aligned regions in it.
      * Its VMA must be page-aligned as it marks the first read/write page.
+     *
+     * It must be placed at a lower address than the stacks if the stack
+     * protector is enabled. Alternatively, the .data.stack_protector_canary
+     * section can be placed independently of the main .data section.
      */
-    . = BL1_RW_BASE;
-    ASSERT(. == ALIGN(4096),
-           "BL1_RW_BASE address is not aligned on a page boundary.")
     .data . : ALIGN(16) {
         __DATA_RAM_START__ = .;
         *(.data*)
