@@ -46,11 +46,15 @@ export Q
 
 .SUFFIXES:
 
-INCLUDES		+= -Iinclude/
+INCLUDES		+= -Iinclude/ \
+			   -I../../include/shared/
 
 # NOTE: Add C source files here
 C_SOURCES		:= src/startup.c \
-			   src/main.c
+			   src/main.c	\
+			   src/suspend.c \
+			   src/dram.c	\
+			   src/stopwatch.c
 
 # Flags definition
 CFLAGS			:= -g
@@ -83,10 +87,11 @@ endef
 
 SOURCES 		:= $(C_SOURCES)
 OBJS 			:= $(addprefix $(BUILD)/,$(call SOURCES_TO_OBJS,$(SOURCES)))
-LINKERFILE		:= src/rk3399m0.ld
+LINKERFILE		:= $(BUILD)/$(PLAT_M0).ld
 MAPFILE			:= $(BUILD)/$(PLAT_M0).map
 ELF 			:= $(BUILD)/$(PLAT_M0).elf
 BIN 			:= $(BUILD)/$(PLAT_M0).bin
+LINKERFILE_SRC		:= src/$(PLAT_M0).ld.S
 
 # Function definition related compilation
 define MAKE_C
@@ -118,8 +123,11 @@ define MAKE_OBJS
 	$(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
 endef
 
-.PHONY: all
-all: $(BIN)
+.DEFAULT_GOAL := $(BIN)
+
+$(LINKERFILE): $(LINKERFILE_SRC)
+	$(CC) $(CFLAGS) $(INCLUDES) -P -E -D__LINKER__ -MMD -MF $@.d -MT $@ -o $@ $<
+-include $(LINKERFILE).d
 
 $(ELF) : $(OBJS) $(LINKERFILE)
 	@echo "  LD      $@"

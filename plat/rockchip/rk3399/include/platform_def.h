@@ -34,6 +34,7 @@
 #include <arch.h>
 #include <common_def.h>
 #include <rk3399_def.h>
+#include <bl31_param.h>
 
 #define DEBUG_XLAT_TABLE 0
 
@@ -89,22 +90,6 @@
 #define PLAT_MAX_OFF_STATE		2
 
 /*******************************************************************************
- * Platform memory map related constants
- ******************************************************************************/
-/* TF txet, ro, rw, Size: 512KB */
-#define TZRAM_BASE		(0x0)
-#define TZRAM_SIZE		(0x80000)
-
-/*******************************************************************************
- * BL31 specific defines.
- ******************************************************************************/
-/*
- * Put BL3-1 at the top of the Trusted RAM
- */
-#define BL31_BASE		(TZRAM_BASE + 0x10000)
-#define BL31_LIMIT	(TZRAM_BASE + TZRAM_SIZE)
-
-/*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
 #define ADDR_SPACE_SIZE		(1ull << 32)
@@ -138,7 +123,7 @@
 #define PLAT_RK_G1S_IRQS		RK3399_G1S_IRQS
 #define PLAT_RK_G0_IRQS			RK3399_G0_IRQS
 
-#define PLAT_RK_UART_BASE		RK3399_UART2_BASE
+#define PLAT_RK_UART_BASE		UART2_BASE
 #define PLAT_RK_UART_CLOCK		RK3399_UART_CLOCK
 #define PLAT_RK_UART_BAUDRATE		RK3399_BAUDRATE
 

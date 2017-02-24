@@ -42,13 +42,15 @@
 #include <plat_private.h>
 #include <rk3399_def.h>
 #include <pmu_sram.h>
+#include <secure.h>
 #include <soc.h>
 #include <pmu.h>
 #include <pmu_com.h>
 #include <pwm.h>
 #include <bl31.h>
-#include <rk3399m0.h>
 #include <suspend.h>
+#include <m0_ctl.h>
+#include <dfs.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
@@ -1065,36 +1067,10 @@ static void resume_gpio(void)
 	}
 }
 
-static void m0_clock_init(void)
+static void m0_configure_suspend(void)
 {
-	/* enable clocks for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
-		      BITS_WITH_WMASK(0x0, 0x2f, 0));
-
-	/* switch the parent to xin24M and div == 1 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKSEL_CON0,
-		      BIT_WITH_WMSK(15) | BITS_WITH_WMASK(0x0, 0x1f, 8));
-
-	/* start M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_SOFTRST_CON0,
-		      BITS_WITH_WMASK(0x0, 0x24, 0));
-
-	/* gating disable for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, BIT_WITH_WMSK(1));
-}
-
-static void m0_reset(void)
-{
-	/* stop M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_SOFTRST_CON0,
-		      BITS_WITH_WMASK(0x24, 0x24, 0));
-
-	/* recover gating bit for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, WMSK_BIT(1));
-
-	/* disable clocks for M0 */
-	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2,
-		      BITS_WITH_WMASK(0x2f, 0x2f, 0));
+	/* set PARAM to M0_FUNC_SUSPEND */
+	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_SUSPEND);
 }
 
 static int sys_pwr_domain_suspend(void)
@@ -1102,6 +1078,7 @@ static int sys_pwr_domain_suspend(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
+	ddr_prepare_for_sys_suspend();
 	dmc_save();
 	pmu_scu_b_pwrdn();
 
@@ -1117,11 +1094,12 @@ static int sys_pwr_domain_suspend(void)
 
 	sys_slp_config();
 
-	m0_clock_init();
+	m0_configure_suspend();
+	m0_start();
 
 	pmu_sgrf_rst_hld();
 
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      (PMUSRAM_BASE >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 
@@ -1173,7 +1151,7 @@ static int sys_pwr_domain_resume(void)
 	udelay(300);
 	enable_dvfs_plls();
 
-	secure_watchdog_restore();
+	secure_watchdog_enable();
 
 	/* restore clk_ddrc_bpll_src_en gate */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),
@@ -1189,7 +1167,7 @@ static int sys_pwr_domain_resume(void)
 	mmio_write_32(PMU_BASE + PMU_WAKEUP_STATUS, 0xffffffff);
 	mmio_write_32(PMU_BASE + PMU_WKUP_CFG4, 0x00);
 
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 
@@ -1241,8 +1219,9 @@ static int sys_pwr_domain_resume(void)
 				BIT(PMU_CLR_GIC));
 
 	plat_rockchip_gic_cpuif_enable();
+	m0_stop();
 
-	m0_reset();
+	ddr_prepare_for_sys_resume();
 
 	return 0;
 }
@@ -1328,7 +1307,7 @@ void plat_rockchip_pmu_init(void)
 	psram_sleep_cfg->boot_mpidr = read_mpidr_el1() & 0xffff;
 
 	/* config cpu's warm boot address */
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON0_1(1),
+	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 	mmio_write_32(PMU_BASE + PMU_NOC_AUTO_ENA, NOC_AUTO_ENABLE);

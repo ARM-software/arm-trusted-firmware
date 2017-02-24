@@ -267,21 +267,24 @@ static void ddr3_get_parameter(struct timing_related_config *timing_config,
 		break;
 	}
 
-	switch (timing_config->dramodt) {
-	case 60:
-		pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_60;
-		break;
-	case 40:
-		pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_40;
-		break;
-	case 120:
-		pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_120;
-		break;
-	case 0:
-	default:
+	if (timing_config->odt)
+		switch (timing_config->dramodt) {
+		case 60:
+			pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_60;
+			break;
+		case 40:
+			pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_40;
+			break;
+		case 120:
+			pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_120;
+			break;
+		case 0:
+		default:
+			pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_DIS;
+			break;
+		}
+	else
 		pdram_timing->mr[1] = tmp | DDR3_RTT_NOM_DIS;
-		break;
-	}
 
 	pdram_timing->mr[2] = DDR3_MR2_CWL(pdram_timing->cwl);
 	pdram_timing->mr[3] = 0;
@@ -751,18 +754,21 @@ static void lpddr3_get_parameter(struct timing_related_config *timing_config,
 		break;
 	}
 	pdram_timing->mr[0] = 0;
-	switch (timing_config->dramodt) {
-	case 60:
-		pdram_timing->mr11 = LPDDR3_ODT_60;
-		break;
-	case 120:
-		pdram_timing->mr11 = LPDDR3_ODT_120;
-		break;
-	case 240:
-	default:
-		pdram_timing->mr11 = LPDDR3_ODT_240;
-		break;
-	}
+	if (timing_config->odt)
+		switch (timing_config->dramodt) {
+		case 60:
+			pdram_timing->mr11 = LPDDR3_ODT_60;
+			break;
+		case 120:
+			pdram_timing->mr11 = LPDDR3_ODT_120;
+			break;
+		case 240:
+		default:
+			pdram_timing->mr11 = LPDDR3_ODT_240;
+			break;
+		}
+	else
+		pdram_timing->mr11 = LPDDR3_ODT_DIS;
 
 	pdram_timing->tinit1 = (LPDDR3_TINIT1 * nmhz + 999) / 1000;
 	pdram_timing->tinit2 = LPDDR3_TINIT2;
@@ -1113,47 +1119,52 @@ static void lpddr4_get_parameter(struct timing_related_config *timing_config,
 		break;
 	}
 	pdram_timing->mr[0] = 0;
-	switch (timing_config->dramodt) {
-	case 240:
-		tmp = LPDDR4_DQODT_240;
-		break;
-	case 120:
-		tmp = LPDDR4_DQODT_120;
-		break;
-	case 80:
-		tmp = LPDDR4_DQODT_80;
-		break;
-	case 60:
-		tmp = LPDDR4_DQODT_60;
-		break;
-	case 48:
-		tmp = LPDDR4_DQODT_48;
-		break;
-	case 40:
-	default:
-		tmp = LPDDR4_DQODT_40;
-		break;
-	}
-	switch (timing_config->caodt) {
-	case 240:
-		pdram_timing->mr11 = LPDDR4_CAODT_240 | tmp;
-		break;
-	case 120:
-		pdram_timing->mr11 = LPDDR4_CAODT_120 | tmp;
-		break;
-	case 80:
-		pdram_timing->mr11 = LPDDR4_CAODT_80 | tmp;
-		break;
-	case 60:
-		pdram_timing->mr11 = LPDDR4_CAODT_60 | tmp;
-		break;
-	case 48:
-		pdram_timing->mr11 = LPDDR4_CAODT_48 | tmp;
-		break;
-	case 40:
-	default:
-		pdram_timing->mr11 = LPDDR4_CAODT_40 | tmp;
-		break;
+	if (timing_config->odt) {
+		switch (timing_config->dramodt) {
+		case 240:
+			tmp = LPDDR4_DQODT_240;
+			break;
+		case 120:
+			tmp = LPDDR4_DQODT_120;
+			break;
+		case 80:
+			tmp = LPDDR4_DQODT_80;
+			break;
+		case 60:
+			tmp = LPDDR4_DQODT_60;
+			break;
+		case 48:
+			tmp = LPDDR4_DQODT_48;
+			break;
+		case 40:
+		default:
+			tmp = LPDDR4_DQODT_40;
+			break;
+		}
+
+		switch (timing_config->caodt) {
+		case 240:
+			pdram_timing->mr11 = LPDDR4_CAODT_240 | tmp;
+			break;
+		case 120:
+			pdram_timing->mr11 = LPDDR4_CAODT_120 | tmp;
+			break;
+		case 80:
+			pdram_timing->mr11 = LPDDR4_CAODT_80 | tmp;
+			break;
+		case 60:
+			pdram_timing->mr11 = LPDDR4_CAODT_60 | tmp;
+			break;
+		case 48:
+			pdram_timing->mr11 = LPDDR4_CAODT_48 | tmp;
+			break;
+		case 40:
+		default:
+			pdram_timing->mr11 = LPDDR4_CAODT_40 | tmp;
+			break;
+		}
+	} else {
+		pdram_timing->mr11 = LPDDR4_CAODT_DIS | tmp;
 	}
 
 	pdram_timing->tinit1 = (LPDDR4_TINIT1 * nmhz + 999) / 1000;
