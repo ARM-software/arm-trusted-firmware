@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,7 @@ JUNO_INTERCONNECT_SOURCES	:=	drivers/arm/cci/cci.c		\
 
 JUNO_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
 				plat/arm/board/juno/juno_security.c	\
+				plat/arm/board/juno/juno_trng.c		\
 				plat/arm/common/arm_tzc400.c
 
 
