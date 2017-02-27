@@ -82,6 +82,13 @@ typedef struct {
 	 */
 	uint64_t (*tables)[XLAT_TABLE_ENTRIES];
 	int tables_num;
+	/*
+	 * Keep track of how many regions are mapped in each table. The base
+	 * table can't be unmapped so it isn't needed to keep track of it.
+	 */
+#if PLAT_XLAT_TABLES_DYNAMIC
+	int *tables_mapped_regions;
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 	int next_table;
 
@@ -102,6 +109,52 @@ typedef struct {
 	int initialized;
 
 } xlat_ctx_t;
+
+#if PLAT_XLAT_TABLES_DYNAMIC
+/*
+ * Shifts and masks to access fields of an mmap_attr_t
+ */
+/* Dynamic or static */
+#define MT_DYN_SHIFT		30 /* 31 would cause undefined behaviours */
+
+/*
+ * Memory mapping private attributes
+ *
+ * Private attributes not exposed in the mmap_attr_t enum.
+ */
+typedef enum  {
+	/*
+	 * Regions mapped before the MMU can't be unmapped dynamically (they are
+	 * static) and regions mapped with MMU enabled can be unmapped. This
+	 * behaviour can't be overridden.
+	 *
+	 * Static regions can overlap each other, dynamic regions can't.
+	 */
+	MT_STATIC	= 0 << MT_DYN_SHIFT,
+	MT_DYNAMIC	= 1 << MT_DYN_SHIFT
+} mmap_priv_attr_t;
+
+/*
+ * Function used to invalidate all levels of the translation walk for a given
+ * virtual address. It must be called for every translation table entry that is
+ * modified.
+ */
+void xlat_arch_tlbi_va(uintptr_t va);
+
+/*
+ * This function has to be called at the end of any code that uses the function
+ * xlat_arch_tlbi_va().
+ */
+void xlat_arch_tlbi_va_sync(void);
+
+/* Add a dynamic region to the specified context. */
+int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
+
+/* Remove a dynamic region from the specified context. */
+int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
+			size_t size);
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /* Print VA, PA, size and attributes of all regions in the mmap array. */
 void print_mmap(mmap_region_t *const mmap);

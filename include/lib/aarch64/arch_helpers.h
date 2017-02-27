@@ -124,6 +124,13 @@ DEFINE_SYSOP_TYPE_FUNC(tlbi, alle3)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle3is)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, vmalle1)
 
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vaae1is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vaale1is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vae2is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vale2is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vae3is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vale3is)
+
 /*******************************************************************************
  * Cache maintenance accessor prototypes
  ******************************************************************************/
@@ -181,6 +188,7 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dmb, st)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
 DEFINE_SYSOP_FUNC(isb)
 

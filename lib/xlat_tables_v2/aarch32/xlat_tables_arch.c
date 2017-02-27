@@ -50,6 +50,47 @@ int is_mmu_enabled(void)
 	return (read_sctlr() & SCTLR_M_BIT) != 0;
 }
 
+#if PLAT_XLAT_TABLES_DYNAMIC
+
+void xlat_arch_tlbi_va(uintptr_t va)
+{
+	/*
+	 * Ensure the translation table write has drained into memory before
+	 * invalidating the TLB entry.
+	 */
+	dsbishst();
+
+	tlbimvaais(TLBI_ADDR(va));
+}
+
+void xlat_arch_tlbi_va_sync(void)
+{
+	/* Invalidate all entries from branch predictors. */
+	bpiallis();
+
+	/*
+	 * A TLB maintenance instruction can complete at any time after
+	 * it is issued, but is only guaranteed to be complete after the
+	 * execution of DSB by the PE that executed the TLB maintenance
+	 * instruction. After the TLB invalidate instruction is
+	 * complete, no new memory accesses using the invalidated TLB
+	 * entries will be observed by any observer of the system
+	 * domain. See section D4.8.2 of the ARMv8 (issue k), paragraph
+	 * "Ordering and completion of TLB maintenance instructions".
+	 */
+	dsbish();
+
+	/*
+	 * The effects of a completed TLB maintenance instruction are
+	 * only guaranteed to be visible on the PE that executed the
+	 * instruction after the execution of an ISB instruction by the
+	 * PE that executed the TLB maintenance instruction.
+	 */
+	isb();
+}
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
+
 void init_xlat_tables_arch(unsigned long long max_pa)
 {
 	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=

@@ -60,6 +60,10 @@ static uint64_t tf_base_xlat_table[NUM_BASE_LEVEL_ENTRIES]
 
 static mmap_region_t tf_mmap[MAX_MMAP_REGIONS + 1];
 
+#if PLAT_XLAT_TABLES_DYNAMIC
+static int xlat_tables_mapped_regions[MAX_XLAT_TABLES];
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
+
 xlat_ctx_t tf_xlat_ctx = {
 
 	.pa_max_address = PLAT_PHY_ADDR_SPACE_SIZE - 1,
@@ -70,6 +74,9 @@ xlat_ctx_t tf_xlat_ctx = {
 
 	.tables = tf_xlat_tables,
 	.tables_num = MAX_XLAT_TABLES,
+#if PLAT_XLAT_TABLES_DYNAMIC
+	.tables_mapped_regions = xlat_tables_mapped_regions,
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 	.base_table = tf_base_xlat_table,
 	.base_table_entries = NUM_BASE_LEVEL_ENTRIES,
@@ -103,6 +110,27 @@ void mmap_add(const mmap_region_t *mm)
 		mm++;
 	}
 }
+
+#if PLAT_XLAT_TABLES_DYNAMIC
+
+int mmap_add_dynamic_region(unsigned long long base_pa,
+			    uintptr_t base_va, size_t size, unsigned int attr)
+{
+	mmap_region_t mm = {
+		.base_va = base_va,
+		.base_pa = base_pa,
+		.size = size,
+		.attr = attr,
+	};
+	return mmap_add_dynamic_region_ctx(&tf_xlat_ctx, &mm);
+}
+
+int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
+{
+	return mmap_remove_dynamic_region_ctx(&tf_xlat_ctx, base_va, size);
+}
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 void init_xlat_tables(void)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -332,6 +332,15 @@
 #define PMCR_N_BITS		(PMCR_N_MASK << PMCR_N_SHIFT)
 
 /*******************************************************************************
+ * Definitions of register offsets, fields and macros for CPU system
+ * instructions.
+ ******************************************************************************/
+
+#define TLBI_ADDR_SHIFT		0
+#define TLBI_ADDR_MASK		0xFFFFF000
+#define TLBI_ADDR(x)		(((x) >> TLBI_ADDR_SHIFT) & TLBI_ADDR_MASK)
+
+/*******************************************************************************
  * Definitions of register offsets and fields in the CNTCTLBase Frame of the
  * system level implementation of the Generic Timer.
  ******************************************************************************/
@@ -378,6 +387,8 @@
 #define TLBIALLIS	p15, 0, c8, c3, 0
 #define TLBIMVA		p15, 0, c8, c7, 1
 #define TLBIMVAA	p15, 0, c8, c7, 3
+#define TLBIMVAAIS	p15, 0, c8, c3, 3
+#define BPIALLIS	p15, 0, c7, c1, 6
 #define HSCTLR		p15, 4, c1, c0, 0
 #define HCR		p15, 4, c1, c1, 0
 #define HCPTR		p15, 4, c1, c1, 2

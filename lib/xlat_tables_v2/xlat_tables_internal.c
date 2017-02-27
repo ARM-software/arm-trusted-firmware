@@ -47,6 +47,63 @@
 #endif
 #include "xlat_tables_private.h"
 
+#if PLAT_XLAT_TABLES_DYNAMIC
+
+/*
+ * The following functions assume that they will be called using subtables only.
+ * The base table can't be unmapped, so it is not needed to do any special
+ * handling for it.
+ */
+
+/*
+ * Returns the index of the array corresponding to the specified translation
+ * table.
+ */
+static int xlat_table_get_index(xlat_ctx_t *ctx, const uint64_t *table)
+{
+	for (int i = 0; i < ctx->tables_num; i++)
+		if (ctx->tables[i] == table)
+			return i;
+
+	/*
+	 * Maybe we were asked to get the index of the base level table, which
+	 * should never happen.
+	 */
+	assert(0);
+
+	return -1;
+}
+
+/* Returns a pointer to an empty translation table. */
+static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
+{
+	for (int i = 0; i < ctx->tables_num; i++)
+		if (ctx->tables_mapped_regions[i] == 0)
+			return ctx->tables[i];
+
+	return NULL;
+}
+
+/* Increments region count for a given table. */
+static void xlat_table_inc_regions_count(xlat_ctx_t *ctx, const uint64_t *table)
+{
+	ctx->tables_mapped_regions[xlat_table_get_index(ctx, table)]++;
+}
+
+/* Decrements region count for a given table. */
+static void xlat_table_dec_regions_count(xlat_ctx_t *ctx, const uint64_t *table)
+{
+	ctx->tables_mapped_regions[xlat_table_get_index(ctx, table)]--;
+}
+
+/* Returns 0 if the speficied table isn't empty, otherwise 1. */
+static int xlat_table_is_empty(xlat_ctx_t *ctx, const uint64_t *table)
+{
+	return !ctx->tables_mapped_regions[xlat_table_get_index(ctx, table)];
+}
+
+#else /* PLAT_XLAT_TABLES_DYNAMIC */
+
 /* Returns a pointer to the first empty translation table. */
 static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 {
@@ -54,6 +111,8 @@ static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 
 	return ctx->tables[ctx->next_table++];
 }
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /* Returns a block/page table descriptor for the given level and attributes. */
 static uint64_t xlat_desc(unsigned int attr, unsigned long long addr_pa,
@@ -155,6 +214,142 @@ typedef enum {
 	ACTION_RECURSE_INTO_TABLE,
 
 } action_t;
+
+#if PLAT_XLAT_TABLES_DYNAMIC
+
+/*
+ * Recursive function that writes to the translation tables and unmaps the
+ * specified region.
+ */
+static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
+				     const uintptr_t table_base_va,
+				     uint64_t *const table_base,
+				     const int table_entries,
+				     const int level)
+{
+	assert(level >= ctx->base_level && level <= XLAT_TABLE_LEVEL_MAX);
+
+	uint64_t *subtable;
+	uint64_t desc;
+
+	uintptr_t table_idx_va;
+	uintptr_t table_idx_end_va; /* End VA of this entry */
+
+	uintptr_t region_end_va = mm->base_va + mm->size - 1;
+
+	int table_idx;
+
+	if (mm->base_va > table_base_va) {
+		/* Find the first index of the table affected by the region. */
+		table_idx_va = mm->base_va & ~XLAT_BLOCK_MASK(level);
+
+		table_idx = (table_idx_va - table_base_va) >>
+			    XLAT_ADDR_SHIFT(level);
+
+		assert(table_idx < table_entries);
+	} else {
+		/* Start from the beginning of the table. */
+		table_idx_va = table_base_va;
+		table_idx = 0;
+	}
+
+	while (table_idx < table_entries) {
+
+		table_idx_end_va = table_idx_va + XLAT_BLOCK_SIZE(level) - 1;
+
+		desc = table_base[table_idx];
+		uint64_t desc_type = desc & DESC_MASK;
+
+		action_t action = ACTION_NONE;
+
+		if ((mm->base_va <= table_idx_va) &&
+		    (region_end_va >= table_idx_end_va)) {
+
+			/* Region covers all block */
+
+			if (level == 3) {
+				/*
+				 * Last level, only page descriptors allowed,
+				 * erase it.
+				 */
+				assert(desc_type == PAGE_DESC);
+
+				action = ACTION_WRITE_BLOCK_ENTRY;
+			} else {
+				/*
+				 * Other levels can have table descriptors. If
+				 * so, recurse into it and erase descriptors
+				 * inside it as needed. If there is a block
+				 * descriptor, just erase it. If an invalid
+				 * descriptor is found, this table isn't
+				 * actually mapped, which shouldn't happen.
+				 */
+				if (desc_type == TABLE_DESC) {
+					action = ACTION_RECURSE_INTO_TABLE;
+				} else {
+					assert(desc_type == BLOCK_DESC);
+					action = ACTION_WRITE_BLOCK_ENTRY;
+				}
+			}
+
+		} else if ((mm->base_va <= table_idx_end_va) ||
+			   (region_end_va >= table_idx_va)) {
+
+			/*
+			 * Region partially covers block.
+			 *
+			 * It can't happen in level 3.
+			 *
+			 * There must be a table descriptor here, if not there
+			 * was a problem when mapping the region.
+			 */
+
+			assert(level < 3);
+
+			assert(desc_type == TABLE_DESC);
+
+			action = ACTION_RECURSE_INTO_TABLE;
+		}
+
+		if (action == ACTION_WRITE_BLOCK_ENTRY) {
+
+			table_base[table_idx] = INVALID_DESC;
+			xlat_arch_tlbi_va(table_idx_va);
+
+		} else if (action == ACTION_RECURSE_INTO_TABLE) {
+
+			subtable = (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
+
+			/* Recurse to write into subtable */
+			xlat_tables_unmap_region(ctx, mm, table_idx_va,
+						 subtable, XLAT_TABLE_ENTRIES,
+						 level + 1);
+
+			/*
+			 * If the subtable is now empty, remove its reference.
+			 */
+			if (xlat_table_is_empty(ctx, subtable)) {
+				table_base[table_idx] = INVALID_DESC;
+				xlat_arch_tlbi_va(table_idx_va);
+			}
+
+		} else {
+			assert(action == ACTION_NONE);
+		}
+
+		table_idx++;
+		table_idx_va += XLAT_BLOCK_SIZE(level);
+
+		/* If reached the end of the region, exit */
+		if (region_end_va <= table_idx_va)
+			break;
+	}
+
+	if (level > ctx->base_level)
+		xlat_table_dec_regions_count(ctx, table_base);
+}
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /*
  * From the given arguments, it decides which action to take when mapping the
@@ -287,9 +482,11 @@ static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 
 /*
  * Recursive function that writes to the translation tables and maps the
- * specified region.
+ * specified region. On success, it returns the VA of the last byte that was
+ * succesfully mapped. On error, it returns the VA of the next entry that
+ * should have been mapped.
  */
-static void xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
+static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 				   const uintptr_t table_base_va,
 				   uint64_t *const table_base,
 				   const int table_entries,
@@ -321,6 +518,11 @@ static void xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		table_idx = 0;
 	}
 
+#if PLAT_XLAT_TABLES_DYNAMIC
+	if (level > ctx->base_level)
+		xlat_table_inc_regions_count(ctx, table_base);
+#endif
+
 	while (table_idx < table_entries) {
 
 		desc = table_base[table_idx];
@@ -338,20 +540,30 @@ static void xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		} else if (action == ACTION_CREATE_NEW_TABLE) {
 
 			subtable = xlat_table_get_empty(ctx);
-			assert(subtable != NULL);
-			/* Recurse to write into subtable */
-			xlat_tables_map_region(ctx, mm, table_idx_va, subtable,
-					       XLAT_TABLE_ENTRIES, level + 1);
+			if (subtable == NULL) {
+				/* Not enough free tables to map this region */
+				return table_idx_va;
+			}
+
 			/* Point to new subtable from this one. */
-			table_base[table_idx] =
-					TABLE_DESC | (unsigned long)subtable;
+			table_base[table_idx] = TABLE_DESC | (unsigned long)subtable;
+
+			/* Recurse to write into subtable */
+			uintptr_t end_va = xlat_tables_map_region(ctx, mm, table_idx_va,
+					       subtable, XLAT_TABLE_ENTRIES,
+					       level + 1);
+			if (end_va != table_idx_va + XLAT_BLOCK_SIZE(level) - 1)
+				return end_va;
 
 		} else if (action == ACTION_RECURSE_INTO_TABLE) {
 
 			subtable = (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
 			/* Recurse to write into subtable */
-			xlat_tables_map_region(ctx, mm, table_idx_va, subtable,
-					       XLAT_TABLE_ENTRIES, level + 1);
+			uintptr_t end_va =  xlat_tables_map_region(ctx, mm, table_idx_va,
+					       subtable, XLAT_TABLE_ENTRIES,
+					       level + 1);
+			if (end_va != table_idx_va + XLAT_BLOCK_SIZE(level) - 1)
+				return end_va;
 
 		} else {
 
@@ -366,6 +578,8 @@ static void xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		if (mm_end_va <= table_idx_va)
 			break;
 	}
+
+	return table_idx_va - 1;
 }
 
 void print_mmap(mmap_region_t *const mmap)
@@ -436,10 +650,14 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, unsigned long long base_pa,
 		 * Full VA overlaps are only allowed if both regions are
 		 * identity mapped (zero offset) or have the same VA to PA
 		 * offset. Also, make sure that it's not the exact same area.
-		 * This can only be done with locked regions.
+		 * This can only be done with static regions.
 		 */
 		if (fully_overlapped_va) {
 
+#if PLAT_XLAT_TABLES_DYNAMIC
+			if ((attr & MT_DYNAMIC) || (mm->attr & MT_DYNAMIC))
+				return -EPERM;
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 			if ((mm->base_va - mm->base_pa) != (base_va - base_pa))
 				return -EPERM;
 
@@ -481,6 +699,9 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 	if (!mm->size)
 		return;
 
+	/* Static regions must be added before initializing the xlat tables. */
+	assert(!ctx->initialized);
+
 	ret = mmap_add_region_check(ctx, mm->base_pa, mm->base_va, mm->size,
 				    mm->attr);
 	if (ret != 0) {
@@ -509,6 +730,8 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 	 * regions with the loop in xlat_tables_init_internal because the outer
 	 * ones won't overwrite block or page descriptors of regions added
 	 * previously.
+	 *
+	 * Overlapping is only allowed for static regions.
 	 */
 
 	while ((mm_cursor->base_va + mm_cursor->size - 1) < end_va
@@ -540,6 +763,179 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 	if (end_va > ctx->max_va)
 		ctx->max_va = end_va;
 }
+
+#if PLAT_XLAT_TABLES_DYNAMIC
+
+int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+{
+	mmap_region_t *mm_cursor = ctx->mmap;
+	mmap_region_t *mm_last = mm_cursor + ctx->mmap_num;
+	unsigned long long end_pa = mm->base_pa + mm->size - 1;
+	uintptr_t end_va = mm->base_va + mm->size - 1;
+	int ret;
+
+	/* Nothing to do */
+	if (!mm->size)
+		return 0;
+
+	ret = mmap_add_region_check(ctx, mm->base_pa, mm->base_va, mm->size, mm->attr | MT_DYNAMIC);
+	if (ret != 0)
+		return ret;
+
+	/*
+	 * Find the adequate entry in the mmap array in the same way done for
+	 * static regions in mmap_add_region_ctx().
+	 */
+
+	while ((mm_cursor->base_va + mm_cursor->size - 1) < end_va && mm_cursor->size)
+		++mm_cursor;
+
+	while ((mm_cursor->base_va + mm_cursor->size - 1 == end_va) && (mm_cursor->size < mm->size))
+		++mm_cursor;
+
+	/* Make room for new region by moving other regions up by one place */
+	memmove(mm_cursor + 1, mm_cursor, (uintptr_t)mm_last - (uintptr_t)mm_cursor);
+
+	/*
+	 * Check we haven't lost the empty sentinal from the end of the array.
+	 * This shouldn't happen as we have checked in mmap_add_region_check
+	 * that there is free space.
+	 */
+	assert(mm_last->size == 0);
+
+	mm_cursor->base_pa = mm->base_pa;
+	mm_cursor->base_va = mm->base_va;
+	mm_cursor->size = mm->size;
+	mm_cursor->attr = mm->attr | MT_DYNAMIC;
+
+	/*
+	 * Update the translation tables if the xlat tables are initialized. If
+	 * not, this region will be mapped when they are initialized.
+	 */
+	if (ctx->initialized) {
+		uintptr_t end_va = xlat_tables_map_region(ctx, mm_cursor, 0, ctx->base_table,
+				ctx->base_table_entries, ctx->base_level);
+
+		/* Failed to map, remove mmap entry, unmap and return error. */
+		if (end_va != mm_cursor->base_va + mm_cursor->size - 1) {
+			memmove(mm_cursor, mm_cursor + 1, (uintptr_t)mm_last - (uintptr_t)mm_cursor);
+
+			/*
+			 * Check if the mapping function actually managed to map
+			 * anything. If not, just return now.
+			 */
+			if (mm_cursor->base_va >= end_va)
+				return -ENOMEM;
+
+			/*
+			 * Something went wrong after mapping some table entries,
+			 * undo every change done up to this point.
+			 */
+			mmap_region_t unmap_mm = {
+					.base_pa = 0,
+					.base_va = mm->base_va,
+					.size = end_va - mm->base_va,
+					.attr = 0
+			};
+			xlat_tables_unmap_region(ctx, &unmap_mm, 0, ctx->base_table,
+							ctx->base_table_entries, ctx->base_level);
+
+			return -ENOMEM;
+		}
+
+		/*
+		 * Make sure that all entries are written to the memory. There
+		 * is no need to invalidate entries when mapping dynamic regions
+		 * because new table/block/page descriptors only replace old
+		 * invalid descriptors, that aren't TLB cached.
+		 */
+		dsbishst();
+	}
+
+	if (end_pa > ctx->max_pa)
+		ctx->max_pa = end_pa;
+	if (end_va > ctx->max_va)
+		ctx->max_va = end_va;
+
+	return 0;
+}
+
+/*
+ * Removes the region with given base Virtual Address and size from the given
+ * context.
+ *
+ * Returns:
+ *        0: Success.
+ *   EINVAL: Invalid values were used as arguments (region not found).
+ *    EPERM: Tried to remove a static region.
+ */
+int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
+				   size_t size)
+{
+	mmap_region_t *mm = ctx->mmap;
+	mmap_region_t *mm_last = mm + ctx->mmap_num;
+	int update_max_va_needed = 0;
+	int update_max_pa_needed = 0;
+
+	/* Check sanity of mmap array. */
+	assert(mm[ctx->mmap_num].size == 0);
+
+	while (mm->size) {
+		if ((mm->base_va == base_va) && (mm->size == size))
+			break;
+		++mm;
+	}
+
+	/* Check that the region was found */
+	if (mm->size == 0)
+		return -EINVAL;
+
+	/* If the region is static it can't be removed */
+	if (!(mm->attr & MT_DYNAMIC))
+		return -EPERM;
+
+	/* Check if this region is using the top VAs or PAs. */
+	if ((mm->base_va + mm->size - 1) == ctx->max_va)
+		update_max_va_needed = 1;
+	if ((mm->base_pa + mm->size - 1) == ctx->max_pa)
+		update_max_pa_needed = 1;
+
+	/* Update the translation tables if needed */
+	if (ctx->initialized) {
+		xlat_tables_unmap_region(ctx, mm, 0, ctx->base_table,
+					 ctx->base_table_entries,
+					 ctx->base_level);
+		xlat_arch_tlbi_va_sync();
+	}
+
+	/* Remove this region by moving the rest down by one place. */
+	memmove(mm, mm + 1, (uintptr_t)mm_last - (uintptr_t)mm);
+
+	/* Check if we need to update the max VAs and PAs */
+	if (update_max_va_needed) {
+		ctx->max_va = 0;
+		mm = ctx->mmap;
+		while (mm->size) {
+			if ((mm->base_va + mm->size - 1) > ctx->max_va)
+				ctx->max_va = mm->base_va + mm->size - 1;
+			++mm;
+		}
+	}
+
+	if (update_max_pa_needed) {
+		ctx->max_pa = 0;
+		mm = ctx->mmap;
+		while (mm->size) {
+			if ((mm->base_pa + mm->size - 1) > ctx->max_pa)
+				ctx->max_pa = mm->base_pa + mm->size - 1;
+			++mm;
+		}
+	}
+
+	return 0;
+}
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 
@@ -681,13 +1077,26 @@ void init_xlation_table(xlat_ctx_t *ctx)
 		ctx->base_table[i] = INVALID_DESC;
 
 	for (int j = 0; j < ctx->tables_num; j++) {
+#if PLAT_XLAT_TABLES_DYNAMIC
+		ctx->tables_mapped_regions[j] = 0;
+#endif
 		for (int i = 0; i < XLAT_TABLE_ENTRIES; i++)
 			ctx->tables[j][i] = INVALID_DESC;
 	}
 
-	while (mm->size)
-		xlat_tables_map_region(ctx, mm++, 0, ctx->base_table,
+	while (mm->size) {
+		uintptr_t end_va = xlat_tables_map_region(ctx, mm, 0, ctx->base_table,
 				ctx->base_table_entries, ctx->base_level);
+
+		if (end_va != mm->base_va + mm->size - 1) {
+			ERROR("Not enough memory to map region:\n"
+			      " VA:%p  PA:0x%llx  size:0x%zx  attr:0x%x\n",
+			      (void *)mm->base_va, mm->base_pa, mm->size, mm->attr);
+			panic();
+		}
+
+		mm++;
+	}
 
 	ctx->initialized = 1;
 }

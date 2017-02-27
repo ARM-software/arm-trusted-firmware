@@ -59,6 +59,7 @@
 #define MT_SEC_SHIFT		4
 /* Access permissions for instruction execution (EXECUTE/EXECUTE_NEVER) */
 #define MT_EXECUTE_SHIFT	5
+/* All other bits are reserved */
 
 /*
  * Memory mapping attributes
@@ -116,11 +117,36 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 				size_t size, unsigned int attr);
 
 /*
+ * Add a region with defined base PA and base VA. This type of region can be
+ * added and removed even if the MMU is enabled.
+ *
+ * Returns:
+ *        0: Success.
+ *   EINVAL: Invalid values were used as arguments.
+ *   ERANGE: Memory limits were surpassed.
+ *   ENOMEM: Not enough space in the mmap array or not enough free xlat tables.
+ *    EPERM: It overlaps another region in an invalid way.
+ */
+int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
+				size_t size, unsigned int attr);
+
+/*
  * Add an array of static regions with defined base PA and base VA. This type
  * of region can only be added before initializing the MMU and cannot be
  * removed later.
  */
 void mmap_add(const mmap_region_t *mm);
+
+/*
+ * Remove a region with the specified base VA and size. Only dynamic regions can
+ * be removed, and they can be removed even if the MMU is enabled.
+ *
+ * Returns:
+ *        0: Success.
+ *   EINVAL: The specified region wasn't found.
+ *    EPERM: Trying to remove a static region.
+ */
+int mmap_remove_dynamic_region(uintptr_t base_va, size_t size);
 
 #endif /*__ASSEMBLY__*/
 #endif /* __XLAT_TABLES_V2_H__ */
