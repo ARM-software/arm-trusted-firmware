@@ -32,7 +32,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <context_mgmt.h>
 #include <debug.h>
 #include <errno.h>
 #include <memctrl.h>
@@ -40,14 +39,30 @@
 #include <tegra_private.h>
 
 /*******************************************************************************
- * Tegra210 SiP SMCs
+ * Common Tegra SiP SMCs
  ******************************************************************************/
 #define TEGRA_SIP_NEW_VIDEOMEM_REGION		0x82000003
 
 /*******************************************************************************
+ * SoC specific SiP handler
+ ******************************************************************************/
+#pragma weak plat_sip_handler
+int plat_sip_handler(uint32_t smc_fid,
+		     uint64_t x1,
+		     uint64_t x2,
+		     uint64_t x3,
+		     uint64_t x4,
+		     void *cookie,
+		     void *handle,
+		     uint64_t flags)
+{
+	return -ENOTSUP;
+}
+
+/*******************************************************************************
  * This function is responsible for handling all SiP calls from the NS world
  ******************************************************************************/
-uint64_t tegra210_sip_handler(uint32_t smc_fid,
+uint64_t tegra_sip_handler(uint32_t smc_fid,
 			   uint64_t x1,
 			   uint64_t x2,
 			   uint64_t x3,
@@ -63,6 +78,11 @@ uint64_t tegra210_sip_handler(uint32_t smc_fid,
 	ns = is_caller_non_secure(flags);
 	if (!ns)
 		SMC_RET1(handle, SMC_UNK);
+
+	/* Check if this is a SoC specific SiP */
+	err = plat_sip_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
+	if (err == 0)
+		SMC_RET1(handle, err);
 
 	switch (smc_fid) {
 
@@ -104,11 +124,11 @@ uint64_t tegra210_sip_handler(uint32_t smc_fid,
 
 /* Define a runtime service descriptor for fast SMC calls */
 DECLARE_RT_SVC(
-	tegra210_sip_fast,
+	tegra_sip_fast,
 
 	OEN_SIP_START,
 	OEN_SIP_END,
 	SMC_TYPE_FAST,
 	NULL,
-	tegra210_sip_handler
+	tegra_sip_handler
 );

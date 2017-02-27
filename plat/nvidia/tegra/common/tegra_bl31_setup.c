@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,7 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <stddef.h>
+#include <tegra_def.h>
 #include <tegra_private.h>
 
 /*******************************************************************************
@@ -183,6 +184,12 @@ void bl31_platform_setup(void)
 	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
 			plat_bl31_params_from_bl2.tzdram_size);
 
+	/*
+	 * Set up the TZRAM memory aperture to allow only secure world
+	 * access
+	 */
+	tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
+
 	/* Set the next EL to be AArch64 */
 	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT;
 	write_scr(tmp_reg);
@@ -191,6 +198,16 @@ void bl31_platform_setup(void)
 	tegra_gic_setup();
 
 	INFO("BL3-1: Tegra platform setup complete\n");
+}
+
+/*******************************************************************************
+ * Perform any BL3-1 platform runtime setup prior to BL3-1 cold boot exit
+ ******************************************************************************/
+void bl31_plat_runtime_setup(void)
+{
+	/* Initialize the runtime console */
+	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+		TEGRA_CONSOLE_BAUDRATE);
 }
 
 /*******************************************************************************
@@ -208,6 +225,7 @@ void bl31_plat_arch_setup(void)
 #if USE_COHERENT_MEM
 	unsigned long coh_start, coh_size;
 #endif
+	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 
 	/* add memory regions */
 	mmap_add_region(total_base, total_base,
@@ -216,6 +234,14 @@ void bl31_plat_arch_setup(void)
 	mmap_add_region(ro_start, ro_start,
 			ro_size,
 			MT_MEMORY | MT_RO | MT_SECURE);
+
+	/* map TZDRAM used by BL31 as coherent memory */
+	if (TEGRA_TZRAM_BASE == tegra_bl31_phys_base) {
+		mmap_add_region(params_from_bl2->tzdram_base,
+				params_from_bl2->tzdram_base,
+				BL31_SIZE,
+				MT_DEVICE | MT_RW | MT_SECURE);
+	}
 
 #if USE_COHERENT_MEM
 	coh_start = total_base + (BL_COHERENT_RAM_BASE - BL31_RO_BASE);

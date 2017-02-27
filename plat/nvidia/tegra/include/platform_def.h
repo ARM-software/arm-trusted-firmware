@@ -53,12 +53,6 @@
 					 PLATFORM_CLUSTER_COUNT + 1)
 
 /*******************************************************************************
- * Platform power states
- ******************************************************************************/
-#define PLAT_MAX_RET_STATE		1
-#define PLAT_MAX_OFF_STATE		(PSTATE_ID_SOC_POWERDN + 1)
-
-/*******************************************************************************
  * Platform console related constants
  ******************************************************************************/
 #define TEGRA_CONSOLE_BAUDRATE		115200
@@ -74,7 +68,7 @@
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
-#define BL31_SIZE			0x20000
+#define BL31_SIZE			0x40000
 #define BL31_BASE			TZDRAM_BASE
 #define BL31_LIMIT			(TZDRAM_BASE + BL31_SIZE - 1)
 #define BL32_BASE			(TZDRAM_BASE + BL31_SIZE)

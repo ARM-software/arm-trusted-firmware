@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,7 +54,9 @@ extern uint64_t tegra_sec_entry_point;
 #pragma weak tegra_soc_pwr_domain_on
 #pragma weak tegra_soc_pwr_domain_off
 #pragma weak tegra_soc_pwr_domain_on_finish
+#pragma weak tegra_soc_pwr_domain_power_down_wfi
 #pragma weak tegra_soc_prepare_system_reset
+#pragma weak tegra_soc_prepare_system_off
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
@@ -76,9 +78,20 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	return PSCI_E_SUCCESS;
 }
 
+int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
+{
+	return PSCI_E_SUCCESS;
+}
+
 int tegra_soc_prepare_system_reset(void)
 {
 	return PSCI_E_SUCCESS;
+}
+
+__dead2 void tegra_soc_prepare_system_off(void)
+{
+	ERROR("Tegra System Off: operation not handled.\n");
+	panic();
 }
 
 /*******************************************************************************
@@ -129,7 +142,7 @@ void tegra_pwr_domain_off(const psci_power_state_t *target_state)
 }
 
 /*******************************************************************************
- * Handler called when called when a power domain is about to be suspended. The
+ * Handler called when a power domain is about to be suspended. The
  * target_state encodes the power state that each level should transition to.
  ******************************************************************************/
 void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -138,6 +151,24 @@ void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	/* disable GICC */
 	tegra_gic_cpuif_deactivate();
+}
+
+/*******************************************************************************
+ * Handler called at the end of the power domain suspend sequence. The
+ * target_state encodes the power state that each level should transition to.
+ ******************************************************************************/
+__dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
+					     *target_state)
+{
+	/* call the chip's power down handler */
+	tegra_soc_pwr_domain_power_down_wfi(target_state);
+
+	/* enter power down state */
+	wfi();
+
+	/* we can never reach here */
+	ERROR("%s: operation not handled.\n", __func__);
+	panic();
 }
 
 /*******************************************************************************
@@ -161,14 +192,10 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 			PSTATE_ID_SOC_POWERDN) {
 
 		/*
-		 * Lock scratch registers which hold the CPU vectors.
+		 * Restore Memory Controller settings as it loses state
+		 * during system suspend.
 		 */
-		tegra_pmc_lock_cpu_vectors();
-
-		/*
-		 * SMMU configuration.
-		 */
-		tegra_memctrl_setup();
+		tegra_memctrl_restore_settings();
 
 		/*
 		 * Security configuration to allow DRAM/device access.
@@ -199,8 +226,9 @@ void tegra_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 __dead2 void tegra_system_off(void)
 {
-	ERROR("Tegra System Off: operation not handled.\n");
-	panic();
+	INFO("Powering down system...\n");
+
+	tegra_soc_prepare_system_off();
 }
 
 /*******************************************************************************
@@ -208,6 +236,8 @@ __dead2 void tegra_system_off(void)
  ******************************************************************************/
 __dead2 void tegra_system_reset(void)
 {
+	INFO("Restarting system...\n");
+
 	/* per-SoC system reset handler */
 	tegra_soc_prepare_system_reset();
 
@@ -223,12 +253,7 @@ __dead2 void tegra_system_reset(void)
 int32_t tegra_validate_power_state(unsigned int power_state,
 				   psci_power_state_t *req_state)
 {
-	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
-
 	assert(req_state);
-
-	if (pwr_lvl > PLAT_MAX_PWR_LVL)
-		return PSCI_E_INVALID_PARAMS;
 
 	return tegra_soc_validate_power_state(power_state, req_state);
 }
@@ -258,6 +283,7 @@ static const plat_psci_ops_t tegra_plat_psci_ops = {
 	.pwr_domain_suspend		= tegra_pwr_domain_suspend,
 	.pwr_domain_on_finish		= tegra_pwr_domain_on_finish,
 	.pwr_domain_suspend_finish	= tegra_pwr_domain_suspend_finish,
+	.pwr_domain_pwr_down_wfi	= tegra_pwr_domain_power_down_wfi,
 	.system_off			= tegra_system_off,
 	.system_reset			= tegra_system_reset,
 	.validate_power_state		= tegra_validate_power_state,

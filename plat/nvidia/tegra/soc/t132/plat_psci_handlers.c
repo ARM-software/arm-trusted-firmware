@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,36 +59,15 @@ static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
 {
-	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
 	int state_id = psci_get_pstate_id(power_state);
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
-
-	if (pwr_lvl > PLAT_MAX_PWR_LVL)
-		return PSCI_E_INVALID_PARAMS;
-
-	/* Sanity check the requested afflvl */
-	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
-		/*
-		 * It's possible to enter standby only on affinity level 0 i.e.
-		 * a cpu on Tegra. Ignore any other affinity level.
-		 */
-		if (pwr_lvl != MPIDR_AFFLVL0)
-			return PSCI_E_INVALID_PARAMS;
-
-		/* power domain in standby state */
-		req_state->pwr_domain_state[pwr_lvl] = PLAT_MAX_RET_STATE;
-
-		return PSCI_E_SUCCESS;
-	}
 
 	/*
 	 * Sanity check the requested state id, power level and CPU number.
 	 * Currently T132 only supports SYSTEM_SUSPEND on last standing CPU
 	 * i.e. CPU 0
 	 */
-	if ((pwr_lvl != PLAT_MAX_PWR_LVL) ||
-	    (state_id != PSTATE_ID_SOC_POWERDN) ||
-	    (cpu != 0)) {
+	if ((state_id != PSTATE_ID_SOC_POWERDN) || (cpu != 0)) {
 		ERROR("unsupported state id @ power level\n");
 		return PSCI_E_INVALID_PARAMS;
 	}
@@ -128,9 +107,26 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 	return PSCI_E_SUCCESS;
 }
 
+int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
+{
+	/*
+	 * Lock scratch registers which hold the CPU vectors
+	 */
+	tegra_pmc_lock_cpu_vectors();
+
+	return PSCI_E_SUCCESS;
+}
+
 int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	tegra_fc_cpu_off(read_mpidr() & MPIDR_CPU_MASK);
+
+	/* Disable DCO operations */
+	denver_disable_dco();
+
+	/* Power down the CPU */
+	write_actlr_el1(DENVER_CPU_STATE_POWER_DOWN);
+
 	return PSCI_E_SUCCESS;
 }
 
@@ -149,7 +145,10 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* Program FC to enter suspend state */
 	tegra_fc_cpu_powerdn(read_mpidr());
 
-	/* Suspend DCO operations */
+	/* Disable DCO operations */
+	denver_disable_dco();
+
+	/* Program the suspend state ID */
 	write_actlr_el1(target_state->pwr_domain_state[PLAT_MAX_PWR_LVL]);
 
 	return PSCI_E_SUCCESS;

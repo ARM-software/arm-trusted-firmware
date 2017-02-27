@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,8 @@
 #include <denver.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+	.global	denver_disable_dco
 
 	/* ---------------------------------------------
 	 * Disable debug interfaces
@@ -110,22 +112,6 @@ endfunc denver_reset_func
 func denver_core_pwr_dwn
 
 	mov	x19, x30
-
-	/* ----------------------------------------------------
-	 * We enter the 'core power gated with ARM state not
-	 * retained' power state during CPU power down. We let
-	 * DCO know that we expect to enter this power state
-	 * by writing to the ACTLR_EL1 register.
- 	 * ----------------------------------------------------
- 	 */
-	mov	x0, #DENVER_CPU_STATE_POWER_DOWN
-	msr	actlr_el1, x0
-
-	/* ---------------------------------------------
-	 * Force DCO to be quiescent
-	 * ---------------------------------------------
-	 */
-	bl	denver_disable_dco
 
 	/* ---------------------------------------------
 	 * Force the debug interfaces to be quiescent

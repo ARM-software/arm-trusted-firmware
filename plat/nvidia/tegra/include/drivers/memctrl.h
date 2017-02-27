@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,9 @@
 #define __MEMCTRL_H__
 
 void tegra_memctrl_setup(void);
+void tegra_memctrl_restore_settings(void);
 void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes);
+void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes);
 void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes);
 
 #endif /* __MEMCTRL_H__ */
