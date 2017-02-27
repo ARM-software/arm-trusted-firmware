@@ -62,6 +62,12 @@ void rockchip_plat_sram_mmu_el3(void)
 	mmap_add_region((unsigned long)&__bl31_sram_data_start,
 			(unsigned long)&__bl31_sram_data_start,
 			sram_size, MT_MEMORY | MT_RW | MT_SECURE);
+
+	/* sram.incbin size */
+	sram_size = (char *)&__sram_incbin_end - (char *)&__sram_incbin_start;
+	mmap_add_region((unsigned long)&__sram_incbin_start,
+			(unsigned long)&__sram_incbin_start,
+			sram_size, MT_NON_CACHEABLE | MT_RW | MT_SECURE);
 #else
 	/* TODO: Support other SoCs, Just support RK3399 now */
 	return;

@@ -48,65 +48,25 @@ struct rk3399_sdram_default_config {
 	unsigned char zqcsi;
 };
 
-struct  ddr_dts_config_timing {
-	unsigned int ddr3_speed_bin;
-	unsigned int pd_idle;
-	unsigned int sr_idle;
-	unsigned int sr_mc_gate_idle;
-	unsigned int srpd_lite_idle;
-	unsigned int standby_idle;
-	unsigned int auto_pd_dis_freq;
-	unsigned int ddr3_dll_dis_freq;
-	unsigned int phy_dll_dis_freq;
-	unsigned int ddr3_odt_dis_freq;
-	unsigned int ddr3_drv;
-	unsigned int ddr3_odt;
-	unsigned int phy_ddr3_ca_drv;
-	unsigned int phy_ddr3_dq_drv;
-	unsigned int phy_ddr3_odt;
-	unsigned int lpddr3_odt_dis_freq;
-	unsigned int lpddr3_drv;
-	unsigned int lpddr3_odt;
-	unsigned int phy_lpddr3_ca_drv;
-	unsigned int phy_lpddr3_dq_drv;
-	unsigned int phy_lpddr3_odt;
-	unsigned int lpddr4_odt_dis_freq;
-	unsigned int lpddr4_drv;
-	unsigned int lpddr4_dq_odt;
-	unsigned int lpddr4_ca_odt;
-	unsigned int phy_lpddr4_ca_drv;
-	unsigned int phy_lpddr4_ck_cs_drv;
-	unsigned int phy_lpddr4_dq_drv;
-	unsigned int phy_lpddr4_odt;
-	uint32_t available;
-};
-
 struct drv_odt_lp_config {
-	uint32_t ddr3_speed_bin;
 	uint32_t pd_idle;
 	uint32_t sr_idle;
 	uint32_t sr_mc_gate_idle;
 	uint32_t srpd_lite_idle;
 	uint32_t standby_idle;
-
-	uint32_t ddr3_dll_dis_freq;/* for ddr3 only */
-	uint32_t phy_dll_dis_freq;
-	uint32_t odt_dis_freq;
+	uint32_t odt_en;
 
 	uint32_t dram_side_drv;
 	uint32_t dram_side_dq_odt;
 	uint32_t dram_side_ca_odt;
-
-	uint32_t phy_side_ca_drv;
-	uint32_t phy_side_ck_cs_drv;
-	uint32_t phy_side_dq_drv;
-	uint32_t phy_side_odt;
 };
 
-void ddr_dfs_init(void);
 uint32_t ddr_set_rate(uint32_t hz);
 uint32_t ddr_round_rate(uint32_t hz);
 uint32_t ddr_get_rate(void);
-void clr_dcf_irq(void);
-uint32_t dts_timing_receive(uint32_t timing, uint32_t index);
+uint32_t dram_set_odt_pd(uint32_t arg0, uint32_t arg1, uint32_t arg2);
+void dram_dfs_init(void);
+void ddr_prepare_for_sys_suspend(void);
+void ddr_prepare_for_sys_resume(void);
+
 #endif

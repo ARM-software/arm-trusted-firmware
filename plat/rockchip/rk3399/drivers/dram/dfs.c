@@ -28,8 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <arch_helpers.h>
 #include <debug.h>
 #include <mmio.h>
+#include <m0_ctl.h>
 #include <plat_private.h>
 #include "dfs.h"
 #include "dram.h"
@@ -40,31 +42,14 @@
 
 #include <delay_timer.h>
 
-#define CTL_TRAINING	(1)
-#define PI_TRAINING		(!CTL_TRAINING)
-
-#define EN_READ_GATE_TRAINING	(1)
-#define EN_CA_TRAINING		(0)
-#define EN_WRITE_LEVELING	(0)
-#define EN_READ_LEVELING	(0)
-#define EN_WDQ_LEVELING	(0)
-
-#define ENPER_CS_TRAINING_FREQ	(933)
-
-struct pll_div {
-	unsigned int mhz;
-	unsigned int refdiv;
-	unsigned int fbdiv;
-	unsigned int postdiv1;
-	unsigned int postdiv2;
-	unsigned int frac;
-	unsigned int freq;
-};
+#define ENPER_CS_TRAINING_FREQ	(666)
+#define TDFI_LAT_THRESHOLD_FREQ	(928)
+#define PHY_DLL_BYPASS_FREQ	(260)
 
 static const struct pll_div dpll_rates_table[] = {
 
 	/* _mhz, _refdiv, _fbdiv, _postdiv1, _postdiv2 */
-	{.mhz = 933, .refdiv = 3, .fbdiv = 350, .postdiv1 = 3, .postdiv2 = 1},
+	{.mhz = 928, .refdiv = 1, .fbdiv = 116, .postdiv1 = 3, .postdiv2 = 1},
 	{.mhz = 800, .refdiv = 1, .fbdiv = 100, .postdiv1 = 3, .postdiv2 = 1},
 	{.mhz = 732, .refdiv = 1, .fbdiv = 61, .postdiv1 = 2, .postdiv2 = 1},
 	{.mhz = 666, .refdiv = 1, .fbdiv = 111, .postdiv1 = 4, .postdiv2 = 1},
@@ -78,127 +63,43 @@ static const struct pll_div dpll_rates_table[] = {
 struct rk3399_dram_status {
 	uint32_t current_index;
 	uint32_t index_freq[2];
+	uint32_t boot_freq;
 	uint32_t low_power_stat;
 	struct timing_related_config timing_config;
 	struct drv_odt_lp_config drv_odt_lp_cfg;
 };
 
-static struct rk3399_dram_status rk3399_dram_status;
-static struct ddr_dts_config_timing dts_parameter = {
-	.available = 0
+struct rk3399_saved_status {
+	uint32_t freq;
+	uint32_t low_power_stat;
+	uint32_t odt;
 };
+
+static struct rk3399_dram_status rk3399_dram_status;
+static struct rk3399_saved_status rk3399_suspend_status;
+static uint32_t wrdqs_delay_val[2][2][4];
 
 static struct rk3399_sdram_default_config ddr3_default_config = {
 	.bl = 8,
 	.ap = 0,
-	.dramds = 40,
-	.dramodt = 120,
 	.burst_ref_cnt = 1,
 	.zqcsi = 0
-};
-
-static struct drv_odt_lp_config ddr3_drv_odt_default_config = {
-	.ddr3_speed_bin = DDR3_DEFAULT,
-	.pd_idle = 0,
-	.sr_idle = 0,
-	.sr_mc_gate_idle = 0,
-	.srpd_lite_idle = 0,
-	.standby_idle = 0,
-
-	.ddr3_dll_dis_freq = 300,
-	.phy_dll_dis_freq = 125,
-	.odt_dis_freq = 933,
-
-	.dram_side_drv = 40,
-	.dram_side_dq_odt = 120,
-	.dram_side_ca_odt = 120,
-
-	.phy_side_ca_drv = 40,
-	.phy_side_ck_cs_drv = 40,
-	.phy_side_dq_drv = 40,
-	.phy_side_odt = 240,
 };
 
 static struct rk3399_sdram_default_config lpddr3_default_config = {
 	.bl = 8,
 	.ap = 0,
-	.dramds = 34,
-	.dramodt = 240,
 	.burst_ref_cnt = 1,
 	.zqcsi = 0
-};
-
-static struct drv_odt_lp_config lpddr3_drv_odt_default_config = {
-	.ddr3_speed_bin = DDR3_DEFAULT,
-	.pd_idle = 0,
-	.sr_idle = 0,
-	.sr_mc_gate_idle = 0,
-	.srpd_lite_idle = 0,
-	.standby_idle = 0,
-
-	.ddr3_dll_dis_freq = 300,
-	.phy_dll_dis_freq = 125,
-	.odt_dis_freq = 666,
-
-	.dram_side_drv = 40,
-	.dram_side_dq_odt = 120,
-	.dram_side_ca_odt = 120,
-
-	.phy_side_ca_drv = 40,
-	.phy_side_ck_cs_drv = 40,
-	.phy_side_dq_drv = 40,
-	.phy_side_odt = 240,
 };
 
 static struct rk3399_sdram_default_config lpddr4_default_config = {
 	.bl = 16,
 	.ap = 0,
-	.dramds = 40,
-	.dramodt = 240,
 	.caodt = 240,
 	.burst_ref_cnt = 1,
 	.zqcsi = 0
 };
-
-static struct drv_odt_lp_config lpddr4_drv_odt_default_config = {
-	.ddr3_speed_bin = DDR3_DEFAULT,
-	.pd_idle = 0,
-	.sr_idle = 0,
-	.sr_mc_gate_idle = 0,
-	.srpd_lite_idle = 0,
-	.standby_idle = 0,
-
-	.ddr3_dll_dis_freq = 300,
-	.phy_dll_dis_freq = 125,
-	.odt_dis_freq = 933,
-
-	.dram_side_drv = 60,
-	.dram_side_dq_odt = 40,
-	.dram_side_ca_odt = 40,
-
-	.phy_side_ca_drv = 40,
-	.phy_side_ck_cs_drv = 80,
-	.phy_side_dq_drv = 80,
-	.phy_side_odt = 60,
-};
-
-uint32_t dcf_code[] = {
-#include "dcf_code.inc"
-};
-
-#define DCF_START_ADDR	(SRAM_BASE + 0x1400)
-#define DCF_PARAM_ADDR	(SRAM_BASE + 0x1000)
-
-/* DCF_PAMET */
-#define PARAM_DRAM_FREQ		(0)
-#define PARAM_DPLL_CON0		(4)
-#define PARAM_DPLL_CON1		(8)
-#define PARAM_DPLL_CON2		(0xc)
-#define PARAM_DPLL_CON3		(0x10)
-#define PARAM_DPLL_CON4		(0x14)
-#define PARAM_DPLL_CON5		(0x18)
-/* equal to fn<<4 */
-#define PARAM_FREQ_SELECT	(0x1c)
 
 static uint32_t get_cs_die_capability(struct rk3399_sdram_params *sdram_config,
 		uint8_t channel, uint8_t cs)
@@ -222,176 +123,79 @@ static uint32_t get_cs_die_capability(struct rk3399_sdram_params *sdram_config,
 	return (cs_cap / die);
 }
 
-static void drv_odt_lp_cfg_init(uint32_t dram_type,
-				struct ddr_dts_config_timing *dts_timing,
+static void get_dram_drv_odt_val(uint32_t dram_type,
 				struct drv_odt_lp_config *drv_config)
 {
-	if ((dts_timing) && (dts_timing->available)) {
-		drv_config->ddr3_speed_bin = dts_timing->ddr3_speed_bin;
-		drv_config->pd_idle = dts_timing->pd_idle;
-		drv_config->sr_idle = dts_timing->sr_idle;
-		drv_config->sr_mc_gate_idle = dts_timing->sr_mc_gate_idle;
-		drv_config->srpd_lite_idle = dts_timing->srpd_lite_idle;
-		drv_config->standby_idle = dts_timing->standby_idle;
-		drv_config->ddr3_dll_dis_freq = dts_timing->ddr3_dll_dis_freq;
-		drv_config->phy_dll_dis_freq = dts_timing->phy_dll_dis_freq;
-	}
+	uint32_t tmp;
+	uint32_t mr1_val, mr3_val, mr11_val;
 
 	switch (dram_type) {
 	case DDR3:
-		if ((dts_timing) && (dts_timing->available)) {
-			drv_config->odt_dis_freq =
-			    dts_timing->ddr3_odt_dis_freq;
-			drv_config->dram_side_drv = dts_timing->ddr3_drv;
-			drv_config->dram_side_dq_odt = dts_timing->ddr3_odt;
-			drv_config->phy_side_ca_drv =
-			    dts_timing->phy_ddr3_ca_drv;
-			drv_config->phy_side_ck_cs_drv =
-			    dts_timing->phy_ddr3_ca_drv;
-			drv_config->phy_side_dq_drv =
-			    dts_timing->phy_ddr3_dq_drv;
-			drv_config->phy_side_odt = dts_timing->phy_ddr3_odt;
-		} else {
-			memcpy(drv_config, &ddr3_drv_odt_default_config,
-			       sizeof(struct drv_odt_lp_config));
-		}
+		mr1_val = (mmio_read_32(CTL_REG(0, 133)) >> 16) & 0xffff;
+		tmp = ((mr1_val >> 1) & 1) | ((mr1_val >> 4) & 1);
+		if (tmp)
+			drv_config->dram_side_drv = 34;
+		else
+			drv_config->dram_side_drv = 40;
+		tmp = ((mr1_val >> 2) & 1) | ((mr1_val >> 5) & 1) |
+		      ((mr1_val >> 7) & 1);
+		if (tmp == 0)
+			drv_config->dram_side_dq_odt = 0;
+		else if (tmp == 1)
+			drv_config->dram_side_dq_odt = 60;
+		else if (tmp == 3)
+			drv_config->dram_side_dq_odt = 40;
+		else
+			drv_config->dram_side_dq_odt = 120;
 		break;
 	case LPDDR3:
-		if ((dts_timing) && (dts_timing->available)) {
-			drv_config->odt_dis_freq =
-			    dts_timing->lpddr3_odt_dis_freq;
-			drv_config->dram_side_drv = dts_timing->lpddr3_drv;
-			drv_config->dram_side_dq_odt = dts_timing->lpddr3_odt;
-			drv_config->phy_side_ca_drv =
-			    dts_timing->phy_lpddr3_ca_drv;
-			drv_config->phy_side_ck_cs_drv =
-			    dts_timing->phy_lpddr3_ca_drv;
-			drv_config->phy_side_dq_drv =
-			    dts_timing->phy_lpddr3_dq_drv;
-			drv_config->phy_side_odt = dts_timing->phy_lpddr3_odt;
+		mr3_val = mmio_read_32(CTL_REG(0, 138)) & 0xf;
+		mr11_val = (mmio_read_32(CTL_REG(0, 139)) >> 24) & 0x3;
+		if (mr3_val == 0xb)
+			drv_config->dram_side_drv = 3448;
+		else if (mr3_val == 0xa)
+			drv_config->dram_side_drv = 4048;
+		else if (mr3_val == 0x9)
+			drv_config->dram_side_drv = 3440;
+		else if (mr3_val == 0x4)
+			drv_config->dram_side_drv = 60;
+		else if (mr3_val == 0x3)
+			drv_config->dram_side_drv = 48;
+		else if (mr3_val == 0x2)
+			drv_config->dram_side_drv = 40;
+		else
+			drv_config->dram_side_drv = 34;
 
-		} else {
-			memcpy(drv_config, &lpddr3_drv_odt_default_config,
-			       sizeof(struct drv_odt_lp_config));
-		}
+		if (mr11_val == 1)
+			drv_config->dram_side_dq_odt = 60;
+		else if (mr11_val == 2)
+			drv_config->dram_side_dq_odt = 120;
+		else if (mr11_val == 0)
+			drv_config->dram_side_dq_odt = 0;
+		else
+			drv_config->dram_side_dq_odt = 240;
 		break;
 	case LPDDR4:
 	default:
-		if ((dts_timing) && (dts_timing->available)) {
-			drv_config->odt_dis_freq =
-			    dts_timing->lpddr4_odt_dis_freq;
-			drv_config->dram_side_drv = dts_timing->lpddr4_drv;
-			drv_config->dram_side_dq_odt =
-			    dts_timing->lpddr4_dq_odt;
-			drv_config->dram_side_ca_odt =
-			    dts_timing->lpddr4_ca_odt;
-			drv_config->phy_side_ca_drv =
-			    dts_timing->phy_lpddr4_ca_drv;
-			drv_config->phy_side_ck_cs_drv =
-			    dts_timing->phy_lpddr4_ck_cs_drv;
-			drv_config->phy_side_dq_drv =
-			    dts_timing->phy_lpddr4_dq_drv;
-			drv_config->phy_side_odt = dts_timing->phy_lpddr4_odt;
-		} else {
-			memcpy(drv_config, &lpddr4_drv_odt_default_config,
-			       sizeof(struct drv_odt_lp_config));
-		}
-		break;
-	}
+		mr3_val = (mmio_read_32(CTL_REG(0, 138)) >> 3) & 0x7;
+		mr11_val = (mmio_read_32(CTL_REG(0, 139)) >> 24) & 0xff;
 
-	switch (drv_config->phy_side_ca_drv) {
-	case 240:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_ca_drv = PHY_DRV_ODT_34_3;
-		break;
-	};
+		if ((mr3_val == 0) || (mr3_val == 7))
+			drv_config->dram_side_drv = 40;
+		else
+			drv_config->dram_side_drv = 240 / mr3_val;
 
-	switch (drv_config->phy_side_ck_cs_drv) {
-	case 240:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_ck_cs_drv = PHY_DRV_ODT_34_3;
-		break;
-	}
+		tmp = mr11_val & 0x7;
+		if ((tmp == 7) || (tmp == 0))
+			drv_config->dram_side_dq_odt = 0;
+		else
+			drv_config->dram_side_dq_odt = 240 / tmp;
 
-	switch (drv_config->phy_side_dq_drv) {
-	case 240:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_dq_drv = PHY_DRV_ODT_34_3;
-		break;
-	}
-
-	switch (drv_config->phy_side_odt) {
-	case 240:
-		drv_config->phy_side_odt = PHY_DRV_ODT_240;
-		break;
-	case 120:
-		drv_config->phy_side_odt = PHY_DRV_ODT_120;
-		break;
-	case 80:
-		drv_config->phy_side_odt = PHY_DRV_ODT_80;
-		break;
-	case 60:
-		drv_config->phy_side_odt = PHY_DRV_ODT_60;
-		break;
-	case 48:
-		drv_config->phy_side_odt = PHY_DRV_ODT_48;
-		break;
-	case 40:
-		drv_config->phy_side_odt = PHY_DRV_ODT_40;
-		break;
-	default:
-		drv_config->phy_side_odt = PHY_DRV_ODT_34_3;
+		tmp = (mr11_val >> 4) & 0x7;
+		if ((tmp == 7) || (tmp == 0))
+			drv_config->dram_side_ca_odt = 0;
+		else
+			drv_config->dram_side_ca_odt = 240 / tmp;
 		break;
 	}
 }
@@ -403,8 +207,7 @@ static void sdram_timing_cfg_init(struct timing_related_config *ptiming_config,
 	uint32_t i, j;
 
 	for (i = 0; i < sdram_params->num_channels; i++) {
-		ptiming_config->dram_info[i].speed_rate =
-		    drv_config->ddr3_speed_bin;
+		ptiming_config->dram_info[i].speed_rate = DDR3_DEFAULT;
 		ptiming_config->dram_info[i].cs_cnt = sdram_params->ch[i].rank;
 		for (j = 0; j < sdram_params->ch[i].rank; j++) {
 			ptiming_config->dram_info[i].per_die_capability[j] =
@@ -432,6 +235,7 @@ static void sdram_timing_cfg_init(struct timing_related_config *ptiming_config,
 	ptiming_config->dramds = drv_config->dram_side_drv;
 	ptiming_config->dramodt = drv_config->dram_side_dq_odt;
 	ptiming_config->caodt = drv_config->dram_side_ca_odt;
+	ptiming_config->odt = (mmio_read_32(PHY_REG(0, 5)) >> 16) & 0x1;
 }
 
 struct lat_adj_pair {
@@ -928,7 +732,7 @@ static void gen_rk3399_ctl_params_f0(struct timing_related_config
 
 		/* CTL_314 TDFI_WRCSLAT_F0:RW:8:8 */
 		tmp1 = get_pi_wrlat_adj(pdram_timing, timing_config);
-		if (timing_config->freq <= ENPER_CS_TRAINING_FREQ) {
+		if (timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) {
 			if (tmp1 == 0)
 				tmp = 0;
 			else if (tmp1 < 5)
@@ -941,7 +745,7 @@ static void gen_rk3399_ctl_params_f0(struct timing_related_config
 		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 8, tmp << 8);
 
 		/* CTL_314 TDFI_RDCSLAT_F0:RW:0:8 */
-		if ((timing_config->freq <= ENPER_CS_TRAINING_FREQ) &&
+		if ((timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) &&
 		    (pdram_timing->cl >= 5))
 			tmp = pdram_timing->cl - 5;
 		else
@@ -1178,7 +982,7 @@ static void gen_rk3399_ctl_params_f1(struct timing_related_config
 
 		/* CTL_314 TDFI_WRCSLAT_F1:RW:24:8 */
 		tmp1 = get_pi_wrlat_adj(pdram_timing, timing_config);
-		if (timing_config->freq <= ENPER_CS_TRAINING_FREQ) {
+		if (timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) {
 			if (tmp1 == 0)
 				tmp = 0;
 			else if (tmp1 < 5)
@@ -1192,12 +996,39 @@ static void gen_rk3399_ctl_params_f1(struct timing_related_config
 		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 24, tmp << 24);
 
 		/* CTL_314 TDFI_RDCSLAT_F1:RW:16:8 */
-		if ((timing_config->freq <= ENPER_CS_TRAINING_FREQ) &&
+		if ((timing_config->freq <= TDFI_LAT_THRESHOLD_FREQ) &&
 		    (pdram_timing->cl >= 5))
 			tmp = pdram_timing->cl - 5;
 		else
 			tmp = pdram_timing->cl - 2;
 		mmio_clrsetbits_32(CTL_REG(i, 314), 0xff << 16, tmp << 16);
+	}
+}
+
+static void gen_rk3399_enable_training(uint32_t ch_cnt, uint32_t nmhz)
+{
+		uint32_t i, tmp;
+
+		if (nmhz <= PHY_DLL_BYPASS_FREQ)
+			tmp = 0;
+		else
+			tmp = 1;
+
+		for (i = 0; i < ch_cnt; i++) {
+			mmio_clrsetbits_32(CTL_REG(i, 305), 1 << 16, tmp << 16);
+			mmio_clrsetbits_32(CTL_REG(i, 71), 1, tmp);
+			mmio_clrsetbits_32(CTL_REG(i, 70), 1 << 8, 1 << 8);
+		}
+}
+
+static void gen_rk3399_disable_training(uint32_t ch_cnt)
+{
+	uint32_t i;
+
+	for (i = 0; i < ch_cnt; i++) {
+		mmio_clrbits_32(CTL_REG(i, 305), 1 << 16);
+		mmio_clrbits_32(CTL_REG(i, 71), 1);
+		mmio_clrbits_32(CTL_REG(i, 70), 1 << 8);
 	}
 }
 
@@ -1209,35 +1040,6 @@ static void gen_rk3399_ctl_params(struct timing_related_config *timing_config,
 		gen_rk3399_ctl_params_f0(timing_config, pdram_timing);
 	else
 		gen_rk3399_ctl_params_f1(timing_config, pdram_timing);
-
-#if CTL_TRAINING
-	uint32_t i, tmp0, tmp1;
-
-	tmp0 = tmp1 = 0;
-#if EN_READ_GATE_TRAINING
-	tmp1 = 1;
-#endif
-
-#if EN_CA_TRAINING
-	tmp0 |= (1 << 8);
-#endif
-
-#if EN_WRITE_LEVELING
-	tmp0 |= (1 << 16);
-#endif
-
-#if EN_READ_LEVELING
-	tmp0 |= (1 << 24);
-#endif
-	for (i = 0; i < timing_config->ch_cnt; i++) {
-		if (tmp0 | tmp1)
-			mmio_setbits_32(CTL_REG(i, 305), 1 << 16);
-		if (tmp0)
-			mmio_setbits_32(CTL_REG(i, 70), tmp0);
-		if (tmp1)
-			mmio_setbits_32(CTL_REG(i, 71), tmp1);
-	}
-#endif
 }
 
 static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
@@ -1381,7 +1183,8 @@ static void gen_rk3399_pi_params_f0(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PI_REG(i, 148), 0xffff << 16,
 				   pdram_timing->mr[2] << 16);
 		/* PI_156 PI_TFC_F0:RW:0:10 */
-		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff, pdram_timing->trfc);
+		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff,
+				   pdram_timing->tfc_long);
 		/* PI_158 PI_TWR_F0:RW:24:6 */
 		mmio_clrsetbits_32(PI_REG(i, 158), 0x3f << 24,
 				   pdram_timing->twr << 24);
@@ -1452,7 +1255,7 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PI_REG(i, 44), 0x3f, PI_ADD_LATENCY);
 		/* PI_44 PI_CASLAT_LIN_F1:RW:8:7:=0x18 */
 		mmio_clrsetbits_32(PI_REG(i, 44), 0x7f << 8,
-				   pdram_timing->cl * 2);
+				   (pdram_timing->cl * 2) << 8);
 		/* PI_47 PI_TREF_F1:RW:16:16 */
 		mmio_clrsetbits_32(PI_REG(i, 47), 0xffff << 16,
 				   pdram_timing->trefi << 16);
@@ -1561,7 +1364,7 @@ static void gen_rk3399_pi_params_f1(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PI_REG(i, 151), 0xffff, pdram_timing->mr[2]);
 		/* PI_156 PI_TFC_F1:RW:16:10 */
 		mmio_clrsetbits_32(PI_REG(i, 156), 0x3ff << 16,
-				   pdram_timing->trfc << 16);
+				   pdram_timing->tfc_long << 16);
 		/* PI_162 PI_TWR_F1:RW:8:6 */
 		mmio_clrsetbits_32(PI_REG(i, 162), 0x3f << 8,
 				   pdram_timing->twr << 8);
@@ -1605,32 +1408,6 @@ static void gen_rk3399_pi_params(struct timing_related_config *timing_config,
 		gen_rk3399_pi_params_f0(timing_config, pdram_timing);
 	else
 		gen_rk3399_pi_params_f1(timing_config, pdram_timing);
-
-#if PI_TRAINING
-	uint32_t i;
-
-	for (i = 0; i < timing_config->ch_cnt; i++) {
-#if EN_READ_GATE_TRAINING
-		mmio_clrsetbits_32(PI_REG(i, 80), 3 << 24, 2 << 24);
-#endif
-
-#if EN_CA_TRAINING
-		mmio_clrsetbits_32(PI_REG(i, 100), 3 << 8, 2 << 8);
-#endif
-
-#if EN_WRITE_LEVELING
-		mmio_clrsetbits_32(PI_REG(i, 60), 3 << 8, 2 << 8);
-#endif
-
-#if EN_READ_LEVELING
-		mmio_clrsetbits_32(PI_REG(i, 80), 3 << 16, 2 << 16);
-#endif
-
-#if EN_WDQ_LEVELING
-		mmio_clrsetbits_32(PI_REG(i, 124), 3 << 16, 2 << 16);
-#endif
-	}
-#endif
 }
 
 static void gen_rk3399_set_odt(uint32_t odt_en)
@@ -1652,57 +1429,92 @@ static void gen_rk3399_set_odt(uint32_t odt_en)
 	}
 }
 
-static void gen_rk3399_set_ds_odt(struct timing_related_config *timing_config,
-				  struct drv_odt_lp_config *drv_config)
+static void gen_rk3399_phy_dll_bypass(uint32_t mhz, uint32_t ch,
+		uint32_t index, uint32_t dram_type)
 {
-	uint32_t i, drv_odt_val;
+	uint32_t sw_master_mode = 0;
+	uint32_t rddqs_gate_delay, rddqs_latency, total_delay;
+	uint32_t i;
 
-	for (i = 0; i < timing_config->ch_cnt; i++) {
-		if (timing_config->dram_type == LPDDR4)
-			drv_odt_val = drv_config->phy_side_odt |
-				      (PHY_DRV_ODT_Hi_Z << 4) |
-				      (drv_config->phy_side_dq_drv << 8) |
-				      (drv_config->phy_side_dq_drv << 12);
-		else if (timing_config->dram_type == LPDDR3)
-			drv_odt_val = PHY_DRV_ODT_Hi_Z |
-				      (drv_config->phy_side_odt << 4) |
-				      (drv_config->phy_side_dq_drv << 8) |
-				      (drv_config->phy_side_dq_drv << 12);
-		else
-			drv_odt_val = drv_config->phy_side_odt |
-				      (drv_config->phy_side_odt << 4) |
-				      (drv_config->phy_side_dq_drv << 8) |
-				      (drv_config->phy_side_dq_drv << 12);
+	if (dram_type == DDR3)
+		total_delay = PI_PAD_DELAY_PS_VALUE;
+	else if (dram_type == LPDDR3)
+		total_delay = PI_PAD_DELAY_PS_VALUE + 2500;
+	else
+		total_delay = PI_PAD_DELAY_PS_VALUE + 1500;
+	/* total_delay + 0.55tck */
+	total_delay +=  (55 * 10000)/mhz;
+	rddqs_latency = total_delay * mhz / 1000000;
+	total_delay -= rddqs_latency * 1000000 / mhz;
+	rddqs_gate_delay = total_delay * 0x200 * mhz / 1000000;
+	if (mhz <= PHY_DLL_BYPASS_FREQ) {
+		sw_master_mode = 0xc;
+		mmio_setbits_32(PHY_REG(ch, 514), 1);
+		mmio_setbits_32(PHY_REG(ch, 642), 1);
+		mmio_setbits_32(PHY_REG(ch, 770), 1);
 
-		/* DQ drv odt set */
-		mmio_clrsetbits_32(PHY_REG(i, 6), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 134), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 262), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 390), 0xffffff, drv_odt_val);
-		/* DQS drv odt set */
-		mmio_clrsetbits_32(PHY_REG(i, 7), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 135), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 263), 0xffffff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 391), 0xffffff, drv_odt_val);
+		/* setting bypass mode slave delay */
+		for (i = 0; i < 4; i++) {
+			/* wr dq delay = -180deg + (0x60 / 4) * 20ps */
+			mmio_clrsetbits_32(PHY_REG(ch, 1 + 128 * i), 0x7ff << 8,
+					   0x4a0 << 8);
+			/* rd dqs/dq delay = (0x60 / 4) * 20ps */
+			mmio_clrsetbits_32(PHY_REG(ch, 11 + 128 * i), 0x3ff,
+					   0xa0);
+			/* rd rddqs_gate delay */
+			mmio_clrsetbits_32(PHY_REG(ch, 2 + 128 * i), 0x3ff,
+					   rddqs_gate_delay);
+			mmio_clrsetbits_32(PHY_REG(ch, 78 + 128 * i), 0xf,
+					   rddqs_latency);
+		}
+		for (i = 0; i < 3; i++)
+			/* adr delay */
+			mmio_clrsetbits_32(PHY_REG(ch, 513 + 128 * i),
+					   0x7ff << 16, 0x80 << 16);
 
-		gen_rk3399_set_odt(timing_config->odt);
-
-		/* CA drv set */
-		drv_odt_val = drv_config->phy_side_ca_drv |
-			      (drv_config->phy_side_ca_drv << 4);
-		mmio_clrsetbits_32(PHY_REG(i, 544), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 672), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 800), 0xff, drv_odt_val);
-
-		mmio_clrsetbits_32(PHY_REG(i, 928), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 937), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 935), 0xff, drv_odt_val);
-
-		drv_odt_val = drv_config->phy_side_ck_cs_drv |
-			      (drv_config->phy_side_ck_cs_drv << 4);
-		mmio_clrsetbits_32(PHY_REG(i, 929), 0xff, drv_odt_val);
-		mmio_clrsetbits_32(PHY_REG(i, 939), 0xff, drv_odt_val);
+		if ((mmio_read_32(PHY_REG(ch, 86)) & 0xc00) == 0) {
+			/*
+			 * old status is normal mode,
+			 * and saving the wrdqs slave delay
+			 */
+			for (i = 0; i < 4; i++) {
+				/* save and clear wr dqs slave delay */
+				wrdqs_delay_val[ch][index][i] = 0x3ff &
+					(mmio_read_32(PHY_REG(ch, 63 + i * 128))
+					>> 16);
+				mmio_clrsetbits_32(PHY_REG(ch, 63 + i * 128),
+						   0x03ff << 16, 0 << 16);
+				/*
+				 * in normal mode the cmd may delay 1cycle by
+				 * wrlvl and in bypass mode making dqs also
+				 * delay 1cycle.
+				 */
+				mmio_clrsetbits_32(PHY_REG(ch, 78 + i * 128),
+						   0x07 << 8, 0x1 << 8);
+			}
+		}
+	} else if (mmio_read_32(PHY_REG(ch, 86)) & 0xc00) {
+		/* old status is bypass mode and restore wrlvl resume */
+		for (i = 0; i < 4; i++) {
+			mmio_clrsetbits_32(PHY_REG(ch, 63 + i * 128),
+					   0x03ff << 16,
+					   (wrdqs_delay_val[ch][index][i] &
+					    0x3ff) << 16);
+			/* resume phy_write_path_lat_add */
+			mmio_clrbits_32(PHY_REG(ch, 78 + i * 128), 0x07 << 8);
+		}
 	}
+
+	/* phy_sw_master_mode_X PHY_86/214/342/470 4bits offset_8 */
+	mmio_clrsetbits_32(PHY_REG(ch, 86), 0xf << 8, sw_master_mode << 8);
+	mmio_clrsetbits_32(PHY_REG(ch, 214), 0xf << 8, sw_master_mode << 8);
+	mmio_clrsetbits_32(PHY_REG(ch, 342), 0xf << 8, sw_master_mode << 8);
+	mmio_clrsetbits_32(PHY_REG(ch, 470), 0xf << 8, sw_master_mode << 8);
+
+	/* phy_adrctl_sw_master_mode PHY_547/675/803 4bits offset_16 */
+	mmio_clrsetbits_32(PHY_REG(ch, 547), 0xf << 16, sw_master_mode << 16);
+	mmio_clrsetbits_32(PHY_REG(ch, 675), 0xf << 16, sw_master_mode << 16);
+	mmio_clrsetbits_32(PHY_REG(ch, 803), 0xf << 16, sw_master_mode << 16);
 }
 
 static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
@@ -1745,15 +1557,7 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		/* DENALI_PHY_911 13bits offset_0 */
 		/* PHY_LP4_BOOT_PLL_CTRL */
 		/* DENALI_PHY_919 13bits offset_0 */
-		if (pdram_timing->mhz <= 150)
-			tmp = 3;
-		else if (pdram_timing->mhz <= 300)
-			tmp = 2;
-		else if (pdram_timing->mhz <= 600)
-			tmp = 1;
-		else
-			tmp = 0;
-		tmp = (1 << 12) | (tmp << 9) | (2 << 7) | (1 << 1);
+		tmp = (1 << 12) | (2 << 7) | (1 << 1);
 		mmio_clrsetbits_32(PHY_REG(i, 911), 0x1fff, tmp);
 		mmio_clrsetbits_32(PHY_REG(i, 919), 0x1fff, tmp);
 
@@ -1761,15 +1565,7 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		/* DENALI_PHY_911 13bits offset_16 */
 		/* PHY_LP4_BOOT_PLL_CTRL_CA */
 		/* DENALI_PHY_919 13bits offset_16 */
-		if (pdram_timing->mhz <= 150)
-			tmp = 3;
-		else if (pdram_timing->mhz <= 300)
-			tmp = 2;
-		else if (pdram_timing->mhz <= 600)
-			tmp = 1;
-		else
-			tmp = 0;
-		tmp = (tmp << 9) | (2 << 7) | (1 << 5) | (1 << 1);
+		tmp = (2 << 7) | (1 << 5) | (1 << 1);
 		mmio_clrsetbits_32(PHY_REG(i, 911), 0x1fff << 16, tmp << 16);
 		mmio_clrsetbits_32(PHY_REG(i, 919), 0x1fff << 16, tmp << 16);
 
@@ -1791,7 +1587,6 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 				break;
 		}
 		mmio_clrsetbits_32(PHY_REG(i, 947), 0x7 << 8, tmp << 8);
-		mmio_setbits_32(PHY_REG(i, 927), (1 << 22));
 
 		if (timing_config->dram_type == DDR3) {
 			mem_delay_ps = 0;
@@ -1812,12 +1607,6 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		gate_delay_ps = delay_frac_ps + 1000 - (trpre_min_ps / 2);
 		gate_delay_frac_ps = gate_delay_ps % 1000;
 		tmp = gate_delay_frac_ps * 0x200 / 1000;
-		/* PHY_RDDQS_GATE_BYPASS_SLAVE_DELAY */
-		/* DENALI_PHY_2/130/258/386 10bits offset_0 */
-		mmio_clrsetbits_32(PHY_REG(i, 2), 0x2ff, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 130), 0x2ff, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 258), 0x2ff, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 386), 0x2ff, tmp);
 		/* PHY_RDDQS_GATE_SLAVE_DELAY */
 		/* DENALI_PHY_77/205/333/461 10bits offset_16 */
 		mmio_clrsetbits_32(PHY_REG(i, 77), 0x2ff << 16, tmp << 16);
@@ -1832,12 +1621,6 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 		mmio_clrsetbits_32(PHY_REG(i, 138), 0xf, tmp);
 		mmio_clrsetbits_32(PHY_REG(i, 266), 0xf, tmp);
 		mmio_clrsetbits_32(PHY_REG(i, 394), 0xf, tmp);
-		/* PHY_RDDQS_LATENCY_ADJUST */
-		/* DENALI_PHY_78/206/334/462 4bits offset_0 */
-		mmio_clrsetbits_32(PHY_REG(i, 78), 0xf, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 206), 0xf, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 334), 0xf, tmp);
-		mmio_clrsetbits_32(PHY_REG(i, 462), 0xf, tmp);
 		/* PHY_GTLVL_LAT_ADJ_START */
 		/* DENALI_PHY_80/208/336/464 4bits offset_16 */
 		tmp = delay_frac_ps / 1000;
@@ -1922,6 +1705,8 @@ static void gen_rk3399_phy_params(struct timing_related_config *timing_config,
 			mmio_setbits_32(PHY_REG(i, 340), 0x1 << 16);
 			mmio_setbits_32(PHY_REG(i, 468), 0x1 << 16);
 		}
+		gen_rk3399_phy_dll_bypass(pdram_timing->mhz, i, fn,
+					  timing_config->dram_type);
 	}
 }
 
@@ -1942,22 +1727,6 @@ static int to_get_clk_index(unsigned int mhz)
 		i = pll_cnt - 1;
 
 	return i;
-}
-
-uint32_t rkclk_prepare_pll_timing(unsigned int mhz)
-{
-	unsigned int refdiv, postdiv1, fbdiv, postdiv2;
-	int index;
-
-	index = to_get_clk_index(mhz);
-	refdiv = dpll_rates_table[index].refdiv;
-	fbdiv = dpll_rates_table[index].fbdiv;
-	postdiv1 = dpll_rates_table[index].postdiv1;
-	postdiv2 = dpll_rates_table[index].postdiv2;
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON0, FBDIV(fbdiv));
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_DPLL_CON1,
-		      POSTDIV2(postdiv2) | POSTDIV1(postdiv1) | REFDIV(refdiv));
-	return (24 * fbdiv) / refdiv / postdiv1 / postdiv2;
 }
 
 uint32_t ddr_get_rate(void)
@@ -2051,90 +1820,21 @@ void resume_low_power(uint32_t low_power)
 	}
 }
 
-static void wait_dcf_done(void)
+static void dram_low_power_config(void)
 {
-	while ((mmio_read_32(DCF_BASE + DCF_DCF_ISR) & (DCF_DONE)) == 0)
-		continue;
-}
-
-void clr_dcf_irq(void)
-{
-	/* clear dcf irq status */
-	mmio_write_32(DCF_BASE + DCF_DCF_ISR, DCF_TIMEOUT | DCF_ERR | DCF_DONE);
-}
-
-static void enable_dcf(uint32_t dcf_addr)
-{
-	/* config DCF start addr */
-	mmio_write_32(DCF_BASE + DCF_DCF_ADDR, dcf_addr);
-	/* wait dcf done */
-	while (mmio_read_32(DCF_BASE + DCF_DCF_CTRL) & 1)
-		continue;
-	/* clear dcf irq status */
-	mmio_write_32(DCF_BASE + DCF_DCF_ISR, DCF_TIMEOUT | DCF_ERR | DCF_DONE);
-	/* DCF start */
-	mmio_setbits_32(DCF_BASE + DCF_DCF_CTRL, DCF_START);
-}
-
-void dcf_code_init(void)
-{
-	memcpy((void *)DCF_START_ADDR, (void *)dcf_code, sizeof(dcf_code));
-	/* set dcf master secure */
-	mmio_write_32(SGRF_BASE + 0xe01c, ((0x3 << 0) << 16) | (0 << 0));
-	mmio_write_32(DCF_BASE + DCF_DCF_TOSET, 0x80000000);
-}
-
-static void dcf_start(uint32_t freq, uint32_t index)
-{
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-		      (0x1 << (1 + 16)) | (1 << 1));
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(11),
-		      (0x1 << (0 + 16)) | (1 << 0));
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_FREQ_SELECT, index << 4);
-
-	mmio_write_32(DCF_PARAM_ADDR + PARAM_DRAM_FREQ, freq);
-
-	rkclk_prepare_pll_timing(freq);
-	udelay(10);
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(10),
-		      (0x1 << (1 + 16)) | (0 << 1));
-	mmio_write_32(CRU_BASE + CRU_SOFTRST_CON(11),
-		      (0x1 << (0 + 16)) | (0 << 0));
-	udelay(10);
-	enable_dcf(DCF_START_ADDR);
-}
-
-static void dram_low_power_config(struct drv_odt_lp_config *lp_config)
-{
-	uint32_t tmp, tmp1, i;
+	uint32_t tmp, i;
 	uint32_t ch_cnt = rk3399_dram_status.timing_config.ch_cnt;
 	uint32_t dram_type = rk3399_dram_status.timing_config.dram_type;
-	uint32_t *low_power = &rk3399_dram_status.low_power_stat;
-
-	if (dram_type == LPDDR4)
-		tmp = (lp_config->srpd_lite_idle << 16) |
-		      lp_config->pd_idle;
-	else
-		tmp = lp_config->pd_idle;
 
 	if (dram_type == DDR3)
-		tmp1 = (2 << 16) | (0x7 << 8) | 7;
+		tmp = (2 << 16) | (0x7 << 8);
 	else
-		tmp1 = (3 << 16) | (0x7 << 8) | 7;
+		tmp = (3 << 16) | (0x7 << 8);
 
-	*low_power = 0;
-
-	for (i = 0; i < ch_cnt; i++) {
-		mmio_write_32(CTL_REG(i, 102), tmp);
-		mmio_clrsetbits_32(CTL_REG(i, 103), 0xffff,
-				   (lp_config->sr_mc_gate_idle << 8) |
-				   lp_config->sr_idle);
-		mmio_clrsetbits_32(CTL_REG(i, 101), 0x70f0f, tmp1);
-		*low_power |= (7 << (8 * i));
-	}
+	for (i = 0; i < ch_cnt; i++)
+		mmio_clrsetbits_32(CTL_REG(i, 101), 0x70f0f, tmp);
 
 	/* standby idle */
-	mmio_write_32(CIC_BASE + CIC_IDLE_TH, lp_config->standby_idle);
 	mmio_write_32(CIC_BASE + CIC_CG_WAIT_TH, 0x640008);
 
 	if (ch_cnt == 2) {
@@ -2142,36 +1842,22 @@ static void dram_low_power_config(struct drv_odt_lp_config *lp_config)
 			      (((0x1<<4) | (0x1<<5) | (0x1<<6) |
 				(0x1<<7)) << 16) |
 			      ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
-		if (lp_config->standby_idle) {
-			tmp = 0x002a002a;
-			*low_power |= (1 << 11);
-		} else
-			tmp = 0;
-		mmio_write_32(CIC_BASE + CIC_CTRL1, tmp);
+		mmio_write_32(CIC_BASE + CIC_CTRL1, 0x002a0028);
 	}
 
 	mmio_write_32(GRF_BASE + GRF_DDRC0_CON1,
 		      (((0x1<<4) | (0x1<<5) | (0x1<<6) | (0x1<<7)) << 16) |
 		      ((0x1<<4) | (0x0<<5) | (0x1<<6) | (0x1<<7)));
-	if (lp_config->standby_idle) {
-		tmp = 0x00150015;
-		*low_power |= (1 << 3);
-	} else
-		tmp = 0;
-	mmio_write_32(CIC_BASE + CIC_CTRL1, tmp);
+	mmio_write_32(CIC_BASE + CIC_CTRL1, 0x00150014);
 }
 
-
-static void dram_related_init(struct ddr_dts_config_timing *dts_timing)
+void dram_dfs_init(void)
 {
-	uint32_t trefi0, trefi1;
-	uint32_t i;
-
-	dcf_code_init();
+	uint32_t trefi0, trefi1, boot_freq;
 
 	/* get sdram config for os reg */
-	drv_odt_lp_cfg_init(sdram_config.dramtype, dts_timing,
-			    &rk3399_dram_status.drv_odt_lp_cfg);
+	get_dram_drv_odt_val(sdram_config.dramtype,
+			     &rk3399_dram_status.drv_odt_lp_cfg);
 	sdram_timing_cfg_init(&rk3399_dram_status.timing_config,
 			      &sdram_config,
 			      &rk3399_dram_status.drv_odt_lp_cfg);
@@ -2187,30 +1873,106 @@ static void dram_related_init(struct ddr_dts_config_timing *dts_timing)
 		rk3399_dram_status.index_freq[0] /= 2;
 		rk3399_dram_status.index_freq[1] /= 2;
 	}
-	rk3399_dram_status.index_freq[(rk3399_dram_status.current_index + 1)
-				      & 0x1] = 0;
+	boot_freq =
+		rk3399_dram_status.index_freq[rk3399_dram_status.current_index];
+	boot_freq = dpll_rates_table[to_get_clk_index(boot_freq)].mhz;
+	rk3399_dram_status.boot_freq = boot_freq;
+	rk3399_dram_status.index_freq[rk3399_dram_status.current_index] =
+		boot_freq;
+	rk3399_dram_status.index_freq[(rk3399_dram_status.current_index + 1) &
+				      0x1] = 0;
+	rk3399_dram_status.low_power_stat = 0;
+	/*
+	 * following register decide if NOC stall the access request
+	 * or return error when NOC being idled. when doing ddr frequency
+	 * scaling in M0 or DCF, we need to make sure noc stall the access
+	 * request, if return error cpu may data abort when ddr frequency
+	 * changing. it don't need to set this register every times,
+	 * so we init this register in function dram_dfs_init().
+	 */
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(0), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(1), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(2), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(3), 0xffffffff);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(4), 0x70007000);
 
-	/* disable all training by ctl and pi */
-	for (i = 0; i < rk3399_dram_status.timing_config.ch_cnt; i++) {
-		mmio_clrbits_32(CTL_REG(i, 70), (1 << 24) |
-				(1 << 16) | (1 << 8) | 1);
-		mmio_clrbits_32(CTL_REG(i, 71), 1);
+	/* Disable multicast */
+	mmio_clrbits_32(PHY_REG(0, 896), 1);
+	mmio_clrbits_32(PHY_REG(1, 896), 1);
 
-		mmio_clrbits_32(PI_REG(i, 60), 0x3 << 8);
-		mmio_clrbits_32(PI_REG(i, 80), (0x3 << 24) | (0x3 << 16));
-		mmio_clrbits_32(PI_REG(i, 100), 0x3 << 8);
-		mmio_clrbits_32(PI_REG(i, 124), 0x3 << 16);
+	dram_low_power_config();
+}
+
+/*
+ * arg0: bit0-7: sr_idle; bit8-15:sr_mc_gate_idle; bit16-31: standby idle
+ * arg1: bit0-11: pd_idle; bit 16-27: srpd_lite_idle
+ * arg2: bit0: if odt en
+ */
+uint32_t dram_set_odt_pd(uint32_t arg0, uint32_t arg1, uint32_t arg2)
+{
+	struct drv_odt_lp_config *lp_cfg = &rk3399_dram_status.drv_odt_lp_cfg;
+	uint32_t *low_power = &rk3399_dram_status.low_power_stat;
+	uint32_t dram_type, ch_count, pd_tmp, sr_tmp, i;
+
+	dram_type = rk3399_dram_status.timing_config.dram_type;
+	ch_count = rk3399_dram_status.timing_config.ch_cnt;
+
+	lp_cfg->sr_idle = arg0 & 0xff;
+	lp_cfg->sr_mc_gate_idle = (arg0 >> 8) & 0xff;
+	lp_cfg->standby_idle = (arg0 >> 16) & 0xffff;
+	lp_cfg->pd_idle = arg1 & 0xfff;
+	lp_cfg->srpd_lite_idle = (arg1 >> 16) & 0xfff;
+
+	rk3399_dram_status.timing_config.odt = arg2 & 0x1;
+
+	exit_low_power();
+
+	*low_power = 0;
+
+	/* pd_idle en */
+	if (lp_cfg->pd_idle)
+		*low_power |= ((1 << 0) | (1 << 8));
+	/* sr_idle en srpd_lite_idle */
+	if (lp_cfg->sr_idle | lp_cfg->srpd_lite_idle)
+		*low_power |= ((1 << 1) | (1 << 9));
+	/* sr_mc_gate_idle */
+	if (lp_cfg->sr_mc_gate_idle)
+		*low_power |= ((1 << 2) | (1 << 10));
+	/* standbyidle */
+	if (lp_cfg->standby_idle) {
+		if (rk3399_dram_status.timing_config.ch_cnt == 2)
+			*low_power |= ((1 << 3) | (1 << 11));
+		else
+			*low_power |= (1 << 3);
 	}
 
-	/* init drv odt */
-	if (rk3399_dram_status.index_freq[rk3399_dram_status.current_index] <
-		rk3399_dram_status.drv_odt_lp_cfg.odt_dis_freq)
-		rk3399_dram_status.timing_config.odt = 0;
-	else
-		rk3399_dram_status.timing_config.odt = 1;
-	gen_rk3399_set_ds_odt(&rk3399_dram_status.timing_config,
-			&rk3399_dram_status.drv_odt_lp_cfg);
-	dram_low_power_config(&rk3399_dram_status.drv_odt_lp_cfg);
+	pd_tmp = arg1;
+	if (dram_type != LPDDR4)
+		pd_tmp = arg1 & 0xfff;
+	sr_tmp = arg0 & 0xffff;
+	for (i = 0; i < ch_count; i++) {
+		mmio_write_32(CTL_REG(i, 102), pd_tmp);
+		mmio_clrsetbits_32(CTL_REG(i, 103), 0xffff, sr_tmp);
+	}
+	mmio_write_32(CIC_BASE + CIC_IDLE_TH, (arg0 >> 16) & 0xffff);
+
+	return 0;
+}
+
+static void m0_configure_ddr(struct pll_div pll_div, uint32_t ddr_index)
+{
+	/* set PARAM to M0_FUNC_DRAM */
+	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_DRAM);
+
+	mmio_write_32(M0_PARAM_ADDR + PARAM_DPLL_CON0, FBDIV(pll_div.fbdiv));
+	mmio_write_32(M0_PARAM_ADDR + PARAM_DPLL_CON1,
+		      POSTDIV2(pll_div.postdiv2) | POSTDIV1(pll_div.postdiv1) |
+		      REFDIV(pll_div.refdiv));
+
+	mmio_write_32(M0_PARAM_ADDR + PARAM_DRAM_FREQ, pll_div.mhz);
+
+	mmio_write_32(M0_PARAM_ADDR + PARAM_FREQ_SELECT, ddr_index << 4);
+	dmbst();
 }
 
 static uint32_t prepare_ddr_timing(uint32_t mhz)
@@ -2220,20 +1982,15 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 
 	rk3399_dram_status.timing_config.freq = mhz;
 
-	if (mhz < rk3399_dram_status.drv_odt_lp_cfg.ddr3_dll_dis_freq)
+	if (mhz < 300)
 		rk3399_dram_status.timing_config.dllbp = 1;
 	else
 		rk3399_dram_status.timing_config.dllbp = 0;
-	if (mhz < rk3399_dram_status.drv_odt_lp_cfg.odt_dis_freq) {
-		rk3399_dram_status.timing_config.odt = 0;
-	} else {
-		rk3399_dram_status.timing_config.odt = 1;
+
+	if (rk3399_dram_status.timing_config.odt == 1)
 		gen_rk3399_set_odt(1);
-	}
 
 	index = (rk3399_dram_status.current_index + 1) & 0x1;
-	if (rk3399_dram_status.index_freq[index] == mhz)
-		goto out;
 
 	/*
 	 * checking if having available gate traiing timing for
@@ -2249,8 +2006,6 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 			      &dram_timing, index);
 	rk3399_dram_status.index_freq[index] = mhz;
 
-
-out:
 	return index;
 }
 
@@ -2271,33 +2026,39 @@ void print_dram_status_info(void)
 
 uint32_t ddr_set_rate(uint32_t hz)
 {
-	uint32_t low_power, index;
+	uint32_t low_power, index, ddr_index;
 	uint32_t mhz = hz / (1000 * 1000);
 
 	if (mhz ==
 	    rk3399_dram_status.index_freq[rk3399_dram_status.current_index])
-		goto out;
+		return mhz;
 
 	index = to_get_clk_index(mhz);
 	mhz = dpll_rates_table[index].mhz;
 
-	low_power = exit_low_power();
-	index = prepare_ddr_timing(mhz);
-	if (index > 1)
+	ddr_index = prepare_ddr_timing(mhz);
+	gen_rk3399_enable_training(rk3399_dram_status.timing_config.ch_cnt,
+				   mhz);
+	if (ddr_index > 1)
 		goto out;
 
-	dcf_start(mhz, index);
-	wait_dcf_done();
+	/*
+	 * Make sure the clock is enabled. The M0 clocks should be on all of the
+	 * time during S0.
+	 */
+	m0_configure_ddr(dpll_rates_table[index], ddr_index);
+	m0_start();
+	m0_wait_done();
+	m0_stop();
+
 	if (rk3399_dram_status.timing_config.odt == 0)
 		gen_rk3399_set_odt(0);
 
-	rk3399_dram_status.current_index = index;
-
-	if (mhz < dts_parameter.auto_pd_dis_freq)
-		low_power |= rk3399_dram_status.low_power_stat;
-
+	rk3399_dram_status.current_index = ddr_index;
+	low_power = rk3399_dram_status.low_power_stat;
 	resume_low_power(low_power);
 out:
+	gen_rk3399_disable_training(rk3399_dram_status.timing_config.ch_cnt);
 	return mhz;
 }
 
@@ -2311,29 +2072,56 @@ uint32_t ddr_round_rate(uint32_t hz)
 	return dpll_rates_table[index].mhz * 1000 * 1000;
 }
 
-uint32_t dts_timing_receive(uint32_t timing, uint32_t index)
+void ddr_prepare_for_sys_suspend(void)
 {
-	uint32_t *p = (uint32_t *) &dts_parameter;
-	static uint32_t receive_nums;
+	uint32_t mhz =
+		rk3399_dram_status.index_freq[rk3399_dram_status.current_index];
 
-	if (index < (sizeof(dts_parameter) / sizeof(uint32_t) - 1)) {
-		p[index] = (uint32_t)timing;
-		receive_nums++;
-	} else {
-		dts_parameter.available = 0;
-		return -1;
-	}
+	/*
+	 * If we're not currently at the boot (assumed highest) frequency, we
+	 * need to change frequencies to configure out current index.
+	 */
+	rk3399_suspend_status.freq = mhz;
+	exit_low_power();
+	rk3399_suspend_status.low_power_stat =
+		rk3399_dram_status.low_power_stat;
+	rk3399_suspend_status.odt = rk3399_dram_status.timing_config.odt;
+	rk3399_dram_status.low_power_stat = 0;
+	rk3399_dram_status.timing_config.odt = 1;
+	if (mhz != rk3399_dram_status.boot_freq)
+		ddr_set_rate(rk3399_dram_status.boot_freq * 1000 * 1000);
 
-	/* receive all parameter */
-	if (receive_nums  == (sizeof(dts_parameter) / sizeof(uint32_t) - 1)) {
-		dts_parameter.available = 1;
-		receive_nums = 0;
-	}
-
-	return index;
+	/*
+	 * This will configure the other index to be the same frequency as the
+	 * current one. We retrain both indices on resume, so both have to be
+	 * setup for the same frequency.
+	 */
+	prepare_ddr_timing(rk3399_dram_status.boot_freq);
 }
 
-void ddr_dfs_init(void)
+void ddr_prepare_for_sys_resume(void)
 {
-	dram_related_init(&dts_parameter);
+	/* Disable multicast */
+	mmio_clrbits_32(PHY_REG(0, 896), 1);
+	mmio_clrbits_32(PHY_REG(1, 896), 1);
+
+	/* The suspend code changes the current index, so reset it now. */
+	rk3399_dram_status.current_index =
+		(mmio_read_32(CTL_REG(0, 111)) >> 16) & 0x3;
+	rk3399_dram_status.low_power_stat =
+		rk3399_suspend_status.low_power_stat;
+	rk3399_dram_status.timing_config.odt = rk3399_suspend_status.odt;
+
+	/*
+	 * Set the saved frequency from suspend if it's different than the
+	 * current frequency.
+	 */
+	if (rk3399_suspend_status.freq !=
+	    rk3399_dram_status.index_freq[rk3399_dram_status.current_index]) {
+		ddr_set_rate(rk3399_suspend_status.freq * 1000 * 1000);
+		return;
+	}
+
+	gen_rk3399_set_odt(rk3399_dram_status.timing_config.odt);
+	resume_low_power(rk3399_dram_status.low_power_stat);
 }

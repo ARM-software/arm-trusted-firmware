@@ -28,50 +28,71 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <dram.h>
-#include <plat_private.h>
-#include <secure.h>
-#include <soc.h>
-#include <rk3399_def.h>
+#include <m0_param.h>
+#include "rk3399_mcu.h"
 
-__sramdata struct rk3399_sdram_params sdram_config;
+/* use 24MHz SysTick */
+#define US_TO_CYCLE(US)	(US * 24)
 
-void dram_init(void)
+#define SYST_CST	0xe000e010
+/* enable counter */
+#define ENABLE		(1 << 0)
+/* count down to 0 does not cause SysTick exception to pend */
+#define TICKINT		(1 << 1)
+/* core clock used for SysTick */
+#define CLKSOURCE	(1 << 2)
+
+#define COUNTFLAG	(1 << 16)
+#define SYST_RVR	0xe000e014
+#define MAX_VALUE	0xffffff
+#define MAX_USECS	(MAX_VALUE / US_TO_CYCLE(1))
+#define SYST_CVR	0xe000e018
+#define SYST_CALIB	0xe000e01c
+
+unsigned int remaining_usecs;
+
+static inline void stopwatch_set_usecs(void)
 {
-	uint32_t os_reg2_val, i;
+	unsigned int cycle;
+	unsigned int usecs = MIN(MAX_USECS, remaining_usecs);
 
-	os_reg2_val = mmio_read_32(PMUGRF_BASE + PMUGRF_OSREG(2));
-	sdram_config.dramtype = SYS_REG_DEC_DDRTYPE(os_reg2_val);
-	sdram_config.num_channels = SYS_REG_DEC_NUM_CH(os_reg2_val);
-	sdram_config.stride = (mmio_read_32(SGRF_BASE + SGRF_SOC_CON3_7(4)) >>
-				10) & 0x1f;
+	remaining_usecs -= usecs;
+	cycle = US_TO_CYCLE(usecs);
+	mmio_write_32(SYST_RVR, cycle);
+	mmio_write_32(SYST_CVR, 0);
 
-	for (i = 0; i < 2; i++) {
-		struct rk3399_sdram_channel *ch = &sdram_config.ch[i];
-		struct rk3399_msch_timings *noc = &ch->noc_timings;
+	mmio_write_32(SYST_CST, ENABLE | TICKINT | CLKSOURCE);
+}
 
-		if (!(SYS_REG_DEC_CHINFO(os_reg2_val, i)))
-			continue;
+void stopwatch_init_usecs_expire(unsigned int usecs)
+{
+	/*
+	 * Enter an inifite loop if the stopwatch is in use. This will allow the
+	 * state to be analyzed with a debugger.
+	 */
+	if (mmio_read_32(SYST_CST) & ENABLE)
+		while (1)
+			;
 
-		ch->rank = SYS_REG_DEC_RANK(os_reg2_val, i);
-		ch->col = SYS_REG_DEC_COL(os_reg2_val, i);
-		ch->bk = SYS_REG_DEC_BK(os_reg2_val, i);
-		ch->bw = SYS_REG_DEC_BW(os_reg2_val, i);
-		ch->dbw = SYS_REG_DEC_DBW(os_reg2_val, i);
-		ch->row_3_4 = SYS_REG_DEC_ROW_3_4(os_reg2_val, i);
-		ch->cs0_row = SYS_REG_DEC_CS0_ROW(os_reg2_val, i);
-		ch->cs1_row = SYS_REG_DEC_CS1_ROW(os_reg2_val, i);
-		ch->ddrconfig = mmio_read_32(MSCH_BASE(i) + MSCH_DEVICECONF);
+	remaining_usecs = usecs;
+	stopwatch_set_usecs();
+}
 
-		noc->ddrtiminga0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DDRTIMINGA0);
-		noc->ddrtimingb0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DDRTIMINGB0);
-		noc->ddrtimingc0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DDRTIMINGC0);
-		noc->devtodev0.d32 = mmio_read_32(MSCH_BASE(i) +
-				MSCH_DEVTODEV0);
-		noc->ddrmode.d32 = mmio_read_32(MSCH_BASE(i) + MSCH_DDRMODE);
-		noc->agingx0 = mmio_read_32(MSCH_BASE(i) + MSCH_AGINGX0);
+int stopwatch_expired(void)
+{
+	int val = mmio_read_32(SYST_CST);
+	if ((val & COUNTFLAG) || !(val & ENABLE)) {
+		if (!remaining_usecs)
+			return 1;
+
+		stopwatch_set_usecs();
 	}
+
+	return 0;
+}
+
+void stopwatch_reset(void)
+{
+	mmio_clrbits_32(SYST_CST, ENABLE);
+	remaining_usecs = 0;
 }

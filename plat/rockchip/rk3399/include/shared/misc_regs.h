@@ -28,19 +28,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-OUTPUT_FORMAT("elf32-littlearm")
+#ifndef __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
+#define __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
 
-SECTIONS {
-	.m0_bin 0 : {
-		KEEP(*(.isr_vector))
-		ASSERT(. == 0xc0, "ISR vector has the wrong size.");
-		*(.text*)
-		*(.rodata*)
-		*(.data*)
-		*(.bss*)
-		. = ALIGN(8);
-		*(.co_stack*)
-	}
+/* CRU */
+#define CRU_DPLL_CON0		0x40
+#define CRU_DPLL_CON1		0x44
+#define CRU_DPLL_CON2		0x48
+#define CRU_DPLL_CON3		0x4c
+#define CRU_DPLL_CON4		0x50
+#define CRU_DPLL_CON5		0x54
 
-	/DISCARD/ : { *(.comment) *(.note*) }
-}
+/* CRU_PLL_CON3 */
+#define PLL_SLOW_MODE		0
+#define PLL_NORMAL_MODE		1
+#define PLL_MODE(n)		((0x3 << (8 + 16)) | ((n) << 8))
+#define PLL_POWER_DOWN(n)	((0x1 << (0 + 16)) | ((n) << 0))
+
+/* PMU CRU */
+#define PMU_CRU_GATEDIS_CON0	0x130
+
+#endif /* __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__ */
