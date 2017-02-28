@@ -36,6 +36,8 @@ $(eval $(call add_define,ASM_ASSERTION))
 
 USE_COHERENT_MEM	:=	0
 
+SEPARATE_CODE_AND_RODATA :=	1
+
 PLAT_INCLUDES		:=	-Iplat/nvidia/tegra/include/drivers \
 				-Iplat/nvidia/tegra/include \
 				-Iplat/nvidia/tegra/include/${TARGET_SOC}
