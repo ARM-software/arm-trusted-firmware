@@ -125,8 +125,6 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	int result = -ENOMEM;
 	const io_block_spec_t *block_spec = (io_block_spec_t *)spec;
 
-	assert(block_spec->length >= 0);
-
 	/* Since we need to track open state for seek() we only allow one open
 	 * spec at a time. When we have dynamic memory we can malloc and set
 	 * entity->info.
