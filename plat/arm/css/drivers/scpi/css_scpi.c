@@ -150,8 +150,18 @@ void scpi_set_css_power_state(unsigned int mpidr,
 	uint32_t state = 0;
 	uint32_t *payload_addr;
 
+#if ARM_PLAT_MT
+	/*
+	 * The current SCPI driver only caters for single-threaded platforms.
+	 * Hence we ignore the thread ID (which is always 0) for such platforms.
+	 */
+	state |= (mpidr >> MPIDR_AFF1_SHIFT) & 0x0f;	/* CPU ID */
+	state |= ((mpidr >> MPIDR_AFF2_SHIFT) & 0x0f) << 4;	/* Cluster ID */
+#else
 	state |= mpidr & 0x0f;	/* CPU ID */
 	state |= (mpidr & 0xf00) >> 4;	/* Cluster ID */
+#endif /* ARM_PLAT_MT */
+
 	state |= cpu_state << 8;
 	state |= cluster_state << 12;
 	state |= css_state << 16;

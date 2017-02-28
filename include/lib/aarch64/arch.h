@@ -49,6 +49,7 @@
 /*******************************************************************************
  * MPIDR macros
  ******************************************************************************/
+#define MPIDR_MT_MASK		(1 << 24)
 #define MPIDR_CPU_MASK		MPIDR_AFFLVL_MASK
 #define MPIDR_CLUSTER_MASK	MPIDR_AFFLVL_MASK << MPIDR_AFFINITY_BITS
 #define MPIDR_AFFINITY_BITS	8
