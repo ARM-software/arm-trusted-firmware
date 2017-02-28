@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
+#ifndef __TZC_COMMON_PRIVATE_H__
+#define __TZC_COMMON_PRIVATE_H__
 
 #include <arch.h>
 #include <arch_helpers.h>
@@ -191,7 +194,7 @@
 	}
 
 #if DEBUG
-static unsigned int _tzc_read_peripheral_id(uintptr_t base)
+static inline unsigned int _tzc_read_peripheral_id(uintptr_t base)
 {
 	unsigned int id;
 
@@ -203,7 +206,7 @@ static unsigned int _tzc_read_peripheral_id(uintptr_t base)
 }
 
 #ifdef AARCH32
-static unsigned long long _tzc_get_max_top_addr(int addr_width)
+static inline unsigned long long _tzc_get_max_top_addr(int addr_width)
 {
 	/*
 	 * Assume at least 32 bit wide address and initialize the max.
@@ -233,3 +236,5 @@ static unsigned long long _tzc_get_max_top_addr(int addr_width)
 #endif /* AARCH32 */
 
 #endif
+
+#endif /* __TZC_COMMON_PRIVATE_H__ */
