@@ -612,15 +612,26 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			break;
 		}
 
+		assert(handle == cm_get_context(NON_SECURE));
+		cm_el1_sysregs_context_save(NON_SECURE);
+
 		/* Abort the preempted SMC request */
-		if (!tspd_abort_preempted_smc(tsp_ctx))
+		if (!tspd_abort_preempted_smc(tsp_ctx)) {
 			/*
 			 * If there was no preempted SMC to abort, return
 			 * SMC_UNK.
+			 *
+			 * Restoring the NON_SECURE context is not necessary as
+			 * the synchronous entry did not take place if the
+			 * return code of tspd_abort_preempted_smc is zero.
 			 */
-			SMC_RET1(handle, SMC_UNK);
+			cm_set_next_eret_context(NON_SECURE);
+			break;
+		}
 
-		break;
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+		SMC_RET0(handle);
 
 		/*
 		 * Request from non secure world to resume the preempted
