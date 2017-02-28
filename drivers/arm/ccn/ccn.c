@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@
 #include "ccn_private.h"
 
 static const ccn_desc_t *ccn_plat_desc;
-#ifdef IMAGE_BL31
+#if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
 DEFINE_BAKERY_LOCK(ccn_lock);
 #endif
 
@@ -285,7 +285,7 @@ static void ccn_snoop_dvm_do_op(unsigned long long rn_id_map,
 	assert(ccn_plat_desc);
 	assert(ccn_plat_desc->periphbase);
 
-#ifdef IMAGE_BL31
+#if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
 	bakery_lock_get(&ccn_lock);
 #endif
 	start_region_id = region_id;
@@ -305,7 +305,7 @@ static void ccn_snoop_dvm_do_op(unsigned long long rn_id_map,
 						   rn_id_map);
 	}
 
-#ifdef IMAGE_BL31
+#if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
 	bakery_lock_release(&ccn_lock);
 #endif
 }

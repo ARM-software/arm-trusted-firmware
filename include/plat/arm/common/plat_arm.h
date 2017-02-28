@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@ void arm_setup_page_tables(uintptr_t total_base,
 #endif
 );
 
-#ifdef IMAGE_BL31
+#if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
 /*
  * Use this macro to instantiate lock before it is used in below
  * arm_lock_xxx() macros
@@ -88,7 +88,7 @@ void arm_setup_page_tables(uintptr_t total_base,
 #define arm_lock_get()
 #define arm_lock_release()
 
-#endif /* IMAGE_BL31 */
+#endif /* defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32)) */
 
 #if ARM_RECOM_STATE_ID_ENC
 /*
