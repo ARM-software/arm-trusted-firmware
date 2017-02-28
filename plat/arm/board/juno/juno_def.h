@@ -83,6 +83,7 @@
 #define TRNG_INTMASK	0x14
 #define TRNG_CONFIG	0x18
 #define TRNG_CONTROL	0x1C
+#define TRNG_NBYTES	16	/* Number of bytes generated per round. */
 
 /*******************************************************************************
  * MMU-401 related constants
