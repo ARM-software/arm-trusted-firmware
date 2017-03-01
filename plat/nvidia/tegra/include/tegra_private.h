@@ -99,4 +99,22 @@ void tegra_delay_timer_init(void);
 void tegra_secure_entrypoint(void);
 void tegra186_cpu_reset_handler(void);
 
+/* Declarations for tegra_sip_calls.c */
+uintptr_t tegra_sip_handler(uint32_t smc_fid,
+			    u_register_t x1,
+			    u_register_t x2,
+			    u_register_t x3,
+			    u_register_t x4,
+			    void *cookie,
+			    void *handle,
+			    u_register_t flags);
+int plat_sip_handler(uint32_t smc_fid,
+		     uint64_t x1,
+		     uint64_t x2,
+		     uint64_t x3,
+		     uint64_t x4,
+		     const void *cookie,
+		     void *handle,
+		     uint64_t flags);
+
 #endif /* TEGRA_PRIVATE_H */

@@ -41,10 +41,20 @@ int plat_sip_handler(uint32_t smc_fid,
 		     uint64_t x2,
 		     uint64_t x3,
 		     uint64_t x4,
-		     void *cookie,
+		     const void *cookie,
 		     void *handle,
 		     uint64_t flags)
 {
+	/* unused parameters */
+	(void)smc_fid;
+	(void)x1;
+	(void)x2;
+	(void)x3;
+	(void)x4;
+	(void)cookie;
+	(void)handle;
+	(void)flags;
+
 	return -ENOTSUP;
 }
 
@@ -61,7 +71,7 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 			    u_register_t flags)
 {
 	uint32_t regval;
-	int err;
+	int32_t err;
 
 	/* Check if this is a SoC specific SiP */
 	err = plat_sip_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
@@ -176,9 +186,9 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 DECLARE_RT_SVC(
 	tegra_sip_fast,
 
-	OEN_SIP_START,
-	OEN_SIP_END,
-	SMC_TYPE_FAST,
-	NULL,
-	tegra_sip_handler
+	(OEN_SIP_START),
+	(OEN_SIP_END),
+	(SMC_TYPE_FAST),
+	(NULL),
+	(tegra_sip_handler)
 );
