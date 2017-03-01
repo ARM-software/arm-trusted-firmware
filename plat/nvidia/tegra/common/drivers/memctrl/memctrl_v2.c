@@ -375,10 +375,14 @@ void tegra_memctrl_setup(void)
 	/*
 	 * Set the MC_TXN_OVERRIDE registers for write clients.
 	 */
-	if (!tegra_platform_is_silicon() ||
-	    (tegra_platform_is_silicon() && tegra_get_chipid_minor() == 1)) {
+	if ((tegra_get_chipid() == (uint32_t)TEGRA_CHIPID_TEGRA18) &&
+	    (!tegra_platform_is_silicon() ||
+	    (tegra_platform_is_silicon() && tegra_get_chipid_minor() == 1))) {
 
-		/* GPU and NVENC settings for rev. A01 */
+		/*
+		 * GPU and NVENC settings for Tegra186 simulation and
+		 * Silicon rev. A01
+		 */
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
 		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR,
@@ -396,7 +400,9 @@ void tegra_memctrl_setup(void)
 
 	} else {
 
-		/* settings for rev. A02 */
+		/*
+		 * Settings for Tegra186 silicon rev. A02 and onwards.
+		 */
 		for (i = 0; i < num_txn_override_cfgs; i++) {
 			val = tegra_mc_read_32(mc_txn_override_cfgs[i].offset);
 			val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
