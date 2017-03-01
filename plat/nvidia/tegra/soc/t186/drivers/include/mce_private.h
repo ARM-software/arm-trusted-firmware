@@ -100,9 +100,10 @@ typedef union mca_cmd {
  ******************************************************************************/
 typedef union mca_arg {
 	struct err {
-		uint64_t error:8;
-		uint64_t unused:48;
-		uint64_t finish:8;
+		uint32_t error:8;
+		uint32_t unused:24;
+		uint32_t unused2:24;
+		uint32_t finish:8;
 	} err;
 	struct arg {
 		uint32_t low;
@@ -119,32 +120,32 @@ typedef union uncore_perfmon_req {
 		/*
 		 * Commands: 0 = READ, 1 = WRITE
 		 */
-		uint64_t cmd:8;
+		uint32_t cmd:8;
 		/*
 		 * The unit group: L2=0, L3=1, ROC=2, MC=3, IOB=4
 		 */
-		uint64_t grp:4;
+		uint32_t grp:4;
 		/*
 		 * Unit selector: Selects the unit instance, with 0 = Unit
 		 * = (number of units in group) - 1.
 		 */
-		uint64_t unit:4;
+		uint32_t unit:4;
 		/*
 		 * Selects the uncore perfmon register to access
 		 */
-		uint64_t reg:8;
+		uint32_t reg:8;
 		/*
 		 * Counter number. Selects which counter to use for
 		 * registers NV_PMEVCNTR and NV_PMEVTYPER.
 		 */
-		uint64_t counter:8;
+		uint32_t counter:8;
 	} perfmon_command;
 	struct perfmon_status {
 		/*
 		 * Resulting command status
 		 */
-		uint64_t val:8;
-		uint64_t unused:24;
+		uint32_t val:8;
+		uint32_t unused:24;
 	} perfmon_status;
 	uint64_t data;
 } uncore_perfmon_req_t;
