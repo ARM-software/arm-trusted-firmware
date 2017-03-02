@@ -44,8 +44,11 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <stddef.h>
+#include <string.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
+
+extern void zeromem16(void *mem, unsigned int length);
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -80,6 +83,29 @@ static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
 extern uint64_t ns_image_entrypoint;
 
 /*******************************************************************************
+ * The following platform setup functions are weakly defined. They
+ * provide typical implementations that will be overridden by a SoC.
+ ******************************************************************************/
+#pragma weak plat_early_platform_setup
+#pragma weak plat_get_bl31_params
+#pragma weak plat_get_bl31_plat_params
+
+void plat_early_platform_setup(void)
+{
+	; /* do nothing */
+}
+
+bl31_params_t *plat_get_bl31_params(void)
+{
+	return NULL;
+}
+
+plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
+{
+	return NULL;
+}
+
+/*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for
  * security state specified. BL33 corresponds to the non-secure image type
  * while BL32 corresponds to the secure image type.
@@ -89,7 +115,8 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	if (type == NON_SECURE)
 		return &bl33_image_ep_info;
 
-	if (type == SECURE)
+	/* return BL32 entry point info if it is valid */
+	if (type == SECURE && bl32_image_ep_info.pc)
 		return &bl32_image_ep_info;
 
 	return NULL;
@@ -116,11 +143,25 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 #if DEBUG
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 #endif
+	image_info_t bl32_img_info = { {0} };
+	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
+
+	/*
+	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
+	 * there's no argument to relay from a previous bootloader. Platforms
+	 * might use custom ways to get arguments, so provide handlers which
+	 * they can override.
+	 */
+	if (from_bl2 == NULL)
+		from_bl2 = plat_get_bl31_params();
+	if (plat_params == NULL)
+		plat_params = plat_get_bl31_plat_params();
 
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
+	assert(from_bl2);
 	assert(from_bl2->bl33_ep_info);
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
 
@@ -134,6 +175,14 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	plat_bl31_params_from_bl2.tzdram_base = plat_params->tzdram_base;
 	plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
 	plat_bl31_params_from_bl2.uart_id = plat_params->uart_id;
+
+	/*
+	 * It is very important that we run either from TZDRAM or TZSRAM base.
+	 * Add an explicit check here.
+	 */
+	if ((plat_bl31_params_from_bl2.tzdram_base != BL31_BASE) &&
+	    (TEGRA_TZRAM_BASE != BL31_BASE))
+		panic();
 
 	/*
 	 * Get the base address of the UART controller to be used for the
@@ -152,6 +201,51 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	/* Initialise crash console */
 	plat_crash_console_init();
 
+	/*
+	 * Do initial security configuration to allow DRAM/device access.
+	 */
+	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
+			plat_bl31_params_from_bl2.tzdram_size);
+
+	/*
+	 * The previous bootloader might not have placed the BL32 image
+	 * inside the TZDRAM. We check the BL32 image info to find out
+	 * the base/PC values and relocate the image if necessary.
+	 */
+	if (from_bl2->bl32_image_info) {
+
+		bl32_img_info = *from_bl2->bl32_image_info;
+
+		/* Relocate BL32 if it resides outside of the TZDRAM */
+		tzdram_start = plat_bl31_params_from_bl2.tzdram_base;
+		tzdram_end = plat_bl31_params_from_bl2.tzdram_base +
+				plat_bl31_params_from_bl2.tzdram_size;
+		bl32_start = bl32_img_info.image_base;
+		bl32_end = bl32_img_info.image_base + bl32_img_info.image_size;
+
+		assert(tzdram_end > tzdram_start);
+		assert(bl32_end > bl32_start);
+		assert(bl32_image_ep_info.pc > tzdram_start);
+		assert(bl32_image_ep_info.pc < tzdram_end);
+
+		/* relocate BL32 */
+		if (bl32_start >= tzdram_end || bl32_end <= tzdram_start) {
+
+			INFO("Relocate BL32 to TZDRAM\n");
+
+			memcpy16((void *)(uintptr_t)bl32_image_ep_info.pc,
+				 (void *)(uintptr_t)bl32_start,
+				 bl32_img_info.image_size);
+
+			/* clean up non-secure intermediate buffer */
+			zeromem16((void *)(uintptr_t)bl32_start,
+				bl32_img_info.image_size);
+		}
+	}
+
+	/* Early platform setup for Tegra SoCs */
+	plat_early_platform_setup();
+
 	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n", (impl == DENVER_IMPL) ?
 		"Denver" : "ARM", read_mpidr());
 }
@@ -162,6 +256,9 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 void bl31_platform_setup(void)
 {
 	uint32_t tmp_reg;
+
+	/* Initialize the gic cpu and distributor interfaces */
+	plat_gic_setup();
 
 	/*
 	 * Initialize delay timer
@@ -179,12 +276,6 @@ void bl31_platform_setup(void)
 	tegra_memctrl_setup();
 
 	/*
-	 * Do initial security configuration to allow DRAM/device access.
-	 */
-	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
-			plat_bl31_params_from_bl2.tzdram_size);
-
-	/*
 	 * Set up the TZRAM memory aperture to allow only secure world
 	 * access
 	 */
@@ -193,9 +284,6 @@ void bl31_platform_setup(void)
 	/* Set the next EL to be AArch64 */
 	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT;
 	write_scr(tmp_reg);
-
-	/* Initialize the gic cpu and distributor interfaces */
-	tegra_gic_setup();
 
 	INFO("BL3-1: Tegra platform setup complete\n");
 }

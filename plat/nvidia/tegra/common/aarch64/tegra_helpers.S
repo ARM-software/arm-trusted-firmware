@@ -33,6 +33,7 @@
 #include <cpu_macros.S>
 #include <cortex_a57.h>
 #include <cortex_a53.h>
+#include <platform_def.h>
 #include <tegra_def.h>
 
 #define MIDR_PN_CORTEX_A57		0xD07
@@ -67,6 +68,7 @@
 	.globl	ns_image_entrypoint
 	.globl	tegra_bl31_phys_base
 	.globl	tegra_console_base
+	.globl	tegra_enable_l2_ecc_parity_prot
 
 	/* ---------------------
 	 * Common CPU init code
@@ -75,8 +77,8 @@
 .macro	cpu_init_common
 
 	/* ------------------------------------------------
-	 * We enable procesor retention and L2/CPUECTLR NS
-	 * access for A57 CPUs only.
+	 * We enable procesor retention, L2/CPUECTLR NS
+	 * access and ECC/Parity protection for A57 CPUs
 	 * ------------------------------------------------
 	 */
 	mrs	x0, midr_el1
@@ -89,7 +91,7 @@
 	/* ---------------------------
 	 * Enable processor retention
 	 * ---------------------------
-	*/
+	 */
 	mrs	x0, L2ECTLR_EL1
 	mov	x1, #RETENTION_ENTRY_TICKS_512 << L2ECTLR_RET_CTRL_SHIFT
 	bic	x0, x0, #L2ECTLR_RET_CTRL_MASK
@@ -107,10 +109,24 @@
 	/* -------------------------------------------------------
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
 	 * -------------------------------------------------------
-	*/
+	 */
 	mov	x0, #ACTLR_EL3_ENABLE_ALL_ACCESS
 	msr	actlr_el3, x0
 	msr	actlr_el2, x0
+	isb
+
+	/* -------------------------------------------------------
+	 * Enable L2 ECC and Parity Protection
+	 * -------------------------------------------------------
+	 */
+	adr	x0, tegra_enable_l2_ecc_parity_prot
+	ldr	x0, [x0]
+	cbz	x0, 1f
+	mrs	x0, L2CTLR_EL1
+	and	x1, x0, #L2_ECC_PARITY_PROTECTION_BIT
+	cbnz	x1, 1f
+	orr	x0, x0, #L2_ECC_PARITY_PROTECTION_BIT
+	msr	L2CTLR_EL1, x0
 	isb
 
 	/* --------------------------------
@@ -253,6 +269,47 @@ endfunc plat_crash_console_putc
 	 * ---------------------------------------------------
 	 */
 func plat_reset_handler
+
+	/* ----------------------------------------------------
+	 * Verify if we are running from BL31_BASE address
+	 * ----------------------------------------------------
+	 */
+	adr	x18, bl31_entrypoint
+	mov	x17, #BL31_BASE
+	cmp	x18, x17
+	b.eq	1f
+
+	/* ----------------------------------------------------
+	 * Copy the entire BL31 code to BL31_BASE if we are not
+	 * running from it already
+	 * ----------------------------------------------------
+	 */
+	mov	x0, x17
+	mov	x1, x18
+	mov	x2, #BL31_SIZE
+_loop16:
+	cmp	x2, #16
+	b.lt	_loop1
+	ldp	x3, x4, [x1], #16
+	stp	x3, x4, [x0], #16
+	sub	x2, x2, #16
+	b	_loop16
+	/* copy byte per byte */
+_loop1:
+	cbz	x2, _end
+	ldrb	w3, [x1], #1
+	strb	w3, [x0], #1
+	subs	x2, x2, #1
+	b.ne	_loop1
+
+	/* ----------------------------------------------------
+	 * Jump to BL31_BASE and start execution again
+	 * ----------------------------------------------------
+	 */
+_end:	mov	x0, x20
+	mov	x1, x21
+	br	x17
+1:
 
 	/* -----------------------------------
 	 * derive and save the phys_base addr
@@ -411,4 +468,11 @@ tegra_bl31_phys_base:
 	 * --------------------------------------------------
 	 */
 tegra_console_base:
+	.quad	0
+
+	/* --------------------------------------------------
+	 * Enable L2 ECC and Parity Protection
+	 * --------------------------------------------------
+	 */
+tegra_enable_l2_ecc_parity_prot:
 	.quad	0
