@@ -46,27 +46,6 @@ extern uint32_t __bl31_sram_text_start, __bl31_sram_text_end;
 extern uint32_t __bl31_sram_data_start, __bl31_sram_data_end;
 extern uint32_t __sram_incbin_start, __sram_incbin_end;
 
-/******************************************************************************
- * For rockchip socs pm ops
- ******************************************************************************/
-struct rockchip_pm_ops_cb {
-	int (*cores_pwr_dm_on)(unsigned long mpidr, uint64_t entrypoint);
-	int (*cores_pwr_dm_off)(void);
-	int (*cores_pwr_dm_on_finish)(void);
-	int (*cores_pwr_dm_suspend)(void);
-	int (*cores_pwr_dm_resume)(void);
-	/* hlvl is used for clusters or system level */
-	int (*hlvl_pwr_dm_suspend)(uint32_t lvl, plat_local_state_t lvl_state);
-	int (*hlvl_pwr_dm_resume)(uint32_t lvl, plat_local_state_t lvl_state);
-	int (*hlvl_pwr_dm_off)(uint32_t lvl, plat_local_state_t lvl_state);
-	int (*hlvl_pwr_dm_on_finish)(uint32_t lvl,
-				     plat_local_state_t lvl_state);
-	int (*sys_pwr_dm_suspend)(void);
-	int (*sys_pwr_dm_resume)(void);
-	void (*sys_gbl_soft_reset)(void) __dead2;
-	void (*system_off)(void) __dead2;
-	void (*sys_pwr_down_wfi)(const psci_power_state_t *state_info) __dead2;
-};
 
 /******************************************************************************
  * The register have write-mask bits, it is mean, if you want to set the bits,
@@ -121,7 +100,6 @@ void plat_rockchip_gic_pcpu_init(void);
 void plat_rockchip_pmusram_prepare(void);
 void plat_rockchip_pmu_init(void);
 void plat_rockchip_soc_init(void);
-void plat_setup_rockchip_pm_ops(struct rockchip_pm_ops_cb *ops);
 uintptr_t plat_get_sec_entrypoint(void);
 
 void platform_cpu_warmboot(void);
@@ -131,6 +109,28 @@ struct gpio_info *plat_get_rockchip_gpio_poweroff(void);
 struct gpio_info *plat_get_rockchip_suspend_gpio(uint32_t *count);
 struct apio_info *plat_get_rockchip_suspend_apio(void);
 void plat_rockchip_gpio_init(void);
+
+int rockchip_soc_cores_pwr_dm_on(unsigned long mpidr, uint64_t entrypoint);
+int rockchip_soc_hlvl_pwr_dm_off(uint32_t lvl,
+				 plat_local_state_t lvl_state);
+int rockchip_soc_cores_pwr_dm_off(void);
+int rockchip_soc_sys_pwr_dm_suspend(void);
+int rockchip_soc_cores_pwr_dm_suspend(void);
+int rockchip_soc_hlvl_pwr_dm_suspend(uint32_t lvl,
+				     plat_local_state_t lvl_state);
+int rockchip_soc_hlvl_pwr_dm_on_finish(uint32_t lvl,
+				       plat_local_state_t lvl_state);
+int rockchip_soc_cores_pwr_dm_on_finish(void);
+int rockchip_soc_sys_pwr_dm_resume(void);
+
+int rockchip_soc_hlvl_pwr_dm_resume(uint32_t lvl,
+				    plat_local_state_t lvl_state);
+int rockchip_soc_cores_pwr_dm_resume(void);
+void __dead2 rockchip_soc_soft_reset(void);
+void __dead2 rockchip_soc_system_off(void);
+void __dead2 rockchip_soc_cores_pd_pwr_dn_wfi(
+				const psci_power_state_t *target_state);
+void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void);
 
 extern const unsigned char rockchip_power_domain_tree_desc[];
 

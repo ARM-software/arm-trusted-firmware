@@ -343,7 +343,7 @@ static void nonboot_cpus_off(void)
 	}
 }
 
-static int cores_pwr_domain_on(unsigned long mpidr, uint64_t entrypoint)
+int rockchip_soc_cores_pwr_dm_on(unsigned long mpidr, uint64_t entrypoint)
 {
 	uint32_t cpu, cluster;
 	uint32_t cpuon_id;
@@ -375,12 +375,12 @@ static int cores_pwr_domain_on(unsigned long mpidr, uint64_t entrypoint)
 	return 0;
 }
 
-static int cores_pwr_domain_on_finish(void)
+int rockchip_soc_cores_pwr_dm_on_finish(void)
 {
 	return 0;
 }
 
-static int sys_pwr_domain_resume(void)
+int rockchip_soc_sys_pwr_dm_resume(void)
 {
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      (COLD_BOOT_BASE >> CPU_BOOT_ADDR_ALIGN) |
@@ -394,7 +394,7 @@ static int sys_pwr_domain_resume(void)
 	return 0;
 }
 
-static int sys_pwr_domain_suspend(void)
+int rockchip_soc_sys_pwr_dm_suspend(void)
 {
 	nonboot_cpus_off();
 	pmu_set_sleep_mode();
@@ -404,19 +404,9 @@ static int sys_pwr_domain_suspend(void)
 	return 0;
 }
 
-static struct rockchip_pm_ops_cb pm_ops = {
-	.cores_pwr_dm_on = cores_pwr_domain_on,
-	.cores_pwr_dm_on_finish = cores_pwr_domain_on_finish,
-	.sys_pwr_dm_suspend = sys_pwr_domain_suspend,
-	.sys_pwr_dm_resume = sys_pwr_domain_resume,
-	.sys_gbl_soft_reset = soc_sys_global_soft_reset,
-};
-
 void plat_rockchip_pmu_init(void)
 {
 	uint32_t cpu;
-
-	plat_setup_rockchip_pm_ops(&pm_ops);
 
 	/* register requires 32bits mode, switch it to 32 bits */
 	cpu_warm_boot_addr = (uint64_t)platform_cpu_warmboot;
