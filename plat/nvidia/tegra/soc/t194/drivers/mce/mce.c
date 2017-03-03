@@ -216,7 +216,8 @@ void mce_verify_firmware_version(void)
 	 * MCE firmware is not running on simulation platforms.
 	 */
 	if ((tegra_platform_is_linsim() == 1U) ||
-			(tegra_platform_is_virt_dev_kit() == 1U)) {
+		(tegra_platform_is_virt_dev_kit() == 1U) ||
+		(tegra_platform_is_qt() == 1U)) {
 		return;
 	}
 
