@@ -157,7 +157,6 @@ enum plls_id {
 #define regs_updata_bit_clr(addr, shift) \
 		regs_updata_bits((addr), 0x0, 0x1, (shift))
 
-void __dead2 soc_sys_global_soft_reset(void);
 void regs_updata_bits(uintptr_t addr, uint32_t val,
 		      uint32_t mask, uint32_t shift);
 void soc_sleep_config(void);

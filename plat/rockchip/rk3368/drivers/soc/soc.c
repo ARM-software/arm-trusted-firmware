@@ -198,7 +198,7 @@ void pm_plls_resume(void)
 		      plls_con[NPLL_ID][3] | PLLS_MODE_WMASK);
 }
 
-void __dead2 soc_sys_global_soft_reset(void)
+void __dead2 rockchip_soc_soft_reset(void)
 {
 	uint32_t temp_val;
 
