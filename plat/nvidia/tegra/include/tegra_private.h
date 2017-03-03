@@ -54,7 +54,7 @@ struct tegra_bl31_params {
 };
 
 /* Declarations for plat_psci_handlers.c */
-int32_t tegra_soc_validate_power_state(unsigned int power_state,
+int32_t tegra_soc_validate_power_state(uint32_t power_state,
 		psci_power_state_t *req_state);
 
 /* Declarations for plat_setup.c */
