@@ -77,7 +77,7 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define ADDR_SPACE_SIZE			(1ull << 32)
+#define ADDR_SPACE_SIZE			(1ull << 35)
 
 /*******************************************************************************
  * Some data must be aligned on the biggest cache line size in the platform.

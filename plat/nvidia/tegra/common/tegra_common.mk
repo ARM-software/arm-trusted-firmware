@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,8 @@ $(eval $(call add_define,ASM_ASSERTION))
 
 USE_COHERENT_MEM	:=	0
 
+SEPARATE_CODE_AND_RODATA :=	1
+
 PLAT_INCLUDES		:=	-Iplat/nvidia/tegra/include/drivers \
 				-Iplat/nvidia/tegra/include \
 				-Iplat/nvidia/tegra/include/${TARGET_SOC}
@@ -57,6 +59,7 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				${COMMON_DIR}/tegra_delay_timer.c		\
 				${COMMON_DIR}/tegra_fiq_glue.c			\
 				${COMMON_DIR}/tegra_gic.c			\
+				${COMMON_DIR}/tegra_platform.c			\
 				${COMMON_DIR}/tegra_pm.c			\
 				${COMMON_DIR}/tegra_sip_calls.c			\
 				${COMMON_DIR}/tegra_topology.c

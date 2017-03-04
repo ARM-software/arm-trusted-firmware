@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,8 +54,12 @@ extern void zeromem16(void *mem, unsigned int length);
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
  ******************************************************************************/
-extern unsigned long __RO_START__;
-extern unsigned long __RO_END__;
+extern unsigned long __TEXT_START__;
+extern unsigned long __TEXT_END__;
+extern unsigned long __RW_START__;
+extern unsigned long __RW_END__;
+extern unsigned long __RODATA_START__;
+extern unsigned long __RODATA_END__;
 extern unsigned long __BL31_END__;
 
 extern uint64_t tegra_bl31_phys_base;
@@ -68,8 +72,10 @@ extern uint64_t tegra_console_base;
  * script to ensure that __RO_START__, __RO_END__ & __BL31_END__ linker symbols
  * refer to page-aligned addresses.
  */
-#define BL31_RO_BASE (unsigned long)(&__RO_START__)
-#define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
+#define BL31_RW_START (unsigned long)(&__RW_START__)
+#define BL31_RW_END (unsigned long)(&__RW_END__)
+#define BL31_RODATA_BASE (unsigned long)(&__RODATA_START__)
+#define BL31_RODATA_END (unsigned long)(&__RODATA_END__)
 #define BL31_END (unsigned long)(&__BL31_END__)
 
 static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
@@ -188,18 +194,18 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Get the base address of the UART controller to be used for the
 	 * console
 	 */
-	assert(plat_params->uart_id);
 	tegra_console_base = plat_get_console_from_id(plat_params->uart_id);
 
-	/*
-	 * Configure the UART port to be used as the console
-	 */
-	assert(tegra_console_base);
-	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-		TEGRA_CONSOLE_BAUDRATE);
+	if (tegra_console_base != (uint64_t)0) {
+		/*
+		 * Configure the UART port to be used as the console
+		 */
+		console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
+			TEGRA_CONSOLE_BAUDRATE);
 
-	/* Initialise crash console */
-	plat_crash_console_init();
+		/* Initialise crash console */
+		plat_crash_console_init();
+	}
 
 	/*
 	 * Do initial security configuration to allow DRAM/device access.
@@ -293,9 +299,7 @@ void bl31_platform_setup(void)
  ******************************************************************************/
 void bl31_plat_runtime_setup(void)
 {
-	/* Initialize the runtime console */
-	console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-		TEGRA_CONSOLE_BAUDRATE);
+	; /* do nothing */
 }
 
 /*******************************************************************************
@@ -304,11 +308,12 @@ void bl31_plat_runtime_setup(void)
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {
-	unsigned long bl31_base_pa = tegra_bl31_phys_base;
-	unsigned long total_base = bl31_base_pa;
-	unsigned long total_size = BL32_BASE - BL31_RO_BASE;
-	unsigned long ro_start = bl31_base_pa;
-	unsigned long ro_size = BL31_RO_LIMIT - BL31_RO_BASE;
+	unsigned long rw_start = BL31_RW_START;
+	unsigned long rw_size = BL31_RW_END - BL31_RW_START;
+	unsigned long rodata_start = BL31_RODATA_BASE;
+	unsigned long rodata_size = BL31_RODATA_END - BL31_RODATA_BASE;
+	unsigned long code_base = (unsigned long)(&__TEXT_START__);
+	unsigned long code_size = (unsigned long)(&__TEXT_END__) - code_base;
 	const mmap_region_t *plat_mmio_map = NULL;
 #if USE_COHERENT_MEM
 	unsigned long coh_start, coh_size;
@@ -316,12 +321,15 @@ void bl31_plat_arch_setup(void)
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 
 	/* add memory regions */
-	mmap_add_region(total_base, total_base,
-			total_size,
+	mmap_add_region(rw_start, rw_start,
+			rw_size,
 			MT_MEMORY | MT_RW | MT_SECURE);
-	mmap_add_region(ro_start, ro_start,
-			ro_size,
-			MT_MEMORY | MT_RO | MT_SECURE);
+	mmap_add_region(rodata_start, rodata_start,
+			rodata_size,
+			MT_RO_DATA | MT_SECURE);
+	mmap_add_region(code_base, code_base,
+			code_size,
+			MT_CODE | MT_SECURE);
 
 	/* map TZDRAM used by BL31 as coherent memory */
 	if (TEGRA_TZRAM_BASE == tegra_bl31_phys_base) {

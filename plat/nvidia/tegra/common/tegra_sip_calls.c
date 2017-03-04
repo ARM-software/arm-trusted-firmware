@@ -85,7 +85,6 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 	case TEGRA_SIP_NEW_VIDEOMEM_REGION:
 
 		/* clean up the high bits */
-		x1 = (uint32_t)x1;
 		x2 = (uint32_t)x2;
 
 		/*
