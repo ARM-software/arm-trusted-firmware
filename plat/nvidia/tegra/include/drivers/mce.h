@@ -63,14 +63,14 @@ typedef struct mce_cstate_info {
 } mce_cstate_info_t;
 
 /* public interfaces */
-int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
+int mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		uint64_t arg2);
 int mce_update_reset_vector(void);
 int mce_update_gsc_videomem(void);
 int mce_update_gsc_tzdram(void);
 int mce_update_gsc_tzram(void);
 __dead2 void mce_enter_ccplex_state(uint32_t state_idx);
-void mce_update_cstate_info(mce_cstate_info_t *cstate);
+void mce_update_cstate_info(const mce_cstate_info_t *cstate);
 void mce_verify_firmware_version(void);
 
 #endif /* __MCE_H__ */
