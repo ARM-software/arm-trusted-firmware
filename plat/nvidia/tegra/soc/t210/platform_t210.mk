@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,15 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c
 
-# Enable workarounds for selected Cortex-A53 erratas.
-ERRATA_A53_826319	:=	1
+# Enable workarounds for selected Cortex-A57 erratas.
+A57_DISABLE_NON_TEMPORAL_HINT	:=	1
+ERRATA_A57_826974		:=	1
+ERRATA_A57_826977		:=	1
+ERRATA_A57_828024		:=	1
+ERRATA_A57_829520		:=	1
+ERRATA_A57_833471		:=	1
 
+# Enable workarounds for selected Cortex-A53 erratas.
+A53_DISABLE_NON_TEMPORAL_HINT	:=	1
+ERRATA_A53_826319		:=	1
+ERRATA_A53_836870		:=	1
