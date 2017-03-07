@@ -157,7 +157,7 @@ func get_cpu_ops_ptr
 1:
 	/* Check if we have reached end of list */
 	cmp	r4, r5
-	bge	error_exit
+	bhs	error_exit
 
 	/* load the midr from the cpu_ops */
 	ldr	r1, [r4], #CPU_OPS_SIZE

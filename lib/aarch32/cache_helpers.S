@@ -118,7 +118,7 @@ loop1:
 	mov	r12, r2, LSR r10	// extract cache type bits from clidr
 	and	r12, r12, #7   		// mask the bits for current cache only
 	cmp	r12, #2			// see what cache we have at this level
-	blt	level_done      	// no cache or only instruction cache at this level
+	blo	level_done      	// no cache or only instruction cache at this level
 
 	stcopr	r1, CSSELR		// select current cache level in csselr
 	isb				// isb to sych the new cssr&csidr
@@ -138,14 +138,14 @@ loop3:
 
 	blx	r6
 	subs	r7, r7, #1              // decrement the set number
-	bge	loop3
+	bhs	loop3
 	subs	r9, r9, #1              // decrement the way number
-	bge	loop2
+	bhs	loop2
 level_done:
 	add	r1, r1, #2		// increment the cache number
 	cmp	r3, r1
 	dsb	sy			// ensure completion of previous cache maintenance instruction
-	bgt	loop1
+	bhi	loop1
 
 	mov	r6, #0
 	stcopr	r6, CSSELR		//select cache level 0 in csselr

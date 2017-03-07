@@ -119,7 +119,7 @@ loop1:
 	lsr	x1, x0, x2		// extract cache type bits from clidr
 	and	x1, x1, #7		// mask the bits for current cache only
 	cmp	x1, #2			// see what cache we have at this level
-	b.lt	level_done		// nothing to do if no cache or icache
+	b.lo	level_done		// nothing to do if no cache or icache
 
 	msr	csselr_el1, x10		// select current cache level in csselr
 	isb				// isb to sych the new cssr&csidr
@@ -144,10 +144,10 @@ loop3_\_op:
 	orr	w11, w9, w7		// combine cache, way and set number
 	dc	\_op, x11
 	subs	w7, w7, w17		// decrement set number
-	b.ge	loop3_\_op
+	b.hs	loop3_\_op
 
 	subs	x9, x9, x16		// decrement way number
-	b.ge	loop2_\_op
+	b.hs	loop2_\_op
 
 	b	level_done
 	.endm
@@ -155,7 +155,7 @@ loop3_\_op:
 level_done:
 	add	x10, x10, #2		// increment cache number
 	cmp	x3, x10
-	b.gt    loop1
+	b.hi    loop1
 	msr	csselr_el1, xzr		// select cache level 0 in csselr
 	dsb	sy			// barrier to complete final cache operation
 	isb
