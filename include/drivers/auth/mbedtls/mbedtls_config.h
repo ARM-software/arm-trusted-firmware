@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,8 +33,8 @@
 /*
  * Key algorithms currently supported on mbed TLS libraries
  */
-#define MBEDTLS_RSA			1
-#define MBEDTLS_ECDSA			2
+#define TBBR_RSA	1
+#define TBBR_ECDSA	2
 
 /*
  * Configuration file to build mbed TLS with the required features for
@@ -69,11 +69,11 @@
 
 #define MBEDTLS_PLATFORM_C
 
-#if (MBEDTLS_KEY_ALG_ID == MBEDTLS_ECDSA)
+#if (TBBR_KEY_ALG_ID == TBBR_ECDSA)
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
-#elif (MBEDTLS_KEY_ALG_ID == MBEDTLS_RSA)
+#elif (TBBR_KEY_ALG_ID == TBBR_RSA)
 #define MBEDTLS_RSA_C
 #endif
 

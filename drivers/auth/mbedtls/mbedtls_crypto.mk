@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -55,18 +55,18 @@ ifeq (${MBEDTLS_KEY_ALG},ecdsa)
     					ecp_curves.c				\
     					ecp.c					\
     					)
-    MBEDTLS_KEY_ALG_ID		:=	MBEDTLS_ECDSA
+    TBBR_KEY_ALG_ID		:=	TBBR_ECDSA
 else ifeq (${MBEDTLS_KEY_ALG},rsa)
     MBEDTLS_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
     					rsa.c					\
     					)
-    MBEDTLS_KEY_ALG_ID		:=	MBEDTLS_RSA
+    TBBR_KEY_ALG_ID		:=	TBBR_RSA
 else
     $(error "MBEDTLS_KEY_ALG=${MBEDTLS_KEY_ALG} not supported on mbed TLS")
 endif
 
-# mbed TLS libraries rely on this define to build correctly
-$(eval $(call add_define,MBEDTLS_KEY_ALG_ID))
+# Needs to be set to drive mbed TLS configuration correctly
+$(eval $(call add_define,TBBR_KEY_ALG_ID))
 
 BL1_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}
 BL2_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}
