@@ -190,6 +190,7 @@
  * Tegra micro-seconds timer constants
  ******************************************************************************/
 #define TEGRA_TMRUS_BASE		0x0C2E0000
+#define TEGRA_TMRUS_SIZE		0x10000
 
 /*******************************************************************************
  * Tegra Power Mgmt Controller constants
