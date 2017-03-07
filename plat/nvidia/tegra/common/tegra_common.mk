@@ -43,8 +43,7 @@ PLAT_INCLUDES		:=	-Iplat/nvidia/tegra/include/drivers \
 				-Iplat/nvidia/tegra/include/${TARGET_SOC}
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/aarch64/xlat_tables.c		\
-				plat/common/aarch64/plat_common.c
+				lib/xlat_tables/aarch64/xlat_tables.c
 
 COMMON_DIR		:=	plat/nvidia/tegra/common
 
@@ -52,7 +51,6 @@ BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
 				drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/ti/uart/aarch64/16550_console.S		\
-				plat/common/aarch64/platform_mp_stack.S		\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\
 				${COMMON_DIR}/tegra_bl31_setup.c		\

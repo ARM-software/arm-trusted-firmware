@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,10 +34,10 @@
 
 
 	.local	platform_normal_stacks
-	.globl	plat_set_my_stack
-	.globl	plat_get_my_stack
-	.globl	platform_set_stack
-	.globl	platform_get_stack
+	.weak	plat_set_my_stack
+	.weak	plat_get_my_stack
+	.weak	platform_set_stack
+	.weak	platform_get_stack
 
 	/* -----------------------------------------------------
 	 * uintptr_t plat_get_my_stack ()

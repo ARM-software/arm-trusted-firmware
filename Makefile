@@ -171,6 +171,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/${ARCH}/debug.S			\
 				lib/${ARCH}/cache_helpers.S		\
 				lib/${ARCH}/misc_helpers.S		\
+				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${STDLIB_SRCS}
 

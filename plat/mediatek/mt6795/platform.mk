@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -51,7 +51,6 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				${OEMS_INCLUDES}
 
 PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/xlat_tables.c			\
-				plat/common/aarch64/plat_common.c		\
 				plat/common/plat_gic.c
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
@@ -63,7 +62,6 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				drivers/console/console.S			\
 				drivers/delay_timer/delay_timer.c		\
 				lib/cpus/aarch64/cortex_a53.S			\
-				plat/common/aarch64/platform_mp_stack.S		\
 				${MTK_PLAT_SOC}/bl31_plat_setup.c		\
 				${MTK_PLAT_SOC}/plat_mt_gic.c			\
 				${MTK_PLAT}/common/mtk_sip_svc.c		\
