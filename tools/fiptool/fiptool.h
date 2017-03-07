@@ -58,13 +58,13 @@ typedef struct image_desc {
 	char              *cmdline_name;
 	int                action;
 	char              *action_arg;
+	struct image      *image;
 	struct image_desc *next;
 } image_desc_t;
 
 typedef struct image {
 	struct fip_toc_entry toc_e;
 	void                *buffer;
-	struct image        *next;
 } image_t;
 
 typedef struct cmd {
