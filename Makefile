@@ -186,6 +186,7 @@ INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/lib/el3_runtime/${ARCH}	\
 				-Iinclude/lib/pmf			\
 				-Iinclude/lib/psci			\
+				-Iinclude/lib/xlat_tables		\
 				-Iinclude/plat/common			\
 				-Iinclude/services			\
 				${PLAT_INCLUDES}			\
