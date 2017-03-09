@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
+#include <arch_helpers.h>
+#include <assert.h> /* for context_mgmt.h */
 #include <bl_common.h>
 #include <bl31.h>
 #include <context_mgmt.h>
@@ -41,8 +42,15 @@
 #include "smcall.h"
 #include "sm_err.h"
 
+/* macro to check if Hypervisor is enabled in the HCR_EL2 register */
+#define HYP_ENABLE_FLAG		0x286001
+
+/* length of Trusty's input parameters (in bytes) */
+#define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
+
 struct trusty_stack {
 	uint8_t space[PLATFORM_STACK_SIZE] __aligned(16);
+	uint32_t end;
 };
 
 struct trusty_cpu_ctx {
@@ -65,17 +73,29 @@ struct args {
 	uint64_t	r1;
 	uint64_t	r2;
 	uint64_t	r3;
+	uint64_t	r4;
+	uint64_t	r5;
+	uint64_t	r6;
+	uint64_t	r7;
 };
 
 struct trusty_cpu_ctx trusty_cpu_ctx[PLATFORM_CORE_COUNT];
 
 struct args trusty_init_context_stack(void **sp, void *new_stack);
-struct args trusty_context_switch_helper(void **sp, uint64_t r0, uint64_t r1,
-					 uint64_t r2, uint64_t r3);
+struct args trusty_context_switch_helper(void **sp, void *smc_params);
+
+static uint32_t current_vmid;
 
 static struct trusty_cpu_ctx *get_trusty_ctx(void)
 {
 	return &trusty_cpu_ctx[plat_my_core_pos()];
+}
+
+static uint32_t is_hypervisor_mode(void)
+{
+	uint64_t hcr = read_hcr();
+
+	return !!(hcr & HYP_ENABLE_FLAG);
 }
 
 static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
@@ -83,13 +103,30 @@ static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
 {
 	struct args ret;
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
+	struct trusty_cpu_ctx *ctx_smc;
 
 	assert(ctx->saved_security_state != security_state);
+
+	ret.r7 = 0;
+	if (is_hypervisor_mode()) {
+		/* According to the ARM DEN0028A spec, VMID is stored in x7 */
+		ctx_smc = cm_get_context(NON_SECURE);
+		assert(ctx_smc);
+		ret.r7 = SMC_GET_GP(ctx_smc, CTX_GPREG_X7);
+	}
+	/* r4, r5, r6 reserved for future use. */
+	ret.r6 = 0;
+	ret.r5 = 0;
+	ret.r4 = 0;
+	ret.r3 = r3;
+	ret.r2 = r2;
+	ret.r1 = r1;
+	ret.r0 = r0;
 
 	cm_el1_sysregs_context_save(security_state);
 
 	ctx->saved_security_state = security_state;
-	ret = trusty_context_switch_helper(&ctx->saved_sp, r0, r1, r2, r3);
+	ret = trusty_context_switch_helper(&ctx->saved_sp, &ret);
 
 	assert(ctx->saved_security_state == !security_state);
 
@@ -200,11 +237,25 @@ static uint64_t trusty_smc_handler(uint32_t smc_fid,
 			 uint64_t flags)
 {
 	struct args ret;
+	uint32_t vmid = 0;
+	entry_point_info_t *ep_info = bl31_plat_get_next_image_ep_info(SECURE);
+
+	/*
+	 * Return success for SET_ROT_PARAMS if Trusty is not present, as
+	 * Verified Boot is not even supported and returning success here
+	 * would not compromise the boot process.
+	 */
+	if (!ep_info && (smc_fid == SMC_SC_SET_ROT_PARAMS)) {
+		SMC_RET1(handle, 0);
+	} else if (!ep_info) {
+		SMC_RET1(handle, SMC_UNK);
+	}
 
 	if (is_caller_secure(flags)) {
 		if (smc_fid == SMC_SC_NS_RETURN) {
 			ret = trusty_context_switch(SECURE, x1, 0, 0, 0);
-			SMC_RET4(handle, ret.r0, ret.r1, ret.r2, ret.r3);
+			SMC_RET8(handle, ret.r0, ret.r1, ret.r2, ret.r3,
+				 ret.r4, ret.r5, ret.r6, ret.r7);
 		}
 		INFO("%s (0x%x, 0x%lx, 0x%lx, 0x%lx, 0x%lx, %p, %p, 0x%lx) \
 		     cpu %d, unknown smc\n",
@@ -220,8 +271,21 @@ static uint64_t trusty_smc_handler(uint32_t smc_fid,
 		case SMC_FC_FIQ_EXIT:
 			return trusty_fiq_exit(handle, x1, x2, x3);
 		default:
+			if (is_hypervisor_mode())
+				vmid = SMC_GET_GP(handle, CTX_GPREG_X7);
+
+			if ((current_vmid != 0) && (current_vmid != vmid)) {
+				/* This message will cause SMC mechanism
+				 * abnormal in multi-guest environment.
+				 * Change it to WARN in case you need it.
+				 */
+				VERBOSE("Previous SMC not finished.\n");
+				SMC_RET1(handle, SM_ERR_BUSY);
+			}
+			current_vmid = vmid;
 			ret = trusty_context_switch(NON_SECURE, smc_fid, x1,
 				x2, x3);
+			current_vmid = 0;
 			SMC_RET1(handle, ret.r0);
 		}
 	}
@@ -231,6 +295,7 @@ static int32_t trusty_init(void)
 {
 	void el3_exit(void);
 	entry_point_info_t *ep_info;
+	struct args zero_args = {0};
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
 	uint32_t cpu = plat_my_core_pos();
 	int reg_width = GET_RW(read_ctx_reg(get_el3state_ctx(&ctx->cpu_ctx),
@@ -262,9 +327,9 @@ static int32_t trusty_init(void)
 	cm_set_next_eret_context(SECURE);
 
 	ctx->saved_security_state = ~0; /* initial saved state is invalid */
-	trusty_init_context_stack(&ctx->saved_sp, &ctx->secure_stack);
+	trusty_init_context_stack(&ctx->saved_sp, &ctx->secure_stack.end);
 
-	trusty_context_switch_helper(&ctx->saved_sp, 0, 0, 0, 0);
+	trusty_context_switch_helper(&ctx->saved_sp, &zero_args);
 
 	cm_el1_sysregs_context_restore(NON_SECURE);
 	cm_set_next_eret_context(NON_SECURE);
@@ -332,43 +397,35 @@ static const spd_pm_ops_t trusty_pm = {
 static int32_t trusty_setup(void)
 {
 	entry_point_info_t *ep_info;
-	uint32_t instr;
 	uint32_t flags;
 	int ret;
-	int aarch32 = 0;
 
+	/* Get trusty's entry point info */
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	if (!ep_info) {
 		INFO("Trusty image missing.\n");
 		return -1;
 	}
 
-	instr = *(uint32_t *)ep_info->pc;
-
-	if (instr >> 24 == 0xea) {
-		INFO("trusty: Found 32 bit image\n");
-		aarch32 = 1;
-	} else if (instr >> 8 == 0xd53810) {
-		INFO("trusty: Found 64 bit image\n");
-	} else {
-		INFO("trusty: Found unknown image, 0x%x\n", instr);
-	}
-
+	/* Trusty runs in AARCH64 mode */
 	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
-	if (!aarch32)
-		ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
-					DISABLE_ALL_EXCEPTIONS);
-	else
-		ep_info->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
-					    SPSR_E_LITTLE,
-					    DAIF_FIQ_BIT |
-					    DAIF_IRQ_BIT |
-					    DAIF_ABT_BIT);
+	ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
+	/*
+	 * arg0 = TZDRAM aperture available for BL32
+	 * arg1 = BL32 boot params
+	 * arg2 = BL32 boot params length
+	 */
+	ep_info->args.arg1 = ep_info->args.arg2;
+	ep_info->args.arg2 = TRUSTY_PARAMS_LEN_BYTES;
+
+	/* register init handler */
 	bl31_register_bl32_init(trusty_init);
 
+	/* register power management hooks */
 	psci_register_spd_pm_hook(&trusty_pm);
 
+	/* register interrupt handler */
 	flags = 0;
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	ret = register_interrupt_type_handler(INTR_TYPE_S_EL1,
