@@ -34,6 +34,12 @@
 #include <sys/cdefs.h>
 
 /*
+ * Tegra chip major/minor version
+ */
+uint32_t tegra_get_chipid_major(void);
+uint32_t tegra_get_chipid_minor(void);
+
+/*
  * Tegra chip identifiers
  */
 uint8_t tegra_is_t132(void);

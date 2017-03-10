@@ -82,7 +82,7 @@ static uint32_t tegra_get_chipid(void)
 /*
  * Read the chip's major version from chip ID value
  */
-static uint32_t tegra_get_chipid_major(void)
+uint32_t tegra_get_chipid_major(void)
 {
 	return (tegra_get_chipid() >> MAJOR_VERSION_SHIFT) & MAJOR_VERSION_MASK;
 }
@@ -90,7 +90,7 @@ static uint32_t tegra_get_chipid_major(void)
 /*
  * Read the chip's minor version from the chip ID value
  */
-static uint32_t tegra_get_chipid_minor(void)
+uint32_t tegra_get_chipid_minor(void)
 {
 	return (tegra_get_chipid() >> MINOR_VERSION_SHIFT) & MINOR_VERSION_MASK;
 }
