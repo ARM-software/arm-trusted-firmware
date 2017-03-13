@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,46 +38,46 @@
  * Macros to prepare CSTATE info request
  ******************************************************************************/
 /* Description of the parameters for UPDATE_CSTATE_INFO request */
-#define CLUSTER_CSTATE_MASK			0x7
-#define CLUSTER_CSTATE_SHIFT			0
-#define CLUSTER_CSTATE_UPDATE_BIT		(1 << 7)
-#define CCPLEX_CSTATE_MASK			0x3
-#define CCPLEX_CSTATE_SHIFT			8
-#define CCPLEX_CSTATE_UPDATE_BIT		(1 << 15)
-#define SYSTEM_CSTATE_MASK			0xF
-#define SYSTEM_CSTATE_SHIFT			16
-#define SYSTEM_CSTATE_FORCE_UPDATE_SHIFT	22
-#define SYSTEM_CSTATE_FORCE_UPDATE_BIT		(1 << 22)
-#define SYSTEM_CSTATE_UPDATE_BIT		(1 << 23)
-#define CSTATE_WAKE_MASK_UPDATE_BIT		(1 << 31)
-#define CSTATE_WAKE_MASK_SHIFT			32
-#define CSTATE_WAKE_MASK_CLEAR			0xFFFFFFFF
+#define CLUSTER_CSTATE_MASK			0x7ULL
+#define CLUSTER_CSTATE_SHIFT			0U
+#define CLUSTER_CSTATE_UPDATE_BIT		(1ULL << 7)
+#define CCPLEX_CSTATE_MASK			0x3ULL
+#define CCPLEX_CSTATE_SHIFT			8ULL
+#define CCPLEX_CSTATE_UPDATE_BIT		(1ULL << 15)
+#define SYSTEM_CSTATE_MASK			0xFULL
+#define SYSTEM_CSTATE_SHIFT			16ULL
+#define SYSTEM_CSTATE_FORCE_UPDATE_SHIFT	22ULL
+#define SYSTEM_CSTATE_FORCE_UPDATE_BIT		(1ULL << 22)
+#define SYSTEM_CSTATE_UPDATE_BIT		(1ULL << 23)
+#define CSTATE_WAKE_MASK_UPDATE_BIT		(1ULL << 31)
+#define CSTATE_WAKE_MASK_SHIFT			32ULL
+#define CSTATE_WAKE_MASK_CLEAR			0xFFFFFFFFU
 
 /*******************************************************************************
  * Auto-CC3 control macros
  ******************************************************************************/
-#define MCE_AUTO_CC3_FREQ_MASK			0x1FF
-#define MCE_AUTO_CC3_FREQ_SHIFT			0
-#define MCE_AUTO_CC3_VTG_MASK			0x7F
-#define MCE_AUTO_CC3_VTG_SHIFT			16
-#define MCE_AUTO_CC3_ENABLE_BIT			(1 << 31)
+#define MCE_AUTO_CC3_FREQ_MASK			0x1FFU
+#define MCE_AUTO_CC3_FREQ_SHIFT			0U
+#define MCE_AUTO_CC3_VTG_MASK			0x7FU
+#define MCE_AUTO_CC3_VTG_SHIFT			16U
+#define MCE_AUTO_CC3_ENABLE_BIT			(1U << 31)
 
 /*******************************************************************************
  * Macros for the 'IS_SC7_ALLOWED' command
  ******************************************************************************/
-#define MCE_SC7_ALLOWED_MASK			0x7
-#define MCE_SC7_WAKE_TIME_SHIFT			32
+#define MCE_SC7_ALLOWED_MASK			0x7U
+#define MCE_SC7_WAKE_TIME_SHIFT			32U
 
 /*******************************************************************************
  * Macros for 'read/write ctats' commands
  ******************************************************************************/
-#define MCE_CSTATE_STATS_TYPE_SHIFT		32
-#define MCE_CSTATE_WRITE_DATA_LO_MASK		0xF
+#define MCE_CSTATE_STATS_TYPE_SHIFT		32ULL
+#define MCE_CSTATE_WRITE_DATA_LO_MASK		0xFU
 
 /*******************************************************************************
  * Macros for 'update crossover threshold' command
  ******************************************************************************/
-#define MCE_CROSSOVER_THRESHOLD_TIME_SHIFT	32
+#define MCE_CROSSOVER_THRESHOLD_TIME_SHIFT	32U
 
 /*******************************************************************************
  * MCA command struct
@@ -150,15 +150,15 @@ typedef union uncore_perfmon_req {
 	uint64_t data;
 } uncore_perfmon_req_t;
 
-#define UNCORE_PERFMON_CMD_READ			0
-#define UNCORE_PERFMON_CMD_WRITE		1
+#define UNCORE_PERFMON_CMD_READ			0U
+#define UNCORE_PERFMON_CMD_WRITE		1U
 
-#define UNCORE_PERFMON_CMD_MASK			0xFF
-#define UNCORE_PERFMON_UNIT_GRP_MASK		0xF
-#define UNCORE_PERFMON_SELECTOR_MASK		0xF
-#define UNCORE_PERFMON_REG_MASK			0xFF
-#define UNCORE_PERFMON_CTR_MASK			0xFF
-#define UNCORE_PERFMON_RESP_STATUS_MASK		0xFF
+#define UNCORE_PERFMON_CMD_MASK			0xFFU
+#define UNCORE_PERFMON_UNIT_GRP_MASK		0xFU
+#define UNCORE_PERFMON_SELECTOR_MASK		0xFU
+#define UNCORE_PERFMON_REG_MASK			0xFFU
+#define UNCORE_PERFMON_CTR_MASK			0xFFU
+#define UNCORE_PERFMON_RESP_STATUS_MASK		0xFFU
 
 /*******************************************************************************
  * Structure populated by arch specific code to export routines which perform
