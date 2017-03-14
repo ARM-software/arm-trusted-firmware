@@ -33,6 +33,7 @@
 #include <debug.h>
 #include <mce.h>
 #include <psci.h>
+#include <t18x_ari.h>
 #include <tegra_private.h>
 
 int32_t tegra_soc_validate_power_state(unsigned int power_state)
@@ -92,4 +93,9 @@ int tegra_soc_prepare_cpu_off(unsigned long mpidr)
 
 	/* Turn off CPU */
 	return mce_command_handler(MCE_CMD_ENTER_CSTATE, ~0, 0, 0);
+}
+
+__dead2 void tegra_soc_prepare_system_off(void)
+{
+	mce_enter_ccplex_state(TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF);
 }
