@@ -183,6 +183,10 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_set_configuration(pm_arg[0]);
 		SMC_RET1(handle, (uint64_t)ret);
 
+	case PM_INIT_FINALIZE:
+		ret = pm_init_finalize();
+		SMC_RET1(handle, (uint64_t)ret);
+
 	case PM_GET_NODE_STATUS:
 	{
 		uint32_t buff[3];

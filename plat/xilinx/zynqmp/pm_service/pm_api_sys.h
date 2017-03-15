@@ -76,6 +76,7 @@ enum pm_ret_status pm_set_max_latency(enum pm_node_id nid,
 /* Miscellaneous API functions */
 enum pm_ret_status pm_get_api_version(unsigned int *version);
 enum pm_ret_status pm_set_configuration(unsigned int phys_addr);
+enum pm_ret_status pm_init_finalize(void);
 enum pm_ret_status pm_get_node_status(enum pm_node_id node,
 				      uint32_t *ret_buff);
 enum pm_ret_status pm_register_notifier(enum pm_node_id nid,

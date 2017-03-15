@@ -339,6 +339,22 @@ enum pm_ret_status pm_set_configuration(unsigned int phys_addr)
 }
 
 /**
+ * pm_init_finalize() - Call to notify PMU firmware that master has power
+ *			management enabled and that it has finished its
+ *			initialization
+ *
+ * @return	Status returned by the PMU firmware
+ */
+enum pm_ret_status pm_init_finalize(void)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD1(payload, PM_INIT_FINALIZE);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
  * pm_get_node_status() - PM call to request a node's current status
  * @nid		Node id
  * @ret_buff	Buffer for the return values:
