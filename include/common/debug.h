@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,34 +48,55 @@
 #define LOG_LEVEL_VERBOSE		50
 
 #ifndef __ASSEMBLY__
+#include <platform_def.h>
 #include <stdio.h>
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
+#ifndef PLAT_LOG_NOTICE
 # define NOTICE(...)	tf_printf("NOTICE:  " __VA_ARGS__)
+#else
+# define NOTICE		PLAT_LOG_NOTICE
+#endif
 #else
 # define NOTICE(...)
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_ERROR
+#ifndef PLAT_LOG_ERROR
 # define ERROR(...)	tf_printf("ERROR:   " __VA_ARGS__)
+#else
+# define ERROR		PLAT_LOG_ERROR
+#endif
 #else
 # define ERROR(...)
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_WARNING
+#ifndef PLAT_LOG_WARN
 # define WARN(...)	tf_printf("WARNING: " __VA_ARGS__)
+#else
+# define WARN		PLAT_LOG_WARN
+#endif
 #else
 # define WARN(...)
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
+#ifndef PLAT_LOG_INFO
 # define INFO(...)	tf_printf("INFO:    " __VA_ARGS__)
+#else
+# define INFO		PLAT_LOG_INFO
+#endif
 #else
 # define INFO(...)
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+#ifndef PLAT_LOG_VERBOSE
 # define VERBOSE(...)	tf_printf("VERBOSE: " __VA_ARGS__)
+#else
+# define VERBOSE	PLAT_LOG_VERBOSE
+#endif
 #else
 # define VERBOSE(...)
 #endif
