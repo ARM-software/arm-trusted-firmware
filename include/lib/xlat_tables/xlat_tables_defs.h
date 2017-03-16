@@ -135,4 +135,10 @@
  */
 #define DISABLE_DCACHE			(1 << 0)
 
+/*
+ * This flag marks the translation tables are Non-cacheable for MMU accesses.
+ * If the flag is not specified, by default the tables are cacheable.
+ */
+#define XLAT_TABLE_NC			(1 << 1)
+
 #endif /* __XLAT_TABLES_DEFS_H__ */

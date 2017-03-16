@@ -122,13 +122,21 @@ void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
 	write_mair0(mair0);
 
 	/*
-	 * Set TTBCR bits as well. Set TTBR0 table properties as Inner
-	 * & outer WBWA & shareable. Disable TTBR1.
+	 * Set TTBCR bits as well. Set TTBR0 table properties. Disable TTBR1.
 	 */
-	ttbcr = TTBCR_EAE_BIT |
-		TTBCR_SH0_INNER_SHAREABLE | TTBCR_RGN0_OUTER_WBA |
-		TTBCR_RGN0_INNER_WBA |
-		(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+	if (flags & XLAT_TABLE_NC) {
+		/* Inner & outer non-cacheable non-shareable. */
+		ttbcr = TTBCR_EAE_BIT |
+			TTBCR_SH0_NON_SHAREABLE | TTBCR_RGN0_OUTER_NC |
+			TTBCR_RGN0_INNER_NC |
+			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+	} else {
+		/* Inner & outer WBWA & shareable. */
+		ttbcr = TTBCR_EAE_BIT |
+			TTBCR_SH0_INNER_SHAREABLE | TTBCR_RGN0_OUTER_WBA |
+			TTBCR_RGN0_INNER_WBA |
+			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+	}
 	ttbcr |= TTBCR_EPD1_BIT;
 	write_ttbcr(ttbcr);
 

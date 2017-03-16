@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -192,11 +192,18 @@ void init_xlat_tables(void)
 		_tlbi_fct();						\
 									\
 		/* Set TCR bits as well. */				\
-		/* Inner & outer WBWA & shareable. */			\
 		/* Set T0SZ to (64 - width of virtual address space) */	\
-		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
-			TCR_RGN_INNER_WBA |				\
-			(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+		if (flags & XLAT_TABLE_NC) {				\
+			/* Inner & outer non-cacheable non-shareable. */\
+			tcr = TCR_SH_NON_SHAREABLE |			\
+				TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC |	\
+				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+		} else {						\
+			/* Inner & outer WBWA & shareable. */		\
+			tcr = TCR_SH_INNER_SHAREABLE |			\
+				TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA |	\
+				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+		}							\
 		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
 									\
