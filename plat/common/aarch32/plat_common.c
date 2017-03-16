@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@
  */
 
 #include <platform.h>
-#include <xlat_tables.h>
+#include <xlat_mmu_helpers.h>
 
 /*
  * The following platform setup functions are weakly defined. They

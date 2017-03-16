@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,64 +37,14 @@
 #include <platform_def.h>
 #include <sys/types.h>
 #include <utils.h>
-#include <xlat_tables.h>
+#include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
-/*
- * Each platform can define the size of the virtual address space, which is
- * defined in PLAT_VIRT_ADDR_SPACE_SIZE. TCR.TxSZ is calculated as 64 minus the
- * width of said address space. The value of TCR.TxSZ must be in the range 16
- * to 39 [1], which means that the virtual address space width must be in the
- * range 48 to 25 bits.
- *
- * Here we calculate the initial lookup level from the value of
- * PLAT_VIRT_ADDR_SPACE_SIZE. For a 4 KB page size, level 0 supports virtual
- * address spaces of widths 48 to 40 bits, level 1 from 39 to 31, and level 2
- * from 30 to 25. Wider or narrower address spaces are not supported. As a
- * result, level 3 cannot be used as initial lookup level with 4 KB
- * granularity. [2]
- *
- * For example, for a 35-bit address space (i.e. PLAT_VIRT_ADDR_SPACE_SIZE ==
- * 1 << 35), TCR.TxSZ will be programmed to (64 - 35) = 29. According to Table
- * D4-11 in the ARM ARM, the initial lookup level for an address space like
- * that is 1.
- *
- * See the ARMv8-A Architecture Reference Manual (DDI 0487A.j) for more
- * information:
- * [1] Page 1730: 'Input address size', 'For all translation stages'.
- * [2] Section D4.2.5
- */
-
-#if PLAT_VIRT_ADDR_SPACE_SIZE > (1ULL << (64 - TCR_TxSZ_MIN))
-
-# error "PLAT_VIRT_ADDR_SPACE_SIZE is too big."
-
-#elif PLAT_VIRT_ADDR_SPACE_SIZE > (1ULL << L0_XLAT_ADDRESS_SHIFT)
-
-# define XLAT_TABLE_LEVEL_BASE	0
-# define NUM_BASE_LEVEL_ENTRIES	\
-		(PLAT_VIRT_ADDR_SPACE_SIZE >> L0_XLAT_ADDRESS_SHIFT)
-
-#elif PLAT_VIRT_ADDR_SPACE_SIZE > (1 << L1_XLAT_ADDRESS_SHIFT)
-
-# define XLAT_TABLE_LEVEL_BASE	1
-# define NUM_BASE_LEVEL_ENTRIES	\
-		(PLAT_VIRT_ADDR_SPACE_SIZE >> L1_XLAT_ADDRESS_SHIFT)
-
-#elif PLAT_VIRT_ADDR_SPACE_SIZE >= (1 << (64 - TCR_TxSZ_MAX))
-
-# define XLAT_TABLE_LEVEL_BASE	2
-# define NUM_BASE_LEVEL_ENTRIES	\
-		(PLAT_VIRT_ADDR_SPACE_SIZE >> L2_XLAT_ADDRESS_SHIFT)
-
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
+# define IMAGE_EL	3
 #else
-
-# error "PLAT_VIRT_ADDR_SPACE_SIZE is too small."
-
+# define IMAGE_EL	1
 #endif
-
-static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
-		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
 
 static unsigned long long tcr_ps_bits;
 
@@ -134,7 +84,7 @@ static const unsigned int pa_range_bits_arr[] = {
 	PARANGE_0101
 };
 
-static unsigned long long get_max_supported_pa(void)
+unsigned long long xlat_arch_get_max_supported_pa(void)
 {
 	u_register_t pa_range = read_id_aa64mmfr0_el1() &
 						ID_AA64MMFR0_EL1_PARANGE_MASK;
@@ -142,23 +92,81 @@ static unsigned long long get_max_supported_pa(void)
 	/* All other values are reserved */
 	assert(pa_range < ARRAY_SIZE(pa_range_bits_arr));
 
-	return (1ULL << pa_range_bits_arr[pa_range]) - 1ULL;
+	return (1ull << pa_range_bits_arr[pa_range]) - 1ull;
 }
-#endif
+#endif /* DEBUG*/
 
-void init_xlat_tables(void)
+int is_mmu_enabled(void)
 {
-	unsigned long long max_pa;
-	uintptr_t max_va;
-	print_mmap();
-	init_xlation_table(0, base_xlation_table, XLAT_TABLE_LEVEL_BASE,
-			   &max_va, &max_pa);
+#if IMAGE_EL == 1
+	assert(IS_IN_EL(1));
+	return (read_sctlr_el1() & SCTLR_M_BIT) != 0;
+#elif IMAGE_EL == 3
+	assert(IS_IN_EL(3));
+	return (read_sctlr_el3() & SCTLR_M_BIT) != 0;
+#endif
+}
 
-	assert(max_va <= PLAT_VIRT_ADDR_SPACE_SIZE - 1);
-	assert(max_pa <= PLAT_PHY_ADDR_SPACE_SIZE - 1);
-	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <= get_max_supported_pa());
+#if PLAT_XLAT_TABLES_DYNAMIC
 
+void xlat_arch_tlbi_va(uintptr_t va)
+{
+	/*
+	 * Ensure the translation table write has drained into memory before
+	 * invalidating the TLB entry.
+	 */
+	dsbishst();
+
+#if IMAGE_EL == 1
+	assert(IS_IN_EL(1));
+	tlbivaae1is(TLBI_ADDR(va));
+#elif IMAGE_EL == 3
+	assert(IS_IN_EL(3));
+	tlbivae3is(TLBI_ADDR(va));
+#endif
+}
+
+void xlat_arch_tlbi_va_sync(void)
+{
+	/*
+	 * A TLB maintenance instruction can complete at any time after
+	 * it is issued, but is only guaranteed to be complete after the
+	 * execution of DSB by the PE that executed the TLB maintenance
+	 * instruction. After the TLB invalidate instruction is
+	 * complete, no new memory accesses using the invalidated TLB
+	 * entries will be observed by any observer of the system
+	 * domain. See section D4.8.2 of the ARMv8 (issue k), paragraph
+	 * "Ordering and completion of TLB maintenance instructions".
+	 */
+	dsbish();
+
+	/*
+	 * The effects of a completed TLB maintenance instruction are
+	 * only guaranteed to be visible on the PE that executed the
+	 * instruction after the execution of an ISB instruction by the
+	 * PE that executed the TLB maintenance instruction.
+	 */
+	isb();
+}
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
+
+void init_xlat_tables_arch(unsigned long long max_pa)
+{
+	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=
+	       xlat_arch_get_max_supported_pa());
+
+	/*
+	 * If dynamic allocation of new regions is enabled the code can't make
+	 * assumptions about the max physical address because it could change
+	 * after adding new regions. If this functionality is disabled it is
+	 * safer to restrict the max physical address as much as possible.
+	 */
+#ifdef PLAT_XLAT_TABLES_DYNAMIC
+	tcr_ps_bits = calc_physical_addr_size_bits(PLAT_PHY_ADDR_SPACE_SIZE);
+#else
 	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
+#endif
 }
 
 /*******************************************************************************
@@ -172,13 +180,17 @@ void init_xlat_tables(void)
  *			exception level
  ******************************************************************************/
 #define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
-	void enable_mmu_el##_el(unsigned int flags)				\
+	void enable_mmu_internal_el##_el(unsigned int flags,		\
+					 uint64_t *base_table)		\
 	{								\
 		uint64_t mair, tcr, ttbr;				\
 		uint32_t sctlr;						\
 									\
 		assert(IS_IN_EL(_el));					\
 		assert((read_sctlr_el##_el() & SCTLR_M_BIT) == 0);	\
+									\
+		/* Invalidate TLBs at the current exception level */	\
+		_tlbi_fct();						\
 									\
 		/* Set attributes in the right indices of the MAIR */	\
 		mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);	\
@@ -187,9 +199,6 @@ void init_xlat_tables(void)
 		mair |= MAIR_ATTR_SET(ATTR_NON_CACHEABLE,		\
 				ATTR_NON_CACHEABLE_INDEX);		\
 		write_mair_el##_el(mair);				\
-									\
-		/* Invalidate TLBs at the current exception level */	\
-		_tlbi_fct();						\
 									\
 		/* Set TCR bits as well. */				\
 		/* Inner & outer WBWA & shareable. */			\
@@ -201,7 +210,7 @@ void init_xlat_tables(void)
 		write_tcr_el##_el(tcr);					\
 									\
 		/* Set TTBR bits as well */				\
-		ttbr = (uint64_t) base_xlation_table;			\
+		ttbr = (uint64_t) base_table;				\
 		write_ttbr0_el##_el(ttbr);				\
 									\
 		/* Ensure all translation table writes have drained */	\
@@ -226,9 +235,23 @@ void init_xlat_tables(void)
 	}
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */
+#if IMAGE_EL == 1
 DEFINE_ENABLE_MMU_EL(1,
 		(tcr_ps_bits << TCR_EL1_IPS_SHIFT),
 		tlbivmalle1)
+#elif IMAGE_EL == 3
 DEFINE_ENABLE_MMU_EL(3,
 		TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT),
 		tlbialle3)
+#endif
+
+void enable_mmu_arch(unsigned int flags, uint64_t *base_table)
+{
+#if IMAGE_EL == 1
+	assert(IS_IN_EL(1));
+	enable_mmu_internal_el1(flags, base_table);
+#elif IMAGE_EL == 3
+	assert(IS_IN_EL(3));
+	enable_mmu_internal_el3(flags, base_table);
+#endif
+}

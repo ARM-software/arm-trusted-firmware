@@ -108,8 +108,9 @@ ifeq (${ARCH}, aarch64)
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/aarch64
 endif
 
-PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/${ARCH}/xlat_tables.c		\
+include lib/xlat_tables_v2/xlat_tables.mk
+
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}				\
 				plat/arm/common/${ARCH}/arm_helpers.S		\
 				plat/arm/common/arm_common.c			\
 				plat/common/${ARCH}/plat_common.c

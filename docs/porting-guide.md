@@ -420,14 +420,23 @@ platform, the following constants must also be defined:
     TSP's interrupt handling code.
 
 If the platform port uses the translation table library code, the following
-constant must also be defined:
+constants must also be defined:
+
+*   **#define : PLAT_XLAT_TABLES_DYNAMIC**
+
+    Optional flag that can be set per-image to enable the dynamic allocation of
+    regions even when the MMU is enabled. If not defined, only static
+    functionality will be available, if defined and set to 1 it will also
+    include the dynamic functionality.
 
 *   **#define : MAX_XLAT_TABLES**
 
     Defines the maximum number of translation tables that are allocated by the
     translation table library code. To minimize the amount of runtime memory
     used, choose the smallest value needed to map the required virtual addresses
-    for each BL stage.
+    for each BL stage. If `PLAT_XLAT_TABLES_DYNAMIC` flag is enabled for a BL
+    image, `MAX_XLAT_TABLES` must be defined to accommodate the dynamic regions
+    as well.
 
 *   **#define : MAX_MMAP_REGIONS**
 
@@ -438,7 +447,9 @@ constant must also be defined:
     that should be mapped. Then, the translation table library will create the
     corresponding tables and descriptors at runtime. To minimize the amount of
     runtime memory used, choose the smallest value needed to register the
-    required regions for each BL stage.
+    required regions for each BL stage. If `PLAT_XLAT_TABLES_DYNAMIC` flag is
+    enabled for a BL image, `MAX_MMAP_REGIONS` must be defined to accommodate
+    the dynamic regions as well.
 
 *   **#define : ADDR_SPACE_SIZE**
 

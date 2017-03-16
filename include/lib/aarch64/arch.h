@@ -31,6 +31,7 @@
 #ifndef __ARCH_H__
 #define __ARCH_H__
 
+#include <utils.h>
 
 /*******************************************************************************
  * MIDR bit definitions
@@ -416,6 +417,15 @@
 #define EC_SERROR			0x2f
 
 #define EC_BITS(x)			(x >> ESR_EC_SHIFT) & ESR_EC_MASK
+
+/*******************************************************************************
+ * Definitions of register offsets, fields and macros for CPU system
+ * instructions.
+ ******************************************************************************/
+
+#define TLBI_ADDR_SHIFT		12
+#define TLBI_ADDR_MASK		ULL(0x00000FFFFFFFFFFF)
+#define TLBI_ADDR(x)		(((x) >> TLBI_ADDR_SHIFT) & TLBI_ADDR_MASK)
 
 /*******************************************************************************
  * Definitions of register offsets and fields in the CNTCTLBase Frame of the

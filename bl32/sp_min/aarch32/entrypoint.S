@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@
 #include <runtime_svc.h>
 #include <smcc_helpers.h>
 #include <smcc_macros.S>
-#include <xlat_tables.h>
+#include <xlat_tables_defs.h>
 
 	.globl	sp_min_vector_table
 	.globl	sp_min_entrypoint

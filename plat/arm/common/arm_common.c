@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform_def.h>
-#include <xlat_tables.h>
+#include <xlat_tables_v2.h>
 
 extern const mmap_region_t plat_arm_mmap[];
 

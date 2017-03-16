@@ -116,13 +116,57 @@ static inline void _op ## _type(uint64_t v)		\
 /*******************************************************************************
  * TLB maintenance accessor prototypes
  ******************************************************************************/
+
+#if ERRATA_A57_813419
+/*
+ * Define function for TLBI instruction with type specifier that implements
+ * the workaround for errata 813419 of Cortex-A57.
+ */
+#define DEFINE_TLBIOP_ERRATA_A57_813419_TYPE_FUNC(_type)\
+static inline void tlbi ## _type(void)			\
+{							\
+	__asm__("tlbi " #_type "\n"			\
+		"dsb ish\n"				\
+		"tlbi " #_type);			\
+}
+
+/*
+ * Define function for TLBI instruction with register parameter that implements
+ * the workaround for errata 813419 of Cortex-A57.
+ */
+#define DEFINE_TLBIOP_ERRATA_A57_813419_TYPE_PARAM_FUNC(_type)	\
+static inline void tlbi ## _type(uint64_t v)			\
+{								\
+	__asm__("tlbi " #_type ", %0\n"				\
+		"dsb ish\n"					\
+		"tlbi " #_type ", %0" : : "r" (v));		\
+}
+#endif /* ERRATA_A57_813419 */
+
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle1)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle1is)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle2)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle2is)
+#if ERRATA_A57_813419
+DEFINE_TLBIOP_ERRATA_A57_813419_TYPE_FUNC(alle3)
+DEFINE_TLBIOP_ERRATA_A57_813419_TYPE_FUNC(alle3is)
+#else
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle3)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle3is)
+#endif
 DEFINE_SYSOP_TYPE_FUNC(tlbi, vmalle1)
+
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vaae1is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vaale1is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vae2is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vale2is)
+#if ERRATA_A57_813419
+DEFINE_TLBIOP_ERRATA_A57_813419_TYPE_PARAM_FUNC(vae3is)
+DEFINE_TLBIOP_ERRATA_A57_813419_TYPE_PARAM_FUNC(vale3is)
+#else
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vae3is)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vale3is)
+#endif
 
 /*******************************************************************************
  * Cache maintenance accessor prototypes
@@ -181,6 +225,7 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dmb, st)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
 DEFINE_SYSOP_FUNC(isb)
 

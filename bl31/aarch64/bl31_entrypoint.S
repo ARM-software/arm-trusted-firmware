@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 #include <el3_common_macros.S>
 #include <pmf_asm_macros.S>
 #include <runtime_instr.h>
-#include <xlat_tables.h>
+#include <xlat_tables_defs.h>
 
 	.globl	bl31_entrypoint
 	.globl	bl31_warm_entrypoint

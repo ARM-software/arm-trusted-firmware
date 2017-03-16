@@ -131,6 +131,13 @@ static inline void tlbi##_op(void)					\
 	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
 }
 
+#define _DEFINE_BPIOP_FUNC(_op, coproc, opc1, CRn, CRm, opc2)		\
+static inline void bpi##_op(void)					\
+{									\
+	u_register_t v = 0;						\
+	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
+}
+
 #define _DEFINE_TLBIOP_PARAM_FUNC(_op, coproc, opc1, CRn, CRm, opc2)	\
 static inline void tlbi##_op(u_register_t v)				\
 {									\
@@ -144,6 +151,10 @@ static inline void tlbi##_op(u_register_t v)				\
 /* Define function for TLBI operation with register parameter */
 #define DEFINE_TLBIOP_PARAM_FUNC(_op, ...)				\
 	_DEFINE_TLBIOP_PARAM_FUNC(_op, __VA_ARGS__)
+
+/* Define function for simple BPI operation */
+#define DEFINE_BPIOP_FUNC(_op, ...)					\
+	_DEFINE_BPIOP_FUNC(_op, __VA_ARGS__)
 
 /**********************************************************************
  * Macros to create inline functions for DC operations
@@ -199,6 +210,7 @@ DEFINE_SYSOP_FUNC(sev)
 DEFINE_SYSOP_TYPE_FUNC(dsb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dmb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
 DEFINE_SYSOP_FUNC(isb)
 
@@ -263,6 +275,12 @@ DEFINE_TLBIOP_FUNC(all, TLBIALL)
 DEFINE_TLBIOP_FUNC(allis, TLBIALLIS)
 DEFINE_TLBIOP_PARAM_FUNC(mva, TLBIMVA)
 DEFINE_TLBIOP_PARAM_FUNC(mvaa, TLBIMVAA)
+DEFINE_TLBIOP_PARAM_FUNC(mvaais, TLBIMVAAIS)
+
+/*
+ * BPI operation prototypes.
+ */
+DEFINE_BPIOP_FUNC(allis, BPIALLIS)
 
 /*
  * DC operation prototypes
