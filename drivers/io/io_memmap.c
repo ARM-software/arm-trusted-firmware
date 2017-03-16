@@ -32,9 +32,14 @@
 #include <debug.h>
 #include <io_driver.h>
 #include <io_storage.h>
+#include <platform_def.h>
 #include <string.h>
 #include <utils.h>
 
+#ifndef PLAT_FIP_ATTEMPT_OFFSET
+/* Attempt to find the FIP every 0x20000 bytes */
+#define PLAT_FIP_ATTEMPT_OFFSET		0x20000
+#endif
 /* As we need to be able to keep state for seek, only one file can be open
  * at a time. Make this a structure and point to the entity->info. When we
  * can malloc memory we can change this to support more open files.
@@ -50,6 +55,7 @@ typedef struct {
 } file_state_t;
 
 static file_state_t current_file = {0};
+static int last_num_retries = -1;
 
 /* Identify the device type as memmap */
 io_type_t device_type_memmap(void)
@@ -123,7 +129,13 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			     io_entity_t *entity)
 {
 	int result = -ENOMEM;
+	int num_retries;
 	const io_block_spec_t *block_spec = (io_block_spec_t *)spec;
+
+	num_retries = io_get_num_retries();
+
+	if (num_retries < 0)
+		return result;
 
 	/* Since we need to track open state for seek() we only allow one open
 	 * spec at a time. When we have dynamic memory we can malloc and set
@@ -134,7 +146,8 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		assert(entity != NULL);
 
 		current_file.in_use = 1;
-		current_file.base = block_spec->offset;
+		current_file.base = (block_spec->offset & 0xFFFFFFFFFF000000) +
+				     num_retries * PLAT_FIP_ATTEMPT_OFFSET;
 		/* File cursor offset for seek and incremental reads etc. */
 		current_file.file_pos = 0;
 		current_file.size = block_spec->length;
@@ -142,6 +155,11 @@ static int memmap_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		result = 0;
 	} else {
 		WARN("A Memmap device is already active. Close first.\n");
+	}
+
+	if (last_num_retries != num_retries) {
+		INFO("memmap_block_open 0x%lx\n", current_file.base);
+		last_num_retries = num_retries;
 	}
 
 	return result;

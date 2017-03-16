@@ -42,6 +42,7 @@
 #include <utils.h>
 #include "bl1_private.h"
 #include <uuid.h>
+#include <io_storage.h>
 
 /* BL1 Service UUID */
 DEFINE_SVC_UUID(bl1_svc_uid,
@@ -198,17 +199,18 @@ void bl1_load_bl2(void)
 
 	INFO("BL1: Loading BL2\n");
 
+	do {
 #if LOAD_IMAGE_V2
-	err = load_auth_image(BL2_IMAGE_ID, image_info);
+		err = load_auth_image(BL2_IMAGE_ID, image_info);
 #else
-	/* Load the BL2 image */
-	err = load_auth_image(bl1_tzram_layout,
-			 BL2_IMAGE_ID,
-			 image_info->image_base,
-			 image_info,
-			 ep_info);
-
-#endif /* LOAD_IMAGE_V2 */
+		/* Load the BL2 image */
+		err = load_auth_image(bl1_tzram_layout,
+				      BL2_IMAGE_ID,
+				      image_info->image_base,
+				      image_info,
+				      ep_info);
+#endif
+	} while (err && io_retry() > 0);
 
 	if (err) {
 		ERROR("Failed to load BL2 firmware.\n");

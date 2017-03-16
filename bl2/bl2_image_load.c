@@ -35,6 +35,7 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <errno.h>
+#include <io_storage.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <stdint.h>
@@ -212,7 +213,10 @@ entry_point_info_t *bl2_load_images(void)
 	entry_point_info_t *bl31_ep_info;
 	int e;
 
-	e = load_scp_bl2();
+	do {
+		e = load_scp_bl2();
+	} while (e && io_retry() > 0);
+
 	if (e) {
 		ERROR("Failed to load SCP_BL2 (%i)\n", e);
 		plat_error_handler(e);
@@ -244,7 +248,10 @@ entry_point_info_t *bl2_load_images(void)
 	bl31_ep_info->args.arg0 = (unsigned long) bl2_to_bl31_params;
 	bl2_plat_set_bl31_ep_info(NULL, bl31_ep_info);
 #else
-	e = load_bl31(bl2_to_bl31_params, bl31_ep_info);
+	do {
+		e = load_bl31(bl2_to_bl31_params, bl31_ep_info);
+	} while (e && io_retry() > 0);
+
 	if (e) {
 		ERROR("Failed to load BL31 (%i)\n", e);
 		plat_error_handler(e);

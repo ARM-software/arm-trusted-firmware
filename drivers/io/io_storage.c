@@ -33,7 +33,14 @@
 #include <io_storage.h>
 #include <platform_def.h>
 #include <stddef.h>
+#ifdef IO_RETRY_REGISTER
+#include <mmio.h>
+#endif
 
+#ifndef PLAT_FIP_NUM_ATTEMPTS
+/* Attempt to find the FIP 1 time */
+#define PLAT_FIP_NUM_ATTEMPTS		1
+#endif
 
 /* Storage for a fixed maximum number of IO entities, definable by platform */
 static io_entity_t entity_pool[MAX_IO_HANDLES];
@@ -51,6 +58,18 @@ static const io_dev_info_t *devices[MAX_IO_DEVICES];
 /* Number of currently registered devices */
 static unsigned int dev_count;
 
+#ifdef IO_RETRY_REGISTER
+/* 
+ * Allows the number of retries to be passed between BLx stages
+ * without next stage having to retry from beginning
+ */
+#define GET_IO_RETRY() (mmio_read_32(IO_RETRY_REGISTER))
+#define SET_IO_RETRY(x) (mmio_write_32(IO_RETRY_REGISTER, x))
+#else
+static int io_num_retries;
+#define GET_IO_RETRY() io_num_retries
+#define SET_IO_RETRY(x) (io_num_retries = x)
+#endif
 
 #if DEBUG	/* Extra validation functions only used in debug builds */
 
@@ -355,4 +374,29 @@ int io_close(uintptr_t handle)
 	(void)free_entity(entity);
 
 	return result;
+}
+
+int io_retry(void)
+{
+	int num_retries = GET_IO_RETRY();
+
+	if (num_retries >= 0)
+		num_retries++;
+
+	if (num_retries >= PLAT_FIP_NUM_ATTEMPTS)
+		num_retries = -1;
+
+	SET_IO_RETRY(num_retries);
+
+	return num_retries;
+}
+
+int io_get_num_retries(void)
+{
+	return GET_IO_RETRY();
+}
+
+void io_set_num_retries(int num_retries)
+{
+	SET_IO_RETRY(num_retries);
 }
