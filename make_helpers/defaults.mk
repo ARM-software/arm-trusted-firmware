@@ -105,6 +105,10 @@ FWU_FIP_NAME			:= fwu_fip.bin
 # For Chain of Trust
 GENERATE_COT			:= 0
 
+# Whether system coherency is managed in hardware, without explicit software
+# operations.
+HW_ASSISTED_COHERENCY		:= 0
+
 # Flag to enable new version of image loading
 LOAD_IMAGE_V2			:= 0
 

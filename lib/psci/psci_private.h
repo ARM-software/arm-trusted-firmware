@@ -38,16 +38,59 @@
 #include <psci.h>
 #include <spinlock.h>
 
+#if HW_ASSISTED_COHERENCY
+
 /*
- * The following helper macros abstract the interface to the Bakery
- * Lock API.
+ * On systems with hardware-assisted coherency, make PSCI cache operations NOP,
+ * as PSCI participants are cache-coherent, and there's no need for explicit
+ * cache maintenance operations or barriers to coordinate their state.
  */
-#define psci_lock_init(non_cpu_pd_node, idx)			\
-	((non_cpu_pd_node)[(idx)].lock_index = (idx))
+#define psci_flush_dcache_range(addr, size)
+#define psci_flush_cpu_data(member)
+#define psci_inv_cpu_data(member)
+
+#define psci_dsbish()
+
+/*
+ * On systems where participant CPUs are cache-coherent, we can use spinlocks
+ * instead of bakery locks.
+ */
+#define DEFINE_PSCI_LOCK(_name)		spinlock_t _name
+#define DECLARE_PSCI_LOCK(_name)	extern DEFINE_PSCI_LOCK(_name)
+
+#define psci_lock_get(non_cpu_pd_node)				\
+	spin_lock(&psci_locks[(non_cpu_pd_node)->lock_index])
+#define psci_lock_release(non_cpu_pd_node)			\
+	spin_unlock(&psci_locks[(non_cpu_pd_node)->lock_index])
+
+#else
+
+/*
+ * If not all PSCI participants are cache-coherent, perform cache maintenance
+ * and issue barriers wherever required to coordinate state.
+ */
+#define psci_flush_dcache_range(addr, size)	flush_dcache_range(addr, size)
+#define psci_flush_cpu_data(member)		flush_cpu_data(member)
+#define psci_inv_cpu_data(member)		inv_cpu_data(member)
+
+#define psci_dsbish()				dsbish()
+
+/*
+ * Use bakery locks for state coordination as not all PSCI participants are
+ * cache coherent.
+ */
+#define DEFINE_PSCI_LOCK(_name)		DEFINE_BAKERY_LOCK(_name)
+#define DECLARE_PSCI_LOCK(_name)	DECLARE_BAKERY_LOCK(_name)
+
 #define psci_lock_get(non_cpu_pd_node)				\
 	bakery_lock_get(&psci_locks[(non_cpu_pd_node)->lock_index])
 #define psci_lock_release(non_cpu_pd_node)			\
 	bakery_lock_release(&psci_locks[(non_cpu_pd_node)->lock_index])
+
+#endif
+
+#define psci_lock_init(non_cpu_pd_node, idx)			\
+	((non_cpu_pd_node)[(idx)].lock_index = (idx))
 
 /*
  * The PSCI capability which are provided by the generic code but does not
@@ -166,8 +209,8 @@ extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 extern unsigned int psci_caps;
 
-/* One bakery lock is required for each non-cpu power domain */
-DECLARE_BAKERY_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
+/* One lock is required per non-CPU power domain node */
+DECLARE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
@@ -204,6 +247,14 @@ void psci_set_pwr_domains_to_run(unsigned int end_pwrlvl);
 void psci_print_power_domain_map(void);
 unsigned int psci_is_last_on_cpu(void);
 int psci_spd_migrate_info(u_register_t *mpidr);
+void psci_do_pwrdown_sequence(unsigned int power_level);
+
+/*
+ * CPU power down is directly called only when HW_ASSISTED_COHERENCY is
+ * available. Otherwise, this needs post-call stack maintenance, which is
+ * handled in assembly.
+ */
+void prepare_cpu_pwr_dwn(unsigned int power_level);
 
 /* Private exported functions from psci_on.c */
 int psci_cpu_on_start(u_register_t target_cpu,

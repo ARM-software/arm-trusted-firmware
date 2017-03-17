@@ -91,10 +91,10 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	psci_set_suspend_pwrlvl(end_pwrlvl);
 
 	/*
-	 * Flush the target power level as it will be accessed on power up with
+	 * Flush the target power level as it might be accessed on power up with
 	 * Data cache disabled.
 	 */
-	flush_cpu_data(psci_svc_cpu_data.target_pwrlvl);
+	psci_flush_cpu_data(psci_svc_cpu_data.target_pwrlvl);
 
 	/*
 	 * Call the cpu suspend handler registered by the Secure Payload
@@ -121,13 +121,11 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 #endif
 
 	/*
-	 * Arch. management. Perform the necessary steps to flush all
-	 * cpu caches. Currently we assume that the power level correspond
-	 * the cache level.
+	 * Arch. management. Initiate power down sequence.
 	 * TODO : Introduce a mechanism to query the cache level to flush
 	 * and the cpu-ops power down to perform from the platform.
 	 */
-	psci_do_pwrdown_cache_maintenance(max_off_lvl);
+	psci_do_pwrdown_sequence(max_off_lvl);
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	PMF_CAPTURE_TIMESTAMP(rt_instr_svc,
@@ -304,12 +302,10 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 	 */
 	psci_plat_pm_ops->pwr_domain_suspend_finish(state_info);
 
-	/*
-	 * Arch. management: Enable the data cache, manage stack memory and
-	 * restore the stashed EL3 architectural context from the 'cpu_context'
-	 * structure for this cpu.
-	 */
+#if !HW_ASSISTED_COHERENCY
+	/* Arch. management: Enable the data cache, stack memory maintenance. */
 	psci_do_pwrup_cache_maintenance();
+#endif
 
 	/* Re-init the cntfrq_el0 register */
 	counter_freq = plat_get_syscnt_freq2();

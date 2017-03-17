@@ -231,24 +231,27 @@ func sp_min_warm_entrypoint
 		_init_c_runtime=0				\
 		_exception_vectors=sp_min_vector_table
 
-	/* --------------------------------------------
-	 * Enable the MMU with the DCache disabled. It
-	 * is safe to use stacks allocated in normal
-	 * memory as a result. All memory accesses are
-	 * marked nGnRnE when the MMU is disabled. So
-	 * all the stack writes will make it to memory.
-	 * All memory accesses are marked Non-cacheable
-	 * when the MMU is enabled but D$ is disabled.
-	 * So used stack memory is guaranteed to be
-	 * visible immediately after the MMU is enabled
-	 * Enabling the DCache at the same time as the
-	 * MMU can lead to speculatively fetched and
-	 * possibly stale stack memory being read from
-	 * other caches. This can lead to coherency
-	 * issues.
-	 * --------------------------------------------
+	/*
+	 * We're about to enable MMU and participate in PSCI state coordination.
+	 *
+	 * The PSCI implementation invokes platform routines that enable CPUs to
+	 * participate in coherency. On a system where CPUs are not
+	 * cache-coherent out of reset, having caches enabled until such time
+	 * might lead to coherency issues (resulting from stale data getting
+	 * speculatively fetched, among others). Therefore we keep data caches
+	 * disabled while enabling the MMU, thereby forcing data accesses to
+	 * have non-cacheable, nGnRnE attributes (these will always be coherent
+	 * with main memory).
+	 *
+	 * On systems where CPUs are cache-coherent out of reset, however, PSCI
+	 * need not invoke platform routines to enter coherency (as CPUs already
+	 * are), and there's no reason to have caches disabled either.
 	 */
+#if HW_ASSISTED_COHERENCY
+	mov	r0, #0
+#else
 	mov	r0, #DISABLE_DCACHE
+#endif
 	bl	bl32_plat_enable_mmu
 
 	bl	sp_min_warm_boot

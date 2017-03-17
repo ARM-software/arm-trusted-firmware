@@ -176,7 +176,9 @@ interfaces are:
    * The page tables must be setup and the MMU enabled
    * The C runtime environment must be setup and stack initialized
    * The Data cache must be enabled prior to invoking any of the PSCI library
-     interfaces except for `psci_warmboot_entrypoint()`.
+     interfaces except for `psci_warmboot_entrypoint()`. For
+     `psci_warmboot_entrypoint()`, if the build option `HW_ASSISTED_COHERENCY`
+     is enabled however, data caches are expected to be enabled.
 
 Further requirements for each interface can be found in the interface
 description.
@@ -270,11 +272,11 @@ wakes up, it will start execution from the warm reset address.
     Return   : void
 
 This function performs the warm boot initialization/restoration as mandated by
-[PSCI spec]. For AArch32, on wakeup from power down the CPU resets to secure
-SVC mode and the EL3 Runtime Software must perform the prerequisite
-initializations mentioned at top of this section. This function must be called
-with Data cache disabled but with MMU initialized and enabled. The major
-actions performed by this function are:
+[PSCI spec]. For AArch32, on wakeup from power down the CPU resets to secure SVC
+mode and the EL3 Runtime Software must perform the prerequisite initializations
+mentioned at top of this section. This function must be called with Data cache
+disabled (unless build option `HW_ASSISTED_COHERENCY` is enabled) but with MMU
+initialized and enabled. The major actions performed by this function are:
 
   * Invalidates the stack and enables the data cache.
   * Initializes architecture and PSCI state coordination.

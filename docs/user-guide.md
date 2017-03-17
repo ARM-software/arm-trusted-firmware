@@ -328,6 +328,15 @@ performed.
 *   `HANDLE_EA_EL3_FIRST`: When defined External Aborts and SError Interrupts
     will be always trapped in EL3 i.e. in BL31 at runtime.
 
+*   `HW_ASSISTED_COHERENCY`: On most ARM systems to-date, platform-specific
+    software operations are required for CPUs to enter and exit coherency.
+    However, there exists newer systems where CPUs' entry to and exit from
+    coherency is managed in hardware. Such systems require software to only
+    initiate the operations, and the rest is managed in hardware, minimizing
+    active software management. In such systems, this boolean option enables ARM
+    Trusted Firmware to carry out build and run-time optimizations during boot
+    and power management operations. This option defaults to 0.
+
 *   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
     image loading, which provides more flexibility and scalability around what
     images are loaded and executed during boot. Default is 0.

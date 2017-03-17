@@ -306,6 +306,11 @@ ifeq (${ARCH},aarch32)
     endif
 endif
 
+# When building for systems with hardware-assisted coherency, there's no need to
+# use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
+ifeq ($(HW_ASSISTED_COHERENCY)-$(USE_COHERENT_MEM),1-1)
+$(error USE_COHERENT_MEM cannot be enabled with HW_ASSISTED_COHERENCY)
+endif
 
 ################################################################################
 # Process platform overrideable behaviour
@@ -386,6 +391,7 @@ $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 $(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
 $(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,GENERATE_COT))
+$(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
 $(eval $(call assert_boolean,LOAD_IMAGE_V2))
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
@@ -420,6 +426,7 @@ $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))
 $(eval $(call add_define,ERROR_DEPRECATED))
+$(eval $(call add_define,HW_ASSISTED_COHERENCY))
 $(eval $(call add_define,LOAD_IMAGE_V2))
 $(eval $(call add_define,LOG_LEVEL))
 $(eval $(call add_define,NS_TIMER_SWITCH))
