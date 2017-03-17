@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -158,6 +158,17 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 
 	driver_data = plat_driver_data;
 
+	/*
+	 * The GIC driver data is initialized by the primary CPU with caches
+	 * enabled. When the secondary CPU boots up, it initializes the
+	 * GICC/GICR interface with the caches disabled. Hence flush the
+	 * driver_data to ensure coherency. This is not required if the
+	 * platform has HW_ASSISTED_COHERENCY enabled.
+	 */
+#if !HW_ASSISTED_COHERENCY
+	flush_dcache_range((uintptr_t) &driver_data, sizeof(driver_data));
+	flush_dcache_range((uintptr_t) driver_data, sizeof(*driver_data));
+#endif
 	INFO("ARM GICv2 driver initialized\n");
 }
 
