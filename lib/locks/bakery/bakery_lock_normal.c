@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -178,8 +178,11 @@ void bakery_lock_get(bakery_lock_t *lock)
 	unsigned int their_bakery_data;
 
 	me = plat_my_core_pos();
-
+#ifdef AARCH32
+	is_cached = read_sctlr() & SCTLR_C_BIT;
+#else
 	is_cached = read_sctlr_el3() & SCTLR_C_BIT;
+#endif
 
 	/* Get a ticket */
 	my_ticket = bakery_get_ticket(lock, me, is_cached);
@@ -231,7 +234,11 @@ void bakery_lock_get(bakery_lock_t *lock)
 void bakery_lock_release(bakery_lock_t *lock)
 {
 	bakery_info_t *my_bakery_info;
+#ifdef AARCH32
+	unsigned int is_cached = read_sctlr() & SCTLR_C_BIT;
+#else
 	unsigned int is_cached = read_sctlr_el3() & SCTLR_C_BIT;
+#endif
 
 	my_bakery_info = get_bakery_info(plat_my_core_pos(), lock);
 
