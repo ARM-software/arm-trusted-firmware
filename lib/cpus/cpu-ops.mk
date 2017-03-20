@@ -66,6 +66,12 @@ ERRATA_A53_826319	?=0
 # erratum workaround is enabled by default in hardware.
 ERRATA_A53_836870	?=0
 
+# Flag to apply errata 855873 during reset. This errata applies to all
+# revisions of the Cortex A53 CPU, but this firmware workaround only works
+# for revisions r0p3 and higher. Earlier revisions are taken care
+# of by the rich OS.
+ERRATA_A53_855873	?=0
+
 # Flag to apply erratum 806969 workaround during reset. This erratum applies
 # only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
@@ -105,6 +111,10 @@ $(eval $(call add_define,ERRATA_A53_826319))
 # Process ERRATA_A53_836870 flag
 $(eval $(call assert_boolean,ERRATA_A53_836870))
 $(eval $(call add_define,ERRATA_A53_836870))
+
+# Process ERRATA_A53_855873 flag
+$(eval $(call assert_boolean,ERRATA_A53_855873))
+$(eval $(call add_define,ERRATA_A53_855873))
 
 # Process ERRATA_A57_806969 flag
 $(eval $(call assert_boolean,ERRATA_A57_806969))

@@ -67,7 +67,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 
-# Enable workarounds for selected Cortex-A57 erratas.
+# Enable workarounds for selected Cortex-A53 and A57 erratas.
+ERRATA_A53_855873		:=	1
 ERRATA_A57_806969		:=	0
 ERRATA_A57_813419		:=	1
 ERRATA_A57_813420		:=	1
