@@ -42,6 +42,20 @@
 
 #define BIT(nr)				(1UL << (nr))
 
+#define MIN(x, y) __extension__ ({	\
+	__typeof__(x) _x = (x);		\
+	__typeof__(y) _y = (y);		\
+	(void)(&_x == &_y);		\
+	_x < _y ? _x : _y;		\
+})
+
+#define MAX(x, y) __extension__ ({	\
+	__typeof__(x) _x = (x);		\
+	__typeof__(y) _y = (y);		\
+	(void)(&_x == &_y);		\
+	_x > _y ? _x : _y;		\
+})
+
 /*
  * The round_up() macro rounds up a value to the given boundary in a
  * type-agnostic yet type-safe manner. The boundary must be a power of two.
