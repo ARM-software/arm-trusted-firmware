@@ -66,7 +66,7 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void);
 
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);
-int plat_lock_cpu_vectors(void);
+int32_t plat_lock_cpu_vectors(void);
 
 /* Declarations for tegra_fiq_glue.c */
 void tegra_fiq_handler_setup(void);
