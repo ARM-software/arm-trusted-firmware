@@ -31,8 +31,8 @@
  * Tegra186 CPU numbers in cluster #0
  *******************************************************************************
  */
-#define TEGRA186_CLUSTER0_CORE2		2
-#define TEGRA186_CLUSTER0_CORE3		3
+#define TEGRA186_CLUSTER0_CORE2		2U
+#define TEGRA186_CLUSTER0_CORE3		3U
 
 /*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
@@ -40,7 +40,7 @@
  * the number of power domains at the highest power level.
  *******************************************************************************
  */
-const unsigned char tegra_power_domain_tree_desc[] = {
+const uint8_t tegra_power_domain_tree_desc[] = {
 	/* No of root nodes */
 	1,
 	/* No of clusters */
@@ -54,7 +54,7 @@ const unsigned char tegra_power_domain_tree_desc[] = {
 /*******************************************************************************
  * This function returns the Tegra default topology tree information.
  ******************************************************************************/
-const unsigned char *plat_get_power_domain_tree_desc(void)
+const uint8_t *plat_get_power_domain_tree_desc(void)
 {
 	return tegra_power_domain_tree_desc;
 }
@@ -63,41 +63,41 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
  * Table of regions to map using the MMU.
  */
 static const mmap_region_t tegra_mmap[] = {
-	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000, /* 128KB */
+	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000U, /* 128KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000, /* 128KB - UART A, B*/
+	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000U, /* 128KB - UART A, B*/
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_UARTC_BASE, 0x20000, /* 128KB - UART C, G */
+	MAP_REGION_FLAT(TEGRA_UARTC_BASE, 0x20000U, /* 128KB - UART C, G */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_UARTD_BASE, 0x30000, /* 192KB - UART D, E, F */
+	MAP_REGION_FLAT(TEGRA_UARTD_BASE, 0x30000U, /* 192KB - UART D, E, F */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_FUSE_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_FUSE_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x20000, /* 128KB */
+	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x20000U, /* 128KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SE0_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_SE0_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_PKA1_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_PKA1_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_CAR_RESET_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_CAR_RESET_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000, /* 256KB */
+	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000U, /* 256KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SCRATCH_BASE, 0x10000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_SCRATCH_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MMCRAB_BASE, 0x60000, /* 384KB */
+	MAP_REGION_FLAT(TEGRA_MMCRAB_BASE, 0x60000U, /* 384KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_ARM_ACTMON_CTR_BASE, 0x20000, /* 128KB - ARM/Denver */
+	MAP_REGION_FLAT(TEGRA_ARM_ACTMON_CTR_BASE, 0x20000U, /* 128KB - ARM/Denver */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SMMU0_BASE, 0x1000000, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_SMMU0_BASE, 0x1000000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
 	{0}
 };
@@ -114,7 +114,7 @@ const mmap_region_t *plat_get_mmio_map(void)
 /*******************************************************************************
  * Handler to get the System Counter Frequency
  ******************************************************************************/
-unsigned int plat_get_syscnt_freq2(void)
+uint32_t plat_get_syscnt_freq2(void)
 {
 	return 31250000;
 }
@@ -141,12 +141,17 @@ static uint32_t tegra186_uart_addresses[TEGRA186_MAX_UART_PORTS + 1] = {
 /*******************************************************************************
  * Retrieve the UART controller base to be used as the console
  ******************************************************************************/
-uint32_t plat_get_console_from_id(int id)
+uint32_t plat_get_console_from_id(int32_t id)
 {
-	if (id > TEGRA186_MAX_UART_PORTS)
-		return 0;
+	uint32_t ret;
 
-	return tegra186_uart_addresses[id];
+	if (id > TEGRA186_MAX_UART_PORTS) {
+		ret = 0;
+	} else {
+		ret = tegra186_uart_addresses[id];
+	}
+
+	return ret;
 }
 
 /*******************************************************************************
@@ -170,7 +175,7 @@ void plat_early_platform_setup(void)
 	    (impl != (uint64_t)DENVER_IMPL)) {
 
 		val = read_l2ctlr_el1();
-		val |= (uint64_t)CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
+		val |= CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
 		write_l2ctlr_el1(val);
 	}
 }
@@ -194,8 +199,9 @@ void plat_gic_setup(void)
 	 * Initialize the FIQ handler only if the platform supports any
 	 * FIQ interrupt sources.
 	 */
-	if (sizeof(tegra186_interrupt_props) > 0)
+	if (sizeof(tegra186_interrupt_props) > 0U) {
 		tegra_fiq_handler_setup();
+	}
 }
 
 /*******************************************************************************
@@ -228,33 +234,34 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
  * to convert an MPIDR to a unique linear index. An error code (-1) is returned
  * in case the MPIDR is invalid.
  ******************************************************************************/
-int plat_core_pos_by_mpidr(u_register_t mpidr)
+int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	unsigned int cluster_id, cpu_id, pos;
+	u_register_t cluster_id, cpu_id, pos;
+	int32_t ret;
 
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+	cluster_id = (mpidr >> (u_register_t)MPIDR_AFF1_SHIFT) & (u_register_t)MPIDR_AFFLVL_MASK;
+	cpu_id = (mpidr >> (u_register_t)MPIDR_AFF0_SHIFT) & (u_register_t)MPIDR_AFFLVL_MASK;
 
 	/*
 	 * Validate cluster_id by checking whether it represents
 	 * one of the two clusters present on the platform.
-	 */
-	if (cluster_id >= PLATFORM_CLUSTER_COUNT)
-		return PSCI_E_NOT_PRESENT;
-
-	/*
 	 * Validate cpu_id by checking whether it represents a CPU in
 	 * one of the two clusters present on the platform.
 	 */
-	if (cpu_id >= PLATFORM_MAX_CPUS_PER_CLUSTER)
-		return PSCI_E_NOT_PRESENT;
+	if ((cluster_id >= (u_register_t)PLATFORM_CLUSTER_COUNT) ||
+	    (cpu_id >= (u_register_t)PLATFORM_MAX_CPUS_PER_CLUSTER)) {
+		ret = PSCI_E_NOT_PRESENT;
+	} else {
+		/* calculate the core position */
+		pos = cpu_id + (cluster_id << 2U);
 
-	/* calculate the core position */
-	pos = cpu_id + (cluster_id << 2);
+		/* check for non-existent CPUs */
+		if ((pos == TEGRA186_CLUSTER0_CORE2) || (pos == TEGRA186_CLUSTER0_CORE3)) {
+			ret = PSCI_E_NOT_PRESENT;
+		} else {
+			ret = (int32_t)pos;
+		}
+	}
 
-	/* check for non-existent CPUs */
-	if (pos == TEGRA186_CLUSTER0_CORE2 || pos == TEGRA186_CLUSTER0_CORE3)
-		return PSCI_E_NOT_PRESENT;
-
-	return pos;
+	return ret;
 }
