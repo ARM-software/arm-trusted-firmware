@@ -1,15 +1,16 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <lib/mmio.h>
-
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
+#include <utils_def.h>
 
 /*******************************************************************************
  * Tegra platforms
@@ -19,26 +20,45 @@ typedef enum tegra_platform {
 	TEGRA_PLATFORM_QT,
 	TEGRA_PLATFORM_FPGA,
 	TEGRA_PLATFORM_EMULATION,
+	TEGRA_PLATFORM_LINSIM,
+	TEGRA_PLATFORM_UNIT_FPGA,
+	TEGRA_PLATFORM_VIRT_DEV_KIT,
 	TEGRA_PLATFORM_MAX,
 } tegra_platform_t;
 
 /*******************************************************************************
  * Tegra macros defining all the SoC minor versions
  ******************************************************************************/
-#define TEGRA_MINOR_QT			0
-#define TEGRA_MINOR_FPGA		1
-#define TEGRA_MINOR_EMULATION_MIN	2
-#define TEGRA_MINOR_EMULATION_MAX	10
+#define TEGRA_MINOR_QT			U(0)
+#define TEGRA_MINOR_FPGA		U(1)
+#define TEGRA_MINOR_ASIM_QT		U(2)
+#define TEGRA_MINOR_ASIM_LINSIM		U(3)
+#define TEGRA_MINOR_DSIM_ASIM_LINSIM	U(4)
+#define TEGRA_MINOR_UNIT_FPGA		U(5)
+#define TEGRA_MINOR_VIRT_DEV_KIT	U(6)
 
 /*******************************************************************************
  * Tegra major, minor version helper macros
  ******************************************************************************/
-#define MAJOR_VERSION_SHIFT		0x4
-#define MAJOR_VERSION_MASK		0xF
-#define MINOR_VERSION_SHIFT		0x10
-#define MINOR_VERSION_MASK		0xF
-#define CHIP_ID_SHIFT			8
-#define CHIP_ID_MASK			0xFF
+#define MAJOR_VERSION_SHIFT		U(0x4)
+#define MAJOR_VERSION_MASK		U(0xF)
+#define MINOR_VERSION_SHIFT		U(0x10)
+#define MINOR_VERSION_MASK		U(0xF)
+#define CHIP_ID_SHIFT			U(8)
+#define CHIP_ID_MASK			U(0xFF)
+#define PRE_SI_PLATFORM_SHIFT		U(0x14)
+#define PRE_SI_PLATFORM_MASK		U(0xF)
+
+/*******************************************************************************
+ * Tegra macros defining all the SoC pre_si_platform
+ ******************************************************************************/
+#define TEGRA_PRE_SI_QT			U(1)
+#define TEGRA_PRE_SI_FPGA		U(2)
+#define TEGRA_PRE_SI_UNIT_FPGA		U(3)
+#define TEGRA_PRE_SI_ASIM_QT		U(4)
+#define TEGRA_PRE_SI_ASIM_LINSIM	U(5)
+#define TEGRA_PRE_SI_DSIM_ASIM_LINSIM	U(6)
+#define TEGRA_PRE_SI_VDK		U(8)
 
 /*******************************************************************************
  * Tegra chip ID values
@@ -95,58 +115,165 @@ uint8_t tegra_chipid_is_t186(void)
 }
 
 /*
+ * Read the chip's pre_si_platform valus from the chip ID value
+ */
+static uint32_t tegra_get_chipid_pre_si_platform(void)
+{
+	return (tegra_get_chipid() >> PRE_SI_PLATFORM_SHIFT) & PRE_SI_PLATFORM_MASK;
+}
+
+/*
  * Read the chip ID value and derive the platform
  */
 static tegra_platform_t tegra_get_platform(void)
 {
-	uint32_t major = tegra_get_chipid_major();
-	uint32_t minor = tegra_get_chipid_minor();
+	uint32_t major, minor, pre_si_platform;
+	tegra_platform_t ret;
 
-	/* Actual silicon platforms have a non-zero major version */
-	if (major > 0)
-		return TEGRA_PLATFORM_SILICON;
+	/* get the major/minor chip ID values */
+	major = tegra_get_chipid_major();
+	minor = tegra_get_chipid_minor();
+	pre_si_platform = tegra_get_chipid_pre_si_platform();
 
-	/*
-	 * The minor version number is used by simulation platforms
-	 */
+	if (major == 0U) {
+		/*
+		 * The minor version number is used by simulation platforms
+		 */
+		switch (minor) {
+		/*
+		 * Cadence's QuickTurn emulation system is a Solaris-based
+		 * chip emulation system
+		 */
+		case TEGRA_MINOR_QT:
+		case TEGRA_MINOR_ASIM_QT:
+			ret = TEGRA_PLATFORM_QT;
+			break;
 
-	/*
-	 * Cadence's QuickTurn emulation system is a Solaris-based
-	 * chip emulation system
-	 */
-	if (minor == TEGRA_MINOR_QT)
-		return TEGRA_PLATFORM_QT;
+		/*
+		 * FPGAs are used during early software/hardware development
+		 */
+		case TEGRA_MINOR_FPGA:
+			ret = TEGRA_PLATFORM_FPGA;
+			break;
+		/*
+		 * Linsim is a reconfigurable, clock-driven, mixed RTL/cmodel
+		 * simulation framework.
+		 */
+		case TEGRA_MINOR_ASIM_LINSIM:
+		case TEGRA_MINOR_DSIM_ASIM_LINSIM:
+			ret = TEGRA_PLATFORM_LINSIM;
+			break;
 
-	/*
-	 * FPGAs are used during early software/hardware development
-	 */
-	if (minor == TEGRA_MINOR_FPGA)
-		return TEGRA_PLATFORM_FPGA;
+		/*
+		 * Unit FPGAs run the actual hardware block IP on the FPGA with
+		 * the other parts of the system using Linsim.
+		 */
+		case TEGRA_MINOR_UNIT_FPGA:
+			ret = TEGRA_PLATFORM_UNIT_FPGA;
+			break;
+		/*
+		 * The Virtualizer Development Kit (VDK) is the standard chip
+		 * development from Synopsis.
+		 */
+		case TEGRA_MINOR_VIRT_DEV_KIT:
+			ret = TEGRA_PLATFORM_VIRT_DEV_KIT;
+			break;
+		default:
+			assert(0);
+			ret = TEGRA_PLATFORM_MAX;
+			break;
+		}
 
-	/* Minor version reserved for other emulation platforms */
-	if ((minor > TEGRA_MINOR_FPGA) && (minor <= TEGRA_MINOR_EMULATION_MAX))
-		return TEGRA_PLATFORM_EMULATION;
+	} else if (pre_si_platform > 0U) {
 
-	/* unsupported platform */
-	return TEGRA_PLATFORM_MAX;
+		switch (pre_si_platform) {
+		/*
+		 * Cadence's QuickTurn emulation system is a Solaris-based
+		 * chip emulation system
+		 */
+		case TEGRA_PRE_SI_QT:
+		case TEGRA_PRE_SI_ASIM_QT:
+			ret = TEGRA_PLATFORM_QT;
+			break;
+
+		/*
+		 * FPGAs are used during early software/hardware development
+		 */
+		case TEGRA_PRE_SI_FPGA:
+			ret = TEGRA_PLATFORM_FPGA;
+			break;
+		/*
+		 * Linsim is a reconfigurable, clock-driven, mixed RTL/cmodel
+		 * simulation framework.
+		 */
+		case TEGRA_PRE_SI_ASIM_LINSIM:
+		case TEGRA_PRE_SI_DSIM_ASIM_LINSIM:
+			ret = TEGRA_PLATFORM_LINSIM;
+			break;
+
+		/*
+		 * Unit FPGAs run the actual hardware block IP on the FPGA with
+		 * the other parts of the system using Linsim.
+		 */
+		case TEGRA_PRE_SI_UNIT_FPGA:
+			ret = TEGRA_PLATFORM_UNIT_FPGA;
+			break;
+		/*
+		 * The Virtualizer Development Kit (VDK) is the standard chip
+		 * development from Synopsis.
+		 */
+		case TEGRA_PRE_SI_VDK:
+			ret = TEGRA_PLATFORM_VIRT_DEV_KIT;
+			break;
+
+		default:
+			assert(0);
+			ret = TEGRA_PLATFORM_MAX;
+			break;
+		}
+
+	} else {
+		/* Actual silicon platforms have a non-zero major version */
+		ret = TEGRA_PLATFORM_SILICON;
+	}
+
+	return ret;
 }
 
-uint8_t tegra_platform_is_silicon(void)
+bool tegra_platform_is_silicon(void)
 {
-	return (tegra_get_platform() == TEGRA_PLATFORM_SILICON);
+	return ((tegra_get_platform() == TEGRA_PLATFORM_SILICON) ? true : false);
 }
 
-uint8_t tegra_platform_is_qt(void)
+bool tegra_platform_is_qt(void)
 {
-	return (tegra_get_platform() == TEGRA_PLATFORM_QT);
+	return ((tegra_get_platform() == TEGRA_PLATFORM_QT) ? true : false);
 }
 
-uint8_t tegra_platform_is_fpga(void)
+bool tegra_platform_is_linsim(void)
 {
-	return (tegra_get_platform() == TEGRA_PLATFORM_FPGA);
+	tegra_platform_t plat = tegra_get_platform();
+
+	return (((plat == TEGRA_PLATFORM_LINSIM) ||
+	       (plat == TEGRA_PLATFORM_UNIT_FPGA)) ? true : false);
 }
 
-uint8_t tegra_platform_is_emulation(void)
+bool tegra_platform_is_fpga(void)
+{
+	return ((tegra_get_platform() == TEGRA_PLATFORM_FPGA) ? true : false);
+}
+
+bool tegra_platform_is_emulation(void)
 {
 	return (tegra_get_platform() == TEGRA_PLATFORM_EMULATION);
+}
+
+bool tegra_platform_is_unit_fpga(void)
+{
+	return ((tegra_get_platform() == TEGRA_PLATFORM_UNIT_FPGA) ? true : false);
+}
+
+bool tegra_platform_is_virt_dev_kit(void)
+{
+	return ((tegra_get_platform() == TEGRA_PLATFORM_VIRT_DEV_KIT) ? true : false);
 }

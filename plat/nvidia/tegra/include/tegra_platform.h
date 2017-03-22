@@ -8,6 +8,7 @@
 #define TEGRA_PLATFORM_H
 
 #include <cdefs.h>
+#include <stdbool.h>
 
 /*
  * Tegra chip major/minor version
@@ -26,9 +27,12 @@ uint8_t tegra_chipid_is_t186(void);
 /*
  * Tegra platform identifiers
  */
-uint8_t tegra_platform_is_silicon(void);
-uint8_t tegra_platform_is_qt(void);
-uint8_t tegra_platform_is_emulation(void);
-uint8_t tegra_platform_is_fpga(void);
+bool tegra_platform_is_silicon(void);
+bool tegra_platform_is_qt(void);
+bool tegra_platform_is_emulation(void);
+bool tegra_platform_is_linsim(void);
+bool tegra_platform_is_fpga(void);
+bool tegra_platform_is_unit_fpga(void);
+bool tegra_platform_is_virt_dev_kit(void);
 
 #endif /* TEGRA_PLATFORM_H */
