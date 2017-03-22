@@ -193,7 +193,8 @@
 						nsaid_permissions);	\
 	}
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
+
 static inline unsigned int _tzc_read_peripheral_id(uintptr_t base)
 {
 	unsigned int id;
@@ -235,6 +236,6 @@ static inline unsigned long long _tzc_get_max_top_addr(int addr_width)
 	(UINT64_MAX >> (64 - (addr_width)))
 #endif /* AARCH32 */
 
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 #endif /* __TZC_COMMON_PRIVATE_H__ */

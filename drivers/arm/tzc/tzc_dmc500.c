@@ -257,7 +257,7 @@ void tzc_dmc500_set_action(tzc_action_t action)
 static void validate_plat_driver_data(
 			const tzc_dmc500_driver_data_t *plat_driver_data)
 {
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	int i;
 	unsigned int dmc_id;
 	uintptr_t dmc_base;
@@ -273,7 +273,7 @@ static void validate_plat_driver_data(
 		dmc_id = _tzc_read_peripheral_id(dmc_base);
 		assert(dmc_id == DMC500_PERIPHERAL_ID);
 	}
-#endif /* DEBUG */
+#endif /* ENABLE_ASSERTIONS */
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -85,13 +85,13 @@
 static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
 		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 static unsigned long long get_max_supported_pa(void)
 {
 	/* Physical address space size for long descriptor format. */
 	return (1ULL << 40) - 1ULL;
 }
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 void init_xlat_tables(void)
 {
