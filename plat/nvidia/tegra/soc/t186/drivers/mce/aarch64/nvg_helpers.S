@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,29 +28,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __TEGRA_PLATFORM_H__
-#define __TEGRA_PLATFORM_H__
+#include <arch.h>
+#include <asm_macros.S>
 
-#include <sys/cdefs.h>
+	.globl	nvg_set_request_data
+	.globl	nvg_set_request
+	.globl	nvg_get_result
 
-/*
- * Tegra chip major/minor version
- */
-uint32_t tegra_get_chipid_major(void);
-uint32_t tegra_get_chipid_minor(void);
+/* void nvg_set_request_data(uint64_t req, uint64_t data) */
+func nvg_set_request_data
+	msr	s3_0_c15_c1_2, x0
+	msr	s3_0_c15_c1_3, x1
+	ret
+endfunc nvg_set_request_data
 
-/*
- * Tegra chip identifiers
- */
-uint8_t tegra_is_t132(void);
-uint8_t tegra_is_t210(void);
+/* void nvg_set_request(uint64_t req) */
+func nvg_set_request
+	msr	s3_0_c15_c1_2, x0
+	ret
+endfunc nvg_set_request
 
-/*
- * Tegra platform identifiers
- */
-uint8_t tegra_platform_is_silicon(void);
-uint8_t tegra_platform_is_qt(void);
-uint8_t tegra_platform_is_emulation(void);
-uint8_t tegra_platform_is_fpga(void);
-
-#endif /* __TEGRA_PLATFORM_H__ */
+/* uint64_t nvg_get_result(void) */
+func nvg_get_result
+	mrs	x0, s3_0_c15_c1_3
+	ret
+endfunc nvg_get_result

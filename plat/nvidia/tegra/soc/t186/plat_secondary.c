@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,29 +28,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __TEGRA_PLATFORM_H__
-#define __TEGRA_PLATFORM_H__
+#include <debug.h>
+#include <mce.h>
+#include <mmio.h>
+#include <tegra_def.h>
 
-#include <sys/cdefs.h>
+#define MISCREG_CPU_RESET_VECTOR	0x2000
+#define MISCREG_AA64_RST_LOW		0x2004
+#define MISCREG_AA64_RST_HIGH		0x2008
 
-/*
- * Tegra chip major/minor version
- */
-uint32_t tegra_get_chipid_major(void);
-uint32_t tegra_get_chipid_minor(void);
+#define SCRATCH_SECURE_RSV1_SCRATCH_0	0x658
+#define SCRATCH_SECURE_RSV1_SCRATCH_1	0x65C
 
-/*
- * Tegra chip identifiers
- */
-uint8_t tegra_is_t132(void);
-uint8_t tegra_is_t210(void);
+#define CPU_RESET_MODE_AA64		1
 
-/*
- * Tegra platform identifiers
- */
-uint8_t tegra_platform_is_silicon(void);
-uint8_t tegra_platform_is_qt(void);
-uint8_t tegra_platform_is_emulation(void);
-uint8_t tegra_platform_is_fpga(void);
+extern void tegra_secure_entrypoint(void);
 
-#endif /* __TEGRA_PLATFORM_H__ */
+/*******************************************************************************
+ * Setup secondary CPU vectors
+ ******************************************************************************/
+void plat_secondary_setup(void)
+{
+	uint32_t addr_low, addr_high;
+	uint64_t reset_addr = (uint64_t)tegra_secure_entrypoint;
+
+	INFO("Setting up secondary CPU boot\n");
+
+	addr_low = (uint32_t)reset_addr | CPU_RESET_MODE_AA64;
+	addr_high = (uint32_t)((reset_addr >> 32) & 0x7ff);
+
+	/* write lower 32 bits first, then the upper 11 bits */
+	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_LOW, addr_low);
+	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_HIGH, addr_high);
+
+	/* save reset vector to be used during SYSTEM_SUSPEND exit */
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_RSV1_SCRATCH_0,
+			addr_low);
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_RSV1_SCRATCH_1,
+			addr_high);
+
+	/* update reset vector address to the CCPLEX */
+	mce_update_reset_vector(addr_low, addr_high);
+}
