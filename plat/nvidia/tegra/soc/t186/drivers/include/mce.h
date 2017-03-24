@@ -102,6 +102,24 @@ typedef enum mce_cmd {
 #define MCE_CMD_MASK				0xFF
 
 /*******************************************************************************
+ * Struct to prepare UPDATE_CSTATE_INFO request
+ ******************************************************************************/
+typedef struct mce_cstate_info {
+	/* cluster cstate value */
+	uint32_t cluster;
+	/* ccplex cstate value */
+	uint32_t ccplex;
+	/* system cstate value */
+	uint32_t system;
+	/* force system state? */
+	uint8_t system_state_force;
+	/* wake mask value */
+	uint32_t wake_mask;
+	/* update the wake mask? */
+	uint8_t update_wake_mask;
+} mce_cstate_info_t;
+
+/*******************************************************************************
  * Macros to prepare CSTATE info request
  ******************************************************************************/
 /* Description of the parameters for UPDATE_CSTATE_INFO request */
@@ -322,6 +340,7 @@ int mce_update_gsc_videomem(void);
 int mce_update_gsc_tzdram(void);
 int mce_update_gsc_tzram(void);
 __dead2 void mce_enter_ccplex_state(uint32_t state_idx);
+void mce_update_cstate_info(mce_cstate_info_t *cstate);
 void mce_verify_firmware_version(void);
 
 /* declarations for ARI/NVG handler functions */

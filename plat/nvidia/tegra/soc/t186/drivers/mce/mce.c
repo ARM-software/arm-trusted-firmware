@@ -449,6 +449,19 @@ __dead2 void mce_enter_ccplex_state(uint32_t state_idx)
 }
 
 /*******************************************************************************
+ * Handler to issue the UPDATE_CSTATE_INFO request
+ ******************************************************************************/
+void mce_update_cstate_info(mce_cstate_info_t *cstate)
+{
+	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
+
+	/* issue the UPDATE_CSTATE_INFO request */
+	ops->update_cstate_info(mce_get_curr_cpu_ari_base(), cstate->cluster,
+		cstate->ccplex, cstate->system, cstate->system_state_force,
+		cstate->wake_mask, cstate->update_wake_mask);
+}
+
+/*******************************************************************************
  * Handler to read the MCE firmware version and check if it is compatible
  * with interface header the BL3-1 was compiled against
  ******************************************************************************/
