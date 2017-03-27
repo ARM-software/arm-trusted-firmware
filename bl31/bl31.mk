@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				bl31/aarch64/crash_reporting.S			\
 				bl31/bl31_context_mgmt.c			\
 				common/runtime_svc.c				\
+				plat/common/aarch64/platform_mp_stack.S		\
 				services/std_svc/std_svc_setup.c		\
 				${PSCI_LIB_SOURCES}
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -51,7 +51,6 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
 				lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
-				plat/common/aarch64/platform_mp_stack.S	\
 				plat/qemu/aarch64/plat_helpers.S	\
 				plat/qemu/qemu_bl1_setup.c
 
@@ -59,7 +58,6 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
 				drivers/io/io_storage.c			\
 				drivers/io/io_fip.c			\
 				drivers/io/io_memmap.c			\
-				plat/common/aarch64/platform_mp_stack.S	\
 				lib/semihosting/semihosting.c		\
 				lib/semihosting/aarch64/semihosting_call.S\
 				plat/qemu/qemu_io_storage.c		\
@@ -74,9 +72,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/arm/gic/common/gic_common.c	\
-				plat/common/aarch64/platform_mp_stack.S	\
 				plat/common/aarch64/plat_psci_common.c	\
-				plat/common/aarch64/plat_common.c	\
 				plat/qemu/qemu_pm.c			\
 				plat/qemu/topology.c			\
 				plat/qemu/aarch64/plat_helpers.S	\

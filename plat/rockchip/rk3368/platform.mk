@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -50,7 +50,6 @@ RK_GIC_SOURCES         :=	drivers/arm/gic/common/gic_common.c		\
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
-				plat/common/aarch64/plat_common.c		\
 				plat/common/plat_psci_common.c
 
 BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
@@ -60,7 +59,6 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				lib/cpus/aarch64/cortex_a53.S			\
-				plat/common/aarch64/platform_mp_stack.S		\
 				${RK_PLAT_COMMON}/aarch64/plat_helpers.S	\
 				${RK_PLAT_COMMON}/bl31_plat_setup.c		\
 				${RK_PLAT_COMMON}/params_setup.c                \
