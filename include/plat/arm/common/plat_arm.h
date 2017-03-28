@@ -203,6 +203,10 @@ void plat_arm_interconnect_init(void);
 void plat_arm_interconnect_enter_coherency(void);
 void plat_arm_interconnect_exit_coherency(void);
 
+#if ARM_PLAT_MT
+unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);
+#endif
+
 #if LOAD_IMAGE_V2
 /*
  * This function is called after loading SCP_BL2 image and it is used to perform

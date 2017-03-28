@@ -197,6 +197,12 @@ performed.
     by the interrupt management framework. Default is 2 (that is, version 2.0).
     This build option is deprecated.
 
+*   `ARM_PLAT_MT`: This flag determines whether the ARM platform layer has to
+    cater for the multi-threading `MT` bit when accessing MPIDR. When this
+    flag is set, the functions which deal with MPIDR assume that the `MT` bit
+    in MPIDR is set and access the bit-fields in MPIDR accordingly. Default
+    value of this flag is 0.
+
 *   `ASM_ASSERTION`: This flag determines whether the assertion checks within
     assembly source files are enabled or not. This option defaults to the
     value of `DEBUG` - that is, by default this is only enabled for a debug

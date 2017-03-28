@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,10 @@
 
 #include <plat_arm.h>
 
+#if ARM_PLAT_MT
+#pragma weak plat_arm_get_cpu_pe_count
+#endif
+
 /******************************************************************************
  * This function implements a part of the critical interface between the psci
  * generic layer and the platform that allows the former to query the platform
@@ -43,3 +47,14 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 
 	return -1;
 }
+
+#if ARM_PLAT_MT
+/******************************************************************************
+ * This function returns the PE count within the physical cpu corresponding to
+ * `mpidr`. Now one cpu only have one thread, so just return 1.
+ *****************************************************************************/
+unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr)
+{
+	return 1;
+}
+#endif /* ARM_PLAT_MT */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,14 +40,26 @@
 int arm_check_mpidr(u_register_t mpidr)
 {
 	unsigned int cluster_id, cpu_id;
+	uint64_t valid_mask;
 
-	mpidr &= MPIDR_AFFINITY_MASK;
+#if ARM_PLAT_MT
+	unsigned int pe_id;
 
-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
-		return -1;
-
+	valid_mask = ~(MPIDR_AFFLVL_MASK |
+			(MPIDR_AFFLVL_MASK << MPIDR_AFF1_SHIFT) |
+			(MPIDR_AFFLVL_MASK << MPIDR_AFF2_SHIFT));
+	cluster_id = (mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK;
+	cpu_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+	pe_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+#else
+	valid_mask = ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK);
 	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
 	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+#endif /* ARM_PLAT_MT */
+
+	mpidr &= MPIDR_AFFINITY_MASK;
+	if (mpidr & valid_mask)
+		return -1;
 
 	if (cluster_id >= PLAT_ARM_CLUSTER_COUNT)
 		return -1;
@@ -56,6 +68,11 @@ int arm_check_mpidr(u_register_t mpidr)
 	   one of the two clusters present on the platform. */
 	if (cpu_id >= plat_arm_get_cluster_core_count(mpidr))
 		return -1;
+
+#if ARM_PLAT_MT
+	if (pe_id >= plat_arm_get_cpu_pe_count(mpidr))
+		return -1;
+#endif /* ARM_PLAT_MT */
 
 	return 0;
 }
