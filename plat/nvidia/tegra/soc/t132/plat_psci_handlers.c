@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -132,7 +132,7 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
 
 	/* SYSTEM_SUSPEND only on CPU0 */
