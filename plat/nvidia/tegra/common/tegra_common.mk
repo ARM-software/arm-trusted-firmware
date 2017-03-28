@@ -31,8 +31,8 @@
 CRASH_REPORTING		:=	1
 $(eval $(call add_define,CRASH_REPORTING))
 
-ASM_ASSERTION		:=	1
-$(eval $(call add_define,ASM_ASSERTION))
+ENABLE_ASSERTIONS	:=	1
+$(eval $(call add_define,ENABLE_ASSERTIONS))
 
 USE_COHERENT_MEM	:=	0
 
