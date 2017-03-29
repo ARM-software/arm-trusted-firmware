@@ -201,11 +201,18 @@ void init_xlat_tables_arch(unsigned long long max_pa)
 		write_mair_el##_el(mair);				\
 									\
 		/* Set TCR bits as well. */				\
-		/* Inner & outer WBWA & shareable. */			\
 		/* Set T0SZ to (64 - width of virtual address space) */	\
-		tcr = TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA |	\
-			TCR_RGN_INNER_WBA |				\
-			(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+		if (flags & XLAT_TABLE_NC) {				\
+			/* Inner & outer non-cacheable non-shareable. */\
+			tcr = TCR_SH_NON_SHAREABLE |			\
+				TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC |	\
+				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+		} else {						\
+			/* Inner & outer WBWA & shareable. */		\
+			tcr = TCR_SH_INNER_SHAREABLE |			\
+				TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA |	\
+				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+		}							\
 		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
 									\
