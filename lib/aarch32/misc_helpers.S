@@ -170,7 +170,7 @@ func memcpy4
 /* copy 4 bytes at a time */
 m_loop4:
 	cmp	r2, #4
-	blt	m_loop1
+	blo	m_loop1
 	ldr	r3, [r1], #4
 	str	r3, [r0], #4
 	sub	r2, r2, #4
