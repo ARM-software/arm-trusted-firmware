@@ -581,3 +581,11 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 */
 	mce_update_gsc_videomem();
 }
+
+/*
+ * This feature exists only for v1 of the Tegra Memory Controller.
+ */
+void tegra_memctrl_disable_ahb_redirection(void)
+{
+	; /* do nothing */
+}

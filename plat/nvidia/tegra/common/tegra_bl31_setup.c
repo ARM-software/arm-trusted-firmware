@@ -299,7 +299,16 @@ void bl31_platform_setup(void)
  ******************************************************************************/
 void bl31_plat_runtime_setup(void)
 {
-	; /* do nothing */
+	/*
+	 * During boot, USB3 and flash media (SDMMC/SATA) devices need
+	 * access to IRAM. Because these clients connect to the MC and
+	 * do not have a direct path to the IRAM, the MC implements AHB
+	 * redirection during boot to allow path to IRAM. In this mode
+	 * accesses to a programmed memory address aperture are directed
+	 * to the AHB bus, allowing access to the IRAM. This mode must be
+	 * disabled before we jump to the non-secure world.
+	 */
+	tegra_memctrl_disable_ahb_redirection();
 }
 
 /*******************************************************************************

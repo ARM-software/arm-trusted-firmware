@@ -60,6 +60,13 @@
 #define MC_SMMU_TRANSLATION_ENABLE_4_0		0xb98
 #define  MC_SMMU_TRANSLATION_ENABLE		(~0)
 
+/* MC IRAM aperture registers */
+#define MC_IRAM_BASE_LO				0x65CU
+#define MC_IRAM_TOP_LO				0x660U
+#define MC_IRAM_BASE_TOP_HI			0x980U
+#define MC_IRAM_REG_CTRL			0x964U
+#define  MC_DISABLE_IRAM_CFG_WRITES		1U
+
 static inline uint32_t tegra_mc_read_32(uint32_t off)
 {
 	return mmio_read_32(TEGRA_MC_BASE + off);

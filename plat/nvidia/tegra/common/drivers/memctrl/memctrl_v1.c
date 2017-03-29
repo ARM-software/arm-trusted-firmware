@@ -218,3 +218,29 @@ done:
 	video_mem_base = phys_base;
 	video_mem_size = size_in_bytes >> 20;
 }
+
+/*
+ * During boot, USB3 and flash media (SDMMC/SATA) devices need access to
+ * IRAM. Because these clients connect to the MC and do not have a direct
+ * path to the IRAM, the MC implements AHB redirection during boot to allow
+ * path to IRAM. In this mode, accesses to a programmed memory address aperture
+ * are directed to the AHB bus, allowing access to the IRAM. The AHB aperture
+ * is defined by the IRAM_BASE_LO and IRAM_BASE_HI registers, which are
+ * initialized to disable this aperture.
+ *
+ * Once bootup is complete, we must program IRAM base to 0xffffffff and
+ * IRAM top to 0x00000000, thus disabling access to IRAM. DRAM is then
+ * potentially accessible in this address range. These aperture registers
+ * also have an access_control/lock bit. After disabling the aperture, the
+ * access_control register should be programmed to lock the registers.
+ */
+void tegra_memctrl_disable_ahb_redirection(void)
+{
+	/* program the aperture registers */
+	tegra_mc_write_32(MC_IRAM_BASE_LO, 0xFFFFFFFF);
+	tegra_mc_write_32(MC_IRAM_TOP_LO, 0);
+	tegra_mc_write_32(MC_IRAM_BASE_TOP_HI, 0);
+
+	/* lock the aperture registers */
+	tegra_mc_write_32(MC_IRAM_REG_CTRL, MC_DISABLE_IRAM_CFG_WRITES);
+}
