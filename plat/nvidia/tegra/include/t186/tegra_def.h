@@ -31,8 +31,6 @@
 #ifndef __TEGRA_DEF_H__
 #define __TEGRA_DEF_H__
 
-#include <platform_def.h>
-
 /*******************************************************************************
  * These values are used by the PSCI implementation during the `CPU_SUSPEND`
  * and `SYSTEM_SUSPEND` calls as the `state-id` field in the 'power state'
@@ -78,10 +76,17 @@
  ******************************************************************************/
 #define TEGRA_MISC_BASE			0x00100000
 #define  HARDWARE_REVISION_OFFSET	0x4
-#define  HARDWARE_MINOR_REVISION_MASK	0xf0000
-#define  HARDWARE_MINOR_REVISION_SHIFT	0x10
-#define  HARDWARE_REVISION_A01		1
+#define  MAJOR_VERSION_SHIFT		0x4
+#define  MAJOR_VERSION_MASK		0xF
+#define  MINOR_VERSION_SHIFT		0x10
+#define  MINOR_VERSION_MASK		0xF
+
 #define  MISCREG_PFCFG			0x200C
+
+/*******************************************************************************
+ * Tegra TSA Controller constants
+ ******************************************************************************/
+#define TEGRA_TSA_BASE			0x02400000
 
 /*******************************************************************************
  * Tegra Memory Controller constants

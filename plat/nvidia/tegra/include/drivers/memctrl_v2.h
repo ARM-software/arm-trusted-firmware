@@ -31,7 +31,6 @@
 #ifndef __MEMCTRLV2_H__
 #define __MEMCTRLV2_H__
 
-#include <mmio.h>
 #include <tegra_def.h>
 
 /*******************************************************************************
@@ -283,6 +282,10 @@
 #define MC_TXN_OVERRIDE_CONFIG_AFIW		0x1188
 #define MC_TXN_OVERRIDE_CONFIG_SCEW		0x14e0
 
+#define MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_CGID	(1 << 0)
+#define MC_TXN_OVERRIDE_CONFIG_COH_PATH_OVERRIDE_SO_DEV	(2 << 4)
+#define MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_SO_DEV_CGID_SO_DEV_CLIENT	(1 << 12)
+
 /*******************************************************************************
  * Non-SO_DEV transactions override values for CGID_TAG bitfield for the
  * MC_TXN_OVERRIDE_CONFIG_{module} registers
@@ -292,6 +295,10 @@
 #define MC_TXN_OVERRIDE_CGID_TAG_ZERO		2
 #define MC_TXN_OVERRIDE_CGID_TAG_ADR		3
 #define MC_TXN_OVERRIDE_CGID_TAG_MASK		3
+
+#ifndef __ASSEMBLY__
+
+#include <sys/types.h>
 
 /*******************************************************************************
  * Structure to hold the transaction override settings to use to override
@@ -327,12 +334,12 @@ typedef struct mc_streamid_security_cfg {
 	int override_client_ns_flag;
 } mc_streamid_security_cfg_t;
 
-#define OVERRIDE_DISABLE			1
-#define OVERRIDE_ENABLE				0
-#define CLIENT_FLAG_SECURE			0
-#define CLIENT_FLAG_NON_SECURE			1
-#define CLIENT_INPUTS_OVERRIDE			1
-#define CLIENT_INPUTS_NO_OVERRIDE		0
+#define OVERRIDE_DISABLE				1
+#define OVERRIDE_ENABLE					0
+#define CLIENT_FLAG_SECURE				0
+#define CLIENT_FLAG_NON_SECURE				1
+#define CLIENT_INPUTS_OVERRIDE				1
+#define CLIENT_INPUTS_NO_OVERRIDE			0
 
 #define mc_make_sec_cfg(off, ns, ovrrd, access) \
 		{ \
@@ -343,30 +350,209 @@ typedef struct mc_streamid_security_cfg {
 			.override_enable = OVERRIDE_ ## access \
 		}
 
+#endif /* __ASSMEBLY__ */
+
 /*******************************************************************************
  * TZDRAM carveout configuration registers
  ******************************************************************************/
-#define MC_SECURITY_CFG0_0			0x70
-#define MC_SECURITY_CFG1_0			0x74
-#define MC_SECURITY_CFG3_0			0x9BC
+#define MC_SECURITY_CFG0_0				0x70
+#define MC_SECURITY_CFG1_0				0x74
+#define MC_SECURITY_CFG3_0				0x9BC
 
 /*******************************************************************************
  * Video Memory carveout configuration registers
  ******************************************************************************/
-#define MC_VIDEO_PROTECT_BASE_HI		0x978
-#define MC_VIDEO_PROTECT_BASE_LO		0x648
-#define MC_VIDEO_PROTECT_SIZE_MB		0x64c
+#define MC_VIDEO_PROTECT_BASE_HI			0x978
+#define MC_VIDEO_PROTECT_BASE_LO			0x648
+#define MC_VIDEO_PROTECT_SIZE_MB			0x64c
 
 /*******************************************************************************
  * TZRAM carveout configuration registers
  ******************************************************************************/
-#define MC_TZRAM_BASE				0x1850
-#define MC_TZRAM_END				0x1854
-#define MC_TZRAM_HI_ADDR_BITS			0x1588
- #define TZRAM_ADDR_HI_BITS_MASK		0x3
- #define TZRAM_END_HI_BITS_SHIFT		8
-#define MC_TZRAM_REG_CTRL			0x185c
- #define DISABLE_TZRAM_ACCESS			1
+#define MC_TZRAM_BASE					0x1850
+#define MC_TZRAM_END					0x1854
+#define MC_TZRAM_HI_ADDR_BITS				0x1588
+ #define TZRAM_ADDR_HI_BITS_MASK			0x3
+ #define TZRAM_END_HI_BITS_SHIFT			8
+#define MC_TZRAM_REG_CTRL				0x185c
+ #define DISABLE_TZRAM_ACCESS				1
+
+/*******************************************************************************
+ * Memory Controller Reset Control registers
+ ******************************************************************************/
+#define MC_CLIENT_HOTRESET_CTRL0			0x200
+#define  MC_CLIENT_HOTRESET_CTRL0_RESET_VAL		0
+#define  MC_CLIENT_HOTRESET_CTRL0_AFI_FLUSH_ENB		(1 << 0)
+#define  MC_CLIENT_HOTRESET_CTRL0_HC_FLUSH_ENB		(1 << 6)
+#define  MC_CLIENT_HOTRESET_CTRL0_HDA_FLUSH_ENB		(1 << 7)
+#define  MC_CLIENT_HOTRESET_CTRL0_ISP2_FLUSH_ENB	(1 << 8)
+#define  MC_CLIENT_HOTRESET_CTRL0_MPCORE_FLUSH_ENB	(1 << 9)
+#define  MC_CLIENT_HOTRESET_CTRL0_NVENC_FLUSH_ENB	(1 << 11)
+#define  MC_CLIENT_HOTRESET_CTRL0_SATA_FLUSH_ENB	(1 << 15)
+#define  MC_CLIENT_HOTRESET_CTRL0_VI_FLUSH_ENB		(1 << 17)
+#define  MC_CLIENT_HOTRESET_CTRL0_VIC_FLUSH_ENB		(1 << 18)
+#define  MC_CLIENT_HOTRESET_CTRL0_XUSB_HOST_FLUSH_ENB	(1 << 19)
+#define  MC_CLIENT_HOTRESET_CTRL0_XUSB_DEV_FLUSH_ENB	(1 << 20)
+#define  MC_CLIENT_HOTRESET_CTRL0_TSEC_FLUSH_ENB	(1 << 22)
+#define  MC_CLIENT_HOTRESET_CTRL0_SDMMC1A_FLUSH_ENB	(1 << 29)
+#define  MC_CLIENT_HOTRESET_CTRL0_SDMMC2A_FLUSH_ENB	(1 << 30)
+#define  MC_CLIENT_HOTRESET_CTRL0_SDMMC3A_FLUSH_ENB	(1 << 31)
+#define MC_CLIENT_HOTRESET_STATUS0			0x204
+#define MC_CLIENT_HOTRESET_CTRL1			0x970
+#define  MC_CLIENT_HOTRESET_CTRL1_RESET_VAL		0
+#define  MC_CLIENT_HOTRESET_CTRL1_SDMMC4A_FLUSH_ENB	(1 << 0)
+#define  MC_CLIENT_HOTRESET_CTRL1_GPU_FLUSH_ENB		(1 << 2)
+#define  MC_CLIENT_HOTRESET_CTRL1_NVDEC_FLUSH_ENB	(1 << 5)
+#define  MC_CLIENT_HOTRESET_CTRL1_APE_FLUSH_ENB		(1 << 6)
+#define  MC_CLIENT_HOTRESET_CTRL1_SE_FLUSH_ENB		(1 << 7)
+#define  MC_CLIENT_HOTRESET_CTRL1_NVJPG_FLUSH_ENB	(1 << 8)
+#define  MC_CLIENT_HOTRESET_CTRL1_ETR_FLUSH_ENB		(1 << 12)
+#define  MC_CLIENT_HOTRESET_CTRL1_TSECB_FLUSH_ENB	(1 << 13)
+#define  MC_CLIENT_HOTRESET_CTRL1_AXIS_FLUSH_ENB	(1 << 18)
+#define  MC_CLIENT_HOTRESET_CTRL1_EQOS_FLUSH_ENB	(1 << 19)
+#define  MC_CLIENT_HOTRESET_CTRL1_UFSHC_FLUSH_ENB	(1 << 20)
+#define  MC_CLIENT_HOTRESET_CTRL1_NVDISPLAY_FLUSH_ENB	(1 << 21)
+#define  MC_CLIENT_HOTRESET_CTRL1_BPMP_FLUSH_ENB	(1 << 22)
+#define  MC_CLIENT_HOTRESET_CTRL1_AON_FLUSH_ENB		(1 << 23)
+#define  MC_CLIENT_HOTRESET_CTRL1_SCE_FLUSH_ENB		(1 << 24)
+#define MC_CLIENT_HOTRESET_STATUS1			0x974
+
+/*******************************************************************************
+ * TSA configuration registers
+ ******************************************************************************/
+#define TSA_CONFIG_STATIC0_CSW_SESWR			0x4010
+#define  TSA_CONFIG_STATIC0_CSW_SESWR_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_ETRW			0x4038
+#define  TSA_CONFIG_STATIC0_CSW_ETRW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_SDMMCWAB			0x5010
+#define  TSA_CONFIG_STATIC0_CSW_SDMMCWAB_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_AXISW			0x7008
+#define  TSA_CONFIG_STATIC0_CSW_AXISW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_HDAW			0xA008
+#define  TSA_CONFIG_STATIC0_CSW_HDAW_RESET		0x100
+#define TSA_CONFIG_STATIC0_CSW_AONDMAW			0xB018
+#define  TSA_CONFIG_STATIC0_CSW_AONDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_SCEDMAW			0xD018
+#define  TSA_CONFIG_STATIC0_CSW_SCEDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_BPMPDMAW			0xD028
+#define  TSA_CONFIG_STATIC0_CSW_BPMPDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_APEDMAW			0x12018
+#define  TSA_CONFIG_STATIC0_CSW_APEDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_UFSHCW			0x13008
+#define  TSA_CONFIG_STATIC0_CSW_UFSHCW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_AFIW			0x13018
+#define  TSA_CONFIG_STATIC0_CSW_AFIW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_SATAW			0x13028
+#define  TSA_CONFIG_STATIC0_CSW_SATAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_EQOSW			0x13038
+#define  TSA_CONFIG_STATIC0_CSW_EQOSW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_XUSB_DEVW		0x15008
+#define  TSA_CONFIG_STATIC0_CSW_XUSB_DEVW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW		0x15018
+#define  TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW_RESET	0x1100
+
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK		(0x3 << 11)
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(0 << 11)
+
+/*******************************************************************************
+ * Memory Controller's PCFIFO client configuration registers
+ ******************************************************************************/
+#define MC_PCFIFO_CLIENT_CONFIG1			0xdd4
+#define  MC_PCFIFO_CLIENT_CONFIG1_RESET_VAL		0x20000
+#define  MC_PCFIFO_CLIENT_CONFIG1_PCFIFO_AFIW_UNORDERED	(0 << 17)
+#define  MC_PCFIFO_CLIENT_CONFIG1_PCFIFO_AFIW_MASK	(1 << 17)
+#define  MC_PCFIFO_CLIENT_CONFIG1_PCFIFO_HDAW_UNORDERED	(0 << 21)
+#define  MC_PCFIFO_CLIENT_CONFIG1_PCFIFO_HDAW_MASK	(1 << 21)
+#define  MC_PCFIFO_CLIENT_CONFIG1_PCFIFO_SATAW_UNORDERED (0 << 29)
+#define  MC_PCFIFO_CLIENT_CONFIG1_PCFIFO_SATAW_MASK	(1 << 29)
+
+#define MC_PCFIFO_CLIENT_CONFIG2			0xdd8
+#define  MC_PCFIFO_CLIENT_CONFIG2_RESET_VAL		0x20000
+#define  MC_PCFIFO_CLIENT_CONFIG2_PCFIFO_XUSB_HOSTW_UNORDERED	(0 << 11)
+#define  MC_PCFIFO_CLIENT_CONFIG2_PCFIFO_XUSB_HOSTW_MASK	(1 << 11)
+#define  MC_PCFIFO_CLIENT_CONFIG2_PCFIFO_XUSB_DEVW_UNORDERED	(0 << 13)
+#define  MC_PCFIFO_CLIENT_CONFIG2_PCFIFO_XUSB_DEVW_MASK	(1 << 13)
+
+#define MC_PCFIFO_CLIENT_CONFIG3			0xddc
+#define  MC_PCFIFO_CLIENT_CONFIG3_RESET_VAL		0
+#define  MC_PCFIFO_CLIENT_CONFIG3_PCFIFO_SDMMCWAB_UNORDERED	(0 << 7)
+#define  MC_PCFIFO_CLIENT_CONFIG3_PCFIFO_SDMMCWAB_MASK	(1 << 7)
+
+#define MC_PCFIFO_CLIENT_CONFIG4		0xde0
+#define  MC_PCFIFO_CLIENT_CONFIG4_RESET_VAL	0
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_SESWR_UNORDERED (0 << 1)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_SESWR_MASK	(1 << 1)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_ETRW_UNORDERED	(0 << 5)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_ETRW_MASK	(1 << 5)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_AXISW_UNORDERED (0 << 13)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_AXISW_MASK	(1 << 13)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_EQOSW_UNORDERED (0 << 15)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_EQOSW_MASK	(1 << 15)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_UFSHCW_UNORDERED	(0 << 17)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_UFSHCW_MASK	(1 << 17)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_BPMPDMAW_UNORDERED	(0 << 22)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_BPMPDMAW_MASK	(1 << 22)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_AONDMAW_UNORDERED	(0 << 26)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_AONDMAW_MASK	(1 << 26)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_SCEDMAW_UNORDERED	(0 << 30)
+#define  MC_PCFIFO_CLIENT_CONFIG4_PCFIFO_SCEDMAW_MASK	(1 << 30)
+
+#define MC_PCFIFO_CLIENT_CONFIG5		0xbf4
+#define  MC_PCFIFO_CLIENT_CONFIG5_RESET_VAL	0
+#define  MC_PCFIFO_CLIENT_CONFIG5_PCFIFO_APEDMAW_UNORDERED	(0 << 0)
+#define  MC_PCFIFO_CLIENT_CONFIG5_PCFIFO_APEDMAW_MASK	(1 << 0)
+
+/*******************************************************************************
+ * Memory Controller's SMMU client configuration registers
+ ******************************************************************************/
+#define MC_SMMU_CLIENT_CONFIG1				0x44
+#define  MC_SMMU_CLIENT_CONFIG1_RESET_VAL		0x20000
+#define  MC_SMMU_CLIENT_CONFIG1_AFIW_UNORDERED		(0 << 17)
+#define  MC_SMMU_CLIENT_CONFIG1_AFIW_MASK		(1 << 17)
+#define  MC_SMMU_CLIENT_CONFIG1_HDAW_UNORDERED		(0 << 21)
+#define  MC_SMMU_CLIENT_CONFIG1_HDAW_MASK		(1 << 21)
+#define  MC_SMMU_CLIENT_CONFIG1_SATAW_UNORDERED		(0 << 29)
+#define  MC_SMMU_CLIENT_CONFIG1_SATAW_MASK		(1 << 29)
+
+#define MC_SMMU_CLIENT_CONFIG2				0x48
+#define  MC_SMMU_CLIENT_CONFIG2_RESET_VAL		0x20000
+#define  MC_SMMU_CLIENT_CONFIG2_XUSB_HOSTW_UNORDERED	(0 << 11)
+#define  MC_SMMU_CLIENT_CONFIG2_XUSB_HOSTW_MASK		(1 << 11)
+#define  MC_SMMU_CLIENT_CONFIG2_XUSB_DEVW_UNORDERED	(0 << 13)
+#define  MC_SMMU_CLIENT_CONFIG2_XUSB_DEVW_MASK		(1 << 13)
+
+#define MC_SMMU_CLIENT_CONFIG3				0x4c
+#define  MC_SMMU_CLIENT_CONFIG3_RESET_VAL		0
+#define  MC_SMMU_CLIENT_CONFIG3_SDMMCWAB_UNORDERED	(0 << 7)
+#define  MC_SMMU_CLIENT_CONFIG3_SDMMCWAB_MASK		(1 << 7)
+
+#define MC_SMMU_CLIENT_CONFIG4				0xb9c
+#define  MC_SMMU_CLIENT_CONFIG4_RESET_VAL		0
+#define  MC_SMMU_CLIENT_CONFIG4_SESWR_UNORDERED		(0 << 1)
+#define  MC_SMMU_CLIENT_CONFIG4_SESWR_MASK		(1 << 1)
+#define  MC_SMMU_CLIENT_CONFIG4_ETRW_UNORDERED		(0 << 5)
+#define  MC_SMMU_CLIENT_CONFIG4_ETRW_MASK		(1 << 5)
+#define  MC_SMMU_CLIENT_CONFIG4_AXISW_UNORDERED		(0 << 13)
+#define  MC_SMMU_CLIENT_CONFIG4_AXISW_MASK		(1 << 13)
+#define  MC_SMMU_CLIENT_CONFIG4_EQOSW_UNORDERED		(0 << 15)
+#define  MC_SMMU_CLIENT_CONFIG4_EQOSW_MASK		(1 << 15)
+#define  MC_SMMU_CLIENT_CONFIG4_UFSHCW_UNORDERED	(0 << 17)
+#define  MC_SMMU_CLIENT_CONFIG4_UFSHCW_MASK		(1 << 17)
+#define  MC_SMMU_CLIENT_CONFIG4_BPMPDMAW_UNORDERED	(0 << 22)
+#define  MC_SMMU_CLIENT_CONFIG4_BPMPDMAW_MASK		(1 << 22)
+#define  MC_SMMU_CLIENT_CONFIG4_AONDMAW_UNORDERED	(0 << 26)
+#define  MC_SMMU_CLIENT_CONFIG4_AONDMAW_MASK		(1 << 26)
+#define  MC_SMMU_CLIENT_CONFIG4_SCEDMAW_UNORDERED	(0 << 30)
+#define  MC_SMMU_CLIENT_CONFIG4_SCEDMAW_MASK		(1 << 30)
+
+#define MC_SMMU_CLIENT_CONFIG5				0xbac
+#define  MC_SMMU_CLIENT_CONFIG5_RESET_VAL		0
+#define  MC_SMMU_CLIENT_CONFIG5_APEDMAW_UNORDERED	(0 << 0)
+#define  MC_SMMU_CLIENT_CONFIG5_APEDMAW_MASK	(1 << 0)
+
+#ifndef __ASSEMBLY__
+
+#include <mmio.h>
 
 static inline uint32_t tegra_mc_read_32(uint32_t off)
 {
@@ -387,5 +573,43 @@ static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
 {
 	mmio_write_32(TEGRA_MC_STREAMID_BASE + off, val);
 }
+
+#define mc_set_pcfifo_unordered_boot_so_mss(id, client) \
+	(~MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_MASK | \
+	 MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_UNORDERED)
+
+#define mc_set_smmu_unordered_boot_so_mss(id, client) \
+	(~MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_MASK | \
+	 MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_UNORDERED)
+
+#define mc_set_tsa_passthrough(client) \
+	{ \
+		mmio_write_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client, \
+			(TSA_CONFIG_STATIC0_CSW_##client##_RESET & \
+			 ~TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK) | \
+			TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU); \
+	}
+
+#define mc_set_forced_coherent_cfg(client) \
+	{ \
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_##client, \
+			MC_TXN_OVERRIDE_CONFIG_COH_PATH_OVERRIDE_SO_DEV); \
+	}
+
+#define mc_set_forced_coherent_so_dev_cfg(client) \
+	{ \
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_##client, \
+			MC_TXN_OVERRIDE_CONFIG_COH_PATH_OVERRIDE_SO_DEV | \
+			MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_SO_DEV_CGID_SO_DEV_CLIENT); \
+	}
+
+#define mc_set_forced_coherent_axid_so_dev_cfg(client) \
+	{ \
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_##client, \
+			MC_TXN_OVERRIDE_CONFIG_COH_PATH_OVERRIDE_SO_DEV | \
+			MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_CGID | \
+			MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_SO_DEV_CGID_SO_DEV_CLIENT); \
+	}
+#endif /* __ASSMEBLY__ */
 
 #endif /* __MEMCTRLV2_H__ */

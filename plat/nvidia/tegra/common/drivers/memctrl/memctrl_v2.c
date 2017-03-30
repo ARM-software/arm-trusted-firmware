@@ -45,7 +45,7 @@
 
 /* Video Memory base and size (live values) */
 static uint64_t video_mem_base;
-static uint64_t video_mem_size;
+static uint64_t video_mem_size_mb;
 
 /* array to hold stream_id override config register offsets */
 const static uint32_t streamid_overrides[] = {
@@ -144,8 +144,7 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(SCEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(UFSHCR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCWAA, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SESWR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SESWR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(MPCORER, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(PTCR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(BPMPW, NON_SECURE, NO_OVERRIDE, ENABLE),
@@ -159,9 +158,7 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(XUSB_HOSTW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(TSECSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCRAA, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(VIW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AXISR, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SDMMCW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(BPMPDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
@@ -191,13 +188,23 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(SDMMCRAB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ETRR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AONR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SESRD, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SESRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVENCSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSWR, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(TSECSWRB, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPWB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSRD2, SECURE, NO_OVERRIDE, DISABLE),
+#if ENABLE_CHIP_VERIFICATION_HARNESS
+	mc_make_sec_cfg(APEDMAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APER, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEDMAR, NON_SECURE, OVERRIDE, ENABLE),
+#else
+	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+#endif
 };
 
 const static mc_txn_override_cfg_t mc_override_cfgs[] = {
@@ -234,6 +241,251 @@ const static mc_txn_override_cfg_t mc_override_cfgs[] = {
 	mc_make_txn_override_cfg(SCEW, CGID_TAG_ADR),
 };
 
+static void tegra_memctrl_reconfig_mss_clients(void)
+{
+#if ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS
+	uint32_t val, wdata_0, wdata_1;
+
+	/*
+	 * Assert Memory Controller's HOTRESET_FLUSH_ENABLE signal for
+	 * boot and strongly ordered MSS clients to flush existing memory
+	 * traffic and stall future requests.
+	 */
+	val = tegra_mc_read_32(MC_CLIENT_HOTRESET_CTRL0);
+	assert(val == MC_CLIENT_HOTRESET_CTRL0_RESET_VAL);
+
+	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_AFI_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL0_HDA_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL0_SATA_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL0_XUSB_HOST_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL0_XUSB_DEV_FLUSH_ENB;
+	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL0, wdata_0);
+
+	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
+	} while ((val & wdata_0) != wdata_0);
+
+	/* Wait one more time due to SW WAR for known legacy issue */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
+	} while ((val & wdata_0) != wdata_0);
+
+	val = tegra_mc_read_32(MC_CLIENT_HOTRESET_CTRL1);
+	assert(val == MC_CLIENT_HOTRESET_CTRL1_RESET_VAL);
+
+	wdata_1 = MC_CLIENT_HOTRESET_CTRL1_SDMMC4A_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_APE_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_SE_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_ETR_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_AXIS_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_EQOS_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_UFSHC_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_BPMP_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_AON_FLUSH_ENB |
+		  MC_CLIENT_HOTRESET_CTRL1_SCE_FLUSH_ENB;
+	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL1, wdata_1);
+
+	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
+	} while ((val & wdata_1) != wdata_1);
+
+	/* Wait one more time due to SW WAR for known legacy issue */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
+	} while ((val & wdata_1) != wdata_1);
+
+	/*
+	 * Change MEMTYPE_OVERRIDE from SO_DEV -> PASSTHRU for boot and
+	 * strongly ordered MSS clients. ROC needs to be single point
+	 * of control on overriding the memory type. So, remove TSA's
+	 * memtype override.
+	 */
+	mc_set_tsa_passthrough(AFIW);
+	mc_set_tsa_passthrough(HDAW);
+	mc_set_tsa_passthrough(SATAW);
+	mc_set_tsa_passthrough(XUSB_HOSTW);
+	mc_set_tsa_passthrough(XUSB_DEVW);
+	mc_set_tsa_passthrough(SDMMCWAB);
+	mc_set_tsa_passthrough(APEDMAW);
+	mc_set_tsa_passthrough(SESWR);
+	mc_set_tsa_passthrough(ETRW);
+	mc_set_tsa_passthrough(AXISW);
+	mc_set_tsa_passthrough(EQOSW);
+	mc_set_tsa_passthrough(UFSHCW);
+	mc_set_tsa_passthrough(BPMPDMAW);
+	mc_set_tsa_passthrough(AONDMAW);
+	mc_set_tsa_passthrough(SCEDMAW);
+
+	/*
+	 * Change COH_PATH_OVERRIDE_SO_DEV from NO_OVERRIDE -> FORCE_COHERENT
+	 * for boot and strongly ordered MSS clients. This steers all sodev
+	 * transactions to ROC.
+	 *
+	 * Change AXID_OVERRIDE/AXID_OVERRIDE_SO_DEV only for some clients
+	 * whose AXI IDs we know and trust.
+	 */
+
+	/* Match AFIW */
+	mc_set_forced_coherent_so_dev_cfg(AFIR);
+
+	/*
+	 * See bug 200131110 comment #35 - there are no normal requests
+	 * and AWID for SO/DEV requests is hardcoded in RTL for a
+	 * particular PCIE controller
+	 */
+	mc_set_forced_coherent_so_dev_cfg(AFIW);
+	mc_set_forced_coherent_cfg(HDAR);
+	mc_set_forced_coherent_cfg(HDAW);
+	mc_set_forced_coherent_cfg(SATAR);
+	mc_set_forced_coherent_cfg(SATAW);
+	mc_set_forced_coherent_cfg(XUSB_HOSTR);
+	mc_set_forced_coherent_cfg(XUSB_HOSTW);
+	mc_set_forced_coherent_cfg(XUSB_DEVR);
+	mc_set_forced_coherent_cfg(XUSB_DEVW);
+	mc_set_forced_coherent_cfg(SDMMCRAB);
+	mc_set_forced_coherent_cfg(SDMMCWAB);
+
+	/* Match APEDMAW */
+	mc_set_forced_coherent_axid_so_dev_cfg(APEDMAR);
+
+	/*
+	 * See bug 200131110 comment #35 - AWID for normal requests
+	 * is 0x80 and AWID for SO/DEV requests is 0x01
+	 */
+	mc_set_forced_coherent_axid_so_dev_cfg(APEDMAW);
+	mc_set_forced_coherent_cfg(SESRD);
+	mc_set_forced_coherent_cfg(SESWR);
+	mc_set_forced_coherent_cfg(ETRR);
+	mc_set_forced_coherent_cfg(ETRW);
+	mc_set_forced_coherent_cfg(AXISR);
+	mc_set_forced_coherent_cfg(AXISW);
+	mc_set_forced_coherent_cfg(EQOSR);
+	mc_set_forced_coherent_cfg(EQOSW);
+	mc_set_forced_coherent_cfg(UFSHCR);
+	mc_set_forced_coherent_cfg(UFSHCW);
+	mc_set_forced_coherent_cfg(BPMPDMAR);
+	mc_set_forced_coherent_cfg(BPMPDMAW);
+	mc_set_forced_coherent_cfg(AONDMAR);
+	mc_set_forced_coherent_cfg(AONDMAW);
+	mc_set_forced_coherent_cfg(SCEDMAR);
+	mc_set_forced_coherent_cfg(SCEDMAW);
+
+	/*
+	 * At this point, ordering can occur at ROC. So, remove PCFIFO's
+	 * control over ordering requests.
+	 *
+	 * Change PCFIFO_*_ORDERED_CLIENT from ORDERED -> UNORDERED for
+	 * boot and strongly ordered MSS clients
+	 */
+	val = MC_PCFIFO_CLIENT_CONFIG1_RESET_VAL &
+		mc_set_pcfifo_unordered_boot_so_mss(1, AFIW) &
+		mc_set_pcfifo_unordered_boot_so_mss(1, HDAW) &
+		mc_set_pcfifo_unordered_boot_so_mss(1, SATAW);
+	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG1, val);
+
+	val = MC_PCFIFO_CLIENT_CONFIG2_RESET_VAL &
+		mc_set_pcfifo_unordered_boot_so_mss(2, XUSB_HOSTW) &
+		mc_set_pcfifo_unordered_boot_so_mss(2, XUSB_DEVW);
+	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG2, val);
+
+	val = MC_PCFIFO_CLIENT_CONFIG3_RESET_VAL &
+		mc_set_pcfifo_unordered_boot_so_mss(3, SDMMCWAB);
+	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG3, val);
+
+	val = MC_PCFIFO_CLIENT_CONFIG4_RESET_VAL &
+		mc_set_pcfifo_unordered_boot_so_mss(4, SESWR) &
+		mc_set_pcfifo_unordered_boot_so_mss(4, ETRW) &
+		mc_set_pcfifo_unordered_boot_so_mss(4, AXISW) &
+		mc_set_pcfifo_unordered_boot_so_mss(4, EQOSW) &
+		mc_set_pcfifo_unordered_boot_so_mss(4, UFSHCW) &
+		mc_set_pcfifo_unordered_boot_so_mss(4, BPMPDMAW) &
+		mc_set_pcfifo_unordered_boot_so_mss(4, AONDMAW) &
+		mc_set_pcfifo_unordered_boot_so_mss(4, SCEDMAW);
+	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG4, val);
+
+	val = MC_PCFIFO_CLIENT_CONFIG5_RESET_VAL &
+		mc_set_pcfifo_unordered_boot_so_mss(5, APEDMAW);
+	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG5, val);
+
+	/*
+	 * At this point, ordering can occur at ROC. SMMU need not
+	 * reorder any requests.
+	 *
+	 * Change SMMU_*_ORDERED_CLIENT from ORDERED -> UNORDERED
+	 * for boot and strongly ordered MSS clients
+	 */
+	val = MC_SMMU_CLIENT_CONFIG1_RESET_VAL &
+		mc_set_smmu_unordered_boot_so_mss(1, AFIW) &
+		mc_set_smmu_unordered_boot_so_mss(1, HDAW) &
+		mc_set_smmu_unordered_boot_so_mss(1, SATAW);
+	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG1, val);
+
+	val = MC_SMMU_CLIENT_CONFIG2_RESET_VAL &
+		mc_set_smmu_unordered_boot_so_mss(2, XUSB_HOSTW) &
+		mc_set_smmu_unordered_boot_so_mss(2, XUSB_DEVW);
+	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG2, val);
+
+	val = MC_SMMU_CLIENT_CONFIG3_RESET_VAL &
+		mc_set_smmu_unordered_boot_so_mss(3, SDMMCWAB);
+	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG3, val);
+
+	val = MC_SMMU_CLIENT_CONFIG4_RESET_VAL &
+		mc_set_smmu_unordered_boot_so_mss(4, SESWR) &
+		mc_set_smmu_unordered_boot_so_mss(4, ETRW) &
+		mc_set_smmu_unordered_boot_so_mss(4, AXISW) &
+		mc_set_smmu_unordered_boot_so_mss(4, EQOSW) &
+		mc_set_smmu_unordered_boot_so_mss(4, UFSHCW) &
+		mc_set_smmu_unordered_boot_so_mss(4, BPMPDMAW) &
+		mc_set_smmu_unordered_boot_so_mss(4, AONDMAW) &
+		mc_set_smmu_unordered_boot_so_mss(4, SCEDMAW);
+	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG4, val);
+
+	val = MC_SMMU_CLIENT_CONFIG5_RESET_VAL &
+		mc_set_smmu_unordered_boot_so_mss(5, APEDMAW);
+	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG5, val);
+
+	/*
+	 * Deassert HOTRESET FLUSH_ENABLE for boot and strongly ordered MSS
+	 * clients to allow memory traffic from all clients to start passing
+	 * through ROC
+	 */
+	val = tegra_mc_read_32(MC_CLIENT_HOTRESET_CTRL0);
+	assert(val == wdata_0);
+
+	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_RESET_VAL;
+	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL0, wdata_0);
+
+	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
+	} while ((val & wdata_0) != wdata_0);
+
+	/* Wait one more time due to SW WAR for known legacy issue */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
+	} while ((val & wdata_0) != wdata_0);
+
+	val = tegra_mc_read_32(MC_CLIENT_HOTRESET_CTRL1);
+	assert(val == wdata_1);
+
+	wdata_1 = MC_CLIENT_HOTRESET_CTRL1_RESET_VAL;
+	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL1, wdata_1);
+
+	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
+	} while ((val & wdata_1) != wdata_1);
+
+	/* Wait one more time due to SW WAR for known legacy issue */
+	do {
+		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
+	} while ((val & wdata_1) != wdata_1);
+
+#endif
+}
+
 /*
  * Init Memory controller during boot.
  */
@@ -243,7 +495,7 @@ void tegra_memctrl_setup(void)
 	uint32_t num_overrides = sizeof(streamid_overrides) / sizeof(uint32_t);
 	uint32_t num_sec_cfgs = sizeof(sec_cfgs) / sizeof(mc_streamid_security_cfg_t);
 	uint32_t num_txn_overrides = sizeof(mc_override_cfgs) / sizeof(mc_txn_override_cfg_t);
-	uint32_t tegra_rev;
+	uint32_t chip_minor, chip_major;
 	int i;
 
 	INFO("Tegra Memory Controller (v2)\n");
@@ -281,12 +533,22 @@ void tegra_memctrl_setup(void)
 		MC_SMMU_BYPASS_CONFIG_SETTINGS);
 
 	/*
+	 * Re-configure MSS to allow ROC to deal with ordering of the
+	 * Memory Controller traffic. This is needed as the Memory Controller
+	 * boots with MSS having all control, but ROC provides a performance
+	 * boost as compared to MSS.
+	 */
+	tegra_memctrl_reconfig_mss_clients();
+
+	/*
 	 * Set the MC_TXN_OVERRIDE registers for write clients.
 	 */
-	tegra_rev = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) &
-			HARDWARE_MINOR_REVISION_MASK) >> HARDWARE_MINOR_REVISION_SHIFT;
+	chip_major = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
+			MAJOR_VERSION_SHIFT) & MAJOR_VERSION_MASK;
+	chip_minor = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
+			MINOR_VERSION_SHIFT) & MINOR_VERSION_MASK;
 
-	if (tegra_rev == HARDWARE_REVISION_A01) {
+	if ((chip_major == 0) || (chip_major > 0 && chip_minor == 1)) {
 
 		/* GPU and NVENC settings for rev. A01 */
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
@@ -322,13 +584,21 @@ void tegra_memctrl_setup(void)
  */
 void tegra_memctrl_restore_settings(void)
 {
+	/*
+	 * Re-configure MSS to allow ROC to deal with ordering of the
+	 * Memory Controller traffic. This is needed as the Memory Controller
+	 * resets during System Suspend with MSS having all control, but ROC
+	 * provides a performance boost as compared to MSS.
+	 */
+	tegra_memctrl_reconfig_mss_clients();
+
 	/* video memory carveout region */
 	if (video_mem_base) {
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO,
 				  (uint32_t)video_mem_base);
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
 				  (uint32_t)(video_mem_base >> 32));
-		tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, video_mem_size);
+		tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, video_mem_size_mb);
 
 		/*
 		 * MCE propogates the VideoMem configuration values across the
@@ -436,11 +706,11 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO, (uint32_t)phys_base);
 	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
 			  (uint32_t)(phys_base >> 32));
-	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, size_in_bytes);
+	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, size_in_bytes >> 20);
 
 	/* store new values */
 	video_mem_base = phys_base;
-	video_mem_size = size_in_bytes >> 20;
+	video_mem_size_mb = size_in_bytes >> 20;
 
 	/*
 	 * MCE propogates the VideoMem configuration values across the

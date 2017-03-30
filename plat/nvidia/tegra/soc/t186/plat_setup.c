@@ -37,6 +37,7 @@
 #include <debug.h>
 #include <denver.h>
 #include <interrupt_mgmt.h>
+#include <mce.h>
 #include <platform.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
@@ -64,6 +65,8 @@ const unsigned char tegra_power_domain_tree_desc[] = {
  */
 static const mmap_region_t tegra_mmap[] = {
 	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x10000, /* 64KB */
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000, /* 128KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x10000, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
@@ -167,4 +170,12 @@ void plat_gic_setup(void)
 	 */
 	if (sizeof(tegra186_sec_irqs) > 0)
 		tegra_fiq_handler_setup();
+}
+
+/*******************************************************************************
+ * Handler for early platform setup
+ ******************************************************************************/
+void plat_early_platform_setup(void)
+{
+	mce_verify_firmware_version();
 }
