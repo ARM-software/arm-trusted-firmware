@@ -74,6 +74,7 @@ static void copy_cpu_ctx_to_smc_ctx(const regs_t *cpu_reg_ctx,
 	next_smc_ctx->r3 = read_ctx_reg(cpu_reg_ctx, CTX_GPREG_R3);
 	next_smc_ctx->lr_mon = read_ctx_reg(cpu_reg_ctx, CTX_LR);
 	next_smc_ctx->spsr_mon = read_ctx_reg(cpu_reg_ctx, CTX_SPSR);
+	next_smc_ctx->scr = read_ctx_reg(cpu_reg_ctx, CTX_SCR);
 }
 
 /*******************************************************************************
@@ -139,6 +140,28 @@ void bl1_prepare_next_image(unsigned int image_id)
 	smc_set_next_ctx(security_state);
 	copy_cpu_ctx_to_smc_ctx(get_regs_ctx(cm_get_next_context()),
 		smc_get_next_ctx());
+
+	/*
+	 * If the next image is non-secure, then we need to program the banked
+	 * non secure sctlr. This is not required when the next image is secure
+	 * because in AArch32, we expect the secure world to have the same
+	 * SCTLR settings.
+	 */
+	if (security_state == NON_SECURE) {
+		cpu_context_t *ctx = cm_get_context(security_state);
+		u_register_t ns_sctlr;
+
+		/* Temporarily set the NS bit to access NS SCTLR */
+		write_scr(read_scr() | SCR_NS_BIT);
+		isb();
+
+		ns_sctlr = read_ctx_reg(get_regs_ctx(ctx), CTX_NS_SCTLR);
+		write_sctlr(ns_sctlr);
+		isb();
+
+		write_scr(read_scr() & ~SCR_NS_BIT);
+		isb();
+	}
 
 	/*
 	 * Flush the SMC & CPU context and the (next)pointers,

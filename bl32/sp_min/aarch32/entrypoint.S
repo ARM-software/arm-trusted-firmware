@@ -115,21 +115,10 @@ func sp_min_entrypoint
 	sub	r1, r1, r0
 	bl	clean_dcache_range
 
-	/* Program the registers in cpu_context and exit monitor mode */
-	mov	r0, #NON_SECURE
-	bl	cm_get_context
-
-	/* Restore the SCR */
-	ldr	r2, [r0, #CTX_REGS_OFFSET + CTX_SCR]
-	stcopr	r2, SCR
-	isb
-
-	/* Restore the SCTLR  */
-	ldr	r2, [r0, #CTX_REGS_OFFSET + CTX_NS_SCTLR]
-	stcopr	r2, SCTLR
-
 	bl	smc_get_next_ctx
-	/* The other cpu_context registers have been copied to smc context */
+
+	/* r0 points to `smc_ctx_t` */
+	/* The PSCI cpu_context registers have been copied to `smc_ctx_t` */
 	b	sp_min_exit
 endfunc sp_min_entrypoint
 
@@ -138,45 +127,43 @@ endfunc sp_min_entrypoint
  * SMC handling function for SP_MIN.
  */
 func handle_smc
+	/* On SMC entry, `sp` points to `smc_ctx_t`. Save `lr`. */
+	str	lr, [sp, #SMC_CTX_LR_MON]
+
 	smcc_save_gp_mode_regs
 
-	/* r0 points to smc_context */
-	mov	r2, r0				/* handle */
-	ldcopr	r0, SCR
-
 	/*
-	 * Save SCR in stack. r1 is pushed to meet the 8 byte
-	 * stack alignment requirement.
+	 * `sp` still points to `smc_ctx_t`. Save it to a register
+	 * and restore the C runtime stack pointer to `sp`.
 	 */
-	push	{r0, r1}
+	mov	r2, sp				/* handle */
+	ldr	sp, [r2, #SMC_CTX_SP_MON]
+
+	ldr	r0, [r2, #SMC_CTX_SCR]
 	and	r3, r0, #SCR_NS_BIT		/* flags */
 
 	/* Switch to Secure Mode*/
 	bic	r0, #SCR_NS_BIT
 	stcopr	r0, SCR
 	isb
+
 	ldr	r0, [r2, #SMC_CTX_GPREG_R0]	/* smc_fid */
 	/* Check whether an SMC64 is issued */
 	tst	r0, #(FUNCID_CC_MASK << FUNCID_CC_SHIFT)
-	beq	1f	/* SMC32 is detected */
+	beq	1f
+	/* SMC32 is not detected. Return error back to caller */
 	mov	r0, #SMC_UNK
 	str	r0, [r2, #SMC_CTX_GPREG_R0]
 	mov	r0, r2
-	b	2f	/* Skip handling the SMC */
+	b	sp_min_exit
 1:
+	/* SMC32 is detected */
 	mov	r1, #0				/* cookie */
 	bl	handle_runtime_svc
-2:
-	/* r0 points to smc context */
 
-	/* Restore SCR from stack */
-	pop	{r1, r2}
-	stcopr	r1, SCR
-	isb
-
+	/* `r0` points to `smc_ctx_t` */
 	b	sp_min_exit
 endfunc handle_smc
-
 
 /*
  * The Warm boot entrypoint for SP_MIN.
@@ -234,23 +221,9 @@ func sp_min_warm_entrypoint
 #endif
 
 	bl	sp_min_warm_boot
-
-	/* Program the registers in cpu_context and exit monitor mode */
-	mov	r0, #NON_SECURE
-	bl	cm_get_context
-
-	/* Restore the SCR */
-	ldr	r2, [r0, #CTX_REGS_OFFSET + CTX_SCR]
-	stcopr	r2, SCR
-	isb
-
-	/* Restore the SCTLR  */
-	ldr	r2, [r0, #CTX_REGS_OFFSET + CTX_NS_SCTLR]
-	stcopr	r2, SCTLR
-
 	bl	smc_get_next_ctx
-
-	/* The other cpu_context registers have been copied to smc context */
+	/* r0 points to `smc_ctx_t` */
+	/* The PSCI cpu_context registers have been copied to `smc_ctx_t` */
 	b	sp_min_exit
 endfunc sp_min_warm_entrypoint
 
@@ -261,6 +234,5 @@ endfunc sp_min_warm_entrypoint
  * Arguments : r0 must point to the SMC context to restore from.
  */
 func sp_min_exit
-	smcc_restore_gp_mode_regs
-	eret
+	monitor_exit
 endfunc sp_min_exit

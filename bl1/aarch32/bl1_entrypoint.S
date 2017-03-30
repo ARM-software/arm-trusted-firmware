@@ -81,20 +81,11 @@ func bl1_entrypoint
 	dsb	sy
 	isb
 
-	/* Get the cpu_context for next BL image */
-	bl	cm_get_next_context
-
-	/* Restore the SCR */
-	ldr	r2, [r0, #CTX_REGS_OFFSET + CTX_SCR]
-	stcopr	r2, SCR
-	isb
-
 	/*
 	 * Get the smc_context for next BL image,
 	 * program the gp/system registers and exit
 	 * secure monitor mode
 	 */
 	bl	smc_get_next_ctx
-	smcc_restore_gp_mode_regs
-	eret
+	monitor_exit
 endfunc bl1_entrypoint
