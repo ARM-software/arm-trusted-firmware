@@ -30,6 +30,7 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <bl_common.h>
 #include <debug.h>
 #include <mce.h>
 #include <memctrl.h>
@@ -305,6 +306,58 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 #endif
 }
 
+static void tegra_memctrl_set_overrides(void)
+{
+	tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
+	const mc_txn_override_cfg_t *mc_txn_override_cfgs;
+	uint32_t num_txn_override_cfgs;
+	uint32_t i, val;
+
+	/* Get the settings from the platform */
+	assert(plat_mc_settings);
+	mc_txn_override_cfgs = plat_mc_settings->txn_override_cfg;
+	num_txn_override_cfgs = plat_mc_settings->num_txn_override_cfgs;
+
+	/*
+	 * Set the MC_TXN_OVERRIDE registers for write clients.
+	 */
+	if ((tegra_chipid_is_t186()) &&
+	    (!tegra_platform_is_silicon() ||
+	    (tegra_platform_is_silicon() && (tegra_get_chipid_minor() == 1)))) {
+
+		/*
+		 * GPU and NVENC settings for Tegra186 simulation and
+		 * Silicon rev. A01
+		 */
+		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
+		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR,
+			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
+
+		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2);
+		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2,
+			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
+
+		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR);
+		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR,
+			val | MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID);
+
+	} else {
+
+		/*
+		 * Settings for Tegra186 silicon rev. A02 and onwards.
+		 */
+		for (i = 0; i < num_txn_override_cfgs; i++) {
+			val = tegra_mc_read_32(mc_txn_override_cfgs[i].offset);
+			val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+			tegra_mc_write_32(mc_txn_override_cfgs[i].offset,
+				val | mc_txn_override_cfgs[i].cgid_tag);
+		}
+	}
+}
+
 /*
  * Init Memory controller during boot.
  */
@@ -315,10 +368,8 @@ void tegra_memctrl_setup(void)
 	uint32_t num_streamid_override_regs;
 	const mc_streamid_security_cfg_t *mc_streamid_sec_cfgs;
 	uint32_t num_streamid_sec_cfgs;
-	const mc_txn_override_cfg_t *mc_txn_override_cfgs;
-	uint32_t num_txn_override_cfgs;
 	tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
-	int i;
+	uint32_t i;
 
 	INFO("Tegra Memory Controller (v2)\n");
 
@@ -332,8 +383,6 @@ void tegra_memctrl_setup(void)
 	num_streamid_override_regs = plat_mc_settings->num_streamid_override_cfgs;
 	mc_streamid_sec_cfgs = plat_mc_settings->streamid_security_cfg;
 	num_streamid_sec_cfgs = plat_mc_settings->num_streamid_security_cfgs;
-	mc_txn_override_cfgs = plat_mc_settings->txn_override_cfg;
-	num_txn_override_cfgs = plat_mc_settings->num_txn_override_cfgs;
 
 	/* Program all the Stream ID overrides */
 	for (i = 0; i < num_streamid_override_regs; i++)
@@ -372,45 +421,8 @@ void tegra_memctrl_setup(void)
 	 */
 	tegra_memctrl_reconfig_mss_clients();
 
-	/*
-	 * Set the MC_TXN_OVERRIDE registers for write clients.
-	 */
-	if ((tegra_get_chipid() == (uint32_t)TEGRA_CHIPID_TEGRA18) &&
-	    (!tegra_platform_is_silicon() ||
-	    (tegra_platform_is_silicon() && tegra_get_chipid_minor() == 1))) {
-
-		/*
-		 * GPU and NVENC settings for Tegra186 simulation and
-		 * Silicon rev. A01
-		 */
-		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
-		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR,
-			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
-
-		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
-		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2,
-			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
-
-		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
-		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR,
-			val | MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID);
-
-	} else {
-
-		/*
-		 * Settings for Tegra186 silicon rev. A02 and onwards.
-		 */
-		for (i = 0; i < num_txn_override_cfgs; i++) {
-			val = tegra_mc_read_32(mc_txn_override_cfgs[i].offset);
-			val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
-			tegra_mc_write_32(mc_txn_override_cfgs[i].offset,
-				val | mc_txn_override_cfgs[i].cgid_tag);
-		}
-
-	}
+	/* Program overrides for MC transactions */
+	tegra_memctrl_set_overrides();
 }
 
 /*
@@ -425,6 +437,9 @@ void tegra_memctrl_restore_settings(void)
 	 * provides a performance boost as compared to MSS.
 	 */
 	tegra_memctrl_reconfig_mss_clients();
+
+	/* Program overrides for MC transactions */
+	tegra_memctrl_set_overrides();
 
 	/* video memory carveout region */
 	if (video_mem_base) {
