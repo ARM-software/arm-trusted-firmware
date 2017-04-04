@@ -109,7 +109,7 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 		break;
 	}
 
-	SMC_RET0(handle);
+	SMC_RET1(handle, SMC_UNK);
 }
 
 /*******************************************************************************
