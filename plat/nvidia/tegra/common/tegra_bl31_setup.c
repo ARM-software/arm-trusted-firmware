@@ -202,9 +202,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 		 */
 		console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
 			TEGRA_CONSOLE_BAUDRATE);
-
-		/* Initialise crash console */
-		plat_crash_console_init();
 	}
 
 	/*
