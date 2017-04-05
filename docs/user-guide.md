@@ -799,7 +799,7 @@ images with support for these features:
     modules by checking out a recent version of the [mbed TLS Repository]. It
     is important to use a version that is compatible with TF and fixes any
     known security vulnerabilities. See [mbed TLS Security Center] for more
-    information. This version of TF is tested with tag `mbedtls-2.2.1`.
+    information. The latest version of TF is tested with tag `mbedtls-2.4.2`.
 
     The `drivers/auth/mbedtls/mbedtls_*.mk` files contain the list of mbed TLS
     source files the modules depend upon.
