@@ -341,6 +341,11 @@ ifdef BL2_SOURCES
         endif
 endif
 
+# If SCP_BL2 is given, we always want FIP to include it.
+ifdef SCP_BL2
+        NEED_SCP_BL2		:=	yes
+endif
+
 # Process TBB related flags
 ifneq (${GENERATE_COT},0)
         # Common cert_create options
@@ -534,6 +539,10 @@ endif
 ifeq (${NEED_BL2},yes)
 $(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},tb-fw)),\
 	$(eval $(call MAKE_BL,2,tb-fw)))
+endif
+
+ifeq (${NEED_SCP_BL2},yes)
+$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
 endif
 
 ifeq (${NEED_BL31},yes)
