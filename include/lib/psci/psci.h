@@ -83,6 +83,7 @@
 #define PSCI_NODE_HW_STATE_AARCH64	0xc400000d
 #define PSCI_SYSTEM_SUSPEND_AARCH32	0x8400000E
 #define PSCI_SYSTEM_SUSPEND_AARCH64	0xc400000E
+#define PSCI_SET_SUSPEND_MODE		0x8400000F
 #define PSCI_STAT_RESIDENCY_AARCH32	0x84000010
 #define PSCI_STAT_RESIDENCY_AARCH64	0xc4000010
 #define PSCI_STAT_COUNT_AARCH32		0x84000011
@@ -95,9 +96,9 @@
  * Number of PSCI calls (above) implemented
  */
 #if ENABLE_PSCI_STAT
-#define PSCI_NUM_CALLS			22
+#define PSCI_NUM_CALLS			23
 #else
-#define PSCI_NUM_CALLS			18
+#define PSCI_NUM_CALLS			19
 #endif
 
 /* The macros below are used to identify PSCI calls from the SMC function ID */
@@ -413,6 +414,8 @@ void psci_warmboot_entrypoint(void);
 void psci_register_spd_pm_hook(const spd_pm_ops_t *pm);
 void psci_prepare_next_non_secure_ctx(
 			  entry_point_info_t *next_image_info);
+
+uint32_t psci_suspend_mode;
 
 #endif /*__ASSEMBLY__*/
 
