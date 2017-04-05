@@ -180,7 +180,7 @@ endfunc tsp_entrypoint
 	 * -------------------------------------------
 	 */
 func tsp_vector_table
-	b	tsp_std_smc_entry
+	b	tsp_yield_smc_entry
 	b	tsp_fast_smc_entry
 	b	tsp_cpu_on_entry
 	b	tsp_cpu_off_entry
@@ -189,7 +189,7 @@ func tsp_vector_table
 	b	tsp_sel1_intr_entry
 	b	tsp_system_off_entry
 	b	tsp_system_reset_entry
-	b	tsp_abort_std_smc_entry
+	b	tsp_abort_yield_smc_entry
 endfunc tsp_vector_table
 
 	/*---------------------------------------------
@@ -437,12 +437,12 @@ endfunc tsp_fast_smc_entry
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD to ask
-	 * the TSP to service a std smc request.
+	 * the TSP to service a Yielding SMC request.
 	 * We will enable preemption during execution
 	 * of tsp_smc_handler.
 	 * ---------------------------------------------
 	 */
-func tsp_std_smc_entry
+func tsp_yield_smc_entry
 	msr	daifclr, #DAIF_FIQ_BIT | DAIF_IRQ_BIT
 	bl	tsp_smc_handler
 	msr	daifset, #DAIF_FIQ_BIT | DAIF_IRQ_BIT
@@ -450,15 +450,15 @@ func tsp_std_smc_entry
 
 	/* Should never reach here */
 	no_ret	plat_panic_handler
-endfunc tsp_std_smc_entry
+endfunc tsp_yield_smc_entry
 
 	/*---------------------------------------------------------------------
-	 * This entrypoint is used by the TSPD to abort a pre-empted Standard
+	 * This entrypoint is used by the TSPD to abort a pre-empted Yielding
 	 * SMC. It could be on behalf of non-secure world or because a CPU
 	 * suspend/CPU off request needs to abort the preempted SMC.
 	 * --------------------------------------------------------------------
 	 */
-func tsp_abort_std_smc_entry
+func tsp_abort_yield_smc_entry
 
 	/*
 	 * Exceptions masking is already done by the TSPD when entering this
@@ -477,4 +477,4 @@ func tsp_abort_std_smc_entry
 
 	/* Should never reach here */
 	bl	plat_panic_handler
-endfunc tsp_abort_std_smc_entry
+endfunc tsp_abort_yield_smc_entry

@@ -686,7 +686,7 @@ Software (BL31).
 
 The design of the runtime services depends heavily on the concepts and
 definitions described in the [SMCCC], in particular SMC Function IDs, Owning
-Entity Numbers (OEN), Fast and Standard calls, and the SMC32 and SMC64 calling
+Entity Numbers (OEN), Fast and Yielding calls, and the SMC32 and SMC64 calling
 conventions. Please refer to that document for more detailed explanation of
 these terms.
 
@@ -812,7 +812,7 @@ SMC Function which indicates the SMC64 calling convention: such calls are
 ignored and return the Unknown SMC Function Identifier result code `0xFFFFFFFF`
 in R0/X0.
 
-Bit[31] (fast/standard call) and bits[29:24] (owning entity number) of the SMC
+Bit[31] (fast/yielding call) and bits[29:24] (owning entity number) of the SMC
 Function ID are combined to index into the `rt_svc_descs_indices[]` array. The
 resulting value might indicate a service that has no handler, in this case the
 framework will also report an Unknown SMC Function ID. Otherwise, the value is

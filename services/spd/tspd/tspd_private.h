@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@
 
 
 /*
- * This flag is used by the TSPD to determine if the TSP is servicing a standard
+ * This flag is used by the TSPD to determine if the TSP is servicing a yielding
  * SMC request prior to programming the next entry into the TSP e.g. if TSP
  * execution is preempted by a non-secure interrupt and handed control to the
  * normal world. If another request which is distinct from what the TSP was
@@ -65,15 +65,16 @@
  * reject the new request or service it while ensuring that the previous context
  * is not corrupted.
  */
-#define STD_SMC_ACTIVE_FLAG_SHIFT	2
-#define STD_SMC_ACTIVE_FLAG_MASK	1
-#define get_std_smc_active_flag(state)	((state >> STD_SMC_ACTIVE_FLAG_SHIFT) \
-					 & STD_SMC_ACTIVE_FLAG_MASK)
-#define set_std_smc_active_flag(state)	(state |=                             \
-					 1 << STD_SMC_ACTIVE_FLAG_SHIFT)
-#define clr_std_smc_active_flag(state)	(state &=                             \
-					 ~(STD_SMC_ACTIVE_FLAG_MASK           \
-					   << STD_SMC_ACTIVE_FLAG_SHIFT))
+#define YIELD_SMC_ACTIVE_FLAG_SHIFT	2
+#define YIELD_SMC_ACTIVE_FLAG_MASK	1
+#define get_yield_smc_active_flag(state)				\
+				((state >> YIELD_SMC_ACTIVE_FLAG_SHIFT) \
+				& YIELD_SMC_ACTIVE_FLAG_MASK)
+#define set_yield_smc_active_flag(state)	(state |=		\
+					1 << YIELD_SMC_ACTIVE_FLAG_SHIFT)
+#define clr_yield_smc_active_flag(state)	(state &=		\
+					~(YIELD_SMC_ACTIVE_FLAG_MASK	\
+					<< YIELD_SMC_ACTIVE_FLAG_SHIFT))
 
 /*******************************************************************************
  * Secure Payload execution state information i.e. aarch32 or aarch64
