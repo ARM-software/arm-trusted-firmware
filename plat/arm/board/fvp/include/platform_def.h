@@ -35,6 +35,7 @@
 #include <board_arm_def.h>
 #include <common_def.h>
 #include <tzc400.h>
+#include <utils.h>
 #include <v2m_def.h>
 #include "../fvp_def.h"
 
