@@ -65,7 +65,7 @@ void tspd_init_tsp_ep_state(struct entry_point_info *tsp_entry_point,
 	tsp_ctx->mpidr = read_mpidr_el1();
 	tsp_ctx->state = 0;
 	set_tsp_pstate(tsp_ctx->state, TSP_PSTATE_OFF);
-	clr_std_smc_active_flag(tsp_ctx->state);
+	clr_yield_smc_active_flag(tsp_ctx->state);
 
 	cm_set_context(&tsp_ctx->cpu_ctx, SECURE);
 
@@ -140,18 +140,18 @@ void tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret)
  ******************************************************************************/
 int tspd_abort_preempted_smc(tsp_context_t *tsp_ctx)
 {
-	if (!get_std_smc_active_flag(tsp_ctx->state))
+	if (!get_yield_smc_active_flag(tsp_ctx->state))
 		return 0;
 
 	/* Abort any preempted SMC request */
-	clr_std_smc_active_flag(tsp_ctx->state);
+	clr_yield_smc_active_flag(tsp_ctx->state);
 
 	/*
 	 * Arrange for an entry into the test secure payload. It will
 	 * be returned via TSP_ABORT_DONE case in tspd_smc_handler.
 	 */
 	cm_set_elr_el3(SECURE,
-		       (uint64_t) &tsp_vectors->abort_std_smc_entry);
+		       (uint64_t) &tsp_vectors->abort_yield_smc_entry);
 	uint64_t rc = tspd_synchronous_sp_entry(tsp_ctx);
 
 	if (rc != 0)
