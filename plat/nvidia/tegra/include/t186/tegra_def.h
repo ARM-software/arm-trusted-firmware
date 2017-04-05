@@ -76,10 +76,6 @@
  ******************************************************************************/
 #define TEGRA_MISC_BASE			0x00100000
 #define  HARDWARE_REVISION_OFFSET	0x4
-#define  MAJOR_VERSION_SHIFT		0x4
-#define  MAJOR_VERSION_MASK		0xF
-#define  MINOR_VERSION_SHIFT		0x10
-#define  MINOR_VERSION_MASK		0xF
 
 #define  MISCREG_PFCFG			0x200C
 
@@ -104,6 +100,13 @@
 #define TEGRA_UARTE_BASE		0x03140000
 #define TEGRA_UARTF_BASE		0x03150000
 #define TEGRA_UARTG_BASE		0x0C290000
+
+/*******************************************************************************
+ * Tegra Fuse Controller related constants
+ ******************************************************************************/
+#define TEGRA_FUSE_BASE			0x03820000
+#define  OPT_SUBREVISION		0x248
+#define  SUBREVISION_MASK		0xFF
 
 /*******************************************************************************
  * GICv2 & interrupt handling related constants
@@ -143,6 +146,8 @@
 #define  SECURE_SCRATCH_RSV6		0x680
 #define  SECURE_SCRATCH_RSV11_LO	0x6A8
 #define  SECURE_SCRATCH_RSV11_HI	0x6AC
+#define  SECURE_SCRATCH_RSV53_LO	0x7F8
+#define  SECURE_SCRATCH_RSV53_HI	0x7FC
 
 /*******************************************************************************
  * Tegra Memory Mapped Control Register Access Bus constants
@@ -158,6 +163,6 @@
  * Tegra TZRAM constants
  ******************************************************************************/
 #define TEGRA_TZRAM_BASE		0x30000000
-#define TEGRA_TZRAM_SIZE		0x50000
+#define TEGRA_TZRAM_SIZE		0x40000
 
 #endif /* __TEGRA_DEF_H__ */

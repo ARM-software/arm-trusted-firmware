@@ -30,18 +30,24 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <bl31.h>
 #include <bl_common.h>
 #include <console.h>
 #include <context.h>
 #include <context_mgmt.h>
+#include <cortex_a57.h>
 #include <debug.h>
 #include <denver.h>
 #include <interrupt_mgmt.h>
 #include <mce.h>
 #include <platform.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 #include <tegra_private.h>
 #include <xlat_tables.h>
+
+DEFINE_RENAME_SYSREG_RW_FUNCS(l2ctlr_el1, L2CTLR_EL1)
+extern uint64_t tegra_enable_l2_ecc_parity_prot;
 
 /*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
@@ -72,7 +78,13 @@ static const mmap_region_t tegra_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000, /* 128KB */
+	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000, /* 128KB - UART A, B*/
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_UARTC_BASE, 0x20000, /* 128KB - UART C, G */
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_UARTD_BASE, 0x30000, /* 192KB - UART D, E, F */
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_FUSE_BASE, 0x10000, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x20000, /* 128KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
@@ -142,6 +154,51 @@ uint32_t plat_get_console_from_id(int id)
 	return tegra186_uart_addresses[id];
 }
 
+/* represent chip-version as concatenation of major (15:12), minor (11:8) and subrev (7:0) */
+#define TEGRA186_VER_A02P	0x1201
+
+/*******************************************************************************
+ * Handler for early platform setup
+ ******************************************************************************/
+void plat_early_platform_setup(void)
+{
+	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+	uint32_t chip_subrev, val;
+
+	/* sanity check MCE firmware compatibility */
+	mce_verify_firmware_version();
+
+	/*
+	 * Enable ECC and Parity Protection for Cortex-A57 CPUs
+	 * for Tegra A02p SKUs
+	 */
+	if (impl != DENVER_IMPL) {
+
+		/* get the major, minor and sub-version values */
+		chip_subrev = mmio_read_32(TEGRA_FUSE_BASE + OPT_SUBREVISION) &
+			      SUBREVISION_MASK;
+
+		/* prepare chip version number */
+		val = (tegra_get_chipid_major() << 12) |
+		      (tegra_get_chipid_minor() << 8) |
+		       chip_subrev;
+
+		/* enable L2 ECC for Tegra186 A02P and beyond */
+		if (val >= TEGRA186_VER_A02P) {
+
+			val = read_l2ctlr_el1();
+			val |= L2_ECC_PARITY_PROTECTION_BIT;
+			write_l2ctlr_el1(val);
+
+			/*
+			 * Set the flag to enable ECC/Parity Protection
+			 * when we exit System Suspend or Cluster Powerdn
+			 */
+			tegra_enable_l2_ecc_parity_prot = 1;
+		}
+	}
+}
+
 /* Secure IRQs for Tegra186 */
 static const irq_sec_cfg_t tegra186_sec_irqs[] = {
 	{
@@ -173,9 +230,25 @@ void plat_gic_setup(void)
 }
 
 /*******************************************************************************
- * Handler for early platform setup
+ * Return pointer to the BL31 params from previous bootloader
  ******************************************************************************/
-void plat_early_platform_setup(void)
+bl31_params_t *plat_get_bl31_params(void)
 {
-	mce_verify_firmware_version();
+	uint32_t val;
+
+	val = mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV53_LO);
+
+	return (bl31_params_t *)(uintptr_t)val;
+}
+
+/*******************************************************************************
+ * Return pointer to the BL31 platform params from previous bootloader
+ ******************************************************************************/
+plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
+{
+	uint32_t val;
+
+	val = mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV53_HI);
+
+	return (plat_params_from_bl2_t *)(uintptr_t)val;
 }

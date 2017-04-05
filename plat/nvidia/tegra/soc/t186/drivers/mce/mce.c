@@ -42,6 +42,7 @@
 #include <sys/errno.h>
 #include <t18x_ari.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 
 /* NVG functions handlers */
 static arch_mce_ops_t nvg_mce_ops = {
@@ -61,7 +62,8 @@ static arch_mce_ops_t nvg_mce_ops = {
 	.roc_clean_cache = ari_roc_clean_cache,
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
-	.enter_ccplex_state = ari_enter_ccplex_state
+	.enter_ccplex_state = ari_enter_ccplex_state,
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
 };
 
 /* ARI functions handlers */
@@ -82,7 +84,8 @@ static arch_mce_ops_t ari_mce_ops = {
 	.roc_clean_cache = ari_roc_clean_cache,
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
-	.enter_ccplex_state = ari_enter_ccplex_state
+	.enter_ccplex_state = ari_enter_ccplex_state,
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
 };
 
 typedef struct mce_config {
@@ -173,6 +176,7 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 	uint64_t ret64 = 0, arg3, arg4, arg5;
 	int ret = 0;
 	mca_cmd_t mca_cmd;
+	uncore_perfmon_req_t req;
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
 
@@ -374,6 +378,15 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 #endif
+
+	case MCE_CMD_UNCORE_PERFMON_REQ:
+		memcpy(&req, &arg0, sizeof(arg0));
+		ret = ops->read_write_uncore_perfmon(cpu_ari_base, req, &arg1);
+
+		/* update context to return data */
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, arg1);
+		break;
+
 	default:
 		ERROR("unknown MCE command (%d)\n", cmd);
 		return EINVAL;
@@ -449,6 +462,19 @@ __dead2 void mce_enter_ccplex_state(uint32_t state_idx)
 }
 
 /*******************************************************************************
+ * Handler to issue the UPDATE_CSTATE_INFO request
+ ******************************************************************************/
+void mce_update_cstate_info(mce_cstate_info_t *cstate)
+{
+	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
+
+	/* issue the UPDATE_CSTATE_INFO request */
+	ops->update_cstate_info(mce_get_curr_cpu_ari_base(), cstate->cluster,
+		cstate->ccplex, cstate->system, cstate->system_state_force,
+		cstate->wake_mask, cstate->update_wake_mask);
+}
+
+/*******************************************************************************
  * Handler to read the MCE firmware version and check if it is compatible
  * with interface header the BL3-1 was compiled against
  ******************************************************************************/
@@ -457,7 +483,13 @@ void mce_verify_firmware_version(void)
 	arch_mce_ops_t *ops;
 	uint32_t cpu_ari_base;
 	uint64_t version;
-	uint32_t major, minor, chip_minor, chip_major;
+	uint32_t major, minor;
+
+	/*
+	 * MCE firmware is not running on simulation platforms.
+	 */
+	if (tegra_platform_is_emulation())
+		return;
 
 	/* get a pointer to the CPU's arch_mce_ops_t struct */
 	ops = mce_get_curr_cpu_ops();
@@ -475,17 +507,6 @@ void mce_verify_firmware_version(void)
 
 	INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
 		TEGRA_ARI_VERSION_MAJOR, TEGRA_ARI_VERSION_MINOR);
-
-	/*
-	 * MCE firmware is not running on simulation platforms. Simulation
-	 * platforms are identified by v0.3 from the Tegra Chip ID value.
-	 */
-	chip_major = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
-			MAJOR_VERSION_SHIFT) & MAJOR_VERSION_MASK;
-	chip_minor = (mmio_read_32(TEGRA_MISC_BASE + HARDWARE_REVISION_OFFSET) >>
-			MINOR_VERSION_SHIFT) & MINOR_VERSION_MASK;
-	if ((chip_major == 0) && (chip_minor == 3))
-		return;
 
 	/*
 	 * Verify that the MCE firmware version and the interface header

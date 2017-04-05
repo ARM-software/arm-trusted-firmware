@@ -65,6 +65,7 @@ extern uint32_t tegra186_system_powerdn_state;
 #define TEGRA_SIP_MCE_CMD_ROC_FLUSH_CACHE		0x82FFFF0E
 #define TEGRA_SIP_MCE_CMD_ROC_CLEAN_CACHE		0x82FFFF0F
 #define TEGRA_SIP_MCE_CMD_ENABLE_LATIC			0x82FFFF10
+#define TEGRA_SIP_MCE_CMD_UNCORE_PERFMON_REQ		0x82FFFF11
 
 /*******************************************************************************
  * This function is responsible for handling all T186 SiP calls
@@ -102,6 +103,7 @@ int plat_sip_handler(uint32_t smc_fid,
 	case TEGRA_SIP_MCE_CMD_ROC_FLUSH_CACHE:
 	case TEGRA_SIP_MCE_CMD_ROC_CLEAN_CACHE:
 	case TEGRA_SIP_MCE_CMD_ENABLE_LATIC:
+	case TEGRA_SIP_MCE_CMD_UNCORE_PERFMON_REQ:
 
 		/* clean up the high bits */
 		smc_fid &= MCE_CMD_MASK;
@@ -109,32 +111,6 @@ int plat_sip_handler(uint32_t smc_fid,
 		/* execute the command and store the result */
 		mce_ret = mce_command_handler(smc_fid, x1, x2, x3);
 		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X0, mce_ret);
-
-		return 0;
-
-	case TEGRA_SIP_NEW_VIDEOMEM_REGION:
-		/* clean up the high bits */
-		x1 = (uint32_t)x1;
-		x2 = (uint32_t)x2;
-
-		/*
-		 * Check if Video Memory overlaps TZDRAM (contains bl31/bl32)
-		 * or falls outside of the valid DRAM range
-		 */
-		mce_ret = bl31_check_ns_address(x1, x2);
-		if (mce_ret)
-			return -ENOTSUP;
-
-		/*
-		 * Check if Video Memory is aligned to 1MB.
-		 */
-		if ((x1 & 0xFFFFF) || (x2 & 0xFFFFF)) {
-			ERROR("Unaligned Video Memory base address!\n");
-			return -ENOTSUP;
-		}
-
-		/* new video memory carveout settings */
-		tegra_memctrl_videomem_setup(x1, x2);
 
 		return 0;
 

@@ -389,3 +389,41 @@ void ari_enter_ccplex_state(uint32_t ari_base, uint32_t state_idx)
 	 */
 	(void)ari_request_wait(ari_base, 0, TEGRA_ARI_MISC_CCPLEX, state_idx, 0);
 }
+
+int ari_read_write_uncore_perfmon(uint32_t ari_base,
+		uncore_perfmon_req_t req, uint64_t *data)
+{
+	int ret;
+	uint32_t val;
+
+	/* sanity check input parameters */
+	if (req.perfmon_command.cmd == UNCORE_PERFMON_CMD_READ && !data) {
+		ERROR("invalid parameters\n");
+		return EINVAL;
+	}
+
+	/*
+	 * For "write" commands get the value that has to be written
+	 * to the uncore perfmon registers
+	 */
+	val = (req.perfmon_command.cmd == UNCORE_PERFMON_CMD_WRITE) ?
+		*data : 0;
+
+	ret = ari_request_wait(ari_base, 0, TEGRA_ARI_PERFMON, val, req.data);
+	if (ret)
+		return ret;
+
+	/* read the command status value */
+	req.perfmon_status.val = ari_get_response_high(ari_base) &
+				 UNCORE_PERFMON_RESP_STATUS_MASK;
+
+	/*
+	 * For "read" commands get the data from the uncore
+	 * perfmon registers
+	 */
+	if ((req.perfmon_status.val == 0) && (req.perfmon_command.cmd ==
+	     UNCORE_PERFMON_CMD_READ))
+		*data = ari_get_response_low(ari_base);
+
+	return (int)req.perfmon_status.val;
+}
