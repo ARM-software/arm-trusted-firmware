@@ -67,11 +67,20 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 
-# Enable workarounds for selected Cortex-A53 and A57 erratas.
+# Enable workarounds for selected Cortex-A53 and A57 errata.
 ERRATA_A53_855873		:=	1
 ERRATA_A57_806969		:=	0
 ERRATA_A57_813419		:=	1
 ERRATA_A57_813420		:=	1
+ERRATA_A57_826974		:=	1
+ERRATA_A57_826977		:=	1
+ERRATA_A57_828024		:=	1
+ERRATA_A57_829520		:=	1
+ERRATA_A57_833471		:=	1
+
+# Enable workarounds for selected Cortex-A53 errata.
+ERRATA_A53_826319		:=	1
+ERRATA_A53_836870		:=	1
 
 # Enable option to skip L1 data cache flush during the Cortex-A57 cluster
 # power down sequence
