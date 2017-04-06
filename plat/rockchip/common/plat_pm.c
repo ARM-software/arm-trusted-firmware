@@ -391,15 +391,6 @@ static void __dead2 rockchip_system_poweroff(void)
 	rockchip_soc_system_off();
 }
 
-static void __dead2 rockchip_pd_pwr_down_wfi(
-		const psci_power_state_t *target_state)
-{
-	if (RK_SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
-		rockchip_soc_sys_pd_pwr_dn_wfi();
-	else
-		rockchip_soc_cores_pd_pwr_dn_wfi(target_state);
-}
-
 /*******************************************************************************
  * Export the platform handlers via plat_rockchip_psci_pm_ops. The rockchip
  * standard
