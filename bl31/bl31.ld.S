@@ -140,7 +140,12 @@ SECTIONS
      */
     __RW_START__ = . ;
 
-    .data . : {
+    /*
+     * .data must be placed at a lower address than the stacks if the stack
+     * protector is enabled. Alternatively, the .data.stack_protector_canary
+     * section can be placed independently of the main .data section.
+     */
+   .data . : {
         __DATA_START__ = .;
         *(.data*)
         __DATA_END__ = .;

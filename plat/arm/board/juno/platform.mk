@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -39,8 +39,12 @@ JUNO_INTERCONNECT_SOURCES	:=	drivers/arm/cci/cci.c		\
 
 JUNO_SECURITY_SOURCES	:=	drivers/arm/tzc/tzc400.c		\
 				plat/arm/board/juno/juno_security.c	\
+				plat/arm/board/juno/juno_trng.c		\
 				plat/arm/common/arm_tzc400.c
 
+ifneq (${ENABLE_STACK_PROTECTOR}, 0)
+JUNO_SECURITY_SOURCES	+=	plat/arm/board/juno/juno_stack_protector.c
+endif
 
 PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
 
@@ -51,7 +55,8 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				plat/arm/board/juno/juno_bl1_setup.c	\
 				plat/arm/board/juno/juno_err.c		\
-				${JUNO_INTERCONNECT_SOURCES}
+				${JUNO_INTERCONNECT_SOURCES}		\
+				${JUNO_SECURITY_SOURCES}
 
 BL2_SOURCES		+=	plat/arm/board/juno/juno_err.c		\
 				${JUNO_SECURITY_SOURCES}

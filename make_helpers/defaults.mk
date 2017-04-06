@@ -90,6 +90,9 @@ ENABLE_PSCI_STAT		:= 0
 # Flag to enable runtime instrumentation using PMF
 ENABLE_RUNTIME_INSTRUMENTATION	:= 0
 
+# Flag to enable stack corruption protection
+ENABLE_STACK_PROTECTOR		:= 0
+
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
 

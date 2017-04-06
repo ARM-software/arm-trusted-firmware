@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -83,6 +83,9 @@
 
 void __dead2 do_panic(void);
 #define panic()	do_panic()
+
+/* Function called when stack protection check code detects a corrupted stack */
+void __dead2 __stack_chk_fail(void);
 
 void tf_printf(const char *fmt, ...) __printflike(1, 2);
 

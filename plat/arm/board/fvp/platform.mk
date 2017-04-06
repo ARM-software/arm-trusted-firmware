@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -156,6 +156,10 @@ BL31_SOURCES		+=	plat/arm/board/fvp/fvp_bl31_setup.c		\
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0
+
+ifneq (${ENABLE_STACK_PROTECTOR},0)
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_stack_protector.c
+endif
 
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk

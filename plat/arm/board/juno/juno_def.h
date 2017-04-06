@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -73,6 +73,17 @@
 #define TZC400_NSAID_GPU		10
 #define TZC400_NSAID_SCP		11
 #define TZC400_NSAID_CORESIGHT		12
+
+/*******************************************************************************
+ * TRNG related constants
+ ******************************************************************************/
+#define TRNG_BASE	0x7FE60000ULL
+#define TRNG_NOUTPUTS	4
+#define TRNG_STATUS	0x10
+#define TRNG_INTMASK	0x14
+#define TRNG_CONFIG	0x18
+#define TRNG_CONTROL	0x1C
+#define TRNG_NBYTES	16	/* Number of bytes generated per round. */
 
 /*******************************************************************************
  * MMU-401 related constants

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -278,6 +278,12 @@
 	 * ---------------------------------------------------------------------
 	 */
 	bl	plat_set_my_stack
+
+#if STACK_PROTECTOR_ENABLED
+	.if \_init_c_runtime
+	bl	update_stack_protector_canary
+	.endif /* _init_c_runtime */
+#endif
 	.endm
 
 #endif /* __EL3_COMMON_MACROS_S__ */

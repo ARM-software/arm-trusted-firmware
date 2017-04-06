@@ -283,6 +283,12 @@
 	 * ---------------------------------------------------------------------
 	 */
 	bl	plat_set_my_stack
+
+#if STACK_PROTECTOR_ENABLED
+	.if \_init_c_runtime
+	bl	update_stack_protector_canary
+	.endif /* _init_c_runtime */
+#endif
 	.endm
 
 #endif /* __EL3_COMMON_MACROS_S__ */
