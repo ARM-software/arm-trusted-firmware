@@ -33,6 +33,7 @@
 
 #include <common_def.h>
 #include <soc_css_def.h>
+#include <utils.h>
 #include <v2m_def.h>
 
 /*
