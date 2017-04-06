@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,20 +54,19 @@ static int validate_cci_map(const int *map)
 			continue;
 
 		if (slave_if_id >= CCI_SLAVE_INTERFACE_COUNT) {
-			tf_printf("Slave interface ID is invalid\n");
+			ERROR("Slave interface ID is invalid\n");
 			return 0;
 		}
 
 		if (valid_cci_map & (1 << slave_if_id)) {
-			tf_printf("Multiple masters are assigned same"
-						" slave interface ID\n");
+			ERROR("Multiple masters are assigned same slave interface ID\n");
 			return 0;
 		}
 		valid_cci_map |= 1 << slave_if_id;
 	}
 
 	if (!valid_cci_map) {
-		tf_printf("No master is assigned a valid slave interface\n");
+		ERROR("No master is assigned a valid slave interface\n");
 		return 0;
 	}
 
