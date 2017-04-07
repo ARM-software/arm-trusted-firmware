@@ -308,14 +308,16 @@ define MAKE_BL
         $(eval BL_LINKERFILE := $(BL$(call uppercase,$(1))_LINKERFILE))
         # We use sort only to get a list of unique object directory names.
         # ordering is not relevant but sort removes duplicates.
-        $(eval TEMP_OBJ_DIRS := $(sort $(BUILD_DIR)/ $(dir ${OBJS} ${LINKERFILE})))
+        $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${LINKERFILE})))
         # The $(dir ) function leaves a trailing / on the directory names
         # Rip off the / to match directory names with make rule targets.
         $(eval OBJ_DIRS   := $(patsubst %/,%,$(TEMP_OBJ_DIRS)))
 
 # Create generators for object directory structure
 
-$(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},)))
+$(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},))
+
+$(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
 
 .PHONY : bl${1}_dirs
 
