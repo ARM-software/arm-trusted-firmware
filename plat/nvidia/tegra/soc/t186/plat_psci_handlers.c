@@ -188,8 +188,11 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 	int core_pos = read_mpidr() & MPIDR_CPU_MASK;
 	mce_cstate_info_t cstate_info = { 0 };
 
-	/* get the current core's power state */
-	target = *(states + core_pos);
+	/* get the power state at this level */
+	if (lvl == MPIDR_AFFLVL1)
+		target = *(states + core_pos);
+	if (lvl == MPIDR_AFFLVL2)
+		target = *(states + cpu);
 
 	/* CPU suspend */
 	if (lvl == MPIDR_AFFLVL1 && target == PSTATE_ID_CORE_POWERDN) {
@@ -242,7 +245,8 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 	}
 
 	/* System Suspend */
-	if ((lvl == MPIDR_AFFLVL2) || (target == PSTATE_ID_SOC_POWERDN))
+	if (((lvl == MPIDR_AFFLVL2) || (lvl == MPIDR_AFFLVL1)) &&
+	    (target == PSTATE_ID_SOC_POWERDN))
 		return PSTATE_ID_SOC_POWERDN;
 
 	/* default state */
