@@ -445,7 +445,7 @@ static uint32_t get_pi_tdfi_phy_rdlat(struct dram_timing_t *pdram_timing,
 	} else if (timing_config->dram_type == LPDDR3) {
 		mem_delay_ps = 5500;
 	} else {
-		printf("get_pi_tdfi_phy_rdlat:dramtype unsupport\n");
+		NOTICE("get_pi_tdfi_phy_rdlat:dramtype unsupport\n");
 		return 0;
 	}
 	round_trip_ps = 1100 + 500 + mem_delay_ps + 500 + 600;
@@ -2007,21 +2007,6 @@ static uint32_t prepare_ddr_timing(uint32_t mhz)
 	rk3399_dram_status.index_freq[index] = mhz;
 
 	return index;
-}
-
-void print_dram_status_info(void)
-{
-	uint32_t *p;
-	uint32_t i;
-
-	p = (uint32_t *) &rk3399_dram_status.timing_config;
-	INFO("rk3399_dram_status.timing_config:\n");
-	for (i = 0; i < sizeof(struct timing_related_config) / 4; i++)
-		tf_printf("%u\n", p[i]);
-	p = (uint32_t *) &rk3399_dram_status.drv_odt_lp_cfg;
-	INFO("rk3399_dram_status.drv_odt_lp_cfg:\n");
-	for (i = 0; i < sizeof(struct drv_odt_lp_config) / 4; i++)
-		tf_printf("%u\n", p[i]);
 }
 
 uint32_t ddr_set_rate(uint32_t hz)
