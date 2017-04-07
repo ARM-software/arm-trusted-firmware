@@ -35,67 +35,28 @@
 #include <tegra_def.h>
 
 /*******************************************************************************
- * MCE apertures used by the ARI interface
- *
- * Aperture 0 - Cpu0 (ARM Cortex A-57)
- * Aperture 1 - Cpu1 (ARM Cortex A-57)
- * Aperture 2 - Cpu2 (ARM Cortex A-57)
- * Aperture 3 - Cpu3 (ARM Cortex A-57)
- * Aperture 4 - Cpu4 (Denver15)
- * Aperture 5 - Cpu5 (Denver15)
- ******************************************************************************/
-#define MCE_ARI_APERTURE_0_OFFSET	0x0
-#define MCE_ARI_APERTURE_1_OFFSET	0x10000
-#define MCE_ARI_APERTURE_2_OFFSET	0x20000
-#define MCE_ARI_APERTURE_3_OFFSET	0x30000
-#define MCE_ARI_APERTURE_4_OFFSET	0x40000
-#define MCE_ARI_APERTURE_5_OFFSET	0x50000
-#define MCE_ARI_APERTURE_OFFSET_MAX	MCE_APERTURE_5_OFFSET
-
-/* number of apertures */
-#define MCE_ARI_APERTURES_MAX		6
-
-/* each ARI aperture is 64KB */
-#define MCE_ARI_APERTURE_SIZE		0x10000
-
-/*******************************************************************************
- * CPU core ids - used by the MCE_ONLINE_CORE ARI
- ******************************************************************************/
-typedef enum mce_core_id {
-	MCE_CORE_ID_DENVER_15_0,
-	MCE_CORE_ID_DENVER_15_1,
-	/* 2 and 3 are reserved */
-	MCE_CORE_ID_A57_0 = 4,
-	MCE_CORE_ID_A57_1,
-	MCE_CORE_ID_A57_2,
-	MCE_CORE_ID_A57_3,
-	MCE_CORE_ID_MAX
-} mce_core_id_t;
-
-#define MCE_CORE_ID_MASK			0x7
-
-/*******************************************************************************
  * MCE commands
  ******************************************************************************/
 typedef enum mce_cmd {
 	MCE_CMD_ENTER_CSTATE = 0,
-	MCE_CMD_UPDATE_CSTATE_INFO,
-	MCE_CMD_UPDATE_CROSSOVER_TIME,
-	MCE_CMD_READ_CSTATE_STATS,
-	MCE_CMD_WRITE_CSTATE_STATS,
-	MCE_CMD_IS_SC7_ALLOWED,
-	MCE_CMD_ONLINE_CORE,
-	MCE_CMD_CC3_CTRL,
-	MCE_CMD_ECHO_DATA,
-	MCE_CMD_READ_VERSIONS,
-	MCE_CMD_ENUM_FEATURES,
-	MCE_CMD_ROC_FLUSH_CACHE_TRBITS,
-	MCE_CMD_ENUM_READ_MCA,
-	MCE_CMD_ENUM_WRITE_MCA,
-	MCE_CMD_ROC_FLUSH_CACHE,
-	MCE_CMD_ROC_CLEAN_CACHE,
-	MCE_CMD_ENABLE_LATIC,
-	MCE_CMD_UNCORE_PERFMON_REQ,
+	MCE_CMD_UPDATE_CSTATE_INFO = 1,
+	MCE_CMD_UPDATE_CROSSOVER_TIME = 2,
+	MCE_CMD_READ_CSTATE_STATS = 3,
+	MCE_CMD_WRITE_CSTATE_STATS = 4,
+	MCE_CMD_IS_SC7_ALLOWED = 5,
+	MCE_CMD_ONLINE_CORE = 6,
+	MCE_CMD_CC3_CTRL = 7,
+	MCE_CMD_ECHO_DATA = 8,
+	MCE_CMD_READ_VERSIONS = 9,
+	MCE_CMD_ENUM_FEATURES = 10,
+	MCE_CMD_ROC_FLUSH_CACHE_TRBITS = 11,
+	MCE_CMD_ENUM_READ_MCA = 12,
+	MCE_CMD_ENUM_WRITE_MCA = 13,
+	MCE_CMD_ROC_FLUSH_CACHE = 14,
+	MCE_CMD_ROC_CLEAN_CACHE = 15,
+	MCE_CMD_ENABLE_LATIC = 16,
+	MCE_CMD_UNCORE_PERFMON_REQ = 17,
+	MCE_CMD_MISC_CCPLEX = 18,
 	MCE_CMD_IS_CCX_ALLOWED = 0xFE,
 	MCE_CMD_MAX = 0xFF,
 } mce_cmd_t;
@@ -337,9 +298,7 @@ typedef struct arch_mce_ops {
 	 * This ARI request allows updating the reset vector register for
 	 * D15 and A57 CPUs.
 	 */
-	int (*update_reset_vector)(uint32_t ari_base,
-				   uint32_t addr_low,
-				   uint32_t addr_high);
+	int (*update_reset_vector)(uint32_t ari_base);
 	/*
 	 * This ARI request instructs the ROC to flush A57 data caches in
 	 * order to maintain coherency with the Denver cluster.
@@ -386,11 +345,17 @@ typedef struct arch_mce_ops {
 	 */
 	int (*read_write_uncore_perfmon)(uint32_t ari_base,
 			uncore_perfmon_req_t req, uint64_t *data);
+	/*
+	 * This ARI implements ARI_MISC_CCPLEX commands. This can be
+	 * used to enable/disable coresight clock gating.
+	 */
+	void (*misc_ccplex)(uint32_t ari_base, uint32_t index,
+			uint32_t value);
 } arch_mce_ops_t;
 
 int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		uint64_t arg2);
-int mce_update_reset_vector(uint32_t addr_lo, uint32_t addr_hi);
+int mce_update_reset_vector(void);
 int mce_update_gsc_videomem(void);
 int mce_update_gsc_tzdram(void);
 int mce_update_gsc_tzram(void);
@@ -411,7 +376,7 @@ int ari_is_ccx_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int ari_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int ari_online_core(uint32_t ari_base, uint32_t core);
 int ari_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t enable);
-int ari_reset_vector_update(uint32_t ari_base, uint32_t lo, uint32_t hi);
+int ari_reset_vector_update(uint32_t ari_base);
 int ari_roc_flush_cache_trbits(uint32_t ari_base);
 int ari_roc_flush_cache(uint32_t ari_base);
 int ari_roc_clean_cache(uint32_t ari_base);
@@ -420,6 +385,7 @@ int ari_update_ccplex_gsc(uint32_t ari_base, uint32_t gsc_idx);
 void ari_enter_ccplex_state(uint32_t ari_base, uint32_t state_idx);
 int ari_read_write_uncore_perfmon(uint32_t ari_base,
 		uncore_perfmon_req_t req, uint64_t *data);
+void ari_misc_ccplex(uint32_t ari_base, uint32_t index, uint32_t value);
 
 int nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int nvg_update_cstate_info(uint32_t ari_base, uint32_t cluster, uint32_t ccplex,

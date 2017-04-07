@@ -91,5 +91,5 @@ void plat_secondary_setup(void)
 			addr_high);
 
 	/* update reset vector address to the CCPLEX */
-	mce_update_reset_vector(addr_low, addr_high);
+	mce_update_reset_vector();
 }

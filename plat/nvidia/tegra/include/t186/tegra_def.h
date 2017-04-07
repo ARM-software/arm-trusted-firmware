@@ -32,6 +32,36 @@
 #define __TEGRA_DEF_H__
 
 /*******************************************************************************
+ * MCE apertures used by the ARI interface
+ *
+ * Aperture 0 - Cpu0 (ARM Cortex A-57)
+ * Aperture 1 - Cpu1 (ARM Cortex A-57)
+ * Aperture 2 - Cpu2 (ARM Cortex A-57)
+ * Aperture 3 - Cpu3 (ARM Cortex A-57)
+ * Aperture 4 - Cpu4 (Denver15)
+ * Aperture 5 - Cpu5 (Denver15)
+ ******************************************************************************/
+#define MCE_ARI_APERTURE_0_OFFSET	0x0
+#define MCE_ARI_APERTURE_1_OFFSET	0x10000
+#define MCE_ARI_APERTURE_2_OFFSET	0x20000
+#define MCE_ARI_APERTURE_3_OFFSET	0x30000
+#define MCE_ARI_APERTURE_4_OFFSET	0x40000
+#define MCE_ARI_APERTURE_5_OFFSET	0x50000
+#define MCE_ARI_APERTURE_OFFSET_MAX	MCE_APERTURE_5_OFFSET
+
+/* number of apertures */
+#define MCE_ARI_APERTURES_MAX		6
+
+/* each ARI aperture is 64KB */
+#define MCE_ARI_APERTURE_SIZE		0x10000
+
+/*******************************************************************************
+ * CPU core id macros for the MCE_ONLINE_CORE ARI
+ ******************************************************************************/
+#define MCE_CORE_ID_MAX			8
+#define MCE_CORE_ID_MASK		0x7
+
+/*******************************************************************************
  * These values are used by the PSCI implementation during the `CPU_SUSPEND`
  * and `SYSTEM_SUSPEND` calls as the `state-id` field in the 'power state'
  * parameter.
@@ -85,10 +115,86 @@
 #define TEGRA_TSA_BASE			0x02400000
 
 /*******************************************************************************
+ * TSA configuration registers
+ ******************************************************************************/
+#define TSA_CONFIG_STATIC0_CSW_SESWR			0x4010
+#define  TSA_CONFIG_STATIC0_CSW_SESWR_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_ETRW			0x4038
+#define  TSA_CONFIG_STATIC0_CSW_ETRW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_SDMMCWAB			0x5010
+#define  TSA_CONFIG_STATIC0_CSW_SDMMCWAB_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_AXISW			0x7008
+#define  TSA_CONFIG_STATIC0_CSW_AXISW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_HDAW			0xA008
+#define  TSA_CONFIG_STATIC0_CSW_HDAW_RESET		0x100
+#define TSA_CONFIG_STATIC0_CSW_AONDMAW			0xB018
+#define  TSA_CONFIG_STATIC0_CSW_AONDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_SCEDMAW			0xD018
+#define  TSA_CONFIG_STATIC0_CSW_SCEDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_BPMPDMAW			0xD028
+#define  TSA_CONFIG_STATIC0_CSW_BPMPDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_APEDMAW			0x12018
+#define  TSA_CONFIG_STATIC0_CSW_APEDMAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_UFSHCW			0x13008
+#define  TSA_CONFIG_STATIC0_CSW_UFSHCW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_AFIW			0x13018
+#define  TSA_CONFIG_STATIC0_CSW_AFIW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_SATAW			0x13028
+#define  TSA_CONFIG_STATIC0_CSW_SATAW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_EQOSW			0x13038
+#define  TSA_CONFIG_STATIC0_CSW_EQOSW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_XUSB_DEVW		0x15008
+#define  TSA_CONFIG_STATIC0_CSW_XUSB_DEVW_RESET		0x1100
+#define TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW		0x15018
+#define  TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW_RESET	0x1100
+
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK		(0x3 << 11)
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(0 << 11)
+
+/*******************************************************************************
  * Tegra Memory Controller constants
  ******************************************************************************/
 #define TEGRA_MC_STREAMID_BASE		0x02C00000
 #define TEGRA_MC_BASE			0x02C10000
+
+/* TZDRAM carveout configuration registers */
+#define MC_SECURITY_CFG0_0		0x70
+#define MC_SECURITY_CFG1_0		0x74
+#define MC_SECURITY_CFG3_0		0x9BC
+
+/* Video Memory carveout configuration registers */
+#define MC_VIDEO_PROTECT_BASE_HI	0x978
+#define MC_VIDEO_PROTECT_BASE_LO	0x648
+#define MC_VIDEO_PROTECT_SIZE_MB	0x64c
+
+/* TZRAM carveout (MC_SECURITY_CARVEOUT11) configuration registers */
+#define MC_TZRAM_BASE_LO		0x2194
+#define  TZRAM_BASE_LO_SHIFT		12
+#define  TZRAM_BASE_LO_MASK		0xFFFFF
+#define MC_TZRAM_BASE_HI		0x2198
+#define  TZRAM_BASE_HI_SHIFT		0
+#define  TZRAM_BASE_HI_MASK		3
+#define MC_TZRAM_SIZE			0x219C
+#define  TZRAM_SIZE_RANGE_4KB_SHIFT	27
+
+#define MC_TZRAM_CARVEOUT_CFG			0x2190
+#define  TZRAM_LOCK_CFG_SETTINGS_BIT		(1 << 1)
+#define  TZRAM_ENABLE_TZ_LOCK_BIT		(1 << 0)
+#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG0	0x21A0
+#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG1	0x21A4
+#define  TZRAM_CARVEOUT_CPU_WRITE_ACCESS_BIT	(1 << 25)
+#define  TZRAM_CARVEOUT_CPU_READ_ACCESS_BIT	(1 << 7)
+#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG2	0x21A8
+#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG3	0x21AC
+#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG4	0x21B0
+#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG5	0x21B4
+
+#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS0	0x21B8
+#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS1	0x21BC
+#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS2	0x21C0
+#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS3	0x21C4
+#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS4	0x21C8
+#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS5	0x21CC
 
 /*******************************************************************************
  * Tegra UART Controller constants
@@ -148,6 +254,9 @@
 #define  SECURE_SCRATCH_RSV11_HI	0x6AC
 #define  SECURE_SCRATCH_RSV53_LO	0x7F8
 #define  SECURE_SCRATCH_RSV53_HI	0x7FC
+#define  SECURE_SCRATCH_RSV54_HI	0x804
+#define  SECURE_SCRATCH_RSV55_LO	0x808
+#define  SECURE_SCRATCH_RSV55_HI	0x80C
 
 /*******************************************************************************
  * Tegra Memory Mapped Control Register Access Bus constants

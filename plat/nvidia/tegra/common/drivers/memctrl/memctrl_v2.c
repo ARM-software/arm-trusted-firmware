@@ -136,7 +136,7 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(TSECSRDB, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AXISW, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SDMMCWAB, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(AONDMAW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSWR2, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SATAW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(UFSHCW, NON_SECURE, OVERRIDE, ENABLE),
@@ -178,8 +178,8 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(SCER, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(XUSB_HOSTR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(VICSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(AONDMAR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(AONW, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCRA, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(HOST1XDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(EQOSR, NON_SECURE, OVERRIDE, ENABLE),
@@ -188,24 +188,17 @@ const static mc_streamid_security_cfg_t sec_cfgs[] = {
 	mc_make_sec_cfg(HDAR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCRAB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ETRR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(AONR, NON_SECURE, OVERRIDE, ENABLE),
+	mc_make_sec_cfg(AONR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SESRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVENCSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSWR, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(TSECSWRB, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPWB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSRD2, SECURE, NO_OVERRIDE, DISABLE),
-#if ENABLE_CHIP_VERIFICATION_HARNESS
-	mc_make_sec_cfg(APEDMAW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APER, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEDMAR, NON_SECURE, OVERRIDE, ENABLE),
-#else
 	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
-#endif
 };
 
 const static mc_txn_override_cfg_t mc_override_cfgs[] = {
@@ -621,6 +614,20 @@ void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	tegra_mc_write_32(MC_SECURITY_CFG0_0, (uint32_t)phys_base);
 	tegra_mc_write_32(MC_SECURITY_CFG3_0, (uint32_t)(phys_base >> 32));
 	tegra_mc_write_32(MC_SECURITY_CFG1_0, size_in_bytes >> 20);
+
+	/*
+	 * When TZ encryption enabled,
+	 * We need setup TZDRAM before CPU to access TZ Carveout,
+	 * otherwise CPU will fetch non-decrypted data.
+	 * So save TZDRAM setting for retore by SC7 resume FW.
+	 */
+
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_LO,
+					tegra_mc_read_32(MC_SECURITY_CFG0_0));
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_HI,
+					tegra_mc_read_32(MC_SECURITY_CFG3_0));
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV54_HI,
+					tegra_mc_read_32(MC_SECURITY_CFG1_0));
 
 	/*
 	 * MCE propogates the security configuration values across the

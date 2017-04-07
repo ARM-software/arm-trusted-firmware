@@ -353,51 +353,6 @@ typedef struct mc_streamid_security_cfg {
 #endif /* __ASSEMBLY__ */
 
 /*******************************************************************************
- * TZDRAM carveout configuration registers
- ******************************************************************************/
-#define MC_SECURITY_CFG0_0				0x70
-#define MC_SECURITY_CFG1_0				0x74
-#define MC_SECURITY_CFG3_0				0x9BC
-
-/*******************************************************************************
- * Video Memory carveout configuration registers
- ******************************************************************************/
-#define MC_VIDEO_PROTECT_BASE_HI			0x978
-#define MC_VIDEO_PROTECT_BASE_LO			0x648
-#define MC_VIDEO_PROTECT_SIZE_MB			0x64c
-
-/*******************************************************************************
- * TZRAM carveout (MC_SECURITY_CARVEOUT11) configuration registers
- ******************************************************************************/
-#define MC_TZRAM_BASE_LO				0x2194
-#define  TZRAM_BASE_LO_SHIFT				12
-#define  TZRAM_BASE_LO_MASK				0xFFFFF
-#define MC_TZRAM_BASE_HI				0x2198
-#define  TZRAM_BASE_HI_SHIFT				0
-#define  TZRAM_BASE_HI_MASK				3
-#define MC_TZRAM_SIZE					0x219C
-#define  TZRAM_SIZE_RANGE_4KB_SHIFT			27
-
-#define MC_TZRAM_CARVEOUT_CFG				0x2190
-#define  TZRAM_LOCK_CFG_SETTINGS_BIT			(1 << 1)
-#define  TZRAM_ENABLE_TZ_LOCK_BIT			(1 << 0)
-#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG0		0x21A0
-#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG1		0x21A4
-#define  TZRAM_CARVEOUT_CPU_WRITE_ACCESS_BIT		(1 << 25)
-#define  TZRAM_CARVEOUT_CPU_READ_ACCESS_BIT		(1 << 7)
-#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG2		0x21A8
-#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG3		0x21AC
-#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG4		0x21B0
-#define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG5		0x21B4
-
-#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS0	0x21B8
-#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS1	0x21BC
-#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS2	0x21C0
-#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS3	0x21C4
-#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS4	0x21C8
-#define MC_TZRAM_CARVEOUT_FORCE_INTERNAL_ACCESS5	0x21CC
-
-/*******************************************************************************
  * Memory Controller Reset Control registers
  ******************************************************************************/
 #define MC_CLIENT_HOTRESET_CTRL0			0x200
@@ -436,43 +391,6 @@ typedef struct mc_streamid_security_cfg {
 #define  MC_CLIENT_HOTRESET_CTRL1_AON_FLUSH_ENB		(1 << 23)
 #define  MC_CLIENT_HOTRESET_CTRL1_SCE_FLUSH_ENB		(1 << 24)
 #define MC_CLIENT_HOTRESET_STATUS1			0x974
-
-/*******************************************************************************
- * TSA configuration registers
- ******************************************************************************/
-#define TSA_CONFIG_STATIC0_CSW_SESWR			0x4010
-#define  TSA_CONFIG_STATIC0_CSW_SESWR_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_ETRW			0x4038
-#define  TSA_CONFIG_STATIC0_CSW_ETRW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_SDMMCWAB			0x5010
-#define  TSA_CONFIG_STATIC0_CSW_SDMMCWAB_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_AXISW			0x7008
-#define  TSA_CONFIG_STATIC0_CSW_AXISW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_HDAW			0xA008
-#define  TSA_CONFIG_STATIC0_CSW_HDAW_RESET		0x100
-#define TSA_CONFIG_STATIC0_CSW_AONDMAW			0xB018
-#define  TSA_CONFIG_STATIC0_CSW_AONDMAW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_SCEDMAW			0xD018
-#define  TSA_CONFIG_STATIC0_CSW_SCEDMAW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_BPMPDMAW			0xD028
-#define  TSA_CONFIG_STATIC0_CSW_BPMPDMAW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_APEDMAW			0x12018
-#define  TSA_CONFIG_STATIC0_CSW_APEDMAW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_UFSHCW			0x13008
-#define  TSA_CONFIG_STATIC0_CSW_UFSHCW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_AFIW			0x13018
-#define  TSA_CONFIG_STATIC0_CSW_AFIW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_SATAW			0x13028
-#define  TSA_CONFIG_STATIC0_CSW_SATAW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_EQOSW			0x13038
-#define  TSA_CONFIG_STATIC0_CSW_EQOSW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_XUSB_DEVW		0x15008
-#define  TSA_CONFIG_STATIC0_CSW_XUSB_DEVW_RESET		0x1100
-#define TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW		0x15018
-#define  TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW_RESET	0x1100
-
-#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK		(0x3 << 11)
-#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(0 << 11)
 
 /*******************************************************************************
  * Memory Controller's PCFIFO client configuration registers

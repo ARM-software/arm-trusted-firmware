@@ -63,7 +63,8 @@ static arch_mce_ops_t nvg_mce_ops = {
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
 	.enter_ccplex_state = ari_enter_ccplex_state,
-	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon,
+	.misc_ccplex = ari_misc_ccplex
 };
 
 /* ARI functions handlers */
@@ -85,7 +86,8 @@ static arch_mce_ops_t ari_mce_ops = {
 	.read_write_mca = ari_read_write_mca,
 	.update_ccplex_gsc = ari_update_ccplex_gsc,
 	.enter_ccplex_state = ari_enter_ccplex_state,
-	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon
+	.read_write_uncore_perfmon = ari_read_write_uncore_perfmon,
+	.misc_ccplex = ari_misc_ccplex
 };
 
 typedef struct mce_config {
@@ -307,13 +309,11 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 
 	case MCE_CMD_ENUM_FEATURES:
-		ret = ops->call_enum_misc(cpu_ari_base,
+		ret64 = ops->call_enum_misc(cpu_ari_base,
 				TEGRA_ARI_MISC_FEATURE_LEAF_0, arg0);
 
 		/* update context to return features value */
 		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-
-		ret = 0;
 
 		break;
 
@@ -387,6 +387,11 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		write_ctx_reg(gp_regs, CTX_GPREG_X1, arg1);
 		break;
 
+	case MCE_CMD_MISC_CCPLEX:
+		ops->misc_ccplex(cpu_ari_base, arg0, arg1);
+
+		break;
+
 	default:
 		ERROR("unknown MCE command (%d)\n", cmd);
 		return EINVAL;
@@ -398,11 +403,11 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 /*******************************************************************************
  * Handler to update the reset vector for CPUs
  ******************************************************************************/
-int mce_update_reset_vector(uint32_t addr_lo, uint32_t addr_hi)
+int mce_update_reset_vector(void)
 {
 	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
 
-	ops->update_reset_vector(mce_get_curr_cpu_ari_base(), addr_lo, addr_hi);
+	ops->update_reset_vector(mce_get_curr_cpu_ari_base());
 
 	return 0;
 }

@@ -43,7 +43,7 @@
 #define  GPU_RESET_BIT			(1 << 24)
 
 /* Video Memory base and size (live values) */
-static uintptr_t video_mem_base;
+static uint64_t video_mem_base;
 static uint64_t video_mem_size;
 
 /*
@@ -85,7 +85,9 @@ void tegra_memctrl_setup(void)
 	(void)tegra_mc_read_32(MC_SMMU_CONFIG_0); /* read to flush writes */
 
 	/* video memory carveout */
-	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE, video_mem_base);
+	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
+			  (uint32_t)(video_mem_base >> 32));
+	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO, (uint32_t)video_mem_base);
 	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, video_mem_size);
 }
 
@@ -208,7 +210,8 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	enable_mmu_el3(0);
 
 done:
-	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE, phys_base);
+	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI, (uint32_t)(phys_base >> 32));
+	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO, (uint32_t)phys_base);
 	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, size_in_bytes >> 20);
 
 	/* store new values */

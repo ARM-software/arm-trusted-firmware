@@ -55,7 +55,7 @@ extern uint32_t __tegra186_cpu_reset_handler_data,
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xF
 /* constants to get power state's wake time */
-#define TEGRA186_WAKE_TIME_MASK		0xFFFFFF
+#define TEGRA186_WAKE_TIME_MASK		0x0FFFFFF0
 #define TEGRA186_WAKE_TIME_SHIFT	4
 /* default core wake mask for CPU_SUSPEND */
 #define TEGRA186_CORE_WAKE_MASK		0x180c
@@ -63,7 +63,9 @@ extern uint32_t __tegra186_cpu_reset_handler_data,
 #define TEGRA186_SE_CONTEXT_SIZE	3
 
 static uint32_t se_regs[TEGRA186_SE_CONTEXT_SIZE];
-static unsigned int wake_time[PLATFORM_CORE_COUNT];
+static struct t18x_psci_percpu_data {
+	unsigned int wake_time;
+} __aligned(CACHE_WRITEBACK_GRANULE) percpu_data[PLATFORM_CORE_COUNT];
 
 /* System power down state */
 uint32_t tegra186_system_powerdn_state = TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF;
@@ -74,9 +76,19 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 	int state_id = psci_get_pstate_id(power_state) & TEGRA186_STATE_ID_MASK;
 	int cpu = plat_my_core_pos();
 
-	/* save the core wake time (us) */
-	wake_time[cpu] = (power_state  >> TEGRA186_WAKE_TIME_SHIFT) &
-			 TEGRA186_WAKE_TIME_MASK;
+	/* save the core wake time (in TSC ticks)*/
+	percpu_data[cpu].wake_time = (power_state & TEGRA186_WAKE_TIME_MASK)
+			<< TEGRA186_WAKE_TIME_SHIFT;
+
+	/*
+	 * Clean percpu_data[cpu] to DRAM. This needs to be done to ensure that
+	 * the correct value is read in tegra_soc_pwr_domain_suspend(), which
+	 * is called with caches disabled. It is possible to read a stale value
+	 * from DRAM in that function, because the L2 cache is not flushed
+	 * unless the cluster is entering CC6/CC7.
+	 */
+	clean_dcache_range((uint64_t)&percpu_data[cpu],
+			sizeof(percpu_data[cpu]));
 
 	/* Sanity check the requested state id */
 	switch (state_id) {
@@ -121,7 +133,7 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		val = (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ?
 			TEGRA_ARI_CORE_C6 : TEGRA_ARI_CORE_C7;
 		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE, val,
-				wake_time[cpu], 0);
+				percpu_data[cpu].wake_time, 0);
 
 	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
@@ -193,7 +205,8 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 
 		/* Check if CCx state is allowed. */
 		ret = mce_command_handler(MCE_CMD_IS_CCX_ALLOWED,
-				TEGRA_ARI_CORE_C7, wake_time[cpu], 0);
+				TEGRA_ARI_CORE_C7, percpu_data[cpu].wake_time,
+				0);
 		if (ret)
 			return PSTATE_ID_CORE_POWERDN;
 	}
