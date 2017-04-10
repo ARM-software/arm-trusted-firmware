@@ -27,6 +27,7 @@
 
 #include <memctrl.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 #include <tegra_private.h>
 
 /* length of Trusty's input parameters (in bytes) */
@@ -122,6 +123,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
 	image_info_t bl32_img_info = { {0} };
 	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
+	uint32_t console_clock;
 
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -165,6 +167,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 
 	/*
+	 * Reference clock used by the FPGAs is a lot slower.
+	 */
+	if (tegra_platform_is_fpga() == 1U) {
+		console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
+	} else {
+		console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
+	}
+
+	/*
 	 * Get the base address of the UART controller to be used for the
 	 * console
 	 */
@@ -174,8 +185,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		/*
 		 * Configure the UART port to be used as the console
 		 */
-		console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-			TEGRA_CONSOLE_BAUDRATE);
+		console_init(tegra_console_base, console_clock,
+			     TEGRA_CONSOLE_BAUDRATE);
 	}
 
 	/*

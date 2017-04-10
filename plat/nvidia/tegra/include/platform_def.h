@@ -34,7 +34,8 @@
  * Platform console related constants
  ******************************************************************************/
 #define TEGRA_CONSOLE_BAUDRATE		U(115200)
-#define TEGRA_BOOT_UART_CLK_IN_HZ	U(408000000)
+#define TEGRA_BOOT_UART_CLK_13_MHZ	U(13000000)
+#define TEGRA_BOOT_UART_CLK_408_MHZ	U(408000000)
 
 /*******************************************************************************
  * Platform memory map related constants
