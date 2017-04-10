@@ -22,6 +22,8 @@
 
 extern void prepare_core_pwr_dwn(void);
 
+extern uint8_t tegra_fake_system_suspend;
+
 #if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
 extern void tegra186_cpu_reset_handler(void);
 extern uint32_t __tegra186_cpu_reset_handler_data,
@@ -133,24 +135,28 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		tegra_smmu_save_context(0);
 #endif
 
-                /* Prepare for system suspend */
-                cstate_info.cluster = TEGRA_NVG_CLUSTER_CC6;
-                cstate_info.system = TEGRA_NVG_SYSTEM_SC7;
-                cstate_info.system_state_force = 1;
-                cstate_info.update_wake_mask = 1;
-                mce_update_cstate_info(&cstate_info);
+		if (tegra_fake_system_suspend == 0U) {
 
-		do {
-			val = mce_command_handler(
-					MCE_CMD_IS_SC7_ALLOWED,
-					TEGRA_NVG_CORE_C7,
-					MCE_CORE_SLEEP_TIME_INFINITE,
-					0);
-		} while (val == 0);
+			/* Prepare for system suspend */
+			cstate_info.cluster = TEGRA_NVG_CLUSTER_CC6;
+			cstate_info.system = TEGRA_NVG_SYSTEM_SC7;
+			cstate_info.system_state_force = 1;
+			cstate_info.update_wake_mask = 1;
 
-                /* Instruct the MCE to enter system suspend state */
-                (void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
-                        TEGRA_NVG_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
+			mce_update_cstate_info(&cstate_info);
+
+			do {
+				val = mce_command_handler(
+						MCE_CMD_IS_SC7_ALLOWED,
+						TEGRA_NVG_CORE_C7,
+						MCE_CORE_SLEEP_TIME_INFINITE,
+						0);
+			} while (val == 0);
+
+	                /* Instruct the MCE to enter system suspend state */
+			(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
+			TEGRA_NVG_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
+		}
 	}
 
 	return PSCI_E_SUCCESS;
