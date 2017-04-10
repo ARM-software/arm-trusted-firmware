@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -77,7 +77,8 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define ADDR_SPACE_SIZE			(1ull << 35)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 35)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 35)
 
 /*******************************************************************************
  * Some data must be aligned on the biggest cache line size in the platform.
