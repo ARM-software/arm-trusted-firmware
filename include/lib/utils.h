@@ -31,67 +31,8 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-/* Compute the number of elements in the given array */
-#define ARRAY_SIZE(a)				\
-	(sizeof(a) / sizeof((a)[0]))
-
-#define IS_POWER_OF_TWO(x)			\
-	(((x) & ((x) - 1)) == 0)
-
-#define SIZE_FROM_LOG2_WORDS(n)		(4 << (n))
-
-#define BIT(nr)				(1UL << (nr))
-
-#define MIN(x, y) __extension__ ({	\
-	__typeof__(x) _x = (x);		\
-	__typeof__(y) _y = (y);		\
-	(void)(&_x == &_y);		\
-	_x < _y ? _x : _y;		\
-})
-
-#define MAX(x, y) __extension__ ({	\
-	__typeof__(x) _x = (x);		\
-	__typeof__(y) _y = (y);		\
-	(void)(&_x == &_y);		\
-	_x > _y ? _x : _y;		\
-})
-
-/*
- * The round_up() macro rounds up a value to the given boundary in a
- * type-agnostic yet type-safe manner. The boundary must be a power of two.
- * In other words, it computes the smallest multiple of boundary which is
- * greater than or equal to value.
- *
- * round_down() is similar but rounds the value down instead.
- */
-#define round_boundary(value, boundary)		\
-	((__typeof__(value))((boundary) - 1))
-
-#define round_up(value, boundary)		\
-	((((value) - 1) | round_boundary(value, boundary)) + 1)
-
-#define round_down(value, boundary)		\
-	((value) & ~round_boundary(value, boundary))
-
-/*
- * Evaluates to 1 if (ptr + inc) overflows, 0 otherwise.
- * Both arguments must be unsigned pointer values (i.e. uintptr_t).
- */
-#define check_uptr_overflow(ptr, inc)		\
-	(((ptr) > UINTPTR_MAX - (inc)) ? 1 : 0)
-
-/*
- * For those constants to be shared between C and other sources, apply a 'ull'
- * suffix to the argument only in C, to avoid undefined or unintended behaviour.
- *
- * The GNU assembler and linker do not support the 'ull' suffix (it causes the
- * build process to fail) therefore the suffix is omitted when used in linker
- * scripts and assembler files.
-*/
-#if defined(__LINKER__) || defined(__ASSEMBLY__)
-# define ULL(_x)	(_x)
-#else
-# define ULL(_x)	(_x##ull)
+#if !ERROR_DEPRECATED
+#include <utils_def.h>
 #endif
 
 /*

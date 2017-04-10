@@ -34,6 +34,7 @@
 #include <mmio.h>
 #include <plat_arm.h>
 #include <string.h>
+#include <utils.h>
 #include "css_scp_bootloader.h"
 
 /* Weak definition may be overridden in specific CSS based platform */

@@ -34,8 +34,7 @@
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
-#include <utils.h>
-#include <xlat_tables_v2.h>
+#include <utils_def.h>
 
 /*******************************************************************************
  * Forward declarations
