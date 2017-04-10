@@ -349,7 +349,8 @@ performed.
     initiate the operations, and the rest is managed in hardware, minimizing
     active software management. In such systems, this boolean option enables ARM
     Trusted Firmware to carry out build and run-time optimizations during boot
-    and power management operations. This option defaults to 0.
+    and power management operations. This option defaults to 0 and if it is
+    enabled, then it implies `WARMBOOT_ENABLE_DCACHE_EARLY` is also enabled.
 
 *   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
     image loading, which provides more flexibility and scalability around what
@@ -507,6 +508,12 @@ performed.
 *   `VERSION_STRING`: String used in the log output for each TF image. Defaults
     to a string formed by concatenating the version number, build type and build
     string.
+
+*   `WARMBOOT_ENABLE_DCACHE_EARLY` : Boolean option to enable D-cache early on
+    the CPU after warm boot. This is applicable for platforms which do not
+    require interconnect programming to enable cache coherency (eg: single
+    cluster platforms). If this option is enabled, then warm boot path
+    enables D-caches immediately after enabling MMU. This option defaults to 0.
 
 #### ARM development platform specific build options
 
