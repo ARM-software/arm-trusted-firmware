@@ -347,9 +347,9 @@ $(DUMP): $(ELF)
 $(BIN): $(ELF)
 	@echo "  BIN     $$@"
 	$$(Q)$$(OC) -O binary $$< $$@
-	@echo
+	@${ECHO_BLANK_LINE}
 	@echo "Built $$@ successfully"
-	@echo
+	@${ECHO_BLANK_LINE}
 
 .PHONY: bl$(1)
 bl$(1): $(BIN) $(DUMP)
