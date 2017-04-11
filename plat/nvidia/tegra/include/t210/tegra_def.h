@@ -135,6 +135,14 @@
 #define TEGRA_UARTE_BASE		U(0x70006400)
 
 /*******************************************************************************
+ * Tegra Fuse Controller related constants
+ ******************************************************************************/
+#define TEGRA_FUSE_BASE			0x7000F800UL
+#define FUSE_BOOT_SECURITY_INFO		0x268UL
+#define FUSE_ATOMIC_SAVE_CARVEOUT_EN	(0x1U << 7)
+
+
+/*******************************************************************************
  * Tegra Power Mgmt Controller constants
  ******************************************************************************/
 #define TEGRA_PMC_BASE			U(0x7000E400)
@@ -181,5 +189,11 @@
  ******************************************************************************/
 #define TEGRA_TZRAM_BASE		U(0x7C010000)
 #define TEGRA_TZRAM_SIZE		U(0x10000)
+
+/*******************************************************************************
+ * Tegra TZRAM carveout constants
+ ******************************************************************************/
+#define TEGRA_TZRAM_CARVEOUT_BASE	U(0x7C04C000)
+#define TEGRA_TZRAM_CARVEOUT_SIZE	U(0x4000)
 
 #endif /* TEGRA_DEF_H */
