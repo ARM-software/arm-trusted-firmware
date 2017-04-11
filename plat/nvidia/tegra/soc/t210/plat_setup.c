@@ -9,7 +9,9 @@
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <platform.h>
+#include <security_engine.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 #include <tegra_private.h>
 
 /* sets of MMIO ranges setup */
@@ -36,6 +38,14 @@ static const mmap_region_t tegra_mmap[] = {
  ******************************************************************************/
 const mmap_region_t *plat_get_mmio_map(void)
 {
+	/* Add the map region for security engine SE2 */
+	if (tegra_chipid_is_t210_b01()) {
+		mmap_add_region((uint64_t)TEGRA_SE2_BASE,
+				(uint64_t)TEGRA_SE2_BASE,
+				(uint64_t)TEGRA_SE2_RANGE_SIZE,
+				MT_DEVICE | MT_RW | MT_SECURE);
+	}
+
 	/* MMIO space */
 	return tegra_mmap;
 }
@@ -99,6 +109,17 @@ uint32_t plat_get_console_from_id(int id)
 		return 0;
 
 	return tegra210_uart_addresses[id];
+}
+
+/*******************************************************************************
+ * Handler for early platform setup
+ ******************************************************************************/
+void plat_early_platform_setup(void)
+{
+	/* Initialize security engine driver */
+	if (tegra_chipid_is_t210_b01()) {
+		tegra_se_init();
+	}
 }
 
 /*******************************************************************************

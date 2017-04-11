@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,8 @@
 #include <pmc.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
+#include <tegra_platform.h>
+#include <security_engine.h>
 
 /*
  * Register used to clear CPU reset signals. Each CPU has two reset
@@ -120,16 +122,31 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	unsigned int stateid_afflvl2 = pwr_domain_state[MPIDR_AFFLVL2];
 	unsigned int stateid_afflvl1 = pwr_domain_state[MPIDR_AFFLVL1];
 	unsigned int stateid_afflvl0 = pwr_domain_state[MPIDR_AFFLVL0];
+	int ret = PSCI_E_SUCCESS;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
 		assert((stateid_afflvl0 == PLAT_MAX_OFF_STATE) ||
-		       (stateid_afflvl0 == PSTATE_ID_SOC_POWERDN));
+			(stateid_afflvl0 == PSTATE_ID_SOC_POWERDN));
 		assert((stateid_afflvl1 == PLAT_MAX_OFF_STATE) ||
-		       (stateid_afflvl1 == PSTATE_ID_SOC_POWERDN));
+			(stateid_afflvl1 == PSTATE_ID_SOC_POWERDN));
+
+		if (tegra_chipid_is_t210_b01()) {
+			/* Suspend se/se2 and pka1 */
+			if (tegra_se_suspend() != 0) {
+				ret = PSCI_E_INTERN_FAIL;
+			}
+
+			/* Save tzram contents */
+			if (tegra_se_save_tzram() != 0) {
+				ret = PSCI_E_INTERN_FAIL;
+			}
+		}
 
 		/* suspend the entire soc */
-		tegra_fc_soc_powerdn(mpidr);
+		if (ret == PSCI_E_SUCCESS) {
+			tegra_fc_soc_powerdn(mpidr);
+		}
 
 	} else if (stateid_afflvl1 == PSTATE_ID_CLUSTER_IDLE) {
 
@@ -152,10 +169,10 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	} else {
 		ERROR("%s: Unknown state id\n", __func__);
-		return PSCI_E_NOT_SUPPORTED;
+		ret = PSCI_E_NOT_SUPPORTED;
 	}
 
-	return PSCI_E_SUCCESS;
+	return ret;
 }
 
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
@@ -167,6 +184,13 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 */
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
 			PLAT_SYS_SUSPEND_STATE_ID) {
+
+		/*
+		 * Security engine resume
+		 */
+		if (tegra_chipid_is_t210_b01()) {
+			tegra_se_resume();
+		}
 
 		/*
 		 * Lock scratch registers which hold the CPU vectors
@@ -231,7 +255,7 @@ int tegra_soc_prepare_system_reset(void)
 	 * for the PMC APB clock would not be changed due to system reset.
 	 */
 	mmio_write_32((uintptr_t)TEGRA_CAR_RESET_BASE + SCLK_BURST_POLICY,
-		       SCLK_BURST_POLICY_DEFAULT);
+		SCLK_BURST_POLICY_DEFAULT);
 	mmio_write_32((uintptr_t)TEGRA_CAR_RESET_BASE + SCLK_RATE, 0);
 
 	/* Wait 1 ms to make sure clock source/device logic is stabilized. */

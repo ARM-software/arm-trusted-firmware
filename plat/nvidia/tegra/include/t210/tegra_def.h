@@ -74,6 +74,11 @@
 #define TEGRA_FLOWCTRL_BASE		U(0x60007000)
 
 /*******************************************************************************
+ * Tegra AHB arbitration controller
+ ******************************************************************************/
+#define TEGRA_AHB_ARB_BASE		0x6000C000UL
+
+/*******************************************************************************
  * Tegra Secure Boot Controller constants
  ******************************************************************************/
 #define TEGRA_SB_BASE			U(0x6000C200)
@@ -117,6 +122,15 @@
 #define MC_VIDEO_PROTECT_BASE_HI	U(0x978)
 #define MC_VIDEO_PROTECT_BASE_LO	U(0x648)
 #define MC_VIDEO_PROTECT_SIZE_MB	U(0x64c)
+
+/*******************************************************************************
+ * Tegra SE constants
+ ******************************************************************************/
+#define TEGRA_SE1_BASE			U(0x70012000)
+#define TEGRA_SE2_BASE			U(0x70412000)
+#define TEGRA_PKA1_BASE			U(0x70420000)
+#define TEGRA_SE2_RANGE_SIZE		U(0x2000)
+#define SE_TZRAM_SECURITY		U(0x4)
 
 /*******************************************************************************
  * Tegra TZRAM constants
