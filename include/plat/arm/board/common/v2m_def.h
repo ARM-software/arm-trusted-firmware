@@ -30,7 +30,7 @@
 #ifndef __V2M_DEF_H__
 #define __V2M_DEF_H__
 
-#include <xlat_tables_v2.h>
+#include <arm_xlat_tables.h>
 
 
 /* V2M motherboard system registers & offsets */

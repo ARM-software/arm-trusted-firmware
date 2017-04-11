@@ -95,6 +95,11 @@ ARM_PLAT_MT			:=	0
 $(eval $(call assert_boolean,ARM_PLAT_MT))
 $(eval $(call add_define,ARM_PLAT_MT))
 
+# Use translation tables library v2 by default
+ARM_XLAT_TABLES_LIB_V1		:=	0
+$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
+$(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
+
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
 ENABLE_PSCI_STAT		:=	1
 ENABLE_PMF			:=	1
@@ -113,11 +118,17 @@ ifeq (${ARCH}, aarch64)
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/aarch64
 endif
 
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/${ARCH}/arm_helpers.S		\
+				plat/arm/common/arm_common.c
+
+ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
+PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
+				lib/xlat_tables/${ARCH}/xlat_tables.c
+else
 include lib/xlat_tables_v2/xlat_tables.mk
 
-PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}				\
-				plat/arm/common/${ARCH}/arm_helpers.S		\
-				plat/arm/common/arm_common.c
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
+endif
 
 BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_fip.c				\

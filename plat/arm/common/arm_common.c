@@ -29,12 +29,12 @@
  */
 #include <arch.h>
 #include <arch_helpers.h>
+#include <arm_xlat_tables.h>
 #include <assert.h>
 #include <debug.h>
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform_def.h>
-#include <xlat_tables_v2.h>
 
 extern const mmap_region_t plat_arm_mmap[];
 
