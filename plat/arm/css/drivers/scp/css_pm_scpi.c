@@ -32,6 +32,7 @@
 #include <assert.h>
 #include <css_pm.h>
 #include <debug.h>
+#include <plat_arm.h>
 #include "../scpi/css_scpi.h"
 #include "css_scp.h"
 
@@ -134,6 +135,12 @@ void __dead2 css_scp_sys_shutdown(void)
 {
 	uint32_t response;
 
+	/*
+	 * Disable GIC CPU interface to prevent pending interrupt
+	 * from waking up the AP from WFI.
+	 */
+	plat_arm_gic_cpuif_disable();
+
 	/* Send the power down request to the SCP */
 	response = scpi_sys_power_state(scpi_system_shutdown);
 
@@ -152,6 +159,12 @@ void __dead2 css_scp_sys_shutdown(void)
 void __dead2 css_scp_sys_reboot(void)
 {
 	uint32_t response;
+
+	/*
+	 * Disable GIC CPU interface to prevent pending interrupt
+	 * from waking up the AP from WFI.
+	 */
+	plat_arm_gic_cpuif_disable();
 
 	/* Send the system reset request to the SCP */
 	response = scpi_sys_power_state(scpi_system_reboot);
