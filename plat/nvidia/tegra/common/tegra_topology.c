@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <psci.h>
 
 extern const unsigned char tegra_power_domain_tree_desc[];
+#pragma weak plat_core_pos_by_mpidr
 
 /*******************************************************************************
  * This function returns the Tegra default topology tree information.
@@ -52,23 +53,18 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
 	unsigned int cluster_id, cpu_id;
 
-	mpidr &= MPIDR_AFFINITY_MASK;
-
-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
-		return -1;
-
 	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
 	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
 
 	if (cluster_id >= PLATFORM_CLUSTER_COUNT)
-		return -1;
+		return PSCI_E_NOT_PRESENT;
 
 	/*
 	 * Validate cpu_id by checking whether it represents a CPU in
 	 * one of the two clusters present on the platform.
 	 */
 	if (cpu_id >= PLATFORM_MAX_CPUS_PER_CLUSTER)
-		return -1;
+		return PSCI_E_NOT_PRESENT;
 
 	return (cpu_id + (cluster_id * 4));
 }

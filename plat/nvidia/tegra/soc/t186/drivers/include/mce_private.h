@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,58 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __MCE_H__
-#define __MCE_H__
+#ifndef __MCE_PRIVATE_H__
+#define __MCE_PRIVATE_H__
 
 #include <mmio.h>
 #include <tegra_def.h>
-
-/*******************************************************************************
- * MCE commands
- ******************************************************************************/
-typedef enum mce_cmd {
-	MCE_CMD_ENTER_CSTATE = 0,
-	MCE_CMD_UPDATE_CSTATE_INFO = 1,
-	MCE_CMD_UPDATE_CROSSOVER_TIME = 2,
-	MCE_CMD_READ_CSTATE_STATS = 3,
-	MCE_CMD_WRITE_CSTATE_STATS = 4,
-	MCE_CMD_IS_SC7_ALLOWED = 5,
-	MCE_CMD_ONLINE_CORE = 6,
-	MCE_CMD_CC3_CTRL = 7,
-	MCE_CMD_ECHO_DATA = 8,
-	MCE_CMD_READ_VERSIONS = 9,
-	MCE_CMD_ENUM_FEATURES = 10,
-	MCE_CMD_ROC_FLUSH_CACHE_TRBITS = 11,
-	MCE_CMD_ENUM_READ_MCA = 12,
-	MCE_CMD_ENUM_WRITE_MCA = 13,
-	MCE_CMD_ROC_FLUSH_CACHE = 14,
-	MCE_CMD_ROC_CLEAN_CACHE = 15,
-	MCE_CMD_ENABLE_LATIC = 16,
-	MCE_CMD_UNCORE_PERFMON_REQ = 17,
-	MCE_CMD_MISC_CCPLEX = 18,
-	MCE_CMD_IS_CCX_ALLOWED = 0xFE,
-	MCE_CMD_MAX = 0xFF,
-} mce_cmd_t;
-
-#define MCE_CMD_MASK				0xFF
-
-/*******************************************************************************
- * Struct to prepare UPDATE_CSTATE_INFO request
- ******************************************************************************/
-typedef struct mce_cstate_info {
-	/* cluster cstate value */
-	uint32_t cluster;
-	/* ccplex cstate value */
-	uint32_t ccplex;
-	/* system cstate value */
-	uint32_t system;
-	/* force system state? */
-	uint8_t system_state_force;
-	/* wake mask value */
-	uint32_t wake_mask;
-	/* update the wake mask? */
-	uint8_t update_wake_mask;
-} mce_cstate_info_t;
 
 /*******************************************************************************
  * Macros to prepare CSTATE info request
@@ -125,11 +78,6 @@ typedef struct mce_cstate_info {
  * Macros for 'update crossover threshold' command
  ******************************************************************************/
 #define MCE_CROSSOVER_THRESHOLD_TIME_SHIFT	32
-
-/*******************************************************************************
- * Timeout value used to powerdown a core
- ******************************************************************************/
-#define MCE_CORE_SLEEP_TIME_INFINITE		0xFFFFFFFF
 
 /*******************************************************************************
  * MCA command struct
@@ -353,16 +301,6 @@ typedef struct arch_mce_ops {
 			uint32_t value);
 } arch_mce_ops_t;
 
-int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
-		uint64_t arg2);
-int mce_update_reset_vector(void);
-int mce_update_gsc_videomem(void);
-int mce_update_gsc_tzdram(void);
-int mce_update_gsc_tzram(void);
-__dead2 void mce_enter_ccplex_state(uint32_t state_idx);
-void mce_update_cstate_info(mce_cstate_info_t *cstate);
-void mce_verify_firmware_version(void);
-
 /* declarations for ARI/NVG handler functions */
 int ari_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int ari_update_cstate_info(uint32_t ari_base, uint32_t cluster, uint32_t ccplex,
@@ -399,4 +337,4 @@ int nvg_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time);
 int nvg_online_core(uint32_t ari_base, uint32_t core);
 int nvg_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t enable);
 
-#endif /* __MCE_H__ */
+#endif /* __MCE_PRIVATE_H__ */

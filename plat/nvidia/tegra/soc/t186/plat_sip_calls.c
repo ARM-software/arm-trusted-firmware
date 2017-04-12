@@ -34,6 +34,7 @@
 #include <bl_common.h>
 #include <context_mgmt.h>
 #include <debug.h>
+#include <denver.h>
 #include <errno.h>
 #include <mce.h>
 #include <memctrl.h>
@@ -44,10 +45,15 @@
 extern uint32_t tegra186_system_powerdn_state;
 
 /*******************************************************************************
+ * Offset to read the ref_clk counter value
+ ******************************************************************************/
+#define REF_CLK_OFFSET		4
+
+/*******************************************************************************
  * Tegra186 SiP SMCs
  ******************************************************************************/
-#define TEGRA_SIP_NEW_VIDEOMEM_REGION			0x82000003
 #define TEGRA_SIP_SYSTEM_SHUTDOWN_STATE			0x82FFFE01
+#define TEGRA_SIP_GET_ACTMON_CLK_COUNTERS		0x82FFFE02
 #define TEGRA_SIP_MCE_CMD_ENTER_CSTATE			0x82FFFF00
 #define TEGRA_SIP_MCE_CMD_UPDATE_CSTATE_INFO		0x82FFFF01
 #define TEGRA_SIP_MCE_CMD_UPDATE_CROSSOVER_TIME		0x82FFFF02
@@ -81,6 +87,8 @@ int plat_sip_handler(uint32_t smc_fid,
 		     uint64_t flags)
 {
 	int mce_ret;
+	int impl, cpu;
+	uint32_t base, core_clk_ctr, ref_clk_ctr;
 
 	switch (smc_fid) {
 
@@ -140,6 +148,36 @@ int plat_sip_handler(uint32_t smc_fid,
 				(uint32_t)x1);
 			return -ENOTSUP;
 		}
+
+		return 0;
+
+	/*
+	 * This function ID reads the Activity monitor's core/ref clock
+	 * counter values for a core/cluster.
+	 *
+	 * x1 = MPIDR of the target core
+	 * x2 = MIDR of the target core
+	 */
+	case TEGRA_SIP_GET_ACTMON_CLK_COUNTERS:
+
+		cpu = (uint32_t)x1 & MPIDR_CPU_MASK;
+		impl = ((uint32_t)x2 >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+
+		/* sanity check target CPU number */
+		if (cpu > PLATFORM_MAX_CPUS_PER_CLUSTER)
+			return -EINVAL;
+
+		/* get the base address for the current CPU */
+		base = (impl == DENVER_IMPL) ? TEGRA_DENVER_ACTMON_CTR_BASE :
+			TEGRA_ARM_ACTMON_CTR_BASE;
+
+		/* read the clock counter values */
+		core_clk_ctr = mmio_read_32(base + (8 * cpu));
+		ref_clk_ctr = mmio_read_32(base + (8 * cpu) + REF_CLK_OFFSET);
+
+		/* return the counter values as two different parameters */
+		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X1, core_clk_ctr);
+		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X2, ref_clk_ctr);
 
 		return 0;
 

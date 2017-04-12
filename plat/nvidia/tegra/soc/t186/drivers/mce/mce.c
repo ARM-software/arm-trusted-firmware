@@ -37,6 +37,7 @@
 #include <debug.h>
 #include <denver.h>
 #include <mce.h>
+#include <mce_private.h>
 #include <mmio.h>
 #include <string.h>
 #include <sys/errno.h>
@@ -491,7 +492,7 @@ void mce_verify_firmware_version(void)
 	uint32_t major, minor;
 
 	/*
-	 * MCE firmware is not running on simulation platforms.
+	 * MCE firmware is not supported on simulation platforms.
 	 */
 	if (tegra_platform_is_emulation())
 		return;
