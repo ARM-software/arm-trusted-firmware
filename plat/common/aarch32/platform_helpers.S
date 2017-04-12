@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,10 +31,42 @@
 #include <arch.h>
 #include <asm_macros.S>
 
+	.weak	plat_crash_console_init
+	.weak	plat_crash_console_putc
+	.weak	plat_crash_console_flush
 	.weak	plat_reset_handler
 	.weak	plat_disable_acp
 	.weak	platform_mem_init
 	.weak	plat_panic_handler
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_crash_console_init
+	mov	r0, #0
+	bx	lr
+endfunc plat_crash_console_init
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_crash_console_putc
+	bx	lr
+endfunc plat_crash_console_putc
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_crash_console_flush
+	mov	r0, #0
+	bx	lr
+endfunc plat_crash_console_flush
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by

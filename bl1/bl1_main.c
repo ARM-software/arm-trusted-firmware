@@ -34,6 +34,7 @@
 #include <auth_mod.h>
 #include <bl1.h>
 #include <bl_common.h>
+#include <console.h>
 #include <debug.h>
 #include <errata_report.h>
 #include <platform.h>
@@ -166,6 +167,8 @@ void bl1_main(void)
 		NOTICE("BL1-FWU: *******FWU Process Started*******\n");
 
 	bl1_prepare_next_image(image_id);
+
+	console_flush();
 }
 
 /*******************************************************************************

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -96,8 +96,9 @@ func asm_assert
 	b.ne	_assert_loop
 	mov	x4, x6
 	asm_print_line_dec
+	bl	plat_crash_console_flush
 _assert_loop:
-	b	_assert_loop
+	no_ret	plat_panic_handler
 endfunc asm_assert
 #endif
 
@@ -186,6 +187,8 @@ el3_panic:
 	/* The panic location is lr -4 */
 	sub	x4, x4, #4
 	bl	asm_print_hex
+
+	bl	plat_crash_console_flush
 
 _panic_handler:
 	/* Pass to plat_panic_handler the address from where el3_panic was

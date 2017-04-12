@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -348,6 +348,8 @@ func do_crash_reporting
 
 	/* Print some platform registers */
 	plat_crash_print_regs
+
+	bl	plat_crash_console_flush
 
 	/* Done reporting */
 	no_ret	plat_panic_handler

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <console.h>
 #include <debug.h>
+#include <platform.h>
 
 /*
  * This is a basic implementation. This could be improved.
@@ -37,5 +39,8 @@ void __assert (const char *function, const char *file, unsigned int line,
 		const char *assertion)
 {
 	tf_printf("ASSERT: %s <%d> : %s\n", function, line, assertion);
-	while(1);
+
+	console_flush();
+
+	plat_panic_handler();
 }

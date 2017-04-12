@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,9 +31,10 @@
 #include <platform_def.h>
 
 	.weak	plat_arm_calc_core_pos
-	.weak	plat_crash_console_init
-	.weak	plat_crash_console_putc
 	.weak	plat_my_core_pos
+	.globl	plat_crash_console_init
+	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 
 	/* -----------------------------------------------------
 	 *  unsigned int plat_my_core_pos(void)
@@ -85,3 +86,16 @@ func plat_crash_console_putc
 	ldr	r1, =PLAT_ARM_CRASH_UART_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush()
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : r0 - r1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	ldr	r1, =PLAT_ARM_CRASH_UART_BASE
+	b	console_core_flush
+endfunc plat_crash_console_flush

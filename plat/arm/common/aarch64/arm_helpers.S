@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@
 	.weak	plat_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	platform_mem_init
 
 
@@ -87,6 +88,19 @@ func plat_crash_console_putc
 	mov_imm	x1, PLAT_ARM_CRASH_UART_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush()
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : r0 - r1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	mov_imm	x1, PLAT_ARM_CRASH_UART_BASE
+	b	console_core_flush
+endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------------------------------
 	 * We don't need to carry out any memory initialization on ARM

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 	.weak	plat_report_exception
 	.weak	plat_crash_console_init
 	.weak	plat_crash_console_putc
+	.weak	plat_crash_console_flush
 	.weak	plat_reset_handler
 	.weak	plat_disable_acp
 	.weak	bl1_plat_prepare_exit
@@ -95,6 +96,15 @@ endfunc plat_crash_console_init
 func plat_crash_console_putc
 	ret
 endfunc plat_crash_console_putc
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platform.
+	 * -----------------------------------------------------
+	 */
+func plat_crash_console_flush
+	ret
+endfunc plat_crash_console_flush
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by

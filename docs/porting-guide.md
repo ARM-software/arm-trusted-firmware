@@ -2242,6 +2242,17 @@ designated crash console. It must only use general purpose registers x1 and
 x2 to do its work. The parameter and the return value are in general purpose
 register x0.
 
+### Function : plat_crash_console_flush
+
+    Argument : void
+    Return   : int
+
+This API is used by the crash reporting mechanism to force write of all buffered
+data on the designated crash console. It should only use general purpose
+registers x0 and x1 to do its work. The return value is 0 on successful
+completion; otherwise the return value is -1.
+
+
 4.  Build flags
 ---------------
 
