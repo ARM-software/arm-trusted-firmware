@@ -10,7 +10,6 @@
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
-#include <utils_def.h>
 
 /*******************************************************************************
  * Tegra platforms
@@ -36,18 +35,6 @@ typedef enum tegra_platform {
 #define TEGRA_MINOR_DSIM_ASIM_LINSIM	U(4)
 #define TEGRA_MINOR_UNIT_FPGA		U(5)
 #define TEGRA_MINOR_VIRT_DEV_KIT	U(6)
-
-/*******************************************************************************
- * Tegra major, minor version helper macros
- ******************************************************************************/
-#define MAJOR_VERSION_SHIFT		U(0x4)
-#define MAJOR_VERSION_MASK		U(0xF)
-#define MINOR_VERSION_SHIFT		U(0x10)
-#define MINOR_VERSION_MASK		U(0xF)
-#define CHIP_ID_SHIFT			U(8)
-#define CHIP_ID_MASK			U(0xFF)
-#define PRE_SI_PLATFORM_SHIFT		U(0x14)
-#define PRE_SI_PLATFORM_MASK		U(0xF)
 
 /*******************************************************************************
  * Tegra macros defining all the SoC pre_si_platform
@@ -93,33 +80,38 @@ uint32_t tegra_get_chipid_minor(void)
 	return (tegra_get_chipid() >> MINOR_VERSION_SHIFT) & MINOR_VERSION_MASK;
 }
 
-uint8_t tegra_chipid_is_t132(void)
-{
-	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
-
-	return (chip_id == TEGRA_CHIPID_TEGRA13);
-}
-
-uint8_t tegra_chipid_is_t210(void)
-{
-	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
-
-	return (chip_id == TEGRA_CHIPID_TEGRA21);
-}
-
-uint8_t tegra_chipid_is_t186(void)
-{
-	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
-
-	return (chip_id == TEGRA_CHIPID_TEGRA18);
-}
-
 /*
  * Read the chip's pre_si_platform valus from the chip ID value
  */
 static uint32_t tegra_get_chipid_pre_si_platform(void)
 {
 	return (tegra_get_chipid() >> PRE_SI_PLATFORM_SHIFT) & PRE_SI_PLATFORM_MASK;
+}
+
+bool tegra_chipid_is_t132(void)
+{
+	uint32_t chip_id = ((tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK);
+
+	return (chip_id == (uint32_t)TEGRA_CHIPID_TEGRA13);
+}
+
+bool tegra_chipid_is_t186(void)
+{
+	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
+
+	return (chip_id == TEGRA_CHIPID_TEGRA18);
+}
+
+bool tegra_chipid_is_t210(void)
+{
+	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
+
+	return (chip_id == (uint32_t)TEGRA_CHIPID_TEGRA21);
+}
+
+bool tegra_chipid_is_t210_b01(void)
+{
+	return (tegra_chipid_is_t210() && (tegra_get_chipid_major() == 0x2UL));
 }
 
 /*
@@ -178,8 +170,8 @@ static tegra_platform_t tegra_get_platform(void)
 		case TEGRA_MINOR_VIRT_DEV_KIT:
 			ret = TEGRA_PLATFORM_VIRT_DEV_KIT;
 			break;
+
 		default:
-			assert(0);
 			ret = TEGRA_PLATFORM_MAX;
 			break;
 		}
@@ -227,7 +219,6 @@ static tegra_platform_t tegra_get_platform(void)
 			break;
 
 		default:
-			assert(0);
 			ret = TEGRA_PLATFORM_MAX;
 			break;
 		}

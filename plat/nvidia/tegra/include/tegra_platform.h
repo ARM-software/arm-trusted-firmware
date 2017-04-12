@@ -9,19 +9,33 @@
 
 #include <cdefs.h>
 #include <stdbool.h>
+#include <utils_def.h>
+
+/*******************************************************************************
+ * Tegra major, minor version helper macros
+ ******************************************************************************/
+#define MAJOR_VERSION_SHIFT		U(0x4)
+#define MAJOR_VERSION_MASK		U(0xF)
+#define MINOR_VERSION_SHIFT		U(0x10)
+#define MINOR_VERSION_MASK		U(0xF)
+#define CHIP_ID_SHIFT			U(8)
+#define CHIP_ID_MASK			U(0xFF)
+#define PRE_SI_PLATFORM_SHIFT		U(0x14)
+#define PRE_SI_PLATFORM_MASK		U(0xF)
 
 /*
- * Tegra chip major/minor version
+ * Tegra chip ID values
  */
 uint32_t tegra_get_chipid_major(void);
 uint32_t tegra_get_chipid_minor(void);
 
 /*
- * Tegra chip identifiers
+ * Tegra chip ID identifiers
  */
-uint8_t tegra_chipid_is_t132(void);
-uint8_t tegra_chipid_is_t210(void);
-uint8_t tegra_chipid_is_t186(void);
+bool tegra_chipid_is_t132(void);
+bool tegra_chipid_is_t186(void);
+bool tegra_chipid_is_t210(void);
+bool tegra_chipid_is_t210_b01(void);
 
 
 /*
