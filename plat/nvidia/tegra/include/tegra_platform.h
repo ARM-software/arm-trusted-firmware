@@ -42,8 +42,10 @@ uint32_t tegra_get_chipid_minor(void);
 /*
  * Tegra chip identifiers
  */
-uint8_t tegra_is_t132(void);
-uint8_t tegra_is_t210(void);
+uint8_t tegra_chipid_is_t132(void);
+uint8_t tegra_chipid_is_t210(void);
+uint8_t tegra_chipid_is_t186(void);
+
 
 /*
  * Tegra platform identifiers
