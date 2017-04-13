@@ -49,12 +49,12 @@ func sp_min_entrypoint
 	 * sp_min_entrypoint() during the cold boot flow, so the cold/warm boot
 	 * and primary/secondary CPU logic should not be executed in this case.
 	 *
-	 * Also, assume that the previous bootloader has already set up the CPU
-	 * endianness and has initialised the memory.
+	 * Also, assume that the previous bootloader has already initialised the
+	 * SCTLR, including the CPU endianness, and has initialised the memory.
 	 * ---------------------------------------------------------------------
 	 */
 	el3_entrypoint_common					\
-		_set_endian=0					\
+		_init_sctlr=0					\
 		_warm_boot_mailbox=0				\
 		_secondary_cold_boot=0				\
 		_init_memory=0					\
@@ -75,7 +75,7 @@ func sp_min_entrypoint
 	 * ---------------------------------------------------------------------
 	 */
 	el3_entrypoint_common					\
-		_set_endian=1					\
+		_init_sctlr=1					\
 		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS	\
 		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU	\
 		_init_memory=1					\
@@ -174,7 +174,7 @@ func sp_min_warm_entrypoint
 	 * 'el3_entrypoint_common' must be skipped:
 	 *
 	 *  - Only when the platform bypasses the BL1/BL32 (SP_MIN) entrypoint by
-	 *    programming the reset address do we need to set the CPU endianness.
+	 *    programming the reset address do we need to initialied the SCTLR.
 	 *    In other cases, we assume this has been taken care by the
 	 *    entrypoint code.
 	 *
@@ -187,7 +187,7 @@ func sp_min_warm_entrypoint
 	 *    it has been done once and for all on the cold boot path.
 	 */
 	el3_entrypoint_common					\
-		_set_endian=PROGRAMMABLE_RESET_ADDRESS		\
+		_init_sctlr=PROGRAMMABLE_RESET_ADDRESS		\
 		_warm_boot_mailbox=0				\
 		_secondary_cold_boot=0				\
 		_init_memory=0					\

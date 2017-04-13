@@ -15,8 +15,20 @@
 	 */
 	.macro el3_arch_init_common _exception_vectors
 	/* ---------------------------------------------------------------------
-	 * Enable the instruction cache, stack pointer and data access alignment
-	 * checks
+	 * SCTLR_EL3 has already been initialised - read current value before
+	 * modifying.
+	 *
+	 * SCTLR_EL3.I: Enable the instruction cache.
+	 *
+	 * SCTLR_EL3.SA: Enable Stack Aligment check. A SP alignment fault
+	 *  exception is generated if a load or store instruction executed at
+	 *  EL3 uses the SP as the base address and the SP is not aligned to a
+	 *  16-byte boundary.
+	 *
+	 * SCTLR_EL3.A: Enable Alignment fault checking. All instructions that
+	 *  load or store one or more registers have an alignment check that the
+	 *  address being accessed is aligned to the size of the data element(s)
+	 *  being accessed.
 	 * ---------------------------------------------------------------------
 	 */
 	mov	x1, #(SCTLR_I_BIT | SCTLR_A_BIT | SCTLR_SA_BIT)
@@ -46,19 +58,56 @@
 	isb
 
 	/* ---------------------------------------------------------------------
-	 * Early set RES1 bits in SCR_EL3. Set EA bit to catch both
-	 * External Aborts and SError Interrupts in EL3 and also the SIF bit
-	 * to disable instruction fetches from Non-secure memory.
+	 * Initialise SCR_EL3, setting all fields rather than relying on hw.
+	 * All fields are architecturally UNKNOWN on reset. The following fields
+	 * do not change during the TF lifetime. The remaining fields are set to
+	 * zero here but are updated ahead of transitioning to a lower EL in the
+	 * function cm_init_context_common().
+	 *
+	 * SCR_EL3.TWE: Set to zero so that execution of WFE instructions at
+	 *  EL2, EL1 and EL0 are not trapped to EL3.
+	 *
+	 * SCR_EL3.TWI: Set to zero so that execution of WFI instructions at
+	 *  EL2, EL1 and EL0 are not trapped to EL3.
+	 *
+	 * SCR_EL3.SIF: Set to one to disable instruction fetches from
+	 *  Non-secure memory.
+	 *
+	 * SCR_EL3.SMD: Set to zero to enable SMC calls at EL1 and above, from
+	 *  both Security states and both Execution states.
+	 *
+	 * SCR_EL3.EA: Set to one to route External Aborts and SError Interrupts
+	 *  to EL3 when executing at any EL.
 	 * ---------------------------------------------------------------------
 	 */
-	mov	x0, #(SCR_RES1_BITS | SCR_EA_BIT | SCR_SIF_BIT)
+	mov	x0, #((SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT) \
+			& ~(SCR_TWE_BIT | SCR_TWI_BIT | SCR_SMD_BIT))
 	msr	scr_el3, x0
 
 	/* ---------------------------------------------------------------------
-	 * Disable secure self-hosted invasive debug.
+	 * Initialise MDCR_EL3, setting all fields rather than relying on hw.
+	 * Some fields are architecturally UNKNOWN on reset.
+	 *
+	 * MDCR_EL3.SDD: Set to one to disable AArch64 Secure self-hosted debug.
+	 *  Debug exceptions, other than Breakpoint Instruction exceptions, are
+	 *  disabled from all ELs in Secure state.
+	 *
+	 * MDCR_EL3.SPD32: Set to 0b10 to disable AArch32 Secure self-hosted
+	 *  privileged debug from S-EL1.
+	 *
+	 * MDCR_EL3.TDOSA: Set to zero so that EL2 and EL2 System register
+	 *  access to the powerdown debug registers do not trap to EL3.
+	 *
+	 * MDCR_EL3.TDA: Set to zero to allow EL0, EL1 and EL2 access to the
+	 *  debug registers, other than those registers that are controlled by
+	 *  MDCR_EL3.TDOSA.
+	 *
+	 * MDCR_EL3.TPM: Set to zero so that EL0, EL1, and EL2 System register
+	 *  accesses to all Performance Monitors registers do not trap to EL3.
 	 * ---------------------------------------------------------------------
 	 */
-	mov_imm	x0, MDCR_DEF_VAL
+	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | MDCR_SPD32(MDCR_SPD32_DISABLE)) \
+			& ~(MDCR_TDOSA_BIT | MDCR_TDA_BIT | MDCR_TPM_BIT))
 	msr	mdcr_el3, x0
 
 	/* ---------------------------------------------------------------------
@@ -69,28 +118,20 @@
 	msr	daifclr, #DAIF_ABT_BIT
 
 	/* ---------------------------------------------------------------------
-	 * The initial state of the Architectural feature trap register
-	 * (CPTR_EL3) is unknown and it must be set to a known state. All
-	 * feature traps are disabled. Some bits in this register are marked as
-	 * reserved and should not be modified.
+	 * Initialise CPTR_EL3, setting all fields rather than relying on hw.
+	 * All fields are architecturally UNKNOWN on reset.
 	 *
-	 * CPTR_EL3.TCPAC: This causes a direct access to the CPACR_EL1 from EL1
-	 *  or the CPTR_EL2 from EL2 to trap to EL3 unless it is trapped at EL2.
+	 * CPTR_EL3.TCPAC: Set to zero so that any accesses to CPACR_EL1,
+	 *  CPTR_EL2, CPACR, or HCPTR do not trap to EL3.
 	 *
-	 * CPTR_EL3.TTA: This causes access to the Trace functionality to trap
-	 *  to EL3 when executed from EL0, EL1, EL2, or EL3. If system register
-	 *  access to trace functionality is not supported, this bit is RES0.
+	 * CPTR_EL3.TTA: Set to zero so that System register accesses to the
+	 *  trace registers do not trap to EL3.
 	 *
-	 * CPTR_EL3.TFP: This causes instructions that access the registers
-	 *  associated with Floating Point and Advanced SIMD execution to trap
-	 *  to EL3 when executed from any exception level, unless trapped to EL1
-	 *  or EL2.
+	 * CPTR_EL3.TFP: Set to zero so that accesses to Advanced SIMD and
+	 *  floating-point functionality do not trap to EL3.
 	 * ---------------------------------------------------------------------
 	 */
-	mrs	x0, cptr_el3
-	bic	w0, w0, #TCPAC_BIT
-	bic	w0, w0, #TTA_BIT
-	bic	w0, w0, #TFP_BIT
+	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TTA_BIT | TFP_BIT))
 	msr	cptr_el3, x0
 	.endm
 
@@ -104,8 +145,9 @@
  * why this macro is parameterised ; each parameter allows to enable/disable
  * some actions.
  *
- *  _set_endian:
- *	Whether the macro needs to configure the endianness of data accesses.
+ *  _init_sctlr:
+ *	Whether the macro needs to initialise SCTLR_EL3, including configuring
+ *      the endianness of data accesses.
  *
  *  _warm_boot_mailbox:
  *	Whether the macro needs to detect the type of boot (cold/warm). The
@@ -133,20 +175,35 @@
  * -----------------------------------------------------------------------------
  */
 	.macro el3_entrypoint_common					\
-		_set_endian, _warm_boot_mailbox, _secondary_cold_boot,	\
+		_init_sctlr, _warm_boot_mailbox, _secondary_cold_boot,	\
 		_init_memory, _init_c_runtime, _exception_vectors
 
-	.if \_set_endian
+	.if \_init_sctlr
 		/* -------------------------------------------------------------
-		 * Set the CPU endianness before doing anything that might
-		 * involve memory reads or writes.
+		 * This is the initialisation of SCTLR_EL3 and so must ensure
+		 * that all fields are explicitly set rather than relying on hw.
+		 * Some fields reset to an IMPLEMENTATION DEFINED value and
+		 * others are architecturally UNKNOWN on reset.
+		 *
+		 * SCTLR.EE: Set the CPU endianness before doing anything that
+		 *  might involve memory reads or writes. Set to zero to select
+		 *  Little Endian.
+		 *
+		 * SCTLR_EL3.WXN: For the EL3 translation regime, this field can
+		 *  force all memory regions that are writeable to be treated as
+		 *  XN (Execute-never). Set to zero so that this control has no
+		 *  effect on memory access permissions.
+		 *
+		 * SCTLR_EL3.SA: Set to zero to disable Stack Aligment check.
+		 *
+		 * SCTLR_EL3.A: Set to zero to disable Alignment fault checking.
 		 * -------------------------------------------------------------
 		 */
-		mrs	x0, sctlr_el3
-		bic	x0, x0, #SCTLR_EE_BIT
+		mov_imm	x0, (SCTLR_RESET_VAL & ~(SCTLR_EE_BIT | SCTLR_WXN_BIT \
+				| SCTLR_SA_BIT | SCTLR_A_BIT))
 		msr	sctlr_el3, x0
 		isb
-	.endif /* _set_endian */
+	.endif /* _init_sctlr */
 
 	.if \_warm_boot_mailbox
 		/* -------------------------------------------------------------
