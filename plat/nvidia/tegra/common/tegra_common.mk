@@ -38,12 +38,15 @@ USE_COHERENT_MEM	:=	0
 
 SEPARATE_CODE_AND_RODATA :=	1
 
+PLAT_XLAT_TABLES_DYNAMIC :=	1
+$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
 PLAT_INCLUDES		:=	-Iplat/nvidia/tegra/include/drivers \
 				-Iplat/nvidia/tegra/include \
 				-Iplat/nvidia/tegra/include/${TARGET_SOC}
 
-PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/aarch64/xlat_tables.c
+include lib/xlat_tables_v2/xlat_tables.mk
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 COMMON_DIR		:=	plat/nvidia/tegra/common
 
