@@ -44,6 +44,9 @@ $(eval $(call add_define,ENABLE_CHIP_VERIFICATION_HARNESS))
 ENABLE_SMMU_DEVICE			:= 1
 $(eval $(call add_define,ENABLE_SMMU_DEVICE))
 
+NUM_SMMU_DEVICES			:= 1
+$(eval $(call add_define,NUM_SMMU_DEVICES))
+
 RESET_TO_BL31				:= 1
 
 PROGRAMMABLE_RESET_ADDRESS		:= 1
@@ -71,7 +74,7 @@ PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
 
 BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
-				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c	\
+				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c \
 				${COMMON_DIR}/drivers/smmu/smmu.c	\
 				${SOC_DIR}/drivers/mce/mce.c		\
 				${SOC_DIR}/drivers/mce/ari.c		\
@@ -82,5 +85,6 @@ BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c		\
 				${SOC_DIR}/plat_sip_calls.c		\
+				${SOC_DIR}/plat_smmu.c			\
 				${SOC_DIR}/plat_trampoline.S
 

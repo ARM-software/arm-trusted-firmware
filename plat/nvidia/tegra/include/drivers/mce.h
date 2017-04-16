@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,35 +38,35 @@
  * MCE commands
  ******************************************************************************/
 typedef enum mce_cmd {
-	MCE_CMD_ENTER_CSTATE = 0,
-	MCE_CMD_UPDATE_CSTATE_INFO = 1,
-	MCE_CMD_UPDATE_CROSSOVER_TIME = 2,
-	MCE_CMD_READ_CSTATE_STATS = 3,
-	MCE_CMD_WRITE_CSTATE_STATS = 4,
-	MCE_CMD_IS_SC7_ALLOWED = 5,
-	MCE_CMD_ONLINE_CORE = 6,
-	MCE_CMD_CC3_CTRL = 7,
-	MCE_CMD_ECHO_DATA = 8,
-	MCE_CMD_READ_VERSIONS = 9,
-	MCE_CMD_ENUM_FEATURES = 10,
-	MCE_CMD_ROC_FLUSH_CACHE_TRBITS = 11,
-	MCE_CMD_ENUM_READ_MCA = 12,
-	MCE_CMD_ENUM_WRITE_MCA = 13,
-	MCE_CMD_ROC_FLUSH_CACHE = 14,
-	MCE_CMD_ROC_CLEAN_CACHE = 15,
-	MCE_CMD_ENABLE_LATIC = 16,
-	MCE_CMD_UNCORE_PERFMON_REQ = 17,
-	MCE_CMD_MISC_CCPLEX = 18,
-	MCE_CMD_IS_CCX_ALLOWED = 0xFE,
-	MCE_CMD_MAX = 0xFF,
+	MCE_CMD_ENTER_CSTATE = 0U,
+	MCE_CMD_UPDATE_CSTATE_INFO = 1U,
+	MCE_CMD_UPDATE_CROSSOVER_TIME = 2U,
+	MCE_CMD_READ_CSTATE_STATS = 3U,
+	MCE_CMD_WRITE_CSTATE_STATS = 4U,
+	MCE_CMD_IS_SC7_ALLOWED = 5U,
+	MCE_CMD_ONLINE_CORE = 6U,
+	MCE_CMD_CC3_CTRL = 7U,
+	MCE_CMD_ECHO_DATA = 8U,
+	MCE_CMD_READ_VERSIONS = 9U,
+	MCE_CMD_ENUM_FEATURES = 10U,
+	MCE_CMD_ROC_FLUSH_CACHE_TRBITS = 11U,
+	MCE_CMD_ENUM_READ_MCA = 12U,
+	MCE_CMD_ENUM_WRITE_MCA = 13U,
+	MCE_CMD_ROC_FLUSH_CACHE = 14U,
+	MCE_CMD_ROC_CLEAN_CACHE = 15U,
+	MCE_CMD_ENABLE_LATIC = 16U,
+	MCE_CMD_UNCORE_PERFMON_REQ = 17U,
+	MCE_CMD_MISC_CCPLEX = 18U,
+	MCE_CMD_IS_CCX_ALLOWED = 0xFEU,
+	MCE_CMD_MAX = 0xFFU,
 } mce_cmd_t;
 
-#define MCE_CMD_MASK				0xFF
+#define MCE_CMD_MASK				0xFFU
 
 /*******************************************************************************
  * Timeout value used to powerdown a core
  ******************************************************************************/
-#define MCE_CORE_SLEEP_TIME_INFINITE		0xFFFFFFFF
+#define MCE_CORE_SLEEP_TIME_INFINITE		0xFFFFFFFFU
 
 /*******************************************************************************
  * Struct to prepare UPDATE_CSTATE_INFO request

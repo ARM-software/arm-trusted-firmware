@@ -69,6 +69,7 @@ typedef enum tegra_platform {
 typedef enum tegra_chipid {
 	TEGRA_CHIPID_TEGRA13 = 0x13,
 	TEGRA_CHIPID_TEGRA21 = 0x21,
+	TEGRA_CHIPID_TEGRA18 = 0x18,
 } tegra_chipid_t;
 
 /*
@@ -107,6 +108,13 @@ uint8_t tegra_chipid_is_t210(void)
 	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
 
 	return (chip_id == TEGRA_CHIPID_TEGRA21);
+}
+
+uint8_t tegra_chipid_is_t186(void)
+{
+	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
+
+	return (chip_id == TEGRA_CHIPID_TEGRA18);
 }
 
 /*

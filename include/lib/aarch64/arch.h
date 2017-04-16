@@ -419,6 +419,10 @@
 
 #define EC_BITS(x)			(x >> ESR_EC_SHIFT) & ESR_EC_MASK
 
+/* Reset bit inside the Reset management register for EL3 (RMR_EL3) */
+#define RMR_RESET_REQUEST_SHIFT 	0x1u
+#define RMR_WARM_RESET_CPU		(1u << RMR_RESET_REQUEST_SHIFT)
+
 /*******************************************************************************
  * Definitions of register offsets, fields and macros for CPU system
  * instructions.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,8 +39,8 @@
 /*******************************************************************************
  * Tegra DRAM memory base address
  ******************************************************************************/
-#define TEGRA_DRAM_BASE		0x80000000
-#define TEGRA_DRAM_END		0x27FFFFFFF
+#define TEGRA_DRAM_BASE		0x80000000ULL
+#define TEGRA_DRAM_END		0x27FFFFFFFULL
 
 /*******************************************************************************
  * Struct for parameters received from BL2
@@ -103,6 +103,8 @@ void tegra_security_setup(void);
 void tegra_security_setup_videomem(uintptr_t base, uint64_t size);
 
 /* Declarations for tegra_pm.c */
+extern uint8_t tegra_fake_system_suspend;
+
 void tegra_pm_system_suspend_entry(void);
 void tegra_pm_system_suspend_exit(void);
 int tegra_system_suspended(void);
