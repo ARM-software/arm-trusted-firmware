@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -112,7 +112,7 @@ void tlkd_init_tlk_ep_state(struct entry_point_info *tlk_entry_point,
 
 	/* Associate this context with the cpu specified */
 	tlk_ctx->mpidr = read_mpidr_el1();
-	clr_std_smc_active_flag(tlk_ctx->state);
+	clr_yield_smc_active_flag(tlk_ctx->state);
 	cm_set_context(&tlk_ctx->cpu_ctx, SECURE);
 
 	if (rw == SP_AARCH64)

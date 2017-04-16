@@ -245,14 +245,14 @@ static uint64_t trusty_smc_handler(uint32_t smc_fid,
 	 * Verified Boot is not even supported and returning success here
 	 * would not compromise the boot process.
 	 */
-	if (!ep_info && (smc_fid == SMC_SC_SET_ROT_PARAMS)) {
+	if (!ep_info && (smc_fid == SMC_YC_SET_ROT_PARAMS)) {
 		SMC_RET1(handle, 0);
 	} else if (!ep_info) {
 		SMC_RET1(handle, SMC_UNK);
 	}
 
 	if (is_caller_secure(flags)) {
-		if (smc_fid == SMC_SC_NS_RETURN) {
+		if (smc_fid == SMC_YC_NS_RETURN) {
 			ret = trusty_context_switch(SECURE, x1, 0, 0, 0);
 			SMC_RET8(handle, ret.r0, ret.r1, ret.r2, ret.r3,
 				 ret.r4, ret.r5, ret.r6, ret.r7);
@@ -448,13 +448,13 @@ DECLARE_RT_SVC(
 	trusty_smc_handler
 );
 
-/* Define a SPD runtime service descriptor for standard SMC calls */
+/* Define a SPD runtime service descriptor for yielding SMC calls */
 DECLARE_RT_SVC(
 	trusty_std,
 
 	OEN_TAP_START,
 	SMC_ENTITY_SECURE_MONITOR,
-	SMC_TYPE_STD,
+	SMC_TYPE_YIELD,
 	NULL,
 	trusty_smc_handler
 );

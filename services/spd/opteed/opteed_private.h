@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -110,7 +110,7 @@
 typedef uint32_t optee_vector_isn_t;
 
 typedef struct optee_vectors {
-	optee_vector_isn_t std_smc_entry;
+	optee_vector_isn_t yield_smc_entry;
 	optee_vector_isn_t fast_smc_entry;
 	optee_vector_isn_t cpu_on_entry;
 	optee_vector_isn_t cpu_off_entry;
