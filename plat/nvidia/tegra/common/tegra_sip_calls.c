@@ -86,7 +86,7 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 	/* Check if this is a SoC specific SiP */
 	err = plat_sip_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
 	if (err == 0)
-		SMC_RET1(handle, err);
+		SMC_RET1(handle, (uint64_t)err);
 
 	switch (smc_fid) {
 
