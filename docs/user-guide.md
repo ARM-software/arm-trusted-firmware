@@ -286,6 +286,14 @@ performed.
     payload. Please refer to the "Booting an EL3 payload" section for more
     details.
 
+*   `ENABLE_ASSERTIONS`: This option controls whether or not calls to `assert()`
+    are compiled out. For debug builds, this option defaults to 1, and calls to
+    `assert()` are left in place. For release builds, this option defaults to 0
+    and calls to `assert()` function are compiled out. This option can be set
+    independently of `DEBUG`. It can also be used to hide any auxiliary code
+    that is only required for the assertion and does not fit in the assertion
+    itself.
+
 *   `ENABLE_PMF`: Boolean option to enable support for optional Performance
      Measurement Framework(PMF). Default is 0.
 
