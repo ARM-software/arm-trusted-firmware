@@ -254,31 +254,11 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_RESET_VAL;
 	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL0, wdata_0);
 
-	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
-	} while ((val & wdata_0) != wdata_0);
-
-	/* Wait one more time due to SW WAR for known legacy issue */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
-	} while ((val & wdata_0) != wdata_0);
-
 	val = tegra_mc_read_32(MC_CLIENT_HOTRESET_CTRL1);
 	assert(val == wdata_1);
 
 	wdata_1 = MC_CLIENT_HOTRESET_CTRL1_RESET_VAL;
 	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL1, wdata_1);
-
-	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
-	} while ((val & wdata_1) != wdata_1);
-
-	/* Wait one more time due to SW WAR for known legacy issue */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
-	} while ((val & wdata_1) != wdata_1);
 
 #endif
 }
