@@ -42,63 +42,10 @@ struct file_state {
 static struct file_state current_file = {0};
 
 /* Identify the device type as dummy */
-io_type_t device_type_dummy(void)
+static io_type_t device_type_dummy(void)
 {
 	return IO_TYPE_DUMMY;
 }
-
-/* Dummy device functions */
-static int dummy_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info);
-static int dummy_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
-			     io_entity_t *entity);
-static int dummy_block_len(io_entity_t *entity, size_t *length);
-static int dummy_block_read(io_entity_t *entity, uintptr_t buffer,
-			     size_t length, size_t *length_read);
-static int dummy_block_close(io_entity_t *entity);
-static int dummy_dev_close(io_dev_info_t *dev_info);
-
-
-static const io_dev_connector_t dummy_dev_connector = {
-	.dev_open = dummy_dev_open
-};
-
-
-static const io_dev_funcs_t dummy_dev_funcs = {
-	.type = device_type_dummy,
-	.open = dummy_block_open,
-	.seek = NULL,
-	.size = dummy_block_len,
-	.read = dummy_block_read,
-	.write = NULL,
-	.close = dummy_block_close,
-	.dev_init = NULL,
-	.dev_close = dummy_dev_close,
-};
-
-
-static const io_dev_info_t dummy_dev_info = {
-	.funcs = &dummy_dev_funcs,
-	.info = (uintptr_t)NULL
-};
-
-
-/* Open a connection to the dummy device */
-static int dummy_dev_open(const uintptr_t dev_spec __attribute__((unused)),
-			   io_dev_info_t **dev_info)
-{
-	assert(dev_info != NULL);
-	*dev_info = (io_dev_info_t *)&dummy_dev_info;
-
-	return 0;
-}
-
-
-/* Close a connection to the dummy device */
-static int dummy_dev_close(io_dev_info_t *dev_info)
-{
-	return 0;
-}
-
 
 /* Open a file on the dummy device */
 static int dummy_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
@@ -123,7 +70,6 @@ static int dummy_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	return result;
 }
 
-
 /* Return the size of a file on the dummy device */
 static int dummy_block_len(io_entity_t *entity, size_t *length)
 {
@@ -134,7 +80,6 @@ static int dummy_block_len(io_entity_t *entity, size_t *length)
 
 	return 0;
 }
-
 
 /* Read data from a file on the dummy device */
 static int dummy_block_read(io_entity_t *entity, uintptr_t buffer,
@@ -147,7 +92,6 @@ static int dummy_block_read(io_entity_t *entity, uintptr_t buffer,
 	return 0;
 }
 
-
 /* Close a file on the dummy device */
 static int dummy_block_close(io_entity_t *entity)
 {
@@ -159,6 +103,42 @@ static int dummy_block_close(io_entity_t *entity)
 	return 0;
 }
 
+/* Close a connection to the dummy device */
+static int dummy_dev_close(io_dev_info_t *dev_info)
+{
+	return 0;
+}
+
+static const io_dev_funcs_t dummy_dev_funcs = {
+	.type = device_type_dummy,
+	.open = dummy_block_open,
+	.seek = NULL,
+	.size = dummy_block_len,
+	.read = dummy_block_read,
+	.write = NULL,
+	.close = dummy_block_close,
+	.dev_init = NULL,
+	.dev_close = dummy_dev_close,
+};
+
+static const io_dev_info_t dummy_dev_info = {
+	.funcs = &dummy_dev_funcs,
+	.info = (uintptr_t)NULL
+};
+
+/* Open a connection to the dummy device */
+static int dummy_dev_open(const uintptr_t dev_spec __attribute__((unused)),
+			   io_dev_info_t **dev_info)
+{
+	assert(dev_info != NULL);
+	*dev_info = (io_dev_info_t *)&dummy_dev_info;
+
+	return 0;
+}
+
+static const io_dev_connector_t dummy_dev_connector = {
+	.dev_open = dummy_dev_open
+};
 
 /* Exported functions */
 
