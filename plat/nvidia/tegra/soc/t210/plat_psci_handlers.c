@@ -100,6 +100,39 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 	return PSCI_E_SUCCESS;
 }
 
+/*******************************************************************************
+ * Platform handler to calculate the proper target power level at the
+ * specified affinity level
+ ******************************************************************************/
+plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
+					     const plat_local_state_t *states,
+					     unsigned int ncpu)
+{
+	plat_local_state_t target = *states;
+	int cpu = plat_my_core_pos();
+	int core_pos = read_mpidr() & MPIDR_CPU_MASK;
+
+	/* get the power state at this level */
+	if (lvl == MPIDR_AFFLVL1)
+		target = *(states + core_pos);
+	if (lvl == MPIDR_AFFLVL2)
+		target = *(states + cpu);
+
+	/* Cluster idle/power-down */
+	if ((lvl == MPIDR_AFFLVL1) && ((target == PSTATE_ID_CLUSTER_IDLE) ||
+	    (target == PSTATE_ID_CLUSTER_POWERDN))) {
+		return target;
+	}
+
+	/* System Suspend */
+	if (((lvl == MPIDR_AFFLVL2) || (lvl == MPIDR_AFFLVL1)) &&
+	    (target == PSTATE_ID_SOC_POWERDN))
+		return PSTATE_ID_SOC_POWERDN;
+
+	/* default state */
+	return PSCI_LOCAL_STATE_RUN;
+}
+
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	u_register_t mpidr = read_mpidr();
@@ -121,14 +154,14 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	} else if (stateid_afflvl1 == PSTATE_ID_CLUSTER_IDLE) {
 
-		assert(stateid_afflvl0 == PLAT_MAX_OFF_STATE);
+		assert(stateid_afflvl0 == PSTATE_ID_CLUSTER_IDLE);
 
 		/* Prepare for cluster idle */
 		tegra_fc_cluster_idle(mpidr);
 
 	} else if (stateid_afflvl1 == PSTATE_ID_CLUSTER_POWERDN) {
 
-		assert(stateid_afflvl0 == PLAT_MAX_OFF_STATE);
+		assert(stateid_afflvl0 == PSTATE_ID_CLUSTER_POWERDN);
 
 		/* Prepare for cluster powerdn */
 		tegra_fc_cluster_powerdn(mpidr);
