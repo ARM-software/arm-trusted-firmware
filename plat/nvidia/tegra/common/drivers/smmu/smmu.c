@@ -116,7 +116,7 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 
 	/* Save SMMU config settings */
 	memcpy16((void *)(uintptr_t)smmu_ctx_addr, (void *)smmu_ctx_regs,
-		 sizeof(smmu_ctx_regs));
+		 sizeof(smmu_regs_t));
 
 	/* save the SMMU table address */
 	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_LO,
