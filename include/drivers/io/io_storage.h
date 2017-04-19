@@ -122,5 +122,10 @@ int io_write(uintptr_t handle, const uintptr_t buffer, size_t length,
 
 int io_close(uintptr_t handle);
 
+int io_retry(void);
+
+int io_get_num_retries(void);
+
+void io_set_num_retries(int num_retries);
 
 #endif /* __IO_H__ */

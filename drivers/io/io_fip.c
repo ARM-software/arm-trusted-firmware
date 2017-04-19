@@ -188,11 +188,6 @@ static int fip_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params)
 static int fip_dev_close(io_dev_info_t *dev_info)
 {
 	/* TODO: Consider tracking open files and cleaning them up here */
-
-	/* Clear the backend. */
-	backend_dev_handle = (uintptr_t)NULL;
-	backend_image_spec = (uintptr_t)NULL;
-
 	return 0;
 }
 
