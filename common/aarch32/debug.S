@@ -90,7 +90,7 @@ func report_exception
 	no_ret	plat_panic_handler
 endfunc report_exception
 
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 .section .rodata.assert_str, "aS"
 assert_msg1:
 	.asciz "ASSERT: File "
@@ -155,7 +155,7 @@ dec_print_loop:
 #endif /* LOG_LEVEL >= LOG_LEVEL_INFO */
 	no_ret	plat_panic_handler
 endfunc asm_assert
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 /*
  * This function prints a string from address in r4

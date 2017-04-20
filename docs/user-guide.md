@@ -203,11 +203,6 @@ performed.
     in MPIDR is set and access the bit-fields in MPIDR accordingly. Default
     value of this flag is 0.
 
-*   `ASM_ASSERTION`: This flag determines whether the assertion checks within
-    assembly source files are enabled or not. This option defaults to the
-    value of `DEBUG` - that is, by default this is only enabled for a debug
-    build of the firmware.
-
 *   `BL2`: This is an optional build option which specifies the path to BL2
     image for the `fip` target. In this case, the BL2 in the ARM Trusted
     Firmware will not be built.

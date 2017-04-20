@@ -41,7 +41,7 @@
 /* The offset to add to get ascii for numerals '0 - 9' */
 #define ASCII_OFFSET_NUM	0x30
 
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 .section .rodata.assert_str, "aS"
 assert_msg1:
 	.asciz "ASSERT: File "
@@ -106,7 +106,7 @@ _assert_loop:
 #endif /* LOG_LEVEL >= LOG_LEVEL_INFO */
 	no_ret	plat_panic_handler
 endfunc asm_assert
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 /*
  * This function prints a string from address in x4.
