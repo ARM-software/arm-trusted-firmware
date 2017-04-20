@@ -80,6 +80,15 @@ $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 # speed.
 $(eval $(call add_define,MBEDTLS_SHA256_SMALLER))
 
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
+
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
 ENABLE_PSCI_STAT		:=	1
 ENABLE_PMF			:=	1

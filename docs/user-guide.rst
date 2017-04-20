@@ -256,6 +256,12 @@ Common build options
    BL32 image for the ``fip`` target. In this case, the BL32 in the ARM
    Trusted Firmware will not be built.
 
+- ``BL32_EXTRA1``: This is an optional build option which specifies the path to
+   Trusted OS Extra1 image for the  ``fip`` target.
+
+- ``BL32_EXTRA2``: This is an optional build option which specifies the path to
+   Trusted OS Extra2 image for the ``fip`` target.
+
 -  ``BL32_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
    file that contains the BL32 private key in PEM format. If ``SAVE_KEYS=1``,
    this file name will be used to save the key.

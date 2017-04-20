@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -95,6 +95,12 @@ ifeq (${NEED_BL32},yes)
     $(eval $(call CERT_ADD_CMD_OPT,${BUILD_PLAT}/tos_fw_key.crt,--tos-fw-key-cert))
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/tos_fw_content.crt,--tos-fw-cert))
     $(eval $(call FIP_ADD_PAYLOAD,${BUILD_PLAT}/tos_fw_key.crt,--tos-fw-key-cert))
+ifneq (${BL32_EXTRA1},)
+    $(eval $(call CERT_ADD_CMD_OPT,${BL32_EXTRA1},--tos-fw-extra1,true))
+endif
+ifneq (${BL32_EXTRA2},)
+    $(eval $(call CERT_ADD_CMD_OPT,${BL32_EXTRA2},--tos-fw-extra2,true))
+endif
 endif
 
 # Add the BL33 CoT (key cert + img cert + image)

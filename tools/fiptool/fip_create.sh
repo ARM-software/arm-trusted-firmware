@@ -28,6 +28,8 @@ Components that can be added/updated:
 	--scp-fw FILENAME		SCP Firmware SCP_BL2
 	--soc-fw FILENAME		EL3 Runtime Firmware BL31
 	--tos-fw FILENAME		Secure Payload BL32 (Trusted OS)
+	--tos-fw-extra1 FILENAME	Secure Payload BL32 Extra1 (Trusted OS Extra1)
+	--tos-fw-extra2 FILENAME	Secure Payload BL32 Extra2 (Trusted OS Extra2)
 	--nt-fw FILENAME		Non-Trusted Firmware BL33
 	--rot-cert FILENAME		Root Of Trust key certificate
 	--trusted-key-cert FILENAME	Trusted key certificate
@@ -69,6 +71,8 @@ while :; do
 	    --scp-fw | \
 	    --soc-fw | \
 	    --tos-fw | \
+	    --tos-fw-extra1 | \
+	    --tos-fw-extra2 | \
 	    --nt-fw | \
 	    --rot-cert | \
 	    --trusted-key-cert | \
