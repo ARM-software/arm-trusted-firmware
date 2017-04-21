@@ -646,7 +646,7 @@ static unsigned long get_image_align(char *arg)
 	unsigned long align;
 
 	errno = 0;
-	align = strtoul(arg, &endptr, 10);
+	align = strtoul(arg, &endptr, 0);
 	if (*endptr != '\0' || !is_power_of_2(align) || errno != 0)
 		log_errx("Invalid alignment: %s", arg);
 
