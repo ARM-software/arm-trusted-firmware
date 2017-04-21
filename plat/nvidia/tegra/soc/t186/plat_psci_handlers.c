@@ -46,11 +46,8 @@
 
 extern void prepare_cpu_pwr_dwn(void);
 extern void tegra186_cpu_reset_handler(void);
-extern uint32_t __tegra186_cpu_reset_handler_data,
-		__tegra186_cpu_reset_handler_end;
-
-/* TZDRAM offset for saving SMMU context */
-#define TEGRA186_SMMU_CTX_OFFSET	16
+extern uint32_t __tegra186_cpu_reset_handler_end,
+		__tegra186_smmu_context;
 
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xF
@@ -151,9 +148,8 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* save SMMU context to TZDRAM */
 		smmu_ctx_base = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_cpu_reset_handler_data -
-			 (uintptr_t)tegra186_cpu_reset_handler) +
-			TEGRA186_SMMU_CTX_OFFSET;
+			((uintptr_t)&__tegra186_smmu_context -
+			 (uintptr_t)tegra186_cpu_reset_handler);
 		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
 
 		/* Prepare for system suspend */

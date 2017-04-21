@@ -94,6 +94,8 @@ endfunc tegra186_cpu_reset_handler
 __tegra186_cpu_reset_handler_data:
 	.quad	tegra_secure_entrypoint
 	.quad	__BL31_END__ - BL31_BASE
+	.globl	__tegra186_smmu_context
+__tegra186_smmu_context:
 	.rept	TEGRA186_SMMU_CTX_SIZE
 	.quad	0
 	.endr
