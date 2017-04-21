@@ -115,9 +115,6 @@ func console_core_putc
 	b.ne	1b
 	mov	w2, #0xD		/* '\r' */
 	str	w2, [x1, #UARTTX]
-	ldr	w2, [x1, #UARTFCR]
-	orr	w2, w2, #UARTFCR_TXCLR
-	str	w2, [x1, #UARTFCR]
 
 	/* Check if the transmit FIFO is full */
 2:	ldr	w2, [x1, #UARTLSR]
@@ -125,9 +122,6 @@ func console_core_putc
 	cmp	w2, #(UARTLSR_TEMT | UARTLSR_THRE)
 	b.ne	2b
 	str	w0, [x1, #UARTTX]
-	ldr	w2, [x1, #UARTFCR]
-	orr	w2, w2, #UARTFCR_TXCLR
-	str	w2, [x1, #UARTFCR]
 	ret
 putc_error:
 	mov	w0, #-1
