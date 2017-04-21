@@ -44,6 +44,7 @@
 #pragma weak bl1_plat_arch_setup
 #pragma weak bl1_platform_setup
 #pragma weak bl1_plat_sec_mem_layout
+#pragma weak bl1_plat_prepare_exit
 
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/

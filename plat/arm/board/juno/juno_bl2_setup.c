@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,67 +27,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <arm_def.h>
+
+#include <assert.h>
+#include <bl_common.h>
+#include <desc_image_load.h>
 #include <plat_arm.h>
 
-/*
- * Table of memory regions for different BL stages to map using the MMU.
- * This doesn't include Trusted SRAM as arm_setup_page_tables() already
- * takes care of mapping it.
- */
-#ifdef IMAGE_BL1
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-#if TRUSTED_BOARD_BOOT
-	ARM_MAP_NS_DRAM1,
-#endif
-	{0}
-};
-#endif
-#ifdef IMAGE_BL2
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_FLASH0_RO,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
-	ARM_MAP_TSP_SEC_MEM,
-	{0}
-};
-#endif
-#ifdef IMAGE_BL2U
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#ifdef IMAGE_BL31
-const mmap_region_t plat_arm_mmap[] = {
-	ARM_MAP_SHARED_RAM,
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
-#ifdef IMAGE_BL32
-const mmap_region_t plat_arm_mmap[] = {
-#ifdef AARCH32
-	ARM_MAP_SHARED_RAM,
-#endif
-	V2M_MAP_IOFPGA,
-	CSS_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
-	{0}
-};
-#endif
+#if JUNO_AARCH32_EL3_RUNTIME
+/*******************************************************************************
+ * This function changes the spsr for BL32 image to bypass
+ * the check in BL1 AArch64 exception handler. This is needed in the aarch32
+ * boot flow as the core comes up in aarch64 and to enter the BL32 image a warm
+ * reset in aarch32 state is required.
+ ******************************************************************************/
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	int err = arm_bl2_handle_post_image_load(image_id);
 
-ARM_CASSERT_MMAP
+	if (!err && (image_id == BL32_IMAGE_ID)) {
+		bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+		assert(bl_mem_params);
+		bl_mem_params->ep_info.spsr = SPSR_64(MODE_EL3, MODE_SP_ELX,
+			DISABLE_ALL_EXCEPTIONS);
+	}
 
+	return err;
+}
+#endif /* JUNO_AARCH32_EL3_RUNTIME */

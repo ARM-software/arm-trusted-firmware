@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,18 +34,12 @@
 #include <cortex_a53.h>
 #include <cortex_a57.h>
 #include <cortex_a72.h>
-#include <cpu_macros.S>
-#include <css_def.h>
 #include <v2m_def.h>
 #include "../juno_def.h"
 
 
 	.globl	plat_reset_handler
 	.globl	plat_arm_calc_core_pos
-#if JUNO_AARCH32_EL3_RUNTIME
-	.globl	plat_get_my_entrypoint
-	.globl	juno_reset_to_aarch32_state
-#endif
 
 #define JUNO_REVISION(rev)	REV_JUNO_R##rev
 #define JUNO_HANDLER(rev)	plat_reset_handler_juno_r##rev
@@ -59,22 +53,23 @@
 	 * --------------------------------------------------------------------
 	 */
 	.macro jump_to_handler _revision, _handler
-	cmp	x0, #\_revision
-	b.eq	\_handler
+	cmp	r0, #\_revision
+	beq	\_handler
 	.endm
 
 	/* --------------------------------------------------------------------
 	 * Helper macro that reads the part number of the current CPU and jumps
 	 * to the given label if it matches the CPU MIDR provided.
 	 *
-	 * Clobbers x0.
+	 * Clobbers r0.
 	 * --------------------------------------------------------------------
 	 */
 	.macro  jump_if_cpu_midr _cpu_midr, _label
-	mrs	x0, midr_el1
-	ubfx	x0, x0, MIDR_PN_SHIFT, #12
-	cmp     w0, #((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
-	b.eq	\_label
+	ldcopr	r0, MIDR
+	ubfx	r0, r0, #MIDR_PN_SHIFT, #12
+	ldr	r1, =((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
+	cmp	r0, r1
+	beq	\_label
 	.endm
 
 	/* --------------------------------------------------------------------
@@ -96,9 +91,9 @@ func JUNO_HANDLER(0)
 	 * Enable the event stream every 65536 cycles
 	 * --------------------------------------------------------------------
 	 */
-	mov     x0, #(0xf << EVNTI_SHIFT)
-	orr     x0, x0, #EVNTEN_BIT
-	msr     CNTKCTL_EL1, x0
+	mov	r0, #(0xf << EVNTI_SHIFT)
+	orr	r0, r0, #EVNTEN_BIT
+	stcopr	r0, CNTKCTL
 
 	/* --------------------------------------------------------------------
 	 * Nothing else to do on Cortex-A53.
@@ -110,12 +105,12 @@ func JUNO_HANDLER(0)
 	 * Cortex-A57 specific settings
 	 * --------------------------------------------------------------------
 	 */
-	mov	x0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+	mov	r0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
 		      (L2_TAG_RAM_LATENCY_3_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT))
-	msr     L2CTLR_EL1, x0
+	stcopr	r0, L2CTLR
 1:
 	isb
-	ret
+	bx	lr
 endfunc JUNO_HANDLER(0)
 
 	/* --------------------------------------------------------------------
@@ -140,17 +135,17 @@ func JUNO_HANDLER(1)
 	 * --------------------------------------------------------------------
 	 */
 	jump_if_cpu_midr CORTEX_A57_MIDR, A57
-	ret
+	bx	lr
 
 A57:
 	/* --------------------------------------------------------------------
 	 * Cortex-A57 specific settings
 	 * --------------------------------------------------------------------
 	 */
-	mov	x0, #(L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT)
-	msr     L2CTLR_EL1, x0
+	mov	r0, #(L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT)
+	stcopr	r0, L2CTLR
 	isb
-	ret
+	bx	lr
 endfunc JUNO_HANDLER(1)
 
 	/* --------------------------------------------------------------------
@@ -174,18 +169,18 @@ func JUNO_HANDLER(2)
 	 * --------------------------------------------------------------------
 	 */
 	jump_if_cpu_midr CORTEX_A72_MIDR, A72
-	ret
+	bx	lr
 
 A72:
 	/* --------------------------------------------------------------------
 	 * Cortex-A72 specific settings
 	 * --------------------------------------------------------------------
 	 */
-	mov	x0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+	mov	r0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
 		      (L2_TAG_RAM_LATENCY_2_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT))
-	msr     L2CTLR_EL1, x0
+	stcopr	r0, L2CTLR
 	isb
-	ret
+	bx	lr
 endfunc JUNO_HANDLER(2)
 
 	/* --------------------------------------------------------------------
@@ -197,10 +192,10 @@ endfunc JUNO_HANDLER(2)
 	 */
 func plat_reset_handler
 	/* Read the V2M SYS_ID register */
-	mov_imm	x0, (V2M_SYSREGS_BASE + V2M_SYS_ID)
-	ldr	w1, [x0]
+	ldr	r0, =(V2M_SYSREGS_BASE + V2M_SYS_ID)
+	ldr	r1, [r0]
 	/* Extract board revision from the SYS_ID */
-	ubfx	x0, x1, #V2M_SYS_ID_REV_SHIFT, #4
+	ubfx	r0, r1, #V2M_SYS_ID_REV_SHIFT, #4
 
 	JUMP_TO_HANDLER_IF_JUNO_R(0)
 	JUMP_TO_HANDLER_IF_JUNO_R(1)
@@ -212,20 +207,6 @@ func plat_reset_handler
 endfunc plat_reset_handler
 
 	/* -----------------------------------------------------
-	 *  void juno_do_reset_to_aarch32_state(void);
-	 *
-	 *  Request warm reset to AArch32 mode.
-	 * -----------------------------------------------------
-	 */
-func juno_do_reset_to_aarch32_state
-	mov	x0, #RMR_EL3_RR_BIT
-	dsb	sy
-	msr	rmr_el3, x0
-	isb
-	wfi
-endfunc juno_do_reset_to_aarch32_state
-
-	/* -----------------------------------------------------
 	 *  unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
 	 *  Helper function to calculate the core position.
 	 * -----------------------------------------------------
@@ -233,77 +214,3 @@ endfunc juno_do_reset_to_aarch32_state
 func plat_arm_calc_core_pos
 	b	css_calc_core_pos_swap_cluster
 endfunc plat_arm_calc_core_pos
-
-#if JUNO_AARCH32_EL3_RUNTIME
-	/* ---------------------------------------------------------------------
-	 * uintptr_t plat_get_my_entrypoint (void);
-	 *
-	 * Main job of this routine is to distinguish between a cold and a warm
-	 * boot. On JUNO platform, this distinction is based on the contents of
-	 * the Trusted Mailbox. It is initialised to zero by the SCP before the
-	 * AP cores are released from reset. Therefore, a zero mailbox means
-	 * it's a cold reset. If it is a warm boot then a request to reset to
-	 * AArch32 state is issued. This is the only way to reset to AArch32
-	 * in EL3 on Juno. A trampoline located at the high vector address
-	 * has already been prepared by BL1.
-	 *
-	 * This functions returns the contents of the mailbox, i.e.:
-	 *  - 0 for a cold boot;
-	 *  - request warm reset in AArch32 state for warm boot case;
-	 * ---------------------------------------------------------------------
-	 */
-func plat_get_my_entrypoint
-	mov_imm	x0, PLAT_ARM_TRUSTED_MAILBOX_BASE
-	ldr	x0, [x0]
-	cbz	x0, return
-	b	juno_do_reset_to_aarch32_state
-1:
-	b	1b
-return:
-	ret
-endfunc plat_get_my_entrypoint
-
-/*
- * Emit a "movw r0, #imm16" which moves the lower
- * 16 bits of `_val` into r0.
- */
-.macro emit_movw _reg_d, _val
-	mov_imm	\_reg_d, (0xe3000000 | \
-			((\_val & 0xfff) | \
-			((\_val & 0xf000) << 4)))
-.endm
-
-/*
- * Emit a "movt r0, #imm16" which moves the upper
- * 16 bits of `_val` into r0.
- */
-.macro emit_movt _reg_d, _val
-	mov_imm	\_reg_d, (0xe3400000 | \
-			(((\_val & 0x0fff0000) >> 16) | \
-			((\_val & 0xf0000000) >> 12)))
-.endm
-
-/*
- * This function writes the trampoline code at HI-VEC (0xFFFF0000)
- * address which loads r0 with the entrypoint address for
- * BL32 (a.k.a SP_MIN) when EL3 is in AArch32 mode. A warm reset
- * to AArch32 mode is then requested by writing into RMR_EL3.
- */
-func juno_reset_to_aarch32_state
-	emit_movw	w0, BL32_BASE
-	emit_movt	w1, BL32_BASE
-	/* opcode "bx r0" to branch using r0 in AArch32 mode */
-	mov_imm	w2, 0xe12fff10
-
-	/* Write the above opcodes at HI-VECTOR location */
-	mov_imm	x3, HI_VECTOR_BASE
-	str	w0, [x3], #4
-	str	w1, [x3], #4
-	str	w2, [x3]
-
-	bl	juno_do_reset_to_aarch32_state
-1:
-	b	1b
-endfunc juno_reset_to_aarch32_state
-
-#endif /* JUNO_AARCH32_EL3_RUNTIME */

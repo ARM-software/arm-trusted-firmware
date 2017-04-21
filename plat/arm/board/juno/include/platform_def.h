@@ -103,8 +103,8 @@
 #endif
 
 #ifdef IMAGE_BL32
-# define PLAT_ARM_MMAP_ENTRIES		4
-# define MAX_XLAT_TABLES		3
+# define PLAT_ARM_MMAP_ENTRIES		5
+# define MAX_XLAT_TABLES		4
 #endif
 
 /*

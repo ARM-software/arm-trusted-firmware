@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,76 +28,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bl_common.h>
-#include <errno.h>
-#include <platform.h>
-#include <plat_arm.h>
-#include <sp805.h>
-#include <tbbr_img_def.h>
-#include <v2m_def.h>
+#ifndef __CORTEX_A72_H__
+#define __CORTEX_A72_H__
 
-#define RESET_REASON_WDOG_RESET		(0x2)
-
-void juno_reset_to_aarch32_state(void);
-
+/* Cortex-A72 midr for revision 0 */
+#define CORTEX_A72_MIDR 0x410FD080
 
 /*******************************************************************************
- * The following function checks if Firmware update is needed,
- * by checking if TOC in FIP image is valid or watchdog reset happened.
+ * CPU Extended Control register specific definitions.
  ******************************************************************************/
-unsigned int bl1_plat_get_next_image_id(void)
-{
-	unsigned int *reset_flags_ptr = (unsigned int *)SSC_GPRETN;
-	unsigned int *nv_flags_ptr = (unsigned int *)
-			(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGS);
-	/*
-	 * Check if TOC is invalid or watchdog reset happened.
-	 */
-	if ((arm_io_is_toc_valid() != 1) ||
-		((*reset_flags_ptr & RESET_REASON_WDOG_RESET) &&
-		((*nv_flags_ptr == -EAUTH) || (*nv_flags_ptr == -ENOENT))))
-		return NS_BL1U_IMAGE_ID;
+#define CPUECTLR			p15, 1, c15	/* Instruction def. */
 
-	return BL2_IMAGE_ID;
-}
+#define CPUECTLR_SMP_BIT		(1 << 6)
+#define CPUECTLR_DIS_TWD_ACC_PFTCH_BIT	(1 << 38)
+#define CPUECTLR_L2_IPFTCH_DIST_MASK	(0x3 << 35)
+#define CPUECTLR_L2_DPFTCH_DIST_MASK	(0x3 << 32)
 
 /*******************************************************************************
- * On JUNO update the arg2 with address of SCP_BL2U image info.
+ * CPU Memory Error Syndrome register specific definitions.
  ******************************************************************************/
-void bl1_plat_set_ep_info(unsigned int image_id,
-		entry_point_info_t *ep_info)
-{
-	if (image_id == BL2U_IMAGE_ID) {
-		image_desc_t *image_desc = bl1_plat_get_image_desc(SCP_BL2U_IMAGE_ID);
-		ep_info->args.arg2 = (unsigned long)&image_desc->image_info;
-	}
-}
+#define CPUMERRSR			p15, 2, c15 /* Instruction def. */
 
 /*******************************************************************************
- * On Juno clear SYS_NVFLAGS and wait for watchdog reset.
+ * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
-__dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
-{
-	unsigned int *nv_flags_clr = (unsigned int *)
-			(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGSCLR);
-	unsigned int *nv_flags_ptr = (unsigned int *)
-			(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGS);
+#define CPUACTLR			p15, 0, c15 /* Instruction def. */
 
-	/* Clear the NV flags register. */
-	*nv_flags_clr = *nv_flags_ptr;
+#define CPUACTLR_DISABLE_L1_DCACHE_HW_PFTCH	(1 << 56)
+#define CPUACTLR_NO_ALLOC_WBWA         (1 << 49)
+#define CPUACTLR_DCC_AS_DCCI           (1 << 44)
 
-	while (1)
-		wfi();
-}
+/*******************************************************************************
+ * L2 Control register specific definitions.
+ ******************************************************************************/
+#define L2CTLR			p15, 1, c9, c0, 3 /* Instruction def. */
 
-#if JUNO_AARCH32_EL3_RUNTIME
-void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
-{
-#if !ARM_DISABLE_TRUSTED_WDOG
-	/* Disable watchdog before leaving BL1 */
-	sp805_stop(ARM_SP805_TWDG_BASE);
-#endif
+#define L2CTLR_DATA_RAM_LATENCY_SHIFT	0
+#define L2CTLR_TAG_RAM_LATENCY_SHIFT	6
 
-	juno_reset_to_aarch32_state();
-}
-#endif /* JUNO_AARCH32_EL3_RUNTIME */
+#define L2_DATA_RAM_LATENCY_3_CYCLES	0x2
+#define L2_TAG_RAM_LATENCY_2_CYCLES	0x1
+#define L2_TAG_RAM_LATENCY_3_CYCLES	0x2
+
+/*******************************************************************************
+ * L2 Memory Error Syndrome register specific definitions.
+ ******************************************************************************/
+#define L2MERRSR			p15, 3, c15 /* Instruction def. */
+
+#endif /* __CORTEX_A72_H__ */

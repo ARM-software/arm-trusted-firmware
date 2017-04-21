@@ -148,8 +148,14 @@ BL2_SOURCES		+=	drivers/io/io_fip.c				\
 				plat/arm/common/arm_bl2_setup.c			\
 				plat/arm/common/arm_io_storage.c
 ifeq (${LOAD_IMAGE_V2},1)
-BL2_SOURCES		+=	plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c\
-				plat/arm/common/arm_image_load.c		\
+# Because BL1/BL2 execute in AArch64 mode but BL32 in AArch32 we need to use
+# the AArch32 descriptors.
+ifeq (${JUNO_AARCH32_EL3_RUNTIME},1)
+BL2_SOURCES		+=	plat/arm/common/aarch32/arm_bl2_mem_params_desc.c
+else
+BL2_SOURCES		+=	plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c
+endif
+BL2_SOURCES		+=	plat/arm/common/arm_image_load.c		\
 				common/desc_image_load.c
 endif
 
