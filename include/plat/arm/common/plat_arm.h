@@ -30,12 +30,12 @@
 #ifndef __PLAT_ARM_H__
 #define __PLAT_ARM_H__
 
+#include <arm_xlat_tables.h>
 #include <bakery_lock.h>
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
 #include <utils.h>
-#include <xlat_tables_v2.h>
 
 /*******************************************************************************
  * Forward declarations

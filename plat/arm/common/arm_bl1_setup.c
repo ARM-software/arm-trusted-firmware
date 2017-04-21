@@ -30,13 +30,13 @@
 
 #include <arch.h>
 #include <arm_def.h>
+#include <arm_xlat_tables.h>
 #include <bl_common.h>
 #include <console.h>
 #include <platform_def.h>
 #include <plat_arm.h>
 #include <sp805.h>
 #include <utils.h>
-#include <xlat_tables_v2.h>
 #include "../../../bl1/bl1_private.h"
 
 /* Weak definitions may be overridden in specific ARM standard platform */

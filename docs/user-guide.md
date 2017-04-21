@@ -571,6 +571,10 @@ performed.
     -   `tdram` : Trusted DRAM (if available)
     -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
 
+*   `ARM_XLAT_TABLES_LIB_V1`: boolean option to compile the Trusted Firmware
+    with version 1 of the translation tables library instead of version 2. It is
+    set to 0 by default, which selects version 2.
+
 For a better understanding of these options, the ARM development platform memory
 map is explained in the [Firmware Design].
 
