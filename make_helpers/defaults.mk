@@ -154,3 +154,9 @@ USE_COHERENT_MEM		:= 1
 
 # Build verbosity
 V				:= 0
+
+# Whether to enable D-Cache early during warm boot. This is usually
+# applicable for platforms wherein interconnect programming is not
+# required to enable cache coherency after warm reset (eg: single cluster
+# platforms).
+WARMBOOT_ENABLE_DCACHE_EARLY	:= 0

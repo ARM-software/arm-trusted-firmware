@@ -302,7 +302,7 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 	 */
 	psci_plat_pm_ops->pwr_domain_suspend_finish(state_info);
 
-#if !HW_ASSISTED_COHERENCY
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	/* Arch. management: Enable the data cache, stack memory maintenance. */
 	psci_do_pwrup_cache_maintenance();
 #endif
