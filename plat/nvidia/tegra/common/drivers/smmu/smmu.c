@@ -87,7 +87,7 @@ static void tegra_smmu_write_32(uint32_t smmu_id,
  */
 void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 {
-	uint32_t i;
+	uint32_t i, num_entries = 0;
 	smmu_regs_t *smmu_ctx_regs;
 #if DEBUG
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
@@ -110,13 +110,29 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 	smmu_ctx_regs = plat_get_smmu_ctx();
 	assert(smmu_ctx_regs);
 
+	/*
+	 * smmu_ctx_regs[0].val contains the size of the context table minus
+	 * the last entry. Sanity check the table size before we start with
+	 * the context save operation.
+	 */
+	while (smmu_ctx_regs[num_entries].val != 0xFFFFFFFFU) {
+		num_entries++;
+	}
+
+	/* panic if the sizes do not match */
+	if (num_entries != smmu_ctx_regs[0].val)
+		panic();
+
 	/* save SMMU register values */
-	for (i = 1; i < smmu_ctx_regs[0].val; i++)
+	for (i = 1; i < num_entries; i++)
 		smmu_ctx_regs[i].val = mmio_read_32(smmu_ctx_regs[i].reg);
+
+	/* increment by 1 to take care of the last entry */
+	num_entries++;
 
 	/* Save SMMU config settings */
 	memcpy16((void *)(uintptr_t)smmu_ctx_addr, (void *)smmu_ctx_regs,
-		 sizeof(smmu_regs_t));
+		 (sizeof(smmu_regs_t) * num_entries));
 
 	/* save the SMMU table address */
 	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_LO,
