@@ -50,10 +50,14 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 # Default values for build configurations, and their dependencies
 ################################################################################
 
+ifdef ASM_ASSERTION
+        $(warning ASM_ASSERTION is removed, use ENABLE_ASSERTIONS instead.)
+endif
+
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 
-# ASM_ASSERTION enabled for DEBUG builds only
-ASM_ASSERTION			:= ${DEBUG}
+# Assertions enabled for DEBUG builds by default
+ENABLE_ASSERTIONS		:= ${DEBUG}
 ENABLE_PMF			:= ${ENABLE_RUNTIME_INSTRUMENTATION}
 PLAT				:= ${DEFAULT_PLAT}
 
@@ -439,13 +443,13 @@ endif
 # Build options checks
 ################################################################################
 
-$(eval $(call assert_boolean,ASM_ASSERTION))
 $(eval $(call assert_boolean,COLD_BOOT_SINGLE_CPU))
 $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call assert_boolean,DEBUG))
 $(eval $(call assert_boolean,DISABLE_PEDANTIC))
+$(eval $(call assert_boolean,ENABLE_ASSERTIONS))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
@@ -478,10 +482,10 @@ $(eval $(call add_define,ARM_CCI_PRODUCT_ID))
 $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
 $(eval $(call add_define,ARM_GIC_ARCH))
-$(eval $(call add_define,ASM_ASSERTION))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
 $(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
+$(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))

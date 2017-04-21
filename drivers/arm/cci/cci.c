@@ -39,7 +39,7 @@ static uintptr_t g_cci_base;
 static unsigned int g_max_master_id;
 static const int *g_cci_slave_if_map;
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 static int validate_cci_map(const int *map)
 {
 	unsigned int valid_cci_map = 0;
@@ -72,7 +72,7 @@ static int validate_cci_map(const int *map)
 
 	return 1;
 }
-#endif /* DEBUG */
+#endif /* ENABLE_ASSERTIONS */
 
 void cci_init(uintptr_t cci_base,
 		const int *map,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,7 +76,7 @@ func cortex_a32_core_pwr_dwn
 	push	{r12, lr}
 
 	/* Assert if cache is enabled */
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	ldcopr	r0, SCTLR
 	tst	r0, #SCTLR_C_BIT
 	ASM_ASSERT(eq)
@@ -107,7 +107,7 @@ func cortex_a32_cluster_pwr_dwn
 	push	{r12, lr}
 
 	/* Assert if cache is enabled */
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	ldcopr	r0, SCTLR
 	tst	r0, #SCTLR_C_BIT
 	ASM_ASSERT(eq)

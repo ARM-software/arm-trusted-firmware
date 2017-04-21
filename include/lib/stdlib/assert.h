@@ -34,30 +34,27 @@
  *	@(#)assert.h	8.2 (Berkeley) 1/21/94
  * $FreeBSD$
  */
-
-#include <sys/cdefs.h>
-
 /*
- * Unlike other ANSI header files, <assert.h> may usefully be included
- * multiple times, with and without NDEBUG defined.
+ * Portions copyright (c) 2017, ARM Limited and Contributors.
+ * All rights reserved.
  */
-
-#undef assert
-#undef _assert
-
-#ifdef NDEBUG
-#define	assert(e)	((void)0)
-#define	_assert(e)	((void)0)
-#else
-#define	_assert(e)	assert(e)
-
-#define	assert(e)	((e) ? (void)0 : __assert(__func__, __FILE__, \
-			    __LINE__, #e))
-#endif /* NDEBUG */
 
 #ifndef _ASSERT_H_
 #define _ASSERT_H_
+
+#include <sys/cdefs.h>
+
+#if ENABLE_ASSERTIONS
+#define	_assert(e)	assert(e)
+#define	assert(e)	((e) ? (void)0 : __assert(__func__, __FILE__, \
+			    __LINE__, #e))
+#else
+#define	assert(e)	((void)0)
+#define	_assert(e)	((void)0)
+#endif /* ENABLE_ASSERTIONS */
+
 __BEGIN_DECLS
 void __assert(const char *, const char *, int, const char *) __dead2;
 __END_DECLS
+
 #endif /* !_ASSERT_H_ */

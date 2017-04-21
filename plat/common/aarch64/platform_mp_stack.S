@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -131,7 +131,7 @@ endfunc platform_set_stack
 	 * -------------------------------------------------------
 	 */
 func_deprecated platform_get_stack
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	mrs	x1, mpidr_el1
 	cmp	x0, x1
 	ASM_ASSERT(eq)
@@ -150,7 +150,7 @@ endfunc_deprecated platform_get_stack
 	 * -----------------------------------------------------
 	 */
 func_deprecated platform_set_stack
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	mrs	x1, mpidr_el1
 	cmp	x0, x1
 	ASM_ASSERT(eq)

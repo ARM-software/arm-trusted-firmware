@@ -55,7 +55,7 @@ func reset_handler
 
 	/* Get the matching cpu_ops pointer */
 	bl	get_cpu_ops_ptr
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif
@@ -94,7 +94,7 @@ func prepare_cpu_pwr_dwn
 
 	mrs	x1, tpidr_el3
 	ldr	x0, [x1, #CPU_DATA_CPU_OPS_PTR]
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif
@@ -120,7 +120,7 @@ func init_cpu_ops
 	cbnz	x0, 1f
 	mov	x10, x30
 	bl	get_cpu_ops_ptr
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif

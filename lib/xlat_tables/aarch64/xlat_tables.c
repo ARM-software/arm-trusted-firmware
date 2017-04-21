@@ -127,7 +127,7 @@ static unsigned long long calc_physical_addr_size_bits(
 	return TCR_PS_BITS_4GB;
 }
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 /* Physical Address ranges supported in the AArch64 Memory Model */
 static const unsigned int pa_range_bits_arr[] = {
 	PARANGE_0000, PARANGE_0001, PARANGE_0010, PARANGE_0011, PARANGE_0100,
@@ -144,7 +144,7 @@ static unsigned long long get_max_supported_pa(void)
 
 	return (1ULL << pa_range_bits_arr[pa_range]) - 1ULL;
 }
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 void init_xlat_tables(void)
 {

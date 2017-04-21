@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -109,7 +109,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 	assert((base_pa + (unsigned long long)size - 1ULL) <=
 					(PLAT_PHY_ADDR_SPACE_SIZE - 1));
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 
 	/* Check for PAs and VAs overlaps with all other regions */
 	for (mm = mmap; mm->size; ++mm) {
@@ -154,7 +154,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 
 	mm = mmap; /* Restore pointer to the start of the array */
 
-#endif /* DEBUG */
+#endif /* ENABLE_ASSERTIONS */
 
 	/* Find correct place in mmap to insert new region */
 	while (mm->base_va < base_va && mm->size)

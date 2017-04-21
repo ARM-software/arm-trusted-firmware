@@ -203,11 +203,6 @@ performed.
     in MPIDR is set and access the bit-fields in MPIDR accordingly. Default
     value of this flag is 0.
 
-*   `ASM_ASSERTION`: This flag determines whether the assertion checks within
-    assembly source files are enabled or not. This option defaults to the
-    value of `DEBUG` - that is, by default this is only enabled for a debug
-    build of the firmware.
-
 *   `BL2`: This is an optional build option which specifies the path to BL2
     image for the `fip` target. In this case, the BL2 in the ARM Trusted
     Firmware will not be built.
@@ -285,6 +280,14 @@ performed.
     the normal boot flow. It must specify the entry point address of the EL3
     payload. Please refer to the "Booting an EL3 payload" section for more
     details.
+
+*   `ENABLE_ASSERTIONS`: This option controls whether or not calls to `assert()`
+    are compiled out. For debug builds, this option defaults to 1, and calls to
+    `assert()` are left in place. For release builds, this option defaults to 0
+    and calls to `assert()` function are compiled out. This option can be set
+    independently of `DEBUG`. It can also be used to hide any auxiliary code
+    that is only required for the assertion and does not fit in the assertion
+    itself.
 
 *   `ENABLE_PMF`: Boolean option to enable support for optional Performance
      Measurement Framework(PMF). Default is 0.

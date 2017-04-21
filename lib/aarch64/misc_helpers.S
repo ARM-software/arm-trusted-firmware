@@ -215,7 +215,7 @@ func zeromem_dczva
 	tmp1         .req x4
 	tmp2         .req x5
 
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	/*
 	 * Check for M bit (MMU enabled) of the current SCTLR_EL(1|3)
 	 * register value and panic if the MMU is disabled.
@@ -228,7 +228,7 @@ func zeromem_dczva
 
 	tst	tmp1, #SCTLR_M_BIT
 	ASM_ASSERT(ne)
-#endif /* ASM_ASSERTION */
+#endif /* ENABLE_ASSERTIONS */
 
 	/* stop_address is the address past the last to zero */
 	add	stop_address, cursor, length
@@ -247,7 +247,7 @@ func zeromem_dczva
 	mov	tmp2, #(1 << 2)
 	lsl	block_size, tmp2, block_size
 
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	/*
 	 * Assumes block size is at least 16 bytes to avoid manual realignment
 	 * of the cursor at the end of the DCZVA loop.
@@ -444,7 +444,7 @@ endfunc zeromem_dczva
  * --------------------------------------------------------------------------
  */
 func memcpy16
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	orr	x3, x0, x1
 	tst	x3, #0xf
 	ASM_ASSERT(eq)

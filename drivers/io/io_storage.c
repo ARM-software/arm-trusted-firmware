@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,8 +51,8 @@ static const io_dev_info_t *devices[MAX_IO_DEVICES];
 /* Number of currently registered devices */
 static unsigned int dev_count;
 
-
-#if DEBUG	/* Extra validation functions only used in debug builds */
+/* Extra validation functions only used when asserts are enabled */
+#if ENABLE_ASSERTIONS
 
 /* Return a boolean value indicating whether a device connector is valid */
 static int is_valid_dev_connector(const io_dev_connector_t *dev_con)
@@ -89,7 +89,8 @@ static int is_valid_seek_mode(io_seek_mode_t mode)
 	return ((mode != IO_SEEK_INVALID) && (mode < IO_SEEK_MAX));
 }
 
-#endif	/* End of debug-only validation functions */
+#endif /* ENABLE_ASSERTIONS */
+/* End of extra validation functions only used when asserts are enabled */
 
 
 /* Open a connection to a specific device */
