@@ -15,8 +15,8 @@
 /*******************************************************************************
  * Tegra DRAM memory base address
  ******************************************************************************/
-#define TEGRA_DRAM_BASE		0x80000000ULL
-#define TEGRA_DRAM_END		0x27FFFFFFFULL
+#define TEGRA_DRAM_BASE		ULL(0x80000000)
+#define TEGRA_DRAM_END		ULL(0x27FFFFFFF)
 
 /*******************************************************************************
  * Struct for parameters received from BL2
