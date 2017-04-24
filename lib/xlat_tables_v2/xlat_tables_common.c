@@ -92,7 +92,7 @@ xlat_ctx_t tf_xlat_ctx = {
 };
 
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
-			size_t size, unsigned int attr)
+			size_t size, mmap_attr_t attr)
 {
 	mmap_region_t mm = {
 		.base_va = base_va,
@@ -114,7 +114,7 @@ void mmap_add(const mmap_region_t *mm)
 #if PLAT_XLAT_TABLES_DYNAMIC
 
 int mmap_add_dynamic_region(unsigned long long base_pa,
-			    uintptr_t base_va, size_t size, unsigned int attr)
+			    uintptr_t base_va, size_t size, mmap_attr_t attr)
 {
 	mmap_region_t mm = {
 		.base_va = base_va,

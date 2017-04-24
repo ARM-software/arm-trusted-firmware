@@ -115,7 +115,7 @@ static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /* Returns a block/page table descriptor for the given level and attributes. */
-static uint64_t xlat_desc(unsigned int attr, unsigned long long addr_pa,
+static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
 			  int level)
 {
 	uint64_t desc;
@@ -609,7 +609,7 @@ void print_mmap(mmap_region_t *const mmap)
  */
 static int mmap_add_region_check(xlat_ctx_t *ctx, unsigned long long base_pa,
 				 uintptr_t base_va, size_t size,
-				 unsigned int attr)
+				 mmap_attr_t attr)
 {
 	mmap_region_t *mm = ctx->mmap;
 	unsigned long long end_pa = base_pa + size - 1;

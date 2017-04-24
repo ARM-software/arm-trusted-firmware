@@ -114,7 +114,7 @@ void init_xlat_tables(void);
  * be added before initializing the MMU and cannot be removed later.
  */
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
-				size_t size, unsigned int attr);
+				size_t size, mmap_attr_t attr);
 
 /*
  * Add a region with defined base PA and base VA. This type of region can be
@@ -128,7 +128,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
  *    EPERM: It overlaps another region in an invalid way.
  */
 int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
-				size_t size, unsigned int attr);
+				size_t size, mmap_attr_t attr);
 
 /*
  * Add an array of static regions with defined base PA and base VA. This type
