@@ -154,6 +154,9 @@ BL2_SOURCES		+=	plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c
 endif
 BL2_SOURCES		+=	plat/arm/common/arm_image_load.c		\
 				common/desc_image_load.c
+ifeq (${SPD},opteed)
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+endif
 endif
 
 BL2U_SOURCES		+=	plat/arm/common/arm_bl2u_setup.c

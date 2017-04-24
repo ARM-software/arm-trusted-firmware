@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,6 +98,43 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	    .image_info.image_max_size = BL32_LIMIT - BL32_BASE,
 
 	    .next_handoff_image_id = BL33_IMAGE_ID,
+    },
+
+	/*
+	 * Fill BL32 external 1 related information.
+	 * A typical use for extra1 image is with OP-TEE where it is the pager image.
+	 */
+    {
+	    .image_id = BL32_EXTRA1_IMAGE_ID,
+
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+		    VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
+
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
+	    .image_info.image_base = BL32_BASE,
+	    .image_info.image_max_size = BL32_LIMIT - BL32_BASE,
+
+	    .next_handoff_image_id = INVALID_IMAGE_ID,
+    },
+
+	/*
+	 * Fill BL32 external 2 related information.
+	 * A typical use for extra2 image is with OP-TEE where it is the paged image.
+	 */
+    {
+	    .image_id = BL32_EXTRA2_IMAGE_ID,
+
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+		    VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
+
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
+#ifdef SPD_opteed
+	    .image_info.image_base = ARM_OPTEE_PAGEABLE_LOAD_BASE,
+	    .image_info.image_max_size = ARM_OPTEE_PAGEABLE_LOAD_SIZE,
+#endif
+	    .next_handoff_image_id = INVALID_IMAGE_ID,
     },
 # endif /* BL32_BASE */
 

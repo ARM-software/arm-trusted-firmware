@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,6 +34,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	SOC_CSS_MAP_DEVICE,
 	ARM_MAP_NS_DRAM1,
 	ARM_MAP_TSP_SEC_MEM,
+#ifdef SPD_opteed
+	ARM_OPTEE_PAGEABLE_LOAD_MEM,
+#endif
 	{0}
 };
 #endif
@@ -76,4 +79,3 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 
 ARM_CASSERT_MMAP
-
