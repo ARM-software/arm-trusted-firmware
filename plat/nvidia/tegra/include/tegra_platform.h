@@ -23,8 +23,17 @@
 #define PRE_SI_PLATFORM_SHIFT		U(0x14)
 #define PRE_SI_PLATFORM_MASK		U(0xF)
 
-/*
+/*******************************************************************************
  * Tegra chip ID values
+ ******************************************************************************/
+#define TEGRA_CHIPID_TEGRA13		U(0x13)
+#define TEGRA_CHIPID_TEGRA21		U(0x21)
+#define TEGRA_CHIPID_TEGRA18		U(0x18)
+
+#ifndef __ASSEMBLY__
+
+/*
+ * Tegra chip ID major/minor identifiers
  */
 uint32_t tegra_get_chipid_major(void);
 uint32_t tegra_get_chipid_minor(void);
@@ -48,5 +57,7 @@ bool tegra_platform_is_linsim(void);
 bool tegra_platform_is_fpga(void);
 bool tegra_platform_is_unit_fpga(void);
 bool tegra_platform_is_virt_dev_kit(void);
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* TEGRA_PLATFORM_H */

@@ -47,15 +47,6 @@ typedef enum tegra_platform {
 #define TEGRA_PRE_SI_DSIM_ASIM_LINSIM	U(6)
 #define TEGRA_PRE_SI_VDK		U(8)
 
-/*******************************************************************************
- * Tegra chip ID values
- ******************************************************************************/
-typedef enum tegra_chipid {
-	TEGRA_CHIPID_TEGRA13 = 0x13,
-	TEGRA_CHIPID_TEGRA21 = 0x21,
-	TEGRA_CHIPID_TEGRA18 = 0x18,
-} tegra_chipid_t;
-
 /*
  * Read the chip ID value
  */
