@@ -34,6 +34,8 @@ typedef enum  {
 	MT_DYNAMIC	= 1 << MT_DYN_SHIFT
 } mmap_priv_attr_t;
 
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
+
 /*
  * Function used to invalidate all levels of the translation walk for a given
  * virtual address. It must be called for every translation table entry that is
@@ -46,8 +48,6 @@ void xlat_arch_tlbi_va(uintptr_t va);
  * xlat_arch_tlbi_va().
  */
 void xlat_arch_tlbi_va_sync(void);
-
-#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /* Print VA, PA, size and attributes of all regions in the mmap array. */
 void print_mmap(mmap_region_t *const mmap);
