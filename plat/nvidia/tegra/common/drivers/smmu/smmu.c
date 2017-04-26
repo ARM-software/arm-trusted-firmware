@@ -89,7 +89,6 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 {
 	uint32_t i, num_entries = 0;
 	smmu_regs_t *smmu_ctx_regs;
-#if DEBUG
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	uint64_t tzdram_base = params_from_bl2->tzdram_base;
 	uint64_t tzdram_end = tzdram_base + params_from_bl2->tzdram_size;
@@ -102,8 +101,6 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 	(1 << (((reg_id1 >> ID1_NUMPAGENDXB_SHIFT) & ID1_NUMPAGENDXB_MASK) + 1));
 
 	assert(!((pgshift != PGSHIFT) || (cb_size != CB_SIZE)));
-#endif
-
 	assert((smmu_ctx_addr >= tzdram_base) && (smmu_ctx_addr <= tzdram_end));
 
 	/* get SMMU context table */
