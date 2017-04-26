@@ -30,11 +30,29 @@
 
 SOC_DIR			:=	plat/nvidia/tegra/soc/${TARGET_SOC}
 
-# Enable PSCI v1.0 extended state ID format
-PSCI_EXTENDED_STATE_ID	:=	1
+# enable ASM_ASSERTION for the build
+ASM_ASSERTION		:=	1
+$(eval $(call add_define,ASM_ASSERTION))
+
+# dump the state on crash console
+CRASH_REPORTING		:=	1
+$(eval $(call add_define,CRASH_REPORTING))
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:=	0
+
+# enable dynamic memory mapping
+PLAT_XLAT_TABLES_DYNAMIC :=	1
+$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
+# Enable PSCI v1.0 extended state ID format
+PSCI_EXTENDED_STATE_ID	:=	1
+
+# code and read-only data should be put on separate memory pages
+SEPARATE_CODE_AND_RODATA :=	1
+
+# do not use coherent memory
+USE_COHERENT_MEM	:=	0
 
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
