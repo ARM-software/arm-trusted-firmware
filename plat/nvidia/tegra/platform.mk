@@ -30,13 +30,12 @@
 
 SOC_DIR			:=	plat/nvidia/tegra/soc/${TARGET_SOC}
 
-# enable ASM_ASSERTION for the build
-ASM_ASSERTION		:=	1
-$(eval $(call add_define,ASM_ASSERTION))
-
 # dump the state on crash console
 CRASH_REPORTING		:=	1
 $(eval $(call add_define,CRASH_REPORTING))
+
+# enable assert() for release/debug builds
+ENABLE_ASSERTIONS	:=	1
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:=	0
