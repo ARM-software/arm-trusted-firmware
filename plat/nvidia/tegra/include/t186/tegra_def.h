@@ -196,6 +196,8 @@
  * Tegra Clock and Reset Controller constants
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x05000000)
+#define TEGRA_GPU_RESET_REG_OFFSET	U(0x30)
+#define  GPU_RESET_BIT			(U(1) << 0)
 
 /*******************************************************************************
  * Tegra micro-seconds timer constants

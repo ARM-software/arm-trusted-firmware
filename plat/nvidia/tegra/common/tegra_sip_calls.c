@@ -11,6 +11,7 @@
 #include <debug.h>
 #include <errno.h>
 #include <memctrl.h>
+#include <mmio.h>
 #include <runtime_svc.h>
 #include <tegra_private.h>
 #include <tegra_platform.h>
@@ -57,6 +58,7 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 			   void *handle,
 			   uint64_t flags)
 {
+	uint32_t regval;
 	int err;
 
 	/* Check if this is a SoC specific SiP */
@@ -84,6 +86,18 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 		 */
 		if ((x1 & 0xFFFFF) || (x2 & 0xFFFFF)) {
 			ERROR("Unaligned Video Memory base address!\n");
+			SMC_RET1(handle, -ENOTSUP);
+		}
+
+		/*
+		 * The GPU is the user of the Video Memory region. In order to
+		 * transition to the new memory region smoothly, we program the
+		 * new base/size ONLY if the GPU is in reset mode.
+		 */
+		regval = mmio_read_32(TEGRA_CAR_RESET_BASE +
+				      TEGRA_GPU_RESET_REG_OFFSET);
+		if ((regval & GPU_RESET_BIT) == 0UL) {
+			ERROR("GPU not in reset! Video Memory setup failed\n");
 			SMC_RET1(handle, -ENOTSUP);
 		}
 
