@@ -631,7 +631,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 
 		cm_el1_sysregs_context_restore(NON_SECURE);
 		cm_set_next_eret_context(NON_SECURE);
-		SMC_RET0(handle);
+		SMC_RET1(handle, SMC_OK);
 
 		/*
 		 * Request from non secure world to resume the preempted
