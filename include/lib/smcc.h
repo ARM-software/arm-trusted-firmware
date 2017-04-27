@@ -58,6 +58,7 @@
 
 #define SMC_64				1
 #define SMC_32				0
+#define SMC_OK				0
 #define SMC_UNK				0xffffffff
 #define SMC_TYPE_FAST			ULL(1)
 #define SMC_TYPE_STD			0
