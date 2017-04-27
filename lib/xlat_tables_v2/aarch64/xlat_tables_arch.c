@@ -151,6 +151,25 @@ void xlat_arch_tlbi_va_sync(void)
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
+int xlat_arch_current_el(void)
+{
+	int el = GET_EL(read_CurrentEl());
+
+	assert(el > 0);
+
+	return el;
+}
+
+uint64_t xlat_arch_get_xn_desc(int el)
+{
+	if (el == 3) {
+		return UPPER_ATTRS(XN);
+	} else {
+		assert(el == 1);
+		return UPPER_ATTRS(PXN);
+	}
+}
+
 void init_xlat_tables_arch(unsigned long long max_pa)
 {
 	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=

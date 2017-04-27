@@ -56,7 +56,10 @@
 #define SECOND_LEVEL_DESC_N	TWO_MB_SHIFT
 #define THIRD_LEVEL_DESC_N	FOUR_KB_SHIFT
 
+/* XN: Translation regimes that support one VA range (EL2 and EL3). */
 #define XN			(ULL(1) << 2)
+/* UXN, PXN: Translation regimes that support two VA ranges (EL1&0). */
+#define UXN			(ULL(1) << 2)
 #define PXN			(ULL(1) << 1)
 #define CONT_HINT		(ULL(1) << 0)
 #define UPPER_ATTRS(x)		(((x) & ULL(0x7)) << 52)

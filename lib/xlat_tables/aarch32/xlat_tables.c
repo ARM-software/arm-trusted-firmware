@@ -93,6 +93,20 @@ static unsigned long long get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS */
 
+int xlat_arch_current_el(void)
+{
+	/*
+	 * If EL3 is in AArch32 mode, all secure PL1 modes (Monitor, System,
+	 * SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
+	 */
+	return 3;
+}
+
+uint64_t xlat_arch_get_xn_desc(int el __unused)
+{
+	return UPPER_ATTRS(XN);
+}
+
 void init_xlat_tables(void)
 {
 	unsigned long long max_pa;

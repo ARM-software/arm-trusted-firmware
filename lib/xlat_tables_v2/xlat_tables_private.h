@@ -108,6 +108,13 @@ typedef struct {
 	/* Set to 1 when the translation tables are initialized. */
 	int initialized;
 
+	/*
+	 * Bit mask that has to be ORed to the rest of a translation table
+	 * descriptor in order to prohibit execution of code at the exception
+	 * level of this translation context.
+	 */
+	uint64_t execute_never_mask;
+
 } xlat_ctx_t;
 
 #if PLAT_XLAT_TABLES_DYNAMIC
@@ -177,6 +184,16 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
 /*
  * Architecture-specific initialization code.
  */
+
+/* Returns the current Exception Level. The returned EL must be 1 or higher. */
+int xlat_arch_current_el(void);
+
+/*
+ * Returns the bit mask that has to be ORed to the rest of a translation table
+ * descriptor so that execution of code is prohibited at the given Exception
+ * Level.
+ */
+uint64_t xlat_arch_get_xn_desc(int el);
 
 /* Execute architecture-specific translation table initialization code. */
 void init_xlat_tables_arch(unsigned long long max_pa);

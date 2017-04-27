@@ -146,6 +146,25 @@ static unsigned long long get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS */
 
+int xlat_arch_current_el(void)
+{
+	int el = GET_EL(read_CurrentEl());
+
+	assert(el > 0);
+
+	return el;
+}
+
+uint64_t xlat_arch_get_xn_desc(int el)
+{
+	if (el == 3) {
+		return UPPER_ATTRS(XN);
+	} else {
+		assert(el == 1);
+		return UPPER_ATTRS(PXN);
+	}
+}
+
 void init_xlat_tables(void)
 {
 	unsigned long long max_pa;
