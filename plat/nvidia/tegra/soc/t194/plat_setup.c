@@ -45,6 +45,14 @@ const unsigned char tegra_power_domain_tree_desc[] = {
 	PLATFORM_MAX_CPUS_PER_CLUSTER
 };
 
+/*******************************************************************************
+ * This function returns the Tegra default topology tree information.
+ ******************************************************************************/
+const unsigned char *plat_get_power_domain_tree_desc(void)
+{
+	return tegra_power_domain_tree_desc;
+}
+
 /*
  * Table of regions to map using the MMU.
  */
