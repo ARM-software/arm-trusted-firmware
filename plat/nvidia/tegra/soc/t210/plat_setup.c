@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,26 +8,9 @@
 #include <common/bl_common.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
-
+#include <platform.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
-
-/*******************************************************************************
- * The Tegra power domain tree has a single system level power domain i.e. a
- * single root node. The first entry in the power domain descriptor specifies
- * the number of power domains at the highest power level.
- *******************************************************************************
- */
-const unsigned char tegra_power_domain_tree_desc[] = {
-	/* No of root nodes */
-	1,
-	/* No of clusters */
-	PLATFORM_CLUSTER_COUNT,
-	/* No of CPU cores - cluster0 */
-	PLATFORM_MAX_CPUS_PER_CLUSTER,
-	/* No of CPU cores - cluster1 */
-	PLATFORM_MAX_CPUS_PER_CLUSTER
-};
 
 /* sets of MMIO ranges setup */
 #define MMIO_RANGE_0_ADDR	0x50000000
@@ -55,6 +38,31 @@ const mmap_region_t *plat_get_mmio_map(void)
 {
 	/* MMIO space */
 	return tegra_mmap;
+}
+
+/*******************************************************************************
+ * The Tegra power domain tree has a single system level power domain i.e. a
+ * single root node. The first entry in the power domain descriptor specifies
+ * the number of power domains at the highest power level.
+ *******************************************************************************
+ */
+const unsigned char tegra_power_domain_tree_desc[] = {
+	/* No of root nodes */
+	1,
+	/* No of clusters */
+	PLATFORM_CLUSTER_COUNT,
+	/* No of CPU cores - cluster0 */
+	PLATFORM_MAX_CPUS_PER_CLUSTER,
+	/* No of CPU cores - cluster1 */
+	PLATFORM_MAX_CPUS_PER_CLUSTER
+};
+
+/*******************************************************************************
+ * This function returns the Tegra default topology tree information.
+ ******************************************************************************/
+const unsigned char *plat_get_power_domain_tree_desc(void)
+{
+	return tegra_power_domain_tree_desc;
 }
 
 /*******************************************************************************
