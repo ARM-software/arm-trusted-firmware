@@ -25,7 +25,7 @@
 /*******************************************************************************
  * Common handler for all MCE commands
  ******************************************************************************/
-int32_t mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
+int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 			uint64_t arg2)
 {
 	uint64_t ret64 = 0, arg3, arg4, arg5;
@@ -161,7 +161,7 @@ int32_t mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 
 	default:
-		ERROR("unknown MCE command (%lld)\n", cmd);
+		ERROR("unknown MCE command (%llu)\n", cmd);
 		ret = EINVAL;
 		break;
 	}
@@ -196,7 +196,7 @@ int32_t mce_update_gsc_tzram(void)
 /*******************************************************************************
  * Handler to issue the UPDATE_CSTATE_INFO request
  ******************************************************************************/
-void mce_update_cstate_info(mce_cstate_info_t *cstate)
+void mce_update_cstate_info(const mce_cstate_info_t *cstate)
 {
 	/* issue the UPDATE_CSTATE_INFO request */
 	nvg_update_cstate_info(cstate->cluster, cstate->ccplex, cstate->system,
