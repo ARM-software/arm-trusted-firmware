@@ -50,10 +50,14 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 # Default values for build configurations, and their dependencies
 ################################################################################
 
+ifdef ASM_ASSERTION
+        $(warning ASM_ASSERTION is removed, use ENABLE_ASSERTIONS instead.)
+endif
+
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 
-# ASM_ASSERTION enabled for DEBUG builds only
-ASM_ASSERTION			:= ${DEBUG}
+# Assertions enabled for DEBUG builds by default
+ENABLE_ASSERTIONS		:= ${DEBUG}
 ENABLE_PMF			:= ${ENABLE_RUNTIME_INSTRUMENTATION}
 PLAT				:= ${DEFAULT_PLAT}
 
@@ -347,6 +351,11 @@ ifdef BL2_SOURCES
         endif
 endif
 
+# If SCP_BL2 is given, we always want FIP to include it.
+ifdef SCP_BL2
+        NEED_SCP_BL2		:=	yes
+endif
+
 # Process TBB related flags
 ifneq (${GENERATE_COT},0)
         # Common cert_create options
@@ -434,13 +443,13 @@ endif
 # Build options checks
 ################################################################################
 
-$(eval $(call assert_boolean,ASM_ASSERTION))
 $(eval $(call assert_boolean,COLD_BOOT_SINGLE_CPU))
 $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call assert_boolean,DEBUG))
 $(eval $(call assert_boolean,DISABLE_PEDANTIC))
+$(eval $(call assert_boolean,ENABLE_ASSERTIONS))
 $(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
@@ -459,6 +468,7 @@ $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
+$(eval $(call assert_boolean,WARMBOOT_ENABLE_DCACHE_EARLY))
 
 $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
@@ -473,10 +483,10 @@ $(eval $(call add_define,ARM_CCI_PRODUCT_ID))
 $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
 $(eval $(call add_define,ARM_GIC_ARCH))
-$(eval $(call add_define,ASM_ASSERTION))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
 $(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
+$(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
@@ -496,6 +506,7 @@ $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
+$(eval $(call add_define,WARMBOOT_ENABLE_DCACHE_EARLY))
 
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
@@ -539,6 +550,10 @@ endif
 ifeq (${NEED_BL2},yes)
 $(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},tb-fw)),\
 	$(eval $(call MAKE_BL,2,tb-fw)))
+endif
+
+ifeq (${NEED_SCP_BL2},yes)
+$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
 endif
 
 ifeq (${NEED_BL31},yes)

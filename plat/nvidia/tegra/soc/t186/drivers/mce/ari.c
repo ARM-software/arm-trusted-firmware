@@ -33,7 +33,7 @@
 #include <debug.h>
 #include <denver.h>
 #include <mmio.h>
-#include <mce.h>
+#include <mce_private.h>
 #include <sys/errno.h>
 #include <t18x_ari.h>
 
@@ -483,7 +483,7 @@ void ari_misc_ccplex(uint32_t ari_base, uint32_t index, uint32_t value)
 	 * used to enable/disable coresight clock gating.
 	 */
 
-	if ((index > TEGRA_ARI_MISC_CCPLEX_CORESIGHT_CG_CTRL) ||
+	if ((index > TEGRA_ARI_MISC_CCPLEX_EDBGREQ) ||
 		((index == TEGRA_ARI_MISC_CCPLEX_CORESIGHT_CG_CTRL) &&
 		(value > 1))) {
 		ERROR("%s: invalid parameters \n", __func__);

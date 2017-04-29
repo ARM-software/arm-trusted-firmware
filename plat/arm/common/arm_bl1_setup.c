@@ -30,13 +30,13 @@
 
 #include <arch.h>
 #include <arm_def.h>
+#include <arm_xlat_tables.h>
 #include <bl_common.h>
 #include <console.h>
 #include <platform_def.h>
 #include <plat_arm.h>
 #include <sp805.h>
 #include <utils.h>
-#include <xlat_tables_v2.h>
 #include "../../../bl1/bl1_private.h"
 
 /* Weak definitions may be overridden in specific ARM standard platform */
@@ -44,6 +44,7 @@
 #pragma weak bl1_plat_arch_setup
 #pragma weak bl1_platform_setup
 #pragma weak bl1_plat_sec_mem_layout
+#pragma weak bl1_plat_prepare_exit
 
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/

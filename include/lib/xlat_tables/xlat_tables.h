@@ -108,7 +108,7 @@ typedef struct mmap_region {
 /* Generic translation table APIs */
 void init_xlat_tables(void);
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
-				size_t size, unsigned int attr);
+				size_t size, mmap_attr_t attr);
 void mmap_add(const mmap_region_t *mm);
 
 #endif /*__ASSEMBLY__*/

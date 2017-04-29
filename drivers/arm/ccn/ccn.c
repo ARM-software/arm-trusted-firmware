@@ -81,7 +81,7 @@ static inline void ccn_reg_write(uintptr_t periphbase,
 	mmio_write_64(region_base + register_offset, value);
 }
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 
 typedef struct rn_info {
 		unsigned char node_desc[MAX_RN_NODES];
@@ -224,7 +224,7 @@ static void ccn_validate_plat_params(const ccn_desc_t *plat_desc)
 		info.node_desc[node_id]--;
 	}
 }
-#endif /* DEBUG */
+#endif /* ENABLE_ASSERTIONS */
 
 /*******************************************************************************
  * This function validates parameters passed by the platform (in a debug build)
@@ -234,7 +234,7 @@ static void ccn_validate_plat_params(const ccn_desc_t *plat_desc)
  ******************************************************************************/
 void ccn_init(const ccn_desc_t *plat_desc)
 {
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	ccn_validate_plat_params(plat_desc);
 #endif
 

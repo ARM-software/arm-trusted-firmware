@@ -34,6 +34,7 @@
 #include <auth_mod.h>
 #include <bl1.h>
 #include <bl_common.h>
+#include <console.h>
 #include <debug.h>
 #include <errata_report.h>
 #include <platform.h>
@@ -113,7 +114,7 @@ void bl1_main(void)
 
 	print_errata_status();
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	u_register_t val;
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
@@ -140,7 +141,7 @@ void bl1_main(void)
 		assert(CACHE_WRITEBACK_GRANULE == SIZE_FROM_LOG2_WORDS(val));
 	else
 		assert(CACHE_WRITEBACK_GRANULE <= MAX_CACHE_LINE_SIZE);
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 	/* Perform remaining generic architectural setup from EL3 */
 	bl1_arch_setup();
@@ -166,6 +167,8 @@ void bl1_main(void)
 		NOTICE("BL1-FWU: *******FWU Process Started*******\n");
 
 	bl1_prepare_next_image(image_id);
+
+	console_flush();
 }
 
 /*******************************************************************************

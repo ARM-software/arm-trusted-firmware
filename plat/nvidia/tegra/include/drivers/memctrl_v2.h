@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,10 @@
 
 #include <tegra_def.h>
 
+#ifndef __ASSEMBLY__
+
+#include <sys/types.h>
+
 /*******************************************************************************
  * StreamID to indicate no SMMU translations (requests to be steered on the
  * SMMU bypass path)
@@ -42,19 +46,18 @@
 /*******************************************************************************
  * Stream ID Override Config registers
  ******************************************************************************/
-#define MC_STREAMID_OVERRIDE_CFG_PTCR		0x0
-#define MC_STREAMID_OVERRIDE_CFG_AFIR		0x70
-#define MC_STREAMID_OVERRIDE_CFG_HDAR		0xA8
-#define MC_STREAMID_OVERRIDE_CFG_HOST1XDMAR	0xB0
-#define MC_STREAMID_OVERRIDE_CFG_NVENCSRD	0xE0
-#define MC_STREAMID_OVERRIDE_CFG_SATAR		0xF8
+#define MC_STREAMID_OVERRIDE_CFG_PTCR		0x000
+#define MC_STREAMID_OVERRIDE_CFG_AFIR		0x070
+#define MC_STREAMID_OVERRIDE_CFG_HDAR		0x0A8
+#define MC_STREAMID_OVERRIDE_CFG_HOST1XDMAR	0x0B0
+#define MC_STREAMID_OVERRIDE_CFG_NVENCSRD	0x0E0
+#define MC_STREAMID_OVERRIDE_CFG_SATAR		0x0F8
 #define MC_STREAMID_OVERRIDE_CFG_MPCORER	0x138
 #define MC_STREAMID_OVERRIDE_CFG_NVENCSWR	0x158
 #define MC_STREAMID_OVERRIDE_CFG_AFIW		0x188
-#define MC_STREAMID_OVERRIDE_CFG_SATAW		0x1E8
+#define MC_STREAMID_OVERRIDE_CFG_HDAW		0x1A8
 #define MC_STREAMID_OVERRIDE_CFG_MPCOREW	0x1C8
 #define MC_STREAMID_OVERRIDE_CFG_SATAW		0x1E8
-#define MC_STREAMID_OVERRIDE_CFG_HDAW		0x1A8
 #define MC_STREAMID_OVERRIDE_CFG_ISPRA		0x220
 #define MC_STREAMID_OVERRIDE_CFG_ISPWA		0x230
 #define MC_STREAMID_OVERRIDE_CFG_ISPWB		0x238
@@ -117,94 +120,9 @@
 #define MC_STREAMID_OVERRIDE_CFG_NVDECSRD1	0x518
 
 /*******************************************************************************
- * Stream ID Security Config registers
+ * Macro to calculate Security cfg register addr from StreamID Override register
  ******************************************************************************/
-#define MC_STREAMID_SECURITY_CFG_PTCR		0x4
-#define MC_STREAMID_SECURITY_CFG_AFIR		0x74
-#define MC_STREAMID_SECURITY_CFG_HDAR		0xAC
-#define MC_STREAMID_SECURITY_CFG_HOST1XDMAR	0xB4
-#define MC_STREAMID_SECURITY_CFG_NVENCSRD	0xE4
-#define MC_STREAMID_SECURITY_CFG_SATAR		0xFC
-#define MC_STREAMID_SECURITY_CFG_HDAW		0x1AC
-#define MC_STREAMID_SECURITY_CFG_MPCORER	0x13C
-#define MC_STREAMID_SECURITY_CFG_NVENCSWR	0x15C
-#define MC_STREAMID_SECURITY_CFG_AFIW		0x18C
-#define MC_STREAMID_SECURITY_CFG_MPCOREW	0x1CC
-#define MC_STREAMID_SECURITY_CFG_SATAW		0x1EC
-#define MC_STREAMID_SECURITY_CFG_ISPRA		0x224
-#define MC_STREAMID_SECURITY_CFG_ISPWA		0x234
-#define MC_STREAMID_SECURITY_CFG_ISPWB		0x23C
-#define MC_STREAMID_SECURITY_CFG_XUSB_HOSTR	0x254
-#define MC_STREAMID_SECURITY_CFG_XUSB_HOSTW	0x25C
-#define MC_STREAMID_SECURITY_CFG_XUSB_DEVR	0x264
-#define MC_STREAMID_SECURITY_CFG_XUSB_DEVW	0x26C
-#define MC_STREAMID_SECURITY_CFG_TSECSRD	0x2A4
-#define MC_STREAMID_SECURITY_CFG_TSECSWR	0x2AC
-#define MC_STREAMID_SECURITY_CFG_GPUSRD		0x2C4
-#define MC_STREAMID_SECURITY_CFG_GPUSWR		0x2CC
-#define MC_STREAMID_SECURITY_CFG_SDMMCRA	0x304
-#define MC_STREAMID_SECURITY_CFG_SDMMCRAA	0x30C
-#define MC_STREAMID_SECURITY_CFG_SDMMCR		0x314
-#define MC_STREAMID_SECURITY_CFG_SDMMCRAB	0x31C
-#define MC_STREAMID_SECURITY_CFG_SDMMCWA	0x324
-#define MC_STREAMID_SECURITY_CFG_SDMMCWAA	0x32C
-#define MC_STREAMID_SECURITY_CFG_SDMMCW		0x334
-#define MC_STREAMID_SECURITY_CFG_SDMMCWAB	0x33C
-#define MC_STREAMID_SECURITY_CFG_VICSRD		0x364
-#define MC_STREAMID_SECURITY_CFG_VICSWR		0x36C
-#define MC_STREAMID_SECURITY_CFG_VIW		0x394
-#define MC_STREAMID_SECURITY_CFG_NVDECSRD	0x3C4
-#define MC_STREAMID_SECURITY_CFG_NVDECSWR	0x3CC
-#define MC_STREAMID_SECURITY_CFG_APER		0x3D4
-#define MC_STREAMID_SECURITY_CFG_APEW		0x3DC
-#define MC_STREAMID_SECURITY_CFG_NVJPGSRD	0x3F4
-#define MC_STREAMID_SECURITY_CFG_NVJPGSWR	0x3FC
-#define MC_STREAMID_SECURITY_CFG_SESRD		0x404
-#define MC_STREAMID_SECURITY_CFG_SESWR		0x40C
-#define MC_STREAMID_SECURITY_CFG_ETRR		0x424
-#define MC_STREAMID_SECURITY_CFG_ETRW		0x42C
-#define MC_STREAMID_SECURITY_CFG_TSECSRDB	0x434
-#define MC_STREAMID_SECURITY_CFG_TSECSWRB	0x43C
-#define MC_STREAMID_SECURITY_CFG_GPUSRD2	0x444
-#define MC_STREAMID_SECURITY_CFG_GPUSWR2	0x44C
-#define MC_STREAMID_SECURITY_CFG_AXISR		0x464
-#define MC_STREAMID_SECURITY_CFG_AXISW		0x46C
-#define MC_STREAMID_SECURITY_CFG_EQOSR		0x474
-#define MC_STREAMID_SECURITY_CFG_EQOSW		0x47C
-#define MC_STREAMID_SECURITY_CFG_UFSHCR		0x484
-#define MC_STREAMID_SECURITY_CFG_UFSHCW		0x48C
-#define MC_STREAMID_SECURITY_CFG_NVDISPLAYR	0x494
-#define MC_STREAMID_SECURITY_CFG_BPMPR		0x49C
-#define MC_STREAMID_SECURITY_CFG_BPMPW		0x4A4
-#define MC_STREAMID_SECURITY_CFG_BPMPDMAR	0x4AC
-#define MC_STREAMID_SECURITY_CFG_BPMPDMAW	0x4B4
-#define MC_STREAMID_SECURITY_CFG_AONR		0x4BC
-#define MC_STREAMID_SECURITY_CFG_AONW		0x4C4
-#define MC_STREAMID_SECURITY_CFG_AONDMAR	0x4CC
-#define MC_STREAMID_SECURITY_CFG_AONDMAW	0x4D4
-#define MC_STREAMID_SECURITY_CFG_SCER		0x4DC
-#define MC_STREAMID_SECURITY_CFG_SCEW		0x4E4
-#define MC_STREAMID_SECURITY_CFG_SCEDMAR	0x4EC
-#define MC_STREAMID_SECURITY_CFG_SCEDMAW	0x4F4
-#define MC_STREAMID_SECURITY_CFG_APEDMAR	0x4FC
-#define MC_STREAMID_SECURITY_CFG_APEDMAW	0x504
-#define MC_STREAMID_SECURITY_CFG_NVDISPLAYR1	0x50C
-#define MC_STREAMID_SECURITY_CFG_VICSRD1	0x514
-#define MC_STREAMID_SECURITY_CFG_NVDECSRD1	0x51C
-
-/*******************************************************************************
- * Memory Controller SMMU Bypass config register
- ******************************************************************************/
-#define MC_SMMU_BYPASS_CONFIG			0x1820
-#define MC_SMMU_BYPASS_CTRL_MASK		0x3
-#define MC_SMMU_BYPASS_CTRL_SHIFT		0
-#define MC_SMMU_CTRL_TBU_BYPASS_ALL		(0 << MC_SMMU_BYPASS_CTRL_SHIFT)
-#define MC_SMMU_CTRL_TBU_RSVD			(1 << MC_SMMU_BYPASS_CTRL_SHIFT)
-#define MC_SMMU_CTRL_TBU_BYPASS_SPL_STREAMID	(2 << MC_SMMU_BYPASS_CTRL_SHIFT)
-#define MC_SMMU_CTRL_TBU_BYPASS_NONE		(3 << MC_SMMU_BYPASS_CTRL_SHIFT)
-#define MC_SMMU_BYPASS_CONFIG_WRITE_ACCESS_BIT	(1 << 31)
-#define MC_SMMU_BYPASS_CONFIG_SETTINGS		(MC_SMMU_BYPASS_CONFIG_WRITE_ACCESS_BIT | \
-						 MC_SMMU_CTRL_TBU_BYPASS_SPL_STREAMID)
+#define MC_STREAMID_OVERRIDE_TO_SECURITY_CFG(addr) (addr + sizeof(uint32_t))
 
 /*******************************************************************************
  * Memory Controller transaction override config registers
@@ -282,24 +200,6 @@
 #define MC_TXN_OVERRIDE_CONFIG_AFIW		0x1188
 #define MC_TXN_OVERRIDE_CONFIG_SCEW		0x14e0
 
-#define MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_CGID	(1 << 0)
-#define MC_TXN_OVERRIDE_CONFIG_COH_PATH_OVERRIDE_SO_DEV	(2 << 4)
-#define MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_SO_DEV_CGID_SO_DEV_CLIENT	(1 << 12)
-
-/*******************************************************************************
- * Non-SO_DEV transactions override values for CGID_TAG bitfield for the
- * MC_TXN_OVERRIDE_CONFIG_{module} registers
- ******************************************************************************/
-#define MC_TXN_OVERRIDE_CGID_TAG_DEFAULT	0
-#define MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID	1
-#define MC_TXN_OVERRIDE_CGID_TAG_ZERO		2
-#define MC_TXN_OVERRIDE_CGID_TAG_ADR		3
-#define MC_TXN_OVERRIDE_CGID_TAG_MASK		3
-
-#ifndef __ASSEMBLY__
-
-#include <sys/types.h>
-
 /*******************************************************************************
  * Structure to hold the transaction override settings to use to override
  * client inputs
@@ -342,15 +242,56 @@ typedef struct mc_streamid_security_cfg {
 #define CLIENT_INPUTS_NO_OVERRIDE			0
 
 #define mc_make_sec_cfg(off, ns, ovrrd, access) \
-		{ \
-			.name = # off, \
-			.offset = MC_STREAMID_SECURITY_CFG_ ## off, \
-			.override_client_ns_flag = CLIENT_FLAG_ ## ns, \
-			.override_client_inputs = CLIENT_INPUTS_ ## ovrrd, \
-			.override_enable = OVERRIDE_ ## access \
-		}
+	{ \
+		.name = # off, \
+		.offset = MC_STREAMID_OVERRIDE_TO_SECURITY_CFG( \
+				MC_STREAMID_OVERRIDE_CFG_ ## off), \
+		.override_client_ns_flag = CLIENT_FLAG_ ## ns, \
+		.override_client_inputs = CLIENT_INPUTS_ ## ovrrd, \
+		.override_enable = OVERRIDE_ ## access \
+	}
+
+/*******************************************************************************
+ * Structure to hold Memory Controller's Configuration settings
+ ******************************************************************************/
+typedef struct tegra_mc_settings {
+	const uint32_t *streamid_override_cfg;
+	uint32_t num_streamid_override_cfgs;
+	const mc_streamid_security_cfg_t *streamid_security_cfg;
+	uint32_t num_streamid_security_cfgs;
+	const mc_txn_override_cfg_t *txn_override_cfg;
+	uint32_t num_txn_override_cfgs;
+} tegra_mc_settings_t;
 
 #endif /* __ASSEMBLY__ */
+
+/*******************************************************************************
+ * Memory Controller SMMU Bypass config register
+ ******************************************************************************/
+#define MC_SMMU_BYPASS_CONFIG			0x1820
+#define MC_SMMU_BYPASS_CTRL_MASK		0x3
+#define MC_SMMU_BYPASS_CTRL_SHIFT		0
+#define MC_SMMU_CTRL_TBU_BYPASS_ALL		(0 << MC_SMMU_BYPASS_CTRL_SHIFT)
+#define MC_SMMU_CTRL_TBU_RSVD			(1 << MC_SMMU_BYPASS_CTRL_SHIFT)
+#define MC_SMMU_CTRL_TBU_BYPASS_SPL_STREAMID	(2 << MC_SMMU_BYPASS_CTRL_SHIFT)
+#define MC_SMMU_CTRL_TBU_BYPASS_NONE		(3 << MC_SMMU_BYPASS_CTRL_SHIFT)
+#define MC_SMMU_BYPASS_CONFIG_WRITE_ACCESS_BIT	(1 << 31)
+#define MC_SMMU_BYPASS_CONFIG_SETTINGS		(MC_SMMU_BYPASS_CONFIG_WRITE_ACCESS_BIT | \
+						 MC_SMMU_CTRL_TBU_BYPASS_SPL_STREAMID)
+
+#define MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_CGID	(1 << 0)
+#define MC_TXN_OVERRIDE_CONFIG_COH_PATH_OVERRIDE_SO_DEV	(2 << 4)
+#define MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_SO_DEV_CGID_SO_DEV_CLIENT	(1 << 12)
+
+/*******************************************************************************
+ * Non-SO_DEV transactions override values for CGID_TAG bitfield for the
+ * MC_TXN_OVERRIDE_CONFIG_{module} registers
+ ******************************************************************************/
+#define MC_TXN_OVERRIDE_CGID_TAG_DEFAULT	0
+#define MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID	1
+#define MC_TXN_OVERRIDE_CGID_TAG_ZERO		2
+#define MC_TXN_OVERRIDE_CGID_TAG_ADR		3
+#define MC_TXN_OVERRIDE_CGID_TAG_MASK		3
 
 /*******************************************************************************
  * Memory Controller Reset Control registers
@@ -548,6 +489,14 @@ static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
 			MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_CGID | \
 			MC_TXN_OVERRIDE_CONFIG_AXID_OVERRIDE_SO_DEV_CGID_SO_DEV_CLIENT); \
 	}
+
+/*******************************************************************************
+ * Handler to read memory configuration settings
+ *
+ * Implemented by SoCs under tegra/soc/txxx
+ ******************************************************************************/
+tegra_mc_settings_t *tegra_get_mc_settings(void);
+
 #endif /* __ASSMEBLY__ */
 
 #endif /* __MEMCTRLV2_H__ */

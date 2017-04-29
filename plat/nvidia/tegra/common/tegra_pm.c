@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,6 +47,14 @@
 extern uint64_t tegra_bl31_phys_base;
 extern uint64_t tegra_sec_entry_point;
 extern uint64_t tegra_console_base;
+
+/*
+ * tegra_fake_system_suspend acts as a boolean var controlling whether
+ * we are going to take fake system suspend code or normal system suspend code
+ * path. This variable is set inside the sip call handlers,when the kernel
+ * requests a SIP call to set the suspend debug flags.
+ */
+uint8_t tegra_fake_system_suspend;
 
 /*
  * The following platform setup functions are weakly defined. They
@@ -182,14 +190,31 @@ void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 __dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
 					     *target_state)
 {
+	uint8_t pwr_state = target_state->pwr_domain_state[PLAT_MAX_PWR_LVL];
+	uint64_t rmr_el3 = 0;
+
 	/* call the chip's power down handler */
 	tegra_soc_pwr_domain_power_down_wfi(target_state);
 
-	/* enter power down state */
-	wfi();
+	/*
+	 * If we are in fake system suspend mode, ensure we start doing
+	 * procedures that help in looping back towards system suspend exit
+	 * instead of calling WFI by requesting a warm reset.
+	 * Else, just call WFI to enter low power state.
+	 */
+	if ((tegra_fake_system_suspend != 0U) &&
+	    (pwr_state == (uint8_t)PSTATE_ID_SOC_POWERDN)) {
+
+		/* warm reboot */
+		rmr_el3 = read_rmr_el3();
+		write_rmr_el3(rmr_el3 | RMR_WARM_RESET_CPU);
+
+	} else {
+		/* enter power down state */
+		wfi();
+	}
 
 	/* we can never reach here */
-	ERROR("%s: operation not handled.\n", __func__);
 	panic();
 }
 

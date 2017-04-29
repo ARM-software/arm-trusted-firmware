@@ -46,11 +46,8 @@
 
 extern void prepare_cpu_pwr_dwn(void);
 extern void tegra186_cpu_reset_handler(void);
-extern uint32_t __tegra186_cpu_reset_handler_data,
-		__tegra186_cpu_reset_handler_end;
-
-/* TZDRAM offset for saving SMMU context */
-#define TEGRA186_SMMU_CTX_OFFSET	16
+extern uint32_t __tegra186_cpu_reset_handler_end,
+		__tegra186_smmu_context;
 
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xF
@@ -151,9 +148,8 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* save SMMU context to TZDRAM */
 		smmu_ctx_base = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_cpu_reset_handler_data -
-			 (uintptr_t)tegra186_cpu_reset_handler) +
-			TEGRA186_SMMU_CTX_OFFSET;
+			((uintptr_t)&__tegra186_smmu_context -
+			 (uintptr_t)tegra186_cpu_reset_handler);
 		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
 
 		/* Prepare for system suspend */
@@ -260,7 +256,7 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	unsigned int stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA186_STATE_ID_MASK;
-	uint32_t val;
+	uint64_t val;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 		/*

@@ -36,7 +36,7 @@ PLAT_INCLUDES		+=	-Iinclude/plat/arm/css/common			\
 				-Iinclude/plat/arm/css/common/aarch64
 
 
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/common/aarch64/css_helpers.S
+PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/common/${ARCH}/css_helpers.S
 
 BL1_SOURCES		+=	plat/arm/css/common/css_bl1_setup.c
 
@@ -64,7 +64,7 @@ $(eval $(call assert_boolean,CSS_LOAD_SCP_IMAGES))
 $(eval $(call add_define,CSS_LOAD_SCP_IMAGES))
 
 ifeq (${CSS_LOAD_SCP_IMAGES},1)
-  $(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
+  NEED_SCP_BL2 := yes
   ifneq (${TRUSTED_BOARD_BOOT},0)
     $(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp-fwu-cfg))
   endif

@@ -1,143 +1,33 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
  *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of ARM nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific
- * prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
-#include <assert.h>
 #include <bl_common.h>
-#include <debug.h>
-#include <memctrl_v2.h>
-#include <platform_def.h>
 #include <smmu.h>
-#include <string.h>
-#include <tegra_private.h>
+#include <tegra_def.h>
 
-typedef struct smmu_regs {
-	uint32_t reg;
-	uint32_t val;
-} smmu_regs_t;
-
-#define mc_make_sid_override_cfg(name) \
-	{ \
-		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_OVERRIDE_CFG_ ## name, \
-		.val = 0x00000000, \
-	}
-
-#define mc_make_sid_security_cfg(name) \
-	{ \
-		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_SECURITY_CFG_ ## name, \
-		.val = 0x00000000, \
-	}
-
-#define smmu_make_gnsr0_sec_cfg(name) \
-	{ \
-		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_ ## name, \
-		.val = 0x00000000, \
-	}
-
-/*
- * On ARM-SMMU, conditional offset to access secure aliases of non-secure registers
- * is 0x400. So, add it to register address
- */
-#define smmu_make_gnsr0_nsec_cfg(name) \
-	{ \
-		.reg = TEGRA_SMMU_BASE + 0x400 + SMMU_GNSR0_ ## name, \
-		.val = 0x00000000, \
-	}
-
-#define smmu_make_gnsr0_smr_cfg(n) \
-	{ \
-		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_SMR ## n, \
-		.val = 0x00000000, \
-	}
-
-#define smmu_make_gnsr0_s2cr_cfg(n) \
-	{ \
-		.reg = TEGRA_SMMU_BASE + SMMU_GNSR0_S2CR ## n, \
-		.val = 0x00000000, \
-	}
-
-#define smmu_make_gnsr1_cbar_cfg(n) \
-	{ \
-		.reg = TEGRA_SMMU_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBAR ## n, \
-		.val = 0x00000000, \
-	}
-
-#define smmu_make_gnsr1_cba2r_cfg(n) \
-	{ \
-		.reg = TEGRA_SMMU_BASE + (1 << PGSHIFT) + SMMU_GNSR1_CBA2R ## n, \
-		.val = 0x00000000, \
-	}
-
-#define make_smmu_cb_cfg(name, n) \
-	{ \
-		.reg = TEGRA_SMMU_BASE + (CB_SIZE >> 1) + (n * (1 << PGSHIFT)) \
-			+ SMMU_CBn_ ## name, \
-		.val = 0x00000000, \
-	}
-
-#define smmu_make_smrg_group(n)	\
-	smmu_make_gnsr0_smr_cfg(n),	\
-	smmu_make_gnsr0_s2cr_cfg(n),	\
-	smmu_make_gnsr1_cbar_cfg(n),	\
-	smmu_make_gnsr1_cba2r_cfg(n)	/* don't put "," here. */
-
-#define smmu_make_cb_group(n)		\
-	make_smmu_cb_cfg(SCTLR, n),	\
-	make_smmu_cb_cfg(TCR2, n),	\
-	make_smmu_cb_cfg(TTBR0_LO, n),	\
-	make_smmu_cb_cfg(TTBR0_HI, n),	\
-	make_smmu_cb_cfg(TCR, n),	\
-	make_smmu_cb_cfg(PRRR_MAIR0, n),\
-	make_smmu_cb_cfg(FSR, n),	\
-	make_smmu_cb_cfg(FAR_LO, n),	\
-	make_smmu_cb_cfg(FAR_HI, n),	\
-	make_smmu_cb_cfg(FSYNR0, n)	/* don't put "," here. */
-
-#define smmu_bypass_cfg \
-	{ \
-		.reg = TEGRA_MC_BASE + MC_SMMU_BYPASS_CONFIG, \
-		.val = 0x00000000, \
-	}
-
-#define _START_OF_TABLE_ \
-	{ \
-		.reg = 0xCAFE05C7, \
-		.val = 0x00000000, \
-	}
-
-#define _END_OF_TABLE_ \
-	{ \
-		.reg = 0xFFFFFFFF, \
-		.val = 0xFFFFFFFF, \
-	}
-
-static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
+/*******************************************************************************
+ * Array to hold SMMU context for Tegra186
+ ******************************************************************************/
+static __attribute__((aligned(16))) smmu_regs_t tegra186_smmu_context[] = {
 	_START_OF_TABLE_,
 	mc_make_sid_security_cfg(SCEW),
 	mc_make_sid_security_cfg(AFIR),
@@ -424,83 +314,13 @@ static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
 	_END_OF_TABLE_,
 };
 
-/*
- * Save SMMU settings before "System Suspend" to TZDRAM
- */
-void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
+/*******************************************************************************
+ * Handler to return the pointer to the SMMU's context struct
+ ******************************************************************************/
+smmu_regs_t *plat_get_smmu_ctx(void)
 {
-	uint32_t i;
-#if DEBUG
-	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
-	uint64_t tzdram_base = params_from_bl2->tzdram_base;
-	uint64_t tzdram_end = tzdram_base + params_from_bl2->tzdram_size;
-	uint32_t reg_id1, pgshift, cb_size;
-
-	/* sanity check SMMU settings c*/
-	reg_id1 = mmio_read_32((TEGRA_SMMU_BASE + SMMU_GNSR0_IDR1));
-	pgshift = (reg_id1 & ID1_PAGESIZE) ? 16 : 12;
-	cb_size = (2 << pgshift) * \
-	(1 << (((reg_id1 >> ID1_NUMPAGENDXB_SHIFT) & ID1_NUMPAGENDXB_MASK) + 1));
-
-	assert(!((pgshift != PGSHIFT) || (cb_size != CB_SIZE)));
-#endif
-
-	assert((smmu_ctx_addr >= tzdram_base) && (smmu_ctx_addr <= tzdram_end));
-
 	/* index of _END_OF_TABLE_ */
-	smmu_ctx_regs[0].val = ARRAY_SIZE(smmu_ctx_regs) - 1;
+	tegra186_smmu_context[0].val = ARRAY_SIZE(tegra186_smmu_context) - 1;
 
-	/* save SMMU register values */
-	for (i = 1; i < ARRAY_SIZE(smmu_ctx_regs) - 1; i++)
-		smmu_ctx_regs[i].val = mmio_read_32(smmu_ctx_regs[i].reg);
-
-	/* Save SMMU config settings */
-	memcpy16((void *)(uintptr_t)smmu_ctx_addr, (void *)smmu_ctx_regs,
-		 sizeof(smmu_ctx_regs));
-
-	/* save the SMMU table address */
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_LO,
-		(uint32_t)smmu_ctx_addr);
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_HI,
-		(uint32_t)(smmu_ctx_addr >> 32));
-}
-
-#define SMMU_NUM_CONTEXTS		64
-#define SMMU_CONTEXT_BANK_MAX_IDX	64
-
-/*
- * Init SMMU during boot or "System Suspend" exit
- */
-void tegra_smmu_init(void)
-{
-	uint32_t val, i, ctx_base;
-
-	/* Program the SMMU pagesize and reset CACHE_LOCK bit */
-	val = tegra_smmu_read_32(SMMU_GSR0_SECURE_ACR);
-	val |= SMMU_GSR0_PGSIZE_64K;
-	val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GSR0_SECURE_ACR, val);
-
-	/* reset CACHE LOCK bit for NS Aux. Config. Register */
-	val = tegra_smmu_read_32(SMMU_GNSR_ACR);
-	val &= ~SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GNSR_ACR, val);
-
-	/* disable TCU prefetch for all contexts */
-	ctx_base = (SMMU_GSR0_PGSIZE_64K * SMMU_NUM_CONTEXTS) + SMMU_CBn_ACTLR;
-	for (i = 0; i < SMMU_CONTEXT_BANK_MAX_IDX; i++) {
-		val = tegra_smmu_read_32(ctx_base + (SMMU_GSR0_PGSIZE_64K * i));
-		val &= ~SMMU_CBn_ACTLR_CPRE_BIT;
-		tegra_smmu_write_32(ctx_base + (SMMU_GSR0_PGSIZE_64K * i), val);
-	}
-
-	/* set CACHE LOCK bit for NS Aux. Config. Register */
-	val = tegra_smmu_read_32(SMMU_GNSR_ACR);
-	val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GNSR_ACR, val);
-
-	/* set CACHE LOCK bit for S Aux. Config. Register */
-	val = tegra_smmu_read_32(SMMU_GSR0_SECURE_ACR);
-	val |= SMMU_ACR_CACHE_LOCK_ENABLE_BIT;
-	tegra_smmu_write_32(SMMU_GSR0_SECURE_ACR, val);
+	return tegra186_smmu_context;
 }

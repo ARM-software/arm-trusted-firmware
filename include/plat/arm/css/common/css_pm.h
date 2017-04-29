@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,11 +35,15 @@
 #include <psci.h>
 #include <types.h>
 
+/* System power domain at level 2, as currently implemented by CSS platforms */
+#define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
+
 /* Macros to read the CSS power domain state */
 #define CSS_CORE_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL0]
 #define CSS_CLUSTER_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL1]
-#define CSS_SYSTEM_PWR_STATE(state)	((PLAT_MAX_PWR_LVL > ARM_PWR_LVL1) ?\
-				(state)->pwr_domain_state[ARM_PWR_LVL2] : 0)
+#define CSS_SYSTEM_PWR_STATE(state)	\
+			((PLAT_MAX_PWR_LVL == CSS_SYSTEM_PWR_DMN_LVL) ?\
+			(state)->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] : 0)
 
 int css_pwr_domain_on(u_register_t mpidr);
 void css_pwr_domain_on_finish(const psci_power_state_t *target_state);

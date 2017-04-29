@@ -37,13 +37,13 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 static unsigned long long xlat_arch_get_max_supported_pa(void)
 {
 	/* Physical address space size for long descriptor format. */
 	return (1ull << 40) - 1ull;
 }
-#endif /* DEBUG*/
+#endif /* ENABLE_ASSERTIONS*/
 
 int is_mmu_enabled(void)
 {

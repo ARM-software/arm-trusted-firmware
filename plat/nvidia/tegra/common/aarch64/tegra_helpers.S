@@ -243,11 +243,12 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	adr	x0, tegra_console_base
-	ldr	x0, [x0]
-	mov_imm	x1, TEGRA_BOOT_UART_CLK_IN_HZ
-	mov_imm	x2, TEGRA_CONSOLE_BAUDRATE
-	b	console_core_init
+	mov	x0, #0
+	adr	x1, tegra_console_base
+	ldr	x1, [x1]
+	cbz	x1, 1f
+	mov	w0, #1
+1:	ret
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------

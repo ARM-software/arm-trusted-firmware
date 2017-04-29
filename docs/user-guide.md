@@ -203,11 +203,6 @@ performed.
     in MPIDR is set and access the bit-fields in MPIDR accordingly. Default
     value of this flag is 0.
 
-*   `ASM_ASSERTION`: This flag determines whether the assertion checks within
-    assembly source files are enabled or not. This option defaults to the
-    value of `DEBUG` - that is, by default this is only enabled for a debug
-    build of the firmware.
-
 *   `BL2`: This is an optional build option which specifies the path to BL2
     image for the `fip` target. In this case, the BL2 in the ARM Trusted
     Firmware will not be built.
@@ -286,6 +281,14 @@ performed.
     payload. Please refer to the "Booting an EL3 payload" section for more
     details.
 
+*   `ENABLE_ASSERTIONS`: This option controls whether or not calls to `assert()`
+    are compiled out. For debug builds, this option defaults to 1, and calls to
+    `assert()` are left in place. For release builds, this option defaults to 0
+    and calls to `assert()` function are compiled out. This option can be set
+    independently of `DEBUG`. It can also be used to hide any auxiliary code
+    that is only required for the assertion and does not fit in the assertion
+    itself.
+
 *   `ENABLE_PMF`: Boolean option to enable support for optional Performance
      Measurement Framework(PMF). Default is 0.
 
@@ -349,7 +352,8 @@ performed.
     initiate the operations, and the rest is managed in hardware, minimizing
     active software management. In such systems, this boolean option enables ARM
     Trusted Firmware to carry out build and run-time optimizations during boot
-    and power management operations. This option defaults to 0.
+    and power management operations. This option defaults to 0 and if it is
+    enabled, then it implies `WARMBOOT_ENABLE_DCACHE_EARLY` is also enabled.
 
 *   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
     image loading, which provides more flexibility and scalability around what
@@ -508,6 +512,12 @@ performed.
     to a string formed by concatenating the version number, build type and build
     string.
 
+*   `WARMBOOT_ENABLE_DCACHE_EARLY` : Boolean option to enable D-cache early on
+    the CPU after warm boot. This is applicable for platforms which do not
+    require interconnect programming to enable cache coherency (eg: single
+    cluster platforms). If this option is enabled, then warm boot path
+    enables D-caches immediately after enabling MMU. This option defaults to 0.
+
 #### ARM development platform specific build options
 
 *   `ARM_BL31_IN_DRAM`: Boolean option to select loading of BL31 in TZC secured
@@ -567,6 +577,10 @@ performed.
     -   `tsram` : Trusted SRAM (default option)
     -   `tdram` : Trusted DRAM (if available)
     -   `dram`  : Secure region in DRAM (configured by the TrustZone controller)
+
+*   `ARM_XLAT_TABLES_LIB_V1`: boolean option to compile the Trusted Firmware
+    with version 1 of the translation tables library instead of version 2. It is
+    set to 0 by default, which selects version 2.
 
 For a better understanding of these options, the ARM development platform memory
 map is explained in the [Firmware Design].

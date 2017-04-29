@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -41,7 +41,7 @@
 /* The offset to add to get ascii for numerals '0 - 9' */
 #define ASCII_OFFSET_NUM	0x30
 
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 .section .rodata.assert_str, "aS"
 assert_msg1:
 	.asciz "ASSERT: File "
@@ -78,6 +78,11 @@ dec_print_loop:
  * ---------------------------------------------------------------------------
  */
 func asm_assert
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+	/*
+	 * Only print the output if LOG_LEVEL is higher or equal to
+	 * LOG_LEVEL_INFO, which is the default value for builds with DEBUG=1.
+	 */
 	mov	x5, x0
 	mov	x6, x1
 	/* Ensure the console is initialized */
@@ -96,10 +101,12 @@ func asm_assert
 	b.ne	_assert_loop
 	mov	x4, x6
 	asm_print_line_dec
+	bl	plat_crash_console_flush
 _assert_loop:
-	b	_assert_loop
+#endif /* LOG_LEVEL >= LOG_LEVEL_INFO */
+	no_ret	plat_panic_handler
 endfunc asm_assert
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 /*
  * This function prints a string from address in x4.
@@ -186,6 +193,8 @@ el3_panic:
 	/* The panic location is lr -4 */
 	sub	x4, x4, #4
 	bl	asm_print_hex
+
+	bl	plat_crash_console_flush
 
 _panic_handler:
 	/* Pass to plat_panic_handler the address from where el3_panic was

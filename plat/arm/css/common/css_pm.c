@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,6 +74,13 @@ const unsigned int arm_pm_idle_states[] = {
  */
 CASSERT(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL1,
 		assert_max_pwr_lvl_supported_mismatch);
+
+/*
+ * Ensure that the PLAT_MAX_PWR_LVL is not greater than CSS_SYSTEM_PWR_DMN_LVL
+ * assumed by the CSS layer.
+ */
+CASSERT(PLAT_MAX_PWR_LVL <= CSS_SYSTEM_PWR_DMN_LVL,
+		assert_max_pwr_lvl_higher_than_css_sys_lvl);
 
 /*******************************************************************************
  * Handler called when a power domain is about to be turned on. The
@@ -243,7 +250,7 @@ void css_get_sys_suspend_power_state(psci_power_state_t *req_state)
 	 * System Suspend is supported only if the system power domain node
 	 * is implemented.
 	 */
-	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
+	assert(PLAT_MAX_PWR_LVL == CSS_SYSTEM_PWR_DMN_LVL);
 
 	for (i = ARM_PWR_LVL0; i <= PLAT_MAX_PWR_LVL; i++)
 		req_state->pwr_domain_state[i] = ARM_LOCAL_STATE_OFF;
@@ -255,6 +262,39 @@ void css_get_sys_suspend_power_state(psci_power_state_t *req_state)
 int css_node_hw_state(u_register_t mpidr, unsigned int power_level)
 {
 	return css_scp_get_power_state(mpidr, power_level);
+}
+
+/*
+ * The system power domain suspend is only supported only via
+ * PSCI SYSTEM_SUSPEND API. PSCI CPU_SUSPEND request to system power domain
+ * will be downgraded to the lower level.
+ */
+static int css_validate_power_state(unsigned int power_state,
+			    psci_power_state_t *req_state)
+{
+	int rc;
+	rc = arm_validate_power_state(power_state, req_state);
+
+	/*
+	 * Ensure that the system power domain level is never suspended
+	 * via PSCI CPU SUSPEND API. Currently system suspend is only
+	 * supported via PSCI SYSTEM SUSPEND API.
+	 */
+	req_state->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] = ARM_LOCAL_STATE_RUN;
+	return rc;
+}
+
+/*
+ * Custom `translate_power_state_by_mpidr` handler for CSS. Unlike in the
+ * `css_validate_power_state`, we do not downgrade the system power
+ * domain level request in `power_state` as it will be used to query the
+ * PSCI_STAT_COUNT/RESIDENCY at the system power domain level.
+ */
+static int css_translate_power_state_by_mpidr(u_register_t mpidr,
+		unsigned int power_state,
+		psci_power_state_t *output_state)
+{
+	return arm_validate_power_state(power_state, output_state);
 }
 
 /*******************************************************************************
@@ -270,7 +310,9 @@ plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.pwr_domain_suspend_finish	= css_pwr_domain_suspend_finish,
 	.system_off		= css_system_off,
 	.system_reset		= css_system_reset,
-	.validate_power_state	= arm_validate_power_state,
+	.validate_power_state	= css_validate_power_state,
 	.validate_ns_entrypoint = arm_validate_ns_entrypoint,
-	.get_node_hw_state	= css_node_hw_state
+	.translate_power_state_by_mpidr = css_translate_power_state_by_mpidr,
+	.get_node_hw_state	= css_node_hw_state,
+	.get_sys_suspend_power_state = css_get_sys_suspend_power_state
 };

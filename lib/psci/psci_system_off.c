@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #include <stddef.h>
 #include <arch_helpers.h>
 #include <assert.h>
+#include <console.h>
 #include <debug.h>
 #include <platform.h>
 #include "psci_private.h"
@@ -45,6 +46,8 @@ void psci_system_off(void)
 	if (psci_spd_pm && psci_spd_pm->svc_system_off) {
 		psci_spd_pm->svc_system_off();
 	}
+
+	console_flush();
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_off();
@@ -62,6 +65,8 @@ void psci_system_reset(void)
 	if (psci_spd_pm && psci_spd_pm->svc_system_reset) {
 		psci_spd_pm->svc_system_reset();
 	}
+
+	console_flush();
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_reset();

@@ -37,7 +37,7 @@
 #include <string.h>
 #include <tegra_def.h>
 #include <utils.h>
-#include <xlat_tables.h>
+#include <xlat_tables_v2.h>
 
 #define TEGRA_GPU_RESET_REG_OFFSET	0x28c
 #define  GPU_RESET_BIT			(1 << 24)
@@ -135,17 +135,18 @@ static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 				 unsigned long long non_overlap_area_size)
 {
 	/*
-	 * Perform cache maintenance to ensure that the non-overlapping area is
-	 * zeroed out. The first invalidation of this range ensures that
-	 * possible evictions of dirty cache lines do not interfere with the
-	 * 'zeromem' operation. Other CPUs could speculatively prefetch the
-	 * main memory contents of this area between the first invalidation and
-	 * the 'zeromem' operation. The second invalidation ensures that any
-	 * such cache lines are removed as well.
+	 * Map the NS memory first, clean it and then unmap it.
 	 */
-	inv_dcache_range(non_overlap_area_start, non_overlap_area_size);
+	mmap_add_dynamic_region(non_overlap_area_start, /* PA */
+				non_overlap_area_start, /* VA */
+				non_overlap_area_size, /* size */
+				MT_NS | MT_RW | MT_EXECUTE_NEVER); /* attrs */
+
 	zeromem((void *)non_overlap_area_start, non_overlap_area_size);
-	inv_dcache_range(non_overlap_area_start, non_overlap_area_size);
+	flush_dcache_range(non_overlap_area_start, non_overlap_area_size);
+
+	mmap_remove_dynamic_region(non_overlap_area_start,
+		non_overlap_area_size);
 }
 
 /*
@@ -194,7 +195,6 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 */
 	INFO("Cleaning previous Video Memory Carveout\n");
 
-	disable_mmu_el3();
 	if (phys_base > vmem_end_old || video_mem_base > vmem_end_new) {
 		tegra_clear_videomem(video_mem_base, video_mem_size << 20);
 	} else {
@@ -207,7 +207,6 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 			tegra_clear_videomem(vmem_end_new, non_overlap_area_size);
 		}
 	}
-	enable_mmu_el3(0);
 
 done:
 	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI, (uint32_t)(phys_base >> 32));
@@ -217,4 +216,30 @@ done:
 	/* store new values */
 	video_mem_base = phys_base;
 	video_mem_size = size_in_bytes >> 20;
+}
+
+/*
+ * During boot, USB3 and flash media (SDMMC/SATA) devices need access to
+ * IRAM. Because these clients connect to the MC and do not have a direct
+ * path to the IRAM, the MC implements AHB redirection during boot to allow
+ * path to IRAM. In this mode, accesses to a programmed memory address aperture
+ * are directed to the AHB bus, allowing access to the IRAM. The AHB aperture
+ * is defined by the IRAM_BASE_LO and IRAM_BASE_HI registers, which are
+ * initialized to disable this aperture.
+ *
+ * Once bootup is complete, we must program IRAM base to 0xffffffff and
+ * IRAM top to 0x00000000, thus disabling access to IRAM. DRAM is then
+ * potentially accessible in this address range. These aperture registers
+ * also have an access_control/lock bit. After disabling the aperture, the
+ * access_control register should be programmed to lock the registers.
+ */
+void tegra_memctrl_disable_ahb_redirection(void)
+{
+	/* program the aperture registers */
+	tegra_mc_write_32(MC_IRAM_BASE_LO, 0xFFFFFFFF);
+	tegra_mc_write_32(MC_IRAM_TOP_LO, 0);
+	tegra_mc_write_32(MC_IRAM_BASE_TOP_HI, 0);
+
+	/* lock the aperture registers */
+	tegra_mc_write_32(MC_IRAM_REG_CTRL, MC_DISABLE_IRAM_CFG_WRITES);
 }

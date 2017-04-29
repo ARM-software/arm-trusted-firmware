@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@ void print_mmap(void)
 }
 
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
-			size_t size, unsigned int attr)
+			size_t size, mmap_attr_t attr)
 {
 	mmap_region_t *mm = mmap;
 	mmap_region_t *mm_last = mm + ARRAY_SIZE(mmap) - 1;
@@ -109,7 +109,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 	assert((base_pa + (unsigned long long)size - 1ULL) <=
 					(PLAT_PHY_ADDR_SPACE_SIZE - 1));
 
-#if DEBUG
+#if ENABLE_ASSERTIONS
 
 	/* Check for PAs and VAs overlaps with all other regions */
 	for (mm = mmap; mm->size; ++mm) {
@@ -154,7 +154,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 
 	mm = mmap; /* Restore pointer to the start of the array */
 
-#endif /* DEBUG */
+#endif /* ENABLE_ASSERTIONS */
 
 	/* Find correct place in mmap to insert new region */
 	while (mm->base_va < base_va && mm->size)
@@ -199,7 +199,7 @@ void mmap_add(const mmap_region_t *mm)
 	}
 }
 
-static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
+static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
 							int level)
 {
 	uint64_t desc;
@@ -277,11 +277,11 @@ static uint64_t mmap_desc(unsigned attr, unsigned long long addr_pa,
  * attributes of the innermost region that contains it. If there are partial
  * overlaps, it returns -1, as a smaller size is needed.
  */
-static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
+static mmap_attr_t mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
 					size_t size)
 {
 	/* Don't assume that the area is contained in the first region */
-	int attr = -1;
+	mmap_attr_t attr = -1;
 
 	/*
 	 * Get attributes from last (innermost) region that contains the
@@ -360,7 +360,8 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			 * there are partially overlapping regions. On success,
 			 * it will return the innermost region's attributes.
 			 */
-			int attr = mmap_region_attr(mm, base_va, level_size);
+			mmap_attr_t attr = mmap_region_attr(mm, base_va,
+							level_size);
 			if (attr >= 0) {
 				desc = mmap_desc(attr,
 					base_va - mm->base_va + mm->base_pa,

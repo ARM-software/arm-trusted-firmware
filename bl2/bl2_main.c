@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #include <auth_mod.h>
 #include <bl1.h>
 #include <bl_common.h>
+#include <console.h>
 #include <debug.h>
 #include <platform.h>
 #include "bl2_private.h"
@@ -68,6 +69,8 @@ void bl2_main(void)
 	 */
 	disable_mmu_icache_secure();
 #endif /* AARCH32 */
+
+	console_flush();
 
 	/*
 	 * Run next BL image via an SMC to BL1. Information on how to pass

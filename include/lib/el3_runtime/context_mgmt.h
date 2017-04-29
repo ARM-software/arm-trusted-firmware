@@ -87,7 +87,7 @@ void cm_set_context_by_mpidr(uint64_t mpidr,
  ******************************************************************************/
 static inline void cm_set_next_context(void *context)
 {
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	uint64_t sp_mode;
 
 	/*
@@ -98,7 +98,7 @@ static inline void cm_set_next_context(void *context)
 			 : "=r" (sp_mode));
 
 	assert(sp_mode == MODE_SP_EL0);
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 	__asm__ volatile("msr	spsel, #1\n"
 			 "mov	sp, %0\n"

@@ -162,7 +162,7 @@ endfunc zeromem
  * --------------------------------------------------------------------------
  */
 func memcpy4
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	orr	r3, r0, r1
 	tst	r3, #0x3
 	ASM_ASSERT(eq)

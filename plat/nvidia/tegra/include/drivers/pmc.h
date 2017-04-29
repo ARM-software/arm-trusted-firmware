@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,19 +34,19 @@
 #include <mmio.h>
 #include <tegra_def.h>
 
-#define PMC_CONFIG				0x0
-#define PMC_PWRGATE_STATUS			0x38
-#define PMC_PWRGATE_TOGGLE			0x30
-#define  PMC_TOGGLE_START			0x100
-#define PMC_SCRATCH39				0x138
-#define PMC_SECURE_DISABLE2			0x2c4
-#define  PMC_SECURE_DISABLE2_WRITE22_ON		(1 << 28)
-#define PMC_SECURE_SCRATCH22			0x338
-#define PMC_SECURE_DISABLE3			0x2d8
-#define  PMC_SECURE_DISABLE3_WRITE34_ON		(1 << 20)
-#define  PMC_SECURE_DISABLE3_WRITE35_ON		(1 << 22)
-#define PMC_SECURE_SCRATCH34			0x368
-#define PMC_SECURE_SCRATCH35			0x36c
+#define PMC_CONFIG				0x0U
+#define PMC_PWRGATE_STATUS			0x38U
+#define PMC_PWRGATE_TOGGLE			0x30U
+#define  PMC_TOGGLE_START			0x100U
+#define PMC_SCRATCH39				0x138U
+#define PMC_SECURE_DISABLE2			0x2c4U
+#define  PMC_SECURE_DISABLE2_WRITE22_ON		(1U << 28)
+#define PMC_SECURE_SCRATCH22			0x338U
+#define PMC_SECURE_DISABLE3			0x2d8U
+#define  PMC_SECURE_DISABLE3_WRITE34_ON		(1U << 20)
+#define  PMC_SECURE_DISABLE3_WRITE35_ON		(1U << 22)
+#define PMC_SECURE_SCRATCH34			0x368U
+#define PMC_SECURE_SCRATCH35			0x36cU
 
 static inline uint32_t tegra_pmc_read_32(uint32_t off)
 {

@@ -79,6 +79,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 #ifdef IMAGE_BL32
 const mmap_region_t plat_arm_mmap[] = {
+#ifdef AARCH32
+	ARM_MAP_SHARED_RAM,
+#endif
 	V2M_MAP_IOFPGA,
 	CSS_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,

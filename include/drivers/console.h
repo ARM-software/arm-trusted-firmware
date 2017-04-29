@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@ int console_init(uintptr_t base_addr,
 void console_uninit(void);
 int console_putc(int c);
 int console_getc(void);
+int console_flush(void);
 
 #endif /* __CONSOLE_H__ */
 

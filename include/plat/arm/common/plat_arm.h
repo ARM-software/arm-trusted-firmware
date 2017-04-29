@@ -30,6 +30,7 @@
 #ifndef __PLAT_ARM_H__
 #define __PLAT_ARM_H__
 
+#include <arm_xlat_tables.h>
 #include <bakery_lock.h>
 #include <cassert.h>
 #include <cpu_data.h>
@@ -80,7 +81,7 @@ void arm_setup_page_tables(uintptr_t total_base,
 #else
 
 /*
- * Empty macros for all other BL stages other than BL31
+ * Empty macros for all other BL stages other than BL31 and BL32
  */
 #define ARM_INSTANTIATE_LOCK
 #define arm_lock_init()
@@ -156,6 +157,7 @@ void arm_bl2_platform_setup(void);
 void arm_bl2_plat_arch_setup(void);
 uint32_t arm_get_spsr_for_bl32_entry(void);
 uint32_t arm_get_spsr_for_bl33_entry(void);
+int arm_bl2_handle_post_image_load(unsigned int image_id);
 
 /* BL2U utility functions */
 void arm_bl2u_early_platform_setup(struct meminfo *mem_layout,

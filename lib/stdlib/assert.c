@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,14 +28,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <console.h>
 #include <debug.h>
+#include <platform.h>
 
-/*
- * This is a basic implementation. This could be improved.
- */
-void __assert (const char *function, const char *file, unsigned int line,
+void __assert(const char *function, const char *file, unsigned int line,
 		const char *assertion)
 {
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+	/*
+	 * Only print the output if LOG_LEVEL is higher or equal to
+	 * LOG_LEVEL_INFO, which is the default value for builds with DEBUG=1.
+	 */
 	tf_printf("ASSERT: %s <%d> : %s\n", function, line, assertion);
-	while(1);
+
+	console_flush();
+#endif
+
+	plat_panic_handler();
 }

@@ -261,6 +261,16 @@
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
 
+/*
+ * RMR_EL3 definitions
+ */
+#define RMR_EL3_RR_BIT		(1 << 1)
+#define RMR_EL3_AA64_BIT	(1 << 0)
+
+/*
+ * HI-VECTOR address for AArch32 state
+ */
+#define HI_VECTOR_BASE	(0xFFFF0000)
 
 /*
  * TCR defintions
@@ -418,6 +428,10 @@
 #define EC_SERROR			0x2f
 
 #define EC_BITS(x)			(x >> ESR_EC_SHIFT) & ESR_EC_MASK
+
+/* Reset bit inside the Reset management register for EL3 (RMR_EL3) */
+#define RMR_RESET_REQUEST_SHIFT 	0x1u
+#define RMR_WARM_RESET_CPU		(1u << RMR_RESET_REQUEST_SHIFT)
 
 /*******************************************************************************
  * Definitions of register offsets, fields and macros for CPU system

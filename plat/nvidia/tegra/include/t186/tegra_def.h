@@ -182,8 +182,6 @@
 #define  TZRAM_ENABLE_TZ_LOCK_BIT		(1 << 0)
 #define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG0	0x21A0
 #define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG1	0x21A4
-#define  TZRAM_CARVEOUT_CPU_WRITE_ACCESS_BIT	(1 << 25)
-#define  TZRAM_CARVEOUT_CPU_READ_ACCESS_BIT	(1 << 7)
 #define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG2	0x21A8
 #define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG3	0x21AC
 #define MC_TZRAM_CARVEOUT_CLIENT_ACCESS_CFG4	0x21B0
@@ -249,6 +247,8 @@
  * Tegra scratch registers constants
  ******************************************************************************/
 #define TEGRA_SCRATCH_BASE		0x0C390000
+#define  SECURE_SCRATCH_RSV1_LO		0x658
+#define  SECURE_SCRATCH_RSV1_HI		0x65C
 #define  SECURE_SCRATCH_RSV6		0x680
 #define  SECURE_SCRATCH_RSV11_LO	0x6A8
 #define  SECURE_SCRATCH_RSV11_HI	0x6AC
@@ -259,14 +259,20 @@
 #define  SECURE_SCRATCH_RSV55_HI	0x80C
 
 /*******************************************************************************
- * Tegra Memory Mapped Control Register Access Bus constants
+ * Tegra Memory Mapped Control Register Access constants
  ******************************************************************************/
 #define TEGRA_MMCRAB_BASE		0x0E000000
 
 /*******************************************************************************
+ * Tegra Memory Mapped Activity Monitor Register Access constants
+ ******************************************************************************/
+#define TEGRA_ARM_ACTMON_CTR_BASE	0x0E060000
+#define TEGRA_DENVER_ACTMON_CTR_BASE	0x0E070000
+
+/*******************************************************************************
  * Tegra SMMU Controller constants
  ******************************************************************************/
-#define TEGRA_SMMU_BASE			0x12000000
+#define TEGRA_SMMU0_BASE		0x12000000
 
 /*******************************************************************************
  * Tegra TZRAM constants

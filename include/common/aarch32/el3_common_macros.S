@@ -148,7 +148,7 @@
 		_init_memory, _init_c_runtime, _exception_vectors
 
 	/* Make sure we are in Secure Mode */
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	ldcopr	r0, SCR
 	tst	r0, #SCR_NS_BIT
 	ASM_ASSERT(eq)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -70,9 +70,12 @@ func do_panic
 	/* Print new line */
 	ldr	r4, =panic_end
 	bl	asm_print_str
+
+	bl	plat_crash_console_flush
+
 1:
 	mov	lr, r6
-	b	plat_panic_handler
+	no_ret	plat_panic_handler
 endfunc do_panic
 
 	/***********************************************************
@@ -87,7 +90,7 @@ func report_exception
 	no_ret	plat_panic_handler
 endfunc report_exception
 
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 .section .rodata.assert_str, "aS"
 assert_msg1:
 	.asciz "ASSERT: File "
@@ -104,6 +107,11 @@ assert_msg2:
  * ---------------------------------------------------------------------------
  */
 func asm_assert
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+	/*
+	 * Only print the output if LOG_LEVEL is higher or equal to
+	 * LOG_LEVEL_INFO, which is the default value for builds with DEBUG=1.
+	 */
 	/* Stash the parameters already in r0 and r1 */
 	mov	r5, r0
 	mov	r6, r1
@@ -140,10 +148,14 @@ dec_print_loop:
 	udiv	r5, r5, r6			/* Reduce divisor */
 	cmp	r5, #0
 	bne	dec_print_loop
+
+	bl	plat_crash_console_flush
+
 1:
+#endif /* LOG_LEVEL >= LOG_LEVEL_INFO */
 	no_ret	plat_panic_handler
 endfunc asm_assert
-#endif
+#endif /* ENABLE_ASSERTIONS */
 
 /*
  * This function prints a string from address in r4

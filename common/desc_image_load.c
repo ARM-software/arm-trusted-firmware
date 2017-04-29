@@ -47,8 +47,11 @@ static bl_params_t next_bl_params;
  ******************************************************************************/
 void flush_bl_params_desc(void)
 {
-	flush_dcache_range((unsigned long)bl_mem_params_desc_ptr,
+	flush_dcache_range((uintptr_t)bl_mem_params_desc_ptr,
 			sizeof(*bl_mem_params_desc_ptr) * bl_mem_params_desc_num);
+
+	flush_dcache_range((uintptr_t)&next_bl_params,
+			sizeof(next_bl_params));
 }
 
 /*******************************************************************************
@@ -208,13 +211,6 @@ bl_params_t *get_next_bl_params_from_mem_params_desc(void)
 
 	/* Invalid image is expected to terminate the loop */
 	assert(img_id == INVALID_IMAGE_ID);
-
-	/* Populate arg0 for the next BL image */
-	next_bl_params.head->ep_info->args.arg0 = (unsigned long)&next_bl_params;
-
-	/* Flush the parameters to be passed to the next BL image */
-	flush_dcache_range((unsigned long)&next_bl_params,
-			sizeof(next_bl_params));
 
 	return &next_bl_params;
 }

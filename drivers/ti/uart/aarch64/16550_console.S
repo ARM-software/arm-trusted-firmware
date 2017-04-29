@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 	.globl	console_core_init
 	.globl	console_core_putc
 	.globl	console_core_getc
+	.globl	console_core_flush
 
 	/* -----------------------------------------------
 	 * int console_core_init(unsigned long base_addr,
@@ -114,9 +115,6 @@ func console_core_putc
 	b.ne	1b
 	mov	w2, #0xD		/* '\r' */
 	str	w2, [x1, #UARTTX]
-	ldr	w2, [x1, #UARTFCR]
-	orr	w2, w2, #UARTFCR_TXCLR
-	str	w2, [x1, #UARTFCR]
 
 	/* Check if the transmit FIFO is full */
 2:	ldr	w2, [x1, #UARTLSR]
@@ -124,9 +122,6 @@ func console_core_putc
 	cmp	w2, #(UARTLSR_TEMT | UARTLSR_THRE)
 	b.ne	2b
 	str	w0, [x1, #UARTTX]
-	ldr	w2, [x1, #UARTFCR]
-	orr	w2, w2, #UARTFCR_TXCLR
-	str	w2, [x1, #UARTFCR]
 	ret
 putc_error:
 	mov	w0, #-1
@@ -153,3 +148,18 @@ getc_error:
 	mov	w0, #-1
 	ret
 endfunc console_core_getc
+
+	/* ---------------------------------------------
+	 * int console_core_flush(uintptr_t base_addr)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * In : x0 - console base address
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func console_core_flush
+	/* Placeholder */
+	mov	w0, #0
+	ret
+endfunc console_core_flush

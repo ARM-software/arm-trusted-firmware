@@ -394,12 +394,14 @@
 #define HCR		p15, 4, c1, c1, 0
 #define HCPTR		p15, 4, c1, c1, 2
 #define CNTHCTL		p15, 4, c14, c1, 0
+#define CNTKCTL		p15, 0, c14, c1, 0
 #define VPIDR		p15, 4, c0, c0, 0
 #define VMPIDR		p15, 4, c0, c0, 5
 #define ISR		p15, 0, c12, c1, 0
 #define CLIDR		p15, 1, c0, c0, 1
 #define CSSELR		p15, 2, c0, c0, 0
 #define CCSIDR		p15, 1, c0, c0, 0
+#define DBGOSDLR	p14, 0, c1, c3, 4
 
 /* Debug register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
 #define HDCR		p15, 4, c1, c1, 1

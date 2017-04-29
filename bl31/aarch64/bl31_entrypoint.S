@@ -185,25 +185,26 @@ func bl31_warm_entrypoint
 	 *
 	 * The PSCI implementation invokes platform routines that enable CPUs to
 	 * participate in coherency. On a system where CPUs are not
-	 * cache-coherent out of reset, having caches enabled until such time
-	 * might lead to coherency issues (resulting from stale data getting
-	 * speculatively fetched, among others). Therefore we keep data caches
-	 * disabled while enabling the MMU, thereby forcing data accesses to
-	 * have non-cacheable, nGnRnE attributes (these will always be coherent
-	 * with main memory).
+	 * cache-coherent without appropriate platform specific programming,
+	 * having caches enabled until such time might lead to coherency issues
+	 * (resulting from stale data getting speculatively fetched, among
+	 * others). Therefore we keep data caches disabled even after enabling
+	 * the MMU for such platforms.
 	 *
-	 * On systems with hardware-assisted coherency, where CPUs are expected
-	 * to be cache-coherent out of reset without needing explicit software
-	 * intervention, PSCI need not invoke platform routines to enter
-	 * coherency (as CPUs already are); and there's no reason to have caches
-	 * disabled either.
+	 * On systems with hardware-assisted coherency, or on single cluster
+	 * platforms, such platform specific programming is not required to
+	 * enter coherency (as CPUs already are); and there's no reason to have
+	 * caches disabled either.
 	 */
-#if HW_ASSISTED_COHERENCY
-	mov	x0, #0
-#else
 	mov	x0, #DISABLE_DCACHE
-#endif
 	bl	bl31_plat_enable_mmu
+
+#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
+	mrs	x0, sctlr_el3
+	orr	x0, x0, #SCTLR_C_BIT
+	msr	sctlr_el3, x0
+	isb
+#endif
 
 	bl	psci_warmboot_entrypoint
 

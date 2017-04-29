@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include <memctrl.h>
 #include <runtime_svc.h>
 #include <tegra_private.h>
+#include <tegra_platform.h>
 
 /*******************************************************************************
  * Common Tegra SiP SMCs
@@ -44,6 +45,13 @@
 #define TEGRA_SIP_NEW_VIDEOMEM_REGION		0x82000003
 #define TEGRA_SIP_FIQ_NS_ENTRYPOINT		0x82000005
 #define TEGRA_SIP_FIQ_NS_GET_CONTEXT		0x82000006
+#define TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND	0xC2000007
+
+/*******************************************************************************
+ * Fake system suspend mode control var
+ ******************************************************************************/
+extern uint8_t tegra_fake_system_suspend;
+
 
 /*******************************************************************************
  * SoC specific SiP handler
@@ -78,7 +86,7 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 	/* Check if this is a SoC specific SiP */
 	err = plat_sip_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
 	if (err == 0)
-		SMC_RET1(handle, err);
+		SMC_RET1(handle, (uint64_t)err);
 
 	switch (smc_fid) {
 
@@ -142,6 +150,26 @@ uint64_t tegra_sip_handler(uint32_t smc_fid,
 		tegra_fiq_get_intr_context();
 
 		SMC_RET0(handle);
+		break;
+
+	case TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND:
+		/*
+		 * System suspend fake mode is set if we are on VDK and we make
+		 * a debug SIP call. This mode ensures that we excercise debug
+		 * path instead of the regular code path to suit the pre-silicon
+		 * platform needs. These include replacing the call to WFI by
+		 * a warm reset request.
+		 */
+		if (tegra_platform_is_emulation() != 0U) {
+
+			tegra_fake_system_suspend = 1;
+			SMC_RET1(handle, 0);
+		}
+
+		/*
+		 * We return to the external world as if this SIP is not
+		 * implemented in case, we are not running on VDK.
+		 */
 		break;
 
 	default:
