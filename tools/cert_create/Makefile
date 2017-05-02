@@ -64,7 +64,7 @@ INC_DIR := -I ./include -I ${PLAT_INCLUDE} -I ${OPENSSL_DIR}/include
 LIB_DIR := -L ${OPENSSL_DIR}/lib
 LIB := -lssl -lcrypto
 
-CC := gcc
+HOSTCC ?= gcc
 
 .PHONY: all clean realclean
 
@@ -75,11 +75,11 @@ ${BINARY}: ${OBJECTS} Makefile
 	@echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__; \
                 const char platform_msg[] = "${PLAT_MSG}";' | \
                 ${CC} -c ${CFLAGS} -xc - -o src/build_msg.o
-	${Q}${CC} src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
+	${Q}${HOSTCC} src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
 
 %.o: %.c
 	@echo "  CC      $<"
-	${Q}${CC} -c ${CFLAGS} ${INC_DIR} $< -o $@
+	${Q}${HOSTCC} -c ${CFLAGS} ${INC_DIR} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, src/build_msg.o ${OBJECTS})
