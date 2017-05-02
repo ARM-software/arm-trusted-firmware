@@ -85,7 +85,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <types.h>
-#include <utils.h> /* To retain compatibility */
+#include <utils_def.h> /* To retain compatibility */
 
 /*
  * Declarations of linker defined symbols to help determine memory layout of

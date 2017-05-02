@@ -31,7 +31,7 @@
 #include <assert.h>
 #include <mmio.h>
 #include <string.h>
-#include <utils.h>
+#include <utils_def.h>
 #include "juno_def.h"
 
 #define NSAMPLE_CLOCKS	1 /* min 1 cycle, max 231 cycles */

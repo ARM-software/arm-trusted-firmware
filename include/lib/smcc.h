@@ -31,7 +31,7 @@
 #ifndef __SMCC_H__
 #define __SMCC_H__
 
-#include <utils.h>
+#include <utils_def.h>
 
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention

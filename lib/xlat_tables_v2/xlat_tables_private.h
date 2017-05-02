@@ -33,7 +33,7 @@
 
 #include <cassert.h>
 #include <platform_def.h>
-#include <utils.h>
+#include <utils_def.h>
 
 /*
  * If the platform hasn't defined a physical and a virtual address space size

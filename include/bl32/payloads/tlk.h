@@ -31,7 +31,7 @@
 #ifndef __TLK_H__
 #define __TLK_H__
 
-#include <utils.h>
+#include <utils_def.h>
 
 /*
  * Generate function IDs for the Trusted OS/Apps

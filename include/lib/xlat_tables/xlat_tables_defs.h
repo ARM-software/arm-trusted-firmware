@@ -31,7 +31,7 @@
 #ifndef __XLAT_TABLES_DEFS_H__
 #define __XLAT_TABLES_DEFS_H__
 
-#include <utils.h>
+#include <utils_def.h>
 
 /* Miscellaneous MMU related constants */
 #define NUM_2MB_IN_GB		(1 << 9)

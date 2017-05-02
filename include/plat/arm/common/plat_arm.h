@@ -35,7 +35,7 @@
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
-#include <utils.h>
+#include <utils_def.h>
 
 /*******************************************************************************
  * Forward declarations

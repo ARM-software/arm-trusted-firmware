@@ -36,7 +36,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <spinlock.h>
-#include <utils.h>
+#include <utils_def.h>
 
 #if DEBUG
 void print_errata_status(void);
