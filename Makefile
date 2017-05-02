@@ -126,11 +126,18 @@ OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
 
-ASFLAGS_aarch64		=	-mgeneral-regs-only
-TF_CFLAGS_aarch64	=	-mgeneral-regs-only -mstrict-align
+ifneq ($(findstring clang,$(notdir $(CC))),)
+TF_CFLAGS_aarch32	=	-target armv8a-none-eabi
+TF_CFLAGS_aarch64	=	-target aarch64-elf
+else
+TF_CFLAGS_aarch32	=	-march=armv8-a
+TF_CFLAGS_aarch64	=	-march=armv8-a
+endif
+
+TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 
 ASFLAGS_aarch32		=	-march=armv8-a
-TF_CFLAGS_aarch32	=	-march=armv8-a
+ASFLAGS_aarch64		=	-march=armv8-a
 
 CPPFLAGS		=	${DEFINES} ${INCLUDES} -nostdinc		\
 				-Wmissing-include-dirs -Werror
