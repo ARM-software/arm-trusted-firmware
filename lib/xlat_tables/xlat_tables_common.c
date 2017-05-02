@@ -273,15 +273,19 @@ static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
 }
 
 /*
- * Returns attributes of area at `base_va` with size `size`. It returns the
- * attributes of the innermost region that contains it. If there are partial
- * overlaps, it returns -1, as a smaller size is needed.
+ * Look for the innermost region that contains the area at `base_va` with size
+ * `size`. Populate *attr with the attributes of this region.
+ *
+ * On success, this function returns 0.
+ * If there are partial overlaps (meaning that a smaller size is needed) or if
+ * the region can't be found in the given area, it returns -1. In this case the
+ * value pointed by attr should be ignored by the caller.
  */
-static mmap_attr_t mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
-					size_t size)
+static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
+					size_t size, mmap_attr_t *attr)
 {
 	/* Don't assume that the area is contained in the first region */
-	mmap_attr_t attr = -1;
+	int ret = -1;
 
 	/*
 	 * Get attributes from last (innermost) region that contains the
@@ -301,23 +305,25 @@ static mmap_attr_t mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
 	for (;; ++mm) {
 
 		if (!mm->size)
-			return attr; /* Reached end of list */
+			return ret; /* Reached end of list */
 
 		if (mm->base_va > base_va + size - 1)
-			return attr; /* Next region is after area so end */
+			return ret; /* Next region is after area so end */
 
 		if (mm->base_va + mm->size - 1 < base_va)
 			continue; /* Next region has already been overtaken */
 
-		if (mm->attr == attr)
+		if (!ret && mm->attr == *attr)
 			continue; /* Region doesn't override attribs so skip */
 
 		if (mm->base_va > base_va ||
 			mm->base_va + mm->size - 1 < base_va + size - 1)
 			return -1; /* Region doesn't fully cover our area */
 
-		attr = mm->attr;
+		*attr = mm->attr;
+		ret = 0;
 	}
+	return ret;
 }
 
 static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
@@ -360,9 +366,10 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			 * there are partially overlapping regions. On success,
 			 * it will return the innermost region's attributes.
 			 */
-			mmap_attr_t attr = mmap_region_attr(mm, base_va,
-							level_size);
-			if (attr >= 0) {
+			mmap_attr_t attr;
+			int r = mmap_region_attr(mm, base_va, level_size, &attr);
+
+			if (!r) {
 				desc = mmap_desc(attr,
 					base_va - mm->base_va + mm->base_pa,
 					level);
