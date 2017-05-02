@@ -61,7 +61,10 @@
 #define SMC_OK				0
 #define SMC_UNK				0xffffffff
 #define SMC_TYPE_FAST			ULL(1)
+#if !ERROR_DEPRECATED
 #define SMC_TYPE_STD			0
+#endif
+#define SMC_TYPE_YIELD			0
 #define SMC_PREEMPTED		0xfffffffe
 /*******************************************************************************
  * Owning entity number definitions inside the function id as per the SMC
@@ -75,7 +78,7 @@
 #define OEN_SIP_END			2
 #define OEN_OEM_START			3
 #define OEN_OEM_END			3
-#define OEN_STD_START			4	/* Standard Calls */
+#define OEN_STD_START			4	/* Standard Service Calls */
 #define OEN_STD_END			4
 #define OEN_TAP_START			48	/* Trusted Applications */
 #define OEN_TAP_END			49

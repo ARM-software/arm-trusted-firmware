@@ -51,24 +51,24 @@ of these terms.
 The SMC Function Identifier includes a OEN field. These values and their
 meaning are described in [SMCCC] and summarized in table 1 below. Some entities
 are allocated a range of of OENs. The OEN must be interpreted in conjunction
-with the SMC call type, which is either _Fast_ or _Standard_. Fast calls are
-uninterruptible whereas Standard calls can be pre-empted. The majority of
-Owning Entities only have allocated ranges for Fast calls: Standard calls are
+with the SMC call type, which is either _Fast_ or _Yielding_. Fast calls are
+uninterruptible whereas Yielding calls can be pre-empted. The majority of
+Owning Entities only have allocated ranges for Fast calls: Yielding calls are
 reserved exclusively for Trusted OS providers or for interoperability with
 legacy 32-bit software that predates the [SMCCC].
 
-    Type    OEN     Service
-    Fast     0      ARM Architecture calls
-    Fast     1      CPU Service calls
-    Fast     2      SiP Service calls
-    Fast     3      OEM Service calls
-    Fast     4      Standard Service calls
-    Fast    5-47    Reserved for future use
-    Fast   48-49    Trusted Application calls
-    Fast   50-63    Trusted OS calls
+    Type       OEN     Service
+    Fast        0      ARM Architecture calls
+    Fast        1      CPU Service calls
+    Fast        2      SiP Service calls
+    Fast        3      OEM Service calls
+    Fast        4      Standard Service calls
+    Fast       5-47    Reserved for future use
+    Fast      48-49    Trusted Application calls
+    Fast      50-63    Trusted OS calls
 
-    Std     0- 1    Reserved for existing ARMv7 calls
-    Std     2-63    Trusted OS Standard Calls
+    Yielding   0- 1    Reserved for existing ARMv7 calls
+    Yielding   2-63    Trusted OS Standard Calls
 
 _Table 1: Service types and their corresponding Owning Entity Numbers_
 
@@ -115,7 +115,7 @@ initialization and call handler functions.
 *   `_start` and `_end` values must be based on the `OEN_*` values defined in
     [`smcc.h`]
 
-*   `_type` must be one of `SMC_TYPE_FAST` or `SMC_TYPE_STD`
+*   `_type` must be one of `SMC_TYPE_FAST` or `SMC_TYPE_YIELD`
 
 *   `_setup` is the initialization function with the `rt_svc_init` signature:
 
@@ -138,7 +138,7 @@ to ensure that the following conditions are met:
 
 1.  The `_start` OEN is not greater than the `_end` OEN
 2.  The `_end` OEN does not exceed the maximum OEN value (63)
-3.  The `_type` is one of `SMC_TYPE_FAST` or `SMC_TYPE_STD`
+3.  The `_type` is one of `SMC_TYPE_FAST` or `SMC_TYPE_YIELD`
 4.  `_setup` and `_smch` routines have been specified
 
 [`std_svc_setup.c`] provides an example of registering a runtime service:

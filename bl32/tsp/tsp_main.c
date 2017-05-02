@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -372,7 +372,7 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 	tsp_stats[linear_id].eret_count++;
 
 	INFO("TSP: cpu 0x%lx received %s smc 0x%lx\n", read_mpidr(),
-		((func >> 31) & 1) == 1 ? "fast" : "standard",
+		((func >> 31) & 1) == 1 ? "fast" : "yielding",
 		func);
 	INFO("TSP: cpu 0x%lx: %d smcs, %d erets\n", read_mpidr(),
 		tsp_stats[linear_id].smc_count,
@@ -418,7 +418,7 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 
 /*******************************************************************************
  * TSP smc abort handler. This function is called when aborting a preemtped
- * standard SMC request. It should cleanup all resources owned by the SMC
+ * yielding SMC request. It should cleanup all resources owned by the SMC
  * handler such as locks or dynamically allocated memory so following SMC
  * request are executed in a clean environment.
  ******************************************************************************/

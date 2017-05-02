@@ -761,7 +761,7 @@ invoked.
 3.  It sets the `ELR_EL3` system register to `tsp_sel1_intr_entry` and sets the
     `SPSR_EL3.DAIF` bits in the secure CPU context. It sets `x0` to
     `TSP_HANDLE_SEL1_INTR_AND_RETURN`. If the TSP was preempted earlier by a non
-    secure interrupt during `standard` SMC processing, save the registers that
+    secure interrupt during `yielding` SMC processing, save the registers that
     will be trashed, which is the `ELR_EL3` and `SPSR_EL3`, in order to be able
     to re-enter TSP for Secure-EL1 interrupt processing. It does not need to
     save any other secure context since the TSP is expected to preserve it
@@ -809,17 +809,17 @@ upon receiving an SMC with `TSP_HANDLED_S_EL1_INTR` as the function identifier:
 
 ##### 2.3.2.4 Test secure payload dispatcher non-secure interrupt handling
 The TSP in Secure-EL1 can be preempted by a non-secure interrupt during
-`standard` SMC processing or by a higher priority EL3 interrupt during
+`yielding` SMC processing or by a higher priority EL3 interrupt during
 Secure-EL1 interrupt processing. Currently only non-secure interrupts can
 cause preemption of TSP since there are no EL3 interrupts in the
 system.
 
 It should be noted that while TSP is preempted, the TSPD only allows entry into
 the TSP either for Secure-EL1 interrupt handling or for resuming the preempted
-`standard` SMC in response to the `TSP_FID_RESUME` SMC from the normal world.
+`yielding` SMC in response to the `TSP_FID_RESUME` SMC from the normal world.
 (See Section 3).
 
-The non-secure interrupt triggered in Secure-EL1 during `standard` SMC processing
+The non-secure interrupt triggered in Secure-EL1 during `yielding` SMC processing
 can be routed to either EL3 or Secure-EL1 and is controlled by build option
 `TSP_NS_INTR_ASYNC_PREEMPT` (see Section 2.2.2.1). If the build option is set,
 the TSPD will set the routing model for the non-secure interrupt to be routed to
@@ -835,7 +835,7 @@ further handling.
 
 If the `TSP_NS_INTR_ASYNC_PREEMPT` build option is zero (default), the default
 routing model for non-secure interrupt in secure state is in effect
-i.e. __TEL3=0, CSS=0__. During `standard` SMC processing, the IRQ
+i.e. __TEL3=0, CSS=0__. During `yielding` SMC processing, the IRQ
 exceptions are unmasked i.e. `PSTATE.I=0`, and a non-secure interrupt will
 trigger at Secure-EL1 IRQ exception vector. The TSP saves the general purpose
 register context and issues an SMC with `TSP_PREEMPTED` as the function
@@ -860,7 +860,7 @@ invoked:
 4.  `SMC_PREEMPTED` is set in x0 and return to non secure state after
     restoring non secure context.
 
-The Normal World is expected to resume the TSP after the `standard` SMC preemption
+The Normal World is expected to resume the TSP after the `yielding` SMC preemption
 by issuing an SMC with `TSP_FID_RESUME` as the function identifier (see section 3).
 The TSPD service takes the following actions in `tspd_smc_handler()` function
 upon receiving this SMC:
@@ -951,9 +951,9 @@ The TSP handles interrupts under the asynchronous model as follows.
 -----------------------
 
 ### 3.1 Implication of preempted SMC on Non-Secure Software
-A `standard` SMC call to Secure payload can be preempted by a non-secure
+A `yielding` SMC call to Secure payload can be preempted by a non-secure
 interrupt and the execution can return to the non-secure world for handling
-the interrupt (For details on `standard` SMC refer [SMC calling convention]).
+the interrupt (For details on `yielding` SMC refer [SMC calling convention]).
 In this case, the SMC call has not completed its execution and the execution
 must return back to the secure payload to resume the preempted SMC call.
 This can be achieved by issuing an SMC call which instructs to resume the
@@ -964,26 +964,26 @@ a fast SMC call.
 
 In the Test Secure Payload implementation, `TSP_FID_RESUME` is designated
 as the resume SMC FID. It is important to note that `TSP_FID_RESUME` is a
-`standard` SMC which means it too can be be preempted. The typical non
-secure software sequence for issuing a `standard` SMC would look like this,
+`yielding` SMC which means it too can be be preempted. The typical non
+secure software sequence for issuing a `yielding` SMC would look like this,
 assuming `P.STATE.I=0` in the non secure state :
 
     int rc;
-    rc = smc(TSP_STD_SMC_FID, ...);     /* Issue a Standard SMC call */
+    rc = smc(TSP_YIELD_SMC_FID, ...);     /* Issue a Yielding SMC call */
     /* The pending non-secure interrupt is handled by the interrupt handler
        and returns back here. */
     while (rc == SMC_PREEMPTED) {       /* Check if the SMC call is preempted */
         rc = smc(TSP_FID_RESUME);       /* Issue resume SMC call */
     }
 
-The `TSP_STD_SMC_FID` is any `standard` SMC function identifier and the smc()
+The `TSP_YIELD_SMC_FID` is any `yielding` SMC function identifier and the smc()
 function invokes a SMC call with the required arguments. The pending non-secure
 interrupt causes an IRQ exception and the IRQ handler registered at the
 exception vector handles the non-secure interrupt and returns. The return value
 from the SMC call is tested for `SMC_PREEMPTED` to check whether it is
 preempted. If it is, then the resume SMC call `TSP_FID_RESUME` is issued. The
 return value of the SMC call is tested again to check if it is preempted.
-This is done in a loop till the SMC call succeeds or fails. If a `standard`
+This is done in a loop till the SMC call succeeds or fails. If a `yielding`
 SMC is preempted, until it is resumed using `TSP_FID_RESUME` SMC and
 completed, the current TSPD prevents any other SMC call from re-entering
 TSP by returning `SMC_UNK` error.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -93,7 +93,8 @@ static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)
 	if (desc->end_oen >= OEN_LIMIT)
 		return -EINVAL;
 
-	if (desc->call_type != SMC_TYPE_FAST && desc->call_type != SMC_TYPE_STD)
+	if (desc->call_type != SMC_TYPE_FAST &&
+			desc->call_type != SMC_TYPE_YIELD)
 		return -EINVAL;
 
 	/* A runtime service having no init or handle function doesn't make sense */
@@ -143,7 +144,7 @@ void runtime_svc_init(void)
 
 		/*
 		 * The runtime service may have separate rt_svc_desc_t
-		 * for its fast smc and standard smc. Since the service itself
+		 * for its fast smc and yielding smc. Since the service itself
 		 * need to be initialized only once, only one of them will have
 		 * an initialisation routine defined. Call the initialisation
 		 * routine for this runtime service, if it is defined.
