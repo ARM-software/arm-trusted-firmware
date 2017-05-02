@@ -205,6 +205,11 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	}
 
 	/*
+	 * Initialize delay timer
+	 */
+	tegra_delay_timer_init();
+
+	/*
 	 * Do initial security configuration to allow DRAM/device access.
 	 */
 	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
@@ -262,11 +267,6 @@ void bl31_platform_setup(void)
 
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_gic_setup();
-
-	/*
-	 * Initialize delay timer
-	 */
-	tegra_delay_timer_init();
 
 	/*
 	 * Setup secondary CPU POR infrastructure.
@@ -354,6 +354,12 @@ void bl31_plat_arch_setup(void)
 			MT_DEVICE | MT_RW | MT_SECURE);
 #endif
 
+	/* map on-chip free running uS timer */
+	mmap_add_region(page_align((uint64_t)TEGRA_TMRUS_BASE, 0),
+			page_align((uint64_t)TEGRA_TMRUS_BASE, 0),
+			(uint64_t)TEGRA_TMRUS_SIZE,
+			MT_DEVICE | MT_RO | MT_SECURE);
+
 	/* add MMIO space */
 	plat_mmio_map = plat_get_mmio_map();
 	if (plat_mmio_map)
@@ -375,13 +381,12 @@ void bl31_plat_arch_setup(void)
  ******************************************************************************/
 int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 {
-	uint64_t end = base + size_in_bytes - 1;
+	uint64_t end = base + size_in_bytes;
 
 	/*
 	 * Check if the NS DRAM address is valid
 	 */
-	if ((base < TEGRA_DRAM_BASE) || (end > TEGRA_DRAM_END) ||
-	    (base >= end)) {
+	if ((base < TEGRA_DRAM_BASE) || (end > TEGRA_DRAM_END)) {
 		ERROR("NS address is out-of-bounds!\n");
 		return -EFAULT;
 	}

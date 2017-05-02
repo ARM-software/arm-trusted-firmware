@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,10 +30,13 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <debug.h>
+#include <delay_timer.h>
 #include <denver.h>
 #include <mmio.h>
 #include <mce_private.h>
+#include <platform.h>
 #include <sys/errno.h>
 #include <t18x_ari.h>
 
@@ -49,10 +52,13 @@
 #define ARI_RESPONSE_DATA_HI		0x18
 
 /* Status values for the current request */
-#define ARI_REQ_PENDING			1
-#define ARI_REQ_ONGOING			3
-#define ARI_REQUEST_VALID_BIT		(1 << 8)
-#define ARI_EVT_MASK_STANDBYWFI_BIT	(1 << 7)
+#define ARI_REQ_PENDING			1U
+#define ARI_REQ_ONGOING			3U
+#define ARI_REQUEST_VALID_BIT		(1U << 8)
+#define ARI_EVT_MASK_STANDBYWFI_BIT	(1U << 7)
+
+/* default timeout (ms) to wait for ARI completion */
+#define ARI_MAX_RETRY_COUNT		2000
 
 /*******************************************************************************
  * ARI helper functions
@@ -96,7 +102,8 @@ static inline void ari_clobber_response(uint32_t ari_base)
 static int ari_request_wait(uint32_t ari_base, uint32_t evt_mask, uint32_t req,
 		uint32_t lo, uint32_t hi)
 {
-	int status;
+	uint32_t retries = ARI_MAX_RETRY_COUNT;
+	uint32_t status;
 
 	/* program the request, event_mask, hi and lo registers */
 	ari_write_32(ari_base, lo, ARI_REQUEST_DATA_LO);
@@ -112,10 +119,36 @@ static int ari_request_wait(uint32_t ari_base, uint32_t evt_mask, uint32_t req,
 	if (evt_mask)
 		return 0;
 
-	/* NOTE: add timeout check if needed */
-	status = ari_read_32(ari_base, ARI_STATUS);
-	while (status & (ARI_REQ_ONGOING | ARI_REQ_PENDING))
+	/* For shutdown/reboot commands, we dont have to check for timeouts */
+	if ((req == (uint32_t)TEGRA_ARI_MISC_CCPLEX) &&
+	    ((lo == (uint32_t)TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF) ||
+	     (lo == (uint32_t)TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_REBOOT))) {
+			return 0;
+	}
+
+	/*
+	 * Wait for the command response for not more than the timeout
+	 */
+	while (retries != 0U) {
+
+		/* read the command status */
 		status = ari_read_32(ari_base, ARI_STATUS);
+		if ((status & (ARI_REQ_ONGOING | ARI_REQ_PENDING)) == 0U)
+			break;
+
+		/* delay 1 ms */
+		mdelay(1);
+
+		/* decrement the retry count */
+		retries--;
+	}
+
+	/* assert if the command timed out */
+	if (retries == 0U) {
+		ERROR("ARI request timed out: req %d on CPU %d\n",
+			req, plat_my_core_pos());
+		assert(retries != 0U);
+	}
 
 	return 0;
 }
