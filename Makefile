@@ -112,6 +112,9 @@ endif
 # Toolchain
 ################################################################################
 
+HOSTCC			:=	gcc
+export HOSTCC
+
 CC			:=	${CROSS_COMPILE}gcc
 CPP			:=	${CROSS_COMPILE}cpp
 AS			:=	${CROSS_COMPILE}gcc

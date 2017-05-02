@@ -31,7 +31,7 @@ endif
 # Only include from local directory (see comment below).
 INCLUDE_PATHS := -I.
 
-CC := gcc
+HOSTCC ?= gcc
 
 .PHONY: all clean distclean
 
@@ -39,7 +39,7 @@ all: ${PROJECT} fip_create
 
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  LD      $@"
-	${Q}${CC} ${OBJECTS} -o $@ ${LDLIBS}
+	${Q}${HOSTCC} ${OBJECTS} -o $@ ${LDLIBS}
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
@@ -50,7 +50,7 @@ fip_create: fip_create.sh
 
 %.o: %.c %.h ${COPIED_H_FILES} Makefile
 	@echo "  CC      $<"
-	${Q}${CC} -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
+	${Q}${HOSTCC} -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 #
 # Copy required library headers to a local directory so they can be included
