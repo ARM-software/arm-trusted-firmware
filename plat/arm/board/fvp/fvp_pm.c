@@ -296,8 +296,6 @@ static int fvp_node_hw_state(u_register_t target_cpu,
 	case ARM_PWR_LVL1:
 		ret = (psysr & PSYSR_AFF_L1) ? HW_ON : HW_OFF;
 		break;
-	default:
-		assert(0);
 	}
 
 	return ret;
