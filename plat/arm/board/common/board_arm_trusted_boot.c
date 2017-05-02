@@ -12,7 +12,6 @@
 #include <tbbr_oid.h>
 
 /* Weak definition may be overridden in specific platform */
-#pragma weak plat_match_rotpk
 #pragma weak plat_get_nv_ctr
 #pragma weak plat_set_nv_ctr
 
