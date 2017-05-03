@@ -126,7 +126,10 @@ OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
 
-ifneq ($(findstring clang,$(notdir $(CC))),)
+ifeq ($(notdir $(CC)),armclang)
+TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi -march=armv8-a
+TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
+else ifneq ($(findstring clang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	-target armv8a-none-eabi
 TF_CFLAGS_aarch64	=	-target aarch64-elf
 else
