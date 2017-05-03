@@ -122,9 +122,11 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 	if ((entrypoint >= ARM_NS_DRAM1_BASE) && (entrypoint <
 			(ARM_NS_DRAM1_BASE + ARM_NS_DRAM1_SIZE)))
 		return PSCI_E_SUCCESS;
+#ifndef AARCH32
 	if ((entrypoint >= ARM_DRAM2_BASE) && (entrypoint <
 			(ARM_DRAM2_BASE + ARM_DRAM2_SIZE)))
 		return PSCI_E_SUCCESS;
+#endif
 
 	return PSCI_E_INVALID_ADDRESS;
 }
