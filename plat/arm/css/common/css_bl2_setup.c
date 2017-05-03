@@ -11,7 +11,7 @@
 #include <plat_arm.h>
 #include <string.h>
 #include <utils.h>
-#include "css_scp_bootloader.h"
+#include "../drivers/scp/css_scp.h"
 
 /* Weak definition may be overridden in specific CSS based platform */
 #if LOAD_IMAGE_V2
@@ -34,8 +34,11 @@ int bl2_plat_handle_scp_bl2(image_info_t *scp_bl2_image_info)
 
 	INFO("BL2: Initiating SCP_BL2 transfer to SCP\n");
 
-	ret = scp_bootloader_transfer((void *)scp_bl2_image_info->image_base,
+	ret = css_scp_boot_image_xfer((void *)scp_bl2_image_info->image_base,
 		scp_bl2_image_info->image_size);
+
+	if (ret == 0)
+		ret = css_scp_boot_ready();
 
 	if (ret == 0)
 		INFO("BL2: SCP_BL2 transferred to SCP\n");

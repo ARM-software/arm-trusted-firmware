@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,9 +10,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <stdint.h>
-#include "../drivers/scpi/css_mhu.h"
-#include "../drivers/scpi/css_scpi.h"
-#include "css_scp_bootloader.h"
+#include "../scpi/css_mhu.h"
 
 /* ID of the MHU slot used for the BOM protocol */
 #define BOM_MHU_SLOT_ID		0
@@ -88,7 +86,7 @@ static void scp_boot_message_end(void)
 	mhu_secure_message_end(BOM_MHU_SLOT_ID);
 }
 
-int scp_bootloader_transfer(void *image, unsigned int image_size)
+int css_scp_boot_image_xfer(void *image, unsigned int image_size)
 {
 	uint32_t response;
 	uint32_t checksum;
@@ -170,8 +168,5 @@ int scp_bootloader_transfer(void *image, unsigned int image_size)
 		return -1;
 	}
 
-	VERBOSE("Waiting for SCP to signal it is ready to go on\n");
-
-	/* Wait for SCP to signal it's ready */
-	return scpi_wait_ready();
+	return 0;
 }
