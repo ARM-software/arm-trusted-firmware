@@ -14,16 +14,12 @@
 #include <platform_def.h>
 #include <plat_private.h>
 #include <rk3368_def.h>
-#include <pmu_sram.h>
 #include <soc.h>
 #include <pmu.h>
 #include <ddr_rk3368.h>
 #include <pmu_com.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
-
-static struct psram_data_t *psram_sleep_cfg =
-	(struct psram_data_t *)PSRAM_DT_BASE;
 
 static uint32_t cpu_warm_boot_addr;
 
@@ -223,54 +219,19 @@ static void pmu_sleep_mode_config(void)
 	dsb();
 }
 
-static void ddr_suspend_save(void)
-{
-	ddr_reg_save(1, psram_sleep_cfg->ddr_data);
-}
-
 static void pmu_set_sleep_mode(void)
 {
-	ddr_suspend_save();
 	pmu_sleep_mode_config();
 	soc_sleep_config();
 	regs_updata_bit_set(PMU_BASE + PMU_PWRMD_CORE, pmu_mdcr_global_int_dis);
 	regs_updata_bit_set(PMU_BASE + PMU_SFT_CON, pmu_sft_glbl_int_dis_b);
 	pmu_scu_b_pwrdn();
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
-		      (PMUSRAM_BASE >> CPU_BOOT_ADDR_ALIGN) |
-		      CPU_BOOT_ADDR_WMASK);
+		      ((uintptr_t)&pmu_cpuson_entrypoint >>
+			CPU_BOOT_ADDR_ALIGN) | CPU_BOOT_ADDR_WMASK);
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(2),
-		      (PMUSRAM_BASE >> CPU_BOOT_ADDR_ALIGN) |
-		      CPU_BOOT_ADDR_WMASK);
-}
-
-void plat_rockchip_pmusram_prepare(void)
-{
-	uint32_t *sram_dst, *sram_src;
-	size_t sram_size = 2;
-	uint32_t code_size;
-
-	/* pmu sram code and data prepare */
-	sram_dst = (uint32_t *)PMUSRAM_BASE;
-	sram_src = (uint32_t *)&pmu_cpuson_entrypoint_start;
-	sram_size = (uint32_t *)&pmu_cpuson_entrypoint_end -
-		    (uint32_t *)sram_src;
-	u32_align_cpy(sram_dst, sram_src, sram_size);
-
-	/* ddr code */
-	sram_dst += sram_size;
-	sram_src = ddr_get_resume_code_base();
-	code_size = ddr_get_resume_code_size();
-	u32_align_cpy(sram_dst, sram_src, code_size / 4);
-	psram_sleep_cfg->ddr_func = (uint64_t)sram_dst;
-
-	/* ddr data */
-	sram_dst += (code_size / 4);
-	psram_sleep_cfg->ddr_data = (uint64_t)sram_dst;
-
-	assert((uint64_t)(sram_dst + ddr_get_resume_data_size() / 4)
-						 < PSRAM_SP_BOTTOM);
-	psram_sleep_cfg->sp = PSRAM_SP_TOP;
+		      ((uintptr_t)&pmu_cpuson_entrypoint >>
+			CPU_BOOT_ADDR_ALIGN) | CPU_BOOT_ADDR_WMASK);
 }
 
 static int cpus_id_power_domain(uint32_t cluster,
@@ -375,9 +336,12 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	nonboot_cpus_off();
 	pmu_set_sleep_mode();
 
-	psram_sleep_cfg->ddr_flag = 0;
-
 	return 0;
+}
+
+void rockchip_plat_mmu_el3(void)
+{
+	/* TODO: support the el3 for rk3368 SoCs */
 }
 
 void plat_rockchip_pmu_init(void)
@@ -389,8 +353,6 @@ void plat_rockchip_pmu_init(void)
 
 	for (cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu++)
 		cpuson_flags[cpu] = 0;
-
-	psram_sleep_cfg->boot_mpidr = read_mpidr_el1() & 0xffff;
 
 	nonboot_cpus_off();
 	INFO("%s(%d): pd status %x\n", __func__, __LINE__,

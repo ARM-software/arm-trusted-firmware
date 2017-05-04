@@ -16,15 +16,11 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <plat_private.h>
-#include <pmu_sram.h>
 #include <pmu.h>
 #include <rk3328_def.h>
 #include <pmu_com.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
-
-static struct psram_data_t *psram_sleep_cfg =
-		(struct psram_data_t *)PSRAM_DT_BASE;
 
 static struct rk3328_sleep_ddr_data ddr_data;
 static __sramdata struct rk3328_sleep_sram_data sram_data;
@@ -33,22 +29,6 @@ static uint32_t cpu_warm_boot_addr;
 
 #pragma weak rk3328_pmic_suspend
 #pragma weak rk3328_pmic_resume
-
-void plat_rockchip_pmusram_prepare(void)
-{
-	uint32_t *sram_dst, *sram_src;
-	size_t sram_size = 2;
-	/*
-	 * pmu sram code and data prepare
-	 */
-	sram_dst = (uint32_t *)PMUSRAM_BASE;
-	sram_src = (uint32_t *)&pmu_cpuson_entrypoint_start;
-	sram_size = (uint32_t *)&pmu_cpuson_entrypoint_end -
-		    (uint32_t *)sram_src;
-	u32_align_cpy(sram_dst, sram_src, sram_size);
-
-	psram_sleep_cfg->sp = PSRAM_DT_BASE;
-}
 
 static inline uint32_t get_cpus_pwr_domain_cfg_info(uint32_t cpu_id)
 {
@@ -138,6 +118,16 @@ static void nonboot_cpus_off(void)
 			continue;
 		cpus_power_domain_off(cpu, core_pwr_pd);
 	}
+}
+
+void sram_save(void)
+{
+	/* TODO: support the sdram save for rk3328 SoCs*/
+}
+
+void sram_restore(void)
+{
+	/* TODO: support the sdram restore for rk3328 SoCs */
 }
 
 int rockchip_soc_cores_pwr_dm_on(unsigned long mpidr, uint64_t entrypoint)
@@ -495,11 +485,6 @@ __sramfunc void  rk3328_pmic_resume(void)
 	sram_udelay(100);
 }
 
-static inline void rockchip_set_sram_sp(uint64_t set_sp)
-{
-	__asm volatile("mov sp, %0\n"::"r" (set_sp) : "sp");
-}
-
 static __sramfunc void ddr_suspend(void)
 {
 	sram_data.pd_sr_idle_save = mmio_read_32(DDR_UPCTL_BASE +
@@ -538,7 +523,7 @@ static __sramfunc void ddr_suspend(void)
 	dpll_suspend();
 }
 
-static __sramfunc  void ddr_resume(void)
+__sramfunc  void dmc_restore(void)
 {
 	dpll_resume();
 
@@ -574,7 +559,7 @@ static __sramfunc void sram_dbg_uart_suspend(void)
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(2), 0x00040004);
 }
 
-static __sramfunc void sram_dbg_uart_resume(void)
+__sramfunc void sram_dbg_uart_resume(void)
 {
 	/* restore uart clk and reset fifo */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(16), 0x20000000);
@@ -610,7 +595,7 @@ __sramfunc void sram_suspend(void)
 	disable_mmu_icache_el3();
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
-		      (PMUSRAM_BASE >> CPU_BOOT_ADDR_ALIGN) |
+		      ((uintptr_t)&pmu_cpuson_entrypoint >> CPU_BOOT_ADDR_ALIGN) |
 		      CPU_BOOT_ADDR_WMASK);
 
 	/* ddr self-refresh and gating phy */
@@ -623,28 +608,8 @@ __sramfunc void sram_suspend(void)
 	sram_soc_enter_lp();
 }
 
-static __sramfunc void sys_resume_first(void)
-{
-	sram_dbg_uart_resume();
-
-	rk3328_pmic_resume();
-
-	/* ddr self-refresh exit */
-	ddr_resume();
-
-	/* disable apm cfg */
-	mmio_write_32(PMU_BASE + PMU_CPUAPM_CON(0), CORES_PM_DISABLE);
-
-	/* the warm booting address of cpus */
-	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
-		      (cpu_warm_boot_addr >> CPU_BOOT_ADDR_ALIGN) |
-		      CPU_BOOT_ADDR_WMASK);
-}
-
 void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void)
 {
-	rockchip_set_sram_sp(PSRAM_DT_BASE);
-
 	sram_suspend();
 
 	/* should never reach here */
@@ -671,6 +636,11 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	return 0;
 }
 
+void rockchip_plat_mmu_el3(void)
+{
+	/* TODO: support the el3 for rk3328 SoCs */
+}
+
 void plat_rockchip_pmu_init(void)
 {
 	uint32_t cpu;
@@ -679,10 +649,6 @@ void plat_rockchip_pmu_init(void)
 		cpuson_flags[cpu] = 0;
 
 	cpu_warm_boot_addr = (uint64_t)platform_cpu_warmboot;
-	psram_sleep_cfg->ddr_func = (uint64_t)sys_resume_first;
-	psram_sleep_cfg->ddr_data = 0x00;
-	psram_sleep_cfg->ddr_flag = 0x01;
-	psram_sleep_cfg->boot_mpidr = read_mpidr_el1() & 0xffff;
 
 	/* the warm booting address of cpus */
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),

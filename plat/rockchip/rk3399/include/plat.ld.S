@@ -8,6 +8,7 @@
 
 MEMORY {
     SRAM (rwx): ORIGIN = SRAM_BASE, LENGTH = SRAM_SIZE
+    PMUSRAM (rwx): ORIGIN = PMUSRAM_BASE, LENGTH = PMUSRAM_RSIZE
 }
 
 SECTIONS
@@ -47,6 +48,33 @@ SECTIONS
 		. = ALIGN(4096);
 		__bl31_sram_data_end = .;
 	} >SRAM
+
+	.stack_sram : ALIGN(4096) {
+		__bl31_sram_stack_start = .;
+		. += 4096;
+		__bl31_sram_stack_end = .;
+	} >SRAM
+
+	. = PMUSRAM_BASE;
+
+	/*
+	 * pmu_cpuson_entrypoint request address
+	 * align 64K when resume, so put it in the
+	 * start of pmusram
+	 */
+	.pmusram : {
+		ASSERT(. == ALIGN(64 * 1024),
+			".pmusram.entry request 64K aligned.");
+		*(.pmusram.entry)
+		__bl31_pmusram_text_start = .;
+		*(.pmusram.text)
+		*(.pmusram.rodata)
+		__bl31_pmusram_text_end = .;
+		__bl31_pmusram_data_start = .;
+		*(.pmusram.data)
+		__bl31_pmusram_data_end = .;
+
+	} >PMUSRAM
 }
 
 #endif /* __ROCKCHIP_PLAT_LD_S__ */
