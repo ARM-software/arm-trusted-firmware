@@ -51,6 +51,7 @@ INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib,			\
 					$(wildcard include/*)))
 LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					lib/compiler-rt			\
 					lib/libfdt%			\
 					lib/stdlib,			\
 					$(wildcard lib/*)))
@@ -144,6 +145,7 @@ LDFLAGS			+=	--gc-sections
 ################################################################################
 # Common sources and include directories
 ################################################################################
+include lib/compiler-rt/compiler-rt.mk
 include lib/stdlib/stdlib.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
@@ -153,6 +155,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				lib/${ARCH}/misc_helpers.S		\
 				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
+				${COMPILER_RT_SRCS}			\
 				${STDLIB_SRCS}
 
 INCLUDES		+=	-Iinclude/bl1				\
