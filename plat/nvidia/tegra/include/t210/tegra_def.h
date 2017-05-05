@@ -33,6 +33,12 @@
 #define PLAT_MAX_OFF_STATE		(PSTATE_ID_SOC_POWERDN + U(1))
 
 /*******************************************************************************
+ * iRAM memory constants
+ ******************************************************************************/
+#define TEGRA_IRAMA_BASE		0x40000000
+#define TEGRA_IRAMB_BASE		0x40010000
+
+/*******************************************************************************
  * GIC memory map
  ******************************************************************************/
 #define TEGRA_GICD_BASE			U(0x50041000)
@@ -56,6 +62,20 @@
 					 ENABLE_WRAP_INCR_MASTER0_BIT)
 
 /*******************************************************************************
+ * Tegra Resource Semaphore constants
+ ******************************************************************************/
+#define TEGRA_RES_SEMA_BASE		0x60001000UL
+#define  STA_OFFSET			0UL
+#define  SET_OFFSET			4UL
+#define  CLR_OFFSET			8UL
+
+/*******************************************************************************
+ * Tegra Primary Interrupt Controller constants
+ ******************************************************************************/
+#define TEGRA_PRI_ICTLR_BASE		0x60004000UL
+#define  CPU_IEP_FIR_SET		0x18UL
+
+/*******************************************************************************
  * Tegra micro-seconds timer constants
  ******************************************************************************/
 #define TEGRA_TMRUS_BASE		U(0x60005010)
@@ -67,6 +87,8 @@
 #define TEGRA_CAR_RESET_BASE		U(0x60006000)
 #define TEGRA_GPU_RESET_REG_OFFSET	U(0x28C)
 #define  GPU_RESET_BIT			(U(1) << 24)
+#define TEGRA_RST_DEV_CLR_V		U(0x434)
+#define TEGRA_CLK_ENB_V			U(0x440)
 
 /*******************************************************************************
  * Tegra Flow Controller constants
@@ -107,6 +129,15 @@
  * Tegra Power Mgmt Controller constants
  ******************************************************************************/
 #define TEGRA_PMC_BASE			U(0x7000E400)
+
+/*******************************************************************************
+ * Tegra Atomics constants
+ ******************************************************************************/
+#define TEGRA_ATOMICS_BASE		0x70016000UL
+#define  TRIGGER0_REG_OFFSET		0UL
+#define  TRIGGER_WIDTH_SHIFT		4UL
+#define  TRIGGER_ID_SHIFT		16UL
+#define  RESULT0_REG_OFFSET		0xC00UL
 
 /*******************************************************************************
  * Tegra Memory Controller constants

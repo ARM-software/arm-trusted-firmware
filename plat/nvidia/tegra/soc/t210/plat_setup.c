@@ -5,6 +5,7 @@
  */
 
 #include <arch_helpers.h>
+#include <bpmp.h>
 #include <common/bl_common.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -24,6 +25,10 @@
  * Table of regions to map using the MMU.
  */
 static const mmap_region_t tegra_mmap[] = {
+	MAP_REGION_FLAT(TEGRA_IRAMA_BASE, 0x10000, /* 64KB */
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_IRAMB_BASE, 0x10000, /* 64KB */
+			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(MMIO_RANGE_0_ADDR, MMIO_RANGE_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(MMIO_RANGE_1_ADDR, MMIO_RANGE_SIZE,
