@@ -67,6 +67,20 @@ void xlat_arch_tlbi_va_sync(void)
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
+int xlat_arch_current_el(void)
+{
+	/*
+	 * If EL3 is in AArch32 mode, all secure PL1 modes (Monitor, System,
+	 * SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
+	 */
+	return 3;
+}
+
+uint64_t xlat_arch_get_xn_desc(int el __unused)
+{
+	return UPPER_ATTRS(XN);
+}
+
 void init_xlat_tables_arch(unsigned long long max_pa)
 {
 	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=

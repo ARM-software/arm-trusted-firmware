@@ -92,7 +92,7 @@ static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 
 /* Returns a block/page table descriptor for the given level and attributes. */
 static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
-			  int level)
+			  int level, uint64_t execute_never_mask)
 {
 	uint64_t desc;
 	int mem_type;
@@ -134,7 +134,8 @@ static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * fetch, which could be an issue if this memory region
 		 * corresponds to a read-sensitive peripheral.
 		 */
-		desc |= UPPER_ATTRS(XN);
+		desc |= execute_never_mask;
+
 	} else { /* Normal memory */
 		/*
 		 * Always map read-write normal memory as execute-never.
@@ -142,7 +143,7 @@ static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * R/W memory is reserved for data storage, which must not be
 		 * executable.)
 		 * Note that setting the XN bit here is for consistency only.
-		 * The enable_mmu_elx() function sets the SCTLR_EL3.WXN bit,
+		 * The function that enables the MMU sets the SCTLR_ELx.WXN bit,
 		 * which makes any writable memory region to be treated as
 		 * execute-never, regardless of the value of the XN bit in the
 		 * translation table.
@@ -150,8 +151,9 @@ static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * For read-only memory, rely on the MT_EXECUTE/MT_EXECUTE_NEVER
 		 * attribute to figure out the value of the XN bit.
 		 */
-		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER))
-			desc |= UPPER_ATTRS(XN);
+		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER)) {
+			desc |= execute_never_mask;
+		}
 
 		if (mem_type == MT_MEMORY) {
 			desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
@@ -511,7 +513,8 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
 
 			table_base[table_idx] =
-				xlat_desc(mm->attr, table_idx_pa, level);
+				xlat_desc(mm->attr, table_idx_pa, level,
+					  ctx->execute_never_mask);
 
 		} else if (action == ACTION_CREATE_NEW_TABLE) {
 
@@ -916,7 +919,7 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 
 /* Print the attributes of the specified block descriptor. */
-static void xlat_desc_print(uint64_t desc)
+static void xlat_desc_print(uint64_t desc, uint64_t execute_never_mask)
 {
 	int mem_type_index = ATTR_INDEX_GET(desc);
 
@@ -931,7 +934,7 @@ static void xlat_desc_print(uint64_t desc)
 
 	tf_printf(LOWER_ATTRS(AP_RO) & desc ? "-RO" : "-RW");
 	tf_printf(LOWER_ATTRS(NS) & desc ? "-NS" : "-S");
-	tf_printf(UPPER_ATTRS(XN) & desc ? "-XN" : "-EXEC");
+	tf_printf(execute_never_mask & desc ? "-XN" : "-EXEC");
 }
 
 static const char * const level_spacers[] = {
@@ -950,7 +953,7 @@ static const char *invalid_descriptors_ommited =
  */
 static void xlat_tables_print_internal(const uintptr_t table_base_va,
 		uint64_t *const table_base, const int table_entries,
-		const int level)
+		const int level, const uint64_t execute_never_mask)
 {
 	assert(level <= XLAT_TABLE_LEVEL_MAX);
 
@@ -1011,14 +1014,15 @@ static void xlat_tables_print_internal(const uintptr_t table_base_va,
 
 				xlat_tables_print_internal(table_idx_va,
 					(uint64_t *)addr_inner,
-					XLAT_TABLE_ENTRIES, level+1);
+					XLAT_TABLE_ENTRIES, level+1,
+					execute_never_mask);
 			} else {
 				tf_printf("%sVA:%p PA:0x%llx size:0x%zx ",
 					  level_spacers[level],
 					  (void *)table_idx_va,
 					  (unsigned long long)(desc & TABLE_ADDR_MASK),
 					  level_size);
-				xlat_desc_print(desc);
+				xlat_desc_print(desc, execute_never_mask);
 				tf_printf("\n");
 			}
 		}
@@ -1039,7 +1043,7 @@ void xlat_tables_print(xlat_ctx_t *ctx)
 {
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	xlat_tables_print_internal(0, ctx->base_table, ctx->base_table_entries,
-				   ctx->base_level);
+				   ctx->base_level, ctx->execute_never_mask);
 #endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
 }
 

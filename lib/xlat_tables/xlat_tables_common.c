@@ -40,6 +40,8 @@ static unsigned next_xlat;
 static unsigned long long xlat_max_pa;
 static uintptr_t xlat_max_va;
 
+static uint64_t execute_never_mask;
+
 /*
  * Array of all memory regions stored in order of ascending base address.
  * The list is terminated by the first entry with size == 0.
@@ -213,7 +215,8 @@ static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * fetch, which could be an issue if this memory region
 		 * corresponds to a read-sensitive peripheral.
 		 */
-		desc |= UPPER_ATTRS(XN);
+		desc |= execute_never_mask;
+
 	} else { /* Normal memory */
 		/*
 		 * Always map read-write normal memory as execute-never.
@@ -221,7 +224,7 @@ static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * R/W memory is reserved for data storage, which must not be
 		 * executable.)
 		 * Note that setting the XN bit here is for consistency only.
-		 * The enable_mmu_elx() function sets the SCTLR_EL3.WXN bit,
+		 * The function that enables the MMU sets the SCTLR_ELx.WXN bit,
 		 * which makes any writable memory region to be treated as
 		 * execute-never, regardless of the value of the XN bit in the
 		 * translation table.
@@ -229,8 +232,9 @@ static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * For read-only memory, rely on the MT_EXECUTE/MT_EXECUTE_NEVER
 		 * attribute to figure out the value of the XN bit.
 		 */
-		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER))
-			desc |= UPPER_ATTRS(XN);
+		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER)) {
+			desc |= execute_never_mask;
+		}
 
 		if (mem_type == MT_MEMORY) {
 			desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
@@ -377,7 +381,7 @@ void init_xlation_table(uintptr_t base_va, uint64_t *table,
 			int level, uintptr_t *max_va,
 			unsigned long long *max_pa)
 {
-
+	execute_never_mask = xlat_arch_get_xn_desc(xlat_arch_current_el());
 	init_xlation_table_inner(mmap, base_va, table, level);
 	*max_va = xlat_max_va;
 	*max_pa = xlat_max_pa;

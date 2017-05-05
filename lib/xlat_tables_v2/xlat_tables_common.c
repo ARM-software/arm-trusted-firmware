@@ -113,6 +113,8 @@ void init_xlat_tables(void)
 	assert(!is_mmu_enabled());
 	assert(!tf_xlat_ctx.initialized);
 	print_mmap(tf_xlat_ctx.mmap);
+	tf_xlat_ctx.execute_never_mask =
+			xlat_arch_get_xn_desc(xlat_arch_current_el());
 	init_xlation_table(&tf_xlat_ctx);
 	xlat_tables_print(&tf_xlat_ctx);
 
