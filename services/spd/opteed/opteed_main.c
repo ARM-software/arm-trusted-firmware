@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -235,7 +235,7 @@ uint64_t opteed_smc_handler(uint32_t smc_fid,
 					&optee_vectors->fast_smc_entry);
 		} else {
 			cm_set_elr_el3(SECURE, (uint64_t)
-					&optee_vectors->std_smc_entry);
+					&optee_vectors->yield_smc_entry);
 		}
 
 		cm_el1_sysregs_context_restore(SECURE);
@@ -401,13 +401,13 @@ DECLARE_RT_SVC(
 	opteed_smc_handler
 );
 
-/* Define an OPTEED runtime service descriptor for standard SMC calls */
+/* Define an OPTEED runtime service descriptor for yielding SMC calls */
 DECLARE_RT_SVC(
 	opteed_std,
 
 	OEN_TOS_START,
 	OEN_TOS_END,
-	SMC_TYPE_STD,
+	SMC_TYPE_YIELD,
 	NULL,
 	opteed_smc_handler
 );

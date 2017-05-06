@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -195,7 +195,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 	 *    Applications.
 	 * c. open/close sessions
 	 * d. issue commands to the Trusted Apps
-	 * e. resume the preempted standard SMC call.
+	 * e. resume the preempted yielding SMC call.
 	 */
 	case TLK_REGISTER_LOGBUF:
 	case TLK_REGISTER_REQBUF:
@@ -217,15 +217,15 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		assert(handle == cm_get_context(NON_SECURE));
 
 		/*
-		 * Check if we are already processing a standard SMC
+		 * Check if we are already processing a yielding SMC
 		 * call. Of all the supported fids, only the "resume"
 		 * fid expects the flag to be set.
 		 */
 		if (smc_fid == TLK_RESUME_FID) {
-			if (!get_std_smc_active_flag(tlk_ctx.state))
+			if (!get_yield_smc_active_flag(tlk_ctx.state))
 				SMC_RET1(handle, SMC_UNK);
 		} else {
-			if (get_std_smc_active_flag(tlk_ctx.state))
+			if (get_yield_smc_active_flag(tlk_ctx.state))
 				SMC_RET1(handle, SMC_UNK);
 		}
 
@@ -239,7 +239,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		/*
 		 * Mark the SP state as active.
 		 */
-		set_std_smc_active_flag(tlk_ctx.state);
+		set_yield_smc_active_flag(tlk_ctx.state);
 
 		/*
 		 * We are done stashing the non-secure context. Ask the
@@ -298,7 +298,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 
 	/*
 	 * This is a request from the SP to mark completion of
-	 * a standard function ID.
+	 * a yielding function ID.
 	 */
 	case TLK_REQUEST_DONE:
 		if (ns)
@@ -307,7 +307,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		/*
 		 * Mark the SP state as inactive.
 		 */
-		clr_std_smc_active_flag(tlk_ctx.state);
+		clr_yield_smc_active_flag(tlk_ctx.state);
 
 		/* Get a reference to the non-secure context */
 		ns_cpu_context = cm_get_context(NON_SECURE);
@@ -411,13 +411,13 @@ DECLARE_RT_SVC(
 	tlkd_smc_handler
 );
 
-/* Define a SPD runtime service descriptor for standard SMC calls */
+/* Define a SPD runtime service descriptor for yielding SMC calls */
 DECLARE_RT_SVC(
 	tlkd_tos_std,
 
 	OEN_TOS_START,
 	OEN_TOS_END,
-	SMC_TYPE_STD,
+	SMC_TYPE_YIELD,
 	NULL,
 	tlkd_smc_handler
 );
@@ -433,13 +433,13 @@ DECLARE_RT_SVC(
 	tlkd_smc_handler
 );
 
-/* Define a SPD runtime service descriptor for standard SMC calls */
+/* Define a SPD runtime service descriptor for yielding SMC calls */
 DECLARE_RT_SVC(
 	tlkd_tap_std,
 
 	OEN_TAP_START,
 	OEN_TAP_END,
-	SMC_TYPE_STD,
+	SMC_TYPE_YIELD,
 	NULL,
 	tlkd_smc_handler
 );
