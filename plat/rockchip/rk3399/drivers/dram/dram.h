@@ -24,7 +24,17 @@ struct rk3399_ddr_pctl_regs {
 };
 
 struct rk3399_ddr_publ_regs {
-	uint32_t denali_phy[PHY_REG_NUM];
+	/*
+	 * PHY registers from 0 to 511.
+	 * Only registers 0-90 of each 128 register range are used.
+	 */
+	uint32_t phy0[4][91];
+	/*
+	 * PHY registers from 512 to 895.
+	 * Only registers 0-37 of each 128 register range are used.
+	 */
+	uint32_t phy512[3][38];
+	uint32_t phy896[63];
 };
 
 struct rk3399_ddr_pi_regs {

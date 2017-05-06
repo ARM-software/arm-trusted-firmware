@@ -495,9 +495,9 @@ static __sramfunc void pctl_cfg(uint32_t ch,
 		struct rk3399_sdram_params *sdram_params)
 {
 	const uint32_t *params_ctl = sdram_params->pctl_regs.denali_ctl;
-	const uint32_t *params_phy = sdram_params->phy_regs.denali_phy;
 	const uint32_t *params_pi = sdram_params->pi_regs.denali_pi;
-	uint32_t tmp, tmp1, tmp2;
+	const struct rk3399_ddr_publ_regs *phy_regs = &sdram_params->phy_regs;
+	uint32_t tmp, tmp1, tmp2, i;
 
 	/*
 	 * Workaround controller bug:
@@ -509,9 +509,8 @@ static __sramfunc void pctl_cfg(uint32_t ch,
 	sram_regcpy(PI_REG(ch, 0), (uintptr_t)&params_pi[0],
 		    PI_REG_NUM);
 
-	mmio_write_32(PHY_REG(ch, 910), params_phy[910]);
-	mmio_write_32(PHY_REG(ch, 911), params_phy[911]);
-	mmio_write_32(PHY_REG(ch, 912), params_phy[912]);
+	sram_regcpy(PHY_REG(ch, 910), (uintptr_t)&phy_regs->phy896[910 - 896],
+		    3);
 
 	mmio_clrsetbits_32(CTL_REG(ch, 68), PWRUP_SREFRESH_EXIT,
 				PWRUP_SREFRESH_EXIT);
@@ -538,14 +537,15 @@ static __sramfunc void pctl_cfg(uint32_t ch,
 			break;
 	}
 
-	sram_regcpy(PHY_REG(ch, 896), (uintptr_t)&params_phy[896], 63);
-	sram_regcpy(PHY_REG(ch, 0), (uintptr_t)&params_phy[0], 91);
-	sram_regcpy(PHY_REG(ch, 128), (uintptr_t)&params_phy[128], 91);
-	sram_regcpy(PHY_REG(ch, 256), (uintptr_t)&params_phy[256], 91);
-	sram_regcpy(PHY_REG(ch, 384), (uintptr_t)&params_phy[384], 91);
-	sram_regcpy(PHY_REG(ch, 512), (uintptr_t)&params_phy[512], 38);
-	sram_regcpy(PHY_REG(ch, 640), (uintptr_t)&params_phy[640], 38);
-	sram_regcpy(PHY_REG(ch, 768), (uintptr_t)&params_phy[768], 38);
+	sram_regcpy(PHY_REG(ch, 896), (uintptr_t)&phy_regs->phy896[0], 63);
+
+	for (i = 0; i < 4; i++)
+		sram_regcpy(PHY_REG(ch, 128 * i),
+			    (uintptr_t)&phy_regs->phy0[i][0], 91);
+
+	for (i = 0; i < 3; i++)
+		sram_regcpy(PHY_REG(ch, 512 + 128 * i),
+				(uintptr_t)&phy_regs->phy512[i][0], 38);
 }
 
 static __sramfunc int dram_switch_to_next_index(
@@ -652,15 +652,15 @@ static __sramfunc int pctl_start(uint32_t channel_mask,
 void dmc_save(void)
 {
 	struct rk3399_sdram_params *sdram_params = &sdram_config;
+	struct rk3399_ddr_publ_regs *phy_regs;
 	uint32_t *params_ctl;
 	uint32_t *params_pi;
-	uint32_t *params_phy;
 	uint32_t refdiv, postdiv2, postdiv1, fbdiv;
-	uint32_t tmp, ch, byte;
+	uint32_t tmp, ch, byte, i;
 
+	phy_regs = &sdram_params->phy_regs;
 	params_ctl = sdram_params->pctl_regs.denali_ctl;
 	params_pi = sdram_params->pi_regs.denali_pi;
-	params_phy = sdram_params->phy_regs.denali_phy;
 
 	fbdiv = mmio_read_32(CRU_BASE + CRU_PLL_CON(DPLL_ID, 0)) & 0xfff;
 	tmp = mmio_read_32(CRU_BASE + CRU_PLL_CON(DPLL_ID, 1));
@@ -687,14 +687,15 @@ void dmc_save(void)
 	/* mask DENALI_PI_00_DATA.START, only copy here, will trigger later*/
 	params_pi[0] &= ~(0x1 << 0);
 
-	sram_regcpy((uintptr_t)&params_phy[0], PHY_REG(0, 0), 91);
-	sram_regcpy((uintptr_t)&params_phy[128], PHY_REG(0, 128), 91);
-	sram_regcpy((uintptr_t)&params_phy[256], PHY_REG(0, 256), 91);
-	sram_regcpy((uintptr_t)&params_phy[384], PHY_REG(0, 384), 91);
-	sram_regcpy((uintptr_t)&params_phy[512], PHY_REG(0, 512), 38);
-	sram_regcpy((uintptr_t)&params_phy[640], PHY_REG(0, 640), 38);
-	sram_regcpy((uintptr_t)&params_phy[768], PHY_REG(0, 768), 38);
-	sram_regcpy((uintptr_t)&params_phy[896], PHY_REG(0, 896), 63);
+	for (i = 0; i < 4; i++)
+		sram_regcpy((uintptr_t)&phy_regs->phy0[i][0],
+			    PHY_REG(0, 128 * i), 91);
+
+	for (i = 0; i < 3; i++)
+		sram_regcpy((uintptr_t)&phy_regs->phy512[i][0],
+			    PHY_REG(0, 512 + 128 * i), 38);
+
+	sram_regcpy((uintptr_t)&phy_regs->phy896[0], PHY_REG(0, 896), 63);
 
 	for (ch = 0; ch < sdram_params->num_channels; ch++) {
 		for (byte = 0; byte < 4; byte++)
@@ -703,10 +704,10 @@ void dmc_save(void)
 	}
 
 	/* set DENALI_PHY_957_DATA.PHY_DLL_RST_EN = 0x1 */
-	params_phy[957] &= ~(0x3 << 24);
-	params_phy[957] |= 1 << 24;
-	params_phy[896] |= 1;
-	params_phy[896] &= ~(0x3 << 8);
+	phy_regs->phy896[957 - 896] &= ~(0x3 << 24);
+	phy_regs->phy896[957 - 896] |= 1 << 24;
+	phy_regs->phy896[0] |= 1;
+	phy_regs->phy896[0] &= ~(0x3 << 8);
 }
 
 __sramfunc void dmc_restore(void)
