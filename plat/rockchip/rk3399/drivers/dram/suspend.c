@@ -119,31 +119,6 @@ static __sramfunc void phy_pctrl_reset(uint32_t ch)
 	sram_udelay(10);
 }
 
-static __sramfunc void phy_dll_bypass_set(uint32_t ch, uint32_t hz)
-{
-	if (hz <= 125 * MHz) {
-		/* phy_sw_master_mode_X PHY_86/214/342/470 4bits offset_8 */
-		mmio_setbits_32(PHY_REG(ch, 86), (0x3 << 2) << 8);
-		mmio_setbits_32(PHY_REG(ch, 214), (0x3 << 2) << 8);
-		mmio_setbits_32(PHY_REG(ch, 342), (0x3 << 2) << 8);
-		mmio_setbits_32(PHY_REG(ch, 470), (0x3 << 2) << 8);
-		/* phy_adrctl_sw_master_mode PHY_547/675/803 4bits offset_16 */
-		mmio_setbits_32(PHY_REG(ch, 547), (0x3 << 2) << 16);
-		mmio_setbits_32(PHY_REG(ch, 675), (0x3 << 2) << 16);
-		mmio_setbits_32(PHY_REG(ch, 803), (0x3 << 2) << 16);
-	} else {
-		/* phy_sw_master_mode_X PHY_86/214/342/470 4bits offset_8 */
-		mmio_clrbits_32(PHY_REG(ch, 86), (0x3 << 2) << 8);
-		mmio_clrbits_32(PHY_REG(ch, 214), (0x3 << 2) << 8);
-		mmio_clrbits_32(PHY_REG(ch, 342), (0x3 << 2) << 8);
-		mmio_clrbits_32(PHY_REG(ch, 470), (0x3 << 2) << 8);
-		/* phy_adrctl_sw_master_mode PHY_547/675/803 4bits offset_16 */
-		mmio_clrbits_32(PHY_REG(ch, 547), (0x3 << 2) << 16);
-		mmio_clrbits_32(PHY_REG(ch, 675), (0x3 << 2) << 16);
-		mmio_clrbits_32(PHY_REG(ch, 803), (0x3 << 2) << 16);
-	}
-}
-
 static __sramfunc void set_cs_training_index(uint32_t ch, uint32_t rank)
 {
 	/* PHY_8/136/264/392 phy_per_cs_training_index_X 1bit offset_24 */
@@ -721,7 +696,6 @@ __sramfunc void dmc_restore(void)
 retry:
 	for (channel = 0; channel < sdram_params->num_channels; channel++) {
 		phy_pctrl_reset(channel);
-		phy_dll_bypass_set(channel, sdram_params->ddr_freq);
 		if (channel >= sdram_params->num_channels)
 			continue;
 
