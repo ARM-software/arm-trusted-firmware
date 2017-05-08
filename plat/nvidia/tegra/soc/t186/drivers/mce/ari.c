@@ -326,9 +326,11 @@ int32_t ari_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time
 int32_t ari_online_core(uint32_t ari_base, uint32_t core)
 {
 	uint64_t cpu = read_mpidr() & (uint64_t)(MPIDR_CPU_MASK);
-	uint64_t cluster = (read_mpidr() & (uint64_t)(MPIDR_CLUSTER_MASK)) >>
+	uint64_t cluster = (read_mpidr() & ((uint64_t)(MPIDR_AFFLVL_MASK) <<
+			   (uint64_t)(MPIDR_AFFINITY_BITS))) >>
 			   (uint64_t)(MPIDR_AFFINITY_BITS);
-	uint64_t impl = (read_midr() >> (uint64_t)MIDR_IMPL_SHIFT) & (uint64_t)MIDR_IMPL_MASK;
+	uint64_t impl = (read_midr() >> (uint64_t)MIDR_IMPL_SHIFT) &
+			(uint64_t)MIDR_IMPL_MASK;
 	int32_t ret;
 
 	/* construct the current CPU # */
@@ -497,8 +499,8 @@ int32_t ari_read_write_uncore_perfmon(uint32_t ari_base, uint64_t req,
 		uint64_t *data)
 {
 	int32_t ret, result;
-	uint32_t val;
-	uint8_t req_cmd, req_status;
+	uint32_t val, req_status;
+	uint8_t req_cmd;
 
 	req_cmd = (uint8_t)(req >> UNCORE_PERFMON_CMD_SHIFT);
 
@@ -523,7 +525,7 @@ int32_t ari_read_write_uncore_perfmon(uint32_t ari_base, uint64_t req,
 			result = ret;
 		} else {
 			/* read the command status value */
-			req_status = (uint8_t)ari_get_response_high(ari_base) &
+			req_status = ari_get_response_high(ari_base) &
 					 UNCORE_PERFMON_RESP_STATUS_MASK;
 
 			/*
