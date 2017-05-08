@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <stddef.h>
 
-#include "firmware_image_package.h"
+#include <firmware_image_package.h>
+
 #include "tbbr_config.h"
 
 /* The images used depends on the platform. */
