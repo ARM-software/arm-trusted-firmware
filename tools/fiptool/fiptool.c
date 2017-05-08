@@ -20,8 +20,8 @@
 
 #include <openssl/sha.h>
 
+#include <firmware_image_package.h>
 #include "fiptool.h"
-#include "firmware_image_package.h"
 #include "tbbr_config.h"
 
 #define OPT_TOC_ENTRY 0

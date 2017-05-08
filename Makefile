@@ -176,7 +176,8 @@ INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/plat/common			\
 				-Iinclude/services			\
 				${PLAT_INCLUDES}			\
-				${SPD_INCLUDES}
+				${SPD_INCLUDES}				\
+				-Iinclude/host_api
 
 
 ################################################################################
