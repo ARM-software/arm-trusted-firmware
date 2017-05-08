@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -51,12 +51,15 @@ ifndef WINDOWS_MK
 
     # ${1} is the directory to be generated.
     # ${2} is optional, and allows prerequisites to be specified.
+    # Do nothing if $1 == $2, to ignore self dependencies.
     define MAKE_PREREQ_DIR
+        ifneq (${1},${2})
 
 ${1} : ${2}
 	$(eval tmp_dir:=$(subst /,\,${1}))
 	-@if not exist "$(tmp_dir)"  mkdir "${tmp_dir}"
 
+        endif
     endef
 
     # ${1} is the directory to be removed.

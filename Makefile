@@ -629,18 +629,18 @@ ${BUILD_PLAT}/${FIP_NAME}: ${FIP_DEPS} ${FIPTOOL}
 ifneq (${GENERATE_COT},0)
 fwu_certificates: ${FWU_CRT_DEPS} ${CRTTOOL}
 	${Q}${CRTTOOL} ${FWU_CRT_ARGS}
-	@echo
+	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@echo "FWU certificates can be found in ${BUILD_PLAT}"
-	@echo
+	@${ECHO_BLANK_LINE}
 endif
 
 ${BUILD_PLAT}/${FWU_FIP_NAME}: ${FWU_FIP_DEPS} ${FIPTOOL}
 	${Q}${FIPTOOL} create ${FWU_FIP_ARGS} $@
 	${Q}${FIPTOOL} info $@
-	@echo
+	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
-	@echo
+	@${ECHO_BLANK_LINE}
 
 fiptool: ${FIPTOOL}
 fip: ${BUILD_PLAT}/${FIP_NAME}

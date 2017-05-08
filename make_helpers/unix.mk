@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -43,11 +43,14 @@ ifndef UNIX_MK
 
     # ${1} is the directory to be generated.
     # ${2} is optional, and allows a prerequisite to be specified.
+    # Do nothing if $1 == $2, to ignore self dependencies.
     define MAKE_PREREQ_DIR
+        ifneq (${1},${2})
 
 ${1} : ${2}
 	${Q}mkdir -p  "${1}"
 
+        endif
     endef
 
     define SHELL_REMOVE_DIR
