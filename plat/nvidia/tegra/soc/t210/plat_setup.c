@@ -6,6 +6,7 @@
 
 #include <arch_helpers.h>
 #include <bpmp.h>
+#include <cortex_a57.h>
 #include <common/bl_common.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -119,6 +120,17 @@ uint32_t plat_get_console_from_id(int id)
  ******************************************************************************/
 void plat_early_platform_setup(void)
 {
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+	uint64_t val;
+
+	/* platform parameter passed by the previous bootloader */
+	if (plat_params->l2_ecc_parity_prot_dis != 1) {
+		/* Enable ECC Parity Protection for Cortex-A57 CPUs */
+		val = read_l2ctlr_el1();
+		val |= (uint64_t)CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
+		write_l2ctlr_el1(val);
+	}
+
 	/* Initialize security engine driver */
 	if (tegra_chipid_is_t210_b01()) {
 		tegra_se_init();

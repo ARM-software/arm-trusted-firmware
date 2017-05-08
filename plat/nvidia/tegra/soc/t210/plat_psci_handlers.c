@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <cortex_a57.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
@@ -218,7 +219,16 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 	uint32_t val;
+
+	/* platform parameter passed by the previous bootloader */
+	if (plat_params->l2_ecc_parity_prot_dis != 1) {
+		/* Enable ECC Parity Protection for Cortex-A57 CPUs */
+		val = read_l2ctlr_el1();
+		val |= (uint64_t)CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
+		write_l2ctlr_el1(val);
+	}
 
 	/*
 	 * Check if we are exiting from SOC_POWERDN.
