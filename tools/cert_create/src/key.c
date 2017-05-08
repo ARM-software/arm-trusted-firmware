@@ -13,11 +13,11 @@
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 
+#include <tbbr_oid.h>
 #include "cert.h"
 #include "cmd_opt.h"
 #include "debug.h"
 #include "key.h"
-#include "platform_oid.h"
 #include "sha.h"
 
 #define MAX_FILENAME_LEN		1024

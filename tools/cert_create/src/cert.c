@@ -14,11 +14,11 @@
 #include <openssl/sha.h>
 #include <openssl/x509v3.h>
 
+#include <tbbr_oid.h>
 #include "cert.h"
 #include "cmd_opt.h"
 #include "debug.h"
 #include "key.h"
-#include "platform_oid.h"
 #include "sha.h"
 
 #define SERIAL_RAND_BITS	64

@@ -8,8 +8,8 @@
 #include <string.h>
 #include <openssl/err.h>
 #include <openssl/x509v3.h>
+#include <tbbr_oid.h>
 #include "ext.h"
-#include "platform_oid.h"
 #include "tbbr/tbb_ext.h"
 #include "tbbr/tbb_key.h"
 

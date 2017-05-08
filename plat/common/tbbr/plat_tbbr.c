@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <auth/auth_mod.h>
 #include <platform.h>
-#include <platform_oid.h>
+#include <tbbr_oid.h>
 #include <string.h>
 
 /*

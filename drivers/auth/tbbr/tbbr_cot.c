@@ -6,7 +6,7 @@
 
 #include <auth_mod.h>
 #include <platform_def.h>
-#include <platform_oid.h>
+#include <tbbr_oid.h>
 #include <stddef.h>
 
 /*

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -27,14 +27,7 @@ MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
-PLATFORM_ROOT		:=	../../plat/
-include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
-
-PLAT_INCLUDE		:=	$(wildcard ${PLAT_DIR}include)
-
-ifeq ($(PLAT_INCLUDE),)
-  $(error "Error: Invalid platform '${PLAT}' has no include directory.")
-endif
+CERT_INCLUDE		:=	../../include/host_api
 
 ifeq (${DEBUG},1)
   CFLAGS += -g -O0 -DDEBUG -DLOG_LEVEL=40
@@ -49,7 +42,7 @@ endif
 
 # Make soft links and include from local directory otherwise wrong headers
 # could get pulled in from firmware tree.
-INC_DIR := -I ./include -I ${PLAT_INCLUDE} -I ${OPENSSL_DIR}/include
+INC_DIR := -I ./include -I ${CERT_INCLUDE} -I ${OPENSSL_DIR}/include
 LIB_DIR := -L ${OPENSSL_DIR}/lib
 LIB := -lssl -lcrypto
 
@@ -61,8 +54,7 @@ all: clean ${BINARY}
 
 ${BINARY}: ${OBJECTS} Makefile
 	@echo "  LD      $@"
-	@echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__; \
-                const char platform_msg[] = "${PLAT}";' | \
+	@echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__;' | \
                 ${CC} -c ${CFLAGS} -xc - -o src/build_msg.o
 	${Q}${CC} src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
 
