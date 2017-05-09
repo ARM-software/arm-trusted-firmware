@@ -171,7 +171,7 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     $(eval $(call FWU_FIP_ADD_IMG,NS_BL2U,--fwu))
 
-    MBEDTLS_KEY_ALG	:=	${KEY_ALG}
+    TF_MBEDTLS_KEY_ALG	:=	${KEY_ALG}
 
     # We expect to locate the *.mk files under the directories specified below
     CRYPTO_LIB_MK := drivers/auth/mbedtls/mbedtls_crypto.mk
