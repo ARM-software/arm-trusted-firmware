@@ -9,8 +9,8 @@
 /*
  * Key algorithms currently supported on mbed TLS libraries
  */
-#define TBBR_RSA	1
-#define TBBR_ECDSA	2
+#define TF_MBEDTLS_RSA		1
+#define TF_MBEDTLS_ECDSA	2
 
 /*
  * Configuration file to build mbed TLS with the required features for
@@ -45,11 +45,11 @@
 
 #define MBEDTLS_PLATFORM_C
 
-#if (TBBR_KEY_ALG_ID == TBBR_ECDSA)
+#if (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA)
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
-#elif (TBBR_KEY_ALG_ID == TBBR_RSA)
+#elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA)
 #define MBEDTLS_RSA_C
 #endif
 

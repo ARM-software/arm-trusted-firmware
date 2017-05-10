@@ -31,18 +31,18 @@ ifeq (${MBEDTLS_KEY_ALG},ecdsa)
     					ecp_curves.c				\
     					ecp.c					\
     					)
-    TBBR_KEY_ALG_ID		:=	TBBR_ECDSA
+    TF_MBEDTLS_KEY_ALG_ID	:=	TF_MBEDTLS_ECDSA
 else ifeq (${MBEDTLS_KEY_ALG},rsa)
     MBEDTLS_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
     					rsa.c					\
     					)
-    TBBR_KEY_ALG_ID		:=	TBBR_RSA
+    TF_MBEDTLS_KEY_ALG_ID	:=	TF_MBEDTLS_RSA
 else
     $(error "MBEDTLS_KEY_ALG=${MBEDTLS_KEY_ALG} not supported on mbed TLS")
 endif
 
 # Needs to be set to drive mbed TLS configuration correctly
-$(eval $(call add_define,TBBR_KEY_ALG_ID))
+$(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
 
 BL1_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}
 BL2_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}

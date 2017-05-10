@@ -12,9 +12,9 @@
 /*
  * mbed TLS heap
  */
-#if (TBBR_KEY_ALG_ID == TBBR_ECDSA)
+#if (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA)
 #define MBEDTLS_HEAP_SIZE		(14*1024)
-#elif (TBBR_KEY_ALG_ID == TBBR_RSA)
+#elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA)
 #define MBEDTLS_HEAP_SIZE		(8*1024)
 #endif
 static unsigned char heap[MBEDTLS_HEAP_SIZE];
