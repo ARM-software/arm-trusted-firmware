@@ -314,7 +314,7 @@ else
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
 endif
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Map=$(MAPFILE) \
-		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o $(OBJS)
+		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o $(OBJS) $(LDLIBS)
 
 $(DUMP): $(ELF)
 	@echo "  OD      $$@"
