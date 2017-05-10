@@ -623,6 +623,11 @@ performed.
     with version 1 of the translation tables library instead of version 2. It is
     set to 0 by default, which selects version 2.
 
+*   `ARM_CRYPTOCELL_INTEG` : bool option to enable Trusted Firmware to invoke
+    ARM® TrustZone® CryptoCell functionality for Trusted Board Boot on capable
+    ARM platforms. If this option is specified, then the path to the CryptoCell
+    SBROM library must be specified via `CCSBROM_LIB_PATH` flag.
+
 For a better understanding of these options, the ARM development platform memory
 map is explained in the [Firmware Design].
 

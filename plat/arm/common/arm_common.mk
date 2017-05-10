@@ -94,6 +94,11 @@ LOAD_IMAGE_V2			:=	1
 # Use generic OID definition (tbbr_oid.h)
 USE_TBBR_DEFS			:=	1
 
+# Disable ARM Cryptocell by default
+ARM_CRYPTOCELL_INTEG		:=	0
+$(eval $(call assert_boolean,ARM_CRYPTOCELL_INTEG))
+$(eval $(call add_define,ARM_CRYPTOCELL_INTEG))
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common
 
@@ -181,7 +186,11 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     TF_MBEDTLS_KEY_ALG	:=	${KEY_ALG}
 
     # We expect to locate the *.mk files under the directories specified below
+ifeq (${ARM_CRYPTOCELL_INTEG},0)
     CRYPTO_LIB_MK := drivers/auth/mbedtls/mbedtls_crypto.mk
+else
+    CRYPTO_LIB_MK := drivers/auth/cryptocell/cryptocell_crypto.mk
+endif
     IMG_PARSER_LIB_MK := drivers/auth/mbedtls/mbedtls_x509.mk
 
     $(info Including ${CRYPTO_LIB_MK})
