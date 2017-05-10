@@ -53,6 +53,11 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 		return NULL;
 }
 
+#pragma weak params_early_setup
+void params_early_setup(void *plat_param_from_bl2)
+{
+}
+
 /*******************************************************************************
  * Perform any BL3-1 early platform setup. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they

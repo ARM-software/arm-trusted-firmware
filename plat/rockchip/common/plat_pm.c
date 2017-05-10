@@ -388,6 +388,7 @@ const plat_psci_ops_t plat_rockchip_psci_pm_ops = {
 	.pwr_domain_suspend = rockchip_pwr_domain_suspend,
 	.pwr_domain_on_finish = rockchip_pwr_domain_on_finish,
 	.pwr_domain_suspend_finish = rockchip_pwr_domain_suspend_finish,
+	.pwr_domain_pwr_down_wfi = rockchip_pd_pwr_down_wfi,
 	.system_reset = rockchip_system_reset,
 	.system_off = rockchip_system_poweroff,
 	.validate_power_state = rockchip_validate_power_state,

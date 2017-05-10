@@ -7,6 +7,9 @@
 #ifndef __PMU_COM_H__
 #define __PMU_COM_H__
 
+#ifndef CHECK_CPU_WFIE_BASE
+#define CHECK_CPU_WFIE_BASE (PMU_BASE + PMU_CORE_PWR_ST)
+#endif
 /*
  * Use this macro to instantiate lock before it is used in below
  * rockchip_pd_lock_xxx() macros
@@ -90,13 +93,13 @@ static int check_cpu_wfie(uint32_t cpu_id, uint32_t wfie_msk)
 	else
 		wfie_msk <<= (clstl_cpu_wfe + cpu_id);
 
-	while (!(mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST) & wfie_msk) &&
+	while (!(mmio_read_32(CHECK_CPU_WFIE_BASE) & wfie_msk) &&
 	       (loop < CHK_CPU_LOOP)) {
 		udelay(1);
 		loop++;
 	}
 
-	if ((mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST) & wfie_msk) == 0) {
+	if ((mmio_read_32(CHECK_CPU_WFIE_BASE) & wfie_msk) == 0) {
 		WARN("%s: %d, %d, %d, error!\n", __func__,
 		     cluster_id, cpu_id, wfie_msk);
 		return -EINVAL;
