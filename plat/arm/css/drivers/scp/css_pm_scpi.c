@@ -93,7 +93,16 @@ int css_scp_get_power_state(u_register_t mpidr, unsigned int power_level)
 		 * The CPU state returned by SCP is an 8-bit bit mask
 		 * corresponding to each CPU in the cluster
 		 */
+#if ARM_PLAT_MT
+		/*
+		 * The current SCPI driver only caters for single-threaded
+		 * platforms. Hence we ignore the thread ID (which is always 0)
+		 * for such platforms.
+		 */
+		element = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+#else
 		element = mpidr & MPIDR_AFFLVL_MASK;
+#endif  /* ARM_PLAT_MT */
 		return CSS_CPU_PWR_STATE(cpu_state, element) ==
 			CSS_CPU_PWR_STATE_ON ? HW_ON : HW_OFF;
 	} else {
