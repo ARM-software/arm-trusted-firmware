@@ -690,9 +690,6 @@ __sramfunc void dmc_restore(void)
 retry:
 	for (channel = 0; channel < sdram_params->num_channels; channel++) {
 		phy_pctrl_reset(channel);
-		if (channel >= sdram_params->num_channels)
-			continue;
-
 		pctl_cfg(channel, sdram_params);
 	}
 
