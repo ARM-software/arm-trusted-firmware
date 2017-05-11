@@ -139,9 +139,6 @@ static void override_write_leveling_value(uint32_t ch)
 {
 	uint32_t byte;
 
-	/* PHY_896 PHY_FREQ_SEL_MULTICAST_EN 1bit offset_0 */
-	mmio_setbits_32(PHY_REG(ch, 896), 1);
-
 	/*
 	 * PHY_8/136/264/392
 	 * phy_per_cs_training_multicast_en_X 1bit offset_16
@@ -155,9 +152,6 @@ static void override_write_leveling_value(uint32_t ch)
 		mmio_clrsetbits_32(PHY_REG(ch, 63 + (128 * byte)),
 				   0xffff << 16,
 				   0x200 << 16);
-
-	/* PHY_896 PHY_FREQ_SEL_MULTICAST_EN 1bit offset_0 */
-	mmio_clrbits_32(PHY_REG(ch, 896), 1);
 
 	/* CTL_200 ctrlupd_req 1bit offset_8 */
 	mmio_clrsetbits_32(CTL_REG(ch, 200), 0x1 << 8, 0x1 << 8);
