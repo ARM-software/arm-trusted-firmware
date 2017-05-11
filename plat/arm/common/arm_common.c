@@ -113,15 +113,11 @@ uint32_t arm_get_spsr_for_bl32_entry(void)
 #ifndef AARCH32
 uint32_t arm_get_spsr_for_bl33_entry(void)
 {
-	unsigned long el_status;
 	unsigned int mode;
 	uint32_t spsr;
 
 	/* Figure out what mode we enter the non-secure world in */
-	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
-	el_status &= ID_AA64PFR0_ELX_MASK;
-
-	mode = (el_status) ? MODE_EL2 : MODE_EL1;
+	mode = EL_IMPLEMENTED(2) ? MODE_EL2 : MODE_EL1;
 
 	/*
 	 * TODO: Consider the possibility of specifying the SPSR in

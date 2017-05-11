@@ -892,6 +892,27 @@ void psci_print_power_domain_map(void)
 #endif
 }
 
+/******************************************************************************
+ * Return whether any secondaries were powered up with CPU_ON call. A CPU that
+ * have ever been powered up would have set its MPDIR value to something other
+ * than PSCI_INVALID_MPIDR. Note that MPDIR isn't reset back to
+ * PSCI_INVALID_MPIDR when a CPU is powered down later, so the return value is
+ * meaningful only when called on the primary CPU during early boot.
+ *****************************************************************************/
+int psci_secondaries_brought_up(void)
+{
+	int idx, n_valid = 0;
+
+	for (idx = 0; idx < ARRAY_SIZE(psci_cpu_pd_nodes); idx++) {
+		if (psci_cpu_pd_nodes[idx].mpidr != PSCI_INVALID_MPIDR)
+			n_valid++;
+	}
+
+	assert(n_valid);
+
+	return (n_valid > 1);
+}
+
 #if ENABLE_PLAT_COMPAT
 /*******************************************************************************
  * PSCI Compatibility helper function to return the 'power_state' parameter of

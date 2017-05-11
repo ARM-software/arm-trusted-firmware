@@ -110,6 +110,10 @@
 #define ID_AA64PFR0_EL3_SHIFT	12
 #define ID_AA64PFR0_ELX_MASK	0xf
 
+#define EL_IMPL_NONE		0
+#define EL_IMPL_A64ONLY		1
+#define EL_IMPL_A64_A32		2
+
 #define ID_AA64PFR0_GIC_SHIFT	24
 #define ID_AA64PFR0_GIC_WIDTH	4
 #define ID_AA64PFR0_GIC_MASK	((1 << ID_AA64PFR0_GIC_WIDTH) - 1)
@@ -183,7 +187,8 @@
 #define MDCR_DEF_VAL		(MDCR_SDD_BIT | MDCR_SPD32(MDCR_SPD32_DISABLE))
 
 /* HCR definitions */
-#define HCR_RW_BIT		(1ull << 31)
+#define HCR_RW_SHIFT		31
+#define HCR_RW_BIT		(1ull << HCR_RW_SHIFT)
 #define HCR_AMO_BIT		(1 << 5)
 #define HCR_IMO_BIT		(1 << 4)
 #define HCR_FMO_BIT		(1 << 3)

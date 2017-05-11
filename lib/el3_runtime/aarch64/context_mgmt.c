@@ -205,8 +205,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			sctlr_elx &= ~SCTLR_EE_BIT;
 			sctlr_elx |= SCTLR_EL2_RES1;
 			write_sctlr_el2(sctlr_elx);
-		} else if (read_id_aa64pfr0_el1() &
-			   (ID_AA64PFR0_ELX_MASK << ID_AA64PFR0_EL2_SHIFT)) {
+		} else if (EL_IMPLEMENTED(2)) {
 			/* EL2 present but unused, need to disable safely */
 
 			/* HCR_EL2 = 0, except RW bit set to match SCR_EL3 */

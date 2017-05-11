@@ -140,6 +140,7 @@ BL2U_SOURCES		+=	plat/arm/common/arm_bl2u_setup.c
 BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_topology.c			\
+				plat/arm/common/execution_state_switch.c	\
 				plat/common/plat_psci_common.c
 
 ifeq (${ENABLE_PMF}, 1)

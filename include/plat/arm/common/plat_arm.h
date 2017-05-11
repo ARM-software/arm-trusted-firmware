@@ -100,6 +100,9 @@ void arm_setup_page_tables(uintptr_t total_base,
 
 #endif /* __ARM_RECOM_STATE_ID_ENC__ */
 
+/* ARM State switch error codes */
+#define STATE_SW_E_PARAM		(-2)
+#define STATE_SW_E_DENIED		(-3)
 
 /* IO storage utility functions */
 void arm_io_setup(void);
@@ -205,5 +208,13 @@ const mmap_region_t *plat_arm_get_mmap(void);
 
 /* Allow platform to override psci_pm_ops during runtime */
 const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops);
+
+/* Execution state switch in ARM platforms */
+int arm_execution_state_switch(unsigned int smc_fid,
+		uint32_t pc_hi,
+		uint32_t pc_lo,
+		uint32_t cookie_hi,
+		uint32_t cookie_lo,
+		void *handle);
 
 #endif /* __PLAT_ARM_H__ */
