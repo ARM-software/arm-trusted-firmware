@@ -69,8 +69,10 @@ command:
 
     sudo apt-get install build-essential gcc make git libssl-dev
 
-Download and install the AArch64 little-endian GCC cross compiler as indicated
-in the [Linaro instructions][Linaro SW Instructions].
+Download and install the AArch32 or AArch64 little-endian GCC cross compiler.
+The [Linaro Release Notes][Linaro Release Notes] documents which version of the
+compiler to use for a given Linaro Release. Also, these
+[Linaro instructions][Linaro SW Instructions] provide further guidance.
 
 In addition, the following optional packages and tools may be needed:
 
@@ -1152,15 +1154,13 @@ The latest version of the AArch64 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
 *   `Foundation_Platform` (Version 10.2, Build 10.2.20)
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 8.2, Build 0.8.8202)
-*   `FVP_Base_Cortex-A57x4-A53x4` (Version 8.2, Build 0.8.8202)
-*   `FVP_Base_Cortex-A57x1-A53x1` (Version 8.2, Build 0.8.8202)
-*   `FVP_Base_Cortex-A57x2-A53x4` (Version 8.2, Build 0.8.8202)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 8.4, Build 0.8.8402)
+*   `FVP_Base_Cortex-A57x4-A53x4` (Version 8.4, Build 0.8.8402)
 
 The latest version of the AArch32 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
-*   `FVP_Base_AEMv8A-AEMv8A` (Version 8.2, Build 0.8.8202)
+*   `FVP_Base_AEMv8A-AEMv8A` (Version 8.4, Build 0.8.8402)
 *   `FVP_Base_Cortex-A32x4` (Version 10.1, Build 10.1.32)
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
@@ -1495,9 +1495,8 @@ _Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved._
 [ARM FVP website]:             https://developer.arm.com/products/system-design/fixed-virtual-platforms
 [Linaro Release Notes]:        https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
 [ARM Platforms Portal]:        https://community.arm.com/groups/arm-development-platforms
-[Linaro SW Instructions]:      https://community.arm.com/docs/DOC-10803
-[Juno Instructions]:           https://community.arm.com/docs/DOC-10804
-[FVP Instructions]:            https://community.arm.com/docs/DOC-10831
+[Linaro SW Instructions]:      https://community.arm.com/dev-platforms/b/documents/posts/instructions-for-using-the-linaro-software-deliverables
+[Juno Instructions]:           https://community.arm.com/dev-platforms/b/documents/posts/using-linaros-deliverables-on-juno
 [Juno Getting Started Guide]:  http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 [DS-5]:                        http://www.arm.com/products/tools/software-tools/ds-5/index.php
 [mbed TLS Repository]:         https://github.com/ARMmbed/mbedtls.git
