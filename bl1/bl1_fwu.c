@@ -40,12 +40,17 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 			unsigned int flags);
 static int bl1_fwu_sec_image_done(void **handle,
 			unsigned int flags);
+static int bl1_fwu_image_reset(unsigned int image_id,
+			unsigned int flags);
 __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved);
 
 /*
  * This keeps track of last executed secure image id.
  */
 static unsigned int sec_exec_image_id = INVALID_IMAGE_ID;
+
+/* Authentication status of each image. */
+extern unsigned int auth_img_flags[];
 
 void cm_set_next_context(void *cpu_context);
 
@@ -77,6 +82,9 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 
 	case FWU_SMC_SEC_IMAGE_DONE:
 		SMC_RET1(handle, bl1_fwu_sec_image_done(&handle, flags));
+
+	case FWU_SMC_IMAGE_RESET:
+		SMC_RET1(handle, bl1_fwu_image_reset(x1, flags));
 
 	case FWU_SMC_UPDATE_DONE:
 		bl1_fwu_done((void *)x1, NULL);
@@ -665,4 +673,57 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved)
 	 */
 	bl1_plat_fwu_done(client_cookie, reserved);
 	assert(0);
+}
+
+/*******************************************************************************
+ * This function resets an image to IMAGE_STATE_RESET. It fails if the image is
+ * being executed.
+ ******************************************************************************/
+static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
+{
+	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
+
+	if ((!image_desc) || (GET_SECURITY_STATE(flags) == SECURE)) {
+		WARN("BL1-FWU: Reset not allowed due to invalid args\n");
+		return -EPERM;
+	}
+
+	switch (image_desc->state) {
+
+	case IMAGE_STATE_RESET:
+		/* Nothing to do. */
+		break;
+
+	case IMAGE_STATE_INTERRUPTED:
+	case IMAGE_STATE_AUTHENTICATED:
+	case IMAGE_STATE_COPIED:
+	case IMAGE_STATE_COPYING:
+
+		if (bl1_fwu_remove_loaded_id(image_id)) {
+			WARN("BL1-FWU: Image reset couldn't find the image ID\n");
+			return -EPERM;
+		}
+
+		/* Clear the memory.*/
+		zero_normalmem((void *)image_desc->image_info.image_base,
+				image_desc->copied_size);
+		flush_dcache_range(image_desc->image_info.image_base,
+				image_desc->copied_size);
+
+		/* Reset status variables */
+		image_desc->copied_size = 0;
+		image_desc->image_info.image_size = 0;
+		image_desc->state = IMAGE_STATE_RESET;
+
+		/* Clear authentication state */
+		auth_img_flags[image_id] = 0;
+
+		break;
+
+	case IMAGE_STATE_EXECUTED:
+	default:
+		assert(0);
+	}
+
+	return 0;
 }

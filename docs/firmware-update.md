@@ -117,6 +117,7 @@ The following is a brief description of the supported states:
 *   RESET:         This is the initial state of every image at the start of FWU.
                    Authentication failure also leads to this state. A secure
                    image may yield to this state if it has completed execution.
+                   It can also be reached by using `FWU_SMC_IMAGE_RESET`.
 
 *   COPYING:       This is the state of a secure image while BL1 is copying it
                    in blocks from non-secure to secure memory.
@@ -356,9 +357,28 @@ function `bl1_plat_fwu_done`, passing the optional argument `client_cookie` as
 a `void *`. The SMC does not return.
 
 
+### FWU_SMC_IMAGE_RESET
+
+    Arguments:
+        uint32_t     function ID : 0x16
+        unsigned int image_id
+
+    Return:
+        int : 0 (Success)
+            : -EPERM
+
+    Pre-conditions:
+        if (secure world caller) return -EPERM
+        if (image in EXECUTED) return -EPERM
+
+This SMC sets the state of an image to RESET and zeroes the memory used by it.
+
+This is only allowed if the image is not being executed.
+
+
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved._
 
 
 [Porting Guide]:        ./porting-guide.md
