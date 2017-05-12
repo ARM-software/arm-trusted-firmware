@@ -123,5 +123,6 @@
 #define PLAT_RK_PRIMARY_CPU	0x0
 
 #define PSRAM_DO_DDR_RESUME	0
+#define PSRAM_CHECK_WAKEUP_CPU	0
 
 #endif /* __PLATFORM_DEF_H__ */
