@@ -60,7 +60,7 @@ static const unsigned int pa_range_bits_arr[] = {
 	PARANGE_0101
 };
 
-unsigned long long xlat_arch_get_max_supported_pa(void)
+static unsigned long long xlat_arch_get_max_supported_pa(void)
 {
 	u_register_t pa_range = read_id_aa64mmfr0_el1() &
 						ID_AA64MMFR0_EL1_PARANGE_MASK;

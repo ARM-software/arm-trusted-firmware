@@ -47,8 +47,11 @@ typedef struct {
 	 * Array of all memory regions stored in order of ascending end address
 	 * and ascending size to simplify the code that allows overlapping
 	 * regions. The list is terminated by the first entry with size == 0.
+	 * The max size of the list is stored in `mmap_num`. `mmap` points to an
+	 * array of mmap_num + 1 elements, so that there is space for the final
+	 * null entry.
 	 */
-	mmap_region_t *mmap; /* mmap_num + 1 elements */
+	mmap_region_t *mmap;
 	int mmap_num;
 
 	/*
@@ -75,6 +78,11 @@ typedef struct {
 	uint64_t *base_table;
 	int base_table_entries;
 
+	/*
+	 * Max Physical and Virtual addresses currently in use by the
+	 * translation tables. These might get updated as we map/unmap memory
+	 * regions but they will never go beyond pa/va_max_address.
+	 */
 	unsigned long long max_pa;
 	uintptr_t max_va;
 

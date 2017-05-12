@@ -83,18 +83,25 @@ typedef struct mmap_region {
 } mmap_region_t;
 
 /* Generic translation table APIs */
+
+/*
+ * Initialize translation tables from the current list of mmap regions. Calling
+ * this function marks the transition point after which static regions can no
+ * longer be added.
+ */
 void init_xlat_tables(void);
 
 /*
- * Add a region with defined base PA and base VA. This type of region can only
- * be added before initializing the MMU and cannot be removed later.
+ * Add a static region with defined base PA and base VA. This function can only
+ * be used before initializing the translation tables. The region cannot be
+ * removed afterwards.
  */
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 				size_t size, mmap_attr_t attr);
 
 /*
- * Add a region with defined base PA and base VA. This type of region can be
- * added and removed even if the MMU is enabled.
+ * Add a dynamic region with defined base PA and base VA. This type of region
+ * can be added and removed even after the translation tables are initialized.
  *
  * Returns:
  *        0: Success.
@@ -107,15 +114,16 @@ int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
 				size_t size, mmap_attr_t attr);
 
 /*
- * Add an array of static regions with defined base PA and base VA. This type
- * of region can only be added before initializing the MMU and cannot be
- * removed later.
+ * Add an array of static regions with defined base PA and base VA. This
+ * function can only be used before initializing the translation tables. The
+ * regions cannot be removed afterwards.
  */
 void mmap_add(const mmap_region_t *mm);
 
 /*
  * Remove a region with the specified base VA and size. Only dynamic regions can
- * be removed, and they can be removed even if the MMU is enabled.
+ * be removed, and they can be removed even if the translation tables are
+ * initialized.
  *
  * Returns:
  *        0: Success.

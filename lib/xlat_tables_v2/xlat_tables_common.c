@@ -34,8 +34,6 @@ static uint64_t tf_xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
 static uint64_t tf_base_xlat_table[NUM_BASE_LEVEL_ENTRIES]
 		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
 
-static mmap_region_t tf_mmap[MAX_MMAP_REGIONS + 1];
-
 #if PLAT_XLAT_TABLES_DYNAMIC
 static int xlat_tables_mapped_regions[MAX_XLAT_TABLES];
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
