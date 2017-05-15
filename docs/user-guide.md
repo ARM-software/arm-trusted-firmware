@@ -74,6 +74,9 @@ The [Linaro Release Notes][Linaro Release Notes] documents which version of the
 compiler to use for a given Linaro Release. Also, these
 [Linaro instructions][Linaro SW Instructions] provide further guidance.
 
+Optionally, Trusted Firmware can be built using clang or ARM Compiler 6.
+See instructions below on how to switch the default compiler.
+
 In addition, the following optional packages and tools may be needed:
 
 *   `device-tree-compiler` package if you need to rebuild the Flattened Device
@@ -103,6 +106,28 @@ Download the Trusted Firmware source code from Github:
     For AArch32:
 
         export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
+
+    It is possible to build Trusted Firmware using clang or ARM Compiler 6.
+    To do so `CC` needs to point to the clang or armclang binary. Only the
+    compiler is switched; the assembler and linker need to be provided by
+    the GNU toolchain, thus `CROSS_COMPILE` should be set as described above.
+
+    ARM Compiler 6 will be selected when the base name of the path assigned
+    to `CC` matches the string 'armclang'.
+
+    For AArch64 using ARM Compiler 6:
+
+        export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
+        make CC=<path-to-armclang>/bin/armclang PLAT=<platform> all
+
+    Clang will be selected when the base name of the path assigned to `CC`
+    contains the string 'clang'. This is to allow both clang and clang-X.Y
+    to work.
+
+    For AArch64 using clang:
+
+        export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
+        make CC=<path-to-clang>/bin/clang PLAT=<platform> all
 
 *   Change to the root directory of the Trusted Firmware source tree and build.
 
