@@ -121,3 +121,10 @@ To enable BL32, add the following option to the build command:
 ```
   SPD=<spd> BL32=<path-to-BL32>
 ```
+
+If you use TSP for BL32, `BL32=<path-to-BL32>` is not required.  Just add the
+following:
+
+```
+  SPD=tspd
+```
