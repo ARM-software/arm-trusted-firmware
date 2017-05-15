@@ -144,6 +144,7 @@ int rockchip_soc_cores_pwr_dm_on(unsigned long mpidr, uint64_t entrypoint)
 {
 	uint32_t cpu_id = plat_core_pos_by_mpidr(mpidr);
 
+	assert(cpu_id < PLATFORM_CORE_COUNT);
 	assert(cpuson_flags[cpu_id] == 0);
 	cpuson_flags[cpu_id] = PMU_CPU_HOTPLUG;
 	cpuson_entry_point[cpu_id] = entrypoint;
@@ -167,6 +168,7 @@ int rockchip_soc_cores_pwr_dm_suspend(void)
 {
 	uint32_t cpu_id = plat_my_core_pos();
 
+	assert(cpu_id < PLATFORM_CORE_COUNT);
 	assert(cpuson_flags[cpu_id] == 0);
 	cpuson_flags[cpu_id] = PMU_CPU_AUTO_PWRDN;
 	cpuson_entry_point[cpu_id] = (uintptr_t)plat_get_sec_entrypoint();
