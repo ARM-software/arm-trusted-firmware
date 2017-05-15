@@ -114,15 +114,15 @@ static void tegra_se_make_data_coherent(const tegra_se_dev_t *se_dev)
 }
 
 /*
- * Check for context save operation complete
- * This function is invoked after the context save operation,
+ * Check that SE operation has completed after kickoff
+ * This function is invoked after an SE operation has been started,
  * and it checks the following conditions:
  * 1. SE_INT_STATUS = SE_OP_DONE
  * 2. SE_STATUS = IDLE
  * 3. AHB bus data transfer complete.
  * 4. SE_ERR_STATUS is clean.
  */
-static int32_t tegra_se_context_save_complete(const tegra_se_dev_t *se_dev)
+static int32_t tegra_se_operation_complete(const tegra_se_dev_t *se_dev)
 {
 	uint32_t val = 0;
 	int32_t ret = 0;
@@ -218,15 +218,14 @@ static inline int32_t tegra_se_ctx_save_auto_enable(const tegra_se_dev_t *se_dev
 }
 
 /*
- * SE atomic context save. At SC7 entry, SE driver triggers the
- * hardware automatically performs the context save operation.
+ * Wait for SE engine to be idle and clear pending interrupts before
+ * starting the next SE operation.
  */
-static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
+static int32_t tegra_se_operation_prepare(const tegra_se_dev_t *se_dev)
 {
 	int32_t ret = 0;
 	uint32_t val = 0;
-	uint32_t blk_count_limit = 0;
-	uint32_t block_count, timeout;
+	uint32_t timeout;
 
 	/* Wait for previous operation to finish */
 	val = tegra_se_read_32(se_dev, SE_STATUS_OFFSET);
@@ -240,15 +239,31 @@ static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
 		ret = -ETIMEDOUT;
 	}
 
-	/* Clear any pending interrupts */
-	if (ret == 0) {
-		val = tegra_se_read_32(se_dev, SE_INT_STATUS_REG_OFFSET);
-		tegra_se_write_32(se_dev, SE_INT_STATUS_REG_OFFSET, val);
+	/* Clear any pending interrupts from  previous operation */
+	val = tegra_se_read_32(se_dev, SE_INT_STATUS_REG_OFFSET);
+	tegra_se_write_32(se_dev, SE_INT_STATUS_REG_OFFSET, val);
+	return ret;
+}
 
-		/* Ensure HW atomic context save has been enabled
-		 * This should have been done at boot time.
-		 * SE_CTX_SAVE_AUTO.ENABLE == ENABLE
-		 */
+/*
+ * SE atomic context save. At SC7 entry, SE driver triggers the
+ * hardware automatically performs the context save operation.
+ */
+static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
+{
+	int32_t ret = 0;
+	uint32_t val = 0;
+	uint32_t blk_count_limit = 0;
+	uint32_t block_count;
+
+	/* Check that previous operation is finalized */
+	ret = tegra_se_operation_prepare(se_dev);
+
+	/* Ensure HW atomic context save has been enabled
+	 * This should have been done at boot time.
+	 * SE_CTX_SAVE_AUTO.ENABLE == ENABLE
+	 */
+	if (ret == 0) {
 		ret = tegra_se_ctx_save_auto_enable(se_dev);
 	}
 
@@ -290,7 +305,7 @@ static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
 		tegra_se_write_32(se_dev, SE_OPERATION_REG_OFFSET,
 				SE_OP_CTX_SAVE);
 
-		ret = tegra_se_context_save_complete(se_dev);
+		ret = tegra_se_operation_complete(se_dev);
 	}
 
 	/* Check that context has written the correct number of blocks */
@@ -307,13 +322,90 @@ static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
 }
 
 /*
+ * Security engine primitive operations, including normal operation
+ * and the context save operation.
+ */
+static int tegra_se_perform_operation(const tegra_se_dev_t *se_dev, uint32_t nbytes)
+{
+	uint32_t nblocks = nbytes / TEGRA_SE_AES_BLOCK_SIZE;
+	int ret = 0;
+
+	assert(se_dev);
+
+	/* Use device buffers for in and out */
+	tegra_se_write_32(se_dev, SE_OUT_LL_ADDR_REG_OFFSET, ((uint64_t)(se_dev->dst_ll_buf)));
+	tegra_se_write_32(se_dev, SE_IN_LL_ADDR_REG_OFFSET, ((uint64_t)(se_dev->src_ll_buf)));
+
+	/* Check that previous operation is finalized */
+	ret = tegra_se_operation_prepare(se_dev);
+	if (ret != 0) {
+		goto op_error;
+	}
+
+	/* Program SE operation size */
+	if (nblocks) {
+		tegra_se_write_32(se_dev, SE_BLOCK_COUNT_REG_OFFSET, nblocks - 1);
+	}
+
+	/* Make SE LL data coherent before the SE operation */
+	tegra_se_make_data_coherent(se_dev);
+
+	/* Start hardware operation */
+	tegra_se_write_32(se_dev, SE_OPERATION_REG_OFFSET, SE_OP_START);
+
+	/* Wait for operation to finish */
+	ret = tegra_se_operation_complete(se_dev);
+
+op_error:
+	return ret;
+}
+
+/*
+ * Security Engine sequence to generat SRK
+ * SE and SE2 will generate different SRK by different
+ * entropy seeds.
+ */
+static int tegra_se_generate_srk(const tegra_se_dev_t *se_dev)
+{
+	int ret = PSCI_E_INTERN_FAIL;
+	uint32_t val;
+
+	/* Confgure the following hardware register settings:
+	 * SE_CONFIG.DEC_ALG = NOP
+	 * SE_CONFIG.ENC_ALG = RNG
+	 * SE_CONFIG.DST = SRK
+	 * SE_OPERATION.OP = START
+	 * SE_CRYPTO_LAST_BLOCK = 0
+	 */
+	se_dev->src_ll_buf->last_buff_num = 0;
+	se_dev->dst_ll_buf->last_buff_num = 0;
+
+	/* Configure random number generator */
+	val = (DRBG_MODE_FORCE_RESEED | DRBG_SRC_ENTROPY);
+	tegra_se_write_32(se_dev, SE_RNG_CONFIG_REG_OFFSET, val);
+
+	/* Configure output destination = SRK */
+	val = (SE_CONFIG_ENC_ALG_RNG |
+		SE_CONFIG_DEC_ALG_NOP |
+		SE_CONFIG_DST_SRK);
+	tegra_se_write_32(se_dev, SE_CONFIG_REG_OFFSET, val);
+
+	/* Perform hardware operation */
+	ret = tegra_se_perform_operation(se_dev, 0);
+
+	return ret;
+}
+
+/*
  * Initialize the SE engine handle
  */
 void tegra_se_init(void)
 {
 	INFO("%s: start SE init\n", __func__);
 
-	/* TODO: Bug 1854340. Generate random SRK */
+	/* Generate random SRK to initialize DRBG */
+	tegra_se_generate_srk(&se_dev_1);
+	tegra_se_generate_srk(&se_dev_2);
 
 	INFO("%s: SE init done\n", __func__);
 }
@@ -397,7 +489,8 @@ static void tegra_se_warm_boot_resume(const tegra_se_dev_t *se_dev)
 			__func__, se_dev->se_num);
 	}
 
-	/* TODO: Bug 1854340. Set a random value to SRK */
+	/* Set a random value to SRK to initialize DRBG */
+	tegra_se_generate_srk(se_dev);
 }
 
 /*
