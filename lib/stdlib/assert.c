@@ -4,22 +4,33 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <console.h>
 #include <debug.h>
 #include <platform.h>
 
-void __assert(const char *function, const char *file, unsigned int line,
-		const char *assertion)
+/*
+* Only print the output if PLAT_LOG_LEVEL_ASSERT is higher or equal to
+* LOG_LEVEL_INFO, which is the default value for builds with DEBUG=1.
+*/
+
+#if PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_VERBOSE
+void __assert(const char *file, unsigned int line, const char *assertion)
 {
-#if LOG_LEVEL >= LOG_LEVEL_INFO
-	/*
-	 * Only print the output if LOG_LEVEL is higher or equal to
-	 * LOG_LEVEL_INFO, which is the default value for builds with DEBUG=1.
-	 */
-	tf_printf("ASSERT: %s <%d> : %s\n", function, line, assertion);
-
+	tf_printf("ASSERT: %s <%d> : %s\n", file, line, assertion);
 	console_flush();
-#endif
-
 	plat_panic_handler();
 }
+#elif PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_INFO
+void __assert(const char *file, unsigned int line)
+{
+	tf_printf("ASSERT: %s <%d>\n", file, line);
+	console_flush();
+	plat_panic_handler();
+}
+#else
+void __assert(void)
+{
+	plat_panic_handler();
+}
+#endif
