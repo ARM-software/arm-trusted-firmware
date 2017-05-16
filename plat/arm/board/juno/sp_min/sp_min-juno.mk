@@ -8,7 +8,6 @@
 BL32_SOURCES	+=	lib/cpus/aarch32/cortex_a53.S		\
 			lib/cpus/aarch32/cortex_a57.S		\
 			lib/cpus/aarch32/cortex_a72.S		\
-			plat/arm/board/juno/juno_pm.c		\
 			plat/arm/board/juno/juno_topology.c	\
 			plat/arm/css/common/css_pm.c		\
 			plat/arm/css/common/css_topology.c	\
