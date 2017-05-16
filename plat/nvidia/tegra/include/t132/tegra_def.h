@@ -7,8 +7,6 @@
 #ifndef __TEGRA_DEF_H__
 #define __TEGRA_DEF_H__
 
-#include <platform_def.h>
-
 /*******************************************************************************
  * This value is used by the PSCI implementation during the `SYSTEM_SUSPEND`
  * call as the `state-id` field in the 'power state' parameter.

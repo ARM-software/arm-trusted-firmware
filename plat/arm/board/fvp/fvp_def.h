@@ -7,8 +7,6 @@
 #ifndef __FVP_DEF_H__
 #define __FVP_DEF_H__
 
-#include <arm_def.h>
-
 #ifndef FVP_CLUSTER_COUNT
 #define FVP_CLUSTER_COUNT		2
 #endif
