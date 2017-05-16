@@ -280,6 +280,16 @@ static void nonboot_cpus_off(void)
 	}
 }
 
+void sram_save(void)
+{
+	/* TODO: support the sdram save for rk3368 SoCs*/
+}
+
+void sram_restore(void)
+{
+	/* TODO: support the sdram restore for rk3368 SoCs */
+}
+
 int rockchip_soc_cores_pwr_dm_on(unsigned long mpidr, uint64_t entrypoint)
 {
 	uint32_t cpu, cluster;

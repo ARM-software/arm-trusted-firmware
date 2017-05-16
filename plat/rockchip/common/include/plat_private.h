@@ -24,7 +24,9 @@
 extern uint32_t __bl31_sram_text_start, __bl31_sram_text_end;
 extern uint32_t __bl31_sram_data_start, __bl31_sram_data_end;
 extern uint32_t __bl31_sram_stack_start, __bl31_sram_stack_end;
+extern uint32_t __bl31_sram_text_real_end, __bl31_sram_data_real_end;
 extern uint32_t __sram_incbin_start, __sram_incbin_end;
+extern uint32_t __sram_incbin_real_end;
 
 
 /******************************************************************************

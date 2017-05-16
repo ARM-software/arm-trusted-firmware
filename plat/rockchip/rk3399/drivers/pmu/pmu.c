@@ -21,6 +21,7 @@
 #include <rk3399_def.h>
 #include <secure.h>
 #include <soc.h>
+#include <string.h>
 #include <pmu.h>
 #include <pmu_com.h>
 #include <pwm.h>
@@ -30,6 +31,7 @@
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
 static uint32_t cpu_warm_boot_addr;
+static char store_sram[SRAM_BIN_LIMIT + SRAM_TEXT_LIMIT + SRAM_DATA_LIMIT];
 
 /*
  * There are two ways to powering on or off on core.
@@ -760,14 +762,24 @@ static void init_pmu_counts(void)
 	mmio_write_32(PMU_BASE + PMU_CENTER_PWRUP_CNT, CYCL_24M_CNT_MS(1));
 
 	/*
+	 * when we enable PMU_CLR_PERILP, it will shut down the SRAM, but
+	 * M0 code run in SRAM, and we need it to check whether cpu enter
+	 * FSM status, so we must wait M0 finish their code and enter WFI,
+	 * then we can shutdown SRAM, according FSM order:
+	 * ST_NORMAL->..->ST_SCU_L_PWRDN->..->ST_CENTER_PWRDN->ST_PERILP_PWRDN
+	 * we can add delay when shutdown ST_SCU_L_PWRDN to guarantee M0 get
+	 * the FSM status and enter WFI, then enable PMU_CLR_PERILP.
+	 */
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_24M_CNT_MS(5));
+	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_24M_CNT_US(1));
+
+	/*
 	 * Set CPU/GPU to 1 us.
 	 *
 	 * NOTE: Even though ATF doesn't configure the GPU we'll still setup
 	 * counts here.  After all ATF controls all these other bits and also
 	 * chooses which clock these counters use.
 	 */
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRDN_CNT, CYCL_24M_CNT_US(1));
-	mmio_write_32(PMU_BASE + PMU_SCU_L_PWRUP_CNT, CYCL_24M_CNT_US(1));
 	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRDN_CNT, CYCL_24M_CNT_US(1));
 	mmio_write_32(PMU_BASE + PMU_SCU_B_PWRUP_CNT, CYCL_24M_CNT_US(1));
 	mmio_write_32(PMU_BASE + PMU_GPU_PWRDN_CNT, CYCL_24M_CNT_US(1));
@@ -815,6 +827,8 @@ static void sys_slp_config(void)
 		       BIT(PMU_DDRIO1_RET_EN) |
 		       BIT(PMU_DDRIO_RET_HW_DE_REQ) |
 		       BIT(PMU_CENTER_PD_EN) |
+		       BIT(PMU_PERILP_PD_EN) |
+		       BIT(PMU_CLK_PERILP_SRC_GATE_EN) |
 		       BIT(PMU_PLL_PD_EN) |
 		       BIT(PMU_CLK_CENTER_SRC_GATE_EN) |
 		       BIT(PMU_OSC_DIS) |
@@ -1028,6 +1042,36 @@ static void m0_configure_suspend(void)
 	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_SUSPEND);
 }
 
+void sram_save(void)
+{
+	size_t text_size = (char *)&__bl31_sram_text_real_end -
+			   (char *)&__bl31_sram_text_start;
+	size_t data_size = (char *)&__bl31_sram_data_real_end -
+			   (char *)&__bl31_sram_data_start;
+	size_t incbin_size = (char *)&__sram_incbin_real_end -
+			     (char *)&__sram_incbin_start;
+
+	memcpy(&store_sram[0], &__bl31_sram_text_start, text_size);
+	memcpy(&store_sram[text_size], &__bl31_sram_data_start, data_size);
+	memcpy(&store_sram[text_size + data_size], &__sram_incbin_start,
+	       incbin_size);
+}
+
+void sram_restore(void)
+{
+	size_t text_size = (char *)&__bl31_sram_text_real_end -
+			   (char *)&__bl31_sram_text_start;
+	size_t data_size = (char *)&__bl31_sram_data_real_end -
+			   (char *)&__bl31_sram_data_start;
+	size_t incbin_size = (char *)&__sram_incbin_real_end -
+			     (char *)&__sram_incbin_start;
+
+	memcpy(&__bl31_sram_text_start, &store_sram[0], text_size);
+	memcpy(&__bl31_sram_data_start, &store_sram[text_size], data_size);
+	memcpy(&__sram_incbin_start, &store_sram[text_size + data_size],
+	       incbin_size);
+}
+
 int rockchip_soc_sys_pwr_dm_suspend(void)
 {
 	uint32_t wait_cnt = 0;
@@ -1045,6 +1089,8 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 		    BIT(PMU_CLR_CCIM0) |
 		    BIT(PMU_CLR_CCIM1) |
 		    BIT(PMU_CLR_CENTER) |
+		    BIT(PMU_CLR_PERILP) |
+		    BIT(PMU_CLR_PERILPM0) |
 		    BIT(PMU_CLR_GIC));
 
 	sys_slp_config();
@@ -1090,6 +1136,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	suspend_apio();
 	suspend_gpio();
 
+	sram_save();
 	return 0;
 }
 
@@ -1171,6 +1218,8 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 				BIT(PMU_CLR_CCIM0) |
 				BIT(PMU_CLR_CCIM1) |
 				BIT(PMU_CLR_CENTER) |
+				BIT(PMU_CLR_PERILP) |
+				BIT(PMU_CLR_PERILPM0) |
 				BIT(PMU_CLR_GIC));
 
 	plat_rockchip_gic_cpuif_enable();

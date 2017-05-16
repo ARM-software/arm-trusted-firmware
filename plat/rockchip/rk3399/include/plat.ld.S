@@ -30,24 +30,33 @@ SECTIONS
 	.incbin_sram : ALIGN(4096) {
 		__sram_incbin_start = .;
 		*(.sram.incbin)
+		 __sram_incbin_real_end = .;
 		. = ALIGN(4096);
 		__sram_incbin_end = .;
 	} >SRAM
+	ASSERT((__sram_incbin_real_end - __sram_incbin_start) <=
+		SRAM_BIN_LIMIT, ".incbin_sram has exceeded its limit")
 
 	.text_sram : ALIGN(4096) {
 		__bl31_sram_text_start = .;
 		*(.sram.text)
 		*(.sram.rodata)
+		__bl31_sram_text_real_end = .;
 		. = ALIGN(4096);
 		__bl31_sram_text_end = .;
 	} >SRAM
+	ASSERT((__bl31_sram_text_real_end - __bl31_sram_text_start) <=
+		SRAM_TEXT_LIMIT, ".text_sram has exceeded its limit")
 
 	.data_sram : ALIGN(4096) {
 		__bl31_sram_data_start = .;
 		*(.sram.data)
+		__bl31_sram_data_real_end = .;
 		. = ALIGN(4096);
 		__bl31_sram_data_end = .;
 	} >SRAM
+	ASSERT((__bl31_sram_data_real_end - __bl31_sram_data_start) <=
+		SRAM_DATA_LIMIT, ".data_sram has exceeded its limit")
 
 	.stack_sram : ALIGN(4096) {
 		__bl31_sram_stack_start = .;

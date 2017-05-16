@@ -25,7 +25,7 @@ ddr_resume:
 	mov     sp, x2
 	bl	dmc_restore
 #endif
-
+	bl	sram_restore
 sys_resume:
 	bl	psci_entrypoint
 endfunc pmu_cpuson_entrypoint
