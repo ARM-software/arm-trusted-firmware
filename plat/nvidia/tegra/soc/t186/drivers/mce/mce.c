@@ -172,9 +172,6 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 	switch (cmd) {
 	case MCE_CMD_ENTER_CSTATE:
 		ret = ops->enter_cstate(cpu_ari_base, arg0, arg1);
-		if (ret < 0) {
-			ERROR("%s: enter_cstate failed(%d)\n", __func__, ret);
-		}
 
 		break;
 
@@ -190,10 +187,6 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		ret = ops->update_cstate_info(cpu_ari_base, (uint32_t)arg0,
 				(uint32_t)arg1, (uint32_t)arg2, (uint8_t)arg3,
 				(uint32_t)arg4, (uint8_t)arg5);
-		if (ret < 0) {
-			ERROR("%s: update_cstate_info failed(%d)\n",
-				__func__, ret);
-		}
 
 		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X4), (0));
 		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X5), (0));
@@ -203,10 +196,6 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 	case MCE_CMD_UPDATE_CROSSOVER_TIME:
 		ret = ops->update_crossover_time(cpu_ari_base, arg0, arg1);
-		if (ret < 0) {
-			ERROR("%s: update_crossover_time failed(%d)\n",
-				__func__, ret);
-		}
 
 		break;
 
@@ -221,19 +210,11 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 	case MCE_CMD_WRITE_CSTATE_STATS:
 		ret = ops->write_cstate_stats(cpu_ari_base, arg0, arg1);
-		if (ret < 0) {
-			ERROR("%s: write_cstate_stats failed(%d)\n",
-				__func__, ret);
-		}
 
 		break;
 
 	case MCE_CMD_IS_CCX_ALLOWED:
 		ret = ops->is_ccx_allowed(cpu_ari_base, arg0, arg1);
-		if (ret < 0) {
-			ERROR("%s: is_ccx_allowed failed(%d)\n", __func__, ret);
-			break;
-		}
 
 		/* update context to return CCx status value */
 		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
@@ -243,10 +224,6 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 	case MCE_CMD_IS_SC7_ALLOWED:
 		ret = ops->is_sc7_allowed(cpu_ari_base, arg0, arg1);
-		if (ret < 0) {
-			ERROR("%s: is_sc7_allowed failed(%d)\n", __func__, ret);
-			break;
-		}
 
 		/* update context to return SC7 status value */
 		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
@@ -258,17 +235,11 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 	case MCE_CMD_ONLINE_CORE:
 		ret = ops->online_core(cpu_ari_base, arg0);
-		if (ret < 0) {
-			ERROR("%s: online_core failed(%d)\n", __func__, ret);
-		}
 
 		break;
 
 	case MCE_CMD_CC3_CTRL:
 		ret = ops->cc3_ctrl(cpu_ari_base, arg0, arg1, arg2);
-		if (ret < 0) {
-			ERROR("%s: cc3_ctrl failed(%d)\n", __func__, ret);
-		}
 
 		break;
 
@@ -310,26 +281,16 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 	case MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
 		ret = ops->roc_flush_cache_trbits(cpu_ari_base);
-		if (ret < 0) {
-			ERROR("%s: flush cache_trbits failed(%d)\n", __func__,
-				ret);
-		}
 
 		break;
 
 	case MCE_CMD_ROC_FLUSH_CACHE:
 		ret = ops->roc_flush_cache(cpu_ari_base);
-		if (ret < 0) {
-			ERROR("%s: flush cache failed(%d)\n", __func__, ret);
-		}
 
 		break;
 
 	case MCE_CMD_ROC_CLEAN_CACHE:
 		ret = ops->roc_clean_cache(cpu_ari_base);
-		if (ret < 0) {
-			ERROR("%s: clean cache failed(%d)\n", __func__, ret);
-		}
 
 		break;
 
