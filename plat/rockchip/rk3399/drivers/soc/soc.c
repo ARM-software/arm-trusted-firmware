@@ -171,11 +171,6 @@ void restore_abpll(void)
 	restore_pll(ABPLL_ID, slp_data.plls_con[ABPLL_ID]);
 }
 
-void restore_dpll(void)
-{
-	restore_pll(DPLL_ID, slp_data.plls_con[DPLL_ID]);
-}
-
 void clk_gate_con_save(void)
 {
 	uint32_t i = 0;

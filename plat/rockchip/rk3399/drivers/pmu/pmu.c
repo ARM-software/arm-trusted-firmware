@@ -1138,7 +1138,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	uint32_t status = 0;
 
 	ddr_prepare_for_sys_suspend();
-	dmc_save();
+	dmc_suspend();
 	pmu_scu_b_pwrdn();
 
 	pmu_power_domains_suspend();
@@ -1269,8 +1269,6 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	pmu_scu_b_pwrup();
 	pmu_power_domains_resume();
 
-	restore_dpll();
-	sram_func_set_ddrctl_pll(DPLL_ID);
 	restore_abpll();
 
 	clr_hw_idle(BIT(PMU_CLR_CENTER1) |

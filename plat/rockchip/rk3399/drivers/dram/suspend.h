@@ -19,7 +19,7 @@
 #define PI_WDQ_LEVELING		(1 << 4)
 #define PI_FULL_TRAINING	(0xff)
 
-void dmc_save(void);
-__pmusramfunc void dmc_restore(void);
+void dmc_suspend(void);
+__pmusramfunc void dmc_resume(void);
 
 #endif /* __DRAM_H__ */

@@ -196,6 +196,7 @@ struct deepsleep_data_s {
 #define GRF_SOC_CON_BASE	0xe200
 #define GRF_SOC_CON(n)		(GRF_SOC_CON_BASE + (n) * 4)
 
+#define CRU_CLKSEL_CON6		0x0118
 #define PMUCRU_CLKSEL_CON0	0x0080
 #define PMUCRU_CLKGATE_CON2	0x0108
 #define PMUCRU_SOFTRST_CON0	0x0110
@@ -231,7 +232,6 @@ void enable_dvfs_plls(void);
 void enable_nodvfs_plls(void);
 void prepare_abpll_for_ddrctrl(void);
 void restore_abpll(void);
-void restore_dpll(void);
 void clk_gate_con_save(void);
 void clk_gate_con_disable(void);
 void clk_gate_con_restore(void);

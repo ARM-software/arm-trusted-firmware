@@ -45,7 +45,7 @@ sys_wakeup:
 ddr_resume:
 	ldr	x2, =__bl31_sram_stack_end
 	mov     sp, x2
-	bl	dmc_restore
+	bl	dmc_resume
 #endif
 	bl	sram_restore
 sys_resume:

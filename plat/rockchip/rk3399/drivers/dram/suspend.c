@@ -43,6 +43,9 @@
 
 #define SYS_COUNTER_FREQ_IN_MHZ		(SYS_COUNTER_FREQ_IN_TICKS / 1000000)
 
+__pmusramdata uint32_t dpll_data[PLL_CON_COUNT];
+__pmusramdata uint32_t cru_clksel_con6;
+
 /*
  * Copy @num registers from @src to @dst
  */
@@ -636,24 +639,45 @@ static __pmusramfunc int pctl_start(uint32_t channel_mask,
 	return 0;
 }
 
-void dmc_save(void)
+__pmusramfunc static void pmusram_restore_pll(int pll_id, uint32_t *src)
+{
+	mmio_write_32((CRU_BASE + CRU_PLL_CON(pll_id, 3)), PLL_SLOW_MODE);
+
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 0), src[0] | REG_SOC_WMSK);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 1), src[1] | REG_SOC_WMSK);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 2), src[2]);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 4), src[4] | REG_SOC_WMSK);
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 5), src[5] | REG_SOC_WMSK);
+
+	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 3), src[3] | REG_SOC_WMSK);
+
+	while ((mmio_read_32(CRU_BASE + CRU_PLL_CON(pll_id, 2)) &
+		(1 << 31)) == 0x0)
+		;
+}
+
+void dmc_suspend(void)
 {
 	struct rk3399_sdram_params *sdram_params = &sdram_config;
 	struct rk3399_ddr_publ_regs *phy_regs;
 	uint32_t *params_ctl;
 	uint32_t *params_pi;
 	uint32_t refdiv, postdiv2, postdiv1, fbdiv;
-	uint32_t tmp, ch, byte, i;
+	uint32_t ch, byte, i;
 
 	phy_regs = &sdram_params->phy_regs;
 	params_ctl = sdram_params->pctl_regs.denali_ctl;
 	params_pi = sdram_params->pi_regs.denali_pi;
 
-	fbdiv = mmio_read_32(CRU_BASE + CRU_PLL_CON(DPLL_ID, 0)) & 0xfff;
-	tmp = mmio_read_32(CRU_BASE + CRU_PLL_CON(DPLL_ID, 1));
-	postdiv2 = POSTDIV2_DEC(tmp);
-	postdiv1 = POSTDIV1_DEC(tmp);
-	refdiv = REFDIV_DEC(tmp);
+	/* save dpll register and ddr clock register value to pmusram */
+	cru_clksel_con6 = mmio_read_32(CRU_BASE + CRU_CLKSEL_CON6);
+	for (i = 0; i < PLL_CON_COUNT; i++)
+		dpll_data[i] = mmio_read_32(CRU_BASE + CRU_PLL_CON(DPLL_ID, i));
+
+	fbdiv = dpll_data[0] & 0xfff;
+	postdiv2 = POSTDIV2_DEC(dpll_data[1]);
+	postdiv1 = POSTDIV1_DEC(dpll_data[1]);
+	refdiv = REFDIV_DEC(dpll_data[1]);
 
 	sdram_params->ddr_freq = ((fbdiv * 24) /
 				(refdiv * postdiv1 * postdiv2)) * MHz;
@@ -697,11 +721,19 @@ void dmc_save(void)
 	phy_regs->phy896[0] &= ~(0x3 << 8);
 }
 
-__pmusramfunc void dmc_restore(void)
+__pmusramfunc void dmc_resume(void)
 {
 	struct rk3399_sdram_params *sdram_params = &sdram_config;
 	uint32_t channel_mask = 0;
 	uint32_t channel;
+
+	/*
+	 * we switch ddr clock to abpll when suspend,
+	 * we set back to dpll here
+	 */
+	mmio_write_32(CRU_BASE + CRU_CLKSEL_CON6,
+			cru_clksel_con6 | REG_SOC_WMSK);
+	pmusram_restore_pll(DPLL_ID, dpll_data);
 
 	configure_sgrf();
 
