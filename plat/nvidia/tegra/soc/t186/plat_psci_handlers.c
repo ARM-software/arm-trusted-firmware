@@ -45,9 +45,6 @@ static struct t18x_psci_percpu_data {
 	unsigned int wake_time;
 } __aligned(CACHE_WRITEBACK_GRANULE) percpu_data[PLATFORM_CORE_COUNT];
 
-/* System power down state */
-uint32_t tegra186_system_powerdn_state = TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF;
-
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
 {
@@ -362,48 +359,8 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 
 __dead2 void tegra_soc_prepare_system_off(void)
 {
-	mce_cstate_info_t cstate_info = { 0 };
-	uint32_t val;
-
-	if (tegra186_system_powerdn_state == TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF) {
-
-		/* power off the entire system */
-		mce_enter_ccplex_state(tegra186_system_powerdn_state);
-
-	} else if (tegra186_system_powerdn_state == TEGRA_ARI_SYSTEM_SC8) {
-
-		/* Prepare for quasi power down */
-		cstate_info.cluster = TEGRA_ARI_CLUSTER_CC7;
-		cstate_info.system = TEGRA_ARI_SYSTEM_SC8;
-		cstate_info.system_state_force = 1;
-		cstate_info.update_wake_mask = 1;
-		mce_update_cstate_info(&cstate_info);
-
-		/* loop until other CPUs power down */
-		do {
-			val = mce_command_handler(MCE_CMD_IS_SC7_ALLOWED,
-					TEGRA_ARI_CORE_C7,
-					MCE_CORE_SLEEP_TIME_INFINITE,
-					0);
-		} while (val == 0);
-
-		/* Enter quasi power down state */
-		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE,
-			TEGRA_ARI_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
-
-		/* disable GICC */
-		tegra_gic_cpuif_deactivate();
-
-		/* power down core */
-		prepare_cpu_pwr_dwn();
-
-		/* flush L1/L2 data caches */
-		dcsw_op_all(DCCISW);
-
-	} else {
-		ERROR("%s: unsupported power down state (%d)\n", __func__,
-			tegra186_system_powerdn_state);
-	}
+	/* power off the entire system */
+	mce_enter_ccplex_state(TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF);
 
 	wfi();
 
