@@ -64,6 +64,7 @@ void __dead2 do_panic(void);
 void __dead2 __stack_chk_fail(void);
 
 void tf_printf(const char *fmt, ...) __printflike(1, 2);
+int tf_snprintf(char *s, size_t n, const char *fmt, ...) __printflike(3, 4);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __DEBUG_H__ */
