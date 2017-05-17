@@ -10,6 +10,7 @@
 #include <arch.h>
 #include <platform_def.h>
 #include <xlat_tables_defs.h>
+#include "../xlat_tables_private.h"
 
 /*
  * In AArch64 state, the MMU may support 4 KB, 16 KB and 64 KB page
