@@ -32,6 +32,19 @@ DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
 static uint32_t cpu_warm_boot_addr;
 static char store_sram[SRAM_BIN_LIMIT + SRAM_TEXT_LIMIT + SRAM_DATA_LIMIT];
+static uint32_t store_cru[CRU_SDIO0_CON1 / 4];
+static uint32_t store_usbphy0[7];
+static uint32_t store_usbphy1[7];
+static uint32_t store_grf_io_vsel;
+static uint32_t store_grf_soc_con0;
+static uint32_t store_grf_soc_con1;
+static uint32_t store_grf_soc_con2;
+static uint32_t store_grf_soc_con3;
+static uint32_t store_grf_soc_con4;
+static uint32_t store_grf_soc_con7;
+static uint32_t store_grf_ddrc_con[4];
+static uint32_t store_wdt0[2];
+static uint32_t store_wdt1[2];
 
 /*
  * There are two ways to powering on or off on core.
@@ -1132,6 +1145,161 @@ void resume_uart(void)
 	mmio_write_32(PLAT_RK_UART_BASE + UART_MCR, uart_save.uart_mcr);
 }
 
+void save_usbphy(void)
+{
+	store_usbphy0[0] = mmio_read_32(GRF_BASE + GRF_USBPHY0_CTRL0);
+	store_usbphy0[1] = mmio_read_32(GRF_BASE + GRF_USBPHY0_CTRL2);
+	store_usbphy0[2] = mmio_read_32(GRF_BASE + GRF_USBPHY0_CTRL3);
+	store_usbphy0[3] = mmio_read_32(GRF_BASE + GRF_USBPHY0_CTRL12);
+	store_usbphy0[4] = mmio_read_32(GRF_BASE + GRF_USBPHY0_CTRL13);
+	store_usbphy0[5] = mmio_read_32(GRF_BASE + GRF_USBPHY0_CTRL15);
+	store_usbphy0[6] = mmio_read_32(GRF_BASE + GRF_USBPHY0_CTRL16);
+
+	store_usbphy1[0] = mmio_read_32(GRF_BASE + GRF_USBPHY1_CTRL0);
+	store_usbphy1[1] = mmio_read_32(GRF_BASE + GRF_USBPHY1_CTRL2);
+	store_usbphy1[2] = mmio_read_32(GRF_BASE + GRF_USBPHY1_CTRL3);
+	store_usbphy1[3] = mmio_read_32(GRF_BASE + GRF_USBPHY1_CTRL12);
+	store_usbphy1[4] = mmio_read_32(GRF_BASE + GRF_USBPHY1_CTRL13);
+	store_usbphy1[5] = mmio_read_32(GRF_BASE + GRF_USBPHY1_CTRL15);
+	store_usbphy1[6] = mmio_read_32(GRF_BASE + GRF_USBPHY1_CTRL16);
+}
+
+void restore_usbphy(void)
+{
+	mmio_write_32(GRF_BASE + GRF_USBPHY0_CTRL0,
+		      REG_SOC_WMSK | store_usbphy0[0]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY0_CTRL2,
+		      REG_SOC_WMSK | store_usbphy0[1]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY0_CTRL3,
+		      REG_SOC_WMSK | store_usbphy0[2]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY0_CTRL12,
+		      REG_SOC_WMSK | store_usbphy0[3]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY0_CTRL13,
+		      REG_SOC_WMSK | store_usbphy0[4]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY0_CTRL15,
+		      REG_SOC_WMSK | store_usbphy0[5]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY0_CTRL16,
+		      REG_SOC_WMSK | store_usbphy0[6]);
+
+	mmio_write_32(GRF_BASE + GRF_USBPHY1_CTRL0,
+		      REG_SOC_WMSK | store_usbphy1[0]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY1_CTRL2,
+		      REG_SOC_WMSK | store_usbphy1[1]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY1_CTRL3,
+		      REG_SOC_WMSK | store_usbphy1[2]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY1_CTRL12,
+		      REG_SOC_WMSK | store_usbphy1[3]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY1_CTRL13,
+		      REG_SOC_WMSK | store_usbphy1[4]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY1_CTRL15,
+		      REG_SOC_WMSK | store_usbphy1[5]);
+	mmio_write_32(GRF_BASE + GRF_USBPHY1_CTRL16,
+		      REG_SOC_WMSK | store_usbphy1[6]);
+}
+
+void grf_register_save(void)
+{
+	int i;
+
+	store_grf_soc_con0 = mmio_read_32(GRF_BASE + GRF_SOC_CON(0));
+	store_grf_soc_con1 = mmio_read_32(GRF_BASE + GRF_SOC_CON(1));
+	store_grf_soc_con2 = mmio_read_32(GRF_BASE + GRF_SOC_CON(2));
+	store_grf_soc_con3 = mmio_read_32(GRF_BASE + GRF_SOC_CON(3));
+	store_grf_soc_con4 = mmio_read_32(GRF_BASE + GRF_SOC_CON(4));
+	store_grf_soc_con7 = mmio_read_32(GRF_BASE + GRF_SOC_CON(7));
+
+	for (i = 0; i < 4; i++)
+		store_grf_ddrc_con[i] =
+			mmio_read_32(GRF_BASE + GRF_DDRC0_CON0 + i * 4);
+
+	store_grf_io_vsel = mmio_read_32(GRF_BASE + GRF_IO_VSEL);
+}
+
+void grf_register_restore(void)
+{
+	int i;
+
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(0),
+		      REG_SOC_WMSK | store_grf_soc_con0);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(1),
+		      REG_SOC_WMSK | store_grf_soc_con1);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(2),
+		      REG_SOC_WMSK | store_grf_soc_con2);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(3),
+		      REG_SOC_WMSK | store_grf_soc_con3);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(4),
+		      REG_SOC_WMSK | store_grf_soc_con4);
+	mmio_write_32(GRF_BASE + GRF_SOC_CON(7),
+		      REG_SOC_WMSK | store_grf_soc_con7);
+
+	for (i = 0; i < 4; i++)
+		mmio_write_32(GRF_BASE + GRF_DDRC0_CON0 + i * 4,
+			      REG_SOC_WMSK | store_grf_ddrc_con[i]);
+
+	mmio_write_32(GRF_BASE + GRF_IO_VSEL, REG_SOC_WMSK | store_grf_io_vsel);
+}
+
+void cru_register_save(void)
+{
+	int i;
+
+	for (i = 0; i <= CRU_SDIO0_CON1; i = i + 4)
+		store_cru[i / 4] = mmio_read_32(CRU_BASE + i);
+}
+
+void cru_register_restore(void)
+{
+	int i;
+
+	for (i = 0; i <= CRU_SDIO0_CON1; i = i + 4) {
+
+		/*
+		 * since DPLL, CRU_CLKSEL_CON6 have been restore in
+		 * dmc_resume, ABPLL will resote later, so skip them
+		 */
+		if ((i == CRU_CLKSEL_CON6) ||
+		    (i >= CRU_PLL_CON(ABPLL_ID, 0) &&
+		     i <= CRU_PLL_CON(DPLL_ID, 5)))
+			continue;
+
+		if ((i == CRU_PLL_CON(ALPLL_ID, 2)) ||
+		    (i == CRU_PLL_CON(CPLL_ID, 2)) ||
+		    (i == CRU_PLL_CON(GPLL_ID, 2)) ||
+		    (i == CRU_PLL_CON(NPLL_ID, 2)) ||
+		    (i == CRU_PLL_CON(VPLL_ID, 2)))
+			mmio_write_32(CRU_BASE + i, store_cru[i / 4]);
+		/*
+		 * CRU_GLB_CNT_TH and CRU_CLKSEL_CON97~CRU_CLKSEL_CON107
+		 * not need do high 16bit mask
+		 */
+		else if ((i > 0x27c && i < 0x2b0) || (i == 0x508))
+			mmio_write_32(CRU_BASE + i, store_cru[i / 4]);
+		else
+			mmio_write_32(CRU_BASE + i,
+				      REG_SOC_WMSK | store_cru[i / 4]);
+	}
+}
+
+void wdt_register_save(void)
+{
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		store_wdt0[i] = mmio_read_32(WDT0_BASE + i * 4);
+		store_wdt1[i] = mmio_read_32(WDT1_BASE + i * 4);
+	}
+}
+
+void wdt_register_restore(void)
+{
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		mmio_write_32(WDT0_BASE + i * 4, store_wdt0[i]);
+		mmio_write_32(WDT1_BASE + i * 4, store_wdt1[i]);
+	}
+}
+
 int rockchip_soc_sys_pwr_dm_suspend(void)
 {
 	uint32_t wait_cnt = 0;
@@ -1140,6 +1308,9 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	ddr_prepare_for_sys_suspend();
 	dmc_suspend();
 	pmu_scu_b_pwrdn();
+
+	/* need to save usbphy before shutdown PERIHP PD */
+	save_usbphy();
 
 	pmu_power_domains_suspend();
 	set_hw_idle(BIT(PMU_CLR_CENTER1) |
@@ -1196,8 +1367,12 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	suspend_apio();
 	suspend_gpio();
 	suspend_uart();
-
+	grf_register_save();
+	cru_register_save();
+	wdt_register_save();
 	sram_save();
+	plat_rockchip_save_gpio();
+
 	return 0;
 }
 
@@ -1206,6 +1381,10 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
+	plat_rockchip_restore_gpio();
+	wdt_register_restore();
+	cru_register_restore();
+	grf_register_restore();
 	resume_uart();
 	resume_apio();
 	resume_gpio();
@@ -1284,6 +1463,8 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 
 	plat_rockchip_gic_cpuif_enable();
 	m0_stop();
+
+	restore_usbphy();
 
 	ddr_prepare_for_sys_resume();
 
