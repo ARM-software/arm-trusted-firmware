@@ -19,6 +19,8 @@
 
 #define MBEDTLS_PLATFORM_MEMORY
 #define MBEDTLS_PLATFORM_NO_STD_FUNCTIONS
+/* Prevent mbed TLS from using snprintf so that it can use tf_snprintf. */
+#define MBEDTLS_PLATFORM_SNPRINTF_ALT
 
 #define MBEDTLS_PKCS1_V15
 #define MBEDTLS_PKCS1_V21

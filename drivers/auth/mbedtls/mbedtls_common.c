@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
+#include <debug.h>
 
 /* mbed TLS headers */
 #include <mbedtls/memory_buffer_alloc.h>
+#include <mbedtls/platform.h>
 
 /*
  * mbed TLS heap
@@ -29,6 +30,10 @@ void mbedtls_init(void)
 	if (!ready) {
 		/* Initialize the mbed TLS heap */
 		mbedtls_memory_buffer_alloc_init(heap, MBEDTLS_HEAP_SIZE);
+
+		/* Use reduced version of snprintf to save space. */
+		mbedtls_platform_set_snprintf(tf_snprintf);
+
 		ready = 1;
 	}
 }
