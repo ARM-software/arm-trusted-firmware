@@ -15,13 +15,40 @@
 #include <string.h>
 #include <types.h>
 #include <utils.h>
+#include <xlat_tables_arch.h>
 #include <xlat_tables_v2.h>
-#ifdef AARCH32
-# include "aarch32/xlat_tables_arch.h"
-#else
-# include "aarch64/xlat_tables_arch.h"
-#endif
+
 #include "xlat_tables_private.h"
+
+/*
+ * Each platform can define the size of its physical and virtual address spaces.
+ * If the platform hasn't defined one or both of them, default to
+ * ADDR_SPACE_SIZE. The latter is deprecated, though.
+ */
+#if ERROR_DEPRECATED
+# ifdef ADDR_SPACE_SIZE
+#  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
+# endif
+#elif defined(ADDR_SPACE_SIZE)
+# ifndef PLAT_PHY_ADDR_SPACE_SIZE
+#  define PLAT_PHY_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
+# endif
+# ifndef PLAT_VIRT_ADDR_SPACE_SIZE
+#  define PLAT_VIRT_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
+# endif
+#endif
+
+CASSERT(CHECK_VIRT_ADDR_SPACE_SIZE(PLAT_VIRT_ADDR_SPACE_SIZE),
+	assert_invalid_virtual_addr_space_size);
+
+CASSERT(CHECK_PHY_ADDR_SPACE_SIZE(PLAT_PHY_ADDR_SPACE_SIZE),
+	assert_invalid_physical_addr_space_size);
+
+#define NUM_BASE_LEVEL_ENTRIES	\
+	GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)
+
+#define XLAT_TABLE_LEVEL_BASE	\
+	GET_XLAT_TABLE_LEVEL_BASE(PLAT_VIRT_ADDR_SPACE_SIZE)
 
 /*
  * Private variables used by the TF

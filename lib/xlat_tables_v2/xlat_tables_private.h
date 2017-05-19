@@ -7,32 +7,8 @@
 #ifndef __XLAT_TABLES_PRIVATE_H__
 #define __XLAT_TABLES_PRIVATE_H__
 
-#include <cassert.h>
 #include <platform_def.h>
-#include <utils_def.h>
-
-/*
- * If the platform hasn't defined a physical and a virtual address space size
- * default to ADDR_SPACE_SIZE.
- */
-#if ERROR_DEPRECATED
-# ifdef ADDR_SPACE_SIZE
-#  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
-# endif
-#elif defined(ADDR_SPACE_SIZE)
-# ifndef PLAT_PHY_ADDR_SPACE_SIZE
-#  define PLAT_PHY_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
-# endif
-# ifndef PLAT_VIRT_ADDR_SPACE_SIZE
-#  define PLAT_VIRT_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
-# endif
-#endif
-
-/* The virtual and physical address space sizes must be powers of two. */
-CASSERT(IS_POWER_OF_TWO(PLAT_VIRT_ADDR_SPACE_SIZE),
-	assert_valid_virt_addr_space_size);
-CASSERT(IS_POWER_OF_TWO(PLAT_PHY_ADDR_SPACE_SIZE),
-	assert_valid_phy_addr_space_size);
+#include <xlat_tables_defs.h>
 
 /* Struct that holds all information about the translation tables. */
 typedef struct {

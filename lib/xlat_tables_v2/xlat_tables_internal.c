@@ -15,12 +15,10 @@
 #include <string.h>
 #include <types.h>
 #include <utils.h>
+#include <xlat_tables_arch.h>
+#include <xlat_tables_defs.h>
 #include <xlat_tables_v2.h>
-#ifdef AARCH32
-# include "aarch32/xlat_tables_arch.h"
-#else
-# include "aarch64/xlat_tables_arch.h"
-#endif
+
 #include "xlat_tables_private.h"
 
 #if PLAT_XLAT_TABLES_DYNAMIC

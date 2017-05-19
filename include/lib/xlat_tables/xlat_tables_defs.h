@@ -59,12 +59,6 @@
 #define XLAT_TABLE_SIZE_SHIFT	PAGE_SIZE_SHIFT /* Size of one complete table */
 #define XLAT_TABLE_SIZE		(U(1) << XLAT_TABLE_SIZE_SHIFT)
 
-#ifdef AARCH32
-#define XLAT_TABLE_LEVEL_MIN	U(1)
-#else
-#define XLAT_TABLE_LEVEL_MIN	U(0)
-#endif /* AARCH32 */
-
 #define XLAT_TABLE_LEVEL_MAX	U(3)
 
 /* Values for number of entries in each MMU translation table */
