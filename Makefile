@@ -135,7 +135,8 @@ ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffreestanding -fno-builtin -Wall -std=c99 -Os	\
-				-ffunction-sections -fdata-sections
+				-ffunction-sections -fdata-sections		\
+				$(TF_EXTRA_CFLAGS)
 
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections
