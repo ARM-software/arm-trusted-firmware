@@ -535,6 +535,17 @@ optionally be defined:
     PLAT_PARTITION_MAX_ENTRIES	:=	12
     $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
+The following constant is optional. It should be defined to override the default
+behaviour of the `assert()` function (for example, to save memory).
+
+*   **PLAT_LOG_LEVEL_ASSERT**
+    If `PLAT_LOG_LEVEL_ASSERT` is higher or equal than `LOG_LEVEL_VERBOSE`,
+    `assert()` prints the name of the file, the line number and the asserted
+    expression. Else if it is higher than `LOG_LEVEL_INFO`, it prints the file
+    name and the line number. Else if it is lower than `LOG_LEVEL_INFO`, it
+    doesn't print anything to the console. If `PLAT_LOG_LEVEL_ASSERT` isn't
+    defined, it defaults to `LOG_LEVEL`.
+
 
 ### File : plat_macros.S [mandatory]
 
