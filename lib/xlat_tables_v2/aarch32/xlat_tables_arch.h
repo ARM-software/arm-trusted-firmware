@@ -10,6 +10,7 @@
 #include <arch.h>
 #include <platform_def.h>
 #include <xlat_tables_defs.h>
+#include "../xlat_tables_private.h"
 
 /*
  * In AArch32 state, the MMU only supports 4KB page granularity, which means
