@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include "../../../../../include/plat/arm/board/common/board_arm_oid.h"
+#include <tbbr_oid.h>
 
 /*
  * Required platform OIDs

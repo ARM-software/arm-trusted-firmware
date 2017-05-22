@@ -1,12 +1,16 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <auth_mod.h>
 #include <platform_def.h>
+#if USE_TBBR_DEFS
+#include <tbbr_oid.h>
+#else
 #include <platform_oid.h>
+#endif
 #include <stddef.h>
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,8 +8,14 @@
 #include <string.h>
 #include <openssl/err.h>
 #include <openssl/x509v3.h>
+
+#if USE_TBBR_DEFS
+#include <tbbr_oid.h>
+#else
+#include <platform_oid.h>
+#endif
+
 #include "ext.h"
-#include "platform_oid.h"
 #include "tbbr/tbb_ext.h"
 #include "tbbr/tbb_key.h"
 

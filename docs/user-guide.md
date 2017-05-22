@@ -914,7 +914,11 @@ section), but it can also be built separately with the following command:
 
     make PLAT=<platform> [DEBUG=1] [V=1] certtool
 
-Specifying the platform is mandatory since the tool is platform specific.
+For platforms that do not require their own IDs in certificate files,
+the generic 'cert_create' tool can be built with the following command:
+
+    make USE_TBBR_DEFS=1 [DEBUG=1] [V=1] certtool
+
 `DEBUG=1` builds the tool in debug mode. `V=1` makes the build process more
 verbose. The following command should be used to obtain help about the tool:
 
