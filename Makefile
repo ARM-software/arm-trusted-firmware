@@ -51,6 +51,7 @@ INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib,			\
 					$(wildcard include/*)))
 LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					lib/compiler-rt			\
 					lib/libfdt%			\
 					lib/stdlib,			\
 					$(wildcard lib/*)))
@@ -144,6 +145,7 @@ LDFLAGS			+=	--gc-sections
 ################################################################################
 # Common sources and include directories
 ################################################################################
+include lib/compiler-rt/compiler-rt.mk
 include lib/stdlib/stdlib.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
@@ -153,6 +155,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				lib/${ARCH}/misc_helpers.S		\
 				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
+				${COMPILER_RT_SRCS}			\
 				${STDLIB_SRCS}
 
 INCLUDES		+=	-Iinclude/bl1				\
@@ -258,6 +261,25 @@ endif
 # This can be overridden by the platform.
 include lib/cpus/cpu-ops.mk
 
+ifeq (${ARCH},aarch32)
+NEED_BL32 := yes
+
+################################################################################
+# Build `AARCH32_SP` as BL32 image for AArch32
+################################################################################
+ifneq (${AARCH32_SP},none)
+# We expect to locate an sp.mk under the specified AARCH32_SP directory
+AARCH32_SP_MAKE	:=	$(wildcard bl32/${AARCH32_SP}/${AARCH32_SP}.mk)
+
+ifeq (${AARCH32_SP_MAKE},)
+  $(error Error: No bl32/${AARCH32_SP}/${AARCH32_SP}.mk located)
+endif
+
+$(info Including ${AARCH32_SP_MAKE})
+include ${AARCH32_SP_MAKE}
+endif
+
+endif
 
 ################################################################################
 # Check incompatible options
@@ -282,14 +304,10 @@ ifeq (${NEED_BL33},yes)
         endif
 endif
 
+# For AArch32, LOAD_IMAGE_V2 must be enabled.
 ifeq (${ARCH},aarch32)
-    # For AArch32, LOAD_IMAGE_V2 must be enabled.
     ifeq (${LOAD_IMAGE_V2}, 0)
         $(error "For AArch32, LOAD_IMAGE_V2 must be enabled.")
-    endif
-    # TRUSTED_BOARD_BOOT is currently not supported for AArch32.
-    ifeq (${TRUSTED_BOARD_BOOT},1)
-        $(error "TRUSTED_BOARD_BOOT is currently not supported for AArch32")
     endif
 endif
 
@@ -378,13 +396,13 @@ NEED_BL2 := yes
 include bl2/bl2.mk
 endif
 
-# For AArch32, BL31 is not applicable, and BL2U is not supported at present.
-ifneq (${ARCH},aarch32)
 ifdef BL2U_SOURCES
 NEED_BL2U := yes
 include bl2u/bl2u.mk
 endif
 
+# For AArch32, BL31 is not currently supported.
+ifneq (${ARCH},aarch32)
 ifdef BL31_SOURCES
 # When booting an EL3 payload, there is no need to compile the BL31 image nor
 # put it in the FIP.
@@ -393,26 +411,6 @@ NEED_BL31 := yes
 include bl31/bl31.mk
 endif
 endif
-endif
-
-ifeq (${ARCH},aarch32)
-NEED_BL32 := yes
-
-################################################################################
-# Build `AARCH32_SP` as BL32 image for AArch32
-################################################################################
-ifneq (${AARCH32_SP},none)
-# We expect to locate an sp.mk under the specified AARCH32_SP directory
-AARCH32_SP_MAKE	:=	$(wildcard bl32/${AARCH32_SP}/${AARCH32_SP}.mk)
-
-ifeq (${AARCH32_SP_MAKE},)
-  $(error Error: No bl32/${AARCH32_SP}/${AARCH32_SP}.mk located)
-endif
-
-$(info Including ${AARCH32_SP_MAKE})
-include ${AARCH32_SP_MAKE}
-endif
-
 endif
 
 ################################################################################

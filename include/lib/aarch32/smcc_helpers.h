@@ -18,8 +18,10 @@
 #define SMC_CTX_GPREG_R5	0x14
 #define SMC_CTX_SP_USR		0x34
 #define SMC_CTX_SPSR_MON	0x78
-#define SMC_CTX_LR_MON		0x7C
-#define SMC_CTX_SIZE		0x80
+#define SMC_CTX_SP_MON		0x7C
+#define SMC_CTX_LR_MON		0x80
+#define SMC_CTX_SCR		0x84
+#define SMC_CTX_SIZE		0x88
 
 #ifndef __ASSEMBLY__
 #include <cassert.h>
@@ -63,8 +65,14 @@ typedef struct smc_ctx {
 	u_register_t sp_und;
 	u_register_t lr_und;
 	u_register_t spsr_mon;
-	/* No need to save 'sp_mon' because we are already in monitor mode */
+	/*
+	 * `sp_mon` will point to the C runtime stack in monitor mode. But prior
+	 * to exit from SMC, this will point to the `smc_ctx_t` so that
+	 * on next entry due to SMC, the `smc_ctx_t` can be easily accessed.
+	 */
+	u_register_t sp_mon;
 	u_register_t lr_mon;
+	u_register_t scr;
 } smc_ctx_t;
 
 /*

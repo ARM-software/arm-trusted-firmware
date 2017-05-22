@@ -9,27 +9,16 @@
 #include <arch.h>
 
 /*
- * Macro to save the General purpose registers including the banked
- * registers to the SMC context on entry due a SMC call. On return, r0
- * contains the pointer to the `smc_context_t`.
+ * Macro to save the General purpose registers (r0 - r12), the banked
+ * spsr, lr, sp registers and the `scr` register to the SMC context on entry
+ * due a SMC call. The `lr` of the current mode (monitor) is expected to be
+ * already saved. The `sp` must point to the `smc_ctx_t` to save to.
  */
 	.macro smcc_save_gp_mode_regs
-	push	{r0-r4, lr}
-
-	ldcopr	r0, SCR
-	and	r0, r0, #SCR_NS_BIT
-	bl	smc_get_ctx
-
-	/* Save r5 - r12 in the SMC context */
-	add	r1, r0, #SMC_CTX_GPREG_R5
-	stm	r1!, {r5-r12}
-
-	/*
-	 * Pop r0 - r4, lr to r4 - r8, lr from stack and then save
-	 * it to SMC context.
-	 */
-	pop	{r4-r8, lr}
-	stm	r0, {r4-r8}
+	/* Save r0 - r12 in the SMC context */
+	stm	sp, {r0-r12}
+	mov	r0, sp
+	add	r0, r0, #SMC_CTX_SP_USR
 
 	/* Save the banked registers including the current SPSR and LR */
 	mrs	r4, sp_usr
@@ -41,7 +30,7 @@
 	mrs	r10, sp_fiq
 	mrs	r11, lr_fiq
 	mrs	r12, spsr_svc
-	stm	r1!, {r4-r12}
+	stm	r0!, {r4-r12}
 
 	mrs	r4, sp_svc
 	mrs	r5, lr_svc
@@ -52,18 +41,36 @@
 	mrs	r10, sp_und
 	mrs	r11, lr_und
 	mrs	r12, spsr
-	stm	r1!, {r4-r12, lr}
+	stm	r0!, {r4-r12}
 
+	/* lr_mon is already saved by caller */
+	ldcopr	r4, SCR
+	str	r4, [sp, #SMC_CTX_SCR]
 	.endm
 
 /*
- * Macro to restore the General purpose registers including the banked
- * registers from the SMC context prior to exit from the SMC call.
- * r0 must point to the `smc_context_t` to restore from.
+ * Macro to restore the `smc_ctx_t`, which includes the General purpose
+ * registers and banked mode registers, and exit from the monitor mode.
+ * r0 must point to the `smc_ctx_t` to restore from.
  */
-	.macro smcc_restore_gp_mode_regs
+	.macro monitor_exit
+	/*
+	 * Save the current sp and restore the smc context
+	 * pointer to sp which will be used for handling the
+	 * next SMC.
+	 */
+	str	sp, [r0, #SMC_CTX_SP_MON]
+	mov	sp, r0
 
-	/* Restore the banked registers including the current SPSR and LR */
+	/*
+	 * Restore SCR first so that we access the right banked register
+	 * when the other mode registers are restored.
+	 */
+	ldr	r1, [r0, #SMC_CTX_SCR]
+	stcopr	r1, SCR
+	isb
+
+	/* Restore the banked registers including the current SPSR */
 	add	r1, r0, #SMC_CTX_SP_USR
 	ldm	r1!, {r4-r12}
 	msr	sp_usr, r4
@@ -76,7 +83,7 @@
 	msr	lr_fiq, r11
 	msr	spsr_svc, r12
 
-	ldm	r1!, {r4-r12, lr}
+	ldm	r1!, {r4-r12}
 	msr	sp_svc, r4
 	msr	lr_svc, r5
 	msr	spsr_abt, r6
@@ -93,8 +100,12 @@
 	 */
 	msr	spsr_fsxc, r12
 
+	/* Restore the LR */
+	ldr	lr, [r0, #SMC_CTX_LR_MON]
+
 	/* Restore the rest of the general purpose registers */
 	ldm	r0, {r0-r12}
+	eret
 	.endm
 
 #endif /* __SMCC_MACROS_S__ */

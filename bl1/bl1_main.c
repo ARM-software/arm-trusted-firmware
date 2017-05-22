@@ -279,3 +279,20 @@ register_t bl1_smc_handler(unsigned int smc_fid,
 	WARN("Unimplemented BL1 SMC Call: 0x%x \n", smc_fid);
 	SMC_RET1(handle, SMC_UNK);
 }
+
+/*******************************************************************************
+ * BL1 SMC wrapper.  This function is only used in AArch32 mode to ensure ABI
+ * compliance when invoking bl1_smc_handler.
+ ******************************************************************************/
+register_t bl1_smc_wrapper(uint32_t smc_fid,
+	void *cookie,
+	void *handle,
+	unsigned int flags)
+{
+	register_t x1, x2, x3, x4;
+
+	assert(handle);
+
+	get_smc_params_from_ctx(handle, x1, x2, x3, x4);
+	return bl1_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);
+}

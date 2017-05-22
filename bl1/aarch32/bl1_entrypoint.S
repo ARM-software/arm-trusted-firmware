@@ -71,9 +71,21 @@ func bl1_entrypoint
 	 */
 
 	/*
-	 * MMU needs to be disabled because both BL1 and BL2 execute
+	 * Get the smc_context for next BL image,
+	 * program the gp/system registers and save it in `r4`.
+	 */
+	bl	smc_get_next_ctx
+	mov	r4, r0
+
+	/* Only turn-off MMU if going to secure world */
+	ldr	r5, [r4, #SMC_CTX_SCR]
+	tst	r5, #SCR_NS_BIT
+	bne	skip_mmu_off
+
+	/*
+	 * MMU needs to be disabled because both BL1 and BL2/BL2U execute
 	 * in PL1, and therefore share the same address space.
-	 * BL2 will initialize the address space according to its
+	 * BL2/BL2U will initialize the address space according to its
 	 * own requirement.
 	 */
 	bl	disable_mmu_icache_secure
@@ -81,20 +93,8 @@ func bl1_entrypoint
 	dsb	sy
 	isb
 
-	/* Get the cpu_context for next BL image */
-	bl	cm_get_next_context
-
-	/* Restore the SCR */
-	ldr	r2, [r0, #CTX_REGS_OFFSET + CTX_SCR]
-	stcopr	r2, SCR
-	isb
-
-	/*
-	 * Get the smc_context for next BL image,
-	 * program the gp/system registers and exit
-	 * secure monitor mode
-	 */
-	bl	smc_get_next_ctx
-	smcc_restore_gp_mode_regs
-	eret
+skip_mmu_off:
+	/* Restore smc_context from `r4` and exit secure monitor mode. */
+	mov	r0, r4
+	monitor_exit
 endfunc bl1_entrypoint

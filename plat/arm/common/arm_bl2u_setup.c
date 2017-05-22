@@ -68,7 +68,11 @@ void arm_bl2u_plat_arch_setup(void)
 			      BL_COHERENT_RAM_END
 #endif
 		);
+#ifdef AARCH32
+	enable_mmu_secure(0);
+#else
 	enable_mmu_el1(0);
+#endif
 }
 
 void bl2u_plat_arch_setup(void)

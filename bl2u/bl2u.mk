@@ -5,8 +5,11 @@
 #
 
 BL2U_SOURCES		+=	bl2u/bl2u_main.c			\
-				bl2u/aarch64/bl2u_entrypoint.S		\
-				common/aarch64/early_exceptions.S	\
-				plat/common/aarch64/platform_up_stack.S
+				bl2u/${ARCH}/bl2u_entrypoint.S		\
+				plat/common/${ARCH}/platform_up_stack.S
+
+ifeq (${ARCH},aarch64)
+BL2U_SOURCES		+=	common/aarch64/early_exceptions.S
+endif
 
 BL2U_LINKERFILE		:=	bl2u/bl2u.ld.S
