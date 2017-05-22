@@ -38,7 +38,7 @@ the different software components required to boot a Linux system:
 *   Root filesystem
 
 Note: the ARM TF v1.3 release was tested with Linaro Release 16.06, and the
-latest version of ARM TF is tested with Linaro Release 16.12.
+latest version of ARM TF is tested with Linaro Release 17.01.
 
 This document also assumes that the user is familiar with the FVP models and
 the different command line options available to launch the model.
