@@ -224,6 +224,47 @@ static void _pll_resume(uint32_t pll_id)
 	set_pll_normal_mode(pll_id);
 }
 
+void set_pmu_rsthold(void)
+{
+	uint32_t rstnhold_cofig0;
+	uint32_t rstnhold_cofig1;
+
+	slp_data.pmucru_rstnhold_con0 = mmio_read_32(PMUCRU_BASE +
+					    PMUCRU_RSTNHOLD_CON0);
+	slp_data.pmucru_rstnhold_con1 = mmio_read_32(PMUCRU_BASE +
+					    PMUCRU_RSTNHOLD_CON1);
+	rstnhold_cofig0 = BIT_WITH_WMSK(PRESETN_NOC_PMU_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_INTMEM_PMU_HOLD) |
+			  BIT_WITH_WMSK(HRESETN_CM0S_PMU_HOLD) |
+			  BIT_WITH_WMSK(HRESETN_CM0S_NOC_PMU_HOLD) |
+			  BIT_WITH_WMSK(DRESETN_CM0S_PMU_HOLD) |
+			  BIT_WITH_WMSK(POESETN_CM0S_PMU_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_TIMER_PMU_0_1_HOLD) |
+			  BIT_WITH_WMSK(RESETN_TIMER_PMU_0_HOLD) |
+			  BIT_WITH_WMSK(RESETN_TIMER_PMU_1_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_UART_M0_PMU_HOLD) |
+			  BIT_WITH_WMSK(RESETN_UART_M0_PMU_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_WDT_PMU_HOLD);
+	rstnhold_cofig1 = BIT_WITH_WMSK(PRESETN_RKPWM_PMU_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_PMUGRF_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_SGRF_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_GPIO0_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_GPIO1_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_CRU_PMU_HOLD) |
+			  BIT_WITH_WMSK(PRESETN_PVTM_PMU_HOLD);
+
+	mmio_write_32(PMUCRU_BASE + PMUCRU_RSTNHOLD_CON0, rstnhold_cofig0);
+	mmio_write_32(PMUCRU_BASE + PMUCRU_RSTNHOLD_CON1, rstnhold_cofig1);
+}
+
+void restore_pmu_rsthold(void)
+{
+	mmio_write_32(PMUCRU_BASE + PMUCRU_RSTNHOLD_CON0,
+		      slp_data.pmucru_rstnhold_con0 | REG_SOC_WMSK);
+	mmio_write_32(PMUCRU_BASE + PMUCRU_RSTNHOLD_CON1,
+		      slp_data.pmucru_rstnhold_con1 | REG_SOC_WMSK);
+}
+
 /**
  * enable_dvfs_plls - To resume the specific PLLs
  *

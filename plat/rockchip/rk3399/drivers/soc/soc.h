@@ -56,6 +56,43 @@
 #define PMUCRU_GATE_CON(n)	(0x100 + (n) * 4)
 #define CRU_GATE_CON(n)	(0x300 + (n) * 4)
 
+#define PMUCRU_RSTNHOLD_CON0	0x120
+enum {
+	PRESETN_NOC_PMU_HOLD = 1,
+	PRESETN_INTMEM_PMU_HOLD,
+	HRESETN_CM0S_PMU_HOLD,
+	HRESETN_CM0S_NOC_PMU_HOLD,
+	DRESETN_CM0S_PMU_HOLD,
+	POESETN_CM0S_PMU_HOLD,
+	PRESETN_SPI3_HOLD,
+	RESETN_SPI3_HOLD,
+	PRESETN_TIMER_PMU_0_1_HOLD,
+	RESETN_TIMER_PMU_0_HOLD,
+	RESETN_TIMER_PMU_1_HOLD,
+	PRESETN_UART_M0_PMU_HOLD,
+	RESETN_UART_M0_PMU_HOLD,
+	PRESETN_WDT_PMU_HOLD
+};
+
+#define PMUCRU_RSTNHOLD_CON1	0x124
+enum {
+	PRESETN_I2C0_HOLD,
+	PRESETN_I2C4_HOLD,
+	PRESETN_I2C8_HOLD,
+	PRESETN_MAILBOX_PMU_HOLD,
+	PRESETN_RKPWM_PMU_HOLD,
+	PRESETN_PMUGRF_HOLD,
+	PRESETN_SGRF_HOLD,
+	PRESETN_GPIO0_HOLD,
+	PRESETN_GPIO1_HOLD,
+	PRESETN_CRU_PMU_HOLD,
+	PRESETN_INTR_ARB_HOLD,
+	PRESETN_PVTM_PMU_HOLD,
+	RESETN_I2C0_HOLD,
+	RESETN_I2C4_HOLD,
+	RESETN_I2C8_HOLD
+};
+
 enum plls_id {
 	ALPLL_ID = 0,
 	ABPLL_ID,
@@ -97,6 +134,8 @@ struct deepsleep_data_s {
 	uint32_t plls_con[END_PLL_ID][PLL_CON_COUNT];
 	uint32_t cru_gate_con[CRU_GATE_COUNT];
 	uint32_t pmucru_gate_con[PMUCRU_GATE_COUNT];
+	uint32_t pmucru_rstnhold_con0;
+	uint32_t pmucru_rstnhold_con1;
 };
 
 /**************************************************
@@ -256,5 +295,6 @@ void restore_abpll(void);
 void clk_gate_con_save(void);
 void clk_gate_con_disable(void);
 void clk_gate_con_restore(void);
-
+void set_pmu_rsthold(void);
+void restore_pmu_rsthold(void);
 #endif /* __SOC_H__ */

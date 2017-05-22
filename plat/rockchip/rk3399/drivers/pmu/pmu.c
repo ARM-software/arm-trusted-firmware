@@ -336,6 +336,11 @@ static void pmu_power_domains_suspend(void)
 	pmu_set_power_domain(PD_RGA, pmu_pd_off);
 	pmu_set_power_domain(PD_VCODEC, pmu_pd_off);
 	pmu_set_power_domain(PD_VDU, pmu_pd_off);
+	pmu_set_power_domain(PD_USB3, pmu_pd_off);
+	pmu_set_power_domain(PD_EMMC, pmu_pd_off);
+	pmu_set_power_domain(PD_VIO, pmu_pd_off);
+	pmu_set_power_domain(PD_SD, pmu_pd_off);
+	pmu_set_power_domain(PD_PERIHP, pmu_pd_off);
 	clk_gate_con_restore();
 }
 
@@ -371,6 +376,16 @@ static void pmu_power_domains_resume(void)
 		pmu_set_power_domain(PD_TCPD0, pmu_pd_on);
 	if (!(pmu_powerdomain_state & BIT(PD_GPU)))
 		pmu_set_power_domain(PD_GPU, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_USB3)))
+		pmu_set_power_domain(PD_USB3, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_EMMC)))
+		pmu_set_power_domain(PD_EMMC, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_VIO)))
+		pmu_set_power_domain(PD_VIO, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_SD)))
+		pmu_set_power_domain(PD_SD, pmu_pd_on);
+	if (!(pmu_powerdomain_state & BIT(PD_PERIHP)))
+		pmu_set_power_domain(PD_PERIHP, pmu_pd_on);
 	qos_restore();
 	clk_gate_con_restore();
 }
@@ -828,6 +843,7 @@ static void sys_slp_config(void)
 		      BIT_WITH_WMSK(PMU_CLR_GIC2_CORE_L_HW));
 
 	slp_mode_cfg = BIT(PMU_PWR_MODE_EN) |
+		       BIT(PMU_INPUT_CLAMP_EN) |
 		       BIT(PMU_POWER_OFF_REQ_CFG) |
 		       BIT(PMU_CPU0_PD_EN) |
 		       BIT(PMU_L2_FLUSH_EN) |
@@ -841,7 +857,9 @@ static void sys_slp_config(void)
 		       BIT(PMU_DDRC0_GATING_EN) |
 		       BIT(PMU_DDRC1_GATING_EN) |
 		       BIT(PMU_DDRIO0_RET_EN) |
+		       BIT(PMU_DDRIO0_RET_DE_REQ) |
 		       BIT(PMU_DDRIO1_RET_EN) |
+		       BIT(PMU_DDRIO1_RET_DE_REQ) |
 		       BIT(PMU_DDRIO_RET_HW_DE_REQ) |
 		       BIT(PMU_CENTER_PD_EN) |
 		       BIT(PMU_PERILP_PD_EN) |
@@ -1323,7 +1341,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 		    BIT(PMU_CLR_PERILP) |
 		    BIT(PMU_CLR_PERILPM0) |
 		    BIT(PMU_CLR_GIC));
-
+	set_pmu_rsthold();
 	sys_slp_config();
 
 	m0_configure_suspend();
@@ -1449,7 +1467,7 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	pmu_power_domains_resume();
 
 	restore_abpll();
-
+	restore_pmu_rsthold();
 	clr_hw_idle(BIT(PMU_CLR_CENTER1) |
 				BIT(PMU_CLR_ALIVE) |
 				BIT(PMU_CLR_MSCH0) |
