@@ -7,7 +7,7 @@
 #include <arm_def.h>
 #include <assert.h>
 #include <platform.h>
-#include <platform_oid.h>
+#include <tbbr_oid.h>
 #include <stdint.h>
 #include <string.h>
 

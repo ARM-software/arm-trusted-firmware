@@ -1,21 +1,17 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BOARD_ARM_OID_H__
-#define __BOARD_ARM_OID_H__
+#ifndef __TBBR_OID_H__
+#define __TBBR_OID_H__
 
 /*
  * The following is a list of OID values defined and reserved by ARM, which
  * are used to define the extension fields of the certificate structure, as
  * defined in the Trusted Board Boot Requirements (TBBR) specification,
  * ARM DEN0006C-1.
- *
- * Non-ARM platform owners that wish to align with the TBBR should define
- * constants with the same name in their own platform port(s), using their
- * own OIDs obtained from the ITU-T.
  */
 
 
@@ -140,4 +136,4 @@
 /* NonTrustedWorldBootloaderHash - BL33 */
 #define NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID	"1.3.6.1.4.1.4128.2100.1201"
 
-#endif /* __BOARD_ARM_OID_H__ */
+#endif /* __TBBR_OID_H__ */

@@ -18,12 +18,12 @@
 #include <openssl/sha.h>
 #include <openssl/x509v3.h>
 
+#include <tbbr_oid.h>
 #include "cert.h"
 #include "cmd_opt.h"
 #include "debug.h"
 #include "ext.h"
 #include "key.h"
-#include "platform_oid.h"
 #include "sha.h"
 #include "tbbr/tbb_ext.h"
 #include "tbbr/tbb_cert.h"
@@ -69,8 +69,6 @@ static int print_cert;
 
 /* Info messages created in the Makefile */
 extern const char build_msg[];
-extern const char platform_msg[];
-
 
 static char *strdup(const char *str)
 {
@@ -251,7 +249,6 @@ int main(int argc, char *argv[])
 	const EVP_MD *md_info;
 
 	NOTICE("CoT Generation Tool: %s\n", build_msg);
-	NOTICE("Target platform: %s\n", platform_msg);
 
 	/* Set default options */
 	key_alg = KEY_ALG_RSA;

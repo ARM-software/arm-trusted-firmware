@@ -6,7 +6,7 @@
 
 #include <stddef.h>
 
-#include "firmware_image_package.h"
+#include <firmware_image_package.h>
 #include "tbbr_config.h"
 
 /* The images used depends on the platform. */
