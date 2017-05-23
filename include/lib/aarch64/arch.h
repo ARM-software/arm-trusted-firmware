@@ -110,6 +110,11 @@
 #define ID_AA64PFR0_EL3_SHIFT	U(12)
 #define ID_AA64PFR0_ELX_MASK	U(0xf)
 
+/* ID_AA64DFR0_EL1.PMS definitions (for ARMv8.2+) */
+#define ID_AA64DFR0_PMS_SHIFT	U(32)
+#define ID_AA64DFR0_PMS_LENGTH	U(4)
+#define ID_AA64DFR0_PMS_MASK	U(0xf)
+
 #define EL_IMPL_NONE		U(0)
 #define EL_IMPL_A64ONLY		U(1)
 #define EL_IMPL_A64_A32		U(2)
@@ -189,6 +194,8 @@
 #define MDCR_SPD32_DISABLE	U(0x2)
 #define MDCR_SPD32_ENABLE	U(0x3)
 #define MDCR_SDD_BIT		(U(1) << 16)
+#define MDCR_NSPB(x)		((x) << 12)
+#define MDCR_NSPB_EL1		U(0x3)
 #define MDCR_TDOSA_BIT		(U(1) << 10)
 #define MDCR_TDA_BIT		(U(1) << 9)
 #define MDCR_TPM_BIT		(U(1) << 6)
@@ -199,6 +206,9 @@
 #endif
 
 /* MDCR_EL2 definitions */
+#define MDCR_EL2_TPMS		(U(1) << 14)
+#define MDCR_EL2_E2PB(x)	((x) << 12)
+#define MDCR_EL2_E2PB_EL1	U(0x3)
 #define MDCR_EL2_TDRA_BIT	(U(1) << 11)
 #define MDCR_EL2_TDOSA_BIT	(U(1) << 10)
 #define MDCR_EL2_TDA_BIT	(U(1) << 9)

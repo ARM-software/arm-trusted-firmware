@@ -218,7 +218,7 @@ void cm_init_my_context(const entry_point_info_t *ep)
  ******************************************************************************/
 void cm_prepare_el3_exit(uint32_t security_state)
 {
-	uint32_t sctlr_elx, scr_el3;
+	uint32_t sctlr_elx, scr_el3, mdcr_el2;
 	cpu_context_t *ctx = cm_get_context(security_state);
 
 	assert(ctx);
@@ -315,6 +315,13 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * relying on hw. Some fields are architecturally
 			 * UNKNOWN on reset.
 			 *
+			 * MDCR_EL2.TPMS (ARM v8.2): Do not trap statistical
+			 * profiling controls to EL2.
+			 *
+			 * MDCR_EL2.E2PB (ARM v8.2): SPE enabled in non-secure
+			 * state. Accesses to profiling buffer controls at
+			 * non-secure EL1 are not trapped to EL2.
+			 *
 			 * MDCR_EL2.TDRA: Set to zero so that Non-secure EL0 and
 			 *  EL1 System register accesses to the Debug ROM
 			 *  registers are not trapped to EL2.
@@ -343,13 +350,32 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * MDCR_EL2.HPMN: Set to value of PMCR_EL0.N which is the
 			 *  architecturally-defined reset value.
 			 */
-			write_mdcr_el2((MDCR_EL2_RESET_VAL |
+			mdcr_el2 = ((MDCR_EL2_RESET_VAL |
 					((read_pmcr_el0() & PMCR_EL0_N_BITS)
 					>> PMCR_EL0_N_SHIFT)) &
 					~(MDCR_EL2_TDRA_BIT | MDCR_EL2_TDOSA_BIT
 					| MDCR_EL2_TDA_BIT | MDCR_EL2_TDE_BIT
 					| MDCR_EL2_HPME_BIT | MDCR_EL2_TPM_BIT
 					| MDCR_EL2_TPMCR_BIT));
+
+#if ENABLE_SPE_FOR_LOWER_ELS
+			uint64_t id_aa64dfr0_el1;
+
+			/* Detect if SPE is implemented */
+			id_aa64dfr0_el1 = read_id_aa64dfr0_el1() >>
+				ID_AA64DFR0_PMS_SHIFT;
+			if ((id_aa64dfr0_el1 & ID_AA64DFR0_PMS_MASK) == 1) {
+				/*
+				 * Make sure traps to EL2 are not generated if
+				 * EL2 is implemented but not used.
+				 */
+				mdcr_el2 &= ~MDCR_EL2_TPMS;
+				mdcr_el2 |= MDCR_EL2_E2PB(MDCR_EL2_E2PB_EL1);
+			}
+#endif
+
+			write_mdcr_el2(mdcr_el2);
+
 			/*
 			 * Initialise HSTR_EL2. All fields are architecturally
 			 * UNKNOWN on reset.
@@ -389,6 +415,7 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 	assert(ctx);
 
 	el1_sysregs_context_save(get_sysregs_ctx(ctx));
+	el1_sysregs_context_save_post_ops();
 }
 
 void cm_el1_sysregs_context_restore(uint32_t security_state)

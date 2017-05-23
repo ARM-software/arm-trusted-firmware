@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <context.h>
 
 	.global	el1_sysregs_context_save
+	.global el1_sysregs_context_save_post_ops
 	.global	el1_sysregs_context_restore
 #if CTX_INCLUDE_FPREGS
 	.global	fpregs_context_save
@@ -107,6 +108,36 @@ func el1_sysregs_context_save
 
 	ret
 endfunc el1_sysregs_context_save
+
+/* -----------------------------------------------------
+ * The following function strictly follows the AArch64
+ * PCS to use x9-x17 (temporary caller-saved registers)
+ * to do post operations after saving the EL1 system
+ * register context.
+ * -----------------------------------------------------
+ */
+func el1_sysregs_context_save_post_ops
+#if ENABLE_SPE_FOR_LOWER_ELS
+	/* Detect if SPE is implemented */
+	mrs	x9, id_aa64dfr0_el1
+	ubfx	x9, x9, #ID_AA64DFR0_PMS_SHIFT, #ID_AA64DFR0_PMS_LENGTH
+	cmp	x9, #0x1
+	b.ne	1f
+
+	/*
+	 * Before switching from normal world to secure world
+	 * the profiling buffers need to be drained out to memory.  This is
+	 * required to avoid an invalid memory access when TTBR is switched
+	 * for entry to SEL1.
+	 */
+	.arch	armv8.2-a+profile
+	psb	csync
+	dsb	nsh
+	.arch	armv8-a
+1:
+#endif
+	ret
+endfunc el1_sysregs_context_save_post_ops
 
 /* -----------------------------------------------------
  * The following function strictly follows the AArch64
@@ -343,7 +374,7 @@ func restore_gp_registers_callee_eret
 	ldp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
 	ldp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
 	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	ldp	 x30, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	ldp	x30, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	msr	sp_el0, x17
 	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
 	eret
