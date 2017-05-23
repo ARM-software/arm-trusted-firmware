@@ -87,6 +87,9 @@ SEPARATE_CODE_AND_RODATA	:=	1
 # Enable new version of image loading on ARM platforms
 LOAD_IMAGE_V2			:=	1
 
+# Use generic OID definition (tbbr_oid.h)
+USE_TBBR_DEFS			:=	1
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common
 

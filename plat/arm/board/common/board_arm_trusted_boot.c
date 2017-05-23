@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,9 +7,9 @@
 #include <arm_def.h>
 #include <assert.h>
 #include <platform.h>
-#include <platform_oid.h>
 #include <stdint.h>
 #include <string.h>
+#include <tbbr_oid.h>
 
 /* Weak definition may be overridden in specific platform */
 #pragma weak plat_match_rotpk
