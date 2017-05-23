@@ -73,6 +73,10 @@ In addition, the following optional packages and tools may be needed:
 
 -  For debugging, ARM `Development Studio 5 (DS-5)`_.
 
+-  To create and modify the diagram files included in the documentation, `Dia`_.
+   This tool can be found in most Linux distributions. Inkscape is needed to
+   generate the actual *.png files.
+
 Getting the Trusted Firmware source code
 ----------------------------------------
 
@@ -1739,6 +1743,7 @@ wakeup interrupt from RTC.
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/b/documents/posts/using-linaros-deliverables-on-juno
 .. _ARM Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
+.. _Dia: https://wiki.gnome.org/Apps/Dia/Download
 .. _here: psci-lib-integration-guide.rst
 .. _Trusted Board Boot: trusted-board-boot.rst
 .. _Secure-EL1 Payloads and Dispatchers: firmware-design.rst#user-content-secure-el1-payloads-and-dispatchers
