@@ -58,3 +58,20 @@ BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c	\
 				plat/hisilicon/hikey/hikey_io_storage.c	\
 				plat/hisilicon/hikey/hisi_dvfs.c	\
 				plat/hisilicon/hikey/hisi_mcu.c
+
+HIKEY_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
+				drivers/arm/gic/v2/gicv2_main.c		\
+				drivers/arm/gic/v2/gicv2_helpers.c	\
+				plat/common/plat_gicv2.c
+
+BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
+				lib/cpus/aarch64/cortex_a53.S		\
+				plat/common/aarch64/plat_psci_common.c	\
+				plat/hisilicon/hikey/aarch64/hikey_helpers.S \
+				plat/hisilicon/hikey/hikey_bl31_setup.c	\
+				plat/hisilicon/hikey/hikey_pm.c		\
+				plat/hisilicon/hikey/hikey_topology.c	\
+				plat/hisilicon/hikey/hisi_ipc.c		\
+				plat/hisilicon/hikey/hisi_pwrc.c	\
+				plat/hisilicon/hikey/hisi_pwrc_sram.S	\
+				${HIKEY_GIC_SOURCES}
