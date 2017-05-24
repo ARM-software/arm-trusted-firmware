@@ -909,8 +909,12 @@ int verify_hash(void *data_ptr, unsigned int data_len,
 ```
 
 The key algorithm (rsa, ecdsa) must be specified in the build system using the
-`MBEDTLS_KEY_ALG` variable, so the Makefile can include the corresponding
+`TF_MBEDTLS_KEY_ALG` variable, so the Makefile can include the corresponding
 sources in the build.
+
+Note: If code size is a concern, the build option `MBEDTLS_SHA256_SMALLER` can
+be defined in the platform Makefile. It will make mbed TLS use an implementation
+of SHA-256 with smaller memory footprint (~1.5 KB less) but slower (~30%).
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 

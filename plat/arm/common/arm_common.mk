@@ -76,6 +76,10 @@ ARM_XLAT_TABLES_LIB_V1		:=	0
 $(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
+# Use an implementation of SHA-256 with a smaller memory footprint but reduced
+# speed.
+$(eval $(call add_define,MBEDTLS_SHA256_SMALLER))
+
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
 ENABLE_PSCI_STAT		:=	1
 ENABLE_PMF			:=	1
