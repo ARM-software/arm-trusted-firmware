@@ -259,8 +259,8 @@ func print_errata_status
 	/*
 	 * Printing errata status requires atomically testing the printed flag.
 	 */
-	stp	x8, x30, [sp, #-16]!
-	mov	x8, x0
+	stp	x19, x30, [sp, #-16]!
+	mov	x19, x0
 
 	/*
 	 * Load pointers to errata lock and printed flag. Call
@@ -270,8 +270,8 @@ func print_errata_status
 	ldr	x0, [x1, #CPU_ERRATA_LOCK]
 	ldr	x1, [x1, #CPU_ERRATA_PRINTED]
 	bl	errata_needs_reporting
-	mov	x1, x8
-	ldp	x8, x30, [sp], #16
+	mov	x1, x19
+	ldp	x19, x30, [sp], #16
 	cbnz	x0, .Lprint
 #endif
 .Lnoprint:

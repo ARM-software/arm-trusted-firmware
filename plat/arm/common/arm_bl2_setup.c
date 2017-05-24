@@ -13,6 +13,7 @@
 #include <desc_image_load.h>
 #include <plat_arm.h>
 #include <platform_def.h>
+#include <platform.h>
 #include <string.h>
 #include <utils.h>
 
