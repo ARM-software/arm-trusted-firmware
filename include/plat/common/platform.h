@@ -38,7 +38,10 @@ struct bl_params;
 /*******************************************************************************
  * Mandatory common functions
  ******************************************************************************/
-unsigned long long plat_get_syscnt_freq(void) __deprecated;
+static inline unsigned long long plat_get_syscnt_freq(void)
+{
+        return 0;
+}
 unsigned int plat_get_syscnt_freq2(void);
 
 int plat_get_image_source(unsigned int image_id,
@@ -319,7 +322,10 @@ unsigned int plat_get_aff_state(unsigned int, unsigned long);
  * haven't migrated to the new platform API to compile on platforms which
  * have the compatibility layer disabled.
  */
-unsigned int platform_get_core_pos(unsigned long mpidr) __deprecated;
+static inline unsigned int platform_get_core_pos(unsigned long mpidr)
+{
+        return 0;
+}
 
 #endif /* __ENABLE_PLAT_COMPAT__ */
 
