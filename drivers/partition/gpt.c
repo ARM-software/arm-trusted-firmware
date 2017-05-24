@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <errno.h>
-#include <gpt.h>
+#include <partition/gpt.h>
 #include <string.h>
 #include <utils.h>
 
