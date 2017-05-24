@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,8 +10,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "firmware_image_package.h"
-#include "uuid.h"
+#include <firmware_image_package.h>
+#include <uuid.h>
 
 #define NELEM(x) (sizeof (x) / sizeof *(x))
 

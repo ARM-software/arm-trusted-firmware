@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#include "uuid.h"
+#include <uuid.h>
 
 /* TODO: Update this number as required */
 #define TOC_HEADER_SERIAL_NUMBER 0x12345678

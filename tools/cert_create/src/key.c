@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,11 +13,16 @@
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 
+#if USE_TBBR_DEFS
+#include <tbbr_oid.h>
+#else
+#include <platform_oid.h>
+#endif
+
 #include "cert.h"
 #include "cmd_opt.h"
 #include "debug.h"
 #include "key.h"
-#include "platform_oid.h"
 #include "sha.h"
 
 #define MAX_FILENAME_LEN		1024

@@ -54,7 +54,7 @@ endef
 # Convenience function for verifying option has a boolean value
 # $(eval $(call assert_boolean,FOO)) will assert FOO is 0 or 1
 define assert_boolean
-    $(and $(patsubst 0,,$(value $(1))),$(patsubst 1,,$(value $(1))),$(error $(1) must be boolean))
+    $(if $(filter-out 0 1,$($1)),$(error $1 must be boolean))
 endef
 
 0-9 := 0 1 2 3 4 5 6 7 8 9
