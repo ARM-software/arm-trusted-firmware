@@ -1,6 +1,8 @@
 ARM Trusted Firmware - version 1.3
 ==================================
 
+TEST CHANGE 2
+
 ARM Trusted Firmware provides a reference implementation of secure world
 software for [ARMv8-A], including a [Secure Monitor] [TEE-SMC] executing at
 Exception Level 3 (EL3). It implements various ARM interface standards, such as
