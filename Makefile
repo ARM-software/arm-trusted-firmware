@@ -113,6 +113,9 @@ endif
 # Toolchain
 ################################################################################
 
+HOSTCC			:=	gcc
+export HOSTCC
+
 CC			:=	${CROSS_COMPILE}gcc
 CPP			:=	${CROSS_COMPILE}cpp
 AS			:=	${CROSS_COMPILE}gcc
@@ -123,11 +126,21 @@ OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
 
-ASFLAGS_aarch64		=	-mgeneral-regs-only
-TF_CFLAGS_aarch64	=	-mgeneral-regs-only -mstrict-align
+ifeq ($(notdir $(CC)),armclang)
+TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi -march=armv8-a
+TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
+else ifneq ($(findstring clang,$(notdir $(CC))),)
+TF_CFLAGS_aarch32	=	-target armv8a-none-eabi
+TF_CFLAGS_aarch64	=	-target aarch64-elf
+else
+TF_CFLAGS_aarch32	=	-march=armv8-a
+TF_CFLAGS_aarch64	=	-march=armv8-a
+endif
+
+TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 
 ASFLAGS_aarch32		=	-march=armv8-a
-TF_CFLAGS_aarch32	=	-march=armv8-a
+ASFLAGS_aarch64		=	-march=armv8-a
 
 CPPFLAGS		=	${DEFINES} ${INCLUDES} -nostdinc		\
 				-Wmissing-include-dirs -Werror
@@ -135,8 +148,8 @@ ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-D__ASSEMBLY__ -ffreestanding 			\
 				-Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
-				-ffreestanding -fno-builtin -Wall -std=c99 -Os	\
-				-ffunction-sections -fdata-sections
+				-ffreestanding -fno-builtin -Wall -std=gnu99	\
+				-Os -ffunction-sections -fdata-sections
 
 LDFLAGS			+=	--fatal-warnings -O1
 LDFLAGS			+=	--gc-sections

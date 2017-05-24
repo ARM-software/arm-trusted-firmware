@@ -36,8 +36,8 @@ static inline u_register_t read_ ## _name(void)				\
  *  systems for GCC versions < 4.6. Above GCC 4.6, both Little Endian and
  *  Big Endian systems generate the right instruction encoding.
  */
-#if !(__GNUC__ > (4) || __GNUC__ == (4) && __GNUC_MINOR__ >= (6))
-#error "GCC 4.6 or above is required to build AArch32 Trusted Firmware"
+#if !(__clang__ || __GNUC__ > (4) || __GNUC__ == (4) && __GNUC_MINOR__ >= (6))
+#error "clang or GCC 4.6 or above is required to build AArch32 Trusted Firmware"
 #endif
 
 #define _DEFINE_COPROCR_WRITE_FUNC_64(_name, coproc, opc1, CRm)		\
