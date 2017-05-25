@@ -42,8 +42,14 @@
  ******************************************************************************/
 #define CPUACTLR_EL1			S3_1_C15_C2_0	/* Instruction def. */
 
-#define CPUACTLR_DTAH			(1 << 24)
-#define CPUACTLR_ENDCCASCI		(1 << 44)
+#define CPUACTLR_ENDCCASCI_SHIFT	44
+#define CPUACTLR_ENDCCASCI		(1 << CPUACTLR_ENDCCASCI_SHIFT)
+#define CPUACTLR_RADIS_SHIFT		27
+#define CPUACTLR_RADIS			(3 << CPUACTLR_RADIS_SHIFT)
+#define CPUACTLR_L1RADIS_SHIFT		25
+#define CPUACTLR_L1RADIS		(3 << CPUACTLR_L1RADIS_SHIFT)
+#define CPUACTLR_DTAH_SHIFT		24
+#define CPUACTLR_DTAH			(1 << CPUACTLR_DTAH_SHIFT)
 
 /*******************************************************************************
  * L2 Auxiliary Control register specific definitions.
