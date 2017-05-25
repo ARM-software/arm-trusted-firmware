@@ -15,14 +15,19 @@
 #include <memctrl.h>
 #include <common/runtime_svc.h>
 #include <tegra_private.h>
+#include <tegra_platform.h>
+#include <stdbool.h>
 
 extern uint32_t tegra186_system_powerdn_state;
+
+extern bool tegra_fake_system_suspend;
 
 /*******************************************************************************
  * Tegra186 SiP SMCs
  ******************************************************************************/
 #define TEGRA_SIP_SYSTEM_SHUTDOWN_STATE			0xC2FFFE01
 #define TEGRA_SIP_GET_ACTMON_CLK_COUNTERS		0xC2FFFE02
+#define TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND		0xC2FFFE03
 #define TEGRA_SIP_MCE_CMD_ENTER_CSTATE			0xC2FFFF00
 #define TEGRA_SIP_MCE_CMD_UPDATE_CSTATE_INFO		0xC2FFFF01
 #define TEGRA_SIP_MCE_CMD_UPDATE_CROSSOVER_TIME		0xC2FFFF02
@@ -109,6 +114,22 @@ int plat_sip_handler(uint32_t smc_fid,
 		 */
 
 		return 0;
+
+	case TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND:
+		/*
+		 * System suspend mode is set if the platform ATF is running is
+		 * VDK and there is a debug SIP call. This mode ensures that the
+		 * debug path is excercied, instead of regular code path to suit
+		 * the pre-silicon platform needs. These include replacing the
+		 * the call to WFI with calls to system suspend exit procedures.
+		 */
+		if (tegra_platform_is_virt_dev_kit()) {
+
+			tegra_fake_system_suspend = true;
+			return 0;
+		}
+
+		break;
 
 	default:
 		break;

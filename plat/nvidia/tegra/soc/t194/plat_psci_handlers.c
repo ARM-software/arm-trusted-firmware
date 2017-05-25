@@ -19,10 +19,11 @@
 #include <string.h>
 #include <tegra_private.h>
 #include <t194_nvg.h>
+#include <stdbool.h>
 
 extern void prepare_core_pwr_dwn(void);
 
-extern uint8_t tegra_fake_system_suspend;
+extern void tegra_secure_entrypoint(void);
 
 #if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
 extern void tegra186_cpu_reset_handler(void);
@@ -47,6 +48,14 @@ static uint32_t se_regs[TEGRA186_SE_CONTEXT_SIZE];
 static struct t18x_psci_percpu_data {
 	unsigned int wake_time;
 } __aligned(CACHE_WRITEBACK_GRANULE) percpu_data[PLATFORM_CORE_COUNT];
+
+/*
+ * tegra_fake_system_suspend acts as a boolean var controlling whether
+ * we are going to take fake system suspend code or normal system suspend code
+ * path. This variable is set inside the sip call handlers, when the kernel
+ * requests an SIP call to set the suspend debug flags.
+ */
+bool tegra_fake_system_suspend;
 
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
@@ -96,8 +105,14 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint64_t smmu_ctx_base;
 #endif
 	uint32_t val;
-	mce_cstate_info_t cstate_info = { 0 };
+	mce_cstate_info_t sc7_cstate_info = {
+		.cluster = TEGRA_NVG_CLUSTER_CC6,
+		.system = TEGRA_NVG_SYSTEM_SC7,
+		.system_state_force = 1,
+		.update_wake_mask = 1,
+	};
 	int cpu = plat_my_core_pos();
+	int32_t ret = 0;
 
 	/* get the state ID */
 	pwr_domain_state = target_state->pwr_domain_state;
@@ -112,8 +127,9 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		/* Enter CPU idle/powerdown */
 		val = (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ?
 			TEGRA_NVG_CORE_C6 : TEGRA_NVG_CORE_C7;
-		(void)mce_command_handler(MCE_CMD_ENTER_CSTATE, val,
+		ret = mce_command_handler(MCE_CMD_ENTER_CSTATE, val,
 				percpu_data[cpu].wake_time, 0);
+		assert(ret == 0);
 
 	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
@@ -140,15 +156,10 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		tegra_smmu_save_context(0);
 #endif
 
-		if (tegra_fake_system_suspend == 0U) {
+		if (!tegra_fake_system_suspend) {
 
 			/* Prepare for system suspend */
-			cstate_info.cluster = TEGRA_NVG_CLUSTER_CC6;
-			cstate_info.system = TEGRA_NVG_SYSTEM_SC7;
-			cstate_info.system_state_force = 1;
-			cstate_info.update_wake_mask = 1;
-
-			mce_update_cstate_info(&cstate_info);
+			mce_update_cstate_info(&sc7_cstate_info);
 
 			do {
 				val = mce_command_handler(
@@ -230,6 +241,7 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 	unsigned int stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA186_STATE_ID_MASK;
 	uint64_t val;
+	u_register_t ns_sctlr_el1;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 		/*
@@ -242,6 +254,31 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 			 (uintptr_t)tegra186_cpu_reset_handler);
 		memcpy((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 		       (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
+
+
+		/*
+		 * In fake suspend mode, ensure that the loopback procedure
+		 * towards system suspend exit is started, instead of calling
+		 * WFI. This is done by disabling both MMU's of EL1 & El3
+		 * and calling tegra_secure_entrypoint().
+		 */
+		if (tegra_fake_system_suspend) {
+
+			/*
+			 * Disable EL1's MMU.
+			 */
+			ns_sctlr_el1 = read_sctlr_el1();
+			ns_sctlr_el1 &= (~((u_register_t)SCTLR_M_BIT));
+			write_sctlr_el1(ns_sctlr_el1);
+
+			/*
+			 * Disable MMU to power up the CPU in a "clean"
+			 * state
+			 */
+			disable_mmu_el3();
+			tegra_secure_entrypoint();
+			panic();
+		}
 	}
 
 	return PSCI_E_SUCCESS;
