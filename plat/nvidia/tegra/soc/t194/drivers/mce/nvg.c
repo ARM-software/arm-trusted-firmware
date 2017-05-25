@@ -187,9 +187,15 @@ int32_t nvg_set_cstate_stat_query_value(uint64_t data)
 {
 	int32_t ret = 0;
 
-	/* sanity check stat id */
-	if (data > (uint64_t)NVG_STAT_QUERY_C7_RESIDENCY_SUM) {
-		ERROR("%s: unknown stat id (%d)\n", __func__, (uint32_t)data);
+	/* sanity check stat id and core id*/
+	if ((data >> MCE_STAT_ID_SHIFT) >
+		(uint64_t)NVG_STAT_QUERY_C7_RESIDENCY_SUM) {
+		ERROR("%s: unknown stat id (%d)\n", __func__,
+			(uint32_t)(data >> MCE_STAT_ID_SHIFT));
+		ret = EINVAL;
+	} else if ((data & MCE_CORE_ID_MASK) > (uint64_t)PLATFORM_CORE_COUNT) {
+		ERROR("%s: unknown core id (%d)\n", __func__,
+			(uint32_t)(data & MCE_CORE_ID_MASK));
 		ret = EINVAL;
 	} else {
 		nvg_set_request_data(TEGRA_NVG_CHANNEL_CSTATE_STAT_QUERY_REQUEST, data);

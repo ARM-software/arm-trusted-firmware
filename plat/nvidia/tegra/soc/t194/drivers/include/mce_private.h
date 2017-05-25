@@ -46,6 +46,11 @@
 #define CACHE_CLEAN_INVAL_SET			(1UL << 1)
 #define CACHE_CLEAN_INVAL_TR_SET		(1UL << 2)
 
+/*******************************************************************************
+ * C-state statistics macros
+ ******************************************************************************/
+#define MCE_STAT_ID_SHIFT			16UL
+
 /* declarations for NVG handler functions */
 uint64_t nvg_get_version(void);
 int32_t nvg_enable_power_perf_mode(void);
