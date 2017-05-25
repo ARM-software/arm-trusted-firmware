@@ -9,18 +9,12 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <getopt.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-
-#include <openssl/sha.h>
-
-#include <firmware_image_package.h>
 
 #include "fiptool.h"
 #include "tbbr_config.h"
@@ -161,7 +155,7 @@ static void set_image_desc_action(image_desc_t *desc, int action,
 {
 	assert(desc != NULL);
 
-	if (desc->action_arg != DO_UNSPEC)
+	if (desc->action_arg != (char *)DO_UNSPEC)
 		free(desc->action_arg);
 	desc->action = action;
 	desc->action_arg = NULL;
@@ -278,7 +272,7 @@ static void uuid_from_str(uuid_t *u, const char *s)
 
 static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 {
-	struct stat st;
+	struct BLD_PLAT_STAT st;
 	FILE *fp;
 	char *buf, *bufend;
 	fip_toc_header_t *toc_header;
@@ -370,11 +364,12 @@ static int parse_fip(const char *filename, fip_toc_header_t *toc_header_out)
 
 static image_t *read_image_from_file(const uuid_t *uuid, const char *filename)
 {
-	struct stat st;
+	struct BLD_PLAT_STAT st;
 	image_t *image;
 	FILE *fp;
 
 	assert(uuid != NULL);
+	assert(filename != NULL);
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL)
@@ -469,6 +464,7 @@ static int info_cmd(int argc, char *argv[])
 		       (unsigned long long)image->toc_e.offset_address,
 		       (unsigned long long)image->toc_e.size,
 		       desc->cmdline_name);
+#ifndef _MSC_VER	/* We don't have SHA256 for Visual Studio. */
 		if (verbose) {
 			unsigned char md[SHA256_DIGEST_LENGTH];
 
@@ -476,6 +472,7 @@ static int info_cmd(int argc, char *argv[])
 			printf(", sha256=");
 			md_print(md, sizeof(md));
 		}
+#endif
 		putchar('\n');
 	}
 

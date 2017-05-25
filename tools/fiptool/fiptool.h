@@ -13,6 +13,8 @@
 #include <firmware_image_package.h>
 #include <uuid.h>
 
+#include "fiptool_platform.h"
+
 #define NELEM(x) (sizeof (x) / sizeof *(x))
 
 enum {
