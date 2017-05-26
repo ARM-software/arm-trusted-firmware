@@ -531,7 +531,7 @@ static __pmusramfunc void pctl_cfg(uint32_t ch,
 
 	for (i = 0; i < 4; i++)
 		sram_regcpy(PHY_REG(ch, 128 * i),
-			    (uintptr_t)&phy_regs->phy0[i][0], 91);
+			    (uintptr_t)&phy_regs->phy0[0], 91);
 
 	for (i = 0; i < 3; i++)
 		sram_regcpy(PHY_REG(ch, 512 + 128 * i),
@@ -698,9 +698,8 @@ void dmc_suspend(void)
 	/* mask DENALI_PI_00_DATA.START, only copy here, will trigger later*/
 	params_pi[0] &= ~(0x1 << 0);
 
-	for (i = 0; i < 4; i++)
-		dram_regcpy((uintptr_t)&phy_regs->phy0[i][0],
-			    PHY_REG(0, 128 * i), 91);
+	dram_regcpy((uintptr_t)&phy_regs->phy0[0],
+			    PHY_REG(0, 0), 91);
 
 	for (i = 0; i < 3; i++)
 		dram_regcpy((uintptr_t)&phy_regs->phy512[i][0],
