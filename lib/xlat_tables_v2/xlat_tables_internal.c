@@ -1042,6 +1042,30 @@ static void xlat_tables_print_internal(const uintptr_t table_base_va,
 void xlat_tables_print(xlat_ctx_t *ctx)
 {
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	VERBOSE("Translation tables state:\n");
+	VERBOSE("  Max allowed PA:  0x%llx\n", ctx->pa_max_address);
+	VERBOSE("  Max allowed VA:  %p\n", (void *) ctx->va_max_address);
+	VERBOSE("  Max mapped PA:   0x%llx\n", ctx->max_pa);
+	VERBOSE("  Max mapped VA:   %p\n", (void *) ctx->max_va);
+
+	VERBOSE("  Initial lookup level: %i\n", ctx->base_level);
+	VERBOSE("  Entries @initial lookup level: %i\n",
+		ctx->base_table_entries);
+
+	int used_page_tables;
+#if PLAT_XLAT_TABLES_DYNAMIC
+	used_page_tables = 0;
+	for (int i = 0; i < ctx->tables_num; ++i) {
+		if (ctx->tables_mapped_regions[i] != 0)
+			++used_page_tables;
+	}
+#else
+	used_page_tables = ctx->next_table;
+#endif
+	VERBOSE("  Used %i sub-tables out of %i (spare: %i)\n",
+		used_page_tables, ctx->tables_num,
+		ctx->tables_num - used_page_tables);
+
 	xlat_tables_print_internal(0, ctx->base_table, ctx->base_table_entries,
 				   ctx->base_level, ctx->execute_never_mask);
 #endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
