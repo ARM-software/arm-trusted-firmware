@@ -12,16 +12,16 @@
 /*******************************************************************************
  * Constants for the types of interrupts recognised by the IM framework
  ******************************************************************************/
-#define INTR_TYPE_S_EL1			0
-#define INTR_TYPE_EL3			1
-#define INTR_TYPE_NS			2
-#define MAX_INTR_TYPES			3
+#define INTR_TYPE_S_EL1			U(0)
+#define INTR_TYPE_EL3			U(1)
+#define INTR_TYPE_NS			U(2)
+#define MAX_INTR_TYPES			U(3)
 #define INTR_TYPE_INVAL			MAX_INTR_TYPES
 /*
  * Constant passed to the interrupt handler in the 'id' field when the
  * framework does not read the gic registers to determine the interrupt id.
  */
-#define INTR_ID_UNAVAILABLE		0xFFFFFFFF
+#define INTR_ID_UNAVAILABLE		U(0xFFFFFFFF)
 
 
 /*******************************************************************************
@@ -29,37 +29,37 @@
  * constants to define the valid routing models for each supported interrupt
  * type
  ******************************************************************************/
-#define INTR_RM_FLAGS_SHIFT		0x0
-#define INTR_RM_FLAGS_MASK		0x3
+#define INTR_RM_FLAGS_SHIFT		U(0x0)
+#define INTR_RM_FLAGS_MASK		U(0x3)
 /* Routed to EL3 from NS. Taken to S-EL1 from Secure */
-#define INTR_SEL1_VALID_RM0		0x2
+#define INTR_SEL1_VALID_RM0		U(0x2)
 /* Routed to EL3 from NS and Secure */
-#define INTR_SEL1_VALID_RM1		0x3
+#define INTR_SEL1_VALID_RM1		U(0x3)
 /* Routed to EL1/EL2 from NS and to S-EL1 from Secure */
-#define INTR_NS_VALID_RM0		0x0
+#define INTR_NS_VALID_RM0		U(0x0)
 /* Routed to EL1/EL2 from NS and to EL3 from Secure */
-#define INTR_NS_VALID_RM1		0x1
+#define INTR_NS_VALID_RM1		U(0x1)
 /* Routed to EL3 from NS. Taken to S-EL1 from Secure and handed over to EL3 */
-#define INTR_EL3_VALID_RM0		0x2
+#define INTR_EL3_VALID_RM0		U(0x2)
 /* Routed to EL3 from NS and Secure */
-#define INTR_EL3_VALID_RM1		0x3
+#define INTR_EL3_VALID_RM1		U(0x3)
 /* This is the default routing model */
-#define INTR_DEFAULT_RM		0x0
+#define INTR_DEFAULT_RM			U(0x0)
 
 /*******************************************************************************
  * Constants for the _individual_ routing model bits in the 'flags' field for
  * each interrupt type and mask to validate the 'flags' parameter while
  * registering an interrupt handler
  ******************************************************************************/
-#define INTR_TYPE_FLAGS_MASK		0xFFFFFFFC
+#define INTR_TYPE_FLAGS_MASK		U(0xFFFFFFFC)
 
 #define INTR_RM_FROM_SEC_SHIFT		SECURE		/* BIT[0] */
 #define INTR_RM_FROM_NS_SHIFT		NON_SECURE	/* BIT[1] */
-#define INTR_RM_FROM_FLAG_MASK		1
+#define INTR_RM_FROM_FLAG_MASK		U(1)
 #define get_interrupt_rm_flag(flag, ss)	(((flag >> INTR_RM_FLAGS_SHIFT) >> ss) \
 					 & INTR_RM_FROM_FLAG_MASK)
-#define set_interrupt_rm_flag(flag, ss)	(flag |= 1 << ss)
-#define clr_interrupt_rm_flag(flag, ss)	(flag &= ~(1 << ss))
+#define set_interrupt_rm_flag(flag, ss)	(flag |= U(1) << ss)
+#define clr_interrupt_rm_flag(flag, ss)	(flag &= ~(U(1) << ss))
 
 
 /*******************************************************************************
@@ -67,16 +67,16 @@
  * of interrupt. If the model does not match one of the valid masks
  * -EINVAL is returned.
  ******************************************************************************/
-#define validate_sel1_interrupt_rm(x)	((x) == INTR_SEL1_VALID_RM0 ? 0 : \
-					 ((x) == INTR_SEL1_VALID_RM1 ? 0 :\
+#define validate_sel1_interrupt_rm(x)	((x) == INTR_SEL1_VALID_RM0 ? U(0) : \
+					 ((x) == INTR_SEL1_VALID_RM1 ? U(0) :\
 					  -EINVAL))
 
-#define validate_ns_interrupt_rm(x)	((x) == INTR_NS_VALID_RM0 ? 0 : \
-					 ((x) == INTR_NS_VALID_RM1 ? 0 :\
+#define validate_ns_interrupt_rm(x)	((x) == INTR_NS_VALID_RM0 ? U(0) : \
+					 ((x) == INTR_NS_VALID_RM1 ? U(0) :\
 					  -EINVAL))
 
-#define validate_el3_interrupt_rm(x)	((x) == INTR_EL3_VALID_RM0 ? 0 : \
-					 ((x) == INTR_EL3_VALID_RM1 ? 0 :\
+#define validate_el3_interrupt_rm(x)	((x) == INTR_EL3_VALID_RM0 ? U(0) : \
+					 ((x) == INTR_EL3_VALID_RM1 ? U(0) :\
 					  -EINVAL))
 
 /*******************************************************************************
@@ -84,10 +84,10 @@
  * the flag to indicate the security state when the exception was generated is
  * supported.
  ******************************************************************************/
-#define INTR_SRC_SS_FLAG_SHIFT		0		/* BIT[0] */
-#define INTR_SRC_SS_FLAG_MASK		1
+#define INTR_SRC_SS_FLAG_SHIFT		U(0)		/* BIT[0] */
+#define INTR_SRC_SS_FLAG_MASK		U(1)
 #define set_interrupt_src_ss(flag, val)	(flag |= val << INTR_SRC_SS_FLAG_SHIFT)
-#define clr_interrupt_src_ss(flag)	(flag &= ~(1 << INTR_SRC_SS_FLAG_SHIFT))
+#define clr_interrupt_src_ss(flag)	(flag &= ~(U(1) << INTR_SRC_SS_FLAG_SHIFT))
 #define get_interrupt_src_ss(flag)	((flag >> INTR_SRC_SS_FLAG_SHIFT) & \
 					 INTR_SRC_SS_FLAG_MASK)
 
