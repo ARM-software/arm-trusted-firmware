@@ -36,6 +36,10 @@ arm_config_t arm_config;
 					DEVICE1_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
+/*
+ * Need to be mapped with write permissions in order to set a new non-volatile
+ * counter value.
+ */
 #define MAP_DEVICE2	MAP_REGION_FLAT(DEVICE2_BASE,			\
 					DEVICE2_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
@@ -56,8 +60,10 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
-	MAP_DEVICE2,
 #if TRUSTED_BOARD_BOOT
+	/* To access the Root of Trust Public Key registers. */
+	MAP_DEVICE2,
+	/* Map DRAM to authenticate NS_BL2U image. */
 	ARM_MAP_NS_DRAM1,
 #endif
 	{0}
@@ -70,9 +76,12 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
-	MAP_DEVICE2,
 	ARM_MAP_NS_DRAM1,
 	ARM_MAP_TSP_SEC_MEM,
+#if TRUSTED_BOARD_BOOT
+	/* To access the Root of Trust Public Key registers. */
+	MAP_DEVICE2,
+#endif
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif
