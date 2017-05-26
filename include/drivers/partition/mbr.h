@@ -16,6 +16,7 @@
 
 #define MBR_SIGNATURE_FIRST		0x55
 #define MBR_SIGNATURE_SECOND		0xAA
+#define MBR_SIGNATURE_OFFSET 		0x1FE
 
 typedef struct mbr_entry {
 	unsigned char		status;
