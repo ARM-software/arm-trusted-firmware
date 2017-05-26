@@ -13,7 +13,7 @@
 #include <platform.h>
 #include <string.h>
 
-static uint8_t mbr_sector[PLAT_PARTITION_BLOCK_SIZE];
+static uint8_t *mbr_sector;
 partition_entry_list_t list;
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
@@ -41,7 +41,8 @@ static void dump_entries(int num)
  * Load the first sector that carries MBR header.
  * The MBR boot signature should be always valid whether it's MBR or GPT.
  */
-static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
+static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry,
+			   uintptr_t buf)
 {
 	size_t bytes_read;
 	uintptr_t offset;
@@ -54,19 +55,20 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
 		WARN("Failed to seek (%i)\n", result);
 		return result;
 	}
-	result = io_read(image_handle, (uintptr_t)&mbr_sector,
-			 PLAT_PARTITION_BLOCK_SIZE, &bytes_read);
+	result = io_read(image_handle, buf, PLAT_PARTITION_BLOCK_SIZE,
+			 &bytes_read);
 	if (result != 0) {
 		WARN("Failed to read data (%i)\n", result);
 		return result;
 	}
+	mbr_sector = (uint8_t *)buf;
 
 	/* Check MBR boot signature. */
 	if ((mbr_sector[MBR_SIGNATURE_OFFSET] != MBR_SIGNATURE_FIRST) ||
 	    (mbr_sector[MBR_SIGNATURE_OFFSET + 1] != MBR_SIGNATURE_SECOND)) {
 		return -ENOENT;
 	}
-	offset = (uintptr_t)&mbr_sector + MBR_PRIMARY_ENTRY_OFFSET;
+	offset = (uintptr_t)mbr_sector + MBR_PRIMARY_ENTRY_OFFSET;
 	memcpy(mbr_entry, (void *)offset, sizeof(mbr_entry_t));
 	return 0;
 }
@@ -142,7 +144,7 @@ static int verify_partition_gpt(uintptr_t image_handle)
 	return 0;
 }
 
-int load_partition_table(unsigned int image_id)
+static int load_partition_table(unsigned int image_id, uintptr_t buf)
 {
 	uintptr_t dev_handle, image_handle, image_spec = 0;
 	mbr_entry_t mbr_entry;
@@ -161,7 +163,7 @@ int load_partition_table(unsigned int image_id)
 		return result;
 	}
 
-	result = load_mbr_header(image_handle, &mbr_entry);
+	result = load_mbr_header(image_handle, &mbr_entry, buf);
 	if (result != 0) {
 		WARN("Failed to access image id=%u (%i)\n", image_id, result);
 		return result;
@@ -199,7 +201,9 @@ const partition_entry_list_t *get_partition_entry_list(void)
 	return &list;
 }
 
-void partition_init(unsigned int image_id)
+void partition_init(unsigned int image_id, uintptr_t buf, size_t size)
 {
-	load_partition_table(image_id);
+	assert((size >= PLAT_PARTITION_BLOCK_SIZE) && 		\
+	       ((buf & PLAT_PARTITION_BLOCK_SIZE) == 0));
+	load_partition_table(image_id, buf);
 }

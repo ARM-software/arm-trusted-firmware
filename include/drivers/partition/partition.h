@@ -33,9 +33,8 @@ typedef struct partition_entry_list {
 	int			entry_count;
 } partition_entry_list_t;
 
-int load_partition_table(unsigned int image_id);
 const partition_entry_t *get_partition_entry(const char *name);
 const partition_entry_list_t *get_partition_entry_list(void);
-void partition_init(unsigned int image_id);
+void partition_init(unsigned int image_id, uintptr_t buf, size_t size);
 
 #endif	/* __PARTITION_H__ */
