@@ -37,12 +37,48 @@ static entry_point_info_t bl33_image_ep_info;
  * tables. BL2 has flushed this information to memory, so we are guaranteed
  * to pick up good data.
  ******************************************************************************/
+#if LOAD_IMAGE_V2
+void bl31_early_platform_setup(void *from_bl2,
+			       void *plat_params_from_bl2)
+#else
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 				void *plat_params_from_bl2)
+#endif
 {
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_QEMU_BOOT_UART_BASE, PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
 			PLAT_QEMU_CONSOLE_BAUDRATE);
+
+#if LOAD_IMAGE_V2
+	/*
+	 * Check params passed from BL2
+	 */
+	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+
+	assert(params_from_bl2);
+	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
+	assert(params_from_bl2->h.version >= VERSION_2);
+
+	bl_params_node_t *bl_params = params_from_bl2->head;
+
+	/*
+	 * Copy BL33 and BL32 (if present), entry point information.
+	 * They are stored in Secure RAM, in BL2's address space.
+	 */
+	while (bl_params) {
+		if (bl_params->image_id == BL32_IMAGE_ID)
+			bl32_image_ep_info = *bl_params->ep_info;
+
+		if (bl_params->image_id == BL33_IMAGE_ID)
+			bl33_image_ep_info = *bl_params->ep_info;
+
+		bl_params = bl_params->next_params_info;
+	}
+
+	if (!bl33_image_ep_info.pc)
+		panic();
+
+#else /* LOAD_IMAGE_V2 */
 
 	/*
 	 * Check params passed from BL2 should not be NULL,
@@ -65,6 +101,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	if (from_bl2->bl32_ep_info)
 		bl32_image_ep_info = *from_bl2->bl32_ep_info;
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
+
+#endif /* !LOAD_IMAGE_V2 */
 }
 
 void bl31_plat_arch_setup(void)

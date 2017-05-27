@@ -6,6 +6,13 @@
 
 include lib/libfdt/libfdt.mk
 
+# Enable new version of image loading on QEMU platforms
+LOAD_IMAGE_V2		:=	1
+
+ifeq ($(NEED_BL32),yes)
+$(eval $(call add_define,QEMU_LOAD_BL32))
+endif
+
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/		\
 				-Iinclude/plat/arm/common/aarch64/	\
 				-Iplat/qemu/include			\
@@ -53,6 +60,11 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
 				plat/qemu/qemu_bl2_setup.c		\
 				plat/qemu/dt.c				\
 				$(LIBFDT_SRCS)
+ifeq (${LOAD_IMAGE_V2},1)
+BL2_SOURCES		+=	plat/qemu/qemu_bl2_mem_params_desc.c	\
+				plat/qemu/qemu_image_load.c		\
+				common/desc_image_load.c
+endif
 
 BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\

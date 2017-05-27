@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <arch_helpers.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
+#include <desc_image_load.h>
 #include <libfdt.h>
 #include <platform_def.h>
 #include <string.h>
@@ -22,6 +24,10 @@
 #define BL2_RO_BASE (unsigned long)(&__RO_START__)
 #define BL2_RO_LIMIT (unsigned long)(&__RO_END__)
 
+/* Data structure which holds the extents of the trusted SRAM for BL2 */
+static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
+
+#if !LOAD_IMAGE_V2
 /*******************************************************************************
  * This structure represents the superset of information that is passed to
  * BL3-1, e.g. while passing control to it from BL2, bl31_params
@@ -40,10 +46,6 @@ typedef struct bl2_to_bl31_params_mem {
 
 static bl2_to_bl31_params_mem_t bl31_params_mem;
 
-
-
-/* Data structure which holds the extents of the trusted SRAM for BL2 */
-static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
 meminfo_t *bl2_plat_sec_mem_layout(void)
 {
@@ -120,6 +122,7 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 
 	return &bl31_params_mem.bl31_ep_info;
 }
+#endif /* !LOAD_IMAGE_V2 */
 
 
 
@@ -217,6 +220,41 @@ static uint32_t qemu_get_spsr_for_bl33_entry(void)
 	return spsr;
 }
 
+#if LOAD_IMAGE_V2
+static int qemu_bl2_handle_post_image_load(unsigned int image_id)
+{
+	int err = 0;
+	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+
+	assert(bl_mem_params);
+
+	switch (image_id) {
+# ifdef AARCH64
+	case BL32_IMAGE_ID:
+		bl_mem_params->ep_info.spsr = qemu_get_spsr_for_bl32_entry();
+		break;
+# endif
+	case BL33_IMAGE_ID:
+		/* BL33 expects to receive the primary CPU MPID (through r0) */
+		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
+		bl_mem_params->ep_info.spsr = qemu_get_spsr_for_bl33_entry();
+		break;
+	}
+
+	return err;
+}
+
+/*******************************************************************************
+ * This function can be used by the platforms to update/use image
+ * information for given `image_id`.
+ ******************************************************************************/
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return qemu_bl2_handle_post_image_load(image_id);
+}
+
+#else /* LOAD_IMAGE_V2 */
+
 /*******************************************************************************
  * Before calling this function BL3-1 is loaded in memory and its entrypoint
  * is set by load_image. This is a placeholder for the platform to change
@@ -282,6 +320,7 @@ void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 	bl33_meminfo->free_base = NS_DRAM0_BASE;
 	bl33_meminfo->free_size = NS_DRAM0_SIZE;
 }
+#endif /* !LOAD_IMAGE_V2 */
 
 unsigned long plat_get_ns_image_entrypoint(void)
 {

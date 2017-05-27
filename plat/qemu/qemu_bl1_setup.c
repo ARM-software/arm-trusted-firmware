@@ -35,8 +35,6 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
  ******************************************************************************/
 void bl1_early_platform_setup(void)
 {
-	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
-
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_QEMU_BOOT_UART_BASE, PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
 		     PLAT_QEMU_CONSOLE_BAUDRATE);
@@ -45,11 +43,13 @@ void bl1_early_platform_setup(void)
 	bl1_tzram_layout.total_base = BL_RAM_BASE;
 	bl1_tzram_layout.total_size = BL_RAM_SIZE;
 
+#if !LOAD_IMAGE_V2
 	/* Calculate how much RAM BL1 is using and how much remains free */
 	bl1_tzram_layout.free_base = BL_RAM_BASE;
 	bl1_tzram_layout.free_size = BL_RAM_SIZE;
 	reserve_mem(&bl1_tzram_layout.free_base, &bl1_tzram_layout.free_size,
-		    BL1_RAM_BASE, bl1_size);
+		    BL1_RAM_BASE, BL1_RAM_LIMIT - BL1_RAM_BASE);
+#endif /* !LOAD_IMAGE_V2 */
 }
 
 /******************************************************************************
@@ -70,6 +70,7 @@ void bl1_platform_setup(void)
 	plat_qemu_io_setup();
 }
 
+#if !LOAD_IMAGE_V2
 /*******************************************************************************
  * Function that takes a memory layout into which BL2 has been loaded and
  * populates a new memory layout for BL2 that ensures that BL1's data sections
@@ -110,3 +111,4 @@ void bl1_plat_set_bl2_ep_info(image_info_t *bl2_image,
 	SET_SECURITY_STATE(bl2_ep->h.attr, SECURE);
 	bl2_ep->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 }
+#endif /* !LOAD_IMAGE_V2 */
