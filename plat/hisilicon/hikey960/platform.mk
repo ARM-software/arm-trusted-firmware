@@ -10,7 +10,6 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
 
 # Process flags
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
-$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
 
 ENABLE_PLAT_COMPAT	:=	0
 
