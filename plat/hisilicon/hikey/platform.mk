@@ -16,7 +16,6 @@ $(eval $(call add_define,CONSOLE_BASE))
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
 $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))
 $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
-$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
 
 ENABLE_PLAT_COMPAT	:=	0
 

@@ -11,13 +11,6 @@
 #include "../hikey_def.h"
 
 /*
- * Platform binary types for linking
- */
-#define PLATFORM_LINKER_FORMAT          "elf64-littleaarch64"
-#define PLATFORM_LINKER_ARCH            aarch64
-
-
-/*
  * Generic platform constants
  */
 
