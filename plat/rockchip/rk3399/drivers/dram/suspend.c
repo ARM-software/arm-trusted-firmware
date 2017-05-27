@@ -726,6 +726,8 @@ __pmusramfunc void dmc_resume(void)
 	uint32_t channel_mask = 0;
 	uint32_t channel;
 
+	sram_secure_timer_init();
+
 	/*
 	 * we switch ddr clock to abpll when suspend,
 	 * we set back to dpll here

@@ -100,5 +100,6 @@ void secure_watchdog_enable(void);
 void secure_timer_init(void);
 void secure_sgrf_init(void);
 void secure_sgrf_ddr_rgn_init(void);
+__pmusramfunc void sram_secure_timer_init(void);
 
 #endif /* __PLAT_ROCKCHIP_RK3399_DRIVER_SECURE_H__ */

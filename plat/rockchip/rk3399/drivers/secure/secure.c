@@ -101,6 +101,19 @@ void secure_watchdog_enable(void)
 		      WMSK_BIT(PCLK_WDT_CM0_GATE_SHIFT));
 }
 
+__pmusramfunc void sram_secure_timer_init(void)
+{
+	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_END_COUNT0, 0xffffffff);
+	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_END_COUNT1, 0xffffffff);
+
+	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_INIT_COUNT0, 0x0);
+	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_INIT_COUNT0, 0x0);
+
+	/* auto reload & enable the timer */
+	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_CONTROL_REG,
+		      TIMER_EN | TIMER_FMODE);
+}
+
 void secure_timer_init(void)
 {
 	mmio_write_32(STIMER1_CHN_BASE(5) + TIMER_END_COUNT0, 0xffffffff);
