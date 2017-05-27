@@ -37,6 +37,10 @@
 					HIKEY960_UFS_DESC_SIZE,		\
 					MT_MEMORY | MT_RW | MT_NS)
 
+#define MAP_TSP_MEM	MAP_REGION_FLAT(TSP_SEC_MEM_BASE,		\
+					TSP_SEC_MEM_SIZE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
 /*
  * Table of regions for different BL stages to map using the MMU.
  * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
@@ -56,6 +60,7 @@ static const mmap_region_t hikey960_mmap[] = {
 static const mmap_region_t hikey960_mmap[] = {
 	MAP_DDR,
 	MAP_DEVICE,
+	MAP_TSP_MEM,
 	{0}
 };
 #endif
@@ -63,6 +68,15 @@ static const mmap_region_t hikey960_mmap[] = {
 #if IMAGE_BL31
 static const mmap_region_t hikey960_mmap[] = {
 	MAP_DEVICE,
+	MAP_TSP_MEM,
+	{0}
+};
+#endif
+
+#if IMAGE_BL32
+static const mmap_region_t hikey960_mmap[] = {
+	MAP_DEVICE,
+	MAP_DDR,
 	{0}
 };
 #endif

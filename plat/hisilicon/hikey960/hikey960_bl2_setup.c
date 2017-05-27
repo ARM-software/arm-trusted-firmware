@@ -177,6 +177,41 @@ void bl2_plat_set_bl31_ep_info(image_info_t *image,
 				       DISABLE_ALL_EXCEPTIONS);
 }
 
+/*******************************************************************************
+ * Before calling this function BL32 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL32 and set SPSR and security state.
+ * On Hikey we only set the security state of the entrypoint
+ ******************************************************************************/
+#ifdef BL32_BASE
+void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
+					entry_point_info_t *bl32_ep_info)
+{
+	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
+	/*
+	 * The Secure Payload Dispatcher service is responsible for
+	 * setting the SPSR prior to entry into the BL32 image.
+	 */
+	bl32_ep_info->spsr = 0;
+}
+
+/*******************************************************************************
+ * Populate the extents of memory available for loading BL32
+ ******************************************************************************/
+void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
+{
+	/*
+	 * Populate the extents of memory available for loading BL32.
+	 */
+	bl32_meminfo->total_base = BL32_BASE;
+	bl32_meminfo->free_base = BL32_BASE;
+	bl32_meminfo->total_size =
+			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
+	bl32_meminfo->free_size =
+			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
+}
+#endif /* BL32_BASE */
+
 void bl2_plat_set_bl33_ep_info(image_info_t *image,
 			       entry_point_info_t *bl33_ep_info)
 {
