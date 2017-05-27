@@ -4,6 +4,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# On Hikey, the TSP can execute from TZC secure area in DRAM (default)
+# or SRAM.
+HIKEY_TSP_RAM_LOCATION	:=	dram
+ifeq (${HIKEY_TSP_RAM_LOCATION}, dram)
+  HIKEY_TSP_RAM_LOCATION_ID = HIKEY_DRAM_ID
+else ifeq (${HIKEY_TSP_RAM_LOCATION}, sram)
+  HIKEY_TSP_RAM_LOCATION_ID := HIKEY_SRAM_ID
+else
+  $(error "Currently unsupported HIKEY_TSP_RAM_LOCATION value")
+endif
+
 CONSOLE_BASE			:=	PL011_UART3_BASE
 CRASH_CONSOLE_BASE		:=	PL011_UART3_BASE
 PLAT_PARTITION_MAX_ENTRIES	:=	12
@@ -12,6 +23,7 @@ COLD_BOOT_SINGLE_CPU		:=	1
 PROGRAMMABLE_RESET_ADDRESS	:=	1
 
 # Process flags
+$(eval $(call add_define,HIKEY_TSP_RAM_LOCATION_ID))
 $(eval $(call add_define,CONSOLE_BASE))
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
 $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))

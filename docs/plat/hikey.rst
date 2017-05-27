@@ -14,6 +14,9 @@ Code Locations
 -  ARM Trusted Firmware:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
 
+-  OP-TEE
+   `link <https://github.com/OP-TEE/optee_os>`__
+
 -  edk2:
    `link <https://github.com/96boards-hikey/edk2/tree/testing/hikey960_v2.5>`__
 
@@ -70,7 +73,7 @@ Build Procedure
        FASTBOOT_BUILD_OPTION=$(echo ${BUILD_OPTION} | tr '[A-Z]' '[a-z]')
        cd ${EDK2_DIR}
        # Build UEFI & ARM Trust Firmware
-       ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware hikey
+       ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey
        # Generate l-loader.bin
        cd ${BUILD_PATH}/l-loader
        ln -sf ${EDK2_OUTPUT_DIR}/FV/bl1.bin
