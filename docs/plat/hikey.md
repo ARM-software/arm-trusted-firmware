@@ -15,6 +15,9 @@ How to build
    * ARM Trusted Firmware:
    [link](https://github.com/ARM-software/arm-trusted-firmware)
 
+   * OP-TEE:
+   [link](https://github.com/OP-TEE/optee_os)
+
    * edk2:
    [link](https://github.com/96boards-hikey/edk2/tree/testing/hikey960_v2.5)
 
@@ -62,20 +65,18 @@ How to build
      <br>`FASTBOOT_BUILD_OPTION=$(echo ${BUILD_OPTION} | tr '[A-Z]' '[a-z]')`</br>
      <br>`cd ${EDK2_DIR}`</br>
      <br>`# Build UEFI & ARM Trust Firmware`</br>
-     <br>`${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware hikey`</br>
+     <br>`${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey`</br>
      <br>`# Generate l-loader.bin`</br>
      <br>`cd ${BUILD_PATH}/l-loader`</br>
      <br>`ln -sf ${EDK2_OUTPUT_DIR}/FV/bl1.bin`</br>
-     <br>`ln -sf ${EDK2_OUTPUT_DIR}/FV/fip.bin`</br>
      <br>`ln -sf ${BUILD_PATH}/atf-fastboot/build/hikey/${FASTBOOT_BUILD_OPTION}/bl1.bin fastboot.bin`</br>
-     <br>`python gen_loader.py -o l-loader.bin --img_bl1=bl1.bin --img_ns_bl1u=BL33_AP_UEFI.fd`</br>
      <br>`arm-linux-gnueabihf-gcc -c -o start.o start.S`</br>
      <br>`arm-linux-gnueabihf-ld -Bstatic -Tl-loader.lds -Ttext 0xf9800800 start.o -o loader`</br>
      <br>`arm-linux-gnueabihf-objcopy -O binary loader temp`</br>
      <br>`python gen_loader_hikey.py -o l-loader.bin --img_loader=temp --img_bl1=bl1.bin --img_ns_bl1u=fastboot.bin`</br>
 
    * Generate partition table for aosp. The eMMC capacity is either 4GB or 8GB. Just change "aosp-4g" to "linux-4g" for debian.
-     <br>`$PTABLE=aosp-4g SECTOR_SIZE=512 bash -x generate_ptable.sh`</br>
+     <br>`PTABLE=aosp-4g SECTOR_SIZE=512 bash -x generate_ptable.sh`</br>
 
 
 3. Setup Console
