@@ -16,10 +16,10 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
-MAX_XLAT_TABLES				:= 8
+MAX_XLAT_TABLES				:= 10
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 8
+MAX_MMAP_REGIONS			:= 10
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/se
