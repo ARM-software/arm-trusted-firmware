@@ -4,14 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SMMU_PLAT_CONFIG_H
-#define __SMMU_PLAT_CONFIG_H
-
-#include <mmio.h>
-#include <tegra_def.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
 #include <smmu.h>
+#include <tegra_def.h>
 
-static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
+/*******************************************************************************
+ * Array to hold SMMU context for Tegra186
+ ******************************************************************************/
+static __attribute__((aligned(16))) smmu_regs_t tegra194_smmu_context[] = {
 	_START_OF_TABLE_,
 	mc_make_sid_security_cfg(HDAR),
 	mc_make_sid_security_cfg(HOST1XDMAR),
@@ -400,29 +401,13 @@ static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
 	_END_OF_TABLE_,
 };
 
-static inline uint32_t tegra_smmu_read_32(uint32_t smmu_id, uint32_t off)
+/*******************************************************************************
+ * Handler to return the pointer to the SMMU's context struct
+ ******************************************************************************/
+smmu_regs_t *plat_get_smmu_ctx(void)
 {
-	if (smmu_id == 0)
-		return mmio_read_32(TEGRA_SMMU0_BASE + off);
-	else if (smmu_id == 1)
-		return mmio_read_32(TEGRA_SMMU1_BASE + off);
-	else if (smmu_id == 2)
-		return mmio_read_32(TEGRA_SMMU2_BASE + off);
-	else
-		panic();
-}
+	/* index of _END_OF_TABLE_ */
+	tegra194_smmu_context[0].val = ARRAY_SIZE(tegra194_smmu_context) - 1;
 
-static inline void tegra_smmu_write_32(uint32_t smmu_id,
-			uint32_t off, uint32_t val)
-{
-	if (smmu_id == 0)
-		mmio_write_32(TEGRA_SMMU0_BASE + off, val);
-	else if (smmu_id == 1)
-		mmio_write_32(TEGRA_SMMU1_BASE + off, val);
-	else if (smmu_id == 2)
-		mmio_write_32(TEGRA_SMMU2_BASE + off, val);
-	else
-		panic();
+	return tegra194_smmu_context;
 }
-
-#endif //__SMMU_PLAT_CONFIG_H
