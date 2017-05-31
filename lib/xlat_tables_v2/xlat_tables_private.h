@@ -72,11 +72,16 @@ int xlat_arch_current_el(void);
  */
 uint64_t xlat_arch_get_xn_desc(int el);
 
-/* Execute architecture-specific translation table initialization code. */
-void init_xlat_tables_arch(unsigned long long max_pa);
+/*
+ * Return the maximum physical address supported by the hardware.
+ * This value depends on the execution state (AArch32/AArch64).
+ */
+unsigned long long xlat_arch_get_max_supported_pa(void);
 
 /* Enable MMU and configure it to use the specified translation tables. */
-void enable_mmu_arch(unsigned int flags, uint64_t *base_table);
+void enable_mmu_arch(unsigned int flags,
+		uint64_t *base_table,
+		unsigned long long max_pa);
 
 /* Return 1 if the MMU of this Exception Level is enabled, 0 otherwise. */
 int is_mmu_enabled(void);

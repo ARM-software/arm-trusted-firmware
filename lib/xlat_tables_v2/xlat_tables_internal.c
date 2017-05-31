@@ -1178,14 +1178,14 @@ void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 		mm++;
 	}
 
-	ctx->initialized = 1;
-
-	xlat_tables_print(ctx);
-
+	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=
+	       xlat_arch_get_max_supported_pa());
 	assert(ctx->max_va <= ctx->va_max_address);
 	assert(ctx->max_pa <= ctx->pa_max_address);
 
-	init_xlat_tables_arch(ctx->max_pa);
+	ctx->initialized = 1;
+
+	xlat_tables_print(ctx);
 }
 
 void init_xlat_tables(void)
@@ -1193,23 +1193,40 @@ void init_xlat_tables(void)
 	init_xlat_tables_ctx(&tf_xlat_ctx);
 }
 
+/*
+ * If dynamic allocation of new regions is disabled then by the time we call the
+ * function enabling the MMU, we'll have registered all the memory regions to
+ * map for the system's lifetime. Therefore, at this point we know the maximum
+ * physical address that will ever be mapped.
+ *
+ * If dynamic allocation is enabled then we can't make any such assumption
+ * because the maximum physical address could get pushed while adding a new
+ * region. Therefore, in this case we have to assume that the whole address
+ * space size might be mapped.
+ */
+#ifdef PLAT_XLAT_TABLES_DYNAMIC
+#define MAX_PHYS_ADDR	PLAT_PHY_ADDR_SPACE_SIZE
+#else
+#define MAX_PHYS_ADDR	tf_xlat_ctx.max_pa
+#endif
+
 #ifdef AARCH32
 
 void enable_mmu_secure(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table);
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR);
 }
 
 #else
 
 void enable_mmu_el1(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table);
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR);
 }
 
 void enable_mmu_el3(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table);
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR);
 }
 
 #endif /* AARCH32 */

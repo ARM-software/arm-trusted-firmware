@@ -60,7 +60,7 @@ static const unsigned int pa_range_bits_arr[] = {
 	PARANGE_0101
 };
 
-static unsigned long long xlat_arch_get_max_supported_pa(void)
+unsigned long long xlat_arch_get_max_supported_pa(void)
 {
 	u_register_t pa_range = read_id_aa64mmfr0_el1() &
 						ID_AA64MMFR0_EL1_PARANGE_MASK;
@@ -146,24 +146,6 @@ uint64_t xlat_arch_get_xn_desc(int el)
 	}
 }
 
-void init_xlat_tables_arch(unsigned long long max_pa)
-{
-	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=
-	       xlat_arch_get_max_supported_pa());
-
-	/*
-	 * If dynamic allocation of new regions is enabled the code can't make
-	 * assumptions about the max physical address because it could change
-	 * after adding new regions. If this functionality is disabled it is
-	 * safer to restrict the max physical address as much as possible.
-	 */
-#ifdef PLAT_XLAT_TABLES_DYNAMIC
-	tcr_ps_bits = calc_physical_addr_size_bits(PLAT_PHY_ADDR_SPACE_SIZE);
-#else
-	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
-#endif
-}
-
 /*******************************************************************************
  * Macro generating the code for the function enabling the MMU in the given
  * exception level, assuming that the pagetables have already been created.
@@ -247,8 +229,16 @@ DEFINE_ENABLE_MMU_EL(3,
 		tlbialle3)
 #endif
 
-void enable_mmu_arch(unsigned int flags, uint64_t *base_table)
+void enable_mmu_arch(unsigned int flags,
+		uint64_t *base_table,
+		unsigned long long max_pa)
 {
+	/*
+	 * It is safer to restrict the max physical address accessible by the
+	 * hardware as much as possible.
+	 */
+	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
+
 #if IMAGE_EL == 1
 	assert(IS_IN_EL(1));
 	enable_mmu_internal_el1(flags, base_table);

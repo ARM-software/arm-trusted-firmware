@@ -14,7 +14,7 @@
 #include "../xlat_tables_private.h"
 
 #if ENABLE_ASSERTIONS
-static unsigned long long xlat_arch_get_max_supported_pa(void)
+unsigned long long xlat_arch_get_max_supported_pa(void)
 {
 	/* Physical address space size for long descriptor format. */
 	return (1ull << 40) - 1ull;
@@ -81,18 +81,11 @@ uint64_t xlat_arch_get_xn_desc(int el __unused)
 	return UPPER_ATTRS(XN);
 }
 
-void init_xlat_tables_arch(unsigned long long max_pa)
-{
-	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=
-	       xlat_arch_get_max_supported_pa());
-}
-
 /*******************************************************************************
  * Function for enabling the MMU in Secure PL1, assuming that the
  * page-tables have already been created.
  ******************************************************************************/
 void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
-
 {
 	u_register_t mair0, ttbcr, sctlr;
 	uint64_t ttbr0;
@@ -158,7 +151,9 @@ void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
 	isb();
 }
 
-void enable_mmu_arch(unsigned int flags, uint64_t *base_table)
+void enable_mmu_arch(unsigned int flags,
+		uint64_t *base_table,
+		unsigned long long max_pa)
 {
 	enable_mmu_internal_secure(flags, base_table);
 }
