@@ -22,8 +22,6 @@
 # define IMAGE_EL	1
 #endif
 
-static unsigned long long tcr_ps_bits;
-
 static unsigned long long calc_physical_addr_size_bits(
 					unsigned long long max_addr)
 {
@@ -151,50 +149,23 @@ uint64_t xlat_arch_get_xn_desc(int el)
  * exception level, assuming that the pagetables have already been created.
  *
  *   _el:		Exception level at which the function will run
- *   _tcr_extra:	Extra bits to set in the TCR register. This mask will
- *			be OR'ed with the default TCR value.
  *   _tlbi_fct:		Function to invalidate the TLBs at the current
  *			exception level
  ******************************************************************************/
-#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
-	void enable_mmu_internal_el##_el(unsigned int flags,		\
-					 uint64_t *base_table)		\
+#define DEFINE_ENABLE_MMU_EL(_el, _tlbi_fct)				\
+	static void enable_mmu_internal_el##_el(int flags,		\
+						uint64_t mair,		\
+						uint64_t tcr,		\
+						uint64_t ttbr)		\
 	{								\
-		uint64_t mair, tcr, ttbr;				\
-		uint32_t sctlr;						\
-									\
-		assert(IS_IN_EL(_el));					\
-		assert((read_sctlr_el##_el() & SCTLR_M_BIT) == 0);	\
+		uint32_t sctlr = read_sctlr_el##_el();			\
+		assert((sctlr & SCTLR_M_BIT) == 0);			\
 									\
 		/* Invalidate TLBs at the current exception level */	\
 		_tlbi_fct();						\
 									\
-		/* Set attributes in the right indices of the MAIR */	\
-		mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);	\
-		mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,		\
-				ATTR_IWBWA_OWBWA_NTR_INDEX);		\
-		mair |= MAIR_ATTR_SET(ATTR_NON_CACHEABLE,		\
-				ATTR_NON_CACHEABLE_INDEX);		\
 		write_mair_el##_el(mair);				\
-									\
-		/* Set TCR bits as well. */				\
-		/* Set T0SZ to (64 - width of virtual address space) */	\
-		if (flags & XLAT_TABLE_NC) {				\
-			/* Inner & outer non-cacheable non-shareable. */\
-			tcr = TCR_SH_NON_SHAREABLE |			\
-				TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC |	\
-				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
-		} else {						\
-			/* Inner & outer WBWA & shareable. */		\
-			tcr = TCR_SH_INNER_SHAREABLE |			\
-				TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA |	\
-				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
-		}							\
-		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\
-									\
-		/* Set TTBR bits as well */				\
-		ttbr = (uint64_t) base_table;				\
 		write_ttbr0_el##_el(ttbr);				\
 									\
 		/* Ensure all translation table writes have drained */	\
@@ -204,9 +175,7 @@ uint64_t xlat_arch_get_xn_desc(int el)
 		dsbish();						\
 		isb();							\
 									\
-		sctlr = read_sctlr_el##_el();				\
 		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT;			\
-									\
 		if (flags & DISABLE_DCACHE)				\
 			sctlr &= ~SCTLR_C_BIT;				\
 		else							\
@@ -220,30 +189,61 @@ uint64_t xlat_arch_get_xn_desc(int el)
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */
 #if IMAGE_EL == 1
-DEFINE_ENABLE_MMU_EL(1,
-		(tcr_ps_bits << TCR_EL1_IPS_SHIFT),
-		tlbivmalle1)
+DEFINE_ENABLE_MMU_EL(1, tlbivmalle1)
 #elif IMAGE_EL == 3
-DEFINE_ENABLE_MMU_EL(3,
-		TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT),
-		tlbialle3)
+DEFINE_ENABLE_MMU_EL(3, tlbialle3)
 #endif
 
 void enable_mmu_arch(unsigned int flags,
 		uint64_t *base_table,
 		unsigned long long max_pa)
 {
+	uint64_t mair, ttbr, tcr;
+
+	/* Set attributes in the right indices of the MAIR. */
+	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
+	mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR, ATTR_IWBWA_OWBWA_NTR_INDEX);
+	mair |= MAIR_ATTR_SET(ATTR_NON_CACHEABLE, ATTR_NON_CACHEABLE_INDEX);
+
+	ttbr = (uint64_t) base_table;
+
+	/*
+	 * Set TCR bits as well.
+	 */
+
+	/*
+	 * Limit the input address ranges and memory region sizes translated
+	 * using TTBR0 to the given virtual address space size.
+	 */
+	tcr = 64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE);
+
+	/*
+	 * Set the cacheability and shareability attributes for memory
+	 * associated with translation table walks.
+	 */
+	if (flags & XLAT_TABLE_NC) {
+		/* Inner & outer non-cacheable non-shareable. */
+		tcr |= TCR_SH_NON_SHAREABLE |
+			TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC;
+	} else {
+		/* Inner & outer WBWA & shareable. */
+		tcr |= TCR_SH_INNER_SHAREABLE |
+			TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA;
+	}
+
 	/*
 	 * It is safer to restrict the max physical address accessible by the
 	 * hardware as much as possible.
 	 */
-	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
+	unsigned long long tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
 
 #if IMAGE_EL == 1
 	assert(IS_IN_EL(1));
-	enable_mmu_internal_el1(flags, base_table);
+	tcr |= tcr_ps_bits << TCR_EL1_IPS_SHIFT;
+	enable_mmu_internal_el1(flags, mair, tcr, ttbr);
 #elif IMAGE_EL == 3
 	assert(IS_IN_EL(3));
-	enable_mmu_internal_el3(flags, base_table);
+	tcr |= TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT);
+	enable_mmu_internal_el3(flags, mair, tcr, ttbr);
 #endif
 }

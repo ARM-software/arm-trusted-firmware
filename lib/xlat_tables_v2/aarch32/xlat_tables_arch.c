@@ -82,16 +82,20 @@ uint64_t xlat_arch_get_xn_desc(int el __unused)
 }
 
 /*******************************************************************************
- * Function for enabling the MMU in Secure PL1, assuming that the
- * page-tables have already been created.
+ * Function for enabling the MMU in Secure PL1, assuming that the page tables
+ * have already been created.
  ******************************************************************************/
-void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
+void enable_mmu_arch(unsigned int flags,
+		uint64_t *base_table,
+		unsigned long long max_pa)
 {
 	u_register_t mair0, ttbcr, sctlr;
 	uint64_t ttbr0;
 
 	assert(IS_IN_SECURE());
-	assert((read_sctlr() & SCTLR_M_BIT) == 0);
+
+	sctlr = read_sctlr();
+	assert((sctlr & SCTLR_M_BIT) == 0);
 
 	/* Invalidate TLBs at the current exception level */
 	tlbiall();
@@ -102,29 +106,47 @@ void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
 			ATTR_IWBWA_OWBWA_NTR_INDEX);
 	mair0 |= MAIR0_ATTR_SET(ATTR_NON_CACHEABLE,
 			ATTR_NON_CACHEABLE_INDEX);
-	write_mair0(mair0);
 
 	/*
-	 * Set TTBCR bits as well. Set TTBR0 table properties. Disable TTBR1.
+	 * Configure the control register for stage 1 of the PL1&0 translation
+	 * regime.
+	 */
+
+	/* Use the Long-descriptor translation table format. */
+	ttbcr = TTBCR_EAE_BIT;
+
+	/*
+	 * Disable translation table walk for addresses that are translated
+	 * using TTBR1. Therefore, only TTBR0 is used.
+	 */
+	ttbcr |= TTBCR_EPD1_BIT;
+
+	/*
+	 * Limit the input address ranges and memory region sizes translated
+	 * using TTBR0 to the given virtual address space size.
+	 */
+	ttbcr |= 32 - __builtin_ctzl((uintptr_t) PLAT_VIRT_ADDR_SPACE_SIZE);
+
+	/*
+	 * Set the cacheability and shareability attributes for memory
+	 * associated with translation table walks using TTBR0.
 	 */
 	if (flags & XLAT_TABLE_NC) {
 		/* Inner & outer non-cacheable non-shareable. */
-		ttbcr = TTBCR_EAE_BIT |
-			TTBCR_SH0_NON_SHAREABLE | TTBCR_RGN0_OUTER_NC |
-			TTBCR_RGN0_INNER_NC |
-			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+		ttbcr |= TTBCR_SH0_NON_SHAREABLE | TTBCR_RGN0_OUTER_NC |
+			TTBCR_RGN0_INNER_NC;
 	} else {
 		/* Inner & outer WBWA & shareable. */
-		ttbcr = TTBCR_EAE_BIT |
-			TTBCR_SH0_INNER_SHAREABLE | TTBCR_RGN0_OUTER_WBA |
-			TTBCR_RGN0_INNER_WBA |
-			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+		ttbcr |= TTBCR_SH0_INNER_SHAREABLE | TTBCR_RGN0_OUTER_WBA |
+			TTBCR_RGN0_INNER_WBA;
 	}
-	ttbcr |= TTBCR_EPD1_BIT;
-	write_ttbcr(ttbcr);
 
 	/* Set TTBR0 bits as well */
 	ttbr0 = (uint64_t)(uintptr_t) base_table;
+
+	/* Now program the relevant system registers */
+	write_mair0(mair0);
+	write_ttbcr(ttbcr);
 	write64_ttbr0(ttbr0);
 	write64_ttbr1(0);
 
@@ -137,7 +159,6 @@ void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
 	dsbish();
 	isb();
 
-	sctlr = read_sctlr();
 	sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT;
 
 	if (flags & DISABLE_DCACHE)
@@ -149,11 +170,4 @@ void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
 
 	/* Ensure the MMU enable takes effect immediately */
 	isb();
-}
-
-void enable_mmu_arch(unsigned int flags,
-		uint64_t *base_table,
-		unsigned long long max_pa)
-{
-	enable_mmu_internal_secure(flags, base_table);
 }
