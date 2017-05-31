@@ -385,7 +385,7 @@ static void ddrx_rdet(void)
 
 static void ddrx_wdet(void)
 {
-	unsigned int data, wdet, zero_bdl, dq[4];
+	unsigned int data, wdet, zero_bdl = 0, dq[4];
 	int i;
 
 	data = mmio_read_32((0xf712c000 + 0x0d0));
@@ -454,11 +454,11 @@ static void ddrx_wdet(void)
 		for (i = 0; i < 4; i++) {
 			data = mmio_read_32((0xf712c000 + 0x210 + i * 0x80));
 			if ((!(data & 0x1f)) || (!(data & 0x1f00)) ||
-					(!(data & 0x1f0000)) || (!(data & 0x1f000000)))
+			    (!(data & 0x1f0000)) || (!(data & 0x1f000000)))
 				zero_bdl = 1;
 			data = mmio_read_32((0xf712c000 + 0x214 + i * 0x80));
 			if ((!(data & 0x1f)) || (!(data & 0x1f00)) ||
-					(!(data & 0x1f0000)) || (!(data & 0x1f000000)))
+			    (!(data & 0x1f0000)) || (!(data & 0x1f000000)))
 				zero_bdl = 1;
 			data = mmio_read_32((0xf712c000 + 0x218 + i * 0x80));
 			if (!(data & 0x1f))
