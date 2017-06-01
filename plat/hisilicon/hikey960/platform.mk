@@ -50,3 +50,16 @@ BL2_SOURCES		+=	drivers/io/io_block.c			\
 				plat/hisilicon/hikey960/hikey960_bl2_setup.c \
 				plat/hisilicon/hikey960/hikey960_io_storage.c \
 				plat/hisilicon/hikey960/hikey960_mcu_load.c
+
+BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
+				lib/cpus/aarch64/cortex_a53.S           \
+				lib/cpus/aarch64/cortex_a72.S		\
+				lib/cpus/aarch64/cortex_a73.S		\
+				plat/common/aarch64/plat_psci_common.c  \
+				plat/hisilicon/hikey960/aarch64/hikey960_helpers.S \
+				plat/hisilicon/hikey960/hikey960_bl31_setup.c \
+				plat/hisilicon/hikey960/hikey960_pm.c	\
+				plat/hisilicon/hikey960/hikey960_topology.c \
+				plat/hisilicon/hikey960/drivers/pwrc/hisi_pwrc.c \
+				plat/hisilicon/hikey960/drivers/ipc/hisi_ipc.c \
+				${HIKEY960_GIC_SOURCES}

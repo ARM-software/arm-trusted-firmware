@@ -6,6 +6,8 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <cortex_a53.h>
+#include <cortex_a73.h>
 #include "../hikey960_def.h"
 
 	.globl	plat_my_core_pos
@@ -14,6 +16,10 @@
 	.globl	plat_crash_console_putc
 	.globl	plat_report_exception
 	.globl	plat_reset_handler
+	.globl	set_retention_ticks
+	.globl	clr_retention_ticks
+	.globl	clr_ex
+	.globl	nop
 
 func plat_my_core_pos
 	mrs	x0, mpidr_el1
@@ -131,6 +137,53 @@ endfunc plat_report_exception
 func plat_reset_handler
 	ret
 endfunc plat_reset_handler
+
+	/* -----------------------------------------------------
+	 * void set_retention_ticks(unsigned int val);
+	 * Clobber list : x0
+	 * -----------------------------------------------------
+	 */
+func set_retention_ticks
+	mrs	x0, CPUECTLR_EL1
+	bic	x0, x0, #CPUECTLR_CPU_RET_CTRL_MASK
+	orr	x0, x0, #RETENTION_ENTRY_TICKS_8
+	msr	CPUECTLR_EL1, x0
+	isb
+	dsb	sy
+	ret
+endfunc set_retention_ticks
+
+	/* -----------------------------------------------------
+	 * void clr_retention_ticks(unsigned int val);
+	 * Clobber list : x0
+	 * -----------------------------------------------------
+	 */
+func clr_retention_ticks
+	mrs	x0, CPUECTLR_EL1
+	bic	x0, x0, #CPUECTLR_CPU_RET_CTRL_MASK
+	msr	CPUECTLR_EL1, x0
+	isb
+	dsb	sy
+	ret
+endfunc clr_retention_ticks
+
+	/* -----------------------------------------------------
+	 * void clrex(void);
+	 * -----------------------------------------------------
+	 */
+func clr_ex
+	clrex
+	ret
+endfunc clr_ex
+
+	/* -----------------------------------------------------
+	 * void nop(void);
+	 * -----------------------------------------------------
+	 */
+func nop
+	nop
+	ret
+endfunc nop
 
 .section .rodata.rev_err_str, "aS"
 plat_err_str:
