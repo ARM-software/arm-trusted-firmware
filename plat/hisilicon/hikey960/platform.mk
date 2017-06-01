@@ -10,6 +10,7 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
 
 # Process flags
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
+$(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))
 
 ENABLE_PLAT_COMPAT	:=	0
 
@@ -41,3 +42,11 @@ BL1_SOURCES		+=	bl1/tbbr/tbbr_img_desc.c		\
 				plat/hisilicon/hikey960/hikey960_bl1_setup.c 	\
 				plat/hisilicon/hikey960/hikey960_io_storage.c \
 				${HIKEY960_GIC_SOURCES}
+
+BL2_SOURCES		+=	drivers/io/io_block.c			\
+				drivers/io/io_fip.c			\
+				drivers/io/io_storage.c			\
+				drivers/ufs/ufs.c			\
+				plat/hisilicon/hikey960/hikey960_bl2_setup.c \
+				plat/hisilicon/hikey960/hikey960_io_storage.c \
+				plat/hisilicon/hikey960/hikey960_mcu_load.c
