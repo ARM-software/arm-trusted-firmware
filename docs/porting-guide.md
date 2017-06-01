@@ -354,6 +354,13 @@ be defined:
     NS_BL2U image identifier, used by BL1 to fetch an image descriptor
     corresponding to NS_BL2U.
 
+For the the Firmware update capability of TRUSTED BOARD BOOT, the following
+macros may also be defined:
+
+*   **#define : PLAT_FWU_MAX_SIMULTANEOUS_IMAGES**
+
+    Total number of images that can be loaded simultaneously. If the platform
+    doesn't specify any value, it defaults to 10.
 
 If a SCP_BL2 image is supported by the platform, the following constants must
 also be defined:

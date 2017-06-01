@@ -211,6 +211,7 @@ for BL1 to pass execution control to BL31.
         if (source block is in secure memory) return -ENOMEM
         if (source block is not mapped into BL1) return -ENOMEM
         if (image_size > free secure memory) return -ENOMEM
+        if (image overlaps another image) return -EPERM
 
 This SMC copies the secure image indicated by `image_id` from non-secure memory
 to secure memory for later authentication. The image may be copied in a single
