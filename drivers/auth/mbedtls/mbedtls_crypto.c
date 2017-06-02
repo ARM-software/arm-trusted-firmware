@@ -62,7 +62,6 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	mbedtls_pk_type_t pk_alg;
 	mbedtls_pk_context pk;
 	int rc;
-	void *sig_opts = NULL;
 	const mbedtls_md_info_t *md_info;
 	unsigned char *p, *end;
 	unsigned char hash[MBEDTLS_MD_MAX_SIZE];
@@ -71,24 +70,21 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	p = (unsigned char *)sig_alg;
 	end = (unsigned char *)(p + sig_alg_len);
 	rc = mbedtls_asn1_get_alg(&p, end, &sig_oid, &sig_params);
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_SIGNATURE;
-	}
 
 	/* Get the actual signature algorithm (MD + PK) */
 	rc = mbedtls_oid_get_sig_alg(&sig_oid, &md_alg, &pk_alg);
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_SIGNATURE;
-	}
 
 	/* Parse the public key */
 	mbedtls_pk_init(&pk);
 	p = (unsigned char *)pk_ptr;
 	end = (unsigned char *)(p + pk_len);
 	rc = mbedtls_pk_parse_subpubkey(&p, end, &pk);
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_SIGNATURE;
-	}
 
 	/* Get the signature (bitstring) */
 	p = (unsigned char *)sig_ptr;
@@ -115,7 +111,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	}
 
 	/* Verify the signature */
-	rc = mbedtls_pk_verify_ext(pk_alg, sig_opts, &pk, md_alg, hash,
+	rc = mbedtls_pk_verify_ext(pk_alg, NULL, &pk, md_alg, hash,
 			mbedtls_md_get_size(md_info),
 			signature.p, signature.len);
 	if (rc != 0) {
@@ -153,50 +149,41 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 	end = p + digest_info_len;
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_CONSTRUCTED |
 				  MBEDTLS_ASN1_SEQUENCE);
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_HASH;
-	}
 
 	/* Get the hash algorithm */
 	rc = mbedtls_asn1_get_alg(&p, end, &hash_oid, &params);
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_HASH;
-	}
 
 	rc = mbedtls_oid_get_md_alg(&hash_oid, &md_alg);
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_HASH;
-	}
 
 	md_info = mbedtls_md_info_from_type(md_alg);
-	if (md_info == NULL) {
+	if (md_info == NULL)
 		return CRYPTO_ERR_HASH;
-	}
 
 	/* Hash should be octet string type */
 	rc = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_OCTET_STRING);
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_HASH;
-	}
 
 	/* Length of hash must match the algorithm's size */
-	if (len != mbedtls_md_get_size(md_info)) {
+	if (len != mbedtls_md_get_size(md_info))
 		return CRYPTO_ERR_HASH;
-	}
 	hash = p;
 
 	/* Calculate the hash of the data */
-	p = (unsigned char *)data_ptr;
-	rc = mbedtls_md(md_info, p, data_len, data_hash);
-	if (rc != 0) {
+	rc = mbedtls_md(md_info, data_ptr, data_len, data_hash);
+	if (rc != 0)
 		return CRYPTO_ERR_HASH;
-	}
 
 	/* Compare values */
 	rc = memcmp(data_hash, hash, mbedtls_md_get_size(md_info));
-	if (rc != 0) {
+	if (rc != 0)
 		return CRYPTO_ERR_HASH;
-	}
 
 	return CRYPTO_SUCCESS;
 }
