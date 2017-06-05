@@ -42,6 +42,8 @@
  ******************************************************************************/
 #define CORTEX_A53_ACTLR			p15, 0, c15
 
+#define CORTEX_A53_ACTLR_ENDCCASCI_SHIFT	44
+#define CORTEX_A53_ACTLR_ENDCCASCI		(1 << CORTEX_A53_ACTLR_ENDCCASCI_SHIFT)
 #define CORTEX_A53_ACTLR_DTAH			(1 << 24)
 
 /*******************************************************************************
