@@ -40,12 +40,17 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 			unsigned int flags);
 static int bl1_fwu_sec_image_done(void **handle,
 			unsigned int flags);
+static int bl1_fwu_image_reset(unsigned int image_id,
+			unsigned int flags);
 __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved);
 
 /*
  * This keeps track of last executed secure image id.
  */
 static unsigned int sec_exec_image_id = INVALID_IMAGE_ID;
+
+/* Authentication status of each image. */
+extern unsigned int auth_img_flags[];
 
 void cm_set_next_context(void *cpu_context);
 
@@ -78,6 +83,9 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 	case FWU_SMC_SEC_IMAGE_DONE:
 		SMC_RET1(handle, bl1_fwu_sec_image_done(&handle, flags));
 
+	case FWU_SMC_IMAGE_RESET:
+		SMC_RET1(handle, bl1_fwu_image_reset(x1, flags));
+
 	case FWU_SMC_UPDATE_DONE:
 		bl1_fwu_done((void *)x1, NULL);
 		/* We should never return from bl1_fwu_done() */
@@ -88,6 +96,124 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 	}
 
 	SMC_RET1(handle, SMC_UNK);
+}
+
+/*******************************************************************************
+ * Utility functions to keep track of the images that are loaded at any time.
+ ******************************************************************************/
+
+#ifdef PLAT_FWU_MAX_SIMULTANEOUS_IMAGES
+#define FWU_MAX_SIMULTANEOUS_IMAGES	PLAT_FWU_MAX_SIMULTANEOUS_IMAGES
+#else
+#define FWU_MAX_SIMULTANEOUS_IMAGES	10
+#endif
+
+static int bl1_fwu_loaded_ids[FWU_MAX_SIMULTANEOUS_IMAGES] = {
+	[0 ... FWU_MAX_SIMULTANEOUS_IMAGES-1] = INVALID_IMAGE_ID
+};
+
+/*
+ * Adds an image_id to the bl1_fwu_loaded_ids array.
+ * Returns 0 on success, 1 on error.
+ */
+static int bl1_fwu_add_loaded_id(int image_id)
+{
+	int i;
+
+	/* Check if the ID is already in the list */
+	for (i = 0; i < FWU_MAX_SIMULTANEOUS_IMAGES; i++) {
+		if (bl1_fwu_loaded_ids[i] == image_id)
+			return 0;
+	}
+
+	/* Find an empty slot */
+	for (i = 0; i < FWU_MAX_SIMULTANEOUS_IMAGES; i++) {
+		if (bl1_fwu_loaded_ids[i] == INVALID_IMAGE_ID) {
+			bl1_fwu_loaded_ids[i] = image_id;
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+/*
+ * Removes an image_id from the bl1_fwu_loaded_ids array.
+ * Returns 0 on success, 1 on error.
+ */
+static int bl1_fwu_remove_loaded_id(int image_id)
+{
+	int i;
+
+	/* Find the ID */
+	for (i = 0; i < FWU_MAX_SIMULTANEOUS_IMAGES; i++) {
+		if (bl1_fwu_loaded_ids[i] == image_id) {
+			bl1_fwu_loaded_ids[i] = INVALID_IMAGE_ID;
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+/*******************************************************************************
+ * This function checks if the specified image overlaps another image already
+ * loaded. It returns 0 if there is no overlap, a negative error code otherwise.
+ ******************************************************************************/
+static int bl1_fwu_image_check_overlaps(int image_id)
+{
+	const image_desc_t *image_desc, *checked_image_desc;
+	const image_info_t *info, *checked_info;
+
+	uintptr_t image_base, image_end;
+	uintptr_t checked_image_base, checked_image_end;
+
+	checked_image_desc = bl1_plat_get_image_desc(image_id);
+	checked_info = &checked_image_desc->image_info;
+
+	/* Image being checked mustn't be empty. */
+	assert(checked_info->image_size != 0);
+
+	checked_image_base = checked_info->image_base;
+	checked_image_end = checked_image_base + checked_info->image_size - 1;
+	/* No need to check for overlaps, it's done in bl1_fwu_image_copy(). */
+
+	for (int i = 0; i < FWU_MAX_SIMULTANEOUS_IMAGES; i++) {
+
+		/* Don't check image against itself. */
+		if (bl1_fwu_loaded_ids[i] == image_id)
+			continue;
+
+		image_desc = bl1_plat_get_image_desc(bl1_fwu_loaded_ids[i]);
+
+		/* Only check images that are loaded or being loaded. */
+		assert (image_desc->state != IMAGE_STATE_RESET);
+
+		info = &image_desc->image_info;
+
+		/* There cannot be overlaps with an empty image. */
+		if (info->image_size == 0)
+			continue;
+
+		image_base = info->image_base;
+		image_end = image_base + info->image_size - 1;
+		/*
+		 * Overflows cannot happen. It is checked in
+		 * bl1_fwu_image_copy() when the image goes from RESET to
+		 * COPYING or COPIED.
+		 */
+		assert (image_end > image_base);
+
+		/* Check if there are overlaps. */
+		if (!(image_end < checked_image_base ||
+		    checked_image_end < image_base)) {
+			VERBOSE("Image with ID %d overlaps existing image with ID %d",
+				checked_image_desc->image_id, image_desc->image_id);
+			return -EPERM;
+		}
+	}
+
+	return 0;
 }
 
 /*******************************************************************************
@@ -189,6 +315,13 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		/* Save the given image size. */
 		image_desc->image_info.image_size = image_size;
 
+		/* Make sure the image doesn't overlap other images. */
+		if (bl1_fwu_image_check_overlaps(image_id)) {
+			image_desc->image_info.image_size = 0;
+			WARN("BL1-FWU: This image overlaps another one\n");
+			return -EPERM;
+		}
+
 		/*
 		 * copied_size must be explicitly initialized here because the
 		 * FWU code doesn't necessarily do it when it resets the state
@@ -210,6 +343,11 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 	/* Make sure the source image is mapped in memory. */
 	if (bl1_plat_mem_check(image_src, block_size, flags)) {
 		WARN("BL1-FWU: Source image is not mapped.\n");
+		return -ENOMEM;
+	}
+
+	if (bl1_fwu_add_loaded_id(image_id)) {
+		WARN("BL1-FWU: Too many images loaded at the same time.\n");
 		return -ENOMEM;
 	}
 
@@ -290,6 +428,11 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 			return -ENOMEM;
 		}
 
+		if (bl1_fwu_add_loaded_id(image_id)) {
+			WARN("BL1-FWU: Too many images loaded at the same time.\n");
+			return -ENOMEM;
+		}
+
 		base_addr = image_src;
 		total_size = image_size;
 
@@ -319,6 +462,13 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 			/* Indicate that image can be copied again*/
 			image_desc->state = IMAGE_STATE_RESET;
 		}
+
+		/*
+		 * Even if this fails it's ok because the ID isn't in the array.
+		 * The image cannot be in RESET state here, it is checked at the
+		 * beginning of the function.
+		 */
+		bl1_fwu_remove_loaded_id(image_id);
 		return -EAUTH;
 	}
 
@@ -475,6 +625,13 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 	assert(EP_GET_EXE(image_desc->ep_info.h.attr) == EXECUTABLE);
 	assert(image_desc->state == IMAGE_STATE_EXECUTED);
 
+#if ENABLE_ASSERTIONS
+	int rc = bl1_fwu_remove_loaded_id(sec_exec_image_id);
+	assert(rc == 0);
+#else
+	bl1_fwu_remove_loaded_id(sec_exec_image_id);
+#endif
+
 	/* Update the flags. */
 	image_desc->state = IMAGE_STATE_RESET;
 	sec_exec_image_id = INVALID_IMAGE_ID;
@@ -516,4 +673,57 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved)
 	 */
 	bl1_plat_fwu_done(client_cookie, reserved);
 	assert(0);
+}
+
+/*******************************************************************************
+ * This function resets an image to IMAGE_STATE_RESET. It fails if the image is
+ * being executed.
+ ******************************************************************************/
+static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
+{
+	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
+
+	if ((!image_desc) || (GET_SECURITY_STATE(flags) == SECURE)) {
+		WARN("BL1-FWU: Reset not allowed due to invalid args\n");
+		return -EPERM;
+	}
+
+	switch (image_desc->state) {
+
+	case IMAGE_STATE_RESET:
+		/* Nothing to do. */
+		break;
+
+	case IMAGE_STATE_INTERRUPTED:
+	case IMAGE_STATE_AUTHENTICATED:
+	case IMAGE_STATE_COPIED:
+	case IMAGE_STATE_COPYING:
+
+		if (bl1_fwu_remove_loaded_id(image_id)) {
+			WARN("BL1-FWU: Image reset couldn't find the image ID\n");
+			return -EPERM;
+		}
+
+		/* Clear the memory.*/
+		zero_normalmem((void *)image_desc->image_info.image_base,
+				image_desc->copied_size);
+		flush_dcache_range(image_desc->image_info.image_base,
+				image_desc->copied_size);
+
+		/* Reset status variables */
+		image_desc->copied_size = 0;
+		image_desc->image_info.image_size = 0;
+		image_desc->state = IMAGE_STATE_RESET;
+
+		/* Clear authentication state */
+		auth_img_flags[image_id] = 0;
+
+		break;
+
+	case IMAGE_STATE_EXECUTED:
+	default:
+		assert(0);
+	}
+
+	return 0;
 }

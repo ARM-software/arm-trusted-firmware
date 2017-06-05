@@ -54,9 +54,6 @@ DEBUG				:= 0
 # Build platform
 DEFAULT_PLAT			:= fvp
 
-# By default, use the -pedantic option in the gcc command line
-DISABLE_PEDANTIC		:= 0
-
 # Flag to enable Performance Measurement Framework
 ENABLE_PMF			:= 0
 

@@ -39,11 +39,12 @@
 #define FWU_SMC_IMAGE_RESUME		0x13
 #define FWU_SMC_SEC_IMAGE_DONE		0x14
 #define FWU_SMC_UPDATE_DONE		0x15
+#define FWU_SMC_IMAGE_RESET		0x16
 
 /*
  * Number of FWU calls (above) implemented
  */
-#define FWU_NUM_SMC_CALLS		6
+#define FWU_NUM_SMC_CALLS		7
 
 #if TRUSTED_BOARD_BOOT
 # define BL1_NUM_SMC_CALLS		(FWU_NUM_SMC_CALLS + 4)
@@ -56,7 +57,7 @@
  * calls from the SMC function ID
  */
 #define FWU_SMC_FID_START		FWU_SMC_IMAGE_COPY
-#define FWU_SMC_FID_END			FWU_SMC_UPDATE_DONE
+#define FWU_SMC_FID_END			FWU_SMC_IMAGE_RESET
 #define is_fwu_fid(_fid) \
     ((_fid >= FWU_SMC_FID_START) && (_fid <= FWU_SMC_FID_END))
 

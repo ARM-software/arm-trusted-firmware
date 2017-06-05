@@ -300,9 +300,6 @@ performed.
 *   `DEBUG`: Chooses between a debug and release build. It can take either 0
     (release) or 1 (debug) as values. 0 is the default.
 
-*   `DISABLE_PEDANTIC`: When set to 1 it will disable the -pedantic option in
-    the GCC command line. Default is 0.
-
 *   `EL3_PAYLOAD_BASE`: This option enables booting an EL3 payload instead of
     the normal boot flow. It must specify the entry point address of the EL3
     payload. Please refer to the "Booting an EL3 payload" section for more

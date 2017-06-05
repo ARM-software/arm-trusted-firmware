@@ -336,11 +336,6 @@ endif
 # Process platform overrideable behaviour
 ################################################################################
 
-# Check if -pedantic option should be used
-ifeq (${DISABLE_PEDANTIC},0)
-        TF_CFLAGS	+= 	-pedantic
-endif
-
 # Using the ARM Trusted Firmware BL2 implies that a BL33 image also needs to be
 # supplied for the FIP and Certificate generation tools. This flag can be
 # overridden by the platform.
