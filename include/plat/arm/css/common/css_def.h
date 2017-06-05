@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,6 +48,17 @@
 					CSS_IRQ_SEC_SYS_TIMER
 
 /*
+ * The lower Non-secure MHU channel is being used for SCMI for ARM Trusted
+ * Firmware.
+ * TODO: Move SCMI to Secure channel once the migration to SCMI in SCP is
+ * complete.
+ */
+#define MHU_CPU_INTR_L_SET_OFFSET	0x108
+#define MHU_CPU_INTR_H_SET_OFFSET	0x128
+#define CSS_SCMI_PAYLOAD_BASE		(NSRAM_BASE + 0x500)
+#define CSS_SCMI_MHU_DB_REG_OFF		MHU_CPU_INTR_L_SET_OFFSET
+
+/*
  * SCP <=> AP boot configuration
  *
  * The SCP/AP boot configuration is a 32-bit word located at a known offset from
@@ -61,6 +72,11 @@
 #define CSS_MAP_DEVICE			MAP_REGION_FLAT(		\
 						CSS_DEVICE_BASE,	\
 						CSS_DEVICE_SIZE,	\
+						MT_DEVICE | MT_RW | MT_SECURE)
+
+#define CSS_MAP_NSRAM			MAP_REGION_FLAT(		\
+						NSRAM_BASE,	\
+						NSRAM_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
 /* Platform ID address */

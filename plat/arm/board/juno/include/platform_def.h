@@ -74,8 +74,13 @@
 #endif
 
 #ifdef IMAGE_BL31
-# define PLAT_ARM_MMAP_ENTRIES		5
-# define MAX_XLAT_TABLES		2
+# if CSS_USE_SCMI_DRIVER
+#  define PLAT_ARM_MMAP_ENTRIES		6
+#  define MAX_XLAT_TABLES		3
+# else
+#  define PLAT_ARM_MMAP_ENTRIES		5
+#  define MAX_XLAT_TABLES		2
+# endif
 #endif
 
 #ifdef IMAGE_BL32
