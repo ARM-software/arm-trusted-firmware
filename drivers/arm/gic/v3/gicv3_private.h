@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,9 +7,11 @@
 #ifndef __GICV3_PRIVATE_H__
 #define __GICV3_PRIVATE_H__
 
+#include <gic_common.h>
 #include <gicv3.h>
 #include <mmio.h>
 #include <stdint.h>
+#include "../common/gic_common_private.h"
 
 /*******************************************************************************
  * GICv3 private macro definitions
