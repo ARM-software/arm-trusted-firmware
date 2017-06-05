@@ -55,11 +55,25 @@
 static void init(void)
 {
 	CCError_t ret;
+	uint32_t lcs;
 
 	/* Initialize CC SBROM */
 	ret = CC_BsvSbromInit((uintptr_t)PLAT_CRYPTOCELL_BASE);
 	if (ret != CC_OK) {
 		ERROR("CryptoCell CC_BsvSbromInit() error %x\n", ret);
+		panic();
+	}
+
+	/* Initialize lifecycle state */
+	ret = CC_BsvLcsGetAndInit((uintptr_t)PLAT_CRYPTOCELL_BASE, &lcs);
+	if (ret != CC_OK) {
+		ERROR("CryptoCell CC_BsvLcsGetAndInit() error %x\n", ret);
+		panic();
+	}
+
+	/* If the lifecyclestate is `SD`, then stop further execution */
+	if (lcs == CC_BSV_SECURITY_DISABLED_LCS) {
+		ERROR("CryptoCell LCS is security-disabled\n");
 		panic();
 	}
 }
