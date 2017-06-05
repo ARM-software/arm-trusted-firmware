@@ -22,7 +22,7 @@
 #include <tegra_private.h>
 #include <xlat_tables.h>
 
-DEFINE_RENAME_SYSREG_RW_FUNCS(l2ctlr_el1, L2CTLR_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(l2ctlr_el1, CORTEX_A57_L2CTLR_EL1)
 extern uint64_t tegra_enable_l2_ecc_parity_prot;
 
 /*******************************************************************************
@@ -172,7 +172,7 @@ void plat_early_platform_setup(void)
 		if (val >= TEGRA186_VER_A02P) {
 
 			val = read_l2ctlr_el1();
-			val |= L2_ECC_PARITY_PROTECTION_BIT;
+			val |= CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
 			write_l2ctlr_el1(val);
 
 			/*

@@ -15,11 +15,11 @@
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_l2_prefetch
-	ldcopr16	r0, r1, CPUECTLR
-	orr64_imm	r0, r1, CPUECTLR_DIS_TWD_ACC_PFTCH_BIT
-	bic64_imm	r0, r1, (CPUECTLR_L2_IPFTCH_DIST_MASK | \
-				CPUECTLR_L2_DPFTCH_DIST_MASK)
-	stcopr16	r0, r1, CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A72_ECTLR
+	orr64_imm	r0, r1, CORTEX_A72_ECTLR_DIS_TWD_ACC_PFTCH_BIT
+	bic64_imm	r0, r1, (CORTEX_A72_ECTLR_L2_IPFTCH_DIST_MASK | \
+				CORTEX_A72_ECTLR_L2_DPFTCH_DIST_MASK)
+	stcopr16	r0, r1, CORTEX_A72_ECTLR
 	isb
 	bx	lr
 endfunc cortex_a72_disable_l2_prefetch
@@ -29,9 +29,9 @@ endfunc cortex_a72_disable_l2_prefetch
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_hw_prefetcher
-	ldcopr16	r0, r1, CPUACTLR
-	orr64_imm	r0, r1, CPUACTLR_DISABLE_L1_DCACHE_HW_PFTCH
-	stcopr16	r0, r1, CPUACTLR
+	ldcopr16	r0, r1, CORTEX_A72_ACTLR
+	orr64_imm	r0, r1, CORTEX_A72_ACTLR_DISABLE_L1_DCACHE_HW_PFTCH
+	stcopr16	r0, r1, CORTEX_A72_ACTLR
 	isb
 	dsb	ish
 	bx	lr
@@ -43,9 +43,9 @@ endfunc cortex_a72_disable_hw_prefetcher
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_smp
-	ldcopr16	r0, r1, CPUECTLR
-	bic64_imm	r0, r1, CPUECTLR_SMP_BIT
-	stcopr16	r0, r1, CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A72_ECTLR
+	bic64_imm	r0, r1, CORTEX_A72_ECTLR_SMP_BIT
+	stcopr16	r0, r1, CORTEX_A72_ECTLR
 	bx	lr
 endfunc cortex_a72_disable_smp
 
@@ -70,9 +70,9 @@ func cortex_a72_reset_func
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	ldcopr16	r0, r1, CPUECTLR
-	orr64_imm	r0, r1, CPUECTLR_SMP_BIT
-	stcopr16	r0, r1,	CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A72_ECTLR
+	orr64_imm	r0, r1, CORTEX_A72_ECTLR_SMP_BIT
+	stcopr16	r0, r1,	CORTEX_A72_ECTLR
 	isb
 	bx	lr
 endfunc cortex_a72_reset_func

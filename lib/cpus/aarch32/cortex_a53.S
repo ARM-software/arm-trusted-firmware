@@ -15,9 +15,9 @@
 	 * ---------------------------------------------
 	 */
 func cortex_a53_disable_smp
-	ldcopr16	r0, r1, CPUECTLR
-	bic64_imm	r0, r1, CPUECTLR_SMP_BIT
-	stcopr16	r0, r1, CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A53_ECTLR
+	bic64_imm	r0, r1, CORTEX_A53_ECTLR_SMP_BIT
+	stcopr16	r0, r1, CORTEX_A53_ECTLR
 	isb
 	dsb	sy
 	bx	lr
@@ -32,9 +32,9 @@ func cortex_a53_reset_func
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	ldcopr16	r0, r1, CPUECTLR
-	orr64_imm	r0, r1, CPUECTLR_SMP_BIT
-	stcopr16	r0, r1,	CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A53_ECTLR
+	orr64_imm	r0, r1, CORTEX_A53_ECTLR_SMP_BIT
+	stcopr16	r0, r1,	CORTEX_A53_ECTLR
 	isb
 	bx	lr
 endfunc cortex_a53_reset_func
