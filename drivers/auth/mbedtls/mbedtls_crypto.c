@@ -60,7 +60,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	mbedtls_asn1_buf signature;
 	mbedtls_md_type_t md_alg;
 	mbedtls_pk_type_t pk_alg;
-	mbedtls_pk_context pk;
+	mbedtls_pk_context pk = {0};
 	int rc;
 	void *sig_opts = NULL;
 	const mbedtls_md_info_t *md_info;
@@ -76,7 +76,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	}
 
 	/* Get the actual signature algorithm (MD + PK) */
-	rc = mbedtls_oid_get_sig_alg(&sig_oid, &md_alg, &pk_alg);
+	rc = mbedtls_x509_get_sig_alg(&sig_oid, &sig_params, &md_alg, &pk_alg, &sig_opts);
 	if (rc != 0) {
 		return CRYPTO_ERR_SIGNATURE;
 	}
@@ -87,7 +87,8 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	end = (unsigned char *)(p + pk_len);
 	rc = mbedtls_pk_parse_subpubkey(&p, end, &pk);
 	if (rc != 0) {
-		return CRYPTO_ERR_SIGNATURE;
+		rc = CRYPTO_ERR_SIGNATURE;
+		goto end2;
 	}
 
 	/* Get the signature (bitstring) */
@@ -97,7 +98,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	rc = mbedtls_asn1_get_bitstring_null(&p, end, &signature.len);
 	if (rc != 0) {
 		rc = CRYPTO_ERR_SIGNATURE;
-		goto end;
+		goto end1;
 	}
 	signature.p = p;
 
@@ -105,13 +106,13 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	md_info = mbedtls_md_info_from_type(md_alg);
 	if (md_info == NULL) {
 		rc = CRYPTO_ERR_SIGNATURE;
-		goto end;
+		goto end1;
 	}
 	p = (unsigned char *)data_ptr;
 	rc = mbedtls_md(md_info, p, data_len, hash);
 	if (rc != 0) {
 		rc = CRYPTO_ERR_SIGNATURE;
-		goto end;
+		goto end1;
 	}
 
 	/* Verify the signature */
@@ -120,14 +121,16 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 			signature.p, signature.len);
 	if (rc != 0) {
 		rc = CRYPTO_ERR_SIGNATURE;
-		goto end;
+		goto end1;
 	}
 
 	/* Signature verification success */
 	rc = CRYPTO_SUCCESS;
 
-end:
+end1:
 	mbedtls_pk_free(&pk);
+end2:
+	mbedtls_free(sig_opts);
 	return rc;
 }
 

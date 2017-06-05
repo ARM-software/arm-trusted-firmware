@@ -10,6 +10,7 @@
 
 #include <openssl/conf.h>
 #include <openssl/err.h>
+#include <openssl/opensslv.h>
 #include <openssl/pem.h>
 #include <openssl/sha.h>
 #include <openssl/x509v3.h>
@@ -27,6 +28,7 @@
 #include "sha.h"
 
 #define SERIAL_RAND_BITS	64
+#define RSA_SALT_LEN		32
 
 int rand_serial(BIGNUM *b, ASN1_INTEGER *ai)
 {
@@ -77,7 +79,6 @@ int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value)
 	return 1;
 }
 
-
 int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 {
 	EVP_PKEY *pkey = keys[cert->key].key;
@@ -88,7 +89,9 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 	X509_EXTENSION *ex;
 	X509_NAME *name;
 	ASN1_INTEGER *sno;
-	int i, num;
+	int i, num, rc = 0;
+	EVP_MD_CTX  mdCtx;
+	EVP_PKEY_CTX *pKeyCtx = NULL;
 
 	/* Create the certificate structure */
 	x = X509_new();
@@ -106,6 +109,27 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 	 * will become self signed) */
 	if (!issuer) {
 		issuer = x;
+	}
+
+	EVP_MD_CTX_init(&mdCtx);
+	if (!EVP_DigestSignInit(&mdCtx, &pKeyCtx, EVP_sha256(), NULL, ikey)) {
+		ERR_print_errors_fp(stdout);
+		goto END;
+	}
+
+	if (!EVP_PKEY_CTX_set_rsa_padding(pKeyCtx, RSA_PKCS1_PSS_PADDING)) {
+		ERR_print_errors_fp(stdout);
+		goto END;
+	}
+
+	if (!EVP_PKEY_CTX_set_rsa_pss_saltlen(pKeyCtx, RSA_SALT_LEN)) {
+		ERR_print_errors_fp(stdout);
+		goto END;
+	}
+
+	if (!EVP_PKEY_CTX_set_rsa_mgf1_md(pKeyCtx, EVP_sha256())) {
+		ERR_print_errors_fp(stdout);
+		goto END;
 	}
 
 	/* x509.v3 */
@@ -152,14 +176,18 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 		}
 	}
 
-	/* Sign the certificate with the issuer key */
-	if (!X509_sign(x, ikey, EVP_sha256())) {
+	if (!X509_sign_ctx(x, &mdCtx)) {
 		ERR_print_errors_fp(stdout);
-		return 0;
+		goto END;
 	}
 
+	/* X509 certificate signed successfully */
+	rc = 1;
 	cert->x = x;
-	return 1;
+
+END:
+	EVP_MD_CTX_cleanup(&mdCtx);
+	return rc;
 }
 
 int cert_init(void)
