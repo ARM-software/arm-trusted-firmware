@@ -1744,8 +1744,8 @@ provided in the ToC entry the corresponding payload data can be retrieved.
     ------------------
 
 The ToC header and entry formats are described in the header file
-`include/firmware_image_package.h`. This file is used by both the tool and the
-ARM Trusted firmware.
+`include/common/firmware_image_package.h`. This file is used by both the tool
+and the ARM Trusted firmware.
 
 The ToC header has the following fields:
 
@@ -1760,8 +1760,9 @@ A ToC entry has the following fields:
 
     `uuid`: All files are referred to by a pre-defined Universally Unique
         IDentifier [UUID] . The UUIDs are defined in
-        `include/firmware_image_package`. The platform translates the requested
-        image name into the corresponding UUID when accessing the package.
+        `include/common/firmware_image_package.h`. The platform translates the
+        requested image name into the corresponding UUID when accessing the
+        package.
     `offset_address`: The offset address at which the corresponding payload data
         can be found. The offset is calculated from the ToC base address.
     `size`: The size of the corresponding payload data in bytes.
