@@ -82,9 +82,11 @@ FVP_CPU_LIBS		:=	lib/cpus/${ARCH}/aem_generic.S
 ifeq (${ARCH}, aarch64)
 FVP_CPU_LIBS		+=	lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
+				lib/cpus/aarch64/cortex_a55.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
-				lib/cpus/aarch64/cortex_a73.S
+				lib/cpus/aarch64/cortex_a73.S			\
+				lib/cpus/aarch64/cortex_a75.S
 else
 FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
 endif
