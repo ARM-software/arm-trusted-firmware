@@ -44,8 +44,22 @@ Making Changes
 *   Where appropriate, please update the documentation.
     *   Consider whether the [User Guide], [Porting Guide], [Firmware Design] or
         other in-source documentation needs updating.
-    *   If this is your first contribution, you may add your name or your
-        company name to the [Acknowledgements] file.
+    *   Ensure that each changed file has the correct copyright and license
+        information. Files that entirely consist of contributions to this
+        project should have the copyright notice and BSD-3-Clause SPDX license
+        identifier as shown in [license.md](./license.md). Files that contain
+        changes to imported Third Party IP should contain a notice as follows,
+        with the original copyright and license text retained:
+        ```
+        Portions copyright (c) [XXXX-]YYYY, ARM Limited and Contributors. All rights reserved.
+        ```
+        where XXXX is the year of first contribution (if different to YYYY) and
+        YYYY is the year of most recent contribution.
+    *   If not done previously, you may add your name or your company name to
+        the [Acknowledgements] file.
+    *   If you are submitting new files that you intend to be the technical
+        sub-maintainer for (for example, a new platform port), then also update
+        the [Maintainers] file.
     *   For topics with multiple commits, you should make all documentation
         changes (and nothing else) in the last commit of the series. Otherwise,
         include the documentation changes within the single commit.
@@ -66,27 +80,28 @@ Submitting Changes
 *   Push your local changes to your fork of the repository.
 *   Submit a [pull request] to the [arm-trusted-firmware] `integration` branch.
     *   The changes in the [pull request] will then undergo further review and
-        testing. Any review comments will be made as comments on the [pull
-        request]. This may require you to do some rework.
-*   When the changes are accepted, ARM will integrate them.
-    *   Typically, ARM will merge the [pull request] into the `integration`
-        branch within the GitHub UI, creating a merge commit.
+        testing by the [Maintainers]. Any review comments will be made as
+        comments on the [pull request]. This may require you to do some rework.
+*   When the changes are accepted, the [Maintainers] will integrate them.
+    *   Typically, the [Maintainers] will merge the [pull request] into the
+        `integration` branch within the GitHub UI, creating a merge commit.
     *   Please avoid creating merge commits in the [pull request] itself.
-    *   If the [pull request] is not based on a recent commit, ARM may rebase
-        it onto the `master` branch first, or ask you to do this.
-    *   If the [pull request] cannot be automatically merged, ARM will ask you
-        to rebase it onto the `master` branch.
-    *   After final integration testing, ARM will push your merge commit to the
-        `master` branch. If a problem is found at this stage, the merge commit
-        will be removed from the `integration` branch and ARM will ask you to
-        create a new pull request to resolve the problem.
+    *   If the [pull request] is not based on a recent commit, the [Maintainers]
+        may rebase it onto the `master` branch first, or ask you to do this.
+    *   If the [pull request] cannot be automatically merged, the [Maintainers]
+        will ask you to rebase it onto the `master` branch.
+    *   After final integration testing, the [Maintainers] will push your merge
+        commit to the `master` branch. If a problem is found during integration,
+        the merge commit will be removed from the `integration` branch and the
+        [Maintainers] will ask you to create a new pull request to resolve the
+        problem.
     *   Please do not delete your topic branch until it is safely merged into
         the `master` branch.
 
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved._
 
 
 [User Guide]:                           ./docs/user-guide.md
@@ -95,6 +110,7 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 [Firmware Design]:                      ./docs/firmware-design.md
 [Acknowledgements]:                     ./acknowledgements.md "Contributor acknowledgements"
 [DCO]:                                  ./dco.txt
+[Maintainers]:                          ./maintainers.md
 
 [GitHub account]:               https://github.com/signup/free
 [Fork]:                         https://help.github.com/articles/fork-a-repo
