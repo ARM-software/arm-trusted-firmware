@@ -28,6 +28,7 @@
 #define OPT_TOC_ENTRY 0
 #define OPT_PLAT_TOC_FLAGS 1
 #define OPT_ALIGN 2
+#define OPT_ALIGN_RESERVE 3
 
 static int info_cmd(int argc, char *argv[]);
 static void info_usage(void);
@@ -488,7 +489,8 @@ static void info_usage(void)
 	exit(1);
 }
 
-static int pack_images(const char *filename, uint64_t toc_flags, unsigned long align)
+static int pack_images(const char *filename, uint64_t toc_flags,
+	unsigned long align, unsigned long align_reserve)
 {
 	FILE *fp;
 	image_desc_t *desc;
@@ -523,7 +525,7 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 		if (image == NULL)
 			continue;
 		payload_size += image->toc_e.size;
-		entry_offset = (entry_offset + align - 1) & ~(align - 1);
+		entry_offset = (entry_offset + align_reserve + align - 1) & ~(align - 1);
 		image->toc_e.offset_address = entry_offset;
 		*toc_entry++ = image->toc_e;
 		entry_offset += image->toc_e.size;
@@ -630,6 +632,19 @@ static unsigned long get_image_align(char *arg)
 	return align;
 }
 
+static unsigned long get_image_align_reservation(char *arg)
+{
+	char *endptr;
+	unsigned long align_reserve;
+
+	errno = 0;
+	align_reserve = strtoul(arg, &endptr, 0);
+	if (*endptr != '\0' || errno != 0)
+		log_errx("Invalid alignment: %s", arg);
+
+	return align_reserve;
+}
+
 static void parse_blob_opt(char *arg, uuid_t *uuid, char *filename, size_t len)
 {
 	char *p;
@@ -650,7 +665,7 @@ static int create_cmd(int argc, char *argv[])
 	struct option *opts = NULL;
 	size_t nr_opts = 0;
 	unsigned long long toc_flags = 0;
-	unsigned long align = 1;
+	unsigned long align = 1, align_reserve = 0;
 
 	if (argc < 2)
 		create_usage();
@@ -659,6 +674,8 @@ static int create_cmd(int argc, char *argv[])
 	opts = add_opt(opts, &nr_opts, "plat-toc-flags", required_argument,
 	    OPT_PLAT_TOC_FLAGS);
 	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
+	opts = add_opt(opts, &nr_opts, "align-reserve", required_argument,
+	    OPT_ALIGN_RESERVE);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, NULL, 0, 0);
 
@@ -682,6 +699,9 @@ static int create_cmd(int argc, char *argv[])
 			break;
 		case OPT_ALIGN:
 			align = get_image_align(optarg);
+			break;
+		case OPT_ALIGN_RESERVE:
+			align_reserve = get_image_align_reservation(optarg);
 			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1];
@@ -718,7 +738,7 @@ static int create_cmd(int argc, char *argv[])
 
 	update_fip();
 
-	pack_images(argv[0], toc_flags, align);
+	pack_images(argv[0], toc_flags, align, align_reserve);
 	return 0;
 }
 
@@ -730,6 +750,7 @@ static void create_usage(void)
 	printf("\n");
 	printf("Options:\n");
 	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
+	printf("  --align-reserve <value>\t\tEach image is padded by <value> (default: 0).\n");
 	printf("  --blob uuid=...,file=...\tAdd an image with the given UUID pointed to by file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field occupying bits 32-47 in 64-bit ToC header.\n");
 	printf("\n");
@@ -747,7 +768,7 @@ static int update_cmd(int argc, char *argv[])
 	char outfile[PATH_MAX] = { 0 };
 	fip_toc_header_t toc_header = { 0 };
 	unsigned long long toc_flags = 0;
-	unsigned long align = 1;
+	unsigned long align = 1, align_reserve = 0;
 	int pflag = 0;
 
 	if (argc < 2)
@@ -755,6 +776,8 @@ static int update_cmd(int argc, char *argv[])
 
 	opts = fill_common_opts(opts, &nr_opts, required_argument);
 	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
+	opts = add_opt(opts, &nr_opts, "align-reserve", required_argument,
+	    OPT_ALIGN_RESERVE);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, "out", required_argument, 'o');
 	opts = add_opt(opts, &nr_opts, "plat-toc-flags", required_argument,
@@ -805,6 +828,9 @@ static int update_cmd(int argc, char *argv[])
 		case OPT_ALIGN:
 			align = get_image_align(optarg);
 			break;
+		case OPT_ALIGN_RESERVE:
+			align_reserve = get_image_align_reservation(optarg);
+			break;
 		case 'o':
 			snprintf(outfile, sizeof(outfile), "%s", optarg);
 			break;
@@ -831,7 +857,7 @@ static int update_cmd(int argc, char *argv[])
 
 	update_fip();
 
-	pack_images(outfile, toc_flags, align);
+	pack_images(outfile, toc_flags, align, align_reserve);
 	return 0;
 }
 
@@ -843,6 +869,7 @@ static void update_usage(void)
 	printf("\n");
 	printf("Options:\n");
 	printf("  --align <value>\t\tEach image is aligned to <value> (default: 1).\n");
+	printf("  --align-reserve <value>\t\tEach image is padded by <value> (default: 0).\n");
 	printf("  --blob uuid=...,file=...\tAdd or update an image with the given UUID pointed to by file.\n");
 	printf("  --out FIP_FILENAME\t\tSet an alternative output FIP file.\n");
 	printf("  --plat-toc-flags <value>\t16-bit platform specific flag field occupying bits 32-47 in 64-bit ToC header.\n");
@@ -997,7 +1024,7 @@ static int remove_cmd(int argc, char *argv[])
 	char outfile[PATH_MAX] = { 0 };
 	fip_toc_header_t toc_header;
 	image_desc_t *desc;
-	unsigned long align = 1;
+	unsigned long align = 1, align_reserve = 0;
 	int fflag = 0;
 
 	if (argc < 2)
@@ -1005,6 +1032,8 @@ static int remove_cmd(int argc, char *argv[])
 
 	opts = fill_common_opts(opts, &nr_opts, no_argument);
 	opts = add_opt(opts, &nr_opts, "align", required_argument, OPT_ALIGN);
+	opts = add_opt(opts, &nr_opts, "align-reserve", required_argument,
+	    OPT_ALIGN_RESERVE);
 	opts = add_opt(opts, &nr_opts, "blob", required_argument, 'b');
 	opts = add_opt(opts, &nr_opts, "force", no_argument, 'f');
 	opts = add_opt(opts, &nr_opts, "out", required_argument, 'o');
@@ -1027,6 +1056,9 @@ static int remove_cmd(int argc, char *argv[])
 		}
 		case OPT_ALIGN:
 			align = get_image_align(optarg);
+			break;
+		case OPT_ALIGN_RESERVE:
+			align_reserve = get_image_align_reservation(optarg);
 			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1], filename[PATH_MAX];
@@ -1090,7 +1122,7 @@ static int remove_cmd(int argc, char *argv[])
 		}
 	}
 
-	pack_images(outfile, toc_header.flags, align);
+	pack_images(outfile, toc_header.flags, align, align_reserve);
 	return 0;
 }
 
@@ -1102,6 +1134,7 @@ static void remove_usage(void)
 	printf("\n");
 	printf("Options:\n");
 	printf("  --align <value>\tEach image is aligned to <value> (default: 1).\n");
+	printf("  --align-reserve <value>\t\tEach image is padded by <value> (default: 0).\n");
 	printf("  --blob uuid=...\tRemove an image with the given UUID.\n");
 	printf("  --force\t\tIf the output FIP file already exists, use --force to overwrite it.\n");
 	printf("  --out FIP_FILENAME\tSet an alternative output FIP file.\n");
