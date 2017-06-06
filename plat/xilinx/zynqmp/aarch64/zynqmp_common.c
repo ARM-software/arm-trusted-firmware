@@ -106,6 +106,30 @@ static const struct {
 		.id = 0x59,
 		.name = "17EG",
 	},
+	{
+		.id = 0x60,
+		.name = "28DR",
+	},
+	{
+		.id = 0x61,
+		.name = "21DR",
+	},
+	{
+		.id = 0x62,
+		.name = "29DR",
+	},
+	{
+		.id = 0x63,
+		.name = "23DR",
+	},
+	{
+		.id = 0x64,
+		.name = "27DR",
+	},
+	{
+		.id = 0x65,
+		.name = "25DR",
+	},
 };
 
 static unsigned int zynqmp_get_silicon_id(void)
