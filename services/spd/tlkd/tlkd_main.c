@@ -37,7 +37,7 @@ tlk_context_t tlk_ctx;
 /*******************************************************************************
  * CPU number on which TLK booted up
  ******************************************************************************/
-static int boot_cpu;
+static uint32_t boot_cpu;
 
 /* TLK UID: RFC-4122 compliant UUID (version-5, sha-1) */
 DEFINE_SVC_UUID(tlk_uuid,

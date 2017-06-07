@@ -34,3 +34,6 @@ include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 
 # modify BUILD_PLAT to point to SoC specific build directory
 BUILD_PLAT	:=	${BUILD_BASE}/${PLAT}/${TARGET_SOC}/${BUILD_TYPE}
+
+# enable signed comparison checks
+CFLAGS		+= -Wsign-compare

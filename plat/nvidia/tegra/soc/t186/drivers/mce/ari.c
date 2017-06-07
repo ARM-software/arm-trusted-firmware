@@ -291,7 +291,7 @@ int ari_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 
 int ari_online_core(uint32_t ari_base, uint32_t core)
 {
-	int cpu = read_mpidr() & MPIDR_CPU_MASK;
+	uint32_t cpu = read_mpidr() & MPIDR_CPU_MASK;
 	int cluster = (read_mpidr() & MPIDR_CLUSTER_MASK) >>
 			MPIDR_AFFINITY_BITS;
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
@@ -300,7 +300,7 @@ int ari_online_core(uint32_t ari_base, uint32_t core)
 	cpu |= (cluster << 2);
 
 	/* sanity check target core id */
-	if ((core >= MCE_CORE_ID_MAX) || (cpu == core)) {
+	if ((core >= (uint32_t)MCE_CORE_ID_MAX) || (cpu == core)) {
 		ERROR("%s: unsupported core id (%d)\n", __func__, core);
 		return EINVAL;
 	}

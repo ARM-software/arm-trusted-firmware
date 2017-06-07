@@ -49,7 +49,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 	}
 
 	/* Set lower power states to PLAT_MAX_OFF_STATE */
-	for (int i = MPIDR_AFFLVL0; i < PLAT_MAX_PWR_LVL; i++)
+	for (uint32_t i = MPIDR_AFFLVL0; i < PLAT_MAX_PWR_LVL; i++)
 		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 
 	/* Set the SYSTEM_SUSPEND state-id */

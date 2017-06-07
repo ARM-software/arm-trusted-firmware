@@ -107,7 +107,7 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
 	/* all affinities use system suspend state id */
-	for (int i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (uint32_t i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
 		req_state->pwr_domain_state[i] = PSTATE_ID_SOC_POWERDN;
 }
 
