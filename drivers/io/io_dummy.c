@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <io_driver.h>
+#include <io_dummy.h>
 #include <io_storage.h>
 #include <string.h>
 
@@ -18,7 +19,7 @@ struct file_state {
 static struct file_state current_file = {0};
 
 /* Identify the device type as dummy */
-io_type_t device_type_dummy(void)
+static io_type_t device_type_dummy(void)
 {
 	return IO_TYPE_DUMMY;
 }
