@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -128,6 +128,17 @@ void sp_min_early_platform_setup(void *from_bl2,
 }
 
 /*******************************************************************************
+ * Perform any SP_MIN platform runtime setup prior to SP_MIN exit.
+ * Common to ARM standard platforms.
+ ******************************************************************************/
+void arm_sp_min_plat_runtime_setup(void)
+{
+	/* Initialize the runtime console */
+	console_init(PLAT_ARM_SP_MIN_RUN_UART_BASE,
+		PLAT_ARM_SP_MIN_RUN_UART_CLK_IN_HZ, ARM_CONSOLE_BAUDRATE);
+}
+
+/*******************************************************************************
  * Perform platform specific setup for SP_MIN
  ******************************************************************************/
 void sp_min_platform_setup(void)
@@ -153,6 +164,11 @@ void sp_min_platform_setup(void)
 
 	/* Initialize power controller before setting up topology */
 	plat_arm_pwrc_setup();
+}
+
+void sp_min_plat_runtime_setup(void)
+{
+	arm_sp_min_plat_runtime_setup();
 }
 
 /*******************************************************************************
