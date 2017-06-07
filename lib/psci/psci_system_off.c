@@ -12,7 +12,7 @@
 #include <platform.h>
 #include "psci_private.h"
 
-void psci_system_off(void)
+void __dead2 psci_system_off(void)
 {
 	psci_print_power_domain_map();
 
@@ -31,7 +31,7 @@ void psci_system_off(void)
 	/* This function does not return. We should never get here */
 }
 
-void psci_system_reset(void)
+void __dead2 psci_system_reset(void)
 {
 	psci_print_power_domain_map();
 
