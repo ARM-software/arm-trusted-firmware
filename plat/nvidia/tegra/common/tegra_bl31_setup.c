@@ -122,7 +122,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 {
 	plat_params_from_bl2_t *plat_params =
 		(plat_params_from_bl2_t *)plat_params_from_bl2;
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_INFO
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 #endif
 	image_info_t bl32_img_info = { {0} };
