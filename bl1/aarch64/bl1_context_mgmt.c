@@ -10,6 +10,7 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <platform.h>
+#include "../bl1_private.h"
 
 /*
  * Following array will be used for context management.

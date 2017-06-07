@@ -11,6 +11,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <smcc_helpers.h>
+#include "../bl1_private.h"
 
 /*
  * Following arrays will be used for context management.

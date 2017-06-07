@@ -6,6 +6,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include "../bl1_private.h"
 
 /*******************************************************************************
  * Function that does the first bit of architectural setup that affects
