@@ -144,10 +144,10 @@ CASSERT(SMC_CTX_SIZE == sizeof(smc_ctx_t), assert_smc_ctx_size_mismatch);
  */
 
 /* Get the pointer to `smc_ctx_t` corresponding to the security state. */
-void *smc_get_ctx(int security_state);
+void *smc_get_ctx(unsigned int security_state);
 
 /* Set the next `smc_ctx_t` corresponding to the security state. */
-void smc_set_next_ctx(int security_state);
+void smc_set_next_ctx(unsigned int security_state);
 
 /* Get the pointer to next `smc_ctx_t` already set by `smc_set_next_ctx()`. */
 void *smc_get_next_ctx(void);

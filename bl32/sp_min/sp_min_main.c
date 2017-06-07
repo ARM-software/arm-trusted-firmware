@@ -33,13 +33,13 @@ static smc_ctx_t sp_min_smc_context[PLATFORM_CORE_COUNT];
 /******************************************************************************
  * Define the smcc helper library API's
  *****************************************************************************/
-void *smc_get_ctx(int security_state)
+void *smc_get_ctx(unsigned int security_state)
 {
 	assert(security_state == NON_SECURE);
 	return &sp_min_smc_context[plat_my_core_pos()];
 }
 
-void smc_set_next_ctx(int security_state)
+void smc_set_next_ctx(unsigned int security_state)
 {
 	assert(security_state == NON_SECURE);
 	/* SP_MIN stores only non secure smc context. Nothing to do here */
