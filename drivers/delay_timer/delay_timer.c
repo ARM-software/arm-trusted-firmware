@@ -19,10 +19,10 @@ static const timer_ops_t *ops;
  ***********************************************************/
 void udelay(uint32_t usec)
 {
-	assert(ops != 0 &&
+	assert(ops != NULL &&
 		(ops->clk_mult != 0) &&
 		(ops->clk_div != 0) &&
-		(ops->get_timer_value != 0));
+		(ops->get_timer_value != NULL));
 
 	uint32_t start, delta, total_delta;
 
@@ -57,10 +57,10 @@ void mdelay(uint32_t msec)
  ***********************************************************/
 void timer_init(const timer_ops_t *ops_ptr)
 {
-	assert(ops_ptr != 0  &&
+	assert(ops_ptr != NULL  &&
 		(ops_ptr->clk_mult != 0) &&
 		(ops_ptr->clk_div != 0) &&
-		(ops_ptr->get_timer_value != 0));
+		(ops_ptr->get_timer_value != NULL));
 
 	ops = ops_ptr;
 }
