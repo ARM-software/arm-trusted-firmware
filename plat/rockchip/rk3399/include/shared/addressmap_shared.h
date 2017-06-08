@@ -9,6 +9,9 @@
 
 #define SIZE_K(n)		((n) * 1024)
 #define SIZE_M(n)		((n) * 1024 * 1024)
+#define SRAM_TEXT_LIMIT		(4 * 1024)
+#define SRAM_DATA_LIMIT		(4 * 1024)
+#define SRAM_BIN_LIMIT		(4 * 1024)
 
 /*
  * The parts of the shared defined registers address with AP and M0,
