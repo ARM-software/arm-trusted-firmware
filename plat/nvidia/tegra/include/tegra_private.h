@@ -15,8 +15,8 @@
 /*******************************************************************************
  * Tegra DRAM memory base address
  ******************************************************************************/
-#define TEGRA_DRAM_BASE		0x80000000ULL
-#define TEGRA_DRAM_END		0x27FFFFFFFULL
+#define TEGRA_DRAM_BASE		ULL(0x80000000)
+#define TEGRA_DRAM_END		ULL(0x27FFFFFFF)
 
 /*******************************************************************************
  * Struct for parameters received from BL2
@@ -71,8 +71,8 @@ int tegra_fiq_get_intr_context(void);
 void tegra_fiq_set_ns_entrypoint(uint64_t entrypoint);
 
 /* Declarations for tegra_gic.c */
-void tegra_gic_setup(const irq_sec_cfg_t *irq_sec_ptr, unsigned int num_irqs);
 void tegra_gic_cpuif_deactivate(void);
+void tegra_gic_setup(const irq_sec_cfg_t *irq_sec_ptr, uint32_t num_irqs);
 
 /* Declarations for tegra_security.c */
 void tegra_security_setup(void);

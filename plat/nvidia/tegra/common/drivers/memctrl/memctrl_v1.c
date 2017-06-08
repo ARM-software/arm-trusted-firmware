@@ -15,9 +15,6 @@
 #include <utils.h>
 #include <xlat_tables_v2.h>
 
-#define TEGRA_GPU_RESET_REG_OFFSET	0x28c
-#define  GPU_RESET_BIT			(1 << 24)
-
 /* Video Memory base and size (live values) */
 static uint64_t video_mem_base;
 static uint64_t video_mem_size;
@@ -135,19 +132,7 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 {
 	uintptr_t vmem_end_old = video_mem_base + (video_mem_size << 20);
 	uintptr_t vmem_end_new = phys_base + size_in_bytes;
-	uint32_t regval;
 	unsigned long long non_overlap_area_size;
-
-	/*
-	 * The GPU is the user of the Video Memory region. In order to
-	 * transition to the new memory region smoothly, we program the
-	 * new base/size ONLY if the GPU is in reset mode.
-	 */
-	regval = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_GPU_RESET_REG_OFFSET);
-	if ((regval & GPU_RESET_BIT) == 0) {
-		ERROR("GPU not in reset! Video Memory setup failed\n");
-		return;
-	}
 
 	/*
 	 * Setup the Memory controller to restrict CPU accesses to the Video

@@ -19,9 +19,6 @@
 #include <utils.h>
 #include <xlat_tables_v2.h>
 
-#define TEGRA_GPU_RESET_REG_OFFSET	0x30
-#define  GPU_RESET_BIT			(1 << 0)
-
 /* Video Memory base and size (live values) */
 static uint64_t video_mem_base;
 static uint64_t video_mem_size_mb;
@@ -254,31 +251,11 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_RESET_VAL;
 	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL0, wdata_0);
 
-	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
-	} while ((val & wdata_0) != wdata_0);
-
-	/* Wait one more time due to SW WAR for known legacy issue */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS0);
-	} while ((val & wdata_0) != wdata_0);
-
 	val = tegra_mc_read_32(MC_CLIENT_HOTRESET_CTRL1);
 	assert(val == wdata_1);
 
 	wdata_1 = MC_CLIENT_HOTRESET_CTRL1_RESET_VAL;
 	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL1, wdata_1);
-
-	/* Wait for HOTRESET STATUS to indicate FLUSH_DONE */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
-	} while ((val & wdata_1) != wdata_1);
-
-	/* Wait one more time due to SW WAR for known legacy issue */
-	do {
-		val = tegra_mc_read_32(MC_CLIENT_HOTRESET_STATUS1);
-	} while ((val & wdata_1) != wdata_1);
 
 #endif
 }
@@ -623,19 +600,7 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 {
 	uintptr_t vmem_end_old = video_mem_base + (video_mem_size_mb << 20);
 	uintptr_t vmem_end_new = phys_base + size_in_bytes;
-	uint32_t regval;
 	unsigned long long non_overlap_area_size;
-
-	/*
-	 * The GPU is the user of the Video Memory region. In order to
-	 * transition to the new memory region smoothly, we program the
-	 * new base/size ONLY if the GPU is in reset mode.
-	 */
-	regval = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_GPU_RESET_REG_OFFSET);
-	if ((regval & GPU_RESET_BIT) == 0U) {
-		ERROR("GPU not in reset! Video Memory setup failed\n");
-		return;
-	}
 
 	/*
 	 * Setup the Memory controller to restrict CPU accesses to the Video
