@@ -217,7 +217,7 @@ int psci_affinity_info(u_register_t target_affinity,
 
 	/* Calculate the cpu index of the target */
 	target_idx = plat_core_pos_by_mpidr(target_affinity);
-	if (target_idx == -1)
+	if (target_idx == -1U)
 		return PSCI_E_INVALID_PARAMS;
 
 	return psci_get_aff_info_state_by_idx(target_idx);

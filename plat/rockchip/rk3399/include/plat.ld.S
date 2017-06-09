@@ -8,6 +8,7 @@
 
 MEMORY {
     SRAM (rwx): ORIGIN = SRAM_BASE, LENGTH = SRAM_SIZE
+    PMUSRAM (rwx): ORIGIN = PMUSRAM_BASE, LENGTH = PMUSRAM_RSIZE
 }
 
 SECTIONS
@@ -29,24 +30,60 @@ SECTIONS
 	.incbin_sram : ALIGN(4096) {
 		__sram_incbin_start = .;
 		*(.sram.incbin)
+		 __sram_incbin_real_end = .;
 		. = ALIGN(4096);
 		__sram_incbin_end = .;
 	} >SRAM
+	ASSERT((__sram_incbin_real_end - __sram_incbin_start) <=
+		SRAM_BIN_LIMIT, ".incbin_sram has exceeded its limit")
 
 	.text_sram : ALIGN(4096) {
 		__bl31_sram_text_start = .;
 		*(.sram.text)
 		*(.sram.rodata)
+		__bl31_sram_text_real_end = .;
 		. = ALIGN(4096);
 		__bl31_sram_text_end = .;
 	} >SRAM
+	ASSERT((__bl31_sram_text_real_end - __bl31_sram_text_start) <=
+		SRAM_TEXT_LIMIT, ".text_sram has exceeded its limit")
 
 	.data_sram : ALIGN(4096) {
 		__bl31_sram_data_start = .;
 		*(.sram.data)
+		__bl31_sram_data_real_end = .;
 		. = ALIGN(4096);
 		__bl31_sram_data_end = .;
 	} >SRAM
+	ASSERT((__bl31_sram_data_real_end - __bl31_sram_data_start) <=
+		SRAM_DATA_LIMIT, ".data_sram has exceeded its limit")
+
+	.stack_sram : ALIGN(4096) {
+		__bl31_sram_stack_start = .;
+		. += 4096;
+		__bl31_sram_stack_end = .;
+	} >SRAM
+
+	. = PMUSRAM_BASE;
+
+	/*
+	 * pmu_cpuson_entrypoint request address
+	 * align 64K when resume, so put it in the
+	 * start of pmusram
+	 */
+	.pmusram : {
+		ASSERT(. == ALIGN(64 * 1024),
+			".pmusram.entry request 64K aligned.");
+		*(.pmusram.entry)
+		__bl31_pmusram_text_start = .;
+		*(.pmusram.text)
+		*(.pmusram.rodata)
+		__bl31_pmusram_text_end = .;
+		__bl31_pmusram_data_start = .;
+		*(.pmusram.data)
+		__bl31_pmusram_data_end = .;
+
+	} >PMUSRAM
 }
 
 #endif /* __ROCKCHIP_PLAT_LD_S__ */

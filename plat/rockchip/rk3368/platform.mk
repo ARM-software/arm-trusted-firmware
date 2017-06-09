@@ -39,7 +39,6 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				${RK_PLAT_COMMON}/bl31_plat_setup.c		\
 				${RK_PLAT_COMMON}/params_setup.c                \
 				${RK_PLAT_COMMON}/pmusram/pmu_sram_cpus_on.S		\
-				${RK_PLAT_COMMON}/pmusram/pmu_sram.c		\
 				${RK_PLAT_COMMON}/plat_pm.c			\
 				${RK_PLAT_COMMON}/plat_topology.c		\
 				${RK_PLAT_COMMON}/aarch64/platform_common.c	\
@@ -50,3 +49,5 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				${RK_PLAT_SOC}/drivers/ddr/ddr_rk3368.c		\
 
 ENABLE_PLAT_COMPAT	:=      0
+
+$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))

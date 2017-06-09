@@ -20,7 +20,6 @@
 #define PI_FULL_TRAINING	(0xff)
 
 void dmc_save(void);
-__sramfunc void dmc_restore(void);
-__sramfunc void sram_regcpy(uintptr_t dst, uintptr_t src, uint32_t num);
+__pmusramfunc void dmc_restore(void);
 
 #endif /* __DRAM_H__ */

@@ -292,7 +292,7 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 	 * Dispatcher to let it do any bookeeping. If the handler encounters an
 	 * error, it's expected to assert within
 	 */
-	if (psci_spd_pm && psci_spd_pm->svc_suspend) {
+	if (psci_spd_pm && psci_spd_pm->svc_suspend_finish) {
 		max_off_lvl = psci_find_max_off_lvl(state_info);
 		assert (max_off_lvl != PSCI_INVALID_PWR_LVL);
 		psci_spd_pm->svc_suspend_finish(max_off_lvl);
