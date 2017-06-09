@@ -50,6 +50,8 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 
 ENABLE_PLAT_COMPAT	:=	0
 
+include lib/coreboot/coreboot.mk
+
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
 # Do not enable SVE
