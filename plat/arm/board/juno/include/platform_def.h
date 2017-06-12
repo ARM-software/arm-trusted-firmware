@@ -82,13 +82,8 @@
 #endif
 
 #ifdef IMAGE_BL31
-# if CSS_USE_SCMI_DRIVER
-#  define PLAT_ARM_MMAP_ENTRIES		6
-#  define MAX_XLAT_TABLES		3
-# else
 #  define PLAT_ARM_MMAP_ENTRIES		5
 #  define MAX_XLAT_TABLES		2
-# endif
 #endif
 
 #ifdef IMAGE_BL32
@@ -168,7 +163,9 @@
 /*
  * Base address of the first memory region used for communication between AP
  * and SCP. Used by the BOM and SCPI protocols.
- *
+ */
+#if !CSS_USE_SCMI_SDS_DRIVER
+/*
  * Note that this is located at the same address as SCP_BOOT_CFG_ADDR, which
  * means the SCP/AP configuration data gets overwritten when the AP initiates
  * communication with the SCP. The configuration data is expected to be a
@@ -178,6 +175,7 @@
 #define PLAT_CSS_SCP_COM_SHARED_MEM_BASE	(ARM_TRUSTED_SRAM_BASE + 0x80)
 #define PLAT_CSS_PRIMARY_CPU_SHIFT		8
 #define PLAT_CSS_PRIMARY_CPU_BIT_WIDTH		4
+#endif
 
 /*
  * PLAT_CSS_MAX_SCP_BL2_SIZE is calculated using the current

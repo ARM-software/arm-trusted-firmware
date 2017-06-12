@@ -6,12 +6,12 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
 #include <css_def.h>
 #include <debug.h>
 #include <platform.h>
 #include <stdint.h>
 #include "../scpi/css_mhu.h"
+#include "../scpi/css_scpi.h"
 
 /* ID of the MHU slot used for the BOM protocol */
 #define BOM_MHU_SLOT_ID		0
@@ -182,4 +182,12 @@ int css_scp_boot_image_xfer(void *image, unsigned int image_size)
 	}
 
 	return 0;
+}
+
+int css_scp_boot_ready(void)
+{
+	VERBOSE("Waiting for SCP to signal it is ready to go on\n");
+
+	/* Wait for SCP to signal it's ready */
+	return scpi_wait_ready();
 }

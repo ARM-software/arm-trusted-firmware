@@ -139,7 +139,9 @@ ifdef EL3_PAYLOAD_BASE
 BL1_SOURCES		+=	plat/arm/common/arm_pm.c
 endif
 
-BL2_SOURCES		+=	drivers/io/io_fip.c				\
+BL2_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
+				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl2_setup.c			\
@@ -159,7 +161,9 @@ BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
 endif
 
-BL2U_SOURCES		+=	plat/arm/common/arm_bl2u_setup.c
+BL2U_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
+				plat/arm/common/arm_bl2u_setup.c
 
 BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\

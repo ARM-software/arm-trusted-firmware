@@ -324,8 +324,8 @@ void __dead2 css_scp_sys_reboot(void)
 scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
 		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
-		.db_preserve_mask = 0xfffffffd,
-		.db_modify_mask = 0x2,
+		.db_preserve_mask = 0xfffffffe,
+		.db_modify_mask = 0x1,
 };
 
 void plat_arm_pwrc_setup(void)

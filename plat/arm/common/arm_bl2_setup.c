@@ -11,6 +11,7 @@
 #include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
+#include <generic_delay_timer.h>
 #ifdef SPD_opteed
 #include <optee_utils.h>
 #endif
@@ -182,6 +183,7 @@ void arm_bl2_early_platform_setup(meminfo_t *mem_layout)
 void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
 	arm_bl2_early_platform_setup(mem_layout);
+	generic_delay_timer_init();
 }
 
 /*

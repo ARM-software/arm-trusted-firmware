@@ -8,7 +8,7 @@
 BL32_SOURCES		+=	plat/arm/css/common/css_pm.c			\
 				plat/arm/css/common/css_topology.c
 
-ifeq (${CSS_USE_SCMI_DRIVER},0)
+ifeq (${CSS_USE_SCMI_SDS_DRIVER},0)
 BL32_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scpi.c		\
 				plat/arm/css/drivers/scpi/css_mhu.c		\
 				plat/arm/css/drivers/scpi/css_scpi.c

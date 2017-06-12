@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,6 +68,24 @@ endfunc css_calc_core_pos_swap_cluster
 	 * cpu (applicable ony after a cold boot)
 	 * -----------------------------------------------------
 	 */
+#if CSS_USE_SCMI_SDS_DRIVER
+func plat_is_my_cpu_primary
+	mov	r10, lr
+	bl	plat_my_core_pos
+	mov	r4, r0
+	bl	sds_get_primary_cpu_id
+	/* Check for error */
+	mov	r1, #0xffffffff
+	cmp	r0, r1
+	beq	1f
+	cmp	r0, r4
+	moveq	r0, #1
+	movne	r0, #0
+	bx	r10
+1:
+	no_ret	plat_panic_handler
+endfunc plat_is_my_cpu_primary
+#else
 func plat_is_my_cpu_primary
 	mov	r10, lr
 	bl	plat_my_core_pos
@@ -80,3 +98,4 @@ func plat_is_my_cpu_primary
 	movne	r0, #0
 	bx	r10
 endfunc plat_is_my_cpu_primary
+#endif

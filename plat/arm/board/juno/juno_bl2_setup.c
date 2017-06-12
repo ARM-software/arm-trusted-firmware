@@ -30,9 +30,12 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	return err;
 }
 
+#if !CSS_USE_SCMI_SDS_DRIVER
 /*
  * We need to override some of the platform functions when booting SP_MIN
- * on Juno AArch32.
+ * on Juno AArch32. These needs to be done only for SCPI/BOM SCP systems as
+ * in case of SDS, the structures remain in memory and doesn't need to be
+ * overwritten.
  */
 
 static unsigned int scp_boot_config;
@@ -53,4 +56,6 @@ void bl2_platform_setup(void)
 	mmio_write_32(SCP_BOOT_CFG_ADDR, scp_boot_config);
 	VERBOSE("BL2: Restored SCP Boot config = 0x%x\n", scp_boot_config);
 }
+#endif
+
 #endif /* JUNO_AARCH32_EL3_RUNTIME */

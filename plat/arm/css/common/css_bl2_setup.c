@@ -48,10 +48,14 @@ int bl2_plat_handle_scp_bl2(image_info_t *scp_bl2_image_info)
 	return ret;
 }
 
-#ifdef EL3_PAYLOAD_BASE
+#if !CSS_USE_SCMI_SDS_DRIVER
+# ifdef EL3_PAYLOAD_BASE
+
 /*
  * We need to override some of the platform functions when booting an EL3
- * payload.
+ * payload. These needs to be done only for SCPI/BOM SCP systems as
+ * in case of SDS, the structures remain in memory and doesn't need to be
+ * overwritten.
  */
 
 static unsigned int scp_boot_config;
@@ -82,4 +86,7 @@ void bl2_platform_setup(void)
 	zeromem((void *) ARM_SHARED_RAM_BASE, 128);
 	mmio_write_32(SCP_BOOT_CFG_ADDR, scp_boot_config);
 }
-#endif /* EL3_PAYLOAD_BASE */
+
+# endif /* EL3_PAYLOAD_BASE */
+
+#endif /* CSS_USE_SCMI_SDS_DRIVER */

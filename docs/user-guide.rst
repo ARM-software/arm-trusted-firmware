@@ -669,9 +669,10 @@ ARM CSS platform specific build options
    SCP\_BL2U to the FIP and FWU\_FIP respectively, and enables them to be loaded
    during boot. Default is 1.
 
--  ``CSS_USE_SCMI_DRIVER``: Boolean flag which selects SCMI driver instead of
-   SCPI driver for communicating with the SCP during power management operations.
-   If this option is set to 1, then SCMI driver will be used. Default is 0.
+-  ``CSS_USE_SCMI_SDS_DRIVER``: Boolean flag which selects SCMI/SDS drivers
+   instead of SCPI/BOM driver for communicating with the SCP during power
+   management operations and for SCP RAM Firmware transfer. If this option
+   is set to 1, then SCMI/SDS drivers will be used. Default is 0.
 
 ARM FVP platform specific build options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
