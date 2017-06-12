@@ -136,7 +136,7 @@ int tegra_bpmp_init(void)
 
 		/* check if the atomics block is out of reset */
 		val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_CLR_V);
-		if ((val & CAR_ENABLE_ATOMICS) == 0) {
+		if ((val & CAR_ENABLE_ATOMICS) == CAR_ENABLE_ATOMICS) {
 			ERROR("Reset to the atomics block is asserted\n");
 		}
 
