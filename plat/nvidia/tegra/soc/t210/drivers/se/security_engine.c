@@ -394,6 +394,46 @@ void tegra_se_init(void)
 	INFO("%s: SE init done\n", __func__);
 }
 
+static void tegra_se_enable_clocks(void)
+{
+	uint32_t val = 0;
+
+	/* Enable entropy clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W);
+	val |= ENTROPY_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W, val);
+
+	/* De-Assert Entropy Reset */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_W);
+	val &= ~ENTROPY_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_W, val);
+
+	/* Enable SE clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V);
+	val |= SE_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V, val);
+
+	/* De-Assert SE Reset */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_V);
+	val &= ~SE_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_V, val);
+}
+
+static void tegra_se_disable_clocks(void)
+{
+	uint32_t val = 0;
+
+	/* Disable entropy clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W);
+	val &= ~ENTROPY_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W, val);
+
+	/* Disable SE clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V);
+	val &= ~SE_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V, val);
+}
+
 /*
  * Security engine power suspend entry point.
  * This function is invoked from PSCI power domain suspend handler.
@@ -409,6 +449,7 @@ int32_t tegra_se_suspend(void)
 	val &= ~PPCS_SMMU_ENABLE;
 	mmio_write_32(TEGRA_MC_BASE + MC_SMMU_PPCS_ASID_0, val);
 
+	tegra_se_enable_clocks();
 
 	/* Atomic context save se2 and pka1 */
 	INFO("%s: SE2/PKA1 atomic context save\n", __func__);
@@ -424,6 +465,8 @@ int32_t tegra_se_suspend(void)
 		INFO("%s: SE atomic context save done\n", __func__);
 	}
 
+	tegra_se_disable_clocks();
+
 	return ret;
 }
 
@@ -437,6 +480,7 @@ int32_t tegra_se_save_tzram(void)
 	uint32_t timeout;
 
 	INFO("%s: SE TZRAM save start\n", __func__);
+	tegra_se_enable_clocks();
 
 	val = (SE_TZRAM_OP_REQ_INIT | SE_TZRAM_OP_MODE_SAVE);
 	tegra_se_write_32(&se_dev_1, SE_TZRAM_OPERATION, val);
@@ -456,6 +500,8 @@ int32_t tegra_se_save_tzram(void)
 	if (ret == 0) {
 		INFO("%s: SE TZRAM save done!\n", __func__);
 	}
+
+	tegra_se_disable_clocks();
 
 	return ret;
 }

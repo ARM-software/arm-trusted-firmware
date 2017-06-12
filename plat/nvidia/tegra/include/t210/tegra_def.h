@@ -89,6 +89,16 @@
 #define TEGRA_RST_DEV_CLR_V		U(0x434)
 #define TEGRA_CLK_ENB_V			U(0x440)
 
+/* SE Clock Offsets */
+#define TEGRA_RST_DEVICES_V		0x358UL
+#define  SE_RESET_BIT 			(0x1UL << 31)
+#define TEGRA_RST_DEVICES_W		 0x35CUL
+#define  ENTROPY_CLK_ENB_BIT		(0x1UL << 21)
+#define TEGRA_CLK_OUT_ENB_V		0x360UL
+#define  SE_CLK_ENB_BIT			(0x1UL << 31)
+#define TEGRA_CLK_OUT_ENB_W		0x364UL
+#define  ENTROPY_RESET_BIT 		(0x1UL << 21)
+
 /*******************************************************************************
  * Tegra Flow Controller constants
  ******************************************************************************/
