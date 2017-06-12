@@ -45,7 +45,7 @@ int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd)
 		data = mmio_read_32(base + IS);
 	} while ((data & UFS_INT_UCCS) == 0);
 	mmio_write_32(base + IS, UFS_INT_UCCS);
-	return mmio_read_32(base + UCMDARG2) && CONFIG_RESULT_CODE_MASK;
+	return mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
 }
 
 int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
@@ -77,7 +77,7 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 			return -EINVAL;
 	} while ((data & UFS_INT_UCCS) == 0);
 	mmio_write_32(base + IS, UFS_INT_UCCS);
-	data = mmio_read_32(base + UCMDARG2) && CONFIG_RESULT_CODE_MASK;
+	data = mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
 	assert(data == 0);
 
 	*val = mmio_read_32(base + UCMDARG3);
@@ -106,7 +106,7 @@ int ufshc_dme_set(unsigned int attr, unsigned int idx, unsigned int val)
 			return -EINVAL;
 	} while ((data & UFS_INT_UCCS) == 0);
 	mmio_write_32(base + IS, UFS_INT_UCCS);
-	data = mmio_read_32(base + UCMDARG2) && CONFIG_RESULT_CODE_MASK;
+	data = mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
 	assert(data == 0);
 	return 0;
 }
