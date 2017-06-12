@@ -111,9 +111,7 @@ static int adcin_data_remap(unsigned int adcin_value)
 {
 	int	ret;
 
-	if (adcin_value < HKADC_DATA_GRADE0)
-		ret = BOARDID_UNKNOWN;
-	else if (adcin_value < HKADC_DATA_GRADE1)
+	if (adcin_value < HKADC_DATA_GRADE1)
 		ret = BOARDID_VALUE0;
 	else if (adcin_value < HKADC_DATA_GRADE2)
 		ret = BOARDID_VALUE1;
