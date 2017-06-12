@@ -401,6 +401,14 @@ void tegra_se_init(void)
 int32_t tegra_se_suspend(void)
 {
 	int32_t ret = 0;
+	uint32_t val = 0;
+
+	/* SE does not use SMMU in EL3, disable SMMU.
+	 * This will be re-enabled by kernel on resume */
+	val = mmio_read_32(TEGRA_MC_BASE + MC_SMMU_PPCS_ASID_0);
+	val &= ~PPCS_SMMU_ENABLE;
+	mmio_write_32(TEGRA_MC_BASE + MC_SMMU_PPCS_ASID_0, val);
+
 
 	/* Atomic context save se2 and pka1 */
 	INFO("%s: SE2/PKA1 atomic context save\n", __func__);

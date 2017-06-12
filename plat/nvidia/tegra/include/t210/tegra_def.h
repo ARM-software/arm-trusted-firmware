@@ -153,6 +153,10 @@
 #define MC_VIDEO_PROTECT_BASE_LO	U(0x648)
 #define MC_VIDEO_PROTECT_SIZE_MB	U(0x64c)
 
+/* SMMU configuration registers*/
+#define MC_SMMU_PPCS_ASID_0		0x270UL
+#define  PPCS_SMMU_ENABLE		(0x1U << 31)
+
 /*******************************************************************************
  * Tegra SE constants
  ******************************************************************************/
