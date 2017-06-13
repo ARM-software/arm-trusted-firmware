@@ -7,6 +7,8 @@
 #ifndef __COREBOOT_H__
 #define __COREBOOT_H__
 
+#include <types.h>
+
 typedef struct {
 	uint32_t type;			/* always 2 (memory-mapped) on ARM */
 	uint32_t baseaddr;
@@ -18,5 +20,7 @@ typedef struct {
 extern coreboot_serial_t coreboot_serial;
 
 void coreboot_table_setup(void *base);
+
+int console_cbmc_register(uintptr_t base);
 
 #endif /* __COREBOOT_TABLES_H__ */
