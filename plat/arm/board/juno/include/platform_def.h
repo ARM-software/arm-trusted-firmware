@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -106,7 +106,7 @@
  * little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
+# define PLAT_ARM_MAX_BL2_SIZE		0x18000
 #else
 # define PLAT_ARM_MAX_BL2_SIZE		0xC000
 #endif
@@ -172,13 +172,13 @@
  * PLAT_CSS_MAX_SCP_BL2_SIZE is calculated using the current
  * SCP_BL2 size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2_SIZE	0x1D000
+#define PLAT_CSS_MAX_SCP_BL2_SIZE	0x14000
 
 /*
  * PLAT_CSS_MAX_SCP_BL2U_SIZE is calculated using the current
  * SCP_BL2U size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x1D000
+#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x14000
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
