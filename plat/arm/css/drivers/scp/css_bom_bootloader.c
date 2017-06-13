@@ -6,6 +6,7 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <cassert.h>
 #include <css_def.h>
 #include <debug.h>
 #include <platform.h>
@@ -43,6 +44,18 @@ typedef struct {
 	uint32_t offset;
 	uint32_t block_size;
 } cmd_data_payload_t;
+
+/*
+ * All CSS platforms load SCP_BL2/SCP_BL2U just below BL rw-data and above
+ * BL2/BL2U (this is where BL31 usually resides except when ARM_BL31_IN_DRAM is
+ * set. Ensure that SCP_BL2/SCP_BL2U do not overflow into BL1 rw-data nor
+ * BL2/BL2U.
+ */
+CASSERT(SCP_BL2_LIMIT <= BL1_RW_BASE, assert_scp_bl2_overwrite_bl1);
+CASSERT(SCP_BL2U_LIMIT <= BL1_RW_BASE, assert_scp_bl2u_overwrite_bl1);
+
+CASSERT(SCP_BL2_BASE >= BL2_LIMIT, assert_scp_bl2_overwrite_bl2);
+CASSERT(SCP_BL2U_BASE >= BL2U_LIMIT, assert_scp_bl2u_overwrite_bl2u);
 
 static void scp_boot_message_start(void)
 {
