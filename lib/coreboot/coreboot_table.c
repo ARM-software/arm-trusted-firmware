@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <cbmem_console.h>
 #include <coreboot.h>
 #include <debug.h>
 #include <mmio.h>
 #include <string.h>
+#include <xlat_tables_v2.h>
 
 /*
  * Structures describing coreboot's in-memory descriptor tables. See
@@ -26,6 +29,7 @@ typedef struct {
 
 typedef enum {
 	CB_TAG_SERIAL = 0xf,
+	CB_TAG_CBMEM_CONSOLE = 0x17,
 } cb_tag_t;
 
 typedef struct {
@@ -33,6 +37,7 @@ typedef struct {
 	uint32_t size;
 	union {
 		coreboot_serial_t serial;
+		uint64_t uint64;
 	};
 } cb_entry_t;
 
@@ -52,6 +57,32 @@ static uint32_t read_le32(uint32_t *p)
 	       mmio_read_8(addr + 1) << 8	|
 	       mmio_read_8(addr + 2) << 16	|
 	       mmio_read_8(addr + 3) << 24;
+}
+static uint64_t read_le64(uint64_t *p)
+{
+	return read_le32((void *)p) | (uint64_t)read_le32((void *)p + 4) << 32;
+}
+
+static void expand_and_mmap(uintptr_t baseaddr, size_t size)
+{
+	uintptr_t pageaddr = round_down(baseaddr, PAGE_SIZE);
+	size_t expanded = round_up(baseaddr - pageaddr + size, PAGE_SIZE);
+	mmap_add_region(pageaddr, pageaddr, expanded,
+			MT_MEMORY | MT_RW | MT_NS | MT_EXECUTE_NEVER);
+}
+
+static void setup_cbmem_console(uintptr_t baseaddr)
+{
+	static console_cbmc_t console;
+	assert(!console.base);		/* should only have one CBMEM console */
+
+	/* CBMEM console structure stores its size in first header field. */
+	uint32_t size = *(uint32_t *)baseaddr;
+	expand_and_mmap(baseaddr, size);
+	console_cbmc_register(baseaddr, &console);
+	console_set_scope(&console.console, CONSOLE_FLAG_BOOT |
+					    CONSOLE_FLAG_RUNTIME |
+					    CONSOLE_FLAG_CRASH);
 }
 
 void coreboot_table_setup(void *base)
@@ -78,6 +109,9 @@ void coreboot_table_setup(void *base)
 		case CB_TAG_SERIAL:
 			memcpy(&coreboot_serial, &entry->serial,
 			       sizeof(coreboot_serial));
+			break;
+		case CB_TAG_CBMEM_CONSOLE:
+			setup_cbmem_console(read_le64(&entry->uint64));
 			break;
 		default:
 			/* There are many tags TF doesn't need to care about. */
