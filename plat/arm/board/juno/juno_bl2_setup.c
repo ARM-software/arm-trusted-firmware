@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,5 +28,29 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	}
 
 	return err;
+}
+
+/*
+ * We need to override some of the platform functions when booting SP_MIN
+ * on Juno AArch32.
+ */
+
+static unsigned int scp_boot_config;
+
+void bl2_early_platform_setup(meminfo_t *mem_layout)
+{
+	arm_bl2_early_platform_setup(mem_layout);
+
+	/* Save SCP Boot config before it gets overwritten by SCP_BL2 loading */
+	VERBOSE("BL2: Saving SCP Boot config = 0x%x\n", scp_boot_config);
+	scp_boot_config = mmio_read_32(SCP_BOOT_CFG_ADDR);
+}
+
+void bl2_platform_setup(void)
+{
+	arm_bl2_platform_setup();
+
+	mmio_write_32(SCP_BOOT_CFG_ADDR, scp_boot_config);
+	VERBOSE("BL2: Restored SCP Boot config = 0x%x\n", scp_boot_config);
 }
 #endif /* JUNO_AARCH32_EL3_RUNTIME */
