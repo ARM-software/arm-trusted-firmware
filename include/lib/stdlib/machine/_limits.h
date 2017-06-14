@@ -27,6 +27,11 @@
  * $FreeBSD$
  */
 
+/*
+ * Portions copyright (c) 2017, ARM Limited and Contributors.
+ * All rights reserved.
+ */
+
 #ifndef	_MACHINE__LIMITS_H_
 #define	_MACHINE__LIMITS_H_
 
@@ -50,17 +55,21 @@
 #define	__SHRT_MAX	0x7fff		/* max value for a short */
 #define	__SHRT_MIN	(-0x7fff-1)	/* min value for a short */
 
-#define	__UINT_MAX	0xffffffff	/* max value for an unsigned int */
+#define	__UINT_MAX	0xffffffffU	/* max value for an unsigned int */
 #define	__INT_MAX	0x7fffffff	/* max value for an int */
 #define	__INT_MIN	(-0x7fffffff-1)	/* min value for an int */
 
-#define	__ULONG_MAX	0xffffffffffffffff	/* max for an unsigned long */
-#define	__LONG_MAX	0x7fffffffffffffff	/* max for a long */
-#define	__LONG_MIN	(-0x7fffffffffffffff-1) /* min for a long */
+#ifdef AARCH32
+#define	__ULONG_MAX	0xffffffffUL	/* max for an unsigned long */
+#define	__LONG_MAX	0x7fffffffL	/* max for a long */
+#define	__LONG_MIN	(-0x7fffffffL-1) /* min for a long */
+#else
+#define	__ULONG_MAX	0xffffffffffffffffUL	/* max for an unsigned long */
+#define	__LONG_MAX	0x7fffffffffffffffL	/* max for a long */
+#define	__LONG_MIN	(-0x7fffffffffffffffL-1) /* min for a long */
+#endif
 
-/* Long longs have the same size but not the same type as longs. */
-					/* max for an unsigned long long */
-#define	__ULLONG_MAX	0xffffffffffffffffULL
+#define	__ULLONG_MAX	0xffffffffffffffffULL	/* max for an unsigned long long */
 #define	__LLONG_MAX	0x7fffffffffffffffLL	/* max for a long long */
 #define	__LLONG_MIN	(-0x7fffffffffffffffLL-1) /* min for a long long */
 
@@ -71,12 +80,23 @@
 #define	__OFF_MAX	__LONG_MAX	/* max value for an off_t */
 #define	__OFF_MIN	__LONG_MIN	/* min value for an off_t */
 
+#ifdef AARCH32
+/* Quads and long longs are the same size.  Ensure they stay in sync. */
+#define	__UQUAD_MAX	(__ULLONG_MAX)	/* max value for a uquad_t */
+#define	__QUAD_MAX	(__LLONG_MAX)	/* max value for a quad_t */
+#define	__QUAD_MIN	(__LLONG_MIN)	/* min value for a quad_t */
+#else
 /* Quads and longs are the same size.  Ensure they stay in sync. */
 #define	__UQUAD_MAX	(__ULONG_MAX)	/* max value for a uquad_t */
 #define	__QUAD_MAX	(__LONG_MAX)	/* max value for a quad_t */
 #define	__QUAD_MIN	(__LONG_MIN)	/* min value for a quad_t */
+#endif
 
+#ifdef AARCH32
+#define	__LONG_BIT	32
+#else
 #define	__LONG_BIT	64
+#endif
 #define	__WORD_BIT	32
 
 /* Minimum signal stack size. */

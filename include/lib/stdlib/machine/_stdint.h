@@ -31,7 +31,7 @@
  */
 
 /*
- * Portions copyright (c) 2016, ARM Limited and Contributors.
+ * Portions copyright (c) 2016-2017, ARM Limited and Contributors.
  * All rights reserved.
  */
 
@@ -127,9 +127,15 @@
  * ISO/IEC 9899:1999
  * 7.18.2.4  Limits of integer types capable of holding object pointers
  */
+#ifdef AARCH32
+#define	INTPTR_MIN	INT32_MIN
+#define	INTPTR_MAX	INT32_MAX
+#define	UINTPTR_MAX	UINT32_MAX
+#else
 #define	INTPTR_MIN	INT64_MIN
 #define	INTPTR_MAX	INT64_MAX
 #define	UINTPTR_MAX	UINT64_MAX
+#endif
 
 /*
  * ISO/IEC 9899:1999
@@ -144,15 +150,24 @@
  * 7.18.3  Limits of other integer types
  */
 /* Limits of ptrdiff_t. */
-#define	PTRDIFF_MIN	INT64_MIN	
+#ifdef AARCH32
+#define	PTRDIFF_MIN	INT32_MIN
+#define	PTRDIFF_MAX	INT32_MAX
+#else
+#define	PTRDIFF_MIN	INT64_MIN
 #define	PTRDIFF_MAX	INT64_MAX
+#endif
 
 /* Limits of sig_atomic_t. */
 #define	SIG_ATOMIC_MIN	INT32_MIN
 #define	SIG_ATOMIC_MAX	INT32_MAX
 
 /* Limit of size_t. */
+#ifdef AARCH32
+#define	SIZE_MAX	UINT32_MAX
+#else
 #define	SIZE_MAX	UINT64_MAX
+#endif
 
 #ifndef WCHAR_MIN /* Also possibly defined in <wchar.h> */
 /* Limits of wchar_t. */
