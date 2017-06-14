@@ -452,8 +452,7 @@ int32_t tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 __dead2 void tegra_soc_prepare_system_off(void)
 {
 	/* System power off */
-
-	/* SC8 */
+	mce_system_shutdown();
 
 	wfi();
 
@@ -465,5 +464,8 @@ __dead2 void tegra_soc_prepare_system_off(void)
 
 int32_t tegra_soc_prepare_system_reset(void)
 {
+	/* System reboot */
+	mce_system_reboot();
+
 	return PSCI_E_SUCCESS;
 }
