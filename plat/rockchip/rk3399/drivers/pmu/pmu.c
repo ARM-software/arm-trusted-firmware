@@ -1413,6 +1413,8 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	enable_dvfs_plls();
 
 	secure_watchdog_enable();
+	secure_sgrf_init();
+	secure_sgrf_ddr_rgn_init();
 
 	/* restore clk_ddrc_bpll_src_en gate */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),
