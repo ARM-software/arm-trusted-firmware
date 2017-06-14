@@ -14,10 +14,12 @@
 
 #include <mce_private.h>
 #include <t18x_ari.h>
+#include <tegra_private.h>
 
 int32_t nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 {
 	int32_t ret = 0;
+	uint64_t val = 0ULL;
 
 	(void)ari_base;
 
@@ -31,7 +33,8 @@ int32_t nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 		nvg_set_request_data(TEGRA_NVG_CHANNEL_WAKE_TIME, wake_time);
 
 		/* set the core cstate */
-		write_actlr_el1(state);
+		val = read_actlr_el1() & ~ACTLR_EL1_PMSTATE_MASK;
+		write_actlr_el1(val | (uint64_t)state);
 	}
 
 	return ret;

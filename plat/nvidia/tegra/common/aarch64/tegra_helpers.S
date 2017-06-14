@@ -18,16 +18,21 @@
 /*******************************************************************************
  * Implementation defined ACTLR_EL3 bit definitions
  ******************************************************************************/
-#define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)
-#define ACTLR_EL3_L2ECTLR_BIT		(1 << 5)
-#define ACTLR_EL3_L2CTLR_BIT		(1 << 4)
-#define ACTLR_EL3_CPUECTLR_BIT		(1 << 1)
-#define ACTLR_EL3_CPUACTLR_BIT		(1 << 0)
+#define ACTLR_EL3_L2ACTLR_BIT		(U(1) << 6)
+#define ACTLR_EL3_L2ECTLR_BIT		(U(1) << 5)
+#define ACTLR_EL3_L2CTLR_BIT		(U(1) << 4)
+#define ACTLR_EL3_CPUECTLR_BIT		(U(1) << 1)
+#define ACTLR_EL3_CPUACTLR_BIT		(U(1) << 0)
+#define ACTLR_EL3_ENABLE_ALL_MASK	(ACTLR_EL3_L2ACTLR_BIT | \
+								ACTLR_EL3_L2ECTLR_BIT | \
+					 			ACTLR_EL3_L2CTLR_BIT | \
+					 			ACTLR_EL3_CPUECTLR_BIT | \
+					 			ACTLR_EL3_CPUACTLR_BIT)
 #define ACTLR_EL3_ENABLE_ALL_ACCESS	(ACTLR_EL3_L2ACTLR_BIT | \
-					 ACTLR_EL3_L2ECTLR_BIT | \
-					 ACTLR_EL3_L2CTLR_BIT | \
-					 ACTLR_EL3_CPUECTLR_BIT | \
-					 ACTLR_EL3_CPUACTLR_BIT)
+					 			ACTLR_EL3_L2ECTLR_BIT | \
+					 			ACTLR_EL3_L2CTLR_BIT | \
+					 			ACTLR_EL3_CPUECTLR_BIT | \
+					 			ACTLR_EL3_CPUACTLR_BIT)
 
 	/* Global functions */
 	.globl	plat_is_my_cpu_primary
@@ -87,8 +92,17 @@
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
 	 * -------------------------------------------------------
 	 */
-	mov	x0, #ACTLR_EL3_ENABLE_ALL_ACCESS
+	mrs	x0, actlr_el3
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_MASK
+	bic	x0, x0, x1
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_ACCESS
+	orr	x0, x0, x1
 	msr	actlr_el3, x0
+	mrs	x0, actlr_el2
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_MASK
+	bic	x0, x0, x1
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_ACCESS
+	orr	x0, x0, x1
 	msr	actlr_el2, x0
 	isb
 
