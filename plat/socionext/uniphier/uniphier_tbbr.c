@@ -6,10 +6,14 @@
 
 #include <platform.h>
 
+extern char uniphier_rotpk_hash[], uniphier_rotpk_hash_end[];
+
 int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags)
 {
-	*flags = ROTPK_NOT_DEPLOYED;
+	*key_ptr = uniphier_rotpk_hash;
+	*key_len = uniphier_rotpk_hash_end - uniphier_rotpk_hash;
+	*flags = ROTPK_IS_HASH;
 
 	return 0;
 }
