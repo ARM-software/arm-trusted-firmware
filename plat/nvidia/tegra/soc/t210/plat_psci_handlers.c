@@ -177,16 +177,6 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 			if (tegra_se_suspend() != 0) {
 				ret = PSCI_E_INTERN_FAIL;
 			}
-
-			/* Save tzram contents */
-			if (tegra_se_save_tzram() != 0) {
-				ret = PSCI_E_INTERN_FAIL;
-			}
-		}
-
-		/* enter system suspend */
-		if (ret == PSCI_E_SUCCESS) {
-			tegra_fc_soc_powerdn(mpidr);
 		}
 
 	} else if (stateid_afflvl1 == PSTATE_ID_CLUSTER_IDLE) {
@@ -215,6 +205,27 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	}
 
 	return ret;
+}
+
+int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
+{
+	u_register_t mpidr = read_mpidr();
+	const plat_local_state_t *pwr_domain_state =
+		target_state->pwr_domain_state;
+	unsigned int stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL];
+
+	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
+
+		if (tegra_chipid_is_t210_b01()) {
+			/* Save tzram contents */
+			tegra_se_save_tzram();
+		}
+
+		/* enter system suspend */
+		tegra_fc_soc_powerdn(mpidr);
+	}
+
+	return PSCI_E_SUCCESS;
 }
 
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
