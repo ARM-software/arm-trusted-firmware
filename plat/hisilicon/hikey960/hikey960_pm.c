@@ -102,7 +102,7 @@ void hikey960_pwr_domain_off(const psci_power_state_t *target_state)
 	hisi_powerdn_core(cluster, core);
 
 	/* check if any core is powered up */
-	if (hisi_test_pwrdn_allcores(cluster, core)) {
+	if (hisi_test_cpu_down(cluster, core)) {
 
 		cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
 
