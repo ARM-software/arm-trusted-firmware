@@ -6,7 +6,7 @@
 
 PROJECT		:= cert_create
 PLAT		:= none
-V		:= 0
+V		?= 0
 DEBUG		:= 0
 BINARY		:= ${PROJECT}${BIN_EXT}
 OPENSSL_DIR	:= /usr
@@ -50,9 +50,9 @@ else
   CFLAGS += -O2 -DLOG_LEVEL=20
 endif
 ifeq (${V},0)
-	Q := @
+  Q := @
 else
-	Q :=
+  Q :=
 endif
 
 $(eval $(call add_define,USE_TBBR_DEFS))

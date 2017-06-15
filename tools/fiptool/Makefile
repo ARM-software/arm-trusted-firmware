@@ -10,7 +10,7 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
 PROJECT := fiptool${BIN_EXT}
 OBJECTS := fiptool.o tbbr_config.o
-V := 0
+V ?= 0
 
 override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
 CFLAGS := -Wall -Werror -pedantic -std=c99
