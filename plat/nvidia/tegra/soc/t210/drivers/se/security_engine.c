@@ -186,33 +186,17 @@ static int32_t tegra_se_operation_complete(const tegra_se_dev_t *se_dev)
 }
 
 /*
- * Verify the SE context save auto has been enabled.
- * SE_CTX_SAVE_AUTO.ENABLE == ENABLE
- * If the SE context save auto is not enabled, then set
- * the context save auto enable and lock the setting.
- * If the SE context save auto is not enabled and the
- * enable setting is locked, then return an error.
+ * Returns true if the SE engine is configured to perform SE context save in
+ * hardware.
  */
-static inline int32_t tegra_se_ctx_save_auto_enable(const tegra_se_dev_t *se_dev)
+static inline int32_t tegra_se_atomic_save_enabled(const tegra_se_dev_t *se_dev)
 {
 	uint32_t val;
 	int32_t ret = 0;
 
 	val = tegra_se_read_32(se_dev, SE_CTX_SAVE_AUTO_REG_OFFSET);
-	if (SE_CTX_SAVE_AUTO_ENABLE(val) == SE_CTX_SAVE_AUTO_DIS) {
-		if (SE_CTX_SAVE_AUTO_LOCK(val) == SE_CTX_SAVE_AUTO_LOCK_EN) {
-			ERROR("%s: ERR: Cannot enable atomic. Write locked!\n",
-					__func__);
-			ret = -EACCES;
-		}
-
-		/* Program SE_CTX_SAVE_AUTO */
-		if (ret == 0) {
-			tegra_se_write_32(se_dev, SE_CTX_SAVE_AUTO_REG_OFFSET,
-					SE_CTX_SAVE_AUTO_LOCK_EN |
-					SE_CTX_SAVE_AUTO_EN);
-		}
-	}
+	if (SE_CTX_SAVE_AUTO_ENABLE(val) == SE_CTX_SAVE_AUTO_EN)
+		ret = 1;
 
 	return ret;
 }
@@ -264,7 +248,7 @@ static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
 	 * SE_CTX_SAVE_AUTO.ENABLE == ENABLE
 	 */
 	if (ret == 0) {
-		ret = tegra_se_ctx_save_auto_enable(se_dev);
+		ret = tegra_se_atomic_save_enabled(se_dev);
 	}
 
 	/* Read the context save progress counter: block_count
@@ -482,12 +466,6 @@ static void tegra_se_warm_boot_resume(const tegra_se_dev_t *se_dev)
 		DRBG_RO_ENT_SRC_LOCK_ENABLE |
 		DRBG_RO_ENT_SRC_ENABLE;
 	tegra_se_write_32(se_dev, SE_RNG_SRC_CONFIG_REG_OFFSET, val);
-
-	/* Enable and lock the SE atomic context save setting */
-	if (tegra_se_ctx_save_auto_enable(se_dev) != 0) {
-		ERROR("%s: ERR: enable SE%d context save auto failed!\n",
-			__func__, se_dev->se_num);
-	}
 
 	/* Set a random value to SRK to initialize DRBG */
 	tegra_se_generate_srk(se_dev);
