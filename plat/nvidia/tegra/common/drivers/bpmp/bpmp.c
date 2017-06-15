@@ -16,7 +16,7 @@
 #include <string.h>
 #include <tegra_def.h>
 
-#define BPMP_TIMEOUT_10US	10
+#define BPMP_TIMEOUT	2
 
 static uint32_t channel_base[NR_CHANNELS];
 static uint32_t bpmp_init_state = BPMP_INIT_PENDING;
@@ -58,15 +58,15 @@ int32_t tegra_bpmp_send_receive_atomic(int mrq, const void *ob_data, int ob_sz,
 	if (bpmp_init_state == BPMP_INIT_COMPLETE) {
 
 		/* loop until BPMP is free */
-		for (timeout = 0; timeout < BPMP_TIMEOUT_10US; timeout++) {
+		for (timeout = 0; timeout < BPMP_TIMEOUT; timeout++) {
 			if (master_free(ch) == true) {
 				break;
 			}
 
-			udelay(1);
+			mdelay(1);
 		}
 
-		if (timeout != BPMP_TIMEOUT_10US) {
+		if (timeout != BPMP_TIMEOUT) {
 
 			/* generate the command struct */
 			p->code = mrq;
@@ -79,15 +79,15 @@ int32_t tegra_bpmp_send_receive_atomic(int mrq, const void *ob_data, int ob_sz,
 				      (1U << INT_SHR_SEM_OUTBOX_FULL));
 
 			/* loop until the command is executed */
-			for (timeout = 0; timeout < BPMP_TIMEOUT_10US; timeout++) {
+			for (timeout = 0; timeout < BPMP_TIMEOUT; timeout++) {
 				if (master_acked(ch) == true) {
 					break;
 				}
 
-				udelay(1);
+				mdelay(1);
 			}
 
-			if (timeout != BPMP_TIMEOUT_10US) {
+			if (timeout != BPMP_TIMEOUT) {
 
 				/* get the command response */
 				(void)memcpy(ib_data, (const void *)p->data,
@@ -106,8 +106,8 @@ int32_t tegra_bpmp_send_receive_atomic(int mrq, const void *ob_data, int ob_sz,
 		ret = -EINVAL;
 	}
 
-	if (timeout == BPMP_TIMEOUT_10US) {
-		ERROR("Timed out waiting for bpmp's response");
+	if (timeout == BPMP_TIMEOUT) {
+		ERROR("Timed out waiting for bpmp's response\n");
 	}
 
 	return ret;
