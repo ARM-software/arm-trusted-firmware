@@ -16,9 +16,9 @@
 	 * ---------------------------------------------
 	 */
 func cortex_a57_disable_smp
-	ldcopr16	r0, r1, CPUECTLR
-	bic64_imm	r0, r1, CPUECTLR_SMP_BIT
-	stcopr16	r0, r1, CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A57_ECTLR
+	bic64_imm	r0, r1, CORTEX_A57_ECTLR_SMP_BIT
+	stcopr16	r0, r1, CORTEX_A57_ECTLR
 	bx	lr
 endfunc cortex_a57_disable_smp
 
@@ -28,11 +28,11 @@ endfunc cortex_a57_disable_smp
 	 * ---------------------------------------------
 	 */
 func cortex_a57_disable_l2_prefetch
-	ldcopr16	r0, r1, CPUECTLR
-	orr64_imm	r0, r1, CPUECTLR_DIS_TWD_ACC_PFTCH_BIT
-	bic64_imm	r0, r1, (CPUECTLR_L2_IPFTCH_DIST_MASK | \
-				CPUECTLR_L2_DPFTCH_DIST_MASK)
-	stcopr16	r0, r1, CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A57_ECTLR
+	orr64_imm	r0, r1, CORTEX_A57_ECTLR_DIS_TWD_ACC_PFTCH_BIT
+	bic64_imm	r0, r1, (CORTEX_A57_ECTLR_L2_IPFTCH_DIST_MASK | \
+				 CORTEX_A57_ECTLR_L2_DPFTCH_DIST_MASK)
+	stcopr16	r0, r1, CORTEX_A57_ECTLR
 	isb
 	dsb	ish
 	bx	lr
@@ -59,9 +59,9 @@ func cortex_a57_reset_func
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	ldcopr16	r0, r1, CPUECTLR
-	orr64_imm	r0, r1, CPUECTLR_SMP_BIT
-	stcopr16	r0, r1,	CPUECTLR
+	ldcopr16	r0, r1, CORTEX_A57_ECTLR
+	orr64_imm	r0, r1, CORTEX_A57_ECTLR_SMP_BIT
+	stcopr16	r0, r1,	CORTEX_A57_ECTLR
 	isb
 	bx	lr
 endfunc cortex_a57_reset_func

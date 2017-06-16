@@ -332,7 +332,7 @@ void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 				      unsigned int node_index[])
 {
 	unsigned int parent_node = psci_cpu_pd_nodes[cpu_idx].parent_node;
-	int i;
+	unsigned int i;
 
 	for (i = PSCI_CPU_PWR_LVL + 1; i <= end_lvl; i++) {
 		*node_index++ = parent_node;
@@ -901,7 +901,7 @@ void psci_print_power_domain_map(void)
  *****************************************************************************/
 int psci_secondaries_brought_up(void)
 {
-	int idx, n_valid = 0;
+	unsigned int idx, n_valid = 0;
 
 	for (idx = 0; idx < ARRAY_SIZE(psci_cpu_pd_nodes); idx++) {
 		if (psci_cpu_pd_nodes[idx].mpidr != PSCI_INVALID_MPIDR)

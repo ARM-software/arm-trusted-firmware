@@ -24,7 +24,7 @@
 	(GIC_HIGHEST_NS_PRIORITY << 24))
 
 static const irq_sec_cfg_t *g_irq_sec_ptr;
-static unsigned int g_num_irqs;
+static uint32_t g_num_irqs;
 
 /*******************************************************************************
  * Place the cpu interface in a state where it can never make a cpu exit wfi as
@@ -32,7 +32,7 @@ static unsigned int g_num_irqs;
  ******************************************************************************/
 void tegra_gic_cpuif_deactivate(void)
 {
-	unsigned int val;
+	uint32_t val;
 
 	/* Disable secure, non-secure interrupts and disable their bypass */
 	val = gicc_read_ctlr(TEGRA_GICC_BASE);
@@ -46,9 +46,9 @@ void tegra_gic_cpuif_deactivate(void)
  * Enable secure interrupts and set the priority mask register to allow all
  * interrupts to trickle in.
  ******************************************************************************/
-static void tegra_gic_cpuif_setup(unsigned int gicc_base)
+static void tegra_gic_cpuif_setup(uint32_t gicc_base)
 {
-	unsigned int val;
+	uint32_t val;
 
 	val = ENABLE_GRP0 | ENABLE_GRP1 | FIQ_EN | FIQ_BYP_DIS_GRP0;
 	val |= IRQ_BYP_DIS_GRP0 | FIQ_BYP_DIS_GRP1 | IRQ_BYP_DIS_GRP1;
@@ -61,14 +61,14 @@ static void tegra_gic_cpuif_setup(unsigned int gicc_base)
  * Per cpu gic distributor setup which will be done by all cpus after a cold
  * boot/hotplug. This marks out the secure interrupts & enables them.
  ******************************************************************************/
-static void tegra_gic_pcpu_distif_setup(unsigned int gicd_base)
+static void tegra_gic_pcpu_distif_setup(uint32_t gicd_base)
 {
-	unsigned int index, sec_ppi_sgi_mask = 0;
+	uint32_t index, sec_ppi_sgi_mask = 0;
 
-	assert(gicd_base);
+	assert(gicd_base != 0U);
 
 	/* Setup PPI priorities doing four at a time */
-	for (index = 0; index < 32; index += 4) {
+	for (index = 0U; index < 32U; index += 4U) {
 		gicd_write_ipriorityr(gicd_base, index,
 				GICD_IPRIORITYR_DEF_VAL);
 	}
@@ -87,9 +87,9 @@ static void tegra_gic_pcpu_distif_setup(unsigned int gicd_base)
  * cold boot. It marks out the non secure SPIs, PPIs & SGIs and enables them.
  * It then enables the secure GIC distributor interface.
  ******************************************************************************/
-static void tegra_gic_distif_setup(unsigned int gicd_base)
+static void tegra_gic_distif_setup(uint32_t gicd_base)
 {
-	unsigned int index, num_ints, irq_num;
+	uint32_t index, num_ints, irq_num;
 	uint8_t target_cpus;
 	uint32_t val;
 
@@ -99,22 +99,23 @@ static void tegra_gic_distif_setup(unsigned int gicd_base)
 	 * number of IT_LINES
 	 */
 	num_ints = gicd_read_typer(gicd_base) & IT_LINES_NO_MASK;
-	num_ints = (num_ints + 1) << 5;
-	for (index = MIN_SPI_ID; index < num_ints; index += 32)
-		gicd_write_igroupr(gicd_base, index, ~0);
+	num_ints = (num_ints + 1U) << 5;
+	for (index = MIN_SPI_ID; index < num_ints; index += 32U) {
+		gicd_write_igroupr(gicd_base, index, 0xFFFFFFFFU);
+	}
 
 	/* Setup SPI priorities doing four at a time */
-	for (index = MIN_SPI_ID; index < num_ints; index += 4) {
+	for (index = MIN_SPI_ID; index < num_ints; index += 4U) {
 		gicd_write_ipriorityr(gicd_base, index,
 				GICD_IPRIORITYR_DEF_VAL);
 	}
 
 	/* Configure SPI secure interrupts now */
-	if (g_irq_sec_ptr) {
+	if (g_irq_sec_ptr != NULL) {
 
-		for (index = 0; index < g_num_irqs; index++) {
-			irq_num = (g_irq_sec_ptr + index)->irq;
-			target_cpus = (g_irq_sec_ptr + index)->target_cpus;
+		for (index = 0U; index < g_num_irqs; index++) {
+			irq_num = g_irq_sec_ptr[index].irq;
+			target_cpus = (uint8_t)g_irq_sec_ptr[index].target_cpus;
 
 			if (irq_num >= MIN_SPI_ID) {
 
@@ -122,14 +123,15 @@ static void tegra_gic_distif_setup(unsigned int gicd_base)
 				gicd_clr_igroupr(gicd_base, irq_num);
 
 				/* Configure SPI priority */
-				mmio_write_8(gicd_base + GICD_IPRIORITYR +
-					irq_num,
+				mmio_write_8((uint64_t)gicd_base +
+					(uint64_t)GICD_IPRIORITYR +
+					(uint64_t)irq_num,
 					GIC_HIGHEST_SEC_PRIORITY &
 					GIC_PRI_MASK);
 
 				/* Configure as level triggered */
 				val = gicd_read_icfgr(gicd_base, irq_num);
-				val |= (3 << ((irq_num & 0xF) << 1));
+				val |= (3U << ((irq_num & 0xFU) << 1U));
 				gicd_write_icfgr(gicd_base, irq_num, val);
 
 				/* Route SPI to the target CPUs */
@@ -153,7 +155,7 @@ static void tegra_gic_distif_setup(unsigned int gicd_base)
 	gicd_write_ctlr(gicd_base, ENABLE_GRP0 | ENABLE_GRP1);
 }
 
-void tegra_gic_setup(const irq_sec_cfg_t *irq_sec_ptr, unsigned int num_irqs)
+void tegra_gic_setup(const irq_sec_cfg_t *irq_sec_ptr, uint32_t num_irqs)
 {
 	g_irq_sec_ptr = irq_sec_ptr;
 	g_num_irqs = num_irqs;
@@ -172,12 +174,12 @@ void tegra_gic_setup(const irq_sec_cfg_t *irq_sec_ptr, unsigned int num_irqs)
  * SCR_EL3 to control its routing to EL3. The interrupt line is represented as
  * the bit position of the IRQ or FIQ bit in the SCR_EL3.
  ******************************************************************************/
-uint32_t tegra_gic_interrupt_type_to_line(uint32_t type,
+static uint32_t tegra_gic_interrupt_type_to_line(uint32_t type,
 				uint32_t security_state)
 {
-	assert(type == INTR_TYPE_S_EL1 ||
-	       type == INTR_TYPE_EL3 ||
-	       type == INTR_TYPE_NS);
+	assert((type == INTR_TYPE_S_EL1) ||
+	       (type == INTR_TYPE_EL3) ||
+	       (type == INTR_TYPE_NS));
 
 	assert(sec_state_is_valid(security_state));
 
@@ -199,25 +201,29 @@ uint32_t tegra_gic_interrupt_type_to_line(uint32_t type,
  * the GIC cpu interface. INTR_TYPE_INVAL is returned when there is no
  * interrupt pending.
  ******************************************************************************/
-uint32_t tegra_gic_get_pending_interrupt_type(void)
+static uint32_t tegra_gic_get_pending_interrupt_type(void)
 {
 	uint32_t id;
-	unsigned int index;
+	uint32_t index;
+	uint32_t ret = INTR_TYPE_NS;
 
 	id = gicc_read_hppir(TEGRA_GICC_BASE) & INT_ID_MASK;
 
 	/* get the interrupt type */
-	if (id < 1022) {
-		for (index = 0; index < g_num_irqs; index++) {
-			if (id == (g_irq_sec_ptr + index)->irq)
-				return (g_irq_sec_ptr + index)->type;
+	if (id < 1022U) {
+		for (index = 0U; index < g_num_irqs; index++) {
+			if (id == g_irq_sec_ptr[index].irq) {
+				ret = g_irq_sec_ptr[index].type;
+				break;
+			}
+		}
+	} else {
+		 if (id == GIC_SPURIOUS_INTERRUPT) {
+			ret = INTR_TYPE_INVAL;
 		}
 	}
 
-	if (id == GIC_SPURIOUS_INTERRUPT)
-		return INTR_TYPE_INVAL;
-
-	return INTR_TYPE_NS;
+	return ret;
 }
 
 /*******************************************************************************
@@ -225,30 +231,32 @@ uint32_t tegra_gic_get_pending_interrupt_type(void)
  * the GIC cpu interface. INTR_ID_UNAVAILABLE is returned when there is no
  * interrupt pending.
  ******************************************************************************/
-uint32_t tegra_gic_get_pending_interrupt_id(void)
+static uint32_t tegra_gic_get_pending_interrupt_id(void)
 {
-	uint32_t id;
+	uint32_t id, ret;
 
 	id = gicc_read_hppir(TEGRA_GICC_BASE) & INT_ID_MASK;
 
-	if (id < 1022)
-		return id;
+	if (id < 1022UL) {
+		ret = id;
+	} else if (id == 1023UL) {
+		ret = 0xFFFFFFFFUL; /* INTR_ID_UNAVAILABLE */
+	} else {
+		/*
+		 * Find out which non-secure interrupt it is under the assumption that
+		 * the GICC_CTLR.AckCtl bit is 0.
+		 */
+		ret = gicc_read_ahppir(TEGRA_GICC_BASE) & INT_ID_MASK;
+	}
 
-	if (id == 1023)
-		return INTR_ID_UNAVAILABLE;
-
-	/*
-	 * Find out which non-secure interrupt it is under the assumption that
-	 * the GICC_CTLR.AckCtl bit is 0.
-	 */
-	return gicc_read_ahppir(TEGRA_GICC_BASE) & INT_ID_MASK;
+	return ret;
 }
 
 /*******************************************************************************
  * This functions reads the GIC cpu interface Interrupt Acknowledge register
  * to start handling the pending interrupt. It returns the contents of the IAR.
  ******************************************************************************/
-uint32_t tegra_gic_acknowledge_interrupt(void)
+static uint32_t tegra_gic_acknowledge_interrupt(void)
 {
 	return gicc_read_IAR(TEGRA_GICC_BASE);
 }
@@ -257,7 +265,7 @@ uint32_t tegra_gic_acknowledge_interrupt(void)
  * This functions writes the GIC cpu interface End Of Interrupt register with
  * the passed value to finish handling the active interrupt
  ******************************************************************************/
-void tegra_gic_end_of_interrupt(uint32_t id)
+static void tegra_gic_end_of_interrupt(uint32_t id)
 {
 	gicc_write_EOIR(TEGRA_GICC_BASE, id);
 }
@@ -267,22 +275,25 @@ void tegra_gic_end_of_interrupt(uint32_t id)
  * this interrupt has been configured under by the interrupt controller i.e.
  * group0 or group1.
  ******************************************************************************/
-uint32_t tegra_gic_get_interrupt_type(uint32_t id)
+static uint32_t tegra_gic_get_interrupt_type(uint32_t id)
 {
 	uint32_t group;
-	unsigned int index;
+	uint32_t index;
+	uint32_t ret = INTR_TYPE_NS;
 
 	group = gicd_get_igroupr(TEGRA_GICD_BASE, id);
 
 	/* get the interrupt type */
 	if (group == GRP0) {
-		for (index = 0; index < g_num_irqs; index++) {
-			if (id == (g_irq_sec_ptr + index)->irq)
-				return (g_irq_sec_ptr + index)->type;
+		for (index = 0U; index < g_num_irqs; index++) {
+			if (id == g_irq_sec_ptr[index].irq) {
+				ret = g_irq_sec_ptr[index].type;
+				break;
+			}
 		}
 	}
 
-	return INTR_TYPE_NS;
+	return ret;
 }
 
 #else

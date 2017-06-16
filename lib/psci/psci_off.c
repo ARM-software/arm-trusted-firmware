@@ -19,7 +19,7 @@
  ******************************************************************************/
 static void psci_set_power_off_state(psci_power_state_t *state_info)
 {
-	int lvl;
+	unsigned int lvl;
 
 	for (lvl = PSCI_CPU_PWR_LVL; lvl <= PLAT_MAX_PWR_LVL; lvl++)
 		state_info->pwr_domain_state[lvl] = PLAT_MAX_OFF_STATE;

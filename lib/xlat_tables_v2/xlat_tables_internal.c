@@ -37,7 +37,7 @@
  */
 static int xlat_table_get_index(xlat_ctx_t *ctx, const uint64_t *table)
 {
-	for (int i = 0; i < ctx->tables_num; i++)
+	for (unsigned int i = 0; i < ctx->tables_num; i++)
 		if (ctx->tables[i] == table)
 			return i;
 
@@ -53,7 +53,7 @@ static int xlat_table_get_index(xlat_ctx_t *ctx, const uint64_t *table)
 /* Returns a pointer to an empty translation table. */
 static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 {
-	for (int i = 0; i < ctx->tables_num; i++)
+	for (unsigned int i = 0; i < ctx->tables_num; i++)
 		if (ctx->tables_mapped_regions[i] == 0)
 			return ctx->tables[i];
 
@@ -203,7 +203,7 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 				     const uintptr_t table_base_va,
 				     uint64_t *const table_base,
 				     const int table_entries,
-				     const int level)
+				     const unsigned int level)
 {
 	assert(level >= ctx->base_level && level <= XLAT_TABLE_LEVEL_MAX);
 
@@ -468,7 +468,7 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 				   const uintptr_t table_base_va,
 				   uint64_t *const table_base,
 				   const int table_entries,
-				   const int level)
+				   const unsigned int level)
 {
 	assert(level >= ctx->base_level && level <= XLAT_TABLE_LEVEL_MAX);
 
@@ -1053,14 +1053,14 @@ void init_xlation_table(xlat_ctx_t *ctx)
 
 	/* All tables must be zeroed before mapping any region. */
 
-	for (int i = 0; i < ctx->base_table_entries; i++)
+	for (unsigned int i = 0; i < ctx->base_table_entries; i++)
 		ctx->base_table[i] = INVALID_DESC;
 
-	for (int j = 0; j < ctx->tables_num; j++) {
+	for (unsigned int j = 0; j < ctx->tables_num; j++) {
 #if PLAT_XLAT_TABLES_DYNAMIC
 		ctx->tables_mapped_regions[j] = 0;
 #endif
-		for (int i = 0; i < XLAT_TABLE_ENTRIES; i++)
+		for (unsigned int i = 0; i < XLAT_TABLE_ENTRIES; i++)
 			ctx->tables[j][i] = INVALID_DESC;
 	}
 

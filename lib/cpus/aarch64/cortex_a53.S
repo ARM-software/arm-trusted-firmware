@@ -33,9 +33,9 @@ endfunc cortex_a53_disable_dcache
 	 * ---------------------------------------------
 	 */
 func cortex_a53_disable_smp
-	mrs	x0, CPUECTLR_EL1
-	bic	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
+	mrs	x0, CORTEX_A53_ECTLR_EL1
+	bic	x0, x0, #CORTEX_A53_ECTLR_SMP_BIT
+	msr	CORTEX_A53_ECTLR_EL1, x0
 	isb
 	dsb	sy
 	ret
@@ -56,10 +56,10 @@ func errata_a53_826319_wa
 	mov	x17, x30
 	bl	check_errata_826319
 	cbz	x0, 1f
-	mrs	x1, L2ACTLR_EL1
-	bic	x1, x1, #L2ACTLR_ENABLE_UNIQUECLEAN
-	orr	x1, x1, #L2ACTLR_DISABLE_CLEAN_PUSH
-	msr	L2ACTLR_EL1, x1
+	mrs	x1, CORTEX_A53_L2ACTLR_EL1
+	bic	x1, x1, #CORTEX_A53_L2ACTLR_ENABLE_UNIQUECLEAN
+	orr	x1, x1, #CORTEX_A53_L2ACTLR_DISABLE_CLEAN_PUSH
+	msr	CORTEX_A53_L2ACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a53_826319_wa
@@ -93,9 +93,9 @@ func a53_disable_non_temporal_hint
 	mov	x17, x30
 	bl	check_errata_disable_non_temporal_hint
 	cbz	x0, 1f
-	mrs	x1, CPUACTLR_EL1
-	orr	x1, x1, #CPUACTLR_DTAH
-	msr	CPUACTLR_EL1, x1
+	mrs	x1, CORTEX_A53_ACTLR_EL1
+	orr	x1, x1, #CORTEX_A53_ACTLR_DTAH
+	msr	CORTEX_A53_ACTLR_EL1, x1
 1:
 	ret	x17
 endfunc a53_disable_non_temporal_hint
@@ -126,9 +126,9 @@ func errata_a53_855873_wa
         bl      check_errata_855873
         cbz     x0, 1f
 
-	mrs	x1, CPUACTLR_EL1
-	orr	x1, x1, #CPUACTLR_ENDCCASCI
-	msr	CPUACTLR_EL1, x1
+	mrs	x1, CORTEX_A53_ACTLR_EL1
+	orr	x1, x1, #CORTEX_A53_ACTLR_ENDCCASCI
+	msr	CORTEX_A53_ACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a53_855873_wa
@@ -168,9 +168,9 @@ func cortex_a53_reset_func
 	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, CPUECTLR_EL1
-	orr	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
+	mrs	x0, CORTEX_A53_ECTLR_EL1
+	orr	x0, x0, #CORTEX_A53_ECTLR_SMP_BIT
+	msr	CORTEX_A53_ECTLR_EL1, x0
 	isb
 	ret	x19
 endfunc cortex_a53_reset_func
@@ -275,10 +275,10 @@ cortex_a53_regs:  /* The ascii list of register names to be reported */
 
 func cortex_a53_cpu_reg_dump
 	adr	x6, cortex_a53_regs
-	mrs	x8, CPUECTLR_EL1
-	mrs	x9, CPUMERRSR_EL1
-	mrs	x10, L2MERRSR_EL1
-	mrs	x11, CPUACTLR_EL1
+	mrs	x8, CORTEX_A53_ECTLR_EL1
+	mrs	x9, CORTEX_A53_MERRSR_EL1
+	mrs	x10, CORTEX_A53_L2MERRSR_EL1
+	mrs	x11, CORTEX_A53_ACTLR_EL1
 	ret
 endfunc cortex_a53_cpu_reg_dump
 

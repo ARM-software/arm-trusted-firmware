@@ -27,12 +27,12 @@ endfunc cortex_a72_disable_dcache
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_l2_prefetch
-	mrs	x0, CPUECTLR_EL1
-	orr	x0, x0, #CPUECTLR_DIS_TWD_ACC_PFTCH_BIT
-	mov	x1, #CPUECTLR_L2_IPFTCH_DIST_MASK
-	orr	x1, x1, #CPUECTLR_L2_DPFTCH_DIST_MASK
+	mrs	x0, CORTEX_A72_ECTLR_EL1
+	orr	x0, x0, #CORTEX_A72_ECTLR_DIS_TWD_ACC_PFTCH_BIT
+	mov	x1, #CORTEX_A72_ECTLR_L2_IPFTCH_DIST_MASK
+	orr	x1, x1, #CORTEX_A72_ECTLR_L2_DPFTCH_DIST_MASK
 	bic	x0, x0, x1
-	msr	CPUECTLR_EL1, x0
+	msr	CORTEX_A72_ECTLR_EL1, x0
 	isb
 	ret
 endfunc cortex_a72_disable_l2_prefetch
@@ -42,9 +42,9 @@ endfunc cortex_a72_disable_l2_prefetch
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_hw_prefetcher
-	mrs	x0, CPUACTLR_EL1
-	orr	x0, x0, #CPUACTLR_DISABLE_L1_DCACHE_HW_PFTCH
-	msr	CPUACTLR_EL1, x0
+	mrs	x0, CORTEX_A72_ACTLR_EL1
+	orr	x0, x0, #CORTEX_A72_ACTLR_DISABLE_L1_DCACHE_HW_PFTCH
+	msr	CORTEX_A72_ACTLR_EL1, x0
 	isb
 	dsb	ish
 	ret
@@ -55,9 +55,9 @@ endfunc cortex_a72_disable_hw_prefetcher
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_smp
-	mrs	x0, CPUECTLR_EL1
-	bic	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
+	mrs	x0, CORTEX_A72_ECTLR_EL1
+	bic	x0, x0, #CORTEX_A72_ECTLR_SMP_BIT
+	msr	CORTEX_A72_ECTLR_EL1, x0
 	ret
 endfunc cortex_a72_disable_smp
 
@@ -82,9 +82,9 @@ func cortex_a72_reset_func
 	 * As a bare minimum enable the SMP bit.
 	 * ---------------------------------------------
 	 */
-	mrs	x0, CPUECTLR_EL1
-	orr	x0, x0, #CPUECTLR_SMP_BIT
-	msr	CPUECTLR_EL1, x0
+	mrs	x0, CORTEX_A72_ECTLR_EL1
+	orr	x0, x0, #CORTEX_A72_ECTLR_SMP_BIT
+	msr	CORTEX_A72_ECTLR_EL1, x0
 	isb
 	ret
 endfunc cortex_a72_reset_func
@@ -211,9 +211,9 @@ cortex_a72_regs:  /* The ascii list of register names to be reported */
 
 func cortex_a72_cpu_reg_dump
 	adr	x6, cortex_a72_regs
-	mrs	x8, CPUECTLR_EL1
-	mrs	x9, CPUMERRSR_EL1
-	mrs	x10, L2MERRSR_EL1
+	mrs	x8, CORTEX_A72_ECTLR_EL1
+	mrs	x9, CORTEX_A72_MERRSR_EL1
+	mrs	x10, CORTEX_A72_L2MERRSR_EL1
 	ret
 endfunc cortex_a72_cpu_reg_dump
 

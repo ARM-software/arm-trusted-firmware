@@ -20,11 +20,11 @@ func pm_asm_code
 	mov	x0, 0
 	msr	oslar_el1, x0
 
-	mrs	x0, CPUACTLR_EL1
-	bic	x0, x0, #(CPUACTLR_RADIS | CPUACTLR_L1RADIS)
+	mrs	x0, CORTEX_A53_ACTLR_EL1
+	bic	x0, x0, #(CORTEX_A53_ACTLR_RADIS | CORTEX_A53_ACTLR_L1RADIS)
 	orr	x0, x0, #0x180000
 	orr	x0, x0, #0xe000
-	msr	CPUACTLR_EL1, x0
+	msr	CORTEX_A53_ACTLR_EL1, x0
 
 	mrs	x3, actlr_el3
 	orr	x3, x3, #ACTLR_EL3_L2ECTLR_BIT

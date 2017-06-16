@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,7 +67,7 @@ static arch_mce_ops_t ari_mce_ops = {
 	.misc_ccplex = ari_misc_ccplex
 };
 
-typedef struct mce_config {
+typedef struct {
 	uint32_t ari_base;
 	arch_mce_ops_t *ops;
 } mce_config_t;
@@ -108,9 +108,9 @@ static mce_config_t mce_cfg_table[MCE_ARI_APERTURES_MAX] = {
 
 static uint32_t mce_get_curr_cpu_ari_base(void)
 {
-	uint32_t mpidr = read_mpidr();
-	int cpuid =  mpidr & MPIDR_CPU_MASK;
-	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+	uint64_t mpidr = read_mpidr();
+	uint64_t cpuid = mpidr & (uint64_t)MPIDR_CPU_MASK;
+	uint64_t impl = (read_midr() >> (uint64_t)MIDR_IMPL_SHIFT) & (uint64_t)MIDR_IMPL_MASK;
 
 	/*
 	 * T186 has 2 CPU clusters, one with Denver CPUs and the other with
@@ -119,17 +119,19 @@ static uint32_t mce_get_curr_cpu_ari_base(void)
 	 * struct, we have to convert the Denver CPU ids to the corresponding
 	 * indices in the mce_ops_table array.
 	 */
-	if (impl == DENVER_IMPL)
-		cpuid |= 0x4;
+	if (impl == DENVER_IMPL) {
+		cpuid |= 0x4U;
+	}
 
 	return mce_cfg_table[cpuid].ari_base;
 }
 
 static arch_mce_ops_t *mce_get_curr_cpu_ops(void)
 {
-	uint32_t mpidr = read_mpidr();
-	int cpuid =  mpidr & MPIDR_CPU_MASK;
-	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+	uint64_t mpidr = read_mpidr();
+	uint64_t cpuid = mpidr & (uint64_t)MPIDR_CPU_MASK;
+	uint64_t impl = (read_midr() >> (uint64_t)MIDR_IMPL_SHIFT) &
+			(uint64_t)MIDR_IMPL_MASK;
 
 	/*
 	 * T186 has 2 CPU clusters, one with Denver CPUs and the other with
@@ -138,8 +140,9 @@ static arch_mce_ops_t *mce_get_curr_cpu_ops(void)
 	 * struct, we have to convert the Denver CPU ids to the corresponding
 	 * indices in the mce_ops_table array.
 	 */
-	if (impl == DENVER_IMPL)
-		cpuid |= 0x4;
+	if (impl == DENVER_IMPL) {
+		cpuid |= 0x4U;
+	}
 
 	return mce_cfg_table[cpuid].ops;
 }
@@ -147,20 +150,16 @@ static arch_mce_ops_t *mce_get_curr_cpu_ops(void)
 /*******************************************************************************
  * Common handler for all MCE commands
  ******************************************************************************/
-int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
+int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 			uint64_t arg2)
 {
-	arch_mce_ops_t *ops;
+	const arch_mce_ops_t *ops;
+	gp_regs_t *gp_regs = get_gpregs_ctx(cm_get_context(NON_SECURE));
 	uint32_t cpu_ari_base;
 	uint64_t ret64 = 0, arg3, arg4, arg5;
-	int ret = 0;
-	mca_cmd_t mca_cmd;
-	uncore_perfmon_req_t req;
-	cpu_context_t *ctx = cm_get_context(NON_SECURE);
-	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
+	int32_t ret = 0;
 
-	assert(ctx);
-	assert(gp_regs);
+	assert(gp_regs != NULL);
 
 	/* get a pointer to the CPU's arch_mce_ops_t struct */
 	ops = mce_get_curr_cpu_ops();
@@ -171,8 +170,9 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 	switch (cmd) {
 	case MCE_CMD_ENTER_CSTATE:
 		ret = ops->enter_cstate(cpu_ari_base, arg0, arg1);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: enter_cstate failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
@@ -181,28 +181,30 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		 * get the parameters required for the update cstate info
 		 * command
 		 */
-		arg3 = read_ctx_reg(gp_regs, CTX_GPREG_X4);
-		arg4 = read_ctx_reg(gp_regs, CTX_GPREG_X5);
-		arg5 = read_ctx_reg(gp_regs, CTX_GPREG_X6);
+		arg3 = read_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X4));
+		arg4 = read_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X5));
+		arg5 = read_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X6));
 
 		ret = ops->update_cstate_info(cpu_ari_base, (uint32_t)arg0,
 				(uint32_t)arg1, (uint32_t)arg2, (uint8_t)arg3,
 				(uint32_t)arg4, (uint8_t)arg5);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: update_cstate_info failed(%d)\n",
 				__func__, ret);
+		}
 
-		write_ctx_reg(gp_regs, CTX_GPREG_X4, 0);
-		write_ctx_reg(gp_regs, CTX_GPREG_X5, 0);
-		write_ctx_reg(gp_regs, CTX_GPREG_X6, 0);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X4), (0));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X5), (0));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X6), (0));
 
 		break;
 
 	case MCE_CMD_UPDATE_CROSSOVER_TIME:
 		ret = ops->update_crossover_time(cpu_ari_base, arg0, arg1);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: update_crossover_time failed(%d)\n",
 				__func__, ret);
+		}
 
 		break;
 
@@ -210,16 +212,17 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		ret64 = ops->read_cstate_stats(cpu_ari_base, arg0);
 
 		/* update context to return cstate stats value */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, ret64);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2), (ret64));
 
 		break;
 
 	case MCE_CMD_WRITE_CSTATE_STATS:
 		ret = ops->write_cstate_stats(cpu_ari_base, arg0, arg1);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: write_cstate_stats failed(%d)\n",
 				__func__, ret);
+		}
 
 		break;
 
@@ -231,7 +234,8 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		}
 
 		/* update context to return CCx status value */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
+			      (uint64_t)(ret));
 
 		break;
 
@@ -243,22 +247,26 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		}
 
 		/* update context to return SC7 status value */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret);
-		write_ctx_reg(gp_regs, CTX_GPREG_X3, ret);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
+			      (uint64_t)(ret));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X3),
+			      (uint64_t)(ret));
 
 		break;
 
 	case MCE_CMD_ONLINE_CORE:
 		ret = ops->online_core(cpu_ari_base, arg0);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: online_core failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
 	case MCE_CMD_CC3_CTRL:
 		ret = ops->cc3_ctrl(cpu_ari_base, arg0, arg1, arg2);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: cc3_ctrl failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
@@ -267,8 +275,10 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 				arg0);
 
 		/* update context to return if echo'd data matched source */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64 == arg0);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, ret64 == arg0);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
+			      ((ret64 == arg0) ? 1ULL : 0ULL));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2),
+			      ((ret64 == arg0) ? 1ULL : 0ULL));
 
 		break;
 
@@ -280,8 +290,10 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		 * version = minor(63:32) | major(31:0). Update context
 		 * to return major and minor version number.
 		 */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, (uint32_t)ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, (uint32_t)(ret64 >> 32));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
+			      (ret64));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2),
+			      (ret64 >> 32ULL));
 
 		break;
 
@@ -290,50 +302,51 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 				TEGRA_ARI_MISC_FEATURE_LEAF_0, arg0);
 
 		/* update context to return features value */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
 
 		break;
 
 	case MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
 		ret = ops->roc_flush_cache_trbits(cpu_ari_base);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: flush cache_trbits failed(%d)\n", __func__,
 				ret);
+		}
 
 		break;
 
 	case MCE_CMD_ROC_FLUSH_CACHE:
 		ret = ops->roc_flush_cache(cpu_ari_base);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: flush cache failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
 	case MCE_CMD_ROC_CLEAN_CACHE:
 		ret = ops->roc_clean_cache(cpu_ari_base);
-		if (ret < 0)
+		if (ret < 0) {
 			ERROR("%s: clean cache failed(%d)\n", __func__, ret);
+		}
 
 		break;
 
 	case MCE_CMD_ENUM_READ_MCA:
-		memcpy(&mca_cmd, &arg0, sizeof(arg0));
-		ret64 = ops->read_write_mca(cpu_ari_base, mca_cmd, &arg1);
+		ret64 = ops->read_write_mca(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return MCA data/error */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X2, arg1);
-		write_ctx_reg(gp_regs, CTX_GPREG_X3, ret64);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2), (arg1));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X3), (ret64));
 
 		break;
 
 	case MCE_CMD_ENUM_WRITE_MCA:
-		memcpy(&mca_cmd, &arg0, sizeof(arg0));
-		ret64 = ops->read_write_mca(cpu_ari_base, mca_cmd, &arg1);
+		ret64 = ops->read_write_mca(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return MCA error */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
-		write_ctx_reg(gp_regs, CTX_GPREG_X3, ret64);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X3), (ret64));
 
 		break;
 
@@ -357,11 +370,10 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 #endif
 
 	case MCE_CMD_UNCORE_PERFMON_REQ:
-		memcpy(&req, &arg0, sizeof(arg0));
-		ret = ops->read_write_uncore_perfmon(cpu_ari_base, req, &arg1);
+		ret = ops->read_write_uncore_perfmon(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return data */
-		write_ctx_reg(gp_regs, CTX_GPREG_X1, arg1);
+		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (arg1));
 		break;
 
 	case MCE_CMD_MISC_CCPLEX:
@@ -370,8 +382,9 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 
 	default:
-		ERROR("unknown MCE command (%d)\n", cmd);
-		return EINVAL;
+		ERROR("unknown MCE command (%lu)\n", cmd);
+		ret = EINVAL;
+		break;
 	}
 
 	return ret;
@@ -380,18 +393,18 @@ int mce_command_handler(mce_cmd_t cmd, uint64_t arg0, uint64_t arg1,
 /*******************************************************************************
  * Handler to update the reset vector for CPUs
  ******************************************************************************/
-int mce_update_reset_vector(void)
+int32_t mce_update_reset_vector(void)
 {
-	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
+	const arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
 
 	ops->update_reset_vector(mce_get_curr_cpu_ari_base());
 
 	return 0;
 }
 
-static int mce_update_ccplex_gsc(tegra_ari_gsc_index_t gsc_idx)
+static int32_t mce_update_ccplex_gsc(tegra_ari_gsc_index_t gsc_idx)
 {
-	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
+	const arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
 
 	ops->update_ccplex_gsc(mce_get_curr_cpu_ari_base(), gsc_idx);
 
@@ -401,7 +414,7 @@ static int mce_update_ccplex_gsc(tegra_ari_gsc_index_t gsc_idx)
 /*******************************************************************************
  * Handler to update carveout values for Video Memory Carveout region
  ******************************************************************************/
-int mce_update_gsc_videomem(void)
+int32_t mce_update_gsc_videomem(void)
 {
 	return mce_update_ccplex_gsc(TEGRA_ARI_GSC_VPR_IDX);
 }
@@ -409,7 +422,7 @@ int mce_update_gsc_videomem(void)
 /*******************************************************************************
  * Handler to update carveout values for TZDRAM aperture
  ******************************************************************************/
-int mce_update_gsc_tzdram(void)
+int32_t mce_update_gsc_tzdram(void)
 {
 	return mce_update_ccplex_gsc(TEGRA_ARI_GSC_TZ_DRAM_IDX);
 }
@@ -417,7 +430,7 @@ int mce_update_gsc_tzdram(void)
 /*******************************************************************************
  * Handler to update carveout values for TZ SysRAM aperture
  ******************************************************************************/
-int mce_update_gsc_tzram(void)
+int32_t mce_update_gsc_tzram(void)
 {
 	return mce_update_ccplex_gsc(TEGRA_ARI_GSC_TZRAM);
 }
@@ -427,28 +440,29 @@ int mce_update_gsc_tzram(void)
  ******************************************************************************/
 __dead2 void mce_enter_ccplex_state(uint32_t state_idx)
 {
-	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
+	const arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
 
 	/* sanity check state value */
-	if (state_idx != TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF &&
-	    state_idx != TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_REBOOT)
+	if ((state_idx != TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF) &&
+	    (state_idx != TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_REBOOT)) {
 		panic();
+	}
 
 	ops->enter_ccplex_state(mce_get_curr_cpu_ari_base(), state_idx);
 
 	/* wait till the CCPLEX powers down */
-	for (;;)
+	for (;;) {
 		;
+	}
 
-	panic();
 }
 
 /*******************************************************************************
  * Handler to issue the UPDATE_CSTATE_INFO request
  ******************************************************************************/
-void mce_update_cstate_info(mce_cstate_info_t *cstate)
+void mce_update_cstate_info(const mce_cstate_info_t *cstate)
 {
-	arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
+	const arch_mce_ops_t *ops = mce_get_curr_cpu_ops();
 
 	/* issue the UPDATE_CSTATE_INFO request */
 	ops->update_cstate_info(mce_get_curr_cpu_ari_base(), cstate->cluster,
@@ -462,7 +476,7 @@ void mce_update_cstate_info(mce_cstate_info_t *cstate)
  ******************************************************************************/
 void mce_verify_firmware_version(void)
 {
-	arch_mce_ops_t *ops;
+	const arch_mce_ops_t *ops;
 	uint32_t cpu_ari_base;
 	uint64_t version;
 	uint32_t major, minor;
@@ -470,37 +484,40 @@ void mce_verify_firmware_version(void)
 	/*
 	 * MCE firmware is not supported on simulation platforms.
 	 */
-	if (tegra_platform_is_emulation())
-		return;
+	if (tegra_platform_is_emulation()) {
 
-	/* get a pointer to the CPU's arch_mce_ops_t struct */
-	ops = mce_get_curr_cpu_ops();
+		INFO("MCE firmware is not supported\n");
 
-	/* get the CPU's ARI base address */
-	cpu_ari_base = mce_get_curr_cpu_ari_base();
+	} else {
+		/* get a pointer to the CPU's arch_mce_ops_t struct */
+		ops = mce_get_curr_cpu_ops();
 
-	/*
-	 * Read the MCE firmware version and extract the major and minor
-	 * version fields
-	 */
-	version = ops->call_enum_misc(cpu_ari_base, TEGRA_ARI_MISC_VERSION, 0);
-	major = (uint32_t)version;
-	minor = (uint32_t)(version >> 32);
+		/* get the CPU's ARI base address */
+		cpu_ari_base = mce_get_curr_cpu_ari_base();
 
-	INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
-		TEGRA_ARI_VERSION_MAJOR, TEGRA_ARI_VERSION_MINOR);
+		/*
+		 * Read the MCE firmware version and extract the major and minor
+		 * version fields
+		 */
+		version = ops->call_enum_misc(cpu_ari_base, TEGRA_ARI_MISC_VERSION, 0);
+		major = (uint32_t)version;
+		minor = (uint32_t)(version >> 32);
 
-	/*
-	 * Verify that the MCE firmware version and the interface header
-	 * match
-	 */
-	if (major != TEGRA_ARI_VERSION_MAJOR) {
-		ERROR("ARI major version mismatch\n");
-		panic();
-	}
+		INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
+			TEGRA_ARI_VERSION_MAJOR, TEGRA_ARI_VERSION_MINOR);
 
-	if (minor < TEGRA_ARI_VERSION_MINOR) {
-		ERROR("ARI minor version mismatch\n");
-		panic();
+		/*
+		 * Verify that the MCE firmware version and the interface header
+		 * match
+		 */
+		if (major != TEGRA_ARI_VERSION_MAJOR) {
+			ERROR("ARI major version mismatch\n");
+			panic();
+		}
+
+		if (minor < TEGRA_ARI_VERSION_MINOR) {
+			ERROR("ARI minor version mismatch\n");
+			panic();
+		}
 	}
 }

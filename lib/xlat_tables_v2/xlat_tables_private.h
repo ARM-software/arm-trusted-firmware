@@ -52,7 +52,7 @@ typedef struct {
 	 * null entry.
 	 */
 	mmap_region_t *mmap;
-	int mmap_num;
+	unsigned int mmap_num;
 
 	/*
 	 * Array of finer-grain translation tables.
@@ -60,7 +60,7 @@ typedef struct {
 	 * contain both level-2 and level-3 entries.
 	 */
 	uint64_t (*tables)[XLAT_TABLE_ENTRIES];
-	int tables_num;
+	unsigned int tables_num;
 	/*
 	 * Keep track of how many regions are mapped in each table. The base
 	 * table can't be unmapped so it isn't needed to keep track of it.
@@ -69,14 +69,14 @@ typedef struct {
 	int *tables_mapped_regions;
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
-	int next_table;
+	unsigned int next_table;
 
 	/*
 	 * Base translation table. It doesn't need to have the same amount of
 	 * entries as the ones used for other levels.
 	 */
 	uint64_t *base_table;
-	int base_table_entries;
+	unsigned int base_table_entries;
 
 	/*
 	 * Max Physical and Virtual addresses currently in use by the
@@ -87,10 +87,10 @@ typedef struct {
 	uintptr_t max_va;
 
 	/* Level of the base translation table. */
-	int base_level;
+	unsigned int base_level;
 
 	/* Set to 1 when the translation tables are initialized. */
-	int initialized;
+	unsigned int initialized;
 
 	/*
 	 * Bit mask that has to be ORed to the rest of a translation table

@@ -60,7 +60,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		/*
 		 * System powerdown request only for afflvl 2
 		 */
-		for (int i = MPIDR_AFFLVL0; i < PLAT_MAX_PWR_LVL; i++)
+		for (uint32_t i = MPIDR_AFFLVL0; i < PLAT_MAX_PWR_LVL; i++)
 			req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 
 		req_state->pwr_domain_state[PLAT_MAX_PWR_LVL] =

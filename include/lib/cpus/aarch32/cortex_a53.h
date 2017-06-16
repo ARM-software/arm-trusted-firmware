@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,47 +22,47 @@
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/
-#define CPUECTLR			p15, 1, c15	/* Instruction def. */
+#define CORTEX_A53_ECTLR			p15, 1, c15
 
-#define CPUECTLR_SMP_BIT		(1 << 6)
+#define CORTEX_A53_ECTLR_SMP_BIT		(1 << 6)
 
-#define CPUECTLR_CPU_RET_CTRL_SHIFT	0
-#define CPUECTLR_CPU_RET_CTRL_MASK	(0x7 << CPUECTLR_CPU_RET_CTRL_SHIFT)
+#define CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT	0
+#define CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK	(0x7 << CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT)
 
-#define CPUECTLR_FPU_RET_CTRL_SHIFT	3
-#define CPUECTLR_FPU_RET_CTRL_MASK	(0x7 << CPUECTLR_FPU_RET_CTRL_SHIFT)
+#define CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT	3
+#define CORTEX_A53_ECTLR_FPU_RET_CTRL_MASK	(0x7 << CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT)
 
 /*******************************************************************************
  * CPU Memory Error Syndrome register specific definitions.
  ******************************************************************************/
-#define CPUMERRSR			p15, 2, c15 /* Instruction def. */
+#define CORTEX_A53_MERRSR			p15, 2, c15
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
-#define CPUACTLR			p15, 0, c15 /* Instruction def. */
+#define CORTEX_A53_ACTLR			p15, 0, c15
 
-#define CPUACTLR_DTAH			(1 << 24)
+#define CORTEX_A53_ACTLR_DTAH			(1 << 24)
 
 /*******************************************************************************
  * L2 Auxiliary Control register specific definitions.
  ******************************************************************************/
-#define L2ACTLR			p15, 1, c15, c0, 0 /* Instruction def. */
+#define CORTEX_A53_L2ACTLR			p15, 1, c15, c0, 0
 
-#define L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
-#define L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
+#define CORTEX_A53_L2ACTLR_ENABLE_UNIQUECLEAN	(1 << 14)
+#define CORTEX_A53_L2ACTLR_DISABLE_CLEAN_PUSH	(1 << 3)
 
 /*******************************************************************************
  * L2 Extended Control register specific definitions.
  ******************************************************************************/
-#define L2ECTLR			p15, 1, c9, c0, 3 /* Instruction def. */
+#define CORTEX_A53_L2ECTLR			p15, 1, c9, c0, 3
 
-#define L2ECTLR_RET_CTRL_SHIFT		0
-#define L2ECTLR_RET_CTRL_MASK		(0x7 << L2ECTLR_RET_CTRL_SHIFT)
+#define CORTEX_A53_L2ECTLR_RET_CTRL_SHIFT	0
+#define CORTEX_A53_L2ECTLR_RET_CTRL_MASK	(0x7 << L2ECTLR_RET_CTRL_SHIFT)
 
 /*******************************************************************************
  * L2 Memory Error Syndrome register specific definitions.
  ******************************************************************************/
-#define L2MERRSR			p15, 3, c15 /* Instruction def. */
+#define CORTEX_A53_L2MERRSR			p15, 3, c15
 
 #endif /* __CORTEX_A53_H__ */

@@ -68,18 +68,18 @@
 	 * Enable processor retention
 	 * ---------------------------
 	 */
-	mrs	x0, L2ECTLR_EL1
-	mov	x1, #RETENTION_ENTRY_TICKS_512 << L2ECTLR_RET_CTRL_SHIFT
-	bic	x0, x0, #L2ECTLR_RET_CTRL_MASK
+	mrs	x0, CORTEX_A57_L2ECTLR_EL1
+	mov	x1, #RETENTION_ENTRY_TICKS_512
+	bic	x0, x0, #CORTEX_A57_L2ECTLR_RET_CTRL_MASK
 	orr	x0, x0, x1
-	msr	L2ECTLR_EL1, x0
+	msr	CORTEX_A57_L2ECTLR_EL1, x0
 	isb
 
-	mrs	x0, CPUECTLR_EL1
-	mov	x1, #RETENTION_ENTRY_TICKS_512 << CPUECTLR_CPU_RET_CTRL_SHIFT
-	bic	x0, x0, #CPUECTLR_CPU_RET_CTRL_MASK
+	mrs	x0, CORTEX_A57_ECTLR_EL1
+	mov	x1, #RETENTION_ENTRY_TICKS_512
+	bic	x0, x0, #CORTEX_A57_ECTLR_CPU_RET_CTRL_MASK
 	orr	x0, x0, x1
-	msr	CPUECTLR_EL1, x0
+	msr	CORTEX_A57_ECTLR_EL1, x0
 	isb
 
 	/* -------------------------------------------------------
@@ -98,11 +98,11 @@
 	adr	x0, tegra_enable_l2_ecc_parity_prot
 	ldr	x0, [x0]
 	cbz	x0, 1f
-	mrs	x0, L2CTLR_EL1
-	and	x1, x0, #L2_ECC_PARITY_PROTECTION_BIT
+	mrs	x0, CORTEX_A57_L2CTLR_EL1
+	and	x1, x0, #CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT
 	cbnz	x1, 1f
-	orr	x0, x0, #L2_ECC_PARITY_PROTECTION_BIT
-	msr	L2CTLR_EL1, x0
+	orr	x0, x0, #CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT
+	msr	CORTEX_A57_L2CTLR_EL1, x0
 	isb
 
 	/* --------------------------------
@@ -317,18 +317,18 @@ func tegra_secure_entrypoint
 	 * entries from the branch predictor array.
 	 * -------------------------------------------------------
 	 */
-	mrs	x0, CPUACTLR_EL1
+	mrs	x0, CORTEX_A57_ACTLR_EL1
 	orr	x0, x0, #1
-	msr	CPUACTLR_EL1, x0	/* invalidate BTB and I$ together */
+	msr	CORTEX_A57_ACTLR_EL1, x0	/* invalidate BTB and I$ together */
 	dsb	sy
 	isb
 	ic	iallu			/* actual invalidate */
 	dsb	sy
 	isb
 
-	mrs	x0, CPUACTLR_EL1
+	mrs	x0, CORTEX_A57_ACTLR_EL1
 	bic	x0, x0, #1
-	msr	CPUACTLR_EL1, X0	/* restore original CPUACTLR_EL1 */
+	msr	CORTEX_A57_ACTLR_EL1, X0	/* restore original CPUACTLR_EL1 */
 	dsb	sy
 	isb
 
@@ -352,7 +352,7 @@ func tegra_secure_entrypoint
 	msr	oslar_el1, x0		/* os lock stays 0 across warm reset */
 	mov	x3, #3
 	movz	x4, #0x8000, lsl #48
-	msr	CPUACTLR_EL1, x4	/* turn off RCG */
+	msr	CORTEX_A57_ACTLR_EL1, x4	/* turn off RCG */
 	isb
 	msr	rmr_el3, x3		/* request warm reset */
 	isb

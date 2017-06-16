@@ -8,49 +8,50 @@
 #define __EP_INFO_H__
 
 #include <param_header.h>
+#include <utils_def.h>
 
-#define SECURE		0x0
-#define NON_SECURE	0x1
+#define SECURE		U(0x0)
+#define NON_SECURE	U(0x1)
 #define sec_state_is_valid(s) (((s) == SECURE) || ((s) == NON_SECURE))
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the
  * 'entry_point_info' structure at their correct offsets.
  ******************************************************************************/
-#define ENTRY_POINT_INFO_PC_OFFSET	0x08
+#define ENTRY_POINT_INFO_PC_OFFSET	U(0x08)
 #ifdef AARCH32
-#define ENTRY_POINT_INFO_ARGS_OFFSET	0x10
+#define ENTRY_POINT_INFO_ARGS_OFFSET	U(0x10)
 #else
-#define ENTRY_POINT_INFO_ARGS_OFFSET	0x18
+#define ENTRY_POINT_INFO_ARGS_OFFSET	U(0x18)
 #endif
 
 /* The following are used to set/get image attributes. */
-#define PARAM_EP_SECURITY_MASK		(0x1)
+#define PARAM_EP_SECURITY_MASK		U(0x1)
 
 #define GET_SECURITY_STATE(x) (x & PARAM_EP_SECURITY_MASK)
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
 
-#define EP_EE_MASK	0x2
-#define EP_EE_LITTLE	0x0
-#define EP_EE_BIG	0x2
+#define EP_EE_MASK	U(0x2)
+#define EP_EE_LITTLE	U(0x0)
+#define EP_EE_BIG	U(0x2)
 #define EP_GET_EE(x) (x & EP_EE_MASK)
 #define EP_SET_EE(x, ee) ((x) = ((x) & ~EP_EE_MASK) | (ee))
 
-#define EP_ST_MASK	0x4
-#define EP_ST_DISABLE	0x0
-#define EP_ST_ENABLE	0x4
+#define EP_ST_MASK	U(0x4)
+#define EP_ST_DISABLE	U(0x0)
+#define EP_ST_ENABLE	U(0x4)
 #define EP_GET_ST(x) (x & EP_ST_MASK)
 #define EP_SET_ST(x, ee) ((x) = ((x) & ~EP_ST_MASK) | (ee))
 
-#define EP_EXE_MASK	0x8
-#define NON_EXECUTABLE	0x0
-#define EXECUTABLE	0x8
+#define EP_EXE_MASK	U(0x8)
+#define NON_EXECUTABLE	U(0x0)
+#define EXECUTABLE	U(0x8)
 #define EP_GET_EXE(x) (x & EP_EXE_MASK)
 #define EP_SET_EXE(x, ee) ((x) = ((x) & ~EP_EXE_MASK) | (ee))
 
-#define EP_FIRST_EXE_MASK	0x10
-#define EP_FIRST_EXE		0x10
+#define EP_FIRST_EXE_MASK	U(0x10)
+#define EP_FIRST_EXE		U(0x10)
 #define EP_GET_FIRST_EXE(x) ((x) & EP_FIRST_EXE_MASK)
 #define EP_SET_FIRST_EXE(x, ee) ((x) = ((x) & ~EP_FIRST_EXE_MASK) | (ee))
 

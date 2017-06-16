@@ -36,15 +36,16 @@ uintptr_t handle_runtime_svc(uint32_t smc_fid,
 			     unsigned int flags)
 {
 	u_register_t x1, x2, x3, x4;
-	int index, idx;
+	int index;
+	unsigned int idx;
 	const rt_svc_desc_t *rt_svc_descs;
 
 	assert(handle);
 	idx = get_unique_oen_from_smc_fid(smc_fid);
-	assert(idx >= 0 && idx < MAX_RT_SVCS);
+	assert(idx < MAX_RT_SVCS);
 
 	index = rt_svc_descs_indices[idx];
-	if (index < 0 || index >= RT_SVC_DECS_NUM)
+	if (index < 0 || index >= (int)RT_SVC_DECS_NUM)
 		SMC_RET1(handle, SMC_UNK);
 
 	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
@@ -89,7 +90,8 @@ static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)
  ******************************************************************************/
 void runtime_svc_init(void)
 {
-	int rc = 0, index, start_idx, end_idx;
+	int rc = 0;
+	unsigned int index, start_idx, end_idx;
 
 	/* Assert the number of descriptors detected are less than maximum indices */
 	assert((RT_SVC_DESCS_END >= RT_SVC_DESCS_START) &&

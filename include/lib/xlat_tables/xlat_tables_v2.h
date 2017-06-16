@@ -27,14 +27,14 @@
 /*
  * Shifts and masks to access fields of an mmap_attr_t
  */
-#define MT_TYPE_MASK		0x7
+#define MT_TYPE_MASK		U(0x7)
 #define MT_TYPE(_attr)		((_attr) & MT_TYPE_MASK)
 /* Access permissions (RO/RW) */
-#define MT_PERM_SHIFT		3
+#define MT_PERM_SHIFT		U(3)
 /* Security state (SECURE/NS) */
-#define MT_SEC_SHIFT		4
+#define MT_SEC_SHIFT		U(4)
 /* Access permissions for instruction execution (EXECUTE/EXECUTE_NEVER) */
-#define MT_EXECUTE_SHIFT	5
+#define MT_EXECUTE_SHIFT	U(5)
 /* All other bits are reserved */
 
 /*
@@ -52,11 +52,11 @@ typedef enum  {
 	MT_MEMORY,
 	/* Values up to 7 are reserved to add new memory types in the future */
 
-	MT_RO		= 0 << MT_PERM_SHIFT,
-	MT_RW		= 1 << MT_PERM_SHIFT,
+	MT_RO		= U(0) << MT_PERM_SHIFT,
+	MT_RW		= U(1) << MT_PERM_SHIFT,
 
-	MT_SECURE	= 0 << MT_SEC_SHIFT,
-	MT_NS		= 1 << MT_SEC_SHIFT,
+	MT_SECURE	= U(0) << MT_SEC_SHIFT,
+	MT_NS		= U(1) << MT_SEC_SHIFT,
 
 	/*
 	 * Access permissions for instruction execution are only relevant for
@@ -65,8 +65,8 @@ typedef enum  {
 	 *  - Device memory is always marked as execute-never.
 	 *  - Read-write normal memory is always marked as execute-never.
 	 */
-	MT_EXECUTE		= 0 << MT_EXECUTE_SHIFT,
-	MT_EXECUTE_NEVER	= 1 << MT_EXECUTE_SHIFT,
+	MT_EXECUTE		= U(0) << MT_EXECUTE_SHIFT,
+	MT_EXECUTE_NEVER	= U(1) << MT_EXECUTE_SHIFT,
 } mmap_attr_t;
 
 #define MT_CODE		(MT_MEMORY | MT_RO | MT_EXECUTE)

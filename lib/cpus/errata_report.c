@@ -60,7 +60,7 @@ int errata_needs_reporting(spinlock_t *lock, uint32_t *reported)
  * Applied: INFO
  * Not applied: VERBOSE
  */
-void errata_print_msg(int status, const char *cpu, const char *id)
+void errata_print_msg(unsigned int status, const char *cpu, const char *id)
 {
 	/* Errata status strings */
 	static const char *const errata_status_str[] = {
