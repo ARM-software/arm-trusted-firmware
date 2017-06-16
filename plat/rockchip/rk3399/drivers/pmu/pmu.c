@@ -1076,6 +1076,62 @@ void sram_restore(void)
 	       incbin_size);
 }
 
+struct uart_debug {
+	uint32_t uart_dll;
+	uint32_t uart_dlh;
+	uint32_t uart_ier;
+	uint32_t uart_fcr;
+	uint32_t uart_mcr;
+	uint32_t uart_lcr;
+};
+
+#define UART_DLL	0x00
+#define UART_DLH	0x04
+#define UART_IER	0x04
+#define UART_FCR	0x08
+#define UART_LCR	0x0c
+#define UART_MCR	0x10
+#define UARTSRR		0x88
+
+#define UART_RESET	BIT(0)
+#define UARTFCR_FIFOEN	BIT(0)
+#define RCVR_FIFO_RESET	BIT(1)
+#define XMIT_FIFO_RESET	BIT(2)
+#define DIAGNOSTIC_MODE	BIT(4)
+#define UARTLCR_DLAB	BIT(7)
+
+static struct uart_debug uart_save;
+
+void suspend_uart(void)
+{
+	uart_save.uart_lcr = mmio_read_32(PLAT_RK_UART_BASE + UART_LCR);
+	uart_save.uart_ier = mmio_read_32(PLAT_RK_UART_BASE + UART_IER);
+	uart_save.uart_mcr = mmio_read_32(PLAT_RK_UART_BASE + UART_MCR);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR,
+		      uart_save.uart_lcr | UARTLCR_DLAB);
+	uart_save.uart_dll = mmio_read_32(PLAT_RK_UART_BASE + UART_DLL);
+	uart_save.uart_dlh = mmio_read_32(PLAT_RK_UART_BASE + UART_DLH);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR, uart_save.uart_lcr);
+}
+
+void resume_uart(void)
+{
+	uint32_t uart_lcr;
+
+	mmio_write_32(PLAT_RK_UART_BASE + UARTSRR,
+		      XMIT_FIFO_RESET | RCVR_FIFO_RESET | UART_RESET);
+
+	uart_lcr = mmio_read_32(PLAT_RK_UART_BASE + UART_LCR);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_MCR, DIAGNOSTIC_MODE);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR, uart_lcr | UARTLCR_DLAB);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_DLL, uart_save.uart_dll);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_DLH, uart_save.uart_dlh);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR, uart_save.uart_lcr);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_IER, uart_save.uart_ier);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_FCR, UARTFCR_FIFOEN);
+	mmio_write_32(PLAT_RK_UART_BASE + UART_MCR, uart_save.uart_mcr);
+}
+
 int rockchip_soc_sys_pwr_dm_suspend(void)
 {
 	uint32_t wait_cnt = 0;
@@ -1139,6 +1195,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 
 	suspend_apio();
 	suspend_gpio();
+	suspend_uart();
 
 	sram_save();
 	return 0;
@@ -1149,6 +1206,7 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	uint32_t wait_cnt = 0;
 	uint32_t status = 0;
 
+	resume_uart();
 	resume_apio();
 	resume_gpio();
 	enable_nodvfs_plls();
