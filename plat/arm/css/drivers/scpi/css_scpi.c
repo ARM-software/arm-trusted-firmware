@@ -183,8 +183,17 @@ int scpi_get_css_power_state(unsigned int mpidr, unsigned int *cpu_state_p,
 	 * Extract CPU and cluster membership of the given MPIDR. SCPI caters
 	 * for only up to 0xf clusters, and 8 CPUs per cluster
 	 */
+#if ARM_PLAT_MT
+	/*
+	 * The current SCPI driver only caters for single-threaded platforms.
+	 * Hence we ignore the thread ID (which is always 0) for such platforms.
+	 */
+	cpu = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+	cluster = (mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK;
+#else
 	cpu = mpidr & MPIDR_AFFLVL_MASK;
 	cluster = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+#endif  /* ARM_PLAT_MT */
 	if (cpu >= 8 || cluster >= 0xf)
 		return -1;
 
