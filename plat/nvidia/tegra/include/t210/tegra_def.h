@@ -140,6 +140,8 @@
 #define TEGRA_FUSE_BASE			0x7000F800UL
 #define FUSE_BOOT_SECURITY_INFO		0x268UL
 #define FUSE_ATOMIC_SAVE_CARVEOUT_EN	(0x1U << 7)
+#define FUSE_JTAG_SECUREID_VALID	(0x104UL)
+#define ECID_VALID			(0x1UL)
 
 
 /*******************************************************************************

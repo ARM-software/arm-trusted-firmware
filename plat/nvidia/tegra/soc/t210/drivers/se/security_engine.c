@@ -115,6 +115,8 @@ static tegra_se_dev_t se_dev_2 = {
 	.ctx_save_buf = (uint32_t *)(TEGRA_TZRAM_CARVEOUT_BASE + 0x1000),
 };
 
+static bool ecid_valid;
+
 /*******************************************************************************
  * Functions Definition
  ******************************************************************************/
@@ -387,7 +389,10 @@ static int tegra_se_generate_srk(const tegra_se_dev_t *se_dev)
 	se_dev->dst_ll_buf->last_buff_num = 0;
 
 	/* Configure random number generator */
-	val = (DRBG_MODE_FORCE_RESEED | DRBG_SRC_ENTROPY);
+	if (ecid_valid)
+		val = (DRBG_MODE_FORCE_INSTANTION | DRBG_SRC_ENTROPY);
+	else
+		val = (DRBG_MODE_FORCE_RESEED | DRBG_SRC_ENTROPY);
 	tegra_se_write_32(se_dev, SE_RNG_CONFIG_REG_OFFSET, val);
 
 	/* Configure output destination = SRK */
@@ -449,7 +454,10 @@ static int tegra_se_lp_generate_random_data(tegra_se_dev_t *se_dev)
 	tegra_se_write_32(se_dev, SE_CRYPTO_REG_OFFSET, val);
 
 	/* Configure RNG */
-	val = (DRBG_MODE_FORCE_INSTANTION | DRBG_SRC_LFSR);
+	if (ecid_valid)
+		val = (DRBG_MODE_FORCE_INSTANTION | DRBG_SRC_LFSR);
+	else
+		val = (DRBG_MODE_FORCE_RESEED | DRBG_SRC_LFSR);
 	tegra_se_write_32(se_dev, SE_RNG_CONFIG_REG_OFFSET, val);
 
 	/* SE normal operation */
@@ -896,11 +904,16 @@ static int tegra_se_context_save_sw(tegra_se_dev_t *se_dev)
  */
 void tegra_se_init(void)
 {
+	uint32_t val = 0;
 	INFO("%s: start SE init\n", __func__);
 
 	/* Generate random SRK to initialize DRBG */
 	tegra_se_generate_srk(&se_dev_1);
 	tegra_se_generate_srk(&se_dev_2);
+
+	/* determine if ECID is valid */
+	val = mmio_read_32(TEGRA_FUSE_BASE + FUSE_JTAG_SECUREID_VALID);
+	ecid_valid = (val == ECID_VALID);
 
 	INFO("%s: SE init done\n", __func__);
 }
