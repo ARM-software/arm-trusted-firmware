@@ -106,8 +106,9 @@ static int uniphier_nand_block_isbad(struct uniphier_nand *nand, int block)
 
 	is_bad = bbm != 0xff;
 
-	/* save the result for future re-use */
-	nand->bbt[block] = is_bad;
+	/* if possible, save the result for future re-use */
+	if (block < ARRAY_SIZE(nand->bbt))
+	    nand->bbt[block] = is_bad;
 
 	if (is_bad)
 		WARN("found bad block at %d. skip.\n", block);
