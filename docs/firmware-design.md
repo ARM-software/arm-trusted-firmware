@@ -138,6 +138,7 @@ BL1 performs minimal architectural initialization as follows.
     code is one of:
 
     For AArch64:
+
         0x0 : Synchronous exception from Current EL with SP_EL0
         0x1 : IRQ exception from Current EL with SP_EL0
         0x2 : FIQ exception from Current EL with SP_EL0
@@ -156,6 +157,7 @@ BL1 performs minimal architectural initialization as follows.
         0xf : System Error exception from Lower EL using aarch32
 
     For AArch32:
+
         0x10 : User mode
         0x11 : FIQ mode
         0x12 : IRQ mode
