@@ -56,6 +56,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 endif
 
 # Enable workarounds for selected Cortex-A53 and A57 errata.
+ERRATA_A53_835769		:=	1
+ERRATA_A53_843419		:=	1
 ERRATA_A53_855873		:=	1
 ERRATA_A57_806969		:=	0
 ERRATA_A57_813419		:=	1
