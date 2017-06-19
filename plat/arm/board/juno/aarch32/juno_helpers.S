@@ -81,9 +81,9 @@ func JUNO_HANDLER(0)
 	 * Cortex-A57 specific settings
 	 * --------------------------------------------------------------------
 	 */
-	mov	r0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
-		      (L2_TAG_RAM_LATENCY_3_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT))
-	stcopr	r0, L2CTLR
+	mov	r0, #((CORTEX_A57_L2_DATA_RAM_LATENCY_3_CYCLES << CORTEX_A57_L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+		      (CORTEX_A57_L2_TAG_RAM_LATENCY_3_CYCLES << CORTEX_A57_L2CTLR_TAG_RAM_LATENCY_SHIFT))
+	stcopr	r0, CORTEX_A57_L2CTLR
 1:
 	isb
 	bx	lr
@@ -118,8 +118,8 @@ A57:
 	 * Cortex-A57 specific settings
 	 * --------------------------------------------------------------------
 	 */
-	mov	r0, #(L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT)
-	stcopr	r0, L2CTLR
+	mov	r0, #(CORTEX_A57_L2_DATA_RAM_LATENCY_3_CYCLES << CORTEX_A57_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+	stcopr	r0, CORTEX_A57_L2CTLR
 	isb
 	bx	lr
 endfunc JUNO_HANDLER(1)
@@ -152,9 +152,9 @@ A72:
 	 * Cortex-A72 specific settings
 	 * --------------------------------------------------------------------
 	 */
-	mov	r0, #((L2_DATA_RAM_LATENCY_3_CYCLES << L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
-		      (L2_TAG_RAM_LATENCY_2_CYCLES << L2CTLR_TAG_RAM_LATENCY_SHIFT))
-	stcopr	r0, L2CTLR
+	mov	r0, #((CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES << CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT) |	\
+		      (CORTEX_A72_L2_TAG_RAM_LATENCY_2_CYCLES << CORTEX_A72_L2CTLR_TAG_RAM_LATENCY_SHIFT))
+	stcopr	r0, CORTEX_A72_L2CTLR
 	isb
 	bx	lr
 endfunc JUNO_HANDLER(2)
