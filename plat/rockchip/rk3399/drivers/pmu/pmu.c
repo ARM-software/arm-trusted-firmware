@@ -362,19 +362,23 @@ static void pmu_power_domains_resume(void)
 	clk_gate_con_restore();
 }
 
-void rk3399_flash_l2_b(void)
+void rk3399_flush_l2_b(void)
 {
 	uint32_t wait_cnt = 0;
 
 	mmio_setbits_32(PMU_BASE + PMU_SFT_CON, BIT(L2_FLUSH_REQ_CLUSTER_B));
 	dsb();
 
+	/*
+	 * The Big cluster flush L2 cache took ~4ms by default, give 10ms for
+	 * the enough margin.
+	 */
 	while (!(mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST) &
 		 BIT(L2_FLUSHDONE_CLUSTER_B))) {
 		wait_cnt++;
-		if (wait_cnt >= MAX_WAIT_COUNT)
-			WARN("%s:reg %x,wait\n", __func__,
-			     mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST));
+		udelay(10);
+		if (wait_cnt == 10000 / 10)
+			WARN("L2 cache flush on suspend took longer than 10ms\n");
 	}
 
 	mmio_clrbits_32(PMU_BASE + PMU_SFT_CON, BIT(L2_FLUSH_REQ_CLUSTER_B));
@@ -391,7 +395,7 @@ static void pmu_scu_b_pwrdn(void)
 		return;
 	}
 
-	rk3399_flash_l2_b();
+	rk3399_flush_l2_b();
 
 	mmio_setbits_32(PMU_BASE + PMU_SFT_CON, BIT(ACINACTM_CLUSTER_B_CFG));
 
