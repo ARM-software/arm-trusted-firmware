@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -266,6 +266,16 @@ endfunc plat_get_my_entrypoint
  * to AArch32 mode is then requested by writing into RMR_EL3.
  */
 func juno_reset_to_aarch32_state
+	/*
+	 * Invalidate all caches before the warm reset to AArch32 state.
+	 * This is required on the Juno AArch32 boot flow because the L2
+	 * unified cache may contain code and data from when the processor
+	 * was still executing in AArch64 state.  This code only runs on
+	 * the primary core, all other cores are powered down.
+	 */
+	mov	x0, #DCISW
+	bl	dcsw_op_all
+
 	emit_movw	w0, BL32_BASE
 	emit_movt	w1, BL32_BASE
 	/* opcode "bx r0" to branch using r0 in AArch32 mode */
