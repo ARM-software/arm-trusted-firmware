@@ -953,7 +953,7 @@ static const char *invalid_descriptors_ommited =
  */
 static void xlat_tables_print_internal(const uintptr_t table_base_va,
 		uint64_t *const table_base, const int table_entries,
-		const int level, const uint64_t execute_never_mask)
+		const unsigned int level, const uint64_t execute_never_mask)
 {
 	assert(level <= XLAT_TABLE_LEVEL_MAX);
 
