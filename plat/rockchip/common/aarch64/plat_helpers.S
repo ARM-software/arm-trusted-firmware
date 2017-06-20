@@ -23,6 +23,7 @@
 	.globl	plat_crash_console_putc
 	.globl	plat_my_core_pos
 	.globl	plat_reset_handler
+	.globl	plat_panic_handler
 
 	/*
 	 * void plat_reset_handler(void);
@@ -106,6 +107,19 @@ func plat_crash_console_putc
 	mov_imm x1, PLAT_RK_UART_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* --------------------------------------------------------------------
+	 * void plat_panic_handler(void)
+	 * Call system reset function on panic. Set up an emergency stack so we
+	 * can run C functions (it only needs to last for a few calls until we
+	 * reboot anyway).
+	 * --------------------------------------------------------------------
+	 */
+func plat_panic_handler
+	msr	spsel, #0
+	bl	plat_set_my_stack
+	b	rockchip_soc_soft_reset
+endfunc plat_panic_handler
 
 	/* --------------------------------------------------------------------
 	 * void platform_cpu_warmboot (void);
