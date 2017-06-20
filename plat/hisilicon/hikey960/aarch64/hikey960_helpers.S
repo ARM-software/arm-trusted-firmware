@@ -144,10 +144,10 @@ endfunc plat_reset_handler
 	 * -----------------------------------------------------
 	 */
 func set_retention_ticks
-	mrs	x0, CPUECTLR_EL1
-	bic	x0, x0, #CPUECTLR_CPU_RET_CTRL_MASK
+	mrs	x0, CORTEX_A53_ECTLR_EL1
+	bic	x0, x0, #CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK
 	orr	x0, x0, #RETENTION_ENTRY_TICKS_8
-	msr	CPUECTLR_EL1, x0
+	msr	CORTEX_A53_ECTLR_EL1, x0
 	isb
 	dsb	sy
 	ret
@@ -159,9 +159,9 @@ endfunc set_retention_ticks
 	 * -----------------------------------------------------
 	 */
 func clr_retention_ticks
-	mrs	x0, CPUECTLR_EL1
-	bic	x0, x0, #CPUECTLR_CPU_RET_CTRL_MASK
-	msr	CPUECTLR_EL1, x0
+	mrs	x0, CORTEX_A53_ECTLR_EL1
+	bic	x0, x0, #CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK
+	msr	CORTEX_A53_ECTLR_EL1, x0
 	isb
 	dsb	sy
 	ret
