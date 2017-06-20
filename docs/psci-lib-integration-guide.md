@@ -2,7 +2,6 @@ PSCI Library Integration guide for ARMv8-A AArch32 systems
 ==========================================================
 
 Contents
---------
 
 1. [Introduction](#1-introduction)
 2. [Generic call sequence for PSCI Library interface (AArch32)](#2-generic-call-sequence-for-psci-library-interface-aarch32)
@@ -31,8 +30,8 @@ with EL3 Runtime Software in this document is targeted towards AArch32 systems.
 2. Generic call sequence for PSCI Library interface (AArch32)
 -------------------------------------------------------------
 
-The generic call sequence of PSCI Library interfaces
-[(see section 4)](#4-psci-library-interface) during cold boot in AArch32
+The generic call sequence of PSCI Library interfaces (see
+[section 4](#4-psci-library-interface)) during cold boot in AArch32
 system is described below:
 
 1.  After cold reset, the EL3 Runtime Software performs its cold boot

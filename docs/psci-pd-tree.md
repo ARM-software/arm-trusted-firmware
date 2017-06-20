@@ -1,3 +1,12 @@
+PSCI Library Integration guide for ARMv8-A AArch32 systems
+==========================================================
+
+Contents
+--------
+
+1. [Requirements](#requirements)
+2. [Design](#design)
+
 ------------
 Requirements
 ------------
@@ -293,3 +302,7 @@ Each core can find its node in the `psci_cpu_pd_nodes` array using the
 provides an MPIDR. The `plat_core_pos_by_mpidr()` function is used to validate
 the MPIDR before using it to find the corresponding core node. The non-core power
 domain nodes do not need to be identified.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+
+_Copyright (c) 2017, ARM Limited and Contributors. All rights reserved._

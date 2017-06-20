@@ -87,5 +87,7 @@ respectively.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+_Copyright (c) 2017, ARM Limited and Contributors. All rights reserved._
+
 [Firmware Design]: ./firmware-design.md
 [SMCCC]: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"

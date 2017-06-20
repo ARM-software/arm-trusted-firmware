@@ -140,10 +140,10 @@ Download the Trusted Firmware source code from Github:
         make PLAT=<platform> ARCH=aarch32 AARCH32_SP=sp_min all
 
 
-   Notes:
+    Notes:
 
     *   If `PLAT` is not specified, `fvp` is assumed by default. See the
-        "Summary of build options" for more information on available build
+        [Summary of build options](#summary-of-build-options) for more information on available build
         options.
 
     *   (AArch32 only) Currently only `PLAT=fvp` is supported.
@@ -157,15 +157,15 @@ Download the Trusted Firmware source code from Github:
         EL3 Runtime Software can be found [here][PSCI Lib Integration].
 
     *   (AArch64 only) The TSP (Test Secure Payload), corresponding to the BL32
-        image, is not compiled in by default. Refer to the "Building the Test
-        Secure Payload" section below.
+        image, is not compiled in by default. Refer to the [Building the Test
+        Secure Payload](#building-the-test-secure-payload) section below.
 
     *   By default this produces a release version of the build. To produce a
         debug version instead, refer to the "Debugging options" section below.
 
     *   The build process creates products in a `build` directory tree, building
         the objects and binaries for each boot loader stage in separate
-        sub-directories.  The following boot loader binary files are created
+        sub-directories. The following boot loader binary files are created
         from the corresponding ELF files:
 
         *   `build/<platform>/<build-type>/bl1.bin`
@@ -213,7 +213,7 @@ performed.
 
 *   `ARM_ARCH_MAJOR`: The major version of ARM Architecture to target when
     compiling ARM Trusted Firmware. Its value must be numeric, and defaults to
-    8. See also, _ARMv8 Architecture Extensions_ in [Firmware Design].
+    8 . See also, _ARMv8 Architecture Extensions_ in [Firmware Design].
 
 *   `ARM_ARCH_MINOR`: The minor version of ARM Architecture to target when
     compiling ARM Trusted Firmware. Its value must be a numeric, and defaults
@@ -575,9 +575,9 @@ performed.
     optimise memory usage need to set this flag to 1 and must override the
     related macros.
 
-*   `ARM_CONFIG_CNTACR`: boolean option to unlock access to the CNTBase<N>
-    frame registers by setting the CNTCTLBase.CNTACR<N> register bits. The
-    frame number <N> is defined by `PLAT_ARM_NSTIMER_FRAME_ID`, which should
+*   `ARM_CONFIG_CNTACR`: boolean option to unlock access to the `CNTBase<N>`
+    frame registers by setting the `CNTCTLBase.CNTACR<N>` register bits. The
+    frame number `<N>` is defined by `PLAT_ARM_NSTIMER_FRAME_ID`, which should
     match the frame used by the Non-Secure image (normally the Linux kernel).
     Default is true (access to the frame is allowed).
 
@@ -730,7 +730,7 @@ commands can be used:
 The TSP is coupled with a companion runtime service in the BL31 firmware,
 called the TSPD. Therefore, if you intend to use the TSP, the BL31 image
 must be recompiled as well. For more information on SPs and SPDs, see the
-"Secure-EL1 Payloads and Dispatchers" section in the [Firmware Design].
+[Secure-EL1 Payloads and Dispatchers](firmware-design.rst#secure-el1-payloads-and-dispatchers) section in the [Firmware Design].
 
 First clean the Trusted Firmware build directory to get rid of any previous
 BL31 binary. Then to build the TSP image use:
@@ -848,8 +848,7 @@ remove operations will automatically overwrite it.
 The unpack operation will fail if the images already exist at the
 destination.  In that case, use -f or --force to continue.
 
-More information about FIP can be found in the [Firmware Design document]
-[Firmware Design].
+More information about FIP can be found in the [Firmware Design] document.
 
 #### Migrating from fip_create to fiptool
 

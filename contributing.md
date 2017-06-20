@@ -64,8 +64,7 @@ Making Changes
         changes (and nothing else) in the last commit of the series. Otherwise,
         include the documentation changes within the single commit.
 *   Please test your changes. As a minimum, ensure UEFI boots to the shell on
-    the Foundation FVP. See the "[Running the software]" section of the
-    [User Guide] for more information.
+    the Foundation FVP. See [Running the software on FVP] for more information.
 
 
 Submitting Changes
@@ -105,7 +104,7 @@ _Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved._
 
 
 [User Guide]:                           ./docs/user-guide.md
-[Running the software]:                 ./docs/user-guide.md#6--running-the-software
+[Running the software on FVP]:          ./docs/user-guide.md#8--running-the-software-on-fvp
 [Porting Guide]:                        ./docs/porting-guide.md
 [Firmware Design]:                      ./docs/firmware-design.md
 [Acknowledgements]:                     ./acknowledgements.md "Contributor acknowledgements"

@@ -3,11 +3,11 @@ OP-TEE Dispatcher
 
 [OP-TEE OS] is a Trusted OS running as Secure EL1.
 
-To build and execute [OP-TEE OS] follow the instructions at
-[ARM Trusted Firmware with OP-TEE] [OP-TEE OS]
+To build and execute OP-TEE follow the instructions at
+[OP-TEE build.git][OP-TEE OS]
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-_Copyright (c) 2014, ARM Limited and Contributors. All rights reserved._
+_Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved._
 
-[OP-TEE OS]:  http://github.com/OP-TEE/optee_os/tree/master/documentation/arm_trusted_firmware.md
+[OP-TEE OS]:  https://github.com/OP-TEE/build

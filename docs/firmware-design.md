@@ -31,17 +31,16 @@ to the stage where it hands-off control to firmware running in the normal
 world in DRAM. This is the cold boot path.
 
 The ARM Trusted Firmware also implements the Power State Coordination Interface
-([PSCI]) PDD [2] as a runtime service. PSCI is the interface from normal world
-software to firmware implementing power management use-cases (for example,
-secondary CPU boot, hotplug and idle). Normal world software can access ARM
-Trusted Firmware runtime services via the ARM SMC (Secure Monitor Call)
-instruction. The SMC instruction must be used as mandated by the [SMC Calling
-Convention PDD][SMCCC] [3].
+PDD [2] as a runtime service. PSCI is the interface from normal world software
+to firmware implementing power management use-cases (for example, secondary CPU
+boot, hotplug and idle). Normal world software can access ARM Trusted Firmware
+runtime services via the ARM SMC (Secure Monitor Call) instruction. The SMC
+instruction must be used as mandated by the SMC Calling Convention [3].
 
 The ARM Trusted Firmware implements a framework for configuring and managing
 interrupts generated in either security state. The details of the interrupt
-management framework and its design can be found in [ARM Trusted
-Firmware Interrupt Management Design guide][INTRG] [4].
+management framework and its design can be found in ARM Trusted Firmware
+Interrupt Management Design guide [4].
 
 The ARM Trusted Firmware can be built to support either AArch64 or AArch32
 execution state.
@@ -390,8 +389,8 @@ BL2 relies on EL3 Runtime Software to pass control to BL33 once secure state
 initialization is complete. Hence, BL2 populates a platform-specific area of
 memory with the entrypoint and Saved Program Status Register (`SPSR`) of the
 normal world software image. The entrypoint is the load address of the BL33
-image. The `SPSR` is determined as specified in Section 5.13 of the [PSCI PDD]
-[PSCI]. This information is passed to the EL3 Runtime Software.
+image. The `SPSR` is determined as specified in Section 5.13 of the 
+[PSCI PDD][PSCI]. This information is passed to the EL3 Runtime Software.
 
 #### AArch64 BL31 (EL3 Runtime Software) execution
 
@@ -2303,9 +2302,9 @@ kernel at boot time. These can be found in the `fdts` directory.
 1.  Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
     under NDA through your ARM account representative.
 
-2.  [Power State Coordination Interface PDD (ARM DEN 0022B.b)][PSCI].
+2.  [Power State Coordination Interface PDD][PSCI]
 
-3.  [SMC Calling Convention PDD (ARM DEN 0028A)][SMCCC].
+3.  [SMC Calling Convention PDD][SMCCC]
 
 4.  [ARM Trusted Firmware Interrupt Management Design guide][INTRG].
 
@@ -2314,8 +2313,8 @@ kernel at boot time. These can be found in the `fdts` directory.
 _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 [ARM ARM]:          http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html "ARMv8-A Reference Manual (ARM DDI0487A.E)"
-[PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf "Power State Coordination Interface PDD (ARM DEN 0022C)"
-[SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html "SMC Calling Convention PDD (ARM DEN 0028A)"
+[PSCI]:             http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf "Power State Coordination Interface PDD (ARM DEN 0022D)"
+[SMCCC]:            http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf "SMC Calling Convention PDD (ARM DEN 0028B)"
 [UUID]:             https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
 [User Guide]:       ./user-guide.md
 [Porting Guide]:    ./porting-guide.md
