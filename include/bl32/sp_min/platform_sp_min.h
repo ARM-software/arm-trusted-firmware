@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,8 +12,9 @@
  ******************************************************************************/
 void sp_min_early_platform_setup(void *from_bl2,
 		void *plat_params_from_bl2);
-void sp_min_plat_arch_setup(void);
 void sp_min_platform_setup(void);
+void sp_min_plat_runtime_setup(void);
+void sp_min_plat_arch_setup(void);
 entry_point_info_t *sp_min_plat_get_bl33_ep_info(void);
 
 #endif /* __PLATFORM_SP_MIN_H__ */

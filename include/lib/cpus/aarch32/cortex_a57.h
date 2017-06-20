@@ -55,7 +55,7 @@
 /*******************************************************************************
  * L2 Control register specific definitions.
  ******************************************************************************/
-#define CORTEX_A57_L2CTLR			p15, 1, c9, c0, 3
+#define CORTEX_A57_L2CTLR			p15, 1, c9, c0, 2
 
 #define CORTEX_A57_L2CTLR_DATA_RAM_LATENCY_SHIFT 0
 #define CORTEX_A57_L2CTLR_TAG_RAM_LATENCY_SHIFT	6

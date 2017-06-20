@@ -163,6 +163,7 @@ void arm_tsp_early_platform_setup(void);
 /* SP_MIN utility functions */
 void arm_sp_min_early_platform_setup(void *from_bl2,
 		void *plat_params_from_bl2);
+void arm_sp_min_plat_runtime_setup(void);
 
 /* FIP TOC validity check */
 int arm_io_is_toc_valid(void);

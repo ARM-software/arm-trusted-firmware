@@ -8,6 +8,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <console.h>
 #include <context.h>
 #include <context_mgmt.h>
 #include <debug.h>
@@ -176,6 +177,14 @@ void sp_min_main(void)
 	 * corresponding to the desired security state after the next ERET.
 	 */
 	sp_min_prepare_next_image_entry();
+
+	/*
+	 * Perform any platform specific runtime setup prior to cold boot exit
+	 * from SP_MIN.
+	 */
+	sp_min_plat_runtime_setup();
+
+	console_flush();
 }
 
 /******************************************************************************
