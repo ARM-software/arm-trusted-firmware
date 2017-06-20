@@ -149,7 +149,7 @@ void enable_mmu_secure(unsigned int flags)
 	 * and translation register writes are committed
 	 * before enabling the MMU
 	 */
-	dsb();
+	dsbish();
 	isb();
 
 	sctlr = read_sctlr();

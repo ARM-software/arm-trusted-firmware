@@ -141,7 +141,7 @@ void enable_mmu_internal_secure(unsigned int flags, uint64_t *base_table)
 	 * and translation register writes are committed
 	 * before enabling the MMU
 	 */
-	dsb();
+	dsbish();
 	isb();
 
 	sctlr = read_sctlr();
