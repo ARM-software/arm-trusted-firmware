@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -88,8 +88,8 @@ void sort_mpidr_by_cpu_idx(unsigned int aff_count, unsigned long mpidr_list[])
  ******************************************************************************/
 static unsigned int init_pwr_domain_tree_desc(unsigned long mpidr,
 					unsigned int affmap_idx,
-					int cur_afflvl,
-					int tgt_afflvl)
+					unsigned int cur_afflvl,
+					unsigned int tgt_afflvl)
 {
 	unsigned int ctr, aff_count;
 
@@ -137,18 +137,20 @@ static unsigned int init_pwr_domain_tree_desc(unsigned long mpidr,
  ******************************************************************************/
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	int afflvl, affmap_idx;
+	int afflvl;
+	unsigned int affmap_idx;
 
 	/*
 	 * We assume that the platform allocates affinity instance ids from
 	 * 0 onwards at each affinity level in the mpidr. FIRST_MPIDR = 0.0.0.0
 	 */
 	affmap_idx = 0;
-	for (afflvl = PLATFORM_MAX_AFFLVL; afflvl >= MPIDR_AFFLVL0; afflvl--) {
+	for (afflvl = (int) PLATFORM_MAX_AFFLVL;
+			afflvl >= (int) MPIDR_AFFLVL0; afflvl--) {
 		affmap_idx = init_pwr_domain_tree_desc(FIRST_MPIDR,
 					       affmap_idx,
 					       PLATFORM_MAX_AFFLVL,
-					       afflvl);
+					       (unsigned int) afflvl);
 	}
 
 	assert(affmap_idx == (PLATFORM_NUM_AFFS - PLATFORM_CORE_COUNT + 1));

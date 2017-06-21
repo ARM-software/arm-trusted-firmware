@@ -23,9 +23,9 @@
 #define LVL2_SPACER "    "
 #define LVL3_SPACER "      "
 #define get_level_spacer(level)		\
-			(((level) == 0) ? LVL0_SPACER : \
-			(((level) == 1) ? LVL1_SPACER : \
-			(((level) == 2) ? LVL2_SPACER : LVL3_SPACER)))
+			(((level) == U(0)) ? LVL0_SPACER : \
+			(((level) == U(1)) ? LVL1_SPACER : \
+			(((level) == U(2)) ? LVL2_SPACER : LVL3_SPACER)))
 #define debug_print(...) tf_printf(__VA_ARGS__)
 #else
 #define debug_print(...) ((void)0)
@@ -36,7 +36,7 @@
 static uint64_t xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
 			__aligned(XLAT_TABLE_SIZE) __section("xlat_table");
 
-static unsigned next_xlat;
+static unsigned int next_xlat;
 static unsigned long long xlat_max_pa;
 static uintptr_t xlat_max_va;
 
@@ -178,7 +178,7 @@ void mmap_add(const mmap_region_t *mm)
 }
 
 static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
-							int level)
+							unsigned int level)
 {
 	uint64_t desc;
 	int mem_type;
@@ -309,7 +309,7 @@ static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
 static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 					uintptr_t base_va,
 					uint64_t *table,
-					int level)
+					unsigned int level)
 {
 	assert(level >= XLAT_TABLE_LEVEL_MIN && level <= XLAT_TABLE_LEVEL_MAX);
 
@@ -378,7 +378,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 }
 
 void init_xlation_table(uintptr_t base_va, uint64_t *table,
-			int level, uintptr_t *max_va,
+			unsigned int level, uintptr_t *max_va,
 			unsigned long long *max_pa)
 {
 	execute_never_mask = xlat_arch_get_xn_desc(xlat_arch_current_el());
