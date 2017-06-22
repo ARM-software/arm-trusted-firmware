@@ -100,15 +100,30 @@ static inline void write_ ## _name(const u_register_t v)		\
  * Macros to create inline functions for tlbi operations
  *********************************************************************/
 
+#if ERRATA_A57_813419
+/*
+ * Define function for TLBI instruction with type specifier that
+ * implements the workaround for errata 813419 of Cortex-A57
+ */
 #define _DEFINE_TLBIOP_FUNC(_op, coproc, opc1, CRn, CRm, opc2)		\
 static inline void tlbi##_op(void)					\
 {									\
 	u_register_t v = 0;						\
 	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
+	__asm__ volatile ("dsb ish");\
+	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
 }
 
-#define _DEFINE_BPIOP_FUNC(_op, coproc, opc1, CRn, CRm, opc2)		\
-static inline void bpi##_op(void)					\
+#define _DEFINE_TLBIOP_PARAM_FUNC(_op, coproc, opc1, CRn, CRm, opc2)	\
+static inline void tlbi##_op(u_register_t v)				\
+{									\
+	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
+	__asm__ volatile ("dsb ish");\
+	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
+}
+#else
+#define _DEFINE_TLBIOP_FUNC(_op, coproc, opc1, CRn, CRm, opc2)		\
+static inline void tlbi##_op(void)					\
 {									\
 	u_register_t v = 0;						\
 	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
@@ -117,6 +132,14 @@ static inline void bpi##_op(void)					\
 #define _DEFINE_TLBIOP_PARAM_FUNC(_op, coproc, opc1, CRn, CRm, opc2)	\
 static inline void tlbi##_op(u_register_t v)				\
 {									\
+	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
+}
+#endif /* ERRATA_A57_813419 */
+
+#define _DEFINE_BPIOP_FUNC(_op, coproc, opc1, CRn, CRm, opc2)		\
+static inline void bpi##_op(void)					\
+{									\
+	u_register_t v = 0;						\
 	__asm__ volatile ("mcr "#coproc","#opc1",%0,"#CRn","#CRm","#opc2 : : "r" (v));\
 }
 
