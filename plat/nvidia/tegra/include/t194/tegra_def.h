@@ -28,20 +28,6 @@
 #define PLAT_MAX_OFF_STATE		8
 
 /*******************************************************************************
- * Implementation defined ACTLR_EL3 bit definitions
- ******************************************************************************/
-#define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)
-#define ACTLR_EL3_L2ECTLR_BIT		(1 << 5)
-#define ACTLR_EL3_L2CTLR_BIT		(1 << 4)
-#define ACTLR_EL3_CPUECTLR_BIT		(1 << 1)
-#define ACTLR_EL3_CPUACTLR_BIT		(1 << 0)
-#define ACTLR_EL3_ENABLE_ALL_ACCESS	(ACTLR_EL3_L2ACTLR_BIT | \
-					 ACTLR_EL3_L2ECTLR_BIT | \
-					 ACTLR_EL3_L2CTLR_BIT | \
-					 ACTLR_EL3_CPUECTLR_BIT | \
-					 ACTLR_EL3_CPUACTLR_BIT)
-
-/*******************************************************************************
  * Secure IRQ definitions
  ******************************************************************************/
 #define TEGRA186_MAX_SEC_IRQS		5

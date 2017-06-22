@@ -13,6 +13,7 @@
 #include <mce_private.h>
 #include <platform_def.h>
 #include <t194_nvg.h>
+#include <tegra_private.h>
 
 extern void nvg_set_request_data(uint64_t req, uint64_t data);
 extern void nvg_set_request(uint64_t req);
@@ -342,6 +343,7 @@ int32_t nvg_roc_clean_cache_trbits(void)
 int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time)
 {
 	int32_t ret = 0;
+	uint64_t val = 0ULL;
 
 	/* check for allowed power state */
 	if ((state != (uint32_t)TEGRA_NVG_CORE_C0) &&
@@ -356,7 +358,8 @@ int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time)
 		nvg_set_wake_time(wake_time);
 
 		/* set the core cstate */
-		write_actlr_el1(state);
+		val = read_actlr_el1() & ~ACTLR_EL1_PMSTATE_MASK;
+		write_actlr_el1(val | (uint64_t)state);
 	}
 
 	return ret;
