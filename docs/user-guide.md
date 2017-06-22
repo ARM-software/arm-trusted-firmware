@@ -269,6 +269,9 @@ performed.
 *   `BUILD_STRING`: Input string for VERSION_STRING, which allows the TF build
     to be uniquely identified. Defaults to the current git commit id.
 
+*   `CFLAGS`: Extra user options appended on the compiler's command line in
+    addition to the options set by the build system.
+
 *   `COLD_BOOT_SINGLE_CPU`: This option indicates whether the platform may
     release several CPUs out of reset. It can take either 0 (several CPUs may be
     brought up) or 1 (only one CPU will ever be brought up during cold reset).
@@ -687,10 +690,14 @@ NOTE: Using `-O0` could cause output images to be larger and base addresses
 might need to be recalculated (see the **Memory layout on ARM development
 platforms** section in the [Firmware Design]).
 
-Extra debug options can be passed to the build system by setting `CFLAGS`:
+Extra debug options can be passed to the build system by setting `CFLAGS` or
+`LDFLAGS`:
 
     CFLAGS='-O0 -gdwarf-2'                                     \
     make PLAT=<platform> DEBUG=1 V=1 all
+
+Note that using `-Wl,` style compilation driver options in `CFLAGS` will be
+ignored as the linker is called directly.
 
 It is also possible to introduce an infinite loop to help in debugging the
 post-BL2 phase of the Trusted Firmware. This can be done by rebuilding BL1 with
