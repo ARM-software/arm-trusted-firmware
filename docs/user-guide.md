@@ -385,6 +385,9 @@ performed.
     AArch64 and facilitates the loading of `SP_MIN` and BL33 as AArch32 executable
     images.
 
+*   `LDFLAGS`: Extra user options appended to the linkers' command line in
+    addition to the one set by the build system.
+
 *   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
     image loading, which provides more flexibility and scalability around what
     images are loaded and executed during boot. Default is 0.

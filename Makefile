@@ -151,10 +151,9 @@ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffreestanding -fno-builtin -Wall -std=gnu99	\
 				-Os -ffunction-sections -fdata-sections
 
-LDFLAGS			+=	$(LDFLAGS_$(ARCH))
-LDFLAGS			+=	--fatal-warnings -O1
-LDFLAGS			+=	--gc-sections
-
+TF_LDFLAGS		+=	--fatal-warnings -O1
+TF_LDFLAGS		+=	--gc-sections
+TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
 
 ################################################################################
 # Common sources and include directories
