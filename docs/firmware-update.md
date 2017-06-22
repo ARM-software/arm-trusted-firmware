@@ -384,5 +384,5 @@ _Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved._
 [Porting Guide]:        ./porting-guide.md
 [Auth Framework]:       ./auth-framework.md
 [Trusted Board Boot]:   ./trusted-board-boot.md
-[TF Image Terminology]: https://github.com/ARM-software/arm-trusted-firmware/wiki/Trusted-Firmware-Image-Terminology
+[TF Image Terminology]: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
 [UUID]:                 https://tools.ietf.org/rfc/rfc4122.txt "A Universally Unique IDentifier (UUID) URN Namespace"
