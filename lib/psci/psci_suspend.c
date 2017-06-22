@@ -173,9 +173,6 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 	psci_stats_update_pwr_down(end_pwrlvl, state_info);
 #endif
 
-	if (is_power_down_state)
-		psci_suspend_to_pwrdown_start(end_pwrlvl, ep, state_info);
-
 	/*
 	 * Plat. management: Allow the platform to perform the
 	 * necessary actions to turn off this cpu e.g. set the
@@ -183,6 +180,9 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 	 * program the power controller etc.
 	 */
 	psci_plat_pm_ops->pwr_domain_suspend(state_info);
+
+	if (is_power_down_state)
+		psci_suspend_to_pwrdown_start(end_pwrlvl, ep, state_info);
 
 #if ENABLE_PSCI_STAT
 	plat_psci_stat_accounting_start(state_info);
