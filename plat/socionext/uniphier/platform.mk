@@ -86,10 +86,28 @@ TBB_SOURCES		:=	drivers/auth/auth_mod.c			\
 				drivers/auth/img_parser_mod.c		\
 				drivers/auth/tbbr/tbbr_cot.c		\
 				plat/common/tbbr/plat_tbbr.c		\
+				$(PLAT_PATH)/uniphier_rotpk.S		\
 				$(PLAT_PATH)/uniphier_tbbr.c
 
 BL1_SOURCES		+=	$(TBB_SOURCES)
 BL2_SOURCES		+=	$(TBB_SOURCES)
+
+ROT_KEY			= $(BUILD_PLAT)/rot_key.pem
+ROTPK_HASH		= $(BUILD_PLAT)/rotpk_sha256.bin
+
+$(eval $(call add_define_val,ROTPK_HASH,'"$(ROTPK_HASH)"'))
+$(BUILD_PLAT)/bl1/uniphier_rotpk.o: $(ROTPK_HASH)
+$(BUILD_PLAT)/bl2/uniphier_rotpk.o: $(ROTPK_HASH)
+
+certificates: $(ROT_KEY)
+$(ROT_KEY):
+	@echo "  OPENSSL $@"
+	$(Q)openssl genrsa 2048 > $@ 2>/dev/null
+
+$(ROTPK_HASH): $(ROT_KEY)
+	@echo "  OPENSSL $@"
+	$(Q)openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
+	openssl dgst -sha256 -binary > $@ 2>/dev/null
 
 endif
 
