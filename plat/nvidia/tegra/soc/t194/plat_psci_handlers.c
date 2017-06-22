@@ -250,8 +250,8 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 
 int tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
-	int target_cpu = mpidr & MPIDR_CPU_MASK;
-	int target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
+	uint32_t target_cpu = mpidr & MPIDR_CPU_MASK;
+	uint32_t target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
 			MPIDR_AFFINITY_BITS;
 
 	if (target_cluster > MPIDR_AFFLVL1) {
