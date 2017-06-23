@@ -86,6 +86,7 @@ static inline void cm_set_next_context(void *context)
 
 #else
 void *cm_get_next_context(void);
+void cm_set_next_context(void *context);
 #endif /* AARCH32 */
 
 #endif /* __CM_H__ */
