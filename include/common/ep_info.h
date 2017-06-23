@@ -33,6 +33,7 @@
 			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
 
 #define EP_EE_MASK	U(0x2)
+#define EP_EE_SHIFT	1
 #define EP_EE_LITTLE	U(0x0)
 #define EP_EE_BIG	U(0x2)
 #define EP_GET_EE(x) (x & EP_EE_MASK)

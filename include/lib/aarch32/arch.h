@@ -101,14 +101,19 @@
 #define SCTLR_TRE_BIT		(1 << 28)
 #define SCTLR_AFE_BIT		(1 << 29)
 #define SCTLR_TE_BIT		(1 << 30)
+#define SCTLR_RESET_VAL         (SCTLR_RES1 | SCTLR_NTWE_BIT |		\
+				SCTLR_NTWI_BIT | SCTLR_CP15BEN_BIT)
 
 /* SDCR definitions */
 #define SDCR_SPD(x)		((x) << 14)
 #define SDCR_SPD_LEGACY		0x0
 #define SDCR_SPD_DISABLE	0x2
 #define SDCR_SPD_ENABLE		0x3
+#define SDCR_RESET_VAL		0x0
 
+#if !ERROR_DEPRECATED
 #define SDCR_DEF_VAL		SDCR_SPD(SDCR_SPD_DISABLE)
+#endif
 
 /* HSCTLR definitions */
 #define HSCTLR_RES1 	((1 << 29) | (1 << 28) | (1 << 23) | (1 << 22)	\
@@ -145,6 +150,7 @@
 #define SCR_IRQ_BIT		(1 << 1)
 #define SCR_NS_BIT		(1 << 0)
 #define SCR_VALID_BIT_MASK	0x33ff
+#define SCR_RESET_VAL		0x0
 
 #define GET_NS_BIT(scr)		((scr) & SCR_NS_BIT)
 
@@ -152,9 +158,10 @@
 #define HCR_AMO_BIT		(1 << 5)
 #define HCR_IMO_BIT		(1 << 4)
 #define HCR_FMO_BIT		(1 << 3)
+#define HCR_RESET_VAL		0x0
 
 /* CNTHCTL definitions */
-#define EVNTEN_BIT		(1 << 2)
+#define CNTHCTL_RESET_VAL	0x0
 #define PL1PCEN_BIT		(1 << 1)
 #define PL1PCTEN_BIT		(1 << 0)
 
@@ -169,16 +176,42 @@
 #define EVNTI_MASK		0xf
 
 /* HCPTR definitions */
+#define HCPTR_RES1		((1 << 13) | (1<<12) | 0x3ff)
 #define TCPAC_BIT		(1 << 31)
 #define TTA_BIT			(1 << 20)
 #define TCP11_BIT		(1 << 10)
 #define TCP10_BIT		(1 << 10)
+#define HCPTR_RESET_VAL		HCPTR_RES1
+
+/* VTTBR defintions */
+#define VTTBR_RESET_VAL		ULL(0x0)
+#define VTTBR_VMID_MASK		ULL(0xff)
+#define VTTBR_VMID_SHIFT	48
+#define VTTBR_BADDR_MASK	0xffffffffffff
+#define VTTBR_BADDR_SHIFT	0
+
+/* HDCR definitions */
+#define HDCR_RESET_VAL		0x0
+
+/* HSTR definitions */
+#define HSTR_RESET_VAL		0x0
+
+/* CNTHP_CTL definitions */
+#define CNTHP_CTL_RESET_VAL	0x0
 
 /* NASCR definitions */
 #define NSASEDIS_BIT		(1 << 15)
 #define NSTRCDIS_BIT		(1 << 20)
+/* NOTE: correct typo in the definitions */
+#if !ERROR_DEPRECATED
 #define NASCR_CP11_BIT		(1 << 11)
 #define NASCR_CP10_BIT		(1 << 10)
+#endif
+#define NSACR_CP11_BIT		(1 << 11)
+#define NSACR_CP10_BIT		(1 << 10)
+#define NSACR_IMP_DEF_MASK	(0x7 << 16)
+#define NSACR_ENABLE_FP_ACCESS	(NSACR_CP11_BIT | NSACR_CP10_BIT)
+#define NSACR_RESET_VAL		0x0
 
 /* CPACR definitions */
 #define ASEDIS_BIT		(1 << 31)
@@ -187,9 +220,12 @@
 #define CPACR_CP10_SHIFT	20
 #define CPACR_ENABLE_FP_ACCESS	(0x3 << CPACR_CP11_SHIFT |\
 					0x3 << CPACR_CP10_SHIFT)
+#define CPACR_RESET_VAL         0x0
 
 /* FPEXC definitions */
+#define FPEXC_RES1		((1 << 10) | (1 << 9) | (1 << 8))
 #define FPEXC_EN_BIT		(1 << 30)
+#define FPEXC_RESET_VAL		FPEXC_RES1
 
 /* SPSR/CPSR definitions */
 #define SPSR_FIQ_BIT		(1 << 0)
@@ -369,6 +405,7 @@
 #define HSCTLR		p15, 4, c1, c0, 0
 #define HCR		p15, 4, c1, c1, 0
 #define HCPTR		p15, 4, c1, c1, 2
+#define HSTR		p15, 4, c1, c1, 3
 #define CNTHCTL		p15, 4, c14, c1, 0
 #define CNTKCTL		p15, 0, c14, c1, 0
 #define VPIDR		p15, 4, c0, c0, 0

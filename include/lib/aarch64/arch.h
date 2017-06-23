@@ -135,15 +135,19 @@
 				 & ID_PFR1_VIRTEXT_MASK)
 
 /* SCTLR definitions */
-#define SCTLR_EL2_RES1  ((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
+#define SCTLR_EL2_RES1	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
 			 (U(1) << 22) | (U(1) << 18) | (U(1) << 16) | \
 			 (U(1) << 11) | (U(1) << 5) | (U(1) << 4))
 
-#define SCTLR_EL1_RES1  ((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
+#define SCTLR_EL1_RES1	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
 			 (U(1) << 22) | (U(1) << 20) | (U(1) << 11))
 #define SCTLR_AARCH32_EL1_RES1 \
 			((U(1) << 23) | (U(1) << 22) | (U(1) << 11) | \
 			 (U(1) << 4) | (U(1) << 3))
+
+#define SCTLR_EL3_RES1	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
+			(U(1) << 22) | (U(1) << 18) | (U(1) << 16) | \
+			(U(1) << 11) | (U(1) << 5) | (U(1) << 4))
 
 #define SCTLR_M_BIT		(U(1) << 0)
 #define SCTLR_A_BIT		(U(1) << 1)
@@ -155,6 +159,7 @@
 #define SCTLR_NTWE_BIT		(U(1) << 18)
 #define SCTLR_WXN_BIT		(U(1) << 19)
 #define SCTLR_EE_BIT		(U(1) << 25)
+#define SCTLR_RESET_VAL		SCTLR_EL3_RES1
 
 /* CPACR_El1 definitions */
 #define CPACR_EL1_FPEN(x)	((x) << 20)
@@ -176,15 +181,47 @@
 #define SCR_IRQ_BIT		(U(1) << 1)
 #define SCR_NS_BIT		(U(1) << 0)
 #define SCR_VALID_BIT_MASK	U(0x2f8f)
+#define SCR_RESET_VAL		SCR_RES1_BITS
 
-/* MDCR definitions */
+/* MDCR_EL3 definitions */
 #define MDCR_SPD32(x)		((x) << 14)
 #define MDCR_SPD32_LEGACY	U(0x0)
 #define MDCR_SPD32_DISABLE	U(0x2)
 #define MDCR_SPD32_ENABLE	U(0x3)
 #define MDCR_SDD_BIT		(U(1) << 16)
+#define MDCR_TDOSA_BIT		(U(1) << 10)
+#define MDCR_TDA_BIT		(U(1) << 9)
+#define MDCR_TPM_BIT		(U(1) << 6)
+#define MDCR_EL3_RESET_VAL	U(0x0)
 
+#if !ERROR_DEPRECATED
 #define MDCR_DEF_VAL		(MDCR_SDD_BIT | MDCR_SPD32(MDCR_SPD32_DISABLE))
+#endif
+
+/* MDCR_EL2 definitions */
+#define MDCR_EL2_TDRA_BIT	(U(1) << 11)
+#define MDCR_EL2_TDOSA_BIT	(U(1) << 10)
+#define MDCR_EL2_TDA_BIT	(U(1) << 9)
+#define MDCR_EL2_TDE_BIT	(U(1) << 8)
+#define MDCR_EL2_HPME_BIT	(U(1) << 7)
+#define MDCR_EL2_TPM_BIT	(U(1) << 6)
+#define MDCR_EL2_TPMCR_BIT	(U(1) << 5)
+#define MDCR_EL2_RESET_VAL	U(0x0)
+
+/* HSTR_EL2 definitions */
+#define HSTR_EL2_RESET_VAL	U(0x0)
+#define HSTR_EL2_T_MASK		U(0xff)
+
+/* CNTHP_CTL_EL2 definitions */
+#define CNTHP_CTL_ENABLE_BIT	(U(1) << 0)
+#define CNTHP_CTL_RESET_VAL	U(0x0)
+
+/* VTTBR_EL2 definitions */
+#define VTTBR_RESET_VAL		ULL(0x0)
+#define VTTBR_VMID_MASK		ULL(0xff)
+#define VTTBR_VMID_SHIFT	U(48)
+#define VTTBR_BADDR_MASK	ULL(0xffffffffffff)
+#define VTTBR_BADDR_SHIFT	U(0)
 
 /* HCR definitions */
 #define HCR_RW_SHIFT		U(31)
@@ -199,6 +236,7 @@
 #define ISR_F_SHIFT		U(6)
 
 /* CNTHCTL_EL2 definitions */
+#define CNTHCTL_RESET_VAL	U(0x0)
 #define EVNTEN_BIT		(U(1) << 2)
 #define EL1PCEN_BIT		(U(1) << 1)
 #define EL1PCTEN_BIT		(U(1) << 0)
@@ -217,6 +255,14 @@
 #define TCPAC_BIT		(U(1) << 31)
 #define TTA_BIT			(U(1) << 20)
 #define TFP_BIT			(U(1) << 10)
+#define CPTR_EL3_RESET_VAL	U(0x0)
+
+/* CPTR_EL2 definitions */
+#define CPTR_EL2_RES1		((U(1) << 13) | (U(1) << 12) | (U(0x3ff)))
+#define CPTR_EL2_TCPAC_BIT	(U(1) << 31)
+#define CPTR_EL2_TTA_BIT	(U(1) << 20)
+#define CPTR_EL2_TFP_BIT	(U(1) << 10)
+#define CPTR_EL2_RESET_VAL	CPTR_EL2_RES1
 
 /* CPSR/SPSR definitions */
 #define DAIF_FIQ_BIT		(U(1) << 0)

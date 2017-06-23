@@ -220,6 +220,12 @@ BL1 performs minimal architectural initialization as follows.
     -   `DAIF`. The SError interrupt is enabled by clearing the SError interrupt
         mask bit.
 
+    -   `MDCR_EL3`. The trap controls, `MDCR_EL3.TDOSA`, `MDCR_EL3.TDA` and
+        `MDCR_EL3.TPM`, are set so that accesses to the registers they control
+        do not trap to EL3. AArch64 Secure self-hosted debug is disabled by
+        setting the `MDCR_EL3.SDD` bit. Also `MDCR_EL3.SPD32` is set to
+        disable AArch32 Secure self-hosted privileged debug from S-EL1.
+
 *   Control register setup (for AArch32)
     -   `SCTLR`. Instruction cache is enabled by setting the `SCTLR.I` bit.
         Alignment checking is enabled by setting the `SCTLR.A` bit.
@@ -242,6 +248,9 @@ BL1 performs minimal architectural initialization as follows.
 
     -   `CPSR.A`. The Asynchronous data abort interrupt is enabled by clearing
         the Asynchronous data abort interrupt mask bit.
+
+    -   `SDCR`. The `SDCR.SPD` field is set to disable AArch32 Secure
+        self-hosted privileged debug.
 
 #### Platform initialization
 
