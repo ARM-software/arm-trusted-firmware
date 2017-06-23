@@ -135,11 +135,13 @@
  * Security Engine related constants
  ******************************************************************************/
 #define TEGRA_SE0_BASE			U(0x03AC0000)
-#define  SE_MUTEX_WATCHDOG_NS_LIMIT	U(0x6C)
+#define  SE0_MUTEX_WATCHDOG_NS_LIMIT	U(0x6C)
+#define  SE0_AES0_ENTROPY_SRC_AGE_CTRL	U(0x2FC)
 #define TEGRA_PKA1_BASE			U(0x03AD0000)
-#define  PKA_MUTEX_WATCHDOG_NS_LIMIT	U(0x8144)
+#define  SE_PKA1_CTRL_SE_MUTEX_TMOUT_DFTVAL U(0x144)
+#define  PKA1_MUTEX_WATCHDOG_NS_LIMIT	SE_PKA1_CTRL_SE_MUTEX_TMOUT_DFTVAL
 #define TEGRA_RNG1_BASE			U(0x03AE0000)
-#define  RNG_MUTEX_WATCHDOG_NS_LIMIT	U(0xFE0)
+#define  RNG1_MUTEX_WATCHDOG_NS_LIMIT	U(0xFE0)
 
 /*******************************************************************************
  * Tegra micro-seconds timer constants
