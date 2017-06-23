@@ -219,4 +219,7 @@ int arm_execution_state_switch(unsigned int smc_fid,
 		uint32_t cookie_lo,
 		void *handle);
 
+/* Disable Statistical Profiling Extensions helper */
+void arm_disable_spe(void);
+
 #endif /* __PLAT_ARM_H__ */

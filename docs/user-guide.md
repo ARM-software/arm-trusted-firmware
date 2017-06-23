@@ -542,6 +542,11 @@ performed.
     cluster platforms). If this option is enabled, then warm boot path
     enables D-caches immediately after enabling MMU. This option defaults to 0.
 
+*   `ENABLE_SPE_FOR_LOWER_ELS` : Boolean option to enable Statistical Profiling
+     extensions.  This is an optional architectural feature available only for
+     AArch64 8.2 onwards.  This option defaults to 1 but is automatically
+     disabled when the target architecture is AArch32 or AArch64 8.0/8.1.
+
 #### ARM development platform specific build options
 
 *   `ARM_BL31_IN_DRAM`: Boolean option to select loading of BL31 in TZC secured

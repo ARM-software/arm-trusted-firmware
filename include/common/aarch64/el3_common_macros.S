@@ -95,6 +95,10 @@
 	 * MDCR_EL3.SPD32: Set to 0b10 to disable AArch32 Secure self-hosted
 	 *  privileged debug from S-EL1.
 	 *
+	 * MDCR_EL3.NSPB (ARM v8.2): SPE enabled in non-secure state and
+	 * disabled in secure state. Accesses to SPE registers at SEL1 generate
+	 * trap exceptions to EL3.
+	 *
 	 * MDCR_EL3.TDOSA: Set to zero so that EL2 and EL2 System register
 	 *  access to the powerdown debug registers do not trap to EL3.
 	 *
@@ -108,6 +112,19 @@
 	 */
 	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | MDCR_SPD32(MDCR_SPD32_DISABLE)) \
 			& ~(MDCR_TDOSA_BIT | MDCR_TDA_BIT | MDCR_TPM_BIT))
+
+#if ENABLE_SPE_FOR_LOWER_ELS
+	/* Detect if SPE is implemented */
+	mrs	x1, id_aa64dfr0_el1
+	ubfx	x1, x1, #ID_AA64DFR0_PMS_SHIFT, #ID_AA64DFR0_PMS_LENGTH
+	cmp	x1, #0x1
+	b.ne	1f
+
+	/* Enable SPE for use by normal world */
+	orr	x0, x0, #MDCR_NSPB(MDCR_NSPB_EL1)
+1:
+#endif
+
 	msr	mdcr_el3, x0
 
 	/* ---------------------------------------------------------------------
