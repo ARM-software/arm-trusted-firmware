@@ -111,8 +111,8 @@ static mce_config_t mce_cfg_table[MCE_ARI_APERTURES_MAX] = {
 static uint32_t mce_get_curr_cpu_ari_base(void)
 {
 	uint64_t mpidr = read_mpidr();
-	uint64_t cpuid = mpidr & (uint64_t)MPIDR_CPU_MASK;
-	uint64_t impl = (read_midr() >> (uint64_t)MIDR_IMPL_SHIFT) & (uint64_t)MIDR_IMPL_MASK;
+	uint64_t cpuid = mpidr & MPIDR_CPU_MASK;
+	uint64_t impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 
 	/*
 	 * T186 has 2 CPU clusters, one with Denver CPUs and the other with
@@ -131,9 +131,9 @@ static uint32_t mce_get_curr_cpu_ari_base(void)
 static arch_mce_ops_t *mce_get_curr_cpu_ops(void)
 {
 	uint64_t mpidr = read_mpidr();
-	uint64_t cpuid = mpidr & (uint64_t)MPIDR_CPU_MASK;
-	uint64_t impl = (read_midr() >> (uint64_t)MIDR_IMPL_SHIFT) &
-			(uint64_t)MIDR_IMPL_MASK;
+	uint64_t cpuid = mpidr & MPIDR_CPU_MASK;
+	uint64_t impl = (read_midr() >> MIDR_IMPL_SHIFT) &
+			MIDR_IMPL_MASK;
 
 	/*
 	 * T186 has 2 CPU clusters, one with Denver CPUs and the other with
@@ -180,17 +180,17 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		 * get the parameters required for the update cstate info
 		 * command
 		 */
-		arg3 = read_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X4));
-		arg4 = read_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X5));
-		arg5 = read_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X6));
+		arg3 = read_ctx_reg(gp_regs, CTX_GPREG_X4);
+		arg4 = read_ctx_reg(gp_regs, CTX_GPREG_X5);
+		arg5 = read_ctx_reg(gp_regs, CTX_GPREG_X6);
 
 		ret = ops->update_cstate_info(cpu_ari_base, (uint32_t)arg0,
 				(uint32_t)arg1, (uint32_t)arg2, (uint8_t)arg3,
 				(uint32_t)arg4, (uint8_t)arg5);
 
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X4), (0));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X5), (0));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X6), (0));
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, (0ULL));
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, (0ULL));
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, (0ULL));
 
 		break;
 
@@ -203,8 +203,8 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		ret64 = ops->read_cstate_stats(cpu_ari_base, arg0);
 
 		/* update context to return cstate stats value */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2), (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X2, (ret64));
 
 		break;
 
@@ -217,8 +217,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		ret = ops->is_ccx_allowed(cpu_ari_base, arg0, arg1);
 
 		/* update context to return CCx status value */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
-			      (uint64_t)(ret));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (uint64_t)(ret));
 
 		break;
 
@@ -226,10 +225,8 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		ret = ops->is_sc7_allowed(cpu_ari_base, arg0, arg1);
 
 		/* update context to return SC7 status value */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
-			      (uint64_t)(ret));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X3),
-			      (uint64_t)(ret));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (uint64_t)(ret));
+		write_ctx_reg(gp_regs, CTX_GPREG_X3, (uint64_t)(ret));
 
 		break;
 
@@ -248,10 +245,10 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 				arg0);
 
 		/* update context to return if echo'd data matched source */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
-			      ((ret64 == arg0) ? 1ULL : 0ULL));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2),
-			      ((ret64 == arg0) ? 1ULL : 0ULL));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, ((ret64 == arg0) ?
+			      1ULL : 0ULL));
+		write_ctx_reg(gp_regs, CTX_GPREG_X2, ((ret64 == arg0) ?
+			      1ULL : 0ULL));
 
 		break;
 
@@ -263,10 +260,8 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		 * version = minor(63:32) | major(31:0). Update context
 		 * to return major and minor version number.
 		 */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1),
-			      (ret64));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2),
-			      (ret64 >> 32ULL));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X2, (ret64 >> 32ULL));
 
 		break;
 
@@ -275,7 +270,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 				TEGRA_ARI_MISC_FEATURE_LEAF_0, arg0);
 
 		/* update context to return features value */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (ret64));
 
 		break;
 
@@ -298,9 +293,9 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		ret64 = ops->read_write_mca(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return MCA data/error */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X2), (arg1));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X3), (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X2, (arg1));
+		write_ctx_reg(gp_regs, CTX_GPREG_X3, (ret64));
 
 		break;
 
@@ -308,8 +303,8 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		ret64 = ops->read_write_mca(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return MCA error */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (ret64));
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X3), (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X3, (ret64));
 
 		break;
 
@@ -336,7 +331,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		ret = ops->read_write_uncore_perfmon(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return data */
-		write_ctx_reg((gp_regs), (uint32_t)(CTX_GPREG_X1), (arg1));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (arg1));
 		break;
 
 	case MCE_CMD_MISC_CCPLEX:
