@@ -20,6 +20,9 @@
  * This macro can be used for implementing various data cache operations `op`
  */
 .macro do_dcache_maintenance_by_mva op, coproc, opc1, CRn, CRm, opc2
+	/* Exit early if size is zero */
+	cmp	r1, #0
+	beq	exit_loop_\op
 	dcache_line_size r2, r3
 	add	r1, r0, r1
 	sub	r3, r2, #1
@@ -30,6 +33,7 @@ loop_\op:
 	cmp	r0, r1
 	blo	loop_\op
 	dsb	sy
+exit_loop_\op:
 	bx	lr
 .endm
 

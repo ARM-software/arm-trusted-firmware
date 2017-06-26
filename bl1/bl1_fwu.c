@@ -176,18 +176,19 @@ static int bl1_fwu_image_check_overlaps(int image_id)
 
 	checked_image_base = checked_info->image_base;
 	checked_image_end = checked_image_base + checked_info->image_size - 1;
-	/* No need to check for overlaps, it's done in bl1_fwu_image_copy(). */
+	/* No need to check for overflows, it's done in bl1_fwu_image_copy(). */
 
 	for (int i = 0; i < FWU_MAX_SIMULTANEOUS_IMAGES; i++) {
 
-		/* Don't check image against itself. */
-		if (bl1_fwu_loaded_ids[i] == image_id)
+		/* Skip INVALID_IMAGE_IDs and don't check image against itself */
+		if ((bl1_fwu_loaded_ids[i] == INVALID_IMAGE_ID) ||
+				(bl1_fwu_loaded_ids[i] == image_id))
 			continue;
 
 		image_desc = bl1_plat_get_image_desc(bl1_fwu_loaded_ids[i]);
 
 		/* Only check images that are loaded or being loaded. */
-		assert (image_desc->state != IMAGE_STATE_RESET);
+		assert (image_desc && image_desc->state != IMAGE_STATE_RESET);
 
 		info = &image_desc->image_info;
 
@@ -704,11 +705,15 @@ static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
 			return -EPERM;
 		}
 
-		/* Clear the memory.*/
-		zero_normalmem((void *)image_desc->image_info.image_base,
-				image_desc->copied_size);
-		flush_dcache_range(image_desc->image_info.image_base,
-				image_desc->copied_size);
+		if (image_desc->copied_size) {
+			/* Clear the memory if the image is copied */
+			assert(GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE);
+
+			zero_normalmem((void *)image_desc->image_info.image_base,
+					image_desc->copied_size);
+			flush_dcache_range(image_desc->image_info.image_base,
+					image_desc->copied_size);
+		}
 
 		/* Reset status variables */
 		image_desc->copied_size = 0;
