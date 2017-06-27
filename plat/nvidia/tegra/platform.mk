@@ -36,4 +36,4 @@ include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 BUILD_PLAT	:=	${BUILD_BASE}/${PLAT}/${TARGET_SOC}/${BUILD_TYPE}
 
 # enable signed comparison checks
-CFLAGS		+= -Wsign-compare
+TF_CFLAGS	+= -Wsign-compare
