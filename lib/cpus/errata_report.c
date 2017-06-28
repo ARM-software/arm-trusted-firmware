@@ -72,7 +72,7 @@ void errata_print_msg(unsigned int status, const char *cpu, const char *id)
 	const char *msg __unused;
 
 
-	assert(status >= 0 && status < ARRAY_SIZE(errata_status_str));
+	assert(status < ARRAY_SIZE(errata_status_str));
 	assert(cpu);
 	assert(id);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,7 +77,7 @@ int xlat_arch_current_el(void);
 uint64_t xlat_arch_get_xn_desc(int el);
 
 void init_xlation_table(uintptr_t base_va, uint64_t *table,
-			int level, uintptr_t *max_va,
+			unsigned int level, uintptr_t *max_va,
 			unsigned long long *max_pa);
 
 #endif /* __XLAT_TABLES_PRIVATE_H__ */
