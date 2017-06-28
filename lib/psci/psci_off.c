@@ -83,6 +83,12 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	psci_stats_update_pwr_down(end_pwrlvl, &state_info);
 #endif
 
+	/*
+	 * Plat. management: Perform platform specific actions to turn this
+	 * cpu off e.g. exit cpu coherency, program the power controller etc.
+	 */
+	psci_plat_pm_ops->pwr_domain_off(&state_info);
+
 #if ENABLE_RUNTIME_INSTRUMENTATION
 
 	/*
@@ -104,12 +110,6 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 		RT_INSTR_EXIT_CFLUSH,
 		PMF_NO_CACHE_MAINT);
 #endif
-
-	/*
-	 * Plat. management: Perform platform specific actions to turn this
-	 * cpu off e.g. exit cpu coherency, program the power controller etc.
-	 */
-	psci_plat_pm_ops->pwr_domain_off(&state_info);
 
 #if ENABLE_PSCI_STAT
 	plat_psci_stat_accounting_start(&state_info);
