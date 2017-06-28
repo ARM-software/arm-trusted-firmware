@@ -287,7 +287,7 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 
 static void tegra_memctrl_set_overrides(void)
 {
-	tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
+	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
 	const mc_txn_override_cfg_t *mc_txn_override_cfgs;
 	uint32_t num_txn_override_cfgs;
 	uint32_t i, val;
@@ -347,7 +347,7 @@ void tegra_memctrl_setup(void)
 	uint32_t num_streamid_override_regs;
 	const mc_streamid_security_cfg_t *mc_streamid_sec_cfgs;
 	uint32_t num_streamid_sec_cfgs;
-	tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
+	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
 	uint32_t i;
 
 	INFO("Tegra Memory Controller (v2)\n");
@@ -525,7 +525,7 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 * at all.
 	 */
 	val = tegra_mc_read_32(MC_TZRAM_CARVEOUT_CFG);
-	val &= ~MC_GSC_ENABLE_TZ_LOCK_BIT;
+	val &= (uint32_t)~MC_GSC_ENABLE_TZ_LOCK_BIT;
 	val |= MC_GSC_LOCK_CFG_SETTINGS_BIT;
 	tegra_mc_write_32(MC_TZRAM_CARVEOUT_CFG, val);
 
@@ -603,7 +603,7 @@ static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 	/*
 	 * Map the NS memory first, clean it and then unmap it.
 	 */
-	mmap_add_dynamic_region(non_overlap_area_start, /* PA */
+	(void)mmap_add_dynamic_region(non_overlap_area_start, /* PA */
 				non_overlap_area_start, /* VA */
 				non_overlap_area_size, /* size */
 				MT_NS | MT_RW | MT_EXECUTE_NEVER); /* attrs */
@@ -611,7 +611,7 @@ static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 	zero_normalmem((void *)non_overlap_area_start, non_overlap_area_size);
 	flush_dcache_range(non_overlap_area_start, non_overlap_area_size);
 
-	mmap_remove_dynamic_region(non_overlap_area_start,
+	(void)mmap_remove_dynamic_region(non_overlap_area_start,
 		non_overlap_area_size);
 }
 
@@ -658,17 +658,19 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 */
 	INFO("Cleaning previous Video Memory Carveout\n");
 
-	if (phys_base > vmem_end_old || video_mem_base > vmem_end_new) {
+	if ((phys_base > vmem_end_old) || (video_mem_base > vmem_end_new)) {
 		tegra_clear_videomem(video_mem_base,
-				     (uint64_t)video_mem_size_mb << 20);
+				     (uint32_t)video_mem_size_mb << 20U);
 	} else {
 		if (video_mem_base < phys_base) {
 			non_overlap_area_size = phys_base - video_mem_base;
-			tegra_clear_videomem(video_mem_base, non_overlap_area_size);
+			tegra_clear_videomem(video_mem_base,
+					(uint32_t)non_overlap_area_size);
 		}
 		if (vmem_end_old > vmem_end_new) {
 			non_overlap_area_size = vmem_end_old - vmem_end_new;
-			tegra_clear_videomem(vmem_end_new, non_overlap_area_size);
+			tegra_clear_videomem(vmem_end_new,
+					(uint32_t)non_overlap_area_size);
 		}
 	}
 

@@ -112,8 +112,8 @@
 #define TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW		U(0x15018)
 #define  TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW_RESET	U(0x1100)
 
-#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK		(U(0x3) << 11)
-#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(U(0) << 11)
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK		(ULL(0x3) << 11)
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(ULL(0) << 11)
 
 /*******************************************************************************
  * Tegra General Purpose Centralised DMA constants
@@ -129,7 +129,7 @@
 /* General Security Carveout register macros */
 #define MC_GSC_CONFIG_REGS_SIZE		U(0x40)
 #define MC_GSC_LOCK_CFG_SETTINGS_BIT	(U(1) << 1)
-#define MC_GSC_ENABLE_TZ_LOCK_BIT	(U(1) << 0)
+#define MC_GSC_ENABLE_TZ_LOCK_BIT	(ULL(1) << 0)
 #define MC_GSC_SIZE_RANGE_4KB_SHIFT	U(27)
 #define MC_GSC_BASE_LO_SHIFT		U(12)
 #define MC_GSC_BASE_LO_MASK		U(0xFFFFF)

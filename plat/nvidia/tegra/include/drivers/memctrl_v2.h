@@ -98,7 +98,7 @@
 /*******************************************************************************
  * Macro to calculate Security cfg register addr from StreamID Override register
  ******************************************************************************/
-#define MC_STREAMID_OVERRIDE_TO_SECURITY_CFG(addr) (addr + sizeof(uint32_t))
+#define MC_STREAMID_OVERRIDE_TO_SECURITY_CFG(addr) ((addr) + sizeof(uint32_t))
 
 #define MC_TXN_OVERRIDE_CONFIG_COH_PATH_NO_OVERRIDE_SO_DEV		(0UL << 4)
 #define MC_TXN_OVERRIDE_CONFIG_COH_PATH_FORCE_NON_COHERENT_SO_DEV	(1UL << 4)
@@ -406,8 +406,8 @@ static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
 	{ \
 		mmio_write_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client, \
 			(TSA_CONFIG_STATIC0_CSW_##client##_RESET & \
-			 ~TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK) | \
-			TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU); \
+			 (uint32_t)~TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK) | \
+			(uint32_t)TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU); \
 	}
 
 #define mc_set_txn_override(client, normal_axi_id, so_dev_axi_id, normal_override, so_dev_override) \
