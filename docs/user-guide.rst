@@ -725,7 +725,7 @@ ignored as the linker is called directly.
 
 It is also possible to introduce an infinite loop to help in debugging the
 post-BL2 phase of the Trusted Firmware. This can be done by rebuilding BL1 with
-the ``SPIN_ON_BL1_EXIT=1`` build flag. Refer to the "Summary of build options"
+the ``SPIN_ON_BL1_EXIT=1`` build flag. Refer to the `Summary of build options`_
 section. In this case, the developer may take control of the target using a
 debugger when indicated by the console output. When using DS-5, the following
 commands can be used:
@@ -1721,9 +1721,7 @@ wakeup interrupt from RTC.
 .. _Linaro Release Notes: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
 .. _Linaro instructions: https://community.arm.com/dev-platforms/b/documents/posts/instructions-for-using-the-linaro-software-deliverables
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
-.. _Summary of build options: #user-content-summary-of-build-options
 .. _here: ./psci-lib-integration-guide.rst
-.. _Building the Test Secure Payload: #user-content-building-the-test-secure-payload
 .. _Trusted Board Boot: trusted-board-boot.rst
 .. _Secure-EL1 Payloads and Dispatchers: firmware-design.rst#user-content-secure-el1-payloads-and-dispatchers
 .. _Firmware Update: ./firmware-update.rst

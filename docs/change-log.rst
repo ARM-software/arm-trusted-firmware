@@ -1,5 +1,12 @@
+
+.. section-numbering::
+    :suffix: .
+
+.. contents::
+
 ARM Trusted Firmware - version 1.3
 ==================================
+
 
 New features
 ------------

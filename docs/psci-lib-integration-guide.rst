@@ -25,12 +25,12 @@ Generic call sequence for PSCI Library interface (AArch32)
 ----------------------------------------------------------
 
 The generic call sequence of PSCI Library interfaces (see
-`section 4`_) during cold boot in AArch32
+`PSCI Library Interface`_) during cold boot in AArch32
 system is described below:
 
 #. After cold reset, the EL3 Runtime Software performs its cold boot
    initialization including the PSCI library pre-requisites mentioned in
-   `section 4`_, and also the necessary platform
+   `PSCI Library Interface`_, and also the necessary platform
    setup.
 
 #. Call ``psci_setup()`` in Monitor mode.
@@ -46,7 +46,7 @@ system is described below:
    context and exiting to non-secure world. If the EL3 Runtime Software needs
    additional configuration to be set for non-secure context, like routing
    FIQs to the secure world, the values of the registers can be modified prior
-   to programming. See `section 3`_ for more
+   to programming. See `PSCI CPU context management`_ for more
    details on CPU context management.
 
 The generic call sequence of PSCI library interfaces during warm boot in
@@ -54,7 +54,7 @@ AArch32 systems is described below:
 
 #. After warm reset, the EL3 Runtime Software performs the necessary warm
    boot initialization including the PSCI library pre-requisites mentioned in
-   `section 4`_ (Note that the Data cache
+   `PSCI Library Interface`_ (Note that the Data cache
    **must not** be enabled).
 
 #. Call ``psci_warmboot_entrypoint()`` in Monitor mode. This interface
@@ -75,8 +75,8 @@ on an AArch32 system is described below:
 #. If ``psci_smc_handler()`` returns, populate the return value in R0 (AArch32)/
    X0 (AArch64) and restore other registers as per `SMCCC`_.
 
-#. .. rubric:: PSCI CPU context management
-      :name: psci-cpu-context-management
+PSCI CPU context management
+---------------------------
 
 PSCI library is in charge of initializing/restoring the non-secure CPU system
 registers according to `PSCI specification`_ during cold/warm boot.
@@ -120,7 +120,7 @@ registers: R0 - R3, LR (R14), SCR, SPSR, SCTLR.
 
 The EL3 Runtime Software must implement accessors to get/set pointers
 to CPU context ``cpu_context_t`` data and these are described in
-`section 5.2`_.
+`CPU Context management API`_.
 
 PSCI Library Interface
 ----------------------
@@ -208,7 +208,7 @@ must have completed. Major actions performed by this interface are:
 -  Calls ``plat_setup_psci_ops()`` with warm boot entrypoint ``mailbox_ep`` as
    argument.
 -  Calls ``cm_set_context_by_index()`` (see
-   `section 5.2`_) for all the CPUs in the
+   `CPU Context management API`_) for all the CPUs in the
    platform
 
 Interface : psci\_prepare\_next\_non\_secure\_ctx()
@@ -235,7 +235,7 @@ Interface : psci\_register\_spd\_pm\_hook()
     Argument : const spd_pm_ops_t *
     Return   : void
 
-As explained in `section 5.4`_,
+As explained in `Secure payload power management callback`_,
 the EL3 Runtime Software may want to perform some bookkeeping during power
 management operations. This function is used to register the ``spd_pm_ops_t``
 (first argument) callbacks with the PSCI library which will be called
@@ -554,11 +554,7 @@ workarounds.
 
 .. _PSCI spec: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _SMCCC: https://silver.arm.com/download/ARM_and_AMBA_Architecture/AR570-DA-80002-r0p0-00rel0/ARM_DEN0028A_SMC_Calling_Convention.pdf
-.. _section 4: #user-content-psci-library-interface
-.. _section 3: #user-content-psci-cpu-context-management
 .. _PSCI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _section 5.2: #user-content-cpu-context-management-api
 .. _PSCI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _section 5.4: #user-content-secure-payload-power-management-callback
 .. _Porting Guide: porting-guide.rst
 .. _Firmware Design: ./firmware-design.rst

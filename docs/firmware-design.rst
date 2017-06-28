@@ -8,22 +8,22 @@ ARM Trusted Firmware Design
 .. contents::
 
 The ARM Trusted Firmware implements a subset of the Trusted Board Boot
-Requirements (TBBR) Platform Design Document (PDD) [1] for ARM reference
+Requirements (TBBR) Platform Design Document (PDD) [1]_ for ARM reference
 platforms. The TBB sequence starts when the platform is powered on and runs up
 to the stage where it hands-off control to firmware running in the normal
 world in DRAM. This is the cold boot path.
 
 The ARM Trusted Firmware also implements the Power State Coordination Interface
-PDD [2] as a runtime service. PSCI is the interface from normal world software
+PDD [2]_ as a runtime service. PSCI is the interface from normal world software
 to firmware implementing power management use-cases (for example, secondary CPU
 boot, hotplug and idle). Normal world software can access ARM Trusted Firmware
 runtime services via the ARM SMC (Secure Monitor Call) instruction. The SMC
-instruction must be used as mandated by the SMC Calling Convention [3].
+instruction must be used as mandated by the SMC Calling Convention [3]_.
 
 The ARM Trusted Firmware implements a framework for configuring and managing
 interrupts generated in either security state. The details of the interrupt
 management framework and its design can be found in ARM Trusted Firmware
-Interrupt Management Design guide [4].
+Interrupt Management Design guide [4]_.
 
 The ARM Trusted Firmware can be built to support either AArch64 or AArch32
 execution state.
@@ -2410,14 +2410,11 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 References
 ----------
 
-#. Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
-   under NDA through your ARM account representative.
-
-#. `Power State Coordination Interface PDD`_
-
-#. `SMC Calling Convention PDD`_
-
-#. `ARM Trusted Firmware Interrupt Management Design guide`_.
+.. [#] Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
+       under NDA through your ARM account representative.
+.. [#] `Power State Coordination Interface PDD`_
+.. [#] `SMC Calling Convention PDD`_
+.. [#] `ARM Trusted Firmware Interrupt Management Design guide`_.
 
 --------------
 
