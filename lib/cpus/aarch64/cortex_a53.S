@@ -138,6 +138,26 @@ func check_errata_855873
 	b	cpu_rev_var_hs
 endfunc check_errata_855873
 
+/*
+ * Errata workaround for Cortex A53 Errata #835769.
+ * This applies to revisions <= r0p4 of Cortex A53.
+ * This workaround is statically enabled at build time.
+ */
+func check_errata_835769
+	mov	x1, #0x04
+	b	cpu_rev_var_ls
+endfunc check_errata_835769
+
+/*
+ * Errata workaround for Cortex A53 Errata #843419.
+ * This applies to revisions <= r0p4 of Cortex A53.
+ * This workaround is statically enabled at build time.
+ */
+func check_errata_843419
+	mov	x1, #0x04
+	b	cpu_rev_var_ls
+endfunc check_errata_843419
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A53.
 	 * Shall clobber: x0-x19
@@ -251,7 +271,9 @@ func cortex_a53_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A53_826319, cortex_a53, 826319
+	report_errata ERRATA_A53_835769, cortex_a53, 835769
 	report_errata ERRATA_A53_836870, cortex_a53, disable_non_temporal_hint
+	report_errata ERRATA_A53_843419, cortex_a53, 843419
 	report_errata ERRATA_A53_855873, cortex_a53, 855873
 
 	ldp	x8, x30, [sp], #16

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -37,10 +37,21 @@ $(eval $(call add_define,A57_DISABLE_NON_TEMPORAL_HINT))
 # only to revision <= r0p2 of the Cortex A53 cpu.
 ERRATA_A53_826319	?=0
 
+# Flag to apply erratum 835769 workaround at compile and link time.  This
+# erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
+# workaround can lead the linker to create "*.stub" sections.
+ERRATA_A53_835769	?=0
+
 # Flag to apply erratum 836870 workaround during reset. This erratum applies
 # only to revision <= r0p3 of the Cortex A53 cpu. From r0p4 and onwards, this
 # erratum workaround is enabled by default in hardware.
 ERRATA_A53_836870	?=0
+
+# Flag to apply erratum 843419 workaround at link time.
+# This erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
+# workaround could lead the linker to emit "*.stub" sections which are 4kB
+# aligned.
+ERRATA_A53_843419	?=0
 
 # Flag to apply errata 855873 during reset. This errata applies to all
 # revisions of the Cortex A53 CPU, but this firmware workaround only works
@@ -84,9 +95,17 @@ ERRATA_A57_833471	?=0
 $(eval $(call assert_boolean,ERRATA_A53_826319))
 $(eval $(call add_define,ERRATA_A53_826319))
 
+# Process ERRATA_A53_835769 flag
+$(eval $(call assert_boolean,ERRATA_A53_835769))
+$(eval $(call add_define,ERRATA_A53_835769))
+
 # Process ERRATA_A53_836870 flag
 $(eval $(call assert_boolean,ERRATA_A53_836870))
 $(eval $(call add_define,ERRATA_A53_836870))
+
+# Process ERRATA_A53_843419 flag
+$(eval $(call assert_boolean,ERRATA_A53_843419))
+$(eval $(call add_define,ERRATA_A53_843419))
 
 # Process ERRATA_A53_855873 flag
 $(eval $(call assert_boolean,ERRATA_A53_855873))
@@ -123,3 +142,13 @@ $(eval $(call add_define,ERRATA_A57_829520))
 # Process ERRATA_A57_833471 flag
 $(eval $(call assert_boolean,ERRATA_A57_833471))
 $(eval $(call add_define,ERRATA_A57_833471))
+
+# Errata build flags
+ifneq (${ERRATA_A53_843419},0)
+LDFLAGS_aarch64		+= --fix-cortex-a53-843419
+endif
+
+ifneq (${ERRATA_A53_835769},0)
+TF_CFLAGS_aarch64	+= -mfix-cortex-a53-835769
+LDFLAGS_aarch64		+= --fix-cortex-a53-835769
+endif
