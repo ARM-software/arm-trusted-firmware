@@ -305,7 +305,7 @@ static __attribute__((aligned(16))) smmu_regs_t tegra186_smmu_context[] = {
 smmu_regs_t *plat_get_smmu_ctx(void)
 {
 	/* index of _END_OF_TABLE_ */
-	tegra186_smmu_context[0].val = ARRAY_SIZE(tegra186_smmu_context) - 1;
+	tegra186_smmu_context[0].val = (uint32_t)(ARRAY_SIZE(tegra186_smmu_context)) - 1U;
 
 	return tegra186_smmu_context;
 }

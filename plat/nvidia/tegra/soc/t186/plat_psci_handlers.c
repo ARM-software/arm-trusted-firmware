@@ -28,11 +28,8 @@ extern void memcpy16(void *dest, const void *src, unsigned int length);
 
 extern void prepare_cpu_pwr_dwn(void);
 extern void tegra186_cpu_reset_handler(void);
-extern uint32_t __tegra186_cpu_reset_handler_end,
+extern uint64_t __tegra186_cpu_reset_handler_end,
 		__tegra186_smmu_context;
-
-/* TZDRAM offset for saving SMMU context */
-#define TEGRA186_SMMU_CTX_OFFSET	16UL
 
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xFU
@@ -133,7 +130,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		/* save SMMU context to TZDRAM */
 		smmu_ctx_base = params_from_bl2->tzdram_base +
 			((uintptr_t)&__tegra186_smmu_context -
-			 (uintptr_t)tegra186_cpu_reset_handler);
+			 (uintptr_t)&tegra186_cpu_reset_handler);
 		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
 
 		/* Prepare for system suspend */
@@ -197,7 +194,6 @@ static plat_local_state_t tegra_get_afflvl1_pwr_state(const plat_local_state_t *
 
 	/* CPU suspend */
 	if (target == PSTATE_ID_CORE_POWERDN) {
-
 		/* Program default wake mask */
 		cstate_info.wake_mask = TEGRA186_CORE_WAKE_MASK;
 		cstate_info.update_wake_mask = 1;
@@ -215,10 +211,8 @@ static plat_local_state_t tegra_get_afflvl1_pwr_state(const plat_local_state_t *
 
 	/* CPU off */
 	if (target == PLAT_MAX_OFF_STATE) {
-
 		/* Enable cluster powerdn from last CPU in the cluster */
 		if (tegra_last_cpu_in_cluster(states, ncpu)) {
-
 			/* Enable CC7 state and turn off wake mask */
 			cstate_info.cluster = (uint32_t)TEGRA_ARI_CLUSTER_CC7;
 			cstate_info.update_wake_mask = 1;
@@ -298,12 +292,12 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 
 int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
-	uint32_t target_cpu = mpidr & (uint64_t)MPIDR_CPU_MASK;
-	uint32_t target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
-			(uint64_t)MPIDR_AFFINITY_BITS;
 	int32_t ret = PSCI_E_SUCCESS;
+	uint64_t target_cpu = mpidr & MPIDR_CPU_MASK;
+	uint64_t target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
+			MPIDR_AFFINITY_BITS;
 
-	if (target_cluster > (uint64_t)MPIDR_AFFLVL1) {
+	if (target_cluster > MPIDR_AFFLVL1) {
 
 		ERROR("%s: unsupported CPU (0x%lx)\n", __func__, mpidr);
 		ret = PSCI_E_NOT_PRESENT;
@@ -326,14 +320,13 @@ int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	uint64_t impl, val;
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 
-	impl = (read_midr() >> MIDR_IMPL_SHIFT) & (uint64_t)MIDR_IMPL_MASK;
+	impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 
 	/*
 	 * Enable ECC and Parity Protection for Cortex-A57 CPUs (Tegra186
 	 * A02p and beyond).
 	 */
-	if ((plat_params->l2_ecc_parity_prot_dis != 1) &&
-	    (impl != (uint64_t)DENVER_IMPL)) {
+	if ((plat_params->l2_ecc_parity_prot_dis != 1) && (impl != DENVER_IMPL)) {
 
 		val = read_l2ctlr_el1();
 		val |= CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
