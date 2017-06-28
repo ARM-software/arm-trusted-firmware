@@ -115,3 +115,51 @@ func arm_disable_spe
 	ret
 endfunc arm_disable_spe
 #endif
+
+/*
+ * Need to use coherent stack when ARM Cryptocell is used to autheticate images
+ * since Cryptocell uses DMA to transfer data and it is not coherent with the
+ * AP CPU.
+ */
+#if ARM_CRYPTOCELL_INTEG
+#if defined(IMAGE_BL1) || defined(IMAGE_BL2)
+	.globl	plat_get_my_stack
+	.globl	plat_set_my_stack
+	.local	platform_coherent_stacks
+
+	/* -------------------------------------------------------
+	 * uintptr_t plat_get_my_stack ()
+	 *
+	 * For cold-boot BL images, only the primary CPU needs a
+	 * stack. This function returns the stack pointer for a
+	 * stack allocated in coherent memory.
+	 * -------------------------------------------------------
+	 */
+func plat_get_my_stack
+	get_up_stack platform_coherent_stacks, PLATFORM_STACK_SIZE
+	ret
+endfunc plat_get_my_stack
+
+	/* -------------------------------------------------------
+	 * void plat_set_my_stack ()
+	 *
+	 * For cold-boot BL images, only the primary CPU needs a
+	 * stack. This function sets the stack pointer to a stack
+	 * allocated in coherent memory.
+	 * -------------------------------------------------------
+	 */
+func plat_set_my_stack
+	get_up_stack platform_coherent_stacks, PLATFORM_STACK_SIZE
+	mov sp, x0
+	ret
+endfunc plat_set_my_stack
+
+	/* ----------------------------------------------------
+	 * Single cpu stack in coherent memory.
+	 * ----------------------------------------------------
+	 */
+declare_stack platform_coherent_stacks, tzfw_coherent_mem, \
+		PLATFORM_STACK_SIZE, 1, CACHE_WRITEBACK_GRANULE
+
+#endif	/* defined(IMAGE_BL1) || defined(IMAGE_BL2) */
+#endif	/* ARM_CRYPTOCELL_INTEG */

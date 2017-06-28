@@ -299,6 +299,12 @@ also be defined:
     Firmware Update (FWU) certificate identifier, used by NS_BL1U to load the
     FWU content certificate.
 
+*   **#define : PLAT_CRYPTOCELL_BASE**
+
+    This defines the base address of ARM® TrustZone® CryptoCell and must be
+    defined if CryptoCell crypto driver is used for Trusted Board Boot. For
+    capable ARM platforms, this driver is used if `ARM_CRYPTOCELL_INTEG` is
+    set.
 
 If the AP Firmware Updater Configuration image, BL2U is used, the following
 must also be defined:

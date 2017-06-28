@@ -6,14 +6,11 @@
 
 #include <arm_def.h>
 #include <assert.h>
+#include <cassert.h>
 #include <platform.h>
 #include <stdint.h>
 #include <string.h>
 #include <tbbr_oid.h>
-
-/* Weak definition may be overridden in specific platform */
-#pragma weak plat_get_nv_ctr
-#pragma weak plat_set_nv_ctr
 
 /* SHA256 algorithm */
 #define SHA256_BYTES			32
@@ -22,15 +19,21 @@
 #define ARM_ROTPK_REGS_ID		1
 #define ARM_ROTPK_DEVEL_RSA_ID		2
 
-#if !ARM_ROTPK_LOCATION_ID
-  #error "ARM_ROTPK_LOCATION_ID not defined"
-#endif
-
 static const unsigned char rotpk_hash_hdr[] =		\
 		"\x30\x31\x30\x0D\x06\x09\x60\x86\x48"	\
 		"\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
 static const unsigned int rotpk_hash_hdr_len = sizeof(rotpk_hash_hdr) - 1;
 static unsigned char rotpk_hash_der[sizeof(rotpk_hash_hdr) - 1 + SHA256_BYTES];
+
+/* Use the cryptocell variants if Cryptocell is present */
+#if !ARM_CRYPTOCELL_INTEG
+#if !ARM_ROTPK_LOCATION_ID
+  #error "ARM_ROTPK_LOCATION_ID not defined"
+#endif
+
+/* Weak definition may be overridden in specific platform */
+#pragma weak plat_get_nv_ctr
+#pragma weak plat_set_nv_ctr
 
 #if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID)
 static const unsigned char arm_devel_rotpk_hash[] =	\
@@ -166,3 +169,116 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 {
 	return 1;
 }
+#else /* ARM_CRYPTOCELL_INTEG */
+
+#include <nvm.h>
+#include <nvm_otp.h>
+#include <sbrom_bsv_api.h>
+
+CASSERT(HASH_RESULT_SIZE_IN_BYTES == SHA256_BYTES,
+		assert_mismatch_in_hash_result_size);
+
+/*
+ * Return the ROTPK hash in the following ASN.1 structure in DER format:
+ *
+ * AlgorithmIdentifier  ::=  SEQUENCE  {
+ *     algorithm         OBJECT IDENTIFIER,
+ *     parameters        ANY DEFINED BY algorithm OPTIONAL
+ * }
+ *
+ * DigestInfo ::= SEQUENCE {
+ *     digestAlgorithm   AlgorithmIdentifier,
+ *     digest            OCTET STRING
+ * }
+ */
+int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
+			unsigned int *flags)
+{
+	unsigned char *dst;
+	CCError_t error;
+	uint32_t lcs;
+
+	assert(key_ptr != NULL);
+	assert(key_len != NULL);
+	assert(flags != NULL);
+
+	error = NVM_GetLCS(PLAT_CRYPTOCELL_BASE, &lcs);
+	if (error != CC_OK)
+		return 1;
+
+	/* If the lifecycle state is `SD`, return failure */
+	if (lcs == CC_BSV_SECURITY_DISABLED_LCS)
+		return 1;
+
+	/*
+	 * If the lifecycle state is `CM` or `DM`, ROTPK shouldn't be verified.
+	 * Return success after setting ROTPK_NOT_DEPLOYED flag
+	 */
+	if ((lcs == CC_BSV_CHIP_MANUFACTURE_LCS) ||
+			(lcs == CC_BSV_DEVICE_MANUFACTURE_LCS)) {
+		*key_len = 0;
+		*flags = ROTPK_NOT_DEPLOYED;
+		return 0;
+	}
+
+	/* Copy the DER header */
+	memcpy(rotpk_hash_der, rotpk_hash_hdr, rotpk_hash_hdr_len);
+	dst = &rotpk_hash_der[rotpk_hash_hdr_len];
+	error = NVM_ReadHASHPubKey(PLAT_CRYPTOCELL_BASE,
+			CC_SB_HASH_BOOT_KEY_256B,
+			(uint32_t *)dst, HASH_RESULT_SIZE_IN_WORDS);
+	if (error != CC_OK)
+		return 1;
+
+	*key_ptr = rotpk_hash_der;
+	*key_len = sizeof(rotpk_hash_der);
+	*flags = ROTPK_IS_HASH;
+	return 0;
+}
+
+/*
+ * Return the non-volatile counter value stored in the platform. The cookie
+ * specifies the OID of the counter in the certificate.
+ *
+ * Return: 0 = success, Otherwise = error
+ */
+int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
+{
+	CCError_t error = CC_FAIL;
+
+	if (strcmp(cookie, TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		error = NVM_GetSwVersion(PLAT_CRYPTOCELL_BASE,
+				CC_SW_VERSION_COUNTER1, nv_ctr);
+	} else if (strcmp(cookie, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		error = NVM_GetSwVersion(PLAT_CRYPTOCELL_BASE,
+				CC_SW_VERSION_COUNTER2, nv_ctr);
+	}
+
+	return (error != CC_OK);
+}
+
+/*
+ * Store a new non-volatile counter value in the counter specified by the OID
+ * in the cookie. This function is not expected to be called if the Lifecycle
+ * state is RMA as the values in the certificate are expected to always match
+ * the nvcounter values. But if called when the LCS is RMA, the underlying
+ * helper functions will return success but without updating the counter.
+ *
+ * Return: 0 = success, Otherwise = error
+ */
+int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
+{
+	CCError_t error = CC_FAIL;
+
+	if (strcmp(cookie, TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		error = NVM_SetSwVersion(PLAT_CRYPTOCELL_BASE,
+				CC_SW_VERSION_COUNTER1, nv_ctr);
+	} else if (strcmp(cookie, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
+		error = NVM_SetSwVersion(PLAT_CRYPTOCELL_BASE,
+				CC_SW_VERSION_COUNTER2, nv_ctr);
+	}
+
+	return (error != CC_OK);
+}
+
+#endif /* ARM_CRYPTOCELL_INTEG */

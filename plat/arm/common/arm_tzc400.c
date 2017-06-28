@@ -34,6 +34,7 @@ void arm_tzc400_setup(void)
 	tzc400_disable_filters();
 
 #ifndef EL3_PAYLOAD_BASE
+
 	/* Region 0 set to no access by default */
 	tzc400_configure_region0(TZC_REGION_S_NONE, 0);
 
@@ -47,13 +48,13 @@ void arm_tzc400_setup(void)
 	 * Apply the same configuration to given filters in the TZC. */
 	tzc400_configure_region(PLAT_ARM_TZC_FILTERS, 2,
 			ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_END,
-			TZC_REGION_S_NONE,
+			ARM_TZC_NS_DRAM_S_ACCESS,
 			PLAT_ARM_TZC_NS_DEV_ACCESS);
 
 	/* Region 3 set to cover Non-Secure access to 2nd DRAM address range */
 	tzc400_configure_region(PLAT_ARM_TZC_FILTERS, 3,
 			ARM_DRAM2_BASE, ARM_DRAM2_END,
-			TZC_REGION_S_NONE,
+			ARM_TZC_NS_DRAM_S_ACCESS,
 			PLAT_ARM_TZC_NS_DEV_ACCESS);
 #else
 	/* Allow secure access only to DRAM for EL3 payloads. */

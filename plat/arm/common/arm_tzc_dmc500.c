@@ -41,14 +41,14 @@ void arm_tzc_dmc500_setup(tzc_dmc500_driver_data_t *plat_driver_data)
 	tzc_dmc500_configure_region(2,
 		ARM_NS_DRAM1_BASE,
 		ARM_NS_DRAM1_END,
-		TZC_REGION_S_NONE,
+		ARM_TZC_NS_DRAM_S_ACCESS,
 		PLAT_ARM_TZC_NS_DEV_ACCESS);
 
 	/* Region 3 set to cover Non-Secure access to 2nd DRAM address range */
 	tzc_dmc500_configure_region(3,
 		ARM_DRAM2_BASE,
 		ARM_DRAM2_END,
-		TZC_REGION_S_NONE,
+		ARM_TZC_NS_DRAM_S_ACCESS,
 		PLAT_ARM_TZC_NS_DEV_ACCESS);
 #else
 	/* Allow secure access only to DRAM for EL3 payloads */
