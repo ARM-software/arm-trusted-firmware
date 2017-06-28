@@ -9,6 +9,7 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <delay_timer.h>
+#include <generic_delay_timer.h>
 #include <platform.h>
 
 /* Ticks elapsed in one second by a signal of 1 MHz */

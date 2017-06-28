@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "../bl1_private.h"
 
 /*******************************************************************************
  * TODO: Function that does the first bit of architectural setup.

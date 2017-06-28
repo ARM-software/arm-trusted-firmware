@@ -11,6 +11,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <smcc_helpers.h>
+#include "../bl1_private.h"
 
 /*
  * Following arrays will be used for context management.
@@ -26,13 +27,13 @@ static void *bl1_next_cpu_context_ptr;
 static void *bl1_next_smc_context_ptr;
 
 /* Following functions are used for SMC context handling */
-void *smc_get_ctx(int security_state)
+void *smc_get_ctx(unsigned int security_state)
 {
 	assert(sec_state_is_valid(security_state));
 	return &bl1_smc_context[security_state];
 }
 
-void smc_set_next_ctx(int security_state)
+void smc_set_next_ctx(unsigned int security_state)
 {
 	assert(sec_state_is_valid(security_state));
 	bl1_next_smc_context_ptr = &bl1_smc_context[security_state];

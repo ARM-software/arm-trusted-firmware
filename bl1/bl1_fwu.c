@@ -52,8 +52,6 @@ static unsigned int sec_exec_image_id = INVALID_IMAGE_ID;
 /* Authentication status of each image. */
 extern unsigned int auth_img_flags[];
 
-void cm_set_next_context(void *cpu_context);
-
 /*******************************************************************************
  * Top level handler for servicing FWU SMCs.
  ******************************************************************************/

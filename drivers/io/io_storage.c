@@ -94,7 +94,7 @@ static void set_handle(uintptr_t *handle, io_entity_t *entity)
 static int find_first_entity(const io_entity_t *entity, unsigned int *index_out)
 {
 	int result = -ENOENT;
-	for (int index = 0; index < MAX_IO_HANDLES; ++index) {
+	for (unsigned int index = 0; index < MAX_IO_HANDLES; ++index) {
 		if (entity_map[index] == entity) {
 			result = 0;
 			*index_out = index;
