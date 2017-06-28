@@ -269,6 +269,9 @@ performed.
 *   `BUILD_STRING`: Input string for VERSION_STRING, which allows the TF build
     to be uniquely identified. Defaults to the current git commit id.
 
+*   `CFLAGS`: Extra user options appended on the compiler's command line in
+    addition to the options set by the build system.
+
 *   `COLD_BOOT_SINGLE_CPU`: This option indicates whether the platform may
     release several CPUs out of reset. It can take either 0 (several CPUs may be
     brought up) or 1 (only one CPU will ever be brought up during cold reset).
@@ -384,6 +387,9 @@ performed.
     By default this flag is set to '0'. Enabling this flag builds BL1 and BL2 in
     AArch64 and facilitates the loading of `SP_MIN` and BL33 as AArch32 executable
     images.
+
+*   `LDFLAGS`: Extra user options appended to the linkers' command line in
+    addition to the one set by the build system.
 
 *   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
     image loading, which provides more flexibility and scalability around what
@@ -684,10 +690,14 @@ NOTE: Using `-O0` could cause output images to be larger and base addresses
 might need to be recalculated (see the **Memory layout on ARM development
 platforms** section in the [Firmware Design]).
 
-Extra debug options can be passed to the build system by setting `CFLAGS`:
+Extra debug options can be passed to the build system by setting `CFLAGS` or
+`LDFLAGS`:
 
     CFLAGS='-O0 -gdwarf-2'                                     \
     make PLAT=<platform> DEBUG=1 V=1 all
+
+Note that using `-Wl,` style compilation driver options in `CFLAGS` will be
+ignored as the linker is called directly.
 
 It is also possible to introduce an infinite loop to help in debugging the
 post-BL2 phase of the Trusted Firmware. This can be done by rebuilding BL1 with
