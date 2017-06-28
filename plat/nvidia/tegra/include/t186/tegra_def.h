@@ -116,6 +116,11 @@
 #define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(U(0) << 11)
 
 /*******************************************************************************
+ * Tegra General Purpose Centralised DMA constants
+ ******************************************************************************/
+#define TEGRA_GPCDMA_BASE		U(0x2610000)
+
+/*******************************************************************************
  * Tegra Memory Controller constants
  ******************************************************************************/
 #define TEGRA_MC_STREAMID_BASE		U(0x02C00000)
@@ -198,6 +203,8 @@
 #define TEGRA_CAR_RESET_BASE		U(0x05000000)
 #define TEGRA_GPU_RESET_REG_OFFSET	U(0x30)
 #define  GPU_RESET_BIT			(U(1) << 0)
+#define TEGRA_GPCDMA_RST_SET_REG_OFFSET	U(0x6A0004)
+#define TEGRA_GPCDMA_RST_CLR_REG_OFFSET	U(0x6A0008)
 
 /*******************************************************************************
  * Tegra micro-seconds timer constants
