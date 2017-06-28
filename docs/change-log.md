@@ -1090,7 +1090,7 @@ _Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved._
 
 [OP-TEE Dispatcher]:                  optee-dispatcher.md
 [Power Domain Topology Design]:       psci-pd-tree.md
-[TF Image Terminology]:               https://github.com/ARM-software/arm-trusted-firmware/wiki/Trusted-Firmware-Image-Terminology
+[TF Image Terminology]:               https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
 [Authentication Framework]:           auth-framework.md
 [Firmware Update]:                    firmware-update.md
 [TF Reset Design]:                    reset-design.md
