@@ -379,6 +379,12 @@ performed.
     and power management operations. This option defaults to 0 and if it is
     enabled, then it implies `WARMBOOT_ENABLE_DCACHE_EARLY` is also enabled.
 
+*   `JUNO_AARCH32_EL3_RUNTIME`:  This build flag enables you to execute EL3
+    runtime software in AArch32 mode, which is required to run AArch32 on Juno.
+    By default this flag is set to '0'. Enabling this flag builds BL1 and BL2 in
+    AArch64 and facilitates the loading of `SP_MIN` and BL33 as AArch32 executable
+    images.
+
 *   `LOAD_IMAGE_V2`: Boolean option to enable support for new version (v2) of
     image loading, which provides more flexibility and scalability around what
     images are loaded and executed during boot. Default is 0.
@@ -999,16 +1005,53 @@ corrupted binaries.
     Note for AArch32, the instructions below assume that nt-fw.bin is a custom
     Normal world boot loader that supports AArch32.
 
-3.  Build TF images and create a new FIP
+3.  Build TF images and create a new FIP for FVP
 
-        # Juno
-        make PLAT=juno SCP_BL2=scp-fw.bin BL33=nt-fw.bin all fip
-
-        # FVP AArch64
+        # AArch64
         make PLAT=fvp BL33=nt-fw.bin all fip
 
-        # FVP AArch32
+        # AArch32
         make PLAT=fvp ARCH=aarch32 AARCH32_SP=sp_min BL33=nt-fw.bin all fip
+
+4.  Build TF images and create a new FIP for Juno
+
+    For AArch64:
+
+    Building for AArch64 on Juno simply requires the addition of `SCP_BL2`
+    as a build parameter.
+
+        make PLAT=juno all fip \
+        BL33=<path-to-juno-oe-uboot>/SOFTWARE/bl33-uboot.bin \
+        SCP_BL2=<path-to-juno-busybox-uboot>/SOFTWARE/scp_bl2.bin
+
+    For AArch32:
+
+    Hardware restrictions on Juno prevent cold reset into AArch32 execution mode,
+    therefore BL1 and BL2 must be compiled for AArch64, and BL32 is compiled
+    separately for AArch32.
+
+    *   Before building BL32, the environment variable `CROSS_COMPILE` must point
+        to the AArch32 Linaro cross compiler.
+
+            export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
+
+    *   Build BL32 in AArch32.
+
+            make ARCH=aarch32 PLAT=juno AARCH32_SP=sp_min \
+            RESET_TO_SP_MIN=1 JUNO_AARCH32_EL3_RUNTIME=1 bl32
+
+    *   Before building BL1 and BL2, the environment variable `CROSS_COMPILE`
+        must point to the AArch64 Linaro cross compiler.
+
+            export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
+
+    *   The following parameters should be used to build BL1 and BL2 in AArch64
+        and point to the BL32 file.
+
+            make ARCH=aarch64 PLAT=juno LOAD_IMAGE_V2=1 JUNO_AARCH32_EL3_RUNTIME=1 \
+            BL33=<path-to-juno32-oe-uboot>/SOFTWARE/bl33-uboot.bin \
+            SCP_BL2=<path-to-juno32-oe-uboot>/SOFTWARE/scp_bl2.bin SPD=tspd \
+            BL32=<path-to-bl32>/bl32.bin all fip
 
 The resulting BL1 and FIP images may be found in:
 
