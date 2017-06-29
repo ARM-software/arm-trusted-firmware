@@ -16,17 +16,15 @@ is outside the scope of this document.
 This document assumes that the reader has previous experience running a fully
 bootable Linux software stack on Juno or FVP using the prebuilt binaries and
 filesystems provided by `Linaro`_. Further information may
-be found in the `Instructions for using the Linaro software deliverables`_. It also assumes that the user understands the role of
-the different software components required to boot a Linux system:
+be found in the `Instructions for using the Linaro software deliverables`_. It
+also assumes that the user understands the role of the different software
+components required to boot a Linux system:
 
 -  Specific firmware images required by the platform (e.g. SCP firmware on Juno)
 -  Normal world bootloader (e.g. UEFI or U-Boot)
 -  Device tree
 -  Linux kernel image
 -  Root filesystem
-
-Note: the ARM TF v1.3 release was tested with Linaro Release 16.06, and the
-latest version of ARM TF is tested with Linaro Release 17.01.
 
 This document also assumes that the user is familiar with the FVP models and
 the different command line options available to launch the model.
@@ -46,7 +44,7 @@ building the software were installed from that distribution unless otherwise
 specified.
 
 The software has also been built on Windows 7 Enterprise SP1, using CMD.EXE,
-Cygwin, and Msys (MinGW) shells, using version 4.9.1 of the GNU toolchain.
+Cygwin, and Msys (MinGW) shells, using version 5.3.1 of the GNU toolchain.
 
 Tools
 -----
@@ -57,6 +55,8 @@ command:
 ::
 
     sudo apt-get install build-essential gcc make git libssl-dev
+
+ARM TF has been tested with `Linaro Release 17.04`_.
 
 Download and install the AArch32 or AArch64 little-endian GCC cross compiler.
 The `Linaro Release Notes`_ documents which version of the
@@ -1048,8 +1048,8 @@ Firmware, obtain the additional required firmware, and pack it all together in
 a single FIP binary. It assumes that a `Linaro Release`_
 has been installed.
 
-Note: Linaro Release 16.06 only includes pre-built binaries for AArch64. For
-AArch32, pre-built binaries are only available from Linaro Release 16.12.
+Note: Pre-built binaries for AArch32 are available from Linaro Release 16.12
+onwards. Before that release, pre-built binaries are only available for AArch64.
 
 Note: follow the full instructions for one platform before switching to a
 different one. Mixing instructions for different platforms may result in
@@ -1384,9 +1384,6 @@ Please refer to the FVP documentation for a detailed description of the model
 parameter options. A brief description of the important ones that affect the ARM
 Trusted Firmware and normal world software behavior is provided below.
 
-Note the instructions in the following sections assume that Linaro Release 16.06
-is being used.
-
 Obtaining the Flattened Device Trees
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1686,7 +1683,8 @@ boot Linux with 4 CPUs using the AArch32 build of ARM Trusted Firmware.
 Running the software on Juno
 ----------------------------
 
-This version of the ARM Trusted Firmware has been tested on Juno r0 and Juno r1.
+This version of the ARM Trusted Firmware has been tested on variants r0, r1 and
+r2 of Juno.
 
 To execute the software stack on Juno, the version of the Juno board recovery
 image indicated in the `Linaro Release Notes`_ must be installed. If you have an
@@ -1727,10 +1725,11 @@ wakeup interrupt from RTC.
 
 *Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
 
-.. _Linaro: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
+.. _Linaro: `Linaro Release Notes`_
 .. _Instructions for using the Linaro software deliverables: https://community.arm.com/dev-platforms/b/documents/posts/instructions-for-using-the-linaro-software-deliverables
 .. _Firmware Design: firmware-design.rst
 .. _Linaro Release Notes: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
+.. _Linaro Release 17.04: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease17.04
 .. _Linaro instructions: https://community.arm.com/dev-platforms/b/documents/posts/instructions-for-using-the-linaro-software-deliverables
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
 .. _here: ./psci-lib-integration-guide.rst
@@ -1744,4 +1743,4 @@ wakeup interrupt from RTC.
 .. _ARM's website: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/b/documents/posts/using-linaros-deliverables-on-juno
 .. _ARM Platforms Portal: https://community.arm.com/groups/arm-development-platforms
-.. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
+.. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
