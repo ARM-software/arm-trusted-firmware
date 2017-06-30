@@ -297,7 +297,7 @@ int tegra_soc_pwr_domain_on(u_register_t mpidr)
 	}
 
 	/* construct the target CPU # */
-	target_cpu |= (target_cluster << 2);
+	target_cpu += (target_cluster << 1);
 
 	mce_command_handler(MCE_CMD_ONLINE_CORE, target_cpu, 0, 0);
 
