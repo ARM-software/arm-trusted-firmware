@@ -82,3 +82,7 @@ BL31_SOURCES		+=	plat/hisilicon/hikey/hisi_sip_svc.c			\
 				lib/pmf/pmf_smc.c
 endif
 
+# Enable workarounds for selected Cortex-A53 errata.
+ERRATA_A53_836870		:=	1
+ERRATA_A53_843419		:=	1
+ERRATA_A53_855873		:=	1
