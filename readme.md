@@ -128,6 +128,7 @@ This release also contains the following platform support:
 *   NVidia T210 and T132 SoCs
 *   QEMU emulator
 *   RockChip RK3368 and RK3399 SoCs
+*   Socionext UniPhier SoCs
 *   Xilinx Zynq UltraScale + MPSoC
 
 ### Still to Come
