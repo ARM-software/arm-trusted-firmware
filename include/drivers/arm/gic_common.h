@@ -60,6 +60,8 @@
 #define ARCH_REV_GICV3		0x3
 /* GICv2 revision as reported by the PIDR2 register */
 #define ARCH_REV_GICV2		0x2
+/* GICv1 revision as reported by the PIDR2 register */
+#define ARCH_REV_GICV1		0x1
 
 #define IGROUPR_SHIFT		5
 #define ISENABLER_SHIFT		5
