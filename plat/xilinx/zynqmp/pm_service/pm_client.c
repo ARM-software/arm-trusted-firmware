@@ -31,7 +31,7 @@ DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 extern const struct pm_ipi apu_ipi;
 
 /* Order in pm_procs_all array must match cpu ids */
-static const struct pm_proc const pm_procs_all[] = {
+static const struct pm_proc pm_procs_all[] = {
 	{
 		.node_id = NODE_APU_0,
 		.pwrdn_mask = APU_0_PWRCTL_CPUPWRDWNREQ_MASK,
