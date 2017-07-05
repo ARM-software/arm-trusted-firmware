@@ -104,6 +104,33 @@
 #define BL31_BASE			BL2_LIMIT
 #define BL31_LIMIT			0xF9898000
 
+/*
+ * BL3-2 specific defines.
+ */
+
+/*
+ * The TSP currently executes from TZC secured area of DRAM or SRAM.
+ */
+#define BL32_SRAM_BASE			BL31_LIMIT
+#define BL32_SRAM_LIMIT			(BL31_LIMIT+0x80000) /* 512K */
+
+#define BL32_DRAM_BASE			DDR_SEC_BASE
+#define BL32_DRAM_LIMIT			(DDR_SEC_BASE+DDR_SEC_SIZE)
+
+#if (HIKEY_TSP_RAM_LOCATION_ID == HIKEY_DRAM_ID)
+#define TSP_SEC_MEM_BASE		BL32_DRAM_BASE
+#define TSP_SEC_MEM_SIZE		(BL32_DRAM_LIMIT - BL32_DRAM_BASE)
+#define BL32_BASE			BL32_DRAM_BASE
+#define BL32_LIMIT			BL32_DRAM_LIMIT
+#elif (HIKEY_TSP_RAM_LOCATION_ID == HIKEY_SRAM_ID)
+#define TSP_SEC_MEM_BASE		BL32_SRAM_BASE
+#define TSP_SEC_MEM_SIZE		(BL32_SRAM_LIMIT - BL32_SRAM_BASE)
+#define BL32_BASE			BL32_SRAM_BASE
+#define BL32_LIMIT			BL32_SRAM_LIMIT
+#else
+#error "Currently unsupported HIKEY_TSP_LOCATION_ID value"
+#endif
+
 #define NS_BL1U_BASE			(BL2_BASE)
 #define NS_BL1U_SIZE			(0x00010000)
 #define NS_BL1U_LIMIT			(NS_BL1U_BASE + NS_BL1U_SIZE)
@@ -113,8 +140,8 @@
  */
 #define ADDR_SPACE_SIZE			(1ull << 32)
 
-#if IMAGE_BL1 || IMAGE_BL2 || IMAGE_BL31
-#define MAX_XLAT_TABLES			3
+#if IMAGE_BL1 || IMAGE_BL2 || IMAGE_BL31 || IMAGE_BL32
+#define MAX_XLAT_TABLES			4
 #endif
 
 #define MAX_MMAP_REGIONS		16
