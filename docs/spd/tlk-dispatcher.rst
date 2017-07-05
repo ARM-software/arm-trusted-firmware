@@ -1,5 +1,6 @@
 Trusted Little Kernel (TLK) Dispatcher
-=======================================
+======================================
+
 TLK dispatcher adds support for NVIDIA's Trusted Little Kernel (TLK) to work
 with the Trusted Firmware. TLK-D can be compiled by including it in the
 platform's makefile. TLK is primarily meant to work with Tegra SoCs, so until
@@ -15,6 +16,7 @@ to the build command.
 
 Trusted Little Kernel (TLK)
 ===========================
+
 TLK is a Trusted OS running as Secure EL1. It is a Free Open Source Software
 (FOSS) release of the NVIDIA® Trusted Little Kernel (TLK) technology, which
 extends technology made available with the development of the Little Kernel (LK).
@@ -47,24 +49,28 @@ NVIDIA extensions to Little Kernel (LK) include:
 • Debugging support over UART (USB planned)
 
 TLK is hosted by NVIDIA on http://nv-tegra.nvidia.com under the
-3rdparty/ote_partner/tlk.git repository. Detailed information about
-TLK and OTE can be found in the Tegra_BSP_for_Android_TLK_FOSS_Reference.pdf
-manual located under the "documentation" directory_.
+3rdparty/ote\_partner/tlk.git repository. Detailed information about
+TLK and OTE can be found in the Tegra\_BSP\_for\_Android\_TLK\_FOSS\_Reference.pdf
+manual located under the "documentation" directory\_.
 
 Build TLK
 =========
+
 To build and execute TLK, follow the instructions from "Building a TLK Device"
-section from Tegra_BSP_for_Android_TLK_FOSS_Reference.pdf manual.
+section from Tegra\_BSP\_for\_Android\_TLK\_FOSS\_Reference.pdf manual.
 
 Input parameters to TLK
 =======================
+
 TLK expects the TZDRAM size and a structure containing the boot arguments. BL2
-passes this information to the EL3 software as members of the bl32_ep_info
-struct, where bl32_ep_info is part of bl31_params_t (passed by BL2 in X0)
+passes this information to the EL3 software as members of the bl32\_ep\_info
+struct, where bl32\_ep\_info is part of bl31\_params\_t (passed by BL2 in X0)
 
 Example:
 --------
+
+::
+
     bl32_ep_info->args.arg0 = TZDRAM size available for BL32
     bl32_ep_info->args.arg1 = unused (used only on ARMv7)
     bl32_ep_info->args.arg2 = pointer to boot args
-

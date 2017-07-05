@@ -1,5 +1,6 @@
 Trusty Dispatcher
 =================
+
 Trusty is a a set of software components, supporting a Trusted Execution
 Environment (TEE) on mobile devices, published and maintained by Google.
 
@@ -9,7 +10,6 @@ https://source.android.com/security/trusty
 
 Supported platforms
 ===================
+
 Out of all the platforms supported by the ARM Trusted Firmware, Trusty is
 verified and supported by NVIDIA's Tegra SoCs.
-
-
