@@ -4,6 +4,296 @@
 
 .. contents::
 
+ARM Trusted Firmware - version 1.4
+==================================
+
+New features
+------------
+
+-  Enabled support for platforms with hardware assisted coherency.
+
+   A new build option HW_ASSISTED_COHERENCY allows platforms to take advantage
+   of the following optimisations:
+
+   -  Skip performing cache maintenance during power-up and power-down.
+
+   -  Use spin-locks instead of bakery locks.
+
+   -  Enable data caches early on warm-booted CPUs.
+
+-  Added support for Cortex-A75 and Cortex-A55 processors.
+
+   Both Cortex-A75 and Cortex-A55 processors use the ARM DynamIQ Shared Unit
+   (DSU). The power-down and power-up sequences are therefore mostly managed in
+   hardware, reducing complexity of the software operations.
+
+-  Introduced ARM GIC-600 driver.
+
+   ARM GIC-600 IP complies with ARM GICv3 architecture. For FVP platforms, the
+   GIC-600 driver is chosen when FVP_USE_GIC_DRIVER is set to FVP_GIC600.
+
+-  Updated GICv3 support:
+
+   -  Introduced power management APIs for GICv3 Redistributor. These APIs
+      allow platforms to power down the Redistributor during CPU power on/off.
+      Requires the GICv3 implementations to have power management operations.
+
+      Implemented the power management APIs for FVP.
+
+   -  GIC driver data is flushed by the primary CPU so that secondary CPU do
+      not read stale GIC data.
+
+-  Added support for ARM System Control and Management Interface v1.0 (SCMI).
+
+   The SCMI driver implements the power domain management and system power
+   management protocol of the SCMI specification (ARM DEN 0056ASCMI) for
+   communicating with any compliant power controller.
+
+   Support is added for the Juno platform. The driver can be found in the
+   plat/arm/css/drivers folder.
+
+-  Added support to enable pre-integration of TBB with the ARM TrustZone
+   CryptoCell product, to take advantage of its hardware Root of Trust and
+   crypto acceleration services.
+
+-  Enabled Statistical Profiling Extensions for lower ELs.
+
+   The firmware support is limited to the use of SPE in the Non-secure state
+   and accesses to the SPE specific registers from S-EL1 will trap to EL3.
+
+   The SPE are architecturally specified for AArch64 only.
+
+-  Code hygiene changes aligned with MISRA guidelines:
+
+   -  Fixed signed / unsigned comparison warnings in the translation table
+      library.
+
+   -  Added U(_x) macro and together with the existing ULL(_x) macro fixed
+      some of the signed-ness defects flagged by the MISRA scanner.
+
+-  Enhancements to Firmware Update feature:
+
+   -  The FWU logic now checks for overlapping images to prevent execution of
+      unauthenticated arbitary code.
+
+   -  Introduced new FWU_SMC_IMAGE_RESET SMC that changes the image loading
+      state machine to go from COPYING, COPIED or AUTHENTICATED states to
+      RESET state. Previously, this was only possible when the authentication
+      of an image failed or when the execution of the image finished.
+
+   -  Fixed integer overflow which addressed TFV-1: Malformed Firmware Update
+      SMC can result in copy of unexpectedly large data into secure memory.
+
+-  Introduced support for ARM Compiler 6 and LLVM (clang).
+
+   ARM TF can now also be built with the ARM Compiler 6 or the clang compilers.
+   The assembler and linker must be provided by the GNU toolchain.
+
+   Tested with ARM CC 6.7 and clang 3.9.x and 4.0.x.
+
+-  Memory footprint improvements:
+
+   -  Introduced `tf_snprintf`, a reduced version of `snprintf` which has
+      support for a limited set of formats.
+
+      The mbedtls driver is updated to optionally use `tf_snprintf` instead of
+      `snprintf`.
+
+   -  The `assert()` is updated to no longer print the function name, and
+      additional logging options are supported via an optional platform define
+      `PLAT_LOG_LEVEL_ASSERT`, which controls how verbose the assert output is.
+
+-  Enhancements to Trusted Firmware support when running in AArch32 execution
+   state:
+
+   -  Support booting SP_MIN and BL33 in AArch32 execution mode on Juno. Due to
+      hardware limitations, BL1 and BL2 boot in AArch64 state and there is
+      additional trampoline code to warm reset into SP_MIN in AArch32 execution
+      state.
+
+   -  Added support for ARM Cortex-A53/57/72 MPCore processors including the
+      errata workarounds that are already implemented for AArch64 execution
+      state.
+
+   -  For FVP platforms, added AArch32 Trusted Board Boot support, including the
+      Firmware Update feature.
+
+-  Introduced ARM SiP service for use by ARM standard platforms.
+
+   -  Added new ARM SiP Service SMCs to enable the Non-secure  world to read PMF
+      timestamps.
+
+      Added PMF instrumentation points in ARM TF in order to quantify the
+      overall time spent in the PSCI software implementation.
+
+   -  Added new ARM SiP service SMC to switch execution state.
+
+      This allows the lower exception level to change its execution state from
+      AArch64 to AArch32, or vice verse, via a request to EL3.
+
+-  Migrated to use SPDX[0] license identifiers to make software license
+   auditing simpler.
+
+   *NOTE:* Files that have been imported by FreeBSD have not been modified.
+
+   [0]: https://spdx.org/
+
+-  Enhancements to the translation table library:
+
+   -  Added version 2 of translation table library that allows different
+      translation tables to be modified by using different 'contexts'. Version 1
+      of the transalation table library only allows the current EL's translation
+      tables to be modified.
+
+      Version 2 of the translation table also added support for dynamic
+      regions; regions that can be added and removed dynamically whilst the
+      MMU is enabled. Static regions can only be added or removed before the
+      MMU is enabled.
+
+      The dynamic mapping functionality is enabled or disabled when compiling
+      by setting the build option PLAT_XLAT_TABLES_DYNAMIC to 1 or 0. This can
+      be done per-image.
+
+   -  Added support for translation regimes with two virtual address spaces
+      such as the one shared by EL1 and EL0.
+
+      The library does not support initializing translation tables for EL0
+      software.
+
+   -  Added support to mark the translation tables as non-cacheable using an
+      additional build option `XLAT_TABLE_NC`.
+
+-  Added support for GCC stack protection. A new build option
+   ENABLE_STACK_PROTECTOR was introduced that enables compilation of all BL
+   images with one of the GCC -fstack-protector-* options.
+
+   A new platform function plat_get_stack_protector_canary() was introduced
+   that returns a value used to initialize the canary for stack corruption
+   detection. For increased effectiveness of protection platforms must provide
+   an implementation that returns a random value.
+
+-  Enhanced support for ARM platforms:
+
+   -  Added support for multi-threading CPUs, indicated by `MT` field in MPDIR.
+      A new build flag `ARM_PLAT_MT` is added, and when enabled, the functions
+      accessing MPIDR assume that the `MT` bit is set for the platform and
+      access the bit fields accordingly.
+
+      Also, a new API `plat_arm_get_cpu_pe_count` is added when `ARM_PLAT_MT` is
+      enabled, returning the Processing Element count within the physical CPU
+      corresponding to `mpidr`.
+
+   -  The ARM platforms migrated to use version 2 of the translation tables.
+
+   -  Introduced a new ARM platform layer API `plat_arm_psci_override_pm_ops`
+      which allows ARM platforms to modify `plat_arm_psci_pm_ops` and therefore
+      dynamically define PSCI capability.
+
+   -  The ARM platforms migrated to use IMAGE_LOAD_V2 by default.
+
+-  Enhanced reporting of errata workaround status with the following policy:
+
+   -  If an errata workaround is enabled:
+
+      -  If it applies (i.e. the CPU is affected by the errata), an INFO message
+         is printed, confirming that the errata workaround has been applied.
+
+      -  If it does not apply, a VERBOSE message is printed, confirming that the
+         errata workaround has been skipped.
+
+   -  If an errata workaround is not enabled, but would have applied had it
+      been, a WARN message is printed, alerting that errata workaround is
+      missing.
+
+-  Added build options ARM_ARCH_MAJOR and ARM_ARM_MINOR to choose the
+   architecture version to target ARM TF.
+
+-  Updated the spin lock implementation to use the more efficient CAS (Compare
+   And Swap) instruction when available. This instruction was introduced in
+   ARMv8.1-A.
+
+-  Applied errata workaround for ARM Cortex-A53: 855873.
+
+-  Applied errata workaround for ARM-Cortex-A57: 813419.
+
+-  Enabled all A53 and A57 errata workarounds for Juno, both in AArch64 and
+   AArch32 execution states.
+
+-  Added support for Socionext UniPhier SoC platform.
+
+-  Added support for Hikey960 and Hikey platforms.
+
+-  Added support for Rockchip RK3328 platform.
+
+-  Added support for NVidia Tegra T186 platform.
+
+-  Added support for Designware emmc driver.
+
+-  Imported libfdt v1.4.2 that addresses buffer overflow in fdt_offset_ptr().
+
+-  Enhanced the CPU operations framework to allow power handlers to be
+   registered on per-level basis. This enables support for future CPUs that
+   have multiple threads which might need powering down individually.
+
+-  Updated register initialisation to prevent unexpected behaviour:
+
+   -  Debug registers MDCR-EL3/SDCR and MDCR_EL2/HDCR are initialised to avoid
+      unexpected traps into the higher exception levels and disable secure
+      self-hosted debug. Additionally, secure privileged external debug on
+      Juno is disabled by programming the appropriate Juno SoC registers.
+
+   -  EL2 and EL3 configurable controls are initialised to avoid unexpected
+      traps in the higher exception levels.
+
+   -  Essential control registers are fully initialised on EL3 start-up, when
+      initialising the non-secure and secure context structures and when
+      preparing to leave EL3 for a lower EL. This gives better alignement with
+      the ARM ARM which states that software must initialise RES0 and RES1
+      fields with 0 / 1.
+
+-  Enhanced PSCI support:
+
+   -  Introduced new platform interfaces that decouple PSCI stat residency
+      calculation from PMF, enabling platforms to use alternative methods of
+      capturing timestamps.
+
+   -  PSCI stat accounting performed for retention/standby states when
+      requested at multiple power levels.
+
+-  Simplified fiptool to have a single linked list of image descriptors.
+
+-  For the TSP, resolved corruption of pre-empted secure context by aborting any
+   pre-empted SMC during PSCI power management requests.
+
+Issues resolved since last release
+==================================
+
+-  ARM TF can be built with the latest mbed TLS version (v2.4.2). The earlier
+   version 2.3.0 cannot be used due to build warnings that the ARM TF build
+   system interprets as errors.
+
+-  TBBR, including the Firmware Update feature  is now supported on FVP
+   platforms when running Trusted Firmware in AArch32 state.
+
+-  The version of the AEMv8 Base FVP used in this release has resolved the issue
+   of the model executing a reset instead of terminating in response to a
+   shutdown request using the PSCI SYSTEM_OFF API.
+
+Known Issues
+============
+
+-  Building TF with compiler optimisations disabled (-O0) fails.
+
+-  Trusted Board Boot currently does not work on Juno when running Trusted
+   Firmware in AArch32 execution state due to error when loading the sp_min to
+   memory becasue of lack of free space available. See `tf-issue#501`_ for more
+   details.
+
+-  The errata workaround for A53 errata 843419 is only available from binutils
+   2.26 and is not present in GCC4.9. If this errata is applicable to the
+   platform, please use GCC compiler version of at least 5.0. See `PR#1002`_ for
+   more details.
+
 ARM Trusted Firmware - version 1.3
 ==================================
 
@@ -1088,3 +1378,5 @@ releases of the ARM Trusted Firmware.
 .. _TF wiki on GitHub: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
 .. _Authentication Framework: auth-framework.rst
 .. _OP-TEE Dispatcher: optee-dispatcher.rst
+.. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501
+.. _PR#1002: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
