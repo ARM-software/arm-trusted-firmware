@@ -203,6 +203,14 @@ platform port to define additional platform porting constants in
     Currently, this macro is used by the Generic PSCI implementation to size
     the array used for PSCI_STAT_COUNT/RESIDENCY accounting.
 
+*   **#define : PLAT_LOG_MACROS **
+
+    Override the default log macros with platform specific logging mechanism.
+    See default_log_macros.h for details on macro functionality to replace.
+    To override, define PLAT_LOG_MACROS and create plat_log_macros.h.
+    For template, copy default_log_macros.h to your platform specific include
+    path and rename to plat_log_macros.h, then edit log macros.
+
 *   **#define : BL1_RO_BASE**
 
     Defines the base address in secure ROM where BL1 originally lives. Must be

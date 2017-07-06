@@ -7,15 +7,6 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-/* The log output macros print output to the console. These macros produce
- * compiled log output only if the LOG_LEVEL defined in the makefile (or the
- * make command line) is greater or equal than the level required for that
- * type of log output.
- * The format expected is the same as for printf(). For example:
- * INFO("Info %s.\n", "message")    -> INFO:    Info message.
- * WARN("Warning %s.\n", "message") -> WARNING: Warning message.
- */
-
 #define LOG_LEVEL_NONE			0
 #define LOG_LEVEL_ERROR			10
 #define LOG_LEVEL_NOTICE		20
@@ -24,38 +15,13 @@
 #define LOG_LEVEL_VERBOSE		50
 
 #ifndef __ASSEMBLY__
+#include <platform_def.h>
+#ifdef PLAT_LOG_MACROS
+#include <plat_log_macros.h>
+#else
+#include <default_log_macros.h>
+#endif
 #include <stdio.h>
-
-#if LOG_LEVEL >= LOG_LEVEL_NOTICE
-# define NOTICE(...)	tf_printf("NOTICE:  " __VA_ARGS__)
-#else
-# define NOTICE(...)
-#endif
-
-#if LOG_LEVEL >= LOG_LEVEL_ERROR
-# define ERROR(...)	tf_printf("ERROR:   " __VA_ARGS__)
-#else
-# define ERROR(...)
-#endif
-
-#if LOG_LEVEL >= LOG_LEVEL_WARNING
-# define WARN(...)	tf_printf("WARNING: " __VA_ARGS__)
-#else
-# define WARN(...)
-#endif
-
-#if LOG_LEVEL >= LOG_LEVEL_INFO
-# define INFO(...)	tf_printf("INFO:    " __VA_ARGS__)
-#else
-# define INFO(...)
-#endif
-
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-# define VERBOSE(...)	tf_printf("VERBOSE: " __VA_ARGS__)
-#else
-# define VERBOSE(...)
-#endif
-
 
 void __dead2 do_panic(void);
 #define panic()	do_panic()
