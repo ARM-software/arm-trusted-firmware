@@ -1345,15 +1345,24 @@ Running the software on FVP
 The latest version of the AArch64 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
--  ``Foundation_Platform`` (Version 10.2, Build 10.2.20)
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.4, Build 0.8.8402)
--  ``FVP_Base_Cortex-A57x4-A53x4`` (Version 8.4, Build 0.8.8402)
+NOTE: Unless otherwise stated, the model version is Version 11.0 Build 11.0.34.
+
+-  ``Foundation_Platform``
+-  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.5, Build 0.8.8502)
+-  ``FVP_Base_Cortex-A35x4``
+-  ``FVP_Base_Cortex-A53x4``
+-  ``FVP_Base_Cortex-A57x4-A53x4``
+-  ``FVP_Base_Cortex-A57x4``
+-  ``FVP_Base_Cortex-A72x4-A53x4``
+-  ``FVP_Base_Cortex-A72x4``
+-  ``FVP_Base_Cortex-A73x4-A53x4``
+-  ``FVP_Base_Cortex-A73x4``
 
 The latest version of the AArch32 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.4, Build 0.8.8402)
--  ``FVP_Base_Cortex-A32x4`` (Version 10.1, Build 10.1.32)
+-  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.5, Build 0.8.8502)
+-  ``FVP_Base_Cortex-A32x4``
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
 with the ``--version`` parameter.
@@ -1367,6 +1376,9 @@ execution.
 
 The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
 downloaded for free from `ARM's website`_.
+
+The Cortex-A models listed above are also available to download from
+`ARM's website`_.
 
 Please refer to the FVP documentation for a detailed description of the model
 parameter options. A brief description of the important ones that affect the ARM
