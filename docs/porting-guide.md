@@ -559,6 +559,13 @@ behaviour of the `assert()` function (for example, to save memory).
     doesn't print anything to the console. If `PLAT_LOG_LEVEL_ASSERT` isn't
     defined, it defaults to `LOG_LEVEL`.
 
+*   **PLAT_PARTITION_BLOCK_SIZE**
+    The block size of storage device. Since there's different block size in
+    different storage device. The default value is 512.
+    [For example, define the build flag in platform.mk]:
+    PLAT_PARTITION_BLOCK_SIZE 	:= 	4096
+    $(eval $(call add define,PLAT_PARTITION_BLOCK_SIZE))
+
 
 ### File : plat_macros.S [mandatory]
 
