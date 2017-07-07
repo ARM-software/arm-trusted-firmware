@@ -94,7 +94,7 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 
 	/* get SMMU context table */
 	smmu_ctx_regs = plat_get_smmu_ctx();
-	assert(smmu_ctx_regs);
+	assert(smmu_ctx_regs != NULL);
 
 	/*
 	 * smmu_ctx_regs[0].val contains the size of the context table minus

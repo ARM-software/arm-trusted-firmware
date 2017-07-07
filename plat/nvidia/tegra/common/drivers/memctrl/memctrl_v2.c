@@ -293,7 +293,7 @@ static void tegra_memctrl_set_overrides(void)
 	uint32_t i, val;
 
 	/* Get the settings from the platform */
-	assert(plat_mc_settings);
+	assert(plat_mc_settings != NULL);
 	mc_txn_override_cfgs = plat_mc_settings->txn_override_cfg;
 	num_txn_override_cfgs = plat_mc_settings->num_txn_override_cfgs;
 
@@ -357,7 +357,7 @@ void tegra_memctrl_setup(void)
 	tegra_smmu_init();
 #endif
 	/* Get the settings from the platform */
-	assert(plat_mc_settings);
+	assert(plat_mc_settings != NULL);
 	mc_streamid_override_regs = plat_mc_settings->streamid_override_cfg;
 	num_streamid_override_regs = plat_mc_settings->num_streamid_override_cfgs;
 	mc_streamid_sec_cfgs = plat_mc_settings->streamid_security_cfg;

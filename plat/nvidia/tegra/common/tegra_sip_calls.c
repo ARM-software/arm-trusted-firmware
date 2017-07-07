@@ -69,7 +69,7 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 			    void *handle,
 			    u_register_t flags)
 {
-	uint32_t regval;
+	uint32_t regval, local_x2_32 = (uint32_t)x2;
 	int32_t err;
 
 	/* Check if this is a SoC specific SiP */
@@ -84,14 +84,11 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 
 		case TEGRA_SIP_NEW_VIDEOMEM_REGION:
 
-			/* clean up the high bits */
-			x2 = (uint32_t)x2;
-
 			/*
 			 * Check if Video Memory overlaps TZDRAM (contains bl31/bl32)
 			 * or falls outside of the valid DRAM range
 			*/
-			err = bl31_check_ns_address(x1, x2);
+			err = bl31_check_ns_address(x1, local_x2_32);
 			if (err != 0) {
 				SMC_RET1(handle, (uint64_t)err);
 			}
@@ -99,7 +96,7 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 			/*
 			 * Check if Video Memory is aligned to 1MB.
 			 */
-			if (((x1 & 0xFFFFFU) != 0U) || ((x2 & 0xFFFFFU) != 0U)) {
+			if (((x1 & 0xFFFFFU) != 0U) || ((local_x2_32 & 0xFFFFFU) != 0U)) {
 				ERROR("Unaligned Video Memory base address!\n");
 				SMC_RET1(handle, -ENOTSUP);
 			}
@@ -117,7 +114,7 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 			}
 
 			/* new video memory carveout settings */
-			tegra_memctrl_videomem_setup(x1, (uint32_t)x2);
+			tegra_memctrl_videomem_setup(x1, local_x2_32);
 
 			SMC_RET1(handle, 0);
 

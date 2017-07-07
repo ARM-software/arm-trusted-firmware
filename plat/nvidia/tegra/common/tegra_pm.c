@@ -106,7 +106,7 @@ plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
 
 	(void)lvl;
 
-	assert(ncpu);
+	assert(ncpu != 0U);
 
 	do {
 		temp = *local_state;
@@ -335,7 +335,7 @@ __dead2 void tegra_system_reset(void)
 int32_t tegra_validate_power_state(uint32_t power_state,
 				   psci_power_state_t *req_state)
 {
-	assert(req_state);
+	assert(req_state != NULL);
 
 	return tegra_soc_validate_power_state(power_state, req_state);
 }
