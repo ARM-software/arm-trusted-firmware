@@ -15,10 +15,9 @@ is outside the scope of this document.
 
 This document assumes that the reader has previous experience running a fully
 bootable Linux software stack on Juno or FVP using the prebuilt binaries and
-filesystems provided by `Linaro`_. Further information may
-be found in the `Instructions for using the Linaro software deliverables`_. It
-also assumes that the user understands the role of the different software
-components required to boot a Linux system:
+filesystems provided by `Linaro`_. Further information may be found in the
+`Linaro instructions`_. It also assumes that the user understands the role of
+the different software components required to boot a Linux system:
 
 -  Specific firmware images required by the platform (e.g. SCP firmware on Juno)
 -  Normal world bootloader (e.g. UEFI or U-Boot)
@@ -26,7 +25,7 @@ components required to boot a Linux system:
 -  Linux kernel image
 -  Root filesystem
 
-This document also assumes that the user is familiar with the FVP models and
+This document also assumes that the user is familiar with the `FVP models`_ and
 the different command line options available to launch the model.
 
 This document should be used in conjunction with the `Firmware Design`_.
@@ -59,9 +58,10 @@ command:
 ARM TF has been tested with `Linaro Release 17.04`_.
 
 Download and install the AArch32 or AArch64 little-endian GCC cross compiler.
-The `Linaro Release Notes`_ documents which version of the
-compiler to use for a given Linaro Release. Also, these
-`Linaro instructions`_ provide further guidance.
+The `Linaro Release Notes`_ documents which version of the compiler to use for a
+given Linaro Release. Also, these `Linaro instructions`_ provide further
+guidance and a script, which can be used to download Linaro deliverables
+automatically.
 
 Optionally, Trusted Firmware can be built using clang or ARM Compiler 6.
 See instructions below on how to switch the default compiler.
@@ -439,7 +439,8 @@ Common build options
 
 -  ``PLAT``: Choose a platform to build ARM Trusted Firmware for. The chosen
    platform name must be subdirectory of any depth under ``plat/``, and must
-   contain a platform makefile named ``platform.mk``.
+   contain a platform makefile named ``platform.mk``. For example to build ARM
+   Trusted Firmware for ARM Juno board select PLAT=juno.
 
 -  ``PRELOADED_BL33_BASE``: This option enables booting a preloaded BL33 image
    instead of the normal boot flow. When defined, it must specify the entry
@@ -1045,8 +1046,7 @@ Building a FIP for Juno and FVP
 
 This section provides Juno and FVP specific instructions to build Trusted
 Firmware, obtain the additional required firmware, and pack it all together in
-a single FIP binary. It assumes that a `Linaro Release`_
-has been installed.
+a single FIP binary. It assumes that a `Linaro Release`_ has been installed.
 
 Note: Pre-built binaries for AArch32 are available from Linaro Release 16.12
 onwards. Before that release, pre-built binaries are only available for AArch64.
@@ -1076,8 +1076,8 @@ corrupted binaries.
             <path/to/linaro/release>/fip.bin
 
    The unpack operation will result in a set of binary images extracted to the
-   working directory. The SCP\_BL2 image corresponds to ``scp-fw.bin`` and BL33
-   corresponds to ``nt-fw.bin``.
+   current working directory. The SCP\_BL2 image corresponds to
+   ``scp-fw.bin`` and BL33 corresponds to ``nt-fw.bin``.
 
    Note: the fiptool will complain if the images to be unpacked already
    exist in the current directory. If that is the case, either delete those
@@ -1367,6 +1367,12 @@ on the following ARM FVPs (64-bit host machine only).
 NOTE: The build numbers quoted above are those reported by launching the FVP
 with the ``--version`` parameter.
 
+NOTE: Linaro provides a ramdisk image in prebuilt FVP configurations and full
+file systems that can be downloaded separately. To run an FVP with a virtio
+file system image an additional FVP configuration option
+``-C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>`` can be
+used.
+
 NOTE: The software will not work on Version 1.0 of the Foundation FVP.
 The commands below would report an ``unhandled argument`` error in this case.
 
@@ -1440,9 +1446,9 @@ The following ``Foundation_Platform`` parameters should be used to boot Linux wi
     --gicv3                                         \
     --data="<path-to>/<bl1-binary>"@0x0             \
     --data="<path-to>/<FIP-binary>"@0x08000000      \
-    --data="<path-to>/<fdt>"@0x83000000             \
+    --data="<path-to>/<fdt>"@0x82000000             \
     --data="<path-to>/<kernel-binary>"@0x80080000   \
-    --block-device="<path-to>/<file-system-image>"
+    --data="<path-to>/<ramdisk-binary>"@0x84000000
 
 Notes:
 
@@ -1471,9 +1477,9 @@ with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
     -C cache_state_modelled=1                                   \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Running on the AEMv8 Base FVP (AArch32) with reset to BL1 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1500,9 +1506,9 @@ with 8 CPUs using the AArch32 build of ARM Trusted Firmware.
     -C cluster1.cpu3.CONFIG64=0                                 \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Running on the Cortex-A57-A53 Base FVP with reset to BL1 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1519,9 +1525,9 @@ boot Linux with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
     -C cache_state_modelled=1                                   \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Running on the Cortex-A32 Base FVP (AArch32) with reset to BL1 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1538,9 +1544,9 @@ boot Linux with 4 CPUs using the AArch32 build of ARM Trusted Firmware.
     -C cache_state_modelled=1                                   \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Running on the AEMv8 Base FVP with reset to BL31 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1568,9 +1574,9 @@ with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04023000    \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000            \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Notes:
 
@@ -1622,9 +1628,9 @@ with 8 CPUs using the AArch32 build of ARM Trusted Firmware.
     -C cluster1.cpu3.RVBAR=0x04001000                            \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000            \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Note: The load address of ``<bl32-binary>`` depends on the value ``BL32_BASE``.
 It should match the address programmed into the RVBAR register as well.
@@ -1653,9 +1659,9 @@ boot Linux with 8 CPUs using the AArch64 build of ARM Trusted Firmware.
     --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04023000    \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000            \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Running on the Cortex-A32 Base FVP (AArch32) with reset to SP\_MIN entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1676,9 +1682,9 @@ boot Linux with 4 CPUs using the AArch32 build of ARM Trusted Firmware.
     -C cluster0.cpu3.RVBARADDR=0x04001000                       \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000   \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000   \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x83000000           \
+    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
-    -C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>"
+    --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Running the software on Juno
 ----------------------------
@@ -1726,21 +1732,21 @@ wakeup interrupt from RTC.
 *Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
 
 .. _Linaro: `Linaro Release Notes`_
-.. _Instructions for using the Linaro software deliverables: https://community.arm.com/dev-platforms/b/documents/posts/instructions-for-using-the-linaro-software-deliverables
-.. _Firmware Design: firmware-design.rst
+.. _Linaro Release: `Linaro Release Notes`_
 .. _Linaro Release Notes: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
 .. _Linaro Release 17.04: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease17.04
 .. _Linaro instructions: https://community.arm.com/dev-platforms/b/documents/posts/instructions-for-using-the-linaro-software-deliverables
+.. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/b/documents/posts/using-linaros-deliverables-on-juno
+.. _ARM Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
-.. _here: ./psci-lib-integration-guide.rst
+.. _here: psci-lib-integration-guide.rst
 .. _Trusted Board Boot: trusted-board-boot.rst
 .. _Secure-EL1 Payloads and Dispatchers: firmware-design.rst#user-content-secure-el1-payloads-and-dispatchers
-.. _Firmware Update: ./firmware-update.rst
+.. _Firmware Update: firmware-update.rst
+.. _Firmware Design: firmware-design.rst
 .. _mbed TLS Repository: https://github.com/ARMmbed/mbedtls.git
 .. _mbed TLS Security Center: https://tls.mbed.org/security
-.. _Linaro Release: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
+.. _ARM's website: `FVP models`_
+.. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Juno Getting Started Guide: http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
-.. _ARM's website: https://developer.arm.com/products/system-design/fixed-virtual-platforms
-.. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/b/documents/posts/using-linaros-deliverables-on-juno
-.. _ARM Platforms Portal: https://community.arm.com/groups/arm-development-platforms
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
