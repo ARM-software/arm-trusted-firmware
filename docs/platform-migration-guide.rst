@@ -146,6 +146,7 @@ for the ``plat_psci_ops`` structure which is declared as :
         void (*cpu_standby)(plat_local_state_t cpu_state);
         int (*pwr_domain_on)(u_register_t mpidr);
         void (*pwr_domain_off)(const psci_power_state_t *target_state);
+        void (*pwr_domain_suspend_early)(const psci_power_state_t *target_state);
         void (*pwr_domain_suspend)(const psci_power_state_t *target_state);
         void (*pwr_domain_on_finish)(const psci_power_state_t *target_state);
         void (*pwr_domain_suspend_finish)(
@@ -170,12 +171,12 @@ convert the power-state parameter (possibly encoding a composite power state)
 passed in a PSCI ``CPU_SUSPEND`` to the ``psci_power_state`` format. This handler
 is now mandatory for PSCI ``CPU_SUSPEND`` support.
 
-The ``plat_psci_ops`` handlers, ``pwr_domain_off`` and ``pwr_domain_suspend``, are
-passed the target local state for each affected power domain. The platform
-must execute operations specific to these target states. Similarly,
-``pwr_domain_on_finish`` and ``pwr_domain_suspend_finish`` are passed the local
-states of the affected power domains before wakeup. The platform
-must execute actions to restore these power domains from these specific
+The ``plat_psci_ops`` handlers, ``pwr_domain_off``, ``pwr_domain_suspend_early``
+and ``pwr_domain_suspend``, are passed the target local state for each affected
+power domain. The platform must execute operations specific to these target
+states. Similarly, ``pwr_domain_on_finish`` and ``pwr_domain_suspend_finish``
+are passed the local states of the affected power domains before wakeup. The
+platform must execute actions to restore these power domains from these specific
 local states.
 
 -  Difference in invocation

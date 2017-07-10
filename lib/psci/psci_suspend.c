@@ -80,6 +80,17 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 	if (psci_spd_pm && psci_spd_pm->svc_suspend)
 		psci_spd_pm->svc_suspend(max_off_lvl);
 
+#if !HW_ASSISTED_COHERENCY
+	/*
+	 * Plat. management: Allow the platform to perform any early
+	 * actions required to power down the CPU. This might be useful for
+	 * HW_ASSISTED_COHERENCY = 0 platforms that can safely perform these
+	 * actions with data caches enabled.
+	 */
+	if (psci_plat_pm_ops->pwr_domain_suspend_pwrdown_early)
+		psci_plat_pm_ops->pwr_domain_suspend_pwrdown_early(state_info);
+#endif
+
 	/*
 	 * Store the re-entry information for the non-secure world.
 	 */

@@ -2060,6 +2060,23 @@ power down state where as it could be either power down, retention or run state
 for the higher power domain levels depending on the result of state
 coordination. The generic code expects the handler to succeed.
 
+plat\_psci\_ops.pwr\_domain\_suspend\_pwrdown\_early() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This optional function may be used as a performance optimization to replace
+or complement pwr_domain_suspend() on some platforms. Its calling semantics
+are identical to pwr_domain_suspend(), except the PSCI implementation only
+calls this function when suspending to a power down state, and it guarantees
+that data caches are enabled.
+
+When HW_ASSISTED_COHERENCY = 0, the PSCI implementation disables data caches
+before calling pwr_domain_suspend(). If the target_state corresponds to a
+power down state and it is safe to perform some or all of the platform
+specific actions in that function with data caches enabled, it may be more
+efficient to move those actions to this function. When HW_ASSISTED_COHERENCY
+= 1, data caches remain enabled throughout, and so there is no advantage to
+moving platform specific actions to this function.
+
 plat\_psci\_ops.pwr\_domain\_suspend()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
