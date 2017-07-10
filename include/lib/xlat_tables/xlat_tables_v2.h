@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <xlat_mmu_helpers.h>
+#include <xlat_tables_v2_helpers.h>
 
 /* Helper macro to define entries for mmap_region_t. It creates
  * identity mappings for each region.
@@ -81,6 +82,44 @@ typedef struct mmap_region {
 	size_t			size;
 	mmap_attr_t		attr;
 } mmap_region_t;
+
+/*
+ * Declare the translation context type.
+ * Its definition is private.
+ */
+typedef struct xlat_ctx xlat_ctx_t;
+
+/*
+ * Statically allocate a translation context and associated structures. Also
+ * initialize them.
+ *
+ * _ctx_name:
+ *   Prefix for the translation context variable.
+ *   E.g. If _ctx_name is 'foo', the variable will be called 'foo_xlat_ctx'.
+ *   Useful to distinguish multiple contexts from one another.
+ *
+ * _mmap_count:
+ *   Number of mmap_region_t to allocate.
+ *   Would typically be MAX_MMAP_REGIONS for the translation context describing
+ *   the BL image currently executing.
+ *
+ * _xlat_tables_count:
+ *   Number of sub-translation tables to allocate.
+ *   Would typically be MAX_XLAT_TABLES for the translation context describing
+ *   the BL image currently executing.
+ *   Note that this is only for sub-tables ; at the initial lookup level, there
+ *   is always a single table.
+ *
+ * _virt_addr_space_size, _phy_addr_space_size:
+ *   Size (in bytes) of the virtual (resp. physical) address space.
+ *   Would typically be PLAT_VIRT_ADDR_SPACE_SIZE
+ *   (resp. PLAT_PHY_ADDR_SPACE_SIZE) for the translation context describing the
+ *   BL image currently executing.
+ */
+#define REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
+			_virt_addr_space_size, _phy_addr_space_size)		\
+	_REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
+		_virt_addr_space_size, _phy_addr_space_size)
 
 /* Generic translation table APIs */
 

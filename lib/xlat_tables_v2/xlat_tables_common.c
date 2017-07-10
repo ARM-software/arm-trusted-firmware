@@ -7,7 +7,6 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
 #include <common_def.h>
 #include <debug.h>
 #include <errno.h>
@@ -38,59 +37,12 @@
 # endif
 #endif
 
-CASSERT(CHECK_VIRT_ADDR_SPACE_SIZE(PLAT_VIRT_ADDR_SPACE_SIZE),
-	assert_invalid_virtual_addr_space_size);
-
-CASSERT(CHECK_PHY_ADDR_SPACE_SIZE(PLAT_PHY_ADDR_SPACE_SIZE),
-	assert_invalid_physical_addr_space_size);
-
-#define NUM_BASE_LEVEL_ENTRIES	\
-	GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)
-
-#define XLAT_TABLE_LEVEL_BASE	\
-	GET_XLAT_TABLE_LEVEL_BASE(PLAT_VIRT_ADDR_SPACE_SIZE)
-
 /*
- * Private variables used by the TF
+ * Allocate and initialise the default translation context for the BL image
+ * currently executing.
  */
-static mmap_region_t tf_mmap[MAX_MMAP_REGIONS + 1];
-
-static uint64_t tf_xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
-			__aligned(XLAT_TABLE_SIZE) __section("xlat_table");
-
-static uint64_t tf_base_xlat_table[NUM_BASE_LEVEL_ENTRIES]
-		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
-
-#if PLAT_XLAT_TABLES_DYNAMIC
-static int xlat_tables_mapped_regions[MAX_XLAT_TABLES];
-#endif /* PLAT_XLAT_TABLES_DYNAMIC */
-
-xlat_ctx_t tf_xlat_ctx = {
-
-	.pa_max_address = PLAT_PHY_ADDR_SPACE_SIZE - 1,
-	.va_max_address = PLAT_VIRT_ADDR_SPACE_SIZE - 1,
-
-	.mmap = tf_mmap,
-	.mmap_num = MAX_MMAP_REGIONS,
-
-	.tables = tf_xlat_tables,
-	.tables_num = MAX_XLAT_TABLES,
-#if PLAT_XLAT_TABLES_DYNAMIC
-	.tables_mapped_regions = xlat_tables_mapped_regions,
-#endif /* PLAT_XLAT_TABLES_DYNAMIC */
-
-	.base_table = tf_base_xlat_table,
-	.base_table_entries = NUM_BASE_LEVEL_ENTRIES,
-
-	.max_pa = 0,
-	.max_va = 0,
-
-	.next_table = 0,
-
-	.base_level = XLAT_TABLE_LEVEL_BASE,
-
-	.initialized = 0
-};
+REGISTER_XLAT_CONTEXT(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
+		PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE);
 
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 			size_t size, mmap_attr_t attr)
@@ -143,8 +95,8 @@ void init_xlat_tables(void)
 	init_xlation_table(&tf_xlat_ctx);
 	xlat_tables_print(&tf_xlat_ctx);
 
-	assert(tf_xlat_ctx.max_va <= PLAT_VIRT_ADDR_SPACE_SIZE - 1);
-	assert(tf_xlat_ctx.max_pa <= PLAT_PHY_ADDR_SPACE_SIZE - 1);
+	assert(tf_xlat_ctx.max_va <= tf_xlat_ctx.va_max_address);
+	assert(tf_xlat_ctx.max_pa <= tf_xlat_ctx.pa_max_address);
 
 	init_xlat_tables_arch(tf_xlat_ctx.max_pa);
 }
