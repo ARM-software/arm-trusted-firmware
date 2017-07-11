@@ -87,7 +87,8 @@ uint64_t xlat_arch_get_xn_desc(int el __unused)
  ******************************************************************************/
 void enable_mmu_arch(unsigned int flags,
 		uint64_t *base_table,
-		unsigned long long max_pa)
+		unsigned long long max_pa,
+		uintptr_t max_va)
 {
 	u_register_t mair0, ttbcr, sctlr;
 	uint64_t ttbr0;
@@ -123,9 +124,18 @@ void enable_mmu_arch(unsigned int flags,
 
 	/*
 	 * Limit the input address ranges and memory region sizes translated
-	 * using TTBR0 to the given virtual address space size.
+	 * using TTBR0 to the given virtual address space size, if smaller than
+	 * 32 bits.
 	 */
-	ttbcr |= 32 - __builtin_ctzl((uintptr_t) PLAT_VIRT_ADDR_SPACE_SIZE);
+	if (max_va != UINT32_MAX) {
+		uintptr_t virtual_addr_space_size = max_va + 1;
+		assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
+		/*
+		 * __builtin_ctzl(0) is undefined but here we are guaranteed
+		 * that virtual_addr_space_size is in the range [1, UINT32_MAX].
+		 */
+		ttbcr |= 32 - __builtin_ctzl(virtual_addr_space_size);
+	}
 
 	/*
 	 * Set the cacheability and shareability attributes for memory

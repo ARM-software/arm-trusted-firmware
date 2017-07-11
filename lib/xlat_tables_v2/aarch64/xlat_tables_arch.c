@@ -196,7 +196,8 @@ DEFINE_ENABLE_MMU_EL(3, tlbialle3)
 
 void enable_mmu_arch(unsigned int flags,
 		uint64_t *base_table,
-		unsigned long long max_pa)
+		unsigned long long max_pa,
+		uintptr_t max_va)
 {
 	uint64_t mair, ttbr, tcr;
 
@@ -215,7 +216,14 @@ void enable_mmu_arch(unsigned int flags,
 	 * Limit the input address ranges and memory region sizes translated
 	 * using TTBR0 to the given virtual address space size.
 	 */
-	tcr = 64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE);
+	assert(max_va < UINTPTR_MAX);
+	uintptr_t virtual_addr_space_size = max_va + 1;
+	assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
+	/*
+	 * __builtin_ctzl(0) is undefined but here we are guaranteed that
+	 * virtual_addr_space_size is in the range [1,UINTPTR_MAX].
+	 */
+	tcr = 64 - __builtin_ctzl(virtual_addr_space_size);
 
 	/*
 	 * Set the cacheability and shareability attributes for memory

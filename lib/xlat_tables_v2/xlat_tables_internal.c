@@ -1178,8 +1178,7 @@ void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 		mm++;
 	}
 
-	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1) <=
-	       xlat_arch_get_max_supported_pa());
+	assert(ctx->pa_max_address <= xlat_arch_get_max_supported_pa());
 	assert(ctx->max_va <= ctx->va_max_address);
 	assert(ctx->max_pa <= ctx->pa_max_address);
 
@@ -1205,7 +1204,7 @@ void init_xlat_tables(void)
  * space size might be mapped.
  */
 #ifdef PLAT_XLAT_TABLES_DYNAMIC
-#define MAX_PHYS_ADDR	PLAT_PHY_ADDR_SPACE_SIZE
+#define MAX_PHYS_ADDR	tf_xlat_ctx.pa_max_address
 #else
 #define MAX_PHYS_ADDR	tf_xlat_ctx.max_pa
 #endif
@@ -1214,19 +1213,22 @@ void init_xlat_tables(void)
 
 void enable_mmu_secure(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR);
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+			tf_xlat_ctx.va_max_address);
 }
 
 #else
 
 void enable_mmu_el1(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR);
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+			tf_xlat_ctx.va_max_address);
 }
 
 void enable_mmu_el3(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR);
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+			tf_xlat_ctx.va_max_address);
 }
 
 #endif /* AARCH32 */
