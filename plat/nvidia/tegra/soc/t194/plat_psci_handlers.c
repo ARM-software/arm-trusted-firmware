@@ -331,6 +331,8 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 		/* Init SMMU */
 
+		tegra_smmu_init();
+
 		/*
 		 * Reset power state info for the last core doing SC7
 		 * entry and exit, we set deepest power state as CC7
