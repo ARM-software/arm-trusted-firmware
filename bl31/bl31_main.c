@@ -7,8 +7,8 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
 #include <bl31.h>
+#include <bl_common.h>
 #include <console.h>
 #include <context_mgmt.h>
 #include <debug.h>

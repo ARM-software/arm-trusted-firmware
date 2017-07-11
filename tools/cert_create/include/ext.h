@@ -7,8 +7,8 @@
 #ifndef EXT_H_
 #define EXT_H_
 
-#include "key.h"
 #include <openssl/x509v3.h>
+#include "key.h"
 
 /* Extension types supported */
 enum ext_type_e {

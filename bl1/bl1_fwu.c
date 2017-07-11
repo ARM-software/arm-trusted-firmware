@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <auth_mod.h>
 #include <bl1.h>
 #include <bl_common.h>

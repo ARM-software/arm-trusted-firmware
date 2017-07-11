@@ -8,8 +8,8 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <auth_mod.h>
-#include <bl_common.h>
 #include <bl1.h>
+#include <bl_common.h>
 #include <console.h>
 #include <debug.h>
 #include <platform.h>

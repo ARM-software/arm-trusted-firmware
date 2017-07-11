@@ -19,7 +19,6 @@
 #include <unistd.h>
 
 #include <openssl/sha.h>
-
 #include <firmware_image_package.h>
 
 #include "fiptool.h"

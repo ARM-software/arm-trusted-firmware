@@ -6,8 +6,8 @@
 
 #include <arch_helpers.h>
 #include <assert.h> /* for context_mgmt.h */
-#include <bl_common.h>
 #include <bl31.h>
+#include <bl_common.h>
 #include <context_mgmt.h>
 #include <debug.h>
 #include <interrupt_mgmt.h>
@@ -15,8 +15,8 @@
 #include <runtime_svc.h>
 #include <string.h>
 
-#include "smcall.h"
 #include "sm_err.h"
+#include "smcall.h"
 
 /* macro to check if Hypervisor is enabled in the HCR_EL2 register */
 #define HYP_ENABLE_FLAG		0x286001

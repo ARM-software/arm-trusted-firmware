@@ -30,8 +30,8 @@
 #include "ext.h"
 #include "key.h"
 #include "sha.h"
-#include "tbbr/tbb_ext.h"
 #include "tbbr/tbb_cert.h"
+#include "tbbr/tbb_ext.h"
 #include "tbbr/tbb_key.h"
 
 /*
