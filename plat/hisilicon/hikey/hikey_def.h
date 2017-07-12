@@ -12,7 +12,7 @@
 
 /* Always assume DDR is 1GB size. */
 #define DDR_BASE			0x0
-#define DDR_SIZE			0x80000000
+#define DDR_SIZE			0x40000000
 
 #define DEVICE_BASE			0xF4000000
 #define DEVICE_SIZE			0x05800000
