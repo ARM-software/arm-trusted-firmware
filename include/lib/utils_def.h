@@ -18,6 +18,12 @@
 
 #define BIT(nr)				(1UL << (nr))
 
+/*
+ * This variant of div_round_up can be used in macro definition but should not
+ * be used in C code as the `div` parameter is evaluated twice.
+ */
+#define DIV_ROUND_UP_2EVAL(n, d)	(((n) + (d) - 1) / (d))
+
 #define MIN(x, y) __extension__ ({	\
 	__typeof__(x) _x = (x);		\
 	__typeof__(y) _y = (y);		\
@@ -48,6 +54,11 @@
 
 #define round_down(value, boundary)		\
 	((value) & ~round_boundary(value, boundary))
+
+#define div_round_up(val, div) __extension__ ({	\
+	__typeof__(div) _div = (div);		\
+	round_up((val), _div)/_div;		\
+})
 
 /*
  * Evaluates to 1 if (ptr + inc) overflows, 0 otherwise.

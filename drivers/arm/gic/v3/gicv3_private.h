@@ -7,6 +7,7 @@
 #ifndef __GICV3_PRIVATE_H__
 #define __GICV3_PRIVATE_H__
 
+#include <assert.h>
 #include <gic_common.h>
 #include <gicv3.h>
 #include <mmio.h>
@@ -41,6 +42,11 @@
 	(((((typer_val) >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) | \
 	 (((typer_val) >> 32) & 0xffffff))
 #endif
+
+/*******************************************************************************
+ * GICv3 private global variables declarations
+ ******************************************************************************/
+extern const gicv3_driver_data_t *gicv3_driver_data;
 
 /*******************************************************************************
  * Private GICv3 function prototypes for accessing entire registers.
@@ -150,6 +156,11 @@ static inline unsigned long long gicr_read_ctlr(uintptr_t base)
 	return mmio_read_64(base + GICR_CTLR);
 }
 
+static inline void gicr_write_ctlr(uintptr_t base, uint64_t val)
+{
+	mmio_write_64(base + GICR_CTLR, val);
+}
+
 static inline unsigned long long gicr_read_typer(uintptr_t base)
 {
 	return mmio_read_64(base + GICR_TYPER);
@@ -177,6 +188,16 @@ static inline void gicr_wait_for_pending_write(uintptr_t gicr_base)
 	while (gicr_read_ctlr(gicr_base) & GICR_CTLR_RWP_BIT)
 		;
 }
+
+static inline void gicr_wait_for_upstream_pending_write(uintptr_t gicr_base)
+{
+	while (gicr_read_ctlr(gicr_base) & GICR_CTLR_UWP_BIT)
+		;
+}
+
+/* Private implementation of Distributor power control hooks */
+void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num);
+void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num);
 
 /*******************************************************************************
  * GIC Re-distributor functions for accessing entire registers.
@@ -208,6 +229,16 @@ static inline unsigned int gicr_read_igroupr0(uintptr_t base)
 	return mmio_read_32(base + GICR_IGROUPR0);
 }
 
+static inline unsigned int gicr_read_ispendr0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ISPENDR0);
+}
+
+static inline void gicr_write_ispendr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ISPENDR0, val);
+}
+
 static inline void gicr_write_igroupr0(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICR_IGROUPR0, val);
@@ -223,14 +254,64 @@ static inline void gicr_write_igrpmodr0(uintptr_t base, unsigned int val)
 	mmio_write_32(base + GICR_IGRPMODR0, val);
 }
 
+static inline unsigned int gicr_read_nsacr(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_NSACR);
+}
+
+static inline void gicr_write_nsacr(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_NSACR, val);
+}
+
+static inline unsigned int gicr_read_isactiver0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ISACTIVER0);
+}
+
+static inline void gicr_write_isactiver0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ISACTIVER0, val);
+}
+
+static inline unsigned int gicr_read_icfgr0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ICFGR0);
+}
+
 static inline unsigned int gicr_read_icfgr1(uintptr_t base)
 {
 	return mmio_read_32(base + GICR_ICFGR1);
 }
 
+static inline void gicr_write_icfgr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ICFGR0, val);
+}
+
 static inline void gicr_write_icfgr1(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICR_ICFGR1, val);
+}
+
+static inline unsigned int gicr_read_propbaser(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_PROPBASER);
+}
+
+static inline void gicr_write_propbaser(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_PROPBASER, val);
+}
+
+static inline unsigned int gicr_read_pendbaser(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_PENDBASER);
+}
+
+static inline void gicr_write_pendbaser(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_PENDBASER, val);
 }
 
 #endif /* __GICV3_PRIVATE_H__ */

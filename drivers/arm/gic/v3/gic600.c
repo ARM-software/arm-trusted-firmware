@@ -32,9 +32,6 @@
 #define PWRR_ON		(0 << PWRR_RDPD_SHIFT)
 #define PWRR_OFF	(1 << PWRR_RDPD_SHIFT)
 
-/* Generic GICv3 resources */
-extern const gicv3_driver_data_t *gicv3_driver_data;
-
 /* GIC600-specific accessor functions */
 static void gicr_write_pwrr(uintptr_t base, unsigned int val)
 {
@@ -80,6 +77,16 @@ static void gic600_pwr_off(uintptr_t base)
 		while (gicr_group_powering_down(gicr_read_pwrr(base)))
 			;
 	}
+}
+
+void gicv3_distif_pre_save(unsigned int proc_num)
+{
+	arm_gicv3_distif_pre_save(proc_num);
+}
+
+void gicv3_distif_post_restore(unsigned int proc_num)
+{
+	arm_gicv3_distif_post_restore(proc_num);
 }
 
 /*
