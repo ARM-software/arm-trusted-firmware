@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,10 @@
 #define MIN_SGI_ID		0
 #define MIN_PPI_ID		16
 #define MIN_SPI_ID		32
+#define MAX_SPI_ID		1019
+
+#define TOTAL_SPI_INTR_NUM	(MAX_SPI_ID - MIN_SPI_ID + 1)
+#define TOTAL_PCPU_INTR_NUM	(MIN_SPI_ID - MIN_SGI_ID)
 
 /* Mask for the priority field common to all GIC interfaces */
 #define GIC_PRI_MASK			0xff

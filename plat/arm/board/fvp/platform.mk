@@ -48,7 +48,8 @@ FVP_GICV3_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 
 # Choose the GIC sources depending upon the how the FVP will be invoked
 ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
-FVP_GIC_SOURCES		:=	${FVP_GICV3_SOURCES}
+FVP_GIC_SOURCES		:=	${FVP_GICV3_SOURCES}			\
+				drivers/arm/gic/v3/gic500.c
 else ifeq (${FVP_USE_GIC_DRIVER},FVP_GIC600)
 FVP_GIC_SOURCES		:=	${FVP_GICV3_SOURCES}			\
 				drivers/arm/gic/v3/gic600.c

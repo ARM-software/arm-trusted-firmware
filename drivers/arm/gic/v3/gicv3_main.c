@@ -21,6 +21,27 @@ static unsigned int gicv2_compat;
 #pragma weak gicv3_rdistif_off
 #pragma weak gicv3_rdistif_on
 
+
+/* Helper macros to save and restore GICD registers to and from the context */
+#define RESTORE_GICD_REGS(base, ctx, intr_num, reg, REG)		\
+	do {								\
+		for (unsigned int int_id = MIN_SPI_ID; int_id < intr_num; \
+				int_id += (1 << REG##_SHIFT)) {		\
+			gicd_write_##reg(base, int_id,			\
+				ctx->gicd_##reg[(int_id - MIN_SPI_ID) >> REG##_SHIFT]); \
+		}							\
+	} while (0)
+
+#define SAVE_GICD_REGS(base, ctx, intr_num, reg, REG)			\
+	do {								\
+		for (unsigned int int_id = MIN_SPI_ID; int_id < intr_num; \
+				int_id += (1 << REG##_SHIFT)) {		\
+			ctx->gicd_##reg[(int_id - MIN_SPI_ID) >> REG##_SHIFT] =\
+					gicd_read_##reg(base, int_id);	\
+		}							\
+	} while (0)
+
+
 /*******************************************************************************
  * This function initialises the ARM GICv3 driver in EL3 with provided platform
  * inputs.
@@ -405,4 +426,278 @@ unsigned int gicv3_get_interrupt_type(unsigned int id,
 
 	/* Else it is a Group 0 Secure interrupt */
 	return INTR_GROUP0;
+}
+
+/*****************************************************************************
+ * Function to save the GIC Redistributor register context. This function
+ * must be invoked after CPU interface disable and prior to Distributor save.
+ *****************************************************************************/
+void gicv3_rdistif_save(unsigned int proc_num, gicv3_redist_ctx_t * const rdist_ctx)
+{
+	uintptr_t gicr_base;
+	unsigned int int_id;
+
+	assert(gicv3_driver_data);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(IS_IN_EL3());
+	assert(rdist_ctx);
+
+	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+
+	/*
+	 * Wait for any write to GICR_CTLR to complete before trying to save any
+	 * state.
+	 */
+	gicr_wait_for_pending_write(gicr_base);
+
+	rdist_ctx->gicr_ctlr = gicr_read_ctlr(gicr_base);
+
+	rdist_ctx->gicr_propbaser = gicr_read_propbaser(gicr_base);
+	rdist_ctx->gicr_pendbaser = gicr_read_pendbaser(gicr_base);
+
+	rdist_ctx->gicr_igroupr0 = gicr_read_igroupr0(gicr_base);
+	rdist_ctx->gicr_isenabler0 = gicr_read_isenabler0(gicr_base);
+	rdist_ctx->gicr_ispendr0 = gicr_read_ispendr0(gicr_base);
+	rdist_ctx->gicr_isactiver0 = gicr_read_isactiver0(gicr_base);
+	rdist_ctx->gicr_icfgr0 = gicr_read_icfgr0(gicr_base);
+	rdist_ctx->gicr_icfgr1 = gicr_read_icfgr1(gicr_base);
+	rdist_ctx->gicr_igrpmodr0 = gicr_read_igrpmodr0(gicr_base);
+	rdist_ctx->gicr_nsacr = gicr_read_nsacr(gicr_base);
+	for (int_id = MIN_SGI_ID; int_id < TOTAL_PCPU_INTR_NUM;
+			int_id += (1 << IPRIORITYR_SHIFT)) {
+		rdist_ctx->gicr_ipriorityr[(int_id - MIN_SGI_ID) >> IPRIORITYR_SHIFT] =
+				gicr_read_ipriorityr(gicr_base, int_id);
+	}
+
+
+	/*
+	 * Call the pre-save hook that implements the IMP DEF sequence that may
+	 * be required on some GIC implementations. As this may need to access
+	 * the Redistributor registers, we pass it proc_num.
+	 */
+	gicv3_distif_pre_save(proc_num);
+}
+
+/*****************************************************************************
+ * Function to restore the GIC Redistributor register context. We disable
+ * LPI and per-cpu interrupts before we start restore of the Redistributor.
+ * This function must be invoked after Distributor restore but prior to
+ * CPU interface enable. The pending and active interrupts are restored
+ * after the interrupts are fully configured and enabled.
+ *****************************************************************************/
+void gicv3_rdistif_init_restore(unsigned int proc_num,
+				const gicv3_redist_ctx_t * const rdist_ctx)
+{
+	uintptr_t gicr_base;
+	unsigned int int_id;
+
+	assert(gicv3_driver_data);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(IS_IN_EL3());
+	assert(rdist_ctx);
+
+	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+
+	/* Power on redistributor */
+	gicv3_rdistif_on(proc_num);
+
+	/*
+	 * Call the post-restore hook that implements the IMP DEF sequence that
+	 * may be required on some GIC implementations. As this may need to
+	 * access the Redistributor registers, we pass it proc_num.
+	 */
+	gicv3_distif_post_restore(proc_num);
+
+	/*
+	 * Disable all SGIs (imp. def.)/PPIs before configuring them. This is a
+	 * more scalable approach as it avoids clearing the enable bits in the
+	 * GICD_CTLR
+	 */
+	gicr_write_icenabler0(gicr_base, ~0);
+	/* Wait for pending writes to GICR_ICENABLER */
+	gicr_wait_for_pending_write(gicr_base);
+
+	/*
+	 * Disable the LPIs to avoid unpredictable behavior when writing to
+	 * GICR_PROPBASER and GICR_PENDBASER.
+	 */
+	gicr_write_ctlr(gicr_base,
+			rdist_ctx->gicr_ctlr & ~(GICR_CTLR_EN_LPIS_BIT));
+
+	/* Restore registers' content */
+	gicr_write_propbaser(gicr_base, rdist_ctx->gicr_propbaser);
+	gicr_write_pendbaser(gicr_base, rdist_ctx->gicr_pendbaser);
+
+	gicr_write_igroupr0(gicr_base, rdist_ctx->gicr_igroupr0);
+
+	for (int_id = MIN_SGI_ID; int_id < TOTAL_PCPU_INTR_NUM;
+			int_id += (1 << IPRIORITYR_SHIFT)) {
+		gicr_write_ipriorityr(gicr_base, int_id,
+		rdist_ctx->gicr_ipriorityr[
+				(int_id - MIN_SGI_ID) >> IPRIORITYR_SHIFT]);
+	}
+
+	gicr_write_icfgr0(gicr_base, rdist_ctx->gicr_icfgr0);
+	gicr_write_icfgr1(gicr_base, rdist_ctx->gicr_icfgr1);
+	gicr_write_igrpmodr0(gicr_base, rdist_ctx->gicr_igrpmodr0);
+	gicr_write_nsacr(gicr_base, rdist_ctx->gicr_nsacr);
+
+	/* Restore after group and priorities are set */
+	gicr_write_ispendr0(gicr_base, rdist_ctx->gicr_ispendr0);
+	gicr_write_isactiver0(gicr_base, rdist_ctx->gicr_isactiver0);
+
+	/*
+	 * Wait for all writes to the Distributor to complete before enabling
+	 * the SGI and PPIs.
+	 */
+	gicr_wait_for_upstream_pending_write(gicr_base);
+	gicr_write_isenabler0(gicr_base, rdist_ctx->gicr_isenabler0);
+
+	/*
+	 * Restore GICR_CTLR.Enable_LPIs bit and wait for pending writes in case
+	 * the first write to GICR_CTLR was still in flight (this write only
+	 * restores GICR_CTLR.Enable_LPIs and no waiting is required for this
+	 * bit).
+	 */
+	gicr_write_ctlr(gicr_base, rdist_ctx->gicr_ctlr);
+	gicr_wait_for_pending_write(gicr_base);
+}
+
+/*****************************************************************************
+ * Function to save the GIC Distributor register context. This function
+ * must be invoked after CPU interface disable and Redistributor save.
+ *****************************************************************************/
+void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
+{
+	unsigned int num_ints;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(IS_IN_EL3());
+	assert(dist_ctx);
+
+	uintptr_t gicd_base = gicv3_driver_data->gicd_base;
+
+	num_ints = gicd_read_typer(gicd_base);
+	num_ints &= TYPER_IT_LINES_NO_MASK;
+	num_ints = (num_ints + 1) << 5;
+
+	assert(num_ints <= MAX_SPI_ID + 1);
+
+	/* Wait for pending write to complete */
+	gicd_wait_for_pending_write(gicd_base);
+
+	/* Save the GICD_CTLR */
+	dist_ctx->gicd_ctlr = gicd_read_ctlr(gicd_base);
+
+	/* Save GICD_IGROUPR for INTIDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, igroupr, IGROUPR);
+
+	/* Save GICD_ISENABLER for INT_IDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, isenabler, ISENABLER);
+
+	/* Save GICD_ISPENDR for INTIDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, ispendr, ISPENDR);
+
+	/* Save GICD_ISACTIVER for INTIDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, isactiver, ISACTIVER);
+
+	/* Save GICD_IPRIORITYR for INTIDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, ipriorityr, IPRIORITYR);
+
+	/* Save GICD_ICFGR for INTIDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, icfgr, ICFGR);
+
+	/* Save GICD_IGRPMODR for INTIDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, igrpmodr, IGRPMODR);
+
+	/* Save GICD_NSACR for INTIDs 32 - 1020 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, nsacr, NSACR);
+
+	/* Save GICD_IROUTER for INTIDs 32 - 1024 */
+	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, irouter, IROUTER);
+
+	/*
+	 * GICD_ITARGETSR<n> and GICD_SPENDSGIR<n> are RAZ/WI when
+	 * GICD_CTLR.ARE_(S|NS) bits are set which is the case for our GICv3
+	 * driver.
+	 */
+}
+
+/*****************************************************************************
+ * Function to restore the GIC Distributor register context. We disable G0, G1S
+ * and G1NS interrupt groups before we start restore of the Distributor. This
+ * function must be invoked prior to Redistributor restore and CPU interface
+ * enable. The pending and active interrupts are restored after the interrupts
+ * are fully configured and enabled.
+ *****************************************************************************/
+void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
+{
+	unsigned int num_ints = 0;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(IS_IN_EL3());
+	assert(dist_ctx);
+
+	uintptr_t gicd_base = gicv3_driver_data->gicd_base;
+
+	/*
+	 * Clear the "enable" bits for G0/G1S/G1NS interrupts before configuring
+	 * the ARE_S bit. The Distributor might generate a system error
+	 * otherwise.
+	 */
+	gicd_clr_ctlr(gicd_base,
+		      CTLR_ENABLE_G0_BIT |
+		      CTLR_ENABLE_G1S_BIT |
+		      CTLR_ENABLE_G1NS_BIT,
+		      RWP_TRUE);
+
+	/* Set the ARE_S and ARE_NS bit now that interrupts have been disabled */
+	gicd_set_ctlr(gicd_base, CTLR_ARE_S_BIT | CTLR_ARE_NS_BIT, RWP_TRUE);
+
+	num_ints = gicd_read_typer(gicd_base);
+	num_ints &= TYPER_IT_LINES_NO_MASK;
+	num_ints = (num_ints + 1) << 5;
+
+	assert(num_ints <= MAX_SPI_ID + 1);
+
+	/* Restore GICD_IGROUPR for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, igroupr, IGROUPR);
+
+	/* Restore GICD_IPRIORITYR for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, ipriorityr, IPRIORITYR);
+
+	/* Restore GICD_ICFGR for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, icfgr, ICFGR);
+
+	/* Restore GICD_IGRPMODR for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, igrpmodr, IGRPMODR);
+
+	/* Restore GICD_NSACR for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, nsacr, NSACR);
+
+	/* Restore GICD_IROUTER for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, irouter, IROUTER);
+
+	/*
+	 * Restore ISENABLER, ISPENDR and ISACTIVER after the interrupts are
+	 * configured.
+	 */
+
+	/* Restore GICD_ISENABLER for INT_IDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, isenabler, ISENABLER);
+
+	/* Restore GICD_ISPENDR for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, ispendr, ISPENDR);
+
+	/* Restore GICD_ISACTIVER for INTIDs 32 - 1020 */
+	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, isactiver, ISACTIVER);
+
+	/* Restore the GICD_CTLR */
+	gicd_write_ctlr(gicd_base, dist_ctx->gicd_ctlr);
+	gicd_wait_for_pending_write(gicd_base);
+
 }

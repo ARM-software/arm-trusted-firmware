@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef __GICV3_H__
 #define __GICV3_H__
+
+#include "utils_def.h"
 
 /*******************************************************************************
  * GICv3 miscellaneous definitions
@@ -66,8 +68,11 @@
 #define GICD_CTLR_RWP_BIT		(1 << GICD_CTLR_RWP_SHIFT)
 
 /* GICD_IROUTER shifts and masks */
+#define IROUTER_SHIFT		0
 #define IROUTER_IRM_SHIFT	31
 #define IROUTER_IRM_MASK	0x1
+
+#define NUM_OF_DIST_REGS	30
 
 /*******************************************************************************
  * GICv3 Re-distributor interface registers & constants
@@ -77,18 +82,29 @@
 #define GICR_CTLR		0x0
 #define GICR_TYPER		0x08
 #define GICR_WAKER		0x14
+#define GICR_PROPBASER		0x70
+#define GICR_PENDBASER		0x78
 #define GICR_IGROUPR0		(GICR_SGIBASE_OFFSET + 0x80)
 #define GICR_ISENABLER0		(GICR_SGIBASE_OFFSET + 0x100)
 #define GICR_ICENABLER0		(GICR_SGIBASE_OFFSET + 0x180)
+#define GICR_ISPENDR0		(GICR_SGIBASE_OFFSET + 0x200)
+#define GICR_ICPENDR0		(GICR_SGIBASE_OFFSET + 0x280)
+#define GICR_ISACTIVER0		(GICR_SGIBASE_OFFSET + 0x300)
+#define GICR_ICACTIVER0		(GICR_SGIBASE_OFFSET + 0x380)
 #define GICR_IPRIORITYR		(GICR_SGIBASE_OFFSET + 0x400)
 #define GICR_ICFGR0		(GICR_SGIBASE_OFFSET + 0xc00)
 #define GICR_ICFGR1		(GICR_SGIBASE_OFFSET + 0xc04)
 #define GICR_IGRPMODR0		(GICR_SGIBASE_OFFSET + 0xd00)
+#define GICR_NSACR		(GICR_SGIBASE_OFFSET + 0xe00)
 
 /* GICR_CTLR bit definitions */
+#define GICR_CTLR_UWP_SHIFT	31
+#define GICR_CTLR_UWP_MASK	0x1
+#define GICR_CTLR_UWP_BIT	(1U << GICR_CTLR_UWP_SHIFT)
 #define GICR_CTLR_RWP_SHIFT	3
 #define GICR_CTLR_RWP_MASK	0x1
-#define GICR_CTLR_RWP_BIT	(1 << GICR_CTLR_RWP_SHIFT)
+#define GICR_CTLR_RWP_BIT	(1U << GICR_CTLR_RWP_SHIFT)
+#define GICR_CTLR_EN_LPIS_BIT	(1U << 0)
 
 /* GICR_WAKER bit definitions */
 #define WAKER_CA_SHIFT		2
@@ -110,6 +126,8 @@
 #define TYPER_LAST_MASK		0x1
 
 #define TYPER_LAST_BIT		(1 << TYPER_LAST_SHIFT)
+
+#define NUM_OF_REDIST_REGS	30
 
 /*******************************************************************************
  * GICv3 CPU interface registers & constants
@@ -149,8 +167,10 @@
 
 #ifndef __ASSEMBLY__
 
+#include <gic_common.h>
 #include <stdint.h>
 #include <types.h>
+#include <utils_def.h>
 
 #define gicv3_is_intr_id_special_identifier(id)	\
 	(((id) >= PENDING_G1S_INTID) && ((id) <= GIC_SPURIOUS_INTERRUPT))
@@ -171,6 +191,16 @@
 #define gicv3_acknowledge_interrupt()		read_icc_iar0_el1() &\
 							IAR0_EL1_INTID_MASK
 #define gicv3_end_of_interrupt(id)		write_icc_eoir0_el1(id)
+
+/*
+ * This macro returns the total number of GICD registers corresponding to
+ * the name.
+ */
+#define GICD_NUM_REGS(reg_name)	\
+	DIV_ROUND_UP_2EVAL(TOTAL_SPI_INTR_NUM, (1 << reg_name ## _SHIFT))
+
+#define GICR_NUM_REGS(reg_name)	\
+	DIV_ROUND_UP_2EVAL(TOTAL_PCPU_INTR_NUM, (1 << reg_name ## _SHIFT))
 
 /*******************************************************************************
  * This structure describes some of the implementation defined attributes of the
@@ -229,6 +259,40 @@ typedef struct gicv3_driver_data {
 	mpidr_hash_fn mpidr_to_core_pos;
 } gicv3_driver_data_t;
 
+typedef struct gicv3_redist_ctx {
+	/* 64 bits registers */
+	uint64_t gicr_propbaser;
+	uint64_t gicr_pendbaser;
+
+	/* 32 bits registers */
+	uint32_t gicr_ctlr;
+	uint32_t gicr_igroupr0;
+	uint32_t gicr_isenabler0;
+	uint32_t gicr_ispendr0;
+	uint32_t gicr_isactiver0;
+	uint32_t gicr_ipriorityr[GICR_NUM_REGS(IPRIORITYR)];
+	uint32_t gicr_icfgr0;
+	uint32_t gicr_icfgr1;
+	uint32_t gicr_igrpmodr0;
+	uint32_t gicr_nsacr;
+} gicv3_redist_ctx_t;
+
+typedef struct gicv3_dist_ctx {
+	/* 64 bits registers */
+	uint64_t gicd_irouter[TOTAL_SPI_INTR_NUM];
+
+	/* 32 bits registers */
+	uint32_t gicd_ctlr;
+	uint32_t gicd_igroupr[GICD_NUM_REGS(IGROUPR)];
+	uint32_t gicd_isenabler[GICD_NUM_REGS(ISENABLER)];
+	uint32_t gicd_ispendr[GICD_NUM_REGS(ISPENDR)];
+	uint32_t gicd_isactiver[GICD_NUM_REGS(ISACTIVER)];
+	uint32_t gicd_ipriorityr[GICD_NUM_REGS(IPRIORITYR)];
+	uint32_t gicd_icfgr[GICD_NUM_REGS(ICFGR)];
+	uint32_t gicd_igrpmodr[GICD_NUM_REGS(IGRPMODR)];
+	uint32_t gicd_nsacr[GICD_NUM_REGS(NSACR)];
+} gicv3_dist_ctx_t;
+
 /*******************************************************************************
  * GICv3 EL3 driver API
  ******************************************************************************/
@@ -243,7 +307,18 @@ unsigned int gicv3_get_pending_interrupt_type(void);
 unsigned int gicv3_get_pending_interrupt_id(void);
 unsigned int gicv3_get_interrupt_type(unsigned int id,
 					  unsigned int proc_num);
-
+void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx);
+void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx);
+/*
+ * gicv3_distif_post_restore and gicv3_distif_pre_save must be implemented if
+ * gicv3_distif_save and gicv3_rdistif_init_restore are used. If no
+ * implementation-defined sequence is needed at these steps, an empty function
+ * can be provided.
+ */
+void gicv3_distif_post_restore(unsigned int proc_num);
+void gicv3_distif_pre_save(unsigned int proc_num);
+void gicv3_rdistif_init_restore(unsigned int proc_num, const gicv3_redist_ctx_t * const rdist_ctx);
+void gicv3_rdistif_save(unsigned int proc_num, gicv3_redist_ctx_t * const rdist_ctx);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */
