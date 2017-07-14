@@ -14,6 +14,9 @@ Code Locations
 -  ARM Trusted Firmware:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
 
+-  OP-TEE
+   `link <https://github.com/OP-TEE/optee_os>`__
+
 -  edk2:
    `link <https://github.com/96boards-hikey/edk2/tree/testing/hikey960_v2.5>`__
 
@@ -24,7 +27,7 @@ Code Locations
    `link <https://github.com/96boards-hikey/l-loader/tree/testing/hikey960_v1.2>`__
 
 -  uefi-tools:
-   `link <https://github.com/96boards-hikey/uefi-tools/tree/testing/hikey960_v1>`__
+   `link <https://git.linaro.org/uefi/uefi-tools.git>`__
 
 -  atf-fastboot:
    `link <https://github.com/96boards-hikey/atf-fastboot/tree/master>`__
@@ -70,13 +73,11 @@ Build Procedure
        FASTBOOT_BUILD_OPTION=$(echo ${BUILD_OPTION} | tr '[A-Z]' '[a-z]')
        cd ${EDK2_DIR}
        # Build UEFI & ARM Trust Firmware
-       ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware hikey
+       ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey
        # Generate l-loader.bin
        cd ${BUILD_PATH}/l-loader
        ln -sf ${EDK2_OUTPUT_DIR}/FV/bl1.bin
-       ln -sf ${EDK2_OUTPUT_DIR}/FV/fip.bin
        ln -sf ${BUILD_PATH}/atf-fastboot/build/hikey/${FASTBOOT_BUILD_OPTION}/bl1.bin fastboot.bin
-       python gen_loader.py -o l-loader.bin --img_bl1=bl1.bin --img_ns_bl1u=BL33_AP_UEFI.fd
        arm-linux-gnueabihf-gcc -c -o start.o start.S
        arm-linux-gnueabihf-ld -Bstatic -Tl-loader.lds -Ttext 0xf9800800 start.o -o loader
        arm-linux-gnueabihf-objcopy -O binary loader temp
@@ -86,7 +87,7 @@ Build Procedure
 
    .. code:: shell
 
-       $PTABLE=aosp-4g SECTOR_SIZE=512 bash -x generate_ptable.sh
+       PTABLE=aosp-4g SECTOR_SIZE=512 bash -x generate_ptable.sh
 
 Setup Console
 -------------
@@ -109,6 +110,13 @@ Setup Console
    .. code:: shell
 
        2004:telnet:0:/dev/ttyUSB0:115200 8DATABITS NONE 1STOPBIT banner
+
+-  Start ser2net
+
+   .. code:: shell
+
+       $sudo killall ser2net
+       $sudo ser2net -u
 
 -  Open the console.
 

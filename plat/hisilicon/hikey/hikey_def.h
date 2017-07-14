@@ -12,13 +12,32 @@
 
 /* Always assume DDR is 1GB size. */
 #define DDR_BASE			0x0
-#define DDR_SIZE			0x80000000
+#define DDR_SIZE			0x40000000
 
 #define DEVICE_BASE			0xF4000000
 #define DEVICE_SIZE			0x05800000
 
 #define XG2RAM0_BASE			0xF9800000
 #define XG2RAM0_SIZE			0x00400000
+
+/* Memory location options for TSP */
+#define HIKEY_SRAM_ID		0
+#define HIKEY_DRAM_ID		1
+
+/*
+ * DDR for OP-TEE (32MB from 0x3E00000-0x3FFFFFFF) is divided in several
+ * regions
+ *   - Secure DDR (default is the top 16MB) used by OP-TEE
+ *   - Non-secure DDR used by OP-TEE (shared memory and padding) (4MB)
+ *   - Secure DDR (4MB aligned on 4MB) for OP-TEE's "Secure Data Path" feature
+ *   - Non-secure DDR (8MB) reserved for OP-TEE's future use
+ */
+#define DDR_SEC_SIZE			0x01000000
+#define DDR_SEC_BASE			(DDR_BASE + DDR_SIZE - DDR_SEC_SIZE)
+
+#define DDR_SDP_SIZE			0x00400000
+#define DDR_SDP_BASE			(DDR_SEC_BASE - 0x400000 /* align */ - \
+					DDR_SDP_SIZE)
 
 #define SRAM_BASE			0xFFF80000
 #define SRAM_SIZE			0x00012000
