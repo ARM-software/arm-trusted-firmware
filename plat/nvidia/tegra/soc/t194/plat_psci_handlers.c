@@ -216,11 +216,20 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 		/* Enable cluster powerdn from last CPU in the cluster */
 		if (cluster_powerdn) {
 
-			/* Enable CC7 state and turn off wake mask */
+			/* Enable CC6 */
+			/* todo */
+
+			/* If cluster group needs to be railgated, request CG7 */
+			/* todo */
+
+			/* Turn off wake mask */
+			cstate_info.update_wake_mask = 1U;
+			mce_update_cstate_info(&cstate_info);
 
 		} else {
-
 			/* Turn off wake_mask */
+			cstate_info.update_wake_mask = 1U;
+			mce_update_cstate_info(&cstate_info);
 		}
 	}
 
@@ -347,12 +356,16 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	int impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
+	int32_t ret = 0;
 
 	/* Disable Denver's DCO operations */
 	if (impl == DENVER_IMPL)
 		denver_disable_dco();
 
 	/* Turn off CPU */
+	ret = mce_command_handler(MCE_CMD_ENTER_CSTATE,
+			TEGRA_NVG_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0);
+	assert(ret == 0);
 
 	return PSCI_E_SUCCESS;
 }
