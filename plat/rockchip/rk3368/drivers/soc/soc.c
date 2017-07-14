@@ -7,8 +7,8 @@
 #include <arch_helpers.h>
 #include <debug.h>
 #include <mmio.h>
-#include <platform_def.h>
 #include <plat_private.h>
+#include <platform_def.h>
 #include <rk3368_def.h>
 #include <soc.h>
 

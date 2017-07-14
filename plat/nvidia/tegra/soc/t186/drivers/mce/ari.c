@@ -10,8 +10,8 @@
 #include <debug.h>
 #include <delay_timer.h>
 #include <denver.h>
-#include <mmio.h>
 #include <mce_private.h>
+#include <mmio.h>
 #include <platform.h>
 #include <sys/errno.h>
 #include <t18x_ari.h>

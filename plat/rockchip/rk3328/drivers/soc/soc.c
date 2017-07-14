@@ -6,12 +6,12 @@
 
 #include <arch_helpers.h>
 #include <console.h>
+#include <ddr_parameter.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <mmio.h>
-#include <platform_def.h>
 #include <plat_private.h>
-#include <ddr_parameter.h>
+#include <platform_def.h>
 #include <rk3328_def.h>
 #include <soc.h>
 

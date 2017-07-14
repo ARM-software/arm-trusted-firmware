@@ -12,8 +12,8 @@
 #include <debug.h>
 #include <delay_timer.h>
 #include <mmio.h>
-#include <platform_def.h>
 #include <plat_private.h>
+#include <platform_def.h>
 #include <soc.h>
 #include <string.h>
 

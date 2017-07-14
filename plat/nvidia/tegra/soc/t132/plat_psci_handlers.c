@@ -7,9 +7,9 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <denver.h>
 #include <debug.h>
 #include <delay_timer.h>
+#include <denver.h>
 #include <flowctrl.h>
 #include <mmio.h>
 #include <platform_def.h>

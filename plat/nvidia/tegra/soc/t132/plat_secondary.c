@@ -10,8 +10,8 @@
 #include <denver.h>
 #include <mmio.h>
 #include <platform.h>
-#include <psci.h>
 #include <pmc.h>
+#include <psci.h>
 #include <tegra_def.h>
 
 #define SB_CSR				0x0

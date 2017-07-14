@@ -6,11 +6,11 @@
 
 #include <cdn_dp.h>
 #include <debug.h>
+#include <dfs.h>
 #include <mmio.h>
 #include <plat_sip_calls.h>
 #include <rockchip_sip_svc.h>
 #include <runtime_svc.h>
-#include <dfs.h>
 
 #define RK_SIP_DDR_CFG		0x82000008
 #define DRAM_INIT		0x00

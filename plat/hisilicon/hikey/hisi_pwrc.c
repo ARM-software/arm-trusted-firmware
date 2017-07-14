@@ -6,11 +6,13 @@
 
 #include <debug.h>
 #include <mmio.h>
+
+#include <hi6220_regs_acpu.h>
+#include <hi6220_regs_ao.h>
 #include <hisi_ipc.h>
 #include <hisi_pwrc.h>
 #include <hisi_sram_map.h>
-#include <hi6220_regs_acpu.h>
-#include <hi6220_regs_ao.h>
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>

@@ -8,12 +8,12 @@
 #include <assert.h>
 #include <debug.h>
 #include <delay_timer.h>
+#include <flowctrl.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <psci.h>
 #include <pmc.h>
-#include <flowctrl.h>
+#include <psci.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
 

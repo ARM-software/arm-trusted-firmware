@@ -8,8 +8,8 @@
 #include <assert.h>
 #include <debug.h>
 #include <gicv2.h>
-#include <platform_def.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <psci.h>
 
 /*

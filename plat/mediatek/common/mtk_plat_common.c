@@ -12,8 +12,8 @@
 #include <mmio.h>
 #include <mtk_plat_common.h>
 #include <mtk_sip_svc.h>
-#include <platform.h>
 #include <plat_private.h>
+#include <platform.h>
 #include <xlat_tables.h>
 
 struct atf_arg_t gteearg;

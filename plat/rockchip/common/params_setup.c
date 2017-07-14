@@ -11,9 +11,9 @@
 #include <debug.h>
 #include <gpio.h>
 #include <mmio.h>
-#include <platform.h>
 #include <plat_params.h>
 #include <plat_private.h>
+#include <platform.h>
 #include <string.h>
 
 static struct gpio_info param_reset;

@@ -6,8 +6,8 @@
 #include <crypt.h>
 #include <debug.h>
 #include <mmio.h>
-#include <mtk_sip_svc.h>
 #include <mtcmos.h>
+#include <mtk_sip_svc.h>
 #include <plat_sip_calls.h>
 #include <runtime_svc.h>
 

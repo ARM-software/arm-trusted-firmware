@@ -13,10 +13,10 @@
 #include <delay_timer.h>
 #include <dw_ufs.h>
 #include <errno.h>
+#include <generic_delay_timer.h>
 #include <gicv2.h>
 #include <hi3660.h>
 #include <mmio.h>
-#include <generic_delay_timer.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <string.h>

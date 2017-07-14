@@ -5,16 +5,16 @@
  */
 
 #include <arch_helpers.h>
-#include <assert.h>
 #include <arm_gic.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
 #include <gic_v2.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <stdint.h>
-#include <tegra_private.h>
 #include <tegra_def.h>
+#include <tegra_private.h>
 
 /* Value used to initialize Non-Secure IRQ priorities four at a time */
 #define GICD_IPRIORITYR_DEF_VAL \

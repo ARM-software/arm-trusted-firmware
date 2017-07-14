@@ -5,8 +5,8 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
 #include <bl31.h>
+#include <bl_common.h>
 #include <console.h>
 #include <debug.h>
 #include <errno.h>

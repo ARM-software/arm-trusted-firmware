@@ -3,11 +3,12 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <debug.h>
+
 #include <arch_helpers.h>
-#include <platform_def.h>
-#include <plat_private.h>
+#include <debug.h>
 #include <dram.h>
+#include <plat_private.h>
+#include <platform_def.h>
 #include <pmu_regs.h>
 #include <rk3399_def.h>
 #include <secure.h>

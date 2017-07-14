@@ -9,9 +9,9 @@
 #include <errno.h>
 #include <gpio.h>
 #include <mmio.h>
+#include <plat_private.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <plat_private.h>
 #include <soc.h>
 
 uint32_t gpio_port[] = {

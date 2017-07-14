@@ -14,8 +14,8 @@
 #include <errno.h>
 #include <mcucfg.h>
 #include <mmio.h>
-#include <platform_def.h>
 #include <plat_private.h>
+#include <platform_def.h>
 #include <power_tracer.h>
 #include <psci.h>
 #include <scu.h>
