@@ -9,8 +9,8 @@
 #include <arm_xlat_tables.h>
 #include <bl_common.h>
 #include <console.h>
-#include <platform_def.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include <sp805.h>
 #include <utils.h>
 #include "../../../bl1/bl1_private.h"

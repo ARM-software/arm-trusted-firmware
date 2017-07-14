@@ -6,8 +6,8 @@
 
 #include <bl_common.h>
 #include <errno.h>
-#include <platform.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <sp805.h>
 #include <tbbr_img_def.h>
 #include <v2m_def.h>

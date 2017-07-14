@@ -8,8 +8,8 @@
 #include <arm_def.h>
 #include <bl_common.h>
 #include <console.h>
-#include <platform_def.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include <string.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */

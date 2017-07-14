@@ -7,9 +7,9 @@
 #include <arm_def.h>
 #include <bl_common.h>
 #include <console.h>
+#include <plat_arm.h>
 #include <platform_def.h>
 #include <platform_tsp.h>
-#include <plat_arm.h>
 
 #define BL32_END (unsigned long)(&__BL32_END__)
 

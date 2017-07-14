@@ -8,8 +8,8 @@
 #include <common_def.h>
 #include <debug.h>
 #include <io_driver.h>
-#include <io_storage.h>
 #include <io_semihosting.h>
+#include <io_storage.h>
 #include <plat_arm.h>
 #include <semihosting.h>	/* For FOPEN_MODE_... */
 
