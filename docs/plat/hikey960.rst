@@ -14,6 +14,9 @@ Code Locations
 -  ARM Trusted Firmware:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
 
+-  OP-TEE:
+   `link <https://github.com/OP-TEE/optee_os>`__
+
 -  edk2:
    `link <https://github.com/96boards-hikey/edk2/tree/testing/hikey960_v2.5>`__
 
@@ -24,7 +27,7 @@ Code Locations
    `link <https://github.com/96boards-hikey/l-loader/tree/testing/hikey960_v1.2>`__
 
 -  uefi-tools:
-   `link <https://github.com/96boards-hikey/uefi-tools/tree/hikey960_v1>`__
+   `link <https://git.linaro.org/uefi/uefi-tools.git>`__
 
 Build Procedure
 ---------------
@@ -56,26 +59,26 @@ Build Procedure
    .. code:: shell
 
        BUILD_OPTION=DEBUG
-       export AARCH64_TOOLCHAIN=GCC48
+       export AARCH64_TOOLCHAIN=GCC5
        export UEFI_TOOLS_DIR=${BUILD_PATH}/uefi-tools
        export EDK2_DIR=${BUILD_PATH}/edk2
        EDK2_OUTPUT_DIR=${EDK2_DIR}/Build/HiKey960/${BUILD_OPTION}_${AARCH64_TOOLCHAIN}
        cd ${EDK2_DIR}
        # Build UEFI & ARM Trust Firmware
-       ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware hikey960
+       ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey960
        # Generate l-loader.bin
        cd ${BUILD_PATH}/l-loader
        ln -sf ${EDK2_OUTPUT_DIR}/FV/bl1.bin
        ln -sf ${EDK2_OUTPUT_DIR}/FV/fip.bin
        ln -sf ${EDK2_OUTPUT_DIR}/FV/BL33_AP_UEFI.fd
-       python gen_loader.py -o l-loader.bin --img_bl1=bl1.bin --img_ns_bl1u=BL33_AP_UEFI.fd
+       python gen_loader_hikey960.py -o l-loader.bin --img_bl1=bl1.bin --img_ns_bl1u=BL33_AP_UEFI.fd
 
 -  Generate partition table.
    *Make sure that you're using the sgdisk in the l-loader directory.*
 
    .. code:: shell
 
-       $PTABLE=aosp-32g SECTOR_SIZE=4096 SGDISK=./sgdisk bash -x generate_ptable.sh
+       PTABLE=aosp-32g SECTOR_SIZE=4096 SGDISK=./sgdisk bash -x generate_ptable.sh
 
 Setup Console
 -------------
@@ -98,6 +101,13 @@ Setup Console
    ::
 
        2004:telnet:0:/dev/ttyUSB0:115200 8DATABITS NONE 1STOPBIT banner
+
+-  Start ser2net
+
+   .. code:: shell
+
+       $sudo killall ser2net
+       $sudo ser2net -u
 
 -  Open the console.
 
@@ -126,7 +136,7 @@ Boot UEFI in recovery mode
 
        $vi config
        # The content of config file
-       ./sec_user_xloader.img 0x00020000
+       ./sec_usb_xloader.img 0x00020000
        ./sec_uce_boot.img 0x6A908000
        ./l-loader.bin 0x1AC00000
 
