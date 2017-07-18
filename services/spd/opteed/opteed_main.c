@@ -42,8 +42,6 @@ optee_vectors_t *optee_vectors;
 optee_context_t opteed_sp_context[OPTEED_CORE_COUNT];
 uint32_t opteed_rw;
 
-
-
 static int32_t opteed_init(void);
 
 /*******************************************************************************
@@ -96,6 +94,8 @@ int32_t opteed_setup(void)
 {
 	entry_point_info_t *optee_ep_info;
 	uint32_t linear_id;
+	uint64_t opteed_pageable_part;
+	uint64_t opteed_mem_limit;
 
 	linear_id = plat_my_core_pos();
 
@@ -122,13 +122,17 @@ int32_t opteed_setup(void)
 
 	/*
 	 * We could inspect the SP image and determine it's execution
-	 * state i.e whether AArch32 or AArch64. Assuming it's AArch32
-	 * for the time being.
+	 * state i.e whether AArch32 or AArch64.
 	 */
-	opteed_rw = OPTEE_AARCH64;
+	opteed_rw = optee_ep_info->args.arg0;
+	opteed_pageable_part = optee_ep_info->args.arg1;
+	opteed_mem_limit = optee_ep_info->args.arg2;
+
 	opteed_init_optee_ep_state(optee_ep_info,
 				opteed_rw,
 				optee_ep_info->pc,
+				opteed_pageable_part,
+				opteed_mem_limit,
 				&opteed_sp_context[linear_id]);
 
 	/*
