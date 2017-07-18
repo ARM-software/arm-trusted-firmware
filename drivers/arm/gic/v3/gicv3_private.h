@@ -314,4 +314,60 @@ static inline void gicr_write_pendbaser(uintptr_t base, unsigned int val)
 	mmio_write_32(base + GICR_PENDBASER, val);
 }
 
+/*******************************************************************************
+ * GIC ITS functions to read and write entire ITS registers.
+ ******************************************************************************/
+static inline uint32_t gits_read_ctlr(uintptr_t base)
+{
+	return mmio_read_32(base + GITS_CTLR);
+}
+
+static inline void gits_write_ctlr(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GITS_CTLR, val);
+}
+
+static inline uint64_t gits_read_cbaser(uintptr_t base)
+{
+	return mmio_read_64(base + GITS_CBASER);
+}
+
+static inline void gits_write_cbaser(uintptr_t base, uint64_t val)
+{
+	mmio_write_32(base + GITS_CBASER, val);
+}
+
+static inline uint64_t gits_read_cwriter(uintptr_t base)
+{
+	return mmio_read_64(base + GITS_CWRITER);
+}
+
+static inline void gits_write_cwriter(uintptr_t base, uint64_t val)
+{
+	mmio_write_32(base + GITS_CWRITER, val);
+}
+
+static inline uint64_t gits_read_baser(uintptr_t base, unsigned int its_table_id)
+{
+	assert(its_table_id < 8);
+	return mmio_read_64(base + GITS_BASER + (8 * its_table_id));
+}
+
+static inline void gits_write_baser(uintptr_t base, unsigned int its_table_id, uint64_t val)
+{
+	assert(its_table_id < 8);
+	mmio_write_64(base + GITS_BASER + (8 * its_table_id), val);
+}
+
+/*
+ * Wait for Quiescent bit when GIC ITS is disabled
+ */
+static inline void gits_wait_for_quiescent_bit(uintptr_t gits_base)
+{
+	assert(!(gits_read_ctlr(gits_base) & GITS_CTLR_ENABLED_BIT));
+	while ((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) == 0)
+		;
+}
+
+
 #endif /* __GICV3_PRIVATE_H__ */
