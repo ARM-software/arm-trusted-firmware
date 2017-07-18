@@ -47,13 +47,6 @@ void xlat_arch_tlbi_va(uintptr_t va);
  */
 void xlat_arch_tlbi_va_sync(void);
 
-/* Add a dynamic region to the specified context. */
-int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
-
-/* Remove a dynamic region from the specified context. */
-int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
-			size_t size);
-
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /* Print VA, PA, size and attributes of all regions in the mmap array. */
@@ -64,15 +57,6 @@ void print_mmap(mmap_region_t *const mmap);
  * memory.
  */
 void xlat_tables_print(xlat_ctx_t *ctx);
-
-/*
- * Initialize the translation tables by mapping all regions added to the
- * specified context.
- */
-void init_xlation_table(xlat_ctx_t *ctx);
-
-/* Add a static region to the specified context. */
-void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
 
 /*
  * Architecture-specific initialization code.

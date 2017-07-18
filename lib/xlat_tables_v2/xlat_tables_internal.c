@@ -7,7 +7,6 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
 #include <common_def.h>
 #include <debug.h>
 #include <errno.h>
@@ -20,6 +19,31 @@
 #include <xlat_tables_v2.h>
 
 #include "xlat_tables_private.h"
+
+/*
+ * Each platform can define the size of its physical and virtual address spaces.
+ * If the platform hasn't defined one or both of them, default to
+ * ADDR_SPACE_SIZE. The latter is deprecated, though.
+ */
+#if ERROR_DEPRECATED
+# ifdef ADDR_SPACE_SIZE
+#  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
+# endif
+#elif defined(ADDR_SPACE_SIZE)
+# ifndef PLAT_PHY_ADDR_SPACE_SIZE
+#  define PLAT_PHY_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
+# endif
+# ifndef PLAT_VIRT_ADDR_SPACE_SIZE
+#  define PLAT_VIRT_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
+# endif
+#endif
+
+/*
+ * Allocate and initialise the default translation context for the BL image
+ * currently executing.
+ */
+REGISTER_XLAT_CONTEXT(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
+		PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE);
 
 #if PLAT_XLAT_TABLES_DYNAMIC
 
@@ -664,7 +688,7 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, unsigned long long base_pa,
 	return 0;
 }
 
-void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 {
 	mmap_region_t *mm_cursor = ctx->mmap;
 	mmap_region_t *mm_last = mm_cursor + ctx->mmap_num;
@@ -739,6 +763,34 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 		ctx->max_pa = end_pa;
 	if (end_va > ctx->max_va)
 		ctx->max_va = end_va;
+}
+
+void mmap_add_region(unsigned long long base_pa,
+				uintptr_t base_va,
+				size_t size,
+				mmap_attr_t attr)
+{
+	mmap_region_t mm = {
+		.base_va = base_va,
+		.base_pa = base_pa,
+		.size = size,
+		.attr = attr,
+	};
+	mmap_add_region_ctx(&tf_xlat_ctx, &mm);
+}
+
+
+void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
+{
+	while (mm->size) {
+		mmap_add_region_ctx(ctx, mm);
+		mm++;
+	}
+}
+
+void mmap_add(const mmap_region_t *mm)
+{
+	mmap_add_ctx(&tf_xlat_ctx, mm);
 }
 
 #if PLAT_XLAT_TABLES_DYNAMIC
@@ -837,6 +889,18 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 	return 0;
 }
 
+int mmap_add_dynamic_region(unsigned long long base_pa,
+			    uintptr_t base_va, size_t size, mmap_attr_t attr)
+{
+	mmap_region_t mm = {
+		.base_va = base_va,
+		.base_pa = base_pa,
+		.size = size,
+		.attr = attr,
+	};
+	return mmap_add_dynamic_region_ctx(&tf_xlat_ctx, &mm);
+}
+
 /*
  * Removes the region with given base Virtual Address and size from the given
  * context.
@@ -910,6 +974,12 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 	}
 
 	return 0;
+}
+
+int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
+{
+	return mmap_remove_dynamic_region_ctx(&tf_xlat_ctx,
+					base_va, size);
 }
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
@@ -1069,9 +1139,17 @@ void xlat_tables_print(xlat_ctx_t *ctx)
 #endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
 }
 
-void init_xlation_table(xlat_ctx_t *ctx)
+void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 {
 	mmap_region_t *mm = ctx->mmap;
+
+	assert(!is_mmu_enabled());
+	assert(!ctx->initialized);
+
+	print_mmap(mm);
+
+	ctx->execute_never_mask =
+			xlat_arch_get_xn_desc(xlat_arch_current_el());
 
 	/* All tables must be zeroed before mapping any region. */
 
@@ -1101,4 +1179,37 @@ void init_xlation_table(xlat_ctx_t *ctx)
 	}
 
 	ctx->initialized = 1;
+
+	xlat_tables_print(ctx);
+
+	assert(ctx->max_va <= ctx->va_max_address);
+	assert(ctx->max_pa <= ctx->pa_max_address);
+
+	init_xlat_tables_arch(ctx->max_pa);
 }
+
+void init_xlat_tables(void)
+{
+	init_xlat_tables_ctx(&tf_xlat_ctx);
+}
+
+#ifdef AARCH32
+
+void enable_mmu_secure(unsigned int flags)
+{
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table);
+}
+
+#else
+
+void enable_mmu_el1(unsigned int flags)
+{
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table);
+}
+
+void enable_mmu_el3(unsigned int flags)
+{
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table);
+}
+
+#endif /* AARCH32 */
