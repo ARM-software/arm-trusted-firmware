@@ -165,6 +165,23 @@
 #define IAR1_EL1_INTID_SHIFT		0
 #define IAR1_EL1_INTID_MASK		0xffffff
 
+/*****************************************************************************
+ * GICv3 ITS registers and constants
+ *****************************************************************************/
+
+#define GITS_CTLR			0x0
+#define GITS_IIDR			0x4
+#define GITS_TYPER			0x8
+#define GITS_CBASER			0x80
+#define GITS_CWRITER			0x88
+#define GITS_CREADR			0x90
+#define GITS_BASER			0x100
+
+/* GITS_CTLR bit definitions */
+#define GITS_CTLR_ENABLED_BIT		1
+#define GITS_CTLR_QUIESCENT_SHIFT	31
+#define GITS_CTLR_QUIESCENT_BIT		(1U << GITS_CTLR_QUIESCENT_SHIFT)
+
 #ifndef __ASSEMBLY__
 
 #include <gic_common.h>
@@ -293,6 +310,16 @@ typedef struct gicv3_dist_ctx {
 	uint32_t gicd_nsacr[GICD_NUM_REGS(NSACR)];
 } gicv3_dist_ctx_t;
 
+typedef struct gicv3_its_ctx {
+	/* 64 bits registers */
+	uint64_t gits_cbaser;
+	uint64_t gits_cwriter;
+	uint64_t gits_baser[8];
+
+	/* 32 bits registers */
+	uint32_t gits_ctlr;
+} gicv3_its_ctx_t;
+
 /*******************************************************************************
  * GICv3 EL3 driver API
  ******************************************************************************/
@@ -319,6 +346,8 @@ void gicv3_distif_post_restore(unsigned int proc_num);
 void gicv3_distif_pre_save(unsigned int proc_num);
 void gicv3_rdistif_init_restore(unsigned int proc_num, const gicv3_redist_ctx_t * const rdist_ctx);
 void gicv3_rdistif_save(unsigned int proc_num, gicv3_redist_ctx_t * const rdist_ctx);
+void gicv3_its_save_disable(uintptr_t gits_base, gicv3_its_ctx_t * const its_ctx);
+void gicv3_its_restore(uintptr_t gits_base, const gicv3_its_ctx_t * const its_ctx);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */

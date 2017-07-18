@@ -429,6 +429,74 @@ unsigned int gicv3_get_interrupt_type(unsigned int id,
 }
 
 /*****************************************************************************
+ * Function to save and disable the GIC ITS register context. The power
+ * management of GIC ITS is implementation-defined and this function doesn't
+ * save any memory structures required to support ITS. As the sequence to save
+ * this state is implementation defined, it should be executed in platform
+ * specific code. Calling this function alone and then powering down the GIC and
+ * ITS without implementing the aforementioned platform specific code will
+ * corrupt the ITS state.
+ *
+ * This function must be invoked after the GIC CPU interface is disabled.
+ *****************************************************************************/
+void gicv3_its_save_disable(uintptr_t gits_base, gicv3_its_ctx_t * const its_ctx)
+{
+	int i;
+
+	assert(gicv3_driver_data);
+	assert(IS_IN_EL3());
+	assert(its_ctx);
+	assert(gits_base);
+
+	its_ctx->gits_ctlr = gits_read_ctlr(gits_base);
+
+	/* Disable the ITS */
+	gits_write_ctlr(gits_base, its_ctx->gits_ctlr &
+					(~GITS_CTLR_ENABLED_BIT));
+
+	/* Wait for quiescent state */
+	gits_wait_for_quiescent_bit(gits_base);
+
+	its_ctx->gits_cbaser = gits_read_cbaser(gits_base);
+	its_ctx->gits_cwriter = gits_read_cwriter(gits_base);
+
+	for (i = 0; i < ARRAY_SIZE(its_ctx->gits_baser); i++)
+		its_ctx->gits_baser[i] = gits_read_baser(gits_base, i);
+}
+
+/*****************************************************************************
+ * Function to restore the GIC ITS register context. The power
+ * management of GIC ITS is implementation defined and this function doesn't
+ * restore any memory structures required to support ITS. The assumption is
+ * that these structures are in memory and are retained during system suspend.
+ *
+ * This must be invoked before the GIC CPU interface is enabled.
+ *****************************************************************************/
+void gicv3_its_restore(uintptr_t gits_base, const gicv3_its_ctx_t * const its_ctx)
+{
+	int i;
+
+	assert(gicv3_driver_data);
+	assert(IS_IN_EL3());
+	assert(its_ctx);
+	assert(gits_base);
+
+	/* Assert that the GITS is disabled and quiescent */
+	assert((gits_read_ctlr(gits_base) & GITS_CTLR_ENABLED_BIT) == 0);
+	assert((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) == 1);
+
+	gits_write_cbaser(gits_base, its_ctx->gits_cbaser);
+	gits_write_cwriter(gits_base, its_ctx->gits_cwriter);
+
+	for (i = 0; i < ARRAY_SIZE(its_ctx->gits_baser); i++)
+		gits_write_baser(gits_base, i, its_ctx->gits_baser[i]);
+
+	/* Restore the ITS CTLR but leave the ITS disabled */
+	gits_write_ctlr(gits_base, its_ctx->gits_ctlr &
+			(~GITS_CTLR_ENABLED_BIT));
+}
+
+/*****************************************************************************
  * Function to save the GIC Redistributor register context. This function
  * must be invoked after CPU interface disable and prior to Distributor save.
  *****************************************************************************/
