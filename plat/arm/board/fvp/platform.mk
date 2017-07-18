@@ -72,8 +72,7 @@ $(error "Incorrect GIC driver chosen on FVP port")
 endif
 
 ifeq (${FVP_INTERCONNECT_DRIVER}, FVP_CCI)
-FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/cci/cci.c		\
-					plat/arm/common/arm_cci.c
+FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/cci/cci.c
 else ifeq (${FVP_INTERCONNECT_DRIVER}, FVP_CCN)
 FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/ccn/ccn.c		\
 					plat/arm/common/arm_ccn.c
@@ -136,7 +135,8 @@ endif
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
 
-BL31_SOURCES		+=	plat/arm/board/fvp/fvp_bl31_setup.c		\
+BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
+				plat/arm/board/fvp/fvp_bl31_setup.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\

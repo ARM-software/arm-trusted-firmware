@@ -56,6 +56,26 @@ unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
  ******************************************************************************/
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
+	unsigned int clus_id, cpu_id, thread_id;
+
+	/* Validate affinity fields */
+	if (arm_config.flags & ARM_CONFIG_FVP_SHIFTED_AFF) {
+		thread_id = MPIDR_AFFLVL0_VAL(mpidr);
+		cpu_id = MPIDR_AFFLVL1_VAL(mpidr);
+		clus_id = MPIDR_AFFLVL2_VAL(mpidr);
+	} else {
+		thread_id = 0;
+		cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
+		clus_id = MPIDR_AFFLVL1_VAL(mpidr);
+	}
+
+	if (clus_id >= FVP_CLUSTER_COUNT)
+		return -1;
+	if (cpu_id >= FVP_MAX_CPUS_PER_CLUSTER)
+		return -1;
+	if (thread_id >= FVP_MAX_PE_PER_CPU)
+		return -1;
+
 	if (fvp_pwrc_read_psysr(mpidr) == PSYSR_INVALID)
 		return -1;
 
