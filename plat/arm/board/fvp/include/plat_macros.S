@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,15 +7,13 @@
 #define __PLAT_MACROS_S__
 
 #include <arm_macros.S>
-#include <cci_macros.S>
 #include <v2m_def.h>
 #include "../fvp_def.h"
 
 	/* ---------------------------------------------
 	 * The below required platform porting macro
-	 * prints out relevant GIC and CCI registers
-	 * whenever an unhandled exception is taken in
-	 * BL31.
+	 * prints out relevant GIC registers whenever an
+	 * unhandled exception is taken in BL31.
 	 * Clobbers: x0 - x10, x16, x17, sp
 	 * ---------------------------------------------
 	 */
@@ -40,9 +38,6 @@ use_ve_mmap:
 	mov_imm	x16, VE_GICD_BASE
 print_gic_regs:
 	arm_print_gic_regs
-#if FVP_INTERCONNECT_DRIVER == FVP_CCI
-	print_cci_regs
-#endif
 	.endm
 
 #endif /* __PLAT_MACROS_S__ */
