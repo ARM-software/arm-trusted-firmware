@@ -26,9 +26,9 @@
  * descriptors.
  */
 #if PAGE_SIZE == (4 * 1024)
-# define MIN_LVL_BLOCK_DESC 1
+# define MIN_LVL_BLOCK_DESC	U(1)
 #elif PAGE_SIZE == (16 * 1024) || PAGE_SIZE == (64 * 1024)
-# define MIN_LVL_BLOCK_DESC 2
+# define MIN_LVL_BLOCK_DESC	U(2)
 #endif
 
 #define XLAT_TABLE_LEVEL_MIN	U(0)
@@ -45,7 +45,7 @@
  * information:
  * Page 1730: 'Input address size', 'For all translation stages'.
  */
-#define MIN_VIRT_ADDR_SPACE_SIZE	(1      << (64 - TCR_TxSZ_MAX))
+#define MIN_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (64 - TCR_TxSZ_MAX))
 #define MAX_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (64 - TCR_TxSZ_MIN))
 
 /*
@@ -72,6 +72,7 @@
 #define GET_XLAT_TABLE_LEVEL_BASE(virt_addr_space_size)				\
 	(((virt_addr_space_size) > (ULL(1) << L0_XLAT_ADDRESS_SHIFT))		\
 	? 0									\
-	: (((virt_addr_space_size) > (1 << L1_XLAT_ADDRESS_SHIFT)) ? 1 : 2))
+	 : (((virt_addr_space_size) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT))	\
+	 ? 1 : 2))
 
 #endif /* __XLAT_TABLES_AARCH64_H__ */

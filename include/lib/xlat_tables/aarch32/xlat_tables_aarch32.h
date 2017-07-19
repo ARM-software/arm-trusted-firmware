@@ -28,7 +28,7 @@
 #error "Invalid granule size. AArch32 supports 4KB pages only."
 #endif
 
-#define MIN_LVL_BLOCK_DESC 1
+#define MIN_LVL_BLOCK_DESC	U(1)
 
 #define XLAT_TABLE_LEVEL_MIN	U(1)
 
@@ -43,7 +43,7 @@
  * [1] See the ARMv8-A Architecture Reference Manual (DDI 0487A.j) for more
  * information, Section G4.6.5
  */
-#define MIN_VIRT_ADDR_SPACE_SIZE	(1      << (32 - TTBCR_TxSZ_MAX))
+#define MIN_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (32 - TTBCR_TxSZ_MAX))
 #define MAX_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (32 - TTBCR_TxSZ_MIN))
 
 /*
@@ -67,6 +67,6 @@
  * CHECK_VIRT_ADDR_SPACE_SIZE() macro first.
  */
 #define GET_XLAT_TABLE_LEVEL_BASE(virt_addr_space_size)			\
-	(((virt_addr_space_size) > (1 << L1_XLAT_ADDRESS_SHIFT)) ? 1 : 2)
+	(((virt_addr_space_size) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT)) ? 1 : 2)
 
 #endif /* __XLAT_TABLES_AARCH32_H__ */

@@ -131,10 +131,10 @@ void enable_mmu_arch(unsigned int flags,
 		uintptr_t virtual_addr_space_size = max_va + 1;
 		assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
 		/*
-		 * __builtin_ctzl(0) is undefined but here we are guaranteed
+		 * __builtin_ctzll(0) is undefined but here we are guaranteed
 		 * that virtual_addr_space_size is in the range [1, UINT32_MAX].
 		 */
-		ttbcr |= 32 - __builtin_ctzl(virtual_addr_space_size);
+		ttbcr |= 32 - __builtin_ctzll(virtual_addr_space_size);
 	}
 
 	/*

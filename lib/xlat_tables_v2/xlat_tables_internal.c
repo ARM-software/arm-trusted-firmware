@@ -357,7 +357,7 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
  */
 static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 		const int desc_type, const unsigned long long dest_pa,
-		const uintptr_t table_entry_base_va, const int level)
+		const uintptr_t table_entry_base_va, const unsigned int level)
 {
 	uintptr_t mm_end_va = mm->base_va + mm->size - 1;
 	uintptr_t table_entry_end_va =
