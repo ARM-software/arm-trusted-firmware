@@ -266,7 +266,7 @@ New features
    pre-empted SMC during PSCI power management requests.
 
 Issues resolved since last release
-==================================
+----------------------------------
 
 -  ARM TF can be built with the latest mbed TLS version (v2.4.2). The earlier
    version 2.3.0 cannot be used due to build warnings that the ARM TF build
@@ -280,7 +280,7 @@ Issues resolved since last release
    shutdown request using the PSCI SYSTEM_OFF API.
 
 Known Issues
-============
+------------
 
 -  Building TF with compiler optimisations disabled (-O0) fails.
 
