@@ -16,10 +16,6 @@ AARCH32_SP			:= none
 # The Target build architecture. Supported values are: aarch64, aarch32.
 ARCH				:= aarch64
 
-# Determine the version of ARM CCI product used in the platform. The platform
-# port can change this value if needed.
-ARM_CCI_PRODUCT_ID		:= 400
-
 # ARM Architecture major and minor versions: 8.0 by default.
 ARM_ARCH_MAJOR			:= 8
 ARM_ARCH_MINOR			:= 0

@@ -465,7 +465,6 @@ $(eval $(call assert_numeric,ARM_ARCH_MINOR))
 # platform to overwrite the default options
 ################################################################################
 
-$(eval $(call add_define,ARM_CCI_PRODUCT_ID))
 $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
 $(eval $(call add_define,ARM_GIC_ARCH))

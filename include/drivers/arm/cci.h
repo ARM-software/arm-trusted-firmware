@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,14 +98,6 @@
 
 #define SLAVE_IF_UNUSED			-1
 
-#if ARM_CCI_PRODUCT_ID == 400
-	#define CCI_SLAVE_INTERFACE_COUNT	5
-#elif ARM_CCI_PRODUCT_ID == 500
-	#define CCI_SLAVE_INTERFACE_COUNT	7
-#else
-	#error "Invalid CCI product or CCI not supported"
-#endif
-
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
@@ -114,7 +106,7 @@
 
 /*
  * The ARM CCI driver needs the following:
- * 1. Base address of the CCI-500/CCI-400
+ * 1. Base address of the CCI product
  * 2. An array  of map between AMBA 4 master ids and ACE/ACE lite slave
  *    interfaces.
  * 3. Size of the array.
@@ -122,9 +114,7 @@
  * SLAVE_IF_UNUSED should be used in the map to represent no AMBA 4 master exists
  * for that interface.
  */
-void cci_init(uintptr_t cci_base,
-	const int *map,
-	unsigned int num_cci_masters);
+void cci_init(uintptr_t base, const int *map, unsigned int num_cci_masters);
 
 void cci_enable_snoop_dvm_reqs(unsigned int master_id);
 void cci_disable_snoop_dvm_reqs(unsigned int master_id);

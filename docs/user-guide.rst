@@ -213,10 +213,6 @@ Common build options
    It can take either ``aarch64`` or ``aarch32`` as values. By default, it is
    defined to ``aarch64``.
 
--  ``ARM_CCI_PRODUCT_ID``: Choice of ARM CCI product used by the platform. This
-   is used to determine the number of valid slave interfaces available in the
-   ARM CCI driver. Default is 400 (that is, CCI-400).
-
 -  ``ARM_ARCH_MAJOR``: The major version of ARM Architecture to target when
    compiling ARM Trusted Firmware. Its value must be numeric, and defaults to
    8 . See also, *ARMv8 Architecture Extensions* in `Firmware Design`_.
