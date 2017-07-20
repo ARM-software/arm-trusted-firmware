@@ -60,11 +60,16 @@ A platform port must enable the Memory Management Unit (MMU) as well as the
 instruction and data caches for each BL stage. Setting up the translation
 tables is the responsibility of the platform port because memory maps differ
 across platforms. A memory translation library (see ``lib/xlat_tables/``) is
-provided to help in this setup. Note that although this library supports
-non-identity mappings, this is intended only for re-mapping peripheral physical
-addresses and allows platforms with high I/O addresses to reduce their virtual
-address space. All other addresses corresponding to code and data must currently
-use an identity mapping.
+provided to help in this setup.
+
+Note that although this library supports non-identity mappings, this is intended
+only for re-mapping peripheral physical addresses and allows platforms with high
+I/O addresses to reduce their virtual address space. All other addresses
+corresponding to code and data must currently use an identity mapping.
+
+Also, the only translation granule size supported in Trusted Firmware is 4KB, as
+various parts of the code assume that is the case. It is not possible to switch
+to 16 KB or 64 KB granule sizes at the moment.
 
 In ARM standard platforms, each BL stage configures the MMU in the
 platform-specific architecture setup function, ``blX_plat_arch_setup()``, and uses

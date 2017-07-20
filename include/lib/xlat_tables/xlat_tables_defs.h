@@ -48,7 +48,11 @@
 
 #define TABLE_ADDR_MASK		ULL(0x0000FFFFFFFFF000)
 
-#define PAGE_SIZE_SHIFT		FOUR_KB_SHIFT /* 4, 16 or 64 KB */
+/*
+ * The ARMv8-A architecture allows translation granule sizes of 4KB, 16KB or
+ * 64KB. However, TF only supports the 4KB case at the moment.
+ */
+#define PAGE_SIZE_SHIFT		FOUR_KB_SHIFT
 #define PAGE_SIZE		(U(1) << PAGE_SIZE_SHIFT)
 #define PAGE_SIZE_MASK		(PAGE_SIZE - 1)
 #define IS_PAGE_ALIGNED(addr)	(((addr) & PAGE_SIZE_MASK) == 0)
