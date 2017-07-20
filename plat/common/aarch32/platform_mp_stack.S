@@ -19,9 +19,9 @@
 	 * -----------------------------------------------------
 	 */
 func plat_get_my_stack
-	mov	r3, lr
+	push	{r4, lr}
 	get_my_mp_stack platform_normal_stacks, PLATFORM_STACK_SIZE
-	bx	r3
+	pop	{r4, pc}
 endfunc	plat_get_my_stack
 
 	/* -----------------------------------------------------
@@ -32,10 +32,10 @@ endfunc	plat_get_my_stack
 	 * -----------------------------------------------------
 	 */
 func plat_set_my_stack
-	mov	r3, lr
+	mov	r4, lr
 	get_my_mp_stack platform_normal_stacks, PLATFORM_STACK_SIZE
 	mov	sp, r0
-	bx	r3
+	bx	r4
 endfunc plat_set_my_stack
 
 	/* -----------------------------------------------------
