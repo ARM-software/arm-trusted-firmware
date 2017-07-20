@@ -6,8 +6,8 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
 #include <bl1.h>
+#include <bl_common.h>
 #include <context.h>
 
 /* -----------------------------------------------------------------------------

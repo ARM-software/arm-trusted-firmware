@@ -7,10 +7,11 @@
 #ifndef __FIPTOOL_H__
 #define __FIPTOOL_H__
 
+#include <firmware_image_package.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
-#include <firmware_image_package.h>
 #include <uuid.h>
 
 #define NELEM(x) (sizeof (x) / sizeof *(x))

@@ -5,9 +5,9 @@
  */
 
 #include <arch_helpers.h>
-#include <errno.h>
 #include <assert.h>
 #include <debug.h>
+#include <errno.h>
 #include <gicv2.h>
 #include <mmio.h>
 #include <plat_arm.h>

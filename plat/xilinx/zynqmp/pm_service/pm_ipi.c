@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch_helpers.h>
 #include <bakery_lock.h>
 #include <mmio.h>
 #include <platform.h>
-#include <arch_helpers.h>
-#include "pm_ipi.h"
 #include "../zynqmp_private.h"
+#include "pm_ipi.h"
 
 /* IPI message buffers */
 #define IPI_BUFFER_BASEADDR	0xFF990000U

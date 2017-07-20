@@ -9,11 +9,11 @@
 #include <bl_common.h>
 #include <cci.h>
 #include <debug.h>
-#include <string.h>
-#include <xlat_tables.h>
-#include <platform_def.h>
 #include <plat_private.h>
+#include <platform_def.h>
+#include <string.h>
 #include <utils.h>
+#include <xlat_tables.h>
 
 #ifdef PLAT_RK_CCI_BASE
 static const int cci_map[] = {

@@ -16,8 +16,8 @@
  ******************************************************************************/
 #include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
 #include <bl31.h>
+#include <bl_common.h>
 #include <context_mgmt.h>
 #include <debug.h>
 #include <errno.h>
@@ -26,8 +26,9 @@
 #include <stddef.h>
 #include <uuid.h>
 #include "opteed_private.h"
-#include "teesmc_opteed_macros.h"
 #include "teesmc_opteed.h"
+#include "teesmc_opteed_macros.h"
+
 
 /*******************************************************************************
  * Address of the entrypoint vector table in OPTEE. It is

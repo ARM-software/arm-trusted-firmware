@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
 #include <crypto_mod.h>
 #include <debug.h>
 #include <mbedtls_common.h>

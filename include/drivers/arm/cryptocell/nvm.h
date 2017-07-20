@@ -13,8 +13,8 @@ extern "C"
 #endif
 
 #include "cc_crypto_boot_defs.h"
-#include "cc_sec_defs.h"
 #include "cc_pal_types.h"
+#include "cc_sec_defs.h"
 
 /*------------------------------------
     DEFINES

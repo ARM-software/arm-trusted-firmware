@@ -3,9 +3,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <arch_helpers.h>
 #include <arm_gic.h>
 #include <assert.h>
-#include <arch_helpers.h>
 #include <bl_common.h>
 #include <cci.h>
 #include <common_def.h>
@@ -15,11 +15,11 @@
 #include <generic_delay_timer.h>
 #include <mcucfg.h>
 #include <mmio.h>
-#include <mtk_sip_svc.h>
-#include <mtk_plat_common.h>
 #include <mt_cpuxgpt.h>
-#include <platform.h>
+#include <mtk_plat_common.h>
+#include <mtk_sip_svc.h>
 #include <plat_private.h>
+#include <platform.h>
 #include <string.h>
 #include <xlat_tables.h>
 /*******************************************************************************

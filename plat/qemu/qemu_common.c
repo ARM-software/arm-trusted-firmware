@@ -7,8 +7,8 @@
 #include <arch_helpers.h>
 #include <bl_common.h>
 #include <platform_def.h>
-#include "qemu_private.h"
 #include <xlat_tables.h>
+#include "qemu_private.h"
 
 #define MAP_DEVICE0	MAP_REGION_FLAT(DEVICE0_BASE,			\
 					DEVICE0_SIZE,			\

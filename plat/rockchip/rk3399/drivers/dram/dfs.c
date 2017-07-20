@@ -6,17 +6,16 @@
 
 #include <arch_helpers.h>
 #include <debug.h>
-#include <mmio.h>
+#include <delay_timer.h>
 #include <m0_ctl.h>
+#include <mmio.h>
 #include <plat_private.h>
 #include "dfs.h"
 #include "dram.h"
 #include "dram_spec_timing.h"
-#include "string.h"
-#include "soc.h"
 #include "pmu.h"
-
-#include <delay_timer.h>
+#include "soc.h"
+#include "string.h"
 
 #define ENPER_CS_TRAINING_FREQ	(666)
 #define TDFI_LAT_THRESHOLD_FREQ	(928)

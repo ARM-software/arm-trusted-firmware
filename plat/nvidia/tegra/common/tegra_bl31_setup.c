@@ -10,8 +10,8 @@
 #include <bl31.h>
 #include <bl_common.h>
 #include <console.h>
-#include <cortex_a57.h>
 #include <cortex_a53.h>
+#include <cortex_a57.h>
 #include <debug.h>
 #include <denver.h>
 #include <errno.h>

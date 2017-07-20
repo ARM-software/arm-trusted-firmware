@@ -8,8 +8,8 @@
 #include <assert.h>
 #include <debug.h>
 #include <delay_timer.h>
-#include <mmio.h>
 #include <m0_ctl.h>
+#include <mmio.h>
 #include <plat_private.h>
 #include <rk3399_def.h>
 #include <secure.h>

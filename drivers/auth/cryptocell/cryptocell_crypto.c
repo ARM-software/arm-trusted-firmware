@@ -5,8 +5,8 @@
  */
 
 #include <arch_helpers.h>
-#include <crypto_mod.h>
 #include <crypto_driver.h>
+#include <crypto_mod.h>
 #include <debug.h>
 #include <mbedtls_common.h>
 #include <platform_def.h>
@@ -16,8 +16,8 @@
 #include <secureboot_gen_defs.h>
 #include <stddef.h>
 #include <string.h>
-#include <utils.h>
 #include <util.h>
+#include <utils.h>
 
 #include <mbedtls/oid.h>
 

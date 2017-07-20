@@ -6,12 +6,12 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <debug.h>
 #include <hi3660.h>
+#include <hisi_ipc.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <hisi_ipc.h>
-#include <debug.h>
 
 #include "../../hikey960_private.h"
 

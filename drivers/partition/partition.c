@@ -6,8 +6,8 @@
 
 #include <assert.h>
 #include <debug.h>
-#include <io_storage.h>
 #include <gpt.h>
+#include <io_storage.h>
 #include <mbr.h>
 #include <partition.h>
 #include <platform.h>

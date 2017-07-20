@@ -13,8 +13,8 @@
 #include <memctrl.h>
 #include <mmio.h>
 #include <runtime_svc.h>
-#include <tegra_private.h>
 #include <tegra_platform.h>
+#include <tegra_private.h>
 
 /*******************************************************************************
  * Common Tegra SiP SMCs

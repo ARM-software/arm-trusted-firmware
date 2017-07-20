@@ -9,9 +9,9 @@
 
 #ifndef __ASSEMBLY__
 #include <mmio.h>
+#include <psci.h>
 #include <stdint.h>
 #include <xlat_tables.h>
-#include <psci.h>
 
 #define __sramdata __attribute__((section(".sram.data")))
 #define __sramconst __attribute__((section(".sram.rodata")))

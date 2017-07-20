@@ -7,8 +7,8 @@
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
-#include <platform_tsp.h>
 #include <plat_arm.h>
+#include <platform_tsp.h>
 #include "../zynqmp_private.h"
 
 #define BL32_END (unsigned long)(&__BL32_END__)

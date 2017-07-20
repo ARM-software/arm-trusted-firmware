@@ -6,12 +6,12 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <cortex_a53.h>
 #include <debug.h>
 #include <delay_timer.h>
+#include <flowctrl.h>
 #include <mmio.h>
 #include <pmc.h>
-#include <cortex_a53.h>
-#include <flowctrl.h>
 #include <tegra_def.h>
 
 #define CLK_RST_DEV_L_SET		0x300

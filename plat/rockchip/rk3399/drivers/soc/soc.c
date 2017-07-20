@@ -10,10 +10,10 @@
 #include <delay_timer.h>
 #include <dfs.h>
 #include <dram.h>
-#include <mmio.h>
 #include <m0_ctl.h>
-#include <platform_def.h>
+#include <mmio.h>
 #include <plat_private.h>
+#include <platform_def.h>
 #include <rk3399_def.h>
 #include <secure.h>
 #include <soc.h>

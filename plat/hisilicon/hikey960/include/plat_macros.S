@@ -8,8 +8,8 @@
 #define __PLAT_MACROS_S__
 
 #include <cci.h>
-#include <hi3660.h>
 #include <gic_v2.h>
+#include <hi3660.h>
 #include <platform_def.h>
 
 .section .rodata.gic_reg_name, "aS"

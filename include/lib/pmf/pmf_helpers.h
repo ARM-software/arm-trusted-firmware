@@ -12,8 +12,8 @@
 #include <bl_common.h>
 #include <platform.h>
 #include <pmf.h>
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /*
  * Prototype for PMF service functions.

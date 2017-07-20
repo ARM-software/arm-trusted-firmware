@@ -10,8 +10,8 @@
 #include <debug.h>
 #include <errno.h>
 #include <mmio.h>
-#include <platform.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <psci.h>
 #include <v2m_def.h>
 #include "drivers/pwrc/fvp_pwrc.h"

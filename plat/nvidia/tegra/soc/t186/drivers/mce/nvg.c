@@ -8,8 +8,8 @@
 #include <arch_helpers.h>
 #include <debug.h>
 #include <denver.h>
-#include <mmio.h>
 #include <mce_private.h>
+#include <mmio.h>
 #include <sys/errno.h>
 #include <t18x_ari.h>
 

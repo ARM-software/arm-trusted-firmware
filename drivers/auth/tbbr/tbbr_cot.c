@@ -6,12 +6,14 @@
 
 #include <auth_mod.h>
 #include <platform_def.h>
+#include <stddef.h>
+
 #if USE_TBBR_DEFS
 #include <tbbr_oid.h>
 #else
 #include <platform_oid.h>
 #endif
-#include <stddef.h>
+
 
 /*
  * Maximum key and hash sizes (in DER format)

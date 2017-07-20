@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <hisi_sip_svc.h>
 #include <debug.h>
+#include <hisi_sip_svc.h>
 #include <pmf.h>
 #include <runtime_svc.h>
 #include <stdint.h>

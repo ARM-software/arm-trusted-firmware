@@ -3,13 +3,14 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <debug.h>
+#include <delay_timer.h>
 #include <mmio.h>
 #include <mt8173_def.h>
-#include <debug.h>
 #include <mtcmos.h>
 #include <spm.h>
 #include <spm_mcdi.h>
-#include <delay_timer.h>
 
 enum {
 	SRAM_ISOINT_B	= 1U << 6,

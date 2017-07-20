@@ -5,8 +5,8 @@
  */
 
 #include <arch.h>
-#include <platform_def.h>
 #include <plat_private.h>
+#include <platform_def.h>
 #include <psci.h>
 
 /*******************************************************************************

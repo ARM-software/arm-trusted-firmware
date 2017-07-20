@@ -9,9 +9,9 @@
 #include <debug.h>
 #include <libfdt.h>
 #include <platform_def.h>
-#include "qemu_private.h"
 #include <string.h>
 #include <utils.h>
+#include "qemu_private.h"
 
 /*
  * The next 2 constants identify the extents of the code & RO data region.

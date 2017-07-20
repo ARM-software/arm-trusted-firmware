@@ -5,10 +5,10 @@
  */
 
 #include <assert.h>
+#include <cmd_opt.h>
 #include <getopt.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <cmd_opt.h>
 #include "debug.h"
 
 /* Command line options */

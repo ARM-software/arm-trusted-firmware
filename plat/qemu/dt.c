@@ -7,8 +7,8 @@
 #include <debug.h>
 #include <libfdt.h>
 #include <psci.h>
-#include "qemu_private.h"
 #include <string.h>
+#include "qemu_private.h"
 
 static int append_psci_compatible(void *fdt, int offs, const char *str)
 {

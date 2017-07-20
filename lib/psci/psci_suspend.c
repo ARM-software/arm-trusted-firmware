@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
-#include <bl_common.h>
 #include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
+#include <bl_common.h>
 #include <context.h>
 #include <context_mgmt.h>
 #include <cpu_data.h>

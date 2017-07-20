@@ -6,18 +6,18 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <ddr_rk3368.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <errno.h>
 #include <mmio.h>
+#include <plat_private.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <plat_private.h>
+#include <pmu.h>
+#include <pmu_com.h>
 #include <rk3368_def.h>
 #include <soc.h>
-#include <pmu.h>
-#include <ddr_rk3368.h>
-#include <pmu_com.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 

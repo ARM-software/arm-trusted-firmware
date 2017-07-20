@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <string.h>
-#include <stdint.h>
 #include <dram.h>
+#include <stdint.h>
+#include <string.h>
 #include <utils.h>
 #include "dram_spec_timing.h"
 

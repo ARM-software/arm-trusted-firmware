@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <cortex_a55.h>
 #include <arch.h>
 #include <asm_macros.S>
 #include <bl_common.h>
+#include <cortex_a55.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 

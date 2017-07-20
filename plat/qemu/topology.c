@@ -6,8 +6,8 @@
 
 #include <arch.h>
 #include <platform_def.h>
-#include "qemu_private.h"
 #include <sys/types.h>
+#include "qemu_private.h"
 
 /* The power domain tree descriptor */
 static unsigned char power_domain_tree_desc[] = {

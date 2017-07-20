@@ -7,25 +7,25 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bakery_lock.h>
+#include <bl31.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <dfs.h>
 #include <errno.h>
 #include <gpio.h>
-#include <mmio.h>
 #include <m0_ctl.h>
-#include <platform.h>
-#include <platform_def.h>
+#include <mmio.h>
 #include <plat_params.h>
 #include <plat_private.h>
+#include <platform.h>
+#include <platform_def.h>
+#include <pmu.h>
+#include <pmu_com.h>
+#include <pwm.h>
 #include <rk3399_def.h>
 #include <secure.h>
 #include <soc.h>
 #include <string.h>
-#include <pmu.h>
-#include <pmu_com.h>
-#include <pwm.h>
-#include <bl31.h>
 #include <suspend.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);

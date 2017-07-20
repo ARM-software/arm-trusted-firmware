@@ -13,10 +13,10 @@
 #include <gic_common.h>
 #include <runtime_svc.h>
 #include <string.h>
+#include "../zynqmp_private.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
-#include "../zynqmp_private.h"
 
 #define PM_GET_CALLBACK_DATA	0xa01
 
