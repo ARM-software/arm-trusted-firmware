@@ -7,6 +7,8 @@
 #ifndef __ARCH_H__
 #define __ARCH_H__
 
+#include <utils_def.h>
+
 /*******************************************************************************
  * MIDR bit definitions
  ******************************************************************************/
@@ -458,5 +460,54 @@
 #define ICC_SGI1R_EL1_64	p15, 0, c12
 #define ICC_ASGI1R_EL1_64	p15, 1, c12
 #define ICC_SGI0R_EL1_64	p15, 2, c12
+
+/*******************************************************************************
+ * Definitions of MAIR encodings for device and normal memory
+ ******************************************************************************/
+/*
+ * MAIR encodings for device memory attributes.
+ */
+#define MAIR_DEV_nGnRnE		U(0x0)
+#define MAIR_DEV_nGnRE		U(0x4)
+#define MAIR_DEV_nGRE		U(0x8)
+#define MAIR_DEV_GRE		U(0xc)
+
+/*
+ * MAIR encodings for normal memory attributes.
+ *
+ * Cache Policy
+ *  WT:	 Write Through
+ *  WB:	 Write Back
+ *  NC:	 Non-Cacheable
+ *
+ * Transient Hint
+ *  NTR: Non-Transient
+ *  TR:	 Transient
+ *
+ * Allocation Policy
+ *  RA:	 Read Allocate
+ *  WA:	 Write Allocate
+ *  RWA: Read and Write Allocate
+ *  NA:	 No Allocation
+ */
+#define MAIR_NORM_WT_TR_WA	U(0x1)
+#define MAIR_NORM_WT_TR_RA	U(0x2)
+#define MAIR_NORM_WT_TR_RWA	U(0x3)
+#define MAIR_NORM_NC		U(0x4)
+#define MAIR_NORM_WB_TR_WA	U(0x5)
+#define MAIR_NORM_WB_TR_RA	U(0x6)
+#define MAIR_NORM_WB_TR_RWA	U(0x7)
+#define MAIR_NORM_WT_NTR_NA	U(0x8)
+#define MAIR_NORM_WT_NTR_WA	U(0x9)
+#define MAIR_NORM_WT_NTR_RA	U(0xa)
+#define MAIR_NORM_WT_NTR_RWA	U(0xb)
+#define MAIR_NORM_WB_NTR_NA	U(0xc)
+#define MAIR_NORM_WB_NTR_WA	U(0xd)
+#define MAIR_NORM_WB_NTR_RA	U(0xe)
+#define MAIR_NORM_WB_NTR_RWA	U(0xf)
+
+#define MAIR_NORM_OUTER_SHIFT	4
+
+#define MAKE_MAIR_NORMAL_MEMORY(inner, outer)	((inner) | ((outer) << MAIR_NORM_OUTER_SHIFT))
 
 #endif /* __ARCH_H__ */
