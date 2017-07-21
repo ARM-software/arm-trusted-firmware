@@ -82,6 +82,8 @@ uint64\_t tzdram\_base;
 int uart\_id;
 /* L2 ECC parity protection disable flag \*/
 int l2\_ecc\_parity\_prot\_dis;
+/* SHMEM base address for storing the boot logs \*/
+uint64\_t boot\_profiler\_shmem\_base;
 } plat\_params\_from\_bl2\_t;
 
 Power Management

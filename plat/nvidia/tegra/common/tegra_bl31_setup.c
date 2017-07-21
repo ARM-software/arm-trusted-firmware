@@ -26,6 +26,7 @@
 #include <plat/common/platform.h>
 
 #include <memctrl.h>
+#include <profiler.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
@@ -125,6 +126,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	image_info_t bl32_img_info = { {0} };
 	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 	uint32_t console_clock;
+	int32_t ret;
 
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -195,6 +197,32 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	}
 
 	/*
+	 * The previous bootloader passes the base address of the shared memory
+	 * location to store the boot profiler logs. Sanity check the
+	 * address and initilise the profiler library, if it looks ok.
+	 */
+	if (plat_params->boot_profiler_shmem_base != 0ULL) {
+
+		ret = bl31_check_ns_address(plat_params->boot_profiler_shmem_base,
+				PROFILER_SIZE_BYTES);
+		if (ret == (int32_t)0) {
+
+			/* store the membase for the profiler lib */
+			plat_bl31_params_from_bl2.boot_profiler_shmem_base =
+				plat_params->boot_profiler_shmem_base;
+
+			/* initialise the profiler library */
+			boot_profiler_init(plat_params->boot_profiler_shmem_base,
+					   TEGRA_TMRUS_BASE);
+		}
+	}
+
+	/*
+	 * Add timestamp for platform early setup entry.
+	 */
+	boot_profiler_add_record("[TF] early setup entry");
+
+	/*
 	 * Initialize delay timer
 	 */
 	tegra_delay_timer_init();
@@ -244,6 +272,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Early platform setup for Tegra SoCs */
 	plat_early_platform_setup();
 
+	/*
+	 * Add timestamp for platform early setup exit.
+	 */
+	boot_profiler_add_record("[TF] early setup exit");
+
 	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n",
 	     (((read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK)
 	      == DENVER_IMPL) ? "Denver" : "ARM", read_mpidr());
@@ -268,6 +301,11 @@ void plat_trusty_set_boot_args(aapcs64_params_t *args)
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+	/*
+	 * Add timestamp for platform setup entry.
+	 */
+	boot_profiler_add_record("[TF] plat setup entry");
+
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_gic_setup();
 
@@ -287,6 +325,11 @@ void bl31_platform_setup(void)
 	 */
 	tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
 
+	/*
+	 * Add timestamp for platform setup exit.
+	 */
+	boot_profiler_add_record("[TF] plat setup exit");
+
 	INFO("BL3-1: Tegra platform setup complete\n");
 }
 
@@ -305,6 +348,12 @@ void bl31_plat_runtime_setup(void)
 	 * disabled before we jump to the non-secure world.
 	 */
 	tegra_memctrl_disable_ahb_redirection();
+
+	/*
+	 * Add final timestamp before exiting BL31.
+	 */
+	boot_profiler_add_record("[TF] bl31 exit");
+	boot_profiler_deinit();
 }
 
 /*******************************************************************************
@@ -324,6 +373,11 @@ void bl31_plat_arch_setup(void)
 	uint32_t coh_start, coh_size;
 #endif
 	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+
+	/*
+	 * Add timestamp for arch setup entry.
+	 */
+	boot_profiler_add_record("[TF] arch setup entry");
 
 	/* add memory regions */
 	mmap_add_region(rw_start, rw_start,
@@ -372,6 +426,11 @@ void bl31_plat_arch_setup(void)
 
 	/* enable the MMU */
 	enable_mmu_el3(0);
+
+	/*
+	 * Add timestamp for arch setup exit.
+	 */
+	boot_profiler_add_record("[TF] arch setup exit");
 
 	INFO("BL3-1: Tegra: MMU enabled\n");
 }
