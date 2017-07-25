@@ -201,12 +201,12 @@ void init_xlat_tables_arch(unsigned long long max_pa)
 			/* Inner & outer non-cacheable non-shareable. */\
 			tcr = TCR_SH_NON_SHAREABLE |			\
 				TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC |	\
-				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+				(64 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));\
 		} else {						\
 			/* Inner & outer WBWA & shareable. */		\
 			tcr = TCR_SH_INNER_SHAREABLE |			\
 				TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA |	\
-				(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE));\
+				(64 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));\
 		}							\
 		tcr |= _tcr_extra;					\
 		write_tcr_el##_el(tcr);					\

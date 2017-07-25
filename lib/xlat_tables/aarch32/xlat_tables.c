@@ -127,13 +127,13 @@ void enable_mmu_secure(unsigned int flags)
 		ttbcr = TTBCR_EAE_BIT |
 			TTBCR_SH0_NON_SHAREABLE | TTBCR_RGN0_OUTER_NC |
 			TTBCR_RGN0_INNER_NC |
-			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+			(32 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));
 	} else {
 		/* Inner & outer WBWA & shareable. */
 		ttbcr = TTBCR_EAE_BIT |
 			TTBCR_SH0_INNER_SHAREABLE | TTBCR_RGN0_OUTER_WBA |
 			TTBCR_RGN0_INNER_WBA |
-			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+			(32 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));
 	}
 	ttbcr |= TTBCR_EPD1_BIT;
 	write_ttbcr(ttbcr);
