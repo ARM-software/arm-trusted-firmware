@@ -65,3 +65,13 @@ BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${SOC_DIR}/plat_smmu.c			\
 				${SOC_DIR}/plat_trampoline.S
 
+# Enable workarounds for selected Cortex-A57 erratas.
+A57_DISABLE_NON_TEMPORAL_HINT	:=	1
+ERRATA_A57_806969		:=	1
+ERRATA_A57_813419		:=	1
+ERRATA_A57_813420		:=	1
+ERRATA_A57_826974		:=	1
+ERRATA_A57_826977		:=	1
+ERRATA_A57_828024		:=	1
+ERRATA_A57_829520		:=	1
+ERRATA_A57_833471		:=	1
