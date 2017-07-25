@@ -705,5 +705,6 @@ typedef struct smmu_regs {
 void tegra_smmu_init(void);
 void tegra_smmu_save_context(uint64_t smmu_ctx_addr);
 smmu_regs_t *plat_get_smmu_ctx(void);
+uint32_t plat_get_num_smmu_devices(void);
 
 #endif /* SMMU_H */

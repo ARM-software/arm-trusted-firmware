@@ -9,6 +9,8 @@
 #include <smmu.h>
 #include <tegra_def.h>
 
+#define MAX_NUM_SMMU_DEVICES	U(1)
+
 /*******************************************************************************
  * Array to hold SMMU context for Tegra186
  ******************************************************************************/
@@ -308,4 +310,12 @@ smmu_regs_t *plat_get_smmu_ctx(void)
 	tegra186_smmu_context[0].val = (uint32_t)(ARRAY_SIZE(tegra186_smmu_context)) - 1U;
 
 	return tegra186_smmu_context;
+}
+
+/*******************************************************************************
+ * Handler to return the support SMMU devices number
+ ******************************************************************************/
+uint32_t plat_get_num_smmu_devices(void)
+{
+	return MAX_NUM_SMMU_DEVICES;
 }

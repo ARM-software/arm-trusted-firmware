@@ -137,8 +137,10 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 void tegra_smmu_init(void)
 {
 	uint32_t val, cb_idx, smmu_id, ctx_base;
+	uint32_t smmu_counter = plat_get_num_smmu_devices();
 
-	for (smmu_id = 0; smmu_id < NUM_SMMU_DEVICES; smmu_id++) {
+	for (smmu_id = 0UL; smmu_id < smmu_counter; smmu_id++) {
+
 		/* Program the SMMU pagesize and reset CACHE_LOCK bit */
 		val = tegra_smmu_read_32(smmu_id, SMMU_GSR0_SECURE_ACR);
 		val |= SMMU_GSR0_PGSIZE_64K;
