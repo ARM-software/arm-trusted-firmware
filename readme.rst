@@ -27,13 +27,15 @@ described in the `Contributing Guidelines`_.
 This project contains code from other projects as listed below. The original
 license text is included in those source files.
 
--  The stdlib source code is derived from FreeBSD code.
+-  The stdlib source code is derived from FreeBSD code, which uses various
+   BSD licenses, including BSD-3-Clause and BSD-2-Clause.
 
 -  The libfdt source code is dual licensed. It is used by this project under
    the terms of the BSD-2-Clause license.
 
 -  The LLVM compiler-rt source code is dual licensed. It is used by this
-   project under the terms of the University of Illinois "BSD-Like" license.
+   project under the terms of the NCSA license (also known as the University of
+   Illinois/NCSA Open Source License).
 
 This Release
 ------------
