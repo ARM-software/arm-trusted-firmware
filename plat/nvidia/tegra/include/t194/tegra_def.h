@@ -42,10 +42,13 @@
 /*******************************************************************************
  * Tegra Miscellanous register constants
  ******************************************************************************/
-#define TEGRA_MISC_BASE			0x00100000
-#define  HARDWARE_REVISION_OFFSET	0x4
+#define TEGRA_MISC_BASE				0x00100000U
 
-#define  MISCREG_PFCFG			0x200C
+#define HARDWARE_REVISION_OFFSET	0x4U
+#define MISCREG_EMU_REVID			0x3160U
+#define  BOARD_MASK_BITS			0xFFU
+#define  BOARD_SHIFT_BITS			24U
+#define MISCREG_PFCFG				0x200CU
 
 /*******************************************************************************
  * Tegra TSA Controller constants
