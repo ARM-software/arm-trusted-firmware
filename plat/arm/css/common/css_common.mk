@@ -56,8 +56,8 @@ ifeq (${CSS_LOAD_SCP_IMAGES},1)
     $(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp-fwu-cfg))
   endif
 
-  BL2U_SOURCES		+=	plat/arm/css/common/css_scp_bootloader.c
-  BL2_SOURCES		+=	plat/arm/css/common/css_scp_bootloader.c
+  BL2U_SOURCES		+=	plat/arm/css/drivers/scp/css_bom_bootloader.c
+  BL2_SOURCES		+=	plat/arm/css/drivers/scp/css_bom_bootloader.c
 endif
 
 # Enable option to detect whether the SCP ROM firmware in use predates version

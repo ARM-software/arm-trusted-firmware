@@ -128,16 +128,22 @@
  * an SCP_BL2/SCP_BL2U image.
  */
 #if CSS_LOAD_SCP_IMAGES
+
+#if ARM_BL31_IN_DRAM
+#error "SCP_BL2 is not expected to be loaded by BL2 for ARM_BL31_IN_DRAM config"
+#endif
+
 /*
  * Load address of SCP_BL2 in CSS platform ports
- * SCP_BL2 is loaded to the same place as BL31.  Once SCP_BL2 is transferred to the
- * SCP, it is discarded and BL31 is loaded over the top.
+ * SCP_BL2 is loaded to the same place as BL31 but it shouldn't overwrite BL1
+ * rw data.  Once SCP_BL2 is transferred to the SCP, it is discarded and BL31
+ * is loaded over the top.
  */
-#define SCP_BL2_BASE			BL31_BASE
-#define SCP_BL2_LIMIT			(SCP_BL2_BASE + PLAT_CSS_MAX_SCP_BL2_SIZE)
+#define SCP_BL2_BASE			(BL1_RW_BASE - PLAT_CSS_MAX_SCP_BL2_SIZE)
+#define SCP_BL2_LIMIT			BL1_RW_BASE
 
-#define SCP_BL2U_BASE			BL31_BASE
-#define SCP_BL2U_LIMIT			(SCP_BL2U_BASE + PLAT_CSS_MAX_SCP_BL2U_SIZE)
+#define SCP_BL2U_BASE			(BL1_RW_BASE - PLAT_CSS_MAX_SCP_BL2U_SIZE)
+#define SCP_BL2U_LIMIT			BL1_RW_BASE
 #endif /* CSS_LOAD_SCP_IMAGES */
 
 /* Load address of Non-Secure Image for CSS platform ports */

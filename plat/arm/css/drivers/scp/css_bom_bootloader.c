@@ -1,18 +1,17 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <cassert.h>
 #include <css_def.h>
 #include <debug.h>
 #include <platform.h>
 #include <stdint.h>
-#include "../drivers/scpi/css_mhu.h"
-#include "../drivers/scpi/css_scpi.h"
-#include "css_scp_bootloader.h"
+#include "../scpi/css_mhu.h"
 
 /* ID of the MHU slot used for the BOM protocol */
 #define BOM_MHU_SLOT_ID		0
@@ -45,6 +44,18 @@ typedef struct {
 	uint32_t offset;
 	uint32_t block_size;
 } cmd_data_payload_t;
+
+/*
+ * All CSS platforms load SCP_BL2/SCP_BL2U just below BL rw-data and above
+ * BL2/BL2U (this is where BL31 usually resides except when ARM_BL31_IN_DRAM is
+ * set. Ensure that SCP_BL2/SCP_BL2U do not overflow into BL1 rw-data nor
+ * BL2/BL2U.
+ */
+CASSERT(SCP_BL2_LIMIT <= BL1_RW_BASE, assert_scp_bl2_overwrite_bl1);
+CASSERT(SCP_BL2U_LIMIT <= BL1_RW_BASE, assert_scp_bl2u_overwrite_bl1);
+
+CASSERT(SCP_BL2_BASE >= BL2_LIMIT, assert_scp_bl2_overwrite_bl2);
+CASSERT(SCP_BL2U_BASE >= BL2U_LIMIT, assert_scp_bl2u_overwrite_bl2u);
 
 static void scp_boot_message_start(void)
 {
@@ -88,7 +99,7 @@ static void scp_boot_message_end(void)
 	mhu_secure_message_end(BOM_MHU_SLOT_ID);
 }
 
-int scp_bootloader_transfer(void *image, unsigned int image_size)
+int css_scp_boot_image_xfer(void *image, unsigned int image_size)
 {
 	uint32_t response;
 	uint32_t checksum;
@@ -170,8 +181,5 @@ int scp_bootloader_transfer(void *image, unsigned int image_size)
 		return -1;
 	}
 
-	VERBOSE("Waiting for SCP to signal it is ready to go on\n");
-
-	/* Wait for SCP to signal it's ready */
-	return scpi_wait_ready();
+	return 0;
 }
