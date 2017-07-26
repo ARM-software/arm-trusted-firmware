@@ -17,14 +17,14 @@
 #if PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_VERBOSE
 void __assert(const char *file, unsigned int line, const char *assertion)
 {
-	tf_printf("ASSERT: %s <%d> : %s\n", file, line, assertion);
+	tf_printf("ASSERT: %s:%d:%s\n", file, line, assertion);
 	console_flush();
 	plat_panic_handler();
 }
 #elif PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_INFO
 void __assert(const char *file, unsigned int line)
 {
-	tf_printf("ASSERT: %s <%d>\n", file, line);
+	tf_printf("ASSERT: %s:%d\n", file, line);
 	console_flush();
 	plat_panic_handler();
 }
