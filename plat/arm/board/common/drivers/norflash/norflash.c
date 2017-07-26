@@ -68,6 +68,8 @@ int nor_word_program(uintptr_t base_addr, unsigned long data)
 	uint32_t status;
 	int ret;
 
+	nor_send_cmd(base_addr, NOR_CMD_CLEAR_STATUS_REG);
+
 	/* Set the device in write word mode */
 	nor_send_cmd(base_addr, NOR_CMD_WORD_PROGRAM);
 	mmio_write_32(base_addr, data);
@@ -98,8 +100,10 @@ int nor_lock(uintptr_t base_addr)
 {
 	int ret;
 
+	nor_send_cmd(base_addr, NOR_CMD_CLEAR_STATUS_REG);
+
 	nor_send_cmd(base_addr, NOR_CMD_LOCK_UNLOCK);
-	mmio_write_32(base_addr, NOR_2X16(NOR_LOCK_BLOCK));
+	nor_send_cmd(base_addr, NOR_LOCK_BLOCK);
 
 	ret = nor_poll_dws(base_addr, DWS_WORD_LOCK_RETRIES);
 	nor_send_cmd(base_addr, NOR_CMD_READ_ARRAY);
@@ -117,8 +121,10 @@ int nor_unlock(uintptr_t base_addr)
 {
 	int ret;
 
+	nor_send_cmd(base_addr, NOR_CMD_CLEAR_STATUS_REG);
+
 	nor_send_cmd(base_addr, NOR_CMD_LOCK_UNLOCK);
-	mmio_write_32(base_addr, NOR_2X16(NOR_UNLOCK_BLOCK));
+	nor_send_cmd(base_addr, NOR_UNLOCK_BLOCK);
 
 	ret = nor_poll_dws(base_addr, DWS_WORD_LOCK_RETRIES);
 	nor_send_cmd(base_addr, NOR_CMD_READ_ARRAY);
