@@ -25,6 +25,7 @@
  * model
  */
 #define DWS_WORD_PROGRAM_RETRIES	1000
+#define DWS_WORD_LOCK_RETRIES		1000
 
 /* Helper macro to detect end of command */
 #define NOR_CMD_END (NOR_DWS | NOR_DWS << 16l)
@@ -89,20 +90,38 @@ int nor_word_program(uintptr_t base_addr, unsigned long data)
 
 /*
  * Lock a full 256 block
+ * Return values:
+ *  0 = success
+ *  otherwise it returns a negative value
  */
-void nor_lock(uintptr_t base_addr)
+int nor_lock(uintptr_t base_addr)
 {
+	int ret;
+
 	nor_send_cmd(base_addr, NOR_CMD_LOCK_UNLOCK);
 	mmio_write_32(base_addr, NOR_2X16(NOR_LOCK_BLOCK));
+
+	ret = nor_poll_dws(base_addr, DWS_WORD_LOCK_RETRIES);
 	nor_send_cmd(base_addr, NOR_CMD_READ_ARRAY);
+
+	return ret;
 }
 
 /*
  * unlock a full 256 block
+ * Return values:
+ *  0 = success
+ *  otherwise it returns a negative value
  */
-void nor_unlock(uintptr_t base_addr)
+int nor_unlock(uintptr_t base_addr)
 {
+	int ret;
+
 	nor_send_cmd(base_addr, NOR_CMD_LOCK_UNLOCK);
 	mmio_write_32(base_addr, NOR_2X16(NOR_UNLOCK_BLOCK));
+
+	ret = nor_poll_dws(base_addr, DWS_WORD_LOCK_RETRIES);
 	nor_send_cmd(base_addr, NOR_CMD_READ_ARRAY);
+
+	return ret;
 }

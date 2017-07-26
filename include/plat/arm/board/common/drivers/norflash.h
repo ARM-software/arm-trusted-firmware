@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,8 +37,8 @@
 /* Public API */
 void nor_send_cmd(uintptr_t base_addr, unsigned long cmd);
 int nor_word_program(uintptr_t base_addr, unsigned long data);
-void nor_lock(uintptr_t base_addr);
-void nor_unlock(uintptr_t base_addr);
+int nor_lock(uintptr_t base_addr);
+int nor_unlock(uintptr_t base_addr);
 
 #endif /* __NORFLASH_H_ */
 
