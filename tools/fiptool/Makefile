@@ -27,7 +27,7 @@ else
   Q :=
 endif
 
-INCLUDE_PATHS := -I. -I../../include/tools_share
+INCLUDE_PATHS := -I../../include/tools_share
 
 HOSTCC ?= gcc
 
