@@ -414,6 +414,10 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_MEM_CHK_RANGE_AARCH32:
 			return psci_mem_chk_range(x1, x2);
 
+		case PSCI_SYSTEM_RESET2_AARCH32:
+			/* We should never return from psci_system_reset2() */
+			return psci_system_reset2(x1, x2);
+
 		default:
 			break;
 		}
@@ -453,6 +457,9 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_MEM_CHK_RANGE_AARCH64:
 			return psci_mem_chk_range(x1, x2);
 
+		case PSCI_SYSTEM_RESET2_AARCH64:
+			/* We should never return from psci_system_reset2() */
+			return psci_system_reset2(x1, x2);
 
 		default:
 			break;

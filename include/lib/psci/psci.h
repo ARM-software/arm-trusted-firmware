@@ -65,6 +65,8 @@
 #define PSCI_STAT_RESIDENCY_AARCH64	U(0xc4000010)
 #define PSCI_STAT_COUNT_AARCH32		U(0x84000011)
 #define PSCI_STAT_COUNT_AARCH64		U(0xc4000011)
+#define PSCI_SYSTEM_RESET2_AARCH32	U(0x84000012)
+#define PSCI_SYSTEM_RESET2_AARCH64	U(0xc4000012)
 #define PSCI_MEM_PROTECT		U(0x84000013)
 #define PSCI_MEM_CHK_RANGE_AARCH32	U(0x84000014)
 #define PSCI_MEM_CHK_RANGE_AARCH64	U(0xc4000014)
@@ -166,6 +168,14 @@
 #define PSCI_E_INVALID_ADDRESS	-9
 
 #define PSCI_INVALID_MPIDR	~((u_register_t)0)
+
+/*
+ * SYSTEM_RESET2 macros
+ */
+#define PSCI_RESET2_TYPE_VENDOR_SHIFT	31
+#define PSCI_RESET2_TYPE_VENDOR		(1U << PSCI_RESET2_TYPE_VENDOR_SHIFT)
+#define PSCI_RESET2_TYPE_ARCH		(0U << PSCI_RESET2_TYPE_VENDOR_SHIFT)
+#define PSCI_RESET2_SYSTEM_WARM_RESET	(PSCI_RESET2_TYPE_ARCH | 0)
 
 #ifndef __ASSEMBLY__
 
@@ -294,6 +304,8 @@ typedef struct plat_psci_ops {
 	int (*mem_protect_chk)(uintptr_t base, u_register_t length);
 	int (*read_mem_protect)(int *val);
 	int (*write_mem_protect)(int val);
+	int (*system_reset2)(int is_vendor,
+				int reset_type, u_register_t cookie);
 } plat_psci_ops_t;
 
 /*******************************************************************************

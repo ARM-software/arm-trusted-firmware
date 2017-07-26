@@ -89,7 +89,8 @@
 			define_psci_cap(PSCI_NODE_HW_STATE_AARCH64) |	\
 			define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64) |	\
 			define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64) |	\
-			define_psci_cap(PSCI_STAT_COUNT_AARCH64))
+			define_psci_cap(PSCI_STAT_COUNT_AARCH64) |	\
+			define_psci_cap(PSCI_SYSTEM_RESET2_AARCH64))
 
 /*
  * Helper macros to get/set the fields of PSCI per-cpu data.
@@ -258,6 +259,7 @@ void psci_do_pwrup_cache_maintenance(void);
 /* Private exported functions from psci_system_off.c */
 void __dead2 psci_system_off(void);
 void __dead2 psci_system_reset(void);
+int psci_system_reset2(uint32_t reset_type, u_register_t cookie);
 
 /* Private exported functions from psci_stat.c */
 void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
