@@ -22,17 +22,6 @@
 #define RWP_FALSE		0
 
 /*
- * Macro to wait for updates to :
- * GICD_CTLR[2:0] - the Group Enables
- * GICD_CTLR[5:4] - the ARE bits
- * GICD_ICENABLERn - the clearing of enable state for SPIs
- */
-#define gicd_wait_for_pending_write(gicd_base)			\
-	do {							\
-		;						\
-	} while (gicd_read_ctlr(gicd_base) & GICD_CTLR_RWP_BIT)
-
-/*
  * Macro to convert an mpidr to a value suitable for programming into a
  * GICD_IROUTER. Bits[31:24] in the MPIDR are cleared as they are not relevant
  * to GICv3.
@@ -40,18 +29,6 @@
 #define gicd_irouter_val_from_mpidr(mpidr, irm)		\
 	((mpidr & ~(0xff << 24)) |			\
 	 (irm & IROUTER_IRM_MASK) << IROUTER_IRM_SHIFT)
-
-/*
- * Macro to wait for updates to :
- * GICR_ICENABLER0
- * GICR_CTLR.DPG1S
- * GICR_CTLR.DPG1NS
- * GICR_CTLR.DPG0
- */
-#define gicr_wait_for_pending_write(gicr_base)			\
-	do {							\
-		;						\
-	} while (gicr_read_ctlr(gicr_base) & GICR_CTLR_RWP_BIT)
 
 /*
  * Macro to convert a GICR_TYPER affinity value into a MPIDR value. Bits[31:24]
@@ -116,6 +93,18 @@ void gicv3_rdistif_mark_core_asleep(uintptr_t gicr_base);
 /*******************************************************************************
  * GIC Distributor interface accessors
  ******************************************************************************/
+/*
+ * Wait for updates to :
+ * GICD_CTLR[2:0] - the Group Enables
+ * GICD_CTLR[5:4] - the ARE bits
+ * GICD_ICENABLERn - the clearing of enable state for SPIs
+ */
+static inline void gicd_wait_for_pending_write(uintptr_t gicd_base)
+{
+	while (gicd_read_ctlr(gicd_base) & GICD_CTLR_RWP_BIT)
+		;
+}
+
 static inline unsigned int gicd_read_pidr2(uintptr_t base)
 {
 	return mmio_read_32(base + GICD_PIDR2_GICV3);
@@ -174,6 +163,19 @@ static inline unsigned int gicr_read_waker(uintptr_t base)
 static inline void gicr_write_waker(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICR_WAKER, val);
+}
+
+/*
+ * Wait for updates to :
+ * GICR_ICENABLER0
+ * GICR_CTLR.DPG1S
+ * GICR_CTLR.DPG1NS
+ * GICR_CTLR.DPG0
+ */
+static inline void gicr_wait_for_pending_write(uintptr_t gicr_base)
+{
+	while (gicr_read_ctlr(gicr_base) & GICR_CTLR_RWP_BIT)
+		;
 }
 
 /*******************************************************************************
