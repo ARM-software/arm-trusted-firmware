@@ -20,7 +20,7 @@
  * Constants and Macros
  ******************************************************************************/
 
-#define TIMEOUT_100MS	100UL	// Timeout in 100ms
+#define TIMEOUT_100MS	100U	// Timeout in 100ms
 
 /*******************************************************************************
  * Data structure and global variables

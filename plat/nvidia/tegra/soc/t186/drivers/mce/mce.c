@@ -170,12 +170,12 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 	cpu_ari_base = mce_get_curr_cpu_ari_base();
 
 	switch (cmd) {
-	case MCE_CMD_ENTER_CSTATE:
+	case (uint64_t)MCE_CMD_ENTER_CSTATE:
 		ret = ops->enter_cstate(cpu_ari_base, arg0, arg1);
 
 		break;
 
-	case MCE_CMD_UPDATE_CSTATE_INFO:
+	case (uint64_t)MCE_CMD_UPDATE_CSTATE_INFO:
 		/*
 		 * get the parameters required for the update cstate info
 		 * command
@@ -194,12 +194,12 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_UPDATE_CROSSOVER_TIME:
+	case (uint64_t)MCE_CMD_UPDATE_CROSSOVER_TIME:
 		ret = ops->update_crossover_time(cpu_ari_base, arg0, arg1);
 
 		break;
 
-	case MCE_CMD_READ_CSTATE_STATS:
+	case (uint64_t)MCE_CMD_READ_CSTATE_STATS:
 		ret64 = ops->read_cstate_stats(cpu_ari_base, arg0);
 
 		/* update context to return cstate stats value */
@@ -208,12 +208,12 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_WRITE_CSTATE_STATS:
+	case (uint64_t)MCE_CMD_WRITE_CSTATE_STATS:
 		ret = ops->write_cstate_stats(cpu_ari_base, arg0, arg1);
 
 		break;
 
-	case MCE_CMD_IS_CCX_ALLOWED:
+	case (uint64_t)MCE_CMD_IS_CCX_ALLOWED:
 		ret = ops->is_ccx_allowed(cpu_ari_base, arg0, arg1);
 
 		/* update context to return CCx status value */
@@ -221,7 +221,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_IS_SC7_ALLOWED:
+	case (uint64_t)MCE_CMD_IS_SC7_ALLOWED:
 		ret = ops->is_sc7_allowed(cpu_ari_base, arg0, arg1);
 
 		/* update context to return SC7 status value */
@@ -230,17 +230,17 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_ONLINE_CORE:
+	case (uint64_t)MCE_CMD_ONLINE_CORE:
 		ret = ops->online_core(cpu_ari_base, arg0);
 
 		break;
 
-	case MCE_CMD_CC3_CTRL:
+	case (uint64_t)MCE_CMD_CC3_CTRL:
 		ret = ops->cc3_ctrl(cpu_ari_base, arg0, arg1, arg2);
 
 		break;
 
-	case MCE_CMD_ECHO_DATA:
+	case (uint64_t)MCE_CMD_ECHO_DATA:
 		ret64 = ops->call_enum_misc(cpu_ari_base, TEGRA_ARI_MISC_ECHO,
 				arg0);
 
@@ -252,7 +252,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_READ_VERSIONS:
+	case (uint64_t)MCE_CMD_READ_VERSIONS:
 		ret64 = ops->call_enum_misc(cpu_ari_base, TEGRA_ARI_MISC_VERSION,
 			arg0);
 
@@ -265,7 +265,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_ENUM_FEATURES:
+	case (uint64_t)MCE_CMD_ENUM_FEATURES:
 		ret64 = ops->call_enum_misc(cpu_ari_base,
 				TEGRA_ARI_MISC_FEATURE_LEAF_0, arg0);
 
@@ -274,22 +274,22 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
+	case (uint64_t)MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
 		ret = ops->roc_flush_cache_trbits(cpu_ari_base);
 
 		break;
 
-	case MCE_CMD_ROC_FLUSH_CACHE:
+	case (uint64_t)MCE_CMD_ROC_FLUSH_CACHE:
 		ret = ops->roc_flush_cache(cpu_ari_base);
 
 		break;
 
-	case MCE_CMD_ROC_CLEAN_CACHE:
+	case (uint64_t)MCE_CMD_ROC_CLEAN_CACHE:
 		ret = ops->roc_clean_cache(cpu_ari_base);
 
 		break;
 
-	case MCE_CMD_ENUM_READ_MCA:
+	case (uint64_t)MCE_CMD_ENUM_READ_MCA:
 		ret64 = ops->read_write_mca(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return MCA data/error */
@@ -299,7 +299,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_ENUM_WRITE_MCA:
+	case (uint64_t)MCE_CMD_ENUM_WRITE_MCA:
 		ret64 = ops->read_write_mca(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return MCA error */
@@ -309,7 +309,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 
 #if ENABLE_CHIP_VERIFICATION_HARNESS
-	case MCE_CMD_ENABLE_LATIC:
+	case (uint64_t)MCE_CMD_ENABLE_LATIC:
 		/*
 		 * This call is not for production use. The constant value,
 		 * 0xFFFF0000, is specific to allowing for enabling LATIC on
@@ -327,14 +327,14 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 #endif
 
-	case MCE_CMD_UNCORE_PERFMON_REQ:
+	case (uint64_t)MCE_CMD_UNCORE_PERFMON_REQ:
 		ret = ops->read_write_uncore_perfmon(cpu_ari_base, arg0, &arg1);
 
 		/* update context to return data */
 		write_ctx_reg(gp_regs, CTX_GPREG_X1, (arg1));
 		break;
 
-	case MCE_CMD_MISC_CCPLEX:
+	case (uint64_t)MCE_CMD_MISC_CCPLEX:
 		ops->misc_ccplex(cpu_ari_base, arg0, arg1);
 
 		break;

@@ -302,24 +302,24 @@ static void tegra_memctrl_set_overrides(void)
 	 */
 	if ((tegra_chipid_is_t186()) &&
 	    (!tegra_platform_is_silicon() ||
-	    (tegra_platform_is_silicon() && (tegra_get_chipid_minor() == 1)))) {
+	    (tegra_platform_is_silicon() && (tegra_get_chipid_minor() == 1U)))) {
 
 		/*
 		 * GPU and NVENC settings for Tegra186 simulation and
 		 * Silicon rev. A01
 		 */
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR,
 			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
 
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2,
 			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
 
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR,
 			val | MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID);
 
@@ -330,7 +330,7 @@ static void tegra_memctrl_set_overrides(void)
 		 */
 		for (i = 0; i < num_txn_override_cfgs; i++) {
 			val = tegra_mc_read_32(mc_txn_override_cfgs[i].offset);
-			val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+			val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 			tegra_mc_write_32(mc_txn_override_cfgs[i].offset,
 				val | mc_txn_override_cfgs[i].cgid_tag);
 		}
@@ -421,7 +421,7 @@ void tegra_memctrl_restore_settings(void)
 	tegra_memctrl_set_overrides();
 
 	/* video memory carveout region */
-	if (video_mem_base) {
+	if (video_mem_base != 0ULL) {
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO,
 				  (uint32_t)video_mem_base);
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,

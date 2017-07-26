@@ -586,12 +586,12 @@
 /*******************************************************************************
  * SMMU Global Aux. Control Register
  ******************************************************************************/
-#define SMMU_CBn_ACTLR_CPRE_BIT			(1UL << 1UL)
+#define SMMU_CBn_ACTLR_CPRE_BIT			(1ULL << 1U)
 
 /*******************************************************************************
  * SMMU configuration constants
  ******************************************************************************/
-#define ID1_PAGESIZE				(1U << 31)
+#define ID1_PAGESIZE				(1U << 31U)
 #define ID1_NUMPAGENDXB_SHIFT			28U
 #define ID1_NUMPAGENDXB_MASK			7U
 #define ID1_NUMS2CB_SHIFT			16U

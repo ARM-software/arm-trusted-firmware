@@ -76,7 +76,7 @@ int32_t tegra_bpmp_send_receive_atomic(int mrq, const void *ob_data, int ob_sz,
 			/* signal command ready to the BPMP */
 			signal_slave(ch);
 			mmio_write_32(TEGRA_PRI_ICTLR_BASE + CPU_IEP_FIR_SET,
-				      (1UL << INT_SHR_SEM_OUTBOX_FULL));
+				      (1U << INT_SHR_SEM_OUTBOX_FULL));
 
 			/* loop until the command is executed */
 			for (timeout = 0; timeout < BPMP_TIMEOUT_10US; timeout++) {
@@ -154,7 +154,7 @@ int tegra_bpmp_init(void)
 			channel_base[ch] = mmio_read_32(base);
 
 			/* increment result register offset */
-			base += 4UL;
+			base += 4U;
 		}
 
 		/* mark state as "initialized" */

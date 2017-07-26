@@ -10,25 +10,25 @@
 #include <stdint.h>
 
 /* macro to enable clock to the Atomics block */
-#define CAR_ENABLE_ATOMICS	(1UL << 16)
+#define CAR_ENABLE_ATOMICS	(1U << 16)
 
 /* command to get the channel base addresses from bpmp */
-#define ATOMIC_CMD_GET		4UL
+#define ATOMIC_CMD_GET		4U
 
 /* Hardware IRQ # used to signal bpmp of an incoming command */
-#define INT_SHR_SEM_OUTBOX_FULL	6UL
+#define INT_SHR_SEM_OUTBOX_FULL	6U
 
 /* macros to decode the bpmp's state */
-#define CH_MASK(ch)		(0x3UL << ((ch) * 2UL))
-#define MA_FREE(ch)		(0x2UL << ((ch) * 2UL))
-#define MA_ACKD(ch)		(0x3UL << ((ch) * 2UL))
+#define CH_MASK(ch)		((uint32_t)0x3 << ((ch) * 2U))
+#define MA_FREE(ch)		((uint32_t)0x2 << ((ch) * 2U))
+#define MA_ACKD(ch)		((uint32_t)0x3 << ((ch) * 2U))
 
 /* response from bpmp to indicate it has powered up */
-#define SIGN_OF_LIFE		0xAAAAAAAAUL
+#define SIGN_OF_LIFE		0xAAAAAAAAU
 
 /* flags to indicate bpmp driver's state */
-#define BPMP_INIT_COMPLETE	0xBEEFF00DUL
-#define BPMP_INIT_PENDING	0xDEADBEEFUL
+#define BPMP_INIT_COMPLETE	0xBEEFF00DU
+#define BPMP_INIT_PENDING	0xDEADBEEFU
 
 /* requests serviced by the bpmp */
 #define MRQ_PING		0
@@ -64,14 +64,14 @@
 #define TEGRA_PM_SC7		23
 
 /* flag to indicate if entry into a CCx power state is allowed */
-#define BPMP_CCx_ALLOWED	0UL
+#define BPMP_CCx_ALLOWED	0U
 
 /* number of communication channels to interact with the bpmp */
 #define NR_CHANNELS		4U
 
 /* flag to ask bpmp to acknowledge command packet */
-#define NO_ACK			(0UL << 0UL)
-#define DO_ACK			(1UL << 0UL)
+#define NO_ACK			(0U << 0U)
+#define DO_ACK			(1U << 0U)
 
 /* size of the command/response data */
 #define MSG_DATA_MAX_SZ		120U

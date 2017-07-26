@@ -164,7 +164,7 @@
 #define MC_VIDEO_PROTECT_SIZE_MB	U(0x64c)
 
 /* SMMU configuration registers*/
-#define MC_SMMU_PPCS_ASID_0		0x270UL
+#define MC_SMMU_PPCS_ASID_0		0x270U
 #define  PPCS_SMMU_ENABLE		(0x1U << 31)
 
 /*******************************************************************************

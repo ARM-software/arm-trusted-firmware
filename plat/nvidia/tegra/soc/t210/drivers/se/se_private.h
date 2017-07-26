@@ -85,23 +85,23 @@
 
 #define DRBG_MODE_SHIFT				0
 #define DRBG_MODE_NORMAL		\
-		((0UL) << DRBG_MODE_SHIFT)
+		((0U) << DRBG_MODE_SHIFT)
 #define DRBG_MODE_FORCE_INSTANTION  \
-		((1UL) << DRBG_MODE_SHIFT)
+		((1U) << DRBG_MODE_SHIFT)
 #define DRBG_MODE_FORCE_RESEED	  \
-		((2UL) << DRBG_MODE_SHIFT)
+		((2U) << DRBG_MODE_SHIFT)
 #define SE_RNG_CONFIG_MODE(x)   \
-		((x) & ((0x3UL) << DRBG_MODE_SHIFT))
+		((x) & ((0x3U) << DRBG_MODE_SHIFT))
 
 #define DRBG_SRC_SHIFT				2
 #define DRBG_SRC_NONE	   \
-		((0UL) << DRBG_SRC_SHIFT)
+		((0U) << DRBG_SRC_SHIFT)
 #define DRBG_SRC_ENTROPY	\
-		((1UL) << DRBG_SRC_SHIFT)
+		((1U) << DRBG_SRC_SHIFT)
 #define DRBG_SRC_LFSR	   \
-		((2UL) << DRBG_SRC_SHIFT)
+		((2U) << DRBG_SRC_SHIFT)
 #define SE_RNG_SRC_CONFIG_MODE(x)   \
-		((x) & ((0x3UL) << DRBG_SRC_SHIFT))
+		((x) & ((0x3U) << DRBG_SRC_SHIFT))
 
 /* DRBG random number generator entropy config */
 #define SE_RNG_SRC_CONFIG_REG_OFFSET		0x344U

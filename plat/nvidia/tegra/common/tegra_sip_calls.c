@@ -98,7 +98,7 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 			 */
 			if (((x1 & 0xFFFFFU) != 0U) || ((local_x2_32 & 0xFFFFFU) != 0U)) {
 				ERROR("Unaligned Video Memory base address!\n");
-				SMC_RET1(handle, -ENOTSUP);
+				SMC_RET1(handle, (uint64_t)-ENOTSUP);
 			}
 
 			/*
@@ -108,9 +108,9 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 			 */
 			regval = mmio_read_32(TEGRA_CAR_RESET_BASE +
 					      TEGRA_GPU_RESET_REG_OFFSET);
-			if ((regval & GPU_RESET_BIT) == 0UL) {
+			if ((regval & GPU_RESET_BIT) == 0U) {
 				ERROR("GPU not in reset! Video Memory setup failed\n");
-				SMC_RET1(handle, -ENOTSUP);
+				SMC_RET1(handle, (uint64_t)-ENOTSUP);
 			}
 
 			/* new video memory carveout settings */
