@@ -81,19 +81,19 @@ vector_base tsp_exceptions
 	 * -----------------------------------------------------
 	 */
 vector_entry sync_exception_sp_el0
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size sync_exception_sp_el0
 
 vector_entry irq_sp_el0
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size irq_sp_el0
 
 vector_entry fiq_sp_el0
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size fiq_sp_el0
 
 vector_entry serror_sp_el0
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size serror_sp_el0
 
 
@@ -103,7 +103,7 @@ vector_entry serror_sp_el0
 	 * -----------------------------------------------------
 	 */
 vector_entry sync_exception_sp_elx
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size sync_exception_sp_elx
 
 vector_entry irq_sp_elx
@@ -115,7 +115,7 @@ vector_entry fiq_sp_elx
 	check_vector_size fiq_sp_elx
 
 vector_entry serror_sp_elx
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size serror_sp_elx
 
 
@@ -125,19 +125,19 @@ vector_entry serror_sp_elx
 	 * -----------------------------------------------------
 	 */
 vector_entry sync_exception_aarch64
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size sync_exception_aarch64
 
 vector_entry irq_aarch64
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size irq_aarch64
 
 vector_entry fiq_aarch64
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size fiq_aarch64
 
 vector_entry serror_aarch64
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size serror_aarch64
 
 
@@ -147,17 +147,17 @@ vector_entry serror_aarch64
 	 * -----------------------------------------------------
 	 */
 vector_entry sync_exception_aarch32
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size sync_exception_aarch32
 
 vector_entry irq_aarch32
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size irq_aarch32
 
 vector_entry fiq_aarch32
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size fiq_aarch32
 
 vector_entry serror_aarch32
-	no_ret	plat_panic_handler
+	b	plat_panic_handler
 	check_vector_size serror_aarch32
