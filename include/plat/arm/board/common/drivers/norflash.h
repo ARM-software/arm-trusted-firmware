@@ -19,6 +19,7 @@
 #define NOR_CMD_WORD_PROGRAM		0x40
 #define NOR_CMD_BLOCK_ERASE		0x20
 #define NOR_CMD_LOCK_UNLOCK		0x60
+#define NOR_CMD_BLOCK_ERASE_ACK		0xD0
 
 /* Second bus cycle */
 #define NOR_LOCK_BLOCK			0x01
@@ -39,6 +40,7 @@ void nor_send_cmd(uintptr_t base_addr, unsigned long cmd);
 int nor_word_program(uintptr_t base_addr, unsigned long data);
 int nor_lock(uintptr_t base_addr);
 int nor_unlock(uintptr_t base_addr);
+int nor_erase(uintptr_t base_addr);
 
 #endif /* __NORFLASH_H_ */
 

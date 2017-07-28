@@ -25,6 +25,7 @@
  * model
  */
 #define DWS_WORD_PROGRAM_RETRIES	1000
+#define DWS_WORD_ERASE_RETRIES		3000000
 #define DWS_WORD_LOCK_RETRIES		1000
 
 /* Helper macro to detect end of command */
@@ -35,7 +36,7 @@
  *    0      = WSM ready
  *    -EBUSY = WSM busy after the number of retries
  */
-static int nor_poll_dws(uintptr_t base_addr, unsigned int retries)
+static int nor_poll_dws(uintptr_t base_addr, unsigned long int retries)
 {
 	unsigned long status;
 
@@ -87,6 +88,27 @@ int nor_word_program(uintptr_t base_addr, unsigned long data)
 	}
 
 	nor_send_cmd(base_addr, NOR_CMD_READ_ARRAY);
+	return ret;
+}
+
+/*
+ * Erase a full 256K block
+ * Return values:
+ *  0 = success
+ * -EBUSY = WSM not ready
+ */
+int nor_erase(uintptr_t base_addr)
+{
+	int ret;
+
+	nor_send_cmd(base_addr, NOR_CMD_CLEAR_STATUS_REG);
+
+	nor_send_cmd(base_addr, NOR_CMD_BLOCK_ERASE);
+	nor_send_cmd(base_addr, NOR_CMD_BLOCK_ERASE_ACK);
+
+	ret = nor_poll_dws(base_addr, DWS_WORD_ERASE_RETRIES);
+	nor_send_cmd(base_addr, NOR_CMD_READ_ARRAY);
+
 	return ret;
 }
 
