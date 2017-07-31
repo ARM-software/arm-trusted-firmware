@@ -11,11 +11,23 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/		\
 				-Iplat/qemu/include			\
 				-Iinclude/common/tbbr
 
+# Use translation tables library v2 by default
+ARM_XLAT_TABLES_LIB_V1		:=	0
+$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
+$(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
+
 
 PLAT_BL_COMMON_SOURCES	:=	plat/qemu/qemu_common.c			\
-				drivers/arm/pl011/aarch64/pl011_console.S \
-				lib/xlat_tables/xlat_tables_common.c	\
+				drivers/arm/pl011/aarch64/pl011_console.S
+
+ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
+PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c
+else
+include lib/xlat_tables_v2/xlat_tables.mk
+
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
+endif
 
 BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
 				drivers/io/io_storage.c			\
