@@ -51,9 +51,19 @@ For Cortex-A53, following errata build flags are defined :
 -  ``ERRATA_A53_826319``: This applies errata 826319 workaround to Cortex-A53
    CPU. This needs to be enabled only for revision <= r0p2 of the CPU.
 
+-  ``ERRATA_A53_835769``: This applies erratum 835769 workaround at compile and
+   link time to Cortex-A53 CPU. This needs to be enabled for some variants of
+   revision <= r0p4. This workaround can lead the linker to create ``*.stub``
+   sections.
+
 -  ``ERRATA_A53_836870``: This applies errata 836870 workaround to Cortex-A53
    CPU. This needs to be enabled only for revision <= r0p3 of the CPU. From
    r0p4 and onwards, this errata is enabled by default in hardware.
+
+-  ``ERRATA_A53_843419``: This applies erratum 843419 workaround at link time
+   to Cortex-A53 CPU.  This needs to be enabled for some variants of revision
+   <= r0p4. This workaround can lead the linker to emit ``*.stub`` sections
+   which are 4kB aligned.
 
 -  ``ERRATA_A53_855873``: This applies errata 855873 workaround to Cortex-A53
    CPUs. Though the erratum is present in every revision of the CPU,
