@@ -1397,6 +1397,11 @@ NOTE: FVPs can be launched with ``--cadi-server`` option such that a
 CADI-compliant debugger (for example, ARM DS-5) can connect to and control its
 execution.
 
+NOTE: With FVP model Version 11.0 Build 11.0.34 and Version 8.5 Build 0.8.5202
+the internal synchronisation timings changed compared to older versions of the
+models. The models can be launched with ``-Q 100`` option if they are required
+to match the run time characteristics of the older versions.
+
 The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
 downloaded for free from `ARM's website`_.
 
