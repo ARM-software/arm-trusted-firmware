@@ -7,56 +7,17 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
 #include <platform_def.h>
 #include <utils.h>
+#include <xlat_tables_arch.h>
 #include <xlat_tables.h>
 #include "../xlat_tables_private.h"
 
-/*
- * Each platform can define the size of the virtual address space, which is
- * defined in PLAT_VIRT_ADDR_SPACE_SIZE. TTBCR.TxSZ is calculated as 32 minus
- * the width of said address space. The value of TTBCR.TxSZ must be in the
- * range 0 to 7 [1], which means that the virtual address space width must be
- * in the range 32 to 25 bits.
- *
- * Here we calculate the initial lookup level from the value of
- * PLAT_VIRT_ADDR_SPACE_SIZE. For a 4 KB page size, level 1 supports virtual
- * address spaces of widths 32 to 31 bits, and level 2 from 30 to 25. Wider or
- * narrower address spaces are not supported. As a result, level 3 cannot be
- * used as initial lookup level with 4 KB granularity [1].
- *
- * For example, for a 31-bit address space (i.e. PLAT_VIRT_ADDR_SPACE_SIZE ==
- * 1 << 31), TTBCR.TxSZ will be programmed to (32 - 31) = 1. According to Table
- * G4-5 in the ARM ARM, the initial lookup level for an address space like that
- * is 1.
- *
- * See the ARMv8-A Architecture Reference Manual (DDI 0487A.j) for more
- * information:
- * [1] Section G4.6.5
- */
+#define XLAT_TABLE_LEVEL_BASE	\
+       GET_XLAT_TABLE_LEVEL_BASE(PLAT_VIRT_ADDR_SPACE_SIZE)
 
-#if PLAT_VIRT_ADDR_SPACE_SIZE > (1ULL << (32 - TTBCR_TxSZ_MIN))
-
-# error "PLAT_VIRT_ADDR_SPACE_SIZE is too big."
-
-#elif PLAT_VIRT_ADDR_SPACE_SIZE > (1 << L1_XLAT_ADDRESS_SHIFT)
-
-# define XLAT_TABLE_LEVEL_BASE	1
-# define NUM_BASE_LEVEL_ENTRIES	\
-		(PLAT_VIRT_ADDR_SPACE_SIZE >> L1_XLAT_ADDRESS_SHIFT)
-
-#elif PLAT_VIRT_ADDR_SPACE_SIZE >= (1 << (32 - TTBCR_TxSZ_MAX))
-
-# define XLAT_TABLE_LEVEL_BASE	2
-# define NUM_BASE_LEVEL_ENTRIES	\
-		(PLAT_VIRT_ADDR_SPACE_SIZE >> L2_XLAT_ADDRESS_SHIFT)
-
-#else
-
-# error "PLAT_VIRT_ADDR_SPACE_SIZE is too small."
-
-#endif
+#define NUM_BASE_LEVEL_ENTRIES	\
+       GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)
 
 static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
 		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
@@ -127,13 +88,13 @@ void enable_mmu_secure(unsigned int flags)
 		ttbcr = TTBCR_EAE_BIT |
 			TTBCR_SH0_NON_SHAREABLE | TTBCR_RGN0_OUTER_NC |
 			TTBCR_RGN0_INNER_NC |
-			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+			(32 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));
 	} else {
 		/* Inner & outer WBWA & shareable. */
 		ttbcr = TTBCR_EAE_BIT |
 			TTBCR_SH0_INNER_SHAREABLE | TTBCR_RGN0_OUTER_WBA |
 			TTBCR_RGN0_INNER_WBA |
-			(32 - __builtin_ctzl((uintptr_t)PLAT_VIRT_ADDR_SPACE_SIZE));
+			(32 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));
 	}
 	ttbcr |= TTBCR_EPD1_BIT;
 	write_ttbcr(ttbcr);

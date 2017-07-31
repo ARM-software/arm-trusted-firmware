@@ -38,7 +38,6 @@ IO_SOURCES		:=	drivers/io/io_block.c			\
 # common sources for BL1, BL2, BL31
 PLAT_BL_COMMON_SOURCES	+=	drivers/console/aarch64/console.S	\
 				lib/xlat_tables_v2/aarch64/xlat_tables_arch.c \
-				lib/xlat_tables_v2/xlat_tables_common.c	\
 				lib/xlat_tables_v2/xlat_tables_internal.c \
 				$(PLAT_PATH)/uniphier_console.S		\
 				$(PLAT_PATH)/uniphier_helpers.S		\

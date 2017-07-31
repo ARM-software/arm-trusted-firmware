@@ -30,5 +30,6 @@
 
 ifeq (${ARCH},aarch32)
 COMPILER_RT_SRCS	:=	lib/compiler-rt/builtins/arm/aeabi_uldivmod.S	\
-				lib/compiler-rt/builtins/udivmoddi4.c
+				lib/compiler-rt/builtins/udivmoddi4.c		\
+				lib/compiler-rt/builtins/ctzdi2.c
 endif

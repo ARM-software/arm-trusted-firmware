@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <xlat_mmu_helpers.h>
+#include <xlat_tables_v2_helpers.h>
 
 /* Helper macro to define entries for mmap_region_t. It creates
  * identity mappings for each region.
@@ -82,7 +83,51 @@ typedef struct mmap_region {
 	mmap_attr_t		attr;
 } mmap_region_t;
 
-/* Generic translation table APIs */
+/*
+ * Declare the translation context type.
+ * Its definition is private.
+ */
+typedef struct xlat_ctx xlat_ctx_t;
+
+/*
+ * Statically allocate a translation context and associated structures. Also
+ * initialize them.
+ *
+ * _ctx_name:
+ *   Prefix for the translation context variable.
+ *   E.g. If _ctx_name is 'foo', the variable will be called 'foo_xlat_ctx'.
+ *   Useful to distinguish multiple contexts from one another.
+ *
+ * _mmap_count:
+ *   Number of mmap_region_t to allocate.
+ *   Would typically be MAX_MMAP_REGIONS for the translation context describing
+ *   the BL image currently executing.
+ *
+ * _xlat_tables_count:
+ *   Number of sub-translation tables to allocate.
+ *   Would typically be MAX_XLAT_TABLES for the translation context describing
+ *   the BL image currently executing.
+ *   Note that this is only for sub-tables ; at the initial lookup level, there
+ *   is always a single table.
+ *
+ * _virt_addr_space_size, _phy_addr_space_size:
+ *   Size (in bytes) of the virtual (resp. physical) address space.
+ *   Would typically be PLAT_VIRT_ADDR_SPACE_SIZE
+ *   (resp. PLAT_PHY_ADDR_SPACE_SIZE) for the translation context describing the
+ *   BL image currently executing.
+ */
+#define REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
+			_virt_addr_space_size, _phy_addr_space_size)		\
+	_REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
+		_virt_addr_space_size, _phy_addr_space_size)
+
+/******************************************************************************
+ * Generic translation table APIs.
+ * Each API comes in 2 variants:
+ * - one that acts on the current translation context for this BL image
+ * - another that acts on the given translation context instead. This variant
+ *   is named after the 1st version, with an additional '_ctx' suffix.
+ *****************************************************************************/
 
 /*
  * Initialize translation tables from the current list of mmap regions. Calling
@@ -90,6 +135,7 @@ typedef struct mmap_region {
  * longer be added.
  */
 void init_xlat_tables(void);
+void init_xlat_tables_ctx(xlat_ctx_t *ctx);
 
 /*
  * Add a static region with defined base PA and base VA. This function can only
@@ -98,7 +144,18 @@ void init_xlat_tables(void);
  */
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 				size_t size, mmap_attr_t attr);
+void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm);
 
+/*
+ * Add an array of static regions with defined base PA and base VA. This
+ * function can only be used before initializing the translation tables. The
+ * regions cannot be removed afterwards.
+ */
+void mmap_add(const mmap_region_t *mm);
+void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm);
+
+
+#if PLAT_XLAT_TABLES_DYNAMIC
 /*
  * Add a dynamic region with defined base PA and base VA. This type of region
  * can be added and removed even after the translation tables are initialized.
@@ -112,13 +169,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
  */
 int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
 				size_t size, mmap_attr_t attr);
-
-/*
- * Add an array of static regions with defined base PA and base VA. This
- * function can only be used before initializing the translation tables. The
- * regions cannot be removed afterwards.
- */
-void mmap_add(const mmap_region_t *mm);
+int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
 
 /*
  * Remove a region with the specified base VA and size. Only dynamic regions can
@@ -131,6 +182,11 @@ void mmap_add(const mmap_region_t *mm);
  *    EPERM: Trying to remove a static region.
  */
 int mmap_remove_dynamic_region(uintptr_t base_va, size_t size);
+int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx,
+				uintptr_t base_va,
+				size_t size);
+
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 #endif /*__ASSEMBLY__*/
 #endif /* __XLAT_TABLES_V2_H__ */

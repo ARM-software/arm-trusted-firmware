@@ -7,7 +7,6 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
 #include <common_def.h>
 #include <debug.h>
 #include <errno.h>
@@ -15,13 +14,36 @@
 #include <string.h>
 #include <types.h>
 #include <utils.h>
+#include <xlat_tables_arch.h>
+#include <xlat_tables_defs.h>
 #include <xlat_tables_v2.h>
-#ifdef AARCH32
-# include "aarch32/xlat_tables_arch.h"
-#else
-# include "aarch64/xlat_tables_arch.h"
-#endif
+
 #include "xlat_tables_private.h"
+
+/*
+ * Each platform can define the size of its physical and virtual address spaces.
+ * If the platform hasn't defined one or both of them, default to
+ * ADDR_SPACE_SIZE. The latter is deprecated, though.
+ */
+#if ERROR_DEPRECATED
+# ifdef ADDR_SPACE_SIZE
+#  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
+# endif
+#elif defined(ADDR_SPACE_SIZE)
+# ifndef PLAT_PHY_ADDR_SPACE_SIZE
+#  define PLAT_PHY_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
+# endif
+# ifndef PLAT_VIRT_ADDR_SPACE_SIZE
+#  define PLAT_VIRT_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
+# endif
+#endif
+
+/*
+ * Allocate and initialise the default translation context for the BL image
+ * currently executing.
+ */
+REGISTER_XLAT_CONTEXT(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
+		PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE);
 
 #if PLAT_XLAT_TABLES_DYNAMIC
 
@@ -335,7 +357,7 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
  */
 static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 		const int desc_type, const unsigned long long dest_pa,
-		const uintptr_t table_entry_base_va, const int level)
+		const uintptr_t table_entry_base_va, const unsigned int level)
 {
 	uintptr_t mm_end_va = mm->base_va + mm->size - 1;
 	uintptr_t table_entry_end_va =
@@ -666,7 +688,7 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, unsigned long long base_pa,
 	return 0;
 }
 
-void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 {
 	mmap_region_t *mm_cursor = ctx->mmap;
 	mmap_region_t *mm_last = mm_cursor + ctx->mmap_num;
@@ -741,6 +763,34 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 		ctx->max_pa = end_pa;
 	if (end_va > ctx->max_va)
 		ctx->max_va = end_va;
+}
+
+void mmap_add_region(unsigned long long base_pa,
+				uintptr_t base_va,
+				size_t size,
+				mmap_attr_t attr)
+{
+	mmap_region_t mm = {
+		.base_va = base_va,
+		.base_pa = base_pa,
+		.size = size,
+		.attr = attr,
+	};
+	mmap_add_region_ctx(&tf_xlat_ctx, &mm);
+}
+
+
+void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
+{
+	while (mm->size) {
+		mmap_add_region_ctx(ctx, mm);
+		mm++;
+	}
+}
+
+void mmap_add(const mmap_region_t *mm)
+{
+	mmap_add_ctx(&tf_xlat_ctx, mm);
 }
 
 #if PLAT_XLAT_TABLES_DYNAMIC
@@ -839,6 +889,18 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 	return 0;
 }
 
+int mmap_add_dynamic_region(unsigned long long base_pa,
+			    uintptr_t base_va, size_t size, mmap_attr_t attr)
+{
+	mmap_region_t mm = {
+		.base_va = base_va,
+		.base_pa = base_pa,
+		.size = size,
+		.attr = attr,
+	};
+	return mmap_add_dynamic_region_ctx(&tf_xlat_ctx, &mm);
+}
+
 /*
  * Removes the region with given base Virtual Address and size from the given
  * context.
@@ -912,6 +974,12 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 	}
 
 	return 0;
+}
+
+int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
+{
+	return mmap_remove_dynamic_region_ctx(&tf_xlat_ctx,
+					base_va, size);
 }
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
@@ -1042,14 +1110,46 @@ static void xlat_tables_print_internal(const uintptr_t table_base_va,
 void xlat_tables_print(xlat_ctx_t *ctx)
 {
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	VERBOSE("Translation tables state:\n");
+	VERBOSE("  Max allowed PA:  0x%llx\n", ctx->pa_max_address);
+	VERBOSE("  Max allowed VA:  %p\n", (void *) ctx->va_max_address);
+	VERBOSE("  Max mapped PA:   0x%llx\n", ctx->max_pa);
+	VERBOSE("  Max mapped VA:   %p\n", (void *) ctx->max_va);
+
+	VERBOSE("  Initial lookup level: %i\n", ctx->base_level);
+	VERBOSE("  Entries @initial lookup level: %i\n",
+		ctx->base_table_entries);
+
+	int used_page_tables;
+#if PLAT_XLAT_TABLES_DYNAMIC
+	used_page_tables = 0;
+	for (int i = 0; i < ctx->tables_num; ++i) {
+		if (ctx->tables_mapped_regions[i] != 0)
+			++used_page_tables;
+	}
+#else
+	used_page_tables = ctx->next_table;
+#endif
+	VERBOSE("  Used %i sub-tables out of %i (spare: %i)\n",
+		used_page_tables, ctx->tables_num,
+		ctx->tables_num - used_page_tables);
+
 	xlat_tables_print_internal(0, ctx->base_table, ctx->base_table_entries,
 				   ctx->base_level, ctx->execute_never_mask);
 #endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
 }
 
-void init_xlation_table(xlat_ctx_t *ctx)
+void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 {
 	mmap_region_t *mm = ctx->mmap;
+
+	assert(!is_mmu_enabled());
+	assert(!ctx->initialized);
+
+	print_mmap(mm);
+
+	ctx->execute_never_mask =
+			xlat_arch_get_xn_desc(xlat_arch_current_el());
 
 	/* All tables must be zeroed before mapping any region. */
 
@@ -1078,5 +1178,57 @@ void init_xlation_table(xlat_ctx_t *ctx)
 		mm++;
 	}
 
+	assert(ctx->pa_max_address <= xlat_arch_get_max_supported_pa());
+	assert(ctx->max_va <= ctx->va_max_address);
+	assert(ctx->max_pa <= ctx->pa_max_address);
+
 	ctx->initialized = 1;
+
+	xlat_tables_print(ctx);
 }
+
+void init_xlat_tables(void)
+{
+	init_xlat_tables_ctx(&tf_xlat_ctx);
+}
+
+/*
+ * If dynamic allocation of new regions is disabled then by the time we call the
+ * function enabling the MMU, we'll have registered all the memory regions to
+ * map for the system's lifetime. Therefore, at this point we know the maximum
+ * physical address that will ever be mapped.
+ *
+ * If dynamic allocation is enabled then we can't make any such assumption
+ * because the maximum physical address could get pushed while adding a new
+ * region. Therefore, in this case we have to assume that the whole address
+ * space size might be mapped.
+ */
+#ifdef PLAT_XLAT_TABLES_DYNAMIC
+#define MAX_PHYS_ADDR	tf_xlat_ctx.pa_max_address
+#else
+#define MAX_PHYS_ADDR	tf_xlat_ctx.max_pa
+#endif
+
+#ifdef AARCH32
+
+void enable_mmu_secure(unsigned int flags)
+{
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+			tf_xlat_ctx.va_max_address);
+}
+
+#else
+
+void enable_mmu_el1(unsigned int flags)
+{
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+			tf_xlat_ctx.va_max_address);
+}
+
+void enable_mmu_el3(unsigned int flags)
+{
+	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+			tf_xlat_ctx.va_max_address);
+}
+
+#endif /* AARCH32 */
