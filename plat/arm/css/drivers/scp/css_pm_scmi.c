@@ -259,10 +259,7 @@ int css_scp_get_power_state(u_register_t mpidr, unsigned int power_level)
 	return HW_OFF;
 }
 
-/*
- * Helper function to shutdown the system via SCMI.
- */
-void __dead2 css_scp_sys_shutdown(void)
+void __dead2 css_scp_system_off(int state)
 {
 	int ret;
 
@@ -273,21 +270,29 @@ void __dead2 css_scp_sys_shutdown(void)
 	plat_arm_gic_cpuif_disable();
 
 	/*
-	 * Issue SCMI command for SYSTEM_SHUTDOWN. First issue a graceful
+	 * Issue SCMI command. First issue a graceful
 	 * request and if that fails force the request.
 	 */
 	ret = scmi_sys_pwr_state_set(scmi_handle,
 			SCMI_SYS_PWR_FORCEFUL_REQ,
-			SCMI_SYS_PWR_SHUTDOWN);
+			state);
+
 	if (ret != SCMI_E_SUCCESS) {
-		ERROR("SCMI system power domain shutdown return 0x%x unexpected\n",
-				ret);
+		ERROR("SCMI system power state set 0x%x returns unexpected 0x%x\n",
+			state, ret);
 		panic();
 	}
-
 	wfi();
-	ERROR("CSS System Shutdown: operation not handled.\n");
+	ERROR("CSS set power state: operation not handled.\n");
 	panic();
+}
+
+/*
+ * Helper function to shutdown the system via SCMI.
+ */
+void __dead2 css_scp_sys_shutdown(void)
+{
+	css_scp_system_off(SCMI_SYS_PWR_SHUTDOWN);
 }
 
 /*
@@ -295,30 +300,7 @@ void __dead2 css_scp_sys_shutdown(void)
  */
 void __dead2 css_scp_sys_reboot(void)
 {
-	int ret;
-
-	/*
-	 * Disable GIC CPU interface to prevent pending interrupt from waking
-	 * up the AP from WFI.
-	 */
-	plat_arm_gic_cpuif_disable();
-
-	/*
-	 * Issue SCMI command for SYSTEM_REBOOT. First issue a graceful
-	 * request and if that fails force the request.
-	 */
-	ret = scmi_sys_pwr_state_set(scmi_handle,
-			SCMI_SYS_PWR_FORCEFUL_REQ,
-			SCMI_SYS_PWR_COLD_RESET);
-	if (ret != SCMI_E_SUCCESS) {
-		ERROR("SCMI system power domain reset return 0x%x unexpected\n",
-				ret);
-		panic();
-	}
-
-	wfi();
-	ERROR("CSS System Reset: operation not handled.\n");
-	panic();
+	css_scp_system_off(SCMI_SYS_PWR_COLD_RESET);
 }
 
 scmi_channel_plat_info_t plat_css_scmi_plat_info = {
