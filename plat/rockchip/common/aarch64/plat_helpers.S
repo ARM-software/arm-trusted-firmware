@@ -112,8 +112,7 @@ endfunc plat_crash_console_putc
 	 * cpus online or resume enterpoint
 	 * --------------------------------------------------------------------
 	 */
-	.align	16
-func platform_cpu_warmboot
+func platform_cpu_warmboot _align=16
 	mrs	x0, MPIDR_EL1
 	and	x19, x0, #MPIDR_CPU_MASK
 	and	x20, x0, #MPIDR_CLUSTER_MASK
