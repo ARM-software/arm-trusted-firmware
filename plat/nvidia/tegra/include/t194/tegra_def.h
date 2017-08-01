@@ -361,4 +361,26 @@
 #define MC_TXN_OVERRIDE_CONFIG_NVDEC1SRD1	0x17D4
 #define MC_TXN_OVERRIDE_CONFIG_NVDEC1SWR	0x17DC
 
+/*******************************************************************************
+ * XUSB PADCTL
+ ******************************************************************************/
+#define TEGRA_XUSB_PADCTL_BASE			(0x3520000U)
+#define TEGRA_XUSB_PADCTL_SIZE			(0x10000U)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_PF_0	(0x136cU)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_0	(0x1370U)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_1	(0x1374U)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_2	(0x1378U)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3	(0x137cU)
+#define XUSB_PADCTL_DEV_AXI_STREAMID_PF_0	(0x139cU)
+
+/*******************************************************************************
+ * XUSB STREAMIDs
+ ******************************************************************************/
+#define TEGRA_SID_XUSB_HOST			(0x1bU)
+#define TEGRA_SID_XUSB_DEV			(0x1cU)
+#define TEGRA_SID_XUSB_VF0			(0x5dU)
+#define TEGRA_SID_XUSB_VF1			(0x5eU)
+#define TEGRA_SID_XUSB_VF2			(0x5fU)
+#define TEGRA_SID_XUSB_VF3			(0x60U)
+
 #endif /* __TEGRA_DEF_H__ */

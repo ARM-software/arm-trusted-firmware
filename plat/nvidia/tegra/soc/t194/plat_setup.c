@@ -92,6 +92,8 @@ static const mmap_region_t tegra_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_SMMU2_BASE, 0x1000000, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_XUSB_PADCTL_BASE, 0x10000, /* 64KB */
+			MT_DEVICE | MT_RW | MT_SECURE),
 	{0}
 };
 
@@ -151,6 +153,53 @@ void plat_early_platform_setup(void)
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 
+	/* Program XUSB STREAMIDs
+	 * Xavier XUSB has support for XUSB virtualization. It will have one
+	 * physical function (PF) and four Virtual function (VF)
+	 *
+	 * There were below two SIDs for XUSB until T186.
+	 * 1) #define TEGRA_SID_XUSB_HOST    0x1bU
+	 * 2) #define TEGRA_SID_XUSB_DEV    0x1cU
+	 *
+	 * We have below four new SIDs added for VF(s)
+	 * 3) #define TEGRA_SID_XUSB_VF0    0x5dU
+	 * 4) #define TEGRA_SID_XUSB_VF1    0x5eU
+	 * 5) #define TEGRA_SID_XUSB_VF2    0x5fU
+	 * 6) #define TEGRA_SID_XUSB_VF3    0x60U
+	 *
+	 * When virtualization is enabled then we have to disable SID override
+	 * and program above SIDs in below newly added SID registers in XUSB
+	 * PADCTL MMIO space. These registers are TZ protected and so need to
+	 * be done in ATF.
+	 * a) #define XUSB_PADCTL_HOST_AXI_STREAMID_PF_0 (0x136cU)
+	 * b) #define XUSB_PADCTL_DEV_AXI_STREAMID_PF_0  (0x139cU)
+	 * c) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_0 (0x1370U)
+	 * d) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_1 (0x1374U)
+	 * e) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_2 (0x1378U)
+	 * f) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3 (0x137cU)
+	 *
+	 * This change disables SID override and programs XUSB SIDs in
+	 * above registers to support both virtualization and non-virtualization
+	 *
+	 * Known Limitations:
+	 * If xusb interface disables SMMU in XUSB DT in non-virtualization
+	 * setup then there will be SMMU fault. We need to use WAR at
+	 * https://git-master.nvidia.com/r/1529227/ to the issue.
+	 *
+	 * More details can be found in the bug 1971161
+	 */
+	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+		XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
+	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+		XUSB_PADCTL_HOST_AXI_STREAMID_VF_0, TEGRA_SID_XUSB_VF0);
+	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+		XUSB_PADCTL_HOST_AXI_STREAMID_VF_1, TEGRA_SID_XUSB_VF1);
+	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+		XUSB_PADCTL_HOST_AXI_STREAMID_VF_2, TEGRA_SID_XUSB_VF2);
+	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+		XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
+	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+		XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
 }
 
 /* Secure IRQs for Tegra186 */
