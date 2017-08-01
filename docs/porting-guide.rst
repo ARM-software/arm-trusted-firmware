@@ -2445,9 +2445,12 @@ of the CPU to enable quick crash analysis and debugging. It requires that a
 console is designated as the crash console by the platform which will be used to
 print the register dump.
 
-The following functions must be implemented by the platform if it wants crash
-reporting mechanism in BL31. The functions are implemented in assembly so that
-they can be invoked without a C Runtime stack.
+By default, the definitions in `plat/common/aarch64/platform\_helpers.S` will
+cause the crash output to be routed over the same console that was registered
+for boot messages. If necessary, platforms may supply their own definitions of
+the following functions to define special crash output behavior. The functions
+are implemented in assembly so that they can be invoked without a C Runtime
+stack.
 
 Function : plat\_crash\_console\_init
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2480,12 +2483,11 @@ Function : plat\_crash\_console\_flush
 ::
 
     Argument : void
-    Return   : int
+    Return   : void
 
 This API is used by the crash reporting mechanism to force write of all buffered
 data on the designated crash console. It should only use general purpose
-registers x0 and x1 to do its work. The return value is 0 on successful
-completion; otherwise the return value is -1.
+registers x0 and x1 to do its work.
 
 Build flags
 -----------

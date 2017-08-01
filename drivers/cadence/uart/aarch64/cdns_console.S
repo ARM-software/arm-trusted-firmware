@@ -4,16 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <arch.h>
-#include <asm_macros.S>
+#include <console_macros.S>
 #include <cadence/cdns_uart.h>
 
-	.globl  console_core_init
-	.globl  console_core_putc
-	.globl  console_core_getc
-	.globl	console_core_flush
+declare_console cadence
 
 	/* -----------------------------------------------
-	 * int console_core_init(unsigned long base_addr,
+	 * int console_cadence_init(unsigned long base_addr,
 	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. This
@@ -29,7 +26,7 @@
 	 * Clobber list : x1, x2, x3
 	 * -----------------------------------------------
 	 */
-func console_core_init
+func_console_init cadence
 	/* Check the input base address */
 	cbz	x0, core_init_fail
 	/* Check baud rate and uart clock for sanity */
@@ -45,19 +42,18 @@ func console_core_init
 core_init_fail:
 	mov	w0, wzr
 	ret
-endfunc console_core_init
+endfunc console_cadence_init
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned long base_addr)
-	 * Function to output a character over the console. It
-	 * returns the character printed on success or -1 on error.
+	 * void console_cadence_putc(int c, unsigned long base_addr)
+	 * Function to output a character over the console. Must
+	 * not modify the value in x0.
 	 * In : w0 - character to be printed
 	 *      x1 - console base address
-	 * Out : return -1 on error else return character.
 	 * Clobber list : x2
 	 * --------------------------------------------------------
 	 */
-func console_core_putc
+func_console_putc cadence
 	/* Check the input parameter */
 	cbz	x1, putc_error
 	/* Prepend '\r' to '\n' */
@@ -76,44 +72,41 @@ func console_core_putc
 	str	w0, [x1, #R_UART_TX]
 	ret
 putc_error:
-	mov	w0, #-1
 	ret
-endfunc console_core_putc
+endfunc console_cadence_putc
 
 	/* ---------------------------------------------
-	 * int console_core_getc(unsigned long base_addr)
+	 * int console_cadence_getc(unsigned long base_addr)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
-	 * or -1 on error.
+	 * or -1 if no character is available.
 	 * In : x0 - console base address
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_getc
-	cbz	x0, getc_error
-1:
+func_console_getc cadence
+	cbz	x0, getc_no_char
 	/* Check if the receive FIFO is empty */
 	ldr	w1, [x0, #R_UART_SR]
-	tbnz	w1, #UART_SR_INTR_REMPTY_BIT, 1b
+	tbnz	w1, #UART_SR_INTR_REMPTY_BIT, getc_no_char
 	ldr	w1, [x0, #R_UART_RX]
 	mov	w0, w1
 	ret
-getc_error:
+getc_no_char:
 	mov	w0, #-1
 	ret
-endfunc console_core_getc
+endfunc console_cadence_getc
 
 	/* ---------------------------------------------
-	 * int console_core_flush(uintptr_t base_addr)
+	 * void console_cadence_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
-	 * Out : return -1 on error else return 0.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_flush
+func_console_flush cadence
 	/* Placeholder */
 	mov	w0, #0
 	ret
-endfunc console_core_flush
+endfunc console_cadence_flush

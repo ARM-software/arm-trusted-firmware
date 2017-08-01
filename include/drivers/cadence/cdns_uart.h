@@ -23,4 +23,12 @@
 #define R_UART_TX	0x30
 #define R_UART_RX	0x30
 
+#ifndef __ASSEMBLY__
+
+#include <types.h>
+
+int console_cadence_register(uint64_t baseaddr, uint64_t clock, uint64_t baud);
+
+#endif /*__ASSEMBLY__*/
+
 #endif

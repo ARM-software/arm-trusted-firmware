@@ -79,4 +79,12 @@
 
 #endif /* !PL011_GENERIC_UART */
 
+#ifndef __ASSEMBLY__
+
+#include <types.h>
+
+int console_pl011_register(uint64_t baseaddr, uint64_t clock, uint64_t baud);
+
+#endif /*__ASSEMBLY__*/
+
 #endif	/* __PL011_H__ */
