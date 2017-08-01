@@ -1123,7 +1123,7 @@ void xlat_tables_print(xlat_ctx_t *ctx)
 	int used_page_tables;
 #if PLAT_XLAT_TABLES_DYNAMIC
 	used_page_tables = 0;
-	for (int i = 0; i < ctx->tables_num; ++i) {
+	for (unsigned int i = 0; i < ctx->tables_num; ++i) {
 		if (ctx->tables_mapped_regions[i] != 0)
 			++used_page_tables;
 	}
