@@ -288,6 +288,11 @@ static void hikey_hi6553_init(void)
 
 	/* select 32.764KHz */
 	mmio_write_8(HI6553_CLK19M2_600_586_EN, 0x01);
+
+	/* Disable vbus_det interrupts */
+	data = mmio_read_8(HI6553_IRQ2_MASK);
+	data = data | 0x3;
+	mmio_write_8(HI6553_IRQ2_MASK, data);
 }
 
 static void init_mmc0_pll(void)
