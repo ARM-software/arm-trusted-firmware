@@ -43,10 +43,7 @@
 	msr	spsr_el1, \reg2
 	.endm
 
-	.section	.text, "ax"
-	.align 3
-
-func tsp_entrypoint
+func tsp_entrypoint _align=3
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.

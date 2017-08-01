@@ -307,8 +307,7 @@ endfunc plat_reset_handler
 	 * Secure entrypoint function for CPU boot
 	 * ----------------------------------------
 	 */
-	.align 6
-func tegra_secure_entrypoint
+func tegra_secure_entrypoint _align=6
 
 #if ERRATA_TEGRA_INVALIDATE_BTB_AT_BOOT
 
