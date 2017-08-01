@@ -87,6 +87,10 @@ KEY_ALG				:= rsa
 # Flag to enable new version of image loading
 LOAD_IMAGE_V2			:= 0
 
+# Use the new console API that allows registering more than one console instance
+# at once. Use = instead of := to dynamically default to ERROR_DEPRECATED.
+MULTI_CONSOLE_API		= $(ERROR_DEPRECATED)
+
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0
 
