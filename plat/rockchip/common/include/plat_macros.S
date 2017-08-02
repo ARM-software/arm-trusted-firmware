@@ -38,14 +38,14 @@ cci_iface_regs:
 	 * The below utility macro prints out relevant GIC
 	 * and CCI registers whenever an unhandled
 	 * exception is taken in BL31.
-	 * Expects: GICD base in x16, GICC base in x17
+	 * Expects: GICD base in x26, GICC base in x27
 	 * Clobbers: x0 - x10, sp
 	 * ---------------------------------------------
 	 */
 	.macro plat_crash_print_regs
 
-	mov_imm	x16, PLAT_RK_GICD_BASE
-	mov_imm	x17, PLAT_RK_GICC_BASE
+	mov_imm	x26, PLAT_RK_GICD_BASE
+	mov_imm	x27, PLAT_RK_GICC_BASE
 
 	/* Check for GICv3 system register access */
 	mrs	x7, id_aa64pfr0_el1
@@ -72,19 +72,19 @@ print_gicv2:
 	/* Load the gicc reg list to x6 */
 	adr	x6, gicc_regs
 	/* Load the gicc regs to gp regs used by str_in_crash_buf_print */
-	ldr	w8, [x17, #GICC_HPPIR]
-	ldr	w9, [x17, #GICC_AHPPIR]
-	ldr	w10, [x17, #GICC_CTLR]
+	ldr	w8, [x27, #GICC_HPPIR]
+	ldr	w9, [x27, #GICC_AHPPIR]
+	ldr	w10, [x27, #GICC_CTLR]
 	/* Store to the crash buf and print to console */
 	bl	str_in_crash_buf_print
 
 print_gic_common:
 	/* Print the GICD_ISPENDR regs */
-	add	x7, x16, #GICD_ISPENDR
+	add	x7, x26, #GICD_ISPENDR
 	adr	x4, gicd_pend_reg
 	bl	asm_print_str
 gicd_ispendr_loop:
-	sub	x4, x7, x16
+	sub	x4, x7, x26
 	cmp	x4, #0x280
 	b.eq	exit_print_gic_regs
 	bl	asm_print_hex

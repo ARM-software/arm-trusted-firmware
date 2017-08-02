@@ -71,15 +71,17 @@ void params_early_setup(void *plat_param_from_bl2)
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			       void *plat_params_from_bl2)
 {
+	static console_16550_t console;
+
 	params_early_setup(plat_params_from_bl2);
 
 #if COREBOOT
 	if (coreboot_serial.type)
-		console_init(coreboot_serial.baseaddr,
-			     coreboot_serial.input_hertz, coreboot_serial.baud);
+		console_16550_register(&console, coreboot_serial.baseaddr,
+			coreboot_serial.input_hertz, coreboot_serial.baud);
 #else
-	console_init(PLAT_RK_UART_BASE, PLAT_RK_UART_CLOCK,
-		     PLAT_RK_UART_BAUDRATE);
+	console_16550_register(&console, PLAT_RK_UART_BASE,
+			       PLAT_RK_UART_CLOCK, PLAT_RK_UART_BAUDRATE);
 #endif
 
 	VERBOSE("bl31_setup\n");
