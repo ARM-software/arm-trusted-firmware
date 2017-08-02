@@ -30,7 +30,8 @@ errata workaround is ``ERRATA_<Processor name>_<ID>``, where the ``Processor nam
 is for example ``A57`` for the ``Cortex_A57`` CPU.
 
 Refer to the section *CPU errata status reporting* in
-`Firmware Design guide`_ for information on to write errata workaround functions.
+`Firmware Design guide`_ for information on how to write errata workaround
+functions.
 
 All workarounds are disabled by default. The platform is responsible for
 enabling these workarounds according to its requirement by defining the
@@ -98,6 +99,9 @@ For Cortex-A57, following errata build flags are defined :
 -  ``ERRATA_A57_833471``: This applies errata 833471 workaround to Cortex-A57
    CPU. This needs to be enabled only for revision <= r1p2 of the CPU.
 
+-  ``ERRATA_A57_859972``: This applies errata 859972 workaround to Cortex-A57
+   CPU. This needs to be enabled only for revision <= r1p3 of the CPU.
+
 CPU Specific optimizations
 --------------------------
 
@@ -131,7 +135,7 @@ architecture that can be enabled by the platform as desired.
 
 *Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.*
 
-.. _Cortex-A53 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm048406/index.html
+.. _Cortex-A53 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm048406/Cortex_A53_MPCore_Software_Developers_Errata_Notice.pdf
 .. _Cortex-A57 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm049219/cortex_a57_mpcore_software_developers_errata_notice.pdf
 .. _Firmware Design guide: firmware-design.rst
 .. _Cortex-A57 Software Optimization Guide: http://infocenter.arm.com/help/topic/com.arm.doc.uan0015b/Cortex_A57_Software_Optimization_Guide_external.pdf
