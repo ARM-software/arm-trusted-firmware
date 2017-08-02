@@ -73,20 +73,52 @@ func cortex_a72_disable_ext_debug
 	ret
 endfunc cortex_a72_disable_ext_debug
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A72 Errata #859971.
+	 * This applies only to revision <= r0p3 of Cortex A72.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber:
+	 * --------------------------------------------------
+	 */
+func errata_a72_859971_wa
+	mov	x17,x30
+	bl	check_errata_859971
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A72_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A72_CPUACTLR_EL1_DIS_INSTR_PREFETCH
+	msr	CORTEX_A72_CPUACTLR_EL1, x1
+1:
+	ret	x17
+endfunc errata_a72_859971_wa
+
+func check_errata_859971
+	mov	x1, #0x03
+	b	cpu_rev_var_ls
+endfunc check_errata_859971
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
 	 * -------------------------------------------------
 	 */
 func cortex_a72_reset_func
+	mov	x19, x30
+	bl	cpu_get_rev_var
+	mov	x18, x0
+
+#if ERRATA_A72_859971
+	mov	x0, x18
+	bl	errata_a72_859971_wa
+#endif
 	/* ---------------------------------------------
-	 * As a bare minimum enable the SMP bit.
+	 * Enable the SMP bit.
 	 * ---------------------------------------------
 	 */
 	mrs	x0, CORTEX_A72_ECTLR_EL1
 	orr	x0, x0, #CORTEX_A72_ECTLR_SMP_BIT
 	msr	CORTEX_A72_ECTLR_EL1, x0
 	isb
-	ret
+	ret x19
 endfunc cortex_a72_reset_func
 
 	/* ----------------------------------------------------
@@ -195,6 +227,27 @@ func cortex_a72_cluster_pwr_dwn
 	mov	x30, x18
 	b	cortex_a72_disable_ext_debug
 endfunc cortex_a72_cluster_pwr_dwn
+
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex A72. Must follow AAPCS.
+ */
+func cortex_a72_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata ERRATA_A72_859971, cortex_a72, 859971
+
+	ldp	x8, x30, [sp], #16
+	ret
+endfunc cortex_a72_errata_report
+#endif
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a72 specific
