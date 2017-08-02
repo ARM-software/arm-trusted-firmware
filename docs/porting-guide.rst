@@ -2107,12 +2107,31 @@ power domain levels. The handler needs to perform power management operation
 corresponding to the local state at each power level. The generic code
 expects the handler to succeed.
 
-The difference between turning a power domain off versus suspending it
-is that in the former case, the power domain is expected to re-initialize
-its state when it is next powered on (see ``pwr_domain_on_finish()``). In the
-latter case, the power domain is expected to save enough state so that it can
-resume execution by restoring this state when its powered on (see
+The difference between turning a power domain off versus suspending it is that
+in the former case, the power domain is expected to re-initialize its state
+when it is next powered on (see ``pwr_domain_on_finish()``). In the latter
+case, the power domain is expected to save enough state so that it can resume
+execution by restoring this state when its powered on (see
 ``pwr_domain_suspend_finish()``).
+
+When suspending a core, the platform can also choose to power off the GICv3
+Redistributor and ITS through an implementation-defined sequence. To achieve
+this safely, the ITS context must be saved first. The architectural part is
+implemented by the ``gicv3_its_save_disable()`` helper, but most of the needed
+sequence is implementation defined and it is therefore the responsibility of
+the platform code to implement the necessary sequence. Then the GIC
+Redistributor context can be saved using the ``gicv3_rdistif_save()`` helper.
+Powering off the Redistributor requires the implementation to support it and it
+is the responsibility of the platform code to execute the right implementation
+defined sequence.
+
+When a system suspend is requested, the platform can also make use of the
+``gicv3_distif_save()`` helper to save the context of the GIC Distributor after
+it has saved the context of the Redistributors and ITS of all the cores in the
+system. The context of the Distributor can be large and may require it to be
+allocated in a special area if it cannot fit in the platform's global static
+data, for example in DRAM. The Distributor can then be powered down using an
+implementation-defined sequence.
 
 plat\_psci\_ops.pwr\_domain\_pwr\_down\_wfi()
 .............................................
@@ -2158,6 +2177,10 @@ in the normal world and also provide secure runtime firmware services.
 The ``target_state`` (first argument) has a similar meaning as described in
 the ``pwr_domain_on_finish()`` operation. The generic code expects the platform
 to succeed.
+
+If the Distributor, Redistributors or ITS have been powered off as part of a
+suspend, their context must be restored in this function in the reverse order
+to how they were saved during suspend sequence.
 
 plat\_psci\_ops.system\_off()
 .............................
