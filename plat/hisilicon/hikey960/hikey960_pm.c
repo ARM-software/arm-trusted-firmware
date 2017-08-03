@@ -250,12 +250,17 @@ static void
 hikey960_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
 	unsigned long mpidr = read_mpidr_el1();
+	unsigned int core = mpidr & MPIDR_CPU_MASK;
 	unsigned int cluster =
 		(mpidr & MPIDR_CLUSTER_MASK) >> MPIDR_AFFINITY_BITS;
 
 	/* Nothing to be done on waking up from retention from CPU level */
 	if (CORE_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE)
 		return;
+
+	hisi_cpuidle_lock(cluster, core);
+	hisi_clear_cpuidle_flag(cluster, core);
+	hisi_cpuidle_unlock(cluster, core);
 
 	if (hisi_test_ap_suspend_flag(cluster)) {
 		hikey960_sr_dma_reinit();
