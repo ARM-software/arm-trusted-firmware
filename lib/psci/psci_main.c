@@ -408,6 +408,11 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_STAT_COUNT_AARCH32:
 			return psci_stat_count(x1, x2);
 #endif
+		case PSCI_MEM_PROTECT:
+			return psci_mem_protect(x1);
+
+		case PSCI_MEM_CHK_RANGE_AARCH32:
+			return psci_mem_chk_range(x1, x2);
 
 		default:
 			break;
@@ -444,6 +449,10 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_STAT_COUNT_AARCH64:
 			return psci_stat_count(x1, x2);
 #endif
+
+		case PSCI_MEM_CHK_RANGE_AARCH64:
+			return psci_mem_chk_range(x1, x2);
+
 
 		default:
 			break;
