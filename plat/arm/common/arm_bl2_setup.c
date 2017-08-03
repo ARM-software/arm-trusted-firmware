@@ -193,6 +193,10 @@ void arm_bl2_platform_setup(void)
 {
 	/* Initialize the secure environment */
 	plat_arm_security_setup();
+
+#if defined(PLAT_ARM_MEM_PROT_ADDR)
+	arm_nor_psci_do_mem_protect();
+#endif
 }
 
 void bl2_platform_setup(void)
