@@ -109,13 +109,16 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 				 unsigned long long non_overlap_area_size)
 {
+	int ret;
+
 	/*
 	 * Map the NS memory first, clean it and then unmap it.
 	 */
-	mmap_add_dynamic_region(non_overlap_area_start, /* PA */
+	ret = mmap_add_dynamic_region(non_overlap_area_start, /* PA */
 				non_overlap_area_start, /* VA */
 				non_overlap_area_size, /* size */
 				MT_NS | MT_RW | MT_EXECUTE_NEVER); /* attrs */
+	assert(ret == 0);
 
 	zeromem((void *)non_overlap_area_start, non_overlap_area_size);
 	flush_dcache_range(non_overlap_area_start, non_overlap_area_size);

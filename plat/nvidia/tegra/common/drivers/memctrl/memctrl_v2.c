@@ -600,13 +600,16 @@ static void tegra_unlock_videomem_nonoverlap(void)
 static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 				 unsigned long long non_overlap_area_size)
 {
+	int ret;
+
 	/*
 	 * Map the NS memory first, clean it and then unmap it.
 	 */
-	(void)mmap_add_dynamic_region(non_overlap_area_start, /* PA */
+	ret = mmap_add_dynamic_region(non_overlap_area_start, /* PA */
 				non_overlap_area_start, /* VA */
 				non_overlap_area_size, /* size */
 				MT_NS | MT_RW | MT_EXECUTE_NEVER); /* attrs */
+	assert(ret == 0);
 
 	zero_normalmem((void *)non_overlap_area_start, non_overlap_area_size);
 	flush_dcache_range(non_overlap_area_start, non_overlap_area_size);
