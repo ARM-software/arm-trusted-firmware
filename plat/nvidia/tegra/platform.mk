@@ -12,6 +12,8 @@ $(eval $(call add_define,CRASH_REPORTING))
 
 # enable assert() for release/debug builds
 ENABLE_ASSERTIONS	:=	1
+PLAT_LOG_LEVEL_ASSERT	:=	40
+$(eval $(call add_define,PLAT_LOG_LEVEL_ASSERT))
 
 # enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
