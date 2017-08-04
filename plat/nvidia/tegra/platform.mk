@@ -31,6 +31,9 @@ USE_COHERENT_MEM	:=	0
 # do not enable SVE
 ENABLE_SVE_FOR_NS	:=	0
 
+# enable D-cache early during CPU warmboot
+WARMBOOT_ENABLE_DCACHE_EARLY := 1
+
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 
