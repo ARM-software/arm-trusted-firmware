@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <firmware_image_package.h>
 #include <stddef.h>
+
+#include <firmware_image_package.h>
 
 #include "tbbr_config.h"
 

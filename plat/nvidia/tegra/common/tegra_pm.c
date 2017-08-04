@@ -36,6 +36,7 @@ uint8_t tegra_fake_system_suspend;
  * The following platform setup functions are weakly defined. They
  * provide typical implementations that will be overridden by a SoC.
  */
+#pragma weak tegra_soc_pwr_domain_suspend_pwrdown_early
 #pragma weak tegra_soc_pwr_domain_suspend
 #pragma weak tegra_soc_pwr_domain_on
 #pragma weak tegra_soc_pwr_domain_off
@@ -44,6 +45,11 @@ uint8_t tegra_fake_system_suspend;
 #pragma weak tegra_soc_prepare_system_reset
 #pragma weak tegra_soc_prepare_system_off
 #pragma weak tegra_soc_get_target_pwr_state
+
+int tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
+{
+	return PSCI_E_NOT_SUPPORTED;
+}
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
@@ -140,6 +146,17 @@ int tegra_pwr_domain_on(u_register_t mpidr)
 void tegra_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	tegra_soc_pwr_domain_off(target_state);
+}
+
+/*******************************************************************************
+ * Handler called when a power domain is about to be suspended. The
+ * target_state encodes the power state that each level should transition to.
+ * This handler is called with SMP and data cache enabled, when
+ * HW_ASSISTED_COHERENCY = 0
+ ******************************************************************************/
+void tegra_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
+{
+	tegra_soc_pwr_domain_suspend_pwrdown_early(target_state);
 }
 
 /*******************************************************************************
@@ -315,6 +332,7 @@ static const plat_psci_ops_t tegra_plat_psci_ops = {
 	.cpu_standby			= tegra_cpu_standby,
 	.pwr_domain_on			= tegra_pwr_domain_on,
 	.pwr_domain_off			= tegra_pwr_domain_off,
+	.pwr_domain_suspend_pwrdown_early = tegra_pwr_domain_suspend_pwrdown_early,
 	.pwr_domain_suspend		= tegra_pwr_domain_suspend,
 	.pwr_domain_on_finish		= tegra_pwr_domain_on_finish,
 	.pwr_domain_suspend_finish	= tegra_pwr_domain_suspend_finish,

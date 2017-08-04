@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <plat_arm.h>
-#include "css_scp_bootloader.h"
+#include "../drivers/scp/css_scp.h"
 
 /* Weak definition may be overridden in specific CSS based platform */
 #pragma weak bl2u_plat_handle_scp_bl2u
@@ -40,8 +40,11 @@ int bl2u_plat_handle_scp_bl2u(void)
 
 	INFO("BL2U: Initiating SCP_BL2U transfer to SCP\n");
 
-	ret = scp_bootloader_transfer((void *)scp_bl2u_image_info.image_base,
+	ret = css_scp_boot_image_xfer((void *)scp_bl2u_image_info.image_base,
 		scp_bl2u_image_info.image_size);
+
+	if (ret == 0)
+		ret = css_scp_boot_ready();
 
 	if (ret == 0)
 		INFO("BL2U: SCP_BL2U transferred to SCP\n");

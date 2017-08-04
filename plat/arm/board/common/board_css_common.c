@@ -19,6 +19,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	CSS_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 #if TRUSTED_BOARD_BOOT
+	/* Map DRAM to authenticate NS_BL2U image. */
 	ARM_MAP_NS_DRAM1,
 #endif
 	{0}
