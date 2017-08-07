@@ -65,8 +65,12 @@
 	 * security, robustness and potentially facilitates debugging.
 	 */
 	.macro vector_entry  label
+	.cfi_sections .debug_frame
 	.section .vectors, "ax"
 	.align 7, 0
+	.type \label, %function
+	.func \label
+	.cfi_startproc
 	\label:
 	.endm
 
@@ -77,6 +81,8 @@
 	 * vector entry as the parameter
 	 */
 	.macro check_vector_size since
+	  .endfunc
+	  .cfi_endproc
 	  .if (. - \since) > (32 * 4)
 	    .error "Vector exceeds 32 instructions"
 	  .endif
