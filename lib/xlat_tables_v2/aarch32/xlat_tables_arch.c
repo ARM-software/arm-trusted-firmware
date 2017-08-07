@@ -10,6 +10,7 @@
 #include <cassert.h>
 #include <platform_def.h>
 #include <utils.h>
+#include <utils_def.h>
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
@@ -153,6 +154,13 @@ void enable_mmu_arch(unsigned int flags,
 
 	/* Set TTBR0 bits as well */
 	ttbr0 = (uint64_t)(uintptr_t) base_table;
+#if ARM_ARCH_AT_LEAST(8, 2)
+	/*
+	 * Enable CnP bit so as to share page tables with all PEs.
+	 * Mandatory for ARMv8.2 implementations.
+	 */
+	ttbr0 |= TTBR_CNP_BIT;
+#endif
 
 	/* Now program the relevant system registers */
 	write_mair0(mair0);
