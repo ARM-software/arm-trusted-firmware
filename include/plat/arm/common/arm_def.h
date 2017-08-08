@@ -177,7 +177,12 @@
 						ARM_NS_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_NS)
 
+#define ARM_MAP_DRAM2			MAP_REGION_FLAT(		\
+						ARM_DRAM2_BASE,		\
+						ARM_DRAM2_SIZE,		\
+						MT_MEMORY | MT_RW | MT_NS)
 #ifdef SPD_tspd
+
 #define ARM_MAP_TSP_SEC_MEM		MAP_REGION_FLAT(		\
 						TSP_SEC_MEM_BASE,	\
 						TSP_SEC_MEM_SIZE,	\
@@ -224,8 +229,18 @@
  * Required platform porting definitions common to all ARM standard platforms
  *****************************************************************************/
 
+/*
+ * We need to access DRAM2 from BL2 for PSCI_MEM_PROTECT for
+ * AArch64 builds
+ */
+#ifdef AARCH64
+#define PLAT_PHY_ADDR_SPACE_SIZE			(1ull << 36)
+#define PLAT_VIRT_ADDR_SPACE_SIZE			(1ull << 36)
+#else
 #define PLAT_PHY_ADDR_SPACE_SIZE			(1ull << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE			(1ull << 32)
+#endif
+
 
 /*
  * This macro defines the deepest retention state possible. A higher state

@@ -36,6 +36,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	CSS_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 	ARM_MAP_NS_DRAM1,
+#ifdef AARCH64
+	ARM_MAP_DRAM2,
+#endif
 #ifdef SPD_tspd
 	ARM_MAP_TSP_SEC_MEM,
 #endif

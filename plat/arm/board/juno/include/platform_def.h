@@ -68,10 +68,10 @@
 
 #ifdef IMAGE_BL2
 #ifdef SPD_opteed
-# define PLAT_ARM_MMAP_ENTRIES		10
+# define PLAT_ARM_MMAP_ENTRIES		11
 # define MAX_XLAT_TABLES		5
 #else
-# define PLAT_ARM_MMAP_ENTRIES		9
+# define PLAT_ARM_MMAP_ENTRIES		10
 # define MAX_XLAT_TABLES		4
 #endif
 #endif
@@ -82,7 +82,7 @@
 #endif
 
 #ifdef IMAGE_BL31
-#  define PLAT_ARM_MMAP_ENTRIES		6
+#  define PLAT_ARM_MMAP_ENTRIES		7
 #  define MAX_XLAT_TABLES		3
 #endif
 

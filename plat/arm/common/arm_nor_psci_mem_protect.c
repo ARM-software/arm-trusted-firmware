@@ -14,6 +14,9 @@
 
 mem_region_t arm_ram_ranges[] = {
 	{ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_SIZE},
+#ifdef AARCH64
+	{ARM_DRAM2_BASE, ARM_DRAM2_SIZE},
+#endif
 };
 
 /*******************************************************************************
