@@ -6,6 +6,7 @@
 
 #ifndef __CORTEX_A57_H__
 #define __CORTEX_A57_H__
+#include <utils_def.h>
 
 /* Cortex-A57 midr for revision 0 */
 #define CORTEX_A57_MIDR			U(0x410FD070)
@@ -55,15 +56,15 @@
 /*******************************************************************************
  * L2 Control register specific definitions.
  ******************************************************************************/
-#define CORTEX_A57_L2CTLR_EL1			S3_1_C11_C0_2
+#define CORTEX_A57_L2CTLR_EL1				S3_1_C11_C0_2
 
 #define CORTEX_A57_L2CTLR_DATA_RAM_LATENCY_SHIFT	U(0)
-#define CORTEX_A57_L2CTLR_TAG_RAM_LATENCY_SHIFT	U(6)
+#define CORTEX_A57_L2CTLR_TAG_RAM_LATENCY_SHIFT		U(6)
 
-#define CORTEX_A57_L2_DATA_RAM_LATENCY_3_CYCLES	U(0x2)
-#define CORTEX_A57_L2_TAG_RAM_LATENCY_3_CYCLES	U(0x2)
+#define CORTEX_A57_L2_DATA_RAM_LATENCY_3_CYCLES		U(0x2)
+#define CORTEX_A57_L2_TAG_RAM_LATENCY_3_CYCLES		U(0x2)
 
-#define CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT	(U(1) << 21)
+#define CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT		(U(1) << 21)
 
 /*******************************************************************************
  * L2 Extended Control register specific definitions.
