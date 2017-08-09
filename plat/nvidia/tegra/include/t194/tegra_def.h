@@ -110,6 +110,10 @@
 #define MC_SECURITY_CFG1_0		0x74
 #define MC_SECURITY_CFG3_0		0x9BC
 
+#define MC_SECURITY_BOM_MASK		(U(0xFFF) << 20)
+#define MC_SECURITY_SIZE_MB_MASK	(U(0x1FFF) << 0)
+#define MC_SECURITY_BOM_HI_MASK		(U(0x3) << 0)
+
 /* Video Memory carveout configuration registers */
 #define MC_VIDEO_PROTECT_BASE_HI	0x978
 #define MC_VIDEO_PROTECT_BASE_LO	0x648
