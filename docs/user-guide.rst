@@ -521,6 +521,13 @@ Common build options
    firmware images have been loaded in memory, and the MMU and caches are
    turned off. Refer to the "Debugging options" section for more details.
 
+- ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
+   secure interrupts (caught through the FIQ line). Platforms can enable
+   this directive if they need to handle such interruption. When enabled,
+   the FIQ are handled in monitor mode and non secure world is not allowed
+   to mask these events. Platforms that enable FIQ handling in SP_MIN shall
+   implement the api ``sp_min_plat_fiq_handler()``. The default value is 0.
+
 -  ``TRUSTED_BOARD_BOOT``: Boolean flag to include support for the Trusted Board
    Boot feature. When set to '1', BL1 and BL2 images include support to load
    and verify the certificates and images in a FIP, and BL1 includes support

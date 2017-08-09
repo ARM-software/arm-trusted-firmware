@@ -18,6 +18,17 @@
 	.globl	sp_min_entrypoint
 	.globl	sp_min_warm_entrypoint
 
+	.macro route_fiq_to_sp_min reg
+		/* -----------------------------------------------------
+		 * FIQs are secure interrupts trapped by Monitor and non
+		 * secure is not allowed to mask the FIQs.
+		 * -----------------------------------------------------
+		 */
+		ldcopr	\reg, SCR
+		orr	\reg, \reg, #SCR_FIQ_BIT
+		bic	\reg, \reg, #SCR_FW_BIT
+		stcopr	\reg, SCR
+	.endm
 
 vector_base sp_min_vector_table
 	b	sp_min_entrypoint
@@ -27,7 +38,7 @@ vector_base sp_min_vector_table
 	b	plat_panic_handler	/* Data abort */
 	b	plat_panic_handler	/* Reserved */
 	b	plat_panic_handler	/* IRQ */
-	b	plat_panic_handler	/* FIQ */
+	b	handle_fiq		/* FIQ */
 
 
 /*
@@ -91,6 +102,10 @@ func sp_min_entrypoint
 	mov	r0, #0
 	mov	r1, #0
 #endif /* RESET_TO_SP_MIN */
+
+#if SP_MIN_WITH_SECURE_FIQ
+	route_fiq_to_sp_min r4
+#endif
 
 	bl	sp_min_early_platform_setup
 	bl	sp_min_plat_arch_setup
@@ -166,6 +181,44 @@ func handle_smc
 endfunc handle_smc
 
 /*
+ * Secure Interrupts handling function for SP_MIN.
+ */
+func handle_fiq
+#if !SP_MIN_WITH_SECURE_FIQ
+	b plat_panic_handler
+#else
+	/* FIQ has a +4 offset for lr compared to preferred return address */
+	sub	lr, lr, #4
+	/* On SMC entry, `sp` points to `smc_ctx_t`. Save `lr`. */
+	str	lr, [sp, #SMC_CTX_LR_MON]
+
+	smcc_save_gp_mode_regs
+
+	/*
+	 * AArch32 architectures need to clear the exclusive access when
+	 * entering Monitor mode.
+	 */
+	clrex
+
+	/* load run-time stack */
+	mov	r2, sp
+	ldr	sp, [r2, #SMC_CTX_SP_MON]
+
+	/* Switch to Secure Mode */
+	ldr	r0, [r2, #SMC_CTX_SCR]
+	bic	r0, #SCR_NS_BIT
+	stcopr	r0, SCR
+	isb
+
+	push	{r2, r3}
+	bl	sp_min_fiq
+	pop	{r0, r3}
+
+	b	sp_min_exit
+#endif
+endfunc handle_fiq
+
+/*
  * The Warm boot entrypoint for SP_MIN.
  */
 func sp_min_warm_entrypoint
@@ -212,6 +265,10 @@ func sp_min_warm_entrypoint
 	 */
 	mov	r0, #DISABLE_DCACHE
 	bl	bl32_plat_enable_mmu
+
+#if SP_MIN_WITH_SECURE_FIQ
+	route_fiq_to_sp_min r0
+#endif
 
 #if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
 	ldcopr	r0, SCTLR
