@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,9 +42,9 @@ endfunc cortex_a72_disable_l2_prefetch
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_hw_prefetcher
-	mrs	x0, CORTEX_A72_ACTLR_EL1
-	orr	x0, x0, #CORTEX_A72_ACTLR_DISABLE_L1_DCACHE_HW_PFTCH
-	msr	CORTEX_A72_ACTLR_EL1, x0
+	mrs	x0, CORTEX_A72_CPUACTLR_EL1
+	orr	x0, x0, #CORTEX_A72_CPUACTLR_EL1_DISABLE_L1_DCACHE_HW_PFTCH
+	msr	CORTEX_A72_CPUACTLR_EL1, x0
 	isb
 	dsb	ish
 	ret

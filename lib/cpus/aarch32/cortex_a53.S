@@ -84,9 +84,9 @@ func a53_disable_non_temporal_hint
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A53_ACTLR
-	orr64_imm	r0, r1, CORTEX_A53_ACTLR_DTAH
-	stcopr16	r0, r1, CORTEX_A53_ACTLR
+	ldcopr16	r0, r1, CORTEX_A53_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A53_CPUACTLR_DTAH
+	stcopr16	r0, r1, CORTEX_A53_CPUACTLR
 1:
 	bx		lr
 endfunc a53_disable_non_temporal_hint
@@ -118,9 +118,9 @@ func errata_a53_855873_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A53_ACTLR
-	orr64_imm	r0, r1, CORTEX_A53_ACTLR_ENDCCASCI
-	stcopr16	r0, r1, CORTEX_A53_ACTLR
+	ldcopr16	r0, r1, CORTEX_A53_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A53_CPUACTLR_ENDCCASCI
+	stcopr16	r0, r1, CORTEX_A53_CPUACTLR
 1:
 	bx		lr
 endfunc errata_a53_855873_wa

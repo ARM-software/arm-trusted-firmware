@@ -40,11 +40,11 @@
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
-#define CORTEX_A53_ACTLR			p15, 0, c15
+#define CORTEX_A53_CPUACTLR			p15, 0, c15
 
-#define CORTEX_A53_ACTLR_ENDCCASCI_SHIFT	44
-#define CORTEX_A53_ACTLR_ENDCCASCI		(1 << CORTEX_A53_ACTLR_ENDCCASCI_SHIFT)
-#define CORTEX_A53_ACTLR_DTAH			(1 << 24)
+#define CORTEX_A53_CPUACTLR_ENDCCASCI_SHIFT	44
+#define CORTEX_A53_CPUACTLR_ENDCCASCI		(1 << CORTEX_A53_CPUACTLR_ENDCCASCI_SHIFT)
+#define CORTEX_A53_CPUACTLR_DTAH		(1 << 24)
 
 /*******************************************************************************
  * L2 Auxiliary Control register specific definitions.
@@ -66,5 +66,17 @@
  * L2 Memory Error Syndrome register specific definitions.
  ******************************************************************************/
 #define CORTEX_A53_L2MERRSR			p15, 3, c15
+
+#if !ERROR_DEPRECATED
+/*
+ * These registers were previously wrongly named. Provide previous definitions so
+ * as not to break platforms that continue using them.
+ */
+#define CORTEX_A53_ACTLR			CORTEX_A53_CPUACTLR
+
+#define CORTEX_A53_ACTLR_ENDCCASCI_SHIFT	CORTEX_A53_CPUACTLR_ENDCCASCI_SHIFT
+#define CORTEX_A53_ACTLR_ENDCCASCI		CORTEX_A53_CPUACTLR_ENDCCASCI
+#define CORTEX_A53_ACTLR_DTAH			CORTEX_A53_CPUACTLR_DTAH
+#endif /* !ERROR_DEPRECATED */
 
 #endif /* __CORTEX_A53_H__ */
