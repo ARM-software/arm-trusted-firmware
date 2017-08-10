@@ -19,6 +19,7 @@
 #include <drivers/arm/gicv2.h>
 #include <bl31/interrupt_mgmt.h>
 #include <mce.h>
+#include <mce_private.h>
 #include <plat/common/platform.h>
 #include <tegra_def.h>
 #include <tegra_mc_def.h>
@@ -256,4 +257,13 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
 	val = mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_ADDR);
 
 	return (plat_params_from_bl2_t *)(uintptr_t)val;
+}
+
+void plat_late_platform_setup(void)
+{
+	/*
+	 * Enable strict checking after programming the GSC for
+	 * enabling TZSRAM and TZDRAM
+	 */
+	mce_enable_strict_checking();
 }

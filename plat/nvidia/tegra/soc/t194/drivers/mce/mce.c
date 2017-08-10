@@ -21,6 +21,7 @@
 #include <t194_nvg.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
+#include <tegra_private.h>
 
 /* Handler to check if MCE firmware is supported */
 static bool mce_firmware_not_supported(void)
@@ -182,5 +183,55 @@ void mce_verify_firmware_version(void)
 	if (minor < (uint32_t)TEGRA_NVG_VERSION_MINOR) {
 		ERROR("MCE minor version mismatch\n");
 		panic();
+	}
+}
+
+/*******************************************************************************
+ * Handler to enable the strict checking mode
+ ******************************************************************************/
+void mce_enable_strict_checking(void)
+{
+	uint64_t sctlr = read_sctlr_el3();
+	int32_t ret = 0;
+
+	if (tegra_platform_is_silicon() || tegra_platform_is_fpga()) {
+		/*
+		 * Step1: TZ-DRAM and TZRAM should be setup before the MMU is
+		 * enabled.
+		 *
+		 * The common code makes sure that TZDRAM/TZRAM are already
+		 * enabled before calling into this handler. If this is not the
+		 * case, the following sequence must be executed before moving
+		 * on to step 2.
+		 *
+		 * tlbialle1is();
+		 * tlbialle3is();
+		 * dsbsy();
+		 * isb();
+		 *
+		 */
+		if ((sctlr & (uint64_t)SCTLR_M_BIT) == (uint64_t)SCTLR_M_BIT) {
+			tlbialle1is();
+			tlbialle3is();
+			dsbsy();
+			isb();
+		}
+
+		/*
+		 * Step2: SCF flush - Clean and invalidate caches and clear the
+		 * TR-bits
+		 */
+		ret = nvg_roc_clean_cache_trbits();
+		if (ret < 0) {
+			ERROR("%s: flush cache_trbits failed(%d)\n", __func__,
+				ret);
+			return;
+		}
+
+		/*
+		 * Step3: Issue the SECURITY_CONFIG request to MCE to enable
+		 * strict checking mode.
+		 */
+		nvg_enable_strict_checking_mode();
 	}
 }

@@ -36,6 +36,12 @@
  ******************************************************************************/
 #define MCE_STAT_ID_SHIFT			16U
 
+/*******************************************************************************
+ * Security config macros
+ ******************************************************************************/
+#define STRICT_CHECKING_ENABLED_SET		(1UL << 0)
+#define STRICT_CHECKING_LOCKED_SET		(1UL << 1)
+
 /* declarations for NVG handler functions */
 uint64_t nvg_get_version(void);
 int32_t nvg_enable_power_perf_mode(void);
@@ -54,12 +60,16 @@ int32_t nvg_roc_clean_cache(void);
 int32_t nvg_roc_flush_cache(void);
 int32_t nvg_roc_clean_cache_trbits(void);
 int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time);
-
 void nvg_set_request_data(uint64_t req, uint64_t data);
 void nvg_set_request(uint64_t req);
 uint64_t nvg_get_result(void);
 uint64_t nvg_cache_clean(void);
 uint64_t nvg_cache_clean_inval(void);
 uint64_t nvg_cache_inval_all(void);
+int32_t nvg_roc_clean_cache_trbits(void);
+void nvg_enable_strict_checking_mode(void);
+
+/* MCE helper functions */
+void mce_enable_strict_checking(void);
 
 #endif /* __MCE_PRIVATE_H__ */
