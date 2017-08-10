@@ -22,6 +22,10 @@
 #define NUM_BASE_LEVEL_ENTRIES	\
        GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)
 
+#ifdef PLAT_BASE_XLAT_BASE
+#error "PLAT_BASE_XLAT_BASE is not allowed on AArch64 capable architectures"
+#endif
+
 static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
 		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
 

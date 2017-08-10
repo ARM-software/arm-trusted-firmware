@@ -473,6 +473,36 @@ constants must also be defined:
    Defines the total size of the physical address space in bytes. For example,
    for a 32 bit physical address space, this value should be ``(1ull << 32)``.
 
+If the platform port uses the translation table library code, the following
+constants can be defined:
+
+-  **#define : PLAT\_BASE\_XLAT\_BASE**
+
+   Defines the identity map base address of the translation level 1 base table
+   which memory location is common to all BLs. This feature is useful only for
+   AArch32 only architectures where all BL do share the very same MMU resources
+   since all core modes rely on a single MMU support contrary to AArch64 aware
+   architectures where EL3 and secure EL1 each rely on their specific MMU
+   configuration resources.
+
+-  **#define : PLAT\_BASE\_XLAT\_SIZE**
+
+   Defines the byte size reserved for translation level 1 base table
+   **PLAT\_BASE\_XLAT\_BASE**.
+
+-  **#define : PLAT\_XLAT\_BASE**
+
+   Defines the identity map base address of the translation table array which
+   is common to all BLs. This feature is useful only for AArch32 only
+   architectures where all BL do share the very same MMU resources since
+   all core modes rely on a single MMU support contrary to AArch64 aware
+   architectures where EL3 and secure EL1 each rely on their specific MMU
+   configuration resources.
+
+-  **#define : PLAT\_XLAT\_SIZE**
+
+   Defines the byte size reserved for translation tables **PLAT\__XLAT\_BASE**.
+
 If the platform port uses the IO storage framework, the following constants
 must also be defined:
 

@@ -19,8 +19,17 @@
 #define NUM_BASE_LEVEL_ENTRIES	\
        GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)
 
+#ifdef PLAT_BASE_XLAT_BASE
+CASSERT(!(PLAT_BASE_XLAT_BASE &
+	(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t) - 1)),
+	invalid_plat_base_xlat_base);
+CASSERT(PLAT_BASE_XLAT_SIZE == sizeof(uint64_t) * NUM_BASE_LEVEL_ENTRIES,
+	invalid_plat_base_xlat_size);
+static uint64_t *base_xlation_table = (uint64_t *)PLAT_BASE_XLAT_BASE;
+#else
 static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
 		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
+#endif
 
 #if ENABLE_ASSERTIONS
 static unsigned long long get_max_supported_pa(void)

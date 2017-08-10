@@ -141,11 +141,21 @@ static unsigned next_xlat;
 static unsigned long long xlat_max_pa;
 static uintptr_t xlat_max_va;
 
+#ifdef PLAT_BASE_XLAT_BASE
+CASSERT(PLAT_BASE_XLAT_SIZE == MMU32B_L1_TABLE_SIZE, invalid_base_xlat_size);
+static uint32_t *mmu_l1_base = (uint32_t *)PLAT_BASE_XLAT_BASE;
+#else
 static uint32_t mmu_l1_base[NUM_1MB_IN_4GB]
 	__aligned(MMU32B_L1_TABLE_ALIGN) __attribute__((section("xlat_table")));
+#endif
 
+#ifdef PLAT_XLAT_BASE
+CASSERT(PLAT_XLAT_SIZE >= (MMU32B_L2_TABLE_SIZE * MAX_XLAT_TABLES), invalid_xlat_size);
+static uint32_t *mmu_l2_base = (uint32_t *)PLAT_XLAT_BASE;
+#else
 static uint32_t mmu_l2_base[MAX_XLAT_TABLES][NUM_4K_IN_1MB]
 	__aligned(MMU32B_L2_TABLE_ALIGN) __attribute__((section("xlat_table")));
+#endif
 
 /*
  * Array of all memory regions stored in order of ascending base address.
@@ -459,6 +469,13 @@ void init_xlat_tables(void)
 
 	assert(!((unsigned)mmu_l1_base & (MMU32B_L1_TABLE_ALIGN - 1)));
 	assert(!((unsigned)mmu_l2_base & (MMU32B_L2_TABLE_ALIGN - 1)));
+
+#ifdef PLAT_BASE_XLAT_BASE
+	inv_dcache_range(PLAT_BASE_XLAT_BASE, PLAT_BASE_XLAT_SIZE);
+#endif
+#ifdef PLAT_XLAT_BASE
+	inv_dcache_range(PLAT_XLAT_BASE, PLAT_XLAT_SIZE);
+#endif
 
 	memset(mmu_l1_base, 0, MMU32B_L1_TABLE_SIZE);
 
