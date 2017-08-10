@@ -102,15 +102,16 @@
 #define ID_PFR1_GIC_MASK	0xf
 
 /* SCTLR definitions */
-#define SCTLR_RES1	((1 << 23) | (1 << 22) | (1 << 11) | (1 << 4) | \
-			(1 << 3))
+#define SCTLR_RES1	((1 << 23) | (1 << 22) | (1 << 4) | (1 << 3))
 #define SCTLR_M_BIT		(1 << 0)
 #define SCTLR_A_BIT		(1 << 1)
 #define SCTLR_C_BIT		(1 << 2)
 #define SCTLR_CP15BEN_BIT	(1 << 5)
 #define SCTLR_ITD_BIT		(1 << 7)
+#define SCTLR_Z_BIT		(1 << 11)
 #define SCTLR_I_BIT		(1 << 12)
 #define SCTLR_V_BIT		(1 << 13)
+#define SCTLR_RR_BIT		(1 << 14)
 #define SCTLR_NTWI_BIT		(1 << 16)
 #define SCTLR_NTWE_BIT		(1 << 18)
 #define SCTLR_WXN_BIT		(1 << 19)
@@ -444,6 +445,9 @@
 #define PRRR		p15, 0, c10, c2, 0
 #define NMRR		p15, 0, c10, c2, 1
 #define DACR		p15, 0, c3, c0, 0
+
+/* ARMv7 Cortex-A9 specific coproc register */
+#define PCR		p15, 0, c15, c0, 0
 
 /* GICv3 CPU Interface system register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
 #define ICC_IAR1	p15, 0, c12, c12, 0

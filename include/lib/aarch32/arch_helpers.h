@@ -278,6 +278,9 @@ DEFINE_COPROCR_RW_FUNCS(prrr, PRRR)
 DEFINE_COPROCR_RW_FUNCS(nmrr, NMRR)
 DEFINE_COPROCR_RW_FUNCS(dacr, DACR)
 
+/* ARMv7 Cortex-A9 specific coproc register */
+DEFINE_COPROCR_RW_FUNCS(pcr, PCR)
+
 /*
  * TLBI operation prototypes
  */
