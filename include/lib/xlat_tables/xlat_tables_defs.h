@@ -7,6 +7,7 @@
 #ifndef __XLAT_TABLES_DEFS_H__
 #define __XLAT_TABLES_DEFS_H__
 
+#include <arch.h>
 #include <utils_def.h>
 
 /* Miscellaneous MMU related constants */
@@ -57,7 +58,11 @@
 #define PAGE_SIZE_MASK		(PAGE_SIZE - 1)
 #define IS_PAGE_ALIGNED(addr)	(((addr) & PAGE_SIZE_MASK) == 0)
 
+#if ARCH_IS_ARMV7_WITHOUT_LPAE
+#define XLAT_ENTRY_SIZE_SHIFT	U(2) /* Each MMU table entry is 4 bytes (1 << 2) */
+#else
 #define XLAT_ENTRY_SIZE_SHIFT	U(3) /* Each MMU table entry is 8 bytes (1 << 3) */
+#endif
 #define XLAT_ENTRY_SIZE		(U(1) << XLAT_ENTRY_SIZE_SHIFT)
 
 #define XLAT_TABLE_SIZE_SHIFT	PAGE_SIZE_SHIFT /* Size of one complete table */
