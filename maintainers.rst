@@ -64,6 +64,16 @@ Files:
 -  plat/hisilicon/hikey/\*
 -  plat/hisilicon/hikey960/\*
 
+Allwinner ARMv8 platform sub-maintainer
+---------------------------------------
+
+Andre Przywara (andre.przywara@arm.com, `Andre-ARM`_)
+
+Files:
+
+-  docs/plat/allwinner.rst
+-  plat/allwinner/\*
+
 HiSilicon Poplar platform sub-maintainer
 ----------------------------------------
 
@@ -151,3 +161,4 @@ Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _etienne-lms: https://github.com/etienne-lms
 .. _qoriq-open-source: https://github.com/qoriq-open-source
+.. _Andre-ARM: https://github.com/Andre-ARM
