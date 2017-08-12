@@ -18,8 +18,13 @@
 #define SUNXI_WDOG0_CFG_REG		(SUNXI_WDOG_BASE + 0x0014)
 #define SUNXI_WDOG0_MODE_REG		(SUNXI_WDOG_BASE + 0x0018)
 
+#include "sunxi_private.h"
+
 static void __dead2 sunxi_system_off(void)
 {
+	/* Turn off all secondary CPUs */
+	sunxi_disable_secondary_cpus(plat_my_core_pos());
+
 	ERROR("PSCI: Full shutdown not implemented, halting\n");
 	wfi();
 	panic();

@@ -44,6 +44,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
 					  DISABLE_ALL_EXCEPTIONS);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
+
+	/* Turn off all secondary CPUs */
+	sunxi_disable_secondary_cpus(plat_my_core_pos());
 }
 
 void bl31_plat_arch_setup(void)
