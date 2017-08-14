@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arm_config.h>
 #include <arm_def.h>
+#include <assert.h>
+#include <cci.h>
 #include <ccn.h>
 #include <debug.h>
 #include <gicv2.h>
@@ -118,6 +120,30 @@ const mmap_region_t plat_arm_mmap[] = {
 
 ARM_CASSERT_MMAP
 
+#if FVP_INTERCONNECT_DRIVER != FVP_CCN
+static const int fvp_cci400_map[] = {
+	PLAT_FVP_CCI400_CLUS0_SL_PORT,
+	PLAT_FVP_CCI400_CLUS1_SL_PORT,
+};
+
+static const int fvp_cci5xx_map[] = {
+	PLAT_FVP_CCI5XX_CLUS0_SL_PORT,
+	PLAT_FVP_CCI5XX_CLUS1_SL_PORT,
+};
+
+static unsigned int get_interconnect_master(void)
+{
+	unsigned int master;
+	u_register_t mpidr;
+
+	mpidr = read_mpidr_el1();
+	master = (arm_config.flags & ARM_CONFIG_FVP_SHIFTED_AFF) ?
+		MPIDR_AFFLVL2_VAL(mpidr) : MPIDR_AFFLVL1_VAL(mpidr);
+
+	assert(master < FVP_CLUSTER_COUNT);
+	return master;
+}
+#endif
 
 /*******************************************************************************
  * A single boot loader stack is expected to work on both the Foundation FVP
@@ -182,8 +208,7 @@ void fvp_config_setup(void)
 		}
 		break;
 	case HBI_BASE_FVP:
-		arm_config.flags |= ARM_CONFIG_BASE_MMAP |
-			ARM_CONFIG_HAS_INTERCONNECT | ARM_CONFIG_HAS_TZC;
+		arm_config.flags |= (ARM_CONFIG_BASE_MMAP | ARM_CONFIG_HAS_TZC);
 
 		/*
 		 * Check for supported revisions
@@ -191,6 +216,12 @@ void fvp_config_setup(void)
 		 */
 		switch (rev) {
 		case REV_BASE_FVP_V0:
+			arm_config.flags |= ARM_CONFIG_FVP_HAS_CCI400;
+			break;
+		case REV_BASE_FVP_REVC:
+			arm_config.flags |= (ARM_CONFIG_FVP_SHIFTED_AFF |
+					ARM_CONFIG_FVP_HAS_SMMUV3 |
+					ARM_CONFIG_FVP_HAS_CCI5XX);
 			break;
 		default:
 			WARN("Unrecognized Base FVP revision %x\n", rev);
@@ -206,26 +237,67 @@ void fvp_config_setup(void)
 
 void fvp_interconnect_init(void)
 {
-	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT) {
 #if FVP_INTERCONNECT_DRIVER == FVP_CCN
-		if (ccn_get_part0_id(PLAT_ARM_CCN_BASE) != CCN_502_PART0_ID) {
-			ERROR("Unrecognized CCN variant detected. Only CCN-502"
-					" is supported");
-			panic();
-		}
-#endif
-		plat_arm_interconnect_init();
+	if (ccn_get_part0_id(PLAT_ARM_CCN_BASE) != CCN_502_PART0_ID) {
+		ERROR("Unrecognized CCN variant detected. Only CCN-502"
+				" is supported");
+		panic();
 	}
+
+	plat_arm_interconnect_init();
+#else
+	uintptr_t cci_base = 0;
+	const int *cci_map = 0;
+	unsigned int map_size = 0;
+
+	if (!(arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
+				ARM_CONFIG_FVP_HAS_CCI5XX))) {
+		return;
+	}
+
+	/* Initialize the right interconnect */
+	if (arm_config.flags & ARM_CONFIG_FVP_HAS_CCI5XX) {
+		cci_base = PLAT_FVP_CCI5XX_BASE;
+		cci_map = fvp_cci5xx_map;
+		map_size = ARRAY_SIZE(fvp_cci5xx_map);
+	} else if (arm_config.flags & ARM_CONFIG_FVP_HAS_CCI400) {
+		cci_base = PLAT_FVP_CCI400_BASE;
+		cci_map = fvp_cci400_map;
+		map_size = ARRAY_SIZE(fvp_cci400_map);
+	}
+
+	assert(cci_base);
+	assert(cci_map);
+	cci_init(cci_base, cci_map, map_size);
+#endif
 }
 
 void fvp_interconnect_enable(void)
 {
-	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT)
-		plat_arm_interconnect_enter_coherency();
+#if FVP_INTERCONNECT_DRIVER == FVP_CCN
+	plat_arm_interconnect_enter_coherency();
+#else
+	unsigned int master;
+
+	if (arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
+				ARM_CONFIG_FVP_HAS_CCI5XX)) {
+		master = get_interconnect_master();
+		cci_enable_snoop_dvm_reqs(master);
+	}
+#endif
 }
 
 void fvp_interconnect_disable(void)
 {
-	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT)
-		plat_arm_interconnect_exit_coherency();
+#if FVP_INTERCONNECT_DRIVER == FVP_CCN
+	plat_arm_interconnect_exit_coherency();
+#else
+	unsigned int master;
+
+	if (arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
+				ARM_CONFIG_FVP_HAS_CCI5XX)) {
+		master = get_interconnect_master();
+		cci_disable_snoop_dvm_reqs(master);
+	}
+#endif
 }

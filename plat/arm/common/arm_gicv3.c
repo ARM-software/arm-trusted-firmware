@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,6 +35,26 @@ static const unsigned int g0_interrupt_array[] = {
 	PLAT_ARM_G0_IRQS
 };
 
+/*
+ * MPIDR hashing function for translating MPIDRs read from GICR_TYPER register
+ * to core position.
+ *
+ * Calculating core position is dependent on MPIDR_EL1.MT bit. However, affinity
+ * values read from GICR_TYPER don't have an MT field. To reuse the same
+ * translation used for CPUs, we insert MT bit read from the PE's MPIDR into
+ * that read from GICR_TYPER.
+ *
+ * Assumptions:
+ *
+ *   - All CPUs implemented in the system have MPIDR_EL1.MT bit set;
+ *   - No CPUs implemented in the system use affinity level 3.
+ */
+static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
+{
+	mpidr |= (read_mpidr_el1() & MPIDR_MT_MASK);
+	return plat_arm_calc_core_pos(mpidr);
+}
+
 const gicv3_driver_data_t arm_gic_data = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicr_base = PLAT_ARM_GICR_BASE,
@@ -44,7 +64,7 @@ const gicv3_driver_data_t arm_gic_data = {
 	.g1s_interrupt_array = g1s_interrupt_array,
 	.rdistif_num = PLATFORM_CORE_COUNT,
 	.rdistif_base_addrs = rdistif_base_addrs,
-	.mpidr_to_core_pos = plat_arm_calc_core_pos
+	.mpidr_to_core_pos = arm_gicv3_mpidr_hash
 };
 
 void plat_arm_gic_driver_init(void)

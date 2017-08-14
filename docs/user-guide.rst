@@ -213,10 +213,6 @@ Common build options
    It can take either ``aarch64`` or ``aarch32`` as values. By default, it is
    defined to ``aarch64``.
 
--  ``ARM_CCI_PRODUCT_ID``: Choice of ARM CCI product used by the platform. This
-   is used to determine the number of valid slave interfaces available in the
-   ARM CCI driver. Default is 400 (that is, CCI-400).
-
 -  ``ARM_ARCH_MAJOR``: The major version of ARM Architecture to target when
    compiling ARM Trusted Firmware. Its value must be numeric, and defaults to
    8 . See also, *ARMv8 Architecture Extensions* in `Firmware Design`_.
@@ -231,10 +227,10 @@ Common build options
    This build option is deprecated.
 
 -  ``ARM_PLAT_MT``: This flag determines whether the ARM platform layer has to
-   cater for the multi-threading ``MT`` bit when accessing MPIDR. When this
-   flag is set, the functions which deal with MPIDR assume that the ``MT`` bit
-   in MPIDR is set and access the bit-fields in MPIDR accordingly. Default
-   value of this flag is 0.
+   cater for the multi-threading ``MT`` bit when accessing MPIDR. When this flag
+   is set, the functions which deal with MPIDR assume that the ``MT`` bit in
+   MPIDR is set and access the bit-fields in MPIDR accordingly. Default value of
+   this flag is 0. Note that this option is not used on FVP platforms.
 
 -  ``BL2``: This is an optional build option which specifies the path to BL2
    image for the ``fip`` target. In this case, the BL2 in the ARM Trusted
@@ -676,6 +672,10 @@ ARM FVP platform specific build options
       if 0 < ``FVP_CLUSTER_COUNT`` <= 2.
    -  ``FVP_CCN`` : The CCN driver is selected. This is the default
       if ``FVP_CLUSTER_COUNT`` > 2.
+
+-  ``FVP_MAX_PE_PER_CPU``: Sets the maximum number of PEs implemented on any CPU
+   in the system. This option defaults to 1. Note that the build option
+   ``ARM_PLAT_MT`` doesn't have any effect on FVP platforms.
 
 -  ``FVP_USE_GIC_DRIVER`` : Selects the GIC driver to be built. Options:
 

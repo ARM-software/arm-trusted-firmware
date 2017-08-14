@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arm_config.h>
 #include <plat_arm.h>
+#include <smmu_v3.h>
 #include "fvp_private.h"
 
 #if LOAD_IMAGE_V2
@@ -34,4 +36,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * FVP PSCI code will enable coherency for other clusters.
 	 */
 	fvp_interconnect_enable();
+
+	/* On FVP RevC, intialize SMMUv3 */
+	if (arm_config.flags & ARM_CONFIG_FVP_HAS_SMMUV3)
+		smmuv3_init(PLAT_FVP_SMMUV3_BASE);
 }

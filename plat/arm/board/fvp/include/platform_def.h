@@ -16,10 +16,13 @@
 #include "../fvp_def.h"
 
 /* Required platform porting definitions */
+#define PLATFORM_CORE_COUNT \
+	(FVP_CLUSTER_COUNT * FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU)
+
 #define PLAT_NUM_PWR_DOMAINS		(FVP_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
+
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
-#define PLATFORM_CORE_COUNT		(FVP_CLUSTER_COUNT * FVP_MAX_CPUS_PER_CLUSTER)
 
 /*
  * Other platform porting definitions are provided by included headers
@@ -65,10 +68,17 @@
 #define PLAT_ARM_TSP_UART_BASE		V2M_IOFPGA_UART2_BASE
 #define PLAT_ARM_TSP_UART_CLK_IN_HZ	V2M_IOFPGA_UART2_CLK_IN_HZ
 
+#define PLAT_FVP_SMMUV3_BASE		0x2b400000
+
 /* CCI related constants */
-#define PLAT_ARM_CCI_BASE		0x2c090000
-#define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	3
-#define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	4
+#define PLAT_FVP_CCI400_BASE		0x2c090000
+#define PLAT_FVP_CCI400_CLUS0_SL_PORT	3
+#define PLAT_FVP_CCI400_CLUS1_SL_PORT	4
+
+/* CCI-500/CCI-550 on Base platform */
+#define PLAT_FVP_CCI5XX_BASE		0x2a000000
+#define PLAT_FVP_CCI5XX_CLUS0_SL_PORT	5
+#define PLAT_FVP_CCI5XX_CLUS1_SL_PORT	6
 
 /* CCN related constants. Only CCN 502 is currently supported */
 #define PLAT_ARM_CCN_BASE		0x2e000000

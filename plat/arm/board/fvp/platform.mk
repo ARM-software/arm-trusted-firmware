@@ -6,8 +6,15 @@
 
 # Use the GICv3 driver on the FVP by default
 FVP_USE_GIC_DRIVER	:= FVP_GICV3
+
 # Use the SP804 timer instead of the generic one
 FVP_USE_SP804_TIMER	:= 0
+
+# Default cluster count for FVP
+FVP_CLUSTER_COUNT	:= 2
+
+# Default number of threads per CPU on FVP
+FVP_MAX_PE_PER_CPU	:= 1
 
 $(eval $(call assert_boolean,FVP_USE_SP804_TIMER))
 $(eval $(call add_define,FVP_USE_SP804_TIMER))
@@ -15,9 +22,11 @@ $(eval $(call add_define,FVP_USE_SP804_TIMER))
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
-# Define default FVP_CLUSTER_COUNT to 2 and pass it into the build system.
-FVP_CLUSTER_COUNT	:= 2
+# Pass FVP_CLUSTER_COUNT to the build system.
 $(eval $(call add_define,FVP_CLUSTER_COUNT))
+
+# Pass FVP_MAX_PE_PER_CPU to the build system.
+$(eval $(call add_define,FVP_MAX_PE_PER_CPU))
 
 # Sanity check the cluster count and if FVP_CLUSTER_COUNT <= 2,
 # choose the CCI driver , else the CCN driver
@@ -63,8 +72,7 @@ $(error "Incorrect GIC driver chosen on FVP port")
 endif
 
 ifeq (${FVP_INTERCONNECT_DRIVER}, FVP_CCI)
-FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/cci/cci.c		\
-					plat/arm/common/arm_cci.c
+FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/cci/cci.c
 else ifeq (${FVP_INTERCONNECT_DRIVER}, FVP_CCN)
 FVP_INTERCONNECT_SOURCES	:= 	drivers/arm/ccn/ccn.c		\
 					plat/arm/common/arm_ccn.c
@@ -127,7 +135,8 @@ endif
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
 
-BL31_SOURCES		+=	plat/arm/board/fvp/fvp_bl31_setup.c		\
+BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
+				plat/arm/board/fvp/fvp_bl31_setup.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
