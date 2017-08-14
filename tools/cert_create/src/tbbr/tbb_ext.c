@@ -120,6 +120,26 @@ static ext_t tbb_ext[] = {
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
 	},
+	[TRUSTED_OS_FW_EXTRA1_HASH_EXT] = {
+		.oid = TRUSTED_OS_FW_EXTRA1_HASH_OID,
+		.opt = "tos-fw-extra1",
+		.help_msg = "Trusted OS Extra1 image file",
+		.sn = "TrustedOSExtra1Hash",
+		.ln = "Trusted OS Extra1 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[TRUSTED_OS_FW_EXTRA2_HASH_EXT] = {
+		.oid = TRUSTED_OS_FW_EXTRA2_HASH_OID,
+		.opt = "tos-fw-extra2",
+		.help_msg = "Trusted OS Extra2 image file",
+		.sn = "TrustedOSExtra2Hash",
+		.ln = "Trusted OS Extra2 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
 	[NON_TRUSTED_FW_CONTENT_CERT_PK_EXT] = {
 		.oid = NON_TRUSTED_FW_CONTENT_CERT_PK_OID,
 		.sn = "NonTrustedFirmwareContentCertPK",

@@ -147,6 +147,8 @@ void __dead2 opteed_synchronous_sp_exit(optee_context_t *optee_ctx, uint64_t ret
 void opteed_init_optee_ep_state(struct entry_point_info *optee_ep,
 				uint32_t rw,
 				uint64_t pc,
+				uint64_t pageable_part,
+				uint64_t mem_limit,
 				optee_context_t *optee_ctx);
 
 extern optee_context_t opteed_sp_context[OPTEED_CORE_COUNT];

@@ -119,6 +119,10 @@
 
 /* TrustedOSFirmwareHash - BL32 */
 #define TRUSTED_OS_FW_HASH_OID			"1.3.6.1.4.1.4128.2100.1001"
+/* TrustedOSExtra1FirmwareHash - BL32 Extra1 */
+#define TRUSTED_OS_FW_EXTRA1_HASH_OID		"1.3.6.1.4.1.4128.2100.1002"
+/* TrustedOSExtra2FirmwareHash - BL32 Extra2 */
+#define TRUSTED_OS_FW_EXTRA2_HASH_OID		"1.3.6.1.4.1.4128.2100.1003"
 
 
 /*

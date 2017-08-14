@@ -53,6 +53,16 @@ toc_entry_t toc_entries[] = {
 		.cmdline_name = "tos-fw"
 	},
 	{
+		.name = "Secure Payload BL32 Extra1 (Trusted OS Extra1)",
+		.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA1,
+		.cmdline_name = "tos-fw-extra1"
+	},
+	{
+		.name = "Secure Payload BL32 Extra2 (Trusted OS Extra2)",
+		.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA2,
+		.cmdline_name = "tos-fw-extra2"
+	},
+	{
 		.name = "Non-Trusted Firmware BL33",
 		.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 		.cmdline_name = "nt-fw"

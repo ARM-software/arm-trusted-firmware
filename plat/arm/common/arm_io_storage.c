@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +39,14 @@ static const io_uuid_spec_t bl31_uuid_spec = {
 
 static const io_uuid_spec_t bl32_uuid_spec = {
 	.uuid = UUID_SECURE_PAYLOAD_BL32,
+};
+
+static const io_uuid_spec_t bl32_extra1_uuid_spec = {
+	.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA1,
+};
+
+static const io_uuid_spec_t bl32_extra2_uuid_spec = {
+	.uuid = UUID_SECURE_PAYLOAD_BL32_EXTRA2,
 };
 
 static const io_uuid_spec_t bl33_uuid_spec = {
@@ -122,6 +130,16 @@ static const struct plat_io_policy policies[] = {
 	[BL32_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl32_uuid_spec,
+		open_fip
+	},
+	[BL32_EXTRA1_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&bl32_extra1_uuid_spec,
+		open_fip
+	},
+	[BL32_EXTRA2_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&bl32_extra2_uuid_spec,
 		open_fip
 	},
 	[BL33_IMAGE_ID] = {

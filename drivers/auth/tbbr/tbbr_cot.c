@@ -30,6 +30,8 @@ static unsigned char tb_fw_hash_buf[HASH_DER_LEN];
 static unsigned char scp_fw_hash_buf[HASH_DER_LEN];
 static unsigned char soc_fw_hash_buf[HASH_DER_LEN];
 static unsigned char tos_fw_hash_buf[HASH_DER_LEN];
+static unsigned char tos_fw_extra1_hash_buf[HASH_DER_LEN];
+static unsigned char tos_fw_extra2_hash_buf[HASH_DER_LEN];
 static unsigned char nt_world_bl_hash_buf[HASH_DER_LEN];
 static unsigned char trusted_world_pk_buf[PK_DER_LEN];
 static unsigned char non_trusted_world_pk_buf[PK_DER_LEN];
@@ -74,6 +76,10 @@ static auth_param_type_desc_t soc_fw_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, SOC_AP_FW_HASH_OID);
 static auth_param_type_desc_t tos_fw_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, TRUSTED_OS_FW_HASH_OID);
+static auth_param_type_desc_t tos_fw_extra1_hash = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_HASH, TRUSTED_OS_FW_EXTRA1_HASH_OID);
+static auth_param_type_desc_t tos_fw_extra2_hash = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_HASH, TRUSTED_OS_FW_EXTRA2_HASH_OID);
 static auth_param_type_desc_t nt_world_bl_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, NON_TRUSTED_WORLD_BOOTLOADER_HASH_OID);
 static auth_param_type_desc_t scp_bl2u_hash = AUTH_PARAM_TYPE_DESC(
@@ -404,6 +410,20 @@ static const auth_img_desc_t cot_desc[] = {
 					.ptr = (void *)tos_fw_hash_buf,
 					.len = (unsigned int)HASH_DER_LEN
 				}
+			},
+			[1] = {
+				.type_desc = &tos_fw_extra1_hash,
+				.data = {
+					.ptr = (void *)tos_fw_extra1_hash_buf,
+					.len = (unsigned int)HASH_DER_LEN
+				}
+			},
+			[2] = {
+				.type_desc = &tos_fw_extra2_hash,
+				.data = {
+					.ptr = (void *)tos_fw_extra2_hash_buf,
+					.len = (unsigned int)HASH_DER_LEN
+				}
 			}
 		}
 	},
@@ -417,6 +437,34 @@ static const auth_img_desc_t cot_desc[] = {
 				.param.hash = {
 					.data = &raw_data,
 					.hash = &tos_fw_hash,
+				}
+			}
+		}
+	},
+	[BL32_EXTRA1_IMAGE_ID] = {
+		.img_id = BL32_EXTRA1_IMAGE_ID,
+		.img_type = IMG_RAW,
+		.parent = &cot_desc[TRUSTED_OS_FW_CONTENT_CERT_ID],
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_HASH,
+				.param.hash = {
+					.data = &raw_data,
+					.hash = &tos_fw_extra1_hash,
+				}
+			}
+		}
+	},
+	[BL32_EXTRA2_IMAGE_ID] = {
+		.img_id = BL32_EXTRA2_IMAGE_ID,
+		.img_type = IMG_RAW,
+		.parent = &cot_desc[TRUSTED_OS_FW_CONTENT_CERT_ID],
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_HASH,
+				.param.hash = {
+					.data = &raw_data,
+					.hash = &tos_fw_extra2_hash,
 				}
 			}
 		}

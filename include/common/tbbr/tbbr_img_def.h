@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -53,5 +53,11 @@
 
 /* Non-Trusted FWU Firmware NS_BL2U */
 #define NS_BL2U_IMAGE_ID		20
+
+/* Secure Payload BL32_EXTRA1 (Trusted OS Extra1) */
+#define BL32_EXTRA1_IMAGE_ID		21
+
+/* Secure Payload BL32_EXTRA2 (Trusted OS Extra2) */
+#define BL32_EXTRA2_IMAGE_ID		22
 
 #endif /* __TBBR_IMG_DEF_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,8 @@ enum {
 	SOC_AP_FW_HASH_EXT,
 	TRUSTED_OS_FW_CONTENT_CERT_PK_EXT,
 	TRUSTED_OS_FW_HASH_EXT,
+	TRUSTED_OS_FW_EXTRA1_HASH_EXT,
+	TRUSTED_OS_FW_EXTRA2_HASH_EXT,
 	NON_TRUSTED_FW_CONTENT_CERT_PK_EXT,
 	NON_TRUSTED_WORLD_BOOTLOADER_HASH_EXT,
 	SCP_FWU_CFG_HASH_EXT,
