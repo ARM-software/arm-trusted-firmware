@@ -32,7 +32,7 @@ func bl2u_entrypoint
 	 * ---------------------------------------------
 	 */
 	mov	r11, r1
-	mov	r12, r2
+	mov	r10, r2
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.
@@ -107,7 +107,7 @@ func bl2u_entrypoint
 	 * ---------------------------------------------
 	 */
 	mov	r0, r11
-	mov	r1, r12
+	mov	r1, r10
 	bl	bl2u_early_platform_setup
 	bl	bl2u_plat_arch_setup
 
