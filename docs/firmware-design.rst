@@ -25,6 +25,10 @@ interrupts generated in either security state. The details of the interrupt
 management framework and its design can be found in ARM Trusted Firmware
 Interrupt Management Design guide [4]_.
 
+The ARM Trusted Firmware also implements a library for setting up and managing
+the translation tables. The details of this library can be found in
+`Xlat_tables design`_.
+
 The ARM Trusted Firmware can be built to support either AArch64 or AArch32
 execution state.
 
@@ -2418,7 +2422,7 @@ References
 
 --------------
 
-*Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
 
 .. _Reset Design: ./reset-design.rst
 .. _Porting Guide: ./porting-guide.rst
@@ -2436,5 +2440,6 @@ References
 .. _User Guide: ./user-guide.rst
 .. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _ARM Trusted Firmware Interrupt Management Design guide: ./interrupt-framework-design.rst
+.. _Xlat_tables design: xlat-tables-lib-v2-design.rst
 
 .. |Image 1| image:: diagrams/rt-svc-descs-layout.png?raw=true
