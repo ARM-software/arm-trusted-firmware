@@ -15,10 +15,8 @@
 #include <t194_nvg.h>
 #include <tegra_private.h>
 
-extern void nvg_set_request_data(uint64_t req, uint64_t data);
-extern void nvg_set_request(uint64_t req);
-extern uint64_t nvg_get_result(void);
-
+#define	ID_AFR0_EL1_CACHE_OPS_SHIFT	12
+#define	ID_AFR0_EL1_CACHE_OPS_MASK	0xFU
 /*
  * Reports the major and minor version of this interface.
  *
@@ -306,41 +304,62 @@ int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx)
 
 /*
  * Cache clean operation for all CCPLEX caches.
- *
- * NVGDATA[0] cache_clean
  */
 int32_t nvg_roc_clean_cache(void)
 {
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_CCPLEX_CACHE_INVAL,
-							(uint64_t)CACHE_CLEAN_SET);
+	int32_t ret = 0;
 
-	return 0;
+	/* check if cache flush through mts is supported */
+	if (((read_id_afr0_el1() >> ID_AFR0_EL1_CACHE_OPS_SHIFT) &
+			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
+		if (nvg_cache_clean() == 0U) {
+			ERROR("%s: failed\n", __func__);
+			ret = EINVAL;
+		}
+	} else {
+		ret = EINVAL;
+	}
+	return ret;
 }
 
 /*
  * Cache clean and invalidate operation for all CCPLEX caches.
- *
- * NVGDATA[1] cache_clean_inval
  */
 int32_t nvg_roc_flush_cache(void)
 {
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_CCPLEX_CACHE_INVAL,
-							(uint64_t)CACHE_CLEAN_INVAL_SET);
+	int32_t ret = 0;
 
-	return 0;
+	/* check if cache flush through mts is supported */
+	if (((read_id_afr0_el1() >> ID_AFR0_EL1_CACHE_OPS_SHIFT) &
+			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
+		if (nvg_cache_clean_inval() == 0U) {
+			ERROR("%s: failed\n", __func__);
+			ret = EINVAL;
+		}
+	} else {
+		ret = EINVAL;
+	}
+	return ret;
 }
 
 /*
  * Cache clean and invalidate, clear TR-bit operation for all CCPLEX caches.
- *
- * NVGDATA[2] cache_clean_inval_tr
  */
 int32_t nvg_roc_clean_cache_trbits(void)
 {
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_CCPLEX_CACHE_INVAL,
-							(uint64_t)CACHE_CLEAN_INVAL_TR_SET);
+	int32_t ret = 0;
 
-	return 0;
+	/* check if cache flush through mts is supported */
+	if (((read_id_afr0_el1() >> ID_AFR0_EL1_CACHE_OPS_SHIFT) &
+			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
+		if (nvg_cache_inval_all() == 0U) {
+			ERROR("%s: failed\n", __func__);
+			ret = EINVAL;
+		}
+	} else {
+		ret = EINVAL;
+	}
+	return ret;
 }
 
 /*

@@ -75,5 +75,8 @@ int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time);
 void nvg_set_request_data(uint64_t req, uint64_t data);
 void nvg_set_request(uint64_t req);
 uint64_t nvg_get_result(void);
+uint64_t nvg_cache_clean(void);
+uint64_t nvg_cache_clean_inval(void);
+uint64_t nvg_cache_inval_all(void);
 
 #endif /* __MCE_PRIVATE_H__ */
