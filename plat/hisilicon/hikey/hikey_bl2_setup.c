@@ -17,6 +17,11 @@
 #include <hisi_mcu.h>
 #include <hisi_sram_map.h>
 #include <mmio.h>
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+#include <optee_utils.h>
+#endif
+#endif
 #include <platform_def.h>
 #include <sp804_delay_timer.h>
 #include <string.h>
@@ -161,11 +166,29 @@ int hikey_bl2_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+#ifdef SPD_opteed
+	bl_mem_params_node_t *pager_mem_params = NULL;
+	bl_mem_params_node_t *paged_mem_params = NULL;
+#endif
 	assert(bl_mem_params);
 
 	switch (image_id) {
 #ifdef AARCH64
 	case BL32_IMAGE_ID:
+#ifdef SPD_opteed
+		pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+		assert(pager_mem_params);
+
+		paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
+		assert(paged_mem_params);
+
+		err = parse_optee_header(&bl_mem_params->ep_info,
+				&pager_mem_params->image_info,
+				&paged_mem_params->image_info);
+		if (err != 0) {
+			WARN("OPTEE header parse error.\n");
+		}
+#endif
 		bl_mem_params->ep_info.spsr = hikey_get_spsr_for_bl32_entry();
 		break;
 #endif

@@ -33,7 +33,7 @@
  *   - Non-secure DDR (8MB) reserved for OP-TEE's future use
  */
 #define DDR_SEC_SIZE			0x01000000
-#define DDR_SEC_BASE			(DDR_BASE + DDR_SIZE - DDR_SEC_SIZE)
+#define DDR_SEC_BASE			(DDR_BASE + DDR_SIZE - DDR_SEC_SIZE) /* 0x3F000000 */
 
 #define DDR_SDP_SIZE			0x00400000
 #define DDR_SDP_BASE			(DDR_SEC_BASE - 0x400000 /* align */ - \

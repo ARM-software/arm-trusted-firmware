@@ -32,6 +32,15 @@ $(eval $(call add_define,CRASH_CONSOLE_BASE))
 $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))
 $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
+
 ENABLE_PLAT_COMPAT	:=	0
 
 USE_COHERENT_MEM	:=	1
@@ -77,6 +86,10 @@ ifeq (${LOAD_IMAGE_V2},1)
 BL2_SOURCES		+=	plat/hisilicon/hikey/hikey_bl2_mem_params_desc.c \
 				plat/hisilicon/hikey/hikey_image_load.c \
 				common/desc_image_load.c
+
+ifeq (${SPD},opteed)
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+endif
 endif
 
 HIKEY_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\

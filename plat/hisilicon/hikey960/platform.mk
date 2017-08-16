@@ -25,6 +25,15 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
 $(eval $(call add_define,HIKEY960_TSP_RAM_LOCATION_ID))
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
 
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
+
 ENABLE_PLAT_COMPAT	:=	0
 
 USE_COHERENT_MEM	:=	1
@@ -68,6 +77,10 @@ ifeq (${LOAD_IMAGE_V2},1)
 BL2_SOURCES		+=	plat/hisilicon/hikey960/hikey960_bl2_mem_params_desc.c \
 				plat/hisilicon/hikey960/hikey960_image_load.c \
 				common/desc_image_load.c
+
+ifeq (${SPD},opteed)
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+endif
 endif
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c			\

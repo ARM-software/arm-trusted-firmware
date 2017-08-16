@@ -28,6 +28,15 @@
 					TSP_SEC_MEM_SIZE,		\
 					MT_MEMORY | MT_RW | MT_SECURE)
 
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+#define MAP_OPTEE_PAGEABLE	MAP_REGION_FLAT(		\
+					HIKEY_OPTEE_PAGEABLE_LOAD_BASE,	\
+					HIKEY_OPTEE_PAGEABLE_LOAD_SIZE,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+#endif
+#endif
+
 #define MAP_ROM_PARAM	MAP_REGION_FLAT(XG2RAM0_BASE,			\
 					BL1_XG2RAM0_OFFSET,		\
 					MT_DEVICE | MT_RO | MT_SECURE)
@@ -64,6 +73,11 @@ static const mmap_region_t hikey_mmap[] = {
 	MAP_DDR,
 	MAP_DEVICE,
 	MAP_TSP_MEM,
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+	MAP_OPTEE_PAGEABLE,
+#endif
+#endif
 	{0}
 };
 #endif
