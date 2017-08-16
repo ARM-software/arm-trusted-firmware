@@ -9,7 +9,7 @@
 	.globl	spin_lock
 	.globl	spin_unlock
 
-#if (ARM_ARCH_MAJOR > 8) || ((ARM_ARCH_MAJOR == 8) && (ARM_ARCH_MINOR >= 1))
+#if ARM_ARCH_AT_LEAST(8, 1)
 
 /*
  * When compiled for ARMv8.1 or later, choose spin locks based on Compare and

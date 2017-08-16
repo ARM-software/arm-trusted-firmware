@@ -73,4 +73,12 @@
 # define ULL(_x)	(_x##ull)
 #endif
 
+/*
+ * Test for the current architecture version to be at least the version
+ * expected.
+ */
+#define ARM_ARCH_AT_LEAST(_maj, _min) \
+	((ARM_ARCH_MAJOR > _maj) || \
+	 ((ARM_ARCH_MAJOR == _maj) && (ARM_ARCH_MINOR >= _min)))
+
 #endif /* __UTILS_DEF_H__ */
