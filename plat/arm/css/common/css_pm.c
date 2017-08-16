@@ -300,4 +300,7 @@ plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.read_mem_protect	= arm_psci_read_mem_protect,
 	.write_mem_protect	= arm_nor_psci_write_mem_protect,
 #endif
+#if CSS_USE_SCMI_SDS_DRIVER
+	.system_reset2		= css_system_reset2,
+#endif
 };

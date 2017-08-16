@@ -15,6 +15,7 @@
 struct psci_power_state;
 
 /* API for power management by SCP */
+int css_system_reset2(int is_vendor, int reset_type, u_register_t cookie);
 void css_scp_suspend(const struct psci_power_state *target_state);
 void css_scp_off(const struct psci_power_state *target_state);
 void css_scp_on(u_register_t mpidr);

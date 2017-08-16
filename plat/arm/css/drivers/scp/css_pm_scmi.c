@@ -358,13 +358,35 @@ const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 		ops->system_off = NULL;
 		ops->system_reset = NULL;
 		ops->get_sys_suspend_power_state = NULL;
-	} else if (!(msg_attr & SCMI_SYS_PWR_SUSPEND_SUPPORTED)) {
-		/*
-		 * System power management protocol is available, but it does
-		 * not support SYSTEM SUSPEND.
-		 */
-		ops->get_sys_suspend_power_state = NULL;
+	} else {
+		if (!(msg_attr & SCMI_SYS_PWR_SUSPEND_SUPPORTED)) {
+			/*
+			 * System power management protocol is available, but
+			 * it does not support SYSTEM SUSPEND.
+			 */
+			ops->get_sys_suspend_power_state = NULL;
+		}
+		if (!(msg_attr & SCMI_SYS_PWR_WARM_RESET_SUPPORTED)) {
+			/*
+			 * WARM reset is not available.
+			 */
+			ops->system_reset2 = NULL;
+		}
 	}
 
 	return ops;
+}
+
+int css_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
+{
+	if (is_vendor || (reset_type != PSCI_RESET2_SYSTEM_WARM_RESET))
+		return PSCI_E_INVALID_PARAMS;
+
+	css_scp_system_off(SCMI_SYS_PWR_WARM_RESET);
+	/*
+	 * css_scp_system_off cannot return (it is a __dead function),
+	 * but css_system_reset2 has to return some value, even in
+	 * this case.
+	 */
+	return 0;
 }
