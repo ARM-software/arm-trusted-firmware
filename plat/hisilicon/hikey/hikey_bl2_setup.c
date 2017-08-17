@@ -9,6 +9,7 @@
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
+#include <desc_image_load.h>
 #include <dw_mmc.h>
 #include <emmc.h>
 #include <errno.h>
@@ -44,6 +45,13 @@
 
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
+#if !LOAD_IMAGE_V2
+
+/*******************************************************************************
+ * This structure represents the superset of information that is passed to
+ * BL31, e.g. while passing control to it from BL2, bl31_params
+ * and other platform specific params
+ ******************************************************************************/
 typedef struct bl2_to_bl31_params_mem {
 	bl31_params_t		bl31_params;
 	image_info_t		bl31_image_info;
@@ -68,8 +76,17 @@ void bl2_plat_get_scp_bl2_meminfo(meminfo_t *scp_bl2_meminfo)
 	scp_bl2_meminfo->free_base = SCP_BL2_BASE;
 	scp_bl2_meminfo->free_size = SCP_BL2_SIZE;
 }
+#endif /* LOAD_IMAGE_V2 */
 
+/*******************************************************************************
+ * Transfer SCP_BL2 from Trusted RAM using the SCP Download protocol.
+ * Return 0 on success, -1 otherwise.
+ ******************************************************************************/
+#if LOAD_IMAGE_V2
+int plat_hikey_bl2_handle_scp_bl2(image_info_t *scp_bl2_image_info)
+#else
 int bl2_plat_handle_scp_bl2(struct image_info *scp_bl2_image_info)
+#endif
 {
 	/* Enable MCU SRAM */
 	hisi_mcu_enable_sram();
@@ -86,6 +103,103 @@ int bl2_plat_handle_scp_bl2(struct image_info *scp_bl2_image_info)
 	     __func__, mmio_read_32(AO_SC_PERIPH_CLKSTAT4));
 	return 0;
 }
+
+/*******************************************************************************
+ * Gets SPSR for BL32 entry
+ ******************************************************************************/
+uint32_t hikey_get_spsr_for_bl32_entry(void)
+{
+	/*
+	 * The Secure Payload Dispatcher service is responsible for
+	 * setting the SPSR prior to entry into the BL3-2 image.
+	 */
+	return 0;
+}
+
+/*******************************************************************************
+ * Gets SPSR for BL33 entry
+ ******************************************************************************/
+#ifndef AARCH32
+uint32_t hikey_get_spsr_for_bl33_entry(void)
+{
+	unsigned int mode;
+	uint32_t spsr;
+
+	/* Figure out what mode we enter the non-secure world in */
+	mode = EL_IMPLEMENTED(2) ? MODE_EL2 : MODE_EL1;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	return spsr;
+}
+#else
+uint32_t hikey_get_spsr_for_bl33_entry(void)
+{
+	unsigned int hyp_status, mode, spsr;
+
+	hyp_status = GET_VIRT_EXT(read_id_pfr1());
+
+	mode = (hyp_status) ? MODE32_hyp : MODE32_svc;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	spsr = SPSR_MODE32(mode, plat_get_ns_image_entrypoint() & 0x1,
+			SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
+	return spsr;
+}
+#endif /* AARCH32 */
+
+#if LOAD_IMAGE_V2
+int hikey_bl2_handle_post_image_load(unsigned int image_id)
+{
+	int err = 0;
+	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+	assert(bl_mem_params);
+
+	switch (image_id) {
+#ifdef AARCH64
+	case BL32_IMAGE_ID:
+		bl_mem_params->ep_info.spsr = hikey_get_spsr_for_bl32_entry();
+		break;
+#endif
+
+	case BL33_IMAGE_ID:
+		/* BL33 expects to receive the primary CPU MPID (through r0) */
+		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
+		bl_mem_params->ep_info.spsr = hikey_get_spsr_for_bl33_entry();
+		break;
+
+#ifdef SCP_BL2_BASE
+	case SCP_BL2_IMAGE_ID:
+		/* The subsequent handling of SCP_BL2 is platform specific */
+		err = plat_hikey_bl2_handle_scp_bl2(&bl_mem_params->image_info);
+		if (err) {
+			WARN("Failure in platform-specific handling of SCP_BL2 image.\n");
+		}
+		break;
+#endif
+	}
+
+	return err;
+}
+
+/*******************************************************************************
+ * This function can be used by the platforms to update/use image
+ * information for given `image_id`.
+ ******************************************************************************/
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return hikey_bl2_handle_post_image_load(image_id);
+}
+
+#else /* LOAD_IMAGE_V2 */
 
 bl31_params_t *bl2_plat_get_bl31_params(void)
 {
@@ -133,6 +247,10 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 
 struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 {
+#if DEBUG
+	bl31_params_mem.bl31_ep_info.args.arg1 = HIKEY_BL31_PLAT_PARAM_VAL;
+#endif
+
 	return &bl31_params_mem.bl31_ep_info;
 }
 
@@ -217,6 +335,7 @@ void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 	bl33_meminfo->free_base = DDR_BASE;
 	bl33_meminfo->free_size = DDR_SIZE;
 }
+#endif /* LOAD_IMAGE_V2 */
 
 static void reset_dwmmc_clk(void)
 {

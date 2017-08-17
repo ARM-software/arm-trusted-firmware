@@ -58,13 +58,35 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 	return &bl1_tzram_layout;
 }
 
+#if LOAD_IMAGE_V2
+/*******************************************************************************
+ * Function that takes a memory layout into which BL2 has been loaded and
+ * populates a new memory layout for BL2 that ensures that BL1's data sections
+ * resident in secure RAM are not visible to BL2.
+ ******************************************************************************/
+void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
+			     meminfo_t *bl2_mem_layout)
+{
+
+	assert(bl1_mem_layout != NULL);
+	assert(bl2_mem_layout != NULL);
+
+	/*
+	 * Cannot remove BL1 RW data from the scope of memory visible to BL2
+	 * like arm platforms because they overlap in hikey
+	 */
+	bl2_mem_layout->total_base = BL2_BASE;
+	bl2_mem_layout->total_size = BL32_SRAM_LIMIT - BL2_BASE;
+
+	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
+}
+#endif /* LOAD_IMAGE_V2 */
+
 /*
  * Perform any BL1 specific platform actions.
  */
 void bl1_early_platform_setup(void)
 {
-	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
-
 	/* Initialize the console to provide early debug support */
 	console_init(CONSOLE_BASE, PL011_UART_CLK_IN_HZ, PL011_BAUDRATE);
 
@@ -72,16 +94,18 @@ void bl1_early_platform_setup(void)
 	bl1_tzram_layout.total_base = BL1_RW_BASE;
 	bl1_tzram_layout.total_size = BL1_RW_SIZE;
 
+#if !LOAD_IMAGE_V2
 	/* Calculate how much RAM BL1 is using and how much remains free */
 	bl1_tzram_layout.free_base = BL1_RW_BASE;
 	bl1_tzram_layout.free_size = BL1_RW_SIZE;
 	reserve_mem(&bl1_tzram_layout.free_base,
 		    &bl1_tzram_layout.free_size,
 		    BL1_RAM_BASE,
-		    bl1_size);
+		    BL1_RAM_LIMIT - BL1_RAM_BASE); /* bl1_size */
+#endif
 
 	INFO("BL1: 0x%lx - 0x%lx [size = %lu]\n", BL1_RAM_BASE, BL1_RAM_LIMIT,
-	     bl1_size);
+	     BL1_RAM_LIMIT - BL1_RAM_BASE); /* bl1_size */
 }
 
 /*

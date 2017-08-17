@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Enable version2 of image loading
+LOAD_IMAGE_V2	:=	1
+
 # On Hikey960, the TSP can execute from TZC secure area in DRAM.
 HIKEY960_TSP_RAM_LOCATION	:=	dram
 ifeq (${HIKEY960_TSP_RAM_LOCATION}, dram)
@@ -60,6 +63,12 @@ BL2_SOURCES		+=	drivers/io/io_block.c			\
 				plat/hisilicon/hikey960/hikey960_bl2_setup.c \
 				plat/hisilicon/hikey960/hikey960_io_storage.c \
 				plat/hisilicon/hikey960/hikey960_mcu_load.c
+
+ifeq (${LOAD_IMAGE_V2},1)
+BL2_SOURCES		+=	plat/hisilicon/hikey960/hikey960_bl2_mem_params_desc.c \
+				plat/hisilicon/hikey960/hikey960_image_load.c \
+				common/desc_image_load.c
+endif
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				lib/cpus/aarch64/cortex_a53.S           \

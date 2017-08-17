@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Enable version2 of image loading
+LOAD_IMAGE_V2	:=	1
+
 # On Hikey, the TSP can execute from TZC secure area in DRAM (default)
 # or SRAM.
 HIKEY_TSP_RAM_LOCATION	:=	dram
@@ -69,6 +72,12 @@ BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c	\
 				plat/hisilicon/hikey/hikey_io_storage.c	\
 				plat/hisilicon/hikey/hisi_dvfs.c	\
 				plat/hisilicon/hikey/hisi_mcu.c
+
+ifeq (${LOAD_IMAGE_V2},1)
+BL2_SOURCES		+=	plat/hisilicon/hikey/hikey_bl2_mem_params_desc.c \
+				plat/hisilicon/hikey/hikey_image_load.c \
+				common/desc_image_load.c
+endif
 
 HIKEY_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\

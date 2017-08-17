@@ -10,6 +10,8 @@
 #include <arch.h>
 #include "../hikey960_def.h"
 
+/* Special value used to verify platform parameters from BL2 to BL3-1 */
+#define HIKEY960_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
 
 /*
  * Generic platform constants
@@ -91,10 +93,8 @@
 #define HIKEY960_NS_IMAGE_OFFSET	(0x1AC18000)	/* offset in l-loader */
 #define HIKEY960_NS_TMP_OFFSET		(0x1AE00000)
 
-#define SCP_BL2_BASE			BL31_BASE /* 1AC5_8000 */
-
-#define SCP_MEM_BASE			(0x89C80000)
-#define SCP_MEM_SIZE			(0x00040000)
+#define SCP_BL2_BASE			(0x89C80000)
+#define SCP_BL2_SIZE			(0x00040000)
 
 /*
  * Platform specific page table and MMU setup constants
