@@ -17,4 +17,7 @@ void sp_min_plat_runtime_setup(void);
 void sp_min_plat_arch_setup(void);
 entry_point_info_t *sp_min_plat_get_bl33_ep_info(void);
 
+/* Platforms that enable SP_MIN_WITH_SECURE_FIQ shall implement this api */
+void sp_min_plat_fiq_handler(uint32_t id);
+
 #endif /* __PLATFORM_SP_MIN_H__ */

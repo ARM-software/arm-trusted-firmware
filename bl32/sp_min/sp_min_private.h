@@ -10,5 +10,6 @@
 void sp_min_warm_entrypoint(void);
 void sp_min_main(void);
 void sp_min_warm_boot(void);
+void sp_min_fiq(void);
 
 #endif /* __SP_MIN_H__ */

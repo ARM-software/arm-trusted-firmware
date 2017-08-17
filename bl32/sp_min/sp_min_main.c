@@ -207,3 +207,19 @@ void sp_min_warm_boot(void)
 	copy_cpu_ctx_to_smc_stx(get_regs_ctx(cm_get_context(NON_SECURE)),
 			next_smc_ctx);
 }
+
+#if SP_MIN_WITH_SECURE_FIQ
+/******************************************************************************
+ * This function is invoked on secure interrupts. By construction of the
+ * SP_MIN, secure interrupts can only be handled when core executes in non
+ * secure state.
+ *****************************************************************************/
+void sp_min_fiq(void)
+{
+	uint32_t id;
+
+	id = plat_ic_acknowledge_interrupt();
+	sp_min_plat_fiq_handler(id);
+	plat_ic_end_of_interrupt(id);
+}
+#endif /* SP_MIN_WITH_SECURE_FIQ */

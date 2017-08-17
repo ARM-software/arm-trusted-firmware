@@ -37,3 +37,9 @@ endif
 RESET_TO_SP_MIN	:= 0
 $(eval $(call add_define,RESET_TO_SP_MIN))
 $(eval $(call assert_boolean,RESET_TO_SP_MIN))
+
+# Flag to allow SP_MIN to handle FIQ interrupts in monitor mode. The platform
+# port is free to override this value. It is default disabled.
+SP_MIN_WITH_SECURE_FIQ 	?= 0
+$(eval $(call add_define,SP_MIN_WITH_SECURE_FIQ))
+$(eval $(call assert_boolean,SP_MIN_WITH_SECURE_FIQ))
