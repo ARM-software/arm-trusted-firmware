@@ -20,6 +20,44 @@
 	mov	r0, sp
 	add	r0, r0, #SMC_CTX_SP_USR
 
+#if ARCH_IS_ARMV7_WITHOUT_VE
+	/* must be in secure state to restore Monitor mode */
+	ldcopr	r4, SCR
+	bic	r2, r4, #SCR_NS_BIT
+	stcopr	r2, SCR
+	isb
+
+	cps	#MODE32_sys
+	stm	r0!, {sp, lr}
+
+	cps	#MODE32_irq
+	mrs	r2, spsr
+	stm	r0!, {r2, sp, lr}
+
+	cps	#MODE32_fiq
+	mrs	r2, spsr
+	stm	r0!, {r2, sp, lr}
+
+	cps	#MODE32_svc
+	mrs	r2, spsr
+	stm	r0!, {r2, sp, lr}
+
+	cps	#MODE32_abt
+	mrs	r2, spsr
+	stm	r0!, {r2, sp, lr}
+
+	cps	#MODE32_und
+	mrs	r2, spsr
+	stm	r0!, {r2, sp, lr}
+
+	/* lr_mon is already saved by caller */
+	cps	#MODE32_mon
+	mrs	r2, spsr
+	stm	r0!, {r2}
+
+	stcopr	r4, SCR
+	isb
+#else
 	/* Save the banked registers including the current SPSR and LR */
 	mrs	r4, sp_usr
 	mrs	r5, lr_usr
@@ -42,9 +80,10 @@
 	mrs	r11, lr_und
 	mrs	r12, spsr
 	stm	r0!, {r4-r12}
-
 	/* lr_mon is already saved by caller */
+
 	ldcopr	r4, SCR
+#endif
 	str	r4, [sp, #SMC_CTX_SCR]
 	.endm
 
@@ -72,6 +111,44 @@
 
 	/* Restore the banked registers including the current SPSR */
 	add	r1, r0, #SMC_CTX_SP_USR
+
+#if ARCH_IS_ARMV7_WITHOUT_VE
+	/* must be in secure state to restore Monitor mode */
+	ldcopr	r4, SCR
+	bic	r2, r4, #SCR_NS_BIT
+	stcopr	r2, SCR
+	isb
+
+	cps	#MODE32_sys
+	ldm	r1!, {sp, lr}
+
+	cps	#MODE32_irq
+	ldm	r1!, {r2, sp, lr}
+	msr	spsr_fsxc, r2
+
+	cps	#MODE32_fiq
+	ldm	r1!, {r2, sp, lr}
+	msr	spsr_fsxc, r2
+
+	cps	#MODE32_svc
+	ldm	r1!, {r2, sp, lr}
+	msr	spsr_fsxc, r2
+
+	cps	#MODE32_abt
+	ldm	r1!, {r2, sp, lr}
+	msr	spsr_fsxc, r2
+
+	cps	#MODE32_und
+	ldm	r1!, {r2, sp, lr}
+	msr	spsr_fsxc, r2
+
+	cps	#MODE32_mon
+	ldm	r1!, {r2}
+	msr	spsr_fsxc, r2
+
+	stcopr	r4, SCR
+	isb
+#else
 	ldm	r1!, {r4-r12}
 	msr	sp_usr, r4
 	msr	lr_usr, r5
@@ -99,6 +176,7 @@
 	 * f->[31:24] and c->[7:0] bits of SPSR.
 	 */
 	msr	spsr_fsxc, r12
+#endif
 
 	/* Restore the LR */
 	ldr	lr, [r0, #SMC_CTX_LR_MON]

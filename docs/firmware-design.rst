@@ -2366,6 +2366,18 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` >= 8, or when
 -  The Compare and Swap instruction is used to implement spinlocks. Otherwise,
    the load-/store-exclusive instruction pair is used.
 
+ARMv7
+~~~~~
+
+This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 7.
+
+Several ARMv7 extensions are supported. Obviously the TrustZone extension
+is mandatory to support ARM Trusted Firmware. Other ARMv7 extensions are
+identified through the ``ARM_ARCH_MINOR`` which is used as a flag bit field:
+
+* ``ARM_ARCH_MINOR`` & 0x01 == 0x01 : supports Large Page Addressing Extension
+* ``ARM_ARCH_MINOR`` & 0x02 == 0x02 : supports Virtualization Extension
+
 Code Structure
 --------------
 

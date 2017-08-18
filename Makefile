@@ -126,20 +126,28 @@ OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
 
+ifeq (${ARM_ARCH_MAJOR},7)
+march32 			= 	armv7-a
+target32 			= 	armv7a-none-eabi
+else
+march32 			= 	armv8-a
+target32 			= 	armv8a-none-eabi
+endif
+
 ifeq ($(notdir $(CC)),armclang)
-TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi -march=armv8-a
+TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi -march=$(march32)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
 else ifneq ($(findstring clang,$(notdir $(CC))),)
-TF_CFLAGS_aarch32	=	-target armv8a-none-eabi
+TF_CFLAGS_aarch32	=	-target $(target32)
 TF_CFLAGS_aarch64	=	-target aarch64-elf
 else
-TF_CFLAGS_aarch32	=	-march=armv8-a
+TF_CFLAGS_aarch32	=	-march=$(march32)
 TF_CFLAGS_aarch64	=	-march=armv8-a
 endif
 
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 
-ASFLAGS_aarch32		=	-march=armv8-a
+ASFLAGS_aarch32		=	-march=$(march32)
 ASFLAGS_aarch64		=	-march=armv8-a
 
 CPPFLAGS		=	${DEFINES} ${INCLUDES} -nostdinc		\
@@ -458,6 +466,12 @@ $(eval $(call assert_boolean,WARMBOOT_ENABLE_DCACHE_EARLY))
 
 $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
+
+ifeq (${ARM_ARCH_MAJOR},7)
+ifneq (${ARCH},aarch32)
+$(error ARM_ARCH_MAJOR=7 mandates ARCH=aarch32)
+endif
+endif
 
 ################################################################################
 # Add definitions to the cpp preprocessor based on the current build options.

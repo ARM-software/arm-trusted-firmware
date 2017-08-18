@@ -259,8 +259,10 @@ int psci_setup(const psci_lib_args_t *lib_args)
  ******************************************************************************/
 void psci_arch_setup(void)
 {
+#if !ARCH_IS_ARMV7_WITHOUT_VE
 	/* Program the counter frequency */
 	write_cntfrq_el0(plat_get_syscnt_freq2());
+#endif
 
 	/* Initialize the cpu_ops pointer. */
 	init_cpu_ops();

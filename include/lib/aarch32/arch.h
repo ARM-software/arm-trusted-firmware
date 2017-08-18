@@ -8,6 +8,24 @@
 #define __ARCH_H__
 
 /*******************************************************************************
+ * Macros to identify ARMv7 extensions
+ ******************************************************************************/
+#define ARMV7_ARCH_MINOR_LPAE	(1 << 0)
+#define ARMV7_ARCH_MINOR_VE	(1 << 1)
+
+#define ARCH_IS_ARMV7_WITH_LPAE		\
+	((ARM_ARCH_MAJOR == 7) && (ARM_ARCH_MINOR & ARMV7_ARCH_MINOR_LPAE))
+
+#define ARCH_IS_ARMV7_WITHOUT_LPAE	\
+	((ARM_ARCH_MAJOR == 7) && !(ARM_ARCH_MINOR & ARMV7_ARCH_MINOR_LPAE))
+
+#define ARCH_IS_ARMV7_WITH_VE		\
+	((ARM_ARCH_MAJOR == 7) && (ARM_ARCH_MINOR & ARMV7_ARCH_MINOR_VE))
+
+#define ARCH_IS_ARMV7_WITHOUT_VE	\
+	((ARM_ARCH_MAJOR == 7) && !(ARM_ARCH_MINOR & ARMV7_ARCH_MINOR_VE))
+
+/*******************************************************************************
  * MIDR bit definitions
  ******************************************************************************/
 #define MIDR_IMPL_MASK		0xff
@@ -375,6 +393,7 @@
 /* System register defines The format is: coproc, opt1, CRn, CRm, opt2 */
 #define SCR		p15, 0, c1, c1, 0
 #define SCTLR		p15, 0, c1, c0, 0
+#define ACTLR		p15, 0, c1, c0, 1
 #define SDCR		p15, 0, c1, c3, 1
 #define MPIDR		p15, 0, c0, c0, 5
 #define MIDR		p15, 0, c0, c0, 0
@@ -420,6 +439,11 @@
 #define HDCR		p15, 4, c1, c1, 1
 #define PMCR		p15, 0, c9, c12, 0
 #define CNTHP_CTL	p15, 4, c14, c2, 1
+
+/* ARMv7 coproc registers for 32bit MMU descriptor support */
+#define PRRR		p15, 0, c10, c2, 0
+#define NMRR		p15, 0, c10, c2, 1
+#define DACR		p15, 0, c3, c0, 0
 
 /* GICv3 CPU Interface system register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
 #define ICC_IAR1	p15, 0, c12, c12, 0
