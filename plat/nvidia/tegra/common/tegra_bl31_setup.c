@@ -342,6 +342,15 @@ void bl31_platform_setup(void)
 void bl31_plat_runtime_setup(void)
 {
 	/*
+	 * During cold boot, it is observed that the arbitration
+	 * bit is set in the Memory controller leading to false
+	 * error interrupts in the non-secure world. To avoid
+	 * this, clean the interrupt status register before
+	 * booting into the non-secure world
+	 */
+	tegra_memctrl_clear_pending_interrupts();
+
+	/*
 	 * During boot, USB3 and flash media (SDMMC/SATA) devices need
 	 * access to IRAM. Because these clients connect to the MC and
 	 * do not have a direct path to the IRAM, the MC implements AHB

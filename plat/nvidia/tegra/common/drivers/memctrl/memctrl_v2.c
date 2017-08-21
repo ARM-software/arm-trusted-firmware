@@ -712,3 +712,8 @@ void tegra_memctrl_disable_ahb_redirection(void)
 {
 	; /* do nothing */
 }
+
+void tegra_memctrl_clear_pending_interrupts(void)
+{
+	; /* do nothing */
+}

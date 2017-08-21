@@ -83,6 +83,9 @@
  ******************************************************************************/
 #define TEGRA_MC_BASE			U(0x70019000)
 
+/* Memory Controller Interrupt Status */
+#define MC_INTSTATUS			0x00U
+
 /* TZDRAM carveout configuration registers */
 #define MC_SECURITY_CFG0_0		U(0x70)
 #define MC_SECURITY_CFG1_0		U(0x74)

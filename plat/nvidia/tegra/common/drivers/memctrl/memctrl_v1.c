@@ -209,3 +209,16 @@ void tegra_memctrl_disable_ahb_redirection(void)
 	/* lock the aperture registers */
 	tegra_mc_write_32(MC_IRAM_REG_CTRL, MC_DISABLE_IRAM_CFG_WRITES);
 }
+
+void tegra_memctrl_clear_pending_interrupts(void)
+{
+	uint32_t mcerr;
+
+	/* check if there are any pending interrupts */
+	mcerr = mmio_read_32(TEGRA_MC_BASE + MC_INTSTATUS);
+
+	if (mcerr != (uint32_t)0U) { /* should not see error here */
+		WARN("MC_INTSTATUS = 0x%x (should be zero)\n", mcerr);
+		mmio_write_32((TEGRA_MC_BASE + MC_INTSTATUS),  mcerr);
+	}
+}
