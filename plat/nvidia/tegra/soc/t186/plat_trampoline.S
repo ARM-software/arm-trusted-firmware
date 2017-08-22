@@ -12,11 +12,10 @@
 
 #define TEGRA186_SMMU_CTX_SIZE		0x420
 
-	.align 4
 	.globl	tegra186_cpu_reset_handler
 
 /* CPU reset handler routine */
-func tegra186_cpu_reset_handler
+func tegra186_cpu_reset_handler _align=4
 	/*
 	 * The TZRAM loses state during System Suspend. We use this
 	 * information to decide if the reset handler is running after a

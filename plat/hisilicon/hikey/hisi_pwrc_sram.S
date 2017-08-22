@@ -15,8 +15,7 @@
 	.global v7_asm
 	.global v7_asm_end
 
-	.align	3
-func pm_asm_code
+func pm_asm_code _align=3
 	mov	x0, 0
 	msr	oslar_el1, x0
 
