@@ -229,7 +229,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			/* Use SCTLR_EL1.EE value to initialise sctlr_el2 */
 			sctlr_elx = read_ctx_reg(get_sysregs_ctx(ctx),
 						 CTX_SCTLR_EL1);
-			sctlr_elx &= ~SCTLR_EE_BIT;
+			sctlr_elx &= SCTLR_EE_BIT;
 			sctlr_elx |= SCTLR_EL2_RES1;
 			write_sctlr_el2(sctlr_elx);
 		} else if (EL_IMPLEMENTED(2)) {
