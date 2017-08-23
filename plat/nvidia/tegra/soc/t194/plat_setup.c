@@ -39,6 +39,10 @@ const unsigned char tegra_power_domain_tree_desc[] = {
 	/* No of CPU cores - cluster0 */
 	PLATFORM_MAX_CPUS_PER_CLUSTER,
 	/* No of CPU cores - cluster1 */
+	PLATFORM_MAX_CPUS_PER_CLUSTER,
+	/* No of CPU cores - cluster2 */
+	PLATFORM_MAX_CPUS_PER_CLUSTER,
+	/* No of CPU cores - cluster3 */
 	PLATFORM_MAX_CPUS_PER_CLUSTER
 };
 
