@@ -194,8 +194,15 @@ static void psci_set_req_local_pwr_state(unsigned int pwrlvl,
 					 unsigned int cpu_idx,
 					 plat_local_state_t req_pwr_state)
 {
+	/*
+	 * This should never happen, we have this here to avoid
+	 * "array subscript is above array bounds" errors in GCC.
+	 */
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
 	psci_req_local_pwr_states[pwrlvl - 1][cpu_idx] = req_pwr_state;
+#pragma GCC diagnostic pop
 }
 
 /******************************************************************************
