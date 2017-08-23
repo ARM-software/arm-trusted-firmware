@@ -1864,7 +1864,7 @@ A ToC entry has the following fields:
     `offset_address`: The offset address at which the corresponding payload data
         can be found. The offset is calculated from the ToC base address.
     `size`: The size of the corresponding payload data in bytes.
-    `flags`: Flags associated with this entry. Non are yet defined.
+    `flags`: Flags associated with this entry. None are yet defined.
 
 Firmware Image Package creation tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
