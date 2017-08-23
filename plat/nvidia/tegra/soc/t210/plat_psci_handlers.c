@@ -104,41 +104,55 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 	if ((lvl == MPIDR_AFFLVL1) && (target == PSTATE_ID_CLUSTER_IDLE)) {
 
 		/* initialize the bpmp interface */
-		(void)tegra_bpmp_init();
-
-		/* Cluster idle */
-		data[0] = (uint32_t)cpu;
-		data[1] = TEGRA_PM_CC6;
-		data[2] = TEGRA_PM_SC1;
-		ret = tegra_bpmp_send_receive_atomic(MRQ_DO_IDLE,
-				(void *)&data, (int)sizeof(data),
-				(void *)&bpmp_reply, (int)sizeof(bpmp_reply));
-
-		/* check if cluster idle entry is allowed */
-		if ((ret != 0L) || (bpmp_reply != BPMP_CCx_ALLOWED)) {
+		ret = tegra_bpmp_init();
+		if (ret != 0U) {
 
 			/* Cluster idle not allowed */
 			target = PSCI_LOCAL_STATE_RUN;
+		} else {
+
+			/* Cluster idle */
+			data[0] = (uint32_t)cpu;
+			data[1] = TEGRA_PM_CC6;
+			data[2] = TEGRA_PM_SC1;
+			ret = tegra_bpmp_send_receive_atomic(MRQ_DO_IDLE,
+					(void *)&data, (int)sizeof(data),
+					(void *)&bpmp_reply,
+					(int)sizeof(bpmp_reply));
+
+			/* check if cluster idle entry is allowed */
+			if ((ret != 0L) || (bpmp_reply != BPMP_CCx_ALLOWED)) {
+
+				/* Cluster idle not allowed */
+				target = PSCI_LOCAL_STATE_RUN;
+			}
 		}
 
 	} else if ((lvl == MPIDR_AFFLVL1) && (target == PSTATE_ID_CLUSTER_POWERDN)) {
 
 		/* initialize the bpmp interface */
-		(void)tegra_bpmp_init();
-
-		/* Cluster power-down */
-		data[0] = (uint32_t)cpu;
-		data[1] = TEGRA_PM_CC7;
-		data[2] = TEGRA_PM_SC1;
-		ret = tegra_bpmp_send_receive_atomic(MRQ_DO_IDLE,
-				(void *)&data, (int)sizeof(data),
-				(void *)&bpmp_reply, (int)sizeof(bpmp_reply));
-
-		/* check if cluster power down is allowed */
-		if ((ret != 0L) || (bpmp_reply != BPMP_CCx_ALLOWED)) {
+		ret = tegra_bpmp_init();
+		if (ret != 0U) {
 
 			/* Cluster power down not allowed */
 			target = PSCI_LOCAL_STATE_RUN;
+		} else {
+
+			/* Cluster power-down */
+			data[0] = (uint32_t)cpu;
+			data[1] = TEGRA_PM_CC7;
+			data[2] = TEGRA_PM_SC1;
+			ret = tegra_bpmp_send_receive_atomic(MRQ_DO_IDLE,
+					(void *)&data, (int)sizeof(data),
+					(void *)&bpmp_reply,
+					(int)sizeof(bpmp_reply));
+
+			/* check if cluster power down is allowed */
+			if ((ret != 0L) || (bpmp_reply != BPMP_CCx_ALLOWED)) {
+
+				/* Cluster power down not allowed */
+				target = PSCI_LOCAL_STATE_RUN;
+			}
 		}
 
 	} else if (((lvl == MPIDR_AFFLVL2) || (lvl == MPIDR_AFFLVL1)) &&
