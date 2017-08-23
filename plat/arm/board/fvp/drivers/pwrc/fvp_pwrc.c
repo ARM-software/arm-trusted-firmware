@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
  * TODO: Someday there will be a generic power controller api. At the moment
  * each platform has its own pwrc so just exporting functions is fine.
  */
-ARM_INSTANTIATE_LOCK
+ARM_INSTANTIATE_LOCK;
 
 unsigned int fvp_pwrc_get_cpu_wkr(u_register_t mpidr)
 {
