@@ -144,17 +144,20 @@ func plat_is_my_cpu_primary
 	ret
 endfunc plat_is_my_cpu_primary
 
-	/* -----------------------------------------------------
+	/* ----------------------------------------------------------
 	 * unsigned int plat_my_core_pos(void);
 	 *
-	 * result: CorePos = CoreId + (ClusterId << 2)
-	 * -----------------------------------------------------
+	 * result: CorePos = CoreId + (ClusterId * cpus per cluster)
+	 * ----------------------------------------------------------
 	 */
 func plat_my_core_pos
 	mrs	x0, mpidr_el1
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
-	add	x0, x1, x0, LSR #6
+	lsr	x0, x0, #MPIDR_AFFINITY_BITS
+	mov	x2, #PLATFORM_MAX_CPUS_PER_CLUSTER
+	mul	x0, x0, x2
+	add	x0, x1, x0
 	ret
 endfunc plat_my_core_pos
 
@@ -176,14 +179,17 @@ endfunc plat_get_my_entrypoint
 	/* -----------------------------------------------------
 	 * int platform_get_core_pos(int mpidr);
 	 *
-	 * With this function: CorePos = (ClusterId * 4) +
-	 *                                CoreId
+	 * result: CorePos = (ClusterId * cpus per cluster) +
+	 *                   CoreId
 	 * -----------------------------------------------------
 	 */
 func platform_get_core_pos
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
-	add	x0, x1, x0, LSR #6
+	lsr	x0, x0, #MPIDR_AFFINITY_BITS
+	mov	x2, #PLATFORM_MAX_CPUS_PER_CLUSTER
+	mul	x0, x0, x2
+	add	x0, x1, x0
 	ret
 endfunc platform_get_core_pos
 
