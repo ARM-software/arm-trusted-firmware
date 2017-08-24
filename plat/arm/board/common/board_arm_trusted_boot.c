@@ -18,6 +18,7 @@
 /* ROTPK locations */
 #define ARM_ROTPK_REGS_ID		1
 #define ARM_ROTPK_DEVEL_RSA_ID		2
+#define ARM_ROTPK_DEVEL_ECDSA_ID	3
 
 static const unsigned char rotpk_hash_hdr[] =		\
 		"\x30\x31\x30\x0D\x06\x09\x60\x86\x48"	\
@@ -41,6 +42,12 @@ static const unsigned char arm_devel_rotpk_hash[] =	\
 		"\x37\x7A\x72\x47\x1B\xEC\x32\x73"	\
 		"\xE9\x92\x32\xE2\x49\x59\xF6\x5E"	\
 		"\x8B\x4A\x4A\x46\xD8\x22\x9A\xDA";
+#elif (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
+static const unsigned char arm_devel_rotpk_hash[] =	\
+		"\x2E\x40\xBF\x6E\xF9\x12\xBB\x98"	\
+		"\x31\x71\x09\x0E\x1E\x15\x3D\x0B"	\
+		"\xFD\xD1\xCC\x69\x4A\x98\xEB\x8B"	\
+		"\xA0\xB0\x20\x86\x4E\x6C\x07\x17";
 #endif
 
 /*
@@ -69,7 +76,8 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 	memcpy(rotpk_hash_der, rotpk_hash_hdr, rotpk_hash_hdr_len);
 	dst = (uint8_t *)&rotpk_hash_der[rotpk_hash_hdr_len];
 
-#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID)
+#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) \
+	|| (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
 	memcpy(dst, arm_devel_rotpk_hash, SHA256_BYTES);
 #elif (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_REGS_ID)
 	uint32_t *src, tmp;
@@ -121,7 +129,8 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 		*dst++ = (uint8_t)((tmp >> 8) & 0xFF);
 		*dst++ = (uint8_t)(tmp & 0xFF);
 	}
-#endif /* (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) */
+#endif /* (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) \
+		  || (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID) */
 
 	*key_ptr = (void *)rotpk_hash_der;
 	*key_len = (unsigned int)sizeof(rotpk_hash_der);

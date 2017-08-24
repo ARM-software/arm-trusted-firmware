@@ -9,8 +9,8 @@
 /*
  * Key algorithms currently supported on mbed TLS libraries
  */
-#define TF_MBEDTLS_RSA		1
-#define TF_MBEDTLS_ECDSA	2
+#define TF_MBEDTLS_RSA			1
+#define TF_MBEDTLS_ECDSA		2
 
 /*
  * Configuration file to build mbed TLS with the required features for
@@ -30,7 +30,6 @@
 #define MBEDTLS_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION
 #define MBEDTLS_X509_CHECK_KEY_USAGE
 #define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
-#define MBEDTLS_X509_RSASSA_PSS_SUPPORT
 
 #define MBEDTLS_ASN1_PARSE_C
 #define MBEDTLS_ASN1_WRITE_C
@@ -56,6 +55,7 @@
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
 #elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA)
 #define MBEDTLS_RSA_C
+#define MBEDTLS_X509_RSASSA_PSS_SUPPORT
 #endif
 
 #define MBEDTLS_SHA256_C
