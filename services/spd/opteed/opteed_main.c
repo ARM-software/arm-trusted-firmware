@@ -96,6 +96,7 @@ int32_t opteed_setup(void)
 	uint32_t linear_id;
 	uint64_t opteed_pageable_part;
 	uint64_t opteed_mem_limit;
+	uint64_t dt_addr;
 
 	linear_id = plat_my_core_pos();
 
@@ -120,19 +121,17 @@ int32_t opteed_setup(void)
 	if (!optee_ep_info->pc)
 		return 1;
 
-	/*
-	 * We could inspect the SP image and determine it's execution
-	 * state i.e whether AArch32 or AArch64.
-	 */
 	opteed_rw = optee_ep_info->args.arg0;
 	opteed_pageable_part = optee_ep_info->args.arg1;
 	opteed_mem_limit = optee_ep_info->args.arg2;
+	dt_addr = optee_ep_info->args.arg3;
 
 	opteed_init_optee_ep_state(optee_ep_info,
 				opteed_rw,
 				optee_ep_info->pc,
 				opteed_pageable_part,
 				opteed_mem_limit,
+				dt_addr,
 				&opteed_sp_context[linear_id]);
 
 	/*

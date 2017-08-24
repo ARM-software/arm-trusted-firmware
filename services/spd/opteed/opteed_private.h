@@ -149,6 +149,7 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_ep,
 				uint64_t pc,
 				uint64_t pageable_part,
 				uint64_t mem_limit,
+				uint64_t dt_addr,
 				optee_context_t *optee_ctx);
 
 extern optee_context_t opteed_sp_context[OPTEED_CORE_COUNT];
