@@ -72,7 +72,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/arm/gic/common/gic_common.c	\
-				plat/common/aarch64/plat_psci_common.c	\
+				plat/common/plat_psci_common.c		\
 				plat/qemu/qemu_pm.c			\
 				plat/qemu/topology.c			\
 				plat/qemu/aarch64/plat_helpers.S	\
