@@ -154,7 +154,8 @@
 
 #define NS_IMAGE_OFFSET			0x60000000
 
-#define ADDR_SPACE_SIZE			(1ull << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
 #define MAX_MMAP_REGIONS		8
 #define MAX_XLAT_TABLES			6
 #define MAX_IO_DEVICES			3
