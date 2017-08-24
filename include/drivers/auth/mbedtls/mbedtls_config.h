@@ -11,6 +11,7 @@
  */
 #define TF_MBEDTLS_RSA			1
 #define TF_MBEDTLS_ECDSA		2
+#define TF_MBEDTLS_RSA_AND_ECDSA	3
 
 /*
  * Configuration file to build mbed TLS with the required features for
@@ -56,6 +57,12 @@
 #elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA)
 #define MBEDTLS_RSA_C
 #define MBEDTLS_X509_RSASSA_PSS_SUPPORT
+#elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA)
+#define MBEDTLS_RSA_C
+#define MBEDTLS_X509_RSASSA_PSS_SUPPORT
+#define MBEDTLS_ECDSA_C
+#define MBEDTLS_ECP_C
+#define MBEDTLS_ECP_DP_SECP256R1_ENABLED
 #endif
 
 #define MBEDTLS_SHA256_C
