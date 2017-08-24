@@ -97,16 +97,18 @@
 
 #ifdef SPD_opteed
 /*
- * BL2 needs to map 3.5MB from 512KB offset in TZC_DRAM1 in order to
- * load/authenticate the trusted os extra image. The first 512KB of TZC_DRAM1
- * are reserved for trusted os (OPTEE). The extra image loading for OPTEE is
- * paged image which only include the paging part using virtual memory but
- * without "init" data. OPTEE will copy the "init" data (from pager image) to
- * the first 512KB of TZC_DRAM, and then copy the extra image behind the "init"
- * data.
+ * BL2 needs to map 4MB at the end of TZC_DRAM1 in order to
+ * load/authenticate the trusted os extra image. The first 512KB of
+ * TZC_DRAM1 are reserved for trusted os (OPTEE). The extra image loading
+ * for OPTEE is paged image which only include the paging part using
+ * virtual memory but without "init" data. OPTEE will copy the "init" data
+ * (from pager image) to the first 512KB of TZC_DRAM, and then copy the
+ * extra image behind the "init" data.
  */
-#define ARM_OPTEE_PAGEABLE_LOAD_BASE	(ARM_AP_TZC_DRAM1_BASE + 0x80000)
-#define ARM_OPTEE_PAGEABLE_LOAD_SIZE	0x380000
+#define ARM_OPTEE_PAGEABLE_LOAD_BASE	(ARM_AP_TZC_DRAM1_BASE + \
+					 ARM_AP_TZC_DRAM1_SIZE - \
+					 ARM_OPTEE_PAGEABLE_LOAD_SIZE)
+#define ARM_OPTEE_PAGEABLE_LOAD_SIZE	0x400000
 #define ARM_OPTEE_PAGEABLE_LOAD_MEM	MAP_REGION_FLAT(		\
 					ARM_OPTEE_PAGEABLE_LOAD_BASE,	\
 					ARM_OPTEE_PAGEABLE_LOAD_SIZE,	\
