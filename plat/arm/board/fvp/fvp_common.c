@@ -219,8 +219,7 @@ void fvp_config_setup(void)
 			arm_config.flags |= ARM_CONFIG_FVP_HAS_CCI400;
 			break;
 		case REV_BASE_FVP_REVC:
-			arm_config.flags |= (ARM_CONFIG_FVP_SHIFTED_AFF |
-					ARM_CONFIG_FVP_HAS_SMMUV3 |
+			arm_config.flags |= (ARM_CONFIG_FVP_HAS_SMMUV3 |
 					ARM_CONFIG_FVP_HAS_CCI5XX);
 			break;
 		default:
@@ -232,6 +231,14 @@ void fvp_config_setup(void)
 		ERROR("Unsupported board HBI number 0x%x\n", hbi);
 		panic();
 	}
+
+	/*
+	 * We assume that the presence of MT bit, and therefore shifted
+	 * affinities, is uniform across the platform: either all CPUs, or no
+	 * CPUs implement it.
+	 */
+	if (read_mpidr_el1() & MPIDR_MT_MASK)
+		arm_config.flags |= ARM_CONFIG_FVP_SHIFTED_AFF;
 }
 
 
