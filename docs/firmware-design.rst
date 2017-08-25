@@ -1045,8 +1045,8 @@ before returning through EL3 and running the non-trusted firmware (BL33):
    ``bl31_main()`` will set up the return to the normal world firmware BL33 and
    continue the boot process in the normal world.
 
-#. .. rubric:: Crash Reporting in BL31
-      :name: crash-reporting-in-bl31
+Crash Reporting in BL31
+-----------------------
 
 BL31 implements a scheme for reporting the processor state when an unhandled
 exception is encountered. The reporting mechanism attempts to preserve all the
@@ -2333,8 +2333,8 @@ PMF code structure
 
 #. ``pmf_helpers.h`` is an internal header used by ``pmf.h``.
 
-#. .. rubric:: ARMv8 Architecture Extensions
-      :name: armv8-architecture-extensions
+ARMv8 Architecture Extensions
+-----------------------------
 
 ARM Trusted Firmware makes use of ARMv8 Architecture Extensions where
 applicable. This section lists the usage of Architecture Extensions, and build
