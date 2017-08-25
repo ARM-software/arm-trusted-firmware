@@ -73,6 +73,11 @@
 #define SEC_DRAM_BASE			0x0e100000
 #define SEC_DRAM_SIZE			0x00f00000
 
+/* Load pageable part of OP-TEE at end of secure DRAM */
+#define QEMU_OPTEE_PAGEABLE_LOAD_BASE	(SEC_DRAM_BASE + SEC_DRAM_SIZE - \
+					 QEMU_OPTEE_PAGEABLE_LOAD_SIZE)
+#define QEMU_OPTEE_PAGEABLE_LOAD_SIZE	0x00400000
+
 /*
  * ARM-TF lives in SRAM, partition it here
  */
@@ -154,7 +159,8 @@
 
 #define NS_IMAGE_OFFSET			0x60000000
 
-#define ADDR_SPACE_SIZE			(1ull << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
 #define MAX_MMAP_REGIONS		8
 #define MAX_XLAT_TABLES			6
 #define MAX_IO_DEVICES			3

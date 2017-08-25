@@ -65,6 +65,10 @@ BL2_SOURCES		+=	plat/qemu/qemu_bl2_mem_params_desc.c	\
 				plat/qemu/qemu_image_load.c		\
 				common/desc_image_load.c
 endif
+ifeq (${SPD},opteed)
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+endif
+
 
 BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
@@ -72,12 +76,22 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/arm/gic/common/gic_common.c	\
-				plat/common/aarch64/plat_psci_common.c	\
+				plat/common/plat_psci_common.c		\
 				plat/qemu/qemu_pm.c			\
 				plat/qemu/topology.c			\
 				plat/qemu/aarch64/plat_helpers.S	\
 				plat/qemu/qemu_bl31_setup.c		\
 				plat/qemu/qemu_gic.c
+
+
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0

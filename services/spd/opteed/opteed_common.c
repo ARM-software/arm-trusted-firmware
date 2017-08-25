@@ -20,7 +20,7 @@
 void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 				uint32_t rw, uint64_t pc,
 				uint64_t pageable_part, uint64_t mem_limit,
-				optee_context_t *optee_ctx)
+				uint64_t dt_addr, optee_context_t *optee_ctx)
 {
 	uint32_t ep_attr;
 
@@ -54,6 +54,7 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 	zeromem(&optee_entry_point->args, sizeof(optee_entry_point->args));
 	optee_entry_point->args.arg0 = pageable_part;
 	optee_entry_point->args.arg1 = mem_limit;
+	optee_entry_point->args.arg2 = dt_addr;
 }
 
 /*******************************************************************************
