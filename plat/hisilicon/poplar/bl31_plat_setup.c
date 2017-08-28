@@ -32,7 +32,14 @@
 #define BL31_COHERENT_RAM_BASE	(unsigned long)(&__COHERENT_RAM_START__)
 #define BL31_COHERENT_RAM_LIMIT	(unsigned long)(&__COHERENT_RAM_END__)
 
+#define TZPC_SEC_ATTR_CTRL_VALUE (0x9DB98D45)
+
 static entry_point_info_t bl33_image_ep_info;
+
+static void hisi_tzpc_sec_init(void)
+{
+	mmio_write_32(HISI_TZPC_SEC_ATTR_CTRL, TZPC_SEC_ATTR_CTRL_VALUE);
+}
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
@@ -58,6 +65,9 @@ void bl31_platform_setup(void)
 	/* Init GIC distributor and CPU interface */
 	plat_arm_gic_driver_init();
 	plat_arm_gic_init();
+
+	/* Init security properties of IP blocks */
+	hisi_tzpc_sec_init();
 }
 
 void bl31_plat_runtime_setup(void)

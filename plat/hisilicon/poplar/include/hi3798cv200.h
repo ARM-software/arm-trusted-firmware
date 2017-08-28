@@ -97,4 +97,7 @@
 /* Watchdog */
 #define HISI_WDG0_BASE			(0xF8A2C000)
 
+#define HISI_TZPC_BASE			(0xF8A80000)
+#define HISI_TZPC_SEC_ATTR_CTRL		(HISI_TZPC_BASE + 0x10)
+
 #endif	/* __HI3798cv200_H__ */
