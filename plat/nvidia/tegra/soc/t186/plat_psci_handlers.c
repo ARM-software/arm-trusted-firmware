@@ -25,8 +25,6 @@
 #include <tegra_private.h>
 
 extern void memcpy16(void *dest, const void *src, unsigned int length);
-
-extern void prepare_cpu_pwr_dwn(void);
 extern void tegra186_cpu_reset_handler(void);
 extern uint64_t __tegra186_cpu_reset_handler_end,
 		__tegra186_smmu_context;
