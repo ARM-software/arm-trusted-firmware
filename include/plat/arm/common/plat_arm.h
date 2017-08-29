@@ -45,7 +45,7 @@ void arm_setup_page_tables(uintptr_t total_base,
  * Use this macro to instantiate lock before it is used in below
  * arm_lock_xxx() macros
  */
-#define ARM_INSTANTIATE_LOCK	DEFINE_BAKERY_LOCK(arm_lock);
+#define ARM_INSTANTIATE_LOCK	DEFINE_BAKERY_LOCK(arm_lock)
 #define ARM_LOCK_GET_INSTANCE	(&arm_lock)
 /*
  * These are wrapper macros to the Coherent Memory Bakery Lock API.
@@ -59,7 +59,7 @@ void arm_setup_page_tables(uintptr_t total_base,
 /*
  * Empty macros for all other BL stages other than BL31 and BL32
  */
-#define ARM_INSTANTIATE_LOCK
+#define ARM_INSTANTIATE_LOCK	static int arm_lock __unused
 #define ARM_LOCK_GET_INSTANCE	0
 #define arm_lock_init()
 #define arm_lock_get()

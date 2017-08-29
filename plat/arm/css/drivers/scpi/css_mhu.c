@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,7 +23,7 @@
 #define CPU_INTR_S_SET		0x308
 #define CPU_INTR_S_CLEAR	0x310
 
-ARM_INSTANTIATE_LOCK
+ARM_INSTANTIATE_LOCK;
 
 /* Weak definition may be overridden in specific CSS based platform */
 #pragma weak plat_arm_pwrc_setup

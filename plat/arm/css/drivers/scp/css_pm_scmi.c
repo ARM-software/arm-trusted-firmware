@@ -76,7 +76,7 @@ void *scmi_handle;
 /* The SCMI channel global object */
 static scmi_channel_t scmi_channel;
 
-ARM_INSTANTIATE_LOCK
+ARM_INSTANTIATE_LOCK;
 
 /*
  * Helper function to suspend a CPU power domain and its parent power domains
