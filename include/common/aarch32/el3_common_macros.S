@@ -107,6 +107,7 @@
 	vmsr	FPEXC, r0
 	isb
 
+#if (ARM_ARCH_MAJOR > 7)
 	/* ---------------------------------------------------------------------
 	 * Initialise SDCR, setting all the fields rather than relying on hw.
 	 *
@@ -116,6 +117,8 @@
 	 */
 	ldr	r0, =(SDCR_RESET_VAL | SDCR_SPD(SDCR_SPD_DISABLE))
 	stcopr	r0, SDCR
+#endif
+
 
 	.endm
 

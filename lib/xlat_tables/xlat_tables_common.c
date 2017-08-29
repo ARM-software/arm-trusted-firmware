@@ -33,8 +33,17 @@
 
 #define UNSET_DESC	~0ull
 
+#ifdef PLAT_XLAT_BASE
+#define XLAT_TABLE_REQUIRED_ENTRIES	(XLAT_TABLE_ENTRIES * MAX_XLAT_TABLES)
+CASSERT(PLAT_XLAT_SIZE == sizeof(uint64_t) * XLAT_TABLE_REQUIRED_ENTRIES,
+	invalid_plat_xlat_size);
+CASSERT(!(PLAT_XLAT_BASE & (XLAT_TABLE_SIZE - 1)), invalid_plat_xlat_base);
+#define xlat_tables	((uint64_t (*)[XLAT_TABLE_ENTRIES]) \
+				(unsigned long *)PLAT_XLAT_BASE)
+#else
 static uint64_t xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
 			__aligned(XLAT_TABLE_SIZE) __section("xlat_table");
+#endif
 
 static unsigned int next_xlat;
 static unsigned long long xlat_max_pa;
@@ -382,6 +391,16 @@ void init_xlation_table(uintptr_t base_va, uint64_t *table,
 			unsigned long long *max_pa)
 {
 	execute_never_mask = xlat_arch_get_xn_desc(xlat_arch_current_el());
+
+#ifdef PLAT_BASE_XLAT_BASE
+	inv_dcache_range(PLAT_BASE_XLAT_BASE, PLAT_BASE_XLAT_SIZE);
+	zeromem((void *)PLAT_BASE_XLAT_BASE, PLAT_BASE_XLAT_SIZE);
+#endif
+#ifdef PLAT_XLAT_BASE
+	inv_dcache_range(PLAT_XLAT_BASE, PLAT_XLAT_SIZE);
+	zeromem((void *)PLAT_XLAT_BASE, PLAT_XLAT_SIZE);
+#endif
+
 	init_xlation_table_inner(mmap, base_va, table, level);
 	*max_va = xlat_max_va;
 	*max_pa = xlat_max_pa;

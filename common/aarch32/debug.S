@@ -71,7 +71,11 @@ endfunc report_exception
 assert_msg1:
 	.asciz "ASSERT: File "
 assert_msg2:
+#if ARCH_IS_ARMV7_WITHOUT_VE
+	.asciz " Line 0x"
+#else
 	.asciz " Line "
+#endif
 
 /* ---------------------------------------------------------------------------
  * Assertion support in assembly.
@@ -113,6 +117,10 @@ func asm_assert
 	bne	1f
 	mov	r4, r6
 
+#if ARCH_IS_ARMV7_WITHOUT_VE
+	/* FIXME: find a trick for getting a decimal value, until then print in hex */
+	bl	asm_print_hex
+#else
 	/* Print line number in decimal */
 	mov	r6, #10			/* Divide by 10 after every loop iteration */
 	ldr	r5, =MAX_DEC_DIVISOR
@@ -124,6 +132,7 @@ dec_print_loop:
 	udiv	r5, r5, r6			/* Reduce divisor */
 	cmp	r5, #0
 	bne	dec_print_loop
+#endif
 
 	bl	plat_crash_console_flush
 

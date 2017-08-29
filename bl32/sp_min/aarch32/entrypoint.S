@@ -148,6 +148,12 @@ func handle_smc
 	smcc_save_gp_mode_regs
 
 	/*
+	 * AArch32 architectures need to clear the exclusive access when
+	 * entering Monitor mode.
+	 */
+	clrex
+
+	/*
 	 * `sp` still points to `smc_ctx_t`. Save it to a register
 	 * and restore the C runtime stack pointer to `sp`.
 	 */

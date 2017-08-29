@@ -234,6 +234,7 @@ DEFINE_COPROCR_READ_FUNC_64(cntpct, CNTPCT_64)
 DEFINE_COPROCR_RW_FUNCS(scr, SCR)
 DEFINE_COPROCR_RW_FUNCS(ctr, CTR)
 DEFINE_COPROCR_RW_FUNCS(sctlr, SCTLR)
+DEFINE_COPROCR_RW_FUNCS(actlr, ACTLR)
 DEFINE_COPROCR_RW_FUNCS(hsctlr, HSCTLR)
 DEFINE_COPROCR_RW_FUNCS(hcr, HCR)
 DEFINE_COPROCR_RW_FUNCS(hcptr, HCPTR)
@@ -270,6 +271,16 @@ DEFINE_COPROCR_RW_FUNCS(hdcr, HDCR)
 DEFINE_COPROCR_RW_FUNCS(cnthp_ctl, CNTHP_CTL)
 DEFINE_COPROCR_READ_FUNC(pmcr, PMCR)
 
+DEFINE_COPROCR_RW_FUNCS(nsacr, NSACR)
+
+/* ARMv7 coproc registers for 32bit MMU descriptor support */
+DEFINE_COPROCR_RW_FUNCS(prrr, PRRR)
+DEFINE_COPROCR_RW_FUNCS(nmrr, NMRR)
+DEFINE_COPROCR_RW_FUNCS(dacr, DACR)
+
+/* ARMv7 Cortex-A9 specific coproc register */
+DEFINE_COPROCR_RW_FUNCS(pcr, PCR)
+
 /*
  * TLBI operation prototypes
  */
@@ -293,6 +304,7 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 
 /* Previously defined accessor functions with incomplete register names  */
 #define dsb()			dsbsy()
+#define dmb()			dmbsy()
 
 #define IS_IN_SECURE() \
 	(GET_NS_BIT(read_scr()) == 0)
