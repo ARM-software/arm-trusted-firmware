@@ -87,6 +87,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif
+#ifdef SPD_opteed
+	ARM_OPTEE_PAGEABLE_LOAD_MEM,
+#endif
 	{0}
 };
 #endif
