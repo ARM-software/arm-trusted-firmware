@@ -90,6 +90,8 @@ struct gpio_info *plat_get_rockchip_gpio_poweroff(void);
 struct gpio_info *plat_get_rockchip_suspend_gpio(uint32_t *count);
 struct apio_info *plat_get_rockchip_suspend_apio(void);
 void plat_rockchip_gpio_init(void);
+void plat_rockchip_save_gpio(void);
+void plat_rockchip_restore_gpio(void);
 
 int rockchip_soc_cores_pwr_dm_on(unsigned long mpidr, uint64_t entrypoint);
 int rockchip_soc_hlvl_pwr_dm_off(uint32_t lvl,

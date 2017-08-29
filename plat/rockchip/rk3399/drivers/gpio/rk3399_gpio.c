@@ -22,10 +22,29 @@ uint32_t gpio_port[] = {
 	GPIO4_BASE,
 };
 
+struct {
+	uint32_t swporta_dr;
+	uint32_t swporta_ddr;
+	uint32_t inten;
+	uint32_t intmask;
+	uint32_t inttype_level;
+	uint32_t int_polarity;
+	uint32_t debounce;
+	uint32_t ls_sync;
+} store_gpio[3];
+
+static uint32_t store_grf_gpio[(GRF_GPIO2D_HE - GRF_GPIO2A_IOMUX) / 4 + 1];
+
 #define SWPORTA_DR	0x00
 #define SWPORTA_DDR	0x04
-#define EXT_PORTA	0x50
+#define INTEN		0x30
+#define INTMASK		0x34
+#define INTTYPE_LEVEL	0x38
+#define INT_POLARITY	0x3c
+#define DEBOUNCE	0x48
+#define LS_SYNC		0x60
 
+#define EXT_PORTA	0x50
 #define PMU_GPIO_PORT0	0
 #define PMU_GPIO_PORT1	1
 #define GPIO_PORT2	2
@@ -288,6 +307,99 @@ static void set_value(int gpio, int value)
 	mmio_clrsetbits_32(gpio_port[port] + SWPORTA_DR, 1 << num,
 							 !!value << num);
 	gpio_put_clock(gpio, clock_state);
+}
+
+void plat_rockchip_save_gpio(void)
+{
+	int i;
+	uint32_t cru_gate_save;
+
+	cru_gate_save = mmio_read_32(CRU_BASE + CRU_CLKGATE_CON(31));
+
+	/*
+	 * when shutdown logic, we need to save gpio2 ~ gpio4 register,
+	 * we need to enable gpio2 ~ gpio4 clock here, since it may be gating,
+	 * and we do not care gpio0 and gpio1 clock gate, since we never
+	 * gating them
+	 */
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+		      BITS_WITH_WMASK(0, 0x07, PCLK_GPIO2_GATE_SHIFT));
+
+	/*
+	 * since gpio0, gpio1 are pmugpio, they will keep ther value
+	 * when shutdown logic power rail, so only need to save gpio2 ~ gpio4
+	 * register value
+	 */
+	for (i = 2; i < 5; i++) {
+		store_gpio[i - 2].swporta_dr =
+			mmio_read_32(gpio_port[i] + SWPORTA_DR);
+		store_gpio[i - 2].swporta_ddr =
+			mmio_read_32(gpio_port[i] + SWPORTA_DDR);
+		store_gpio[i - 2].inten =
+			mmio_read_32(gpio_port[i] + INTEN);
+		store_gpio[i - 2].intmask =
+			mmio_read_32(gpio_port[i] + INTMASK);
+		store_gpio[i - 2].inttype_level =
+			mmio_read_32(gpio_port[i] + INTTYPE_LEVEL);
+		store_gpio[i - 2].int_polarity =
+			mmio_read_32(gpio_port[i] + INT_POLARITY);
+		store_gpio[i - 2].debounce =
+			mmio_read_32(gpio_port[i] + DEBOUNCE);
+		store_gpio[i - 2].ls_sync =
+			mmio_read_32(gpio_port[i] + LS_SYNC);
+	}
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+			cru_gate_save | REG_SOC_WMSK);
+
+	/*
+	 * gpio0, gpio1 in pmuiomux, they will keep ther value
+	 * when shutdown logic power rail, so only need to save gpio2 ~ gpio4
+	 * iomux register value
+	 */
+	for (i = 0; i < ARRAY_SIZE(store_grf_gpio); i++)
+		store_grf_gpio[i] =
+			mmio_read_32(GRF_BASE + GRF_GPIO2A_IOMUX + i * 4);
+}
+
+void plat_rockchip_restore_gpio(void)
+{
+	int i;
+	uint32_t cru_gate_save;
+
+	for (i = 0; i < ARRAY_SIZE(store_grf_gpio); i++)
+		mmio_write_32(GRF_BASE + GRF_GPIO2A_IOMUX + i * 4,
+		      REG_SOC_WMSK | store_grf_gpio[i]);
+
+	cru_gate_save = mmio_read_32(CRU_BASE + CRU_CLKGATE_CON(31));
+
+	/*
+	 * when shutdown logic, we need to save gpio2 ~ gpio4 register,
+	 * we need to enable gpio2 ~ gpio4 clock here, since it may be gating,
+	 * and we do not care gpio0 and gpio1 clock gate, since we never
+	 * gating them
+	 */
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+		      BITS_WITH_WMASK(0, 0x07, PCLK_GPIO2_GATE_SHIFT));
+
+	for (i = 2; i < 5; i++) {
+		mmio_write_32(gpio_port[i] + SWPORTA_DR,
+				store_gpio[i - 2].swporta_dr);
+		mmio_write_32(gpio_port[i] + SWPORTA_DDR,
+				store_gpio[i - 2].swporta_ddr);
+		mmio_write_32(gpio_port[i] + INTEN, store_gpio[i - 2].inten);
+		mmio_write_32(gpio_port[i] + INTMASK,
+				store_gpio[i - 2].intmask);
+		mmio_write_32(gpio_port[i] + INTTYPE_LEVEL,
+				store_gpio[i - 2].inttype_level);
+		mmio_write_32(gpio_port[i] + INT_POLARITY,
+				store_gpio[i - 2].int_polarity);
+		mmio_write_32(gpio_port[i] + DEBOUNCE,
+				store_gpio[i - 2].debounce);
+		mmio_write_32(gpio_port[i] + LS_SYNC,
+				store_gpio[i - 2].ls_sync);
+	}
+	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(31),
+			cru_gate_save | REG_SOC_WMSK);
 }
 
 const gpio_ops_t rk3399_gpio_ops = {

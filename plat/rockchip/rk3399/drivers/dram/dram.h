@@ -25,10 +25,10 @@ struct rk3399_ddr_pctl_regs {
 
 struct rk3399_ddr_publ_regs {
 	/*
-	 * PHY registers from 0 to 511.
-	 * Only registers 0-90 of each 128 register range are used.
+	 * PHY registers from 0 to 90 for slice1.
+	 * These are used to restore slice1-4 on resume.
 	 */
-	uint32_t phy0[4][91];
+	uint32_t phy0[91];
 	/*
 	 * PHY registers from 512 to 895.
 	 * Only registers 0-37 of each 128 register range are used.
