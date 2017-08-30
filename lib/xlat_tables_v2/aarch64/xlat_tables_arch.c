@@ -13,6 +13,7 @@
 #include <platform_def.h>
 #include <sys/types.h>
 #include <utils.h>
+#include <utils_def.h>
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
@@ -166,6 +167,14 @@ uint64_t xlat_arch_get_xn_desc(int el)
 									\
 		write_mair_el##_el(mair);				\
 		write_tcr_el##_el(tcr);					\
+									\
+		/* Set TTBR bits as well */				\
+		if (ARM_ARCH_AT_LEAST(8, 2)) {				\
+			/* Enable CnP bit so as to share page tables */	\
+			/* with all PEs. This is mandatory for */	\
+			/* ARMv8.2 implementations. */			\
+			ttbr |= TTBR_CNP_BIT;				\
+		}							\
 		write_ttbr0_el##_el(ttbr);				\
 									\
 		/* Ensure all translation table writes have drained */	\

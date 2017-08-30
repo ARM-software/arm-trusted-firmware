@@ -2366,6 +2366,17 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` >= 8, or when
 -  The Compare and Swap instruction is used to implement spinlocks. Otherwise,
    the load-/store-exclusive instruction pair is used.
 
+ARMv8.2
+~~~~~~~
+
+This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
+``ARM_ARCH_MINOR`` >= 2.
+
+-  The Common not Private (CnP) bit is enabled to indicate that multiple
+   Page Entries in the same Inner Shareable domain use the same translation
+   table entries for a given stage of translation for a particular translation
+   regime.
+
 Code Structure
 --------------
 

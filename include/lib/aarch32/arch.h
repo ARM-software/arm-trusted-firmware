@@ -323,6 +323,11 @@
 	((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT)
 
 /*
+ * TTBR definitions
+ */
+#define TTBR_CNP_BIT		0x1
+
+/*
  * CTR definitions
  */
 #define CTR_CWG_SHIFT		24
