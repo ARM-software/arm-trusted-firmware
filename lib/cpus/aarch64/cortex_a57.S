@@ -78,9 +78,9 @@ func errata_a57_806969_wa
 	mov	x17, x30
 	bl	check_errata_806969
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_ACTLR_NO_ALLOC_WBWA
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_NO_ALLOC_WBWA
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a57_806969_wa
@@ -120,9 +120,9 @@ func errata_a57_813420_wa
 	mov	x17, x30
 	bl	check_errata_813420
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_ACTLR_DCC_AS_DCCI
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DCC_AS_DCCI
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a57_813420_wa
@@ -150,9 +150,9 @@ func a57_disable_ldnp_overread
 	mov	x17, x30
 	bl	check_errata_disable_ldnp_overread
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_ACTLR_DIS_OVERREAD
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_OVERREAD
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc a57_disable_ldnp_overread
@@ -177,9 +177,9 @@ func errata_a57_826974_wa
 	mov	x17, x30
 	bl	check_errata_826974
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_ACTLR_DIS_LOAD_PASS_DMB
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_DMB
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a57_826974_wa
@@ -204,9 +204,9 @@ func errata_a57_826977_wa
 	mov	x17, x30
 	bl	check_errata_826977
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_ACTLR_GRE_NGRE_AS_NGNRE
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_GRE_NGRE_AS_NGNRE
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a57_826977_wa
@@ -231,16 +231,16 @@ func errata_a57_828024_wa
 	mov	x17, x30
 	bl	check_errata_828024
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
 	/*
 	 * Setting the relevant bits in CPUACTLR_EL1 has to be done in 2
 	 * instructions here because the resulting bitmask doesn't fit in a
 	 * 16-bit value so it cannot be encoded in a single instruction.
 	 */
-	orr	x1, x1, #CORTEX_A57_ACTLR_NO_ALLOC_WBWA
-	orr	x1, x1, #(CORTEX_A57_ACTLR_DIS_L1_STREAMING | \
-			  CORTEX_A57_ACTLR_DIS_STREAMING)
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_NO_ALLOC_WBWA
+	orr	x1, x1, #(CORTEX_A57_CPUACTLR_EL1_DIS_L1_STREAMING | \
+			  CORTEX_A57_CPUACTLR_EL1_DIS_STREAMING)
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a57_828024_wa
@@ -265,9 +265,9 @@ func errata_a57_829520_wa
 	mov	x17, x30
 	bl	check_errata_829520
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_ACTLR_DIS_INDIRECT_PREDICTOR
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_DIS_INDIRECT_PREDICTOR
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a57_829520_wa
@@ -292,9 +292,9 @@ func errata_a57_833471_wa
 	mov	x17, x30
 	bl	check_errata_833471
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A57_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A57_ACTLR_FORCE_FPSCR_FLUSH
-	msr	CORTEX_A57_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A57_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A57_CPUACTLR_EL1_FORCE_FPSCR_FLUSH
+	msr	CORTEX_A57_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a57_833471_wa

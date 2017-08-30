@@ -93,9 +93,9 @@ func a53_disable_non_temporal_hint
 	mov	x17, x30
 	bl	check_errata_disable_non_temporal_hint
 	cbz	x0, 1f
-	mrs	x1, CORTEX_A53_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A53_ACTLR_DTAH
-	msr	CORTEX_A53_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A53_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A53_CPUACTLR_EL1_DTAH
+	msr	CORTEX_A53_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc a53_disable_non_temporal_hint
@@ -126,9 +126,9 @@ func errata_a53_855873_wa
         bl      check_errata_855873
         cbz     x0, 1f
 
-	mrs	x1, CORTEX_A53_ACTLR_EL1
-	orr	x1, x1, #CORTEX_A53_ACTLR_ENDCCASCI
-	msr	CORTEX_A53_ACTLR_EL1, x1
+	mrs	x1, CORTEX_A53_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A53_CPUACTLR_EL1_ENDCCASCI
+	msr	CORTEX_A53_CPUACTLR_EL1, x1
 1:
 	ret	x17
 endfunc errata_a53_855873_wa
@@ -300,7 +300,7 @@ func cortex_a53_cpu_reg_dump
 	mrs	x8, CORTEX_A53_ECTLR_EL1
 	mrs	x9, CORTEX_A53_MERRSR_EL1
 	mrs	x10, CORTEX_A53_L2MERRSR_EL1
-	mrs	x11, CORTEX_A53_ACTLR_EL1
+	mrs	x11, CORTEX_A53_CPUACTLR_EL1
 	ret
 endfunc cortex_a53_cpu_reg_dump
 

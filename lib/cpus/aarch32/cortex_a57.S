@@ -67,9 +67,9 @@ func errata_a57_806969_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
-	orr64_imm	r0, r1, CORTEX_A57_ACTLR_NO_ALLOC_WBWA
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A57_CPUACTLR_NO_ALLOC_WBWA
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx	lr
 endfunc errata_a57_806969_wa
@@ -111,9 +111,9 @@ func errata_a57_813420_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
-	orr64_imm	r0, r1, CORTEX_A57_ACTLR_DCC_AS_DCCI
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A57_CPUACTLR_DCC_AS_DCCI
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx		lr
 endfunc errata_a57_813420_wa
@@ -143,9 +143,9 @@ func a57_disable_ldnp_overread
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
-	orr64_imm	r0, r1, CORTEX_A57_ACTLR_DIS_OVERREAD
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A57_CPUACTLR_DIS_OVERREAD
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx		lr
 endfunc a57_disable_ldnp_overread
@@ -172,9 +172,9 @@ func errata_a57_826974_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
-	orr64_imm	r0, r1, CORTEX_A57_ACTLR_DIS_LOAD_PASS_DMB
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A57_CPUACTLR_DIS_LOAD_PASS_DMB
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx		lr
 endfunc errata_a57_826974_wa
@@ -201,9 +201,9 @@ func errata_a57_826977_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
-	orr64_imm	r0, r1, CORTEX_A57_ACTLR_GRE_NGRE_AS_NGNRE
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A57_CPUACTLR_GRE_NGRE_AS_NGNRE
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx		lr
 endfunc errata_a57_826977_wa
@@ -230,15 +230,15 @@ func errata_a57_828024_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
 	/*
-	 * Setting the relevant bits in CORTEX_A57_ACTLR has to be done in 2
+	 * Setting the relevant bits in CORTEX_A57_CPUACTLR has to be done in 2
 	 * instructions here because the resulting bitmask doesn't fit in a
 	 * 16-bit value so it cannot be encoded in a single instruction.
 	 */
-	orr64_imm	r0, r1, CORTEX_A57_ACTLR_NO_ALLOC_WBWA
-	orr64_imm	r0, r1, (CORTEX_A57_ACTLR_DIS_L1_STREAMING | CORTEX_A57_ACTLR_DIS_STREAMING)
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	orr64_imm	r0, r1, CORTEX_A57_CPUACTLR_NO_ALLOC_WBWA
+	orr64_imm	r0, r1, (CORTEX_A57_CPUACTLR_DIS_L1_STREAMING | CORTEX_A57_CPUACTLR_DIS_STREAMING)
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx		lr
 endfunc errata_a57_828024_wa
@@ -265,9 +265,9 @@ func errata_a57_829520_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
-	orr64_imm	r0, r1, CORTEX_A57_ACTLR_DIS_INDIRECT_PREDICTOR
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A57_CPUACTLR_DIS_INDIRECT_PREDICTOR
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx		lr
 endfunc errata_a57_829520_wa
@@ -294,9 +294,9 @@ func errata_a57_833471_wa
 	mov		lr, r2
 	cmp		r0, #ERRATA_NOT_APPLIES
 	beq		1f
-	ldcopr16	r0, r1, CORTEX_A57_ACTLR
-	orr64_imm	r1, r1, CORTEX_A57_ACTLR_FORCE_FPSCR_FLUSH
-	stcopr16	r0, r1, CORTEX_A57_ACTLR
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r1, r1, CORTEX_A57_CPUACTLR_FORCE_FPSCR_FLUSH
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
 1:
 	bx		lr
 endfunc errata_a57_833471_wa

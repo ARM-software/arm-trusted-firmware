@@ -29,9 +29,9 @@ endfunc cortex_a72_disable_l2_prefetch
 	 * ---------------------------------------------
 	 */
 func cortex_a72_disable_hw_prefetcher
-	ldcopr16	r0, r1, CORTEX_A72_ACTLR
-	orr64_imm	r0, r1, CORTEX_A72_ACTLR_DISABLE_L1_DCACHE_HW_PFTCH
-	stcopr16	r0, r1, CORTEX_A72_ACTLR
+	ldcopr16	r0, r1, CORTEX_A72_CPUACTLR
+	orr64_imm	r0, r1, CORTEX_A72_CPUACTLR_DISABLE_L1_DCACHE_HW_PFTCH
+	stcopr16	r0, r1, CORTEX_A72_CPUACTLR
 	isb
 	dsb	ish
 	bx	lr
