@@ -74,11 +74,12 @@ void bl2_platform_setup(void)
 	 * at the beginning of the Trusted SRAM. It is is overwritten before
 	 * reaching this function. We need to restore this data, as if the
 	 * target had just come out of reset. This implies:
-	 *  - zeroing the first 128 bytes of Trusted SRAM;
+	 *  - zeroing the first 128 bytes of Trusted SRAM using zeromem instead
+	 *    of zero_normalmem since this is device memory.
 	 *  - restoring the SCP boot configuration.
 	 */
 	VERBOSE("BL2: Restoring SCP reset data in Trusted SRAM\n");
-	zero_normalmem((void *)ARM_TRUSTED_SRAM_BASE, 128);
+	zeromem((void *) ARM_SHARED_RAM_BASE, 128);
 	mmio_write_32(SCP_BOOT_CFG_ADDR, scp_boot_config);
 }
 #endif /* EL3_PAYLOAD_BASE */
