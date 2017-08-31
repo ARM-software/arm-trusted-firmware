@@ -75,8 +75,13 @@ int hisi_pwrc_setup(void)
 	       pm_asm_code_end - pm_asm_code);
 
 	reg = mmio_read_32(AO_SC_SYS_CTRL1);
+	/* Remap SRAM address for ACPU */
 	reg |= AO_SC_SYS_CTRL1_REMAP_SRAM_AARM |
 	       AO_SC_SYS_CTRL1_REMAP_SRAM_AARM_MSK;
+
+	/* Enable reset signal for watchdog */
+	reg |= AO_SC_SYS_CTRL1_AARM_WD_RST_CFG |
+	       AO_SC_SYS_CTRL1_AARM_WD_RST_CFG_MSK;
 	mmio_write_32(AO_SC_SYS_CTRL1, reg);
 
 	return 0;
