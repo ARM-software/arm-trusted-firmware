@@ -79,7 +79,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	ARM_MAP_NS_DRAM1,
+#ifdef SPD_tspd
 	ARM_MAP_TSP_SEC_MEM,
+#endif
 #if TRUSTED_BOARD_BOOT
 	/* To access the Root of Trust Public Key registers. */
 	MAP_DEVICE2,
