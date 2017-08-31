@@ -122,6 +122,12 @@
  */
 #define PLAT_ARM_MAX_BL31_SIZE		0x1D000
 
+/*
+ * Since free SRAM space is scant, enable the ASSERTION message size
+ * optimization by fixing the PLAT_LOG_LEVEL_ASSERT to LOG_LEVEL_INFO (40).
+ */
+#define PLAT_LOG_LEVEL_ASSERT		40
+
 #endif /* ARM_BOARD_OPTIMISE_MEM */
 
 /* CCI related constants */
