@@ -16,6 +16,7 @@
 
 #define UNIPHIER_LD11_USB_DESC_BASE	0x30010000
 #define UNIPHIER_LD20_USB_DESC_BASE	0x30014000
+#define UNIPHIER_PXS3_USB_DESC_BASE	0x30014000
 
 #define UNIPHIER_SRB_OCM_CONT		0x61200000
 
@@ -36,6 +37,13 @@ struct uniphier_ld20_trans_op {
 
 struct uniphier_ld20_op {
 	uint8_t __pad[192];
+	struct uniphier_ld20_trans_op *trans_op;
+	void *__pad2;
+	void *dev_desc;
+};
+
+struct uniphier_pxs3_op {
+	uint8_t __pad[184];
 	struct uniphier_ld20_trans_op *trans_op;
 	void *__pad2;
 	void *dev_desc;
@@ -91,14 +99,27 @@ static int uniphier_ld20_usb_read(int lba, uintptr_t buf, size_t size)
 	return ret ? 0 : -1;
 }
 
+static void uniphier_pxs3_usb_init(void)
+{
+	struct uniphier_pxs3_op *op = (void *)UNIPHIER_PXS3_USB_DESC_BASE;
+
+	op->trans_op = (void *)(op + 1);
+
+	op->dev_desc = op->trans_op + 1;
+}
+
 static int uniphier_pxs3_usb_read(int lba, uintptr_t buf, size_t size)
 {
-	static int (*rom_usb_read)(unsigned int lba, unsigned int size,
-				   uintptr_t buf);
+	static int (*rom_usb_read)(uintptr_t desc, unsigned int lba,
+				   unsigned int size, uintptr_t buf);
+	int ret;
 
-	rom_usb_read = (__typeof(rom_usb_read))0x100c;
+	rom_usb_read = (__typeof(rom_usb_read))0x39e8;
 
-	return rom_usb_read(lba, size, buf);
+	/* ROM-API - return 1 on success, 0 on error */
+	ret = rom_usb_read(UNIPHIER_PXS3_USB_DESC_BASE, lba, size, buf);
+
+	return ret ? 0 : -1;
 }
 
 struct uniphier_usb_rom_param {
@@ -116,6 +137,7 @@ static const struct uniphier_usb_rom_param uniphier_usb_rom_params[] = {
 		.read = uniphier_ld20_usb_read,
 	},
 	[UNIPHIER_SOC_PXS3] = {
+		.init = uniphier_pxs3_usb_init,
 		.read = uniphier_pxs3_usb_read,
 	},
 };
