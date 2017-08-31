@@ -1997,7 +1997,7 @@ tree description matches the CPU indices returned by these APIs. These APIs
 together form the platform interface for the PSCI topology framework.
 
 Function : plat\_setup\_psci\_ops() [mandatory]
------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -2024,7 +2024,7 @@ a PSCI function in a platform port, the operation should be removed from this
 structure instead of providing an empty implementation.
 
 plat\_psci\_ops.cpu\_standby()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..............................
 
 Perform the platform-specific actions to enter the standby state for a cpu
 indicated by the passed argument. This provides a fast path for CPU standby
@@ -2037,14 +2037,14 @@ issuing a wfi instruction) and ensure that it can be woken up from that
 state by a normal interrupt. The generic code expects the handler to succeed.
 
 plat\_psci\_ops.pwr\_domain\_on()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.................................
 
 Perform the platform specific actions to power on a CPU, specified
 by the ``MPIDR`` (first argument). The generic code expects the platform to
 return PSCI\_E\_SUCCESS on success or PSCI\_E\_INTERN\_FAIL for any failure.
 
 plat\_psci\_ops.pwr\_domain\_off()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..................................
 
 Perform the platform specific actions to prepare to power off the calling CPU
 and its higher parent power domain levels as indicated by the ``target_state``
@@ -2061,7 +2061,7 @@ for the higher power domain levels depending on the result of state
 coordination. The generic code expects the handler to succeed.
 
 plat\_psci\_ops.pwr\_domain\_suspend\_pwrdown\_early() [optional]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.................................................................
 
 This optional function may be used as a performance optimization to replace
 or complement pwr_domain_suspend() on some platforms. Its calling semantics
@@ -2078,7 +2078,7 @@ efficient to move those actions to this function. When HW_ASSISTED_COHERENCY
 moving platform specific actions to this function.
 
 plat\_psci\_ops.pwr\_domain\_suspend()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................
 
 Perform the platform specific actions to prepare to suspend the calling
 CPU and its higher parent power domain levels as indicated by the
@@ -2100,7 +2100,7 @@ resume execution by restoring this state when its powered on (see
 ``pwr_domain_suspend_finish()``).
 
 plat\_psci\_ops.pwr\_domain\_pwr\_down\_wfi()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.............................................
 
 This is an optional function and, if implemented, is expected to perform
 platform specific actions including the ``wfi`` invocation which allows the
@@ -2117,7 +2117,7 @@ If this function is not implemented by the platform, PSCI generic
 implementation invokes ``psci_power_down_wfi()`` for power down.
 
 plat\_psci\_ops.pwr\_domain\_on\_finish()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.........................................
 
 This function is called by the PSCI implementation after the calling CPU is
 powered on and released from reset in response to an earlier PSCI ``CPU_ON`` call.
@@ -2131,7 +2131,7 @@ above the CPU might require initialization due to having previously been in
 low power states. The generic code expects the handler to succeed.
 
 plat\_psci\_ops.pwr\_domain\_suspend\_finish()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..............................................
 
 This function is called by the PSCI implementation after the calling CPU is
 powered on and released from reset in response to an asynchronous wakeup
@@ -2145,21 +2145,21 @@ the ``pwr_domain_on_finish()`` operation. The generic code expects the platform
 to succeed.
 
 plat\_psci\_ops.system\_off()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.............................
 
 This function is called by PSCI implementation in response to a ``SYSTEM_OFF``
 call. It performs the platform-specific system poweroff sequence after
 notifying the Secure Payload Dispatcher.
 
 plat\_psci\_ops.system\_reset()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...............................
 
 This function is called by PSCI implementation in response to a ``SYSTEM_RESET``
 call. It performs the platform-specific system reset sequence after
 notifying the Secure Payload Dispatcher.
 
 plat\_psci\_ops.validate\_power\_state()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+........................................
 
 This function is called by the PSCI implementation during the ``CPU_SUSPEND``
 call to validate the ``power_state`` parameter of the PSCI API and if valid,
@@ -2169,7 +2169,7 @@ return PSCI\_E\_INVALID\_PARAMS as error, which is propagated back to the
 normal world PSCI client.
 
 plat\_psci\_ops.validate\_ns\_entrypoint()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+..........................................
 
 This function is called by the PSCI implementation during the ``CPU_SUSPEND``,
 ``SYSTEM_SUSPEND`` and ``CPU_ON`` calls to validate the non-secure ``entry_point``
@@ -2178,7 +2178,7 @@ the platform must return PSCI\_E\_INVALID\_ADDRESS as error, which is
 propagated back to the normal world PSCI client.
 
 plat\_psci\_ops.get\_sys\_suspend\_power\_state()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.................................................
 
 This function is called by the PSCI implementation during the ``SYSTEM_SUSPEND``
 call to get the ``req_state`` parameter from platform which encodes the power
@@ -2188,7 +2188,7 @@ domain level specific local states to suspend to system affinity level. The
 enter system suspend.
 
 plat\_psci\_ops.get\_pwr\_lvl\_state\_idx()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...........................................
 
 This is an optional function and, if implemented, is invoked by the PSCI
 implementation to convert the ``local_state`` (first argument) at a specified
@@ -2199,7 +2199,7 @@ supports more than two local power states at each power domain level, that is
 local power states.
 
 plat\_psci\_ops.translate\_power\_state\_by\_mpidr()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+....................................................
 
 This is an optional function and, if implemented, verifies the ``power_state``
 (second argument) parameter of the PSCI API corresponding to a target power
@@ -2219,7 +2219,7 @@ power state encoding for ``power_state`` parameter of PSCI\_STAT\_COUNT/RESIDENC
 APIs as described in Section 5.18 of `PSCI`_.
 
 plat\_psci\_ops.get\_node\_hw\_state()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................
 
 This is an optional function. If implemented this function is intended to return
 the power state of a node (identified by the first parameter, the ``MPIDR``) in
