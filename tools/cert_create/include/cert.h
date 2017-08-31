@@ -48,7 +48,7 @@ struct cert_s {
 int cert_init(void);
 cert_t *cert_get_by_opt(const char *opt);
 int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value);
-int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk);
+int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk);
 
 /* Macro to register the certificates used in the CoT */
 #define REGISTER_COT(_certs) \

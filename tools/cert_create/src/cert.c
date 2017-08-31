@@ -79,7 +79,7 @@ int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value)
 	return 1;
 }
 
-int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
+int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 {
 	EVP_PKEY *pkey = keys[cert->key].key;
 	cert_t *issuer_cert = &certs[cert->issuer];
@@ -90,7 +90,7 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 	X509_NAME *name;
 	ASN1_INTEGER *sno;
 	int i, num, rc = 0;
-	EVP_MD_CTX  mdCtx;
+	EVP_MD_CTX mdCtx;
 	EVP_PKEY_CTX *pKeyCtx = NULL;
 
 	/* Create the certificate structure */
@@ -112,24 +112,32 @@ int cert_new(cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
 	}
 
 	EVP_MD_CTX_init(&mdCtx);
+
+	/* Sign the certificate with the issuer key */
 	if (!EVP_DigestSignInit(&mdCtx, &pKeyCtx, EVP_sha256(), NULL, ikey)) {
 		ERR_print_errors_fp(stdout);
 		goto END;
 	}
 
-	if (!EVP_PKEY_CTX_set_rsa_padding(pKeyCtx, RSA_PKCS1_PSS_PADDING)) {
-		ERR_print_errors_fp(stdout);
-		goto END;
-	}
+	/*
+	 * Set additional parameters if algorithm is RSA PSS. This is not
+	 * required for RSA 1.5 or ECDSA.
+	 */
+	if (key_alg == KEY_ALG_RSA) {
+		if (!EVP_PKEY_CTX_set_rsa_padding(pKeyCtx, RSA_PKCS1_PSS_PADDING)) {
+			ERR_print_errors_fp(stdout);
+			goto END;
+		}
 
-	if (!EVP_PKEY_CTX_set_rsa_pss_saltlen(pKeyCtx, RSA_SALT_LEN)) {
-		ERR_print_errors_fp(stdout);
-		goto END;
-	}
+		if (!EVP_PKEY_CTX_set_rsa_pss_saltlen(pKeyCtx, RSA_SALT_LEN)) {
+			ERR_print_errors_fp(stdout);
+			goto END;
+		}
 
-	if (!EVP_PKEY_CTX_set_rsa_mgf1_md(pKeyCtx, EVP_sha256())) {
-		ERR_print_errors_fp(stdout);
-		goto END;
+		if (!EVP_PKEY_CTX_set_rsa_mgf1_md(pKeyCtx, EVP_sha256())) {
+			ERR_print_errors_fp(stdout);
+			goto END;
+		}
 	}
 
 	/* x509.v3 */
