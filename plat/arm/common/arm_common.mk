@@ -174,9 +174,6 @@ endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
-    # By default, ARM platforms use RSA keys
-    KEY_ALG		:=	rsa
-
     # Include common TBB sources
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
 				drivers/auth/crypto_mod.c			\
@@ -194,8 +191,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 				plat/common/tbbr/plat_tbbr.c
 
     $(eval $(call FWU_FIP_ADD_IMG,NS_BL2U,--fwu))
-
-    TF_MBEDTLS_KEY_ALG	:=	${KEY_ALG}
 
     # We expect to locate the *.mk files under the directories specified below
 ifeq (${ARM_CRYPTOCELL_INTEG},0)

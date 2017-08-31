@@ -405,6 +405,11 @@ Common build options
    AArch64 and facilitates the loading of ``SP_MIN`` and BL33 as AArch32 executable
    images.
 
+-  ``KEY_ALG``: This build flag enables the user to select the algorithm to be
+   used for generating the PKCS keys and subsequent signing of the certificate.
+   It accepts 2 values viz ``rsa``, ``ecdsa``. The default value of this flag
+   is ``rsa``.
+
 -  ``LDFLAGS``: Extra user options appended to the linkers' command line in
    addition to the one set by the build system.
 
