@@ -80,6 +80,19 @@
 	.endm
 
 	/*
+	 * Helper macro to generate the best mov/movw/movt combinations
+	 * according to the value to be moved.
+	 */
+	.macro mov_imm _reg, _val
+		.if ((\_val) & 0xffff0000) == 0
+			mov	\_reg, #(\_val)
+		.else
+			movw	\_reg, #((\_val) & 0xffff)
+			movt	\_reg, #((\_val) >> 16)
+		.endif
+	.endm
+
+	/*
 	 * Macro to mark instances where we're jumping to a function and don't
 	 * expect a return. To provide the function being jumped to with
 	 * additional information, we use 'bl' instruction to jump rather than
