@@ -199,6 +199,7 @@ func juno_do_reset_to_aarch32_state
 	msr	rmr_el3, x0
 	isb
 	wfi
+	b	plat_panic_handler
 endfunc juno_do_reset_to_aarch32_state
 
 	/* -----------------------------------------------------
@@ -233,8 +234,6 @@ func plat_get_my_entrypoint
 	ldr	x0, [x0]
 	cbz	x0, return
 	b	juno_do_reset_to_aarch32_state
-1:
-	b	1b
 return:
 	ret
 endfunc plat_get_my_entrypoint
@@ -287,9 +286,7 @@ func juno_reset_to_aarch32_state
 	str	w1, [x3], #4
 	str	w2, [x3]
 
-	bl	juno_do_reset_to_aarch32_state
-1:
-	b	1b
+	b	juno_do_reset_to_aarch32_state
 endfunc juno_reset_to_aarch32_state
 
 #endif /* JUNO_AARCH32_EL3_RUNTIME */
