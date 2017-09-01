@@ -113,6 +113,15 @@
 					ARM_OPTEE_PAGEABLE_LOAD_BASE,	\
 					ARM_OPTEE_PAGEABLE_LOAD_SIZE,	\
 					MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
+ * Map the memory for the OP-TEE core (also known as OP-TEE pager when paging
+ * support is enabled).
+ */
+#define ARM_MAP_OPTEE_CORE_MEM		MAP_REGION_FLAT(		\
+						BL32_BASE,		\
+						BL32_LIMIT - BL32_BASE,	\
+						MT_MEMORY | MT_RW | MT_SECURE)
 #endif /* SPD_opteed */
 
 #define ARM_NS_DRAM1_BASE		ARM_DRAM1_BASE
