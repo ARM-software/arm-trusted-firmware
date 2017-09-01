@@ -35,8 +35,8 @@
 #define ARI_REQUEST_VALID_BIT		(1U << 8)
 #define ARI_EVT_MASK_STANDBYWFI_BIT	(1U << 7)
 
-/* default timeout (ms) to wait for ARI completion */
-#define ARI_MAX_RETRY_COUNT		2000
+/* default timeout (us) to wait for ARI completion */
+#define ARI_MAX_RETRY_COUNT		U(2000000)
 
 /*******************************************************************************
  * ARI helper functions
@@ -80,7 +80,7 @@ static inline void ari_clobber_response(uint32_t ari_base)
 static int32_t ari_request_wait(uint32_t ari_base, uint32_t evt_mask, uint32_t req,
 		uint32_t lo, uint32_t hi)
 {
-	uint32_t retries = ARI_MAX_RETRY_COUNT;
+	uint32_t retries = (uint32_t)ARI_MAX_RETRY_COUNT;
 	uint32_t status;
 	int32_t ret = 0;
 
@@ -115,8 +115,8 @@ static int32_t ari_request_wait(uint32_t ari_base, uint32_t evt_mask, uint32_t r
 					break;
 				}
 
-				/* delay 1 ms */
-				mdelay(1);
+				/* delay 1 us */
+				udelay(1);
 
 				/* decrement the retry count */
 				retries--;
