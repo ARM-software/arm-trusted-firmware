@@ -196,6 +196,8 @@ void sp_min_main(void)
 void sp_min_warm_boot(void)
 {
 	smc_ctx_t *next_smc_ctx;
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	u_register_t ns_sctlr;
 
 	psci_warmboot_entrypoint();
 
@@ -206,6 +208,16 @@ void sp_min_warm_boot(void)
 
 	copy_cpu_ctx_to_smc_stx(get_regs_ctx(cm_get_context(NON_SECURE)),
 			next_smc_ctx);
+
+	/* Temporarily set the NS bit to access NS SCTLR */
+	write_scr(read_scr() | SCR_NS_BIT);
+	isb();
+	ns_sctlr = read_ctx_reg(get_regs_ctx(ctx), CTX_NS_SCTLR);
+	write_sctlr(ns_sctlr);
+	isb();
+
+	write_scr(read_scr() & ~SCR_NS_BIT);
+	isb();
 }
 
 #if SP_MIN_WITH_SECURE_FIQ
