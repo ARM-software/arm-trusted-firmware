@@ -1014,6 +1014,21 @@ This function flushes to main memory all the image params that are passed to
 next image. This function is currently invoked in BL2 to flush this information
 to the next BL image, when LOAD\_IMAGE\_V2 is enabled.
 
+Function : plat\_log\_get\_prefix()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : const char *
+
+This function defines the prefix string corresponding to the `log_level` to be
+prepended to all the log output from ARM Trusted Firmware. The `log_level`
+(argument) will correspond to one of the standard log levels defined in
+debug.h. The platform can override the common implementation to define a
+different prefix string for the log output.  The implementation should be
+robust to future changes that increase the number of log levels.
+
 Modifications specific to a Boot Loader stage
 ---------------------------------------------
 
