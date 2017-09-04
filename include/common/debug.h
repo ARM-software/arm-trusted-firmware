@@ -24,6 +24,7 @@
 #define LOG_LEVEL_VERBOSE		50
 
 #ifndef __ASSEMBLY__
+#include <stdarg.h>
 #include <stdio.h>
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
@@ -65,6 +66,8 @@ void __dead2 __stack_chk_fail(void);
 
 void tf_printf(const char *fmt, ...) __printflike(1, 2);
 int tf_snprintf(char *s, size_t n, const char *fmt, ...) __printflike(3, 4);
+void tf_vprintf(const char *fmt, va_list args);
+void tf_string_print(const char *str);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __DEBUG_H__ */
