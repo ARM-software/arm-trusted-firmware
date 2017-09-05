@@ -276,6 +276,11 @@ endif
 # This can be overridden by the platform.
 include lib/cpus/cpu-ops.mk
 
+ifeq (${COREBOOT},1)
+# Include coreboot support library when building with coreboot as BL2
+include lib/coreboot/coreboot.mk
+endif
+
 ifeq (${ARCH},aarch32)
 NEED_BL32 := yes
 
@@ -330,6 +335,12 @@ endif
 # use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
 ifeq ($(HW_ASSISTED_COHERENCY)-$(USE_COHERENT_MEM),1-1)
 $(error USE_COHERENT_MEM cannot be enabled with HW_ASSISTED_COHERENCY)
+endif
+
+ifeq (${COREBOOT},1)
+	ifneq (${ARCH},aarch64)
+	$(error "coreboot only supports Trusted Firmware on AArch64.")
+	endif
 endif
 
 ################################################################################
@@ -428,6 +439,7 @@ endif
 ################################################################################
 
 $(eval $(call assert_boolean,COLD_BOOT_SINGLE_CPU))
+$(eval $(call assert_boolean,COREBOOT))
 $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
@@ -469,6 +481,7 @@ $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
 $(eval $(call add_define,ARM_GIC_ARCH))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
+$(eval $(call add_define,COREBOOT))
 $(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
 $(eval $(call add_define,ENABLE_ASSERTIONS))

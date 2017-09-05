@@ -34,6 +34,10 @@ BASE_COMMIT			:= origin/master
 # The platform Makefile is free to override this value.
 COLD_BOOT_SINGLE_CPU		:= 0
 
+# Flag to compile in coreboot support code. Exclude by default. The coreboot
+# Makefile system will set this when compiling TF as part of a coreboot image.
+COREBOOT			:= 0
+
 # For Chain of Trust
 CREATE_KEYS			:= 1
 

@@ -5,16 +5,13 @@
  */
 
 #include <arch.h>
-#include <asm_macros.S>
+#include <console_macros.S>
 #include <uart_16550.h>
 
-	.globl	console_core_init
-	.globl	console_core_putc
-	.globl	console_core_getc
-	.globl	console_core_flush
+declare_console 16550
 
 	/* -----------------------------------------------
-	 * int console_core_init(unsigned long base_addr,
+	 * int console_16550_init(unsigned long base_addr,
 	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. This
@@ -27,7 +24,7 @@
 	 * Clobber list : x1, x2, x3
 	 * -----------------------------------------------
 	 */
-func console_core_init
+func_console_init 16550
 	/* Check the input base address */
 	cbz	x0, init_fail
 	/* Check baud rate and uart clock for sanity */
@@ -65,22 +62,18 @@ func console_core_init
 	mov	w0, #1
 init_fail:
 	ret
-endfunc console_core_init
+endfunc console_16550_init
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned int base_addr)
-	 * Function to output a character over the console. It
-	 * returns the character printed on success or -1 on error.
+	 * void console_16550_putc(int c, unsigned int base_addr)
+	 * Function to output a character over the console. Does
+	 * not overwrite x0.
 	 * In : w0 - character to be printed
 	 *      x1 - console base address
-	 * Out : return -1 on error else return character.
 	 * Clobber list : x2
 	 * --------------------------------------------------------
 	 */
-func console_core_putc
-	/* Check the input parameter */
-	cbz	x1, putc_error
-
+func_console_putc 16550
 	/* Prepend '\r' to '\n' */
 	cmp	w0, #0xA
 	b.ne	2f
@@ -98,44 +91,41 @@ func console_core_putc
 	cmp	w2, #(UARTLSR_TEMT | UARTLSR_THRE)
 	b.ne	2b
 	str	w0, [x1, #UARTTX]
-	ret
 putc_error:
-	mov	w0, #-1
 	ret
-endfunc console_core_putc
+endfunc console_16550_putc
 
 	/* ---------------------------------------------
-	 * int console_core_getc(void)
+	 * int console_16550_getc(void)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on error.
 	 * In : w0 - console base address
-	 * Out : return -1 on error else return character.
+	 * Out : return character if available, else -1
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_getc
+func_console_getc 16550
 	/* Check if the receive FIFO is empty */
 1:	ldr	w1, [x0, #UARTLSR]
-	tbz	w1, #UARTLSR_RDR_BIT, 1b
+	tbz	w1, #UARTLSR_RDR_BIT, no_char
 	ldr	w0, [x0, #UARTRX]
 	ret
-getc_error:
+no_char:
 	mov	w0, #-1
 	ret
-endfunc console_core_getc
+endfunc console_16550_getc
 
 	/* ---------------------------------------------
-	 * int console_core_flush(uintptr_t base_addr)
+	 * void console_16550_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
-	 * Out : return -1 on error else return 0.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_flush
+func_console_flush 16550
 	/* Placeholder */
 	mov	w0, #0
 	ret
-endfunc console_core_flush
+endfunc console_16550_flush

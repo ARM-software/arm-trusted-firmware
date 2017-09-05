@@ -67,4 +67,12 @@
 #define UARTLSR_RDR_BIT		(0)		/* Rx Data Ready Bit */
 #define UARTLSR_RDR		(1 << UARTLSR_RDR_BIT)	/* Rx Data Ready */
 
+#ifndef __ASSEMBLY__
+
+#include <types.h>
+
+int console_16550_register(uint64_t baseaddr, uint64_t clock, uint64_t baud);
+
+#endif /*__ASSEMBLY__*/
+
 #endif	/* __UART_16550_H__ */
