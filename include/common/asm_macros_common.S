@@ -12,11 +12,12 @@
 	 * to enable elimination of unused code during linking. It also adds
 	 * basic debug information to enable call stack printing most of the
 	 * time. The optional _align parameter can be used to force a
-	 * non-standard alignment (indicated in powers of 2). Do *not* try to
-	 * use a raw .align directive. Since func switches to a new section,
-	 * this would not have the desired effect.
+	 * non-standard alignment (indicated in powers of 2). The default is
+	 * _align=2 because both Aarch32 and Aarch64 instructions must be
+	 * word aligned. Do *not* try to use a raw .align directive. Since func
+	 * switches to a new section, this would not have the desired effect.
 	 */
-	.macro func _name, _align=-1
+	.macro func _name, _align=2
 	/*
 	 * Add Call Frame Information entry in the .debug_frame section for
 	 * debugger consumption. This enables callstack printing in debuggers.
@@ -36,9 +37,7 @@
 	 * .debug_frame
 	 */
 	.cfi_startproc
-	.if (\_align) != -1
-		.align \_align
-	.endif
+	.align \_align
 	\_name:
 	.endm
 
