@@ -503,7 +503,7 @@ int32_t ari_read_write_uncore_perfmon(uint32_t ari_base, uint64_t req,
 	uint32_t val, req_status;
 	uint8_t req_cmd;
 
-	req_cmd = (uint8_t)(req >> UNCORE_PERFMON_CMD_SHIFT);
+	req_cmd = (uint8_t)(req & UNCORE_PERFMON_CMD_MASK);
 
 	/* clean the previous response state */
 	ari_clobber_response(ari_base);
@@ -533,7 +533,7 @@ int32_t ari_read_write_uncore_perfmon(uint32_t ari_base, uint64_t req,
 			 * For "read" commands get the data from the uncore
 			 * perfmon registers
 			 */
-			req_status >>= UNCORE_PERFMON_RESP_STATUS_SHIFT;
+			req_status &= UNCORE_PERFMON_RESP_STATUS_MASK;
 			if ((req_status == 0U) && (req_cmd == UNCORE_PERFMON_CMD_READ)) {
 				*data = ari_get_response_low(ari_base);
 			}
