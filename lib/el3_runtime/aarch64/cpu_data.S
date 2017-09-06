@@ -39,7 +39,9 @@ endfunc init_cpu_data_ptr
  * -----------------------------------------------------------------
  */
 func _cpu_data_by_index
+	mov_imm	x1, CPU_DATA_SIZE
+	mul	x0, x0, x1
 	adr	x1, percpu_data
-	add	x0, x1, x0, LSL #CPU_DATA_LOG2SIZE
+	add	x0, x0, x1
 	ret
 endfunc _cpu_data_by_index

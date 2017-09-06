@@ -34,7 +34,9 @@ endfunc _cpu_data
  * -----------------------------------------------------------------
  */
 func _cpu_data_by_index
+	mov_imm	r1, CPU_DATA_SIZE
+	mul	r0, r0, r1
 	ldr	r1, =percpu_data
-	add	r0, r1, r0, LSL #CPU_DATA_LOG2SIZE
+	add	r0, r0, r1
 	bx	lr
 endfunc _cpu_data_by_index
