@@ -199,10 +199,19 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 * Reset the access configuration registers to restrict access
 	 * to the TZRAM aperture
 	 */
-	for (index = MC_TZRAM_CLIENT_ACCESS_CFG0;
+	for (index = MC_TZRAM_CLIENT_ACCESS0_CFG0;
 	     index < ((uint32_t)MC_TZRAM_CARVEOUT_CFG + (uint32_t)MC_GSC_CONFIG_REGS_SIZE);
 	     index += 4U) {
 		tegra_mc_write_32(index, 0);
+	}
+
+	/*
+	 * Enable CPU access configuration registers to access the TZRAM aperture
+	 */
+	if (!tegra_chipid_is_t186()) {
+		val = tegra_mc_read_32(MC_TZRAM_CLIENT_ACCESS1_CFG0);
+		val |= TZRAM_ALLOW_MPCORER | TZRAM_ALLOW_MPCOREW;
+		tegra_mc_write_32(MC_TZRAM_CLIENT_ACCESS1_CFG0, val);
 	}
 
 	/*
@@ -232,6 +241,9 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	val = tegra_mc_read_32(MC_TZRAM_CARVEOUT_CFG);
 	val &= (uint32_t)~MC_GSC_ENABLE_TZ_LOCK_BIT;
 	val |= MC_GSC_LOCK_CFG_SETTINGS_BIT;
+	if (!tegra_chipid_is_t186()) {
+		val |= MC_GSC_ENABLE_CPU_SECURE_BIT;
+	}
 	tegra_mc_write_32(MC_TZRAM_CARVEOUT_CFG, val);
 
 	/*
