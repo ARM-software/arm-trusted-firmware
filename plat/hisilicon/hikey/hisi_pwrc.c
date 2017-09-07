@@ -51,6 +51,21 @@ void hisi_pwrc_set_cluster_wfi(unsigned int cluster)
 	}
 }
 
+void hisi_pwrc_enable_debug(unsigned int core, unsigned int cluster)
+{
+	unsigned int val, enable;
+
+	enable = 1U << (core + PDBGUP_CLUSTER1_SHIFT * cluster);
+
+	/* Enable debug module */
+	val = mmio_read_32(ACPU_SC_PDBGUP_MBIST);
+	mmio_write_32(ACPU_SC_PDBGUP_MBIST, val | enable);
+	do {
+		/* RAW barrier */
+		val = mmio_read_32(ACPU_SC_PDBGUP_MBIST);
+	} while (!(val & enable));
+}
+
 int hisi_pwrc_setup(void)
 {
 	unsigned int reg, sec_entrypoint;
