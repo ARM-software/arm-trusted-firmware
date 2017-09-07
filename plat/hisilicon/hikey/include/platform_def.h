@@ -10,6 +10,9 @@
 #include <arch.h>
 #include "../hikey_def.h"
 
+/* Special value used to verify platform parameters from BL2 to BL3-1 */
+#define HIKEY_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
+
 /*
  * Generic platform constants
  */
@@ -94,7 +97,7 @@
 /*
  * BL31 specific defines.
  */
-#define BL31_BASE			BL2_LIMIT
+#define BL31_BASE			BL2_LIMIT /* 0xf985_8000 */
 #define BL31_LIMIT			0xF9898000
 
 /*
@@ -109,6 +112,14 @@
 
 #define BL32_DRAM_BASE			DDR_SEC_BASE
 #define BL32_DRAM_LIMIT			(DDR_SEC_BASE+DDR_SEC_SIZE)
+
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+/* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
+#define HIKEY_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - HIKEY_OPTEE_PAGEABLE_LOAD_SIZE) /* 0x3FC0_0000 */
+#define HIKEY_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
+#endif
+#endif
 
 #if (HIKEY_TSP_RAM_LOCATION_ID == HIKEY_DRAM_ID)
 #define TSP_SEC_MEM_BASE		BL32_DRAM_BASE
@@ -133,12 +144,24 @@
  */
 #define ADDR_SPACE_SIZE			(1ull << 32)
 
-#if IMAGE_BL1 || IMAGE_BL2 || IMAGE_BL32
+#if IMAGE_BL1 || IMAGE_BL32
 #define MAX_XLAT_TABLES			3
 #endif
 
 #if IMAGE_BL31
 #define MAX_XLAT_TABLES			4
+#endif
+
+#if IMAGE_BL2
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+#define MAX_XLAT_TABLES			4
+#else
+#define MAX_XLAT_TABLES			3
+#endif
+#else
+#define MAX_XLAT_TABLES			3
+#endif
 #endif
 
 #define MAX_MMAP_REGIONS		16

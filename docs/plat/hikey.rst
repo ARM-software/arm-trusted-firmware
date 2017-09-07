@@ -126,7 +126,7 @@ Setup Console
 
    And you could open the console remotely, too.
 
-Flush images in recovery mode
+Flash images in recovery mode
 -----------------------------
 
 -  Make sure Pin3-Pin4 on J15 are connected for recovery mode. Then power on HiKey.

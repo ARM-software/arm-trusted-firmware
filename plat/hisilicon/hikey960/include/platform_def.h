@@ -10,6 +10,8 @@
 #include <arch.h>
 #include "../hikey960_def.h"
 
+/* Special value used to verify platform parameters from BL2 to BL3-1 */
+#define HIKEY960_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
 
 /*
  * Generic platform constants
@@ -73,6 +75,14 @@
 #define BL32_DRAM_BASE                  DDR_SEC_BASE
 #define BL32_DRAM_LIMIT                 (DDR_SEC_BASE+DDR_SEC_SIZE)
 
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+/* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
+#define HIKEY960_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - HIKEY960_OPTEE_PAGEABLE_LOAD_SIZE) /* 0x3FC0_0000 */
+#define HIKEY960_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
+#endif
+#endif
+
 #if (HIKEY960_TSP_RAM_LOCATION_ID == HIKEY960_DRAM_ID)
 #define TSP_SEC_MEM_BASE		BL32_DRAM_BASE
 #define TSP_SEC_MEM_SIZE		(BL32_DRAM_LIMIT - BL32_DRAM_BASE)
@@ -91,18 +101,28 @@
 #define HIKEY960_NS_IMAGE_OFFSET	(0x1AC18000)	/* offset in l-loader */
 #define HIKEY960_NS_TMP_OFFSET		(0x1AE00000)
 
-#define SCP_BL2_BASE			BL31_BASE /* 1AC5_8000 */
-
-#define SCP_MEM_BASE			(0x89C80000)
-#define SCP_MEM_SIZE			(0x00040000)
+#define SCP_BL2_BASE			(0x89C80000)
+#define SCP_BL2_SIZE			(0x00040000)
 
 /*
  * Platform specific page table and MMU setup constants
  */
 #define ADDR_SPACE_SIZE			(1ull << 32)
 
-#if IMAGE_BL1 || IMAGE_BL2 || IMAGE_BL31 || IMAGE_BL32
+#if IMAGE_BL1 || IMAGE_BL31 || IMAGE_BL32
 #define MAX_XLAT_TABLES			3
+#endif
+
+#if IMAGE_BL2
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+#define MAX_XLAT_TABLES			4
+#else
+#define MAX_XLAT_TABLES			3
+#endif
+#else
+#define MAX_XLAT_TABLES			3
+#endif
 #endif
 
 #define MAX_MMAP_REGIONS		16
