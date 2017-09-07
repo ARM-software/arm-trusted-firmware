@@ -22,7 +22,8 @@ enum {
 
 /* Supported key algorithms */
 enum {
-	KEY_ALG_RSA,
+	KEY_ALG_RSA,		/* RSA PSS as defined by PKCS#1 v2.1 (default) */
+	KEY_ALG_RSA_1_5,	/* RSA as defined by PKCS#1 v1.5 */
 #ifndef OPENSSL_NO_EC
 	KEY_ALG_ECDSA,
 #endif /* OPENSSL_NO_EC */

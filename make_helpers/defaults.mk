@@ -81,6 +81,9 @@ GENERATE_COT			:= 0
 # operations.
 HW_ASSISTED_COHERENCY		:= 0
 
+# Set the default algorithm for the generation of Trusted Board Boot keys
+KEY_ALG				:= rsa
+
 # Flag to enable new version of image loading
 LOAD_IMAGE_V2			:= 0
 

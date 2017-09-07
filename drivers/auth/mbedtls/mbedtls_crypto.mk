@@ -7,9 +7,15 @@
 include drivers/auth/mbedtls/mbedtls_common.mk
 
 # The platform may define the variable 'TF_MBEDTLS_KEY_ALG' to select the key
-# algorithm to use. Default algorithm is RSA.
+# algorithm to use. If the variable is not defined, select it based on algorithm
+# used for key generation `KEY_ALG`. If `KEY_ALG` is not defined or is
+# defined to `rsa`/`rsa_1_5`, then set the variable to `rsa`.
 ifeq (${TF_MBEDTLS_KEY_ALG},)
-    TF_MBEDTLS_KEY_ALG		:=	rsa
+    ifeq (${KEY_ALG}, ecdsa)
+        TF_MBEDTLS_KEY_ALG		:=	ecdsa
+    else
+        TF_MBEDTLS_KEY_ALG		:=	rsa
+    endif
 endif
 
 # If MBEDTLS_KEY_ALG build flag is defined use it to set TF_MBEDTLS_KEY_ALG for

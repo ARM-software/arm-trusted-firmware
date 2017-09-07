@@ -89,6 +89,7 @@ static char *strdup(const char *str)
 
 static const char *key_algs_str[] = {
 	[KEY_ALG_RSA] = "rsa",
+	[KEY_ALG_RSA_1_5] = "rsa_1_5",
 #ifndef OPENSSL_NO_EC
 	[KEY_ALG_ECDSA] = "ecdsa"
 #endif /* OPENSSL_NO_EC */
@@ -223,7 +224,8 @@ static const cmd_opt_t common_cmd_opt[] = {
 	},
 	{
 		{ "key-alg", required_argument, NULL, 'a' },
-		"Key algorithm: 'rsa' (default), 'ecdsa'"
+		"Key algorithm: 'rsa' (default) - RSAPSS scheme as per \
+PKCS#1 v2.1, 'rsa_1_5' - RSA PKCS#1 v1.5, 'ecdsa'"
 	},
 	{
 		{ "save-keys", no_argument, NULL, 'k' },
@@ -450,8 +452,8 @@ int main(int argc, char *argv[])
 			sk_X509_EXTENSION_push(sk, cert_ext);
 		}
 
-		/* Create certificate. Signed with ROT key */
-		if (cert->fn && !cert_new(cert, VAL_DAYS, 0, sk)) {
+		/* Create certificate. Signed with corresponding key */
+		if (cert->fn && !cert_new(key_alg, cert, VAL_DAYS, 0, sk)) {
 			ERROR("Cannot create %s\n", cert->cn);
 			exit(1);
 		}
