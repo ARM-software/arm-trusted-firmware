@@ -40,7 +40,9 @@ static int hikey_pwr_domain_on(u_register_t mpidr)
 		hisi_ipc_cluster_on(cpu, cluster);
 
 	hisi_pwrc_set_core_bx_addr(cpu, cluster, hikey_sec_entrypoint);
+	hisi_pwrc_enable_debug(cpu, cluster);
 	hisi_ipc_cpu_on(cpu, cluster);
+
 	return 0;
 }
 
