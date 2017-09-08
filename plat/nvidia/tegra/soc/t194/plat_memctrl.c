@@ -388,7 +388,6 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 	mc_set_tsa_w_passthrough(SDMMCW);
 	mc_set_tsa_w_passthrough(SDMMCWA);
 	mc_set_tsa_w_passthrough(SDMMCWAB);
-	mc_set_tsa_w_passthrough(SESWR);
 	mc_set_tsa_w_passthrough(TSECSWR);
 	mc_set_tsa_w_passthrough(TSECSWRB);
 	mc_set_tsa_w_passthrough(UFSHCW);
@@ -468,8 +467,8 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 	mc_set_txn_override(SDMMCW, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
 	mc_set_txn_override(SDMMCWA, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
 	mc_set_txn_override(SDMMCWAB, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
-	mc_set_txn_override(SESRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
-	mc_set_txn_override(SESWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
+	mc_set_txn_override(SESRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_COHERENT_SNOOP, NO_OVERRIDE);
+	mc_set_txn_override(SESWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_COHERENT_SNOOP, NO_OVERRIDE);
 	mc_set_txn_override(TSECSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
 	mc_set_txn_override(TSECSRDB, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
 	mc_set_txn_override(TSECSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
