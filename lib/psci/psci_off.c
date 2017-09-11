@@ -49,6 +49,9 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 */
 	assert(psci_plat_pm_ops->pwr_domain_off);
 
+	/* Construct the psci_power_state for CPU_OFF */
+	psci_set_power_off_state(&state_info);
+
 	/*
 	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
@@ -67,9 +70,6 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 		if (rc)
 			goto exit;
 	}
-
-	/* Construct the psci_power_state for CPU_OFF */
-	psci_set_power_off_state(&state_info);
 
 	/*
 	 * This function is passed the requested state info and
