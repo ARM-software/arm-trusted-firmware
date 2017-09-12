@@ -2271,6 +2271,44 @@ appropriate.
 Implementations are not expected to handle ``power_levels`` greater than
 ``PLAT_MAX_PWR_LVL``.
 
+plat\_psci\_ops.system\_reset2()
+................................
+
+This is an optional function. If implemented this function is
+called during the ``SYSTEM_RESET2`` call to perform a reset
+based on the first parameter ``reset_type`` as specified in
+`PSCI`_. The parameter ``cookie`` can be used to pass additional
+reset information. If the ``reset_type`` is not supported, the
+function must return ``PSCI_E_NOT_SUPPORTED``. For architectural
+resets, all failures must return ``PSCI_E_INVALID_PARAMETERS``
+and vendor reset can return other PSCI error codes as defined
+in `PSCI`_. On success this function will not return.
+
+plat\_psci\_ops.write\_mem\_protect()
+....................................
+
+This is an optional function. If implemented it enables or disables the
+``MEM_PROTECT`` functionality based on the value of ``val``.
+A non-zero value enables ``MEM_PROTECT`` and a value of zero
+disables it. Upon encountering failures it must return a negative value
+and on success it must return 0.
+
+plat\_psci\_ops.read\_mem\_protect()
+.....................................
+
+This is an optional function. If implemented it returns the current
+state of ``MEM_PROTECT`` via the ``val`` parameter.  Upon encountering
+failures it must return a negative value and on success it must
+return 0.
+
+plat\_psci\_ops.mem\_protect\_chk()
+...................................
+
+This is an optional function. If implemented it checks if a memory
+region defined by a base address ``base`` and with a size of ``length``
+bytes is protected by ``MEM_PROTECT``.  If the region is protected
+then it must return 0, otherwise it must return a negative number.
+
 Interrupt Management framework (in BL31)
 ----------------------------------------
 

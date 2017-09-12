@@ -886,10 +886,10 @@ Power State Coordination Interface
 
 TODO: Provide design walkthrough of PSCI implementation.
 
-The PSCI v1.0 specification categorizes APIs as optional and mandatory. All the
-mandatory APIs in PSCI v1.0 and all the APIs in PSCI v0.2 draft specification
+The PSCI v1.1 specification categorizes APIs as optional and mandatory. All the
+mandatory APIs in PSCI v1.1, PSCI v1.0 and in PSCI v0.2 draft specification
 `Power State Coordination Interface PDD`_ are implemented. The table lists
-the PSCI v1.0 APIs and their support in generic code.
+the PSCI v1.1 APIs and their support in generic code.
 
 An API implementation might have a dependency on platform code e.g. CPU\_SUSPEND
 requires the platform to export a part of the implementation. Hence the level
@@ -898,9 +898,9 @@ platform port as well. The Juno and FVP (all variants) platforms export all the
 required support.
 
 +-----------------------------+-------------+-------------------------------+
-| PSCI v1.0 API               | Supported   | Comments                      |
+| PSCI v1.1 API               | Supported   | Comments                      |
 +=============================+=============+===============================+
-| ``PSCI_VERSION``            | Yes         | The version returned is 1.0   |
+| ``PSCI_VERSION``            | Yes         | The version returned is 1.1   |
 +-----------------------------+-------------+-------------------------------+
 | ``CPU_SUSPEND``             | Yes\*       |                               |
 +-----------------------------+-------------+-------------------------------+
@@ -935,6 +935,12 @@ required support.
 | ``PSCI_STAT_RESIDENCY``     | Yes\*       |                               |
 +-----------------------------+-------------+-------------------------------+
 | ``PSCI_STAT_COUNT``         | Yes\*       |                               |
++-----------------------------+-------------+-------------------------------+
+| ``SYSTEM_RESET2``           | Yes\*       |                               |
++-----------------------------+-------------+-------------------------------+
+| ``MEM_PROTECT``             | Yes\*       |                               |
++-----------------------------+-------------+-------------------------------+
+| ``MEM_PROTECT_CHECK_RANGE`` | Yes\*       |                               |
 +-----------------------------+-------------+-------------------------------+
 
 \*Note : These PSCI APIs require platform power management hooks to be
