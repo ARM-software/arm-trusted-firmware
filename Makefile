@@ -305,6 +305,12 @@ ifdef EL3_PAYLOAD_BASE
                 $(warning "PRELOADED_BL33_BASE and EL3_PAYLOAD_BASE are \
                 incompatible build options. EL3_PAYLOAD_BASE has priority.")
         endif
+        ifneq (${GENERATE_COT},0)
+                $(error "GENERATE_COT and EL3_PAYLOAD_BASE are incompatible build options.")
+        endif
+        ifneq (${TRUSTED_BOARD_BOOT},0)
+                $(error "TRUSTED_BOARD_BOOT and EL3_PAYLOAD_BASE are incompatible build options.")
+        endif
 endif
 
 ifeq (${NEED_BL33},yes)
