@@ -266,7 +266,7 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#if ARM_BL31_IN_DRAM || defined(AARCH32)
+#if ARM_BL31_IN_DRAM || (defined(AARCH32) && !defined(JUNO_AARCH32_EL3_RUNTIME))
 /*
  * For AArch32 BL31 is not applicable.
  * For AArch64 BL31 is loaded in the DRAM.
@@ -353,7 +353,7 @@
  * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.
  ******************************************************************************/
 #define BL2U_BASE			BL2_BASE
-#if ARM_BL31_IN_DRAM || defined(AARCH32)
+#if ARM_BL31_IN_DRAM || (defined(AARCH32) && !defined(JUNO_AARCH32_EL3_RUNTIME))
 /*
  * For AArch32 BL31 is not applicable.
  * For AArch64 BL31 is loaded in the DRAM.

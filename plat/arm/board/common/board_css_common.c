@@ -56,15 +56,6 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
 	CSS_MAP_DEVICE,
-#if CSS_USE_SCMI_DRIVER
-	/*
-	 * The SCMI payload area is currently in the Non Secure SRAM. This is
-	 * a potential security risk but this will be resolved once SCP
-	 * completely replaces SCPI with SCMI as the only communication
-	 * protocol.
-	 */
-	CSS_MAP_NSRAM,
-#endif
 	SOC_CSS_MAP_DEVICE,
 	{0}
 };

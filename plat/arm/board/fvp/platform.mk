@@ -117,7 +117,6 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 
 
 BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
-				drivers/delay_timer/delay_timer.c		\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
@@ -128,8 +127,6 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 
 ifeq (${FVP_USE_SP804_TIMER},1)
 BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
-else
-BL2_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
 endif
 
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
