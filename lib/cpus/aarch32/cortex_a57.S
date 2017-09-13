@@ -306,6 +306,32 @@ func check_errata_833471
 	b	cpu_rev_var_ls
 endfunc check_errata_833471
 
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #859972.
+	 * This applies only to revision <= r1p3 of Cortex A57.
+	 * Inputs:
+	 * r0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: r0-r3
+	 * ---------------------------------------------------
+	 */
+func errata_a57_859972_wa
+	mov		r2, lr
+	bl		check_errata_859972
+	mov		lr, r2
+	cmp		r0, #ERRATA_NOT_APPLIES
+	beq		1f
+	ldcopr16	r0, r1, CORTEX_A57_CPUACTLR
+	orr64_imm	r1, r1, CORTEX_A57_CPUACTLR_DIS_INSTR_PREFETCH
+	stcopr16	r0, r1, CORTEX_A57_CPUACTLR
+1:
+	bx		lr
+endfunc errata_a57_859972_wa
+
+func check_errata_859972
+	mov	r1, #0x13
+	b	cpu_rev_var_ls
+endfunc check_errata_859972
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
 	 * Shall clobber: r0-r6
@@ -354,6 +380,11 @@ func cortex_a57_reset_func
 #if ERRATA_A57_833471
 	mov	r0, r4
 	bl	errata_a57_833471_wa
+#endif
+
+#if ERRATA_A57_859972
+	mov	r0, r4
+	bl	errata_a57_859972_wa
 #endif
 
 	/* ---------------------------------------------
@@ -487,6 +518,7 @@ func cortex_a57_errata_report
 	report_errata ERRATA_A57_828024, cortex_a57, 828024
 	report_errata ERRATA_A57_829520, cortex_a57, 829520
 	report_errata ERRATA_A57_833471, cortex_a57, 833471
+	report_errata ERRATA_A57_859972, cortex_a57, 859972
 
 	pop	{r12, lr}
 	bx	lr
