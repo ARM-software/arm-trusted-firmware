@@ -244,7 +244,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 		VERSION_1, 0);
 
 	/* Fill BL3-2 related information if it exists */
-#if BL32_BASE
+#ifdef BL32_BASE
 	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, PARAM_EP,
 		VERSION_1, 0);
