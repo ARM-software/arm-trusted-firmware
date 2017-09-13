@@ -292,6 +292,13 @@
 #define BL31_BASE			ARM_AP_TZC_DRAM1_BASE
 #define BL31_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
+#elif (RESET_TO_BL31)
+/*
+ * Put BL31_BASE in the middle of the Trusted SRAM.
+ */
+#define BL31_BASE			(ARM_TRUSTED_SRAM_BASE + \
+						(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1))
+#define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 #else
 /*
  * Put BL31 at the top of the Trusted SRAM.
