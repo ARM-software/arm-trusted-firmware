@@ -10,6 +10,7 @@ V		?= 0
 DEBUG		:= 0
 BINARY		:= ${PROJECT}${BIN_EXT}
 OPENSSL_DIR	:= /usr
+USE_TBBR_DEFS   := 1
 
 OBJECTS := src/cert.o \
            src/cmd_opt.o \
