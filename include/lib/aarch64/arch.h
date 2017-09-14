@@ -312,7 +312,7 @@
 /*
  * TCR defintions
  */
-#define TCR_EL3_RES1		((1UL << 31) | (1UL << 23))
+#define TCR_EL3_RES1		((U(1) << 31) | (U(1) << 23))
 #define TCR_EL1_IPS_SHIFT	U(32)
 #define TCR_EL3_PS_SHIFT	U(16)
 

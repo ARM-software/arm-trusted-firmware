@@ -26,17 +26,17 @@
 #define GICR_WAKER		0x14
 
 /* GICR_WAKER bit definitions */
-#define WAKER_CA		(1UL << 2)
-#define WAKER_PS		(1UL << 1)
+#define WAKER_CA		(U(1) << 2)
+#define WAKER_PS		(U(1) << 1)
 
 /* GICR_TYPER bit definitions */
 #define GICR_TYPER_AFF_SHIFT	32
 #define GICR_TYPER_AFF_MASK	0xffffffff
-#define GICR_TYPER_LAST		(1UL << 4)
+#define GICR_TYPER_LAST		(U(1) << 4)
 
 /* GICv3 ICC_SRE register bit definitions*/
-#define ICC_SRE_EN		(1UL << 3)
-#define ICC_SRE_SRE		(1UL << 0)
+#define ICC_SRE_EN		(U(1) << 3)
+#define ICC_SRE_SRE		(U(1) << 0)
 
 /*******************************************************************************
  * GICv3 defintions

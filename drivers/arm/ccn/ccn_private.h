@@ -134,13 +134,13 @@ typedef enum rn_types {
 #define HNF_SAM_CTRL_SN1_ID_SHIFT	8
 #define HNF_SAM_CTRL_SN2_ID_SHIFT	16
 
-#define HNF_SAM_CTRL_TAB0_MASK		0x3fUL
+#define HNF_SAM_CTRL_TAB0_MASK		ULL(0x3f)
 #define HNF_SAM_CTRL_TAB0_SHIFT		48
-#define HNF_SAM_CTRL_TAB1_MASK		0x3fUL
+#define HNF_SAM_CTRL_TAB1_MASK		ULL(0x3f)
 #define HNF_SAM_CTRL_TAB1_SHIFT		56
 
 #define HNF_SAM_CTRL_3SN_ENB_SHIFT	32
-#define HNF_SAM_CTRL_3SN_ENB_MASK	0x01UL
+#define HNF_SAM_CTRL_3SN_ENB_MASK	ULL(0x01)
 
 /*
  * Macro to create a value suitable for programming into a HNF SAM Control
@@ -169,7 +169,7 @@ typedef enum rn_types {
 #define FOR_EACH_BIT(bit_pos, bit_map)			\
 	for (bit_pos = __builtin_ctzll(bit_map);	\
 	     bit_map;					\
-	     bit_map &= ~(1UL << bit_pos),		\
+	     bit_map &= ~(1ULL << (bit_pos)),		\
 	     bit_pos = __builtin_ctzll(bit_map))
 
 /*
