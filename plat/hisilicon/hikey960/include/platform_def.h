@@ -94,6 +94,13 @@
 #error "Currently unsupported HIKEY960_TSP_LOCATION_ID value"
 #endif
 
+/* BL32 is mandatory in AArch32 */
+#ifndef AARCH32
+#ifdef SPD_none
+#undef BL32_BASE
+#endif /* SPD_none */
+#endif
+
 #define NS_BL1U_BASE			(BL31_LIMIT)		/* 1AC9_8000 */
 #define NS_BL1U_SIZE			(0x00100000)
 #define NS_BL1U_LIMIT			(NS_BL1U_BASE + NS_BL1U_SIZE)
