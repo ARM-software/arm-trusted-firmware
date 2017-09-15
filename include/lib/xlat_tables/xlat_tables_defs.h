@@ -7,6 +7,7 @@
 #ifndef __XLAT_TABLES_DEFS_H__
 #define __XLAT_TABLES_DEFS_H__
 
+#include <arch.h>
 #include <utils_def.h>
 
 /* Miscellaneous MMU related constants */
@@ -96,12 +97,13 @@
 #define ATTR_DEVICE_INDEX		U(0x1)
 #define ATTR_IWBWA_OWBWA_NTR_INDEX	U(0x0)
 #define LOWER_ATTRS(x)			(((x) & U(0xfff)) << 2)
+
 /* Normal Memory, Outer Write-Through non-transient, Inner Non-cacheable */
-#define ATTR_NON_CACHEABLE		U(0x44)
+#define ATTR_NON_CACHEABLE		MAKE_MAIR_NORMAL_MEMORY(MAIR_NORM_NC, MAIR_NORM_NC)
 /* Device-nGnRE */
-#define ATTR_DEVICE			U(0x4)
+#define ATTR_DEVICE			MAIR_DEV_nGnRE
 /* Normal Memory, Outer Write-Back non-transient, Inner Write-Back non-transient */
-#define ATTR_IWBWA_OWBWA_NTR		U(0xff)
+#define ATTR_IWBWA_OWBWA_NTR		MAKE_MAIR_NORMAL_MEMORY(MAIR_NORM_WB_NTR_RWA, MAIR_NORM_WB_NTR_RWA)
 #define MAIR_ATTR_SET(attr, index)	((attr) << ((index) << 3))
 #define ATTR_INDEX_MASK			U(0x3)
 #define ATTR_INDEX_GET(attr)		(((attr) >> 2) & ATTR_INDEX_MASK)
