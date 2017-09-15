@@ -23,7 +23,12 @@
 /* Helper macro to define entries for mmap_region_t. It allows to
  * re-map address mappings from 'pa' to 'va' for each region.
  */
-#define MAP_REGION(pa, va, sz, attr) {(pa), (va), (sz), (attr)}
+#define MAP_REGION(_pa, _va, _sz, _attr) ((mmap_region_t){	\
+	.base_pa = (_pa),					\
+	.base_va = (_va),					\
+	.size    = (_sz),					\
+	.attr    = (_attr),					\
+	})
 
 /*
  * Shifts and masks to access fields of an mmap_attr_t
