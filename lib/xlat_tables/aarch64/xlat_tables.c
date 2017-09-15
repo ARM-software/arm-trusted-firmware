@@ -182,7 +182,11 @@ void init_xlat_tables(void)
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */
 DEFINE_ENABLE_MMU_EL(1,
-		(tcr_ps_bits << TCR_EL1_IPS_SHIFT),
+		/*
+		 * TCR_EL1.EPD1: Disable translation table walk for addresses
+		 * that are translated using TTBR1_EL1.
+		 */
+		TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT),
 		tlbivmalle1)
 DEFINE_ENABLE_MMU_EL(3,
 		TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT),
