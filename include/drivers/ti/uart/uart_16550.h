@@ -7,6 +7,8 @@
 #ifndef __UART_16550_H__
 #define __UART_16550_H__
 
+#include <console.h>
+
 /* UART16550 Registers */
 #define UARTTX			0x0
 #define UARTRX			0x0
@@ -66,5 +68,21 @@
 #define UARTLSR_OVRF		(1 << 2)	/* Rx Overrun Error */
 #define UARTLSR_RDR_BIT		(0)		/* Rx Data Ready Bit */
 #define UARTLSR_RDR		(1 << UARTLSR_RDR_BIT)	/* Rx Data Ready */
+
+#define CONSOLE_T_16550_BASE	CONSOLE_T_DRVDATA
+
+#ifndef __ASSEMBLY__
+
+#include <types.h>
+
+typedef struct {
+	console_t console;
+	uintptr_t base;
+} console_16550_t;
+
+int console_16550_register(console_16550_t *console, uintptr_t baseaddr,
+			   uint32_t clock, uint32_t baud);
+
+#endif /*__ASSEMBLY__*/
 
 #endif	/* __UART_16550_H__ */

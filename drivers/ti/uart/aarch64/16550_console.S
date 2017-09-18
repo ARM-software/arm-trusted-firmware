@@ -8,13 +8,70 @@
 #include <asm_macros.S>
 #include <uart_16550.h>
 
-	.globl	console_core_init
-	.globl	console_core_putc
-	.globl	console_core_getc
-	.globl	console_core_flush
+	.globl console_16550_init
+	.globl console_16550_putc
+	.globl console_16550_getc
+	.globl console_16550_flush
+
+#if MULTI_CONSOLE_API
+	.globl console_16550_register
 
 	/* -----------------------------------------------
-	 * int console_core_init(unsigned long base_addr,
+	 * int console_16550_register(console_16550_t *console,
+		uintptr_t base, uint32_t clk, uint32_t baud)
+	 * Function to initialize and register a new 16550
+	 * console. Storage passed in for the console struct
+	 * *must* be persistent (i.e. not from the stack).
+	 * In: x0 - pointer to empty console_16550_t struct
+	 *     x1 - UART register base address
+	 *     w2 - UART clock in Hz
+	 *     w3 - Baud rate
+	 * Out: return 1 on success, 0 on error
+	 * Clobber list : x0, x1, x2, x6, x7, x14
+	 * -----------------------------------------------
+	 */
+func console_16550_register
+	mov	x7, x30
+	cbz	x0, register_fail
+	str	x1, [x0, #CONSOLE_T_16550_BASE]
+
+	/* shift registers around to match ABI of legacy init function */
+	mov	x6, x0
+	mov	x0, x1
+	mov	w1, w2
+	mov	w2, w3
+
+	bl	console_16550_init
+	cbz	x0, register_fail
+
+	mov	x0, x6
+	adrp	x1, console_16550_putc
+	add	x1, x1, :lo12:console_16550_putc
+	str	x1, [x0, #CONSOLE_T_PUTC]
+	adrp	x1, console_16550_getc
+	add	x1, x1, :lo12:console_16550_getc
+	str	x1, [x0, #CONSOLE_T_GETC]
+	mov	x1, #0
+	str	x1, [x0, #CONSOLE_T_FLUSH]
+	mov	x1, #(1 << CONSOLE_FLAG_BOOT_SHIFT | \
+		      1 << CONSOLE_FLAG_CRASH_SHIFT)
+	str	x1, [x0, #CONSOLE_T_FLAGS]
+	bl	console_register
+register_fail:
+	ret	x7
+endfunc console_16550_register
+#else
+	.globl console_core_init
+	.globl console_core_putc
+	.globl console_core_getc
+	.globl console_core_flush
+	.equ console_core_init,console_16550_init
+	.equ console_core_putc,console_16550_putc
+	.equ console_core_getc,console_16550_getc
+#endif
+
+	/* -----------------------------------------------
+	 * int console_16550_init(unsigned long base_addr,
 	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. This
@@ -23,11 +80,11 @@
 	 * In: x0 - console base address
 	 *     w1 - Uart clock in Hz
 	 *     w2 - Baud rate
-	 * Out: return 1 on success
+	 * Out: return 1 on success, 0 on error
 	 * Clobber list : x1, x2, x3
 	 * -----------------------------------------------
 	 */
-func console_core_init
+func console_16550_init
 	/* Check the input base address */
 	cbz	x0, init_fail
 	/* Check baud rate and uart clock for sanity */
@@ -63,24 +120,28 @@ func console_core_init
 	mov	w3, #3
 	str	w3, [x0, #UARTMCR]
 	mov	w0, #1
-init_fail:
 	ret
-endfunc console_core_init
+init_fail:
+	mov	w0, #0
+	ret
+endfunc console_16550_init
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned int base_addr)
+	 * int console_16550_putc(int c, console_16550_t *console)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
-	 *      x1 - console base address
+	 *      x1 - pointer to console_t structure
 	 * Out : return -1 on error else return character.
 	 * Clobber list : x2
 	 * --------------------------------------------------------
 	 */
-func console_core_putc
+func console_16550_putc
+#if MULTI_CONSOLE_API
+	ldr	x1, [x1, #CONSOLE_T_16550_BASE]
+#endif
 	/* Check the input parameter */
 	cbz	x1, putc_error
-
 	/* Prepend '\r' to '\n' */
 	cmp	w0, #0xA
 	b.ne	2f
@@ -102,31 +163,35 @@ func console_core_putc
 putc_error:
 	mov	w0, #-1
 	ret
-endfunc console_core_putc
+endfunc console_16550_putc
 
 	/* ---------------------------------------------
-	 * int console_core_getc(void)
+	 * int console_16550_getc(console_16550_t *console)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
-	 * or -1 on error.
-	 * In : w0 - console base address
-	 * Out : return -1 on error else return character.
+	 * or -1 on if no character is available.
+	 * In :  x0 - pointer to console_t stucture
+	 * Out : w0 - character if available, else -1
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_getc
+func console_16550_getc
+#if MULTI_CONSOLE_API
+	ldr	x0, [x0, #CONSOLE_T_16550_BASE]
+#endif
 	/* Check if the receive FIFO is empty */
 1:	ldr	w1, [x0, #UARTLSR]
-	tbz	w1, #UARTLSR_RDR_BIT, 1b
+	tbz	w1, #UARTLSR_RDR_BIT, no_char
 	ldr	w0, [x0, #UARTRX]
 	ret
-getc_error:
+no_char:
 	mov	w0, #-1
 	ret
-endfunc console_core_getc
+endfunc console_16550_getc
 
 	/* ---------------------------------------------
 	 * int console_core_flush(uintptr_t base_addr)
+	 * DEPRECATED: Not used with MULTI_CONSOLE_API!
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
