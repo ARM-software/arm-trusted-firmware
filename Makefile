@@ -162,11 +162,13 @@ include lib/compiler-rt/compiler-rt.mk
 include lib/stdlib/stdlib.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
+				common/tf_log.c				\
 				common/tf_printf.c			\
 				common/tf_snprintf.c			\
 				common/${ARCH}/debug.S			\
 				lib/${ARCH}/cache_helpers.S		\
 				lib/${ARCH}/misc_helpers.S		\
+				plat/common/plat_log_common.c		\
 				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${COMPILER_RT_SRCS}			\
