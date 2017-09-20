@@ -79,6 +79,7 @@ int plat_crash_console_putc(int c);
 int plat_crash_console_flush(void);
 void plat_error_handler(int err) __dead2;
 void plat_panic_handler(void) __dead2;
+const char *plat_log_get_prefix(unsigned int log_level);
 
 /*******************************************************************************
  * Mandatory BL1 functions

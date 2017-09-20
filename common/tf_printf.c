@@ -23,8 +23,10 @@
 	(((lcount) > 1) ? va_arg(args, unsigned long long int) :	\
 	((lcount) ? va_arg(args, unsigned long int) : va_arg(args, unsigned int)))
 
-static void string_print(const char *str)
+void tf_string_print(const char *str)
 {
+	assert(str);
+
 	while (*str)
 		putchar(*str++);
 }
@@ -64,15 +66,13 @@ static void unsigned_num_print(unsigned long long int unum, unsigned int radix)
  * The print exits on all other formats specifiers other than valid
  * combinations of the above specifiers.
  *******************************************************************/
-void tf_printf(const char *fmt, ...)
+void tf_vprintf(const char *fmt, va_list args)
 {
-	va_list args;
 	int l_count;
 	long long int num;
 	unsigned long long int unum;
 	char *str;
 
-	va_start(args, fmt);
 	while (*fmt) {
 		l_count = 0;
 
@@ -94,12 +94,12 @@ loop:
 				break;
 			case 's':
 				str = va_arg(args, char *);
-				string_print(str);
+				tf_string_print(str);
 				break;
 			case 'p':
 				unum = (uintptr_t)va_arg(args, void *);
 				if (unum)
-					string_print("0x");
+					tf_string_print("0x");
 
 				unsigned_num_print(unum, 16);
 				break;
@@ -123,13 +123,20 @@ loop:
 				break;
 			default:
 				/* Exit on any other format specifier */
-				goto exit;
+				return;
 			}
 			fmt++;
 			continue;
 		}
 		putchar(*fmt++);
 	}
-exit:
-	va_end(args);
+}
+
+void tf_printf(const char *fmt, ...)
+{
+	va_list va;
+
+	va_start(va, fmt);
+	tf_vprintf(fmt, va);
+	va_end(va);
 }

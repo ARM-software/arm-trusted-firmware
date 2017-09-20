@@ -767,10 +767,7 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	 */
 	assert(mm_last->size == 0);
 
-	mm_cursor->base_pa = mm->base_pa;
-	mm_cursor->base_va = mm->base_va;
-	mm_cursor->size = mm->size;
-	mm_cursor->attr = mm->attr;
+	*mm_cursor = *mm;
 
 	if (end_pa > ctx->max_pa)
 		ctx->max_pa = end_pa;
