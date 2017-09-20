@@ -14,42 +14,42 @@
  * Macros to prepare CSTATE info request
  ******************************************************************************/
 /* Description of the parameters for UPDATE_CSTATE_INFO request */
-#define CLUSTER_CSTATE_MASK				0x7UL
-#define CLUSTER_CSTATE_SHIFT			0X0UL
-#define CLUSTER_CSTATE_UPDATE_BIT		(1UL << 7)
-#define CCPLEX_CSTATE_MASK				0x3UL
-#define CCPLEX_CSTATE_SHIFT				8UL
-#define CCPLEX_CSTATE_UPDATE_BIT		(1UL << 15)
-#define SYSTEM_CSTATE_MASK				0xFUL
-#define SYSTEM_CSTATE_SHIFT				16UL
-#define SYSTEM_CSTATE_UPDATE_BIT		(1UL << 23)
-#define CSTATE_WAKE_MASK_UPDATE_BIT		(1UL << 31)
-#define CSTATE_WAKE_MASK_SHIFT			32UL
-#define CSTATE_WAKE_MASK_CLEAR			0xFFFFFFFFUL
+#define CLUSTER_CSTATE_MASK			0x7U
+#define CLUSTER_CSTATE_SHIFT			0X0U
+#define CLUSTER_CSTATE_UPDATE_BIT		(1U << 7)
+#define CCPLEX_CSTATE_MASK			0x3U
+#define CCPLEX_CSTATE_SHIFT			8U
+#define CCPLEX_CSTATE_UPDATE_BIT		(1U << 15)
+#define SYSTEM_CSTATE_MASK			0xFU
+#define SYSTEM_CSTATE_SHIFT			16U
+#define SYSTEM_CSTATE_UPDATE_BIT		(1U << 23)
+#define CSTATE_WAKE_MASK_UPDATE_BIT		(1U << 31)
+#define CSTATE_WAKE_MASK_SHIFT			32U
+#define CSTATE_WAKE_MASK_CLEAR			0xFFFFFFFFU
 
 /*******************************************************************************
  * Auto-CC3 control macros
  ******************************************************************************/
-#define MCE_AUTO_CC3_FREQ_MASK			0xFFUL
-#define MCE_AUTO_CC3_FREQ_SHIFT			0UL
-#define MCE_AUTO_CC3_ENABLE_BIT			(1UL << 31)
+#define MCE_AUTO_CC3_FREQ_MASK			0xFFU
+#define MCE_AUTO_CC3_FREQ_SHIFT			0U
+#define MCE_AUTO_CC3_ENABLE_BIT			(1U << 31)
 
 /*******************************************************************************
  * Core ID mask (bits 3:0 in the online request)
  ******************************************************************************/
-#define MCE_CORE_ID_MASK				0xFUL
+#define MCE_CORE_ID_MASK			0xFU
 
 /*******************************************************************************
  * Cache control macros
  ******************************************************************************/
-#define CACHE_CLEAN_SET					(1UL << 0)
-#define CACHE_CLEAN_INVAL_SET			(1UL << 1)
-#define CACHE_CLEAN_INVAL_TR_SET		(1UL << 2)
+#define CACHE_CLEAN_SET				(1U << 0)
+#define CACHE_CLEAN_INVAL_SET			(1U << 1)
+#define CACHE_CLEAN_INVAL_TR_SET		(1U << 2)
 
 /*******************************************************************************
  * C-state statistics macros
  ******************************************************************************/
-#define MCE_STAT_ID_SHIFT			16UL
+#define MCE_STAT_ID_SHIFT			16U
 
 /* declarations for NVG handler functions */
 uint64_t nvg_get_version(void);

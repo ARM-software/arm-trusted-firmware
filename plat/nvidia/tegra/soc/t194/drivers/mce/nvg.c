@@ -25,7 +25,7 @@
  */
 uint64_t nvg_get_version(void)
 {
-	nvg_set_request(TEGRA_NVG_CHANNEL_VERSION);
+	nvg_set_request((uint64_t)TEGRA_NVG_CHANNEL_VERSION);
 
 	return (uint64_t)nvg_get_result();
 }
@@ -37,7 +37,7 @@ uint64_t nvg_get_version(void)
  */
 int32_t nvg_enable_power_perf_mode(void)
 {
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_POWER_PERF, 1U);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_PERF, 1U);
 
 	return 0;
 }
@@ -49,7 +49,7 @@ int32_t nvg_enable_power_perf_mode(void)
  */
 int32_t nvg_disable_power_perf_mode(void)
 {
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_POWER_PERF, 0U);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_PERF, 0U);
 
 	return 0;
 }
@@ -61,7 +61,7 @@ int32_t nvg_disable_power_perf_mode(void)
  */
 int32_t nvg_enable_power_saver_modes(void)
 {
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_POWER_MODES, 1U);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_MODES, 1U);
 
 	return 0;
 }
@@ -73,7 +73,7 @@ int32_t nvg_enable_power_saver_modes(void)
  */
 int32_t nvg_disable_power_saver_modes(void)
 {
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_POWER_MODES, 0U);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_MODES, 0U);
 
 	return 0;
 }
@@ -87,7 +87,7 @@ int32_t nvg_disable_power_saver_modes(void)
 void nvg_set_wake_time(uint32_t wake_time)
 {
 	/* time (TSC ticks) until the core is expected to get a wake event */
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_WAKE_TIME, (uint64_t)wake_time);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_WAKE_TIME, (uint64_t)wake_time);
 }
 
 /*
@@ -135,7 +135,7 @@ void nvg_update_cstate_info(uint32_t cluster, uint32_t ccplex,
 	val |= ((uint64_t)wake_mask & CSTATE_WAKE_MASK_CLEAR) << CSTATE_WAKE_MASK_SHIFT;
 
 	/* set the updated cstate info */
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_CSTATE_INFO, val);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CSTATE_INFO, val);
 }
 
 /*
@@ -151,18 +151,18 @@ int32_t nvg_update_crossover_time(uint32_t type, uint32_t time)
 	int32_t ret = 0;
 
 	switch (type) {
-	case TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND:
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND,
+	case (uint32_t)TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND:
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND,
 			(uint64_t)time);
 		break;
 
-	case TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND:
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND,
+	case (uint32_t)TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND:
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND,
 			(uint64_t)time);
 		break;
 
-	case TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND:
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND,
+	case (uint32_t)TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND:
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND,
 			(uint64_t)time);
 		break;
 
@@ -196,7 +196,7 @@ int32_t nvg_set_cstate_stat_query_value(uint64_t data)
 			(uint32_t)(data & MCE_CORE_ID_MASK));
 		ret = EINVAL;
 	} else {
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_CSTATE_STAT_QUERY_REQUEST, data);
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CSTATE_STAT_QUERY_REQUEST, data);
 	}
 
 	return ret;
@@ -209,7 +209,7 @@ int32_t nvg_set_cstate_stat_query_value(uint64_t data)
  */
 uint64_t nvg_get_cstate_stat_query_value(void)
 {
-	nvg_set_request(TEGRA_NVG_CHANNEL_CSTATE_STAT_QUERY_VALUE);
+	nvg_set_request((uint64_t)TEGRA_NVG_CHANNEL_CSTATE_STAT_QUERY_VALUE);
 
 	return (uint64_t)nvg_get_result();
 }
@@ -222,7 +222,7 @@ uint64_t nvg_get_cstate_stat_query_value(void)
 int32_t nvg_is_sc7_allowed(void)
 {
 	/* issue command to check if SC7 is allowed */
-	nvg_set_request(TEGRA_NVG_CHANNEL_IS_SC7_ALLOWED);
+	nvg_set_request((uint64_t)TEGRA_NVG_CHANNEL_IS_SC7_ALLOWED);
 
 	/* 1 = SC7 allowed, 0 = SC7 not allowed */
 	return (int32_t)nvg_get_result();
@@ -244,8 +244,8 @@ int32_t nvg_online_core(uint32_t core)
 		ret = EINVAL;
 	} else {
 		/* get a core online */
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_ONLINE_CORE,
-								(uint64_t)core & MCE_CORE_ID_MASK);
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_ONLINE_CORE,
+					(uint64_t)core & MCE_CORE_ID_MASK);
 	}
 
 	return ret;
@@ -275,7 +275,7 @@ int32_t nvg_cc3_ctrl(uint32_t freq, uint8_t enable)
 	if (enable != 0U) {
 		val = ((uint64_t)freq & MCE_AUTO_CC3_FREQ_MASK) | MCE_AUTO_CC3_ENABLE_BIT;
 	}
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_CC3_CTRL, val);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CC3_CTRL, val);
 
 	return 0;
 }
@@ -295,7 +295,7 @@ int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx)
 		ERROR("%s: unknown gsc_idx (%u)\n", __func__, gsc_idx);
 		ret = EINVAL;
 	} else {
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_UPDATE_CCPLEX_GSC,
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_UPDATE_CCPLEX_GSC,
 								(uint64_t)gsc_idx);
 	}
 

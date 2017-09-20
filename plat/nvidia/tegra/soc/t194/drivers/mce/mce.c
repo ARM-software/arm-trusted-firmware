@@ -46,11 +46,11 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
 
-	assert(ctx);
-	assert(gp_regs);
+	assert(ctx != NULL);
+	assert(gp_regs != NULL);
 
 	switch (cmd) {
-	case MCE_CMD_ENTER_CSTATE:
+	case (uint64_t)MCE_CMD_ENTER_CSTATE:
 		ret = nvg_enter_cstate((uint32_t)arg0, (uint32_t)arg1);
 		if (ret < 0) {
 			ERROR("%s: enter_cstate failed(%d)\n", __func__, ret);
@@ -58,14 +58,14 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_UPDATE_CSTATE_INFO:
+	case (uint64_t)MCE_CMD_UPDATE_CSTATE_INFO:
 		/*
 		 * get the parameters required for the update cstate info
 		 * command
 		 */
-		arg3 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X4));
-		arg4 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X5));
-		arg5 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X6));
+		arg3 = read_ctx_reg(gp_regs, CTX_GPREG_X4);
+		arg4 = read_ctx_reg(gp_regs, CTX_GPREG_X5);
+		arg5 = read_ctx_reg(gp_regs, CTX_GPREG_X6);
 
 		/* arg0 cluster
 		 * arg1 ccplex
@@ -77,13 +77,13 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		nvg_update_cstate_info((uint32_t)arg0, (uint32_t)arg1,
 				(uint32_t)arg2, (uint32_t)arg4, (uint8_t)arg5);
 
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X4), (arg3));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X5), (arg4));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X6), (arg5));
+		write_ctx_reg(gp_regs, CTX_GPREG_X4, arg3);
+		write_ctx_reg(gp_regs, CTX_GPREG_X5, arg4);
+		write_ctx_reg(gp_regs, CTX_GPREG_X6, arg5);
 
 		break;
 
-	case MCE_CMD_UPDATE_CROSSOVER_TIME:
+	case (uint64_t)MCE_CMD_UPDATE_CROSSOVER_TIME:
 		ret = nvg_update_crossover_time((uint32_t)arg0, (uint32_t)arg1);
 		if (ret < 0) {
 			ERROR("%s: update_crossover_time failed(%d)\n",
@@ -92,21 +92,21 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_READ_CSTATE_STATS:
+	case (uint64_t)MCE_CMD_READ_CSTATE_STATS:
 		ret64 = nvg_get_cstate_stat_query_value();
 
 		/* update context to return cstate stats value */
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), (ret64));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X2), (ret64));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, ret64);
+		write_ctx_reg(gp_regs, CTX_GPREG_X2, ret64);
 
 		break;
 
-	case MCE_CMD_WRITE_CSTATE_STATS:
+	case (uint64_t)MCE_CMD_WRITE_CSTATE_STATS:
 		ret = nvg_set_cstate_stat_query_value(arg0);
 
 		break;
 
-	case MCE_CMD_IS_SC7_ALLOWED:
+	case (uint64_t)MCE_CMD_IS_SC7_ALLOWED:
 		ret = nvg_is_sc7_allowed();
 		if (ret < 0) {
 			ERROR("%s: is_sc7_allowed failed(%d)\n", __func__, ret);
@@ -114,12 +114,12 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		}
 
 		/* update context to return SC7 status value */
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), ((uint64_t)ret));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X3), ((uint64_t)ret));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (uint64_t)ret);
+		write_ctx_reg(gp_regs, CTX_GPREG_X3, (uint64_t)ret);
 
 		break;
 
-	case MCE_CMD_ONLINE_CORE:
+	case (uint64_t)MCE_CMD_ONLINE_CORE:
 		ret = nvg_online_core((uint32_t)arg0);
 		if (ret < 0) {
 			ERROR("%s: online_core failed(%d)\n", __func__, ret);
@@ -127,7 +127,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_CC3_CTRL:
+	case (uint64_t)MCE_CMD_CC3_CTRL:
 		ret = nvg_cc3_ctrl((uint32_t)arg0, (uint8_t)arg2);
 		if (ret < 0) {
 			ERROR("%s: cc3_ctrl failed(%d)\n", __func__, ret);
@@ -135,7 +135,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_READ_VERSIONS:
+	case (uint64_t)MCE_CMD_READ_VERSIONS:
 		/* get the MCE firmware version */
 		ret64 = nvg_get_version();
 
@@ -143,12 +143,12 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		 * version = minor(63:32) | major(31:0). Update context
 		 * to return major and minor version number.
 		 */
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), (ret64 & (uint64_t)0xFFFF));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X2), (ret64 >> 32));
+		write_ctx_reg(gp_regs, CTX_GPREG_X1, (ret64 & 0xFFFFULL));
+		write_ctx_reg(gp_regs, CTX_GPREG_X2, (ret64 >> 32U));
 
 		break;
 
-	case MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
+	case (uint64_t)MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
 		ret = nvg_roc_clean_cache_trbits();
 		if (ret < 0) {
 			ERROR("%s: flush cache_trbits failed(%d)\n", __func__,
@@ -157,7 +157,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_ROC_FLUSH_CACHE:
+	case (uint64_t)MCE_CMD_ROC_FLUSH_CACHE:
 		ret = nvg_roc_flush_cache();
 		if (ret < 0) {
 			ERROR("%s: flush cache failed(%d)\n", __func__, ret);
@@ -165,7 +165,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_ROC_CLEAN_CACHE:
+	case (uint64_t)MCE_CMD_ROC_CLEAN_CACHE:
 		ret = nvg_roc_clean_cache();
 		if (ret < 0) {
 			ERROR("%s: clean cache failed(%d)\n", __func__, ret);
