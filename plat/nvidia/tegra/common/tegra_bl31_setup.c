@@ -227,6 +227,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 */
 	tegra_delay_timer_init();
 
+	/* Early platform setup for Tegra SoCs */
+	plat_early_platform_setup();
+
 	/*
 	 * Do initial security configuration to allow DRAM/device access.
 	 */
@@ -268,9 +271,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				bl32_img_info.image_size);
 		}
 	}
-
-	/* Early platform setup for Tegra SoCs */
-	plat_early_platform_setup();
 
 	/*
 	 * Add timestamp for platform early setup exit.
