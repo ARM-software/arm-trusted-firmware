@@ -18,9 +18,12 @@
 #include <tegra_platform.h>
 #include <stdbool.h>
 
-extern uint32_t tegra186_system_powerdn_state;
-
 extern bool tegra_fake_system_suspend;
+
+/*******************************************************************************
+ * Offset to read the ref_clk counter value
+ ******************************************************************************/
+#define REF_CLK_OFFSET		4ULL
 
 /*******************************************************************************
  * Tegra186 SiP SMCs
@@ -51,7 +54,7 @@ extern bool tegra_fake_system_suspend;
 /*******************************************************************************
  * This function is responsible for handling all T186 SiP calls
  ******************************************************************************/
-int plat_sip_handler(uint32_t smc_fid,
+int32_t plat_sip_handler(uint32_t smc_fid,
 		     uint64_t x1,
 		     uint64_t x2,
 		     uint64_t x3,
@@ -60,15 +63,21 @@ int plat_sip_handler(uint32_t smc_fid,
 		     void *handle,
 		     uint64_t flags)
 {
-	int mce_ret;
+	int32_t mce_ret, ret = -ENOTSUP;
+	uint32_t local_smc_fid = smc_fid;
+	uint64_t local_x1 = x1;
+
+	(void)x4;
+	(void)cookie;
+	(void)flags;
 
 	/*
 	 * Convert SMC FID to SMC64 until the linux driver uses
 	 * SMC64 encoding.
 	 */
-	smc_fid |= (SMC_64 << FUNCID_CC_SHIFT);
+	local_smc_fid |= (SMC_64 << FUNCID_CC_SHIFT);
 
-	switch (smc_fid) {
+	switch (local_smc_fid) {
 
 	/*
 	 * Micro Coded Engine (MCE) commands reside in the 0x82FFFF00 -
@@ -94,18 +103,20 @@ int plat_sip_handler(uint32_t smc_fid,
 	case TEGRA_SIP_MCE_CMD_MISC_CCPLEX:
 
 		/* clean up the high bits */
-		smc_fid &= MCE_CMD_MASK;
+		local_smc_fid &= MCE_CMD_MASK;
 
 		/* execute the command and store the result */
 		mce_ret = mce_command_handler(smc_fid, x1, x2, x3);
-		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X0, mce_ret);
+		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X0, (uint64_t)mce_ret);
 
-		return 0;
+		ret = 0;
+		break;
 
 	case TEGRA_SIP_SYSTEM_SHUTDOWN_STATE:
 
 		/* clean up the high bits */
-		x1 = (uint32_t)x1;
+		local_x1 = (uint32_t)x1;
+		(void)local_x1;
 
 		/*
 		 * SC8 is a special Tegra186 system state where the CPUs and
@@ -113,7 +124,8 @@ int plat_sip_handler(uint32_t smc_fid,
 		 * alive.
 		 */
 
-		return 0;
+		ret = 0;
+		break;
 
 	case TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND:
 		/*
@@ -126,7 +138,7 @@ int plat_sip_handler(uint32_t smc_fid,
 		if (tegra_platform_is_virt_dev_kit()) {
 
 			tegra_fake_system_suspend = true;
-			return 0;
+			ret = 0;
 		}
 
 		break;
@@ -135,5 +147,5 @@ int plat_sip_handler(uint32_t smc_fid,
 		break;
 	}
 
-	return -ENOTSUP;
+	return ret;
 }

@@ -625,11 +625,11 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
  ******************************************************************************/
 static tegra_mc_settings_t tegra194_mc_settings = {
 	.streamid_override_cfg = tegra194_streamid_override_regs,
-	.num_streamid_override_cfgs = ARRAY_SIZE(tegra194_streamid_override_regs),
+	.num_streamid_override_cfgs = (uint32_t)ARRAY_SIZE(tegra194_streamid_override_regs),
 	.streamid_security_cfg = tegra194_streamid_sec_cfgs,
-	.num_streamid_security_cfgs = ARRAY_SIZE(tegra194_streamid_sec_cfgs),
+	.num_streamid_security_cfgs = (uint32_t)ARRAY_SIZE(tegra194_streamid_sec_cfgs),
 	.txn_override_cfg = tegra194_txn_override_cfgs,
-	.num_txn_override_cfgs = ARRAY_SIZE(tegra194_txn_override_cfgs),
+	.num_txn_override_cfgs = (uint32_t)ARRAY_SIZE(tegra194_txn_override_cfgs),
 	.reconfig_mss_clients = tegra194_memctrl_reconfig_mss_clients
 };
 

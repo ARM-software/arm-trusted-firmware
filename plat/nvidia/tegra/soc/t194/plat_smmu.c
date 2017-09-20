@@ -16,7 +16,7 @@
 
 static uint32_t tegra_misc_read_32(uint32_t off)
 {
-	return mmio_read_32(TEGRA_MISC_BASE + off);
+	return mmio_read_32((uintptr_t)TEGRA_MISC_BASE + off);
 }
 
 /*******************************************************************************
@@ -417,7 +417,7 @@ static __attribute__((aligned(16))) smmu_regs_t tegra194_smmu_context[] = {
 smmu_regs_t *plat_get_smmu_ctx(void)
 {
 	/* index of _END_OF_TABLE_ */
-	tegra194_smmu_context[0].val = ARRAY_SIZE(tegra194_smmu_context) - 1;
+	tegra194_smmu_context[0].val = (uint32_t)ARRAY_SIZE(tegra194_smmu_context) - 1U;
 
 	return tegra194_smmu_context;
 }

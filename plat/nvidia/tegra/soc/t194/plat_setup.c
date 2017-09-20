@@ -32,7 +32,7 @@
  * the number of power domains at the highest power level.
  *******************************************************************************
  */
-const unsigned char tegra_power_domain_tree_desc[] = {
+static const uint8_t tegra_power_domain_tree_desc[] = {
 	/* No of root nodes */
 	1,
 	/* No of clusters */
@@ -50,7 +50,7 @@ const unsigned char tegra_power_domain_tree_desc[] = {
 /*******************************************************************************
  * This function returns the Tegra default topology tree information.
  ******************************************************************************/
-const unsigned char *plat_get_power_domain_tree_desc(void)
+const uint8_t *plat_get_power_domain_tree_desc(void)
 {
 	return tegra_power_domain_tree_desc;
 }
@@ -59,46 +59,46 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
  * Table of regions to map using the MMU.
  */
 static const mmap_region_t tegra_mmap[] = {
-	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000, /* 128KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000, /* 128KB - UART A, B*/
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_UARTC_BASE, 0x20000, /* 128KB - UART C, G */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_UARTD_BASE, 0x30000, /* 192KB - UART D, E, F */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_FUSE_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x20000, /* 128KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SE0_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_PKA1_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_CAR_RESET_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000, /* 256KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SCRATCH_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MMCRAB_BASE, 0x60000, /* 384KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SMMU0_BASE, 0x1000000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SMMU1_BASE, 0x1000000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SMMU2_BASE, 0x1000000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_XUSB_PADCTL_BASE, 0x10000, /* 64KB */
-			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000U, /* 128KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000U, /* 128KB - UART A, B*/
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_UARTC_BASE, 0x20000U, /* 128KB - UART C, G */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_UARTD_BASE, 0x30000U, /* 192KB - UART D, E, F */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_FUSE_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x20000U, /* 128KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SE0_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_PKA1_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_CAR_RESET_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000U, /* 256KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SCRATCH_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_MMCRAB_BASE, 0x60000U, /* 384KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SMMU0_BASE, 0x1000000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SMMU1_BASE, 0x1000000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SMMU2_BASE, 0x1000000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_XUSB_PADCTL_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	{0}
 };
 
@@ -114,7 +114,7 @@ const mmap_region_t *plat_get_mmio_map(void)
 /*******************************************************************************
  * Handler to get the System Counter Frequency
  ******************************************************************************/
-unsigned int plat_get_syscnt_freq2(void)
+uint32_t plat_get_syscnt_freq2(void)
 {
 	return 31250000;
 }
@@ -135,18 +135,23 @@ static uint32_t tegra186_uart_addresses[TEGRA186_MAX_UART_PORTS + 1] = {
 	TEGRA_UARTD_BASE,
 	TEGRA_UARTE_BASE,
 	TEGRA_UARTF_BASE,
-	TEGRA_UARTG_BASE,
+	TEGRA_UARTG_BASE
 };
 
 /*******************************************************************************
  * Retrieve the UART controller base to be used as the console
  ******************************************************************************/
-uint32_t plat_get_console_from_id(int id)
+uint32_t plat_get_console_from_id(int32_t id)
 {
-	if (id > TEGRA186_MAX_UART_PORTS)
-		return 0;
+	uint32_t ret;
 
-	return tegra186_uart_addresses[id];
+	if (id > TEGRA186_MAX_UART_PORTS) {
+		ret = 0;
+	} else {
+		ret = tegra186_uart_addresses[id];
+	}
+
+	return ret;
 }
 
 /*******************************************************************************
@@ -189,7 +194,7 @@ void plat_early_platform_setup(void)
 	 * Known Limitations:
 	 * If xusb interface disables SMMU in XUSB DT in non-virtualization
 	 * setup then there will be SMMU fault. We need to use WAR at
-	 * https://git-master.nvidia.com/r/1529227/ to the issue.
+	 * https:\\git-master.nvidia.com/r/1529227/ to the issue.
 	 *
 	 * More details can be found in the bug 1971161
 	 */
@@ -246,15 +251,15 @@ static const irq_sec_cfg_t tegra186_sec_irqs[] = {
  ******************************************************************************/
 void plat_gic_setup(void)
 {
-	tegra_gic_setup(tegra186_sec_irqs,
-		sizeof(tegra186_sec_irqs) / sizeof(tegra186_sec_irqs[0]));
+	tegra_gic_setup(tegra186_sec_irqs, (uint32_t)ARRAY_SIZE(tegra186_sec_irqs);
 
 	/*
 	 * Initialize the FIQ handler only if the platform supports any
 	 * FIQ interrupt sources.
 	 */
-	if (sizeof(tegra186_sec_irqs) > 0)
+	if (sizeof(tegra186_sec_irqs) > 0U) {
 		tegra_fiq_handler_setup();
+	}
 }
 
 /*******************************************************************************

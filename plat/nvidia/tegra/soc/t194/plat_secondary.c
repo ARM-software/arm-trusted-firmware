@@ -12,11 +12,11 @@
 #include <tegra_def.h>
 #include <tegra_private.h>
 
-#define MISCREG_CPU_RESET_VECTOR	0x2000
-#define MISCREG_AA64_RST_LOW		0x2004
-#define MISCREG_AA64_RST_HIGH		0x2008
+#define MISCREG_CPU_RESET_VECTOR	0x2000U
+#define MISCREG_AA64_RST_LOW		0x2004U
+#define MISCREG_AA64_RST_HIGH		0x2008U
 
-#define CPU_RESET_MODE_AA64		1
+#define CPU_RESET_MODE_AA64		1U
 
 extern void tegra_secure_entrypoint(void);
 
@@ -44,11 +44,11 @@ void plat_secondary_setup(void)
 	memcpy((void *)((uintptr_t)cpu_reset_handler_base),
 		 (void *)(uintptr_t)tegra186_cpu_reset_handler,
 		 (uintptr_t)&__tegra186_smmu_ctx_start -
-		 (uintptr_t)tegra186_cpu_reset_handler);
+		 (uintptr_t)&tegra186_cpu_reset_handler);
 #endif
 
 	addr_low = (uint32_t)cpu_reset_handler_base | CPU_RESET_MODE_AA64;
-	addr_high = (uint32_t)((cpu_reset_handler_base >> 32) & 0x7ff);
+	addr_high = (uint32_t)((cpu_reset_handler_base >> 32U) & 0x7ffU);
 
 	/* write lower 32 bits first, then the upper 11 bits */
 	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_LOW, addr_low);
