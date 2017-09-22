@@ -252,3 +252,26 @@ unsigned int gicv2_get_running_priority(void)
 
 	return gicc_read_rpr(driver_data->gicc_base);
 }
+
+/*******************************************************************************
+ * This function sets the GICv2 target mask pattern for the current PE. The PE
+ * target mask is used to translate linear PE index (returned by platform core
+ * position) to a bit mask used when targeting interrupts to a PE, viz. when
+ * raising SGIs and routing SPIs.
+ ******************************************************************************/
+void gicv2_set_pe_target_mask(unsigned int proc_num)
+{
+	assert(driver_data);
+	assert(driver_data->gicd_base);
+	assert(driver_data->target_masks);
+	assert(proc_num < GICV2_MAX_TARGET_PE);
+	assert(proc_num < driver_data->target_masks_num);
+
+	/* Return if the target mask is already populated */
+	if (driver_data->target_masks[proc_num])
+		return;
+
+	/* Read target register corresponding to this CPU */
+	driver_data->target_masks[proc_num] =
+		gicv2_get_cpuif_id(driver_data->gicd_base);
+}

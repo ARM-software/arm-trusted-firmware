@@ -13,6 +13,9 @@
 /* Interrupt IDs reported by the HPPIR and IAR registers */
 #define PENDING_G1_INTID	1022
 
+/* GICv2 can only target up to 8 PEs */
+#define GICV2_MAX_TARGET_PE	8
+
 /*******************************************************************************
  * GICv2 specific Distributor interface register offsets and constants.
  ******************************************************************************/
@@ -103,23 +106,29 @@
  * in order to initialize the GICv2 driver. The attributes are described
  * below.
  *
- * 1. The 'gicd_base' field contains the base address of the Distributor
- *    interface programmer's view.
+ * The 'gicd_base' field contains the base address of the Distributor interface
+ * programmer's view.
  *
- * 2. The 'gicc_base' field contains the base address of the CPU Interface
- *    programmer's view.
+ * The 'gicc_base' field contains the base address of the CPU Interface
+ * programmer's view.
  *
- * 3. The 'g0_interrupt_array' field is a pointer to an array in which each
- *    entry corresponds to an ID of a Group 0 interrupt.
+ * The 'g0_interrupt_array' field is a pointer to an array in which each
+ * entry corresponds to an ID of a Group 0 interrupt.
  *
- * 4. The 'g0_interrupt_num' field contains the number of entries in the
- *    'g0_interrupt_array'.
+ * The 'g0_interrupt_num' field contains the number of entries in the
+ * 'g0_interrupt_array'.
+ *
+ * The 'target_masks' is a pointer to an array containing 'target_masks_num'
+ * elements. The GIC driver will populate the array with per-PE target mask to
+ * use to when targeting interrupts.
  ******************************************************************************/
 typedef struct gicv2_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicc_base;
 	unsigned int g0_interrupt_num;
 	const unsigned int *g0_interrupt_array;
+	unsigned int *target_masks;
+	unsigned int target_masks_num;
 } gicv2_driver_data_t;
 
 /*******************************************************************************
@@ -137,6 +146,7 @@ unsigned int gicv2_acknowledge_interrupt(void);
 void gicv2_end_of_interrupt(unsigned int id);
 unsigned int gicv2_get_interrupt_group(unsigned int id);
 unsigned int gicv2_get_running_priority(void);
+void gicv2_set_pe_target_mask(unsigned int proc_num);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV2_H__ */
