@@ -21,6 +21,9 @@
 #pragma weak plat_interrupt_type_to_line
 
 #pragma weak plat_ic_get_running_priority
+#pragma weak plat_ic_is_spi
+#pragma weak plat_ic_is_ppi
+#pragma weak plat_ic_is_sgi
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -128,4 +131,19 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 unsigned int plat_ic_get_running_priority(void)
 {
 	return gicv2_get_running_priority();
+}
+
+int plat_ic_is_spi(unsigned int id)
+{
+	return (id >= MIN_SPI_ID) && (id <= MAX_SPI_ID);
+}
+
+int plat_ic_is_ppi(unsigned int id)
+{
+	return (id >= MIN_PPI_ID) && (id < MIN_SPI_ID);
+}
+
+int plat_ic_is_sgi(unsigned int id)
+{
+	return (id >= MIN_SGI_ID) && (id < MIN_PPI_ID);
 }

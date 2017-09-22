@@ -27,6 +27,9 @@
 #pragma weak plat_interrupt_type_to_line
 
 #pragma weak plat_ic_get_running_priority
+#pragma weak plat_ic_is_spi
+#pragma weak plat_ic_is_ppi
+#pragma weak plat_ic_is_sgi
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -163,6 +166,20 @@ unsigned int plat_ic_get_running_priority(void)
 	return gicv3_get_running_priority();
 }
 
+int plat_ic_is_spi(unsigned int id)
+{
+	return (id >= MIN_SPI_ID) && (id <= MAX_SPI_ID);
+}
+
+int plat_ic_is_ppi(unsigned int id)
+{
+	return (id >= MIN_PPI_ID) && (id < MIN_SPI_ID);
+}
+
+int plat_ic_is_sgi(unsigned int id)
+{
+	return (id >= MIN_SGI_ID) && (id < MIN_PPI_ID);
+}
 #endif
 #ifdef IMAGE_BL32
 

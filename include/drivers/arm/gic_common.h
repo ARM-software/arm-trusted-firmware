@@ -12,6 +12,7 @@
  ******************************************************************************/
 /* Constants to categorise interrupts */
 #define MIN_SGI_ID		0
+#define MIN_SEC_SGI_ID		8
 #define MIN_PPI_ID		16
 #define MIN_SPI_ID		32
 #define MAX_SPI_ID		1019
