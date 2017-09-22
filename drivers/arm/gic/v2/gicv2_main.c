@@ -368,3 +368,38 @@ void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
 	}
 	spin_unlock(&gic_lock);
 }
+
+/*******************************************************************************
+ * This function raises the specified SGI to requested targets.
+ *
+ * The proc_num parameter must be the linear index of the target PE in the
+ * system.
+ ******************************************************************************/
+void gicv2_raise_sgi(int sgi_num, int proc_num)
+{
+	unsigned int sgir_val, target;
+
+	assert(driver_data);
+	assert(proc_num < GICV2_MAX_TARGET_PE);
+	assert(driver_data->gicd_base);
+
+	/*
+	 * Target masks array must have been supplied, and the core position
+	 * should be valid.
+	 */
+	assert(driver_data->target_masks);
+	assert(proc_num < driver_data->target_masks_num);
+
+	/* Don't raise SGI if the mask hasn't been populated */
+	target = driver_data->target_masks[proc_num];
+	assert(target != 0);
+
+	sgir_val = GICV2_SGIR_VALUE(SGIR_TGT_SPECIFIC, target, sgi_num);
+
+	/*
+	 * Ensure that any shared variable updates depending on out of band
+	 * interrupt trigger are observed before raising SGI.
+	 */
+	dsbishst();
+	gicd_write_sgir(driver_data->gicd_base, sgir_val);
+}

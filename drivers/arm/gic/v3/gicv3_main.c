@@ -960,3 +960,42 @@ void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
 		spin_unlock(&gic_lock);
 	}
 }
+
+/*******************************************************************************
+ * This function raises the specified Secure Group 0 SGI.
+ *
+ * The target parameter must be a valid MPIDR in the system.
+ ******************************************************************************/
+void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target)
+{
+	unsigned int tgt, aff3, aff2, aff1, aff0;
+	uint64_t sgi_val;
+
+	/* Verify interrupt number is in the SGI range */
+	assert((sgi_num >= MIN_SGI_ID) && (sgi_num < MIN_PPI_ID));
+
+	/* Extract affinity fields from target */
+	aff0 = MPIDR_AFFLVL0_VAL(target);
+	aff1 = MPIDR_AFFLVL1_VAL(target);
+	aff2 = MPIDR_AFFLVL2_VAL(target);
+	aff3 = MPIDR_AFFLVL3_VAL(target);
+
+	/*
+	 * Make target list from affinity 0, and ensure GICv3 SGI can target
+	 * this PE.
+	 */
+	assert(aff0 < GICV3_MAX_SGI_TARGETS);
+	tgt = BIT(aff0);
+
+	/* Raise SGI to PE specified by its affinity */
+	sgi_val = GICV3_SGIR_VALUE(aff3, aff2, aff1, sgi_num, SGIR_IRM_TO_AFF,
+			tgt);
+
+	/*
+	 * Ensure that any shared variable updates depending on out of band
+	 * interrupt trigger are observed before raising SGI.
+	 */
+	dsbishst();
+	write_icc_sgi0r_el1(sgi_val);
+	isb();
+}

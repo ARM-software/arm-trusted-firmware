@@ -35,6 +35,7 @@
 #pragma weak plat_ic_disable_interrupt
 #pragma weak plat_ic_set_interrupt_priority
 #pragma weak plat_ic_set_interrupt_type
+#pragma weak plat_ic_raise_el3_sgi
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -216,6 +217,17 @@ int plat_ic_has_interrupt_type(unsigned int type)
 void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 {
 	gicv3_set_interrupt_type(id, plat_my_core_pos(), type);
+}
+
+void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
+{
+	/* Target must be a valid MPIDR in the system */
+	assert(plat_core_pos_by_mpidr(target) >= 0);
+
+	/* Verify that this is a secure EL3 SGI */
+	assert(plat_ic_get_interrupt_type(sgi_num) == INTR_TYPE_EL3);
+
+	gicv3_raise_secure_g0_sgi(sgi_num, target);
 }
 #endif
 #ifdef IMAGE_BL32

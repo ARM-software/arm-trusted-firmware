@@ -200,6 +200,23 @@ For GICv2:
   ``INTR_TYPE_S_EL1`` maps to Group 0. Otherwise, ``INTR_TYPE_EL3`` maps to
   Group 0 interrupt.
 
+Function: void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : int
+    Argument : u_register_t
+    Return   : void
+
+This API should raise an EL3 SGI. The first parameter, ``sgi_num``, specifies
+the ID of the SGI. The second parameter, ``target``, must be the MPIDR of the
+target PE.
+
+In case of ARM standard platforms using GIC, the implementation of the API
+inserts barrier to make memory updates visible before raising SGI, then writes
+to appropriate *SGI Register* in order to raise the EL3 SGI.
+
 ----
 
 *Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*

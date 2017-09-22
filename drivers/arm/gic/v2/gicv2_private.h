@@ -32,6 +32,14 @@ static inline unsigned int gicd_read_pidr2(uintptr_t base)
 }
 
 /*******************************************************************************
+ * GIC Distributor interface accessors for writing entire registers
+ ******************************************************************************/
+static inline void gicd_write_sgir(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICD_SGIR, val);
+}
+
+/*******************************************************************************
  * GIC CPU interface accessors for reading entire registers
  ******************************************************************************/
 

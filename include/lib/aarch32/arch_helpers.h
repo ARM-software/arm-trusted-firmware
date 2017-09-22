@@ -266,6 +266,7 @@ DEFINE_COPROCR_RW_FUNCS(icc_iar0_el1, ICC_IAR0)
 DEFINE_COPROCR_RW_FUNCS(icc_iar1_el1, ICC_IAR1)
 DEFINE_COPROCR_RW_FUNCS(icc_eoir0_el1, ICC_EOIR0)
 DEFINE_COPROCR_RW_FUNCS(icc_eoir1_el1, ICC_EOIR1)
+DEFINE_COPROCR_RW_FUNCS_64(icc_sgi0r_el1, ICC_SGI0R_EL1_64)
 
 DEFINE_COPROCR_RW_FUNCS(hdcr, HDCR)
 DEFINE_COPROCR_RW_FUNCS(cnthp_ctl, CNTHP_CTL)
@@ -324,5 +325,8 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 #define read_cntpct_el0()	read64_cntpct()
 
 #define read_ctr_el0()		read_ctr()
+
+#define write_icc_sgi0r_el1(_v) \
+		write64_icc_sgi0r_el1(_v)
 
 #endif /* __ARCH_HELPERS_H__ */

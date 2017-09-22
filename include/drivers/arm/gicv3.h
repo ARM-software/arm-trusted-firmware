@@ -24,6 +24,9 @@
 /* Constant to categorize LPI interrupt */
 #define MIN_LPI_ID		8192
 
+/* GICv3 can only target up to 16 PEs with SGI */
+#define GICV3_MAX_SGI_TARGETS	16
+
 /*******************************************************************************
  * GICv3 specific Distributor interface register offsets and constants.
  ******************************************************************************/
@@ -164,6 +167,27 @@
 /* ICC_IAR1_EL1 bit definitions */
 #define IAR1_EL1_INTID_SHIFT		0
 #define IAR1_EL1_INTID_MASK		0xffffff
+
+/* ICC SGI macros */
+#define SGIR_TGT_MASK			0xffff
+#define SGIR_AFF1_SHIFT			16
+#define SGIR_INTID_SHIFT		24
+#define SGIR_INTID_MASK			0xf
+#define SGIR_AFF2_SHIFT			32
+#define SGIR_IRM_SHIFT			40
+#define SGIR_IRM_MASK			0x1
+#define SGIR_AFF3_SHIFT			48
+#define SGIR_AFF_MASK			0xf
+
+#define SGIR_IRM_TO_AFF			0
+
+#define GICV3_SGIR_VALUE(aff3, aff2, aff1, intid, irm, tgt) \
+	((((uint64_t) (aff3) & SGIR_AFF_MASK) << SGIR_AFF3_SHIFT) | \
+	 (((uint64_t) (irm) & SGIR_IRM_MASK) << SGIR_IRM_SHIFT) | \
+	 (((uint64_t) (aff2) & SGIR_AFF_MASK) << SGIR_AFF2_SHIFT) | \
+	 (((intid) & SGIR_INTID_MASK) << SGIR_INTID_SHIFT) | \
+	 (((aff1) & SGIR_AFF_MASK) << SGIR_AFF1_SHIFT) | \
+	 ((tgt) & SGIR_TGT_MASK))
 
 /*****************************************************************************
  * GICv3 ITS registers and constants
@@ -357,6 +381,7 @@ void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
 		unsigned int priority);
 void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
 		unsigned int group);
+void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */

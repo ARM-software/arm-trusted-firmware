@@ -7,6 +7,7 @@
 #include <gic_common.h>
 #include <gicv2.h>
 #include <interrupt_mgmt.h>
+#include <platform.h>
 
 /*
  * The following platform GIC functions are weakly defined. They
@@ -29,6 +30,7 @@
 #pragma weak plat_ic_disable_interrupt
 #pragma weak plat_ic_set_interrupt_priority
 #pragma weak plat_ic_set_interrupt_type
+#pragma weak plat_ic_raise_el3_sgi
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -219,4 +221,22 @@ void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 	}
 
 	gicv2_set_interrupt_type(id, gicv2_type);
+}
+
+void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
+{
+#if GICV2_G0_FOR_EL3
+	int id;
+
+	/* Target must be a valid MPIDR in the system */
+	id = plat_core_pos_by_mpidr(target);
+	assert(id >= 0);
+
+	/* Verify that this is a secure SGI */
+	assert(plat_ic_get_interrupt_type(sgi_num) == INTR_TYPE_EL3);
+
+	gicv2_raise_sgi(sgi_num, id);
+#else
+	assert(0);
+#endif
 }
