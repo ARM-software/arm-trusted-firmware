@@ -869,3 +869,26 @@ void gicv3_disable_interrupt(unsigned int id, unsigned int proc_num)
 
 	dsbishst();
 }
+
+/*******************************************************************************
+ * This function sets the interrupt priority as supplied for the given interrupt
+ * id.
+ ******************************************************************************/
+void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
+		unsigned int priority)
+{
+	uintptr_t gicr_base;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	if (id < MIN_SPI_ID) {
+		gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+		gicr_set_ipriorityr(gicr_base, id, priority);
+	} else {
+		gicd_set_ipriorityr(gicv3_driver_data->gicd_base, id, priority);
+	}
+}

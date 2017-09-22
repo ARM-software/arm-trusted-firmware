@@ -322,3 +322,16 @@ void gicv2_disable_interrupt(unsigned int id)
 	gicd_set_icenabler(driver_data->gicd_base, id);
 	dsbishst();
 }
+
+/*******************************************************************************
+ * This function sets the interrupt priority as supplied for the given interrupt
+ * id.
+ ******************************************************************************/
+void gicv2_set_interrupt_priority(unsigned int id, unsigned int priority)
+{
+	assert(driver_data);
+	assert(driver_data->gicd_base);
+	assert(id <= MAX_SPI_ID);
+
+	gicd_set_ipriorityr(driver_data->gicd_base, id, priority);
+}

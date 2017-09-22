@@ -33,6 +33,7 @@
 #pragma weak plat_ic_get_interrupt_active
 #pragma weak plat_ic_enable_interrupt
 #pragma weak plat_ic_disable_interrupt
+#pragma weak plat_ic_set_interrupt_priority
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -197,6 +198,11 @@ void plat_ic_enable_interrupt(unsigned int id)
 void plat_ic_disable_interrupt(unsigned int id)
 {
 	gicv3_disable_interrupt(id, plat_my_core_pos());
+}
+
+void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
+{
+	gicv3_set_interrupt_priority(id, plat_my_core_pos(), priority);
 }
 #endif
 #ifdef IMAGE_BL32

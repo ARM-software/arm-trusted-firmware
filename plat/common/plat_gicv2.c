@@ -27,6 +27,7 @@
 #pragma weak plat_ic_get_interrupt_active
 #pragma weak plat_ic_enable_interrupt
 #pragma weak plat_ic_disable_interrupt
+#pragma weak plat_ic_set_interrupt_priority
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -164,4 +165,9 @@ void plat_ic_enable_interrupt(unsigned int id)
 void plat_ic_disable_interrupt(unsigned int id)
 {
 	gicv2_disable_interrupt(id);
+}
+
+void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
+{
+	gicv2_set_interrupt_priority(id, priority);
 }

@@ -111,6 +111,21 @@ In case of ARM standard platforms using GIC, the implementation of the API
 writes to GIC *Clear Enable Register* to disable the interrupt, and inserts
 barrier to make memory updates visible afterwards.
 
+Function: void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Argument : unsigned int
+    Return   : void
+
+This API should set the priority of the interrupt specified by first parameter
+``id`` to the value set by the second parameter ``priority``.
+
+In case of ARM standard platforms using GIC, the implementation of the API
+writes to GIC *Priority Register* set interrupt priority.
+
 ----
 
 *Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*

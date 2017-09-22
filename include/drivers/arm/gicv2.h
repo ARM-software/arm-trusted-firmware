@@ -150,6 +150,7 @@ void gicv2_set_pe_target_mask(unsigned int proc_num);
 unsigned int gicv2_get_interrupt_active(unsigned int id);
 void gicv2_enable_interrupt(unsigned int id);
 void gicv2_disable_interrupt(unsigned int id);
+void gicv2_set_interrupt_priority(unsigned int id, unsigned int priority);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV2_H__ */
