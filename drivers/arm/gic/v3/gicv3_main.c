@@ -999,3 +999,41 @@ void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target)
 	write_icc_sgi0r_el1(sgi_val);
 	isb();
 }
+
+/*******************************************************************************
+ * This function sets the interrupt routing for the given SPI interrupt id.
+ * The interrupt routing is specified in routing mode and mpidr.
+ *
+ * The routing mode can be either of:
+ *  - GICV3_IRM_ANY
+ *  - GICV3_IRM_PE
+ *
+ * The mpidr is the affinity of the PE to which the interrupt will be routed,
+ * and is ignored for routing mode GICV3_IRM_ANY.
+ ******************************************************************************/
+void gicv3_set_spi_routing(unsigned int id, unsigned int irm, u_register_t mpidr)
+{
+	unsigned long long aff;
+	uint64_t router;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+
+	assert((irm == GICV3_IRM_ANY) || (irm == GICV3_IRM_PE));
+	assert(id >= MIN_SPI_ID && id <= MAX_SPI_ID);
+
+	aff = gicd_irouter_val_from_mpidr(mpidr, irm);
+	gicd_write_irouter(gicv3_driver_data->gicd_base, id, aff);
+
+	/*
+	 * In implementations that do not require 1 of N distribution of SPIs,
+	 * IRM might be RAZ/WI. Read back and verify IRM bit.
+	 */
+	if (irm == GICV3_IRM_ANY) {
+		router = gicd_read_irouter(gicv3_driver_data->gicd_base, id);
+		if (!((router >> IROUTER_IRM_SHIFT) & IROUTER_IRM_MASK)) {
+			ERROR("GICv3 implementation doesn't support routing ANY\n");
+			panic();
+		}
+	}
+}

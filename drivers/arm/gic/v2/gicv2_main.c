@@ -403,3 +403,38 @@ void gicv2_raise_sgi(int sgi_num, int proc_num)
 	dsbishst();
 	gicd_write_sgir(driver_data->gicd_base, sgir_val);
 }
+
+/*******************************************************************************
+ * This function sets the interrupt routing for the given SPI interrupt id.
+ * The interrupt routing is specified in routing mode. The proc_num parameter is
+ * linear index of the PE to target SPI. When proc_num < 0, the SPI may target
+ * all PEs.
+ ******************************************************************************/
+void gicv2_set_spi_routing(unsigned int id, int proc_num)
+{
+	int target;
+
+	assert(driver_data);
+	assert(driver_data->gicd_base);
+
+	assert(id >= MIN_SPI_ID && id <= MAX_SPI_ID);
+
+	/*
+	 * Target masks array must have been supplied, and the core position
+	 * should be valid.
+	 */
+	assert(driver_data->target_masks);
+	assert(proc_num < GICV2_MAX_TARGET_PE);
+	assert(proc_num < driver_data->target_masks_num);
+
+	if (proc_num < 0) {
+		/* Target all PEs */
+		target = GIC_TARGET_CPU_MASK;
+	} else {
+		/* Don't route interrupt if the mask hasn't been populated */
+		target = driver_data->target_masks[proc_num];
+		assert(target != 0);
+	}
+
+	gicd_set_itargetsr(driver_data->gicd_base, id, target);
+}

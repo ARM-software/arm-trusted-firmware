@@ -34,6 +34,17 @@ static inline unsigned int gicd_read_pidr2(uintptr_t base)
 /*******************************************************************************
  * GIC Distributor interface accessors for writing entire registers
  ******************************************************************************/
+static inline unsigned int gicd_get_itargetsr(uintptr_t base, unsigned int id)
+{
+	return mmio_read_8(base + GICD_ITARGETSR + id);
+}
+
+static inline void gicd_set_itargetsr(uintptr_t base, unsigned int id,
+		unsigned int target)
+{
+	mmio_write_8(base + GICD_ITARGETSR + id, target & GIC_TARGET_CPU_MASK);
+}
+
 static inline void gicd_write_sgir(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICD_SGIR, val);

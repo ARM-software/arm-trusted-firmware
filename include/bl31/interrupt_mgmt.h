@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,11 @@
 #define INTR_TYPE_NS			U(2)
 #define MAX_INTR_TYPES			U(3)
 #define INTR_TYPE_INVAL			MAX_INTR_TYPES
+
+/* Interrupt routing modes */
+#define INTR_ROUTING_MODE_PE		0
+#define INTR_ROUTING_MODE_ANY		1
+
 /*
  * Constant passed to the interrupt handler in the 'id' field when the
  * framework does not read the gic registers to determine the interrupt id.

@@ -75,6 +75,9 @@
 #define IROUTER_IRM_SHIFT	31
 #define IROUTER_IRM_MASK	0x1
 
+#define GICV3_IRM_PE		0
+#define GICV3_IRM_ANY		1
+
 #define NUM_OF_DIST_REGS	30
 
 /*******************************************************************************
@@ -382,6 +385,8 @@ void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
 void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
 		unsigned int group);
 void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target);
+void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
+		u_register_t mpidr);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */

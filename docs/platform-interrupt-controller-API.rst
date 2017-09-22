@@ -217,6 +217,32 @@ In case of ARM standard platforms using GIC, the implementation of the API
 inserts barrier to make memory updates visible before raising SGI, then writes
 to appropriate *SGI Register* in order to raise the EL3 SGI.
 
+Function: void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode, u_register_t mpidr); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Argument : unsigned int
+    Argument : u_register_t
+    Return   : void
+
+This API should set the routing mode of Share Peripheral Interrupt (SPI)
+specified by first parameter ``id`` to that specified by the second parameter
+``routing_mode``.
+
+The ``routing_mode`` parameter can be one of:
+
+- ``INTR_ROUTING_MODE_ANY`` means the interrupt can be routed to any PE in the
+  system. The ``mpidr`` parameter is ignored in this case.
+
+- ``INTR_ROUTING_MODE_PE`` means the interrupt is routed to the PE whose MPIDR
+  value is specified by the parameter ``mpidr``.
+
+In case of ARM standard platforms using GIC, the implementation of the API
+writes to the GIC *Target Register* (GICv2) or *Route Register* (GICv3) to set
+the routing.
+
 ----
 
 *Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,15 +70,6 @@ void gicd_write_spendsgir(uintptr_t base, unsigned int id, unsigned int val)
 {
 	unsigned n = id >> SPENDSGIR_SHIFT;
 	mmio_write_32(base + GICD_SPENDSGIR + (n << 2), val);
-}
-
-/*
- * Accessor to write the GIC Distributor ITARGETSR corresponding to the
- * interrupt `id`.
- */
-void gicd_set_itargetsr(uintptr_t base, unsigned int id, unsigned int target)
-{
-	mmio_write_8(base + GICD_ITARGETSR + id, target & GIC_TARGET_CPU_MASK);
 }
 
 /*******************************************************************************

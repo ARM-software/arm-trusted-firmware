@@ -36,6 +36,7 @@
 #pragma weak plat_ic_set_interrupt_priority
 #pragma weak plat_ic_set_interrupt_type
 #pragma weak plat_ic_raise_el3_sgi
+#pragma weak plat_ic_set_spi_routing
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -228,6 +229,26 @@ void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
 	assert(plat_ic_get_interrupt_type(sgi_num) == INTR_TYPE_EL3);
 
 	gicv3_raise_secure_g0_sgi(sgi_num, target);
+}
+
+void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
+		u_register_t mpidr)
+{
+	unsigned int irm = 0;
+
+	switch (routing_mode) {
+	case INTR_ROUTING_MODE_PE:
+		assert(plat_core_pos_by_mpidr(mpidr) >= 0);
+		irm = GICV3_IRM_PE;
+		break;
+	case INTR_ROUTING_MODE_ANY:
+		irm = GICV3_IRM_ANY;
+		break;
+	default:
+		assert(0);
+	}
+
+	gicv3_set_spi_routing(id, irm, mpidr);
 }
 #endif
 #ifdef IMAGE_BL32

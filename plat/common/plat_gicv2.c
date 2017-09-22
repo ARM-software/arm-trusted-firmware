@@ -31,6 +31,7 @@
 #pragma weak plat_ic_set_interrupt_priority
 #pragma weak plat_ic_set_interrupt_type
 #pragma weak plat_ic_raise_el3_sgi
+#pragma weak plat_ic_set_spi_routing
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -239,4 +240,25 @@ void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
 #else
 	assert(0);
 #endif
+}
+
+void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
+		u_register_t mpidr)
+{
+	int proc_num = 0;
+
+	switch (routing_mode) {
+	case INTR_ROUTING_MODE_PE:
+		proc_num = plat_core_pos_by_mpidr(mpidr);
+		assert(proc_num >= 0);
+		break;
+	case INTR_ROUTING_MODE_ANY:
+		/* Bit mask selecting all 8 CPUs as candidates */
+		proc_num = -1;
+		break;
+	default:
+		assert(0);
+	}
+
+	gicv2_set_spi_routing(id, proc_num);
 }
