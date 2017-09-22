@@ -243,6 +243,37 @@ In case of ARM standard platforms using GIC, the implementation of the API
 writes to the GIC *Target Register* (GICv2) or *Route Register* (GICv3) to set
 the routing.
 
+Function: void plat_ic_set_interrupt_pending(unsigned int id); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : void
+
+This API should set the interrupt specified by first parameter ``id`` to
+*Pending*.
+
+In case of ARM standard platforms using GIC, the implementation of the API
+inserts barrier to make memory updates visible before setting interrupt pending,
+and writes to the GIC *Set Pending Register* to set the interrupt pending
+status.
+
+Function: void plat_ic_clear_interrupt_pending(unsigned int id); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : void
+
+This API should clear the *Pending* status of the interrupt specified by first
+parameter ``id``.
+
+In case of ARM standard platforms using GIC, the implementation of the API
+writes to the GIC *Clear Pending Register* to clear the interrupt pending
+status, and inserts barrier to make memory updates visible afterwards.
+
 ----
 
 *Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*

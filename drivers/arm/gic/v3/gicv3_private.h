@@ -72,6 +72,8 @@ void gicd_set_igrpmodr(uintptr_t base, unsigned int id);
 void gicr_set_igrpmodr0(uintptr_t base, unsigned int id);
 void gicr_set_isenabler0(uintptr_t base, unsigned int id);
 void gicr_set_icenabler0(uintptr_t base, unsigned int id);
+void gicr_set_ispendr0(uintptr_t base, unsigned int id);
+void gicr_set_icpendr0(uintptr_t base, unsigned int id);
 void gicr_set_igroupr0(uintptr_t base, unsigned int id);
 void gicd_clr_igrpmodr(uintptr_t base, unsigned int id);
 void gicr_clr_igrpmodr0(uintptr_t base, unsigned int id);
@@ -219,6 +221,11 @@ static inline void gicr_write_icenabler0(uintptr_t base, unsigned int val)
 static inline unsigned int gicr_read_isenabler0(uintptr_t base)
 {
 	return mmio_read_32(base + GICR_ISENABLER0);
+}
+
+static inline void gicr_write_icpendr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ICPENDR0, val);
 }
 
 static inline void gicr_write_isenabler0(uintptr_t base, unsigned int val)

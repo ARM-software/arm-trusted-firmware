@@ -195,6 +195,28 @@ unsigned int gicr_get_isactiver0(uintptr_t base, unsigned int id)
 }
 
 /*
+ * Accessor to clear the bit corresponding to interrupt ID in GIC Re-distributor
+ * ICPENDRR0.
+ */
+void gicr_set_icpendr0(uintptr_t base, unsigned int id)
+{
+	unsigned bit_num = id & ((1 << ICPENDR_SHIFT) - 1);
+
+	gicr_write_icpendr0(base, (1 << bit_num));
+}
+
+/*
+ * Accessor to set the bit corresponding to interrupt ID in GIC Re-distributor
+ * ISPENDR0.
+ */
+void gicr_set_ispendr0(uintptr_t base, unsigned int id)
+{
+	unsigned bit_num = id & ((1 << ISPENDR_SHIFT) - 1);
+
+	gicr_write_ispendr0(base, (1 << bit_num));
+}
+
+/*
  * Accessor to set the byte corresponding to interrupt ID
  * in GIC Re-distributor IPRIORITYR.
  */

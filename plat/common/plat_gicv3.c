@@ -37,6 +37,8 @@
 #pragma weak plat_ic_set_interrupt_type
 #pragma weak plat_ic_raise_el3_sgi
 #pragma weak plat_ic_set_spi_routing
+#pragma weak plat_ic_set_interrupt_pending
+#pragma weak plat_ic_clear_interrupt_pending
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -249,6 +251,20 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 	}
 
 	gicv3_set_spi_routing(id, irm, mpidr);
+}
+
+void plat_ic_set_interrupt_pending(unsigned int id)
+{
+	/* Disallow setting SGIs pending */
+	assert(id >= MIN_PPI_ID);
+	gicv3_set_interrupt_pending(id, plat_my_core_pos());
+}
+
+void plat_ic_clear_interrupt_pending(unsigned int id)
+{
+	/* Disallow setting SGIs pending */
+	assert(id >= MIN_PPI_ID);
+	gicv3_clear_interrupt_pending(id, plat_my_core_pos());
 }
 #endif
 #ifdef IMAGE_BL32

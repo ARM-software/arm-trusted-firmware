@@ -438,3 +438,41 @@ void gicv2_set_spi_routing(unsigned int id, int proc_num)
 
 	gicd_set_itargetsr(driver_data->gicd_base, id, target);
 }
+
+/*******************************************************************************
+ * This function clears the pending status of an interrupt identified by id.
+ ******************************************************************************/
+void gicv2_clear_interrupt_pending(unsigned int id)
+{
+	assert(driver_data);
+	assert(driver_data->gicd_base);
+
+	/* SGIs can't be cleared pending */
+	assert(id >= MIN_PPI_ID);
+
+	/*
+	 * Clear pending interrupt, and ensure that any shared variable updates
+	 * depending on out of band interrupt trigger are observed afterwards.
+	 */
+	gicd_set_icpendr(driver_data->gicd_base, id);
+	dsbishst();
+}
+
+/*******************************************************************************
+ * This function sets the pending status of an interrupt identified by id.
+ ******************************************************************************/
+void gicv2_set_interrupt_pending(unsigned int id)
+{
+	assert(driver_data);
+	assert(driver_data->gicd_base);
+
+	/* SGIs can't be cleared pending */
+	assert(id >= MIN_PPI_ID);
+
+	/*
+	 * Ensure that any shared variable updates depending on out of band
+	 * interrupt trigger are observed before setting interrupt pending.
+	 */
+	dsbishst();
+	gicd_set_ispendr(driver_data->gicd_base, id);
+}

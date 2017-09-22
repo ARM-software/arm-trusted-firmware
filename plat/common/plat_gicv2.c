@@ -262,3 +262,13 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 
 	gicv2_set_spi_routing(id, proc_num);
 }
+
+void plat_ic_set_interrupt_pending(unsigned int id)
+{
+	gicv2_set_interrupt_pending(id);
+}
+
+void plat_ic_clear_interrupt_pending(unsigned int id)
+{
+	gicv2_clear_interrupt_pending(id);
+}
