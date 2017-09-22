@@ -1161,6 +1161,56 @@ In other words, the reset handler should be able to detect whether an action has
 already been performed and act as appropriate. Possible courses of actions are,
 e.g. skip the action the second time, or undo/redo it.
 
+Configuring secure interrupts
+-----------------------------
+
+The GIC driver is responsible for performing initial configuration of secure
+interrupts on the platform. To this end, the platform is expected to provide the
+GIC driver (either GICv2 or GICv3, as selected by the platform) with the
+interrupt configuration during the driver initialisation.
+
+There are two ways to specify secure interrupt configuration:
+
+#. Array of secure interrupt properties: In this scheme, in both GICv2 and GICv3
+   driver data structures, the ``interrupt_props`` member points to an array of
+   interrupt properties. Each element of the array specifies the interrupt
+   number and its configuration, viz. priority, group, configuration. Each
+   element of the array shall be populated by the macro ``INTR_PROP_DESC()``.
+   The macro takes the following arguments:
+
+   -  10-bit interrupt number,
+
+   -  8-bit interrupt priority,
+
+   -  Interrupt type (one of ``INTR_TYPE_EL3``, ``INTR_TYPE_S_EL1``,
+      ``INTR_TYPE_NS``),
+
+   -  Interrupt configuration (either ``GIC_INTR_CFG_LEVEL`` or
+      ``GIC_INTR_CFG_EDGE``).
+
+#. Array of secure interrupts: In this scheme, the GIC driver is provided an
+   array of secure interrupt numbers. The GIC driver, at the time of
+   initialisation, iterates through the array and assigns each interrupt
+   the appropriate group.
+
+   -  For the GICv2 driver, in ``gicv2_driver_data`` structure, the
+      ``g0_interrupt_array`` member of the should point to the array of
+      interrupts to be assigned to *Group 0*, and the ``g0_interrupt_num``
+      member of the should be set to the number of interrupts in the array.
+
+   -  For the GICv3 driver, in ``gicv3_driver_data`` structure:
+
+      -  The ``g0_interrupt_array`` member of the should point to the array of
+         interrupts to be assigned to *Group 0*, and the ``g0_interrupt_num``
+         member of the should be set to the number of interrupts in the array.
+
+      -  The ``g1s_interrupt_array`` member of the should point to the array of
+         interrupts to be assigned to *Group 1 Secure*, and the
+         ``g1s_interrupt_num`` member of the should be set to the number of
+         interrupts in the array.
+
+   **Note that this scheme is deprecated.**
+
 CPU specific operations framework
 ---------------------------------
 

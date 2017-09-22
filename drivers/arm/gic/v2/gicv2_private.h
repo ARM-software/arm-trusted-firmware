@@ -15,12 +15,20 @@
  * Private function prototypes
  ******************************************************************************/
 void gicv2_spis_configure_defaults(uintptr_t gicd_base);
+#if !ERROR_DEPRECATED
 void gicv2_secure_spis_configure(uintptr_t gicd_base,
 				     unsigned int num_ints,
 				     const unsigned int *sec_intr_list);
 void gicv2_secure_ppi_sgi_setup(uintptr_t gicd_base,
 					unsigned int num_ints,
 					const unsigned int *sec_intr_list);
+#endif
+void gicv2_secure_spis_configure_props(uintptr_t gicd_base,
+		const interrupt_prop_t *interrupt_props,
+		unsigned int interrupt_props_num);
+void gicv2_secure_ppi_sgi_setup_props(uintptr_t gicd_base,
+		const interrupt_prop_t *interrupt_props,
+		unsigned int interrupt_props_num);
 unsigned int gicv2_get_cpuif_id(uintptr_t base);
 
 /*******************************************************************************

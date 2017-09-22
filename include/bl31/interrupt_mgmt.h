@@ -98,6 +98,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <stdint.h>
+
 /* Prototype for defining a handler for an interrupt type */
 typedef uint64_t (*interrupt_type_handler_t)(uint32_t id,
 					     uint32_t flags,

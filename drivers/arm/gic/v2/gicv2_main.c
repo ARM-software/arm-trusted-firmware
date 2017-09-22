@@ -10,6 +10,7 @@
 #include <debug.h>
 #include <gic_common.h>
 #include <gicv2.h>
+#include <interrupt_props.h>
 #include <spinlock.h>
 #include "../common/gic_common_private.h"
 #include "gicv2_private.h"
@@ -73,11 +74,21 @@ void gicv2_pcpu_distif_init(void)
 {
 	assert(driver_data);
 	assert(driver_data->gicd_base);
-	assert(driver_data->g0_interrupt_array);
 
-	gicv2_secure_ppi_sgi_setup(driver_data->gicd_base,
-					driver_data->g0_interrupt_num,
-					driver_data->g0_interrupt_array);
+#if !ERROR_DEPRECATED
+	if (driver_data->interrupt_props != NULL) {
+#endif
+		gicv2_secure_ppi_sgi_setup_props(driver_data->gicd_base,
+				driver_data->interrupt_props,
+				driver_data->interrupt_props_num);
+#if !ERROR_DEPRECATED
+	} else {
+		assert(driver_data->g0_interrupt_array);
+		gicv2_secure_ppi_sgi_setup(driver_data->gicd_base,
+				driver_data->g0_interrupt_num,
+				driver_data->g0_interrupt_array);
+	}
+#endif
 }
 
 /*******************************************************************************
@@ -91,7 +102,6 @@ void gicv2_distif_init(void)
 
 	assert(driver_data);
 	assert(driver_data->gicd_base);
-	assert(driver_data->g0_interrupt_array);
 
 	/* Disable the distributor before going further */
 	ctlr = gicd_read_ctlr(driver_data->gicd_base);
@@ -101,10 +111,22 @@ void gicv2_distif_init(void)
 	/* Set the default attribute of all SPIs */
 	gicv2_spis_configure_defaults(driver_data->gicd_base);
 
-	/* Configure the G0 SPIs */
-	gicv2_secure_spis_configure(driver_data->gicd_base,
-					driver_data->g0_interrupt_num,
-					driver_data->g0_interrupt_array);
+#if !ERROR_DEPRECATED
+	if (driver_data->interrupt_props != NULL) {
+#endif
+		gicv2_secure_spis_configure_props(driver_data->gicd_base,
+				driver_data->interrupt_props,
+				driver_data->interrupt_props_num);
+#if !ERROR_DEPRECATED
+	} else {
+		assert(driver_data->g0_interrupt_array);
+
+		/* Configure the G0 SPIs */
+		gicv2_secure_spis_configure(driver_data->gicd_base,
+				driver_data->g0_interrupt_num,
+				driver_data->g0_interrupt_array);
+	}
+#endif
 
 	/* Re-enable the secure SPIs now that they have been configured */
 	gicd_write_ctlr(driver_data->gicd_base, ctlr | CTLR_ENABLE_G0_BIT);
@@ -120,19 +142,26 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 	assert(plat_driver_data->gicd_base);
 	assert(plat_driver_data->gicc_base);
 
-	/*
-	 * The platform should provide a list of atleast one type of
-	 * interrupts
-	 */
-	assert(plat_driver_data->g0_interrupt_array);
+#if !ERROR_DEPRECATED
+	if (plat_driver_data->interrupt_props == NULL) {
+		/* Interrupt properties array size must be 0 */
+		assert(plat_driver_data->interrupt_props_num == 0);
 
-	/*
-	 * If there are no interrupts of a particular type, then the number of
-	 * interrupts of that type should be 0 and vice-versa.
-	 */
-	assert(plat_driver_data->g0_interrupt_array ?
-	       plat_driver_data->g0_interrupt_num :
-	       plat_driver_data->g0_interrupt_num == 0);
+		/* The platform should provide a list of secure interrupts */
+		assert(plat_driver_data->g0_interrupt_array);
+
+		/*
+		 * If there are no interrupts of a particular type, then the
+		 * number of interrupts of that type should be 0 and vice-versa.
+		 */
+		assert(plat_driver_data->g0_interrupt_array ?
+				plat_driver_data->g0_interrupt_num :
+				plat_driver_data->g0_interrupt_num == 0);
+	}
+#else
+	assert(plat_driver_data->interrupt_props != NULL);
+	assert(plat_driver_data->interrupt_props_num > 0);
+#endif
 
 	/* Ensure that this is a GICv2 system */
 	gic_version = gicd_read_pidr2(plat_driver_data->gicd_base);

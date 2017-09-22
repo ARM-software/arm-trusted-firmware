@@ -29,6 +29,10 @@
 /* Constant to indicate a spurious interrupt in all GIC versions */
 #define GIC_SPURIOUS_INTERRUPT		1023
 
+/* Interrupt configurations */
+#define GIC_INTR_CFG_LEVEL		0
+#define GIC_INTR_CFG_EDGE		1
+
 /* Constants to categorise priorities */
 #define GIC_HIGHEST_SEC_PRIORITY	0
 #define GIC_LOWEST_SEC_PRIORITY		127

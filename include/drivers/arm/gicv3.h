@@ -7,8 +7,6 @@
 #ifndef __GICV3_H__
 #define __GICV3_H__
 
-#include "utils_def.h"
-
 /*******************************************************************************
  * GICv3 miscellaneous definitions
  ******************************************************************************/
@@ -212,6 +210,7 @@
 #ifndef __ASSEMBLY__
 
 #include <gic_common.h>
+#include <interrupt_props.h>
 #include <stdint.h>
 #include <types.h>
 #include <utils_def.h>
@@ -251,53 +250,70 @@
  * GICv3 IP. It is used by the platform port to specify these attributes in order
  * to initialise the GICV3 driver. The attributes are described below.
  *
- * 1. The 'gicd_base' field contains the base address of the Distributor
- *    interface programmer's view.
+ * The 'gicd_base' field contains the base address of the Distributor interface
+ * programmer's view.
  *
- * 2. The 'gicr_base' field contains the base address of the Re-distributor
- *    interface programmer's view.
+ * The 'gicr_base' field contains the base address of the Re-distributor
+ * interface programmer's view.
  *
- * 3. The 'g0_interrupt_array' field is a ponter to an array in which each
- *    entry corresponds to an ID of a Group 0 interrupt.
+ * The 'g0_interrupt_array' field is a pointer to an array in which each entry
+ * corresponds to an ID of a Group 0 interrupt. This field is ignored when
+ * 'interrupt_props' field is used. This field is deprecated.
  *
- * 4. The 'g0_interrupt_num' field contains the number of entries in the
- *    'g0_interrupt_array'.
+ * The 'g0_interrupt_num' field contains the number of entries in the
+ * 'g0_interrupt_array'. This field is ignored when 'interrupt_props' field is
+ * used. This field is deprecated.
  *
- * 5. The 'g1s_interrupt_array' field is a ponter to an array in which each
- *    entry corresponds to an ID of a Group 1 interrupt.
+ * The 'g1s_interrupt_array' field is a pointer to an array in which each entry
+ * corresponds to an ID of a Group 1 interrupt. This field is ignored when
+ * 'interrupt_props' field is used. This field is deprecated.
  *
- * 6. The 'g1s_interrupt_num' field contains the number of entries in the
- *    'g1s_interrupt_array'.
+ * The 'g1s_interrupt_num' field contains the number of entries in the
+ * 'g1s_interrupt_array'. This field must be 0 if 'interrupt_props' field is
+ * used. This field is ignored when 'interrupt_props' field is used. This field
+ * is deprecated.
  *
- * 7. The 'rdistif_num' field contains the number of Redistributor interfaces
- *    the GIC implements. This is equal to the number of CPUs or CPU interfaces
- *    instantiated in the GIC.
+ * The 'interrupt_props' field is a pointer to an array that enumerates secure
+ * interrupts and their properties. If this field is not NULL, both
+ * 'g0_interrupt_array' and 'g1s_interrupt_array' fields are ignored.
  *
- * 8. The 'rdistif_base_addrs' field is a pointer to an array that has an entry
- *    for storing the base address of the Redistributor interface frame of each
- *    CPU in the system. The size of the array = 'rdistif_num'. The base
- *    addresses are detected during driver initialisation.
+ * The 'interrupt_props_num' field contains the number of entries in the
+ * 'interrupt_props' array. If this field is non-zero, both 'g0_interrupt_num'
+ * and 'g1s_interrupt_num' are ignored.
  *
- * 9. The 'mpidr_to_core_pos' field is a pointer to a hash function which the
- *    driver will use to convert an MPIDR value to a linear core index. This
- *    index will be used for accessing the 'rdistif_base_addrs' array. This is
- *    an optional field. A GICv3 implementation maps each MPIDR to a linear core
- *    index as well. This mapping can be found by reading the "Affinity Value"
- *    and "Processor Number" fields in the GICR_TYPER. It is IMP. DEF. if the
- *    "Processor Numbers" are suitable to index into an array to access core
- *    specific information. If this not the case, the platform port must provide
- *    a hash function. Otherwise, the "Processor Number" field will be used to
- *    access the array elements.
+ * The 'rdistif_num' field contains the number of Redistributor interfaces the
+ * GIC implements. This is equal to the number of CPUs or CPU interfaces
+ * instantiated in the GIC.
+ *
+ * The 'rdistif_base_addrs' field is a pointer to an array that has an entry for
+ * storing the base address of the Redistributor interface frame of each CPU in
+ * the system. The size of the array = 'rdistif_num'. The base addresses are
+ * detected during driver initialisation.
+ *
+ * The 'mpidr_to_core_pos' field is a pointer to a hash function which the
+ * driver will use to convert an MPIDR value to a linear core index. This index
+ * will be used for accessing the 'rdistif_base_addrs' array. This is an
+ * optional field. A GICv3 implementation maps each MPIDR to a linear core index
+ * as well. This mapping can be found by reading the "Affinity Value" and
+ * "Processor Number" fields in the GICR_TYPER. It is IMP. DEF. if the
+ * "Processor Numbers" are suitable to index into an array to access core
+ * specific information. If this not the case, the platform port must provide a
+ * hash function. Otherwise, the "Processor Number" field will be used to access
+ * the array elements.
  ******************************************************************************/
 typedef unsigned int (*mpidr_hash_fn)(u_register_t mpidr);
 
 typedef struct gicv3_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicr_base;
+#if !ERROR_DEPRECATED
 	unsigned int g0_interrupt_num;
 	unsigned int g1s_interrupt_num;
 	const unsigned int *g0_interrupt_array;
 	const unsigned int *g1s_interrupt_array;
+#endif
+	const interrupt_prop_t *interrupt_props;
+	unsigned int interrupt_props_num;
 	unsigned int rdistif_num;
 	uintptr_t *rdistif_base_addrs;
 	mpidr_hash_fn mpidr_to_core_pos;
