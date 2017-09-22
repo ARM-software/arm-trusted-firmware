@@ -272,3 +272,8 @@ void plat_ic_clear_interrupt_pending(unsigned int id)
 {
 	gicv2_clear_interrupt_pending(id);
 }
+
+unsigned int plat_ic_set_priority_mask(unsigned int mask)
+{
+	return gicv2_set_pmr(mask);
+}

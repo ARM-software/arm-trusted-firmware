@@ -266,6 +266,11 @@ void plat_ic_clear_interrupt_pending(unsigned int id)
 	assert(id >= MIN_PPI_ID);
 	gicv3_clear_interrupt_pending(id, plat_my_core_pos());
 }
+
+unsigned int plat_ic_set_priority_mask(unsigned int mask)
+{
+	return gicv3_set_pmr(mask);
+}
 #endif
 #ifdef IMAGE_BL32
 

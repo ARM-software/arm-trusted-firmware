@@ -1089,3 +1089,25 @@ void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num)
 		gicd_set_ispendr(gicv3_driver_data->gicd_base, id);
 	}
 }
+
+/*******************************************************************************
+ * This function sets the PMR register with the supplied value. Returns the
+ * original PMR.
+ ******************************************************************************/
+unsigned int gicv3_set_pmr(unsigned int mask)
+{
+	unsigned int old_mask;
+
+	old_mask = read_icc_pmr_el1();
+
+	/*
+	 * Order memory updates w.r.t. PMR write, and ensure they're visible
+	 * before potential out of band interrupt trigger because of PMR update.
+	 * PMR system register writes are self-synchronizing, so no ISB required
+	 * thereafter.
+	 */
+	dsbishst();
+	write_icc_pmr_el1(mask);
+
+	return old_mask;
+}

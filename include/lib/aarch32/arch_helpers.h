@@ -213,6 +213,7 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dmb, ishst)
 DEFINE_SYSOP_FUNC(isb)
 
 void __dead2 smc(uint32_t r0, uint32_t r1, uint32_t r2, uint32_t r3,

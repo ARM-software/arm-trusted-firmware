@@ -274,6 +274,24 @@ In case of ARM standard platforms using GIC, the implementation of the API
 writes to the GIC *Clear Pending Register* to clear the interrupt pending
 status, and inserts barrier to make memory updates visible afterwards.
 
+Function: unsigned int plat_ic_set_priority_mask(unsigned int id); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : int
+
+This API should set the priority mask (first parameter) in the interrupt
+controller such that only interrupts of higher priority than the supplied one
+may be signalled to the PE. The API should return the current priority value
+that it's overwriting.
+
+In case of ARM standard platforms using GIC, the implementation of the API
+inserts to order memory updates before updating mask, then writes to the GIC
+*Priority Mask Register*, and make sure memory updates are visible before
+potential trigger due to mask update.
+
 ----
 
 *Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*

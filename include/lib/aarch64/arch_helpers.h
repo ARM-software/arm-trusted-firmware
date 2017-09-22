@@ -204,6 +204,7 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dmb, ishst)
 DEFINE_SYSOP_FUNC(isb)
 
 uint32_t get_afflvl_shift(uint32_t);

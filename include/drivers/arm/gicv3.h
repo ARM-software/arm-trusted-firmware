@@ -389,6 +389,7 @@ void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
 		u_register_t mpidr);
 void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num);
 void gicv3_clear_interrupt_pending(unsigned int id, unsigned int proc_num);
+unsigned int gicv3_set_pmr(unsigned int mask);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */

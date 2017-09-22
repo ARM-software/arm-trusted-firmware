@@ -476,3 +476,27 @@ void gicv2_set_interrupt_pending(unsigned int id)
 	dsbishst();
 	gicd_set_ispendr(driver_data->gicd_base, id);
 }
+
+/*******************************************************************************
+ * This function sets the PMR register with the supplied value. Returns the
+ * original PMR.
+ ******************************************************************************/
+unsigned int gicv2_set_pmr(unsigned int mask)
+{
+	unsigned int old_mask;
+
+	assert(driver_data);
+	assert(driver_data->gicc_base);
+
+	old_mask = gicc_read_pmr(driver_data->gicc_base);
+
+	/*
+	 * Order memory updates w.r.t. PMR write, and ensure they're visible
+	 * before potential out of band interrupt trigger because of PMR update.
+	 */
+	dmbishst();
+	gicc_write_pmr(driver_data->gicc_base, mask);
+	dsbishst();
+
+	return old_mask;
+}

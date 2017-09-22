@@ -87,6 +87,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		u_register_t mpidr);
 void plat_ic_set_interrupt_pending(unsigned int id);
 void plat_ic_clear_interrupt_pending(unsigned int id);
+unsigned int plat_ic_set_priority_mask(unsigned int mask);
 
 /*******************************************************************************
  * Optional common functions (may be overridden)
