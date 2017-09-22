@@ -77,5 +77,6 @@ unsigned int gicd_get_isactiver(uintptr_t base, unsigned int id);
 void gicd_set_isactiver(uintptr_t base, unsigned int id);
 void gicd_set_icactiver(uintptr_t base, unsigned int id);
 void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri);
+void gicd_set_icfgr(uintptr_t base, unsigned int id, unsigned int cfg);
 
 #endif /* GIC_COMMON_PRIVATE_H_ */

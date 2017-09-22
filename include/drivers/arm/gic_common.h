@@ -23,6 +23,9 @@
 /* Mask for the priority field common to all GIC interfaces */
 #define GIC_PRI_MASK			0xff
 
+/* Mask for the configuration field common to all GIC interfaces */
+#define GIC_CFG_MASK			0x3
+
 /* Constant to indicate a spurious interrupt in all GIC versions */
 #define GIC_SPURIOUS_INTERRUPT		1023
 

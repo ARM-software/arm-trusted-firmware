@@ -299,3 +299,15 @@ void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 {
 	mmio_write_8(base + GICD_IPRIORITYR + id, pri & GIC_PRI_MASK);
 }
+
+void gicd_set_icfgr(uintptr_t base, unsigned int id, unsigned int cfg)
+{
+	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	uint32_t reg_val = gicd_read_icfgr(base, id);
+
+	/* Clear the field, and insert required configuration */
+	reg_val &= ~(GIC_CFG_MASK << bit_num);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+
+	gicd_write_icfgr(base, id, reg_val);
+}

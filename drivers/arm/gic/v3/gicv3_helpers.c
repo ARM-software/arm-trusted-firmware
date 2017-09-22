@@ -225,6 +225,38 @@ void gicr_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 	mmio_write_8(base + GICR_IPRIORITYR + id, pri & GIC_PRI_MASK);
 }
 
+/*
+ * Accessor to set the bit fields corresponding to interrupt ID
+ * in GIC Re-distributor ICFGR0.
+ */
+void gicr_set_icfgr0(uintptr_t base, unsigned int id, unsigned int cfg)
+{
+	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	uint32_t reg_val = gicr_read_icfgr0(base);
+
+	/* Clear the field, and insert required configuration */
+	reg_val &= ~(GIC_CFG_MASK << bit_num);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+
+	gicr_write_icfgr0(base, reg_val);
+}
+
+/*
+ * Accessor to set the bit fields corresponding to interrupt ID
+ * in GIC Re-distributor ICFGR1.
+ */
+void gicr_set_icfgr1(uintptr_t base, unsigned int id, unsigned int cfg)
+{
+	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	uint32_t reg_val = gicr_read_icfgr1(base);
+
+	/* Clear the field, and insert required configuration */
+	reg_val &= ~(GIC_CFG_MASK << bit_num);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+
+	gicr_write_icfgr1(base, reg_val);
+}
+
 /******************************************************************************
  * This function marks the core as awake in the re-distributor and
  * ensures that the interface is active.
