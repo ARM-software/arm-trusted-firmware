@@ -40,7 +40,7 @@
  * the number of power domains at the highest power level.
  *******************************************************************************
  */
-const uint8_t tegra_power_domain_tree_desc[] = {
+static const uint8_t tegra_power_domain_tree_desc[] = {
 	/* No of root nodes */
 	1,
 	/* No of clusters */
