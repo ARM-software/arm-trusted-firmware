@@ -202,7 +202,7 @@
 			GIC_INTR_CFG_EDGE)
 
 #define ARM_G0_IRQ_PROPS(grp) \
-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, PLAT_SDEI_NORMAL_PRI, grp, \
 			GIC_INTR_CFG_EDGE), \
 	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE)
@@ -460,5 +460,18 @@
 
 /* ARM platforms use 3 upper bits of secure interrupt priority */
 #define ARM_PRI_BITS			3
+
+/* SGI used for SDEI signalling */
+#define ARM_SDEI_SGI			ARM_IRQ_SEC_SGI_0
+
+/* ARM SDEI dynamic private event numbers */
+#define ARM_SDEI_DP_EVENT_0		1000
+#define ARM_SDEI_DP_EVENT_1		1001
+#define ARM_SDEI_DP_EVENT_2		1002
+
+/* ARM SDEI dynamic shared event numbers */
+#define ARM_SDEI_DS_EVENT_0		2000
+#define ARM_SDEI_DS_EVENT_1		2001
+#define ARM_SDEI_DS_EVENT_2		2002
 
 #endif /* __ARM_DEF_H__ */
