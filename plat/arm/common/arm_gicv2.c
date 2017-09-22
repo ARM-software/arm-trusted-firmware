@@ -23,9 +23,9 @@
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
  * interrupts.
  *****************************************************************************/
-static const unsigned int g0_interrupt_array[] = {
-	PLAT_ARM_G1S_IRQS,
-	PLAT_ARM_G0_IRQS
+static const interrupt_prop_t arm_interrupt_props[] = {
+	PLAT_ARM_G1S_IRQ_PROPS(GICV2_INTR_GROUP0),
+	PLAT_ARM_G0_IRQ_PROPS(GICV2_INTR_GROUP0)
 };
 
 static unsigned int target_mask_array[PLATFORM_CORE_COUNT];
@@ -33,8 +33,8 @@ static unsigned int target_mask_array[PLATFORM_CORE_COUNT];
 static const gicv2_driver_data_t arm_gic_data = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicc_base = PLAT_ARM_GICC_BASE,
-	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
-	.g0_interrupt_array = g0_interrupt_array,
+	.interrupt_props = arm_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(arm_interrupt_props),
 	.target_masks = target_mask_array,
 	.target_masks_num = ARRAY_SIZE(target_mask_array),
 };

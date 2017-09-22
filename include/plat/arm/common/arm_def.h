@@ -8,6 +8,8 @@
 
 #include <arch.h>
 #include <common_def.h>
+#include <gic_common.h>
+#include <interrupt_props.h>
 #include <platform_def.h>
 #include <tbbr_img_def.h>
 #include <utils_def.h>
@@ -152,9 +154,8 @@
 #define ARM_IRQ_SEC_SGI_7		15
 
 /*
- * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
- * terminology. On a GICv2 system or mode, the lists will be merged and treated
- * as Group 0 interrupts.
+ * List of secure interrupts are deprecated, but are retained only to support
+ * legacy configurations.
  */
 #define ARM_G1S_IRQS			ARM_IRQ_SEC_PHY_TIMER,		\
 					ARM_IRQ_SEC_SGI_1,		\
@@ -166,6 +167,33 @@
 
 #define ARM_G0_IRQS			ARM_IRQ_SEC_SGI_0,		\
 					ARM_IRQ_SEC_SGI_6
+
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupt properties as per GICv3
+ * terminology. On a GICv2 system or mode, the lists will be merged and treated
+ * as Group 0 interrupts.
+ */
+#define ARM_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(ARM_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE)
+
+#define ARM_G0_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE)
 
 #define ARM_MAP_SHARED_RAM		MAP_REGION_FLAT(		\
 						ARM_SHARED_RAM_BASE,	\

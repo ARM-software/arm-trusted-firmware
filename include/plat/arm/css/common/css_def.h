@@ -8,6 +8,8 @@
 #define __CSS_DEF_H__
 
 #include <arm_def.h>
+#include <gic_common.h>
+#include <interrupt_props.h>
 #include <tzc400.h>
 
 /*************************************************************************
@@ -41,14 +43,21 @@
 #define MHU_CPU_INTR_S_SET_OFFSET	0x308
 
 /*
- * Define a list of Group 1 Secure interrupts as per GICv3 terminology. On a
- * GICv2 system or mode, the interrupts will be treated as Group 0 interrupts.
+ * Define a list of Group 1 Secure interrupt properties as per GICv3
+ * terminology. On a GICv2 system or mode, the interrupts will be treated as
+ * Group 0 interrupts.
  */
-#define CSS_G1S_IRQS			CSS_IRQ_MHU,		\
-					CSS_IRQ_GPU_SMMU_0,	\
-					CSS_IRQ_TZC,		\
-					CSS_IRQ_TZ_WDOG,	\
-					CSS_IRQ_SEC_SYS_TIMER
+#define CSS_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(CSS_IRQ_MHU, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL), \
+	INTR_PROP_DESC(CSS_IRQ_GPU_SMMU_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL), \
+	INTR_PROP_DESC(CSS_IRQ_TZC, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL), \
+	INTR_PROP_DESC(CSS_IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL), \
+	INTR_PROP_DESC(CSS_IRQ_SEC_SYS_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL)
 
 #if CSS_USE_SCMI_SDS_DRIVER
 /* Memory region for shared data storage */

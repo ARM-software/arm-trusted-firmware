@@ -1,11 +1,14 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef __GIC_V2_H__
 #define __GIC_V2_H__
+
+/* The macros required here are additional to those in gic_common.h. */
+#include <gic_common.h>
 
 /******************************************************************************
  * THIS DRIVER IS DEPRECATED. For GICv2 systems, use the driver in gicv2.h
@@ -19,50 +22,20 @@
 #define MAX_PPIS		U(14)
 #define MAX_SGIS		U(16)
 
-#define MIN_SGI_ID		U(0)
-#define MIN_PPI_ID		U(16)
-#define MIN_SPI_ID		U(32)
 
 #define GRP0			U(0)
 #define GRP1			U(1)
-#define GIC_PRI_MASK		U(0xff)
-#define GIC_HIGHEST_SEC_PRIORITY U(0)
-#define GIC_LOWEST_SEC_PRIORITY	U(127)
-#define GIC_HIGHEST_NS_PRIORITY	U(128)
-#define GIC_LOWEST_NS_PRIORITY	U(254) /* 255 would disable an interrupt */
-#define GIC_SPURIOUS_INTERRUPT	U(1023)
 #define GIC_TARGET_CPU_MASK	U(0xff)
 
 #define ENABLE_GRP0		(U(1) << 0)
 #define ENABLE_GRP1		(U(1) << 1)
 
 /* Distributor interface definitions */
-#define GICD_CTLR		U(0x0)
-#define GICD_TYPER		U(0x4)
-#define GICD_IGROUPR		U(0x80)
-#define GICD_ISENABLER		U(0x100)
-#define GICD_ICENABLER		U(0x180)
-#define GICD_ISPENDR		U(0x200)
-#define GICD_ICPENDR		U(0x280)
-#define GICD_ISACTIVER		U(0x300)
-#define GICD_ICACTIVER		U(0x380)
-#define GICD_IPRIORITYR		U(0x400)
 #define GICD_ITARGETSR		U(0x800)
-#define GICD_ICFGR		U(0xC00)
 #define GICD_SGIR		U(0xF00)
 #define GICD_CPENDSGIR		U(0xF10)
 #define GICD_SPENDSGIR		U(0xF20)
 
-#define IGROUPR_SHIFT		U(5)
-#define ISENABLER_SHIFT		U(5)
-#define ICENABLER_SHIFT		ISENABLER_SHIFT
-#define ISPENDR_SHIFT		U(5)
-#define ICPENDR_SHIFT		ISPENDR_SHIFT
-#define ISACTIVER_SHIFT		U(5)
-#define ICACTIVER_SHIFT		ISACTIVER_SHIFT
-#define IPRIORITYR_SHIFT	U(2)
-#define ITARGETSR_SHIFT		U(2)
-#define ICFGR_SHIFT		U(4)
 #define CPENDSGIR_SHIFT		U(2)
 #define SPENDSGIR_SHIFT		CPENDSGIR_SHIFT
 
