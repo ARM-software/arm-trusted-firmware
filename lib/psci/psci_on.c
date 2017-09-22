@@ -11,6 +11,7 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <platform.h>
+#include <pubsub_events.h>
 #include <stddef.h>
 #include "psci_private.h"
 
@@ -187,6 +188,8 @@ void psci_cpu_on_finish(unsigned int cpu_idx,
 	 */
 	if (psci_spd_pm && psci_spd_pm->svc_on_finish)
 		psci_spd_pm->svc_on_finish(0);
+
+	PUBLISH_EVENT(psci_cpu_on_finish);
 
 	/* Populate the mpidr field within the cpu node array */
 	/* This needs to be done only once */

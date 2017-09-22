@@ -2339,6 +2339,22 @@ implement:
 
    SUBSCRIBE_TO_EVENT(foo, foo_handler);
 
+Available Events
+~~~~~~~~~~~~~~~~
+
+ARM Trusted Firmware core makes some events available by default. They're listed
+below, along with information as to when they're published, and the arguments
+passed to subscribed handlers.
+
+Other EL3 components that are conditionally compiled in may make their own
+events available, but aren't documented here.
+
+-  ``psci_cpu_on_finish``
+
+   - When: Published on a PE after it's finished its power-up sequence.
+
+   - Argument: ``NULL``.
+
 Performance Measurement Framework
 ---------------------------------
 
