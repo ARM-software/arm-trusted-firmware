@@ -12,6 +12,7 @@
 #include <console.h>
 #include <context_mgmt.h>
 #include <debug.h>
+#include <ehf.h>
 #include <platform.h>
 #include <pmf.h>
 #include <runtime_instr.h>
@@ -78,6 +79,11 @@ void bl31_main(void)
 
 	/* Initialise helper libraries */
 	bl31_lib_init();
+
+#if EL3_EXCEPTION_HANDLING
+	INFO("BL31: Initialising Exception Handling Framework\n");
+	ehf_init();
+#endif
 
 	/* Initialize the runtime services e.g. psci. */
 	INFO("BL31: Initializing runtime services\n");

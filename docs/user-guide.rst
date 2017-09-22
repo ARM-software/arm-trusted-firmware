@@ -361,6 +361,11 @@ Common build options
    Firmware as error. It can take the value 1 (flag the use of deprecated
    APIs as error) or 0. The default is 0.
 
+-  ``EL3_EXCEPTION_HANDLING``: When set to ``1``, enable handling of exceptions
+   targeted at EL3. When set ``0`` (default), no exceptions are expected or
+   handled at EL3, and a panic will result. This is supported only for AArch64
+   builds.
+
 -  ``FIP_NAME``: This is an optional build option which specifies the FIP
    filename for the ``fip`` target. Default is ``fip.bin``.
 

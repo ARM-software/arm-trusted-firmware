@@ -32,6 +32,10 @@ ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
+ifeq (${EL3_EXCEPTION_HANDLING},1)
+BL31_SOURCES		+=	bl31/ehf.c
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
@@ -41,4 +45,7 @@ CRASH_REPORTING		:=	$(DEBUG)
 endif
 
 $(eval $(call assert_boolean,CRASH_REPORTING))
+$(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
+
 $(eval $(call add_define,CRASH_REPORTING))
+$(eval $(call add_define,EL3_EXCEPTION_HANDLING))
