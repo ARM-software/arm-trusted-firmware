@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,8 @@
 #pragma weak plat_ic_get_interrupt_type
 #pragma weak plat_ic_end_of_interrupt
 #pragma weak plat_interrupt_type_to_line
+
+#pragma weak plat_ic_get_running_priority
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -121,4 +123,9 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 	 */
 	return ((gicv2_is_fiq_enabled()) ? __builtin_ctz(SCR_FIQ_BIT) :
 						__builtin_ctz(SCR_IRQ_BIT));
+}
+
+unsigned int plat_ic_get_running_priority(void)
+{
+	return gicv2_get_running_priority();
 }

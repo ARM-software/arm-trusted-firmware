@@ -769,3 +769,12 @@ void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 	gicd_wait_for_pending_write(gicd_base);
 
 }
+
+/*******************************************************************************
+ * This function gets the priority of the interrupt the processor is currently
+ * servicing.
+ ******************************************************************************/
+unsigned int gicv3_get_running_priority(void)
+{
+	return read_icc_rpr_el1();
+}

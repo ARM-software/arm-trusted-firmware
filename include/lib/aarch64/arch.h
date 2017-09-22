@@ -68,6 +68,7 @@
 #define ICC_CTLR_EL1    S3_0_C12_C12_4
 #define ICC_CTLR_EL3    S3_6_C12_C12_4
 #define ICC_PMR_EL1     S3_0_C4_C6_0
+#define ICC_RPR_EL1     S3_0_C12_C11_3
 #define ICC_IGRPEN1_EL3 S3_6_c12_c12_7
 #define ICC_IGRPEN0_EL1 S3_0_c12_c12_6
 #define ICC_HPPIR0_EL1  S3_0_c12_c8_2

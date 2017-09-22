@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,8 @@
 #pragma weak plat_ic_get_interrupt_type
 #pragma weak plat_ic_end_of_interrupt
 #pragma weak plat_interrupt_type_to_line
+
+#pragma weak plat_ic_get_running_priority
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -155,6 +157,12 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 		return __builtin_ctz(SCR_FIQ_BIT);
 	}
 }
+
+unsigned int plat_ic_get_running_priority(void)
+{
+	return gicv3_get_running_priority();
+}
+
 #endif
 #ifdef IMAGE_BL32
 

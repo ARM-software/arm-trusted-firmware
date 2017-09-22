@@ -240,3 +240,15 @@ unsigned int gicv2_get_interrupt_group(unsigned int id)
 
 	return gicd_get_igroupr(driver_data->gicd_base, id);
 }
+
+/*******************************************************************************
+ * This function returns the priority of the interrupt the processor is
+ * currently servicing.
+ ******************************************************************************/
+unsigned int gicv2_get_running_priority(void)
+{
+	assert(driver_data);
+	assert(driver_data->gicc_base);
+
+	return gicc_read_rpr(driver_data->gicc_base);
+}

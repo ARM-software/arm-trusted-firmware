@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -78,6 +78,11 @@ static inline unsigned int gicc_read_dir(uintptr_t base)
 static inline unsigned int gicc_read_iidr(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_IIDR);
+}
+
+static inline unsigned int gicc_read_rpr(uintptr_t base)
+{
+	return mmio_read_32(base + GICC_RPR);
 }
 
 /*******************************************************************************

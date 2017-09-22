@@ -2289,6 +2289,10 @@ Standard layer to use GICv2 and the FVP can be configured to use either GICv2 or
 GICv3 depending on the build flag ``FVP_USE_GIC_DRIVER`` (See FVP platform
 specific build options in `User Guide`_ for more details).
 
+See also: `Interrupt Controller Abstraction APIs`__.
+
+.. __: platform-interrupt-controller-API.rst
+
 Function : plat\_interrupt\_type\_to\_line() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2636,7 +2640,7 @@ amount of open resources per driver.
 
 --------------
 
-*Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
 
 .. _Migration Guide: platform-migration-guide.rst
 .. _include/plat/common/platform.h: ../include/plat/common/platform.h

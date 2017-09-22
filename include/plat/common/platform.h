@@ -70,6 +70,11 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 				     uint32_t security_state);
 
 /*******************************************************************************
+ * Optional interrupt management functions, depending on chosen EL3 components.
+ ******************************************************************************/
+unsigned int plat_ic_get_running_priority(void);
+
+/*******************************************************************************
  * Optional common functions (may be overridden)
  ******************************************************************************/
 uintptr_t plat_get_my_stack(void);
