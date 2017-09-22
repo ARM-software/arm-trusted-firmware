@@ -350,6 +350,7 @@ void gicv3_its_save_disable(uintptr_t gits_base, gicv3_its_ctx_t * const its_ctx
 void gicv3_its_restore(uintptr_t gits_base, const gicv3_its_ctx_t * const its_ctx);
 
 unsigned int gicv3_get_running_priority(void);
+unsigned int gicv3_get_interrupt_active(unsigned int id, unsigned int proc_num);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */

@@ -66,6 +66,21 @@ as a Software Generated Interrupt. Software Generated Interrupts are raised by
 explicit programming by software, and are typically used in inter-PE
 communication. Secure SGIs are reserved for use by Secure world software.
 
+Function: unsigned int plat_ic_get_interrupt_active(unsigned int id); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : int
+
+This API should return the *active* status of the interrupt ID specified by the
+first parameter, ``id``.
+
+In case of ARM standard platforms using GIC, the implementation of the API reads
+the GIC *Set Active Register* to read and return the active status of the
+interrupt.
+
 ----
 
 *Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*

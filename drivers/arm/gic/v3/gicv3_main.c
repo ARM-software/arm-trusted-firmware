@@ -778,3 +778,30 @@ unsigned int gicv3_get_running_priority(void)
 {
 	return read_icc_rpr_el1();
 }
+
+/*******************************************************************************
+ * This function checks if the interrupt identified by id is active (whether the
+ * state is either active, or active and pending). The proc_num is used if the
+ * interrupt is SGI or PPI and programs the corresponding Redistributor
+ * interface.
+ ******************************************************************************/
+unsigned int gicv3_get_interrupt_active(unsigned int id, unsigned int proc_num)
+{
+	unsigned int value;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		value = gicr_get_isactiver0(
+				gicv3_driver_data->rdistif_base_addrs[proc_num], id);
+	} else {
+		value = gicd_get_isactiver(gicv3_driver_data->gicd_base, id);
+	}
+
+	return value;
+}

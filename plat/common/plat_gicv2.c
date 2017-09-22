@@ -24,6 +24,7 @@
 #pragma weak plat_ic_is_spi
 #pragma weak plat_ic_is_ppi
 #pragma weak plat_ic_is_sgi
+#pragma weak plat_ic_get_interrupt_active
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -146,4 +147,9 @@ int plat_ic_is_ppi(unsigned int id)
 int plat_ic_is_sgi(unsigned int id)
 {
 	return (id >= MIN_SGI_ID) && (id < MIN_PPI_ID);
+}
+
+unsigned int plat_ic_get_interrupt_active(unsigned int id)
+{
+	return gicv2_get_interrupt_active(id);
 }

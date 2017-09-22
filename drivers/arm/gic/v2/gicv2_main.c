@@ -275,3 +275,16 @@ void gicv2_set_pe_target_mask(unsigned int proc_num)
 	driver_data->target_masks[proc_num] =
 		gicv2_get_cpuif_id(driver_data->gicd_base);
 }
+
+/*******************************************************************************
+ * This function returns the active status of the interrupt (either because the
+ * state is active, or active and pending).
+ ******************************************************************************/
+unsigned int gicv2_get_interrupt_active(unsigned int id)
+{
+	assert(driver_data);
+	assert(driver_data->gicd_base);
+	assert(id <= MAX_SPI_ID);
+
+	return gicd_get_isactiver(driver_data->gicd_base, id);
+}

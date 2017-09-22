@@ -67,6 +67,7 @@ void gicr_write_ipriorityr(uintptr_t base, unsigned int id, unsigned int val);
 unsigned int gicd_get_igrpmodr(uintptr_t base, unsigned int id);
 unsigned int gicr_get_igrpmodr0(uintptr_t base, unsigned int id);
 unsigned int gicr_get_igroupr0(uintptr_t base, unsigned int id);
+unsigned int gicr_get_isactiver0(uintptr_t base, unsigned int id);
 void gicd_set_igrpmodr(uintptr_t base, unsigned int id);
 void gicr_set_igrpmodr0(uintptr_t base, unsigned int id);
 void gicr_set_isenabler0(uintptr_t base, unsigned int id);

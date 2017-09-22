@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,6 +73,7 @@ void gicd_set_isenabler(uintptr_t base, unsigned int id);
 void gicd_set_icenabler(uintptr_t base, unsigned int id);
 void gicd_set_ispendr(uintptr_t base, unsigned int id);
 void gicd_set_icpendr(uintptr_t base, unsigned int id);
+unsigned int gicd_get_isactiver(uintptr_t base, unsigned int id);
 void gicd_set_isactiver(uintptr_t base, unsigned int id);
 void gicd_set_icactiver(uintptr_t base, unsigned int id);
 void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri);
