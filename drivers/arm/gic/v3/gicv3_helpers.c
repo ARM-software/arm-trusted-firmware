@@ -173,6 +173,17 @@ void gicr_set_isenabler0(uintptr_t base, unsigned int id)
 
 /*
  * Accessor to set the bit corresponding to interrupt ID in GIC Re-distributor
+ * ICENABLER0.
+ */
+void gicr_set_icenabler0(uintptr_t base, unsigned int id)
+{
+	unsigned bit_num = id & ((1 << ICENABLER_SHIFT) - 1);
+
+	gicr_write_icenabler0(base, (1 << bit_num));
+}
+
+/*
+ * Accessor to set the bit corresponding to interrupt ID in GIC Re-distributor
  * ISACTIVER0.
  */
 unsigned int gicr_get_isactiver0(uintptr_t base, unsigned int id)

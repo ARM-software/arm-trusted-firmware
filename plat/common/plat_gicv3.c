@@ -31,6 +31,8 @@
 #pragma weak plat_ic_is_ppi
 #pragma weak plat_ic_is_sgi
 #pragma weak plat_ic_get_interrupt_active
+#pragma weak plat_ic_enable_interrupt
+#pragma weak plat_ic_disable_interrupt
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -185,6 +187,16 @@ int plat_ic_is_sgi(unsigned int id)
 unsigned int plat_ic_get_interrupt_active(unsigned int id)
 {
 	return gicv3_get_interrupt_active(id, plat_my_core_pos());
+}
+
+void plat_ic_enable_interrupt(unsigned int id)
+{
+	gicv3_enable_interrupt(id, plat_my_core_pos());
+}
+
+void plat_ic_disable_interrupt(unsigned int id)
+{
+	gicv3_disable_interrupt(id, plat_my_core_pos());
 }
 #endif
 #ifdef IMAGE_BL32

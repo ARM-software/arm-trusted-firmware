@@ -805,3 +805,67 @@ unsigned int gicv3_get_interrupt_active(unsigned int id, unsigned int proc_num)
 
 	return value;
 }
+
+/*******************************************************************************
+ * This function enables the interrupt identified by id. The proc_num
+ * is used if the interrupt is SGI or PPI, and programs the corresponding
+ * Redistributor interface.
+ ******************************************************************************/
+void gicv3_enable_interrupt(unsigned int id, unsigned int proc_num)
+{
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	/*
+	 * Ensure that any shared variable updates depending on out of band
+	 * interrupt trigger are observed before enabling interrupt.
+	 */
+	dsbishst();
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		gicr_set_isenabler0(
+				gicv3_driver_data->rdistif_base_addrs[proc_num],
+				id);
+	} else {
+		gicd_set_isenabler(gicv3_driver_data->gicd_base, id);
+	}
+}
+
+/*******************************************************************************
+ * This function disables the interrupt identified by id. The proc_num
+ * is used if the interrupt is SGI or PPI, and programs the corresponding
+ * Redistributor interface.
+ ******************************************************************************/
+void gicv3_disable_interrupt(unsigned int id, unsigned int proc_num)
+{
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	/*
+	 * Disable interrupt, and ensure that any shared variable updates
+	 * depending on out of band interrupt trigger are observed afterwards.
+	 */
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		gicr_set_icenabler0(
+				gicv3_driver_data->rdistif_base_addrs[proc_num],
+				id);
+
+		/* Write to clear enable requires waiting for pending writes */
+		gicr_wait_for_pending_write(
+				gicv3_driver_data->rdistif_base_addrs[proc_num]);
+	} else {
+		gicd_set_icenabler(gicv3_driver_data->gicd_base, id);
+
+		/* Write to clear enable requires waiting for pending writes */
+		gicd_wait_for_pending_write(gicv3_driver_data->gicd_base);
+	}
+
+	dsbishst();
+}
