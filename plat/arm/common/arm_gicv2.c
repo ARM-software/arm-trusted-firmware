@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,11 +28,15 @@ static const unsigned int g0_interrupt_array[] = {
 	PLAT_ARM_G0_IRQS
 };
 
+static unsigned int target_mask_array[PLATFORM_CORE_COUNT];
+
 static const gicv2_driver_data_t arm_gic_data = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicc_base = PLAT_ARM_GICC_BASE,
 	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
 	.g0_interrupt_array = g0_interrupt_array,
+	.target_masks = target_mask_array,
+	.target_masks_num = ARRAY_SIZE(target_mask_array),
 };
 
 /******************************************************************************
@@ -72,6 +76,7 @@ void plat_arm_gic_cpuif_disable(void)
 void plat_arm_gic_pcpu_init(void)
 {
 	gicv2_pcpu_distif_init();
+	gicv2_set_pe_target_mask(plat_my_core_pos());
 }
 
 /******************************************************************************
