@@ -77,6 +77,10 @@ FWU_FIP_NAME			:= fwu_fip.bin
 # For Chain of Trust
 GENERATE_COT			:= 0
 
+# Hint platform interrupt control layer that Group 0 interrupts are for EL3. By
+# default, they are for Secure EL1.
+GICV2_G0_FOR_EL3		:= 0
+
 # Whether system coherency is managed in hardware, without explicit software
 # operations.
 HW_ASSISTED_COHERENCY		:= 0

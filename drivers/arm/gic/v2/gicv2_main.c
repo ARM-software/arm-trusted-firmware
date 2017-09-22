@@ -10,10 +10,18 @@
 #include <debug.h>
 #include <gic_common.h>
 #include <gicv2.h>
+#include <spinlock.h>
 #include "../common/gic_common_private.h"
 #include "gicv2_private.h"
 
 static const gicv2_driver_data_t *driver_data;
+
+/*
+ * Spinlock to guard registers needing read-modify-write. APIs protected by this
+ * spinlock are used either at boot time (when only a single CPU is active), or
+ * when the system is fully coherent.
+ */
+spinlock_t gic_lock;
 
 /*******************************************************************************
  * Enable secure interrupts and use FIQs to route them. Disable legacy bypass
@@ -334,4 +342,29 @@ void gicv2_set_interrupt_priority(unsigned int id, unsigned int priority)
 	assert(id <= MAX_SPI_ID);
 
 	gicd_set_ipriorityr(driver_data->gicd_base, id, priority);
+}
+
+/*******************************************************************************
+ * This function assigns group for the interrupt identified by id. The group can
+ * be any of GICV2_INTR_GROUP*
+ ******************************************************************************/
+void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
+{
+	assert(driver_data);
+	assert(driver_data->gicd_base);
+	assert(id <= MAX_SPI_ID);
+
+	/* Serialize read-modify-write to Distributor registers */
+	spin_lock(&gic_lock);
+	switch (type) {
+	case GICV2_INTR_GROUP1:
+		gicd_set_igroupr(driver_data->gicd_base, id);
+		break;
+	case GICV2_INTR_GROUP0:
+		gicd_clr_igroupr(driver_data->gicd_base, id);
+		break;
+	default:
+		assert(0);
+	}
+	spin_unlock(&gic_lock);
 }

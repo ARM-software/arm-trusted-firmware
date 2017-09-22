@@ -355,6 +355,8 @@ void gicv3_enable_interrupt(unsigned int id, unsigned int proc_num);
 void gicv3_disable_interrupt(unsigned int id, unsigned int proc_num);
 void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
 		unsigned int priority);
+void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
+		unsigned int group);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */

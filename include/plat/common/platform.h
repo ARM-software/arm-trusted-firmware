@@ -79,6 +79,8 @@ int plat_ic_is_sgi(unsigned int id);
 unsigned int plat_ic_get_interrupt_active(unsigned int id);
 void plat_ic_disable_interrupt(unsigned int id);
 void plat_ic_enable_interrupt(unsigned int id);
+int plat_ic_has_interrupt_type(unsigned int type);
+void plat_ic_set_interrupt_type(unsigned int id, unsigned int type);
 void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority);
 
 /*******************************************************************************

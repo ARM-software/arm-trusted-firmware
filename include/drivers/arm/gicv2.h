@@ -10,6 +10,11 @@
 /*******************************************************************************
  * GICv2 miscellaneous definitions
  ******************************************************************************/
+
+/* Interrupt group definitions */
+#define GICV2_INTR_GROUP0	0
+#define GICV2_INTR_GROUP1	1
+
 /* Interrupt IDs reported by the HPPIR and IAR registers */
 #define PENDING_G1_INTID	1022
 
@@ -151,6 +156,7 @@ unsigned int gicv2_get_interrupt_active(unsigned int id);
 void gicv2_enable_interrupt(unsigned int id);
 void gicv2_disable_interrupt(unsigned int id);
 void gicv2_set_interrupt_priority(unsigned int id, unsigned int priority);
+void gicv2_set_interrupt_type(unsigned int id, unsigned int type);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV2_H__ */

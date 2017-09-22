@@ -9,10 +9,18 @@
 #include <assert.h>
 #include <debug.h>
 #include <gicv3.h>
+#include <spinlock.h>
 #include "gicv3_private.h"
 
 const gicv3_driver_data_t *gicv3_driver_data;
 static unsigned int gicv2_compat;
+
+/*
+ * Spinlock to guard registers needing read-modify-write. APIs protected by this
+ * spinlock are used either at boot time (when only a single CPU is active), or
+ * when the system is fully coherent.
+ */
+spinlock_t gic_lock;
 
 /*
  * Redistributor power operations are weakly bound so that they can be
@@ -890,5 +898,65 @@ void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
 		gicr_set_ipriorityr(gicr_base, id, priority);
 	} else {
 		gicd_set_ipriorityr(gicv3_driver_data->gicd_base, id, priority);
+	}
+}
+
+/*******************************************************************************
+ * This function assigns group for the interrupt identified by id. The proc_num
+ * is used if the interrupt is SGI or PPI, and programs the corresponding
+ * Redistributor interface. The group can be any of GICV3_INTR_GROUP*
+ ******************************************************************************/
+void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
+		unsigned int type)
+{
+	unsigned int igroup = 0, grpmod = 0;
+	uintptr_t gicr_base;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+
+	switch (type) {
+	case INTR_GROUP1S:
+		igroup = 0;
+		grpmod = 1;
+		break;
+	case INTR_GROUP0:
+		igroup = 0;
+		grpmod = 0;
+		break;
+	case INTR_GROUP1NS:
+		igroup = 1;
+		grpmod = 0;
+		break;
+	default:
+		assert(0);
+	}
+
+	if (id < MIN_SPI_ID) {
+		gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+		if (igroup)
+			gicr_set_igroupr0(gicr_base, id);
+		else
+			gicr_clr_igroupr0(gicr_base, id);
+
+		if (grpmod)
+			gicr_set_igrpmodr0(gicr_base, id);
+		else
+			gicr_clr_igrpmodr0(gicr_base, id);
+	} else {
+		/* Serialize read-modify-write to Distributor registers */
+		spin_lock(&gic_lock);
+		if (igroup)
+			gicd_set_igroupr(gicv3_driver_data->gicd_base, id);
+		else
+			gicd_clr_igroupr(gicv3_driver_data->gicd_base, id);
+
+		if (grpmod)
+			gicd_set_igrpmodr(gicv3_driver_data->gicd_base, id);
+		else
+			gicd_clr_igrpmodr(gicv3_driver_data->gicd_base, id);
+		spin_unlock(&gic_lock);
 	}
 }
