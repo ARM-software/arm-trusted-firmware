@@ -16,7 +16,7 @@
 
 #define SIZE_FROM_LOG2_WORDS(n)		(4 << (n))
 
-#define BIT(nr)				(1UL << (nr))
+#define BIT(nr)				(1ULL << (nr))
 
 #define MIN(x, y) __extension__ ({	\
 	__typeof__(x) _x = (x);		\

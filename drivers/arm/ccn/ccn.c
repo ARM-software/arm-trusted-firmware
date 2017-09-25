@@ -236,7 +236,7 @@ static unsigned long long ccn_master_to_rn_id_map(unsigned long long master_map)
 		node_id = ccn_plat_desc->master_to_rn_id_map[iface_id];
 
 		/* Set the bit corresponding to this node ID */
-		rn_id_map |= (1UL << node_id);
+		rn_id_map |= (1ULL << node_id);
 	}
 
 	return rn_id_map;

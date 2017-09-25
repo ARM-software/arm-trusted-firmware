@@ -435,7 +435,7 @@ uint64_t ari_read_write_mca(uint32_t ari_base, uint64_t cmd, uint64_t *data)
 
 	ret = ari_request_wait(ari_base, 0U, TEGRA_ARI_MCA,
 			       (uint32_t)mca_arg_data,
-			       (uint32_t)(mca_arg_data >> 32UL));
+			       (uint32_t)(mca_arg_data >> 32U));
 	if (ret == 0) {
 		resp_lo = ari_get_response_low(ari_base);
 		resp_hi = ari_get_response_high(ari_base);
@@ -450,7 +450,7 @@ uint64_t ari_read_write_mca(uint32_t ari_base, uint64_t cmd, uint64_t *data)
 			if (data != NULL) {
 				resp_lo = ari_get_request_low(ari_base);
 				resp_hi = ari_get_request_high(ari_base);
-				*data = ((uint64_t)resp_hi << 32UL) |
+				*data = ((uint64_t)resp_hi << 32U) |
 					 (uint64_t)resp_lo;
 			}
 		}
@@ -513,7 +513,7 @@ int32_t ari_read_write_uncore_perfmon(uint32_t ari_base, uint64_t req,
 		 * to the uncore perfmon registers
 		 */
 		val = (req_cmd == UNCORE_PERFMON_CMD_WRITE) ?
-			(uint32_t)*data : 0UL;
+			(uint32_t)*data : 0U;
 
 		ret = ari_request_wait(ari_base, 0U, TEGRA_ARI_PERFMON, val,
 				       (uint32_t)req);
