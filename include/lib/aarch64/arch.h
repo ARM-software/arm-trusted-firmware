@@ -348,6 +348,8 @@
 #define TCR_SH_OUTER_SHAREABLE	(U(0x2) << 12)
 #define TCR_SH_INNER_SHAREABLE	(U(0x3) << 12)
 
+#define TCR_EPD1_BIT		(U(1) << 23)
+
 #define MODE_SP_SHIFT		U(0x0)
 #define MODE_SP_MASK		U(0x1)
 #define MODE_SP_EL0		U(0x0)

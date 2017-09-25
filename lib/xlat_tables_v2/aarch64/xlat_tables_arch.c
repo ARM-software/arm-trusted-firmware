@@ -256,7 +256,11 @@ void enable_mmu_arch(unsigned int flags,
 
 #if IMAGE_EL == 1
 	assert(IS_IN_EL(1));
-	tcr |= tcr_ps_bits << TCR_EL1_IPS_SHIFT;
+	/*
+	 * TCR_EL1.EPD1: Disable translation table walk for addresses that are
+	 * translated using TTBR1_EL1.
+	 */
+	tcr |= TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT);
 	enable_mmu_internal_el1(flags, mair, tcr, ttbr);
 #elif IMAGE_EL == 3
 	assert(IS_IN_EL(3));
