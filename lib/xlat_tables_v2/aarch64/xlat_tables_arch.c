@@ -83,19 +83,38 @@ int is_mmu_enabled(void)
 
 void xlat_arch_tlbi_va(uintptr_t va)
 {
+#if IMAGE_EL == 1
+	assert(IS_IN_EL(1));
+	xlat_arch_tlbi_va_regime(va, EL1_EL0_REGIME);
+#elif IMAGE_EL == 3
+	assert(IS_IN_EL(3));
+	xlat_arch_tlbi_va_regime(va, EL3_REGIME);
+#endif
+}
+
+void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime)
+{
 	/*
 	 * Ensure the translation table write has drained into memory before
 	 * invalidating the TLB entry.
 	 */
 	dsbishst();
 
-#if IMAGE_EL == 1
-	assert(IS_IN_EL(1));
-	tlbivaae1is(TLBI_ADDR(va));
-#elif IMAGE_EL == 3
-	assert(IS_IN_EL(3));
-	tlbivae3is(TLBI_ADDR(va));
-#endif
+	/*
+	 * This function only supports invalidation of TLB entries for the EL3
+	 * and EL1&0 translation regimes.
+	 *
+	 * Also, it is architecturally UNDEFINED to invalidate TLBs of a higher
+	 * exception level (see section D4.9.2 of the ARM ARM rev B.a).
+	 */
+	if (xlat_regime == EL1_EL0_REGIME) {
+		assert(xlat_arch_current_el() >= 1);
+		tlbivaae1is(TLBI_ADDR(va));
+	} else {
+		assert(xlat_regime == EL3_REGIME);
+		assert(xlat_arch_current_el() >= 3);
+		tlbivae3is(TLBI_ADDR(va));
+	}
 }
 
 void xlat_arch_tlbi_va_sync(void)

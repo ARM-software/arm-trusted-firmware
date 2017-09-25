@@ -40,6 +40,17 @@ void xlat_arch_tlbi_va(uintptr_t va)
 	tlbimvaais(TLBI_ADDR(va));
 }
 
+void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime __unused)
+{
+	/*
+	 * Ensure the translation table write has drained into memory before
+	 * invalidating the TLB entry.
+	 */
+	dsbishst();
+
+	tlbimvaais(TLBI_ADDR(va));
+}
+
 void xlat_arch_tlbi_va_sync(void)
 {
 	/* Invalidate all entries from branch predictors. */

@@ -37,11 +37,21 @@ typedef enum  {
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /*
- * Function used to invalidate all levels of the translation walk for a given
- * virtual address. It must be called for every translation table entry that is
- * modified.
+ * Invalidate all TLB entries that match the given virtual address. This
+ * operation applies to all PEs in the same Inner Shareable domain as the PE
+ * that executes this function. This functions must be called for every
+ * translation table entry that is modified.
+ *
+ * xlat_arch_tlbi_va() applies the invalidation to the exception level of the
+ * current translation regime, whereas xlat_arch_tlbi_va_regime() applies it to
+ * the given translation regime.
+ *
+ * Note, however, that it is architecturally UNDEFINED to invalidate TLB entries
+ * pertaining to a higher exception level, e.g. invalidating EL3 entries from
+ * S-EL1.
  */
 void xlat_arch_tlbi_va(uintptr_t va);
+void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime);
 
 /*
  * This function has to be called at the end of any code that uses the function

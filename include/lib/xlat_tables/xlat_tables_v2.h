@@ -107,6 +107,14 @@ typedef struct mmap_region {
 } mmap_region_t;
 
 /*
+ * Translation regimes supported by this library.
+ */
+typedef enum xlat_regime {
+	EL1_EL0_REGIME,
+	EL3_REGIME,
+} xlat_regime_t;
+
+/*
  * Declare the translation context type.
  * Its definition is private.
  */
