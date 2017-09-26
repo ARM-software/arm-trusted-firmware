@@ -17,6 +17,8 @@
 	.weak	bl1_plat_prepare_exit
 	.weak	plat_error_handler
 	.weak	plat_panic_handler
+	.weak	bl2_plat_preload_setup
+	.weak	plat_try_next_boot_source
 
 #if !ENABLE_PLAT_COMPAT
 	.globl	platform_get_core_pos
@@ -129,3 +131,22 @@ func plat_panic_handler
 	wfi
 	b	plat_panic_handler
 endfunc plat_panic_handler
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platfrom.
+	 * -----------------------------------------------------
+	 */
+func bl2_plat_preload_setup
+	ret
+endfunc bl2_plat_preload_setup
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platfrom.
+	 * -----------------------------------------------------
+	 */
+func plat_try_next_boot_source
+	mov	x0, #0
+	ret
+endfunc plat_try_next_boot_source

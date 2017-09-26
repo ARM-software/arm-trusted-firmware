@@ -354,7 +354,13 @@ static int load_auth_image_internal(unsigned int image_id,
  ******************************************************************************/
 int load_auth_image(unsigned int image_id, image_info_t *image_data)
 {
-	return load_auth_image_internal(image_id, image_data, 0);
+	int err;
+
+	do {
+		err = load_auth_image_internal(image_id, image_data, 0);
+	} while (err != 0 && plat_try_next_boot_source());
+
+	return err;
 }
 
 #else /* LOAD_IMAGE_V2 */
@@ -553,8 +559,14 @@ int load_auth_image(meminfo_t *mem_layout,
 		    image_info_t *image_data,
 		    entry_point_info_t *entry_point_info)
 {
-	return load_auth_image_internal(mem_layout, image_id, image_base,
-					image_data, entry_point_info, 0);
+	int err;
+
+	do {
+		err = load_auth_image_internal(mem_layout, image_id, image_base,
+					       image_data, entry_point_info, 0);
+	} while (err != 0 && plat_try_next_boot_source());
+
+	return err;
 }
 
 #endif /* LOAD_IMAGE_V2 */

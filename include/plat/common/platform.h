@@ -100,6 +100,8 @@ int plat_crash_console_flush(void);
 void plat_error_handler(int err) __dead2;
 void plat_panic_handler(void) __dead2;
 const char *plat_log_get_prefix(unsigned int log_level);
+void bl2_plat_preload_setup(void);
+int plat_try_next_boot_source(void);
 
 /*******************************************************************************
  * Mandatory BL1 functions

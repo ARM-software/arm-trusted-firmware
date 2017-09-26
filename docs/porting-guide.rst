@@ -1596,6 +1596,34 @@ BL2 is responsible for loading the normal world BL33 image (e.g. UEFI).
 This function isn't needed if either ``PRELOADED_BL33_BASE`` or ``EL3_PAYLOAD_BASE``
 build options are used.
 
+Function : bl2\_plat\_preload\_setup [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+    Argument : void
+    Return   : void
+
+This optional function performs any BL2 platform initialization
+required before image loading, that is not done later in
+bl2\_platform\_setup(). Specifically, if support for multiple
+boot sources is required, it initializes the boot sequence used by
+plat\_try\_next\_boot\_source().
+
+Function : plat\_try\_next\_boot\_source() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+    Argument : void
+    Return   : int
+
+This optional function passes to the next boot source in the redundancy
+sequence.
+
+This function moves the current boot redundancy source to the next
+element in the boot sequence. If there are no more boot sources then it
+must return 0, otherwise it must return 1. The default implementation
+of this always returns 0.
+
 FWU Boot Loader Stage 2 (BL2U)
 ------------------------------
 

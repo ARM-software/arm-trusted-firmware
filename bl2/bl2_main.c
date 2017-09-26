@@ -34,6 +34,9 @@ void bl2_main(void)
 	auth_mod_init();
 #endif /* TRUSTED_BOARD_BOOT */
 
+	/* initialize boot source */
+	bl2_plat_preload_setup();
+
 	/* Load the subsequent bootloader images. */
 	next_bl_ep_info = bl2_load_images();
 

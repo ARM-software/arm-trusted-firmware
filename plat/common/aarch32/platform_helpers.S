@@ -14,6 +14,8 @@
 	.weak	plat_disable_acp
 	.weak	platform_mem_init
 	.weak	plat_panic_handler
+	.weak	bl2_plat_preload_setup
+	.weak	plat_try_next_boot_source
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by
@@ -79,3 +81,23 @@ endfunc platform_mem_init
 func plat_panic_handler
 	b	plat_panic_handler
 endfunc plat_panic_handler
+
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platfrom.
+	 * -----------------------------------------------------
+	 */
+func bl2_plat_preload_setup
+	bx	lr
+endfunc bl2_plat_preload_setup
+
+	/* -----------------------------------------------------
+	 * Placeholder function which should be redefined by
+	 * each platfrom.
+	 * -----------------------------------------------------
+	 */
+func plat_try_next_boot_source
+	mov	r0, #0
+	bx	lr
+endfunc plat_try_next_boot_source
