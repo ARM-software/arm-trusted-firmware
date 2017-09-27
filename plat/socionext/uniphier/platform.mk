@@ -21,6 +21,9 @@ ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,UNIPHIER_LOAD_BL32))
 endif
 
+# Libraries
+include lib/xlat_tables_v2/xlat_tables.mk
+
 PLAT_PATH		:=	plat/socionext/uniphier
 PLAT_INCLUDES		:=	-I$(PLAT_PATH)/include
 
@@ -37,12 +40,11 @@ IO_SOURCES		:=	drivers/io/io_block.c			\
 
 # common sources for BL1, BL2, BL31
 PLAT_BL_COMMON_SOURCES	+=	drivers/console/aarch64/console.S	\
-				lib/xlat_tables_v2/aarch64/xlat_tables_arch.c \
-				lib/xlat_tables_v2/xlat_tables_internal.c \
 				$(PLAT_PATH)/uniphier_console.S		\
 				$(PLAT_PATH)/uniphier_helpers.S		\
 				$(PLAT_PATH)/uniphier_soc_info.c	\
-				$(PLAT_PATH)/uniphier_xlat_setup.c
+				$(PLAT_PATH)/uniphier_xlat_setup.c	\
+				${XLAT_TABLES_LIB_SRCS}
 
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
