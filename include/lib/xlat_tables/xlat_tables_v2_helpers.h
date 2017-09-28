@@ -27,6 +27,20 @@
 /* Forward declaration */
 struct mmap_region;
 
+/*
+ * Helper macro to define an mmap_region_t.  This macro allows to specify all
+ * the fields of the structure but its parameter list is not guaranteed to
+ * remain stable as we add members to mmap_region_t.
+ */
+#define _MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, _gr)	\
+	{							\
+		.base_pa = (_pa),				\
+		.base_va = (_va),				\
+		.size = (_sz),					\
+		.attr = (_attr),				\
+		.granularity = (_gr),				\
+	}
+
 /* Struct that holds all information about the translation tables. */
 struct xlat_ctx {
 	/*

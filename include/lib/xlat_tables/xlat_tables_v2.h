@@ -15,20 +15,36 @@
 #include <xlat_mmu_helpers.h>
 #include <xlat_tables_v2_helpers.h>
 
-/* Helper macro to define entries for mmap_region_t. It creates
- * identity mappings for each region.
+/*
+ * Default granularity size for an mmap_region_t.
+ * Useful when no specific granularity is required.
+ *
+ * By default, choose the biggest possible block size allowed by the
+ * architectural state and granule size in order to minimize the number of page
+ * tables required for the mapping.
  */
-#define MAP_REGION_FLAT(adr, sz, attr) MAP_REGION(adr, adr, sz, attr)
+#define REGION_DEFAULT_GRANULARITY	XLAT_BLOCK_SIZE(MIN_LVL_BLOCK_DESC)
 
-/* Helper macro to define entries for mmap_region_t. It allows to
- * re-map address mappings from 'pa' to 'va' for each region.
+/* Helper macro to define an mmap_region_t. */
+#define MAP_REGION(_pa, _va, _sz, _attr)	\
+	_MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, REGION_DEFAULT_GRANULARITY)
+
+/* Helper macro to define an mmap_region_t with an identity mapping. */
+#define MAP_REGION_FLAT(_adr, _sz, _attr)			\
+	MAP_REGION(_adr, _adr, _sz, _attr)
+
+/*
+ * Helper macro to define an mmap_region_t to map with the desired granularity
+ * of translation tables.
+ *
+ * The granularity value passed to this macro must be a valid block or page
+ * size. When using a 4KB translation granule, this might be 4KB, 2MB or 1GB.
+ * Passing REGION_DEFAULT_GRANULARITY is also allowed and means that the library
+ * is free to choose the granularity for this region. In this case, it is
+ * equivalent to the MAP_REGION() macro.
  */
-#define MAP_REGION(_pa, _va, _sz, _attr) {			\
-	.base_pa = (_pa),					\
-	.base_va = (_va),					\
-	.size    = (_sz),					\
-	.attr    = (_attr),					\
-	}
+#define MAP_REGION2(_pa, _va, _sz, _attr, _gr)			\
+	_MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, _gr)
 
 /*
  * Shifts and masks to access fields of an mmap_attr_t
@@ -86,6 +102,8 @@ typedef struct mmap_region {
 	uintptr_t		base_va;
 	size_t			size;
 	mmap_attr_t		attr;
+	/* Desired granularity. See the MAP_REGION2() macro for more details. */
+	size_t			granularity;
 } mmap_region_t;
 
 /*

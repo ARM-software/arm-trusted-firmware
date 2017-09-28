@@ -66,7 +66,8 @@ map. It is one of the key interfaces to the library. It is identified by:
 - its physical base address;
 - its virtual base address;
 - its size;
-- its attributes.
+- its attributes;
+- its mapping granularity (optional).
 
 See the ``struct mmap_region`` type in `xlat\_tables\_v2.h`_.
 
@@ -79,6 +80,31 @@ normal memory) as well as the memory access permissions (read-only or
 read-write, executable or not, secure or non-secure, and so on). See the
 ``mmap_attr_t`` enumeration type in `xlat\_tables\_v2.h`_.
 
+The granularity controls the translation table level to go down to when mapping
+the region. For example, assuming the MMU has been configured to use a 4KB
+granule size, the library might map a 2MB memory region using either of the two
+following options:
+
+- using a single level-2 translation table entry;
+- using a level-2 intermediate entry to a level-3 translation table (which
+  contains 512 entries, each mapping 4KB).
+
+The first solution potentially requires less translation tables, hence
+potentially less memory.  However, if part of this 2MB region is later remapped
+with different memory attributes, the library might need to split the existing
+page tables to refine the mappings. If a single level-2 entry has been used
+here, a level-3 table will need to be allocated on the fly and the level-2
+modified to point to this new level-3 table. This has a performance cost at
+run-time.
+
+If the user knows upfront that such a remapping operation is likely to happen
+then they might enforce a 4KB mapping granularity for this 2MB region from the
+beginning; remapping some of these 4KB pages on the fly then becomes a
+lightweight operation.
+
+The region's granularity is an optional field; if it is not specified the
+library will choose the mapping granularity for this region as it sees fit (more
+details can be found in `The memory mapping algorithm`_ section below).
 
 Translation Context
 ~~~~~~~~~~~~~~~~~~~
@@ -190,6 +216,11 @@ the ``MAP_REGION*()`` family of helper macros. This is to limit the risk of
 compatibility breaks, should the ``mmap_region`` structure type evolve in the
 future.
 
+The ``MAP_REGION()`` and ``MAP_REGION_FLAT()`` macros do not allow specifying a
+mapping granularity, which leaves the library implementation free to choose
+it. However, in cases where a specific granularity is required, the
+``MAP_REGION2()`` macro might be used instead.
+
 As explained earlier in this document, when the dynamic mapping feature is
 disabled, there is no notion of dynamic regions. Conceptually, there are only
 static regions. For this reason (and to retain backward compatibility with the
@@ -265,6 +296,9 @@ The architectural module
 Core module
 ~~~~~~~~~~~
 
+From mmap regions to translation tables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 All the APIs in this module work on a translation context. The translation
 context contains the list of ``mmap_region``, which holds the information of all
 the regions that are mapped at any given time. Whenever there is a request to
@@ -288,14 +322,18 @@ After the ``init_xlat_tables()`` API has been called, only dynamic regions can
 be added. Changes to the translation tables (as well as the mmap regions list)
 will take effect immediately.
 
+The memory mapping algorithm
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The mapping function is implemented as a recursive algorithm. It is however
 bound by the level of depth of the translation tables (the ARMv8-A architecture
 allows up to 4 lookup levels).
 
-By default, the algorithm will attempt to minimize the number of translation
-tables created to satisfy the user's request. It will favour mapping a region
-using the biggest possible blocks, only creating a sub-table if it is strictly
-necessary. This is to reduce the memory footprint of the firmware.
+By default [#granularity-ref]_, the algorithm will attempt to minimize the
+number of translation tables created to satisfy the user's request. It will
+favour mapping a region using the biggest possible blocks, only creating a
+sub-table if it is strictly necessary. This is to reduce the memory footprint of
+the firmware.
 
 The most common reason for needing a sub-table is when a specific mapping
 requires a finer granularity. Misaligned regions also require a finer
@@ -321,6 +359,12 @@ order of all regions at all times. As each new region is mapped, existing
 entries in the translation tables are checked to ensure consistency. Please
 refer to the comments in the source code of the core module for more details
 about the sorting algorithm in use.
+
+.. [#granularity-ref] That is, when mmap regions do not enforce their mapping
+                      granularity.
+
+TLB maintenance operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The library takes care of performing TLB maintenance operations when required.
 For example, when the user requests removing a dynamic region, the library

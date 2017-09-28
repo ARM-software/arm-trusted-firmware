@@ -417,7 +417,8 @@ static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 				 * descriptors. If not, create a table instead.
 				 */
 				if ((dest_pa & XLAT_BLOCK_MASK(level)) ||
-				    (level < MIN_LVL_BLOCK_DESC))
+				    (level < MIN_LVL_BLOCK_DESC) ||
+				    (mm->granularity < XLAT_BLOCK_SIZE(level)))
 					return ACTION_CREATE_NEW_TABLE;
 				else
 					return ACTION_WRITE_BLOCK_ENTRY;
@@ -590,9 +591,10 @@ void print_mmap(mmap_region_t *const mmap)
 	mmap_region_t *mm = mmap;
 
 	while (mm->size) {
-		tf_printf(" VA:%p  PA:0x%llx  size:0x%zx  attr:0x%x\n",
+		tf_printf(" VA:%p  PA:0x%llx  size:0x%zx  attr:0x%x",
 				(void *)mm->base_va, mm->base_pa,
 				mm->size, mm->attr);
+		tf_printf(" granularity:0x%zx\n", mm->granularity);
 		++mm;
 	};
 	tf_printf("\n");
@@ -613,7 +615,7 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	unsigned long long base_pa = mm->base_pa;
 	uintptr_t base_va = mm->base_va;
 	size_t size = mm->size;
-	mmap_attr_t attr = mm->attr;
+	size_t granularity = mm->granularity;
 
 	unsigned long long end_pa = base_pa + size - 1;
 	uintptr_t end_va = base_va + size - 1;
@@ -621,6 +623,12 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	if (!IS_PAGE_ALIGNED(base_pa) || !IS_PAGE_ALIGNED(base_va) ||
 			!IS_PAGE_ALIGNED(size))
 		return -EINVAL;
+
+	if ((granularity != XLAT_BLOCK_SIZE(1)) &&
+		(granularity != XLAT_BLOCK_SIZE(2)) &&
+		(granularity != XLAT_BLOCK_SIZE(3))) {
+		return -EINVAL;
+	}
 
 	/* Check for overflows */
 	if ((base_pa > end_pa) || (base_va > end_va))
@@ -663,11 +671,9 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 		if (fully_overlapped_va) {
 
 #if PLAT_XLAT_TABLES_DYNAMIC
-			if ((attr & MT_DYNAMIC) ||
+			if ((mm->attr & MT_DYNAMIC) ||
 						(mm_cursor->attr & MT_DYNAMIC))
 				return -EPERM;
-#else
-			(void)attr;
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 			if ((mm_cursor->base_va - mm_cursor->base_pa) !=
 							(base_va - base_pa))
