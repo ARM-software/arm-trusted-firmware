@@ -448,6 +448,31 @@ static int32_t trusty_setup(void)
 	if (ret)
 		ERROR("trusty: failed to register fiq handler, ret = %d\n", ret);
 
+	if (aarch32) {
+		entry_point_info_t *ns_ep_info;
+		uint32_t spsr;
+
+		ns_ep_info = bl31_plat_get_next_image_ep_info(NON_SECURE);
+		if (!ep_info) {
+			NOTICE("Trusty: non-secure image missing.\n");
+			return -1;
+		}
+		spsr = ns_ep_info->spsr;
+		if (GET_RW(spsr) == MODE_RW_64 && GET_EL(spsr) == MODE_EL2) {
+			spsr &= ~(MODE_EL_MASK << MODE_EL_SHIFT);
+			spsr |= MODE_EL1 << MODE_EL_SHIFT;
+		}
+		if (GET_RW(spsr) == MODE_RW_32 && GET_M32(spsr) == MODE32_hyp) {
+			spsr &= ~(MODE32_MASK << MODE32_SHIFT);
+			spsr |= MODE32_svc << MODE32_SHIFT;
+		}
+		if (spsr != ns_ep_info->spsr) {
+			NOTICE("Trusty: Switch bl33 from EL2 to EL1 (spsr 0x%x -> 0x%x)\n",
+			       ns_ep_info->spsr, spsr);
+			ns_ep_info->spsr = spsr;
+		}
+	}
+
 	return 0;
 }
 
