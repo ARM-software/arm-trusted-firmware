@@ -150,6 +150,23 @@
 	 */
 	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TTA_BIT | TFP_BIT))
 	msr	cptr_el3, x0
+
+#if ENABLE_SVE_FOR_LOWER_ELS
+	/* Detect if SVE is implemented */
+	mrs	x1, id_aa64pfr0_el1
+	ubfx	x1, x1, #32, #4
+	cbz	x1, 1f
+
+        /* Enable SVE */
+	orr	x0, x0, #EZ_BIT
+	msr	cptr_el3, x0
+	isb
+
+        /* Also ensure access to full vector length for EL2 */
+	mov	x1, #ZCR_EL3_LEN_MASK
+	msr	ZCR_EL3, x1
+1:
+#endif
 	.endm
 
 /* -----------------------------------------------------------------------------

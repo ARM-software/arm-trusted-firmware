@@ -265,6 +265,7 @@
 #define TCPAC_BIT		(U(1) << 31)
 #define TTA_BIT			(U(1) << 20)
 #define TFP_BIT			(U(1) << 10)
+#define EZ_BIT			(U(1) << 8)
 #define CPTR_EL3_RESET_VAL	U(0x0)
 
 /* CPTR_EL2 definitions */
@@ -303,6 +304,13 @@
  */
 #define RMR_EL3_RR_BIT		(U(1) << 1)
 #define RMR_EL3_AA64_BIT	(U(1) << 0)
+
+
+/*
+ * ZCR_EL3 definitions
+ */
+#define ZCR_EL3		s3_6_c1_c2_0
+#define ZCR_EL3_LEN_MASK	0x1ff
 
 /*
  * HI-VECTOR address for AArch32 state

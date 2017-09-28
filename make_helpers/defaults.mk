@@ -152,3 +152,6 @@ else
         endif
     endif
 endif
+
+# By default, enable Scaleable Vector Extensions for lower ELS.
+ENABLE_SVE_FOR_LOWER_ELS	:= 1
