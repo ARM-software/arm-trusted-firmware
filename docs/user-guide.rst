@@ -348,6 +348,12 @@ Common build options
    AArch64 8.2 onwards. This option defaults to 1 but is automatically
    disabled when the target architecture is AArch32 or AArch64 8.0/8.1.
 
+-  ``ENABLE_SVE_FOR_LOWER_ELS``: Boolean option to enable Scalable
+   Vector Extensions (SVE). This is an optional architectural feature
+   for AArch64. This option defaults to 1 as we don't currently use
+   SVE in the trusted firmware.
+
+
 -  ``ENABLE_STACK_PROTECTOR``: String option to enable the stack protection
    checks in GCC. Allowed values are "all", "strong" and "0" (default).
    "strong" is the recommended stack protection level if this feature is
