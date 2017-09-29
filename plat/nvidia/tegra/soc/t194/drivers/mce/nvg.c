@@ -142,26 +142,26 @@ void nvg_update_cstate_info(uint32_t cluster, uint32_t ccplex,
  * Indices gives MTS the crossover point in TSC ticks for when it becomes
  * no longer viable to enter the named state
  *
- * Type 0 : NVGDATA[0:31]: C6 Lower bound
- * Type 1 : NVGDATA[0:31]: CC6 Lower bound
- * Type 2 : NVGDATA[0:31]: CG7 Lower bound
+ * Type 5 : NVGDATA[0:31]: C6 Lower bound
+ * Type 6 : NVGDATA[0:31]: CC6 Lower bound
+ * Type 8 : NVGDATA[0:31]: CG7 Lower bound
  */
 int32_t nvg_update_crossover_time(uint32_t type, uint32_t time)
 {
 	int32_t ret = 0;
 
 	switch (type) {
-	case TEGRA_NVG_CROSSOVER_C6:
+	case TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND:
 		nvg_set_request_data(TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND,
 			(uint64_t)time);
 		break;
 
-	case TEGRA_NVG_CROSSOVER_CC6:
+	case TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND:
 		nvg_set_request_data(TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND,
 			(uint64_t)time);
 		break;
 
-	case TEGRA_NVG_CROSSOVER_CG7:
+	case TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND:
 		nvg_set_request_data(TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND,
 			(uint64_t)time);
 		break;
@@ -288,11 +288,11 @@ int32_t nvg_cc3_ctrl(uint32_t freq, uint8_t enable)
  */
 int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx)
 {
-	int32_t ret = 0;
+	int32_t ret;
 
 	/* sanity check GSC ID */
-	if (gsc_idx > (uint32_t)TEGRA_NVG_GSC_VPR_IDX) {
-		ERROR("%s: unknown gsc_idx (%d)\n", __func__, gsc_idx);
+	if (gsc_idx > (uint32_t)TEGRA_NVG_CHANNEL_UPDATE_GSC_VPR) {
+		ERROR("%s: unknown gsc_idx (%u)\n", __func__, gsc_idx);
 		ret = EINVAL;
 	} else {
 		nvg_set_request_data(TEGRA_NVG_CHANNEL_UPDATE_CCPLEX_GSC,
