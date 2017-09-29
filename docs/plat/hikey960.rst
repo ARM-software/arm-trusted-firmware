@@ -35,6 +35,15 @@ Build Procedure
 -  Fetch all the above 5 repositories into local host.
    Make all the repositories in the same ${BUILD\_PATH}.
 
+  .. code:: shell
+
+       git clone https://github.com/ARM-software/arm-trusted-firmware -b integration
+       git clone https://github.com/OP-TEE/optee_os
+       git clone https://github.com/96boards-hikey/edk2 -b testing/hikey960_v2.5
+       git clone https://github.com/96boards-hikey/OpenPlatformPkg -b testing/hikey960_v1.3.4
+       git clone https://github.com/96boards-hikey/l-loader -b testing/hikey960_v1.2
+       git clone https://git.linaro.org/uefi/uefi-tools
+
 -  Create the symbol link to OpenPlatformPkg in edk2.
 
    .. code:: shell
@@ -66,19 +75,17 @@ Build Procedure
        cd ${EDK2_DIR}
        # Build UEFI & ARM Trust Firmware
        ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey960
-       # Generate l-loader.bin
-       cd ${BUILD_PATH}/l-loader
-       ln -sf ${EDK2_OUTPUT_DIR}/FV/bl1.bin
-       ln -sf ${EDK2_OUTPUT_DIR}/FV/fip.bin
-       ln -sf ${EDK2_OUTPUT_DIR}/FV/BL33_AP_UEFI.fd
-       python gen_loader_hikey960.py -o l-loader.bin --img_bl1=bl1.bin --img_ns_bl1u=BL33_AP_UEFI.fd
 
--  Generate partition table.
+-  Generate l-loader.bin and partition table.
    *Make sure that you're using the sgdisk in the l-loader directory.*
 
    .. code:: shell
 
-       PTABLE=aosp-32g SECTOR_SIZE=4096 SGDISK=./sgdisk bash -x generate_ptable.sh
+       cd ${BUILD_PATH}/l-loader
+       ln -sf ${EDK2_OUTPUT_DIR}/FV/bl1.bin
+       ln -sf ${EDK2_OUTPUT_DIR}/FV/fip.bin
+       ln -sf ${EDK2_OUTPUT_DIR}/FV/BL33_AP_UEFI.fd
+       make hikey960
 
 Setup Console
 -------------
@@ -129,6 +136,7 @@ Boot UEFI in recovery mode
 
        $cd tools-images-hikey960
        $ln -sf ${BUILD_PATH}/l-loader/l-loader.bin
+       $ln -sf ${BUILD_PATH}/l-loader/fip.bin
 
 -  Prepare config file.
 
