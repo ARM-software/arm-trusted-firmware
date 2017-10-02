@@ -465,6 +465,85 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	return 0;
 }
 
+/* Explicitly dispatch the given SDEI event */
+int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state)
+{
+	sdei_entry_t *se;
+	sdei_ev_map_t *map;
+	cpu_context_t *ctx;
+	sdei_dispatch_context_t *disp_ctx;
+	sdei_cpu_state_t *state;
+
+	/* Validate preempted security state */
+	if ((preempted_sec_state != SECURE) || (preempted_sec_state != NON_SECURE))
+		return -1;
+
+	/* Can't dispatch if events are masked on this PE */
+	state = sdei_get_this_pe_state();
+	if (state->pe_masked == PE_MASKED)
+		return -1;
+
+	/* Event 0 can't be dispatched */
+	if (ev_num == SDEI_EVENT_0)
+		return -1;
+
+	/* Locate mapping corresponding to this event */
+	map = find_event_map(ev_num);
+	if (!map)
+		return -1;
+
+	/*
+	 * Statically-bound or dynamic maps are dispatched only as a result of
+	 * interrupt, and not upon explicit request.
+	 */
+	if (is_map_dynamic(map) || is_map_bound(map))
+		return -1;
+
+	/* The event must be private */
+	if (is_event_shared(map))
+		return -1;
+
+	/* Examine state of dispatch stack */
+	disp_ctx = get_outstanding_dispatch();
+	if (disp_ctx) {
+		/*
+		 * There's an outstanding dispatch. If the outstanding dispatch
+		 * is critical, no more dispatches are possible.
+		 */
+		if (is_event_critical(disp_ctx->map))
+			return -1;
+
+		/*
+		 * If the outstanding dispatch is Normal, only critical events
+		 * can be dispatched.
+		 */
+		if (is_event_normal(map))
+			return -1;
+	}
+
+	se = get_event_entry(map);
+	if (!can_sdei_state_trans(se, DO_DISPATCH))
+		return -1;
+
+	/* Activate the priority corresponding to the event being dispatched */
+	ehf_activate_priority(sdei_event_priority(map));
+
+	/*
+	 * We assume the current context is SECURE, and that it's already been
+	 * saved.
+	 */
+	ctx = restore_and_resume_ns_context();
+
+	/*
+	 * The caller has effectively terminated execution. Record to resume the
+	 * preempted context later when the event completes or
+	 * complete-and-resumes.
+	 */
+	setup_ns_dispatch(map, se, ctx, preempted_sec_state, 0);
+
+	return 0;
+}
+
 int sdei_event_complete(int resume, uint64_t pc)
 {
 	sdei_dispatch_context_t *disp_ctx;
@@ -556,6 +635,13 @@ int sdei_event_complete(int resume, uint64_t pc)
 		 * interrupt.
 		 */
 		plat_ic_end_of_interrupt(disp_ctx->intr_raw);
+	} else {
+		/*
+		 * An unbound event must have been dispatched explicitly.
+		 * Deactivate the priority level that was activated at the time
+		 * of explicit dispatch.
+		 */
+		ehf_deactivate_priority(sdei_event_priority(map));
 	}
 
 	if (is_event_shared(map))
