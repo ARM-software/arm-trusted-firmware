@@ -921,9 +921,12 @@ three functions:
     int verify_hash(void *data_ptr, unsigned int data_len,
                     void *digest_info_ptr, unsigned int digest_info_len);
 
-The key algorithm (rsa, ecdsa) must be specified in the build system using the
-``TF_MBEDTLS_KEY_ALG`` variable, so the Makefile can include the corresponding
-sources in the build.
+The mbedTLS library algorithm support is configured by the
+``TF_MBEDTLS_KEY_ALG`` variable which can take in 3 values: `rsa`, `ecdsa` or
+`rsa+ecdsa`. This variable allows the Makefile to include the corresponding
+sources in the build for the various algorthms. Setting the variable to
+`rsa+ecdsa` enables support for both rsa and ecdsa algorithms in the mbedTLS
+library.
 
 Note: If code size is a concern, the build option ``MBEDTLS_SHA256_SMALLER`` can
 be defined in the platform Makefile. It will make mbed TLS use an implementation
@@ -931,7 +934,7 @@ of SHA-256 with smaller memory footprint (~1.5 KB less) but slower (~30%).
 
 --------------
 
-*Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*
 
 .. _Trusted Board Boot: ./trusted-board-boot.rst
 .. _Platform Porting Guide: ./porting-guide.rst

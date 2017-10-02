@@ -96,7 +96,7 @@
  * plus a little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL1_RW_SIZE	0x9000
+# define PLAT_ARM_MAX_BL1_RW_SIZE	0xA000
 #else
 # define PLAT_ARM_MAX_BL1_RW_SIZE	0x6000
 #endif
@@ -106,7 +106,7 @@
  * little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		0x18000
+# define PLAT_ARM_MAX_BL2_SIZE		0x19000
 #else
 # define PLAT_ARM_MAX_BL2_SIZE		0xC000
 #endif
@@ -114,8 +114,12 @@
 /*
  * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
  * little space for growth.
+ * SCP_BL2 image is loaded into the space BL31 -> BL1_RW_BASE.
+ * For TBB use case, PLAT_ARM_MAX_BL1_RW_SIZE has been increased and therefore
+ * PLAT_ARM_MAX_BL31_SIZE has been increased to ensure SCP_BL2 has the same
+ * space available.
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x1D000
+#define PLAT_ARM_MAX_BL31_SIZE		0x1E000
 
 /*
  * Since free SRAM space is scant, enable the ASSERTION message size

@@ -41,18 +41,26 @@ MBEDTLS_CRYPTO_SOURCES		:=	drivers/auth/mbedtls/mbedtls_crypto.c	\
 					)
 
 # Key algorithm specific files
+MBEDTLS_ECDSA_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
+					ecdsa.c					\
+					ecp_curves.c				\
+					ecp.c					\
+					)
+
+MBEDTLS_RSA_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
+					rsa.c					\
+					)
+
 ifeq (${TF_MBEDTLS_KEY_ALG},ecdsa)
-    MBEDTLS_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
-    					ecdsa.c					\
-    					ecp_curves.c				\
-    					ecp.c					\
-    					)
+    MBEDTLS_CRYPTO_SOURCES	+=	$(MBEDTLS_ECDSA_CRYPTO_SOURCES)
     TF_MBEDTLS_KEY_ALG_ID	:=	TF_MBEDTLS_ECDSA
 else ifeq (${TF_MBEDTLS_KEY_ALG},rsa)
-    MBEDTLS_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
-    					rsa.c					\
-    					)
+    MBEDTLS_CRYPTO_SOURCES	+=	$(MBEDTLS_RSA_CRYPTO_SOURCES)
     TF_MBEDTLS_KEY_ALG_ID	:=	TF_MBEDTLS_RSA
+else ifeq (${TF_MBEDTLS_KEY_ALG},rsa+ecdsa)
+    MBEDTLS_CRYPTO_SOURCES	+=	$(MBEDTLS_ECDSA_CRYPTO_SOURCES)
+    MBEDTLS_CRYPTO_SOURCES	+=	$(MBEDTLS_RSA_CRYPTO_SOURCES)
+    TF_MBEDTLS_KEY_ALG_ID	:=	TF_MBEDTLS_RSA_AND_ECDSA
 else
     $(error "TF_MBEDTLS_KEY_ALG=${TF_MBEDTLS_KEY_ALG} not supported on mbed TLS")
 endif

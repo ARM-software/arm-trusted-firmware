@@ -643,6 +643,11 @@ ARM development platform specific build options
       ``arm_rotpk_rsa.der``, located in ``plat/arm/board/common/rotpk``. To use
       this option, ``arm_rotprivk_rsa.pem`` must be specified as ``ROT_KEY`` when
       creating the certificates.
+   -  ``devel_ecdsa`` : return a development public key hash embedded in the BL1
+      and BL2 binaries. This hash has been obtained from the ECDSA public key
+      ``arm_rotpk_ecdsa.der``, located in ``plat/arm/board/common/rotpk``. To use
+      this option, ``arm_rotprivk_ecdsa.pem`` must be specified as ``ROT_KEY``
+      when creating the certificates.
 
 -  ``ARM_TSP_RAM_LOCATION``: location of the TSP binary. Options:
 
@@ -988,6 +993,10 @@ images with support for these features:
 
    -  ``ARM_ROTPK_LOCATION=devel_rsa``: use the ROTPK hash that is hardcoded
       in the ARM platform port. The private/public RSA key pair may be
+      found in ``plat/arm/board/common/rotpk``.
+
+   -  ``ARM_ROTPK_LOCATION=devel_ecdsa``: use the ROTPK hash that is hardcoded
+      in the ARM platform port. The private/public ECDSA key pair may be
       found in ``plat/arm/board/common/rotpk``.
 
    Example of command line using RSA development keys:

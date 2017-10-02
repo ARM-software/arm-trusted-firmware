@@ -91,6 +91,3 @@ include plat/arm/common/arm_common.mk
 include plat/arm/soc/common/soc_css.mk
 include plat/arm/css/common/css_common.mk
 
-ifeq (${KEY_ALG},ecdsa)
-    $(error "ECDSA key algorithm is not fully supported on Juno.")
-endif
