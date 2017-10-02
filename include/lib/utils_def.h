@@ -81,4 +81,11 @@
 	((ARM_ARCH_MAJOR > _maj) || \
 	 ((ARM_ARCH_MAJOR == _maj) && (ARM_ARCH_MINOR >= _min)))
 
+/*
+ * Convert an integer value to an essentially boolean value explicitely. This
+ * allows using boolean operators on the result. For example a "!=" can be used
+ * as a boolean XOR on the result.
+ */
+#define BOOL(x) ((x) != 0)
+
 #endif /* __UTILS_DEF_H__ */
