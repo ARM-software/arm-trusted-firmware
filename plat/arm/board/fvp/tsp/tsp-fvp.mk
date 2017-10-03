@@ -1,12 +1,13 @@
 #
-# Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 # TSP source files specific to FVP platform
-BL32_SOURCES		+=	plat/arm/board/fvp/fvp_topology.c		\
+BL32_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
+				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/tsp/fvp_tsp_setup.c		\
 				${FVP_GIC_SOURCES}
 
