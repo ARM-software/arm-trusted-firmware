@@ -12,8 +12,10 @@
 #include <cpu_data.h>
 #include <debug.h>
 #include <ehf.h>
+#include <gic_common.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
+#include <pubsub_events.h>
 
 /* Output EHF logs as verbose */
 #define EHF_LOG(...)	VERBOSE("EHF: " __VA_ARGS__)
@@ -209,6 +211,165 @@ void ehf_deactivate_priority(unsigned int priority)
 }
 
 /*
+ * After leaving Non-secure world, stash current Non-secure Priority Mask, and
+ * set Priority Mask to the highest Non-secure priority so that Non-secure
+ * interrupts cannot preempt Secure execution.
+ *
+ * If the current running priority is in the secure range, or if there are
+ * outstanding priority activations, this function does nothing.
+ *
+ * This function subscribes to the 'cm_exited_normal_world' event published by
+ * the Context Management Library.
+ */
+static void *ehf_exited_normal_world(const void *arg)
+{
+	unsigned int run_pri;
+	pe_exc_data_t *pe_data = this_cpu_data();
+
+	/* If the running priority is in the secure range, do nothing */
+	run_pri = plat_ic_get_running_priority();
+	if (IS_PRI_SECURE(run_pri))
+		return 0;
+
+	/* Do nothing if there are explicit activations */
+	if (has_valid_pri_activations(pe_data))
+		return 0;
+
+	assert(pe_data->ns_pri_mask == 0);
+
+	pe_data->ns_pri_mask =
+		plat_ic_set_priority_mask(GIC_HIGHEST_NS_PRIORITY);
+
+	/* The previous Priority Mask is not expected to be in secure range */
+	if (IS_PRI_SECURE(pe_data->ns_pri_mask)) {
+		ERROR("Priority Mask (0x%x) already in secure range\n",
+				pe_data->ns_pri_mask);
+		panic();
+	}
+
+	EHF_LOG("Priority Mask: 0x%x => 0x%x\n", pe_data->ns_pri_mask,
+			GIC_HIGHEST_NS_PRIORITY);
+
+	return 0;
+}
+
+/*
+ * Conclude Secure execution and prepare for return to Non-secure world. Restore
+ * the Non-secure Priority Mask previously stashed upon leaving Non-secure
+ * world.
+ *
+ * If there the current running priority is in the secure range, or if there are
+ * outstanding priority activations, this function does nothing.
+ *
+ * This function subscribes to the 'cm_entering_normal_world' event published by
+ * the Context Management Library.
+ */
+static void *ehf_entering_normal_world(const void *arg)
+{
+	unsigned int old_pmr, run_pri;
+	pe_exc_data_t *pe_data = this_cpu_data();
+
+	/* If the running priority is in the secure range, do nothing */
+	run_pri = plat_ic_get_running_priority();
+	if (IS_PRI_SECURE(run_pri))
+		return 0;
+
+	/*
+	 * If there are explicit activations, do nothing. The Priority Mask will
+	 * be restored upon the last deactivation.
+	 */
+	if (has_valid_pri_activations(pe_data))
+		return 0;
+
+	/* Do nothing if we don't have a valid Priority Mask to restore */
+	if (pe_data->ns_pri_mask == 0)
+		return 0;
+
+	old_pmr = plat_ic_set_priority_mask(pe_data->ns_pri_mask);
+
+	/*
+	 * When exiting secure world, the current Priority Mask must be
+	 * GIC_HIGHEST_NS_PRIORITY (as set during entry), or the Non-secure
+	 * priority mask set upon calling ehf_allow_ns_preemption()
+	 */
+	if ((old_pmr != GIC_HIGHEST_NS_PRIORITY) &&
+			(old_pmr != pe_data->ns_pri_mask)) {
+		ERROR("Invalid Priority Mask (0x%x) restored\n", old_pmr);
+		panic();
+	}
+
+	EHF_LOG("Priority Mask: 0x%x => 0x%x\n", old_pmr, pe_data->ns_pri_mask);
+
+	pe_data->ns_pri_mask = 0;
+
+	return 0;
+}
+
+/*
+ * Program Priority Mask to the original Non-secure priority such that
+ * Non-secure interrupts may preempt Secure execution, viz. during Yielding SMC
+ * calls.
+ *
+ * This API is expected to be invoked before delegating a yielding SMC to Secure
+ * EL1. I.e. within the window of secure execution after Non-secure context is
+ * saved (after entry into EL3) and Secure context is restored (before entering
+ * Secure EL1).
+ */
+void ehf_allow_ns_preemption(void)
+{
+	unsigned int old_pmr __unused;
+	pe_exc_data_t *pe_data = this_cpu_data();
+
+	/*
+	 * We should have been notified earlier of entering secure world, and
+	 * therefore have stashed the Non-secure priority mask.
+	 */
+	assert(pe_data->ns_pri_mask != 0);
+
+	/* Make sure no priority levels are active when requesting this */
+	if (has_valid_pri_activations(pe_data)) {
+		ERROR("PE %lx has priority activations: 0x%x\n",
+				read_mpidr_el1(), pe_data->active_pri_bits);
+		panic();
+	}
+
+	old_pmr = plat_ic_set_priority_mask(pe_data->ns_pri_mask);
+
+	EHF_LOG("Priority Mask: 0x%x => 0x%x\n", old_pmr, pe_data->ns_pri_mask);
+
+	pe_data->ns_pri_mask = 0;
+}
+
+/*
+ * Return whether Secure execution has explicitly allowed Non-secure interrupts
+ * to preempt itself, viz. during Yielding SMC calls.
+ */
+unsigned int ehf_is_ns_preemption_allowed(void)
+{
+	unsigned int run_pri;
+	pe_exc_data_t *pe_data = this_cpu_data();
+
+	/* If running priority is in secure range, return false */
+	run_pri = plat_ic_get_running_priority();
+	if (IS_PRI_SECURE(run_pri))
+		return 0;
+
+	/*
+	 * If Non-secure preemption was permitted by calling
+	 * ehf_allow_ns_preemption() earlier:
+	 *
+	 * - There wouldn't have been priority activations;
+	 * - We would have cleared the stashed the Non-secure Priority Mask.
+	 */
+	if (has_valid_pri_activations(pe_data))
+		return 0;
+	if (pe_data->ns_pri_mask != 0)
+		return 0;
+
+	return 1;
+}
+
+/*
  * Top-level EL3 interrupt handler.
  */
 static uint64_t ehf_el3_interrupt_handler(uint32_t id, uint32_t flags,
@@ -338,3 +499,6 @@ void ehf_register_priority_handler(unsigned int pri, ehf_handler_t handler)
 
 	EHF_LOG("register pri=0x%x handler=%p\n", pri, handler);
 }
+
+SUBSCRIBE_TO_EVENT(cm_entering_normal_world, ehf_entering_normal_world);
+SUBSCRIBE_TO_EVENT(cm_exited_normal_world, ehf_exited_normal_world);

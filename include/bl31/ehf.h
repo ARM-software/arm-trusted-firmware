@@ -55,6 +55,9 @@ typedef struct {
 
 	/* Priority mask value before any priority levels were active */
 	uint8_t init_pri_mask;
+
+	/* Non-secure priority mask value stashed during Secure execution */
+	uint8_t ns_pri_mask;
 } __aligned(sizeof(uint64_t)) pe_exc_data_t;
 
 typedef int (*ehf_handler_t)(uint32_t intr_raw, uint32_t flags, void *handle,
@@ -79,6 +82,8 @@ void ehf_init(void);
 void ehf_activate_priority(unsigned int priority);
 void ehf_deactivate_priority(unsigned int priority);
 void ehf_register_priority_handler(unsigned int pri, ehf_handler_t handler);
+void ehf_allow_ns_preemption(void);
+unsigned int ehf_is_ns_preemption_allowed(void);
 
 #endif /* __ASSEMBLY__ */
 
