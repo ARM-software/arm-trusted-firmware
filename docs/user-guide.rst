@@ -1379,10 +1379,10 @@ Running the software on FVP
 The latest version of the AArch64 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
-NOTE: Unless otherwise stated, the model version is Version 11.0 Build 11.0.34.
+NOTE: Unless otherwise stated, the model version is Version 11.1 Build 11.1.22.
 
 -  ``Foundation_Platform``
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.5, Build 0.8.8502)
+-  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.7, Build 0.8.8702)
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
@@ -1395,7 +1395,7 @@ NOTE: Unless otherwise stated, the model version is Version 11.0 Build 11.0.34.
 The latest version of the AArch32 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.5, Build 0.8.8502)
+-  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.7, Build 0.8.8702)
 -  ``FVP_Base_Cortex-A32x4``
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
@@ -1414,7 +1414,7 @@ NOTE: FVPs can be launched with ``--cadi-server`` option such that a
 CADI-compliant debugger (for example, ARM DS-5) can connect to and control its
 execution.
 
-NOTE: With FVP model Version 11.0 Build 11.0.34 and Version 8.5 Build 0.8.5202
+NOTE: Since FVP model Version 11.0 Build 11.0.34 and Version 8.5 Build 0.8.5202
 the internal synchronisation timings changed compared to older versions of the
 models. The models can be launched with ``-Q 100`` option if they are required
 to match the run time characteristics of the older versions.
