@@ -16,12 +16,6 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
-# define IMAGE_EL	3
-#else
-# define IMAGE_EL	1
-#endif
-
 static unsigned long long calc_physical_addr_size_bits(
 					unsigned long long max_addr)
 {
@@ -70,16 +64,18 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS*/
 
-int is_mmu_enabled(void)
+int is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
 {
-#if IMAGE_EL == 1
-	assert(IS_IN_EL(1));
-	return (read_sctlr_el1() & SCTLR_M_BIT) != 0;
-#elif IMAGE_EL == 3
-	assert(IS_IN_EL(3));
-	return (read_sctlr_el3() & SCTLR_M_BIT) != 0;
-#endif
+	if (ctx->xlat_regime == EL1_EL0_REGIME) {
+		assert(xlat_arch_current_el() >= 1);
+		return (read_sctlr_el1() & SCTLR_M_BIT) != 0;
+	} else {
+		assert(ctx->xlat_regime == EL3_REGIME);
+		assert(xlat_arch_current_el() >= 3);
+		return (read_sctlr_el3() & SCTLR_M_BIT) != 0;
+	}
 }
+
 
 void xlat_arch_tlbi_va(uintptr_t va)
 {
@@ -147,16 +143,6 @@ int xlat_arch_current_el(void)
 	assert(el > 0);
 
 	return el;
-}
-
-uint64_t xlat_arch_get_xn_desc(int el)
-{
-	if (el == 3) {
-		return UPPER_ATTRS(XN);
-	} else {
-		assert(el == 1);
-		return UPPER_ATTRS(PXN);
-	}
 }
 
 /*******************************************************************************

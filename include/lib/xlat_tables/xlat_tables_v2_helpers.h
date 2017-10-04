@@ -99,11 +99,12 @@ struct xlat_ctx {
 	unsigned int initialized;
 
 	/*
-	 * Bit mask that has to be ORed to the rest of a translation table
-	 * descriptor in order to prohibit execution of code at the exception
-	 * level of this translation context.
+	 * Translation regime managed by this xlat_ctx_t. It takes the values of
+	 * the enumeration xlat_regime_t. The type is "int" to avoid a circular
+	 * dependency on xlat_tables_v2.h, but this member must be treated as
+	 * xlat_regime_t.
 	 */
-	uint64_t execute_never_mask;
+	int xlat_regime;
 };
 
 #if PLAT_XLAT_TABLES_DYNAMIC
@@ -120,9 +121,9 @@ struct xlat_ctx {
 	/* do nothing */
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
-
-#define _REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
-			_virt_addr_space_size, _phy_addr_space_size)		\
+#define _REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count, _xlat_tables_count,	\
+			_virt_addr_space_size, _phy_addr_space_size,		\
+			_xlat_regime)					\
 	CASSERT(CHECK_VIRT_ADDR_SPACE_SIZE(_virt_addr_space_size),		\
 		assert_invalid_virtual_addr_space_size_for_##_ctx_name);	\
 										\
@@ -154,11 +155,22 @@ struct xlat_ctx {
 		.tables = _ctx_name##_xlat_tables,				\
 		.tables_num = _xlat_tables_count,				\
 		 _REGISTER_DYNMAP_STRUCT(_ctx_name)				\
+		.xlat_regime = (_xlat_regime),					\
 		.max_pa = 0,							\
 		.max_va = 0,							\
 		.next_table = 0,						\
 		.initialized = 0,						\
 	}
+
+
+/* This IMAGE_EL macro must not to be used outside the library */
+#if IMAGE_BL1 || IMAGE_BL31
+# define IMAGE_EL	3
+# define IMAGE_XLAT_DEFAULT_REGIME EL3_REGIME
+#else
+# define IMAGE_EL	1
+# define IMAGE_XLAT_DEFAULT_REGIME EL1_EL0_REGIME
+#endif
 
 #endif /*__ASSEMBLY__*/
 

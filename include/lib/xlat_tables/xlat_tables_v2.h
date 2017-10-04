@@ -57,6 +57,11 @@
 #define MT_SEC_SHIFT		U(4)
 /* Access permissions for instruction execution (EXECUTE/EXECUTE_NEVER) */
 #define MT_EXECUTE_SHIFT	U(5)
+/*
+ * In the EL1&0 translation regime, mark the region as User (EL0) or
+ * Privileged (EL1). In the EL3 translation regime this has no effect.
+ */
+#define MT_USER_SHIFT		U(6)
 /* All other bits are reserved */
 
 /*
@@ -89,10 +94,20 @@ typedef enum  {
 	 */
 	MT_EXECUTE		= U(0) << MT_EXECUTE_SHIFT,
 	MT_EXECUTE_NEVER	= U(1) << MT_EXECUTE_SHIFT,
+
+	/*
+	 * When mapping a region at EL0 or EL1, this attribute will be used to
+	 * determine if a User mapping (EL0) will be created or a Privileged
+	 * mapping (EL1).
+	 */
+	MT_USER				= U(1) << MT_USER_SHIFT,
+	MT_PRIVILEGED			= U(0) << MT_USER_SHIFT,
 } mmap_attr_t;
 
+/* Compound attributes for most common usages */
 #define MT_CODE		(MT_MEMORY | MT_RO | MT_EXECUTE)
 #define MT_RO_DATA	(MT_MEMORY | MT_RO | MT_EXECUTE_NEVER)
+#define MT_RW_DATA	(MT_MEMORY | MT_RW | MT_EXECUTE_NEVER)
 
 /*
  * Structure for specifying a single region of memory.
@@ -149,8 +164,25 @@ typedef struct xlat_ctx xlat_ctx_t;
  */
 #define REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
 			_virt_addr_space_size, _phy_addr_space_size)		\
-	_REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
-		_virt_addr_space_size, _phy_addr_space_size)
+	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count,	\
+					 _xlat_tables_count,		\
+					 _virt_addr_space_size,		\
+					 _phy_addr_space_size,		\
+					 IMAGE_XLAT_DEFAULT_REGIME)
+
+/*
+ * Same as REGISTER_XLAT_CONTEXT plus the additional parameter _xlat_regime to
+ * specify the translation regime managed by this xlat_ctx_t instance. The
+ * values are the one from xlat_regime_t enumeration.
+ */
+#define REGISTER_XLAT_CONTEXT2(_ctx_name, _mmap_count, _xlat_tables_count,	\
+			_virt_addr_space_size, _phy_addr_space_size,		\
+			_xlat_regime)					\
+	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count,	\
+					 _xlat_tables_count,		\
+					 _virt_addr_space_size,		\
+					 _phy_addr_space_size,		\
+					 _xlat_regime)
 
 /******************************************************************************
  * Generic translation table APIs.

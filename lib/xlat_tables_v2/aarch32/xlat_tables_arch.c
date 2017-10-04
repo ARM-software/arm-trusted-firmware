@@ -22,7 +22,7 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS*/
 
-int is_mmu_enabled(void)
+int is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
 {
 	return (read_sctlr() & SCTLR_M_BIT) != 0;
 }
@@ -86,11 +86,6 @@ int xlat_arch_current_el(void)
 	 * SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
 	 */
 	return 3;
-}
-
-uint64_t xlat_arch_get_xn_desc(int el __unused)
-{
-	return UPPER_ATTRS(XN);
 }
 
 /*******************************************************************************

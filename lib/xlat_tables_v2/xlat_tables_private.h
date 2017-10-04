@@ -76,13 +76,6 @@ void xlat_tables_print(xlat_ctx_t *ctx);
 int xlat_arch_current_el(void);
 
 /*
- * Returns the bit mask that has to be ORed to the rest of a translation table
- * descriptor so that execution of code is prohibited at the given Exception
- * Level.
- */
-uint64_t xlat_arch_get_xn_desc(int el);
-
-/*
  * Return the maximum physical address supported by the hardware.
  * This value depends on the execution state (AArch32/AArch64).
  */
@@ -92,7 +85,10 @@ unsigned long long xlat_arch_get_max_supported_pa(void);
 void enable_mmu_arch(unsigned int flags, uint64_t *base_table,
 		unsigned long long pa, uintptr_t max_va);
 
-/* Return 1 if the MMU of this Exception Level is enabled, 0 otherwise. */
-int is_mmu_enabled(void);
+/*
+ * Return 1 if the MMU of the translation regime managed by the given xlat_ctx_t
+ * is enabled, 0 otherwise.
+ */
+int is_mmu_enabled_ctx(const xlat_ctx_t *ctx);
 
 #endif /* __XLAT_TABLES_PRIVATE_H__ */
