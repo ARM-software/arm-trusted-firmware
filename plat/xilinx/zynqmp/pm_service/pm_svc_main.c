@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,22 +49,25 @@ static struct {
  */
 int pm_setup(void)
 {
-	int status;
+	int status, ret;
 
 	if (!zynqmp_is_pmu_up())
 		return -ENODEV;
 
-	status = pm_ipi_init();
+	status = pm_ipi_init(primary_proc);
 
-	if (status == 0)
+	if (status >= 0) {
 		INFO("BL31: PM Service Init Complete: API v%d.%d\n",
 		     PM_VERSION_MAJOR, PM_VERSION_MINOR);
-	else
+		ret = 0;
+	} else {
 		INFO("BL31: PM Service Init Failed, Error Code %d!\n", status);
+		ret = status;
+	}
 
 	pm_down = status;
 
-	return status;
+	return ret;
 }
 
 /**
@@ -163,7 +166,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		 * Even if we were wrong, it would not enable the IRQ in
 		 * the GIC.
 		 */
-		pm_ipi_irq_enable();
+		pm_ipi_irq_enable(primary_proc);
 		SMC_RET1(handle, (uint64_t)ret |
 			 ((uint64_t)pm_ctx.api_version << 32));
 
