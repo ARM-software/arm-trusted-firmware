@@ -17,6 +17,7 @@ PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
 				lib/psci/psci_main.c			\
 				lib/psci/psci_setup.c			\
 				lib/psci/psci_system_off.c		\
+				lib/psci/psci_mem_protect.c		\
 				lib/psci/${ARCH}/psci_helpers.S
 
 ifeq (${ARCH}, aarch64)

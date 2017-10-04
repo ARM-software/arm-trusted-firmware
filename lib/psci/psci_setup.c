@@ -243,6 +243,11 @@ int psci_setup(const psci_lib_args_t *lib_args)
 		psci_caps |=  define_psci_cap(PSCI_SYSTEM_RESET);
 	if (psci_plat_pm_ops->get_node_hw_state)
 		psci_caps |= define_psci_cap(PSCI_NODE_HW_STATE_AARCH64);
+	if (psci_plat_pm_ops->read_mem_protect &&
+			psci_plat_pm_ops->write_mem_protect)
+		psci_caps |= define_psci_cap(PSCI_MEM_PROTECT);
+	if (psci_plat_pm_ops->mem_protect_chk)
+		psci_caps |= define_psci_cap(PSCI_MEM_CHK_RANGE_AARCH64);
 
 #if ENABLE_PSCI_STAT
 	psci_caps |=  define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64);

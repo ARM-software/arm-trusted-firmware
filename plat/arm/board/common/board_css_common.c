@@ -29,10 +29,16 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_FLASH0_RO,
+#ifdef PLAT_ARM_MEM_PROT_ADDR
+	ARM_V2M_MAP_MEM_PROTECT,
+#endif
 	V2M_MAP_IOFPGA,
 	CSS_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 	ARM_MAP_NS_DRAM1,
+#ifdef AARCH64
+	ARM_MAP_DRAM2,
+#endif
 #ifdef SPD_tspd
 	ARM_MAP_TSP_SEC_MEM,
 #endif
@@ -56,6 +62,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
 	CSS_MAP_DEVICE,
+#ifdef PLAT_ARM_MEM_PROT_ADDR
+	ARM_V2M_MAP_MEM_PROTECT,
+#endif
 	SOC_CSS_MAP_DEVICE,
 	{0}
 };

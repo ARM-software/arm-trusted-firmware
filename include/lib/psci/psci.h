@@ -65,6 +65,9 @@
 #define PSCI_STAT_RESIDENCY_AARCH64	U(0xc4000010)
 #define PSCI_STAT_COUNT_AARCH32		U(0x84000011)
 #define PSCI_STAT_COUNT_AARCH64		U(0xc4000011)
+#define PSCI_MEM_PROTECT		U(0x84000013)
+#define PSCI_MEM_CHK_RANGE_AARCH32	U(0x84000014)
+#define PSCI_MEM_CHK_RANGE_AARCH64	U(0xc4000014)
 
 /* Macro to help build the psci capabilities bitfield */
 #define define_psci_cap(x)		(U(1) << (x & U(0x1f)))
@@ -288,6 +291,9 @@ typedef struct plat_psci_ops {
 				    unsigned int power_state,
 				    psci_power_state_t *output_state);
 	int (*get_node_hw_state)(u_register_t mpidr, unsigned int power_level);
+	int (*mem_protect_chk)(uintptr_t base, u_register_t length);
+	int (*read_mem_protect)(int *val);
+	int (*write_mem_protect)(int val);
 } plat_psci_ops_t;
 
 /*******************************************************************************

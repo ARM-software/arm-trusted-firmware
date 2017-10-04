@@ -122,6 +122,10 @@ int arm_validate_power_state(unsigned int power_state,
 int arm_validate_ns_entrypoint(uintptr_t entrypoint);
 void arm_system_pwr_domain_resume(void);
 void arm_program_trusted_mailbox(uintptr_t address);
+int arm_psci_read_mem_protect(int *val);
+int arm_nor_psci_write_mem_protect(int val);
+void arm_nor_psci_do_mem_protect(void);
+int arm_psci_mem_protect_chk(uintptr_t base, u_register_t length);
 
 /* Topology utility function */
 int arm_check_mpidr(u_register_t mpidr);

@@ -19,6 +19,25 @@
 
 #include <types.h>
 
+typedef struct mem_region_t {
+	uintptr_t base;
+	size_t nbytes;
+} mem_region_t;
+
+/*
+ * zero_normalmem all the regions defined in tbl.
+ */
+void clear_mem_regions(mem_region_t *tbl, size_t nregions);
+
+
+/*
+ * checks that a region (addr + nbytes-1) of memory is totally covered by
+ * one of the regions defined in tbl. Caller must ensure that (addr+nbytes-1)
+ * doesn't overflow.
+ */
+int mem_region_in_array_chk(mem_region_t *tbl, size_t nregions,
+			    uintptr_t addr, size_t nbytes);
+
 /*
  * Fill a region of normal memory of size "length" in bytes with zero bytes.
  *

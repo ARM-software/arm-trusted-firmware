@@ -269,4 +269,8 @@ u_register_t psci_stat_residency(u_register_t target_cpu,
 u_register_t psci_stat_count(u_register_t target_cpu,
 			unsigned int power_state);
 
+/* Private exported functions from psci_mem_protect.c */
+int psci_mem_protect(unsigned int enable);
+int psci_mem_chk_range(uintptr_t base, u_register_t length);
+
 #endif /* __PSCI_PRIVATE_H__ */

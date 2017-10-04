@@ -8,7 +8,10 @@
 BL32_SOURCES	+=	lib/cpus/aarch32/cortex_a53.S		\
 			lib/cpus/aarch32/cortex_a57.S		\
 			lib/cpus/aarch32/cortex_a72.S		\
+			lib/utils/mem_region.c			\
+			plat/arm/board/common/drivers/norflash/norflash.c	\
 			plat/arm/board/juno/juno_topology.c	\
+			plat/arm/common/arm_nor_psci_mem_protect.c	\
 			plat/arm/soc/common/soc_css_security.c	\
 			${JUNO_GIC_SOURCES}			\
 			${JUNO_INTERCONNECT_SOURCES}		\
