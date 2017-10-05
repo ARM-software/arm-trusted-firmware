@@ -18,7 +18,9 @@
 	.globl	zeromem16
 	.globl	memcpy16
 
+	.globl	disable_mmu_el1
 	.globl	disable_mmu_el3
+	.globl	disable_mmu_icache_el1
 	.globl	disable_mmu_icache_el3
 
 #if SUPPORT_VFP
@@ -451,11 +453,11 @@ endfunc memcpy16
 
 func disable_mmu_el3
 	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT)
-do_disable_mmu:
+do_disable_mmu_el3:
 	mrs	x0, sctlr_el3
 	bic	x0, x0, x1
 	msr	sctlr_el3, x0
-	isb				// ensure MMU is off
+	isb	/* ensure MMU is off */
 	dsb	sy
 	ret
 endfunc disable_mmu_el3
@@ -463,8 +465,30 @@ endfunc disable_mmu_el3
 
 func disable_mmu_icache_el3
 	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
-	b	do_disable_mmu
+	b	do_disable_mmu_el3
 endfunc disable_mmu_icache_el3
+
+/* ---------------------------------------------------------------------------
+ * Disable the MMU at EL1
+ * ---------------------------------------------------------------------------
+ */
+
+func disable_mmu_el1
+	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT)
+do_disable_mmu_el1:
+	mrs	x0, sctlr_el1
+	bic	x0, x0, x1
+	msr	sctlr_el1, x0
+	isb	/* ensure MMU is off */
+	dsb	sy
+	ret
+endfunc disable_mmu_el1
+
+
+func disable_mmu_icache_el1
+	mov	x1, #(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT)
+	b	do_disable_mmu_el1
+endfunc disable_mmu_icache_el1
 
 /* ---------------------------------------------------------------------------
  * Enable the use of VFP at EL3
