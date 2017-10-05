@@ -40,7 +40,7 @@ void arm_tzc400_setup(void)
 
 	/* Region 1 set to cover Secure part of DRAM */
 	tzc400_configure_region(PLAT_ARM_TZC_FILTERS, 1,
-			ARM_AP_TZC_DRAM1_BASE, ARM_AP_TZC_DRAM1_END,
+			ARM_AP_TZC_DRAM1_BASE, ARM_EL3_TZC_DRAM1_END,
 			TZC_REGION_S_RDWR,
 			0);
 

@@ -155,5 +155,8 @@ ifeq (${ARCH},aarch32)
     NEED_BL32 := yes
 endif
 
+# Add support for platform supplied linker script for BL31 build
+$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk

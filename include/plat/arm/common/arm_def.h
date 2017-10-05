@@ -75,11 +75,23 @@
 #define ARM_SCP_TZC_DRAM1_END		(ARM_SCP_TZC_DRAM1_BASE +	\
 					 ARM_SCP_TZC_DRAM1_SIZE - 1)
 
+/*
+ * Define a 2MB region within the TZC secured DRAM for use by EL3 runtime
+ * firmware. This region is meant to be NOLOAD and will not be zero
+ * initialized. Data sections with the attribute `arm_el3_tzc_dram` will be
+ * placed here.
+ */
+#define ARM_EL3_TZC_DRAM1_BASE		(ARM_SCP_TZC_DRAM1_BASE - ARM_EL3_TZC_DRAM1_SIZE)
+#define ARM_EL3_TZC_DRAM1_SIZE		ULL(0x00200000) /* 2 MB */
+#define ARM_EL3_TZC_DRAM1_END		(ARM_EL3_TZC_DRAM1_BASE +	\
+					ARM_EL3_TZC_DRAM1_SIZE - 1)
+
 #define ARM_AP_TZC_DRAM1_BASE		(ARM_DRAM1_BASE +		\
 					 ARM_DRAM1_SIZE -		\
 					 ARM_TZC_DRAM1_SIZE)
 #define ARM_AP_TZC_DRAM1_SIZE		(ARM_TZC_DRAM1_SIZE -		\
-					 ARM_SCP_TZC_DRAM1_SIZE)
+					 (ARM_SCP_TZC_DRAM1_SIZE +	\
+					 ARM_EL3_TZC_DRAM1_SIZE))
 #define ARM_AP_TZC_DRAM1_END		(ARM_AP_TZC_DRAM1_BASE +	\
 					 ARM_AP_TZC_DRAM1_SIZE - 1)
 
@@ -195,6 +207,11 @@
 						PLAT_ARM_MAX_BL31_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
 #endif
+
+#define ARM_MAP_EL3_TZC_DRAM		MAP_REGION_FLAT(			\
+						ARM_EL3_TZC_DRAM1_BASE,	\
+						ARM_EL3_TZC_DRAM1_SIZE,	\
+						MT_MEMORY | MT_RW | MT_SECURE)
 
 /*
  * The number of regions like RO(code), coherent and data required by
