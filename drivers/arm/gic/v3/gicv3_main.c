@@ -483,7 +483,7 @@ void gicv3_its_restore(uintptr_t gits_base, const gicv3_its_ctx_t * const its_ct
 
 	/* Assert that the GITS is disabled and quiescent */
 	assert((gits_read_ctlr(gits_base) & GITS_CTLR_ENABLED_BIT) == 0);
-	assert((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) == 1);
+	assert((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) != 0);
 
 	gits_write_cbaser(gits_base, its_ctx->gits_cbaser);
 	gits_write_cwriter(gits_base, its_ctx->gits_cwriter);
