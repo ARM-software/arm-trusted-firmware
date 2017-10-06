@@ -90,7 +90,7 @@ int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSIO
 	X509_NAME *name;
 	ASN1_INTEGER *sno;
 	int i, num, rc = 0;
-	EVP_MD_CTX mdCtx;
+	EVP_MD_CTX *mdCtx;
 	EVP_PKEY_CTX *pKeyCtx = NULL;
 
 	/* Create the certificate structure */
@@ -111,10 +111,14 @@ int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSIO
 		issuer = x;
 	}
 
-	EVP_MD_CTX_init(&mdCtx);
+	mdCtx = EVP_MD_CTX_create();
+	if (mdCtx == NULL) {
+		ERR_print_errors_fp(stdout);
+		goto END;
+	}
 
 	/* Sign the certificate with the issuer key */
-	if (!EVP_DigestSignInit(&mdCtx, &pKeyCtx, EVP_sha256(), NULL, ikey)) {
+	if (!EVP_DigestSignInit(mdCtx, &pKeyCtx, EVP_sha256(), NULL, ikey)) {
 		ERR_print_errors_fp(stdout);
 		goto END;
 	}
@@ -184,7 +188,7 @@ int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSIO
 		}
 	}
 
-	if (!X509_sign_ctx(x, &mdCtx)) {
+	if (!X509_sign_ctx(x, mdCtx)) {
 		ERR_print_errors_fp(stdout);
 		goto END;
 	}
@@ -194,7 +198,7 @@ int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSIO
 	cert->x = x;
 
 END:
-	EVP_MD_CTX_cleanup(&mdCtx);
+	EVP_MD_CTX_destroy(mdCtx);
 	return rc;
 }
 

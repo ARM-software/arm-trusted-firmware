@@ -166,7 +166,7 @@ X509_EXTENSION *ext_new_hash(int nid, int crit, const EVP_MD *md,
 	int sz;
 
 	/* OBJECT_IDENTIFIER with hash algorithm */
-	algorithm = OBJ_nid2obj(md->type);
+	algorithm = OBJ_nid2obj(EVP_MD_type(md));
 	if (algorithm == NULL) {
 		return NULL;
 	}
