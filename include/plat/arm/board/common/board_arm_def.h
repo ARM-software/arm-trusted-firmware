@@ -54,9 +54,9 @@
  */
 #if defined(IMAGE_BL31) || defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		6
-# define MAX_XLAT_TABLES		4
+# define MAX_XLAT_TABLES		5
 #else
-# define PLAT_ARM_MMAP_ENTRIES		10
+# define PLAT_ARM_MMAP_ENTRIES		11
 # define MAX_XLAT_TABLES		5
 #endif
 
