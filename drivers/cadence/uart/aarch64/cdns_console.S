@@ -105,15 +105,15 @@ func console_cdns_core_putc
 	cmp	w0, #0xA
 	b.ne	2f
 1:
-	/* Check if the transmit FIFO is full */
+	/* Check if the transmit FIFO is empty */
 	ldr	w2, [x1, #R_UART_SR]
-	tbnz	w2, #UART_SR_INTR_TFUL_BIT, 1b
+	tbz	w2, #UART_SR_INTR_TEMPTY_BIT, 1b
 	mov	w2, #0xD
 	str	w2, [x1, #R_UART_TX]
 2:
-	/* Check if the transmit FIFO is full */
+	/* Check if the transmit FIFO is empty */
 	ldr	w2, [x1, #R_UART_SR]
-	tbnz	w2, #UART_SR_INTR_TFUL_BIT, 2b
+	tbz	w2, #UART_SR_INTR_TEMPTY_BIT, 2b
 	str	w0, [x1, #R_UART_TX]
 	ret
 endfunc console_cdns_core_putc
