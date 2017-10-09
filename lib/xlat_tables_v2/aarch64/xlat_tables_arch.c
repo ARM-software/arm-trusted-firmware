@@ -10,18 +10,11 @@
 #include <bl_common.h>
 #include <cassert.h>
 #include <common_def.h>
-#include <platform_def.h>
 #include <sys/types.h>
 #include <utils.h>
 #include <utils_def.h>
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
-
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
-# define IMAGE_EL	3
-#else
-# define IMAGE_EL	1
-#endif
 
 static unsigned long long calc_physical_addr_size_bits(
 					unsigned long long max_addr)
@@ -71,20 +64,31 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS*/
 
-int is_mmu_enabled(void)
+int is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
+{
+	if (ctx->xlat_regime == EL1_EL0_REGIME) {
+		assert(xlat_arch_current_el() >= 1);
+		return (read_sctlr_el1() & SCTLR_M_BIT) != 0;
+	} else {
+		assert(ctx->xlat_regime == EL3_REGIME);
+		assert(xlat_arch_current_el() >= 3);
+		return (read_sctlr_el3() & SCTLR_M_BIT) != 0;
+	}
+}
+
+
+void xlat_arch_tlbi_va(uintptr_t va)
 {
 #if IMAGE_EL == 1
 	assert(IS_IN_EL(1));
-	return (read_sctlr_el1() & SCTLR_M_BIT) != 0;
+	xlat_arch_tlbi_va_regime(va, EL1_EL0_REGIME);
 #elif IMAGE_EL == 3
 	assert(IS_IN_EL(3));
-	return (read_sctlr_el3() & SCTLR_M_BIT) != 0;
+	xlat_arch_tlbi_va_regime(va, EL3_REGIME);
 #endif
 }
 
-#if PLAT_XLAT_TABLES_DYNAMIC
-
-void xlat_arch_tlbi_va(uintptr_t va)
+void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime)
 {
 	/*
 	 * Ensure the translation table write has drained into memory before
@@ -92,13 +96,21 @@ void xlat_arch_tlbi_va(uintptr_t va)
 	 */
 	dsbishst();
 
-#if IMAGE_EL == 1
-	assert(IS_IN_EL(1));
-	tlbivaae1is(TLBI_ADDR(va));
-#elif IMAGE_EL == 3
-	assert(IS_IN_EL(3));
-	tlbivae3is(TLBI_ADDR(va));
-#endif
+	/*
+	 * This function only supports invalidation of TLB entries for the EL3
+	 * and EL1&0 translation regimes.
+	 *
+	 * Also, it is architecturally UNDEFINED to invalidate TLBs of a higher
+	 * exception level (see section D4.9.2 of the ARM ARM rev B.a).
+	 */
+	if (xlat_regime == EL1_EL0_REGIME) {
+		assert(xlat_arch_current_el() >= 1);
+		tlbivaae1is(TLBI_ADDR(va));
+	} else {
+		assert(xlat_regime == EL3_REGIME);
+		assert(xlat_arch_current_el() >= 3);
+		tlbivae3is(TLBI_ADDR(va));
+	}
 }
 
 void xlat_arch_tlbi_va_sync(void)
@@ -124,8 +136,6 @@ void xlat_arch_tlbi_va_sync(void)
 	isb();
 }
 
-#endif /* PLAT_XLAT_TABLES_DYNAMIC */
-
 int xlat_arch_current_el(void)
 {
 	int el = GET_EL(read_CurrentEl());
@@ -133,16 +143,6 @@ int xlat_arch_current_el(void)
 	assert(el > 0);
 
 	return el;
-}
-
-uint64_t xlat_arch_get_xn_desc(int el)
-{
-	if (el == 3) {
-		return UPPER_ATTRS(XN);
-	} else {
-		assert(el == 1);
-		return UPPER_ATTRS(PXN);
-	}
 }
 
 /*******************************************************************************

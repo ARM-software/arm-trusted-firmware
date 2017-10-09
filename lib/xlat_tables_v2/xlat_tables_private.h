@@ -34,20 +34,30 @@ typedef enum  {
 	MT_DYNAMIC	= 1 << MT_DYN_SHIFT
 } mmap_priv_attr_t;
 
+#endif /* PLAT_XLAT_TABLES_DYNAMIC */
+
 /*
- * Function used to invalidate all levels of the translation walk for a given
- * virtual address. It must be called for every translation table entry that is
- * modified.
+ * Invalidate all TLB entries that match the given virtual address. This
+ * operation applies to all PEs in the same Inner Shareable domain as the PE
+ * that executes this function. This functions must be called for every
+ * translation table entry that is modified.
+ *
+ * xlat_arch_tlbi_va() applies the invalidation to the exception level of the
+ * current translation regime, whereas xlat_arch_tlbi_va_regime() applies it to
+ * the given translation regime.
+ *
+ * Note, however, that it is architecturally UNDEFINED to invalidate TLB entries
+ * pertaining to a higher exception level, e.g. invalidating EL3 entries from
+ * S-EL1.
  */
 void xlat_arch_tlbi_va(uintptr_t va);
+void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime);
 
 /*
  * This function has to be called at the end of any code that uses the function
  * xlat_arch_tlbi_va().
  */
 void xlat_arch_tlbi_va_sync(void);
-
-#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /* Print VA, PA, size and attributes of all regions in the mmap array. */
 void print_mmap(mmap_region_t *const mmap);
@@ -66,13 +76,6 @@ void xlat_tables_print(xlat_ctx_t *ctx);
 int xlat_arch_current_el(void);
 
 /*
- * Returns the bit mask that has to be ORed to the rest of a translation table
- * descriptor so that execution of code is prohibited at the given Exception
- * Level.
- */
-uint64_t xlat_arch_get_xn_desc(int el);
-
-/*
  * Return the maximum physical address supported by the hardware.
  * This value depends on the execution state (AArch32/AArch64).
  */
@@ -82,7 +85,10 @@ unsigned long long xlat_arch_get_max_supported_pa(void);
 void enable_mmu_arch(unsigned int flags, uint64_t *base_table,
 		unsigned long long pa, uintptr_t max_va);
 
-/* Return 1 if the MMU of this Exception Level is enabled, 0 otherwise. */
-int is_mmu_enabled(void);
+/*
+ * Return 1 if the MMU of the translation regime managed by the given xlat_ctx_t
+ * is enabled, 0 otherwise.
+ */
+int is_mmu_enabled_ctx(const xlat_ctx_t *ctx);
 
 #endif /* __XLAT_TABLES_PRIVATE_H__ */

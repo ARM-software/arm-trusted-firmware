@@ -89,9 +89,22 @@
  * AP[1] bit is ignored by hardware and is
  * treated as if it is One in EL2/EL3
  */
-#define AP_RO				(U(0x1) << 5)
-#define AP_RW				(U(0x0) << 5)
+#define AP2_SHIFT			U(0x7)
+#define AP2_RO				U(0x1)
+#define AP2_RW				U(0x0)
 
+#define AP1_SHIFT			U(0x6)
+#define AP1_ACCESS_UNPRIVILEGED		U(0x1)
+#define AP1_NO_ACCESS_UNPRIVILEGED	U(0x0)
+
+/*
+ * The following definitions must all be passed to the LOWER_ATTRS() macro to
+ * get the right bitmask.
+ */
+#define AP_RO				(AP2_RO << 5)
+#define AP_RW				(AP2_RW << 5)
+#define AP_ACCESS_UNPRIVILEGED		(AP1_ACCESS_UNPRIVILEGED    << 4)
+#define AP_NO_ACCESS_UNPRIVILEGED	(AP1_NO_ACCESS_UNPRIVILEGED << 4)
 #define NS				(U(0x1) << 3)
 #define ATTR_NON_CACHEABLE_INDEX	U(0x2)
 #define ATTR_DEVICE_INDEX		U(0x1)

@@ -22,7 +22,7 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS*/
 
-int is_mmu_enabled(void)
+int is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
 {
 	return (read_sctlr() & SCTLR_M_BIT) != 0;
 }
@@ -30,6 +30,17 @@ int is_mmu_enabled(void)
 #if PLAT_XLAT_TABLES_DYNAMIC
 
 void xlat_arch_tlbi_va(uintptr_t va)
+{
+	/*
+	 * Ensure the translation table write has drained into memory before
+	 * invalidating the TLB entry.
+	 */
+	dsbishst();
+
+	tlbimvaais(TLBI_ADDR(va));
+}
+
+void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime __unused)
 {
 	/*
 	 * Ensure the translation table write has drained into memory before
@@ -75,11 +86,6 @@ int xlat_arch_current_el(void)
 	 * SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
 	 */
 	return 3;
-}
-
-uint64_t xlat_arch_get_xn_desc(int el __unused)
-{
-	return UPPER_ATTRS(XN);
 }
 
 /*******************************************************************************

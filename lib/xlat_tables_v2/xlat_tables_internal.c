@@ -14,7 +14,7 @@
 #include <string.h>
 #include <types.h>
 #include <utils.h>
-#include <xlat_tables_arch.h>
+#include <xlat_tables_arch_private.h>
 #include <xlat_tables_defs.h>
 #include <xlat_tables_v2.h>
 
@@ -112,9 +112,11 @@ static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
-/* Returns a block/page table descriptor for the given level and attributes. */
-static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
-			  int level, uint64_t execute_never_mask)
+/*
+ * Returns a block/page table descriptor for the given level and attributes.
+ */
+uint64_t xlat_desc(const xlat_ctx_t *ctx, mmap_attr_t attr,
+		   unsigned long long addr_pa, int level)
 {
 	uint64_t desc;
 	int mem_type;
@@ -133,9 +135,28 @@ static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
 	 * Deduce other fields of the descriptor based on the MT_NS and MT_RW
 	 * memory region attributes.
 	 */
+	desc |= LOWER_ATTRS(ACCESS_FLAG);
+
 	desc |= (attr & MT_NS) ? LOWER_ATTRS(NS) : 0;
 	desc |= (attr & MT_RW) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
-	desc |= LOWER_ATTRS(ACCESS_FLAG);
+
+	/*
+	 * Do not allow unprivileged access when the mapping is for a privileged
+	 * EL. For translation regimes that do not have mappings for access for
+	 * lower exception levels, set AP[2] to AP_NO_ACCESS_UNPRIVILEGED.
+	 */
+	if (ctx->xlat_regime == EL1_EL0_REGIME) {
+		if (attr & MT_USER) {
+			/* EL0 mapping requested, so we give User access */
+			desc |= LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED);
+		} else {
+			/* EL1 mapping requested, no User access granted */
+			desc |= LOWER_ATTRS(AP_NO_ACCESS_UNPRIVILEGED);
+		}
+	} else {
+		assert(ctx->xlat_regime == EL3_REGIME);
+		desc |= LOWER_ATTRS(AP_NO_ACCESS_UNPRIVILEGED);
+	}
 
 	/*
 	 * Deduce shareability domain and executability of the memory region
@@ -156,7 +177,7 @@ static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * fetch, which could be an issue if this memory region
 		 * corresponds to a read-sensitive peripheral.
 		 */
-		desc |= execute_never_mask;
+		desc |= xlat_arch_regime_get_xn_desc(ctx->xlat_regime);
 
 	} else { /* Normal memory */
 		/*
@@ -171,10 +192,13 @@ static uint64_t xlat_desc(mmap_attr_t attr, unsigned long long addr_pa,
 		 * translation table.
 		 *
 		 * For read-only memory, rely on the MT_EXECUTE/MT_EXECUTE_NEVER
-		 * attribute to figure out the value of the XN bit.
+		 * attribute to figure out the value of the XN bit.  The actual
+		 * XN bit(s) to set in the descriptor depends on the context's
+		 * translation regime and the policy applied in
+		 * xlat_arch_regime_get_xn_desc().
 		 */
 		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER)) {
-			desc |= execute_never_mask;
+			desc |= xlat_arch_regime_get_xn_desc(ctx->xlat_regime);
 		}
 
 		if (mem_type == MT_MEMORY) {
@@ -314,7 +338,7 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
 
 			table_base[table_idx] = INVALID_DESC;
-			xlat_arch_tlbi_va(table_idx_va);
+			xlat_arch_tlbi_va_regime(table_idx_va, ctx->xlat_regime);
 
 		} else if (action == ACTION_RECURSE_INTO_TABLE) {
 
@@ -330,7 +354,8 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			 */
 			if (xlat_table_is_empty(ctx, subtable)) {
 				table_base[table_idx] = INVALID_DESC;
-				xlat_arch_tlbi_va(table_idx_va);
+				xlat_arch_tlbi_va_regime(table_idx_va,
+						ctx->xlat_regime);
 			}
 
 		} else {
@@ -417,7 +442,8 @@ static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 				 * descriptors. If not, create a table instead.
 				 */
 				if ((dest_pa & XLAT_BLOCK_MASK(level)) ||
-				    (level < MIN_LVL_BLOCK_DESC))
+				    (level < MIN_LVL_BLOCK_DESC) ||
+				    (mm->granularity < XLAT_BLOCK_SIZE(level)))
 					return ACTION_CREATE_NEW_TABLE;
 				else
 					return ACTION_WRITE_BLOCK_ENTRY;
@@ -535,8 +561,7 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
 
 			table_base[table_idx] =
-				xlat_desc(mm->attr, table_idx_pa, level,
-					  ctx->execute_never_mask);
+				xlat_desc(ctx, mm->attr, table_idx_pa, level);
 
 		} else if (action == ACTION_CREATE_NEW_TABLE) {
 
@@ -590,9 +615,10 @@ void print_mmap(mmap_region_t *const mmap)
 	mmap_region_t *mm = mmap;
 
 	while (mm->size) {
-		tf_printf(" VA:%p  PA:0x%llx  size:0x%zx  attr:0x%x\n",
+		tf_printf(" VA:%p  PA:0x%llx  size:0x%zx  attr:0x%x",
 				(void *)mm->base_va, mm->base_pa,
 				mm->size, mm->attr);
+		tf_printf(" granularity:0x%zx\n", mm->granularity);
 		++mm;
 	};
 	tf_printf("\n");
@@ -613,7 +639,7 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	unsigned long long base_pa = mm->base_pa;
 	uintptr_t base_va = mm->base_va;
 	size_t size = mm->size;
-	mmap_attr_t attr = mm->attr;
+	size_t granularity = mm->granularity;
 
 	unsigned long long end_pa = base_pa + size - 1;
 	uintptr_t end_va = base_va + size - 1;
@@ -621,6 +647,12 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	if (!IS_PAGE_ALIGNED(base_pa) || !IS_PAGE_ALIGNED(base_va) ||
 			!IS_PAGE_ALIGNED(size))
 		return -EINVAL;
+
+	if ((granularity != XLAT_BLOCK_SIZE(1)) &&
+		(granularity != XLAT_BLOCK_SIZE(2)) &&
+		(granularity != XLAT_BLOCK_SIZE(3))) {
+		return -EINVAL;
+	}
 
 	/* Check for overflows */
 	if ((base_pa > end_pa) || (base_va > end_va))
@@ -663,11 +695,9 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 		if (fully_overlapped_va) {
 
 #if PLAT_XLAT_TABLES_DYNAMIC
-			if ((attr & MT_DYNAMIC) ||
+			if ((mm->attr & MT_DYNAMIC) ||
 						(mm_cursor->attr & MT_DYNAMIC))
 				return -EPERM;
-#else
-			(void)attr;
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 			if ((mm_cursor->base_va - mm_cursor->base_pa) !=
 							(base_va - base_pa))
@@ -876,9 +906,8 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 					.size = end_va - mm->base_va,
 					.attr = 0
 			};
-			xlat_tables_unmap_region(ctx,
-				&unmap_mm, 0, ctx->base_table,
-				ctx->base_table_entries, ctx->base_level);
+			xlat_tables_unmap_region(ctx, &unmap_mm, 0, ctx->base_table,
+							ctx->base_table_entries, ctx->base_level);
 
 			return -ENOMEM;
 		}
@@ -993,9 +1022,10 @@ int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 
 /* Print the attributes of the specified block descriptor. */
-static void xlat_desc_print(uint64_t desc, uint64_t execute_never_mask)
+static void xlat_desc_print(xlat_ctx_t *ctx, uint64_t desc)
 {
 	int mem_type_index = ATTR_INDEX_GET(desc);
+	xlat_regime_t xlat_regime = ctx->xlat_regime;
 
 	if (mem_type_index == ATTR_IWBWA_OWBWA_NTR_INDEX) {
 		tf_printf("MEM");
@@ -1006,9 +1036,49 @@ static void xlat_desc_print(uint64_t desc, uint64_t execute_never_mask)
 		tf_printf("DEV");
 	}
 
-	tf_printf(LOWER_ATTRS(AP_RO) & desc ? "-RO" : "-RW");
+	const char *priv_str = "(PRIV)";
+	const char *user_str = "(USER)";
+
+	/*
+	 * Showing Privileged vs Unprivileged only makes sense for EL1&0
+	 * mappings
+	 */
+	const char *ro_str = "-RO";
+	const char *rw_str = "-RW";
+	const char *no_access_str = "-NOACCESS";
+
+	if (xlat_regime == EL3_REGIME) {
+		/* For EL3, the AP[2] bit is all what matters */
+		tf_printf((desc & LOWER_ATTRS(AP_RO)) ? ro_str : rw_str);
+	} else {
+		const char *ap_str = (desc & LOWER_ATTRS(AP_RO)) ? ro_str : rw_str;
+		tf_printf(ap_str);
+		tf_printf(priv_str);
+		/*
+		 * EL0 can only have the same permissions as EL1 or no
+		 * permissions at all.
+		 */
+		tf_printf((desc & LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED))
+			  ? ap_str : no_access_str);
+		tf_printf(user_str);
+	}
+
+	const char *xn_str = "-XN";
+	const char *exec_str = "-EXEC";
+
+	if (xlat_regime == EL3_REGIME) {
+		/* For EL3, the XN bit is all what matters */
+		tf_printf(LOWER_ATTRS(XN) & desc ? xn_str : exec_str);
+	} else {
+		/* For EL0 and EL1, we need to know who has which rights */
+		tf_printf(LOWER_ATTRS(PXN) & desc ? xn_str : exec_str);
+		tf_printf(priv_str);
+
+		tf_printf(LOWER_ATTRS(UXN) & desc ? xn_str : exec_str);
+		tf_printf(user_str);
+	}
+
 	tf_printf(LOWER_ATTRS(NS) & desc ? "-NS" : "-S");
-	tf_printf(execute_never_mask & desc ? "-XN" : "-EXEC");
 }
 
 static const char * const level_spacers[] = {
@@ -1025,9 +1095,10 @@ static const char *invalid_descriptors_ommited =
  * Recursive function that reads the translation tables passed as an argument
  * and prints their status.
  */
-static void xlat_tables_print_internal(const uintptr_t table_base_va,
+static void xlat_tables_print_internal(xlat_ctx_t *ctx,
+		const uintptr_t table_base_va,
 		uint64_t *const table_base, const int table_entries,
-		const unsigned int level, const uint64_t execute_never_mask)
+		const unsigned int level)
 {
 	assert(level <= XLAT_TABLE_LEVEL_MAX);
 
@@ -1086,17 +1157,16 @@ static void xlat_tables_print_internal(const uintptr_t table_base_va,
 
 				uintptr_t addr_inner = desc & TABLE_ADDR_MASK;
 
-				xlat_tables_print_internal(table_idx_va,
+				xlat_tables_print_internal(ctx, table_idx_va,
 					(uint64_t *)addr_inner,
-					XLAT_TABLE_ENTRIES, level+1,
-					execute_never_mask);
+					XLAT_TABLE_ENTRIES, level + 1);
 			} else {
 				tf_printf("%sVA:%p PA:0x%llx size:0x%zx ",
 					  level_spacers[level],
 					  (void *)table_idx_va,
 					  (unsigned long long)(desc & TABLE_ADDR_MASK),
 					  level_size);
-				xlat_desc_print(desc, execute_never_mask);
+				xlat_desc_print(ctx, desc);
 				tf_printf("\n");
 			}
 		}
@@ -1116,7 +1186,15 @@ static void xlat_tables_print_internal(const uintptr_t table_base_va,
 void xlat_tables_print(xlat_ctx_t *ctx)
 {
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	const char *xlat_regime_str;
+	if (ctx->xlat_regime == EL1_EL0_REGIME) {
+		xlat_regime_str = "1&0";
+	} else {
+		assert(ctx->xlat_regime == EL3_REGIME);
+		xlat_regime_str = "3";
+	}
 	VERBOSE("Translation tables state:\n");
+	VERBOSE("  Xlat regime:     EL%s\n", xlat_regime_str);
 	VERBOSE("  Max allowed PA:  0x%llx\n", ctx->pa_max_address);
 	VERBOSE("  Max allowed VA:  %p\n", (void *) ctx->va_max_address);
 	VERBOSE("  Max mapped PA:   0x%llx\n", ctx->max_pa);
@@ -1140,22 +1218,21 @@ void xlat_tables_print(xlat_ctx_t *ctx)
 		used_page_tables, ctx->tables_num,
 		ctx->tables_num - used_page_tables);
 
-	xlat_tables_print_internal(0, ctx->base_table, ctx->base_table_entries,
-				   ctx->base_level, ctx->execute_never_mask);
+	xlat_tables_print_internal(ctx, 0, ctx->base_table,
+				   ctx->base_table_entries, ctx->base_level);
 #endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
 }
 
 void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 {
+	assert(ctx != NULL);
+	assert(!ctx->initialized);
+	assert(ctx->xlat_regime == EL3_REGIME || ctx->xlat_regime == EL1_EL0_REGIME);
+	assert(!is_mmu_enabled_ctx(ctx));
+
 	mmap_region_t *mm = ctx->mmap;
 
-	assert(!is_mmu_enabled());
-	assert(!ctx->initialized);
-
 	print_mmap(mm);
-
-	ctx->execute_never_mask =
-			xlat_arch_get_xn_desc(xlat_arch_current_el());
 
 	/* All tables must be zeroed before mapping any region. */
 
