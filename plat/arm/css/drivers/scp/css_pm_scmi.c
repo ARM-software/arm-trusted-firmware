@@ -79,8 +79,7 @@ ARM_INSTANTIATE_LOCK;
  */
 void css_scp_suspend(const struct psci_power_state *target_state)
 {
-	int lvl, ret;
-	uint32_t scmi_pwr_state = 0;
+	int ret;
 
 	/* At least power domain level 0 should be specified to be suspended */
 	assert(target_state->pwr_domain_state[ARM_PWR_LVL0] ==
@@ -99,7 +98,9 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 		}
 		return;
 	}
-
+#if !HW_ASSISTED_COHERENCY
+	int lvl;
+	uint32_t scmi_pwr_state = 0;
 	/*
 	 * If we reach here, then assert that power down at system power domain
 	 * level is running.
@@ -136,6 +137,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 				ret);
 		panic();
 	}
+#endif
 }
 
 /*
