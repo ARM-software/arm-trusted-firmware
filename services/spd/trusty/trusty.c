@@ -99,6 +99,16 @@ static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
 	ret.r1 = r1;
 	ret.r0 = r0;
 
+	/*
+	 * To avoid the additional overhead in PSCI flow, skip FP context
+	 * saving/restoring in case of CPU suspend and resume, asssuming that
+	 * when it's needed the PSCI caller has preserved FP context before
+	 * going here.
+	 */
+#if CTX_INCLUDE_FPREGS
+	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME)
+		fpregs_context_save(get_fpregs_ctx(cm_get_context(security_state)));
+#endif
 	cm_el1_sysregs_context_save(security_state);
 
 	ctx->saved_security_state = security_state;
@@ -107,6 +117,11 @@ static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
 	assert(ctx->saved_security_state == !security_state);
 
 	cm_el1_sysregs_context_restore(security_state);
+#if CTX_INCLUDE_FPREGS
+	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME)
+		fpregs_context_restore(get_fpregs_ctx(cm_get_context(security_state)));
+#endif
+
 	cm_set_next_eret_context(security_state);
 
 	return ret;
