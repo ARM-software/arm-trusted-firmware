@@ -87,3 +87,21 @@ void plat_arm_gic_redistif_off(void)
 {
 	return;
 }
+
+
+/******************************************************************************
+ * ARM common helper to save & restore the GICv3 on resume from system suspend.
+ * The normal world currently takes care of saving and restoring the GICv2
+ * registers due to legacy reasons. Hence we just initialize the Distributor
+ * on resume from system suspend.
+ *****************************************************************************/
+void plat_arm_gic_save(void)
+{
+	return;
+}
+
+void plat_arm_gic_resume(void)
+{
+	gicv2_distif_init();
+	gicv2_pcpu_distif_init();
+}

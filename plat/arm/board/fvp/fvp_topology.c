@@ -12,7 +12,7 @@
 #include "drivers/pwrc/fvp_pwrc.h"
 
 /* The FVP power domain tree descriptor */
-unsigned char fvp_power_domain_tree_desc[FVP_CLUSTER_COUNT + 1];
+unsigned char fvp_power_domain_tree_desc[FVP_CLUSTER_COUNT + 2];
 
 
 CASSERT(FVP_CLUSTER_COUNT && FVP_CLUSTER_COUNT <= 256, assert_invalid_fvp_cluster_count);
@@ -23,18 +23,18 @@ CASSERT(FVP_CLUSTER_COUNT && FVP_CLUSTER_COUNT <= 256, assert_invalid_fvp_cluste
  ******************************************************************************/
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	int i;
+	unsigned int i;
 
 	/*
-	 * The FVP power domain tree does not have a single system level power domain
-	 * i.e. a single root node. The first entry in the power domain descriptor
-	 * specifies the number of power domains at the highest power level. For the FVP
-	 * this is the number of cluster power domains.
+	 * The highest level is the system level. The next level is constituted
+	 * by clusters and then cores in clusters.
 	 */
-	fvp_power_domain_tree_desc[0] = FVP_CLUSTER_COUNT;
+	fvp_power_domain_tree_desc[0] = 1;
+	fvp_power_domain_tree_desc[1] = FVP_CLUSTER_COUNT;
 
 	for (i = 0; i < FVP_CLUSTER_COUNT; i++)
-		fvp_power_domain_tree_desc[i + 1] = FVP_MAX_CPUS_PER_CLUSTER;
+		fvp_power_domain_tree_desc[i + 2] = FVP_MAX_CPUS_PER_CLUSTER;
+
 
 	return fvp_power_domain_tree_desc;
 }

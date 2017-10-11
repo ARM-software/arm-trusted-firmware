@@ -11,6 +11,7 @@
 #include <console.h>
 #include <errno.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <platform_def.h>
 #include <psci.h>
 
@@ -140,6 +141,24 @@ const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 }
 
 /******************************************************************************
+ * Helper function to save the platform state before a system suspend. Save the
+ * state of the system components which are not in the Always ON power domain.
+ *****************************************************************************/
+void arm_system_pwr_domain_save(void)
+{
+	/* Assert system power domain is available on the platform */
+	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
+
+	plat_arm_gic_save();
+
+	/*
+	 * All the other peripheral which are configured by ARM TF are
+	 * re-initialized on resume from system suspend. Hence we
+	 * don't save their state here.
+	 */
+}
+
+/******************************************************************************
  * Helper function to resume the platform from system suspend. Reinitialize
  * the system components which are not in the Always ON power domain.
  * TODO: Unify the platform setup when waking up from cold boot and system
@@ -153,12 +172,8 @@ void arm_system_pwr_domain_resume(void)
 	/* Assert system power domain is available on the platform */
 	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
 
-	/*
-	 * TODO: On GICv3 systems, figure out whether the core that wakes up
-	 * first from system suspend need to initialize the re-distributor
-	 * interface of all the other suspended cores.
-	 */
-	plat_arm_gic_init();
+	plat_arm_gic_resume();
+
 	plat_arm_security_setup();
 	arm_configure_sys_timer();
 }

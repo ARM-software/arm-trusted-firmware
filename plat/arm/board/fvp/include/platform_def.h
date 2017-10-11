@@ -20,9 +20,9 @@
 	(FVP_CLUSTER_COUNT * FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU)
 
 #define PLAT_NUM_PWR_DOMAINS		(FVP_CLUSTER_COUNT + \
-					PLATFORM_CORE_COUNT)
+					PLATFORM_CORE_COUNT) + 1
 
-#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
+#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL2
 
 /*
  * Other platform porting definitions are provided by included headers

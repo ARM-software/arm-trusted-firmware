@@ -120,6 +120,7 @@ void arm_configure_sys_timer(void);
 int arm_validate_power_state(unsigned int power_state,
 			    psci_power_state_t *req_state);
 int arm_validate_ns_entrypoint(uintptr_t entrypoint);
+void arm_system_pwr_domain_save(void);
 void arm_system_pwr_domain_resume(void);
 void arm_program_trusted_mailbox(uintptr_t address);
 int arm_psci_read_mem_protect(int *val);
@@ -183,6 +184,8 @@ void plat_arm_gic_cpuif_disable(void);
 void plat_arm_gic_redistif_on(void);
 void plat_arm_gic_redistif_off(void);
 void plat_arm_gic_pcpu_init(void);
+void plat_arm_gic_save(void);
+void plat_arm_gic_resume(void);
 void plat_arm_security_setup(void);
 void plat_arm_pwrc_setup(void);
 void plat_arm_interconnect_init(void);
