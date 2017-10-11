@@ -244,7 +244,7 @@ PKCS#1 v2.1, 'rsa_1_5' - RSA PKCS#1 v1.5, 'ecdsa'"
 int main(int argc, char *argv[])
 {
 	STACK_OF(X509_EXTENSION) * sk;
-	X509_EXTENSION *cert_ext;
+	X509_EXTENSION *cert_ext = NULL;
 	ext_t *ext;
 	key_t *key;
 	cert_t *cert;
