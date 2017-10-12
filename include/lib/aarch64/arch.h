@@ -110,6 +110,9 @@
 #define ID_AA64PFR0_EL1_SHIFT	U(4)
 #define ID_AA64PFR0_EL2_SHIFT	U(8)
 #define ID_AA64PFR0_EL3_SHIFT	U(12)
+#define ID_AA64PFR0_AMU_SHIFT	U(44)
+#define ID_AA64PFR0_AMU_LENGTH	U(4)
+#define ID_AA64PFR0_AMU_MASK	U(0xf)
 #define ID_AA64PFR0_ELX_MASK	U(0xf)
 
 /* ID_AA64DFR0_EL1.PMS definitions (for ARMv8.2+) */
@@ -295,6 +298,7 @@
 
 /* CPTR_EL3 definitions */
 #define TCPAC_BIT		(U(1) << 31)
+#define TAM_BIT			(U(1) << 30)
 #define TTA_BIT			(U(1) << 20)
 #define TFP_BIT			(U(1) << 10)
 #define CPTR_EL3_RESET_VAL	U(0x0)
@@ -302,6 +306,7 @@
 /* CPTR_EL2 definitions */
 #define CPTR_EL2_RES1		((U(1) << 13) | (U(1) << 12) | (U(0x3ff)))
 #define CPTR_EL2_TCPAC_BIT	(U(1) << 31)
+#define CPTR_EL2_TAM_BIT	(U(1) << 30)
 #define CPTR_EL2_TTA_BIT	(U(1) << 20)
 #define CPTR_EL2_TFP_BIT	(U(1) << 10)
 #define CPTR_EL2_RESET_VAL	CPTR_EL2_RES1
@@ -609,5 +614,29 @@
  * Definitions for system register interface to SPE
  ******************************************************************************/
 #define PMBLIMITR_EL1		S3_0_C9_C10_0
+
+/*******************************************************************************
+ * Definitions for system register interface to AMU for ARMv8.4 onwards
+ ******************************************************************************/
+#define AMCR_EL0		S3_3_C13_C2_0
+#define AMCFGR_EL0		S3_3_C13_C2_1
+#define AMCGCR_EL0		S3_3_C13_C2_2
+#define AMUSERENR_EL0		S3_3_C13_C2_3
+#define AMCNTENCLR0_EL0		S3_3_C13_C2_4
+#define AMCNTENSET0_EL0		S3_3_C13_C2_5
+#define AMCNTENCLR1_EL0		S3_3_C13_C3_0
+#define AMCNTENSET1_EL0		S3_3_C13_C3_1
+
+/* Activity Monitor Group 0 Event Counter Registers */
+#define AMEVCNTR00_EL0		S3_3_C13_C4_0
+#define AMEVCNTR01_EL0		S3_3_C13_C4_1
+#define AMEVCNTR02_EL0		S3_3_C13_C4_2
+#define AMEVCNTR03_EL0		S3_3_C13_C4_3
+
+/* Activity Monitor Group 0 Event Type Registers */
+#define AMEVTYPER00_EL0		S3_3_C13_C6_0
+#define AMEVTYPER01_EL0		S3_3_C13_C6_1
+#define AMEVTYPER02_EL0		S3_3_C13_C6_2
+#define AMEVTYPER03_EL0		S3_3_C13_C6_3
 
 #endif /* __ARCH_H__ */
