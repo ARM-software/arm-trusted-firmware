@@ -113,7 +113,7 @@ endif
 # Toolchain
 ################################################################################
 
-HOSTCC			:=	gcc
+HOSTCC			?=	gcc
 export HOSTCC
 
 CC			:=	${CROSS_COMPILE}gcc
