@@ -9,7 +9,12 @@ ifeq (${ARCH}, aarch64)
   # DRAM (if available) or the TZC secured area of DRAM.
   # Trusted SRAM is the default.
 
-  ARM_TSP_RAM_LOCATION	:=	tsram
+  ifneq (${TRUSTED_BOARD_BOOT},0)
+    ARM_TSP_RAM_LOCATION	?=	dram
+  else
+    ARM_TSP_RAM_LOCATION	?=	tsram
+  endif
+
   ifeq (${ARM_TSP_RAM_LOCATION}, tsram)
     ARM_TSP_RAM_LOCATION_ID = ARM_TRUSTED_SRAM_ID
   else ifeq (${ARM_TSP_RAM_LOCATION}, tdram)
