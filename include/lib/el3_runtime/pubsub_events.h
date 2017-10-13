@@ -16,3 +16,21 @@
  * initialization.
  */
 REGISTER_PUBSUB_EVENT(psci_cpu_on_finish);
+
+#ifdef AARCH64
+/*
+ * These events are published by the AArch64 context management framework
+ * after the secure context is restored/saved via
+ * cm_el1_sysregs_context_{restore,save}() API.
+ */
+REGISTER_PUBSUB_EVENT(cm_entering_secure_world);
+REGISTER_PUBSUB_EVENT(cm_exited_secure_world);
+
+/*
+ * These events are published by the AArch64 context management framework
+ * after the normal context is restored/saved via
+ * cm_el1_sysregs_context_{restore,save}() API.
+ */
+REGISTER_PUBSUB_EVENT(cm_entering_normal_world);
+REGISTER_PUBSUB_EVENT(cm_exited_normal_world);
+#endif /* AARCH64 */

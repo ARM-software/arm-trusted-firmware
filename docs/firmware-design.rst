@@ -2309,6 +2309,12 @@ PE only; it won't cause handlers to execute on a different PE.
 Note that publishing an event on a PE blocks until all the subscribed handlers
 finish executing on the PE.
 
+ARM Trusted Firmware generic code publishes and subscribes to some events
+within. Platform ports are discouraged from subscribing to them. These events
+may be withdrawn, renamed, or have their semantics altered in the future.
+Platforms may however register, publish, and subscribe to platform-specific
+events.
+
 Publish and Subscribe Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2338,22 +2344,6 @@ implement:
    }
 
    SUBSCRIBE_TO_EVENT(foo, foo_handler);
-
-Available Events
-~~~~~~~~~~~~~~~~
-
-ARM Trusted Firmware core makes some events available by default. They're listed
-below, along with information as to when they're published, and the arguments
-passed to subscribed handlers.
-
-Other EL3 components that are conditionally compiled in may make their own
-events available, but aren't documented here.
-
--  ``psci_cpu_on_finish``
-
-   - When: Published on a PE after it's finished its power-up sequence.
-
-   - Argument: ``NULL``.
 
 Performance Measurement Framework
 ---------------------------------
