@@ -344,9 +344,9 @@ Common build options
    the ``ENABLE_PMF`` build option as well. Default is 0.
 
 -  ``ENABLE_SPE_FOR_LOWER_ELS`` : Boolean option to enable Statistical Profiling
-   extensions. This is an optional architectural feature available only for
-   AArch64 8.2 onwards. This option defaults to 1 but is automatically
-   disabled when the target architecture is AArch32 or AArch64 8.0/8.1.
+   extensions. This is an optional architectural feature for AArch64.
+   The default is 1 but is automatically disabled when the target architecture
+   is AArch32.
 
 -  ``ENABLE_STACK_PROTECTOR``: String option to enable the stack protection
    checks in GCC. Allowed values are "all", "strong" and "0" (default).
