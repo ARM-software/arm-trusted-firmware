@@ -1022,7 +1022,7 @@ int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 
 /* Print the attributes of the specified block descriptor. */
-static void xlat_desc_print(xlat_ctx_t *ctx, uint64_t desc)
+static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 {
 	int mem_type_index = ATTR_INDEX_GET(desc);
 	xlat_regime_t xlat_regime = ctx->xlat_regime;
@@ -1315,3 +1315,195 @@ void enable_mmu_el3(unsigned int flags)
 }
 
 #endif /* AARCH32 */
+
+/*
+ * Do a translation table walk to find the block or page descriptor that maps
+ * virtual_addr.
+ *
+ * On success, return the address of the descriptor within the translation
+ * table. Its lookup level is stored in '*out_level'.
+ * On error, return NULL.
+ *
+ * xlat_table_base
+ *   Base address for the initial lookup level.
+ * xlat_table_base_entries
+ *   Number of entries in the translation table for the initial lookup level.
+ * virt_addr_space_size
+ *   Size in bytes of the virtual address space.
+ */
+static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
+				       void *xlat_table_base,
+				       int xlat_table_base_entries,
+				       unsigned long long virt_addr_space_size,
+				       int *out_level)
+{
+	unsigned int start_level;
+	uint64_t *table;
+	int entries;
+
+	VERBOSE("%s(%p)\n", __func__, (void *)virtual_addr);
+
+	start_level = GET_XLAT_TABLE_LEVEL_BASE(virt_addr_space_size);
+	VERBOSE("Starting translation table walk from level %i\n", start_level);
+
+	table = xlat_table_base;
+	entries = xlat_table_base_entries;
+
+	for (unsigned int level = start_level;
+	     level <= XLAT_TABLE_LEVEL_MAX;
+	     ++level) {
+		int idx;
+		uint64_t desc;
+		uint64_t desc_type;
+
+		VERBOSE("Table address: %p\n", (void *)table);
+
+		idx = XLAT_TABLE_IDX(virtual_addr, level);
+		VERBOSE("Index into level %i table: %i\n", level, idx);
+		if (idx >= entries) {
+			VERBOSE("Invalid address\n");
+			return NULL;
+		}
+
+		desc = table[idx];
+		desc_type = desc & DESC_MASK;
+		VERBOSE("Descriptor at level %i: 0x%llx\n", level,
+				(unsigned long long)desc);
+
+		if (desc_type == INVALID_DESC) {
+			VERBOSE("Invalid entry (memory not mapped)\n");
+			return NULL;
+		}
+
+		if (level == XLAT_TABLE_LEVEL_MAX) {
+			/*
+			 * There can't be table entries at the final lookup
+			 * level.
+			 */
+			assert(desc_type == PAGE_DESC);
+			VERBOSE("Descriptor mapping a memory page (size: 0x%llx)\n",
+				(unsigned long long)XLAT_BLOCK_SIZE(XLAT_TABLE_LEVEL_MAX));
+			*out_level = level;
+			return &table[idx];
+		}
+
+		if (desc_type == BLOCK_DESC) {
+			VERBOSE("Descriptor mapping a memory block (size: 0x%llx)\n",
+				(unsigned long long)XLAT_BLOCK_SIZE(level));
+			*out_level = level;
+			return &table[idx];
+		}
+
+		assert(desc_type == TABLE_DESC);
+		VERBOSE("Table descriptor, continuing xlat table walk...\n");
+		table = (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
+		entries = XLAT_TABLE_ENTRIES;
+	}
+
+	/*
+	 * This shouldn't be reached, the translation table walk should end at
+	 * most at level XLAT_TABLE_LEVEL_MAX and return from inside the loop.
+	 */
+	assert(0);
+
+	return NULL;
+}
+
+
+static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
+		mmap_attr_t *attributes, uint64_t **table_entry,
+		unsigned long long *addr_pa, int *table_level)
+{
+	uint64_t *entry;
+	uint64_t desc;
+	int level;
+	unsigned long long virt_addr_space_size;
+
+	/*
+	 * Sanity-check arguments.
+	 */
+	assert(ctx != NULL);
+	assert(ctx->initialized);
+	assert(ctx->xlat_regime == EL1_EL0_REGIME || ctx->xlat_regime == EL3_REGIME);
+
+	virt_addr_space_size = (unsigned long long)ctx->va_max_address + 1;
+	assert(virt_addr_space_size > 0);
+
+	entry = find_xlat_table_entry(base_va,
+				ctx->base_table,
+				ctx->base_table_entries,
+				virt_addr_space_size,
+				&level);
+	if (entry == NULL) {
+		WARN("Address %p is not mapped.\n", (void *)base_va);
+		return -EINVAL;
+	}
+
+	if (addr_pa != NULL) {
+		*addr_pa = *entry & TABLE_ADDR_MASK;
+	}
+
+	if (table_entry != NULL) {
+		*table_entry = entry;
+	}
+
+	if (table_level != NULL) {
+		*table_level = level;
+	}
+
+	desc = *entry;
+
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	VERBOSE("Attributes: ");
+	xlat_desc_print(ctx, desc);
+	tf_printf("\n");
+#endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
+
+	assert(attributes != NULL);
+	*attributes = 0;
+
+	int attr_index = (desc >> ATTR_INDEX_SHIFT) & ATTR_INDEX_MASK;
+
+	if (attr_index == ATTR_IWBWA_OWBWA_NTR_INDEX) {
+		*attributes |= MT_MEMORY;
+	} else if (attr_index == ATTR_NON_CACHEABLE_INDEX) {
+		*attributes |= MT_NON_CACHEABLE;
+	} else {
+		assert(attr_index == ATTR_DEVICE_INDEX);
+		*attributes |= MT_DEVICE;
+	}
+
+	int ap2_bit = (desc >> AP2_SHIFT) & 1;
+
+	if (ap2_bit == AP2_RW)
+		*attributes |= MT_RW;
+
+	if (ctx->xlat_regime == EL1_EL0_REGIME) {
+		int ap1_bit = (desc >> AP1_SHIFT) & 1;
+		if (ap1_bit == AP1_ACCESS_UNPRIVILEGED)
+			*attributes |= MT_USER;
+	}
+
+	int ns_bit = (desc >> NS_SHIFT) & 1;
+
+	if (ns_bit == 1)
+		*attributes |= MT_NS;
+
+	uint64_t xn_mask = xlat_arch_regime_get_xn_desc(ctx->xlat_regime);
+
+	if ((desc & xn_mask) == xn_mask) {
+		*attributes |= MT_EXECUTE_NEVER;
+	} else {
+		assert((desc & xn_mask) == 0);
+	}
+
+	return 0;
+}
+
+
+int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
+		mmap_attr_t *attributes)
+{
+	return get_mem_attributes_internal(ctx, base_va, attributes,
+					   NULL, NULL, NULL);
+}

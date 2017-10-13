@@ -251,5 +251,23 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx,
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
+/*
+ * Query the memory attributes of a memory page in a set of translation tables.
+ *
+ * Return 0 on success, a negative error code on error.
+ * On success, the attributes are stored into *attributes.
+ *
+ * ctx
+ *   Translation context to work on.
+ * base_va
+ *   Virtual address of the page to get the attributes of.
+ *   There are no alignment restrictions on this address. The attributes of the
+ *   memory page it lies within are returned.
+ * attributes
+ *   Output parameter where to store the attributes of the targeted memory page.
+ */
+int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
+		mmap_attr_t *attributes);
+
 #endif /*__ASSEMBLY__*/
 #endif /* __XLAT_TABLES_V2_H__ */

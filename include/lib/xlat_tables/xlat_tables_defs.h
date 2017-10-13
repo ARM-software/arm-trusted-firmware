@@ -24,9 +24,19 @@
 #define FOUR_KB_INDEX(x)	((x) >> FOUR_KB_SHIFT)
 
 #define INVALID_DESC		U(0x0)
+/*
+ * A block descriptor points to a region of memory bigger than the granule size
+ * (e.g. a 2MB region when the granule size is 4KB).
+ */
 #define BLOCK_DESC		U(0x1) /* Table levels 0-2 */
+/* A table descriptor points to the next level of translation table. */
 #define TABLE_DESC		U(0x3) /* Table levels 0-2 */
+/*
+ * A page descriptor points to a page, i.e. a memory region whose size is the
+ * translation granule size (e.g. 4KB).
+ */
 #define PAGE_DESC		U(0x3) /* Table level 3 */
+
 #define DESC_MASK		U(0x3)
 
 #define FIRST_LEVEL_DESC_N	ONE_GB_SHIFT
@@ -84,10 +94,22 @@
 #define XLAT_BLOCK_MASK(level)	(XLAT_BLOCK_SIZE(level) - 1)
 /* Mask to get the address bits common to a block of a certain table level*/
 #define XLAT_ADDR_MASK(level)	(~XLAT_BLOCK_MASK(level))
+/*
+ * Extract from the given virtual address the index into the given lookup level.
+ * This macro assumes the system is using the 4KB translation granule.
+ */
+#define XLAT_TABLE_IDX(virtual_addr, level)	\
+	(((virtual_addr) >> XLAT_ADDR_SHIFT(level)) & ULL(0x1FF))
 
 /*
- * AP[1] bit is ignored by hardware and is
- * treated as if it is One in EL2/EL3
+ * The ARMv8 translation table descriptor format defines AP[2:1] as the Access
+ * Permissions bits, and does not define an AP[0] bit.
+ *
+ * AP[1] is valid only for a stage 1 translation that supports two VA ranges
+ * (i.e. in the ARMv8A.0 architecture, that is the S-EL1&0 regime).
+ *
+ * AP[1] is RES0 for stage 1 translations that support only one VA range
+ * (e.g. EL3).
  */
 #define AP2_SHIFT			U(0x7)
 #define AP2_RO				U(0x1)
@@ -120,6 +142,28 @@
 #define MAIR_ATTR_SET(attr, index)	((attr) << ((index) << 3))
 #define ATTR_INDEX_MASK			U(0x3)
 #define ATTR_INDEX_GET(attr)		(((attr) >> 2) & ATTR_INDEX_MASK)
+
+/*
+ * Shift values for the attributes fields in a block or page descriptor.
+ * See section D4.3.3 in the ARMv8-A ARM (issue B.a).
+ */
+
+/* Memory attributes index field, AttrIndx[2:0]. */
+#define ATTR_INDEX_SHIFT		2
+/* Non-secure bit, NS. */
+#define NS_SHIFT			5
+/* Shareability field, SH[1:0] */
+#define SHAREABILITY_SHIFT		8
+/* The Access Flag, AF. */
+#define ACCESS_FLAG_SHIFT		10
+/* The not global bit, nG. */
+#define NOT_GLOBAL_SHIFT		11
+/* Contiguous hint bit. */
+#define CONT_HINT_SHIFT			52
+/* Execute-never bits, XN. */
+#define PXN_SHIFT			53
+#define XN_SHIFT			54
+#define UXN_SHIFT			XN_SHIFT
 
 /*
  * Flags to override default values used to program system registers while
