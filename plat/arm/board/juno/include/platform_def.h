@@ -12,6 +12,9 @@
 #include <board_css_def.h>
 #include <common_def.h>
 #include <css_def.h>
+#if TRUSTED_BOARD_BOOT
+#include <mbedtls_config.h>
+#endif
 #include <soc_css_def.h>
 #include <tzc400.h>
 #include <v2m_def.h>
@@ -106,7 +109,11 @@
  * little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		0x19000
+#if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
+# define PLAT_ARM_MAX_BL2_SIZE		0x1E000
+#else
+# define PLAT_ARM_MAX_BL2_SIZE		0x1A000
+#endif
 #else
 # define PLAT_ARM_MAX_BL2_SIZE		0xC000
 #endif
