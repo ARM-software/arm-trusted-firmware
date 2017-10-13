@@ -313,7 +313,6 @@ CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx), 
  * Function prototypes
  ******************************************************************************/
 void el1_sysregs_context_save(el1_sys_regs_t *regs);
-void el1_sysregs_context_save_post_ops(void);
 void el1_sysregs_context_restore(el1_sys_regs_t *regs);
 #if CTX_INCLUDE_FPREGS
 void fpregs_context_save(fp_regs_t *regs);

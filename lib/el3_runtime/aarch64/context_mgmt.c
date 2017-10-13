@@ -15,6 +15,7 @@
 #include <platform_def.h>
 #include <pubsub_events.h>
 #include <smcc_helpers.h>
+#include <spe.h>
 #include <string.h>
 #include <utils.h>
 
@@ -216,6 +217,9 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 static void enable_extensions_nonsecure(int el2_unused)
 {
 #if IMAGE_BL31
+#if ENABLE_SPE_FOR_LOWER_ELS
+	spe_enable(el2_unused);
+#endif
 #endif
 }
 
@@ -354,13 +358,6 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * relying on hw. Some fields are architecturally
 			 * UNKNOWN on reset.
 			 *
-			 * MDCR_EL2.TPMS (ARM v8.2): Do not trap statistical
-			 * profiling controls to EL2.
-			 *
-			 * MDCR_EL2.E2PB (ARM v8.2): SPE enabled in non-secure
-			 * state. Accesses to profiling buffer controls at
-			 * non-secure EL1 are not trapped to EL2.
-			 *
 			 * MDCR_EL2.TDRA: Set to zero so that Non-secure EL0 and
 			 *  EL1 System register accesses to the Debug ROM
 			 *  registers are not trapped to EL2.
@@ -396,22 +393,6 @@ void cm_prepare_el3_exit(uint32_t security_state)
 					| MDCR_EL2_TDA_BIT | MDCR_EL2_TDE_BIT
 					| MDCR_EL2_HPME_BIT | MDCR_EL2_TPM_BIT
 					| MDCR_EL2_TPMCR_BIT));
-
-#if ENABLE_SPE_FOR_LOWER_ELS
-			uint64_t id_aa64dfr0_el1;
-
-			/* Detect if SPE is implemented */
-			id_aa64dfr0_el1 = read_id_aa64dfr0_el1() >>
-				ID_AA64DFR0_PMS_SHIFT;
-			if ((id_aa64dfr0_el1 & ID_AA64DFR0_PMS_MASK) == 1) {
-				/*
-				 * Make sure traps to EL2 are not generated if
-				 * EL2 is implemented but not used.
-				 */
-				mdcr_el2 &= ~MDCR_EL2_TPMS;
-				mdcr_el2 |= MDCR_EL2_E2PB(MDCR_EL2_E2PB_EL1);
-			}
-#endif
 
 			write_mdcr_el2(mdcr_el2);
 
@@ -454,7 +435,6 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 	assert(ctx);
 
 	el1_sysregs_context_save(get_sysregs_ctx(ctx));
-	el1_sysregs_context_save_post_ops();
 
 #if IMAGE_BL31
 	if (security_state == SECURE)
