@@ -15,12 +15,14 @@
 struct psci_power_state;
 
 /* API for power management by SCP */
+int css_system_reset2(int is_vendor, int reset_type, u_register_t cookie);
 void css_scp_suspend(const struct psci_power_state *target_state);
 void css_scp_off(const struct psci_power_state *target_state);
 void css_scp_on(u_register_t mpidr);
 int css_scp_get_power_state(u_register_t mpidr, unsigned int power_level);
 void __dead2 css_scp_sys_shutdown(void);
 void __dead2 css_scp_sys_reboot(void);
+void __dead2 css_scp_system_off(int state);
 
 /* API for SCP Boot Image transfer. Return 0 on success, -1 on error */
 int css_scp_boot_image_xfer(void *image, unsigned int image_size);
