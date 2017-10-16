@@ -3,6 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <arch_helpers.h>
 #include <assert.h>
 #include <console.h>
 #include <platform.h>
@@ -19,6 +21,11 @@
 #if !ERROR_DEPRECATED
 #pragma weak plat_get_syscnt_freq2
 #endif /* ERROR_DEPRECATED */
+
+#if SDEI_SUPPORT
+#pragma weak plat_sdei_handle_masked_trigger
+#pragma weak plat_sdei_validate_entry_point
+#endif
 
 void bl31_plat_enable_mmu(uint32_t flags)
 {
@@ -64,3 +71,22 @@ unsigned int plat_get_syscnt_freq2(void)
 	return (unsigned int)freq;
 }
 #endif /* ERROR_DEPRECATED */
+
+#if SDEI_SUPPORT
+/*
+ * Function that handles spurious SDEI interrupts while events are masked.
+ */
+void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr)
+{
+	WARN("Spurious SDEI interrupt %u on masked PE %lx\n", intr, mpidr);
+}
+
+/*
+ * Default Function to validate SDEI entry point, which returns success.
+ * Platforms may override this with their own validation mechanism.
+ */
+int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
+{
+	return 0;
+}
+#endif

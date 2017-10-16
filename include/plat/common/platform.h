@@ -114,6 +114,16 @@ void bl1_plat_arch_setup(void);
 void bl1_platform_setup(void);
 struct meminfo *bl1_plat_sec_mem_layout(void);
 
+/*******************************************************************************
+ * Optional EL3 component functions in BL31
+ ******************************************************************************/
+
+/* SDEI platform functions */
+#if SDEI_SUPPORT
+int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode);
+void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr);
+#endif
+
 /*
  * The following function is mandatory when the
  * firmware update feature is used.
