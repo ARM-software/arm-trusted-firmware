@@ -2425,7 +2425,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 References
 ----------
 
-.. [#] Trusted Board Boot Requirements CLIENT PDD (ARM DEN 0006B-5). Available
+.. [#] Trusted Board Boot Requirements CLIENT PDD (ARM DEN0006C-1). Available
        under NDA through your ARM account representative.
 .. [#] `Power State Coordination Interface PDD`_
 .. [#] `SMC Calling Convention PDD`_
