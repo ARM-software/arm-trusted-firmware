@@ -11,6 +11,33 @@
 #include <plat_macros.S>
 #include <cortex_a75.h>
 
+func cortex_a75_reset_func
+#if ENABLE_AMU
+	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
+	mrs	x0, actlr_el3
+	orr	x0, x0, #CORTEX_A75_ACTLR_AMEN_BIT
+	msr	actlr_el3, x0
+	isb
+
+	/* Make sure accesses from EL0/EL1 are not trapped to EL2 */
+	mrs	x0, actlr_el2
+	orr	x0, x0, #CORTEX_A75_ACTLR_AMEN_BIT
+	msr	actlr_el2, x0
+	isb
+
+	/* Enable group0 counters */
+	mov	x0, #CORTEX_A75_AMU_GROUP0_MASK
+	msr	CPUAMCNTENSET_EL0, x0
+	isb
+
+	/* Enable group1 counters */
+	mov	x0, #CORTEX_A75_AMU_GROUP1_MASK
+	msr	CPUAMCNTENSET_EL0, x0
+	isb
+#endif
+	ret
+endfunc cortex_a75_reset_func
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -47,5 +74,5 @@ func cortex_a75_cpu_reg_dump
 endfunc cortex_a75_cpu_reg_dump
 
 declare_cpu_ops cortex_a75, CORTEX_A75_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	cortex_a75_reset_func, \
 	cortex_a75_core_pwr_dwn

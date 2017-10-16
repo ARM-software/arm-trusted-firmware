@@ -156,3 +156,5 @@ ENABLE_SPE_FOR_LOWER_ELS	:= 1
 ifeq (${ARCH},aarch32)
     override ENABLE_SPE_FOR_LOWER_ELS := 0
 endif
+
+ENABLE_AMU			:= 0

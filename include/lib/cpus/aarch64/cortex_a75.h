@@ -19,4 +19,38 @@
 /* Definitions of register field mask in CORTEX_A75_CPUPWRCTLR_EL1 */
 #define CORTEX_A75_CORE_PWRDN_EN_MASK	0x1
 
+/*******************************************************************************
+ * CPU Activity Monitor Unit register specific definitions.
+ ******************************************************************************/
+#define CPUAMCNTENCLR_EL0	S3_3_C15_C9_7
+#define CPUAMCNTENSET_EL0	S3_3_C15_C9_6
+#define CPUAMCFGR_EL0		S3_3_C15_C10_6
+#define CPUAMUSERENR_EL0	S3_3_C15_C10_7
+
+/* Activity Monitor Event Counter Registers */
+#define CPUAMEVCNTR0_EL0	S3_3_C15_C9_0
+#define CPUAMEVCNTR1_EL0	S3_3_C15_C9_1
+#define CPUAMEVCNTR2_EL0	S3_3_C15_C9_2
+#define CPUAMEVCNTR3_EL0	S3_3_C15_C9_3
+#define CPUAMEVCNTR4_EL0	S3_3_C15_C9_4
+
+/* Activity Monitor Event Type Registers */
+#define CPUAMEVTYPER0_EL0	S3_3_C15_C10_0
+#define CPUAMEVTYPER1_EL0	S3_3_C15_C10_1
+#define CPUAMEVTYPER2_EL0	S3_3_C15_C10_2
+#define CPUAMEVTYPER3_EL0	S3_3_C15_C10_3
+#define CPUAMEVTYPER4_EL0	S3_3_C15_C10_4
+
+#define CORTEX_A75_ACTLR_AMEN_BIT	(U(1) << 4)
+
+/*
+ * The Cortex-A75 core implements five counters, 0-4. Events 0, 1, 2, are
+ * fixed and are enabled (Group 0). Events 3 and 4 (Group 1) are
+ * programmable by programming the appropriate Event count bits in
+ * CPUAMEVTYPER<n> register and are disabled by default. Platforms may
+ * enable this with suitable programming.
+ */
+#define CORTEX_A75_AMU_GROUP0_MASK	0x7
+#define CORTEX_A75_AMU_GROUP1_MASK	(0 << 3)
+
 #endif /* __CORTEX_A75_H__ */
