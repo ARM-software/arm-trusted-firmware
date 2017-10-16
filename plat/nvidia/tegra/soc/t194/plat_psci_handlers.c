@@ -179,24 +179,39 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 }
 
 /*******************************************************************************
- * Platform handler to calculate the proper target power level at the
- * specified affinity level
+ * Helper function to check if this is the last ON CPU in the cluster
  ******************************************************************************/
-plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
-					     const plat_local_state_t *states,
-					     uint32_t ncpu)
+static bool tegra_last_on_cpu_in_cluster(const plat_local_state_t *states,
+			uint32_t ncpu)
 {
-	plat_local_state_t target = *states;
-	int32_t cluster_powerdn = 1;
-	uint32_t core_pos = (uint32_t)read_mpidr() & MPIDR_CPU_MASK;
+	plat_local_state_t target;
+	bool last_on_cpu = true;
 	uint32_t num_cpus = ncpu, pos = 0;
+
+	do {
+		target = states[pos];
+		if (target != PLAT_MAX_OFF_STATE) {
+			last_on_cpu = false;
+		}
+		--num_cpus;
+		pos++;
+	} while (num_cpus != 0U);
+
+	return last_on_cpu;
+}
+
+/*******************************************************************************
+ * Helper function to get target power state for the cluster
+ ******************************************************************************/
+static plat_local_state_t tegra_get_afflvl1_pwr_state(const plat_local_state_t *states,
+			uint32_t ncpu)
+{
+	uint32_t core_pos = (uint32_t)read_mpidr() & (uint32_t)MPIDR_CPU_MASK;
+	plat_local_state_t target = states[core_pos];
 	mce_cstate_info_t cstate_info = { 0 };
 
-	/* get the current core's power state */
-	target = states[core_pos];
-
 	/* CPU suspend */
-	if ((lvl == MPIDR_AFFLVL1) && (target == PSTATE_ID_CORE_POWERDN)) {
+	if (target == PSTATE_ID_CORE_POWERDN) {
 
 		/* Program default wake mask */
 		cstate_info.wake_mask = TEGRA194_CORE_WAKE_MASK;
@@ -205,45 +220,51 @@ plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
 	}
 
 	/* CPU off */
-	if ((lvl == MPIDR_AFFLVL1) && (target == PLAT_MAX_OFF_STATE)) {
-
-		/* find out the number of ON cpus in the cluster */
-		do {
-			target = states[pos];
-			if (target != PLAT_MAX_OFF_STATE) {
-				cluster_powerdn = 0;
-			}
-			--num_cpus;
-			pos++;
-		} while (num_cpus != 0U);
+	if (target == PLAT_MAX_OFF_STATE) {
 
 		/* Enable cluster powerdn from last CPU in the cluster */
-		if (cluster_powerdn != 0) {
+		if (tegra_last_on_cpu_in_cluster(states, ncpu)) {
 
-			/* Enable CC6 */
-			/* todo */
-
-			/* If cluster group needs to be railgated, request CG7 */
-			/* todo */
-
-			/* Turn off wake mask */
+			/* Enable CC6 state and turn off wake mask */
+			cstate_info.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6;
 			cstate_info.update_wake_mask = 1U;
 			mce_update_cstate_info(&cstate_info);
 
 		} else {
+
 			/* Turn off wake_mask */
 			cstate_info.update_wake_mask = 1U;
 			mce_update_cstate_info(&cstate_info);
+			target = PSCI_LOCAL_STATE_RUN;
 		}
 	}
 
+	return target;
+}
+
+/*******************************************************************************
+ * Platform handler to calculate the proper target power level at the
+ * specified affinity level
+ ******************************************************************************/
+plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
+					     const plat_local_state_t *states,
+					     uint32_t ncpu)
+{
+	plat_local_state_t target = PSCI_LOCAL_STATE_RUN;
+	uint32_t cpu = plat_my_core_pos();
+
 	/* System Suspend */
-	if ((lvl == MPIDR_AFFLVL2) || (target == PSTATE_ID_SOC_POWERDN)) {
-		return PSTATE_ID_SOC_POWERDN;
+	if ((lvl == (uint32_t)MPIDR_AFFLVL2) && (states[cpu] == PSTATE_ID_SOC_POWERDN)) {
+		target = PSTATE_ID_SOC_POWERDN;
 	}
 
-	/* default state */
-	return PSCI_LOCAL_STATE_RUN;
+	/* CPU off, CPU suspend */
+	if (lvl == (uint32_t)MPIDR_AFFLVL1) {
+		target = tegra_get_afflvl1_pwr_state(states, ncpu);
+	}
+
+	/* target cluster/system state */
+	return target;
 }
 
 int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
