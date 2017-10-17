@@ -78,6 +78,11 @@
 /* CSSELR definitions */
 #define LEVEL_SHIFT		1
 
+/* ID_PFR0 definitions */
+#define ID_PFR0_AMU_SHIFT	U(20)
+#define ID_PFR0_AMU_LENGTH	U(4)
+#define ID_PFR0_AMU_MASK	U(0xf)
+
 /* ID_PFR1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	12
 #define ID_PFR1_VIRTEXT_MASK	0xf
@@ -187,6 +192,7 @@
 /* HCPTR definitions */
 #define HCPTR_RES1		((1 << 13) | (1<<12) | 0x3ff)
 #define TCPAC_BIT		(1 << 31)
+#define TAM_BIT			(1 << 30)
 #define TTA_BIT			(1 << 20)
 #define TCP11_BIT		(1 << 10)
 #define TCP10_BIT		(1 << 10)
@@ -407,6 +413,7 @@
 #define DCISW		p15, 0, c7, c6, 2
 #define CTR		p15, 0, c0, c0, 1
 #define CNTFRQ		p15, 0, c14, c0, 0
+#define ID_PFR0		p15, 0, c0, c1, 0
 #define ID_PFR1		p15, 0, c0, c1, 1
 #define MAIR0		p15, 0, c10, c2, 0
 #define MAIR1		p15, 0, c10, c2, 1
@@ -524,5 +531,29 @@
 #define MAIR_NORM_OUTER_SHIFT	4
 
 #define MAKE_MAIR_NORMAL_MEMORY(inner, outer)	((inner) | ((outer) << MAIR_NORM_OUTER_SHIFT))
+
+/*******************************************************************************
+ * Definitions for system register interface to AMU for ARMv8.4 onwards
+ ******************************************************************************/
+#define AMCR		p15, 0, c13, c2, 0
+#define AMCFGR		p15, 0, c13, c2, 1
+#define AMCGCR		p15, 0, c13, c2, 2
+#define AMUSERENR	p15, 0, c13, c2, 3
+#define AMCNTENCLR0	p15, 0, c13, c2, 4
+#define AMCNTENSET0	p15, 0, c13, c2, 5
+#define AMCNTENCLR1	p15, 0, c13, c3, 0
+#define AMCNTENSET1	p15, 0, c13, c1, 1
+
+/* Activity Monitor Group 0 Event Counter Registers */
+#define AMEVCNTR00	p15, 0, c0
+#define AMEVCNTR01	p15, 1, c0
+#define AMEVCNTR02	p15, 2, c0
+#define AMEVCNTR03	p15, 3, c0
+
+/* Activity Monitor Group 0 Event Type Registers */
+#define AMEVTYPER00	p15, 0, c13, c6, 0
+#define AMEVTYPER01	p15, 0, c13, c6, 1
+#define AMEVTYPER02	p15, 0, c13, c6, 2
+#define AMEVTYPER03	p15, 0, c13, c6, 3
 
 #endif /* __ARCH_H__ */
