@@ -87,22 +87,23 @@
 #define CTX_AFSR1_EL1		U(0x98)
 #define CTX_CONTEXTIDR_EL1	U(0xa0)
 #define CTX_VBAR_EL1		U(0xa8)
+#define CTX_PMCR_EL0		U(0xb0)
 
 /*
  * If the platform is AArch64-only, there is no need to save and restore these
  * AArch32 registers.
  */
 #if CTX_INCLUDE_AARCH32_REGS
-#define CTX_SPSR_ABT		U(0xb0)
-#define CTX_SPSR_UND		U(0xb8)
-#define CTX_SPSR_IRQ		U(0xc0)
-#define CTX_SPSR_FIQ		U(0xc8)
-#define CTX_DACR32_EL2		U(0xd0)
-#define CTX_IFSR32_EL2		U(0xd8)
-#define CTX_FP_FPEXC32_EL2	U(0xe0)
-#define CTX_TIMER_SYSREGS_OFF		U(0xf0) /* Align to the next 16 byte boundary */
+#define CTX_SPSR_ABT		U(0xc0)  /* Align to the next 16 byte boundary */
+#define CTX_SPSR_UND		U(0xc8)
+#define CTX_SPSR_IRQ		U(0xd0)
+#define CTX_SPSR_FIQ		U(0xd8)
+#define CTX_DACR32_EL2		U(0xe0)
+#define CTX_IFSR32_EL2		U(0xe8)
+#define CTX_FP_FPEXC32_EL2	U(0xf0)
+#define CTX_TIMER_SYSREGS_OFF	U(0x100) /* Align to the next 16 byte boundary */
 #else
-#define CTX_TIMER_SYSREGS_OFF		U(0xb0)
+#define CTX_TIMER_SYSREGS_OFF	U(0xc0)  /* Align to the next 16 byte boundary */
 #endif /* __CTX_INCLUDE_AARCH32_REGS__ */
 
 /*

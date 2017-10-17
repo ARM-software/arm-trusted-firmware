@@ -350,6 +350,8 @@
 #define PMCR_N_SHIFT		11
 #define PMCR_N_MASK		0x1f
 #define PMCR_N_BITS		(PMCR_N_MASK << PMCR_N_SHIFT)
+#define PMCR_LC_BIT		(1 << 6)
+#define PMCR_DP_BIT		(1 << 5)
 
 /*******************************************************************************
  * Definitions of register offsets, fields and macros for CPU system

@@ -74,6 +74,9 @@ func el1_sysregs_context_save
 	mrs	x9, vbar_el1
 	stp	x17, x9, [x0, #CTX_CONTEXTIDR_EL1]
 
+	mrs	x10, pmcr_el0
+	str	x10, [x0, #CTX_PMCR_EL0]
+
 	/* Save AArch32 system registers if the build has instructed so */
 #if CTX_INCLUDE_AARCH32_REGS
 	mrs	x11, spsr_abt
@@ -192,6 +195,9 @@ func el1_sysregs_context_restore
 	ldp	x17, x9, [x0, #CTX_CONTEXTIDR_EL1]
 	msr	contextidr_el1, x17
 	msr	vbar_el1, x9
+
+	ldr	x10, [x0, #CTX_PMCR_EL0]
+	msr	pmcr_el0, x10
 
 	/* Restore AArch32 system registers if the build has instructed so */
 #if CTX_INCLUDE_AARCH32_REGS

@@ -58,7 +58,7 @@ void cm_init(void)
 static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
 	unsigned int security_state;
-	uint32_t scr_el3;
+	uint32_t scr_el3, pmcr_el0;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
 	unsigned long sctlr_elx;
@@ -164,10 +164,34 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 
 	/*
 	 * Store the initialised SCTLR_EL1 value in the cpu_context - SCTLR_EL2
-	 * and other EL2 resgisters are set up by cm_preapre_ns_entry() as they
+	 * and other EL2 registers are set up by cm_preapre_ns_entry() as they
 	 * are not part of the stored cpu_context.
 	 */
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
+
+	if (security_state == SECURE) {
+		/*
+		 * Initialise PMCR_EL0 for secure context only, setting all
+		 * fields rather than relying on hw. Some fields are
+		 * architecturally UNKNOWN on reset.
+		 *
+		 * PMCR_EL0.LC: Set to one so that cycle counter overflow, that
+		 *  is recorded in PMOVSCLR_EL0[31], occurs on the increment
+		 *  that changes PMCCNTR_EL0[63] from 1 to 0.
+		 *
+		 * PMCR_EL0.DP: Set to one so that the cycle counter,
+		 *  PMCCNTR_EL0 does not count when event counting is prohibited.
+		 *
+		 * PMCR_EL0.X: Set to zero to disable export of events.
+		 *
+		 * PMCR_EL0.D: Set to zero so that, when enabled, PMCCNTR_EL0
+		 *  counts on every clock cycle.
+		 */
+		pmcr_el0 = ((PMCR_EL0_RESET_VAL | PMCR_EL0_LC_BIT
+				| PMCR_EL0_DP_BIT)
+				& ~(PMCR_EL0_X_BIT | PMCR_EL0_D_BIT));
+		write_ctx_reg(get_sysregs_ctx(ctx), CTX_PMCR_EL0, pmcr_el0);
+	}
 
 	/* Populate EL3 state so that we've the right context before doing ERET */
 	state = get_el3state_ctx(ctx);

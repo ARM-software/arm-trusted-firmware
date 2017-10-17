@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,8 @@
 #define SMC_CTX_SP_MON		0x7C
 #define SMC_CTX_LR_MON		0x80
 #define SMC_CTX_SCR		0x84
-#define SMC_CTX_SIZE		0x88
+#define SMC_CTX_PMCR		0x88
+#define SMC_CTX_SIZE		0x8C
 
 #ifndef __ASSEMBLY__
 #include <cassert.h>
@@ -73,6 +74,7 @@ typedef struct smc_ctx {
 	u_register_t sp_mon;
 	u_register_t lr_mon;
 	u_register_t scr;
+	u_register_t pmcr;
 } smc_ctx_t;
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,8 @@
  * spsr, lr, sp registers and the `scr` register to the SMC context on entry
  * due a SMC call. The `lr` of the current mode (monitor) is expected to be
  * already saved. The `sp` must point to the `smc_ctx_t` to save to.
+ * Additionally, also save the 'pmcr' register as this is updated whilst
+ * executing in the secure world.
  */
 	.macro smcc_save_gp_mode_regs
 	/* Save r0 - r12 in the SMC context */
@@ -46,6 +48,8 @@
 	/* lr_mon is already saved by caller */
 	ldcopr	r4, SCR
 	str	r4, [sp, #SMC_CTX_SCR]
+	ldcopr	r4, PMCR
+	str	r4, [sp, #SMC_CTX_PMCR]
 	.endm
 
 /*
@@ -69,6 +73,12 @@
 	ldr	r1, [r0, #SMC_CTX_SCR]
 	stcopr	r1, SCR
 	isb
+
+	/*
+	 * Restore the PMCR register.
+	 */
+	ldr	r1, [r0, #SMC_CTX_PMCR]
+	stcopr	r1, PMCR
 
 	/* Restore the banked registers including the current SPSR */
 	add	r1, r0, #SMC_CTX_SP_USR
