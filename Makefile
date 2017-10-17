@@ -113,18 +113,18 @@ endif
 # Toolchain
 ################################################################################
 
-HOSTCC			:=	gcc
+HOSTCC			?=	gcc
 export HOSTCC
 
-CC			:=	${CROSS_COMPILE}gcc
-CPP			:=	${CROSS_COMPILE}cpp
-AS			:=	${CROSS_COMPILE}gcc
-AR			:=	${CROSS_COMPILE}ar
-LD			:=	${CROSS_COMPILE}ld
-OC			:=	${CROSS_COMPILE}objcopy
-OD			:=	${CROSS_COMPILE}objdump
-NM			:=	${CROSS_COMPILE}nm
-PP			:=	${CROSS_COMPILE}gcc -E
+CC			?=	${CROSS_COMPILE}gcc
+CPP			?=	${CROSS_COMPILE}cpp
+AS			?=	${CROSS_COMPILE}gcc
+AR			?=	${CROSS_COMPILE}ar
+LD			?=	${CROSS_COMPILE}ld
+OC			?=	${CROSS_COMPILE}objcopy
+OD			?=	${CROSS_COMPILE}objdump
+NM			?=	${CROSS_COMPILE}nm
+PP			?=	${CROSS_COMPILE}gcc -E
 
 ifeq ($(notdir $(CC)),armclang)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi -march=armv8-a
