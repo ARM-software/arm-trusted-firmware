@@ -295,7 +295,7 @@ int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
 	uint64_t target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
 			MPIDR_AFFINITY_BITS;
 
-	if (target_cluster > MPIDR_AFFLVL1) {
+	if (target_cluster > ((uint32_t)PLATFORM_CLUSTER_COUNT - 1U)) {
 
 		ERROR("%s: unsupported CPU (0x%lx)\n", __func__, mpidr);
 		ret = PSCI_E_NOT_PRESENT;
