@@ -1507,3 +1507,156 @@ int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
 	return get_mem_attributes_internal(ctx, base_va, attributes,
 					   NULL, NULL, NULL);
 }
+
+
+int change_mem_attributes(xlat_ctx_t *ctx,
+			uintptr_t base_va,
+			size_t size,
+			mmap_attr_t attr)
+{
+	/* Note: This implementation isn't optimized. */
+
+	assert(ctx != NULL);
+	assert(ctx->initialized);
+
+	unsigned long long virt_addr_space_size =
+		(unsigned long long)ctx->va_max_address + 1;
+	assert(virt_addr_space_size > 0);
+
+	if (!IS_PAGE_ALIGNED(base_va)) {
+		WARN("%s: Address %p is not aligned on a page boundary.\n",
+		     __func__, (void *)base_va);
+		return -EINVAL;
+	}
+
+	if (size == 0) {
+		WARN("%s: Size is 0.\n", __func__);
+		return -EINVAL;
+	}
+
+	if ((size % PAGE_SIZE) != 0) {
+		WARN("%s: Size 0x%zx is not a multiple of a page size.\n",
+		     __func__, size);
+		return -EINVAL;
+	}
+
+	if (((attr & MT_EXECUTE_NEVER) == 0) && ((attr & MT_RW) != 0)) {
+		WARN("%s() doesn't allow to remap memory as read-write and executable.\n",
+		     __func__);
+		return -EINVAL;
+	}
+
+	int pages_count = size / PAGE_SIZE;
+
+	VERBOSE("Changing memory attributes of %i pages starting from address %p...\n",
+		pages_count, (void *)base_va);
+
+	uintptr_t base_va_original = base_va;
+
+	/*
+	 * Sanity checks.
+	 */
+	for (int i = 0; i < pages_count; ++i) {
+		uint64_t *entry;
+		uint64_t desc;
+		int level;
+
+		entry = find_xlat_table_entry(base_va,
+					      ctx->base_table,
+					      ctx->base_table_entries,
+					      virt_addr_space_size,
+					      &level);
+		if (entry == NULL) {
+			WARN("Address %p is not mapped.\n", (void *)base_va);
+			return -EINVAL;
+		}
+
+		desc = *entry;
+
+		/*
+		 * Check that all the required pages are mapped at page
+		 * granularity.
+		 */
+		if (((desc & DESC_MASK) != PAGE_DESC) ||
+			(level != XLAT_TABLE_LEVEL_MAX)) {
+			WARN("Address %p is not mapped at the right granularity.\n",
+			     (void *)base_va);
+			WARN("Granularity is 0x%llx, should be 0x%x.\n",
+			     (unsigned long long)XLAT_BLOCK_SIZE(level), PAGE_SIZE);
+			return -EINVAL;
+		}
+
+		/*
+		 * If the region type is device, it shouldn't be executable.
+		 */
+		int attr_index = (desc >> ATTR_INDEX_SHIFT) & ATTR_INDEX_MASK;
+		if (attr_index == ATTR_DEVICE_INDEX) {
+			if ((attr & MT_EXECUTE_NEVER) == 0) {
+				WARN("Setting device memory as executable at address %p.",
+				     (void *)base_va);
+				return -EINVAL;
+			}
+		}
+
+		base_va += PAGE_SIZE;
+	}
+
+	/* Restore original value. */
+	base_va = base_va_original;
+
+	VERBOSE("%s: All pages are mapped, now changing their attributes...\n",
+		__func__);
+
+	for (int i = 0; i < pages_count; ++i) {
+
+		mmap_attr_t old_attr, new_attr;
+		uint64_t *entry;
+		int level;
+		unsigned long long addr_pa;
+
+		get_mem_attributes_internal(ctx, base_va, &old_attr,
+					    &entry, &addr_pa, &level);
+
+		VERBOSE("Old attributes: 0x%x\n", old_attr);
+
+		/*
+		 * From attr, only MT_RO/MT_RW, MT_EXECUTE/MT_EXECUTE_NEVER and
+		 * MT_USER/MT_PRIVILEGED are taken into account. Any other
+		 * information is ignored.
+		 */
+
+		/* Clean the old attributes so that they can be rebuilt. */
+		new_attr = old_attr & ~(MT_RW|MT_EXECUTE_NEVER|MT_USER);
+
+		/*
+		 * Update attributes, but filter out the ones this function
+		 * isn't allowed to change.
+		 */
+		new_attr |= attr & (MT_RW|MT_EXECUTE_NEVER|MT_USER);
+
+		VERBOSE("New attributes: 0x%x\n", new_attr);
+
+		/*
+		 * The break-before-make sequence requires writing an invalid
+		 * descriptor and making sure that the system sees the change
+		 * before writing the new descriptor.
+		 */
+		*entry = INVALID_DESC;
+
+		/* Invalidate any cached copy of this mapping in the TLBs. */
+		xlat_arch_tlbi_va_regime(base_va, ctx->xlat_regime);
+
+		/* Ensure completion of the invalidation. */
+		xlat_arch_tlbi_va_sync();
+
+		/* Write new descriptor */
+		*entry = xlat_desc(ctx, new_attr, addr_pa, level);
+
+		base_va += PAGE_SIZE;
+	}
+
+	/* Ensure that the last descriptor writen is seen by the system. */
+	dsbish();
+
+	return 0;
+}

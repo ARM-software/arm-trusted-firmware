@@ -27,8 +27,6 @@ int is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
 	return (read_sctlr() & SCTLR_M_BIT) != 0;
 }
 
-#if PLAT_XLAT_TABLES_DYNAMIC
-
 void xlat_arch_tlbi_va(uintptr_t va)
 {
 	/*
@@ -76,8 +74,6 @@ void xlat_arch_tlbi_va_sync(void)
 	 */
 	isb();
 }
-
-#endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 int xlat_arch_current_el(void)
 {
