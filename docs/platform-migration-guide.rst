@@ -158,6 +158,17 @@ for the ``plat_psci_ops`` structure which is declared as :
         int (*validate_ns_entrypoint)(unsigned long ns_entrypoint);
         void (*get_sys_suspend_power_state)(
                         psci_power_state_t *req_state);
+        int (*get_pwr_lvl_state_idx)(plat_local_state_t pwr_domain_state,
+                                    int pwrlvl);
+        int (*translate_power_state_by_mpidr)(u_register_t mpidr,
+                                    unsigned int power_state,
+                                    psci_power_state_t *output_state);
+        int (*get_node_hw_state)(u_register_t mpidr, unsigned int power_level);
+        int (*mem_protect_chk)(uintptr_t base, u_register_t length);
+        int (*read_mem_protect)(int *val);
+        int (*write_mem_protect)(int val);
+        int (*system_reset2)(int is_vendor,
+                                int reset_type, u_register_t cookie);
     } plat_psci_ops_t;
 
 The description of these handlers can be found in the `Porting Guide <porting-guide.rst#user-content-function--plat_setup_psci_ops-mandatory>`__.

@@ -90,7 +90,8 @@
 			define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64) |	\
 			define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64) |	\
 			define_psci_cap(PSCI_STAT_COUNT_AARCH64) |	\
-			define_psci_cap(PSCI_SYSTEM_RESET2_AARCH64))
+			define_psci_cap(PSCI_SYSTEM_RESET2_AARCH64) |	\
+			define_psci_cap(PSCI_MEM_CHK_RANGE_AARCH64))
 
 /*
  * Helper macros to get/set the fields of PSCI per-cpu data.
