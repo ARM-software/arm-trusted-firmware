@@ -31,11 +31,8 @@ static inline void write_ ## _name(uint64_t v)				\
 	__asm__ volatile ("msr " #_reg_name ", %0" : : "r" (v));	\
 }
 
-#define _DEFINE_SYSREG_WRITE_CONST_FUNC(_name, _reg_name)		\
-static inline void write_ ## _name(const uint64_t v)			\
-{									\
-	__asm__ volatile ("msr " #_reg_name ", %0" : : "i" (v));	\
-}
+#define SYSREG_WRITE_CONST(reg_name, v)				\
+	__asm__ volatile ("msr " #reg_name ", %0" : : "i" (v))
 
 /* Define read function for system register */
 #define DEFINE_SYSREG_READ_FUNC(_name) 			\
@@ -58,11 +55,6 @@ static inline void write_ ## _name(const uint64_t v)			\
 /* Define write function for renamed system register */
 #define DEFINE_RENAME_SYSREG_WRITE_FUNC(_name, _reg_name)	\
 	_DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)
-
-/* Define write function for special system registers */
-#define DEFINE_SYSREG_WRITE_CONST_FUNC(_name)		\
-	_DEFINE_SYSREG_WRITE_CONST_FUNC(_name, _name)
-
 
 /**********************************************************************
  * Macros to create inline functions for system instructions
@@ -178,8 +170,8 @@ void disable_mmu_icache_el3(void);
  * Misc. accessor prototypes
  ******************************************************************************/
 
-DEFINE_SYSREG_WRITE_CONST_FUNC(daifset)
-DEFINE_SYSREG_WRITE_CONST_FUNC(daifclr)
+#define write_daifclr(val) SYSREG_WRITE_CONST(daifclr, val)
+#define write_daifset(val) SYSREG_WRITE_CONST(daifset, val)
 
 DEFINE_SYSREG_READ_FUNC(par_el1)
 DEFINE_SYSREG_READ_FUNC(id_pfr1_el1)
