@@ -489,6 +489,15 @@ static void hikey_mmc_pll_init(void)
 	reset_mmc1_clk();
 }
 
+static void hikey_rtc_init(void)
+{
+	uint32_t data;
+
+	data = mmio_read_32(AO_SC_PERIPH_CLKEN4);
+	data |= AO_SC_PERIPH_RSTDIS4_RESET_RTC0_N;
+	mmio_write_32(AO_SC_PERIPH_CLKEN4, data);
+}
+
 /*
  * Function which will perform any remaining platform-specific setup that can
  * occur after the MMU and data cache have been enabled.
@@ -504,6 +513,8 @@ void bl1_platform_setup(void)
 	hikey_gpio_init();
 	hikey_pmussi_init();
 	hikey_hi6553_init();
+
+	hikey_rtc_init();
 
 	hikey_mmc_pll_init();
 
