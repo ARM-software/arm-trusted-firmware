@@ -139,82 +139,6 @@ void nvg_update_cstate_info(uint32_t cluster, uint32_t ccplex,
 }
 
 /*
- * Indices gives MTS the crossover point in TSC ticks for when it becomes
- * no longer viable to enter the named state
- *
- * Type 5 : NVGDATA[0:31]: C6 Lower bound
- * Type 6 : NVGDATA[0:31]: CC6 Lower bound
- * Type 8 : NVGDATA[0:31]: CG7 Lower bound
- */
-int32_t nvg_update_crossover_time(uint32_t type, uint32_t time)
-{
-	int32_t ret = 0;
-
-	switch (type) {
-	case (uint32_t)TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND:
-		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CROSSOVER_C6_LOWER_BOUND,
-			(uint64_t)time);
-		break;
-
-	case (uint32_t)TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND:
-		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CROSSOVER_CC6_LOWER_BOUND,
-			(uint64_t)time);
-		break;
-
-	case (uint32_t)TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND:
-		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CROSSOVER_CG7_LOWER_BOUND,
-			(uint64_t)time);
-		break;
-
-	default:
-		ERROR("%s: unknown crossover type (%d)\n", __func__, type);
-		ret = EINVAL;
-		break;
-	}
-
-	return ret;
-}
-
-/*
- * These NVG calls allow ARM SW to access CSTATE statistical information
- *
- * NVGDATA[0:3]: SW(RW) Core/cluster/cg id
- * NVGDATA[16:31]: SW(RW) Stat id
- */
-int32_t nvg_set_cstate_stat_query_value(uint64_t data)
-{
-	int32_t ret = 0;
-
-	/* sanity check stat id and core id*/
-	if ((data >> MCE_STAT_ID_SHIFT) >
-		(uint64_t)NVG_STAT_QUERY_C7_RESIDENCY_SUM) {
-		ERROR("%s: unknown stat id (%d)\n", __func__,
-			(uint32_t)(data >> MCE_STAT_ID_SHIFT));
-		ret = EINVAL;
-	} else if ((data & MCE_CORE_ID_MASK) > (uint64_t)PLATFORM_CORE_COUNT) {
-		ERROR("%s: unknown core id (%d)\n", __func__,
-			(uint32_t)(data & MCE_CORE_ID_MASK));
-		ret = EINVAL;
-	} else {
-		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CSTATE_STAT_QUERY_REQUEST, data);
-	}
-
-	return ret;
-}
-
-/*
- * The read-only value associated with the CSTATE_STAT_QUERY_REQUEST
- *
- * NVGDATA[0:63]: SW(R) Stat count
- */
-uint64_t nvg_get_cstate_stat_query_value(void)
-{
-	nvg_set_request((uint64_t)TEGRA_NVG_CHANNEL_CSTATE_STAT_QUERY_VALUE);
-
-	return (uint64_t)nvg_get_result();
-}
-
-/*
  * Return a non-zero value if the CCPLEX is able to enter SC7
  *
  * NVGDATA[0]: SW(R), Is allowed result
@@ -249,35 +173,6 @@ int32_t nvg_online_core(uint32_t core)
 	}
 
 	return ret;
-}
-
-/*
- * Enables and controls the voltage/frequency hint for CC3. CC3 is disabled
- * by default.
- *
- * NVGDATA[7:0] SW(RW) frequency request
- * NVGDATA[31:31] SW(RW) enable bit
- */
-int32_t nvg_cc3_ctrl(uint32_t freq, uint8_t enable)
-{
-	uint64_t val = 0;
-
-	/*
-	 * If the enable bit is cleared, Auto-CC3 will be disabled by setting
-	 * the SW visible frequency request registers for all non
-	 * floorswept cores valid independent of StandbyWFI and disabling
-	 * the IDLE frequency request register. If set, Auto-CC3
-	 * will be enabled by setting the ARM SW visible frequency
-	 * request registers for all non floorswept cores to be enabled by
-	 * StandbyWFI or the equivalent signal, and always keeping the IDLE
-	 * frequency request register enabled.
-	 */
-	if (enable != 0U) {
-		val = ((uint64_t)freq & MCE_AUTO_CC3_FREQ_MASK) | MCE_AUTO_CC3_ENABLE_BIT;
-	}
-	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CC3_CTRL, val);
-
-	return 0;
 }
 
 /*
