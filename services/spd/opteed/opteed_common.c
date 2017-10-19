@@ -78,7 +78,7 @@ uint64_t opteed_synchronous_sp_entry(optee_context_t *optee_ctx)
 	cm_set_next_eret_context(SECURE);
 
 	rc = opteed_enter_sp(&optee_ctx->c_rt_ctx);
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	optee_ctx->c_rt_ctx = 0;
 #endif
 
