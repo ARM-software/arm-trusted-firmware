@@ -6,6 +6,7 @@
 
 	.global uniphier_rotpk_hash
 	.global uniphier_rotpk_hash_end
+	.section .rodata.uniphier_rotpk_hash, "a"
 uniphier_rotpk_hash:
 	/* DER header */
 	.byte 0x30, 0x31, 0x30, 0x0D, 0x06, 0x09, 0x60, 0x86, 0x48
