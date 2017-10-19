@@ -30,7 +30,7 @@
 #define TIMER20_BGLOAD			(SEC_TIMER2_BASE + 0x018)
 
 /* GPIO */
-#define	GPIO_MAX			(12)
+#define	GPIO_MAX			(13)
 #define	GPIO_BASE(x)			(x != 5 ?			\
 					0xf820000 + x * 0x1000 : 0xf8004000)
 
