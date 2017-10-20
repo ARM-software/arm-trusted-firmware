@@ -100,8 +100,7 @@
 #define CTX_SPSR_FIQ		U(0xd8)
 #define CTX_DACR32_EL2		U(0xe0)
 #define CTX_IFSR32_EL2		U(0xe8)
-#define CTX_FP_FPEXC32_EL2	U(0xf0)
-#define CTX_TIMER_SYSREGS_OFF	U(0x100) /* Align to the next 16 byte boundary */
+#define CTX_TIMER_SYSREGS_OFF	U(0xf0) /* Align to the next 16 byte boundary */
 #else
 #define CTX_TIMER_SYSREGS_OFF	U(0xc0)  /* Align to the next 16 byte boundary */
 #endif /* __CTX_INCLUDE_AARCH32_REGS__ */
@@ -161,7 +160,12 @@
 #define CTX_FP_Q31		U(0x1f0)
 #define CTX_FP_FPSR		U(0x200)
 #define CTX_FP_FPCR		U(0x208)
-#define CTX_FPREGS_END		U(0x210)
+#if CTX_INCLUDE_AARCH32_REGS
+#define CTX_FP_FPEXC32_EL2	U(0x210)
+#define CTX_FPREGS_END		U(0x220) /* Align to the next 16 byte boundary */
+#else
+#define CTX_FPREGS_END		U(0x210) /* Align to the next 16 byte boundary */
+#endif
 #endif
 
 #ifndef __ASSEMBLY__

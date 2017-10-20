@@ -1144,7 +1144,6 @@ The sample crash output is shown below.
     cntv_ctl_el0    :0x0000000000000000
     cntv_cval_el0   :0x0000000000000000
     cntkctl_el1 :0x0000000000000000
-    fpexc32_el2 :0x0000000004000700
     sp_el0  :0x0000000004010780
 
 Guidelines for Reset Handlers

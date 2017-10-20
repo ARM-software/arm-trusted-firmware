@@ -46,8 +46,7 @@ non_el3_sys_regs:
 		"tpidrro_el0", "dacr32_el2", "ifsr32_el2", "par_el1",\
 		"mpidr_el1", "afsr0_el1", "afsr1_el1", "contextidr_el1",\
 		"vbar_el1", "cntp_ctl_el0", "cntp_cval_el0", "cntv_ctl_el0",\
-		"cntv_cval_el0", "cntkctl_el1", "fpexc32_el2", "sp_el0",\
-		"isr_el1", ""
+		"cntv_cval_el0", "cntkctl_el1", "sp_el0", "isr_el1", ""
 
 panic_msg:
 	.asciz "PANIC in EL3 at x30 = 0x"
@@ -313,9 +312,8 @@ func do_crash_reporting
 	mrs	x15, cntv_cval_el0
 	bl	str_in_crash_buf_print
 	mrs	x8, cntkctl_el1
-	mrs	x9, fpexc32_el2
-	mrs	x10, sp_el0
-	mrs	x11, isr_el1
+	mrs	x9, sp_el0
+	mrs	x10, isr_el1
 	bl	str_in_crash_buf_print
 
 	/* Get the cpu specific registers to report */
