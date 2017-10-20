@@ -114,6 +114,9 @@
 #define ID_AA64PFR0_AMU_LENGTH	U(4)
 #define ID_AA64PFR0_AMU_MASK	U(0xf)
 #define ID_AA64PFR0_ELX_MASK	U(0xf)
+#define ID_AA64PFR0_SVE_SHIFT	U(32)
+#define ID_AA64PFR0_SVE_MASK	U(0xf)
+#define ID_AA64PFR0_SVE_LENGTH	U(4)
 
 /* ID_AA64DFR0_EL1.PMS definitions (for ARMv8.2+) */
 #define ID_AA64DFR0_PMS_SHIFT	U(32)
@@ -301,6 +304,7 @@
 #define TAM_BIT			(U(1) << 30)
 #define TTA_BIT			(U(1) << 20)
 #define TFP_BIT			(U(1) << 10)
+#define CPTR_EZ_BIT		(U(1) << 8)
 #define CPTR_EL3_RESET_VAL	U(0x0)
 
 /* CPTR_EL2 definitions */
@@ -309,6 +313,7 @@
 #define CPTR_EL2_TAM_BIT	(U(1) << 30)
 #define CPTR_EL2_TTA_BIT	(U(1) << 20)
 #define CPTR_EL2_TFP_BIT	(U(1) << 10)
+#define CPTR_EL2_TZ_BIT		(U(1) << 8)
 #define CPTR_EL2_RESET_VAL	CPTR_EL2_RES1
 
 /* CPSR/SPSR definitions */
@@ -554,6 +559,18 @@
 #define PMCR_EL0_DP_BIT		(U(1) << 5)
 #define PMCR_EL0_X_BIT		(U(1) << 4)
 #define PMCR_EL0_D_BIT		(U(1) << 3)
+
+/*******************************************************************************
+ * Definitions for system register interface to SVE
+ ******************************************************************************/
+#define ZCR_EL3			S3_6_C1_C2_0
+#define ZCR_EL2			S3_4_C1_C2_0
+
+/* ZCR_EL3 definitions */
+#define ZCR_EL3_LEN_MASK	U(0xf)
+
+/* ZCR_EL2 definitions */
+#define ZCR_EL2_LEN_MASK	U(0xf)
 
 /*******************************************************************************
  * Definitions of MAIR encodings for device and normal memory
