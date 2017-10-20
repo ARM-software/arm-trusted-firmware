@@ -163,7 +163,9 @@ void inv_dcache_range(uintptr_t addr, size_t size);
 void dcsw_op_louis(u_register_t op_type);
 void dcsw_op_all(u_register_t op_type);
 
+void disable_mmu_el1(void);
 void disable_mmu_el3(void);
+void disable_mmu_icache_el1(void);
 void disable_mmu_icache_el3(void);
 
 /*******************************************************************************

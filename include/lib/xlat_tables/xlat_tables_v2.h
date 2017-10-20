@@ -251,5 +251,66 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx,
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
+/*
+ * Change the memory attributes of the memory region starting from a given
+ * virtual address in a set of translation tables.
+ *
+ * This function can only be used after the translation tables have been
+ * initialized.
+ *
+ * The base address of the memory region must be aligned on a page boundary.
+ * The size of this memory region must be a multiple of a page size.
+ * The memory region must be already mapped by the given translation tables
+ * and it must be mapped at the granularity of a page.
+ *
+ * Return 0 on success, a negative value on error.
+ *
+ * In case of error, the memory attributes remain unchanged and this function
+ * has no effect.
+ *
+ * ctx
+ *   Translation context to work on.
+ * base_va:
+ *   Virtual address of the 1st page to change the attributes of.
+ * size:
+ *   Size in bytes of the memory region.
+ * attr:
+ *   New attributes of the page tables. The attributes that can be changed are
+ *   data access (MT_RO/MT_RW), instruction access (MT_EXECUTE_NEVER/MT_EXECUTE)
+ *   and user/privileged access (MT_USER/MT_PRIVILEGED) in the case of contexts
+ *   that are used in the EL1&0 translation regime. Also, note that this
+ *   function doesn't allow to remap a region as RW and executable, or to remap
+ *   device memory as executable.
+ *
+ * NOTE: The caller of this function must be able to write to the translation
+ * tables, i.e. the memory where they are stored must be mapped with read-write
+ * access permissions. This function assumes it is the case. If this is not
+ * the case then this function might trigger a data abort exception.
+ *
+ * NOTE2: The caller is responsible for making sure that the targeted
+ * translation tables are not modified by any other code while this function is
+ * executing.
+ */
+int change_mem_attributes(xlat_ctx_t *ctx, uintptr_t base_va, size_t size,
+			mmap_attr_t attr);
+
+/*
+ * Query the memory attributes of a memory page in a set of translation tables.
+ *
+ * Return 0 on success, a negative error code on error.
+ * On success, the attributes are stored into *attributes.
+ *
+ * ctx
+ *   Translation context to work on.
+ * base_va
+ *   Virtual address of the page to get the attributes of.
+ *   There are no alignment restrictions on this address. The attributes of the
+ *   memory page it lies within are returned.
+ * attributes
+ *   Output parameter where to store the attributes of the targeted memory page.
+ */
+int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
+		mmap_attr_t *attributes);
+
 #endif /*__ASSEMBLY__*/
 #endif /* __XLAT_TABLES_V2_H__ */
