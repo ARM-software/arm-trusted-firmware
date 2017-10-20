@@ -21,13 +21,16 @@ ifeq (${ARCH}, aarch64)
   endif
 
   # Process flags
-  $(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
-
   # Process ARM_BL31_IN_DRAM flag
   ARM_BL31_IN_DRAM		:=	0
   $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
   $(eval $(call add_define,ARM_BL31_IN_DRAM))
+else
+  ARM_TSP_RAM_LOCATION_ID = ARM_TRUSTED_SRAM_ID
 endif
+
+$(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
+
 
 # For the original power-state parameter format, the State-ID can be encoded
 # according to the recommended encoding or zero. This flag determines which
