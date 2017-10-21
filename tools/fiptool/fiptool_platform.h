@@ -23,6 +23,7 @@
 #	else
 
 		/* Visual Studio. */
+#		include "win_posix.h"
 
 #	endif
 
