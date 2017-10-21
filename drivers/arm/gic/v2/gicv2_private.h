@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,12 +15,20 @@
  * Private function prototypes
  ******************************************************************************/
 void gicv2_spis_configure_defaults(uintptr_t gicd_base);
+#if !ERROR_DEPRECATED
 void gicv2_secure_spis_configure(uintptr_t gicd_base,
 				     unsigned int num_ints,
 				     const unsigned int *sec_intr_list);
 void gicv2_secure_ppi_sgi_setup(uintptr_t gicd_base,
 					unsigned int num_ints,
 					const unsigned int *sec_intr_list);
+#endif
+void gicv2_secure_spis_configure_props(uintptr_t gicd_base,
+		const interrupt_prop_t *interrupt_props,
+		unsigned int interrupt_props_num);
+void gicv2_secure_ppi_sgi_setup_props(uintptr_t gicd_base,
+		const interrupt_prop_t *interrupt_props,
+		unsigned int interrupt_props_num);
 unsigned int gicv2_get_cpuif_id(uintptr_t base);
 
 /*******************************************************************************
@@ -29,6 +37,25 @@ unsigned int gicv2_get_cpuif_id(uintptr_t base);
 static inline unsigned int gicd_read_pidr2(uintptr_t base)
 {
 	return mmio_read_32(base + GICD_PIDR2_GICV2);
+}
+
+/*******************************************************************************
+ * GIC Distributor interface accessors for writing entire registers
+ ******************************************************************************/
+static inline unsigned int gicd_get_itargetsr(uintptr_t base, unsigned int id)
+{
+	return mmio_read_8(base + GICD_ITARGETSR + id);
+}
+
+static inline void gicd_set_itargetsr(uintptr_t base, unsigned int id,
+		unsigned int target)
+{
+	mmio_write_8(base + GICD_ITARGETSR + id, target & GIC_TARGET_CPU_MASK);
+}
+
+static inline void gicd_write_sgir(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICD_SGIR, val);
 }
 
 /*******************************************************************************
@@ -78,6 +105,11 @@ static inline unsigned int gicc_read_dir(uintptr_t base)
 static inline unsigned int gicc_read_iidr(uintptr_t base)
 {
 	return mmio_read_32(base + GICC_IIDR);
+}
+
+static inline unsigned int gicc_read_rpr(uintptr_t base)
+{
+	return mmio_read_32(base + GICC_RPR);
 }
 
 /*******************************************************************************

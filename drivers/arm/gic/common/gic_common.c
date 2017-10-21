@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -273,6 +273,14 @@ void gicd_set_icpendr(uintptr_t base, unsigned int id)
 	gicd_write_icpendr(base, id, (1 << bit_num));
 }
 
+unsigned int gicd_get_isactiver(uintptr_t base, unsigned int id)
+{
+	unsigned int bit_num = id & ((1 << ISACTIVER_SHIFT) - 1);
+	unsigned int reg_val = gicd_read_isactiver(base, id);
+
+	return (reg_val >> bit_num) & 0x1;
+}
+
 void gicd_set_isactiver(uintptr_t base, unsigned int id)
 {
 	unsigned bit_num = id & ((1 << ISACTIVER_SHIFT) - 1);
@@ -290,4 +298,16 @@ void gicd_set_icactiver(uintptr_t base, unsigned int id)
 void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 {
 	mmio_write_8(base + GICD_IPRIORITYR + id, pri & GIC_PRI_MASK);
+}
+
+void gicd_set_icfgr(uintptr_t base, unsigned int id, unsigned int cfg)
+{
+	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	uint32_t reg_val = gicd_read_icfgr(base, id);
+
+	/* Clear the field, and insert required configuration */
+	reg_val &= ~(GIC_CFG_MASK << bit_num);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+
+	gicd_write_icfgr(base, id, reg_val);
 }

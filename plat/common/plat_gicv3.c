@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,20 @@
 #pragma weak plat_ic_get_interrupt_type
 #pragma weak plat_ic_end_of_interrupt
 #pragma weak plat_interrupt_type_to_line
+
+#pragma weak plat_ic_get_running_priority
+#pragma weak plat_ic_is_spi
+#pragma weak plat_ic_is_ppi
+#pragma weak plat_ic_is_sgi
+#pragma weak plat_ic_get_interrupt_active
+#pragma weak plat_ic_enable_interrupt
+#pragma weak plat_ic_disable_interrupt
+#pragma weak plat_ic_set_interrupt_priority
+#pragma weak plat_ic_set_interrupt_type
+#pragma weak plat_ic_raise_el3_sgi
+#pragma weak plat_ic_set_spi_routing
+#pragma weak plat_ic_set_interrupt_pending
+#pragma weak plat_ic_clear_interrupt_pending
 
 CASSERT((INTR_TYPE_S_EL1 == INTR_GROUP1S) &&
 	(INTR_TYPE_NS == INTR_GROUP1NS) &&
@@ -154,6 +168,108 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 		 */
 		return __builtin_ctz(SCR_FIQ_BIT);
 	}
+}
+
+unsigned int plat_ic_get_running_priority(void)
+{
+	return gicv3_get_running_priority();
+}
+
+int plat_ic_is_spi(unsigned int id)
+{
+	return (id >= MIN_SPI_ID) && (id <= MAX_SPI_ID);
+}
+
+int plat_ic_is_ppi(unsigned int id)
+{
+	return (id >= MIN_PPI_ID) && (id < MIN_SPI_ID);
+}
+
+int plat_ic_is_sgi(unsigned int id)
+{
+	return (id >= MIN_SGI_ID) && (id < MIN_PPI_ID);
+}
+
+unsigned int plat_ic_get_interrupt_active(unsigned int id)
+{
+	return gicv3_get_interrupt_active(id, plat_my_core_pos());
+}
+
+void plat_ic_enable_interrupt(unsigned int id)
+{
+	gicv3_enable_interrupt(id, plat_my_core_pos());
+}
+
+void plat_ic_disable_interrupt(unsigned int id)
+{
+	gicv3_disable_interrupt(id, plat_my_core_pos());
+}
+
+void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
+{
+	gicv3_set_interrupt_priority(id, plat_my_core_pos(), priority);
+}
+
+int plat_ic_has_interrupt_type(unsigned int type)
+{
+	assert((type == INTR_TYPE_EL3) || (type == INTR_TYPE_S_EL1) ||
+			(type == INTR_TYPE_NS));
+	return 1;
+}
+
+void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
+{
+	gicv3_set_interrupt_type(id, plat_my_core_pos(), type);
+}
+
+void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
+{
+	/* Target must be a valid MPIDR in the system */
+	assert(plat_core_pos_by_mpidr(target) >= 0);
+
+	/* Verify that this is a secure EL3 SGI */
+	assert(plat_ic_get_interrupt_type(sgi_num) == INTR_TYPE_EL3);
+
+	gicv3_raise_secure_g0_sgi(sgi_num, target);
+}
+
+void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
+		u_register_t mpidr)
+{
+	unsigned int irm = 0;
+
+	switch (routing_mode) {
+	case INTR_ROUTING_MODE_PE:
+		assert(plat_core_pos_by_mpidr(mpidr) >= 0);
+		irm = GICV3_IRM_PE;
+		break;
+	case INTR_ROUTING_MODE_ANY:
+		irm = GICV3_IRM_ANY;
+		break;
+	default:
+		assert(0);
+	}
+
+	gicv3_set_spi_routing(id, irm, mpidr);
+}
+
+void plat_ic_set_interrupt_pending(unsigned int id)
+{
+	/* Disallow setting SGIs pending */
+	assert(id >= MIN_PPI_ID);
+	gicv3_set_interrupt_pending(id, plat_my_core_pos());
+}
+
+void plat_ic_clear_interrupt_pending(unsigned int id)
+{
+	/* Disallow setting SGIs pending */
+	assert(id >= MIN_PPI_ID);
+	gicv3_clear_interrupt_pending(id, plat_my_core_pos());
+}
+
+unsigned int plat_ic_set_priority_mask(unsigned int mask)
+{
+	return gicv3_set_pmr(mask);
 }
 #endif
 #ifdef IMAGE_BL32

@@ -9,10 +9,19 @@
 #include <assert.h>
 #include <debug.h>
 #include <gicv3.h>
+#include <interrupt_props.h>
+#include <spinlock.h>
 #include "gicv3_private.h"
 
 const gicv3_driver_data_t *gicv3_driver_data;
 static unsigned int gicv2_compat;
+
+/*
+ * Spinlock to guard registers needing read-modify-write. APIs protected by this
+ * spinlock are used either at boot time (when only a single CPU is active), or
+ * when the system is fully coherent.
+ */
+spinlock_t gic_lock;
 
 /*
  * Redistributor power operations are weakly bound so that they can be
@@ -58,23 +67,33 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 
 	assert(IS_IN_EL3());
 
-	/*
-	 * The platform should provide a list of at least one type of
-	 * interrupts
-	 */
-	assert(plat_driver_data->g0_interrupt_array ||
-	       plat_driver_data->g1s_interrupt_array);
+#if !ERROR_DEPRECATED
+	if (plat_driver_data->interrupt_props == NULL) {
+		/* Interrupt properties array size must be 0 */
+		assert(plat_driver_data->interrupt_props_num == 0);
 
-	/*
-	 * If there are no interrupts of a particular type, then the number of
-	 * interrupts of that type should be 0 and vice-versa.
-	 */
-	assert(plat_driver_data->g0_interrupt_array ?
-	       plat_driver_data->g0_interrupt_num :
-	       plat_driver_data->g0_interrupt_num == 0);
-	assert(plat_driver_data->g1s_interrupt_array ?
-	       plat_driver_data->g1s_interrupt_num :
-	       plat_driver_data->g1s_interrupt_num == 0);
+		/*
+		 * The platform should provide a list of at least one type of
+		 * interrupt.
+		 */
+		assert(plat_driver_data->g0_interrupt_array ||
+				plat_driver_data->g1s_interrupt_array);
+
+		/*
+		 * If there are no interrupts of a particular type, then the
+		 * number of interrupts of that type should be 0 and vice-versa.
+		 */
+		assert(plat_driver_data->g0_interrupt_array ?
+				plat_driver_data->g0_interrupt_num :
+				plat_driver_data->g0_interrupt_num == 0);
+		assert(plat_driver_data->g1s_interrupt_array ?
+				plat_driver_data->g1s_interrupt_num :
+				plat_driver_data->g1s_interrupt_num == 0);
+	}
+#else
+	assert(plat_driver_data->interrupt_props != NULL);
+	assert(plat_driver_data->interrupt_props_num > 0);
+#endif
 
 	/* Check for system register support */
 #ifdef AARCH32
@@ -140,8 +159,6 @@ void gicv3_distif_init(void)
 
 	assert(gicv3_driver_data);
 	assert(gicv3_driver_data->gicd_base);
-	assert(gicv3_driver_data->g1s_interrupt_array ||
-	       gicv3_driver_data->g0_interrupt_array);
 
 	assert(IS_IN_EL3());
 
@@ -163,23 +180,37 @@ void gicv3_distif_init(void)
 	/* Set the default attribute of all SPIs */
 	gicv3_spis_configure_defaults(gicv3_driver_data->gicd_base);
 
-	/* Configure the G1S SPIs */
-	if (gicv3_driver_data->g1s_interrupt_array) {
-		gicv3_secure_spis_configure(gicv3_driver_data->gicd_base,
+#if !ERROR_DEPRECATED
+	if (gicv3_driver_data->interrupt_props != NULL) {
+#endif
+		bitmap = gicv3_secure_spis_configure_props(
+				gicv3_driver_data->gicd_base,
+				gicv3_driver_data->interrupt_props,
+				gicv3_driver_data->interrupt_props_num);
+#if !ERROR_DEPRECATED
+	} else {
+		assert(gicv3_driver_data->g1s_interrupt_array ||
+				gicv3_driver_data->g0_interrupt_array);
+
+		/* Configure the G1S SPIs */
+		if (gicv3_driver_data->g1s_interrupt_array) {
+			gicv3_secure_spis_configure(gicv3_driver_data->gicd_base,
 					gicv3_driver_data->g1s_interrupt_num,
 					gicv3_driver_data->g1s_interrupt_array,
 					INTR_GROUP1S);
-		bitmap |= CTLR_ENABLE_G1S_BIT;
-	}
+			bitmap |= CTLR_ENABLE_G1S_BIT;
+		}
 
-	/* Configure the G0 SPIs */
-	if (gicv3_driver_data->g0_interrupt_array) {
-		gicv3_secure_spis_configure(gicv3_driver_data->gicd_base,
+		/* Configure the G0 SPIs */
+		if (gicv3_driver_data->g0_interrupt_array) {
+			gicv3_secure_spis_configure(gicv3_driver_data->gicd_base,
 					gicv3_driver_data->g0_interrupt_num,
 					gicv3_driver_data->g0_interrupt_array,
 					INTR_GROUP0);
-		bitmap |= CTLR_ENABLE_G0_BIT;
+			bitmap |= CTLR_ENABLE_G0_BIT;
+		}
 	}
+#endif
 
 	/* Enable the secure SPIs now that they have been configured */
 	gicd_set_ctlr(gicv3_driver_data->gicd_base, bitmap, RWP_TRUE);
@@ -199,8 +230,6 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	assert(gicv3_driver_data->rdistif_base_addrs);
 	assert(gicv3_driver_data->gicd_base);
 	assert(gicd_read_ctlr(gicv3_driver_data->gicd_base) & CTLR_ARE_S_BIT);
-	assert(gicv3_driver_data->g1s_interrupt_array ||
-	       gicv3_driver_data->g0_interrupt_array);
 
 	assert(IS_IN_EL3());
 
@@ -212,21 +241,34 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	/* Set the default attribute of all SGIs and PPIs */
 	gicv3_ppi_sgi_configure_defaults(gicr_base);
 
-	/* Configure the G1S SGIs/PPIs */
-	if (gicv3_driver_data->g1s_interrupt_array) {
-		gicv3_secure_ppi_sgi_configure(gicr_base,
+#if !ERROR_DEPRECATED
+	if (gicv3_driver_data->interrupt_props != NULL) {
+#endif
+		gicv3_secure_ppi_sgi_configure_props(gicr_base,
+				gicv3_driver_data->interrupt_props,
+				gicv3_driver_data->interrupt_props_num);
+#if !ERROR_DEPRECATED
+	} else {
+		assert(gicv3_driver_data->g1s_interrupt_array ||
+		       gicv3_driver_data->g0_interrupt_array);
+
+		/* Configure the G1S SGIs/PPIs */
+		if (gicv3_driver_data->g1s_interrupt_array) {
+			gicv3_secure_ppi_sgi_configure(gicr_base,
 					gicv3_driver_data->g1s_interrupt_num,
 					gicv3_driver_data->g1s_interrupt_array,
 					INTR_GROUP1S);
-	}
+		}
 
-	/* Configure the G0 SGIs/PPIs */
-	if (gicv3_driver_data->g0_interrupt_array) {
-		gicv3_secure_ppi_sgi_configure(gicr_base,
+		/* Configure the G0 SGIs/PPIs */
+		if (gicv3_driver_data->g0_interrupt_array) {
+			gicv3_secure_ppi_sgi_configure(gicr_base,
 					gicv3_driver_data->g0_interrupt_num,
 					gicv3_driver_data->g0_interrupt_array,
 					INTR_GROUP0);
+		}
 	}
+#endif
 }
 
 /*******************************************************************************
@@ -768,4 +810,338 @@ void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 	gicd_write_ctlr(gicd_base, dist_ctx->gicd_ctlr);
 	gicd_wait_for_pending_write(gicd_base);
 
+}
+
+/*******************************************************************************
+ * This function gets the priority of the interrupt the processor is currently
+ * servicing.
+ ******************************************************************************/
+unsigned int gicv3_get_running_priority(void)
+{
+	return read_icc_rpr_el1();
+}
+
+/*******************************************************************************
+ * This function checks if the interrupt identified by id is active (whether the
+ * state is either active, or active and pending). The proc_num is used if the
+ * interrupt is SGI or PPI and programs the corresponding Redistributor
+ * interface.
+ ******************************************************************************/
+unsigned int gicv3_get_interrupt_active(unsigned int id, unsigned int proc_num)
+{
+	unsigned int value;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		value = gicr_get_isactiver0(
+				gicv3_driver_data->rdistif_base_addrs[proc_num], id);
+	} else {
+		value = gicd_get_isactiver(gicv3_driver_data->gicd_base, id);
+	}
+
+	return value;
+}
+
+/*******************************************************************************
+ * This function enables the interrupt identified by id. The proc_num
+ * is used if the interrupt is SGI or PPI, and programs the corresponding
+ * Redistributor interface.
+ ******************************************************************************/
+void gicv3_enable_interrupt(unsigned int id, unsigned int proc_num)
+{
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	/*
+	 * Ensure that any shared variable updates depending on out of band
+	 * interrupt trigger are observed before enabling interrupt.
+	 */
+	dsbishst();
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		gicr_set_isenabler0(
+				gicv3_driver_data->rdistif_base_addrs[proc_num],
+				id);
+	} else {
+		gicd_set_isenabler(gicv3_driver_data->gicd_base, id);
+	}
+}
+
+/*******************************************************************************
+ * This function disables the interrupt identified by id. The proc_num
+ * is used if the interrupt is SGI or PPI, and programs the corresponding
+ * Redistributor interface.
+ ******************************************************************************/
+void gicv3_disable_interrupt(unsigned int id, unsigned int proc_num)
+{
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	/*
+	 * Disable interrupt, and ensure that any shared variable updates
+	 * depending on out of band interrupt trigger are observed afterwards.
+	 */
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		gicr_set_icenabler0(
+				gicv3_driver_data->rdistif_base_addrs[proc_num],
+				id);
+
+		/* Write to clear enable requires waiting for pending writes */
+		gicr_wait_for_pending_write(
+				gicv3_driver_data->rdistif_base_addrs[proc_num]);
+	} else {
+		gicd_set_icenabler(gicv3_driver_data->gicd_base, id);
+
+		/* Write to clear enable requires waiting for pending writes */
+		gicd_wait_for_pending_write(gicv3_driver_data->gicd_base);
+	}
+
+	dsbishst();
+}
+
+/*******************************************************************************
+ * This function sets the interrupt priority as supplied for the given interrupt
+ * id.
+ ******************************************************************************/
+void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
+		unsigned int priority)
+{
+	uintptr_t gicr_base;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+	assert(id <= MAX_SPI_ID);
+
+	if (id < MIN_SPI_ID) {
+		gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+		gicr_set_ipriorityr(gicr_base, id, priority);
+	} else {
+		gicd_set_ipriorityr(gicv3_driver_data->gicd_base, id, priority);
+	}
+}
+
+/*******************************************************************************
+ * This function assigns group for the interrupt identified by id. The proc_num
+ * is used if the interrupt is SGI or PPI, and programs the corresponding
+ * Redistributor interface. The group can be any of GICV3_INTR_GROUP*
+ ******************************************************************************/
+void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
+		unsigned int type)
+{
+	unsigned int igroup = 0, grpmod = 0;
+	uintptr_t gicr_base;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+
+	switch (type) {
+	case INTR_GROUP1S:
+		igroup = 0;
+		grpmod = 1;
+		break;
+	case INTR_GROUP0:
+		igroup = 0;
+		grpmod = 0;
+		break;
+	case INTR_GROUP1NS:
+		igroup = 1;
+		grpmod = 0;
+		break;
+	default:
+		assert(0);
+	}
+
+	if (id < MIN_SPI_ID) {
+		gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+		if (igroup)
+			gicr_set_igroupr0(gicr_base, id);
+		else
+			gicr_clr_igroupr0(gicr_base, id);
+
+		if (grpmod)
+			gicr_set_igrpmodr0(gicr_base, id);
+		else
+			gicr_clr_igrpmodr0(gicr_base, id);
+	} else {
+		/* Serialize read-modify-write to Distributor registers */
+		spin_lock(&gic_lock);
+		if (igroup)
+			gicd_set_igroupr(gicv3_driver_data->gicd_base, id);
+		else
+			gicd_clr_igroupr(gicv3_driver_data->gicd_base, id);
+
+		if (grpmod)
+			gicd_set_igrpmodr(gicv3_driver_data->gicd_base, id);
+		else
+			gicd_clr_igrpmodr(gicv3_driver_data->gicd_base, id);
+		spin_unlock(&gic_lock);
+	}
+}
+
+/*******************************************************************************
+ * This function raises the specified Secure Group 0 SGI.
+ *
+ * The target parameter must be a valid MPIDR in the system.
+ ******************************************************************************/
+void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target)
+{
+	unsigned int tgt, aff3, aff2, aff1, aff0;
+	uint64_t sgi_val;
+
+	/* Verify interrupt number is in the SGI range */
+	assert((sgi_num >= MIN_SGI_ID) && (sgi_num < MIN_PPI_ID));
+
+	/* Extract affinity fields from target */
+	aff0 = MPIDR_AFFLVL0_VAL(target);
+	aff1 = MPIDR_AFFLVL1_VAL(target);
+	aff2 = MPIDR_AFFLVL2_VAL(target);
+	aff3 = MPIDR_AFFLVL3_VAL(target);
+
+	/*
+	 * Make target list from affinity 0, and ensure GICv3 SGI can target
+	 * this PE.
+	 */
+	assert(aff0 < GICV3_MAX_SGI_TARGETS);
+	tgt = BIT(aff0);
+
+	/* Raise SGI to PE specified by its affinity */
+	sgi_val = GICV3_SGIR_VALUE(aff3, aff2, aff1, sgi_num, SGIR_IRM_TO_AFF,
+			tgt);
+
+	/*
+	 * Ensure that any shared variable updates depending on out of band
+	 * interrupt trigger are observed before raising SGI.
+	 */
+	dsbishst();
+	write_icc_sgi0r_el1(sgi_val);
+	isb();
+}
+
+/*******************************************************************************
+ * This function sets the interrupt routing for the given SPI interrupt id.
+ * The interrupt routing is specified in routing mode and mpidr.
+ *
+ * The routing mode can be either of:
+ *  - GICV3_IRM_ANY
+ *  - GICV3_IRM_PE
+ *
+ * The mpidr is the affinity of the PE to which the interrupt will be routed,
+ * and is ignored for routing mode GICV3_IRM_ANY.
+ ******************************************************************************/
+void gicv3_set_spi_routing(unsigned int id, unsigned int irm, u_register_t mpidr)
+{
+	unsigned long long aff;
+	uint64_t router;
+
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+
+	assert((irm == GICV3_IRM_ANY) || (irm == GICV3_IRM_PE));
+	assert(id >= MIN_SPI_ID && id <= MAX_SPI_ID);
+
+	aff = gicd_irouter_val_from_mpidr(mpidr, irm);
+	gicd_write_irouter(gicv3_driver_data->gicd_base, id, aff);
+
+	/*
+	 * In implementations that do not require 1 of N distribution of SPIs,
+	 * IRM might be RAZ/WI. Read back and verify IRM bit.
+	 */
+	if (irm == GICV3_IRM_ANY) {
+		router = gicd_read_irouter(gicv3_driver_data->gicd_base, id);
+		if (!((router >> IROUTER_IRM_SHIFT) & IROUTER_IRM_MASK)) {
+			ERROR("GICv3 implementation doesn't support routing ANY\n");
+			panic();
+		}
+	}
+}
+
+/*******************************************************************************
+ * This function clears the pending status of an interrupt identified by id.
+ * The proc_num is used if the interrupt is SGI or PPI, and programs the
+ * corresponding Redistributor interface.
+ ******************************************************************************/
+void gicv3_clear_interrupt_pending(unsigned int id, unsigned int proc_num)
+{
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+
+	/*
+	 * Clear pending interrupt, and ensure that any shared variable updates
+	 * depending on out of band interrupt trigger are observed afterwards.
+	 */
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		gicr_set_icpendr0(gicv3_driver_data->rdistif_base_addrs[proc_num],
+				id);
+	} else {
+		gicd_set_icpendr(gicv3_driver_data->gicd_base, id);
+	}
+	dsbishst();
+}
+
+/*******************************************************************************
+ * This function sets the pending status of an interrupt identified by id.
+ * The proc_num is used if the interrupt is SGI or PPI and programs the
+ * corresponding Redistributor interface.
+ ******************************************************************************/
+void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num)
+{
+	assert(gicv3_driver_data);
+	assert(gicv3_driver_data->gicd_base);
+	assert(proc_num < gicv3_driver_data->rdistif_num);
+	assert(gicv3_driver_data->rdistif_base_addrs);
+
+	/*
+	 * Ensure that any shared variable updates depending on out of band
+	 * interrupt trigger are observed before setting interrupt pending.
+	 */
+	dsbishst();
+	if (id < MIN_SPI_ID) {
+		/* For SGIs and PPIs */
+		gicr_set_ispendr0(gicv3_driver_data->rdistif_base_addrs[proc_num],
+				id);
+	} else {
+		gicd_set_ispendr(gicv3_driver_data->gicd_base, id);
+	}
+}
+
+/*******************************************************************************
+ * This function sets the PMR register with the supplied value. Returns the
+ * original PMR.
+ ******************************************************************************/
+unsigned int gicv3_set_pmr(unsigned int mask)
+{
+	unsigned int old_mask;
+
+	old_mask = read_icc_pmr_el1();
+
+	/*
+	 * Order memory updates w.r.t. PMR write, and ensure they're visible
+	 * before potential out of band interrupt trigger because of PMR update.
+	 * PMR system register writes are self-synchronizing, so no ISB required
+	 * thereafter.
+	 */
+	dsbishst();
+	write_icc_pmr_el1(mask);
+
+	return old_mask;
 }

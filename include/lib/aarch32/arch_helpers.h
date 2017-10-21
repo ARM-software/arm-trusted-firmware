@@ -213,6 +213,7 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dmb, ishst)
 DEFINE_SYSOP_FUNC(isb)
 
 void __dead2 smc(uint32_t r0, uint32_t r1, uint32_t r2, uint32_t r3,
@@ -257,6 +258,7 @@ DEFINE_COPROCR_RW_FUNCS(icc_sre_el1, ICC_SRE)
 DEFINE_COPROCR_RW_FUNCS(icc_sre_el2, ICC_HSRE)
 DEFINE_COPROCR_RW_FUNCS(icc_sre_el3, ICC_MSRE)
 DEFINE_COPROCR_RW_FUNCS(icc_pmr_el1, ICC_PMR)
+DEFINE_COPROCR_RW_FUNCS(icc_rpr_el1, ICC_RPR)
 DEFINE_COPROCR_RW_FUNCS(icc_igrpen1_el3, ICC_MGRPEN1)
 DEFINE_COPROCR_RW_FUNCS(icc_igrpen0_el1, ICC_IGRPEN0)
 DEFINE_COPROCR_RW_FUNCS(icc_hppir0_el1, ICC_HPPIR0)
@@ -265,6 +267,7 @@ DEFINE_COPROCR_RW_FUNCS(icc_iar0_el1, ICC_IAR0)
 DEFINE_COPROCR_RW_FUNCS(icc_iar1_el1, ICC_IAR1)
 DEFINE_COPROCR_RW_FUNCS(icc_eoir0_el1, ICC_EOIR0)
 DEFINE_COPROCR_RW_FUNCS(icc_eoir1_el1, ICC_EOIR1)
+DEFINE_COPROCR_RW_FUNCS_64(icc_sgi0r_el1, ICC_SGI0R_EL1_64)
 
 DEFINE_COPROCR_RW_FUNCS(hdcr, HDCR)
 DEFINE_COPROCR_RW_FUNCS(cnthp_ctl, CNTHP_CTL)
@@ -323,5 +326,8 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 #define read_cntpct_el0()	read64_cntpct()
 
 #define read_ctr_el0()		read_ctr()
+
+#define write_icc_sgi0r_el1(_v) \
+		write64_icc_sgi0r_el1(_v)
 
 #endif /* __ARCH_HELPERS_H__ */

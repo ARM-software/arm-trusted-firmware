@@ -44,6 +44,7 @@
 		(((mpidr) >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK)
 #define MPIDR_AFFLVL2_VAL(mpidr) \
 		(((mpidr) >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK)
+#define MPIDR_AFFLVL3_VAL(mpidr)	0
 
 /*
  * The MPIDR_MAX_AFFLVL count starts from 0. Take care to

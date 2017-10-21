@@ -12,6 +12,7 @@
  ******************************************************************************/
 /* Constants to categorise interrupts */
 #define MIN_SGI_ID		0
+#define MIN_SEC_SGI_ID		8
 #define MIN_PPI_ID		16
 #define MIN_SPI_ID		32
 #define MAX_SPI_ID		1019
@@ -22,8 +23,15 @@
 /* Mask for the priority field common to all GIC interfaces */
 #define GIC_PRI_MASK			0xff
 
+/* Mask for the configuration field common to all GIC interfaces */
+#define GIC_CFG_MASK			0x3
+
 /* Constant to indicate a spurious interrupt in all GIC versions */
 #define GIC_SPURIOUS_INTERRUPT		1023
+
+/* Interrupt configurations */
+#define GIC_INTR_CFG_LEVEL		0
+#define GIC_INTR_CFG_EDGE		1
 
 /* Constants to categorise priorities */
 #define GIC_HIGHEST_SEC_PRIORITY	0
@@ -73,6 +81,7 @@
 #define ISACTIVER_SHIFT		5
 #define ICACTIVER_SHIFT		ISACTIVER_SHIFT
 #define IPRIORITYR_SHIFT	2
+#define ITARGETSR_SHIFT		2
 #define ICFGR_SHIFT		4
 #define NSACR_SHIFT		4
 

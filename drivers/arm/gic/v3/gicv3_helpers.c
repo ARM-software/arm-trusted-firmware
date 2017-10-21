@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <gic_common.h>
+#include <interrupt_props.h>
 #include "../common/gic_common_private.h"
 #include "gicv3_private.h"
 
@@ -172,12 +173,89 @@ void gicr_set_isenabler0(uintptr_t base, unsigned int id)
 }
 
 /*
+ * Accessor to set the bit corresponding to interrupt ID in GIC Re-distributor
+ * ICENABLER0.
+ */
+void gicr_set_icenabler0(uintptr_t base, unsigned int id)
+{
+	unsigned bit_num = id & ((1 << ICENABLER_SHIFT) - 1);
+
+	gicr_write_icenabler0(base, (1 << bit_num));
+}
+
+/*
+ * Accessor to set the bit corresponding to interrupt ID in GIC Re-distributor
+ * ISACTIVER0.
+ */
+unsigned int gicr_get_isactiver0(uintptr_t base, unsigned int id)
+{
+	unsigned bit_num = id & ((1 << ISACTIVER_SHIFT) - 1);
+	unsigned int reg_val = gicr_read_isactiver0(base);
+
+	return (reg_val >> bit_num) & 0x1;
+}
+
+/*
+ * Accessor to clear the bit corresponding to interrupt ID in GIC Re-distributor
+ * ICPENDRR0.
+ */
+void gicr_set_icpendr0(uintptr_t base, unsigned int id)
+{
+	unsigned bit_num = id & ((1 << ICPENDR_SHIFT) - 1);
+
+	gicr_write_icpendr0(base, (1 << bit_num));
+}
+
+/*
+ * Accessor to set the bit corresponding to interrupt ID in GIC Re-distributor
+ * ISPENDR0.
+ */
+void gicr_set_ispendr0(uintptr_t base, unsigned int id)
+{
+	unsigned bit_num = id & ((1 << ISPENDR_SHIFT) - 1);
+
+	gicr_write_ispendr0(base, (1 << bit_num));
+}
+
+/*
  * Accessor to set the byte corresponding to interrupt ID
  * in GIC Re-distributor IPRIORITYR.
  */
 void gicr_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 {
 	mmio_write_8(base + GICR_IPRIORITYR + id, pri & GIC_PRI_MASK);
+}
+
+/*
+ * Accessor to set the bit fields corresponding to interrupt ID
+ * in GIC Re-distributor ICFGR0.
+ */
+void gicr_set_icfgr0(uintptr_t base, unsigned int id, unsigned int cfg)
+{
+	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	uint32_t reg_val = gicr_read_icfgr0(base);
+
+	/* Clear the field, and insert required configuration */
+	reg_val &= ~(GIC_CFG_MASK << bit_num);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+
+	gicr_write_icfgr0(base, reg_val);
+}
+
+/*
+ * Accessor to set the bit fields corresponding to interrupt ID
+ * in GIC Re-distributor ICFGR1.
+ */
+void gicr_set_icfgr1(uintptr_t base, unsigned int id, unsigned int cfg)
+{
+	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	uint32_t reg_val = gicr_read_icfgr1(base);
+
+	/* Clear the field, and insert required configuration */
+	reg_val &= ~(GIC_CFG_MASK << bit_num);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+
+	gicr_write_icfgr1(base, reg_val);
 }
 
 /******************************************************************************
@@ -287,6 +365,7 @@ void gicv3_spis_configure_defaults(uintptr_t gicd_base)
 		gicd_write_icfgr(gicd_base, index, 0);
 }
 
+#if !ERROR_DEPRECATED
 /*******************************************************************************
  * Helper function to configure secure G0 and G1S SPIs.
  ******************************************************************************/
@@ -333,6 +412,63 @@ void gicv3_secure_spis_configure(uintptr_t gicd_base,
 	}
 
 }
+#endif
+
+/*******************************************************************************
+ * Helper function to configure properties of secure SPIs
+ ******************************************************************************/
+unsigned int gicv3_secure_spis_configure_props(uintptr_t gicd_base,
+		const interrupt_prop_t *interrupt_props,
+		unsigned int interrupt_props_num)
+{
+	unsigned int i;
+	const interrupt_prop_t *current_prop;
+	unsigned long long gic_affinity_val;
+	unsigned int ctlr_enable = 0;
+
+	/* Make sure there's a valid property array */
+	assert(interrupt_props != NULL);
+	assert(interrupt_props_num > 0);
+
+	for (i = 0; i < interrupt_props_num; i++) {
+		current_prop = &interrupt_props[i];
+
+		if (current_prop->intr_num < MIN_SPI_ID)
+			continue;
+
+		/* Configure this interrupt as a secure interrupt */
+		gicd_clr_igroupr(gicd_base, current_prop->intr_num);
+
+		/* Configure this interrupt as G0 or a G1S interrupt */
+		assert((current_prop->intr_grp == INTR_GROUP0) ||
+				(current_prop->intr_grp == INTR_GROUP1S));
+		if (current_prop->intr_grp == INTR_GROUP1S) {
+			gicd_set_igrpmodr(gicd_base, current_prop->intr_num);
+			ctlr_enable |= CTLR_ENABLE_G1S_BIT;
+		} else {
+			gicd_clr_igrpmodr(gicd_base, current_prop->intr_num);
+			ctlr_enable |= CTLR_ENABLE_G0_BIT;
+		}
+
+		/* Set interrupt configuration */
+		gicd_set_icfgr(gicd_base, current_prop->intr_num,
+				current_prop->intr_cfg);
+
+		/* Set the priority of this interrupt */
+		gicd_set_ipriorityr(gicd_base, current_prop->intr_num,
+				current_prop->intr_pri);
+
+		/* Target SPIs to the primary CPU */
+		gic_affinity_val = gicd_irouter_val_from_mpidr(read_mpidr(), 0);
+		gicd_write_irouter(gicd_base, current_prop->intr_num,
+				gic_affinity_val);
+
+		/* Enable this interrupt */
+		gicd_set_isenabler(gicd_base, current_prop->intr_num);
+	}
+
+	return ctlr_enable;
+}
 
 /*******************************************************************************
  * Helper function to configure the default attributes of SPIs.
@@ -362,6 +498,7 @@ void gicv3_ppi_sgi_configure_defaults(uintptr_t gicr_base)
 	gicr_write_icfgr1(gicr_base, 0);
 }
 
+#if !ERROR_DEPRECATED
 /*******************************************************************************
  * Helper function to configure secure G0 and G1S SPIs.
  ******************************************************************************/
@@ -397,5 +534,56 @@ void gicv3_secure_ppi_sgi_configure(uintptr_t gicr_base,
 			/* Enable this interrupt */
 			gicr_set_isenabler0(gicr_base, irq_num);
 		}
+	}
+}
+#endif
+
+/*******************************************************************************
+ * Helper function to configure properties of secure G0 and G1S PPIs and SGIs.
+ ******************************************************************************/
+void gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
+		const interrupt_prop_t *interrupt_props,
+		unsigned int interrupt_props_num)
+{
+	unsigned int i;
+	const interrupt_prop_t *current_prop;
+
+	/* Make sure there's a valid property array */
+	assert(interrupt_props != NULL);
+	assert(interrupt_props_num > 0);
+
+	for (i = 0; i < interrupt_props_num; i++) {
+		current_prop = &interrupt_props[i];
+
+		if (current_prop->intr_num >= MIN_SPI_ID)
+			continue;
+
+		/* Configure this interrupt as a secure interrupt */
+		gicr_clr_igroupr0(gicr_base, current_prop->intr_num);
+
+		/* Configure this interrupt as G0 or a G1S interrupt */
+		assert((current_prop->intr_grp == INTR_GROUP0) ||
+				(current_prop->intr_grp == INTR_GROUP1S));
+		if (current_prop->intr_grp == INTR_GROUP1S)
+			gicr_set_igrpmodr0(gicr_base, current_prop->intr_num);
+		else
+			gicr_clr_igrpmodr0(gicr_base, current_prop->intr_num);
+
+		/* Set the priority of this interrupt */
+		gicr_set_ipriorityr(gicr_base, current_prop->intr_num,
+				current_prop->intr_pri);
+
+		/*
+		 * Set interrupt configuration for PPIs. Configuration for SGIs
+		 * are ignored.
+		 */
+		if ((current_prop->intr_num >= MIN_PPI_ID) &&
+				(current_prop->intr_num < MIN_SPI_ID)) {
+			gicr_set_icfgr1(gicr_base, current_prop->intr_num,
+					current_prop->intr_cfg);
+		}
+
+		/* Enable this interrupt */
+		gicr_set_isenabler0(gicr_base, current_prop->intr_num);
 	}
 }

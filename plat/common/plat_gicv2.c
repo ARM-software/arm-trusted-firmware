@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <gic_common.h>
 #include <gicv2.h>
 #include <interrupt_mgmt.h>
+#include <platform.h>
 
 /*
  * The following platform GIC functions are weakly defined. They
@@ -19,6 +20,18 @@
 #pragma weak plat_ic_get_interrupt_type
 #pragma weak plat_ic_end_of_interrupt
 #pragma weak plat_interrupt_type_to_line
+
+#pragma weak plat_ic_get_running_priority
+#pragma weak plat_ic_is_spi
+#pragma weak plat_ic_is_ppi
+#pragma weak plat_ic_is_sgi
+#pragma weak plat_ic_get_interrupt_active
+#pragma weak plat_ic_enable_interrupt
+#pragma weak plat_ic_disable_interrupt
+#pragma weak plat_ic_set_interrupt_priority
+#pragma weak plat_ic_set_interrupt_type
+#pragma weak plat_ic_raise_el3_sgi
+#pragma weak plat_ic_set_spi_routing
 
 /*
  * This function returns the highest priority pending interrupt at
@@ -53,8 +66,13 @@ uint32_t plat_ic_get_pending_interrupt_type(void)
 	id = gicv2_get_pending_interrupt_type();
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
-	if (id < PENDING_G1_INTID)
+	if (id < PENDING_G1_INTID) {
+#if GICV2_G0_FOR_EL3
+		return INTR_TYPE_EL3;
+#else
 		return INTR_TYPE_S_EL1;
+#endif
+	}
 
 	if (id == GIC_SPURIOUS_INTERRUPT)
 		return INTR_TYPE_INVAL;
@@ -83,7 +101,12 @@ uint32_t plat_ic_get_interrupt_type(uint32_t id)
 	type = gicv2_get_interrupt_group(id);
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
-	return (type) ? INTR_TYPE_NS : INTR_TYPE_S_EL1;
+	return type == GICV2_INTR_GROUP1 ? INTR_TYPE_NS :
+#if GICV2_G0_FOR_EL3
+		INTR_TYPE_EL3;
+#else
+		INTR_TYPE_S_EL1;
+#endif
 }
 
 /*
@@ -121,4 +144,136 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 	 */
 	return ((gicv2_is_fiq_enabled()) ? __builtin_ctz(SCR_FIQ_BIT) :
 						__builtin_ctz(SCR_IRQ_BIT));
+}
+
+unsigned int plat_ic_get_running_priority(void)
+{
+	return gicv2_get_running_priority();
+}
+
+int plat_ic_is_spi(unsigned int id)
+{
+	return (id >= MIN_SPI_ID) && (id <= MAX_SPI_ID);
+}
+
+int plat_ic_is_ppi(unsigned int id)
+{
+	return (id >= MIN_PPI_ID) && (id < MIN_SPI_ID);
+}
+
+int plat_ic_is_sgi(unsigned int id)
+{
+	return (id >= MIN_SGI_ID) && (id < MIN_PPI_ID);
+}
+
+unsigned int plat_ic_get_interrupt_active(unsigned int id)
+{
+	return gicv2_get_interrupt_active(id);
+}
+
+void plat_ic_enable_interrupt(unsigned int id)
+{
+	gicv2_enable_interrupt(id);
+}
+
+void plat_ic_disable_interrupt(unsigned int id)
+{
+	gicv2_disable_interrupt(id);
+}
+
+void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
+{
+	gicv2_set_interrupt_priority(id, priority);
+}
+
+int plat_ic_has_interrupt_type(unsigned int type)
+{
+	switch (type) {
+#if GICV2_G0_FOR_EL3
+	case INTR_TYPE_EL3:
+#else
+	case INTR_TYPE_S_EL1:
+#endif
+	case INTR_TYPE_NS:
+		return 1;
+	default:
+		return 0;
+	}
+}
+
+void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
+{
+	int gicv2_type = 0;
+
+	/* Map canonical interrupt type to GICv2 type */
+	switch (type) {
+#if GICV2_G0_FOR_EL3
+	case INTR_TYPE_EL3:
+#else
+	case INTR_TYPE_S_EL1:
+#endif
+		gicv2_type = GICV2_INTR_GROUP0;
+		break;
+	case INTR_TYPE_NS:
+		gicv2_type = GICV2_INTR_GROUP1;
+		break;
+	default:
+		assert(0);
+	}
+
+	gicv2_set_interrupt_type(id, gicv2_type);
+}
+
+void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
+{
+#if GICV2_G0_FOR_EL3
+	int id;
+
+	/* Target must be a valid MPIDR in the system */
+	id = plat_core_pos_by_mpidr(target);
+	assert(id >= 0);
+
+	/* Verify that this is a secure SGI */
+	assert(plat_ic_get_interrupt_type(sgi_num) == INTR_TYPE_EL3);
+
+	gicv2_raise_sgi(sgi_num, id);
+#else
+	assert(0);
+#endif
+}
+
+void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
+		u_register_t mpidr)
+{
+	int proc_num = 0;
+
+	switch (routing_mode) {
+	case INTR_ROUTING_MODE_PE:
+		proc_num = plat_core_pos_by_mpidr(mpidr);
+		assert(proc_num >= 0);
+		break;
+	case INTR_ROUTING_MODE_ANY:
+		/* Bit mask selecting all 8 CPUs as candidates */
+		proc_num = -1;
+		break;
+	default:
+		assert(0);
+	}
+
+	gicv2_set_spi_routing(id, proc_num);
+}
+
+void plat_ic_set_interrupt_pending(unsigned int id)
+{
+	gicv2_set_interrupt_pending(id);
+}
+
+void plat_ic_clear_interrupt_pending(unsigned int id)
+{
+	gicv2_clear_interrupt_pending(id);
+}
+
+unsigned int plat_ic_set_priority_mask(unsigned int mask)
+{
+	return gicv2_set_pmr(mask);
 }

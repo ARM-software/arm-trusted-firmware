@@ -7,8 +7,6 @@
 #ifndef __GICV3_H__
 #define __GICV3_H__
 
-#include "utils_def.h"
-
 /*******************************************************************************
  * GICv3 miscellaneous definitions
  ******************************************************************************/
@@ -23,6 +21,9 @@
 
 /* Constant to categorize LPI interrupt */
 #define MIN_LPI_ID		8192
+
+/* GICv3 can only target up to 16 PEs with SGI */
+#define GICV3_MAX_SGI_TARGETS	16
 
 /*******************************************************************************
  * GICv3 specific Distributor interface register offsets and constants.
@@ -71,6 +72,9 @@
 #define IROUTER_SHIFT		0
 #define IROUTER_IRM_SHIFT	31
 #define IROUTER_IRM_MASK	0x1
+
+#define GICV3_IRM_PE		0
+#define GICV3_IRM_ANY		1
 
 #define NUM_OF_DIST_REGS	30
 
@@ -165,6 +169,27 @@
 #define IAR1_EL1_INTID_SHIFT		0
 #define IAR1_EL1_INTID_MASK		0xffffff
 
+/* ICC SGI macros */
+#define SGIR_TGT_MASK			0xffff
+#define SGIR_AFF1_SHIFT			16
+#define SGIR_INTID_SHIFT		24
+#define SGIR_INTID_MASK			0xf
+#define SGIR_AFF2_SHIFT			32
+#define SGIR_IRM_SHIFT			40
+#define SGIR_IRM_MASK			0x1
+#define SGIR_AFF3_SHIFT			48
+#define SGIR_AFF_MASK			0xf
+
+#define SGIR_IRM_TO_AFF			0
+
+#define GICV3_SGIR_VALUE(aff3, aff2, aff1, intid, irm, tgt) \
+	((((uint64_t) (aff3) & SGIR_AFF_MASK) << SGIR_AFF3_SHIFT) | \
+	 (((uint64_t) (irm) & SGIR_IRM_MASK) << SGIR_IRM_SHIFT) | \
+	 (((uint64_t) (aff2) & SGIR_AFF_MASK) << SGIR_AFF2_SHIFT) | \
+	 (((intid) & SGIR_INTID_MASK) << SGIR_INTID_SHIFT) | \
+	 (((aff1) & SGIR_AFF_MASK) << SGIR_AFF1_SHIFT) | \
+	 ((tgt) & SGIR_TGT_MASK))
+
 /*****************************************************************************
  * GICv3 ITS registers and constants
  *****************************************************************************/
@@ -185,6 +210,7 @@
 #ifndef __ASSEMBLY__
 
 #include <gic_common.h>
+#include <interrupt_props.h>
 #include <stdint.h>
 #include <types.h>
 #include <utils_def.h>
@@ -224,53 +250,70 @@
  * GICv3 IP. It is used by the platform port to specify these attributes in order
  * to initialise the GICV3 driver. The attributes are described below.
  *
- * 1. The 'gicd_base' field contains the base address of the Distributor
- *    interface programmer's view.
+ * The 'gicd_base' field contains the base address of the Distributor interface
+ * programmer's view.
  *
- * 2. The 'gicr_base' field contains the base address of the Re-distributor
- *    interface programmer's view.
+ * The 'gicr_base' field contains the base address of the Re-distributor
+ * interface programmer's view.
  *
- * 3. The 'g0_interrupt_array' field is a ponter to an array in which each
- *    entry corresponds to an ID of a Group 0 interrupt.
+ * The 'g0_interrupt_array' field is a pointer to an array in which each entry
+ * corresponds to an ID of a Group 0 interrupt. This field is ignored when
+ * 'interrupt_props' field is used. This field is deprecated.
  *
- * 4. The 'g0_interrupt_num' field contains the number of entries in the
- *    'g0_interrupt_array'.
+ * The 'g0_interrupt_num' field contains the number of entries in the
+ * 'g0_interrupt_array'. This field is ignored when 'interrupt_props' field is
+ * used. This field is deprecated.
  *
- * 5. The 'g1s_interrupt_array' field is a ponter to an array in which each
- *    entry corresponds to an ID of a Group 1 interrupt.
+ * The 'g1s_interrupt_array' field is a pointer to an array in which each entry
+ * corresponds to an ID of a Group 1 interrupt. This field is ignored when
+ * 'interrupt_props' field is used. This field is deprecated.
  *
- * 6. The 'g1s_interrupt_num' field contains the number of entries in the
- *    'g1s_interrupt_array'.
+ * The 'g1s_interrupt_num' field contains the number of entries in the
+ * 'g1s_interrupt_array'. This field must be 0 if 'interrupt_props' field is
+ * used. This field is ignored when 'interrupt_props' field is used. This field
+ * is deprecated.
  *
- * 7. The 'rdistif_num' field contains the number of Redistributor interfaces
- *    the GIC implements. This is equal to the number of CPUs or CPU interfaces
- *    instantiated in the GIC.
+ * The 'interrupt_props' field is a pointer to an array that enumerates secure
+ * interrupts and their properties. If this field is not NULL, both
+ * 'g0_interrupt_array' and 'g1s_interrupt_array' fields are ignored.
  *
- * 8. The 'rdistif_base_addrs' field is a pointer to an array that has an entry
- *    for storing the base address of the Redistributor interface frame of each
- *    CPU in the system. The size of the array = 'rdistif_num'. The base
- *    addresses are detected during driver initialisation.
+ * The 'interrupt_props_num' field contains the number of entries in the
+ * 'interrupt_props' array. If this field is non-zero, both 'g0_interrupt_num'
+ * and 'g1s_interrupt_num' are ignored.
  *
- * 9. The 'mpidr_to_core_pos' field is a pointer to a hash function which the
- *    driver will use to convert an MPIDR value to a linear core index. This
- *    index will be used for accessing the 'rdistif_base_addrs' array. This is
- *    an optional field. A GICv3 implementation maps each MPIDR to a linear core
- *    index as well. This mapping can be found by reading the "Affinity Value"
- *    and "Processor Number" fields in the GICR_TYPER. It is IMP. DEF. if the
- *    "Processor Numbers" are suitable to index into an array to access core
- *    specific information. If this not the case, the platform port must provide
- *    a hash function. Otherwise, the "Processor Number" field will be used to
- *    access the array elements.
+ * The 'rdistif_num' field contains the number of Redistributor interfaces the
+ * GIC implements. This is equal to the number of CPUs or CPU interfaces
+ * instantiated in the GIC.
+ *
+ * The 'rdistif_base_addrs' field is a pointer to an array that has an entry for
+ * storing the base address of the Redistributor interface frame of each CPU in
+ * the system. The size of the array = 'rdistif_num'. The base addresses are
+ * detected during driver initialisation.
+ *
+ * The 'mpidr_to_core_pos' field is a pointer to a hash function which the
+ * driver will use to convert an MPIDR value to a linear core index. This index
+ * will be used for accessing the 'rdistif_base_addrs' array. This is an
+ * optional field. A GICv3 implementation maps each MPIDR to a linear core index
+ * as well. This mapping can be found by reading the "Affinity Value" and
+ * "Processor Number" fields in the GICR_TYPER. It is IMP. DEF. if the
+ * "Processor Numbers" are suitable to index into an array to access core
+ * specific information. If this not the case, the platform port must provide a
+ * hash function. Otherwise, the "Processor Number" field will be used to access
+ * the array elements.
  ******************************************************************************/
 typedef unsigned int (*mpidr_hash_fn)(u_register_t mpidr);
 
 typedef struct gicv3_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicr_base;
+#if !ERROR_DEPRECATED
 	unsigned int g0_interrupt_num;
 	unsigned int g1s_interrupt_num;
 	const unsigned int *g0_interrupt_array;
 	const unsigned int *g1s_interrupt_array;
+#endif
+	const interrupt_prop_t *interrupt_props;
+	unsigned int interrupt_props_num;
 	unsigned int rdistif_num;
 	uintptr_t *rdistif_base_addrs;
 	mpidr_hash_fn mpidr_to_core_pos;
@@ -348,6 +391,21 @@ void gicv3_rdistif_init_restore(unsigned int proc_num, const gicv3_redist_ctx_t 
 void gicv3_rdistif_save(unsigned int proc_num, gicv3_redist_ctx_t * const rdist_ctx);
 void gicv3_its_save_disable(uintptr_t gits_base, gicv3_its_ctx_t * const its_ctx);
 void gicv3_its_restore(uintptr_t gits_base, const gicv3_its_ctx_t * const its_ctx);
+
+unsigned int gicv3_get_running_priority(void);
+unsigned int gicv3_get_interrupt_active(unsigned int id, unsigned int proc_num);
+void gicv3_enable_interrupt(unsigned int id, unsigned int proc_num);
+void gicv3_disable_interrupt(unsigned int id, unsigned int proc_num);
+void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
+		unsigned int priority);
+void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
+		unsigned int group);
+void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target);
+void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
+		u_register_t mpidr);
+void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num);
+void gicv3_clear_interrupt_pending(unsigned int id, unsigned int proc_num);
+unsigned int gicv3_set_pmr(unsigned int mask);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __GICV3_H__ */

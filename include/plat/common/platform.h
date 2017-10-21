@@ -70,6 +70,26 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 				     uint32_t security_state);
 
 /*******************************************************************************
+ * Optional interrupt management functions, depending on chosen EL3 components.
+ ******************************************************************************/
+unsigned int plat_ic_get_running_priority(void);
+int plat_ic_is_spi(unsigned int id);
+int plat_ic_is_ppi(unsigned int id);
+int plat_ic_is_sgi(unsigned int id);
+unsigned int plat_ic_get_interrupt_active(unsigned int id);
+void plat_ic_disable_interrupt(unsigned int id);
+void plat_ic_enable_interrupt(unsigned int id);
+int plat_ic_has_interrupt_type(unsigned int type);
+void plat_ic_set_interrupt_type(unsigned int id, unsigned int type);
+void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority);
+void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target);
+void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
+		u_register_t mpidr);
+void plat_ic_set_interrupt_pending(unsigned int id);
+void plat_ic_clear_interrupt_pending(unsigned int id);
+unsigned int plat_ic_set_priority_mask(unsigned int mask);
+
+/*******************************************************************************
  * Optional common functions (may be overridden)
  ******************************************************************************/
 uintptr_t plat_get_my_stack(void);

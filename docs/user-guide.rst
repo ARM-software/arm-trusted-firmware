@@ -386,6 +386,19 @@ Common build options
    images will include support for Trusted Board Boot, but the FIP and FWU\_FIP
    will not include the corresponding certificates, causing a boot failure.
 
+-  ``GICV2_G0_FOR_EL3``: Unlike GICv3, the GICv2 architecture doesn't have
+   inherent support for specific EL3 type interrupts. Setting this build option
+   to ``1`` assumes GICv2 *Group 0* interrupts are expected to target EL3, both
+   by `platform abstraction layer`__ and `Interrupt Management Framework`__.
+   This allows GICv2 platforms to enable features requiring EL3 interrupt type.
+   This also means that all GICv2 Group 0 interrupts are delivered to EL3, and
+   the Secure Payload interrupts needs to be synchronously handed over to Secure
+   EL1 for handling. The default value of this option is ``0``, which means the
+   Group 0 interrupts are assumed to be handled by Secure EL1.
+
+   .. __: `platform-interrupt-controller-API.rst`
+   .. __: `interrupt-framework-design.rst`
+
 -  ``HANDLE_EA_EL3_FIRST``: When defined External Aborts and SError Interrupts
    will be always trapped in EL3 i.e. in BL31 at runtime.
 
