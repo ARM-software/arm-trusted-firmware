@@ -6,6 +6,7 @@
 
 #include <arm_def.h>
 #include <gicv3.h>
+#include <interrupt_props.h>
 #include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -25,14 +26,9 @@
 /* The GICv3 driver only needs to be initialized in EL3 */
 static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
-/* Array of Group1 secure interrupts to be configured by the gic driver */
-static const unsigned int g1s_interrupt_array[] = {
-	PLAT_ARM_G1S_IRQS
-};
-
-/* Array of Group0 interrupts to be configured by the gic driver */
-static const unsigned int g0_interrupt_array[] = {
-	PLAT_ARM_G0_IRQS
+static const interrupt_prop_t arm_interrupt_props[] = {
+	PLAT_ARM_G1S_IRQ_PROPS(INTR_GROUP1S),
+	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0)
 };
 
 /*
@@ -58,10 +54,8 @@ static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
 const gicv3_driver_data_t arm_gic_data = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicr_base = PLAT_ARM_GICR_BASE,
-	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
-	.g1s_interrupt_num = ARRAY_SIZE(g1s_interrupt_array),
-	.g0_interrupt_array = g0_interrupt_array,
-	.g1s_interrupt_array = g1s_interrupt_array,
+	.interrupt_props = arm_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(arm_interrupt_props),
 	.rdistif_num = PLATFORM_CORE_COUNT,
 	.rdistif_base_addrs = rdistif_base_addrs,
 	.mpidr_to_core_pos = arm_gicv3_mpidr_hash

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,8 @@
 #ifndef __PLATFORM_DEF_H__
 #define __PLATFORM_DEF_H__
 
+#include <gic_common.h>
+#include <interrupt_props.h>
 #include "mt8173_def.h"
 
 
@@ -115,15 +117,24 @@
 #define PLAT_ARM_GICD_BASE      BASE_GICD_BASE
 #define PLAT_ARM_GICC_BASE      BASE_GICC_BASE
 
-#define PLAT_ARM_G1S_IRQS       MT_IRQ_SEC_SGI_0, \
-				MT_IRQ_SEC_SGI_1, \
-				MT_IRQ_SEC_SGI_2, \
-				MT_IRQ_SEC_SGI_3, \
-				MT_IRQ_SEC_SGI_4, \
-				MT_IRQ_SEC_SGI_5, \
-				MT_IRQ_SEC_SGI_6, \
-				MT_IRQ_SEC_SGI_7
+#define PLAT_ARM_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(MT_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE)
 
-#define PLAT_ARM_G0_IRQS
+#define PLAT_ARM_G0_IRQ_PROPS(grp)
 
 #endif /* __PLATFORM_DEF_H__ */

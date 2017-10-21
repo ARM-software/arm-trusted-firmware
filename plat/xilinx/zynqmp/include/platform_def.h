@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,8 @@
 #define __PLATFORM_DEF_H__
 
 #include <arch.h>
+#include <gic_common.h>
+#include <interrupt_props.h>
 #include "../zynqmp_def.h"
 
 /*******************************************************************************
@@ -85,20 +87,30 @@
 #define PLAT_ARM_GICD_BASE	BASE_GICD_BASE
 #define PLAT_ARM_GICC_BASE	BASE_GICC_BASE
 /*
- * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
+ * Define properties of Group 1 Secure and Group 0 interrupts as per GICv3
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.
  */
-#define PLAT_ARM_G1S_IRQS	ARM_IRQ_SEC_PHY_TIMER,	\
-				ARM_IRQ_SEC_SGI_0,	\
-				ARM_IRQ_SEC_SGI_1,	\
-				ARM_IRQ_SEC_SGI_2,	\
-				ARM_IRQ_SEC_SGI_3,	\
-				ARM_IRQ_SEC_SGI_4,	\
-				ARM_IRQ_SEC_SGI_5,	\
-				ARM_IRQ_SEC_SGI_6,	\
-				ARM_IRQ_SEC_SGI_7
+#define PLAT_ARM_G1S_IRQ_PROPS(grp) \
+	INTR_PROP_DESC(ARM_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_LEVEL), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE), \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
+			GIC_INTR_CFG_EDGE)
 
-#define PLAT_ARM_G0_IRQS
+#define PLAT_ARM_G0_IRQ_PROPS(grp)
 
 #endif /* __PLATFORM_DEF_H__ */
