@@ -42,6 +42,13 @@
 
 #define DWUSB_BASE				0xF72C0000
 
+#define EDMAC_BASE				0xf7370000
+#define EDMAC_SEC_CTRL				(EDMAC_BASE + 0x694)
+#define EDMAC_AXI_CONF(x)			(EDMAC_BASE + 0x820 + (x << 6))
+#define EDMAC_SEC_CTRL_INTR_SEC			(1 << 1)
+#define EDMAC_SEC_CTRL_GLOBAL_SEC		(1 << 0)
+#define EDMAC_CHANNEL_NUMS			16
+
 #define PMUSSI_BASE				0xF8000000
 
 #define SP804_TIMER0_BASE			0xF8008000

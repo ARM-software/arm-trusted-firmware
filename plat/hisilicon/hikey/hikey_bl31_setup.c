@@ -16,6 +16,7 @@
 #include <hi6220.h>
 #include <hisi_ipc.h>
 #include <hisi_pwrc.h>
+#include <mmio.h>
 #include <platform_def.h>
 
 #include "hikey_def.h"
@@ -152,6 +153,20 @@ void bl31_plat_arch_setup(void)
 			   BL31_COHERENT_RAM_LIMIT);
 }
 
+/* Initialize EDMAC controller with non-secure mode. */
+static void hikey_edma_init(void)
+{
+	int i;
+	uint32_t non_secure;
+
+	non_secure = EDMAC_SEC_CTRL_INTR_SEC | EDMAC_SEC_CTRL_GLOBAL_SEC;
+	mmio_write_32(EDMAC_SEC_CTRL, non_secure);
+
+	for (i = 0; i < EDMAC_CHANNEL_NUMS; i++) {
+		mmio_write_32(EDMAC_AXI_CONF(i), (1 << 6) | (1 << 18));
+	}
+}
+
 void bl31_platform_setup(void)
 {
 	/* Initialize the GIC driver, cpu and distributor interfaces */
@@ -159,6 +174,8 @@ void bl31_platform_setup(void)
 	gicv2_distif_init();
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();
+
+	hikey_edma_init();
 
 	hisi_ipc_init();
 	hisi_pwrc_setup();
