@@ -47,7 +47,7 @@ static const io_block_spec_t emmc_fip_spec = {
 
 static const io_block_dev_spec_t emmc_dev_spec = {
 	/* It's used as temp buffer in block driver. */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 	.buffer		= {
 		.offset	= HIKEY_BL1_MMC_DATA_BASE,
 		.length	= HIKEY_BL1_MMC_DATA_SIZE,

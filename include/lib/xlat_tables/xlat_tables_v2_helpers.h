@@ -168,7 +168,7 @@ struct xlat_ctx {
  * This IMAGE_EL macro must not to be used outside the library, and it is only
  * used in AArch64.
  */
-#if IMAGE_BL1 || IMAGE_BL31
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
 # define IMAGE_EL	3
 # define IMAGE_XLAT_DEFAULT_REGIME EL3_REGIME
 #else

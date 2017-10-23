@@ -55,7 +55,7 @@
  * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
  * hikey960_init_mmu_elx() will give the available subset of that,
  */
-#if IMAGE_BL1
+#ifdef IMAGE_BL1
 static const mmap_region_t hikey960_mmap[] = {
 	MAP_UFS_DATA,
 	MAP_BL1_RW,
@@ -65,7 +65,7 @@ static const mmap_region_t hikey960_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 static const mmap_region_t hikey960_mmap[] = {
 	MAP_DDR,
 	MAP_DEVICE,
@@ -79,7 +79,7 @@ static const mmap_region_t hikey960_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL31
+#ifdef IMAGE_BL31
 static const mmap_region_t hikey960_mmap[] = {
 	MAP_DEVICE,
 	MAP_TSP_MEM,
@@ -87,7 +87,7 @@ static const mmap_region_t hikey960_mmap[] = {
 };
 #endif
 
-#if IMAGE_BL32
+#ifdef IMAGE_BL32
 static const mmap_region_t hikey960_mmap[] = {
 	MAP_DEVICE,
 	MAP_DDR,
