@@ -55,8 +55,8 @@ void plat_secondary_setup(void)
 	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_HIGH, addr_high);
 
 	/* save reset vector to be used during SYSTEM_SUSPEND exit */
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV1_LO,
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_LO,
 			addr_low);
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV1_HI,
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_HI,
 			addr_high);
 }
