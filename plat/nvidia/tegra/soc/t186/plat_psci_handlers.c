@@ -123,7 +123,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* save 'Secure Boot' Processor Feature Config Register */
 		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
-		mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV6, val);
+		mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_BOOTP_FCFG, val);
 
 		/* save SMMU context to TZDRAM */
 		smmu_ctx_base = params_from_bl2->tzdram_base +

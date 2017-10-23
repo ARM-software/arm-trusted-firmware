@@ -123,9 +123,9 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 			(sizeof(smmu_regs_t) * num_entries));
 
 	/* save the SMMU table address */
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_LO,
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SMMU_TABLE_ADDR_LO,
 		(uint32_t)smmu_ctx_addr);
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV11_HI,
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SMMU_TABLE_ADDR_HI,
 		(uint32_t)(smmu_ctx_addr >> 32));
 }
 

@@ -561,8 +561,8 @@ void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 	 */
 	val = tegra_mc_read_32(MC_SECURITY_CFG1_0) & MC_SECURITY_SIZE_MB_MASK;
 	val |= tegra_mc_read_32(MC_SECURITY_CFG0_0) & MC_SECURITY_BOM_MASK;
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_LO, val);
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_TZDRAM_ADDR_LO, val);
 
 	val = tegra_mc_read_32(MC_SECURITY_CFG3_0) & MC_SECURITY_BOM_HI_MASK;
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_HI, val);
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_TZDRAM_ADDR_HI, val);
 }

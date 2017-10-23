@@ -56,9 +56,9 @@ void plat_secondary_setup(void)
 	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_HIGH, addr_high);
 
 	/* save reset vector to be used during SYSTEM_SUSPEND exit */
-	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_RSV1_SCRATCH_0,
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_LO,
 			addr_low);
-	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_RSV1_SCRATCH_1,
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_HI,
 			addr_high);
 
 	/* update reset vector address to the CCPLEX */
