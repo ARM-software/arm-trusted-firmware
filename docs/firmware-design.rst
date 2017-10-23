@@ -2258,6 +2258,103 @@ should consider the trade-off between memory footprint and security.
 This build flag is disabled by default, minimising memory footprint. On ARM
 platforms, it is enabled.
 
+Publish and Subscribe Framework
+-------------------------------
+
+The Publish and Subscribe Framework allows EL3 components to define and publish
+events, to which other EL3 components can subscribe.
+
+The following macros are provided by the framework:
+
+-  ``REGISTER_PUBSUB_EVENT(event)``: Defines an event, and takes one argument,
+   the event name, which must be a valid C identifier. All calls to
+   ``REGISTER_PUBSUB_EVENT`` macro must be placed in the file
+   ``pubsub_events.h``.
+
+-  ``PUBLISH_EVENT_ARG(event, arg)``: Publishes a defined event, by iterating
+   subscribed handlers and calling them in turn. The handlers will be passed the
+   parameter ``arg``. The expected use-case is to broadcast an event.
+
+-  ``PUBLISH_EVENT(event)``: Like ``PUBLISH_EVENT_ARG``, except that the value
+   ``NULL`` is passed to subscribed handlers.
+
+-  ``SUBSCRIBE_TO_EVENT(event, handler)``: Registers the ``handler`` to
+   subscribe to ``event``. The handler will be executed whenever the ``event``
+   is published.
+
+-  ``for_each_subscriber(event, subscriber)``: Iterates through all handlers
+   subscribed for ``event``. ``subscriber`` must be a local variable of type
+   ``pubsub_cb_t *``, and will point to each subscribed handler in turn during
+   iteration. This macro can be used for those patterns that none of the
+   ``PUBLISH_EVENT_*()`` macros cover.
+
+Publishing an event that wasn't defined using ``REGISTER_PUBSUB_EVENT`` will
+result in build error. Subscribing to an undefined event however won't.
+
+Subscribed handlers must be of type ``pubsub_cb_t``, with following function
+signature:
+
+::
+
+   typedef void* (*pubsub_cb_t)(const void *arg);
+
+There may be arbitrary number of handlers registered to the same event. The
+order in which subscribed handlers are notified when that event is published is
+not defined. Subscribed handlers may be executed in any order; handlers should
+not assume any relative ordering amongst them.
+
+Publishing an event on a PE will result in subscribed handlers executing on that
+PE only; it won't cause handlers to execute on a different PE.
+
+Note that publishing an event on a PE blocks until all the subscribed handlers
+finish executing on the PE.
+
+Publish and Subscribe Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A publisher that wants to publish event ``foo`` would:
+
+-  Define the event ``foo`` in the ``pubsub_events.h``.
+
+   ::
+
+      REGISTER_PUBSUB_EVENT(foo);
+
+-  Depending on the nature of event, use one of ``PUBLISH_EVENT_*()`` macros to
+   publish the event at the appropriate path and time of execution.
+
+A subscriber that wants to subscribe to event ``foo`` published above would
+implement:
+
+::
+
+   void *foo_handler(const void *arg)
+   {
+        void *result;
+
+        /* Do handling ... */
+
+        return result;
+   }
+
+   SUBSCRIBE_TO_EVENT(foo, foo_handler);
+
+Available Events
+~~~~~~~~~~~~~~~~
+
+ARM Trusted Firmware core makes some events available by default. They're listed
+below, along with information as to when they're published, and the arguments
+passed to subscribed handlers.
+
+Other EL3 components that are conditionally compiled in may make their own
+events available, but aren't documented here.
+
+-  ``psci_cpu_on_finish``
+
+   - When: Published on a PE after it's finished its power-up sequence.
+
+   - Argument: ``NULL``.
+
 Performance Measurement Framework
 ---------------------------------
 
