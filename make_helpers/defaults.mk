@@ -118,6 +118,9 @@ SEPARATE_CODE_AND_RODATA	:= 0
 # SPD choice
 SPD				:= none
 
+# For including the Secure Partition Manager
+ENABLE_SPM			:= 0
+
 # Flag to introduce an infinite loop in BL1 just before it exits into the next
 # image. This is meant to help debugging the post-BL2 phase.
 SPIN_ON_BL1_EXIT		:= 0

@@ -4,6 +4,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+################################################################################
+# Include SPM Makefile
+################################################################################
+ifeq (${ENABLE_SPM},1)
+$(info Including SPM makefile)
+include services/std_svc/spm/spm.mk
+endif
+
+
 include lib/psci/psci_lib.mk
 
 BL31_SOURCES		+=	bl31/bl31_main.c				\
@@ -15,7 +24,9 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				common/runtime_svc.c				\
 				plat/common/aarch64/platform_mp_stack.S		\
 				services/std_svc/std_svc_setup.c		\
-				${PSCI_LIB_SOURCES}
+				${PSCI_LIB_SOURCES}				\
+				${SPM_SOURCES}					\
+
 
 ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c

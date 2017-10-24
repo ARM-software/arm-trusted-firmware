@@ -118,6 +118,23 @@ SECTIONS
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
            "cpu_ops not defined for this platform.")
 
+#if ENABLE_SPM
+    /*
+     * Exception vectors of the SPM shim layer. They must be aligned to a 2K
+     * address, but we need to place them in a separate page so that we can set
+     * individual permissions to them, so the actual alignment needed is 4K.
+     *
+     * There's no need to include this into the RO section of BL31 because it
+     * doesn't need to be accessed by BL31.
+     */
+    spm_shim_exceptions : ALIGN(4096) {
+        __SPM_SHIM_EXCEPTIONS_START__ = .;
+        *(.spm_shim_exceptions)
+        . = NEXT(4096);
+        __SPM_SHIM_EXCEPTIONS_END__ = .;
+    } >RAM
+#endif
+
     /*
      * Define a linker symbol to mark start of the RW memory area for this
      * image.
@@ -202,6 +219,13 @@ SECTIONS
      * the .bss section and eliminates the unecessary zero init
      */
     xlat_table (NOLOAD) : {
+#if ENABLE_SPM
+        __SP_IMAGE_XLAT_TABLES_START__ = .;
+        *secure_partition*.o(xlat_table)
+        /* Make sure that the rest of the page is empty. */
+        . = NEXT(4096);
+        __SP_IMAGE_XLAT_TABLES_END__ = .;
+#endif
         *(xlat_table)
     } >RAM
 

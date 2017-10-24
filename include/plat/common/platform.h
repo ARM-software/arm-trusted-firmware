@@ -23,6 +23,8 @@ struct bl31_params;
 struct image_desc;
 struct bl_load_info;
 struct bl_params;
+struct mmap_region;
+struct secure_partition_boot_info;
 
 /*******************************************************************************
  * plat_get_rotpk_info() flags
@@ -292,6 +294,13 @@ int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr);
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr);
 int plat_set_nv_ctr2(void *cookie, const struct auth_img_desc_s *img_desc,
 		unsigned int nv_ctr);
+
+/*******************************************************************************
+ * Secure Partitions functions
+ ******************************************************************************/
+const struct mmap_region *plat_get_secure_partition_mmap(void *cookie);
+const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
+		void *cookie);
 
 #if LOAD_IMAGE_V2
 /*******************************************************************************

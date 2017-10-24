@@ -126,6 +126,7 @@
 #define ID_AA64PFR0_GIC_MASK	((U(1) << ID_AA64PFR0_GIC_WIDTH) - 1)
 
 /* ID_AA64MMFR0_EL1 definitions */
+#define ID_AA64MMFR0_EL1_PARANGE_SHIFT	U(0)
 #define ID_AA64MMFR0_EL1_PARANGE_MASK	U(0xf)
 
 #define PARANGE_0000	U(32)
@@ -134,6 +135,21 @@
 #define PARANGE_0011	U(42)
 #define PARANGE_0100	U(44)
 #define PARANGE_0101	U(48)
+
+#define ID_AA64MMFR0_EL1_TGRAN4_SHIFT		U(28)
+#define ID_AA64MMFR0_EL1_TGRAN4_MASK		U(0xf)
+#define ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED	U(0x0)
+#define ID_AA64MMFR0_EL1_TGRAN4_NOT_SUPPORTED	U(0xf)
+
+#define ID_AA64MMFR0_EL1_TGRAN64_SHIFT		U(24)
+#define ID_AA64MMFR0_EL1_TGRAN64_MASK		U(0xf)
+#define ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED	U(0x0)
+#define ID_AA64MMFR0_EL1_TGRAN64_NOT_SUPPORTED	U(0xf)
+
+#define ID_AA64MMFR0_EL1_TGRAN16_SHIFT		U(20)
+#define ID_AA64MMFR0_EL1_TGRAN16_MASK		U(0xf)
+#define ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED	U(0x1)
+#define ID_AA64MMFR0_EL1_TGRAN16_NOT_SUPPORTED	U(0x0)
 
 /* ID_PFR1_EL1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
@@ -160,12 +176,25 @@
 #define SCTLR_A_BIT		(U(1) << 1)
 #define SCTLR_C_BIT		(U(1) << 2)
 #define SCTLR_SA_BIT		(U(1) << 3)
+#define SCTLR_SA0_BIT		(U(1) << 4)
 #define SCTLR_CP15BEN_BIT	(U(1) << 5)
+#define SCTLR_ITD_BIT		(U(1) << 7)
+#define SCTLR_SED_BIT		(U(1) << 8)
+#define SCTLR_UMA_BIT		(U(1) << 9)
 #define SCTLR_I_BIT		(U(1) << 12)
+#define SCTLR_V_BIT		(U(1) << 13)
+#define SCTLR_DZE_BIT		(U(1) << 14)
+#define SCTLR_UCT_BIT		(U(1) << 15)
 #define SCTLR_NTWI_BIT		(U(1) << 16)
 #define SCTLR_NTWE_BIT		(U(1) << 18)
 #define SCTLR_WXN_BIT		(U(1) << 19)
+#define SCTLR_UWXN_BIT		(U(1) << 20)
+#define SCTLR_E0E_BIT		(U(1) << 24)
 #define SCTLR_EE_BIT		(U(1) << 25)
+#define SCTLR_UCI_BIT		(U(1) << 26)
+#define SCTLR_TRE_BIT		(U(1) << 28)
+#define SCTLR_AFE_BIT		(U(1) << 29)
+#define SCTLR_TE_BIT		(U(1) << 30)
 #define SCTLR_RESET_VAL		SCTLR_EL3_RES1
 
 /* CPACR_El1 definitions */
@@ -350,6 +379,13 @@
 #define TCR_SH_OUTER_SHAREABLE	(U(0x2) << 12)
 #define TCR_SH_INNER_SHAREABLE	(U(0x3) << 12)
 
+#define TCR_TG0_SHIFT		U(14)
+#define TCR_TG0_MASK		U(3)
+#define TCR_TG0_4K		(ULL(0) << TCR_TG0_SHIFT)
+#define TCR_TG0_64K		(ULL(1) << TCR_TG0_SHIFT)
+#define TCR_TG0_16K		(ULL(2) << TCR_TG0_SHIFT)
+
+#define TCR_EPD0_BIT		(U(1) << 7)
 #define TCR_EPD1_BIT		(U(1) << 23)
 
 #define MODE_SP_SHIFT		U(0x0)
