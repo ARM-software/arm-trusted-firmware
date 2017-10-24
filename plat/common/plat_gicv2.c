@@ -277,3 +277,13 @@ unsigned int plat_ic_set_priority_mask(unsigned int mask)
 {
 	return gicv2_set_pmr(mask);
 }
+
+unsigned int plat_ic_get_interrupt_id(unsigned int raw)
+{
+	unsigned int id = (raw & INT_ID_MASK);
+
+	if (id == GIC_SPURIOUS_INTERRUPT)
+		id = INTR_ID_UNAVAILABLE;
+
+	return id;
+}

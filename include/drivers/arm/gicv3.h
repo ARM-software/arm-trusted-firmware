@@ -245,6 +245,9 @@
 #define GICR_NUM_REGS(reg_name)	\
 	DIV_ROUND_UP_2EVAL(TOTAL_PCPU_INTR_NUM, (1 << reg_name ## _SHIFT))
 
+/* Interrupt ID mask for HPPIR, AHPPIR, IAR and AIAR CPU Interface registers */
+#define INT_ID_MASK	0xffffff
+
 /*******************************************************************************
  * This structure describes some of the implementation defined attributes of the
  * GICv3 IP. It is used by the platform port to specify these attributes in order

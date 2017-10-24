@@ -2479,14 +2479,17 @@ Function : plat\_ic\_acknowledge\_interrupt() [mandatory]
     Return   : uint32_t
 
 This API is used by the CPU to indicate to the platform IC that processing of
-the highest pending interrupt has begun. It should return the id of the
-interrupt which is being processed.
+the highest pending interrupt has begun. It should return the raw, unmodified
+value obtained from the interrupt controller when acknowledging an interrupt.
+The actual interrupt number shall be extracted from this raw value using the API
+`plat_ic_get_interrupt_id()`__.
+
+.. __: platform-interrupt-controller-API.rst#function-unsigned-int-plat-ic-get-interrupt-id-unsigned-int-raw-optional
 
 This function in ARM standard platforms using GICv2, reads the *Interrupt
 Acknowledge Register* (``GICC_IAR``). This changes the state of the highest
 priority pending interrupt from pending to active in the interrupt controller.
-It returns the value read from the ``GICC_IAR``. This value is the id of the
-interrupt whose state has been changed.
+It returns the value read from the ``GICC_IAR``, unmodified.
 
 In the case of ARM standard platforms using GICv3, if the API is invoked
 from EL3, the function reads the system register ``ICC_IAR0_EL1``, *Interrupt
@@ -2494,7 +2497,7 @@ Acknowledge Register group 0*. If the API is invoked from S-EL1, the function
 reads the system register ``ICC_IAR1_EL1``, *Interrupt Acknowledge Register
 group 1*. The read changes the state of the highest pending interrupt from
 pending to active in the interrupt controller. The value read is returned
-and is the id of the interrupt whose state has been changed.
+unmodified.
 
 The TSP uses this API to start processing of the secure physical timer
 interrupt.

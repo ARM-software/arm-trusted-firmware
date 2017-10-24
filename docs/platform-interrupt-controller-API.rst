@@ -292,6 +292,22 @@ inserts to order memory updates before updating mask, then writes to the GIC
 *Priority Mask Register*, and make sure memory updates are visible before
 potential trigger due to mask update.
 
+Function: unsigned int plat_ic_get_interrupt_id(unsigned int raw); [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : unsigned int
+
+This API should extract and return the interrupt number from the raw value
+obtained by the acknowledging the interrupt (read using
+``plat_ic_acknowledge_interrupt()``). If the interrupt ID is invalid, this API
+should return ``INTR_ID_UNAVAILABLE``.
+
+In case of ARM standard platforms using GIC, the implementation of the API
+masks out the interrupt ID field from the acknowledged value from GIC.
+
 ----
 
 *Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*
