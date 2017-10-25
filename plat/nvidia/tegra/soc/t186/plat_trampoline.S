@@ -80,3 +80,20 @@ __tegra186_smmu_context:
 	.align 4
 	.globl	__tegra186_cpu_reset_handler_end
 __tegra186_cpu_reset_handler_end:
+
+	.globl tegra186_get_cpu_reset_handler_size
+	.globl tegra186_get_cpu_reset_handler_base
+
+/* return size of the CPU reset handler */
+func tegra186_get_cpu_reset_handler_size
+	adr	x0, __tegra186_cpu_reset_handler_end
+	adr	x1, tegra186_cpu_reset_handler
+	sub	x0, x0, x1
+	ret
+endfunc tegra186_get_cpu_reset_handler_size
+
+/* return the start address of the CPU reset handler */
+func tegra186_get_cpu_reset_handler_base
+	adr	x0, tegra186_cpu_reset_handler
+	ret
+endfunc tegra186_get_cpu_reset_handler_base
