@@ -23,7 +23,7 @@ extern bool tegra_fake_system_suspend;
 /*******************************************************************************
  * Tegra186 SiP SMCs
  ******************************************************************************/
-#define TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND		0xC2FFFE03
+#define TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND		0xC2FFFE03U
 
 /*******************************************************************************
  * This function is responsible for handling all T186 SiP calls

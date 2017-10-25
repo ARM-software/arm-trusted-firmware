@@ -50,6 +50,9 @@ uint64_t nvg_get_cstate_stat_query_value(void);
 int32_t nvg_is_sc7_allowed(void);
 int32_t nvg_online_core(uint32_t core);
 int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx);
+int32_t nvg_roc_clean_cache(void);
+int32_t nvg_roc_flush_cache(void);
+int32_t nvg_roc_clean_cache_trbits(void);
 int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time);
 
 void nvg_set_request_data(uint64_t req, uint64_t data);
