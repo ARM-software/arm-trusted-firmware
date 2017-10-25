@@ -16,6 +16,11 @@
 #endif
 
 /*
+ * Encode a Physical Address Space size for its use in TCR_ELx.
+ */
+unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr);
+
+/*
  * In AArch64 state, the MMU may support 4 KB, 16 KB and 64 KB page
  * granularity. For 4KB granularity, a level 0 table descriptor doesn't support
  * block translation. For 16KB, the same thing happens to levels 0 and 1. For
