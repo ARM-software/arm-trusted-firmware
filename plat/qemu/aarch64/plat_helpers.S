@@ -63,6 +63,7 @@ endfunc plat_is_my_cpu_primary
 func plat_secondary_cold_boot_setup
 	/* Calculate address of our hold entry */
 	bl	plat_my_core_pos
+	lsl	x0, x0, #PLAT_QEMU_HOLD_ENTRY_SHIFT
 	mov_imm	x2, PLAT_QEMU_HOLD_BASE
 
 	/* Wait until we have a go */
