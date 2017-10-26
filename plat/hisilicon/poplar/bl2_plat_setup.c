@@ -159,5 +159,5 @@ void bl2_platform_setup(void)
 
 unsigned long plat_get_ns_image_entrypoint(void)
 {
-	return PLAT_ARM_NS_IMAGE_OFFSET;
+	return PLAT_POPLAR_NS_IMAGE_OFFSET;
 }

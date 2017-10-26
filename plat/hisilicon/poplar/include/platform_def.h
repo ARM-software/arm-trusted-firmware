@@ -52,7 +52,7 @@
 #define BL_MEM_LIMIT			(BL31_LIMIT)
 #define BL_MEM_SIZE			(BL_MEM_LIMIT - BL_MEM_BASE)
 
-#define PLAT_ARM_NS_IMAGE_OFFSET	0x37000000
+#define PLAT_POPLAR_NS_IMAGE_OFFSET	0x37000000
 
 /* Page table and MMU setup constants */
 #define ADDR_SPACE_SIZE			(1ull << 32)
