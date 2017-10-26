@@ -12,7 +12,7 @@
 
 #define TEGRA194_STATE_SYSTEM_SUSPEND	0x5C7
 #define TEGRA194_STATE_SYSTEM_RESUME	0x600D
-#define TEGRA194_SMMU_CTX_SIZE		0x490
+#define TEGRA194_SMMU_CTX_SIZE		0x80B
 
 	.align 4
 	.globl	tegra194_cpu_reset_handler
