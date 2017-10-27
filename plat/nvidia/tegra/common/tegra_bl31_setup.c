@@ -70,6 +70,7 @@ extern uint64_t ns_image_entrypoint;
 #pragma weak plat_early_platform_setup
 #pragma weak plat_get_bl31_params
 #pragma weak plat_get_bl31_plat_params
+#pragma weak plat_late_platform_setup
 
 void plat_early_platform_setup(void)
 {
@@ -84,6 +85,11 @@ struct tegra_bl31_params *plat_get_bl31_params(void)
 plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
 {
 	return NULL;
+}
+
+void plat_late_platform_setup(void)
+{
+	; /* do nothing */
 }
 
 /*******************************************************************************
@@ -327,6 +333,13 @@ void bl31_platform_setup(void)
 	 * access
 	 */
 	tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
+
+	/*
+	 * Late setup handler to allow platforms to performs additional
+	 * functionality.
+	 * This handler gets called with MMU enabled.
+	 */
+	plat_late_platform_setup();
 
 	/*
 	 * Add timestamp for platform setup exit.
