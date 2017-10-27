@@ -29,8 +29,10 @@
 typedef struct bl2_to_bl31_params_mem {
 	bl31_params_t		bl31_params;
 	image_info_t		bl31_image_info;
+	image_info_t		bl32_image_info;
 	image_info_t		bl33_image_info;
 	entry_point_info_t	bl33_ep_info;
+	entry_point_info_t	bl32_ep_info;
 	entry_point_info_t	bl31_ep_info;
 } bl2_to_bl31_params_mem_t;
 
@@ -61,6 +63,16 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl31_image_info,
 		       PARAM_IMAGE_BINARY, VERSION_1, 0);
 
+	/* Fill BL3-2 related information if it exists */
+#ifdef BL32_BASE
+	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, PARAM_EP,
+		VERSION_1, 0);
+	bl2_to_bl31_params->bl32_image_info = &bl31_params_mem.bl32_image_info;
+	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info, PARAM_IMAGE_BINARY,
+		VERSION_1, 0);
+#endif
+
 	/* Fill BL3-3 related information */
 	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem.bl33_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_ep_info,
@@ -88,6 +100,41 @@ void bl2_plat_set_bl31_ep_info(image_info_t *image,
 	bl31_ep_info->spsr = SPSR_64(MODE_EL3, MODE_SP_ELX,
 				     DISABLE_ALL_EXCEPTIONS);
 }
+
+/*******************************************************************************
+ * Before calling this function BL32 is loaded in memory and its entrypoint
+ * is set by load_image. This is a placeholder for the platform to change
+ * the entrypoint of BL32 and set SPSR and security state.
+ * On Poplar we only set the security state of the entrypoint
+ ******************************************************************************/
+#ifdef BL32_BASE
+void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
+					entry_point_info_t *bl32_ep_info)
+{
+	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
+	/*
+	 * The Secure Payload Dispatcher service is responsible for
+	 * setting the SPSR prior to entry into the BL32 image.
+	 */
+	bl32_ep_info->spsr = 0;
+}
+
+/*******************************************************************************
+ * Populate the extents of memory available for loading BL32
+ ******************************************************************************/
+void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
+{
+	/*
+	 * Populate the extents of memory available for loading BL32.
+	 */
+	bl32_meminfo->total_base = BL32_BASE;
+	bl32_meminfo->free_base = BL32_BASE;
+	bl32_meminfo->total_size =
+			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
+	bl32_meminfo->free_size =
+			(TSP_SEC_MEM_BASE + TSP_SEC_MEM_SIZE) - BL32_BASE;
+}
+#endif /* BL32_BASE */
 
 static uint32_t hisi_get_spsr_for_bl33_entry(void)
 {

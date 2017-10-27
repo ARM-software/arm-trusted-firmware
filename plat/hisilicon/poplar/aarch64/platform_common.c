@@ -25,9 +25,14 @@
 					DEVICE_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
+#define MAP_TSP_MEM	MAP_REGION_FLAT(TSP_SEC_MEM_BASE,		\
+					TSP_SEC_MEM_SIZE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
 static const mmap_region_t poplar_mmap[] = {
 	MAP_DDR,
 	MAP_DEVICE,
+	MAP_TSP_MEM,
 	{0}
 };
 

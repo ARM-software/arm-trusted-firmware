@@ -4,6 +4,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# On Poplar, the TSP can execute from TZC secure area in DRAM.
+POPLAR_TSP_RAM_LOCATION	:=	dram
+ifeq (${POPLAR_TSP_RAM_LOCATION}, dram)
+  POPLAR_TSP_RAM_LOCATION_ID = POPLAR_DRAM_ID
+else ifeq (${HIKEY960_TSP_RAM_LOCATION}, sram)
+  POPLAR_TSP_RAM_LOCATION_ID := POPLAR_SRAM_ID
+else
+  $(error "Currently unsupported POPLAR_TSP_RAM_LOCATION value")
+endif
+$(eval $(call add_define,POPLAR_TSP_RAM_LOCATION_ID))
+
 NEED_BL33			:= yes
 
 COLD_BOOT_SINGLE_CPU		:= 1
