@@ -537,3 +537,32 @@ tegra_mc_settings_t *tegra_get_mc_settings(void)
 {
 	return &tegra186_mc_settings;
 }
+
+/*******************************************************************************
+ * Handler to program the scratch registers with TZDRAM settings for the
+ * resume firmware
+ ******************************************************************************/
+void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
+{
+	uint32_t val;
+
+	(void)phys_base;
+	(void)size_in_bytes;
+
+	/*
+	 * When TZ encryption is enabled, we need to setup TZDRAM
+	 * before CPU accesses TZ Carveout, else CPU will fetch
+	 * non-decrypted data. So save TZDRAM setting for SC7 resume
+	 * FW to restore.
+	 *
+	 * Scratch registers map:
+	 *  RSV55_0 = CFG1[12:0] | CFG0[31:20]
+	 *  RSV55_1 = CFG3[1:0]
+	 */
+	val = tegra_mc_read_32(MC_SECURITY_CFG1_0) & MC_SECURITY_SIZE_MB_MASK;
+	val |= tegra_mc_read_32(MC_SECURITY_CFG0_0) & MC_SECURITY_BOM_MASK;
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_LO, val);
+
+	val = tegra_mc_read_32(MC_SECURITY_CFG3_0) & MC_SECURITY_BOM_HI_MASK;
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_HI, val);
+}

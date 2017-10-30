@@ -165,6 +165,14 @@ static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
  ******************************************************************************/
 tegra_mc_settings_t *tegra_get_mc_settings(void);
 
-#endif /* __ASSMEBLY__ */
+/*******************************************************************************
+ * Handler to program the scratch registers with TZDRAM settings for the
+ * resume firmware.
+ *
+ * Implemented by SoCs under tegra/soc/txxx
+ ******************************************************************************/
+void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes);
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* MEMCTRL_V2_H */
