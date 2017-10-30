@@ -76,12 +76,13 @@
 #define MBEDTLS_MPI_WINDOW_SIZE              2
 #define MBEDTLS_MPI_MAX_SIZE               256
 
-/* System headers required to build mbed TLS with the current configuration */
-#include <stdlib.h>
-
 /* Memory buffer allocator options */
 #define MBEDTLS_MEMORY_ALIGN_MULTIPLE        8
 
+#ifndef __ASSEMBLY__
+/* System headers required to build mbed TLS with the current configuration */
+#include <stdlib.h>
 #include "mbedtls/check_config.h"
+#endif
 
 #endif /* __MBEDTLS_CONFIG_H__ */

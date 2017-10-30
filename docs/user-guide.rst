@@ -664,9 +664,10 @@ ARM development platform specific build options
 
 -  ``ARM_TSP_RAM_LOCATION``: location of the TSP binary. Options:
 
-   -  ``tsram`` : Trusted SRAM (default option)
+   -  ``tsram`` : Trusted SRAM (default option when TBB is not enabled)
    -  ``tdram`` : Trusted DRAM (if available)
-   -  ``dram`` : Secure region in DRAM (configured by the TrustZone controller)
+   -  ``dram``  : Secure region in DRAM (default option when TBB is enabled,
+                  configured by the TrustZone controller)
 
 -  ``ARM_XLAT_TABLES_LIB_V1``: boolean option to compile the Trusted Firmware
    with version 1 of the translation tables library instead of version 2. It is
