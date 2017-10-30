@@ -260,9 +260,9 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
-#ifdef IMAGE_BL32
+#if defined(IMAGE_BL32) || (defined(IMAGE_BL2) && BL2_AT_EL3)
 		/* -----------------------------------------------------------------
-		 * Invalidate the RW memory used by the BL32 (SP_MIN) image. This
+		 * Invalidate the RW memory used by the image. This
 		 * includes the data and NOBITS sections. This is done to
 		 * safeguard against possible corruption of this memory by
 		 * dirty cache lines in a system cache as a result of use by

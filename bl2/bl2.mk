@@ -5,7 +5,6 @@
 #
 
 BL2_SOURCES		+=	bl2/bl2_main.c				\
-				bl2/${ARCH}/bl2_entrypoint.S		\
 				bl2/${ARCH}/bl2_arch_setup.c		\
 				lib/locks/exclusive/${ARCH}/spinlock.S	\
 				plat/common/${ARCH}/platform_up_stack.S
@@ -20,4 +19,15 @@ else
 BL2_SOURCES		+=	bl2/bl2_image_load.c
 endif
 
+ifeq (${BL2_AT_EL3},0)
+BL2_SOURCES		+=	bl2/${ARCH}/bl2_entrypoint.S
 BL2_LINKERFILE		:=	bl2/bl2.ld.S
+
+else
+BL2_SOURCES		+=	bl2/${ARCH}/bl2_el3_entrypoint.S	\
+				bl2/${ARCH}/bl2_el3_exceptions.S	\
+				plat/common/plat_bl2_el3_common.c	\
+				lib/cpus/${ARCH}/cpu_helpers.S		\
+				lib/cpus/errata_report.c
+BL2_LINKERFILE		:=	bl2/bl2_el3.ld.S
+endif

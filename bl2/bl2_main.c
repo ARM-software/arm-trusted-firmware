@@ -13,6 +13,11 @@
 #include <platform.h>
 #include "bl2_private.h"
 
+#ifdef AARCH32
+#define NEXT_IMAGE	"BL32"
+#else
+#define NEXT_IMAGE	"BL31"
+#endif
 
 /*******************************************************************************
  * The only thing to do in BL2 is to load further images and pass control to
@@ -49,6 +54,8 @@ void bl2_main(void)
 	disable_mmu_icache_secure();
 #endif /* AARCH32 */
 
+
+#if !BL2_AT_EL3
 	console_flush();
 
 	/*
@@ -57,4 +64,11 @@ void bl2_main(void)
 	 * be passed to next BL image as an argument.
 	 */
 	smc(BL1_SMC_RUN_IMAGE, (unsigned long)next_bl_ep_info, 0, 0, 0, 0, 0, 0);
+#else
+	NOTICE("BL2: Booting " NEXT_IMAGE "\n");
+	print_entry_point_info(next_bl_ep_info);
+	console_flush();
+
+	bl2_run_next_image(next_bl_ep_info);
+#endif
 }
