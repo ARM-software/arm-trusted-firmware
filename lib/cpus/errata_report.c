@@ -20,6 +20,8 @@
 # define BL_STRING	"BL31"
 #elif defined(AARCH32) && defined(IMAGE_BL32)
 # define BL_STRING	"BL32"
+#elif defined(IMAGE_BL2) && BL2_AT_EL3
+# define BL_STRING "BL2"
 #else
 # error This image should not be printing errata status
 #endif

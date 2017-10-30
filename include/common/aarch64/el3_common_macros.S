@@ -269,7 +269,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
-#ifdef IMAGE_BL31
+#if defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
 		/* -------------------------------------------------------------
 		 * Invalidate the RW memory used by the BL31 image. This
 		 * includes the data and NOBITS sections. This is done to
@@ -282,7 +282,7 @@
 		adr	x1, __RW_END__
 		sub	x1, x1, x0
 		bl	inv_dcache_range
-#endif /* IMAGE_BL31 */
+#endif
 
 		ldr	x0, =__BSS_START__
 		ldr	x1, =__BSS_SIZE__
