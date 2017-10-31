@@ -1206,6 +1206,56 @@ The resulting BL1 and FIP images may be found in:
     ./build/fvp/release/bl1.bin
     ./build/fvp/release/fip.bin
 
+
+Booting Firmware Update images
+-------------------------------------
+
+When Firmware Update (FWU) is enabled there are at least 2 new images
+that have to be loaded, the Non-Secure FWU ROM (NS-BL1U), and the
+FWU FIP.
+
+Juno
+~~~~
+
+The new images must be programmed in flash memory by adding
+an entry in the ``SITE1/HBI0262x/images.txt`` configuration file
+on the Juno SD card (where ``x`` depends on the revision of the Juno board).
+Refer to the `Juno Getting Started Guide`_, section 2.3 "Flash memory
+programming" for more information. User should ensure these do not
+overlap with any other entries in the file.
+
+::
+
+	NOR10UPDATE: AUTO                       ;Image Update:NONE/AUTO/FORCE
+	NOR10ADDRESS: 0x00400000                ;Image Flash Address [ns_bl2u_base_address]
+	NOR10FILE: \SOFTWARE\fwu_fip.bin        ;Image File Name
+	NOR10LOAD: 00000000                     ;Image Load Address
+	NOR10ENTRY: 00000000                    ;Image Entry Point
+
+	NOR11UPDATE: AUTO                       ;Image Update:NONE/AUTO/FORCE
+	NOR11ADDRESS: 0x03EB8000                ;Image Flash Address [ns_bl1u_base_address]
+	NOR11FILE: \SOFTWARE\ns_bl1u.bin        ;Image File Name
+	NOR11LOAD: 00000000                     ;Image Load Address
+
+The address ns_bl1u_base_address is the value of NS_BL1U_BASE - 0x8000000.
+In the same way, the address ns_bl2u_base_address is the value of
+NS_BL2U_BASE - 0x8000000.
+
+FVP
+~~~
+
+The additional fip images must be loaded with:
+
+::
+
+    --data cluster0.cpu0="<path_to>/ns_bl1u.bin"@0x0beb8000	[ns_bl1u_base_address]
+    --data cluster0.cpu0="<path_to>/fwu_fip.bin"@0x08400000	[ns_bl2u_base_address]
+
+The address ns_bl1u_base_address is the value of NS_BL1U_BASE.
+In the same way, the address ns_bl2u_base_address is the value of
+NS_BL2U_BASE.
+
+
 EL3 payloads alternative boot flow
 ----------------------------------
 
