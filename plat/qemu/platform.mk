@@ -153,3 +153,6 @@ endif
 
 # Process flags
 $(eval $(call add_define,BL32_RAM_LOCATION_ID))
+
+# Do not enable SVE
+ENABLE_SVE_FOR_NS	:=	0

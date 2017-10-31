@@ -13,6 +13,7 @@ ENABLE_PLAT_COMPAT		:= 0
 ERRATA_A53_855873		:= 1
 ERRATA_A53_835769		:= 1
 ERRATA_A53_843419		:= 1
+ENABLE_SVE_FOR_NS		:= 0
 
 ARM_GIC_ARCH			:= 2
 $(eval $(call add_define,ARM_GIC_ARCH))
@@ -69,4 +70,3 @@ BL31_SOURCES	+=							\
 		plat/hisilicon/poplar/bl31_plat_setup.c			\
 		plat/hisilicon/poplar/plat_topology.c			\
 		plat/hisilicon/poplar/plat_pm.c
-

@@ -18,3 +18,6 @@ PLAT_BL_COMMON_SOURCES	+=	plat/compat/aarch64/plat_helpers_compat.S
 BL31_SOURCES		+=	plat/common/plat_psci_common.c		\
 				plat/compat/plat_pm_compat.c		\
 				plat/compat/plat_topology_compat.c
+
+# Do not enable SVE
+ENABLE_SVE_FOR_NS	:=	0

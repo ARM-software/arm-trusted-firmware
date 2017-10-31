@@ -66,3 +66,5 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
 
 $(eval $(call add_define,MTK_SIP_KERNEL_BOOT_ENABLE))
 
+# Do not enable SVE
+ENABLE_SVE_FOR_NS	:=	0
