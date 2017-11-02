@@ -29,7 +29,7 @@
 	 * debugging experience.
 	 */
 	.cfi_sections .debug_frame
-	.section .text.\_name, "ax"
+	.section .text.asm.\_name, "ax"
 	.type \_name, %function
 	.func \_name
 	/*
