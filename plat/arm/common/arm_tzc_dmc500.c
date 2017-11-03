@@ -33,7 +33,7 @@ void arm_tzc_dmc500_setup(tzc_dmc500_driver_data_t *plat_driver_data)
 
 	/* Region 1 set to cover Secure part of DRAM */
 	tzc_dmc500_configure_region(1, ARM_AP_TZC_DRAM1_BASE,
-		ARM_AP_TZC_DRAM1_END,
+		ARM_EL3_TZC_DRAM1_END,
 		TZC_REGION_S_RDWR,
 		0);
 

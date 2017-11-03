@@ -109,6 +109,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
+	ARM_MAP_EL3_TZC_DRAM,
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,

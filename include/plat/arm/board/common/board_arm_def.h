@@ -53,7 +53,7 @@
  * enable dynamic memory mapping.
  */
 #if defined(IMAGE_BL31) || defined(IMAGE_BL32)
-# define PLAT_ARM_MMAP_ENTRIES		6
+# define PLAT_ARM_MMAP_ENTRIES		7
 # define MAX_XLAT_TABLES		5
 #else
 # define PLAT_ARM_MMAP_ENTRIES		11

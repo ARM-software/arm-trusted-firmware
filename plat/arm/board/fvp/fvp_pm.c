@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <errno.h>
+#include <gicv3.h>
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform.h>
@@ -36,6 +37,9 @@ const unsigned int arm_pm_idle_states[] = {
 	/* State-id - 0x22 */
 	arm_make_pwrstate_lvl1(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
 			ARM_PWR_LVL1, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x222 */
+	arm_make_pwrstate_lvl2(ARM_LOCAL_STATE_OFF, ARM_LOCAL_STATE_OFF,
+		ARM_LOCAL_STATE_OFF, ARM_PWR_LVL2, PSTATE_TYPE_POWERDOWN),
 	0,
 };
 #endif
@@ -62,6 +66,18 @@ static void fvp_cluster_pwrdwn_common(void)
 	/* Program the power controller to turn the cluster off */
 	fvp_pwrc_write_pcoffr(mpidr);
 }
+
+/*
+ * Empty implementation of these hooks avoid setting the GICR_WAKER.Sleep bit
+ * on ARM GICv3 implementations on FVP. This is required, because FVP does not
+ * support SYSTEM_SUSPEND and it is `faked` in firmware. Hence, for wake up
+ * from `fake` system suspend the GIC must not be powered off.
+ */
+void arm_gicv3_distif_pre_save(unsigned int proc_num)
+{}
+
+void arm_gicv3_distif_post_restore(unsigned int proc_num)
+{}
 
 static void fvp_power_domain_on_finish_common(const psci_power_state_t *target_state)
 {
@@ -90,6 +106,10 @@ static void fvp_power_domain_on_finish_common(const psci_power_state_t *target_s
 		/* Enable coherency if this cluster was off */
 		fvp_interconnect_enable();
 	}
+	/* Perform the common system specific operations */
+	if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
+						ARM_LOCAL_STATE_OFF)
+		arm_system_pwr_domain_resume();
 
 	/*
 	 * Clear PWKUPR.WEN bit to ensure interrupts do not interfere
@@ -201,13 +221,18 @@ void fvp_pwr_domain_suspend(const psci_power_state_t *target_state)
 	 * register context.
 	 */
 
-	/* Program the power controller to power off this cpu. */
-	fvp_pwrc_write_ppoffr(read_mpidr_el1());
-
 	/* Perform the common cluster specific operations */
 	if (target_state->pwr_domain_state[ARM_PWR_LVL1] ==
 					ARM_LOCAL_STATE_OFF)
 		fvp_cluster_pwrdwn_common();
+
+	/* Perform the common system specific operations */
+	if (target_state->pwr_domain_state[ARM_PWR_LVL2] ==
+						ARM_LOCAL_STATE_OFF)
+		arm_system_pwr_domain_save();
+
+	/* Program the power controller to power off this cpu. */
+	fvp_pwrc_write_ppoffr(read_mpidr_el1());
 }
 
 /*******************************************************************************
@@ -309,6 +334,56 @@ static int fvp_node_hw_state(u_register_t target_cpu,
 	return ret;
 }
 
+/*
+ * The FVP doesn't truly support power management at SYSTEM power domain. The
+ * SYSTEM_SUSPEND will be down-graded to the cluster level within the platform
+ * layer. The `fake` SYSTEM_SUSPEND allows us to validate some of the driver
+ * save and restore sequences on FVP.
+ */
+void fvp_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	for (i = ARM_PWR_LVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = ARM_LOCAL_STATE_OFF;
+}
+
+/*******************************************************************************
+ * Handler to filter PSCI requests.
+ ******************************************************************************/
+/*
+ * The system power domain suspend is only supported only via
+ * PSCI SYSTEM_SUSPEND API. PSCI CPU_SUSPEND request to system power domain
+ * will be downgraded to the lower level.
+ */
+static int fvp_validate_power_state(unsigned int power_state,
+			    psci_power_state_t *req_state)
+{
+	int rc;
+	rc = arm_validate_power_state(power_state, req_state);
+
+	/*
+	 * Ensure that the system power domain level is never suspended
+	 * via PSCI CPU SUSPEND API. Currently system suspend is only
+	 * supported via PSCI SYSTEM SUSPEND API.
+	 */
+	req_state->pwr_domain_state[ARM_PWR_LVL2] = ARM_LOCAL_STATE_RUN;
+	return rc;
+}
+
+/*
+ * Custom `translate_power_state_by_mpidr` handler for FVP. Unlike in the
+ * `fvp_validate_power_state`, we do not downgrade the system power
+ * domain level request in `power_state` as it will be used to query the
+ * PSCI_STAT_COUNT/RESIDENCY at the system power domain level.
+ */
+static int fvp_translate_power_state_by_mpidr(u_register_t mpidr,
+		unsigned int power_state,
+		psci_power_state_t *output_state)
+{
+	return arm_validate_power_state(power_state, output_state);
+}
+
 /*******************************************************************************
  * Export the platform handlers via plat_arm_psci_pm_ops. The ARM Standard
  * platform layer will take care of registering the handlers with PSCI.
@@ -322,9 +397,11 @@ plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.pwr_domain_suspend_finish = fvp_pwr_domain_suspend_finish,
 	.system_off = fvp_system_off,
 	.system_reset = fvp_system_reset,
-	.validate_power_state = arm_validate_power_state,
+	.validate_power_state = fvp_validate_power_state,
 	.validate_ns_entrypoint = arm_validate_ns_entrypoint,
+	.translate_power_state_by_mpidr = fvp_translate_power_state_by_mpidr,
 	.get_node_hw_state = fvp_node_hw_state,
+	.get_sys_suspend_power_state = fvp_get_sys_suspend_power_state,
 /*
  * mem_protect is not supported in RESET_TO_BL31 and RESET_TO_SP_MIN,
  * as that would require mapping in all of NS DRAM into BL31 or BL32.

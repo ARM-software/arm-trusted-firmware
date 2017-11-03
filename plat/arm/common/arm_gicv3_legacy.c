@@ -84,3 +84,16 @@ void plat_arm_gic_redistif_off(void)
 {
 	return;
 }
+
+/******************************************************************************
+ * ARM common helper to save & restore the GICv3 on resume from system suspend.
+ *****************************************************************************/
+void plat_arm_gic_save(void)
+{
+	return;
+}
+
+void plat_arm_gic_resume(void)
+{
+	arm_gic_setup();
+}
