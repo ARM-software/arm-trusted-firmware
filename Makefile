@@ -260,6 +260,8 @@ include lib/stack_protector/stack_protector.mk
 
 include ${PLAT_MAKEFILE_FULL}
 
+$(eval $(call MAKE_PREREQ_DIR,${BUILD_PLAT}))
+
 # Platform compatibility is not supported in AArch32
 ifneq (${ARCH},aarch32)
 # If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default

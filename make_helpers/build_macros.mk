@@ -291,7 +291,7 @@ define MAKE_BL
 
 # Create generators for object directory structure
 
-$(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},))
+$(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},${BUILD_PLAT}))
 
 $(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
 
