@@ -96,7 +96,7 @@ void nvg_set_wake_time(uint32_t wake_time)
  *
  * NVGDATA[0:2]: SW(RW), CLUSTER_CSTATE
  * NVGDATA[7]: SW(W), update cluster flag
- * NVGDATA[8:9]: SW(RW), CG_CSTATE
+ * NVGDATA[8:10]: SW(RW), CG_CSTATE
  * NVGDATA[15]: SW(W), update ccplex flag
  * NVGDATA[16:19]: SW(RW), SYSTEM_CSTATE
  * NVGDATA[23]: SW(W), update system flag
