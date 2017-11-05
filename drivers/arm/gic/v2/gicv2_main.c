@@ -167,7 +167,19 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 	gic_version = gicd_read_pidr2(plat_driver_data->gicd_base);
 	gic_version = (gic_version >> PIDR2_ARCH_REV_SHIFT)
 					& PIDR2_ARCH_REV_MASK;
-	assert(gic_version == ARCH_REV_GICV2);
+
+	/*
+	 * GICv1 with security extension complies with trusted firmware
+	 * GICv2 driver as far as virtualization and few tricky power
+	 * features are not used. GICv2 features that are not supported
+	 * by GICv1 with Security Extensions are:
+	 * - virtual interrupt support.
+	 * - wake up events.
+	 * - writeable GIC state register (for power sequences)
+	 * - interrupt priority drop.
+	 * - interrupt signal bypass.
+	 */
+	assert(gic_version == ARCH_REV_GICV2 || gic_version == ARCH_REV_GICV1);
 
 	driver_data = plat_driver_data;
 
