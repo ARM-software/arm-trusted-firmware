@@ -304,6 +304,7 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 
 /* Previously defined accessor functions with incomplete register names  */
 #define dsb()			dsbsy()
+#define dmb()			dmbsy()
 
 #define IS_IN_SECURE() \
 	(GET_NS_BIT(read_scr()) == 0)
