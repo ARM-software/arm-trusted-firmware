@@ -79,6 +79,15 @@
 	ldr r0, =(\_name + \_size)
 	.endm
 
+#if (ARM_ARCH_MAJOR == 7)
+	/* ARMv7 does not support stl instruction */
+	.macro stl _reg, _write_lock
+	dmb
+	str	\_reg, \_write_lock
+	dsb
+	.endm
+#endif
+
 	/*
 	 * Helper macro to generate the best mov/movw/movt combinations
 	 * according to the value to be moved.
