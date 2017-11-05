@@ -71,6 +71,15 @@ Files:
 
 -  plat/mediatek/\*
 
+Raspberry Pi 3 platform sub-maintainer
+--------------------------------------
+
+Antonio Niño Díaz (antonio_nd@outlook.com, `AntonioND`_)
+
+Files:
+
+-  plat/rpi3/\*
+
 RockChip platform sub-maintainer
 --------------------------------
 
@@ -91,6 +100,7 @@ Files:
 -  docs/plat/xilinx-zynqmp.md
 -  plat/xilinx/\*
 
+.. _AntonioND: https://github.com/AntonioND
 .. _danh-arm: https://github.com/danh-arm
 .. _davidcunado-arm: https://github.com/davidcunado-arm
 .. _jenswi-linaro: https://github.com/jenswi-linaro
