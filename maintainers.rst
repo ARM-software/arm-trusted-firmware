@@ -71,6 +71,15 @@ Files:
 
 -  plat/mediatek/\*
 
+Raspberry Pi 3 platform sub-maintainer
+--------------------------------------
+
+Antonio Niño Díaz (antonio.ninodiaz@arm.com, `antonio-nino-diaz-arm`_)
+
+Files:
+
+-  plat/rpi3/\*
+
 RockChip platform sub-maintainer
 --------------------------------
 
@@ -96,6 +105,7 @@ ARMv7 architecture sub-maintainer
 
 Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 
+.. _antonio-nino-diaz-arm: https://github.com/antonio-nino-diaz-arm
 .. _danh-arm: https://github.com/danh-arm
 .. _davidcunado-arm: https://github.com/davidcunado-arm
 .. _jenswi-linaro: https://github.com/jenswi-linaro
