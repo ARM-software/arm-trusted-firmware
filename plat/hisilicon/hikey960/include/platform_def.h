@@ -116,11 +116,11 @@
  */
 #define ADDR_SPACE_SIZE			(1ull << 32)
 
-#if IMAGE_BL1 || IMAGE_BL31 || IMAGE_BL32
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || defined(IMAGE_BL32)
 #define MAX_XLAT_TABLES			3
 #endif
 
-#if IMAGE_BL2
+#ifdef IMAGE_BL2
 #if LOAD_IMAGE_V2
 #ifdef SPD_opteed
 #define MAX_XLAT_TABLES			4
