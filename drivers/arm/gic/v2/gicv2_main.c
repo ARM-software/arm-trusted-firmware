@@ -72,6 +72,8 @@ void gicv2_cpuif_disable(void)
  ******************************************************************************/
 void gicv2_pcpu_distif_init(void)
 {
+	unsigned int ctlr;
+
 	assert(driver_data);
 	assert(driver_data->gicd_base);
 
@@ -89,6 +91,13 @@ void gicv2_pcpu_distif_init(void)
 				driver_data->g0_interrupt_array);
 	}
 #endif
+
+	/* Enable G0 interrupts if not already */
+	ctlr = gicd_read_ctlr(driver_data->gicd_base);
+	if ((ctlr & CTLR_ENABLE_G0_BIT) == 0) {
+		gicd_write_ctlr(driver_data->gicd_base,
+				ctlr | CTLR_ENABLE_G0_BIT);
+	}
 }
 
 /*******************************************************************************

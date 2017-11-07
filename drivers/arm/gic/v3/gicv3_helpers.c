@@ -541,12 +541,13 @@ void gicv3_secure_ppi_sgi_configure(uintptr_t gicr_base,
 /*******************************************************************************
  * Helper function to configure properties of secure G0 and G1S PPIs and SGIs.
  ******************************************************************************/
-void gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
+unsigned int gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
 		const interrupt_prop_t *interrupt_props,
 		unsigned int interrupt_props_num)
 {
 	unsigned int i;
 	const interrupt_prop_t *current_prop;
+	unsigned int ctlr_enable = 0;
 
 	/* Make sure there's a valid property array */
 	assert(interrupt_props != NULL);
@@ -564,10 +565,13 @@ void gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
 		/* Configure this interrupt as G0 or a G1S interrupt */
 		assert((current_prop->intr_grp == INTR_GROUP0) ||
 				(current_prop->intr_grp == INTR_GROUP1S));
-		if (current_prop->intr_grp == INTR_GROUP1S)
+		if (current_prop->intr_grp == INTR_GROUP1S) {
 			gicr_set_igrpmodr0(gicr_base, current_prop->intr_num);
-		else
+			ctlr_enable |= CTLR_ENABLE_G1S_BIT;
+		} else {
 			gicr_clr_igrpmodr0(gicr_base, current_prop->intr_num);
+			ctlr_enable |= CTLR_ENABLE_G0_BIT;
+		}
 
 		/* Set the priority of this interrupt */
 		gicr_set_ipriorityr(gicr_base, current_prop->intr_num,
@@ -586,4 +590,6 @@ void gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
 		/* Enable this interrupt */
 		gicr_set_isenabler0(gicr_base, current_prop->intr_num);
 	}
+
+	return ctlr_enable;
 }

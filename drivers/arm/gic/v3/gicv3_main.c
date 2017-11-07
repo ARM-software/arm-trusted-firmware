@@ -224,12 +224,16 @@ void gicv3_distif_init(void)
 void gicv3_rdistif_init(unsigned int proc_num)
 {
 	uintptr_t gicr_base;
+	unsigned int bitmap = 0;
+	uint32_t ctlr;
 
 	assert(gicv3_driver_data);
 	assert(proc_num < gicv3_driver_data->rdistif_num);
 	assert(gicv3_driver_data->rdistif_base_addrs);
 	assert(gicv3_driver_data->gicd_base);
-	assert(gicd_read_ctlr(gicv3_driver_data->gicd_base) & CTLR_ARE_S_BIT);
+
+	ctlr = gicd_read_ctlr(gicv3_driver_data->gicd_base);
+	assert(ctlr & CTLR_ARE_S_BIT);
 
 	assert(IS_IN_EL3());
 
@@ -244,7 +248,7 @@ void gicv3_rdistif_init(unsigned int proc_num)
 #if !ERROR_DEPRECATED
 	if (gicv3_driver_data->interrupt_props != NULL) {
 #endif
-		gicv3_secure_ppi_sgi_configure_props(gicr_base,
+		bitmap = gicv3_secure_ppi_sgi_configure_props(gicr_base,
 				gicv3_driver_data->interrupt_props,
 				gicv3_driver_data->interrupt_props_num);
 #if !ERROR_DEPRECATED
@@ -258,6 +262,7 @@ void gicv3_rdistif_init(unsigned int proc_num)
 					gicv3_driver_data->g1s_interrupt_num,
 					gicv3_driver_data->g1s_interrupt_array,
 					INTR_GROUP1S);
+			bitmap |= CTLR_ENABLE_G1S_BIT;
 		}
 
 		/* Configure the G0 SGIs/PPIs */
@@ -266,9 +271,14 @@ void gicv3_rdistif_init(unsigned int proc_num)
 					gicv3_driver_data->g0_interrupt_num,
 					gicv3_driver_data->g0_interrupt_array,
 					INTR_GROUP0);
+			bitmap |= CTLR_ENABLE_G0_BIT;
 		}
 	}
 #endif
+
+	/* Enable interrupt groups as required, if not already */
+	if ((ctlr & bitmap) != bitmap)
+		gicd_set_ctlr(gicv3_driver_data->gicd_base, bitmap, RWP_TRUE);
 }
 
 /*******************************************************************************
