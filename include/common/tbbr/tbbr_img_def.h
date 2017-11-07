@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -59,5 +59,11 @@
 
 /* Secure Payload BL32_EXTRA2 (Trusted OS Extra2) */
 #define BL32_EXTRA2_IMAGE_ID		22
+
+/* HW_CONFIG (e.g. Kernel DT) */
+#define HW_CONFIG_ID		23
+
+/* TB_FW_CONFIG */
+#define TB_FW_CONFIG_ID		24
 
 #endif /* __TBBR_IMG_DEF_H__ */

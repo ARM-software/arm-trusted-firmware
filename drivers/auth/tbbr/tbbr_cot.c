@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,8 @@
  * established, we can reuse some of the buffers on different stages
  */
 static unsigned char tb_fw_hash_buf[HASH_DER_LEN];
+static unsigned char tb_fw_config_hash_buf[HASH_DER_LEN];
+static unsigned char hw_config_hash_buf[HASH_DER_LEN];
 static unsigned char scp_fw_hash_buf[HASH_DER_LEN];
 static unsigned char soc_fw_hash_buf[HASH_DER_LEN];
 static unsigned char tos_fw_hash_buf[HASH_DER_LEN];
@@ -70,6 +72,10 @@ static auth_param_type_desc_t nt_fw_content_pk = AUTH_PARAM_TYPE_DESC(
 
 static auth_param_type_desc_t tb_fw_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, TRUSTED_BOOT_FW_HASH_OID);
+static auth_param_type_desc_t tb_fw_config_hash = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_HASH, TRUSTED_BOOT_FW_CONFIG_HASH_OID);
+static auth_param_type_desc_t hw_config_hash = AUTH_PARAM_TYPE_DESC(
+		AUTH_PARAM_HASH, HW_CONFIG_HASH_OID);
 static auth_param_type_desc_t scp_fw_hash = AUTH_PARAM_TYPE_DESC(
 		AUTH_PARAM_HASH, SCP_FW_HASH_OID);
 static auth_param_type_desc_t soc_fw_hash = AUTH_PARAM_TYPE_DESC(
@@ -125,6 +131,20 @@ static const auth_img_desc_t cot_desc[] = {
 					.ptr = (void *)tb_fw_hash_buf,
 					.len = (unsigned int)HASH_DER_LEN
 				}
+			},
+			[1] = {
+				.type_desc = &tb_fw_config_hash,
+				.data = {
+					.ptr = (void *)tb_fw_config_hash_buf,
+					.len = (unsigned int)HASH_DER_LEN
+				}
+			},
+			[2] = {
+				.type_desc = &hw_config_hash,
+				.data = {
+					.ptr = (void *)hw_config_hash_buf,
+					.len = (unsigned int)HASH_DER_LEN
+				}
 			}
 		}
 	},
@@ -138,6 +158,36 @@ static const auth_img_desc_t cot_desc[] = {
 				.param.hash = {
 					.data = &raw_data,
 					.hash = &tb_fw_hash,
+				}
+			}
+		}
+	},
+	/* HW Config */
+	[HW_CONFIG_ID] = {
+		.img_id = HW_CONFIG_ID,
+		.img_type = IMG_RAW,
+		.parent = &cot_desc[TRUSTED_BOOT_FW_CERT_ID],
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_HASH,
+				.param.hash = {
+					.data = &raw_data,
+					.hash = &hw_config_hash,
+				}
+			}
+		}
+	},
+	/* TB FW Config */
+	[TB_FW_CONFIG_ID] = {
+		.img_id = TB_FW_CONFIG_ID,
+		.img_type = IMG_RAW,
+		.parent = &cot_desc[TRUSTED_BOOT_FW_CERT_ID],
+		.img_auth_methods = {
+			[0] = {
+				.type = AUTH_METHOD_HASH,
+				.param.hash = {
+					.data = &raw_data,
+					.hash = &tb_fw_config_hash,
 				}
 			}
 		}
