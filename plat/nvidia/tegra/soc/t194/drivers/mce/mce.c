@@ -167,8 +167,8 @@ void mce_verify_firmware_version(void)
 	minor = (uint32_t)version;
 	major = (uint32_t)(version >> 32);
 
-	INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
-		0, 0);
+	INFO("MCE Version - HW=%u:%u, SW=%u:%u\n", major, minor,
+		TEGRA_NVG_VERSION_MAJOR, TEGRA_NVG_VERSION_MINOR);
 
 	/*
 	 * Verify that the MCE firmware version and the interface header
