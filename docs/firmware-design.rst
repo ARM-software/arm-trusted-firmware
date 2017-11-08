@@ -2520,6 +2520,35 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
    table entries for a given stage of translation for a particular translation
    regime.
 
+ARMv7
+~~~~~
+
+This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 7.
+
+There are several ARMv7 extensions available. Obviously the TrustZone
+extension is mandatory to support the ARM Trusted Firmware bootloader
+and runtime services.
+
+Platform implementing an ARMv7 system can to define from its target
+Cortex-A architecture through ``ARM_CORTEX_A<X> = yes`` in their
+``plaform.mk`` script. For example ``ARM_CORTEX_A15=yes`` for a
+Cortex-A15 target.
+
+Platform can also set ``ARM_WITH_NEON=yes`` to enable neon support.
+Note that using neon at runtime has constraints on non secure wolrd context.
+The trusted firmware does not yet provide VFP context management.
+
+Directive ``ARM_CORTEX_A<x>`` and ``ARM_WITH_NEON`` are used to set
+the toolchain  target architecture directive.
+
+Platform may choose to not define straight the toolchain target architecture
+directive by defining ``MARCH32_DIRECTIVE``.
+I.e:
+
+::
+
+   MARCH32_DIRECTIVE := -mach=armv7-a
+
 Code Structure
 --------------
 

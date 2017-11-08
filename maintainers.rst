@@ -91,6 +91,11 @@ Files:
 -  docs/plat/xilinx-zynqmp.md
 -  plat/xilinx/\*
 
+ARMv7 architecture sub-maintainer
+---------------------------------
+
+Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
+
 .. _danh-arm: https://github.com/danh-arm
 .. _davidcunado-arm: https://github.com/davidcunado-arm
 .. _jenswi-linaro: https://github.com/jenswi-linaro
@@ -100,3 +105,4 @@ Files:
 .. _TonyXie06: https://github.com/TonyXie06
 .. _rkchrome: https://github.com/rkchrome
 .. _sorenb-xlnx: https://github.com/sorenb-xlnx
+.. _etienne-lms: https://github.com/etienne-lms

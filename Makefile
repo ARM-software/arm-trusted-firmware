@@ -126,20 +126,28 @@ OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
 
+ifeq (${ARM_ARCH_MAJOR},7)
+target32-directive	= 	-target arm-none-eabi
+# Will set march32-directive from platform configuration
+else
+target32-directive	= 	-target armv8a-none-eabi
+march32-directive	= 	-march armv8-a
+endif
+
 ifeq ($(notdir $(CC)),armclang)
-TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi -march=armv8-a
+TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
 else ifneq ($(findstring clang,$(notdir $(CC))),)
-TF_CFLAGS_aarch32	=	-target armv8a-none-eabi
+TF_CFLAGS_aarch32	=	$(target32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-elf
 else
-TF_CFLAGS_aarch32	=	-march=armv8-a
+TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	-march=armv8-a
 endif
 
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 
-ASFLAGS_aarch32		=	-march=armv8-a
+ASFLAGS_aarch32		=	$(march32-directive)
 ASFLAGS_aarch64		=	-march=armv8-a
 
 CPPFLAGS		=	${DEFINES} ${INCLUDES} -nostdinc		\
@@ -261,6 +269,10 @@ include lib/stack_protector/stack_protector.mk
 include ${PLAT_MAKEFILE_FULL}
 
 $(eval $(call MAKE_PREREQ_DIR,${BUILD_PLAT}))
+
+ifeq (${ARM_ARCH_MAJOR},7)
+include make_helpers/armv7-a-cpus.mk
+endif
 
 # Platform compatibility is not supported in AArch32
 ifneq (${ARCH},aarch32)
