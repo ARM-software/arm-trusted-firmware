@@ -79,6 +79,16 @@
 	ldr r0, =(\_name + \_size)
 	.endm
 
+#if ARM_ARCH_MAJOR == 7 && !defined(ARMV7_SUPPORTS_VIRTUALIZATION)
+	/*
+	 * ARMv7 cores without Virtualization extension do not support the
+	 * eret instruction.
+	 */
+	.macro eret
+	movs	pc, lr
+	.endm
+#endif
+
 #if (ARM_ARCH_MAJOR == 7)
 	/* ARMv7 does not support stl instruction */
 	.macro stl _reg, _write_lock

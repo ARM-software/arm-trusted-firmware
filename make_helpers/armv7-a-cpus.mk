@@ -36,7 +36,11 @@ endif
 #
 # ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING
 # Defined if core supports the Large Page Addressing extension.
+#
+# ARMV7_SUPPORTS_VIRTUALIZATION
+# Defined if ARMv7 core supports the Virtualization extension.
 
 ifeq ($(filter yes,$(ARM_CORTEX_A7) $(ARM_CORTEX_A12) $(ARM_CORTEX_A15) $(ARM_CORTEX_A17)),yes)
 $(eval $(call add_define,ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING))
+$(eval $(call add_define,ARMV7_SUPPORTS_VIRTUALIZATION))
 endif
