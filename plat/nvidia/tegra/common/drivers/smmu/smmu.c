@@ -101,12 +101,13 @@ void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
 	 * the last entry. Sanity check the table size before we start with
 	 * the context save operation.
 	 */
-	while (smmu_ctx_regs[num_entries].val != 0xFFFFFFFFU) {
+	while ((smmu_ctx_regs[num_entries].reg != 0xFFFFFFFFU)) {
 		num_entries++;
 	}
 
 	/* panic if the sizes do not match */
 	if (num_entries != smmu_ctx_regs[0].val) {
+		ERROR("SMMU context size mismatch!");
 		panic();
 	}
 
