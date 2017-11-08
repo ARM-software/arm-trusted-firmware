@@ -767,11 +767,11 @@ void psci_warmboot_entrypoint(void)
 	psci_acquire_pwr_domain_locks(end_pwrlvl,
 				      cpu_idx);
 
+	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
+
 #if ENABLE_PSCI_STAT
 	plat_psci_stat_accounting_stop(&state_info);
 #endif
-
-	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
 
 	/*
 	 * This CPU could be resuming from suspend or it could have just been

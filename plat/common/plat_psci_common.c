@@ -18,6 +18,13 @@
 /* Ticks elapsed in one second by a signal of 1 MHz */
 #define MHZ_TICKS_PER_SEC 1000000
 
+/* Maximum time-stamp value read from architectural counters */
+#ifdef AARCH32
+#define MAX_TS	UINT32_MAX
+#else
+#define MAX_TS	UINT64_MAX
+#endif
+
 /* Following are used as ID's to capture time-stamp */
 #define PSCI_STAT_ID_ENTER_LOW_PWR		0
 #define PSCI_STAT_ID_EXIT_LOW_PWR		1
@@ -45,7 +52,7 @@ static u_register_t calc_stat_residency(unsigned long long pwrupts,
 	assert(residency_div);
 
 	if (pwrupts < pwrdnts)
-		res = UINT64_MAX - pwrdnts + pwrupts;
+		res = MAX_TS - pwrdnts + pwrupts;
 	else
 		res = pwrupts - pwrdnts;
 
