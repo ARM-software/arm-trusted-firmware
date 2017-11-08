@@ -22,12 +22,10 @@
 #include <smmu.h>
 #include <stdbool.h>
 #include <t18x_ari.h>
+#include <tegra186_private.h>
 #include <tegra_private.h>
 
 extern void memcpy16(void *dest, const void *src, unsigned int length);
-extern void tegra186_cpu_reset_handler(void);
-extern uint64_t __tegra186_cpu_reset_handler_end,
-		__tegra186_smmu_context;
 
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xFU
@@ -127,8 +125,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* save SMMU context to TZDRAM */
 		smmu_ctx_base = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_smmu_context -
-			 (uintptr_t)&tegra186_cpu_reset_handler);
+				tegra186_get_smmu_ctx_offset();
 		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
 
 		/* Prepare for system suspend */
@@ -279,8 +276,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		 * BL3-1 over to TZDRAM.
 		 */
 		val = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_cpu_reset_handler_end -
-			 (uintptr_t)&tegra186_cpu_reset_handler);
+			tegra186_get_cpu_reset_handler_size();
 		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 			 (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
 	}
