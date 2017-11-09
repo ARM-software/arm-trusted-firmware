@@ -433,8 +433,7 @@ unsigned int gicv3_secure_spis_configure_props(uintptr_t gicd_base,
 	unsigned int ctlr_enable = 0;
 
 	/* Make sure there's a valid property array */
-	assert(interrupt_props != NULL);
-	assert(interrupt_props_num > 0);
+	assert(interrupt_props_num > 0 ? interrupt_props != NULL : 1);
 
 	for (i = 0; i < interrupt_props_num; i++) {
 		current_prop = &interrupt_props[i];
@@ -556,8 +555,7 @@ unsigned int gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
 	unsigned int ctlr_enable = 0;
 
 	/* Make sure there's a valid property array */
-	assert(interrupt_props != NULL);
-	assert(interrupt_props_num > 0);
+	assert(interrupt_props_num > 0 ? interrupt_props != NULL : 1);
 
 	for (i = 0; i < interrupt_props_num; i++) {
 		current_prop = &interrupt_props[i];

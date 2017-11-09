@@ -103,8 +103,8 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 		WARN("Please migrate to using interrupt_prop_t arrays\n");
 	}
 #else
-	assert(plat_driver_data->interrupt_props != NULL);
-	assert(plat_driver_data->interrupt_props_num > 0);
+	assert(plat_driver_data->interrupt_props_num > 0 ?
+	       plat_driver_data->interrupt_props != NULL : 1);
 #endif
 
 	/* Check for system register support */
