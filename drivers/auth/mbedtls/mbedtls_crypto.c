@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <crypto_mod.h>
 #include <debug.h>
 #include <mbedtls_common.h>
+#include <mbedtls_config.h>
 #include <stddef.h>
 #include <string.h>
 

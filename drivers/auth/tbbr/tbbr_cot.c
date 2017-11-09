@@ -19,7 +19,7 @@
  * Maximum key and hash sizes (in DER format)
  */
 #define PK_DER_LEN			294
-#define HASH_DER_LEN			51
+#define HASH_DER_LEN			83
 
 /*
  * The platform must allocate buffers to store the authentication parameters

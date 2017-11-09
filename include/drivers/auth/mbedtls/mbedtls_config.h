@@ -14,6 +14,13 @@
 #define TF_MBEDTLS_RSA_AND_ECDSA	3
 
 /*
+ * Hash algorithms currently supported on mbed TLS libraries
+ */
+#define TF_MBEDTLS_SHA256		1
+#define TF_MBEDTLS_SHA384		2
+#define TF_MBEDTLS_SHA512		3
+
+/*
  * Configuration file to build mbed TLS with the required features for
  * Trusted Boot
  */
@@ -66,6 +73,9 @@
 #endif
 
 #define MBEDTLS_SHA256_C
+#if (TF_MBEDTLS_HASH_ALG_ID != TF_MBEDTLS_SHA256)
+#define MBEDTLS_SHA512_C
+#endif
 
 #define MBEDTLS_VERSION_C
 
