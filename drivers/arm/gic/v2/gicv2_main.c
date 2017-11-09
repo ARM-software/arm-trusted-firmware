@@ -178,9 +178,6 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-		/* The platform should provide a list of secure interrupts */
-		assert(plat_driver_data->g0_interrupt_array);
-
 		/*
 		 * If there are no interrupts of a particular type, then the
 		 * number of interrupts of that type should be 0 and vice-versa.
@@ -195,8 +192,8 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 		WARN("Please migrate to using an interrupt_prop_t array\n");
 	}
 #else
-	assert(plat_driver_data->interrupt_props != NULL);
-	assert(plat_driver_data->interrupt_props_num > 0);
+	assert(plat_driver_data->interrupt_props_num > 0 ?
+			plat_driver_data->interrupt_props != NULL : 1);
 #endif
 
 	/* Ensure that this is a GICv2 system */
