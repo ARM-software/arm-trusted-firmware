@@ -56,6 +56,19 @@ error:
 
 	return ret;
 }
+const EVP_MD *get_digest(int alg)
+{
+	switch (alg) {
+	case HASH_ALG_SHA256:
+		return EVP_sha256();
+	case HASH_ALG_SHA384:
+		return EVP_sha384();
+	case HASH_ALG_SHA512:
+		return EVP_sha512();
+	default:
+		return NULL;
+	}
+}
 
 int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value)
 {
@@ -79,7 +92,13 @@ int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value)
 	return 1;
 }
 
-int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk)
+int cert_new(
+	int key_alg,
+	int md_alg,
+	cert_t *cert,
+	int days,
+	int ca,
+	STACK_OF(X509_EXTENSION) * sk)
 {
 	EVP_PKEY *pkey = keys[cert->key].key;
 	cert_t *issuer_cert = &certs[cert->issuer];
@@ -118,7 +137,7 @@ int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSIO
 	}
 
 	/* Sign the certificate with the issuer key */
-	if (!EVP_DigestSignInit(mdCtx, &pKeyCtx, EVP_sha256(), NULL, ikey)) {
+	if (!EVP_DigestSignInit(mdCtx, &pKeyCtx, get_digest(md_alg), NULL, ikey)) {
 		ERR_print_errors_fp(stdout);
 		goto END;
 	}
@@ -138,7 +157,7 @@ int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSIO
 			goto END;
 		}
 
-		if (!EVP_PKEY_CTX_set_rsa_mgf1_md(pKeyCtx, EVP_sha256())) {
+		if (!EVP_PKEY_CTX_set_rsa_mgf1_md(pKeyCtx, get_digest(md_alg))) {
 			ERR_print_errors_fp(stdout);
 			goto END;
 		}

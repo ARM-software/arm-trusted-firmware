@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,6 +28,13 @@ enum {
 	KEY_ALG_ECDSA,
 #endif /* OPENSSL_NO_EC */
 	KEY_ALG_MAX_NUM
+};
+
+/* Supported hash algorithms */
+enum{
+	HASH_ALG_SHA256,
+	HASH_ALG_SHA384,
+	HASH_ALG_SHA512,
 };
 
 /*
