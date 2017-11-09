@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arm_def.h>
+#include <arm_spm_def.h>
 #include <debug.h>
 #include <platform_def.h>
 #include <tzc400.h>
@@ -56,9 +57,26 @@ void arm_tzc400_setup(void)
 			ARM_DRAM2_BASE, ARM_DRAM2_END,
 			ARM_TZC_NS_DRAM_S_ACCESS,
 			PLAT_ARM_TZC_NS_DEV_ACCESS);
-#else
+
+#if ENABLE_SPM
+	/*
+	 * Region 4 set to cover Non-Secure access to the communication buffer
+	 * shared with the Secure world.
+	 */
+	tzc400_configure_region(PLAT_ARM_TZC_FILTERS,
+				4,
+				ARM_SP_IMAGE_NS_BUF_BASE,
+				(ARM_SP_IMAGE_NS_BUF_BASE +
+				 ARM_SP_IMAGE_NS_BUF_SIZE) - 1,
+				TZC_REGION_S_NONE,
+				PLAT_ARM_TZC_NS_DEV_ACCESS);
+#endif
+
+#else /* if defined(EL3_PAYLOAD_BASE) */
+
 	/* Allow secure access only to DRAM for EL3 payloads. */
 	tzc400_configure_region0(TZC_REGION_S_RDWR, 0);
+
 #endif /* EL3_PAYLOAD_BASE */
 
 	/*
