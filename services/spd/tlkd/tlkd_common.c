@@ -131,7 +131,7 @@ uint64_t tlkd_synchronous_sp_entry(tlk_context_t *tlk_ctx)
 	cm_set_next_eret_context(SECURE);
 
 	rc = tlkd_enter_sp(&tlk_ctx->c_rt_ctx);
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	tlk_ctx->c_rt_ctx = 0;
 #endif
 

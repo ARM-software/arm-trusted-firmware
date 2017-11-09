@@ -79,7 +79,7 @@ uint64_t tspd_synchronous_sp_entry(tsp_context_t *tsp_ctx)
 	cm_set_next_eret_context(SECURE);
 
 	rc = tspd_enter_sp(&tsp_ctx->c_rt_ctx);
-#if DEBUG
+#if ENABLE_ASSERTIONS
 	tsp_ctx->c_rt_ctx = 0;
 #endif
 

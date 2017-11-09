@@ -52,7 +52,17 @@
  * They are also used for the dynamically mapped regions in the images that
  * enable dynamic memory mapping.
  */
-#if defined(IMAGE_BL31) || defined(IMAGE_BL32)
+#if defined(IMAGE_BL31)
+# if ENABLE_SPM
+#  define PLAT_ARM_MMAP_ENTRIES		9
+#  define MAX_XLAT_TABLES		7
+#  define PLAT_SP_IMAGE_MMAP_REGIONS	7
+#  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
+# else
+#  define PLAT_ARM_MMAP_ENTRIES		7
+#  define MAX_XLAT_TABLES		5
+# endif
+#elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		7
 # define MAX_XLAT_TABLES		5
 #else
@@ -80,7 +90,11 @@
  * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
  * little space for growth.
  */
+#if ENABLE_SPM
+#define PLAT_ARM_MAX_BL31_SIZE		0x28000
+#else
 #define PLAT_ARM_MAX_BL31_SIZE		0x1D000
+#endif
 
 #endif /* ARM_BOARD_OPTIMISE_MEM */
 

@@ -378,7 +378,13 @@
  * Trusted DRAM (if available) or the DRAM region secured by the TrustZone
  * controller.
  */
-#if ARM_BL31_IN_DRAM
+#if ENABLE_SPM
+# define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
+# define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE - ULL(0x200000))
+# define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
+# define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
+						ARM_AP_TZC_DRAM1_SIZE)
+#elif ARM_BL31_IN_DRAM
 # define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
 # define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE -	\
@@ -409,11 +415,14 @@
 # error "Unsupported ARM_TSP_RAM_LOCATION_ID value"
 #endif
 
-/* BL32 is mandatory in AArch32 */
+/*
+ * BL32 is mandatory in AArch32. In AArch64, undefine BL32_BASE if there is no
+ * SPD and no SPM, as they are the only ones that can be used as BL32.
+ */
 #ifndef AARCH32
-#ifdef SPD_none
-#undef BL32_BASE
-#endif /* SPD_none */
+# if defined(SPD_none) && !ENABLE_SPM
+#  undef BL32_BASE
+# endif
 #endif
 
 /*******************************************************************************

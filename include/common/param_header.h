@@ -8,12 +8,13 @@
 #define __PARAM_HEADER_H__
 
 /* Param header types */
-#define PARAM_EP		0x01
-#define PARAM_IMAGE_BINARY	0x02
-#define PARAM_BL31		0x03
-#define PARAM_BL_LOAD_INFO	0x04
-#define PARAM_BL_PARAMS		0x05
-#define PARAM_PSCI_LIB_ARGS	0x06
+#define PARAM_EP			0x01
+#define PARAM_IMAGE_BINARY		0x02
+#define PARAM_BL31			0x03
+#define PARAM_BL_LOAD_INFO		0x04
+#define PARAM_BL_PARAMS			0x05
+#define PARAM_PSCI_LIB_ARGS		0x06
+#define PARAM_SP_IMAGE_BOOT_INFO	0x07
 
 /* Param header version */
 #define VERSION_1	0x01

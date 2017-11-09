@@ -16,8 +16,7 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
-static unsigned long long calc_physical_addr_size_bits(
-					unsigned long long max_addr)
+unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr)
 {
 	/* Physical address can't exceed 48 bits */
 	assert((max_addr & ADDR_MASK_48_TO_63) == 0);
@@ -252,7 +251,7 @@ void enable_mmu_arch(unsigned int flags,
 	 * It is safer to restrict the max physical address accessible by the
 	 * hardware as much as possible.
 	 */
-	unsigned long long tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
+	unsigned long long tcr_ps_bits = tcr_physical_addr_size_bits(max_pa);
 
 #if IMAGE_EL == 1
 	assert(IS_IN_EL(1));

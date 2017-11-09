@@ -51,8 +51,8 @@
 	 * so that it inserts illegal AArch64 instructions. This increases
 	 * security, robustness and potentially facilitates debugging.
 	 */
-	.macro vector_base  label
-	.section .vectors, "ax"
+	.macro vector_base  label, section_name=.vectors
+	.section \section_name, "ax"
 	.align 11, 0
 	\label:
 	.endm
@@ -64,9 +64,9 @@
 	 * so that it inserts illegal AArch64 instructions. This increases
 	 * security, robustness and potentially facilitates debugging.
 	 */
-	.macro vector_entry  label
+	.macro vector_entry  label, section_name=.vectors
 	.cfi_sections .debug_frame
-	.section .vectors, "ax"
+	.section \section_name, "ax"
 	.align 7, 0
 	.type \label, %function
 	.func \label

@@ -121,6 +121,11 @@
 						V2M_IOFPGA_SIZE,		\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
+/* Region equivalent to V2M_MAP_IOFPGA suitable for mapping at EL0 */
+#define V2M_MAP_IOFPGA_EL0		MAP_REGION_FLAT(		\
+						V2M_IOFPGA_BASE,	\
+						V2M_IOFPGA_SIZE,	\
+						MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
 
 #endif /* __V2M_DEF_H__ */

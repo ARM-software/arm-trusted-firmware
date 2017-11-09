@@ -11,6 +11,7 @@
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform_def.h>
+#include <secure_partition.h>
 
 extern const mmap_region_t plat_arm_mmap[];
 
@@ -77,6 +78,14 @@ void arm_setup_page_tables(uintptr_t total_base,
 	mmap_add_region(coh_start, coh_start,
 			coh_limit - coh_start,
 			MT_DEVICE | MT_RW | MT_SECURE);
+#endif
+
+#if ENABLE_SPM && defined(IMAGE_BL31)
+	/* The address of the following region is calculated by the linker. */
+	mmap_add_region(SP_IMAGE_XLAT_TABLES_START,
+			SP_IMAGE_XLAT_TABLES_START,
+			SP_IMAGE_XLAT_TABLES_SIZE,
+			MT_MEMORY | MT_RW | MT_SECURE);
 #endif
 
 	/* Now (re-)map the platform-specific memory regions */
