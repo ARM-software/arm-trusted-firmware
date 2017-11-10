@@ -20,7 +20,7 @@ static uint32_t tegra_misc_read_32(uint32_t off)
 }
 
 /*******************************************************************************
- * Array to hold SMMU context for Tegra186
+ * Array to hold SMMU context for Tegra194
  ******************************************************************************/
 static __attribute__((aligned(16))) smmu_regs_t tegra194_smmu_context[] = {
 	_START_OF_TABLE_,

@@ -21,12 +21,12 @@
 extern bool tegra_fake_system_suspend;
 
 /*******************************************************************************
- * Tegra186 SiP SMCs
+ * Tegra194 SiP SMCs
  ******************************************************************************/
 #define TEGRA_SIP_ENABLE_FAKE_SYSTEM_SUSPEND		0xC2FFFE03U
 
 /*******************************************************************************
- * This function is responsible for handling all T186 SiP calls
+ * This function is responsible for handling all T194 SiP calls
  ******************************************************************************/
 int32_t plat_sip_handler(uint32_t smc_fid,
 		     uint64_t x1,

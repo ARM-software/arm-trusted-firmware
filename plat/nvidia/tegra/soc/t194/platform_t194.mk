@@ -5,14 +5,8 @@
 #
 
 # platform configs
-ENABLE_AFI_DEVICE			:= 0
-$(eval $(call add_define,ENABLE_AFI_DEVICE))
-
 ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 0
 $(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
-
-ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM	:= 1
-$(eval $(call add_define,ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM))
 
 RELOCATE_TO_BL31_BASE			:= 1
 $(eval $(call add_define,RELOCATE_TO_BL31_BASE))
@@ -60,8 +54,5 @@ BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${SOC_DIR}/plat_setup.c			\
 				${SOC_DIR}/plat_secondary.c		\
 				${SOC_DIR}/plat_sip_calls.c		\
-				${SOC_DIR}/plat_smmu.c
-
-ifeq (${ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM}, 1)
-BL31_SOURCES		+=	${SOC_DIR}/plat_trampoline.S
-endif
+				${SOC_DIR}/plat_smmu.c			\
+				${SOC_DIR}/plat_trampoline.S

@@ -122,12 +122,12 @@ uint32_t plat_get_syscnt_freq2(void)
 /*******************************************************************************
  * Maximum supported UART controllers
  ******************************************************************************/
-#define TEGRA186_MAX_UART_PORTS		7
+#define TEGRA194_MAX_UART_PORTS		7
 
 /*******************************************************************************
  * This variable holds the UART port base addresses
  ******************************************************************************/
-static uint32_t tegra186_uart_addresses[TEGRA186_MAX_UART_PORTS + 1] = {
+static uint32_t tegra194_uart_addresses[TEGRA194_MAX_UART_PORTS + 1] = {
 	0,	/* undefined - treated as an error case */
 	TEGRA_UARTA_BASE,
 	TEGRA_UARTB_BASE,
@@ -145,10 +145,10 @@ uint32_t plat_get_console_from_id(int32_t id)
 {
 	uint32_t ret;
 
-	if (id > TEGRA186_MAX_UART_PORTS) {
+	if (id > TEGRA194_MAX_UART_PORTS) {
 		ret = 0;
 	} else {
-		ret = tegra186_uart_addresses[id];
+		ret = tegra194_uart_addresses[id];
 	}
 
 	return ret;
@@ -212,38 +212,12 @@ void plat_early_platform_setup(void)
 		XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
 }
 
-/* Secure IRQs for Tegra186 */
-static const irq_sec_cfg_t tegra186_sec_irqs[] = {
-	[0] = {
-		TEGRA186_BPMP_WDT_IRQ,
-		TEGRA186_SEC_IRQ_TARGET_MASK,
-		INTR_TYPE_EL3,
-	},
-	[1] = {
-		TEGRA186_BPMP_WDT_IRQ,
-		TEGRA186_SEC_IRQ_TARGET_MASK,
-		INTR_TYPE_EL3,
-	},
-	[2] = {
-		TEGRA186_SPE_WDT_IRQ,
-		TEGRA186_SEC_IRQ_TARGET_MASK,
-		INTR_TYPE_EL3,
-	},
-	[3] = {
-		TEGRA186_SCE_WDT_IRQ,
-		TEGRA186_SEC_IRQ_TARGET_MASK,
-		INTR_TYPE_EL3,
-	},
-	[4] = {
-		TEGRA186_TOP_WDT_IRQ,
-		TEGRA186_SEC_IRQ_TARGET_MASK,
-		INTR_TYPE_EL3,
-	},
-	[5] = {
-		TEGRA186_AON_WDT_IRQ,
-		TEGRA186_SEC_IRQ_TARGET_MASK,
-		INTR_TYPE_EL3,
-	},
+/* Secure IRQs for Tegra194 */
+static const interrupt_prop_t tegra194_interrupt_props[] = {
+	INTR_PROP_DESC(TEGRA194_TOP_WDT_IRQ, GIC_HIGHEST_SEC_PRIORITY,
+			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
+	INTR_PROP_DESC(TEGRA194_AON_WDT_IRQ, GIC_HIGHEST_SEC_PRIORITY,
+			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE)
 };
 
 /*******************************************************************************
@@ -251,15 +225,13 @@ static const irq_sec_cfg_t tegra186_sec_irqs[] = {
  ******************************************************************************/
 void plat_gic_setup(void)
 {
-	tegra_gic_setup(tegra186_sec_irqs, (uint32_t)ARRAY_SIZE(tegra186_sec_irqs);
+	tegra_gic_setup(tegra194_interrupt_props, ARRAY_SIZE(tegra194_interrupt_props));
+	tegra_gic_init();
 
 	/*
-	 * Initialize the FIQ handler only if the platform supports any
-	 * FIQ interrupt sources.
+	 * Initialize the FIQ handler
 	 */
-	if (sizeof(tegra186_sec_irqs) > 0U) {
-		tegra_fiq_handler_setup();
-	}
+	tegra_fiq_handler_setup();
 }
 
 /*******************************************************************************

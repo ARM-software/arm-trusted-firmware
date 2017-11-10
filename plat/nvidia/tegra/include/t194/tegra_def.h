@@ -30,14 +30,11 @@
 /*******************************************************************************
  * Secure IRQ definitions
  ******************************************************************************/
-#define TEGRA186_MAX_SEC_IRQS		U(5)
-#define TEGRA186_BPMP_WDT_IRQ		U(46)
-#define TEGRA186_SPE_WDT_IRQ		U(47)
-#define TEGRA186_SCE_WDT_IRQ		U(48)
-#define TEGRA186_TOP_WDT_IRQ		U(49)
-#define TEGRA186_AON_WDT_IRQ		U(50)
+#define TEGRA194_MAX_SEC_IRQS		U(2)
+#define TEGRA194_TOP_WDT_IRQ		U(49)
+#define TEGRA194_AON_WDT_IRQ		U(50)
 
-#define TEGRA186_SEC_IRQ_TARGET_MASK	U(0xFF) /* 8 Carmel */
+#define TEGRA194_SEC_IRQ_TARGET_MASK	U(0xFF) /* 8 Carmel */
 
 /*******************************************************************************
  * Tegra Miscellanous register constants

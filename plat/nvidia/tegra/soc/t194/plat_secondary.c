@@ -18,12 +18,8 @@
 
 #define CPU_RESET_MODE_AA64		1U
 
-extern void tegra_secure_entrypoint(void);
-
-#if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
-extern void tegra186_cpu_reset_handler(void);
-extern uint64_t __tegra186_smmu_ctx_start;
-#endif
+extern void tegra194_cpu_reset_handler(void);
+extern uint64_t __tegra194_smmu_ctx_start;
 
 /*******************************************************************************
  * Setup secondary CPU vectors
@@ -31,21 +27,15 @@ extern uint64_t __tegra186_smmu_ctx_start;
 void plat_secondary_setup(void)
 {
 	uint32_t addr_low, addr_high;
-#if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	uint64_t cpu_reset_handler_base = params_from_bl2->tzdram_base;
-#else
-	uint64_t cpu_reset_handler_base = (uintptr_t)tegra_secure_entrypoint;
-#endif
 
 	INFO("Setting up secondary CPU boot\n");
 
-#if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
 	memcpy((void *)((uintptr_t)cpu_reset_handler_base),
-		 (void *)(uintptr_t)tegra186_cpu_reset_handler,
-		 (uintptr_t)&__tegra186_smmu_ctx_start -
-		 (uintptr_t)&tegra186_cpu_reset_handler);
-#endif
+		 (void *)(uintptr_t)tegra194_cpu_reset_handler,
+		 (uintptr_t)&__tegra194_smmu_ctx_start -
+		 (uintptr_t)&tegra194_cpu_reset_handler);
 
 	addr_low = (uint32_t)cpu_reset_handler_base | CPU_RESET_MODE_AA64;
 	addr_high = (uint32_t)((cpu_reset_handler_base >> 32U) & 0x7ffU);

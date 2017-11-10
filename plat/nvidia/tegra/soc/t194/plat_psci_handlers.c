@@ -24,22 +24,18 @@
 #include <tegra_platform.h>
 #include <tegra_private.h>
 
-extern void tegra_secure_entrypoint(void);
-
-#if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
-extern void tegra186_cpu_reset_handler(void);
-extern uint32_t __tegra186_cpu_reset_handler_data,
-		__tegra186_cpu_reset_handler_end;
+extern void tegra194_cpu_reset_handler(void);
+extern uint32_t __tegra194_cpu_reset_handler_data,
+		__tegra194_cpu_reset_handler_end;
 
 /* TZDRAM offset for saving SMMU context */
-#define TEGRA186_SMMU_CTX_OFFSET	16U
-#endif
+#define TEGRA194_SMMU_CTX_OFFSET	16U
 
 /* state id mask */
-#define TEGRA186_STATE_ID_MASK		0xFU
+#define TEGRA194_STATE_ID_MASK		0xFU
 /* constants to get power state's wake time */
-#define TEGRA186_WAKE_TIME_MASK		0x0FFFFFF0U
-#define TEGRA186_WAKE_TIME_SHIFT	4U
+#define TEGRA194_WAKE_TIME_MASK		0x0FFFFFF0U
+#define TEGRA194_WAKE_TIME_SHIFT	4U
 /* default core wake mask for CPU_SUSPEND */
 #define TEGRA194_CORE_WAKE_MASK		0x180cU
 
@@ -59,13 +55,13 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 					psci_power_state_t *req_state)
 {
 	uint8_t state_id = (uint8_t)psci_get_pstate_id(power_state) &
-			   TEGRA186_STATE_ID_MASK;
+			   TEGRA194_STATE_ID_MASK;
 	uint32_t cpu = plat_my_core_pos();
 	int32_t ret = PSCI_E_SUCCESS;
 
 	/* save the core wake time (in TSC ticks)*/
-	t19x_percpu_data[cpu].wake_time = (power_state & TEGRA186_WAKE_TIME_MASK)
-			<< TEGRA186_WAKE_TIME_SHIFT;
+	t19x_percpu_data[cpu].wake_time = (power_state & TEGRA194_WAKE_TIME_MASK)
+			<< TEGRA194_WAKE_TIME_SHIFT;
 
 	/*
 	 * Clean percpu_data[cpu] to DRAM. This needs to be done to ensure that
@@ -101,10 +97,8 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	const plat_local_state_t *pwr_domain_state;
 	uint8_t stateid_afflvl0, stateid_afflvl2;
-#if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	uint64_t smmu_ctx_base;
-#endif
 	uint32_t val;
 	mce_cstate_info_t sc7_cstate_info = {
 		.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6,
@@ -118,9 +112,9 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* get the state ID */
 	pwr_domain_state = target_state->pwr_domain_state;
 	stateid_afflvl0 = pwr_domain_state[MPIDR_AFFLVL0] &
-		TEGRA186_STATE_ID_MASK;
+		TEGRA194_STATE_ID_MASK;
 	stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
-		TEGRA186_STATE_ID_MASK;
+		TEGRA194_STATE_ID_MASK;
 
 	if ((stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ||
 	    (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
@@ -138,16 +132,12 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
 		mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_BOOTP_FCFG, val);
 
-#if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
 		/* save SMMU context */
 		smmu_ctx_base = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_cpu_reset_handler_data -
-			 (uintptr_t)&tegra186_cpu_reset_handler) +
-			TEGRA186_SMMU_CTX_OFFSET;
+			((uintptr_t)&__tegra194_cpu_reset_handler_data -
+			 (uintptr_t)&tegra194_cpu_reset_handler) +
+			TEGRA194_SMMU_CTX_OFFSET;
 		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
-#else
-		tegra_smmu_save_context(0);
-#endif
 
 		/*
 		 * Suspend SE, RNG1 and PKA1 only on silcon and fpga,
@@ -254,14 +244,13 @@ plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
 	return PSCI_LOCAL_STATE_RUN;
 }
 
-#if ENABLE_SYSTEM_SUSPEND_CTX_SAVE_TZDRAM
 int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 {
 	const plat_local_state_t *pwr_domain_state =
 		target_state->pwr_domain_state;
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	uint8_t stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
-		TEGRA186_STATE_ID_MASK;
+		TEGRA194_STATE_ID_MASK;
 	uint64_t val;
 	u_register_t ns_sctlr_el1;
 
@@ -272,8 +261,8 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		 * BL3-1 over to TZDRAM.
 		 */
 		val = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_cpu_reset_handler_end -
-			 (uintptr_t)tegra186_cpu_reset_handler);
+			((uintptr_t)&__tegra194_cpu_reset_handler_end -
+			 (uintptr_t)&tegra194_cpu_reset_handler);
 		memcpy((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 		       (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
 
@@ -304,7 +293,6 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 
 	return PSCI_E_SUCCESS;
 }
-#endif
 
 int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
