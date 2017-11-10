@@ -6,7 +6,6 @@
 
 override COLD_BOOT_SINGLE_CPU	:= 1
 override ENABLE_PLAT_COMPAT	:= 0
-override ERROR_DEPRECATED	:= 1
 override LOAD_IMAGE_V2		:= 1
 override USE_COHERENT_MEM	:= 1
 override USE_TBBR_DEFS		:= 1
