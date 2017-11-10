@@ -21,6 +21,7 @@
 #include <se.h>
 #include <smmu.h>
 #include <t194_nvg.h>
+#include <tegra194_private.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 
@@ -134,9 +135,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* save SMMU context */
 		smmu_ctx_base = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra194_cpu_reset_handler_data -
-			 (uintptr_t)&tegra194_cpu_reset_handler) +
-			TEGRA194_SMMU_CTX_OFFSET;
+				tegra194_get_smmu_ctx_offset();
 		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
 
 		/*
@@ -261,8 +260,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		 * BL3-1 over to TZDRAM.
 		 */
 		val = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra194_cpu_reset_handler_end -
-			 (uintptr_t)&tegra194_cpu_reset_handler);
+		      tegra194_get_cpu_reset_handler_size();
 		memcpy((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 		       (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
 

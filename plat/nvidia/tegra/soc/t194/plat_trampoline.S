@@ -70,8 +70,9 @@ endfunc tegra194_cpu_reset_handler
 __tegra194_cpu_reset_handler_data:
 	.quad	tegra_secure_entrypoint
 	.quad	__BL31_END__ - BL31_BASE
-	.globl	__tegra194_smmu_ctx_start
-__tegra194_smmu_ctx_start:
+
+	.align 4
+__tegra194_smmu_context:
 	.rept	TEGRA194_SMMU_CTX_SIZE
 	.quad	0
 	.endr
@@ -81,3 +82,29 @@ __tegra194_smmu_ctx_start:
 	.align 4
 	.globl	__tegra194_cpu_reset_handler_end
 __tegra194_cpu_reset_handler_end:
+
+	.globl tegra194_get_cpu_reset_handler_size
+	.globl tegra194_get_cpu_reset_handler_base
+	.globl tegra194_get_smmu_ctx_offset
+
+/* return size of the CPU reset handler */
+func tegra194_get_cpu_reset_handler_size
+	adr	x0, __tegra194_cpu_reset_handler_end
+	adr	x1, tegra194_cpu_reset_handler
+	sub	x0, x0, x1
+	ret
+endfunc tegra194_get_cpu_reset_handler_size
+
+/* return the start address of the CPU reset handler */
+func tegra194_get_cpu_reset_handler_base
+	adr	x0, tegra194_cpu_reset_handler
+	ret
+endfunc tegra194_get_cpu_reset_handler_base
+
+/* return the size of the SMMU context */
+func tegra194_get_smmu_ctx_offset
+	adr	x0, __tegra194_smmu_context
+	adr	x1, tegra194_cpu_reset_handler
+	sub	x0, x0, x1
+	ret
+endfunc tegra194_get_smmu_ctx_offset
