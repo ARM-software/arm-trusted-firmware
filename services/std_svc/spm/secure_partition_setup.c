@@ -270,8 +270,8 @@ void secure_partition_setup(void)
 	 * be populated, just after the boot info.
 	 */
 	((secure_partition_boot_info_t *) shared_buf_ptr)->mp_info =
-		((secure_partition_mp_info_t *) shared_buf_ptr) +
-		sizeof(secure_partition_boot_info_t);
+		(secure_partition_mp_info_t *) ((uintptr_t)shared_buf_ptr
+				+ sizeof(secure_partition_boot_info_t));
 
 	/*
 	 * Update the shared buffer pointer to where the MP information for the
