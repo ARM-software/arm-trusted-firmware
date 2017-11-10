@@ -7,6 +7,7 @@
 #ifndef __ZYNQMP_PRIVATE_H__
 #define __ZYNQMP_PRIVATE_H__
 
+#include <bl_common.h>
 #include <interrupt_mgmt.h>
 
 void zynqmp_config_setup(void);
