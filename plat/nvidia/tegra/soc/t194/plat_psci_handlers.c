@@ -167,6 +167,9 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 					MCE_CORE_SLEEP_TIME_INFINITE,
 					0U);
 			assert(ret == 0);
+
+			/* set system suspend state for house-keeping */
+			tegra194_set_system_suspend_entry();
 		}
 	} else {
 		; /* do nothing */
