@@ -10,13 +10,25 @@
 #include "scmi.h"
 #include "scmi_private.h"
 
+
+#if HW_ASSISTED_COHERENCY
+#define scmi_lock_init(lock)
+#define scmi_lock_get(lock)		spin_lock(lock)
+#define scmi_lock_release(lock)		spin_unlock(lock)
+#else
+#define scmi_lock_init(lock)		bakery_lock_init(lock)
+#define scmi_lock_get(lock)		bakery_lock_get(lock)
+#define scmi_lock_release(lock)		bakery_lock_release(lock)
+#endif
+
+
 /*
  * Private helper function to get exclusive access to SCMI channel.
  */
 void scmi_get_channel(scmi_channel_t *ch)
 {
 	assert(ch->lock);
-	bakery_lock_get(ch->lock);
+	scmi_lock_get(ch->lock);
 
 	/* Make sure any previous command has finished */
 	assert(SCMI_IS_CHANNEL_FREE(
@@ -68,7 +80,7 @@ void scmi_put_channel(scmi_channel_t *ch)
 			((mailbox_mem_t *)(ch->info->scmi_mbx_mem))->status));
 
 	assert(ch->lock);
-	bakery_lock_release(ch->lock);
+	scmi_lock_release(ch->lock);
 }
 
 /*
@@ -152,7 +164,7 @@ void *scmi_init(scmi_channel_t *ch)
 
 	assert(ch->lock);
 
-	bakery_lock_init(ch->lock);
+	scmi_lock_init(ch->lock);
 
 	ch->is_initialized = 1;
 

@@ -10,6 +10,7 @@
 #include <bakery_lock.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <spinlock.h>
 
 /* Supported SCMI Protocol Versions */
 #define SCMI_AP_CORE_PROTO_VER			MAKE_SCMI_VERSION(1, 0)
@@ -116,13 +117,20 @@ typedef struct scmi_channel_plat_info {
 	void *cookie;
 } scmi_channel_plat_info_t;
 
+
+#if HW_ASSISTED_COHERENCY
+typedef spinlock_t scmi_lock_t;
+#else
+typedef bakery_lock_t scmi_lock_t;
+#endif
+
 /*
  * Structure to represent an SCMI channel.
  */
 typedef struct scmi_channel {
 	scmi_channel_plat_info_t *info;
 	 /* The lock for channel access */
-	bakery_lock_t *lock;
+	scmi_lock_t *lock;
 	/* Indicate whether the channel is initialized */
 	int is_initialized;
 } scmi_channel_t;

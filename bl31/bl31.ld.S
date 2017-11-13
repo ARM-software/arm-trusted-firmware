@@ -188,8 +188,15 @@ SECTIONS
         __PERCPU_BAKERY_LOCK_SIZE__ = ABSOLUTE(. - __BAKERY_LOCK_START__);
         . = . + (__PERCPU_BAKERY_LOCK_SIZE__ * (PLATFORM_CORE_COUNT - 1));
         __BAKERY_LOCK_END__ = .;
+
+	/*
+	 * If BL31 doesn't use any bakery lock then __PERCPU_BAKERY_LOCK_SIZE__
+	 * will be zero. For this reason, the only two valid values for
+	 * __PERCPU_BAKERY_LOCK_SIZE__ are 0 or the platform defined value
+	 * PLAT_PERCPU_BAKERY_LOCK_SIZE.
+	 */
 #ifdef PLAT_PERCPU_BAKERY_LOCK_SIZE
-    ASSERT(__PERCPU_BAKERY_LOCK_SIZE__ == PLAT_PERCPU_BAKERY_LOCK_SIZE,
+    ASSERT((__PERCPU_BAKERY_LOCK_SIZE__ == 0) || (__PERCPU_BAKERY_LOCK_SIZE__ == PLAT_PERCPU_BAKERY_LOCK_SIZE),
         "PLAT_PERCPU_BAKERY_LOCK_SIZE does not match bakery lock requirements");
 #endif
 #endif
