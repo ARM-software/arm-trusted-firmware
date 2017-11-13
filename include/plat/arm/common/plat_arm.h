@@ -119,6 +119,7 @@ void arm_configure_sys_timer(void);
 /* PM utility functions */
 int arm_validate_power_state(unsigned int power_state,
 			    psci_power_state_t *req_state);
+int arm_validate_psci_entrypoint(uintptr_t entrypoint);
 int arm_validate_ns_entrypoint(uintptr_t entrypoint);
 void arm_system_pwr_domain_save(void);
 void arm_system_pwr_domain_resume(void);

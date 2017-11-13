@@ -34,10 +34,10 @@
 #define GIC_INTR_CFG_EDGE		1
 
 /* Constants to categorise priorities */
-#define GIC_HIGHEST_SEC_PRIORITY	0
-#define GIC_LOWEST_SEC_PRIORITY		127
-#define GIC_HIGHEST_NS_PRIORITY		128
-#define GIC_LOWEST_NS_PRIORITY		254 /* 255 would disable an interrupt */
+#define GIC_HIGHEST_SEC_PRIORITY	0x0
+#define GIC_LOWEST_SEC_PRIORITY		0x7f
+#define GIC_HIGHEST_NS_PRIORITY		0x80
+#define GIC_LOWEST_NS_PRIORITY		0xfe /* 0xff would disable all interrupts */
 
 /*******************************************************************************
  * GIC Distributor interface register offsets that are common to GICv3 & GICv2

@@ -1,0 +1,45 @@
+/'
+ ' Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ '
+ ' SPDX-License-Identifier: BSD-3-Clause
+ '/
+
+@startuml
+
+autonumber "<b>[#]</b>"
+participant "SDEI client" as EL2
+participant EL3
+participant SEL1
+
+activate EL2
+EL2->EL3: **SDEI_EVENT_REGISTER**(ev, handler, ...)
+EL3->EL2: success
+EL2->EL3: **SDEI_EVENT_ENABLE**(ev)
+EL3->EL2: success
+EL2->EL3: **SDEI_PE_UNMASK**()
+EL3->EL2: 1
+
+... <<Business as usual>> ...
+
+EL3<--]: **CRITICAL EVENT**
+activate EL3 #red
+note over EL3: Critical event triage
+EL3->SEL1: dispatch
+activate SEL1 #salmon
+note over SEL1: Critical event handling
+SEL1->EL3: done
+deactivate SEL1
+EL3-->EL3: sdei_dispatch_event(ev)
+note over EL3: Prepare SDEI dispatch
+EL3->EL2: dispatch
+activate EL2 #salmon
+note over EL2: SDEI handler
+EL2->EL3: **SDEI_EVENT_COMPLETE()**
+deactivate EL2
+note over EL3: Complete SDEI dispatch
+EL3->EL2: resumes preempted execution
+deactivate EL3
+
+... <<Normal execution resumes>> ...
+
+@enduml

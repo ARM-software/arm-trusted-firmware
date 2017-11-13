@@ -51,6 +51,7 @@ void plat_arm_gic_init(void)
 {
 	gicv2_distif_init();
 	gicv2_pcpu_distif_init();
+	gicv2_set_pe_target_mask(plat_my_core_pos());
 	gicv2_cpuif_enable();
 }
 

@@ -1,0 +1,43 @@
+/'
+ ' Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ '
+ ' SPDX-License-Identifier: BSD-3-Clause
+ '/
+
+@startuml
+
+autonumber "<b>[#]</b>"
+participant "SDEI client" as EL2
+participant EL3
+participant "SDEI interrupt source" as SDEI
+
+activate EL2
+EL2->EL3: **SDEI_INTERRUPT_BIND**(irq)
+EL3->EL2: event number: ev
+EL2->EL3: **SDEI_EVENT_REGISTER**(ev, handler, ...)
+EL3->EL2: success
+EL2->EL3: **SDEI_EVENT_ENABLE**(ev)
+EL3->EL2: success
+EL2->EL3: **SDEI_PE_UNMASK**()
+EL3->EL2: 1
+
+... <<Business as usual>> ...
+
+SDEI-->EL3: SDEI interrupt
+activate SDEI #salmon
+activate EL3 #red
+note over EL3: Prepare SDEI dispatch
+EL3->EL2: dispatch
+activate EL2 #salmon
+note over EL2: SDEI handler
+EL2->EL3: **SDEI_EVENT_COMPLETE()**
+deactivate EL2
+note over EL3: Complete SDEI dispatch
+EL3-->SDEI: EOI
+deactivate SDEI
+EL3->EL2: resumes preempted execution
+deactivate EL3
+
+... <<Normal execution resumes>> ...
+
+@enduml

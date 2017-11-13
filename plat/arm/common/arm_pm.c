@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -112,7 +112,7 @@ int arm_validate_power_state(unsigned int power_state,
 
 /*******************************************************************************
  * ARM standard platform handler called to check the validity of the non secure
- * entrypoint.
+ * entrypoint. Returns 0 if the entrypoint is valid, or -1 otherwise.
  ******************************************************************************/
 int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 {
@@ -121,15 +121,23 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 	 * secure DRAM.
 	 */
 	if ((entrypoint >= ARM_NS_DRAM1_BASE) && (entrypoint <
-			(ARM_NS_DRAM1_BASE + ARM_NS_DRAM1_SIZE)))
-		return PSCI_E_SUCCESS;
+			(ARM_NS_DRAM1_BASE + ARM_NS_DRAM1_SIZE))) {
+		return 0;
+	}
 #ifndef AARCH32
 	if ((entrypoint >= ARM_DRAM2_BASE) && (entrypoint <
-			(ARM_DRAM2_BASE + ARM_DRAM2_SIZE)))
-		return PSCI_E_SUCCESS;
+			(ARM_DRAM2_BASE + ARM_DRAM2_SIZE))) {
+		return 0;
+	}
 #endif
 
-	return PSCI_E_INVALID_ADDRESS;
+	return -1;
+}
+
+int arm_validate_psci_entrypoint(uintptr_t entrypoint)
+{
+	return arm_validate_ns_entrypoint(entrypoint) == 0 ? PSCI_E_SUCCESS :
+		PSCI_E_INVALID_ADDRESS;
 }
 
 /******************************************************************************

@@ -72,6 +72,8 @@ void gicv2_cpuif_disable(void)
  ******************************************************************************/
 void gicv2_pcpu_distif_init(void)
 {
+	unsigned int ctlr;
+
 	assert(driver_data);
 	assert(driver_data->gicd_base);
 
@@ -89,6 +91,13 @@ void gicv2_pcpu_distif_init(void)
 				driver_data->g0_interrupt_array);
 	}
 #endif
+
+	/* Enable G0 interrupts if not already */
+	ctlr = gicd_read_ctlr(driver_data->gicd_base);
+	if ((ctlr & CTLR_ENABLE_G0_BIT) == 0) {
+		gicd_write_ctlr(driver_data->gicd_base,
+				ctlr | CTLR_ENABLE_G0_BIT);
+	}
 }
 
 /*******************************************************************************
@@ -308,9 +317,26 @@ void gicv2_set_pe_target_mask(unsigned int proc_num)
 	if (driver_data->target_masks[proc_num])
 		return;
 
-	/* Read target register corresponding to this CPU */
-	driver_data->target_masks[proc_num] =
-		gicv2_get_cpuif_id(driver_data->gicd_base);
+	/*
+	 * Update target register corresponding to this CPU and flush for it to
+	 * be visible to other CPUs.
+	 */
+	if (driver_data->target_masks[proc_num] == 0) {
+		driver_data->target_masks[proc_num] =
+			gicv2_get_cpuif_id(driver_data->gicd_base);
+#if !HW_ASSISTED_COHERENCY
+		/*
+		 * PEs only update their own masks. Primary updates it with
+		 * caches on. But because secondaries does it with caches off,
+		 * all updates go to memory directly, and there's no danger of
+		 * secondaries overwriting each others' mask, despite
+		 * target_masks[] not being cache line aligned.
+		 */
+		flush_dcache_range((uintptr_t)
+				&driver_data->target_masks[proc_num],
+				sizeof(driver_data->target_masks[proc_num]));
+#endif
+	}
 }
 
 /*******************************************************************************

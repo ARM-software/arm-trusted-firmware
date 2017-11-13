@@ -90,6 +90,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 void plat_ic_set_interrupt_pending(unsigned int id);
 void plat_ic_clear_interrupt_pending(unsigned int id);
 unsigned int plat_ic_set_priority_mask(unsigned int mask);
+unsigned int plat_ic_get_interrupt_id(unsigned int raw);
 
 /*******************************************************************************
  * Optional common functions (may be overridden)
@@ -112,6 +113,16 @@ void bl1_early_platform_setup(void);
 void bl1_plat_arch_setup(void);
 void bl1_platform_setup(void);
 struct meminfo *bl1_plat_sec_mem_layout(void);
+
+/*******************************************************************************
+ * Optional EL3 component functions in BL31
+ ******************************************************************************/
+
+/* SDEI platform functions */
+#if SDEI_SUPPORT
+int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode);
+void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr);
+#endif
 
 /*
  * The following function is mandatory when the

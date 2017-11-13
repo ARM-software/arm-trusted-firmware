@@ -361,6 +361,11 @@ Common build options
    Firmware as error. It can take the value 1 (flag the use of deprecated
    APIs as error) or 0. The default is 0.
 
+-  ``EL3_EXCEPTION_HANDLING``: When set to ``1``, enable handling of exceptions
+   targeted at EL3. When set ``0`` (default), no exceptions are expected or
+   handled at EL3, and a panic will result. This is supported only for AArch64
+   builds.
+
 -  ``FIP_NAME``: This is an optional build option which specifies the FIP
    filename for the ``fip`` target. Default is ``fip.bin``.
 
@@ -528,6 +533,12 @@ Common build options
 -  ``SCP_BL2U``: Path to SCP\_BL2U image in the host file system. This image is
    optional. It is only needed if the platform makefile specifies that it
    is required in order to build the ``fwu_fip`` target.
+
+-  ``SDEI_SUPPORT``: Setting this to ``1`` enables support for Software
+   Delegated Exception Interface to BL31 image. This defaults to ``0``.
+
+   When set to ``1``, the build option ``EL3_EXCEPTION_HANDLING`` must also be
+   set to ``1``.
 
 -  ``SEPARATE_CODE_AND_RODATA``: Whether code and read-only data should be
    isolated on separate memory pages. This is a trade-off between security and

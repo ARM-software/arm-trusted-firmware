@@ -271,6 +271,14 @@ unsigned int plat_ic_set_priority_mask(unsigned int mask)
 {
 	return gicv3_set_pmr(mask);
 }
+
+unsigned int plat_ic_get_interrupt_id(unsigned int raw)
+{
+	unsigned int id = (raw & INT_ID_MASK);
+
+	return (gicv3_is_intr_id_special_identifier(id) ?
+			INTR_ID_UNAVAILABLE : id);
+}
 #endif
 #ifdef IMAGE_BL32
 

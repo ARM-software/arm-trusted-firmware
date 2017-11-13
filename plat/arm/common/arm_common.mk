@@ -184,6 +184,14 @@ BL31_SOURCES		+=	plat/arm/common/arm_sip_svc.c			\
 				lib/pmf/pmf_smc.c
 endif
 
+ifeq (${EL3_EXCEPTION_HANDLING},1)
+BL31_SOURCES		+=	plat/arm/common/aarch64/arm_ehf.c
+endif
+
+ifeq (${SDEI_SUPPORT},1)
+BL31_SOURCES		+=	plat/arm/common/aarch64/arm_sdei.c
+endif
+
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources

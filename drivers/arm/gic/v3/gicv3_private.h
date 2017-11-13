@@ -95,7 +95,7 @@ void gicv3_secure_ppi_sgi_configure(uintptr_t gicr_base,
 					const unsigned int *sec_intr_list,
 					unsigned int int_grp);
 #endif
-void gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
+unsigned int gicv3_secure_ppi_sgi_configure_props(uintptr_t gicr_base,
 		const interrupt_prop_t *interrupt_props,
 		unsigned int interrupt_props_num);
 unsigned int gicv3_secure_spis_configure_props(uintptr_t gicd_base,

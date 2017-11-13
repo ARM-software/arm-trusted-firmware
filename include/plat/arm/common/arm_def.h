@@ -202,7 +202,7 @@
 			GIC_INTR_CFG_EDGE)
 
 #define ARM_G0_IRQ_PROPS(grp) \
-	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, grp, \
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, PLAT_SDEI_NORMAL_PRI, grp, \
 			GIC_INTR_CFG_EDGE), \
 	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE)
@@ -454,5 +454,24 @@
  */
 #define PLAT_PERCPU_BAKERY_LOCK_SIZE		(1 * CACHE_WRITEBACK_GRANULE)
 
+/* Priority levels for ARM platforms */
+#define PLAT_SDEI_CRITICAL_PRI		0x60
+#define PLAT_SDEI_NORMAL_PRI		0x70
+
+/* ARM platforms use 3 upper bits of secure interrupt priority */
+#define ARM_PRI_BITS			3
+
+/* SGI used for SDEI signalling */
+#define ARM_SDEI_SGI			ARM_IRQ_SEC_SGI_0
+
+/* ARM SDEI dynamic private event numbers */
+#define ARM_SDEI_DP_EVENT_0		1000
+#define ARM_SDEI_DP_EVENT_1		1001
+#define ARM_SDEI_DP_EVENT_2		1002
+
+/* ARM SDEI dynamic shared event numbers */
+#define ARM_SDEI_DS_EVENT_0		2000
+#define ARM_SDEI_DS_EVENT_1		2001
+#define ARM_SDEI_DS_EVENT_2		2002
 
 #endif /* __ARM_DEF_H__ */

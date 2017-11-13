@@ -62,6 +62,9 @@ ENABLE_RUNTIME_INSTRUMENTATION	:= 0
 # Flag to enable stack corruption protection
 ENABLE_STACK_PROTECTOR		:= 0
 
+# Flag to enable exception handling in EL3
+EL3_EXCEPTION_HANDLING		:= 0
+
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
 
@@ -110,6 +113,9 @@ RESET_TO_BL31			:= 0
 
 # For Chain of Trust
 SAVE_KEYS			:= 0
+
+# Software Delegated Exception support
+SDEI_SUPPORT            	:= 0
 
 # Whether code and read-only data should be put on separate memory pages. The
 # platform Makefile is free to override this value.

@@ -598,4 +598,10 @@
 
 #define MAKE_MAIR_NORMAL_MEMORY(inner, outer)	((inner) | ((outer) << MAIR_NORM_OUTER_SHIFT))
 
+/* PAR_EL1 fields */
+#define PAR_F_SHIFT	0
+#define PAR_F_MASK	1
+#define PAR_ADDR_SHIFT	12
+#define PAR_ADDR_MASK	(BIT(40) - 1) /* 40-bits-wide page address */
+
 #endif /* __ARCH_H__ */

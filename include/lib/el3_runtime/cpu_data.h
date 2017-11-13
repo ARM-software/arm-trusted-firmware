@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #ifndef __CPU_DATA_H__
 #define __CPU_DATA_H__
 
+#include <ehf.h>
 #include <platform_def.h>	/* CACHE_WRITEBACK_GRANULE required */
 
 #ifdef AARCH32
@@ -95,6 +96,9 @@ typedef struct cpu_data {
 	struct psci_cpu_data psci_svc_cpu_data;
 #if PLAT_PCPU_DATA_SIZE
 	uint8_t platform_cpu_data[PLAT_PCPU_DATA_SIZE];
+#endif
+#if defined(IMAGE_BL31) && EL3_EXCEPTION_HANDLING
+	pe_exc_data_t ehf_data;
 #endif
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 

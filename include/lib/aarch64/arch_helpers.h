@@ -155,6 +155,7 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e1r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e1w)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0w)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e2r)
 
 void flush_dcache_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);

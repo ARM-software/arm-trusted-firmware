@@ -32,6 +32,20 @@ ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
+ifeq (${EL3_EXCEPTION_HANDLING},1)
+BL31_SOURCES		+=	bl31/ehf.c
+endif
+
+ifeq (${SDEI_SUPPORT},1)
+ifeq (${EL3_EXCEPTION_HANDLING},0)
+  $(error EL3_EXCEPTION_HANDLING must be 1 for SDEI support)
+endif
+BL31_SOURCES		+=	services/std_svc/sdei/sdei_event.c	\
+				services/std_svc/sdei/sdei_intr_mgmt.c	\
+				services/std_svc/sdei/sdei_main.c	\
+				services/std_svc/sdei/sdei_state.c
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
@@ -41,4 +55,9 @@ CRASH_REPORTING		:=	$(DEBUG)
 endif
 
 $(eval $(call assert_boolean,CRASH_REPORTING))
+$(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
+$(eval $(call assert_boolean,SDEI_SUPPORT))
+
 $(eval $(call add_define,CRASH_REPORTING))
+$(eval $(call add_define,EL3_EXCEPTION_HANDLING))
+$(eval $(call add_define,SDEI_SUPPORT))

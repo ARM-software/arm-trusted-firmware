@@ -1904,6 +1904,74 @@ calculated by the linker then a link time assertion is raised. A compile time
 assertion is raised if the value of the constant is not aligned to the cache
 line boundary.
 
+SDEI porting requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The SDEI dispatcher requires the platform to provide the following macros
+and functions, of which some are optional, and some others mandatory.
+
+Macros
+......
+
+Macro: PLAT_SDEI_NORMAL_PRI [mandatory]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This macro must be defined to the EL3 exception priority level associated with
+Normal SDEI events on the platform. This must have a higher value (therefore of
+lower priority) than ``PLAT_SDEI_CRITICAL_PRI``.
+
+Macro: PLAT_SDEI_CRITICAL_PRI [mandatory]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This macro must be defined to the EL3 exception priority level associated with
+Critical SDEI events on the platform. This must have a lower value (therefore of
+higher priority) than ``PLAT_SDEI_NORMAL_PRI``.
+
+It's recommended that SDEI exception priorities in general are assigned the
+lowest among Secure priorities. Among the SDEI exceptions, Critical SDEI
+priority must be higher than Normal SDEI priority.
+
+Functions
+.........
+
+Function: int plat_sdei_validate_entry_point(uintptr_t ep) [optional]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+  Argument: uintptr_t
+  Return: int
+
+This function validates the address of client entry points provided for both
+event registration and *Complete and Resume* SDEI calls. The function takes one
+argument, which is the address of the handler the SDEI client requested to
+register. The function must return ``0`` for successful validation, or ``-1``
+upon failure.
+
+The default implementation always returns ``0``. On ARM platforms, this function
+is implemented to translate the entry point to physical address, and further to
+ensure that the address is located in Non-secure DRAM.
+
+Function: void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr) [optional]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+  Argument: uint64_t
+  Argument: unsigned int
+  Return: void
+
+SDEI specification requires that a PE comes out of reset with the events masked.
+The client therefore is expected to call ``PE_UNMASK`` to unmask SDEI events on
+the PE. No SDEI events can be dispatched until such time.
+
+Should a PE receive an interrupt that was bound to an SDEI event while the
+events are masked on the PE, the dispatcher implementation invokes the function
+``plat_sdei_handle_masked_trigger``. The MPIDR of the PE that received the
+interrupt and the interrupt ID are passed as parameters.
+
+The default implementation only prints out a warning message.
+
 Power State Coordination Interface (in BL31)
 --------------------------------------------
 
@@ -2479,14 +2547,17 @@ Function : plat\_ic\_acknowledge\_interrupt() [mandatory]
     Return   : uint32_t
 
 This API is used by the CPU to indicate to the platform IC that processing of
-the highest pending interrupt has begun. It should return the id of the
-interrupt which is being processed.
+the highest pending interrupt has begun. It should return the raw, unmodified
+value obtained from the interrupt controller when acknowledging an interrupt.
+The actual interrupt number shall be extracted from this raw value using the API
+`plat_ic_get_interrupt_id()`__.
+
+.. __: platform-interrupt-controller-API.rst#function-unsigned-int-plat-ic-get-interrupt-id-unsigned-int-raw-optional
 
 This function in ARM standard platforms using GICv2, reads the *Interrupt
 Acknowledge Register* (``GICC_IAR``). This changes the state of the highest
 priority pending interrupt from pending to active in the interrupt controller.
-It returns the value read from the ``GICC_IAR``. This value is the id of the
-interrupt whose state has been changed.
+It returns the value read from the ``GICC_IAR``, unmodified.
 
 In the case of ARM standard platforms using GICv3, if the API is invoked
 from EL3, the function reads the system register ``ICC_IAR0_EL1``, *Interrupt
@@ -2494,7 +2565,7 @@ Acknowledge Register group 0*. If the API is invoked from S-EL1, the function
 reads the system register ``ICC_IAR1_EL1``, *Interrupt Acknowledge Register
 group 1*. The read changes the state of the highest pending interrupt from
 pending to active in the interrupt controller. The value read is returned
-and is the id of the interrupt whose state has been changed.
+unmodified.
 
 The TSP uses this API to start processing of the secure physical timer
 interrupt.
