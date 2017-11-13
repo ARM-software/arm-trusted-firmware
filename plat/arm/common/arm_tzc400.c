@@ -74,8 +74,8 @@ void arm_tzc400_setup(void)
 
 #else /* if defined(EL3_PAYLOAD_BASE) */
 
-	/* Allow secure access only to DRAM for EL3 payloads. */
-	tzc400_configure_region0(TZC_REGION_S_RDWR, 0);
+	/* Allow Secure and Non-secure access to DRAM for EL3 payloads */
+	tzc400_configure_region0(TZC_REGION_S_RDWR, PLAT_ARM_TZC_NS_DEV_ACCESS);
 
 #endif /* EL3_PAYLOAD_BASE */
 
