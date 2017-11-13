@@ -10,6 +10,7 @@
 #include <sys/cdefs.h> /* for CASSERT() */
 #include <cassert.h>
 #include <platform_def.h>
+#include <stdint.h>
 
 /* All group 0 counters */
 #define AMU_GROUP0_COUNTERS_MASK	0xf
@@ -29,6 +30,16 @@
 CASSERT(AMU_GROUP1_COUNTERS_MASK <= 0xffff, invalid_amu_group1_counters_mask);
 CASSERT(AMU_GROUP1_NR_COUNTERS <= 16, invalid_amu_group1_nr_counters);
 
+int amu_supported(void);
 void amu_enable(int el2_unused);
+
+/* Group 0 configuration helpers */
+uint64_t amu_group0_cnt_read(int idx);
+void amu_group0_cnt_write(int idx, uint64_t val);
+
+/* Group 1 configuration helpers */
+uint64_t amu_group1_cnt_read(int idx);
+void amu_group1_cnt_write(int idx, uint64_t val);
+void amu_group1_set_evtype(int idx, unsigned int val);
 
 #endif /* __AMU_H__ */
