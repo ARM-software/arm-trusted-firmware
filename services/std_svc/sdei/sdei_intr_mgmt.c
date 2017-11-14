@@ -475,8 +475,10 @@ int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state)
 	sdei_cpu_state_t *state;
 
 	/* Validate preempted security state */
-	if ((preempted_sec_state != SECURE) || (preempted_sec_state != NON_SECURE))
+	if ((preempted_sec_state != SECURE) &&
+			(preempted_sec_state != NON_SECURE)) {
 		return -1;
+	}
 
 	/* Can't dispatch if events are masked on this PE */
 	state = sdei_get_this_pe_state();
