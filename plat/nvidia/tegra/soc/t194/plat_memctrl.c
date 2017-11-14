@@ -639,3 +639,34 @@ tegra_mc_settings_t *tegra_get_mc_settings(void)
 {
 	return &tegra194_mc_settings;
 }
+
+/*******************************************************************************
+ * Handler to program the scratch registers with TZDRAM settings for the
+ * resume firmware
+ ******************************************************************************/
+void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
+{
+	/*
+	 * Check if the carveout register is already locked, if locked
+	 * no TZDRAM setup
+	 */
+	if ((tegra_mc_read_32(MC_SECURITY_CFG_REG_CTRL_0) &
+		SECURITY_CFG_WRITE_ACCESS_BIT) == SECURITY_CFG_WRITE_ACCESS_BIT) {
+
+		/*
+		 * Setup the Memory controller to allow only secure accesses to
+		 * the TZDRAM carveout
+		 */
+		INFO("Configuring TrustZone DRAM Memory Carveout\n");
+
+		tegra_mc_write_32(MC_SECURITY_CFG0_0, (uint32_t)phys_base);
+		tegra_mc_write_32(MC_SECURITY_CFG3_0, (uint32_t)(phys_base >> 32));
+		tegra_mc_write_32(MC_SECURITY_CFG1_0, (uint32_t)(size_in_bytes >> 20));
+
+		/*
+		 * MCE propagates the security configuration values across the
+		 * CCPLEX.
+		 */
+		(void)mce_update_gsc_tzdram();
+	}
+}

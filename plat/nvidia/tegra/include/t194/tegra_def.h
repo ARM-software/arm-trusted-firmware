@@ -73,6 +73,9 @@
 #define MC_SECURITY_SIZE_MB_MASK	(U(0x1FFF) << 0)
 #define MC_SECURITY_BOM_HI_MASK		(U(0x3) << 0)
 
+#define MC_SECURITY_CFG_REG_CTRL_0	U(0x154)
+#define  SECURITY_CFG_WRITE_ACCESS_BIT	(U(0x1) << 0)
+
 /* Video Memory carveout configuration registers */
 #define MC_VIDEO_PROTECT_BASE_HI	U(0x978)
 #define MC_VIDEO_PROTECT_BASE_LO	U(0x648)
