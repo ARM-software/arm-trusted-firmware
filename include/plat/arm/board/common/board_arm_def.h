@@ -96,6 +96,14 @@
 #define PLAT_ARM_MAX_BL31_SIZE		0x1D000
 #endif
 
+#ifdef AARCH32
+/*
+ * PLAT_ARM_MAX_BL32_SIZE is calculated for SP_MIN as the AArch32 Secure
+ * Payload.
+ */
+# define PLAT_ARM_MAX_BL32_SIZE		0x1D000
+#endif
+
 #endif /* ARM_BOARD_OPTIMISE_MEM */
 
 #define MAX_IO_DEVICES			3

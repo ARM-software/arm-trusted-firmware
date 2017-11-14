@@ -31,6 +31,19 @@ JUNO_AARCH32_EL3_RUNTIME	:=	0
 $(eval $(call assert_boolean,JUNO_AARCH32_EL3_RUNTIME))
 $(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
 
+ifeq (${JUNO_AARCH32_EL3_RUNTIME}, 1)
+# Include BL32 in FIP
+NEED_BL32		:= yes
+# BL31 is not required
+override BL31_SOURCES =
+
+# The BL32 needs to be built separately invoking the AARCH32 compiler and
+# be specifed via `BL32` build option.
+  ifneq (${ARCH}, aarch32)
+    override BL32_SOURCES =
+  endif
+endif
+
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\

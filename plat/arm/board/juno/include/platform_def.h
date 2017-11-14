@@ -128,6 +128,15 @@
  */
 #define PLAT_ARM_MAX_BL31_SIZE		0x1E000
 
+#if JUNO_AARCH32_EL3_RUNTIME
+/*
+ * PLAT_ARM_MAX_BL32_SIZE is calculated for SP_MIN as the AArch32 Secure
+ * Payload. We also need to take care of SCP_BL2 size as well, as the SCP_BL2
+ * is loaded into the space BL32 -> BL1_RW_BASE
+ */
+# define PLAT_ARM_MAX_BL32_SIZE		0x1E000
+#endif
+
 /*
  * Since free SRAM space is scant, enable the ASSERTION message size
  * optimization by fixing the PLAT_LOG_LEVEL_ASSERT to LOG_LEVEL_INFO (40).
