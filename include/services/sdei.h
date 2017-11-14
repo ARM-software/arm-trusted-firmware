@@ -154,7 +154,7 @@ typedef struct sdei_ev_map {
 	int32_t ev_num;		/* Event number */
 	unsigned int intr;	/* Physical interrupt number for a bound map */
 	unsigned int map_flags;	/* Mapping flags, see SDEI_MAPF_* */
-	unsigned int reg_count;	/* Registration count */
+	int reg_count;		/* Registration count */
 	spinlock_t lock;	/* Per-event lock */
 } sdei_ev_map_t;
 
