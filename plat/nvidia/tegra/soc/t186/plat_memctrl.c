@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <common/bl_common.h>
 
+#include <mce.h>
 #include <memctrl_v2.h>
 #include <tegra_mc_def.h>
 #include <tegra_platform.h>
@@ -546,8 +547,15 @@ void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 {
 	uint32_t val;
 
-	(void)phys_base;
-	(void)size_in_bytes;
+	/*
+	 * Setup the Memory controller to allow only secure accesses to
+	 * the TZDRAM carveout
+	 */
+	INFO("Configuring TrustZone DRAM Memory Carveout\n");
+
+	tegra_mc_write_32(MC_SECURITY_CFG0_0, (uint32_t)phys_base);
+	tegra_mc_write_32(MC_SECURITY_CFG3_0, (uint32_t)(phys_base >> 32));
+	tegra_mc_write_32(MC_SECURITY_CFG1_0, size_in_bytes >> 20);
 
 	/*
 	 * When TZ encryption is enabled, we need to setup TZDRAM
@@ -565,4 +573,10 @@ void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 
 	val = tegra_mc_read_32(MC_SECURITY_CFG3_0) & MC_SECURITY_BOM_HI_MASK;
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_TZDRAM_ADDR_HI, val);
+
+	/*
+	 * MCE propagates the security configuration values across the
+	 * CCPLEX.
+	 */
+	(void)mce_update_gsc_tzdram();
 }
