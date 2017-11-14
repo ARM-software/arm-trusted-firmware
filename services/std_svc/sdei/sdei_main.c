@@ -993,7 +993,7 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 	case SDEI_PE_UNMASK:
 		SDEI_LOG("> UNMASK:%lx\n", read_mpidr_el1());
 		sdei_pe_unmask();
-		SDEI_LOG("< UNMASK:%ld\n", 0);
+		SDEI_LOG("< UNMASK:%d\n", 0);
 		SMC_RET1(handle, 0);
 		break;
 
