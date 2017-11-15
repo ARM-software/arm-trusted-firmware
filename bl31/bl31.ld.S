@@ -5,6 +5,7 @@
  */
 
 #include <platform_def.h>
+#include <xlat_tables_defs.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
@@ -22,7 +23,7 @@ MEMORY {
 SECTIONS
 {
     . = BL31_BASE;
-    ASSERT(. == ALIGN(4096),
+    ASSERT(. == ALIGN(PAGE_SIZE),
            "BL31_BASE address is not aligned on a page boundary.")
 
 #if SEPARATE_CODE_AND_RODATA
@@ -31,7 +32,7 @@ SECTIONS
         *bl31_entrypoint.o(.text*)
         *(.text*)
         *(.vectors)
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __TEXT_END__ = .;
     } >RAM
 
@@ -66,7 +67,7 @@ SECTIONS
         . = ALIGN(8);
 #include <pubsub_events.h>
 
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
 #else
@@ -110,7 +111,7 @@ SECTIONS
          * executable.  No RW data from the next section must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __RO_END__ = .;
     } >RAM
 #endif
@@ -127,10 +128,10 @@ SECTIONS
      * There's no need to include this into the RO section of BL31 because it
      * doesn't need to be accessed by BL31.
      */
-    spm_shim_exceptions : ALIGN(4096) {
+    spm_shim_exceptions : ALIGN(PAGE_SIZE) {
         __SPM_SHIM_EXCEPTIONS_START__ = .;
         *(.spm_shim_exceptions)
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __SPM_SHIM_EXCEPTIONS_END__ = .;
     } >RAM
 #endif
@@ -223,7 +224,7 @@ SECTIONS
         __SP_IMAGE_XLAT_TABLES_START__ = .;
         *secure_partition*.o(xlat_table)
         /* Make sure that the rest of the page is empty. */
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __SP_IMAGE_XLAT_TABLES_END__ = .;
 #endif
         *(xlat_table)
@@ -236,7 +237,7 @@ SECTIONS
      * are not mixed with normal data.  This is required to set up the correct
      * memory attributes for the coherent data page tables.
      */
-    coherent_ram (NOLOAD) : ALIGN(4096) {
+    coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
         __COHERENT_RAM_START__ = .;
         /*
          * Bakery locks are stored in coherent memory
@@ -251,7 +252,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM
 #endif

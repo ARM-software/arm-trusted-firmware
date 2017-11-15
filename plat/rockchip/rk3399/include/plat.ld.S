@@ -6,6 +6,8 @@
 #ifndef __ROCKCHIP_PLAT_LD_S__
 #define __ROCKCHIP_PLAT_LD_S__
 
+#include <xlat_tables_defs.h>
+
 MEMORY {
     SRAM (rwx): ORIGIN = SRAM_BASE, LENGTH = SRAM_SIZE
     PMUSRAM (rwx): ORIGIN = PMUSRAM_BASE, LENGTH = PMUSRAM_RSIZE
@@ -14,7 +16,7 @@ MEMORY {
 SECTIONS
 {
 	. = SRAM_BASE;
-	ASSERT(. == ALIGN(4096),
+	ASSERT(. == ALIGN(PAGE_SIZE),
 		"SRAM_BASE address is not aligned on a page boundary.")
 
 	/*
@@ -27,40 +29,40 @@ SECTIONS
 	 * | sram data
 	 * ----------------
 	 */
-	.incbin_sram : ALIGN(4096) {
+	.incbin_sram : ALIGN(PAGE_SIZE) {
 		__sram_incbin_start = .;
 		*(.sram.incbin)
 		 __sram_incbin_real_end = .;
-		. = ALIGN(4096);
+		. = ALIGN(PAGE_SIZE);
 		__sram_incbin_end = .;
 	} >SRAM
 	ASSERT((__sram_incbin_real_end - __sram_incbin_start) <=
 		SRAM_BIN_LIMIT, ".incbin_sram has exceeded its limit")
 
-	.text_sram : ALIGN(4096) {
+	.text_sram : ALIGN(PAGE_SIZE) {
 		__bl31_sram_text_start = .;
 		*(.sram.text)
 		*(.sram.rodata)
 		__bl31_sram_text_real_end = .;
-		. = ALIGN(4096);
+		. = ALIGN(PAGE_SIZE);
 		__bl31_sram_text_end = .;
 	} >SRAM
 	ASSERT((__bl31_sram_text_real_end - __bl31_sram_text_start) <=
 		SRAM_TEXT_LIMIT, ".text_sram has exceeded its limit")
 
-	.data_sram : ALIGN(4096) {
+	.data_sram : ALIGN(PAGE_SIZE) {
 		__bl31_sram_data_start = .;
 		*(.sram.data)
 		__bl31_sram_data_real_end = .;
-		. = ALIGN(4096);
+		. = ALIGN(PAGE_SIZE);
 		__bl31_sram_data_end = .;
 	} >SRAM
 	ASSERT((__bl31_sram_data_real_end - __bl31_sram_data_start) <=
 		SRAM_DATA_LIMIT, ".data_sram has exceeded its limit")
 
-	.stack_sram : ALIGN(4096) {
+	.stack_sram : ALIGN(PAGE_SIZE) {
 		__bl31_sram_stack_start = .;
-		. += 4096;
+		. += PAGE_SIZE;
 		__bl31_sram_stack_end = .;
 	} >SRAM
 

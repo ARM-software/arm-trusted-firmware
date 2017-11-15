@@ -5,6 +5,7 @@
  */
 
 #include <platform_def.h>
+#include <xlat_tables_defs.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
@@ -18,7 +19,7 @@ MEMORY {
 SECTIONS
 {
     . = BL2_BASE;
-    ASSERT(. == ALIGN(4096),
+    ASSERT(. == ALIGN(PAGE_SIZE),
            "BL2_BASE address is not aligned on a page boundary.")
 
 #if SEPARATE_CODE_AND_RODATA
@@ -27,7 +28,7 @@ SECTIONS
         *bl2_entrypoint.o(.text*)
         *(.text*)
         *(.vectors)
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __TEXT_END__ = .;
      } >RAM
 
@@ -41,7 +42,7 @@ SECTIONS
         KEEP(*(.img_parser_lib_descs))
         __PARSER_LIB_DESCS_END__ = .;
 
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
 #else
@@ -64,7 +65,7 @@ SECTIONS
          * read-only, executable.  No RW data from the next section must
          * creep in.  Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __RO_END__ = .;
     } >RAM
 #endif
@@ -120,7 +121,7 @@ SECTIONS
      * are not mixed with normal data.  This is required to set up the correct
      * memory attributes for the coherent data page tables.
      */
-    coherent_ram (NOLOAD) : ALIGN(4096) {
+    coherent_ram (NOLOAD) : ALIGN(PAGE_SIZE) {
         __COHERENT_RAM_START__ = .;
         *(tzfw_coherent_mem)
         __COHERENT_RAM_END_UNALIGNED__ = .;
@@ -129,7 +130,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(4096);
+        . = NEXT(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM
 #endif
