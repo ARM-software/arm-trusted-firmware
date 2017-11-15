@@ -42,7 +42,8 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 # platform files
 PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
 
-BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
+BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S	\
+				lib/cpus/aarch64/denver.S		\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c	\
 				${COMMON_DIR}/drivers/smmu/smmu.c	\
 				${SOC_DIR}/drivers/mce/mce.c		\
