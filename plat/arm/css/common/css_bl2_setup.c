@@ -49,13 +49,13 @@ int bl2_plat_handle_scp_bl2(image_info_t *scp_bl2_image_info)
 }
 
 #if !CSS_USE_SCMI_SDS_DRIVER
-# ifdef EL3_PAYLOAD_BASE
+# if defined(EL3_PAYLOAD_BASE) || JUNO_AARCH32_EL3_RUNTIME
 
 /*
  * We need to override some of the platform functions when booting an EL3
- * payload. These needs to be done only for SCPI/BOM SCP systems as
- * in case of SDS, the structures remain in memory and doesn't need to be
- * overwritten.
+ * payload or SP_MIN on Juno AArch32. This needs to be done only for
+ * SCPI/BOM SCP systems as in case of SDS, the structures remain in memory and
+ * don't need to be overwritten.
  */
 
 static unsigned int scp_boot_config;
