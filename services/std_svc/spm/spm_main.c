@@ -431,12 +431,14 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			cm_el1_sysregs_context_restore(SECURE);
 			cm_set_next_eret_context(SECURE);
 
-			if (x2 != 0) {
-				VERBOSE("SP_COMMUNICATE_AARCH32/64: X2 is not 0 as recommended.");
+			/* Cookie. Reserved for future use. It must be zero. */
+			assert(x1 == 0);
+
+			if (x3 != 0) {
+				VERBOSE("SP_COMMUNICATE_AARCH32/64: X3 is not 0 as recommended.\n");
 			}
 
-			SMC_RET4(&sp_ctx.cpu_ctx,
-				 smc_fid, x2, x3, plat_my_core_pos());
+			SMC_RET4(&sp_ctx.cpu_ctx, smc_fid, x1, x2, x3);
 
 		case SP_MEM_ATTRIBUTES_GET_AARCH64:
 		case SP_MEM_ATTRIBUTES_SET_AARCH64:
