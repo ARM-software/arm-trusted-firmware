@@ -379,8 +379,10 @@ static int a8k_validate_power_state(unsigned int power_state,
  */
 static void a8k_cpu_standby(plat_local_state_t cpu_state)
 {
-	ERROR("%s: needs to be implemented\n", __func__);
-	panic();
+	if (!is_pm_fw_running()) {
+		ERROR("%s: needs to be implemented\n", __func__);
+		panic();
+	}
 }
 
 /*****************************************************************************
