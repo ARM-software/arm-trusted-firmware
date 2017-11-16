@@ -232,13 +232,20 @@ bound or dynamic events can't be explicitly dispatched (see the section below).
 
 At a later point in time, a critical event [#critical-event]_ is trapped into
 EL3 [7]. EL3 performs a first-level triage of the event, and decides to dispatch
-to Secure EL1 for further handling [8]. The dispatch completes, but intends to
-involve Non-secure world in further handling, and therefore decides to
-explicitly dispatch an event [10] (which the client had already registered for
-[1]). The rest of the sequence is similar to that in the `general SDEI
-dispatch`_: the requested event is dispatched to the client (assuming all the
-conditions are met), and when the handler completes, the preempted execution
-resumes.
+to a Secure Partition [#secpart]_ for further handling [8]. The dispatch
+completes, but intends to involve Non-secure world in further handling, and
+therefore decides to explicitly dispatch an event [10] (which the client had
+already registered for [1]). The rest of the sequence is similar to that in the
+`general SDEI dispatch`_: the requested event is dispatched to the client
+(assuming all the conditions are met), and when the handler completes, the
+preempted execution resumes.
+
+.. [#critical-event] Examples of critical event are *SError*, *Synchronous
+                     External Abort*, *Fault Handling interrupt*, or *Error
+                     Recovery interrupt* from one of RAS nodes in the system.
+
+.. [#secpart] Dispatching to Secure Partition involves *Secure Partition
+              Manager*, which isn't depicted in the sequence.
 
 Conditions for event dispatch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -294,10 +301,6 @@ dispatcher:
    ``SDEI_EVENT_COMPLETE`` or ``SDEI_COMPLETE_AND_RESUME``), the preempted
    context is resumed (as indicated by the ``preempted_sec_state`` parameter of
    the API).
-
-.. [#critical-event] Examples of critical event are *SError*, *Synchronous
-                     External Abort*, *Fault Handling interrupt*, or *Error
-                     Recovery interrupt* from one of RAS nodes in the system.
 
 Porting requirements
 --------------------
