@@ -25,7 +25,10 @@ SECTIONS
 #if SEPARATE_CODE_AND_RODATA
     .text . : {
         __TEXT_START__ = .;
-        *bl2_el3_entrypoint.o(.text*)
+	__TEXT_RESIDENT_START__ = .;
+	*bl2_el3_entrypoint.o(.text*)
+	*(.text.asm.*)
+	__TEXT_RESIDENT_END__ = .;
         *(.text*)
         *(.vectors)
         . = NEXT(PAGE_SIZE);
@@ -54,10 +57,16 @@ SECTIONS
         . = NEXT(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
+
+    ASSERT(__TEXT_RESIDENT_END__ - __TEXT_RESIDENT_START__ <= PAGE_SIZE,
+          "Resident part of BL2 has exceeded its limit.")
 #else
     ro . : {
         __RO_START__ = .;
-        *bl2_el3_entrypoint.o(.text*)
+	__TEXT_RESIDENT_START__ = .;
+	*bl2_el3_entrypoint.o(.text*)
+	*(.text.asm.*)
+	__TEXT_RESIDENT_END__ = .;
         *(.text*)
         *(.rodata*)
 
