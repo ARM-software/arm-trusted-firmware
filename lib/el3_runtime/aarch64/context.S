@@ -90,9 +90,6 @@ func el1_sysregs_context_save
 	mrs	x15, dacr32_el2
 	mrs	x16, ifsr32_el2
 	stp	x15, x16, [x0, #CTX_DACR32_EL2]
-
-	mrs	x17, fpexc32_el2
-	str	x17, [x0, #CTX_FP_FPEXC32_EL2]
 #endif
 
 	/* Save NS timer registers if the build has instructed so */
@@ -212,9 +209,6 @@ func el1_sysregs_context_restore
 	ldp	x15, x16, [x0, #CTX_DACR32_EL2]
 	msr	dacr32_el2, x15
 	msr	ifsr32_el2, x16
-
-	ldr	x17, [x0, #CTX_FP_FPEXC32_EL2]
-	msr	fpexc32_el2, x17
 #endif
 	/* Restore NS timer registers if the build has instructed so */
 #if NS_TIMER_SWITCH
@@ -275,6 +269,10 @@ func fpregs_context_save
 	mrs	x10, fpcr
 	str	x10, [x0, #CTX_FP_FPCR]
 
+#if CTX_INCLUDE_AARCH32_REGS
+	mrs	x11, fpexc32_el2
+	str	x11, [x0, #CTX_FP_FPEXC32_EL2]
+#endif
 	ret
 endfunc fpregs_context_save
 
@@ -318,6 +316,10 @@ func fpregs_context_restore
 	ldr	x10, [x0, #CTX_FP_FPCR]
 	msr	fpcr, x10
 
+#if CTX_INCLUDE_AARCH32_REGS
+	ldr	x11, [x0, #CTX_FP_FPEXC32_EL2]
+	msr	fpexc32_el2, x11
+#endif
 	/*
 	 * No explict ISB required here as ERET to
 	 * switch to secure EL1 or non-secure world
