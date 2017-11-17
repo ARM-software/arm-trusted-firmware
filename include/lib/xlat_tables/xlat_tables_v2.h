@@ -168,21 +168,28 @@ typedef struct xlat_ctx xlat_ctx_t;
 					 _xlat_tables_count,		\
 					 _virt_addr_space_size,		\
 					 _phy_addr_space_size,		\
-					 IMAGE_XLAT_DEFAULT_REGIME)
+					 IMAGE_XLAT_DEFAULT_REGIME,	\
+					"xlat_table")
 
 /*
- * Same as REGISTER_XLAT_CONTEXT plus the additional parameter _xlat_regime to
- * specify the translation regime managed by this xlat_ctx_t instance. The
- * values are the one from xlat_regime_t enumeration.
+ * Same as REGISTER_XLAT_CONTEXT plus the additional parameters:
+ *
+ * _xlat_regime:
+ *   Specify the translation regime managed by this xlat_ctx_t instance. The
+ *   values are the one from xlat_regime_t enumeration.
+ *
+ * _section_name:
+ *   Specify the name of the section where the translation tables have to be
+ *   placed by the linker.
  */
 #define REGISTER_XLAT_CONTEXT2(_ctx_name, _mmap_count, _xlat_tables_count,	\
 			_virt_addr_space_size, _phy_addr_space_size,		\
-			_xlat_regime)					\
+			_xlat_regime, _section_name)				\
 	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count,	\
 					 _xlat_tables_count,		\
 					 _virt_addr_space_size,		\
 					 _phy_addr_space_size,		\
-					 _xlat_regime)
+					 _xlat_regime, _section_name)
 
 /******************************************************************************
  * Generic translation table APIs.

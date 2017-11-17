@@ -22,12 +22,17 @@
 #include "spm_private.h"
 #include "spm_shim_private.h"
 
+/* Place translation tables by default along with the ones used by BL31. */
+#ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME
+#define PLAT_SP_IMAGE_XLAT_SECTION_NAME	"xlat_table"
+#endif
+
 /* Allocate and initialise the translation context for the secure partition. */
 REGISTER_XLAT_CONTEXT2(secure_partition,
 			PLAT_SP_IMAGE_MMAP_REGIONS,
 			PLAT_SP_IMAGE_MAX_XLAT_TABLES,
 			PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
-			EL1_EL0_REGIME);
+			EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME);
 
 /* Export a handle on the secure partition translation context */
 xlat_ctx_t *secure_partition_xlat_ctx_handle = &secure_partition_xlat_ctx;

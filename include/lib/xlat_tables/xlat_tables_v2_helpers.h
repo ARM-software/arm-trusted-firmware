@@ -123,7 +123,7 @@ struct xlat_ctx {
 
 #define _REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count, _xlat_tables_count,	\
 			_virt_addr_space_size, _phy_addr_space_size,		\
-			_xlat_regime)					\
+			_xlat_regime, _section_name)				\
 	CASSERT(CHECK_VIRT_ADDR_SPACE_SIZE(_virt_addr_space_size),		\
 		assert_invalid_virtual_addr_space_size_for_##_ctx_name);	\
 										\
@@ -134,7 +134,7 @@ struct xlat_ctx {
 										\
 	static uint64_t _ctx_name##_xlat_tables[_xlat_tables_count]		\
 		[XLAT_TABLE_ENTRIES]						\
-		__aligned(XLAT_TABLE_SIZE) __section("xlat_table");		\
+		__aligned(XLAT_TABLE_SIZE) __section(_section_name);		\
 										\
 	static uint64_t _ctx_name##_base_xlat_table				\
 		[GET_NUM_BASE_LEVEL_ENTRIES(_virt_addr_space_size)]		\
