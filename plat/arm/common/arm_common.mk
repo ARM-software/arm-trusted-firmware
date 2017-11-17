@@ -150,6 +150,11 @@ BL2_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl2_setup.c			\
 				plat/arm/common/arm_io_storage.c
+
+ifeq (${BL2_AT_EL3},1)
+BL2_SOURCES		+=	plat/arm/common/arm_bl2_el3_setup.c
+endif
+
 ifeq (${LOAD_IMAGE_V2},1)
 # Because BL1/BL2 execute in AArch64 mode but BL32 in AArch32 we need to use
 # the AArch32 descriptors.

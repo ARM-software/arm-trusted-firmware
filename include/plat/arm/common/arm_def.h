@@ -334,6 +334,11 @@
 #define BL2_BASE			(BL1_RW_BASE - PLAT_ARM_MAX_BL2_SIZE)
 #define BL2_LIMIT			BL1_RW_BASE
 
+#elif BL2_AT_EL3
+
+#define BL2_BASE			ARM_BL_RAM_BASE
+#define BL2_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+
 #elif defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME
 /*
  * Put BL2 just below BL32.
