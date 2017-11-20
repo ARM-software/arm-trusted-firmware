@@ -245,6 +245,9 @@ Common build options
    BL2U image. In this case, the BL2U in the ARM Trusted Firmware will not
    be built.
 
+- ``BL2_AT_EL3``: This is an optional build option that enables the use of
+   BL2 at EL3 execution level.
+
 -  ``BL31``: This is an optional build option which specifies the path to
    BL31 image for the ``fip`` target. In this case, the BL31 in the ARM
    Trusted Firmware will not be built.
