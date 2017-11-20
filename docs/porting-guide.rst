@@ -1624,6 +1624,71 @@ element in the boot sequence. If there are no more boot sources then it
 must return 0, otherwise it must return 1. The default implementation
 of this always returns 0.
 
+Boot Loader Stage 2 at EL3 (BL2)
+--------------------------------
+
+When the platform has a non-TF Boot ROM it is desirable to jump
+directly to BL2 instead of TF BL1. In this case BL2 it is expected to
+execute at EL3 instead of executing at EL1. Refer to the `Firmware
+Design`_ for more information.
+
+All mandatory functions of BL2 must be implemented, except the functions
+bl2\_early\_platform\_setup and bl2\_el3\_plat\_arch\_setup, because
+their work is done now by bl2\_el3\_early\_platform\_setup and
+bl2\_el3\_plat\_arch\_setup. These functions should generally implement
+the bl1\_plat\_xxx() and bl2\_plat\_xxx() functionality combined.
+
+
+Function : bl2\_el3\_early\_platform\_setup() [mandatory]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+	Argument : void *
+	Return   : void
+
+This function executes with the MMU and data caches disabled. It is only called
+by the primary CPU. The argument to this function is a void pointer which can
+be used by the platform to pass any needed information from the Boot ROM to
+BL2.
+
+On ARM standard platforms, this function does the following:
+
+-  Initializes a UART (PL011 console), which enables access to the ``printf``
+   family of functions in BL2.
+
+-  Initializes the storage abstraction layer used to load further bootloader
+   images. It is necessary to do this early on platforms with a SCP\_BL2 image,
+   since the later ``bl2_platform_setup`` must be done after SCP\_BL2 is loaded.
+
+- Initializes the private variables that define the memory layout used.
+
+Function : bl2\_el3\_plat\_arch\_setup() [mandatory]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+	Argument : void
+	Return   : void
+
+This function executes with the MMU and data caches disabled. It is only called
+by the primary CPU.
+
+The purpose of this function is to perform any architectural initialization
+that varies across platforms.
+
+On ARM standard platforms, this function enables the MMU.
+
+Function : bl2\_el3\_plat\_prepare\_exit() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+	Argument : void
+	Return   : void
+
+This function is called prior to exiting BL2 and run the next image.
+It should be used to perform platform specific clean up or bookkeeping
+operations before transferring control to the next image. This function
+runs with MMU disabled.
+
 FWU Boot Loader Stage 2 (BL2U)
 ------------------------------
 
