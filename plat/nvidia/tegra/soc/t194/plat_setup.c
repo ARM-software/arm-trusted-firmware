@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -197,12 +197,13 @@ void plat_enable_console(int32_t id)
  ******************************************************************************/
 void plat_early_platform_setup(void)
 {
-
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 
-	/* Program XUSB STREAMIDs
-	 * Xavier XUSB has support for XUSB virtualization. It will have one
+	/*
+	 * Program XUSB STREAMIDs
+	 * ======================
+	 * T19x XUSB has support for XUSB virtualization. It will have one
 	 * physical function (PF) and four Virtual function (VF)
 	 *
 	 * There were below two SIDs for XUSB until T186.
@@ -227,14 +228,8 @@ void plat_early_platform_setup(void)
 	 * f) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3 (0x137cU)
 	 *
 	 * This change disables SID override and programs XUSB SIDs in
-	 * above registers to support both virtualization and non-virtualization
-	 *
-	 * Known Limitations:
-	 * If xusb interface disables SMMU in XUSB DT in non-virtualization
-	 * setup then there will be SMMU fault. We need to use WAR at
-	 * https:\\git-master.nvidia.com/r/1529227/ to the issue.
-	 *
-	 * More details can be found in the bug 1971161
+	 * above registers to support both virtualization and
+	 * non-virtualization platforms
 	 */
 	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 		XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
