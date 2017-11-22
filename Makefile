@@ -189,6 +189,7 @@ INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/lib/cpus/${ARCH}		\
 				-Iinclude/lib/el3_runtime		\
 				-Iinclude/lib/el3_runtime/${ARCH}	\
+				-Iinclude/lib/extensions		\
 				-Iinclude/lib/pmf			\
 				-Iinclude/lib/psci			\
 				-Iinclude/lib/xlat_tables		\

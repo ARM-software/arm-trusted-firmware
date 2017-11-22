@@ -14,6 +14,7 @@
 #include <plat_arm.h>
 #include <platform.h>
 #include <psci.h>
+#include <spe.h>
 #include <v2m_def.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 #include "fvp_def.h"
@@ -57,7 +58,7 @@ static void fvp_cluster_pwrdwn_common(void)
 	 * On power down we need to disable statistical profiling extensions
 	 * before exiting coherency.
 	 */
-	arm_disable_spe();
+	spe_disable();
 #endif
 
 	/* Disable coherency if this cluster is to be turned off */

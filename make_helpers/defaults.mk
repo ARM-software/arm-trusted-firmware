@@ -149,19 +149,10 @@ V				:= 0
 # platforms).
 WARMBOOT_ENABLE_DCACHE_EARLY	:= 0
 
-# By default, enable Statistical Profiling Extensions.
-# The top level Makefile will disable this feature depending on
-# the target architecture and version number.
+# Build option to enable/disable the Statistical Profiling Extensions
 ENABLE_SPE_FOR_LOWER_ELS	:= 1
 
-# SPE is enabled by default but only supported on AArch64 8.2 onwards.
-# Disable it in all other cases.
+# SPE is only supported on AArch64 so disable it on AArch32.
 ifeq (${ARCH},aarch32)
     override ENABLE_SPE_FOR_LOWER_ELS := 0
-else
-    ifeq (${ARM_ARCH_MAJOR},8)
-        ifeq ($(ARM_ARCH_MINOR),$(filter $(ARM_ARCH_MINOR),0 1))
-            ENABLE_SPE_FOR_LOWER_ELS := 0
-        endif
-    endif
 endif

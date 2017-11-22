@@ -604,4 +604,9 @@
 #define PAR_ADDR_SHIFT	12
 #define PAR_ADDR_MASK	(BIT(40) - 1) /* 40-bits-wide page address */
 
+/*******************************************************************************
+ * Definitions for system register interface to SPE
+ ******************************************************************************/
+#define PMBLIMITR_EL1		S3_0_C9_C10_0
+
 #endif /* __ARCH_H__ */

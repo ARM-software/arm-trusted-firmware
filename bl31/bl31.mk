@@ -46,6 +46,10 @@ BL31_SOURCES		+=	services/std_svc/sdei/sdei_event.c	\
 				services/std_svc/sdei/sdei_state.c
 endif
 
+ifeq (${ENABLE_SPE_FOR_LOWER_ELS},1)
+BL31_SOURCES		+=	lib/extensions/spe/spe.c
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
