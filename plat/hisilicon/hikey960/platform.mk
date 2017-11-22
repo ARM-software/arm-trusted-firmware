@@ -100,3 +100,5 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 ERRATA_A53_836870		:=	1
 ERRATA_A53_843419		:=	1
 ERRATA_A53_855873		:=	1
+
+FIP_ALIGN			:=	512
