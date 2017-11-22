@@ -120,6 +120,7 @@ void sdei_class_init(sdei_class_t class)
 		/* Platform events are always bound, so set the bound flag */
 		if (is_map_dynamic(map)) {
 			assert(map->intr == SDEI_DYN_IRQ);
+			assert(is_event_normal(map));
 			num_dyn_shrd_slots++;
 		} else {
 			/* Shared mappings must be bound to shared interrupt */
@@ -171,6 +172,7 @@ void sdei_class_init(sdei_class_t class)
 		if (map->ev_num != SDEI_EVENT_0) {
 			if (is_map_dynamic(map)) {
 				assert(map->intr == SDEI_DYN_IRQ);
+				assert(is_event_normal(map));
 				num_dyn_priv_slots++;
 			} else {
 				/*
