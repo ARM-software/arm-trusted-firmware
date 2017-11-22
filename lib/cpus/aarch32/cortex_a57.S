@@ -406,7 +406,7 @@ func cortex_a57_core_pwr_dwn
 	push	{r12, lr}
 
 	/* Assert if cache is enabled */
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	ldcopr	r0, SCTLR
 	tst	r0, #SCTLR_C_BIT
 	ASM_ASSERT(eq)
@@ -448,7 +448,7 @@ func cortex_a57_cluster_pwr_dwn
 	push	{r12, lr}
 
 	/* Assert if cache is enabled */
-#if ASM_ASSERTION
+#if ENABLE_ASSERTIONS
 	ldcopr	r0, SCTLR
 	tst	r0, #SCTLR_C_BIT
 	ASM_ASSERT(eq)
