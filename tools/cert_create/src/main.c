@@ -68,6 +68,7 @@
 
 /* Global options */
 static int key_alg;
+static int hash_alg;
 static int new_keys;
 static int save_keys;
 static int print_cert;
@@ -93,6 +94,12 @@ static const char *key_algs_str[] = {
 #ifndef OPENSSL_NO_EC
 	[KEY_ALG_ECDSA] = "ecdsa"
 #endif /* OPENSSL_NO_EC */
+};
+
+static const char *hash_algs_str[] = {
+	[HASH_ALG_SHA256] = "sha256",
+	[HASH_ALG_SHA384] = "sha384",
+	[HASH_ALG_SHA512] = "sha512",
 };
 
 static void print_help(const char *cmd, const struct option *long_opt)
@@ -143,6 +150,19 @@ static int get_key_alg(const char *key_alg_str)
 
 	for (i = 0 ; i < NUM_ELEM(key_algs_str) ; i++) {
 		if (0 == strcmp(key_alg_str, key_algs_str[i])) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static int get_hash_alg(const char *hash_alg_str)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_ELEM(hash_algs_str) ; i++) {
+		if (0 == strcmp(hash_alg_str, hash_algs_str[i])) {
 			return i;
 		}
 	}
@@ -228,6 +248,10 @@ static const cmd_opt_t common_cmd_opt[] = {
 PKCS#1 v2.1, 'rsa_1_5' - RSA PKCS#1 v1.5, 'ecdsa'"
 	},
 	{
+		{ "hash-alg", required_argument, NULL, 's' },
+		"Hash algorithm : 'sha256' (default), 'sha384', 'sha512'"
+	},
+	{
 		{ "save-keys", no_argument, NULL, 'k' },
 		"Save key pairs into files. Filenames must be provided"
 	},
@@ -254,7 +278,8 @@ int main(int argc, char *argv[])
 	const struct option *cmd_opt;
 	const char *cur_opt;
 	unsigned int err_code;
-	unsigned char md[SHA256_DIGEST_LENGTH];
+	unsigned char md[SHA512_DIGEST_LENGTH];
+	unsigned int  md_len;
 	const EVP_MD *md_info;
 
 	NOTICE("CoT Generation Tool: %s\n", build_msg);
@@ -262,6 +287,7 @@ int main(int argc, char *argv[])
 
 	/* Set default options */
 	key_alg = KEY_ALG_RSA;
+	hash_alg = HASH_ALG_SHA256;
 
 	/* Add common command line options */
 	for (i = 0; i < NUM_ELEM(common_cmd_opt); i++) {
@@ -291,7 +317,7 @@ int main(int argc, char *argv[])
 
 	while (1) {
 		/* getopt_long stores the option index here. */
-		c = getopt_long(argc, argv, "a:hknp", cmd_opt, &opt_idx);
+		c = getopt_long(argc, argv, "a:hknps:", cmd_opt, &opt_idx);
 
 		/* Detect the end of the options. */
 		if (c == -1) {
@@ -318,6 +344,13 @@ int main(int argc, char *argv[])
 		case 'p':
 			print_cert = 1;
 			break;
+		case 's':
+			hash_alg = get_hash_alg(optarg);
+			if (hash_alg < 0) {
+				ERROR("Invalid hash algorithm '%s'\n", optarg);
+				exit(1);
+			}
+			break;
 		case CMD_OPT_EXT:
 			cur_opt = cmd_opt_get_name(opt_idx);
 			ext = ext_get_by_opt(cur_opt);
@@ -343,9 +376,18 @@ int main(int argc, char *argv[])
 	/* Check command line arguments */
 	check_cmd_params();
 
-	/* Indicate SHA256 as image hash algorithm in the certificate
+	/* Indicate SHA as image hash algorithm in the certificate
 	 * extension */
-	md_info = EVP_sha256();
+	if (hash_alg == HASH_ALG_SHA384) {
+		md_info = EVP_sha384();
+		md_len  = SHA384_DIGEST_LENGTH;
+	} else if (hash_alg == HASH_ALG_SHA512) {
+		md_info = EVP_sha512();
+		md_len  = SHA512_DIGEST_LENGTH;
+	} else {
+		md_info = EVP_sha256();
+		md_len  = SHA256_DIGEST_LENGTH;
+	}
 
 	/* Load private keys from files (or generate new ones) */
 	for (i = 0 ; i < num_keys ; i++) {
@@ -421,14 +463,14 @@ int main(int argc, char *argv[])
 				if (ext->arg == NULL) {
 					if (ext->optional) {
 						/* Include a hash filled with zeros */
-						memset(md, 0x0, SHA256_DIGEST_LENGTH);
+						memset(md, 0x0, SHA512_DIGEST_LENGTH);
 					} else {
 						/* Do not include this hash in the certificate */
 						break;
 					}
 				} else {
 					/* Calculate the hash of the file */
-					if (!sha_file(ext->arg, md)) {
+					if (!sha_file(hash_alg, ext->arg, md)) {
 						ERROR("Cannot calculate hash of %s\n",
 							ext->arg);
 						exit(1);
@@ -436,7 +478,7 @@ int main(int argc, char *argv[])
 				}
 				CHECK_NULL(cert_ext, ext_new_hash(ext_nid,
 						EXT_CRIT, md_info, md,
-						SHA256_DIGEST_LENGTH));
+						md_len));
 				break;
 			case EXT_TYPE_PKEY:
 				CHECK_NULL(cert_ext, ext_new_key(ext_nid,
@@ -453,7 +495,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* Create certificate. Signed with corresponding key */
-		if (cert->fn && !cert_new(key_alg, cert, VAL_DAYS, 0, sk)) {
+		if (cert->fn && !cert_new(key_alg, hash_alg, cert, VAL_DAYS, 0, sk)) {
 			ERROR("Cannot create %s\n", cert->cn);
 			exit(1);
 		}

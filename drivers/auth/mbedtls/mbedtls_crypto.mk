@@ -37,8 +37,29 @@ MBEDTLS_CRYPTO_SOURCES		:=	drivers/auth/mbedtls/mbedtls_crypto.c	\
 					pk_wrap.c 				\
 					pkparse.c 				\
 					pkwrite.c 				\
-					sha256.c				\
 					)
+
+ifeq (${HASH_ALG}, sha384)
+    MBEDTLS_CRYPTO_SOURCES  += \
+					$(addprefix ${MBEDTLS_DIR}/library/,	\
+						sha256.c            \
+						sha512.c            \
+					)
+    TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA384
+else ifeq (${HASH_ALG}, sha512)
+    MBEDTLS_CRYPTO_SOURCES  += \
+					$(addprefix ${MBEDTLS_DIR}/library/,	\
+						sha256.c            \
+						sha512.c            \
+					)
+    TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA512
+else
+    MBEDTLS_CRYPTO_SOURCES  += \
+					$(addprefix ${MBEDTLS_DIR}/library/,	\
+						sha256.c            \
+					)
+    TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA256
+endif
 
 # Key algorithm specific files
 MBEDTLS_ECDSA_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
@@ -67,6 +88,7 @@ endif
 
 # Needs to be set to drive mbed TLS configuration correctly
 $(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
+$(eval $(call add_define,TF_MBEDTLS_HASH_ALG_ID))
 
 BL1_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}
 BL2_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}

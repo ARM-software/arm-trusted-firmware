@@ -425,10 +425,14 @@ Common build options
 
 -  ``KEY_ALG``: This build flag enables the user to select the algorithm to be
    used for generating the PKCS keys and subsequent signing of the certificate.
-   It accepts 3 values viz ``rsa``, ``rsa_1_5``, ``ecdsa``. The ``rsa_1_5`` is
+   It accepts 3 values viz. ``rsa``, ``rsa_1_5``, ``ecdsa``. The ``rsa_1_5`` is
    the legacy PKCS#1 RSA 1.5 algorithm which is not TBBR compliant and is
    retained only for compatibility. The default value of this flag is ``rsa``
    which is the TBBR compliant PKCS#1 RSA 2.1 scheme.
+
+-  ``HASH_ALG``: This build flag enables the user to select the secure hash
+   algorithm. It accepts 3 values viz. ``sha256``, ``sha384``, ``sha512``.
+   The default value of this flag is ``sha256``.
 
 -  ``LDFLAGS``: Extra user options appended to the linkers' command line in
    addition to the one set by the build system.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,7 +48,13 @@ struct cert_s {
 int cert_init(void);
 cert_t *cert_get_by_opt(const char *opt);
 int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value);
-int cert_new(int key_alg, cert_t *cert, int days, int ca, STACK_OF(X509_EXTENSION) * sk);
+int cert_new(
+	int key_alg,
+	int md_alg,
+	cert_t *cert,
+	int days,
+	int ca,
+	STACK_OF(X509_EXTENSION) * sk);
 
 /* Macro to register the certificates used in the CoT */
 #define REGISTER_COT(_certs) \
