@@ -219,7 +219,8 @@ Common build options
 
 -  ``ARM_ARCH_MAJOR``: The major version of ARM Architecture to target when
    compiling ARM Trusted Firmware. Its value must be numeric, and defaults to
-   8 . See also, *ARMv8 Architecture Extensions* in `Firmware Design`_.
+   8 . See also, *ARMv8 Architecture Extensions* and
+   *ARMv7 Architecture Extensions* in `Firmware Design`_.
 
 -  ``ARM_ARCH_MINOR``: The minor version of ARM Architecture to target when
    compiling ARM Trusted Firmware. Its value must be a numeric, and defaults

@@ -30,6 +30,16 @@
 		stcopr	\reg, SCR
 	.endm
 
+	.macro clrex_on_monitor_entry
+#if (ARM_ARCH_MAJOR == 7)
+	/*
+	 * ARMv7 architectures need to clear the exclusive access when
+	 * entering Monitor mode.
+	 */
+	clrex
+#endif
+	.endm
+
 vector_base sp_min_vector_table
 	b	sp_min_entrypoint
 	b	plat_panic_handler	/* Undef */
@@ -147,6 +157,8 @@ func handle_smc
 
 	smcc_save_gp_mode_regs
 
+	clrex_on_monitor_entry
+
 	/*
 	 * `sp` still points to `smc_ctx_t`. Save it to a register
 	 * and restore the C runtime stack pointer to `sp`.
@@ -203,11 +215,7 @@ func handle_fiq
 
 	smcc_save_gp_mode_regs
 
-	/*
-	 * AArch32 architectures need to clear the exclusive access when
-	 * entering Monitor mode.
-	 */
-	clrex
+	clrex_on_monitor_entry
 
 	/* load run-time stack */
 	mov	r2, sp

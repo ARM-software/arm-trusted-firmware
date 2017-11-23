@@ -9,6 +9,17 @@
 	.globl	spin_lock
 	.globl	spin_unlock
 
+#if ARM_ARCH_AT_LEAST(8, 0)
+/*
+ * According to the ARMv8-A Architecture Reference Manual, "when the global
+ * monitor for a PE changes from Exclusive Access state to Open Access state,
+ * an event is generated.". This applies to both AArch32 and AArch64 modes of
+ * ARMv8-A. As a result, no explicit SEV with unlock is required.
+ */
+#define COND_SEV()
+#else
+#define COND_SEV()	sev
+#endif
 
 func spin_lock
 	mov	r2, #1
@@ -27,5 +38,6 @@ endfunc spin_lock
 func spin_unlock
 	mov	r1, #0
 	stl	r1, [r0]
+	COND_SEV()
 	bx	lr
 endfunc spin_unlock
