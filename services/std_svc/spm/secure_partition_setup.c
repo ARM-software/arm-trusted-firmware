@@ -92,20 +92,20 @@ void secure_partition_setup(void)
 
 	/* Get max granularity supported by the platform. */
 
-	u_register_t id_aa64prf0_el1 = read_id_aa64pfr0_el1();
+	u_register_t id_aa64mmfr0_el1 = read_id_aa64mmfr0_el1();
 
 	int tgran64_supported =
-		((id_aa64prf0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
+		((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
 		 ID_AA64MMFR0_EL1_TGRAN64_MASK) ==
 		 ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED;
 
 	int tgran16_supported =
-		((id_aa64prf0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
+		((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
 		 ID_AA64MMFR0_EL1_TGRAN16_MASK) ==
 		 ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED;
 
 	int tgran4_supported =
-		((id_aa64prf0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
+		((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
 		 ID_AA64MMFR0_EL1_TGRAN4_MASK) ==
 		 ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED;
 
@@ -121,7 +121,7 @@ void secure_partition_setup(void)
 	}
 
 	VERBOSE("Max translation granule supported: %lu KiB\n",
-		max_granule_size);
+		max_granule_size / 1024);
 
 	uintptr_t max_granule_size_mask = max_granule_size - 1;
 
