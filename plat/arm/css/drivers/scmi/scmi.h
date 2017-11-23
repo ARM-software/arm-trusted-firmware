@@ -83,6 +83,12 @@
 #define SCMI_E_OUT_OF_RANGE		-5
 #define SCMI_E_BUSY			-6
 
+/* MHU Control Registers */
+#define MHU_V1                  0x1
+#define MHU_V2                  0x2
+#define MHU_V2_ACCESS_REQUEST          0xF88
+#define MHU_V2_ACCESS_READY            0xF8C
+
 /*
  * SCMI driver platform information. The details of the doorbell mechanism
  * can be found in the SCMI specification.
@@ -96,6 +102,8 @@ typedef struct scmi_channel_plat_info {
 	uint32_t db_preserve_mask;
 	/* The bit mask that need to be set to ring doorbell */
 	uint32_t db_modify_mask;
+	/* The version of MHU controller available in the system */
+	uint8_t db_mhu_ver;
 } scmi_channel_plat_info_t;
 
 /*
