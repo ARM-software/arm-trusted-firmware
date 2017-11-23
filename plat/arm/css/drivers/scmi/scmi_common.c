@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,9 +39,7 @@ void scmi_send_sync_command(scmi_channel_t *ch)
 	 */
 	dmbst();
 
-	SCMI_RING_DOORBELL(ch->info->db_reg_addr, ch->info->db_modify_mask,
-					ch->info->db_preserve_mask);
-
+	ch->info->ring_doorbell(ch->info);
 	/*
 	 * Ensure that the write to the doorbell register is ordered prior to
 	 * checking whether the channel is free.
@@ -150,6 +148,7 @@ void *scmi_init(scmi_channel_t *ch)
 	assert(ch->info->db_reg_addr);
 	assert(ch->info->db_modify_mask);
 	assert(ch->info->db_preserve_mask);
+	assert(ch->info->ring_doorbell != NULL);
 
 	assert(ch->lock);
 
