@@ -26,6 +26,38 @@
 #define SYSTEM_PWR_STATE(state) \
 	((state)->pwr_domain_state[PLAT_MAX_PWR_LVL])
 
+#define PSTATE_WIDTH		4
+#define PSTATE_MASK		((1 << PSTATE_WIDTH) - 1)
+
+#define MAKE_PWRSTATE(lvl2_state, lvl1_state, lvl0_state, pwr_lvl, type) \
+		(((lvl2_state) << (PSTATE_ID_SHIFT + PSTATE_WIDTH * 2)) | \
+		 ((lvl1_state) << (PSTATE_ID_SHIFT + PSTATE_WIDTH)) | \
+		 ((lvl0_state) << (PSTATE_ID_SHIFT)) | \
+		 ((pwr_lvl) << PSTATE_PWR_LVL_SHIFT) | \
+		 ((type) << PSTATE_TYPE_SHIFT))
+
+/*
+ * The table storing the valid idle power states. Ensure that the
+ * array entries are populated in ascending order of state-id to
+ * enable us to use binary search during power state validation.
+ * The table must be terminated by a NULL entry.
+ */
+const unsigned int hikey960_pwr_idle_states[] = {
+	/* State-id - 0x001 */
+	MAKE_PWRSTATE(PLAT_MAX_RUN_STATE, PLAT_MAX_RUN_STATE,
+		      PLAT_MAX_STB_STATE, MPIDR_AFFLVL0, PSTATE_TYPE_STANDBY),
+	/* State-id - 0x002 */
+	MAKE_PWRSTATE(PLAT_MAX_RUN_STATE, PLAT_MAX_RUN_STATE,
+		      PLAT_MAX_RET_STATE, MPIDR_AFFLVL0, PSTATE_TYPE_STANDBY),
+	/* State-id - 0x003 */
+	MAKE_PWRSTATE(PLAT_MAX_RUN_STATE, PLAT_MAX_RUN_STATE,
+		      PLAT_MAX_OFF_STATE, MPIDR_AFFLVL0, PSTATE_TYPE_POWERDOWN),
+	/* State-id - 0x033 */
+	MAKE_PWRSTATE(PLAT_MAX_RUN_STATE, PLAT_MAX_OFF_STATE,
+		      PLAT_MAX_OFF_STATE, MPIDR_AFFLVL1, PSTATE_TYPE_POWERDOWN),
+	0,
+};
+
 #define DMAC_GLB_REG_SEC	0x694
 #define AXI_CONF_BASE		0x820
 
@@ -36,16 +68,21 @@ static void hikey960_pwr_domain_standby(plat_local_state_t cpu_state)
 	unsigned long scr;
 	unsigned int val = 0;
 
-	assert(cpu_state == PLAT_MAX_RET_STATE);
+	assert(cpu_state == PLAT_MAX_STB_STATE ||
+	       cpu_state == PLAT_MAX_RET_STATE);
 
 	scr = read_scr_el3();
 
 	/* Enable Physical IRQ and FIQ to wake the CPU*/
 	write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);
 
-	set_retention_ticks(val);
+	if (cpu_state == PLAT_MAX_RET_STATE)
+		set_retention_ticks(val);
+
 	wfi();
-	clr_retention_ticks(val);
+
+	if (cpu_state == PLAT_MAX_RET_STATE)
+		clr_retention_ticks(val);
 
 	/*
 	 * Restore SCR to the original value, synchronisazion of
@@ -124,37 +161,33 @@ static void __dead2 hikey960_system_reset(void)
 int hikey960_validate_power_state(unsigned int power_state,
 			       psci_power_state_t *req_state)
 {
-	int pstate = psci_get_pstate_type(power_state);
-	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+	unsigned int state_id;
 	int i;
 
 	assert(req_state);
 
-	if (pwr_lvl > PLAT_MAX_PWR_LVL)
-		return PSCI_E_INVALID_PARAMS;
-
-	/* Sanity check the requested state */
-	if (pstate == PSTATE_TYPE_STANDBY) {
-		/*
-		 * It's possible to enter standby only on power level 0
-		 * Ignore any other power level.
-		 */
-		if (pwr_lvl != MPIDR_AFFLVL0)
-			return PSCI_E_INVALID_PARAMS;
-
-		req_state->pwr_domain_state[MPIDR_AFFLVL0] =
-					PLAT_MAX_RET_STATE;
-	} else {
-		for (i = MPIDR_AFFLVL0; i <= pwr_lvl; i++)
-			req_state->pwr_domain_state[i] =
-					PLAT_MAX_OFF_STATE;
+	/*
+	 *  Currently we are using a linear search for finding the matching
+	 *  entry in the idle power state array. This can be made a binary
+	 *  search if the number of entries justify the additional complexity.
+	 */
+	for (i = 0; !!hikey960_pwr_idle_states[i]; i++) {
+		if (power_state == hikey960_pwr_idle_states[i])
+			break;
 	}
 
-	/*
-	 * We expect the 'state id' to be zero.
-	 */
-	if (psci_get_pstate_id(power_state))
+	/* Return error if entry not found in the idle state array */
+	if (!hikey960_pwr_idle_states[i])
 		return PSCI_E_INVALID_PARAMS;
+
+	i = 0;
+	state_id = psci_get_pstate_id(power_state);
+
+	/* Parse the State ID and populate the state info parameter */
+	while (state_id) {
+		req_state->pwr_domain_state[i++] = state_id & PSTATE_MASK;
+		state_id >>= PSTATE_WIDTH;
+	}
 
 	return PSCI_E_SUCCESS;
 }
