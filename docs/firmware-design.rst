@@ -1868,9 +1868,11 @@ Firmware Image Package layout
 
 The FIP layout consists of a table of contents (ToC) followed by payload data.
 The ToC itself has a header followed by one or more table entries. The ToC is
-terminated by an end marker entry. All ToC entries describe some payload data
-that has been appended to the end of the binary package. With the information
-provided in the ToC entry the corresponding payload data can be retrieved.
+terminated by an end marker entry, and since the size of the ToC is 0 bytes,
+the offset equals the total size of the FIP file. All ToC entries describe some
+payload data that has been appended to the end of the binary package. With the
+information provided in the ToC entry the corresponding payload data can be
+retrieved.
 
 ::
 
