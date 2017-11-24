@@ -6,7 +6,6 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <arm_spm_def.h>
 #include <assert.h>
 #include <common_def.h>
 #include <context.h>

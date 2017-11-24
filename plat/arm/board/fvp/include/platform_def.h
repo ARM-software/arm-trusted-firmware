@@ -8,6 +8,7 @@
 #define __PLATFORM_DEF_H__
 
 #include <arm_def.h>
+#include <arm_spm_def.h>
 #include <board_arm_def.h>
 #include <common_def.h>
 #include <tzc400.h>
