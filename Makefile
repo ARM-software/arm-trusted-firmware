@@ -131,7 +131,7 @@ target32-directive	= 	-target arm-none-eabi
 # Will set march32-directive from platform configuration
 else
 target32-directive	= 	-target armv8a-none-eabi
-march32-directive	= 	-march armv8-a
+march32-directive	= 	-march=armv8-a
 endif
 
 ifeq ($(notdir $(CC)),armclang)
