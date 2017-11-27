@@ -327,22 +327,22 @@ static int32_t trusty_init(void)
 	return 0;
 }
 
-static void trusty_cpu_suspend(void)
+static void trusty_cpu_suspend(uint32_t off)
 {
 	struct args ret;
 
-	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_SUSPEND, 0, 0, 0);
+	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_SUSPEND, off, 0, 0);
 	if (ret.r0 != 0) {
 		INFO("%s: cpu %d, SMC_FC_CPU_SUSPEND returned unexpected value, %ld\n",
 		     __func__, plat_my_core_pos(), ret.r0);
 	}
 }
 
-static void trusty_cpu_resume(void)
+static void trusty_cpu_resume(uint32_t on)
 {
 	struct args ret;
 
-	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_RESUME, 0, 0, 0);
+	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_RESUME, on, 0, 0);
 	if (ret.r0 != 0) {
 		INFO("%s: cpu %d, SMC_FC_CPU_RESUME returned unexpected value, %ld\n",
 		     __func__, plat_my_core_pos(), ret.r0);
@@ -351,7 +351,7 @@ static void trusty_cpu_resume(void)
 
 static int32_t trusty_cpu_off_handler(uint64_t unused)
 {
-	trusty_cpu_suspend();
+	trusty_cpu_suspend(1);
 
 	return 0;
 }
@@ -363,18 +363,18 @@ static void trusty_cpu_on_finish_handler(uint64_t unused)
 	if (!ctx->saved_sp) {
 		trusty_init();
 	} else {
-		trusty_cpu_resume();
+		trusty_cpu_resume(1);
 	}
 }
 
 static void trusty_cpu_suspend_handler(uint64_t unused)
 {
-	trusty_cpu_suspend();
+	trusty_cpu_suspend(0);
 }
 
 static void trusty_cpu_suspend_finish_handler(uint64_t unused)
 {
-	trusty_cpu_resume();
+	trusty_cpu_resume(0);
 }
 
 static const spd_pm_ops_t trusty_pm = {
