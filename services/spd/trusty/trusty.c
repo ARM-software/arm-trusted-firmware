@@ -385,11 +385,23 @@ static const spd_pm_ops_t trusty_pm = {
 	.svc_suspend_finish = trusty_cpu_suspend_finish_handler,
 };
 
+void plat_trusty_set_boot_args(aapcs64_params_t *args);
+
+#ifdef TSP_SEC_MEM_SIZE
+#pragma weak plat_trusty_set_boot_args
+void plat_trusty_set_boot_args(aapcs64_params_t *args)
+{
+	args->arg0 = TSP_SEC_MEM_SIZE;
+}
+#endif
+
 static int32_t trusty_setup(void)
 {
 	entry_point_info_t *ep_info;
+	uint32_t instr;
 	uint32_t flags;
 	int ret;
+	int aarch32 = 0;
 
 	/* Get trusty's entry point info */
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
@@ -398,17 +410,29 @@ static int32_t trusty_setup(void)
 		return -1;
 	}
 
-	/* Trusty runs in AARCH64 mode */
-	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
-	ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	instr = *(uint32_t *)ep_info->pc;
 
-	/*
-	 * arg0 = TZDRAM aperture available for BL32
-	 * arg1 = BL32 boot params
-	 * arg2 = BL32 boot params length
-	 */
-	ep_info->args.arg1 = ep_info->args.arg2;
-	ep_info->args.arg2 = TRUSTY_PARAMS_LEN_BYTES;
+	if (instr >> 24 == 0xea) {
+		INFO("trusty: Found 32 bit image\n");
+		aarch32 = 1;
+	} else if (instr >> 8 == 0xd53810 || instr >> 16 == 0x9400) {
+		INFO("trusty: Found 64 bit image\n");
+	} else {
+		NOTICE("trusty: Found unknown image, 0x%x\n", instr);
+	}
+
+	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
+	if (!aarch32)
+		ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
+					DISABLE_ALL_EXCEPTIONS);
+	else
+		ep_info->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
+					    SPSR_E_LITTLE,
+					    DAIF_FIQ_BIT |
+					    DAIF_IRQ_BIT |
+					    DAIF_ABT_BIT);
+	memset(&ep_info->args, 0, sizeof(ep_info->args));
+	plat_trusty_set_boot_args(&ep_info->args);
 
 	/* register init handler */
 	bl31_register_bl32_init(trusty_init);
