@@ -17,6 +17,13 @@
  */
 REGISTER_PUBSUB_EVENT(psci_cpu_on_finish);
 
+/*
+ * These events are published before/after a CPU has been powered down/up
+ * via the PSCI CPU SUSPEND API.
+ */
+REGISTER_PUBSUB_EVENT(psci_suspend_pwrdown_start);
+REGISTER_PUBSUB_EVENT(psci_suspend_pwrdown_finish);
+
 #ifdef AARCH64
 /*
  * These events are published by the AArch64 context management framework
