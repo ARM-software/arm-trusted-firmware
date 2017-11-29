@@ -154,25 +154,6 @@ interrupt_exit_\label:
 	.endm
 
 
-	.macro save_x4_to_x29_sp_el0
-	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	stp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
-	stp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
-	stp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
-	stp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
-	stp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
-	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
-	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
-	stp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
-	stp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
-	stp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
-	stp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
-	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	mrs	x18, sp_el0
-	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
-	.endm
-
-
 vector_base runtime_exceptions
 
 	/* ---------------------------------------------------------------------
@@ -345,7 +326,21 @@ smc_handler64:
 	 *
 	 * Save x4-x29 and sp_el0.
 	 */
-	save_x4_to_x29_sp_el0
+	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
+	stp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
+	stp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
+	stp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
+	stp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
+	stp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
+	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
+	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+	stp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
+	stp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
+	stp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
+	stp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
+	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
+	mrs	x18, sp_el0
+	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
 
 	mov	x5, xzr
 	mov	x6, sp
@@ -431,14 +426,12 @@ compat_or_vendor:
 
 smc_unknown:
 	/*
-	 * Here we restore x4-x18 regardless of where we came from. AArch32
-	 * callers will find the registers contents unchanged, but AArch64
-	 * callers will find the registers modified (with stale earlier NS
-	 * content). Either way, we aren't leaking any secure information
-	 * through them.
+	 * Unknown SMC call. Populate return value with SMC_UNK, restore
+	 * GP registers, and return to caller.
 	 */
 	mov	x0, #SMC_UNK
-	b	restore_gp_registers_callee_eret
+	str	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+	b	restore_gp_registers_eret
 
 smc_prohibited:
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
