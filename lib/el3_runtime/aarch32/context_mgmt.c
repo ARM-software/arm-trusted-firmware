@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <amu.h>
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
@@ -132,6 +133,9 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 static void enable_extensions_nonsecure(int el2_unused)
 {
 #if IMAGE_BL32
+#if ENABLE_AMU
+	amu_enable(el2_unused);
+#endif
 #endif
 }
 

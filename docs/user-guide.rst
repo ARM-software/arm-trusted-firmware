@@ -321,6 +321,11 @@ Common build options
    payload. Please refer to the "Booting an EL3 payload" section for more
    details.
 
+-  ``ENABLE_AMU``: Boolean option to enable Activity Monitor Unit extensions.
+   This is an optional architectural feature available on v8.4 onwards. Some
+   v8.2 implementations also implement an AMU and this option can be used to
+   enable this feature on those systems as well. Default is 0.
+
 -  ``ENABLE_ASSERTIONS``: This option controls whether or not calls to ``assert()``
    are compiled out. For debug builds, this option defaults to 1, and calls to
    ``assert()`` are left in place. For release builds, this option defaults to 0

@@ -147,6 +147,9 @@ BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0
 
+# Enable Activity Monitor Unit extensions by default
+ENABLE_AMU			:=	1
+
 ifneq (${ENABLE_STACK_PROTECTOR},0)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_stack_protector.c
 endif

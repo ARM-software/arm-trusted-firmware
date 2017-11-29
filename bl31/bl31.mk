@@ -50,6 +50,10 @@ ifeq (${ENABLE_SPE_FOR_LOWER_ELS},1)
 BL31_SOURCES		+=	lib/extensions/spe/spe.c
 endif
 
+ifeq (${ENABLE_AMU},1)
+BL31_SOURCES		+=	lib/extensions/amu/aarch64/amu.c
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
