@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -7,18 +7,6 @@
 # platform configs
 ENABLE_CONSOLE_SPE			:= 0
 $(eval $(call add_define,ENABLE_CONSOLE_SPE))
-
-ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 0
-$(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
-
-RELOCATE_TO_BL31_BASE			:= 1
-$(eval $(call add_define,RELOCATE_TO_BL31_BASE))
-
-ENABLE_CHIP_VERIFICATION_HARNESS	:= 0
-$(eval $(call add_define,ENABLE_CHIP_VERIFICATION_HARNESS))
-
-ENABLE_SMMU_DEVICE			:= 1
-$(eval $(call add_define,ENABLE_SMMU_DEVICE))
 
 RESET_TO_BL31				:= 1
 
