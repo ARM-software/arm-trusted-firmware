@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -527,6 +527,12 @@
 #define EC_AARCH32_FP			U(0x28)
 #define EC_AARCH64_FP			U(0x2c)
 #define EC_SERROR			U(0x2f)
+
+/*
+ * External Abort bit in Instruction and Data Aborts synchronous exception
+ * syndromes.
+ */
+#define ESR_ISS_EABORT_EA_BIT		U(9)
 
 #define EC_BITS(x)			(((x) >> ESR_EC_SHIFT) & ESR_EC_MASK)
 
