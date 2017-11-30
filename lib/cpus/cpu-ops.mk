@@ -16,6 +16,8 @@ A53_DISABLE_NON_TEMPORAL_HINT	?=1
 # It is enabled by default.
 A57_DISABLE_NON_TEMPORAL_HINT	?=1
 
+WORKAROUND_CVE_2017_5715	?=1
+
 # Process SKIP_A57_L1_FLUSH_PWR_DWN flag
 $(eval $(call assert_boolean,SKIP_A57_L1_FLUSH_PWR_DWN))
 $(eval $(call add_define,SKIP_A57_L1_FLUSH_PWR_DWN))
@@ -28,6 +30,9 @@ $(eval $(call add_define,A53_DISABLE_NON_TEMPORAL_HINT))
 $(eval $(call assert_boolean,A57_DISABLE_NON_TEMPORAL_HINT))
 $(eval $(call add_define,A57_DISABLE_NON_TEMPORAL_HINT))
 
+# Process WORKAROUND_CVE_2017_5715 flag
+$(eval $(call assert_boolean,WORKAROUND_CVE_2017_5715))
+$(eval $(call add_define,WORKAROUND_CVE_2017_5715))
 
 # CPU Errata Build flags.
 # These should be enabled by the platform if the erratum workaround needs to be

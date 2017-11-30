@@ -58,6 +58,10 @@ ifeq (${ENABLE_SVE_FOR_NS},1)
 BL31_SOURCES		+=	lib/extensions/sve/sve.c
 endif
 
+ifeq (${WORKAROUND_CVE_2017_5715},1)
+BL31_SOURCES		+=	lib/cpus/aarch64/workaround_cve_2017_5715_mmu.S
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
