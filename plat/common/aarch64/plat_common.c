@@ -28,6 +28,8 @@
 #pragma weak plat_sdei_validate_entry_point
 #endif
 
+#pragma weak plat_ea_handler
+
 void bl31_plat_enable_mmu(uint32_t flags)
 {
 	enable_mmu_el3(flags);
@@ -105,3 +107,13 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 	return 0;
 }
 #endif
+
+/* RAS functions common to AArch64 ARM platforms */
+void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
+		void *handle, uint64_t flags)
+{
+	ERROR("Unhandled External Abort received on 0x%lx at EL3!\n",
+			read_mpidr_el1());
+	ERROR(" exception reason=%u syndrome=0x%lx\n", ea_reason, syndrome);
+	panic();
+}

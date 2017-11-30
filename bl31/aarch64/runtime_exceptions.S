@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <context.h>
 #include <cpu_data.h>
+#include <ea_handle.h>
 #include <interrupt_mgmt.h>
 #include <platform_def.h>
 #include <runtime_svc.h>
@@ -34,12 +35,33 @@
 	.globl	fiq_aarch32
 	.globl	serror_aarch32
 
+	/*
+	 * Handle External Abort by delegating to the platform's EA handler.
+	 * Once the platform handler returns, the macro exits EL3 and returns to
+	 * where the abort was taken from.
+	 *
+	 * This macro assumes that x30 is available for use.
+	 *
+	 * 'abort_type' is a constant passed to the platform handler, indicating
+	 * the cause of the External Abort.
+	 */
+	.macro handle_ea abort_type
+	/* Save GP registers and restore them afterwards */
+	bl	save_gp_registers
+
+	/* Setup exception class and syndrome arguments for platform handler */
+	mov	x0, \abort_type
+	mrs	x1, esr_el3
+	bl	delegate_ea
+	b	el3_exit
+	.endm
+
 	/* ---------------------------------------------------------------------
 	 * This macro handles Synchronous exceptions.
 	 * Only SMC exceptions are supported.
 	 * ---------------------------------------------------------------------
 	 */
-	.macro	handle_sync_exception
+	.macro	handle_sync_exception label
 	/* Enable the SError interrupt */
 	msr	daifclr, #DAIF_ABT_BIT
 
@@ -68,6 +90,11 @@
 	cmp	x30, #EC_AARCH64_SMC
 	b.eq	smc_handler64
 
+	/* Check for synchronous external abort from lower EL */
+	tbz	x30, #ESR_ISS_EABORT_EA_BIT, skip_handle_ea_\label
+	handle_ea #ERROR_EA_SYNC
+
+skip_handle_ea_\label:
 	/* Other kinds of synchronous exceptions are not handled */
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	b	report_unhandled_exception
@@ -219,7 +246,7 @@ vector_entry sync_exception_aarch64
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
-	handle_sync_exception
+	handle_sync_exception sync_exception_aarch64
 	check_vector_size sync_exception_aarch64
 
 vector_entry irq_aarch64
@@ -231,11 +258,14 @@ vector_entry fiq_aarch64
 	check_vector_size fiq_aarch64
 
 vector_entry serror_aarch64
+	msr	daifclr, #DAIF_ABT_BIT
+
 	/*
-	 * SError exceptions from lower ELs are not currently supported.
-	 * Report their occurrence.
+	 * Explicitly save x30 so as to free up a register and to enable
+	 * branching
 	 */
-	b	report_unhandled_exception
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	handle_ea #ERROR_EA_ASYNC
 	check_vector_size serror_aarch64
 
 	/* ---------------------------------------------------------------------
@@ -249,7 +279,7 @@ vector_entry sync_exception_aarch32
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
-	handle_sync_exception
+	handle_sync_exception sync_exception_aarch32
 	check_vector_size sync_exception_aarch32
 
 vector_entry irq_aarch32
@@ -261,11 +291,14 @@ vector_entry fiq_aarch32
 	check_vector_size fiq_aarch32
 
 vector_entry serror_aarch32
+	msr	daifclr, #DAIF_ABT_BIT
+
 	/*
-	 * SError exceptions from lower ELs are not currently supported.
-	 * Report their occurrence.
+	 * Explicitly save x30 so as to free up a register and to enable
+	 * branching
 	 */
-	b	report_unhandled_exception
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	handle_ea #ERROR_EA_ASYNC
 	check_vector_size serror_aarch32
 
 
@@ -396,3 +429,62 @@ rt_svc_fw_critical_error:
 	msr	spsel, #1
 	no_ret	report_unhandled_exception
 endfunc smc_handler
+
+/*
+ * Delegate External Abort handling to platform's EA handler. This function
+ * assumes that all GP registers have been saved by the caller.
+ *
+ * x0: EA reason
+ * x1: EA syndrome
+ */
+func delegate_ea
+	/* Save EL3 state */
+	mrs	x2, spsr_el3
+	mrs	x3, elr_el3
+	stp	x2, x3, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+
+	/*
+	 * Save ESR as handling might involve lower ELs, and returning back to
+	 * EL3 from there would trample the original ESR.
+	 */
+	mrs	x4, scr_el3
+	mrs	x5, esr_el3
+	stp	x4, x5, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+
+	/*
+	 * Setup rest of arguments, and call platform External Abort handler.
+	 *
+	 * x0: EA reason (already in place)
+	 * x1: Exception syndrome (already in place).
+	 * x2: Cookie (unused for now).
+	 * x3: Context pointer.
+	 * x4: Flags (security state from SCR for now).
+	 */
+	mov	x2, xzr
+	mov	x3, sp
+	ubfx	x4, x4, #0, #1
+
+	/* Switch to runtime stack */
+	ldr	x5, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
+	msr	spsel, #0
+	mov	sp, x5
+
+	mov	x29, x30
+	bl	plat_ea_handler
+	mov	x30, x29
+
+	/* Make SP point to context */
+	msr	spsel, #1
+
+	/* Restore EL3 state */
+	ldp	x1, x2, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+	msr	spsr_el3, x1
+	msr	elr_el3, x2
+
+	/* Restore ESR_EL3 and SCR_EL3 */
+	ldp	x3, x4, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	msr	scr_el3, x3
+	msr	esr_el3, x4
+
+	ret
+endfunc delegate_ea
