@@ -51,10 +51,9 @@ void tegra_memctrl_setup(void)
 
 	INFO("Tegra Memory Controller (v2)\n");
 
-#if ENABLE_SMMU_DEVICE
 	/* Program the SMMU pagesize */
 	tegra_smmu_init();
-#endif
+
 	/* Get the settings from the platform */
 	assert(plat_mc_settings != NULL);
 	mc_streamid_override_regs = plat_mc_settings->streamid_override_cfg;
