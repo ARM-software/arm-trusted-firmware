@@ -84,7 +84,7 @@ Files:
 Xilinx platform sub-maintainer
 ------------------------------
 
-Sören Brinkmann (soren.brinkmann@xilinx.com, `sorenb-xlnx`_)
+Siva Durga Prasad Paladugu (siva.durga.paladugu@xilinx.com, `sivadur`_)
 
 Files:
 
@@ -104,5 +104,5 @@ Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 .. _mtk09422: https://github.com/mtk09422
 .. _TonyXie06: https://github.com/TonyXie06
 .. _rkchrome: https://github.com/rkchrome
-.. _sorenb-xlnx: https://github.com/sorenb-xlnx
+.. _sivadur: https://github.com/sivadur
 .. _etienne-lms: https://github.com/etienne-lms
