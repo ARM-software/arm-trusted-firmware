@@ -795,7 +795,7 @@ static int sdei_private_reset(void)
 		 */
 		ret = sdei_event_unregister(map->ev_num);
 		if ((ret == SDEI_EPEND) && (final_ret == 0))
-			final_ret = ret;
+			final_ret = SDEI_EDENY;
 	}
 
 	return final_ret;
@@ -817,7 +817,7 @@ static int sdei_shared_reset(void)
 		 */
 		ret = sdei_event_unregister(map->ev_num);
 		if ((ret == SDEI_EPEND) && (final_ret == 0))
-			final_ret = ret;
+			final_ret = SDEI_EDENY;
 	}
 
 	if (final_ret != 0)
