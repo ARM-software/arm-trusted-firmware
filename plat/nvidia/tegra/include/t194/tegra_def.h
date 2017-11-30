@@ -75,6 +75,8 @@
 
 #define MC_SECURITY_CFG_REG_CTRL_0	U(0x154)
 #define  SECURITY_CFG_WRITE_ACCESS_BIT	(U(0x1) << 0)
+#define  SECURITY_CFG_WRITE_ACCESS_ENABLE	U(0x0)
+#define  SECURITY_CFG_WRITE_ACCESS_DISABLE	U(0x1)
 
 /* Video Memory carveout configuration registers */
 #define MC_VIDEO_PROTECT_BASE_HI	U(0x978)

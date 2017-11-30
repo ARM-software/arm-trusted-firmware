@@ -646,12 +646,14 @@ tegra_mc_settings_t *tegra_get_mc_settings(void)
  ******************************************************************************/
 void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 {
+	uint32_t sec_reg_ctrl = tegra_mc_read_32(MC_SECURITY_CFG_REG_CTRL_0);
+
 	/*
-	 * Check if the carveout register is already locked, if locked
-	 * no TZDRAM setup
+	 * Check TZDRAM carveout register access status. Setup TZDRAM fence
+	 * only if access is enabled.
 	 */
-	if ((tegra_mc_read_32(MC_SECURITY_CFG_REG_CTRL_0) &
-		SECURITY_CFG_WRITE_ACCESS_BIT) == SECURITY_CFG_WRITE_ACCESS_BIT) {
+	if ((sec_reg_ctrl & SECURITY_CFG_WRITE_ACCESS_BIT) ==
+	     SECURITY_CFG_WRITE_ACCESS_ENABLE) {
 
 		/*
 		 * Setup the Memory controller to allow only secure accesses to
