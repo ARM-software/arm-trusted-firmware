@@ -383,6 +383,17 @@ ifdef SCP_BL2
         NEED_SCP_BL2		:=	yes
 endif
 
+# For AArch32, BL31 is not currently supported.
+ifneq (${ARCH},aarch32)
+    ifdef BL31_SOURCES
+        # When booting an EL3 payload, there is no need to compile the BL31 image nor
+        # put it in the FIP.
+        ifndef EL3_PAYLOAD_BASE
+            NEED_BL31 := yes
+        endif
+    endif
+endif
+
 # Process TBB related flags
 ifneq (${GENERATE_COT},0)
         # Common cert_create options
@@ -434,15 +445,9 @@ NEED_BL2U := yes
 include bl2u/bl2u.mk
 endif
 
-# For AArch32, BL31 is not currently supported.
-ifneq (${ARCH},aarch32)
+ifeq (${NEED_BL31},yes)
 ifdef BL31_SOURCES
-# When booting an EL3 payload, there is no need to compile the BL31 image nor
-# put it in the FIP.
-ifndef EL3_PAYLOAD_BASE
-NEED_BL31 := yes
 include bl31/bl31.mk
-endif
 endif
 endif
 

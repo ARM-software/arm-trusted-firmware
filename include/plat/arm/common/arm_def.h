@@ -326,14 +326,21 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#if ARM_BL31_IN_DRAM || (defined(AARCH32) && !defined(JUNO_AARCH32_EL3_RUNTIME))
+#if ARM_BL31_IN_DRAM
 /*
- * For AArch32 BL31 is not applicable.
  * For AArch64 BL31 is loaded in the DRAM.
  * Put BL2 just below BL1.
  */
 #define BL2_BASE			(BL1_RW_BASE - PLAT_ARM_MAX_BL2_SIZE)
 #define BL2_LIMIT			BL1_RW_BASE
+
+#elif defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME
+/*
+ * Put BL2 just below BL32.
+ */
+#define BL2_BASE			(BL32_BASE - PLAT_ARM_MAX_BL2_SIZE)
+#define BL2_LIMIT			BL32_BASE
+
 #else
 /*
  * Put BL2 just below BL31.
@@ -370,76 +377,86 @@
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 #endif
 
+#if defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME
 /*******************************************************************************
- * BL32 specific defines.
+ * BL32 specific defines for EL3 runtime in AArch32 mode
+ ******************************************************************************/
+# if RESET_TO_SP_MIN && !JUNO_AARCH32_EL3_RUNTIME
+/* SP_MIN is the only BL image in SRAM. Allocate the whole of SRAM to BL32 */
+#  define BL32_BASE			ARM_BL_RAM_BASE
+#  define BL32_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+# else
+/* Put BL32 at the top of the Trusted SRAM.*/
+#  define BL32_BASE			(ARM_BL_RAM_BASE +		\
+						ARM_BL_RAM_SIZE -	\
+						PLAT_ARM_MAX_BL32_SIZE)
+#  define BL32_PROGBITS_LIMIT		BL1_RW_BASE
+#  define BL32_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+# endif /* RESET_TO_SP_MIN && !JUNO_AARCH32_EL3_RUNTIME */
+
+#else
+/*******************************************************************************
+ * BL32 specific defines for EL3 runtime in AArch64 mode
  ******************************************************************************/
 /*
  * On ARM standard platforms, the TSP can execute from Trusted SRAM,
  * Trusted DRAM (if available) or the DRAM region secured by the TrustZone
  * controller.
  */
-#if ENABLE_SPM
-# define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
-# define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE - ULL(0x200000))
-# define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
-# define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
+# if ENABLE_SPM
+#  define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
+#  define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE - ULL(0x200000))
+#  define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
+#  define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
 						ARM_AP_TZC_DRAM1_SIZE)
-#elif ARM_BL31_IN_DRAM
-# define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE +	\
+# elif ARM_BL31_IN_DRAM
+#  define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
-# define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE -	\
+#  define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE -	\
 						PLAT_ARM_MAX_BL31_SIZE)
-# define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE +	\
+#  define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
-# define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
+#  define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
 						ARM_AP_TZC_DRAM1_SIZE)
-#elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_SRAM_ID
-# define TSP_SEC_MEM_BASE		ARM_BL_RAM_BASE
-# define TSP_SEC_MEM_SIZE		ARM_BL_RAM_SIZE
-# define TSP_PROGBITS_LIMIT		BL2_BASE
-# define BL32_BASE			ARM_BL_RAM_BASE
-# define BL32_LIMIT			BL31_BASE
-#elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_DRAM_ID
-# define TSP_SEC_MEM_BASE		PLAT_ARM_TRUSTED_DRAM_BASE
-# define TSP_SEC_MEM_SIZE		PLAT_ARM_TRUSTED_DRAM_SIZE
-# define BL32_BASE			PLAT_ARM_TRUSTED_DRAM_BASE
-# define BL32_LIMIT			(PLAT_ARM_TRUSTED_DRAM_BASE	\
+# elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_SRAM_ID
+#  define TSP_SEC_MEM_BASE		ARM_BL_RAM_BASE
+#  define TSP_SEC_MEM_SIZE		ARM_BL_RAM_SIZE
+#  define TSP_PROGBITS_LIMIT		BL2_BASE
+#  define BL32_BASE			ARM_BL_RAM_BASE
+#  define BL32_LIMIT			BL31_BASE
+# elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_DRAM_ID
+#  define TSP_SEC_MEM_BASE		PLAT_ARM_TRUSTED_DRAM_BASE
+#  define TSP_SEC_MEM_SIZE		PLAT_ARM_TRUSTED_DRAM_SIZE
+#  define BL32_BASE			PLAT_ARM_TRUSTED_DRAM_BASE
+#  define BL32_LIMIT			(PLAT_ARM_TRUSTED_DRAM_BASE	\
 						+ (1 << 21))
-#elif ARM_TSP_RAM_LOCATION_ID == ARM_DRAM_ID
-# define TSP_SEC_MEM_BASE		ARM_AP_TZC_DRAM1_BASE
-# define TSP_SEC_MEM_SIZE		ARM_AP_TZC_DRAM1_SIZE
-# define BL32_BASE			ARM_AP_TZC_DRAM1_BASE
-# define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
+# elif ARM_TSP_RAM_LOCATION_ID == ARM_DRAM_ID
+#  define TSP_SEC_MEM_BASE		ARM_AP_TZC_DRAM1_BASE
+#  define TSP_SEC_MEM_SIZE		ARM_AP_TZC_DRAM1_SIZE
+#  define BL32_BASE			ARM_AP_TZC_DRAM1_BASE
+#  define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
 						ARM_AP_TZC_DRAM1_SIZE)
-#else
-# error "Unsupported ARM_TSP_RAM_LOCATION_ID value"
-#endif
+# else
+#  error "Unsupported ARM_TSP_RAM_LOCATION_ID value"
+# endif
+#endif /* AARCH32 || JUNO_AARCH32_EL3_RUNTIME */
 
 /*
  * BL32 is mandatory in AArch32. In AArch64, undefine BL32_BASE if there is no
  * SPD and no SPM, as they are the only ones that can be used as BL32.
  */
-#ifndef AARCH32
+#if !(defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME)
 # if defined(SPD_none) && !ENABLE_SPM
 #  undef BL32_BASE
-# endif
-#endif
+# endif /* defined(SPD_none) && !ENABLE_SPM */
+#endif /* !(defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME) */
 
 /*******************************************************************************
  * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.
  ******************************************************************************/
 #define BL2U_BASE			BL2_BASE
-#if ARM_BL31_IN_DRAM || (defined(AARCH32) && !defined(JUNO_AARCH32_EL3_RUNTIME))
-/*
- * For AArch32 BL31 is not applicable.
- * For AArch64 BL31 is loaded in the DRAM.
- * BL2U extends up to BL1.
- */
-#define BL2U_LIMIT			BL1_RW_BASE
-#else
-/* BL2U extends up to BL31. */
-#define BL2U_LIMIT			BL31_BASE
-#endif
+#define BL2U_LIMIT			BL2_LIMIT
+
 #define NS_BL2U_BASE			ARM_NS_DRAM1_BASE
 #define NS_BL1U_BASE			(PLAT_ARM_NVM_BASE + 0x03EB8000)
 
