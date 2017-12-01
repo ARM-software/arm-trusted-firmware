@@ -36,6 +36,19 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 }
 
 /*
+ * Set the build time defaults. We want to do this when doing a JTAG boot
+ * or if we can't find any other config data.
+ */
+static inline void bl31_set_default_config(void)
+{
+	bl32_image_ep_info.pc = BL32_BASE;
+	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
+	bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
+					  DISABLE_ALL_EXCEPTIONS);
+}
+
+/*
  * Perform any BL31 specific platform actions. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
  * are lost (potentially). This needs to be done before the MMU is initialized
@@ -69,17 +82,14 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 	if (zynqmp_get_bootmode() == ZYNQMP_BOOTMODE_JTAG) {
-		/* use build time defaults in JTAG boot mode */
-		bl32_image_ep_info.pc = BL32_BASE;
-		bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
-		bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-		bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
-						  DISABLE_ALL_EXCEPTIONS);
+		bl31_set_default_config();
 	} else {
 		/* use parameters from FSBL */
 		enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
 							  &bl33_image_ep_info);
-		if (ret != FSBL_HANDOFF_SUCCESS)
+		if (ret == FSBL_HANDOFF_NO_STRUCT)
+			bl31_set_default_config();
+		else if (ret != FSBL_HANDOFF_SUCCESS)
 			panic();
 	}
 
