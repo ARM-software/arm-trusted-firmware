@@ -418,8 +418,8 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case  SP_VERSION_AARCH32:
 			SMC_RET1(handle, SP_VERSION_COMPILED);
 
-		case SP_COMMUNICATE_AARCH32:
-		case SP_COMMUNICATE_AARCH64:
+		case MM_COMMUNICATE_AARCH32:
+		case MM_COMMUNICATE_AARCH64:
 
 			/* Save the Normal world context */
 			cm_el1_sysregs_context_save(NON_SECURE);
@@ -436,7 +436,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			assert(x1 == 0);
 
 			if (x3 != 0) {
-				VERBOSE("SP_COMMUNICATE_AARCH32/64: X3 is not 0 as recommended.\n");
+				VERBOSE("MM_COMMUNICATE_AARCH32/64: X3 is not 0 as recommended.\n");
 			}
 
 			SMC_RET4(&sp_ctx.cpu_ctx, smc_fid, x1, x2, x3);
