@@ -132,7 +132,7 @@ int32_t spm_init(void)
 	rc = spm_synchronous_sp_entry(&sp_ctx);
 	assert(rc == 0);
 	sp_init_in_progress = 0;
-	VERBOSE("SP_MEM_ATTRIBUTES_SET_AARCH64 availability has been revoked\n");
+	VERBOSE("SP_MEMORY_ATTRIBUTES_SET_AARCH64 availability has been revoked\n");
 
 	return rc;
 }
@@ -228,21 +228,21 @@ static mmap_attr_t smc_attr_to_mmap_attr(unsigned int attributes)
 {
 	mmap_attr_t tf_attr = 0;
 
-	unsigned int access = (attributes & SP_MEM_ATTR_ACCESS_MASK)
-			      >> SP_MEM_ATTR_ACCESS_SHIFT;
+	unsigned int access = (attributes & SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
+			      >> SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
 
-	if (access == SP_MEM_ATTR_ACCESS_RW) {
+	if (access == SP_MEMORY_ATTRIBUTES_ACCESS_RW) {
 		tf_attr |= MT_RW | MT_USER;
-	} else if (access ==  SP_MEM_ATTR_ACCESS_RO) {
+	} else if (access ==  SP_MEMORY_ATTRIBUTES_ACCESS_RO) {
 		tf_attr |= MT_RO | MT_USER;
 	} else {
 		/* Other values are reserved. */
-		assert(access ==  SP_MEM_ATTR_ACCESS_NOACCESS);
+		assert(access ==  SP_MEMORY_ATTRIBUTES_ACCESS_NOACCESS);
 		/* The only requirement is that there's no access from EL0 */
 		tf_attr |= MT_RO | MT_PRIVILEGED;
 	}
 
-	if ((attributes & SP_MEM_ATTR_NON_EXEC) == 0) {
+	if ((attributes & SP_MEMORY_ATTRIBUTES_NON_EXEC) == 0) {
 		tf_attr |= MT_EXECUTE;
 	} else {
 		tf_attr |= MT_EXECUTE_NEVER;
@@ -263,20 +263,21 @@ static int smc_mmap_to_smc_attr(mmap_attr_t attr)
 
 	if ((attr & MT_USER) == 0) {
 		/* No access from EL0. */
-		data_access = SP_MEM_ATTR_ACCESS_NOACCESS;
+		data_access = SP_MEMORY_ATTRIBUTES_ACCESS_NOACCESS;
 	} else {
 		if ((attr & MT_RW) != 0) {
 			assert(MT_TYPE(attr) != MT_DEVICE);
-			data_access = SP_MEM_ATTR_ACCESS_RW;
+			data_access = SP_MEMORY_ATTRIBUTES_ACCESS_RW;
 		} else {
-			data_access = SP_MEM_ATTR_ACCESS_RO;
+			data_access = SP_MEMORY_ATTRIBUTES_ACCESS_RO;
 		}
 	}
 
-	smc_attr |= (data_access & SP_MEM_ATTR_ACCESS_MASK) << SP_MEM_ATTR_ACCESS_SHIFT;
+	smc_attr |= (data_access & SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
+		    << SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
 
 	if (attr & MT_EXECUTE_NEVER) {
-		smc_attr |= SP_MEM_ATTR_NON_EXEC;
+		smc_attr |= SP_MEMORY_ATTRIBUTES_NON_EXEC;
 	}
 
 	return smc_attr;
@@ -387,20 +388,20 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			/* Return to normal world */
 			SMC_RET1(ns_cpu_context, x1);
 
-		case SP_MEM_ATTRIBUTES_GET_AARCH64:
-			INFO("Received SP_MEM_ATTRIBUTES_GET_AARCH64 SMC\n");
+		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
+			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
 
 			if (!sp_init_in_progress) {
-				WARN("SP_MEM_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
+				WARN("SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
 			SMC_RET1(handle, spm_memory_attributes_get_smc_handler(x1));
 
-		case SP_MEM_ATTRIBUTES_SET_AARCH64:
-			INFO("Received SP_MEM_ATTRIBUTES_SET_AARCH64 SMC\n");
+		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
+			INFO("Received SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
 
 			if (!sp_init_in_progress) {
-				WARN("SP_MEM_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
+				WARN("SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
 			SMC_RET1(handle, spm_memory_attributes_set_smc_handler(x1, x2, x3));
@@ -440,8 +441,8 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 			SMC_RET4(&sp_ctx.cpu_ctx, smc_fid, x1, x2, x3);
 
-		case SP_MEM_ATTRIBUTES_GET_AARCH64:
-		case SP_MEM_ATTRIBUTES_SET_AARCH64:
+		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
+		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
 			/* SMC interfaces reserved for secure callers. */
 			SMC_RET1(handle, SPM_NOT_SUPPORTED);
 

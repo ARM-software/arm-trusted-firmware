@@ -32,24 +32,24 @@
  * Manager from the Secure Partition(s). These services enable a partition to
  * handle delegated events and request privileged operations from the manager.
  */
-#define SPM_VERSION_AARCH32		U(0x84000060)
-#define SP_EVENT_COMPLETE_AARCH64	U(0xC4000061)
-#define SP_MEM_ATTRIBUTES_GET_AARCH64	U(0xC4000064)
-#define SP_MEM_ATTRIBUTES_SET_AARCH64	U(0xC4000065)
+#define SPM_VERSION_AARCH32			U(0x84000060)
+#define SP_EVENT_COMPLETE_AARCH64		U(0xC4000061)
+#define SP_MEMORY_ATTRIBUTES_GET_AARCH64	U(0xC4000064)
+#define SP_MEMORY_ATTRIBUTES_SET_AARCH64	U(0xC4000065)
 
 /*
- * Macros used by SP_MEM_ATTRIBUTES_SET_AARCH64.
+ * Macros used by SP_MEMORY_ATTRIBUTES_SET_AARCH64.
  */
 
-#define SP_MEM_ATTR_ACCESS_NOACCESS	U(0)
-#define SP_MEM_ATTR_ACCESS_RW		U(1)
+#define SP_MEMORY_ATTRIBUTES_ACCESS_NOACCESS	U(0)
+#define SP_MEMORY_ATTRIBUTES_ACCESS_RW		U(1)
 /* Value U(2) is reserved. */
-#define SP_MEM_ATTR_ACCESS_RO		U(3)
-#define SP_MEM_ATTR_ACCESS_MASK		U(3)
-#define SP_MEM_ATTR_ACCESS_SHIFT	0
+#define SP_MEMORY_ATTRIBUTES_ACCESS_RO		U(3)
+#define SP_MEMORY_ATTRIBUTES_ACCESS_MASK	U(3)
+#define SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT	0
 
-#define SP_MEM_ATTR_EXEC		(U(0) << 2)
-#define SP_MEM_ATTR_NON_EXEC		(U(1) << 2)
+#define SP_MEMORY_ATTRIBUTES_EXEC		(U(0) << 2)
+#define SP_MEMORY_ATTRIBUTES_NON_EXEC		(U(1) << 2)
 
 /*
  * SMC IDs defined in [1] for accessing secure partition services from the
