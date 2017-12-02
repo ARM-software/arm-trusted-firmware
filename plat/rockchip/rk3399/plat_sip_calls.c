@@ -11,6 +11,7 @@
 #include <plat_sip_calls.h>
 #include <rockchip_sip_svc.h>
 #include <runtime_svc.h>
+#include <stdint.h>
 
 #define RK_SIP_DDR_CFG		0x82000008
 #define DRAM_INIT		0x00
