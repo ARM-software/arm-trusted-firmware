@@ -24,9 +24,6 @@ ARM_ARCH_MINOR			:= 0
 # in EL3. The platform port can change this value if needed.
 ARM_GIC_ARCH			:= 2
 
-# Flag used to indicate if ASM_ASSERTION should be enabled for the build.
-ASM_ASSERTION			:= 0
-
 # Base commit to perform code check on
 BASE_COMMIT			:= origin/master
 
