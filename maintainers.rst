@@ -21,8 +21,8 @@ Jens Wiklander (jens.wiklander@linaro.org, `jenswi-linaro`_)
 
 Files:
 
--  docs/spd/optee-dispatcher.md
--  docs/plat/qemu.md
+-  docs/plat/qemu.rst
+-  docs/spd/optee-dispatcher.rst
 -  services/spd/opteed/\*
 -  plat/qemu/\*
 
@@ -33,8 +33,9 @@ Varun Wadekar (vwadekar@nvidia.com, `vwadekar`_)
 
 Files:
 
--  docs/spd/tlk-dispatcher.md
--  docs/spd/trusty-dispatcher.md
+-  docs/plat/nvidia-tegra.rst
+-  docs/spd/tlk-dispatcher.rst
+-  docs/spd/trusty-dispatcher.rst
 -  include/bl32/payloads/tlk.h
 -  include/lib/cpus/aarch64/denver.h
 -  lib/cpus/aarch64/denver.S
@@ -49,8 +50,9 @@ Haojian Zhuang (haojian.zhuang@linaro.org, `hzhuang1`_)
 
 Files:
 
--  docs/plat/hikey.md
--  docs/plat/hikey960.md
+-  docs/plat/hikey.rst
+-  docs/plat/hikey960.rst
+-  docs/plat/poplar.rst
 -  drivers/emmc/\*
 -  drivers/partition/\*
 -  drivers/synopsys/emmc/\*
@@ -78,17 +80,28 @@ Antonio Niño Díaz (antonio.ninodiaz@arm.com, `antonio-nino-diaz-arm`_)
 
 Files:
 
+-  docs/plat/rpi3.rst
 -  plat/rpi3/\*
 
 RockChip platform sub-maintainer
 --------------------------------
 
 Tony Xie (tony.xie@rock-chips.com, `TonyXie06`_
-or `rkchrome`_)
+or `rockchip-linux`_)
 
 Files:
 
 -  plat/rockchip/\*
+
+UniPhier platform sub-maintainer
+--------------------------------
+
+Masahiro Yamada (yamada.masahiro@socionext.com, `masahir0y`_)
+
+Files:
+
+- docs/plat/socionext-uniphier.rst
+- plat/socionext/\*
 
 Xilinx platform sub-maintainer
 ------------------------------
@@ -97,7 +110,7 @@ Siva Durga Prasad Paladugu (siva.durga.paladugu@xilinx.com, `sivadur`_)
 
 Files:
 
--  docs/plat/xilinx-zynqmp.md
+-  docs/plat/xilinx-zynqmp.rst
 -  plat/xilinx/\*
 
 ARMv7 architecture sub-maintainer
@@ -111,8 +124,9 @@ Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 .. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _vwadekar: https://github.com/vwadekar
 .. _hzhuang1: https://github.com/hzhuang1
+.. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
 .. _TonyXie06: https://github.com/TonyXie06
-.. _rkchrome: https://github.com/rkchrome
 .. _sivadur: https://github.com/sivadur
+.. _rockchip-linux: https://github.com/rockchip-linux
 .. _etienne-lms: https://github.com/etienne-lms
