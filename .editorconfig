@@ -1,0 +1,62 @@
+#
+# Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
+# ARM Trusted Firmware Coding style spec for editors.
+
+# References:
+# [EC]          http://editorconfig.org/
+# [CONT]        contributing.rst
+# [LCS]         Linux Coding Style
+#               (https://www.kernel.org/doc/html/v4.10/process/coding-style.html)
+
+
+root = true
+
+# set default to match [LCS] .c/.h settings.
+# This will also apply to .S, .mk, .sh, Makefile, .dts, etc.
+[*]
+# Not specified, but fits current ARM-TF sources.
+charset = utf-8
+
+# Not specified, but implicit for "LINUX coding style".
+end_of_line = lf
+
+# [LCS] Chapter 1: Indentation
+#       "and thus indentations are also 8 characters"
+indent_size = 8
+
+# [LCS] Chapter 1: Indentation
+#       "Outside of comments,...spaces are never used for indentation"
+indent_style = tab
+
+# Not specified by [LCS], but sensible
+insert_final_newline = true
+
+# [LCS] Chapter 2: Breaking long lines and strings
+#       "The limit on the length of lines is 80 columns"
+#   This is a "soft" requirement for Arm-TF, and should not be the sole
+#   reason for changes.
+max_line_length = 80
+
+# [LCS] Chapter 1: Indentation
+#       "Tabs are 8 characters"
+tab_width = 8
+
+# [LCS] Chapter 1: Indentation
+#       "Get a decent editor and don't leave whitespace at the end of lines."
+# [LCS] Chapter 3.1: Spaces
+#       "Do not leave trailing whitespace at the ends of lines."
+trim_trailing_whitespace = true
+
+
+# Adjustment for existing .rst files with different format
+[*.{rst,md}]
+indent_size = 4
+indent_style = space
+max_line_length = 180
+# 180 only selected to prevent changes to existing text.
+tab_width = 4
+
