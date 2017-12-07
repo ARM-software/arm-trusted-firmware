@@ -2620,13 +2620,16 @@ Crash Reporting mechanism (in BL31)
 -----------------------------------
 
 BL31 implements a crash reporting mechanism which prints the various registers
-of the CPU to enable quick crash analysis and debugging. It requires that a
-console is designated as the crash console by the platform which will be used to
-print the register dump.
+of the CPU to enable quick crash analysis and debugging. By default, the
+definitions in ``plat/common/aarch64/platform\_helpers.S`` will cause the crash
+output to be routed over the normal console infrastructure and get printed on
+the same consoles used for boot and runtime output. ``console_set_scope()`` can
+be used to control whether a console is used for crash output.
 
-The following functions must be implemented by the platform if it wants crash
-reporting mechanism in BL31. The functions are implemented in assembly so that
-they can be invoked without a C Runtime stack.
+In some cases (such as debugging very early crashes that happen before the
+normal boot console can be set up), platforms may want to control crash output
+more explicitly. For these, the following functions can be overridden by
+platform code. They are executed outside of a C environment and without a stack.
 
 Function : plat\_crash\_console\_init
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

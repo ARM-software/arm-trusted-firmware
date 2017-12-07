@@ -6,6 +6,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <console.h>
 #include <platform_def.h>
 
 	.weak	plat_report_exception
@@ -57,31 +58,32 @@ func plat_report_exception
 endfunc plat_report_exception
 
 	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
+	 * int plat_crash_console_init(void)
+	 * Use normal console by default. Switch it to crash
+	 * mode so serial consoles become active again.
 	 * -----------------------------------------------------
 	 */
 func plat_crash_console_init
-	mov	x0, #0
-	ret
+	mov	x0, #(1 << CONSOLE_FLAG_CRASH_SHIFT)
+	b	console_switch_state
 endfunc plat_crash_console_init
 
 	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
+	 * void plat_crash_console_putc(int character)
+	 * Output through the normal console by default.
 	 * -----------------------------------------------------
 	 */
 func plat_crash_console_putc
-	ret
+	b	console_putc
 endfunc plat_crash_console_putc
 
 	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
+	 * void plat_crash_console_flush(void)
+	 * Flush normal console by default.
 	 * -----------------------------------------------------
 	 */
 func plat_crash_console_flush
-	ret
+	b	console_flush
 endfunc plat_crash_console_flush
 
 	/* -----------------------------------------------------

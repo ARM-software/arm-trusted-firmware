@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <console.h>
+#include <coreboot.h>
 #include <debug.h>
 #include <gpio.h>
 #include <mmio.h>
@@ -84,6 +85,12 @@ void params_early_setup(void *plat_param_from_bl2)
 			       sizeof(struct bl31_apio_param));
 			suspend_apio = &param_apio.apio;
 			break;
+#if COREBOOT
+		case PARAM_COREBOOT_TABLE:
+			coreboot_table_setup((void *)
+				((struct bl31_u64_param *)bl2_param)->value);
+			break;
+#endif
 		default:
 			ERROR("not expected type found %ld\n",
 			      bl2_param->type);

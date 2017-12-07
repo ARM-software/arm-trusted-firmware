@@ -7,6 +7,8 @@
 #ifndef __PL011_H__
 #define __PL011_H__
 
+#include <console.h>
+
 /* PL011 Registers */
 #define UARTDR                    0x000
 #define UARTRSR                   0x004
@@ -78,5 +80,21 @@
 #define PL011_UARTLCR_H_BRK       (1 << 0)	/* Send break */
 
 #endif /* !PL011_GENERIC_UART */
+
+#define CONSOLE_T_PL011_BASE	CONSOLE_T_DRVDATA
+
+#ifndef __ASSEMBLY__
+
+#include <types.h>
+
+typedef struct {
+	console_t console;
+	uintptr_t base;
+} console_pl011_t;
+
+int console_pl011_register(console_pl011_t *console, uintptr_t baseaddr,
+			   uint32_t clock, uint32_t baud);
+
+#endif /*__ASSEMBLY__*/
 
 #endif	/* __PL011_H__ */
