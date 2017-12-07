@@ -48,7 +48,7 @@ void spm_setup_next_eret_into_sel0(cpu_context_t *secure_context)
  * 2. Saves the current C runtime state (callee-saved registers) on the stack
  *    frame and saves a reference to this state.
  * 3. Calls el3_exit() so that the EL3 system and general purpose registers
- *    from the sp_ctx->cpu_ctx are used to enter the secure payload image.
+ *    from the sp_ctx->cpu_ctx are used to enter the secure partition image.
  ******************************************************************************/
 static uint64_t spm_synchronous_sp_entry(secure_partition_context_t *sp_ctx_ptr)
 {
@@ -75,7 +75,7 @@ static uint64_t spm_synchronous_sp_entry(secure_partition_context_t *sp_ctx_ptr)
 
 /*******************************************************************************
  * This function takes a Secure partition context pointer and:
- * 1. Saves the S-EL1 system register context tp sp_ctx->cpu_ctx.
+ * 1. Saves the S-EL1 system register context to sp_ctx->cpu_ctx.
  * 2. Restores the current C runtime state (callee saved registers) from the
  *    stack frame using the reference to this state saved in
  *    spm_secure_partition_enter().
@@ -101,7 +101,7 @@ static void __dead2 spm_synchronous_sp_exit(
  * This function passes control to the Secure Partition image (BL32) for the
  * first time on the primary cpu after a cold boot. It assumes that a valid
  * secure context has already been created by spm_setup() which can be directly
- * used. This function performs a synchronous entry into the Secure payload.
+ * used. This function performs a synchronous entry into the Secure partition.
  * The SP passes control back to this routine through a SMC.
  ******************************************************************************/
 int32_t spm_init(void)
@@ -126,7 +126,7 @@ int32_t spm_init(void)
 	secure_partition_setup();
 
 	/*
-	 * Arrange for an entry into the secure payload.
+	 * Arrange for an entry into the secure partition.
 	 */
 	sp_init_in_progress = 1;
 	rc = spm_synchronous_sp_entry(&sp_ctx);
@@ -138,9 +138,9 @@ int32_t spm_init(void)
 }
 
 /*******************************************************************************
- * Given a secure payload entrypoint info pointer, entry point PC & pointer to
+ * Given a secure partition entrypoint info pointer, entry point PC & pointer to
  * a context data structure, this function will initialize the SPM context and
- * entry point info for the secure payload
+ * entry point info for the secure partition.
  ******************************************************************************/
 void spm_init_sp_ep_state(struct entry_point_info *sp_ep_info,
 			  uint64_t pc,
@@ -161,7 +161,7 @@ void spm_init_sp_ep_state(struct entry_point_info *sp_ep_info,
 	SET_PARAM_HEAD(sp_ep_info, PARAM_EP, VERSION_1, ep_attr);
 
 	sp_ep_info->pc = pc;
-	/* The SPM payload runs in S-EL0 */
+	/* The secure partition runs in S-EL0. */
 	sp_ep_info->spsr = SPSR_64(MODE_EL0,
 				   MODE_SP_EL0,
 				   DISABLE_ALL_EXCEPTIONS);
@@ -350,7 +350,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 		switch (smc_fid) {
 
-		case  SPM_VERSION_AARCH32:
+		case SPM_VERSION_AARCH32:
 			SMC_RET1(handle, SPM_VERSION_COMPILED);
 
 		case SP_EVENT_COMPLETE_AARCH64:
@@ -414,12 +414,31 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 		switch (smc_fid) {
 
-		case  SP_VERSION_AARCH64:
-		case  SP_VERSION_AARCH32:
+		case SP_VERSION_AARCH64:
+		case SP_VERSION_AARCH32:
 			SMC_RET1(handle, SP_VERSION_COMPILED);
 
 		case MM_COMMUNICATE_AARCH32:
 		case MM_COMMUNICATE_AARCH64:
+		{
+			uint64_t mm_cookie = x1;
+			uint64_t comm_buffer_address = x2;
+			uint64_t comm_size_address = x3;
+
+			/* Cookie. Reserved for future use. It must be zero. */
+			if (mm_cookie != 0) {
+				ERROR("MM_COMMUNICATE: cookie is not zero\n");
+				SMC_RET1(handle, SPM_INVALID_PARAMETER);
+			}
+
+			if (comm_buffer_address == 0) {
+				ERROR("MM_COMMUNICATE: comm_buffer_address is zero\n");
+				SMC_RET1(handle, SPM_INVALID_PARAMETER);
+			}
+
+			if (comm_size_address != 0) {
+				VERBOSE("MM_COMMUNICATE: comm_size_address is not 0 as recommended.\n");
+			}
 
 			/* Save the Normal world context */
 			cm_el1_sysregs_context_save(NON_SECURE);
@@ -432,14 +451,9 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			cm_el1_sysregs_context_restore(SECURE);
 			cm_set_next_eret_context(SECURE);
 
-			/* Cookie. Reserved for future use. It must be zero. */
-			assert(x1 == 0);
-
-			if (x3 != 0) {
-				VERBOSE("MM_COMMUNICATE_AARCH32/64: X3 is not 0 as recommended.\n");
-			}
-
-			SMC_RET4(&sp_ctx.cpu_ctx, smc_fid, x1, x2, x3);
+			SMC_RET4(&sp_ctx.cpu_ctx, smc_fid, comm_buffer_address,
+				 comm_size_address, plat_my_core_pos());
+		}
 
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
