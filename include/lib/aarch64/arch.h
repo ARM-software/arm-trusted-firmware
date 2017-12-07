@@ -717,4 +717,17 @@
 #define DISR_EL1		S3_0_C12_C1_1
 #define DISR_A_BIT		31
 
+#define ERRIDR_EL1		S3_0_C5_C3_0
+#define ERRIDR_MASK		0xffff
+
+#define ERRSELR_EL1		S3_0_C5_C3_1
+
+/* System register access to Standard Error Record registers */
+#define ERXFR_EL1		S3_0_C5_C4_0
+#define ERXCTLR_EL1		S3_0_C5_C4_1
+#define ERXSTATUS_EL1		S3_0_C5_C4_2
+#define ERXADDR_EL1		S3_0_C5_C4_3
+#define ERXMISC0_EL1		S3_0_C5_C4_4
+#define ERXMISC1_EL1		S3_0_C5_C4_5
+
 #endif /* __ARCH_H__ */

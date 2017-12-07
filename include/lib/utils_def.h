@@ -68,6 +68,13 @@
 	(((ptr) > UINTPTR_MAX - (inc)) ? 1 : 0)
 
 /*
+ * Evaluates to 1 if (u32 + inc) overflows, 0 otherwise.
+ * Both arguments must be 32-bit unsigned integers (i.e. effectively uint32_t).
+ */
+#define check_u32_overflow(u32, inc) \
+	((u32) > (UINT32_MAX - (inc)) ? 1 : 0)
+
+/*
  * For those constants to be shared between C and other sources, apply a 'u'
  * or 'ull' suffix to the argument only in C, to avoid undefined or unintended
  * behaviour.
