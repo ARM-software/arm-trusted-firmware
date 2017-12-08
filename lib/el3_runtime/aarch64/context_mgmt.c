@@ -114,6 +114,11 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	scr_el3 &= ~SCR_EA_BIT;
 #endif
 
+#if FAULT_INJECTION_SUPPORT
+	/* Enable fault injection from lower ELs */
+	scr_el3 |= SCR_FIEN_BIT;
+#endif
+
 #ifdef IMAGE_BL31
 	/*
 	 * SCR_EL3.IRQ, SCR_EL3.FIQ: Enable the physical FIQ and IRQ rounting as

@@ -395,6 +395,13 @@ ifeq ($(RAS_EXTENSION),1)
     endif
 endif
 
+# When FAULT_INJECTION_SUPPORT is used, require that RAS_EXTENSION is enabled
+ifeq ($(FAULT_INJECTION_SUPPORT),1)
+    ifneq ($(RAS_EXTENSION),1)
+        $(error For FAULT_INJECTION_SUPPORT, RAS_EXTENSION must also be 1)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -522,6 +529,7 @@ $(eval $(call assert_boolean,ENABLE_SPE_FOR_LOWER_ELS))
 $(eval $(call assert_boolean,ENABLE_SPM))
 $(eval $(call assert_boolean,ENABLE_SVE_FOR_NS))
 $(eval $(call assert_boolean,ERROR_DEPRECATED))
+$(eval $(call assert_boolean,FAULT_INJECTION_SUPPORT))
 $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,GICV2_G0_FOR_EL3))
 $(eval $(call assert_boolean,HANDLE_EA_EL3_FIRST))
@@ -571,6 +579,7 @@ $(eval $(call add_define,ENABLE_SPE_FOR_LOWER_ELS))
 $(eval $(call add_define,ENABLE_SPM))
 $(eval $(call add_define,ENABLE_SVE_FOR_NS))
 $(eval $(call add_define,ERROR_DEPRECATED))
+$(eval $(call add_define,FAULT_INJECTION_SUPPORT))
 $(eval $(call add_define,GICV2_G0_FOR_EL3))
 $(eval $(call add_define,HANDLE_EA_EL3_FIRST))
 $(eval $(call add_define,HW_ASSISTED_COHERENCY))

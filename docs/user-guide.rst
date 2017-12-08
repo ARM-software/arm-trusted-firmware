@@ -390,6 +390,14 @@ Common build options
    handled at EL3, and a panic will result. This is supported only for AArch64
    builds.
 
+-  ``FAULT_INJECTION_SUPPORT``: ARMv8.4 externsions introduced support for fault
+   injection from lower ELs, and this build option enables lower ELs to use
+   Error Records accessed via System Registers to inject faults. This is
+   applicable only to AArch64 builds.
+
+   This feature is intended for testing purposes only, and is advisable to keep
+   disabled for production images.
+
 -  ``FIP_NAME``: This is an optional build option which specifies the FIP
    filename for the ``fip`` target. Default is ``fip.bin``.
 
