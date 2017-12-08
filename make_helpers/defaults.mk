@@ -72,6 +72,9 @@ EL3_EXCEPTION_HANDLING		:= 0
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
 
+# Fault injection support for ARMv8.4
+FAULT_INJECTION_SUPPORT		:= 0
+
 # Byte alignment that each component in FIP is aligned to
 FIP_ALIGN			:= 0
 

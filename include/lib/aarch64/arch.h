@@ -215,6 +215,7 @@
 
 /* SCR definitions */
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
+#define SCR_FIEN_BIT		(U(1) << 21)
 #define SCR_TWE_BIT		(U(1) << 13)
 #define SCR_TWI_BIT		(U(1) << 12)
 #define SCR_ST_BIT		(U(1) << 11)

@@ -2631,6 +2631,15 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
    translation table entries for a given stage of translation for a particular
    translation regime.
 
+Armv8.4-A
+~~~~~~~~~
+
+This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
+``ARM_ARCH_MINOR`` >= 4.
+
+-  When ``FAULT_INJECTION_SUPPORT`` is set to ``1``, fault injection from lower
+   ELs using Error Records accessed via. System Registers is supported.
+
 Armv7-A
 ~~~~~~~
 
