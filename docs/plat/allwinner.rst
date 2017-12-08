@@ -22,11 +22,17 @@ bl31.bin can be either copied (or sym-linked) into U-Boot's root directory,
 or the environment variable BL31 must contain the binary's path.
 See the respective `U-Boot documentation`_ for more details.
 
-To build:
+To build for machines with an A64 or H5 SoC:
 
 ::
 
     make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_a64 DEBUG=1 bl31
+
+To build for machines with an H6 SoC:
+
+::
+
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h6 DEBUG=1 bl31
 
 .. _U-Boot documentation: http://git.denx.de/?p=u-boot.git;f=board/sunxi/README.sunxi64;hb=HEAD
 

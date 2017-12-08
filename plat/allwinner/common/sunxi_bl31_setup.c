@@ -74,6 +74,9 @@ void bl31_platform_setup(void)
 	case 0x1718:
 		soc_name = "H5";
 		break;
+	case 0x1728:
+		soc_name = "H6";
+		break;
 	default:
 		soc_name = "unknown";
 		break;
