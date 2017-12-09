@@ -19,6 +19,7 @@ endif
 
 TF_LDFLAGS		+= -L$(CCSBROM_LIB_PATH)
 LDLIBS			+= -lcc_712sbromx509
+? where to find the lib?
 
 INCLUDES		+=	-Iinclude/drivers/arm/cryptocell
 
