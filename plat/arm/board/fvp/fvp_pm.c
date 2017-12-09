@@ -402,12 +402,20 @@ plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.validate_ns_entrypoint = arm_validate_psci_entrypoint,
 	.translate_power_state_by_mpidr = fvp_translate_power_state_by_mpidr,
 	.get_node_hw_state = fvp_node_hw_state,
+#if !ARM_BL31_IN_DRAM
+	/*
+	 * The TrustZone Controller is set up during the warmboot sequence after
+	 * resuming the CPU from a SYSTEM_SUSPEND. If BL31 is located in SRAM
+	 * this is  not a problem but, if it is in TZC-secured DRAM, it tries to
+	 * reconfigure the same memory it is running on, causing an exception.
+	 */
 	.get_sys_suspend_power_state = fvp_get_sys_suspend_power_state,
-/*
- * mem_protect is not supported in RESET_TO_BL31 and RESET_TO_SP_MIN,
- * as that would require mapping in all of NS DRAM into BL31 or BL32.
- */
+#endif
 #if !RESET_TO_BL31 && !RESET_TO_SP_MIN
+	/*
+	 * mem_protect is not supported in RESET_TO_BL31 and RESET_TO_SP_MIN,
+	 * as that would require mapping in all of NS DRAM into BL31 or BL32.
+	 */
 	.mem_protect_chk	= arm_psci_mem_protect_chk,
 	.read_mem_protect	= arm_psci_read_mem_protect,
 	.write_mem_protect	= arm_nor_psci_write_mem_protect,
