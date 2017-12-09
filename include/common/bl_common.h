@@ -205,7 +205,6 @@ int is_mem_free(uintptr_t free_base, size_t free_size,
 
 #if LOAD_IMAGE_V2
 
-int load_image(unsigned int image_id, image_info_t *image_data);
 int load_auth_image(unsigned int image_id, image_info_t *image_data);
 
 #else
