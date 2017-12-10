@@ -98,6 +98,12 @@
 /* Total number of memory regions with distinct properties */
 #define ARM_SP_IMAGE_NUM_MEM_REGIONS	6
 
+/*
+ * Name of the section to put the translation tables used by the S-EL1/S-EL0
+ * context of a Secure Partition.
+ */
+#define PLAT_SP_IMAGE_XLAT_SECTION_NAME	"arm_el3_tzc_dram"
+
 /* Cookies passed to the Secure Partition at boot. Not used by ARM platforms. */
 #define PLAT_SPM_COOKIE_0		ULL(0)
 #define PLAT_SPM_COOKIE_1		ULL(0)
