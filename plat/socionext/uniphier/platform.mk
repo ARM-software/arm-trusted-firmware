@@ -10,6 +10,7 @@ override ERROR_DEPRECATED	:= 1
 override LOAD_IMAGE_V2		:= 1
 override USE_COHERENT_MEM	:= 1
 override USE_TBBR_DEFS		:= 1
+override ENABLE_SVE_FOR_NS	:= 0
 
 # Cortex-A53 revision r0p4-51rel0
 # needed for LD20, unneeded for LD11, PXs3 (no ACE)

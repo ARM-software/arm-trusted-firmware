@@ -127,9 +127,9 @@
 	 * CPTR_EL3.TTA: Set to zero so that System register accesses to the
 	 *  trace registers do not trap to EL3.
 	 *
-	 * CPTR_EL3.TFP: Set to zero so that accesses to Advanced SIMD and
-	 *  floating-point functionality do not trap to EL3.
-	 * ---------------------------------------------------------------------
+	 * CPTR_EL3.TFP: Set to zero so that accesses to the V- or Z- registers
+	 *  by Advanced SIMD, floating-point or SVE instructions (if implemented)
+	 *  do not trap to EL3.
 	 */
 	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TTA_BIT | TFP_BIT))
 	msr	cptr_el3, x0

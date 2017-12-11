@@ -155,3 +155,12 @@ ifeq (${ARCH},aarch32)
 endif
 
 ENABLE_AMU			:= 0
+
+# By default, enable Scalable Vector Extension if implemented for Non-secure
+# lower ELs
+# Note SVE is only supported on AArch64 - therefore do not enable in AArch32
+ifneq (${ARCH},aarch32)
+    ENABLE_SVE_FOR_NS		:= 1
+else
+    override ENABLE_SVE_FOR_NS	:= 0
+endif

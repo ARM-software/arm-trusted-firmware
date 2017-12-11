@@ -11,6 +11,9 @@ A53_DISABLE_NON_TEMPORAL_HINT := 0
 SEPARATE_CODE_AND_RODATA := 1
 override RESET_TO_BL31 := 1
 
+# Do not enable SVE
+ENABLE_SVE_FOR_NS	:= 0
+
 ifdef ZYNQMP_ATF_MEM_BASE
     $(eval $(call add_define,ZYNQMP_ATF_MEM_BASE))
 

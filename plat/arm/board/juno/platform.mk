@@ -99,6 +99,9 @@ ENABLE_PLAT_COMPAT		:= 	0
 # Enable memory map related constants optimisation
 ARM_BOARD_OPTIMISE_MEM		:=	1
 
+# Do not enable SVE
+ENABLE_SVE_FOR_NS		:=	0
+
 include plat/arm/board/common/board_css.mk
 include plat/arm/common/arm_common.mk
 include plat/arm/soc/common/soc_css.mk

@@ -29,6 +29,9 @@ SEPARATE_CODE_AND_RODATA :=	1
 # do not use coherent memory
 USE_COHERENT_MEM	:=	0
 
+# do not enable SVE
+ENABLE_SVE_FOR_NS	:=	0
+
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 

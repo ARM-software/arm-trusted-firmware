@@ -18,6 +18,7 @@
 #include <smcc_helpers.h>
 #include <spe.h>
 #include <string.h>
+#include <sve.h>
 #include <utils.h>
 
 
@@ -224,6 +225,10 @@ static void enable_extensions_nonsecure(int el2_unused)
 
 #if ENABLE_AMU
 	amu_enable(el2_unused);
+#endif
+
+#if ENABLE_SVE_FOR_NS
+	sve_enable(el2_unused);
 #endif
 #endif
 }
