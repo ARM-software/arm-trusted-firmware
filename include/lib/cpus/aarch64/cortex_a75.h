@@ -50,7 +50,19 @@
  * CPUAMEVTYPER<n> register and are disabled by default. Platforms may
  * enable this with suitable programming.
  */
+#define CORTEX_A75_AMU_NR_COUNTERS	5
 #define CORTEX_A75_AMU_GROUP0_MASK	0x7
 #define CORTEX_A75_AMU_GROUP1_MASK	(0 << 3)
+
+#ifndef __ASSEMBLY__
+#include <stdint.h>
+
+uint64_t cortex_a75_amu_cnt_read(int idx);
+void cortex_a75_amu_cnt_write(int idx, uint64_t val);
+unsigned int cortex_a75_amu_read_cpuamcntenset_el0(void);
+unsigned int cortex_a75_amu_read_cpuamcntenclr_el0(void);
+void cortex_a75_amu_write_cpuamcntenset_el0(unsigned int mask);
+void cortex_a75_amu_write_cpuamcntenclr_el0(unsigned int mask);
+#endif /* __ASSEMBLY__ */
 
 #endif /* __CORTEX_A75_H__ */
