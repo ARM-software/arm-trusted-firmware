@@ -237,3 +237,19 @@ void mce_enable_strict_checking(void)
 	}
 }
 #endif
+
+/*******************************************************************************
+ * Handler to power down the entire system
+ ******************************************************************************/
+void mce_system_shutdown(void)
+{
+	nvg_system_shutdown();
+}
+
+/*******************************************************************************
+ * Handler to reboot the entire system
+ ******************************************************************************/
+void mce_system_reboot(void)
+{
+	nvg_system_reboot();
+}

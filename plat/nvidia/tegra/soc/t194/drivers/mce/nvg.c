@@ -302,3 +302,25 @@ void nvg_enable_strict_checking_mode(void)
 	nvg_set_request_data(TEGRA_NVG_CHANNEL_SECURITY_CONFIG, params);
 }
 #endif
+
+/*
+ * Request a reboot
+ *
+ * NVGDATA[0]: reboot command
+ */
+void nvg_system_reboot(void)
+{
+	/* issue command for reboot */
+	nvg_set_request_data(TEGRA_NVG_CHANNEL_SHUTDOWN, TEGRA_NVG_REBOOT);
+}
+
+/*
+ * Request a shutdown
+ *
+ * NVGDATA[0]: shutdown command
+ */
+void nvg_system_shutdown(void)
+{
+	/* issue command for shutdown */
+	nvg_set_request_data(TEGRA_NVG_CHANNEL_SHUTDOWN, TEGRA_NVG_SHUTDOWN);
+}
