@@ -54,12 +54,33 @@
 		_ERR_RECORD_COMMON(_probe, _handler, _aux) \
 	}
 
+/*
+ * Macro to be used to name and declare an array of RAS interrupts along with
+ * their handlers.
+ *
+ * This macro must be used in the same file as the array of interrupts are
+ * declared. Only then would ARRAY_SIZE() yield a meaningful value. Also, the
+ * array is expected to be sorted in the increasing order of interrupt number.
+ */
+#define REGISTER_RAS_INTERRUPTS(_array) \
+	const struct ras_interrupt_data ras_interrupt_data = { \
+		.intrs = _array, \
+		.num_intrs = ARRAY_SIZE(_array), \
+	}
+
 #ifndef __ASSEMBLY__
 
 #include <assert.h>
 #include <ras_arch.h>
 
 struct err_record_info;
+
+typedef struct ras_interrupt {
+	/* Interrupt number, and the associated error record info */
+	unsigned int intr_number;
+	struct err_record_info *info;
+	void *cookie;
+} ras_interrupt_t;
 
 /* Function to probe a error record group for error */
 typedef int (*err_record_probe_t)(const struct err_record_info *info,
@@ -83,6 +104,9 @@ struct err_handler_data {
 	 * synchronized by ESB, the value of DISR.
 	 */
 	uint32_t syndrome;
+
+	/* For errors signalled via. interrupt, the raw interrupt ID; otherwise, 0. */
+	unsigned int interrupt;
 };
 
 /* Function to handle error from an error record group */
@@ -136,7 +160,13 @@ struct ras_system_data {
 	size_t num_info;
 };
 
+struct ras_interrupt_data {
+	ras_interrupt_t *intrs;
+	size_t num_intrs;
+};
+
 extern const struct ras_system_data ras_system_data;
+extern const struct ras_interrupt_data ras_interrupt_data;
 
 
 /*
@@ -163,6 +193,7 @@ static inline int ras_err_ser_probe_sysreg(const struct err_record_info *info,
 
 int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags);
+void ras_init(void);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __RAS_COMMON__ */
