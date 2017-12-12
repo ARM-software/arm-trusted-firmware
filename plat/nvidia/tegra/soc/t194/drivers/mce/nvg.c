@@ -288,6 +288,7 @@ int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time)
 	return ret;
 }
 
+#if ENABLE_STRICT_CHECKING_MODE
 /*
  * Enable strict checking mode
  *
@@ -300,3 +301,4 @@ void nvg_enable_strict_checking_mode(void)
 
 	nvg_set_request_data(TEGRA_NVG_CHANNEL_SECURITY_CONFIG, params);
 }
+#endif

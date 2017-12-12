@@ -357,11 +357,13 @@ int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 */
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
+#if ENABLE_STRICT_CHECKING_MODE
 		/*
 		 * Enable strict checking after programming the GSC for
 		 * enabling TZSRAM and TZDRAM
 		 */
 		mce_enable_strict_checking();
+#endif
 
 		/* Init SMMU */
 		tegra_smmu_init();

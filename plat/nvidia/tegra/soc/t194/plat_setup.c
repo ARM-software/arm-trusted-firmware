@@ -293,9 +293,11 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
 
 void plat_late_platform_setup(void)
 {
+#if ENABLE_STRICT_CHECKING_MODE
 	/*
 	 * Enable strict checking after programming the GSC for
 	 * enabling TZSRAM and TZDRAM
 	 */
 	mce_enable_strict_checking();
+#endif
 }
