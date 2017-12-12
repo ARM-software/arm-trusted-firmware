@@ -18,4 +18,7 @@
 /* External Abort synchronized by ESB instruction */
 #define ERROR_EA_ESB		2
 
+/* RAS event signalled as peripheral interrupt */
+#define ERROR_INTERRUPT		3
+
 #endif /* __EA_HANDLE_H__ */
