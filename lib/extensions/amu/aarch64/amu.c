@@ -36,5 +36,7 @@ void amu_enable(int el2_unused)
 
 		/* Enable group 0 counters */
 		write_amcntenset0_el0(AMU_GROUP0_COUNTERS_MASK);
+		/* Enable group 1 counters */
+		write_amcntenset1_el0(AMU_GROUP1_COUNTERS_MASK);
 	}
 }
