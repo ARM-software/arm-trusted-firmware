@@ -125,7 +125,7 @@ OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
-DTC			?=	dtc
+DTC			:=	dtc
 
 # Use ${LD}.bfd instead if it exists (as absolute path or together with $PATH).
 ifneq ($(strip $(wildcard ${LD}.bfd) \
@@ -638,9 +638,7 @@ endif
 
 # Expand build macros for the different images
 ifeq (${NEED_FDT},yes)
-$(eval $(call MAKE_DTBS,$(BUILD_PLAT)/fdts,$(FDT_SOURCES)))
-$(eval $(call MAKE_FDT))
-dtbs: $(DTBS)
+    $(eval $(call MAKE_DTBS,$(BUILD_PLAT)/fdts,$(FDT_SOURCES)))
 endif
 
 locate-checkpatch:
@@ -777,7 +775,7 @@ help:
 	@echo "  distclean      Remove all build artifacts for all platforms"
 	@echo "  certtool       Build the Certificate generation tool"
 	@echo "  fiptool        Build the Firmware Image Package (FIP) creation tool"
-	@echo "  dtbs           Build the Flattened device tree (if required for the platform)"
+	@echo "  dtbs           Build the Device Tree Blobs (if required for the platform)"
 	@echo ""
 	@echo "Note: most build targets require PLAT to be set to a specific platform."
 	@echo ""

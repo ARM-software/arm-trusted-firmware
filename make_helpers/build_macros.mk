@@ -344,15 +344,18 @@ $(if $(2),$(call TOOL_ADD_IMG_PAYLOAD,bl$(1),$(BIN),--$(2),$(BIN),$(3)))
 
 endef
 
+# Convert device tree source file names to matching blobs
+#   $(1) = input dts
 define SOURCES_TO_DTBS
         $(notdir $(patsubst %.dts,%.dtb,$(filter %.dts,$(1))))
 endef
 
-# MAKE_FDT macro defines the targets and options to build each FDT binary
-# Arguments: (none)
-define MAKE_FDT
-        $(eval DTB_BUILD_DIR  := ${BUILD_PLAT}/fdts)
-        $(eval DTBS       := $(addprefix $(DTB_BUILD_DIR)/,$(call SOURCES_TO_DTBS,$(FDT_SOURCES))))
+# MAKE_FDT_DIRS macro creates the prerequisite directories that host the
+# FDT binaries
+#   $(1) = output directory
+#   $(2) = input dts
+define MAKE_FDT_DIRS
+        $(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
         $(eval TEMP_DTB_DIRS := $(sort $(dir ${DTBS})))
         # The $(dir ) function leaves a trailing / on the directory names
         # Rip off the / to match directory names with make rule targets.
@@ -361,19 +364,18 @@ define MAKE_FDT
 $(eval $(foreach objd,${DTB_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
 
 fdt_dirs: ${DTB_DIRS}
-
 endef
 
-# MAKE_DTB generate the Flattened device tree binary (device tree binary)
+# MAKE_DTB generate the Flattened device tree binary
 #   $(1) = output directory
 #   $(2) = input dts
 define MAKE_DTB
 
-$(eval DOBJ := $(1)/$(patsubst %.dts,%.dtb,$(notdir $(2))))
+$(eval DOBJ := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
 $(eval DEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
 $(DOBJ): $(2) $(MAKEFILE_LIST) | fdt_dirs
-	@echo "  DTC      $$<"
+	@echo "  DTC     $$<"
 	$$(Q)$$(DTC) $$(DTC_FLAGS) -d $(DEP) -o $$@ $$<
 
 -include $(DEP)
@@ -386,7 +388,11 @@ endef
 define MAKE_DTBS
         $(eval DOBJS := $(filter %.dts,$(2)))
         $(eval REMAIN := $(filter-out %.dts,$(2)))
+        $(and $(REMAIN),$(error FDT_SOURCES contain non-DTS files: $(REMAIN)))
         $(eval $(foreach obj,$(DOBJS),$(call MAKE_DTB,$(1),$(obj))))
 
-        $(and $(REMAIN),$(error Unexpected s present: $(REMAIN)))
+        $(eval $(call MAKE_FDT_DIRS,$(1),$(2)))
+
+dtbs: $(DTBS)
+all: dtbs
 endef
