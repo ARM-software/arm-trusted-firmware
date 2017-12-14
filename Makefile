@@ -125,6 +125,7 @@ OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
+DTC			?=	dtc
 
 ifeq (${ARM_ARCH_MAJOR},7)
 target32-directive	= 	-target arm-none-eabi
@@ -162,6 +163,8 @@ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 TF_LDFLAGS		+=	--fatal-warnings -O1
 TF_LDFLAGS		+=	--gc-sections
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
+
+DTC_FLAGS		+=	-I dts -O dtb
 
 ################################################################################
 # Common sources and include directories
@@ -451,6 +454,10 @@ include bl31/bl31.mk
 endif
 endif
 
+ifdef FDT_SOURCES
+NEED_FDT := yes
+endif
+
 ################################################################################
 # Build options checks
 ################################################################################
@@ -551,7 +558,7 @@ endif
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip fwu_fip certtool
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool fip fwu_fip certtool dtbs
 .SUFFIXES:
 
 all: msg_start
@@ -602,6 +609,13 @@ ifeq (${NEED_BL2U},yes)
 BL2U_PATH	:= $(if ${BL2U},${BL2U},$(call IMG_BIN,2u))
 $(if ${BL2U}, ,$(eval $(call MAKE_BL,2u)))
 $(eval $(call FWU_FIP_ADD_PAYLOAD,${BL2U_PATH},--ap-fwu-cfg))
+endif
+
+# Expand build macros for the different images
+ifeq (${NEED_FDT},yes)
+$(eval $(call MAKE_DTBS,$(BUILD_PLAT)/fdts,$(FDT_SOURCES)))
+$(eval $(call MAKE_FDT))
+dtbs: $(DTBS)
 endif
 
 locate-checkpatch:
@@ -731,6 +745,7 @@ help:
 	@echo "  distclean      Remove all build artifacts for all platforms"
 	@echo "  certtool       Build the Certificate generation tool"
 	@echo "  fiptool        Build the Firmware Image Package (FIP) creation tool"
+	@echo "  dtbs           Build the Flattened device tree (if required for the platform)"
 	@echo ""
 	@echo "Note: most build targets require PLAT to be set to a specific platform."
 	@echo ""

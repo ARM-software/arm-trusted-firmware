@@ -336,3 +336,49 @@ $(eval $(call MAKE_TOOL_ARGS,$(1),$(BIN),$(2)))
 
 endef
 
+define SOURCES_TO_DTBS
+        $(notdir $(patsubst %.dts,%.dtb,$(filter %.dts,$(1))))
+endef
+
+# MAKE_FDT macro defines the targets and options to build each FDT binary
+# Arguments: (none)
+define MAKE_FDT
+        $(eval DTB_BUILD_DIR  := ${BUILD_PLAT}/fdts)
+        $(eval DTBS       := $(addprefix $(DTB_BUILD_DIR)/,$(call SOURCES_TO_DTBS,$(FDT_SOURCES))))
+        $(eval TEMP_DTB_DIRS := $(sort $(dir ${DTBS})))
+        # The $(dir ) function leaves a trailing / on the directory names
+        # Rip off the / to match directory names with make rule targets.
+        $(eval DTB_DIRS   := $(patsubst %/,%,$(TEMP_DTB_DIRS)))
+
+$(eval $(foreach objd,${DTB_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
+
+fdt_dirs: ${DTB_DIRS}
+
+endef
+
+# MAKE_DTB generate the Flattened device tree binary (device tree binary)
+#   $(1) = output directory
+#   $(2) = input dts
+define MAKE_DTB
+
+$(eval DOBJ := $(1)/$(patsubst %.dts,%.dtb,$(notdir $(2))))
+$(eval DEP := $(patsubst %.dtb,%.d,$(DOBJ)))
+
+$(DOBJ): $(2) | fdt_dirs
+	@echo "  DTC      $$<"
+	$$(Q)$$(DTC) $$(DTC_FLAGS) -d $(DEP) -o $$@ $$<
+
+-include $(DEP)
+
+endef
+
+# MAKE_DTBS builds flattened device tree sources
+#   $(1) = output directory
+#   $(2) = list of flattened device tree source files
+define MAKE_DTBS
+        $(eval DOBJS := $(filter %.dts,$(2)))
+        $(eval REMAIN := $(filter-out %.dts,$(2)))
+        $(eval $(foreach obj,$(DOBJS),$(call MAKE_DTB,$(1),$(obj))))
+
+        $(and $(REMAIN),$(error Unexpected s present: $(REMAIN)))
+endef
