@@ -418,6 +418,63 @@ BL2 execution continues as follows:
 
 #. BL1 passes control to BL31 at the specified entrypoint at EL3.
 
+Running BL2 at EL3 execution level
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some platforms have a non-TF Boot ROM that expects the next boot stage
+to execute at EL3. On these platforms, TF BL1 is a waste of memory
+as its only purpose is to ensure TF BL2 is entered at S-EL1. To avoid
+this waste, a special mode enables BL2 to execute at EL3, which allows
+a non-TF Boot ROM to load and jump directly to BL2. This mode is selected
+when the build flag BL2_AT_EL3 is enabled. The main differences in this
+mode are:
+
+#. BL2 includes the reset code and the mailbox mechanism to differentiate
+   cold boot and warm boot. It runs at EL3 doing the arch
+   initialization required for EL3.
+
+#. BL2 does not receive the meminfo information from BL1 anymore. This
+   information can be passed by the Boot ROM or be internal to the
+   BL2 image.
+
+#. Since BL2 executes at EL3, BL2 jumps directly to the next image,
+   instead of invoking the RUN_IMAGE SMC call.
+
+
+We assume 3 different types of BootROM support on the platform:
+
+#. The Boot ROM always jumps to the same address, for both cold
+   and warm boot. In this case, we will need to keep a resident part
+   of BL2 whose memory cannot be reclaimed by any other image. The
+   linker script defines the symbols __TEXT_RESIDENT_START__ and
+   __TEXT_RESIDENT_END__ that allows the platform to configure
+   correctly the memory map.
+#. The platform has some mechanism to indicate the jump address to the
+   Boot ROM. Platform code can then program the jump address with
+   psci_warmboot_entrypoint during cold boot.
+#. The platform has some mechanism to program the reset address using
+   the PROGRAMMABLE_RESET_ADDRESS feature. Platform code can then
+   program the reset address with psci_warmboot_entrypoint during
+   cold boot, bypassing the boot ROM for warm boot.
+
+In the last 2 cases, no part of BL2 needs to remain resident at
+runtime. In the first 2 cases, we expect the Boot ROM to be able to
+differentiate between warm and cold boot, to avoid loading BL2 again
+during warm boot.
+
+This functionality can be tested with FVP loading the image directly
+in memory and changing the address where the system jumps at reset.
+For example:
+
+	-C cluster0.cpu0.RVBAR=0x4014000
+	--data cluster0.cpu0=bl2.bin@0x4014000
+
+With this configuration, FVP is like a platform of the first case,
+where the Boot ROM jumps always to the same address. For simplification,
+BL32 is loaded in DRAM in this case, to avoid other images reclaiming
+BL2 memory.
+
+
 AArch64 BL31
 ~~~~~~~~~~~~
 
