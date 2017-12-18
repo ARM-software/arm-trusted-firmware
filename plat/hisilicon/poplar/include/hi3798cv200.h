@@ -30,7 +30,7 @@
 #define TIMER20_BGLOAD			(SEC_TIMER2_BASE + 0x018)
 
 /* GPIO */
-#define	GPIO_MAX			(12)
+#define	GPIO_MAX			(13)
 #define	GPIO_BASE(x)			(x != 5 ?			\
 					0xf820000 + x * 0x1000 : 0xf8004000)
 
@@ -96,5 +96,8 @@
 
 /* Watchdog */
 #define HISI_WDG0_BASE			(0xF8A2C000)
+
+#define HISI_TZPC_BASE			(0xF8A80000)
+#define HISI_TZPC_SEC_ATTR_CTRL		(HISI_TZPC_BASE + 0x10)
 
 #endif	/* __HI3798cv200_H__ */

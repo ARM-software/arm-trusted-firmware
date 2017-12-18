@@ -74,16 +74,16 @@
  * "OFFSET" is an offset to the start of a region relative to the
  * base of the "l-loader" TEXT section (also a multiple of page size).
  */
-#define LLOADER_TEXT_BASE		0x00001000	/* page aligned */
+#define LLOADER_TEXT_BASE		0x02001000	/* page aligned */
 #define BL1_OFFSET			0x0000D000	/* page multiple */
-#define FIP_BASE			0x00040000
+#define FIP_BASE			0x02040000
 
 #define BL1_RO_SIZE			0x00008000	/* page multiple */
 #define BL1_RW_SIZE			0x00008000	/* page multiple */
 #define BL1_SIZE			(BL1_RO_SIZE + BL1_RW_SIZE)
 #define BL2_SIZE			0x0000c000	/* page multiple */
 #define BL31_SIZE			0x00014000
-#define FIP_SIZE			0x00068000
+#define FIP_SIZE			0x000c0000  /* absolute max */
 
      /* BL1_OFFSET */			/* (Defined above) */
 #define BL1_BASE			(LLOADER_TEXT_BASE + BL1_OFFSET)

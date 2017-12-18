@@ -48,11 +48,55 @@
 #define TEE_SEC_MEM_BASE		(0x70000000)
 #define TEE_SEC_MEM_SIZE		(0x10000000)
 
+/* Memory location options for TSP */
+#define POPLAR_SRAM_ID	0
+#define POPLAR_DRAM_ID	1
+
+/*
+ * DDR for OP-TEE (28MB from 0x02200000 -0x04000000) is divided in several
+ * regions:
+ *   - Secure DDR (default is the top 16MB) used by OP-TEE
+ *   - Non-secure DDR (4MB) reserved for OP-TEE's future use
+ *   - Secure DDR (4MB aligned on 4MB) for OP-TEE's "Secure Data Path" feature
+ *   - Non-secure DDR used by OP-TEE (shared memory and padding) (4MB)
+ *   - Non-secure DDR (2MB) reserved for OP-TEE's future use
+ */
+#define DDR_SEC_SIZE			0x01000000
+#define DDR_SEC_BASE			0x03000000
+
 #define BL_MEM_BASE			(BL1_RO_BASE)
 #define BL_MEM_LIMIT			(BL31_LIMIT)
 #define BL_MEM_SIZE			(BL_MEM_LIMIT - BL_MEM_BASE)
 
-#define PLAT_ARM_NS_IMAGE_OFFSET	0x37000000
+/*
+ * BL3-2 specific defines.
+ */
+
+/*
+ * The TSP currently executes from TZC secured area of DRAM.
+ */
+#define BL32_DRAM_BASE			0x03000000
+#define BL32_DRAM_LIMIT			0x04000000
+
+#if (POPLAR_TSP_RAM_LOCATION_ID == POPLAR_DRAM_ID)
+#define TSP_SEC_MEM_BASE		BL32_DRAM_BASE
+#define TSP_SEC_MEM_SIZE		(BL32_DRAM_LIMIT - BL32_DRAM_BASE)
+#define BL32_BASE			BL32_DRAM_BASE
+#define BL32_LIMIT			BL32_DRAM_LIMIT
+#elif (POPLAR_TSP_RAM_LOCATION_ID == POPLAR_SRAM_ID)
+#error "SRAM storage of TSP payload is currently unsupported"
+#else
+#error "Currently unsupported POPLAR_TSP_LOCATION_ID value"
+#endif
+
+/* BL32 is mandatory in AArch32 */
+#ifndef AARCH32
+#ifdef SPD_none
+#undef BL32_BASE
+#endif /* SPD_none */
+#endif
+
+#define PLAT_POPLAR_NS_IMAGE_OFFSET	0x37000000
 
 /* Page table and MMU setup constants */
 #define ADDR_SPACE_SIZE			(1ull << 32)
