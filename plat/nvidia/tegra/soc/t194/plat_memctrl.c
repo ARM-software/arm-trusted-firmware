@@ -577,17 +577,14 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG7, reg_val);
 
 	/* Set Order Id only for the clients having non zero order id */
-	reg_val = MC_CLIENT_ORDER_ID_9_RESET_VAL &
-		mc_client_order_id(9, XUSB_HOSTW);
+	reg_val = mc_client_order_id(MC_CLIENT_ORDER_ID_9_RESET_VAL, 9, XUSB_HOSTW);
 	tegra_mc_write_32(MC_CLIENT_ORDER_ID_9, reg_val);
 
-	reg_val = MC_CLIENT_ORDER_ID_27_RESET_VAL &
-		mc_client_order_id(27, PCIE0W);
+	reg_val = mc_client_order_id(MC_CLIENT_ORDER_ID_27_RESET_VAL, 27, PCIE0W);
 	tegra_mc_write_32(MC_CLIENT_ORDER_ID_27, reg_val);
 
-	reg_val = MC_CLIENT_ORDER_ID_28_RESET_VAL &
-		mc_client_order_id(28, PCIE4W) &
-		mc_client_order_id(28, PCIE5W);
+	reg_val = mc_client_order_id(MC_CLIENT_ORDER_ID_28_RESET_VAL, 28, PCIE4W);
+	reg_val = mc_client_order_id(reg_val, 28, PCIE5W);
 	tegra_mc_write_32(MC_CLIENT_ORDER_ID_28, reg_val);
 
 	/* Set VC Id only for the clients having different reset values */

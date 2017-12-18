@@ -27,8 +27,8 @@
 #define  MC_CLIENT_ORDER_ID_28_PCIE5W_MASK		(0x3U << 12)
 #define  MC_CLIENT_ORDER_ID_28_PCIE5W_ORDER_ID		(2U << 12)
 
-#define mc_client_order_id(id, client) \
-	(~MC_CLIENT_ORDER_ID_##id##_##client##_MASK | \
+#define mc_client_order_id(val, id, client) \
+	((val & ~MC_CLIENT_ORDER_ID_##id##_##client##_MASK) | \
 	MC_CLIENT_ORDER_ID_##id##_##client##_ORDER_ID)
 
 /*******************************************************************************
