@@ -337,6 +337,11 @@
 #define SPSR_T_ARM		U(0x0)
 #define SPSR_T_THUMB		U(0x1)
 
+#define SPSR_M_SHIFT		U(4)
+#define SPSR_M_MASK		U(0x1)
+#define SPSR_M_AARCH64		U(0x0)
+#define SPSR_M_AARCH32		U(0x1)
+
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
 

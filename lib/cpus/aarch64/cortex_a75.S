@@ -12,6 +12,11 @@
 #include <cortex_a75.h>
 
 func cortex_a75_reset_func
+#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+	adr	x0, workaround_bpiall_vbar0_runtime_exceptions
+	msr	vbar_el3, x0
+#endif
+
 #if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, actlr_el3
