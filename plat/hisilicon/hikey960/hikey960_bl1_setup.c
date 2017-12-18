@@ -519,6 +519,11 @@ static void hikey960_regulator_enable(void)
 	set_audio_power_up();
 	set_pcie_power_up();
 	set_isp_srt_power_up();
+
+	/* set ISP_CORE_CTRL_S to unsecure mode */
+	mmio_write_32(0xe8583800, 0x7);
+	/* set ISP_SUB_CTRL_S to unsecure mode */
+	mmio_write_32(0xe8583804, 0xf);
 }
 
 static void hikey960_ufs_reset(void)
