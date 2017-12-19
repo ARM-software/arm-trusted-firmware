@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,13 +15,11 @@
 
 #include "uniphier.h"
 
-static meminfo_t uniphier_bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 static int uniphier_bl2_kick_scp;
 
-void bl2_early_platform_setup(meminfo_t *mem_layout)
+void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
+				  u_register_t x2, u_register_t x3)
 {
-	uniphier_bl2_tzram_layout = *mem_layout;
-
 	uniphier_console_setup();
 }
 
@@ -32,7 +30,7 @@ static const struct mmap_region uniphier_bl2_mmap[] = {
 	{ .size = 0 },
 };
 
-void bl2_plat_arch_setup(void)
+void bl2_el3_plat_arch_setup(void)
 {
 	unsigned int soc;
 	int skip_scp = 0;
@@ -40,7 +38,7 @@ void bl2_plat_arch_setup(void)
 
 	uniphier_mmap_setup(UNIPHIER_SEC_DRAM_BASE, UNIPHIER_SEC_DRAM_SIZE,
 			    uniphier_bl2_mmap);
-	enable_mmu_el1(0);
+	enable_mmu_el3(0);
 
 	soc = uniphier_get_soc_id();
 	if (soc == UNIPHIER_SOC_UNKNOWN) {
