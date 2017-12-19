@@ -492,7 +492,7 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 	fip_toc_header_t *toc_header;
 	fip_toc_entry_t *toc_entry;
 	char *buf;
-	uint64_t entry_offset, buf_size, payload_size = 0;
+	uint64_t entry_offset, buf_size, payload_size = 0, pad_size;
 	size_t nr_images = 0;
 
 	for (desc = image_desc_head; desc != NULL; desc = desc->next)
@@ -526,9 +526,13 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 		entry_offset += image->toc_e.size;
 	}
 
-	/* Append a null uuid entry to mark the end of ToC entries. */
+	/*
+	 * Append a null uuid entry to mark the end of ToC entries.
+	 * NOTE the offset address for the last toc_entry must match the fip
+	 * size.
+	 */
 	memset(toc_entry, 0, sizeof(*toc_entry));
-	toc_entry->offset_address = entry_offset;
+	toc_entry->offset_address = (entry_offset + align - 1) & ~(align - 1);
 
 	/* Generate the FIP file. */
 	fp = fopen(filename, "wb");
@@ -554,6 +558,13 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 
 		xfwrite(image->buffer, image->toc_e.size, fp, filename);
 	}
+
+	if (fseek(fp, entry_offset, SEEK_SET))
+		log_errx("Failed to set file position");
+
+	pad_size = toc_entry->offset_address - entry_offset;
+	while (pad_size--)
+		fputc(0x0, fp);
 
 	fclose(fp);
 	return 0;
