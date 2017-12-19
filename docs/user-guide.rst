@@ -55,7 +55,7 @@ command:
 
     sudo apt-get install build-essential gcc make git libssl-dev
 
-ARM TF has been tested with `Linaro Release 17.04`_.
+ARM TF has been tested with `Linaro Release 17.10`_.
 
 Download and install the AArch32 or AArch64 little-endian GCC cross compiler.
 The `Linaro Release Notes`_ documents which version of the compiler to use for a
@@ -1006,7 +1006,7 @@ images with support for these features:
    modules by checking out a recent version of the `mbed TLS Repository`_. It
    is important to use a version that is compatible with TF and fixes any
    known security vulnerabilities. See `mbed TLS Security Center`_ for more
-   information. The latest version of TF is tested with tag ``mbedtls-2.4.2``.
+   information. The latest version of TF is tested with tag ``mbedtls-2.6.0``.
 
    The ``drivers/auth/mbedtls/mbedtls_*.mk`` files contain the list of mbed TLS
    source files the modules depend upon.
@@ -1475,10 +1475,10 @@ Running the software on FVP
 The latest version of the AArch64 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
-NOTE: Unless otherwise stated, the model version is Version 11.1 Build 11.1.22.
+NOTE: Unless otherwise stated, the model version is Version 11.2 Build 11.2.33.
 
 -  ``Foundation_Platform``
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.7, Build 0.8.8702)
+-  ``FVP_Base_AEMv8A-AEMv8A`` (Version 9.0, Build 0.8.9005)
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
@@ -1491,7 +1491,7 @@ NOTE: Unless otherwise stated, the model version is Version 11.1 Build 11.1.22.
 The latest version of the AArch32 build of ARM Trusted Firmware has been tested
 on the following ARM FVPs (64-bit host machine only).
 
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.7, Build 0.8.8702)
+-  ``FVP_Base_AEMv8A-AEMv8A`` (Version 9.0, Build 0.8.9005)
 -  ``FVP_Base_Cortex-A32x4``
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
@@ -1868,10 +1868,10 @@ wakeup interrupt from RTC.
 
 .. _Linaro: `Linaro Release Notes`_
 .. _Linaro Release: `Linaro Release Notes`_
-.. _Linaro Release Notes: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated
-.. _Linaro Release 17.04: https://community.arm.com/tools/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease17.04
-.. _Linaro instructions: https://community.arm.com/dev-platforms/b/documents/posts/instructions-for-using-the-linaro-software-deliverables
-.. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/b/documents/posts/using-linaros-deliverables-on-juno
+.. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-linaro-release-notes
+.. _Linaro Release 17.10: https://community.arm.com/dev-platforms/w/docs/226/old-linaro-release-notes#1710
+.. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/linaro-software-deliverables
+.. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _ARM Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
