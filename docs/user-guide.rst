@@ -54,7 +54,7 @@ Install the required packages to build TF-A with the following command:
 
     sudo apt-get install device-tree-compiler build-essential gcc make git libssl-dev
 
-TF-A has been tested with `Linaro Release 17.10`_.
+TF-A has been tested with Linaro Release 18.04.
 
 Download and install the AArch32 or AArch64 little-endian GCC cross compiler.
 The `Linaro Release Notes`_ documents which version of the compiler to use for a
@@ -1109,7 +1109,7 @@ images with support for these features:
    is important to use a version that is compatible with TF-A and fixes any
    known security vulnerabilities. See `mbed TLS Security Center`_ for more
    information. The latest version of TF-A is tested with tag
-   ``mbedtls-2.10.0``.
+   ``mbedtls-2.12.0``.
 
    The ``drivers/auth/mbedtls/mbedtls_*.mk`` files contain the list of mbed TLS
    source files the modules depend upon.
@@ -1639,26 +1639,28 @@ The latest version of the AArch64 build of TF-A has been tested on the following
 Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
-NOTE: Unless otherwise stated, the model version is Version 11.2 Build 11.2.33.
+NOTE: Unless otherwise stated, the model version is Version 11.4 Build 37.
 
--  ``Foundation_Platform``
--  ``FVP_Base_AEMv8A-AEMv8A`` (and also Version 9.0, Build 0.8.9005)
+-  ``FVP_Base_Aresx4``
+-  ``FVP_Base_AEMv8A-AEMv8A``
+-  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
+-  ``FVP_Base_AEMv8A-AEMv8A``
+-  ``FVP_Base_RevC-2xAEMv8A``
+-  ``FVP_Base_Cortex-A32x4``
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
+-  ``FVP_Base_Cortex-A55x4+Cortex-A75x4``
+-  ``FVP_Base_Cortex-A55x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
 -  ``FVP_Base_Cortex-A57x4``
 -  ``FVP_Base_Cortex-A72x4-A53x4``
 -  ``FVP_Base_Cortex-A72x4``
 -  ``FVP_Base_Cortex-A73x4-A53x4``
 -  ``FVP_Base_Cortex-A73x4``
-
-Additionally, the AArch64 build was tested on the following Arm FVPs with
-shifted affinities, supporting threaded CPU cores (64-bit host machine only).
-
--  ``FVP_Base_Cortex-A55x4-A75x4`` (Version 0.0, build 0.0.4395)
--  ``FVP_Base_Cortex-A55x4`` (Version 0.0, build 0.0.4395)
--  ``FVP_Base_Cortex-A75x4`` (Version 0.0, build 0.0.4395)
--  ``FVP_Base_RevC-2xAEMv8A``
+-  ``FVP_Base_Cortex-A75x4``
+-  ``FVP_Base_Cortex-A76x4``
+-  ``FVP_CSS_SGI-575`` (Version 11.3 build 40)
+-  ``Foundation_Platform``
 
 The latest version of the AArch32 build of TF-A has been tested on the following
 Arm FVPs without shifted affinities, and that do not support threaded CPU cores
@@ -2070,7 +2072,6 @@ wakeup interrupt from RTC.
 .. _Linaro: `Linaro Release Notes`_
 .. _Linaro Release: `Linaro Release Notes`_
 .. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-linaro-release-notes
-.. _Linaro Release 17.10: https://community.arm.com/dev-platforms/w/docs/226/old-linaro-release-notes#1710
 .. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/linaro-software-deliverables
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
