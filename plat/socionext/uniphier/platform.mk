@@ -116,5 +116,5 @@ endif
 .PHONY: bl1_gzip
 bl1_gzip: $(BUILD_PLAT)/bl1.bin.gzip
 %.gzip: %
-	@echo " GZIP     $@"
+	@echo "  GZIP    $@"
 	$(Q)(cat $< | gzip -n -f -9 > $@) || (rm -f $@ || false)
