@@ -530,6 +530,9 @@
 #define  MC_CLIENT_HOTRESET_CTRL2_PCIE4A_FLUSH_ENB		(1U << 25)
 #define MC_CLIENT_HOTRESET_STATUS2				0x1898U
 
+#define MC_COALESCE_CTRL					0x2930U
+#define  MC_COALESCE_CTRL_COALESCER_ENABLE			(1U << 31)
+
 /*******************************************************************************
  * Tegra TSA Controller constants
  ******************************************************************************/

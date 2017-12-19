@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -617,6 +617,9 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 
 	wdata_2 = MC_CLIENT_HOTRESET_CTRL2_RESET_VAL;
 	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL2, wdata_2);
+
+	reg_val = MC_COALESCE_CTRL_COALESCER_ENABLE;
+	tegra_mc_write_32(MC_COALESCE_CTRL, reg_val);
 }
 
 /*******************************************************************************
