@@ -160,6 +160,13 @@ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffreestanding -fno-builtin -Wall -std=gnu99	\
 				-Os -ffunction-sections -fdata-sections
 
+GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
+PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
+
+ifeq ($(PIE_FOUND),1)
+TF_CFLAGS		+=	-fno-PIE
+endif
+
 TF_LDFLAGS		+=	--fatal-warnings -O1
 TF_LDFLAGS		+=	--gc-sections
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
