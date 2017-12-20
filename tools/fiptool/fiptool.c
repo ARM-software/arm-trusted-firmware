@@ -493,6 +493,7 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 	fip_toc_entry_t *toc_entry;
 	char *buf;
 	uint64_t entry_offset, buf_size, payload_size = 0;
+	uint64_t pad_size = 0;
 	size_t nr_images = 0;
 
 	for (desc = image_desc_head; desc != NULL; desc = desc->next)
@@ -553,7 +554,15 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 			log_errx("Failed to set file position");
 
 		xfwrite(image->buffer, image->toc_e.size, fp, filename);
+
+		/* Calculate padding size for file alignment */
+		pad_size = (image->toc_e.size + align - 1) & ~(align - 1);
+		pad_size = pad_size - image->toc_e.size;
 	}
+
+	/* Pad zeros to file tail for alignment */
+	while (pad_size--)
+		fputc(0x0, fp);
 
 	fclose(fp);
 	return 0;
