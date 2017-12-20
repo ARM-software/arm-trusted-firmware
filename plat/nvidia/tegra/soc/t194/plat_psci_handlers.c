@@ -103,6 +103,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint32_t val;
 	mce_cstate_info_t sc7_cstate_info = {
 		.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6,
+		.ccplex = (uint32_t)TEGRA_NVG_CG_CG7,
 		.system = (uint32_t)TEGRA_NVG_SYSTEM_SC7,
 		.system_state_force = 1U,
 		.update_wake_mask = 1U,
