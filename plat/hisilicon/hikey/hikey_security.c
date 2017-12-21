@@ -63,13 +63,15 @@ static volatile struct rgn_attr_reg *get_rgn_attr_reg(uint32_t base, int region,
  * region_size must be a power of 2 and at least 64KB
  * region_base must be region_size aligned
  */
-static void sec_protect(uint32_t region_base, uint32_t region_size)
+static void sec_protect(uint32_t region_base, uint32_t region_size,
+			int region)
 {
 	volatile struct int_en_reg *int_en;
 	volatile struct rgn_map_reg *rgn_map;
 	volatile struct rgn_attr_reg *rgn_attr;
 	uint32_t i = 0;
 
+	assert(region < 1 || region > 15);
 	assert(!IS_POWER_OF_TWO(region_size) || region_size < 0x10000);
 	/* ensure secure region_base is aligned to region_size */
 	assert((region_base & (region_size - 1)));
@@ -81,8 +83,8 @@ static void sec_protect(uint32_t region_base, uint32_t region_size)
 	int_en->in_en = 0x1;
 
 	for (i = 0; i < PORTNUM_MAX; i++) {
-		rgn_map = get_rgn_map_reg(MDDRC_SECURITY_BASE, 1, i);
-		rgn_attr = get_rgn_attr_reg(MDDRC_SECURITY_BASE, 1, i);
+		rgn_map = get_rgn_map_reg(MDDRC_SECURITY_BASE, region, i);
+		rgn_attr = get_rgn_attr_reg(MDDRC_SECURITY_BASE, region, i);
 		rgn_map->rgn_base_addr = region_base >> 16;
 		rgn_attr->subrgn_disable = 0x0;
 		rgn_attr->sp = (i == 3) ? 0xC : 0x0;
@@ -96,5 +98,6 @@ static void sec_protect(uint32_t region_base, uint32_t region_size)
  ******************************************************************************/
 void hikey_security_setup(void)
 {
-	sec_protect(DDR_SEC_BASE, DDR_SEC_SIZE);
+	sec_protect(DDR_SEC_BASE, DDR_SEC_SIZE, 1);
+	sec_protect(DDR_SDP_BASE, DDR_SDP_SIZE, 2);
 }
