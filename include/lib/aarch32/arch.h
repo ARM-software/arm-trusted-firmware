@@ -544,7 +544,7 @@
 #define AMCNTENCLR0	p15, 0, c13, c2, 4
 #define AMCNTENSET0	p15, 0, c13, c2, 5
 #define AMCNTENCLR1	p15, 0, c13, c3, 0
-#define AMCNTENSET1	p15, 0, c13, c1, 1
+#define AMCNTENSET1	p15, 0, c13, c3, 1
 
 /* Activity Monitor Group 0 Event Counter Registers */
 #define AMEVCNTR00	p15, 0, c0

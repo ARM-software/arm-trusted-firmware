@@ -5,8 +5,8 @@
  */
 
 #include <cortex_a75.h>
-#include <pubsub_events.h>
 #include <platform.h>
+#include <pubsub_events.h>
 
 struct amu_ctx {
 	uint64_t cnts[CORTEX_A75_AMU_NR_COUNTERS];
