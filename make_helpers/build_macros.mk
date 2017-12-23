@@ -101,7 +101,7 @@ endef
 # FIP_ADD_PAYLOAD appends the command line arguments required by fiptool
 # to package a new payload. Optionally, it adds the dependency on this payload
 #   $(1) = payload filename (i.e. bl31.bin)
-#   $(2) = command line option for the specified payload (i.e. --bl31)
+#   $(2) = command line option for the specified payload (i.e. --soc-fw)
 #   $(3) = fip target dependency (optional) (i.e. bl31)
 define FIP_ADD_PAYLOAD
     $(eval FIP_ARGS += $(2) $(1))
@@ -121,9 +121,9 @@ endef
 # using a build option. It also adds a dependency on the image file, aborting
 # the build if the file does not exist.
 #   $(1) = build option to specify the image filename (SCP_BL2, BL33, etc)
-#   $(2) = command line option for fiptool (scp_bl2, bl33, etc)
+#   $(2) = command line option for fiptool (--scp-fw, --nt-fw, etc)
 # Example:
-#   $(eval $(call FIP_ADD_IMG,BL33,--bl33))
+#   $(eval $(call FIP_ADD_IMG,BL33,--nt-fw))
 define FIP_ADD_IMG
     CRT_DEPS += check_$(1)
     FIP_DEPS += check_$(1)
@@ -154,9 +154,9 @@ endef
 
 # FWU_FIP_ADD_IMG allows the platform to pack a binary image in the FWU FIP
 #   $(1) build option to specify the image filename (BL2U, NS_BL2U, etc)
-#   $(2) command line option for fiptool (bl2u, ns_bl2u, etc)
+#   $(2) command line option for fiptool (--ap-fwu-cfg, --fwu, etc)
 # Example:
-#   $(eval $(call FWU_FIP_ADD_IMG,BL2U,--bl2u))
+#   $(eval $(call FWU_FIP_ADD_IMG,BL2U,--ap-fwu-cfg))
 define FWU_FIP_ADD_IMG
     FWU_CRT_DEPS += check_$(1)
     FWU_FIP_DEPS += check_$(1)
