@@ -53,8 +53,8 @@
 #define  MC_HUB_PC_VC_ID_4_NIC_VC_ID_MASK		(0x3U << 28)
 #define  MC_HUB_PC_VC_ID_4_NIC_VC_ID			(VC_NISO << 28)
 
-#define mc_hub_vc_id(id, client) \
-	(~MC_HUB_PC_VC_ID_##id##_##client##_VC_ID_MASK | \
+#define mc_hub_vc_id(val, id, client) \
+	((val & ~MC_HUB_PC_VC_ID_##id##_##client##_VC_ID_MASK) | \
 	MC_HUB_PC_VC_ID_##id##_##client##_VC_ID)
 
 /*******************************************************************************
