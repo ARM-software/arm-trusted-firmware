@@ -11,23 +11,14 @@
 #include <sdei.h>
 
 /* Private event mappings */
-static sdei_ev_map_t arm_private_sdei[] = {
-	/* Event 0 */
-	SDEI_DEFINE_EVENT_0(ARM_SDEI_SGI),
-
-	/* Dynamic private events */
-	SDEI_PRIVATE_EVENT(ARM_SDEI_DP_EVENT_0, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
-	SDEI_PRIVATE_EVENT(ARM_SDEI_DP_EVENT_1, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
-	SDEI_PRIVATE_EVENT(ARM_SDEI_DP_EVENT_2, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
+static sdei_ev_map_t arm_sdei_private[] = {
+	PLAT_ARM_PRIVATE_SDEI_EVENTS
 };
 
 /* Shared event mappings */
-static sdei_ev_map_t arm_shared_sdei[] = {
-	/* Dynamic shared events */
-	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_0, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
-	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_1, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
-	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_2, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
+static sdei_ev_map_t arm_sdei_shared[] = {
+	PLAT_ARM_SHARED_SDEI_EVENTS
 };
 
 /* Export ARM SDEI events */
-REGISTER_SDEI_MAP(arm_private_sdei, arm_shared_sdei);
+REGISTER_SDEI_MAP(arm_sdei_private, arm_sdei_shared);
