@@ -129,6 +129,7 @@ define FIP_ADD_IMG
     FIP_DEPS += check_$(1)
     $(call FIP_ADD_PAYLOAD,$(value $(1)),$(2))
 
+.PHONY: check_$(1)
 check_$(1):
 	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
 endef
@@ -162,6 +163,7 @@ define FWU_FIP_ADD_IMG
     FWU_FIP_DEPS += check_$(1)
     $(call FWU_FIP_ADD_PAYLOAD,$(value $(1)),$(2))
 
+.PHONY: check_$(1)
 check_$(1):
 	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
 endef
