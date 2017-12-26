@@ -52,7 +52,6 @@ static int pri_to_idx(unsigned int priority)
 
 	idx = EHF_PRI_TO_IDX(priority, exception_data.pri_bits);
 	assert((idx >= 0) && (idx < exception_data.num_priorities));
-	assert(IS_IDX_VALID(idx));
 
 	return idx;
 }
@@ -116,6 +115,11 @@ void ehf_activate_priority(unsigned int priority)
 	 */
 	cur_pri_idx = get_pe_highest_active_idx(pe_data);
 	idx = pri_to_idx(priority);
+	if (!IS_IDX_VALID(idx)) {
+		ERROR("Invalid index : req=0x%x idx=0x%x\n", priority, idx);
+		panic();
+	}
+
 	if ((cur_pri_idx != EHF_INVALID_IDX) && (idx >= cur_pri_idx)) {
 		ERROR("Activation priority mismatch: req=0x%x current=0x%x\n",
 				priority, IDX_TO_PRI(cur_pri_idx));
@@ -182,6 +186,11 @@ void ehf_deactivate_priority(unsigned int priority)
 	 */
 	cur_pri_idx = get_pe_highest_active_idx(pe_data);
 	idx = pri_to_idx(priority);
+	if (!IS_IDX_VALID(idx)) {
+		ERROR("Invalid index : req=0x%x idx=0x%x\n", priority, idx);
+		panic();
+	}
+
 	if ((cur_pri_idx == EHF_INVALID_IDX) || (idx != cur_pri_idx)) {
 		ERROR("Deactivation priority mismatch: req=0x%x current=0x%x\n",
 				priority, IDX_TO_PRI(cur_pri_idx));
@@ -408,14 +417,19 @@ static uint64_t ehf_el3_interrupt_handler(uint32_t id, uint32_t flags,
 	 * and shifting the running priority value (platform-supplied).
 	 */
 	idx = pri_to_idx(pri);
+	if (!IS_IDX_VALID(idx)) {
+		ERROR("Invalid index : intr=0x%x req=0x%x idx=0x%x\n",
+				intr, pri, idx);
+		panic();
+	}
 
 	/* Validate priority */
 	assert(pri == IDX_TO_PRI(idx));
 
 	handler = RAW_HANDLER(exception_data.ehf_priorities[idx].ehf_handler);
 	if (!handler) {
-		ERROR("No EL3 exception handler for priority 0x%x\n",
-				IDX_TO_PRI(idx));
+		ERROR("No EL3 exception handler for intr 0x%x priority 0x%x\n",
+				intr, IDX_TO_PRI(idx));
 		panic();
 	}
 
