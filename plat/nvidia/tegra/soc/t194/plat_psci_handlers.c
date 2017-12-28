@@ -77,6 +77,12 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 	/* Sanity check the requested state id */
 	switch (state_id) {
 	case PSTATE_ID_CORE_IDLE:
+
+		/* Core idle request */
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
+		req_state->pwr_domain_state[MPIDR_AFFLVL1] = PSCI_LOCAL_STATE_RUN;
+		break;
+
 	case PSTATE_ID_CORE_POWERDN:
 
 		/* Core powerdown request */
@@ -92,6 +98,25 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 	}
 
 	return ret;
+}
+
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
+{
+	uint32_t cpu = plat_my_core_pos();
+	mce_cstate_info_t cstate_info = { 0 };
+
+	/* Program default wake mask */
+	cstate_info.wake_mask = TEGRA194_CORE_WAKE_MASK;
+	cstate_info.update_wake_mask = 1;
+	mce_update_cstate_info(&cstate_info);
+
+	/* Enter CPU idle */
+	(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
+				  (uint64_t)TEGRA_NVG_CORE_C6,
+				  t19x_percpu_data[cpu].wake_time,
+				  0U);
+
+	return PSCI_E_SUCCESS;
 }
 
 int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -118,15 +143,13 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA194_STATE_ID_MASK;
 
-	if ((stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ||
-	    (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
+	if ((stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
 
-		/* Enter CPU idle/powerdown */
-		val = (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ?
-			(uint32_t)TEGRA_NVG_CORE_C6 : (uint32_t)TEGRA_NVG_CORE_C7;
-		ret = mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE, (uint64_t)val,
-				t19x_percpu_data[cpu].wake_time, 0);
-		assert(ret == 0);
+		/* Enter CPU powerdown */
+		(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
+					  (uint64_t)TEGRA_NVG_CORE_C7,
+					  t19x_percpu_data[cpu].wake_time,
+					  0U);
 
 	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
