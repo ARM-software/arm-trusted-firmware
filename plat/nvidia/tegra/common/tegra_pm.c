@@ -41,6 +41,7 @@ uint8_t tegra_fake_system_suspend;
  * provide typical implementations that will be overridden by a SoC.
  */
 #pragma weak tegra_soc_pwr_domain_suspend_pwrdown_early
+#pragma weak tegra_soc_cpu_standby
 #pragma weak tegra_soc_pwr_domain_suspend
 #pragma weak tegra_soc_pwr_domain_on
 #pragma weak tegra_soc_pwr_domain_off
@@ -53,6 +54,12 @@ uint8_t tegra_fake_system_suspend;
 int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
 {
 	return PSCI_E_NOT_SUPPORTED;
+}
+
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
+{
+	(void)cpu_state;
+	return PSCI_E_SUCCESS;
 }
 
 int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -140,6 +147,10 @@ void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
 void tegra_cpu_standby(plat_local_state_t cpu_state)
 {
 	(void)cpu_state;
+
+	/* Tegra SoC specific handler */
+	if (tegra_soc_cpu_standby(cpu_state) != PSCI_E_SUCCESS)
+		ERROR("%s failed\n", __func__);
 
 	/*
 	 * Enter standby state
