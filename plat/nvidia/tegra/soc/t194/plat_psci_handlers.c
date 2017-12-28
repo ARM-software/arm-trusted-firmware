@@ -251,6 +251,8 @@ static plat_local_state_t tegra_get_afflvl1_pwr_state(const plat_local_state_t *
 
 			/* Enable CC6 state and turn off wake mask */
 			cstate_info.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6;
+			cstate_info.ccplex = (uint32_t)TEGRA_NVG_CG_CG7;
+			cstate_info.system_state_force = 1;
 			cstate_info.update_wake_mask = 1U;
 			mce_update_cstate_info(&cstate_info);
 
