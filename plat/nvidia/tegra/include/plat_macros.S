@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,7 +50,7 @@ spacer:
 	bl	asm_print_hex
 	adr	x4, spacer
 	bl	asm_print_str
-	ldr	x4, [x7], #8
+	ldr	w4, [x7], #4
 	bl	asm_print_hex
 	adr	x4, newline
 	bl	asm_print_str
