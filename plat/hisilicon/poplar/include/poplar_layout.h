@@ -12,8 +12,8 @@
  */
 
 /*
- * When Poplar is powered on, boot ROM loads the initial content of
- * boot media into low memory, verifies it, and begins executing it
+ * When Poplar is powered on, boot ROM verifies the initial content of
+ * boot media, loads it into low memory, and begins executing it
  * in 32-bit mode.  The image loaded is "l-loader.bin", which contains
  * a small amount code along with an embedded ARM Trusted Firmware
  * BL1 image.  The main purpose of "l-loader" is to prepare the
@@ -78,12 +78,27 @@
 #define BL1_OFFSET			0x0000D000	/* page multiple */
 #define FIP_BASE			0x02040000
 
+/*
+ * FIP_BASE_EMMC = 0x40000 - 0x1000
+ * = fip.bin offset - l-loader text offset
+ * in l-loader.bin
+ */
+#define FIP_BASE_EMMC			0x0003f000
+
 #define BL1_RO_SIZE			0x00008000	/* page multiple */
 #define BL1_RW_SIZE			0x00008000	/* page multiple */
 #define BL1_SIZE			(BL1_RO_SIZE + BL1_RW_SIZE)
 #define BL2_SIZE			0x0000c000	/* page multiple */
 #define BL31_SIZE			0x00014000
-#define FIP_SIZE			0x000c0000  /* absolute max */
+/*
+ * emmc partition1 4096KB
+ * - l-loader.bin 1984KB
+ * |- l-loader + bl1.bin 256KB
+ * |- fip.bin 1728KB (0x001b0000)
+ * - u-boot persistent data 64KB
+ * - uefi persistent data 2048KB
+ */
+#define FIP_SIZE			0x001b0000  /* absolute max */
 
      /* BL1_OFFSET */			/* (Defined above) */
 #define BL1_BASE			(LLOADER_TEXT_BASE + BL1_OFFSET)

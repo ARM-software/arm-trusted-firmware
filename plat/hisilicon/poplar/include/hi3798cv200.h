@@ -7,6 +7,8 @@
 #ifndef __HI3798cv200_H__
 #define __HI3798cv200_H__
 
+#include <utils_def.h>
+
 /* PL011 */
 #define PL011_UART0_BASE		(0xF8B00000)
 #define PL011_BAUDRATE			(115200)
@@ -63,11 +65,11 @@
 #define EMMC_CLK_50M			(1 << 8)
 #define EMMC_CLK_25M			(2 << 8)
 
-#define EMMC_DESC_SIZE			(0xF0000)
+#define EMMC_DESC_SIZE			U(0x00100000) /* 1MB */
 #define EMMC_INIT_PARAMS(base)				\
 	{	.bus_width = EMMC_BUS_WIDTH_8,		\
 		.clk_rate = 25 * 1000 * 1000,		\
-		.desc_base = (base) - EMMC_DESC_SIZE,	\
+		.desc_base = (base),	\
 		.desc_size = EMMC_DESC_SIZE,		\
 		.flags =  EMMC_FLAG_CMD23,		\
 		.reg_base = REG_BASE_MCI,		\

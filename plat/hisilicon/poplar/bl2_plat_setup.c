@@ -9,6 +9,8 @@
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
+#include <dw_mmc.h>
+#include <emmc.h>
 #include <errno.h>
 #include <generic_delay_timer.h>
 #include <mmio.h>
@@ -181,12 +183,20 @@ void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 
 void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
+	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
+
 	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
 
 	/* Enable arch timer */
 	generic_delay_timer_init();
 
 	bl2_tzram_layout = *mem_layout;
+
+	/* SoC-specific emmc register are initialized/configured by bootrom */
+	INFO("BL2: initializing emmc\n");
+	dw_mmc_init(&params);
+
+	plat_io_setup();
 }
 
 void bl2_plat_arch_setup(void)
@@ -201,7 +211,6 @@ void bl2_plat_arch_setup(void)
 
 void bl2_platform_setup(void)
 {
-	plat_io_setup();
 }
 
 unsigned long plat_get_ns_image_entrypoint(void)

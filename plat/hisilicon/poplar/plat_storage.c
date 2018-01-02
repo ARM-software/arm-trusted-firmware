@@ -7,6 +7,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
+#include <emmc.h>
 #include <firmware_image_package.h>
 #include <io_block.h>
 #include <io_driver.h>
@@ -21,18 +22,30 @@
 #include <utils.h>
 #include "platform_def.h"
 
-static const io_dev_connector_t *mmap_dev_con;
+static const io_dev_connector_t *emmc_dev_con;
 static const io_dev_connector_t *fip_dev_con;
 
-static uintptr_t mmap_dev_handle;
+static uintptr_t emmc_dev_handle;
 static uintptr_t fip_dev_handle;
 
-static int open_mmap(const uintptr_t spec);
+static int open_emmc(const uintptr_t spec);
 static int open_fip(const uintptr_t spec);
 
-static const io_block_spec_t loader_fip_spec = {
-	.offset		= FIP_BASE,
+static const io_block_spec_t emmc_fip_spec = {
+	.offset		= FIP_BASE_EMMC,
 	.length		= FIP_SIZE
+};
+
+static const io_block_dev_spec_t emmc_dev_spec = {
+	.buffer		= {
+		.offset	= POPLAR_EMMC_DATA_BASE,
+		.length	= POPLAR_EMMC_DATA_SIZE,
+	},
+	.ops		= {
+		.read	= emmc_read_blocks,
+		.write	= emmc_write_blocks,
+	},
+	.block_size	= EMMC_BLOCK_SIZE,
 };
 
 static const io_uuid_spec_t bl2_uuid_spec = {
@@ -59,9 +72,9 @@ struct plat_io_policy {
 
 static const struct plat_io_policy policies[] = {
 	[FIP_IMAGE_ID] = {
-		&mmap_dev_handle,
-		(uintptr_t)&loader_fip_spec,
-		open_mmap
+		&emmc_dev_handle,
+		(uintptr_t)&emmc_fip_spec,
+		open_emmc
 	},
 	[BL2_IMAGE_ID] = {
 		&fip_dev_handle,
@@ -85,18 +98,24 @@ static const struct plat_io_policy policies[] = {
 	},
 };
 
-static int open_mmap(const uintptr_t spec)
+static int open_emmc(const uintptr_t spec)
 {
 	int result;
 	uintptr_t local_image_handle;
 
-	result = io_dev_init(mmap_dev_handle, (uintptr_t)NULL);
+	result = io_dev_init(emmc_dev_handle, (uintptr_t)NULL);
 	if (result == 0) {
-		result = io_open(mmap_dev_handle, spec, &local_image_handle);
+		result = io_open(emmc_dev_handle, spec, &local_image_handle);
 		if (result == 0) {
+			INFO("Using eMMC\n");
 			io_close(local_image_handle);
+		} else {
+			ERROR("error opening emmc\n");
 		}
+	} else {
+		ERROR("error initializing emmc\n");
 	}
+
 	return result;
 }
 
@@ -109,12 +128,13 @@ static int open_fip(const uintptr_t spec)
 	if (result == 0) {
 		result = io_open(fip_dev_handle, spec, &local_image_handle);
 		if (result == 0) {
+			INFO("Using FIP\n");
 			io_close(local_image_handle);
 		} else {
-			VERBOSE("error opening fip\n");
+			ERROR("error opening fip\n");
 		}
 	} else {
-		VERBOSE("error initializing fip\n");
+		ERROR("error initializing fip\n");
 	}
 
 	return result;
@@ -142,17 +162,18 @@ void plat_io_setup(void)
 {
 	int result;
 
-	result = register_io_dev_memmap(&mmap_dev_con);
+	result = register_io_dev_block(&emmc_dev_con);
 	assert(result == 0);
 
 	result = register_io_dev_fip(&fip_dev_con);
 	assert(result == 0);
 
-	result = io_dev_open(fip_dev_con, (uintptr_t)&loader_fip_spec,
+	result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
 				&fip_dev_handle);
 	assert(result == 0);
 
-	result = io_dev_open(mmap_dev_con, (uintptr_t)NULL, &mmap_dev_handle);
+	result = io_dev_open(emmc_dev_con, (uintptr_t)&emmc_dev_spec,
+				&emmc_dev_handle);
 	assert(result == 0);
 
 	(void) result;
