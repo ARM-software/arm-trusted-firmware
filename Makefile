@@ -586,8 +586,12 @@ $(eval $(call MAKE_BL,1))
 endif
 
 ifeq (${NEED_BL2},yes)
-$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},tb-fw)),\
-	$(eval $(call MAKE_BL,2,tb-fw)))
+ifeq (${BL2_AT_EL3}, 0)
+FIP_BL2_ARGS := tb-fw
+endif
+
+$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},${FIP_BL2_ARGS})),\
+	$(eval $(call MAKE_BL,2,${FIP_BL2_ARGS})))
 endif
 
 ifeq (${NEED_SCP_BL2},yes)
