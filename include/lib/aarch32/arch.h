@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -426,6 +426,8 @@
 #define TLBIMVAA	p15, 0, c8, c7, 3
 #define TLBIMVAAIS	p15, 0, c8, c3, 3
 #define BPIALLIS	p15, 0, c7, c1, 6
+#define BPIALL		p15, 0, c7, c5, 6
+#define ICIALLU		p15, 0, c7, c5, 0
 #define HSCTLR		p15, 4, c1, c0, 0
 #define HCR		p15, 4, c1, c1, 0
 #define HCPTR		p15, 4, c1, c1, 2

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -24,6 +24,11 @@ endif
 
 ifeq (${ENABLE_AMU}, 1)
 BL32_SOURCES		+=	lib/extensions/amu/aarch32/amu.c
+endif
+
+ifeq (${WORKAROUND_CVE_2017_5715},1)
+BL32_SOURCES		+=	bl32/sp_min/workaround_cve_2017_5715_bpiall.S	\
+				bl32/sp_min/workaround_cve_2017_5715_icache_inv.S
 endif
 
 BL32_LINKERFILE	:=	bl32/sp_min/sp_min.ld.S
