@@ -86,6 +86,8 @@ static const mmap_region_t tegra_mmap[] = {
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_SE0_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_HSP_DBELL_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_PKA1_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x10000U, /* 64KB */
@@ -94,6 +96,8 @@ static const mmap_region_t tegra_mmap[] = {
 	MAP_REGION_FLAT(TEGRA_AON_HSP_SM_6_7_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 #endif
+	MAP_REGION_FLAT(TEGRA_BPMP_IPC_TX_PHYS_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_CAR_RESET_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000U, /* 256KB */

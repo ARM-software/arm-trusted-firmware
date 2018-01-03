@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 #include <arch_helpers.h>
+#include <bpmp_ipc.h>
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
@@ -181,6 +182,12 @@ int32_t tegra_se_suspend(void)
 {
 	int32_t ret = 0;
 
+	/* initialise communication channel with BPMP */
+	assert(tegra_bpmp_ipc_init() == 0);
+
+	/* Enable SE clock before SE context save */
+	tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+
 	/* save SE registers */
 	se_regs[0] = mmio_read_32(TEGRA_SE0_BASE + SE0_MUTEX_WATCHDOG_NS_LIMIT);
 	se_regs[1] = mmio_read_32(TEGRA_SE0_BASE + SE0_AES0_ENTROPY_SRC_AGE_CTRL);
@@ -193,6 +200,9 @@ int32_t tegra_se_suspend(void)
 		ERROR("%s: context save failed (%d)\n", __func__, ret);
 	}
 
+	/* Disable SE clock after SE context save */
+	tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+
 	return ret;
 }
 
@@ -201,6 +211,12 @@ int32_t tegra_se_suspend(void)
  */
 void tegra_se_resume(void)
 {
+	/* initialise communication channel with BPMP */
+	assert(tegra_bpmp_ipc_init() == 0);
+
+	/* Enable SE clock before SE context restore */
+	tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+
 	/*
 	 * When TZ takes over after System Resume, TZ should first reconfigure
 	 * SE_MUTEX_WATCHDOG_NS_LIMIT, PKA1_MUTEX_WATCHDOG_NS_LIMIT,
@@ -211,4 +227,7 @@ void tegra_se_resume(void)
 	mmio_write_32(TEGRA_SE0_BASE + SE0_AES0_ENTROPY_SRC_AGE_CTRL, se_regs[1]);
 	mmio_write_32(TEGRA_RNG1_BASE + RNG1_MUTEX_WATCHDOG_NS_LIMIT, se_regs[2]);
 	mmio_write_32(TEGRA_PKA1_BASE + PKA1_MUTEX_WATCHDOG_NS_LIMIT, se_regs[3]);
+
+	/* Disable SE clock after SE context restore */
+	tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
 }
