@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,7 +41,46 @@ func cortex_a15_enable_smp
 	bx	lr
 endfunc cortex_a15_enable_smp
 
+func check_errata_cve_2017_5715
+#if WORKAROUND_CVE_2017_5715
+	mov	r0, #ERRATA_APPLIES
+#else
+	mov	r0, #ERRATA_MISSING
+#endif
+	bx	lr
+endfunc check_errata_cve_2017_5715
+
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex A15. Must follow AAPCS.
+ */
+func cortex_a15_errata_report
+	push	{r12, lr}
+
+	bl	cpu_get_rev_var
+	mov	r4, r0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata WORKAROUND_CVE_2017_5715, cortex_a15, cve_2017_5715
+
+	pop	{r12, lr}
+	bx	lr
+endfunc cortex_a15_errata_report
+#endif
+
 func cortex_a15_reset_func
+#if IMAGE_BL32 && WORKAROUND_CVE_2017_5715
+	ldcopr	r0, ACTLR
+	orr	r0, #CORTEX_A15_ACTLR_INV_BTB_BIT
+	stcopr	r0, ACTLR
+	ldr	r0, =workaround_icache_inv_runtime_exceptions
+	stcopr	r0, VBAR
+	stcopr	r0, MVBAR
+	/* isb will be applied in the course of the reset func */
+#endif
 	b	cortex_a15_enable_smp
 endfunc cortex_a15_reset_func
 
