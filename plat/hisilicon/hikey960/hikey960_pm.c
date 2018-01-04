@@ -34,18 +34,16 @@ static uintptr_t hikey960_sec_entrypoint;
 static void hikey960_pwr_domain_standby(plat_local_state_t cpu_state)
 {
 	unsigned long scr;
-	unsigned int val = 0;
-
-	assert(cpu_state == PLAT_MAX_RET_STATE);
 
 	scr = read_scr_el3();
 
-	/* Enable Physical IRQ and FIQ to wake the CPU*/
+	/* Enable Physical IRQ and FIQ to wake the CPU */
 	write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);
 
-	set_retention_ticks(val);
+	/* Add barrier before CPU enter WFI state */
+	isb();
+	dsb();
 	wfi();
-	clr_retention_ticks(val);
 
 	/*
 	 * Restore SCR to the original value, synchronisazion of
