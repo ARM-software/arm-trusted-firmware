@@ -117,4 +117,4 @@ endif
 bl1_gzip: $(BUILD_PLAT)/bl1.bin.gzip
 %.gzip: %
 	@echo "  GZIP    $@"
-	$(Q)(cat $< | gzip -n -f -9 > $@) || (rm -f $@ || false)
+	$(Q)gzip -n -f -9 $< --stdout > $@
