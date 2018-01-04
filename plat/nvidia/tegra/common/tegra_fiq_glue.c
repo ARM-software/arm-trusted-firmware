@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,33 +46,44 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 	(void)handle;
 	(void)cookie;
 
+	/*
+	 * Read the pending interrupt ID
+	 */
+	irq = plat_ic_get_pending_interrupt_id();
+
 	bakery_lock_get(&tegra_fiq_lock);
 
 	/*
-	 * The FIQ was generated when the execution was in the non-secure
-	 * world. Save the context registers to start with.
+	 * Jump to NS world only if the NS world's FIQ handler has
+	 * been registered
 	 */
-	cm_el1_sysregs_context_save(NON_SECURE);
+	if (ns_fiq_handler_addr != 0U) {
 
-	/*
-	 * Save elr_el3 and spsr_el3 from the saved context, and overwrite
-	 * the context with the NS fiq_handler_addr and SPSR value.
-	 */
-	fiq_state[cpu].elr_el3 = read_ctx_reg((el3state_ctx), (uint32_t)(CTX_ELR_EL3));
-	fiq_state[cpu].spsr_el3 = read_ctx_reg((el3state_ctx), (uint32_t)(CTX_SPSR_EL3));
+		/*
+		 * The FIQ was generated when the execution was in the non-secure
+		 * world. Save the context registers to start with.
+		 */
+		cm_el1_sysregs_context_save(NON_SECURE);
 
-	/*
-	 * Set the new ELR to continue execution in the NS world using the
-	 * FIQ handler registered earlier.
-	 */
-	assert(ns_fiq_handler_addr != 0ULL);
-	write_ctx_reg((el3state_ctx), (uint32_t)(CTX_ELR_EL3), (ns_fiq_handler_addr));
+		/*
+		 * Save elr_el3 and spsr_el3 from the saved context, and overwrite
+		 * the context with the NS fiq_handler_addr and SPSR value.
+		 */
+		fiq_state[cpu].elr_el3 = read_ctx_reg((el3state_ctx), (uint32_t)(CTX_ELR_EL3));
+		fiq_state[cpu].spsr_el3 = read_ctx_reg((el3state_ctx), (uint32_t)(CTX_SPSR_EL3));
+
+		/*
+		 * Set the new ELR to continue execution in the NS world using the
+		 * FIQ handler registered earlier.
+		 */
+		cm_set_elr_el3(NON_SECURE, ns_fiq_handler_addr);
+	}
 
 	/*
 	 * Mark this interrupt as complete to avoid a FIQ storm.
 	 */
-	irq = plat_ic_acknowledge_interrupt();
 	if (irq < 1022U) {
+		(void)plat_ic_acknowledge_interrupt();
 		plat_ic_end_of_interrupt(irq);
 	}
 
