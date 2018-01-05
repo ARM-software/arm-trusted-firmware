@@ -166,7 +166,8 @@ void arm_system_pwr_domain_resume(void);
 void arm_program_trusted_mailbox(uintptr_t address);
 int arm_psci_read_mem_protect(int *enabled);
 int arm_nor_psci_write_mem_protect(int val);
-void arm_nor_psci_do_mem_protect(void);
+void arm_nor_psci_do_static_mem_protect(void);
+void arm_nor_psci_do_dyn_mem_protect(void);
 int arm_psci_mem_protect_chk(uintptr_t base, u_register_t length);
 
 /* Topology utility function */

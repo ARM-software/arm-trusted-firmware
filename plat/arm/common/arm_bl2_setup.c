@@ -219,7 +219,7 @@ void arm_bl2_platform_setup(void)
 	plat_arm_security_setup();
 
 #if defined(PLAT_ARM_MEM_PROT_ADDR)
-	arm_nor_psci_do_mem_protect();
+	arm_nor_psci_do_static_mem_protect();
 #endif
 }
 

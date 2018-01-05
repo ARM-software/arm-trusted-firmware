@@ -7,6 +7,17 @@
 #ifndef __PLATFORM_DEF_H__
 #define __PLATFORM_DEF_H__
 
+/* Enable the dynamic translation tables library. */
+#ifdef AARCH32
+# if defined(IMAGE_BL32) && RESET_TO_SP_MIN
+#  define PLAT_XLAT_TABLES_DYNAMIC     1
+# endif
+#else
+# if defined(IMAGE_BL31) && RESET_TO_BL31
+#  define PLAT_XLAT_TABLES_DYNAMIC     1
+# endif
+#endif /* AARCH32 */
+
 #include <arm_def.h>
 #include <arm_spm_def.h>
 #include <board_arm_def.h>
@@ -40,6 +51,9 @@
 #define PLAT_ARM_TRUSTED_DRAM_BASE	0x06000000
 #define PLAT_ARM_TRUSTED_DRAM_SIZE	0x02000000	/* 32 MB */
 
+/* virtual address used by dynamic mem_protect for chunk_base */
+#define PLAT_ARM_MEM_PROTEC_VA_FRAME	0xc0000000
+
 /* No SCP in FVP */
 #define PLAT_ARM_SCP_TZC_DRAM1_SIZE	ULL(0x0)
 
@@ -48,7 +62,7 @@
 /*
  * Load address of BL33 for this platform port
  */
-#define PLAT_ARM_NS_IMAGE_OFFSET	(ARM_DRAM1_BASE + 0x8000000)
+#define PLAT_ARM_NS_IMAGE_OFFSET	(ARM_DRAM1_BASE + U(0x8000000))
 
 
 /*

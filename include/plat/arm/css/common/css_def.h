@@ -172,7 +172,7 @@
 #endif /* CSS_LOAD_SCP_IMAGES */
 
 /* Load address of Non-Secure Image for CSS platform ports */
-#define PLAT_ARM_NS_IMAGE_OFFSET	0xE0000000
+#define PLAT_ARM_NS_IMAGE_OFFSET	U(0xE0000000)
 
 /* TZC related constants */
 #define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT_ALL
