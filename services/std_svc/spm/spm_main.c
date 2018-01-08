@@ -125,6 +125,13 @@ int32_t spm_init(void)
 	secure_partition_setup();
 
 	/*
+	 * Make all CPUs use the same secure context.
+	 */
+	for (unsigned int i = 0; i < PLATFORM_CORE_COUNT; i++) {
+		cm_set_context_by_index(i, &sp_ctx.cpu_ctx, SECURE);
+	}
+
+	/*
 	 * Arrange for an entry into the secure partition.
 	 */
 	sp_ctx.sp_init_in_progress = 1;
@@ -369,6 +376,9 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 				assert(0);
 			}
 
+			/* Release the Secure Partition context */
+			spin_unlock(&sp_ctx.lock);
+
 			/*
 			 * This is the result from the Secure partition of an
 			 * earlier request. Copy the result into the non-secure
@@ -441,6 +451,9 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 			/* Save the Normal world context */
 			cm_el1_sysregs_context_save(NON_SECURE);
+
+			/* Lock the Secure Partition context. */
+			spin_lock(&sp_ctx.lock);
 
 			/*
 			 * Restore the secure world context and prepare for
