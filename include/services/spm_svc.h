@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,14 +10,13 @@
 #include <utils_def.h>
 
 #define SPM_VERSION_MAJOR	U(0)
+#define SPM_VERSION_MAJOR_SHIFT	16
+#define SPM_VERSION_MAJOR_MASK	U(0x7FFF)
 #define SPM_VERSION_MINOR	U(1)
-#define SPM_VERSION_FORM(major, minor)	((major << 16) | (minor))
+#define SPM_VERSION_MINOR_SHIFT	0
+#define SPM_VERSION_MINOR_MASK	U(0xFFFF)
+#define SPM_VERSION_FORM(major, minor)	((major << SPM_VERSION_MAJOR_SHIFT) | (minor))
 #define SPM_VERSION_COMPILED	SPM_VERSION_FORM(SPM_VERSION_MAJOR, SPM_VERSION_MINOR)
-
-#define SP_VERSION_MAJOR	U(1)
-#define SP_VERSION_MINOR	U(0)
-#define SP_VERSION_FORM(major, minor)	((major << 16) | (minor))
-#define SP_VERSION_COMPILED	SP_VERSION_FORM(SP_VERSION_MAJOR, SP_VERSION_MINOR)
 
 /* The macros below are used to identify SPM calls from the SMC function ID */
 #define SPM_FID_MASK			U(0xffff)
@@ -31,6 +30,7 @@
  * SMC IDs defined for accessing services implemented by the Secure Partition
  * Manager from the Secure Partition(s). These services enable a partition to
  * handle delegated events and request privileged operations from the manager.
+ * They occupy the range 0x60-0x7f.
  */
 #define SPM_VERSION_AARCH32			U(0x84000060)
 #define SP_EVENT_COMPLETE_AARCH64		U(0xC4000061)
@@ -51,16 +51,6 @@
 #define SP_MEMORY_ATTRIBUTES_EXEC		(U(0) << 2)
 #define SP_MEMORY_ATTRIBUTES_NON_EXEC		(U(1) << 2)
 
-/*
- * SMC IDs defined in [1] for accessing secure partition services from the
- * Non-secure world. These FIDs occupy the range 0x40 - 0x5f
- * [1] DEN0060A_ARM_MM_Interface_Specification.pdf
- */
-#define SP_VERSION_AARCH64		U(0xC4000040)
-#define SP_VERSION_AARCH32		U(0x84000040)
-
-#define MM_COMMUNICATE_AARCH64		U(0xC4000041)
-#define MM_COMMUNICATE_AARCH32		U(0x84000041)
 
 /* SPM error codes. */
 #define SPM_SUCCESS		0

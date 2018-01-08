@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <errno.h>
+#include <mm_svc.h>
 #include <platform.h>
 #include <runtime_svc.h>
 #include <secure_partition.h>
@@ -423,9 +424,8 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 		switch (smc_fid) {
 
-		case SP_VERSION_AARCH64:
-		case SP_VERSION_AARCH32:
-			SMC_RET1(handle, SP_VERSION_COMPILED);
+		case MM_VERSION_AARCH32:
+			SMC_RET1(handle, MM_VERSION_COMPILED);
 
 		case MM_COMMUNICATE_AARCH32:
 		case MM_COMMUNICATE_AARCH64:
