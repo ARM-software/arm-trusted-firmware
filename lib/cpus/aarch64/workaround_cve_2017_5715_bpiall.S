@@ -5,6 +5,7 @@
  */
 
 #include <arch.h>
+#include <arm_arch_svc.h>
 #include <asm_macros.S>
 #include <context.h>
 
@@ -12,6 +13,7 @@
 
 #define EMIT_BPIALL		0xee070fd5
 #define EMIT_SMC		0xe1600070
+#define ESR_EL3_A64_SMC0	0x5e000000
 
 	.macro	enter_workaround _from_vector
 	/*
@@ -303,6 +305,23 @@ vector_entry workaround_bpiall_vbar1_sync_exception_aarch32
 
 	/* Fast path Sync exceptions.  Static predictor will fall through. */
 	tbz	w2, #0, workaround_not_sync
+
+	/*
+	 * Check if SMC is coming from A64 state on #0
+	 * with W0 = SMCCC_ARCH_WORKAROUND_1
+	 *
+	 * This sequence evaluates as:
+	 *    (W0==SMCCC_ARCH_WORKAROUND_1) ? (ESR_EL3==SMC#0) : (NE)
+	 * allowing use of a single branch operation
+	 */
+	orr	w2, wzr, #SMCCC_ARCH_WORKAROUND_1
+	cmp	w0, w2
+	mov_imm	w2, ESR_EL3_A64_SMC0
+	ccmp	w3, w2, #0, eq
+	/* Static predictor will predict a fall through */
+	bne	1f
+	eret
+1:
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	sync_exception_aarch64
 	check_vector_size workaround_bpiall_vbar1_sync_exception_aarch32
