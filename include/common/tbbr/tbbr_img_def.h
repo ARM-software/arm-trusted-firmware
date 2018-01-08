@@ -66,4 +66,13 @@
 /* TB_FW_CONFIG */
 #define TB_FW_CONFIG_ID		24
 
+/* SOC_FW_CONFIG */
+#define SOC_FW_CONFIG_ID	25
+
+/* TOS_FW_CONFIG */
+#define TOS_FW_CONFIG_ID	26
+
+/* NT_FW_CONFIG */
+#define NT_FW_CONFIG_ID		27
+
 #endif /* __TBBR_IMG_DEF_H__ */
