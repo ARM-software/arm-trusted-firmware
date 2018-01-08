@@ -29,7 +29,6 @@ static spinlock_t mem_attr_smc_lock;
  * Secure Partition context information.
  ******************************************************************************/
 static secure_partition_context_t sp_ctx;
-unsigned int sp_init_in_progress;
 
 /*******************************************************************************
  * Replace the S-EL1 re-entry information with S-EL0 re-entry
@@ -126,12 +125,19 @@ int32_t spm_init(void)
 	secure_partition_setup();
 
 	/*
+	 * Make all CPUs use the same secure context.
+	 */
+	for (unsigned int i = 0; i < PLATFORM_CORE_COUNT; i++) {
+		cm_set_context_by_index(i, &sp_ctx.cpu_ctx, SECURE);
+	}
+
+	/*
 	 * Arrange for an entry into the secure partition.
 	 */
-	sp_init_in_progress = 1;
+	sp_ctx.sp_init_in_progress = 1;
 	rc = spm_synchronous_sp_entry(&sp_ctx);
 	assert(rc == 0);
-	sp_init_in_progress = 0;
+	sp_ctx.sp_init_in_progress = 0;
 	VERBOSE("SP_MEMORY_ATTRIBUTES_SET_AARCH64 availability has been revoked\n");
 
 	return rc;
@@ -358,7 +364,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			cm_el1_sysregs_context_save(SECURE);
 			spm_setup_next_eret_into_sel0(handle);
 
-			if (sp_init_in_progress) {
+			if (sp_ctx.sp_init_in_progress) {
 				/*
 				 * SPM reports completion. The SPM must have
 				 * initiated the original request through a
@@ -369,6 +375,9 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 				spm_synchronous_sp_exit(&sp_ctx, x1);
 				assert(0);
 			}
+
+			/* Release the Secure Partition context */
+			spin_unlock(&sp_ctx.lock);
 
 			/*
 			 * This is the result from the Secure partition of an
@@ -391,7 +400,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
 
-			if (!sp_init_in_progress) {
+			if (!sp_ctx.sp_init_in_progress) {
 				WARN("SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
@@ -400,7 +409,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
 
-			if (!sp_init_in_progress) {
+			if (!sp_ctx.sp_init_in_progress) {
 				WARN("SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
@@ -442,6 +451,9 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 			/* Save the Normal world context */
 			cm_el1_sysregs_context_save(NON_SECURE);
+
+			/* Lock the Secure Partition context. */
+			spin_lock(&sp_ctx.lock);
 
 			/*
 			 * Restore the secure world context and prepare for

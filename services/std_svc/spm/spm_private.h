@@ -32,6 +32,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <spinlock.h>
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
@@ -43,6 +44,8 @@ struct entry_point_info;
 typedef struct secure_partition_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
+	unsigned int sp_init_in_progress;
+	spinlock_t lock;
 } secure_partition_context_t;
 
 uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
