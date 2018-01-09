@@ -64,8 +64,10 @@ func sp_min_entrypoint
 	 * specific structure
 	 * ---------------------------------------------------------------
 	 */
-	mov	r11, r0
-	mov	r12, r1
+	mov	r9, r0
+	mov	r10, r1
+	mov	r11, r2
+	mov	r12, r3
 
 	/* ---------------------------------------------------------------------
 	 * For !RESET_TO_SP_MIN systems, only the primary CPU ever reaches
@@ -88,8 +90,6 @@ func sp_min_entrypoint
 	 * Relay the previous bootloader's arguments to the platform layer
 	 * ---------------------------------------------------------------------
 	 */
-	mov	r0, r11
-	mov	r1, r12
 #else
 	/* ---------------------------------------------------------------------
 	 * For RESET_TO_SP_MIN systems which have a programmable reset address,
@@ -111,15 +111,22 @@ func sp_min_entrypoint
 	 * Zero the arguments passed to the platform layer to reflect that.
 	 * ---------------------------------------------------------------------
 	 */
-	mov	r0, #0
-	mov	r1, #0
+	mov	r9, #0
+	mov	r10, #0
+	mov	r11, #0
+	mov	r12, #0
+
 #endif /* RESET_TO_SP_MIN */
 
 #if SP_MIN_WITH_SECURE_FIQ
 	route_fiq_to_sp_min r4
 #endif
 
-	bl	sp_min_early_platform_setup
+	mov	r0, r9
+	mov	r1, r10
+	mov	r2, r11
+	mov	r3, r12
+	bl	sp_min_early_platform_setup2
 	bl	sp_min_plat_arch_setup
 
 	/* Jump to the main function */

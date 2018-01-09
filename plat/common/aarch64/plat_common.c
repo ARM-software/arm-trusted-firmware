@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,7 @@
 #pragma weak bl31_plat_runtime_setup
 #if !ERROR_DEPRECATED
 #pragma weak plat_get_syscnt_freq2
+#pragma weak bl31_early_platform_setup2
 #endif /* ERROR_DEPRECATED */
 
 #if SDEI_SUPPORT
@@ -69,6 +70,12 @@ unsigned int plat_get_syscnt_freq2(void)
 	assert(freq >> 32 == 0);
 
 	return (unsigned int)freq;
+}
+
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			u_register_t arg2, u_register_t arg3)
+{
+	bl31_early_platform_setup((void *) arg0, (void *)arg1);
 }
 #endif /* ERROR_DEPRECATED */
 

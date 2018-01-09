@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,13 +23,13 @@
 func bl31_entrypoint
 #if !RESET_TO_BL31
 	/* ---------------------------------------------------------------
-	 * Preceding bootloader has populated x0 with a pointer to a
-	 * 'bl31_params' structure & x1 with a pointer to platform
-	 * specific structure
+	 * Stash the previous bootloader arguments x0 - x3 for later use.
 	 * ---------------------------------------------------------------
 	 */
 	mov	x20, x0
 	mov	x21, x1
+	mov	x22, x2
+	mov	x23, x3
 
 	/* ---------------------------------------------------------------------
 	 * For !RESET_TO_BL31 systems, only the primary CPU ever reaches
@@ -47,13 +47,6 @@ func bl31_entrypoint
 		_init_memory=0					\
 		_init_c_runtime=1				\
 		_exception_vectors=runtime_exceptions
-
-	/* ---------------------------------------------------------------------
-	 * Relay the previous bootloader's arguments to the platform layer
-	 * ---------------------------------------------------------------------
-	 */
-	mov	x0, x20
-	mov	x1, x21
 #else
 	/* ---------------------------------------------------------------------
 	 * For RESET_TO_BL31 systems which have a programmable reset address,
@@ -75,15 +68,20 @@ func bl31_entrypoint
 	 * arguments passed to the platform layer to reflect that.
 	 * ---------------------------------------------------------------------
 	 */
-	mov	x0, 0
-	mov	x1, 0
+	mov	x20, 0
+	mov	x21, 0
+	mov	x22, 0
+	mov	x23, 0
 #endif /* RESET_TO_BL31 */
-
 	/* ---------------------------------------------
 	 * Perform platform specific early arch. setup
 	 * ---------------------------------------------
 	 */
-	bl	bl31_early_platform_setup
+	mov	x0, x20
+	mov	x1, x21
+	mov	x2, x22
+	mov	x3, x23
+	bl	bl31_early_platform_setup2
 	bl	bl31_plat_arch_setup
 
 	/* ---------------------------------------------

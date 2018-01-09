@@ -9,6 +9,7 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <errno.h>
+#include <platform.h>
 
 /*
  * The following platform functions are weakly defined. The Platforms
@@ -49,3 +50,17 @@ int plat_try_next_boot_source(void)
 {
 	return 0;
 }
+
+#if !ERROR_DEPRECATED
+#pragma weak bl2_early_platform_setup2
+
+/*
+ * The following platform API implementation that allow compatibility for
+ * the older platform APIs.
+ */
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			u_register_t arg2, u_register_t arg3)
+{
+	bl2_early_platform_setup((void *)arg1);
+}
+#endif

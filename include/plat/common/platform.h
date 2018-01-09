@@ -165,7 +165,10 @@ int bl1_plat_handle_post_image_load(unsigned int image_id);
 /*******************************************************************************
  * Mandatory BL2 functions
  ******************************************************************************/
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3);
+#if !ERROR_DEPRECATED
 void bl2_early_platform_setup(struct meminfo *mem_layout);
+#endif
 void bl2_plat_arch_setup(void);
 void bl2_platform_setup(void);
 struct meminfo *bl2_plat_sec_mem_layout(void);
@@ -277,6 +280,7 @@ int bl2u_plat_handle_scp_bl2u(void);
 /*******************************************************************************
  * Mandatory BL31 functions
  ******************************************************************************/
+#if !ERROR_DEPRECATED
 #if LOAD_IMAGE_V2
 void bl31_early_platform_setup(void *from_bl2,
 				void *plat_params_from_bl2);
@@ -284,6 +288,9 @@ void bl31_early_platform_setup(void *from_bl2,
 void bl31_early_platform_setup(struct bl31_params *from_bl2,
 				void *plat_params_from_bl2);
 #endif
+#endif /* ERROR_DEPRECATED */
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+		u_register_t arg2, u_register_t arg3);
 void bl31_plat_arch_setup(void);
 void bl31_platform_setup(void);
 void bl31_plat_runtime_setup(void);
