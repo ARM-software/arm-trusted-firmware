@@ -68,7 +68,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	    .ep_info.spsr = SPSR_64(MODE_EL3, MODE_SP_ELX,
 		    DISABLE_ALL_EXCEPTIONS),
 #if DEBUG
-	    .ep_info.args.arg1 = ARM_BL31_PLAT_PARAM_VAL,
+	    .ep_info.args.arg3 = ARM_BL31_PLAT_PARAM_VAL,
 #endif
 
 	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,

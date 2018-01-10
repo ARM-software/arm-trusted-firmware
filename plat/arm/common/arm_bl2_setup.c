@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,7 +39,7 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 CASSERT(BL2_BASE >= (ARM_BL_RAM_BASE + BL1_MEMINFO_OFFSET), assert_bl2_base_overflows);
 
 /* Weak definitions may be overridden in specific ARM standard platform */
-#pragma weak bl2_early_platform_setup
+#pragma weak bl2_early_platform_setup2
 #pragma weak bl2_platform_setup
 #pragma weak bl2_plat_arch_setup
 #pragma weak bl2_plat_sec_mem_layout
@@ -169,7 +169,7 @@ void bl2_plat_flush_bl31_params(void)
 struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 {
 #if DEBUG
-	bl31_params_mem.bl31_ep_info.args.arg1 = ARM_BL31_PLAT_PARAM_VAL;
+	bl31_params_mem.bl31_ep_info.args.arg3 = ARM_BL31_PLAT_PARAM_VAL;
 #endif
 
 	return &bl31_params_mem.bl31_ep_info;
@@ -194,9 +194,9 @@ void arm_bl2_early_platform_setup(meminfo_t *mem_layout)
 	plat_arm_io_setup();
 }
 
-void bl2_early_platform_setup(meminfo_t *mem_layout)
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
-	arm_bl2_early_platform_setup(mem_layout);
+	arm_bl2_early_platform_setup((meminfo_t *)arg1);
 	generic_delay_timer_init();
 }
 

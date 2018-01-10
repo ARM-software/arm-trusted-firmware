@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,10 +12,9 @@
 #include "fvp_def.h"
 #include "fvp_private.h"
 
-
-void bl2_early_platform_setup(meminfo_t *mem_layout)
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
-	arm_bl2_early_platform_setup(mem_layout);
+	arm_bl2_early_platform_setup((meminfo_t *)arg1);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

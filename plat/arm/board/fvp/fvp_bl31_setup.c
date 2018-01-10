@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,15 +9,10 @@
 #include <smmu_v3.h>
 #include "fvp_private.h"
 
-#if LOAD_IMAGE_V2
-void bl31_early_platform_setup(void *from_bl2,
-				void *plat_params_from_bl2)
-#else
-void bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2)
-#endif
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+		u_register_t arg2, u_register_t arg3)
 {
-	arm_bl31_early_platform_setup(from_bl2, plat_params_from_bl2);
+	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();
