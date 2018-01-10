@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -542,7 +542,6 @@ enum pm_ret_status pm_get_chipid(uint32_t *value)
  */
 void pm_get_callbackdata(uint32_t *data, size_t count)
 {
-
 	pm_ipi_buff_read_callb(data, count);
-	pm_ipi_irq_clear();
+	pm_ipi_irq_clear(primary_proc);
 }

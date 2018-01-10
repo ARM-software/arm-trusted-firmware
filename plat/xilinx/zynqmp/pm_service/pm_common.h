@@ -21,13 +21,13 @@
 
 /**
  * pm_ipi - struct for capturing IPI-channel specific info
- * @mask	mask for enabling/disabling and triggering the IPI
- * @base	base address for IPI
+ * @apu_ipi_id	APU IPI agent ID
+ * @pmu_ipi_id	PMU Agent ID
  * @buffer_base	base address for payload buffer
  */
 struct pm_ipi {
-	const unsigned int mask;
-	const uintptr_t base;
+	const uint32_t apu_ipi_id;
+	const uint32_t pmu_ipi_id;
 	const uintptr_t buffer_base;
 };
 
