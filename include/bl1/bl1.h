@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,6 +70,10 @@
 CASSERT(FWU_NUM_SMC_CALLS == 	\
 		(FWU_SMC_FID_END - FWU_SMC_FID_START + 1),\
 		assert_FWU_NUM_SMC_CALLS_mismatch);
+
+/* Utility functions */
+void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
+			meminfo_t *bl2_mem_layout);
 
 #endif /* __ASSEMBLY__ */
 #endif /* __BL1_FWU_H__ */

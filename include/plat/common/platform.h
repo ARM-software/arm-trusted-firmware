@@ -134,9 +134,10 @@ int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
 /*******************************************************************************
  * Optional BL1 functions (may be overridden)
  ******************************************************************************/
+#if !ERROR_DEPRECATED
 void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
 			     struct meminfo *bl2_mem_layout);
-
+#endif
 /*
  * The following functions are used for image loading process in BL1.
  */
