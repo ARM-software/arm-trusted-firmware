@@ -135,7 +135,7 @@ Non-secure interrupts
    former's state is correctly saved by the latter.
 
 #. **CSS=1, TEL3=0**. Interrupt is routed to FEL when execution is in
-   non-secure state. This is an valid routing model as a non-secure interrupt
+   non-secure state. This is a valid routing model as a non-secure interrupt
    is handled by non-secure software.
 
 #. **CSS=1, TEL3=1**. Interrupt is routed to EL3 when execution is in
@@ -216,17 +216,14 @@ The framework makes the following assumptions to simplify its implementation.
 #. Interrupt exceptions (``PSTATE.I`` and ``F`` bits) are masked during execution
    in EL3.
 
-#. .. rubric:: Interrupt management
-      :name: interrupt-management
+#. Interrupt management: the following sections describe how interrupts are
+   managed by the interrupt handling framework. This entails:
 
-   The following sections describe how interrupts are managed by the interrupt
-   handling framework. This entails:
+   #. Providing an interface to allow registration of a handler and
+      specification of the routing model for a type of interrupt.
 
-#. Providing an interface to allow registration of a handler and specification
-   of the routing model for a type of interrupt.
-
-#. Implementing support to hand control of an interrupt type to its registered
-   handler when the interrupt is generated.
+   #. Implementing support to hand control of an interrupt type to its
+      registered handler when the interrupt is generated.
 
 Both aspects of interrupt management involve various components in the secure
 software stack spanning from EL3 to Secure-EL1. These components are described
@@ -685,14 +682,14 @@ the handler function for that type of interrupt. The SPD service is responsible
 for the following:
 
 #. Validating the interrupt. This involves ensuring that the interrupt was
-   generating according to the interrupt routing model specified by the SPD
+   generated according to the interrupt routing model specified by the SPD
    service during registration. It should use the security state of the
    exception level (passed in the ``flags`` parameter of the handler) where
    the interrupt was taken from to determine this. If the interrupt is not
    recognised then the handler should treat it as an irrecoverable error
    condition.
 
-   A SPD service can register a handler for Secure-EL1 and/or Non-secure
+   An SPD service can register a handler for Secure-EL1 and/or Non-secure
    interrupts. A non-secure interrupt should never be routed to EL3 from
    from non-secure state. Also if a routing model is chosen where Secure-EL1
    interrupts are routed to S-EL1 when execution is in Secure state, then a
