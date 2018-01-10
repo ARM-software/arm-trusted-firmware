@@ -151,6 +151,10 @@ EL3 interrupts
    in Secure-EL1/Secure-EL0 is in control of how its execution is preempted
    by EL3 interrupt and can handover the interrupt to EL3 for handling.
 
+   However, when ``EL3_EXCEPTION_HANDLING`` is ``1``, this routing model is
+   invalid as EL3 interrupts are unconditionally routed to EL3, and EL3
+   interrupts will always preempt Secure EL1/EL0 execution.
+
 #. **CSS=0, TEL3=1**. Interrupt is routed to EL3 when execution is in
    Secure-EL1/Secure-EL0. This is a valid routing model as secure software
    in EL3 can handle the interrupt.
