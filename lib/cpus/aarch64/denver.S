@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,9 +7,135 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <context.h>
 #include <denver.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+	/* -------------------------------------------------
+	 * CVE-2017-5715 mitigation
+	 *
+	 * Flush the indirect branch predictor and RSB on
+	 * entry to EL3 by issuing a newly added instruction
+	 * for Denver CPUs.
+	 *
+	 * To achieve this without performing any branch
+	 * instruction, a per-cpu vbar is installed which
+	 * executes the workaround and then branches off to
+	 * the corresponding vector entry in the main vector
+	 * table.
+	 * -------------------------------------------------
+	 */
+	.globl	workaround_bpflush_runtime_exceptions
+
+vector_base workaround_bpflush_runtime_exceptions
+
+	.macro	apply_workaround
+	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+
+	/* -------------------------------------------------
+	 * A new write-only system register where a write of
+	 * 1 to bit 0 will cause the indirect branch predictor
+	 * and RSB to be flushed.
+	 *
+	 * A write of 0 to bit 0 will be ignored. A write of
+	 * 1 to any other bit will cause an MCA.
+	 * -------------------------------------------------
+	 */
+	mov	x0, #1
+	msr	s3_0_c15_c0_6, x0
+	isb
+
+	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+	.endm
+
+	/* ---------------------------------------------------------------------
+	 * Current EL with SP_EL0 : 0x0 - 0x200
+	 * ---------------------------------------------------------------------
+	 */
+vector_entry workaround_bpflush_sync_exception_sp_el0
+	b	sync_exception_sp_el0
+	check_vector_size workaround_bpflush_sync_exception_sp_el0
+
+vector_entry workaround_bpflush_irq_sp_el0
+	b	irq_sp_el0
+	check_vector_size workaround_bpflush_irq_sp_el0
+
+vector_entry workaround_bpflush_fiq_sp_el0
+	b	fiq_sp_el0
+	check_vector_size workaround_bpflush_fiq_sp_el0
+
+vector_entry workaround_bpflush_serror_sp_el0
+	b	serror_sp_el0
+	check_vector_size workaround_bpflush_serror_sp_el0
+
+	/* ---------------------------------------------------------------------
+	 * Current EL with SP_ELx: 0x200 - 0x400
+	 * ---------------------------------------------------------------------
+	 */
+vector_entry workaround_bpflush_sync_exception_sp_elx
+	b	sync_exception_sp_elx
+	check_vector_size workaround_bpflush_sync_exception_sp_elx
+
+vector_entry workaround_bpflush_irq_sp_elx
+	b	irq_sp_elx
+	check_vector_size workaround_bpflush_irq_sp_elx
+
+vector_entry workaround_bpflush_fiq_sp_elx
+	b	fiq_sp_elx
+	check_vector_size workaround_bpflush_fiq_sp_elx
+
+vector_entry workaround_bpflush_serror_sp_elx
+	b	serror_sp_elx
+	check_vector_size workaround_bpflush_serror_sp_elx
+
+	/* ---------------------------------------------------------------------
+	 * Lower EL using AArch64 : 0x400 - 0x600
+	 * ---------------------------------------------------------------------
+	 */
+vector_entry workaround_bpflush_sync_exception_aarch64
+	apply_workaround
+	b	sync_exception_aarch64
+	check_vector_size workaround_bpflush_sync_exception_aarch64
+
+vector_entry workaround_bpflush_irq_aarch64
+	apply_workaround
+	b	irq_aarch64
+	check_vector_size workaround_bpflush_irq_aarch64
+
+vector_entry workaround_bpflush_fiq_aarch64
+	apply_workaround
+	b	fiq_aarch64
+	check_vector_size workaround_bpflush_fiq_aarch64
+
+vector_entry workaround_bpflush_serror_aarch64
+	apply_workaround
+	b	serror_aarch64
+	check_vector_size workaround_bpflush_serror_aarch64
+
+	/* ---------------------------------------------------------------------
+	 * Lower EL using AArch32 : 0x600 - 0x800
+	 * ---------------------------------------------------------------------
+	 */
+vector_entry workaround_bpflush_sync_exception_aarch32
+	apply_workaround
+	b	sync_exception_aarch32
+	check_vector_size workaround_bpflush_sync_exception_aarch32
+
+vector_entry workaround_bpflush_irq_aarch32
+	apply_workaround
+	b	irq_aarch32
+	check_vector_size workaround_bpflush_irq_aarch32
+
+vector_entry workaround_bpflush_fiq_aarch32
+	apply_workaround
+	b	fiq_aarch32
+	check_vector_size workaround_bpflush_fiq_aarch32
+
+vector_entry workaround_bpflush_serror_aarch32
+	apply_workaround
+	b	serror_aarch32
+	check_vector_size workaround_bpflush_serror_aarch32
 
 	.global	denver_disable_dco
 
@@ -70,6 +196,23 @@ endfunc denver_disable_dco
 func denver_reset_func
 
 	mov	x19, x30
+
+#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+	/*
+	 * Check if the CPU supports the special instruction
+	 * required to flush the indirect branch predictor and
+	 * RSB. Support for this operation can be determined by
+	 * comparing bits 19:16 of ID_AFR0_EL1 with 0b0001.
+	 */
+	mrs	x0, id_afr0_el1
+	mov	x1, #0x10000
+	and	x0, x0, x1
+	cmp	x0, #0
+	adr	x1, workaround_bpflush_runtime_exceptions
+	mrs	x2, vbar_el3
+	csel	x0, x1, x2, ne
+	msr	vbar_el3, x0
+#endif
 
 	/* ----------------------------------------------------
 	 * Enable dynamic code optimizer (DCO)
