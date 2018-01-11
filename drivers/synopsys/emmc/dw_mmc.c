@@ -146,7 +146,7 @@ static void dw_update_clk(void)
 		if ((data & CMD_START) == 0)
 			break;
 		data = mmio_read_32(dw_params.reg_base + DWMMC_RINTSTS);
-		assert(data & INT_HLE);
+		assert((data & INT_HLE) == 0);
 	}
 }
 
