@@ -617,6 +617,9 @@ Common build options
    interrupts to TSP allowing it to save its context and hand over
    synchronously to EL3 via an SMC.
 
+   Note: when ``EL3_EXCEPTION_HANDLING`` is ``1``, ``TSP_NS_INTR_ASYNC_PREEMPT``
+   must also be set to ``1``.
+
 -  ``USE_COHERENT_MEM``: This flag determines whether to include the coherent
    memory region in the BL memory map or not (see "Use of Coherent memory in
    Trusted Firmware" section in `Firmware Design`_). It can take the value 1
@@ -1867,7 +1870,7 @@ wakeup interrupt from RTC.
 
 --------------
 
-*Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.*
 
 .. _Linaro: `Linaro Release Notes`_
 .. _Linaro Release: `Linaro Release Notes`_

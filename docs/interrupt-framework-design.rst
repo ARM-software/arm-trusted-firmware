@@ -419,6 +419,9 @@ runtime.
 Test secure payload dispatcher behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+**Note:** where this document discusses ``TSP_NS_INTR_ASYNC_PREEMPT`` as being
+``1``, the same results also apply when ``EL3_EXCEPTION_HANDLING`` is ``1``.
+
 The TSPD only handles Secure-EL1 interrupts and is provided with the following
 routing model at build time.
 
@@ -813,9 +816,10 @@ Test secure payload dispatcher non-secure interrupt handling
 
 The TSP in Secure-EL1 can be preempted by a non-secure interrupt during
 ``yielding`` SMC processing or by a higher priority EL3 interrupt during
-Secure-EL1 interrupt processing. Currently only non-secure interrupts can
-cause preemption of TSP since there are no EL3 interrupts in the
-system.
+Secure-EL1 interrupt processing. When ``EL3_EXCEPTION_HANDLING`` is ``0``, only
+non-secure interrupts can cause preemption of TSP since there are no EL3
+interrupts in the system. With ``EL3_EXCEPTION_HANDLING=1`` however, any EL3
+interrupt may preempt Secure execution.
 
 It should be noted that while TSP is preempted, the TSPD only allows entry into
 the TSP either for Secure-EL1 interrupt handling or for resuming the preempted
@@ -998,7 +1002,7 @@ TSP by returning ``SMC_UNK`` error.
 
 --------------
 
-*Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.*
 
 .. _Porting Guide: ./porting-guide.rst
 .. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
