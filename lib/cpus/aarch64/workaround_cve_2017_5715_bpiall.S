@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,10 +11,15 @@
 	.globl	workaround_bpiall_vbar0_runtime_exceptions
 
 #define EMIT_BPIALL		0xee070fd5
-#define EMIT_MOV_R0_IMM(v)	0xe3a0000##v
 #define EMIT_SMC		0xe1600070
 
-	.macro	enter_workaround _stub_name
+	.macro	enter_workaround _from_vector
+	/*
+	 * Save register state to enable a call to AArch32 S-EL1 and return
+	 * Identify the original calling vector in w2 (==_from_vector)
+	 * Use w3-w6 for additional register state preservation while in S-EL1
+	 */
+
 	/* Save GP regs */
 	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	stp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
@@ -32,47 +37,50 @@
 	stp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
 	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
 
-	adr	x4, \_stub_name
+	/* Identify the original exception vector */
+	mov	w2, \_from_vector
+
+	/* Preserve 32-bit system registers in GP registers through the workaround */
+	mrs	x3, esr_el3
+	mrs	x4, spsr_el3
+	mrs	x5, scr_el3
+	mrs	x6, sctlr_el1
 
 	/*
-	 * Load SPSR_EL3 and VBAR_EL3.  SPSR_EL3 is set up to have
-	 * all interrupts masked in preparation to running the workaround
-	 * stub in S-EL1.  VBAR_EL3 points to the vector table that
-	 * will handle the SMC back from the workaround stub.
+	 * Preserve LR and ELR_EL3 registers in the GP regs context.
+	 * Temporarily use the CTX_GPREG_SP_EL0 slot to preserve ELR_EL3
+	 * through the workaround. This is OK because at this point the
+	 * current state for this context's SP_EL0 is in the live system
+	 * register, which is unmodified by the workaround.
 	 */
-	ldp	x0, x1, [x4, #0]
+	mrs	x7, elr_el3
+	stp	x30, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 
 	/*
-	 * Load SCTLR_EL1 and ELR_EL3.  SCTLR_EL1 is configured to disable
-	 * the MMU in S-EL1.  ELR_EL3 points to the appropriate stub in S-EL1.
+	 * Load system registers for entry to S-EL1.
 	 */
-	ldp	x2, x3, [x4, #16]
 
-	mrs	x4, scr_el3
-	mrs	x5, spsr_el3
-	mrs	x6, elr_el3
-	mrs	x7, sctlr_el1
-	mrs	x8, esr_el3
+	/* Mask all interrupts and set AArch32 Supervisor mode */
+	movz	w8, SPSR_MODE32(MODE32_svc, SPSR_T_ARM, SPSR_E_LITTLE, SPSR_AIF_MASK)
 
-	/* Preserve system registers in the workaround context */
-	stp	x4, x5, [sp, #CTX_CVE_2017_5715_OFFSET + CTX_CVE_2017_5715_QUAD0]
-	stp	x6, x7, [sp, #CTX_CVE_2017_5715_OFFSET + CTX_CVE_2017_5715_QUAD2]
-	stp	x8, x30, [sp, #CTX_CVE_2017_5715_OFFSET + CTX_CVE_2017_5715_QUAD4]
+	/* Switch EL3 exception vectors while the workaround is executing. */
+	adr	x9, workaround_bpiall_vbar1_runtime_exceptions
+
+	/* Setup SCTLR_EL1 with MMU off and I$ on */
+	ldr	x10, stub_sel1_sctlr
+
+	/* Land at the S-EL1 workaround stub */
+	adr	x11, aarch32_stub
 
 	/*
 	 * Setting SCR_EL3 to all zeroes means that the NS, RW
 	 * and SMD bits are configured as expected.
 	 */
 	msr	scr_el3, xzr
-
-	/*
-	 * Reload system registers with the crafted values
-	 * in preparation for entry in S-EL1.
-	 */
-	msr	spsr_el3, x0
-	msr	vbar_el3, x1
-	msr	sctlr_el1, x2
-	msr	elr_el3, x3
+	msr	spsr_el3, x8
+	msr	vbar_el3, x9
+	msr	sctlr_el1, x10
+	msr	elr_el3, x11
 
 	eret
 	.endm
@@ -91,76 +99,31 @@ vector_base workaround_bpiall_vbar0_runtime_exceptions
 	 */
 vector_entry workaround_bpiall_vbar0_sync_exception_sp_el0
 	b	sync_exception_sp_el0
+	nop	/* to force 8 byte alignment for the following stub */
+
 	/*
 	 * Since each vector table entry is 128 bytes, we can store the
 	 * stub context in the unused space to minimize memory footprint.
 	 */
-aarch32_stub_smc:
-	.word	EMIT_BPIALL
-	.word	EMIT_MOV_R0_IMM(1)
-	.word	EMIT_SMC
-aarch32_stub_ctx_smc:
-	/* Mask all interrupts and set AArch32 Supervisor mode */
-	.quad	(SPSR_AIF_MASK << SPSR_AIF_SHIFT | \
-	         SPSR_M_AARCH32 << SPSR_M_SHIFT | \
-	         MODE32_svc << MODE32_SHIFT)
-
-	/*
-	 * VBAR_EL3 points to vbar1 which is the vector table
-	 * used while the workaround is executing.
-	 */
-	.quad	workaround_bpiall_vbar1_runtime_exceptions
-
-	/* Setup SCTLR_EL1 with MMU off and I$ on */
+stub_sel1_sctlr:
 	.quad	SCTLR_AARCH32_EL1_RES1 | SCTLR_I_BIT
 
-	/* ELR_EL3 is setup to point to the sync exception stub in AArch32 */
-	.quad	aarch32_stub_smc
+aarch32_stub:
+	.word	EMIT_BPIALL
+	.word	EMIT_SMC
+
 	check_vector_size workaround_bpiall_vbar0_sync_exception_sp_el0
 
 vector_entry workaround_bpiall_vbar0_irq_sp_el0
 	b	irq_sp_el0
-aarch32_stub_irq:
-	.word	EMIT_BPIALL
-	.word	EMIT_MOV_R0_IMM(2)
-	.word	EMIT_SMC
-aarch32_stub_ctx_irq:
-	.quad	(SPSR_AIF_MASK << SPSR_AIF_SHIFT | \
-	         SPSR_M_AARCH32 << SPSR_M_SHIFT | \
-	         MODE32_svc << MODE32_SHIFT)
-	.quad	workaround_bpiall_vbar1_runtime_exceptions
-	.quad	SCTLR_AARCH32_EL1_RES1 | SCTLR_I_BIT
-	.quad	aarch32_stub_irq
 	check_vector_size workaround_bpiall_vbar0_irq_sp_el0
 
 vector_entry workaround_bpiall_vbar0_fiq_sp_el0
 	b	fiq_sp_el0
-aarch32_stub_fiq:
-	.word	EMIT_BPIALL
-	.word	EMIT_MOV_R0_IMM(4)
-	.word	EMIT_SMC
-aarch32_stub_ctx_fiq:
-	.quad	(SPSR_AIF_MASK << SPSR_AIF_SHIFT | \
-	         SPSR_M_AARCH32 << SPSR_M_SHIFT | \
-	         MODE32_svc << MODE32_SHIFT)
-	.quad	workaround_bpiall_vbar1_runtime_exceptions
-	.quad	SCTLR_AARCH32_EL1_RES1 | SCTLR_I_BIT
-	.quad	aarch32_stub_fiq
 	check_vector_size workaround_bpiall_vbar0_fiq_sp_el0
 
 vector_entry workaround_bpiall_vbar0_serror_sp_el0
 	b	serror_sp_el0
-aarch32_stub_serror:
-	.word	EMIT_BPIALL
-	.word	EMIT_MOV_R0_IMM(8)
-	.word	EMIT_SMC
-aarch32_stub_ctx_serror:
-	.quad	(SPSR_AIF_MASK << SPSR_AIF_SHIFT | \
-	         SPSR_M_AARCH32 << SPSR_M_SHIFT | \
-	         MODE32_svc << MODE32_SHIFT)
-	.quad	workaround_bpiall_vbar1_runtime_exceptions
-	.quad	SCTLR_AARCH32_EL1_RES1 | SCTLR_I_BIT
-	.quad	aarch32_stub_serror
 	check_vector_size workaround_bpiall_vbar0_serror_sp_el0
 
 	/* ---------------------------------------------------------------------
@@ -188,19 +151,19 @@ vector_entry workaround_bpiall_vbar0_serror_sp_elx
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry workaround_bpiall_vbar0_sync_exception_aarch64
-	enter_workaround aarch32_stub_ctx_smc
+	enter_workaround 1
 	check_vector_size workaround_bpiall_vbar0_sync_exception_aarch64
 
 vector_entry workaround_bpiall_vbar0_irq_aarch64
-	enter_workaround aarch32_stub_ctx_irq
+	enter_workaround 2
 	check_vector_size workaround_bpiall_vbar0_irq_aarch64
 
 vector_entry workaround_bpiall_vbar0_fiq_aarch64
-	enter_workaround aarch32_stub_ctx_fiq
+	enter_workaround 4
 	check_vector_size workaround_bpiall_vbar0_fiq_aarch64
 
 vector_entry workaround_bpiall_vbar0_serror_aarch64
-	enter_workaround aarch32_stub_ctx_serror
+	enter_workaround 8
 	check_vector_size workaround_bpiall_vbar0_serror_aarch64
 
 	/* ---------------------------------------------------------------------
@@ -208,19 +171,19 @@ vector_entry workaround_bpiall_vbar0_serror_aarch64
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry workaround_bpiall_vbar0_sync_exception_aarch32
-	enter_workaround aarch32_stub_ctx_smc
+	enter_workaround 1
 	check_vector_size workaround_bpiall_vbar0_sync_exception_aarch32
 
 vector_entry workaround_bpiall_vbar0_irq_aarch32
-	enter_workaround aarch32_stub_ctx_irq
+	enter_workaround 2
 	check_vector_size workaround_bpiall_vbar0_irq_aarch32
 
 vector_entry workaround_bpiall_vbar0_fiq_aarch32
-	enter_workaround aarch32_stub_ctx_fiq
+	enter_workaround 4
 	check_vector_size workaround_bpiall_vbar0_fiq_aarch32
 
 vector_entry workaround_bpiall_vbar0_serror_aarch32
-	enter_workaround aarch32_stub_ctx_serror
+	enter_workaround 8
 	check_vector_size workaround_bpiall_vbar0_serror_aarch32
 
 	/* ---------------------------------------------------------------------
@@ -297,31 +260,33 @@ vector_entry workaround_bpiall_vbar1_serror_aarch64
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry workaround_bpiall_vbar1_sync_exception_aarch32
-	/* Restore register state from the workaround context */
-	ldp	x2, x3, [sp, #CTX_CVE_2017_5715_OFFSET + CTX_CVE_2017_5715_QUAD0]
-	ldp	x4, x5, [sp, #CTX_CVE_2017_5715_OFFSET + CTX_CVE_2017_5715_QUAD2]
-	ldp	x6, x30, [sp, #CTX_CVE_2017_5715_OFFSET + CTX_CVE_2017_5715_QUAD4]
+	/*
+	 * w2 indicates which SEL1 stub was run and thus which original vector was used
+	 * w3-w6 contain saved system register state (esr_el3 in w3)
+	 * Restore LR and ELR_EL3 register state from the GP regs context
+	 */
+	ldp	x30, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 
 	/* Apply the restored system register state */
-	msr	scr_el3, x2
-	msr	spsr_el3, x3
-	msr	elr_el3, x4
-	msr	sctlr_el1, x5
-	msr	esr_el3, x6
+	msr	esr_el3, x3
+	msr	spsr_el3, x4
+	msr	scr_el3, x5
+	msr	sctlr_el1, x6
+	msr	elr_el3, x7
 
 	/*
 	 * Workaround is complete, so swap VBAR_EL3 to point
 	 * to workaround entry table in preparation for subsequent
 	 * Sync/IRQ/FIQ/SError exceptions.
 	 */
-	adr	x2, workaround_bpiall_vbar0_runtime_exceptions
-	msr	vbar_el3, x2
+	adr	x0, workaround_bpiall_vbar0_runtime_exceptions
+	msr	vbar_el3, x0
 
 	/*
-	 * Restore all GP regs except x0 and x1.  The value in x0
+	 * Restore all GP regs except x2 and x3 (esr).  The value in x2
 	 * indicates the type of the original exception.
 	 */
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
+	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
 	ldp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
 	ldp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
@@ -336,37 +301,38 @@ vector_entry workaround_bpiall_vbar1_sync_exception_aarch32
 	ldp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
 	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
 
-	/*
-	 * Each of these handlers will first restore x0 and x1 from
-	 * the context and the branch to the common implementation for
-	 * each of the exception types.
-	 */
-	tbnz	x0, #1, workaround_bpiall_vbar1_irq
-	tbnz	x0, #2, workaround_bpiall_vbar1_fiq
-	tbnz	x0, #3, workaround_bpiall_vbar1_serror
-
-	/* Fallthrough case for Sync exception */
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+	/* Fast path Sync exceptions.  Static predictor will fall through. */
+	tbz	w2, #0, workaround_not_sync
+	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	sync_exception_aarch64
 	check_vector_size workaround_bpiall_vbar1_sync_exception_aarch32
 
 vector_entry workaround_bpiall_vbar1_irq_aarch32
 	b	report_unhandled_interrupt
-workaround_bpiall_vbar1_irq:
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+
+	/*
+	 * Post-workaround fan-out for non-sync exceptions
+	 */
+workaround_not_sync:
+	tbnz	w2, #3, workaround_bpiall_vbar1_serror
+	tbnz	w2, #2, workaround_bpiall_vbar1_fiq
+	/* IRQ */
+	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	irq_aarch64
+
+workaround_bpiall_vbar1_fiq:
+	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
+	b	fiq_aarch64
+
+workaround_bpiall_vbar1_serror:
+	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
+	b	serror_aarch64
 	check_vector_size workaround_bpiall_vbar1_irq_aarch32
 
 vector_entry workaround_bpiall_vbar1_fiq_aarch32
 	b	report_unhandled_interrupt
-workaround_bpiall_vbar1_fiq:
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	b	fiq_aarch64
 	check_vector_size workaround_bpiall_vbar1_fiq_aarch32
 
 vector_entry workaround_bpiall_vbar1_serror_aarch32
 	b	report_unhandled_exception
-workaround_bpiall_vbar1_serror:
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	b	serror_aarch64
 	check_vector_size workaround_bpiall_vbar1_serror_aarch32
