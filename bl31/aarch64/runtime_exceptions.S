@@ -14,6 +14,26 @@
 
 	.globl	runtime_exceptions
 
+	.globl	sync_exception_sp_el0
+	.globl	irq_sp_el0
+	.globl	fiq_sp_el0
+	.globl	serror_sp_el0
+
+	.globl	sync_exception_sp_elx
+	.globl	irq_sp_elx
+	.globl	fiq_sp_elx
+	.globl	serror_sp_elx
+
+	.globl	sync_exception_aarch64
+	.globl	irq_aarch64
+	.globl	fiq_aarch64
+	.globl	serror_aarch64
+
+	.globl	sync_exception_aarch32
+	.globl	irq_aarch32
+	.globl	fiq_aarch32
+	.globl	serror_aarch32
+
 	/* ---------------------------------------------------------------------
 	 * This macro handles Synchronous exceptions.
 	 * Only SMC exceptions are supported.

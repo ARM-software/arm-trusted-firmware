@@ -11,6 +11,15 @@ This document describes the various build options present in the CPU specific
 operations framework to enable errata workarounds and to enable optimizations
 for a specific CPU on a platform.
 
+Security Vulnerability Workarounds
+----------------------------------
+
+ARM Trusted Firmware exports a series of build flags which control which
+security vulnerability workarounds should be applied at runtime.
+
+-  ``WORKAROUND_CVE_2017_5715``: Enables the security workaround for
+   `CVE-2017-5715`_. Defaults to 1.
+
 CPU Errata Workarounds
 ----------------------
 
@@ -142,6 +151,7 @@ architecture that can be enabled by the platform as desired.
 
 *Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.*
 
+.. _CVE-2017-5715: http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2017-5715
 .. _Cortex-A53 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm048406/Cortex_A53_MPCore_Software_Developers_Errata_Notice.pdf
 .. _Cortex-A57 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm049219/cortex_a57_mpcore_software_developers_errata_notice.pdf
 .. _Cortex-A72 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm012079/index.html

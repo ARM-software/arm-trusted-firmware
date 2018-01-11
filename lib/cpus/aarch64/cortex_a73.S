@@ -36,6 +36,11 @@ func cortex_a73_disable_smp
 endfunc cortex_a73_disable_smp
 
 func cortex_a73_reset_func
+#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+	adr	x0, workaround_bpiall_vbar0_runtime_exceptions
+	msr	vbar_el3, x0
+#endif
+
 	/* ---------------------------------------------
 	 * Enable the SMP bit.
 	 * Clobbers : x0

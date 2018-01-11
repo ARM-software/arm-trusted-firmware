@@ -110,6 +110,12 @@ func cortex_a72_reset_func
 	mov	x0, x18
 	bl	errata_a72_859971_wa
 #endif
+
+#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+	adr	x0, workaround_mmu_runtime_exceptions
+	msr	vbar_el3, x0
+#endif
+
 	/* ---------------------------------------------
 	 * Enable the SMP bit.
 	 * ---------------------------------------------

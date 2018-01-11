@@ -117,6 +117,9 @@
 #define ID_AA64PFR0_SVE_SHIFT	U(32)
 #define ID_AA64PFR0_SVE_MASK	U(0xf)
 #define ID_AA64PFR0_SVE_LENGTH	U(4)
+#define ID_AA64PFR0_CSV2_SHIFT	U(56)
+#define ID_AA64PFR0_CSV2_MASK	U(0xf)
+#define ID_AA64PFR0_CSV2_LENGTH	U(4)
 
 /* ID_AA64DFR0_EL1.PMS definitions (for ARMv8.2+) */
 #define ID_AA64DFR0_PMS_SHIFT	U(32)
@@ -336,6 +339,11 @@
 #define SPSR_T_MASK		U(0x1)
 #define SPSR_T_ARM		U(0x0)
 #define SPSR_T_THUMB		U(0x1)
+
+#define SPSR_M_SHIFT		U(4)
+#define SPSR_M_MASK		U(0x1)
+#define SPSR_M_AARCH64		U(0x0)
+#define SPSR_M_AARCH32		U(0x1)
 
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)

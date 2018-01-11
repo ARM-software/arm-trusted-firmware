@@ -12,6 +12,21 @@
 #include <cortex_a75.h>
 
 func cortex_a75_reset_func
+#if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+	mrs	x0, id_aa64pfr0_el1
+	ubfx	x0, x0, #ID_AA64PFR0_CSV2_SHIFT, #ID_AA64PFR0_CSV2_LENGTH
+	/*
+	 * If the field equals to 1 then branch targets trained in one
+	 * context cannot affect speculative execution in a different context.
+	 */
+	cmp	x0, #1
+	beq	1f
+
+	adr	x0, workaround_bpiall_vbar0_runtime_exceptions
+	msr	vbar_el3, x0
+1:
+#endif
+
 #if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, actlr_el3
