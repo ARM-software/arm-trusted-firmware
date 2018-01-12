@@ -549,6 +549,22 @@ behaviour of the ``assert()`` function (for example, to save memory).
    doesn't print anything to the console. If ``PLAT_LOG_LEVEL_ASSERT`` isn't
    defined, it defaults to ``LOG_LEVEL``.
 
+If the platform port uses the Activity Monitor Unit, the following constants
+may be defined:
+
+-  **PLAT\_AMU\_GROUP1\_COUNTERS\_MASK**
+   This mask reflects the set of group counters that should be enabled.  The
+   maximum number of group 1 counters supported by AMUv1 is 16 so the mask
+   can be at most 0xffff. If the platform does not define this mask, no group 1
+   counters are enabled. If the platform defines this mask, the following
+   constant needs to also be defined.
+
+-  **PLAT\_AMU\_GROUP1\_NR\_COUNTERS**
+   This value is used to allocate an array to save and restore the counters
+   specified by ``PLAT_AMU_GROUP1_COUNTERS_MASK`` on CPU suspend.
+   This value should be equal to the highest bit position set in the
+   mask, plus 1.  The maximum number of group 1 counters in AMUv1 is 16.
+
 File : plat\_macros.S [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

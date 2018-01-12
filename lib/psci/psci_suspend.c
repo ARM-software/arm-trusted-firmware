@@ -14,6 +14,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <pmf.h>
+#include <pubsub_events.h>
 #include <runtime_instr.h>
 #include <stddef.h>
 #include "psci_private.h"
@@ -67,6 +68,8 @@ static void psci_suspend_to_pwrdown_start(unsigned int end_pwrlvl,
 					  psci_power_state_t *state_info)
 {
 	unsigned int max_off_lvl = psci_find_max_off_lvl(state_info);
+
+	PUBLISH_EVENT(psci_suspend_pwrdown_start);
 
 	/* Save PSCI target power level for the suspend finisher handler */
 	psci_set_suspend_pwrlvl(end_pwrlvl);
@@ -307,6 +310,8 @@ void psci_cpu_suspend_finish(unsigned int cpu_idx,
 
 	/* Invalidate the suspend level for the cpu */
 	psci_set_suspend_pwrlvl(PSCI_INVALID_PWR_LVL);
+
+	PUBLISH_EVENT(psci_suspend_pwrdown_finish);
 
 	/*
 	 * Generic management: Now we just need to retrieve the
