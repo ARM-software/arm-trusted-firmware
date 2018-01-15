@@ -36,26 +36,26 @@ extern uintptr_t __SP_IMAGE_XLAT_TABLES_END__;
  */
 typedef struct secure_partition_mp_info {
 	u_register_t		mpidr;
-	unsigned int		linear_id;
-	unsigned int		flags;
+	uint32_t		linear_id;
+	uint32_t		flags;
 } secure_partition_mp_info_t;
 
 typedef struct secure_partition_boot_info {
 	param_header_t		h;
-	uintptr_t		sp_mem_base;
-	uintptr_t		sp_mem_limit;
-	uintptr_t		sp_image_base;
-	uintptr_t		sp_stack_base;
-	uintptr_t		sp_heap_base;
-	uintptr_t		sp_ns_comm_buf_base;
-	uintptr_t		sp_shared_buf_base;
-	size_t			sp_image_size;
-	size_t			sp_pcpu_stack_size;
-	size_t			sp_heap_size;
-	size_t			sp_ns_comm_buf_size;
-	size_t			sp_shared_buf_size;
-	unsigned int		num_sp_mem_regions;
-	unsigned int		num_cpus;
+	uint64_t		sp_mem_base;
+	uint64_t		sp_mem_limit;
+	uint64_t		sp_image_base;
+	uint64_t		sp_stack_base;
+	uint64_t		sp_heap_base;
+	uint64_t		sp_ns_comm_buf_base;
+	uint64_t		sp_shared_buf_base;
+	uint32_t		sp_image_size;
+	uint32_t		sp_pcpu_stack_size;
+	uint32_t		sp_heap_size;
+	uint32_t		sp_ns_comm_buf_size;
+	uint32_t		sp_shared_buf_size;
+	uint32_t		num_sp_mem_regions;
+	uint32_t		num_cpus;
 	secure_partition_mp_info_t	*mp_info;
 } secure_partition_boot_info_t;
 
