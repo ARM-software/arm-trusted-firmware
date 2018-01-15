@@ -22,14 +22,10 @@
 #include <utils.h>
 #include "platform_def.h"
 
+#if !POPLAR_RECOVERY
 static const io_dev_connector_t *emmc_dev_con;
-static const io_dev_connector_t *fip_dev_con;
-
 static uintptr_t emmc_dev_handle;
-static uintptr_t fip_dev_handle;
-
 static int open_emmc(const uintptr_t spec);
-static int open_fip(const uintptr_t spec);
 
 static const io_block_spec_t emmc_fip_spec = {
 	.offset		= FIP_BASE_EMMC,
@@ -47,6 +43,20 @@ static const io_block_dev_spec_t emmc_dev_spec = {
 	},
 	.block_size	= EMMC_BLOCK_SIZE,
 };
+#else
+static const io_dev_connector_t *mmap_dev_con;
+static uintptr_t mmap_dev_handle;
+static int open_mmap(const uintptr_t spec);
+
+static const io_block_spec_t loader_fip_spec = {
+	.offset		= FIP_BASE,
+	.length		= FIP_SIZE
+};
+#endif
+
+static const io_dev_connector_t *fip_dev_con;
+static uintptr_t fip_dev_handle;
+static int open_fip(const uintptr_t spec);
 
 static const io_uuid_spec_t bl2_uuid_spec = {
 	.uuid = UUID_TRUSTED_BOOT_FIRMWARE_BL2,
@@ -71,11 +81,19 @@ struct plat_io_policy {
 };
 
 static const struct plat_io_policy policies[] = {
+#if !POPLAR_RECOVERY
 	[FIP_IMAGE_ID] = {
 		&emmc_dev_handle,
 		(uintptr_t)&emmc_fip_spec,
 		open_emmc
 	},
+#else
+	[FIP_IMAGE_ID] = {
+		&mmap_dev_handle,
+		(uintptr_t)&loader_fip_spec,
+		open_mmap
+	},
+#endif
 	[BL2_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl2_uuid_spec,
@@ -98,6 +116,7 @@ static const struct plat_io_policy policies[] = {
 	},
 };
 
+#if !POPLAR_RECOVERY
 static int open_emmc(const uintptr_t spec)
 {
 	int result;
@@ -118,6 +137,28 @@ static int open_emmc(const uintptr_t spec)
 
 	return result;
 }
+#else
+static int open_mmap(const uintptr_t spec)
+{
+	int result;
+	uintptr_t local_image_handle;
+
+	result = io_dev_init(mmap_dev_handle, (uintptr_t)NULL);
+	if (result == 0) {
+		result = io_open(mmap_dev_handle, spec, &local_image_handle);
+		if (result == 0) {
+			INFO("Using mmap\n");
+			io_close(local_image_handle);
+		} else {
+			ERROR("error opening mmap\n");
+		}
+	} else {
+		ERROR("error initializing mmap\n");
+	}
+
+	return result;
+}
+#endif
 
 static int open_fip(const uintptr_t spec)
 {
@@ -162,18 +203,31 @@ void plat_io_setup(void)
 {
 	int result;
 
+#if !POPLAR_RECOVERY
 	result = register_io_dev_block(&emmc_dev_con);
+#else
+	result = register_io_dev_memmap(&mmap_dev_con);
+#endif
 	assert(result == 0);
 
 	result = register_io_dev_fip(&fip_dev_con);
 	assert(result == 0);
 
+#if !POPLAR_RECOVERY
 	result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
 				&fip_dev_handle);
+#else
+	result = io_dev_open(fip_dev_con, (uintptr_t)&loader_fip_spec,
+				&fip_dev_handle);
+#endif
 	assert(result == 0);
 
+#if !POPLAR_RECOVERY
 	result = io_dev_open(emmc_dev_con, (uintptr_t)&emmc_dev_spec,
 				&emmc_dev_handle);
+#else
+	result = io_dev_open(mmap_dev_con, (uintptr_t)NULL, &mmap_dev_handle);
+#endif
 	assert(result == 0);
 
 	(void) result;

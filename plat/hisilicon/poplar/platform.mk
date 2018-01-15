@@ -15,6 +15,9 @@ else
 endif
 $(eval $(call add_define,POPLAR_TSP_RAM_LOCATION_ID))
 
+POPLAR_RECOVERY		:= 0
+$(eval $(call add_define,POPLAR_RECOVERY))
+
 NEED_BL33			:= yes
 
 COLD_BOOT_SINGLE_CPU		:= 1

@@ -90,6 +90,7 @@
 #define BL1_SIZE			(BL1_RO_SIZE + BL1_RW_SIZE)
 #define BL2_SIZE			0x0000c000	/* page multiple */
 #define BL31_SIZE			0x00014000
+#if !POPLAR_RECOVERY
 /*
  * emmc partition1 4096KB
  * - l-loader.bin 1984KB
@@ -99,6 +100,14 @@
  * - uefi persistent data 2048KB
  */
 #define FIP_SIZE			0x001b0000  /* absolute max */
+#else
+/*
+ * same as above, but bootrom can only load an image (l-loader.bin) of
+ * 1024KB max, so after deducting the size of l-loader + bl1.bin (256KB),
+ * that leaves 768KB (0x000c0000) for fip.bin
+ */
+#define FIP_SIZE			0x000c0000  /* absolute max */
+#endif
 
      /* BL1_OFFSET */			/* (Defined above) */
 #define BL1_BASE			(LLOADER_TEXT_BASE + BL1_OFFSET)

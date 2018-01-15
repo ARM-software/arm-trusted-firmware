@@ -73,7 +73,9 @@ void bl1_plat_arch_setup(void)
 void bl1_platform_setup(void)
 {
 	int i;
+#if !POPLAR_RECOVERY
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
+#endif
 
 	generic_delay_timer_init();
 
@@ -81,9 +83,11 @@ void bl1_platform_setup(void)
 	for (i = 0; i < GPIO_MAX; i++)
 		pl061_gpio_register(GPIO_BASE(i), i);
 
+#if !POPLAR_RECOVERY
 	/* SoC-specific emmc register are initialized/configured by bootrom */
 	INFO("BL1: initializing emmc\n");
 	dw_mmc_init(&params);
+#endif
 
 	plat_io_setup();
 }
