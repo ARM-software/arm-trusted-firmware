@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,6 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
 #include <platform.h>
 #include <pubsub_events.h>
 
@@ -38,10 +37,8 @@ void amu_enable(int el2_unused)
 {
 	uint64_t v;
 
-	if (!amu_supported()) {
-		WARN("Cannot enable AMU - not supported\n");
+	if (!amu_supported())
 		return;
-	}
 
 	if (el2_unused) {
 		/*

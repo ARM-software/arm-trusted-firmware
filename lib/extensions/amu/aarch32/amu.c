@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,6 @@
 #include <amu.h>
 #include <arch.h>
 #include <arch_helpers.h>
-#include <debug.h>
 #include <platform.h>
 #include <pubsub_events.h>
 
@@ -24,10 +23,8 @@ void amu_enable(int el2_unused)
 	uint64_t features;
 
 	features = read_id_pfr0() >> ID_PFR0_AMU_SHIFT;
-	if ((features & ID_PFR0_AMU_MASK) != 1) {
-		WARN("Cannot enable AMU - not supported\n");
+	if ((features & ID_PFR0_AMU_MASK) != 1)
 		return;
-	}
 
 	if (el2_unused) {
 		uint64_t v;
