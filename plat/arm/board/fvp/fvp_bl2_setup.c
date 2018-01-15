@@ -14,7 +14,7 @@
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
-	arm_bl2_early_platform_setup((meminfo_t *)arg1);
+	arm_bl2_early_platform_setup((uintptr_t)arg0, (meminfo_t *)arg1);
 
 	/* Initialize the platform config for future decision making */
 	fvp_config_setup();

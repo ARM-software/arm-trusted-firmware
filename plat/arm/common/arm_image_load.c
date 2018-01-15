@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <arm_def.h>
 #include <bl_common.h>
 #include <desc_image_load.h>
+#include <plat_arm.h>
 #include <platform.h>
 
 
@@ -37,5 +38,8 @@ bl_load_info_t *plat_get_bl_image_load_info(void)
  ******************************************************************************/
 bl_params_t *plat_get_next_bl_params(void)
 {
-	return get_next_bl_params_from_mem_params_desc();
+	bl_params_t *next_bl_params = get_next_bl_params_from_mem_params_desc();
+
+	populate_next_bl_params_config(next_bl_params);
+	return next_bl_params;
 }

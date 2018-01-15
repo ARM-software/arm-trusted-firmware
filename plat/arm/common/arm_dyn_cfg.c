@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arm_dyn_cfg_helpers.h>
 #include <assert.h>
 #include <debug.h>
 #include <desc_image_load.h>
@@ -13,6 +14,9 @@
 #include <tbbr_img_def.h>
 
 #if LOAD_IMAGE_V2
+
+/* Variable to store the address to TB_FW_CONFIG passed from BL1 */
+static void *tb_fw_cfg_dtb;
 
 /*
  * Helper function to load TB_FW_CONFIG and populate the load information to
@@ -49,6 +53,56 @@ void arm_load_tb_fw_config(void)
 
 	INFO("BL1: TB_FW_CONFIG loaded at address = %p\n",
 			(void *) config_base);
+}
+
+/*
+ * BL2 utility function to set the address of TB_FW_CONFIG passed from BL1.
+ */
+void arm_bl2_set_tb_cfg_addr(void *dtb)
+{
+	assert(dtb);
+	tb_fw_cfg_dtb = dtb;
+}
+
+/*
+ * BL2 utility function to initialize dynamic configuration specified by
+ * TB_FW_CONFIG. Return early if TB_FW_CONFIG is not found or HW_CONFIG is
+ * not specified in TB_FW_CONFIG.
+ */
+void arm_bl2_dyn_cfg_init(void)
+{
+	int err = 0;
+	int tb_fw_node;
+	bl_mem_params_node_t *hw_cfg_mem_params = NULL;
+
+	if (tb_fw_cfg_dtb == NULL) {
+		VERBOSE("No TB_FW_CONFIG specified\n");
+		return;
+	}
+
+	err = arm_dyn_tb_fw_cfg_init((void *)tb_fw_cfg_dtb, &tb_fw_node);
+	if (err < 0) {
+		ERROR("Invalid TB_FW_CONFIG passed from BL1\n");
+		panic();
+	}
+
+	/* Get the hw_config load address and size from TB_FW_CONFIG */
+	hw_cfg_mem_params = get_bl_mem_params_node(HW_CONFIG_ID);
+	if (hw_cfg_mem_params == NULL) {
+		VERBOSE("Couldn't find HW_CONFIG in bl_mem_params_node\n");
+		return;
+	}
+
+	err = arm_dyn_get_hwconfig_info((void *)tb_fw_cfg_dtb, tb_fw_node,
+		(uint64_t *) &hw_cfg_mem_params->image_info.image_base,
+		&hw_cfg_mem_params->image_info.image_max_size);
+	if (err < 0) {
+		VERBOSE("Couldn't find HW_CONFIG load info in TB_FW_CONFIG\n");
+		return;
+	}
+
+	/* Remove the IMAGE_ATTRIB_SKIP_LOADING attribute from HW_CONFIG node */
+	hw_cfg_mem_params->image_info.h.attr &= ~IMAGE_ATTRIB_SKIP_LOADING;
 }
 
 #endif /* LOAD_IMAGE_V2 */

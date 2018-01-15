@@ -19,6 +19,7 @@
 struct bl31_params;
 struct meminfo;
 struct image_info;
+struct bl_params;
 
 #define ARM_CASSERT_MMAP						\
 	CASSERT((ARRAY_SIZE(plat_arm_mmap) + ARM_BL_REGIONS)		\
@@ -138,7 +139,7 @@ void arm_bl1_platform_setup(void);
 void arm_bl1_plat_arch_setup(void);
 
 /* BL2 utility functions */
-void arm_bl2_early_platform_setup(struct meminfo *mem_layout);
+void arm_bl2_early_platform_setup(uintptr_t tb_fw_config, struct meminfo *mem_layout);
 void arm_bl2_platform_setup(void);
 void arm_bl2_plat_arch_setup(void);
 uint32_t arm_get_spsr_for_bl32_entry(void);
@@ -180,6 +181,8 @@ int arm_io_is_toc_valid(void);
 
 /* Utility functions for Dynamic Config */
 void arm_load_tb_fw_config(void);
+void arm_bl2_set_tb_cfg_addr(void *dtb);
+void arm_bl2_dyn_cfg_init(void);
 
 /*
  * Mandatory functions required in ARM standard platforms

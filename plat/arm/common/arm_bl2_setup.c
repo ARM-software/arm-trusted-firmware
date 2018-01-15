@@ -181,7 +181,7 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
  * in x0. This memory layout is sitting at the base of the free trusted SRAM.
  * Copy it to a safe location before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void arm_bl2_early_platform_setup(meminfo_t *mem_layout)
+void arm_bl2_early_platform_setup(uintptr_t tb_fw_config, meminfo_t *mem_layout)
 {
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
@@ -192,11 +192,17 @@ void arm_bl2_early_platform_setup(meminfo_t *mem_layout)
 
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
+
+#if LOAD_IMAGE_V2
+	if (tb_fw_config != 0)
+		arm_bl2_set_tb_cfg_addr((void *)tb_fw_config);
+#endif
 }
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
-	arm_bl2_early_platform_setup((meminfo_t *)arg1);
+	arm_bl2_early_platform_setup((uintptr_t)arg0, (meminfo_t *)arg1);
+
 	generic_delay_timer_init();
 }
 
@@ -205,6 +211,10 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_
  */
 void arm_bl2_platform_setup(void)
 {
+#if LOAD_IMAGE_V2
+	arm_bl2_dyn_cfg_init();
+#endif
+
 	/* Initialize the secure environment */
 	plat_arm_security_setup();
 

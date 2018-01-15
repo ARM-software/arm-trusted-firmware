@@ -57,6 +57,10 @@ static const io_uuid_spec_t tb_fw_config_uuid_spec = {
 	.uuid = UUID_TB_FW_CONFIG,
 };
 
+static const io_uuid_spec_t hw_config_uuid_spec = {
+	.uuid = UUID_HW_CONFIG,
+};
+
 #if TRUSTED_BOARD_BOOT
 static const io_uuid_spec_t tb_fw_cert_uuid_spec = {
 	.uuid = UUID_TRUSTED_BOOT_FW_CERT,
@@ -154,6 +158,11 @@ static const struct plat_io_policy policies[] = {
 	[TB_FW_CONFIG_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&tb_fw_config_uuid_spec,
+		open_fip
+	},
+	[HW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&hw_config_uuid_spec,
 		open_fip
 	},
 #if TRUSTED_BOARD_BOOT

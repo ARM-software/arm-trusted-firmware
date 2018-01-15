@@ -190,3 +190,65 @@ bl_params_t *get_next_bl_params_from_mem_params_desc(void)
 
 	return &next_bl_params;
 }
+
+/*******************************************************************************
+ * This function populates the entry point information with the corresponding
+ * config file for all executable BL images described in bl_params.
+ ******************************************************************************/
+void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
+{
+	bl_params_node_t *params_node;
+	unsigned int fw_config_id;
+	uintptr_t hw_config_base = 0, fw_config_base;
+	bl_mem_params_node_t *mem_params;
+
+	assert(bl2_to_next_bl_params);
+
+	/*
+	 * Get the `bl_mem_params_node_t` corresponding to HW_CONFIG
+	 * if available.
+	 */
+	mem_params = get_bl_mem_params_node(HW_CONFIG_ID);
+	if (mem_params != NULL)
+		hw_config_base = mem_params->image_info.image_base;
+
+	for (params_node = bl2_to_next_bl_params->head; params_node != NULL;
+			params_node = params_node->next_params_info) {
+
+		fw_config_base = 0;
+
+		switch (params_node->image_id) {
+		case BL31_IMAGE_ID:
+			fw_config_id = SOC_FW_CONFIG_ID;
+			break;
+		case BL32_IMAGE_ID:
+			fw_config_id = TOS_FW_CONFIG_ID;
+			break;
+		case BL33_IMAGE_ID:
+			fw_config_id = NT_FW_CONFIG_ID;
+			break;
+		default:
+			fw_config_id = INVALID_IMAGE_ID;
+			break;
+		}
+
+		if (fw_config_id != INVALID_IMAGE_ID) {
+			mem_params = get_bl_mem_params_node(fw_config_id);
+			if (mem_params != NULL)
+				fw_config_base = mem_params->image_info.image_base;
+		}
+
+		/*
+		 * Pass hw and tb_fw config addresses to next images. NOTE - for
+		 * EL3 runtime images (BL31 for AArch64 and BL32 for AArch32),
+		 * arg0 is already used by generic code.
+		 */
+		if (params_node == bl2_to_next_bl_params->head) {
+			params_node->ep_info->args.arg1 = fw_config_base;
+			params_node->ep_info->args.arg2 = hw_config_base;
+		} else {
+			params_node->ep_info->args.arg0 = fw_config_base;
+			params_node->ep_info->args.arg1 = hw_config_base;
+		}
+	}
+}

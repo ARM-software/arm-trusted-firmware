@@ -19,6 +19,7 @@
 #define BL32_IMAGE_NAME			"bl32.bin"
 #define BL33_IMAGE_NAME			"bl33.bin"
 #define TB_FW_CONFIG_NAME		"fvp_tb_fw_config.dtb"
+#define HW_CONFIG_NAME			"hw_config.dtb"
 
 #if TRUSTED_BOARD_BOOT
 #define TRUSTED_BOOT_FW_CERT_NAME	"tb_fw.crt"
@@ -54,6 +55,10 @@ static const io_file_spec_t sh_file_spec[] = {
 	},
 	[TB_FW_CONFIG_ID] = {
 		.path = TB_FW_CONFIG_NAME,
+		.mode = FOPEN_MODE_RB
+	},
+	[HW_CONFIG_ID] = {
+		.path = HW_CONFIG_NAME,
 		.mode = FOPEN_MODE_RB
 	},
 #if TRUSTED_BOARD_BOOT
