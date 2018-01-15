@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,7 @@
 #define BL31_IMAGE_NAME			"bl31.bin"
 #define BL32_IMAGE_NAME			"bl32.bin"
 #define BL33_IMAGE_NAME			"bl33.bin"
+#define TB_FW_CONFIG_NAME		"fvp_tb_fw_config.dtb"
 
 #if TRUSTED_BOARD_BOOT
 #define TRUSTED_BOOT_FW_CERT_NAME	"tb_fw.crt"
@@ -49,6 +50,10 @@ static const io_file_spec_t sh_file_spec[] = {
 	},
 	[BL33_IMAGE_ID] = {
 		.path = BL33_IMAGE_NAME,
+		.mode = FOPEN_MODE_RB
+	},
+	[TB_FW_CONFIG_ID] = {
+		.path = TB_FW_CONFIG_NAME,
 		.mode = FOPEN_MODE_RB
 	},
 #if TRUSTED_BOARD_BOOT

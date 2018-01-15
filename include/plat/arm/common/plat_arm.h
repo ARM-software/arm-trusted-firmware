@@ -178,6 +178,9 @@ void arm_sp_min_plat_runtime_setup(void);
 /* FIP TOC validity check */
 int arm_io_is_toc_valid(void);
 
+/* Utility functions for Dynamic Config */
+void arm_load_tb_fw_config(void);
+
 /*
  * Mandatory functions required in ARM standard platforms
  */
