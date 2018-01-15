@@ -1144,6 +1144,9 @@ This function executes with the MMU and data caches enabled. It is responsible
 for performing any remaining platform-specific setup that can occur after the
 MMU and data cache have been enabled.
 
+if support for multiple boot sources is required, it initializes the boot
+sequence used by plat\_try\_next\_boot\_source().
+
 In ARM standard platforms, this function initializes the storage abstraction
 layer used to load the next bootloader image.
 
