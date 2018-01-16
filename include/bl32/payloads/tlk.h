@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,7 @@
  */
 #define TLK_REGISTER_LOGBUF	TLK_TOS_YIELD_FID(0x1)
 #define TLK_REGISTER_REQBUF	TLK_TOS_YIELD_FID(0x2)
+#define TLK_REGISTER_NS_DRAM	TLK_TOS_YIELD_FID(0x4)
 #define TLK_RESUME_FID		TLK_TOS_YIELD_FID(0x100)
 #define TLK_SYSTEM_SUSPEND	TLK_TOS_YIELD_FID(0xE001)
 #define TLK_SYSTEM_RESUME	TLK_TOS_YIELD_FID(0xE002)
