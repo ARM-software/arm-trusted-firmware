@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -893,7 +893,7 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 			 * Check if the mapping function actually managed to map
 			 * anything. If not, just return now.
 			 */
-			if (mm_cursor->base_va >= end_va)
+			if (mm->base_va >= end_va)
 				return -ENOMEM;
 
 			/*
