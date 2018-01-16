@@ -7,7 +7,10 @@
 BL2_SOURCES		+=	bl2/bl2_main.c				\
 				bl2/${ARCH}/bl2_arch_setup.c		\
 				lib/locks/exclusive/${ARCH}/spinlock.S	\
-				plat/common/${ARCH}/platform_up_stack.S
+				plat/common/${ARCH}/platform_up_stack.S	\
+				${MBEDTLS_COMMON_SOURCES}               \
+				${MBEDTLS_CRYPTO_SOURCES}		\
+				${MBEDTLS_X509_SOURCES}
 
 ifeq (${ARCH},aarch64)
 BL2_SOURCES		+=	common/aarch64/early_exceptions.S

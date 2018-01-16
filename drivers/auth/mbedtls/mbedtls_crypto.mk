@@ -89,6 +89,3 @@ endif
 # Needs to be set to drive mbed TLS configuration correctly
 $(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
 $(eval $(call add_define,TF_MBEDTLS_HASH_ALG_ID))
-
-BL1_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}
-BL2_SOURCES			+=	${MBEDTLS_CRYPTO_SOURCES}
