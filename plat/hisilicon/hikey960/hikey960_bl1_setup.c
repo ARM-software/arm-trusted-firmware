@@ -647,6 +647,8 @@ static void hikey960_pinmux_init(void)
 	}
 	/* GPIO005 - PMU SSI, 10mA */
 	mmio_write_32(IOCG_006_REG, 2 << 4);
+	/* GPIO213 - PCIE_CLKREQ_N */
+	mmio_write_32(IOMG_AO_033_REG, 1);
 }
 
 /*

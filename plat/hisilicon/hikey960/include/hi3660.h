@@ -335,6 +335,8 @@
 #define IOMG_AO_026_REG			(IOMG_AO_REG_BASE + 0x068)
 /* GPIO219: PD interrupt. pull up */
 #define IOMG_AO_039_REG			(IOMG_AO_REG_BASE + 0x09C)
+/* GPIO213: PCIE_CLKREQ_N */
+#define IOMG_AO_033_REG			(IOMG_AO_REG_BASE + 0x084)
 
 #define IOCG_AO_REG_BASE		0xFFF1187C
 /* GPIO219: PD interrupt. pull up */
