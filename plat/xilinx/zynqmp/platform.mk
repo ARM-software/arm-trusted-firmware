@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -77,6 +77,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/zynqmp_ipi.c		\
 				plat/xilinx/zynqmp/pm_service/pm_svc_main.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_sys.c	\
+				plat/xilinx/zynqmp/pm_service/pm_api_pinctrl.c	\
 				plat/xilinx/zynqmp/pm_service/pm_ipi.c		\
 				plat/xilinx/zynqmp/pm_service/pm_client.c	\
 				plat/xilinx/zynqmp/ipi_mailbox_service/ipi_mailbox_svc.c

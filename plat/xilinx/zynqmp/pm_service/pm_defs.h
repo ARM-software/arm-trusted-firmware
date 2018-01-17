@@ -149,7 +149,15 @@ enum pm_node_id {
 	NODE_IPI_PL_2,
 	NODE_IPI_PL_3,
 	NODE_PL,
-	NODE_MAX
+	NODE_GEM_TSU,
+	NODE_SWDT_0,
+	NODE_SWDT_1,
+	NODE_CSU,
+	NODE_PJTAG,
+	NODE_TRACE,
+	NODE_TESTSCAN,
+	NODE_PMU,
+	NODE_MAX,
 };
 
 enum pm_request_ack {

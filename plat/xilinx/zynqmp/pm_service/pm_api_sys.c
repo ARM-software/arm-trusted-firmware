@@ -11,6 +11,7 @@
 
 #include <arch_helpers.h>
 #include <platform.h>
+#include "pm_api_pinctrl.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_common.h"
@@ -584,7 +585,7 @@ enum pm_ret_status pm_pinctrl_release(unsigned int pin)
 enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
 					   enum pm_node_id *nid)
 {
-	return PM_RET_SUCCESS;
+	return pm_api_pinctrl_get_function(pin, nid);
 }
 
 /**
@@ -599,7 +600,7 @@ enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
 enum pm_ret_status pm_pinctrl_set_function(unsigned int pin,
 					   enum pm_node_id nid)
 {
-	return PM_RET_SUCCESS;
+	return pm_api_pinctrl_set_function(pin, nid);
 }
 
 /**
