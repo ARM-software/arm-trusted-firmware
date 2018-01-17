@@ -141,6 +141,195 @@ static enum pm_ret_status pm_ioctl_config_tcm_comb(unsigned int value)
 }
 
 /**
+ * pm_ioctl_set_tapdelay_bypass() -  Enable/Disable tap delay bypass
+ * @type	Type of tap delay to enable/disable (e.g. QSPI)
+ * @value	Enable/Disable
+ *
+ * This function enable/disable tap delay bypass.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_set_tapdelay_bypass(unsigned int type,
+						       unsigned int value)
+{
+	if ((value != PM_TAPDELAY_BYPASS_ENABLE &&
+	     value != PM_TAPDELAY_BYPASS_DISABLE) || type >= PM_TAPDELAY_MAX)
+		return PM_RET_ERROR_ARGS;
+
+	return pm_mmio_write(IOU_TAPDLY_BYPASS, TAP_DELAY_MASK, value << type);
+}
+
+/**
+ * pm_ioctl_set_sgmii_mode() -  Set SGMII mode for the GEM device
+ * @nid		Node ID of the device
+ * @value	Enable/Disable
+ *
+ * This function enable/disable SGMII mode for the GEM device.
+ * While enabling SGMII mode, it also ties the GEM PCS Signal
+ * Detect to 1 and selects EMIO for RX clock generation.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
+						  unsigned int value)
+{
+	unsigned int val, mask, shift;
+	int ret;
+
+	if (value != PM_SGMII_DISABLE && value != PM_SGMII_ENABLE)
+		return PM_RET_ERROR_ARGS;
+
+	switch (nid) {
+	case NODE_ETH_0:
+		shift = 0;
+		break;
+	case NODE_ETH_1:
+		shift = 1;
+		break;
+	case NODE_ETH_2:
+		shift = 2;
+		break;
+	case NODE_ETH_3:
+		shift = 3;
+		break;
+	default:
+		return PM_RET_ERROR_ARGS;
+	}
+
+	if (value == PM_SGMII_DISABLE) {
+		mask = GEM_SGMII_MASK << GEM_CLK_CTRL_OFFSET * shift;
+		ret = pm_mmio_write(IOU_GEM_CLK_CTRL, mask, 0);
+	} else {
+		/* Tie the GEM PCS Signal Detect to 1 */
+		mask = SGMII_SD_MASK << SGMII_SD_OFFSET * shift;
+		val = SGMII_PCS_SD_1 << SGMII_SD_OFFSET * shift;
+		ret = pm_mmio_write(IOU_GEM_CTRL, mask, val);
+		if (ret)
+			return ret;
+
+		/* Set the GEM to SGMII mode */
+		mask = GEM_CLK_CTRL_MASK << GEM_CLK_CTRL_OFFSET * shift;
+		val = GEM_RX_SRC_SEL_GTR | GEM_SGMII_MODE;
+		val <<= GEM_CLK_CTRL_OFFSET * shift;
+		ret =  pm_mmio_write(IOU_GEM_CLK_CTRL, mask, val);
+	}
+
+	return ret;
+}
+
+/**
+ * pm_ioctl_sd_dll_reset() -  Reset DLL logic
+ * @nid		Node ID of the device
+ * @type	Reset type
+ *
+ * This function resets DLL logic for the SD device.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
+						unsigned int type)
+{
+	unsigned int mask, val;
+	int ret;
+
+	if (nid == NODE_SD_0) {
+		mask = ZYNQMP_SD0_DLL_RST_MASK;
+		val = ZYNQMP_SD0_DLL_RST;
+	} else if (nid == NODE_SD_1) {
+		mask = ZYNQMP_SD1_DLL_RST_MASK;
+		val = ZYNQMP_SD1_DLL_RST;
+	} else {
+		return PM_RET_ERROR_ARGS;
+	}
+
+	switch (type) {
+	case PM_DLL_RESET_ASSERT:
+	case PM_DLL_RESET_PULSE:
+		ret = pm_mmio_write(ZYNQMP_SD_DLL_CTRL, mask, val);
+		if (ret)
+			return ret;
+
+		if (type == PM_DLL_RESET_ASSERT)
+			break;
+		mdelay(1);
+	case PM_DLL_RESET_RELEASE:
+		ret = pm_mmio_write(ZYNQMP_SD_DLL_CTRL, mask, 0);
+		break;
+	default:
+		ret = PM_RET_ERROR_ARGS;
+	}
+
+	return ret;
+}
+
+/**
+ * pm_ioctl_sd_set_tapdelay() -  Set tap delay for the SD device
+ * @nid		Node ID of the device
+ * @type	Type of tap delay to set (input/output)
+ * @value	Value to set fot the tap delay
+ *
+ * This function sets input/output tap delay for the SD device.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
+						   enum tap_delay_type type,
+						   unsigned int value)
+{
+	unsigned int shift;
+	int ret;
+
+	if (nid == NODE_SD_0)
+		shift = 0;
+	else if (nid == NODE_SD_1)
+		shift = ZYNQMP_SD_TAP_OFFSET;
+	else
+		return PM_RET_ERROR_ARGS;
+
+	ret = pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_ASSERT);
+	if (ret)
+		return ret;
+
+	if (type == PM_TAPDELAY_INPUT) {
+		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+				    ZYNQMP_SD_ITAPCHGWIN_MASK << shift,
+				    ZYNQMP_SD_ITAPCHGWIN << shift);
+		if (ret)
+			goto reset_release;
+		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+				    ZYNQMP_SD_ITAPDLYENA_MASK << shift,
+				    ZYNQMP_SD_ITAPDLYENA << shift);
+		if (ret)
+			goto reset_release;
+		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+				    ZYNQMP_SD_ITAPDLYSEL_MASK << shift,
+				    value << shift);
+		if (ret)
+			goto reset_release;
+		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+				    ZYNQMP_SD_ITAPCHGWIN_MASK << shift, 0);
+	} else if (type == PM_TAPDELAY_OUTPUT) {
+		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
+				    ZYNQMP_SD_OTAPDLYENA_MASK << shift,
+				    ZYNQMP_SD_OTAPDLYENA << shift);
+		if (ret)
+			goto reset_release;
+		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
+				    ZYNQMP_SD_OTAPDLYSEL_MASK << shift,
+				    value << shift);
+	} else {
+		ret = PM_RET_ERROR_ARGS;
+	}
+
+reset_release:
+	ret = pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_RELEASE);
+	if (ret)
+		return ret;
+
+	return ret;
+}
+
+/**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
  * @node_id	Node ID of the device
  * @ioctl_id	ID of the requested IOCTL
@@ -172,6 +361,18 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		break;
 	case IOCTL_TCM_COMB_CONFIG:
 		ret = pm_ioctl_config_tcm_comb(arg1);
+		break;
+	case IOCTL_SET_TAPDELAY_BYPASS:
+		ret = pm_ioctl_set_tapdelay_bypass(arg1, arg2);
+		break;
+	case IOCTL_SET_SGMII_MODE:
+		ret = pm_ioctl_set_sgmii_mode(nid, arg1);
+		break;
+	case IOCTL_SD_DLL_RESET:
+		ret = pm_ioctl_sd_dll_reset(nid, arg1);
+		break;
+	case IOCTL_SET_SD_TAPDELAY:
+		ret = pm_ioctl_sd_set_tapdelay(nid, arg1, arg2);
 		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;
