@@ -16,8 +16,6 @@
 	.globl	plat_crash_console_putc
 	.globl	plat_report_exception
 	.globl	plat_reset_handler
-	.globl	set_retention_ticks
-	.globl	clr_retention_ticks
 	.globl	clr_ex
 	.globl	nop
 
@@ -137,35 +135,6 @@ endfunc plat_report_exception
 func plat_reset_handler
 	ret
 endfunc plat_reset_handler
-
-	/* -----------------------------------------------------
-	 * void set_retention_ticks(unsigned int val);
-	 * Clobber list : x0
-	 * -----------------------------------------------------
-	 */
-func set_retention_ticks
-	mrs	x0, CORTEX_A53_ECTLR_EL1
-	bic	x0, x0, #CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK
-	orr	x0, x0, #RETENTION_ENTRY_TICKS_8
-	msr	CORTEX_A53_ECTLR_EL1, x0
-	isb
-	dsb	sy
-	ret
-endfunc set_retention_ticks
-
-	/* -----------------------------------------------------
-	 * void clr_retention_ticks(unsigned int val);
-	 * Clobber list : x0
-	 * -----------------------------------------------------
-	 */
-func clr_retention_ticks
-	mrs	x0, CORTEX_A53_ECTLR_EL1
-	bic	x0, x0, #CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK
-	msr	CORTEX_A53_ECTLR_EL1, x0
-	isb
-	dsb	sy
-	ret
-endfunc clr_retention_ticks
 
 	/* -----------------------------------------------------
 	 * void clrex(void);
