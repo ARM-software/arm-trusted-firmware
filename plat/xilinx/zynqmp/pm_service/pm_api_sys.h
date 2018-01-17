@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,5 +93,17 @@ enum pm_ret_status pm_fpga_get_status(unsigned int *value);
 
 enum pm_ret_status pm_get_chipid(uint32_t *value);
 void pm_get_callbackdata(uint32_t *data, size_t count);
+enum pm_ret_status pm_pinctrl_request(unsigned int pin);
+enum pm_ret_status pm_pinctrl_release(unsigned int pin);
+enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
+					   unsigned int *value);
+enum pm_ret_status pm_pinctrl_set_function(unsigned int pin,
+					   unsigned int value);
+enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
+					 unsigned int param,
+					 unsigned int *value);
+enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
+					 unsigned int param,
+					 unsigned int value);
 
 #endif /* _PM_API_SYS_H_ */
