@@ -19,7 +19,7 @@
 
 #include <types.h>
 
-typedef struct mem_region_t {
+typedef struct mem_region {
 	uintptr_t base;
 	size_t nbytes;
 } mem_region_t;
