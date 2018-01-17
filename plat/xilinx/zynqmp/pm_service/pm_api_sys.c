@@ -11,6 +11,7 @@
 
 #include <arch_helpers.h>
 #include <platform.h>
+#include "pm_api_clock.h"
 #include "pm_api_ioctl.h"
 #include "pm_api_pinctrl.h"
 #include "pm_api_sys.h"
@@ -657,4 +658,286 @@ enum pm_ret_status pm_ioctl(enum pm_node_id nid,
 			    unsigned int *value)
 {
 	return pm_api_ioctl(nid, ioctl_id, arg1, arg2, value);
+}
+
+/**
+ * pm_clock_get_name() - PM call to request a clock's name
+ * @clock_id	Clock ID
+ * @name	Name of clock (max 16 bytes)
+ *
+ * This function is used by master to get nmae of clock specified
+ * by given clock ID.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_name(unsigned int clock_id, char *name)
+{
+	return pm_api_clock_get_name(clock_id, name);
+}
+
+/**
+ * pm_clock_get_topology() - PM call to request a clock's topology
+ * @clock_id	Clock ID
+ * @index	Topology index for next toplogy node
+ * @topology	Buffer to store nodes in topology and flags
+ *
+ * This function is used by master to get topology information for the
+ * clock specified by given clock ID. Each response would return 3
+ * topology nodes. To get next nodes, caller needs to call this API with
+ * index of next node. Index starts from 0.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_topology(unsigned int clock_id,
+						unsigned int index,
+						uint32_t *topology)
+{
+	return pm_api_clock_get_topology(clock_id, index, topology);
+}
+
+/**
+ * pm_clock_get_fixedfactor_params() - PM call to request a clock's fixed factor
+ *				 parameters for fixed clock
+ * @clock_id	Clock ID
+ * @mul		Multiplication value
+ * @div		Divisor value
+ *
+ * This function is used by master to get fixed factor parameers for the
+ * fixed clock. This API is application only for the fixed clock.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_fixedfactor_params(unsigned int clock_id,
+							  uint32_t *mul,
+							  uint32_t *div)
+{
+	return pm_api_clock_get_fixedfactor_params(clock_id, mul, div);
+}
+
+/**
+ * pm_clock_get_parents() - PM call to request a clock's first 3 parents
+ * @clock_id	Clock ID
+ * @index	Index of next parent
+ * @parents	Parents of the given clock
+ *
+ * This function is used by master to get clock's parents information.
+ * This API will return 3 parents with a single response. To get other
+ * parents, master should call same API in loop with new parent index
+ * till error is returned.
+ *
+ * E.g First call should have index 0 which will return parents 0, 1 and
+ * 2. Next call, index should be 3 which will return parent 3,4 and 5 and
+ * so on.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_parents(unsigned int clock_id,
+					       unsigned int index,
+					       uint32_t *parents)
+{
+	return pm_api_clock_get_parents(clock_id, index, parents);
+}
+
+/**
+ * pm_clock_get_attributes() - PM call to request a clock's attributes
+ * @clock_id	Clock ID
+ * @attr	Clock attributes
+ *
+ * This function is used by master to get clock's attributes
+ * (e.g. valid, clock type, etc).
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_attributes(unsigned int clock_id,
+						  uint32_t *attr)
+{
+	return pm_api_clock_get_attributes(clock_id, attr);
+}
+
+/**
+ * pm_clock_enable() - Enable the clock for given id
+ * @clock_id: Id of the clock to be enabled
+ *
+ * This function is used by master to enable the clock
+ * including peripherals and PLL clocks.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+
+enum pm_ret_status pm_clock_enable(unsigned int clock_id)
+{
+	return pm_api_clock_enable(clock_id);
+}
+
+/**
+ * pm_clock_disable - Disable the clock for given id
+ * @clock_id: Id of the clock to be disable
+ *
+ * This function is used by master to disable the clock
+ * including peripherals and PLL clocks.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+
+enum pm_ret_status pm_clock_disable(unsigned int clock_id)
+{
+	return pm_api_clock_disable(clock_id);
+}
+
+/**
+ * pm_clock_getstate - Get the clock state for given id
+ * @clock_id: Id of the clock to be queried
+ * @state: 1/0 (Enabled/Disabled)
+ *
+ * This function is used by master to get the state of clock
+ * including peripherals and PLL clocks.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
+				     unsigned int *state)
+{
+	return pm_api_clock_getstate(clock_id, state);
+}
+
+/**
+ * pm_clock_setdivider - Set the clock divider for given id
+ * @clock_id: Id of the clock
+ * @divider: divider value
+ *
+ * This function is used by master to set divider for any clock
+ * to achieve desired rate.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
+				       unsigned int divider)
+{
+	return pm_api_clock_setdivider(clock_id, divider);
+}
+
+/**
+ * pm_clock_getdivider - Get the clock divider for given id
+ * @clock_id: Id of the clock
+ * @divider: divider value
+ *
+ * This function is used by master to get divider values
+ * for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
+				       unsigned int *divider)
+{
+	return pm_api_clock_getdivider(clock_id, divider);
+}
+
+/**
+ * pm_clock_setrate - Set the clock rate for given id
+ * @clock_id: Id of the clock
+ * @rate: rate value in hz
+ *
+ * This function is used by master to set rate for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
+				    unsigned int rate)
+{
+	return pm_api_clock_setrate(clock_id, rate);
+}
+
+/**
+ * pm_clock_getrate - Get the clock rate for given id
+ * @clock_id: Id of the clock
+ * @rate: rate value in hz
+ *
+ * This function is used by master to get rate
+ * for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
+				    unsigned int *rate)
+{
+	return pm_api_clock_getrate(clock_id, rate);
+}
+
+/**
+ * pm_clock_setparent - Set the clock parent for given id
+ * @clock_id: Id of the clock
+ * @parent_id: parent id
+ *
+ * This function is used by master to set parent for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
+				      unsigned int parent_id)
+{
+	return pm_api_clock_setparent(clock_id, parent_id);
+}
+
+/**
+ * pm_clock_getparent - Get the clock parent for given id
+ * @clock_id: Id of the clock
+ * @parent_id: parent id
+ *
+ * This function is used by master to get parent index
+ * for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
+				      unsigned int *parent_id)
+{
+	return pm_api_clock_getparent(clock_id, parent_id);
+}
+
+/**
+ * pm_query_data() -  PM API for querying firmware data
+ * @arg1	Argument 1 to requested IOCTL call
+ * @arg2	Argument 2 to requested IOCTL call
+ * @arg3	Argument 3 to requested IOCTL call
+ * @arg4	Argument 4 to requested IOCTL call
+ * @data	Returned output data
+ *
+ * This function returns requested data.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_query_data(enum pm_query_id qid,
+				 unsigned int arg1,
+				 unsigned int arg2,
+				 unsigned int arg3,
+				 unsigned int *data)
+{
+	enum pm_ret_status ret;
+
+	switch (qid) {
+	case PM_QID_CLOCK_GET_NAME:
+		ret = pm_clock_get_name(arg1, (char *)data);
+		break;
+	case PM_QID_CLOCK_GET_TOPOLOGY:
+		ret = pm_clock_get_topology(arg1, arg2, &data[1]);
+		data[0] = ret;
+		break;
+	case PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS:
+		ret = pm_clock_get_fixedfactor_params(arg1, &data[1], &data[2]);
+		data[0] = ret;
+		break;
+	case PM_QID_CLOCK_GET_PARENTS:
+		ret = pm_clock_get_parents(arg1, arg2, &data[1]);
+		data[0] = ret;
+		break;
+	case PM_QID_CLOCK_GET_ATTRIBUTES:
+		ret = pm_clock_get_attributes(arg1, &data[1]);
+		data[0] = ret;
+		break;
+	default:
+		ret = PM_RET_ERROR_ARGS;
+		WARN("Unimplemented query service call: 0x%x\n", qid);
+	}
+
+	return ret;
 }

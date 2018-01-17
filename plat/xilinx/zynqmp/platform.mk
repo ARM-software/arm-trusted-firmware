@@ -77,6 +77,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/pm_service/pm_api_sys.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_pinctrl.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_ioctl.c	\
+				plat/xilinx/zynqmp/pm_service/pm_api_clock.c	\
 				plat/xilinx/zynqmp/pm_service/pm_ipi.c		\
 				plat/xilinx/zynqmp/pm_service/pm_client.c	\
 				plat/xilinx/zynqmp/ipi_mailbox_service/ipi_mailbox_svc.c

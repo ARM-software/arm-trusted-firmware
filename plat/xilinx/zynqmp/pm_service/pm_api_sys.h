@@ -10,6 +10,15 @@
 #include <stdint.h>
 #include "pm_defs.h"
 
+enum pm_query_id {
+	PM_QID_INVALID,
+	PM_QID_CLOCK_GET_NAME,
+	PM_QID_CLOCK_GET_TOPOLOGY,
+	PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS,
+	PM_QID_CLOCK_GET_PARENTS,
+	PM_QID_CLOCK_GET_ATTRIBUTES,
+};
+
 /**********************************************************
  * System-level API function declarations
  **********************************************************/
@@ -110,5 +119,25 @@ enum pm_ret_status pm_ioctl(enum pm_node_id nid,
 			    unsigned int arg1,
 			    unsigned int arg2,
 			    unsigned int *value);
-
+enum pm_ret_status pm_clock_enable(unsigned int clock_id);
+enum pm_ret_status pm_clock_disable(unsigned int clock_id);
+enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
+				     unsigned int *state);
+enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
+				       unsigned int divider);
+enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
+				       unsigned int *divider);
+enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
+				    unsigned int rate);
+enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
+				    unsigned int *rate);
+enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
+				      unsigned int parent_id);
+enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
+				      unsigned int *parent_id);
+enum pm_ret_status pm_query_data(enum pm_query_id qid,
+				 unsigned int arg1,
+				 unsigned int arg2,
+				 unsigned int arg3,
+				 unsigned int *data);
 #endif /* _PM_API_SYS_H_ */
