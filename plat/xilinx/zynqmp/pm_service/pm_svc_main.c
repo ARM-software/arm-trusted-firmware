@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -247,6 +247,38 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
 			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
 	}
+
+	case PM_PINCTRL_REQUEST:
+		ret = pm_pinctrl_request(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_PINCTRL_RELEASE:
+		ret = pm_pinctrl_release(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_PINCTRL_GET_FUNCTION:
+	{
+		uint32_t value;
+
+		ret = pm_pinctrl_get_function(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_PINCTRL_SET_FUNCTION:
+		ret = pm_pinctrl_set_function(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_PINCTRL_CONFIG_PARAM_GET:
+	{
+		uint32_t value;
+
+		ret = pm_pinctrl_get_config(pm_arg[0], pm_arg[1], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_PINCTRL_CONFIG_PARAM_SET:
+		ret = pm_pinctrl_set_config(pm_arg[0], pm_arg[1], pm_arg[2]);
+		SMC_RET1(handle, (uint64_t)ret);
 
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
