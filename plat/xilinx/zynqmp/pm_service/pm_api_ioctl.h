@@ -22,6 +22,11 @@ enum pm_ioctl_id {
 	IOCTL_SET_SGMII_MODE,
 	IOCTL_SD_DLL_RESET,
 	IOCTL_SET_SD_TAPDELAY,
+	 /* Ioctl for clock driver */
+	IOCTL_SET_PLL_FRAC_MODE,
+	IOCTL_GET_PLL_FRAC_MODE,
+	IOCTL_SET_PLL_FRAC_DATA,
+	IOCTL_GET_PLL_FRAC_DATA,
 };
 
 enum rpu_oper_mode {

@@ -12,6 +12,7 @@
 #include <delay_timer.h>
 #include <mmio.h>
 #include <platform.h>
+#include "pm_api_clock.h"
 #include "pm_api_ioctl.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"
@@ -330,6 +331,71 @@ reset_release:
 }
 
 /**
+ * pm_ioctl_set_pll_frac_mode() -  Ioctl function for
+ *				   setting pll mode
+ * @pll     PLL id
+ * @mode    Mode fraction/integar
+ *
+ * This function sets PLL mode
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_set_pll_frac_mode
+			(unsigned int pll, unsigned int mode)
+{
+	return pm_api_clk_set_pll_mode(pll, mode);
+}
+
+/**
+ * pm_ioctl_get_pll_frac_mode() -  Ioctl function for
+ *				   getting pll mode
+ * @pll     PLL id
+ * @mode    Mode fraction/integar
+ *
+ * This function return current PLL mode
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_get_pll_frac_mode
+			(unsigned int pll, unsigned int *mode)
+{
+	return pm_api_clk_get_pll_mode(pll, mode);
+}
+
+/**
+ * pm_ioctl_set_pll_frac_data() -  Ioctl function for
+ *				   setting pll fraction data
+ * @pll     PLL id
+ * @data    fraction data
+ *
+ * This function sets fraction data.
+ * It is valid for fraction mode only.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_set_pll_frac_data
+			(unsigned int pll, unsigned int data)
+{
+	return pm_api_clk_set_pll_frac_data(pll, data);
+}
+
+/**
+ * pm_ioctl_get_pll_frac_data() -  Ioctl function for
+ *				   getting pll fraction data
+ * @pll     PLL id
+ * @data    fraction data
+ *
+ * This function returns fraction data value.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_get_pll_frac_data
+			(unsigned int pll, unsigned int *data)
+{
+	return pm_api_clk_get_pll_frac_data(pll, data);
+}
+
+/**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
  * @node_id	Node ID of the device
  * @ioctl_id	ID of the requested IOCTL
@@ -373,6 +439,18 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		break;
 	case IOCTL_SET_SD_TAPDELAY:
 		ret = pm_ioctl_sd_set_tapdelay(nid, arg1, arg2);
+		break;
+	case IOCTL_SET_PLL_FRAC_MODE:
+		ret = pm_ioctl_set_pll_frac_mode(arg1, arg2);
+		break;
+	case IOCTL_GET_PLL_FRAC_MODE:
+		ret = pm_ioctl_get_pll_frac_mode(arg1, value);
+		break;
+	case IOCTL_SET_PLL_FRAC_DATA:
+		ret = pm_ioctl_set_pll_frac_data(arg1, arg2);
+		break;
+	case IOCTL_GET_PLL_FRAC_DATA:
+		ret = pm_ioctl_get_pll_frac_data(arg1, value);
 		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;

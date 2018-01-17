@@ -289,6 +289,72 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
+	case PM_QUERY_DATA:
+	{
+		uint32_t data[4];
+
+		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
+				    pm_arg[3], data);
+		SMC_RET2(handle, (uint64_t)data[0]  | ((uint64_t)data[1] << 32),
+			 (uint64_t)data[2] | ((uint64_t)data[3] << 32));
+	}
+
+	case PM_CLOCK_ENABLE:
+		ret = pm_clock_enable(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_DISABLE:
+		ret = pm_clock_disable(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETSTATE:
+	{
+		uint32_t value;
+
+		ret = pm_clock_getstate(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_CLOCK_SETDIVIDER:
+		ret = pm_clock_setdivider(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETDIVIDER:
+	{
+		uint32_t value;
+
+		ret = pm_clock_getdivider(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_CLOCK_SETRATE:
+		ret = pm_clock_setrate(pm_arg[0],
+		       ((uint64_t)pm_arg[2]) << 32 | pm_arg[1]);
+
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETRATE:
+	{
+		uint64_t value;
+
+		ret = pm_clock_getrate(pm_arg[0], &value);
+		SMC_RET2(handle, (uint64_t)ret | (value & 0xFFFFFFFF) << 32,
+			 (value >> 32) & 0xFFFFFFFF);
+
+	}
+
+	case PM_CLOCK_SETPARENT:
+		ret = pm_clock_setparent(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETPARENT:
+	{
+		uint32_t value;
+
+		ret = pm_clock_getparent(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
