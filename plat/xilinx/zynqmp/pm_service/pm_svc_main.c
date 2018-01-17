@@ -280,6 +280,15 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_pinctrl_set_config(pm_arg[0], pm_arg[1], pm_arg[2]);
 		SMC_RET1(handle, (uint64_t)ret);
 
+	case PM_IOCTL:
+	{
+		uint32_t value;
+
+		ret = pm_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
+			       pm_arg[3], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
