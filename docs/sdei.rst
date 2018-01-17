@@ -48,8 +48,10 @@ execute the registered handler [10]. The client terminates its execution with
 original EL2 execution [13]. Note that the SDEI interrupt remains active until
 the client handler completes, at which point EL3 does EOI [12].
 
-SDEI events can be explicitly dispatched in response to other asynchronous
-exceptions. See `Explicit dispatch of events`_.
+Other than events bound to interrupts (as depicted in the sequence above, SDEI
+events can be explicitly dispatched in response to other exceptions, for
+example, upon receiving an *SError* or *Synchronous External Abort*. See
+`Explicit dispatch of events`_.
 
 The remainder of this document only discusses the design and implementation of
 SDEI dispatcher in TF-A, and assumes that the reader is familiar with the SDEI
@@ -71,7 +73,8 @@ event descriptors. Both macros take 3 arguments:
 
 -  The event number: this must be a positive 32-bit integer.
 
--  The interrupt number the event is bound to:
+-  For an event that has a backing interrupt, the interrupt number the event is
+   bound to:
 
    - If it's not applicable to an event, this shall be left as ``0``.
 
@@ -81,6 +84,17 @@ event descriptors. Both macros take 3 arguments:
 
 To define event 0, the macro ``SDEI_DEFINE_EVENT_0()`` should be used. This
 macro takes only one parameter: an SGI number to signal other PEs.
+
+To define an event that's meant to be `explicitly dispatched`__ (i.e., not as a
+result of receiving an SDEI interrupt), the macro ``SDEI_EXPLICIT_EVENT()``
+should be used. It accepts two parameters:
+
+.. __: `Explicit dispatch of events`_
+
+-  The event number (as above);
+
+-  Event priority: ``SDEI_MAPF_CRITICAL`` or ``SDEI_MAPF_NORMAL``, as described
+   below.
 
 Once the event descriptor arrays are defined, they should be exported to the
 SDEI dispatcher using the ``REGISTER_SDEI_MAP()`` macro, passing it the pointers
@@ -98,6 +112,8 @@ Regarding event descriptors:
    - The event should be defined using ``SDEI_DEFINE_EVENT_0()``.
 
    - Must be bound to a Secure SGI on the platform.
+
+-  Explicit events should only be used in the private array.
 
 -  Statically bound shared and private interrupts must be bound to shared and
    private interrupts on the platform, respectively. See the section on
@@ -132,8 +148,10 @@ Event flags describe the properties of the event. They are bit maps that can be
 -  ``SDEI_MAPF_BOUND``: Marks the event as statically bound to an interrupt.
    These events cannot be re-bound at runtime.
 
+-  ``SDEI_MAPF_NORMAL``: Marks the event as having *Normal* priority. This is
+   the default priority.
+
 -  ``SDEI_MAPF_CRITICAL``: Marks the event as having *Critical* priority.
-   Without this flag, the event is assumed to have *Normal* priority.
 
 Event definition example
 ------------------------
@@ -150,6 +168,10 @@ Event definition example
         /* Dynamic private events */
         SDEI_PRIVATE_EVENT(100, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
         SDEI_PRIVATE_EVENT(101, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC)
+
+        /* Events for explicit dispatch */
+        SDEI_EXPLICIT_EVENT(2000, SDEI_MAPF_NORMAL);
+        SDEI_EXPLICIT_EVENT(2000, SDEI_MAPF_CRITICAL);
    };
 
    /* Shared event mappings */
@@ -258,7 +280,8 @@ event to be dispatched:
 
 -  Event 0 can't be dispatched.
 
--  The event must neither be a dynamic event nor be bound to an interrupt.
+-  The event must be declared using the ``SDEI_EXPLICIT_EVENT()`` macro
+   described above.
 
 -  The event must be private to the PE.
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -135,6 +135,11 @@ static inline int is_map_bound(sdei_ev_map_t *map)
 static inline void set_map_bound(sdei_ev_map_t *map)
 {
 	map->map_flags |= BIT(_SDEI_MAPF_BOUND_SHIFT);
+}
+
+static inline int is_map_explicit(sdei_ev_map_t *map)
+{
+	return ((map->map_flags & BIT(_SDEI_MAPF_EXPLICIT_SHIFT)) != 0);
 }
 
 static inline void clr_map_bound(sdei_ev_map_t *map)

@@ -520,15 +520,8 @@ int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state)
 	if (!map)
 		return -1;
 
-	/*
-	 * Statically-bound or dynamic maps are dispatched only as a result of
-	 * interrupt, and not upon explicit request.
-	 */
-	if (is_map_dynamic(map) || is_map_bound(map))
-		return -1;
-
-	/* The event must be private */
-	if (is_event_shared(map))
+	/* Only explicit events can be dispatched */
+	if (!is_map_explicit(map))
 		return -1;
 
 	/* Examine state of dispatch stack */
