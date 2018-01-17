@@ -105,5 +105,10 @@ enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
 enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
 					 unsigned int param,
 					 unsigned int value);
+enum pm_ret_status pm_ioctl(enum pm_node_id nid,
+			    unsigned int ioctl_id,
+			    unsigned int arg1,
+			    unsigned int arg2,
+			    unsigned int *value);
 
 #endif /* _PM_API_SYS_H_ */

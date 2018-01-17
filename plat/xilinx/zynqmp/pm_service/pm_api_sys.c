@@ -11,6 +11,7 @@
 
 #include <arch_helpers.h>
 #include <platform.h>
+#include "pm_api_ioctl.h"
 #include "pm_api_pinctrl.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"
@@ -635,4 +636,25 @@ enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
 					 unsigned int value)
 {
 	return pm_api_pinctrl_set_config(pin, param, value);
+}
+
+/**
+ * pm_ioctl() -  PM IOCTL API for device control and configs
+ * @node_id	Node ID of the device
+ * @ioctl_id	ID of the requested IOCTL
+ * @arg1	Argument 1 to requested IOCTL call
+ * @arg2	Argument 2 to requested IOCTL call
+ * @out		Returned output value
+ *
+ * This function calls IOCTL to firmware for device control and configuration.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_ioctl(enum pm_node_id nid,
+			    unsigned int ioctl_id,
+			    unsigned int arg1,
+			    unsigned int arg2,
+			    unsigned int *value)
+{
+	return pm_api_ioctl(nid, ioctl_id, arg1, arg2, value);
 }
