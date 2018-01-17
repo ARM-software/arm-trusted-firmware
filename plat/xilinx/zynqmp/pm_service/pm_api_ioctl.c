@@ -396,6 +396,82 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_data
 }
 
 /**
+ * pm_ioctl_write_ggs() - Ioctl function for writing
+ *			  global general storage (ggs)
+ * @index	GGS register index
+ * @value	Register value to be written
+ *
+ * This function writes value to GGS register.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_write_ggs(unsigned int index,
+					     unsigned int value)
+{
+	if (index >= GGS_NUM_REGS)
+		return PM_RET_ERROR_ARGS;
+
+	return pm_mmio_write(GGS_BASEADDR + (index << 2), 0xFFFFFFFF, value);
+}
+
+/**
+ * pm_ioctl_read_ggs() - Ioctl function for reading
+ *			 global general storage (ggs)
+ * @index	GGS register index
+ * @value	Register value
+ *
+ * This function returns GGS register value.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_read_ggs(unsigned int index,
+					    unsigned int *value)
+{
+	if (index >= GGS_NUM_REGS)
+		return PM_RET_ERROR_ARGS;
+
+	return pm_mmio_read(GGS_BASEADDR + (index << 2), value);
+}
+
+/**
+ * pm_ioctl_write_pggs() - Ioctl function for writing persistent
+ *			   global general storage (pggs)
+ * @index	PGGS register index
+ * @value	Register value to be written
+ *
+ * This function writes value to PGGS register.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_write_pggs(unsigned int index,
+					      unsigned int value)
+{
+	if (index >= PGGS_NUM_REGS)
+		return PM_RET_ERROR_ARGS;
+
+	return pm_mmio_write(PGGS_BASEADDR + (index << 2), 0xFFFFFFFF, value);
+}
+
+/**
+ * pm_ioctl_read_pggs() - Ioctl function for reading persistent
+ *			  global general storage (pggs)
+ * @index	PGGS register index
+ * @value	Register value
+ *
+ * This function returns PGGS register value.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_read_pggs(unsigned int index,
+					     unsigned int *value)
+{
+	if (index >= PGGS_NUM_REGS)
+		return PM_RET_ERROR_ARGS;
+
+	return pm_mmio_read(PGGS_BASEADDR + (index << 2), value);
+}
+
+/**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
  * @node_id	Node ID of the device
  * @ioctl_id	ID of the requested IOCTL
@@ -451,6 +527,18 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		break;
 	case IOCTL_GET_PLL_FRAC_DATA:
 		ret = pm_ioctl_get_pll_frac_data(arg1, value);
+		break;
+	case IOCTL_WRITE_GGS:
+		ret = pm_ioctl_write_ggs(arg1, arg2);
+		break;
+	case IOCTL_READ_GGS:
+		ret = pm_ioctl_read_ggs(arg1, value);
+		break;
+	case IOCTL_WRITE_PGGS:
+		ret = pm_ioctl_write_pggs(arg1, arg2);
+		break;
+	case IOCTL_READ_PGGS:
+		ret = pm_ioctl_read_pggs(arg1, value);
 		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;
