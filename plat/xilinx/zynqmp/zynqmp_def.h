@@ -303,4 +303,12 @@
 #define IOU_SLCR_CAN_MIO_CTRL		(IOU_SLCR_BASEADDR + 0x304)
 #define IOU_SLCR_WDT_CLK_SEL		(IOU_SLCR_BASEADDR + 0x300)
 
+/* Global general storage register base address */
+#define GGS_BASEADDR		(0xFFD80030U)
+#define GGS_NUM_REGS		(4)
+
+/* Persistent global general storage register base address */
+#define PGGS_BASEADDR		(0xFFD80050U)
+#define PGGS_NUM_REGS		(4)
+
 #endif /* __ZYNQMP_DEF_H__ */
