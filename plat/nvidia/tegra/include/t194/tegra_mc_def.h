@@ -531,7 +531,10 @@
 #define MC_CLIENT_HOTRESET_STATUS2				0x1898U
 
 #define MC_COALESCE_CTRL					0x2930U
-#define  MC_COALESCE_CTRL_COALESCER_ENABLE			(1U << 31)
+#define MC_COALESCE_CTRL_COALESCER_ENABLE			(1U << 31)
+#define MC_COALESCE_CONFIG_6_0					0x294cU
+#define MC_COALESCE_CONFIG_6_0_PVA0RDC_COALESCER_ENABLED	(1U << 8)
+#define MC_COALESCE_CONFIG_6_0_PVA1RDC_COALESCER_ENABLED	(1U << 14)
 
 /*******************************************************************************
  * Tegra TSA Controller constants

@@ -618,6 +618,15 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 
 	reg_val = MC_COALESCE_CTRL_COALESCER_ENABLE;
 	tegra_mc_write_32(MC_COALESCE_CTRL, reg_val);
+
+	/*
+	 * WAR to hardware bug 1953865: Coalescer must be disabled
+	 * for PVA0RDC and PVA1RDC interfaces.
+	 */
+	reg_val = tegra_mc_read_32(MC_COALESCE_CONFIG_6_0);
+	reg_val &= ~(MC_COALESCE_CONFIG_6_0_PVA0RDC_COALESCER_ENABLED |
+		     MC_COALESCE_CONFIG_6_0_PVA1RDC_COALESCER_ENABLED);
+	tegra_mc_write_32(MC_COALESCE_CONFIG_6_0, reg_val);
 }
 
 /*******************************************************************************
