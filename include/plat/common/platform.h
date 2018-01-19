@@ -235,6 +235,21 @@ void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
  * Optional BL2 functions (may be overridden)
  ******************************************************************************/
 
+
+/*******************************************************************************
+ * Mandatory BL2 at EL3 functions: Must be implemented if BL2_AT_EL3 image is
+ * supported
+ ******************************************************************************/
+void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
+				  u_register_t arg2, u_register_t arg3);
+void bl2_el3_plat_arch_setup(void);
+
+
+/*******************************************************************************
+ * Optional BL2 at EL3 functions (may be overridden)
+ ******************************************************************************/
+void bl2_el3_plat_prepare_exit(void);
+
 /*******************************************************************************
  * Mandatory BL2U functions.
  ******************************************************************************/

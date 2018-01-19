@@ -126,6 +126,13 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_SECURITY_SOURCES}
 
+ifeq (${BL2_AT_EL3},1)
+BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
+				plat/arm/board/fvp/fvp_bl2_el3_setup.c		\
+				${FVP_CPU_LIBS}					\
+				${FVP_INTERCONNECT_SOURCES}
+endif
+
 ifeq (${FVP_USE_SP804_TIMER},1)
 BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 endif
@@ -164,6 +171,10 @@ endif
 
 # Add support for platform supplied linker script for BL31 build
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+
+ifneq (${BL2_AT_EL3}, 0)
+    override BL1_SOURCES =
+endif
 
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk

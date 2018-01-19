@@ -500,6 +500,7 @@ $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call assert_boolean,USE_TBBR_DEFS))
 $(eval $(call assert_boolean,WARMBOOT_ENABLE_DCACHE_EARLY))
+$(eval $(call assert_boolean,BL2_AT_EL3))
 
 $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
@@ -543,6 +544,7 @@ $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_TBBR_DEFS))
 $(eval $(call add_define,WARMBOOT_ENABLE_DCACHE_EARLY))
+$(eval $(call add_define,BL2_AT_EL3))
 
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
@@ -584,8 +586,12 @@ $(eval $(call MAKE_BL,1))
 endif
 
 ifeq (${NEED_BL2},yes)
-$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},tb-fw)),\
-	$(eval $(call MAKE_BL,2,tb-fw)))
+ifeq (${BL2_AT_EL3}, 0)
+FIP_BL2_ARGS := tb-fw
+endif
+
+$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},${FIP_BL2_ARGS})),\
+	$(eval $(call MAKE_BL,2,${FIP_BL2_ARGS})))
 endif
 
 ifeq (${NEED_SCP_BL2},yes)

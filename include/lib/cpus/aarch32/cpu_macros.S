@@ -9,6 +9,10 @@
 #include <arch.h>
 #include <errata_report.h>
 
+#if defined(IMAGE_BL1) || defined(IMAGE_BL32)  || (defined(IMAGE_BL2) && BL2_AT_EL3)
+#define IMAGE_AT_EL3
+#endif
+
 #define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
 				(MIDR_PN_MASK << MIDR_PN_SHIFT)
 
@@ -38,7 +42,7 @@
 CPU_MIDR: /* cpu_ops midr */
 	.space  4
 /* Reset fn is needed during reset */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL32)
+#if defined(IMAGE_AT_EL3)
 CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  4
 #endif
@@ -54,7 +58,7 @@ CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
 #if REPORT_ERRATA
 CPU_ERRATA_FUNC: /* CPU errata status printing function */
 	.space  4
-#ifdef IMAGE_BL32
+#if defined(IMAGE_BL32)
 CPU_ERRATA_LOCK:
 	.space	4
 CPU_ERRATA_PRINTED:
@@ -120,7 +124,7 @@ CPU_OPS_SIZE = .
 	.align 2
 	.type cpu_ops_\_name, %object
 	.word \_midr
-#if defined(IMAGE_BL1) || defined(IMAGE_BL32)
+#if defined(IMAGE_AT_EL3)
 	.word \_resetfunc
 #endif
 #ifdef IMAGE_BL32

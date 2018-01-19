@@ -7,7 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#ifdef IMAGE_BL31
+#if defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
 #include <cpu_data.h>
 #endif
 #include <cpu_macros.S>
@@ -15,7 +15,7 @@
 #include <errata_report.h>
 
  /* Reset fn is needed in BL at reset vector */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
 	/*
 	 * The reset handler common to all platforms.  After a matching
 	 * cpu_ops structure entry is found, the correponding reset_handler
@@ -47,7 +47,7 @@ func reset_handler
 	ret
 endfunc reset_handler
 
-#endif /* IMAGE_BL1 || IMAGE_BL31 */
+#endif
 
 #ifdef IMAGE_BL31 /* The power down core and cluster is needed only in  BL31 */
 	/*

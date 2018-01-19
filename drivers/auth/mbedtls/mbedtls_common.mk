@@ -29,7 +29,4 @@ MBEDTLS_COMMON_SOURCES	:=	drivers/auth/mbedtls/mbedtls_common.c	\
 				platform.c 				\
 				)
 
-BL1_SOURCES		+=	${MBEDTLS_COMMON_SOURCES}
-BL2_SOURCES		+=	${MBEDTLS_COMMON_SOURCES}
-
 endif

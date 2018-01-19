@@ -27,6 +27,9 @@ ARM_GIC_ARCH			:= 2
 # Base commit to perform code check on
 BASE_COMMIT			:= origin/master
 
+# Execute BL2 at EL3
+BL2_AT_EL3			:= 0
+
 # By default, consider that the platform may release several CPUs out of reset.
 # The platform Makefile is free to override this value.
 COLD_BOOT_SINGLE_CPU		:= 0

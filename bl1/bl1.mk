@@ -13,7 +13,10 @@ BL1_SOURCES		+=	bl1/bl1_main.c				\
 				lib/cpus/errata_report.c		\
 				lib/el3_runtime/${ARCH}/context_mgmt.c	\
 				plat/common/plat_bl1_common.c		\
-				plat/common/${ARCH}/platform_up_stack.S
+				plat/common/${ARCH}/platform_up_stack.S \
+				${MBEDTLS_COMMON_SOURCES}		\
+				${MBEDTLS_CRYPTO_SOURCES}		\
+				${MBEDTLS_X509_SOURCES}
 
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/el3_runtime/aarch64/context.S

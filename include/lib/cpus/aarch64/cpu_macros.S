@@ -21,6 +21,10 @@
 /* Word size for 64-bit CPUs */
 #define CPU_WORD_SIZE			8
 
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31) ||(defined(IMAGE_BL2) && BL2_AT_EL3)
+#define IMAGE_AT_EL3
+#endif
+
 /*
  * Whether errata status needs reporting. Errata status is printed in debug
  * builds for both BL1 and BL31 images.
@@ -38,7 +42,7 @@
 CPU_MIDR: /* cpu_ops midr */
 	.space  8
 /* Reset fn is needed in BL at reset vector */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
+#if defined(IMAGE_AT_EL3)
 CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  8
 #endif
@@ -54,7 +58,7 @@ CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
 #if REPORT_ERRATA
 CPU_ERRATA_FUNC:
 	.space	8
-#ifdef IMAGE_BL31
+#if defined(IMAGE_BL31)
 CPU_ERRATA_LOCK:
 	.space	8
 CPU_ERRATA_PRINTED:
@@ -124,7 +128,7 @@ CPU_OPS_SIZE = .
 	.align 3
 	.type cpu_ops_\_name, %object
 	.quad \_midr
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
+#if defined(IMAGE_AT_EL3)
 	.quad \_resetfunc
 #endif
 #ifdef IMAGE_BL31
