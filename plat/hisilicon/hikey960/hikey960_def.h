@@ -53,4 +53,9 @@
 #define HIKEY960_UFS_DATA_BASE		0x10000000
 #define HIKEY960_UFS_DATA_SIZE		0x0A000000	/* 160MB */
 
+/* Priority levels for GICv2 */
+#define PLAT_GIC_CRITICAL_PRI		0x60
+#define PLAT_GIC_NORMAL_PRI		0x70
+#define PLAT_GIC_PRI_BITS		3
+
 #endif /* __HIKEY960_DEF_H__ */
