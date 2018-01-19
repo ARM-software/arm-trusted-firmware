@@ -109,7 +109,7 @@ func cortex_a72_reset_func
 	orr64_imm	r0, r1, CORTEX_A72_ECTLR_SMP_BIT
 	stcopr16	r0, r1,	CORTEX_A72_ECTLR
 	isb
-	bx	lr
+	bx	r5
 endfunc cortex_a72_reset_func
 
 	/* ----------------------------------------------------
