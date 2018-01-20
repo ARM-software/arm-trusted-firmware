@@ -52,6 +52,12 @@
 		(((pwr_state) >> (SCMI_PWR_STATE_LVL_WIDTH * (lvl))) &	\
 				SCMI_PWR_STATE_LVL_MASK)
 
+/******************************************************************************
+ * The following structure is defined as weak to allow a platform to override
+ * the way the Door Bell parameters of MHU are initialised for SCMI.
+ *****************************************************************************/
+#pragma weak plat_css_scmi_plat_info
+
 /*
  * The SCMI power state enumeration for a power domain level
  */
@@ -308,6 +314,7 @@ scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
 		.db_preserve_mask = 0xfffffffe,
 		.db_modify_mask = 0x1,
+		.db_mhu_ver = MHU_V1,
 };
 
 void plat_arm_pwrc_setup(void)

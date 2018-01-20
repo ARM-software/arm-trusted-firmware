@@ -39,6 +39,15 @@ void scmi_send_sync_command(scmi_channel_t *ch)
 	 */
 	dmbst();
 
+	if (ch->info->db_mhu_ver == MHU_V2) {
+		/* wake receiver */
+		mmio_write_32(PLAT_CSS_MHU_BASE + MHU_V2_ACCESS_REQUEST, 1);
+		/* wait for receiver to acknowldege */
+		while (!(mmio_read_32(PLAT_CSS_MHU_BASE + MHU_V2_ACCESS_READY)
+					& 1))
+			;
+	}
+
 	SCMI_RING_DOORBELL(ch->info->db_reg_addr, ch->info->db_modify_mask,
 					ch->info->db_preserve_mask);
 
@@ -150,6 +159,7 @@ void *scmi_init(scmi_channel_t *ch)
 	assert(ch->info->db_reg_addr);
 	assert(ch->info->db_modify_mask);
 	assert(ch->info->db_preserve_mask);
+	assert(ch->info->db_mhu_ver);
 
 	assert(ch->lock);
 
