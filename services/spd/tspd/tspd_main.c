@@ -549,9 +549,10 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 				 * preempt Secure execution. However, for
 				 * yielding SMCs, we want preemption to happen;
 				 * so explicitly allow NS preemption in this
-				 * case.
+				 * case, and supply the preemption return code
+				 * for TSP.
 				 */
-				ehf_allow_ns_preemption();
+				ehf_allow_ns_preemption(TSP_PREEMPTED);
 #endif
 			}
 
@@ -662,9 +663,10 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 #if EL3_EXCEPTION_HANDLING
 		/*
 		 * Allow the resumed yielding SMC processing to be preempted by
-		 * Non-secure interrupts.
+		 * Non-secure interrupts. Also, supply the preemption return
+		 * code for TSP.
 		 */
-		ehf_allow_ns_preemption();
+		ehf_allow_ns_preemption(TSP_PREEMPTED);
 #endif
 
 		/* We just need to return to the preempted point in
