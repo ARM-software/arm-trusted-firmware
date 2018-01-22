@@ -9,6 +9,8 @@
  */
 
 #include <assert.h>
+#include <context.h>
+#include <context_mgmt.h>
 #include <cpu_data.h>
 #include <debug.h>
 #include <ehf.h>
@@ -308,15 +310,17 @@ static void *ehf_entering_normal_world(const void *arg)
 /*
  * Program Priority Mask to the original Non-secure priority such that
  * Non-secure interrupts may preempt Secure execution, viz. during Yielding SMC
- * calls.
+ * calls. The 'preempt_ret_code' parameter indicates the Yielding SMC's return
+ * value in case the call was preempted.
  *
  * This API is expected to be invoked before delegating a yielding SMC to Secure
  * EL1. I.e. within the window of secure execution after Non-secure context is
  * saved (after entry into EL3) and Secure context is restored (before entering
  * Secure EL1).
  */
-void ehf_allow_ns_preemption(void)
+void ehf_allow_ns_preemption(uint64_t preempt_ret_code)
 {
+	cpu_context_t *ns_ctx;
 	unsigned int old_pmr __unused;
 	pe_exc_data_t *pe_data = this_cpu_data();
 
@@ -332,6 +336,15 @@ void ehf_allow_ns_preemption(void)
 				read_mpidr_el1(), pe_data->active_pri_bits);
 		panic();
 	}
+
+	/*
+	 * Program preempted return code to x0 right away so that, if the
+	 * Yielding SMC was indeed preempted before a dispatcher gets a chance
+	 * to populate it, the caller would find the correct return value.
+	 */
+	ns_ctx = cm_get_context(NON_SECURE);
+	assert(ns_ctx);
+	write_ctx_reg(get_gpregs_ctx(ns_ctx), CTX_GPREG_X0, preempt_ret_code);
 
 	old_pmr = plat_ic_set_priority_mask(pe_data->ns_pri_mask);
 
