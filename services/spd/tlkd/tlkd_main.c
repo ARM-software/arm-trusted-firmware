@@ -195,14 +195,18 @@ static uintptr_t tlkd_smc_handler(uint32_t smc_fid,
 	 * b. register shared memory with the SP for passing args
 	 *    required for maintaining sessions with the Trusted
 	 *    Applications.
-	 * c. register non-secure world's memory map with the OS
-	 * d. open/close sessions
-	 * e. issue commands to the Trusted Apps
-	 * f. resume the preempted yielding SMC call.
+	 * c. register shared persistent buffers for secure storage
+	 * d. register NS DRAM ranges passed by Cboot
+	 * e. register Root of Trust parameters from Cboot for Verified Boot
+	 * f. open/close sessions
+	 * g. issue commands to the Trusted Apps
+	 * h. resume the preempted yielding SMC call.
 	 */
 	case TLK_REGISTER_LOGBUF:
 	case TLK_REGISTER_REQBUF:
-	case TLK_REGISTER_NS_DRAM:
+	case TLK_SS_REGISTER_HANDLER:
+	case TLK_REGISTER_NS_DRAM_RANGES:
+	case TLK_SET_ROOT_OF_TRUST:
 	case TLK_OPEN_TA_SESSION:
 	case TLK_CLOSE_TA_SESSION:
 	case TLK_TA_LAUNCH_OP:
@@ -400,6 +404,7 @@ static uintptr_t tlkd_smc_handler(uint32_t smc_fid,
 		SMC_RET2(handle, TLK_VERSION_MAJOR, TLK_VERSION_MINOR);
 
 	default:
+		WARN("%s: Unhandled SMC: 0x%x\n", __func__, smc_fid);
 		break;
 	}
 
