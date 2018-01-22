@@ -41,7 +41,9 @@
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x60006000)
 #define TEGRA_GPU_RESET_REG_OFFSET	U(0x28C)
+#define TEGRA_GPU_RESET_GPU_SET_OFFSET	U(0x290)
 #define  GPU_RESET_BIT			(U(1) << 24)
+#define  GPU_SET_BIT			(U(1) << 24)
 
 /*******************************************************************************
  * Tegra Flow Controller constants

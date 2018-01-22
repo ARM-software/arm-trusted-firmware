@@ -210,7 +210,9 @@
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x05000000)
 #define TEGRA_GPU_RESET_REG_OFFSET	U(0x30)
+#define TEGRA_GPU_RESET_GPU_SET_OFFSET	U(0x34)
 #define  GPU_RESET_BIT			(U(1) << 0)
+#define  GPU_SET_BIT			(U(1) << 0)
 #define TEGRA_GPCDMA_RST_SET_REG_OFFSET	U(0x6A0004)
 #define TEGRA_GPCDMA_RST_CLR_REG_OFFSET	U(0x6A0008)
 

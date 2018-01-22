@@ -116,6 +116,16 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 			/* new video memory carveout settings */
 			tegra_memctrl_videomem_setup(x1, local_x2_32);
 
+			/*
+			 * Ensure again that GPU is still in reset after VPR resize
+			 */
+			regval = mmio_read_32(TEGRA_CAR_RESET_BASE +
+					      TEGRA_GPU_RESET_REG_OFFSET);
+			if ((regval & GPU_RESET_BIT) == 0U) {
+				mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_GPU_RESET_GPU_SET_OFFSET,
+									GPU_SET_BIT);
+			}
+
 			SMC_RET1(handle, 0);
 
 		/*
