@@ -1,15 +1,16 @@
 #
-# Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-override COLD_BOOT_SINGLE_CPU	:= 1
-override ENABLE_PLAT_COMPAT	:= 0
-override LOAD_IMAGE_V2		:= 1
-override USE_COHERENT_MEM	:= 1
-override USE_TBBR_DEFS		:= 1
-override ENABLE_SVE_FOR_NS	:= 0
+override COLD_BOOT_SINGLE_CPU		:= 1
+override ENABLE_PLAT_COMPAT		:= 0
+override LOAD_IMAGE_V2			:= 1
+override PROGRAMMABLE_RESET_ADDRESS	:= 1
+override USE_COHERENT_MEM		:= 1
+override USE_TBBR_DEFS			:= 1
+override ENABLE_SVE_FOR_NS		:= 0
 
 # Cortex-A53 revision r0p4-51rel0
 # needed for LD20, unneeded for LD11, PXs3 (no ACE)
@@ -48,7 +49,6 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/console/aarch64/console.S	\
 
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
-				$(PLAT_PATH)/uniphier_bl1_helpers.S	\
 				$(PLAT_PATH)/uniphier_bl1_setup.c	\
 				$(IO_SOURCES)
 
