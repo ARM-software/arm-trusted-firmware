@@ -16,6 +16,8 @@
 #include <gicv2.h>
 #include <hi3660.h>
 #include <hisi_ipc.h>
+#include <interrupt_mgmt.h>
+#include <platform.h>
 #include <platform_def.h>
 
 #include "hikey960_def.h"
@@ -167,6 +169,37 @@ void bl31_platform_setup(void)
 	hisi_ipc_init();
 }
 
+#ifdef SPD_none
+static uint64_t hikey_debug_fiq_handler(uint32_t id,
+					uint32_t flags,
+					void *handle,
+					void *cookie)
+{
+	int intr, intr_raw;
+
+	/* Acknowledge interrupt */
+	intr_raw = plat_ic_acknowledge_interrupt();
+	intr = plat_ic_get_interrupt_id(intr_raw);
+	ERROR("Invalid interrupt: intr=%d\n", intr);
+	console_flush();
+	panic();
+
+	return 0;
+}
+#endif
+
 void bl31_plat_runtime_setup(void)
 {
+#ifdef SPD_none
+	uint32_t flags;
+	int32_t rc;
+
+	flags = 0;
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+					     hikey_debug_fiq_handler,
+					     flags);
+	if (rc != 0)
+		panic();
+#endif
 }
