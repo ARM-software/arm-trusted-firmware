@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -556,7 +556,7 @@ int sdei_event_complete(int resume, uint64_t pc)
 	unsigned int client_el = sdei_client_el();
 
 	/* Return error if called without an active event */
-	disp_ctx = pop_dispatch();
+	disp_ctx = get_outstanding_dispatch();
 	if (!disp_ctx)
 		return SDEI_EDENY;
 
@@ -566,14 +566,7 @@ int sdei_event_complete(int resume, uint64_t pc)
 
 	map = disp_ctx->map;
 	assert(map);
-
 	se = get_event_entry(map);
-
-	SDEI_LOG("EOI:%lx, %d spsr:%lx elr:%lx\n", read_mpidr_el1(),
-			map->ev_num, read_spsr_el3(), read_elr_el3());
-
-	if (is_event_shared(map))
-		sdei_map_lock(map);
 
 	act = resume ? DO_COMPLETE_RESUME : DO_COMPLETE;
 	if (!can_sdei_state_trans(se, act)) {
@@ -581,6 +574,15 @@ int sdei_event_complete(int resume, uint64_t pc)
 			sdei_map_unlock(map);
 		return SDEI_EDENY;
 	}
+
+	/* Having done sanity checks, pop dispatch */
+	pop_dispatch();
+
+	SDEI_LOG("EOI:%lx, %d spsr:%lx elr:%lx\n", read_mpidr_el1(),
+			map->ev_num, read_spsr_el3(), read_elr_el3());
+
+	if (is_event_shared(map))
+		sdei_map_lock(map);
 
 	/*
 	 * Restore Non-secure to how it was originally interrupted. Once done,
