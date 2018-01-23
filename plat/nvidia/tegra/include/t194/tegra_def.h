@@ -127,6 +127,18 @@
 #define TEGRA_UARTG_BASE		U(0x0C290000)
 
 /*******************************************************************************
+ * XUSB PADCTL
+ ******************************************************************************/
+#define TEGRA_XUSB_PADCTL_BASE			U(0x03520000)
+#define TEGRA_XUSB_PADCTL_SIZE			U(0x10000)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_PF_0	U(0x136c)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_0	U(0x1370)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_1	U(0x1374)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_2	U(0x1378)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3	U(0x137c)
+#define XUSB_PADCTL_DEV_AXI_STREAMID_PF_0	U(0x139c)
+
+/*******************************************************************************
  * Tegra Fuse Controller related constants
  ******************************************************************************/
 #define TEGRA_FUSE_BASE			U(0x03820000)
@@ -154,10 +166,10 @@
 /*******************************************************************************
  * Tegra HSP doorbell #0 constants
  ******************************************************************************/
-#define TEGRA_HSP_DBELL_BASE        U(0x03C90000)
-#define  HSP_DBELL_1_ENABLE         U(0x104)
-#define  HSP_DBELL_3_TRIGGER        U(0x300)
-#define  HSP_DBELL_3_ENABLE         U(0x304)
+#define TEGRA_HSP_DBELL_BASE		U(0x03C90000)
+#define  HSP_DBELL_1_ENABLE		U(0x104)
+#define  HSP_DBELL_3_TRIGGER		U(0x300)
+#define  HSP_DBELL_3_ENABLE		U(0x304)
 
 /*******************************************************************************
  * Tegra hardware synchronization primitives for the SPE engine
@@ -236,18 +248,6 @@
 #define TEGRA_GPU_RESET_GPU_SET_OFFSET  U(0x1C)
 #define  GPU_RESET_BIT			(U(1) << 0)
 #define  GPU_SET_BIT			(U(1) << 0)
-
-/*******************************************************************************
- * XUSB PADCTL
- ******************************************************************************/
-#define TEGRA_XUSB_PADCTL_BASE			U(0x3520000)
-#define TEGRA_XUSB_PADCTL_SIZE			U(0x10000)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_PF_0	U(0x136c)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_0	U(0x1370)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_1	U(0x1374)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_2	U(0x1378)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3	U(0x137c)
-#define XUSB_PADCTL_DEV_AXI_STREAMID_PF_0	U(0x139c)
 
 /*******************************************************************************
  * XUSB STREAMIDs
