@@ -53,7 +53,7 @@ enum pmu_core_pwrst_shift {
 #define TSADC_INT_PIN		38
 #define CORES_PM_DISABLE	0x0
 
-#define PD_CTR_LOOP		500
+#define PD_CTR_LOOP		10000
 #define CHK_CPU_LOOP		500
 #define MAX_WAIT_COUNT		1000
 
