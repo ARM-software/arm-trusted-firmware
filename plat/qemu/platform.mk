@@ -9,6 +9,9 @@ include lib/libfdt/libfdt.mk
 # Enable new version of image loading on QEMU platforms
 LOAD_IMAGE_V2		:=	1
 
+# Define how old APIs this platform relied on
+PLAT_COMPAT			:=	201712
+
 ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
