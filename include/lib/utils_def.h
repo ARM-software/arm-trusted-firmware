@@ -16,7 +16,7 @@
 
 #define SIZE_FROM_LOG2_WORDS(n)		(4 << (n))
 
-#define BIT(nr)				(1ULL << (nr))
+#define BIT(nr)				(ULL(1) << (nr))
 
 /*
  * This variant of div_round_up can be used in macro definition but should not
@@ -82,6 +82,13 @@
 #else
 # define  U(_x)		(_x##u)
 # define ULL(_x)	(_x##ull)
+#endif
+
+/* Register size of the current architecture. */
+#ifdef AARCH32
+#define REGSZ		U(4)
+#else
+#define REGSZ		U(8)
 #endif
 
 /*

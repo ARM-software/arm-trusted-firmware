@@ -39,11 +39,11 @@ void bl32_plat_enable_mmu(uint32_t flags)
 
 void bl31_plat_runtime_setup(void)
 {
-	/*
-	 * Finish the use of console driver in BL31 so that any runtime logs
-	 * from BL31 will be suppressed.
-	 */
+#if MULTI_CONSOLE_API
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
+#else
 	console_uninit();
+#endif
 }
 
 #if !ENABLE_PLAT_COMPAT

@@ -9,13 +9,13 @@
 #include <cpu_data.h>
 #include <plat_macros.S>
 #include <platform_def.h>
+#include <utils_def.h>
 
 	.globl	report_unhandled_exception
 	.globl	report_unhandled_interrupt
 	.globl	el3_panic
 
 #if CRASH_REPORTING
-#define REG_SIZE	0x8
 
 	/* ------------------------------------------------------
 	 * The below section deals with dumping the system state
@@ -92,7 +92,7 @@ test_size_list:
 	mov	x6, x4
 	adr	x4, print_spacer
 	bl	asm_print_str
-	ldr	x4, [x7], #REG_SIZE
+	ldr	x4, [x7], #REGSZ
 	bl	asm_print_hex
 	bl	print_newline
 	b	test_size_list
@@ -114,9 +114,9 @@ func str_in_crash_buf_print
 	/* restore the crash buf address in x0 */
 	mrs	x0, tpidr_el3
 	stp	x8, x9, [x0]
-	stp	x10, x11, [x0, #REG_SIZE * 2]
-	stp	x12, x13, [x0, #REG_SIZE * 4]
-	stp	x14, x15, [x0, #REG_SIZE * 6]
+	stp	x10, x11, [x0, #REGSZ * 2]
+	stp	x12, x13, [x0, #REGSZ * 4]
+	stp	x14, x15, [x0, #REGSZ * 6]
 	b	size_controlled_print
 endfunc str_in_crash_buf_print
 
@@ -136,7 +136,7 @@ endfunc str_in_crash_buf_print
 	add	x0, x0, #CPU_DATA_CRASH_BUF_OFFSET
 	/* Store crash buffer address in tpidr_el3 */
 	msr	tpidr_el3, x0
-	str	x1, [x0, #REG_SIZE]
+	str	x1, [x0, #REGSZ]
 	mov	x1, sp
 	str	x1, [x0]
 	.endm
@@ -214,9 +214,9 @@ func do_crash_reporting
 	/* Retrieve the crash buf from tpidr_el3 */
 	mrs	x0, tpidr_el3
 	/* Store x2 - x6, x30 in the crash buffer */
-	stp	x2, x3, [x0, #REG_SIZE * 2]
-	stp	x4, x5, [x0, #REG_SIZE * 4]
-	stp	x6, x30, [x0, #REG_SIZE * 6]
+	stp	x2, x3, [x0, #REGSZ * 2]
+	stp	x4, x5, [x0, #REGSZ * 4]
+	stp	x6, x30, [x0, #REGSZ * 6]
 	/* Initialize the crash console */
 	bl	plat_crash_console_init
 	/* Verify the console is initialized */
@@ -227,13 +227,13 @@ func do_crash_reporting
 	/* load the crash buf address */
 	mrs	x0, tpidr_el3
 	/* report x30 first from the crash buf */
-	ldr	x4, [x0, #REG_SIZE * 7]
+	ldr	x4, [x0, #REGSZ * 7]
 	bl	asm_print_hex
 	bl	print_newline
 	/* Load the crash buf address */
 	mrs	x0, tpidr_el3
 	/* Now mov x7 into crash buf */
-	str	x7, [x0, #REG_SIZE * 7]
+	str	x7, [x0, #REGSZ * 7]
 
 	/* Report x0 - x29 values stored in crash buf*/
 	/* Store the ascii list pointer in x6 */
@@ -246,15 +246,15 @@ func do_crash_reporting
 	mrs	x0, tpidr_el3
 	/* Store the rest of gp regs and print */
 	stp	x16, x17, [x0]
-	stp	x18, x19, [x0, #REG_SIZE * 2]
-	stp	x20, x21, [x0, #REG_SIZE * 4]
-	stp	x22, x23, [x0, #REG_SIZE * 6]
+	stp	x18, x19, [x0, #REGSZ * 2]
+	stp	x20, x21, [x0, #REGSZ * 4]
+	stp	x22, x23, [x0, #REGSZ * 6]
 	bl	size_controlled_print
 	/* Load the crash buf address */
 	mrs	x0, tpidr_el3
 	stp	x24, x25, [x0]
-	stp	x26, x27, [x0, #REG_SIZE * 2]
-	stp	x28, x29, [x0, #REG_SIZE * 4]
+	stp	x26, x27, [x0, #REGSZ * 2]
+	stp	x28, x29, [x0, #REGSZ * 4]
 	bl	size_controlled_print
 
 	/* Print the el3 sys registers */

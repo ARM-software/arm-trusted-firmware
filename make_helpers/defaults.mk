@@ -34,6 +34,10 @@ BL2_AT_EL3			:= 0
 # The platform Makefile is free to override this value.
 COLD_BOOT_SINGLE_CPU		:= 0
 
+# Flag to compile in coreboot support code. Exclude by default. The coreboot
+# Makefile system will set this when compiling TF as part of a coreboot image.
+COREBOOT			:= 0
+
 # For Chain of Trust
 CREATE_KEYS			:= 1
 
@@ -93,6 +97,10 @@ KEY_ALG				:= rsa
 
 # Flag to enable new version of image loading
 LOAD_IMAGE_V2			:= 0
+
+# Use the new console API that allows registering more than one console instance
+# at once. Use = instead of := to dynamically default to ERROR_DEPRECATED.
+MULTI_CONSOLE_API		= $(ERROR_DEPRECATED)
 
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0

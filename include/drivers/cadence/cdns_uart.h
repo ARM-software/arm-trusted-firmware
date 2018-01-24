@@ -7,6 +7,8 @@
 #ifndef __CADENCE_UART_H__
 #define __CADENCE_UART_H__
 
+#include <console.h>
+
 /* This is very minimalistic and will only work in QEMU.  */
 
 /* CADENCE Registers */
@@ -22,5 +24,27 @@
 
 #define R_UART_TX	0x30
 #define R_UART_RX	0x30
+
+#define CONSOLE_T_CDNS_BASE	CONSOLE_T_DRVDATA
+
+#ifndef __ASSEMBLY__
+
+#include <types.h>
+
+typedef struct {
+	console_t console;
+	uintptr_t base;
+} console_cdns_t;
+
+/*
+ * Initialize a new Cadence console instance and register it with the console
+ * framework. The |console| pointer must point to storage that will be valid
+ * for the lifetime of the console, such as a global or static local variable.
+ * Its contents will be reinitialized from scratch.
+ */
+int console_cdns_register(uint64_t baseaddr, uint32_t clock, uint32_t baud,
+			  console_cdns_t *console);
+
+#endif /*__ASSEMBLY__*/
 
 #endif

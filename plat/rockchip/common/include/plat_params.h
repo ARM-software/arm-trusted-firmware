@@ -56,6 +56,7 @@ enum {
 	PARAM_POWEROFF,
 	PARAM_SUSPEND_GPIO,
 	PARAM_SUSPEND_APIO,
+	PARAM_COREBOOT_TABLE,
 };
 
 struct apio_info {
@@ -87,6 +88,11 @@ struct bl31_gpio_param {
 struct bl31_apio_param {
 	struct bl31_plat_param h;
 	struct apio_info apio;
+};
+
+struct bl31_u64_param {
+	struct bl31_plat_param h;
+	uint64_t value;
 };
 
 #endif /* __PLAT_PARAMS_H__ */
