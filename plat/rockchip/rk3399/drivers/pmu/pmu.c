@@ -79,9 +79,12 @@ static void pmu_bus_idle_req(uint32_t bus, uint32_t state)
 	do {
 		bus_state = mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ST) & bus_id;
 		bus_ack = mmio_read_32(PMU_BASE + PMU_BUS_IDLE_ACK) & bus_id;
+		if (bus_state == bus_req && bus_ack == bus_req)
+			break;
+
 		wait_cnt++;
-	} while ((bus_state != bus_req || bus_ack != bus_req) &&
-		 (wait_cnt < MAX_WAIT_COUNT));
+		udelay(1);
+	} while (wait_cnt < MAX_WAIT_COUNT);
 
 	if (bus_state != bus_req || bus_ack != bus_req) {
 		INFO("%s:st=%x(%x)\n", __func__,
@@ -430,6 +433,7 @@ static void pmu_scu_b_pwrdn(void)
 	while (!(mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST) &
 		 BIT(STANDBY_BY_WFIL2_CLUSTER_B))) {
 		wait_cnt++;
+		udelay(1);
 		if (wait_cnt >= MAX_WAIT_COUNT)
 			ERROR("%s:wait cluster-b l2(%x)\n", __func__,
 			      mmio_read_32(PMU_BASE + PMU_CORE_PWR_ST));
@@ -1369,6 +1373,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 			      mmio_read_32(PMU_BASE + PMU_ADB400_ST));
 			panic();
 		}
+		udelay(1);
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
@@ -1462,6 +1467,7 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 			      mmio_read_32(PMU_BASE + PMU_ADB400_ST));
 			panic();
 		}
+		udelay(1);
 	}
 
 	pmu_sgrf_rst_hld_release();
