@@ -57,3 +57,5 @@ $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS	:=	0
+
+WORKAROUND_CVE_2017_5715	:=	0

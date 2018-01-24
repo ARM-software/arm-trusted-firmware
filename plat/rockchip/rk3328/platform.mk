@@ -58,3 +58,5 @@ $(eval $(call add_define,PLAT_SKIP_OPTEE_S_EL1_INT_REGISTER))
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS	:=	0
+
+WORKAROUND_CVE_2017_5715	:=	0

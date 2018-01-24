@@ -64,6 +64,8 @@ ERRATA_A53_836870		:= 1
 ERRATA_A53_843419		:= 1
 ERRATA_A53_855873		:= 1
 
+WORKAROUND_CVE_2017_5715	:= 0
+
 # Disable the PSCI platform compatibility layer by default
 ENABLE_PLAT_COMPAT		:= 0
 
