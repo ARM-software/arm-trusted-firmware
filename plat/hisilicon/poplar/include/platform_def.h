@@ -12,6 +12,7 @@
 #include <gic_common.h>
 #include <interrupt_props.h>
 #include <tbbr/tbbr_img_def.h>
+#include <utils_def.h>
 #include "hi3798cv200.h"
 #include "poplar_layout.h"		/* BL memory region sizes, etc */
 
@@ -53,13 +54,12 @@
 #define POPLAR_DRAM_ID	1
 
 /*
- * DDR for OP-TEE (28MB from 0x02200000 -0x04000000) is divided in several
+ * DDR for OP-TEE (26MB from 0x02400000 -0x04000000) is divided in several
  * regions:
  *   - Secure DDR (default is the top 16MB) used by OP-TEE
  *   - Non-secure DDR (4MB) reserved for OP-TEE's future use
  *   - Secure DDR (4MB aligned on 4MB) for OP-TEE's "Secure Data Path" feature
  *   - Non-secure DDR used by OP-TEE (shared memory and padding) (4MB)
- *   - Non-secure DDR (2MB) reserved for OP-TEE's future use
  */
 #define DDR_SEC_SIZE			0x01000000
 #define DDR_SEC_BASE			0x03000000
@@ -95,6 +95,11 @@
 #undef BL32_BASE
 #endif /* SPD_none */
 #endif
+
+#define POPLAR_EMMC_DATA_BASE U(0x02200000)
+#define POPLAR_EMMC_DATA_SIZE EMMC_DESC_SIZE
+#define POPLAR_EMMC_DESC_BASE (POPLAR_EMMC_DATA_BASE + POPLAR_EMMC_DATA_SIZE)
+#define POPLAR_EMMC_DESC_SIZE EMMC_DESC_SIZE
 
 #define PLAT_POPLAR_NS_IMAGE_OFFSET	0x37000000
 

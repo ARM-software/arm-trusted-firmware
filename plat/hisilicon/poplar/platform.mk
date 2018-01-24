@@ -15,6 +15,9 @@ else
 endif
 $(eval $(call add_define,POPLAR_TSP_RAM_LOCATION_ID))
 
+POPLAR_RECOVERY		:= 0
+$(eval $(call add_define,POPLAR_RECOVERY))
+
 NEED_BL33			:= yes
 
 COLD_BOOT_SINGLE_CPU		:= 1
@@ -36,6 +39,7 @@ PLAT_INCLUDES	:=	-Iplat/hisilicon/poplar/include		\
 			-Iinclude/plat/arm/common/		\
 			-Iplat/hisilicon/poplar			\
 			-Iinclude/common/tbbr			\
+			-Iinclude/drivers/synopsys		\
 			-Iinclude/drivers/io
 
 PLAT_BL_COMMON_SOURCES	:=						\
@@ -54,6 +58,8 @@ PLAT_BL_COMMON_SOURCES	:=						\
 BL1_SOURCES	+=							\
 		lib/cpus/aarch64/cortex_a53.S				\
 		drivers/arm/pl061/pl061_gpio.c				\
+		drivers/emmc/emmc.c					\
+		drivers/synopsys/emmc/dw_mmc.c				\
 		drivers/io/io_storage.c					\
 		drivers/io/io_block.c					\
 		drivers/gpio/gpio.c					\
@@ -65,6 +71,8 @@ BL1_SOURCES	+=							\
 
 BL2_SOURCES	+=      						\
 		drivers/arm/pl061/pl061_gpio.c				\
+		drivers/emmc/emmc.c					\
+		drivers/synopsys/emmc/dw_mmc.c				\
 		drivers/io/io_storage.c					\
 		drivers/io/io_block.c					\
 		drivers/io/io_fip.c					\
