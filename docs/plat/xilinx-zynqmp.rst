@@ -14,13 +14,13 @@ To build:
 
 .. code:: bash
 
-    make ERROR_DEPRECATED=1 CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp bl31
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp bl31
 
 To build bl32 TSP you have to rebuild bl31 too:
 
 .. code:: bash
 
-    make ERROR_DEPRECATED=1 CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp SPD=tspd bl31 bl32
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp SPD=tspd bl31 bl32
 
 ZynqMP platform specific build options
 ======================================

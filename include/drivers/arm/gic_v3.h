@@ -11,7 +11,7 @@
  * THIS DRIVER IS DEPRECATED. For GICv2 systems, use the driver in gicv2.h
  * and for GICv3 systems, use the driver in gicv3.h.
  *****************************************************************************/
-#if ERROR_DEPRECATED
+#if PLAT_COMPAT >= 201510
 #error " The legacy ARM GIC driver is deprecated."
 #endif
 

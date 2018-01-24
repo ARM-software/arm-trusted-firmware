@@ -158,7 +158,8 @@ ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffreestanding -fno-builtin -Wall -std=gnu99	\
-				-Os -ffunction-sections -fdata-sections
+				-Os -ffunction-sections -fdata-sections		\
+				-Wno-error=deprecated-declarations
 
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
@@ -483,7 +484,6 @@ $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 $(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
 $(eval $(call assert_boolean,ENABLE_SPE_FOR_LOWER_ELS))
 $(eval $(call assert_boolean,ENABLE_SVE_FOR_NS))
-$(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,GICV2_G0_FOR_EL3))
 $(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
@@ -525,7 +525,6 @@ $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))
 $(eval $(call add_define,ENABLE_SPE_FOR_LOWER_ELS))
 $(eval $(call add_define,ENABLE_SVE_FOR_NS))
-$(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,GICV2_G0_FOR_EL3))
 $(eval $(call add_define,HW_ASSISTED_COHERENCY))
 $(eval $(call add_define,LOAD_IMAGE_V2))
@@ -533,6 +532,7 @@ $(eval $(call add_define,LOG_LEVEL))
 $(eval $(call add_define,NS_TIMER_SWITCH))
 $(eval $(call add_define,PL011_GENERIC_UART))
 $(eval $(call add_define,PLAT_${PLAT}))
+$(eval $(call add_define,PLAT_COMPAT))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 $(eval $(call add_define,RESET_TO_BL31))
@@ -574,11 +574,6 @@ all: msg_start
 
 msg_start:
 	@echo "Building ${PLAT}"
-
-# Check if deprecated declarations should be treated as error or not.
-ifeq (${ERROR_DEPRECATED},0)
-    TF_CFLAGS		+= 	-Wno-error=deprecated-declarations
-endif
 
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)

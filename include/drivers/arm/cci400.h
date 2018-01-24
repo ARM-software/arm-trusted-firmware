@@ -10,7 +10,7 @@
 /**************************************************************
  * THIS DRIVER IS DEPRECATED. Please use the driver in cci.h
  **************************************************************/
-#if ERROR_DEPRECATED
+#if PLAT_COMPAT >= 201512
 #error " The CCI-400 specific driver is deprecated."
 #endif
 

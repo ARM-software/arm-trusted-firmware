@@ -18,9 +18,9 @@
 #pragma weak bl31_plat_enable_mmu
 #pragma weak bl32_plat_enable_mmu
 #pragma weak bl31_plat_runtime_setup
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201605
 #pragma weak plat_get_syscnt_freq2
-#endif /* ERROR_DEPRECATED */
+#endif /* PLAT_COMPAT < 201605 */
 
 #if SDEI_SUPPORT
 #pragma weak plat_sdei_handle_masked_trigger
@@ -61,7 +61,7 @@ unsigned int platform_core_pos_helper(unsigned long mpidr)
 #endif
 
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201605
 unsigned int plat_get_syscnt_freq2(void)
 {
 	unsigned long long freq = plat_get_syscnt_freq();
@@ -70,7 +70,7 @@ unsigned int plat_get_syscnt_freq2(void)
 
 	return (unsigned int)freq;
 }
-#endif /* ERROR_DEPRECATED */
+#endif /* PLAT_COMPAT < 201605 */
 
 #if SDEI_SUPPORT
 /*

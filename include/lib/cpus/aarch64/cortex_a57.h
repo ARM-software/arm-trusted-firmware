@@ -80,7 +80,7 @@
  ******************************************************************************/
 #define CORTEX_A57_L2MERRSR_EL1			S3_1_C15_C2_3
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201708
 /*
  * These registers were previously wrongly named. Provide previous definitions so
  * as not to break platforms that continue using them.
@@ -96,6 +96,6 @@
 #define CORTEX_A57_ACTLR_DIS_STREAMING		CORTEX_A57_CPUACTLR_EL1_DIS_STREAMING
 #define CORTEX_A57_ACTLR_DIS_L1_STREAMING	CORTEX_A57_CPUACTLR_EL1_DIS_L1_STREAMING
 #define CORTEX_A57_ACTLR_DIS_INDIRECT_PREDICTOR	CORTEX_A57_CPUACTLR_EL1_DIS_INDIRECT_PREDICTOR
-#endif /* !ERROR_DEPRECATED */
+#endif /* PLAT_COMPAT < 201708 */
 
 #endif /* __CORTEX_A57_H__ */

@@ -51,29 +51,6 @@
 	.endm
 
 	/*
-	 * Theses macros are used to create function labels for deprecated
-	 * APIs. If ERROR_DEPRECATED is non zero, the callers of these APIs
-	 * will fail to link and cause build failure.
-	 */
-#if ERROR_DEPRECATED
-	.macro func_deprecated _name
-	func deprecated\_name
-	.endm
-
-	.macro endfunc_deprecated _name
-	endfunc deprecated\_name
-	.endm
-#else
-	.macro func_deprecated _name
-	func \_name
-	.endm
-
-	.macro endfunc_deprecated _name
-	endfunc \_name
-	.endm
-#endif
-
-	/*
 	 * Helper assembler macro to count trailing zeros. The output is
 	 * populated in the `TZ_COUNT` symbol.
 	 */

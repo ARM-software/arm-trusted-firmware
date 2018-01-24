@@ -154,7 +154,7 @@
 typedef struct gicv2_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicc_base;
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	unsigned int g0_interrupt_num;
 	const unsigned int *g0_interrupt_array;
 #endif

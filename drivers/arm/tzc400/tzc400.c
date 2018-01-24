@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#if ERROR_DEPRECATED
+#if PLAT_COMPAT >= 201601
 #error "Using deprecated TZC-400 source file"
 #else
 #include "../tzc/tzc400.c"
-#endif /* ERROR_DEPRECATED */
+#endif /* PLAT_COMPAT >= 201601 */

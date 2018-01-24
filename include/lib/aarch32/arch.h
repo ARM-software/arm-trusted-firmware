@@ -125,7 +125,7 @@
 #define SDCR_SPD_ENABLE		0x3
 #define SDCR_RESET_VAL		0x0
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201704
 #define SDCR_DEF_VAL		SDCR_SPD(SDCR_SPD_DISABLE)
 #endif
 
@@ -218,7 +218,7 @@
 #define NSASEDIS_BIT		(1 << 15)
 #define NSTRCDIS_BIT		(1 << 20)
 /* NOTE: correct typo in the definitions */
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201704
 #define NASCR_CP11_BIT		(1 << 11)
 #define NASCR_CP10_BIT		(1 << 10)
 #endif

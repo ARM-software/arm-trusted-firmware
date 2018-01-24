@@ -85,7 +85,7 @@ void gicr_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri);
  ******************************************************************************/
 void gicv3_spis_configure_defaults(uintptr_t gicd_base);
 void gicv3_ppi_sgi_configure_defaults(uintptr_t gicr_base);
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 void gicv3_secure_spis_configure(uintptr_t gicd_base,
 				     unsigned int num_ints,
 				     const unsigned int *sec_intr_list,

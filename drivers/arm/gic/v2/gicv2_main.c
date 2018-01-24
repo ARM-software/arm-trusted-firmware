@@ -77,13 +77,13 @@ void gicv2_pcpu_distif_init(void)
 	assert(driver_data);
 	assert(driver_data->gicd_base);
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	if (driver_data->interrupt_props != NULL) {
 #endif
 		gicv2_secure_ppi_sgi_setup_props(driver_data->gicd_base,
 				driver_data->interrupt_props,
 				driver_data->interrupt_props_num);
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	} else {
 		assert(driver_data->g0_interrupt_array);
 		gicv2_secure_ppi_sgi_setup(driver_data->gicd_base,
@@ -120,13 +120,13 @@ void gicv2_distif_init(void)
 	/* Set the default attribute of all SPIs */
 	gicv2_spis_configure_defaults(driver_data->gicd_base);
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	if (driver_data->interrupt_props != NULL) {
 #endif
 		gicv2_secure_spis_configure_props(driver_data->gicd_base,
 				driver_data->interrupt_props,
 				driver_data->interrupt_props_num);
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	} else {
 		assert(driver_data->g0_interrupt_array);
 
@@ -151,7 +151,7 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 	assert(plat_driver_data->gicd_base);
 	assert(plat_driver_data->gicc_base);
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	if (plat_driver_data->interrupt_props == NULL) {
 		/* Interrupt properties array size must be 0 */
 		assert(plat_driver_data->interrupt_props_num == 0);

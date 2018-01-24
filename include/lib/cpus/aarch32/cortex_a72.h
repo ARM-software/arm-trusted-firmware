@@ -53,7 +53,7 @@
  ******************************************************************************/
 #define CORTEX_A72_L2MERRSR				p15, 3, c15
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201708
 /*
  * These registers were previously wrongly named. Provide previous definitions so
  * as not to break platforms that continue using them.
@@ -63,6 +63,6 @@
 #define CORTEX_A72_ACTLR_DISABLE_L1_DCACHE_HW_PFTCH	CORTEX_A72_CPUACTLR_DISABLE_L1_DCACHE_HW_PFTCH
 #define CORTEX_A72_ACTLR_NO_ALLOC_WBWA			CORTEX_A72_CPUACTLR_NO_ALLOC_WBWA
 #define CORTEX_A72_ACTLR_DCC_AS_DCCI			CORTEX_A72_CPUACTLR_DCC_AS_DCCI
-#endif /* !ERROR_DEPRECATED */
+#endif /* PLAT_COMPAT < 201708 */
 
 #endif /* __CORTEX_A72_H__ */

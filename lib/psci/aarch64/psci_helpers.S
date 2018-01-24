@@ -12,7 +12,7 @@
 	.globl	psci_do_pwrdown_cache_maintenance
 	.globl	psci_do_pwrup_cache_maintenance
 	.globl	psci_power_down_wfi
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201604
 	.globl psci_entrypoint
 #endif
 
@@ -132,11 +132,13 @@ func psci_power_down_wfi
 	no_ret	plat_panic_handler
 endfunc psci_power_down_wfi
 
+#if PLAT_COMPAT < 201604
 /* -----------------------------------------------------------------------
  * void psci_entrypoint(void);
  * The deprecated entry point for PSCI on warm boot for AArch64.
  * -----------------------------------------------------------------------
  */
-func_deprecated psci_entrypoint
+func psci_entrypoint
 	b	bl31_warm_entrypoint
-endfunc_deprecated psci_entrypoint
+endfunc psci_entrypoint
+#endif /* PLAT_COMPAT < 201604 */

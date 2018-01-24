@@ -67,7 +67,7 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 
 	assert(IS_IN_EL3());
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	if (plat_driver_data->interrupt_props == NULL) {
 		/* Interrupt properties array size must be 0 */
 		assert(plat_driver_data->interrupt_props_num == 0);
@@ -180,14 +180,14 @@ void gicv3_distif_init(void)
 	/* Set the default attribute of all SPIs */
 	gicv3_spis_configure_defaults(gicv3_driver_data->gicd_base);
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	if (gicv3_driver_data->interrupt_props != NULL) {
 #endif
 		bitmap = gicv3_secure_spis_configure_props(
 				gicv3_driver_data->gicd_base,
 				gicv3_driver_data->interrupt_props,
 				gicv3_driver_data->interrupt_props_num);
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	} else {
 		assert(gicv3_driver_data->g1s_interrupt_array ||
 				gicv3_driver_data->g0_interrupt_array);
@@ -245,13 +245,13 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	/* Set the default attribute of all SGIs and PPIs */
 	gicv3_ppi_sgi_configure_defaults(gicr_base);
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	if (gicv3_driver_data->interrupt_props != NULL) {
 #endif
 		bitmap = gicv3_secure_ppi_sgi_configure_props(gicr_base,
 				gicv3_driver_data->interrupt_props,
 				gicv3_driver_data->interrupt_props_num);
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	} else {
 		assert(gicv3_driver_data->g1s_interrupt_array ||
 		       gicv3_driver_data->g0_interrupt_array);

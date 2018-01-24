@@ -25,7 +25,7 @@
  * If the platform hasn't defined one or both of them, default to
  * ADDR_SPACE_SIZE. The latter is deprecated, though.
  */
-#if ERROR_DEPRECATED
+#if PLAT_COMPAT >= 201612
 # ifdef ADDR_SPACE_SIZE
 #  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
 # endif

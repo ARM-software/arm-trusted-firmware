@@ -113,7 +113,7 @@ void gicv2_spis_configure_defaults(uintptr_t gicd_base)
 		gicd_write_icfgr(gicd_base, index, 0);
 }
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 /*******************************************************************************
  * Helper function to configure secure G0 SPIs.
  ******************************************************************************/
@@ -189,7 +189,7 @@ void gicv2_secure_spis_configure_props(uintptr_t gicd_base,
 	}
 }
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 /*******************************************************************************
  * Helper function to configure secure G0 SGIs and PPIs.
  ******************************************************************************/

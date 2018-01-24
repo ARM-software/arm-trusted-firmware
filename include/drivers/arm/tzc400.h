@@ -88,12 +88,12 @@
 /*
  * Define some macros for backward compatibility with existing tzc400 clients.
  */
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201601
 #define REG_ATTR_FILTER_BIT(x)			((1 << x)		\
 					<< TZC_REGION_ATTR_F_EN_SHIFT)
 #define REG_ATTR_FILTER_BIT_ALL	(TZC_400_REGION_ATTR_F_EN_MASK <<	\
 					TZC_REGION_ATTR_F_EN_SHIFT)
-#endif /* __ERROR_DEPRECATED__ */
+#endif /* PLAT_COMPAT < 201601 */
 
 /*
  * All TZC region configuration registers are placed one after another. It

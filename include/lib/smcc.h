@@ -37,7 +37,7 @@
 #define SMC_OK				U(0)
 #define SMC_UNK				U(0xffffffff)
 #define SMC_TYPE_FAST			ULL(1)
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201704
 #define SMC_TYPE_STD			ULL(0)
 #endif
 #define SMC_TYPE_YIELD			U(0)

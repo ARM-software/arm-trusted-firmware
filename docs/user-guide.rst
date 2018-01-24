@@ -376,11 +376,6 @@ Common build options
    The value is passed as the last component of the option
    ``-fstack-protector-$ENABLE_STACK_PROTECTOR``.
 
--  ``ERROR_DEPRECATED``: This option decides whether to treat the usage of
-   deprecated platform APIs, helper functions or drivers within Trusted
-   Firmware as error. It can take the value 1 (flag the use of deprecated
-   APIs as error) or 0. The default is 0.
-
 -  ``EL3_EXCEPTION_HANDLING``: When set to ``1``, enable handling of exceptions
    targeted at EL3. When set ``0`` (default), no exceptions are expected or
    handled at EL3, and a panic will result. This is supported only for AArch64
@@ -501,6 +496,12 @@ Common build options
    platform name must be subdirectory of any depth under ``plat/``, and must
    contain a platform makefile named ``platform.mk``. For example to build ARM
    Trusted Firmware for ARM Juno board select PLAT=juno.
+
+-  ``PLAT_COMPAT``: Specify how old deprecated APIs should be compiled, in the
+   form of YYYYMM. By default, all deprecated APIs are compiled for the maximum
+   compatibility. This may produce some warnings by compiling compatibility
+   code that use APIs marked as 'deprecated'. Platforms can increase this value
+   to compile out unnecessary deprecated APIs.
 
 -  ``PRELOADED_BL33_BASE``: This option enables booting a preloaded BL33 image
    instead of the normal boot flow. When defined, it must specify the entry

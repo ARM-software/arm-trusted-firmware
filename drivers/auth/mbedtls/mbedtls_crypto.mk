@@ -21,7 +21,7 @@ endif
 # If MBEDTLS_KEY_ALG build flag is defined use it to set TF_MBEDTLS_KEY_ALG for
 # backward compatibility
 ifdef MBEDTLS_KEY_ALG
-    ifeq (${ERROR_DEPRECATED},1)
+    ifeq ($(call ge,${PLAT_COMPAT},201705))
         $(error "MBEDTLS_KEY_ALG is deprecated. Please use the new build flag TF_MBEDTLS_KEY_ALG")
     endif
     $(warning "MBEDTLS_KEY_ALG is deprecated. Please use the new build flag TF_MBEDTLS_KEY_ALG")
