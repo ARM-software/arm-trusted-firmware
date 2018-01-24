@@ -12,6 +12,7 @@
 #include <delay_timer.h>
 #include <dfs.h>
 #include <errno.h>
+#include <gicv3.h>
 #include <gpio.h>
 #include <m0_ctl.h>
 #include <mmio.h>
@@ -45,6 +46,8 @@ static uint32_t store_grf_soc_con7;
 static uint32_t store_grf_ddrc_con[4];
 static uint32_t store_wdt0[2];
 static uint32_t store_wdt1[2];
+static gicv3_dist_ctx_t dist_ctx;
+static gicv3_redist_ctx_t rdist_ctx;
 
 /*
  * There are two ways to powering on or off on core.
@@ -1331,6 +1334,9 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	dmc_suspend();
 	pmu_scu_b_pwrdn();
 
+	gicv3_rdistif_save(plat_my_core_pos(), &rdist_ctx);
+	gicv3_distif_save(&dist_ctx);
+
 	/* need to save usbphy before shutdown PERIHP PD */
 	save_usbphy();
 
@@ -1487,6 +1493,8 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 				BIT(PMU_CLR_PERILPM0) |
 				BIT(PMU_CLR_GIC));
 
+	gicv3_distif_init_restore(&dist_ctx);
+	gicv3_rdistif_init_restore(plat_my_core_pos(), &rdist_ctx);
 	plat_rockchip_gic_cpuif_enable();
 	m0_stop();
 
