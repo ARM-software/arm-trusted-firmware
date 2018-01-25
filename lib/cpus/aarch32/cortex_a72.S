@@ -87,6 +87,10 @@ func check_errata_859971
 	b		cpu_rev_var_ls
 endfunc check_errata_859971
 
+func check_errata_cve_2017_5715
+	mov	r0, #ERRATA_MISSING
+	bx	lr
+endfunc check_errata_cve_2017_5715
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
@@ -236,6 +240,7 @@ func cortex_a72_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A72_859971, cortex_a72, 859971
+	report_errata WORKAROUND_CVE_2017_5715, cortex_a72, cve_2017_5715
 
 	pop	{r12, lr}
 	bx	lr

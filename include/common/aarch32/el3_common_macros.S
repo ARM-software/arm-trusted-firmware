@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 	/*
 	 * Helper macro to initialise EL3 registers we care about.
 	 */
-	.macro el3_arch_init_common _exception_vectors
+	.macro el3_arch_init_common
 	/* ---------------------------------------------------------------------
 	 * SCTLR has already been initialised - read current value before
 	 * modifying.
@@ -31,15 +31,6 @@
 	ldcopr	r0, SCTLR
 	orr	r0, r0, r1
 	stcopr	r0, SCTLR
-	isb
-
-	/* ---------------------------------------------------------------------
-	 * Set the exception vectors (VBAR/MVBAR).
-	 * ---------------------------------------------------------------------
-	 */
-	ldr	r0, =\_exception_vectors
-	stcopr	r0, VBAR
-	stcopr	r0, MVBAR
 	isb
 
 	/* ---------------------------------------------------------------------
@@ -211,6 +202,15 @@
 	.endif /* _warm_boot_mailbox */
 
 	/* ---------------------------------------------------------------------
+	 * Set the exception vectors (VBAR/MVBAR).
+	 * ---------------------------------------------------------------------
+	 */
+	ldr	r0, =\_exception_vectors
+	stcopr	r0, VBAR
+	stcopr	r0, MVBAR
+	isb
+
+	/* ---------------------------------------------------------------------
 	 * It is a cold boot.
 	 * Perform any processor specific actions upon reset e.g. cache, TLB
 	 * invalidations etc.
@@ -218,7 +218,7 @@
 	 */
 	bl	reset_handler
 
-	el3_arch_init_common \_exception_vectors
+	el3_arch_init_common
 
 	.if \_secondary_cold_boot
 		/* -------------------------------------------------------------

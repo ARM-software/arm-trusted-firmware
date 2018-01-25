@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,8 @@
 	.globl	sp_min_vector_table
 	.globl	sp_min_entrypoint
 	.globl	sp_min_warm_entrypoint
+	.globl	sp_min_handle_smc
+	.globl	sp_min_handle_fiq
 
 	.macro route_fiq_to_sp_min reg
 		/* -----------------------------------------------------
@@ -43,12 +45,12 @@
 vector_base sp_min_vector_table
 	b	sp_min_entrypoint
 	b	plat_panic_handler	/* Undef */
-	b	handle_smc		/* Syscall */
+	b	sp_min_handle_smc	/* Syscall */
 	b	plat_panic_handler	/* Prefetch abort */
 	b	plat_panic_handler	/* Data abort */
 	b	plat_panic_handler	/* Reserved */
 	b	plat_panic_handler	/* IRQ */
-	b	handle_fiq		/* FIQ */
+	b	sp_min_handle_fiq	/* FIQ */
 
 
 /*
@@ -151,7 +153,7 @@ endfunc sp_min_entrypoint
 /*
  * SMC handling function for SP_MIN.
  */
-func handle_smc
+func sp_min_handle_smc
 	/* On SMC entry, `sp` points to `smc_ctx_t`. Save `lr`. */
 	str	lr, [sp, #SMC_CTX_LR_MON]
 
@@ -199,12 +201,12 @@ func handle_smc
 
 	/* `r0` points to `smc_ctx_t` */
 	b	sp_min_exit
-endfunc handle_smc
+endfunc sp_min_handle_smc
 
 /*
  * Secure Interrupts handling function for SP_MIN.
  */
-func handle_fiq
+func sp_min_handle_fiq
 #if !SP_MIN_WITH_SECURE_FIQ
 	b plat_panic_handler
 #else
@@ -242,7 +244,7 @@ func handle_fiq
 
 	b	sp_min_exit
 #endif
-endfunc handle_fiq
+endfunc sp_min_handle_fiq
 
 /*
  * The Warm boot entrypoint for SP_MIN.

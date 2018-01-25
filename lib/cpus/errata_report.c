@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,7 @@
 #endif
 
 /* Errata format: BL stage, CPU, errata ID, message */
-#define ERRATA_FORMAT	"%s: %s: errata workaround for %s was %s\n"
+#define ERRATA_FORMAT	"%s: %s: CPU workaround for %s was %s\n"
 
 /*
  * Returns whether errata needs to be reported. Passed arguments are private to

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,7 +22,7 @@
 #define SMC_CTX_LR_MON		0x80
 #define SMC_CTX_SCR		0x84
 #define SMC_CTX_PMCR		0x88
-#define SMC_CTX_SIZE		0x8C
+#define SMC_CTX_SIZE		0x90
 
 #ifndef __ASSEMBLY__
 #include <cassert.h>
@@ -75,7 +75,13 @@ typedef struct smc_ctx {
 	u_register_t lr_mon;
 	u_register_t scr;
 	u_register_t pmcr;
-} smc_ctx_t;
+	/*
+	 * The workaround for CVE-2017-5715 requires storing information in
+	 * the bottom 3 bits of the stack pointer.  Add a padding field to
+	 * force the size of the struct to be a multiple of 8.
+	 */
+	u_register_t pad;
+} smc_ctx_t __aligned(8);
 
 /*
  * Compile time assertions related to the 'smc_context' structure to
@@ -99,6 +105,7 @@ CASSERT(SMC_CTX_LR_MON == __builtin_offsetof(smc_ctx_t, lr_mon), \
 CASSERT(SMC_CTX_SPSR_MON == __builtin_offsetof(smc_ctx_t, spsr_mon), \
 	assert_smc_ctx_spsr_mon_offset_mismatch);
 
+CASSERT((sizeof(smc_ctx_t) & 0x7) == 0, assert_smc_ctx_not_aligned);
 CASSERT(SMC_CTX_SIZE == sizeof(smc_ctx_t), assert_smc_ctx_size_mismatch);
 
 /* Convenience macros to return from SMC handler */
