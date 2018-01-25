@@ -21,7 +21,7 @@ extern const mmap_region_t plat_arm_mmap[];
 
 /* Conditionally provide a weak definition of plat_get_syscnt_freq2 to avoid
  * conflicts with the definition in plat/common. */
-#if ERROR_DEPRECATED
+#if PLAT_COMPAT >= 201605
 #pragma weak plat_get_syscnt_freq2
 #endif
 

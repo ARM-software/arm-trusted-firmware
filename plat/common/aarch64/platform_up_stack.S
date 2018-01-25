@@ -42,6 +42,7 @@ func plat_set_my_stack
 	ret
 endfunc plat_set_my_stack
 
+#if PLAT_COMPAT < 201507
 	/* -----------------------------------------------------
 	 * unsigned long platform_get_stack ()
 	 *
@@ -51,9 +52,9 @@ endfunc plat_set_my_stack
 	 * is deprecated.
 	 * -----------------------------------------------------
 	 */
-func_deprecated platform_get_stack
+func platform_get_stack
 	b	plat_get_my_stack
-endfunc_deprecated platform_get_stack
+endfunc platform_get_stack
 
 	/* -----------------------------------------------------
 	 * void platform_set_stack ()
@@ -64,10 +65,10 @@ endfunc_deprecated platform_get_stack
 	 * deprecated.
 	 * -----------------------------------------------------
 	 */
-func_deprecated platform_set_stack
+func platform_set_stack
 	b	plat_set_my_stack
-endfunc_deprecated platform_set_stack
-
+endfunc platform_set_stack
+#endif /* PLAT_COMPAT < 201507 */
 	/* -----------------------------------------------------
 	 * Single cpu stack in normal memory.
 	 * Used for C code during boot, PLATFORM_STACK_SIZE bytes

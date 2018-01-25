@@ -62,12 +62,12 @@ void cm_set_context_by_index(unsigned int cpu_idx, void *context,
 	set_cpu_data_by_index(cpu_idx, cpu_context[security_state], context);
 }
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201510
 /*
  * These context management helpers are deprecated but are maintained for use
- * by SPDs which have not migrated to the new API. If ERROR_DEPRECATED
- * is enabled, these are excluded from the build so as to force users to
- * migrate to the new API.
+ * by SPDs which have not migrated to the new API. If PLAT_COMPAT >= 201510
+ * these are excluded from the build so as to force users to migrate to the
+ * new API.
  */
 
 /*******************************************************************************

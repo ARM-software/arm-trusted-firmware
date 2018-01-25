@@ -36,7 +36,7 @@ TSP_NS_INTR_ASYNC_PREEMPT	:=	0
 # If TSPD_ROUTE_IRQ_TO_EL3 build flag is defined, use it to define value for
 # TSP_NS_INTR_ASYNC_PREEMPT for backward compatibility.
 ifdef TSPD_ROUTE_IRQ_TO_EL3
-ifeq (${ERROR_DEPRECATED},1)
+ifeq ($(call ge,${PLAT_COMPAT},201509),1)
 $(error "TSPD_ROUTE_IRQ_TO_EL3 is deprecated. Please use the new build flag TSP_NS_INTR_ASYNC_PREEMPT")
 endif
 $(warning "TSPD_ROUTE_IRQ_TO_EL3 is deprecated. Please use the new build flag TSP_NS_INTR_ASYNC_PREEMPT")

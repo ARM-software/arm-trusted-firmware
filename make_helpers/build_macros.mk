@@ -37,6 +37,13 @@ define uppercase
 $(eval uppercase_result:=$(call uppercase_internal,$(uppercase_table),$(1)))$(uppercase_result)
 endef
 
+# Arithmetic comparison
+test = $(shell [ $1  ] && echo 1)
+ge = $(call test, $(1) -ge $(2))
+gt = $(call test, $(1) -gt $(2))
+le = $(call test, $(1) -le $(2))
+lt = $(call test, $(1) -lt $(2))
+
 # Convenience function for adding build definitions
 # $(eval $(call add_define,FOO)) will have:
 # -DFOO if $(FOO) is empty; -DFOO=$(FOO) otherwise

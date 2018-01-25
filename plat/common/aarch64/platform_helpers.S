@@ -26,6 +26,7 @@
 
 #define MPIDR_RES_BIT_MASK	0xff000000
 
+#if PLAT_COMPAT < 201507
 	/* ------------------------------------------------------------------
 	 *  int platform_get_core_pos(int mpidr)
 	 *  Returns the CPU index of the CPU specified by mpidr. This is
@@ -38,14 +39,15 @@
 	 *  CPU specified by its mpidr.
 	 * ------------------------------------------------------------------
 	 */
-func_deprecated platform_get_core_pos
+func platform_get_core_pos
 	bic	x0, x0, #MPIDR_RES_BIT_MASK
 	mrs	x1, mpidr_el1
 	bic	x1, x1, #MPIDR_RES_BIT_MASK
 	cmp	x0, x1
 	beq	plat_my_core_pos
 	b	platform_core_pos_helper
-endfunc_deprecated platform_get_core_pos
+endfunc platform_get_core_pos
+#endif /* PLAT_COMPAT < 201507 */
 #endif
 
 	/* -----------------------------------------------------

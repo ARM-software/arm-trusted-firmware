@@ -309,7 +309,7 @@ typedef unsigned int (*mpidr_hash_fn)(u_register_t mpidr);
 typedef struct gicv3_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicr_base;
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 	unsigned int g0_interrupt_num;
 	unsigned int g1s_interrupt_num;
 	const unsigned int *g0_interrupt_array;

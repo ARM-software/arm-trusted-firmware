@@ -7,7 +7,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201704
 #include <utils_def.h>
 #endif
 

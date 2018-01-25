@@ -4,6 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201605
 #include "../plat_psci_common.c"
 #endif

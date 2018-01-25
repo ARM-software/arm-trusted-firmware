@@ -15,7 +15,7 @@
  * Private function prototypes
  ******************************************************************************/
 void gicv2_spis_configure_defaults(uintptr_t gicd_base);
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201709
 void gicv2_secure_spis_configure(uintptr_t gicd_base,
 				     unsigned int num_ints,
 				     const unsigned int *sec_intr_list);

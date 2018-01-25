@@ -71,7 +71,7 @@
  ******************************************************************************/
 #define CORTEX_A53_L2MERRSR_EL1				S3_1_C15_C2_3
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201708
 /*
  * These registers were previously wrongly named. Provide previous definitions
  * so as not to break platforms that continue using them.
@@ -86,6 +86,6 @@
 #define CORTEX_A53_ACTLR_L1RADIS		CORTEX_A53_CPUACTLR_EL1_L1RADIS
 #define CORTEX_A53_ACTLR_DTAH_SHIFT		CORTEX_A53_CPUACTLR_EL1_DTAH_SHIFT
 #define CORTEX_A53_ACTLR_DTAH			CORTEX_A53_CPUACTLR_EL1_DTAH
-#endif /* !ERROR_DEPRECATED */
+#endif /* PLAT_COMPAT < 201708 */
 
 #endif /* __CORTEX_A53_H__ */

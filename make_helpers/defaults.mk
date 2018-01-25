@@ -69,9 +69,6 @@ ENABLE_STACK_PROTECTOR		:= 0
 # Flag to enable exception handling in EL3
 EL3_EXCEPTION_HANDLING		:= 0
 
-# Build flag to treat usage of deprecated platform and framework APIs as error.
-ERROR_DEPRECATED		:= 0
-
 # Byte alignment that each component in FIP is aligned to
 FIP_ALIGN			:= 0
 
@@ -107,6 +104,11 @@ NS_TIMER_SWITCH			:= 0
 
 # Build PL011 UART driver in minimal generic UART mode
 PL011_GENERIC_UART		:= 0
+
+# Specify how old deprecated APIs need to be compiled. The only APIs deprecated
+# after the specified year/month are compiled. A bigger value means the
+# platform is based on newer APIs.
+PLAT_COMPAT			:= 201506
 
 # By default, consider that the platform's reset address is not programmable.
 # The platform Makefile is free to override this value.
@@ -146,7 +148,7 @@ TRUSTED_BOARD_BOOT		:= 0
 USE_COHERENT_MEM		:= 1
 
 # Use tbbr_oid.h instead of platform_oid.h
-USE_TBBR_DEFS			= $(ERROR_DEPRECATED)
+USE_TBBR_DEFS			= $(if $(call ge,$(PLAT_COMPAT),201705),1,0)
 
 # Build verbosity
 V				:= 0

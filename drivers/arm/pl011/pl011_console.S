@@ -4,6 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201608
 #include "./aarch64/pl011_console.S"
 #endif

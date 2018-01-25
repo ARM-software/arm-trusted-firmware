@@ -30,7 +30,7 @@
 /* Prevent mbed TLS from using snprintf so that it can use tf_snprintf. */
 #define MBEDTLS_PLATFORM_SNPRINTF_ALT
 
-#if !ERROR_DEPRECATED
+#if PLAT_COMPAT < 201705
 #define MBEDTLS_PKCS1_V15
 #endif
 #define MBEDTLS_PKCS1_V21

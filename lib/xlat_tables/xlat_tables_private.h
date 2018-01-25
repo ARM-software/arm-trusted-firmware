@@ -15,7 +15,7 @@
  * If the platform hasn't defined a physical and a virtual address space size
  * default to ADDR_SPACE_SIZE.
  */
-#if ERROR_DEPRECATED
+#if PLAT_COMPAT >= 201612
 # ifdef ADDR_SPACE_SIZE
 #  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
 # endif
