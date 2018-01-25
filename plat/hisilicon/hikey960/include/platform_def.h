@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -56,8 +56,8 @@
 /*
  * BL2 specific defines.
  */
-#define BL2_BASE			(BL1_RW_BASE + 0x8000)	/* 1AC1_8000 */
-#define BL2_LIMIT			(BL2_BASE + 0x40000)	/* 1AC5_8000 */
+#define BL2_BASE			(0x1AC00000)
+#define BL2_LIMIT			(BL2_BASE + 0x58000)	/* 1AC5_8000 */
 
 /*
  * BL31 specific defines.
