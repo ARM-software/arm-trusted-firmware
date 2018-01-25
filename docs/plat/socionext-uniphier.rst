@@ -3,26 +3,28 @@ ARM Trusted Firmware for Socionext UniPhier SoCs
 
 
 Socionext UniPhier ARMv8-A SoCs use ARM Trusted Firmware as the secure world
-firmware, supporting BL1, BL2, and BL31.
+firmware, supporting BL2 and BL31.
 
-UniPhier SoC family implements its internal boot ROM, so BL1 is used as pseudo
-ROM (i.e. runs in RAM). The internal boot ROM loads 64KB [1]_ image from a
-non-volatile storage to the on-chip SRAM. Unfortunately, BL1 does not fit in
-the 64KB limit if `Trusted Board Boot`_ (TBB) is enabled. To solve this problem,
-Socionext provides a first stage loader called `UniPhier BL`_. This loader runs
-in the on-chip SRAM, initializes the DRAM, expands BL1 there, and hands the
-control over to it. Therefore, all images of ARM Trusted Firmware run in DRAM.
+UniPhier SoC family implements its internal boot ROM, which loads 64KB [1]_
+image from a non-volatile storage to the on-chip SRAM, and jumps over to it.
+ARM Trusted Firmware provides a special mode, BL2-AT-EL3, which enables BL2 to
+execute at EL3. It is useful for platforms with non-TF boot ROM, like UniPhier.
+Here, a problem is BL2 does not fit in the 64KB limit if `Trusted Board Boot`_
+(TBB) is enabled. To solve this issue, Socionext provides a first stage loader
+called `UniPhier BL`_. This loader runs in the on-chip SRAM, initializes the
+DRAM, expands BL2 there, and hands the control over to it. Therefore, all images
+of ARM Trusted Firmware run in DRAM.
 
 The UniPhier platform works with/without TBB. See below for the build process
 of each case. The image authentication for the UniPhier platform fully
 complies with the Trusted Board Boot Requirements (TBBR) specification.
 
 The UniPhier BL does not implement the authentication functionality, that is,
-it can not verify the BL1 image by itself. Instead, the UniPhier BL assures
-the BL1 validity in a different way; BL1 is GZIP-compressed and appended to
-the UniPhier BL. The concatenation of the UniPhier BL and the compressed BL1
-fits in the 64KB limit. The concatenated image is loaded by the boot ROM
-(and verified if the chip fuses are blown).
+it can not verify the BL2 image by itself. Instead, the UniPhier BL assures
+the BL2 validity in a different way; BL2 is GZIP-compressed and appended to
+the UniPhier BL. The concatenation of the UniPhier BL and the compressed BL2
+fits in the 64KB limit. The concatenated image is loaded by the internal boot
+ROM (and verified if the chip fuses are blown).
 
 
 Boot Flow
@@ -31,32 +33,32 @@ Boot Flow
 1. The Boot ROM
 
    This is hard-wired ROM, so never corrupted. It loads the UniPhier BL (with
-   compressed-BL1 appended) into the on-chip SRAM. If the SoC fuses are blown,
+   compressed-BL2 appended) into the on-chip SRAM. If the SoC fuses are blown,
    the image is verified by the SoC's own method.
 
 2. UniPhier BL
 
    This runs in the on-chip SRAM. After the minimum SoC initialization and DRAM
-   setup, it decompresses the appended BL1 image into the DRAM, then jumps to
-   the BL1 entry.
+   setup, it decompresses the appended BL2 image into the DRAM, then jumps to
+   the BL2 entry.
 
-3. BL1
+3. BL2 (at EL3)
 
-   This runs in the DRAM. It extracts BL2 from FIP (Firmware Image Package).
-   If TBB is enabled, the BL2 is authenticated by the standard mechanism of ARM
-   Trusted Firmware.
+   This runs in the DRAM. It extracts more images such as BL31, BL33 (optionally
+   SCP_BL2, BL32 as well) from Firmware Image Package (FIP). If TBB is enabled,
+   they are all authenticated by the standard mechanism of ARM Trusted Firmware.
+   After loading all the images, it jumps to the BL31 entry.
 
-4. BL2, BL31, and more
+4. BL31, BL32, and BL33
 
-   They all run in the DRAM, and are authenticated by the standard mechanism if
-   TBB is enabled. See `Firmware Design`_ for details.
+   They all run in the DRAM. See `Firmware Design`_ for details.
 
 
 Basic Build
 -----------
 
-BL1 must be compressed for the reason above. The UniPhier's platform makefile
-provides a build target ``bl1_gzip`` for this.
+BL2 must be compressed for the reason above. The UniPhier's platform makefile
+provides a build target ``bl2_gzip`` for this.
 
 For a non-secure boot loader (aka BL33), U-Boot is well supported for UniPhier
 SoCs. The U-Boot image (``u-boot.bin``) must be built in advance. For the build
@@ -64,11 +66,11 @@ procedure of U-Boot, refer to the document in the `U-Boot`_ project.
 
 To build minimum functionality for UniPhier (without TBB)::
 
-    make CROSS_COMPILE=<gcc-prefix> PLAT=uniphier BL33=<path-to-BL33> bl1_gzip fip
+    make CROSS_COMPILE=<gcc-prefix> PLAT=uniphier BL33=<path-to-BL33> bl2_gzip fip
 
 Output images:
 
-- ``bl1.bin.gzip``
+- ``bl2.bin.gz``
 - ``fip.bin``
 
 

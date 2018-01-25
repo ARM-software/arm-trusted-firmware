@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,7 +67,9 @@ void uniphier_gic_pcpu_init(void);
 unsigned int uniphier_calc_core_pos(u_register_t mpidr);
 
 #define UNIPHIER_NS_DRAM_BASE		0x84000000
-#define UNIPHIER_NS_DRAM_SIZE		0x01000000
+#define UNIPHIER_NS_DRAM_LIMIT		0x85000000
+#define UNIPHIER_NS_DRAM_SIZE		((UNIPHIER_NS_DRAM_LIMIT) - \
+					 (UNIPHIER_NS_DRAM_BASE))
 
 #define UNIPHIER_BL33_BASE		(UNIPHIER_NS_DRAM_BASE)
 #define UNIPHIER_BL33_MAX_SIZE		0x00100000
@@ -75,5 +77,10 @@ unsigned int uniphier_calc_core_pos(u_register_t mpidr);
 #define UNIPHIER_SCP_BASE		((UNIPHIER_BL33_BASE) + \
 					 (UNIPHIER_BL33_MAX_SIZE))
 #define UNIPHIER_SCP_MAX_SIZE		0x00020000
+
+#define UNIPHIER_BLOCK_BUF_BASE		((UNIPHIER_SCP_BASE) + \
+					 (UNIPHIER_SCP_MAX_SIZE))
+#define UNIPHIER_BLOCK_BUF_SIZE		((UNIPHIER_NS_DRAM_LIMIT) - \
+					 (UNIPHIER_BLOCK_BUF_BASE))
 
 #endif /* __UNIPHIER_H__ */
