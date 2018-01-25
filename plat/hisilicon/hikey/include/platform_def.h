@@ -80,9 +80,18 @@
 
 /*
  * BL2 specific defines.
+ *
+ * Both loader and BL2 region stay in SRAM.
+ * Loader is used to switch Hi6220 SoC from 32-bit to 64-bit mode.
+ *
+ * ++++++++++ 0xF980_0000
+ * + loader +
+ * ++++++++++ 0xF980_1000
+ * +  BL2   +
+ * ++++++++++ 0xF981_8000
  */
-#define BL2_BASE			(BL1_RW_BASE + 0x8000)	/* 0xf981_8000 */
-#define BL2_LIMIT			(BL2_BASE + 0x40000)
+#define BL2_BASE			(BL1_RO_BASE)		/* 0xf980_1000 */
+#define BL2_LIMIT			(0xF9818000)		/* 0xf981_8000 */
 
 /*
  * SCP_BL2 specific defines.
@@ -97,8 +106,8 @@
 /*
  * BL31 specific defines.
  */
-#define BL31_BASE			BL2_LIMIT /* 0xf985_8000 */
-#define BL31_LIMIT			0xF9898000
+#define BL31_BASE			(0xF9858000)		/* 0xf985_8000 */
+#define BL31_LIMIT			(0xF9898000)
 
 /*
  * BL3-2 specific defines.
@@ -140,7 +149,7 @@
 #endif /* SPD_none */
 #endif
 
-#define NS_BL1U_BASE			(BL2_BASE)
+#define NS_BL1U_BASE			(0xf9818000)
 #define NS_BL1U_SIZE			(0x00010000)
 #define NS_BL1U_LIMIT			(NS_BL1U_BASE + NS_BL1U_SIZE)
 
@@ -158,15 +167,7 @@
 #endif
 
 #ifdef IMAGE_BL2
-#if LOAD_IMAGE_V2
-#ifdef SPD_opteed
 #define MAX_XLAT_TABLES			4
-#else
-#define MAX_XLAT_TABLES			3
-#endif
-#else
-#define MAX_XLAT_TABLES			3
-#endif
 #endif
 
 #define MAX_MMAP_REGIONS		16

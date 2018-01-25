@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -529,9 +529,6 @@ unsigned int bl1_plat_get_next_image_id(void)
 
 	boot_mode = mmio_read_32(ONCHIPROM_PARAM_BASE);
 	switch (boot_mode) {
-	case BOOT_NORMAL:
-		ret = BL2_IMAGE_ID;
-		break;
 	case BOOT_USB_DOWNLOAD:
 	case BOOT_UART_DOWNLOAD:
 		ret = NS_BL1U_IMAGE_ID;
@@ -563,7 +560,7 @@ void bl1_plat_set_ep_info(unsigned int image_id,
 	unsigned int data = 0;
 
 	if (image_id == BL2_IMAGE_ID)
-		return;
+		panic();
 	inv_dcache_range(NS_BL1U_BASE, NS_BL1U_SIZE);
 	__asm__ volatile ("mrs	%0, cpacr_el1" : "=r"(data));
 	do {
