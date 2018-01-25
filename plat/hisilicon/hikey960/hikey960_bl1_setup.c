@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -668,9 +668,6 @@ unsigned int bl1_plat_get_next_image_id(void)
 	case BOOT_MODE_RECOVERY:
 		ret = NS_BL1U_IMAGE_ID;
 		break;
-	case BOOT_MODE_NORMAL:
-		ret = BL2_IMAGE_ID;
-		break;
 	default:
 		WARN("Invalid boot mode is found:%d\n", mode);
 		panic();
@@ -697,8 +694,8 @@ void bl1_plat_set_ep_info(unsigned int image_id,
 	unsigned int data = 0;
 	uintptr_t tmp = HIKEY960_NS_TMP_OFFSET;
 
-	if (image_id == BL2_IMAGE_ID)
-		return;
+	if (image_id != NS_BL1U_IMAGE_ID)
+		panic();
 	/* Copy NS BL1U from 0x1AC1_8000 to 0x1AC9_8000 */
 	memcpy((void *)tmp, (void *)HIKEY960_NS_IMAGE_OFFSET,
 		NS_BL1U_SIZE);
