@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -598,7 +598,7 @@ ifeq (${BL2_AT_EL3}, 0)
 FIP_BL2_ARGS := tb-fw
 endif
 
-$(if ${BL2}, $(eval $(call MAKE_TOOL_ARGS,2,${BL2},${FIP_BL2_ARGS})),\
+$(if ${BL2}, $(eval $(call FIP_ADD_IMG,BL2,--${FIP_BL2_ARGS})),\
 	$(eval $(call MAKE_BL,2,${FIP_BL2_ARGS})))
 endif
 
@@ -608,7 +608,7 @@ endif
 
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
-$(if ${BL31}, $(eval $(call MAKE_TOOL_ARGS,31,${BL31},soc-fw)),\
+$(if ${BL31}, $(eval $(call FIP_ADD_IMG,BL31,--soc-fw)),\
 	$(eval $(call MAKE_BL,31,soc-fw)))
 endif
 
@@ -616,7 +616,7 @@ endif
 # build system will call FIP_ADD_IMG to print a warning message and abort the
 # process. Note that the dependency on BL32 applies to the FIP only.
 ifeq (${NEED_BL32},yes)
-$(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},tos-fw)),\
+$(if ${BL32}, $(eval $(call FIP_ADD_IMG,BL32,${BL32},--tos-fw)),\
 	$(if ${BL32_SOURCES}, $(eval $(call MAKE_BL,32,tos-fw)),\
 		$(eval $(call FIP_ADD_IMG,BL32,--tos-fw))))
 endif
