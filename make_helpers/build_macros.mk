@@ -256,16 +256,6 @@ define SOURCES_TO_OBJS
         $(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
 endef
 
-
-# MAKE_TOOL_ARGS macro defines the command line arguments for fiptool for
-# each BL image. Arguments:
-#   $(1) = BL stage (2, 30, 31, 32, 33)
-#   $(2) = Binary file
-#   $(3) = FIP command line option (if empty, image will not be included in the FIP)
-define MAKE_TOOL_ARGS
-        $(if $(3),$(eval $(call FIP_ADD_PAYLOAD,$(2),--$(3),bl$(1))))
-endef
-
 # Allow overriding the timestamp, for example for reproducible builds, or to
 # synchronize timestamps across multiple projects.
 # This must be set to a C string (including quotes where applicable).
@@ -336,7 +326,7 @@ bl$(1): $(BIN) $(DUMP)
 
 all: bl$(1)
 
-$(eval $(call MAKE_TOOL_ARGS,$(1),$(BIN),$(2)))
+$(if $(2),$(call FIP_ADD_PAYLOAD,$(BIN),--$(2),bl$(1)))
 
 endef
 
