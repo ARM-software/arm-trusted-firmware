@@ -98,13 +98,14 @@ define IMG_BIN
     ${BUILD_PLAT}/bl$(1).bin
 endef
 
-# FIP_ADD_PAYLOAD appends the command line arguments required by fiptool
-# to package a new payload. Optionally, it adds the dependency on this payload
+# TOOL_ADD_PAYLOAD appends the command line arguments required by fiptool to
+# package a new payload and/or by cert_create to generate certificate.
+# Optionally, it adds the dependency on this payload
 #   $(1) = payload filename (i.e. bl31.bin)
 #   $(2) = command line option for the specified payload (i.e. --soc-fw)
-#   $(3) = fip target dependency (optional) (i.e. bl31)
+#   $(3) = tool target dependency (optional) (i.e. bl31)
 #   $(4) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
-define FIP_ADD_PAYLOAD
+define TOOL_ADD_PAYLOAD
     $(4)FIP_ARGS += $(2) $(1)
     $(if $(3),$(4)FIP_DEPS += $(3))
     $(4)CRT_ARGS += $(2) $(1)
@@ -132,7 +133,7 @@ endef
 define FIP_ADD_IMG
     $(3)CRT_DEPS += check_$(1)
     $(3)FIP_DEPS += check_$(1)
-    $(call FIP_ADD_PAYLOAD,$(value $(1)),$(2),,$(3))
+    $(call TOOL_ADD_PAYLOAD,$(value $(1)),$(2),,$(3))
 
 .PHONY: check_$(1)
 check_$(1):
@@ -297,7 +298,7 @@ bl$(1): $(BIN) $(DUMP)
 
 all: bl$(1)
 
-$(if $(2),$(call FIP_ADD_PAYLOAD,$(BIN),--$(2),bl$(1),$(3)))
+$(if $(2),$(call TOOL_ADD_PAYLOAD,$(BIN),--$(2),bl$(1),$(3)))
 
 endef
 
