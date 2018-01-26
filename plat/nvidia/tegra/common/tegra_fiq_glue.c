@@ -16,8 +16,14 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <plat/common/platform.h>
 
+#if ENABLE_WDT_LEGACY_FIQ_HANDLING
+#include <flowctrl.h>
+#endif
 #include <tegra_def.h>
 #include <tegra_private.h>
+
+/* Legacy FIQ used by earlier Tegra platforms */
+#define LEGACY_FIQ_PPI_WDT		28U
 
 static DEFINE_BAKERY_LOCK(tegra_fiq_lock);
 
@@ -78,6 +84,20 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 		 */
 		cm_set_elr_el3(NON_SECURE, ns_fiq_handler_addr);
 	}
+
+#if ENABLE_WDT_LEGACY_FIQ_HANDLING
+	/*
+	 * Tegra platforms that use LEGACY_FIQ as the watchdog timer FIQ
+	 * need to issue an IPI to other CPUs, to allow them to handle
+	 * the "system hung" scenario. This interrupt is passed to the GICD
+	 * via the Flow Controller. So, once we receive this interrupt,
+	 * disable the routing so that we can mark it as "complete" in the
+	 * GIC later.
+	 */
+	if (irq == LEGACY_FIQ_PPI_WDT) {
+		tegra_fc_disable_fiq_to_ccplex_routing();
+	}
+#endif
 
 	/*
 	 * Mark this interrupt as complete to avoid a FIQ storm.

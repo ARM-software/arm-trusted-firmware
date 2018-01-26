@@ -22,6 +22,9 @@ $(eval $(call add_define,MAX_XLAT_TABLES))
 MAX_MMAP_REGIONS			:= 15
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
+ENABLE_WDT_LEGACY_FIQ_HANDLING		:= 1
+$(eval $(call add_define,ENABLE_WDT_LEGACY_FIQ_HANDLING))
+
 PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/se
 
 BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
