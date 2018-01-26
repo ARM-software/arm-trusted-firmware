@@ -616,9 +616,11 @@ endif
 # build system will call FIP_ADD_IMG to print a warning message and abort the
 # process. Note that the dependency on BL32 applies to the FIP only.
 ifeq (${NEED_BL32},yes)
-$(if ${BL32}, $(eval $(call FIP_ADD_IMG,BL32,${BL32},--tos-fw)),\
-	$(if ${BL32_SOURCES}, $(eval $(call MAKE_BL,32,tos-fw)),\
-		$(eval $(call FIP_ADD_IMG,BL32,--tos-fw))))
+
+BUILD_BL32 := $(if $(BL32),,$(if $(BL32_SOURCES),1))
+
+$(if ${BUILD_BL32}, $(eval $(call MAKE_BL,32,tos-fw)),\
+	$(eval $(call FIP_ADD_IMG,BL32,--tos-fw)))
 endif
 
 # Add the BL33 image if required by the platform
