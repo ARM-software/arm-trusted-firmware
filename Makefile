@@ -598,17 +598,17 @@ ifeq (${BL2_AT_EL3}, 0)
 FIP_BL2_ARGS := tb-fw
 endif
 
-$(if ${BL2}, $(eval $(call TOOL_ADD_IMG,BL2,--${FIP_BL2_ARGS})),\
+$(if ${BL2}, $(eval $(call TOOL_ADD_IMG,bl2,--${FIP_BL2_ARGS})),\
 	$(eval $(call MAKE_BL,2,${FIP_BL2_ARGS})))
 endif
 
 ifeq (${NEED_SCP_BL2},yes)
-$(eval $(call TOOL_ADD_IMG,SCP_BL2,--scp-fw))
+$(eval $(call TOOL_ADD_IMG,scp_bl2,--scp-fw))
 endif
 
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
-$(if ${BL31}, $(eval $(call TOOL_ADD_IMG,BL31,--soc-fw)),\
+$(if ${BL31}, $(eval $(call TOOL_ADD_IMG,bl31,--soc-fw)),\
 	$(eval $(call MAKE_BL,31,soc-fw)))
 endif
 
@@ -620,16 +620,16 @@ ifeq (${NEED_BL32},yes)
 BUILD_BL32 := $(if $(BL32),,$(if $(BL32_SOURCES),1))
 
 $(if ${BUILD_BL32}, $(eval $(call MAKE_BL,32,tos-fw)),\
-	$(eval $(call TOOL_ADD_IMG,BL32,--tos-fw)))
+	$(eval $(call TOOL_ADD_IMG,bl32,--tos-fw)))
 endif
 
 # Add the BL33 image if required by the platform
 ifeq (${NEED_BL33},yes)
-$(eval $(call TOOL_ADD_IMG,BL33,--nt-fw))
+$(eval $(call TOOL_ADD_IMG,bl33,--nt-fw))
 endif
 
 ifeq (${NEED_BL2U},yes)
-$(if ${BL2U}, $(eval $(call TOOL_ADD_IMG,BL2U,--ap-fwu-cfg,FWU_)),\
+$(if ${BL2U}, $(eval $(call TOOL_ADD_IMG,bl2u,--ap-fwu-cfg,FWU_)),\
 	$(eval $(call MAKE_BL,2u,ap-fwu-cfg,FWU_)))
 endif
 

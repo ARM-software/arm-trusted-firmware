@@ -123,20 +123,24 @@ endef
 # TOOL_ADD_IMG allows the platform to specify an external image to be packed
 # in the FIP and/or for which certificate is generated. It also adds a
 # dependency on the image file, aborting the build if the file does not exist.
-#   $(1) = build option to specify the image filename (SCP_BL2, BL33, etc)
+#   $(1) = image_type (scp_bl2, bl33, etc.)
 #   $(2) = command line option for fiptool (--scp-fw, --nt-fw, etc)
 #   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 # Example:
-#   $(eval $(call TOOL_ADD_IMG,BL33,--nt-fw))
+#   $(eval $(call TOOL_ADD_IMG,bl33,--nt-fw))
 define TOOL_ADD_IMG
+    # Build option to specify the image filename (SCP_BL2, BL33, etc)
+    # This is the uppercase form of the first parameter
+    $(eval _V := $(call uppercase,$(1)))
+
     $(3)CRT_DEPS += check_$(1)
     $(3)FIP_DEPS += check_$(1)
-    $(call TOOL_ADD_PAYLOAD,$(value $(1)),$(2),,$(3))
+    $(call TOOL_ADD_PAYLOAD,$(value $(_V)),$(2),,$(3))
 
 .PHONY: check_$(1)
 check_$(1):
-	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
-	$$(if $(wildcard $(value $(1))),,$$(error '$(1)=$(value $(1))' was specified, but '$(value $(1))' does not exist))
+	$$(if $(value $(_V)),,$$(error "Platform '${PLAT}' requires $(_V). Please set $(_V) to point to the right file"))
+	$$(if $(wildcard $(value $(_V))),,$$(error '$(_V)=$(value $(_V))' was specified, but '$(value $(_V))' does not exist))
 endef
 
 ################################################################################
