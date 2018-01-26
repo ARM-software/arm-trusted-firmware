@@ -115,11 +115,9 @@ endef
 # CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
 #   $(1) = parameter filename
 #   $(2) = cert_create command line option for the specified parameter
-#   $(3) = input parameter (false if empty)
-#   $(4) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
+#   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 define CERT_ADD_CMD_OPT
-    $(if $(3),$(4)CRT_DEPS += $(1))
-    $(4)CRT_ARGS += $(2) $(1)
+    $(3)CRT_ARGS += $(2) $(1)
 endef
 
 # TOOL_ADD_IMG allows the platform to specify an external image to be packed
