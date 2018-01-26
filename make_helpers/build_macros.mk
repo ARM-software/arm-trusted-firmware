@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -132,6 +132,7 @@ define FIP_ADD_IMG
 .PHONY: check_$(1)
 check_$(1):
 	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
+	$$(if $(wildcard $(value $(1))),,$$(error '$(1)=$(value $(1))' was specified, but '$(value $(1))' does not exist))
 endef
 
 # FWU_FIP_ADD_PAYLOAD appends the command line arguments required by fiptool
@@ -166,6 +167,7 @@ define FWU_FIP_ADD_IMG
 .PHONY: check_$(1)
 check_$(1):
 	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
+	$$(if $(wildcard $(value $(1))),,$$(error '$(1)=$(value $(1))' was specified, but '$(value $(1))' does not exist))
 endef
 
 ################################################################################
