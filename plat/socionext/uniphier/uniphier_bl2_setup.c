@@ -9,8 +9,12 @@
 #include <desc_image_load.h>
 #include <errno.h>
 #include <io/io_storage.h>
+#include <image_decompress.h>
 #include <platform.h>
 #include <platform_def.h>
+#ifdef UNIPHIER_DECOMPRESS_GZIP
+#include <tf_gunzip.h>
+#endif
 #include <xlat_tables_v2.h>
 
 #include "uniphier.h"
@@ -115,8 +119,38 @@ bl_params_t *plat_get_next_bl_params(void)
 	return get_next_bl_params_from_mem_params_desc();
 }
 
+void bl2_plat_preload_setup(void)
+{
+#ifdef UNIPHIER_DECOMPRESS_GZIP
+	image_decompress_init(UNIPHIER_IMAGE_BUF_BASE,
+			      UNIPHIER_IMAGE_BUF_SIZE,
+			      gunzip);
+#endif
+}
+
+int bl2_plat_handle_pre_image_load(unsigned int image_id)
+{
+#ifdef UNIPHIER_DECOMPRESS_GZIP
+	image_decompress_prepare(uniphier_get_image_info(image_id));
+#endif
+	return 0;
+}
+
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
+#ifdef UNIPHIER_DECOMPRESS_GZIP
+	struct image_info *image_info;
+	int ret;
+
+	image_info = uniphier_get_image_info(image_id);
+
+	if (!(image_info->h.attr & IMAGE_ATTRIB_SKIP_LOADING)) {
+		ret = image_decompress(uniphier_get_image_info(image_id));
+		if (ret)
+			return ret;
+	}
+#endif
+
 	if (image_id == SCP_BL2_IMAGE_ID && uniphier_bl2_kick_scp)
 		uniphier_scp_start();
 
