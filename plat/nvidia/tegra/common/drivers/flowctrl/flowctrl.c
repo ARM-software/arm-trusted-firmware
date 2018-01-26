@@ -217,3 +217,25 @@ void tegra_fc_reset_bpmp(void)
 	/* Un-halt BPMP */
 	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, 0);
 }
+
+/*******************************************************************************
+ * Route legacy FIQ to the GICD
+ ******************************************************************************/
+void tegra_fc_enable_fiq_to_ccplex_routing(void)
+{
+	uint32_t val = tegra_fc_read_32(FLOW_CTLR_FLOW_DBG_QUAL);
+
+	/* set the bit to pass FIQs to the GICD */
+	tegra_fc_write_32(FLOW_CTLR_FLOW_DBG_QUAL, val | FLOWCTRL_FIQ2CCPLEX_ENABLE);
+}
+
+/*******************************************************************************
+ * Disable routing legacy FIQ to the GICD
+ ******************************************************************************/
+void tegra_fc_disable_fiq_to_ccplex_routing(void)
+{
+	uint32_t val = tegra_fc_read_32(FLOW_CTLR_FLOW_DBG_QUAL);
+
+	/* clear the bit to pass FIQs to the GICD */
+	tegra_fc_write_32(FLOW_CTLR_FLOW_DBG_QUAL, val & ~FLOWCTRL_FIQ2CCPLEX_ENABLE);
+}

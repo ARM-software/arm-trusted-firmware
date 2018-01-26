@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,8 @@
 #define  FLOWCTRL_CSR_ENABLE		(1U << 0)
 #define FLOWCTRL_HALT_CPU1_EVENTS	0x14U
 #define FLOWCTRL_CPU1_CSR		0x18U
+#define FLOW_CTLR_FLOW_DBG_QUAL		0x50U
+#define  FLOWCTRL_FIQ2CCPLEX_ENABLE	(1U << 28)
 #define FLOWCTRL_CC4_CORE0_CTRL		0x6cU
 #define FLOWCTRL_WAIT_WFI_BITMAP	0x100U
 #define FLOWCTRL_L2_FLUSH_CONTROL	0x94U
@@ -53,10 +55,12 @@ static inline void tegra_fc_write_32(uint32_t off, uint32_t val)
 void tegra_fc_cluster_idle(uint32_t midr);
 void tegra_fc_cpu_powerdn(uint32_t mpidr);
 void tegra_fc_cluster_powerdn(uint32_t midr);
-void tegra_fc_soc_powerdn(uint32_t midr);
 void tegra_fc_cpu_on(int cpu);
 void tegra_fc_cpu_off(int cpu);
+void tegra_fc_disable_fiq_to_ccplex_routing(void);
+void tegra_fc_enable_fiq_to_ccplex_routing(void);
 void tegra_fc_lock_active_cluster(void);
 void tegra_fc_reset_bpmp(void);
+void tegra_fc_soc_powerdn(uint32_t midr);
 
 #endif /* FLOWCTRL_H */
