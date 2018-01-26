@@ -489,4 +489,5 @@ void bl2_plat_arch_setup(void)
 
 void bl2_platform_setup(void)
 {
+	hikey_security_setup();
 }

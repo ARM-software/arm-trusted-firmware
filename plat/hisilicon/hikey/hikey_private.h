@@ -44,6 +44,7 @@ int hikey_erase(const char *arg);
 int hikey_flash(const char *arg);
 int hikey_oem(const char *arg);
 int hikey_reboot(const char *arg);
+void hikey_security_setup(void);
 
 const char *hikey_init_serialno(void);
 int hikey_read_serialno(struct random_serial_num *serialno);
