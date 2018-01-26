@@ -140,6 +140,15 @@ int parse_optee_header(entry_point_info_t *header_ep,
 	optee_header = (optee_header_t *)header_ep->pc;
 	assert(optee_header);
 
+	/* Print the OPTEE header information */
+	INFO("OPTEE ep=0x%x\n", (unsigned int)header_ep->pc);
+	INFO("OPTEE header info:\n");
+	INFO("      magic=0x%x\n", optee_header->magic);
+	INFO("      version=0x%x\n", optee_header->version);
+	INFO("      arch=0x%x\n", optee_header->arch);
+	INFO("      flags=0x%x\n", optee_header->flags);
+	INFO("      nb_images=0x%x\n", optee_header->nb_images);
+
 	/*
 	 * OPTEE image has 3 types:
 	 *
@@ -166,15 +175,6 @@ int parse_optee_header(entry_point_info_t *header_ep,
 #endif
 		return 0;
 	}
-
-	/* Print the OPTEE header information */
-	INFO("OPTEE ep=0x%x\n", (unsigned int)header_ep->pc);
-	INFO("OPTEE header info:\n");
-	INFO("      magic=0x%x\n", optee_header->magic);
-	INFO("      version=0x%x\n", optee_header->version);
-	INFO("      arch=0x%x\n", optee_header->arch);
-	INFO("      flags=0x%x\n", optee_header->flags);
-	INFO("      nb_images=0x%x\n", optee_header->nb_images);
 
 	/* Parse OPTEE image */
 	for (num = 0; num < optee_header->nb_images; num++) {
