@@ -629,9 +629,8 @@ $(eval $(call FIP_ADD_IMG,BL33,--nt-fw))
 endif
 
 ifeq (${NEED_BL2U},yes)
-BL2U_PATH	:= $(if ${BL2U},${BL2U},$(call IMG_BIN,2u))
-$(if ${BL2U}, ,$(eval $(call MAKE_BL,2u)))
-$(eval $(call FWU_FIP_ADD_PAYLOAD,${BL2U_PATH},--ap-fwu-cfg))
+$(if ${BL2U}, $(eval $(call FIP_ADD_IMG,BL2U,--ap-fwu-cfg,FWU_)),\
+	$(eval $(call MAKE_BL,2u,ap-fwu-cfg,FWU_)))
 endif
 
 # Expand build macros for the different images

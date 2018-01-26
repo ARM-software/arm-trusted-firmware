@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -211,7 +211,7 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     BL2_SOURCES		+=	${AUTH_SOURCES}					\
 				plat/common/tbbr/plat_tbbr.c
 
-    $(eval $(call FWU_FIP_ADD_IMG,NS_BL2U,--fwu))
+    $(eval $(call FIP_ADD_IMG,NS_BL2U,--fwu,FWU_))
 
     # We expect to locate the *.mk files under the directories specified below
 ifeq (${ARM_CRYPTOCELL_INTEG},0)

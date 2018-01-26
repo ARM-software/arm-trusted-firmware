@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -47,8 +47,8 @@ $(eval $(call FIP_ADD_PAYLOAD,${TRUSTED_KEY_CERT},--trusted-key-cert))
 $(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_KEY_CERT},--trusted-key-cert))
 
 # Add fwu certificate to the fiptool and cert_create command line options
-$(eval $(call FWU_FIP_ADD_PAYLOAD,${FWU_CERT},--fwu-cert))
-$(eval $(call FWU_CERT_ADD_CMD_OPT,${FWU_CERT},--fwu-cert))
+$(eval $(call FIP_ADD_PAYLOAD,${FWU_CERT},--fwu-cert,,FWU_))
+$(eval $(call CERT_ADD_CMD_OPT,${FWU_CERT},--fwu-cert,,FWU_))
 
 # Add the keys to the cert_create command line options (private keys are NOT
 # packed in the FIP). Developers can use their own keys by specifying the proper
@@ -56,7 +56,7 @@ $(eval $(call FWU_CERT_ADD_CMD_OPT,${FWU_CERT},--fwu-cert))
 $(if ${KEY_ALG},$(eval $(call CERT_ADD_CMD_OPT,${KEY_ALG},--key-alg)))
 $(if ${HASH_ALG},$(eval $(call CERT_ADD_CMD_OPT,${HASH_ALG},--hash-alg)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key)))
-$(if ${ROT_KEY},$(eval $(call FWU_CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key)))
+$(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key,,FWU_)))
 $(if ${TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${TRUSTED_WORLD_KEY},--trusted-world-key)))
 $(if ${NON_TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${NON_TRUSTED_WORLD_KEY},--non-trusted-world-key)))
 
@@ -119,15 +119,15 @@ ifneq (${BL33},)
 endif
 
 # Add the BL2U image
-$(if ${BL2U},$(eval $(call FWU_CERT_ADD_CMD_OPT,${BL2U},--ap-fwu-cfg,true)),\
-     $(eval $(call FWU_CERT_ADD_CMD_OPT,$(call IMG_BIN,2u),--ap-fwu-cfg,true)))
+$(if ${BL2U},$(eval $(call CERT_ADD_CMD_OPT,${BL2U},--ap-fwu-cfg,true,FWU_)),\
+     $(eval $(call CERT_ADD_CMD_OPT,$(call IMG_BIN,2u),--ap-fwu-cfg,true,FWU_)))
 
 # Add the SCP_BL2U image
 ifneq (${SCP_BL2U},)
-    $(eval $(call FWU_CERT_ADD_CMD_OPT,${SCP_BL2U},--scp-fwu-cfg,true))
+    $(eval $(call CERT_ADD_CMD_OPT,${SCP_BL2U},--scp-fwu-cfg,true,FWU_))
 endif
 
 # Add the NS_BL2U image
 ifneq (${NS_BL2U},)
-    $(eval $(call FWU_CERT_ADD_CMD_OPT,${NS_BL2U},--fwu,true))
+    $(eval $(call CERT_ADD_CMD_OPT,${NS_BL2U},--fwu,true,FWU_))
 endif

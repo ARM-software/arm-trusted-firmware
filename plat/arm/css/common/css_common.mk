@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -49,7 +49,7 @@ $(eval $(call add_define,CSS_LOAD_SCP_IMAGES))
 ifeq (${CSS_LOAD_SCP_IMAGES},1)
   NEED_SCP_BL2 := yes
   ifneq (${TRUSTED_BOARD_BOOT},0)
-    $(eval $(call FWU_FIP_ADD_IMG,SCP_BL2U,--scp-fwu-cfg))
+    $(eval $(call FIP_ADD_IMG,SCP_BL2U,--scp-fwu-cfg,FWU_))
   endif
 
   ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
