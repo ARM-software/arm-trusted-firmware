@@ -122,15 +122,15 @@ define CERT_ADD_CMD_OPT
     $(4)CRT_ARGS += $(2) $(1)
 endef
 
-# FIP_ADD_IMG allows the platform to specify an image to be packed in the FIP
-# using a build option. It also adds a dependency on the image file, aborting
-# the build if the file does not exist.
+# TOOL_ADD_IMG allows the platform to specify an external image to be packed
+# in the FIP and/or for which certificate is generated. It also adds a
+# dependency on the image file, aborting the build if the file does not exist.
 #   $(1) = build option to specify the image filename (SCP_BL2, BL33, etc)
 #   $(2) = command line option for fiptool (--scp-fw, --nt-fw, etc)
 #   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 # Example:
-#   $(eval $(call FIP_ADD_IMG,BL33,--nt-fw))
-define FIP_ADD_IMG
+#   $(eval $(call TOOL_ADD_IMG,BL33,--nt-fw))
+define TOOL_ADD_IMG
     $(3)CRT_DEPS += check_$(1)
     $(3)FIP_DEPS += check_$(1)
     $(call TOOL_ADD_PAYLOAD,$(value $(1)),$(2),,$(3))

@@ -87,10 +87,10 @@ $(eval $(call add_define,MBEDTLS_SHA256_SMALLER))
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
 ifneq ($(BL32_EXTRA1),)
-$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
 endif
 ifneq ($(BL32_EXTRA2),)
-$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
 endif
 
 # Enable PSCI_STAT_COUNT/RESIDENCY APIs on ARM platforms
@@ -211,7 +211,7 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     BL2_SOURCES		+=	${AUTH_SOURCES}					\
 				plat/common/tbbr/plat_tbbr.c
 
-    $(eval $(call FIP_ADD_IMG,NS_BL2U,--fwu,FWU_))
+    $(eval $(call TOOL_ADD_IMG,NS_BL2U,--fwu,FWU_))
 
     # We expect to locate the *.mk files under the directories specified below
 ifeq (${ARM_CRYPTOCELL_INTEG},0)
