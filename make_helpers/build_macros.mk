@@ -107,6 +107,8 @@ endef
 define FIP_ADD_PAYLOAD
     $(4)FIP_ARGS += $(2) $(1)
     $(if $(3),$(4)FIP_DEPS += $(3))
+    $(4)CRT_ARGS += $(2) $(1)
+    $(if $(3),$(4)CRT_DEPS += $(3))
 endef
 
 # CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
