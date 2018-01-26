@@ -103,7 +103,7 @@ endef
 # Optionally, it adds the dependency on this payload
 #   $(1) = payload filename (i.e. bl31.bin)
 #   $(2) = command line option for the specified payload (i.e. --soc-fw)
-#   $(3) = tool target dependency (optional) (i.e. bl31)
+#   $(3) = tool target dependency (optional) (ex. build/fvp/release/bl31.bin)
 #   $(4) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 define TOOL_ADD_PAYLOAD
     $(4)FIP_ARGS += $(2) $(1)
@@ -296,7 +296,7 @@ bl$(1): $(BIN) $(DUMP)
 
 all: bl$(1)
 
-$(if $(2),$(call TOOL_ADD_PAYLOAD,$(BIN),--$(2),bl$(1),$(3)))
+$(if $(2),$(call TOOL_ADD_PAYLOAD,$(BIN),--$(2),$(BIN),$(3)))
 
 endef
 
