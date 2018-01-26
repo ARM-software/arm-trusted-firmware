@@ -105,8 +105,8 @@ endef
 #   $(3) = fip target dependency (optional) (i.e. bl31)
 #   $(4) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 define FIP_ADD_PAYLOAD
-    $(eval $(4)FIP_ARGS += $(2) $(1))
-    $(eval $(if $(3),$(4)FIP_DEPS += $(3)))
+    $(4)FIP_ARGS += $(2) $(1)
+    $(if $(3),$(4)FIP_DEPS += $(3))
 endef
 
 # CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
@@ -115,8 +115,8 @@ endef
 #   $(3) = input parameter (false if empty)
 #   $(4) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 define CERT_ADD_CMD_OPT
-    $(eval $(if $(3),$(4)CRT_DEPS += $(1)))
-    $(eval $(4)CRT_ARGS += $(2) $(1))
+    $(if $(3),$(4)CRT_DEPS += $(1))
+    $(4)CRT_ARGS += $(2) $(1)
 endef
 
 # FIP_ADD_IMG allows the platform to specify an image to be packed in the FIP
@@ -128,8 +128,8 @@ endef
 # Example:
 #   $(eval $(call FIP_ADD_IMG,BL33,--nt-fw))
 define FIP_ADD_IMG
-    $(eval $(3)CRT_DEPS += check_$(1))
-    $(eval $(3)FIP_DEPS += check_$(1))
+    $(3)CRT_DEPS += check_$(1)
+    $(3)FIP_DEPS += check_$(1)
     $(call FIP_ADD_PAYLOAD,$(value $(1)),$(2),,$(3))
 
 .PHONY: check_$(1)
