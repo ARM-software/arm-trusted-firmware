@@ -10,7 +10,7 @@
 #include <arch.h>
 #include <platform_def.h>
 #include <psci.h>
-#include <xlat_tables.h>
+#include <xlat_tables_v2.h>
 
 /*******************************************************************************
  * Tegra DRAM memory base address

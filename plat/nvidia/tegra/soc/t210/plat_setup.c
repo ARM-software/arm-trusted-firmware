@@ -9,7 +9,7 @@
 #include <console.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
-#include <xlat_tables.h>
+#include <xlat_tables_v2.h>
 
 /*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
