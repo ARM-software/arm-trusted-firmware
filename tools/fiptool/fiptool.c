@@ -543,7 +543,6 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 		log_dbgx("Metadata size: %zu bytes", buf_size);
 
 	xfwrite(buf, buf_size, fp, filename);
-	free(buf);
 
 	if (verbose)
 		log_dbgx("Payload size: %zu bytes", payload_size);
@@ -566,6 +565,7 @@ static int pack_images(const char *filename, uint64_t toc_flags, unsigned long a
 	while (pad_size--)
 		fputc(0x0, fp);
 
+	free(buf);
 	fclose(fp);
 	return 0;
 }
