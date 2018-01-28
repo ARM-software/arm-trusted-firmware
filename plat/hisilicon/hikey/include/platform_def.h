@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,12 +113,10 @@
 #define BL32_DRAM_BASE			DDR_SEC_BASE
 #define BL32_DRAM_LIMIT			(DDR_SEC_BASE+DDR_SEC_SIZE)
 
-#if LOAD_IMAGE_V2
 #ifdef SPD_opteed
 /* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
 #define HIKEY_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - HIKEY_OPTEE_PAGEABLE_LOAD_SIZE) /* 0x3FC0_0000 */
 #define HIKEY_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
-#endif
 #endif
 
 #if (HIKEY_TSP_RAM_LOCATION_ID == HIKEY_DRAM_ID)
