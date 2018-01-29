@@ -2574,9 +2574,9 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
 ``ARM_ARCH_MINOR`` >= 2.
 
 -  The Common not Private (CnP) bit is enabled to indicate that multiple
-   Page Entries in the same Inner Shareable domain use the same translation
-   table entries for a given stage of translation for a particular translation
-   regime.
+   Processing Elements in the same Inner Shareable domain use the same
+   translation table entries for a given stage of translation for a particular
+   translation regime.
 
 ARMv7
 ~~~~~
