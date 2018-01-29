@@ -65,7 +65,7 @@ Build Procedure
 
        BUILDFLAGS=-DSERIAL_BASE=0xF8015000
 
-   If your hikey hardware is built by LeMarker, nothing to do.
+   If your hikey hardware is built by LeMaker, nothing to do.
 
 -  Build it as debug mode. Create your own build script file or you could refer to **build\_uefi.sh** in l-loader git repository.
 
