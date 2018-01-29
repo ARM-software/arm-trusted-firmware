@@ -71,10 +71,12 @@ static void sec_protect(uint32_t region_base, uint32_t region_size,
 	volatile struct rgn_attr_reg *rgn_attr;
 	uint32_t i = 0;
 
-	assert(region < 1 || region > 15);
-	assert(!IS_POWER_OF_TWO(region_size) || region_size < 0x10000);
-	/* ensure secure region_base is aligned to region_size */
-	assert((region_base & (region_size - 1)));
+	/* ensure secure region number is between 1-15 */
+	assert(region > 0 && region < 16);
+	/* ensure secure region size is a power of 2 >= 64KB */
+	assert(IS_POWER_OF_TWO(region_size) && region_size >= 0x10000);
+	/* ensure secure region address is aligned to region size */
+	assert(!(region_base & (region_size - 1)));
 
 	INFO("BL2: TrustZone: protecting %u bytes of memory at 0x%x\n", region_size,
 	     region_base);
