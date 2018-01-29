@@ -39,9 +39,20 @@
 #define MAX_IO_HANDLES			(4)
 #define MAX_IO_BLOCK_DEVICES		(2)
 
+/* Memory size options */
+#define POPLAR_DRAM_SIZE_1G	0
+#define POPLAR_DRAM_SIZE_2G	1
+
 /* Memory map related constants */
 #define DDR_BASE			(0x00000000)
+
+#if (POPLAR_DRAM_SIZE_ID == POPLAR_DRAM_SIZE_2G)
+#define DDR_SIZE			(0x80000000)
+#elif (POPLAR_DRAM_SIZE_ID == POPLAR_DRAM_SIZE_1G)
 #define DDR_SIZE			(0x40000000)
+#else
+#error "Currently unsupported POPLAR_DRAM_SIZE_ID value"
+#endif
 
 #define DEVICE_BASE			(0xF0000000)
 #define DEVICE_SIZE			(0x0F000000)

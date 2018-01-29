@@ -15,6 +15,16 @@ else
 endif
 $(eval $(call add_define,POPLAR_TSP_RAM_LOCATION_ID))
 
+POPLAR_DRAM_SIZE ?= two_gig
+ifeq (${POPLAR_DRAM_SIZE}, two_gig)
+  POPLAR_DRAM_SIZE_ID = POPLAR_DRAM_SIZE_2G
+else ifeq (${POPLAR_DRAM_SIZE}, one_gig)
+  POPLAR_DRAM_SIZE_ID = POPLAR_DRAM_SIZE_1G
+else
+  $(error "Currently unsupported POPLAR_DRAM_SIZE value")
+endif
+$(eval $(call add_define,POPLAR_DRAM_SIZE_ID))
+
 POPLAR_RECOVERY		:= 0
 $(eval $(call add_define,POPLAR_RECOVERY))
 
