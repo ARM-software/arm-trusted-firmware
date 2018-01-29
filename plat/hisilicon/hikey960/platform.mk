@@ -66,22 +66,19 @@ BL1_SOURCES		+=	bl1/tbbr/tbbr_img_desc.c		\
 				plat/hisilicon/hikey960/hikey960_io_storage.c \
 				${HIKEY960_GIC_SOURCES}
 
-BL2_SOURCES		+=	drivers/io/io_block.c			\
+BL2_SOURCES		+=	common/desc_image_load.c		\
+				drivers/io/io_block.c			\
 				drivers/io/io_fip.c			\
 				drivers/io/io_storage.c			\
 				drivers/ufs/ufs.c			\
+				plat/hisilicon/hikey960/hikey960_bl2_mem_params_desc.c \
 				plat/hisilicon/hikey960/hikey960_bl2_setup.c \
+				plat/hisilicon/hikey960/hikey960_image_load.c \
 				plat/hisilicon/hikey960/hikey960_io_storage.c \
 				plat/hisilicon/hikey960/hikey960_mcu_load.c
 
-ifeq (${LOAD_IMAGE_V2},1)
-BL2_SOURCES		+=	plat/hisilicon/hikey960/hikey960_bl2_mem_params_desc.c \
-				plat/hisilicon/hikey960/hikey960_image_load.c \
-				common/desc_image_load.c
-
 ifeq (${SPD},opteed)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
-endif
 endif
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
