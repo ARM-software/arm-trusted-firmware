@@ -75,12 +75,10 @@
 #define BL32_DRAM_BASE                  DDR_SEC_BASE
 #define BL32_DRAM_LIMIT                 (DDR_SEC_BASE+DDR_SEC_SIZE)
 
-#if LOAD_IMAGE_V2
 #ifdef SPD_opteed
 /* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
 #define HIKEY960_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - HIKEY960_OPTEE_PAGEABLE_LOAD_SIZE) /* 0x3FC0_0000 */
 #define HIKEY960_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
-#endif
 #endif
 
 #if (HIKEY960_TSP_RAM_LOCATION_ID == HIKEY960_DRAM_ID)
@@ -121,12 +119,8 @@
 #endif
 
 #ifdef IMAGE_BL2
-#if LOAD_IMAGE_V2
 #ifdef SPD_opteed
 #define MAX_XLAT_TABLES			4
-#else
-#define MAX_XLAT_TABLES			3
-#endif
 #else
 #define MAX_XLAT_TABLES			3
 #endif
