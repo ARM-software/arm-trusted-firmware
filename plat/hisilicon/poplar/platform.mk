@@ -8,7 +8,7 @@
 POPLAR_TSP_RAM_LOCATION	:=	dram
 ifeq (${POPLAR_TSP_RAM_LOCATION}, dram)
   POPLAR_TSP_RAM_LOCATION_ID = POPLAR_DRAM_ID
-else ifeq (${HIKEY960_TSP_RAM_LOCATION}, sram)
+else ifeq (${POPLAR_TSP_RAM_LOCATION}, sram)
   POPLAR_TSP_RAM_LOCATION_ID := POPLAR_SRAM_ID
 else
   $(error "Currently unsupported POPLAR_TSP_RAM_LOCATION value")
@@ -68,7 +68,7 @@ BL1_SOURCES	+=							\
 		drivers/io/io_fip.c					\
 		drivers/io/io_memmap.c					\
 		plat/hisilicon/poplar/bl1_plat_setup.c			\
-		plat/hisilicon/poplar/plat_storage.c			\
+		plat/hisilicon/poplar/plat_storage.c
 
 
 BL2_SOURCES	+=      						\
