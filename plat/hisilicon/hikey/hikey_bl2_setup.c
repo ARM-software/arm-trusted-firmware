@@ -276,6 +276,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
 
 	/* Clear SRAM since it'll be used by MCU right now. */
 	memset((void *)SRAM_BASE, 0, SRAM_SIZE);
+	clean_dcache_range(SRAM_BASE, SRAM_SIZE);
 
 	sp804_timer_init(SP804_TIMER0_BASE, 10, 192);
 	dsb();
