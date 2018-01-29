@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
 #include "../hikey960_private.h"
 
 #define MAP_DDR		MAP_REGION_FLAT(DDR_BASE,			\
-					DDR_SIZE,			\
+					DDR_SIZE - DDR_SEC_SIZE,	\
 					MT_MEMORY | MT_RW | MT_NS)
 
 #define MAP_DEVICE	MAP_REGION_FLAT(DEVICE_BASE,			\
@@ -41,15 +41,6 @@
 					TSP_SEC_MEM_SIZE,		\
 					MT_MEMORY | MT_RW | MT_SECURE)
 
-#if LOAD_IMAGE_V2
-#ifdef SPD_opteed
-#define MAP_OPTEE_PAGEABLE	MAP_REGION_FLAT(		\
-					HIKEY960_OPTEE_PAGEABLE_LOAD_BASE,	\
-					HIKEY960_OPTEE_PAGEABLE_LOAD_SIZE,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
-#endif
-#endif
-
 /*
  * Table of regions for different BL stages to map using the MMU.
  * This doesn't include Trusted RAM as the 'mem_layout' argument passed to
@@ -70,11 +61,6 @@ static const mmap_region_t hikey960_mmap[] = {
 	MAP_DDR,
 	MAP_DEVICE,
 	MAP_TSP_MEM,
-#if LOAD_IMAGE_V2
-#ifdef SPD_opteed
-	MAP_OPTEE_PAGEABLE,
-#endif
-#endif
 	{0}
 };
 #endif
