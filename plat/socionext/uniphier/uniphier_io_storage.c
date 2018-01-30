@@ -21,6 +21,9 @@
 #define UNIPHIER_ROM_REGION_BASE	0x00000000
 #define UNIPHIER_ROM_REGION_SIZE	0x10000000
 
+#define UNIPHIER_OCM_REGION_BASE	0x30000000
+#define UNIPHIER_OCM_REGION_SIZE	0x00040000
+
 static const io_dev_connector_t *uniphier_fip_dev_con;
 static uintptr_t uniphier_fip_dev_handle;
 
@@ -268,6 +271,18 @@ static int uniphier_io_usb_setup(unsigned int soc_id)
 				      UNIPHIER_ROM_REGION_BASE,
 				      UNIPHIER_ROM_REGION_SIZE,
 				      MT_CODE | MT_SECURE);
+	if (ret)
+		return ret;
+
+	/*
+	 * on-chip SRAM region: should be DEVICE attribute because the USB
+	 * load functions provided by the ROM use this memory region as a work
+	 * area, but do not cater to cache coherency.
+	 */
+	ret = mmap_add_dynamic_region(UNIPHIER_OCM_REGION_BASE,
+				      UNIPHIER_OCM_REGION_BASE,
+				      UNIPHIER_OCM_REGION_SIZE,
+				      MT_DEVICE | MT_RW | MT_SECURE);
 	if (ret)
 		return ret;
 
