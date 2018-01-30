@@ -127,6 +127,12 @@ NM			:=	${CROSS_COMPILE}nm
 PP			:=	${CROSS_COMPILE}gcc -E
 DTC			?=	dtc
 
+# Use ${LD}.bfd instead if it exists (as absolute path or together with $PATH).
+ifneq ($(strip $(wildcard ${LD}.bfd) \
+	$(foreach dir,$(subst :, ,${PATH}),$(wildcard ${dir}/${LD}.bfd))),)
+LD			:=	${LD}.bfd
+endif
+
 ifeq (${ARM_ARCH_MAJOR},7)
 target32-directive	= 	-target arm-none-eabi
 # Will set march32-directive from platform configuration
