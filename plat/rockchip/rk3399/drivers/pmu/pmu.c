@@ -32,7 +32,7 @@ DEFINE_BAKERY_LOCK(rockchip_pd_lock);
 
 static uint32_t cpu_warm_boot_addr;
 static char store_sram[SRAM_BIN_LIMIT + SRAM_TEXT_LIMIT + SRAM_DATA_LIMIT];
-static uint32_t store_cru[CRU_SDIO0_CON1 / 4];
+static uint32_t store_cru[CRU_SDIO0_CON1 / 4 + 1];
 static uint32_t store_usbphy0[7];
 static uint32_t store_usbphy1[7];
 static uint32_t store_grf_io_vsel;
