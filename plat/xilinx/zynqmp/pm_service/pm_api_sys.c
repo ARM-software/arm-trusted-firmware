@@ -895,6 +895,113 @@ enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
 }
 
 /**
+ * pm_pinctrl_get_num_pins - PM call to request number of pins
+ * @npins: Number of pins
+ *
+ * This function is used by master to get number of pins
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_num_pins(uint32_t *npins)
+{
+	return pm_api_pinctrl_get_num_pins(npins);
+}
+
+/**
+ * pm_pinctrl_get_num_functions - PM call to request number of functions
+ * @nfuncs: Number of functions
+ *
+ * This function is used by master to get number of functions
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_num_functions(uint32_t *nfuncs)
+{
+	return pm_api_pinctrl_get_num_functions(nfuncs);
+}
+
+/**
+ * pm_pinctrl_get_num_function_groups - PM call to request number of
+ *					function groups
+ * @fid: Id of function
+ * @ngroups: Number of function groups
+ *
+ * This function is used by master to get number of function groups specified
+ * by given function Id
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_num_function_groups(unsigned int fid,
+							     uint32_t *ngroups)
+{
+	return pm_api_pinctrl_get_num_func_groups(fid, ngroups);
+}
+
+/**
+ * pm_pinctrl_get_function_name - PM call to request function name
+ * @fid: Id of function
+ * @name: Name of function
+ *
+ * This function is used by master to get name of function specified
+ * by given function Id
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_function_name(unsigned int fid,
+						       char *name)
+{
+	return pm_api_pinctrl_get_function_name(fid, name);
+}
+
+/**
+ * pm_pinctrl_get_function_groups - PM call to request function groups
+ * @fid: Id of function
+ * @index: Index of next function groups
+ * @groups: Function groups
+ *
+ * This function is used by master to get function groups specified
+ * by given function Id. This API will return 6 function groups with
+ * a single response. To get other function groups, master should call
+ * same API in loop with new function groups index till error is returned.
+ *
+ * E.g First call should have index 0 which will return function groups
+ * 0, 1, 2, 3, 4 and 5. Next call, index should be 6 which will return
+ * function groups 6, 7, 8, 9, 10 and 11 and so on.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_function_groups(unsigned int fid,
+							 unsigned int index,
+							 uint16_t *groups)
+{
+	return pm_api_pinctrl_get_function_groups(fid, index, groups);
+}
+
+/**
+ * pm_pinctrl_get_pin_groups - PM call to request pin groups
+ * @pin_id: Id of pin
+ * @index: Index of next pin groups
+ * @groups: pin groups
+ *
+ * This function is used by master to get pin groups specified
+ * by given pin Id. This API will return 6 pin groups with
+ * a single response. To get other pin groups, master should call
+ * same API in loop with new pin groups index till error is returned.
+ *
+ * E.g First call should have index 0 which will return pin groups
+ * 0, 1, 2, 3, 4 and 5. Next call, index should be 6 which will return
+ * pin groups 6, 7, 8, 9, 10 and 11 and so on.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_pin_groups(unsigned int pin_id,
+						    unsigned int index,
+						    uint16_t *groups)
+{
+	return pm_api_pinctrl_get_pin_groups(pin_id, index, groups);
+}
+
+/**
  * pm_query_data() -  PM API for querying firmware data
  * @arg1	Argument 1 to requested IOCTL call
  * @arg2	Argument 2 to requested IOCTL call
@@ -932,6 +1039,31 @@ enum pm_ret_status pm_query_data(enum pm_query_id qid,
 		break;
 	case PM_QID_CLOCK_GET_ATTRIBUTES:
 		ret = pm_clock_get_attributes(arg1, &data[1]);
+		data[0] = ret;
+		break;
+	case PM_QID_PINCTRL_GET_NUM_PINS:
+		ret = pm_pinctrl_get_num_pins(&data[1]);
+		data[0] = ret;
+		break;
+	case PM_QID_PINCTRL_GET_NUM_FUNCTIONS:
+		ret = pm_pinctrl_get_num_functions(&data[1]);
+		data[0] = ret;
+		break;
+	case PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS:
+		ret = pm_pinctrl_get_num_function_groups(arg1, &data[1]);
+		data[0] = ret;
+		break;
+	case PM_QID_PINCTRL_GET_FUNCTION_NAME:
+		ret = pm_pinctrl_get_function_name(arg1, (char *)data);
+		break;
+	case PM_QID_PINCTRL_GET_FUNCTION_GROUPS:
+		ret = pm_pinctrl_get_function_groups(arg1, arg2,
+						     (uint16_t *)&data[1]);
+		data[0] = ret;
+		break;
+	case PM_QID_PINCTRL_GET_PIN_GROUPS:
+		ret = pm_pinctrl_get_pin_groups(arg1, arg2,
+						(uint16_t *)&data[1]);
 		data[0] = ret;
 		break;
 	default:
