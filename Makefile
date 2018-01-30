@@ -163,7 +163,7 @@ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
 
-ifeq ($(PIE_FOUND),1)
+ifneq ($(PIE_FOUND),)
 TF_CFLAGS		+=	-fno-PIE
 endif
 
