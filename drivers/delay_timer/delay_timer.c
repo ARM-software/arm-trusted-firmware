@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <delay_timer.h>
 #include <platform_def.h>
+#include <utils_def.h>
 
 /***********************************************************
  * The delay timer implementation
@@ -30,7 +31,8 @@ void udelay(uint32_t usec)
 
 	start = ops->get_timer_value();
 
-	total_delta = (usec * ops->clk_div) / ops->clk_mult;
+	/* Add an extra tick to avoid delaying less than requested. */
+	total_delta = div_round_up(usec * ops->clk_div, ops->clk_mult) + 1;
 
 	do {
 		/*

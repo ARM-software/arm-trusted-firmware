@@ -24,6 +24,11 @@
  */
 #define DIV_ROUND_UP_2EVAL(n, d)	(((n) + (d) - 1) / (d))
 
+#define div_round_up(val, div) __extension__ ({	\
+	__typeof__(div) _div = (div);		\
+	((val) + _div - 1) / _div;		\
+})
+
 #define MIN(x, y) __extension__ ({	\
 	__typeof__(x) _x = (x);		\
 	__typeof__(y) _y = (y);		\
@@ -54,11 +59,6 @@
 
 #define round_down(value, boundary)		\
 	((value) & ~round_boundary(value, boundary))
-
-#define div_round_up(val, div) __extension__ ({	\
-	__typeof__(div) _div = (div);		\
-	round_up((val), _div)/_div;		\
-})
 
 /*
  * Evaluates to 1 if (ptr + inc) overflows, 0 otherwise.
