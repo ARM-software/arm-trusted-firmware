@@ -16,6 +16,9 @@
 #include "hi3798cv200.h"
 #include "poplar_layout.h"		/* BL memory region sizes, etc */
 
+/* Special value used to verify platform parameters from BL2 to BL3-1 */
+#define POPLAR_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
+
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
 
@@ -74,10 +77,6 @@
  */
 #define DDR_SEC_SIZE			0x01000000
 #define DDR_SEC_BASE			0x03000000
-
-#define BL_MEM_BASE			(BL1_RO_BASE)
-#define BL_MEM_LIMIT			(BL31_LIMIT)
-#define BL_MEM_SIZE			(BL_MEM_LIMIT - BL_MEM_BASE)
 
 /*
  * BL3-2 specific defines.

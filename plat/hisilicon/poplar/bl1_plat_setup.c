@@ -38,23 +38,49 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 	return &bl1_tzram_layout;
 }
 
+#if LOAD_IMAGE_V2
+/*******************************************************************************
+ * Function that takes a memory layout into which BL2 has been loaded and
+ * populates a new memory layout for BL2 that ensures that BL1's data sections
+ * resident in secure RAM are not visible to BL2.
+ ******************************************************************************/
+void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
+			     meminfo_t *bl2_mem_layout)
+{
+
+	assert(bl1_mem_layout != NULL);
+	assert(bl2_mem_layout != NULL);
+
+	/*
+	 * Cannot use default weak implementation in bl1main.c because
+	 * BL1 RW data is not at the top of bl1_mem_layout
+	 */
+	bl2_mem_layout->total_base = BL2_BASE;
+	bl2_mem_layout->total_size = BL32_LIMIT - BL2_BASE;
+
+	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
+}
+#endif /* LOAD_IMAGE_V2 */
+
 void bl1_early_platform_setup(void)
 {
 	/* Initialize the console to provide early debug support */
 	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
 
 	/* Allow BL1 to see the whole Trusted RAM */
-	bl1_tzram_layout.total_base = BL_MEM_BASE;
-	bl1_tzram_layout.total_size = BL_MEM_SIZE;
+	bl1_tzram_layout.total_base = BL1_RW_BASE;
+	bl1_tzram_layout.total_size = BL1_RW_SIZE;
 
+#if !LOAD_IMAGE_V2
 	/* Calculate how much RAM BL1 is using and how much remains free */
-	bl1_tzram_layout.free_base = BL_MEM_BASE;
-	bl1_tzram_layout.free_size = BL_MEM_SIZE;
+	bl1_tzram_layout.free_base = BL1_RW_BASE;
+	bl1_tzram_layout.free_size = BL1_RW_SIZE;
 
 	reserve_mem(&bl1_tzram_layout.free_base,
 		    &bl1_tzram_layout.free_size,
 		    BL1_RAM_BASE,
 		    BL1_RAM_LIMIT - BL1_RAM_BASE);
+#endif
 
 	INFO("BL1: 0x%lx - 0x%lx [size = %zu]\n", BL1_RAM_BASE, BL1_RAM_LIMIT,
 	     BL1_RAM_LIMIT - BL1_RAM_BASE);
@@ -64,7 +90,7 @@ void bl1_plat_arch_setup(void)
 {
 	plat_configure_mmu_el3(bl1_tzram_layout.total_base,
 			       bl1_tzram_layout.total_size,
-			       BL_MEM_BASE, /* l-loader and BL1 ROM */
+			       BL1_RO_BASE, /* l-loader and BL1 ROM */
 			       BL1_RO_LIMIT,
 			       BL1_COHERENT_RAM_BASE,
 			       BL1_COHERENT_RAM_LIMIT);

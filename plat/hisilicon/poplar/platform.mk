@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Enable version2 of image loading
+LOAD_IMAGE_V2	:=	1
+
 # On Poplar, the TSP can execute from TZC secure area in DRAM.
 POPLAR_TSP_RAM_LOCATION	:=	dram
 ifeq (${POPLAR_TSP_RAM_LOCATION}, dram)
@@ -80,7 +83,6 @@ BL1_SOURCES	+=							\
 		plat/hisilicon/poplar/bl1_plat_setup.c			\
 		plat/hisilicon/poplar/plat_storage.c
 
-
 BL2_SOURCES	+=      						\
 		drivers/arm/pl061/pl061_gpio.c				\
 		drivers/emmc/emmc.c					\
@@ -93,6 +95,12 @@ BL2_SOURCES	+=      						\
 		plat/hisilicon/poplar/bl2_plat_setup.c			\
 		plat/hisilicon/poplar/plat_storage.c
 
+ifeq (${LOAD_IMAGE_V2},1)
+BL2_SOURCES	+=							\
+		plat/hisilicon/poplar/bl2_plat_mem_params_desc.c	\
+		plat/hisilicon/poplar/poplar_image_load.c		\
+		common/desc_image_load.c
+endif
 
 BL31_SOURCES	+=							\
 		lib/cpus/aarch64/aem_generic.S				\
