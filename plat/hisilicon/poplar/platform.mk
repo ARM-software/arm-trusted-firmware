@@ -31,6 +31,15 @@ $(eval $(call add_define,POPLAR_DRAM_SIZE_ID))
 POPLAR_RECOVERY		:= 0
 $(eval $(call add_define,POPLAR_RECOVERY))
 
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
+
 NEED_BL33			:= yes
 
 COLD_BOOT_SINGLE_CPU		:= 1
@@ -100,6 +109,11 @@ BL2_SOURCES	+=							\
 		plat/hisilicon/poplar/bl2_plat_mem_params_desc.c	\
 		plat/hisilicon/poplar/poplar_image_load.c		\
 		common/desc_image_load.c
+
+ifeq (${SPD},opteed)
+BL2_SOURCES	+=							\
+		lib/optee/optee_utils.c
+endif
 endif
 
 BL31_SOURCES	+=							\

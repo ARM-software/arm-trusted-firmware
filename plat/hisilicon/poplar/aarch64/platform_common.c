@@ -29,10 +29,24 @@
 					TSP_SEC_MEM_SIZE,		\
 					MT_MEMORY | MT_RW | MT_SECURE)
 
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+#define MAP_OPTEE_PAGEABLE	MAP_REGION_FLAT(		\
+				POPLAR_OPTEE_PAGEABLE_LOAD_BASE,	\
+				POPLAR_OPTEE_PAGEABLE_LOAD_SIZE,	\
+				MT_MEMORY | MT_RW | MT_SECURE)
+#endif
+#endif
+
 static const mmap_region_t poplar_mmap[] = {
 	MAP_DDR,
 	MAP_DEVICE,
 	MAP_TSP_MEM,
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+	MAP_OPTEE_PAGEABLE,
+#endif
+#endif
 	{0}
 };
 
