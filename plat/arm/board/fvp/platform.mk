@@ -13,6 +13,9 @@ FVP_USE_SP804_TIMER	:= 0
 # Default cluster count for FVP
 FVP_CLUSTER_COUNT	:= 2
 
+# Default number of CPUs per cluster on FVP
+FVP_MAX_CPUS_PER_CLUSTER	:= 4
+
 # Default number of threads per CPU on FVP
 FVP_MAX_PE_PER_CPU	:= 1
 
@@ -26,6 +29,9 @@ $(eval $(call add_define,FVP_USE_GIC_DRIVER))
 
 # Pass FVP_CLUSTER_COUNT to the build system.
 $(eval $(call add_define,FVP_CLUSTER_COUNT))
+
+# Pass FVP_MAX_CPUS_PER_CLUSTER to the build system.
+$(eval $(call add_define,FVP_MAX_CPUS_PER_CLUSTER))
 
 # Pass FVP_MAX_PE_PER_CPU to the build system.
 $(eval $(call add_define,FVP_MAX_PE_PER_CPU))
