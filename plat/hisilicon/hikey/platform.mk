@@ -1,11 +1,14 @@
 #
-# Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 # Enable version2 of image loading
 LOAD_IMAGE_V2	:=	1
+
+# Non-TF Boot ROM
+BL2_AT_EL3	:=	1
 
 # On Hikey, the TSP can execute from TZC secure area in DRAM (default)
 # or SRAM.
@@ -69,29 +72,29 @@ BL1_SOURCES		+=	bl1/tbbr/tbbr_img_desc.c		\
 				plat/hisilicon/hikey/hikey_bl1_setup.c	\
 				plat/hisilicon/hikey/hikey_io_storage.c
 
-BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c	\
+BL2_SOURCES		+=	common/desc_image_load.c		\
+				drivers/arm/pl061/pl061_gpio.c		\
+				drivers/arm/sp804/sp804_delay_timer.c	\
 				drivers/delay_timer/delay_timer.c	\
+				drivers/gpio/gpio.c			\
 				drivers/io/io_block.c			\
 				drivers/io/io_fip.c			\
 				drivers/io/io_storage.c			\
 				drivers/emmc/emmc.c			\
 				drivers/synopsys/emmc/dw_mmc.c		\
+				lib/cpus/aarch64/cortex_a53.S		\
 				plat/hisilicon/hikey/aarch64/hikey_helpers.S \
+				plat/hisilicon/hikey/hikey_bl2_mem_params_desc.c \
 				plat/hisilicon/hikey/hikey_bl2_setup.c	\
 				plat/hisilicon/hikey/hikey_security.c   \
 				plat/hisilicon/hikey/hikey_ddr.c	\
+				plat/hisilicon/hikey/hikey_image_load.c \
 				plat/hisilicon/hikey/hikey_io_storage.c	\
 				plat/hisilicon/hikey/hisi_dvfs.c	\
 				plat/hisilicon/hikey/hisi_mcu.c
 
-ifeq (${LOAD_IMAGE_V2},1)
-BL2_SOURCES		+=	plat/hisilicon/hikey/hikey_bl2_mem_params_desc.c \
-				plat/hisilicon/hikey/hikey_image_load.c \
-				common/desc_image_load.c
-
 ifeq (${SPD},opteed)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
-endif
 endif
 
 HIKEY_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\

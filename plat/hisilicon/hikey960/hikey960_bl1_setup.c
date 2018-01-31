@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,7 +74,6 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 	return &bl1_tzram_layout;
 }
 
-#if LOAD_IMAGE_V2
 /*******************************************************************************
  * Function that takes a memory layout into which BL2 has been loaded and
  * populates a new memory layout for BL2 that ensures that BL1's data sections
@@ -96,7 +95,6 @@ void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 
 	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
 }
-#endif /* LOAD_IMAGE_V2 */
 
 /*
  * Perform any BL1 specific platform actions.
@@ -117,16 +115,6 @@ void bl1_early_platform_setup(void)
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = BL1_RW_BASE;
 	bl1_tzram_layout.total_size = BL1_RW_SIZE;
-
-#if !LOAD_IMAGE_V2
-	/* Calculate how much RAM BL1 is using and how much remains free */
-	bl1_tzram_layout.free_base = BL1_RW_BASE;
-	bl1_tzram_layout.free_size = BL1_RW_SIZE;
-	reserve_mem(&bl1_tzram_layout.free_base,
-		    &bl1_tzram_layout.free_size,
-		    BL1_RAM_BASE,
-		    BL1_RAM_LIMIT - BL1_RAM_BASE); /* bl1_size */
-#endif /* LOAD_IMAGE_V2 */
 
 	INFO("BL1: 0x%lx - 0x%lx [size = %lu]\n", BL1_RAM_BASE, BL1_RAM_LIMIT,
 	     BL1_RAM_LIMIT - BL1_RAM_BASE); /* bl1_size */
@@ -680,9 +668,6 @@ unsigned int bl1_plat_get_next_image_id(void)
 	case BOOT_MODE_RECOVERY:
 		ret = NS_BL1U_IMAGE_ID;
 		break;
-	case BOOT_MODE_NORMAL:
-		ret = BL2_IMAGE_ID;
-		break;
 	default:
 		WARN("Invalid boot mode is found:%d\n", mode);
 		panic();
@@ -709,8 +694,8 @@ void bl1_plat_set_ep_info(unsigned int image_id,
 	unsigned int data = 0;
 	uintptr_t tmp = HIKEY960_NS_TMP_OFFSET;
 
-	if (image_id == BL2_IMAGE_ID)
-		return;
+	if (image_id != NS_BL1U_IMAGE_ID)
+		panic();
 	/* Copy NS BL1U from 0x1AC1_8000 to 0x1AC9_8000 */
 	memcpy((void *)tmp, (void *)HIKEY960_NS_IMAGE_OFFSET,
 		NS_BL1U_SIZE);

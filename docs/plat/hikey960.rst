@@ -83,6 +83,7 @@ Build Procedure
 
        cd ${BUILD_PATH}/l-loader
        ln -sf ${EDK2_OUTPUT_DIR}/FV/bl1.bin
+       ln -sf ${EDK2_OUTPUT_DIR}/FV/bl2.bin
        ln -sf ${EDK2_OUTPUT_DIR}/FV/fip.bin
        ln -sf ${EDK2_OUTPUT_DIR}/FV/BL33_AP_UEFI.fd
        make hikey960
@@ -130,13 +131,12 @@ Boot UEFI in recovery mode
 -  Fetch that are used in recovery mode. The code location is in below.
    `link <https://github.com/96boards-hikey/tools-images-hikey960>`__
 
--  Generate l-loader.bin.
+-  Prepare recovery binary.
 
    .. code:: shell
 
        $cd tools-images-hikey960
-       $ln -sf ${BUILD_PATH}/l-loader/l-loader.bin
-       $ln -sf ${BUILD_PATH}/l-loader/fip.bin
+       $ln -sf ${BUILD_PATH}/l-loader/recovery.bin
 
 -  Prepare config file.
 
@@ -146,7 +146,7 @@ Boot UEFI in recovery mode
        # The content of config file
        ./sec_usb_xloader.img 0x00020000
        ./sec_uce_boot.img 0x6A908000
-       ./l-loader.bin 0x1AC00000
+       ./recovery.bin 0x1AC00000
 
 -  Remove the modemmanager package. This package may causes hikey\_idt tool failure.
 
