@@ -8,11 +8,11 @@
 LOAD_IMAGE_V2	:=	1
 
 # On Poplar, the TSP can execute from TZC secure area in DRAM.
-POPLAR_TSP_RAM_LOCATION	:=	dram
+POPLAR_TSP_RAM_LOCATION	?=	dram
 ifeq (${POPLAR_TSP_RAM_LOCATION}, dram)
   POPLAR_TSP_RAM_LOCATION_ID = POPLAR_DRAM_ID
 else ifeq (${POPLAR_TSP_RAM_LOCATION}, sram)
-  POPLAR_TSP_RAM_LOCATION_ID := POPLAR_SRAM_ID
+  POPLAR_TSP_RAM_LOCATION_ID = POPLAR_SRAM_ID
 else
   $(error "Currently unsupported POPLAR_TSP_RAM_LOCATION value")
 endif
