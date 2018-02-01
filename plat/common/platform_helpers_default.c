@@ -13,6 +13,8 @@
 
 #pragma weak plat_error_handler
 #pragma weak bl2_plat_preload_setup
+#pragma weak bl2_plat_handle_pre_image_load
+#pragma weak bl2_plat_handle_post_image_load
 #pragma weak plat_try_next_boot_source
 
 void __dead2 plat_error_handler(int err)
@@ -23,6 +25,16 @@ void __dead2 plat_error_handler(int err)
 
 void bl2_plat_preload_setup(void)
 {
+}
+
+int bl2_plat_handle_pre_image_load(unsigned int image_id)
+{
+	return 0;
+}
+
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return 0;
 }
 
 int plat_try_next_boot_source(void)

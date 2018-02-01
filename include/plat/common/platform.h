@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -169,6 +169,7 @@ struct meminfo *bl2_plat_sec_mem_layout(void);
  * This function can be used by the platforms to update/use image
  * information for given `image_id`.
  */
+int bl2_plat_handle_pre_image_load(unsigned int image_id);
 int bl2_plat_handle_post_image_load(unsigned int image_id);
 
 #else /* LOAD_IMAGE_V2 */
