@@ -246,13 +246,13 @@ void rockchip_pwr_domain_suspend(const psci_power_state_t *target_state)
 	if (RK_CORE_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE)
 		return;
 
+	/* Prevent interrupts from spuriously waking up this cpu */
+	plat_rockchip_gic_cpuif_disable();
+
 	if (RK_SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
 		rockchip_soc_sys_pwr_dm_suspend();
 	else
 		rockchip_soc_cores_pwr_dm_suspend();
-
-	/* Prevent interrupts from spuriously waking up this cpu */
-	plat_rockchip_gic_cpuif_disable();
 
 	/* Perform the common cluster specific operations */
 	if (RK_CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
