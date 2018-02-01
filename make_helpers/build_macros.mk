@@ -112,6 +112,33 @@ define TOOL_ADD_PAYLOAD
     $(if $(3),$(4)CRT_DEPS += $(3))
 endef
 
+# TOOL_ADD_IMG_PAYLOAD works like TOOL_ADD_PAYLOAD, but applies image filters
+# before passing them to host tools if BL*_PRE_TOOL_FILTER is defined.
+#   $(1) = image_type (scp_bl2, bl33, etc.)
+#   $(2) = payload filepath (ex. build/fvp/release/bl31.bin)
+#   $(3) = command line option for the specified payload (ex. --soc-fw)
+#   $(4) = tool target dependency (optional) (ex. build/fvp/release/bl31.bin)
+#   $(5) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
+
+define TOOL_ADD_IMG_PAYLOAD
+
+$(eval PRE_TOOL_FILTER := $($(call uppercase,$(1))_PRE_TOOL_FILTER))
+
+ifneq ($(PRE_TOOL_FILTER),)
+
+$(eval PROCESSED_PATH := $(BUILD_PLAT)/$(1).bin$($(PRE_TOOL_FILTER)_SUFFIX))
+
+$(call $(PRE_TOOL_FILTER)_RULE,$(PROCESSED_PATH),$(2))
+
+$(PROCESSED_PATH): $(4)
+
+$(call TOOL_ADD_PAYLOAD,$(PROCESSED_PATH),$(3),$(PROCESSED_PATH),$(5))
+
+else
+$(call TOOL_ADD_PAYLOAD,$(2),$(3),$(4),$(5))
+endif
+endef
+
 # CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
 #   $(1) = parameter filename
 #   $(2) = cert_create command line option for the specified parameter
@@ -135,7 +162,7 @@ define TOOL_ADD_IMG
 
     $(3)CRT_DEPS += check_$(1)
     $(3)FIP_DEPS += check_$(1)
-    $(call TOOL_ADD_PAYLOAD,$(value $(_V)),$(2),,$(3))
+    $(call TOOL_ADD_IMG_PAYLOAD,$(1),$(value $(_V)),$(2),,$(3))
 
 .PHONY: check_$(1)
 check_$(1):
@@ -300,7 +327,7 @@ bl$(1): $(BIN) $(DUMP)
 
 all: bl$(1)
 
-$(if $(2),$(call TOOL_ADD_PAYLOAD,$(BIN),--$(2),$(BIN),$(3)))
+$(if $(2),$(call TOOL_ADD_IMG_PAYLOAD,bl$(1),$(BIN),--$(2),$(BIN),$(3)))
 
 endef
 
