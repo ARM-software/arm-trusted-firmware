@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -680,7 +680,14 @@ checkcodebase:		locate-checkpatch
 
 checkpatch:		locate-checkpatch
 	@echo "  CHECKING STYLE"
-	${Q}git format-patch --stdout ${BASE_COMMIT}..HEAD -- ${CHECK_PATHS} | ${CHECKPATCH} - || true
+	${Q}COMMON_COMMIT=$$(git merge-base HEAD ${BASE_COMMIT});	\
+	for commit in `git rev-list $$COMMON_COMMIT..HEAD`; do		\
+		printf "\n[*] Checking style of '$$commit'\n\n";	\
+		git log --format=email "$$commit~..$$commit"		\
+			-- ${CHECK_PATHS} | ${CHECKPATCH} - || true;	\
+		git diff --format=email "$$commit~..$$commit"		\
+			-- ${CHECK_PATHS} | ${CHECKPATCH} - || true;	\
+	done
 
 certtool: ${CRTTOOL}
 
