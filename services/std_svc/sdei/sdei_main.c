@@ -81,6 +81,17 @@ static void *sdei_cpu_on_init(const void *arg)
 	return NULL;
 }
 
+/* CPU initialisation after wakeup from suspend */
+static void *sdei_cpu_wakeup_init(const void *arg)
+{
+	SDEI_LOG("Events masked on %lx\n", read_mpidr_el1());
+
+	/* All PEs wake up with SDEI events masked */
+	sdei_pe_mask();
+
+	return 0;
+}
+
 /* Initialise an SDEI class */
 static void sdei_class_init(sdei_class_t class)
 {
@@ -1075,3 +1086,6 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 
 /* Subscribe to PSCI CPU on to initialize per-CPU SDEI configuration */
 SUBSCRIBE_TO_EVENT(psci_cpu_on_finish, sdei_cpu_on_init);
+
+/* Subscribe to PSCI CPU suspend finisher for per-CPU configuration */
+SUBSCRIBE_TO_EVENT(psci_suspend_pwrdown_finish, sdei_cpu_wakeup_init);
