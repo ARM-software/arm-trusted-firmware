@@ -42,7 +42,9 @@ int uniphier_usb_init(unsigned int soc, uintptr_t *block_dev_spec);
 
 int uniphier_io_setup(unsigned int soc);
 int uniphier_check_image(unsigned int image_id);
-void uniphier_image_descs_fixup(void);
+
+struct image_info;
+struct image_info *uniphier_get_image_info(unsigned int image_id);
 
 int uniphier_scp_is_running(void);
 void uniphier_scp_start(void);

@@ -88,8 +88,12 @@ void bl2_el3_plat_arch_setup(void)
 		}
 	}
 
-	if (skip_scp)
-		uniphier_image_descs_fixup();
+	if (skip_scp) {
+		struct image_info *image_info;
+
+		image_info = uniphier_get_image_info(SCP_BL2_IMAGE_ID);
+		image_info->h.attr |= IMAGE_ATTRIB_SKIP_LOADING;
+	}
 }
 
 void bl2_platform_setup(void)
