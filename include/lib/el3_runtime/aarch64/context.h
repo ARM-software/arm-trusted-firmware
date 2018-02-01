@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,26 +46,12 @@
 #define CTX_GPREG_SP_EL0	U(0xf8)
 #define CTX_GPREGS_END		U(0x100)
 
-#if WORKAROUND_CVE_2017_5715
-#define CTX_CVE_2017_5715_OFFSET	(CTX_GPREGS_OFFSET + CTX_GPREGS_END)
-#define CTX_CVE_2017_5715_QUAD0		U(0x0)
-#define CTX_CVE_2017_5715_QUAD1		U(0x8)
-#define	CTX_CVE_2017_5715_QUAD2		U(0x10)
-#define CTX_CVE_2017_5715_QUAD3		U(0x18)
-#define CTX_CVE_2017_5715_QUAD4		U(0x20)
-#define CTX_CVE_2017_5715_QUAD5		U(0x28)
-#define CTX_CVE_2017_5715_END		U(0x30)
-#else
-#define CTX_CVE_2017_5715_OFFSET	CTX_GPREGS_OFFSET
-#define CTX_CVE_2017_5715_END		CTX_GPREGS_END
-#endif
-
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'el3_state'
  * structure at their correct offsets. Note that some of the registers are only
  * 32-bits wide but are stored as 64-bit values for convenience
  ******************************************************************************/
-#define CTX_EL3STATE_OFFSET	(CTX_CVE_2017_5715_OFFSET + CTX_CVE_2017_5715_END)
+#define CTX_EL3STATE_OFFSET	(CTX_GPREGS_OFFSET + CTX_GPREGS_END)
 #define CTX_SCR_EL3		U(0x0)
 #define CTX_RUNTIME_SP		U(0x8)
 #define CTX_SPSR_EL3		U(0x10)
@@ -200,9 +186,6 @@
 
 /* Constants to determine the size of individual context structures */
 #define CTX_GPREG_ALL		(CTX_GPREGS_END >> DWORD_SHIFT)
-#if WORKAROUND_CVE_2017_5715
-#define CTX_CVE_2017_5715_ALL	(CTX_CVE_2017_5715_END >> DWORD_SHIFT)
-#endif
 #define CTX_SYSREG_ALL		(CTX_SYSREGS_END >> DWORD_SHIFT)
 #if CTX_INCLUDE_FPREGS
 #define CTX_FPREG_ALL		(CTX_FPREGS_END >> DWORD_SHIFT)
@@ -217,10 +200,6 @@
  * exception handling, we need to save the callee registers too.
  */
 DEFINE_REG_STRUCT(gp_regs, CTX_GPREG_ALL);
-
-#if WORKAROUND_CVE_2017_5715
-DEFINE_REG_STRUCT(cve_2017_5715_regs, CTX_CVE_2017_5715_ALL);
-#endif
 
 /*
  * AArch64 EL1 system register context structure for preserving the
@@ -263,9 +242,6 @@ DEFINE_REG_STRUCT(el3_state, CTX_EL3STATE_ALL);
  */
 typedef struct cpu_context {
 	gp_regs_t gpregs_ctx;
-#if WORKAROUND_CVE_2017_5715
-	cve_2017_5715_regs_t cve_2017_5715_regs_ctx;
-#endif
 	el3_state_t el3state_ctx;
 	el1_sys_regs_t sysregs_ctx;
 #if CTX_INCLUDE_FPREGS

@@ -14,6 +14,8 @@ override RESET_TO_BL31 := 1
 # Do not enable SVE
 ENABLE_SVE_FOR_NS	:= 0
 
+WORKAROUND_CVE_2017_5715	:=	0
+
 ifdef ZYNQMP_ATF_MEM_BASE
     $(eval $(call add_define,ZYNQMP_ATF_MEM_BASE))
 
