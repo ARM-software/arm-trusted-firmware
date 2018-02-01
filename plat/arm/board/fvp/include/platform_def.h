@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,7 +43,7 @@
 /* No SCP in FVP */
 #define PLAT_ARM_SCP_TZC_DRAM1_SIZE	ULL(0x0)
 
-#define PLAT_ARM_DRAM2_SIZE		ULL(0x780000000)
+#define PLAT_ARM_DRAM2_SIZE		ULL(0x80000000)
 
 /*
  * Load address of BL33 for this platform port
