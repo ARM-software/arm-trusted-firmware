@@ -193,6 +193,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				lib/${ARCH}/cache_helpers.S		\
 				lib/${ARCH}/misc_helpers.S		\
 				plat/common/plat_log_common.c		\
+				plat/common/platform_helpers_default.c	\
 				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${COMPILER_RT_SRCS}			\
