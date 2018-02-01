@@ -12,6 +12,8 @@
  */
 
 #pragma weak plat_error_handler
+#pragma weak bl1_plat_handle_pre_image_load
+#pragma weak bl1_plat_handle_post_image_load
 #pragma weak bl2_plat_preload_setup
 #pragma weak bl2_plat_handle_pre_image_load
 #pragma weak bl2_plat_handle_post_image_load
@@ -21,6 +23,16 @@ void __dead2 plat_error_handler(int err)
 {
 	while (1)
 		wfi();
+}
+
+int bl1_plat_handle_pre_image_load(void)
+{
+	return 0;
+}
+
+int bl1_plat_handle_post_image_load(void)
+{
+	return 0;
 }
 
 void bl2_plat_preload_setup(void)

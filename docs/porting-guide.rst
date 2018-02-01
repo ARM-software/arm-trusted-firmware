@@ -1259,6 +1259,30 @@ standard platforms return an image descriptor corresponding to BL2 or one of
 the firmware update images defined in the Trusted Board Boot Requirements
 specification.
 
+Function : bl1\_plat\_handle\_pre\_image\_load() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : int
+
+This function can be used by the platforms to update/use image information
+for BL2. This function is currently invoked in BL1 before loading BL2,
+when LOAD\_IMAGE\_V2 is enabled.
+
+Function : bl1\_plat\_handle\_post\_image\_load() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : int
+
+This function can be used by the platforms to update/use image information
+for BL2. This function is currently invoked in BL1 after loading BL2,
+when LOAD\_IMAGE\_V2 is enabled.
+
 Function : bl1\_plat\_fwu\_done() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

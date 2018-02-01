@@ -155,6 +155,15 @@ struct image_desc *bl1_plat_get_image_desc(unsigned int image_id);
  */
 __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved);
 
+#if LOAD_IMAGE_V2
+/*
+ * This function can be used by the platforms to update/use image
+ * information for BL2.
+ */
+int bl1_plat_handle_pre_image_load(void);
+int bl1_plat_handle_post_image_load(void);
+
+#endif /* LOAD_IMAGE_V2 */
 
 /*******************************************************************************
  * Mandatory BL2 functions
