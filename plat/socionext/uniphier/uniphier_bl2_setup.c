@@ -15,6 +15,9 @@
 
 #include "uniphier.h"
 
+#define BL2_END			(unsigned long)(&__BL2_END__)
+#define BL2_SIZE		((BL2_END) - (BL2_BASE))
+
 static int uniphier_bl2_kick_scp;
 
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
@@ -24,6 +27,9 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 }
 
 static const struct mmap_region uniphier_bl2_mmap[] = {
+	/* for BL31, BL32 */
+	MAP_REGION_FLAT(UNIPHIER_SEC_DRAM_BASE, UNIPHIER_SEC_DRAM_SIZE,
+			MT_MEMORY | MT_RW | MT_SECURE),
 	/* for SCP, BL33 */
 	MAP_REGION_FLAT(UNIPHIER_NS_DRAM_BASE, UNIPHIER_NS_DRAM_SIZE,
 			MT_MEMORY | MT_RW | MT_NS),
@@ -36,8 +42,7 @@ void bl2_el3_plat_arch_setup(void)
 	int skip_scp = 0;
 	int ret;
 
-	uniphier_mmap_setup(UNIPHIER_SEC_DRAM_BASE, UNIPHIER_SEC_DRAM_SIZE,
-			    uniphier_bl2_mmap);
+	uniphier_mmap_setup(BL2_BASE, BL2_SIZE, uniphier_bl2_mmap);
 	enable_mmu_el3(0);
 
 	soc = uniphier_get_soc_id();

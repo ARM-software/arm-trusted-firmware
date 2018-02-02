@@ -8,11 +8,8 @@
 #include <platform_def.h>
 #include <xlat_tables_v2.h>
 
-#define UNIPHIER_OCM_REGION_BASE	0x30000000
-#define UNIPHIER_OCM_REGION_SIZE	0x00040000
-
-#define UNIPHIER_REG_REGION_BASE	0x50000000
-#define UNIPHIER_REG_REGION_SIZE	0x20000000
+#define UNIPHIER_REG_REGION_BASE	0x50000000ULL
+#define UNIPHIER_REG_REGION_SIZE	0x20000000ULL
 
 void uniphier_mmap_setup(uintptr_t total_base, size_t total_size,
 			 const struct mmap_region *mmap)
@@ -35,15 +32,6 @@ void uniphier_mmap_setup(uintptr_t total_base, size_t total_size,
 		(void *)BL_COHERENT_RAM_BASE, (void *)BL_COHERENT_RAM_END);
 	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
 			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
-			MT_DEVICE | MT_RW | MT_SECURE);
-
-	/*
-	 * on-chip SRAM region: should be DEVICE attribute because the USB
-	 * load functions provided by the ROM use this memory region as a work
-	 * area, but do not cater to cache coherency.
-	 */
-	mmap_add_region(UNIPHIER_OCM_REGION_BASE, UNIPHIER_OCM_REGION_BASE,
-			UNIPHIER_OCM_REGION_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE);
 
 	/* register region */
