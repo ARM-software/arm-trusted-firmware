@@ -166,12 +166,12 @@ void fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
 	    (ATFHandoffParams->magic[1] != 'L') ||
 	    (ATFHandoffParams->magic[2] != 'N') ||
 	    (ATFHandoffParams->magic[3] != 'X')) {
-		ERROR("BL31: invalid ATF handoff structure at %lx\n",
+		ERROR("BL31: invalid ATF handoff structure at %llx\n",
 		      atf_handoff_addr);
 		panic();
 	}
 
-	VERBOSE("BL31: ATF handoff params at:0x%lx, entries:%u\n",
+	VERBOSE("BL31: ATF handoff params at:0x%llx, entries:%u\n",
 		atf_handoff_addr, ATFHandoffParams->num_entries);
 	if (ATFHandoffParams->num_entries > FSBL_MAX_PARTITIONS) {
 		ERROR("BL31: ATF handoff params: too many partitions (%u/%u)\n",
@@ -189,7 +189,7 @@ void fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
 		int target_estate, target_secure;
 		int target_cpu, target_endianness, target_el;
 
-		VERBOSE("BL31: %zd: entry:0x%lx, flags:0x%lx\n", i,
+		VERBOSE("BL31: %zd: entry:0x%llx, flags:0x%llx\n", i,
 			ATFHandoffParams->partition[i].entry_point,
 			ATFHandoffParams->partition[i].flags);
 
@@ -250,7 +250,7 @@ void fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
 			}
 		}
 
-		VERBOSE("Setting up %s entry point to:%lx, el:%x\n",
+		VERBOSE("Setting up %s entry point to:%llx, el:%x\n",
 			target_secure == FSBL_FLAGS_SECURE ? "BL32" : "BL33",
 			ATFHandoffParams->partition[i].entry_point,
 			target_el);

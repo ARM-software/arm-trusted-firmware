@@ -33,7 +33,7 @@ void tsp_update_sync_sel1_intr_stats(uint32_t type, uint64_t elr_el3)
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	spin_lock(&console_lock);
-	VERBOSE("TSP: cpu 0x%lx sync s-el1 interrupt request from 0x%lx\n",
+	VERBOSE("TSP: cpu 0x%lx sync s-el1 interrupt request from 0x%llx\n",
 		read_mpidr(), elr_el3);
 	VERBOSE("TSP: cpu 0x%lx: %d sync s-el1 interrupt requests,"
 		" %d sync s-el1 interrupt returns\n",

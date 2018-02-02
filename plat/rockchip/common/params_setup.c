@@ -92,7 +92,7 @@ void params_early_setup(void *plat_param_from_bl2)
 			break;
 #endif
 		default:
-			ERROR("not expected type found %ld\n",
+			ERROR("not expected type found %lld\n",
 			      bl2_param->type);
 			break;
 		}

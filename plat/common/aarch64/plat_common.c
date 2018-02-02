@@ -93,7 +93,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  */
 void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr)
 {
-	WARN("Spurious SDEI interrupt %u on masked PE %lx\n", intr, mpidr);
+	WARN("Spurious SDEI interrupt %u on masked PE %llx\n", intr, mpidr);
 }
 
 /*
