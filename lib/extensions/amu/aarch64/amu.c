@@ -172,7 +172,6 @@ static void *amu_context_restore(const void *arg)
 	for (i = 0; i < AMU_GROUP1_NR_COUNTERS; i++)
 		if (AMU_GROUP1_COUNTERS_MASK & (1U << i))
 			amu_group1_cnt_write(i, ctx->group1_cnts[i]);
-	isb();
 
 	/* Restore group 0/1 counter configuration */
 	write_amcntenset0_el0(AMU_GROUP0_COUNTERS_MASK);

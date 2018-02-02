@@ -23,7 +23,8 @@ BL32_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
 ifeq (${ENABLE_AMU}, 1)
-BL32_SOURCES		+=	lib/extensions/amu/aarch32/amu.c
+BL32_SOURCES		+=	lib/extensions/amu/aarch32/amu.c\
+				lib/extensions/amu/aarch32/amu_helpers.S
 endif
 
 ifeq (${WORKAROUND_CVE_2017_5715},1)

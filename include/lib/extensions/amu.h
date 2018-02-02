@@ -7,10 +7,10 @@
 #ifndef __AMU_H__
 #define __AMU_H__
 
-#include <sys/cdefs.h> /* for CASSERT() */
 #include <cassert.h>
 #include <platform_def.h>
 #include <stdint.h>
+#include <sys/cdefs.h> /* for CASSERT() */
 
 /* All group 0 counters */
 #define AMU_GROUP0_COUNTERS_MASK	0xf
