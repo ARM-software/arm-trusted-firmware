@@ -18,11 +18,11 @@
 
 #include "uniphier.h"
 
-#define UNIPHIER_ROM_REGION_BASE	0x00000000
-#define UNIPHIER_ROM_REGION_SIZE	0x10000000
+#define UNIPHIER_ROM_REGION_BASE	0x00000000ULL
+#define UNIPHIER_ROM_REGION_SIZE	0x10000000ULL
 
-#define UNIPHIER_OCM_REGION_BASE	0x30000000
-#define UNIPHIER_OCM_REGION_SIZE	0x00040000
+#define UNIPHIER_OCM_REGION_BASE	0x30000000ULL
+#define UNIPHIER_OCM_REGION_SIZE	0x00040000ULL
 
 static const io_dev_connector_t *uniphier_fip_dev_con;
 static uintptr_t uniphier_fip_dev_handle;

@@ -8,8 +8,8 @@
 #include <platform_def.h>
 #include <xlat_tables_v2.h>
 
-#define UNIPHIER_REG_REGION_BASE	0x50000000
-#define UNIPHIER_REG_REGION_SIZE	0x20000000
+#define UNIPHIER_REG_REGION_BASE	0x50000000ULL
+#define UNIPHIER_REG_REGION_SIZE	0x20000000ULL
 
 void uniphier_mmap_setup(uintptr_t total_base, size_t total_size,
 			 const struct mmap_region *mmap)
