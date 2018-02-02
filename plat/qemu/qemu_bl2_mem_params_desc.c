@@ -34,6 +34,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	  .next_handoff_image_id = INVALID_IMAGE_ID,
 	},
 #else /* EL3_PAYLOAD_BASE */
+#ifdef AARCH64
 	/* Fill BL31 related information */
 	{ .image_id = BL31_IMAGE_ID,
 
@@ -57,16 +58,27 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	  .next_handoff_image_id = BL33_IMAGE_ID,
 # endif
 	},
+#endif /* AARCH64 */
 # ifdef QEMU_LOAD_BL32
+
+#ifdef AARCH64
+#define BL32_EP_ATTRIBS		(SECURE | EXECUTABLE)
+#define BL32_IMG_ATTRIBS	0
+#else
+#define BL32_EP_ATTRIBS		(SECURE | EXECUTABLE | EP_FIRST_EXE)
+#define BL32_IMG_ATTRIBS	IMAGE_ATTRIB_PLAT_SETUP
+#endif
+
 	/* Fill BL32 related information */
 	{ .image_id = BL32_IMAGE_ID,
 
 	  SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP, VERSION_2,
-				entry_point_info_t, SECURE | EXECUTABLE),
+				entry_point_info_t, BL32_EP_ATTRIBS),
 	  .ep_info.pc = BL32_BASE,
 
-	  SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2, image_info_t,
-				0),
+	  SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2,
+				image_info_t, BL32_IMG_ATTRIBS),
+
 	  .image_info.image_base = BL32_BASE,
 	  .image_info.image_max_size = BL32_LIMIT - BL32_BASE,
 
@@ -103,7 +115,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 	   SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2,
 				 image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
-#ifdef SPD_opteed
+#if defined(SPD_opteed) || defined(AARCH32_SP_OPTEE)
 	   .image_info.image_base = QEMU_OPTEE_PAGEABLE_LOAD_BASE,
 	   .image_info.image_max_size = QEMU_OPTEE_PAGEABLE_LOAD_SIZE,
 #endif
