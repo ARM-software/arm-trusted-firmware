@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -201,7 +201,7 @@ void ehf_deactivate_priority(unsigned int priority)
 	else
 		old_mask = plat_ic_set_priority_mask(priority);
 
-	if (old_mask >= priority) {
+	if (old_mask > priority) {
 		ERROR("Deactivation priority (0x%x) lower than Priority Mask (0x%x)\n",
 				priority, old_mask);
 		panic();
