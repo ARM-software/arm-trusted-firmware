@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -178,6 +178,12 @@ void bl1_load_bl2(void)
 	INFO("BL1: Loading BL2\n");
 
 #if LOAD_IMAGE_V2
+	err = bl1_plat_handle_pre_image_load();
+	if (err) {
+		ERROR("Failure in pre image load handling of BL2 (%d)\n", err);
+		plat_error_handler(err);
+	}
+
 	err = load_auth_image(BL2_IMAGE_ID, image_info);
 #else
 	/* Load the BL2 image */
@@ -194,6 +200,14 @@ void bl1_load_bl2(void)
 		plat_error_handler(err);
 	}
 
+#if LOAD_IMAGE_V2
+	/* Allow platform to handle image information. */
+	err = bl1_plat_handle_post_image_load();
+	if (err) {
+		ERROR("Failure in post image load handling of BL2 (%d)\n", err);
+		plat_error_handler(err);
+	}
+
 	/*
 	 * Create a new layout of memory for BL2 as seen by BL1 i.e.
 	 * tell it the amount of total and free memory available.
@@ -201,7 +215,6 @@ void bl1_load_bl2(void)
 	 * to BL2. BL2 will read the memory layout before using its
 	 * memory for other purposes.
 	 */
-#if LOAD_IMAGE_V2
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->total_base;
 #else
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;

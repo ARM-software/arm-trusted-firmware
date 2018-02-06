@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,6 +52,12 @@ entry_point_info_t *bl2_load_images(void)
 				bl2_platform_setup();
 				plat_setup_done = 1;
 			}
+		}
+
+		err = bl2_plat_handle_pre_image_load(bl2_node_info->image_id);
+		if (err) {
+			ERROR("BL2: Failure in pre image load handling (%i)\n", err);
+			plat_error_handler(err);
 		}
 
 		if (!(bl2_node_info->image_info->h.attr & IMAGE_ATTRIB_SKIP_LOADING)) {

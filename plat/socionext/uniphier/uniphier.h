@@ -42,7 +42,9 @@ int uniphier_usb_init(unsigned int soc, uintptr_t *block_dev_spec);
 
 int uniphier_io_setup(unsigned int soc);
 int uniphier_check_image(unsigned int image_id);
-void uniphier_image_descs_fixup(void);
+
+struct image_info;
+struct image_info *uniphier_get_image_info(unsigned int image_id);
 
 int uniphier_scp_is_running(void);
 void uniphier_scp_start(void);
@@ -80,7 +82,11 @@ unsigned int uniphier_calc_core_pos(u_register_t mpidr);
 
 #define UNIPHIER_BLOCK_BUF_BASE		((UNIPHIER_SCP_BASE) + \
 					 (UNIPHIER_SCP_MAX_SIZE))
-#define UNIPHIER_BLOCK_BUF_SIZE		((UNIPHIER_NS_DRAM_LIMIT) - \
-					 (UNIPHIER_BLOCK_BUF_BASE))
+#define UNIPHIER_BLOCK_BUF_SIZE		0x00100000
+
+#define UNIPHIER_IMAGE_BUF_BASE		((UNIPHIER_BLOCK_BUF_BASE) + \
+					 (UNIPHIER_BLOCK_BUF_SIZE))
+#define UNIPHIER_IMAGE_BUF_SIZE		((UNIPHIER_NS_DRAM_LIMIT) - \
+					 (UNIPHIER_IMAGE_BUF_BASE))
 
 #endif /* __UNIPHIER_H__ */

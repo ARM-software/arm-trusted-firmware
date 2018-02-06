@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,12 +86,11 @@ static struct bl_mem_params_node uniphier_image_descs[] = {
 };
 REGISTER_BL_IMAGE_DESCS(uniphier_image_descs)
 
-/* SCP is optional.  Allow run-time fixup of the descriptor array. */
-void uniphier_image_descs_fixup(void)
+struct image_info *uniphier_get_image_info(unsigned int image_id)
 {
 	struct bl_mem_params_node *desc;
 
-	desc = get_bl_mem_params_node(SCP_BL2_IMAGE_ID);
-	assert(desc != NULL);
-	desc->image_info.h.attr |= IMAGE_ATTRIB_SKIP_LOADING;
+	desc = get_bl_mem_params_node(image_id);
+	assert(desc);
+	return &desc->image_info;
 }

@@ -103,6 +103,23 @@ $(ROTPK_HASH): $(ROT_KEY)
 
 endif
 
+ifeq (${FIP_GZIP},1)
+
+include lib/zlib/zlib.mk
+
+BL2_SOURCES		+=	common/image_decompress.c		\
+				$(ZLIB_SOURCES)
+
+$(eval $(call add_define,UNIPHIER_DECOMPRESS_GZIP))
+
+# compress all images loaded by BL2
+SCP_BL2_PRE_TOOL_FILTER	:= GZIP
+BL31_PRE_TOOL_FILTER	:= GZIP
+BL32_PRE_TOOL_FILTER	:= GZIP
+BL33_PRE_TOOL_FILTER	:= GZIP
+
+endif
+
 .PHONY: bl2_gzip
 bl2_gzip: $(BUILD_PLAT)/bl2.bin.gz
 %.gz: %

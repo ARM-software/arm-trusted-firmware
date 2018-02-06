@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -98,75 +98,90 @@ define IMG_BIN
     ${BUILD_PLAT}/bl$(1).bin
 endef
 
-# FIP_ADD_PAYLOAD appends the command line arguments required by fiptool
-# to package a new payload. Optionally, it adds the dependency on this payload
+# TOOL_ADD_PAYLOAD appends the command line arguments required by fiptool to
+# package a new payload and/or by cert_create to generate certificate.
+# Optionally, it adds the dependency on this payload
 #   $(1) = payload filename (i.e. bl31.bin)
 #   $(2) = command line option for the specified payload (i.e. --soc-fw)
-#   $(3) = fip target dependency (optional) (i.e. bl31)
-define FIP_ADD_PAYLOAD
-    $(eval FIP_ARGS += $(2) $(1))
-    $(eval $(if $(3),FIP_DEPS += $(3)))
+#   $(3) = tool target dependency (optional) (ex. build/fvp/release/bl31.bin)
+#   $(4) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
+define TOOL_ADD_PAYLOAD
+    $(4)FIP_ARGS += $(2) $(1)
+    $(if $(3),$(4)FIP_DEPS += $(3))
+    $(4)CRT_ARGS += $(2) $(1)
+    $(if $(3),$(4)CRT_DEPS += $(3))
+endef
+
+# TOOL_ADD_IMG_PAYLOAD works like TOOL_ADD_PAYLOAD, but applies image filters
+# before passing them to host tools if BL*_PRE_TOOL_FILTER is defined.
+#   $(1) = image_type (scp_bl2, bl33, etc.)
+#   $(2) = payload filepath (ex. build/fvp/release/bl31.bin)
+#   $(3) = command line option for the specified payload (ex. --soc-fw)
+#   $(4) = tool target dependency (optional) (ex. build/fvp/release/bl31.bin)
+#   $(5) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
+
+define TOOL_ADD_IMG_PAYLOAD
+
+$(eval PRE_TOOL_FILTER := $($(call uppercase,$(1))_PRE_TOOL_FILTER))
+
+ifneq ($(PRE_TOOL_FILTER),)
+
+$(eval PROCESSED_PATH := $(BUILD_PLAT)/$(1).bin$($(PRE_TOOL_FILTER)_SUFFIX))
+
+$(call $(PRE_TOOL_FILTER)_RULE,$(PROCESSED_PATH),$(2))
+
+$(PROCESSED_PATH): $(4)
+
+$(call TOOL_ADD_PAYLOAD,$(PROCESSED_PATH),$(3),$(PROCESSED_PATH),$(5))
+
+else
+$(call TOOL_ADD_PAYLOAD,$(2),$(3),$(4),$(5))
+endif
 endef
 
 # CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
 #   $(1) = parameter filename
 #   $(2) = cert_create command line option for the specified parameter
-#   $(3) = input parameter (false if empty)
+#   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 define CERT_ADD_CMD_OPT
-    $(eval $(if $(3),CRT_DEPS += $(1)))
-    $(eval CRT_ARGS += $(2) $(1))
+    $(3)CRT_ARGS += $(2) $(1)
 endef
 
-# FIP_ADD_IMG allows the platform to specify an image to be packed in the FIP
-# using a build option. It also adds a dependency on the image file, aborting
-# the build if the file does not exist.
-#   $(1) = build option to specify the image filename (SCP_BL2, BL33, etc)
+# TOOL_ADD_IMG allows the platform to specify an external image to be packed
+# in the FIP and/or for which certificate is generated. It also adds a
+# dependency on the image file, aborting the build if the file does not exist.
+#   $(1) = image_type (scp_bl2, bl33, etc.)
 #   $(2) = command line option for fiptool (--scp-fw, --nt-fw, etc)
+#   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 # Example:
-#   $(eval $(call FIP_ADD_IMG,BL33,--nt-fw))
-define FIP_ADD_IMG
-    CRT_DEPS += check_$(1)
-    FIP_DEPS += check_$(1)
-    $(call FIP_ADD_PAYLOAD,$(value $(1)),$(2))
+#   $(eval $(call TOOL_ADD_IMG,bl33,--nt-fw))
+define TOOL_ADD_IMG
+    # Build option to specify the image filename (SCP_BL2, BL33, etc)
+    # This is the uppercase form of the first parameter
+    $(eval _V := $(call uppercase,$(1)))
+
+    $(3)CRT_DEPS += check_$(1)
+    $(3)FIP_DEPS += check_$(1)
+    $(call TOOL_ADD_IMG_PAYLOAD,$(1),$(value $(_V)),$(2),,$(3))
 
 .PHONY: check_$(1)
 check_$(1):
-	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
+	$$(if $(value $(_V)),,$$(error "Platform '${PLAT}' requires $(_V). Please set $(_V) to point to the right file"))
+	$$(if $(wildcard $(value $(_V))),,$$(error '$(_V)=$(value $(_V))' was specified, but '$(value $(_V))' does not exist))
 endef
 
-# FWU_FIP_ADD_PAYLOAD appends the command line arguments required by fiptool
-# to package a new FWU payload. Optionally, it  adds the dependency on this payload
-#   $(1) = payload filename (e.g. ns_bl2u.bin)
-#   $(2) = command line option for the specified payload (e.g. --fwu)
-#   $(3) = fip target dependency (optional) (e.g. ns_bl2u)
-define FWU_FIP_ADD_PAYLOAD
-    $(eval $(if $(3),FWU_FIP_DEPS += $(3)))
-    $(eval FWU_FIP_ARGS += $(2) $(1))
+################################################################################
+# Generic image processing filters
+################################################################################
+
+# GZIP
+define GZIP_RULE
+$(1): $(2)
+	@echo "  GZIP    $$@"
+	$(Q)gzip -n -f -9 $$< --stdout > $$@
 endef
 
-# FWU_CERT_ADD_CMD_OPT adds a new command line option to the cert_create invocation
-#   $(1) = parameter filename
-#   $(2) = cert_create command line option for the specified parameter
-#   $(3) = input parameter (false if empty)
-define FWU_CERT_ADD_CMD_OPT
-    $(eval $(if $(3),FWU_CRT_DEPS += $(1)))
-    $(eval FWU_CRT_ARGS += $(2) $(1))
-endef
-
-# FWU_FIP_ADD_IMG allows the platform to pack a binary image in the FWU FIP
-#   $(1) build option to specify the image filename (BL2U, NS_BL2U, etc)
-#   $(2) command line option for fiptool (--ap-fwu-cfg, --fwu, etc)
-# Example:
-#   $(eval $(call FWU_FIP_ADD_IMG,BL2U,--ap-fwu-cfg))
-define FWU_FIP_ADD_IMG
-    FWU_CRT_DEPS += check_$(1)
-    FWU_FIP_DEPS += check_$(1)
-    $(call FWU_FIP_ADD_PAYLOAD,$(value $(1)),$(2))
-
-.PHONY: check_$(1)
-check_$(1):
-	$$(if $(value $(1)),,$$(error "Platform '${PLAT}' requires $(1). Please set $(1) to point to the right file"))
-endef
+GZIP_SUFFIX := .gz
 
 ################################################################################
 # Auxiliary macros to build TF images from sources
@@ -254,16 +269,6 @@ define SOURCES_TO_OBJS
         $(notdir $(patsubst %.S,%.o,$(filter %.S,$(1))))
 endef
 
-
-# MAKE_TOOL_ARGS macro defines the command line arguments for fiptool for
-# each BL image. Arguments:
-#   $(1) = BL stage (2, 30, 31, 32, 33)
-#   $(2) = Binary file
-#   $(3) = FIP command line option (if empty, image will not be included in the FIP)
-define MAKE_TOOL_ARGS
-        $(if $(3),$(eval $(call FIP_ADD_PAYLOAD,$(2),--$(3),bl$(1))))
-endef
-
 # Allow overriding the timestamp, for example for reproducible builds, or to
 # synchronize timestamps across multiple projects.
 # This must be set to a C string (including quotes where applicable).
@@ -273,6 +278,7 @@ BUILD_MESSAGE_TIMESTAMP ?= __TIME__", "__DATE__
 # Arguments:
 #   $(1) = BL stage (2, 2u, 30, 31, 32, 33)
 #   $(2) = FIP command line option (if empty, image will not be included in the FIP)
+#   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 define MAKE_BL
         $(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
         $(eval BL_SOURCES := $(BL$(call uppercase,$(1))_SOURCES))
@@ -334,7 +340,7 @@ bl$(1): $(BIN) $(DUMP)
 
 all: bl$(1)
 
-$(eval $(call MAKE_TOOL_ARGS,$(1),$(BIN),$(2)))
+$(if $(2),$(call TOOL_ADD_IMG_PAYLOAD,bl$(1),$(BIN),--$(2),$(BIN),$(3)))
 
 endef
 

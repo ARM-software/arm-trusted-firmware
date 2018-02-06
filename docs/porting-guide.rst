@@ -1259,6 +1259,30 @@ standard platforms return an image descriptor corresponding to BL2 or one of
 the firmware update images defined in the Trusted Board Boot Requirements
 specification.
 
+Function : bl1\_plat\_handle\_pre\_image\_load() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : int
+
+This function can be used by the platforms to update/use image information
+for BL2. This function is currently invoked in BL1 before loading BL2,
+when LOAD\_IMAGE\_V2 is enabled.
+
+Function : bl1\_plat\_handle\_post\_image\_load() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : int
+
+This function can be used by the platforms to update/use image information
+for BL2. This function is currently invoked in BL1 after loading BL2,
+when LOAD\_IMAGE\_V2 is enabled.
+
 Function : bl1\_plat\_fwu\_done() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1424,10 +1448,10 @@ The purpose of this function is to return a pointer to a ``meminfo`` structure
 populated with the extents of secure RAM available for BL2 to use. See
 ``bl2_early_platform_setup()`` above.
 
-Following function is required only when LOAD\_IMAGE\_V2 is enabled.
+Following functions are optionally used only when LOAD\_IMAGE\_V2 is enabled.
 
-Function : bl2\_plat\_handle\_post\_image\_load() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function : bl2\_plat\_handle\_pre\_image\_load() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -1435,9 +1459,20 @@ Function : bl2\_plat\_handle\_post\_image\_load() [mandatory]
     Return   : int
 
 This function can be used by the platforms to update/use image information
-for given ``image_id``. This function is currently invoked in BL2 to handle
-BL image specific information based on the ``image_id`` passed, when
-LOAD\_IMAGE\_V2 is enabled.
+for given ``image_id``. This function is currently invoked in BL2 before
+loading each image, when LOAD\_IMAGE\_V2 is enabled.
+
+Function : bl2\_plat\_handle\_post\_image\_load() [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int
+    Return   : int
+
+This function can be used by the platforms to update/use image information
+for given ``image_id``. This function is currently invoked in BL2 after
+loading each image, when LOAD\_IMAGE\_V2 is enabled.
 
 Following functions are required only when LOAD\_IMAGE\_V2 is disabled.
 
