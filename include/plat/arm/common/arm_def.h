@@ -483,6 +483,7 @@
 #define PLAT_PERCPU_BAKERY_LOCK_SIZE		(1 * CACHE_WRITEBACK_GRANULE)
 
 /* Priority levels for ARM platforms */
+#define PLAT_RAS_PRI			0x10
 #define PLAT_SDEI_CRITICAL_PRI		0x60
 #define PLAT_SDEI_NORMAL_PRI		0x70
 
