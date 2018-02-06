@@ -88,7 +88,7 @@ entry_point_info_t *bl2_load_images(void)
 	assert(bl2_to_next_bl_params->head->ep_info);
 
 	/* Populate arg0 for the next BL image if not already provided */
-	if (bl2_to_next_bl_params->head->ep_info->args.arg0 == 0)
+	if (bl2_to_next_bl_params->head->ep_info->args.arg0 == (u_register_t)0)
 		bl2_to_next_bl_params->head->ep_info->args.arg0 =
 					(u_register_t)bl2_to_next_bl_params;
 
