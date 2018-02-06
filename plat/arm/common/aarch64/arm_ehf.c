@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,11 @@
  * Enumeration of priority levels on ARM platforms.
  */
 ehf_pri_desc_t arm_exceptions[] = {
+#if RAS_EXTENSION
+	/* RAS Priority */
+	EHF_PRI_DESC(ARM_PRI_BITS, PLAT_RAS_PRI),
+#endif
+
 #if SDEI_SUPPORT
 	/* Critical priority SDEI */
 	EHF_PRI_DESC(ARM_PRI_BITS, PLAT_SDEI_CRITICAL_PRI),

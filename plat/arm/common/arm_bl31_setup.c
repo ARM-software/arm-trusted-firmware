@@ -14,6 +14,7 @@
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform.h>
+#include <ras.h>
 
 #define BL31_END (uintptr_t)(&__BL31_END__)
 
@@ -217,6 +218,10 @@ void arm_bl31_platform_setup(void)
 
 	/* Initialize power controller before setting up topology */
 	plat_arm_pwrc_setup();
+
+#if RAS_EXTENSION
+	ras_init();
+#endif
 }
 
 /*******************************************************************************

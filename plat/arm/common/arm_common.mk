@@ -203,6 +203,13 @@ ifeq (${SDEI_SUPPORT},1)
 BL31_SOURCES		+=	plat/arm/common/aarch64/arm_sdei.c
 endif
 
+# RAS sources
+ifeq (${RAS_EXTENSION},1)
+BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
+				lib/extensions/ras/ras_common.c \
+				plat/arm/common/aarch64/arm_ras.c
+endif
+
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources
