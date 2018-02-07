@@ -89,8 +89,8 @@ int gunzip(uintptr_t *in_buf, size_t in_len, uintptr_t *out_buf,
 		ret = (zret == Z_MEM_ERROR) ? -ENOMEM : -EIO;
 	}
 
-	VERBOSE("zlib: %d byte input\n", stream.total_in);
-	VERBOSE("zlib: %d byte output\n", stream.total_out);
+	VERBOSE("zlib: %lu byte input\n", stream.total_in);
+	VERBOSE("zlib: %lu byte output\n", stream.total_out);
 
 	*in_buf = (uintptr_t)stream.next_in;
 	*out_buf = (uintptr_t)stream.next_out;
