@@ -538,7 +538,7 @@ enum pm_ret_status pm_fpga_load(uint32_t address_low,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, PM_FPGA_LOAD, address_high, address_low,
 						size, flags);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
