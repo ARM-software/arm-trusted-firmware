@@ -158,9 +158,12 @@ int parse_optee_header(entry_point_info_t *header_ep,
 	 *	and BL32_EXTRA2_IMAGE_ID to load pager and paged bin.
 	 */
 	if (!tee_validate_header(optee_header)) {
-		INFO("Invalid OPTEE header, legacy mode.\n");
-		/* Set legacy OPTEE runtime arch - aarch64 */
+		INFO("Invalid OPTEE header, set legacy mode.\n");
+#ifdef AARCH64
 		header_ep->args.arg0 = MODE_RW_64;
+#else
+		header_ep->args.arg0 = MODE_RW_32;
+#endif
 		return 0;
 	}
 
@@ -208,10 +211,16 @@ int parse_optee_header(entry_point_info_t *header_ep,
 	header_ep->args.arg2 = paged_image_info->image_size;
 
 	/* Set OPTEE runtime arch - aarch32/aarch64 */
-	if (optee_header->arch == 0)
+	if (optee_header->arch == 0) {
 		header_ep->args.arg0 = MODE_RW_32;
-	else
+	} else {
+#ifdef AARCH64
 		header_ep->args.arg0 = MODE_RW_64;
+#else
+		ERROR("Cannot boot an AArch64 OP-TEE\n");
+		return -1;
+#endif
+	}
 
 	return 0;
 }
