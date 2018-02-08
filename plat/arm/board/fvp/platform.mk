@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -15,6 +15,8 @@ FVP_CLUSTER_COUNT	:= 2
 
 # Default number of threads per CPU on FVP
 FVP_MAX_PE_PER_CPU	:= 1
+
+FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 
 $(eval $(call assert_boolean,FVP_USE_SP804_TIMER))
 $(eval $(call add_define,FVP_USE_SP804_TIMER))
@@ -59,6 +61,9 @@ FVP_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				plat/common/plat_gicv2.c		\
 				plat/arm/common/arm_gicv2.c
+
+FVP_DT_PREFIX		:=	fvp-base-gicv2-psci
+
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3_LEGACY)
   ifeq (${ARCH}, aarch32)
     $(error "GICV3 Legacy driver not supported for AArch32 build")
@@ -68,6 +73,9 @@ FVP_GIC_SOURCES		:=	drivers/arm/gic/arm_gic.c		\
 				drivers/arm/gic/gic_v3.c		\
 				plat/common/plat_gic.c			\
 				plat/arm/common/arm_gicv3_legacy.c
+
+FVP_DT_PREFIX		:=	fvp-base-gicv2-psci
+
 else
 $(error "Incorrect GIC driver chosen on FVP port")
 endif
@@ -150,6 +158,20 @@ BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				${FVP_GIC_SOURCES}				\
 				${FVP_INTERCONNECT_SOURCES}			\
 				${FVP_SECURITY_SOURCES}
+
+# Add the FDT_SOURCES and options for Dynamic Config
+FVP_HW_CONFIG_DTS	:=	fdts/${FVP_DT_PREFIX}.dts
+FDT_SOURCES		+=	plat/arm/board/fvp/fdts/${PLAT}_tb_fw_config.dts
+FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+
+# Add the TB_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config))
+
+FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
+$(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
+
+# Add the HW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config))
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0
