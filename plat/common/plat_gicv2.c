@@ -134,6 +134,8 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 		       type == INTR_TYPE_EL3 ||
 		       type == INTR_TYPE_NS);
 
+	assert(sec_state_is_valid(security_state));
+
 	/* Non-secure interrupts are signaled on the IRQ line always */
 	if (type == INTR_TYPE_NS)
 		return __builtin_ctz(SCR_IRQ_BIT);
