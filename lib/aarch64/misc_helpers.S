@@ -198,7 +198,7 @@ func zeromem_dczva
 	 * Check for M bit (MMU enabled) of the current SCTLR_EL(1|3)
 	 * register value and panic if the MMU is disabled.
 	 */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31)
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
 	mrs	tmp1, sctlr_el3
 #else
 	mrs	tmp1, sctlr_el1
