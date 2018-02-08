@@ -14,19 +14,19 @@
 #include <utils_def.h>
 #include "pm_common.h"
 
-#define CLK_NAME_LEN		15
-#define MAX_PARENTS		100
+#define CLK_NAME_LEN		U(15)
+#define MAX_PARENTS		U(100)
 #define CLK_NA_PARENT		-1
 #define CLK_DUMMY_PARENT	-2
 
 /* Flags for parent id */
-#define PARENT_CLK_SELF		0
-#define PARENT_CLK_NODE1	1
-#define PARENT_CLK_NODE2	2
-#define PARENT_CLK_NODE3	3
-#define PARENT_CLK_NODE4	4
-#define PARENT_CLK_EXTERNAL	5
-#define PARENT_CLK_MIO0_MIO77	6
+#define PARENT_CLK_SELF		U(0)
+#define PARENT_CLK_NODE1	U(1)
+#define PARENT_CLK_NODE2	U(2)
+#define PARENT_CLK_NODE3	U(3)
+#define PARENT_CLK_NODE4	U(4)
+#define PARENT_CLK_EXTERNAL	U(5)
+#define PARENT_CLK_MIO0_MIO77	U(6)
 
 #define CLK_SET_RATE_GATE	BIT(0) /* must be gated across rate change */
 #define CLK_SET_PARENT_GATE	BIT(1) /* must be gated across re-parent */
@@ -54,7 +54,8 @@
 
 #define END_OF_CLK     "END_OF_CLK"
 
-enum clock_ids {
+//CLock Ids
+enum {
 	CLK_IOPLL,
 	CLK_RPLL,
 	CLK_APLL,
@@ -158,11 +159,14 @@ enum clock_ids {
 	CLK_VPLL_POST_SRC,
 	CLK_CAN0_MIO,
 	CLK_CAN1_MIO,
-	CLK_MAX_OUTPUT_CLK,
+	END_OF_OUTPUT_CLKS,
 };
 
-enum external_clk_ids {
-	EXT_CLK_PSS_REF = CLK_MAX_OUTPUT_CLK,
+#define CLK_MAX_OUTPUT_CLK (unsigned int)(END_OF_OUTPUT_CLKS)
+
+//External clock ids
+enum {
+	EXT_CLK_PSS_REF = END_OF_OUTPUT_CLKS,
 	EXT_CLK_VIDEO,
 	EXT_CLK_PSS_ALT_REF,
 	EXT_CLK_AUX_REF,
@@ -252,23 +256,24 @@ enum external_clk_ids {
 	EXT_CLK_MIO75,
 	EXT_CLK_MIO76,
 	EXT_CLK_MIO77,
-	CLK_MAX,
+	END_OF_CLKS,
 };
 
-enum clk_type {
-	CLK_TYPE_OUTPUT,
-	CLK_TYPE_EXTERNAL,
-};
+#define CLK_MAX (unsigned int)(END_OF_CLKS)
 
-enum topology_type {
-	TYPE_INVALID,
-	TYPE_MUX,
-	TYPE_PLL,
-	TYPE_FIXEDFACTOR,
-	TYPE_DIV1,
-	TYPE_DIV2,
-	TYPE_GATE,
-};
+//CLock types
+#define CLK_TYPE_OUTPUT 0U
+#define	CLK_TYPE_EXTERNAL  1U
+
+//Topology types
+#define TYPE_INVALID 0U
+#define	TYPE_MUX 1U
+#define	TYPE_PLL 2U
+#define	TYPE_FIXEDFACTOR 3U
+#define	TYPE_DIV1 4U
+#define	TYPE_DIV2 5U
+#define	TYPE_GATE 6U
+
 
 enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name);
 enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,

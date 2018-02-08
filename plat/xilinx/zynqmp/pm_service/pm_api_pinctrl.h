@@ -13,14 +13,15 @@
 
 #include "pm_common.h"
 
-#define FUNCTION_NAME_LEN		16
-#define GROUPS_PAYLOAD_LEN		12
-#define NUM_GROUPS_PER_RESP		6
+#define FUNCTION_NAME_LEN		U(16)
+#define GROUPS_PAYLOAD_LEN		U(12)
+#define NUM_GROUPS_PER_RESP		U(6)
 #define END_OF_FUNCTION			"END_OF_FUNCTION"
 #define END_OF_GROUPS			-1
 #define PINCTRL_GRP_RESERVED		-2
 
-enum pinctrl_fids {
+//pinctrl function ids
+enum {
 	PINCTRL_FUNC_CAN0,
 	PINCTRL_FUNC_CAN1,
 	PINCTRL_FUNC_ETHERNET0,
@@ -78,10 +79,13 @@ enum pinctrl_fids {
 	PINCTRL_FUNC_TRACE0,
 	PINCTRL_FUNC_TRACE0_CLK,
 	PINCTRL_FUNC_TESTSCAN0,
-	MAX_FUNCTION,
+	END_FUNCTION,
 };
 
-enum pinctrl_pin {
+#define MAX_FUNCTION (unsigned int)(END_FUNCTION)
+
+// pinctrl pin numbers
+enum {
 	PINCTRL_PIN_0,
 	PINCTRL_PIN_1,
 	PINCTRL_PIN_2,
@@ -160,10 +164,13 @@ enum pinctrl_pin {
 	PINCTRL_PIN_75,
 	PINCTRL_PIN_76,
 	PINCTRL_PIN_77,
-	MAX_PIN,
+	END_PINS,
 };
 
-enum pinctrl_group_ids {
+#define MAX_PIN (unsigned int)(END_PINS)
+
+// pinctrl group ids
+enum  {
 	PINCTRL_GRP_ETHERNET0_0,
 	PINCTRL_GRP_ETHERNET1_0,
 	PINCTRL_GRP_ETHERNET2_0,
@@ -669,7 +676,8 @@ enum pinctrl_group_ids {
 	PINCTRL_GRP_TESTSCAN0_0,
 };
 
-enum pm_pinctrl_config_param {
+// pinctrl config parameters
+enum {
 	PINCTRL_CONFIG_SLEW_RATE,
 	PINCTRL_CONFIG_BIAS_STATUS,
 	PINCTRL_CONFIG_PULL_CTRL,
@@ -679,35 +687,30 @@ enum pm_pinctrl_config_param {
 	PINCTRL_CONFIG_MAX,
 };
 
-enum pm_pinctrl_slew_rate {
-	PINCTRL_SLEW_RATE_FAST,
-	PINCTRL_SLEW_RATE_SLOW,
-};
+// pinctrl slew rate
+#define	PINCTRL_SLEW_RATE_FAST 0U
+#define	PINCTRL_SLEW_RATE_SLOW 1U
 
-enum pm_pinctrl_bias_status {
-	PINCTRL_BIAS_DISABLE,
-	PINCTRL_BIAS_ENABLE,
-};
+// pinctrl bias status
+#define	PINCTRL_BIAS_DISABLE 0U
+#define	PINCTRL_BIAS_ENABLE 1U
 
-enum pm_pinctrl_pull_ctrl {
-	PINCTRL_BIAS_PULL_DOWN,
-	PINCTRL_BIAS_PULL_UP,
-};
+// pinctrl pull control
+#define	PINCTRL_BIAS_PULL_DOWN 0U
+#define	PINCTRL_BIAS_PULL_UP 1U
 
-enum pm_pinctrl_schmitt_cmos {
-	PINCTRL_INPUT_TYPE_CMOS,
-	PINCTRL_INPUT_TYPE_SCHMITT,
-};
+// pinctrl schmitt cmos type
+#define PINCTRL_INPUT_TYPE_CMOS 0U
+#define	PINCTRL_INPUT_TYPE_SCHMITT 1U
 
-enum pm_pinctrl_drive_strength {
-	PINCTRL_DRIVE_STRENGTH_2MA,
-	PINCTRL_DRIVE_STRENGTH_4MA,
-	PINCTRL_DRIVE_STRENGTH_8MA,
-	PINCTRL_DRIVE_STRENGTH_12MA,
-};
+//pinctrl drive strength values
+#define	PINCTRL_DRIVE_STRENGTH_2MA 0U
+#define	PINCTRL_DRIVE_STRENGTH_4MA 1U
+#define	PINCTRL_DRIVE_STRENGTH_8MA 2U
+#define	PINCTRL_DRIVE_STRENGTH_12MA 3U
 
 enum pm_ret_status pm_api_pinctrl_set_function(unsigned int pin,
-					       unsigned int id);
+					       unsigned int fid);
 enum pm_ret_status pm_api_pinctrl_get_function(unsigned int pin,
 					       unsigned int *id);
 enum pm_ret_status pm_api_pinctrl_set_config(unsigned int pin,

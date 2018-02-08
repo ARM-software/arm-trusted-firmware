@@ -17,32 +17,32 @@
 #include "pm_common.h"
 #include "pm_ipi.h"
 
-#define PINCTRL_FUNCTION_MASK			0xFE
-#define PINCTRL_VOLTAGE_STATUS_MASK		0x01
-#define NFUNCS_PER_PIN				13
-#define PINCTRL_NUM_MIOS			78
-#define MAX_PIN_PER_REG				26
-#define PINCTRL_BANK_ADDR_STEP			28
+#define PINCTRL_FUNCTION_MASK			U(0xFE)
+#define PINCTRL_VOLTAGE_STATUS_MASK		U(0x01)
+#define NFUNCS_PER_PIN				U(13)
+#define PINCTRL_NUM_MIOS			U(78)
+#define MAX_PIN_PER_REG				U(26)
+#define PINCTRL_BANK_ADDR_STEP			U(28)
 
-#define PINCTRL_DRVSTRN0_REG_OFFSET		0
-#define PINCTRL_DRVSTRN1_REG_OFFSET		4
-#define PINCTRL_SCHCMOS_REG_OFFSET		8
-#define PINCTRL_PULLCTRL_REG_OFFSET		12
-#define PINCTRL_PULLSTAT_REG_OFFSET		16
-#define PINCTRL_SLEWCTRL_REG_OFFSET		20
-#define PINCTRL_VOLTAGE_STAT_REG_OFFSET		24
+#define PINCTRL_DRVSTRN0_REG_OFFSET		U(0)
+#define PINCTRL_DRVSTRN1_REG_OFFSET		U(4)
+#define PINCTRL_SCHCMOS_REG_OFFSET		U(8)
+#define PINCTRL_PULLCTRL_REG_OFFSET		U(12)
+#define PINCTRL_PULLSTAT_REG_OFFSET		U(16)
+#define PINCTRL_SLEWCTRL_REG_OFFSET		U(20)
+#define PINCTRL_VOLTAGE_STAT_REG_OFFSET		U(24)
 
-#define IOU_SLCR_BANK1_CTRL5			0XFF180164
+#define IOU_SLCR_BANK1_CTRL5			U(0XFF180164)
 
-#define PINCTRL_CFG_ADDR_OFFSET(addr, reg, pin)				\
+#define PINCTRL_CFG_ADDR_OFFSET(addr, reg, miopin)			\
 	((addr) + 4 * PINCTRL_NUM_MIOS + PINCTRL_BANK_ADDR_STEP *	\
-	((pin) / MAX_PIN_PER_REG) + (reg))
+	((miopin) / MAX_PIN_PER_REG) + (reg))
 
-#define PINCTRL_PIN_OFFSET(pin) \
-	((pin) - (MAX_PIN_PER_REG * ((pin) / MAX_PIN_PER_REG)))
+#define PINCTRL_PIN_OFFSET(_miopin) \
+	((_miopin) - (MAX_PIN_PER_REG * ((_miopin) / MAX_PIN_PER_REG)))
 
-#define PINCTRL_REGVAL_TO_PIN_CONFIG(pin, value)			\
-	(((value) >> PINCTRL_PIN_OFFSET(pin)) & 0x1)
+#define PINCTRL_REGVAL_TO_PIN_CONFIG(_pin, _val)			\
+	(((_val) >> PINCTRL_PIN_OFFSET(_pin)) & 0x1)
 
 static uint8_t pm_pinctrl_mux[NFUNCS_PER_PIN] = {
 	0x02, 0x04, 0x08, 0x10, 0x18,
@@ -57,7 +57,7 @@ struct pinctrl_function {
 };
 
 /* Max groups for one pin */
-#define MAX_PIN_GROUPS	13
+#define MAX_PIN_GROUPS	U(13)
 
 struct zynqmp_pin_group {
 	uint16_t (*groups)[];
@@ -2585,7 +2585,7 @@ enum pm_ret_status pm_api_pinctrl_get_num_func_groups(unsigned int fid,
 	*ngroups = 0;
 
 	grps = *pinctrl_functions[fid].groups;
-	if (!grps)
+	if (grps == NULL)
 		return PM_RET_SUCCESS;
 
 	while (grps[i++] != (uint16_t)END_OF_GROUPS)
@@ -2637,7 +2637,7 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(unsigned int fid,
 						      unsigned int index,
 						      uint16_t *groups)
 {
-	int i;
+	unsigned int i;
 	uint16_t *grps;
 
 	if (fid >= MAX_FUNCTION)
@@ -2646,7 +2646,7 @@ enum pm_ret_status pm_api_pinctrl_get_function_groups(unsigned int fid,
 	memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
 
 	grps = *pinctrl_functions[fid].groups;
-	if (!grps)
+	if (grps == NULL)
 		return PM_RET_SUCCESS;
 
 	/* Skip groups till index */
@@ -2685,7 +2685,7 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(unsigned int pin,
 						 unsigned int index,
 						 uint16_t *groups)
 {
-	int i;
+	unsigned int i;
 	uint16_t *grps;
 
 	if (pin >= MAX_PIN)
@@ -2723,13 +2723,14 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(unsigned int pin,
 enum pm_ret_status pm_api_pinctrl_get_function(unsigned int pin,
 					       unsigned int *id)
 {
-	int i = 0, j = 0, ret = PM_RET_SUCCESS;
-	unsigned int reg, val, gid;
+	unsigned int i = 0, j = 0;
+	enum pm_ret_status ret = PM_RET_SUCCESS;
+	unsigned int ctrlreg, val, gid;
 	uint16_t *grps;
 
-	reg = IOU_SLCR_BASEADDR + 4 * pin;
-	ret = pm_mmio_read(reg, &val);
-	if (ret)
+	ctrlreg = IOU_SLCR_BASEADDR + 4U * pin;
+	ret = pm_mmio_read(ctrlreg, &val);
+	if (ret != PM_RET_SUCCESS)
 		return ret;
 
 	val &= PINCTRL_FUNCTION_MASK;
@@ -2745,7 +2746,7 @@ enum pm_ret_status pm_api_pinctrl_get_function(unsigned int pin,
 
 	for (i = 0; i < MAX_FUNCTION; i++) {
 		grps = *pinctrl_functions[i].groups;
-		if (!grps)
+		if (grps == NULL)
 			continue;
 		if (val != pinctrl_functions[i].regval)
 			continue;
@@ -2776,10 +2777,10 @@ enum pm_ret_status pm_api_pinctrl_set_function(unsigned int pin,
 					       unsigned int fid)
 {
 	int i, j;
-	unsigned int reg, val;
+	unsigned int ctrlreg, val;
 	uint16_t *pgrps, *fgrps;
 
-	reg = IOU_SLCR_BASEADDR + 4 * pin;
+	ctrlreg = IOU_SLCR_BASEADDR + 4U * pin;
 	val = pinctrl_functions[fid].regval;
 
 	for (i = 0; i < NFUNCS_PER_PIN; i++)
@@ -2805,7 +2806,7 @@ enum pm_ret_status pm_api_pinctrl_set_function(unsigned int pin,
 	return PM_RET_ERROR_NOTSUPPORTED;
 
 match:
-	return pm_mmio_write(reg, PINCTRL_FUNCTION_MASK, val);
+	return pm_mmio_write(ctrlreg, PINCTRL_FUNCTION_MASK, val);
 }
 
 /**
@@ -2822,8 +2823,8 @@ enum pm_ret_status pm_api_pinctrl_set_config(unsigned int pin,
 					     unsigned int param,
 					     unsigned int value)
 {
-	int ret;
-	unsigned int reg, mask, val, offset;
+	enum pm_ret_status ret;
+	unsigned int ctrlreg, mask, val, offset;
 
 	if (param >= PINCTRL_CONFIG_MAX)
 		return PM_RET_ERROR_NOTSUPPORTED;
@@ -2839,28 +2840,29 @@ enum pm_ret_status pm_api_pinctrl_set_config(unsigned int pin,
 		    value != PINCTRL_SLEW_RATE_SLOW)
 			return PM_RET_ERROR_ARGS;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_SLEWCTRL_REG_OFFSET,
 					      pin);
 		val = value << PINCTRL_PIN_OFFSET(pin);
-		ret = pm_mmio_write(reg, mask, val);
+		ret = pm_mmio_write(ctrlreg, mask, val);
 		break;
 	case PINCTRL_CONFIG_BIAS_STATUS:
 		if (value != PINCTRL_BIAS_ENABLE &&
 		    value != PINCTRL_BIAS_DISABLE)
 			return PM_RET_ERROR_ARGS;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_PULLSTAT_REG_OFFSET,
 					      pin);
 
 		offset = PINCTRL_PIN_OFFSET(pin);
-		if (reg == IOU_SLCR_BANK1_CTRL5)
-			offset = (offset < 12) ? (offset + 14) : (offset - 12);
+		if (ctrlreg == IOU_SLCR_BANK1_CTRL5)
+			offset = (offset < 12U) ?
+					(offset + 14U) : (offset - 12U);
 
 		val = value << offset;
 		mask = 1 << offset;
-		ret = pm_mmio_write(reg, mask, val);
+		ret = pm_mmio_write(ctrlreg, mask, val);
 		break;
 	case PINCTRL_CONFIG_PULL_CTRL:
 
@@ -2868,54 +2870,55 @@ enum pm_ret_status pm_api_pinctrl_set_config(unsigned int pin,
 		    value != PINCTRL_BIAS_PULL_UP)
 			return PM_RET_ERROR_ARGS;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_PULLSTAT_REG_OFFSET,
 					      pin);
 
 		offset = PINCTRL_PIN_OFFSET(pin);
-		if (reg == IOU_SLCR_BANK1_CTRL5)
-			offset = (offset < 12) ? (offset + 14) : (offset - 12);
+		if (ctrlreg == IOU_SLCR_BANK1_CTRL5)
+			offset = (offset < 12U) ?
+					(offset + 14U) : (offset - 12U);
 
 		val = PINCTRL_BIAS_ENABLE << offset;
-		ret = pm_mmio_write(reg, 1 << offset, val);
-		if (ret)
+		ret = pm_mmio_write(ctrlreg, 1 << offset, val);
+		if (ret != PM_RET_SUCCESS)
 			return ret;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_PULLCTRL_REG_OFFSET,
 					      pin);
 		val = value << PINCTRL_PIN_OFFSET(pin);
-		ret = pm_mmio_write(reg, mask, val);
+		ret = pm_mmio_write(ctrlreg, mask, val);
 		break;
 	case PINCTRL_CONFIG_SCHMITT_CMOS:
 		if (value != PINCTRL_INPUT_TYPE_CMOS &&
 		    value != PINCTRL_INPUT_TYPE_SCHMITT)
 			return PM_RET_ERROR_ARGS;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_SCHCMOS_REG_OFFSET,
 					      pin);
 
 		val = value << PINCTRL_PIN_OFFSET(pin);
-		ret = pm_mmio_write(reg, mask, val);
+		ret = pm_mmio_write(ctrlreg, mask, val);
 		break;
 	case PINCTRL_CONFIG_DRIVE_STRENGTH:
 		if (value > PINCTRL_DRIVE_STRENGTH_12MA)
 			return PM_RET_ERROR_ARGS;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_DRVSTRN0_REG_OFFSET,
 					      pin);
 		val = (value >> 1) << PINCTRL_PIN_OFFSET(pin);
-		ret = pm_mmio_write(reg, mask, val);
+		ret = pm_mmio_write(ctrlreg, mask, val);
 		if (ret)
 			return ret;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_DRVSTRN1_REG_OFFSET,
 					      pin);
-		val = (value & 0x01) << PINCTRL_PIN_OFFSET(pin);
-		ret = pm_mmio_write(reg, mask, val);
+		val = (value & 0x01U) << PINCTRL_PIN_OFFSET(pin);
+		ret = pm_mmio_write(ctrlreg, mask, val);
 		break;
 	default:
 		ERROR("Invalid parameter %u\n", param);
@@ -2940,8 +2943,8 @@ enum pm_ret_status pm_api_pinctrl_get_config(unsigned int pin,
 					     unsigned int param,
 					     unsigned int *value)
 {
-	int ret;
-	unsigned int reg, val;
+	enum pm_ret_status ret;
+	unsigned int ctrlreg, val;
 
 	if (param >= PINCTRL_CONFIG_MAX)
 		return PM_RET_ERROR_NOTSUPPORTED;
@@ -2951,78 +2954,78 @@ enum pm_ret_status pm_api_pinctrl_get_config(unsigned int pin,
 
 	switch (param) {
 	case PINCTRL_CONFIG_SLEW_RATE:
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_SLEWCTRL_REG_OFFSET,
 					      pin);
 
-		ret = pm_mmio_read(reg, &val);
-		if (ret)
+		ret = pm_mmio_read(ctrlreg, &val);
+		if (ret != PM_RET_SUCCESS)
 			return ret;
 
 		*value = PINCTRL_REGVAL_TO_PIN_CONFIG(pin, val);
 		break;
 	case PINCTRL_CONFIG_BIAS_STATUS:
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_PULLSTAT_REG_OFFSET,
 					      pin);
 
-		ret = pm_mmio_read(reg, &val);
+		ret = pm_mmio_read(ctrlreg, &val);
 		if (ret)
 			return ret;
 
-		if (reg == IOU_SLCR_BANK1_CTRL5)
+		if (ctrlreg == IOU_SLCR_BANK1_CTRL5)
 			val = ((val & 0x3FFF) << 12) | ((val >> 14) & 0xFFF);
 
 		*value = PINCTRL_REGVAL_TO_PIN_CONFIG(pin, val);
 		break;
 	case PINCTRL_CONFIG_PULL_CTRL:
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_PULLCTRL_REG_OFFSET,
 					      pin);
 
-		ret = pm_mmio_read(reg, &val);
+		ret = pm_mmio_read(ctrlreg, &val);
 		if (ret)
 			return ret;
 
 		*value = PINCTRL_REGVAL_TO_PIN_CONFIG(pin, val);
 		break;
 	case PINCTRL_CONFIG_SCHMITT_CMOS:
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_SCHCMOS_REG_OFFSET,
 					      pin);
 
-		ret = pm_mmio_read(reg, &val);
+		ret = pm_mmio_read(ctrlreg, &val);
 		if (ret)
 			return ret;
 
 		*value = PINCTRL_REGVAL_TO_PIN_CONFIG(pin, val);
 		break;
 	case PINCTRL_CONFIG_DRIVE_STRENGTH:
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_DRVSTRN0_REG_OFFSET,
 					      pin);
-		ret = pm_mmio_read(reg, &val);
+		ret = pm_mmio_read(ctrlreg, &val);
 		if (ret)
 			return ret;
 
 		*value = PINCTRL_REGVAL_TO_PIN_CONFIG(pin, val) << 1;
 
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_DRVSTRN1_REG_OFFSET,
 					      pin);
-		ret = pm_mmio_read(reg, &val);
+		ret = pm_mmio_read(ctrlreg, &val);
 		if (ret)
 			return ret;
 
 		*value |= PINCTRL_REGVAL_TO_PIN_CONFIG(pin, val);
 		break;
 	case PINCTRL_CONFIG_VOLTAGE_STATUS:
-		reg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
+		ctrlreg = PINCTRL_CFG_ADDR_OFFSET(IOU_SLCR_BASEADDR,
 					      PINCTRL_VOLTAGE_STAT_REG_OFFSET,
 					      pin);
 
-		ret = pm_mmio_read(reg, &val);
+		ret = pm_mmio_read(ctrlreg, &val);
 		if (ret)
 			return ret;
 
@@ -3032,5 +3035,5 @@ enum pm_ret_status pm_api_pinctrl_get_config(unsigned int pin,
 		return PM_RET_ERROR_NOTSUPPORTED;
 	}
 
-	return 0;
+	return PM_RET_SUCCESS;
 }

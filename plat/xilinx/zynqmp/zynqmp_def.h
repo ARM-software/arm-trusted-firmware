@@ -27,36 +27,36 @@
  * ZYNQMP memory map related constants
  ******************************************************************************/
 /* Aggregate of all devices in the first GB */
-#define DEVICE0_BASE		0xFF000000
-#define DEVICE0_SIZE		0x00E00000
-#define DEVICE1_BASE		0xF9000000
-#define DEVICE1_SIZE		0x00800000
+#define DEVICE0_BASE		U(0xFF000000)
+#define DEVICE0_SIZE		U(0x00E00000)
+#define DEVICE1_BASE		U(0xF9000000)
+#define DEVICE1_SIZE		U(0x00800000)
 
 /* For cpu reset APU space here too 0xFE5F1000 CRF_APB*/
-#define CRF_APB_BASE		0xFD1A0000
-#define CRF_APB_SIZE		0x00600000
-#define CRF_APB_CLK_BASE	0xFD1A0020
+#define CRF_APB_BASE		U(0xFD1A0000)
+#define CRF_APB_SIZE		U(0x00600000)
+#define CRF_APB_CLK_BASE	U(0xFD1A0020)
 
 /* CRF registers and bitfields */
 #define CRF_APB_RST_FPD_APU	(CRF_APB_BASE + 0X00000104)
 
-#define CRF_APB_RST_FPD_APU_ACPU_RESET		(1 << 0)
-#define CRF_APB_RST_FPD_APU_ACPU_PWRON_RESET	(1 << 10)
+#define CRF_APB_RST_FPD_APU_ACPU_RESET		(U(1) << 0)
+#define CRF_APB_RST_FPD_APU_ACPU_PWRON_RESET	(U(1) << 10)
 
 /* CRL registers and bitfields */
-#define CRL_APB_BASE			0xFF5E0000
+#define CRL_APB_BASE			U(0xFF5E0000)
 #define CRL_APB_BOOT_MODE_USER		(CRL_APB_BASE + 0x200)
 #define CRL_APB_RESET_CTRL		(CRL_APB_BASE + 0x218)
 #define CRL_APB_RST_LPD_TOP		(CRL_APB_BASE + 0x23C)
-#define CRL_APB_CLK_BASE		0xFF5E0020
+#define CRL_APB_CLK_BASE		U(0xFF5E0020)
 
-#define CRL_APB_RPU_AMBA_RESET		(1 << 2)
-#define CRL_APB_RPLL_CTRL_BYPASS	(1 << 3)
+#define CRL_APB_RPU_AMBA_RESET		(U(1) << 2)
+#define CRL_APB_RPLL_CTRL_BYPASS	(U(1) << 3)
 
-#define CRL_APB_RESET_CTRL_SOFT_RESET	(1 << 4)
+#define CRL_APB_RESET_CTRL_SOFT_RESET	(U(1) << 4)
 
-#define CRL_APB_BOOT_MODE_MASK		(0xf << 0)
-#define ZYNQMP_BOOTMODE_JTAG		0
+#define CRL_APB_BOOT_MODE_MASK		(U(0xf) << 0)
+#define ZYNQMP_BOOTMODE_JTAG		U(0)
 
 /* system counter registers and bitfields */
 #define IOU_SCNTRS_BASE			0xFF260000
@@ -177,54 +177,54 @@
 #define ACTLR_EL3_L2ACTLR_BIT	(1 << 6)
 #define ACTLR_EL3_CPUACTLR_BIT	(1 << 0)
 
-#define IOU_SLCR_BASEADDR		0xFF180000
+#define IOU_SLCR_BASEADDR		U(0xFF180000)
 
-#define ZYNQMP_RPU_GLBL_CNTL			0xFF9A0000
-#define ZYNQMP_RPU0_CFG				0xFF9A0100
-#define ZYNQMP_RPU1_CFG				0xFF9A0200
-#define ZYNQMP_SLSPLIT_MASK			0x08
-#define ZYNQMP_TCM_COMB_MASK			0x40
-#define ZYNQMP_SLCLAMP_MASK			0x10
-#define ZYNQMP_VINITHI_MASK			0x04
+#define ZYNQMP_RPU_GLBL_CNTL			U(0xFF9A0000)
+#define ZYNQMP_RPU0_CFG				U(0xFF9A0100)
+#define ZYNQMP_RPU1_CFG				U(0xFF9A0200)
+#define ZYNQMP_SLSPLIT_MASK			U(0x08)
+#define ZYNQMP_TCM_COMB_MASK			U(0x40)
+#define ZYNQMP_SLCLAMP_MASK			U(0x10)
+#define ZYNQMP_VINITHI_MASK			U(0x04)
 
 /* Tap delay bypass */
-#define IOU_TAPDLY_BYPASS			0XFF180390
-#define TAP_DELAY_MASK				0x7
+#define IOU_TAPDLY_BYPASS			U(0XFF180390)
+#define TAP_DELAY_MASK				U(0x7)
 
 /* SGMII mode */
-#define IOU_GEM_CTRL				0xFF180360
-#define IOU_GEM_CLK_CTRL			0xFF180308
-#define SGMII_SD_MASK				0x3
-#define SGMII_SD_OFFSET				2
-#define SGMII_PCS_SD_0				0x0
-#define SGMII_PCS_SD_1				0x1
-#define SGMII_PCS_SD_PHY			0x2
-#define GEM_SGMII_MASK				0x4
-#define GEM_CLK_CTRL_MASK			0xF
-#define GEM_CLK_CTRL_OFFSET			5
-#define GEM_RX_SRC_SEL_GTR			0x1
-#define GEM_SGMII_MODE				0x4
+#define IOU_GEM_CTRL				U(0xFF180360)
+#define IOU_GEM_CLK_CTRL			U(0xFF180308)
+#define SGMII_SD_MASK				U(0x3)
+#define SGMII_SD_OFFSET				U(2)
+#define SGMII_PCS_SD_0				U(0x0)
+#define SGMII_PCS_SD_1				U(0x1)
+#define SGMII_PCS_SD_PHY			U(0x2)
+#define GEM_SGMII_MASK				U(0x4)
+#define GEM_CLK_CTRL_MASK			U(0xF)
+#define GEM_CLK_CTRL_OFFSET			U(5)
+#define GEM_RX_SRC_SEL_GTR			U(0x1)
+#define GEM_SGMII_MODE				U(0x4)
 
 /* SD DLL reset */
-#define ZYNQMP_SD_DLL_CTRL			0xFF180358
-#define ZYNQMP_SD0_DLL_RST_MASK			0x00000004
-#define ZYNQMP_SD0_DLL_RST			0x00000004
-#define ZYNQMP_SD1_DLL_RST_MASK			0x00040000
-#define ZYNQMP_SD1_DLL_RST			0x00040000
+#define ZYNQMP_SD_DLL_CTRL			U(0xFF180358)
+#define ZYNQMP_SD0_DLL_RST_MASK			U(0x00000004)
+#define ZYNQMP_SD0_DLL_RST			U(0x00000004)
+#define ZYNQMP_SD1_DLL_RST_MASK			U(0x00040000)
+#define ZYNQMP_SD1_DLL_RST			U(0x00040000)
 
 /* SD tap delay */
-#define ZYNQMP_SD_DLL_CTRL			0xFF180358
-#define ZYNQMP_SD_ITAP_DLY			0xFF180314
-#define ZYNQMP_SD_OTAP_DLY			0xFF180318
-#define ZYNQMP_SD_TAP_OFFSET			16
-#define ZYNQMP_SD_ITAPCHGWIN_MASK		0x200
-#define ZYNQMP_SD_ITAPCHGWIN			0x200
-#define ZYNQMP_SD_ITAPDLYENA_MASK		0x100
-#define ZYNQMP_SD_ITAPDLYENA			0x100
-#define ZYNQMP_SD_ITAPDLYSEL_MASK		0xFF
-#define ZYNQMP_SD_OTAPDLYSEL_MASK		0x3F
-#define ZYNQMP_SD_OTAPDLYENA_MASK		0x40
-#define ZYNQMP_SD_OTAPDLYENA			0x40
+#define ZYNQMP_SD_DLL_CTRL			U(0xFF180358)
+#define ZYNQMP_SD_ITAP_DLY			U(0xFF180314)
+#define ZYNQMP_SD_OTAP_DLY			U(0xFF180318)
+#define ZYNQMP_SD_TAP_OFFSET			U(16)
+#define ZYNQMP_SD_ITAPCHGWIN_MASK		U(0x200)
+#define ZYNQMP_SD_ITAPCHGWIN			U(0x200)
+#define ZYNQMP_SD_ITAPDLYENA_MASK		U(0x100)
+#define ZYNQMP_SD_ITAPDLYENA			U(0x100)
+#define ZYNQMP_SD_ITAPDLYSEL_MASK		U(0xFF)
+#define ZYNQMP_SD_OTAPDLYSEL_MASK		U(0x3F)
+#define ZYNQMP_SD_OTAPDLYENA_MASK		U(0x40)
+#define ZYNQMP_SD_OTAPDLYENA			U(0x40)
 
 /* Clock control registers */
 /* Full power domain clocks */
@@ -305,10 +305,10 @@
 
 /* Global general storage register base address */
 #define GGS_BASEADDR		(0xFFD80030U)
-#define GGS_NUM_REGS		(4)
+#define GGS_NUM_REGS		U(4)
 
 /* Persistent global general storage register base address */
 #define PGGS_BASEADDR		(0xFFD80050U)
-#define PGGS_NUM_REGS		(4)
+#define PGGS_NUM_REGS		U(4)
 
 #endif /* __ZYNQMP_DEF_H__ */

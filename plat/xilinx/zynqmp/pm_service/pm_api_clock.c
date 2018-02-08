@@ -11,6 +11,7 @@
 #include <arch_helpers.h>
 #include <mmio.h>
 #include <platform.h>
+#include <stdbool.h>
 #include <string.h>
 #include "pm_api_clock.h"
 #include "pm_api_sys.h"
@@ -18,48 +19,48 @@
 #include "pm_common.h"
 #include "pm_ipi.h"
 
-#define CLK_NODE_MAX			6
+#define CLK_NODE_MAX			U(6)
 
-#define CLK_PARENTS_ID_LEN		16
-#define CLK_TOPOLOGY_NODE_OFFSET	16
-#define CLK_TOPOLOGY_PAYLOAD_LEN	12
-#define CLK_PARENTS_PAYLOAD_LEN		12
-#define CLK_INIT_ENABLE_SHIFT		1
-#define CLK_TYPE_SHIFT			2
-#define CLK_CLKFLAGS_SHIFT		8
-#define CLK_TYPEFLAGS_SHIFT		24
+#define CLK_PARENTS_ID_LEN		U(16)
+#define CLK_TOPOLOGY_NODE_OFFSET	U(16)
+#define CLK_TOPOLOGY_PAYLOAD_LEN	U(12)
+#define CLK_PARENTS_PAYLOAD_LEN		U(12)
+#define CLK_INIT_ENABLE_SHIFT		U(1)
+#define CLK_TYPE_SHIFT			U(2)
+#define CLK_CLKFLAGS_SHIFT		U(8)
+#define CLK_TYPEFLAGS_SHIFT		U(24)
 
 #define CLK_EXTERNAL_PARENT	(PARENT_CLK_EXTERNAL << CLK_PARENTS_ID_LEN)
 
-#define NA_MULT					0
-#define NA_DIV					0
-#define NA_SHIFT				0
-#define NA_WIDTH				0
-#define NA_CLK_FLAGS				0
-#define NA_TYPE_FLAGS				0
+#define NA_MULT					U(0)
+#define NA_DIV					U(0)
+#define NA_SHIFT				U(0)
+#define NA_WIDTH				U(0)
+#define NA_CLK_FLAGS				U(0)
+#define NA_TYPE_FLAGS				U(0)
 
 /* PLL nodes related definitions */
-#define PLL_PRESRC_MUX_SHIFT			20
-#define PLL_PRESRC_MUX_WIDTH			3
-#define PLL_POSTSRC_MUX_SHIFT			24
-#define PLL_POSTSRC_MUX_WIDTH			3
-#define PLL_DIV2_MUX_SHIFT			16
-#define PLL_DIV2_MUX_WIDTH			1
-#define PLL_BYPASS_MUX_SHIFT			3
-#define PLL_BYPASS_MUX_WIDTH			1
+#define PLL_PRESRC_MUX_SHIFT			U(20)
+#define PLL_PRESRC_MUX_WIDTH			U(3)
+#define PLL_POSTSRC_MUX_SHIFT			U(24)
+#define PLL_POSTSRC_MUX_WIDTH			U(3)
+#define PLL_DIV2_MUX_SHIFT			U(16)
+#define PLL_DIV2_MUX_WIDTH			U(1)
+#define PLL_BYPASS_MUX_SHIFT			U(3)
+#define PLL_BYPASS_MUX_WIDTH			U(1)
 
 /* Peripheral nodes related definitions */
 /* Peripheral Clocks */
-#define PERIPH_MUX_SHIFT			0
-#define PERIPH_MUX_WIDTH			3
-#define PERIPH_DIV1_SHIFT			8
-#define PERIPH_DIV1_WIDTH			6
-#define PERIPH_DIV2_SHIFT			16
-#define PERIPH_DIV2_WIDTH			6
-#define PERIPH_GATE_SHIFT			24
-#define PERIPH_GATE_WIDTH			1
+#define PERIPH_MUX_SHIFT			U(0)
+#define PERIPH_MUX_WIDTH			U(3)
+#define PERIPH_DIV1_SHIFT			U(8)
+#define PERIPH_DIV1_WIDTH			U(6)
+#define PERIPH_DIV2_SHIFT			U(16)
+#define PERIPH_DIV2_WIDTH			U(6)
+#define PERIPH_GATE_SHIFT			U(24)
+#define PERIPH_GATE_WIDTH			U(1)
 
-#define USB_GATE_SHIFT				25
+#define USB_GATE_SHIFT				U(25)
 
 /* External clock related definitions */
 
@@ -73,27 +74,28 @@
 /* Clock control related definitions */
 #define BIT_MASK(x, y) (((1U << (y)) - 1) << (x))
 
-#define ISPLL(id)	(((id) == CLK_APLL_INT ||	\
-			  (id) == CLK_DPLL_INT ||	\
-			  (id) == CLK_VPLL_INT ||	\
-			  (id) == CLK_IOPLL_INT ||	\
-			  (id) == CLK_RPLL_INT) ? 1 : 0)
+#define ISPLL(id)	(id == CLK_APLL_INT ||	\
+			 id == CLK_DPLL_INT ||  \
+			 id == CLK_VPLL_INT ||  \
+			 id == CLK_IOPLL_INT || \
+			 id == CLK_RPLL_INT)
+
 
 #define PLLCTRL_BP_MASK				BIT(3)
-#define PLLCTRL_RESET_MASK			1
-#define PLL_FRAC_OFFSET				8
-#define PLL_FRAC_MODE				1
-#define PLL_INT_MODE				0
-#define PLL_FRAC_MODE_MASK			0x80000000
-#define PLL_FRAC_MODE_SHIFT			31
-#define PLL_FRAC_DATA_MASK			0xFFFF
-#define PLL_FRAC_DATA_SHIFT			0
-#define PLL_FBDIV_MASK				0x7F00
-#define PLL_FBDIV_WIDTH				7
-#define PLL_FBDIV_SHIFT				8
+#define PLLCTRL_RESET_MASK			U(1)
+#define PLL_FRAC_OFFSET				U(8)
+#define PLL_FRAC_MODE				U(1)
+#define PLL_INT_MODE				U(0)
+#define PLL_FRAC_MODE_MASK			U(0x80000000)
+#define PLL_FRAC_MODE_SHIFT			U(31)
+#define PLL_FRAC_DATA_MASK			U(0xFFFF)
+#define PLL_FRAC_DATA_SHIFT			U(0)
+#define PLL_FBDIV_MASK				U(0x7F00)
+#define PLL_FBDIV_WIDTH				U(7)
+#define PLL_FBDIV_SHIFT				U(8)
 
-#define CLK_PLL_RESET_ASSERT			1
-#define CLK_PLL_RESET_RELEASE			2
+#define CLK_PLL_RESET_ASSERT			U(1)
+#define CLK_PLL_RESET_RELEASE			U(2)
 #define CLK_PLL_RESET_PULSE	(CLK_PLL_RESET_ASSERT | CLK_PLL_RESET_RELEASE)
 
 /* Common topology definitions */
@@ -2239,10 +2241,10 @@ static struct pm_ext_clock ext_clocks[] = {
 };
 
 /* Array of clock which are invalid for this variant */
-uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB};
+static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB};
 
 /* Array of clocks which needs to be enabled at init */
-uint32_t pm_clk_init_enable_list[] = {
+static uint32_t pm_clk_init_enable_list[] = {
 	CLK_ACPU,
 	CLK_DDR_REF,
 };
@@ -2259,9 +2261,9 @@ uint32_t pm_clk_init_enable_list[] = {
  *
  * Return: Returns 1 if clock is valid else 0.
  */
-static unsigned int pm_clock_valid(unsigned int clock_id)
+static bool pm_clock_valid(unsigned int clock_id)
 {
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(pm_clk_invalid_list); i++)
 		if (pm_clk_invalid_list[i] == clock_id)
@@ -2281,7 +2283,7 @@ static unsigned int pm_clock_valid(unsigned int clock_id)
  */
 static unsigned int pm_clock_init_enable(unsigned int clock_id)
 {
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(pm_clk_init_enable_list); i++)
 		if (pm_clk_init_enable_list[i] == clock_id)
@@ -2365,7 +2367,7 @@ enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,
 	if (index >= num_nodes)
 		return PM_RET_SUCCESS;
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3U; i++) {
 		if ((index + i) == num_nodes)
 			break;
 		topology[i] =  clock_nodes[index + i].type;
@@ -2444,7 +2446,7 @@ enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
 					    unsigned int index,
 					    uint32_t *parents)
 {
-	int i;
+	unsigned int i;
 	int32_t *clk_parents;
 
 	if (!pm_clock_valid(clock_id))
@@ -2454,7 +2456,7 @@ enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
 		return PM_RET_ERROR_NOTSUPPORTED;
 
 	clk_parents = *clocks[clock_id].parents;
-	if (!clk_parents)
+	if (clk_parents == NULL)
 		return PM_RET_ERROR_ARGS;
 
 	memset(parents, 0, CLK_PARENTS_PAYLOAD_LEN);
@@ -2532,29 +2534,41 @@ static int pll_get_lockbit(unsigned int pll_id)
  *
  * This function is to bypass and reset PLL.
  */
-static inline void pm_api_pll_bypass_and_reset(unsigned int clock_id,
-					       unsigned int flag)
+static inline enum pm_ret_status
+pm_api_pll_bypass_and_reset(unsigned int clock_id, unsigned int flag)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	unsigned int reg, val;
 	int lockbit;
 
 	reg = clocks[clock_id].control_reg;
 
 	if (flag & CLK_PLL_RESET_ASSERT) {
-		pm_mmio_write(reg, PLLCTRL_BP_MASK, PLLCTRL_BP_MASK);
-		pm_mmio_write(reg, PLLCTRL_RESET_MASK, PLLCTRL_RESET_MASK);
+		ret = pm_mmio_write(reg, PLLCTRL_BP_MASK, PLLCTRL_BP_MASK);
+		if (ret != PM_RET_SUCCESS)
+			return ret;
+		ret = pm_mmio_write(reg, PLLCTRL_RESET_MASK,
+				    PLLCTRL_RESET_MASK);
+		if (ret != PM_RET_SUCCESS)
+			return ret;
 	}
 	if (flag & CLK_PLL_RESET_RELEASE) {
-		pm_mmio_write(reg, PLLCTRL_RESET_MASK, ~PLLCTRL_RESET_MASK);
+		ret = pm_mmio_write(reg, PLLCTRL_RESET_MASK,
+				    ~PLLCTRL_RESET_MASK);
+		if (ret != PM_RET_SUCCESS)
+			return ret;
 
 		lockbit = pll_get_lockbit(clock_id);
 		do {
-			pm_mmio_read(clocks[clock_id].status_reg, &val);
+			ret = pm_mmio_read(clocks[clock_id].status_reg, &val);
+			if (ret != PM_RET_SUCCESS)
+				return ret;
 		} while ((lockbit >= 0) && !(val & (1 << lockbit)));
 
-		pm_mmio_write(reg, PLLCTRL_BP_MASK,
+		ret = pm_mmio_write(reg, PLLCTRL_BP_MASK,
 			      ~(unsigned int)PLLCTRL_BP_MASK);
 	}
+	return ret;
 }
 
 /**
@@ -2569,10 +2583,12 @@ static inline void pm_api_pll_bypass_and_reset(unsigned int clock_id,
 static enum pm_ret_status pm_api_clk_enable_disable(unsigned int clock_id,
 						    unsigned int enable)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	struct pm_clock_node *nodes = *clocks[clock_id].nodes;
 	uint8_t num_nodes = clocks[clock_id].num_nodes;
 	unsigned int reg, val;
-	int i = 0, offset = NA_SHIFT, width = NA_WIDTH;
+	uint8_t i = 0;
+	uint8_t offset = NA_SHIFT, width = NA_WIDTH;
 
 	if (clock_id == CLK_GEM0_TX || clock_id == CLK_GEM1_TX ||
 	    clock_id == CLK_GEM2_TX || clock_id == CLK_GEM3_TX)
@@ -2591,18 +2607,20 @@ static enum pm_ret_status pm_api_clk_enable_disable(unsigned int clock_id,
 	if (width == NA_WIDTH)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
+	if (ret != PM_RET_SUCCESS)
+		return ret;
 	if ((val & BIT_MASK(offset, width)) == enable)
 		return PM_RET_SUCCESS;
 
-	if (enable)
-		val |= BIT_MASK(offset, width);
-	else
+	if (enable == 0)
 		val &= ~(BIT_MASK(offset, width));
+	else
+		val |= BIT_MASK(offset, width);
 
-	pm_mmio_write(reg, BIT_MASK(offset, width), val);
+	ret = pm_mmio_write(reg, BIT_MASK(offset, width), val);
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -2616,7 +2634,7 @@ static enum pm_ret_status pm_api_clk_enable_disable(unsigned int clock_id,
  */
 enum pm_ret_status pm_api_clock_enable(unsigned int clock_id)
 {
-	int ret = PM_RET_SUCCESS;
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -2625,7 +2643,8 @@ enum pm_ret_status pm_api_clock_enable(unsigned int clock_id)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
 	if (ISPLL(clock_id))
-		pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_PULSE);
+		ret = pm_api_pll_bypass_and_reset(clock_id,
+						  CLK_PLL_RESET_PULSE);
 	else
 		ret = pm_api_clk_enable_disable(clock_id, 1);
 
@@ -2644,7 +2663,7 @@ enum pm_ret_status pm_api_clock_enable(unsigned int clock_id)
 
 enum pm_ret_status pm_api_clock_disable(unsigned int clock_id)
 {
-	int ret = PM_RET_SUCCESS;
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -2653,7 +2672,8 @@ enum pm_ret_status pm_api_clock_disable(unsigned int clock_id)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
 	if (ISPLL(clock_id))
-		pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_ASSERT);
+		ret = pm_api_pll_bypass_and_reset(clock_id,
+						  CLK_PLL_RESET_ASSERT);
 	else
 		ret = pm_api_clk_enable_disable(clock_id, 0);
 
@@ -2667,20 +2687,22 @@ enum pm_ret_status pm_api_clock_disable(unsigned int clock_id)
  *
  * This function is to check state of PLL.
  */
-static inline void pm_api_get_pll_state(unsigned int clock_id,
+static inline enum pm_ret_status pm_api_get_pll_state(unsigned int clock_id,
 					unsigned int *state)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	unsigned int reg, val;
 
 	reg = clocks[clock_id].control_reg;
 
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
 
 	/* state:
 	 * 1 - PLL is enabled
 	 * 0 - PLL is in reset state
 	 */
 	*state = !(val & PLLCTRL_RESET_MASK);
+	return ret;
 }
 
 /**
@@ -2695,10 +2717,12 @@ static inline void pm_api_get_pll_state(unsigned int clock_id,
 static enum pm_ret_status pm_api_get_clk_state(unsigned int clock_id,
 					       unsigned int *state)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	struct pm_clock_node *nodes = *clocks[clock_id].nodes;
 	uint8_t num_nodes = clocks[clock_id].num_nodes;
 	unsigned int reg, val;
-	int i = 0, offset = NA_SHIFT, width = NA_WIDTH;
+	uint8_t i = 0;
+	uint8_t offset = NA_SHIFT, width = NA_WIDTH;
 
 	reg = clocks[clock_id].control_reg;
 
@@ -2712,10 +2736,10 @@ static enum pm_ret_status pm_api_get_clk_state(unsigned int clock_id,
 	if (width == NA_WIDTH)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
 	*state = (val & BIT_MASK(offset, width)) >> offset;
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -2731,7 +2755,7 @@ static enum pm_ret_status pm_api_get_clk_state(unsigned int clock_id,
 enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
 					 unsigned int *state)
 {
-	int ret = PM_RET_SUCCESS;
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -2740,7 +2764,7 @@ enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
 		return PM_RET_ERROR_NOTSUPPORTED;
 
 	if (ISPLL(clock_id))
-		pm_api_get_pll_state(clock_id, state);
+		ret = pm_api_get_pll_state(clock_id, state);
 	else
 		ret = pm_api_get_clk_state(clock_id, state);
 
@@ -2750,15 +2774,16 @@ enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
 static enum pm_ret_status pm_api_clk_set_divider(unsigned int clock_id,
 						 uint32_t divider)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	struct pm_clock_node *nodes;
 	uint8_t num_nodes;
 	uint16_t div1, div2;
 	unsigned int reg, mask = 0, val = 0, i;
-	unsigned int div1_width = NA_WIDTH, div1_offset = NA_SHIFT;
-	unsigned int div2_width = NA_WIDTH, div2_offset = NA_SHIFT;
+	uint8_t div1_width = NA_WIDTH, div1_offset = NA_SHIFT;
+	uint8_t div2_width = NA_WIDTH, div2_offset = NA_SHIFT;
 
-	div1 = divider & 0xFFFF;
-	div2 = (divider >> 16) & 0xFFFF;
+	div1 = (uint16_t)(divider & 0xFFFFU);
+	div2 = (uint16_t)((divider >> 16) & 0xFFFFU);
 
 	reg = clocks[clock_id].control_reg;
 
@@ -2788,12 +2813,12 @@ static enum pm_ret_status pm_api_clk_set_divider(unsigned int clock_id,
 		val |= div2 << div2_offset;
 		mask |= BIT_MASK(div2_offset, div2_width);
 	}
-	pm_mmio_write(reg, mask, val);
+	ret = pm_mmio_write(reg, mask, val);
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
-enum pm_ret_status pm_api_pll_set_divider(unsigned int clock_id,
+static enum pm_ret_status pm_api_pll_set_divider(unsigned int clock_id,
 					  unsigned int divider)
 {
 	unsigned int reg = clocks[clock_id].control_reg;
@@ -2814,7 +2839,7 @@ enum pm_ret_status pm_api_pll_set_divider(unsigned int clock_id,
 enum pm_ret_status pm_api_clock_setdivider(unsigned int clock_id,
 					   unsigned int divider)
 {
-	int ret;
+	enum pm_ret_status ret;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -2833,11 +2858,12 @@ enum pm_ret_status pm_api_clock_setdivider(unsigned int clock_id,
 static enum pm_ret_status pm_api_clk_get_divider(unsigned int clock_id,
 						 uint32_t *divider)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	struct pm_clock_node *nodes;
 	uint8_t num_nodes;
 	unsigned int reg, val, i, div1 = 0, div2 = 0;
-	unsigned int div1_width = NA_WIDTH, div1_offset = NA_SHIFT;
-	unsigned int div2_width = NA_WIDTH, div2_offset = NA_SHIFT;
+	uint8_t div1_width = NA_WIDTH, div1_offset = NA_SHIFT;
+	uint8_t div2_width = NA_WIDTH, div2_offset = NA_SHIFT;
 
 	reg = clocks[clock_id].control_reg;
 
@@ -2855,7 +2881,7 @@ static enum pm_ret_status pm_api_clk_get_divider(unsigned int clock_id,
 		nodes++;
 	}
 
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
 
 	if (div1_width == NA_WIDTH)
 		return PM_RET_ERROR_ARGS;
@@ -2867,20 +2893,21 @@ static enum pm_ret_status pm_api_clk_get_divider(unsigned int clock_id,
 
 	*divider = div1 | (div2 << 16);
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
-enum pm_ret_status pm_api_pll_get_divider(unsigned int clock_id,
+static enum pm_ret_status pm_api_pll_get_divider(unsigned int clock_id,
 					  unsigned int *divider)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	unsigned int reg, val;
 
 	reg = clocks[clock_id].control_reg;
 
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
 	*divider = (val & PLL_FBDIV_MASK) >> PLL_FBDIV_SHIFT;
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -2896,7 +2923,7 @@ enum pm_ret_status pm_api_pll_get_divider(unsigned int clock_id,
 enum pm_ret_status pm_api_clock_getdivider(unsigned int clock_id,
 					   unsigned int *divider)
 {
-	int ret;
+	enum pm_ret_status ret;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -2955,11 +2982,13 @@ enum pm_ret_status pm_api_clock_getrate(unsigned int clock_id,
 enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
 					  unsigned int parent_idx)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	struct pm_clock_node *nodes;
 	uint8_t num_nodes;
 	unsigned int reg, val;
 	int32_t *clk_parents;
-	int i = 0, offset = NA_SHIFT, width = NA_WIDTH;
+	unsigned int i = 0;
+	uint8_t  offset = NA_SHIFT, width = NA_WIDTH;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -2987,9 +3016,9 @@ enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
 
 	reg = clocks[clock_id].control_reg;
 	val = parent_idx << offset;
-	pm_mmio_write(reg, BIT_MASK(offset, width), val);
+	ret = pm_mmio_write(reg, BIT_MASK(offset, width), val);
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -3005,10 +3034,11 @@ enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
 enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
 					  unsigned int *parent_idx)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	struct pm_clock_node *nodes;
 	uint8_t num_nodes;
 	unsigned int reg, val;
-	int i = 0, offset = NA_SHIFT, width = NA_WIDTH;
+	uint8_t i = 0, offset = NA_SHIFT, width = NA_WIDTH;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -3030,13 +3060,13 @@ enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
 		return PM_RET_ERROR_NOTSUPPORTED;
 
 	reg = clocks[clock_id].control_reg;
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
 	val >>= offset;
 	val &= ((1U << width) - 1);
 
 	*parent_idx = val;
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -3051,6 +3081,7 @@ enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
 enum pm_ret_status pm_api_clk_set_pll_mode(unsigned int pll,
 					   unsigned int mode)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	unsigned int reg;
 
 	if (!pm_clock_valid(pll))
@@ -3067,9 +3098,10 @@ enum pm_ret_status pm_api_clk_set_pll_mode(unsigned int pll,
 
 	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
 
-	pm_mmio_write(reg, PLL_FRAC_MODE_MASK, mode << PLL_FRAC_MODE_SHIFT);
+	ret = pm_mmio_write(reg, PLL_FRAC_MODE_MASK,
+			    mode << PLL_FRAC_MODE_SHIFT);
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -3084,6 +3116,7 @@ enum pm_ret_status pm_api_clk_set_pll_mode(unsigned int pll,
 enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
 					   unsigned int *mode)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	unsigned int val, reg;
 
 	if (!pm_clock_valid(pll))
@@ -3097,14 +3130,14 @@ enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
 
 	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
 
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
 	val = val & PLL_FRAC_MODE_MASK;
-	if (val)
-		*mode = PLL_FRAC_MODE;
-	else
+	if (val == 0)
 		*mode = PLL_INT_MODE;
+	else
+		*mode = PLL_FRAC_MODE;
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -3120,7 +3153,8 @@ enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
 enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
 						unsigned int data)
 {
-	unsigned int val, reg, mode;
+	enum pm_ret_status ret = PM_RET_SUCCESS;
+	unsigned int val, reg, mode = 0;
 
 	if (!pm_clock_valid(pll))
 		return PM_RET_ERROR_ARGS;
@@ -3131,16 +3165,18 @@ enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
 	if (!ISPLL(pll))
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	pm_api_clk_get_pll_mode(pll, &mode);
+	ret = pm_api_clk_get_pll_mode(pll, &mode);
+	if (ret != PM_RET_SUCCESS)
+		return ret;
 	if (mode == PLL_FRAC_MODE) {
 		reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
 		val = data << PLL_FRAC_DATA_SHIFT;
-		pm_mmio_write(reg, PLL_FRAC_DATA_MASK, val);
+		ret = pm_mmio_write(reg, PLL_FRAC_DATA_MASK, val);
 	} else {
 		return PM_RET_ERROR_ARGS;
 	}
 
-	return PM_RET_SUCCESS;
+	return ret;
 }
 
 /**
@@ -3155,6 +3191,7 @@ enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
 enum pm_ret_status pm_api_clk_get_pll_frac_data(unsigned int pll,
 						unsigned int *data)
 {
+	enum pm_ret_status ret = PM_RET_SUCCESS;
 	unsigned int val, reg;
 
 	if (!pm_clock_valid(pll))
@@ -3168,8 +3205,8 @@ enum pm_ret_status pm_api_clk_get_pll_frac_data(unsigned int pll,
 
 	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
 
-	pm_mmio_read(reg, &val);
+	ret = pm_mmio_read(reg, &val);
 	*data = (val & PLL_FRAC_DATA_MASK);
 
-	return PM_RET_SUCCESS;
+	return ret;
 }

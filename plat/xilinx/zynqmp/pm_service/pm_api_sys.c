@@ -602,7 +602,7 @@ enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
 enum pm_ret_status pm_pinctrl_set_function(unsigned int pin,
 					   enum pm_node_id nid)
 {
-	return pm_api_pinctrl_set_function(pin, nid);
+	return pm_api_pinctrl_set_function(pin, (unsigned int)nid);
 }
 
 /**
@@ -1027,31 +1027,31 @@ enum pm_ret_status pm_query_data(enum pm_query_id qid,
 		break;
 	case PM_QID_CLOCK_GET_TOPOLOGY:
 		ret = pm_clock_get_topology(arg1, arg2, &data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS:
 		ret = pm_clock_get_fixedfactor_params(arg1, &data[1], &data[2]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_CLOCK_GET_PARENTS:
 		ret = pm_clock_get_parents(arg1, arg2, &data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_CLOCK_GET_ATTRIBUTES:
 		ret = pm_clock_get_attributes(arg1, &data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_PINCTRL_GET_NUM_PINS:
 		ret = pm_pinctrl_get_num_pins(&data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_PINCTRL_GET_NUM_FUNCTIONS:
 		ret = pm_pinctrl_get_num_functions(&data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS:
 		ret = pm_pinctrl_get_num_function_groups(arg1, &data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_PINCTRL_GET_FUNCTION_NAME:
 		ret = pm_pinctrl_get_function_name(arg1, (char *)data);
@@ -1059,16 +1059,17 @@ enum pm_ret_status pm_query_data(enum pm_query_id qid,
 	case PM_QID_PINCTRL_GET_FUNCTION_GROUPS:
 		ret = pm_pinctrl_get_function_groups(arg1, arg2,
 						     (uint16_t *)&data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	case PM_QID_PINCTRL_GET_PIN_GROUPS:
 		ret = pm_pinctrl_get_pin_groups(arg1, arg2,
 						(uint16_t *)&data[1]);
-		data[0] = ret;
+		data[0] = (unsigned int)ret;
 		break;
 	default:
 		ret = PM_RET_ERROR_ARGS;
 		WARN("Unimplemented query service call: 0x%x\n", qid);
+		break;
 	}
 
 	return ret;

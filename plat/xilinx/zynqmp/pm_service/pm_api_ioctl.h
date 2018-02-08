@@ -13,7 +13,8 @@
 
 #include "pm_common.h"
 
-enum pm_ioctl_id {
+//ioctl id
+enum {
 	IOCTL_GET_RPU_OPER_MODE,
 	IOCTL_SET_RPU_OPER_MODE,
 	IOCTL_RPU_BOOT_ADDR_CONFIG,
@@ -33,48 +34,41 @@ enum pm_ioctl_id {
 	IOCTL_READ_PGGS,
 };
 
-enum rpu_oper_mode {
-	PM_RPU_MODE_LOCKSTEP,
-	PM_RPU_MODE_SPLIT,
-};
+//RPU operation mode
+#define	PM_RPU_MODE_LOCKSTEP 0U
+#define	PM_RPU_MODE_SPLIT 1U
 
-enum rpu_boot_mem {
-	PM_RPU_BOOTMEM_LOVEC,
-	PM_RPU_BOOTMEM_HIVEC,
-};
+//RPU boot mem
+#define	PM_RPU_BOOTMEM_LOVEC 0U
+#define	PM_RPU_BOOTMEM_HIVEC 1U
 
-enum rpu_tcm_comb {
-	PM_RPU_TCM_SPLIT,
-	PM_RPU_TCM_COMB,
-};
+//RPU tcm mpde
+#define	PM_RPU_TCM_SPLIT 0U
+#define	PM_RPU_TCM_COMB 1U
 
-enum tap_delay_signal_type {
-	PM_TAPDELAY_NAND_DQS_IN,
-	PM_TAPDELAY_NAND_DQS_OUT,
-	PM_TAPDELAY_QSPI,
-	PM_TAPDELAY_MAX,
-};
+//tap delay signal type
+#define	PM_TAPDELAY_NAND_DQS_IN 0U
+#define	PM_TAPDELAY_NAND_DQS_OUT 1U
+#define	PM_TAPDELAY_QSPI 2U
+#define	PM_TAPDELAY_MAX 3U
 
-enum tap_delay_bypass_ctrl {
-	PM_TAPDELAY_BYPASS_DISABLE,
-	PM_TAPDELAY_BYPASS_ENABLE,
-};
+//tap delay bypass
+#define	PM_TAPDELAY_BYPASS_DISABLE 0U
+#define	PM_TAPDELAY_BYPASS_ENABLE 1U
 
-enum sgmii_mode {
-	PM_SGMII_DISABLE,
-	PM_SGMII_ENABLE,
-};
+//sgmii mode
+#define	PM_SGMII_DISABLE 0U
+#define	PM_SGMII_ENABLE 1U
 
 enum tap_delay_type {
 	PM_TAPDELAY_INPUT,
 	PM_TAPDELAY_OUTPUT,
 };
 
-enum dll_reset_type {
-	PM_DLL_RESET_ASSERT,
-	PM_DLL_RESET_RELEASE,
-	PM_DLL_RESET_PULSE,
-};
+//dll reset type
+#define	PM_DLL_RESET_ASSERT 0U
+#define	PM_DLL_RESET_RELEASE 1U
+#define	PM_DLL_RESET_PULSE 2U
 
 enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 				unsigned int ioctl_id,

@@ -34,10 +34,10 @@ static enum pm_ret_status pm_ioctl_get_rpu_oper_mode(unsigned int *mode)
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);
 	val &= ZYNQMP_SLSPLIT_MASK;
-	if (val)
-		*mode = PM_RPU_MODE_SPLIT;
-	else
+	if (val == 0)
 		*mode = PM_RPU_MODE_LOCKSTEP;
+	else
+		*mode = PM_RPU_MODE_SPLIT;
 
 	return PM_RET_SUCCESS;
 }
@@ -175,7 +175,7 @@ static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
 						  unsigned int value)
 {
 	unsigned int val, mask, shift;
-	int ret;
+	enum pm_ret_status ret;
 
 	if (value != PM_SGMII_DISABLE && value != PM_SGMII_ENABLE)
 		return PM_RET_ERROR_ARGS;
@@ -199,13 +199,13 @@ static enum pm_ret_status pm_ioctl_set_sgmii_mode(enum pm_node_id nid,
 
 	if (value == PM_SGMII_DISABLE) {
 		mask = GEM_SGMII_MASK << GEM_CLK_CTRL_OFFSET * shift;
-		ret = pm_mmio_write(IOU_GEM_CLK_CTRL, mask, 0);
+		ret = pm_mmio_write(IOU_GEM_CLK_CTRL, mask, 0U);
 	} else {
 		/* Tie the GEM PCS Signal Detect to 1 */
 		mask = SGMII_SD_MASK << SGMII_SD_OFFSET * shift;
 		val = SGMII_PCS_SD_1 << SGMII_SD_OFFSET * shift;
 		ret = pm_mmio_write(IOU_GEM_CTRL, mask, val);
-		if (ret)
+		if (ret != PM_RET_SUCCESS)
 			return ret;
 
 		/* Set the GEM to SGMII mode */
@@ -231,7 +231,7 @@ static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
 						unsigned int type)
 {
 	unsigned int mask, val;
-	int ret;
+	enum pm_ret_status ret;
 
 	if (nid == NODE_SD_0) {
 		mask = ZYNQMP_SD0_DLL_RST_MASK;
@@ -247,7 +247,7 @@ static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
 	case PM_DLL_RESET_ASSERT:
 	case PM_DLL_RESET_PULSE:
 		ret = pm_mmio_write(ZYNQMP_SD_DLL_CTRL, mask, val);
-		if (ret)
+		if (ret != PM_RET_SUCCESS)
 			return ret;
 
 		if (type == PM_DLL_RESET_ASSERT)
@@ -258,6 +258,7 @@ static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
 		break;
 	default:
 		ret = PM_RET_ERROR_ARGS;
+		break;
 	}
 
 	return ret;
@@ -278,7 +279,7 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 						   unsigned int value)
 {
 	unsigned int shift;
-	int ret;
+	enum pm_ret_status ret;
 
 	if (nid == NODE_SD_0)
 		shift = 0;
@@ -288,45 +289,42 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 		return PM_RET_ERROR_ARGS;
 
 	ret = pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_ASSERT);
-	if (ret)
+	if (ret != PM_RET_SUCCESS)
 		return ret;
 
 	if (type == PM_TAPDELAY_INPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    ZYNQMP_SD_ITAPCHGWIN_MASK << shift,
-				    ZYNQMP_SD_ITAPCHGWIN << shift);
-		if (ret)
+				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift),
+				    (ZYNQMP_SD_ITAPCHGWIN << shift));
+		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    ZYNQMP_SD_ITAPDLYENA_MASK << shift,
-				    ZYNQMP_SD_ITAPDLYENA << shift);
-		if (ret)
+				    (ZYNQMP_SD_ITAPDLYENA_MASK << shift),
+				    (ZYNQMP_SD_ITAPDLYENA << shift));
+		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    ZYNQMP_SD_ITAPDLYSEL_MASK << shift,
-				    value << shift);
-		if (ret)
+				    (ZYNQMP_SD_ITAPDLYSEL_MASK << shift),
+				    (value << shift));
+		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    ZYNQMP_SD_ITAPCHGWIN_MASK << shift, 0);
+				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift), 0);
 	} else if (type == PM_TAPDELAY_OUTPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
-				    ZYNQMP_SD_OTAPDLYENA_MASK << shift,
-				    ZYNQMP_SD_OTAPDLYENA << shift);
-		if (ret)
+				    (ZYNQMP_SD_OTAPDLYENA_MASK << shift),
+				    (ZYNQMP_SD_OTAPDLYENA << shift));
+		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
-				    ZYNQMP_SD_OTAPDLYSEL_MASK << shift,
-				    value << shift);
+				    (ZYNQMP_SD_OTAPDLYSEL_MASK << shift),
+				    (value << shift));
 	} else {
 		ret = PM_RET_ERROR_ARGS;
 	}
 
 reset_release:
-	ret = pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_RELEASE);
-	if (ret)
-		return ret;
-
+	pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_RELEASE);
 	return ret;
 }
 
@@ -411,7 +409,8 @@ static enum pm_ret_status pm_ioctl_write_ggs(unsigned int index,
 	if (index >= GGS_NUM_REGS)
 		return PM_RET_ERROR_ARGS;
 
-	return pm_mmio_write(GGS_BASEADDR + (index << 2), 0xFFFFFFFF, value);
+	return pm_mmio_write(GGS_BASEADDR + (index << 2),
+			     0xFFFFFFFFU, value);
 }
 
 /**
@@ -449,7 +448,8 @@ static enum pm_ret_status pm_ioctl_write_pggs(unsigned int index,
 	if (index >= PGGS_NUM_REGS)
 		return PM_RET_ERROR_ARGS;
 
-	return pm_mmio_write(PGGS_BASEADDR + (index << 2), 0xFFFFFFFF, value);
+	return pm_mmio_write(PGGS_BASEADDR + (index << 2),
+			     0xFFFFFFFFU, value);
 }
 
 /**
@@ -489,7 +489,7 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 				unsigned int arg2,
 				unsigned int *value)
 {
-	int ret;
+	enum pm_ret_status ret;
 
 	switch (ioctl_id) {
 	case IOCTL_GET_RPU_OPER_MODE:
@@ -542,6 +542,7 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;
+		break;
 	}
 
 	return ret;

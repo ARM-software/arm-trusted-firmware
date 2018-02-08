@@ -259,7 +259,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_PINCTRL_GET_FUNCTION:
 	{
-		uint32_t value;
+		uint32_t value = 0;
 
 		ret = pm_pinctrl_get_function(pm_arg[0], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
@@ -292,7 +292,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_QUERY_DATA:
 	{
-		uint32_t data[4];
+		uint32_t data[4] = { 0 };
 
 		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
 				    pm_arg[3], data);
@@ -339,8 +339,9 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint64_t value;
 
 		ret = pm_clock_getrate(pm_arg[0], &value);
-		SMC_RET2(handle, (uint64_t)ret | (value & 0xFFFFFFFF) << 32,
-			 (value >> 32) & 0xFFFFFFFF);
+		SMC_RET2(handle, (uint64_t)ret |
+				  (((uint64_t)value & 0xFFFFFFFFU) << 32U),
+			 (value >> 32U) & 0xFFFFFFFFU);
 
 	}
 
