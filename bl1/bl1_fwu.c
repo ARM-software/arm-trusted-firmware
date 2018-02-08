@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -350,6 +350,15 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		return -ENOMEM;
 	}
 
+	/* Allow the platform to handle pre-image load before copying */
+	if (image_desc->state == IMAGE_STATE_RESET) {
+		if (bl1_plat_handle_pre_image_load(image_id) != 0) {
+			ERROR("BL1-FWU: Failure in pre-image load of image id %d\n",
+					image_id);
+			return -EPERM;
+		}
+	}
+
 	/* Everything looks sane. Go ahead and copy the block of data. */
 	dest_addr = image_desc->image_info.image_base + image_desc->copied_size;
 	memcpy((void *) dest_addr, (const void *) image_src, block_size);
@@ -473,6 +482,18 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 
 	/* Indicate that image is in authenticated state. */
 	image_desc->state = IMAGE_STATE_AUTHENTICATED;
+
+	/* Allow the platform to handle post-image load */
+	result = bl1_plat_handle_post_image_load(image_id);
+	if (result != 0) {
+		ERROR("BL1-FWU: Failure %d in post-image load of image id %d\n",
+				result, image_id);
+		/*
+		 * Panic here as the platform handling of post-image load is
+		 * not correct.
+		 */
+		plat_error_handler(result);
+	}
 
 	/*
 	 * Flush image_info to memory so that other

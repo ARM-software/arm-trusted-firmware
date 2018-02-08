@@ -177,13 +177,13 @@ void bl1_load_bl2(void)
 
 	INFO("BL1: Loading BL2\n");
 
-#if LOAD_IMAGE_V2
-	err = bl1_plat_handle_pre_image_load();
+	err = bl1_plat_handle_pre_image_load(BL2_IMAGE_ID);
 	if (err) {
 		ERROR("Failure in pre image load handling of BL2 (%d)\n", err);
 		plat_error_handler(err);
 	}
 
+#if LOAD_IMAGE_V2
 	err = load_auth_image(BL2_IMAGE_ID, image_info);
 #else
 	/* Load the BL2 image */
@@ -200,14 +200,14 @@ void bl1_load_bl2(void)
 		plat_error_handler(err);
 	}
 
-#if LOAD_IMAGE_V2
 	/* Allow platform to handle image information. */
-	err = bl1_plat_handle_post_image_load();
+	err = bl1_plat_handle_post_image_load(BL2_IMAGE_ID);
 	if (err) {
 		ERROR("Failure in post image load handling of BL2 (%d)\n", err);
 		plat_error_handler(err);
 	}
 
+#if LOAD_IMAGE_V2
 	/*
 	 * Create a new layout of memory for BL2 as seen by BL1 i.e.
 	 * tell it the amount of total and free memory available.

@@ -1,38 +1,34 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
-#include <platform.h>
+#include <assert.h>
+#include <bl_common.h>
+#include <debug.h>
+#include <errno.h>
 
 /*
- * Placeholder functions which can be redefined by each platfrom.
+ * The following platform functions are weakly defined. The Platforms
+ * may redefine with strong definition.
  */
-
+#pragma weak bl2_el3_plat_prepare_exit
 #pragma weak plat_error_handler
-#pragma weak bl1_plat_handle_pre_image_load
-#pragma weak bl1_plat_handle_post_image_load
 #pragma weak bl2_plat_preload_setup
 #pragma weak bl2_plat_handle_pre_image_load
 #pragma weak bl2_plat_handle_post_image_load
 #pragma weak plat_try_next_boot_source
 
+void bl2_el3_plat_prepare_exit(void)
+{
+}
+
 void __dead2 plat_error_handler(int err)
 {
 	while (1)
 		wfi();
-}
-
-int bl1_plat_handle_pre_image_load(void)
-{
-	return 0;
-}
-
-int bl1_plat_handle_post_image_load(void)
-{
-	return 0;
 }
 
 void bl2_plat_preload_setup(void)

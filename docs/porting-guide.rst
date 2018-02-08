@@ -1264,24 +1264,24 @@ Function : bl1\_plat\_handle\_pre\_image\_load() [optional]
 
 ::
 
-    Argument : void
+    Argument : unsigned int image_id
     Return   : int
 
 This function can be used by the platforms to update/use image information
-for BL2. This function is currently invoked in BL1 before loading BL2,
-when LOAD\_IMAGE\_V2 is enabled.
+corresponding to ``image_id``. This function is invoked in BL1, both in cold
+boot and FWU code path, before loading the image.
 
 Function : bl1\_plat\_handle\_post\_image\_load() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    Argument : void
+    Argument : unsigned int image_id
     Return   : int
 
 This function can be used by the platforms to update/use image information
-for BL2. This function is currently invoked in BL1 after loading BL2,
-when LOAD\_IMAGE\_V2 is enabled.
+corresponding to ``image_id``. This function is invoked in BL1, both in cold
+boot and FWU code path, after loading and authenticating the image.
 
 Function : bl1\_plat\_fwu\_done() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

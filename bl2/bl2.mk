@@ -29,7 +29,6 @@ BL2_LINKERFILE		:=	bl2/bl2.ld.S
 else
 BL2_SOURCES		+=	bl2/${ARCH}/bl2_el3_entrypoint.S	\
 				bl2/${ARCH}/bl2_el3_exceptions.S	\
-				plat/common/plat_bl2_el3_common.c	\
 				lib/cpus/${ARCH}/cpu_helpers.S		\
 				lib/cpus/errata_report.c
 BL2_LINKERFILE		:=	bl2/bl2_el3.ld.S

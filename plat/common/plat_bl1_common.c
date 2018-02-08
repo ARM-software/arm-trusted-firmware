@@ -9,6 +9,7 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <errno.h>
+#include <platform.h>
 #include <platform_def.h>
 
 /*
@@ -21,6 +22,8 @@
 #pragma weak bl1_plat_set_ep_info
 #pragma weak bl1_plat_get_image_desc
 #pragma weak bl1_plat_fwu_done
+#pragma weak bl1_plat_handle_pre_image_load
+#pragma weak bl1_plat_handle_post_image_load
 
 
 unsigned int bl1_plat_get_next_image_id(void)
@@ -33,6 +36,16 @@ void bl1_plat_set_ep_info(unsigned int image_id,
 		entry_point_info_t *ep_info)
 {
 
+}
+
+int bl1_plat_handle_pre_image_load(unsigned int image_id)
+{
+	return 0;
+}
+
+int bl1_plat_handle_post_image_load(unsigned int image_id)
+{
+	return 0;
 }
 
 /*
