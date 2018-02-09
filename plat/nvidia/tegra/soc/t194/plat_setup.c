@@ -276,9 +276,12 @@ void plat_gic_setup(void)
  ******************************************************************************/
 struct tegra_bl31_params *plat_get_bl31_params(void)
 {
-	uint32_t val;
+	uint64_t val;
 
-	val = mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PARAMS_ADDR);
+	val = (mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PARAMS_HI_ADDR) &
+		SCRATCH_BL31_PARAMS_HI_ADDR_MASK) >> SCRATCH_BL31_PARAMS_HI_ADDR_SHIFT;
+	val <<= 32;
+	val |= mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PARAMS_LO_ADDR);
 
 	return (struct tegra_bl31_params *)(uintptr_t)val;
 }
@@ -288,9 +291,12 @@ struct tegra_bl31_params *plat_get_bl31_params(void)
  ******************************************************************************/
 plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
 {
-	uint32_t val;
+	uint64_t val;
 
-	val = mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_ADDR);
+	val = (mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_HI_ADDR) &
+		SCRATCH_BL31_PLAT_PARAMS_HI_ADDR_MASK) >> SCRATCH_BL31_PLAT_PARAMS_HI_ADDR_SHIFT;
+	val <<= 32;
+	val |= mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_LO_ADDR);
 
 	return (plat_params_from_bl2_t *)(uintptr_t)val;
 }
