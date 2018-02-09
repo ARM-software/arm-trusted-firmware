@@ -4,19 +4,41 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Enable version2 of image loading
+LOAD_IMAGE_V2	:=	1
+
 # On Poplar, the TSP can execute from TZC secure area in DRAM.
-POPLAR_TSP_RAM_LOCATION	:=	dram
+POPLAR_TSP_RAM_LOCATION	?=	dram
 ifeq (${POPLAR_TSP_RAM_LOCATION}, dram)
   POPLAR_TSP_RAM_LOCATION_ID = POPLAR_DRAM_ID
-else ifeq (${HIKEY960_TSP_RAM_LOCATION}, sram)
-  POPLAR_TSP_RAM_LOCATION_ID := POPLAR_SRAM_ID
+else ifeq (${POPLAR_TSP_RAM_LOCATION}, sram)
+  POPLAR_TSP_RAM_LOCATION_ID = POPLAR_SRAM_ID
 else
   $(error "Currently unsupported POPLAR_TSP_RAM_LOCATION value")
 endif
 $(eval $(call add_define,POPLAR_TSP_RAM_LOCATION_ID))
 
+POPLAR_DRAM_SIZE ?= two_gig
+ifeq (${POPLAR_DRAM_SIZE}, two_gig)
+  POPLAR_DRAM_SIZE_ID = POPLAR_DRAM_SIZE_2G
+else ifeq (${POPLAR_DRAM_SIZE}, one_gig)
+  POPLAR_DRAM_SIZE_ID = POPLAR_DRAM_SIZE_1G
+else
+  $(error "Currently unsupported POPLAR_DRAM_SIZE value")
+endif
+$(eval $(call add_define,POPLAR_DRAM_SIZE_ID))
+
 POPLAR_RECOVERY		:= 0
 $(eval $(call add_define,POPLAR_RECOVERY))
+
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
 
 NEED_BL33			:= yes
 
@@ -68,8 +90,7 @@ BL1_SOURCES	+=							\
 		drivers/io/io_fip.c					\
 		drivers/io/io_memmap.c					\
 		plat/hisilicon/poplar/bl1_plat_setup.c			\
-		plat/hisilicon/poplar/plat_storage.c			\
-
+		plat/hisilicon/poplar/plat_storage.c
 
 BL2_SOURCES	+=      						\
 		drivers/arm/pl061/pl061_gpio.c				\
@@ -83,6 +104,17 @@ BL2_SOURCES	+=      						\
 		plat/hisilicon/poplar/bl2_plat_setup.c			\
 		plat/hisilicon/poplar/plat_storage.c
 
+ifeq (${LOAD_IMAGE_V2},1)
+BL2_SOURCES	+=							\
+		plat/hisilicon/poplar/bl2_plat_mem_params_desc.c	\
+		plat/hisilicon/poplar/poplar_image_load.c		\
+		common/desc_image_load.c
+
+ifeq (${SPD},opteed)
+BL2_SOURCES	+=							\
+		lib/optee/optee_utils.c
+endif
+endif
 
 BL31_SOURCES	+=							\
 		lib/cpus/aarch64/aem_generic.S				\

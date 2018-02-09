@@ -9,11 +9,11 @@ LOAD_IMAGE_V2	:=	1
 
 # On Hikey, the TSP can execute from TZC secure area in DRAM (default)
 # or SRAM.
-HIKEY_TSP_RAM_LOCATION	:=	dram
+HIKEY_TSP_RAM_LOCATION	?=	dram
 ifeq (${HIKEY_TSP_RAM_LOCATION}, dram)
   HIKEY_TSP_RAM_LOCATION_ID = HIKEY_DRAM_ID
 else ifeq (${HIKEY_TSP_RAM_LOCATION}, sram)
-  HIKEY_TSP_RAM_LOCATION_ID := HIKEY_SRAM_ID
+  HIKEY_TSP_RAM_LOCATION_ID = HIKEY_SRAM_ID
 else
   $(error "Currently unsupported HIKEY_TSP_RAM_LOCATION value")
 endif

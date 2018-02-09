@@ -16,6 +16,9 @@
 #include "hi3798cv200.h"
 #include "poplar_layout.h"		/* BL memory region sizes, etc */
 
+/* Special value used to verify platform parameters from BL2 to BL3-1 */
+#define POPLAR_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
+
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
 
@@ -39,9 +42,20 @@
 #define MAX_IO_HANDLES			(4)
 #define MAX_IO_BLOCK_DEVICES		(2)
 
+/* Memory size options */
+#define POPLAR_DRAM_SIZE_1G	0
+#define POPLAR_DRAM_SIZE_2G	1
+
 /* Memory map related constants */
 #define DDR_BASE			(0x00000000)
+
+#if (POPLAR_DRAM_SIZE_ID == POPLAR_DRAM_SIZE_2G)
+#define DDR_SIZE			(0x80000000)
+#elif (POPLAR_DRAM_SIZE_ID == POPLAR_DRAM_SIZE_1G)
 #define DDR_SIZE			(0x40000000)
+#else
+#error "Currently unsupported POPLAR_DRAM_SIZE_ID value"
+#endif
 
 #define DEVICE_BASE			(0xF0000000)
 #define DEVICE_SIZE			(0x0F000000)
@@ -64,10 +78,6 @@
 #define DDR_SEC_SIZE			0x01000000
 #define DDR_SEC_BASE			0x03000000
 
-#define BL_MEM_BASE			(BL1_RO_BASE)
-#define BL_MEM_LIMIT			(BL31_LIMIT)
-#define BL_MEM_SIZE			(BL_MEM_LIMIT - BL_MEM_BASE)
-
 /*
  * BL3-2 specific defines.
  */
@@ -77,6 +87,14 @@
  */
 #define BL32_DRAM_BASE			0x03000000
 #define BL32_DRAM_LIMIT			0x04000000
+
+#if LOAD_IMAGE_V2
+#ifdef SPD_opteed
+/* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
+#define POPLAR_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
+#define POPLAR_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - POPLAR_OPTEE_PAGEABLE_LOAD_SIZE) /* 0x03C0_0000 */
+#endif
+#endif
 
 #if (POPLAR_TSP_RAM_LOCATION_ID == POPLAR_DRAM_ID)
 #define TSP_SEC_MEM_BASE		BL32_DRAM_BASE

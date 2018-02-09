@@ -88,7 +88,7 @@
 #define BL1_RO_SIZE			0x00008000	/* page multiple */
 #define BL1_RW_SIZE			0x00008000	/* page multiple */
 #define BL1_SIZE			(BL1_RO_SIZE + BL1_RW_SIZE)
-#define BL2_SIZE			0x0000c000	/* page multiple */
+#define BL2_SIZE			0x0000d000	/* page multiple */
 #define BL31_SIZE			0x00014000
 #if !POPLAR_RECOVERY
 /*

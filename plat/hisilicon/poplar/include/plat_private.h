@@ -24,7 +24,6 @@ void plat_configure_mmu_el1(unsigned long total_base,
 			    unsigned long coh_start,
 			    unsigned long coh_limit);
 
-void plat_delay_timer_init(void);
 void plat_io_setup(void);
 
 #endif /* __PLAT_PRIVATE_H__ */
