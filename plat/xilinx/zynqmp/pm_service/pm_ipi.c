@@ -26,6 +26,9 @@
 #define IPI_BUFFER_REQ_OFFSET	0x0U
 #define IPI_BUFFER_RESP_OFFSET	0x20U
 
+#define IPI_BLOCKING		1
+#define IPI_NON_BLOCKING	0
+
 DEFINE_BAKERY_LOCK(pm_secure_lock);
 
 const struct pm_ipi apu_ipi = {
@@ -63,7 +66,8 @@ int pm_ipi_init(const struct pm_proc *proc)
  * @return	Returns status, either success or error+reason
  */
 static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
-					     uint32_t payload[PAYLOAD_ARG_CNT])
+					     uint32_t payload[PAYLOAD_ARG_CNT],
+					     uint32_t is_blocking)
 {
 	unsigned int offset = 0;
 	uintptr_t buffer_base = proc->ipi->buffer_base +
@@ -75,10 +79,36 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 		mmio_write_32(buffer_base + offset, payload[i]);
 		offset += PAYLOAD_ARG_SIZE;
 	}
+
 	/* Generate IPI to PMU */
-	ipi_mb_notify(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id, 1);
+	ipi_mb_notify(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id,
+		      is_blocking);
 
 	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_ipi_send_non_blocking() - Sends IPI request to the PMU without blocking
+ *			        notification
+ * @proc	Pointer to the processor who is initiating request
+ * @payload	API id and call arguments to be written in IPI buffer
+ *
+ * Send an IPI request to the power controller.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
+					    uint32_t payload[PAYLOAD_ARG_CNT])
+{
+	enum pm_ret_status ret;
+
+	bakery_lock_get(&pm_secure_lock);
+
+	ret = pm_ipi_send_common(proc, payload, IPI_NON_BLOCKING);
+
+	bakery_lock_release(&pm_secure_lock);
+
+	return ret;
 }
 
 /**
@@ -97,7 +127,7 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 
 	bakery_lock_get(&pm_secure_lock);
 
-	ret = pm_ipi_send_common(proc, payload);
+	ret = pm_ipi_send_common(proc, payload, IPI_BLOCKING);
 
 	bakery_lock_release(&pm_secure_lock);
 
@@ -179,7 +209,7 @@ enum pm_ret_status pm_ipi_send_sync(const struct pm_proc *proc,
 
 	bakery_lock_get(&pm_secure_lock);
 
-	ret = pm_ipi_send_common(proc, payload);
+	ret = pm_ipi_send_common(proc, payload, IPI_BLOCKING);
 	if (ret != PM_RET_SUCCESS)
 		goto unlock;
 

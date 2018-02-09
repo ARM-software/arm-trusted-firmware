@@ -244,7 +244,7 @@ enum pm_ret_status pm_system_shutdown(unsigned int type, unsigned int subtype)
 	}
 
 	PM_PACK_PAYLOAD3(payload, PM_SYSTEM_SHUTDOWN, type, subtype);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_non_blocking(primary_proc, payload);
 }
 
 /* APIs for managing PM slaves: */
