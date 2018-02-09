@@ -43,8 +43,8 @@ Files:
 -  services/spd/trusty/\*
 -  plat/nvidia/\*
 
-eMMC/UFS drivers and HiSilicon platform sub-maintainer
-------------------------------------------------------
+eMMC/UFS drivers and HiSilicon HiKey and HiKey960 platform sub-maintainer
+-------------------------------------------------------------------------
 
 Haojian Zhuang (haojian.zhuang@linaro.org, `hzhuang1`_)
 
@@ -52,7 +52,6 @@ Files:
 
 -  docs/plat/hikey.rst
 -  docs/plat/hikey960.rst
--  docs/plat/poplar.rst
 -  drivers/emmc/\*
 -  drivers/partition/\*
 -  drivers/synopsys/emmc/\*
@@ -62,7 +61,18 @@ Files:
 -  include/drivers/emmc.h
 -  include/drivers/ufs.h
 -  include/drivers/synopsys/dw\_mmc.h
--  plat/hisilicon/\*
+-  plat/hisilicon/hikey/\*
+-  plat/hisilicon/hikey960/\*
+
+HiSilicon Poplar platform sub-maintainer
+----------------------------------------
+
+Shawn Guo (shawn.guo@linaro.org, `shawnguo2`_)
+
+Files:
+
+-  docs/plat/poplar.rst
+-  plat/hisilicon/poplar/\*
 
 MediaTek platform sub-maintainer
 --------------------------------
@@ -124,6 +134,7 @@ Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 .. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _vwadekar: https://github.com/vwadekar
 .. _hzhuang1: https://github.com/hzhuang1
+.. _shawnguo2: https://github.com/shawnguo2
 .. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
 .. _TonyXie06: https://github.com/TonyXie06
