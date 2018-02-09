@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,12 +52,6 @@
 #define BL31_LIMIT			(TZDRAM_BASE + BL31_SIZE - 1)
 #define BL32_BASE			(TZDRAM_BASE + BL31_SIZE)
 #define BL32_LIMIT			TZDRAM_END
-
-/*******************************************************************************
- * Platform specific page table and MMU setup constants
- ******************************************************************************/
-#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 35)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 35)
 
 /*******************************************************************************
  * Some data must be aligned on the biggest cache line size in the platform.

@@ -33,6 +33,12 @@
 #define PLAT_MAX_OFF_STATE		(PSTATE_ID_SOC_POWERDN + U(1))
 
 /*******************************************************************************
+ * Chip specific page table and MMU setup constants
+ ******************************************************************************/
+#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 35)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 35)
+
+/*******************************************************************************
  * iRAM memory constants
  ******************************************************************************/
 #define TEGRA_IRAM_BASE			0x40000000
