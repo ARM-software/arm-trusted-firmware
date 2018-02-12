@@ -184,9 +184,18 @@
 		isb
 	.endif /* _init_sctlr */
 
-	/* Switch to monitor mode */
+#ifdef IMAGE_BL1
+	/* BL1 executes in monitor and will install SMC service for BL2 to execute BL3x */
 	cps	#MODE32_mon
 	isb
+#endif
+#if defined(IMAGE_BL2) && ENABLE_ASSERTIONS
+	mrs	r0, cpsr
+	lsr	r0, r0, #MODE32_SHIFT
+	and	r0, r0, #MODE32_MASK
+	cmp	r0, #MODE32_svc
+	ASM_ASSERT(eq)
+#endif
 
 	.if \_warm_boot_mailbox
 		/* -------------------------------------------------------------
