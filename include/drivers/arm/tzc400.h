@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -118,7 +118,7 @@ void tzc400_configure_region(unsigned int filters,
 			  unsigned long long region_base,
 			  unsigned long long region_top,
 			  tzc_region_attributes_t sec_attr,
-			  unsigned int ns_device_access);
+			  unsigned int nsaid_permissions);
 void tzc400_set_action(tzc_action_t action);
 void tzc400_enable_filters(void);
 void tzc400_disable_filters(void);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,10 +74,10 @@ static void fvp_cluster_pwrdwn_common(void)
  * support SYSTEM_SUSPEND and it is `faked` in firmware. Hence, for wake up
  * from `fake` system suspend the GIC must not be powered off.
  */
-void arm_gicv3_distif_pre_save(unsigned int proc_num)
+void arm_gicv3_distif_pre_save(unsigned int rdist_proc_num)
 {}
 
-void arm_gicv3_distif_post_restore(unsigned int proc_num)
+void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num)
 {}
 
 static void fvp_power_domain_on_finish_common(const psci_power_state_t *target_state)

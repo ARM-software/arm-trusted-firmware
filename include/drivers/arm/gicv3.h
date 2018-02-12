@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -402,7 +402,7 @@ void gicv3_disable_interrupt(unsigned int id, unsigned int proc_num);
 void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
 		unsigned int priority);
 void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
-		unsigned int group);
+		unsigned int type);
 void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target);
 void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
 		u_register_t mpidr);
