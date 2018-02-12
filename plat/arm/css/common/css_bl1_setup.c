@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <soc_css.h>
 
 void bl1_platform_setup(void)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <mmio.h>
 #include <string.h>
 #include <utils_def.h>
+#include "juno_decl.h"
 #include "juno_def.h"
 
 #define NSAMPLE_CLOCKS	1 /* min 1 cycle, max 231 cycles */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <mmio.h>
 #include <nic_400.h>
 #include <platform_def.h>
+#include <soc_css.h>
 #include <soc_css_def.h>
 
 void soc_css_init_nic400(void)
