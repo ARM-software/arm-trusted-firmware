@@ -71,14 +71,16 @@ func bl2_run_next_image
 	bl	bl2_el3_plat_prepare_exit
 
 	/*
-	 * Extract PC and SPSR based on struct `entry_point_info_t`
-	 * and load it in LR and SPSR registers respectively.
+	 * Extract PC, LR and SPSR based on struct `entry_point_info_t`
+	 * and load it in LR and SPSR registers respectively then
+	 * branch to target entry point.
 	 */
-	ldr	lr, [r8, #ENTRY_POINT_INFO_PC_OFFSET]
+	ldr	lr, [r8, #ENTRY_POINT_INFO_LR_SVC_OFFSET]
+	ldr	r9, [r8, #ENTRY_POINT_INFO_PC_OFFSET]
 	ldr	r1, [r8, #(ENTRY_POINT_INFO_PC_OFFSET + 4)]
-	msr	spsr, r1
+	msr	cpsr_fsxc, r1
 
 	add	r8, r8, #ENTRY_POINT_INFO_ARGS_OFFSET
 	ldm	r8, {r0, r1, r2, r3}
-	eret
+	bx	r9
 endfunc bl2_run_next_image
