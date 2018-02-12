@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,7 @@
 #include <psci.h>
 #include <utils.h>
 
-mem_region_t arm_ram_ranges[] = {
+static mem_region_t arm_ram_ranges[] = {
 	{ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_SIZE},
 #ifdef AARCH64
 	{ARM_DRAM2_BASE, ARM_DRAM2_SIZE},

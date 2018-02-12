@@ -237,4 +237,8 @@ int arm_execution_state_switch(unsigned int smc_fid,
 		uint32_t cookie_lo,
 		void *handle);
 
+/* global variables */
+extern plat_psci_ops_t plat_arm_psci_pm_ops;
+extern const mmap_region_t plat_arm_mmap[];
+
 #endif /* __PLAT_ARM_H__ */

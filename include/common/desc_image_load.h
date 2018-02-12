@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,9 @@ typedef struct bl_mem_params_node {
 	bl_load_info_node_t load_node_mem;
 	bl_params_node_t params_node_mem;
 } bl_mem_params_node_t;
+
+extern bl_mem_params_node_t *bl_mem_params_desc_ptr;
+extern unsigned int bl_mem_params_desc_num;
 
 /*
  * Macro to register list of BL image descriptors,

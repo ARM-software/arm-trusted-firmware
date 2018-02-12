@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,7 @@ static unsigned int gicv2_compat;
  * spinlock are used either at boot time (when only a single CPU is active), or
  * when the system is fully coherent.
  */
-spinlock_t gic_lock;
+static spinlock_t gic_lock;
 
 /*
  * Redistributor power operations are weakly bound so that they can be

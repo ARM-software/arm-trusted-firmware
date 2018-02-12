@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,6 +18,7 @@
 #include <secure_partition.h>
 #include <v2m_def.h>
 #include "../fvp_def.h"
+#include "fvp_private.h"
 
 /* Defines for GIC Driver build time selection */
 #define FVP_GICV2		1

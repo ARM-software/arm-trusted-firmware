@@ -34,7 +34,7 @@ typedef struct tzc400_instance {
 	uint8_t num_regions;
 } tzc400_instance_t;
 
-tzc400_instance_t tzc400;
+static tzc400_instance_t tzc400;
 
 static inline unsigned int _tzc400_read_build_config(uintptr_t base)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,8 +45,11 @@ typedef struct pmf_svc_desc {
 
 /*
  * Convenience macro to allocate memory for a PMF service.
+ *
+ * The extern declaration is there to satisfy MISRA C-2012 rule 8.4.
  */
 #define PMF_ALLOCATE_TIMESTAMP_MEMORY(_name, _total_id)		\
+	extern unsigned long long pmf_ts_mem_ ## _name[_total_id];	\
 	unsigned long long pmf_ts_mem_ ## _name[_total_id]	\
 	__aligned(CACHE_WRITEBACK_GRANULE)			\
 	__section("pmf_timestamp_array")			\
@@ -60,8 +63,13 @@ typedef struct pmf_svc_desc {
 
 /*
  * Convenience macros for capturing time-stamp.
+ *
+ * The extern declaration is there to satisfy MISRA C-2012 rule 8.4.
  */
 #define PMF_DEFINE_CAPTURE_TIMESTAMP(_name, _flags)			\
+	void pmf_capture_timestamp_ ## _name(				\
+			unsigned int tid,				\
+			unsigned long long ts);				\
 	void pmf_capture_timestamp_ ## _name(				\
 			unsigned int tid,				\
 			unsigned long long ts)				\
@@ -74,6 +82,9 @@ typedef struct pmf_svc_desc {
 		if ((_flags) & PMF_DUMP_ENABLE)				\
 			__pmf_dump_timestamp(tid, ts);			\
 	}								\
+	void pmf_capture_timestamp_with_cache_maint_ ## _name(		\
+			unsigned int tid,				\
+			unsigned long long ts);				\
 	void pmf_capture_timestamp_with_cache_maint_ ## _name(		\
 			unsigned int tid,				\
 			unsigned long long ts)				\
@@ -89,8 +100,12 @@ typedef struct pmf_svc_desc {
 
 /*
  * Convenience macros for retrieving time-stamp.
+ *
+ * The extern declaration is there to satisfy MISRA C-2012 rule 8.4.
  */
 #define PMF_DEFINE_GET_TIMESTAMP(_name)					\
+	unsigned long long pmf_get_timestamp_by_index_ ## _name(	\
+		unsigned int tid, unsigned int cpuid, unsigned int flags);\
 	unsigned long long pmf_get_timestamp_by_index_ ## _name(	\
 		unsigned int tid, unsigned int cpuid, unsigned int flags)\
 	{								\
@@ -98,6 +113,8 @@ typedef struct pmf_svc_desc {
 		uintptr_t base_addr = (uintptr_t) pmf_ts_mem_ ## _name;	\
 		return __pmf_get_timestamp(base_addr, tid, cpuid, flags);\
 	}								\
+	unsigned long long pmf_get_timestamp_by_mpidr_ ## _name(	\
+		unsigned int tid, u_register_t mpidr, unsigned int flags);\
 	unsigned long long pmf_get_timestamp_by_mpidr_ ## _name(	\
 		unsigned int tid, u_register_t mpidr, unsigned int flags)\
 	{								\

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <mmio.h>
 #include <plat_arm.h>
 #include <platform_def.h>
+#include <platform.h>
 #include <secure_partition.h>
 
 extern const mmap_region_t plat_arm_mmap[];

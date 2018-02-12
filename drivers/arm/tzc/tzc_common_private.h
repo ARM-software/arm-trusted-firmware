@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,7 +93,7 @@
  * It is used to program region 0 ATTRIBUTES and ACCESS register.
  */
 #define DEFINE_TZC_COMMON_CONFIGURE_REGION0(fn_name)			\
-	void _tzc##fn_name##_configure_region0(uintptr_t base,		\
+	static void _tzc##fn_name##_configure_region0(uintptr_t base,	\
 			   tzc_region_attributes_t sec_attr,		\
 			   unsigned int ns_device_access)		\
 	{								\
@@ -124,7 +124,7 @@
  * that function).
  */
 #define DEFINE_TZC_COMMON_CONFIGURE_REGION(fn_name)			\
-	void _tzc##fn_name##_configure_region(uintptr_t base,		\
+	static void _tzc##fn_name##_configure_region(uintptr_t base,	\
 				unsigned int filters,			\
 				int region_no,				\
 				unsigned long long region_base,		\

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,11 +8,12 @@
 #include <arm_config.h>
 #include <cassert.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <platform_def.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 
 /* The FVP power domain tree descriptor */
-unsigned char fvp_power_domain_tree_desc[FVP_CLUSTER_COUNT + 2];
+static unsigned char fvp_power_domain_tree_desc[FVP_CLUSTER_COUNT + 2];
 
 
 CASSERT(FVP_CLUSTER_COUNT && FVP_CLUSTER_COUNT <= 256, assert_invalid_fvp_cluster_count);
