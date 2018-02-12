@@ -24,12 +24,12 @@
  * Function declarations.
  */
 static int bl1_fwu_image_copy(unsigned int image_id,
-			uintptr_t image_addr,
+			uintptr_t image_src,
 			unsigned int block_size,
 			unsigned int image_size,
 			unsigned int flags);
 static int bl1_fwu_image_auth(unsigned int image_id,
-			uintptr_t image_addr,
+			uintptr_t image_src,
 			unsigned int image_size,
 			unsigned int flags);
 static int bl1_fwu_image_execute(unsigned int image_id,
@@ -50,7 +50,7 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved);
 static unsigned int sec_exec_image_id = INVALID_IMAGE_ID;
 
 /* Authentication status of each image. */
-extern unsigned int auth_img_flags[];
+extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 
 /*******************************************************************************
  * Top level handler for servicing FWU SMCs.

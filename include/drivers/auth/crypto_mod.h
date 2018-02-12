@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,7 +43,7 @@ typedef struct crypto_lib_desc_s {
 void crypto_mod_init(void);
 int crypto_mod_verify_signature(void *data_ptr, unsigned int data_len,
 				void *sig_ptr, unsigned int sig_len,
-				void *sig_alg, unsigned int sig_alg_len,
+				void *sig_alg_ptr, unsigned int sig_alg_len,
 				void *pk_ptr, unsigned int pk_len);
 int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
 			   void *digest_info_ptr, unsigned int digest_info_len);

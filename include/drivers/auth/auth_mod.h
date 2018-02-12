@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <auth_common.h>
 #include <cot_def.h>
 #include <img_parser_mod.h>
+#include <tbbr_img_def.h>
 
 /*
  * Image flags
@@ -41,7 +42,7 @@ int auth_mod_verify_img(unsigned int img_id,
 #define REGISTER_COT(_cot) \
 	const auth_img_desc_t *const cot_desc_ptr = \
 			(const auth_img_desc_t *const)&_cot[0]; \
-	unsigned int auth_img_flags[sizeof(_cot)/sizeof(_cot[0])]
+	unsigned int auth_img_flags[MAX_NUMBER_IDS]
 
 #endif /* TRUSTED_BOARD_BOOT */
 
