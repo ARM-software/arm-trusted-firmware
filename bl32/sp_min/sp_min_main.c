@@ -20,6 +20,7 @@
 #include <smccc_helpers.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <std_svc.h>
 #include <string.h>
 #include <types.h>
 #include <utils.h>

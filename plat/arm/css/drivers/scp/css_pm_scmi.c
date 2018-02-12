@@ -298,7 +298,7 @@ void __dead2 css_scp_sys_reboot(void)
 	css_scp_system_off(SCMI_SYS_PWR_COLD_RESET);
 }
 
-scmi_channel_plat_info_t plat_css_scmi_plat_info = {
+static scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
 		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
 		.db_preserve_mask = 0xfffffffe,
