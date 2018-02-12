@@ -97,10 +97,20 @@ static int dwufs_phy_set_pwr_mode(ufs_params_t *params)
 	int result;
 	unsigned int data, tx_lanes, rx_lanes;
 	uintptr_t base;
+	int flags;
 
 	assert((params != NULL) && (params->reg_base != 0));
 
 	base = params->reg_base;
+	flags = params->flags;
+
+	if(flags & UFS_FLAGS_VENDOR_SKHYNIX) {
+		NOTICE("ufs: H**** device must set VS_DebugSaveConfigTime 0x10\n");
+		/* VS_DebugSaveConfigTime */
+		ufshc_dme_set(0xd0a0, 0x0, 0x10);
+		/* sync length */
+		ufshc_dme_set(0x1556, 0x0, 0x48);
+	}
 
 	result = ufshc_dme_get(PA_TACTIVATE_OFFSET, 0, &data);
 	assert(result == 0);
