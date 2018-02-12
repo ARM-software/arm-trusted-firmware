@@ -11,6 +11,7 @@
 #include <delay_timer.h>
 #include <platform.h>
 #include <stdint.h>
+#include "css_scp.h"
 #include "../sds/sds.h"
 
 int css_scp_boot_image_xfer(void *image, unsigned int image_size)
