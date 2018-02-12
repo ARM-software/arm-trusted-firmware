@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,7 +19,7 @@
 /*
  * Helper function to inform power down state to SCP.
  */
-void css_scp_suspend(const psci_power_state_t *target_state)
+void css_scp_suspend(const struct psci_power_state *target_state)
 {
 	uint32_t cluster_state = scpi_power_on;
 	uint32_t system_state = scpi_power_on;
