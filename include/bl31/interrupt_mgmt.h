@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -80,9 +80,19 @@
 					 ((x) == INTR_NS_VALID_RM1 ? 0 :\
 					  -EINVAL))
 
+#if EL3_EXCEPTION_HANDLING
+/*
+ * With EL3 exception handling, EL3 interrupts are always routed to EL3 from
+ * both Secure and Non-secure, and therefore INTR_EL3_VALID_RM1 is the only
+ * valid routing model.
+ */
+#define validate_el3_interrupt_rm(x)	((x) == INTR_EL3_VALID_RM1 ? 0 : \
+					 -EINVAL)
+#else
 #define validate_el3_interrupt_rm(x)	((x) == INTR_EL3_VALID_RM0 ? 0 : \
 					 ((x) == INTR_EL3_VALID_RM1 ? 0 :\
 					  -EINVAL))
+#endif
 
 /*******************************************************************************
  * Macros to set the 'flags' parameter passed to an interrupt type handler. Only

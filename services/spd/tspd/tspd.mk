@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -41,6 +41,12 @@ $(error "TSPD_ROUTE_IRQ_TO_EL3 is deprecated. Please use the new build flag TSP_
 endif
 $(warning "TSPD_ROUTE_IRQ_TO_EL3 is deprecated. Please use the new build flag TSP_NS_INTR_ASYNC_PREEMPT")
 TSP_NS_INTR_ASYNC_PREEMPT	:= ${TSPD_ROUTE_IRQ_TO_EL3}
+endif
+
+ifeq ($(EL3_EXCEPTION_HANDLING),1)
+ifeq ($(TSP_NS_INTR_ASYNC_PREEMPT),0)
+$(error When EL3_EXCEPTION_HANDLING=1, TSP_NS_INTR_ASYNC_PREEMPT must also be 1)
+endif
 endif
 
 $(eval $(call assert_boolean,TSP_NS_INTR_ASYNC_PREEMPT))
