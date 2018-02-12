@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -182,7 +182,7 @@ static int load_bl33(bl31_params_t *bl2_to_bl31_params)
  * This function loads SCP_BL2/BL3x images and returns the ep_info for
  * the next executable image.
  ******************************************************************************/
-entry_point_info_t *bl2_load_images(void)
+struct entry_point_info *bl2_load_images(void)
 {
 	bl31_params_t *bl2_to_bl31_params;
 	entry_point_info_t *bl31_ep_info;

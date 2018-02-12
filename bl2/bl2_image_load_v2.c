@@ -21,7 +21,7 @@
  * This function loads SCP_BL2/BL3x images and returns the ep_info for
  * the next executable image.
  ******************************************************************************/
-entry_point_info_t *bl2_load_images(void)
+struct entry_point_info *bl2_load_images(void)
 {
 	bl_params_t *bl2_to_next_bl_params;
 	bl_load_info_t *bl2_load_info;
