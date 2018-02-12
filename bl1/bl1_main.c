@@ -163,7 +163,7 @@ void bl1_main(void)
  * TODO: Add support for alternative image load mechanism e.g using virtio/elf
  * loader etc.
  ******************************************************************************/
-void bl1_load_bl2(void)
+static void bl1_load_bl2(void)
 {
 	image_desc_t *image_desc;
 	image_info_t *image_info;
