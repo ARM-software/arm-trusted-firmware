@@ -221,6 +221,18 @@ void tspd_init_tsp_ep_state(struct entry_point_info *tsp_entry_point,
 				tsp_context_t *tsp_ctx);
 int tspd_abort_preempted_smc(tsp_context_t *tsp_ctx);
 
+uint64_t tspd_smc_handler(uint32_t smc_fid,
+			 uint64_t x1,
+			 uint64_t x2,
+			 uint64_t x3,
+			 uint64_t x4,
+			 void *cookie,
+			 void *handle,
+			 uint64_t flags);
+
+int32_t tspd_setup(void);
+uint64_t tspd_handle_sp_preemption(void *handle);
+
 extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
 extern tsp_vectors_t *tsp_vectors;
 #endif /*__ASSEMBLY__*/
