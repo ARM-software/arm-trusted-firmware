@@ -142,7 +142,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
  * Helper function to turn off a CPU power domain and its parent power domains
  * if applicable.
  */
-void css_scp_off(const psci_power_state_t *target_state)
+void css_scp_off(const struct psci_power_state *target_state)
 {
 	int lvl = 0, ret;
 	uint32_t scmi_pwr_state = 0;

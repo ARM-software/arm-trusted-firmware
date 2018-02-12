@@ -50,7 +50,7 @@ void clear_mem_regions(mem_region_t *tbl, size_t nregions)
  * be cleared, and chunk is the amount of memory mapped and
  * cleared in every iteration.
  */
-void clear_map_dyn_mem_regions(mem_region_t *regions,
+void clear_map_dyn_mem_regions(struct mem_region *regions,
 			       size_t nregions,
 			       uintptr_t va,
 			       size_t chunk)

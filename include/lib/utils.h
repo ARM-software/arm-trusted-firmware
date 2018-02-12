@@ -37,10 +37,10 @@ void clear_mem_regions(mem_region_t *tbl, size_t nregions);
  * in a way that they minimize the number of entries used in the
  * translation tables.
  */
-void clear_map_dyn_mem_regions(mem_region_t *region,
+void clear_map_dyn_mem_regions(struct mem_region *regions,
 			       size_t nregions,
 			       uintptr_t va,
-			       size_t chunk_size);
+			       size_t chunk);
 
 /*
  * checks that a region (addr + nbytes-1) of memory is totally covered by
