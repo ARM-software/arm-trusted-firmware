@@ -64,6 +64,26 @@
 #ifndef __ASSEMBLY__
 #include <cassert.h>
 
+struct entry_point_info;
+
+register_t bl1_smc_wrapper(uint32_t smc_fid,
+	void *cookie,
+	void *handle,
+	unsigned int flags);
+
+register_t bl1_smc_handler(unsigned int smc_fid,
+	register_t x1,
+	register_t x2,
+	register_t x3,
+	register_t x4,
+	void *cookie,
+	void *handle,
+	unsigned int flags);
+
+void bl1_print_next_bl_ep_info(const struct entry_point_info *bl_ep_info);
+
+void bl1_main(void);
+
 /*
  * Check if the total number of FWU SMC calls are as expected.
  */

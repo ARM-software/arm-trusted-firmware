@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <arch_helpers.h>
 #include <auth_mod.h>
 #include <bl1.h>
+#include <bl2.h>
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -58,7 +58,7 @@ static int32_t std_svc_setup(void)
  * Top-level Standard Service SMC handler. This handler will in turn dispatch
  * calls to PSCI SMC handler
  */
-uintptr_t std_svc_smc_handler(uint32_t smc_fid,
+static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 			     u_register_t x1,
 			     u_register_t x2,
 			     u_register_t x3,

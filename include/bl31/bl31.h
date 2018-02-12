@@ -18,5 +18,7 @@ uint32_t bl31_get_next_image_type(void);
 void bl31_prepare_next_image_entry(void);
 void bl31_register_bl32_init(int32_t (*func)(void));
 void bl31_warm_entrypoint(void);
+void bl31_main(void);
+void bl31_lib_init(void);
 
 #endif /* __BL31_H__ */

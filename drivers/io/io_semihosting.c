@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <io_driver.h>
+#include <io_semihosting.h>
 #include <io_storage.h>
 #include <semihosting.h>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <pubsub.h>
+#include <spe.h>
 
 /*
  * The assembler does not yet understand the psb csync mnemonic

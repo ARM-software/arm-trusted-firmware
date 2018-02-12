@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -101,6 +101,8 @@ typedef struct cpu_data {
 	pe_exc_data_t ehf_data;
 #endif
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
+
+extern cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
 
 #if CRASH_REPORTING
 /* verify assembler offsets match data structures */

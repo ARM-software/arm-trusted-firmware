@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <gic_common.h>
+#include <gicv2.h>
 #include <interrupt_props.h>
 #include "../common/gic_common_private.h"
 #include "gicv2_private.h"
