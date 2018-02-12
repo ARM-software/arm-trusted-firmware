@@ -44,6 +44,9 @@ int auth_mod_verify_img(unsigned int img_id,
 			(const auth_img_desc_t *const)&_cot[0]; \
 	unsigned int auth_img_flags[MAX_NUMBER_IDS]
 
+extern const auth_img_desc_t *const cot_desc_ptr;
+extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
+
 #endif /* TRUSTED_BOARD_BOOT */
 
 #endif /* __AUTH_MOD_H__ */

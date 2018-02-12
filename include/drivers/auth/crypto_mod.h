@@ -57,4 +57,6 @@ int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
 		.verify_hash = _verify_hash \
 	}
 
+extern const crypto_lib_desc_t crypto_lib_desc;
+
 #endif /* __CRYPTO_MOD_H__ */
