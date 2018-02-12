@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -218,7 +218,7 @@ void psci_acquire_pwr_domain_locks(unsigned int end_pwrlvl,
 void psci_release_pwr_domain_locks(unsigned int end_pwrlvl,
 				   unsigned int cpu_idx);
 int psci_validate_suspend_req(const psci_power_state_t *state_info,
-			      unsigned int is_power_down_state_req);
+			      unsigned int is_power_down_state);
 unsigned int psci_find_max_off_lvl(const psci_power_state_t *state_info);
 unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info);
 void psci_set_pwr_domains_to_run(unsigned int end_pwrlvl);
@@ -248,7 +248,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl);
 void psci_cpu_suspend_start(entry_point_info_t *ep,
 			unsigned int end_pwrlvl,
 			psci_power_state_t *state_info,
-			unsigned int is_power_down_state_req);
+			unsigned int is_power_down_state);
 
 void psci_cpu_suspend_finish(unsigned int cpu_idx,
 			psci_power_state_t *state_info);

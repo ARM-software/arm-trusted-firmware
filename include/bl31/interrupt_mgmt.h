@@ -124,7 +124,7 @@ int32_t set_routing_model(uint32_t type, uint32_t flags);
 int32_t register_interrupt_type_handler(uint32_t type,
 					interrupt_type_handler_t handler,
 					uint32_t flags);
-interrupt_type_handler_t get_interrupt_type_handler(uint32_t interrupt_type);
+interrupt_type_handler_t get_interrupt_type_handler(uint32_t type);
 int disable_intr_rm_local(uint32_t type, uint32_t security_state);
 int enable_intr_rm_local(uint32_t type, uint32_t security_state);
 
