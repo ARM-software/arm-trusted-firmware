@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,5 +18,10 @@
 
 /* Definitions of register field mask in CORTEX_ARES_CPUPWRCTLR_EL1 */
 #define CORTEX_ARES_CORE_PWRDN_EN_MASK	0x1
+
+#define CORTEX_ARES_ACTLR_AMEN_BIT	(U(1) << 4)
+
+#define CORTEX_ARES_AMU_NR_COUNTERS	U(5)
+#define CORTEX_ARES_AMU_GROUP0_MASK	U(0x1f)
 
 #endif /* __CORTEX_ARES_H__ */

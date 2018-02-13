@@ -1,15 +1,36 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
 #include <cortex_ares.h>
+#include <cpuamu.h>
 #include <cpu_macros.S>
-#include <plat_macros.S>
+
+func cortex_ares_reset_func
+#if ENABLE_AMU
+	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
+	mrs	x0, actlr_el3
+	orr	x0, x0, #CORTEX_ARES_ACTLR_AMEN_BIT
+	msr	actlr_el3, x0
+	isb
+
+	/* Make sure accesses from EL0/EL1 are not trapped to EL2 */
+	mrs	x0, actlr_el2
+	orr	x0, x0, #CORTEX_ARES_ACTLR_AMEN_BIT
+	msr	actlr_el2, x0
+	isb
+
+	/* Enable group0 counters */
+	mov	x0, #CORTEX_ARES_AMU_GROUP0_MASK
+	msr	CPUAMCNTENSET_EL0, x0
+	isb
+#endif
+	ret
+endfunc cortex_ares_reset_func
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -47,5 +68,5 @@ func cortex_ares_cpu_reg_dump
 endfunc cortex_ares_cpu_reg_dump
 
 declare_cpu_ops cortex_ares, CORTEX_ARES_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	cortex_ares_reset_func, \
 	cortex_ares_core_pwr_dwn

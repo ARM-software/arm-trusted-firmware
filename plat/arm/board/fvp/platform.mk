@@ -208,6 +208,7 @@ ENABLE_AMU			:=	1
 
 ifeq (${ENABLE_AMU},1)
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
+				lib/cpus/aarch64/cortex_ares_pubsub.c	\
 				lib/cpus/aarch64/cpuamu.c		\
 				lib/cpus/aarch64/cpuamu_helpers.S
 endif
