@@ -53,14 +53,12 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		break;
 
 	case PSTATE_ID_CLUSTER_IDLE:
-	case PSTATE_ID_CLUSTER_POWERDN:
 
 		/*
 		 * Cluster idle request for afflvl 0
 		 */
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PSTATE_ID_CORE_POWERDN;
 		req_state->pwr_domain_state[MPIDR_AFFLVL1] = state_id;
-
 		break;
 
 	case PSTATE_ID_SOC_POWERDN:
@@ -161,33 +159,6 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 			}
 		}
 
-	} else if ((lvl == MPIDR_AFFLVL1) && (target == PSTATE_ID_CLUSTER_POWERDN)) {
-
-		/* initialize the bpmp interface */
-		ret = tegra_bpmp_init();
-		if (ret != 0U) {
-
-			/* Cluster power down not allowed */
-			target = PSCI_LOCAL_STATE_RUN;
-		} else {
-
-			/* Cluster power-down */
-			data[0] = (uint32_t)cpu;
-			data[1] = TEGRA_PM_CC7;
-			data[2] = TEGRA_PM_SC1;
-			ret = tegra_bpmp_send_receive_atomic(MRQ_DO_IDLE,
-					(void *)&data, (int)sizeof(data),
-					(void *)&bpmp_reply,
-					(int)sizeof(bpmp_reply));
-
-			/* check if cluster power down is allowed */
-			if ((ret != 0L) || (bpmp_reply != BPMP_CCx_ALLOWED)) {
-
-				/* Cluster power down not allowed */
-				target = PSCI_LOCAL_STATE_RUN;
-			}
-		}
-
 	} else if (((lvl == MPIDR_AFFLVL2) || (lvl == MPIDR_AFFLVL1)) &&
 	    (target == PSTATE_ID_SOC_POWERDN)) {
 
@@ -245,13 +216,6 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* Prepare for cluster idle */
 		tegra_fc_cluster_idle(mpidr);
-
-	} else if (stateid_afflvl1 == PSTATE_ID_CLUSTER_POWERDN) {
-
-		assert(stateid_afflvl0 == PSTATE_ID_CORE_POWERDN);
-
-		/* Prepare for cluster powerdn */
-		tegra_fc_cluster_powerdn(mpidr);
 
 	} else if (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN) {
 

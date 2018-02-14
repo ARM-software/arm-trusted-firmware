@@ -14,7 +14,6 @@
  ******************************************************************************/
 #define PSTATE_ID_CORE_POWERDN		U(7)
 #define PSTATE_ID_CLUSTER_IDLE		U(16)
-#define PSTATE_ID_CLUSTER_POWERDN	U(17)
 #define PSTATE_ID_SOC_POWERDN		U(27)
 
 /*******************************************************************************
