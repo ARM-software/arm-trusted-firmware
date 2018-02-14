@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
+#include <stdbool.h>
 
 #include <tegra_def.h>
 
@@ -36,9 +37,10 @@ static inline void tegra_pmc_write_32(uint32_t off, uint32_t val)
 	mmio_write_32(TEGRA_PMC_BASE + off, val);
 }
 
-void tegra_pmc_cpu_setup(uint64_t reset_addr);
-void tegra_pmc_lock_cpu_vectors(void);
 void tegra_pmc_cpu_on(int32_t cpu);
+void tegra_pmc_cpu_setup(uint64_t reset_addr);
+bool tegra_pmc_is_last_on_cpu(void);
+void tegra_pmc_lock_cpu_vectors(void);
 __dead2 void tegra_pmc_system_reset(void);
 
 #endif /* PMC_H */
