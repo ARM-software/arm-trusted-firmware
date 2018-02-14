@@ -35,13 +35,13 @@
 #define SMC_64				U(1)
 #define SMC_32				U(0)
 #define SMC_OK				U(0)
-#define SMC_UNK				U(0xffffffff)
+#define SMC_UNK				-1
 #define SMC_TYPE_FAST			ULL(1)
 #if !ERROR_DEPRECATED
 #define SMC_TYPE_STD			ULL(0)
 #endif
 #define SMC_TYPE_YIELD			U(0)
-#define SMC_PREEMPTED		U(0xfffffffe)
+#define SMC_PREEMPTED			-2
 /*******************************************************************************
  * Owning entity number definitions inside the function id as per the SMC
  * calling convention
@@ -99,7 +99,7 @@
  */
 #define DEFINE_SVC_UUID(_name, _tl, _tm, _th, _cl, _ch, \
 		_n0, _n1, _n2, _n3, _n4, _n5) \
-	CASSERT(_tl != SMC_UNK, invalid_svc_uuid);\
+	CASSERT((uint32_t)(_tl) != (uint32_t) SMC_UNK, invalid_svc_uuid);\
 	static const uuid_t _name = { \
 		_tl, _tm, _th, _cl, _ch, \
 		{ _n0, _n1, _n2, _n3, _n4, _n5 } \
