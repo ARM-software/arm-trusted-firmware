@@ -124,7 +124,6 @@ int tegra_bpmp_init(void)
 		/* check if the bpmp processor is alive. */
 		val = mmio_read_32(TEGRA_RES_SEMA_BASE + STA_OFFSET);
 		if (val != SIGN_OF_LIFE) {
-			ERROR("BPMP precessor not available\n");
 			return -ENOTSUP;
 		}
 
