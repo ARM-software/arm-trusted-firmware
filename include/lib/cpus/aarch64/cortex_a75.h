@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,28 +18,6 @@
 
 /* Definitions of register field mask in CORTEX_A75_CPUPWRCTLR_EL1 */
 #define CORTEX_A75_CORE_PWRDN_EN_MASK	0x1
-
-/*******************************************************************************
- * CPU Activity Monitor Unit register specific definitions.
- ******************************************************************************/
-#define CPUAMCNTENCLR_EL0	S3_3_C15_C9_7
-#define CPUAMCNTENSET_EL0	S3_3_C15_C9_6
-#define CPUAMCFGR_EL0		S3_3_C15_C10_6
-#define CPUAMUSERENR_EL0	S3_3_C15_C10_7
-
-/* Activity Monitor Event Counter Registers */
-#define CPUAMEVCNTR0_EL0	S3_3_C15_C9_0
-#define CPUAMEVCNTR1_EL0	S3_3_C15_C9_1
-#define CPUAMEVCNTR2_EL0	S3_3_C15_C9_2
-#define CPUAMEVCNTR3_EL0	S3_3_C15_C9_3
-#define CPUAMEVCNTR4_EL0	S3_3_C15_C9_4
-
-/* Activity Monitor Event Type Registers */
-#define CPUAMEVTYPER0_EL0	S3_3_C15_C10_0
-#define CPUAMEVTYPER1_EL0	S3_3_C15_C10_1
-#define CPUAMEVTYPER2_EL0	S3_3_C15_C10_2
-#define CPUAMEVTYPER3_EL0	S3_3_C15_C10_3
-#define CPUAMEVTYPER4_EL0	S3_3_C15_C10_4
 
 #define CORTEX_A75_ACTLR_AMEN_BIT	(U(1) << 4)
 
