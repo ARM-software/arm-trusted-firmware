@@ -137,6 +137,8 @@
  ******************************************************************************/
 #define TEGRA_MISC_BASE			U(0x70000000)
 #define  HARDWARE_REVISION_OFFSET	U(0x804)
+#define  PINMUX_AUX_DVFS_PWM		U(0x3184)
+#define  PINMUX_PWM_TRISTATE		(U(1) << 4)
 
 /*******************************************************************************
  * Tegra UART controller base addresses
@@ -192,6 +194,17 @@
 /* SMMU configuration registers*/
 #define MC_SMMU_PPCS_ASID_0		0x270U
 #define  PPCS_SMMU_ENABLE		(0x1U << 31)
+
+/*******************************************************************************
+ * Tegra CLDVFS constants
+ ******************************************************************************/
+#define TEGRA_CL_DVFS_BASE		U(0x70110000)
+#define DVFS_DFLL_CTRL			U(0x00)
+#define  ENABLE_OPEN_LOOP		U(1)
+#define  ENABLE_CLOSED_LOOP		U(2)
+#define DVFS_DFLL_OUTPUT_CFG		U(0x20)
+#define  DFLL_OUTPUT_CFG_I2C_EN_BIT	(U(1) << 30)
+#define  DFLL_OUTPUT_CFG_CLK_EN_BIT	(U(1) << 6)
 
 /*******************************************************************************
  * Tegra SE constants

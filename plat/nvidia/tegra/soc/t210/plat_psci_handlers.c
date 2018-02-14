@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,6 +35,7 @@
 #define SCLK_BURST_POLICY_DEFAULT	0x10000000
 
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
+static bool tegra_bpmp_available = true;
 
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
@@ -53,11 +54,12 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 
 	case PSTATE_ID_CLUSTER_IDLE:
 	case PSTATE_ID_CLUSTER_POWERDN:
+
 		/*
-		 * Cluster powerdown/idle request only for afflvl 1
+		 * Cluster idle request for afflvl 0
 		 */
-		req_state->pwr_domain_state[MPIDR_AFFLVL1] = state_id;
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PSTATE_ID_CORE_POWERDN;
+		req_state->pwr_domain_state[MPIDR_AFFLVL1] = state_id;
 
 		break;
 
@@ -83,7 +85,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 
 /*******************************************************************************
  * Platform handler to calculate the proper target power level at the
- * specified affinity level
+ * specified affinity level.
  ******************************************************************************/
 plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 					     const plat_local_state_t *states,
@@ -92,7 +94,7 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 	plat_local_state_t target = PSCI_LOCAL_STATE_RUN;
 	int cpu = plat_my_core_pos();
 	int core_pos = read_mpidr() & MPIDR_CPU_MASK;
-	uint32_t bpmp_reply, data[3];
+	uint32_t bpmp_reply, data[3], val;
 	int ret;
 
 	/* get the power state at this level */
@@ -109,9 +111,40 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 
 			/* Cluster idle not allowed */
 			target = PSCI_LOCAL_STATE_RUN;
+
+			/*******************************************
+			 * BPMP is not present, so handle CC6 entry
+			 * from the CPU
+			 ******************************************/
+
+			/* check if cluster idle state has been enabled */
+			val = mmio_read_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_CTRL);
+			if (val == ENABLE_CLOSED_LOOP) {
+				/*
+				 * flag to indicate that BPMP firmware is not
+				 * available and the CPU has to handle entry/exit
+				 * for all power states
+				 */
+				tegra_bpmp_available = false;
+
+				/*
+				 * Acquire the cluster idle lock to stop
+				 * other CPUs from powering up.
+				 */
+				tegra_fc_ccplex_pgexit_lock();
+
+				/* Cluster idle only from the last standing CPU */
+				if (tegra_pmc_is_last_on_cpu() && tegra_fc_is_ccx_allowed()) {
+					/* Cluster idle allowed */
+					target = PSTATE_ID_CLUSTER_IDLE;
+				} else {
+					/* release cluster idle lock */
+					tegra_fc_ccplex_pgexit_unlock();
+				}
+			}
 		} else {
 
-			/* Cluster idle */
+			/* Cluster power-down */
 			data[0] = (uint32_t)cpu;
 			data[1] = TEGRA_PM_CC6;
 			data[2] = TEGRA_PM_SC1;
@@ -120,10 +153,10 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 					(void *)&bpmp_reply,
 					(int)sizeof(bpmp_reply));
 
-			/* check if cluster idle entry is allowed */
+			/* check if cluster power down is allowed */
 			if ((ret != 0L) || (bpmp_reply != BPMP_CCx_ALLOWED)) {
 
-				/* Cluster idle not allowed */
+				/* Cluster power down not allowed */
 				target = PSCI_LOCAL_STATE_RUN;
 			}
 		}
@@ -176,7 +209,9 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	unsigned int stateid_afflvl2 = pwr_domain_state[MPIDR_AFFLVL2];
 	unsigned int stateid_afflvl1 = pwr_domain_state[MPIDR_AFFLVL1];
 	unsigned int stateid_afflvl0 = pwr_domain_state[MPIDR_AFFLVL0];
+	uint32_t cfg;
 	int ret = PSCI_E_SUCCESS;
+	uint32_t val;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
@@ -196,6 +231,17 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	} else if (stateid_afflvl1 == PSTATE_ID_CLUSTER_IDLE) {
 
 		assert(stateid_afflvl0 == PSTATE_ID_CORE_POWERDN);
+
+		if (!tegra_bpmp_available) {
+
+			/* PWM tristate */
+			cfg = mmio_read_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_OUTPUT_CFG);
+			if (cfg & DFLL_OUTPUT_CFG_CLK_EN_BIT) {
+				val = mmio_read_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM);
+				val |= PINMUX_PWM_TRISTATE;
+				mmio_write_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM, val);
+			}
+		}
 
 		/* Prepare for cluster idle */
 		tegra_fc_cluster_idle(mpidr);
@@ -245,6 +291,7 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+	uint32_t cfg;
 	uint32_t val;
 
 	/* platform parameter passed by the previous bootloader */
@@ -286,7 +333,29 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		 * Restore Boot and Power Management Processor (BPMP) reset
 		 * address and reset it.
 		 */
-		tegra_fc_reset_bpmp();
+		if (tegra_bpmp_available)
+			tegra_fc_reset_bpmp();
+	}
+
+	/*
+	 * Check if we are exiting cluster idle state
+	 */
+	if (target_state->pwr_domain_state[MPIDR_AFFLVL1] ==
+			PSTATE_ID_CLUSTER_IDLE) {
+
+		if (!tegra_bpmp_available) {
+
+			/* PWM un-tristate */
+			cfg = mmio_read_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_OUTPUT_CFG);
+			if (cfg & DFLL_OUTPUT_CFG_CLK_EN_BIT) {
+				val = mmio_read_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM);
+				val &= ~PINMUX_PWM_TRISTATE;
+				mmio_write_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM, val);
+			}
+
+			/* release cluster idle lock */
+			tegra_fc_ccplex_pgexit_unlock();
+		}
 	}
 
 	/*
