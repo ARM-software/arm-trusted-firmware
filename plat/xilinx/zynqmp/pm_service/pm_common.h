@@ -19,6 +19,11 @@
 #define PAYLOAD_ARG_CNT		6U
 #define PAYLOAD_ARG_SIZE	4U	/* size in bytes */
 
+#define ZYNQMP_TZ_VERSION_MAJOR		1
+#define ZYNQMP_TZ_VERSION_MINOR		0
+#define ZYNQMP_TZ_VERSION		((ZYNQMP_TZ_VERSION_MAJOR << 16) | \
+					ZYNQMP_TZ_VERSION_MINOR)
+
 /**
  * pm_ipi - struct for capturing IPI-channel specific info
  * @apu_ipi_id	APU IPI agent ID
