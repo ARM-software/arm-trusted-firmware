@@ -14,7 +14,7 @@
 #define PWKUPR_OFF		0xc
 #define PSYSR_OFF		0x10
 
-#define PWKUPR_WEN		(1ull << 31)
+#define PWKUPR_WEN		(1ULL << 31)
 
 #define PSYSR_AFF_L2		(1 << 31)
 #define PSYSR_AFF_L1		(1 << 30)

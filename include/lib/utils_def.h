@@ -80,8 +80,8 @@
 # define  U(_x)		(_x)
 # define ULL(_x)	(_x)
 #else
-# define  U(_x)		(_x##u)
-# define ULL(_x)	(_x##ull)
+# define  U(_x)		(_x##U)
+# define ULL(_x)	(_x##ULL)
 #endif
 
 /* Register size of the current architecture. */

@@ -459,19 +459,19 @@ constants must also be defined:
 -  **#define : ADDR\_SPACE\_SIZE**
 
    Defines the total size of the address space in bytes. For example, for a 32
-   bit address space, this value should be ``(1ull << 32)``. This definition is
+   bit address space, this value should be ``(1ULL << 32)``. This definition is
    now deprecated, platforms should use ``PLAT_PHY_ADDR_SPACE_SIZE`` and
    ``PLAT_VIRT_ADDR_SPACE_SIZE`` instead.
 
 -  **#define : PLAT\_VIRT\_ADDR\_SPACE\_SIZE**
 
    Defines the total size of the virtual address space in bytes. For example,
-   for a 32 bit virtual address space, this value should be ``(1ull << 32)``.
+   for a 32 bit virtual address space, this value should be ``(1ULL << 32)``.
 
 -  **#define : PLAT\_PHY\_ADDR\_SPACE\_SIZE**
 
    Defines the total size of the physical address space in bytes. For example,
-   for a 32 bit physical address space, this value should be ``(1ull << 32)``.
+   for a 32 bit physical address space, this value should be ``(1ULL << 32)``.
 
 If the platform port uses the IO storage framework, the following constants
 must also be defined:

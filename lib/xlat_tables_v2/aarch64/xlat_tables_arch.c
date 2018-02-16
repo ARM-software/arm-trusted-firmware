@@ -62,7 +62,7 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 	/* All other values are reserved */
 	assert(pa_range < ARRAY_SIZE(pa_range_bits_arr));
 
-	return (1ull << pa_range_bits_arr[pa_range]) - 1ull;
+	return (1ULL << pa_range_bits_arr[pa_range]) - 1ULL;
 }
 #endif /* ENABLE_ASSERTIONS*/
 

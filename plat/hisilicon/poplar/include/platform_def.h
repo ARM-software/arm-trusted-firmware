@@ -122,7 +122,7 @@
 #define PLAT_POPLAR_NS_IMAGE_OFFSET	0x37000000
 
 /* Page table and MMU setup constants */
-#define ADDR_SPACE_SIZE			(1ull << 32)
+#define ADDR_SPACE_SIZE			(1ULL << 32)
 #define MAX_XLAT_TABLES			(4)
 #define MAX_MMAP_REGIONS		(16)
 
