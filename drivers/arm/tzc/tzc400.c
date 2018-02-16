@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -205,13 +205,16 @@ void tzc400_enable_filters(void)
 	for (filter = 0; filter < tzc400.num_filters; filter++) {
 		state = _tzc400_get_gate_keeper(tzc400.base, filter);
 		if (state) {
-			/* The TZC filter is already configured. Changing the
+			/*
+			 * The TZC filter is already configured. Changing the
 			 * programmer's view in an active system can cause
 			 * unpredictable behavior therefore panic for now rather
 			 * than try to determine whether this is safe in this
-			 * instance. See:
-			 * http://infocenter.arm.com/help/index.jsp?\
-			 * topic=/com.arm.doc.ddi0504c/CJHHECBF.html */
+			 * instance.
+			 *
+			 * See the 'ARM (R) CoreLink TM TZC-400 TrustZone (R)
+			 * Address Space Controller' Technical Reference Manual.
+			 */
 			ERROR("TZC-400 : Filter %d Gatekeeper already"
 				" enabled.\n", filter);
 			panic();

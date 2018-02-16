@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,9 +46,7 @@ CASSERT(NOP_ > REG_, sdei_state_overlap_nop);
 
 /*
  * SDEI handler state machine: refer to sections 6.1 and 6.1.2 of the SDEI v1.0
- * specification:
- *
- * http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
+ * specification (ARM DEN0054A).
  *
  * Not all calls contribute to handler state transition. This table is also used
  * to validate whether a call is permissible at a given handler state:
