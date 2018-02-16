@@ -183,6 +183,6 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 void sdei_init(void);
 
 /* Public API to dispatch an event to Normal world */
-int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state);
+int sdei_dispatch_event(int ev_num);
 
 #endif /* __SDEI_H__ */

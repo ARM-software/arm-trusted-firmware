@@ -42,7 +42,8 @@ ifeq (${SDEI_SUPPORT},1)
 ifeq (${EL3_EXCEPTION_HANDLING},0)
   $(error EL3_EXCEPTION_HANDLING must be 1 for SDEI support)
 endif
-BL31_SOURCES		+=	services/std_svc/sdei/sdei_event.c	\
+BL31_SOURCES		+=	services/std_svc/sdei/sdei_dispatch.S	\
+				services/std_svc/sdei/sdei_event.c	\
 				services/std_svc/sdei/sdei_intr_mgmt.c	\
 				services/std_svc/sdei/sdei_main.c	\
 				services/std_svc/sdei/sdei_state.c

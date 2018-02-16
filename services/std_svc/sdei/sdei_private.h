@@ -14,6 +14,7 @@
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <sdei.h>
+#include <setjmp.h>
 #include <spinlock.h>
 #include <stdbool.h>
 #include <types.h>
@@ -240,5 +241,6 @@ unsigned int sdei_pe_mask(void);
 int sdei_intr_handler(uint32_t intr, uint32_t flags, void *handle,
 		void *cookie);
 bool can_sdei_state_trans(sdei_entry_t *se, sdei_action_t act);
+void begin_sdei_synchronous_dispatch(struct jmpbuf *buffer);
 
 #endif /* __SDEI_PRIVATE_H__ */

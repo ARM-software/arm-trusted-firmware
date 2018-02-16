@@ -233,14 +233,10 @@ this purpose. The API has the following signature:
 
 ::
 
-        int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state);
+        int sdei_dispatch_event(int ev_num);
 
--  The parameter ``ev_num`` is the event number to dispatch;
-
--  The parameter ``preempted_sec_state`` indicates the context that was
-   preempted. This must be either ``SECURE`` or ``NON_SECURE``.
-
-The API returns ``0`` on success, or ``-1`` on failure.
+The parameter ``ev_num`` is the event number to dispatch. The API returns ``0``
+on success, or ``-1`` on failure.
 
 The following figure depicts a scenario involving explicit dispatch of SDEI
 event. A commentary is provided below:
@@ -253,21 +249,17 @@ unlike in `general SDEI dispatch`_, this doesn't involve interrupt binding, as
 bound or dynamic events can't be explicitly dispatched (see the section below).
 
 At a later point in time, a critical event [#critical-event]_ is trapped into
-EL3 [7]. EL3 performs a first-level triage of the event, and decides to dispatch
-to a Secure Partition [#secpart]_ for further handling [8]. The dispatch
-completes, but intends to involve Non-secure world in further handling, and
-therefore decides to explicitly dispatch an event [10] (which the client had
-already registered for [1]). The rest of the sequence is similar to that in the
-`general SDEI dispatch`_: the requested event is dispatched to the client
-(assuming all the conditions are met), and when the handler completes, the
-preempted execution resumes.
+EL3 [7]. EL3 performs a first-level triage of the event, and a RAS component
+assumes further handling [8]. The dispatch completes, but intends to involve
+Non-secure world in further handling, and therefore decides to explicitly
+dispatch an event [10] (which the client had already registered for [1]). The
+rest of the sequence is similar to that in the `general SDEI dispatch`_: the
+requested event is dispatched to the client (assuming all the conditions are
+met), and when the handler completes, the preempted execution resumes.
 
 .. [#critical-event] Examples of critical event are *SError*, *Synchronous
                      External Abort*, *Fault Handling interrupt*, or *Error
                      Recovery interrupt* from one of RAS nodes in the system.
-
-.. [#secpart] Dispatching to Secure Partition involves *Secure Partition
-              Manager*, which isn't depicted in the sequence.
 
 Conditions for event dispatch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -302,28 +294,22 @@ event to be dispatched:
 Further, the caller should be aware of the following assumptions made by the
 dispatcher:
 
--  The caller of the API is a component running in EL3; for example, the *Secure
-   Partition Manager*.
+-  The caller of the API is a component running in EL3; for example, a RAS
+   driver.
 
 -  The requested dispatch will be permitted by the Exception Handling Framework.
    I.e. the caller must make sure that the requested dispatch has sufficient
    priority so as not to cause priority level inversion within Exception
    Handling Framework.
 
--  At the time of the call, the active context is Secure, and it has been saved.
+-  The caller must be prepared for the SDEI dispatcher to restore the Non-secure
+   context, and mark that the active context.
 
--  Upon returning success, the Non-secure context will be restored and setup for
-   the event dispatch, and it will be the active context. The Non-secure context
-   should not be modified further by the caller.
+-  The call will block until the SDEI client completes the event (i.e. when the
+   client calls either ``SDEI_EVENT_COMPLETE`` or ``SDEI_COMPLETE_AND_RESUME``).
 
--  The API returning success only means that the dispatch is scheduled at the
-   next ``ERET``, and not immediately performed. Also, the caller must be
-   prepared for this API to return failure and handle accordingly.
-
--  Upon completing the event (i.e. when the client calls either
-   ``SDEI_EVENT_COMPLETE`` or ``SDEI_COMPLETE_AND_RESUME``), the preempted
-   context is resumed (as indicated by the ``preempted_sec_state`` parameter of
-   the API).
+-  The caller must be prepared for this API to return failure and handle
+   accordingly.
 
 Porting requirements
 --------------------
