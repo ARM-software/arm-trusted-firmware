@@ -1076,20 +1076,16 @@ warm boot. For each CPU, BL1 is responsible for the following tasks:
                             allocation to BL2
        meminfo.free_size  = Size of secure RAM available for allocation to BL2
 
-   BL1 places this ``meminfo`` structure at the beginning of the free memory
-   available for its use. Since BL1 cannot allocate memory dynamically at the
-   moment, its free memory will be available for BL2's use as-is. However, this
-   means that BL2 must read the ``meminfo`` structure before it starts using its
-   free memory (this is discussed in Section 3.2).
+   By default, BL1 places this ``meminfo`` structure at the beginning of the
+   free memory available for its use. Since BL1 cannot allocate memory
+   dynamically at the moment, its free memory will be available for BL2's use
+   as-is. However, this means that BL2 must read the ``meminfo`` structure
+   before it starts using its free memory (this is discussed in Section 3.2).
 
-   In future releases of the ARM Trusted Firmware it will be possible for
-   the platform to decide where it wants to place the ``meminfo`` structure for
-   BL2.
-
-   BL1 implements the ``bl1_init_bl2_mem_layout()`` function to populate the
-   BL2 ``meminfo`` structure. The platform may override this implementation, for
-   example if the platform wants to restrict the amount of memory visible to
-   BL2. Details of how to do this are given below.
+   It is possible for the platform to decide where it wants to place the
+   ``meminfo`` structure for BL2 or restrict the amount of memory visible to
+   BL2 by overriding the weak default implementation of
+   ``bl1_plat_handle_post_image_load`` API.
 
 The following functions need to be implemented by the platform port to enable
 BL1 to perform the above tasks.
@@ -1263,6 +1259,12 @@ Function : bl1\_plat\_handle\_post\_image\_load() [optional]
 This function can be used by the platforms to update/use image information
 corresponding to ``image_id``. This function is invoked in BL1, both in cold
 boot and FWU code path, after loading and authenticating the image.
+
+The default weak implementation of this function calculates the amount of
+Trusted SRAM that can be used by BL2 and allocates a ``meminfo_t``
+structure at the beginning of this free memory and populates it. The address
+of ``meminfo_t`` structure is updated in ``arg1`` of the entrypoint
+information to BL2.
 
 Function : bl1\_plat\_fwu\_done() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

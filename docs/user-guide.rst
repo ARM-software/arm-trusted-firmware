@@ -776,6 +776,19 @@ ARM FVP platform specific build options
    for functions that wait for an arbitrary time length (udelay and mdelay).
    The default value is 0.
 
+-  ``FVP_HW_CONFIG_DTS`` : Specify the path to the DTS file to be compiled
+   to DTB and packaged in FIP as the HW_CONFIG. See `Firmware Design`_ for
+   details on HW_CONFIG. By default, this is initialized to a sensible DTS
+   file in ``fdts/`` folder depending on other build options. But some cases,
+   like shifted affinity format for MPIDR, cannot be detected at build time
+   and this option is needed to specify the appropriate DTS file.
+
+-  ``FVP_HW_CONFIG`` : Specify the path to the HW_CONFIG blob to be packaged in
+   FIP. See `Firmware Design`_ for details on HW_CONFIG. This option is
+   similar to the ``FVP_HW_CONFIG_DTS`` option, but it directly specifies the
+   HW_CONFIG blob instead of the DTS file. This option is useful to override
+   the default HW_CONFIG selected by the build system.
+
 Debugging options
 ~~~~~~~~~~~~~~~~~
 
