@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,10 +68,10 @@ endfunc plat_crash_console_putc
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * Out : return -1 on error else return 0.
-	 * Clobber list : r0 - r1
+	 * Clobber list : r0
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
-	ldr	r1, =PLAT_ARM_CRASH_UART_BASE
+	ldr	r0, =PLAT_ARM_CRASH_UART_BASE
 	b	console_core_flush
 endfunc plat_crash_console_flush
