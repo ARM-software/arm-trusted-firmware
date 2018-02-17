@@ -29,6 +29,7 @@
 #define DMAC_GLB_REG_SEC	0x694
 #define AXI_CONF_BASE		0x820
 
+static unsigned int uart_base;
 static uintptr_t hikey960_sec_entrypoint;
 
 static void hikey960_pwr_domain_standby(plat_local_state_t cpu_state)
@@ -263,7 +264,7 @@ hikey960_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 	if (hisi_test_ap_suspend_flag(cluster)) {
 		hikey960_sr_dma_reinit();
 		gicv2_cpuif_enable();
-		console_init(PL011_UART6_BASE, PL011_UART_CLK_IN_HZ,
+		console_init(uart_base, PL011_UART_CLK_IN_HZ,
 			     PL011_BAUDRATE);
 	}
 
@@ -295,6 +296,19 @@ static const plat_psci_ops_t hikey960_psci_ops = {
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const plat_psci_ops_t **psci_ops)
 {
+	unsigned int id = 0;
+	int ret;
+
+	ret = hikey960_read_boardid(&id);
+	if (ret == 0) {
+		if (id == 5300U)
+			uart_base = PL011_UART5_BASE;
+		else
+			uart_base = PL011_UART6_BASE;
+	} else {
+		uart_base = PL011_UART6_BASE;
+	}
+
 	hikey960_sec_entrypoint = sec_entrypoint;
 
 	INFO("%s: sec_entrypoint=0x%lx\n", __func__,
