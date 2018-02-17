@@ -20,7 +20,7 @@
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
-#include <xlat_tables.h>
+#include <xlat_tables_v2.h>
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(l2ctlr_el1, CORTEX_A57_L2CTLR_EL1)
 extern uint64_t tegra_enable_l2_ecc_parity_prot;
