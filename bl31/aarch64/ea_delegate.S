@@ -6,6 +6,7 @@
 
 
 #include <asm_macros.S>
+#include <assert_macros.S>
 #include <context.h>
 #include <ea_handle.h>
 
@@ -143,8 +144,23 @@ func ea_proceed
 	mov	sp, x5
 
 	mov	x29, x30
+#if ENABLE_ASSERTIONS
+	/* Stash the stack pointer */
+	mov	x28, sp
+#endif
 	bl	plat_ea_handler
 	mov	x30, x29
+
+#if ENABLE_ASSERTIONS
+	/*
+	 * Error handling flows might involve long jumps; so upon returning from
+	 * the platform error handler, validate that the we've completely
+	 * unwound the stack.
+	 */
+	mov	x27, sp
+	cmp	x28, x27
+	ASM_ASSERT(eq)
+#endif
 
 	/* Make SP point to context */
 	msr	spsel, #1
