@@ -187,6 +187,7 @@ func smc_handler64
 
 	bl	disable_mmu_icache_el3
 	tlbi	alle3
+	dsb	ish /* ERET implies ISB, so it is not needed here */
 
 #if SPIN_ON_BL1_EXIT
 	bl	print_debug_loop_message

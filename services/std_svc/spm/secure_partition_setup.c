@@ -54,6 +54,7 @@ void secure_partition_setup(void)
 
 	/* Invalidate TLBs at EL1. */
 	tlbivmalle1();
+	dsbish();
 
 	/*
 	 * General-Purpose registers

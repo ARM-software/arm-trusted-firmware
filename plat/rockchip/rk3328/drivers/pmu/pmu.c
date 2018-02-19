@@ -591,8 +591,10 @@ err_loop:
 __sramfunc void sram_suspend(void)
 {
 	/* disable mmu and icache */
-	tlbialle3();
 	disable_mmu_icache_el3();
+	tlbialle3();
+	dsbsy();
+	isb();
 
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(1),
 		      ((uintptr_t)&pmu_cpuson_entrypoint >> CPU_BOOT_ADDR_ALIGN) |
