@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,6 +90,28 @@ func psci_do_pwrup_cache_maintenance
 	orr	r0, r0, #SCTLR_C_BIT
 	stcopr	r0, SCTLR
 	isb
+
+#if PLAT_XLAT_TABLES_DYNAMIC
+	/* ---------------------------------------------
+	 * During warm boot the MMU is enabled with data
+	 * cache disabled, then the interconnect is set
+	 * up and finally the data cache is enabled.
+	 *
+	 * During this period, if another CPU modifies
+	 * the translation tables, the MMU table walker
+	 * may read the old entries. This is only a
+	 * problem for dynamic regions, the warm boot
+	 * code isn't affected because it is static.
+	 *
+	 * Invalidate all TLB entries loaded while the
+	 * CPU wasn't coherent with the rest of the
+	 * system.
+	 * ---------------------------------------------
+	 */
+	stcopr	r0, TLBIALL
+	dsb	ish
+	isb
+#endif
 
 	pop	{r12, pc}
 endfunc psci_do_pwrup_cache_maintenance
