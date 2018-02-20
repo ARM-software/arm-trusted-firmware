@@ -390,12 +390,12 @@ smc_unknown:
 	 * content). Either way, we aren't leaking any secure information
 	 * through them.
 	 */
-	mov	w0, #SMC_UNK
+	mov	x0, #SMC_UNK
 	b	restore_gp_registers_callee_eret
 
 smc_prohibited:
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-	mov	w0, #SMC_UNK
+	mov	x0, #SMC_UNK
 	eret
 
 rt_svc_fw_critical_error:
