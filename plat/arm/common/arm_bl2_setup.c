@@ -24,6 +24,20 @@
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
+/*
+ * Check that BL2_BASE is atleast a page over ARM_BL_RAM_BASE. The page is for
+ * `meminfo_t` data structure and TB_FW_CONFIG passed from BL1. Not needed
+ * when BL2 is compiled for BL_AT_EL3 as BL2 doesn't need any info from BL1 and
+ * BL2 is loaded at base of usable SRAM.
+ */
+#if BL2_AT_EL3
+#define BL1_MEMINFO_OFFSET	0x0
+#else
+#define BL1_MEMINFO_OFFSET	PAGE_SIZE
+#endif
+
+CASSERT(BL2_BASE >= (ARM_BL_RAM_BASE + BL1_MEMINFO_OFFSET), assert_bl2_base_overflows);
+
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl2_early_platform_setup
 #pragma weak bl2_platform_setup
