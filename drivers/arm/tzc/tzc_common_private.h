@@ -169,8 +169,6 @@
 						nsaid_permissions);	\
 	}
 
-#if ENABLE_ASSERTIONS
-
 static inline unsigned int _tzc_read_peripheral_id(uintptr_t base)
 {
 	unsigned int id;
@@ -182,6 +180,7 @@ static inline unsigned int _tzc_read_peripheral_id(uintptr_t base)
 	return id;
 }
 
+#if ENABLE_ASSERTIONS
 #ifdef AARCH32
 static inline unsigned long long _tzc_get_max_top_addr(int addr_width)
 {
