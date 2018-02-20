@@ -109,7 +109,8 @@ static void *amu_context_save(const void *arg)
 	ctx = &amu_ctxs[plat_my_core_pos()];
 
 	/* Assert that group 0 counter configuration is what we expect */
-	assert(read_amcntenset0() == AMU_GROUP0_COUNTERS_MASK);
+	assert(read_amcntenset0() == AMU_GROUP0_COUNTERS_MASK &&
+	       read_amcntenset1() == AMU_GROUP1_COUNTERS_MASK);
 
 	/*
 	 * Disable group 0 counters to avoid other observers like SCP sampling
@@ -141,7 +142,7 @@ static void *amu_context_restore(const void *arg)
 	ctx = &amu_ctxs[plat_my_core_pos()];
 
 	/* Counters were disabled in `amu_context_save()` */
-	assert(read_amcntenset0() == 0);
+	assert(read_amcntenset0() == 0 && read_amcntenset1() == 0);
 
 	/* Restore group 0 counters */
 	for (i = 0; i < AMU_GROUP0_NR_COUNTERS; i++)
