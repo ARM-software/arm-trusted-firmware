@@ -194,7 +194,7 @@ void arm_bl2_early_platform_setup(uintptr_t tb_fw_config, meminfo_t *mem_layout)
 	plat_arm_io_setup();
 
 #if LOAD_IMAGE_V2
-	if (tb_fw_config != 0)
+	if (tb_fw_config != 0U)
 		arm_bl2_set_tb_cfg_addr((void *)tb_fw_config);
 #endif
 }

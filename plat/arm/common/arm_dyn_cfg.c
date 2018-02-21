@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <desc_image_load.h>
+#include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <string.h>
@@ -38,7 +39,7 @@ void arm_load_tb_fw_config(void)
 
 	VERBOSE("BL1: Loading TB_FW_CONFIG\n");
 	err = load_auth_image(TB_FW_CONFIG_ID, &arm_tb_fw_info.image_info);
-	if (err) {
+	if (err != 0) {
 		/* Return if TB_FW_CONFIG is not loaded */
 		VERBOSE("Failed to load TB_FW_CONFIG\n");
 		return;
@@ -48,7 +49,7 @@ void arm_load_tb_fw_config(void)
 
 	/* The BL2 ep_info arg0 is modified to point to TB_FW_CONFIG */
 	image_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
-	assert(image_desc);
+	assert(image_desc != NULL);
 	image_desc->ep_info.args.arg0 = config_base;
 
 	INFO("BL1: TB_FW_CONFIG loaded at address = %p\n",
@@ -60,7 +61,7 @@ void arm_load_tb_fw_config(void)
  */
 void arm_bl2_set_tb_cfg_addr(void *dtb)
 {
-	assert(dtb);
+	assert(dtb != NULL);
 	tb_fw_cfg_dtb = dtb;
 }
 

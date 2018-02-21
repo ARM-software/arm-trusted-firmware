@@ -6,6 +6,7 @@
 
 #include <arm_config.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <smmu_v3.h>
 #include "fvp_private.h"
 

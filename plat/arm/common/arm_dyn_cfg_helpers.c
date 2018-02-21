@@ -8,6 +8,7 @@
 #include <desc_image_load.h>
 #include <fdt_wrappers.h>
 #include <libfdt.h>
+#include <plat_arm.h>
 
 /*******************************************************************************
  * Helper to read the `hw_config` property in config DTB. This function
@@ -31,9 +32,9 @@ int arm_dyn_get_hwconfig_info(void *dtb, int node,
 {
 	int err;
 
-	assert(dtb);
-	assert(hw_config_addr);
-	assert(hw_config_size);
+	assert(dtb != NULL);
+	assert(hw_config_addr != NULL);
+	assert(hw_config_size != NULL);
 
 	/* Check if the pointer to DT is correct */
 	assert(fdt_check_header(dtb) == 0);
@@ -72,8 +73,8 @@ int arm_dyn_get_hwconfig_info(void *dtb, int node,
  ******************************************************************************/
 int arm_dyn_tb_fw_cfg_init(void *dtb, int *node)
 {
-	assert(dtb);
-	assert(node);
+	assert(dtb != NULL);
+	assert(node != NULL);
 
 	/* Check if the pointer to DT is correct */
 	if (fdt_check_header(dtb) != 0) {

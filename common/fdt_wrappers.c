@@ -23,16 +23,16 @@ int fdtw_read_cells(const void *dtb, int node, const char *prop,
 	uint32_t hi = 0, lo;
 	int value_len;
 
-	assert(dtb);
-	assert(prop);
-	assert(value);
+	assert(dtb != NULL);
+	assert(prop != NULL);
+	assert(value != NULL);
 	assert(node >= 0);
 
 	/* We expect either 1 or 2 cell property */
-	assert(cells <= 2);
+	assert(cells <= 2U);
 
 	/* Access property and obtain its length (in bytes) */
-	value_ptr = fdt_getprop_namelen(dtb, node, prop, strlen(prop),
+	value_ptr = fdt_getprop_namelen(dtb, node, prop, (int)strlen(prop),
 			&value_len);
 	if (value_ptr == NULL) {
 		WARN("Couldn't find property %s in dtb\n", prop);
@@ -41,19 +41,19 @@ int fdtw_read_cells(const void *dtb, int node, const char *prop,
 
 
 	/* Verify that property length accords with cell length */
-	if (NCELLS(value_len) != cells) {
+	if (NCELLS((unsigned int)value_len) != cells) {
 		WARN("Property length mismatch\n");
 		return -1;
 	}
 
-	if (cells == 2) {
+	if (cells == 2U) {
 		hi = fdt32_to_cpu(*value_ptr);
 		value_ptr++;
 	}
 
 	lo = fdt32_to_cpu(*value_ptr);
 
-	if (cells == 2)
+	if (cells == 2U)
 		*((uint64_t *) value) = ((uint64_t) hi << 32) | lo;
 	else
 		*((uint32_t *) value) = lo;
@@ -70,20 +70,20 @@ int fdtw_write_inplace_cells(void *dtb, int node, const char *prop,
 {
 	int err, len;
 
-	assert(dtb);
-	assert(prop);
-	assert(value);
+	assert(dtb != NULL);
+	assert(prop != NULL);
+	assert(value != NULL);
 	assert(node >= 0);
 
 	/* We expect either 1 or 2 cell property */
-	assert(cells <= 2);
+	assert(cells <= 2U);
 
-	if (cells == 2)
+	if (cells == 2U)
 		*(uint64_t *)value = cpu_to_fdt64(*(uint64_t *)value);
 	else
 		*(uint32_t *)value = cpu_to_fdt32(*(uint32_t *)value);
 
-	len = cells * 4;
+	len = (int)cells * 4;
 
 	/* Set property value in place */
 	err = fdt_setprop_inplace(dtb, node, prop, value, len);

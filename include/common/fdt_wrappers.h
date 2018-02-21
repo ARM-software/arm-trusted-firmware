@@ -10,7 +10,7 @@
 #define __FDT_WRAPPERS__
 
 /* Number of cells, given total length in bytes. Each cell is 4 bytes long */
-#define NCELLS(l) (l / 4)
+#define NCELLS(len) ((len) / 4)
 
 int fdtw_read_cells(const void *dtb, int node, const char *prop,
 		unsigned int cells, void *value);

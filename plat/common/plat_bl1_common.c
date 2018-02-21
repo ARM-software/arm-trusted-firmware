@@ -89,7 +89,7 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 
 	/* Get the image descriptor */
 	image_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
-	assert(image_desc);
+	assert(image_desc != NULL);
 
 	/* Get the entry point info */
 	ep_info = &image_desc->ep_info;

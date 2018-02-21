@@ -202,7 +202,7 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 	uintptr_t hw_config_base = 0, fw_config_base;
 	bl_mem_params_node_t *mem_params;
 
-	assert(bl2_to_next_bl_params);
+	assert(bl2_to_next_bl_params != NULL);
 
 	/*
 	 * Get the `bl_mem_params_node_t` corresponding to HW_CONFIG
