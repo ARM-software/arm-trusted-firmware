@@ -21,9 +21,6 @@
 /* macro to check if Hypervisor is enabled in the HCR_EL2 register */
 #define HYP_ENABLE_FLAG		0x286001
 
-/* length of Trusty's input parameters (in bytes) */
-#define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
-
 struct trusty_stack {
 	uint8_t space[PLATFORM_STACK_SIZE] __aligned(16);
 	uint32_t end;
