@@ -206,7 +206,8 @@ endfunc cpu_rev_var_hs
  */
 	.globl print_errata_status
 func print_errata_status
-	push	{r4, lr}
+	/* r12 is pushed only for the sake of 8-byte stack alignment */
+	push	{r4, r5, r12, lr}
 #ifdef IMAGE_BL1
 	/*
 	 * BL1 doesn't have per-CPU data. So retrieve the CPU operations
@@ -241,6 +242,6 @@ func print_errata_status
 	blxne	r4
 1:
 #endif
-	pop	{r4, pc}
+	pop	{r4, r5, r12, pc}
 endfunc print_errata_status
 #endif
