@@ -60,7 +60,7 @@ struct pinctrl_function {
 #define MAX_PIN_GROUPS	13
 
 struct zynqmp_pin_group {
-	uint16_t groups[MAX_PIN_GROUPS];
+	uint16_t (*groups)[];
 };
 
 static struct pinctrl_function pinctrl_functions[MAX_FUNCTION] =  {
@@ -970,7 +970,7 @@ static struct pinctrl_function pinctrl_functions[MAX_FUNCTION] =  {
 
 static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	[PINCTRL_PIN_0] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -984,10 +984,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_0_CLK,
 			PINCTRL_GRP_UART1_0,
 			PINCTRL_GRP_TRACE0_0_CLK,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_1] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1001,10 +1002,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_0_WAV,
 			PINCTRL_GRP_UART1_0,
 			PINCTRL_GRP_TRACE0_0_CLK,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_2] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1018,10 +1020,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_0_CLK,
 			PINCTRL_GRP_UART0_0,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_3] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1035,10 +1038,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_0_WAV,
 			PINCTRL_GRP_UART0_0,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_4] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1052,10 +1056,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_0_CLK,
 			PINCTRL_GRP_UART1_1,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_5] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI_SS,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1069,10 +1074,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_0_WAV,
 			PINCTRL_GRP_UART1_1,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_6] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI_FBCLK,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1086,10 +1092,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_0_CLK,
 			PINCTRL_GRP_UART0_1,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_7] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI_SS,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1103,10 +1110,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_0_WAV,
 			PINCTRL_GRP_UART0_1,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_8] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -1120,10 +1128,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_1_CLK,
 			PINCTRL_GRP_UART1_2,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_9] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_NAND0_0_CE,
 			PINCTRL_GRP_RESERVED,
@@ -1137,10 +1146,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_1_WAV,
 			PINCTRL_GRP_UART1_2,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_10] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_NAND0_0_RB,
 			PINCTRL_GRP_RESERVED,
@@ -1154,10 +1164,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_1_CLK,
 			PINCTRL_GRP_UART0_2,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_11] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_NAND0_0_RB,
 			PINCTRL_GRP_RESERVED,
@@ -1171,10 +1182,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_1_WAV,
 			PINCTRL_GRP_UART0_2,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_12] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_QSPI0_0,
 			PINCTRL_GRP_NAND0_0_DQS,
 			PINCTRL_GRP_RESERVED,
@@ -1188,13 +1200,14 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_1_CLK,
 			PINCTRL_GRP_UART1_3,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_13] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_0,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_13,
@@ -1205,13 +1218,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_1_WAV,
 			PINCTRL_GRP_UART1_3,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_0,
+			PINCTRL_GRP_SDIO0_1BIT_0_0,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_14] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_1,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_14,
@@ -1222,13 +1238,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_1_CLK,
 			PINCTRL_GRP_UART0_3,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_0,
+			PINCTRL_GRP_SDIO0_1BIT_0_1,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_15] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_2,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_15,
@@ -1239,13 +1258,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_1_WAV,
 			PINCTRL_GRP_UART0_3,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_0,
+			PINCTRL_GRP_SDIO0_1BIT_0_2,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_16] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_3,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_16,
@@ -1256,13 +1278,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_2_CLK,
 			PINCTRL_GRP_UART1_4,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_0,
+			PINCTRL_GRP_SDIO0_1BIT_0_3,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_17] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_4,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_17,
@@ -1273,13 +1298,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_2_WAV,
 			PINCTRL_GRP_UART1_4,
 			PINCTRL_GRP_TRACE0_0,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_4,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_18] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_5,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_CSU0_0,
 			PINCTRL_GRP_GPIO0_18,
@@ -1290,13 +1318,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_2_CLK,
 			PINCTRL_GRP_UART0_4,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_5,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_19] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_6,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_CSU0_1,
 			PINCTRL_GRP_GPIO0_19,
@@ -1307,13 +1338,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_2_WAV,
 			PINCTRL_GRP_UART0_4,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_6,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_20] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_7,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_CSU0_2,
 			PINCTRL_GRP_GPIO0_20,
@@ -1324,13 +1358,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_2_CLK,
 			PINCTRL_GRP_UART1_5,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_21] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_7,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_CSU0_3,
 			PINCTRL_GRP_GPIO0_21,
@@ -1341,13 +1378,24 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_2_WAV,
 			PINCTRL_GRP_UART1_5,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_0,
+			PINCTRL_GRP_SDIO0_4BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_0,
+			PINCTRL_GRP_SDIO0_1BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_2,
+			PINCTRL_GRP_SDIO0_1BIT_0_3,
+			PINCTRL_GRP_SDIO0_1BIT_0_4,
+			PINCTRL_GRP_SDIO0_1BIT_0_5,
+			PINCTRL_GRP_SDIO0_1BIT_0_6,
+			PINCTRL_GRP_SDIO0_1BIT_0_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_22] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
-			PINCTRL_GRP_SDIO0_1BIT_0_7,
+			PINCTRL_GRP_SDIO0_0,
 			PINCTRL_GRP_TESTSCAN0_0,
 			PINCTRL_GRP_CSU0_4,
 			PINCTRL_GRP_GPIO0_22,
@@ -1358,10 +1406,21 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_2_CLK,
 			PINCTRL_GRP_UART0_5,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_0_0,
+			PINCTRL_GRP_SDIO0_4BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_0,
+			PINCTRL_GRP_SDIO0_1BIT_0_1,
+			PINCTRL_GRP_SDIO0_1BIT_0_2,
+			PINCTRL_GRP_SDIO0_1BIT_0_3,
+			PINCTRL_GRP_SDIO0_1BIT_0_4,
+			PINCTRL_GRP_SDIO0_1BIT_0_5,
+			PINCTRL_GRP_SDIO0_1BIT_0_6,
+			PINCTRL_GRP_SDIO0_1BIT_0_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_23] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
 			PINCTRL_GRP_SDIO0_0_PC,
@@ -1375,10 +1434,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_2_WAV,
 			PINCTRL_GRP_UART0_5,
 			PINCTRL_GRP_RESERVED,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_24] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
 			PINCTRL_GRP_SDIO0_0_CD,
@@ -1392,10 +1452,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_3_CLK,
 			PINCTRL_GRP_UART1_6,
 			PINCTRL_GRP_RESERVED,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_25] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_NAND0_0,
 			PINCTRL_GRP_SDIO0_0_WP,
@@ -1409,10 +1470,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_3_WAV,
 			PINCTRL_GRP_UART1_6,
 			PINCTRL_GRP_RESERVED,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_26] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_GEMTSU0_0,
 			PINCTRL_GRP_NAND0_1_CE,
 			PINCTRL_GRP_PMU0_0,
@@ -1426,10 +1488,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_3_CLK,
 			PINCTRL_GRP_UART0_6,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_27] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_NAND0_1_RB,
 			PINCTRL_GRP_PMU0_1,
@@ -1443,10 +1506,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_3_WAV,
 			PINCTRL_GRP_UART0_6,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_28] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_NAND0_1_RB,
 			PINCTRL_GRP_PMU0_2,
@@ -1460,10 +1524,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_3_CLK,
 			PINCTRL_GRP_UART1_7,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_29] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_0,
 			PINCTRL_GRP_PMU0_3,
@@ -1477,10 +1542,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_3_WAV,
 			PINCTRL_GRP_UART1_7,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_30] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_1,
 			PINCTRL_GRP_PMU0_4,
@@ -1494,10 +1560,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_3_CLK,
 			PINCTRL_GRP_UART0_7,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_31] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_2,
 			PINCTRL_GRP_PMU0_5,
@@ -1511,10 +1578,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_3_WAV,
 			PINCTRL_GRP_UART0_7,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_32] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_NAND0_1_DQS,
 			PINCTRL_GRP_PMU0_6,
@@ -1528,10 +1596,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_4_CLK,
 			PINCTRL_GRP_UART1_8,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_33] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_3,
 			PINCTRL_GRP_PMU0_7,
@@ -1545,10 +1614,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_4_WAV,
 			PINCTRL_GRP_UART1_8,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_34] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_4,
 			PINCTRL_GRP_PMU0_8,
@@ -1562,10 +1632,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_4_CLK,
 			PINCTRL_GRP_UART0_8,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_35] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_5,
 			PINCTRL_GRP_PMU0_9,
@@ -1579,10 +1650,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_4_WAV,
 			PINCTRL_GRP_UART0_8,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_36] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_6,
 			PINCTRL_GRP_PMU0_10,
@@ -1596,10 +1668,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_4_CLK,
 			PINCTRL_GRP_UART1_9,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_37] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_PCIE0_7,
 			PINCTRL_GRP_PMU0_11,
@@ -1613,13 +1686,14 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_4_WAV,
 			PINCTRL_GRP_UART1_9,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_38] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_7,
+			PINCTRL_GRP_SDIO0_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_38,
@@ -1630,14 +1704,25 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_4_CLK,
 			PINCTRL_GRP_UART0_9,
 			PINCTRL_GRP_TRACE0_1_CLK,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_0,
+			PINCTRL_GRP_SDIO0_4BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_0,
+			PINCTRL_GRP_SDIO0_1BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_2,
+			PINCTRL_GRP_SDIO0_1BIT_1_3,
+			PINCTRL_GRP_SDIO0_1BIT_1_4,
+			PINCTRL_GRP_SDIO0_1BIT_1_5,
+			PINCTRL_GRP_SDIO0_1BIT_1_6,
+			PINCTRL_GRP_SDIO0_1BIT_1_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_39] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_SDIO0_1_CD,
-			PINCTRL_GRP_SDIO1_1BIT_0_0,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_39,
 			PINCTRL_GRP_CAN0_9,
@@ -1647,14 +1732,17 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_4_WAV,
 			PINCTRL_GRP_UART0_9,
 			PINCTRL_GRP_TRACE0_1_CLK,
-		},
+			PINCTRL_GRP_SDIO1_4BIT_0_0,
+			PINCTRL_GRP_SDIO1_1BIT_0_0,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_40] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_7,
-			PINCTRL_GRP_SDIO1_1BIT_0_1,
+			PINCTRL_GRP_SDIO0_1,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_40,
 			PINCTRL_GRP_CAN1_10,
@@ -1664,14 +1752,27 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_5_CLK,
 			PINCTRL_GRP_UART1_10,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_0,
+			PINCTRL_GRP_SDIO0_4BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_0,
+			PINCTRL_GRP_SDIO0_1BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_2,
+			PINCTRL_GRP_SDIO0_1BIT_1_3,
+			PINCTRL_GRP_SDIO0_1BIT_1_4,
+			PINCTRL_GRP_SDIO0_1BIT_1_5,
+			PINCTRL_GRP_SDIO0_1BIT_1_6,
+			PINCTRL_GRP_SDIO0_1BIT_1_7,
+			PINCTRL_GRP_SDIO1_4BIT_0_0,
+			PINCTRL_GRP_SDIO1_1BIT_0_1,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_41] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_0,
-			PINCTRL_GRP_SDIO1_1BIT_0_2,
+			PINCTRL_GRP_SDIO0_1,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_41,
 			PINCTRL_GRP_CAN1_10,
@@ -1681,14 +1782,19 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_5_WAV,
 			PINCTRL_GRP_UART1_10,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_0,
+			PINCTRL_GRP_SDIO0_1BIT_1_0,
+			PINCTRL_GRP_SDIO1_4BIT_0_0,
+			PINCTRL_GRP_SDIO1_1BIT_0_2,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_42] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_1,
-			PINCTRL_GRP_SDIO1_1BIT_0_3,
+			PINCTRL_GRP_SDIO0_1,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_42,
 			PINCTRL_GRP_CAN0_10,
@@ -1698,13 +1804,19 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_5_CLK,
 			PINCTRL_GRP_UART0_10,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			PINCTRL_GRP_SDIO0_1,
+			PINCTRL_GRP_SDIO0_4BIT_1_0,
+			PINCTRL_GRP_SDIO0_1BIT_1_1,
+			PINCTRL_GRP_SDIO1_4BIT_0_0,
+			PINCTRL_GRP_SDIO1_1BIT_0_3,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_43] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_2,
+			PINCTRL_GRP_SDIO0_1,
 			PINCTRL_GRP_SDIO1_0_PC,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_43,
@@ -1715,13 +1827,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_5_WAV,
 			PINCTRL_GRP_UART0_10,
 			PINCTRL_GRP_TRACE0_1,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_0,
+			PINCTRL_GRP_SDIO0_1BIT_1_2,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_44] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_3,
+			PINCTRL_GRP_SDIO0_1,
 			PINCTRL_GRP_SDIO1_0_WP,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_44,
@@ -1732,13 +1847,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_5_CLK,
 			PINCTRL_GRP_UART1_11,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_0,
+			PINCTRL_GRP_SDIO0_1BIT_1_3,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_45] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_4,
+			PINCTRL_GRP_SDIO0_1,
 			PINCTRL_GRP_SDIO1_0_CD,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_45,
@@ -1749,14 +1867,17 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_5_WAV,
 			PINCTRL_GRP_UART1_11,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_4,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_46] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_5,
-			PINCTRL_GRP_SDIO1_1BIT_0_4,
+			PINCTRL_GRP_SDIO0_1,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_46,
 			PINCTRL_GRP_CAN0_11,
@@ -1766,14 +1887,19 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_5_CLK,
 			PINCTRL_GRP_UART0_11,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_5,
+			PINCTRL_GRP_SDIO1_4BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_4,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_47] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_6,
-			PINCTRL_GRP_SDIO1_1BIT_0_5,
+			PINCTRL_GRP_SDIO0_1,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_47,
 			PINCTRL_GRP_CAN0_11,
@@ -1783,14 +1909,19 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_5_WAV,
 			PINCTRL_GRP_UART0_11,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_6,
+			PINCTRL_GRP_SDIO1_4BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_5,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_48] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO0_1BIT_1_7,
-			PINCTRL_GRP_SDIO1_1BIT_0_6,
+			PINCTRL_GRP_SDIO0_1,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_48,
 			PINCTRL_GRP_CAN1_12,
@@ -1800,14 +1931,19 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_6_CLK,
 			PINCTRL_GRP_UART1_12,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_1_1,
+			PINCTRL_GRP_SDIO0_1BIT_1_7,
+			PINCTRL_GRP_SDIO1_4BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_6,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_49] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_SDIO0_1_PC,
-			PINCTRL_GRP_SDIO1_1BIT_0_7,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_49,
 			PINCTRL_GRP_CAN1_12,
@@ -1817,14 +1953,17 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_6_WAV,
 			PINCTRL_GRP_UART1_12,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO1_4BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_50] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_GEMTSU0_1,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_SDIO0_1_WP,
-			PINCTRL_GRP_SDIO1_1BIT_0_7,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_50,
 			PINCTRL_GRP_CAN0_12,
@@ -1834,14 +1973,25 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_6_CLK,
 			PINCTRL_GRP_UART0_12,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO1_4BIT_0_0,
+			PINCTRL_GRP_SDIO1_4BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_0,
+			PINCTRL_GRP_SDIO1_1BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_2,
+			PINCTRL_GRP_SDIO1_1BIT_0_3,
+			PINCTRL_GRP_SDIO1_1BIT_0_4,
+			PINCTRL_GRP_SDIO1_1BIT_0_5,
+			PINCTRL_GRP_SDIO1_1BIT_0_6,
+			PINCTRL_GRP_SDIO1_1BIT_0_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_51] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_GEMTSU0_2,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
-			PINCTRL_GRP_SDIO1_1BIT_0_7,
+			PINCTRL_GRP_SDIO1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_51,
 			PINCTRL_GRP_CAN0_12,
@@ -1851,10 +2001,21 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_6_WAV,
 			PINCTRL_GRP_UART0_12,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO1_4BIT_0_0,
+			PINCTRL_GRP_SDIO1_4BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_0,
+			PINCTRL_GRP_SDIO1_1BIT_0_1,
+			PINCTRL_GRP_SDIO1_1BIT_0_2,
+			PINCTRL_GRP_SDIO1_1BIT_0_3,
+			PINCTRL_GRP_SDIO1_1BIT_0_4,
+			PINCTRL_GRP_SDIO1_1BIT_0_5,
+			PINCTRL_GRP_SDIO1_1BIT_0_6,
+			PINCTRL_GRP_SDIO1_1BIT_0_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_52] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1868,10 +2029,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_6_CLK,
 			PINCTRL_GRP_UART1_13,
 			PINCTRL_GRP_TRACE0_2_CLK,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_53] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1885,10 +2047,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_6_WAV,
 			PINCTRL_GRP_UART1_13,
 			PINCTRL_GRP_TRACE0_2_CLK,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_54] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1902,10 +2065,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_6_CLK,
 			PINCTRL_GRP_UART0_13,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_55] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1919,10 +2083,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_6_WAV,
 			PINCTRL_GRP_UART0_13,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_56] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1936,10 +2101,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_7_CLK,
 			PINCTRL_GRP_UART1_14,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_57] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1953,10 +2119,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_7_WAV,
 			PINCTRL_GRP_UART1_14,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_58] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1970,10 +2137,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_7_CLK,
 			PINCTRL_GRP_UART0_14,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_59] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -1987,10 +2155,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_7_WAV,
 			PINCTRL_GRP_UART0_14,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_60] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -2004,10 +2173,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_7_CLK,
 			PINCTRL_GRP_UART1_15,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_61] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -2021,10 +2191,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_7_WAV,
 			PINCTRL_GRP_UART1_15,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_62] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -2038,10 +2209,11 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_7_CLK,
 			PINCTRL_GRP_UART0_15,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_63] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET2_0,
 			PINCTRL_GRP_USB0_0,
 			PINCTRL_GRP_RESERVED,
@@ -2055,13 +2227,14 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_7_WAV,
 			PINCTRL_GRP_UART0_15,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_64] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_7,
+			PINCTRL_GRP_SDIO0_2,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_64,
@@ -2072,10 +2245,21 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_8_CLK,
 			PINCTRL_GRP_UART1_16,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_0,
+			PINCTRL_GRP_SDIO0_4BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_0,
+			PINCTRL_GRP_SDIO0_1BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_2,
+			PINCTRL_GRP_SDIO0_1BIT_2_3,
+			PINCTRL_GRP_SDIO0_1BIT_2_4,
+			PINCTRL_GRP_SDIO0_1BIT_2_5,
+			PINCTRL_GRP_SDIO0_1BIT_2_6,
+			PINCTRL_GRP_SDIO0_1BIT_2_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_65] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
 			PINCTRL_GRP_SDIO0_2_CD,
@@ -2089,13 +2273,14 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC3_8_WAV,
 			PINCTRL_GRP_UART1_16,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_66] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_7,
+			PINCTRL_GRP_SDIO0_2,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_66,
@@ -2106,13 +2291,24 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_8_CLK,
 			PINCTRL_GRP_UART0_16,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_0,
+			PINCTRL_GRP_SDIO0_4BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_0,
+			PINCTRL_GRP_SDIO0_1BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_2,
+			PINCTRL_GRP_SDIO0_1BIT_2_3,
+			PINCTRL_GRP_SDIO0_1BIT_2_4,
+			PINCTRL_GRP_SDIO0_1BIT_2_5,
+			PINCTRL_GRP_SDIO0_1BIT_2_6,
+			PINCTRL_GRP_SDIO0_1BIT_2_7,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_67] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_0,
+			PINCTRL_GRP_SDIO0_2,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_67,
@@ -2123,13 +2319,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC2_8_WAV,
 			PINCTRL_GRP_UART0_16,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_0,
+			PINCTRL_GRP_SDIO0_1BIT_2_0,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_68] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_1,
+			PINCTRL_GRP_SDIO0_2,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_68,
@@ -2140,13 +2339,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_8_CLK,
 			PINCTRL_GRP_UART1_17,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_0,
+			PINCTRL_GRP_SDIO0_1BIT_2_1,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_69] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_2,
+			PINCTRL_GRP_SDIO0_2,
 			PINCTRL_GRP_SDIO1_1_WP,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_69,
@@ -2157,13 +2359,16 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC1_8_WAV,
 			PINCTRL_GRP_UART1_17,
 			PINCTRL_GRP_TRACE0_2,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_0,
+			PINCTRL_GRP_SDIO0_1BIT_2_2,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_70] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_3,
+			PINCTRL_GRP_SDIO0_2,
 			PINCTRL_GRP_SDIO1_1_PC,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_70,
@@ -2174,14 +2379,17 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_8_CLK,
 			PINCTRL_GRP_UART0_17,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_0,
+			PINCTRL_GRP_SDIO0_1BIT_2_3,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_71] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_4,
-			PINCTRL_GRP_SDIO1_1BIT_1_0,
+			PINCTRL_GRP_SDIO0_2,
+			PINCTRL_GRP_SDIO1_4BIT_1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_71,
 			PINCTRL_GRP_CAN0_17,
@@ -2191,14 +2399,19 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_TTC0_8_WAV,
 			PINCTRL_GRP_UART0_17,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_2,
+			PINCTRL_GRP_SDIO0_4BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_4,
+			PINCTRL_GRP_SDIO1_1BIT_1_0,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_72] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_5,
-			PINCTRL_GRP_SDIO1_1BIT_1_1,
+			PINCTRL_GRP_SDIO0_2,
+			PINCTRL_GRP_SDIO1_4BIT_1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_72,
 			PINCTRL_GRP_CAN1_18,
@@ -2208,14 +2421,18 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_UART1_18,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_5,
+			PINCTRL_GRP_SDIO1_1BIT_1_1,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_73] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_6,
-			PINCTRL_GRP_SDIO1_1BIT_1_2,
+			PINCTRL_GRP_SDIO0_2,
+			PINCTRL_GRP_SDIO1_4BIT_1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_73,
 			PINCTRL_GRP_CAN1_18,
@@ -2225,14 +2442,18 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_UART1_18,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_6,
+			PINCTRL_GRP_SDIO1_1BIT_1_2,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_74] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
-			PINCTRL_GRP_SDIO0_1BIT_2_7,
-			PINCTRL_GRP_SDIO1_1BIT_1_3,
+			PINCTRL_GRP_SDIO0_2,
+			PINCTRL_GRP_SDIO1_4BIT_1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_74,
 			PINCTRL_GRP_CAN0_18,
@@ -2242,14 +2463,18 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_UART0_18,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO0_4BIT_2_1,
+			PINCTRL_GRP_SDIO0_1BIT_2_7,
+			PINCTRL_GRP_SDIO1_1BIT_1_3,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_75] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_ETHERNET3_0,
 			PINCTRL_GRP_USB1_0,
 			PINCTRL_GRP_SDIO0_2_PC,
-			PINCTRL_GRP_SDIO1_1BIT_1_3,
+			PINCTRL_GRP_SDIO1_4BIT_1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_75,
 			PINCTRL_GRP_CAN0_18,
@@ -2259,14 +2484,19 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_UART0_18,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO1_1BIT_1_0,
+			PINCTRL_GRP_SDIO1_1BIT_1_1,
+			PINCTRL_GRP_SDIO1_1BIT_1_2,
+			PINCTRL_GRP_SDIO1_1BIT_1_3,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_76] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_SDIO0_2_WP,
-			PINCTRL_GRP_SDIO1_1BIT_1_3,
+			PINCTRL_GRP_SDIO1_4BIT_1_0,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_GPIO0_76,
 			PINCTRL_GRP_CAN1_19,
@@ -2276,10 +2506,15 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_MDIO2_0,
 			PINCTRL_GRP_MDIO3_0,
 			PINCTRL_GRP_RESERVED,
-		},
+			PINCTRL_GRP_SDIO1_1BIT_1_0,
+			PINCTRL_GRP_SDIO1_1BIT_1_1,
+			PINCTRL_GRP_SDIO1_1BIT_1_2,
+			PINCTRL_GRP_SDIO1_1BIT_1_3,
+			END_OF_GROUPS,
+		}),
 	},
 	[PINCTRL_PIN_77] = {
-		.groups = {
+		.groups = &((uint16_t []) {
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
 			PINCTRL_GRP_RESERVED,
@@ -2293,7 +2528,8 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 			PINCTRL_GRP_MDIO2_0,
 			PINCTRL_GRP_MDIO3_0,
 			PINCTRL_GRP_RESERVED,
-		},
+			END_OF_GROUPS,
+		}),
 	},
 };
 
@@ -2450,22 +2686,26 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(unsigned int pin,
 						 uint16_t *groups)
 {
 	int i;
-	uint16_t *grps, zeros[MAX_PIN_GROUPS] = {0};
+	uint16_t *grps;
 
 	if (pin >= MAX_PIN)
 		return PM_RET_ERROR_ARGS;
 
-	grps = zynqmp_pin_groups[pin].groups;
-
 	memset(groups, END_OF_GROUPS, GROUPS_PAYLOAD_LEN);
 
-	if (!memcmp(grps, zeros, MAX_PIN_GROUPS))
+	grps = *zynqmp_pin_groups[pin].groups;
+	if (!grps)
 		return PM_RET_SUCCESS;
 
+	/* Skip groups till index */
+	for (i = 0; i < index; i++)
+		if (grps[i] == (uint16_t)END_OF_GROUPS)
+			return PM_RET_SUCCESS;
+
 	for (i = 0; i < NUM_GROUPS_PER_RESP; i++) {
-		if ((index + i) >= MAX_PIN_GROUPS)
-			break;
 		groups[i] = grps[index + i];
+		if (groups[i] == (uint16_t)END_OF_GROUPS)
+			break;
 	}
 
 	return PM_RET_SUCCESS;
@@ -2501,7 +2741,7 @@ enum pm_ret_status pm_api_pinctrl_get_function(unsigned int pin,
 	if (i == NFUNCS_PER_PIN)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	gid = zynqmp_pin_groups[pin].groups[i];
+	gid = *(*zynqmp_pin_groups[pin].groups + i);
 
 	for (i = 0; i < MAX_FUNCTION; i++) {
 		grps = *pinctrl_functions[i].groups;
@@ -2535,9 +2775,9 @@ done:
 enum pm_ret_status pm_api_pinctrl_set_function(unsigned int pin,
 					       unsigned int fid)
 {
-	int i = 0;
-	unsigned int reg, val, gid;
-	uint16_t *grps;
+	int i, j;
+	unsigned int reg, val;
+	uint16_t *pgrps, *fgrps;
 
 	reg = IOU_SLCR_BASEADDR + 4 * pin;
 	val = pinctrl_functions[fid].regval;
@@ -2549,18 +2789,22 @@ enum pm_ret_status pm_api_pinctrl_set_function(unsigned int pin,
 	if (i == NFUNCS_PER_PIN)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	gid = zynqmp_pin_groups[pin].groups[i];
-	grps = *pinctrl_functions[fid].groups;
-	if (!grps)
+	pgrps = *zynqmp_pin_groups[pin].groups;
+	if (!pgrps)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	for (i = 0; grps[i] != (uint16_t)END_OF_GROUPS; i++) {
-		if (gid == grps[i])
-			break;
-	}
-	if (gid != grps[i])
+	fgrps = *pinctrl_functions[fid].groups;
+	if (!fgrps)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
+	for (i = 0; fgrps[i] != (uint16_t)END_OF_GROUPS; i++)
+		for (j = 0; pgrps[j] != (uint16_t)END_OF_GROUPS; j++)
+			if (fgrps[i] == pgrps[j])
+				goto match;
+
+	return PM_RET_ERROR_NOTSUPPORTED;
+
+match:
 	return pm_mmio_write(reg, PINCTRL_FUNCTION_MASK, val);
 }
 
