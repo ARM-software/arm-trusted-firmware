@@ -13,14 +13,14 @@
 #include <emmc.h>
 #include <errno.h>
 #include <hi6220.h>
+#include <hikey_def.h>
+#include <hikey_layout.h>
 #include <mmio.h>
 #include <platform.h>
-#include <platform_def.h>
 #include <string.h>
 #include <tbbr/tbbr_img_desc.h>
 
 #include "../../bl1/bl1_private.h"
-#include "hikey_def.h"
 #include "hikey_private.h"
 
 /*

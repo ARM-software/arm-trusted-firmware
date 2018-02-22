@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,18 +7,12 @@
 #ifndef __HIKEY_DEF_H__
 #define __HIKEY_DEF_H__
 
-#include <common_def.h>
-#include <tbbr_img_def.h>
-
 /* Always assume DDR is 1GB size. */
 #define DDR_BASE			0x0
 #define DDR_SIZE			0x40000000
 
 #define DEVICE_BASE			0xF4000000
 #define DEVICE_SIZE			0x05800000
-
-#define XG2RAM0_BASE			0xF9800000
-#define XG2RAM0_SIZE			0x00400000
 
 /* Memory location options for TSP */
 #define HIKEY_SRAM_ID		0
@@ -41,13 +35,6 @@
 
 #define SRAM_BASE			0xFFF80000
 #define SRAM_SIZE			0x00012000
-
-/*
- * BL1 is stored in XG2RAM0_HIRQ that is 784KB large (0xF980_0000~0xF98C_4000).
- */
-#define ONCHIPROM_PARAM_BASE		(XG2RAM0_BASE + 0x700)
-#define LOADER_RAM_BASE			(XG2RAM0_BASE + 0x800)
-#define BL1_XG2RAM0_OFFSET		0x1000
 
 /*
  * PL011 related constants

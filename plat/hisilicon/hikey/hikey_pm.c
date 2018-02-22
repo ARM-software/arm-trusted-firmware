@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,14 +10,13 @@
 #include <debug.h>
 #include <gicv2.h>
 #include <hi6220.h>
+#include <hikey_def.h>
 #include <hisi_ipc.h>
 #include <hisi_pwrc.h>
 #include <hisi_sram_map.h>
 #include <mmio.h>
 #include <psci.h>
 #include <sp804_delay_timer.h>
-
-#include "hikey_def.h"
 
 #define CORE_PWR_STATE(state) \
 	((state)->pwr_domain_state[MPIDR_AFFLVL0])

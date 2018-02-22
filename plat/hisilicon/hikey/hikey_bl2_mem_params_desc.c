@@ -7,7 +7,7 @@
 #include <bl_common.h>
 #include <desc_image_load.h>
 #include <platform.h>
-#include <platform_def.h>
+#include <platform_def.h>	/* also includes hikey_def.h and hikey_layout.h*/
 
 
 /*******************************************************************************

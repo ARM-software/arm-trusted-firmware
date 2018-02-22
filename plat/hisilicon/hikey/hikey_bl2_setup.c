@@ -21,10 +21,9 @@
 #include <optee_utils.h>
 #endif
 #include <platform.h>
-#include <platform_def.h>
+#include <platform_def.h>	/* also includes hikey_def.h and hikey_layout.h*/
 #include <string.h>
 
-#include "hikey_def.h"
 #include "hikey_private.h"
 
 /*

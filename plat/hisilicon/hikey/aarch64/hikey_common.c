@@ -9,12 +9,11 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
+#include <hikey_def.h>
+#include <hikey_layout.h>
 #include <mmio.h>
 #include <platform.h>
-#include <platform_def.h>
 #include <xlat_tables.h>
-
-#include "../hikey_def.h"
 
 #define MAP_DDR		MAP_REGION_FLAT(DDR_BASE,			\
 					DDR_SIZE - DDR_SEC_SIZE,	\
