@@ -1582,6 +1582,7 @@ The following ``Foundation_Platform`` parameters should be used to boot Linux wi
 
     <path-to>/Foundation_Platform                   \
     --cores=4                                       \
+    --arm-v8.0                                      \
     --secure-memory                                 \
     --visualization                                 \
     --gicv3                                         \
@@ -1600,6 +1601,12 @@ Notes:
    and enable the GICv3 device in the model. Note that without this option,
    the Foundation FVP defaults to legacy (Versatile Express) memory map which
    is not supported by ARM Trusted Firmware.
+-  In order for the Arm Trusted Firmware to run correctly on the Foundation
+   Model the architecture versions must match. The Foundation FVP defaults to
+   the highest v8.x version it supports but the default build for Arm Trusted
+   Firmware is for v8.0. To avoid issues either start the Foundation Model to
+   use v8.0 architecture using the ``--arm-v8.0`` option or build Arm Trusted
+   Firmware with an appropriate value for ``ARM_ARCH_MINOR``.
 
 Running on the AEMv8 Base FVP with reset to BL1 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
