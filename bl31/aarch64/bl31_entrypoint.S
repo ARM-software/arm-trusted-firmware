@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 #include <el3_common_macros.S>
 #include <pmf_asm_macros.S>
 #include <runtime_instr.h>
-#include <xlat_tables_defs.h>
+#include <xlat_mmu_helpers.h>
 
 	.globl	bl31_entrypoint
 	.globl	bl31_warm_entrypoint

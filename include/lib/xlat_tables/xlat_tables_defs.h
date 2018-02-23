@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 #include <arch.h>
 #include <utils_def.h>
+#include <xlat_mmu_helpers.h>
 
 /* Miscellaneous MMU related constants */
 #define NUM_2MB_IN_GB		(U(1) << 9)
@@ -164,17 +165,5 @@
 #define PXN_SHIFT			53
 #define XN_SHIFT			54
 #define UXN_SHIFT			XN_SHIFT
-
-/*
- * Flags to override default values used to program system registers while
- * enabling the MMU.
- */
-#define DISABLE_DCACHE			(U(1) << 0)
-
-/*
- * This flag marks the translation tables are Non-cacheable for MMU accesses.
- * If the flag is not specified, by default the tables are cacheable.
- */
-#define XLAT_TABLE_NC			(U(1) << 1)
 
 #endif /* __XLAT_TABLES_DEFS_H__ */
