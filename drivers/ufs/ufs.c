@@ -705,11 +705,27 @@ static void ufs_enum(void)
 	}
 }
 
+static void ufs_get_device_info(struct ufs_dev_desc *card_data)
+{
+	uint8_t desc_buf[DESC_DEVICE_MAX_SIZE];
+
+	ufs_query(QUERY_READ_DESC, DESC_TYPE_DEVICE, 0, 0,
+				(uintptr_t)desc_buf, DESC_DEVICE_MAX_SIZE);
+
+	/*
+	 * getting vendor (manufacturerID) and Bank Index in big endian
+	 * format
+	 */
+	card_data->wmanufacturerid = (uint16_t)((desc_buf[DEVICE_DESC_PARAM_MANF_ID] << 8) |
+				     (desc_buf[DEVICE_DESC_PARAM_MANF_ID + 1]));
+}
+
 int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 {
 	int result;
 	unsigned int data;
 	uic_cmd_t cmd;
+	struct ufs_dev_desc card = {0};
 
 	assert((params != NULL) &&
 	       (params->reg_base != 0) &&
@@ -750,10 +766,17 @@ int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 		ops->phy_init(&ufs_params);
 		result = ufshc_link_startup(ufs_params.reg_base);
 		assert(result == 0);
+
+		ufs_enum();
+
+		ufs_get_device_info(&card);
+		if (card.wmanufacturerid == UFS_VENDOR_SKHYNIX) {
+			ufs_params.flags |= UFS_FLAGS_VENDOR_SKHYNIX;
+		}
+
 		ops->phy_set_pwr_mode(&ufs_params);
 	}
 
-	ufs_enum();
 	(void)result;
 	return 0;
 }
