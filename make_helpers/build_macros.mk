@@ -199,7 +199,7 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
-$(OBJ): $(2) | bl$(3)_dirs
+$(OBJ): $(2) $(MAKEFILE_LIST) | bl$(3)_dirs
 	@echo "  CC      $$<"
 	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
@@ -218,7 +218,7 @@ $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
-$(OBJ): $(2) | bl$(3)_dirs
+$(OBJ): $(2) $(MAKEFILE_LIST) | bl$(3)_dirs
 	@echo "  AS      $$<"
 	$$(Q)$$(AS) $$(ASFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
@@ -235,7 +235,7 @@ define MAKE_LD
 
 $(eval DEP := $(1).d)
 
-$(1): $(2) | bl$(3)_dirs
+$(1): $(2) $(MAKEFILE_LIST) | bl$(3)_dirs
 	@echo "  PP      $$<"
 	$$(Q)$$(CPP) $$(CPPFLAGS) -P -D__ASSEMBLY__ -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
@@ -372,7 +372,7 @@ define MAKE_DTB
 $(eval DOBJ := $(1)/$(patsubst %.dts,%.dtb,$(notdir $(2))))
 $(eval DEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
-$(DOBJ): $(2) | fdt_dirs
+$(DOBJ): $(2) $(MAKEFILE_LIST) | fdt_dirs
 	@echo "  DTC      $$<"
 	$$(Q)$$(DTC) $$(DTC_FLAGS) -d $(DEP) -o $$@ $$<
 
