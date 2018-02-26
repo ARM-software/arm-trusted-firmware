@@ -1,0 +1,66 @@
+TF-A Porting Guide
+=================
+
+This section describes how to port TF-A to a customer board, assuming that the SoC being used is already supported
+in TF-A.
+
+
+Source Code Structure
+---------------------
+- The customer platform specific code shall reside under "plat/marvell/<soc family>/<soc>_cust"
+	(e.g. 'plat/marvell/a8k/a7040_cust').
+- The platform name for build purposes is called "<soc>_cust" (e.g. a7040_cust).
+- The build system will reuse all files from within the soc directory, and take only the porting
+  files from the customer platform directory.
+
+Files that require porting are located at "plat/marvell/<soc family>/<soc>_cust" directory.
+
+
+Armada-70x0/Armada-80x0 Porting
+-------------------------------
+
+  - SoC Physical Address Map (marvell_plat_config.c):
+	- This file describes the SoC physical memory mapping to be used for the CCU, IOWIN, AXI-MBUS and IOB
+	  address decode units (Refer to the functional spec for more details).
+	- In most cases, using the default address decode windows should work OK.
+	- In cases where a special physical address map is needed (e.g. Special size for PCIe MEM windows,
+	  large memory mapped SPI flash...), then porting of the SoC memory map is required.
+	- Note: For a detailed information on how CCU, IOWIN, AXI-MBUS & IOB work, please refer to the SoC functional spec,
+	  and under "docs/marvell/misc/mvebu-[ccu/iob/amb/io-win].txt" files.
+
+  - boot loader recovery (marvell_plat_config.c):
+	- Background:
+		boot rom can skip the current image and choose to boot from next position if a specific value
+		(0xDEADB002) is returned by the ble main function. This feature is used for boot loader recovery
+		by booting from a valid flash-image saved in next position on flash (e.g. address 2M in SPI flash).
+
+		Supported options to implement the skip request are:
+			- GPIO
+			- I2C
+			- User defined
+
+	- Porting:
+		Under marvell_plat_config.c, implement struct skip_image that includes specific board parameters.
+		.. warning:: to disable this feature make sure the struct skip_image is not implemented.
+
+	- Example:
+		In A7040-DB specific implementation (plat/marvell/a8k/a70x0/board/marvell_plat_config.c),
+		the image skip is implemented using GPIO: mpp 33 (SW5).
+
+		Before resetting the board make sure there is a valid image on the next flash address:
+			-tftp [valid address] flash-image.bin
+			-sf update [valid address] 0x2000000 [size]
+
+		Press reset and keep pressing the button connected to the chosen GPIO pin. A skip image request
+		message is printed on the screen and boot rom boots from the saved image at the next position.
+
+  - DDR Porting (dram_port.c):
+	- This file defines the dram topology and parameters of the target board.
+	- The DDR code is part of the BLE component, which is an extension of ARM Trusted Firmware (TF-A).
+	- The DDR driver called mv_ddr is released separately apart from TF-A sources.
+	- The BLE and consequently, the DDR init code is executed at the early stage of the boot process.
+	- Each supported platform of the TF-A has its own DDR porting file called dram_port.c located at
+	  ``atf/plat/marvell/a8k/<platform>/board`` directory.
+	- Please refer to '<path_to_mv_ddr_sources>/doc/porting_guide.txt' for detailed porting description.
+	- The build target directory is "build/<platform>/release/ble".
+
