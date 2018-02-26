@@ -1179,25 +1179,6 @@ its own use.
 
 This function helps fulfill requirements 4 and 5 above.
 
-Function : bl1\_init\_bl2\_mem\_layout() [optional]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : meminfo *, meminfo *
-    Return   : void
-
-BL1 needs to tell the next stage the amount of secure RAM available
-for it to use. This information is populated in a ``meminfo``
-structure.
-
-Depending upon where BL2 has been loaded in secure RAM (determined by
-``BL2_BASE``), BL1 calculates the amount of free memory available for BL2 to use.
-BL1 also ensures that its data sections resident in secure RAM are not visible
-to BL2. An illustration of how this is done in ARM standard platforms is given
-in the **Memory layout on ARM development platforms** section in the
-`Firmware Design`_.
-
 Function : bl1\_plat\_prepare\_exit() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1264,24 +1245,24 @@ Function : bl1\_plat\_handle\_pre\_image\_load() [optional]
 
 ::
 
-    Argument : void
+    Argument : unsigned int image_id
     Return   : int
 
 This function can be used by the platforms to update/use image information
-for BL2. This function is currently invoked in BL1 before loading BL2,
-when LOAD\_IMAGE\_V2 is enabled.
+corresponding to ``image_id``. This function is invoked in BL1, both in cold
+boot and FWU code path, before loading the image.
 
 Function : bl1\_plat\_handle\_post\_image\_load() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    Argument : void
+    Argument : unsigned int image_id
     Return   : int
 
 This function can be used by the platforms to update/use image information
-for BL2. This function is currently invoked in BL1 after loading BL2,
-when LOAD\_IMAGE\_V2 is enabled.
+corresponding to ``image_id``. This function is invoked in BL1, both in cold
+boot and FWU code path, after loading and authenticating the image.
 
 Function : bl1\_plat\_fwu\_done() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

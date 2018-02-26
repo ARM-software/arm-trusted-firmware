@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,8 @@ enum {
 	TRUSTED_FW_NVCOUNTER_EXT,
 	NON_TRUSTED_FW_NVCOUNTER_EXT,
 	TRUSTED_BOOT_FW_HASH_EXT,
+	TRUSTED_BOOT_FW_CONFIG_HASH_EXT,
+	HW_CONFIG_HASH_EXT,
 	TRUSTED_WORLD_PK_EXT,
 	NON_TRUSTED_WORLD_PK_EXT,
 	SCP_FW_CONTENT_CERT_PK_EXT,

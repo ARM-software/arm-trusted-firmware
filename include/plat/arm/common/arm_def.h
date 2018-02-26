@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -306,6 +306,12 @@
  */
 #define CACHE_WRITEBACK_GRANULE		(1 << ARM_CACHE_WRITEBACK_SHIFT)
 
+/*
+ * To enable TB_FW_CONFIG to be loaded by BL1, define the corresponding base
+ * and limit. Leave enough space of BL2 meminfo.
+ */
+#define ARM_TB_FW_CONFIG_BASE		ARM_BL_RAM_BASE + sizeof(meminfo_t)
+#define ARM_TB_FW_CONFIG_LIMIT		BL2_LIMIT
 
 /*******************************************************************************
  * BL1 specific defines.

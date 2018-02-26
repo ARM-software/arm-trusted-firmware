@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,7 @@
 static entry_point_info_t bl33_image_ep_info;
 
 /* Weak definitions may be overridden in specific ARM standard platform */
-#pragma weak sp_min_early_platform_setup
+#pragma weak sp_min_early_platform_setup2
 #pragma weak sp_min_platform_setup
 #pragma weak sp_min_plat_arch_setup
 
@@ -48,8 +48,8 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 /*******************************************************************************
  * Perform early platform setup.
  ******************************************************************************/
-void arm_sp_min_early_platform_setup(void *from_bl2,
-		void *plat_params_from_bl2)
+void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
+			uintptr_t hw_config, void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
@@ -105,10 +105,10 @@ void arm_sp_min_early_platform_setup(void *from_bl2,
 
 }
 
-void sp_min_early_platform_setup(void *from_bl2,
-		void *plat_params_from_bl2)
+void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			u_register_t arg2, u_register_t arg3)
 {
-	arm_sp_min_early_platform_setup(from_bl2, plat_params_from_bl2);
+	arm_sp_min_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 
 	/*
 	 * Initialize Interconnect for this cluster during cold boot.

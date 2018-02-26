@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -115,6 +115,9 @@ void arm_bl1_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
+#if LOAD_IMAGE_V2
+	arm_load_tb_fw_config();
+#endif
 }
 
 void bl1_platform_setup(void)

@@ -25,24 +25,15 @@ DEFINE_SVC_UUID(bl1_svc_uid,
 	0xfd3967d4, 0x72cb, 0x4d9a, 0xb5, 0x75,
 	0x67, 0x15, 0xd6, 0xf4, 0xbb, 0x4a);
 
-
 static void bl1_load_bl2(void);
 
 /*******************************************************************************
- * The next function has a weak definition. Platform specific code can override
- * it if it wishes to.
+ * Helper utility to calculate the BL2 memory layout taking into consideration
+ * the BL1 RW data assuming that it is at the top of the memory layout.
  ******************************************************************************/
-#pragma weak bl1_init_bl2_mem_layout
-
-/*******************************************************************************
- * Function that takes a memory layout into which BL2 has been loaded and
- * populates a new memory layout for BL2 that ensures that BL1's data sections
- * resident in secure RAM are not visible to BL2.
- ******************************************************************************/
-void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
-			     meminfo_t *bl2_mem_layout)
+void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
+			meminfo_t *bl2_mem_layout)
 {
-
 	assert(bl1_mem_layout != NULL);
 	assert(bl2_mem_layout != NULL);
 
@@ -70,6 +61,25 @@ void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 
 	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
 }
+
+#if !ERROR_DEPRECATED
+/*******************************************************************************
+ * Compatibility default implementation for deprecated API. This has a weak
+ * definition. Platform specific code can override it if it wishes to.
+ ******************************************************************************/
+#pragma weak bl1_init_bl2_mem_layout
+
+/*******************************************************************************
+ * Function that takes a memory layout into which BL2 has been loaded and
+ * populates a new memory layout for BL2 that ensures that BL1's data sections
+ * resident in secure RAM are not visible to BL2.
+ ******************************************************************************/
+void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
+			     meminfo_t *bl2_mem_layout)
+{
+	bl1_calc_bl2_mem_layout(bl1_mem_layout, bl2_mem_layout);
+}
+#endif
 
 /*******************************************************************************
  * Function to perform late architectural and platform specific initialization.
@@ -157,9 +167,6 @@ void bl1_load_bl2(void)
 {
 	image_desc_t *image_desc;
 	image_info_t *image_info;
-	entry_point_info_t *ep_info;
-	meminfo_t *bl1_tzram_layout;
-	meminfo_t *bl2_tzram_layout;
 	int err;
 
 	/* Get the image descriptor */
@@ -168,6 +175,19 @@ void bl1_load_bl2(void)
 
 	/* Get the image info */
 	image_info = &image_desc->image_info;
+	INFO("BL1: Loading BL2\n");
+
+	err = bl1_plat_handle_pre_image_load(BL2_IMAGE_ID);
+	if (err) {
+		ERROR("Failure in pre image load handling of BL2 (%d)\n", err);
+		plat_error_handler(err);
+	}
+
+#if LOAD_IMAGE_V2
+	err = load_auth_image(BL2_IMAGE_ID, image_info);
+#else
+	entry_point_info_t *ep_info;
+	meminfo_t *bl1_tzram_layout;
 
 	/* Get the entry point info */
 	ep_info = &image_desc->ep_info;
@@ -175,17 +195,6 @@ void bl1_load_bl2(void)
 	/* Find out how much free trusted ram remains after BL1 load */
 	bl1_tzram_layout = bl1_plat_sec_mem_layout();
 
-	INFO("BL1: Loading BL2\n");
-
-#if LOAD_IMAGE_V2
-	err = bl1_plat_handle_pre_image_load();
-	if (err) {
-		ERROR("Failure in pre image load handling of BL2 (%d)\n", err);
-		plat_error_handler(err);
-	}
-
-	err = load_auth_image(BL2_IMAGE_ID, image_info);
-#else
 	/* Load the BL2 image */
 	err = load_auth_image(bl1_tzram_layout,
 			 BL2_IMAGE_ID,
@@ -200,32 +209,14 @@ void bl1_load_bl2(void)
 		plat_error_handler(err);
 	}
 
-#if LOAD_IMAGE_V2
 	/* Allow platform to handle image information. */
-	err = bl1_plat_handle_post_image_load();
+	err = bl1_plat_handle_post_image_load(BL2_IMAGE_ID);
 	if (err) {
 		ERROR("Failure in post image load handling of BL2 (%d)\n", err);
 		plat_error_handler(err);
 	}
 
-	/*
-	 * Create a new layout of memory for BL2 as seen by BL1 i.e.
-	 * tell it the amount of total and free memory available.
-	 * This layout is created at the first free address visible
-	 * to BL2. BL2 will read the memory layout before using its
-	 * memory for other purposes.
-	 */
-	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->total_base;
-#else
-	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;
-#endif /* LOAD_IMAGE_V2 */
-
-	bl1_init_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
-
-	ep_info->args.arg1 = (uintptr_t)bl2_tzram_layout;
 	NOTICE("BL1: Booting BL2\n");
-	VERBOSE("BL1: BL2 memory layout address = %p\n",
-		(void *) bl2_tzram_layout);
 }
 
 /*******************************************************************************

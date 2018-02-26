@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,9 +60,10 @@ int bl2_plat_handle_scp_bl2(image_info_t *scp_bl2_image_info)
 
 static unsigned int scp_boot_config;
 
-void bl2_early_platform_setup(meminfo_t *mem_layout)
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			u_register_t arg2, u_register_t arg3)
 {
-	arm_bl2_early_platform_setup(mem_layout);
+	arm_bl2_early_platform_setup((uintptr_t)arg0, (meminfo_t *)arg1);
 
 	/* Save SCP Boot config before it gets overwritten by SCP_BL2 loading */
 	scp_boot_config = mmio_read_32(SCP_BOOT_CFG_ADDR);

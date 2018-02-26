@@ -134,9 +134,10 @@ int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
 /*******************************************************************************
  * Optional BL1 functions (may be overridden)
  ******************************************************************************/
+#if !ERROR_DEPRECATED
 void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
 			     struct meminfo *bl2_mem_layout);
-
+#endif
 /*
  * The following functions are used for image loading process in BL1.
  */
@@ -155,20 +156,20 @@ struct image_desc *bl1_plat_get_image_desc(unsigned int image_id);
  */
 __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved);
 
-#if LOAD_IMAGE_V2
 /*
- * This function can be used by the platforms to update/use image
- * information for BL2.
+ * This BL1 function can be used by the platforms to update/use image
+ * information for a given `image_id`.
  */
-int bl1_plat_handle_pre_image_load(void);
-int bl1_plat_handle_post_image_load(void);
-
-#endif /* LOAD_IMAGE_V2 */
+int bl1_plat_handle_pre_image_load(unsigned int image_id);
+int bl1_plat_handle_post_image_load(unsigned int image_id);
 
 /*******************************************************************************
  * Mandatory BL2 functions
  ******************************************************************************/
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3);
+#if !ERROR_DEPRECATED
 void bl2_early_platform_setup(struct meminfo *mem_layout);
+#endif
 void bl2_plat_arch_setup(void);
 void bl2_platform_setup(void);
 struct meminfo *bl2_plat_sec_mem_layout(void);
@@ -280,6 +281,7 @@ int bl2u_plat_handle_scp_bl2u(void);
 /*******************************************************************************
  * Mandatory BL31 functions
  ******************************************************************************/
+#if !ERROR_DEPRECATED
 #if LOAD_IMAGE_V2
 void bl31_early_platform_setup(void *from_bl2,
 				void *plat_params_from_bl2);
@@ -287,6 +289,9 @@ void bl31_early_platform_setup(void *from_bl2,
 void bl31_early_platform_setup(struct bl31_params *from_bl2,
 				void *plat_params_from_bl2);
 #endif
+#endif /* ERROR_DEPRECATED */
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+		u_register_t arg2, u_register_t arg3);
 void bl31_plat_arch_setup(void);
 void bl31_platform_setup(void);
 void bl31_plat_runtime_setup(void);
