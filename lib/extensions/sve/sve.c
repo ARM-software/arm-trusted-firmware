@@ -21,7 +21,7 @@ static void *disable_sve_hook(const void *arg)
 {
 	uint64_t cptr;
 
-	if (!sve_supported())
+	if (sve_supported() == 0)
 		return (void *)-1;
 
 	/*
@@ -46,7 +46,7 @@ static void *enable_sve_hook(const void *arg)
 {
 	uint64_t cptr;
 
-	if (!sve_supported())
+	if (sve_supported() == 0)
 		return (void *)-1;
 
 	/*
@@ -67,7 +67,7 @@ void sve_enable(int el2_unused)
 {
 	uint64_t cptr;
 
-	if (!sve_supported())
+	if (sve_supported() == 0)
 		return;
 
 #if CTX_INCLUDE_FPREGS

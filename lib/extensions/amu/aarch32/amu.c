@@ -30,7 +30,7 @@ int amu_supported(void)
 
 void amu_enable(int el2_unused)
 {
-	if (!amu_supported())
+	if (amu_supported() == 0)
 		return;
 
 	if (el2_unused) {
@@ -54,7 +54,7 @@ void amu_enable(int el2_unused)
 /* Read the group 0 counter identified by the given `idx`. */
 uint64_t amu_group0_cnt_read(int idx)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP0_NR_COUNTERS);
 
 	return amu_group0_cnt_read_internal(idx);
@@ -63,7 +63,7 @@ uint64_t amu_group0_cnt_read(int idx)
 /* Write the group 0 counter identified by the given `idx` with `val`. */
 void amu_group0_cnt_write(int idx, uint64_t val)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP0_NR_COUNTERS);
 
 	amu_group0_cnt_write_internal(idx, val);
@@ -73,7 +73,7 @@ void amu_group0_cnt_write(int idx, uint64_t val)
 /* Read the group 1 counter identified by the given `idx`. */
 uint64_t amu_group1_cnt_read(int idx)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP1_NR_COUNTERS);
 
 	return amu_group1_cnt_read_internal(idx);
@@ -82,7 +82,7 @@ uint64_t amu_group1_cnt_read(int idx)
 /* Write the group 1 counter identified by the given `idx` with `val`. */
 void amu_group1_cnt_write(int idx, uint64_t val)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP1_NR_COUNTERS);
 
 	amu_group1_cnt_write_internal(idx, val);
@@ -91,7 +91,7 @@ void amu_group1_cnt_write(int idx, uint64_t val)
 
 void amu_group1_set_evtype(int idx, unsigned int val)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP1_NR_COUNTERS);
 
 	amu_group1_set_evtype_internal(idx, val);
@@ -103,7 +103,7 @@ static void *amu_context_save(const void *arg)
 	struct amu_ctx *ctx;
 	int i;
 
-	if (!amu_supported())
+	if (amu_supported() == 0)
 		return (void *)-1;
 
 	ctx = &amu_ctxs[plat_my_core_pos()];
@@ -132,11 +132,9 @@ static void *amu_context_save(const void *arg)
 static void *amu_context_restore(const void *arg)
 {
 	struct amu_ctx *ctx;
-	uint64_t features;
 	int i;
 
-	features = read_id_pfr0() >> ID_PFR0_AMU_SHIFT;
-	if ((features & ID_PFR0_AMU_MASK) != 1)
+	if (amu_supported() == 0)
 		return (void *)-1;
 
 	ctx = &amu_ctxs[plat_my_core_pos()];

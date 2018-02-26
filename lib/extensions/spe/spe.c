@@ -26,7 +26,7 @@ void spe_enable(int el2_unused)
 {
 	uint64_t v;
 
-	if (!spe_supported())
+	if (spe_supported() == 0)
 		return;
 
 	if (el2_unused) {
@@ -58,7 +58,7 @@ void spe_disable(void)
 {
 	uint64_t v;
 
-	if (!spe_supported())
+	if (spe_supported() == 0)
 		return;
 
 	/* Drain buffered data */
@@ -74,7 +74,7 @@ void spe_disable(void)
 
 static void *spe_drain_buffers_hook(const void *arg)
 {
-	if (!spe_supported())
+	if (spe_supported() == 0)
 		return (void *)-1;
 
 	/* Drain buffered data */
