@@ -65,7 +65,15 @@ unsigned int platform_core_pos_helper(unsigned long mpidr)
 #if !ERROR_DEPRECATED
 unsigned int plat_get_syscnt_freq2(void)
 {
+	WARN("plat_get_syscnt_freq() is deprecated\n");
+	WARN("Please define plat_get_syscnt_freq2()\n");
+	/*
+	 * Suppress deprecated declaration warning in compatibility function
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	unsigned long long freq = plat_get_syscnt_freq();
+#pragma GCC diagnostic pop
 
 	assert(freq >> 32 == 0);
 
