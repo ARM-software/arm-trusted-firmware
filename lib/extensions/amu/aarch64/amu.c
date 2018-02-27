@@ -37,7 +37,7 @@ void amu_enable(int el2_unused)
 {
 	uint64_t v;
 
-	if (!amu_supported())
+	if (amu_supported() == 0)
 		return;
 
 	if (el2_unused) {
@@ -67,7 +67,7 @@ void amu_enable(int el2_unused)
 /* Read the group 0 counter identified by the given `idx`. */
 uint64_t amu_group0_cnt_read(int idx)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP0_NR_COUNTERS);
 
 	return amu_group0_cnt_read_internal(idx);
@@ -76,7 +76,7 @@ uint64_t amu_group0_cnt_read(int idx)
 /* Write the group 0 counter identified by the given `idx` with `val`. */
 void amu_group0_cnt_write(int idx, uint64_t val)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP0_NR_COUNTERS);
 
 	amu_group0_cnt_write_internal(idx, val);
@@ -86,7 +86,7 @@ void amu_group0_cnt_write(int idx, uint64_t val)
 /* Read the group 1 counter identified by the given `idx`. */
 uint64_t amu_group1_cnt_read(int idx)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP1_NR_COUNTERS);
 
 	return amu_group1_cnt_read_internal(idx);
@@ -95,7 +95,7 @@ uint64_t amu_group1_cnt_read(int idx)
 /* Write the group 1 counter identified by the given `idx` with `val`. */
 void amu_group1_cnt_write(int idx, uint64_t val)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert(idx >= 0 && idx < AMU_GROUP1_NR_COUNTERS);
 
 	amu_group1_cnt_write_internal(idx, val);
@@ -108,7 +108,7 @@ void amu_group1_cnt_write(int idx, uint64_t val)
  */
 void amu_group1_set_evtype(int idx, unsigned int val)
 {
-	assert(amu_supported());
+	assert(amu_supported() != 0);
 	assert (idx >= 0 && idx < AMU_GROUP1_NR_COUNTERS);
 
 	amu_group1_set_evtype_internal(idx, val);
@@ -120,7 +120,7 @@ static void *amu_context_save(const void *arg)
 	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
 	int i;
 
-	if (!amu_supported())
+	if (amu_supported() == 0)
 		return (void *)-1;
 
 	/* Assert that group 0/1 counter configuration is what we expect */
@@ -154,7 +154,7 @@ static void *amu_context_restore(const void *arg)
 	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
 	int i;
 
-	if (!amu_supported())
+	if (amu_supported() == 0)
 		return (void *)-1;
 
 	/* Counters were disabled in `amu_context_save()` */
