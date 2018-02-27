@@ -41,6 +41,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
 {
 	int state_id = psci_get_pstate_id(power_state);
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 
 	/* Sanity check the requested state id */
 	switch (state_id) {
@@ -62,6 +63,15 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		break;
 
 	case PSTATE_ID_SOC_POWERDN:
+
+		/*
+		 * sc7entry-fw must be present in the system when the bpmp
+		 * firmware is not present, for a successful System Suspend
+		 * entry.
+		 */
+		if (!tegra_bpmp_init() && !plat_params->sc7entry_fw_base)
+			return PSCI_E_NOT_SUPPORTED;
+
 		/*
 		 * System powerdown request only for afflvl 2
 		 */
@@ -205,12 +215,26 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		if (!tegra_bpmp_available) {
 
-			/* PWM tristate */
+			/* Find if the platform uses OVR2/MAX77621 PMIC */
 			cfg = mmio_read_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_OUTPUT_CFG);
 			if (cfg & DFLL_OUTPUT_CFG_CLK_EN_BIT) {
+				/* OVR2 */
+
+				/* PWM tristate */
 				val = mmio_read_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM);
 				val |= PINMUX_PWM_TRISTATE;
 				mmio_write_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM, val);
+
+				/*
+				 * SCRATCH201[1] is being used to identify CPU
+				 * PMIC in warmboot code.
+				 * 0 : OVR2
+				 * 1 : MAX77621
+				 */
+				tegra_pmc_write_32(PMC_SCRATCH201, 0x0);
+			} else {
+				/* MAX77621 */
+				tegra_pmc_write_32(PMC_SCRATCH201, 0x2);
 			}
 		}
 
@@ -237,12 +261,44 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 	const plat_local_state_t *pwr_domain_state =
 		target_state->pwr_domain_state;
 	unsigned int stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL];
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+	uint32_t val;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
 		if (tegra_chipid_is_t210_b01()) {
 			/* Save tzram contents */
 			tegra_se_save_tzram();
+		}
+
+		/*
+		 * The CPU needs to load the System suspend entry firmware
+		 * if nothing is running on the BPMP.
+		 */
+		if (!tegra_bpmp_available) {
+
+			/*
+			 * BPMP firmware is not running on the co-processor, so
+			 * we need to explicitly load the firmware to enable
+			 * entry/exit to/from System Suspend and set the BPMP
+			 * on its way.
+			 */
+
+			/* Power off BPMP before we proceed */
+			tegra_fc_bpmp_off();
+
+			/* Copy the firmware to BPMP's internal RAM */
+			(void)memcpy((void *)(uintptr_t)TEGRA_IRAM_BASE,
+				(const void *)plat_params->sc7entry_fw_base,
+				plat_params->sc7entry_fw_size);
+
+			/* Power on the BPMP and execute from IRAM base */
+			tegra_fc_bpmp_on(TEGRA_IRAM_BASE);
+
+			/* Wait until BPMP powers up */
+			do {
+				val = mmio_read_32(TEGRA_RES_SEMA_BASE + STA_OFFSET);
+			} while (val != SIGN_OF_LIFE);
 		}
 
 		/* enter system suspend */
@@ -256,7 +312,7 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 	uint32_t cfg;
-	uint32_t val;
+	uint32_t val, entrypoint = 0;
 
 	/* platform parameter passed by the previous bootloader */
 	if (plat_params->l2_ecc_parity_prot_dis != 1) {
@@ -295,10 +351,14 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 		/*
 		 * Restore Boot and Power Management Processor (BPMP) reset
-		 * address and reset it.
+		 * address and reset it, if it is supported by the platform.
 		 */
-		if (tegra_bpmp_available)
-			tegra_fc_reset_bpmp();
+		if (!tegra_bpmp_available) {
+			tegra_fc_bpmp_off();
+		} else {
+			entrypoint = tegra_pmc_read_32(PMC_SCRATCH39);
+			tegra_fc_bpmp_on(entrypoint);
+		}
 	}
 
 	/*

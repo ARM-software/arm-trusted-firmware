@@ -77,6 +77,8 @@ static inline void tegra_fc_write_32(uint32_t off, uint32_t val)
 	mmio_write_32(TEGRA_FLOWCTRL_BASE + off, val);
 }
 
+void tegra_fc_bpmp_on(uint32_t entrypoint);
+void tegra_fc_bpmp_off(void);
 void tegra_fc_ccplex_pgexit_lock(void);
 void tegra_fc_ccplex_pgexit_unlock(void);
 void tegra_fc_cluster_idle(uint32_t midr);
@@ -88,7 +90,6 @@ void tegra_fc_disable_fiq_to_ccplex_routing(void);
 void tegra_fc_enable_fiq_to_ccplex_routing(void);
 bool tegra_fc_is_ccx_allowed(void);
 void tegra_fc_lock_active_cluster(void);
-void tegra_fc_reset_bpmp(void);
 void tegra_fc_soc_powerdn(uint32_t midr);
 
 #endif /* FLOWCTRL_H */

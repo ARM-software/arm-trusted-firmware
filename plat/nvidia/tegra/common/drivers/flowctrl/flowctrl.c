@@ -257,22 +257,19 @@ void tegra_fc_lock_active_cluster(void)
 }
 
 /*******************************************************************************
- * Reset BPMP processor
+ * Power ON BPMP processor
  ******************************************************************************/
-void tegra_fc_reset_bpmp(void)
+void tegra_fc_bpmp_on(uint32_t entrypoint)
 {
-	uint32_t val;
-
 	/* halt BPMP */
 	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, FLOWCTRL_WAITEVENT);
 
 	/* Assert BPMP reset */
 	mmio_write_32(TEGRA_CAR_RESET_BASE + CLK_RST_DEV_L_SET, CLK_BPMP_RST);
 
-	/* Restore reset address (stored in PMC_SCRATCH39) */
-	val = tegra_pmc_read_32(PMC_SCRATCH39);
-	mmio_write_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR, val);
-	while (val != mmio_read_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR))
+	/* Set reset address (stored in PMC_SCRATCH39) */
+	mmio_write_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR, entrypoint);
+	while (entrypoint != mmio_read_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR))
 		; /* wait till value reaches EVP_BPMP_RESET_VECTOR */
 
 	/* Wait for 2us before de-asserting the reset signal. */
@@ -283,6 +280,23 @@ void tegra_fc_reset_bpmp(void)
 
 	/* Un-halt BPMP */
 	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, 0);
+}
+
+/*******************************************************************************
+ * Power OFF BPMP processor
+ ******************************************************************************/
+void tegra_fc_bpmp_off(void)
+{
+	/* halt BPMP */
+	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, FLOWCTRL_WAITEVENT);
+
+	/* Assert BPMP reset */
+	mmio_write_32(TEGRA_CAR_RESET_BASE + CLK_RST_DEV_L_SET, CLK_BPMP_RST);
+
+	/* Clear reset address */
+	mmio_write_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR, 0);
+	while (0 != mmio_read_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR))
+		; /* wait till value reaches EVP_BPMP_RESET_VECTOR */
 }
 
 /*******************************************************************************

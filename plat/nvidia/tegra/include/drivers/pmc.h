@@ -26,6 +26,7 @@
 #define  PMC_SECURE_DISABLE3_WRITE35_ON		(U(1) << 22)
 #define PMC_SECURE_SCRATCH34			U(0x368)
 #define PMC_SECURE_SCRATCH35			U(0x36c)
+#define PMC_SCRATCH201				U(0x844)
 
 static inline uint32_t tegra_pmc_read_32(uint32_t off)
 {

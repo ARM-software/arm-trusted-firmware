@@ -46,6 +46,10 @@ typedef struct plat_params_from_bl2 {
 	int32_t l2_ecc_parity_prot_dis;
 	/* SHMEM base address for storing the boot logs */
 	uint64_t boot_profiler_shmem_base;
+	/* System Suspend Entry Firmware size */
+	uint64_t sc7entry_fw_size;
+	/* System Suspend Entry Firmware base address */
+	uint64_t sc7entry_fw_base;
 } plat_params_from_bl2_t;
 
 /*******************************************************************************

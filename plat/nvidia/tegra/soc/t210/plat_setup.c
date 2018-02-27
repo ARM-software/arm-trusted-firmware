@@ -5,6 +5,7 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <cortex_a57.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -149,6 +150,42 @@ static const interrupt_prop_t tegra210_interrupt_props[] = {
 	INTR_PROP_DESC(TEGRA210_WDT_CPU_LEGACY_FIQ, GIC_HIGHEST_SEC_PRIORITY,
 			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
 };
+
+void plat_late_platform_setup(void)
+{
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+	uint64_t tzdram_start, tzdram_end, sc7entry_end;
+	int ret;
+
+	/* memmap TZDRAM area containing the SC7 Entry Firmware */
+	if (plat_params->sc7entry_fw_base && plat_params->sc7entry_fw_size) {
+
+		assert(plat_params->sc7entry_fw_size <= TEGRA_IRAM_SIZE);
+
+		/*
+		 * Verify that the SC7 entry firmware resides inside the TZDRAM
+		 * aperture, _after_ the BL31 code.
+		 */
+		tzdram_start = plat_params->tzdram_base;
+		tzdram_end = plat_params->tzdram_base + plat_params->tzdram_size;
+		sc7entry_end = plat_params->sc7entry_fw_base +
+			       plat_params->sc7entry_fw_size;
+		if ((plat_params->sc7entry_fw_base < (tzdram_start + BL31_SIZE)) ||
+		    (sc7entry_end > tzdram_end)) {
+			panic();
+		}
+
+		/* power off BPMP processor until SC7 entry */
+		tegra_fc_bpmp_off();
+
+		/* memmap SC7 entry firmware code */
+		ret = mmap_add_dynamic_region(plat_params->sc7entry_fw_base,
+				plat_params->sc7entry_fw_base,
+				plat_params->sc7entry_fw_size,
+				MT_NS | MT_RO | MT_EXECUTE_NEVER);
+		assert(ret == 0);
+	}
+}
 
 /*******************************************************************************
  * Initialize the GIC and SGIs
