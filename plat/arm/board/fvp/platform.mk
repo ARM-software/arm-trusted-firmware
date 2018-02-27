@@ -159,7 +159,8 @@ BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				${FVP_INTERCONNECT_SOURCES}			\
 				${FVP_SECURITY_SOURCES}
 
-# Add the FDT_SOURCES and options for Dynamic Config
+# Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
+ifdef UNIX_MK
 FVP_HW_CONFIG_DTS	:=	fdts/${FVP_DT_PREFIX}.dts
 FDT_SOURCES		+=	plat/arm/board/fvp/fdts/${PLAT}_tb_fw_config.dts
 FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
@@ -172,6 +173,7 @@ $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS
 
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config))
+endif
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0
