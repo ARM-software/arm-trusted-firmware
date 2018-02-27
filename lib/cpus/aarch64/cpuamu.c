@@ -8,11 +8,11 @@
 #include <platform.h>
 #include <pubsub_events.h>
 
-#define CPUAMU_NR_COUNTERS	5
+#define CPUAMU_NR_COUNTERS	5U
 
 struct amu_ctx {
 	uint64_t cnts[CPUAMU_NR_COUNTERS];
-	uint16_t mask;
+	unsigned int mask;
 };
 
 static struct amu_ctx amu_ctxs[PLATFORM_CORE_COUNT];
@@ -21,7 +21,7 @@ int midr_match(unsigned int cpu_midr)
 {
 	unsigned int midr, midr_mask;
 
-	midr = read_midr();
+	midr = (unsigned int)read_midr();
 	midr_mask = (MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) |
 		(MIDR_PN_MASK << MIDR_PN_SHIFT);
 	return ((midr & midr_mask) == (cpu_midr & midr_mask));
@@ -30,7 +30,7 @@ int midr_match(unsigned int cpu_midr)
 void cpuamu_context_save(unsigned int nr_counters)
 {
 	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
-	int i;
+	unsigned int i;
 
 	assert(nr_counters <= CPUAMU_NR_COUNTERS);
 
@@ -49,7 +49,7 @@ void cpuamu_context_save(unsigned int nr_counters)
 void cpuamu_context_restore(unsigned int nr_counters)
 {
 	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
-	int i;
+	unsigned int i;
 
 	assert(nr_counters <= CPUAMU_NR_COUNTERS);
 

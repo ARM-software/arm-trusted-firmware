@@ -28,9 +28,9 @@
  * CPUAMEVTYPER<n> register and are disabled by default. Platforms may
  * enable this with suitable programming.
  */
-#define CORTEX_A75_AMU_NR_COUNTERS	5
-#define CORTEX_A75_AMU_GROUP0_MASK	0x7
-#define CORTEX_A75_AMU_GROUP1_MASK	(0 << 3)
+#define CORTEX_A75_AMU_NR_COUNTERS	U(5)
+#define CORTEX_A75_AMU_GROUP0_MASK	U(0x7)
+#define CORTEX_A75_AMU_GROUP1_MASK	(U(0) << 3)
 
 #ifndef __ASSEMBLY__
 #include <stdint.h>
