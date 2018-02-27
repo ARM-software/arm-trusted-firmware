@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
  * This is the common console core code for the deprecated single-console API.
  * New platforms should set MULTI_CONSOLE_API=1 and not use this file.
  */
+#warning "Using deprecated console implementation. Please migrate to MULTI_CONSOLE_API"
 
 	.globl	console_init
 	.globl	console_uninit
