@@ -2022,9 +2022,9 @@ This macro must be defined to the EL3 exception priority level associated with
 Critical SDEI events on the platform. This must have a lower value (therefore of
 higher priority) than ``PLAT_SDEI_NORMAL_PRI``.
 
-It's recommended that SDEI exception priorities in general are assigned the
-lowest among Secure priorities. Among the SDEI exceptions, Critical SDEI
-priority must be higher than Normal SDEI priority.
+**Note**: SDEI exception priorities must be the lowest among Secure priorities.
+Among the SDEI exceptions, Critical SDEI priority must be higher than Normal
+SDEI priority.
 
 Functions
 .........
