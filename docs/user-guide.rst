@@ -755,6 +755,9 @@ ARM FVP platform specific build options
    -  ``FVP_CCN`` : The CCN driver is selected. This is the default
       if ``FVP_CLUSTER_COUNT`` > 2.
 
+-  ``FVP_MAX_CPUS_PER_CLUSTER``: Sets the maximum number of CPUs implemented in
+   a single cluster.  This option defaults to 4.
+
 -  ``FVP_MAX_PE_PER_CPU``: Sets the maximum number of PEs implemented on any CPU
    in the system. This option defaults to 1. Note that the build option
    ``ARM_PLAT_MT`` doesn't have any effect on FVP platforms.
