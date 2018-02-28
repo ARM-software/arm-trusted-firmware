@@ -102,6 +102,10 @@ ARM_BOARD_OPTIMISE_MEM		:=	1
 # Do not enable SVE
 ENABLE_SVE_FOR_NS		:=	0
 
+# Select SCMI/SDS drivers instead of SCPI/BOM driver for communicating with the
+# SCP during power management operations and for SCP RAM Firmware transfer.
+CSS_USE_SCMI_SDS_DRIVER		:=	1
+
 include plat/arm/board/common/board_css.mk
 include plat/arm/common/arm_common.mk
 include plat/arm/soc/common/soc_css.mk
