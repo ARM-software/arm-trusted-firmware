@@ -156,11 +156,12 @@ endfunc denver_disable_ext_debug
 	 * ----------------------------------------------------
 	 */
 func denver_enable_dco
-	mrs	x0, mpidr_el1
-	and	x0, x0, #0xF
+	mov	x3, x30
+	bl	plat_my_core_pos
 	mov	x1, #1
 	lsl	x1, x1, x0
 	msr	s3_0_c15_c0_2, x1
+	mov	x30, x3
 	ret
 endfunc denver_enable_dco
 
@@ -170,9 +171,10 @@ endfunc denver_enable_dco
 	 */
 func denver_disable_dco
 
+	mov	x3, x30
+
 	/* turn off background work */
-	mrs	x0, mpidr_el1
-	and	x0, x0, #0xF
+	bl	plat_my_core_pos
 	mov	x1, #1
 	lsl	x1, x1, x0
 	lsl	x2, x1, #16
@@ -186,6 +188,7 @@ func denver_disable_dco
 	and	x2, x2, x1
 	cbnz	x2, 1b
 
+	mov	x30, x3
 	ret
 endfunc denver_disable_dco
 
