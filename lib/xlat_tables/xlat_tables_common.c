@@ -31,7 +31,7 @@
 #define debug_print(...) ((void)0)
 #endif
 
-#define UNSET_DESC	~0ull
+#define UNSET_DESC	~0ULL
 
 static uint64_t xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
 			__aligned(XLAT_TABLE_SIZE) __section("xlat_table");

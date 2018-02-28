@@ -22,7 +22,7 @@
 unsigned long long xlat_arch_get_max_supported_pa(void)
 {
 	/* Physical address space size for long descriptor format. */
-	return (1ull << 40) - 1ull;
+	return (1ULL << 40) - 1ULL;
 }
 #endif /* ENABLE_ASSERTIONS*/
 

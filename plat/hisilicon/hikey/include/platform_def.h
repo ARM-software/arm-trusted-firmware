@@ -149,7 +149,7 @@
 /*
  * Platform specific page table and MMU setup constants
  */
-#define ADDR_SPACE_SIZE			(1ull << 32)
+#define ADDR_SPACE_SIZE			(1ULL << 32)
 
 #if defined(IMAGE_BL1) || defined(IMAGE_BL32)
 #define MAX_XLAT_TABLES			3
