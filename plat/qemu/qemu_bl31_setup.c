@@ -19,8 +19,6 @@
  * script to ensure that __RO_START__, __RO_END__ & __BL31_END__ linker symbols
  * refer to page-aligned addresses.
  */
-#define BL31_RO_BASE (unsigned long)(&__RO_START__)
-#define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
 #define BL31_END (unsigned long)(&__BL31_END__)
 
 /*
@@ -108,8 +106,9 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 
 void bl31_plat_arch_setup(void)
 {
-	qemu_configure_mmu_el3(BL31_RO_BASE, (BL31_END - BL31_RO_BASE),
-			      BL31_RO_BASE, BL31_RO_LIMIT,
+	qemu_configure_mmu_el3(BL31_BASE, (BL31_END - BL31_BASE),
+			      BL_CODE_BASE, BL_CODE_END,
+			      BL_RO_DATA_BASE, BL_RO_DATA_END,
 			      BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
 }
 

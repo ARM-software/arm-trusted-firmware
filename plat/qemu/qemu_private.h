@@ -9,16 +9,22 @@
 
 #include <sys/types.h>
 
+#include <xlat_tables_defs.h>
+#include "../../bl1/bl1_private.h"
+
 void qemu_configure_mmu_secure(unsigned long total_base,
 			unsigned long total_size,
+			unsigned long code_start, unsigned long code_limit,
 			unsigned long ro_start, unsigned long ro_limit,
 			unsigned long coh_start, unsigned long coh_limit);
 
 void qemu_configure_mmu_el1(unsigned long total_base, unsigned long total_size,
+			unsigned long code_start, unsigned long code_limit,
 			unsigned long ro_start, unsigned long ro_limit,
 			unsigned long coh_start, unsigned long coh_limit);
 
 void qemu_configure_mmu_el3(unsigned long total_base, unsigned long total_size,
+			unsigned long code_start, unsigned long code_limit,
 			unsigned long ro_start, unsigned long ro_limit,
 			unsigned long coh_start, unsigned long coh_limit);
 

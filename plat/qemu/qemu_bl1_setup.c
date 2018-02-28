@@ -12,15 +12,6 @@
 #include <platform_def.h>
 #include "qemu_private.h"
 
-/*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted RAM
- ******************************************************************************/
-extern uint64_t __BL1_RAM_START__;
-extern uint64_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uint64_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uint64_t)(&__BL1_RAM_END__)
-
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
 
@@ -67,7 +58,8 @@ void bl1_plat_arch_setup(void)
 {
 	QEMU_CONFIGURE_BL1_MMU(bl1_tzram_layout.total_base,
 				bl1_tzram_layout.total_size,
-				BL1_RO_BASE, BL1_RO_LIMIT,
+				BL_CODE_BASE, BL1_CODE_END,
+				BL1_RO_DATA_BASE, BL1_RO_DATA_END,
 				BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
 }
 

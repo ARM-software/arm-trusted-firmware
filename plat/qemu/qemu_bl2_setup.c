@@ -17,14 +17,6 @@
 #include <utils.h>
 #include "qemu_private.h"
 
-/*
- * The next 2 constants identify the extents of the code & RO data region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
- */
-#define BL2_RO_BASE (unsigned long)(&__RO_START__)
-#define BL2_RO_LIMIT (unsigned long)(&__RO_END__)
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
@@ -192,7 +184,8 @@ void bl2_plat_arch_setup(void)
 {
 	QEMU_CONFIGURE_BL2_MMU(bl2_tzram_layout.total_base,
 			      bl2_tzram_layout.total_size,
-			      BL2_RO_BASE, BL2_RO_LIMIT,
+			      BL_CODE_BASE, BL_CODE_END,
+			      BL_RO_DATA_BASE, BL_RO_DATA_END,
 			      BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
 }
 
