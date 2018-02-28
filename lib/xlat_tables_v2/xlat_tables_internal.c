@@ -115,7 +115,7 @@ static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 /*
  * Returns a block/page table descriptor for the given level and attributes.
  */
-uint64_t xlat_desc(const xlat_ctx_t *ctx, mmap_attr_t attr,
+static uint64_t xlat_desc(const xlat_ctx_t *ctx, mmap_attr_t attr,
 		   unsigned long long addr_pa, int level)
 {
 	uint64_t desc;

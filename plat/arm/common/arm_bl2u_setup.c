@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <console.h>
 #include <plat_arm.h>
 #include <platform_def.h>
+#include <platform.h>
 #include <string.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */

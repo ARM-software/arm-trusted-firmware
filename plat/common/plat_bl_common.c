@@ -36,6 +36,7 @@ void bl2_plat_preload_setup(void)
 {
 }
 
+#if LOAD_IMAGE_V2
 int bl2_plat_handle_pre_image_load(unsigned int image_id)
 {
 	return 0;
@@ -45,6 +46,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	return 0;
 }
+#endif
 
 int plat_try_next_boot_source(void)
 {

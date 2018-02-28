@@ -70,7 +70,7 @@ typedef struct io_block_spec {
 /* Open a connection to a device */
 int io_dev_open(const struct io_dev_connector *dev_con,
 		const uintptr_t dev_spec,
-		uintptr_t *dev_handle);
+		uintptr_t *handle);
 
 
 /* Initialise a device explicitly - to permit lazy initialisation or

@@ -14,6 +14,7 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <stdint.h>
+#include "bl2_private.h"
 
 
 /*******************************************************************************

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -99,7 +99,7 @@ void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_st
  * existing cm library routines. This function is expected to be invoked for
  * initializing the cpu_context for the CPU specified by MPIDR for first use.
  ******************************************************************************/
-void cm_init_context(unsigned long mpidr, const entry_point_info_t *ep)
+void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
 {
 	if ((mpidr & MPIDR_AFFINITY_MASK) ==
 			(read_mpidr_el1() & MPIDR_AFFINITY_MASK))

@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <pubsub.h>
+#include <spe.h>
 
 /*
  * The assembler does not yet understand the psb csync mnemonic

@@ -125,7 +125,7 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint);
 void arm_system_pwr_domain_save(void);
 void arm_system_pwr_domain_resume(void);
 void arm_program_trusted_mailbox(uintptr_t address);
-int arm_psci_read_mem_protect(int *val);
+int arm_psci_read_mem_protect(int *enabled);
 int arm_nor_psci_write_mem_protect(int val);
 void arm_nor_psci_do_mem_protect(void);
 int arm_psci_mem_protect_chk(uintptr_t base, u_register_t length);
@@ -236,5 +236,9 @@ int arm_execution_state_switch(unsigned int smc_fid,
 		uint32_t cookie_hi,
 		uint32_t cookie_lo,
 		void *handle);
+
+/* global variables */
+extern plat_psci_ops_t plat_arm_psci_pm_ops;
+extern const mmap_region_t plat_arm_mmap[];
 
 #endif /* __PLAT_ARM_H__ */

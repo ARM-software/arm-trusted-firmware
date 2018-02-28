@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -83,7 +83,7 @@ unsigned long long xlat_arch_get_max_supported_pa(void);
 
 /* Enable MMU and configure it to use the specified translation tables. */
 void enable_mmu_arch(unsigned int flags, uint64_t *base_table,
-		unsigned long long pa, uintptr_t max_va);
+		unsigned long long max_pa, uintptr_t max_va);
 
 /*
  * Return 1 if the MMU of the translation regime managed by the given xlat_ctx_t

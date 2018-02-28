@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,8 +35,8 @@ static const interrupt_prop_t arm_interrupt_props[] = {
  * We save and restore the GICv3 context on system suspend. Allocate the
  * data in the designated EL3 Secure carve-out memory
  */
-gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram");
-gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram");
+static gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram");
+static gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram");
 
 /*
  * MPIDR hashing function for translating MPIDRs read from GICR_TYPER register
@@ -58,7 +58,7 @@ static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
 	return plat_arm_calc_core_pos(mpidr);
 }
 
-const gicv3_driver_data_t arm_gic_data = {
+static const gicv3_driver_data_t arm_gic_data __unused = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
 	.gicr_base = PLAT_ARM_GICR_BASE,
 	.interrupt_props = arm_interrupt_props,

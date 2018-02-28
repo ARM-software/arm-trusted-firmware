@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -125,6 +125,8 @@ uintptr_t handle_runtime_svc(uint32_t smc_fid, void *cookie, void *handle,
 extern uintptr_t __RT_SVC_DESCS_START__;
 extern uintptr_t __RT_SVC_DESCS_END__;
 void init_crash_reporting(void);
+
+extern uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
 
 #endif /*__ASSEMBLY__*/
 #endif /* __RUNTIME_SVC_H__ */

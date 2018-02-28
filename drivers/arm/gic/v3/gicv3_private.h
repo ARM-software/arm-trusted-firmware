@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,6 +79,8 @@ void gicd_clr_igrpmodr(uintptr_t base, unsigned int id);
 void gicr_clr_igrpmodr0(uintptr_t base, unsigned int id);
 void gicr_clr_igroupr0(uintptr_t base, unsigned int id);
 void gicr_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri);
+void gicr_set_icfgr0(uintptr_t base, unsigned int id, unsigned int cfg);
+void gicr_set_icfgr1(uintptr_t base, unsigned int id, unsigned int cfg);
 
 /*******************************************************************************
  * Private GICv3 helper function prototypes

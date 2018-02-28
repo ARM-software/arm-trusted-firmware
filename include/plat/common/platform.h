@@ -301,7 +301,7 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type);
  * Mandatory PSCI functions (BL31)
  ******************************************************************************/
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
-			const struct plat_psci_ops **);
+			const struct plat_psci_ops **psci_ops);
 const unsigned char *plat_get_power_domain_tree_desc(void);
 
 /*******************************************************************************
@@ -311,7 +311,7 @@ void plat_psci_stat_accounting_start(const psci_power_state_t *state_info);
 void plat_psci_stat_accounting_stop(const psci_power_state_t *state_info);
 u_register_t plat_psci_stat_get_residency(unsigned int lvl,
 			const psci_power_state_t *state_info,
-			int last_cpu_index);
+			int last_cpu_idx);
 plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 			const plat_local_state_t *states,
 			unsigned int ncpu);
@@ -386,12 +386,14 @@ int platform_setup_pm(const plat_pm_ops_t **);
 
 unsigned int plat_get_aff_count(unsigned int, unsigned long);
 unsigned int plat_get_aff_state(unsigned int, unsigned long);
+
 #else /* __ENABLE_PLAT_COMPAT__ */
 /*
  * The below function enable Trusted Firmware components like SPDs which
  * haven't migrated to the new platform API to compile on platforms which
  * have the compatibility layer disabled.
  */
+unsigned int platform_core_pos_helper(unsigned long mpidr);
 unsigned int platform_get_core_pos(unsigned long mpidr) __deprecated;
 
 #endif /* __ENABLE_PLAT_COMPAT__ */

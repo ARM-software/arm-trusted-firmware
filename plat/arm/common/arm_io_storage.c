@@ -10,6 +10,8 @@
 #include <io_fip.h>
 #include <io_memmap.h>
 #include <io_storage.h>
+#include <plat_arm.h>
+#include <platform.h>
 #include <platform_def.h>
 #include <string.h>
 #include <utils.h>

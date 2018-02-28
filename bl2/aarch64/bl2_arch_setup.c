@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include "../bl2_private.h"
 
 /*******************************************************************************
  * Place holder function to perform any S-EL1 specific architectural setup. At

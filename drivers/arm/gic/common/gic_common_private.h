@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,6 +49,9 @@ unsigned int gicd_read_icactiver(uintptr_t base, unsigned int id);
 unsigned int gicd_read_ipriorityr(uintptr_t base, unsigned int id);
 unsigned int gicd_read_icfgr(uintptr_t base, unsigned int id);
 unsigned int gicd_read_nsacr(uintptr_t base, unsigned int id);
+unsigned int gicd_read_spendsgir(uintptr_t base, unsigned int id);
+unsigned int gicd_read_cpendsgir(uintptr_t base, unsigned int id);
+unsigned int gicd_read_itargetsr(uintptr_t base, unsigned int id);
 void gicd_write_igroupr(uintptr_t base, unsigned int id, unsigned int val);
 void gicd_write_isenabler(uintptr_t base, unsigned int id, unsigned int val);
 void gicd_write_icenabler(uintptr_t base, unsigned int id, unsigned int val);
@@ -59,6 +62,9 @@ void gicd_write_icactiver(uintptr_t base, unsigned int id, unsigned int val);
 void gicd_write_ipriorityr(uintptr_t base, unsigned int id, unsigned int val);
 void gicd_write_icfgr(uintptr_t base, unsigned int id, unsigned int val);
 void gicd_write_nsacr(uintptr_t base, unsigned int id, unsigned int val);
+void gicd_write_spendsgir(uintptr_t base, unsigned int id, unsigned int val);
+void gicd_write_cpendsgir(uintptr_t base, unsigned int id, unsigned int val);
+void gicd_write_itargetsr(uintptr_t base, unsigned int id, unsigned int val);
 
 /*******************************************************************************
  * GIC Distributor function prototypes for accessing the GIC registers

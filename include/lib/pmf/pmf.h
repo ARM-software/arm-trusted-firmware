@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -162,7 +162,7 @@
 int pmf_get_timestamp_smc(unsigned int tid,
 		u_register_t mpidr,
 		unsigned int flags,
-		unsigned long long *ts);
+		unsigned long long *ts_value);
 int pmf_setup(void);
 uintptr_t pmf_smc_handler(unsigned int smc_fid,
 		u_register_t x1,

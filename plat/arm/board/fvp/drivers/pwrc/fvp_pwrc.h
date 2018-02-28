@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,13 +40,13 @@
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-void fvp_pwrc_write_pcoffr(u_register_t);
-void fvp_pwrc_write_ppoffr(u_register_t);
-void fvp_pwrc_write_pponr(u_register_t);
-void fvp_pwrc_set_wen(u_register_t);
-void fvp_pwrc_clr_wen(u_register_t);
-unsigned int fvp_pwrc_read_psysr(u_register_t);
-unsigned int fvp_pwrc_get_cpu_wkr(u_register_t);
+void fvp_pwrc_write_pcoffr(u_register_t mpidr);
+void fvp_pwrc_write_ppoffr(u_register_t mpidr);
+void fvp_pwrc_write_pponr(u_register_t mpidr);
+void fvp_pwrc_set_wen(u_register_t mpidr);
+void fvp_pwrc_clr_wen(u_register_t mpidr);
+unsigned int fvp_pwrc_read_psysr(u_register_t mpidr);
+unsigned int fvp_pwrc_get_cpu_wkr(u_register_t mpidr);
 
 #endif /*__ASSEMBLY__*/
 

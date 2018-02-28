@@ -7,9 +7,11 @@
 #include <arch.h>
 #include <arm_def.h>
 #include <arm_xlat_tables.h>
+#include <bl1.h>
 #include <bl_common.h>
 #include <console.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <platform_def.h>
 #include <sp805.h>
 #include <utils.h>

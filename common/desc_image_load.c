@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,8 +10,6 @@
 #include <desc_image_load.h>
 
 
-extern bl_mem_params_node_t *bl_mem_params_desc_ptr;
-extern unsigned int bl_mem_params_desc_num;
 
 static bl_load_info_t bl_load_info;
 static bl_params_t next_bl_params;

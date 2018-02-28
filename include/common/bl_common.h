@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -210,7 +210,6 @@ int load_auth_image(unsigned int image_id, image_info_t *image_data);
 
 #else
 
-uintptr_t page_align(uintptr_t, unsigned);
 int load_image(meminfo_t *mem_layout,
 	       unsigned int image_id,
 	       uintptr_t image_base,
@@ -230,6 +229,7 @@ extern const char build_message[];
 extern const char version_string[];
 
 void print_entry_point_info(const entry_point_info_t *ep_info);
+uintptr_t page_align(uintptr_t value, unsigned dir);
 
 #endif /*__ASSEMBLY__*/
 

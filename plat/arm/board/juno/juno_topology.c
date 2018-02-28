@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arm_def.h>
+#include <css_pm.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include "juno_def.h"
 
 /*
@@ -23,7 +25,7 @@
  * i.e. CLUSTER1 CPUs are allocated indices from 0 to 3 and the higher
  * indices for CLUSTER0 CPUs.
  */
-const unsigned char juno_power_domain_tree_desc[] = {
+static const unsigned char juno_power_domain_tree_desc[] = {
 	/* No of root nodes */
 	JUNO_PWR_DOMAINS_AT_MAX_PWR_LVL,
 	/* No of children for the root node */

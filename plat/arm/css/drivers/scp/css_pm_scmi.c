@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,16 +62,10 @@ typedef enum {
 } scmi_power_state_t;
 
 /*
- * This mapping array has to be exported by the platform. Each element at
- * a given index maps that core to an SCMI power domain.
- */
-extern uint32_t plat_css_core_pos_to_scmi_dmn_id_map[];
-
-/*
  * The global handle for invoking the SCMI driver APIs after the driver
  * has been initialized.
  */
-void *scmi_handle;
+static void *scmi_handle;
 
 /* The SCMI channel global object */
 static scmi_channel_t scmi_channel;

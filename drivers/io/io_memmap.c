@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <io_driver.h>
+#include <io_memmap.h>
 #include <io_storage.h>
 #include <string.h>
 #include <utils.h>
@@ -28,7 +29,7 @@ typedef struct {
 static file_state_t current_file = {0};
 
 /* Identify the device type as memmap */
-io_type_t device_type_memmap(void)
+static io_type_t device_type_memmap(void)
 {
 	return IO_TYPE_MEMMAP;
 }

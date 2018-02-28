@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,9 @@ void print_errata_status(void);
 #else
 static inline void print_errata_status(void) {}
 #endif
+
+void errata_print_msg(unsigned int status, const char *cpu, const char *id);
+int errata_needs_reporting(spinlock_t *lock, uint32_t *reported);
 
 #endif /* __ASSEMBLY__ */
 

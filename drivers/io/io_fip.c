@@ -69,7 +69,7 @@ static inline int is_valid_header(fip_toc_header_t *header)
 
 
 /* Identify the device type as a virtual driver */
-io_type_t device_type_fip(void)
+static io_type_t device_type_fip(void)
 {
 	return IO_TYPE_FIRMWARE_IMAGE_PACKAGE;
 }

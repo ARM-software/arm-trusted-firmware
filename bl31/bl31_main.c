@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,7 @@
 #include <pmf.h>
 #include <runtime_instr.h>
 #include <runtime_svc.h>
+#include <std_svc.h>
 #include <string.h>
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
