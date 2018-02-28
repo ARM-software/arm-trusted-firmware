@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -82,7 +82,7 @@ void ehf_init(void);
 void ehf_activate_priority(unsigned int priority);
 void ehf_deactivate_priority(unsigned int priority);
 void ehf_register_priority_handler(unsigned int pri, ehf_handler_t handler);
-void ehf_allow_ns_preemption(void);
+void ehf_allow_ns_preemption(uint64_t preempt_ret_code);
 unsigned int ehf_is_ns_preemption_allowed(void);
 
 #endif /* __ASSEMBLY__ */
