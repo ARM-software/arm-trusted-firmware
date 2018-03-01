@@ -66,7 +66,7 @@ static uint64_t trusty_generic_platform_smc(uint32_t smc_fid,
 			 void *handle,
 			 uint64_t flags)
 {
-	switch(smc_fid) {
+	switch (smc_fid) {
 	case SMC_FC_DEBUG_PUTC:
 		trusty_dputc(x1, is_caller_secure(flags));
 		SMC_RET1(handle, 0);

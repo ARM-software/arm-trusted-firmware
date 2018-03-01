@@ -409,7 +409,7 @@ static int32_t trusty_setup(void)
 
 	instr = *(uint32_t *)ep_info->pc;
 
-	if (instr >> 24 == 0xea) {
+	if (instr >> 24 == 0xeaU) {
 		INFO("trusty: Found 32 bit image\n");
 		aarch32 = true;
 	} else if (instr >> 8 == 0xd53810 || instr >> 16 == 0x9400) {
