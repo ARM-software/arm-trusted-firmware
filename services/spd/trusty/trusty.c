@@ -13,6 +13,7 @@
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <runtime_svc.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "sm_err.h"
@@ -397,7 +398,7 @@ static int32_t trusty_setup(void)
 	uint32_t instr;
 	uint32_t flags;
 	int ret;
-	int aarch32 = 0;
+	bool aarch32 = false;
 
 	/* Get trusty's entry point info */
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
@@ -410,7 +411,7 @@ static int32_t trusty_setup(void)
 
 	if (instr >> 24 == 0xea) {
 		INFO("trusty: Found 32 bit image\n");
-		aarch32 = 1;
+		aarch32 = true;
 	} else if (instr >> 8 == 0xd53810 || instr >> 16 == 0x9400) {
 		INFO("trusty: Found 64 bit image\n");
 	} else {
