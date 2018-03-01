@@ -155,8 +155,8 @@ typedef struct gicv2_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicc_base;
 #if !ERROR_DEPRECATED
-	unsigned int g0_interrupt_num;
-	const unsigned int *g0_interrupt_array;
+	unsigned int g0_interrupt_num __deprecated;
+	const unsigned int *g0_interrupt_array __deprecated;
 #endif
 	unsigned int *target_masks;
 	unsigned int target_masks_num;
