@@ -18,9 +18,9 @@
 static entry_point_info_t bl33_image_ep_info;
 
 /* Weak definitions may be overridden in specific ARM standard platform */
-#pragma weak sp_min_early_platform_setup2
 #pragma weak sp_min_platform_setup
 #pragma weak sp_min_plat_arch_setup
+#pragma weak plat_arm_sp_min_early_platform_setup
 
 
 /*******************************************************************************
@@ -46,7 +46,7 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 }
 
 /*******************************************************************************
- * Perform early platform setup.
+ * Utility function to perform early platform setup.
  ******************************************************************************/
 void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 			uintptr_t hw_config, void *plat_params_from_bl2)
@@ -105,7 +105,10 @@ void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 
 }
 
-void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+/*******************************************************************************
+ * Default implementation for sp_min_platform_setup2() for ARM platforms
+ ******************************************************************************/
+void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 			u_register_t arg2, u_register_t arg3)
 {
 	arm_sp_min_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
@@ -125,6 +128,12 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * clusters.
 	 */
 	plat_arm_interconnect_enter_coherency();
+}
+
+void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			u_register_t arg2, u_register_t arg3)
+{
+	plat_arm_sp_min_early_platform_setup(arg0, arg1, arg2, arg3);
 }
 
 /*******************************************************************************
