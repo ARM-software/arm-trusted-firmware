@@ -428,7 +428,7 @@ static int32_t trusty_setup(void)
 					    DAIF_FIQ_BIT |
 					    DAIF_IRQ_BIT |
 					    DAIF_ABT_BIT);
-	memset(&ep_info->args, 0, sizeof(ep_info->args));
+	(void)memset(&ep_info->args, 0, sizeof(ep_info->args));
 	plat_trusty_set_boot_args(&ep_info->args);
 
 	/* register init handler */
