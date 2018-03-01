@@ -1,10 +1,10 @@
 Trusted Little Kernel (TLK) Dispatcher
 ======================================
 
-TLK dispatcher adds support for NVIDIA's Trusted Little Kernel (TLK) to work
-with the Trusted Firmware. TLK-D can be compiled by including it in the
-platform's makefile. TLK is primarily meant to work with Tegra SoCs, so until
-Trusted Firmware starts supporting Tegra, the dispatcher code can only be
+TLK dispatcher (TLK-D) adds support for NVIDIA's Trusted Little Kernel (TLK)
+to work with Trusted Firmware-A (TF-A). TLK-D can be compiled by including it
+in the platform's makefile. TLK is primarily meant to work with Tegra SoCs,
+so while TF-A only supports TLK on Tegra, the dispatcher code can only be
 compiled for other platforms.
 
 In order to compile TLK-D, we need a BL32 image to be present. Since, TLKD
@@ -20,7 +20,7 @@ Trusted Little Kernel (TLK)
 TLK is a Trusted OS running as Secure EL1. It is a Free Open Source Software
 (FOSS) release of the NVIDIA® Trusted Little Kernel (TLK) technology, which
 extends technology made available with the development of the Little Kernel (LK).
-You can download the LK modular embedded preemptive kernel for use on ARM,
+You can download the LK modular embedded preemptive kernel for use on Arm,
 x86, and AVR32 systems from https://github.com/travisg/lk
 
 NVIDIA implemented its Trusted Little Kernel (TLK) technology, designed as a
@@ -72,5 +72,5 @@ Example:
 ::
 
     bl32_ep_info->args.arg0 = TZDRAM size available for BL32
-    bl32_ep_info->args.arg1 = unused (used only on ARMv7)
+    bl32_ep_info->args.arg1 = unused (used only on Armv7-A)
     bl32_ep_info->args.arg2 = pointer to boot args

@@ -4,10 +4,10 @@ Tegra SoCs - Overview
 -  .. rubric:: T210
       :name: t210
 
-T210 has Quad ARM® Cortex®-A57 cores in a switched configuration with a
-companion set of quad ARM Cortex-A53 cores. The Cortex-A57 and A53 cores
-support ARMv8, executing both 64-bit Aarch64 code, and 32-bit Aarch32 code
-including legacy ARMv7 applications. The Cortex-A57 processors each have
+T210 has Quad Arm® Cortex®-A57 cores in a switched configuration with a
+companion set of quad Arm Cortex-A53 cores. The Cortex-A57 and A53 cores
+support Armv8-A, executing both 64-bit Aarch64 code, and 32-bit Aarch32 code
+including legacy Armv7-A applications. The Cortex-A57 processors each have
 48 KB Instruction and 32 KB Data Level 1 caches; and have a 2 MB shared
 Level 2 unified cache. The Cortex-A53 processors each have 32 KB Instruction
 and 32 KB Data Level 1 caches; and have a 512 KB shared Level 2 unified cache.
@@ -16,7 +16,7 @@ and 32 KB Data Level 1 caches; and have a 512 KB shared Level 2 unified cache.
       :name: t132
 
 Denver is NVIDIA's own custom-designed, 64-bit, dual-core CPU which is
-fully ARMv8 architecture compatible. Each of the two Denver cores
+fully Armv8-A architecture compatible. Each of the two Denver cores
 implements a 7-way superscalar microarchitecture (up to 7 concurrent
 micro-ops can be executed per clock), and includes a 128KB 4-way L1
 instruction cache, a 64KB 4-way L1 data cache, and a 2MB 16-way L2
@@ -94,5 +94,5 @@ Tegra configs
 =============
 
 -  'tegra\_enable\_l2\_ecc\_parity\_prot': This flag enables the L2 ECC and Parity
-   Protection bit, for ARM Cortex-A57 CPUs, during CPU boot. This flag will
+   Protection bit, for Arm Cortex-A57 CPUs, during CPU boot. This flag will
    be enabled by Tegrs SoCs during 'Cluster power up' or 'System Suspend' exit.

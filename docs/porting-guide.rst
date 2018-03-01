@@ -1,5 +1,5 @@
-ARM Trusted Firmware Porting Guide
-==================================
+Trusted Firmware-A Porting Guide
+================================
 
 
 .. section-numbering::
@@ -16,7 +16,7 @@ Please note that this document has been updated for the new platform API
 as required by the PSCI v1.0 implementation. Please refer to the
 `Migration Guide`_ for the previous platform API.
 
-Porting the ARM Trusted Firmware to a new platform involves making some
+Porting Trusted Firmware-A (TF-A) to a new platform involves making some
 mandatory and optional modifications for both the cold and warm boot paths.
 Modifications consist of:
 
@@ -31,20 +31,19 @@ implementations are all weakly defined; they are provided to ease the porting
 effort. Each platform port can override them with its own implementation if the
 default implementation is inadequate.
 
-Platform ports that want to be aligned with standard ARM platforms (for example
+Platform ports that want to be aligned with standard Arm platforms (for example
 FVP and Juno) may also use `include/plat/arm/common/plat\_arm.h`_ and the
 corresponding source files in ``plat/arm/common/``. These provide standard
 implementations for some of the required platform porting functions. However,
 using these functions requires the platform port to implement additional
-ARM standard platform porting functions. These additional functions are not
+Arm standard platform porting functions. These additional functions are not
 documented here.
 
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
 
-This document should be read in conjunction with the ARM Trusted Firmware
-`User Guide`_.
+This document should be read in conjunction with the TF-A `User Guide`_.
 
 Common modifications
 --------------------
@@ -67,11 +66,11 @@ only for re-mapping peripheral physical addresses and allows platforms with high
 I/O addresses to reduce their virtual address space. All other addresses
 corresponding to code and data must currently use an identity mapping.
 
-Also, the only translation granule size supported in Trusted Firmware is 4KB, as
-various parts of the code assume that is the case. It is not possible to switch
-to 16 KB or 64 KB granule sizes at the moment.
+Also, the only translation granule size supported in TF-A is 4KB, as various
+parts of the code assume that is the case. It is not possible to switch to
+16 KB or 64 KB granule sizes at the moment.
 
-In ARM standard platforms, each BL stage configures the MMU in the
+In Arm standard platforms, each BL stage configures the MMU in the
 platform-specific architecture setup function, ``blX_plat_arch_setup()``, and uses
 an identity mapping for all addresses.
 
@@ -106,14 +105,14 @@ File : platform\_def.h [mandatory]
 
 Each platform must ensure that a header file of this name is in the system
 include path with the following constants defined. This may require updating the
-list of ``PLAT_INCLUDES`` in the ``platform.mk`` file. In the ARM development
+list of ``PLAT_INCLUDES`` in the ``platform.mk`` file. In the Arm development
 platforms, this file is found in ``plat/arm/board/<plat_name>/include/``.
 
 Platform ports may optionally use the file `include/plat/common/common\_def.h`_,
 which provides typical values for some of the constants below. These values are
 likely to be suitable for all platform ports.
 
-Platform ports that want to be aligned with standard ARM platforms (for example
+Platform ports that want to be aligned with standard Arm platforms (for example
 FVP and Juno) may also use `include/plat/arm/common/arm\_def.h`_, which provides
 standard values for some of the constants below. However, this requires the
 platform port to define additional platform porting constants in
@@ -293,9 +292,9 @@ also be defined:
 
 -  **#define : PLAT\_CRYPTOCELL\_BASE**
 
-   This defines the base address of ARM® TrustZone® CryptoCell and must be
+   This defines the base address of Arm® TrustZone® CryptoCell and must be
    defined if CryptoCell crypto driver is used for Trusted Board Boot. For
-   capable ARM platforms, this driver is used if ``ARM_CRYPTOCELL_INTEG`` is
+   capable Arm platforms, this driver is used if ``ARM_CRYPTOCELL_INTEG`` is
    set.
 
 If the AP Firmware Updater Configuration image, BL2U is used, the following
@@ -322,7 +321,7 @@ must also be defined:
 
    SCP\_BL2U image identifier, used by BL1 to fetch an image descriptor
    corresponding to SCP\_BL2U.
-   NOTE: TF does not provide source code for this image.
+   NOTE: TF-A does not provide source code for this image.
 
 If the Non-Secure Firmware Updater ROM, NS\_BL1U is used, the following must
 also be defined:
@@ -331,7 +330,7 @@ also be defined:
 
    Defines the base address in non-secure ROM where NS\_BL1U executes.
    Must be aligned on a page-size boundary.
-   NOTE: TF does not provide source code for this image.
+   NOTE: TF-A does not provide source code for this image.
 
 -  **#define : NS\_BL1U\_IMAGE\_ID**
 
@@ -345,7 +344,7 @@ be defined:
 
    Defines the base address in non-secure memory where NS\_BL2U executes.
    Must be aligned on a page-size boundary.
-   NOTE: TF does not provide source code for this image.
+   NOTE: TF-A does not provide source code for this image.
 
 -  **#define : NS\_BL2U\_IMAGE\_ID**
 
@@ -507,7 +506,7 @@ required memory within the the per-cpu data to minimize wastage.
    structure for use by the platform layer.
 
 The following constants are optional. They should be defined when the platform
-memory layout implies some image overlaying like in ARM standard platforms.
+memory layout implies some image overlaying like in Arm standard platforms.
 
 -  **#define : BL31\_PROGBITS\_LIMIT**
 
@@ -569,7 +568,7 @@ File : plat\_macros.S [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each platform must ensure a file of this name is in the system include path with
-the following macro defined. In the ARM development platforms, this file is
+the following macro defined. In the Arm development platforms, this file is
 found in ``plat/arm/board/<plat_name>/include/plat_macros.S``.
 
 -  **Macro : plat\_crash\_print\_regs**
@@ -620,7 +619,7 @@ reset entrypoint point provided to ``plat_setup_psci_ops()`` during
 BL31 initialization. If it's a cold reset then this function must return zero.
 
 This function does not follow the Procedure Call Standard used by the
-Application Binary Interface for the ARM 64-bit architecture. The caller should
+Application Binary Interface for the Arm 64-bit architecture. The caller should
 not assume that callee saved registers are preserved across a call to this
 function.
 
@@ -644,7 +643,7 @@ for placing the executing secondary CPU in a platform-specific state until the
 primary CPU performs the necessary actions to bring it out of that state and
 allow entry into the OS. This function must not return.
 
-In the ARM FVP port, when using the normal boot flow, each secondary CPU powers
+In the Arm FVP port, when using the normal boot flow, each secondary CPU powers
 itself off. The primary CPU is responsible for powering up the secondary CPUs
 when normal world software requires them. When booting an EL3 payload instead,
 they stay powered on and are put in a holding pen until their mailbox gets
@@ -827,9 +826,9 @@ This function validates the ``MPIDR`` of a CPU and converts it to an index,
 which can be used as a CPU-specific linear index into blocks of memory. In
 case the ``MPIDR`` is invalid, this function returns -1. This function will only
 be invoked by BL31 after the power domain topology is initialized and can
-utilize the C runtime environment. For further details about how ARM Trusted
-Firmware represents the power domain topology and how this relates to the
-linear CPU index, please refer `Power Domain Topology Design`_.
+utilize the C runtime environment. For further details about how TF-A
+represents the power domain topology and how this relates to the linear CPU
+index, please refer `Power Domain Topology Design`_.
 
 Common optional modifications
 -----------------------------
@@ -896,8 +895,7 @@ about the way the platform displays its status information.
 For AArch64, this function receives the exception type as its argument.
 Possible values for exceptions types are listed in the
 `include/common/bl\_common.h`_ header file. Note that these constants are not
-related to any architectural exception code; they are just an ARM Trusted
-Firmware convention.
+related to any architectural exception code; they are just a TF-A convention.
 
 For AArch32, this function receives the exception mode as its argument.
 Possible values for exception modes are listed in the
@@ -954,8 +952,8 @@ Possible errors reported by the generic code are:
    Board Boot is enabled)
 -  ``-ENOENT``: the requested image or certificate could not be found or an IO
    error was detected
--  ``-ENOMEM``: resources exhausted. Trusted Firmware does not use dynamic
-   memory, so this error is usually an indication of an incorrect array size
+-  ``-ENOMEM``: resources exhausted. TF-A does not use dynamic memory, so this
+   error is usually an indication of an incorrect array size
 
 The default implementation simply spins.
 
@@ -996,9 +994,9 @@ Function : plat\_get\_next\_bl\_params()
     Return   : bl_params_t *
 
 This function returns a pointer to the shared memory that the platform has
-kept aside to pass trusted firmware related information that next BL image
-needs. This function is currently invoked in BL2 to pass this information to
-the next BL image, when LOAD\_IMAGE\_V2 is enabled.
+kept aside to pass TF-A related information that next BL image needs. This
+function is currently invoked in BL2 to pass this information to the next BL
+image, when LOAD\_IMAGE\_V2 is enabled.
 
 Function : plat\_get\_stack\_protector\_canary()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1039,11 +1037,11 @@ Function : plat\_log\_get\_prefix()
     Return   : const char *
 
 This function defines the prefix string corresponding to the `log_level` to be
-prepended to all the log output from ARM Trusted Firmware. The `log_level`
-(argument) will correspond to one of the standard log levels defined in
-debug.h. The platform can override the common implementation to define a
-different prefix string for the log output.  The implementation should be
-robust to future changes that increase the number of log levels.
+prepended to all the log output from TF-A. The `log_level` (argument) will
+correspond to one of the standard log levels defined in debug.h. The platform
+can override the common implementation to define a different prefix string for
+the log output.  The implementation should be robust to future changes that
+increase the number of log levels.
 
 Modifications specific to a Boot Loader stage
 ---------------------------------------------
@@ -1101,7 +1099,7 @@ Function : bl1\_early\_platform\_setup() [mandatory]
 This function executes with the MMU and data caches disabled. It is only called
 by the primary CPU.
 
-On ARM standard platforms, this function:
+On Arm standard platforms, this function:
 
 -  Enables a secure instance of SP805 to act as the Trusted Watchdog.
 
@@ -1124,7 +1122,7 @@ This function performs any platform-specific and architectural setup that the
 platform requires. Platform-specific setup might include configuration of
 memory controllers and the interconnect.
 
-In ARM standard platforms, this function enables the MMU.
+In Arm standard platforms, this function enables the MMU.
 
 This function helps fulfill requirement 2 above.
 
@@ -1143,7 +1141,7 @@ MMU and data cache have been enabled.
 if support for multiple boot sources is required, it initializes the boot
 sequence used by plat\_try\_next\_boot\_source().
 
-In ARM standard platforms, this function initializes the storage abstraction
+In Arm standard platforms, this function initializes the storage abstraction
 layer used to load the next bootloader image.
 
 This function helps fulfill requirement 4 above.
@@ -1216,7 +1214,7 @@ loaded and executed. If the platform returns ``BL2_IMAGE_ID`` then BL1 proceeds
 with the normal boot sequence, which loads and executes BL2. If the platform
 returns a different image id, BL1 assumes that Firmware Update is required.
 
-The default implementation always returns ``BL2_IMAGE_ID``. The ARM development
+The default implementation always returns ``BL2_IMAGE_ID``. The Arm development
 platforms override this function to detect if firmware update is required, and
 if so, return the first image in the firmware update process.
 
@@ -1231,7 +1229,7 @@ Function : bl1\_plat\_get\_image\_desc() [optional]
 BL1 calls this function to get the image descriptor information ``image_desc_t``
 for the provided ``image_id`` from the platform.
 
-The default implementation always returns a common BL2 image descriptor. ARM
+The default implementation always returns a common BL2 image descriptor. Arm
 standard platforms return an image descriptor corresponding to BL2 or one of
 the firmware update images defined in the Trusted Board Boot Requirements
 specification.
@@ -1371,7 +1369,7 @@ variable as the original memory may be subsequently overwritten by BL2. The
 copied structure is made available to all BL2 code through the
 ``bl2_plat_sec_mem_layout()`` function.
 
-On ARM standard platforms, this function also:
+On Arm standard platforms, this function also:
 
 -  Initializes a UART (PL011 console), which enables access to the ``printf``
    family of functions in BL2.
@@ -1394,7 +1392,7 @@ by the primary CPU.
 The purpose of this function is to perform any architectural initialization
 that varies across platforms.
 
-On ARM standard platforms, this function enables the MMU.
+On Arm standard platforms, this function enables the MMU.
 
 Function : bl2\_platform\_setup() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1411,7 +1409,7 @@ called by the primary CPU.
 The purpose of this function is to perform any platform initialization
 specific to BL2.
 
-In ARM standard platforms, this function performs security setup, including
+In Arm standard platforms, this function performs security setup, including
 configuration of the TrustZone controller to allow non-secure masters access
 to most of DRAM. Part of DRAM is reserved for secure world use.
 
@@ -1526,7 +1524,7 @@ BL2 platform code returns a pointer which is used to populate the entry point
 information for BL31 entry point. The location pointed by it should be
 accessible from BL1 while processing the synchronous exception to run to BL31.
 
-In ARM standard platforms this is allocated inside a bl2\_to\_bl31\_params\_mem
+In Arm standard platforms this is allocated inside a bl2\_to\_bl31\_params\_mem
 structure in BL2 memory.
 
 Function : bl2\_plat\_set\_bl31\_ep\_info() [mandatory]
@@ -1664,8 +1662,8 @@ of this always returns 0.
 Boot Loader Stage 2 (BL2) at EL3
 --------------------------------
 
-When the platform has a non-TF Boot ROM it is desirable to jump
-directly to BL2 instead of TF BL1. In this case BL2 is expected to
+When the platform has a non-TF-A Boot ROM it is desirable to jump
+directly to BL2 instead of TF-A BL1. In this case BL2 is expected to
 execute at EL3 instead of executing at EL1. Refer to the `Firmware
 Design`_ for more information.
 
@@ -1687,7 +1685,7 @@ This function executes with the MMU and data caches disabled. It is only called
 by the primary CPU. This function receives four parameters which can be used
 by the platform to pass any needed information from the Boot ROM to BL2.
 
-On ARM standard platforms, this function does the following:
+On Arm standard platforms, this function does the following:
 
 -  Initializes a UART (PL011 console), which enables access to the ``printf``
    family of functions in BL2.
@@ -1711,7 +1709,7 @@ by the primary CPU.
 The purpose of this function is to perform any architectural initialization
 that varies across platforms.
 
-On ARM standard platforms, this function enables the MMU.
+On Arm standard platforms, this function enables the MMU.
 
 Function : bl2\_el3\_plat\_prepare\_exit() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1740,7 +1738,7 @@ process and is executed only by the primary CPU. BL1 passes control to BL2U at
    If ``SCP_BL2U_BASE`` is not defined then this step is not performed.
 
 #. Any platform specific setup required to perform the FWU process. For
-   example, ARM standard platforms initialize the TZC controller so that the
+   example, Arm standard platforms initialize the TZC controller so that the
    normal world can access DDR memory.
 
 The following functions must be implemented by the platform port to enable
@@ -1761,7 +1759,7 @@ of the ``meminfo`` structure and platform specific info provided by BL1.
 The platform may copy the contents of the ``mem_info`` and ``plat_info`` into
 private storage as the original memory may be subsequently overwritten by BL2U.
 
-On ARM CSS platforms ``plat_info`` is interpreted as an ``image_info_t`` structure,
+On Arm CSS platforms ``plat_info`` is interpreted as an ``image_info_t`` structure,
 to extract SCP\_BL2U image information, which is then copied into a private
 variable.
 
@@ -1795,7 +1793,7 @@ called by the primary CPU.
 The purpose of this function is to perform any platform initialization
 specific to BL2U.
 
-In ARM standard platforms, this function performs security setup, including
+In Arm standard platforms, this function performs security setup, including
 configuration of the TrustZone controller to allow non-secure masters access
 to most of DRAM. Part of DRAM is reserved for secure world use.
 
@@ -1868,7 +1866,7 @@ sub-structures into private variables if the original memory may be
 subsequently overwritten by BL31 and similarly the ``void *`` pointing
 to the platform data also needs to be saved.
 
-In ARM standard platforms, BL2 passes a pointer to a ``bl31_params`` structure
+In Arm standard platforms, BL2 passes a pointer to a ``bl31_params`` structure
 in BL2 memory. BL31 copies the information in this pointer to internal data
 structures. It also performs the following:
 
@@ -1893,7 +1891,7 @@ by the primary CPU.
 The purpose of this function is to perform any architectural initialization
 that varies across platforms.
 
-On ARM standard platforms, this function enables the MMU.
+On Arm standard platforms, this function enables the MMU.
 
 Function : bl31\_platform\_setup() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1910,7 +1908,7 @@ called by the primary CPU.
 The purpose of this function is to complete platform initialization so that both
 BL31 runtime services and normal world software can function correctly.
 
-On ARM standard platforms, this function does the following:
+On Arm standard platforms, this function does the following:
 
 -  Initialize the generic interrupt controller.
 
@@ -1978,7 +1976,7 @@ Function : plat\_get\_syscnt\_freq2() [mandatory]
 
 This function is used by the architecture setup code to retrieve the counter
 frequency for the CPU's generic timer. This value will be programmed into the
-``CNTFRQ_EL0`` register. In ARM standard platforms, it returns the base frequency
+``CNTFRQ_EL0`` register. In Arm standard platforms, it returns the base frequency
 of the system counter, which is retrieved from the first entry in the frequency
 modes table.
 
@@ -2045,7 +2043,7 @@ argument, which is the address of the handler the SDEI client requested to
 register. The function must return ``0`` for successful validation, or ``-1``
 upon failure.
 
-The default implementation always returns ``0``. On ARM platforms, this function
+The default implementation always returns ``0``. On Arm platforms, this function
 is implemented to translate the entry point to physical address, and further to
 ensure that the address is located in Non-secure DRAM.
 
@@ -2072,18 +2070,18 @@ The default implementation only prints out a warning message.
 Power State Coordination Interface (in BL31)
 --------------------------------------------
 
-The ARM Trusted Firmware's implementation of the PSCI API is based around the
-concept of a *power domain*. A *power domain* is a CPU or a logical group of
-CPUs which share some state on which power management operations can be
-performed as specified by `PSCI`_. Each CPU in the system is assigned a cpu
-index which is a unique number between ``0`` and ``PLATFORM_CORE_COUNT - 1``.
-The *power domains* are arranged in a hierarchical tree structure and
-each *power domain* can be identified in a system by the cpu index of any CPU
-that is part of that domain and a *power domain level*. A processing element
-(for example, a CPU) is at level 0. If the *power domain* node above a CPU is
-a logical grouping of CPUs that share some state, then level 1 is that group
-of CPUs (for example, a cluster), and level 2 is a group of clusters
-(for example, the system). More details on the power domain topology and its
+The TF-A implementation of the PSCI API is based around the concept of a
+*power domain*. A *power domain* is a CPU or a logical group of CPUs which
+share some state on which power management operations can be performed as
+specified by `PSCI`_. Each CPU in the system is assigned a cpu index which is
+a unique number between ``0`` and ``PLATFORM_CORE_COUNT - 1``. The
+*power domains* are arranged in a hierarchical tree structure and each
+*power domain* can be identified in a system by the cpu index of any CPU that
+is part of that domain and a *power domain level*. A processing element (for
+example, a CPU) is at level 0. If the *power domain* node above a CPU is a
+logical grouping of CPUs that share some state, then level 1 is that group of
+CPUs (for example, a cluster), and level 2 is a group of clusters (for
+example, the system). More details on the power domain topology and its
 organization can be found in `Power Domain Topology Design`_.
 
 BL31's platform initialization code exports a pointer to the platform-specific
@@ -2223,12 +2221,12 @@ platform-specific psci power management actions by populating the passed
 pointer with a pointer to BL31's private ``plat_psci_ops`` structure.
 
 A description of each member of this structure is given below. Please refer to
-the ARM FVP specific implementation of these handlers in
+the Arm FVP specific implementation of these handlers in
 `plat/arm/board/fvp/fvp\_pm.c`_ as an example. For each PSCI function that the
 platform wants to support, the associated operation or operations in this
 structure must be provided and implemented (Refer section 4 of
-`Firmware Design`_ for the PSCI API supported in Trusted Firmware). To disable
-a PSCI function in a platform port, the operation should be removed from this
+`Firmware Design`_ for the PSCI API supported in TF-A). To disable a PSCI
+function in a platform port, the operation should be removed from this
 structure instead of providing an empty implementation.
 
 plat\_psci\_ops.cpu\_standby()
@@ -2511,14 +2509,14 @@ state or EL3/S-EL1 in the secure state. The design of this framework is
 described in the `IMF Design Guide`_
 
 A platform should export the following APIs to support the IMF. The following
-text briefly describes each api and its implementation in ARM standard
+text briefly describes each api and its implementation in Arm standard
 platforms. The API implementation depends upon the type of interrupt controller
-present in the platform. ARM standard platform layer supports both
-`ARM Generic Interrupt Controller version 2.0 (GICv2)`_
-and `3.0 (GICv3)`_. Juno builds the ARM
-Standard layer to use GICv2 and the FVP can be configured to use either GICv2 or
-GICv3 depending on the build flag ``FVP_USE_GIC_DRIVER`` (See FVP platform
-specific build options in `User Guide`_ for more details).
+present in the platform. Arm standard platform layer supports both
+`Arm Generic Interrupt Controller version 2.0 (GICv2)`_
+and `3.0 (GICv3)`_. Juno builds the Arm platform layer to use GICv2 and the
+FVP can be configured to use either GICv2 or GICv3 depending on the build flag
+``FVP_USE_GIC_DRIVER`` (See FVP platform specific build options in
+`User Guide`_ for more details).
 
 See also: `Interrupt Controller Abstraction APIs`__.
 
@@ -2532,7 +2530,7 @@ Function : plat\_interrupt\_type\_to\_line() [mandatory]
     Argument : uint32_t, uint32_t
     Return   : uint32_t
 
-The ARM processor signals an interrupt exception either through the IRQ or FIQ
+The Arm processor signals an interrupt exception either through the IRQ or FIQ
 interrupt line. The specific line that is signaled depends on how the interrupt
 controller (IC) reports different interrupt types from an execution context in
 either security state. The IMF uses this API to determine which interrupt line
@@ -2545,11 +2543,11 @@ security state of the originating execution context. The return result is the
 bit position in the ``SCR_EL3`` register of the respective interrupt trap: IRQ=1,
 FIQ=2.
 
-In the case of ARM standard platforms using GICv2, S-EL1 interrupts are
+In the case of Arm standard platforms using GICv2, S-EL1 interrupts are
 configured as FIQs and Non-secure interrupts as IRQs from either security
 state.
 
-In the case of ARM standard platforms using GICv3, the interrupt line to be
+In the case of Arm standard platforms using GICv3, the interrupt line to be
 configured depends on the security state of the execution context when the
 interrupt is signalled and are as follows:
 
@@ -2574,7 +2572,7 @@ handler function. ``INTR_TYPE_INVAL`` is returned when there is no interrupt
 pending. The valid interrupt types that can be returned are ``INTR_TYPE_EL3``,
 ``INTR_TYPE_S_EL1`` and ``INTR_TYPE_NS``. This API must be invoked at EL3.
 
-In the case of ARM standard platforms using GICv2, the *Highest Priority
+In the case of Arm standard platforms using GICv2, the *Highest Priority
 Pending Interrupt Register* (``GICC_HPPIR``) is read to determine the id of
 the pending interrupt. The type of interrupt depends upon the id value as
 follows.
@@ -2583,7 +2581,7 @@ follows.
 #. id = 1022 is reported as a Non-secure interrupt.
 #. id = 1023 is reported as an invalid interrupt type.
 
-In the case of ARM standard platforms using GICv3, the system register
+In the case of Arm standard platforms using GICv3, the system register
 ``ICC_HPPIR0_EL1``, *Highest Priority Pending group 0 Interrupt Register*,
 is read to determine the id of the pending interrupt. The type of interrupt
 depends upon the id value as follows.
@@ -2605,7 +2603,7 @@ This API returns the id of the highest priority pending interrupt at the
 platform IC. ``INTR_ID_UNAVAILABLE`` is returned when there is no interrupt
 pending.
 
-In the case of ARM standard platforms using GICv2, the *Highest Priority
+In the case of Arm standard platforms using GICv2, the *Highest Priority
 Pending Interrupt Register* (``GICC_HPPIR``) is read to determine the id of the
 pending interrupt. The id that is returned by API depends upon the value of
 the id read from the interrupt controller as follows.
@@ -2616,7 +2614,7 @@ the id read from the interrupt controller as follows.
    This id is returned by the API.
 #. id = 1023. ``INTR_ID_UNAVAILABLE`` is returned.
 
-In the case of ARM standard platforms using GICv3, if the API is invoked from
+In the case of Arm standard platforms using GICv3, if the API is invoked from
 EL3, the system register ``ICC_HPPIR0_EL1``, *Highest Priority Pending Interrupt
 group 0 Register*, is read to determine the id of the pending interrupt. The id
 that is returned by API depends upon the value of the id read from the
@@ -2651,12 +2649,12 @@ The actual interrupt number shall be extracted from this raw value using the API
 
 .. __: platform-interrupt-controller-API.rst#function-unsigned-int-plat-ic-get-interrupt-id-unsigned-int-raw-optional
 
-This function in ARM standard platforms using GICv2, reads the *Interrupt
+This function in Arm standard platforms using GICv2, reads the *Interrupt
 Acknowledge Register* (``GICC_IAR``). This changes the state of the highest
 priority pending interrupt from pending to active in the interrupt controller.
 It returns the value read from the ``GICC_IAR``, unmodified.
 
-In the case of ARM standard platforms using GICv3, if the API is invoked
+In the case of Arm standard platforms using GICv3, if the API is invoked
 from EL3, the function reads the system register ``ICC_IAR0_EL1``, *Interrupt
 Acknowledge Register group 0*. If the API is invoked from S-EL1, the function
 reads the system register ``ICC_IAR1_EL1``, *Interrupt Acknowledge Register
@@ -2680,7 +2678,7 @@ the interrupt corresponding to the id (passed as the parameter) has
 finished. The id should be the same as the id returned by the
 ``plat_ic_acknowledge_interrupt()`` API.
 
-ARM standard platforms write the id to the *End of Interrupt Register*
+Arm standard platforms write the id to the *End of Interrupt Register*
 (``GICC_EOIR``) in case of GICv2, and to ``ICC_EOIR0_EL1`` or ``ICC_EOIR1_EL1``
 system register in case of GICv3 depending on where the API is invoked from,
 EL3 or S-EL1. This deactivates the corresponding interrupt in the interrupt
@@ -2703,12 +2701,12 @@ interrupt type (one of ``INTR_TYPE_EL3``, ``INTR_TYPE_S_EL1`` and ``INTR_TYPE_NS
 returned depending upon how the interrupt has been configured by the platform
 IC. This API must be invoked at EL3.
 
-ARM standard platforms using GICv2 configures S-EL1 interrupts as Group0 interrupts
+Arm standard platforms using GICv2 configures S-EL1 interrupts as Group0 interrupts
 and Non-secure interrupts as Group1 interrupts. It reads the group value
 corresponding to the interrupt id from the relevant *Interrupt Group Register*
 (``GICD_IGROUPRn``). It uses the group value to determine the type of interrupt.
 
-In the case of ARM standard platforms using GICv3, both the *Interrupt Group
+In the case of Arm standard platforms using GICv3, both the *Interrupt Group
 Register* (``GICD_IGROUPRn``) and *Interrupt Group Modifier Register*
 (``GICD_IGRPMODRn``) is read to figure out whether the interrupt is configured
 as Group 0 secure interrupt, Group 1 secure interrupt or Group 1 NS interrupt.
@@ -2829,10 +2827,10 @@ C Library
 To avoid subtle toolchain behavioral dependencies, the header files provided
 by the compiler are not used. The software is built with the ``-nostdinc`` flag
 to ensure no headers are included from the toolchain inadvertently. Instead the
-required headers are included in the ARM Trusted Firmware source tree. The
-library only contains those C library definitions required by the local
-implementation. If more functionality is required, the needed library functions
-will need to be added to the local implementation.
+required headers are included in the TF-A source tree. The library only
+contains those C library definitions required by the local implementation. If
+more functionality is required, the needed library functions will need to be
+added to the local implementation.
 
 Versions of `FreeBSD`_ headers can be found in ``include/lib/stdlib``. Some of
 these headers have been cut down in order to simplify the implementation. In
@@ -2873,7 +2871,7 @@ required in their respective ``blx_platform_setup()`` functions. Currently
 storage access is only required by BL1 and BL2 phases. The ``load_image()``
 function uses the storage layer to access non-volatile platform storage.
 
-It is mandatory to implement at least one storage driver. For the ARM
+It is mandatory to implement at least one storage driver. For the Arm
 development platforms the Firmware Image Package (FIP) driver is provided as
 the default means to load data from storage (see the "Firmware Image Package"
 section in the `User Guide`_). The storage layer is described in the header file
@@ -2913,7 +2911,7 @@ amount of open resources per driver.
 
 --------------
 
-*Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Migration Guide: platform-migration-guide.rst
 .. _include/plat/common/platform.h: ../include/plat/common/platform.h
@@ -2931,6 +2929,6 @@ amount of open resources per driver.
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _plat/arm/board/fvp/fvp\_pm.c: ../plat/arm/board/fvp/fvp_pm.c
 .. _IMF Design Guide: interrupt-framework-design.rst
-.. _ARM Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
+.. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
 .. _FreeBSD: http://www.freebsd.org

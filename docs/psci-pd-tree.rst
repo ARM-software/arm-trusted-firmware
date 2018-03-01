@@ -1,4 +1,4 @@
-PSCI Library Integration guide for ARMv8-A AArch32 systems
+PSCI Library Integration guide for Armv8-A AArch32 systems
 ==========================================================
 
 
@@ -309,4 +309,4 @@ domain nodes do not need to be identified.
 
 --------------
 
-*Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*

@@ -9,7 +9,7 @@ Translation Tables Library Design
 
 
 This document describes the design of the translation tables library (version 2)
-used by the ARM Trusted Firmware. This library provides APIs to create page
+used by Trusted Firmware-A (TF-A). This library provides APIs to create page
 tables based on a description of the memory layout, as well as setting up system
 registers related to the Memory Management Unit (MMU) and performing the
 required Translation Lookaside Buffer (TLB) maintenance operations.
@@ -329,7 +329,7 @@ The memory mapping algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The mapping function is implemented as a recursive algorithm. It is however
-bound by the level of depth of the translation tables (the ARMv8-A architecture
+bound by the level of depth of the translation tables (the Armv8-A architecture
 allows up to 4 lookup levels).
 
 By default [#granularity-ref]_, the algorithm will attempt to minimize the
@@ -376,7 +376,7 @@ changes are visible to subsequent execution, including speculative execution,
 that uses the changed translation table entries.
 
 A counter-example is the initialization of translation tables. In this case,
-explicit TLB maintenance is not required. The ARMv8-A architecture guarantees
+explicit TLB maintenance is not required. The Armv8-A architecture guarantees
 that all TLBs are disabled from reset and their contents have no effect on
 address translation at reset [#tlb-reset-ref]_. Therefore, the TLBs invalidation
 is deferred to the ``enable_mmu*()`` family of functions, just before the MMU is
@@ -391,9 +391,9 @@ descriptor. Given that the TLBs are not architecturally permitted to hold any
 invalid translation table entry [#tlb-no-invalid-entry]_, this means that this
 mapping cannot be cached in the TLBs.
 
-.. [#tlb-reset-ref] See section D4.8 `Translation Lookaside Buffers (TLBs)`, subsection `TLB behavior at reset` in ARMv8-A, rev B.a.
+.. [#tlb-reset-ref] See section D4.8 `Translation Lookaside Buffers (TLBs)`, subsection `TLB behavior at reset` in Armv8-A, rev B.a.
 
-.. [#tlb-no-invalid-entry] See section D4.9.1 `General TLB maintenance requirements` in ARMv8-A, rev B.a.
+.. [#tlb-no-invalid-entry] See section D4.9.1 `General TLB maintenance requirements` in Armv8-A, rev B.a.
 
 Architectural module
 ~~~~~~~~~~~~~~~~~~~~
@@ -405,7 +405,7 @@ translation context to work on.
 
 --------------
 
-*Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _lib/xlat\_tables\_v2: ../lib/xlat_tables_v2
 .. _lib/xlat\_tables: ../lib/xlat_tables

@@ -4,8 +4,8 @@
 
 .. contents::
 
-ARM Trusted Firmware - version 1.4
-==================================
+Trusted Firmware-A - version 1.4
+================================
 
 New features
 ------------
@@ -23,13 +23,13 @@ New features
 
 -  Added support for Cortex-A75 and Cortex-A55 processors.
 
-   Both Cortex-A75 and Cortex-A55 processors use the ARM DynamIQ Shared Unit
+   Both Cortex-A75 and Cortex-A55 processors use the Arm DynamIQ Shared Unit
    (DSU). The power-down and power-up sequences are therefore mostly managed in
    hardware, reducing complexity of the software operations.
 
--  Introduced ARM GIC-600 driver.
+-  Introduced Arm GIC-600 driver.
 
-   ARM GIC-600 IP complies with ARM GICv3 architecture. For FVP platforms, the
+   Arm GIC-600 IP complies with Arm GICv3 architecture. For FVP platforms, the
    GIC-600 driver is chosen when FVP_USE_GIC_DRIVER is set to FVP_GIC600.
 
 -  Updated GICv3 support:
@@ -43,16 +43,16 @@ New features
    -  GIC driver data is flushed by the primary CPU so that secondary CPU do
       not read stale GIC data.
 
--  Added support for ARM System Control and Management Interface v1.0 (SCMI).
+-  Added support for Arm System Control and Management Interface v1.0 (SCMI).
 
    The SCMI driver implements the power domain management and system power
-   management protocol of the SCMI specification (ARM DEN 0056ASCMI) for
+   management protocol of the SCMI specification (Arm DEN 0056ASCMI) for
    communicating with any compliant power controller.
 
    Support is added for the Juno platform. The driver can be found in the
    plat/arm/css/drivers folder.
 
--  Added support to enable pre-integration of TBB with the ARM TrustZone
+-  Added support to enable pre-integration of TBB with the Arm TrustZone
    CryptoCell product, to take advantage of its hardware Root of Trust and
    crypto acceleration services.
 
@@ -84,12 +84,12 @@ New features
    -  Fixed integer overflow which addressed TFV-1: Malformed Firmware Update
       SMC can result in copy of unexpectedly large data into secure memory.
 
--  Introduced support for ARM Compiler 6 and LLVM (clang).
+-  Introduced support for Arm Compiler 6 and LLVM (clang).
 
-   ARM TF can now also be built with the ARM Compiler 6 or the clang compilers.
+   TF-A can now also be built with the Arm Compiler 6 or the clang compilers.
    The assembler and linker must be provided by the GNU toolchain.
 
-   Tested with ARM CC 6.7 and clang 3.9.x and 4.0.x.
+   Tested with Arm CC 6.7 and clang 3.9.x and 4.0.x.
 
 -  Memory footprint improvements:
 
@@ -103,30 +103,29 @@ New features
       additional logging options are supported via an optional platform define
       `PLAT_LOG_LEVEL_ASSERT`, which controls how verbose the assert output is.
 
--  Enhancements to Trusted Firmware support when running in AArch32 execution
-   state:
+-  Enhancements to TF-A support when running in AArch32 execution state:
 
    -  Support booting SP_MIN and BL33 in AArch32 execution mode on Juno. Due to
       hardware limitations, BL1 and BL2 boot in AArch64 state and there is
       additional trampoline code to warm reset into SP_MIN in AArch32 execution
       state.
 
-   -  Added support for ARM Cortex-A53/57/72 MPCore processors including the
+   -  Added support for Arm Cortex-A53/57/72 MPCore processors including the
       errata workarounds that are already implemented for AArch64 execution
       state.
 
    -  For FVP platforms, added AArch32 Trusted Board Boot support, including the
       Firmware Update feature.
 
--  Introduced ARM SiP service for use by ARM standard platforms.
+-  Introduced Arm SiP service for use by Arm standard platforms.
 
-   -  Added new ARM SiP Service SMCs to enable the Non-secure  world to read PMF
+   -  Added new Arm SiP Service SMCs to enable the Non-secure  world to read PMF
       timestamps.
 
-      Added PMF instrumentation points in ARM TF in order to quantify the
+      Added PMF instrumentation points in TF-A in order to quantify the
       overall time spent in the PSCI software implementation.
 
-   -  Added new ARM SiP service SMC to switch execution state.
+   -  Added new Arm SiP service SMC to switch execution state.
 
       This allows the lower exception level to change its execution state from
       AArch64 to AArch32, or vice verse, via a request to EL3.
@@ -172,7 +171,7 @@ New features
    detection. For increased effectiveness of protection platforms must provide
    an implementation that returns a random value.
 
--  Enhanced support for ARM platforms:
+-  Enhanced support for Arm platforms:
 
    -  Added support for multi-threading CPUs, indicated by `MT` field in MPDIR.
       A new build flag `ARM_PLAT_MT` is added, and when enabled, the functions
@@ -183,13 +182,13 @@ New features
       enabled, returning the Processing Element count within the physical CPU
       corresponding to `mpidr`.
 
-   -  The ARM platforms migrated to use version 2 of the translation tables.
+   -  The Arm platforms migrated to use version 2 of the translation tables.
 
-   -  Introduced a new ARM platform layer API `plat_arm_psci_override_pm_ops`
-      which allows ARM platforms to modify `plat_arm_psci_pm_ops` and therefore
+   -  Introduced a new Arm platform layer API `plat_arm_psci_override_pm_ops`
+      which allows Arm platforms to modify `plat_arm_psci_pm_ops` and therefore
       dynamically define PSCI capability.
 
-   -  The ARM platforms migrated to use IMAGE_LOAD_V2 by default.
+   -  The Arm platforms migrated to use IMAGE_LOAD_V2 by default.
 
 -  Enhanced reporting of errata workaround status with the following policy:
 
@@ -206,15 +205,15 @@ New features
       missing.
 
 -  Added build options ARM_ARCH_MAJOR and ARM_ARM_MINOR to choose the
-   architecture version to target ARM TF.
+   architecture version to target TF-A.
 
 -  Updated the spin lock implementation to use the more efficient CAS (Compare
    And Swap) instruction when available. This instruction was introduced in
-   ARMv8.1-A.
+   Armv8.1-A.
 
--  Applied errata workaround for ARM Cortex-A53: 855873.
+-  Applied errata workaround for Arm Cortex-A53: 855873.
 
--  Applied errata workaround for ARM-Cortex-A57: 813419.
+-  Applied errata workaround for Arm-Cortex-A57: 813419.
 
 -  Enabled all A53 and A57 errata workarounds for Juno, both in AArch64 and
    AArch32 execution states.
@@ -248,7 +247,7 @@ New features
    -  Essential control registers are fully initialised on EL3 start-up, when
       initialising the non-secure and secure context structures and when
       preparing to leave EL3 for a lower EL. This gives better alignement with
-      the ARM ARM which states that software must initialise RES0 and RES1
+      the Arm ARM which states that software must initialise RES0 and RES1
       fields with 0 / 1.
 
 -  Enhanced PSCI support:
@@ -268,12 +267,12 @@ New features
 Issues resolved since last release
 ----------------------------------
 
--  ARM TF can be built with the latest mbed TLS version (v2.4.2). The earlier
-   version 2.3.0 cannot be used due to build warnings that the ARM TF build
+-  TF-A can be built with the latest mbed TLS version (v2.4.2). The earlier
+   version 2.3.0 cannot be used due to build warnings that the TF-A build
    system interprets as errors.
 
 -  TBBR, including the Firmware Update feature  is now supported on FVP
-   platforms when running Trusted Firmware in AArch32 state.
+   platforms when running TF-A in AArch32 state.
 
 -  The version of the AEMv8 Base FVP used in this release has resolved the issue
    of the model executing a reset instead of terminating in response to a
@@ -282,7 +281,7 @@ Issues resolved since last release
 Known Issues
 ------------
 
--  Building TF with compiler optimisations disabled (-O0) fails.
+-  Building TF-A with compiler optimisations disabled (-O0) fails.
 
 -  Trusted Board Boot currently does not work on Juno when running Trusted
    Firmware in AArch32 execution state due to error when loading the sp_min to
@@ -294,14 +293,14 @@ Known Issues
    platform, please use GCC compiler version of at least 5.0. See `PR#1002`_ for
    more details.
 
-ARM Trusted Firmware - version 1.3
-==================================
+Trusted Firmware-A - version 1.3
+================================
 
 
 New features
 ------------
 
--  Added support for running Trusted Firmware in AArch32 execution state.
+-  Added support for running TF-A in AArch32 execution state.
 
    The PSCI library has been refactored to allow integration with **EL3 Runtime
    Software**. This is software that is executing at the highest secure
@@ -315,11 +314,11 @@ New features
    Booting to the BL1/BL2 images as well as booting straight to the Secure
    Payload is supported.
 
--  Improvements to the initialization framework for the PSCI service and ARM
+-  Improvements to the initialization framework for the PSCI service and Arm
    Standard Services in general.
 
-   The PSCI service is now initialized as part of ARM Standard Service
-   initialization. This consolidates the initializations of any ARM Standard
+   The PSCI service is now initialized as part of Arm Standard Service
+   initialization. This consolidates the initializations of any Arm Standard
    Service that may be added in the future.
 
    A new function ``get_arm_std_svc_args()`` is introduced to get arguments
@@ -337,7 +336,7 @@ New features
    (BL31, BL32, etc). The new mechanism is data-driven by a list of image
    descriptors provided by the platform code.
 
-   ARM platforms have been updated to support the new loading mechanism.
+   Arm platforms have been updated to support the new loading mechanism.
 
    The new mechanism is enabled by a build flag (``LOAD_IMAGE_V2``) which is
    currently off by default for the AArch64 build.
@@ -345,7 +344,7 @@ New features
    **Note** ``TRUSTED_BOARD_BOOT`` is currently not supported when
    ``LOAD_IMAGE_V2`` is enabled.
 
--  Updated requirements for making contributions to ARM TF.
+-  Updated requirements for making contributions to TF-A.
 
    Commits now must have a 'Signed-off-by:' field to certify that the
    contribution has been made under the terms of the
@@ -365,13 +364,13 @@ New features
 
 -  Updated PSCI support:
 
-   -  Added support for PSCI NODE\_HW\_STATE API for ARM platforms.
+   -  Added support for PSCI NODE\_HW\_STATE API for Arm platforms.
 
    -  New optional platform hook, ``pwr_domain_pwr_down_wfi()``, in
       ``plat_psci_ops`` to enable platforms to perform platform-specific actions
       needed to enter powerdown, including the 'wfi' invocation.
 
-   -  PSCI STAT residency and count functions have been added on ARM platforms
+   -  PSCI STAT residency and count functions have been added on Arm platforms
       by using PMF.
 
 -  Enhancements to the translation table library:
@@ -420,13 +419,13 @@ New features
       convention as specified by TBBR and already used in cert\_create tool.
 
 -  Refactored the TZC-400 driver to also support memory controllers that
-   integrate TZC functionality, for example ARM CoreLink DMC-500. Also added
+   integrate TZC functionality, for example Arm CoreLink DMC-500. Also added
    DMC-500 specific support.
 
 -  Implemented generic delay timer based on the system generic counter and
    migrated all platforms to use it.
 
--  Enhanced support for ARM platforms:
+-  Enhanced support for Arm platforms:
 
    -  Updated image loading support to make SCP images (SCP\_BL2 and SCP\_BL2U)
       optional.
@@ -441,7 +440,7 @@ New features
       the default secure SRAM.
 
    -  Added support to use a System Security Control (SSC) Registers Unit
-      enabling ARM TF to be compiled to support multiple ARM platforms and
+      enabling TF-A to be compiled to support multiple Arm platforms and
       then select one at runtime.
 
    -  Restricted mapping of Trusted ROM in BL1 to what is actually needed by
@@ -455,26 +454,26 @@ New features
 
 -  Added support for Mediatek MT6795 platform.
 
--  Added support for QEMU virtualization ARMv8-A target.
+-  Added support for QEMU virtualization Armv8-A target.
 
 -  Added support for Rockchip RK3368 and RK3399 platforms.
 
 -  Added support for Xilinx Zynq UltraScale+ MPSoC platform.
 
--  Added support for ARM Cortex-A73 MPCore Processor.
+-  Added support for Arm Cortex-A73 MPCore Processor.
 
--  Added support for ARM Cortex-A72 processor.
+-  Added support for Arm Cortex-A72 processor.
 
--  Added support for ARM Cortex-A35 processor.
+-  Added support for Arm Cortex-A35 processor.
 
--  Added support for ARM Cortex-A32 MPCore Processor.
+-  Added support for Arm Cortex-A32 MPCore Processor.
 
 -  Enabled preloaded BL33 alternative boot flow, in which BL2 does not load
    BL33 from non-volatile storage and BL31 hands execution over to a preloaded
    BL33. The User Guide has been updated with an example of how to use this
    option with a bootwrapped kernel.
 
--  Added support to build ARM TF on a Windows-based host machine.
+-  Added support to build TF-A on a Windows-based host machine.
 
 -  Updated Trusted Board Boot prototype implementation:
 
@@ -493,7 +492,7 @@ New features
    -  Enabled G1S or G0 interrupts to be configured independently.
 
    -  Changed FVP default interrupt driver to be the GICv3-only driver.
-      **Note** the default build of Trusted Firmware will not be able to boot
+      **Note** the default build of TF-A will not be able to boot
       Linux kernel with GICv2 FDT blob.
 
    -  Enabled wake-up from CPU\_SUSPEND to stand-by by temporarily re-routing
@@ -510,26 +509,25 @@ Known issues
    the PSCI ``SYSTEM_OFF`` API. This issue will be fixed in a future version of
    the model.
 
--  Building TF with compiler optimisations disabled (``-O0``) fails.
+-  Building TF-A with compiler optimisations disabled (``-O0``) fails.
 
--  ARM TF cannot be built with mbed TLS version v2.3.0 due to build warnings
-   that the ARM TF build system interprets as errors.
+-  TF-A cannot be built with mbed TLS version v2.3.0 due to build warnings
+   that the TF-A build system interprets as errors.
 
--  TBBR is not currently supported when running Trusted Firmware in AArch32
-   state.
+-  TBBR is not currently supported when running TF-A in AArch32 state.
 
-ARM Trusted Firmware - version 1.2
-==================================
+Trusted Firmware-A - version 1.2
+================================
 
 New features
 ------------
 
--  The Trusted Board Boot implementation on ARM platforms now conforms to the
+-  The Trusted Board Boot implementation on Arm platforms now conforms to the
    mandatory requirements of the TBBR specification.
 
    In particular, the boot process is now guarded by a Trusted Watchdog, which
-   will reset the system in case of an authentication or loading error. On ARM
-   platforms, a secure instance of ARM SP805 is used as the Trusted Watchdog.
+   will reset the system in case of an authentication or loading error. On Arm
+   platforms, a secure instance of Arm SP805 is used as the Trusted Watchdog.
 
    Also, a firmware update process has been implemented. It enables
    authenticated firmware to update firmware images from external interfaces to
@@ -563,44 +561,44 @@ New features
       out, reducing the memory footprint of BL1 and BL2 by approximately
       6 KB.
 
-   -  On ARM development platforms, each BL stage now individually defines
+   -  On Arm development platforms, each BL stage now individually defines
       the number of regions that it needs to map in the MMU.
 
 -  Added the following new design documents:
 
    -  `Authentication framework`_
    -  `Firmware Update`_
-   -  `TF Reset Design`_
+   -  `TF-A Reset Design`_
    -  `Power Domain Topology Design`_
 
 -  Applied the new image terminology to the code base and documentation, as
-   described on the `TF wiki on GitHub`_.
+   described on the `TF-A wiki on GitHub`_.
 
 -  The build system has been reworked to improve readability and facilitate
    adding future extensions.
 
--  On ARM standard platforms, BL31 uses the boot console during cold boot
+-  On Arm standard platforms, BL31 uses the boot console during cold boot
    but switches to the runtime console for any later logs at runtime. The TSP
    uses the runtime console for all output.
 
--  Implemented a basic NOR flash driver for ARM platforms. It programs the
+-  Implemented a basic NOR flash driver for Arm platforms. It programs the
    device using CFI (Common Flash Interface) standard commands.
 
--  Implemented support for booting EL3 payloads on ARM platforms, which
+-  Implemented support for booting EL3 payloads on Arm platforms, which
    reduces the complexity of developing EL3 baremetal code by doing essential
    baremetal initialization.
 
 -  Provided separate drivers for GICv3 and GICv2. These expect the entire
    software stack to use either GICv2 or GICv3; hybrid GIC software systems
-   are no longer supported and the legacy ARM GIC driver has been deprecated.
+   are no longer supported and the legacy Arm GIC driver has been deprecated.
 
--  Added support for Juno r1 and r2. A single set of Juno TF binaries can run
-   on Juno r0, r1 and r2 boards. Note that this TF version depends on a Linaro
+-  Added support for Juno r1 and r2. A single set of Juno TF-A binaries can run
+   on Juno r0, r1 and r2 boards. Note that this TF-A version depends on a Linaro
    release that does *not* contain Juno r2 support.
 
 -  Added support for MediaTek mt8173 platform.
 
--  Implemented a generic driver for ARM CCN IP.
+-  Implemented a generic driver for Arm CCN IP.
 
 -  Major rework of the PSCI implementation.
 
@@ -612,7 +610,7 @@ New features
 
    -  Better alignment with version 1.0 of the PSCI specification.
 
--  Added support for the SYSTEM\_SUSPEND PSCI API on ARM platforms. When invoked
+-  Added support for the SYSTEM\_SUSPEND PSCI API on Arm platforms. When invoked
    on the last running core on a supported platform, this puts the system
    into a low power mode with memory retention.
 
@@ -625,17 +623,17 @@ New features
 
 -  Added support for NVidia Tegra T210 and T132 SoCs.
 
--  Reorganised ARM platforms ports to greatly improve code shareability and
+-  Reorganised Arm platforms ports to greatly improve code shareability and
    facilitate the reuse of some of this code by other platforms.
 
--  Added support for ARM Cortex-A72 processor in the CPU specific framework.
+-  Added support for Arm Cortex-A72 processor in the CPU specific framework.
 
 -  Provided better error handling. Platform ports can now define their own
    error handling, for example to perform platform specific bookkeeping or
    post-error actions.
 
--  Implemented a unified driver for ARM Cache Coherent Interconnects used for
-   both CCI-400 & CCI-500 IPs. ARM platforms ports have been migrated to this
+-  Implemented a unified driver for Arm Cache Coherent Interconnects used for
+   both CCI-400 & CCI-500 IPs. Arm platforms ports have been migrated to this
    common driver. The standalone CCI-400 driver has been deprecated.
 
 Issues resolved since last release
@@ -668,10 +666,10 @@ Known issues
    clarity and completeness. In particular, the design documentation is
    incomplete for PSCI, the TSP(D) and the Juno platform.
 
--  Building TF with compiler optimisations disabled (``-O0``) fails.
+-  Building TF-A with compiler optimisations disabled (``-O0``) fails.
 
-ARM Trusted Firmware - version 1.1
-==================================
+Trusted Firmware-A - version 1.1
+================================
 
 New features
 ------------
@@ -719,10 +717,10 @@ New features
       applicable). Also, during a PSCI ``MIGRATE`` call, the SPD hook to migrate
       the Trusted OS is invoked.
 
--  It is now possible to build Trusted Firmware without marking at least an
-   extra page of memory as coherent. The build flag ``USE_COHERENT_MEM`` can be
-   used to choose between the two implementations. This has been made possible
-   through these changes.
+-  It is now possible to build TF-A without marking at least an extra page of
+   memory as coherent. The build flag ``USE_COHERENT_MEM`` can be used to
+   choose between the two implementations. This has been made possible through
+   these changes.
 
    -  An implementation of Bakery locks, where the locks are not allocated in
       coherent memory has been added.
@@ -774,8 +772,7 @@ New features
    create mappings only for areas in the memory map that it needs.
 
 -  A Secure Payload Dispatcher (OPTEED) for the OP-TEE Trusted OS has been
-   added. Details of using it with ARM Trusted Firmware can be found in
-   `OP-TEE Dispatcher`_
+   added. Details of using it with TF-A can be found in `OP-TEE Dispatcher`_
 
 Issues resolved since last release
 ----------------------------------
@@ -789,7 +786,7 @@ Issues resolved since last release
    -  The top 16MB of the 2GB DDR-DRAM memory at 0x80000000 is configured
       using the TZC-400 controller to be accessible only to the secure world.
 
-   -  The ARM GIC driver is used to configure the GIC-400 instead of using a
+   -  The Arm GIC driver is used to configure the GIC-400 instead of using a
       GIC driver private to the Juno port.
 
    -  PSCI ``CPU_SUSPEND`` calls that target a standby state are now supported.
@@ -823,7 +820,7 @@ Known issues
    the model.
 
 -  GICv3 support is experimental. There are known issues with GICv3
-   initialization in the ARM Trusted Firmware.
+   initialization in the TF-A.
 
 -  While this version greatly reduces the on-chip RAM requirements, there are
    further RAM usage enhancements that could be made.
@@ -833,8 +830,8 @@ Known issues
 
 -  The Juno-specific firmware design documentation is incomplete.
 
-ARM Trusted Firmware - version 1.0
-==================================
+Trusted Firmware-A - version 1.0
+================================
 
 New features
 ------------
@@ -970,14 +967,14 @@ Issues resolved since last release
 -  CPU idle now works on the publicized version of the Foundation FVP.
 
 -  All known issues relating to the compiler version used have now been
-   resolved. This TF version uses Linaro toolchain 14.07 (based on GCC 4.9).
+   resolved. This TF-A version uses Linaro toolchain 14.07 (based on GCC 4.9).
 
 Known issues
 ------------
 
 -  GICv3 support is experimental. The Linux kernel patches to support this are
    not widely available. There are known issues with GICv3 initialization in
-   the ARM Trusted Firmware.
+   the TF-A.
 
 -  While this version greatly reduces the on-chip RAM requirements, there are
    further RAM usage enhancements that could be made.
@@ -1013,8 +1010,8 @@ Known issues
 
    A similar change can be made to the other Cortex-A57-A53 Base FVP variants.
 
-ARM Trusted Firmware - version 0.4
-==================================
+Trusted Firmware-A - version 0.4
+================================
 
 New features
 ------------
@@ -1110,41 +1107,41 @@ Issues resolved since last release
    14.04) now correctly reports progress in the console.
 
 -  Improved the Makefile structure to make it easier to separate out parts of
-   the Trusted Firmware for re-use in platform ports. Also, improved target
-   dependency checking.
+   the TF-A for re-use in platform ports. Also, improved target dependency
+   checking.
 
 Known issues
 ------------
 
 -  GICv3 support is experimental. The Linux kernel patches to support this are
    not widely available. There are known issues with GICv3 initialization in
-   the ARM Trusted Firmware.
+   the TF-A.
 
 -  Dynamic image loading is not available yet. The current image loader
    implementation (used to load BL2 and all subsequent images) has some
    limitations. Changing BL2 or BL3-1 load addresses in certain ways can lead
    to loading errors, even if the images should theoretically fit in memory.
 
--  The ARM Trusted Firmware still uses too much on-chip Trusted SRAM. A number
-   of RAM usage enhancements have been identified to rectify this situation.
+-  TF-A still uses too much on-chip Trusted SRAM. A number of RAM usage
+   enhancements have been identified to rectify this situation.
 
 -  CPU idle does not work on the advertised version of the Foundation FVP.
    Some FVP fixes are required that are not available externally at the time
    of writing. This can be worked around by disabling CPU idle in the Linux
    kernel.
 
--  Various bugs in ARM Trusted Firmware, UEFI and the Linux kernel have been
-   observed when using Linaro toolchain versions later than 13.11. Although
-   most of these have been fixed, some remain at the time of writing. These
-   mainly seem to relate to a subtle change in the way the compiler converts
-   between 64-bit and 32-bit values (e.g. during casting operations), which
-   reveals previously hidden bugs in client code.
+-  Various bugs in TF-A, UEFI and the Linux kernel have been observed when
+   using Linaro toolchain versions later than 13.11. Although most of these
+   have been fixed, some remain at the time of writing. These mainly seem to
+   relate to a subtle change in the way the compiler converts between 64-bit
+   and 32-bit values (e.g. during casting operations), which reveals
+   previously hidden bugs in client code.
 
 -  The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 
-ARM Trusted Firmware - version 0.3
-==================================
+Trusted Firmware-A - version 0.3
+================================
 
 New features
 ------------
@@ -1170,9 +1167,9 @@ New features
 -  The PSCI AFFINITY\_INFO api has undergone limited testing on the Base FVPs to
    allow experimental use.
 
--  Required C library and runtime header files are now included locally in ARM
-   Trusted Firmware instead of depending on the toolchain standard include
-   paths. The local implementation has been cleaned up and reduced in scope.
+-  Required C library and runtime header files are now included locally in
+   TF-A instead of depending on the toolchain standard include paths. The
+   local implementation has been cleaned up and reduced in scope.
 
 -  Added I/O abstraction framework, primarily to allow generic code to load
    images in a platform-independent way. The existing image loading code has
@@ -1232,28 +1229,27 @@ Issues resolved since last release
 -  PSCI API calls ``AFFINITY_INFO`` & ``PSCI_VERSION`` have now been tested (to
    a limited extent).
 
--  The ARM Trusted Firmware build artifacts are now placed in the ``./build``
-   directory and sub-directories instead of being placed in the root of the
-   project.
+-  The TF-A build artifacts are now placed in the ``./build`` directory and
+   sub-directories instead of being placed in the root of the project.
 
--  The ARM Trusted Firmware is now free from build warnings. Build warnings
-   are now treated as errors.
+-  TF-A is now free from build warnings. Build warnings are now treated as
+   errors.
 
--  The ARM Trusted Firmware now provides C library support locally within the
-   project to maintain compatibility between toolchains/systems.
+-  TF-A now provides C library support locally within the project to maintain
+   compatibility between toolchains/systems.
 
 -  The PSCI locking code has been reworked so it no longer takes locks in an
    incorrect sequence.
 
 -  The RAM-disk method of loading a Linux file-system has been confirmed to
-   work with the ARM Trusted Firmware and Linux kernel version (based on
-   version 3.13) used in this release, for both Foundation and Base FVPs.
+   work with the TF-A and Linux kernel version (based on version 3.13) used
+   in this release, for both Foundation and Base FVPs.
 
 Known issues
 ------------
 
 The following is a list of issues which are expected to be fixed in the future
-releases of the ARM Trusted Firmware.
+releases of TF-A.
 
 -  The TrustZone Address Space Controller (TZC-400) is not being programmed
    yet. Use of model parameter ``-C bp.secure_memory=1`` is not supported.
@@ -1262,28 +1258,28 @@ releases of the ARM Trusted Firmware.
 
 -  GICv3 support is experimental. The Linux kernel patches to support this are
    not widely available. There are known issues with GICv3 initialization in
-   the ARM Trusted Firmware.
+   TF-A.
 
 -  Dynamic image loading is not available yet. The current image loader
    implementation (used to load BL2 and all subsequent images) has some
    limitations. Changing BL2 or BL3-1 load addresses in certain ways can lead
    to loading errors, even if the images should theoretically fit in memory.
 
--  The ARM Trusted Firmware uses too much on-chip Trusted SRAM. Currently the
-   Test Secure-EL1 Payload (BL3-2) executes in Trusted DRAM since there is not
-   enough SRAM. A number of RAM usage enhancements have been identified to
-   rectify this situation.
+-  TF-A uses too much on-chip Trusted SRAM. Currently the Test Secure-EL1
+   Payload (BL3-2) executes in Trusted DRAM since there is not enough SRAM.
+   A number of RAM usage enhancements have been identified to rectify this
+   situation.
 
 -  CPU idle does not work on the advertised version of the Foundation FVP.
    Some FVP fixes are required that are not available externally at the time
    of writing.
 
--  Various bugs in ARM Trusted Firmware, UEFI and the Linux kernel have been
-   observed when using Linaro toolchain versions later than 13.11. Although
-   most of these have been fixed, some remain at the time of writing. These
-   mainly seem to relate to a subtle change in the way the compiler converts
-   between 64-bit and 32-bit values (e.g. during casting operations), which
-   reveals previously hidden bugs in client code.
+-  Various bugs in TF-A, UEFI and the Linux kernel have been observed when
+   using Linaro toolchain versions later than 13.11. Although most of these
+   have been fixed, some remain at the time of writing. These mainly seem to
+   relate to a subtle change in the way the compiler converts between 64-bit
+   and 32-bit values (e.g. during casting operations), which reveals
+   previously hidden bugs in client code.
 
 -  The tested filesystem used for this release (Linaro AArch64 OpenEmbedded
    14.01) does not report progress correctly in the console. It only seems to
@@ -1292,15 +1288,14 @@ releases of the ARM Trusted Firmware.
    exhibit the problem.
 
 -  The Makefile structure doesn't make it easy to separate out parts of the
-   Trusted Firmware for re-use in platform ports, for example if only BL3-1 is
-   required in a platform port. Also, dependency checking in the Makefile is
-   flawed.
+   TF-A for re-use in platform ports, for example if only BL3-1 is required in
+   a platform port. Also, dependency checking in the Makefile is flawed.
 
 -  The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 
-ARM Trusted Firmware - version 0.2
-==================================
+Trusted Firmware-A - version 0.2
+================================
 
 New features
 ------------
@@ -1320,7 +1315,7 @@ Known issues
 ------------
 
 The following is a list of issues which are expected to be fixed in the future
-releases of the ARM Trusted Firmware.
+releases of TF-A.
 
 -  The TrustZone Address Space Controller (TZC-400) is not being programmed
    yet. Use of model parameter ``-C bp.secure_memory=1`` is not supported.
@@ -1330,7 +1325,7 @@ releases of the ARM Trusted Firmware.
 
 -  GICv3 support is experimental. The Linux kernel patches to support this are
    not widely available. There are known issues with GICv3 initialization in
-   the ARM Trusted Firmware.
+   TF-A.
 
 -  Dynamic image loading is not available yet. The current image loader
    implementation (used to load BL2 and all subsequent images) has some
@@ -1340,42 +1335,40 @@ releases of the ARM Trusted Firmware.
 -  Although support for PSCI ``CPU_SUSPEND`` is present, it is not yet stable
    and ready for use.
 
--  PSCI API calls ``AFFINITY_INFO`` & ``PSCI_VERSION`` are implemented but have not
-   been tested.
+-  PSCI API calls ``AFFINITY_INFO`` & ``PSCI_VERSION`` are implemented but have
+   not been tested.
 
--  The ARM Trusted Firmware make files result in all build artifacts being
-   placed in the root of the project. These should be placed in appropriate
-   sub-directories.
+-  The TF-A make files result in all build artifacts being placed in the root
+   of the project. These should be placed in appropriate sub-directories.
 
--  The compilation of ARM Trusted Firmware is not free from compilation
-   warnings. Some of these warnings have not been investigated yet so they
-   could mask real bugs.
+-  The compilation of TF-A is not free from compilation warnings. Some of these
+   warnings have not been investigated yet so they could mask real bugs.
 
--  The ARM Trusted Firmware currently uses toolchain/system include files like
-   stdio.h. It should provide versions of these within the project to maintain
-   compatibility between toolchains/systems.
+-  TF-A currently uses toolchain/system include files like stdio.h. It should
+   provide versions of these within the project to maintain compatibility
+   between toolchains/systems.
 
 -  The PSCI code takes some locks in an incorrect sequence. This may cause
    problems with suspend and hotplug in certain conditions.
 
 -  The Linux kernel used in this release is based on version 3.12-rc4. Using
-   this kernel with the ARM Trusted Firmware fails to start the file-system as
-   a RAM-disk. It fails to execute user-space ``init`` from the RAM-disk. As an
-   alternative, the VirtioBlock mechanism can be used to provide a file-system
-   to the kernel.
+   this kernel with the TF-A fails to start the file-system as a RAM-disk. It
+   fails to execute user-space ``init`` from the RAM-disk. As an alternative,
+   the VirtioBlock mechanism can be used to provide a file-system to the
+   kernel.
 
 --------------
 
-*Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI Integration Guide: psci-lib-integration-guide.rst
 .. _Developer Certificate of Origin: ../dco.txt
 .. _Contribution Guide: ../contributing.rst
 .. _Authentication framework: auth-framework.rst
 .. _Firmware Update: firmware-update.rst
-.. _TF Reset Design: reset-design.rst
+.. _TF-A Reset Design: reset-design.rst
 .. _Power Domain Topology Design: psci-pd-tree.rst
-.. _TF wiki on GitHub: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
+.. _TF-A wiki on GitHub: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
 .. _Authentication Framework: auth-framework.rst
 .. _OP-TEE Dispatcher: optee-dispatcher.rst
 .. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501

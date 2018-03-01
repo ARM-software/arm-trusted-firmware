@@ -12,8 +12,8 @@ Guide to migrate to new Platform porting interface
 Introduction
 ------------
 
-The PSCI implementation in Trusted Firmware has undergone a redesign because of
-three requirements that the PSCI 1.0 specification introduced :
+The PSCI implementation in TF-A has undergone a redesign because of three
+requirements that the PSCI 1.0 specification introduced :
 
 -  Removing the framework assumption about the structure of the MPIDR, and
    its relation to the power topology enables support for deeper and more
@@ -217,7 +217,7 @@ layer and the platform layer.
 
 Refer `plat/arm/board/fvp/fvp\_pm.c`_ for the implementation details of
 these handlers for the FVP. The commit `38dce70f51fb83b27958ba3e2ad15f5635cb1061`_
-demonstrates the migration of ARM reference platforms to the new platform API.
+demonstrates the migration of Arm reference platforms to the new platform API.
 
 Miscellaneous modifications
 ---------------------------
@@ -271,7 +271,7 @@ within its domain. It does so by storing the core index of first core
 within it and number of core indexes following it. This means that core
 indices returned by ``platform_get_core_pos()`` for cores within a particular
 power domain must be consecutive. We expect that this is the case for most
-platform ports including ARM reference platforms.
+platform ports including Arm reference platforms.
 
 The old PSCI helpers like ``psci_get_suspend_powerstate()``,
 ``psci_get_suspend_stateid()``, ``psci_get_suspend_stateid_by_mpidr()``,
@@ -298,7 +298,7 @@ The mandatory macros to be defined by the platform port in ``platform_def.h``
 -  **#define : PLATFORM\_MAX\_AFFLVL**
 
    Defines the maximum affinity level that the power management operations
-   should apply to. ARMv8-A has support for four affinity levels. It is likely
+   should apply to. Armv8-A has support for four affinity levels. It is likely
    that hardware will implement fewer affinity levels. This macro allows the
    PSCI implementation to consider only those affinity levels in the system
    that the platform implements. For example, the Base AEM FVP implements two
@@ -329,7 +329,7 @@ to handle the condition where the core has been warm reset but there is no
 entrypoint to jump to.
 
 This function does not follow the Procedure Call Standard used by the
-Application Binary Interface for the ARM 64-bit architecture. The caller should
+Application Binary Interface for the Arm 64-bit architecture. The caller should
 not assume that callee saved registers are preserved across a call to this
 function.
 
@@ -410,7 +410,7 @@ Modifications for Power State Coordination Interface (in BL31)
 --------------------------------------------------------------
 
 The following functions must be implemented to initialize PSCI functionality in
-the ARM Trusted Firmware.
+TF-A.
 
 Function : plat\_get\_aff\_count() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -595,7 +595,7 @@ PSCI specification for the CPU\_SUSPEND API.
 
 --------------
 
-*Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _Porting Guide: porting-guide.rst#user-content-function--plat_my_core_pos

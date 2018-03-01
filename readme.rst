@@ -1,21 +1,21 @@
-ARM Trusted Firmware - version 1.4
-==================================
+Trusted Firmware-A - version 1.4
+================================
 
-ARM Trusted Firmware provides a reference implementation of secure world
-software for `ARMv8-A`_, including a `Secure Monitor`_ executing at
-Exception Level 3 (EL3). It implements various ARM interface standards, such as:
+Trusted Firmware-A (TF-A) provides a reference implementation of secure world
+software for `Armv8-A`_, including a `Secure Monitor`_ executing at Exception
+Level 3 (EL3). It implements various Arm interface standards, such as:
 
 -  The `Power State Coordination Interface (PSCI)`_
--  Trusted Board Boot Requirements (TBBR, ARM DEN0006C-1)
+-  Trusted Board Boot Requirements (TBBR, Arm DEN0006C-1)
 -  `SMC Calling Convention`_
 -  `System Control and Management Interface`_
 
-As far as possible the code is designed for reuse or porting to other ARMv8-A
+As far as possible the code is designed for reuse or porting to other Armv8-A
 model and hardware platforms.
 
-ARM will continue development in collaboration with interested parties to
-provide a full reference implementation of Secure Monitor code and ARM standards
-to the benefit of all developers working with ARMv8-A TrustZone technology.
+Arm will continue development in collaboration with interested parties to
+provide a full reference implementation of Secure Monitor code and Arm standards
+to the benefit of all developers working with Armv8-A TrustZone technology.
 
 License
 -------
@@ -45,7 +45,7 @@ world boot and runtime firmware, in either the AArch32 or AArch64 execution
 state.
 
 Users are encouraged to do their own security validation, including penetration
-testing, on any secure world code derived from ARM Trusted Firmware.
+testing, on any secure world code derived from TF-A.
 
 Functionality
 ~~~~~~~~~~~~~
@@ -54,15 +54,15 @@ Functionality
    registers and interrupts for the platform.
 
 -  Library support for CPU specific reset and power down sequences. This
-   includes support for errata workarounds and the latest ARM DynamIQ CPUs.
+   includes support for errata workarounds and the latest Arm DynamIQ CPUs.
 
--  Drivers to enable standard initialization of ARM System IP, for example
+-  Drivers to enable standard initialization of Arm System IP, for example
    Generic Interrupt Controller (GIC), Cache Coherent Interconnect (CCI),
    Cache Coherent Network (CCN), Network Interconnect (NIC) and TrustZone
    Controller (TZC).
 
 -  A generic `SCMI`_ driver to interface with conforming power controllers, for
-   example the ARM System Control Processor (SCP).
+   example the Arm System Control Processor (SCP).
 
 -  SMC (Secure Monitor Call) handling, conforming to the `SMC Calling
    Convention`_ using an EL3 runtime services framework.
@@ -93,14 +93,14 @@ Functionality
    recovery mode), and packaging of the various firmware images into a
    Firmware Image Package (FIP).
 
--  Pre-integration of TBB with the ARM TrustZone CryptoCell product, to take
+-  Pre-integration of TBB with the Arm TrustZone CryptoCell product, to take
    advantage of its hardware Root of Trust and crypto acceleration services.
 
 -  Support for alternative boot flows, for example to support platforms where
    the EL3 Runtime Software is loaded using other firmware or a separate
    secure system processor.
 
--  Support for the GCC, LLVM and ARM Compiler 6 toolchains.
+-  Support for the GCC, LLVM and Arm Compiler 6 toolchains.
 
 For a full description of functionality and implementation details, please
 see the `Firmware Design`_ and supporting documentation. The `Change Log`_
@@ -110,9 +110,9 @@ Platforms
 ~~~~~~~~~
 
 Various AArch32 and AArch64 builds of this release has been tested on variants
-r0, r1 and r2 of the `Juno ARM Development Platform`_.
+r0, r1 and r2 of the `Juno Arm Development Platform`_.
 
-Various AArch64 builds of this release have been tested on the following ARM
+Various AArch64 builds of this release have been tested on the following Arm
 `FVP`_\ s (64-bit host machine only):
 
 NOTE: Unless otherwise stated, the FVP Version is 11.0, Build 11.0.34.
@@ -129,14 +129,14 @@ NOTE: Unless otherwise stated, the FVP Version is 11.0, Build 11.0.34.
 -  ``FVP_Base_Cortex-A73x4``
 -  ``FVP_CSS_SGM-775`` (Version 11.0, Build 11.0.36)
 
-Various AArch32 builds of this release has been tested on the following ARM
+Various AArch32 builds of this release has been tested on the following Arm
 `FVP`_\ s (64-bit host machine only):
 
 -  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.5, Build 0.8.8502)
 -  ``FVP_Base_Cortex-A32x4``
 
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
-licensed from ARM. See the `ARM FVP website`_.
+licensed from Arm. See the `Arm FVP website`_.
 
 All the above platforms have been tested with `Linaro Release 17.04`_.
 
@@ -167,15 +167,15 @@ Log`_ and the `GitHub issue tracker`_.
 Getting Started
 ---------------
 
-Get the Trusted Firmware source code from `GitHub`_.
+Get the TF-A source code from `GitHub`_.
 
 See the `User Guide`_ for instructions on how to install, build and use
-the Trusted Firmware with the ARM `FVP`_\ s.
+the TF-A with the Arm `FVP`_\ s.
 
-See the `Firmware Design`_ for information on how the Trusted Firmware works.
+See the `Firmware Design`_ for information on how the TF-A works.
 
 See the `Porting Guide`_ as well for information about how to use this
-software on another ARMv8-A platform.
+software on another Armv8-A platform.
 
 See the `Contributing Guidelines`_ for information on how to contribute to this
 project and the `Acknowledgments`_ file for a list of contributors to the
@@ -184,26 +184,26 @@ project.
 Feedback and support
 ~~~~~~~~~~~~~~~~~~~~
 
-ARM welcomes any feedback on Trusted Firmware. If you think you have found a
-security vulnerability, please report this using the process defined in the
-Trusted Firmware `Security Centre`_. For all other feedback, please use the
+Arm welcomes any feedback on TF-A. If you think you have found a security
+vulnerability, please report this using the process defined in the TF-A
+`Security Centre`_. For all other feedback, please use the
 `GitHub issue tracker`_.
 
-ARM licensees may contact ARM directly via their partner managers.
+Arm licensees may contact Arm directly via their partner managers.
 
 --------------
 
-*Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
-.. _ARMv8-A: http://www.arm.com/products/processors/armv8-architecture.php
+.. _Armv8-A: http://www.arm.com/products/processors/armv8-architecture.php
 .. _Secure Monitor: http://www.arm.com/products/processors/technologies/trustzone/tee-smc.php
 .. _Power State Coordination Interface (PSCI): PSCI_
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _System Control and Management Interface: SCMI_
 .. _SCMI: http://infocenter.arm.com/help/topic/com.arm.doc.den0056a/DEN0056A_System_Control_and_Management_Interface.pdf
-.. _Juno ARM Development Platform: http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php
-.. _ARM FVP website: FVP_
+.. _Juno Arm Development Platform: http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php
+.. _Arm FVP website: FVP_
 .. _FVP: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Linaro Release 17.04: https://community.arm.com/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease17.04
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os

@@ -1,7 +1,7 @@
-ARM SiP Service
+Arm SiP Service
 ===============
 
-This document enumerates and describes the ARM SiP (Silicon Provider) services.
+This document enumerates and describes the Arm SiP (Silicon Provider) services.
 
 SiP services are non-standard, platform-specific services offered by the silicon
 implementer or platform provider. They are accessed via. ``SMC`` ("SMC calls")
@@ -13,20 +13,20 @@ services:
    ``0xc200ffff`` for 64-bit calls, and ``0x82000000`` - ``0x8200ffff`` for 32-bit
    calls.
 
-The ARM SiP implementation offers the following services:
+The Arm SiP implementation offers the following services:
 
 -  Performance Measurement Framework (PMF)
 -  Execution State Switching service
 
-Source definitions for ARM SiP service are located in the ``arm_sip_svc.h`` header
+Source definitions for Arm SiP service are located in the ``arm_sip_svc.h`` header
 file.
 
 Performance Measurement Framework (PMF)
 ---------------------------------------
 
 The `Performance Measurement Framework`_
-allows callers to retrieve timestamps captured at various paths in ARM Trusted
-Firmware execution. It's described in detail in `Firmware Design document`_.
+allows callers to retrieve timestamps captured at various paths in TF-A
+execution. It's described in detail in `Firmware Design document`_.
 
 Execution State Switching service
 ---------------------------------
@@ -35,8 +35,8 @@ Execution State Switching service provides a mechanism for a non-secure lower
 Exception Level (either EL2, or NS EL1 if EL2 isn't implemented) to request to
 switch its execution state (a.k.a. Register Width), either from AArch64 to
 AArch32, or from AArch32 to AArch64, for the calling CPU. This service is only
-available when ARM Trusted Firmware is built for AArch64 (i.e. when build option
-``ARCH`` is set to ``aarch64``).
+available when Trusted Firmware-A (TF-A) is built for AArch64 (i.e. when build
+option ``ARCH`` is set to ``aarch64``).
 
 ``ARM_SIP_SVC_EXE_STATE_SWITCH``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,8 +79,8 @@ The service may return the following error codes:
 
 -  ``STATE_SW_E_PARAM``: If any of the parameters were deemed invalid for
    a specific request.
--  ``STATE_SW_E_DENIED``: If the call is not successful, or when ARM Trusted
-   Firmware is built for AArch32.
+-  ``STATE_SW_E_DENIED``: If the call is not successful, or when TF-A is
+   built for AArch32.
 
 If the call is successful, the caller wouldn't observe the SMC returning.
 Instead, execution starts at the supplied entry point, with the CPU registers 0
@@ -89,7 +89,7 @@ respectively.
 
 --------------
 
-*Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 .. _Performance Measurement Framework: ./firmware-design.rst#user-content-performance-measurement-framework

@@ -11,7 +11,7 @@ How to build
 Code Locations
 --------------
 
--  ARM Trusted Firmware:
+-  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
 
 -  OP-TEE
@@ -76,13 +76,13 @@ Build Procedure
        export UEFI_TOOLS_DIR=${BUILD_PATH}/uefi-tools
        export EDK2_DIR=${BUILD_PATH}/edk2
        EDK2_OUTPUT_DIR=${EDK2_DIR}/Build/HiKey/${BUILD_OPTION}_${AARCH64_TOOLCHAIN}
-       # Build fastboot for ARM Trust Firmware. It's used for recovery mode.
+       # Build fastboot for Trusted Firmware-A. It's used for recovery mode.
        cd ${BUILD_PATH}/atf-fastboot
        CROSS_COMPILE=aarch64-linux-gnu- make PLAT=hikey DEBUG=1
        # Convert DEBUG/RELEASE to debug/release
        FASTBOOT_BUILD_OPTION=$(echo ${BUILD_OPTION} | tr '[A-Z]' '[a-z]')
        cd ${EDK2_DIR}
-       # Build UEFI & ARM Trust Firmware
+       # Build UEFI & Trusted Firmware-A
        ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey
 
 -  Generate l-loader.bin and partition table for aosp. The eMMC capacity is either 8GB or 4GB. Just change "aosp-8g" to "linux-8g" for debian.

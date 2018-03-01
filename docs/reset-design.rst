@@ -1,5 +1,5 @@
-ARM Trusted Firmware Reset Design
-=================================
+Trusted Firmware-A reset design
+===============================
 
 
 .. section-numbering::
@@ -8,9 +8,9 @@ ARM Trusted Firmware Reset Design
 .. contents::
 
 This document describes the high-level design of the framework to handle CPU
-resets in ARM Trusted Firmware. It also describes how the platform integrator
-can tailor this code to the system configuration to some extent, resulting in a
-simplified and more optimised boot flow.
+resets in Trusted Firmware-A (TF-A). It also describes how the platform
+integrator can tailor this code to the system configuration to some extent,
+resulting in a simplified and more optimised boot flow.
 
 This document should be used in conjunction with the `Firmware Design`_, which
 provides greater implementation details around the reset code, specifically
@@ -19,8 +19,8 @@ for the cold boot path.
 General reset code flow
 -----------------------
 
-The ARM Trusted Firmware (TF) reset code is implemented in BL1 by default. The
-following high-level diagram illustrates this:
+The TF-A reset code is implemented in BL1 by default. The following high-level
+diagram illustrates this:
 
 |Default reset code flow|
 
@@ -29,15 +29,15 @@ configuration, some of these steps might be unnecessary. The following sections
 guide the platform integrator by indicating which build options exclude which
 steps, depending on the capability of the platform.
 
-Note: If BL31 is used as the Trusted Firmware entry point instead of BL1, the
-diagram above is still relevant, as all these operations will occur in BL31 in
+Note: If BL31 is used as the TF-A entry point instead of BL1, the diagram
+above is still relevant, as all these operations will occur in BL31 in
 this case. Please refer to section 6 "Using BL31 entrypoint as the reset
 address" for more information.
 
 Programmable CPU reset address
 ------------------------------
 
-By default, the TF assumes that the CPU reset address is not programmable.
+By default, TF-A assumes that the CPU reset address is not programmable.
 Therefore, all CPUs start at the same address (typically address 0) whenever
 they reset. Further logic is then required to identify whether it is a cold or
 warm boot to direct CPUs to the right execution path.
@@ -49,8 +49,8 @@ detection can be skipped, resulting in the following boot flow:
 
 |Reset code flow with programmable reset address|
 
-To enable this boot flow, compile the TF with ``PROGRAMMABLE_RESET_ADDRESS=1``.
-This option only affects the TF reset image, which is BL1 by default or BL31 if
+To enable this boot flow, compile TF-A with ``PROGRAMMABLE_RESET_ADDRESS=1``.
+This option only affects the TF-A reset image, which is BL1 by default or BL31 if
 ``RESET_TO_BL31=1``.
 
 On both the FVP and Juno platforms, the reset vector address is not programmable
@@ -59,7 +59,7 @@ so both ports use ``PROGRAMMABLE_RESET_ADDRESS=0``.
 Cold boot on a single CPU
 -------------------------
 
-By default, the TF assumes that several CPUs may be released out of reset.
+By default, TF-A assumes that several CPUs may be released out of reset.
 Therefore, the cold boot code has to arbitrate access to hardware resources
 shared amongst CPUs. This is done by nominating one of the CPUs as the primary,
 which is responsible for initialising shared hardware and coordinating the boot
@@ -71,8 +71,8 @@ applies. This results in the following boot flow:
 
 |Reset code flow with single CPU released out of reset|
 
-To enable this boot flow, compile the TF with ``COLD_BOOT_SINGLE_CPU=1``. This
-option only affects the TF reset image, which is BL1 by default or BL31 if
+To enable this boot flow, compile TF-A with ``COLD_BOOT_SINGLE_CPU=1``. This
+option only affects the TF-A reset image, which is BL1 by default or BL31 if
 ``RESET_TO_BL31=1``.
 
 On both the FVP and Juno platforms, although only one core is powered up by
@@ -89,8 +89,8 @@ This results in the following boot flow:
 
 |Reset code flow with programmable reset address and single CPU released out of reset|
 
-To enable this boot flow, compile the TF with both ``COLD_BOOT_SINGLE_CPU=1``
-and ``PROGRAMMABLE_RESET_ADDRESS=1``. These options only affect the TF reset
+To enable this boot flow, compile TF-A with both ``COLD_BOOT_SINGLE_CPU=1``
+and ``PROGRAMMABLE_RESET_ADDRESS=1``. These options only affect the TF-A reset
 image, which is BL1 by default or BL31 if ``RESET_TO_BL31=1``.
 
 Using BL31 entrypoint as the reset address
@@ -102,7 +102,7 @@ on the SoC, rather than by BL1 and BL2 running on the primary application
 processor. For this type of SoC it is desirable for the application processor
 to always reset to BL31 which eliminates the need for BL1 and BL2.
 
-TF provides a build-time option ``RESET_TO_BL31`` that includes some additional
+TF-A provides a build-time option ``RESET_TO_BL31`` that includes some additional
 logic in the BL31 entry point to support this use case.
 
 In this configuration, the platform's Trusted Boot Firmware must ensure that
@@ -112,10 +112,10 @@ Additionally, platform software is responsible for loading the other BL3x images
 required and providing entry point information for them to BL31. Loading these
 images might be done by the Trusted Boot Firmware or by platform code in BL31.
 
-Although the ARM FVP platform does not support programming the reset base
+Although the Arm FVP platform does not support programming the reset base
 address dynamically at run-time, it is possible to set the initial value of the
 ``RVBAR_EL3`` register at start-up. This feature is provided on the Base FVP only.
-It allows the ARM FVP port to support the ``RESET_TO_BL31`` configuration, in
+It allows the Arm FVP port to support the ``RESET_TO_BL31`` configuration, in
 which case the ``bl31.bin`` image must be loaded to its run address in Trusted
 SRAM and all CPU reset vectors be changed from the default ``0x0`` to this run
 address. See the `User Guide`_ for details of running the FVP models in this way.
@@ -155,7 +155,7 @@ This might be done by the Trusted Boot Firmware or by platform code in BL31.
 
 --------------
 
-*Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Firmware Design: firmware-design.rst
 .. _User Guide: user-guide.rst

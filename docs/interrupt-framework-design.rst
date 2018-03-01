@@ -1,5 +1,5 @@
-ARM Trusted Firmware Interrupt Management Design guide
-======================================================
+Trusted Firmware-A interrupt management design guide
+====================================================
 
 
 .. section-numbering::
@@ -88,8 +88,8 @@ The framework considers certain routing models for each type of interrupt to be
 incorrect as they conflict with the requirements mentioned in Section 1. The
 following sub-sections describe all the possible routing models and specify
 which ones are valid or invalid. EL3 interrupts are currently supported only
-for GIC version 3.0 (ARM GICv3) and only the Secure-EL1 and Non-secure interrupt
-types are supported for GIC version 2.0 (ARM GICv2) (See 1.2). The terminology
+for GIC version 3.0 (Arm GICv3) and only the Secure-EL1 and Non-secure interrupt
+types are supported for GIC version 2.0 (Arm GICv2) (See 1.2). The terminology
 used in the following sub-sections is explained below.
 
 #. **CSS**. Current Security State. ``0`` when secure and ``1`` when non-secure
@@ -111,7 +111,7 @@ Secure-EL1 interrupts
 #. **CSS=1, TEL3=0**. Interrupt is routed to the FEL when execution is in
    non-secure state. This is an invalid routing model as a secure interrupt
    is not visible to the secure software which violates the motivation behind
-   the ARM Security Extensions.
+   the Arm Security Extensions.
 
 #. **CSS=1, TEL3=1**. Interrupt is routed to EL3 when execution is in
    non-secure state. This is a valid routing model as secure software in EL3
@@ -162,7 +162,7 @@ EL3 interrupts
 #. **CSS=1, TEL3=0**. Interrupt is routed to the FEL when execution is in
    non-secure state. This is an invalid routing model as a secure interrupt
    is not visible to the secure software which violates the motivation behind
-   the ARM Security Extensions.
+   the Arm Security Extensions.
 
 #. **CSS=1, TEL3=1**. Interrupt is routed to EL3 when execution is in
    non-secure state. This is a valid routing model as secure software in EL3
@@ -179,7 +179,7 @@ uses this information to determine whether the IRQ or the FIQ bit should be
 programmed in ``SCR_EL3`` while applying the routing model for a type of
 interrupt. The platform provides this information through the
 ``plat_interrupt_type_to_line()`` API (described in the
-`Porting Guide`_). For example, on the FVP port when the platform uses an ARM GICv2
+`Porting Guide`_). For example, on the FVP port when the platform uses an Arm GICv2
 interrupt controller, Secure-EL1 interrupts are signaled through the FIQ signal
 while Non-secure interrupts are signaled through the IRQ signal. This applies
 when execution is in either security state.
@@ -194,7 +194,7 @@ that security state. This means that all the other interrupt types using the
 same interrupt signal will be forced to the same routing model. This should be
 borne in mind when choosing the routing model for an interrupt type.
 
-For example, in ARM GICv3, when the execution context is Secure-EL1/
+For example, in Arm GICv3, when the execution context is Secure-EL1/
 Secure-EL0, both the EL3 and the non secure interrupt types map to the FIQ
 signal. So if either one of the interrupt type sets the routing model so
 that **TEL3=1** when **CSS=0**, the FIQ bit in ``SCR_EL3`` will be programmed to
@@ -208,8 +208,8 @@ The framework makes the following assumptions to simplify its implementation.
 
 #. Although the framework has support for 2 types of secure interrupts (EL3
    and Secure-EL1 interrupt), only interrupt controller architectures
-   like ARM GICv3 has architectural support for EL3 interrupts in the form of
-   Group 0 interrupts. In ARM GICv2, all secure interrupts are assumed to be
+   like Arm GICv3 has architectural support for EL3 interrupts in the form of
+   Group 0 interrupts. In Arm GICv2, all secure interrupts are assumed to be
    handled in Secure-EL1. They can be delivered to Secure-EL1 via EL3 but they
    cannot be handled in EL3.
 
@@ -260,7 +260,7 @@ the non-secure interrupts and target them to the primary CPU. It should also
 export the interface described in the `Porting Guide`_ to enable
 handling of interrupts.
 
-In the remainder of this document, for the sake of simplicity a ARM GICv2 system
+In the remainder of this document, for the sake of simplicity a Arm GICv2 system
 is considered and it is assumed that the FIQ signal is used to generate Secure-EL1
 interrupts and the IRQ signal is used to generate non-secure interrupts in either
 security state. EL3 interrupts are not considered.
@@ -272,8 +272,7 @@ Roles and responsibilities for interrupt management are sub-divided between the
 following components of software running in EL3 and Secure-EL1. Each component is
 briefly described below.
 
-#. EL3 Runtime Firmware. This component is common to all ports of the ARM
-   Trusted Firmware.
+#. EL3 Runtime Firmware. This component is common to all ports of TF-A.
 
 #. Secure Payload Dispatcher (SPD) service. This service interfaces with the
    Secure Payload (SP) software which runs in Secure-EL1/Secure-EL0 and is
@@ -282,20 +281,20 @@ briefly described below.
    exported by the Context management library to implement this functionality.
    Switching execution between the two security states is a requirement for
    interrupt management as well. This results in a significant dependency on
-   the SPD service. ARM Trusted firmware implements an example Test Secure
-   Payload Dispatcher (TSPD) service.
+   the SPD service. TF-A implements an example Test Secure Payload Dispatcher
+   (TSPD) service.
 
    An SPD service plugs into the EL3 runtime firmware and could be common to
-   some ports of the ARM Trusted Firmware.
+   some ports of TF-A.
 
 #. Secure Payload (SP). On a production system, the Secure Payload corresponds
    to a Secure OS which runs in Secure-EL1/Secure-EL0. It interfaces with the
-   SPD service to manage communication with non-secure software. ARM Trusted
-   Firmware implements an example secure payload called Test Secure Payload
-   (TSP) which runs only in Secure-EL1.
+   SPD service to manage communication with non-secure software. TF-A
+   implements an example secure payload called Test Secure Payload (TSP)
+   which runs only in Secure-EL1.
 
-   A Secure payload implementation could be common to some ports of the ARM
-   Trusted Firmware just like the SPD service.
+   A Secure payload implementation could be common to some ports of TF-A,
+   just like the SPD service.
 
 Interrupt registration
 ----------------------
@@ -515,7 +514,7 @@ the interrupt routing model is not known to the SPD service at compile time,
 then the SP should pass this information to the SPD service at runtime during
 its initialisation phase.
 
-As mentioned earlier, a ARM GICv2 system is considered and it is assumed that
+As mentioned earlier, an Arm GICv2 system is considered and it is assumed that
 the FIQ signal is used to generate Secure-EL1 interrupts and the IRQ signal
 is used to generate non-secure interrupts in either security state.
 
@@ -595,7 +594,7 @@ exceptions taken at the same (Secure-EL1) exception level. This table is
 referenced through the ``tsp_exceptions`` variable and programmed into the
 VBAR\_EL1. It caters for the asynchronous handling model.
 
-The TSP also programs the Secure Physical Timer in the ARM Generic Timer block
+The TSP also programs the Secure Physical Timer in the Arm Generic Timer block
 to raise a periodic interrupt (every half a second) for the purpose of testing
 interrupt management across all the software components listed in 2.1
 
@@ -999,7 +998,7 @@ TSP by returning ``SMC_UNK`` error.
 
 --------------
 
-*Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Porting Guide: ./porting-guide.rst
 .. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html

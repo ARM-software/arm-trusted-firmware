@@ -5,7 +5,7 @@ Poplar is the first development board compliant with the 96Boards Enterprise
 Edition TV Platform specification.
 
 The board features the Hi3798C V200 with an integrated quad-core 64-bit
-ARM Cortex A53 processor and high performance Mali T720 GPU, making it capable
+Arm Cortex A53 processor and high performance Mali T720 GPU, making it capable
 of running any commercial set-top solution based on Linux or Android.
 
 It supports a premium user experience with up to H.265 HEVC decoding of 4K
@@ -14,7 +14,7 @@ video at 60 frames per second.
 ::
 
     SOC Hisilicon Hi3798CV200
-    CPU Quad-core ARM Cortex-A53 64 bit
+    CPU Quad-core Arm Cortex-A53 64 bit
     DRAM DDR3/3L/4 SDRAM interface, maximum 32-bit data width 2 GB
     USB Two USB 2.0 ports One USB 3.0 ports
     CONSOLE USB-micro port for console support
@@ -28,11 +28,11 @@ video at 60 frames per second.
 
 At the start of the boot sequence, the bootROM executes the so called l-loader
 binary whose main role is to change the processor state to 64bit mode. This
-must  happen prior invoking the arm trusted  firmware:
+must happen prior to invoking Trusted Firmware-A:
 
 ::
 
-    l-loader --> arm_trusted_firmware --> u-boot
+    l-loader --> Trusted Firmware-A --> u-boot
 
 How to build
 ============
@@ -40,7 +40,7 @@ How to build
 Code Locations
 --------------
 
--  ARM Trusted Firmware:
+-  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
 
 -  l-loader:

@@ -1,13 +1,13 @@
-Contributing to ARM Trusted Firmware
-====================================
+Contributing to Trusted Firmware-A
+==================================
 
 Getting Started
 ---------------
 
 -  Make sure you have a `GitHub account`_.
 -  Create an `issue`_ for your work if one does not already exist. This gives
-   everyone visibility of whether others are working on something similar. ARM
-   licensees may contact ARM directly via their partner managers instead if
+   everyone visibility of whether others are working on something similar. Arm
+   licensees may contact Arm directly via their partner managers instead if
    they prefer.
 
    -  Note that the `issue`_ tracker for this project is in a separate
@@ -27,8 +27,8 @@ Making Changes
 
 -  Make commits of logical units. See these general `Git guidelines`_ for
    contributing to a project.
--  Follow the `Linux coding style`_; this style is enforced for the ARM Trusted
-   Firmware project (style errors only, not warnings).
+-  Follow the `Linux coding style`_; this style is enforced for the TF-A
+   project (style errors only, not warnings).
 
    -  Use the checkpatch.pl script provided with the Linux source tree. A
       Makefile target is provided for convenience (see section 2 in the
@@ -57,7 +57,7 @@ Making Changes
 
       ::
 
-          Portions copyright (c) [XXXX-]YYYY, ARM Limited and Contributors. All rights reserved.
+          Portions copyright (c) [XXXX-]YYYY, Arm Limited and Contributors. All rights reserved.
 
       where XXXX is the year of first contribution (if different to YYYY) and
       YYYY is the year of most recent contribution.
@@ -108,7 +108,7 @@ Submitting Changes
 
 --------------
 
-*Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _GitHub account: https://github.com/signup/free
 .. _issue: https://github.com/ARM-software/tf-issues/issues
