@@ -35,7 +35,7 @@ PLAT_INCLUDE		:=	../../include/tools_share
 else
 PLAT_MSG		:=	${PLAT}
 
-PLATFORM_ROOT		:=	../../plat/
+TF_PLATFORM_ROOT		:=	../../plat/
 include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
 
 PLAT_INCLUDE		:=	$(wildcard ${PLAT_DIR}include)
