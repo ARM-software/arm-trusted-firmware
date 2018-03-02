@@ -287,9 +287,9 @@ void hisi_enable_pdc(unsigned int cluster)
 	mmio_write_32((uintptr_t)pdc_base_addr, 0x1);
 }
 
-static inline void hisi_pdc_set_intmask(void *pdc_base_addr,
-					unsigned int core,
-					enum pdc_finish_int_mask intmask)
+void hisi_pdc_set_intmask(void *pdc_base_addr,
+			unsigned int core,
+			enum pdc_finish_int_mask intmask)
 {
 	unsigned int val;
 
