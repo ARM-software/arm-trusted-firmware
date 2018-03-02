@@ -783,6 +783,12 @@ Arm FVP platform specific build options
    HW_CONFIG blob instead of the DTS file. This option is useful to override
    the default HW_CONFIG selected by the build system.
 
+ARM JUNO platform specific build options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-  ``JUNO_TZMP1`` : Boolean option to configure Juno to be used for TrustZone
+   Media Protection (TZ-MP1). Default value of this flag is 0.
+
 Debugging options
 ~~~~~~~~~~~~~~~~~
 

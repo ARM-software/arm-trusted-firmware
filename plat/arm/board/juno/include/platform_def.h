@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -115,7 +115,7 @@
 # define PLAT_ARM_MAX_BL2_SIZE		0x1B000
 #endif
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		0xD000
+# define PLAT_ARM_MAX_BL2_SIZE		0xE000
 #endif
 
 /*
