@@ -412,7 +412,7 @@ static int32_t trusty_setup(void)
 	if (instr >> 24 == 0xeaU) {
 		INFO("trusty: Found 32 bit image\n");
 		aarch32 = true;
-	} else if (instr >> 8 == 0xd53810 || instr >> 16 == 0x9400) {
+	} else if (instr >> 8 == 0xd53810U || instr >> 16 == 0x9400U) {
 		INFO("trusty: Found 64 bit image\n");
 	} else {
 		NOTICE("trusty: Found unknown image, 0x%x\n", instr);
