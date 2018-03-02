@@ -572,7 +572,7 @@ image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
 void bl1_plat_set_ep_info(unsigned int image_id,
 		entry_point_info_t *ep_info)
 {
-	unsigned int data = 0;
+	uint64_t data = 0;
 
 	if (image_id == BL2_IMAGE_ID)
 		return;
@@ -583,7 +583,7 @@ void bl1_plat_set_ep_info(unsigned int image_id,
 		__asm__ volatile ("msr	cpacr_el1, %0" : : "r"(data));
 		__asm__ volatile ("mrs	%0, cpacr_el1" : "=r"(data));
 	} while ((data & (3 << 20)) != (3 << 20));
-	INFO("cpacr_el1:0x%x\n", data);
+	INFO("cpacr_el1:0x%lx\n", data);
 
 	ep_info->args.arg0 = 0xffff & read_mpidr();
 	ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
