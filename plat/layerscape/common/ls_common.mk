@@ -47,6 +47,14 @@ LOAD_IMAGE_V2			:=	1
 # Use generic OID definition (tbbr_oid.h)
 USE_TBBR_DEFS			:=	1
 
+BOOT_MODE			:=	nor
+
+
+ifeq (${BOOT_MODE}, nor)
+$(eval $(call add_define,NOR_BOOT))
+else ifeq (${BOOT_MODE}, sd)
+$(eval $(call add_define,SD_BOOT))
+endif
 
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr
 
@@ -70,6 +78,10 @@ BL1_SOURCES		+=			\
 				plat/layerscape/common/ls_bl1_setup.c			\
 				plat/layerscape/common/ls_io_storage.c
 
+ifeq (${BOOT_MODE}, sd)
+BL1_SOURCES		+=	plat/layerscape/common/sd_mmc.c
+endif
+
 BL2_SOURCES		+=	drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
@@ -79,7 +91,7 @@ BL2_SOURCES		+=	drivers/io/io_fip.c				\
 ifeq (${LOAD_IMAGE_V2},1)
 BL2_SOURCES		+=	plat/layerscape/common/${ARCH}/ls_bl2_mem_params_desc.c
 BL2_SOURCES		+=	plat/layerscape/common/ls_image_load.c		\
-					common/desc_image_load.c
+				common/desc_image_load.c
 endif
 
 

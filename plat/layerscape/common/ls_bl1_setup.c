@@ -39,10 +39,15 @@ void ls_bl1_early_platform_setup(void)
 	/* Initialize the console to provide early debug support */
 	console_16550_register(LS_ATF_UART_BASE, LS_ATF_UART_CLOCK,
 			       LS_ATF_UART_BAUDRATE, &console);
-
+#ifdef NOR_BOOT
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = LS_SRAM_BASE;
 	bl1_tzram_layout.total_size = LS_SRAM_SIZE;
+#else
+	/* For SD boot, Don't include BL1 RO region which is at the start of OCRAM */
+	bl1_tzram_layout.total_base = BL31_BASE;
+	bl1_tzram_layout.total_size = LS_SRAM_SIZE - PLAT_LS_MAX_BL1_RO_SIZE;
+#endif
 
 #if !LOAD_IMAGE_V2
 	/* Calculate how much RAM BL1 is using and how much remains free */

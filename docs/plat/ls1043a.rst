@@ -65,6 +65,31 @@ Build Procedure
        CROSS_COMPILE=aarch64-linux-gnu- make PLAT=ls1043 fip \
        BL33=u-boot.bin NEED_BL32=yes BL32=tee.bin SPD=opteed
 
+-  Build ATF for SD boot
+
+   Build bl1:
+
+   .. code:: shell
+
+       CROSS_COMPILE=aarch64-linux-gnu- make PLAT=ls1043 bl1 \
+       BOOT_MODE=sd
+
+   Build fip:
+
+   .. code:: shell
+
+       CROSS_COMPILE=aarch64-linux-gnu- make PLAT=ls1043 fip \
+       BL33=u-boot.bin NEED_BL32=yes BL32=tee.bin SPD=opteed \
+       BOOT_MODE=sd
+
+   Build spl images which include RCW, PBI and ATF images:
+
+   .. code:: shell
+
+	mkimage -n ./plat/layerscape/board/ls1043/ls1043ardb_rcw_sd.cfg \
+        -R ./plat/layerscape/board/ls1043/ls1043ardb_pbi.cfg -T pblimage \
+        -A arm -a 0x10000000 -d build/ls1043/release/bl1.bin bl1.pbl
+
 Deploy ATF Images
 -----------------
 
@@ -83,6 +108,22 @@ Deploy ATF Images
    .. code:: shell
 
        => cpld reset altbank
+
+-  Deploy ATF images on SD card.
+
+   .. code:: shell
+
+       => tftp 82000000  bl1.pbl
+       => mmc write 82000000 8 50
+
+       => tftp 82000000  fip.bin
+       => mmc write 82000000 800 900
+
+   Then change to SD boot and boot up ATF:
+
+   .. code:: shell
+
+       => cpld reset sd
 
 
 .. _ls1043: https://www.nxp.com/products/processors-and-microcontrollers/arm-based-processors-and-mcus/qoriq-layerscape-arm-processors/qoriq-layerscape-1043a-and-1023a-multicore-communications-processors:LS1043A?lang_cd=en

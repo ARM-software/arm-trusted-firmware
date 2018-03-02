@@ -79,6 +79,7 @@
 #define PLAT_LS_FIP_MAX_SIZE 0x4000000
 
 /* Memory Layout */
+#ifdef NOR_BOOT		/* Nor boot */
 
 #define BL1_RO_BASE			PLAT_LS_TRUSTED_ROM_BASE
 #define BL1_RO_LIMIT			(PLAT_LS_TRUSTED_ROM_BASE	\
@@ -129,6 +130,68 @@
 #define BL1_RW_BASE			BL31_LIMIT
 #endif
 #define BL1_RW_LIMIT			LS_SRAM_LIMIT
+
+#elif defined(SD_BOOT)	/* SD boot memory layout */
+
+#define LOAD_FIP_IN_DDR_BASE		0x83000000
+#define PLAT_LS_FIP_BASE		LOAD_FIP_IN_DDR_BASE
+
+#define LS_FIP_SD_START_BLOCK		0x800
+#define LS_FIP_SD_BLOCK_NUMS		4096	/* 2M Byte */
+
+#ifdef LS_BL2_IN_OCRAM
+/* BL2 is in OCRAM */
+#define PLAT_LS_MAX_BL1_RO_SIZE		(24 * 1024)		/* 24K */
+#define PLAT_LS_MAX_BL1_RW_SIZE		(28 * 1024)		/* 28K */
+#define PLAT_LS_MAX_BL31_SIZE		(64 * 1024)		/* 64K */
+#define PLAT_LS_MAX_BL2_SIZE		(44 * 1024)		/* 44K */
+/* Reserve memory in OCRAM for BL31 Text and ROData segment */
+#define BL31_TEXT_RODATA_SIZE		(32 * 1024)		/* 32K */
+#else /* LS_BL2_IN_OCRAM */
+/* BL2 in DDR */
+#define PLAT_LS_MAX_BL1_RO_SIZE		(32 * 1024)		/* 32K */
+#define PLAT_LS_MAX_BL1_RW_SIZE		(32 * 1024)		/* 32K */
+#define PLAT_LS_MAX_BL31_SIZE		(64 * 1024)		/* 64K */
+#define PLAT_LS_MAX_BL2_SIZE		(1 * 1024 * 1024)	/* 1M */
+#endif /* LS_BL2_IN_OCRAM */
+/*
+ * Put BL1 RO at the start of the Trusted SRAM.
+ */
+#define BL1_RO_BASE			LS_SRAM_BASE
+#define BL1_RO_LIMIT			(LS_SRAM_BASE + PLAT_LS_MAX_BL1_RO_SIZE)
+/*
+ * BL31 follow BL1 RO.
+ */
+#define BL31_BASE			BL1_RO_LIMIT
+#define BL31_LIMIT			(BL31_BASE + PLAT_LS_MAX_BL31_SIZE)
+
+#ifdef LS_BL2_IN_OCRAM
+/*
+ * BL2 follow BL31 Text and ROData region.
+ */
+#define BL2_BASE			(BL31_BASE + BL31_TEXT_RODATA_SIZE)
+#define BL2_LIMIT			(BL2_BASE + PLAT_LS_MAX_BL2_SIZE)
+
+#else /* LS_BL2_IN_OCRAM */
+/*
+ * BL2 in DDR memory.
+ */
+#define BL2_BASE			LS_BL2_DDR_BASE
+#define BL2_LIMIT			(BL2_BASE + PLAT_LS_MAX_BL2_SIZE)
+
+#endif /* LS_BL2_IN_OCRAM */
+
+/*
+ * Put BL1 RW at the top of the Trusted SRAM.
+ */
+#ifdef LS_BL2_IN_OCRAM
+#define BL1_RW_BASE			BL2_LIMIT
+#else
+#define BL1_RW_BASE			BL31_LIMIT
+#endif
+#define BL1_RW_LIMIT			LS_SRAM_LIMIT
+
+#endif /* NOR_BOOT */
 
 /* Put BL32 in secure memory */
 #define BL32_BASE		LS_SECURE_DRAM_BASE

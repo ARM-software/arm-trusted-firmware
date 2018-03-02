@@ -43,5 +43,7 @@ int tzc380_setup(void);
 /* Timer utility functions */
 uint64_t ls_get_timer(uint64_t start);
 void ls_delay_timer_init(void);
-
+#ifdef SD_BOOT
+int sd_load_fip_image(void);
+#endif
 #endif /* __PLAT_LS_H__ */
