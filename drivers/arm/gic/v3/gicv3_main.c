@@ -73,6 +73,13 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 		assert(plat_driver_data->interrupt_props_num == 0);
 
 		/*
+		 * Suppress deprecated declaration warnings in compatibility
+		 * function
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+		/*
 		 * The platform should provide a list of at least one type of
 		 * interrupt.
 		 */
@@ -89,6 +96,11 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 		assert(plat_driver_data->g1s_interrupt_array ?
 				plat_driver_data->g1s_interrupt_num :
 				plat_driver_data->g1s_interrupt_num == 0);
+#pragma GCC diagnostic pop
+
+		WARN("Using deprecated integer interrupt arrays in "
+		     "gicv3_driver_data_t\n");
+		WARN("Please migrate to using interrupt_prop_t arrays\n");
 	}
 #else
 	assert(plat_driver_data->interrupt_props != NULL);
@@ -189,6 +201,13 @@ void gicv3_distif_init(void)
 				gicv3_driver_data->interrupt_props_num);
 #if !ERROR_DEPRECATED
 	} else {
+		/*
+		 * Suppress deprecated declaration warnings in compatibility
+		 * function
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 		assert(gicv3_driver_data->g1s_interrupt_array ||
 				gicv3_driver_data->g0_interrupt_array);
 
@@ -209,6 +228,7 @@ void gicv3_distif_init(void)
 					INTR_GROUP0);
 			bitmap |= CTLR_ENABLE_G0_BIT;
 		}
+#pragma GCC diagnostic pop
 	}
 #endif
 
@@ -253,6 +273,13 @@ void gicv3_rdistif_init(unsigned int proc_num)
 				gicv3_driver_data->interrupt_props_num);
 #if !ERROR_DEPRECATED
 	} else {
+		/*
+		 * Suppress deprecated declaration warnings in compatibility
+		 * function
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 		assert(gicv3_driver_data->g1s_interrupt_array ||
 		       gicv3_driver_data->g0_interrupt_array);
 
@@ -273,6 +300,7 @@ void gicv3_rdistif_init(unsigned int proc_num)
 					INTR_GROUP0);
 			bitmap |= CTLR_ENABLE_G0_BIT;
 		}
+#pragma GCC diagnostic pop
 	}
 #endif
 

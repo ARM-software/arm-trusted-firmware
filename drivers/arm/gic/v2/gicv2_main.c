@@ -85,10 +85,17 @@ void gicv2_pcpu_distif_init(void)
 				driver_data->interrupt_props_num);
 #if !ERROR_DEPRECATED
 	} else {
+		/*
+		 * Suppress deprecated declaration warnings in compatibility
+		 * function
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 		assert(driver_data->g0_interrupt_array);
 		gicv2_secure_ppi_sgi_setup(driver_data->gicd_base,
 				driver_data->g0_interrupt_num,
 				driver_data->g0_interrupt_array);
+#pragma GCC diagnostic pop
 	}
 #endif
 
@@ -128,12 +135,20 @@ void gicv2_distif_init(void)
 				driver_data->interrupt_props_num);
 #if !ERROR_DEPRECATED
 	} else {
+		/*
+		 * Suppress deprecated declaration warnings in compatibility
+		 * function
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 		assert(driver_data->g0_interrupt_array);
 
 		/* Configure the G0 SPIs */
 		gicv2_secure_spis_configure(driver_data->gicd_base,
 				driver_data->g0_interrupt_num,
 				driver_data->g0_interrupt_array);
+#pragma GCC diagnostic pop
 	}
 #endif
 
@@ -156,6 +171,13 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 		/* Interrupt properties array size must be 0 */
 		assert(plat_driver_data->interrupt_props_num == 0);
 
+		/*
+		 * Suppress deprecated declaration warnings in compatibility
+		 * function
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 		/* The platform should provide a list of secure interrupts */
 		assert(plat_driver_data->g0_interrupt_array);
 
@@ -166,6 +188,11 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 		assert(plat_driver_data->g0_interrupt_array ?
 				plat_driver_data->g0_interrupt_num :
 				plat_driver_data->g0_interrupt_num == 0);
+#pragma GCC diagnostic pop
+
+		WARN("Using deprecated integer interrupt array in "
+		     "gicv2_driver_data_t\n");
+		WARN("Please migrate to using an interrupt_prop_t array\n");
 	}
 #else
 	assert(plat_driver_data->interrupt_props != NULL);

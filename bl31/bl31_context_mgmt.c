@@ -79,7 +79,13 @@ void *cm_get_context_by_mpidr(uint64_t mpidr, uint32_t security_state)
 {
 	assert(sec_state_is_valid(security_state));
 
+	/*
+	 * Suppress deprecated declaration warning in compatibility function
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	return cm_get_context_by_index(platform_get_core_pos(mpidr), security_state);
+#pragma GCC diagnostic pop
 }
 
 /*******************************************************************************
@@ -90,8 +96,14 @@ void cm_set_context_by_mpidr(uint64_t mpidr, void *context, uint32_t security_st
 {
 	assert(sec_state_is_valid(security_state));
 
+	/*
+	 * Suppress deprecated declaration warning in compatibility function
+	 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	cm_set_context_by_index(platform_get_core_pos(mpidr),
 						 context, security_state);
+#pragma GCC diagnostic pop
 }
 
 /*******************************************************************************
@@ -104,7 +116,15 @@ void cm_init_context(uint64_t mpidr, const entry_point_info_t *ep)
 	if ((mpidr & MPIDR_AFFINITY_MASK) ==
 			(read_mpidr_el1() & MPIDR_AFFINITY_MASK))
 		cm_init_my_context(ep);
-	else
+	else {
+		/*
+		 * Suppress deprecated declaration warning in compatibility
+		 * function
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 		cm_init_context_by_index(platform_get_core_pos(mpidr), ep);
+#pragma GCC diagnostic pop
+	}
 }
-#endif
+#endif /* ERROR_DEPRECATED */

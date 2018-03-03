@@ -374,6 +374,12 @@ ifeq ($(HW_ASSISTED_COHERENCY)-$(USE_COHERENT_MEM),1-1)
 $(error USE_COHERENT_MEM cannot be enabled with HW_ASSISTED_COHERENCY)
 endif
 
+ifneq ($(MULTI_CONSOLE_API), 0)
+    ifeq (${ARCH},aarch32)
+        $(error "Error: MULTI_CONSOLE_API is not supported for AArch32")
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -588,9 +594,9 @@ all: msg_start
 msg_start:
 	@echo "Building ${PLAT}"
 
-# Check if deprecated declarations should be treated as error or not.
+# Check if deprecated declarations and cpp warnings should be treated as error or not.
 ifeq (${ERROR_DEPRECATED},0)
-    TF_CFLAGS		+= 	-Wno-error=deprecated-declarations
+    CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp
 endif
 
 # Expand build macros for the different images

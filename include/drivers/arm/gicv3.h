@@ -310,10 +310,10 @@ typedef struct gicv3_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicr_base;
 #if !ERROR_DEPRECATED
-	unsigned int g0_interrupt_num;
-	unsigned int g1s_interrupt_num;
-	const unsigned int *g0_interrupt_array;
-	const unsigned int *g1s_interrupt_array;
+	unsigned int g0_interrupt_num __deprecated;
+	unsigned int g1s_interrupt_num __deprecated;
+	const unsigned int *g0_interrupt_array __deprecated;
+	const unsigned int *g1s_interrupt_array __deprecated;
 #endif
 	const interrupt_prop_t *interrupt_props;
 	unsigned int interrupt_props_num;

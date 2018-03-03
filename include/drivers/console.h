@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,10 +63,10 @@ int console_getc(void);
 int console_flush(void);
 
 #if !MULTI_CONSOLE_API
-/* DEPRECATED on AArch64 -- use console_<driver>_register() instead! */
+/* REMOVED on AArch64 -- use console_<driver>_register() instead! */
 int console_init(uintptr_t base_addr,
-		 unsigned int uart_clk, unsigned int baud_rate) __deprecated;
-void console_uninit(void) __deprecated;
+		 unsigned int uart_clk, unsigned int baud_rate);
+void console_uninit(void);
 #endif
 
 #endif /* __ASSEMBLY__ */
