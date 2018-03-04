@@ -6,6 +6,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <console_macros.S>
 #include <pl011.h>
 
 /*
