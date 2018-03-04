@@ -8,7 +8,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <platform_def.h>
 #include "qemu_private.h"
 
@@ -27,8 +26,7 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 void bl1_early_platform_setup(void)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_QEMU_BOOT_UART_BASE, PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
-		     PLAT_QEMU_CONSOLE_BAUDRATE);
+	qemu_console_init();
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = BL_RAM_BASE;

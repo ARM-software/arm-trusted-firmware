@@ -6,7 +6,6 @@
 
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <gic_common.h>
 #include <gicv2.h>
 #include <platform_def.h>
@@ -45,8 +44,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 #endif
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_QEMU_BOOT_UART_BASE, PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
-			PLAT_QEMU_CONSOLE_BAUDRATE);
+	qemu_console_init();
 
 #if LOAD_IMAGE_V2
 	/*

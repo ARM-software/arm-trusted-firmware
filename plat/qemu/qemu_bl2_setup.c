@@ -6,7 +6,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
 #include <optee_utils.h>
@@ -123,8 +122,7 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_QEMU_BOOT_UART_BASE, PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
-			PLAT_QEMU_CONSOLE_BAUDRATE);
+	qemu_console_init();
 
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
