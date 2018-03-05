@@ -70,6 +70,7 @@ BL1_SOURCES		+=	bl1/tbbr/tbbr_img_desc.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				plat/hisilicon/hikey/aarch64/hikey_helpers.S \
 				plat/hisilicon/hikey/hikey_bl1_setup.c	\
+				plat/hisilicon/hikey/hikey_bl_common.c	\
 				plat/hisilicon/hikey/hikey_io_storage.c
 
 BL2_SOURCES		+=	common/desc_image_load.c		\
@@ -86,6 +87,7 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				plat/hisilicon/hikey/aarch64/hikey_helpers.S \
 				plat/hisilicon/hikey/hikey_bl2_mem_params_desc.c \
 				plat/hisilicon/hikey/hikey_bl2_setup.c	\
+				plat/hisilicon/hikey/hikey_bl_common.c	\
 				plat/hisilicon/hikey/hikey_security.c   \
 				plat/hisilicon/hikey/hikey_ddr.c	\
 				plat/hisilicon/hikey/hikey_image_load.c \

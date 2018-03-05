@@ -37,6 +37,18 @@ void hikey_init_mmu_el3(unsigned long total_base,
 void hikey_ddr_init(void);
 void hikey_io_setup(void);
 
+void hikey_sp804_init(void);
+void hikey_gpio_init(void);
+void hikey_pmussi_init(void);
+void hikey_hi6553_init(void);
+void init_mmc0_pll(void);
+void reset_mmc0_clk(void);
+void init_media_clk(void);
+void init_mmc1_pll(void);
+void reset_mmc1_clk(void);
+void hikey_mmc_pll_init(void);
+void hikey_rtc_init(void);
+
 int hikey_get_partition_size(const char *arg, int left, char *response);
 int hikey_get_partition_type(const char *arg, int left, char *response);
 
