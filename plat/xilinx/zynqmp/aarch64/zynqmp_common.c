@@ -8,6 +8,8 @@
 #include <generic_delay_timer.h>
 #include <mmio.h>
 #include <platform.h>
+#include <stdbool.h>
+#include <string.h>
 #include <xlat_tables.h>
 #include "../zynqmp_private.h"
 #include "pm_api_sys.h"
@@ -62,6 +64,7 @@ static const struct {
 	unsigned int id;
 	unsigned int ver;
 	char *name;
+	bool evexists;
 } zynqmp_devices[] = {
 	{
 		.id = 0x10,
@@ -84,11 +87,13 @@ static const struct {
 	{
 		.id = 0x20,
 		.name = "5EV",
+		.evexists = true,
 	},
 	{
 		.id = 0x20,
 		.ver = 0x100,
 		.name = "5EG",
+		.evexists = true,
 	},
 	{
 		.id = 0x20,
@@ -98,11 +103,13 @@ static const struct {
 	{
 		.id = 0x21,
 		.name = "4EV",
+		.evexists = true,
 	},
 	{
 		.id = 0x21,
 		.ver = 0x100,
 		.name = "4EG",
+		.evexists = true,
 	},
 	{
 		.id = 0x21,
@@ -112,11 +119,13 @@ static const struct {
 	{
 		.id = 0x30,
 		.name = "7EV",
+		.evexists = true,
 	},
 	{
 		.id = 0x30,
 		.ver = 0x100,
 		.name = "7EG",
+		.evexists = true,
 	},
 	{
 		.id = 0x30,
@@ -188,41 +197,49 @@ static const struct {
 	},
 };
 
-static unsigned int zynqmp_get_silicon_id(void)
-{
-	uint32_t id;
-
-	id = mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
-
-	id &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK | ZYNQMP_CSU_IDCODE_SVD_MASK;
-	id >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
-
-	return id;
-}
-
-static unsigned int zynqmp_get_silicon_id2(void)
-{
-	uint32_t id;
-
-	id = mmio_read_32(EFUSE_BASEADDR + EFUSE_IPDISABLE_OFFSET);
-	id &= EFUSE_IPDISABLE_VERSION;
-
-	return id;
-}
+#define ZYNQMP_PL_STATUS_BIT	9
+#define ZYNQMP_PL_STATUS_MASK	BIT(ZYNQMP_PL_STATUS_BIT)
+#define ZYNQMP_CSU_VERSION_MASK	~(ZYNQMP_PL_STATUS_MASK)
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
-	unsigned int id, ver;
-	size_t i;
+	uint32_t id, ver, chipid[2];
+	size_t i, j, len;
+	enum pm_ret_status ret;
+	const char *name = "EG/EV";
 
-	id = zynqmp_get_silicon_id();
-	ver = zynqmp_get_silicon_id2();
+	ret = pm_get_chipid(chipid);
+	if (ret)
+		return "UNKN";
+
+	id = chipid[0] & (ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
+			  ZYNQMP_CSU_IDCODE_SVD_MASK);
+	id >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+	ver = chipid[1] >> ZYNQMP_EFUSE_IPDISABLE_SHIFT;
 
 	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id && zynqmp_devices[i].ver == ver)
-			return zynqmp_devices[i].name;
+		if (zynqmp_devices[i].id == id &&
+		    zynqmp_devices[i].ver == (ver & ZYNQMP_CSU_VERSION_MASK))
+			break;
 	}
-	return "UNKN";
+
+	if (i >= ARRAY_SIZE(zynqmp_devices))
+		return "UNKN";
+
+	if (!zynqmp_devices[i].evexists)
+		return zynqmp_devices[i].name;
+
+	if (ver & ZYNQMP_PL_STATUS_MASK)
+		return zynqmp_devices[i].name;
+
+	len = strlen(zynqmp_devices[i].name) - 2;
+	for (j = 0; j < strlen(name); j++) {
+		zynqmp_devices[i].name[len] = name[j];
+		len++;
+	}
+	zynqmp_devices[i].name[len] = '\0';
+
+	return zynqmp_devices[i].name;
 }
 
 static unsigned int zynqmp_get_rtl_ver(void)
