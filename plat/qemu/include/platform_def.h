@@ -198,7 +198,7 @@
 #define DEVICE0_BASE			0x08000000
 #define DEVICE0_SIZE			0x00021000
 #define DEVICE1_BASE			0x09000000
-#define DEVICE1_SIZE			0x00011000
+#define DEVICE1_SIZE			0x00041000
 
 /*
  * GIC related constants
