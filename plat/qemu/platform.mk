@@ -167,6 +167,8 @@ ifneq ($(BL32_EXTRA2),)
 $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
 endif
 
+SEPARATE_CODE_AND_RODATA := 1
+
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0
 
