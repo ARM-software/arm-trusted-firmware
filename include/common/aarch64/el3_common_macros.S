@@ -20,7 +20,7 @@
 	 *
 	 * SCTLR_EL3.I: Enable the instruction cache.
 	 *
-	 * SCTLR_EL3.SA: Enable Stack Aligment check. A SP alignment fault
+	 * SCTLR_EL3.SA: Enable Stack Alignment check. A SP alignment fault
 	 *  exception is generated if a load or store instruction executed at
 	 *  EL3 uses the SP as the base address and the SP is not aligned to a
 	 *  16-byte boundary.
@@ -186,7 +186,7 @@
 		 *  XN (Execute-never). Set to zero so that this control has no
 		 *  effect on memory access permissions.
 		 *
-		 * SCTLR_EL3.SA: Set to zero to disable Stack Aligment check.
+		 * SCTLR_EL3.SA: Set to zero to disable Stack Alignment check.
 		 *
 		 * SCTLR_EL3.A: Set to zero to disable Alignment fault checking.
 		 * -------------------------------------------------------------
