@@ -65,7 +65,8 @@ BL1_SOURCES		+=	bl1/tbbr/tbbr_img_desc.c		\
 				drivers/ufs/ufs.c 			\
 				lib/cpus/aarch64/cortex_a53.S		\
 				plat/hisilicon/hikey960/aarch64/hikey960_helpers.S \
-				plat/hisilicon/hikey960/hikey960_bl1_setup.c 	\
+				plat/hisilicon/hikey960/hikey960_bl1_setup.c \
+				plat/hisilicon/hikey960/hikey960_bl_common.c \
 				plat/hisilicon/hikey960/hikey960_io_storage.c \
 				${HIKEY960_GIC_SOURCES}
 
@@ -79,6 +80,7 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				plat/hisilicon/hikey960/aarch64/hikey960_helpers.S \
 				plat/hisilicon/hikey960/hikey960_bl2_mem_params_desc.c \
 				plat/hisilicon/hikey960/hikey960_bl2_setup.c \
+				plat/hisilicon/hikey960/hikey960_bl_common.c \
 				plat/hisilicon/hikey960/hikey960_image_load.c \
 				plat/hisilicon/hikey960/hikey960_io_storage.c \
 				plat/hisilicon/hikey960/hikey960_mcu_load.c
