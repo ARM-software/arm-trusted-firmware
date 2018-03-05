@@ -239,14 +239,23 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 		/*
 		 * Pass hw and tb_fw config addresses to next images. NOTE - for
 		 * EL3 runtime images (BL31 for AArch64 and BL32 for AArch32),
-		 * arg0 is already used by generic code.
+		 * arg0 is already used by generic code. Take care of not
+		 * overwriting the previous initialisations.
 		 */
 		if (params_node == bl2_to_next_bl_params->head) {
-			params_node->ep_info->args.arg1 = fw_config_base;
-			params_node->ep_info->args.arg2 = hw_config_base;
+			if (params_node->ep_info->args.arg1 == 0)
+				params_node->ep_info->args.arg1 =
+								fw_config_base;
+			if (params_node->ep_info->args.arg2 == 0)
+				params_node->ep_info->args.arg2 =
+								hw_config_base;
 		} else {
-			params_node->ep_info->args.arg0 = fw_config_base;
-			params_node->ep_info->args.arg1 = hw_config_base;
+			if (params_node->ep_info->args.arg0 == 0)
+				params_node->ep_info->args.arg0 =
+								fw_config_base;
+			if (params_node->ep_info->args.arg1 == 0)
+				params_node->ep_info->args.arg1 =
+								hw_config_base;
 		}
 	}
 }
