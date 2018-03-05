@@ -21,6 +21,7 @@
 #include <tegra_def.h>
 #include <tegra_private.h>
 #include <tegra_platform.h>
+#include <utils.h>
 
 /*
  * Register used to clear CPU reset signals. Each CPU has two reset
@@ -255,6 +256,74 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	return ret;
 }
 
+static void tegra_reset_all_dma_masters(void)
+{
+	uint32_t val, mask;
+
+	/*
+	 * Reset all possible DMA masters in the system.
+	 */
+	val = GPU_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_GPU_RESET_REG_OFFSET, val);
+
+	val = NVENC_RESET_BIT | TSECB_RESET_BIT | APE_RESET_BIT |
+	      NVJPG_RESET_BIT | NVDEC_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_Y, val);
+
+	val = HOST1X_RESET_BIT | ISP_RESET_BIT | USBD_RESET_BIT |
+	      VI_RESET_BIT | SDMMC4_RESET_BIT | SDMMC1_RESET_BIT |
+	      SDMMC2_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_L, val);
+
+	val = USB2_RESET_BIT | APBDMA_RESET_BIT | AHBDMA_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_H, val);
+
+	val = XUSB_DEV_RESET_BIT | XUSB_HOST_RESET_BIT | TSEC_RESET_BIT |
+	      PCIE_RESET_BIT | SDMMC3_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_U, val);
+
+	val = SE_RESET_BIT | HDA_RESET_BIT | SATA_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_V, val);
+
+	/*
+	 * If any of the DMA masters are still alive, assume
+	 * that the system has been compromised and reboot.
+	 */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_GPU_RESET_REG_OFFSET);
+	mask = GPU_RESET_BIT;
+	if ((val & mask) != mask)
+		tegra_pmc_system_reset();
+
+	mask = NVENC_RESET_BIT | TSECB_RESET_BIT | APE_RESET_BIT |
+	      NVJPG_RESET_BIT | NVDEC_RESET_BIT;
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_Y);
+	if ((val & mask) != mask)
+		tegra_pmc_system_reset();
+
+	mask = HOST1X_RESET_BIT | ISP_RESET_BIT | USBD_RESET_BIT |
+	       VI_RESET_BIT | SDMMC4_RESET_BIT | SDMMC1_RESET_BIT |
+	       SDMMC2_RESET_BIT;
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_L);
+	if ((val & mask) != mask)
+		tegra_pmc_system_reset();
+
+	mask = USB2_RESET_BIT | APBDMA_RESET_BIT | AHBDMA_RESET_BIT;
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_H);
+	if ((val & mask) != mask)
+		tegra_pmc_system_reset();
+
+	mask = XUSB_DEV_RESET_BIT | XUSB_HOST_RESET_BIT | TSEC_RESET_BIT |
+	       PCIE_RESET_BIT | SDMMC3_RESET_BIT;
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_U);
+	if ((val & mask) != mask)
+		tegra_pmc_system_reset();
+
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEV_SET_V);
+	mask = SE_RESET_BIT | HDA_RESET_BIT | SATA_RESET_BIT;
+	if ((val & mask) != mask)
+		tegra_pmc_system_reset();
+}
+
 int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 {
 	u_register_t mpidr = read_mpidr();
@@ -286,6 +355,28 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 
 			/* Power off BPMP before we proceed */
 			tegra_fc_bpmp_off();
+
+			/* bond out IRAM banks B, C and D */
+			mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_BOND_OUT_U,
+				IRAM_B_LOCK_BIT | IRAM_C_LOCK_BIT |
+				IRAM_D_LOCK_BIT);
+
+			/* bond out APB/AHB DMAs */
+			mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_BOND_OUT_H,
+				APB_DMA_LOCK_BIT | AHB_DMA_LOCK_BIT);
+
+			/* Power off BPMP before we proceed */
+			tegra_fc_bpmp_off();
+
+			/*
+			 * Reset all the hardware blocks that can act as DMA
+			 * masters on the bus.
+			 */
+			tegra_reset_all_dma_masters();
+
+			/* clean up IRAM of any cruft */
+			zeromem((void *)(uintptr_t)TEGRA_IRAM_BASE,
+					TEGRA_IRAM_A_SIZE);
 
 			/* Copy the firmware to BPMP's internal RAM */
 			(void)memcpy((void *)(uintptr_t)TEGRA_IRAM_BASE,

@@ -160,7 +160,7 @@ void plat_late_platform_setup(void)
 	/* memmap TZDRAM area containing the SC7 Entry Firmware */
 	if (plat_params->sc7entry_fw_base && plat_params->sc7entry_fw_size) {
 
-		assert(plat_params->sc7entry_fw_size <= TEGRA_IRAM_SIZE);
+		assert(plat_params->sc7entry_fw_size <= TEGRA_IRAM_A_SIZE);
 
 		/*
 		 * Verify that the SC7 entry firmware resides inside the TZDRAM

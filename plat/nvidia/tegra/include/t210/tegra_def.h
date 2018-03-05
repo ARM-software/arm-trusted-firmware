@@ -41,6 +41,7 @@
  * iRAM memory constants
  ******************************************************************************/
 #define TEGRA_IRAM_BASE			U(0x40000000)
+#define TEGRA_IRAM_A_SIZE		U(0x10000) /* 64KB */
 #define TEGRA_IRAM_SIZE			U(40000) /* 256KB */
 
 /*******************************************************************************
@@ -95,22 +96,54 @@
  * Tegra Clock and Reset Controller constants
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x60006000)
+#define TEGRA_BOND_OUT_H		U(0x74)
+#define  APB_DMA_LOCK_BIT		(U(1) << 2)
+#define  AHB_DMA_LOCK_BIT		(U(1) << 1)
+#define TEGRA_BOND_OUT_U		U(0x78)
+#define  IRAM_D_LOCK_BIT		(U(1) << 23)
+#define  IRAM_C_LOCK_BIT		(U(1) << 22)
+#define  IRAM_B_LOCK_BIT		(U(1) << 21)
 #define TEGRA_GPU_RESET_REG_OFFSET	U(0x28C)
 #define TEGRA_GPU_RESET_GPU_SET_OFFSET	U(0x290)
 #define  GPU_RESET_BIT			(U(1) << 24)
 #define  GPU_SET_BIT			(U(1) << 24)
+#define TEGRA_RST_DEV_SET_Y		U(0x2a8)
+#define  NVENC_RESET_BIT		(U(1) << 27)
+#define  TSECB_RESET_BIT		(U(1) << 14)
+#define  APE_RESET_BIT			(U(1) << 6)
+#define  NVJPG_RESET_BIT		(U(1) << 3)
+#define  NVDEC_RESET_BIT		(U(1) << 2)
+#define TEGRA_RST_DEV_SET_L		U(0x300)
+#define  HOST1X_RESET_BIT		(U(1) << 28)
+#define  ISP_RESET_BIT			(U(1) << 23)
+#define  USBD_RESET_BIT			(U(1) << 22)
+#define  VI_RESET_BIT			(U(1) << 20)
+#define  SDMMC4_RESET_BIT		(U(1) << 15)
+#define  SDMMC1_RESET_BIT		(U(1) << 14)
+#define  SDMMC2_RESET_BIT		(U(1) << 9)
+#define TEGRA_RST_DEV_SET_H		U(0x308)
+#define  USB2_RESET_BIT			(U(1) << 26)
+#define  APBDMA_RESET_BIT		(U(1) << 2)
+#define  AHBDMA_RESET_BIT		(U(1) << 1)
+#define TEGRA_RST_DEV_SET_U		U(0x310)
+#define  XUSB_DEV_RESET_BIT		(U(1) << 31)
+#define  XUSB_HOST_RESET_BIT		(U(1) << 25)
+#define  TSEC_RESET_BIT			(U(1) << 19)
+#define  PCIE_RESET_BIT			(U(1) << 6)
+#define  SDMMC3_RESET_BIT		(U(1) << 5)
+#define TEGRA_RST_DEVICES_V		U(0x358)
+#define TEGRA_RST_DEVICES_W		U(0x35C)
+#define  ENTROPY_CLK_ENB_BIT		(U(1) << 21)
+#define TEGRA_CLK_OUT_ENB_V		U(0x360)
+#define  SE_CLK_ENB_BIT			(U(1) << 31)
+#define TEGRA_CLK_OUT_ENB_W		U(0x364)
+#define  ENTROPY_RESET_BIT 		(U(1) << 21)
+#define TEGRA_RST_DEV_SET_V		U(0x430)
+#define  SE_RESET_BIT			(U(1) << 31)
+#define  HDA_RESET_BIT			(U(1) << 29)
+#define  SATA_RESET_BIT			(U(1) << 28)
 #define TEGRA_RST_DEV_CLR_V		U(0x434)
 #define TEGRA_CLK_ENB_V			U(0x440)
-
-/* SE Clock Offsets */
-#define TEGRA_RST_DEVICES_V		0x358UL
-#define  SE_RESET_BIT 			(0x1UL << 31)
-#define TEGRA_RST_DEVICES_W		 0x35CUL
-#define  ENTROPY_CLK_ENB_BIT		(0x1UL << 21)
-#define TEGRA_CLK_OUT_ENB_V		0x360UL
-#define  SE_CLK_ENB_BIT			(0x1UL << 31)
-#define TEGRA_CLK_OUT_ENB_W		0x364UL
-#define  ENTROPY_RESET_BIT 		(0x1UL << 21)
 
 /*******************************************************************************
  * Tegra Flow Controller constants
