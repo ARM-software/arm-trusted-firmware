@@ -9,23 +9,17 @@
 int puts(const char *s)
 {
 	int count = 0;
-	while(*s)
-	{
-		if (putchar(*s++) != EOF) {
-			count++;
-		} else {
-			count = EOF;
-			break;
-		}
+	while(*s) {
+		if (putchar(*s++) == EOF)
+			return EOF;
+		count++;
 	}
 
 	/* According to the puts(3) manpage, the function should write a
 	 * trailing newline.
 	 */
-	if ((count != EOF) && (putchar('\n') != EOF))
-		count++;
-	else
-		count = EOF;
+	if (putchar('\n') == EOF)
+		return EOF;
 
-	return count;
+	return count + 1;
 }
