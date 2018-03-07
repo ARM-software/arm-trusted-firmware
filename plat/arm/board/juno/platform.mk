@@ -49,12 +49,10 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				plat/arm/board/juno/juno_bl1_setup.c	\
-				plat/arm/board/juno/juno_err.c		\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 
-BL2_SOURCES		+=	plat/arm/board/juno/juno_err.c		\
-				plat/arm/board/juno/juno_bl2_setup.c	\
+BL2_SOURCES		+=	plat/arm/board/juno/juno_bl2_setup.c	\
 				${JUNO_SECURITY_SOURCES}
 
 BL2U_SOURCES		+=	${JUNO_SECURITY_SOURCES}

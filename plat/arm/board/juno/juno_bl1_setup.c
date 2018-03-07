@@ -12,30 +12,7 @@
 #include <tbbr_img_def.h>
 #include <v2m_def.h>
 
-#define RESET_REASON_WDOG_RESET		(0x2)
-
 void juno_reset_to_aarch32_state(void);
-
-
-/*******************************************************************************
- * The following function checks if Firmware update is needed,
- * by checking if TOC in FIP image is valid or watchdog reset happened.
- ******************************************************************************/
-unsigned int bl1_plat_get_next_image_id(void)
-{
-	unsigned int *reset_flags_ptr = (unsigned int *)SSC_GPRETN;
-	unsigned int *nv_flags_ptr = (unsigned int *)
-			(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGS);
-	/*
-	 * Check if TOC is invalid or watchdog reset happened.
-	 */
-	if ((arm_io_is_toc_valid() != 1) ||
-		((*reset_flags_ptr & RESET_REASON_WDOG_RESET) &&
-		((*nv_flags_ptr == -EAUTH) || (*nv_flags_ptr == -ENOENT))))
-		return NS_BL1U_IMAGE_ID;
-
-	return BL2_IMAGE_ID;
-}
 
 /*******************************************************************************
  * On JUNO update the arg2 with address of SCP_BL2U image info.

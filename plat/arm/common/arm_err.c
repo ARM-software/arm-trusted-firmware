@@ -6,6 +6,7 @@
 
 #include <arch_helpers.h>
 #include <board_arm_def.h>
+#include <console.h>
 #include <debug.h>
 #include <errno.h>
 #include <norflash.h>
@@ -13,7 +14,7 @@
 #include <stdint.h>
 
 /*
- * FVP error handler
+ * ARM common implementation for error handler
  */
 void plat_error_handler(int err)
 {
@@ -26,7 +27,7 @@ void plat_error_handler(int err)
 		INFO("Erasing FIP ToC from flash...\n");
 		nor_unlock(PLAT_ARM_FIP_BASE);
 		ret = nor_word_program(PLAT_ARM_FIP_BASE, 0);
-		if (ret) {
+		if (ret != 0) {
 			ERROR("Cannot erase ToC\n");
 		} else {
 			INFO("Done\n");
@@ -36,6 +37,8 @@ void plat_error_handler(int err)
 		/* Unexpected error */
 		break;
 	}
+
+	(void)console_flush();
 
 	/* Loop until the watchdog resets the system */
 	for (;;)
