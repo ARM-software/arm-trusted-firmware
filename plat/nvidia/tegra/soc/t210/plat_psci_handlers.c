@@ -15,6 +15,7 @@
 
 #include <bpmp.h>
 #include <flowctrl.h>
+#include <memctrl.h>
 #include <pmc.h>
 #include <platform_def.h>
 #include <security_engine.h>
@@ -404,6 +405,7 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 	uint32_t cfg;
 	uint32_t val, entrypoint = 0;
+	uint64_t offset;
 
 	/* platform parameter passed by the previous bootloader */
 	if (plat_params->l2_ecc_parity_prot_dis != 1) {
@@ -449,6 +451,13 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		} else {
 			entrypoint = tegra_pmc_read_32(PMC_SCRATCH39);
 			tegra_fc_bpmp_on(entrypoint);
+		}
+
+		/* sc7entry-fw is part of TZDRAM area */
+		if (plat_params->sc7entry_fw_base != 0U) {
+			offset = plat_params->tzdram_base - plat_params->sc7entry_fw_base;
+			tegra_memctrl_tzdram_setup(plat_params->sc7entry_fw_base,
+				plat_params->tzdram_size + offset);
 		}
 	}
 
