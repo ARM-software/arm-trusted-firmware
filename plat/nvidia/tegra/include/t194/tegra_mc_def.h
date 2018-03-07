@@ -660,6 +660,10 @@
 #define TSA_CONFIG_CSW_SO_DEV_HUBID_MASK			(ULL(0x3) << 15)
 #define TSA_CONFIG_CSW_SO_DEV_HUB2				(ULL(2) << 15)
 
+#define REORDER_DEPTH_LIMIT					16
+#define TSA_CONFIG_CSW_REORDER_DEPTH_LIMIT_MASK			(ULL(0x7FF) << 21)
+#define reorder_depth_limit(limit)				(ULL(limit) << 21)
+
 #define tsa_read_32(client) \
 		mmio_read_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client)
 
@@ -668,6 +672,14 @@
 		mmio_write_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client, \
 		((val & ~TSA_CONFIG_CSW_SO_DEV_HUBID_MASK) | \
 		TSA_CONFIG_CSW_SO_DEV_HUB2)); \
+	}
+
+#define mc_set_tsa_depth_limit(limit, client) \
+	{ \
+		uint32_t val = mmio_read_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client); \
+		mmio_write_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client, \
+		((val & ~TSA_CONFIG_CSW_REORDER_DEPTH_LIMIT_MASK) | \
+		reorder_depth_limit(limit))); \
 	}
 
 #endif /* TEGRA_MC_DEF_H */

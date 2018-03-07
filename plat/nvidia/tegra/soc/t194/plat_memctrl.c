@@ -384,6 +384,18 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 	reg_val = tsa_read_32(XUSB_HOSTW);
 	mc_set_tsa_hub2(reg_val, XUSB_HOSTW);
 
+	/*
+	 * Hw Bug: 200385660, 200394107
+	 * PCIE datapath hangs when there are more than 28 outstanding
+	 * requests on data backbone for x1 controller. This is seen
+	 * on third party PCIE IP, C1 - PCIE1W, C2 - PCIE2AW and C3 - PCIE3W.
+	 *
+	 * Setting Reorder depth limit, 16 which is < 28.
+	 */
+	mc_set_tsa_depth_limit(REORDER_DEPTH_LIMIT, PCIE1W);
+	mc_set_tsa_depth_limit(REORDER_DEPTH_LIMIT, PCIE2AW);
+	mc_set_tsa_depth_limit(REORDER_DEPTH_LIMIT, PCIE3W);
+
 	/* Ordered MC Clients on Xavier are EQOS, SATA, XUSB, PCIe1 and PCIe3
 	 * ISO clients(DISP, VI, EQOS) should never snoop caches and
 	 *     don't need ROC/PCFIFO ordering.
