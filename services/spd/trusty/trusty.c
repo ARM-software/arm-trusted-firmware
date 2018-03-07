@@ -13,6 +13,7 @@
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <runtime_svc.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "sm_err.h"
@@ -20,9 +21,6 @@
 
 /* macro to check if Hypervisor is enabled in the HCR_EL2 register */
 #define HYP_ENABLE_FLAG		0x286001
-
-/* length of Trusty's input parameters (in bytes) */
-#define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
 
 struct trusty_stack {
 	uint8_t space[PLATFORM_STACK_SIZE] __aligned(16);
@@ -105,10 +103,8 @@ static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
 	 * when it's needed the PSCI caller has preserved FP context before
 	 * going here.
 	 */
-#if CTX_INCLUDE_FPREGS
 	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME)
 		fpregs_context_save(get_fpregs_ctx(cm_get_context(security_state)));
-#endif
 	cm_el1_sysregs_context_save(security_state);
 
 	ctx->saved_security_state = security_state;
@@ -117,10 +113,8 @@ static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
 	assert(ctx->saved_security_state == !security_state);
 
 	cm_el1_sysregs_context_restore(security_state);
-#if CTX_INCLUDE_FPREGS
 	if (r0 != SMC_FC_CPU_SUSPEND && r0 != SMC_FC_CPU_RESUME)
 		fpregs_context_restore(get_fpregs_ctx(cm_get_context(security_state)));
-#endif
 
 	cm_set_next_eret_context(security_state);
 
@@ -299,6 +293,7 @@ static int32_t trusty_init(void)
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	assert(ep_info);
 
+	fpregs_context_save(get_fpregs_ctx(cm_get_context(NON_SECURE)));
 	cm_el1_sysregs_context_save(NON_SECURE);
 
 	cm_set_context(&ctx->cpu_ctx, SECURE);
@@ -315,6 +310,7 @@ static int32_t trusty_init(void)
 	}
 
 	cm_el1_sysregs_context_restore(SECURE);
+	fpregs_context_restore(get_fpregs_ctx(cm_get_context(SECURE)));
 	cm_set_next_eret_context(SECURE);
 
 	ctx->saved_security_state = ~0; /* initial saved state is invalid */
@@ -323,27 +319,28 @@ static int32_t trusty_init(void)
 	trusty_context_switch_helper(&ctx->saved_sp, &zero_args);
 
 	cm_el1_sysregs_context_restore(NON_SECURE);
+	fpregs_context_restore(get_fpregs_ctx(cm_get_context(NON_SECURE)));
 	cm_set_next_eret_context(NON_SECURE);
 
 	return 0;
 }
 
-static void trusty_cpu_suspend(void)
+static void trusty_cpu_suspend(uint32_t off)
 {
 	struct args ret;
 
-	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_SUSPEND, 0, 0, 0);
+	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_SUSPEND, off, 0, 0);
 	if (ret.r0 != 0) {
 		INFO("%s: cpu %d, SMC_FC_CPU_SUSPEND returned unexpected value, %ld\n",
 		     __func__, plat_my_core_pos(), ret.r0);
 	}
 }
 
-static void trusty_cpu_resume(void)
+static void trusty_cpu_resume(uint32_t on)
 {
 	struct args ret;
 
-	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_RESUME, 0, 0, 0);
+	ret = trusty_context_switch(NON_SECURE, SMC_FC_CPU_RESUME, on, 0, 0);
 	if (ret.r0 != 0) {
 		INFO("%s: cpu %d, SMC_FC_CPU_RESUME returned unexpected value, %ld\n",
 		     __func__, plat_my_core_pos(), ret.r0);
@@ -352,7 +349,7 @@ static void trusty_cpu_resume(void)
 
 static int32_t trusty_cpu_off_handler(uint64_t unused)
 {
-	trusty_cpu_suspend();
+	trusty_cpu_suspend(1);
 
 	return 0;
 }
@@ -364,18 +361,18 @@ static void trusty_cpu_on_finish_handler(uint64_t unused)
 	if (!ctx->saved_sp) {
 		trusty_init();
 	} else {
-		trusty_cpu_resume();
+		trusty_cpu_resume(1);
 	}
 }
 
 static void trusty_cpu_suspend_handler(uint64_t unused)
 {
-	trusty_cpu_suspend();
+	trusty_cpu_suspend(0);
 }
 
 static void trusty_cpu_suspend_finish_handler(uint64_t unused)
 {
-	trusty_cpu_resume();
+	trusty_cpu_resume(0);
 }
 
 static const spd_pm_ops_t trusty_pm = {
@@ -385,11 +382,23 @@ static const spd_pm_ops_t trusty_pm = {
 	.svc_suspend_finish = trusty_cpu_suspend_finish_handler,
 };
 
+void plat_trusty_set_boot_args(aapcs64_params_t *args);
+
+#ifdef TSP_SEC_MEM_SIZE
+#pragma weak plat_trusty_set_boot_args
+void plat_trusty_set_boot_args(aapcs64_params_t *args)
+{
+	args->arg0 = TSP_SEC_MEM_SIZE;
+}
+#endif
+
 static int32_t trusty_setup(void)
 {
 	entry_point_info_t *ep_info;
+	uint32_t instr;
 	uint32_t flags;
 	int ret;
+	bool aarch32 = false;
 
 	/* Get trusty's entry point info */
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
@@ -398,17 +407,29 @@ static int32_t trusty_setup(void)
 		return -1;
 	}
 
-	/* Trusty runs in AARCH64 mode */
-	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
-	ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	instr = *(uint32_t *)ep_info->pc;
 
-	/*
-	 * arg0 = TZDRAM aperture available for BL32
-	 * arg1 = BL32 boot params
-	 * arg2 = BL32 boot params length
-	 */
-	ep_info->args.arg1 = ep_info->args.arg2;
-	ep_info->args.arg2 = TRUSTY_PARAMS_LEN_BYTES;
+	if (instr >> 24 == 0xeaU) {
+		INFO("trusty: Found 32 bit image\n");
+		aarch32 = true;
+	} else if (instr >> 8 == 0xd53810U || instr >> 16 == 0x9400U) {
+		INFO("trusty: Found 64 bit image\n");
+	} else {
+		NOTICE("trusty: Found unknown image, 0x%x\n", instr);
+	}
+
+	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
+	if (!aarch32)
+		ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
+					DISABLE_ALL_EXCEPTIONS);
+	else
+		ep_info->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
+					    SPSR_E_LITTLE,
+					    DAIF_FIQ_BIT |
+					    DAIF_IRQ_BIT |
+					    DAIF_ABT_BIT);
+	(void)memset(&ep_info->args, 0, sizeof(ep_info->args));
+	plat_trusty_set_boot_args(&ep_info->args);
 
 	/* register init handler */
 	bl31_register_bl32_init(trusty_init);
@@ -424,6 +445,31 @@ static int32_t trusty_setup(void)
 					      flags);
 	if (ret)
 		ERROR("trusty: failed to register fiq handler, ret = %d\n", ret);
+
+	if (aarch32) {
+		entry_point_info_t *ns_ep_info;
+		uint32_t spsr;
+
+		ns_ep_info = bl31_plat_get_next_image_ep_info(NON_SECURE);
+		if (!ep_info) {
+			NOTICE("Trusty: non-secure image missing.\n");
+			return -1;
+		}
+		spsr = ns_ep_info->spsr;
+		if (GET_RW(spsr) == MODE_RW_64 && GET_EL(spsr) == MODE_EL2) {
+			spsr &= ~(MODE_EL_MASK << MODE_EL_SHIFT);
+			spsr |= MODE_EL1 << MODE_EL_SHIFT;
+		}
+		if (GET_RW(spsr) == MODE_RW_32 && GET_M32(spsr) == MODE32_hyp) {
+			spsr &= ~(MODE32_MASK << MODE32_SHIFT);
+			spsr |= MODE32_svc << MODE32_SHIFT;
+		}
+		if (spsr != ns_ep_info->spsr) {
+			NOTICE("Trusty: Switch bl33 from EL2 to EL1 (spsr 0x%x -> 0x%x)\n",
+			       ns_ep_info->spsr, spsr);
+			ns_ep_info->spsr = spsr;
+		}
+	}
 
 	return 0;
 }

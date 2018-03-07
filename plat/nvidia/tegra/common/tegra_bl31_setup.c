@@ -24,6 +24,9 @@
 #include <tegra_def.h>
 #include <tegra_private.h>
 
+/* length of Trusty's input parameters (in bytes) */
+#define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
+
 extern void zeromem16(void *mem, unsigned int length);
 
 /*******************************************************************************
@@ -58,6 +61,8 @@ static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
 	.tzdram_size = (uint64_t)TZDRAM_SIZE
 };
+static unsigned long bl32_mem_size;
+static unsigned long bl32_boot_params;
 
 /*******************************************************************************
  * This variable holds the non-secure image entry address
@@ -147,8 +152,11 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->bl33_ep_info);
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
 
-	if (from_bl2->bl32_ep_info)
+	if (from_bl2->bl32_ep_info) {
 		bl32_image_ep_info = *from_bl2->bl32_ep_info;
+		bl32_mem_size = from_bl2->bl32_ep_info->args.arg0;
+		bl32_boot_params = from_bl2->bl32_ep_info->args.arg2;
+	}
 
 	/*
 	 * Parse platform specific parameters - TZDRAM aperture base and size
@@ -233,6 +241,15 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n", (impl == DENVER_IMPL) ?
 		"Denver" : "ARM", read_mpidr());
 }
+
+#ifdef SPD_trusty
+void plat_trusty_set_boot_args(aapcs64_params_t *args)
+{
+	args->arg0 = bl32_mem_size;
+	args->arg1 = bl32_boot_params;
+	args->arg2 = TRUSTY_PARAMS_LEN_BYTES;
+}
+#endif
 
 /*******************************************************************************
  * Initialize the gic, configure the SCR.

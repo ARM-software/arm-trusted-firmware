@@ -8,3 +8,11 @@ SPD_INCLUDES		:=
 
 SPD_SOURCES		:=	services/spd/trusty/trusty.c		\
 				services/spd/trusty/trusty_helpers.S
+
+ifeq (${TRUSTY_SPD_WITH_GENERIC_SERVICES},1)
+SPD_SOURCES		+=	services/spd/trusty/generic-arm64-smcall.c
+endif
+
+NEED_BL32		:=	yes
+
+CTX_INCLUDE_FPREGS	:=	1
