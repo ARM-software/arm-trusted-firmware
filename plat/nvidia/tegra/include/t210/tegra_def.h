@@ -196,6 +196,7 @@
  * Tegra Power Mgmt Controller constants
  ******************************************************************************/
 #define TEGRA_PMC_BASE			U(0x7000E400)
+#define TEGRA_PMC_SIZE			U(0xC00) /* 3k */
 
 /*******************************************************************************
  * Tegra Atomics constants

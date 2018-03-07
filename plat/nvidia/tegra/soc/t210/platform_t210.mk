@@ -36,7 +36,8 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
 				${SOC_DIR}/plat_psci_handlers.c			\
 				${SOC_DIR}/plat_setup.c				\
 				${SOC_DIR}/drivers/se/security_engine.c		\
-				${SOC_DIR}/plat_secondary.c
+				${SOC_DIR}/plat_secondary.c		\
+				${SOC_DIR}/plat_sip_calls.c
 
 # Enable workarounds for selected Cortex-A57 erratas.
 A57_DISABLE_NON_TEMPORAL_HINT	:=	1
