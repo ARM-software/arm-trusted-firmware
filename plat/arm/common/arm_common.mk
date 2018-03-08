@@ -137,6 +137,7 @@ BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl1_setup.c			\
 				plat/arm/common/arm_dyn_cfg.c			\
+				plat/arm/common/arm_err.c			\
 				plat/arm/common/arm_io_storage.c
 ifdef EL3_PAYLOAD_BASE
 # Need the arm_program_trusted_mailbox() function to release secondary CPUs from
@@ -150,6 +151,7 @@ BL2_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl2_setup.c			\
+				plat/arm/common/arm_err.c			\
 				plat/arm/common/arm_io_storage.c
 
 # Add `libfdt` and Arm common helpers required for Dynamic Config

@@ -124,7 +124,6 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_bl1_setup.c		\
-				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
 				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_CPU_LIBS}					\
@@ -135,7 +134,6 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
-				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
 				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_SECURITY_SOURCES}
