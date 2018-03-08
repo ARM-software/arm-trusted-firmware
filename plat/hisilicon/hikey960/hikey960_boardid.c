@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -148,23 +148,19 @@ int hikey960_read_boardid(unsigned int *id)
 	/* read ADC channel0 data */
 	get_value(ADC_ADCIN0, &adcin0);
 	adcin0_remap = adcin_data_remap(adcin0);
-	INFO("[BDID]adcin0:%d adcin0_remap:%d\n", adcin0, adcin0_remap);
 	if (adcin0_remap == BOARDID_UNKNOWN)
 		return -EINVAL;
 	/* read ADC channel1 data */
 	get_value(ADC_ADCIN1, &adcin1);
 	adcin1_remap = adcin_data_remap(adcin1);
-	INFO("[BDID]adcin1:%d adcin1_remap:%d\n", adcin1, adcin1_remap);
 	if (adcin1_remap == BOARDID_UNKNOWN)
 		return -EINVAL;
 	/* read ADC channel2 data */
 	get_value(ADC_ADCIN2, &adcin2);
 	adcin2_remap = adcin_data_remap(adcin2);
-	INFO("[BDID]adcin2:%d adcin2_remap:%d\n", adcin2, adcin2_remap);
 	if (adcin2_remap == BOARDID_UNKNOWN)
 		return -EINVAL;
 	*id = BOARDID3_BASE * 1000 + (adcin2_remap * 100) +
 		(adcin1_remap * 10) + adcin0_remap;
-	INFO("[BDID]boardid: %d\n", *id);
 	return 0;
 }

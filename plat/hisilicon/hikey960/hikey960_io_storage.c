@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,11 +39,6 @@ static const io_block_spec_t ufs_fip_spec = {
 	.length		= HIKEY960_FIP_MAX_SIZE,
 };
 
-static const io_block_spec_t ufs_data_spec = {
-	.offset		= 0,
-	.length		= 256 << 20,
-};
-
 static const io_block_dev_spec_t ufs_dev_spec = {
 	/* It's used as temp buffer in block driver. */
 	.buffer		= {
@@ -55,10 +50,6 @@ static const io_block_dev_spec_t ufs_dev_spec = {
 		.write	= ufs_write_lun3_blks,
 	},
 	.block_size	= UFS_BLOCK_SIZE,
-};
-
-static const io_uuid_spec_t bl2_uuid_spec = {
-	.uuid = UUID_TRUSTED_BOOT_FIRMWARE_BL2,
 };
 
 static const io_uuid_spec_t scp_bl2_uuid_spec = {
@@ -91,11 +82,6 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&ufs_fip_spec,
 		check_ufs
 	},
-	[BL2_IMAGE_ID] = {
-		&fip_dev_handle,
-		(uintptr_t)&bl2_uuid_spec,
-		check_fip
-	},
 	[SCP_BL2_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&scp_bl2_uuid_spec,
@@ -125,11 +111,6 @@ static const struct plat_io_policy policies[] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl33_uuid_spec,
 		check_fip
-	},
-	[BL2U_IMAGE_ID] = {
-		&ufs_dev_handle,
-		(uintptr_t)&ufs_data_spec,
-		check_ufs
 	}
 };
 

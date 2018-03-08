@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,10 +65,6 @@ static const io_block_dev_spec_t emmc_dev_spec = {
 	.block_size	= EMMC_BLOCK_SIZE,
 };
 
-static const io_uuid_spec_t bl2_uuid_spec = {
-	.uuid = UUID_TRUSTED_BOOT_FIRMWARE_BL2,
-};
-
 static const io_uuid_spec_t bl31_uuid_spec = {
 	.uuid = UUID_EL3_RUNTIME_FIRMWARE_BL31,
 };
@@ -98,11 +94,6 @@ static const struct plat_io_policy policies[] = {
 		&emmc_dev_handle,
 		(uintptr_t)&emmc_fip_spec,
 		check_emmc
-	},
-	[BL2_IMAGE_ID] = {
-		&fip_dev_handle,
-		(uintptr_t)&bl2_uuid_spec,
-		check_fip
 	},
 	[SCP_BL2_IMAGE_ID] = {
 		&fip_dev_handle,

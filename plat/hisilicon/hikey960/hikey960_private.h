@@ -24,9 +24,14 @@ void hikey960_init_mmu_el3(unsigned long total_base,
 			unsigned long ro_limit,
 			unsigned long coh_start,
 			unsigned long coh_limit);
-void hikey960_init_ufs(void);
 void hikey960_io_setup(void);
 int hikey960_read_boardid(unsigned int *id);
+void hikey960_clk_init(void);
+void hikey960_pmu_init(void);
+void hikey960_regulator_enable(void);
+void hikey960_tzc_init(void);
+void hikey960_peri_init(void);
+void hikey960_pinmux_init(void);
 void set_retention_ticks(unsigned int val);
 void clr_retention_ticks(unsigned int val);
 void clr_ex(void);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -56,8 +56,8 @@
 /*
  * BL2 specific defines.
  */
-#define BL2_BASE			(BL1_RW_BASE + 0x8000)	/* 1AC1_8000 */
-#define BL2_LIMIT			(BL2_BASE + 0x40000)	/* 1AC5_8000 */
+#define BL2_BASE			(0x1AC00000)
+#define BL2_LIMIT			(BL2_BASE + 0x58000)	/* 1AC5_8000 */
 
 /*
  * BL31 specific defines.
@@ -75,12 +75,10 @@
 #define BL32_DRAM_BASE                  DDR_SEC_BASE
 #define BL32_DRAM_LIMIT                 (DDR_SEC_BASE+DDR_SEC_SIZE)
 
-#if LOAD_IMAGE_V2
 #ifdef SPD_opteed
 /* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
 #define HIKEY960_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - HIKEY960_OPTEE_PAGEABLE_LOAD_SIZE) /* 0x3FC0_0000 */
 #define HIKEY960_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
-#endif
 #endif
 
 #if (HIKEY960_TSP_RAM_LOCATION_ID == HIKEY960_DRAM_ID)
@@ -121,12 +119,8 @@
 #endif
 
 #ifdef IMAGE_BL2
-#if LOAD_IMAGE_V2
 #ifdef SPD_opteed
 #define MAX_XLAT_TABLES			4
-#else
-#define MAX_XLAT_TABLES			3
-#endif
 #else
 #define MAX_XLAT_TABLES			3
 #endif
