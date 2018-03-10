@@ -5,12 +5,12 @@
  */
 
 #include <arch_helpers.h>
-#include <board_arm_def.h>
 #include <console.h>
 #include <debug.h>
 #include <errno.h>
 #include <norflash.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <stdint.h>
 
 /*
