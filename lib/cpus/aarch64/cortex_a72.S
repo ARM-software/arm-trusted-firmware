@@ -98,11 +98,15 @@ func check_errata_859971
 endfunc check_errata_859971
 
 func check_errata_cve_2017_5715
+	cpu_check_csv2	x0, 1f
 #if WORKAROUND_CVE_2017_5715
 	mov	x0, #ERRATA_APPLIES
 #else
 	mov	x0, #ERRATA_MISSING
 #endif
+	ret
+1:
+	mov	x0, #ERRATA_NOT_APPLIES
 	ret
 endfunc check_errata_cve_2017_5715
 
@@ -121,8 +125,10 @@ func cortex_a72_reset_func
 #endif
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
+	cpu_check_csv2	x0, 1f
 	adr	x0, workaround_mmu_runtime_exceptions
 	msr	vbar_el3, x0
+1:
 #endif
 
 	/* ---------------------------------------------

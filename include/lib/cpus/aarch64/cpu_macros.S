@@ -229,3 +229,18 @@ CPU_OPS_SIZE = .
 #endif
 
 #endif /* __CPU_MACROS_S__ */
+
+	/*
+	 * This macro is used on some CPUs to detect if they are vulnerable
+	 * to CVE-2017-5715.
+	 */
+	.macro	cpu_check_csv2 _reg _label
+	mrs	\_reg, id_aa64pfr0_el1
+	ubfx	\_reg, \_reg, #ID_AA64PFR0_CSV2_SHIFT, #ID_AA64PFR0_CSV2_LENGTH
+	/*
+	 * If the field equals to 1 then branch targets trained in one
+	 * context cannot affect speculative execution in a different context.
+	 */
+	cmp	\_reg, #1
+	beq	\_label
+	.endm
