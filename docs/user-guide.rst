@@ -1489,13 +1489,14 @@ to load the ELF file over JTAG on Juno.
 Running the software on FVP
 ---------------------------
 
-The latest version of the AArch64 build of TF-A  has been tested on the
-following Arm FVPs (64-bit host machine only).
+The latest version of the AArch64 build of TF-A has been tested on the following
+Arm FVPs without shifted affinities, and that do not support threaded CPU cores
+(64-bit host machine only).
 
 NOTE: Unless otherwise stated, the model version is Version 11.2 Build 11.2.33.
 
 -  ``Foundation_Platform``
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 9.0, Build 0.8.9005)
+-  ``FVP_Base_AEMv8A-AEMv8A`` (and also Version 9.0, Build 0.8.9005)
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
@@ -1505,11 +1506,24 @@ NOTE: Unless otherwise stated, the model version is Version 11.2 Build 11.2.33.
 -  ``FVP_Base_Cortex-A73x4-A53x4``
 -  ``FVP_Base_Cortex-A73x4``
 
-The latest version of the AArch32 build of TF-A has been tested on the
-following Arm FVPs (64-bit host machine only).
+Additionally, the AArch64 build was tested on the following Arm FVPs with
+shifted affinities, supporting threaded CPU cores (64-bit host machine only).
 
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 9.0, Build 0.8.9005)
+-  ``FVP_Base_Cortex-A55x4-A75x4`` (Version 0.0, build 0.0.4395)
+-  ``FVP_Base_Cortex-A55x4`` (Version 0.0, build 0.0.4395)
+-  ``FVP_Base_Cortex-A75x4`` (Version 0.0, build 0.0.4395)
+-  ``FVP_Base_RevC-2xAEMv8A``
+
+The latest version of the AArch32 build of TF-A has been tested on the following
+Arm FVPs without shifted affinities, and that do not support threaded CPU cores
+(64-bit host machine only).
+
+-  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
+
+NOTE: The ``FVP_Base_RevC-2xAEMv8A`` FVP only supports shifted affinities, which
+is not compatible with legacy GIC configurations. Therefore this FVP does not
+support these legacy GIC configurations.
 
 NOTE: The build numbers quoted above are those reported by launching the FVP
 with the ``--version`` parameter.
@@ -1556,23 +1570,36 @@ all FDTs are available from there.
 
 -  ``fvp-base-gicv2-psci.dtb``
 
-   For use with both AEMv8 and Cortex-A57-A53 Base FVPs with
-   Base memory map configuration.
+   For use with models such as the Cortex-A57-A53 Base FVPs without shifted
+   affinities and with Base memory map configuration.
 
 -  ``fvp-base-gicv2-psci-aarch32.dtb``
 
-   For use with AEMv8 and Cortex-A32 Base FVPs running Linux in AArch32 state
-   with Base memory map configuration.
+   For use with models such as the Cortex-A32 Base FVPs without shifted
+   affinities and running Linux in AArch32 state with Base memory map
+   configuration.
 
 -  ``fvp-base-gicv3-psci.dtb``
 
-   (Default) For use with both AEMv8 and Cortex-A57-A53 Base FVPs with Base
-   memory map configuration and Linux GICv3 support.
+   For use with models such as the Cortex-A57-A53 Base FVPs without shifted
+   affinities and with Base memory map configuration and Linux GICv3 support.
+
+-  ``fvp-base-gicv3-psci-1t.dtb``
+
+   For use with models such as the AEMv8-RevC Base FVP with shifted affinities,
+   single threaded CPUs, Base memory map configuration and Linux GICv3 support.
+
+-  ``fvp-base-gicv3-psci-dynamiq.dtb``
+
+   For use with models as the Cortex-A55-A75 Base FVPs with shifted affinities,
+   single cluster, single threaded CPUs, Base memory map configuration and Linux
+   GICv3 support.
 
 -  ``fvp-base-gicv3-psci-aarch32.dtb``
 
-   For use with AEMv8 and Cortex-A32 Base FVPs running Linux in AArch32 state
-   with Base memory map configuration and Linux GICv3 support.
+   For use with models such as the Cortex-A32 Base FVPs without shifted
+   affinities and running Linux in AArch32 state with Base memory map
+   configuration and Linux GICv3 support.
 
 -  ``fvp-foundation-gicv2-psci.dtb``
 
@@ -1622,12 +1649,12 @@ Notes:
 Running on the AEMv8 Base FVP with reset to BL1 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following ``FVP_Base_AEMv8A-AEMv8A`` parameters should be used to boot Linux
+The following ``FVP_Base_RevC-2xAEMv8A`` parameters should be used to boot Linux
 with 8 CPUs using the AArch64 build of TF-A.
 
 ::
 
-    <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
+    <path-to>/FVP_Base_RevC-2xAEMv8A                            \
     -C pctl.startup=0.0.0.0                                     \
     -C bp.secure_memory=1                                       \
     -C bp.tzc_400.diagnostics=1                                 \
@@ -1710,12 +1737,12 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
 Running on the AEMv8 Base FVP with reset to BL31 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following ``FVP_Base_AEMv8A-AEMv8A`` parameters should be used to boot Linux
+The following ``FVP_Base_RevC-2xAEMv8A`` parameters should be used to boot Linux
 with 8 CPUs using the AArch64 build of TF-A.
 
 ::
 
-    <path-to>/FVP_Base_AEMv8A-AEMv8A                             \
+    <path-to>/FVP_Base_RevC-2xAEMv8A                             \
     -C pctl.startup=0.0.0.0                                      \
     -C bp.secure_memory=1                                        \
     -C bp.tzc_400.diagnostics=1                                  \
