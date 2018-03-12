@@ -27,6 +27,7 @@
 #include <spm_hotplug.h>
 #include <spm_mcdi.h>
 #include <spm_suspend.h>
+#include <wdt.h>
 
 #define MTK_PWR_LVL0	0
 #define MTK_PWR_LVL1	1
@@ -350,6 +351,7 @@ static void plat_power_domain_suspend(const psci_power_state_t *state)
 	}
 
 	if (MTK_SYSTEM_PWR_STATE(state) == MTK_LOCAL_STATE_OFF) {
+		wdt_suspend();
 		disable_scu(mpidr);
 		generic_timer_backup();
 		spm_system_suspend();
@@ -409,6 +411,7 @@ static void plat_power_domain_suspend_finish(const psci_power_state_t *state)
 		plat_arm_gic_init();
 		spm_system_suspend_finish();
 		enable_scu(mpidr);
+		wdt_resume();
 	}
 
 	/* Perform the common cluster specific operations */
@@ -455,11 +458,7 @@ static void __dead2 plat_system_reset(void)
 	/* Write the System Configuration Control Register */
 	INFO("MTK System Reset\n");
 
-	mmio_clrsetbits_32(MTK_WDT_BASE,
-		(MTK_WDT_MODE_DUAL_MODE | MTK_WDT_MODE_IRQ),
-		MTK_WDT_MODE_KEY);
-	mmio_setbits_32(MTK_WDT_BASE, (MTK_WDT_MODE_KEY | MTK_WDT_MODE_EXTEN));
-	mmio_setbits_32(MTK_WDT_SWRST, MTK_WDT_SWRST_KEY);
+	wdt_trigger_reset();
 
 	wfi();
 	ERROR("MTK System Reset: operation not handled.\n");

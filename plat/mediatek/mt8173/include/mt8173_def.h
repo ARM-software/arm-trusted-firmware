@@ -80,18 +80,6 @@
 #define PLAT_MT_CCI_CLUSTER0_SL_IFACE_IX	4
 #define PLAT_MT_CCI_CLUSTER1_SL_IFACE_IX	3
 
-/*******************************************************************************
- * WDT related constants
- ******************************************************************************/
-#define MTK_WDT_BASE		(RGU_BASE + 0)
-#define MTK_WDT_SWRST		(MTK_WDT_BASE + 0x0014)
-
-#define MTK_WDT_MODE_DUAL_MODE	0x0040
-#define MTK_WDT_MODE_IRQ	0x0008
-#define MTK_WDT_MODE_KEY	0x22000000
-#define MTK_WDT_MODE_EXTEN	0x0004
-#define MTK_WDT_SWRST_KEY	0x1209
-
 /* FIQ platform related define */
 #define MT_IRQ_SEC_SGI_0	8
 #define MT_IRQ_SEC_SGI_1	9
