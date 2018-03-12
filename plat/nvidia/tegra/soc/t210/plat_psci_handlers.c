@@ -473,6 +473,11 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 			offset = plat_params->tzdram_base - plat_params->sc7entry_fw_base;
 			tegra_memctrl_tzdram_setup(plat_params->sc7entry_fw_base,
 				plat_params->tzdram_size + offset);
+
+			/* restrict PMC access to secure world */
+			val = mmio_read_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE);
+			val |= PMC_SECURITY_EN_BIT;
+			mmio_write_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE, val);
 		}
 	}
 

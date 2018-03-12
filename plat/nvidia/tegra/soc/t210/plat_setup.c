@@ -157,6 +157,7 @@ void plat_late_platform_setup(void)
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 	uint64_t sc7entry_end, offset;
 	int ret;
+	uint32_t val;
 
 	/* memmap TZDRAM area containing the SC7 Entry Firmware */
 	if (plat_params->sc7entry_fw_base && plat_params->sc7entry_fw_size) {
@@ -193,6 +194,11 @@ void plat_late_platform_setup(void)
 				plat_params->sc7entry_fw_size,
 				MT_SECURE | MT_RO_DATA);
 		assert(ret == 0);
+
+		/* restrict PMC access to secure world */
+		val = mmio_read_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE);
+		val |= PMC_SECURITY_EN_BIT;
+		mmio_write_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE, val);
 	}
 }
 

@@ -175,6 +175,8 @@
  ******************************************************************************/
 #define TEGRA_MISC_BASE			U(0x70000000)
 #define  HARDWARE_REVISION_OFFSET	U(0x804)
+#define  APB_SLAVE_SECURITY_ENABLE	U(0xC00)
+#define  PMC_SECURITY_EN_BIT		(U(1) << 13)
 #define  PINMUX_AUX_DVFS_PWM		U(0x3184)
 #define  PINMUX_PWM_TRISTATE		(U(1) << 4)
 
