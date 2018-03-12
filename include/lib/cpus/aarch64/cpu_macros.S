@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,6 +46,8 @@ CPU_MIDR: /* cpu_ops midr */
 CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  8
 #endif
+CPU_EXTRA1_FUNC:
+	.space	8
 #ifdef IMAGE_BL31 /* The power down core and cluster is needed only in BL31 */
 CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
 	.space  (8 * CPU_MAX_PWR_DWN_OPS)
@@ -113,6 +115,10 @@ CPU_OPS_SIZE = .
 	 * _resetfunc:
 	 *	Reset function for the CPU. If there's no CPU reset function,
 	 *	specify CPU_NO_RESET_FUNC
+	 * _extra1:
+	 *	This is a placeholder for future per CPU operations.  Currently,
+	 *	some CPUs use this entry to set a test function to determine if
+	 *	the workaround for CVE-2017-5715 needs to be applied or not.
 	 * _power_down_ops:
 	 *	Comma-separated list of functions to perform power-down
 	 *	operatios on the CPU. At least one, and up to
@@ -122,8 +128,8 @@ CPU_OPS_SIZE = .
 	 *	CPU_MAX_PWR_DWN_OPS functions, the last specified one will be
 	 *	used to handle power down at subsequent levels
 	 */
-	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
-		_power_down_ops:vararg
+	.macro declare_cpu_ops_base _name:req, _midr:req, _resetfunc:req, \
+		_extra1:req, _power_down_ops:vararg
 	.section cpu_ops, "a"
 	.align 3
 	.type cpu_ops_\_name, %object
@@ -131,6 +137,7 @@ CPU_OPS_SIZE = .
 #if defined(IMAGE_AT_EL3)
 	.quad \_resetfunc
 #endif
+	.quad \_extra1
 #ifdef IMAGE_BL31
 1:
 	/* Insert list of functions */
@@ -185,6 +192,18 @@ CPU_OPS_SIZE = .
 #if defined(IMAGE_BL31) && CRASH_REPORTING
 	.quad \_name\()_cpu_reg_dump
 #endif
+	.endm
+
+	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
+		_power_down_ops:vararg
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, \
+			\_power_down_ops
+	.endm
+
+	.macro declare_cpu_ops_workaround_cve_2017_5715 _name:req, _midr:req, \
+		_resetfunc:req, _extra1:req, _power_down_ops:vararg
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
+			\_extra1, \_power_down_ops
 	.endm
 
 #if REPORT_ERRATA

@@ -292,8 +292,8 @@ func cortex_a72_cpu_reg_dump
 	ret
 endfunc cortex_a72_cpu_reg_dump
 
-
-declare_cpu_ops cortex_a72, CORTEX_A72_MIDR, \
+declare_cpu_ops_workaround_cve_2017_5715 cortex_a72, CORTEX_A72_MIDR, \
 	cortex_a72_reset_func, \
+	check_errata_cve_2017_5715, \
 	cortex_a72_core_pwr_dwn, \
 	cortex_a72_cluster_pwr_dwn

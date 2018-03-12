@@ -170,7 +170,8 @@ func cortex_a73_cpu_reg_dump
 	ret
 endfunc cortex_a73_cpu_reg_dump
 
-declare_cpu_ops cortex_a73, CORTEX_A73_MIDR, \
+declare_cpu_ops_workaround_cve_2017_5715 cortex_a73, CORTEX_A73_MIDR, \
 	cortex_a73_reset_func, \
+	check_errata_cve_2017_5715, \
 	cortex_a73_core_pwr_dwn, \
 	cortex_a73_cluster_pwr_dwn
