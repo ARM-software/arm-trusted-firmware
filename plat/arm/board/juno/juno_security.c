@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -59,7 +59,7 @@ void plat_arm_security_setup(void)
 	/* Initialize debug configuration */
 	init_debug_cfg();
 	/* Initialize the TrustZone Controller */
-	arm_tzc400_setup();
+	arm_tzc400_setup(NULL);
 	/* Do ARM CSS internal NIC setup */
 	css_init_nic400();
 	/* Do ARM CSS SoC security setup */
