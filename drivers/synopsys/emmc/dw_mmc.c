@@ -321,6 +321,7 @@ static int dw_set_ios(int clk, int width)
 		break;
 	default:
 		assert(0);
+		break;
 	}
 	dw_set_clk(clk);
 	return 0;

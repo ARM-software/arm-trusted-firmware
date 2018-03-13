@@ -459,6 +459,7 @@ void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
 		break;
 	default:
 		assert(0);
+		break;
 	}
 	spin_unlock(&gic_lock);
 }
