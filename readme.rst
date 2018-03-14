@@ -1,21 +1,24 @@
-Trusted Firmware-A - version 1.4
+Trusted Firmware-A - version 1.5
 ================================
 
 Trusted Firmware-A (TF-A) provides a reference implementation of secure world
-software for `Armv8-A`_, including a `Secure Monitor`_ executing at Exception
-Level 3 (EL3). It implements various Arm interface standards, such as:
+software for `Armv7-A and Armv8-A`_, including a `Secure Monitor`_ executing
+at Exception Level 3 (EL3). It implements various Arm interface standards,
+such as:
 
 -  The `Power State Coordination Interface (PSCI)`_
 -  Trusted Board Boot Requirements (TBBR, Arm DEN0006C-1)
 -  `SMC Calling Convention`_
 -  `System Control and Management Interface`_
+-  `Software Delegated Exception Interface (SDEI)`_
 
-As far as possible the code is designed for reuse or porting to other Armv8-A
-model and hardware platforms.
+As far as possible the code is designed for reuse or porting to other Armv7-A
+and Armv8-A models and hardware platforms.
 
 Arm will continue development in collaboration with interested parties to
 provide a full reference implementation of Secure Monitor code and Arm standards
-to the benefit of all developers working with Armv8-A TrustZone technology.
+to the benefit of all developers working with Armv7-A and Armv8-A TrustZone
+technology.
 
 License
 -------
@@ -37,7 +40,10 @@ license text is included in those source files.
    project under the terms of the NCSA license (also known as the University of
    Illinois/NCSA Open Source License).
 
-This Release
+-  The zlib source code is licensed under the Zlib license, which is a
+   permissive license compatible with BSD-3-Clause.
+
+This release
 ------------
 
 This release provides a suitable starting point for productization of secure
@@ -96,9 +102,27 @@ Functionality
 -  Pre-integration of TBB with the Arm TrustZone CryptoCell product, to take
    advantage of its hardware Root of Trust and crypto acceleration services.
 
+-  Reliability, Availability, and Serviceability (RAS) functionality, including
+
+   -  A Secure Partition Manager (SPM) to manage Secure Partitions in
+      Secure-EL0, which can be used to implement simple management and
+      security services.
+
+   -  An SDEI dispatcher to route interrupt-based SDEI events.
+
+   -  An Exception Handling Framework (EHF) that allows dispatching of EL3
+      interrupts to their registered handlers, to facilitate firmware-first
+      error handling.
+
+-  A dynamic configuration framework that enables each of the firmware images
+   to be configured at runtime if required by the platform. It also enables
+   loading of a hardware configuration (for example, a kernel device tree)
+   as part of the FIP, to be passed through the firmware stages.
+
 -  Support for alternative boot flows, for example to support platforms where
    the EL3 Runtime Software is loaded using other firmware or a separate
-   secure system processor.
+   secure system processor, or where a non-TF-A ROM expects BL2 to be loaded
+   at EL3.
 
 -  Support for the GCC, LLVM and Arm Compiler 6 toolchains.
 
@@ -113,12 +137,13 @@ Various AArch32 and AArch64 builds of this release has been tested on variants
 r0, r1 and r2 of the `Juno Arm Development Platform`_.
 
 Various AArch64 builds of this release have been tested on the following Arm
-`FVP`_\ s (64-bit host machine only):
+Fixed Virtual Platforms (`FVP`_) without shifted affinities, and that do not
+support threaded CPU cores (64-bit host machine only):
 
-NOTE: Unless otherwise stated, the FVP Version is 11.0, Build 11.0.34.
+NOTE: Unless otherwise stated, the FVP Version is 11.2 Build 11.2.33.
 
 -  ``Foundation_Platform``
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.5, Build 0.8.8502)
+-  ``FVP_Base_AEMv8A-AEMv8A`` (and also Version 9.0, Build 0.8.9005)
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
@@ -127,44 +152,56 @@ NOTE: Unless otherwise stated, the FVP Version is 11.0, Build 11.0.34.
 -  ``FVP_Base_Cortex-A72x4``
 -  ``FVP_Base_Cortex-A73x4-A53x4``
 -  ``FVP_Base_Cortex-A73x4``
--  ``FVP_CSS_SGM-775`` (Version 11.0, Build 11.0.36)
+
+Additionally, various AArch64 builds were tested on the following Arm `FVP`_ s
+with shifted affinities, supporting threaded CPU cores (64-bit host machine
+only).
+
+-  ``FVP_Base_Cortex-A55x4-A75x4`` (Version 0.0, build 0.0.4395)
+-  ``FVP_Base_Cortex-A55x4`` (Version 0.0, build 0.0.4395)
+-  ``FVP_Base_Cortex-A75x4`` (Version 0.0, build 0.0.4395)
+-  ``FVP_Base_RevC-2xAEMv8A``
 
 Various AArch32 builds of this release has been tested on the following Arm
-`FVP`_\ s (64-bit host machine only):
+`FVP`_\ s without shifted affinities, and that do not support threaded CPU cores
+(64-bit host machine only):
 
--  ``FVP_Base_AEMv8A-AEMv8A`` (Version 8.5, Build 0.8.8502)
+-  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
 
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from Arm. See the `Arm FVP website`_.
 
-All the above platforms have been tested with `Linaro Release 17.04`_.
+All the above platforms have been tested with `Linaro Release 17.10`_.
 
 This release also contains the following platform support:
 
--  HiKey and HiKey960 boards
+-  HiKey, HiKey960 and Poplar boards
 -  MediaTek MT6795 and MT8173 SoCs
 -  NVidia T132, T186 and T210 SoCs
 -  QEMU emulator
+-  Raspberry Pi 3 board
 -  RockChip RK3328, RK3368 and RK3399 SoCs
 -  Socionext UniPhier SoC family
 -  Xilinx Zynq UltraScale + MPSoC
 
-Still to Come
+Still to come
 ~~~~~~~~~~~~~
 
 -  More platform support.
 
+-  Improved dynamic configuration support.
+
 -  Ongoing support for new architectural features, CPUs and System IP.
 
--  Ongoing support for new `PSCI`_, `SCMI`_ and TBBR features.
+-  Ongoing support for new Arm system architecture specifications.
 
 -  Ongoing security hardening, optimization and quality improvements.
 
 For a full list of detailed issues in the current code, please see the `Change
 Log`_ and the `GitHub issue tracker`_.
 
-Getting Started
+Getting started
 ---------------
 
 Get the TF-A source code from `GitHub`_.
@@ -195,17 +232,19 @@ Arm licensees may contact Arm directly via their partner managers.
 
 *Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
-.. _Armv8-A: http://www.arm.com/products/processors/armv8-architecture.php
+.. _Armv7-A and Armv8-A: https://developer.arm.com/products/architecture/a-profile
 .. _Secure Monitor: http://www.arm.com/products/processors/technologies/trustzone/tee-smc.php
 .. _Power State Coordination Interface (PSCI): PSCI_
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _System Control and Management Interface: SCMI_
 .. _SCMI: http://infocenter.arm.com/help/topic/com.arm.doc.den0056a/DEN0056A_System_Control_and_Management_Interface.pdf
+.. _Software Delegated Exception Interface (SDEI): SDEI
+.. _SDEI: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _Juno Arm Development Platform: http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php
 .. _Arm FVP website: FVP_
 .. _FVP: https://developer.arm.com/products/system-design/fixed-virtual-platforms
-.. _Linaro Release 17.04: https://community.arm.com/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease17.04
+.. _Linaro Release 17.10: https://community.arm.com/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease17.10
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
 .. _NVidia Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
