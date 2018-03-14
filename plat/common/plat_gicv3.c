@@ -158,15 +158,14 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 			return __builtin_ctz(SCR_FIQ_BIT);
 		else
 			return __builtin_ctz(SCR_IRQ_BIT);
-	default:
-		assert(0);
-		/* Fall through in the release build */
 	case INTR_TYPE_EL3:
 		/*
 		 * The EL3 interrupts are signaled as FIQ in both S-EL0/1 and
 		 * NS-EL0/1/2 contexts
 		 */
 		return __builtin_ctz(SCR_FIQ_BIT);
+	default:
+		panic();
 	}
 }
 
